@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def on_request_uri(cli, request)
-		print_status("Request '#{request.uri}' from #{cli.peerhost}:#{cli.peerport}")
+		print_status("Request '#{request.uri}'...")
 
 		# If the host has not started auth, send 401 authenticate with only the NTLM option
 		if(!request.headers['Authorization'])

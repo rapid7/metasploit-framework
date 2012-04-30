@@ -8,6 +8,10 @@ require 'fileutils'
 # Provide access to ActiveRecord models shared w/ commercial versions
 require "metasploit_data_models"
 
+# Patches issues with ActiveRecord
+require "msf/core/patches/active_record"
+
+
 require 'fileutils'
 
 module Msf
@@ -178,6 +182,9 @@ class DBManager
 
 		# Prefer the config file's pool setting
 		nopts['pool'] ||= 75
+		
+		# Prefer the config file's wait_timeout setting too
+		nopts['wait_timeout'] ||= 300
 
 		begin
 			self.migrated = false

