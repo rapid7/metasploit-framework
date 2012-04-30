@@ -12,7 +12,7 @@
 require 'msf/core'
 require 'msf/core/post/windows/registry'
 
-require 'nokogiri'
+require 'rexml/document'
 require 'base64'
 
 class Metasploit3 < Msf::Post
