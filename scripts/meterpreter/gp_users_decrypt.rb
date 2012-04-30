@@ -29,7 +29,7 @@ f4 96 e8 06  cc 05 79 90  20 9b 09 a4  33 b6 6c 1b
 	aes.key = key
 	password = (aes.update(encoded) + aes.final)
 	# take suffix out
-	password = password[0..-(password[-1].ord+1)]
+	password = password[0..-(password[-1,1].unpack("C")[0]+1)]
 	return password
 end
 
