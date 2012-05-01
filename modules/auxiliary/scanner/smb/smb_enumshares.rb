@@ -80,6 +80,7 @@ class Metasploit3 < Msf::Auxiliary
 				return
 			end
 		end
+		return if res.nil?
 
 		lerror, lconv, lentries, lcount = res['Payload'].to_s[
 			res['Payload'].v['ParamOffset'],
