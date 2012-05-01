@@ -167,43 +167,42 @@ class Metasploit3 < Msf::Auxiliary
 		@shares = []
 
 		[[139, false], [445, true]].each do |info|
+			datastore['RPORT'] = info[0]
+			datastore['SMBDirect'] = info[1]
 
-		datastore['RPORT'] = info[0]
-		datastore['SMBDirect'] = info[1]
+			begin
+				connect
+				smb_login
+				if datastore['USE_SRVSVC_ONLY']
+					srvsvc_netshareenum
+				else
+					#If not implemented by target, will fall back to srvsvc_netshareenum
+					lanman_netshareenum
+				end
 
-		begin
-			connect
-			smb_login
-			if datastore['USE_SRVSVC_ONLY']
-				srvsvc_netshareenum
-			else
-				#If not implemented by target, will fall back to srvsvc_netshareenum
-				lanman_netshareenum
+				if not @shares.empty?
+					print_status("#{ip}:#{rport} #{@shares.map{|x| "#{x[0]} - #{x[2]} (#{x[1]})" }.join(", ")}")
+					report_note(
+						:host => ip,
+						:proto => 'tcp',
+						:port => rport,
+						:type => 'smb.shares',
+						:data => { :shares => @shares },
+						:update => :unique_data
+					)
+				end
+
+				disconnect
+				return
+			rescue ::Timeout::Error
+			rescue ::Interrupt
+				raise $!
+			rescue ::Rex::ConnectionError
+			rescue ::Rex::Proto::SMB::Exceptions::LoginError
+				next
+			rescue ::Exception => e
+				print_line("Error: #{ip} #{e.class} #{e}")
 			end
-
-			if not @shares.empty?
-				print_status("#{ip}:#{rport} #{@shares.map{|x| "#{x[0]} - #{x[2]} (#{x[1]})" }.join(", ")}")
-				report_note(
-					:host => ip,
-					:proto => 'tcp',
-					:port => rport,
-					:type => 'smb.shares',
-					:data => { :shares => @shares },
-					:update => :unique_data
-				)
-			end
-
-			disconnect
-			return
-		rescue ::Timeout::Error
-		rescue ::Interrupt
-			raise $!
-		rescue ::Rex::ConnectionError
-		rescue ::Rex::Proto::SMB::Exceptions::LoginError
-			next
-		rescue ::Exception => e
-			print_line("Error: #{ip} #{e.class} #{e}")
-		end
 		end
 	end
 
