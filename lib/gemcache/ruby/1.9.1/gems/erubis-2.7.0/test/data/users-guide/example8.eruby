@@ -1,0 +1,6 @@
+<h1><%= @title %></h1>
+<ul>
+<% for item in @list %>
+ <li><%= item %></li>
+<% end %>
+</ul>

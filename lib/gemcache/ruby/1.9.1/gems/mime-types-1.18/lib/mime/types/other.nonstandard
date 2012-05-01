@@ -1,0 +1,8 @@
+!chemical/x-pdb @pdb =use-instead:x-chemical/x-pdb
+!chemical/x-xyz @xyz =use-instead:x-chemical/x-xyz
+*!drawing/dwf @dwf =use-instead:x-drawing/dwf
+x-chemical/x-pdb @pdb
+x-chemical/x-xyz @xyz
+x-conference/x-cooltalk @ice
+x-drawing/dwf @dwf
+x-world/x-vrml @wrl,vrml

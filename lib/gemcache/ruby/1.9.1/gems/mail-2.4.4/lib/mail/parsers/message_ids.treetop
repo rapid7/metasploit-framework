@@ -1,0 +1,15 @@
+module Mail
+  grammar MessageIds
+
+    include RFC2822
+
+    rule primary
+      message_ids {
+        def message_ids
+          [first_msg_id] + other_msg_ids.elements.map { |o| o.msg_id_value }
+        end
+      }
+    end
+    
+  end
+end

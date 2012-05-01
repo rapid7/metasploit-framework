@@ -197,8 +197,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				@results[hkey] ||= {}
 				data = @results[hkey]
-
-				data[:app]  = "pcAnywhere"
+				data[:app]  = "pcAnywhere_stat"
 				data[:port] = pkt[2]
 				data[:host] = pkt[1]
 

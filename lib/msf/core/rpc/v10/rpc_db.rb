@@ -23,13 +23,14 @@ private
 	end
 
 	def opts_to_hosts(opts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace = find_workspace(opts[:workspace])
 		hosts  = []
 		if opts[:host] or opts[:address]
 			host = opts[:host] || opts[:address]
 			hent = wspace.hosts.find_by_address(host)
 			return hosts if hent == nil
-			hosts << hent if hent.class == Msf::DBManager::Host
+			hosts << hent if hent.class == ::Mdm::Host
 			hosts |= hent if hent.class == Array
 		elsif opts[:addresses]
 			return hosts if opts[:addresses].class != Array
@@ -39,9 +40,11 @@ private
 			hosts |= hent if hent.class == Array
 		end
 		return hosts
+	}
 	end
 
 	def opts_to_services(hosts,opts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace = find_workspace(opts[:workspace])
 		services = []
 		if opts[:host] or opts[:address] or opts[:addresses]
@@ -54,7 +57,7 @@ private
 					sret = h.services.all(:conditions => conditions)
 					next if sret == nil
 					services |= sret if sret.class == Array
-					services << sret if sret.class == Msf::DBManager::Service
+					services << sret if sret.class == ::Mdm::Service
 				else
 					services |= h.services
 				end
@@ -65,9 +68,10 @@ private
 			conditions[:proto] = opts[:proto] if opts[:proto]
 			sret = wspace.services.all(:conditions => conditions)
 			services |= sret if sret.class == Array
-			services << sret if sret.class == Msf::DBManager::Service
+			services << sret if sret.class == ::Mdm::Service
 		end
 		return services
+	}
 	end
 
 	def db_check
@@ -84,6 +88,7 @@ private
 public
 
 	def rpc_hosts(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 
 		conditions = {}
@@ -113,9 +118,11 @@ public
 			ret[:hosts]  << host
 		end
 		ret
+	}
 	end
 
 	def rpc_services( xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 		limit = opts.delete(:limit) || 100
 		offset = opts.delete(:offset) || 0
@@ -145,9 +152,11 @@ public
 			ret[:services] << service
 		end
 		ret
+	}
 	end
 
 	def rpc_vulns(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 		limit = opts.delete(:limit) || 100
 		offset = opts.delete(:offset) || 0
@@ -177,6 +186,7 @@ public
 			ret[:vulns] << vuln
 		end
 		ret
+	}
 	end
 
 	def rpc_workspaces
@@ -215,6 +225,7 @@ public
 	end
 
 	def rpc_set_workspace(wspace)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		db_check
 		workspace = self.framework.db.find_workspace(wspace)
 		if(workspace)
@@ -222,9 +233,11 @@ public
 			return { 'result' => "success" }
 		end
 		{ 'result' => 'failed' }
+	}
 	end
 
 	def rpc_del_workspace(wspace)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		db_check
 		# Delete workspace
 		workspace = self.framework.db.find_workspace(wspace)
@@ -240,16 +253,20 @@ public
 			workspace.destroy
 		end
 		{ 'result' => "success" }
+	}
 	end
 
 	def rpc_add_workspace(wspace)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		db_check
 		wspace = self.framework.db.add_workspace(wspace)
 		return { 'result' => 'success' } if(wspace)
 		{ 'result' => 'failed' }
+	}
 	end
 
 	def rpc_get_host(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 
 		ret = {}
@@ -273,25 +290,30 @@ public
 			ret[:host] << host
 		end
 		ret
+	}
 	end
 
 	def rpc_report_host(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 
 		res = self.framework.db.report_host(opts)
 		return { :result => 'success' } if(res)
 		{ :result => 'failed' }
-
+	}
 	end
 
 	def rpc_report_service(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 		res = self.framework.db.report_service(opts)
 		return { :result => 'success' } if(res)
 		{ :result => 'failed' }
+	}
 	end
 
 	def rpc_get_service(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 
 		ret = {}
@@ -315,7 +337,7 @@ public
 			sret = host.services
 		end
 		return ret if sret == nil
-		services << sret if sret.class == Msf::DBManager::Service
+		services << sret if sret.class == ::Mdm::Service
 		services |= sret if sret.class == Array
 
 
@@ -333,9 +355,11 @@ public
 			ret[:service] << service
 		end
 		ret
+	}
 	end
 
 	def rpc_get_note(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 
 		ret = {}
@@ -349,7 +373,7 @@ public
 			services = []
 			nret = host.services.find_by_proto_and_port(opts[:proto], opts[:port])
 			return ret if nret == nil
-			services << nret if nret.class == Msf::DBManager::Service
+			services << nret if nret.class == ::Mdm::Service
 			services |= nret if nret.class == Array
 
 			services.each do |s|
@@ -360,7 +384,7 @@ public
 					nret = s.notes
 				end
 				next if nret == nil
-				notes << nret if nret.class == Msf::DBManager::Note
+				notes << nret if nret.class == ::Mdm::Note
 				notes |= nret if nret.class == Array
 			end
 		else
@@ -383,9 +407,11 @@ public
 			ret[:note] << note
 		end
 		ret
+	}
 	end
 
 	def rpc_get_client(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 		ret = {}
 		ret[:client] = []
@@ -402,17 +428,21 @@ public
 			ret[:client] << client
 		end
 		ret
+	}
 	end
 
 	def rpc_report_client(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 		res = self.framework.db.report_client(opts)
 		return { :result => 'success' } if(res)
 		{ :result => 'failed' }
+	}
 	end
 
 	#DOC NOTE: :data and :ntype are REQUIRED
 	def rpc_report_note(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 		if (opts[:host] or opts[:address]) and opts[:port] and opts[:proto]
 			addr = opts[:host] || opts[:address]
@@ -425,9 +455,11 @@ public
 		res = self.framework.db.report_note(opts)
 		return { :result => 'success' } if(res)
 		{ :result => 'failed' }
+	}
 	end
 
 	def rpc_notes(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 		limit = opts.delete(:limit) || 100
 		offset = opts.delete(:offset) || 0
@@ -454,19 +486,24 @@ public
 			ret[:notes] << note
 		end
 		ret
+	}
 	end
 
 	def rpc_report_auth_info(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 		res = self.framework.db.report_auth_info(opts)
 		return { :result => 'success' } if(res)
 		{ :result => 'failed' }
+	}
 	end
 
 	def rpc_get_auth_info(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 		ret = {}
 		ret[:auth_info] = []
+		# XXX: This method doesn't exist...
 		ai = self.framework.db.get_auth_info(opts)
 		ai.each do |i|
 			info = {}
@@ -476,14 +513,18 @@ public
 			ret[:auth_info] << info
 		end
 		ret
+	}
 	end
 
 	def rpc_get_ref(name)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		db_check
 		self.framework.db.get_ref(name)
+	}
 	end
 
 	def rpc_del_vuln(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 		hosts  = []
 		services = []
@@ -510,7 +551,7 @@ public
 					vret = s.vulns
 				end
 				next if vret == nil
-				vulns << vret if vret.class == Msf::DBManager::Vuln
+				vulns << vret if vret.class == ::Mdm::Vuln
 				vulns |= vret if vret.class == Array
 			end
 		elsif opts[:address] or opts[:host] or opts[:addresses]
@@ -522,7 +563,7 @@ public
 					vret = h.vulns
 				end
 				next if vret == nil
-				vulns << vret if vret.class == Msf::DBManager::Vuln
+				vulns << vret if vret.class == ::Mdm::Vuln
 				vulns |= vret if vret.class == Array
 			end
 		else
@@ -532,7 +573,7 @@ public
 			else
 				vret = wspace.vulns
 			end
-			vulns << vret if vret.class == Msf::DBManager::Vuln
+			vulns << vret if vret.class == ::Mdm::Vuln
 			vulns |= vret if vret.class == Array
 		end
 
@@ -548,9 +589,11 @@ public
 		end
 
 		return { :result => 'success', :deleted => deleted }
+	}
 	end
 
 	def rpc_del_note(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 		hosts  = []
 		services = []
@@ -577,7 +620,7 @@ public
 					nret = s.notes
 				end
 				next if nret == nil
-				notes << nret if nret.class == Msf::DBManager::Note
+				notes << nret if nret.class == ::Mdm::Note
 				notes |= nret if nret.class == Array
 			end
 		elsif opts[:address] or opts[:host] or opts[:addresses]
@@ -589,7 +632,7 @@ public
 					nret = h.notes
 				end
 				next if nret == nil
-				notes << nret if nret.class == Msf::DBManager::Note
+				notes << nret if nret.class == ::Mdm::Note
 				notes |= nret if nret.class == Array
 			end
 		else
@@ -599,7 +642,7 @@ public
 			else
 				nret = wspace.notes
 			end
-			notes << nret if nret.class == Msf::DBManager::Note
+			notes << nret if nret.class == ::Mdm::Note
 			notes |= nret if nret.class == Array
 		end
 		deleted = []
@@ -614,16 +657,18 @@ public
 		end
 
 		return { :result => 'success', :deleted => deleted }
+	}
 	end
 
 	def rpc_del_service(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 		hosts  = []
 		services = []
 		if opts[:host] or opts[:address]
 			host = opts[:host] || opts[:address]
 			hent = wspace.hosts.find_by_address(host)
-			return { :result => 'failed' } if hent == nil or hent.class != Msf::DBManager::Host
+			return { :result => 'failed' } if hent == nil or hent.class != ::Mdm::Host
 			hosts << hent
 		elsif opts[:addresses]
 			return { :result => 'failed' } if opts[:addresses].class != Array
@@ -631,7 +676,7 @@ public
 			hent = wspace.hosts.all(:conditions => conditions)
 			return { :result => 'failed' } if hent == nil
 			hosts |= hent if hent.class == Array
-			hosts << hent if hent.class == Msf::DBManager::Host
+			hosts << hent if hent.class == ::Mdm::Host
 		end
 		if opts[:addresses] or opts[:address] or opts[:host]
 			hosts.each do |h|
@@ -642,7 +687,7 @@ public
 					conditions[:proto] = opts[:proto] if opts[:proto]
 					sret = h.services.all(:conditions => conditions)
 					next if sret == nil
-					services << sret if sret.class == Msf::DBManager::Service
+					services << sret if sret.class == ::Mdm::Service
 					services |= sret if sret.class == Array
 				else
 					services |= h.services
@@ -653,7 +698,7 @@ public
 			conditions[:port] = opts[:port] if opts[:port]
 			conditions[:proto] = opts[:proto] if opts[:proto]
 			sret = wspace.services.all(:conditions => conditions)
-			services << sret if sret and sret.class == Msf::DBManager::Service
+			services << sret if sret and sret.class == ::Mdm::Service
 			services |= sret if sret and sret.class == Array
 		end
 
@@ -668,9 +713,11 @@ public
 		end
 
 		return { :result => 'success', :deleted => deleted }
+	}
 	end
 
 	def rpc_del_host(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		db_check
 		opts = fix_options(xopts)
 		wspace = find_workspace(opts[:workspace])
@@ -678,7 +725,7 @@ public
 		if opts[:host] or opts[:address]
 			host = opts[:host] || opts[:address]
 			hent = wspace.hosts.find_by_address(host)
-			return { :result => 'failed' } if hent == nil or hent.class != Msf::DBManager::Host
+			return { :result => 'failed' } if hent == nil or hent.class != ::Mdm::Host
 			hosts << hent
 		elsif opts[:addresses]
 			return { :result => 'failed' } if opts[:addresses].class != Array
@@ -686,7 +733,7 @@ public
 			hent = wspace.hosts.all(:conditions => conditions)
 			return { :result => 'failed' } if hent == nil
 			hosts |= hent if hent.class == Array
-			hosts << hent if hent.class == Msf::DBManager::Host
+			hosts << hent if hent.class == ::Mdm::Host
 		end
 		deleted = []
 		hosts.each do |h|
@@ -695,18 +742,22 @@ public
 		end
 
 		return { :result => 'success', :deleted => deleted }
+	}
 	end
 
 	def rpc_report_vuln(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		db_check
 		opts = fix_options(xopts)
 		opts[:workspace] = find_workspace(opts[:workspace]) if opts[:workspace]
 		res = self.framework.db.report_vuln(opts)
 		return { :result => 'success' } if(res)
 		{ :result => 'failed' }
+	}
 	end
 
 	def rpc_events(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 		limit = opts.delete(:limit) || 100
 		offset = opts.delete(:offset) || 0
@@ -726,17 +777,21 @@ public
 			ret[:events] << event
 		end
 		ret
+	}
 	end
 
 	def rpc_report_event(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 		res = self.framework.db.report_event(opts)
 		{ :result => 'success' } if(res)
+	}
 	end
 
 	#NOTE Path is required
 	#NOTE To match a service need host, port, proto
 	def rpc_report_loot(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 		if opts[:host] && opts[:port] && opts[:proto]
 			opts[:service] = self.framework.db.find_or_create_service(opts)
@@ -744,9 +799,11 @@ public
 
 		res = self.framework.db.report_loot(opts)
 		{ :result => 'success' } if(res)
+	}
 	end
 
 	def rpc_loots(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 		limit = opts.delete(:limit) || 100
 		offset = opts.delete(:offset) || 0
@@ -767,25 +824,29 @@ public
 			ret[:loots] << loot
 		end
 		ret
+	}
 	end
 
 	# requires host, port, user, pass, ptype, and active
 	def rpc_report_cred(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 		res = framework.db.find_or_create_cred(opts)
 		return { :result => 'success' } if res
 		{ :result => 'failed' }
+	}
 	end
 
 	#right now workspace is the only option supported
 	def rpc_creds(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 		limit = opts.delete(:limit) || 100
 		offset = opts.delete(:offset) || 0
 
 		ret = {}
 		ret[:creds] = []
-		DBManager::Cred.find(:all, :include => {:service => :host}, :conditions => ["hosts.workspace_id = ?",
+		::Mdm::Cred.find(:all, :include => {:service => :host}, :conditions => ["hosts.workspace_id = ?",
 				framework.db.workspace.id ], :limit => limit, :offset => offset).each do |c|
 			cred = {}
 			cred[:host] = c.service.host.address if(c.service.host)
@@ -800,15 +861,19 @@ public
 			ret[:creds] << cred
 		end
 		ret
+	}
 	end
 
 	def rpc_import_data(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 		self.framework.db.import(opts)
 		return { :result => 'success' }
+	}
 	end
 
 	def rpc_get_vuln(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 
 		ret = {}
@@ -823,7 +888,7 @@ public
 			services = []
 			sret = host.services.find_by_proto_and_port(opts[:proto], opts[:port])
 			return ret if sret == nil
-			services << sret if sret.class == Msf::DBManager::Service
+			services << sret if sret.class == ::Mdm::Service
 			services |= sret if sret.class == Array
 
 			services.each do |s|
@@ -854,9 +919,11 @@ public
 			ret[:vuln] << vuln
 		end
 		ret
+	}
 	end
 
 	def rpc_clients(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		opts, wspace = init_db_opts_workspace(xopts)
 		limit = opts.delete(:limit) || 100
 		offset = opts.delete(:offset) || 0
@@ -881,9 +948,11 @@ public
 			ret[:clients] << client
 		end
 		ret
+	}
 	end
 
 	def rpc_del_client(xopts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		db_check
 		opts = fix_options(xopts)
 		wspace = find_workspace(opts[:workspace])
@@ -907,7 +976,7 @@ public
 				cret = h.clients
 			end
 			next if cret == nil
-			clients << cret if cret.class == Msf::DBManager::Client
+			clients << cret if cret.class == ::Mdm::Client
 			clients |= cret if cret.class == Array
 		end
 
@@ -921,6 +990,7 @@ public
 		end
 
 		{ :result => 'success', :deleted => deleted }
+	}
 	end
 
 	def rpc_driver(xopts)
@@ -975,12 +1045,14 @@ public
 		end
 
 		cdb = ""
-		if ActiveRecord::Base.connected? and ActiveRecord::Base.connection.active?
-			if ActiveRecord::Base.connection.respond_to? :current_database
-				cdb = ActiveRecord::Base.connection.current_database
-			else
-				cdb = ActiveRecord::Base.connection.instance_variable_get(:@config)[:database]
-			end
+		if ::ActiveRecord::Base.connected?
+			::ActiveRecord::Base.connection_pool.with_connection { |conn|
+				if conn.respond_to? :current_database
+					cdb = conn.current_database
+				else
+					cdb = conn.instance_variable_get(:@config)[:database]
+				end
+			}
 			return {:driver => self.framework.db.driver.to_s , :db => cdb }
 		else
 			return {:driver => self.framework.db.driver.to_s}

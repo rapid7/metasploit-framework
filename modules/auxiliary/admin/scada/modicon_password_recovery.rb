@@ -197,7 +197,7 @@ class Metasploit3 < Msf::Auxiliary
 		# Can be used for telnet as well if telnet is enabled.
 			report_note(
 				:host => ip,
-				:port => 21,
+				:port => rport,
 				:proto => 'tcp',
 				:sname => 'ftp',
 				:ntype => 'scada.modicon.ftp-password',

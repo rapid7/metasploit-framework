@@ -1,0 +1,38 @@
+$ ruby fasteruby.rb
+---------- script source ---
+_buf = ''; _buf << %Q`<html>
+  <body>
+    <h1>#{Erubis::XmlHelper.escape_xml( @title )}</h1>
+    <table>\n`
+ i = 0 
+ for item in @list 
+   i += 1 
+ _buf << %Q`      <tr>
+        <td>#{ i }</td>
+        <td>#{Erubis::XmlHelper.escape_xml( item )}</td>
+      </tr>\n`
+ end 
+ _buf << %Q`    </table>
+  </body>
+</html>\n`
+_buf.to_s
+---------- result ----------
+<html>
+  <body>
+    <h1>Example</h1>
+    <table>
+      <tr>
+        <td>1</td>
+        <td>aaa</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>bbb</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>ccc</td>
+      </tr>
+    </table>
+  </body>
+</html>

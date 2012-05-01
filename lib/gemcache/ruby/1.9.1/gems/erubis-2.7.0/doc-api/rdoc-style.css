@@ -1,0 +1,208 @@
+
+body {
+    font-family: Verdana,Arial,Helvetica,sans-serif;
+    font-size:   90%;
+    margin: 0;
+    margin-left: 40px;
+    padding: 0;
+    background: white;
+}
+
+h1,h2,h3,h4 { margin: 0; color: #efefef; background: transparent; }
+h1 { font-size: 150%; }
+h2,h3,h4 { margin-top: 1em; }
+
+a { background: #eef; color: #039; text-decoration: none; }
+a:hover { background: #039; color: #eef; }
+
+/* Override the base stylesheet's Anchor inside a table cell */
+td > a {
+  background: transparent;
+  color: #039;
+  text-decoration: none;
+}
+
+/* and inside a section title */
+.section-title > a {
+  background: transparent;
+  color: #eee;
+  text-decoration: none;
+}
+
+/* === Structural elements =================================== */
+
+div#index {
+    margin: 0;
+    margin-left: -40px;
+    padding: 0;
+    font-size: 90%;
+}
+
+
+div#index a {
+    margin-left: 0.7em;
+}
+
+div#index .section-bar {
+   margin-left: 0px;
+   padding-left: 0.7em;
+   background: #ccc;
+   font-size: small;
+}
+
+
+div#classHeader, div#fileHeader {
+    width: auto;
+    color: white;
+    padding: 0.5em 1.5em 0.5em 1.5em;
+    margin: 0;
+    margin-left: -40px;
+    border-bottom: 3px solid #006;
+}
+
+div#classHeader a, div#fileHeader a {
+    background: inherit;
+    color: white;
+}
+
+div#classHeader td, div#fileHeader td {
+    background: inherit;
+    color: white;
+}
+
+
+div#fileHeader {
+    background: #057;
+}
+
+div#classHeader {
+    background: #048;
+}
+
+
+.class-name-in-header {
+  font-size:  180%;
+  font-weight: bold;
+}
+
+
+div#bodyContent {
+    padding: 0 1.5em 0 1.5em;
+}
+
+div#description {
+    padding: 0.5em 1.5em;
+    background: #efefef;
+    border: 1px dotted #999;
+}
+
+div#description h1,h2,h3,h4,h5,h6 {
+    color: #125;;
+    background: transparent;
+}
+
+div#validator-badges {
+    text-align: center;
+}
+div#validator-badges img { border: 0; }
+
+div#copyright {
+    color: #333;
+    background: #efefef;
+    font: 0.75em sans-serif;
+    margin-top: 5em;
+    margin-bottom: 0;
+    padding: 0.5em 2em;
+}
+
+
+/* === Classes =================================== */
+
+table.header-table {
+    color: white;
+    font-size: small;
+}
+
+.type-note {
+    font-size: small;
+    color: #DEDEDE;
+}
+
+.xxsection-bar {
+    background: #eee;
+    color: #333;
+    padding: 3px;
+}
+
+.section-bar {
+   color: #333;
+   border-bottom: 1px solid #999;
+    margin-left: -20px;
+}
+
+
+.section-title {
+    background: #79a;
+    color: #eee;
+    padding: 3px;
+    margin-top: 2em;
+    margin-left: -30px;
+    border: 1px solid #999;
+}
+
+.top-aligned-row {  vertical-align: top }
+.bottom-aligned-row { vertical-align: bottom }
+
+/* --- Context section classes ----------------------- */
+
+.context-row { }
+.context-item-name { font-family: monospace; font-weight: bold; color: black; }
+.context-item-value { font-size: small; color: #448; }
+.context-item-desc { color: #333; padding-left: 2em; }
+
+/* --- Method classes -------------------------- */
+.method-detail {
+    background: #efefef;
+    padding: 0;
+    margin-top: 0.5em;
+    margin-bottom: 1em;
+    border: 1px dotted #ccc;
+}
+.method-heading {
+  color: black;
+  background: #ccc;
+  border-bottom: 1px solid #666;
+  padding: 0.2em 0.5em 0 0.5em;
+}
+.method-signature { color: black; background: inherit; }
+.method-name { font-weight: bold; }
+.method-args { font-style: italic; }
+.method-description { padding: 0 0.5em 0 0.5em; }
+
+/* --- Source code sections -------------------- */
+
+a.source-toggle { font-size: 90%; }
+div.method-source-code {
+    background: #262626;
+    color: #ffdead;
+    margin: 1em;
+    padding: 0.5em;
+    border: 1px dashed #999;
+    overflow: hidden;
+}
+
+div.method-source-code pre { color: #ffdead; overflow: hidden; }
+
+/* --- Ruby keyword styles --------------------- */
+
+.standalone-code { background: #221111; color: #ffdead; overflow: hidden; }
+
+.ruby-constant  { color: #7fffd4; background: transparent; }
+.ruby-keyword { color: #00ffff; background: transparent; }
+.ruby-ivar    { color: #eedd82; background: transparent; }
+.ruby-operator  { color: #00ffee; background: transparent; }
+.ruby-identifier { color: #ffdead; background: transparent; }
+.ruby-node    { color: #ffa07a; background: transparent; }
+.ruby-comment { color: #b22222; font-weight: bold; background: transparent; }
+.ruby-regexp  { color: #ffa07a; background: transparent; }
+.ruby-value   { color: #7fffd4; background: transparent; }

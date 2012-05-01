@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'           => 'Post Windows Gather Forensics Duqu Registry Check',
+			'Name'           => 'Windows Gather Forensics Duqu Registry Check',
 			'Description'    => %q{ This module searches for CVE-2011-3402 (Duqu) related registry artifacts.},
 			'License'        => MSF_LICENSE,
 			'Author'         => [ 'Marcus J. Carey <mjc[at]threatagent.com>'],
