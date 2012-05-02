@@ -283,6 +283,7 @@ function cononicalize_path($path) {
 # traditionally used this to get environment variables from the server.
 #
 if (!function_exists('stdapi_fs_file_expand_path')) {
+register_command('stdapi_fs_file_expand_path');
 function stdapi_fs_file_expand_path($req, &$pkt) {
     my_print("doing expand_path");
     $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
@@ -321,6 +322,7 @@ function stdapi_fs_file_expand_path($req, &$pkt) {
 }
 
 if (!function_exists('stdapi_fs_delete_dir')) {
+register_command('stdapi_fs_delete_dir');
 function stdapi_fs_delete_dir($req, &$pkt) {
     my_print("doing rmdir");
     $path_tlv = packet_get_tlv($req, TLV_TYPE_DIRECTORY_PATH);
@@ -330,6 +332,7 @@ function stdapi_fs_delete_dir($req, &$pkt) {
 }
 
 if (!function_exists('stdapi_fs_mkdir')) {
+register_command('stdapi_fs_mkdir');
 function stdapi_fs_mkdir($req, &$pkt) {
     my_print("doing mkdir");
     $path_tlv = packet_get_tlv($req, TLV_TYPE_DIRECTORY_PATH);
@@ -340,6 +343,7 @@ function stdapi_fs_mkdir($req, &$pkt) {
 
 # works
 if (!function_exists('stdapi_fs_chdir')) {
+register_command('stdapi_fs_chdir');
 function stdapi_fs_chdir($req, &$pkt) {
     my_print("doing chdir");
     $path_tlv = packet_get_tlv($req, TLV_TYPE_DIRECTORY_PATH);
@@ -350,6 +354,7 @@ function stdapi_fs_chdir($req, &$pkt) {
 
 # works
 if (!function_exists('stdapi_fs_delete')) {
+register_command('stdapi_fs_delete');
 function stdapi_fs_delete($req, &$pkt) {
     my_print("doing delete");
     $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_NAME);
@@ -360,6 +365,7 @@ function stdapi_fs_delete($req, &$pkt) {
 
 # works
 if (!function_exists('stdapi_fs_getwd')) {
+register_command('stdapi_fs_getwd');
 function stdapi_fs_getwd($req, &$pkt) {
     my_print("doing pwd");
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_DIRECTORY_PATH, getcwd()));
@@ -370,6 +376,7 @@ function stdapi_fs_getwd($req, &$pkt) {
 # works partially, need to get the path argument to mean the same thing as in
 # windows
 if (!function_exists('stdapi_fs_ls')) {
+register_command('stdapi_fs_ls');
 function stdapi_fs_ls($req, &$pkt) {
     my_print("doing ls");
     $path_tlv = packet_get_tlv($req, TLV_TYPE_DIRECTORY_PATH);
@@ -410,6 +417,7 @@ function stdapi_fs_ls($req, &$pkt) {
 }
 
 if (!function_exists('stdapi_fs_separator')) {
+register_command('stdapi_fs_separator');
 function stdapi_fs_separator($req, &$pkt) {
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_STRING, DIRECTORY_SEPARATOR));
     return ERROR_SUCCESS;
@@ -417,6 +425,7 @@ function stdapi_fs_separator($req, &$pkt) {
 }
 
 if (!function_exists('stdapi_fs_stat')) {
+register_command('stdapi_fs_stat');
 function stdapi_fs_stat($req, &$pkt) {
     my_print("doing stat");
     $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
@@ -449,6 +458,7 @@ function stdapi_fs_stat($req, &$pkt) {
 
 # works
 if (!function_exists('stdapi_fs_delete_file')) {
+register_command('stdapi_fs_delete_file');
 function stdapi_fs_delete_file($req, &$pkt) {
     my_print("doing delete");
     $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
@@ -464,6 +474,7 @@ function stdapi_fs_delete_file($req, &$pkt) {
 }
 
 if (!function_exists('stdapi_fs_search')) {
+register_command('stdapi_fs_search');
 function stdapi_fs_search($req, &$pkt) {
     my_print("doing search");
 
@@ -505,6 +516,7 @@ function stdapi_fs_search($req, &$pkt) {
 
 # works
 if (!function_exists('stdapi_sys_config_getuid')) {
+register_command('stdapi_sys_config_getuid');
 function stdapi_sys_config_getuid($req, &$pkt) {
     my_print("doing getuid");
     if (is_callable('posix_getuid')) {
@@ -524,6 +536,7 @@ function stdapi_sys_config_getuid($req, &$pkt) {
 
 # Unimplemented becuase it's unimplementable
 if (!function_exists('stdapi_sys_config_rev2self')) {
+register_command('stdapi_sys_config_rev2self');
 function stdapi_sys_config_rev2self($req, &$pkt) {
     my_print("doing rev2self");
     return ERROR_FAILURE;
@@ -532,6 +545,7 @@ function stdapi_sys_config_rev2self($req, &$pkt) {
 
 # works
 if (!function_exists('stdapi_sys_config_sysinfo')) {
+register_command('stdapi_sys_config_sysinfo');
 function stdapi_sys_config_sysinfo($req, &$pkt) {
     my_print("doing sysinfo");
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_COMPUTER_NAME, php_uname("n")));
@@ -544,6 +558,7 @@ function stdapi_sys_config_sysinfo($req, &$pkt) {
 $GLOBALS['processes'] = array();
 
 if (!function_exists('stdapi_sys_process_execute')) {
+register_command('stdapi_sys_process_execute');
 function stdapi_sys_process_execute($req, &$pkt) {
     global $channel_process_map, $processes;
 
@@ -618,6 +633,7 @@ function stdapi_sys_process_execute($req, &$pkt) {
 
 
 if (!function_exists('stdapi_sys_process_close')) {
+register_command('stdapi_sys_process_close');
 function stdapi_sys_process_close($req, &$pkt) {
     global $processes;
     my_print("doing process_close");
@@ -671,6 +687,7 @@ function close_process($proc) {
 # to decide what options to send to ps for portability and for information
 # usefulness.
 if (!function_exists('stdapi_sys_process_get_processes')) {
+register_command('stdapi_sys_process_get_processes');
 function stdapi_sys_process_get_processes($req, &$pkt) {
     my_print("doing get_processes");
     $list = array();
@@ -720,6 +737,7 @@ function stdapi_sys_process_get_processes($req, &$pkt) {
 
 # works
 if (!function_exists('stdapi_sys_process_getpid')) {
+register_command('stdapi_sys_process_getpid');
 function stdapi_sys_process_getpid($req, &$pkt) {
     my_print("doing getpid");
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_PID, getmypid()));
@@ -728,6 +746,7 @@ function stdapi_sys_process_getpid($req, &$pkt) {
 }
 
 if (!function_exists('stdapi_sys_process_kill')) {
+register_command('stdapi_sys_process_kill');
 function stdapi_sys_process_kill($req, &$pkt) {
     # The existence of posix_kill is unlikely (it's a php compile-time option
     # that isn't enabled by default, but better to try it and avoid shelling
@@ -758,6 +777,7 @@ function stdapi_sys_process_kill($req, &$pkt) {
 }
 
 if (!function_exists('stdapi_net_socket_tcp_shutdown')) {
+register_command('stdapi_net_socket_tcp_shutdown');
 function stdapi_net_socket_tcp_shutdown($req, &$pkt) {
     my_print("doing stdapi_net_socket_tcp_shutdown");
     $cid_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_ID);
@@ -798,6 +818,9 @@ function deregister_registry_key($id) {
 
 
 if (!function_exists('stdapi_registry_create_key')) {
+if (is_windows() and is_callable('reg_open_key')) {
+  register_command('stdapi_registry_create_key');
+}
 function stdapi_registry_create_key($req, &$pkt) {
     my_print("doing stdapi_registry_create_key");
     if (is_windows() and is_callable('reg_open_key')) {
@@ -831,6 +854,9 @@ function stdapi_registry_create_key($req, &$pkt) {
 }
 
 if (!function_exists('stdapi_registry_close_key')) {
+if (is_windows() and is_callable('reg_open_key')) {
+    register_command('stdapi_registry_close_key');
+}
 function stdapi_registry_close_key($req, &$pkt) {
     if (is_windows() and is_callable('reg_open_key')) {
         global $registry_handles;
@@ -849,6 +875,9 @@ function stdapi_registry_close_key($req, &$pkt) {
 }
 
 if (!function_exists('stdapi_registry_query_value')) {
+if (is_windows() and is_callable('reg_open_key')) {
+  register_command('stdapi_registry_query_value');
+}
 function stdapi_registry_query_value($req, &$pkt) {
     if (is_windows() and is_callable('reg_open_key')) {
         global $registry_handles;
@@ -886,6 +915,9 @@ function stdapi_registry_query_value($req, &$pkt) {
 }
 
 if (!function_exists('stdapi_registry_set_value')) {
+if (is_windows() and is_callable('reg_open_key')) {
+    register_command('stdapi_registry_set_value');
+}
 function stdapi_registry_set_value($req, &$pkt) {
     if (is_windows() and is_callable('reg_open_key')) {
         global $registry_handles;
