@@ -1,8 +1,6 @@
 # Metasploit Development Environment
 The Metasploit Framework is a pretty complex hunk of software, at least according to [Ohloh](http://www.ohloh.net/p/metasploit). So, getting started with development can be daunting even for veteran exploit developers. This page attempts to demystify the process of getting your Metasploit development environment set up through submitting a "pull request" to get your exploit into the standard distribution.
 
-## Your Development Platform
-
 This documentation assumes you're on some recent version of Ubuntu Linux. If not, then you're going to be on your own on how to get all your dependencies lined up. If you've successfully set up a development environment on something non-Ubuntu, and you'd like to share, let us know and we'll link to your tutorial from here.
 
 A lot of people, including many of Metasploit's core developers, like to maintain a dedicated VMWare image for development. There are advantages to this that are difficult to replicate with other backup and restore solutions.
