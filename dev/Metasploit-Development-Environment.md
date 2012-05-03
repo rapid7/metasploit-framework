@@ -23,35 +23,32 @@ Note that this does **not** include an appropriate text editor or IDE, nor does 
 Most (all?) standard distributions of Ruby are lacking in one regard or another. Lucky for all of us, Wayne Seguin's RVM has been getting steadily more excellent in providing several proven Ruby interpreters. Visit [https://rvm.io/](https://rvm.io/) to read up on it, or just trust that it'll all work out with a simple:
 
 ````bash
-curl -L get.rvm.io | bash -s stable
+$ curl -L get.rvm.io | bash -s stable
 ````
 
 Followed by 
 
 ````bash
-source ~/.rvm/scripts/rvm
+$ source ~/.rvm/scripts/rvm
 ````
-You should end up with something like to this:
+
+And finally:
+
+````bash
+$ rvm install 1.9.3-p125
+````
+
+What this all does is fetch RVM, do a bunch of shell voodoo, and finally install Ruby version 1.9.3 patchlevel 125 (there are lots of other Rubies to choose from, but we like this one the most right now). You should end up with something like to this:
 
 [[/screens/rvm02.png]]
 
-### Vim configuration
-
-Coming soon!
-
-### Emacs configuration
-
-Coming slightly later!
-
-***
+Once that's all done, you can move on to setting up your preferred editor. There are lots of tricks involved there, so soon we'll have guides for setting up at least vim and emacs (the two most popular editors for working in Metasploit).
 
 ## Create a GitHub Account
 
 The entire Metasploit code base is hosted here on GitHub. If you have an old Redmine account over at dev.metasploit.com, that's not going to do much for you since the switch-over. The process for creating an account is pretty simple:
 
 ###  SSH for GitHub
-
-***
 
 ## Working with Git
 
