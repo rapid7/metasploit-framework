@@ -1,4 +1,4 @@
-h1. Metasploit Development Environment
+# Metasploit Development Environment
 
 The Metasploit Framework is a pretty complex hunk of software, at least according to [Ohloh](http://www.ohloh.net/p/metasploit). So, getting started with development can be daunting even for veteran exploit developers. This page attempts to demystify the process of getting your Metasploit development environment set up through submitting a "pull request" to get your exploit into the standard distribution.
 
@@ -6,7 +6,7 @@ This documentation assumes you're on some recent version of Ubuntu Linux. If not
 
 Throughout this documentation, we'll be using the example user of "Fakey McFakepants," who has the e-mail address of "mcfakepants@packetfu.com" and a login username of "fakey."
 
-h2. <a name="apt-get">Apt-Get Install</a>
+## <a name="apt-get">Apt-Get Install</a>
 
 The bare minimum for working effectively on Metasploit is:
 
@@ -21,7 +21,7 @@ apt-get -y install \
 
 Note that this does **not** include an appropriate text editor or IDE, nor does it include the Ruby interpreter itself. We'll get to that in a second.
 
-### RVM
+## RVM
 
 Most (all?) standard distributions of Ruby are lacking in one regard or another. Lucky for all of us, Wayne Seguin's RVM has been getting steadily more excellent in providing several proven Ruby interpreters. Visit [https://rvm.io/](https://rvm.io/) to read up on it, or just trust that it'll all work out with a simple:
 
