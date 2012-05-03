@@ -33,9 +33,9 @@ Followed by
 ````bash
 source ~/.rvm/scripts/rvm
 ````
-You should end up with something akin to this:
+You should end up with something like to this:
 
-[[rvm02.png]]
+[[/screens/rvm02.png]]
 
 ### Vim configuration
 
