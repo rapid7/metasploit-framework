@@ -35,6 +35,8 @@ source ~/.rvm/scripts/rvm
 ````
 You should end up with something akin to this:
 
+[[rvm02.png]]
+
 ### Vim configuration
 
 Coming soon!
