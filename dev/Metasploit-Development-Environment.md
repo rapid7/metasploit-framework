@@ -8,9 +8,9 @@ Throughout this documentation, we'll be using the example user of "Fakey McFakep
 
 ## <a name="apt-get">Apt-Get Install</a>
 
-The bare minimum for working effectively on Metasploit is:
+The bare minimum for working on Metasploit effectively is:
 
-````
+````bash
 apt-get -y install \
   build-essential zlib1g zlib1g-dev \
   libxml2 libxml2-dev libxslt-dev locate \
@@ -45,11 +45,27 @@ What this all does is fetch RVM, which performs a bunch of shell voodoo, and fin
 
 [[/screens/rvm02.png]]
 
-Once that's all done, you can move on to setting up your preferred editor. There are lots of tricks involved there, so soon we'll have guides for setting up at least vim and emacs (the two most popular editors for working in Metasploit).
+## Editor / IDE 
+
+Once that's all done, you can move on to setting up your preferred editor. Far be it from us to tell you what editor you use -- people get really attached to these things for some reason. Once we have some docs put together for sensible defaults for a couple of the more popular editors out there, we'll list that here.
 
 ## Create a GitHub Account
 
-The entire Metasploit code base is hosted here on GitHub. If you have an old Redmine account over at dev.metasploit.com, that's not going to do much for you since the switch-over. The process for creating an account is pretty simple:
+The entire Metasploit code base is hosted here on GitHub. If you have an old Redmine account over at dev.metasploit.com, that's not going to do much for you since the switch-over. The process for creating an account is pretty simple.
+
+### Find the Signup button
+
+[[/screens/new01.png]]
+
+### Create a free user
+
+[[/screens/new02.png]]
+
+### Come up with a decent username and password
+
+[[/screens/new03.png]]
+
+Not exactly rocket science, here.
 
 ###  SSH for GitHub
 
