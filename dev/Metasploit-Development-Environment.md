@@ -63,7 +63,7 @@ The entire Metasploit code base is hosted here on GitHub. If you have an old Red
 
 ### Come up with a decent username and password
 
-[[/screens/new03.png]]
+[[/screens/new04.png]]
 
 Not exactly rocket science, here.
 
