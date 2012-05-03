@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -120,8 +120,8 @@ class Metasploit3 < Msf::Auxiliary
 				info << "( #{data[:caps]} ) "
 			end
 
-			report_service(:host => ip, :port => rport, :proto => 'udp', :name => "pcanywhere", :info => info)
-			report_note(:host => ip, :port => rport, :proto => 'udp', :name => "pcanywhere", :update => :unique, :ntype => "pcanywhere.status", :data => data )
+			report_service(:host => ip, :port => rport, :proto => 'udp', :name => "pcanywhere_stat", :info => info)
+			report_note(:host => ip, :port => rport, :proto => 'udp', :name => "pcanywhere_stat", :update => :unique, :ntype => "pcanywhere.status", :data => data )
 			print_status("#{ip}:#{rport} #{info}")
 		end
 	end
@@ -171,4 +171,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -16,7 +16,7 @@ require 'enumerable'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanDir
+	include Msf::Auxiliary::WmapScanDir
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 
@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The path to identify directories", '/']),
-				OptString.new('FORMAT', [ true,  "The expected directory format (a alpha, d digit, A upperalpha)", 'aaa'])
+				OptString.new('FORMAT', [ true,  "The expected directory format (a alpha, d digit, A upperalpha)", 'a,aa,aaa'])
 			], self.class)
 
 		register_advanced_options(
@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		# You may add multiple formats in the array
 		forma = []
-		forma << datastore['FORMAT']
+		forma = datastore['FORMAT'].split(',')
 
 		ecode = datastore['ErrorCode'].to_i
 		extens.each do |exte|
@@ -171,14 +171,21 @@ class Metasploit3 < Msf::Auxiliary
 							else
 								print_status("Found #{wmap_base_url}#{teststr} #{res.code.to_i}")
 
-								report_note(
+								report_web_vuln(
 									:host	=> ip,
-									:proto => 'tcp',
-									:sname	=> 'HTTP',
 									:port	=> rport,
-									:type	=> 'DIRECTORY',
-									:data	=> "#{teststr}"
-								)
+									:vhost  => vhost,
+									:ssl    => ssl,
+									:path	=> "#{teststr}",
+									:method => 'GET',
+									:pname  => "",
+									:proof  => "Res code: #{res.code.to_s}",
+									:risk   => 0,
+									:confidence   => 100,
+									:category     => 'directory',
+									:description  => 'Directory found.',
+									:name   => 'directory'
+									)
 
 							end
 						end
@@ -192,4 +199,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

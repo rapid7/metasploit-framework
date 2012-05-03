@@ -1,0 +1,9 @@
+--- 
+pid: tmp/pids/thin.pid
+log: log/thin.log
+timeout: 60
+port: 5000
+chdir: spec/rails_app
+environment: production
+servers: 3
+address: 127.0.0.1

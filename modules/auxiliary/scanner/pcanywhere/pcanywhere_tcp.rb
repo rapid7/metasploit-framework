@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -54,8 +54,8 @@ class Metasploit3 < Msf::Auxiliary
 			print_status(Rex::Text.to_hex_dump(res))
 =end
 
-			report_service(:host => rhost, :port => rport, :name => "pcanywhere", :info => "")
-			print_status("#{rhost}:#{rport} pcAnywhere")
+			report_service(:host => rhost, :port => rport, :name => "pcanywhere_data", :info => "")
+			print_status("#{rhost}:#{rport} pcAnywhere data service")
 
 		rescue ::Rex::ConnectionError, ::EOFError, ::Errno::ECONNRESET
 		rescue ::Exception => e
@@ -63,4 +63,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

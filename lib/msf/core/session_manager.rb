@@ -127,11 +127,13 @@ class SessionManager < Hash
 				# Clean out any stale sessions that have been orphaned by a dead
 				# framework instance.
 				#
-				Msf::DBManager::Session.find_all_by_closed_at(nil).each do |db_session|
-					if db_session.last_seen.nil? or ((Time.now.utc - db_session.last_seen) > (2*LAST_SEEN_INTERVAL))
-						db_session.closed_at    = db_session.last_seen || Time.now.utc
-						db_session.close_reason = "Orphaned"
-						db_session.save
+				::ActiveRecord::Base.connection_pool.with_connection do |conn|
+					::Mdm::Session.find_all_by_closed_at(nil).each do |db_session|
+						if db_session.last_seen.nil? or ((Time.now.utc - db_session.last_seen) > (2*LAST_SEEN_INTERVAL))
+							db_session.closed_at    = db_session.last_seen || Time.now.utc
+							db_session.close_reason = "Orphaned"
+							db_session.save
+						end
 					end
 				end
 			end
@@ -141,7 +143,8 @@ class SessionManager < Hash
 			#
 			rescue ::Exception => e
 				respawn_cnt += 1
-				elog("Exception #{respawn_cnt}/#{respawn_max} in monitor thread #{e.class} #{e} #{e.backtrace.join("\n")}")
+				elog("Exception #{respawn_cnt}/#{respawn_max} in monitor thread #{e.class} #{e}")
+				elog("Call stack: \n#{e.backtrace.join("\n")}")
 				if respawn_cnt < respawn_max
 					::IO.select(nil, nil, nil, 10.0)
 					retry

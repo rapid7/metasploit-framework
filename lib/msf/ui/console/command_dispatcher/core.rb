@@ -231,7 +231,8 @@ class Core
 			begin
 				[
 					::Msf::Config.script_directory + File::SEPARATOR + "resource",
-					::Msf::Config.user_script_directory + File::SEPARATOR + "resource"
+					::Msf::Config.user_script_directory + File::SEPARATOR + "resource",
+					"."
 				].each do |dir|
 					next if not ::File.exist? dir
 					tabs += ::Dir.new(dir).find_all { |e|
@@ -1302,7 +1303,8 @@ class Core
 			"author"   => "Modules written by this author",
 			"cve"      => "Modules with a matching CVE ID",
 			"bid"      => "Modules with a matching Bugtraq ID",
-			"osvdb"    => "Modules with a matching OSVDB ID"
+			"osvdb"    => "Modules with a matching OSVDB ID",
+			"edb"      => "Modules with a matching Exploit-DB ID"
 		}.each_pair do |keyword, description|
 			print_line "  #{keyword.ljust 10}:  #{description}"
 		end
@@ -1496,7 +1498,7 @@ class Core
 					end
 					sessions.each do |s|
 						session = framework.sessions.get(s)
-						print_status("Running '#{cmd}' on #{session.type} session #{s} (#{session.tunnel_peer})")
+						print_status("Running '#{cmd}' on #{session.type} session #{s} (#{session.session_host})")
 
 						if (session.type == "meterpreter")
 							# If session.sys is nil, dont even try..
@@ -1598,7 +1600,7 @@ class Core
 				sessions.each do |s|
 					if ((session = framework.sessions.get(s)))
 						if (script_paths[session.type])
-							print_status("Session #{s} (#{session.tunnel_peer}):")
+							print_status("Session #{s} (#{session.session_host}):")
 							begin
 								session.execute_file(script_paths[session.type], extra)
 							rescue ::Exception => e

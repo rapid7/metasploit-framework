@@ -5,8 +5,8 @@
 ##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Post
 				end
 				tbl << [ route.subnet, route.netmask, gw ]
 			}
-			print tbl.to_s
+			print_line tbl.to_s
 		else
 			print_status "No routes have been added yet"
 		end

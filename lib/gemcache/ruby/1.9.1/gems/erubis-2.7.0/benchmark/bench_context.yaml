@@ -1,0 +1,141 @@
+list:
+  - name:       Adobe Systems
+    name2:      Adobe Systems Inc.
+    url:        http://www.adobe.com
+    symbol:     ADBE
+    price:      39.26
+    change:     0.13
+    ratio:      0.33
+  - name:       Advanced Micro Devices
+    name2:      Advanced Micro Devices Inc.
+    url:        http://www.amd.com
+    symbol:     AMD
+    price:      16.22
+    change:     0.17
+    ratio:      1.06
+  - name:       Amazon.com
+    name2:      Amazon.com Inc
+    url:        http://www.amazon.com
+    symbol:     AMZN
+    price:      36.85
+    change:     -0.23
+    ratio:      -0.62
+  - name:       Apple
+    name2:      Apple Inc.
+    url:        http://www.apple.com
+    symbol:     AAPL
+    price:      85.38
+    change:     -0.87
+    ratio:      -1.01
+  - name:       BEA Systems
+    name2:      BEA Systems Inc.
+    url:        http://www.bea.com
+    symbol:     BEAS
+    price:      12.46
+    change:     0.09
+    ratio:      0.73
+  - name:       CA
+    name2:      CA, Inc.
+    url:        http://www.ca.com
+    symbol:     CA
+    price:      24.66
+    change:     0.38
+    ratio:      1.57
+  - name:       Cisco Systems
+    name2:      Cisco Systems Inc.
+    url:        http://www.cisco.com
+    symbol:     CSCO
+    price:      26.35
+    change:     0.13
+    ratio:      0.5
+  - name:       Dell
+    name2:      Dell Corp.
+    url:        http://www.dell.com/
+    symbol:     DELL
+    price:      23.73
+    change:     -0.42
+    ratio:      -1.74
+  - name:       eBay
+    name2:      eBay Inc.
+    url:        http://www.ebay.com
+    symbol:     EBAY
+    price:      31.65
+    change:     -0.8
+    ratio:      -2.47
+  - name:       Google
+    name2:      Google Inc.
+    url:        http://www.google.com
+    symbol:     GOOG
+    price:      495.84
+    change:     7.75
+    ratio:      1.59
+  - name:       Hewlett-Packard
+    name2:      Hewlett-Packard Co.
+    url:        http://www.hp.com
+    symbol:     HPQ
+    price:      41.69
+    change:     -0.02
+    ratio:      -0.05
+  - name:       IBM
+    name2:      International Business Machines Corp.
+    url:        http://www.ibm.com
+    symbol:     IBM
+    price:      97.45
+    change:     -0.06
+    ratio:      -0.06
+  - name:       Intel
+    name2:      Intel Corp.
+    url:        http://www.intel.com
+    symbol:     INTC
+    price:      20.53
+    change:     -0.07
+    ratio:      -0.34
+  - name:       Juniper Networks
+    name2:      Juniper Networks, Inc
+    url:        http://www.juniper.net/
+    symbol:     JNPR
+    price:      18.96
+    change:     0.5
+    ratio:      2.71
+  - name:       Microsoft
+    name2:      Microsoft Corp
+    url:        http://www.microsoft.com
+    symbol:     MSFT
+    price:      30.6
+    change:     0.15
+    ratio:      0.49
+  - name:       Oracle
+    name2:      Oracle Corp.
+    url:        http://www.oracle.com
+    symbol:     ORCL
+    price:      17.15
+    change:     0.17
+    ratio:      1.0
+  - name:       SAP
+    name2:      SAP AG
+    url:        http://www.sap.com
+    symbol:     SAP
+    price:      46.2
+    change:     -0.16
+    ratio:      -0.35
+  - name:       Seagate Technology
+    name2:      Seagate Technology
+    url:        http://www.seagate.com/
+    symbol:     STX
+    price:      27.35
+    change:     -0.36
+    ratio:      -1.3
+  - name:       Sun Microsystems
+    name2:      Sun Microsystems Inc.
+    url:        http://www.sun.com
+    symbol:     SUNW
+    price:      6.33
+    change:     -0.01
+    ratio:      -0.16
+  - name:       Yahoo
+    name2:      Yahoo! Inc.
+    url:        http://www.yahoo.com
+    symbol:     YHOO
+    price:      28.04
+    change:     -0.17
+    ratio:      -0.6

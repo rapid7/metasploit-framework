@@ -377,6 +377,21 @@ class Module
 	end
 
 	#
+	# Returns the address of the last target port (rough estimate)
+	#
+	def target_port
+		if(self.respond_to?('rport'))
+			return rport()
+		end
+
+		if(self.datastore['RPORT'])
+			return self.datastore['RPORT']
+		end
+
+		nil
+	end
+	
+	#
 	# Returns the current workspace
 	#
 	def workspace
@@ -705,6 +720,8 @@ class Module
 							match = [t,w] if refs.any? { |ref| ref =~ /^bid\-/i and ref =~ r }
 						when 'osvdb'
 							match = [t,w] if refs.any? { |ref| ref =~ /^osvdb\-/i and ref =~ r }
+						when 'edb'
+							match = [t,w] if refs.any? { |ref| ref =~ /^edb\-/i and ref =~ r }
 					end
 					break if match
 				end

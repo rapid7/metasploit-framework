@@ -73,16 +73,16 @@ module Socket
 	def self.create_ip(opts = {})
 		return create_param(Rex::Socket::Parameters.from_hash(opts.merge('Proto' => 'ip')))
 	end
-	
-	
+
+
 	#
 	# Common Regular Expressions
 	#
-	
+
 	MATCH_IPV6 = /^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$/
 
 	MATCH_IPV4 = /^\s*(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))\s*$/
-	
+
 	MATCH_IPV4_PRIVATE = /^\s*(?:10\.|192\.168|172.(?:1[6-9]|2[0-9]|3[01])\.|169\.254)/
 
 	##
@@ -130,15 +130,15 @@ module Socket
 	end
 
 	#
-	# Checks to see if the supplied address is in "dotted" form 
+	# Checks to see if the supplied address is in "dotted" form
 	#
 	def self.dotted_ip?(addr)
 		# Match IPv6
 		return true if (support_ipv6? and addr =~ MATCH_IPV6)
-	
+
 		# Match IPv4
 		return true if (addr =~ MATCH_IPV4)
-		
+
 		false
 	end
 
@@ -225,7 +225,7 @@ module Socket
 			[]
 		end
 	end
-	
+
 	#
 	# Wrapper for Socket.gethostbyname which takes into account whether or not
 	# an IP address is supplied.  If it is, then reverse DNS resolution does
@@ -236,7 +236,7 @@ module Socket
 		if (is_ipv4?(host))
 			return [ host, [], 2, host.split('.').map{ |c| c.to_i }.pack("C4") ]
 		end
-		
+
 		if is_ipv6?(host)
 			host, scope_id = host.split('%', 2)
 		end
@@ -297,7 +297,7 @@ module Socket
 	def self.resolv_nbo_i_list(host)
 		resolv_nbo_list(host).map{|addr| addr_ntoi(addr) }
 	end
-	
+
 	#
 	# Converts an ASCII IP address to a CIDR mask. Returns
 	# nil if it's not convertable.
@@ -343,7 +343,7 @@ module Socket
 	def self.addr_atoi_list(addr)
 		resolv_nbo_i_list(addr)
 	end
-	
+
 	#
 	# Converts an integer address into ascii
 	#
@@ -384,9 +384,9 @@ module Socket
 
 		raise RuntimeError, "Invalid address format"
 	end
-	
+
 	#
-	# Implement zero compression for IPv6 addresses. 
+	# Implement zero compression for IPv6 addresses.
 	# Uses the compression method from Marco Ceresa's IPAddress GEM
 	#	https://github.com/bluemonk/ipaddress/blob/master/lib/ipaddress/ipv6.rb
 	#
@@ -494,10 +494,15 @@ module Socket
 
 	#
 	# Converts a bitmask (28) into a netmask (255.255.255.240)
-	# TODO: IPv6 (use is ambiguous right now)
 	#
-	def self.bit2netmask(bitmask)
-		[ (~((2 ** (32 - bitmask)) - 1)) & 0xffffffff ].pack('N').unpack('CCCC').join('.')
+	def self.bit2netmask(bitmask, ipv6=false)
+		if bitmask > 32 or ipv6
+			i = ((~((2 ** (128 - bitmask)) - 1)) & (2**128-1))
+			n = Rex::Socket.addr_iton(i, true)
+			return Rex::Socket.addr_ntoa(n)
+		else
+			[ (~((2 ** (32 - bitmask)) - 1)) & 0xffffffff ].pack('N').unpack('CCCC').join('.')
+		end
 	end
 
 
@@ -672,7 +677,7 @@ module Socket
 
 		return [lsock, rsock]
 	end
-	
+
 
 	##
 	#

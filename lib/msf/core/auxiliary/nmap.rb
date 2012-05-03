@@ -33,21 +33,6 @@ def initialize(info = {})
 	@nmap_bin = nmap_binary_path
 end
 
-def vprint_status(msg='')
-	return if not datastore['VERBOSE']
-	print_status(msg)
-end
-
-def vprint_error(msg='')
-	return if not datastore['VERBOSE']
-	print_error(msg)
-end
-
-def vprint_good(msg='')
-	return if not datastore['VERBOSE']
-	print_good(msg)
-end
-
 def rports
 	datastore['RPORTS']
 end
@@ -261,7 +246,7 @@ def nmap_hosts(&block)
 	nmap_data = fh.read(fh.stat.size)
 	# fh.unlink
 	if Rex::Parser.nokogiri_loaded
-		wspace = Msf::DBManager::Workspace.find_by_name(datastore['WORKSPACE'])
+		wspace = framework.db.find_workspace(datastore['WORKSPACE'])
 		wspace ||= framework.db.workspace
 		import_args = { :data => nmap_data, :wspace => wspace }
 		framework.db.import_nmap_noko_stream(import_args) { |type, data| yield type, data }

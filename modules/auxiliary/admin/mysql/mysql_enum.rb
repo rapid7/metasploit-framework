@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 					This module allows for simple enumeration of MySQL Database Server
 					provided proper credentials to connect remotely.
 				},
-				'Author'        => [ 'Carlos Perez. <carlos_perez[at]darkoperator.com>' ],
+				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
 				'License'       => MSF_LICENSE,
 				'Version'       => '$Revision$',
 				'References'    =>
@@ -216,4 +216,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

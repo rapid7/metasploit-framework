@@ -1,4 +1,11 @@
 data/meterpreter/ext_server_pivot.dll
 data/meterpreter/ext_server_pivot.x64.dll
+external/source/meterpreter/java/bin
+external/source/meterpreter/java/build
+external/source/meterpreter/java/extensions
+external/source/javapayload/bin
+external/source/javapayload/build
 tags
 *.swp
+*.orig
+*.rej

@@ -416,7 +416,13 @@ class ReadableText
 		framework.sessions.each_sorted { |k|
 			session = framework.sessions[k]
 
-			row = [ session.sid.to_s, session.type.to_s, session.info.to_s, session.tunnel_to_s ]
+			sinfo = session.info.to_s
+			# Arbitrarily cut it at 80 columns
+			if sinfo.length > 80
+				sinfo = sinfo[0,77] + "..."
+			end
+
+			row = [ session.sid.to_s, session.type.to_s, sinfo, session.tunnel_to_s + " (#{session.session_host})" ]
 			if session.respond_to? :platform
 				row[1] += " " + session.platform
 			end

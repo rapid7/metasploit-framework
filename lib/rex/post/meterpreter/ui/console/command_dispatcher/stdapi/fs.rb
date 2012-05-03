@@ -124,13 +124,17 @@ class Console::CommandDispatcher::Stdapi::Fs
 			return true
 		end
 
-		fd = client.fs.file.new(args[0], "rb")
+		if (client.fs.file.stat(args[0]).directory?)
+			print_error("#{args[0]} is a directory")
+		else
+			fd = client.fs.file.new(args[0], "rb")
 
-		until fd.eof?
-			print(fd.read)
+			until fd.eof?
+				print(fd.read)
+			end
+
+			fd.close
 		end
-
-		fd.close
 
 		true
 	end
@@ -318,27 +322,31 @@ class Console::CommandDispatcher::Stdapi::Fs
 				])
 
 		items = 0
+		stat = client.fs.file.stat(path)
+		if stat.directory?
+			# Enumerate each item...
+			# No need to sort as Table will do it for us
+			client.fs.dir.entries_with_info(path).each { |p|
 
-		# Enumerate each item...
-		# No need to sort as Table will do it for us
-		client.fs.dir.entries_with_info(path).each { |p|
+				tbl <<
+					[
+						p['StatBuf'] ? p['StatBuf'].prettymode : '',
+						p['StatBuf'] ? p['StatBuf'].size       : '',
+						p['StatBuf'] ? p['StatBuf'].ftype[0,3] : '',
+						p['StatBuf'] ? p['StatBuf'].mtime      : '',
+						p['FileName'] || 'unknown'
+					]
 
-			tbl <<
-				[
-					p['StatBuf'] ? p['StatBuf'].prettymode : '',
-					p['StatBuf'] ? p['StatBuf'].size       : '',
-					p['StatBuf'] ? p['StatBuf'].ftype[0,3] : '',
-					p['StatBuf'] ? p['StatBuf'].mtime      : '',
-					p['FileName'] || 'unknown'
-				]
+				items += 1
+			}
 
-			items += 1
-		}
-
-		if (items > 0)
-			print("\n" + tbl.to_s + "\n")
+			if (items > 0)
+				print("\n" + tbl.to_s + "\n")
+			else
+				print_line("No entries exist in #{path}")
+			end
 		else
-			print_line("No entries exist in #{path}")
+			print_line("#{stat.prettymode}  #{stat.size}  #{stat.ftype[0,3]}  #{stat.mtime}  #{path}")
 		end
 
 		return true

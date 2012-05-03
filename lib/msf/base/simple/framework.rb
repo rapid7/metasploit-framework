@@ -136,12 +136,12 @@ module Framework
 	# Simplifies a module instance if the type is supported by extending it
 	# with the simplified module interface.
 	#
-	def self.simplify_module(instance)
+	def self.simplify_module(instance, load_saved_config = true)
 		if ((ModuleSimplifiers[instance.type]) and
 		    (instance.class.include?(ModuleSimplifiers[instance.type]) == false))
 			instance.extend(ModuleSimplifiers[instance.type])
 
-			instance.init_simplified
+			instance.init_simplified(load_saved_config)
 		end
 	end
 

@@ -1,0 +1,6 @@
+<span><%= @val %></span>
+<ul>
+ <% for item in @list %>
+  <li><%= item %></li>
+ <% end %>
+</ul>

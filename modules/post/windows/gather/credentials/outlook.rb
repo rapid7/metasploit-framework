@@ -3,8 +3,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -21,12 +21,14 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Windows Gather Microsoft Outlook Saved Password Extraction',
-				'Description'   => %q{ This module extracts and attempts to decrypt saved Microsoft
-								Outlook (versions 2002-2010) passwords from the Windows
-								Registry for POP3/IMAP/SMTP/HTTP accounts.
-								In order for decryption to be successful, this module must be
-								executed with the same privileges as the user which originally
-								encrypted the password.},
+				'Description'   => %q{
+					This module extracts and attempts to decrypt saved Microsoft
+					Outlook (versions 2002-2010) passwords from the Windows
+					Registry for POP3/IMAP/SMTP/HTTP accounts.
+					In order for decryption to be successful, this module must be
+					executed with the same privileges as the user which originally
+					encrypted the password.
+				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Justin Cacak'],
 				'Version'       => '$Revision$',
@@ -317,7 +319,7 @@ class Metasploit3 < Msf::Post
 					report_auth_info(
 						:host  => smtp_server,
 						:port => smtp_port,
-						:sname => "SMTP",
+						:sname => "smtp",
 						:source_id => source_id,
 						:source_type => "exploit",
 						:user => smtp_user,

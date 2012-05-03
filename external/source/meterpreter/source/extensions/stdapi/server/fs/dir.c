@@ -314,7 +314,7 @@ DWORD request_fs_mkdir(Remote *remote, Packet *packet)
 #ifdef _WIN32
 	else if (!CreateDirectory(directory, NULL))
 #else
-	else if (!mkdir(directory, 777))
+	else if (!mkdir(directory, 0777))
 #endif
 		result = GetLastError();
 

@@ -239,10 +239,14 @@ scheduler_run(THREAD *thread)
 			// XXX I'd prefer to use pthread_cond_timedwait, but it's broken in bionic and just
 			// chews cpu
 
-			dprintf(" Waiting for conditional (%08x). %d vs %d",
-				&scheduler_cond, LIST_EMPTY(&WEHead), polltable == NULL);
+			//dprintf(" Waiting for conditional (%08x). %d vs %d",
+			//	&scheduler_cond, LIST_EMPTY(&WEHead), polltable == NULL);
 
 			pthread_cond_wait(&scheduler_cond, &scheduler_mutex);
+
+			// pthread_cond_wait still chews CPU in some cases, usleep to yield
+			// processor so we don't just spin.
+			usleep(1000);
 		}
 
 		LIST_FOREACH(current, &WEHead, link) {

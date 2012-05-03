@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Exploit::Remote::Tcp
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 
@@ -70,19 +70,20 @@ class Metasploit3 < Msf::Auxiliary
 			if (fpversion = res.match(/FPVersion="(.*)"/))
 				fpversion = $1
 				print_status("#{info} FrontPage Version: #{fpversion}")
-				report_service(:host => target_host, :port => port, :name => "http", :info => "#{server_version} FrontPage Version: #{fpversion}")
+				
 				if (fpauthor = res.match(/FPAuthorScriptUrl="([^"]*)/))
 					fpauthor = $1
 					print_status("#{info} FrontPage Author: #{info}#{fpauthor}")
 					# Add Report
-					report_note(
-						:host	=> target_host,
+					opts = {
+						:host  => target_host,
 						:proto => 'tcp',
-						:sname	=> 'HTTP',
-						:port	=> port,
-						:type	=> 'FrontPage Author',
-						:data	=> "#{info}#{fpauthor}"
-					)
+						:sname => (ssl ? 'https' : 'http'),
+						:type  => 'FrontPage Author',
+						:data  => "#{info}#{fpauthor}"
+					}
+					opts[:port] = datastore['RPORT'] if not port.empty?
+					report_note(opts)
 				end
 				check_account(info, fpversion, target_host)
 			end

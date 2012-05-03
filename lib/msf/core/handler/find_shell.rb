@@ -14,7 +14,7 @@ module FindShell
 
 	#
 	# Returns the string representation of the handler type, in this case
-	# 'find_tag'.
+	# 'find_shell'.
 	#
 	def self.handler_type
 		return "find_shell"

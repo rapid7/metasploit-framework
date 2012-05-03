@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -85,8 +85,8 @@ class Metasploit3 < Msf::Auxiliary
 </doc>
 EOS
 
-		print_status("#{cli.peerhost}:#{cli.peerport} Sending XSLT payload ...")
-		print_status("#{cli.peerhost}:#{cli.peerport} Destination file : #{path}")
+		print_status("Sending XSLT payload ...")
+		print_status("Destination file : #{path}")
 		send_response_html(cli, html, { 'Content-Type' => 'application/xml' })
 	end
 

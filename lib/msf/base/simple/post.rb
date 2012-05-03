@@ -36,7 +36,11 @@ module Post
 	# 	Whether or not the module should be run in the context of a background
 	# 	job.
 	#
-	def self.run_simple(mod, opts = {})
+	def self.run_simple(omod, opts = {})
+
+		# Clone the module to prevent changes to the original instance
+		mod = omod.replicant
+		Msf::Simple::Framework.simplify_module( mod, false )
 
 		# Import options from the OptionStr or Option hash.
 		mod._import_extra_options(opts)
@@ -62,6 +66,8 @@ module Post
 				Proc.new { |ctx_| self.job_run_proc(ctx_) },
 				Proc.new { |ctx_| self.job_cleanup_proc(ctx_) }
 			)
+			# Propagate this back to the caller for console mgmt
+			omod.job_id = mod.job_id
 		else
 			ctx = [ mod ]
 			self.job_run_proc(ctx)

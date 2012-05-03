@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -25,15 +25,15 @@ class Metasploit3 < Msf::Post
 			'Name'                 => "Windows Manage List Shadow Copies",
 			'Description'          => %q{
 				This module will attempt to list any Volume Shadow Copies
-				on the system. This is based on the VSSOwn Script 
+				on the system. This is based on the VSSOwn Script
 				originally posted by Tim Tomes and Mark Baggett.
-				
+
 				Works on win2k3 and later.
 				},
 			'License'              => MSF_LICENSE,
 			'Platform'             => ['windows'],
 			'SessionTypes'         => ['meterpreter'],
-			'Author'               => ['thelightcosine <thelightcosine[at]metasploit.com'],
+			'Author'               => ['thelightcosine <thelightcosine[at]metasploit.com>'],
 			'References'    => [
 				[ 'URL', 'http://pauldotcom.com/2011/11/safely-dumping-hashes-from-liv.html' ]
 			]
@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Post
 		unless start_vss
 			return
 		end
-		
+
 		list = ""
 		shadow_copies = vss_list
 		unless shadow_copies.empty?
@@ -77,7 +77,5 @@ class Metasploit3 < Msf::Post
 			)
 		end
 	end
-
-
 
 end

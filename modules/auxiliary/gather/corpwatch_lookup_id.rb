@@ -1,8 +1,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -351,7 +351,7 @@ class Metasploit3 < Msf::Auxiliary
 						print_status("Filing Date: " + filing_date)
 						print_status("10K Filing Form: " + form10k)
 						print_status("SEC 21 Form: " + sec21)
-						print_status("Company is active filer: " + (is_filer == "1" ? "true" : "false")) 
+						print_status("Company is active filer: " + (is_filer == "1" ? "true" : "false"))
 					}
 				end
 			end

@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -90,7 +90,7 @@ EOS
 	def on_request_uri(cli,request)
 		# Transmit the response to the client
 		res = create_page()
-		print_status("Leaking PII to #{cli.peerhost}:#{cli.peerport}")
+		print_status("Leaking PII...")
 		send_response(cli, res, { 'Content-Type' => 'text/html' })
 	end
 

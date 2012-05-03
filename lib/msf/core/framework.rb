@@ -16,7 +16,7 @@ class Framework
 	#
 
 	Major    = 4
-	Minor    = 2
+	Minor    = 4
 	Point    = 0
 	Release  = "-dev"
 
@@ -242,32 +242,45 @@ class FrameworkEventSubscriber
 			report_event(event)
 		end
 	end
+
+	##
+	# :category: ::Msf::GeneralEventSubscriber implementors
 	def on_module_run(instance)
 		opts = { :datastore => instance.datastore.to_h }
 		module_event('module_run', instance, opts)
 	end
 
+	##
+	# :category: ::Msf::GeneralEventSubscriber implementors
 	def on_module_complete(instance)
 		module_event('module_complete', instance)
 	end
 
+	##
+	# :category: ::Msf::GeneralEventSubscriber implementors
 	def on_module_error(instance, exception=nil)
 		module_event('module_error', instance, :exception => exception.to_s)
 	end
 
 	include ::Msf::UiEventSubscriber
+	##
+	# :category: ::Msf::UiEventSubscriber implementors
 	def on_ui_command(command)
 		if framework.db.active
 			report_event(:name => "ui_command", :info => {:command => command})
 		end
 	end
 
+	##
+	# :category: ::Msf::UiEventSubscriber implementors
 	def on_ui_stop()
 		if framework.db.active
 			report_event(:name => "ui_stop")
 		end
 	end
 
+	##
+	# :category: ::Msf::UiEventSubscriber implementors
 	def on_ui_start(rev)
 		#
 		# The database is not active at startup time unless msfconsole was
@@ -286,16 +299,10 @@ class FrameworkEventSubscriber
 	# Generic handler for session events
 	#
 	def session_event(name, session, opts={})
-		address = nil
-
-		if session.respond_to? :peerhost and session.peerhost.to_s.length > 0
-			address = session.peerhost
-		elsif session.respond_to? :tunnel_peer and session.tunnel_peer.to_s.length > 0
-			address = session.tunnel_peer[0, session.tunnel_peer.rindex(":") || session.tunnel_peer.length ]
-		elsif session.respond_to? :target_host and session.target_host.to_s.length > 0
-			address = session.target_host
-		else
-			elog("Session with no peerhost/tunnel_peer")
+		address = session.session_host
+		
+		if not (address and address.length > 0)
+			elog("Session with no session_host/target_host/tunnel_peer")
 			dlog("#{session.inspect}", LEV_3)
 			return
 		end
@@ -325,12 +332,16 @@ class FrameworkEventSubscriber
 	end
 
 
+	##
+	# :category: ::Msf::SessionEvent implementors
 	def on_session_open(session)
 		opts = { :datastore => session.exploit_datastore.to_h, :critical => true }
 		session_event('session_open', session, opts)
 		framework.db.report_session(:session => session)
 	end
 
+	##
+	# :category: ::Msf::SessionEvent implementors
 	def on_session_upload(session, lpath, rpath)
 		session_event('session_upload', session, :local_path => lpath, :remote_path => rpath)
 		framework.db.report_session_event({
@@ -340,6 +351,8 @@ class FrameworkEventSubscriber
 			:remote_path => rpath
 		})
 	end
+	##
+	# :category: ::Msf::SessionEvent implementors
 	def on_session_download(session, rpath, lpath)
 		session_event('session_download', session, :local_path => lpath, :remote_path => rpath)
 		framework.db.report_session_event({
@@ -350,6 +363,8 @@ class FrameworkEventSubscriber
 		})
 	end
 
+	##
+	# :category: ::Msf::SessionEvent implementors
 	def on_session_close(session, reason='')
 		session_event('session_close', session)
 		if session.db_record
@@ -364,6 +379,8 @@ class FrameworkEventSubscriber
 	#	$stdout.puts('session_interact', session.inspect)
 	#end
 
+	##
+	# :category: ::Msf::SessionEvent implementors
 	def on_session_command(session, command)
 		session_event('session_command', session, :command => command)
 		framework.db.report_session_event({
@@ -373,6 +390,8 @@ class FrameworkEventSubscriber
 		})
 	end
 
+	##
+	# :category: ::Msf::SessionEvent implementors
 	def on_session_output(session, output)
 		# Break up the output into chunks that will fit into the database.
 		buff = output.dup
@@ -394,14 +413,20 @@ class FrameworkEventSubscriber
 		}
 	end
 
+	##
+	# :category: ::Msf::SessionEvent implementors
 	def on_session_route(session, route)
 		framework.db.report_session_route(session, route)
 	end
 
+	##
+	# :category: ::Msf::SessionEvent implementors
 	def on_session_route_remove(session, route)
 		framework.db.report_session_route_remove(session, route)
 	end
 
+	##
+	# :category: ::Msf::SessionEvent implementors
 	def on_session_script_run(session, script)
 		framework.db.report_session_event({
 			:etype => 'script_run',
@@ -410,6 +435,8 @@ class FrameworkEventSubscriber
 		})
 	end
 
+	##
+	# :category: ::Msf::SessionEvent implementors
 	def on_session_module_run(session, mod)
 		framework.db.report_session_event({
 			:etype => 'module_run',

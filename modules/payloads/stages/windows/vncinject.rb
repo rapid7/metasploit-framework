@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 # Copyright (c) 2008 Stephen Fewer of Harmony Security (www.harmonysecurity.com)
@@ -40,4 +40,3 @@ module Metasploit3
 		File.join(Msf::Config.install_root, "data", "vncdll.dll")
 	end
 end
-

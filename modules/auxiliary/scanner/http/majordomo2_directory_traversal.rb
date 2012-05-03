@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 					['CVE', '2011-0063'],
 					['URL', 'https://sitewat.ch/en/Advisory/View/1'],
 					['URL', 'http://sotiriu.de/adv/NSOADV-2011-003.txt'],
-					['URL', 'http://www.exploit-db.com/exploits/16103/']
+					['EDB', 16103]
 				],
 			'DisclosureDate' => 'Mar 08 2011',
 			'License'        =>  MSF_LICENSE
