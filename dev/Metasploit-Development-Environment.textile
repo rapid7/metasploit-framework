@@ -5,7 +5,7 @@ This documentation assumes you're on some recent version of Ubuntu Linux. If not
 
 Throughout this documentation, we'll be using the example user of "Fakey McFakepants," who has the e-mail address of "mcfakepants@packetfu.com" and a login username of "fakey."
 
-### Apt-get install
+### <a name="apt-get">Apt-Get Install</a>
 
 The bare minimum for working effectively on Metasploit is:
 ````bash
