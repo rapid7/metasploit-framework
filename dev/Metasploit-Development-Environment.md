@@ -96,11 +96,11 @@ You'll be presented with a screen to copy-paste your public SSH key (not the pri
 
 ### Confirm your key
 
-Once that's done, you'll have a key associated, and you'll get e-mail about it as well. Eyeball the fingerprint and make sure it all matches up. You don't have to actually click anything if it's all good.
+Once that's done, you'll have a key associated, and you'll get e-mail about it as well. Eyeball the fingerprint and make sure it all matches up. You don't have to actually click anything if it's all good, but we will bop back to the console here in just a second.
 
 [[/screens/ssh05.png]]
 
-The real moment of truth is when you test your SSH key. If you named it something funny like I did, don't forget the -i flag, and note that you are going to use literally "git@github.com" as the user and password (not your name or anything like that).
+The real moment of truth is when you test your SSH key. If you named it something funny like I did, don't forget the -i flag, use -T to avoid allocating a terminal (you won't get one anyway), and note that you are going to use literally "git@github.com" as the username (not your name or anything like that).
 
 ````bash
 $ ssh -i ~/.ssh/id_rsa.github -T git@github.com
@@ -111,7 +111,7 @@ Your console should look like:
 
 ### Alias GitHub in .ssh/config
 
-So, I hate having to remember usernames and passwords for anything, and I've gotten in the habit of creating Host entries for lots of things in my ~/.ssh/config file so I can have two word ssh commands. 
+I hate having to remember usernames for anything anymore, so I've gotten in the habit of creating Host entries for lots of things in my ~/.ssh/config file. You should try it, it's fun and it can shorten most of your ssh logins to two words.
 
 For the rest of these instructions, I'm going to assume you have something like this in yours:
 
@@ -134,11 +134,14 @@ Finally, you're ready to set up your local git config file, if you haven't alrea
 git config --global user.name "Fakey McFakepants"
 git config --global user.email "mcfakepants@packetfu.com"
 ````
+
 Cat your ~/.gitconfig to ensure you have at least that set (and remember, your e-mail address needs to match the address you set back when you ssh-keygen'ed):
 
 [[/screen/ssh11.png]]
 
 ## Working with Git
+
+The rest of this document will walk through the usual use case of working with Git to commit something new to Metasploit. The example will commit the file "2.txt" to "test/git/" , but imagine that we're committing some new module like "ms_12_020_code_exec.rb" to "modules/exploits/windows/rdp/"
 
 ### Forking
 
