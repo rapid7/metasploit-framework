@@ -10,7 +10,7 @@ A lot of people, including many of Metasploit's core developers, like to maintai
 ### Apt-get install
 
 The bare minimum for working effectively on Metasploit is:
-````
+````bash
 apt-get -y install \
   build-essential zlib1g zlib1g-dev \
   libxml2 libxml2-dev libxslt-dev locate \
@@ -22,7 +22,7 @@ Note that this does **not** include an appropriate text editor or IDE, nor does 
 
 ### RVM
 
-Most (all?) standard distributions of Ruby are lacking in one regard or another. Lucky for all of us, RVM has been getting steadily more excellent in providing several proven Ruby interpreters. Visit [https://rvm.io/](https://rvm.io/) to read up on it, or just trust that it'll all work out with a simple:
+Most (all?) standard distributions of Ruby are lacking in one regard or another. Lucky for all of us, Wayne Seguin's RVM has been getting steadily more excellent in providing several proven Ruby interpreters. Visit [https://rvm.io/](https://rvm.io/) to read up on it, or just trust that it'll all work out with a simple:
 
 ````bash
 curl -L get.rvm.io | bash -s stable
