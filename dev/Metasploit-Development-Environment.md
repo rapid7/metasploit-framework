@@ -65,9 +65,78 @@ The entire Metasploit code base is hosted here on GitHub. If you have an old Red
 
 [[/screens/new04.png]]
 
-Not exactly rocket science, here.
+None of this is exactly rocket science.
 
-###  SSH for GitHub
+##  SSH for GitHub
+
+Once that's all done, you need to set up an SSH key to associate with your new GitHub identity (this step is **not** optional, so good on GitHub for forcing this minimal level of security).
+
+### Create a new key
+
+The Metasploit core developers recommend you set up new SSH key pair to associate with GitHub, rather than reuse that same old tired key you have in 50 other authorized_keys files around the world. Why not just start fresh? It's easy and fun:
+
+````bash
+$ ssh-keygen -t -rsa -C "mcfakepants@packetfu.com"
+````
+Just follow the prompts, pick a name for your key pair (I use "id_rsa.github"), set a password, and you should end up with something like:
+
+[[/screens/ssh01.png]]
+
+### Add your key
+
+Next, go to [https://github.com/settings/ssh](https://github.com/settings/ssh) (which can be navigated to via _Account Settings > SSH Keys_), and click "Add SSH key" :
+
+[[/screens/ssh02.png]]
+
+You'll be presented with a screen to copy-paste your public SSH key (not the private one!). Easiest thing to do is to cat your newly created key, select, and copy-paste it:
+
+[[/screens/ssh03.png]]
+
+[[/screens/ssh04.png]]
+
+### Confirm your key
+
+Once that's done, you'll have a key associated, and you'll get e-mail about it as well. Eyeball the fingerprint and make sure it all matches up. You don't have to actually click anything if it's all good.
+
+[[/screens/ssh05.png]]
+
+The real moment of truth is when you test your SSH key. If you named it something funny like I did, don't forget the -i flag, and note that you are going to use literally "git@github.com" as the user and password (not your name or anything like that).
+
+````bash
+$ ssh -i ~/.ssh/id_rsa.github -T git@github.com
+````
+Your console should look like:
+
+[[/screens/ssh07.png]]
+
+### Alias GitHub in .ssh/config
+
+So, I hate having to remember usernames and passwords for anything, and I've gotten in the habit of creating Host entries for lots of things in my ~/.ssh/config file so I can have two word ssh commands. 
+
+For the rest of these instructions, I'm going to assume you have something like this in yours:
+
+````config
+Host github
+  Hostname github.com
+  User git
+  PreferredAuthentications publickey
+  IdentityFile ~/.ssh/id_rsa.github
+````
+To check that it works, just `ssh -T github`, and your result should be just like this:
+
+[[/screens/ssh10.png]]
+
+### Minimal Git config
+
+Finally, you're ready to set up your local git config file, if you haven't already:
+
+````bash
+git config --global user.name "Fakey McFakepants"
+git config --global user.email "mcfakepants@packetfu.com"
+````
+Cat your ~/.gitconfig to ensure you have at least that set (and remember, your e-mail address needs to match the address you set back when you ssh-keygen'ed):
+
+[[/screen/ssh11.png]]
 
 ## Working with Git
 
