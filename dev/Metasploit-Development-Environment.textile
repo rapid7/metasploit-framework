@@ -1,14 +1,16 @@
-# Metasploit Development Environment
+h1. Metasploit Development Environment
+
 The Metasploit Framework is a pretty complex hunk of software, at least according to [Ohloh](http://www.ohloh.net/p/metasploit). So, getting started with development can be daunting even for veteran exploit developers. This page attempts to demystify the process of getting your Metasploit development environment set up through submitting a "pull request" to get your exploit into the standard distribution.
 
 This documentation assumes you're on some recent version of Ubuntu Linux. If not, then you're going to be on your own on how to get all your dependencies lined up. If you've successfully set up a development environment on something non-Ubuntu, and you'd like to share, let us know and we'll link to your tutorial from here.
 
 Throughout this documentation, we'll be using the example user of "Fakey McFakepants," who has the e-mail address of "mcfakepants@packetfu.com" and a login username of "fakey."
 
-### <a name="apt-get">Apt-Get Install</a>
+h2. <a name="apt-get">Apt-Get Install</a>
 
 The bare minimum for working effectively on Metasploit is:
-````bash
+
+````
 apt-get -y install \
   build-essential zlib1g zlib1g-dev \
   libxml2 libxml2-dev libxslt-dev locate \
@@ -16,6 +18,7 @@ apt-get -y install \
   libssl-dev openssl autoconf bison curl wget \
   postgresql postgresql-contrib libpq-dev
 ````
+
 Note that this does **not** include an appropriate text editor or IDE, nor does it include the Ruby interpreter itself. We'll get to that in a second.
 
 ### RVM
