@@ -7,7 +7,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'          => 'Schneider Modicon remote START/STOP Command',
+			'Name'          => 'Schneider Modicon Remote START/STOP Command',
 			'Description'   => %q{
 				The Schneider Modicon with Unity series of PLCs use Modbus function
 				code 90 (0x5a) to perform administrative commands without authentication.
