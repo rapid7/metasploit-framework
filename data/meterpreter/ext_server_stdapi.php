@@ -535,13 +535,13 @@ function stdapi_sys_config_getuid($req, &$pkt) {
 }
 
 # Unimplemented becuase it's unimplementable
-if (!function_exists('stdapi_sys_config_rev2self')) {
-register_command('stdapi_sys_config_rev2self');
-function stdapi_sys_config_rev2self($req, &$pkt) {
-    my_print("doing rev2self");
-    return ERROR_FAILURE;
-}
-}
+#if (!function_exists('stdapi_sys_config_rev2self')) {
+#register_command('stdapi_sys_config_rev2self');
+#function stdapi_sys_config_rev2self($req, &$pkt) {
+#    my_print("doing rev2self");
+#    return ERROR_FAILURE;
+#}
+#}
 
 # works
 if (!function_exists('stdapi_sys_config_sysinfo')) {
