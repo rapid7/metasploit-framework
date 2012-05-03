@@ -3,7 +3,7 @@ The Metasploit Framework is a pretty complex hunk of software, at least accordin
 
 This documentation assumes you're on some recent version of Ubuntu Linux. If not, then you're going to be on your own on how to get all your dependencies lined up. If you've successfully set up a development environment on something non-Ubuntu, and you'd like to share, let us know and we'll link to your tutorial from here.
 
-A lot of people, including many of Metasploit's core developers, like to maintain a dedicated VMWare image for development. There are advantages to this that are difficult to replicate with other backup and restore solutions.
+Throughout this documentation, we'll be using the example user of "Fakey McFakepants," who has the e-mail address of _mcfakepants@packetfu.com_ and a login username of _fakey_
 
 ### Apt-get install
 
