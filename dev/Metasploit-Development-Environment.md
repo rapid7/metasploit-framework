@@ -3,7 +3,7 @@ The Metasploit Framework is a pretty complex hunk of software, at least accordin
 
 This documentation assumes you're on some recent version of Ubuntu Linux. If not, then you're going to be on your own on how to get all your dependencies lined up. If you've successfully set up a development environment on something non-Ubuntu, and you'd like to share, let us know and we'll link to your tutorial from here.
 
-Throughout this documentation, we'll be using the example user of "Fakey McFakepants," who has the e-mail address of _mcfakepants@packetfu.com_ and a login username of _fakey_
+Throughout this documentation, we'll be using the example user of "Fakey McFakepants," who has the e-mail address of "mcfakepants@packetfu.com" and a login username of "fakey."
 
 ### Apt-get install
 
@@ -38,7 +38,7 @@ And finally:
 $ rvm install 1.9.3-p125
 ````
 
-What this all does is fetch RVM, do a bunch of shell voodoo, and finally install Ruby version 1.9.3 patchlevel 125 (there are lots of other Rubies to choose from, but we like this one the most right now). You should end up with something like to this:
+What this all does is fetch RVM, which performs a bunch of shell voodoo, and finally installs Ruby version 1.9.3 patchlevel 125 (there are lots of other Rubies to choose from, but we like this one the most right now). Assuming all goes as planned, you should end up with something like this in your shell.
 
 [[/screens/rvm02.png]]
 
