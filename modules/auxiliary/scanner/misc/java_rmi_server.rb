@@ -39,10 +39,10 @@ class Metasploit3 < Msf::Auxiliary
 				Opt::RPORT(1099)
 			], self.class)
 	end
-	
+
 	def setup
 		buf = gen_rmi_loader_packet
-		
+
 		jar = Rex::Text.rand_text_alpha(rand(8)+1) + '.jar'
 		old_url = "file:./rmidummy.jar"
 		new_url = "file:RMIClassLoaderSecurityTest/" + jar
@@ -50,13 +50,13 @@ class Metasploit3 < Msf::Auxiliary
 		# Java strings in serialized data are prefixed with a 2-byte, big endian length
 		# (at least, as long as they are shorter than 65536 bytes)
 		find_me = [old_url.length].pack("n") + old_url
-		
+
 		idx = buf.index(find_me)
 		len = [new_url.length].pack("n")
-		
+
 		# Now replace it with the new url
 		buf[idx, find_me.length] = len + new_url
-		
+
 		@pkt = "JRMI" + [2,0x4b,0,0].pack("nCnN") + buf
 	end
 
@@ -70,26 +70,26 @@ class Metasploit3 < Msf::Auxiliary
 
 			if res and res =~ /^\x4e..([^\x00]+)\x00\x00/
 				info = $1
-				
+
 				begin
 					# Determine if the instance allows remote class loading
 					connect
 					sock.put(@pkt) rescue nil
-	
+
 					buf = ""
 					1.upto(6) do
 						res = sock.get_once(-1, 5) rescue nil
 						break if not res
 						buf << res
 					end
-				
+
 				rescue ::Interrupt
 					raise $!
 				rescue ::Exception
 				ensure
 					disconnect
 				end
-	
+
 				if buf =~ /RMI class loader disabled/
 					print_status("#{rhost}:#{rport} Java RMI Endpoint Detected: Class Loader Disabled")
 					report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "Class Loader: Disabled")
@@ -120,7 +120,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 	end
-	
+
 	def gen_rmi_loader_packet
 		"\x50\xac\xed\x00\x05\x77\x22\x00\x00\x00\x00\x00\x00\x00\x02\x00" +
 		"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
@@ -132,7 +132,6 @@ class Metasploit3 < Msf::Auxiliary
 		"\x52\x4d\x49\x4c\x6f\x61\x64\x65\x72\xa1\x65\x44\xba\x26\xf9\xc2" +
 		"\xf4\x02\x00\x00\x74\x00\x13\x66\x69\x6c\x65\x3a\x2e\x2f\x72\x6d" +
 		"\x69\x64\x75\x6d\x6d\x79\x2e\x6a\x61\x72\x78\x70\x77\x01\x00\x0a"
-	end	
-	
-	
+	end
+
 end
