@@ -162,7 +162,7 @@ After that's done, switch back over to your terminal, make a sub-directory for y
 ````bash
 $ mkdir git
 $ cd git
-$ git clone github:mcfakepants/metasploit-framework.git
+$ git clone git@github.com:mcfakepants/metasploit-framework.git
 ````
 You should end up with a complete copy of Metasploit in the metasploit-framework sub-directory:
 
