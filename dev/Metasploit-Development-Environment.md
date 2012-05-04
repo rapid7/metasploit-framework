@@ -17,8 +17,9 @@ apt-get -y install \
   build-essential zlib1g zlib1g-dev \
   libxml2 libxml2-dev libxslt-dev locate \
   libreadline6-dev libcurl4-openssl-dev git-core \
-  libssl-dev openssl autoconf bison curl wget \
-  postgresql postgresql-contrib libpq-dev
+  libssl-dev libyaml-dev openssl autoconf libtool \
+  ncurses-dev bison curl wget postgresql \
+  postgresql-contrib libpq-dev
 ````
 
 Note that this does **not** include an appropriate text editor or IDE, nor does it include the Ruby interpreter. We'll get to that in a second.
