@@ -1,11 +1,12 @@
 #### Metasploit Wiki Pages
 ***
-* [[Metasploit Development Environment]]
-* [[Acceptance Guidelines]]
-* [[Using Metasploit]]
-  * [[Evading Anti Virus]]
-## Check these
-
+* [[Using Metasploit]] 
+  * A collection of useful links for penetration testers
 * [[Using Git]]
+  * All about Git and GitHub
+* [[Metasploit Development Environment]]
+  * From `apt-get install` to sending your first pull request
+* [[Acceptance Guidelines]]
+  * What should your module look like?
 * [[Contributing to Metasploit]]
-
+  * Be a part of our open source community
