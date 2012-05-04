@@ -224,7 +224,7 @@ And finally, rebase against the upstream. Rebasing is the easiest way to make su
 
 [[/screens/git03.png]]
 
-Of course, you might occasionally run into rebase conflicts, but let's just assume you won't for now. :) (See the "Other links" for dealing with merge and rebase conflicts.)
+Of course, you might occasionally run into rebase conflicts, but let's just assume you won't for now. :) See the "Other links" for dealing with merge and rebase conflicts.
 
 > A note on terminology: In Git, we often refer to "origin" and "master," which can be confusing. "Origin" is a remote repository which contains all of **your** branches. "Master" is a branch of the source code -- usually the first branch, and the branch you don't tend to commit directly to. 
 
@@ -252,8 +252,61 @@ Switch back to your browser, refresh, and you should see the new changes reflect
 
 <h2 id="pull">Pull Requests</h2>
 
-Stuff about pull requests
+Finally, let's get to pull requests. That's why you're reading all this, after all. This is the basic procedure that @corelanc0d3r suggested for Metasploit contributors. Thanks to @corelanc0d3r for initially writing this all down from a contributor's perspective.
+
+First, create a new branch:
+
+````bash
+git checkout -b module-ms12-020
+````
+
+Write the module, putting it in the proper subdirectory. Once it's all done and tested, add the module to your repo and push it up to origin:
+
+````bash
+git add <path to new module>
+git commit -m "added MS012-020 RCE for Win2008 R2"
+git push origin module-ms12-020
+````
+
+That command set should look something like this:
+
+[[/screens/pull02.png]]
+
+In your browser, go to your newly created branch, and click the Pull Request. 
+
+[[/screens/pull03.png]]
+
+This will automatically reference upstream's master as the branch to land your pull request, and give you an opportunity to talk about how great your module is, what it does, how to test it, etc.
+
+[[/screens/pull04.png]]
+
+Once you click Send Pull Request, you'll be on upstream's pull queue (in this case, mcfakepants has created pull request #356, which is one of 17 open pull requests).
+
+[[/screens/pull05.png]]
+
+Depending on the position of the stars, someone from the Metasploit core development team will review your pull request, and land it, like so:
+
+[[/screens/pull06.png]]
+
+Now, keep in mind that actually landing a pull request is a little more involved than just taking your commit and applying it directly to the tree. Usually, there are a few changes to be made, sometimes there's some back and forth on the pull request to see if some technique works better, etc.
+
+The upshot is, what's committed to Metasploit is rarely exactly what you initially sent, so once the change is committed, you'll want to rebase your checkout against master to pick up all the changes. If you've been developing in a branch (as you should), you shouldn't hit any conflicts with that.
+
+### Cleaning up
+
+Now that everything's committed and you're rebased, if you'd like to clean out your development branches, you can just do the following:
+
+````bash
+$ git branch -D module-ms12-020
+$ git push origin :module-ms12-020
+````
+
+Note that Git branches are cheap (nearly free, in terms of disk space), so this shouldn't happen too terribly often.
 
 ***
 
-## More lnformation and Feedback
+## Thanks and Feedback
+
+First off, thanks to @corelanc0d3r for articulating much of this. If you have suggestions for this wiki, please let @todb-r7 , @wchen-r7 , or @jlee-r7 know.
+
+This document should be enough to get your Metasploit development career started, but it doesn't address huge areas of Git source control management. For that, you'll want to look at the [Git Community Book](http://book.git-scm.com/), the many answered questions on [StackOverflow](http://stackoverflow.com/questions/tagged/git), and the [git cheat sheet](http://cheat.errtheblog.com/s/git/).
