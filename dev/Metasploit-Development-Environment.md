@@ -80,7 +80,7 @@ The entire Metasploit code base is hosted here on GitHub. If you have an old Red
 
 None of this is exactly rocket science.
 
-<h2 id="ssh">SSH for GitHub</ssh>
+<h2 id="ssh">SSH for GitHub</h2>
 
 Once that's all done, you need to set up an SSH key to associate with your new GitHub identity (this step is **not** optional, so good on GitHub for forcing this minimal level of security).
 
