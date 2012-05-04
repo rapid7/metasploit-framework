@@ -307,6 +307,6 @@ Note that Git branches are cheap (nearly free, in terms of disk space), so this 
 
 ## Thanks and Feedback
 
-First off, thanks to @corelanc0d3r for articulating much of this. If you have suggestions for this wiki, please let @todb-r7 , @wchen-r7 , or @jlee-r7 know.
+First off, thanks to [@corelanc0d3r](https://github.com/corelanc0d3r) for articulating much of this. If you have suggestions for this wiki, please let [@todb-r7](https://github.com/todb-r7) know.
 
 This document should be enough to get your Metasploit development career started, but it doesn't address huge areas of Git source control management. For that, you'll want to look at the [Git Community Book](http://book.git-scm.com/), the many answered questions on [StackOverflow](http://stackoverflow.com/questions/tagged/git), and the [git cheat sheet](http://cheat.errtheblog.com/s/git/).
