@@ -191,13 +191,13 @@ export PS1="[\$(~/.rvm/bin/rvm-prompt v p g)] \$(git-current-branch)$PS1"
 
 What this does is let me know on the command line prompt which version of Ruby, which gemset, and which Git branch I happen to be in. The end result looks like this:
 
-[[/screens/fork5.png]]
+[[/screens/fork05.png]]
 
 ## Start Metasploit
 
 Now that you have a source checkout of Metasploit, and you have all your prerequisite components from apt and rvm, you should be able to run it straight from your git clone with `./msfconsole -L`:
 
-[[/screens/fork6.png]]
+[[/screens/fork06.png]]
 
 <h2 id="sync">Keeping in sync</h2>
 
