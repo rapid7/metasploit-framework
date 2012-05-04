@@ -16,7 +16,7 @@ The bare minimum for working on Metasploit effectively is:
 apt-get -y install \
   build-essential zlib1g zlib1g-dev \
   libxml2 libxml2-dev libxslt-dev locate \
-  libcurl4-openssl-dev git-core \
+  libreadline6-dev libcurl4-openssl-dev git-core \
   libssl-dev openssl autoconf bison curl wget \
   postgresql postgresql-contrib libpq-dev
 ````
