@@ -156,7 +156,7 @@ Cat your ~/.gitconfig to ensure you have at least that set (and remember, your e
 
 The rest of this document will walk through the usual use case of working with Git and GitHub to get a local source checkout, commit something new, and get it submitted to be part of the Metasploit Framework distribution. The example here will commit the file _2.txt_ to _test/git/_ , but imagine that we're committing some new module like _ms_12_020_code_exec.rb_ to _modules/exploits/windows/rdp/_.
 
-<h2 id="git-fork">Fork!</h3>
+<h2 id="git-fork">Forking Metasploit</h2>
 
 Now that you have a GitHub account, it's time to fork the Metasploit Framework. First, go to https://github.com/rapid7/metasploit-framework , and click the button:
 
