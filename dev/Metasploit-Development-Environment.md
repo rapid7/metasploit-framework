@@ -78,7 +78,7 @@ After that's done, you need to set up an SSH key to associate with your new GitH
 We recommend you set up a new SSH key pair to associate with GitHub, rather than reuse that same old key you have in 50 other authorized_keys files around the world. Why not just start fresh? It's easy and fun:
 
 ````bash
-$ ssh-keygen -t -rsa -C "mcfakepants@packetfu.com"
+$ ssh-keygen -t rsa -C "mcfakepants@packetfu.com"
 ````
 Just follow the prompts, pick a name for your key pair (I use "id_rsa.github"), set a password, and you should end up with something like:
 
