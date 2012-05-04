@@ -224,7 +224,7 @@ And finally, rebase against the upstream. Rebasing is the easiest way to make su
 
 [[/screens/git03.png]]
 
-Of course, you might occasionally run into rebase conflicts, but let's just assume you won't for now. :) See the "Other links" for dealing with merge and rebase conflicts.
+Of course, you might occasionally run into rebase conflicts, but let's just assume you won't for now. :) Resolving merge conflicts is a little beyond the scope of this document, but the [Git Community Book](http://book.git-scm.com/) should be able to help.
 
 > A note on terminology: In Git, we often refer to "origin" and "master," which can be confusing. "Origin" is a remote repository which contains all of **your** branches. "Master" is a branch of the source code -- usually the first branch, and the branch you don't tend to commit directly to. 
 
