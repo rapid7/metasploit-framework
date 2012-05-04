@@ -226,8 +226,9 @@ And finally, rebase against the upstream. Rebasing is the easiest way to make su
 
 Of course, you might occasionally run into rebase conflicts, but let's just assume you won't for now. :) (See the "Other links" for dealing with merge and rebase conflicts.)
 
-#### A Note on Terminology
 
+
+> A Note on Terminology
 > In Git, we often refer to "origin" and "master," which can be confusing. "Origin" is a remote repository which contains all of **your** branches. "Master" is a branch of the source code -- usually the first branch, and the branch you don't tend to commit directly to. 
 
 "Origin" **isn't** Rapid7's repository -- we usually referred to that repo as "Upstream." In other words, "upstream" is just another way of referring to the "rapid7" remote. 
