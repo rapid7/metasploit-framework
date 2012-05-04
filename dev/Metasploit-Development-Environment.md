@@ -9,15 +9,15 @@ Throughout this documentation, we'll be using the example user of "Fakey McFakep
 
 #### Contents
 * [Apt-Get Install](#apt)
-[Getting Ruby](#rvm)
-[Your Editor]](#editor)
-[Using GitHub](#github)
-[Set an SSH Key](#ssh)
-[Using Git](#git)
-[Forking Metasploit](#fork)
-[Setting your Prompt](#prompt)
-[Keeping in Sync](#sync)
-[Making a Pull Request](#pull)
+* [Getting Ruby](#rvm)
+* [Your Editor]](#editor)
+* [Using GitHub](#github)
+* [Set an SSH Key](#ssh)
+* [Using Git](#git)
+* [Forking Metasploit](#fork)
+* [Setting your Prompt](#prompt)
+* [Keeping in Sync](#sync)
+* [Making a Pull Request](#pull)
 
 <h2 id="apt">Apt-Get Install</h2>
 
