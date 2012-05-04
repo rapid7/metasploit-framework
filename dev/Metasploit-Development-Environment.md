@@ -1,6 +1,6 @@
 # Metasploit Development Environment
 
-The Metasploit Framework is a pretty complex hunk of software, at least according to [Ohloh](http://www.ohloh.net/p/metasploit). So, getting started with development can be daunting even for veteran exploit developers. This page attempts to demystify the process of getting your Metasploit development environment set up through submitting a "pull request" to get your exploit into the standard distribution.
+The Metasploit Framework is a pretty complex hunk of software, at least according to [Ohloh](http://www.ohloh.net/p/metasploit). So, getting started with development can be daunting even for veteran exploit developers. This page attempts to demystify the process of setting up your Metasploit development environment to submitting a "pull request" to get your exploit into the standard distribution.
 
 This documentation assumes you're on some recent version of Ubuntu Linux. If not, then you're going to be on your own on how to get all your dependencies lined up. If you've successfully set up a development environment on something non-Ubuntu, and you'd like to share, let us know and we'll link to your tutorial from here.
 
@@ -21,17 +21,17 @@ apt-get -y install \
   postgresql postgresql-contrib libpq-dev
 ````
 
-Note that this does **not** include an appropriate text editor or IDE, nor does it include the Ruby interpreter itself. We'll get to that in a second.
+Note that this does **not** include an appropriate text editor or IDE, nor does it include the Ruby interpreter. We'll get to that in a second.
 
 <h2 id="rvm">Getting Ruby</h2>
 
-Most (all?) standard distributions of Ruby are lacking in one regard or another. Lucky for all of us, Wayne Seguin's RVM has been getting steadily more excellent in providing several proven Ruby interpreters. Visit [https://rvm.io/](https://rvm.io/) to read up on it, or just trust that it'll all work out with a simple:
+Most (all?) standard distributions of Ruby are lacking in one regard or another. Lucky for all of us, Wayne Seguin's RVM has been getting steadily more excellent in providing several proven Ruby interpreters. Visit [https://rvm.io/](https://rvm.io/) to read up on it or just trust that it'll all work out with a simple:
 
 ````bash
 $ curl -L get.rvm.io | bash -s stable
 ````
 
-Followed by 
+Followed by: 
 
 ````bash
 $ source ~/.rvm/scripts/rvm
@@ -43,13 +43,13 @@ And finally:
 $ rvm install 1.9.3-p125
 ````
 
-What this all does is fetch RVM, which performs a bunch of shell voodoo, and finally installs Ruby version 1.9.3 patchlevel 125 (there are lots of other Rubies to choose from, but we like this one the most right now). Assuming all goes as planned, you should end up with something like this in your shell.
+What this does is fetch RVM, which performs a bunch of shell voodoo, and installs Ruby version 1.9.3 patchlevel 125 (there are lots of other Rubies to choose from, but we like this one the most right now). Assuming all goes as planned, you should end up with something like this in your shell:
 
 [[/screens/rvm02.png]]
 
 <h2 id="editor">Your Editor</h2>
 
-Once that's all done, you can move on to setting up your preferred editor. Far be it from us to tell you what editor you use -- people get really attached to these things for some reason. Once we have some docs put together for sensible defaults for a couple of the more popular editors out there, we'll list that here.
+Once that's done, you can set up your preferred editor. Far be it from us to tell you what editor you use -- people get really attached to these things for some reason. After we put together some docs for sensible defaults for a couple of the more popular editors out there, we'll list them here.
 
 <h2 id="github">Using GitHub</h2>
 
@@ -59,7 +59,7 @@ The entire Metasploit code base is hosted here on GitHub. If you have an old Red
 
 [[/screens/new01.png]]
 
-### Create a free user
+### Create a free user account
 
 [[/screens/new02.png]]
 
@@ -71,11 +71,11 @@ None of this is exactly rocket science.
 
 <h2 id="ssh">SSH for GitHub</h2>
 
-Once that's all done, you need to set up an SSH key to associate with your new GitHub identity (this step is **not** optional, so good on GitHub for forcing this minimal level of security).
+After that's done, you need to set up an SSH key to associate with your new GitHub identity (this step is **not** optional, so good on GitHub for forcing this minimal level of security).
 
 ### Create a new key
 
-The Metasploit core developers recommend you set up new SSH key pair to associate with GitHub, rather than reuse that same old tired key you have in 50 other authorized_keys files around the world. Why not just start fresh? It's easy and fun:
+We recommend you set up a new SSH key pair to associate with GitHub, rather than reuse that same old key you have in 50 other authorized_keys files around the world. Why not just start fresh? It's easy and fun:
 
 ````bash
 $ ssh-keygen -t -rsa -C "mcfakepants@packetfu.com"
@@ -86,11 +86,11 @@ Just follow the prompts, pick a name for your key pair (I use "id_rsa.github"), 
 
 ### Add your key
 
-Next, go to [https://github.com/settings/ssh](https://github.com/settings/ssh) (which can be navigated to via _Account Settings > SSH Keys_), and click "Add SSH key" :
+Next, go to [https://github.com/settings/ssh](https://github.com/settings/ssh) (which can be navigated to via _Account Settings > SSH Keys_), and click "Add SSH key":
 
 [[/screens/ssh02.png]]
 
-You'll be presented with a screen to copy-paste your public SSH key (not the private one!). Easiest thing to do is to cat your newly created key, select, and copy-paste it:
+You'll be presented with a screen to copy-paste your public SSH key (not the private one!). The easiest thing to do is to cat your newly created key, select, and copy-paste it:
 
 [[/screens/ssh03.png]]
 
@@ -98,24 +98,24 @@ You'll be presented with a screen to copy-paste your public SSH key (not the pri
 
 ### Confirm your key
 
-Once that's done, you'll have a key associated, and you'll get e-mail about it as well. Eyeball the fingerprint and make sure it all matches up. 
+After that's done, you'll have a key associated, and you'll get e-mail about it. Eyeball the fingerprint and make sure it matches up. 
 
 [[/screens/ssh05.png]]
 
-The real moment of truth is when you test your SSH key. If you named it something funny like I did, don't forget the -i flag, use -T to avoid allocating a terminal (you won't get one anyway), and note that you are going to use literally "git@github.com" as the username (not your name or anything like that).
+The real moment of truth is when you test your SSH key. If you named it something funny like I did, don't forget the -i flag, use -T to avoid allocating a terminal (you won't get one anyway). Also note that you are going to literally use "git@github.com" as the username (not your name or anything like that).
 
 ````bash
 $ ssh -i ~/.ssh/id_rsa.github -T git@github.com
 ````
-Your console should look like:
+Your console should look like this:
 
 [[/screens/ssh07.png]]
 
 ### Alias GitHub in .ssh/config
 
-I hate having to remember usernames for anything anymore, so I've gotten in the habit of creating Host entries for lots of things in my ~/.ssh/config file. You should try it, it's fun and it can shorten most of your ssh logins to two words.
+I hate having to remember usernames for anything anymore, so I've gotten in the habit of creating Host entries for lots of things in my ~/.ssh/config file. You should try it, it's fun, and it can shorten most of your ssh logins to two words.
 
-For the rest of these instructions, I'm going to assume you have something like this in yours:
+For the rest of these instructions, I'm going to assume you have something like this in your config file:
 
 ````config
 Host github
@@ -124,7 +124,7 @@ Host github
   PreferredAuthentications publickey
   IdentityFile ~/.ssh/id_rsa.github
 ````
-To check that it works, just `ssh -T github`, and your result should be just like this:
+To check that it works, just `ssh -T github`, and your result should look like this:
 
 [[/screens/ssh10.png]]
 
@@ -137,42 +137,44 @@ git config --global user.name "Fakey McFakepants"
 git config --global user.email "mcfakepants@packetfu.com"
 ````
 
-Cat your ~/.gitconfig to ensure you have at least that set (and remember, your e-mail address needs to match the address you set back when you ssh-keygen'ed):
+Cat your ~/.gitconfig to ensure you have that set (and remember, your e-mail address needs to match the address you set back when you ssh-keygen'ed):
 
 [[/screens/ssh11.png]]
 
 <h1 id="git">Working with Git</h2>
 
-The rest of this document will walk through the usual use case of working with Git and GitHub to get a local source checkout, commit something new, and get it submitted to be part of the Metasploit Framework distribution. The example here will commit the file _2.txt_ to _test/git/_ , but imagine that we're committing some new module like _ms_12_020_code_exec.rb_ to _modules/exploits/windows/rdp/_.
+The rest of this document will walk through the usual use case of working with Git and GitHub to get a local source checkout, commit something new, and get it submitted to be part of the Metasploit Framework distribution. 
+
+The example here will commit the file _2.txt_ to _test/git/_ , but imagine that we're committing some new module like _ms_12_020_code_exec.rb_ to _modules/exploits/windows/rdp/_.
 
 <h2 id="fork">Forking Metasploit</h2>
 
-Now that you have a GitHub account, it's time to fork the Metasploit Framework. First, go to https://github.com/rapid7/metasploit-framework , and click the button:
+Now that you have a GitHub account, it's time to fork the Metasploit Framework. First, go to https://github.com/rapid7/metasploit-framework, and click the Fork button:
 
 [[/screens/fork01.png]]
 
-Hang out for a few seconds, and behold the animated "Hardcore Forking Action:"
+Hang out for a few seconds, and behold the animated "Hardcore Forking Action":
 
 [[/screens/fork02.png]]
 
-Once that's done, switch back over to your terminal, make a subdirectory for your git clones, and use your previously defined .ssh/config alias to clone up a copy of Metasploit:
+After that's done, switch back over to your terminal, make a sub-directory for your git clones, and use your previously defined .ssh/config alias to clone up a copy of Metasploit:
 
 ````bash
 $ mkdir git
 $ cd git
 $ git clone github:mcfakepants/metasploit-framework.git
 ````
-You should end up with a complete copy of Metasploit in the metasploit-framework subdirectory, like so:
+You should end up with a complete copy of Metasploit in the metasploit-framework sub-directory:
 
 [[/screens/fork03.png]]
 
 <h3 id="prompt">Set Your Prompt</h3>
 
-Now might be a good time to decorate up your prompt. I've hacked [this gist](https://gist.github.com/2555109) together for my ~/.bash_aliases. It's a little ugly, but it works.
+Now might be a good time to decorate your prompt. I've hacked [this gist](https://gist.github.com/2555109) together for my ~/.bash_aliases. It's a little ugly, but it works.
 
 [[/screens/fork04.png]]
 
-What this does is let me know on the command line prompt which version of Ruby, which gemset, and which Git branch I happen to be in. The end result looks like this:
+This lets me know on the command line prompt the version of Ruby, the gemset, and the Git branch I happen to be in. The end result looks like this:
 
 [[/screens/fork05.png]]
 
@@ -207,7 +209,7 @@ It should all look like this in your command window:
 
 [[/screens/git02.png]]
 
-It's pretty handy to have this checkout be persistent, though, so you can reference it later. So, type this:
+It's pretty handy to have this checkout be persistent so you can reference it later. So, type this:
 
 ````bash
 $ git checkout -b upstream-master
@@ -220,7 +222,9 @@ $ git checkout master
 $ git fetch
 ````
 
-And finally, rebase against the upstream. Rebasing is the easiest way to make sure that your master branch is identical to the upstream master branch. If you have any local changes, those are "rewound," all the remote changes get laid down, and then your changes get reapplied. It should all look like this:
+And finally, rebase against the upstream. 
+
+Rebasing is the easiest way to make sure that your master branch is identical to the upstream master branch. If you have any local changes, those are "rewound," all the remote changes get laid down, and then your changes get reapplied. It should all look like this:
 
 [[/screens/git03.png]]
 
@@ -236,7 +240,7 @@ All right, moving on.
 
 ### Syncing changes
 
-Any time you rebase from upstream, you're likely to bring in new changes, since we're committing stuff all the time. This means that when you rebase, your local branch will be ahead of your remote branch. To get your remote up to speed, just
+Any time you rebase from upstream, you're likely to bring in new changes because we're committing stuff all the time. This means that when you rebase, your local branch will be ahead of your remote branch. To get your remote up to speed:
 
 ````bash
 $ git push origin master
@@ -260,7 +264,7 @@ First, create a new branch:
 git checkout -b module-ms12-020
 ````
 
-Write the module, putting it in the proper subdirectory. Once it's all done and tested, add the module to your repo and push it up to origin:
+Write the module, putting it in the proper sub-directory. Once it's all done and tested, add the module to your repo and push it up to origin:
 
 ````bash
 git add <path to new module>
@@ -272,7 +276,7 @@ That command set should look something like this:
 
 [[/screens/pull02.png]]
 
-In your browser, go to your newly created branch, and click the Pull Request. 
+In your browser, go to your newly created branch, and click Pull Request. 
 
 [[/screens/pull03.png]]
 
@@ -288,7 +292,7 @@ Depending on the position of the stars, someone from the Metasploit core develop
 
 [[/screens/pull06.png]]
 
-Now, keep in mind that actually [[landing a pull request]] is a little more involved than just taking your commit and applying it directly to the tree. Usually, there are a few changes to be made, sometimes there's some back and forth on the pull request to see if some technique works better, etc. To have the best chances of actually getting your work merged, you would be wise to consult the [[Acceptance Guidelines]].
+Now, keep in mind that actually [[landing a pull request]] is a little more involved than just taking your commit and applying it directly to the tree. Usually, there are a few changes to be made, sometimes there's some back and forth on the pull request to see if some technique works better, etc. To have the best chance of actually getting your work merged, you would be wise to consult the [[Acceptance Guidelines]].
 
 The upshot is, what's committed to Metasploit is rarely exactly what you initially sent, so once the change is committed, you'll want to rebase your checkout against master to pick up all the changes. If you've been developing in a branch (as you should), you shouldn't hit any conflicts with that.
 
