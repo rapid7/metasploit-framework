@@ -190,7 +190,9 @@ Now that you have a source checkout of Metasploit, and you have all your prerequ
 
 <h2 id="sync">Keeping in sync</h2>
 
-One of the main reasons to use Git and GitHub is this whole idea of branching. Basically, you will never work in the "master" branch, since that branch's job is to keep in sync with everyone else. In the case of Metasploit, "everyone else" is `rapid7/metasploit-framework/branches/master`, so let's see how you can keep up with the upstream changes.
+One of the main reasons to use Git and GitHub is this whole idea of branching in order to keep all the code changes straight. In other source control management systems, branching quickly becomes a nightmare, but in Git, branching happens all the time.
+
+You start off with your first branch, "master," which you pretty much never work in. That branch's job is to keep in sync with everyone else. In the case of Metasploit, "everyone else" is `rapid7/metasploit-framework/branches/master`. Let's see how you can keep up with the upstream changes via regular rebasing from upstream's master branch to your master branch.
 
 ### Check out the upstream master branch
 
@@ -232,15 +234,17 @@ Of course, you might occasionally run into rebase conflicts, but let's just assu
 
 #### A Note on Terminology
 
-In Git, we often refer to "origin" and "master," which can be confusing. "Origin" is a remote repository which contains all your branches. "Master" is a branch of the source code -- usually the first branch, and the branch you don't tend to commit directly to.
+In Git, we often refer to "origin" and "master," which can be confusing. "Origin" is a remote repository which contains all of **your** branches. "Master" is a branch of the source code -- usually the first branch, and the branch you don't tend to commit directly to. 
 
-"Upstream," in this context, is the remote that you forked from -- in this case, "upstream" is just another way of referring to the "rapid7" remote. 
+"Origin" **isn't** Rapid7's repository -- we usually referred to that repo as "Upstream." In other words, "upstream" is just another way of referring to the "rapid7" remote. 
 
-Got it? Cool, moving on.
+Got it? "Origin" is your repo up at GitHub, "upstream" is Rapid7's GitHub repo, and "master" is the primary branch of their respective repos.
+
+All right, moving on.
 
 ### Syncing changes
 
-Any time you do this, you're likely to bring in new changes from upstream, since we're committing stuff all the time. This means that when you rebase from upstream/master, your local branch will be ahead of your remote branch. To get your remote up to speed, just
+Any time you rebase from upstream, you're likely to bring in new changes, since we're committing stuff all the time. This means that when you rebase, your local branch will be ahead of your remote branch. To get your remote up to speed, just
 
 ````bash
 $ git push origin master
@@ -250,7 +254,7 @@ It should all look something like this:
 
 [[/screens/git04.png]]
 
-Switch back to your browser, refresh, and you should see the new changes reflected in your repo immediately (those GitHub guys are super fast most of the time):
+Switch back to your browser, refresh, and you should see the new changes reflected in your repo immediately (those GitHub guys are super fast):
 
 [[/screens/git05.png]]
 
