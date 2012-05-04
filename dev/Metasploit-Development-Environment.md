@@ -96,7 +96,7 @@ You'll be presented with a screen to copy-paste your public SSH key (not the pri
 
 ### Confirm your key
 
-Once that's done, you'll have a key associated, and you'll get e-mail about it as well. Eyeball the fingerprint and make sure it all matches up. You don't have to actually click anything if it's all good, but we will bop back to the console here in just a second.
+Once that's done, you'll have a key associated, and you'll get e-mail about it as well. Eyeball the fingerprint and make sure it all matches up. 
 
 [[/screens/ssh05.png]]
 
@@ -137,7 +137,7 @@ git config --global user.email "mcfakepants@packetfu.com"
 
 Cat your ~/.gitconfig to ensure you have at least that set (and remember, your e-mail address needs to match the address you set back when you ssh-keygen'ed):
 
-[[/screen/ssh11.png]]
+[[/screens/ssh11.png]]
 
 ## Working with Git
 
