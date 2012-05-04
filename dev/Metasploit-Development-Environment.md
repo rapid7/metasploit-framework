@@ -190,7 +190,69 @@ Now that you have a source checkout of Metasploit, and you have all your prerequ
 
 <h2 id="sync">Keeping in sync</h2>
 
-Stuff about keeping in sync
+One of the main reasons to use Git and GitHub is this whole idea of branching. Basically, you will never work in the "master" branch, since that branch's job is to keep in sync with everyone else. In the case of Metasploit, "everyone else" is `rapid7/metasploit-framework/branches/master`, so let's see how you can keep up with the upstream changes.
+
+### Check out the upstream master branch
+
+This is pretty straightforward. From your local branch on the command line, you can:
+
+````bash
+$ git remote add upstream git://github.com/rapid7/metasploit-framework.git
+$ git checkout upstream/master
+````
+
+This lets you peek in on upstream, after giving a warning about being in the "detatched HEAD" state (don't worry about that now). From here you can do things like read the change log:
+
+````bash
+$ git log --pretty=oneline --name-only -3
+````
+
+It should all look like this in your command window:
+
+[[/screens/git02.png]]
+
+It's pretty handy to have this checkout be persistent, though, so you can reference it later. So, type this:
+
+````bash
+$ git checkout -b upstream-master
+````
+
+And this will create a new branch called "upstream-master." Now, switch back to your master branch and fetch anything new from there:
+
+````bash
+$ git checkout master
+$ git fetch
+````
+
+And finally, rebase against the upstream. Rebasing is the easiest way to make sure that your master branch is identical to the upstream master branch. If you have any local changes, those are "rewound," all the remote changes get laid down, and then your changes get reapplied. It should all look like this:
+
+[[/screens/git03.png]]
+
+Of course, you might occasionally run into rebase conflicts, but let's just assume you won't for now. :) (See the "Other links" for dealing with merge and rebase conflicts.)
+
+#### A Note on Terminology
+
+In Git, we often refer to "origin" and "master," which can be confusing. "Origin" is a remote repository which contains all your branches. "Master" is a branch of the source code -- usually the first branch, and the branch you don't tend to commit directly to.
+
+"Upstream," in this context, is the remote that you forked from -- in this case, "upstream" is just another way of referring to the "rapid7" remote. 
+
+Got it? Cool, moving on.
+
+### Syncing changes
+
+Any time you do this, you're likely to bring in new changes from upstream, since we're committing stuff all the time. This means that when you rebase from upstream/master, your local branch will be ahead of your remote branch. To get your remote up to speed, just
+
+````bash
+$ git push origin master
+````
+
+It should all look something like this:
+
+[[/screens/git04.png]]
+
+Switch back to your browser, refresh, and you should see the new changes reflected in your repo immediately (those GitHub guys are super fast most of the time):
+
+[[/screens/git05.png]]
 
 <h2 id="pull">Pull Requests</h2>
 
