@@ -141,9 +141,50 @@ Cat your ~/.gitconfig to ensure you have at least that set (and remember, your e
 
 ## Working with Git
 
-The rest of this document will walk through the usual use case of working with Git to commit something new to Metasploit. The example will commit the file "2.txt" to "test/git/" , but imagine that we're committing some new module like "ms_12_020_code_exec.rb" to "modules/exploits/windows/rdp/"
+The rest of this document will walk through the usual use case of working with Git and GitHub to get a local source checkout, commit something new, and get it submitted to be part of the Metasploit Framework distribution. The example here will commit the file _2.txt_ to _test/git/_ , but imagine that we're committing some new module like _ms_12_020_code_exec.rb_ to _modules/exploits/windows/rdp/_.
 
-### Forking
+### Fork!
+
+Now that you have a GitHub account, it's time to fork the Metasploit Framework. First, go to https://github.com/rapid7/metasploit-framework , and click the button:
+
+[[/screens/fork01.png]]
+
+Hang out for a few seconds, and behold the animated "Hardcore Forking Action:"
+
+[[/screens/fork02.png]]
+
+Once that's done, switch back over to your, make a subdirectory for your git clones, and use your previously defined .ssh/config alias to clone up a copy of Metasploit:
+
+````bash
+$ mkdir git
+$ cd git
+$ git clone github:mcfakepants/metasploit-framework.git
+````
+You should end up with a complete copy of Metasploit in the metasploit-framework subdirectory, like so:
+
+[[/screens/fork03.png]]
+
+### Set Your Prompt
+
+Now might be a good time to decorate up your prompt. I've hacked this together for my ~/.bash_aliases. It's a little ugly, but it works:
+
+````bash
+# Git and RVM prompting
+function git-current-branch {
+    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1) /'
+}
+export PS1="[\$(~/.rvm/bin/rvm-prompt v p g)] \$(git-current-branch)$PS1"
+````
+
+What this does is let me know on the command line prompt which version of Ruby, which gemset, and which Git branch I happen to be in. The end result looks like this:
+
+[[/screens/fork5.png]]
+
+### Start Metasploit
+
+Now that you have a source checkout of Metasploit, and you have all your prerequisite components from apt and rvm, you should be able to run it straight from your git clone with `./msfconsole -L`:
+
+[[/screens/fork6.png]]
 
 ### Keeping in sync
 
