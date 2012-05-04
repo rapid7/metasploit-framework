@@ -11,7 +11,7 @@
 * [Making a Pull Request](#pull)
 
 #### Other Wiki Pages
--------------
+--
 * [[Using Git]]
 * [[Contributing to Metasploit]]
 * [[Acceptance Guidelines]]
