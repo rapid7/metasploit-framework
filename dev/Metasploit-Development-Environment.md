@@ -10,7 +10,7 @@ Throughout this documentation, we'll be using the example user of "Fakey McFakep
 #### Contents
 * [Apt-Get Install](#apt)
 * [Getting Ruby](#rvm)
-* [Your Editor]](#editor)
+* [Your Editor](#editor)
 * [Using GitHub](#github)
 * [Set an SSH Key](#ssh)
 * [Using Git](#git)
