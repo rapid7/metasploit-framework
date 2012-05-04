@@ -6,7 +6,11 @@ This documentation assumes you're on some recent version of Ubuntu Linux. If not
 
 Throughout this documentation, we'll be using the example user of "Fakey McFakepants," who has the e-mail address of "mcfakepants@packetfu.com" and a login username of "fakey."
 
-## <a name="apt-get">Apt-Get Install</a>
+
+***
+[Apt-Get Install](#apt)
+
+<h2 id="apt">Apt-Get Install</h2>
 
 The bare minimum for working on Metasploit effectively is:
 
