@@ -4,12 +4,12 @@
 * [Getting Ruby](#rvm)
 * [Your Editor](#editor)
 * [Using GitHub](#github)
-* [Set an SSH Key](#ssh)
+* [SSH for GitHub](#ssh)
 * [Using Git](#git)
 * [Forking Metasploit](#fork)
 * [Setting your Prompt](#prompt)
 * [Keeping in Sync](#sync)
-* [Making a Pull Request](#pull)
+* [Pull Requests](#pull)
 
 #### Other Wiki Pages
 ***

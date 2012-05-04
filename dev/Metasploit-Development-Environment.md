@@ -23,7 +23,7 @@ apt-get -y install \
 
 Note that this does **not** include an appropriate text editor or IDE, nor does it include the Ruby interpreter itself. We'll get to that in a second.
 
-<h2 id="rvm">RVM</h2>
+<h2 id="rvm">Getting Ruby</h2>
 
 Most (all?) standard distributions of Ruby are lacking in one regard or another. Lucky for all of us, Wayne Seguin's RVM has been getting steadily more excellent in providing several proven Ruby interpreters. Visit [https://rvm.io/](https://rvm.io/) to read up on it, or just trust that it'll all work out with a simple:
 
@@ -47,13 +47,13 @@ What this all does is fetch RVM, which performs a bunch of shell voodoo, and fin
 
 [[/screens/rvm02.png]]
 
-<h2 id="editor">Editor / IDE</h2>
+<h2 id="editor">Your Editor</h2>
 
 Once that's all done, you can move on to setting up your preferred editor. Far be it from us to tell you what editor you use -- people get really attached to these things for some reason. Once we have some docs put together for sensible defaults for a couple of the more popular editors out there, we'll list that here.
 
-<h2 id="github">Create a GitHub Account</h2>
+<h2 id="github">Using GitHub</h2>
 
-The entire Metasploit code base is hosted here on GitHub. If you have an old Redmine account over at dev.metasploit.com, that's not going to do much for you since the switch-over. The process for creating an account is pretty simple.
+The entire Metasploit code base is hosted here on GitHub. If you have an old Redmine account over at dev.metasploit.com, that's not going to do much for you since the switch-over -- you're going to need a GitHub account. That process is pretty simple.
 
 ### Find the Signup button
 
@@ -252,7 +252,7 @@ Switch back to your browser, refresh, and you should see the new changes reflect
 
 <h2 id="pull">Pull Requests</h2>
 
-Finally, let's get to pull requests. That's why you're reading all this, after all. This is the basic procedure that @corelanc0d3r suggested for Metasploit contributors. Thanks to @corelanc0d3r for initially writing this all down from a contributor's perspective.
+Finally, let's get to pull requests. That's why you're reading all this, after all. Thanks to @corelanc0d3r for initially writing this all down from a contributor's perspective.
 
 First, create a new branch:
 
