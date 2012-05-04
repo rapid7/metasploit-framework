@@ -1,6 +1,6 @@
 #### Metasploit Wiki Pages
 ***
-* [[Home]] yep
+* [[Home]] Welcome to Metasploit!
 * [[Using Metasploit]] A collection of useful links for penetration testers
 * [[Using Git]] All about Git and GitHub
 * [[Metasploit Development Environment]] From `apt-get install` to sending your first pull request
