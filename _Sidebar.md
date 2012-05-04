@@ -1,9 +1,6 @@
-##### [[Home]] Welcome to Metasploit!
-##### [[Using Metasploit]] A collection of useful links for penetration testers.
-
-##### [[Using Git]]
-
-All about Git and GitHub.
+#### [[Home]] Welcome to Metasploit!
+#### [[Using Metasploit]] A collection of useful links for penetration testers.
+#### [[Using Git]] All about Git and GitHub.
 
 ##### [[Metasploit Development Environment]]
 
