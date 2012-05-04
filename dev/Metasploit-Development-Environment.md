@@ -252,7 +252,7 @@ Switch back to your browser, refresh, and you should see the new changes reflect
 
 <h2 id="pull">Pull Requests</h2>
 
-Finally, let's get to pull requests. That's why you're reading all this, after all. Thanks to @corelanc0d3r for initially writing this all down from a contributor's perspective.
+Finally, let's get to pull requests. That's why you're reading all this, after all. Thanks to [@corelanc0d3r](https://github.com/corelanc0d3r) for initially writing this all down from a contributor's perspective.
 
 First, create a new branch:
 
