@@ -177,7 +177,7 @@ You should end up with a complete copy of Metasploit in the metasploit-framework
 
 [[/screens/fork03.png]]
 
-<h2 id="prompt">Set Your Prompt</h3>
+<h3 id="prompt">Set Your Prompt</h3>
 
 Now might be a good time to decorate up your prompt. I've hacked this together for my ~/.bash_aliases. It's a little ugly, but it works:
 
