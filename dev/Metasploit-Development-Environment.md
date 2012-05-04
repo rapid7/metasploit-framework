@@ -173,7 +173,7 @@ Now might be a good time to decorate up your prompt. I've hacked this together f
 ````bash
 # Git and RVM prompting
 function git-current-branch {
-    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1) /'
+    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \\(.*\)/(\1) /'
 }
 export PS1="[\$(~/.rvm/bin/rvm-prompt v p g)] \$(git-current-branch)$PS1"
 ````
