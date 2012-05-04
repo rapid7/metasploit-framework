@@ -1,4 +1,5 @@
 #### Contents
+***
 * [Apt-Get Install](#apt)
 * [Getting Ruby](#rvm)
 * [Your Editor](#editor)
@@ -11,12 +12,12 @@
 * [Making a Pull Request](#pull)
 
 #### Other Wiki Pages
---
+***
 * [[Using Git]]
 * [[Contributing to Metasploit]]
 * [[Acceptance Guidelines]]
 * [[Using Metasploit]]
   * [[Evading Anti Virus]]
-
 #### Other Helpful Links
+***
 
