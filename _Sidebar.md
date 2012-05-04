@@ -10,7 +10,7 @@
 * [Keeping in Sync](#sync)
 * [Making a Pull Request](#pull)
 
-## Other Wiki Pages
+#### Other Wiki Pages
 -------------
 * [[Using Git]]
 * [[Contributing to Metasploit]]
@@ -18,5 +18,5 @@
 * [[Using Metasploit]]
   * [[Evading Anti Virus]]
 
-## Other Helpful Links
+#### Other Helpful Links
 
