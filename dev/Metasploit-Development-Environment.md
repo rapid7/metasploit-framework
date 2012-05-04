@@ -155,7 +155,7 @@ Hang out for a few seconds, and behold the animated "Hardcore Forking Action:"
 
 [[/screens/fork02.png]]
 
-Once that's done, switch back over to your, make a subdirectory for your git clones, and use your previously defined .ssh/config alias to clone up a copy of Metasploit:
+Once that's done, switch back over to your terminal, make a subdirectory for your git clones, and use your previously defined .ssh/config alias to clone up a copy of Metasploit:
 
 ````bash
 $ mkdir git
