@@ -288,7 +288,7 @@ Depending on the position of the stars, someone from the Metasploit core develop
 
 [[/screens/pull06.png]]
 
-Now, keep in mind that actually landing a pull request is a little more involved than just taking your commit and applying it directly to the tree. Usually, there are a few changes to be made, sometimes there's some back and forth on the pull request to see if some technique works better, etc.
+Now, keep in mind that actually landing a pull request is a little more involved than just taking your commit and applying it directly to the tree. Usually, there are a few changes to be made, sometimes there's some back and forth on the pull request to see if some technique works better, etc. To have the best chances of actually getting your work merged, you would be wise to consult the [Acceptance Guidelines]
 
 The upshot is, what's committed to Metasploit is rarely exactly what you initially sent, so once the change is committed, you'll want to rebase your checkout against master to pick up all the changes. If you've been developing in a branch (as you should), you shouldn't hit any conflicts with that.
 
