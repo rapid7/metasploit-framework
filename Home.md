@@ -1,1 +1,1 @@
-It's Metasploit!
+Welcome to the Metasploit Wiki!
