@@ -7,8 +7,17 @@ This documentation assumes you're on some recent version of Ubuntu Linux. If not
 Throughout this documentation, we'll be using the example user of "Fakey McFakepants," who has the e-mail address of "mcfakepants@packetfu.com" and a login username of "fakey."
 
 
-***
-[Apt-Get Install](#apt)
+#### Contents
+* [Apt-Get Install](#apt)
+[Getting Ruby](#rvm)
+[Your Editor]](#editor)
+[Using GitHub](#github)
+[Set an SSH Key](#ssh)
+[Using Git](#git)
+[Forking Metasploit](#fork)
+[Setting your Prompt](#prompt)
+[Keeping in Sync](#sync)
+[Making a Pull Request](#pull)
 
 <h2 id="apt">Apt-Get Install</h2>
 
@@ -25,7 +34,7 @@ apt-get -y install \
 
 Note that this does **not** include an appropriate text editor or IDE, nor does it include the Ruby interpreter itself. We'll get to that in a second.
 
-## RVM
+<h2 id="rvm">RVM</h2>
 
 Most (all?) standard distributions of Ruby are lacking in one regard or another. Lucky for all of us, Wayne Seguin's RVM has been getting steadily more excellent in providing several proven Ruby interpreters. Visit [https://rvm.io/](https://rvm.io/) to read up on it, or just trust that it'll all work out with a simple:
 
@@ -49,11 +58,11 @@ What this all does is fetch RVM, which performs a bunch of shell voodoo, and fin
 
 [[/screens/rvm02.png]]
 
-## Editor / IDE 
+<h2 id="editor">Editor / IDE</h2>
 
 Once that's all done, you can move on to setting up your preferred editor. Far be it from us to tell you what editor you use -- people get really attached to these things for some reason. Once we have some docs put together for sensible defaults for a couple of the more popular editors out there, we'll list that here.
 
-## Create a GitHub Account
+<h2 id="github">Create a GitHub Account</h2>
 
 The entire Metasploit code base is hosted here on GitHub. If you have an old Redmine account over at dev.metasploit.com, that's not going to do much for you since the switch-over. The process for creating an account is pretty simple.
 
@@ -71,7 +80,7 @@ The entire Metasploit code base is hosted here on GitHub. If you have an old Red
 
 None of this is exactly rocket science.
 
-##  SSH for GitHub
+<h2 id="ssh">SSH for GitHub</ssh>
 
 Once that's all done, you need to set up an SSH key to associate with your new GitHub identity (this step is **not** optional, so good on GitHub for forcing this minimal level of security).
 
@@ -143,11 +152,11 @@ Cat your ~/.gitconfig to ensure you have at least that set (and remember, your e
 
 [[/screens/ssh11.png]]
 
-## Working with Git
+<h1 id="git">Working with Git</h2>
 
 The rest of this document will walk through the usual use case of working with Git and GitHub to get a local source checkout, commit something new, and get it submitted to be part of the Metasploit Framework distribution. The example here will commit the file _2.txt_ to _test/git/_ , but imagine that we're committing some new module like _ms_12_020_code_exec.rb_ to _modules/exploits/windows/rdp/_.
 
-### Fork!
+<h2 id="git-fork">Fork!</h3>
 
 Now that you have a GitHub account, it's time to fork the Metasploit Framework. First, go to https://github.com/rapid7/metasploit-framework , and click the button:
 
@@ -168,7 +177,7 @@ You should end up with a complete copy of Metasploit in the metasploit-framework
 
 [[/screens/fork03.png]]
 
-### Set Your Prompt
+<h2 id="prompt">Set Your Prompt</h3>
 
 Now might be a good time to decorate up your prompt. I've hacked this together for my ~/.bash_aliases. It's a little ugly, but it works:
 
@@ -184,15 +193,19 @@ What this does is let me know on the command line prompt which version of Ruby, 
 
 [[/screens/fork5.png]]
 
-### Start Metasploit
+## Start Metasploit
 
 Now that you have a source checkout of Metasploit, and you have all your prerequisite components from apt and rvm, you should be able to run it straight from your git clone with `./msfconsole -L`:
 
 [[/screens/fork6.png]]
 
-### Keeping in sync
+<h2 id="sync">Keeping in sync</h2>
 
-### Pull Requests
+Stuff about keeping in sync
+
+<h2 id="pull">Pull Requests</h2>
+
+Stuff about pull requests
 
 ***
 
