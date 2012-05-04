@@ -170,13 +170,7 @@ You should end up with a complete copy of Metasploit in the metasploit-framework
 
 Now might be a good time to decorate up your prompt. I've hacked this together for my ~/.bash_aliases. It's a little ugly, but it works:
 
-````bash
-# Git and RVM prompting
-function git-current-branch {
-    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \\(.*\)/(\1) /'
-}
-export PS1="[\$(~/.rvm/bin/rvm-prompt v p g)] \$(git-current-branch)$PS1"
-````
+<script src="https://gist.github.com/2555109.js"> </script>
 
 What this does is let me know on the command line prompt which version of Ruby, which gemset, and which Git branch I happen to be in. The end result looks like this:
 
