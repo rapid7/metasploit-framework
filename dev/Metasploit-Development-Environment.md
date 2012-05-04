@@ -168,11 +168,10 @@ You should end up with a complete copy of Metasploit in the metasploit-framework
 
 <h3 id="prompt">Set Your Prompt</h3>
 
-Now might be a good time to decorate up your prompt. I've hacked this together for my ~/.bash_aliases. It's a little ugly, but it works:
+Now might be a good time to decorate up your prompt. I've hacked [this gist](https://gist.github.com/2555109) together for my ~/.bash_aliases. It's a little ugly, but it works.
 
 [[/screens/fork04.png]]
 
-[here](https://gist.github.com/2555109)
 What this does is let me know on the command line prompt which version of Ruby, which gemset, and which Git branch I happen to be in. The end result looks like this:
 
 [[/screens/fork05.png]]
