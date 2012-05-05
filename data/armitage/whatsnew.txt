@@ -1,6 +1,34 @@
 Armitage Changelog
 ==================
 
+7 May 12
+--------
+Note: Armitage team server setup has changed. Refer to the manual for
+the latest information: http://www.fastandeasyhacking.com/manual#7
+
+- Armitage team mode now routes all Metasploit-bound calls through the
+  deconfliction server. Armitage also pools "temporary" Metasploit
+  consoles. It's too bad this is logged as one change, because it's 
+  more like twenty. These changes were motivated by a desire to avoid 
+  triggering a race condition that was introduced w/ Metasploit 4.3.0.
+         http://dev.metasploit.com/redmine/issues/6829
+
+  On the bright side these changes will allow a lot more flexibility 
+  to optimize how Armitage interacts with msfrpcd and to do some neat 
+  things (like logging) in a centralized way.
+- Module description (in module launch dialog) is now resizable.
+- Added Ctrl+D keyboard shortcut to close active tab.
+- Armitage now uses (more robust) console queue for launching post
+  modules, handlers, brute force attacks, and other things.
+- Fixed a race condition in the Jobs tab refresh after killing a job
+- Armitage now filters smb hashes from non-psexec/smb login dialogs.
+- Added armitage.log_data_here.folder setting. This setting lets you
+  specify where Armitage will save its logs, downloaded files, and
+  screenshots. *cough* Some penetration testers like to dump everything
+  to an encrypted volume. *cough*. I apologize it took this long to
+  get this feature in place.
+- Improved perceived responsiveness of a console interaction
+
 17 Apr 12
 ---------
 - Modified how Armitage determines a console command is complete to stay 
