@@ -320,6 +320,27 @@ function stdapi_fs_file_expand_path($req, &$pkt) {
 }
 }
 
+
+if (!function_exists('stdapi_fs_mkdir')) {
+function stdapi_fs_mkdir($req, &$pkt) {
+    my_print("doing mkdir");
+    $path_tlv = packet_get_tlv($req, TLV_TYPE_DIRECTORY_PATH);
+    $ret = mkdir(cononicalize_path($path_tlv['value']),0777);
+    return $ret ? ERROR_SUCCESS : ERROR_FAILURE;
+}
+}
+
+
+if (!function_exists('stdapi_fs_delete_dir')) {
+function stdapi_fs_delete_dir($req, &$pkt) {
+    my_print("doing rmdir");
+    $path_tlv = packet_get_tlv($req, TLV_TYPE_DIRECTORY_PATH);
+    $ret = @rmdir(cononicalize_path($path_tlv['value']));
+    return $ret ? ERROR_SUCCESS : ERROR_FAILURE;
+}
+}
+
+
 # works
 if (!function_exists('stdapi_fs_chdir')) {
 function stdapi_fs_chdir($req, &$pkt) {
