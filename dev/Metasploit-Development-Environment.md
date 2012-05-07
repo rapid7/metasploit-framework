@@ -13,7 +13,7 @@ Throughout this documentation, we'll be using the example user of "Fakey McFakep
 The bare minimum for working on Metasploit effectively is:
 
 ````bash
-apt-get -y install \
+$ sudo apt-get -y install \
   build-essential zlib1g zlib1g-dev \
   libxml2 libxml2-dev libxslt-dev locate \
   libreadline6-dev libcurl4-openssl-dev git-core \
@@ -32,7 +32,13 @@ Most (all?) standard distributions of Ruby are lacking in one regard or another.
 $ curl -L get.rvm.io | bash -s stable
 ````
 
-Followed by: 
+Note the *lack* of sudo; you will nearly always want to install this as a regular user, and not as root. Follow this by editing your .bashrc to include this line at the end (if it doesn't have it already):
+
+````bash
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM
+````
+
+Next, run the RVM scripts by either opening a new terminal window, or just run: 
 
 ````bash
 $ source ~/.rvm/scripts/rvm
@@ -44,7 +50,9 @@ And finally:
 $ rvm install 1.9.3-p125
 ````
 
-What this does is fetch RVM, which performs a bunch of shell voodoo, and installs Ruby version 1.9.3 patchlevel 125 (there are lots of other Rubies to choose from, but we like this one the most right now). Assuming all goes as planned, you should end up with something like this in your shell:
+What this does is fetch RVM, which performs a bunch of shell voodoo, and installs Ruby version 1.9.3 patchlevel 125 (there are lots of other Rubies to choose from, but we like this one the most right now). It'll take a few minutes (depending on network and CPU I/O). 
+
+Assuming all goes as planned, you should end up with something like this in your shell:
 
 [[/screens/rvm02.png]]
 
@@ -79,6 +87,7 @@ After that's done, you need to set up an SSH key to associate with your new GitH
 We recommend you set up a new SSH key pair to associate with GitHub, rather than reuse that same old key you have in 50 other authorized_keys files around the world. Why not just start fresh? It's easy and fun:
 
 ````bash
+# mkdir ~/.ssh # If you don't already have one
 $ ssh-keygen -t rsa -C "mcfakepants@packetfu.com"
 ````
 Just follow the prompts, pick a name for your key pair (I use "id_rsa.github"), set a password, and you should end up with something like:
@@ -185,6 +194,8 @@ Now that you have a source checkout of Metasploit, and you have all your prerequ
 
 [[/screens/fork06.png]]
 
+Note that if you need resources that only root has access to, you'll want to run `rvmsudo ./msfconsole -L` instead.
+
 <h2 id="sync">Keeping in sync</h2>
 
 One of the main reasons to use Git and GitHub is this whole idea of branching in order to keep all the code changes straight. In other source control management systems, branching quickly becomes a nightmare, but in Git, branching happens all the time.
@@ -198,6 +209,7 @@ This is pretty straightforward. From your local branch on the command line, you 
 ````bash
 $ git remote add upstream git://github.com/rapid7/metasploit-framework.git
 $ git checkout upstream/master
+$ git fetch upstream
 ````
 
 This lets you peek in on upstream, after giving a warning about being in the "detatched HEAD" state (don't worry about that now). From here you can do things like read the change log:
@@ -216,14 +228,18 @@ It's pretty handy to have this checkout be persistent so you can reference it la
 $ git checkout -b upstream-master
 ````
 
-And this will create a new branch called "upstream-master." Now, switch back to your master branch and fetch anything new from there:
+And this will create a new local branch called "upstream-master." Now, switch back to your master branch and fetch anything new from there:
 
 ````bash
 $ git checkout master
 $ git fetch
 ````
 
-And finally, rebase against the upstream. 
+And finally, rebase against the upstream:
+
+````bash
+$ git rebase upstream-master
+```` 
 
 Rebasing is the easiest way to make sure that your master branch is identical to the upstream master branch. If you have any local changes, those are "rewound," all the remote changes get laid down, and then your changes get reapplied. It should all look like this:
 
@@ -241,7 +257,7 @@ All right, moving on.
 
 ### Syncing changes
 
-Any time you rebase from upstream, you're likely to bring in new changes because we're committing stuff all the time. This means that when you rebase, your local branch will be ahead of your remote branch. To get your remote up to speed:
+Any time you rebase from upstream (like just now), you're likely to bring in new changes because we're committing stuff all the time. This means that when you rebase, your local branch will be ahead of your remote branch. To get your remote fork up to speed:
 
 ````bash
 $ git push origin master
@@ -259,9 +275,10 @@ Switch back to your browser, refresh, and you should see the new changes reflect
 
 Finally, let's get to pull requests. That's why you're reading all this, after all. Thanks to [@corelanc0d3r](https://github.com/corelanc0d3r) for initially writing this all down from a contributor's perspective.
 
-First, create a new branch:
+First, create a new branch from your master branch:
 
 ````bash
+git checkout master
 git checkout -b module-ms12-020
 ````
 
