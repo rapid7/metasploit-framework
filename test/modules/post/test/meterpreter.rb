@@ -51,7 +51,9 @@ class Metasploit4 < Msf::Post
 			res = !!(ifaces and ifaces.length > 0)
 
 			res &&= !! ifaces.find { |iface|
-				iface.ip == session.session_host
+				iface.addrs.find { |addr|
+					addr == session.session_host
+				}
 			}
 
 			res
