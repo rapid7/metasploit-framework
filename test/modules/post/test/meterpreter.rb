@@ -176,6 +176,32 @@ class Metasploit4 < Msf::Post
 			res
 		end
 
+		it "should do md5 and sha1 of files" do
+			res = true
+			remote = "HACKING.remote.txt"
+			local  = "HACKING"
+			vprint_status("uploading")
+			session.fs.file.upload_file(remote, local)
+			vprint_status("done")
+			res &&= session.fs.dir.entries.include?(remote)
+			vprint_status("remote file exists? #{res.inspect}")
+
+			if res
+				remote_md5 = session.fs.file.md5(remote)
+				local_md5  = Digest::MD5.digest(::File.read(local))
+				remote_sha = session.fs.file.sha1(remote)
+				local_sha  = Digest::SHA1.digest(::File.read(local))
+				vprint_status("remote md5: #{Rex::Text.to_hex(remote_md5,'')}")
+				vprint_status("local md5 : #{Rex::Text.to_hex(local_md5,'')}")
+				vprint_status("remote sha: #{Rex::Text.to_hex(remote_sha,'')}")
+				vprint_status("local sha : #{Rex::Text.to_hex(local_sha,'')}")
+				res &&= (remote_md5 == local_md5)
+			end
+
+			session.fs.file.rm(remote)
+			res
+		end
+
 	end
 
 	def test_sniffer
