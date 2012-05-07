@@ -1,0 +1,53 @@
+#!/bin/bash
+# start msfrpcd and the deconfliction server. Check for common mistakes
+# to save some time and head scratching...
+
+# check the arguments
+EXPECTED=2
+if [ $# -ne $EXPECTED ]; then
+	echo "[-] You must provide: <external IP address> <team password>"
+	echo "    <external IP address> must be reachable by Armitage"
+	echo "          clients on port 55553"
+	echo "    <team password> is a shared password your team uses to"
+	echo "          authenticate to the Armitage team server"
+	exit
+fi
+
+# check that we're r00t
+if [ $UID -ne 0 ]; then
+	echo "[-] Superuser privileges are required to run the team server"
+	exit 
+fi
+
+# check if java is available...
+if [ $(command -v java) ]; then
+	true
+else
+	echo "[-] java is not in \$PATH"
+	echo "    is Java installed?"
+	exit
+fi
+
+# check if msfrpcd is available
+if [ $(command -v msfrpcd) ]; then
+	true
+else
+	echo "[-] msfrpcd is not in \$PATH"
+	echo "    is Metasploit installed?"
+	exit
+fi
+
+# check if msfrpcd is running or not
+if [ "$(pidof msfrpcd)" ]; then
+	echo "[-] msfrpcd is already running. Kill it before running this script"
+	echo "    try: killall -9 msfrpcd"
+	exit
+fi
+
+# start everything up
+echo "[+] Starting RPC daemon"
+msfrpcd -U msf -P $2 -a 127.0.0.1 -p 55554 -S
+echo "[+] sleeping for 20s (to let msfrpcd initialize)"
+sleep 20
+echo "[+] Starting Armitage team server"
+java -server -XX:+UseParallelGC -jar armitage.jar --server $1 55554 msf $2 55553
