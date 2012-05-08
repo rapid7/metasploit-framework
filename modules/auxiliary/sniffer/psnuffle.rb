@@ -177,12 +177,12 @@ class BaseProtocolParser
 			sessions[sessionid][:mtime] = Time.now
 		else
 			# Create a new session entry along with the host/port from the id
-			if (sessionid =~ /^([^:]+):([^-]+)-/s)
+			if (sessionid =~ /^([^:]+):([^-]+)-([^:]+):(\d+)$/s)
 				sessions[sessionid] = {
-					:host      => $1,
-					:target_host => $1,
-					:port      => $2,
-					:target_port => $2,
+					:client_host => $1,
+					:client_port => $2,
+					:host => $3,
+					:port => $4,
 					:session   => sessionid,
 					:ctime     => Time.now,
 					:mtime     => Time.now
