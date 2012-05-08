@@ -34,9 +34,9 @@ $ curl -L get.rvm.io | bash -s stable
 
 Note the *lack* of sudo; you will nearly always want to install this as a regular user, and not as root. Follow this by editing your .bashrc to include this line at the end (if it doesn't have it already):
 
-````bash
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM
-````
+`\[\[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM`
+
+> (note that the markdown on this wiki is forcing escapes on these brackets -- that should read "bracket bracket space dash es," and not "slash bracket slash bracket space...")
 
 Next, run the RVM scripts by either opening a new terminal window, or just run: 
 
@@ -55,6 +55,12 @@ What this does is fetch RVM, which performs a bunch of shell voodoo, and install
 Assuming all goes as planned, you should end up with something like this in your shell:
 
 [[/screens/rvm02.png]]
+
+Once that's finished, it would behoove you to set your default ruby and gemset, as described [in this gist](https://gist.github.com/2625441) by @claudijd. What I use is:
+
+````bash
+$ rvm use --default 1.9.3-p125
+````
 
 <h2 id="editor">Your Editor</h2>
 
