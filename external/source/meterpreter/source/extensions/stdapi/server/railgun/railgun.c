@@ -28,6 +28,10 @@
  * sf - Sept 2010 - Modified for x64 support and merged into stdapi.
  */
 
+/*
+ * mak - Apr 2012 - Support for linux
+ */
+
 #include "precomp.h"
 #include "railgun.h"
 
@@ -80,23 +84,17 @@ DWORD railgun_call( RAILGUN_INPUT * pInput, RAILGUN_OUTPUT * pOutput )
 	ULONG_PTR * pStack                       = NULL;
 	const ULONG_PTR * pStackDescriptorBuffer = NULL; // do not free! Just convenience ptr to TLV
 	DWORD dwStackSizeInElements              = 0;
-	DWORD dwIndex                            = 0; 
+	DWORD dwIndex                            = 0;
 
 	do
 	{
 		if( !pInput || !pOutput )
 			BREAK_WITH_ERROR( "[RAILGUN] railgun_call: Input || !pOutput", ERROR_INVALID_PARAMETER );
-		
+
 		// debugprint the inputs...
-#ifdef _WIN64
-		dprintf("[RAILGUN] railgun_call: TLV_TYPE_RAILGUN_BUFFERBLOB_IN - dwBufferSizeIN=%d, pBufferIN=0x%llX", pInput->dwBufferSizeIN, pInput->pBufferIN );
-		dprintf("[RAILGUN] railgun_call: TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT - dwBufferSizeINOUT=%d, pBufferINOUT=0x%llX", pInput->dwBufferSizeINOUT, pInput->pBufferINOUT );
+		dprintf("[RAILGUN] railgun_call: TLV_TYPE_RAILGUN_BUFFERBLOB_IN - dwBufferSizeIN=%d, pBufferIN="PTRFMT, pInput->dwBufferSizeIN, pInput->pBufferIN );
+		dprintf("[RAILGUN] railgun_call: TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT - dwBufferSizeINOUT=%d, pBufferINOUT="PTRFMT, pInput->dwBufferSizeINOUT, pInput->pBufferINOUT );
 		dprintf("[RAILGUN] railgun_call: Got TLV_TYPE_RAILGUN_STACKBLOB, pStack blob size=%d", pInput->pStackDescriptorTlv.header.length );
-#else
-		dprintf("[RAILGUN] railgun_call: TLV_TYPE_RAILGUN_BUFFERBLOB_IN - dwBufferSizeIN=%d, pBufferIN=0x%08X", pInput->dwBufferSizeIN, pInput->pBufferIN );
-		dprintf("[RAILGUN] railgun_call: TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT - dwBufferSizeINOUT=%d, pBufferINOUT=0x%08X", pInput->dwBufferSizeINOUT, pInput->pBufferINOUT );
-		dprintf("[RAILGUN] railgun_call: Got TLV_TYPE_RAILGUN_STACKBLOB, pStack blob size=%d", pInput->pStackDescriptorTlv.header.length );
-#endif
 
 		// fixup the outputs...
 		pOutput->dwLastError       = ERROR_SUCCESS;
@@ -112,21 +110,19 @@ DWORD railgun_call( RAILGUN_INPUT * pInput, RAILGUN_OUTPUT * pOutput )
 			memset( pOutput->pBufferOUT, 'A', pOutput->dwBufferSizeOUT ); // this might help catch bugs
 		}
 
-#ifdef _WIN64
-		dprintf("[RAILGUN] railgun_call: TLV_TYPE_RAILGUN_SIZE_OUT - dwBufferSizeOUT=%d, pBufferOUT=0x%llX", pOutput->dwBufferSizeOUT, pOutput->pBufferOUT );
-#else
-		dprintf("[RAILGUN] railgun_call: TLV_TYPE_RAILGUN_SIZE_OUT - dwBufferSizeOUT=%d, pBufferOUT=0x%08X", pOutput->dwBufferSizeOUT, pOutput->pBufferOUT );
-#endif
+		dprintf("[RAILGUN] railgun_call: TLV_TYPE_RAILGUN_SIZE_OUT - dwBufferSizeOUT=%d, pBufferOUT="PTRFMT, pOutput->dwBufferSizeOUT, pOutput->pBufferOUT );
+
 
 		// get address of function
-		hDll = LoadLibraryA( pInput->cpDllName ); // yes this increases the counter. lib should never be released. maybe the user just did a WSAStartup etc.
-		if( !hDll )
-			BREAK_ON_ERROR( "[RAILGUN] railgun_call: LoadLibraryA Failed." );
 
-		pFuncAddr = (VOID *)GetProcAddress( hDll, pInput->cpFuncName );
+		LOAD_DLL( pInput->cpDllName ); // yes this increases the counter. lib should never be released. maybe the user just did a WSAStartup etc.
+		if( !hDll )
+		        BREAK_ON_ERROR( "[RAILGUN] railgun_call: LoadLibraryA Failed." );
+
+		LOAD_FUN( hDll, pInput->cpFuncName );
 		if( !pFuncAddr )
 			BREAK_ON_ERROR( "[RAILGUN] railgun_call: GetProcAddress Failed." );
-		
+
 		if( ( pInput->pStackDescriptorTlv.header.length % ( 2 * sizeof(ULONG_PTR) ) ) != 0 )
 			dprintf( "[RAILGUN] railgun_call: Warning: blob size makes no sense." );
 
@@ -138,11 +134,8 @@ DWORD railgun_call( RAILGUN_INPUT * pInput, RAILGUN_OUTPUT * pOutput )
 		if( !pStack )
 			BREAK_WITH_ERROR( "[RAILGUN] railgun_call: malloc pStack Failed.", ERROR_OUTOFMEMORY );
 
-#ifdef _WIN64
-		dprintf( "[RAILGUN] railgun_call: dwStackSizeInElements=%d, pStack=0x%llX", dwStackSizeInElements, pStack );
-#else
 		dprintf( "[RAILGUN] railgun_call: dwStackSizeInElements=%d, pStack=0x%08X", dwStackSizeInElements, pStack );
-#endif
+
 
 		// To build the pStack we have to process the items.
 		// depending on their types the items are
@@ -156,36 +149,22 @@ DWORD railgun_call( RAILGUN_INPUT * pInput, RAILGUN_OUTPUT * pOutput )
 			switch( pStackDescriptorBuffer[ dwIndex*2 ] )
 			{
 				case 0:	// do nothing. item is a literal value
-#ifdef _WIN64
-					dprintf("[RAILGUN] railgun_call: Param %d is literal:0x%llX", dwIndex, dwItem );
-#else
-					dprintf("[RAILGUN] railgun_call: Param %d is literal:0x%08X", dwIndex, dwItem );
-#endif
+
+					dprintf("[RAILGUN] railgun_call: Param %d is literal:"PTRFMT, dwIndex, dwItem );
+
 					pStack[dwIndex] = dwItem;
 					break;
 				case 1:	// relative ptr to pBufferIN. Convert to absolute Ptr
 					pStack[dwIndex] = dwItem + ( (ULONG_PTR)pInput->pBufferIN );
-#ifdef _WIN64
-					dprintf("[RAILGUN] railgun_call: Param %d is relative to pBufferIN: 0x%llX => 0x%llX", dwIndex, dwItem, pStack[dwIndex] );
-#else
-					dprintf("[RAILGUN] railgun_call: Param %d is relative to pBufferIN: 0x%08X => 0x%08X", dwIndex, dwItem, pStack[dwIndex] );
-#endif
+					dprintf("[RAILGUN] railgun_call: Param %d is relative to pBufferIN: "PTRFMT" => "PTRFMT, dwIndex, dwItem, pStack[dwIndex] );
 					break;
 				case 2:	// relative ptr to pBufferOUT. Convert to absolute Ptr
 					pStack[dwIndex] = dwItem + ( (ULONG_PTR)pOutput->pBufferOUT );
-#ifdef _WIN64
-					dprintf("[RAILGUN] railgun_call: Param %d is relative to pBufferOUT: 0x%llX => 0x%llX", dwIndex, dwItem, pStack[dwIndex] );
-#else
-					dprintf("[RAILGUN] railgun_call: Param %d is relative to pBufferOUT: 0x%08X => 0x%08X", dwIndex, dwItem, pStack[dwIndex] );
-#endif
+					dprintf("[RAILGUN] railgun_call: Param %d is relative to pBufferOUT: "PTRFMT" => "PTRFMT, dwIndex, dwItem, pStack[dwIndex] );
 					break;
 				case 3:	// relative ptr to pBufferINOUT. Convert to absolute Ptr
 					pStack[dwIndex] = dwItem + ( (ULONG_PTR)pInput->pBufferINOUT );
-#ifdef _WIN64
-					dprintf("[RAILGUN] railgun_call: Param %d is relative to pBufferINOUT: 0x%llX => 0x%llX", dwIndex, dwItem, pStack[dwIndex] );
-#else
-					dprintf("[RAILGUN] railgun_call: Param %d is relative to pBufferINOUT: 0x%08X => 0x%08X", dwIndex, dwItem, pStack[dwIndex] );
-#endif
+					dprintf("[RAILGUN] railgun_call: Param %d is relative to pBufferINOUT: "PTRFMT" => "PTRFMT, dwIndex, dwItem, pStack[dwIndex] );
 					break;
 				default:
 					dprintf("[RAILGUN] railgun_call: Invalid pStack item description %d for item %d", pStackDescriptorBuffer[ dwIndex*2 ], dwIndex );
@@ -196,12 +175,8 @@ DWORD railgun_call( RAILGUN_INPUT * pInput, RAILGUN_OUTPUT * pOutput )
 
 		if( dwResult != ERROR_SUCCESS )
 			break;
-		
-#ifdef _WIN64
-		dprintf( "[RAILGUN] railgun_call: Calling %s!%s @ 0x%llX...", pInput->cpDllName, pInput->cpFuncName, pFuncAddr );
-#else
-		dprintf( "[RAILGUN] railgun_call: Calling %s!%s @ 0x%08X...", pInput->cpDllName, pInput->cpFuncName, pFuncAddr );
-#endif
+
+		dprintf( "[RAILGUN] railgun_call: Calling %s!%s @ "PTRFMT"...", pInput->cpDllName, pInput->cpFuncName, pFuncAddr );
 
 		SetLastError( ERROR_SUCCESS );
 
@@ -219,7 +194,7 @@ DWORD railgun_call( RAILGUN_INPUT * pInput, RAILGUN_OUTPUT * pOutput )
 				case  7: pOutput->qwReturnValue = function( 07 )( p(0), p(1), p(2), p(3), p(4), p(5), p(6) );break;
 				case  8: pOutput->qwReturnValue = function( 08 )( p(0), p(1), p(2), p(3), p(4), p(5), p(6), p(7) );break;
 				case  9: pOutput->qwReturnValue = function( 09 )( p(0), p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8) );break;
-				case 10: pOutput->qwReturnValue = function( 10 )( p(0), p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8), p(9) );break;	
+				case 10: pOutput->qwReturnValue = function( 10 )( p(0), p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8), p(9) );break;
 				case 11: pOutput->qwReturnValue = function( 11 )( p(0), p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8), p(9), p(10) );break;
 				case 12: pOutput->qwReturnValue = function( 12 )( p(0), p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8), p(9), p(10), p(11) );break;
 				case 13: pOutput->qwReturnValue = function( 13 )( p(0), p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8), p(9), p(10), p(11), p(12) );break;
@@ -250,14 +225,11 @@ DWORD railgun_call( RAILGUN_INPUT * pInput, RAILGUN_OUTPUT * pOutput )
 			pOutput->qwReturnValue = -1;
 			SetLastError( ERROR_UNHANDLED_EXCEPTION );
 		}
-			
+
 		pOutput->dwLastError = GetLastError();
 
-#ifdef _WIN64
-		dprintf("[RAILGUN] railgun_call: pOutput->dwLastError=0x%08X, pOutput->qwReturnValue=0x%llX", pOutput->dwLastError, pOutput->qwReturnValue );
-#else
-		dprintf("[RAILGUN] railgun_call: pOutput->dwLastError=0x%08X, pOutput->qwReturnValue=0x%08X", pOutput->dwLastError, pOutput->qwReturnValue );
-#endif
+		dprintf("[RAILGUN] railgun_call: pOutput->dwLastError="PTRFMT", pOutput->qwReturnValue="PTRFMT, pOutput->dwLastError, pOutput->qwReturnValue );
+
 
 	} while( 0 );
 
@@ -393,7 +365,7 @@ DWORD request_railgun_api( Remote * pRemote, Packet * pPacket )
 	RAILGUN_OUTPUT rOutput = {0};
 
 	dprintf("[RAILGUN] request_railgun_api: Starting...");
-	
+
 	do
 	{
 		pResponse = packet_create_response( pPacket );
@@ -415,7 +387,7 @@ DWORD request_railgun_api( Remote * pRemote, Packet * pPacket )
 		rInput.pBufferINOUT = getRawDataCopy( pPacket, TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT, (DWORD *)&rInput.dwBufferSizeINOUT );
 		if( !rInput.pBufferINOUT )
 			BREAK_WITH_ERROR( "[RAILGUN] request_railgun_api: Could not get TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT", ERROR_INVALID_PARAMETER );
-		
+
 		// Get cpDllName
 		rInput.cpDllName = packet_get_tlv_value_string( pPacket, TLV_TYPE_RAILGUN_DLLNAME );
 		if( !rInput.cpDllName )
@@ -437,7 +409,7 @@ DWORD request_railgun_api( Remote * pRemote, Packet * pPacket )
 	if( pResponse )
 	{
 		packet_add_tlv_uint( pResponse, TLV_TYPE_RESULT, dwResult );
-		
+
 		if( dwResult == ERROR_SUCCESS )
 		{
 			packet_add_tlv_uint( pResponse, TLV_TYPE_RAILGUN_BACK_ERR, rOutput.dwLastError );
@@ -448,13 +420,13 @@ DWORD request_railgun_api( Remote * pRemote, Packet * pPacket )
 
 		dwResult = packet_transmit( pRemote, pResponse, NULL );
 	}
-	
+
 	if( rInput.pBufferIN )
 		free( rInput.pBufferIN );
 
 	if( rInput.pBufferINOUT )
 		free( rInput.pBufferINOUT );
-	
+
 	if( rOutput.pBufferOUT )
 		free( rOutput.pBufferOUT );
 
@@ -475,7 +447,7 @@ DWORD request_railgun_memread( Remote * pRemote, Packet * pPacket )
 	DWORD dwLength     = 0;
 
 	dprintf("[RAILGUN] request_railgun_memread: Starting...");
-	
+
 	do
 	{
 		pResponse = packet_create_response( pPacket );
@@ -502,7 +474,7 @@ DWORD request_railgun_memread( Remote * pRemote, Packet * pPacket )
 		{
 			dwResult = ERROR_UNHANDLED_EXCEPTION;
 		}
-			
+
 	} while( 0 );
 
 	if( pResponse )
@@ -535,7 +507,7 @@ DWORD request_railgun_memwrite( Remote * pRemote, Packet * pPacket )
 	DWORD dwLength     = 0;
 
 	dprintf("[RAILGUN] request_railgun_memwrite: Starting...");
-	
+
 	do
 	{
 		pResponse = packet_create_response( pPacket );
@@ -549,7 +521,7 @@ DWORD request_railgun_memwrite( Remote * pRemote, Packet * pPacket )
 		pData = packet_get_tlv_value_raw( pPacket, TLV_TYPE_RAILGUN_MEM_DATA );
 		if( !pData )
 			BREAK_WITH_ERROR( "[RAILGUN] request_railgun_memwrite: !pData", ERROR_INVALID_PARAMETER );
-		
+
 		dwLength = packet_get_tlv_value_uint( pPacket, TLV_TYPE_RAILGUN_MEM_LENGTH );
 		if( !dwLength )
 			BREAK_WITH_ERROR( "[RAILGUN] request_railgun_memwrite: !dwLength", ERROR_INVALID_PARAMETER );
@@ -562,7 +534,7 @@ DWORD request_railgun_memwrite( Remote * pRemote, Packet * pPacket )
 		{
 			dwResult = ERROR_UNHANDLED_EXCEPTION;
 		}
-			
+
 	} while( 0 );
 
 	if( pResponse )

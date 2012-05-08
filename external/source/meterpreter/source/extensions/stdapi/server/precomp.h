@@ -63,10 +63,10 @@
 #include "net/net.h"
 #include "ui/ui.h"
 #include "webcam/webcam.h"
+#include "railgun/railgun.h"	// PKS, win32 specific at the moment. | hopefully not - mak
+
 
 #ifdef _WIN32
- #include "railgun/railgun.h"	// PKS, win32 specific at the moment.
-
  #include "../../../ReflectiveDLLInjection/DelayLoadMetSrv.h"
  #include "../../../ReflectiveDLLInjection/GetProcAddressR.h"
  #include "../../../ReflectiveDLLInjection/ReflectiveLoader.h"

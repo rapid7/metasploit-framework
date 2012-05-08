@@ -12,7 +12,7 @@ CFLAGS+= -I ../../source/bionic/libc/kernel/arch-x86/
 CFLAGS+= -Dwchar_t="char" -fno-builtin -D_SIZE_T_DECLARED -DElf_Size="u_int32_t"
 CFLAGS+= -D_BYTE_ORDER=_LITTLE_ENDIAN
 CFLAGS+= -lgcc -L../../source/bionic/compiled
-CFLAGS+= -I../../source/extensions/stdapi/server -lc -lsupport -lmetsrv_main
+CFLAGS+= -I../../source/extensions/stdapi/server -lc -lsupport -lmetsrv_main -ldl
 
 CFLAGS+= -march=i386 -m32 -Os
 
@@ -39,6 +39,7 @@ objects = \
 	server/sys/config/config.o \
 	server/sys/process/linux-in-mem-exe.o \
 	server/sys/process/process.o \
+	server/railgun/railgun.o \
 
 all: ext_server_stdapi.so
 
@@ -48,6 +49,7 @@ output_dirs:
 	mkdir -p server/net/socket
 	mkdir -p server/sys/config
 	mkdir -p server/sys/process
+	mkdir -p server/railgun
 
 debug: CFLAGS+=-ggdb
 debug: all

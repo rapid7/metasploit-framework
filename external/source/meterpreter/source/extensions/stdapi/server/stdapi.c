@@ -5,7 +5,7 @@
 #include "precomp.h"
 
 // include the Reflectiveloader() function, we end up linking back to the metsrv.dll's Init function
-// but this doesnt matter as we wont ever call DLL_METASPLOIT_ATTACH as that is only used by the 
+// but this doesnt matter as we wont ever call DLL_METASPLOIT_ATTACH as that is only used by the
 // second stage reflective dll inject payload and not the metsrv itself when it loads extensions.
 #ifdef _WIN32
  #include "../../../ReflectiveDLLInjection/ReflectiveLoader.c"
@@ -26,7 +26,6 @@ Command customCommands[] =
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
 
-#ifdef WIN32
 	// Railgun
 	{ "stdapi_railgun_api",
 	  { request_railgun_api,                                { 0 }, 0 },
@@ -44,7 +43,6 @@ Command customCommands[] =
 	  { request_railgun_memwrite,                           { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                       },
 	},
-#endif
 
 	// Fs
 	{ "stdapi_fs_ls",
@@ -184,7 +182,7 @@ Command customCommands[] =
 	  { request_sys_process_memory_unlock,                 { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
-		
+
 		// Thread
 	{ "stdapi_sys_process_thread_open",
 	  { request_sys_process_thread_open,                   { 0 }, 0 },
