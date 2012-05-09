@@ -2372,7 +2372,7 @@ class DBManager
 	# Returns one of: :nexpose_simplexml :nexpose_rawxml :nmap_xml :openvas_xml
 	# :nessus_xml :nessus_xml_v2 :qualys_scan_xml, :qualys_asset_xml, :msf_xml :nessus_nbe :amap_mlog
 	# :amap_log :ip_list, :msf_zip, :libpcap, :foundstone_xml, :acunetix_xml, :appscan_xml
-	# :burp_session, :ip360_xml_v3, :ip360_aspl_xml, :nikto_xml
+	# :burp_session, :ip360_xml_v3, :ip360_aspl_xml, :nikto_xml, :openvas_new_xml
 	# If there is no match, an error is raised instead.
 	def import_filetype_detect(data)
 
@@ -2429,7 +2429,7 @@ class DBManager
 			return :retina_xml
 		elsif (firstline.index("<get_reports_response status=\"200\" status_text=\"OK\">"))
 			@import_filedata[:type] = "OpenVAS XML"
-			return :openvas_xml
+			return :openvas_new_xml
 		elsif (firstline.index("<NessusClientData>"))
 			@import_filedata[:type] = "Nessus XML (v1)"
 			return :nessus_xml
@@ -4295,7 +4295,14 @@ class DBManager
 		import_openvas_new_xml(args.merge(:data => data))
 	end
 	
-	def import_openvas_new_xml(args={})
+	def import_openvas_new_xml(args, &block)
+    if block
+      doc = Rex::Parser::OpenVASDocument.new(args, framework.db) {|type,data| yield type,data }
+    else
+      doc = Rex::Parser::OpenVASDocument.new(args, self)
+    end
+    parser = ::Nokogiri::XML::SAX::Parser.new(doc)
+    parser.parse(args[:data])
 	end
 
 	#
