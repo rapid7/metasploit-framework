@@ -512,6 +512,43 @@ function stdapi_fs_search($req, &$pkt) {
 }
 }
 
+
+if (!function_exists('stdapi_fs_md5')) {
+function stdapi_fs_md5($req, &$pkt) {
+    $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
+    $path = cononicalize_path($path_tlv['value']);
+
+		if (is_callable("md5_file")) {
+			$md5 = md5_file($path);
+		} else {
+			$md5 = md5(file_get_contents($path));
+		}
+		$md5 = pack("H*", $md5);
+		# Ghetto abuse of file name type to indicate the md5 result
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_FILE_NAME, $md5));
+    return ERROR_SUCCESS;
+}
+}
+
+
+if (!function_exists('stdapi_fs_sha1')) {
+function stdapi_fs_sha1($req, &$pkt) {
+    $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
+    $path = cononicalize_path($path_tlv['value']);
+
+		if (is_callable("sha1_file")) {
+			$sha1 = sha1_file($path);
+		} else {
+			$sha1 = sha1(file_get_contents($path));
+		}
+		$sha1 = pack("H*", $sha1);
+		# Ghetto abuse of file name type to indicate the sha1 result
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_FILE_NAME, $sha1));
+    return ERROR_SUCCESS;
+}
+}
+
+
 # Sys Config
 
 # works

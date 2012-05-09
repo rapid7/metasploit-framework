@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 		if (not File.directory?(base))
 			raise RuntimeError,"The ProtocolBase parameter is set to an invalid directory"
 		end
-
+		allowed = datastore['PROTOCOLS'].split(',').map{|x| x.strip.downcase}
 		@protos = {}
 		decoders = Dir.new(base).entries.grep(/\.rb$/).sort
 		decoders.each do |n|
@@ -74,10 +74,12 @@ class Metasploit3 < Msf::Auxiliary
 				m.module_eval(File.read(f, File.size(f)))
 				m.constants.grep(/^Sniffer(.*)/) do
 					proto = $1
-					klass = m.const_get("Sniffer#{proto}")
-					@protos[proto.downcase] = klass.new(framework, self)
+					if allowed.include?(proto.downcase) or datastore['PROTOCOLS'] == 'all'
+						klass = m.const_get("Sniffer#{proto}")
+						@protos[proto.downcase] = klass.new(framework, self)
 
-					print_status("Loaded protocol #{proto} from #{f}...")
+						print_status("Loaded protocol #{proto} from #{f}...")
+					end
 				end
 			rescue ::Exception => e
 				print_error("Decoder #{n} failed to load: #{e.class} #{e} #{e.backtrace}")
@@ -93,14 +95,6 @@ class Metasploit3 < Msf::Auxiliary
 		if(action.name == 'List')
 			print_status("Protocols: #{@protos.keys.sort.join(', ')}")
 			return
-		end
-
-		# Remove protocols not explicitly allowed
-		if(datastore['PROTOCOLS'] != 'all')
-			allowed = datastore['PROTOCOLS'].split(',').map{|x| x.strip.downcase}
-			newlist = {}
-			@protos.each_key { |k| newlist[k] = @protos[k] if allowed.include?(k) }
-			@protos = newlist
 		end
 
 		print_status("Sniffing traffic.....")
