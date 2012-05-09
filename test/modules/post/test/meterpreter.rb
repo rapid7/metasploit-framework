@@ -3,8 +3,7 @@ require 'msf/core'
 require 'rex'
 
 $:.push "test/lib" unless $:.include? "test/lib"
-#require 'module_test'
-load 'test/lib/module_test.rb'
+require 'module_test'
 
 class Metasploit4 < Msf::Post
 
