@@ -37,6 +37,11 @@ class Metasploit4 < Msf::Post
 	end
 
 	def test_net_config
+		unless (session.commands.include? "stdapi_net_config_get_interfaces")
+			vprint_status("This meterpreter does not implement get_interfaces, skipping tests")
+			return
+		end
+
 		vprint_status("Starting networking tests")
 
 		it "should return network interfaces" do
