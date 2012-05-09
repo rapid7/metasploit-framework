@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'Java RMI Server Endpoint Scanner',
 			'Version'     => '$Revision$',
 			'Description' => 'Detect Java RMI endpoints',
-			'Authors'     => ['mihi', 'hdm'],
+			'Author'     => ['mihi', 'hdm'],
 			'License'     => MSF_LICENSE,
 			'References'     =>
 				[

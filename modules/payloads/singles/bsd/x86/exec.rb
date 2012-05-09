@@ -53,7 +53,7 @@ module Metasploit3
 ;
 ;        Name: single_exec
 ;   Platforms: *BSD
-;     Authors: vlad902 <vlad902 [at] gmail.com>
+;      Author: vlad902 <vlad902 [at] gmail.com>
 ;     Version: $Revision$
 ;     License:
 ;
