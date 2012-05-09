@@ -514,6 +514,7 @@ function stdapi_fs_search($req, &$pkt) {
 
 
 if (!function_exists('stdapi_fs_md5')) {
+register_command("stdapi_fs_md5");
 function stdapi_fs_md5($req, &$pkt) {
     $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
     $path = cononicalize_path($path_tlv['value']);
@@ -532,6 +533,7 @@ function stdapi_fs_md5($req, &$pkt) {
 
 
 if (!function_exists('stdapi_fs_sha1')) {
+register_command("stdapi_fs_sha1");
 function stdapi_fs_sha1($req, &$pkt) {
     $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
     $path = cononicalize_path($path_tlv['value']);
