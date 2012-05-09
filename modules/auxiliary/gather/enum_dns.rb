@@ -157,13 +157,14 @@ class Metasploit3 < Msf::Auxiliary
 		query = @res.query(target, "TXT")
 		if (query)
 			query.answer.each do |rr|
-				print_status("Text: #{rr.txt}, TXT")
+				print_status(rr.inspect)
+				print_status("Text: #{rr.inspect}")
 				report_note(:host => @nsinuse.to_s,
 					:proto => 'udp',
 					:sname => 'dns',
 					:port => 53 ,
 					:type => 'dns.enum',
-					:data => "#{rr.txt},TXT")
+					:data => rr.inspect)
 			end
 		end
 	end
@@ -434,13 +435,13 @@ class Metasploit3 < Msf::Auxiliary
 									:type => 'dns.enum',
 									:data => "#{rr.nsdname},NS")
 							when "TXT"
-								print_status("Text: #{rr.txt} Record: TXT")
+								print_status("Text: #{rr.inspect}")
 								report_note(:host =>  nsip.address.to_s,
 									:proto => 'udp',
 									:sname => 'dns',
 									:port => 53 ,
 									:type => 'dns.enum',
-									:data => "#{rr.txt},TXT")
+									:data => rr.inspect)
 							when "SRV"
 								print_status("Host: #{rr.host} Port: #{rr.port} Priority: #{rr.priority} Record: SRV")
 								report_note(:host =>  nsip.address.to_s,

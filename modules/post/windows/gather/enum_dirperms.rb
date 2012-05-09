@@ -125,7 +125,14 @@ class Metasploit3 < Msf::Post
 
 		#get impersonation token
 		print_status("Getting impersonation token...")
-		t = get_imperstoken()
+		begin
+			t = get_imperstoken()
+		rescue ::Exception => e
+			# Failure due to timeout, access denied, etc.
+			t = 0
+			vprint_error("Error #{e.message} while using get_imperstoken()")
+			vprint_error(e.backtrace)
+		end
 
 		#loop through sub dirs if we have an impers token..else error
 		if t == 0
