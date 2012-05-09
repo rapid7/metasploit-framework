@@ -24,15 +24,15 @@ module Parser
 	def end_element(name=nil)
 		block = @block
 		case name
-    when "name"
-      return if not in_tag("result")
-      @state[:has_text] = true
-      @state[:vuln_name] = @text.strip
-      @text = nil
-    when "description"
-      @state[:has_text] = true
-      @state[:vuln_desc] = @text.strip
-      @text = nil
+		when "name"
+			return if not in_tag("result")
+			@state[:has_text] = true
+			@state[:vuln_name] = @text.strip
+			@text = nil
+		when "description"
+			@state[:has_text] = true
+			@state[:vuln_desc] = @text.strip
+			@text = nil
 		when "bid"
 			return if not in_tag("result")
 			return if not in_tag("nvt")
@@ -122,8 +122,8 @@ module Parser
 				vuln_info = {}
 				vuln_info[:host] = @state[:host]
 				vuln_info[:refs] = normalize_references([{ :source => "CVE", :value => cve}])
-        vuln_info[:name] = @state[:vuln_name]
-        vuln_info[:info] = @state[:vuln_desc]
+				vuln_info[:name] = @state[:vuln_name]
+				vuln_info[:info] = @state[:vuln_desc]
 				vuln_info[:port] = @state[:port]
 				vuln_info[:proto] = @state[:proto]
 		
@@ -135,8 +135,8 @@ module Parser
 				vuln_info = {}
 				vuln_info[:host] = @state[:host]
 				vuln_info[:refs] = normalize_references([{ :source => "BID", :value => bid}])
-        vuln_info[:name] = @state[:vuln_name]
-        vuln_info[:info] = @state[:vuln_desc]
+				vuln_info[:name] = @state[:vuln_name]
+				vuln_info[:info] = @state[:vuln_desc]
 				vuln_info[:port] = @state[:port]
 				vuln_info[:proto] = @state[:proto]
 		
