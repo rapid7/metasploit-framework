@@ -214,8 +214,8 @@ This is pretty straightforward. From your local branch on the command line, you 
 
 ````bash
 $ git remote add upstream git://github.com/rapid7/metasploit-framework.git
-$ git checkout upstream/master
 $ git fetch upstream
+$ git checkout upstream/master
 ````
 
 This lets you peek in on upstream, after giving a warning about being in the "detatched HEAD" state (don't worry about that now). From here you can do things like read the change log:
