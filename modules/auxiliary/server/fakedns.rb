@@ -45,8 +45,8 @@ class Metasploit3 < Msf::Auxiliary
 				OptAddress.new('SRVHOST',   [ true, "The local host to listen on.", '0.0.0.0' ]),
 				OptPort.new('SRVPORT',      [ true, "The local port to listen on.", 53 ]),
 				OptAddress.new('TARGETHOST', [ false, "The address that all names should resolve to", nil ]),
-				OptString.new('TARGETDOMAIN', [ true, "The list of target domain names we want to fully resolver (bypass) or fake resolve (fake)", 'www.google.com']),
-				OptString.new('TARGETACTION', [ true, "Action for TARGETDOMAIN (fake|bypass)", 'BYPASS']),
+				OptString.new('TARGETDOMAIN', [ true, "The list of target domain names we want to fully resolve (BYPASS) or fake resolve (FAKE)", 'www.google.com']),
+				OptEnum.new('TARGETACTION', [ true, "Action for TARGETDOMAIN", "BYPASS", %w{FAKE BYPASS}]),
 			], self.class)
 
 		register_advanced_options(
