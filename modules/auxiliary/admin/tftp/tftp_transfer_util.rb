@@ -133,6 +133,7 @@ class Metasploit3 < Msf::Auxiliary
 			"LocalFile"  => @local_file,
 			"RemoteFile" => @remote_file,
 			"Mode"       => mode,
+			"Context"    => {'Msf' => self.framework, 'MsfExploit' => self}
 			"Action"     => action.name.to_s.downcase.intern
 		)
 	end
