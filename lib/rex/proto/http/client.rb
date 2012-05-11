@@ -219,6 +219,11 @@ class Client
 		c_conn = opts['connection']
 		c_path = opts['path_info']
 		c_auth = opts['basic_auth'] || config['basic_auth'] || ''
+		c_enc_params = true
+
+		if(opts['encode_params'] == false)
+			c_enc_params = false
+		end
 
 		uri    = set_cgi(c_cgi)
 		qstr   = c_qs
@@ -235,9 +240,15 @@ class Client
 
 		c_varg.each_pair do |var,val|
 			qstr << '&' if qstr.length > 0
-			qstr << set_encode_uri(var)
-			qstr << '='
-			qstr << set_encode_uri(val)
+			if(c_enc_params)
+				qstr << set_encode_uri(var)
+				qstr << '='
+				qstr << set_encode_uri(val)
+			else
+				qstr << var
+				qstr << '='
+				qstr << val
+			end
 		end
 
 		if (config['pad_post_params'])
@@ -251,9 +262,15 @@ class Client
 
 		c_varp.each_pair do |var,val|
 			pstr << '&' if pstr.length > 0
-			pstr << set_encode_uri(var)
-			pstr << '='
-			pstr << set_encode_uri(val)
+			if(c_enc_params)
+				pstr << set_encode_uri(var)
+				pstr << '='
+				pstr << set_encode_uri(val)
+			else
+				pstr << var
+				pstr << '='
+				pstr << val
+			end
 		end
 
 		req = ''
