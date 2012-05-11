@@ -97,6 +97,7 @@ class Metasploit3 < Msf::Auxiliary
 		while @run
 			@error_resolving = false
 			packet, addr = @sock.recvfrom(65535)
+			@requestor = addr
 			break if packet.length == 0
 
 			request = Resolv::DNS::Message.decode(packet)
@@ -210,9 +211,9 @@ class Metasploit3 < Msf::Auxiliary
 
 			if(@log_console)
 				if(@error_resolving)
-					print_error("DNS #{addr[3]}:#{addr[1]} XID #{request.id} (#{lst.join(", ")}) - Error resolving")
+					print_error("XID #{request.id} (#{lst.join(", ")}) - Error resolving")
 				else
-					print_status("DNS #{addr[3]}:#{addr[1]} XID #{request.id} (#{lst.join(", ")})")
+					print_status("XID #{request.id} (#{lst.join(", ")})")
 				end
 			end
 
@@ -234,6 +235,14 @@ class Metasploit3 < Msf::Auxiliary
 		ensure
 			@sock.close
 		end
+	end
+
+	def print_error(msg)
+		@requestor ? super("%s:%p - DNS - %s" % [@requestor[3], @requestor[1], msg]) : super(msg)
+	end
+
+	def print_status(msg)
+		@requestor ? super("%s:%p - DNS - %s" % [@requestor[3], @requestor[1], msg]) : super(msg)
 	end
 
 end
