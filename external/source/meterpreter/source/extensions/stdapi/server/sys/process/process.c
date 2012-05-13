@@ -673,15 +673,6 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 
 			// Add the channel identifier to the response packet
 			packet_add_tlv_uint(response, TLV_TYPE_CHANNEL_ID,channel_get_id(newChannel));
-		} else {
-			// need to /dev/null it all
-			if( (devnull = open("/dev/null", O_RDONLY) ) == -1) {
-				// XXX This is possible, due to chroots etc. We could close
-				// fd 0/1/2 and hope the program isn't buggy.
- 
-				result = GetLastError();
-				break;
-			}
 		}
 
 		/*
@@ -711,6 +702,14 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 					dup2(out[1], 2);
 				}
 			} else {
+				// need to /dev/null it all
+				if( (devnull = open("/dev/null", O_RDONLY) ) == -1) {
+					// XXX This is possible, due to chroots etc. We could close
+					// fd 0/1/2 and hope the program isn't buggy.
+	
+					result = GetLastError();
+					break;
+				}
 				dup2(devnull, 0);
 				dup2(devnull, 1);
 				dup2(devnull, 2);
