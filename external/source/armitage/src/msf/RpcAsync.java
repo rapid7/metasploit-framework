@@ -1,6 +1,7 @@
 package msf;
 
 import java.io.*;
+import java.util.*;
 
 public class RpcAsync implements RpcConnection, Async {
 	protected RpcQueue queue;
@@ -25,7 +26,28 @@ public class RpcAsync implements RpcConnection, Async {
 		return connection.execute(methodName);
 	}
 
+	protected Map cache = new HashMap();
+
 	public Object execute(String methodName, Object[] params) throws IOException {
-		return connection.execute(methodName, params);
+		if (methodName.equals("module.info") || methodName.equals("module.options") || methodName.equals("module.compatible_payloads")) {
+			StringBuilder keysb = new StringBuilder(methodName);
+
+			for(int i = 1; i < params.length; i++)
+				keysb.append(params[i].toString());
+
+			String key = keysb.toString();
+			Object result = cache.get(key);
+
+			if(result != null) {
+				return result;
+			}
+
+			result = connection.execute(methodName, params);
+			cache.put(key, result);
+			return result;
+		}
+		else {
+			return connection.execute(methodName, params);
+		}
 	}
 }

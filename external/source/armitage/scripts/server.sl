@@ -21,6 +21,7 @@
 debug(7);
 
 import msf.*;
+import ssl.*;
 
 sub result {
 	local('$rv $key $value');
@@ -348,7 +349,7 @@ sub client {
 
 sub main {
 	global('$client $mclient');
-	local('$server %sessions $sess_lock $read_lock $poll_lock $lock_lock %locks %readq $id @events $error $auth %cache $cach_lock $client_cache');
+	local('$server %sessions $sess_lock $read_lock $poll_lock $lock_lock %locks %readq $id @events $error $auth %cache $cach_lock $client_cache $handle');
 
 	$auth = unpack("H*", digest(rand() . ticks(), "MD5"))[0];
 
@@ -395,6 +396,9 @@ sub main {
 
 	# set the LHOST to whatever the user specified
 	call_async($client, "core.setg", "LHOST", $host);
+
+	# make sure clients know a team server is present. can't happen async.
+	call($client, "core.setg", "ARMITAGE_TEAM", '1');
 
 	#
 	# setup the client cache
@@ -495,6 +499,12 @@ service framework-postgres start");
 	# setup the reporting API (must happen after base directory/database is setup)
 	initReporting();
 
+	$server = [new SecureServerSocket: int($sport)];
+	if (checkError($error)) {
+		println("[-] Could not listen on $sport $+ : $error");
+		[System exit: 0];
+	}
+
 	#
 	# spit out the details
 	#
@@ -503,19 +513,22 @@ service framework-postgres start");
 	println("\tPort: $sport");
 	println("\tUser: $user");
 	println("\tPass: $pass");
+	println("\n\tFingerprint (check for this string when you connect):\n\t" . [$server fingerprint]);
 	println("\n" . rand(@("I'm ready to accept you or other clients for who they are",
 		"multi-player metasploit... ready to go",
 		"hacking is such a lonely thing, until now",
 		"feel free to connect now, Armitage is ready for collaboration")));
 
 	$id = 0;
+
 	while (1) {
-		$server = listen($sport, 0);
+		$handle = [$server accept];
+		if ($handle !is $null) {
+			%readq[$id] = %();
+			fork(&client, \$client, \$handle, \%sessions, \$read_lock, \$sess_lock, \$poll_lock, $queue => %readq[$id], \$id, \@events, \$auth, \%locks, \$lock_lock, \$cach_lock, \%cache, \$motd, \$client_cache, $_user => $user, $_pass => $pass);
 
-		%readq[$id] = %();
-		fork(&client, \$client, $handle => $server, \%sessions, \$read_lock, \$sess_lock, \$poll_lock, $queue => %readq[$id], \$id, \@events, \$auth, \%locks, \$lock_lock, \$cach_lock, \%cache, \$motd, \$client_cache, $_user => $user, $_pass => $pass);
-
-		$id++;
+			$id++;
+		}
 	}
 }
 

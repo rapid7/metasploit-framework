@@ -34,7 +34,7 @@ sub updateDownloadModel {
 }
 
 sub createDownloadBrowser {
-	local('$table $model $panel $refresh $sorter $host $view');
+	local('$table $model $panel $refresh $sorter $host $view $sync');
 
 	$model = [new GenericTableModel: @("host", "name", "path", "size", "date"), "location", 16];
 
@@ -55,14 +55,25 @@ sub createDownloadBrowser {
 
 	addMouseListener($table, lambda({
 		if ($0 eq "mousePressed" && [$1 getClickCount] >= 2) {
-			showLoot(\$model, \$table);
+			showLoot(\$model, \$table, $getme => "location");
 		}
 	}, \$model, \$table));
 
 	$view = [new JButton: "View"];
 
+	if ($client is $mclient) {
+		$sync = [new JButton: "Open Folder"];
+		[$sync addActionListener: gotoFile([new java.io.File: getFileProper(dataDirectory(), "downloads")])];
+	}
+	else {
+		$sync = [new JButton: "Sync Files"];
+		[$sync addActionListener: lambda({
+			downloadLoot(\$model, \$table, $getme => "location", $type => "downloads");
+		}, \$model, \$table)];
+	}
+
 	[$view addActionListener: lambda({
-		showLoot(\$model, \$table);
+		showLoot(\$model, \$table, $getme => "location");
 	}, \$model, \$table)];
 
 	$refresh = [new JButton: "Refresh"];
@@ -72,7 +83,7 @@ sub createDownloadBrowser {
 
 	updateDownloadModel(\$model); 		
 
-	[$panel add: center($view, $refresh), [BorderLayout SOUTH]];
+	[$panel add: center($view, $sync, $refresh), [BorderLayout SOUTH]];
 
 	[$frame addTab: "Downloads", $panel, $null];
 }

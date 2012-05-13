@@ -5,6 +5,7 @@
 import msf.*;
 import armitage.*;
 import console.*;
+import ssl.*;
 
 sub createEventLogTab {
 	this('$console $client');
@@ -24,10 +25,38 @@ sub createEventLogTab {
         [$frame addTab: "Event Log", $console, $null];
 }
 
+sub verify_server {
+	this('%rejected');
+	local('$fingerprints $fingerprint $check');
+	$fingerprints = split(', ', [$preferences getProperty: "trusted.servers", ""]);
+	foreach $fingerprint ($fingerprints) {
+		if ($fingerprint eq $1) {
+			return 1;
+		}
+	}
+
+	if (%rejected[$1] == 1) {
+		return $null;
+	}
+
+	$check = askYesNo("The team server's fingerprint is:\n\n<html><body><b> $+ $1 $+ </b></body></html>\n\nDoes this match the fingerprint shown\nwhen the team server started?", "Verify Fingerprint");
+
+	if ($check) {
+		%rejected[$1] = 1;
+		return $null;
+	}
+	else {
+		push($fingerprints, $1);
+		[$preferences setProperty: "trusted.servers", join(", ", $fingerprints)];
+		savePreferences();
+		return 1;
+	}
+}
+
 sub c_client {
 	# run this thing in its own thread to avoid really stupid deadlock situations
 	local('$handle');
-	$handle = connect($1, $2, 5000);
+	$handle = [[new SecureSocket: $1, int($2), &verify_server] client];
 	return wait(fork({
 		local('$client');
 		$client = newInstance(^RpcConnection, lambda({
