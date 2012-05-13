@@ -93,6 +93,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\source\extensions\mirv\lua_mirv_extensions.c" />
     <ClCompile Include="..\..\source\extensions\mirv\mirv.c" />
   </ItemGroup>
   <ItemGroup>

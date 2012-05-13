@@ -18,6 +18,9 @@
     <ClCompile Include="..\..\source\extensions\mirv\mirv.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\extensions\mirv\lua_mirv_extensions.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\extensions\mirv\mirv.h">

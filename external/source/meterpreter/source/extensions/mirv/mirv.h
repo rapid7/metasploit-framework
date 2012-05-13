@@ -28,10 +28,37 @@
 				TLV_META_TYPE_UINT,				\
 				TLV_TYPE_EXTENSION_MIRV,		\
 				TLV_EXTENSIONS + 684)
+
 #define TLV_TYPE_MIRV_THREADERR	\
 		MAKE_CUSTOM_TLV(							\
 				TLV_META_TYPE_STRING,				\
 				TLV_TYPE_EXTENSION_MIRV,		\
 				TLV_EXTENSIONS + 685)
+
+#define TLV_TYPE_MIRV_THREADLIST	\
+		MAKE_CUSTOM_TLV(							\
+				TLV_META_TYPE_GROUP,				\
+				TLV_TYPE_EXTENSION_MIRV,		\
+				TLV_EXTENSIONS + 686)
+
+#define TLV_TYPE_MIRV_THREADRECORD	\
+		MAKE_CUSTOM_TLV(							\
+				TLV_META_TYPE_STRING,				\
+				TLV_TYPE_EXTENSION_MIRV,		\
+				TLV_EXTENSIONS + 687)
+
+#define MAX_MIRV_THREADS 256
+
+enum thread_signal {
+		stop,
+		report
+};
+
+ struct mirv_thread_t {
+	DWORD thread_id;
+	char *description;
+	enum thread_signal signal; 
+};
+typedef  struct mirv_thread_t mirv_thread;
 
 #endif
