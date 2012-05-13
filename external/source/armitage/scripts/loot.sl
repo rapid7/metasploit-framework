@@ -28,59 +28,109 @@ sub updateLootModel {
 	}, \$model));
 }
 
-sub showLoot {
-	local('$dialog $v $button $refresh $text $data');
-	$v = [$model getSelectedValue: $table];
+sub downloadLoot {
+	thread(lambda({
+		local('$dest');
+		#$dest = chooseFile($title => "Where shall I save these files?", $dirsonly => 1, $always => 1);
+		$dest = getFileProper(dataDirectory(), $type);
+		_downloadLoot(\$model, \$table, \$getme, \$dest, $dtype => $type);
+	}, \$model, \$table, \$getme, \$type));
+}
 
-	#
-	# well then, file is binary... let's do something else with it, like save it.
-	#
-	if ($v !is $null && "*binary*" iswm [$model getSelectedValueFromColumn: $table, "content_type"]) {
-		if ($client is $mclient) {
-			[gotoFile([new java.io.File: getFileParent($v)])];
+sub _downloadLoot {
+	local('$progress $entries $index $host $location $name $type $when $loot $path');
+	$entries = [$model getSelectedValuesFromColumns: $table, @('host', $getme, 'name', 'content_type', 'updated_at', 'path')];
+	$progress = [new ProgressMonitor: $frame, "Download Data", "", 0, size($entries)];
+	foreach $index => $loot ($entries) {
+		($host, $location, $name, $type, $when, $path) = $loot;
+		[$progress setNote: $name];
+
+		# make the folder to store our downloads into
+		local('$handle $data $file');
+		if ($dtype eq "downloads") {
+			$file = getFileProper($dest, $host, $path, $name);
 		}
 		else {
-			local('$name $save');
-			$name = [$model getSelectedValueFromColumn: $table, "name"];
-			$save = getFileName($name);
-			thread(lambda({
-				local('$handle $data');
-				$data = getFileContent($v);
-				$handle = openf("> $+ $save");
-				writeb($handle, $data);
-				closef($handle);
-				[gotoFile([new java.io.File: cwd()])];
-			}, \$v, \$save));
+			$file = getFileProper($dest, $host, $name);
 		}
-		return;
+		mkdir(getFileParent($file));
+
+		# dump the file contents there...
+		$data = getFileContent($location);
+		$handle = openf("> $+ $file");
+		writeb($handle, $data);
+		closef($handle);
+
+		[$progress setProgress: $index + 1];
 	}
-	else if ($v !is $null) {
-		$dialog = [new JPanel];
-		[$dialog setLayout: [new BorderLayout]];
+	[$progress close];
+	showError("File(s) saved to:\n $+ $dest");
+	[gotoFile([new java.io.File: $dest])];
+}
 
-		#$dialog = dialog("View Loot", 640, 480);
-	
-		$text = [new console.Display: $preferences];
-		[$text setText: getFileContent($v)];
-		[$text setFont: [Font decode: [$preferences getProperty: "console.font.font", "Monospaced BOLD 14"]]];
-		[$text setForeground: [Color decode: [$preferences getProperty: "console.foreground.color", "#ffffff"]]];
-		[$text setBackground: [Color decode: [$preferences getProperty: "console.background.color", "#000000"]]];
+sub showLoot {
+	thread(lambda(&_showLoot, \$model, \$table, \$getme));
+}
 
-		$button = [new JButton: "Close"];
-		[$button addActionListener: lambda({ [$dialog setVisible: 0]; }, \$dialog)];
+sub _postLoot {
+	local('$host $location $name $type $when');
+	($host, $location, $name, $type, $when) = $1;
 
-		$refresh = [new JButton: "Refresh"];
-		[$refresh addActionListener: lambda({ [$text setText: getFileContent($v)]; }, \$text, \$v)];
+	[$2 append: "
+#
+# $host $+ : $name 
+#
+", "3", "#00ff00"];
 
-		[$dialog add: $text, [BorderLayout CENTER]];
-		[$dialog add: center($refresh), [BorderLayout SOUTH]];
-		[$frame addTab: "View", $dialog, $null, $v];
-		#[$dialog show];
-	}	
+	if ("*binary*" iswm $type) {
+		[$2 append: "This is a binary file\n", "4", "#ff0000"];
+	}
+	else {
+		[$2 append: getFileContent($location), $null, $null];
+	}
+}
+
+sub _showLoot {
+	local('$loot $entries $dialog $display $refresh');
+
+	$dialog = [new JPanel];
+	[$dialog setLayout: [new BorderLayout]];
+	$display = [new console.Display: $preferences];
+
+	$entries = [$model getSelectedValuesFromColumns: $table, @('host', $getme, 'name', 'content_type', 'updated_at')];
+
+	foreach $loot ($entries) {
+		_postLoot($loot, $display);
+		yield 10;
+	}
+
+	$refresh = [new JButton: "Refresh"];
+	[$refresh addActionListener: lambda({
+		local('$r');
+		$r = [[$display console] getVisibleRect];
+		[$display setText: ""];
+		thread(lambda({
+			local('$loot');
+
+			foreach $loot ($entries) {
+				_postLoot($loot, $display);
+				yield 10;
+			}
+
+			dispatchEvent(lambda({
+				[[$display console] scrollRectToVisible: $r];
+			}, \$display, \$r));
+		}, \$entries, \$display, \$r));
+	}, \$entries, \$display)];
+
+	[$dialog add: $display, [BorderLayout CENTER]];
+	[[$display console] scrollRectToVisible: [new Rectangle: 0, 0, 0, 0]];
+	[$dialog add: center($refresh), [BorderLayout SOUTH]];
+	[$frame addTab: "View", $dialog, $null, $null];
 }
 
 sub createLootBrowser {
-	local('$table $model $panel $refresh $view $sorter $host');
+	local('$table $model $panel $refresh $view $sorter $host $sync');
 
 	$model = [new GenericTableModel: @("host", "type", "info", "date"), "path", 16];
 
@@ -102,12 +152,17 @@ sub createLootBrowser {
 
 	addMouseListener($table, lambda({
 		if ($0 eq "mousePressed" && [$1 getClickCount] >= 2) {
-			showLoot(\$model, \$table);
+			showLoot(\$model, \$table, $getme => "path");
 		}
 	}, \$model, \$table));
 
+	$sync = [new JButton: "Sync Files"];
+	[$sync addActionListener: lambda({
+		downloadLoot(\$model, \$table, $getme => "path", $type => "loots");
+	}, \$model, \$table)];
+
 	[$view addActionListener: lambda({
-		showLoot(\$model, \$table);
+		showLoot(\$model, \$table, $getme => "path");
 	}, \$model, \$table)];
 
 	$refresh = [new JButton: "Refresh"];
@@ -117,7 +172,12 @@ sub createLootBrowser {
 
 	updateLootModel(\$model); 		
 
-	[$panel add: center($view, $refresh), [BorderLayout SOUTH]];
+	if ($client is $mclient) {
+		[$panel add: center($view, $refresh), [BorderLayout SOUTH]];
+	}
+	else {
+		[$panel add: center($view, $sync, $refresh), [BorderLayout SOUTH]];
+	}
 
 	[$frame addTab: "Loot", $panel, $null];
 }
