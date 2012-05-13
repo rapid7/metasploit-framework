@@ -28,6 +28,15 @@ else
 	exit
 fi
 
+# check if keytool is available...
+if [ $(command -v keytool) ]; then
+	true
+else
+	echo "[-] keytool is not in \$PATH"
+	echo "    install the Java Developer Kit"
+	exit
+fi
+
 # check if msfrpcd is available
 if [ $(command -v msfrpcd) ]; then
 	true
@@ -44,10 +53,20 @@ if [ "$(pidof msfrpcd)" ]; then
 	exit
 fi
 
+# generate a certificate
+	# naturally you're welcome to replace this step with your own permanent certificate.
+	# just make sure you pass -Djavax.net.ssl.keyStore="/path/to/whatever" and
+	# -Djavax.net.ssl.keyStorePassword="password" to java. This is used for setting up
+	# an SSL server socket. Also, the SHA-1 digest of the first certificate in the store
+	# is printed so users may have a chance to verify they're not being owned.
+echo "[+] Generating X509 certificate and keystore (for SSL)"
+rm -f ./armitage.store
+keytool -keystore ./armitage.store -storepass 123456 -keypass 123456 -genkey -keyalg RSA -alias armitage -dname "CN=Armitage Hacker, OU=FastAndEasyHacking, O=Armitage, L=Somewhere, S=Cyberspace, C=Earth"
+
 # start everything up
 echo "[+] Starting RPC daemon"
 msfrpcd -U msf -P $2 -a 127.0.0.1 -p 55554 -S
 echo "[+] sleeping for 20s (to let msfrpcd initialize)"
 sleep 20
 echo "[+] Starting Armitage team server"
-java -server -XX:+UseParallelGC -jar armitage.jar --server $1 55554 msf $2 55553
+java -Djavax.net.ssl.keyStore=./armitage.store -Djavax.net.ssl.keyStorePassword=123456 -server -XX:+UseParallelGC -jar armitage.jar --server $1 55554 msf $2 55553

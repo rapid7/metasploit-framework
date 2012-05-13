@@ -14,7 +14,7 @@ import java.util.*;
 
 /** A generic multi-feature console for use in the Armitage network attack tool */
 public class Display extends JPanel {
-	protected JTextArea  console;
+	protected JTextPane  console;
 	protected Properties display;
 	protected Font       consoleFont;
 
@@ -45,6 +45,50 @@ public class Display extends JPanel {
 		}
 	}
 
+	private static Map colors = new HashMap();
+
+	public static AttributeSet getColor(String index, Properties preferences, String def) {
+		synchronized (colors) {
+			if (colors.get(index) == null) {
+				SimpleAttributeSet attrs = new SimpleAttributeSet();
+				Color temp = Color.decode(preferences.getProperty("console.color_" + index + ".color", def));
+				StyleConstants.setForeground(attrs, temp);
+				colors.put(index, attrs);
+			}
+			return (SimpleAttributeSet)colors.get(index);
+		}
+	}
+
+	public void append(final String text, final String index, final String fg) {
+		if (SwingUtilities.isEventDispatchThread()) {
+			_append(text, index, fg);
+		}
+		else {
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					_append(text, index, fg);
+				}
+			});
+		}
+	}
+
+	public void _append(String text, String index, String foreground) {
+		try {
+			Rectangle r = console.getVisibleRect();
+			StyledDocument doc = console.getStyledDocument();
+			if (foreground == null) {
+				doc.insertString(doc.getLength(), text, null);
+			}
+			else {
+				doc.insertString(doc.getLength(), text, getColor(index, display, foreground));
+			}
+			console.scrollRectToVisible(r);
+		}
+		catch(Exception e) {
+			System.out.println(e);
+		}
+	}
+
 	public void setText(final String _text) {
 		if (SwingUtilities.isEventDispatchThread()) {
 			console.setText(_text);
@@ -71,9 +115,9 @@ public class Display extends JPanel {
 
 		/* init the console */
 
-		console = new JTextArea();
+		console = new JTextPane();
 		console.setEditable(false);
-		console.setLineWrap(true);
+		//console.setLineWrap(true);
 
 		JScrollPane scroll = new JScrollPane(
 					console, 
@@ -111,6 +155,12 @@ public class Display extends JPanel {
 		setupFindShortcutFeature();
 		setupPageShortcutFeature();
 		setupFontShortcutFeature();
+
+		/* work-around for Nimbus L&F */
+		console.setBackground(new Color(0,0,0,0));
+		Color background = Color.decode(display.getProperty("console.background.color", "#000000"));
+		scroll.getViewport().setBackground(background);
+		console.setOpaque(false);
 	}
 
 	private void setupFindShortcutFeature() {

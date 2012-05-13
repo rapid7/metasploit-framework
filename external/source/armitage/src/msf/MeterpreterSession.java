@@ -113,7 +113,11 @@ public class MeterpreterSession implements Runnable {
 				readUntilSuccessful(c, true);
 				return;
 			}
-			else if (c.text.startsWith("route")) {
+			else if (c.text.startsWith("execute") && !teammode) {
+				readUntilSuccessful(c, false);
+				return;
+			}
+			else if (c.text.startsWith("route") && !teammode) {
 				readUntilSuccessful(c, false);
 				return;
 			}

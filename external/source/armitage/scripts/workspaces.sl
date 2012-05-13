@@ -183,9 +183,6 @@ sub client_workspace_items {
 			set_workspace($name);
 		}, \$name)];
 	}
-
-	# setup a keyboard shortcut for this workspace...
-	[$frame bindKey: "Ctrl+0", &reset_workspace];
 }
 
 sub set_workspace {
@@ -219,5 +216,21 @@ sub workspaces {
 
 sub saveWorkspaces {
 	[$preferences setProperty: "armitage.workspaces.menus", join("!!", map({ return join("@@", values($1)); }, $1))];
-	savePreferences();	
+	savePreferences();
+	setupWorkspaceShortcuts($1);
+}
+
+sub setupWorkspaceShortcuts {
+	local('$x $y $workspace $name');
+	foreach $y => $workspace ($1) {
+		$name = $workspace['name'];
+		$x = $y + 1;
+
+		# setup a keyboard shortcut for this workspace...
+		[$frame bindKey: "Ctrl+ $+ $x", lambda({
+			set_workspace($name);
+		}, \$name)];
+	}
+
+	[$frame bindKey: "Ctrl+Backspace", &reset_workspace];
 }
