@@ -61,8 +61,6 @@ module Rex
     end
 
     def report_vuln(&block)
-	p @state.inspect
-
 	proto = @state[:url].split(":")[0]
 	path = '/' + (@state[:url].split("/")[3..(@state[:url].split("/").length - 1)].join('/'))
 
@@ -71,6 +69,8 @@ module Rex
 	web_vuln_info[:path] = path
 	web_vuln_info[:query] = @state[:url].split("?")[1]
 
+	#if the URL contains the parameter found to be vulnerable, it is probably a GET
+	#if it does not contains the parameter, it is probably a POST
 	if @state[:url].index(@state[:parameter])
 		web_vuln_info[:method] = "GET"
 	else
@@ -98,7 +98,6 @@ module Rex
 
 	db.emit(:web_vuln, web_vuln_info[:name], &block) if block
 	vuln = db_report(:web_vuln, web_vuln_info)
-	p vuln.inspect
     end
   end
 end
