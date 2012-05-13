@@ -79,10 +79,10 @@ module Rex
 
 			@state[:parameter].split("&").each do |param|
 				if param.index("%27") #apostrophe
-					web_vuln_info[:pname] = param #sql injection
+					web_vuln_info[:pname] = param.split('=')[0] #sql injection
 					break
 				elsif param.index("alert")
-					web_vuln_info[:pname] = param #xss
+					web_vuln_info[:pname] = param.split('=')[0] #xss
 				end
 			end	
 
