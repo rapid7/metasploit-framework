@@ -66,8 +66,10 @@ module Rex
 							request = Packet.create_request('mirv_thread_list')		
 							response = client.send_request(request)
 							threads  = []
-							response.each(TLV_TYPE_MIRV_THREADLIST) { |t|
-								threads << t.get_tlv_value(TLV_TYPE_MIRV_THREADRECORD)
+							group=response.get_tlv(TLV_TYPE_MIRV_THREADLIST)
+							
+							group.each(TLV_TYPE_MIRV_THREADRECORD) { |t|
+								threads << t.value
 							}
 							return threads
 						end

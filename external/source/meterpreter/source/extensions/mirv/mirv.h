@@ -50,6 +50,7 @@
 #define MAX_MIRV_THREADS 256
 
 enum thread_signal {
+		run,
 		stop,
 		report
 };

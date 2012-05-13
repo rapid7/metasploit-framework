@@ -24,27 +24,51 @@ mirv_thread threads[MAX_THREADS];
 
 int add_thread_record(DWORD thread_id,char *description){
 	int i;
+	char *tmpdest;
 	for(i=0;i<MAX_THREADS;i++) // find a free slot
 		if (threads[i].thread_id==0){
 			threads[i].thread_id=thread_id;
-			threads[i].description=description;
+			if (strlen(description)>MAX_DESC){
+				tmpdest=(char *)malloc(140*sizeof(char)+1);	
+				strncpy(tmpdest,description,MAX_DESC);
+				tmpdest[MAX_DESC]='\0';
+				threads[i].description=tmpdest;
+			}else{
+				threads[i].description=description;
+			}
 			break;
 		}
 	return i;
 }
+int find_thread_pos(DWORD thread_id){
+	int i;
+	for(i=0;i<MAX_THREADS;i++){
+		if(threads[i].thread_id==thread_id){
+			dprintf("Found thread %i, at slot %i with desc %s",thread_id,i,threads[i].description);
+			return i;
+		}
+	}
+	
+	return -1;
+}
 int send_thread_signal(DWORD thread_id,enum thread_signal sig){
 	int i;
-	for(i=0;threads[i].thread_id==0;i++); // find thread 
-	threads[i].signal=sig;
-	return threads[i].thread_id;
+	i=find_thread_pos(thread_id);
+	if (i>=0){
+		threads[i].signal=sig;
+		dprintf("Sending %d at slot %i the stop signal",thread_id,i);
+		return 1;
+	}else{
+		return -1;
+	}
 }
 
-enum thread_signal get_thread_signal(DWORD thread_id){
-	int i;
-	for(i=0;threads[i].thread_id==0;i++); // find thread 
-	return threads[i].signal;
-	
-}
+//enum thread_signal get_thread_signal(DWORD thread_id){
+//	int i;
+//	for(i=0;threads[i].thread_id==0;i++); // find thread 
+//	return threads[i].signal;
+//	
+//}
 
 /*
 LPCSTR do_lua(LPCSTR lua_code){
@@ -81,15 +105,17 @@ endlua:
 	//return msg;
 }
 */
-LPCSTR do_lua(LPCSTR lua_code,int thread_id){
+LPCSTR do_lua(LPCSTR lua_code,DWORD thread_id){
 	lua_State *l,*t;
 	const char *msg=NULL,*ret=NULL;
-
+//	int tpos;
 	int res;
+	enum thread_signal sig;
 	l = luaL_newstate();
 	luaL_openlibs(l);
 	lua_pushcfunction(l, l_sendudp);
     lua_setglobal(l, "sendudp");
+	;
 	if(luaL_dostring(l,lua_code)!=0){	// Error parsing code
 		dprintf("Error parsing code :( ");
 		msg=lua_tostring(l, -1);
@@ -104,10 +130,15 @@ LPCSTR do_lua(LPCSTR lua_code,int thread_id){
 		switch(res){
 		case LUA_YIELD:
 			dprintf("Checking if we need to stop... ");
-			if(thread_id>0 && threads[thread_id].signal==stop){
+			
+			if(thread_id>0){
+			sig=threads[find_thread_pos(thread_id)].signal;
+			dprintf("sig is %d, so " , sig);
+			if(sig==stop){
 				msg="Stopping thread as per instruction from user";
 				dprintf("yes!.");
 				goto endlua;
+			}
 			}
 			dprintf("no, carry on.");
 			break;
@@ -141,8 +172,9 @@ DWORD WINAPI LuaThreadProc(
 	){
 		LPCSTR lua_ret;
 		int i;
-		for(i=0;threads[i].thread_id==0;i++);
-		lua_ret=do_lua((LPCSTR)lpParameter,i);		
+		
+		
+		lua_ret=do_lua((LPCSTR)lpParameter,GetCurrentThreadId());		
 		threads[i].description=(char *)lua_ret;
 		return 0;
 }
@@ -227,6 +259,7 @@ DWORD request_mirv_thread_list(Remote *remote, Packet *packet)
 			
 			buf=(char *)malloc(1024);
 			sprintf(buf,"%i,%s",threads[i].thread_id,threads[i].description);
+			dprintf("Thread - %s",buf);
 			threadlist[j].header.length=strlen(buf);
 			threadlist[j].header.type=TLV_TYPE_MIRV_THREADRECORD;
 			threadlist[j].buffer=(PUCHAR)buf;//??? maybe wrong
@@ -248,7 +281,7 @@ DWORD request_mirv_thread_stop(Remote *remote, Packet *packet)
 	DWORD thread_id;
 	response = packet_create_response( packet );
 	thread_id=packet_get_tlv_value_uint(packet,TLV_TYPE_MIRV_RET_THREADID);
-	if(send_thread_signal(thread_id,stop)!=0){
+	if(send_thread_signal(thread_id,stop)<0){
 		dwResult=-1; // thread not found
 	}	
 	packet_transmit_response( dwResult, remote, response );

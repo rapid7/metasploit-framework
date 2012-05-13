@@ -30,7 +30,7 @@ module Rex
 						{
 							"luado" => "Do lua code",	
 							"luathread" => "Do lua code in thread",
-							"threadstop" => "Stop a thread",
+							"thread_stop" => "Stop a thread",
 							"thread_list" => "List running threads"
 						}
 					end
@@ -41,9 +41,22 @@ module Rex
 					@@stopthread_opts = Rex::Parser::Arguments.new(
 						"-t" => [ true,  "Thread ID" ])
 					def cmd_thread_list(*args)
+						puts("Thread overview\n"+
+						     "===============")
+						
 						client.Mirv.mirv_thread_list().each {|e|
-							print e+"\n"
+							if e==nil then
+								puts("No threads have ever ran")
+								return
+							end
+							(tid,desc)=e.split(",")
+							desc.tr("\n\r","")
+							printf("%5d, %s\n",tid,desc)
 						}
+					end
+					def cmd_thread_stop(*args)
+						threadid = args.shift
+						client.Mirv.mirv_thread_stop(threadid.to_i)
 					end
 					def cmd_luado(*args)
 						if args.length then
