@@ -3,7 +3,9 @@ require "rex/parser/nokogiri_doc_mixin"
 module Rex
   module Parser
 
-    load_nokoigiri && class WapitiDocument < Nokogiri::XML::SAX::Document
+    load_nokogiri && class WapitiDocument < Nokogiri::XML::SAX::Document
+
+    include NokogiriDocMixin
 
     def start_element(name=nil,attrs=[])
       attrs = normalize_attrs(attrs)
@@ -11,16 +13,10 @@ module Rex
       @state[:current_tag][name] = true
 
       case name
-      when "report"
-      when "generateBy"
-      when "bugTypeList"
-      when "bugType"
-      when "bug"
       when "timestamp"
         @state[:has_text] = true
       when "url"
         @state[:has_text] = true
-      when "peer"
       when "addr"
         @state[:has_text] = true
       when "port"
@@ -33,8 +29,6 @@ module Rex
         @state[:has_text] = true
       when "solution"
         @state[:has_text] = true
-      when "references"
-      when "reference"
       when "title"
         @state[:has_text] = true
       end
@@ -66,8 +60,46 @@ module Rex
       end
     end
 
-    def report_vuln
+    def report_vuln(&block)
+	p @state.inspect
 
+	proto = @state[:url].split(":")[0]
+	path = '/' + (@state[:url].split("/")[3..(@state[:url].split("/").length - 1)].join('/'))
+
+	web_vuln_info = {}
+	web_vuln_info[:web_site] = proto + "://" + @state[:host] + ":" + @state[:port]
+	web_vuln_info[:path] = path
+	web_vuln_info[:query] = @state[:url].split("?")[1]
+
+	if @state[:url].index(@state[:parameter])
+		web_vuln_info[:method] = "GET"
+	else
+		web_vuln_info[:method] = "POST"
+	end
+
+	@state[:parameter].split("&").each do |param|
+		if param.index("%27") #apostrophe
+			web_vuln_info[:pname] = param #sql injection
+			break
+		elsif param.index("alert")
+			web_vuln_info[:pname] = param #xss
+		end
+	end	
+
+	web_vuln_info[:host] = @state[:host]
+	web_vuln_info[:port] = @state[:port]
+	web_vuln_info[:ssl] = (proto =~ /https/)
+	web_vuln_info[:proof] = ""
+	web_vuln_info[:risk] = ""
+	web_vuln_info[:params] = @state[:parameter]
+	web_vuln_info[:category] = "imported"
+	web_vuln_info[:confidence] = 90
+	web_vuln_info[:name] = @state[:info]
+
+	db.emit(:web_vuln, web_vuln_info[:name], &block) if block
+	vuln = db_report(:web_vuln, web_vuln_info)
+	p vuln.inspect
     end
   end
+end
 end
