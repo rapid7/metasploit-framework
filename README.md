@@ -4,6 +4,24 @@ Metasploit
 The Metasploit Framework is released under a BSD-style license. See
 COPYING for more details.
 
+The latest version of this software is available from http://metasploit.com/
+
+Bug tracking and development information can be found at:
+ https://dev.metasploit.com/redmine/projects/framework/
+
+The public GitHub source repository can be found at:
+ https://github.com/rapid7/metasploit-framework
+
+Questions and suggestions can be sent to:
+ msfdev(at)metasploit.com
+
+The framework mailing list is the place to discuss features and ask for help.
+To subscribe, visit the following web page:
+ https://mail.metasploit.com/mailman/listinfo/framework
+
+The mailing list archives are available from:
+ https://mail.metasploit.com/pipermail/framework/
+
 Installing
 --
 Generally, you should use the installer which contains all dependencies
