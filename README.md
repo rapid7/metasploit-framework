@@ -22,7 +22,10 @@ reading some of the great tutorials online:
 
 Contributing
 --
-See the [Dev Environment Setup][wiki-devenv] guide on github.
+See the [Dev Environment Setup][wiki-devenv] guide on github which will
+walk you through the whole process starting from installing all the
+dependencies, to cloning the repository, and to finally submitting a
+pull request.
 
 
 [wiki-devenv]: https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment "Metasploit Development Environment Setup"
