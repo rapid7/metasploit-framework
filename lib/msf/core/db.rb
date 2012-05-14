@@ -2600,23 +2600,21 @@ class DBManager
 		filename = args[:filename]
 		wspace = args[:wspace] || workspace
 
-		
-                data = ""
-                ::File.open(filename, 'rb') do |f|
-                        data = f.read(f.stat.size)
-                end
-                import_wapiti_xml(args.merge(:data => data))
-
+		data = ""
+		::File.open(filename, 'rb') do |f|
+			data = f.read(f.stat.size)
+    		end
+		import_wapiti_xml(args.merge(:data => data))
 	end
 
 	def import_wapiti_xml(args={}, &block)
-                if block
-                        doc = Rex::Parser::WapitiDocument.new(args,framework.db) {|type, data| yield type,data }
-                else
-                        doc = Rex::Parser::WapitiDocument.new(args,self)
-                end
-                parser = ::Nokogiri::XML::SAX::Parser.new(doc)
-                parser.parse(args[:data])
+		if block
+			doc = Rex::Parser::WapitiDocument.new(args,framework.db) {|type, data| yield type,data }
+		else
+			doc = Rex::Parser::WapitiDocument.new(args,self)
+		end
+		parser = ::Nokogiri::XML::SAX::Parser.new(doc)
+		parser.parse(args[:data])
 	end
 
 	def import_libpcap_file(args={})
