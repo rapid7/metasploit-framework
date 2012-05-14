@@ -24,7 +24,7 @@ Contributing
 --
 See the [Dev Environment Setup][wiki-devenv] guide on github which will
 walk you through the whole process starting from installing all the
-dependencies, to cloning the repository, and to finally submitting a
+dependencies, to cloning the repository, and finally to submitting a
 pull request.
 
 
