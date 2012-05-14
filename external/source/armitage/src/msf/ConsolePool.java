@@ -48,12 +48,12 @@ public class ConsolePool implements RpcConnection {
 				Map temp = (Map)client.execute("console.read", new Object[] { rv.get("id") + "" });
 
 				/* this is a sanity check to make sure this console is not dead or hung */
-				if ("true".equals(temp.get("busy")) || "".equals(temp.get("prompt"))) {
-					((RpcAsync)client).execute_async("console.destroy", new Object[] { rv.get("id") + "" });
-					//System.err.println("Kill Console: " + rv.get("id") + " => " + temp);
+				if ("failure".equals(temp.get("result")) || "true".equals(temp.get("busy") + "") || "".equals(temp.get("prompt") + "")) {
+					System.err.println("Kill Console: " + rv + " => " + temp);
+					client.execute("console.destroy", new Object[] { rv.get("id") + "" });
 				}
 				else {
-					//System.err.println("Reusing: " + rv.get("id"));
+					//System.err.println("Reusing: " + rv + " => " + temp);
 					return rv;
 				}
 			}
@@ -78,17 +78,18 @@ public class ConsolePool implements RpcConnection {
 
 	public void release(String id) throws IOException {
 		/* make sure we're in a "clean" console */
+		HashMap rv = new HashMap();
+		rv.put("id", id);
+
 		boolean b;
 		synchronized (this) {
 			b = tracked.contains(id);
 		}
 
 		if (b) {
+			//System.err.println("Added: " + rv + " to pool");
 			client.execute("console.write", new Object[] { id, "back\n" });
 			synchronized (this) {
-				HashMap rv = new HashMap();
-				rv.put("id", id);
-				//System.err.println("Added: " + rv + " to pool");
 				inactive.add(rv);
 			}
 		}

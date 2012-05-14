@@ -60,12 +60,6 @@ sub view_items {
 
 	item($1, 'Console', 'C', { thread(&createConsoleTab); });
 	
-	if ($RPC_CONSOLE !is $null) {
-		item($1, 'RPC Console', 'P', {
-			[$frame addTab: "msfrpcd", $RPC_CONSOLE, {}];
-		});
-	}
-
 	if ($mclient !is $client && $mclient !is $null) {
 		item($1, 'Event Log', 'E', &createEventLogTab);
 	}
@@ -235,8 +229,13 @@ sub init_menus {
 
 	# setup some global keyboard shortcuts...
 	[$frame bindKey: "Ctrl+N", { thread(&createConsoleTab); }];
+	[$frame bindKey: "Ctrl+W", { [$frame openActiveTab]; }];
 	[$frame bindKey: "Ctrl+D", { [$frame closeActiveTab]; }];
 	[$frame bindKey: "Ctrl+O", { thread(&createPreferencesTab); }];
+	[$frame bindKey: "Ctrl+T", { [$frame snapActiveTab]; }];
+	[$frame bindKey: "Ctrl+Left", { [$frame previousTab]; }];
+	[$frame bindKey: "Ctrl+Right", { [$frame nextTab]; }];
+	setupWorkspaceShortcuts(workspaces());
 
 	cmd_safe("show exploits", {
 		local('$line $os $type $id $rank $name $k $date $exploit');
