@@ -13,9 +13,12 @@ This file lists bundled packages and their associated licensing terms.
 
 Ruby
 ====
- - The Bit-Struct library located under lib/bit-struct
- - The SNMP library located under lib/snmp
- - The Zip library located under lib/zip
+ - The Bit-Struct library located under lib/bit-struct.
+   Copyright (c) 2005-2009, Joel VanderWerf.
+ - The SNMP library located under lib/snmp.
+   Copyright (c) 2004 David R. Halliday
+ - The Zip library located under lib/zip.
+   Copyright (C) 2002-2004 Thomas Sondergaard
 
 
 ````
@@ -78,7 +81,8 @@ Ruby
 
 PacketFu
 ========
- - The PacketFu library located under lib/packetfu
+ - The PacketFu library located under lib/packetfu.
+   Copyright (c) 2008-2012, Tod Beardsley
 
 ````
 Copyright (c) 2008-2012, Tod Beardsley
@@ -400,7 +404,8 @@ POSSIBILITY OF SUCH DAMAGES.
 
 LGPL
 ====
- - The Metasm library located under lib/metasm
+ - The Metasm library located under lib/metasm.
+   Copyright (C) 2006-2010 Yoann GUILLOT
  - The PcapRub library located under external/pcaprub
  - The Ruby-Lorcon library located under external/ruby-lorcon
 
@@ -1002,10 +1007,9 @@ OpenSSL License
 
 MIT
 ===
- - The SSHKey library located under lib/sshkey
+ - The SSHKey library located under lib/sshkey.
    Copyright (c) 2011 James Miller
-
- - The Net::SSH library located under lib/net/ssh
+ - The Net::SSH library located under lib/net/ssh.
    Copyright (c) 2008 Jamis Buck <jamis@37signals.com>
 
 
