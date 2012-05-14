@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					['CVE', '2011-4404'],
-					['URL', 'http://www.exploit-db.com/exploits/18138/'],
+					['EDB', '18138'],
 					['URL', 'http://www.vmware.com/security/advisories/VMSA-2011-0014.html'],
 					['URL', 'http://dsecrg.com/pages/vul/show.php?id=342']
 				],
