@@ -34,9 +34,11 @@ $ curl -L get.rvm.io | bash -s stable
 
 Note the *lack* of sudo; you will nearly always want to install this as a regular user, and not as root. Follow this by editing your .bashrc to include this line at the end (if it doesn't have it already):
 
-````bash
-[ -s "$HOME/.rvm/scripts/rvm" ] && source "$HOME/.rvm/scripts/rvm" # Load RVM
-````
+
+\[\[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM
+
+(wow, it is hard to render bracket-bracket in Markdown-generated &lt;pre&gt; tags!)
+
 
 Next, run the RVM scripts by either opening a new terminal window, or just run: 
 
