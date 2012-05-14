@@ -9,6 +9,7 @@ require 'rex/parser/appscan_nokogiri'
 require 'rex/parser/burp_session_nokogiri'
 require 'rex/parser/ci_nokogiri'
 require 'rex/parser/wapiti_nokogiri'
+require 'rex/parser/openvas_nokogiri'
 
 # Legacy XML parsers -- these will be converted some day
 
@@ -2430,6 +2431,12 @@ class DBManager
 		elsif (firstline.index("<scanJob>"))
 			@import_filedata[:type] = "Retina XML"
 			return :retina_xml
+		elsif (firstline.index("<get_reports_response status=\"200\" status_text=\"OK\">"))
+			@import_filedata[:type] = "OpenVAS XML"
+			return :openvas_new_xml
+		elsif (firstline.index("<report id=\""))
+			@import_filedata[:type] = "OpenVAS XML"
+			return :openvas_new_xml
 		elsif (firstline.index("<NessusClientData>"))
 			@import_filedata[:type] = "Nessus XML (v1)"
 			return :nessus_xml
