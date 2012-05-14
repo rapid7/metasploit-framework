@@ -22,7 +22,7 @@ reading some of the great tutorials online:
 
 Contributing
 --
-See the [Dev Environment Setup][github-wiki] guide on github.
+See the [Dev Environment Setup][wiki-devenv] guide on github.
 
 
 [wiki-devenv]: https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment "Metasploit Development Environment Setup"
