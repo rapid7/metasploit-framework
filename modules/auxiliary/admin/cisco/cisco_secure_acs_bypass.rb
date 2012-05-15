@@ -108,7 +108,7 @@ class Metasploit4 < Msf::Auxiliary
 				print_error("#{rhost} - Failed! Either the username does not exist or target is not vulnerable.")
 				print_error("Please change the username and try again.")
 			else
-				print_error("Fail")
+				print_error("#{rhost} - Failed!  An unknown error has occurred.")
 			end
 		else
 			print_error("#{rhost} - Failed! The webserver issued a #{res.code} response.")
