@@ -42,6 +42,9 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				['URL', 'http://www.ocert.org/advisories/ocert-2011-003.html'],
 				['URL', 'http://www.nruns.com/_downloads/advisory28122011.pdf'],
+				['URL', 'http://events.ccc.de/congress/2011/Fahrplan/events/4680.en.html'],
+				['URL', 'http://events.ccc.de/congress/2011/Fahrplan/attachments/2007_28C3_Effective_DoS_on_web_application_platforms.pdf'],
+				['URL', 'http://www.youtube.com/watch?v=R2Cq3CLI6H8'],
 				['CVE', '2011-5034'],
 				['CVE', '2011-5035'],
 				['CVE', '2011-4885'],
