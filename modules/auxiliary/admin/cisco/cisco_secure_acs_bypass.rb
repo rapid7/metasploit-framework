@@ -35,7 +35,7 @@ class Metasploit4 < Msf::Auxiliary
 				],
 			'Author'         =>
 				[
-					'Jason Kratzer<pyoor[at]flinkd.org>'
+					'Jason Kratzer <pyoor[at]flinkd.org>'
 				],
 			'License'      => MSF_LICENSE
 		))
