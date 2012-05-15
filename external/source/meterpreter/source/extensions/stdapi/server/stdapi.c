@@ -296,6 +296,7 @@ Command customCommands[] =
 	  { request_sys_config_getprivs,                       { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
+#ifdef _WIN32
 	{ "stdapi_sys_config_steal_token",
 	  { request_sys_config_steal_token,                    { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },
@@ -304,6 +305,7 @@ Command customCommands[] =
 	  { request_sys_config_drop_token,                     { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
+#endif
 
 
 	// Net

@@ -20,11 +20,29 @@ class Console::CommandDispatcher::Stdapi::Webcam
 	# List of supported commands.
 	#
 	def commands
-		{
+		all = {
 			"webcam_list"   => "List webcams",
 			"webcam_snap"   => "Take a snapshot from the specified webcam",
 			"record_mic"    => "Record audio from the default microphone for X seconds"
 		}
+		reqs = {
+			"webcam_list"   => [ "webcam_list" ],
+			"webcam_snap"   => [ "webcam_start", "webcam_get_frame", "webcam_stop" ],
+			"record_mic"    => [ "webcam_record_audio" ],
+		}
+
+		all.delete_if do |cmd, desc|
+			del = false
+			reqs[cmd].each do |req|
+				next if client.commands.include? req
+				del = true
+				break
+			end
+
+			del
+		end
+
+		all
 	end
 
 	#

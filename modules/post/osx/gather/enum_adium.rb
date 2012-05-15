@@ -224,21 +224,14 @@ class Metasploit3 < Msf::Post
 	# and retry under certain conditions.
 	#
 	def exec(cmd)
-		tries = 0
 		begin
 			out = cmd_exec(cmd).chomp
 		rescue ::Timeout::Error => e
-			tries += 1
-			if tries < 3
-				vprint_error("#{@peer} - #{e.message} - retrying...")
-				retry 
-			end
+			vprint_error("#{@peer} - #{e.message} - retrying...")
+			retry
 		rescue EOFError => e
-			tries += 1
-			if tries < 3
-				vprint_error("#{@peer} - #{e.message} - retrying...")
-				retry
-			end
+			vprint_error("#{@peer} - #{e.message} - retrying...")
+			retry
 		end
 	end
 

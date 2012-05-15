@@ -20,20 +20,50 @@ class Console::CommandDispatcher::Stdapi::Ui
 	# List of supported commands.
 	#
 	def commands
-		{
-			"idletime"      => "Returns the number of seconds the remote user has been idle",
-			"uictl"         => "Control some of the user interface components",
+		all = {
 			"enumdesktops"  => "List all accessible desktops and window stations",
 			"getdesktop"    => "Get the current meterpreter desktop",
-			"setdesktop"    => "Change the meterpreters current desktop",
+			"idletime"      => "Returns the number of seconds the remote user has been idle",
+			"keyscan_dump"  => "Dump the keystroke buffer",
 			"keyscan_start" => "Start capturing keystrokes",
 			"keyscan_stop"  => "Stop capturing keystrokes",
-			"keyscan_dump"  => "Dump the keystroke buffer",
 			"screenshot"    => "Grab a screenshot of the interactive desktop",
+			"setdesktop"    => "Change the meterpreters current desktop",
+			"uictl"         => "Control some of the user interface components",
 
 			#  not working yet
 			# "unlockdesktop" => "Unlock or lock the workstation (must be inside winlogon.exe)",
 		}
+
+		reqs = {
+			"enumdesktops"  => [ "stdapi_ui_desktop_enum" ],
+			"getdesktop"    => [ "stdapi_ui_desktop_get" ],
+			"idletime"      => [ "stdapi_ui_get_idle_time" ],
+			"keyscan_dump"  => [ "stdapi_ui_get_keys" ],
+			"keyscan_start" => [ "stdapi_ui_start_keyscan" ],
+			"keyscan_stop"  => [ "stdapi_ui_stop_keyscan" ],
+			"screenshot"    => [ "stdapi_ui_desktop_screenshot" ],
+			"setdesktop"    => [ "stdapi_ui_desktop_set" ],
+			"uictl"         => [
+				"stdapi_ui_enable_mouse",
+				"stdapi_ui_disable_mouse",
+				"stdapi_ui_enable_keyboard",
+				"stdapi_ui_disable_keyboard",
+			],
+		}
+
+		all.delete_if do |cmd, desc|
+			del = false
+			reqs[cmd].each do |req|
+				next if client.commands.include? req
+				del = true
+				break
+			end
+
+			del
+		end
+
+		all
 	end
 
 	#
