@@ -9,6 +9,7 @@ require 'rex/parser/appscan_nokogiri'
 require 'rex/parser/burp_session_nokogiri'
 require 'rex/parser/ci_nokogiri'
 require 'rex/parser/wapiti_nokogiri'
+require 'rex/parser/openvas_nokogiri'
 
 # Legacy XML parsers -- these will be converted some day
 
@@ -2430,6 +2431,12 @@ class DBManager
 		elsif (firstline.index("<scanJob>"))
 			@import_filedata[:type] = "Retina XML"
 			return :retina_xml
+		elsif (firstline.index("<get_reports_response status=\"200\" status_text=\"OK\">"))
+			@import_filedata[:type] = "OpenVAS XML"
+			return :openvas_new_xml
+		elsif (firstline.index("<report id=\""))
+			@import_filedata[:type] = "OpenVAS XML"
+			return :openvas_new_xml
 		elsif (firstline.index("<NessusClientData>"))
 			@import_filedata[:type] = "Nessus XML (v1)"
 			return :nessus_xml
@@ -2615,6 +2622,27 @@ class DBManager
 			doc = Rex::Parser::WapitiDocument.new(args,framework.db) {|type, data| yield type,data }
 		else
 			doc = Rex::Parser::WapitiDocument.new(args,self)
+		end
+		parser = ::Nokogiri::XML::SAX::Parser.new(doc)
+		parser.parse(args[:data])
+	end
+
+	def import_openvas_new_xml_file(args={})
+		filename = args[:filename]
+		wspace = args[:wspace] || workspace
+
+		data = ""
+		::File.open(filename, 'rb') do |f|
+			data = f.read(f.stat.size)
+		end
+		import_wapiti_xml(args.merge(:data => data))
+	end
+
+	def import_openvas_new_xml(args={}, &block)
+		if block
+			doc = Rex::Parser::OpenVASDocument.new(args,framework.db) {|type, data| yield type,data }
+		else
+			doc = Rex::Parser::OpenVASDocument.new(args,self)
 		end
 		parser = ::Nokogiri::XML::SAX::Parser.new(doc)
 		parser.parse(args[:data])
