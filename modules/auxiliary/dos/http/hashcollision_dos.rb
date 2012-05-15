@@ -198,7 +198,11 @@ class Metasploit3 < Msf::Auxiliary
 				'uri'		=>	datastore['URL'],
 				'data'		=>	payload
 			}
-			send_request_cgi(opts, getresponse = false)
+			c = connect
+			r = c.request_cgi(opts)
+			c.send_request(r)
+			disconnect(c)
+			# Don't wait for a response, can take hours
 		end
 	end
 end
