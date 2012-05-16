@@ -314,9 +314,9 @@ int get_interfaces_linux(Remote *remote, Packet *response) {
 			tlv_cnt++;
 
 			for (j = 0; j < ifaces->ifaces[i].addr_count; j++) {
-				if (allocd_entries < tlv_cnt+3) {
-					entries = realloc(entries, sizeof(Tlv) * (tlv_cnt+3));
-					allocd_entries += 3;
+				if (allocd_entries < tlv_cnt+2) {
+					entries = realloc(entries, sizeof(Tlv) * (tlv_cnt+2));
+					allocd_entries += 2;
 				}
 				if (ifaces->ifaces[i].addr_list[j].family == AF_INET) {
 					dprintf("ip addr for %s", ifaces->ifaces[i].name);

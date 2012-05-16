@@ -22,7 +22,7 @@ class Sniffer < Extension
 
 		client.register_extension_aliases(
 			[
-				{ 
+				{
 					'name' => 'sniffer',
 					'ext'  => self
 				},
@@ -42,19 +42,19 @@ class Sniffer < Extension
 			ikeys = %W{idx name description type mtu wireless usable dhcp}
 			ikeys.each_index { |i| iface[ikeys[i]] = vals[i] }
 			ifaces << iface
-		}		
+		}
 		return ifaces
 	end
-	
+
 	# Start a packet capture on an opened interface
 	def capture_start(intf,maxp=200000,filter="")
 		request = Packet.create_request('sniffer_capture_start')
 		request.add_tlv(TLV_TYPE_SNIFFER_INTERFACE_ID, intf.to_i)
 		request.add_tlv(TLV_TYPE_SNIFFER_PACKET_COUNT, maxp.to_i)
 		request.add_tlv(TLV_TYPE_SNIFFER_ADDITIONAL_FILTER, filter) if filter.length > 0
-		response = client.send_request(request)	
+		response = client.send_request(request)
 	end
-	
+
 	# Stop an active packet capture
 	def capture_stop(intf)
 		request = Packet.create_request('sniffer_capture_stop')
@@ -65,7 +65,7 @@ class Sniffer < Extension
 			:bytes   => response.get_tlv_value(TLV_TYPE_SNIFFER_BYTE_COUNT),
 		}
 	end
-	
+
 	# Retrieve stats about a current capture
 	def capture_stats(intf)
 		request = Packet.create_request('sniffer_capture_stats')
@@ -87,7 +87,7 @@ class Sniffer < Extension
 			:bytes   => response.get_tlv_value(TLV_TYPE_SNIFFER_BYTE_COUNT),
 		}
 	end
-	
+
 	# Buffer the current capture to a readable buffer
 	def capture_dump(intf)
 		request = Packet.create_request('sniffer_capture_dump')
@@ -98,19 +98,19 @@ class Sniffer < Extension
 			:bytes   => response.get_tlv_value(TLV_TYPE_SNIFFER_BYTE_COUNT),
 		}
 	end
-	
+
 	# Retrieve the packet data for the specified capture
 	def capture_dump_read(intf, len=16384)
 		request = Packet.create_request('sniffer_capture_dump_read')
 		request.add_tlv(TLV_TYPE_SNIFFER_INTERFACE_ID, intf.to_i)
-		request.add_tlv(TLV_TYPE_SNIFFER_BYTE_COUNT, len.to_i)		
+		request.add_tlv(TLV_TYPE_SNIFFER_BYTE_COUNT, len.to_i)
 		response = client.send_request(request, 3600)
 		{
 			:bytes   => response.get_tlv_value(TLV_TYPE_SNIFFER_BYTE_COUNT),
 			:data    => response.get_tlv_value(TLV_TYPE_SNIFFER_PACKET)
 		}
 	end
-		
+
 end
 
 end; end; end; end; end

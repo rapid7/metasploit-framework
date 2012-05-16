@@ -212,7 +212,7 @@ protected
 			return nil
 		end
 
-		data = ''
+		data = fd.read
 		begin
 			until fd.eof?
 				data << fd.read
@@ -247,77 +247,83 @@ protected
 
 		chunks = []
 		command = nil
+		encoding = :hex
 
 		line_max = _unix_max_line_length
 		# Leave plenty of room for the filename we're writing to and the
 		# command to echo it out
 		line_max -= file_name.length - 64
 
-		# Default to simple echo. If the data is binary, though, we have to do
-		# something fancy
-		if d =~ /[^[:print:]]/
-			# Ordered by descending likeliness to work
-			[
-				%q^perl -e 'print("\x41")'^,
-				# POSIX awk doesn't have \xNN escapes, use gawk to ensure we're
-				# getting the GNU version.
-				%q^gawk 'BEGIN {ORS = ""; print "\x41"}' </dev/null^,
-				# bash and zsh's echo builtins are apparently the only ones
-				# that support both -e and -n as we need them.  Most others
-				# treat all options as just more arguments to print. In
-				# particular, the standalone /bin/echo or /usr/bin/echo appear
-				# never to have -e so don't bother trying them.
-				%q^echo -ne '\x41'^,
-				# printf seems to have different behavior on bash vs sh vs
-				# other shells, try a full path (and hope it's the actual path)
-				%q^/usr/bin/printf '\x41'^,
-				%q^printf '\x41'^,
-			].each { |c|
-				a = session.shell_command_token("#{c}")
-				if "A" == a
-					command = c
-					break
-				#else
-				#	p a
-				end
-			}
+		# Ordered by descending likeliness to work
+		[
+			# POSIX standard requires %b which expands octal (but not hex)
+			# escapes in the argument. However, some versions truncate input on
+			# nulls, so "printf %b '\0\101'" produces a 0-length string. The
+			# standalon version seems to be more likely to work than the buitin
+			# version, so try it first
+			{ :cmd => %q^/usr/bin/printf %b 'CONTENTS'^ , :enc => :octal },
+			{ :cmd => %q^printf %b 'CONTENTS'^ , :enc => :octal },
+			# Perl supports both octal and hex escapes, but octal is usually
+			# shorter (e.g. 0 becomes \0 instead of \x00)
+			{ :cmd => %q^perl -e 'print("CONTENTS")'^ , :enc => :octal },
+			# POSIX awk doesn't have \xNN escapes, use gawk to ensure we're
+			# getting the GNU version.
+			{ :cmd => %q^gawk 'BEGIN {ORS = ""; print "CONTENTS"}' </dev/null^ , :enc => :hex },
+			# Use echo as a last resort since it frequently doesn't support -e
+			# or -n.  bash and zsh's echo builtins are apparently the only ones
+			# that support both.  Most others treat all options as just more
+			# arguments to print. In particular, the standalone /bin/echo or
+			# /usr/bin/echo appear never to have -e so don't bother trying
+			# them.
+			{ :cmd => %q^echo -ne 'CONTENTS'^ , :enc => :hex },
+		].each { |foo|
+			# Some versions of printf mangle %.
+			test_str = "\0\xff\xfeABCD\x7f%%\r\n"
+			if foo[:enc] == :hex
+				cmd = foo[:cmd].sub("CONTENTS"){ Rex::Text.to_hex(test_str) }
+			else
+				cmd = foo[:cmd].sub("CONTENTS"){ Rex::Text.to_octal(test_str) }
+			end
+			a = session.shell_command_token("#{cmd}")
+			if test_str == a
+				command = foo[:cmd]
+				encoding = foo[:enc]
+				break
+			else
+				p a
+			end
+		}
 
-			if command.nil?
-				raise RuntimeError, "Can't find command on the victim for writing binary data", caller
-			end
-
-			# each byte will balloon up to 4 when we hex encode
-			max = line_max/4
-			i = 0
-			while (i < d.length)
-				chunks << Rex::Text.to_hex(d.slice(i...(i+max)))
-				i += max
-			end
-		else
-			i = 0
-			while (i < d.length)
-				chunk = d.slice(i...(i+line_max))
-				# POSIX standard says single quotes cannot appear inside single
-				# quotes and can't be escaped. Replace them with an equivalent.
-				# (Close single quotes, open double quotes containing a single
-				# quote, re-open single qutoes)
-				chunk.gsub!("'", %q|'"'"'|)
-				chunks << chunk
-				i += line_max
-			end
-			command = "echo -n '\\x41'"
+		if command.nil?
+			raise RuntimeError, "Can't find command on the victim for writing binary data", caller
 		end
-		vprint_status("Writing #{d.length} bytes in #{chunks.length} chunks, using #{command.split(" ",2).first}")
+
+		# each byte will balloon up to 4 when we encode
+		# (A becomes \x41 or \101)
+		max = line_max/4
+
+		i = 0
+		while (i < d.length)
+			if encoding == :hex
+				chunks << Rex::Text.to_hex(d.slice(i...(i+max)))
+			else
+				chunks << Rex::Text.to_octal(d.slice(i...(i+max)))
+			end
+			i += max
+		end
+
+		vprint_status("Writing #{d.length} bytes in #{chunks.length} chunks of #{chunks.first.length} bytes (#{encoding}-encoded), using #{command.split(" ",2).first}")
 
 		# The first command needs to use the provided redirection for either
 		# appending or truncating.
-		cmd = command.sub("\\x41", chunks.shift)
+		cmd = command.sub("CONTENTS") { chunks.shift }
 		session.shell_command_token("#{cmd} #{redirect} '#{file_name}'")
 
 		# After creating/truncating or appending with the first command, we
 		# need to append from here on out.
 		chunks.each { |chunk|
-			cmd = command.sub("\\x41", chunk)
+			vprint_status("Next chunk is #{chunk.length} bytes")
+			cmd = command.sub("CONTENTS") { chunk }
 
 			session.shell_command_token("#{cmd} >> '#{file_name}'")
 		}
@@ -336,7 +342,11 @@ protected
 				i=`expr $i + 1`; str=$str$str;\
 			done; echo $max'
 		line_max = session.shell_command_token(calc_line_max).to_i
+
+		# Fall back to a conservative 4k which should work on even the most
+		# restrictive of embedded shells.
 		line_max = (line_max == 0 ? 4096 : line_max)
+		vprint_status("Max line length is #{line_max}")
 
 		line_max
 	end

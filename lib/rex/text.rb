@@ -239,6 +239,15 @@ module Text
 		return buff
 	end
 
+	def self.to_octal(str, prefix = "\\")
+		octal = ""
+		str.each_byte { |b|
+			octal << "#{prefix}#{b.to_s 8}"
+		}
+
+		return octal
+	end
+
 	#
 	# Returns the hex version of the supplied string
 	#
