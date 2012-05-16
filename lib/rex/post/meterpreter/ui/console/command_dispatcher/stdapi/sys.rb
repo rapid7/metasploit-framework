@@ -273,57 +273,13 @@ class Console::CommandDispatcher::Stdapi::Sys
 	#
 	def cmd_ps(*args)
 		processes = client.sys.process.get_processes
-		if (client.platform =~ /win/i) 
-			tbl = Rex::Ui::Text::Table.new(
-				'Header'  => "Process list",
-				'Indent'  => 1,
-				'Columns' =>
-					[
-						"PID",
-						"Name",
-						"Arch",
-						"Session",
-						"User",
-						"Path"
-					])
-
-			processes.each { |ent|
-
-				session = ent['session'] == 0xFFFFFFFF ? '' : ent['session'].to_s
-				arch    = ent['arch']
-
-				# for display and consistency with payload naming we switch the internal 'x86_64' value to display 'x64'
-				if( arch == ARCH_X86_64 )
-					arch = "x64"
-				end
-
-				tbl << [ ent['pid'].to_s, ent['name'], arch, session, ent['user'], ent['path'] ]
-			}
-		else # linux meterpreter
-			tbl = Rex::Ui::Text::Table.new(
-				'Header'  => "Process list",
-				'Indent'  => 1,
-				'Columns' =>
-					[
-						"PID",
-						"PPID",
-						"Name",
-						"User ID",
-						"Path"
-					])
-			processes.each { |ent|
-				# can have some unicode characters when receiving name, path.. so need to unicode_filter_decode them
-				# otherelse, print "$U$/usr/lib/xfce4cpugraphplugin/.." instead of "/usr/lib/xfce4-cpugraph-plugin/.."
-				tbl << [ ent['pid'].to_s, ent['parentid'].to_s, client.unicode_filter_decode(ent['name']), client.unicode_filter_decode(ent['user']), client.unicode_filter_decode(ent['path']) ]
-			}
-		end
-
 		if (processes.length == 0)
 			print_line("No running processes were found.")
 		else
-			print("\n" + tbl.to_s + "\n")
+			print_line
+			print_line(processes.to_table("Indent" => 1).to_s)
+			print_line
 		end
-
 		return true
 	end
 
