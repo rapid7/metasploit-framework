@@ -27,7 +27,10 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'EDB', '18779' ],
 					[ 'URL', 'http://www.kb.cert.org/vuls/id/889195' ]
 				],
-			'Author'      => ['Borja Merino <bmerinofe[at]gmail.com>'],
+			'Author'      => [
+				'Borja Merino <bmerinofe[at]gmail.com>',
+				'jc' # ExploitDB PoC
+				],
 			'License'     => MSF_LICENSE
 		))
 
