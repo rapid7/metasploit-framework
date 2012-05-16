@@ -388,7 +388,7 @@ class ProcessList < Array
 		# ppid.  Cut columns from the list if they aren't there.  It is conceivable
 		# that processes might have different columns, but for now assume that the
 		# first one is representative.
-		cols.delete_if { |c| !( first.has_key?(c.downcase) ) or first[c.downcase].blank? }
+		cols.delete_if { |c| !( first.has_key?(c.downcase) ) or first[c.downcase].nil? }
 
 		opts = {
 			"Header"  => "Process List",
