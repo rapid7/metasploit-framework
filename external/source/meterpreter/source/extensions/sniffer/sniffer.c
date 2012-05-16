@@ -599,6 +599,7 @@ DWORD request_sniffer_capture_start(Remote *remote, Packet *packet) {
 			result = hErr;
 			break;
 		}
+		j->capture_linktype = 1; //  LINKTYPE_ETHERNET forced on windows
 #else
 		name = get_interface_name_by_index(ifh);
 
@@ -612,6 +613,9 @@ DWORD request_sniffer_capture_start(Remote *remote, Packet *packet) {
 			result = EACCES;
 			break;
 		}
+		j->capture_linktype = dlt_to_linktype(pcap_datalink(j->pcap)); // get the datalink associated with the capture, needed when saving pcap file
+		if (-1 == j->capture_linktype)
+			j->capture_linktype = 1; // force to LINKTYPE_ETHERNET in case of error
 
 		if(packet_filter) {
 			struct bpf_program bpf;
@@ -1019,6 +1023,8 @@ DWORD request_sniffer_capture_dump(Remote *remote, Packet *packet) {
 
 		packet_add_tlv_uint(response, TLV_TYPE_SNIFFER_PACKET_COUNT, pcnt);
 		packet_add_tlv_uint(response, TLV_TYPE_SNIFFER_BYTE_COUNT, rcnt);
+		// add capture datalink, needed when saving capture file, use TLV_TYPE_SNIFFER_INTERFACE_ID not to create a new TLV type
+		packet_add_tlv_uint(response, TLV_TYPE_SNIFFER_INTERFACE_ID, j->capture_linktype); 
 
 		dprintf("sniffer>> finished processing packets");
 
