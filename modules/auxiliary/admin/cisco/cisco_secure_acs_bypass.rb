@@ -30,7 +30,7 @@ class Metasploit4 < Msf::Auxiliary
 			'References'     =>
 				[
 					['BID', '47093'],
-					['CVE', 'CVE-2011-0951'],
+					['CVE', '2011-0951'],
 					['URL', 'http://www.cisco.com/en/US/products/csa/cisco-sa-20110330-acs.html']
 				],
 			'Author'         =>
