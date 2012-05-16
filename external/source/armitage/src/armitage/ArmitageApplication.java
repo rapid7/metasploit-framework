@@ -165,19 +165,30 @@ public class ArmitageApplication extends JFrame {
 				i.remove();
 
 				/* pop goes the tab! */
-				JFrame r = new JFrame(t.title);
+				final JFrame r = new JFrame(t.title);
 				r.setIconImages(getIconImages());
 				r.setLayout(new BorderLayout());
 				r.add(t.component, BorderLayout.CENTER);
 				r.pack();
-				r.setVisible(true);
 
 				r.addWindowListener(new WindowAdapter() {
 					public void windowClosing(WindowEvent ev) {
 						if (t.removeListener != null)
 							t.removeListener.actionPerformed(new ActionEvent(ev.getSource(), 0, "close"));
 					}
+
+					public void windowOpened(WindowEvent ev) {
+						r.setState(JFrame.NORMAL);
+						t.component.requestFocusInWindow();
+					}
+
+					public void windowActivated(WindowEvent ev) {
+						t.component.requestFocusInWindow();
+					}
 				});
+
+				r.setState(JFrame.ICONIFIED);
+				r.setVisible(true);
 			}
 		}
 	}
