@@ -2,18 +2,15 @@ require 'msf/core'
 require 'msf/core/module'
 
 module Msf
-class Post < Msf::Module
+
+#
+# A mixin used for providing Modules with post-exploitation options and helper methods
+#
+module PostMixin
 
 	include Msf::Auxiliary::Report
 
 	include Msf::Module::HasActions
-
-	def self.type
-		MODULE_POST
-	end
-	def type
-		MODULE_POST
-	end
 
 	def initialize(info={})
 		super
@@ -31,13 +28,16 @@ class Post < Msf::Module
 	# if one doesn't exist.  Initializes user input and output on the session.
 	#
 	def setup
-		@sysinfo = nil
 		if not session
 			raise Msf::OptionValidateError.new(["SESSION"])
 		end
+
+		super
+
 		check_for_session_readiness() if session.type == "meterpreter"
 
 		@session.init_ui(self.user_input, self.user_output)
+		@sysinfo = nil
 	end
 
 	# Meterpreter sometimes needs a little bit of extra time to
@@ -114,23 +114,6 @@ class Post < Msf::Module
 		sessions
 	end
 
-	#
-	# Create an anonymous module not tied to a file.  Only useful for IRB.
-	#
-	def self.create(session)
-		mod = new
-		mod.instance_variable_set(:@session, session)
-		# Have to override inspect because for whatever reason, +type+ is coming
-		# from the wrong scope and i can't figure out how to fix it.
-		mod.instance_eval do
-			def inspect
-				"#<Msf::Post anonymous>"
-			end
-		end
-		mod.class.refname = "anonymous"
-
-		mod
-	end
 
 	#
 	# Return false if the given session is not compatible with this module
@@ -219,5 +202,40 @@ protected
 		end
 	end
 end
+
+#
+# A Post-exploitation module
+#
+#
+class Post < Msf::Module
+	include PostMixin
+
+	def type
+		MODULE_POST
+	end
+
+	def self.type
+		MODULE_POST
+	end
+
+	#
+	# Create an anonymous module not tied to a file.  Only useful for IRB.
+	#
+	def self.create(session)
+		mod = new
+		mod.instance_variable_set(:@session, session)
+		# Have to override inspect because for whatever reason, +type+ is coming
+		# from the wrong scope and i can't figure out how to fix it.
+		mod.instance_eval do
+			def inspect
+				"#<Msf::Post anonymous>"
+			end
+		end
+		mod.class.refname = "anonymous"
+
+		mod
+	end
+end
+
 end
 
