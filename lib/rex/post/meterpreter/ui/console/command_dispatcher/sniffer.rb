@@ -132,7 +132,7 @@ class Console::CommandDispatcher::Sniffer
 		bytes_all = res[:bytes] || 0
 		bytes_got = 0
 		bytes_pct = 0
-
+		linktype = res[:linktype]
 		while (bytes_all > 0)
 			res = client.sniffer.capture_dump_read(intf,1024*512)
 
@@ -156,7 +156,7 @@ class Console::CommandDispatcher::Sniffer
 			fd = ::File.new(path_cap, 'ab+')
 		else
 			fd = ::File.new(path_cap, 'wb+')
-			fd.write([0xa1b2c3d4, 2, 4, 0, 0, 65536, 1].pack('NnnNNNN'))
+			fd.write([0xa1b2c3d4, 2, 4, 0, 0, 65536, linktype].pack('NnnNNNN'))
 		end
 
 		pkts = {}

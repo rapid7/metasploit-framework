@@ -39,6 +39,7 @@ objects = \
 	server/sys/config/config.o \
 	server/sys/process/linux-in-mem-exe.o \
 	server/sys/process/process.o \
+	server/sys/process/ps.o \
 
 all: ext_server_stdapi.so
 
