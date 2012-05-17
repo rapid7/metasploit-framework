@@ -1,7 +1,7 @@
 #include "precomp.h"
+#include "ps.h" // include the code for listing proceses
 
 #ifdef _WIN32 
-#include "ps.h" // include the code for listing proceses
 #include "./../session.h"
 #include "in-mem-exe.h" /* include skapetastic in-mem exe exec */
 
@@ -859,8 +859,10 @@ DWORD request_sys_process_get_processes( Remote * remote, Packet * packet )
 #else
 	DWORD result = ERROR_NOT_SUPPORTED;
 	Packet * response = packet_create_response( packet );
-
-	packet_transmit_response( result, remote, response );
+	if (response) {
+		result = ps_list_linux( response );
+		packet_transmit_response( result, remote, response );
+	}
 #endif
 	
 	return result;
