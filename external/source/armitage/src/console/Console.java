@@ -11,19 +11,21 @@ import java.awt.event.*;
 import java.io.PrintStream;
 
 import java.util.*;
+import java.util.regex.*;
 
 import armitage.Activity;
 
 /** A generic multi-feature console for use in the Armitage network attack tool */
 public class Console extends JPanel implements FocusListener {
-	protected JTextArea  console;
+	protected JTextPane  console;
 	protected JTextField input;
-	protected JLabel     prompt;
+	protected JTextPane  prompt;
 
 	protected PrintStream log = null;
 
 	protected Properties display;
 	protected Font       consoleFont;
+	protected Colors     colors;
 
 	protected ClickListener clickl;
 
@@ -56,7 +58,7 @@ public class Console extends JPanel implements FocusListener {
 		public ClickListener(Console parent) {
 			this.parent = parent;
 		}
-	
+
 		public void setPopup(ConsolePopup popup) {
 			this.popup = popup;
 		}
@@ -120,7 +122,7 @@ public class Console extends JPanel implements FocusListener {
 				String temp = data.substring(start, end).trim();
 				int a = temp.indexOf("\n");
 				if (a > 0) {
-					return temp.substring(0, a);					
+					return temp.substring(0, a);
 				}
 				return temp;
 			}
@@ -139,6 +141,8 @@ public class Console extends JPanel implements FocusListener {
 	}
 
 	private void updateComponentLooks() {
+		colors = new Colors(display);
+
 		Color foreground = Color.decode(display.getProperty("console.foreground.color", "#ffffff"));
 		Color background = Color.decode(display.getProperty("console.background.color", "#000000"));
 
@@ -146,7 +150,10 @@ public class Console extends JPanel implements FocusListener {
 		while (i.hasNext()) {
 			JComponent component = (JComponent)i.next();
 			component.setForeground(foreground);
-			component.setBackground(background);
+			if (component == console || component == prompt)
+				component.setOpaque(false);
+			else
+				component.setBackground(background);
 			component.setFont(consoleFont);
 
 			if (component == console || component == prompt) {
@@ -173,11 +180,11 @@ public class Console extends JPanel implements FocusListener {
 	public void setPrompt(String text) {
 		String bad = "\ufffd\ufffd";
 		if (text.equals(bad) || text.equals("null")) {
-			prompt.setText(defaultPrompt);
+			colors.set(prompt, fixText(defaultPrompt));
 		}
 		else {
 			defaultPrompt = text;
-			prompt.setText(text);
+			colors.set(prompt, fixText(text));
 		}
 	}
 
@@ -196,15 +203,64 @@ public class Console extends JPanel implements FocusListener {
 		}
 	}
 
-	protected void appendToConsole(String _text) {
-		if (_text.endsWith("\n") || _text.endsWith("\r")) {
-			if (!promptLock) {
-				console.append(_text);
-				if (log != null)
-					log.print(_text);
+	private static class Replacements {
+		public Pattern original;
+		public String replacer;
+
+		public Replacements(String o, String r) {
+			original = Pattern.compile(o);
+			replacer = r;
+		}
+	}
+
+	public void setStyle(String text) {
+		String lines[] = text.trim().split("\n");
+		colorme = new Replacements[lines.length];
+		for (int x = 0; x < lines.length; x++) {
+			String ab[] = lines[x].split("\\t+");
+			if (ab.length == 2) {
+				ab[1] = ab[1].replace("\\c", Colors.color + "");
+				ab[1] = ab[1].replace("\\o", Colors.cancel + "");
+				ab[1] = ab[1].replace("\\u", Colors.underline + "");
+				colorme[x] = new Replacements(ab[0], ab[1]);
 			}
 			else {
-				console.append(prompt.getText());
+				System.err.println(lines[x] + "<-- didn't split right:" + ab.length);
+			}
+		}
+	}
+
+	protected Replacements colorme[] = null;
+
+	protected String fixText(String text) {
+		if (colorme == null)
+			return text;
+
+		StringBuffer result = new StringBuffer();
+		String[] lines = text.split("(?<=\\n)");
+
+		for (int x = 0; x < lines.length; x++) {
+			String temp = lines[x];
+			for (int y = 0; y < colorme.length; y++) {
+				if (colorme[y] != null)
+					temp = colorme[y].original.matcher(temp).replaceFirst(colorme[y].replacer);
+			}
+			result.append(temp);
+		}
+		return result.toString();
+	}
+
+	protected void appendToConsole(String _text) {
+		_text = fixText(_text);
+
+		if (_text.endsWith("\n") || _text.endsWith("\r")) {
+			if (!promptLock) {
+				colors.append(console, _text);
+				if (log != null)
+					log.print(colors.strip(_text));
+			}
+			else {
+				colors.append(console, prompt.getText());
 			}
 
 			if (!_text.startsWith(prompt.getText()))
@@ -214,17 +270,16 @@ public class Console extends JPanel implements FocusListener {
 			int breakp = _text.lastIndexOf("\n");
 
 			if (breakp != -1) {
-				console.append(_text.substring(0, breakp + 1));
-				prompt.setText(_text.substring(breakp + 1) + " ");
+				colors.append(console, _text.substring(0, breakp + 1));
+				colors.set(prompt, _text.substring(breakp + 1) + " ");
 				if (log != null)
-					log.print(_text.substring(0, breakp + 1));
+					log.print(colors.strip(_text.substring(0, breakp + 1)));
 			}
 			else {
-				prompt.setText(_text);
+				colors.set(prompt, _text);
 			}
 			promptLock = true;
 		}
-
 
 		if (console.getDocument().getLength() >= 1) {
 			console.setCaretPosition(console.getDocument().getLength() - 1);
@@ -276,9 +331,9 @@ public class Console extends JPanel implements FocusListener {
 
 		/* init the console */
 
-		console = new JTextArea();
+		console = new JTextPane();
 		console.setEditable(false);
-		console.setLineWrap(true);
+		//console.setLineWrap(true);
 		console.addFocusListener(this);
 
 		JScrollPane scroll = new JScrollPane(
@@ -290,7 +345,8 @@ public class Console extends JPanel implements FocusListener {
 
 		/* init the prompt */
 		
-		prompt = new JLabel();
+		prompt = new JTextPane();
+		prompt.setEditable(false);
 
 		/* init the input */
 
@@ -373,6 +429,13 @@ public class Console extends JPanel implements FocusListener {
 		/* setup our word click listener */
 		clickl = new ClickListener(this);
 		console.addMouseListener(clickl);
+
+		/* work-around for Nimbus L&F */
+		Color background = Color.decode(display.getProperty("console.background.color", "#000000"));
+		console.setBackground(new Color(0,0,0,0));
+		prompt.setBackground(new Color(0,0,0,0));
+		scroll.getViewport().setBackground(background);
+		console.setOpaque(false);
 	}
 
 	public JPopupMenu getPopupMenu(final JTextComponent _component) {

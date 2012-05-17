@@ -69,10 +69,33 @@ sub cleanText {
         return tr($1, "\x01\x02", "");
 }
 
+sub setupConsoleStyle {
+	this('$style');
+	if ($style is $null) {
+		local('$handle');
+		$handle = [SleepUtils getIOHandle: resource("resources/msfconsole.style"), $null];
+		$style = join("\n", readAll($handle));
+		closef($handle);
+	}
+	[$1 setStyle: $style];
+}
+
+sub setupEventStyle {
+	this('$style');
+	if ($style is $null) {
+		local('$handle');
+		$handle = [SleepUtils getIOHandle: resource("resources/eventlog.style"), $null];
+		$style = join("\n", readAll($handle));
+		closef($handle);
+	}
+	[$1 setStyle: $style];
+}
+
 sub createDisplayTab {
 	local('$console $host $queue $file');
 	$queue = [new ConsoleQueue: $client];
 	$console = [new Console: $preferences];
+	setupConsoleStyle($console);
 	[$queue setDisplay: $console];
 	[new QueueTabCompletion: $console, $queue];
 	logCheck($console, iff($host, $host, "all"), iff($file, $file, strrep($1, " ", "_")));
@@ -84,6 +107,7 @@ sub createDisplayTab {
 sub createConsolePanel {
 	local('$console $result $thread $1');
 	$console = [new Console: $preferences];
+	setupConsoleStyle($console);
 
 	$result = call($client, "console.create");
 	$thread = [new ConsoleClient: $console, $client, "console.read", "console.write", "console.destroy", $result['id'], $1];

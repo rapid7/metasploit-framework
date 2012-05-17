@@ -1,6 +1,18 @@
 Armitage Changelog
 ==================
 
+17 May 12
+---------
+- Fixed bug with loot/download viewer breaking with a font resize.
+- Default console font color is now grey. I never noticed that I had
+  white text on a black background before. That's a lot of contrast.
+  This is adjustable too through Armitage -> Preferences.
+- And... the Armitage console now displays pretty colors. If you don't
+  like colors, set the console.show_colors.boolean preference to false
+  through Armitage -> Preferences.
+- Fixed a bug preventing input field from getting focus when popping a
+  console tab using Ctrl+W.
+
 14 May 12
 ---------
 - Oopserific--dynamic workspace shortcuts were not bound until you
