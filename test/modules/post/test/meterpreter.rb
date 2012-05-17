@@ -24,21 +24,30 @@ class Metasploit4 < Msf::Post
 
 	def test_sys_process
 		vprint_status("Starting process tests")
+		pid = nil
 
-		it "should return its own process id" do
-			pid = session.sys.process.getpid
-			vprint_status("Pid: #{pid}")
-			true
+		if session.commands.include? "stdapi_sys_process_getpid"
+			it "should return its own process id" do
+				pid = session.sys.process.getpid
+				vprint_status("Pid: #{pid}")
+				true
+			end
+		else
+			print_status("Session doesn't implement getpid, skipping test")
 		end
 
 		it "should return a list of processes" do
 			ret = true
 			list = session.sys.process.get_processes
 			ret &&= (list && list.length > 0)
-			pid = session.sys.process.getpid
-			process = list.find{ |p| p['pid'] == pid }
-			vprint_status("PID info: #{process.inspect}")
-			ret &&= !(process.nil?)
+			if session.commands.include? "stdapi_sys_process_getpid"
+				pid ||= session.sys.process.getpid
+				process = list.find{ |p| p['pid'] == pid }
+				vprint_status("PID info: #{process.inspect}")
+				ret &&= !(process.nil?)
+			else
+				vprint_status("Session doesn't implement getpid, skipping sanity check")
+			end
 
 			ret
 		end
