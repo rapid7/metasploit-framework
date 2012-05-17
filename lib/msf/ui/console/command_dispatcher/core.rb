@@ -2337,7 +2337,7 @@ class Core
 		end
 
 		# Well-known option names specific to post-exploitation
-		if (mod.post?)
+		if (mod.post? or mod.exploit?)
 			return option_values_sessions() if opt.upcase == 'SESSION'
 		end
 
