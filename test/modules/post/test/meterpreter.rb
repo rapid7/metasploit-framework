@@ -22,6 +22,29 @@ class Metasploit4 < Msf::Post
 
 	end
 
+	def test_sys_process
+		vprint_status("Starting process tests")
+
+		it "should return its own process id" do
+			pid = session.sys.process.getpid
+			vprint_status("Pid: #{pid}")
+			true
+		end
+
+		it "should return a list of processes" do
+			ret = true
+			list = session.sys.process.get_processes
+			ret &&= (list && list.length > 0)
+			pid = session.sys.process.getpid
+			process = list.find{ |p| p['pid'] == pid }
+			vprint_status("PID info: #{process.inspect}")
+			ret &&= !(process.nil?)
+
+			ret
+		end
+
+	end
+
 	def test_sys_config
 		vprint_status("Starting system config tests")
 
