@@ -63,7 +63,11 @@ class Console::CommandDispatcher::Core
 		if client.passive_service
 			c["detach"] = "Detach the meterpreter session (for http/https)"
 		end
-		if client.commands.include? "core_migrate"
+		# The only meterp that implements this right now is native Windows and for
+		# whatever reason it is not adding core_migrate to its list of commands.
+		# Use a dumb platform til it gets sorted.
+		#if client.commands.include? "core_migrate"
+		if client.platform =~ /win/
 			c["migrate"] = "Migrate the server to another process"
 		end
 
