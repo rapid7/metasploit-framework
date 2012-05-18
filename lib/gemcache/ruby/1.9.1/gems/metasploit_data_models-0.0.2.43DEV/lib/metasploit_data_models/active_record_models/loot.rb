@@ -10,6 +10,15 @@ module MetasploitDataModels::ActiveRecordModels::Loot
 
       before_destroy :delete_file
 
+      scope :search, lambda { |*args|
+        where(["loots.ltype ILIKE ? OR " +
+       "loots.name ILIKE ? OR " +
+       "loots.info ILIKE ? OR " +
+       "loots.data ILIKE ?",
+          "%#{args[0]}%", "%#{args[0]}%", "%#{args[0]}%", "%#{args[0]}%"
+        ])
+      }
+
       private
 
       def delete_file
