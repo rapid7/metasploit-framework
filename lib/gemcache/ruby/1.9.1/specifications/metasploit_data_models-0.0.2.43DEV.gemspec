@@ -6,14 +6,14 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Trevor Rosen"]
-  s.date = "2012-04-24"
+  s.date = "2012-05-18"
   s.description = "Implements minimal ActiveRecord models and database helper code used in both the Metasploit Framework (MSF) and Metasploit commercial editions."
   s.email = ["trevor_rosen@rapid7.com"]
   s.executables = ["mdm_console"]
   s.files = ["bin/mdm_console"]
   s.homepage = ""
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.21"
+  s.rubygems_version = "1.8.15"
   s.summary = "Database code for MSF and Metasploit Pro"
 
   if s.respond_to? :specification_version then
