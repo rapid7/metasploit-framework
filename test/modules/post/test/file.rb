@@ -1,5 +1,5 @@
 
-require 'module_test'
+require 'test/lib/module_test'
 
 #load 'test/lib/module_test.rb'
 #load 'lib/rex/text.rb'

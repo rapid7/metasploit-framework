@@ -1,0 +1,119 @@
+== v0.13.2 [2012-02-22] Michael Granger <ged@FaerieMUD.org>
+
+- Make builds against PostgreSQL earlier than 8.3 fail with a descriptive
+  message instead of a compile failure.
+
+
+== v0.13.1 [2012-02-12] Michael Granger <ged@FaerieMUD.org>
+
+- Made use of a finished PG::Connection raise a PG::Error instead of
+  a fatal error (#110).
+- Added missing BSDL license file (#108)
+
+
+== v0.13.0 [2012-02-09] Michael Granger <ged@FaerieMUD.org>
+
+Reorganization of modules/classes to be better Ruby citizens (with backward-compatible aliases):
+- Created toplevel namespace 'PG' to correspond with the gem name.
+- Renamed PGconn to PG::Connection (with ::PGconn alias)
+- Renamed PGresult to PG::Result (with ::PGresult alias)
+- Renamed PGError to PG::Error (with ::PGError alias)
+- Declare all constants inside PG::Constants, then include them in
+  PG::Connection and PG::Result for backward-compatibility, and
+  in PG for convenience.
+- Split the extension source up by class/module.
+- Removed old compatibility code for PostgreSQL versions < 8.3
+
+Documentation:
+- Clarified licensing, updated to Ruby 1.9's license.
+- Merged authors list, added some missing people to the Contributor's
+  list.
+- Cleaned up the sample/ directory
+- Making contact info a bit clearer, link to the Google+ page and
+  the mailing list
+
+Enhancements:
+- Added a convenience method: PG.connect -> PG::Connection.new
+
+Bugfixes:
+- Fixed LATIN5-LATIN10 Postgres<->Ruby encoding conversions
+
+
+
+== v0.12.2 [2012-01-03] Michael Granger <ged@FaerieMUD.org>
+
+- Fix for the 1.8.7 breakage introduced by the st.h fix for alternative Ruby
+  implementations (#97 and #98). Thanks to Lars Kanis for the patch.
+- Encode error messages with the connection's encoding under 1.9 (#96)
+
+
+== v0.12.1 [2011-12-14] Michael Granger <ged@FaerieMUD.org>
+
+- Made rake-compiler a dev dependency, as Rubygems doesn't use the Rakefile
+  for compiling the extension. Thanks to eolamey@bitbucket and Jeremy Evans
+  for pointing this out.
+- Added an explicit include for ruby/st.h for implementations that need it
+  (fixes #95).
+
+
+== v0.12.0 [2011-12-07] Michael Granger <ged@FaerieMUD.org>
+
+- PGconn#wait_for_notify
+  * send nil as the payload argument if the NOTIFY didn't have one.
+  * accept a nil argument for no timeout (Sequel support)
+  * Fixed API docs
+  * Taint and encode event name and payload
+- Handle errors while rb_thread_select()ing in PGconn#block. 
+  (Brian Weaver).
+- Fixes for Win32 async queries (Rafał Bigaj)
+- Memory leak fixed: Closing opened WSA event. (rafal)
+- Fixes for #66 Win32 asynchronous queries hang on connection 
+  error. (rafal)
+- Fixed a typo in PGconn#error_message's documentation
+- fixing unused variable warnings for ruby 1.9.3 (Aaron Patterson)
+- Build system bugfixes
+- Converted to Hoe
+- Updates for the Win32 binary gem builds (Lars Kanis)
+
+
+== v0.11.0 [2011-02-09] Michael Granger <ged@FaerieMUD.org>
+
+Enhancements:
+
+* Added a PGresult#values method to fetch all result rows as an Array of 
+  Arrays. Thanks to Jason Yanowitz (JYanowitz at enovafinancial dot com) for
+  the patch.
+
+
+== v0.10.1 [2011-01-19] Michael Granger <ged@FaerieMUD.org>
+
+Bugfixes:
+
+* Add an include guard for pg.h
+* Simplify the common case require of the ext
+* Include the extconf header
+* Fix compatibility with versions of PostgreSQL without PQgetCancel. (fixes #36)
+* Fix require for natively-compiled extension under Windows. (fixes #55)
+* Change rb_yield_splat() to rb_yield_values() for compatibility with Rubinius. (fixes #54)
+
+
+== v0.10.0 [2010-12-01] Michael Granger <ged@FaerieMUD.org>
+
+Enhancements:
+
+* Added support for the payload of NOTIFY events (w/Mahlon E. Smith)
+* Updated the build system with Rubygems suggestions from RubyConf 2010
+
+Bugfixes:
+
+* Fixed issue with PGconn#wait_for_notify that caused it to miss notifications that happened after
+  the LISTEN but before the wait_for_notify.
+
+== v0.9.0 [2010-02-28] Michael Granger <ged@FaerieMUD.org>
+
+Bugfixes.
+
+== v0.8.0 [2009-03-28] Jeff Davis <davis.jeffrey@gmail.com>
+
+Bugfixes, better Windows support.
+

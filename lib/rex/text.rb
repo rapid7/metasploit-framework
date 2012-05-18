@@ -2,9 +2,13 @@ require 'digest/md5'
 require 'stringio'
 
 begin
+	old_verbose = $VERBOSE
+	$VERBOSE = nil
 	require 'iconv'
 	require 'zlib'
-rescue LoadError
+rescue ::LoadError
+ensure 
+	$VERBOSE = old_verbose
 end
 
 module Rex
@@ -233,6 +237,15 @@ module Text
 			end
 		end
 		return buff
+	end
+
+	def self.to_octal(str, prefix = "\\")
+		octal = ""
+		str.each_byte { |b|
+			octal << "#{prefix}#{b.to_s 8}"
+		}
+
+		return octal
 	end
 
 	#
@@ -903,6 +916,11 @@ module Text
 		foo = []
 		foo += (0x80 .. 0xff).map{ |c| c.chr }
 		rand_base(len, bad, *foo )
+	end
+
+	# Generate a random GUID, of the form {xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}
+	def self.rand_guid
+		"{#{[8,4,4,4,12].map {|a| rand_text_hex(a) }.join("-")}}"
 	end
 
 	#

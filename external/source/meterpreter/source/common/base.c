@@ -116,7 +116,7 @@ Command commands[] =
 };
 
 // Dynamically registered command extensions
-Command *extensionList = NULL;
+Command *extension_commands = NULL;
 
 /*
  * Dynamically register a custom command handler
@@ -133,13 +133,13 @@ DWORD command_register(Command *command)
 	memcpy(newCommand, command, sizeof(Command));
 
 	dprintf("Setting new command...");
-	if (extensionList)
-		extensionList->prev = newCommand;
+	if (extension_commands)
+		extension_commands->prev = newCommand;
 
 	dprintf("Fixing next/prev...");
-	newCommand->next    = extensionList;
+	newCommand->next    = extension_commands;
 	newCommand->prev    = NULL;
-	extensionList       = newCommand;
+	extension_commands       = newCommand;
 
 	dprintf("Done...");
 	return ERROR_SUCCESS;
@@ -154,7 +154,7 @@ DWORD command_deregister(Command *command)
 	DWORD res = ERROR_NOT_FOUND;
 	
 	// Search the extension list for the command
-	for (current = extensionList, prev = NULL;
+	for (current = extension_commands, prev = NULL;
 	     current;
 	     prev = current, current = current->next)
 	{
@@ -164,7 +164,7 @@ DWORD command_deregister(Command *command)
 		if (prev)
 			prev->next = current->next;
 		else
-			extensionList = current->next;
+			extension_commands = current->next;
 
 		if (current->next)
 			current->next->prev = prev;
@@ -288,7 +288,7 @@ DWORD THREADCALL command_process_thread( THREAD * thread )
 			}
 
 			// Regardless of error code, try to see if someone has overriden a base handler
-			for( current = extensionList, result = ERROR_NOT_FOUND ; 
+			for( current = extension_commands, result = ERROR_NOT_FOUND ; 
 				  result == ERROR_NOT_FOUND && current && current->method ; current = current->next )
 			{
 				if( strcmp( current->method, method ) )
@@ -373,7 +373,7 @@ DWORD command_process_remote(Remote *remote, Packet *inPacket)
 
 		// Regardless of error code, try to see if someone has overriden
 		// a base handler
-		for (current = extensionList, res = ERROR_NOT_FOUND; 
+		for (current = extension_commands, res = ERROR_NOT_FOUND; 
 			  res == ERROR_NOT_FOUND && current && current->method; 
 			  current = current->next)
 		{

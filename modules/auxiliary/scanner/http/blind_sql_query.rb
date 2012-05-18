@@ -228,8 +228,8 @@ class Metasploit3 < Msf::Auxiliary
 					pinjd = detection_d(normalres,trueres,falseres,tarr)
 
 					if pinja or pinjb or pinjc  or pinjd
-						print_error("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
-						print_error("[#{t}]")
+						print_good("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
+						print_good("[#{t}]")
 
 						report_web_vuln(
 							:host	=> ip,
@@ -319,8 +319,8 @@ class Metasploit3 < Msf::Auxiliary
 					pinjd = detection_d(normalres,trueres,falseres,tarr)
 
 					if pinja or pinjb or pinjc or pinjd
-						print_error("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
-						print_error("[#{t}]")
+						print_good("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
+						print_good("[#{t}]")
 
 						report_web_vuln(
 							:host	=> ip,

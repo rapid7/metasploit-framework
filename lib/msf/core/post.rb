@@ -43,12 +43,13 @@ class Post < Msf::Module
 	# Meterpreter sometimes needs a little bit of extra time to
 	# actually be responsive for post modules. Default tries
 	# and retries for 5 seconds.
-	def check_for_session_readiness(tries=10)
+	def check_for_session_readiness(tries=6)
 		session_ready_count = 0
 		session_ready = false
 		until session.sys or session_ready_count > tries
-			select(nil,nil,nil,0.5)
 			session_ready_count += 1
+			back_off_period = (session_ready_count**2)/10.0
+			select(nil,nil,nil,back_off_period)
 		end
 		session_ready = !!session.sys
 		raise "Could not get a hold of the session." unless session_ready

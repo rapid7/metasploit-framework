@@ -54,6 +54,7 @@ require 'net/http'
 require 'uri'
 require 'rex/mime'
 
+
 module Nexpose
 
 module Sanitize
@@ -125,7 +126,7 @@ class APIRequest
 		@time_out = 30
 		@pause = 2
 		@uri = URI.parse(@url)
-		@http = Net::HTTP.new(@uri.host, @uri.port)
+		@http = ::Net::HTTP.new(@uri.host, @uri.port)
 		@http.use_ssl = true
 		#
 		# XXX: This is obviously a security issue, however, we handle this at the client level by forcing
@@ -143,7 +144,8 @@ class APIRequest
 
 		begin
 		prepare_http_client
-		@raw_response, @raw_response_data = @http.post(@uri.path, @req, @headers)
+		@raw_response = @http.post(@uri.path, @req, @headers)
+		@raw_response_data = @raw_response.body
 		@res = parse_xml(@raw_response_data)
 
 		if(not @res.root)
@@ -661,8 +663,8 @@ class Connection
 		http.use_ssl = true
 		http.verify_mode = OpenSSL::SSL::VERIFY_NONE            # XXX: security issue
 		headers = {'Cookie' => "nexposeCCSessionID=#{@session_id}"}
-		resp, data = http.get(uri.path, headers)
-		data
+		resp = http.get(uri.path, headers)
+		resp ? resp.body : nil
 	end
 end
 

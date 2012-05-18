@@ -1,0 +1,3 @@
+<% for item in @list %>
+  <b><% print item %></b>
+<% end %>

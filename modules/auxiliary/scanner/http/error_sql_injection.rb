@@ -12,9 +12,6 @@
 require 'rex/proto/http'
 require 'msf/core'
 
-
-
-
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
@@ -245,9 +242,9 @@ class Metasploit3 < Msf::Auxiliary
 						end
 
 						if found
-							print_status("[#{wmap_target_host}] SQL Injection found. (#{idesc}) (#{datastore['PATH']})")
-							print_status("[#{wmap_target_host}] Error string: '#{inje}' Test Value: #{qvars[key]}")
-							print_status("[#{wmap_target_host}] Vuln query parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
+							print_good("[#{wmap_target_host}] SQL Injection found. (#{idesc}) (#{datastore['PATH']})")
+							print_good("[#{wmap_target_host}] Error string: '#{inje}' Test Value: #{qvars[key]}")
+							print_good("[#{wmap_target_host}] Vuln query parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
 
 							report_web_vuln(
 								:host	=> ip,

@@ -301,7 +301,7 @@ module Rex
 		end
 
 		def report_traceroute(host_object)
-			return unless host_object.kind_of? ::Msf::DBManager::Host
+			return unless host_object.kind_of? ::Mdm::Host
 			return unless @report_data[:traceroute]
 			tr_note = {
 				:workspace => host_object.workspace,
@@ -315,7 +315,7 @@ module Rex
 		end
 
 		def report_uptime(host_object)
-			return unless host_object.kind_of? ::Msf::DBManager::Host
+			return unless host_object.kind_of? ::Mdm::Host
 			return unless @report_data[:last_boot]
 			up_note = {
 				:workspace => host_object.workspace,
@@ -327,7 +327,7 @@ module Rex
 		end
 
 		def report_fingerprint(host_object)
-			return unless host_object.kind_of? ::Msf::DBManager::Host
+			return unless host_object.kind_of? ::Mdm::Host
 			return unless @report_data[:os_fingerprint]
 			fp_note = @report_data[:os_fingerprint].merge(
 				{
@@ -347,7 +347,7 @@ module Rex
 		end
 
 		def report_services(host_object,&block)
-			return unless host_object.kind_of? ::Msf::DBManager::Host
+			return unless host_object.kind_of? ::Mdm::Host
 			return unless @report_data[:ports]
 			return if @report_data[:ports].empty?
 			reported = []

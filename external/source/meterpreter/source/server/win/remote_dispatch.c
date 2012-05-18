@@ -5,6 +5,8 @@ extern HINSTANCE hAppInstance;
 
 // see remote_dispatch_common.c
 extern LIST * extension_list;
+// see common/base.c
+extern Command *extension_commands;
 
 DWORD request_core_loadlib(Remote *remote, Packet *packet)
 {
@@ -14,6 +16,9 @@ DWORD request_core_loadlib(Remote *remote, Packet *packet)
 	PCHAR libraryPath;
 	DWORD flags = 0;
 	BOOL bLibLoadedReflectivly = FALSE;
+
+	Command *first = extension_commands;
+	Command *command;
 
 	do
 	{
@@ -124,6 +129,11 @@ DWORD request_core_loadlib(Remote *remote, Packet *packet)
 						free( extension );
 				}
 				dprintf("[SERVER] Called init()...");
+				if (response) {
+					for (command = extension_commands; command != first; command = command->next) {
+						packet_add_tlv_string(response, TLV_TYPE_METHOD, command->method);
+					}
+				}
 			}
 		}
 

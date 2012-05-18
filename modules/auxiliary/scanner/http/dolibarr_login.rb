@@ -17,9 +17,9 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'Dolibarr ERP & CRM 3 Login Utility',
 			'Description'    => %q{
-				This module attempts to authenticate to a Dolibarr ERP/CRM's admin web intarface,
+				This module attempts to authenticate to a Dolibarr ERP/CRM's admin web interface, 
 				and should only work against version 3.1.1 or older, because these versions do not
-				have any default protections against brute-forcing. 
+				have any default protections against bruteforcing.
 			},
 			'Author'         => [ 'sinn3r' ],
 			'License'        => MSF_LICENSE
@@ -45,6 +45,8 @@ class Metasploit3 < Msf::Auxiliary
 			'uri'    => @uri.path
 		})
 
+		return [nil, nil] if not (res and res.headers['Set-Cookie'])
+		
 		# Get the session ID from the cookie
 		m = res.headers['Set-Cookie'].match(/(DOLSESSID_.+);/)
 		id = (m.nil?) ? nil : m[1]
@@ -92,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		location = res.headers['Location']
-		if location =~ /admin\//
+		if res and res.headers and (location = res.headers['Location']) and location =~ /admin\//
 			print_good("#{@peer} - Successful login: \"#{user}:#{pass}\"")
 			report_auth_info({
 				:host        => rhost,

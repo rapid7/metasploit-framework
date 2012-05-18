@@ -75,11 +75,11 @@ class Metasploit3 < Msf::Auxiliary
 					}
 				)
 			else
-				''
-				#print_status("Received #{res.code} for #{trav}#{file}")
+				vprint_status("Received #{res.code} for #{trav}#{file}")
 			end
 
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
+			print_error(e.message)
 		rescue ::Timeout::Error, ::Errno::EPIPE
 		end
 	end

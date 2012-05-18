@@ -1,0 +1,3 @@
+--color
+--format=nested
+--backtrace
