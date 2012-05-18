@@ -56,7 +56,7 @@ end
 		res = self.service.tokens.keys
 		begin
 			if framework.db and framework.db.active
-				Msf::DBManager::ApiKey.find(:all).each do |k|
+				::Mdm::ApiKey.find(:all).each do |k|
 					res << k.token
 				end
 			end
@@ -69,7 +69,7 @@ end
 		db = false
 		begin
 			if framework.db and framework.db.active
-				t = Msf::DBManager::ApiKey.new
+				t = ::Mdm::ApiKey.new
 				t.token = token
 				t.save!
 				db = true
@@ -89,7 +89,7 @@ end
 		db = false
 		begin
 			if framework.db and framework.db.active
-				t = Msf::DBManager::ApiKey.new
+				t = ::Mdm::ApiKey.new
 				t.token = token
 				t.save!
 				db = true
@@ -109,7 +109,7 @@ end
 		db = false
 		begin
 			if framework.db and framework.db.active
-				t = Msf::DBManager::ApiKey.find_by_token(token)
+				t = ::Mdm::ApiKey.find_by_token(token)
 				t.destroy if t
 				db = true
 			end
@@ -127,7 +127,7 @@ private
 		return true if not (framework.db and framework.db.active)
 		return true if not @@loaded_sha2
 
-		user_info = Msf::DBManager::User.find_by_username(user)
+		user_info = ::Mdm::User.find_by_username(user)
 		return true if not user_info
 
 		# These settings match the CryptoProvider we use in AuthLogic

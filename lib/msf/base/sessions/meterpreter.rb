@@ -334,7 +334,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
 					# Find the first non-loopback address
 					if not nhost
-						iface = ifaces.select{|i| i.ip != "127.0.0.1" }
+						iface = ifaces.select{|i| i.ip != "127.0.0.1" and i.ip != "::1" }
 						if iface.length > 0
 							nhost = iface.first.ip
 						end
@@ -352,55 +352,57 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 				# there
 				return if not (framework.db and framework.db.active)
 
-				wspace = framework.db.find_workspace(workspace)
+				::ActiveRecord::Base.connection_pool.with_connection {
+					wspace = framework.db.find_workspace(workspace)
 
-				# Account for finding ourselves on a different host
-				if nhost and self.db_record
-					# Create or switch to a new host in the database
-					hobj = framework.db.report_host(:workspace => wspace, :host => nhost)
-					if hobj
-						self.session_host = nhost
-						self.db_record.host_id = hobj[:id]
+					# Account for finding ourselves on a different host
+					if nhost and self.db_record
+						# Create or switch to a new host in the database
+						hobj = framework.db.report_host(:workspace => wspace, :host => nhost)
+						if hobj
+							self.session_host = nhost
+							self.db_record.host_id = hobj[:id]
+						end
 					end
-				end
-
-				framework.db.report_note({
-					:type => "host.os.session_fingerprint",
-					:host => self,
-					:workspace => wspace,
-					:data => {
-						:name => sysinfo["Computer"],
-						:os => sysinfo["OS"],
-						:arch => sysinfo["Architecture"],
-					}
-				})
-
-				if self.db_record
-					self.db_record.desc = safe_info
-					self.db_record.save!
-				end
-
-				framework.db.update_host_via_sysinfo(:host => self, :workspace => wspace, :info => sysinfo)
-
-				if nhost
-					framework.db.report_note({
-						:type      => "host.nat.server",
-						:host      => shost,
-						:workspace => wspace,
-						:data      => { :info   => "This device is acting as a NAT gateway for #{nhost}", :client => nhost },
-						:update    => :unique_data
-					})
-					framework.db.report_host(:host => shost, :purpose => 'firewall' )
 
 					framework.db.report_note({
-						:type      => "host.nat.client",
-						:host      => nhost,
+						:type => "host.os.session_fingerprint",
+						:host => self,
 						:workspace => wspace,
-						:data      => { :info => "This device is traversing NAT gateway #{shost}", :server => shost },
-						:update    => :unique_data
+						:data => {
+							:name => sysinfo["Computer"],
+							:os => sysinfo["OS"],
+							:arch => sysinfo["Architecture"],
+						}
 					})
-					framework.db.report_host(:host => nhost, :purpose => 'client' )
-				end
+
+					if self.db_record
+						self.db_record.desc = safe_info
+						self.db_record.save!
+					end
+
+					framework.db.update_host_via_sysinfo(:host => self, :workspace => wspace, :info => sysinfo)
+
+					if nhost
+						framework.db.report_note({
+							:type      => "host.nat.server",
+							:host      => shost,
+							:workspace => wspace,
+							:data      => { :info   => "This device is acting as a NAT gateway for #{nhost}", :client => nhost },
+							:update    => :unique_data
+						})
+						framework.db.report_host(:host => shost, :purpose => 'firewall' )
+
+						framework.db.report_note({
+							:type      => "host.nat.client",
+							:host      => nhost,
+							:workspace => wspace,
+							:data      => { :info => "This device is traversing NAT gateway #{shost}", :server => shost },
+							:update    => :unique_data
+						})
+						framework.db.report_host(:host => nhost, :purpose => 'client' )
+					end
+				}
 
 			end
 		rescue ::Interrupt

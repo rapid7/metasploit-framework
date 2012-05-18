@@ -58,6 +58,8 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
+		tries = 0
+
 		begin
 
 			print_status("Obtaining the boot key...")
@@ -93,8 +95,18 @@ class Metasploit3 < Msf::Post
 		rescue ::Interrupt
 			raise $!
 		rescue ::Rex::Post::Meterpreter::RequestError => e
-			print_error("Meterpreter Exception: #{e.class} #{e}")
-			print_error("This script requires the use of a SYSTEM user context (hint: migrate into service process)")
+			# Sometimes we get this invalid handle race condition.
+			# So let's retry a couple of times before giving up.
+			# See bug #6815
+			if tries < 5 and e.to_s =~ /The handle is invalid/
+				print_status("Handle is invalid, retrying...")
+				tries += 1
+				retry
+
+			else
+				print_error("Meterpreter Exception: #{e.class} #{e}")
+				print_error("This script requires the use of a SYSTEM user context (hint: migrate into service process)")
+			end
 		#rescue ::Exception => e
 		#	print_error("Error: #{e.class} #{e} #{e.backtrace}")
 		end

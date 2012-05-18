@@ -49,8 +49,8 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("Page number: " + pagenum.to_s)
 			header = { 'User-Agent' => "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/4.0.221.6 Safari/525.13"}
 			clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("www.delicious.com")
-			resp, data = clnt.get2("/search?p=site%3A"+targetdom+"&page="+pagenum.to_s,header)
-			response << data
+			resp = clnt.get2("/search?p=site%3A"+targetdom+"&page="+pagenum.to_s,header)
+			response << resp.body
 			response.each_line do |line|
 				list << line.gsub!(/(.+<a rel=\"nofollow)(.+=+\")(.+)(\".+)/, '\3')
 			end

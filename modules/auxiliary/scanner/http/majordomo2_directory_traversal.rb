@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 					['CVE', '2011-0063'],
 					['URL', 'https://sitewat.ch/en/Advisory/View/1'],
 					['URL', 'http://sotiriu.de/adv/NSOADV-2011-003.txt'],
-					['URL', 'http://www.exploit-db.com/exploits/16103/']
+					['EDB', 16103]
 				],
 			'DisclosureDate' => 'Mar 08 2011',
 			'License'        =>  MSF_LICENSE

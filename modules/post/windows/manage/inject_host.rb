@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'          => 'Windows Manage hosts file injection',
+			'Name'          => 'Windows Manage Hosts File Injection',
 			'Description'   => %q{
 				This module allows the attacker to insert a new entry into the target
 				system's hosts file.

@@ -66,6 +66,9 @@ framework.db.hosts.each do |host|
 		print_line("site which will get analyzed:")
 		run_single("wmap_sites -s #{host.address}:#{serv.port}")
 		run_single("wmap_targets -t #{host.address}:#{serv.port}")
+		serv.web_sites.each do |site|
+			run_single("wmap_targets -t #{site.vhost},#{host.address}:#{serv.port}")
+		end
 		print_line("defined target:")
 		run_single("wmap_targets -l")
 		if(profile != nil)

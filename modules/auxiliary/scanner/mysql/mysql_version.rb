@@ -37,8 +37,12 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		begin
 			s = connect(false)
-			data = s.get
+			data = s.get_once(-1,10)
 			disconnect(s)
+			if data.nil?
+				print_error "The connection to #{rhost}:#{rport} timed out"
+				return
+			end
 		rescue ::Rex::ConnectionError, ::EOFError
 			return
 		rescue ::Exception

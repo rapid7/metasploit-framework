@@ -200,7 +200,7 @@ module Auxiliary::Report
 			conf[:name] = filename if filename
 			conf[:info] = info if info
 
-			if service and service.kind_of?(Msf::DBManager::Service)
+			if service and service.kind_of?(::Mdm::Service)
 				conf[:service] = service if service
 			end
 

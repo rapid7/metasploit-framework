@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					[ 'CVE', '2011-0514' ],
 					[ 'OSVDB', '70617' ],
-					[ 'URL', 'http://www.exploit-db.com/exploits/15940/' ],
+					[ 'EDB', 15940 ],
 				],
 			'DisclosureDate' => 'Jan 8 2011' ))
 

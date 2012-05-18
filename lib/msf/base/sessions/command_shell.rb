@@ -274,7 +274,7 @@ protected
 
 		begin
 
-		rdr = Rex::ThreadFactory.spawn("RingMonitor", false) do
+		rdr = framework.threads.spawn("RingMonitor", false) do
 			seq = nil
 			while self.interacting
 

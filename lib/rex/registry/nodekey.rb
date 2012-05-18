@@ -34,9 +34,9 @@ class NodeKey
 		@class_name_length = hive[offset+0x4a, 2].unpack('c').first
 		@name = hive[offset+0x4c, @name_length].to_s
 
-	 	windows_time = @timestamp
-	 	unix_time = windows_time/10000000-11644473600
-	 	ruby_time = Time.at(unix_time)	
+		windows_time = @timestamp
+		unix_time = windows_time/10000000-11644473600
+		ruby_time = Time.at(unix_time)	
 
 		@readable_timestamp = ruby_time
 

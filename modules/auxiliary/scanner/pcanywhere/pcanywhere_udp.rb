@@ -120,8 +120,8 @@ class Metasploit3 < Msf::Auxiliary
 				info << "( #{data[:caps]} ) "
 			end
 
-			report_service(:host => ip, :port => rport, :proto => 'udp', :name => "pcanywhere", :info => info)
-			report_note(:host => ip, :port => rport, :proto => 'udp', :name => "pcanywhere", :update => :unique, :ntype => "pcanywhere.status", :data => data )
+			report_service(:host => ip, :port => rport, :proto => 'udp', :name => "pcanywhere_stat", :info => info)
+			report_note(:host => ip, :port => rport, :proto => 'udp', :name => "pcanywhere_stat", :update => :unique, :ntype => "pcanywhere.status", :data => data )
 			print_status("#{ip}:#{rport} #{info}")
 		end
 	end

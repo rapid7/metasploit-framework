@@ -49,14 +49,14 @@ class StreamPool < Rex::Post::Meterpreter::Channels::Pool
 	# This method returns the current offset into the pool.
 	#
 	def tell
-		throw NotImplementedError
+		raise NotImplementedError
 	end
 
 	#
 	# This method seeks to an offset in the pool.
 	#
 	def seek
-		throw NotImplementedError
+		raise NotImplementedError
 	end
 
 	#

@@ -720,6 +720,8 @@ class Module
 							match = [t,w] if refs.any? { |ref| ref =~ /^bid\-/i and ref =~ r }
 						when 'osvdb'
 							match = [t,w] if refs.any? { |ref| ref =~ /^osvdb\-/i and ref =~ r }
+						when 'edb'
+							match = [t,w] if refs.any? { |ref| ref =~ /^edb\-/i and ref =~ r }
 					end
 					break if match
 				end

@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'CVE', '2010-2333' ],
 					[ 'OSVDB', '65476' ],
 					[ 'BID', '40815' ],
-					[ 'URL', 'http://www.exploit-db.com/exploits/13850/' ]
+					[ 'EDB', 13850 ]
 				],
 			'Author'         =>
 				[
