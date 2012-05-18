@@ -201,6 +201,7 @@ class Metasploit3 < Msf::Auxiliary
 				:disable_agent     => true,
 				:record_auth_info  => true,
 				:skip_private_keys => true,
+				:config =>false,
 				:accepted_key_callback => Proc.new {|key| accepted << key }
 			}
 
