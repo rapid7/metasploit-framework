@@ -1,6 +1,24 @@
 Armitage Changelog
 ==================
 
+21 May 12
+---------
+- Added a hack to prevent the input area from flickering when the 
+  prompt changes.
+- Updated the color palette to something a little more subtle.
+- Added an optimization to how modules are launched. This will make
+  a difference for team use in high latency situations.
+- Rewrote MSF Scans feature to use console queue. This option is more
+  reliable and it makes the code easier to follow.
+- Added a hack to combine chat message writes with a read request.
+  This will make the event log more responsive in a high latency 
+  situation (can't you tell I care about this "situation")
+- Fixed text highlights through Ctrl+F on Windows. UNIX platforms 
+  were always OK. Another good reason to not use these tools on 
+  Windows. Ever.
+- View -> Downloads Sync Files feature now works on Windows. It looks
+  like leaving those pesky :'s in the file paths is bad.
+
 17 May 12
 ---------
 - Fixed bug with loot/download viewer breaking with a font resize.

@@ -138,9 +138,6 @@ sub createConsolePanel {
 		else if ($word in @payloads) {
 			[$thread sendString: "set PAYLOAD $word $+ \n"];
 		}
-		else if (-exists $word && !$REMOTE) {
-			saveFile($word);
-		}
 	}, \$thread)];
 
 	return @($result['id'], $console, $thread);
@@ -159,9 +156,7 @@ sub createConsoleTab {
 		logCheck($console, $host, $file);
 	}
 
-	dispatchEvent(lambda({
-		[$frame addTab: iff($title is $null, "Console", $title), $console, $thread, $host];
-	}, $title => $1, \$console, \$thread, \$host));
+	[$frame addTab: iff($1 is $null, "Console", $1), $console, $thread, $host];
 	return $thread;
 }
 
@@ -479,10 +474,8 @@ sub module_execute {
 		$queue = createDisplayTab($1, \$host);
 
 		[$queue addCommand: $null, "use $1 $+ / $+ $2"];
-		foreach $key => $value ($3) {
-			[$queue addCommand: $null, "set $key $value"];
-		}
-
+		[$queue setOptions: $3];
+	
 		if ($1 eq "exploit") {
 			[$queue addCommand: $null, "exploit -j"];
 		}

@@ -143,8 +143,13 @@ public class ConsoleClient implements Runnable, ActionListener {
 				}
 			}
 
-			connection.execute(writeCommand, new Object[] { session, text });
-			read = readResponse();
+			if ("armitage.push".equals(writeCommand)) {
+				read = (Map)connection.execute(writeCommand, new Object[] { session, text });
+			}
+			else {
+				connection.execute(writeCommand, new Object[] { session, text });
+				read = readResponse();
+			}
 			processRead(read);
 
 			fireSessionWroteEvent(text);

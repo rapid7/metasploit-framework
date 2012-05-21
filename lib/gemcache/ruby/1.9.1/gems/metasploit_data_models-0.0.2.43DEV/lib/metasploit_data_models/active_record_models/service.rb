@@ -23,8 +23,9 @@ module MetasploitDataModels::ActiveRecordModels::Service
         where([
           "services.name ILIKE ? OR " +
           "services.info ILIKE ? OR " +
+          "services.proto ILIKE ? OR " +
           "services.port = ? ",
-          "%#{args[0]}%", "%#{args[0]}%", (args[0].to_i > 0) ? args[0].to_i : 99999
+          "%#{args[0]}%", "%#{args[0]}%", "%#{args[0]}%", (args[0].to_i > 0) ? args[0].to_i : 99999
         ])
       }
 

@@ -271,12 +271,12 @@ public class Console extends JPanel implements FocusListener {
 
 			if (breakp != -1) {
 				colors.append(console, _text.substring(0, breakp + 1));
-				colors.set(prompt, _text.substring(breakp + 1) + " ");
+				updatePrompt(_text.substring(breakp + 1) + " ");
 				if (log != null)
 					log.print(colors.strip(_text.substring(0, breakp + 1)));
 			}
 			else {
-				colors.set(prompt, _text);
+				updatePrompt(_text);
 			}
 			promptLock = true;
 		}
