@@ -31,19 +31,20 @@ public class Colors {
 		colorTable = new Color[16];
 		colorTable[0] = Color.white;
 		colorTable[1] = new Color(0, 0, 0);
-		colorTable[2] = new Color(0, 0, 128);
-		colorTable[3] = new Color(0, 144, 0);
-		colorTable[4] = new Color(255, 0, 0);
-		colorTable[5] = new Color(128, 0, 0);
-		colorTable[6] = new Color(160, 0, 160);
-		colorTable[7] = new Color(255, 128, 0);
-		colorTable[8] = new Color(255, 255, 0);
-		colorTable[9] = new Color(0, 255, 0);
-		colorTable[10] = new Color(0, 144, 144);
-		colorTable[11] = new Color(0, 255, 255);
-		colorTable[12] = new Color(0, 0, 255);
-		colorTable[13] = new Color(255, 0, 255);
-		colorTable[14] = new Color(128, 128, 128);
+		colorTable[2] = Color.decode("#3465A4");
+		colorTable[3] = Color.decode("#4E9A06");
+		colorTable[4] = Color.decode("#EF2929"); //new Color(255, 0, 0);
+		colorTable[5] = Color.decode("#CC0000");
+		colorTable[6] = Color.decode("#75507B");
+		colorTable[7] = Color.decode("#C4A000");
+		colorTable[8] = Color.decode("#FCE94F");
+		colorTable[9] = Color.decode("#8AE234");
+		colorTable[10] = Color.decode("#06989A");
+		colorTable[11] = Color.decode("#34E2E2");
+		colorTable[12] = Color.decode("#729FCF");
+		colorTable[13] = Color.decode("#AD7FA8");
+		//colorTable[14] = Color.decode("#555753");
+		colorTable[14] = Color.decode("#808080");
 		colorTable[15] = Color.lightGray;
 
 		for (int x = 0; x < 16; x++) {
@@ -62,8 +63,12 @@ public class Colors {
 
 	/* strip format codes from the text */
 	public String strip(String text) {
-		StringBuffer buffer = new StringBuffer(text.length());
 		Fragment f = parse(text);
+		return strip(f);
+	}
+
+	private String strip(Fragment f) {
+		StringBuffer buffer = new StringBuffer(128);
 		while (f != null) {
 			buffer.append(f.text);
 			f = f.next;
@@ -71,13 +76,11 @@ public class Colors {
 		return buffer.toString();
 	}
 
-	public void append(JTextPane console, String text) {
-		StyledDocument doc = console.getStyledDocument();
-		Fragment f = parse(text);
+	private void append(StyledDocument doc, Fragment f) {
 		while (f != null) {
 			try {
 				if (f.text.length() > 0)
-					doc.insertString(doc.getLength(), f.text.toString(), showcolors ? f.attr : null);
+					doc.insertString(doc.getLength(), f.text.toString(), f.attr);
 			}
 			catch (Exception ex) {
 				ex.printStackTrace();
@@ -86,14 +89,46 @@ public class Colors {
 		}
 	}
 
+	public void append(JTextPane console, String text) {
+		StyledDocument doc = console.getStyledDocument();
+		Fragment f = parse(text);
+		if (showcolors) {
+			append(doc, f);
+		}
+		else {
+			append(doc, parse(strip(f)));
+		}
+	}
+
 	public void set(JTextPane console, String text) {
-		console.setText("");
-		append(console, text);
+		/* don't update that which we do not need to update */
+		Fragment f = parse(text);
+		if (strip(f).equals(console.getText())) {
+			return;
+		}
+
+		StyledDocument doc = console.getStyledDocument();
+		try {
+			doc.remove(0, doc.getLength());
+			if (showcolors)
+				append(doc, f);
+			else
+				append(doc, parse(strip(f)));
+		}
+		catch (BadLocationException ex) { ex.printStackTrace(); }
+
+		/* this is a dumb hack to prevent the height from getting out of whack */
+		console.setSize(new Dimension(1000, console.getSize().height));
 	}
 
 	private Fragment parse(String text) {
+
 		Fragment current = new Fragment();
 		Fragment first = current;
+
+		if (text == null)
+			return current;
+
 		char[] data = text.toCharArray();
 		int fore, back;
 

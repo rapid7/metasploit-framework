@@ -323,9 +323,9 @@ sub launchBruteForce {
 		[$console addCommand: $null, "use $type $+ / $+ $module"];
 		foreach $key => $value ($options) {
 			$value = strrep($value, '\\', '\\\\');
-			[$console addCommand: $null, "set $key $value"];
 		}
-		[$console addCommand: $null, "set REMOVE_USERPASS_FILE true"];
+		$options['REMOVE_USERPASS_FILE'] = "true";
+		[$console setOptions: $options];
 		[$console addCommand: $null, "run -j"];
 		[$console start];
 	}, $type => $1, $module => $2, $options => $3, $title => $4));
