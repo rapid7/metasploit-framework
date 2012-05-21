@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 			:port          => port,
 			:disable_agent => true,
 			:password      => pass,
-			:config        => false,
+			:config        => false
 		}
 
 		opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
