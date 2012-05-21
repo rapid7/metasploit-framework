@@ -67,7 +67,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 			"mkdir"    => [ "stdapi_fs_mkdir" ],
 			"pwd"      => [ "stdapi_fs_getwd" ],
 			"rmdir"    => [ "stdapi_fs_delete_dir" ],
-			"rm"       => [ "stdapi_fs_rm" ],
+			"rm"       => [ "stdapi_fs_delete_file" ],
 			"search"   => [ "stdapi_fs_search" ],
 			"upload"   => [ ],
 		}
