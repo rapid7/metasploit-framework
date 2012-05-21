@@ -55,6 +55,8 @@ class Metasploit3 < Msf::Post
 			[
 				OptString.new('SUBSTITUTIONS', [false, 'Script subs in gsub format - original,sub;original,sub' ]),
 				OptBool.new(  'DELETE',        [false, 'Delete file after execution', false ]),
+				OptBool.new(  'DRY_RUN',        [false, 'Only show what would be done', false ]),
+				OptInt.new('TIMEOUT',   [false, 'Execution timeout', 15]),
 			], self.class)
 
 	end
@@ -96,6 +98,10 @@ class Metasploit3 < Msf::Post
 		# Compress
 		print_status('Compressing script contents:')
 		compressed_script = compress_script(script_in, eof)
+		if datastore['DRY_RUN']
+			print_good("powershell -EncodedCommand #{compressed_script}")
+			return
+		end
 
 		# If the compressed size is > 8100 bytes, launch stager
 		if (compressed_script.size > 8100)
@@ -113,7 +119,7 @@ class Metasploit3 < Msf::Post
 
 		# Execute the powershell script
 		print_status('Executing the script.')
-		cmd_out, running_pids, open_channels = execute_script(script)
+		cmd_out, running_pids, open_channels = execute_script(script, datastore['TIMEOUT'])
 
 		# Write output to log
 		print_status("Logging output to #{log_file}.")

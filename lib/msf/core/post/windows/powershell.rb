@@ -95,9 +95,10 @@ module Powershell
 		return encoded_expression
 	end
 
-	def execute_script(script)
-		 running_pids, open_channels = [], []
+	def execute_script(script, time_out = 15)
+		running_pids, open_channels = [], []
 		# Execute using -EncodedCommand
+		session.response_timeout = time_out
 		cmd_out = session.sys.process.execute("powershell -EncodedCommand " +
 			"#{script}", nil, {'Hidden' => true, 'Channelized' => true})
 
@@ -111,6 +112,11 @@ module Powershell
 	end
 
 	def stage_to_env(compressed_script, env_suffix = Rex::Text.rand_text_alpha(8))
+
+		# Check to ensure script is encoded and compressed
+		if compressed_script =~ /\s|\.|\;/
+			compressed_script = compress_script(compressed_script)
+		end
 		# Divide the encoded script into 8000 byte chunks and iterate
 		index = 0
 		count = 8000
@@ -174,7 +180,7 @@ module Powershell
 		return
 	end
 
-	def clean_up(script_file, eof, running_pids =[], open_channels = [], env_suffix = Rex::Text.rand_text_alpha(8))
+	def clean_up(script_file = nil, eof = '', running_pids =[], open_channels = [], env_suffix = Rex::Text.rand_text_alpha(8), delete = false)
 		# Remove environment variables
 		env_del_command =  "[Environment]::GetEnvironmentVariables('User').keys|"
 		env_del_command += "Select-String #{env_suffix}|%{"
@@ -194,7 +200,7 @@ module Powershell
 			chan.channel.close()
 		end
 
-		::File.delete(script_file) if datastore['DELETE']
+		::File.delete(script_file) if (script_file and delete)
 
 		return
 	end
