@@ -478,15 +478,13 @@ when /war/i
 	else
 		exe = Msf::Util::EXE.to_jsp_war(exe)
 	end
-  $stdout.write exe
+	$stdout.write exe
 when /psh/i
-  psh = Msf::Util::EXE.to_win32pe_psh($framework, payload_raw, exeopts)
-
+	psh = Msf::Util::EXE.to_win32pe_psh($framework, payload_raw, exeopts)
 	$stdout.write psh
 when /psh-net/i
-  psh = Msf::Util::EXE.to_win32pe_psh_net($framework, payload_raw, exeopts)
-
-        $stdout.write psh
+	psh = Msf::Util::EXE.to_win32pe_psh_net($framework, payload_raw, exeopts)
+	$stdout.write psh
 else
 	print_error("Unsupported format")
 	exit

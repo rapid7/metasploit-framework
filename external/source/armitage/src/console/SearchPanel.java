@@ -74,7 +74,7 @@ public class SearchPanel extends JPanel implements ActionListener {
 		try {
 			String text = component.getText();
 			int    lastIndex = -1;
-			while ((lastIndex = text.indexOf(searchstr, lastIndex + 1)) != -1) {
+			while ((lastIndex = text.replaceAll("\r", "").indexOf(searchstr, lastIndex + 1)) != -1) {
 				component.getHighlighter().addHighlight(
 					lastIndex, 
 					lastIndex + searchstr.length(),
