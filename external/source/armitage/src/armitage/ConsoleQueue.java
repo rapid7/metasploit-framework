@@ -21,8 +21,9 @@ public class ConsoleQueue implements Runnable {
 	protected Console display = null;
 
 	private static class Command {
-		public Object   token;
-		public String   text;
+		public Object   token  = null;
+		public String   text   = null;
+		public Map      assign = null;
 		public long	start = System.currentTimeMillis();
 	}
 
@@ -92,6 +93,78 @@ public class ConsoleQueue implements Runnable {
 	}
 
 	protected void processCommand(Command c) {
+		if (c.assign == null) {
+			processNormalCommand(c);
+		}
+		else {
+			processAssignCommand(c);
+		}
+	}
+
+	protected void processAssignCommand(Command c) {
+		try {
+			/* absorb anything misc */
+			Map read = readResponse();
+			String prompt = ConsoleClient.cleanText(read.get("prompt") + "");
+
+			StringBuffer writeme = new StringBuffer();
+			Set expected = new HashSet();
+
+			/* loop through our values to assign */
+			Iterator i = c.assign.entrySet().iterator();
+			while (i.hasNext()) {
+				Map.Entry entry = (Map.Entry)i.next();
+				String key = entry.getKey() + "";
+				String value = entry.getValue() + "";
+				writeme.append("set " + key + " " + value + "\n");
+				expected.add(key);
+			}
+
+			/* write our command to whateverz */
+			connection.execute("console.write", new Object[] { consoleid, writeme.toString() });
+
+			long start = System.currentTimeMillis();
+
+			/* process through all of our values */
+			while (expected.size() > 0) {
+				Thread.yield();
+				Map temp = (Map)(connection.execute("console.read", new Object[] { consoleid }));
+				if (!isEmptyData(temp.get("data") + "")) {
+					String[] lines = (temp.get("data") + "").split("\n");
+					for (int x = 0; x < lines.length; x++) {
+						if (lines[x].indexOf(" => ") != -1) {
+							String[] kv = lines[x].split(" => ");
+
+							/* remove any set variables from our set of stuff */
+							expected.remove(kv[0]);
+
+							if (display != null) {
+								display.append(prompt + "set " + kv[0] + " " + kv[1] + "\n");
+								display.append(lines[x] + "\n");
+							}
+						}
+						else if (display != null) {
+							display.append(lines[x] + "\n");
+						}
+						else {
+							System.err.println("Batch read unexpected: " + lines[x]);
+						}
+					}
+				}
+				else if ((System.currentTimeMillis() - start) > 10000) {
+					/* this is a safety check to keep a console from spinning waiting for one command to complete. Shouldn't trigger--unless I mess up :) */
+					System.err.println("Timed out: " + c.assign + " vs. " + expected);
+					break;
+				}
+			}
+		}
+		catch (Exception ex) {
+			System.err.println(consoleid + " -> " + c.text);
+			ex.printStackTrace();
+		}
+	}
+
+	protected void processNormalCommand(Command c) {
 		Map read = null;
 		try {
 			if (c.text.startsWith("ECHO ")) {
@@ -158,6 +231,20 @@ public class ConsoleQueue implements Runnable {
 		catch (Exception ex) {
 			System.err.println(consoleid + " -> " + c.text + " ( " + read + ")");
 			ex.printStackTrace();
+		}
+	}
+
+	public void append(String text) {
+		addCommand(null, "ECHO " + text + "\n");
+	}
+
+	public void setOptions(Map options) {
+		synchronized (this) {
+			Command temp = new Command();
+			temp.token  = null;
+			temp.text   = null;
+			temp.assign = options;
+			commands.add(temp);
 		}
 	}
 
