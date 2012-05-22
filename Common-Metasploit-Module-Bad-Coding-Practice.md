@@ -126,7 +126,7 @@ Note: Some of these examples use puts() for demo purposes, but you should always
 			OptBool.new("VERBOSE", [false, 'Enable detailed status messages', false])
 		], self.class)
 ```
-**8. Avoid using send_request_cgi() when crafting a POST request**
+**8. Avoid using send_request_cgi()'s vars_get or vars_get when crafting a POST/GET request**
 ```ruby
 	data_post = 'user=jsmith&pass=hello123'
 
