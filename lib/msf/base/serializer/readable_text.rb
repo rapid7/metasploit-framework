@@ -165,13 +165,7 @@ class ReadableText
 		output << "\n"
 
 		# References
-		if (mod.references.length > 0)
-			output << "References:\n"
-			mod.references.each { |ref|
-				output << indent + ref.to_s + "\n"
-			}
-			output << "\n"
-		end
+		output << dump_references(mod, indent)
 
 		return output
 
@@ -209,13 +203,7 @@ class ReadableText
 		output << "\n"
 
 		# References
-		if (mod.references.length > 0)
-			output << "References:\n"
-			mod.references.each { |ref|
-				output << indent + ref.to_s + "\n"
-			}
-			output << "\n"
-		end
+		output << dump_references(mod, indent)
 
 		return output
 	end
@@ -279,10 +267,16 @@ class ReadableText
 		}
 		output << "\n"
 
+		output << dump_references(mod, indent)
+
 		# Description
 		output << "Description:\n"
 		output << word_wrap(Rex::Text.compress(mod.description))
-		output << "\n\n"
+		output << "\n"
+
+		output << dump_references(mod, indent)
+
+		output << "\n"
 
 		return output
 
@@ -367,6 +361,20 @@ class ReadableText
 		}
 
 		return output
+	end
+
+	def self.dump_references(mod, indent = '')
+		output = ''
+
+		if (mod.respond_to? :references and mod.references and mod.references.length > 0)
+			output << "References:\n"
+			mod.references.each { |ref|
+				output << indent + ref.to_s + "\n"
+			}
+			output << "\n"
+		end
+
+		output
 	end
 
 	#
