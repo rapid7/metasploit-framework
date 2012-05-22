@@ -149,8 +149,9 @@ Note: Some of these examples use puts() for demo purposes, but you should always
 **10. Using global variables**
 ```ruby
 	# $msg is a global variable that can be accessed anywhere within the program.
-	# This can induce bugs to other modules, libs, or mixins that are painful to solve.
+	# This can induce bugs to other modules or mixins that are hard to debug.
 	# Use @instance variables instead.
+	# This is also mentioned in your HACKING file :-)
 
 	class Opinion
 		def initialize
@@ -167,5 +168,6 @@ Note: Some of these examples use puts() for demo purposes, but you should always
 
 	Opinion.new
 	Metasploit3.new
+
 
 ```
