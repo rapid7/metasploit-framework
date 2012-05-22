@@ -16,7 +16,7 @@ DWORD tcp_channel_client_write( Channel *channel, Packet *request, LPVOID contex
 
 	do
 	{
-		dprintf( "[TCP] tcp_channel_client_write. channel=0x%08X, buffsize=%d", channel, bufferSize );
+		dprintf( "channel=0x%08X, buffsize=%d", channel, bufferSize );
 
 		ctx = (TcpClientContext *)context;
 		if( !ctx )
@@ -34,7 +34,7 @@ DWORD tcp_channel_client_write( Channel *channel, Packet *request, LPVOID contex
 				fd_set set        = {0};
 				DWORD res         = 0;
 
-				dprintf( "[TCP] tcp_channel_client_write. send returned WSAEWOULDBLOCK, waiting until we can send again..." );
+				dprintf( "send returned WSAEWOULDBLOCK, waiting until we can send again..." );
 
 				while( TRUE )
 				{
@@ -60,13 +60,15 @@ DWORD tcp_channel_client_write( Channel *channel, Packet *request, LPVOID contex
 				}
 
 				if( dwResult == ERROR_SUCCESS )
+				{
 					continue;
-				else
-					dprintf( "[TCP] tcp_channel_client_write. select == SOCKET_ERROR. dwResult=%d", dwResult );
+				} else {
+					dprintf( "select == SOCKET_ERROR. dwResult=%d", dwResult );
+				}
 			}
 
 			written = 0;
-			dprintf( "[TCP] tcp_channel_client_write. written == SOCKET_ERROR. dwResult=%d", dwResult );
+			dprintf( "written == SOCKET_ERROR. dwResult=%d", dwResult );
 		}
 
 		if( bytesWritten )
@@ -74,7 +76,7 @@ DWORD tcp_channel_client_write( Channel *channel, Packet *request, LPVOID contex
 
 	} while( 0 );
 
-	dprintf( "[TCP] tcp_channel_client_write. finished. dwResult=%d, written=%d", dwResult, written );
+	dprintf( "finished. dwResult=%d, written=%d", dwResult, written );
 
 	return dwResult;
 }
@@ -86,7 +88,7 @@ DWORD tcp_channel_client_close(Channel *channel, Packet *request, LPVOID context
 {
 	TcpClientContext *ctx = (TcpClientContext *)context;
 
-	dprintf( "[TCP] tcp_channel_client_close. channel=0x%08X, ctx=0x%08X", channel, ctx );
+	dprintf( "channel=0x%08X, ctx=0x%08X", channel, ctx );
 
 	if (ctx)
 	{
@@ -120,6 +122,7 @@ DWORD tcp_channel_client_local_notify( Remote * remote, TcpClientContext * ctx )
 	// event handle wont get re set to notify us.
 	do
 	{
+		dprintf("select loop");
 		// Reset the notification event
 		ResetEvent( ctx->notify );
 
@@ -131,6 +134,7 @@ DWORD tcp_channel_client_local_notify( Remote * remote, TcpClientContext * ctx )
 
 		// Read data from the client connection
 		dwBytesRead = recv( ctx->fd, buf, sizeof(buf), 0 );
+		dprintf("Read %d bytes", dwBytesRead);
 		
 		if( dwBytesRead == SOCKET_ERROR )
 		{
@@ -140,26 +144,26 @@ DWORD tcp_channel_client_local_notify( Remote * remote, TcpClientContext * ctx )
 			// WSAECONNABORTED: The connection was terminated due to a time-out or other failure.
 			if( dwError == WSAECONNRESET || dwError == WSAECONNABORTED )
 			{
-				dprintf( "[TCP] tcp_channel_client_local_notify. [error] closing down channel gracefully. WSAGetLastError=%d", dwError );
+				dprintf( "[error] closing down channel gracefully. WSAGetLastError=%d", dwError );
 				// By setting bytesRead to zero, we can ensure we close down the channel gracefully...
 				dwBytesRead = 0;
 			}
 			else if( dwError == WSAEWOULDBLOCK )
 			{
-				dprintf( "[TCP] tcp_channel_client_local_notify. channel=0x%08X. recv generated a WSAEWOULDBLOCK", ctx->channel );
+				dprintf( "channel=0x%08X. recv generated a WSAEWOULDBLOCK", ctx->channel );
 				// break and let the scheduler notify us again if needed.
 				break;
 			}
 			else
 			{
-				dprintf( "[TCP] tcp_channel_client_local_notify. [error] channel=0x%08X read=0x%.8x (ignored). WSAGetLastError=%d", ctx->channel, dwBytesRead, dwError );
+				dprintf( "[error] channel=0x%08X read=0x%.8x (ignored). WSAGetLastError=%d", ctx->channel, dwBytesRead, dwError );
 				// we loop again because bytesRead is -1.
 			}
 		}
 
 		if( dwBytesRead == 0 )
 		{
-			dprintf( "[TCP] tcp_channel_client_local_notify. [closed] channel=0x%08X read=0x%.8x", ctx->channel, dwBytesRead );
+			dprintf( "[closed] channel=0x%08X read=0x%.8x", ctx->channel, dwBytesRead );
 
 			// Set the native channel operations context to NULL
 			channel_set_native_io_context( ctx->channel, NULL );
@@ -172,20 +176,22 @@ DWORD tcp_channel_client_local_notify( Remote * remote, TcpClientContext * ctx )
 
 			// Stop processing
 			break;
+
 		}
 		else if( dwBytesRead > 0 )
 		{
 			if( ctx->channel )
 			{
-				dprintf( "[TCP] tcp_channel_client_local_notify. [data] channel=0x%08X read=%d", ctx->channel, dwBytesRead );
+				dprintf( "[data] channel=0x%08X read=%d", ctx->channel, dwBytesRead );
 				channel_write( ctx->channel, ctx->remote, NULL, 0, buf, dwBytesRead, 0 );
 			}
 			else
 			{
-				dprintf( "[TCP] tcp_channel_client_local_notify. [data] channel=<invalid> read=0x%.8x", dwBytesRead );
+				dprintf( "[data] channel=<invalid> read=0x%.8x", dwBytesRead );
 			}
 		}
 
+		dprintf("Calling select on %d", ctx->fd);
 	} while( select( 1, &set, NULL, NULL, &tv ) > 0 );
 	
 	return ERROR_SUCCESS;
@@ -249,7 +255,7 @@ DWORD create_tcp_client_channel(Remote *remote, LPCSTR remoteHost, USHORT remote
 	if (outChannel)
 		*outChannel = NULL;
 
-	dprintf( "[TCP] create_tcp_client_channel. host=%s, port=%d", remoteHost, remotePort );
+	dprintf( "host=%s, port=%d", remoteHost, remotePort );
 
 	do
 	{
@@ -280,7 +286,7 @@ DWORD create_tcp_client_channel(Remote *remote, LPCSTR remoteHost, USHORT remote
 			memcpy(&s.sin_addr.s_addr, h->h_addr, h->h_length);
 		}
 
-		dprintf( "[TCP] create_tcp_client_channel. host=%s, port=%d connecting...", remoteHost, remotePort );
+		dprintf( "host=%s, port=%d connecting...", remoteHost, remotePort );
 		// Try to connect to the host/port
 		if (connect(clientFd, (struct sockaddr *)&s, sizeof(s)) == SOCKET_ERROR)
 		{
@@ -288,7 +294,7 @@ DWORD create_tcp_client_channel(Remote *remote, LPCSTR remoteHost, USHORT remote
 			break;
 		}
 
-		dprintf( "[TCP] create_tcp_client_channel. host=%s, port=%d connected!", remoteHost, remotePort );
+		dprintf( "host=%s, port=%d connected!", remoteHost, remotePort );
 		// Allocate the client context for tracking the connection
 		if (!(ctx = (TcpClientContext *)malloc( sizeof(TcpClientContext))))
 		{
@@ -309,7 +315,7 @@ DWORD create_tcp_client_channel(Remote *remote, LPCSTR remoteHost, USHORT remote
 		chops.native.write   = tcp_channel_client_write;
 		chops.native.close   = tcp_channel_client_close;
 
-		dprintf( "[TCP] create_tcp_client_channel. host=%s, port=%d creating the channel", remoteHost, remotePort );
+		dprintf( "host=%s, port=%d creating the channel", remoteHost, remotePort );
 		// Allocate an uninitialized channel for associated with this connection
 		if (!(channel = channel_create_stream(0, 0,&chops)))
 		{
@@ -322,23 +328,23 @@ DWORD create_tcp_client_channel(Remote *remote, LPCSTR remoteHost, USHORT remote
 
 		// Finally, create a waitable event and insert it into the scheduler's 
 		// waitable list
-		dprintf( "[TCP] create_tcp_client_channel. host=%s, port=%d creating the notify", remoteHost, remotePort );
+		dprintf( "host=%s, port=%d creating the notify", remoteHost, remotePort );
 		if ((ctx->notify = WSACreateEvent()))
 		{
 			WSAEventSelect(ctx->fd, ctx->notify, FD_READ|FD_CLOSE);
-			dprintf( "[TCP] create_tcp_client_channel. host=%s, port=%d created the notify %.8x", remoteHost, remotePort, ctx->notify );
+			dprintf( "host=%s, port=%d created the notify %.8x", remoteHost, remotePort, ctx->notify );
 
 			scheduler_insert_waitable( ctx->notify, ctx, (WaitableNotifyRoutine)tcp_channel_client_local_notify);
 		}
 
 	} while (0);
 
-	dprintf( "[TCP] create_tcp_client_channel. host=%s, port=%d all done", remoteHost, remotePort );
+	dprintf( "host=%s, port=%d all done", remoteHost, remotePort );
 
 	// Clean up on failure
 	if (result != ERROR_SUCCESS)
 	{
-		dprintf( "[TCP] create_tcp_client_channel. host=%s, port=%d cleaning up failed connection", remoteHost, remotePort );
+		//dprintf( "[TCP] create_tcp_client_channel. host=%s, port=%d cleaning up failed connection", remoteHost, remotePort );
 		if (ctx)
 			free_tcp_client_context(ctx);
 		if (clientFd)
@@ -358,7 +364,7 @@ DWORD create_tcp_client_channel(Remote *remote, LPCSTR remoteHost, USHORT remote
  */
 VOID free_socket_context(SocketContext *ctx)
 {
-	dprintf( "[TCP] free_socket_context. ctx=0x%08X", ctx );
+	//dprintf( "[TCP] free_socket_context. ctx=0x%08X", ctx );
 
 	// Close the socket and notification handle
 	if (ctx->fd){
@@ -373,7 +379,7 @@ VOID free_socket_context(SocketContext *ctx)
 
 	if (ctx->notify)
 	{
-		dprintf( "[TCP] free_socket_context. remove_waitable ctx=0x%08X notify=0x%08X", ctx, ctx->notify);
+		//dprintf( "[TCP] free_socket_context. remove_waitable ctx=0x%08X notify=0x%08X", ctx, ctx->notify);
 		// The scheduler calls CloseHandle on our WSACreateEvent() for us
 		scheduler_remove_waitable(ctx->notify);
 		ctx->notify = NULL;
@@ -429,7 +435,7 @@ DWORD request_net_socket_tcp_shutdown(Remote *remote, Packet *packet)
 
 	packet_transmit_response( dwResult, remote, response );
 
-	dprintf( "[TCP] leaving request_net_socket_tcp_shutdown" );
+	//dprintf( "[TCP] leaving request_net_socket_tcp_shutdown" );
 	
 	return ERROR_SUCCESS;
 }

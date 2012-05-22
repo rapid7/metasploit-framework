@@ -303,7 +303,7 @@ void *__paused_thread(void *req)
 
 	pthread_mutex_unlock(&tc->suspend_mutex);
 
-	funk = tc->funk;
+	funk = (void*)tc->funk;
 	thread = tc->thread;
 	free(tc); 
 
@@ -378,7 +378,7 @@ THREAD * thread_create( THREADFUNK funk, LPVOID param1, LPVOID param2 )
 		pthread_mutex_init(&tc->suspend_mutex, NULL);
 		pthread_cond_init(&tc->suspend_cond, NULL);
 
-		tc->funk = funk;		
+		tc->funk = (void*)funk;
 		tc->thread = thread;
 
 		thread->suspend_thread_data = (void *)(tc);

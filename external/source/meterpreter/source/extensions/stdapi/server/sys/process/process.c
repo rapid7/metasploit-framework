@@ -82,6 +82,7 @@ DWORD request_sys_process_close(Remote *remote, Packet *packet)
 			CloseHandle(handle);
 #else
 	// XXX ... not entirely sure this ports across.
+	// Should this kill the child?
 #endif
 	}
 	else
@@ -672,7 +673,7 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 			fcntl(ctx->pStdout, F_SETFD, fcntl(ctx->pStdout, F_GETFD) | O_NONBLOCK);
 
 			// Add the channel identifier to the response packet
-			packet_add_tlv_uint(response, TLV_TYPE_CHANNEL_ID,channel_get_id(newChannel));
+			packet_add_tlv_uint(response, TLV_TYPE_CHANNEL_ID, channel_get_id(newChannel));
 		} else {
 			// need to /dev/null it all
 			if( (devnull = open("/dev/null", O_RDONLY) ) == -1) {
@@ -744,6 +745,7 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 		default:
 			dprintf("child pid is %d\n", pid);
 			packet_add_tlv_uint(response, TLV_TYPE_PID,(DWORD)pid);
+			packet_add_tlv_uint(response, TLV_TYPE_HANDLE,(DWORD)pid);
 			if (flags & PROCESS_EXECUTE_FLAG_CHANNELIZED) {
 				if(have_pty) {
 					dprintf("child channelized\n");
