@@ -32,6 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 		)
 		register_options([
 			OptString.new('DATABASE', [ true, 'The database to authenticate against', 'postgres']),
+			OptBool.new('DISPLAY_RESULTS', [true, "Display the Results to the Screen", true])
 			])
 		deregister_options('SQL', 'RETURN_ROWSET', 'VERBOSE')
 
@@ -58,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 					:proto => 'tcp'
 					)
 		store_loot('postgres_schema', "text/plain", datastore['RHOST'], output, "#{datastore['RHOST']}_postgres_schema.txt", "Postgres SQL Schema", this_service)
-		print_good output
+		print_good output if datastore['DISPLAY_RESULTS']
 	end
 
 	def get_schema

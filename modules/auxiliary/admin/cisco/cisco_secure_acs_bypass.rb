@@ -46,7 +46,7 @@ class Metasploit4 < Msf::Auxiliary
 				OptString.new('TARGETURI', [true, 'Path to UCP WebService', '/PI/services/UCP/']),
 				OptString.new('USERNAME', [true, 'Username to use', '']),
 				OptString.new('PASSWORD', [true, 'Password to use', '']),
-				OptBool.new('SSL', [true, 'Use SSL', true],)
+				OptBool.new('SSL', [true, 'Use SSL', true])
 			], self.class)
 	end
 

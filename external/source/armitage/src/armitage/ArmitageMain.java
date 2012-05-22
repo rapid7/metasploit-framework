@@ -6,6 +6,7 @@ import sleep.console.*;
 import sleep.bridges.*;
 import sleep.error.*;
 import sleep.engine.*;
+import sleep.parser.ParserConfig;
 
 import java.util.*;
 
@@ -79,6 +80,11 @@ public class ArmitageMain implements RuntimeWarningWatcher, Loadable, Function {
 	}
 
 	public ArmitageMain(String[] args) {
+		/* tweak the parser to recognize a few useful escapes */
+		ParserConfig.installEscapeConstant('c', console.Colors.color + "");
+		ParserConfig.installEscapeConstant('o', console.Colors.cancel + "");
+
+		/* setup a function or two */
 		Hashtable environment = new Hashtable();
 		environment.put("&resource", this);
 

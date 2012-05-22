@@ -30,6 +30,11 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         => ['TheLightCosine <thelightcosine[at]gmail.com>'],
 			'License'        => MSF_LICENSE
 		)
+
+		register_options([
+			OptBool.new('DISPLAY_RESULTS', [true, "Display the Results to the Screen", true])
+			])
+
 	end
 
 	def run_host(ip)
@@ -58,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 					:proto => 'tcp'
 					)
 		store_loot('mysql_schema', "text/plain", datastore['RHOST'], output, "#{datastore['RHOST']}_mysql_schema.txt", "MySQL Schema", this_service)
-		print_good output
+		print_good output if datastore['DISPLAY_RESULTS']
 	end
 
 

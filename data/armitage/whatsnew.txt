@@ -1,6 +1,36 @@
 Armitage Changelog
 ==================
 
+21 May 12
+---------
+- Added a hack to prevent the input area from flickering when the 
+  prompt changes.
+- Updated the color palette to something a little more subtle.
+- Added an optimization to how modules are launched. This will make
+  a difference for team use in high latency situations.
+- Rewrote MSF Scans feature to use console queue. This option is more
+  reliable and it makes the code easier to follow.
+- Added a hack to combine chat message writes with a read request.
+  This will make the event log more responsive in a high latency 
+  situation (can't you tell I care about this "situation")
+- Fixed text highlights through Ctrl+F on Windows. UNIX platforms 
+  were always OK. Another good reason to not use these tools on 
+  Windows. Ever.
+- View -> Downloads Sync Files feature now works on Windows. It looks
+  like leaving those pesky :'s in the file paths is bad.
+
+17 May 12
+---------
+- Fixed bug with loot/download viewer breaking with a font resize.
+- Default console font color is now grey. I never noticed that I had
+  white text on a black background before. That's a lot of contrast.
+  This is adjustable too through Armitage -> Preferences.
+- And... the Armitage console now displays pretty colors. If you don't
+  like colors, set the console.show_colors.boolean preference to false
+  through Armitage -> Preferences.
+- Fixed a bug preventing input field from getting focus when popping a
+  console tab using Ctrl+W.
+
 14 May 12
 ---------
 - Oopserific--dynamic workspace shortcuts were not bound until you

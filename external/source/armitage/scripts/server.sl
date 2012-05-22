@@ -47,8 +47,6 @@ sub client {
 	%async['module.execute'] = 1;
 	%async['core.setg'] = 1;
 	%async['console.destroy'] = 1;
-	%async['console.write'] = 1;
-	%async['session.shell_write'] = 1;
 
 	#
 	# verify the client
@@ -189,13 +187,15 @@ sub client {
 			release($poll_lock);
 			writeObject($handle, result(%()));
 		}
-		else if ($method eq "armitage.push") {
-			($null, $data) = $args;
-			event("< $+ $[10]eid $+ > " . $data);
-			writeObject($handle, result(%()));
-		}
-		else if ($method eq "armitage.poll") {
+		else if ($method eq "armitage.poll" || $method eq "armitage.push") {
 			acquire($poll_lock);
+			if ($method eq "armitage.push") {
+				($null, $data) = $args;
+				foreach $temp (split("\n", $data)) {
+					push(@events, formatDate("HH:mm:ss") . " < $+ $[10]eid $+ > " . $data);
+				}
+			}
+
 			if (size(@events) > $index) {
 				$rv = result(%(data => join("", sublist(@events, $index)), encoding => "base64", prompt => "$eid $+ > "));
 				$index = size(@events);

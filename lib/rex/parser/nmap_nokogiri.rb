@@ -75,14 +75,6 @@ module Rex
 			when "port"
 				collect_port_data 
 				@state[:port] = {}
-			when "script"
-				if in_tag("host")
-					if in_tag("port")
-						@state[:portscripts] = {}
-					else
-						@state[:hostscripts] = {}
-					end
-				end
 			when "host" # Roll everything up now
 				collect_host_data
 				host_object = report_host &block
@@ -146,28 +138,28 @@ module Rex
 				@state[:hostname] = attr_hash(attrs)["name"]
 			end
 		end
-
+		
 		def record_host_script(attrs)
 			return unless in_tag("host")
 			return if in_tag("port")
 			temp_hash = attr_hash(attrs)
-			@state[:hostscripts] ||= {}
-			@state[:hostscripts].merge! temp_hash
-			temp_hash[:addresses] = @state[:addresses]
-			db.emit(:host_script,temp_hash,&block) if block
+			
+			if temp_hash["id"] and temp_hash["output"]
+				@state[:scripts] ||= []
+				@state[:scripts] << { temp_hash["id"] => temp_hash["output"] }
+			end
 		end
 
 		def record_port_script(attrs)
 			return unless in_tag("host")
 			return unless in_tag("port")
 			temp_hash = attr_hash(attrs)
-			@state[:portscripts] ||= {}
-			@state[:portscripts].merge! temp_hash
-			temp_hash[:addresses] = @state[:addresses]
-			temp_hash[:port] = @state[:port]
-			db.emit(:port_script,temp_hash,&block) if block
+			if temp_hash["id"] and temp_hash["output"]
+				@state[:port][:scripts] ||= []
+				@state[:port][:scripts] << { temp_hash["id"] => temp_hash["output"] }		
+			end	
 		end
-
+		
 		def record_port_service(attrs)
 			return unless in_tag("host")
 			return unless in_tag("port")
@@ -258,6 +250,9 @@ module Rex
 			if @state[:trace] and @state[:trace].has_key?(:hops)
 				@report_data[:traceroute] = @state[:trace]
 			end
+			if @state[:scripts]
+				@report_data[:scripts] = @state[:scripts]
+			end			
 		end
 
 		def collect_port_data
@@ -288,6 +283,8 @@ module Rex
 					extra[1] = v
 				when "extrainfo"
 					extra[2] = v
+				when :scripts
+					port_hash[:scripts] = v
 				end
 			end
 			port_hash[:info] = extra.compact.join(" ") unless extra.empty?
@@ -339,9 +336,24 @@ module Rex
 
 		def report_host(&block)
 			if host_is_okay
-				host_object = db_report(:host, @report_data.merge(
-					:workspace => @args[:wspace] ) )
+				scripts = @report_data.delete(:scripts) || []
+				host_object = db_report(:host, @report_data.merge( :workspace => @args[:wspace] ) )
 				db.emit(:address,@report_data[:host],&block) if block
+				
+				scripts.each do |script|
+					script.each_pair do |k,v|
+						ntype = 
+						nse_note = {
+							:workspace => host_object.workspace,
+							:host => host_object,
+							:type => "nmap.nse.#{k}.host",
+							:data => { 'output' => v },
+							:update => :unique_data							
+						}
+						db_report(:note, nse_note)						
+					end
+				end				
+				
 				host_object
 			end
 		end
@@ -352,7 +364,23 @@ module Rex
 			return if @report_data[:ports].empty?
 			reported = []
 			@report_data[:ports].each do |svc|
-				reported << db_report(:service, svc.merge(:host => host_object))
+				scripts = svc.delete(:scripts) || []
+				svc_obj = db_report(:service, svc.merge(:host => host_object))
+				scripts.each do |script|
+					script.each_pair do |k,v|
+						ntype = 
+						nse_note = {
+							:workspace => host_object.workspace,
+							:host => host_object,
+							:service => svc_obj,
+							:type => "nmap.nse.#{k}." + (svc[:proto] || "tcp") +".#{svc[:port]}",
+							:data => { 'output' => v },
+							:update => :unique_data
+						}
+						db_report(:note, nse_note)						
+					end
+				end
+				reported << svc_obj
 			end
 			reported
 		end

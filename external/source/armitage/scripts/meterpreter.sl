@@ -116,6 +116,7 @@ sub createMeterpreterTab {
 
 	# set up a meterpreter console window
         $console = [new Console: $preferences];
+	setupConsoleStyle($console);
 	logCheck($console, sessionToHost($1), "meterpreter_ $+ $1");
 	[$console setPopupMenu: lambda(&meterpreterPopup, $session => sessionData($1), $sid => $1)];
 
@@ -265,96 +266,88 @@ sub launch_msf_scans {
 	@modules = filter({ return iff("*_version" iswm $1, $1); }, @auxiliary);
 
 	$hosts = iff($1 is $null, ask("Enter range (e.g., 192.168.1.0/24):"), $1);
+	if ($hosts is $null) {
+		return;
+	}
 
 	thread(lambda({
-		local('$scanner $index $console %ports %discover $port %o $temp');
+		local('$scanner $index $queue %ports %discover $port %o $temp');
 		%ports = ohash();
 		%discover = ohash();
 		setMissPolicy(%ports, { return @(); });
 		setMissPolicy(%discover, { return @(); });
 
-		if ($hosts !is $null) {
-			elog("launched msf scans at: $hosts");
+		elog("launched msf scans at: $hosts");
 
-			$console = createConsoleTab("Scan", 1, $host => "all", $file => "scan");
-			[$console addSessionListener: lambda({
-				local('$text $host $port $hosts $modules $module @c');
+		$queue = createDisplayTab("Scan", $host => "all", $file => "scan");
 
-				foreach $text (split("\n", $2)) {
-					if ($text ismatch '... (.*?):(\d+) - TCP OPEN') {
-						($host, $port) = matched();
-						push(%discover[$port], $host);
-					}
-					else if ($text ismatch '... Scanned \d+ of \d+ hosts .100. complete.' && $start == 1) {
-						$start = $null;
-						[[$console getWindow] append: "[*] Starting host discovery scans\n"];
+		[$queue append: "[*] Building list of scan ports and modules"];
 
-						foreach $port => $hosts (%discover) {
-							if ($port in %ports) {
-								$modules = %ports[$port];
-								foreach $module ($modules) {
-									@c = @("use $module");
-									push(@c, "set RHOSTS " . join(", ", $hosts));
-									push(@c, "set RPORT $port");
-									push(@c, "set THREADS 24");
-									push(@c, "run -j");
+		# build up a list of scan ports
+		foreach $index => $scanner (@modules) {
+			if ($scanner ismatch 'scanner/(.*?)/\1_version') {
+				%o = call($client, "module.options", "auxiliary", $scanner);
+				if ('RPORT' in %o) {
+					$port = %o['RPORT']['default'];
+					push(%ports[$port], $scanner);
+				}
 
-									push(@launch, @c);
-								}
+				safetyCheck();
+			}
+		}
+
+		# add these ports to our list of ports to scan.. these come from querying all of Metasploit's modules
+		# for the default ports
+		foreach $port (@(50000, 21, 1720, 80, 443, 143, 3306, 1521, 110, 5432, 50013, 25, 161, 22, 23, 17185, 135, 8080, 4848, 1433, 5560, 512, 513, 514, 445, 5900, 5038, 111, 139, 49, 515, 7787, 2947, 7144, 9080, 8812, 2525, 2207, 3050, 5405, 1723, 1099, 5555, 921, 10001, 123, 3690, 548, 617, 6112, 6667, 3632, 783, 10050, 38292, 12174, 2967, 5168, 3628, 7777, 6101, 10000, 6504, 41523, 41524, 2000, 1900, 10202, 6503, 6070, 6502, 6050, 2103, 41025, 44334, 2100, 5554, 12203, 26000, 4000, 1000, 8014, 5250, 34443, 8028, 8008, 7510, 9495, 1581, 8000, 18881, 57772, 9090, 9999, 81, 3000, 8300, 8800, 8090, 389, 10203, 5093, 1533, 13500, 705, 623, 4659, 20031, 16102, 6080, 6660, 11000, 19810, 3057, 6905, 1100, 10616, 10628, 5051, 1582, 65535, 105, 22222, 30000, 113, 1755, 407, 1434, 2049, 689, 3128, 20222, 20034, 7580, 7579, 38080, 12401, 910, 912, 11234, 46823, 5061, 5060, 2380, 69, 5800, 62514, 42, 5631, 902)) {
+			$temp = %ports[$port];
+		}
+
+		# add a few left out modules
+		push(%ports['445'], "scanner/smb/smb_version");
+
+		[$queue append: "[*] Launching TCP scan"];
+		[$queue addCommand: $null, "use auxiliary/scanner/portscan/tcp"];
+		[$queue setOptions: %(PORTS => join(", ", keys(%ports)), RHOSTS => $hosts, THREADS => 24)];
+		[$queue addCommand: "x", "run -j"];
+
+		[$queue addSessionListener: lambda({
+			this('$start @launch');
+			local('$text $host $port $hosts $modules $module $options');
+
+			foreach $text (split("\n", $3)) {
+				if ($text ismatch '... (.*?):(\d+) - TCP OPEN') {
+					($host, $port) = matched();
+					push(%discover[$port], $host);
+				}
+				else if ($text ismatch '... Scanned \d+ of \d+ hosts .100. complete.' && $start is $null) {
+					$start = 1;
+					[$queue append: "\n[*] Starting host discovery scans"];
+
+					# gather up the list of modules that we will launch...
+					foreach $port => $hosts (%discover) {
+						if ($port in %ports) {
+							$modules = %ports[$port];
+							foreach $module ($modules) {
+								push(@launch, @($module, %(RHOSTS => join(", ", $hosts), RPORT => $port, THREADS => 24)));
 							}
 						}
 					}
+				}
 
-					if ($text ismatch '... Scanned \d+ of \d+ hosts .100. complete.' || $text ismatch '... Auxiliary failed: .*') {
-						if (size(@launch) == 0) {
-							$time = (ticks() - $time) / 1000.0;
-
-							[[$console getWindow] append: "\n[*] Scan complete in $time $+ s\n"];
-						}
-						else {
-							[[$console getWindow] append: "\n[*] " . size(@launch) . " scan" . iff(size(@launch) != 1, "s") . " to go...\n"];
-							thread(lambda({
-								local('$command');
-								foreach $command ($commands) {
-									[$console sendString: "$command $+ \n"];
-									yield 250;
-								}
-							}, \$console, $commands => shift(@launch)));
-						}
-					}
-				}			
-			}, \$console, \%ports, \%discover, $start => 1, @launch => @(), $time => ticks())];
-
-			[[$console getWindow] append: "[*] Building list of scan ports and modules\n"];
-
-			# build up a list of scan ports
-			foreach $index => $scanner (@modules) {
-				if ($scanner ismatch 'scanner/(.*?)/\1_version') {
-					%o = call($client, "module.options", "auxiliary", $scanner);
-					if ('RPORT' in %o) {
-						$port = %o['RPORT']['default'];
-						push(%ports[$port], $scanner);
-					}
-
-					safetyCheck();
+				if ($text ismatch '... Scanned \d+ of \d+ hosts .100. complete.' && size(@launch) > 0) {
+					[$queue append: "\n[*] " . size(@launch) . " scan" . iff(size(@launch) != 1, "s") . " to go..."];
+					($module, $options) = shift(@launch);
+					[$queue addCommand: $null, "use $module"];
+					[$queue setOptions: $options];
+					[$queue addCommand: $null, "run -j"];
+				}
+				else if ($text ismatch '... Scanned \d+ of \d+ hosts .100. complete.' && size(@launch) == 0) {
+					$time = (ticks() - $time) / 1000.0;
+					[$queue append: "\n[*] Scan complete in $time $+ s"];
 				}
 			}
+		}, \$hosts, \%ports, \@modules, \%discover, \$queue, $time => ticks())];
 
-			# add these ports to our list of ports to scan.. these come from querying all of Metasploit's modules
-			# for the default ports
-			foreach $port (@(50000, 21, 1720, 80, 443, 143, 3306, 1521, 110, 5432, 50013, 25, 161, 22, 23, 17185, 135, 8080, 4848, 1433, 5560, 512, 513, 514, 445, 5900, 5038, 111, 139, 49, 515, 7787, 2947, 7144, 9080, 8812, 2525, 2207, 3050, 5405, 1723, 1099, 5555, 921, 10001, 123, 3690, 548, 617, 6112, 6667, 3632, 783, 10050, 38292, 12174, 2967, 5168, 3628, 7777, 6101, 10000, 6504, 41523, 41524, 2000, 1900, 10202, 6503, 6070, 6502, 6050, 2103, 41025, 44334, 2100, 5554, 12203, 26000, 4000, 1000, 8014, 5250, 34443, 8028, 8008, 7510, 9495, 1581, 8000, 18881, 57772, 9090, 9999, 81, 3000, 8300, 8800, 8090, 389, 10203, 5093, 1533, 13500, 705, 623, 4659, 20031, 16102, 6080, 6660, 11000, 19810, 3057, 6905, 1100, 10616, 10628, 5051, 1582, 65535, 105, 22222, 30000, 113, 1755, 407, 1434, 2049, 689, 3128, 20222, 20034, 7580, 7579, 38080, 12401, 910, 912, 11234, 46823, 5061, 5060, 2380, 69, 5800, 62514, 42, 5631, 902)) {
-				$temp = %ports[$port];
-			}
-
-			# add a few left out modules
-			push(%ports['445'], "scanner/smb/smb_version");
-
-			[[$console getWindow] append: "[*] Launching TCP scan\n"];
-			[$console sendString: "use auxiliary/scanner/portscan/tcp\n"];
-			[$console sendString: "set PORTS " . join(", ", keys(%ports)) . "\n"];
-			[$console sendString: "set RHOSTS $hosts $+ \n"];
-			[$console sendString: "set THREADS 24\n"];
-			[$console sendString: "run -j\n"];
-		}
+		[$queue start];
 	}, \$hosts, \@modules));
 }

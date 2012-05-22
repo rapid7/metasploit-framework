@@ -10,6 +10,13 @@ module MetasploitDataModels::ActiveRecordModels::Vuln
 
       after_update :save_refs
 
+      scope :search, lambda { |*args|
+        where(["(vulns.name ILIKE ? or vulns.info ILIKE ? or refs.name ILIKE ?)",
+          "%#{args[0]}%", "%#{args[0]}%", "%#{args[0]}%"
+        ]).
+        joins("LEFT OUTER JOIN vulns_refs ON vulns_refs.vuln_id=vulns.id LEFT OUTER JOIN refs ON refs.id=vulns_refs.ref_id")
+      }
+
       private
 
       def save_refs

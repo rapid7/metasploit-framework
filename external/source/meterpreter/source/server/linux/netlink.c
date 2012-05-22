@@ -836,8 +836,9 @@ void address_calculate_netmask(struct iface_address *address, int ifa_prefixlen)
 
 	if (address->family == AF_INET6) {
 		// if netmask is FFFFFFFF FFFFFFFF 00000000 00000000 (/64), netmask6.a1 and netmask6.a2 == 0xffffffff, and nestmask6.a3 and .a4 == 0
-		// netmask6 is set to 0 at the beginning of the function, no need to reset the values to 0 if it is needed
+		// netmask6 is no longer set to 0 at the beginning of the function,  need to reset the values to 0 
 		// XXX really ugly, but works
+		memset(&address->nm.netmask6, 0, sizeof(__u128));
 		if (ifa_prefixlen >= 96) {
 			address->nm.netmask6.a4 = (1 << (ifa_prefixlen-96))-1;
 			address->nm.netmask6.a1 = address->nm.netmask6.a2 = address->nm.netmask6.a3 =  0xffffffff;

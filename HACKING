@@ -112,7 +112,7 @@ Submitting Your Code
 
 The process for submitting new modules via GitHub is documented here:
 
-https://github.com/rapid7/metasploit-framework/wiki/Working-with-the-Framework-Repo
+https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment
 
 This describes the process of forking, editing, and generating a
 pull request, and is the preferred method for bringing new modules

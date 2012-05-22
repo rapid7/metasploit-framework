@@ -121,7 +121,12 @@ class ClientCore < Extension
 			raise RuntimeError, "The core_loadlib request failed with result: #{response.result}.", caller
 		end
 
-		return true
+		commands = []
+		response.each(TLV_TYPE_METHOD) { |c|
+			commands << c.value
+		}
+
+		return commands
 	end
 
 	#
@@ -150,13 +155,12 @@ class ClientCore < Extension
 		path = ::File.expand_path(path)
 
 		# Load the extension DLL
-		if (load_library(
+		commands = load_library(
 				'LibraryFilePath' => path,
 				'UploadLibrary'   => true,
 				'Extension'       => true,
-				'SaveToDisk'      => opts['LoadFromDisk']))
-			client.add_extension(mod)
-		end
+				'SaveToDisk'      => opts['LoadFromDisk'])
+		client.add_extension(mod, commands)
 
 		return true
 	end
