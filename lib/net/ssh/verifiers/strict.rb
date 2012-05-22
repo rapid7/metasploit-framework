@@ -13,6 +13,7 @@ module Net; module SSH; module Verifiers
     def verify(arguments)
       options = arguments[:session].options
       host = options[:host_key_alias] || arguments[:session].host_as_string
+      matches = []
       if options[:config]
         matches = Net::SSH::KnownHosts.search_for(host, arguments[:session].options)
       end
