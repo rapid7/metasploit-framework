@@ -267,8 +267,6 @@ class ReadableText
 		}
 		output << "\n"
 
-		output << dump_references(mod, indent)
-
 		# Description
 		output << "Description:\n"
 		output << word_wrap(Rex::Text.compress(mod.description))
