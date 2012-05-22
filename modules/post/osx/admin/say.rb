@@ -18,6 +18,10 @@ class Metasploit3 < Msf::Post
 			'Description'   => %q{
 				This module will speak whatever is in the 'TEXT' option on the victim machine.
 			},
+			'References'    =>
+				[
+					['URL', 'http://www.gabrielserafini.com/blog/2008/08/19/mac-os-x-voices-for-using-with-the-say-command/']
+				],
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'sinn3r'],
 			'Platform'      => [ 'osx' ],
