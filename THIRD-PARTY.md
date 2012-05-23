@@ -19,6 +19,14 @@ Ruby
    Copyright (c) 2004 David R. Halliday
  - The Zip library located under lib/zip.
    Copyright (C) 2002-2004 Thomas Sondergaard
+ - Gem components located under lib/gemcache/
+   * rdoc - RDoc is Copyright (c) 2001-2003 Dave Thomas, The Pragmatic Programmers.
+   Portions (c) 2007-2011 Eric Hodel.  Portions copyright others, see individual
+   files for details.
+   * eventmachine - Copyright (C) 2006-07 by Francis Cianfrocca
+   * json - Copyright Daniel Luz <dev at mernen dot com>
+   * pg - Copyright (c) 1997-2012 by the authors
+
 
 
 ````
@@ -408,6 +416,8 @@ LGPL
    Copyright (C) 2006-2010 Yoann GUILLOT
  - The PcapRub library located under external/pcaprub
  - The Ruby-Lorcon library located under external/ruby-lorcon
+ - Gem components located under lib/gemcache/
+   * coderay - Copyright (c) 2006-2011 by murphy (Kornelius Kalnbach) <murphy rubychan de>
 
 
 ````
@@ -1011,6 +1021,38 @@ MIT
    Copyright (c) 2011 James Miller
  - The Net::SSH library located under lib/net/ssh.
    Copyright (c) 2008 Jamis Buck <jamis@37signals.com>
+ - Gem components located under lib/gemcache
+   * actionmailer - Copyright (c) 2004-2011 David Heinemeier Hansson
+   * actionpack - Copyright (c) 2004-2011 David Heinemeier Hansson
+   * activemodel - Copyright (c) 2004-2011 David Heinemeier Hansson
+   * activerecord - Copyright (c) 2004-2011 David Heinemeier Hansson
+   * activeresource - Copyright (c) 2006-2011 David Heinemeier Hansson
+   * activesupport - Copyright (c) 2005-2011 David Heinemeier Hansson
+   * authlogic - Copyright (c) 2011 Ben Johnson of Binary Logic
+   * chunky_png - Copyright (c) 2010 Willem van Bergen
+   * daemons - Copyright (c) 2005-2012 Thomas Uehlinger
+   * diff-lcs - Copyright 2004–2011 Austin Ziegler
+   * formtastic - Copyright (c) 2008-2010 Justin French
+   * fssm - Copyright (c) 2011 Travis Tilley
+   * hike - Copyright (c) 2011 Sam Stephenson
+   * i18n - Copyright (c) 2008 The Ruby I18n team
+   * jquery-rails - Copyright (c) 2010 Andre Arko
+   * liquid - Copyright (c) 2005, 2006 Tobias Luetke
+   * method_source - Copyright (c) 2011 John Mair (banisterfiend)
+   * multi_json - Copyright (c) 2010 Michael Bleigh, Josh Kalderimis, Erik Michaels-Ober, and Intridea, Inc.
+   * rack - Copyright (c) 2007, 2008, 2009, 2010 Christian Neukirchen <purl.org/net/chneukirchen>
+   * rack-cache - Copyright (c) 2008 Ryan Tomayko <http://tomayko.com/about>
+   * rack-ssl - Copyright (c) 2010 Joshua Peek
+   * rake - Copyright (c) 2003, 2004 Jim Weirich
+   * slop - Copyright (c) 2012 Lee Jarvis
+   * sprockets - Copyright (c) 2011 Sam Stephenson, Copyright (c) 2011 Joshua Peek
+   * state_machine - Copyright (c) 2006-2012 Aaron Pfeifer
+   * thor - Copyright (c) 2008 Yehuda Katz
+   * tilt - Copyright (c) 2010 Ryan Tomayko <http://tomayko.com/about>
+   * treetop - Copyright (c) 2007 Nathan Sobo
+   * tzinfo - Copyright (c) 2005-2006 Philip Ross
+
+
 
 
 ````
