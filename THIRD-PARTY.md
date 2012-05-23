@@ -6,7 +6,6 @@ This file lists bundled packages and their associated licensing terms.
  - The Packet Sniffer SDK (MicroOLAP) library embedded into the Meterpreter
    Sniffer extension. HD Moore has a single-seat developer license.
  - The Rabal library located under lib/rabal
- - The ActiveRecord library located under lib/gemcache/
 
 
 
@@ -1021,6 +1020,10 @@ MIT
    Copyright (c) 2011 James Miller
  - The Net::SSH library located under lib/net/ssh.
    Copyright (c) 2008 Jamis Buck <jamis@37signals.com>
+ - Anemone located under lib/anemone
+   Copyright (c) 2009 Vertive, Inc.
+ - RKelly located under lib/rkelly/
+   Copyright (c) 2007, 2008, 2009 Aaron Patterson, John Barnette
  - Gem components located under lib/gemcache
    * actionmailer - Copyright (c) 2004-2011 David Heinemeier Hansson
    * actionpack - Copyright (c) 2004-2011 David Heinemeier Hansson
