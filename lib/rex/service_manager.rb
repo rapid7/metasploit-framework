@@ -23,7 +23,7 @@ class ServiceManager < Hash
 	def self.start(klass, *args)
 		self.instance.start(klass, *args)
 	end
-	
+
 	#
 	# Calls the instance method to stop a service.
 	#
@@ -75,7 +75,7 @@ class ServiceManager < Hash
 		# Re-aliases the instance.
 		inst.alias = als
 
-		# Fire up the engines.  If an error occurs an exception will be 
+		# Fire up the engines.  If an error occurs an exception will be
 		# raised.
 		inst.start
 
@@ -138,16 +138,16 @@ class ServiceManager < Hash
 		end
 		list.each(&block)
 	end
-	
+
 protected
 
-	# 
+	#
 	# Returns the alias for a given service instance.
 	#
 	def hardcore_alias(klass, *args)
 		"__#{klass.name}#{args}"
 	end
-	
+
 end
 
 end

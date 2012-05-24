@@ -9,8 +9,8 @@ module Http
 ###
 #
 # Acts as a client to an HTTP server, sending requests and receiving responses.
-# 
-# See the RFC: http://www.w3.org/Protocols/rfc2616/rfc2616.html 
+#
+# See the RFC: http://www.w3.org/Protocols/rfc2616/rfc2616.html
 #
 ###
 class Client
@@ -379,7 +379,7 @@ class Client
 
 					buff = conn.get_once(-1, 1)
 					rv   = resp.parse( buff || '' )
-		
+
 				##########################################################################
 				# XXX: NOTE: BUG: get_once currently (as of r10042) rescues "Exception"
 				# As such, the following rescue block will ever be reached.  -jjd
@@ -687,17 +687,17 @@ class Client
 	def set_host_header(host=nil)
 		return "" if self.config['uri_full_url']
 		host ||= self.config['vhost']
-		
+
 		# IPv6 addresses must be placed in brackets
 		if Rex::Socket.is_ipv6?(host)
 			host = "[#{host}]"
 		end
-		
+
 		# The port should be appended if non-standard
 		if not [80,443].include?(self.port)
 			host = host + ":#{port}"
 		end
-		
+
 		set_formatted_header("Host", host)
 	end
 

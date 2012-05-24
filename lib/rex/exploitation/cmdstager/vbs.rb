@@ -12,7 +12,7 @@ module Exploitation
 ###
 #
 # This class provides the ability to create a sequence of commands from an executable.
-# When this sequence is ran via command injection or a shell, the resulting exe will 
+# When this sequence is ran via command injection or a shell, the resulting exe will
 # be written to disk and executed.
 #
 # This particular version uses Windows Scripting (VBS) to base64 decode a file,

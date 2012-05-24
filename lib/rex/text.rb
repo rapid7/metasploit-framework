@@ -7,7 +7,7 @@ begin
 	require 'iconv'
 	require 'zlib'
 rescue ::LoadError
-ensure 
+ensure
 	$VERBOSE = old_verbose
 end
 

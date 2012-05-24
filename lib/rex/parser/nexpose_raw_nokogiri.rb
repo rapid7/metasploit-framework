@@ -3,7 +3,7 @@ require "rex/parser/nokogiri_doc_mixin"
 module Rex
 	module Parser
 
-		# If Nokogiri is available, define Template document class. 
+		# If Nokogiri is available, define Template document class.
 		load_nokogiri && class NexposeRawDocument < Nokogiri::XML::SAX::Document
 
 		include NokogiriDocMixin

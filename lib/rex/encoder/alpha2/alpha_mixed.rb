@@ -19,7 +19,7 @@ class AlphaMixed < Generic
 			mod = 'I' * (16 - offset) + nop + '7QZ'    # dec ecx,,, push ecx, pop edx
 			edxmod = 'J' * (17 - offset)
 		else
-			mod = 'A' * (offset - 16) 
+			mod = 'A' * (offset - 16)
 			nop = 'C' * (16 - mod.length)
 			mod << nop + '7QZ'
 			edxmod = 'B' * (17 - (offset - 16))
@@ -47,7 +47,7 @@ class AlphaMixed < Generic
 			 gen_decoder_prefix(reg, offset) +
 			 "jA" +          # push 0x41
 			 "X" +           # pop eax
-			 "P" +           # push eax 
+			 "P" +           # push eax
 			 "0A0" +         # xor byte [ecx+30], al
 			 "A" +           # inc ecx                        <---
 			 "kAAQ" +        # imul eax, [ecx+42], 51 -> 10       |

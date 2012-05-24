@@ -3,7 +3,7 @@ require "rex/parser/nokogiri_doc_mixin"
 module Rex
 	module Parser
 
-		# If Nokogiri is available, define Template document class. 
+		# If Nokogiri is available, define Template document class.
 		load_nokogiri && class MbsaDocument < Nokogiri::XML::SAX::Document
 
 		include NokogiriDocMixin
@@ -57,7 +57,7 @@ module Rex
 				@state.delete_if {|k| k != :current_tag}
 			when "Check"
 				collect_check_data
-			when "Advice" 
+			when "Advice"
 				@state[:has_text] = false
 				collect_advice_data
 			when "Detail"
@@ -73,7 +73,7 @@ module Rex
 			end
 			@state[:current_tag].delete name
 		end
-		
+
 		def report_fingerprint(host_object)
 			return unless host_object.kind_of? ::Mdm::Host
 			return unless @report_data[:os_fingerprint]
@@ -163,7 +163,7 @@ module Rex
 			return if @text.strip.empty?
 			os_match = @text.match(/Computer is running (.*)/)
 			return unless os_match
-			os_info = os_match[1] 
+			os_info = os_match[1]
 			os_vendor = os_info[/Microsoft/]
 			os_family = os_info[/Windows/]
 			os_version = os_info[/(XP|2000 Advanced Server|2000|2003|2008|SBS|Vista|7 .* Edition|7)/]

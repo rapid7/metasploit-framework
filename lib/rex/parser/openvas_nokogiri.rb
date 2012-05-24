@@ -3,7 +3,7 @@ require "rex/parser/nokogiri_doc_mixin"
 module Rex
 module Parser
 
-	# If Nokogiri is available, define OpenVAS document class. 
+	# If Nokogiri is available, define OpenVAS document class.
 	load_nokogiri && class OpenVASDocument < Nokogiri::XML::SAX::Document
 
 	include NokogiriDocMixin
@@ -65,15 +65,15 @@ module Parser
 			return if not in_tag("ports")
 			return if not in_tag("port")
 			@state[:has_text] = true
-		
+
 			if not @text.index('(')
-				@state[:name] = nil	
-				@state[:port] = nil	
+				@state[:name] = nil
+				@state[:port] = nil
 				@state[:proto] = nil
 				@text = nil
 				return
 			end
-	
+
 			@state[:name] = @text.split(' ')[0]
 			@state[:port] = @text.split('(')[1].split('/')[0]
 			@state[:proto] = @text.split('(')[1].split('/')[1].split(')')[0]
@@ -111,12 +111,12 @@ module Parser
 		end
 		@state[:current_tag].delete name
 	end
-	
+
 	def record_vuln
 		if @state[:cves] == "NOCVE" and @state[:bid] == "NOBID"
 			return
 		end
-	
+
 		if @state[:cves] != "NOCVE" and !@state[:cves].empty?
 			@state[:cves].split(',').each do |cve|
 				vuln_info = {}
@@ -126,7 +126,7 @@ module Parser
 				vuln_info[:info] = @state[:vuln_desc]
 				vuln_info[:port] = @state[:port]
 				vuln_info[:proto] = @state[:proto]
-		
+
 				db_report(:vuln, vuln_info)
 			end
 		end
@@ -139,7 +139,7 @@ module Parser
 				vuln_info[:info] = @state[:vuln_desc]
 				vuln_info[:port] = @state[:port]
 				vuln_info[:proto] = @state[:proto]
-		
+
 				db_report(:vuln, vuln_info)
 			end
 		end

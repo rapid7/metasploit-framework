@@ -71,9 +71,9 @@ module Parser
 			ref_value = ref_value.strip
 			ref_type = ref_type.strip.upcase
 			ret = case ref_type
-				when "CVE" 
+				when "CVE"
 					ref_value.gsub("CAN", "CVE")
-				when "MS"  
+				when "MS"
 					"MSB-MS-#{ref_value}"
 				when "URL", "BID"
 					"#{ref_type}-#{ref_value}"
@@ -99,7 +99,7 @@ module Parser
 			@state[:current_tag].keys.include? tagname
 		end
 
-		# If there's an address, it's not on the blacklist, 
+		# If there's an address, it's not on the blacklist,
 		# it has ports, and the port list isn't
 		# empty... it's okay.
 		def host_is_okay
@@ -120,7 +120,7 @@ module Parser
 		end
 
 		# Circumvent the unknown attribute logging by the various reporters. They
-		# seem to be there just for debugging anyway. 
+		# seem to be there just for debugging anyway.
 		def db_report(table, data)
 			raise "Data should be a hash" unless data.kind_of? Hash
 			nonempty_data = data.reject {|k,v| v.nil?}
@@ -135,9 +135,9 @@ module Parser
 			just_the_facts.empty? ? return : db.send("report_#{table}", just_the_facts)
 		end
 
-		# XXX: It would be better to either have a single registry of acceptable 
-		# keys if we're going to alert on bad ones, or to be more forgiving if 
-		# the caller is this thing. There is basically no way to tell if 
+		# XXX: It would be better to either have a single registry of acceptable
+		# keys if we're going to alert on bad ones, or to be more forgiving if
+		# the caller is this thing. There is basically no way to tell if
 		# report_host()'s tastes are going to change with this scheme.
 		def db_valid_attributes(table)
 			case table.to_s.to_sym
@@ -159,7 +159,7 @@ module Parser
 		end
 
 		# Nokogiri 1.4.4 (and presumably beyond) generates attrs as pairs,
-		# like [["value1","foo"],["value2","bar"]] (but not hashes for some 
+		# like [["value1","foo"],["value2","bar"]] (but not hashes for some
 		# reason). 1.4.3.1 (and presumably 1.4.3.x and prior) generates attrs
 		# as a flat array of strings. We want array_pairs.
 		def normalize_attrs(attrs)
@@ -168,7 +168,7 @@ module Parser
 			when Array, NilClass
 				attr_pairs = attrs
 			when String
-				attrs.each_index {|i| 
+				attrs.each_index {|i|
 					next if i % 2 == 0
 					attr_pairs << [attrs[i-1],attrs[i]]
 				}

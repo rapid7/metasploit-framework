@@ -1,8 +1,8 @@
 module Rex
 
 ###
-# 
-# This class provides a wrapper around Thread.new that can provide 
+#
+# This class provides a wrapper around Thread.new that can provide
 # additional features if a corresponding thread provider is set.
 #
 ###
@@ -10,7 +10,7 @@ module Rex
 class ThreadFactory
 
 	@@provider = nil
-	
+
 	def self.provider=(val)
 		@@provider = val
 	end
@@ -35,7 +35,7 @@ class ThreadFactory
 			t[:tm_call] = caller
 			return t
 		end
-	
+
 	end
 end
 

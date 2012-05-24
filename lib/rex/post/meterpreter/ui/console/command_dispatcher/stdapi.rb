@@ -20,7 +20,7 @@ class Console::CommandDispatcher::Stdapi
 
 	Klass = Console::CommandDispatcher::Stdapi
 
-	Dispatchers = 
+	Dispatchers =
 		[
 			Klass::Fs,
 			Klass::Net,

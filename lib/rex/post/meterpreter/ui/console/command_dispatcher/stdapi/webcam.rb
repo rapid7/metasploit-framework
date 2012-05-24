@@ -54,7 +54,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
 
 	def cmd_webcam_list
 		begin
-			client.webcam.webcam_list.each_with_index { |name, indx| 
+			client.webcam.webcam_list.each_with_index { |name, indx|
 				print_line("#{indx + 1}: #{name}")
 			}
 			return true
@@ -69,7 +69,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
 		quality = 50
 		view    = true
 		index   = 1
-		wc_list = []		
+		wc_list = []
 
 		webcam_snap_opts = Rex::Parser::Arguments.new(
 			"-h" => [ false, "Help Banner" ],
@@ -96,7 +96,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
 					view = false if ( val =~ /^(f|n|0)/i )
 			end
 		}
-		begin 
+		begin
 			wc_list << client.webcam.webcam_list
 		rescue
 		end
@@ -126,7 +126,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
 	def cmd_record_mic(*args)
 		path    = Rex::Text.rand_text_alpha(8) + ".wav"
 		play    = true
-		duration   = 1	
+		duration   = 1
 
 		record_mic_opts = Rex::Parser::Arguments.new(
 			"-h" => [ false, "Help Banner" ],

@@ -113,7 +113,7 @@ class PropertySetStream
 			@os_platform
 		].pack('vvvv')
 		buf << @clsid.pack
-		buf << [@propsets.length].pack('V')			
+		buf << [@propsets.length].pack('V')
 
 		# Pack all the PropertySet children
 		data = []

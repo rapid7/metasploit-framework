@@ -327,7 +327,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 						"    queryclass Queries the class of the supplied key [-k <key>]\n" +
 						"    setval     Set a registry value [-k <key> -v <val> -d <data>]\n" +
 						"    deleteval  Delete the supplied registry value [-k <key> -v <val>]\n" +
-						"    queryval   Queries the data contents of a value [-k <key> -v <val>]\n\n") 
+						"    queryval   Queries the data contents of a value [-k <key> -v <val>]\n\n")
 					return false
 				when "-k"
 					key   = val
@@ -361,7 +361,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 			# Rock it
 			case cmd
 				when "enumkey"
-				
+
 					open_key = nil
 					if not rem
 						open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ + wowflag)
@@ -411,7 +411,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 						if remote_key
 							open_key = remote_key.create_key(base_key, KEY_WRITE + wowflag)
 						end
-					end				
+					end
 
 					print_line("Successfully created key: #{key}")
 

@@ -3,7 +3,7 @@ require "rex/parser/nokogiri_doc_mixin"
 module Rex
 	module Parser
 
-		# If Nokogiri is available, define Nexpose document class. 
+		# If Nokogiri is available, define Nexpose document class.
 		load_nokogiri && class NexposeSimpleDocument < Nokogiri::XML::SAX::Document
 
 		include NokogiriDocMixin
@@ -98,12 +98,12 @@ module Rex
 					:refs => vuln[:refs]
 				}
 				if vuln[:port] && vuln[:proto]
-					data[:port] = vuln[:port] 
+					data[:port] = vuln[:port]
 					data[:proto] = vuln[:proto]
 				end
 				db_report(:vuln,data)
 			end
-			
+
 		end
 
 		def collect_host_vuln_id

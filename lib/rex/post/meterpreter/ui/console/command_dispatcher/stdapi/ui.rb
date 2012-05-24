@@ -81,7 +81,7 @@ class Console::CommandDispatcher::Stdapi::Ui
 
 		print_line(
 			"User has been idle for: #{Rex::ExtTime.sec_to_s(seconds)}")
-		
+
 		return true
 	end
 
@@ -124,7 +124,7 @@ class Console::CommandDispatcher::Stdapi::Ui
 
 		return true
 	end
-	
+
 	#
 	# Grab a screenshot of the current interactive desktop.
 	#
@@ -132,14 +132,14 @@ class Console::CommandDispatcher::Stdapi::Ui
 		path    = Rex::Text.rand_text_alpha(8) + ".jpeg"
 		quality = 50
 		view    = true
-		
+
 		screenshot_opts = Rex::Parser::Arguments.new(
 			"-h" => [ false, "Help Banner." ],
 			"-q" => [ true, "The JPEG image quality (Default: '#{quality}')" ],
 			"-p" => [ true, "The JPEG image path (Default: '#{path}')" ],
 			"-v" => [ true, "Automatically view the JPEG image (Default: '#{view}')" ]
 		)
-		
+
 		screenshot_opts.parse( args ) { | opt, idx, val |
 			case opt
 				when "-h"
@@ -155,32 +155,32 @@ class Console::CommandDispatcher::Stdapi::Ui
 					view = false if ( val =~ /^(f|n|0)/i )
 			end
 		}
-		
+
 		data = client.ui.screenshot( quality )
-		
+
 		if( data )
 			::File.open( path, 'wb' ) do |fd|
 				fd.write( data )
 			end
-		
+
 			path = ::File.expand_path( path )
-			
+
 			print_line( "Screenshot saved to: #{path}" )
-			
+
 			Rex::Compat.open_file( path ) if view
 		end
-		
+
 		return true
 	end
-	
+
 	#
 	# Enumerate desktops
 	#
 	def cmd_enumdesktops(*args)
 		print_line( "Enumerating all accessible desktops" )
-		
+
 		desktops = client.ui.enum_desktops
-		
+
 		desktopstable = Rex::Ui::Text::Table.new(
 			'Header'  => "Desktops",
 			'Indent'  => 4,
@@ -189,18 +189,18 @@ class Console::CommandDispatcher::Stdapi::Ui
 							"Name"
 						]
 		)
-		
+
 		desktops.each { | desktop |
 			session = desktop['session'] == 0xFFFFFFFF ? '' : desktop['session'].to_s
 			desktopstable << [ session, desktop['station'], desktop['name'] ]
 		}
-		
+
 		if( desktops.length == 0 )
 			print_line( "No accessible desktops were found." )
 		else
 			print( "\n" + desktopstable.to_s + "\n" )
 		end
-		
+
 		return true
 	end
 
@@ -208,26 +208,26 @@ class Console::CommandDispatcher::Stdapi::Ui
 	# Get the current meterpreter desktop.
 	#
 	def cmd_getdesktop(*args)
-		
+
 		desktop = client.ui.get_desktop
-		
+
 		session = desktop['session'] == 0xFFFFFFFF ? '' : "Session #{desktop['session'].to_s}\\"
-		
+
 		print_line( "#{session}#{desktop['station']}\\#{desktop['name']}" )
-		
+
 		return true
 	end
-	
+
 	#
 	# Change the meterpreters current desktop.
 	#
 	def cmd_setdesktop( *args )
-		
+
 		switch   = false
 		dsession = -1
 		dstation = 'WinSta0'
 		dname    = 'Default'
-		
+
 		setdesktop_opts = Rex::Parser::Arguments.new(
 			"-h" => [ false, "Help Banner." ],
 			#"-s" => [ true, "The session (Default: '#{dsession}')" ],
@@ -235,7 +235,7 @@ class Console::CommandDispatcher::Stdapi::Ui
 			"-n" => [ true, "The desktop name (Default: '#{dname}')" ],
 			"-i" => [ true, "Set this desktop as the interactive desktop (Default: '#{switch}')" ]
 		)
-		
+
 		setdesktop_opts.parse( args ) { | opt, idx, val |
 			case opt
 				when "-h"
@@ -253,15 +253,15 @@ class Console::CommandDispatcher::Stdapi::Ui
 					switch = true if ( val =~ /^(t|y|1)/i )
 			end
 		}
-		
+
 		if( client.ui.set_desktop( dsession, dstation, dname, switch ) )
 			print_line( "#{ switch ? 'Switched' : 'Changed' } to desktop #{dstation}\\#{dname}" )
 		else
 			print_line( "Failed to #{ switch ? 'switch' : 'change' } to desktop #{dstation}\\#{dname}" )
 		end
-		
+
 		return true
-	end	
+	end
 
 	#
 	# Unlock or lock the desktop
@@ -271,18 +271,18 @@ class Console::CommandDispatcher::Stdapi::Ui
 		if(args.length > 0)
 			mode = args[0].to_i
 		end
-		
+
 		if(mode == 0)
 			print_line("Unlocking the workstation...")
 			client.ui.unlock_desktop(true)
 		else
 			print_line("Locking the workstation...")
-			client.ui.unlock_desktop(false)	
+			client.ui.unlock_desktop(false)
 		end
 
 		return true
-	end	
-			
+	end
+
 	#
 	# Start the keyboard sniffer
 	#
@@ -290,8 +290,8 @@ class Console::CommandDispatcher::Stdapi::Ui
 		print_line("Starting the keystroke sniffer...")
 		client.ui.keyscan_start
 		return true
-	end	
-	
+	end
+
 	#
 	# Stop the keyboard sniffer
 	#
@@ -299,7 +299,7 @@ class Console::CommandDispatcher::Stdapi::Ui
 		print_line("Stopping the keystroke sniffer...")
 		client.ui.keyscan_stop
 		return true
-	end	
+	end
 
 	#
 	# Dump captured keystrokes
@@ -308,9 +308,9 @@ class Console::CommandDispatcher::Stdapi::Ui
 		print_line("Dumping captured keystrokes...")
 		data = client.ui.keyscan_dump
 		print_line(client.ui.keyscan_extract(data))
-		
+
 		return true
-	end	
+	end
 
 end
 

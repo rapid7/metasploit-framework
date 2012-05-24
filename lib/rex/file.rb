@@ -32,12 +32,12 @@ module FileUtils
 	# a fully qualified path to the supplied file name.
 	#
 	def self.find_full_path(file_name)
-	
+
 		# Check for the absolute fast first
 		if (file_name[0,1] == "/" and ::File.exists?(file_name) and ::File::Stat.new(file_name))
 			return file_name
 		end
-	
+
 		path = Rex::Compat.getenv('PATH')
 		if (path)
 			path.split(::File::PATH_SEPARATOR).each { |base|
@@ -63,7 +63,7 @@ class Quickfile < ::Tempfile
 	def initialize(*args)
 		super(*args)
 		self.binmode
-		ObjectSpace.undefine_finalizer(self)	
+		ObjectSpace.undefine_finalizer(self)
 	end
 end
 

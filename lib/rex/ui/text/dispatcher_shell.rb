@@ -39,7 +39,7 @@ module DispatcherShell
 		#
 		def commands
 		end
-	
+
 		#
 		# Wraps shell.print_error
 		#
@@ -157,7 +157,7 @@ module DispatcherShell
 			tbl = Table.new(
 				'Header'  => "#{self.name} Commands",
 				'Indent'  => opts['Indent'] || 4,
-				'Columns' => 
+				'Columns' =>
 					[
 						'Command',
 						'Description'
@@ -193,7 +193,7 @@ module DispatcherShell
 			if matches and matches.length == 1 and File.directory?(matches[0])
 				dir = matches[0]
 				dir += File::SEPARATOR if dir[-1,1] != File::SEPARATOR
-				matches = ::Readline::FILENAME_COMPLETION_PROC.call(dir) 
+				matches = ::Readline::FILENAME_COMPLETION_PROC.call(dir)
 			end
 			matches
 		end
@@ -213,9 +213,9 @@ module DispatcherShell
 
 		# Initialze the dispatcher array
 		self.dispatcher_stack = []
-		
+
 		# Initialize the tab completion array
-		self.tab_words = []		
+		self.tab_words = []
 		self.on_command_proc = nil
 	end
 
@@ -230,34 +230,34 @@ module DispatcherShell
 		# Check trailing whitespace so we can tell 'x' from 'x '
 		str_match = str.match(/\s+$/)
 		str_trail = (str_match.nil?) ? '' : str_match[0]
-		
+
 		# Split the line up by whitespace into words
 		str_words = str.split(/[\s\t\n]+/)
-		
+
 		# Append an empty word if we had trailing whitespace
 		str_words << '' if str_trail.length > 0
-		
+
 		# Place the word list into an instance variable
 		self.tab_words = str_words
-		
+
 		# Pop the last word and pass it to the real method
 		tab_complete_stub(self.tab_words.pop)
 	end
 
-	# Performs tab completion of a command, if supported	
+	# Performs tab completion of a command, if supported
 	# Current words can be found in self.tab_words
 	#
 	def tab_complete_stub(str)
 		items = []
-		
+
 		return nil if not str
-	
+
 		# puts "Words(#{tab_words.join(", ")}) Partial='#{str}'"
-		
+
 		# Next, try to match internal command or value completion
 		# Enumerate each entry in the dispatcher stack
 		dispatcher_stack.each { |dispatcher|
-		
+
 			# If no command is set and it supports commands, add them all
 			if (tab_words.empty? and dispatcher.respond_to?('commands'))
 				items.concat(dispatcher.commands.keys)
@@ -285,15 +285,15 @@ module DispatcherShell
 		rescue RegexpError
 			str = Regexp.escape(str)
 		end
-		
+
 		# XXX - This still doesn't fix some Regexp warnings:
 		# ./lib/rex/ui/text/dispatcher_shell.rb:171: warning: regexp has `]' without escape
 
 		# Match based on the partial word
-		items.find_all { |e| 
+		items.find_all { |e|
 			e =~ /^#{str}/
 		# Prepend the rest of the command (or it gets replaced!)
-		}.map { |e| 
+		}.map { |e|
 			tab_words.dup.push(e).join(' ')
 		}
 	end
@@ -342,7 +342,7 @@ module DispatcherShell
 						run_command(dispatcher, method, arguments)
 						found = true
 					end
-				rescue 
+				rescue
 					error = $!
 
 					print_error(
@@ -373,7 +373,7 @@ module DispatcherShell
 	#
 	def run_command(dispatcher, method, arguments)
 		self.busy = true
-		
+
 		if(blocked_command?(method))
 			print_error("The #{method} command has been disabled.")
 		else
@@ -440,7 +440,7 @@ module DispatcherShell
 	#
 	# Return a readable version of a help banner for all of the enstacked
 	# dispatchers.
-	# 
+	#
 	# See +CommandDispatcher#help_to_s+
 	#
 	def help_to_s(opts = {})
@@ -477,7 +477,7 @@ module DispatcherShell
 		self.blocked || return
 		self.blocked.delete(cmd)
 	end
-	
+
 
 	attr_accessor :dispatcher_stack # :nodoc:
 	attr_accessor :tab_words # :nodoc:

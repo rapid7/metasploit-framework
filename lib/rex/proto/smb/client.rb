@@ -57,10 +57,10 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		self.sequence_counter = 0
 		self.signing_key      = ''
 		self.require_signing  = false
-		
+
 		#Misc
 		self.spnopt = {}
-		
+
 	end
 
 	# Read a SMB packet from the socket
@@ -97,8 +97,8 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 		#signing
 		if self.require_signing && self.signing_key != ''
-			if self.verify_signature		
-				raise XCEPT::IncorrectSigningError if not CRYPT::is_signature_correct?(self.signing_key,self.sequence_counter,data)			
+			if self.verify_signature
+				raise XCEPT::IncorrectSigningError if not CRYPT::is_signature_correct?(self.signing_key,self.sequence_counter,data)
 			end
 			self.sequence_counter += 1
 		end
@@ -159,7 +159,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		pkt = CONST::SMB_BASE_PKT.make_struct
 		pkt.from_s(data)
 		res  = pkt
-		
+
 		begin
 			case pkt['Payload']['SMB'].v['Command']
 
@@ -560,8 +560,8 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		self.system_time = UTILS.time_smb_to_unix(ack['Payload'].v['SystemTimeHigh'],ack['Payload'].v['SystemTimeLow'])
 		self.system_time = ::Time.at( self.system_time )
 
-		# A signed 16-bit signed integer that represents the server's time zone, in minutes, 
-		# from UTC. The time zone of the server MUST be expressed in minutes, plus or minus, 
+		# A signed 16-bit signed integer that represents the server's time zone, in minutes,
+		# from UTC. The time zone of the server MUST be expressed in minutes, plus or minus,
 		# from UTC.
 		# NOTE: althought the spec says +/- it doesn't say that it should be inverted :-/
 		system_zone = ack['Payload'].v['ServerTimeZone']
@@ -581,7 +581,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 	def session_setup(*args)
 
 		if (self.dialect =~ /^(NT LANMAN 1.0|NT LM 0.12)$/)
-			
+
 			if (self.challenge_key)
 				return self.session_setup_no_ntlmssp(*args)
 			end
@@ -656,17 +656,17 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		#raise XCEPT::SigningError if self.require_signing
 		self.require_signing = false if self.require_signing
 
-		
+
 		if NTLM_UTILS.is_pass_ntlm_hash?(pass)
 			arglm = {
 				:lm_hash => [ pass.upcase()[0,32] ].pack('H32'),
-				:challenge =>  self.challenge_key 
+				:challenge =>  self.challenge_key
 			}
 			hash_lm = NTLM_CRYPT::lm_response(arglm)
 
 			argntlm = {
-				:ntlm_hash =>  [ pass.upcase()[33,65] ].pack('H32'), 
-				:challenge =>  self.challenge_key 
+				:ntlm_hash =>  [ pass.upcase()[33,65] ].pack('H32'),
+				:challenge =>  self.challenge_key
 			}
 			hash_nt = NTLM_CRYPT::ntlm_response(argntlm)
 		else
@@ -768,7 +768,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		return ack
 	end
 
-	# Authenticate using extended security negotiation 
+	# Authenticate using extended security negotiation
 	def session_setup_with_ntlmssp(user = '', pass = '', domain = '', name = nil, do_recv = true)
 
 		ntlm_options = {
@@ -865,17 +865,17 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 		resp_lm, resp_ntlm, client_challenge, ntlm_cli_challenge = NTLM_UTILS.create_lm_ntlm_responses(user, pass, self.challenge_key, domain,
 												default_name, default_domain, dns_host_name,
-												dns_domain_name, chall_MsvAvTimestamp , 
+												dns_domain_name, chall_MsvAvTimestamp ,
 												self.spnopt, ntlm_options)
 		enc_session_key = ''
 		self.sequence_counter = 0
 
 		if self.require_signing
-			self.signing_key, enc_session_key, ntlmssp_flags = NTLM_UTILS.create_session_key(ntlmssp_flags, server_ntlmssp_flags, user, pass, domain, 
-											self.challenge_key, client_challenge, ntlm_cli_challenge, 
+			self.signing_key, enc_session_key, ntlmssp_flags = NTLM_UTILS.create_session_key(ntlmssp_flags, server_ntlmssp_flags, user, pass, domain,
+											self.challenge_key, client_challenge, ntlm_cli_challenge,
 											ntlm_options)
 		end
-		
+
 		# Create the security blob data
 		blob = NTLM_UTILS.make_ntlmssp_secblob_auth(domain, name, user, resp_lm, resp_ntlm, enc_session_key, ntlmssp_flags)
 
@@ -909,11 +909,11 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 		# Make sure that authentication succeeded
 		if (ack['Payload']['SMB'].v['ErrorClass'] != 0)
-		
+
 			if (user.length == 0)
 				# Ensure that signing is disabled when we hit this corner case
 				self.require_signing = false
-				
+
 				# Fall back to the non-ntlmssp authentication method
 				return self.session_setup_no_ntlmssp(user, pass, domain)
 			end
@@ -1920,7 +1920,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 # public read/write methods
 	attr_accessor	:native_os, :native_lm, :encrypt_passwords, :extended_security, :read_timeout, :evasion_opts
-	attr_accessor	:verify_signature, :use_ntlmv2, :usentlm2_session, :send_lm, :use_lanman_key, :send_ntlm 
+	attr_accessor	:verify_signature, :use_ntlmv2, :usentlm2_session, :send_lm, :use_lanman_key, :send_ntlm
 	attr_accessor  	:system_time, :system_zone
 	#misc
 	attr_accessor   :spnopt # used for SPN
@@ -1931,7 +1931,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 	attr_reader		:multiplex_id, :last_tree_id, :last_file_id, :process_id, :last_search_id
 	attr_reader		:dns_host_name, :dns_domain_name
 	attr_reader		:security_mode, :server_guid
-	#signing related 
+	#signing related
 	attr_reader		:sequence_counter,:signing_key, :require_signing
 
 # private methods
@@ -1940,7 +1940,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 	attr_writer		:dns_host_name, :dns_domain_name
 	attr_writer		:multiplex_id, :last_tree_id, :last_file_id, :process_id, :last_search_id
 	attr_writer		:security_mode, :server_guid
-	#signing related 
+	#signing related
 	attr_writer		:sequence_counter,:signing_key, :require_signing
 
 	attr_accessor	:socket

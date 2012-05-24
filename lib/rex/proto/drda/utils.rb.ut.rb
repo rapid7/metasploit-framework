@@ -33,7 +33,7 @@ class Rex::Proto::DRDA::Utils::UnitTest < Test::Unit::TestCase
 		begin
 			Timeout.timeout($_REX_TEST_TIMEOUT) do
 				socket = Rex::Socket.create_tcp(
-					'PeerHost' => $_REX_TEST_DRDA_HOST.to_s, 
+					'PeerHost' => $_REX_TEST_DRDA_HOST.to_s,
 					'PeerPort' => 50000
 				)
 				sent = socket.put probe_pkt
@@ -62,7 +62,7 @@ class Rex::Proto::DRDA::Utils::UnitTest < Test::Unit::TestCase
 		begin
 			Timeout.timeout($_REX_TEST_TIMEOUT) do
 				socket = Rex::Socket.create_tcp(
-					'PeerHost' => $_REX_TEST_DRDA_HOST.to_s, 
+					'PeerHost' => $_REX_TEST_DRDA_HOST.to_s,
 					'PeerPort' => 50000
 				)
 				sent = socket.put probe_pkt
