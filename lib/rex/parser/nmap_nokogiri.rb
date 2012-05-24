@@ -118,6 +118,7 @@ module Rex
 			return unless in_tag("os")
 			temp_hash = attr_hash(attrs)
 			if temp_hash["accuracy"].to_i == 100
+				@state[:os] ||= {}
 				@state[:os]["osmatch"] = temp_hash["name"]
 			end
 		end
