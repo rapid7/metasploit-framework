@@ -16,7 +16,7 @@ module Auxiliary::MimeTypes
   end
 
   def mime_yaml_lookup(extension)
-    mime_load_extension_map unless @extension_map 
+    mime_load_extension_map unless @extension_map
     return @extension_map[extension] if @extension_map[extension]
     return nil
   end

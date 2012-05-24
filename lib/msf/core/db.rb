@@ -341,7 +341,7 @@ class DBManager
 		host.state       = HostState::Alive if not host.state
 		host.comm        = ''        if not host.comm
 		host.workspace   = wspace    if not host.workspace
-		
+
 		if host.changed?
 			msf_import_timestamps(opts,host)
 			host.save!
@@ -357,7 +357,7 @@ class DBManager
 	#
 	# The opts parameter MUST contain the following entries
 	# +:host+::           -- the host's ip address
-	# +:info+::           -- the information hash 
+	# +:info+::           -- the information hash
 	# * 'Computer'        -- the host name
 	# * 'OS'              -- the operating system string
 	# * 'Architecture'    -- the hardware architecture
@@ -400,36 +400,36 @@ class DBManager
 		else
 			host = addr
 		end
-		
+
 		res = {}
-		
+
 		if info['Computer']
 			res[:name] = info['Computer']
 		end
-		
+
 		if info['Architecture']
 			res[:arch] = info['Architecture'].split(/\s+/).first
 		end
-		
+
 		if info['OS'] =~ /^Windows\s*([^\(]+)\(([^\)]+)\)/i
 			res[:os_name]   = "Microsoft Windows"
 			res[:os_flavor] = $1.strip
 			build = $2.strip
-			
+
 			if build =~ /Service Pack (\d+)/
 				res[:os_sp] = "SP" + $1
 			else
 				res[:os_sp] = "SP0"
 			end
 		end
-		
+
 		if info["System Language"]
 			case info["System Language"]
 				when /^en_/
 					res[:os_lang] = "English"
 			end
 		end
-		
+
 
 		# Truncate the info field at the maximum field length
 		if res[:info]
@@ -440,7 +440,7 @@ class DBManager
 		if res[:name]
 			res[:name] = res[:name][0,255]
 		end
-		
+
 		res.each { |k,v|
 
 			if (host.attribute_names.include?(k.to_s))
@@ -451,12 +451,12 @@ class DBManager
 				dlog("Unknown attribute for Host: #{k}")
 			end
 		}
-		
+
 		# Set default fields if needed
 		host.state       = HostState::Alive if not host.state
 		host.comm        = ''        if not host.comm
 		host.workspace   = wspace    if not host.workspace
-		
+
 		if host.changed?
 			host.save!
 		end
@@ -1082,7 +1082,7 @@ class DBManager
 		if wspace.kind_of? String
 			wspace = find_workspace(wspace)
 		end
-		
+
 		host = nil
 		report_host(:workspace => wspace, :address => addr)
 
@@ -1292,13 +1292,13 @@ class DBManager
 		raise ArgumentError.new("Deprecated data column for vuln, use .info instead") if opts[:data]
 		name = opts[:name] || return
 		info = opts[:info]
-		
+
 	::ActiveRecord::Base.connection_pool.with_connection {
-	
+
 		wspace = opts.delete(:workspace) || workspace
 		exploited_at = opts[:exploited_at] || opts["exploited_at"]
 		rids = nil
-		
+
 		if opts[:refs]
 			rids = []
 			opts[:refs].each do |r|
@@ -1308,7 +1308,7 @@ class DBManager
 				rids << find_or_create_ref(:name => r)
 			end
 		end
-		
+
 		host = nil
 		addr = nil
 		if opts[:host].kind_of? ::Mdm::Host
@@ -1403,7 +1403,7 @@ class DBManager
 		ret[:ref] = ref
 	}
 	end
-	
+
 	def get_ref(name)
 	::ActiveRecord::Base.connection_pool.with_connection {
 		::Mdm::Ref.find_by_name(name)
@@ -2843,7 +2843,7 @@ class DBManager
 
 			next unless ip
 			next if bl.include? ip
-	
+
 			conf = {
 			:workspace => wspace,
 			:host      => ip,
@@ -2856,7 +2856,7 @@ class DBManager
 			info << "Serial Number: #{serialno}" unless (serialno.blank? or serialno == name)
 			info << "Location: #{location}" unless location.blank?
 			conf[:info] = info.join(", ") unless info.empty?
-	
+
 			host = report_host(conf)
 			report_import_note(wspace, host)
 		end
@@ -5584,7 +5584,7 @@ class DBManager
 		norm_host = nil
 
 		if (host.kind_of? String)
-		
+
 			# If it's an IPv4 addr with a port on the end, strip the port
 			if Rex::Socket.is_ipv4?(host) and host =~ /((\d{1,3}\.){3}\d{1,3}):\d+/
 				norm_host = $1

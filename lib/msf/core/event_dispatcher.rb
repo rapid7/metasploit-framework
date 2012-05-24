@@ -221,7 +221,7 @@ protected
 	end
 
 	attr_accessor :general_event_subscribers # :nodoc:
-	attr_accessor :custom_event_subscribers # :nodoc:	
+	attr_accessor :custom_event_subscribers # :nodoc:
 	attr_accessor :exploit_event_subscribers # :nodoc:
 	attr_accessor :session_event_subscribers # :nodoc:
 	attr_accessor :db_event_subscribers # :nodoc:

@@ -87,7 +87,7 @@ class OptBase
 	def display_value(value)
 		value.to_s
 	end
-	
+
 	#
 	# The name of the option.
 	#
@@ -660,7 +660,7 @@ class OptionContainer < Hash
 				errors << name
 			# If the option is valid, normalize its format to the correct type.
 			elsif ((val = option.normalize(datastore[name])) != nil)
-				# This *will* result in a module that previously used the 
+				# This *will* result in a module that previously used the
 				# global datastore to have its local datastore set, which
 				# means that changing the global datastore and re-running
 				# the same module will now use the newly-normalized local

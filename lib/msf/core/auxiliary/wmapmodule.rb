@@ -9,7 +9,7 @@ module Auxiliary::WmapModule
 
 	attr_accessor :orderid
 	attr_accessor :requiredids
-	
+
 	#
 	# Initializes an instance of a WMAP module
 	#
@@ -28,20 +28,20 @@ module Auxiliary::WmapModule
 			self.requiredids = options['Require']
 		end
 	end
-	
+
 	def wmap_enabled
 		#enabled by default
 		true
 	end
-	
+
 	def wmap_getoid
-		self.orderid		
+		self.orderid
 	end
-	
+
 	def wmap_setoid(oid)
 		self.orderid = oid
 	end
-	
+
 	def wmap_type
 		#default type
 		nil

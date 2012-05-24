@@ -604,7 +604,7 @@ require 'digest/sha1'
 	end
 
 	# Create an ELF executable containing the payload provided in +code+
-	# For the default template, this method just appends the payload, checks if 
+	# For the default template, this method just appends the payload, checks if
 	# the template is 32 or 64 bit and adjusts the offsets accordingly
 	# For user-provided templates, modifies the header to mark all executable
 	# segments as writable and overwrites the entrypoint (usually _start) with
@@ -641,7 +641,7 @@ require 'digest/sha1'
 			elf[0x60,8] = [elf.length].pack('Q')  #p_filesz
 			elf[0x68,8] = [elf.length + code.length].pack('Q')  #p_memsz
 		else
-			raise RuntimeError, "Invalid ELF template: EI_CLASS value not supported" 
+			raise RuntimeError, "Invalid ELF template: EI_CLASS value not supported"
 		end
 
 		return elf
@@ -1126,7 +1126,7 @@ End Sub
 		psh << "if ([Bool]!$#{var_threadHandle}) { $global:result = 7; return }\r\n"
 		psh << "$#{var_temp} = [#{var_kernel32}.func]::WaitForSingleObject($#{var_threadHandle}, [#{var_kernel32}.func+Time]::Infinite)\r\n"
 	end
-	
+
 	def self.to_win32pe_psh(framework, code, opts={})
 
 		var_code = Rex::Text.rand_text_alpha(rand(8)+8)
