@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 		)
 
 		register_options(
-			[ Opt::RPORT(80),
+			[
 				OptString.new('URI', [false, 'Define the path to the wp-login.php file', '/wp-login.php']),
 				OptBool.new('VALIDATE_USERS', [ true, "Enumerate usernames", true ]),
 				OptBool.new('BRUTEFORCE', [ true, "Perform brute force authentication", true ]),

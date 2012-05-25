@@ -41,7 +41,6 @@ class Metasploit3 < Msf::Auxiliary
 
 			register_options(
 				[
-					Opt::RPORT(80),
 					OptString.new('PASSWORD', [ true, 'The password to reset to', 'admin'])
 				], self.class)
 	end

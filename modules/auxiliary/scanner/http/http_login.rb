@@ -41,7 +41,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				Opt::RPORT(80),
 				OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
 					File.join(Msf::Config.install_root, "data", "wordlists", "http_default_userpass.txt") ]),
 				OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
