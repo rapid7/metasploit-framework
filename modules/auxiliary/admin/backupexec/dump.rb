@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 				listed in the references section. To transfer an entire directory, specify a
 				path that includes a trailing backslash.
 			},
-			'Author'         => [ 'hdm', 'anonymous' ],
+			'Author'         => [ 'hdm', 'Unknown' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
 			'References'     =>
