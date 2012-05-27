@@ -47,7 +47,7 @@ module ReverseTcpDouble
 		register_advanced_options(
 			[
 				
-				OptBool.new('SSL', [true, 'Use SSL for the listener socket', false]),
+				OptBool.new('SSLHandler', [true, 'Use SSL for the listener socket', false]),
 			], Msf::Handler::ReverseTcpDouble)
 
 		self.conn_threads = []
@@ -63,7 +63,7 @@ module ReverseTcpDouble
 			raise 'tcp connectback can not be used with proxies'
 		end
 
-		if datastore['SSL']
+		if datastore['SSLHandler']
 			comm.extend(Rex::Socket::SslTcp)
 			self.listener_sock = Rex::Socket::SslTcpServer.create(
 			'LocalHost' => datastore['LHOST'],

