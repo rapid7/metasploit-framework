@@ -117,7 +117,7 @@ module Parser
 	end
 
 	def record_vuln
-		if @state[:cves] and @state[:cves] == "NOCVE" and @state[:bid] == "NOBID"
+		if (@state[:cves] and @state[:cves] == "NOCVE")  and (@state[:bid] and @state[:bid] == "NOBID")
 			return
 		end
 
