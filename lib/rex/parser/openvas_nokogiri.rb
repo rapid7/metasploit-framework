@@ -27,27 +27,30 @@ module Parser
 		when "name"
 			return if not in_tag("result")
 			@state[:has_text] = true
-			@state[:vuln_name] = @text.strip
+			@state[:vuln_name] = @text.strip if @text
 			@text = nil
 		when "description"
 			@state[:has_text] = true
-			@state[:vuln_desc] = @text.strip
+			@state[:vuln_desc] = @text.strip if @text
 			@text = nil
 		when "bid"
 			return if not in_tag("result")
 			return if not in_tag("nvt")
 			@state[:has_text] = true
-			@state[:bid] = @text.strip
+			@state[:bid] = @text.strip if @text
 			@text = nil
 		when "cve"
 			return if not in_tag("result")
 			return if not in_tag("nvt")
 			@state[:has_text] = true
-			@state[:cves] = @text.strip
+			@state[:cves] = @text.strip if @text
 			@text = nil
 		when "risk_factor"
 			return if not in_tag("result")
 			return if not in_tag("nvt")
+
+      #we do this to clean out the buffer so to speak
+      #if we don't set text to nil now, the text will show up later
 			@state[:has_text] = true
 			@text = nil
 		when "cvss_base"
@@ -74,19 +77,20 @@ module Parser
 				return
 			end
 
-			@state[:name] = @text.split(' ')[0]
-			@state[:port] = @text.split('(')[1].split('/')[0]
-			@state[:proto] = @text.split('(')[1].split('/')[1].split(')')[0]
+			@state[:name] = @text.split(' ')[0] if @text
+			@state[:port] = @text.split('(')[1].split('/')[0] if @text
+			@state[:proto] = @text.split('(')[1].split('/')[1].split(')')[0] if @text
+
 			@text = nil
 		when "host"
 			if in_tag('result')
 				@state[:has_text] = true
-				@state[:host] = @text.strip
+				@state[:host] = @text.strip if @text
 				@text = nil
 			elsif in_tag('ports')
 				return if not in_tag('port')
 				@state[:has_text] = true
-				@state[:host] = @text.strip
+				@state[:host] = @text.strip if @text
 				@text = nil
 			end
 		when "port"
@@ -98,8 +102,8 @@ module Parser
 					@text = nil
 					return
 				end
-				@state[:proto] = @text.split('(')[0].strip
-				@state[:port] = @text.split('(')[1].split('/')[0].gsub(/\)/, '')
+				@state[:proto] = @text.split('(')[0].strip if @text
+				@state[:port] = @text.split('(')[1].split('/')[0].gsub(/\)/, '') if @text
 				@text = nil
 			elsif in_tag('ports')
 				record_service
@@ -113,11 +117,11 @@ module Parser
 	end
 
 	def record_vuln
-		if @state[:cves] == "NOCVE" and @state[:bid] == "NOBID"
+		if @state[:cves] and @state[:cves] == "NOCVE" and @state[:bid] == "NOBID"
 			return
 		end
 
-		if @state[:cves] != "NOCVE" and !@state[:cves].empty?
+		if @state[:cves] and @state[:cves] != "NOCVE" and !@state[:cves].empty?
 			@state[:cves].split(',').each do |cve|
 				vuln_info = {}
 				vuln_info[:host] = @state[:host]
@@ -130,7 +134,7 @@ module Parser
 				db_report(:vuln, vuln_info)
 			end
 		end
-		if @state[:bid] != "NOBID" and !@state[:bid].empty?
+		if @state[:bid] and @state[:bid] != "NOBID" and !@state[:bid].empty?
 			@state[:bid].split(',').each do |bid|
 				vuln_info = {}
 				vuln_info[:host] = @state[:host]
