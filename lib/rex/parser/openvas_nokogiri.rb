@@ -49,8 +49,8 @@ module Parser
 			return if not in_tag("result")
 			return if not in_tag("nvt")
 
-      #we do this to clean out the buffer so to speak
-      #if we don't set text to nil now, the text will show up later
+			#we do this to clean out the buffer so to speak
+			#if we don't set text to nil now, the text will show up later
 			@state[:has_text] = true
 			@text = nil
 		when "cvss_base"
