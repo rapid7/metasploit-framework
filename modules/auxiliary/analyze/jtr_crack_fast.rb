@@ -29,6 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 				used outside of Metasploit. This initial version just handles LM/NTLM credentials
 				from hashdump and uses the standard wordlist and rules.
 			},
+			'Passive'        => true,
 			'Author'			=> 'hdm',
 			'License'			=> MSF_LICENSE  # JtR itself is GPLv2, but this wrapper is MSF (BSD)
 		)

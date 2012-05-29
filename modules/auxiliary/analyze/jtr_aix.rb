@@ -25,6 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 					This module uses John the Ripper to identify weak passwords that have been
 				acquired from passwd files on AIX systems.
 			},
+			'Passive'        => true,
 			'Author'          =>
 				[
 					'TheLightCosine <thelightcosine[at]gmail.com>',

@@ -26,6 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 				acquired from the mysql_hashdump module. Passwords that have been successfully
 				cracked are then saved as proper credentials
 			},
+			'Passive'        => true,
 			'Author'         =>
 				[
 					'TheLightCosine <thelightcosine[at]gmail.com>',
