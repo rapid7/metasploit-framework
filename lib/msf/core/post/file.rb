@@ -4,19 +4,84 @@ class Post
 
 module File
 
-	#
-	# Check for a file on the remote system
-	#
-	def file_exist?(file)
+	def cd(path)
 		if session.type == "meterpreter"
-			stat = session.fs.file.stat(file) rescue nil
+			e_path = session.fs.file.expand_path(path) rescue path
+			session.fs.dir.chdir(e_path)
+		else
+			session.shell_command_token("cd '#{path}'")
+		end
+	end
+
+	def pwd
+		if session.type == "meterpreter"
+			return session.fs.dir.getwd
+		else
+			if session.platform =~ /win/
+				# XXX: %CD% only exists on XP and newer, figure something out for NT4
+				# and 2k
+				return session.shell_command_token("echo %CD%")
+			else
+				return session.shell_command_token("pwd")
+			end
+		end
+	end
+
+	#
+	# See if +path+ exists on the remote system and is a directory
+	#
+	def directory?(path)
+		if session.type == "meterpreter"
+			stat = session.fs.file.stat(path) rescue nil
+			return false unless stat
+			return stat.directory?
+		else
+			if session.platform =~ /win/
+				# XXX
+			else
+				f = session.shell_command_token("test -d '#{path}' && echo true")
+				return false if f.nil? or f.empty?
+				return false unless f =~ /true/
+				return true
+			end
+		end
+	end
+
+
+	#
+	# See if +path+ exists on the remote system and is a regular file
+	#
+	def file?(path)
+		if session.type == "meterpreter"
+			stat = session.fs.file.stat(path) rescue nil
 			return false unless stat
 			return stat.file?
 		else
 			if session.platform =~ /win/
 				# XXX
 			else
-				f = session.shell_command_token("test -f '#{file}' && echo true")
+				f = session.shell_command_token("test -f '#{path}' && echo true")
+				return false if f.nil? or f.empty?
+				return false unless f =~ /true/
+				return true
+			end
+		end
+	end
+
+	alias file_exist? file?
+
+	#
+	# Check for existence of +path+ on the remote file system
+	#
+	def exist?(path)
+		if session.type == "meterpreter"
+			stat = session.fs.file.stat(path) rescue nil
+			return !!(stat)
+		else
+			if session.platform =~ /win/
+				# XXX
+			else
+				f = session.shell_command_token("test -e '#{path}' && echo true")
 				return false if f.nil? or f.empty?
 				return false unless f =~ /true/
 				return true
