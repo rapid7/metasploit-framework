@@ -22,7 +22,11 @@ sub parseProcessList {
 	if ($0 eq "end") {
 		local('@rows $row');
 		[%processes[$1] clear: 128];
-		@rows = parseTextTable($2, @("PID", "Name", "Arch", "Session", "User", "Path"));
+		@rows = parseTextTable($2, @("PID", "PPID", "Name", "Arch", "Session", "User", "Path"));
+		if (size(@rows) == 0) {
+			# REMOVEME--this is a backwards compatability hack.
+			@rows = parseTextTable($2, @("PID", "Name", "Arch", "Session", "User", "Path"));
+		}
 		foreach $row (@rows) {
 			[%processes[$1] addEntry: $row];
 		}

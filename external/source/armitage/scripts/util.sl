@@ -190,14 +190,8 @@ sub setupHandlers {
 # creates the metasploit console.
 sub createConsole {
 	local('$r');
-	$r = call($1, "console.create");
-	if ($r !is $null && $r['id'] !is $null) {
-		call($1, "console.read", $r['id'] . "");
-		return $r['id'] . "";
-	}
-	else {
-		warn("Create console failed");
-	}
+	$r = call($1, "console.allocate");
+	return $r['id'];
 }
 
 sub getWorkspaces 
@@ -208,9 +202,11 @@ sub getWorkspaces
 # creates a new console and execs a cmd in it.
 # cmd_safe("command to execute");
 sub cmd_safe {
-	local('$queue');
+	local('$queue $2');
 	$queue = [new ConsoleQueue: $client];
-	[$queue addListener: $2];
+	if ($2 !is $null) {
+		[$queue addListener: $2];
+	}
 	[$queue start];
 	[$queue addCommand: "x", $1];
 	[$queue stop];

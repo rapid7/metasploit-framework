@@ -261,7 +261,7 @@ sub _importHosts {
 	}
 
 	$console = createDisplayTab("Import", $file => "import");
-	[$console addCommand: $null, "db_import " . join(" ", $files)];
+	[$console addCommand: $null, "db_import " . strrep(join(" ", $files), "\\", "\\\\")];
 	[$console addListener: lambda({
 		elog("imported hosts from $success file" . iff($success != 1, "s"));
 	}, \$success)];

@@ -88,6 +88,9 @@ public class DatabaseImpl implements RpcConnection  {
 		if (o instanceof java.sql.Timestamp) {
 			return new Long( ((Timestamp)o).getTime() + tzfix );
 		}
+		else if (o instanceof org.postgresql.util.PGobject) {
+			return o.toString();
+		}
 		return o;
 	}
 
