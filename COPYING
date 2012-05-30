@@ -1,4 +1,4 @@
-Copyright (C) 2006-2012, Rapid7 LLC
+Copyright (C) 2006-2012, Rapid7 Inc.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -49,21 +49,5 @@ This license does not apply to the following components:
  - The Zip library located under lib/zip
  - The SSHKey library located under lib/sshkey
 
-The latest version of this software is available from http://metasploit.com/
-
-Bug tracking and development information can be found at:
- https://dev.metasploit.com/redmine/projects/framework/
-
-The public GitHub source repository can be found at:
- https://github.com/rapid7/metasploit-framework
-
-Questions and suggestions can be sent to:
- msfdev[at]metasploit.com
-
-The framework mailing list is the place to discuss features and ask for help.
-To subscribe, visit the following web page:
- https://mail.metasploit.com/mailman/listinfo/framework
-
-The e-mail archives are available from:
- https://mail.metasploit.com/pipermail/framework/
+Details for the above packages can be found in the THIRD-PARTY file.
 
