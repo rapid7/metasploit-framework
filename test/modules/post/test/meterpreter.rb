@@ -131,7 +131,12 @@ class Metasploit4 < Msf::Post
 		end
 
 		it "should stat a directory" do
-			session.fs.file.stat(session.fs.dir.pwd).directory?
+			dir = session.fs.dir.pwd
+			vprint_status("Current directory: #{dir.inspect}")
+			s = session.fs.file.stat(dir)
+			vprint_status("Stat of current directory: #{s.inspect}")
+
+			s.directory?
 		end
 
 		it "should create and remove a dir" do
