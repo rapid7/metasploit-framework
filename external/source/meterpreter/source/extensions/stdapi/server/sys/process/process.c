@@ -10,7 +10,7 @@ typedef BOOL (STDMETHODCALLTYPE FAR * LPFNCREATEENVIRONMENTBLOCK)( LPVOID  *lpEn
 typedef BOOL (STDMETHODCALLTYPE FAR * LPFNDESTROYENVIRONMENTBLOCK) ( LPVOID lpEnvironment );
 typedef BOOL (WINAPI * LPCREATEPROCESSWITHTOKENW)( HANDLE, DWORD, LPCWSTR, LPWSTR, DWORD, LPVOID, LPCWSTR, LPSTARTUPINFOW, LPPROCESS_INFORMATION );
 
-#else 
+#else
 
 #include "linux-in-mem-exe.h"
 
@@ -41,7 +41,7 @@ DWORD request_sys_process_attach(Remote *remote, Packet *packet)
 	{
 		BOOLEAN inherit = packet_get_tlv_value_bool(packet,
 				TLV_TYPE_INHERIT);
-		DWORD permission = packet_get_tlv_value_uint(packet, 
+		DWORD permission = packet_get_tlv_value_uint(packet,
 				TLV_TYPE_PROCESS_PERMS);
 
 		handle = OpenProcess(permission, inherit, pid);
@@ -98,12 +98,12 @@ DWORD request_sys_process_close(Remote *remote, Packet *packet)
 int try_open_pty(int *master, int *slave)
 {
 	int lmaster, lslave;
-	char path[512];	
+	char path[512];
 	struct termios newtio;
 
 	lmaster = open("/dev/ptmx", O_RDWR | O_NOCTTY);
 	if(lmaster == -1) return -1;
-	
+
 	dprintf("master fd is %d", lmaster);
 
 	if(grantpt(lmaster) == -1) {
@@ -131,7 +131,7 @@ int try_open_pty(int *master, int *slave)
 	*master = lmaster;
 	*slave = lslave;
 
-	if(tcgetattr(lmaster, &newtio) == -1) 
+	if(tcgetattr(lmaster, &newtio) == -1)
 		// oh well
 		return 0;
 
@@ -144,7 +144,7 @@ int try_open_pty(int *master, int *slave)
 	tcsetattr(lmaster, TCSANOW, &newtio);
 
 	return 0;
-}	
+}
 
 #endif
 
@@ -203,7 +203,7 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 		flags     = packet_get_tlv_value_uint(packet, TLV_TYPE_PROCESS_FLAGS);
 
 		if (packet_get_tlv(packet, TLV_TYPE_VALUE_DATA, &inMemoryData) == ERROR_SUCCESS)
-		{	
+		{
 			doInMemory = TRUE;
 			createFlags |= CREATE_SUSPENDED;
 		}
@@ -229,7 +229,7 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 			} while( 0 );
 		}
 
-		// If the remote endpoint provided arguments, combine them with the 
+		// If the remote endpoint provided arguments, combine them with the
 		// executable to produce a command line
 		if (path && arguments)
 		{
@@ -396,7 +396,7 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 
 						wcmdline = (wchar_t *)malloc( (size+1) * sizeof(wchar_t) );
 						mbstowcs( wcmdline, commandLine, size );
-						
+
 						if( si.lpDesktop )
 						{
 							size = mbstowcs( NULL, (char *)si.lpDesktop, 0 );
@@ -424,7 +424,7 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 
 					if( wdesktop )
 						free( wdesktop );
-					
+
 					if( wcmdline )
 						free( wcmdline );
 				}
@@ -470,13 +470,13 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 
 					if( !pWTSQueryUserToken( session, &hToken ) )
 						BREAK_ON_ERROR( "[PROCESS] execute in session: WTSQueryUserToken failed" );
-						
+
 					if( !CreateProcessAsUser( hToken, NULL, commandLine, NULL, NULL, inherit, createFlags, NULL, NULL, &si, &pi ) )
 						BREAK_ON_ERROR( "[PROCESS] execute in session: CreateProcessAsUser failed" );
 				}
 
 			} while( 0 );
-			
+
 			if( hWtsapi32 )
 				FreeLibrary( hWtsapi32 );
 
@@ -524,7 +524,7 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 
 		}
 
-		// check for failure here otherwise we can get a case where we 
+		// check for failure here otherwise we can get a case where we
 		// failed but return a process id and this will throw off the ruby side.
 		if( result == ERROR_SUCCESS )
 		{
@@ -575,14 +575,14 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 		dprintf("path: %s, arguments: %s\n", path ? path : "(null)", arguments ? arguments : "(null)");
 
 		if (packet_get_tlv(packet, TLV_TYPE_VALUE_DATA, &inMemoryData) == ERROR_SUCCESS)
-		{	
+		{
 			doInMemory = TRUE;
 		}
 
 		// how to handle a single string argument line? we don't have a lexer/parser to
-		// correctly handle stuff like quotes, etc. could dumbly parse on white space to 
-		// build arguments for execve. revert to /bin/sh -c style execution? 
-		// XXX.. don't feel like messing with it atm	
+		// correctly handle stuff like quotes, etc. could dumbly parse on white space to
+		// build arguments for execve. revert to /bin/sh -c style execution?
+		// XXX.. don't feel like messing with it atm
 
 		idx = 0;
 		if(arguments) {
@@ -600,7 +600,7 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 			path = "/bin/sh";
 		} else {
 			argv[idx++] = path;
-		}	
+		}
 		argv[idx++] = NULL;
 
 		//for (i = 0; i < idx; i++) {
@@ -650,7 +650,7 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 			} else {
 				// fall back to pipes if there is no tty
 				// Allocate the stdin and stdout pipes
-				if(pipe(&in) || pipe(&out)) 
+				if(pipe(&in) || pipe(&out))
 				{
 					channel_destroy(newChannel, NULL);
 
@@ -673,15 +673,6 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 
 			// Add the channel identifier to the response packet
 			packet_add_tlv_uint(response, TLV_TYPE_CHANNEL_ID,channel_get_id(newChannel));
-		} else {
-			// need to /dev/null it all
-			if( (devnull = open("/dev/null", O_RDONLY) ) == -1) {
-				// XXX This is possible, due to chroots etc. We could close
-				// fd 0/1/2 and hope the program isn't buggy.
- 
-				result = GetLastError();
-				break;
-			}
 		}
 
 		/*
@@ -700,8 +691,8 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 		case 0:
 			if (flags & PROCESS_EXECUTE_FLAG_CHANNELIZED)
 			{
-				if(have_pty) 
-				{ 
+				if(have_pty)
+				{
 					dup2(slave, 0);
 					dup2(slave, 1);
 					dup2(slave, 2);
@@ -711,13 +702,21 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 					dup2(out[1], 2);
 				}
 			} else {
+				// need to /dev/null it all
+				if( (devnull = open("/dev/null", O_RDONLY) ) == -1) {
+					// XXX This is possible, due to chroots etc. We could close
+					// fd 0/1/2 and hope the program isn't buggy.
+
+					result = GetLastError();
+					break;
+				}
 				dup2(devnull, 0);
 				dup2(devnull, 1);
 				dup2(devnull, 2);
 			}
 			for(i = 3; i < 1024; i++) close(i);
 
-			if(doInMemory) 
+			if(doInMemory)
 			{
 				int found;
 				Elf32_Ehdr *ehdr = (Elf32_Ehdr *)inMemoryData.buffer;
@@ -729,7 +728,7 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 						break;
 					}
 				}
-			
+
 				if(! found) return; // XXX, not too much we can do in this case ?
 
 				perform_in_mem_exe(argv, environ, inMemoryData.buffer, inMemoryData.header.length, phdr->p_vaddr & ~4095, ehdr->e_entry);
@@ -777,13 +776,13 @@ DWORD request_sys_process_kill(Remote *remote, Packet *packet)
 	DWORD index = 0;
 
 	while ((packet_enum_tlv(packet, index++, TLV_TYPE_PID,
-			&pidTlv) == ERROR_SUCCESS) && 
+			&pidTlv) == ERROR_SUCCESS) &&
 			(pidTlv.header.length >= sizeof(DWORD)))
 	{
 		DWORD pid = ntohl(*(LPDWORD)pidTlv.buffer);
 		HANDLE h = NULL;
 
-#ifdef _WIN32 
+#ifdef _WIN32
 		// Try to attach to the process
 		if (!(h = OpenProcess(PROCESS_TERMINATE, FALSE, pid)))
 		{
@@ -831,7 +830,7 @@ DWORD request_sys_process_get_processes( Remote * remote, Packet * packet )
 
 			priv.PrivilegeCount           = 1;
 			priv.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-		
+
 			if( LookupPrivilegeValue( NULL, SE_DEBUG_NAME, &priv.Privileges[0].Luid ) )
 				AdjustTokenPrivileges( hToken, FALSE, &priv, 0, NULL, NULL );
 
@@ -864,7 +863,7 @@ DWORD request_sys_process_get_processes( Remote * remote, Packet * packet )
 		packet_transmit_response( result, remote, response );
 	}
 #endif
-	
+
 	return result;
 }
 
@@ -896,10 +895,10 @@ DWORD request_sys_process_get_info(Remote *remote, Packet *packet)
 	Packet *response = packet_create_response(packet);
 
 
-#ifdef _WIN32 
-	BOOL (WINAPI *enumProcessModules)(HANDLE p, HMODULE *mod, DWORD cb, 
+#ifdef _WIN32
+	BOOL (WINAPI *enumProcessModules)(HANDLE p, HMODULE *mod, DWORD cb,
 			LPDWORD needed);
-	DWORD (WINAPI *getModuleBaseName)(HANDLE p, HMODULE mod, LPTSTR base, 
+	DWORD (WINAPI *getModuleBaseName)(HANDLE p, HMODULE mod, LPTSTR base,
 			DWORD baseSize);
 	DWORD (WINAPI *getModuleFileNameEx)(HANDLE p, HMODULE mod, LPTSTR path,
 			DWORD pathSize);
@@ -937,11 +936,11 @@ DWORD request_sys_process_get_info(Remote *remote, Packet *packet)
 		}
 
 		// Try to resolve the necessary symbols
-		if ((!((LPVOID)enumProcessModules = 
+		if ((!((LPVOID)enumProcessModules =
 				(LPVOID)GetProcAddress(psapi, "EnumProcessModules"))) ||
-		    (!((LPVOID)getModuleBaseName = 
+		    (!((LPVOID)getModuleBaseName =
 				(LPVOID)GetProcAddress(psapi, "GetModuleBaseNameA"))) ||
-		    (!((LPVOID)getModuleFileNameEx = 
+		    (!((LPVOID)getModuleFileNameEx =
 				(LPVOID)GetProcAddress(psapi, "GetModuleFileNameExA"))))
 		{
 			result = GetLastError();
@@ -990,7 +989,7 @@ DWORD request_sys_process_get_info(Remote *remote, Packet *packet)
  *
  * FIXME: can-block
  */
-DWORD process_channel_read(Channel *channel, Packet *request, 
+DWORD process_channel_read(Channel *channel, Packet *request,
 		LPVOID context, LPVOID buffer, DWORD bufferSize, LPDWORD bytesRead)
 {
 	DWORD result = ERROR_SUCCESS;
@@ -1005,7 +1004,7 @@ DWORD process_channel_read(Channel *channel, Packet *request,
 	if((*bytesRead = read(ctx->pStdout, buffer, bufferSize) < 0)) {
 		result = GetLastError();
 	}
-	
+
 #endif
 	return result;
 }
@@ -1014,7 +1013,7 @@ DWORD process_channel_read(Channel *channel, Packet *request,
  * Writes data from the remote half of the channel to the process's standard
  * input handle
  */
-DWORD process_channel_write(Channel *channel, Packet *request, 
+DWORD process_channel_write(Channel *channel, Packet *request,
 		LPVOID context, LPVOID buffer, DWORD bufferSize, LPDWORD bytesWritten)
 {
 	ProcessChannelContext *ctx = (ProcessChannelContext *)context;
@@ -1092,13 +1091,13 @@ DWORD process_channel_interact_notify(Remote *remote, Channel *channel)
 #else
 	bytesRead = read ( ctx->pStdout, buffer, sizeof(buffer) - 1);
 
-	if ( bytesRead > 0 ) 
+	if ( bytesRead > 0 )
 
 	{
 		dprintf("bytesRead: %d, errno: %d", bytesRead, errno);
 
 		result = channel_write ( channel, remote, NULL, 0, buffer, bytesRead, NULL );
-	} 
+	}
 
 	if(bytesRead == -1) {
 		if(errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN) {
@@ -1162,7 +1161,7 @@ DWORD request_sys_process_wait(Remote *remote, Packet *packet)
 			result = ERROR_SUCCESS;
 	}
 #else
-	if( ! waitpid(handle, NULL, WNOHANG)) 
+	if( ! waitpid(handle, NULL, WNOHANG))
 	{
 		result = ERROR_SUCCESS;
 	}
