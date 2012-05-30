@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Post
 			it "should look up arbitrary constants" do
 				ret = true
 				results = select_const_names(datastore['WIN_CONST'], datastore['WCREGEX'])
-				vprint_status("RESULTS:  #{results.class} #{results.pretty_inspect}")
+				#vprint_status("RESULTS:  #{results.class} #{results.pretty_inspect}")
 
 				ret
 			end
@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Post
 			it "should look up arbitrary error codes" do
 				ret = true
 				results = lookup_error(datastore['ERR_CODE'], datastore['ECREGEX'])
-				vprint_status("RESULTS:  #{results.class} #{results.inspect}")
+				#vprint_status("RESULTS:  #{results.class} #{results.inspect}")
 
 				ret
 			end
