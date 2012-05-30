@@ -27,7 +27,6 @@ class Metasploit3 < Msf::Auxiliary
 				MD5 and DES implementations by default. Set Crypt to true to also try to crack
 				Blowfish and SHA implementations. Warning: This is much slower.
 			},
-			'Passive'        => true,
 			'Author'          =>
 				[
 					'TheLightCosine <thelightcosine[at]gmail.com>',
