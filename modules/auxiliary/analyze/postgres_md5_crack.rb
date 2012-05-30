@@ -29,7 +29,6 @@ class Metasploit3 < Msf::Auxiliary
 				such as hostnames, usernames, passwords, and database schema information.
 				The user can also supply an additional external wordlist if they wish.
 			},
-			'Passive'        => true,
 			'Author'         => ['TheLightCosine <thelightcosine[at]gmail.com>'],
 			'License'        => MSF_LICENSE
 		)
