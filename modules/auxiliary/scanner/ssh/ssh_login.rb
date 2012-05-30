@@ -62,7 +62,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def do_login(ip,user,pass,port)
-		print_status "Home: #{ENV['HOME']}"
 		opt_hash = {
 			:auth_methods  => ['password','keyboard-interactive'],
 			:msframework   => framework,
