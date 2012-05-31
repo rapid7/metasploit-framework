@@ -35,12 +35,15 @@ class DBManager
 		end
 	end
 
-	begin
-		include MetasploitDataModels
-	rescue NameError => e
-		warn_about_rubies
-		raise e
-	end
+  # Only include Mdm if we're not using Metasploit commercial versions
+  # If Mdm::Host is defined, the dynamically created classes
+  # are already in the object space
+  begin
+    include MetasploitDataModels unless defined? Mdm::Host
+  rescue NameError => e
+    warn_about_rubies
+    raise e
+  end
 
 	# Provides :framework and other accessors
 	include Framework::Offspring
