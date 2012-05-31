@@ -163,8 +163,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def encryption_header(data)
-		header = "\x06"
-		header << data.size
+		header = [6,data.size].pack('CC')
 		header << data
 		return header
 	end
