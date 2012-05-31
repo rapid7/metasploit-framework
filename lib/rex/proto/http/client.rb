@@ -145,6 +145,11 @@ class Client
 		c_conn = opts['connection']
 		c_auth = opts['basic_auth'] || config['basic_auth'] || ''
 
+		# An agent parameter was specified, but so was a header, prefer the header
+		if c_ag and c_head.keys.map{|x| x.downcase }.include?('user-agent')
+			c_ag = nil
+		end
+		
 		uri    = set_uri(c_uri)
 
 		req = ''
@@ -163,6 +168,7 @@ class Client
 		req << set_version(c_prot, c_vers)
 		req << set_host_header(c_host)
 		req << set_agent_header(c_ag)
+
 
 		if (c_auth.length > 0)
 			req << set_basic_auth_header(c_auth)
