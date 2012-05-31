@@ -83,6 +83,10 @@ public class Display extends JPanel {
 		}
 	}
 
+	public void clear() {
+		setText("");
+	}
+
 	public Display() {
 		this(new Properties());
 	}

