@@ -22,6 +22,28 @@ class Metasploit4 < Msf::Post
 
 	end
 
+	#
+	# Change directory into a place that we have write access.
+	#
+	# The +cleanup+ method will change it back. This method is an implementation
+	# of post/test/file.rb's method of the same name, but without the Post::File
+	# dependency.
+	#
+	def setup
+		@old_pwd = session.fs.dir.getwd
+		stat = session.fs.file.stat("/tmp") rescue nil
+		if (stat and stat.directory?)
+			tmp = "/tmp"
+		else
+			tmp = session.fs.file.expand_path("%TMP%")
+		end
+		vprint_status("Setup: changing working directory to #{tmp}")
+		session.fs.dir.chdir(tmp)
+
+		super
+	end
+
+
 	def test_sys_process
 		vprint_status("Starting process tests")
 		pid = nil
@@ -264,6 +286,12 @@ class Metasploit4 < Msf::Post
 		# XXX: how do we test this more thoroughly in a generic way?
 	end
 
+	def cleanup
+		vprint_status("Cleanup: changing working directory back to #{@old_pwd}")
+		session.fs.dir.chdir(@old_pwd)
+		super
+	end
+
 protected
 
 	def create_directory(name)
@@ -279,5 +307,6 @@ protected
 
 		res
 	end
+
 
 end
