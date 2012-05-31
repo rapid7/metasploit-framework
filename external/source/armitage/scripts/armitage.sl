@@ -182,7 +182,7 @@ sub _connectToMetasploit {
 			# create a console to force the database to initialize
 			local('$c');
 			$c = createConsole($client);
-			call_async($client, "console.destroy", $c);
+			call_async($client, "console.release", $c);
 
 			# connect to the database plz...
 			$database = connectToDatabase();

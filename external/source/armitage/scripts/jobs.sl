@@ -261,7 +261,7 @@ sub _launch_dialog {
 		else if ($key eq "LHOST") {
 			$default = $MY_ADDRESS;
 		}
-		else if ($key eq "RHOSTS") {
+		else if ($key eq "RHOSTS" && size($5) > 0) {
 			$default = join(", ", $5);
 		}
 		else if ($key eq "SESSION" && size($5) > 0) {

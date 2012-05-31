@@ -32,7 +32,7 @@ public class ConsoleQueue implements Runnable {
 	}
 
 	public static interface ConsoleCallback {
-		public void commandComplete(String consoleid, Object token, String response);
+		public void commandComplete(ConsoleQueue queue, Object token, String response);
 	}
 
 	/* I'm not necessarily trying to bloat this class, but this method will let me get rid of another class */
@@ -70,7 +70,7 @@ public class ConsoleQueue implements Runnable {
 	public void fireSessionReadEvent(String text) {
 		Iterator i = listeners_all.iterator();
 		while (i.hasNext()) {
-			((ConsoleCallback)i.next()).commandComplete(consoleid, null, text);
+			((ConsoleCallback)i.next()).commandComplete(this, null, text);
 		}
 	}
 
@@ -80,7 +80,7 @@ public class ConsoleQueue implements Runnable {
 
 		Iterator i = listeners.iterator();
 		while (i.hasNext()) {
-			((ConsoleCallback)i.next()).commandComplete(consoleid, command != null ? command.token : null, output);
+			((ConsoleCallback)i.next()).commandComplete(this, command != null ? command.token : null, output);
 		}
 	}
 

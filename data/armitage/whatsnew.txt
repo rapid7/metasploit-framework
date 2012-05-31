@@ -1,6 +1,20 @@
 Armitage Changelog
 ==================
 
+30 May 12 - A few quick bug fixes / tweaks...
+---------
+- Fixed an exception when killing a session or removing a route 
+  through the UI. 
+- Oooh, ps command added a new column to its output. Updated ps  
+  parser to handle this.
+- Hosts -> Import Hosts now works under Windows again. Had to 
+  escape the filename. *sigh*
+- Hail Mary now sets LHOST option. This is necessary for some 
+  attacks to work properly.
+- Tweaked console create code in beginning of Armitage setup to 
+  hopefully avoid aggravating the evil console.create deadlock
+  condition.
+
 21 May 12
 ---------
 - Added a hack to prevent the input area from flickering when the 

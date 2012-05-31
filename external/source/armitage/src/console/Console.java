@@ -252,6 +252,8 @@ public class Console extends JPanel implements FocusListener {
 
 	protected void appendToConsole(String _text) {
 		_text = fixText(_text);
+		if (_text.length() == 0)
+			return;
 
 		if (_text.endsWith("\n") || _text.endsWith("\r")) {
 			if (!promptLock) {
@@ -295,6 +297,20 @@ public class Console extends JPanel implements FocusListener {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 					appendToConsole(_text);
+				}
+			});
+		}
+	}
+
+	/** clear the text. This is a thread-safe function */
+	public void clear() {
+		if (SwingUtilities.isEventDispatchThread()) {
+			console.setText("");
+		}
+		else {
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					console.setText("");
 				}
 			});
 		}
