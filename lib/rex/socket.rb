@@ -175,6 +175,19 @@ module Socket
 			ralias = res.shift
 			rtype  = res.shift
 
+			# Rubinius has a bug where gethostbyname returns dotted quads instead of
+			# NBO, but that's what we want anyway, so just short-circuit here.
+			if res[0] =~ MATCH_IPV4 || res[0] =~ MATCH_IPV6
+				res.each { |r|
+					# if the caller doesn't mind ipv6, just return whatever we have
+					return r if accept_ipv6
+					# otherwise, take the first v4 address
+					return r if r =~ MATCH_IPV4
+				}
+				# didn't find one
+				return nil
+			end
+
 			# Reject IPv6 addresses if we don't accept them
 			if not accept_ipv6
 				res.reject!{|nbo| nbo.length != 4}
@@ -371,7 +384,6 @@ module Socket
 	# Converts a network byte order address to ascii
 	#
 	def self.addr_ntoa(addr)
-
 		# IPv4
 		if (addr.length == 4)
 			return addr.unpack('C4').join('.')
