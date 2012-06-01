@@ -4,7 +4,7 @@ module MetasploitDataModels::ActiveRecordModels::Note
       notes = base.arel_table
 
       belongs_to :workspace, :class_name => "Mdm::Workspace"
-      belongs_to :host, :class_name => "Mdm::Host"
+      belongs_to :host, :class_name => "Mdm::Host", :counter_cache => :note_count
       belongs_to :service, :class_name => "Mdm::Service"
       serialize :data, ::MetasploitDataModels::Base64Serializer.new
 

@@ -1,8 +1,9 @@
 module MetasploitDataModels::ActiveRecordModels::Tag
   def self.included(base)
     base.class_eval {
+      has_many :hosts_tags, :class_name => "Mdm::HostTag"
+      has_many :hosts, :through => :hosts_tags, :class_name => "Mdm::Host"
 
-      has_and_belongs_to_many :hosts, :join_table => :hosts_tags, :class_name => "Mdm::Host"
       belongs_to :user, :class_name => "Mdm::User"
 
       validates :name, :presence => true, :format => {

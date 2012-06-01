@@ -11,7 +11,7 @@ module MetasploitDataModels::ActiveRecordModels::Service
       has_many :web_forms, :through => :web_sites, :class_name => "Mdm::WebForm"
       has_many :web_vulns, :through => :web_sites, :class_name => "Mdm::WebVuln"
 
-      belongs_to :host, :class_name => "Mdm::Host"
+      belongs_to :host, :class_name => "Mdm::Host", :counter_cache => :service_count
 
       has_many :web_pages, :through => :web_sites
       has_many :web_forms, :through => :web_sites
