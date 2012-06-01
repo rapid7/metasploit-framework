@@ -3,7 +3,8 @@ module MetasploitDataModels::ActiveRecordModels::Host
     base.class_eval{
 
       belongs_to :workspace, :class_name => "Mdm::Workspace"
-      has_and_belongs_to_many :tags, :join_table => :hosts_tags, :class_name => "Mdm::Tag"
+      has_many :hosts_tags, :class_name => "Mdm::HostTag"
+      has_many :tags, :through => :hosts_tags, :class_name => "Mdm::Tag"
       has_many :services, :dependent => :destroy, :class_name => "Mdm::Service", :order => "services.port, services.proto"
       has_many :clients, :dependent => :delete_all, :class_name => "Mdm::Client"
       has_many :vulns, :dependent => :delete_all, :class_name => "Mdm::Vuln"

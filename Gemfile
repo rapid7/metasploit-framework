@@ -4,5 +4,3 @@ gem 'metasploit_data_models', '0.0.2', :git => "git://github.com/rapid7/metasplo
 gem 'pg', '>=0.13'
 gem 'msgpack'
 gem 'nokogiri'
-
-
