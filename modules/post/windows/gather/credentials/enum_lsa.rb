@@ -1,5 +1,5 @@
 ##
-# $Id: enum_lsa.rb 14774 2012-04-21 rob $
+# $Id: enum_lsa.rb 15362 2012-04-21 rob $
 ##
 
 require 'msf/core'
@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
 				code from cachedump.
 				},
 			'License'         => MSF_LICENSE,
-			'Version'         => '$Revision: 15104 $',
+			'Version'         => '$Revision: 15362 $',
 			'Platform'        => ['windows'],
 			'SessionTypes'    => ['meterpreter'],
 			'Author'          => ['Rob Bathurst <rob.bathurst@foundstone.com>']
@@ -220,11 +220,11 @@ class Metasploit3 < Msf::Post
 									if( @vista == 1 )
 										#Magic happens here
 										sec = sec[0..-1]
-										sec = decrypt_lsa(sec, lkey)[1..-1]
+										sec = decrypt_lsa(sec, lkey)[1..-1].scan(/[[:print:]]/).join
 									else
 										#and here
 										sec = sec[0xC..-1]
-										sec = decrypt_secret(sec, lkey)
+										sec = decrypt_secret(sec, lkey).scan(/[[:print:]]/).join
 									end
 									if(sec.length > 0) 
 										if(keys[0,4] == "_SC_")
