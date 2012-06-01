@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
 		res = nsock.get_once(-1,5)
 
 		#See if this knocked a login prompt loose
-		if res and res.include? "Enter login"
+		if pca_at_login?(res)
 			nsock.put(euser)
 			res = nsock.get_once(-1,5)
 		end 
@@ -100,7 +100,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		epass = encryption_header(encrypt(pass))
 		nsock.put(epass)
-		res = nsock.get_once(-1,5)
+		res = nsock.get_once(-1,20)
 		if res.include? "Login unsuccessful"
 			disconnect()
 			return :reset
@@ -142,13 +142,17 @@ class Metasploit3 < Msf::Auxiliary
 			return :handshake_failed
 		end
 		
-		res = nsock.get_once(-1,5) unless res and res.include? 'Enter login name'
-		unless res and res.include? 'Enter login name'
+		res = nsock.get_once(-1,5) unless pca_at_login?(res)
+		unless pca_at_login?(res)
 			print_error "Handshake(5) failed on Host #{ip} aborting. (Error: #{res.inspect} )"
 			return :handshake_failed
 		end
 	end
 
+	def pca_at_login?(res)
+		return true if res and (res.include? 'Enter login name' or res.include? 'Enter user name' )
+		return false
+	end
 
 	def encrypt(data)
 		return '' if data.nil? or data.empty?
