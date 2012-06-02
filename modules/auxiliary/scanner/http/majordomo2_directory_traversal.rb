@@ -42,7 +42,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				Opt::RPORT(80),
 				OptString.new('FILE', [ true,  "Define the remote file to view, ex:/etc/passwd", 'config.pl']),
 				OptString.new('URI', [true, 'Majordomo vulnerable URI path', '/cgi-bin/mj_wwwusr/domain=domain?user=&passw=&func=help&extra=']),
 				OptInt.new('DEPTH', [true, 'Define the max traversal depth', 8]),

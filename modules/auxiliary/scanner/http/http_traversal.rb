@@ -48,7 +48,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				Opt::RPORT(80),
 				OptEnum.new('METHOD',    [true, 'HTTP Request Method', 'GET', ['GET', 'POST', 'HEAD', 'PUT']]),
 				OptString.new('PATH',    [true, 'Vulnerable path. Ex: /foo/index.php?pg=', '/']),
 				OptString.new('DATA',    [false,'HTTP body data', '']),

@@ -36,7 +36,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				Opt::RPORT(80),
 				OptInt.new('SID_MAX', [true, 'Maximum Session ID', 100])
 			], self.class)
 	end
