@@ -20,7 +20,15 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'        => 'Windows Execute net user /ADD CMD',
 			'Version'     => '$Revision$',
-			'Description' => 'Create a new user and add them to local administration group',
+			'Description' => %q{
+				Create a new user and add them to local administration group.
+
+				Note: The specified password is checked for common complexity
+				requirements to prevent the target machine rejecting the user
+				for failing to meet policy requirements.
+
+				Complexity check: 8-14 chars (1 UPPER, 1 lower, 1 digit/special)
+			},
 			'Author'      => ['hdm','scriptjunkie','Chris John Riley'],
 			'License'     => MSF_LICENSE,
 			'Platform'    => 'win',
@@ -38,7 +46,7 @@ module Metasploit3
 		register_options(
 			[
 				OptString.new('USER', [ true, "The username to create",     "metasploit" ]),
-				OptString.new('PASS', [ true, "The password for this user", "metasploit" ]),
+				OptString.new('PASS', [ true, "The password for this user", "Metasploit$1" ]),
 				OptString.new('CUSTOM', [ false, "Custom group name to be used instead of default", '' ]),
 				OptBool.new('WMIC',	[ true, "Use WMIC on the target to resolve administrators group", false ]),
 			], self.class)
@@ -69,6 +77,7 @@ module Metasploit3
 			print_good "Password: #{pass} passes complexity checks"
 		elsif complexity
 			print_error "Password: #{pass} doesn't meet complexity requirements and may cause issues"
+			print_error "The password should idealy be 8-14 chars (1 UPPER, 1 lower, 1 digit/special)"
 		end
 
 		if not cust.empty?
