@@ -74,11 +74,8 @@ module Metasploit3
 			raise ArgumentError, "Password for the adduser payload must be 14 characters or less"
 		end
 
-		if (pass =~ /\A^.*((?=.{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*[\d\W])).*$/) and complexity
-			print_good "Password: #{pass} passes complexity checks"
-		elsif complexity
-			print_error "Password: #{pass} doesn't meet complexity requirements and may cause issues"
-			print_error "The password should idealy be 8-14 chars (1 UPPER, 1 lower, 1 digit/special)"
+		if complexity and pass !~ /\A^.*((?=.{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*[\d\W])).*$/
+			raise ArgumentError, "Password: #{pass} doesn't meet complexity requirements and may cause issues"
 		end
 
 		if not cust.empty?
