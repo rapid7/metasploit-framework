@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 	#
 	def get_version(res)
 		#Extract banner from response
-		banner = res.headers['Server']
+		banner = res.headers['Server'] || ''
 
 		#Default value for edition and glassfish version
 		edition = 'Commercial'
