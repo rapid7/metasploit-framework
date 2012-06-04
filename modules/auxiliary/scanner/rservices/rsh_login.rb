@@ -167,7 +167,7 @@ class Metasploit3 < Msf::Auxiliary
 		)
 
 		# Read the expected nul byte response.
-		buf = sock.get_once(1)
+		buf = sock.get_once(1) || ''
 		if buf != "\x00"
 			buf = sock.get_once(-1)
 			if buf.nil?

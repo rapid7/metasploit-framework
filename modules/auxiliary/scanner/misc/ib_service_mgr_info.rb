@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'	=>
 				[
 					'ramon',
-					'Adriano Lima <adriano@risesecurity.org>',
+					'Adriano Lima <adriano[at]risesecurity.org>',
 				],
 			'License'	=> MSF_LICENSE
 		)

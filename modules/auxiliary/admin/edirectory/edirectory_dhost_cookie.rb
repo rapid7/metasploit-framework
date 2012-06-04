@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 			disconnect
 
 			cookie = nil
-			if(res =~ /Cookie:\s*([^\s]+)\s*/mi)
+			if(res and res =~ /Cookie:\s*([^\s]+)\s*/mi)
 				cookie = $1
 				cookie,junk = cookie.split(';')
 				name,cookie = cookie.split('=')
