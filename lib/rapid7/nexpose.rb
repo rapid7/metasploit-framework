@@ -3,7 +3,7 @@
 #
 =begin
 
-Copyright (C) 2009-2011, Rapid7 LLC
+Copyright (C) 2009-2012, Rapid7 LLC
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -183,11 +183,11 @@ class APIRequest
 				retry
 			end
 			@error = "Nexpose host did not respond"
-		rescue ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL,::Errno::EADDRNOTAVAIL
+		rescue ::SocketError, ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL,::Errno::EADDRNOTAVAIL
 			@error = "Nexpose host is unreachable"
 		# Handle console-level interrupts
 		rescue ::Interrupt
-			@error = "received a user interrupt"
+			@error = "Received a user interrupt"
 		rescue ::Errno::ECONNRESET,::Errno::ECONNREFUSED,::Errno::ENOTCONN,::Errno::ECONNABORTED
 			@error = "Nexpose service is not available"
 		rescue ::REXML::ParseException
@@ -631,11 +631,9 @@ class Connection
 
 	# Establish a new connection and Session ID
 	def login
-		begin
-			r = execute(make_xml('LoginRequest', { 'sync-id' => 0, 'password' => @password, 'user-id' => @username }))
-		rescue APIError
-			raise AuthenticationFailed.new(r)
-		end
+
+		# This throws an APIError exception if necessary
+		r = execute(make_xml('LoginRequest', { 'sync-id' => 0, 'password' => @password, 'user-id' => @username }))
 		if(r.success)
 			@session_id = r.sid
 			return true
