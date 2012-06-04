@@ -21,7 +21,8 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'References'     => 
 				[
-					[ 'EDB', '17129' ],
+					[ 'OSVDB', '82469'],
+					[ 'EDB', '17129' ]
 				],
 			'Author'         =>
 				[
