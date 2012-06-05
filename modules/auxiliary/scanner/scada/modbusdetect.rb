@@ -17,14 +17,14 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'Modbus Version Scanner',
 			'Description' => %q{
 					This module detects the Modbus service, tested on a SAIA PCD1.M2 system.
-				Modbus is a cleartext protocol used in common SCADA systems, developed
+				Modbus is a clear text protocol used in common SCADA systems, developed
 				originally as a serial-line (RS232) async protocol, and later transformed to IP,
-				which is called ModbusTCP. The default tcpport is 502.
+				which is called ModbusTCP.
 			},
 			'References'  =>
 				[
 					[ 'URL', 'http://www.saia-pcd.com/en/products/plc/pcd-overview/Pages/pcd1-m2.aspx' ],
-					[ 'URL', 'http://en.wikipedia.org/wiki/Modbus:TCP' ],
+					[ 'URL', 'http://en.wikipedia.org/wiki/Modbus:TCP' ]
 				],
 			'Author'      => [ 'EsMnemon <esm[at]mnemonic.no>' ],
 			'DisclosureDate' => 'Nov 1 2011',
