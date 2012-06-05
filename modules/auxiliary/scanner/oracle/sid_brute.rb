@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 	def check_sid(sid,ip)
 		pkt = build_sid_request(sid,ip)
 		sock.put(pkt)
-		data = sock.get_once
+		data = sock.get_once || ''
 		parse_response(data)
 	end
 

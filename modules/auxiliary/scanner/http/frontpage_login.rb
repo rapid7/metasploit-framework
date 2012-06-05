@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 				"Connection: Keep-Alive, TE\r\n" + "Host: #{target_host}\r\n" + "User-Agent: " +
 				datastore['UserAgent'] + "\r\n\r\n")
 
-		res = sock.get_once
+		res = sock.get_once || ''
 
 		disconnect
 

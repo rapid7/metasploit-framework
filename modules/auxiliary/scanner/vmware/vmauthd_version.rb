@@ -97,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
 			return ret_msg
 		end
 		nsock.put("PASS #{pass}\r\n")
-		res = nsock.get_once
+		res = nsock.get_once || ''
 		if res.start_with? "530"
 			return :failed
 		elsif res.start_with? "230"
