@@ -116,7 +116,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Sending message...")
 		sock.put(mail)
 		sock.put("QUIT\r\n")
-		print "<< " + sock.get_once
+		print "<< " + (sock.get_once || '')
 		disconnect
 	end
 

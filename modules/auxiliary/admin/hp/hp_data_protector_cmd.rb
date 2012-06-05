@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
 			connect
 			sock.put(packet)
 			res = sock.get_once
-			print_status(res.to_s) if not res.empty?
+			print_status(res.to_s) if res and not res.empty?
 		rescue
 			print_error("#{rhost}:#{rport} - Unable to connect")
 		ensure

