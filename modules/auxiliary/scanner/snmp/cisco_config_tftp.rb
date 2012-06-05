@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'      =>
 				[
-					'pello <fropert@packetfault.org>', 'hdm'
+					'pello <fropert[at]packetfault.org>', 'hdm'
 				],
 			'License'     => MSF_LICENSE
 		)
