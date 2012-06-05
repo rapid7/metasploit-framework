@@ -1,3 +1,10 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
 ## MODBUS/TCP client (simple).
 ## Modbus is a cleartext protocol used in common SCADA systems, developed
 ## originally as a serial-line (RS232) async protocol, and later transformed
@@ -17,6 +24,7 @@
 #        tcp=TCP(dport=509)
 #        send(ip/tcp/sploit)	
 ##
+
 require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::Tcp
