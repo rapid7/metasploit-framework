@@ -2,7 +2,7 @@
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+#   http://metasploit.com/framework/
 ##
 
 require 'msf/core'
@@ -15,7 +15,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Modbus Version Scanner',
-			'Version'     => '$Revision: 0002 $',
 			'Description' => %q{
 					This module detects the Modbus service, tested on a SAIA PCD1.M2 system.
 				Modbus is a cleartext protocol used in common SCADA systems, developed
