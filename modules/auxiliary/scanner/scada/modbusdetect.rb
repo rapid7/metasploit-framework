@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 		sploit="\x21\x00\x00\x00\x00\x06\x01\x04\x00\x01\x00\x00"
 		connect()
 		sock.put(sploit)
-		data = sock.recv(12)
+		data = sock.get_once
 
 		# Theory: Whene sending a modbus request of some sort, the endpoint will return
 		# with at least the same transaction-id, and protocol-id
