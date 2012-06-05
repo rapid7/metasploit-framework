@@ -11,7 +11,7 @@ module Common
 			if opts.nil? and cmd =~ /\s*/
 				opts = Shellwords.shellwords(cmd)
 				cmd = opts.shift
-				opts = opts.join
+				opts = opts.join(" ")
 			end
 			session.response_timeout = time_out
 			process = session.sys.process.execute(cmd, opts, {'Hidden' => true, 'Channelized' => true})
