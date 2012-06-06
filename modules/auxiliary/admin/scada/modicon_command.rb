@@ -161,9 +161,6 @@ class Metasploit3 < Msf::Auxiliary
 		sendframe(makeframe(payload))
 	end
 
-	def cleanup
-	end
-
 	def run
 		@modbuscounter = 0x0000 # used for modbus frames
 		connect
