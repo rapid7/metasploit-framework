@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'Dolibarr ERP & CRM 3 Login Utility',
 			'Description'    => %q{
-				This module attempts to authenticate to a Dolibarr ERP/CRM's admin web interface, 
+				This module attempts to authenticate to a Dolibarr ERP/CRM's admin web interface,
 				and should only work against version 3.1.1 or older, because these versions do not
 				have any default protections against bruteforcing.
 			},
@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 		})
 
 		return [nil, nil] if not (res and res.headers['Set-Cookie'])
-		
+
 		# Get the session ID from the cookie
 		m = res.headers['Set-Cookie'].match(/(DOLSESSID_.+);/)
 		id = (m.nil?) ? nil : m[1]

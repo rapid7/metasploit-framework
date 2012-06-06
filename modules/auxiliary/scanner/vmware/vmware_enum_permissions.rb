@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 			else
 				esx_roles.each do |role|
 					role_map[role['roleId']] = {
-						"name" => role['name'], 
+						"name" => role['name'],
 						"system" => role['system'],
 						"summary" => role['info']['summary']
 					}

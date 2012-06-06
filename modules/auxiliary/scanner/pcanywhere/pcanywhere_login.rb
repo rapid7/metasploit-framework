@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status "Trying #{user}:#{pass}"
 			result = do_login(user, pass)
 			case result
-			when :success 
+			when :success
 				print_good "#{ip}:#{rport} Login Successful #{user}:#{pass}"
 				report_auth_info(
 					:host        => rhost,
@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
 		if pca_at_login?(res)
 			nsock.put(euser)
 			res = nsock.get_once(-1,5)
-		end 
+		end
 
 		#Check if we are now at the password prompt
 		unless res and res.include? "Enter password"
@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
 			disconnect()
 			return :reset
 		elsif res.include? "Invalid login"
-			return :fail 
+			return :fail
 		else
 			disconnect()
 			return :success
@@ -134,14 +134,14 @@ class Metasploit3 < Msf::Auxiliary
 			print_error "Handshake(3) failed on Host #{ip} aborting. (Error: #{res.inspect} )"
 			return :handshake_failed
 		end
-		
+
 		nsock.put("\x6f\x62\x01\x02\x00\x00\x00")
 		res = nsock.get_once(-1,5)
 		unless res and res.include? "\x00\x7D\x08"
 			print_error "Handshake(4) failed on Host #{ip} aborting. (Error: #{res.inspect} )"
 			return :handshake_failed
 		end
-		
+
 		res = nsock.get_once(-1,5) unless pca_at_login?(res)
 		unless pca_at_login?(res)
 			print_error "Handshake(5) failed on Host #{ip} aborting. (Error: #{res.inspect} )"

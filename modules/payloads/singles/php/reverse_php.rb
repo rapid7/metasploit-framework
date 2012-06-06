@@ -59,7 +59,7 @@ module Metasploit3
 			port = datastore['LPORT']
 		end
 		exec_funcname = Rex::Text.rand_text_alpha(rand(10)+5)
-		
+
 		uri = "tcp://#{ipaddr}"
 		socket_family = "AF_INET"
 

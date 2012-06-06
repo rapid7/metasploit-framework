@@ -80,8 +80,8 @@ class Metasploit3 < Msf::Auxiliary
 							'Description' => 'Start a service',
 							'CMD'         => 'novell.embox.service.startService',
 							'PATTERN'     => /<DSService:Message dt="Binary">(.*)<\/DSService:Message>/,
-							'PARAM'       => '<Parameters>' + 
-							                 '<params xmlns:DSService="service.dtd">' + 
+							'PARAM'       => '<Parameters>' +
+							                 '<params xmlns:DSService="service.dtd">' +
 							                 '<DSService:moduleName>__PARAM__</DSService:moduleName>'+
 							                 '</params></Parameters>',
 							'USE_PARAM'   => true

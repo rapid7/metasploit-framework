@@ -247,7 +247,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			s = start_session(self, "SSH #{user}:#{self.good_key} (#{ip}:#{port})", merge_me, false, conn.lsock)
-			
+
 			# Set the session platform
 			case proof
 			when /Linux/

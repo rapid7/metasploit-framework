@@ -139,7 +139,7 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Exception => e
 			print_error("Unknown error: #{e.class} #{e}")
 		end
-		
+
 		@results.each_key do |k|
 			next if not @results[k].respond_to?('keys')
 			data = @results[k]
@@ -214,17 +214,17 @@ class Metasploit3 < Msf::Auxiliary
 				when /^ST(.+)/
 					buff = $1.dup
 					stat = 'Unknown'
-			
+
 					if buff[2,1].unpack("C")[0] == 67
 						stat = "Available"
 					end
-			
+
 					if buff[2,1].unpack("C")[0] == 11
 						stat = "Busy"
 					end
 
 					data[:stat] = stat
-				end	
+				end
 
 				if data[:name]
 					inf << "Name: #{data[:name]} "
@@ -236,7 +236,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				if data[:caps]
 					inf << "( #{data[:caps]} ) "
-				end	
+				end
 				data[:info] = inf
 		end
 
@@ -371,12 +371,12 @@ class Metasploit3 < Msf::Auxiliary
 			when 5093
 				app = 'Sentinel'
 				@results[hkey] = true
-				
+
 			when 523
 				app = 'ibm-db2'
 				inf = db2disco_parse(pkt[0])
 				@results[hkey] = true
-				
+
 			when 1604
 				app = 'citrix-ica'
 				return unless citrix_parse(pkt[0])
