@@ -183,7 +183,7 @@ class Metasploit3 < Msf::Auxiliary
 					if buff[2,1].unpack("C")[0] == 67
 						stat = "Available"
 					end
-			
+
 					if buff[2,1].unpack("C")[0] == 11
 						stat = "Busy"
 					end

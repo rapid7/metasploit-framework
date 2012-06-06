@@ -86,7 +86,7 @@ module Metasploit3
 		if Rex::Socket.is_ipv6?(lhost)
 			lhost = "[#{lhost}]"
 		end
-				
+
 		p + lhost + "\x00"
 	end
 

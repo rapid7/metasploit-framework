@@ -84,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
 		0xEF1F, 0xFF3E, 0xCF5D, 0xDF7C, 0xAF9B, 0xBFBA, 0x8FD9, 0x9FF8,
 		0x6E17, 0x7E36, 0x4E55, 0x5E74, 0x2E93, 0x3EB2, 0x0ED1, 0x1EF0
 	]
-		
+
 	def run_host(ip)
 
 		# Create a socket in order to receive responses from a non-default IP
@@ -94,9 +94,9 @@ class Metasploit3 < Msf::Auxiliary
 			'Context'   => {'Msf' => framework, 'MsfExploit' => self}
 		)
 		add_socket(@udp_sock)
-		
+
 		print_status("#{rhost}:#{rport} - KOYO - Checking the controller for locked memory...")
-		
+
 		if unlock_check
 			# TODO: Report a vulnerability for an unlocked controller?
 			print_good("#{rhost}:#{rport} - Unlocked!")
@@ -107,7 +107,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		# TODO: Consider sort_by {rand} in order to avoid sequential guessing
 		# or something fancier
-		
+
 		(0..9999999).each do |i|
 			passcode = datastore['PREFIX'] + i.to_s.rjust(7,'0')
 			vprint_status("#{rhost}:#{rport} - KOYO - Trying #{passcode}")

@@ -134,14 +134,14 @@ class Metasploit3 < Msf::Auxiliary
 			print_error "Handshake(3) failed on Host #{ip} aborting. (Error: #{res.inspect} )"
 			return :handshake_failed
 		end
-		
+
 		nsock.put("\x6f\x62\x01\x02\x00\x00\x00")
 		res = nsock.get_once(-1,5)
 		unless res and res.include? "\x00\x7D\x08"
 			print_error "Handshake(4) failed on Host #{ip} aborting. (Error: #{res.inspect} )"
 			return :handshake_failed
 		end
-		
+
 		res = nsock.get_once(-1,5) unless pca_at_login?(res)
 		unless pca_at_login?(res)
 			print_error "Handshake(5) failed on Host #{ip} aborting. (Error: #{res.inspect} )"

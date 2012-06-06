@@ -147,7 +147,7 @@ class Metasploit3 < Msf::Auxiliary
 							print_status("NOT Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
 						end
 					else
-						
+
 						report_web_vuln(
 							:host	=> ip,
 							:port	=> rport,

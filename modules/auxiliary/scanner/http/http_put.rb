@@ -129,11 +129,11 @@ class Metasploit4 < Msf::Auxiliary
 
 		#Add "/" if necessary
 		path = "/#{path}" if path[0,1] != '/'
-		
+
 		if path[-1,1] != '/'
 			path += '/'
 		end
-		
+
 		path += datastore['FILENAME']
 
 		case action.name

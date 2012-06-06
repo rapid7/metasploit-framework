@@ -424,13 +424,13 @@ class Metasploit3 < Msf::Auxiliary
 						print_status("SIC Code: " + sic_code)
 						print_status("Sector: " + sector)
 						print_status("Source Type: " + source)
-	
+
 						print_line("")
 						print_status("Address and Location Information\n-----------------------------")
 						print_status("Full Address: " + address)
 						print_status("Country Code: " + country)
 						print_status("Subdivision: " + subdiv)
-	
+
 						print_line("")
 						print_status("Parent and Children Information\n---------------------------")
 						print_status("Top Parent ID: " + top_parent)

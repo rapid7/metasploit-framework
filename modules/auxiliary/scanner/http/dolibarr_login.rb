@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 		})
 
 		return [nil, nil] if not (res and res.headers['Set-Cookie'])
-		
+
 		# Get the session ID from the cookie
 		m = res.headers['Set-Cookie'].match(/(DOLSESSID_.+);/)
 		id = (m.nil?) ? nil : m[1]
