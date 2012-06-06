@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 				The flaw is due to the 'page' function not properly handling the $pid parameter,
 				which allows a malicious user to load an arbitrary file path.
 			},
-			'References'     => 
+			'References'     =>
 				[
 					[ 'OSVDB', '82469'],
 					[ 'EDB', '17129' ]

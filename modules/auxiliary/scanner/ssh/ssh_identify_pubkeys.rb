@@ -282,7 +282,7 @@ class Metasploit3 < Msf::Auxiliary
 		keyfile_path = store_loot(
 			ltype,
 			"application/octet-stream", # Text, but always want to mime-type attach it
-			ip, 
+			ip,
 			(key_data + "\n"),
 			"#{safe_username}_#{ktype}.pub",
 			key_id
@@ -290,7 +290,7 @@ class Metasploit3 < Msf::Auxiliary
 		return keyfile_path
 	end
 
-	def run_host(ip) 
+	def run_host(ip)
 		# Since SSH collects keys and tries them all on one authentication session, it doesn't
 		# make sense to iteratively go through all the keys individually. So, ignore the pass variable,
 		# and try all available keys for all users.

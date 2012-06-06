@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status "Trying #{user}:#{pass}"
 			result = do_login(user, pass)
 			case result
-			when :success 
+			when :success
 				print_good "#{ip}:#{rport} Login Successful #{user}:#{pass}"
 				report_auth_info(
 					:host        => rhost,
@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
 		if pca_at_login?(res)
 			nsock.put(euser)
 			res = nsock.get_once(-1,5)
-		end 
+		end
 
 		#Check if we are now at the password prompt
 		unless res and res.include? "Enter password"
@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
 			disconnect()
 			return :reset
 		elsif res.include? "Invalid login"
-			return :fail 
+			return :fail
 		else
 			disconnect()
 			return :success

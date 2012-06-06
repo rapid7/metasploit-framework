@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'Koyo DirectLogic PLC Password Brute Force Utility',
 			'Version'        => '$Revision$',
 			'Description'    => %q{
-					This module attempts to authenticate to a locked Koyo DirectLogic PLC.  
+					This module attempts to authenticate to a locked Koyo DirectLogic PLC.
 				The PLC uses a restrictive passcode, which can be A0000000 through A9999999.
 				The "A" prefix can also be changed by the administrator to any other character,
 				which can be set through the PREFIX option of this module.
@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		# Create a socket in order to receive responses from a non-default IP
 		@udp_sock = Rex::Socket::Udp.create(
-			'PeerHost'  => rhost, 
+			'PeerHost'  => rhost,
 			'PeerPort'  => rport.to_i,
 			'Context'   => {'Msf' => framework, 'MsfExploit' => self}
 		)
@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
 			next if not res
 
 			print_good "#{rhost}:#{rport} - KOYO - Found passcode: #{passcode}"
-			report_auth_info( 
+			report_auth_info(
 				:host   => rhost,
 				:port   => rport.to_i,
 				:proto  => 'udp',

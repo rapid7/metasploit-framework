@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 				DigitalBond.
 			},
 			'Author'         =>
-				[ 
+				[
 					'K. Reid Wightman <wightman[at]digitalbond.com>', # original module
 					'todb' # Metasploit fixups
 				],

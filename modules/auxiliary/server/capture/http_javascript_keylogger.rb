@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 				logging through JavaScript. The DEMO option can be set to enable
 				a page that demonstrates this technique. Future improvements will
 				allow for a configurable template to be used with this module.
-				To use this module with an existing web page, simply add a 
+				To use this module with an existing web page, simply add a
 				script source tag pointing to the URL of this service ending
 				in the .js extension. For example, if URIPATH is set to "test",
 				the following URL will load this script into the calling site:

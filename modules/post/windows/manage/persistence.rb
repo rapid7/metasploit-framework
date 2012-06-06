@@ -346,7 +346,7 @@ class Metasploit3 < Msf::Post
 	# Function to install payload as a service
 	#-------------------------------------------------------------------------------
 	def install_as_service(script_on_target)
-		if  is_system? or is_admin?  
+		if  is_system? or is_admin?
 			print_status("Installing as service..")
 			nam = Rex::Text.rand_text_alpha(rand(8)+8)
 			print_status("Creating service #{nam}")

@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
 		vprint_status "#{ip}:#{rport} - FTP - Connecting"
 		if connect_login()
 			print_status("#{ip}:#{rport} - FTP - Login succeeded")
-			report_auth_info( 
+			report_auth_info(
 				:host => ip,
 				:port => rport,
 				:proto => 'tcp',
@@ -181,9 +181,9 @@ class Metasploit3 < Msf::Auxiliary
 			#  Can we add a nicer dictionary?  Revershing the hash
 			#  using Metasploit's existing loginDefaultencrypt dictionary yields
 			#  plaintexts that contain non-ascii characters for some hashes.
-			#  check out entries starting at 10001 in /msf3/data/wordlists/vxworks_collide_20.txt 
+			#  check out entries starting at 10001 in /msf3/data/wordlists/vxworks_collide_20.txt
 			#  for examples.  A complete ascii rainbow table for loginDefaultEncrypt is ~2.6mb,
-			#  and it can be done in just a few lines of ruby.  
+			#  and it can be done in just a few lines of ruby.
 			#  See https://github.com/cvonkleist/vxworks_hash
 			modicon_ftpuser = ftpcreds[1].split(/[\r\n]+/)[0]
 			modicon_ftppass = ftpcreds[1].split(/[\r\n]+/)[1]

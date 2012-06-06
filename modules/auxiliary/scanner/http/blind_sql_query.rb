@@ -92,9 +92,9 @@ class Metasploit3 < Msf::Auxiliary
 		inivalstr.each do |vstr|
 			# With true values
 			valstr << vstr
-			# With false values, appending 'x' to real value 
+			# With false values, appending 'x' to real value
 			valstr << ['False char '+vstr[0],'x'+vstr[1],'x'+vstr[2]]
-			# With false values, appending '0' to real value 
+			# With false values, appending '0' to real value
 			valstr << ['False num '+vstr[0],'0'+vstr[1],'0'+vstr[2]]
 		end
 

@@ -153,7 +153,7 @@ class Metasploit3 < Msf::Auxiliary
 			comment_length, comment_offset, comment_max_length = res.slice!(0, 12).unpack("VVV")
 			raise "Dce/RPC error : Unknow situation encountered comment_offset != 0 (#{comment_offset})" if comment_offset != 0
 			if comment_length != comment_max_length
-				raise "Dce/RPC error : Unknow situation encountered comment_length != comment_max_length (#{comment_length}/#{comment_max_length})" 
+				raise "Dce/RPC error : Unknow situation encountered comment_length != comment_max_length (#{comment_length}/#{comment_max_length})"
 			end
 			comment = res.slice!(0, 2 * comment_length).gsub('\x00','')
 			res.slice!(0,2) if comment_length % 2 == 1 # pad
