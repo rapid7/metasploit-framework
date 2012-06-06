@@ -210,6 +210,8 @@ end
 class Post < Msf::Module
 	include PostMixin
 
+	def setup; end
+
 	def type
 		MODULE_POST
 	end
