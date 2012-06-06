@@ -21,8 +21,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'Boa HTTPd Basic Authentication Overflow',
 			'Description'    => %q{
-					The Intersil extention in the Boa HTTP Server 0.93.15 through 2.0.64, and 2.2.x
-				through 2.2.19 allows denial of service or possibly authentication bypass
+					The Intersil extention in the Boa HTTP Server 0.93.x
+				allows denial of service or possibly authentication bypass
 				via a Basic Authentication header with a user string greater than 127 characters. You must set
 				the request URI to the directory that requires basic authentication.
 			},
