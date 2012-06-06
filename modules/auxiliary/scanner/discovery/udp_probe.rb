@@ -172,7 +172,7 @@ class Metasploit3 < Msf::Auxiliary
 					name = $1.dup
 					caps = $2.dup
 					name = name.gsub(/_+$/, '').gsub("\x00", '').strip
-					caps = caps.gsub(/_+$/, '').gsub("\x00", '').strip	
+					caps = caps.gsub(/_+$/, '').gsub("\x00", '').strip
 					data[:name] = name
 					data[:caps] = caps
 
@@ -189,7 +189,7 @@ class Metasploit3 < Msf::Auxiliary
 					end
 
 					data[:stat] = stat
-				end	
+				end
 
 				if data[:name]
 					inf << "Name: #{data[:name]} "

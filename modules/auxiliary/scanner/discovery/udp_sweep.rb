@@ -224,7 +224,7 @@ class Metasploit3 < Msf::Auxiliary
 					end
 
 					data[:stat] = stat
-				end	
+				end
 
 				if data[:name]
 					inf << "Name: #{data[:name]} "
@@ -236,7 +236,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				if data[:caps]
 					inf << "( #{data[:caps]} ) "
-				end	
+				end
 				data[:info] = inf
 		end
 

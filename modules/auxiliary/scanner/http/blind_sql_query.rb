@@ -306,7 +306,7 @@ class Metasploit3 < Msf::Auxiliary
 						}, 20)
 					rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 					rescue ::Timeout::Error, ::Errno::EPIPE
-					end	
+					end
 
 					pinja = false
 					pinjb = false
