@@ -47,6 +47,13 @@ module File
 		end
 	end
 
+	def expand_path(path)
+		if session.type == "meterpreter"
+			return session.fs.file.expand_path(path)
+		else
+			return cmd_exec("echo #{path}")
+		end
+	end
 
 	#
 	# See if +path+ exists on the remote system and is a regular file
@@ -260,6 +267,13 @@ module File
 		return true
 	end
 
+	#
+	# Read a local file and write it to the remote file system
+	#
+	def upload_file(remote, local)
+		write_file(remote, ::File.read(local))
+	end
+
 
 protected
 	#
@@ -324,7 +338,7 @@ protected
 			# POSIX standard requires %b which expands octal (but not hex)
 			# escapes in the argument. However, some versions truncate input on
 			# nulls, so "printf %b '\0\101'" produces a 0-length string. The
-			# standalon version seems to be more likely to work than the buitin
+			# standalone version seems to be more likely to work than the buitin
 			# version, so try it first
 			{ :cmd => %q^/usr/bin/printf %b 'CONTENTS'^ , :enc => :octal },
 			{ :cmd => %q^printf %b 'CONTENTS'^ , :enc => :octal },
