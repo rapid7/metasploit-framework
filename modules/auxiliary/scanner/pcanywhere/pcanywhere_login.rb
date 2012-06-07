@@ -159,7 +159,7 @@ class Metasploit3 < Msf::Auxiliary
 		return '' unless data.kind_of? String
 		encrypted = ''
 		encrypted << ( data.unpack('C')[0] ^ 0xab )
-		data.bytes.each_with_index do |byte, idx| 
+		data.bytes.each_with_index do |byte, idx|
 			next if idx == 0
 			encrypted << ( encrypted[(idx - 1),1].unpack('C')[0] ^ byte ^ (idx - 1) )
 		end
