@@ -4,6 +4,7 @@ module MetasploitDataModels::ActiveRecordModels::Vuln
       belongs_to :host, :class_name => "Mdm::Host", :counter_cache => :vuln_count
       belongs_to :service, :class_name => "Mdm::Service", :foreign_key => :service_id
       has_and_belongs_to_many :refs, :join_table => :vulns_refs, :class_name => "Mdm::Ref"
+      has_many :vuln_details, :class_name => "Mdm::VulnDetail"
 
       validates :name, :presence => true
       validates_associated :refs

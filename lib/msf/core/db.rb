@@ -1280,11 +1280,12 @@ class DBManager
 	#
 	# opts MUST contain
 	# +:host+:: the host where this vulnerability resides
-	# +:name+:: the scanner-specific id of the vuln (e.g. NEXPOSE-cifs-acct-password-never-expires)
+	# +:name+:: the friendly name for this vulnerability (title)
 	#
 	# opts can contain
-	# +:info+:: a human readable description of the vuln, free-form text
-	# +:refs+:: an array of Ref objects or string names of references
+	# +:info+::   a human readable description of the vuln, free-form text
+	# +:refs+::   an array of Ref objects or string names of references
+	# +:details:: a hash with :key pointed to a find criteria hash and the rest containing VulnDetail fields
 	#
 	def report_vuln(opts)
 		return if not active
@@ -1297,6 +1298,7 @@ class DBManager
 
 		wspace = opts.delete(:workspace) || workspace
 		exploited_at = opts[:exploited_at] || opts["exploited_at"]
+		details = opts.delete(:details)
 		rids = nil
 
 		if opts[:refs]
@@ -1338,15 +1340,11 @@ class DBManager
 		# Truncate the name field at the maximum field length
 		name = name[0,255]
 
-		if info and name !~ /^NEXPOSE-/
-			vuln = host.vulns.find_or_initialize_by_name_and_info(name, info)
-		else
-			vuln = host.vulns.find_or_initialize_by_name(name)
-		end
+		# Placeholder for the vuln object
+		vuln = nil
 
-		vuln.info = info.to_s if info
-		vuln.exploited_at = exploited_at if exploited_at
-
+		# Identify the associated service
+		service = nil
 		if opts[:port]
 			proto = nil
 			case opts[:proto].to_s.downcase # Catch incorrect usages, as in report_note
@@ -1359,13 +1357,53 @@ class DBManager
 				proto = 'tcp'
 				sname = opts[:proto]
 			end
-			vuln.service = host.services.find_or_create_by_port_and_proto(opts[:port], proto)
+
+			service = host.services.find_or_create_by_port_and_proto(opts[:port], proto)
+
+			# Try to find an existing vulnerability with the same service & references
+			# If there are multiple matches, choose the one with the most matches
+			refs_ids = rids.map{|x| x.id }
+			vuln = service.vulns.find(:all, :include => [:refs], :conditions => { 'refs.id' => refs_ids }).sort { |a,b|
+				( refs_ids - a.refs.map{|x| x.id } ).length <=> ( refs_ids - b.refs.map{|x| x.id } ).length
+			}.first
+
+		else
+			# Try to find an existing vulnerability with the same host & references
+			# If there are multiple matches, choose the one with the most matches
+			refs_ids = rids.map{|x| x.id }
+			vuln = service.vulns.find(:all, :include => [:refs], :conditions => { 'service.id' => nil, 'refs.id' => refs_ids }).sort { |a,b|
+				( refs_ids - a.refs.map{|x| x.id } ).length <=> ( refs_ids - b.refs.map{|x| x.id } ).length
+			}.first
 		end
 
+		# No matches, so create a new vuln record
+		unless vuln
+			if info and name !~ /^NEXPOSE-/
+				vuln = host.vulns.find_or_initialize_by_name_and_info(name, info)
+			else
+				vuln = host.vulns.find_or_initialize_by_name(name)
+			end
+			vuln.service = service
+		end
+
+		# Overwrite the name and information
+		vuln.name = name
+		vuln.info = info.to_s if info
+
+		# Set the exploited_at value if provided
+		vuln.exploited_at = exploited_at if exploited_at
+
+		# Merge the references
 		if rids
 			vuln.refs << (rids - vuln.refs)
 		end
 
+		# Handle vuln_details parameters
+		if details
+			report_vuln_details(vuln, details)
+		end
+
+		# Finalize
 		if vuln.changed?
 			msf_import_timestamps(opts,vuln)
 			vuln.save!
@@ -1407,6 +1445,45 @@ class DBManager
 	def get_ref(name)
 	::ActiveRecord::Base.connection_pool.with_connection {
 		::Mdm::Ref.find_by_name(name)
+	}
+	end
+
+	#
+	# Populate the vuln_details table with additional
+	# information, matched by a specific criteria
+	#
+	def report_vuln_details(vuln, details)
+	::ActiveRecord::Base.connection_pool.with_connection {
+		detail = ::Mdm::VulnDetail.where(( details.delete(:key) || {} ).merge(:vuln_id => vuln.id))
+		if detail
+			details.each_pair do |k,v|
+				detail[k] = v
+			end
+			detail.save! if detail.changed?
+		else
+			detail = ::Mdm::VulnDetail.create(details.merge(:vuln_id => vuln.id))
+
+		end
+	}
+	end
+
+	#
+	# Populate the host_details table with additional
+	# information, matched by a specific criteria
+	#
+	def report_host_details(vuln, details)
+	::ActiveRecord::Base.connection_pool.with_connection {
+
+		detail = ::Mdm::HostDetail.where(( details.delete(:key) || {} ).merge(:host_id => host.id))
+		if detail
+			details.each_pair do |k,v|
+				detail[k] = v
+			end
+			detail.save! if detail.changed?
+		else
+			detail = ::Mdm::HostDetail.create(details.merge(:host_id => host.id))
+
+		end
 	}
 	end
 
