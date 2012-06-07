@@ -77,6 +77,7 @@ class Metasploit3 < Msf::Post
 		# parse the xml to find all users.
 		doc = (REXML::Document.new text).root
 		doc.elements.to_a("//User/Properties").each do |p|
+			next if p.attributes["cpassword"].nil?
 			next if p.attributes["cpassword"].empty?
 			localuser = LocalUser.new
 			localuser.name = p.attributes["newName"]
@@ -146,8 +147,7 @@ class Metasploit3 < Msf::Post
 			v_name = "DCName"
 			dc_url = registry_getvaldata(subkey,v_name)
 			rescue
-			print_error("This host is not part of a domain.")
-			return nil
+				return nil
 		end
 		return dc_url
 	end
@@ -155,6 +155,10 @@ class Metasploit3 < Msf::Post
 	def scan_policies_path()
 		#scan all policies
 		server = get_domain_dc_url
+		if server.nil?
+			print_error("This host is not part of a domain.")
+			return
+		end
 
 		dirname = "#{server}\\SYSVOL\\"
 		dirsearch = "Policies"
@@ -162,7 +166,7 @@ class Metasploit3 < Msf::Post
 			print_status "[+] Searching #{dirname}"
 			dirs = client.fs.dir.foreach(dirname)
 		rescue ::Rex::Post::Meterpreter::RequestError => e
-			print_error("Error scanning #{path}: #{$!}")
+			print_error("Error reading #{dirname}: #{$!}")
 			return
 		end
 
