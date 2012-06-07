@@ -28,6 +28,7 @@ public class SecureServerSocket {
 	public IOObject accept() {
 		try {
 			Socket client = server.accept();
+			client.setTcpNoDelay(true);
 			IOObject temp = new IOObject();
 			temp.openRead(client.getInputStream());
 			temp.openWrite(client.getOutputStream());
