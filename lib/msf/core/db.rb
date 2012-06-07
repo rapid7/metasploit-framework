@@ -1345,7 +1345,9 @@ class DBManager
 
 		# Identify the associated service
 		service = nil
-		if opts[:port]
+
+		# Treat port zero as no service
+		if opts[:port].to_i > 0
 			proto = nil
 			case opts[:proto].to_s.downcase # Catch incorrect usages, as in report_note
 			when 'tcp','udp'
@@ -1362,18 +1364,22 @@ class DBManager
 
 			# Try to find an existing vulnerability with the same service & references
 			# If there are multiple matches, choose the one with the most matches
-			refs_ids = rids.map{|x| x.id }
-			vuln = service.vulns.find(:all, :include => [:refs], :conditions => { 'refs.id' => refs_ids }).sort { |a,b|
-				( refs_ids - a.refs.map{|x| x.id } ).length <=> ( refs_ids - b.refs.map{|x| x.id } ).length
-			}.first
+			if rids
+				refs_ids = rids.map{|x| x.id }
+				vuln = service.vulns.find(:all, :include => [:refs], :conditions => { 'refs.id' => refs_ids }).sort { |a,b|
+					( refs_ids - a.refs.map{|x| x.id } ).length <=> ( refs_ids - b.refs.map{|x| x.id } ).length
+				}.first
+			end
 
 		else
 			# Try to find an existing vulnerability with the same host & references
 			# If there are multiple matches, choose the one with the most matches
-			refs_ids = rids.map{|x| x.id }
-			vuln = service.vulns.find(:all, :include => [:refs], :conditions => { 'service.id' => nil, 'refs.id' => refs_ids }).sort { |a,b|
-				( refs_ids - a.refs.map{|x| x.id } ).length <=> ( refs_ids - b.refs.map{|x| x.id } ).length
-			}.first
+			if rids		
+				refs_ids = rids.map{|x| x.id }
+				vuln = host.vulns.find(:all, :include => [:refs], :conditions => { 'service_id' => nil, 'refs.id' => refs_ids }).sort { |a,b|
+					( refs_ids - a.refs.map{|x| x.id } ).length <=> ( refs_ids - b.refs.map{|x| x.id } ).length
+				}.first
+			end
 		end
 
 		# No matches, so create a new vuln record
@@ -1398,16 +1404,16 @@ class DBManager
 			vuln.refs << (rids - vuln.refs)
 		end
 
-		# Handle vuln_details parameters
-		if details
-			report_vuln_details(vuln, details)
-		end
-
 		# Finalize
 		if vuln.changed?
 			msf_import_timestamps(opts,vuln)
 			vuln.save!
 		end
+
+		# Handle vuln_details parameters
+		report_vuln_details(vuln, details) if details
+		
+		vuln
 	}
 	end
 
@@ -1454,35 +1460,44 @@ class DBManager
 	#
 	def report_vuln_details(vuln, details)
 	::ActiveRecord::Base.connection_pool.with_connection {
-		detail = ::Mdm::VulnDetail.where(( details.delete(:key) || {} ).merge(:vuln_id => vuln.id))
+		detail = ::Mdm::VulnDetail.where(( details.delete(:key) || {} ).merge(:vuln_id => vuln.id)).first
 		if detail
 			details.each_pair do |k,v|
 				detail[k] = v
 			end
 			detail.save! if detail.changed?
+			detail
 		else
 			detail = ::Mdm::VulnDetail.create(details.merge(:vuln_id => vuln.id))
-
 		end
 	}
+	end
+
+	#
+	# Update vuln_details records en-masse based on specific criteria
+	# Note that this *can* update data across workspaces
+	#
+	def update_vuln_details(details)
+		criteria = details.delete(:key) || {}
+		::Mdm::VulnDetail.update(key, details)
 	end
 
 	#
 	# Populate the host_details table with additional
 	# information, matched by a specific criteria
 	#
-	def report_host_details(vuln, details)
+	def report_host_details(host, details)
 	::ActiveRecord::Base.connection_pool.with_connection {
 
-		detail = ::Mdm::HostDetail.where(( details.delete(:key) || {} ).merge(:host_id => host.id))
+		detail = ::Mdm::HostDetail.where(( details.delete(:key) || {} ).merge(:host_id => host.id)).first
 		if detail
 			details.each_pair do |k,v|
 				detail[k] = v
 			end
 			detail.save! if detail.changed?
+			detail
 		else
 			detail = ::Mdm::HostDetail.create(details.merge(:host_id => host.id))
-
 		end
 	}
 	end
