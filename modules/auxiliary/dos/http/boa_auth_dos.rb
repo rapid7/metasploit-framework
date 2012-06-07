@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 			sock.put(sploit)
 			disconnect
 
-			print_status("Server not crashed.  Either the password for 'admin' has been changed or this server is not vulnerable")
+			print_status("Server not crashed.  Either the attack was successful and the password for 'admin' has been changed to #{datastore['Password']} or this server is not vulnerable.")
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 			print_status("Unable to connect to #{rhost}:#{rport}.")
