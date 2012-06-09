@@ -4721,26 +4721,50 @@ class DBManager
 		REXML::Document.parse_stream(data, parser)
 	end
 
-	# This is starting to be more than just nmap -> msf, other
-	# things are creeping in here. Consider renaming the method
-	# and intentionally making it more general.
 	def nmap_msf_service_map(proto)
+		service_name_map(proto)
+	end
+
+	#
+	# This method normalizes an incoming service name to one of the
+	# the standard ones recognized by metasploit
+	# 
+	def service_name_map(proto)
 		return proto unless proto.kind_of? String
 		case proto.downcase
-		when "msrpc", "nfs-or-iis";         "dcerpc"
-		when "netbios-ns";                  "netbios"
-		when "netbios-ssn", "microsoft-ds"; "smb"
-		when "ms-sql-s";                    "mssql"
-		when "ms-sql-m";                    "mssql-m"
+		when "msrpc", "nfs-or-iis", "dce endpoint resolution"
+			"dcerpc"
+		when "ms-sql-s", "tds"
+			"mssql"
+		when "ms-sql-m","microsoft sql monitor"
+			"mssql-m"
 		when "postgresql";                  "postgres"
 		when "http-proxy";                  "http"
 		when "iiimsf";                      "db2"
 		when "oracle-tns";                  "oracle"
 		when "quickbooksrds";               "metasploit"
+		when "microsoft remote display protocol"
+			"rdp"
+		when "vmware authentication daemon"
+			"vmauthd"
+		when "netbios-ns", "cifs name service"
+			"netbios"
+		when "netbios-ssn", "microsoft-ds", "cifs"
+			"smb"
+		when "remote shell"
+			"shell"
+		when "remote login"
+			"login"
+		when "nfs lockd"
+			"lockd"
+		when "hp jetdirect"
+			"jetdirect"
+		when "dhcp server"
+			"dhcp"
 		when /^dns-(udp|tcp)$/;             "dns"
 		when /^dce[\s+]rpc$/;               "dcerpc"
 		else
-			proto.downcase
+			proto.downcase.gsub(/\s*\(.*/, '')   # "service (some service)"
 		end
 	end
 

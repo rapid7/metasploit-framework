@@ -11,6 +11,13 @@ module Rex
 
 		attr_reader :tests
 
+		NEXPOSE_HOST_DETAIL_FIELDS = %W{ nx_device_id nx_site_name nx_site_importance nx_scan_template nx_risk_score }
+		NEXPOSE_VULN_DETAIL_FIELDS = %W{ 
+			nx_scan_id
+			nx_vulnerable_since
+			nx_pci_compliance_status
+		}
+
 		# Triggered every time a new element is encountered. We keep state
 		# ourselves with the @state variable, turning things on when we
 		# get here (and turning things off when we exit in end_element()).
@@ -259,6 +266,14 @@ module Rex
 
 			vdet[:nx_console_id]  = @console_id if @console_id
 			vdet[:nx_vuln_status] = @state[:test][:status] if @state[:test][:status]
+
+			vdet[:nx_scan_id] = @state[:test][:nx_scan_id] if @state[:test][:nx_scan_id]
+			vdet[:nx_pci_compliance_status] = @state[:test][:nx_pci_compliance_status] if @state[:test][:nx_pci_compliance_status]
+
+			if @state[:test][:nx_vulnerable_since]
+				ts = ::DateTime.parse(@state[:test][:nx_vulnerable_since]) rescue nil
+				vdet[:nx_vulnerable_since] = ts if ts
+			end
 			
 			proof = @text.to_s.strip
 			vuln_info[:info] = proof
@@ -391,7 +406,7 @@ module Rex
 				if state[:service]["name"] == "<unknown>"
 					sname = nil
 				else
-					sname = db.nmap_msf_service_map(@state[:service]["name"])
+					sname = db.service_name_map(@state[:service]["name"])
 				end
 				port_hash[:name] = sname
 			end
@@ -418,10 +433,14 @@ module Rex
 			return unless in_tag("node")
 			return if in_tag("service")
 			return unless in_tag("tests")
+
 			test = attr_hash(attrs)
 			return unless actually_vulnerable(test)
 			@state[:test] = {:id => test["id"].downcase}
 			@state[:test][:key] = test["key"] if test["key"]
+			@state[:test][:nx_scan_id] = test["scan-id"] if test["scan-id"]
+			@state[:test][:nx_vulnerable_since] = test["vulnerable-since"] if test["vulnerable-since"]
+			@state[:test][:nx_pci_compliance_status] = test["pci-compliance-status"] if test["pci-compliance-status"]
 		end
 
 		def record_service_test(attrs)
@@ -438,6 +457,9 @@ module Rex
 			}
 			@state[:test][:key] = test["key"] if test["key"]
 			@state[:test][:status] = test["status"] if test["status"]
+			@state[:test][:nx_scan_id] = test["scan-id"] if test["scan-id"]
+			@state[:test][:nx_vulnerable_since] = test["vulnerable-since"] if test["vulnerable-since"]
+			@state[:test][:nx_pci_compliance_status] = test["pci-compliance-status"] if test["pci-compliance-status"]
 		end
 
 		def record_host(attrs)
@@ -447,7 +469,14 @@ module Rex
 				@state[:host_is_alive] = true
 				@state[:address] = host_attrs["address"]
 				@state[:mac] = host_attrs["hardware-address"] if host_attrs["hardware-address"]
-				@state[:device_id] = host_attrs["device-id"] if host_attrs["device-id"]
+
+				NEXPOSE_HOST_DETAIL_FIELDS.each do |f|
+					fs = f.to_sym
+					fk = f.sub(/^nx_/, '').gsub('_', '-')
+					if host_attrs[fk]
+						@state[fs] = host_attrs[fk]
+					end
+				end
 			end
 		end
 
@@ -464,13 +493,17 @@ module Rex
 				end
 			end
 
-			@report_data[:device_id] = @state[:device_id] if @state[:device_id]
+			NEXPOSE_HOST_DETAIL_FIELDS.each do |f|
+				v = @state[f.to_sym]
+				@report_data[f.to_sym] = v if v
+			end
 		end
 
 		def report_host(&block)
 			if host_is_okay
 				db.emit(:address,@report_data[:host],&block) if block
-				device_id   = @report_data.delete(:device_id)
+				device_id   = @report_data[:nx_device_id]
+
 				host_object = db_report(:host, @report_data.merge(:workspace => @args[:wspace] ) )
 				if host_object
 					db.report_import_note(host_object.workspace, host_object)
@@ -481,6 +514,13 @@ module Rex
 							:nx_device_id => device_id 
 						}
 						detail[:nx_console_id] = @nx_console_id if @nx_console_id 
+
+						NEXPOSE_HOST_DETAIL_FIELDS.each do |f|
+							v = @report_data.delete(f.to_sym)
+							detail[f.to_sym] = v if v
+						end
+
+
 						db.report_host_details(host_object, detail)
 					end
 				end
