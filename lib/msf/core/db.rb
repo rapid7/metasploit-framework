@@ -3394,9 +3394,15 @@ class DBManager
 			host_address = host_data[:host].dup # Preserve after report_host() deletes
 			hobj = report_host(host_data)
 
-			# XXX: HOST_DETAILS
-			host.elements["host_details"].each do |hdet|
+			host.elements.each("host_details") do |hdet|
 				hdet_data = {}
+				hdet.elements.each do |det|
+					next if ["id", "host-id"].include?(det.name)
+					if det.text
+						hdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
+					end
+				end
+				report_host_details(hobj, hdet_data)
 			end
 
 			host.elements.each('services/service') do |service|
@@ -3416,6 +3422,7 @@ class DBManager
 				}
 				report_service(service_data)
 			end
+
 			host.elements.each('notes/note') do |note|
 				note_data = {}
 				note_data[:workspace] = wspace
@@ -3436,6 +3443,7 @@ class DBManager
 				}
 				report_note(note_data)
 			end
+
 			host.elements.each('tags/tag') do |tag|
 				tag_data = {}
 				tag_data[:addr] = host_address
@@ -3453,6 +3461,7 @@ class DBManager
 				end
 				report_host_tag(tag_data)
 			end
+
 			host.elements.each('vulns/vuln') do |vuln|
 				vuln_data = {}
 				vuln_data[:workspace] = wspace
@@ -3470,8 +3479,21 @@ class DBManager
 						vuln_data[:refs] << nils_for_nulls(ref.text.to_s.strip)
 					end
 				end
-				report_vuln(vuln_data)
+
+				vobj = report_vuln(vuln_data)
+
+				vuln.elements.each("vuln_details") do |vdet|
+					vdet_data = {}
+					vdet.elements.each do |det|
+						next if ["id", "vuln-id"].include?(det.name)
+						if det.text
+							vdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
+						end
+					end
+					report_vuln_details(vobj, vdet_data)
+				end
 			end
+
 			host.elements.each('creds/cred') do |cred|
 				cred_data = {}
 				cred_data[:workspace] = wspace
