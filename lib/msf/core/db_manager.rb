@@ -302,7 +302,7 @@ class DBManager
 			success = false
 		end
 
-		::FileUtils.rm_rf(temp_dir)
+		# ::FileUtils.rm_rf(temp_dir)
 
 		return true
 	end

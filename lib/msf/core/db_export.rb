@@ -362,6 +362,16 @@ class Export
 				report_file.write("    #{el}\n") # Not checking types
 			end
 
+			# Host details sub-elements
+			report_file.write("    <host_details>\n")
+			h.host_details.find(:all).each do |d|
+				d.attributes.each_pair do |k,v|
+					el = create_xml_element(k,v)
+					report_file.write("        #{el}\n")
+				end					
+			end
+			report_file.write("    </host_details>\n")
+
 			# Service sub-elements
 			report_file.write("    <services>\n")
 			@services.find_all_by_host_id(host_id).each do |e|
@@ -394,6 +404,26 @@ class Export
 					el = create_xml_element(k,v)
 					report_file.write("      #{el}\n")
 				end
+				
+				# References
+				report_file.write("        <refs>\n")
+				e.refs.each do |ref|
+					el = create_xml_element("ref",ref.name)
+					report_file.write("          #{el}\n")
+				end
+				report_file.write("        </refs>\n")
+
+
+				# Vuln details sub-elements
+				report_file.write("            <vuln_details>\n")
+				e.vuln_details.find(:all).each do |d|
+					d.attributes.each_pair do |k,v|
+						el = create_xml_element(k,v)
+						report_file.write("                #{el}\n")
+					end					
+				end
+				report_file.write("            </vuln_details>\n")
+
 				report_file.write("      </vuln>\n")
 			end
 			report_file.write("    </vulns>\n")

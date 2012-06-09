@@ -3393,6 +3393,12 @@ class DBManager
 			}
 			host_address = host_data[:host].dup # Preserve after report_host() deletes
 			hobj = report_host(host_data)
+
+			# XXX: HOST_DETAILS
+			host.elements["host_details"].each do |hdet|
+				hdet_data = {}
+			end
+
 			host.elements.each('services/service') do |service|
 				service_data = {}
 				service_data[:workspace] = wspace
