@@ -99,6 +99,7 @@ module Rex
 				collect_tag
 				@text = nil
 			when "tags"
+				@report_data[:vuln_tags] = @state[:tags]
 				@state.delete(:tags)
 			end
 			@state[:current_tag].delete name
@@ -133,8 +134,8 @@ module Rex
 			return unless in_tag("tags")
 			return unless in_tag("vulnerability")
 			return unless @state[:vuln]
-			@report_data[:vuln_tags] ||= []
-			@report_data[:vuln_tags] << @text.to_s.strip
+			@state[:tags] ||= []
+			@state[:tags] << @text.to_s.strip
 		end
 
 		def collect_vuln_info
@@ -181,11 +182,11 @@ module Rex
 			vdet_info = { :title => @report_data[:vuln]["title"] }
 			vdet_info[:description]     = @report_data[:vuln_description]      unless @report_data[:vuln_description].to_s.empty?
 			vdet_info[:solution]        = @report_data[:vuln_solution]         unless @report_data[:vuln_solution].to_s.empty? 
-			vdet_info[:nx_tags]         = @report_data[:vuln_tags].join(", ")      if ( @report_data[:vuln_tags].kind_of?(::Array) and @report_data[:vuln_tags].length > 0 )
-			vdet_info[:nx_severity]     = @report_data[:vuln]["severity"].to_f     if @report_data[:vuln]["severity"]
-			vdet_info[:nx_pci_severity] = @report_data[:vuln]["pciSeverity"].to_f  if @report_data[:vuln]["pciSeverity"]
-			vdet_info[:cvss_score]      = @report_data[:vuln]["cvssScore"].to_f    if @report_data[:vuln]["cvssScore"]
-			vdet_info[:cvss_vector]     = @report_data[:vuln]["cvssVector"]        if @report_data[:vuln]["cvssVector"]
+			vdet_info[:nx_tags]         = @report_data[:vuln_tags].sort.uniq.join(", ") if ( @report_data[:vuln_tags].kind_of?(::Array) and @report_data[:vuln_tags].length > 0 )
+			vdet_info[:nx_severity]     = @report_data[:vuln]["severity"].to_f          if @report_data[:vuln]["severity"]
+			vdet_info[:nx_pci_severity] = @report_data[:vuln]["pciSeverity"].to_f       if @report_data[:vuln]["pciSeverity"]
+			vdet_info[:cvss_score]      = @report_data[:vuln]["cvssScore"].to_f         if @report_data[:vuln]["cvssScore"]
+			vdet_info[:cvss_vector]     = @report_data[:vuln]["cvssVector"]             if @report_data[:vuln]["cvssVector"]
 			
 			%W{ published added modified }.each do |tf|
 				next if not @report_data[:vuln][tf]
