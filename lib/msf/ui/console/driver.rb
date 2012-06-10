@@ -174,6 +174,12 @@ class Driver < Msf::Ui::Driver
 
 		# Parse any specified database.yml file
 		if framework.db.usable and not opts['SkipDatabaseInit']
+		
+			# Append any migration paths necessary to bring the database online
+			if opts['DatabaseMigrationPaths']
+				opts['DatabaseMigrationPaths'].each {|m| framework.db.add_migration_path(m) }
+			end
+		
 			# Look for our database configuration in the following places, in order:
 			#	command line arguments
 			#	environment variable
@@ -193,6 +199,21 @@ class Driver < Msf::Ui::Driver
 					print_error("No database definition for environment #{dbenv}")
 				else
 					if not framework.db.connect(db)
+						if framework.db.error.to_s =~ /RubyGem version.*pg.*0\.11/i
+							print_error("***")
+							print_error("*")
+							print_error("* Metasploit now requires version 0.11 or higher of the 'pg' gem for database support")
+							print_error("* There a three ways to accomplish this upgrade:")
+							print_error("* 1. If you run Metasploit with your system ruby, simply upgrade the gem:")
+							print_error("*    $ rvmsudo gem install pg ")
+							print_error("* 2. Use the Community Edition web interface to apply a Software Update")
+							print_error("* 3. Uninstall, download the latest version, and reinstall Metasploit")
+							print_error("*")
+							print_error("***")
+							print_error("")
+							print_error("")
+						end
+
 						print_error("Failed to connect to the database: #{framework.db.error} #{db.inspect} #{framework.db.error.backtrace}")
 					end
 				end

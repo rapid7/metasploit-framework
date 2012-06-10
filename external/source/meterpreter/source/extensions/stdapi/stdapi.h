@@ -319,6 +319,21 @@
 				TLV_META_TYPE_UINT,        \
 				TLV_TYPE_EXTENSION_STDAPI, \
 				1401)
+#define TLV_TYPE_INTERFACE_MTU          \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_UINT,        \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				1402)
+#define TLV_TYPE_INTERFACE_FLAGS          \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_STRING,        \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				1403)
+#define TLV_TYPE_INTERFACE_INDEX          \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_UINT,        \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				1404)
 
 #define TLV_TYPE_SUBNET                \
 		MAKE_CUSTOM_TLV(                 \
@@ -340,6 +355,11 @@
 				TLV_META_TYPE_GROUP,       \
 				TLV_TYPE_EXTENSION_STDAPI, \
 				1423)
+#define TLV_TYPE_IP_PREFIX               \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_UINT,         \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				1424)
 
 #define TLV_TYPE_IP                    \
 		MAKE_CUSTOM_TLV(                 \
@@ -361,6 +381,11 @@
 				TLV_META_TYPE_GROUP,       \
 				TLV_TYPE_EXTENSION_STDAPI, \
 				1433)
+#define TLV_TYPE_IP6_SCOPE     \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_RAW,       \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				1434)
 
 #define TLV_TYPE_SUBNET_STRING         \
 		MAKE_CUSTOM_TLV(                 \
@@ -377,6 +402,11 @@
 				TLV_META_TYPE_STRING,      \
 				TLV_TYPE_EXTENSION_STDAPI, \
 				1442)
+#define TLV_TYPE_ROUTE_METRIC         \
+                MAKE_CUSTOM_TLV(                 \
+                                TLV_META_TYPE_UINT,      \
+                                TLV_TYPE_EXTENSION_STDAPI, \
+                                1443)
 
 	// Socket
 #define TLV_TYPE_PEER_HOST             \

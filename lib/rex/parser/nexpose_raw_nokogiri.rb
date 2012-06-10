@@ -3,7 +3,7 @@ require "rex/parser/nokogiri_doc_mixin"
 module Rex
 	module Parser
 
-		# If Nokogiri is available, define Template document class. 
+		# If Nokogiri is available, define Template document class.
 		load_nokogiri && class NexposeRawDocument < Nokogiri::XML::SAX::Document
 
 		include NokogiriDocMixin
@@ -220,7 +220,7 @@ module Rex
 		end
 
 		def report_fingerprint(host_object)
-			return unless host_object.kind_of? ::Msf::DBManager::Host
+			return unless host_object.kind_of? ::Mdm::Host
 			return unless @report_data[:os].kind_of? Hash
 			note = {
 				:workspace => host_object.workspace,
@@ -239,7 +239,7 @@ module Rex
 		end
 
 		def report_services(host_object)
-			return unless host_object.kind_of? ::Msf::DBManager::Host
+			return unless host_object.kind_of? ::Mdm::Host
 			return unless @report_data[:ports]
 			return if @report_data[:ports].empty?
 			reported = []

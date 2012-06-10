@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 			disconnect
 
 			cookie = nil
-			if(res =~ /Cookie:\s*([^\s]+)\s*/mi)
+			if(res and res =~ /Cookie:\s*([^\s]+)\s*/mi)
 				cookie = $1
 				cookie,junk = cookie.split(';')
 				name,cookie = cookie.split('=')
@@ -87,4 +87,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		host = session.tunnel_peer.split(':')[0]
+		host = session.session_host
 		screenshot = Msf::Config.install_root + "/data/" + host + ".jpg"
 
 		migrate_explorer

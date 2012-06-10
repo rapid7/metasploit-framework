@@ -377,6 +377,21 @@ class Module
 	end
 
 	#
+	# Returns the address of the last target port (rough estimate)
+	#
+	def target_port
+		if(self.respond_to?('rport'))
+			return rport()
+		end
+
+		if(self.datastore['RPORT'])
+			return self.datastore['RPORT']
+		end
+
+		nil
+	end
+	
+	#
 	# Returns the current workspace
 	#
 	def workspace
@@ -705,6 +720,8 @@ class Module
 							match = [t,w] if refs.any? { |ref| ref =~ /^bid\-/i and ref =~ r }
 						when 'osvdb'
 							match = [t,w] if refs.any? { |ref| ref =~ /^osvdb\-/i and ref =~ r }
+						when 'edb'
+							match = [t,w] if refs.any? { |ref| ref =~ /^edb\-/i and ref =~ r }
 					end
 					break if match
 				end
@@ -877,10 +894,10 @@ protected
 	# them into one single hash.  As it stands, modules can define
 	# compatibility in their supplied info hash through:
 	#
-	#   Compat        - direct compat definitions
-	#   PayloadCompat - payload compatibilities
-	#   EncoderCompat - encoder compatibilities
-	#   NopCompat     - nop compatibilities
+	# Compat::        direct compat definitions
+	# PayloadCompat:: payload compatibilities
+	# EncoderCompat:: encoder compatibilities
+	# NopCompat::     nop compatibilities
 	#
 	# In the end, the module specific compatibilities are merged as sub-hashes
 	# of the primary Compat hash key to make checks more uniform.

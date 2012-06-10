@@ -55,6 +55,10 @@ CFLAGS+= -I$(ARCHVPATH)
 
 all: libsupport.so
 
+debug: CFLAGS+=-ggdb
+debug: all
+
+
 libsupport.so: $(objects)
 	# Specify that we only want sysv aka DT_HASH hash tables, not DT_GNU_HASH,
 	# because that's what msflinker (modified bionic linker) can handle

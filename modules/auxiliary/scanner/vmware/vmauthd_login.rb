@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core/exploit/tcp'
@@ -24,9 +24,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'        => 'VMWare Authentication Daemon Login Scanner',
 			'Version'     => '$Revision$',
-			'Description' => %q{
-				This module will test vmauthd logins on a range of machines and
-				report successful logins.
+			'Description' => %q{This module will test vmauthd logins on a range of machines and
+								report successful logins.
 			},
 			'Author'      => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'References'     =>
@@ -40,26 +39,31 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
-
-
 	def run_host(ip)
 		begin
-			connect
-		rescue
-			print_error "Could not connect to #{ip}:#{datastore['RPORT']}"
-			return
-		end
-		
-		banner = sock.get_once.chomp
-		print_status "Banner: #{banner}"
 
-		unless banner.include? "VMware Authentication Daemon"
-			print_error "This does not appear to be a vmauthd service"
+		connect rescue nil
+		if not self.sock
+			print_error "#{rhost}:#{rport} Could not connect to vmauthd"
 			return
 		end
 
-		if banner.include? "SSL"
-			print_status("Switching to SSL connection...")
+		banner = sock.get_once(-1, 10)
+		if not banner
+			print_error "#{rhost}:#{rport} No banner received from vmauthd"
+			return
+		end
+
+		banner = banner.strip
+		print_status "#{rhost}:#{rport} Banner: #{banner}"
+
+		unless banner =~ /VMware Authentication Daemon/
+			print_error "#{rhost}:#{rport} This does not appear to be a vmauthd service"
+			return
+		end
+
+		if banner =~ /SSL/
+			print_status("#{rhost}:#{rport} Switching to SSL connection...")
 			swap_sock_plain_to_ssl
 		end
 
@@ -67,9 +71,9 @@ class Metasploit3 < Msf::Auxiliary
 			result = do_login(user, pass)
 			case result
 			when :failed
-				print_error("#{ip}:#{datastore['RPORT']} vmauthd login FAILED - #{user}:#{pass}")
+				print_error("#{rhost}:#{rport} vmauthd login FAILED - #{user}:#{pass}")
 			when :success
-				print_good("#{ip}:#{datastore['RPORT']} vmauthd login SUCCESS - #{user}:#{pass}")
+				print_good("#{rhost}:#{rport} vmauthd login SUCCESS - #{user}:#{pass}")
 				report_auth_info(
 					:host   => rhost,
 					:port   => rport,
@@ -81,8 +85,14 @@ class Metasploit3 < Msf::Auxiliary
 				)
 				return if datastore['STOP_ON_SUCCESS']
 			else
-				print_error("#{ip}:#{datastore['RPORT']} #{res}")
+				print_error("#{rhost}:#{rport} Error: #{result}")
 			end
+		end
+
+		rescue ::Interrupt
+			raise $!
+		ensure
+			disconnect
 		end
 
 	end
@@ -91,17 +101,17 @@ class Metasploit3 < Msf::Auxiliary
 		nsock.put("USER #{user}\r\n")
 		res = nsock.get_once
 		unless res.start_with? "331"
-			ret_msg = "received unexpected reply to the USER command: #{res}"
+			ret_msg = "Unexpected reply to the USER command: #{res}"
 			return ret_msg
 		end
 		nsock.put("PASS #{pass}\r\n")
-		res = nsock.get_once
+		res = nsock.get_once || ''
 		if res.start_with? "530"
 			return :failed
 		elsif res.start_with? "230"
 			return :success
 		else
-			ret_msg = "received unexpected reply to the PASS command: #{res}"
+			ret_msg = "Unexpected reply to the PASS command: #{res}"
 			return ret_msg
 		end
 	end
@@ -130,4 +140,3 @@ class Metasploit3 < Msf::Auxiliary
 
 
 end
-

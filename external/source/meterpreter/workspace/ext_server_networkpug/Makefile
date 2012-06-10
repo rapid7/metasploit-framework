@@ -1,22 +1,22 @@
 VPATH=../../source/extensions/networkpug
 
-OPENSSL=${PWD}/../../source/openssl/include
-COMMON=${PWD}/../../source/common
+OPENSSL=../../source/openssl/include
+COMMON=../../source/common
 SERVER=../../source/server
 PCAP=../../source/libpcap
+LIBC=../../source/bionic/libc
 
-CFLAGS=-fno-stack-protector -nostdinc -nostdlib -fPIC -DPIC -g -Wall
+CFLAGS=-nostdinc -nostdlib -fPIC -DPIC -Wall
 CFLAGS+=-D_UNIX -D__linux__
-CFLAGS+=-I${COMMON} -I${SERVER} -I${OPENSSL} -I${PCAP}
-CFLAGS+= -I ../../source/bionic/libc/include -I ../../source/bionic/libc/kernel/common/linux/ -I ../../source/bionic/libc/kernel/common/ -I ../../source/bionic/libc/arch-x86/include/
-CFLAGS+= -I ../../source/bionic/libc/kernel/arch-x86/
+CFLAGS+=-I$(COMMON) -I$(SERVER) -I$(OPENSSL) -I$(PCAP)
+CFLAGS+= -I$(LIBC)/include -I$(LIBC)/kernel/common/linux/ -I$(LIBC)/kernel/common/ -I$(LIBC)/arch-x86/include/
+CFLAGS+= -I$(LIBC)/kernel/arch-x86/
 CFLAGS+= -Dwchar_t="char" -fno-builtin -D_SIZE_T_DECLARED -DElf_Size="u_int32_t"
 CFLAGS+= -D_BYTE_ORDER=_LITTLE_ENDIAN
-CFLAGS+= -lgcc -L../../source/bionic/compiled -gstabs+
-CFLAGS+= -fPIC -Os 
+CFLAGS+= -lgcc -L../../source/bionic/compiled
 CFLAGS+= -I../../source/extensions/networkpug -lc -lpcap -lsupport -lmetsrv_main
 
-CFLAGS+= -march=i386 -m32
+CFLAGS+= -march=i386 -m32 -Os
 
 #LDFLAGS= -fPIC -Bshareable -lc
 
@@ -31,11 +31,13 @@ objects = networkpug.o
 
 all: ext_server_networkpug.so
 
+debug: CFLAGS+= -ggdb
+debug: all
 
 ext_server_networkpug.so: $(objects)
 	$(CC) -Wl,--hash-style=sysv -shared $(CFLAGS) $(objects) -o $@
 
 
-.PHONY: clean
+.PHONY: clean debug
 clean:
 	rm -f *.o *.so *~; rm -f $(objects)

@@ -1,8 +1,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					['OSVDB', '77455'],
 					['BID', '50890'],
-					['URL', 'http://www.exploit-db.com/exploits/18189/'],
+					['EDB', 18189],
 					['URL', 'http://secpod.org/advisories/SecPod_Ipswitch_TFTP_Server_Dir_Trav.txt']
 				],
 			'DisclosureDate' => "Dec 12 2011"

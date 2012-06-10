@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 			add_socket(udp_sock)
 
 			# get the external address first
-			print_status "#{host} - NATPMP - Probing for external address" if (datastore['VERBOSE'])
+			vprint_status "#{host} - NATPMP - Probing for external address"
 			req = Rex::Proto::NATPMP.external_address_request
 			udp_sock.sendto(req, host, datastore['NATPMPPORT'], 0)
 			external_address = nil
@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 				(ver, op, result, epoch, external_address) = Rex::Proto::NATPMP.parse_external_address_response(r[0])
 			end
 
-			print_status "#{host} - NATPMP - Sending mapping request" if (datastore['VERBOSE'])
+			vprint_status "#{host} - NATPMP - Sending mapping request"
 			# build the mapping request
 			req = Rex::Proto::NATPMP.map_port_request(
 					datastore['LPORT'].to_i, datastore['RPORT'].to_i,

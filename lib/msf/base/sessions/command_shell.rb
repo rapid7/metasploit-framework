@@ -27,6 +27,8 @@ class CommandShell
 	include Msf::Session::Scriptable
 
 
+	##
+	# :category: Msf::Session::Scriptable implementors
 	#
 	# Executes the supplied script, must be specified as full path.
 	#
@@ -71,6 +73,8 @@ class CommandShell
 		self.class.type
 	end
 
+	##
+	# :category: Msf::Session::Provider::SingleCommandShell implementors
 	#
 	# The shell will have been initialized by default.
 	#
@@ -78,6 +82,8 @@ class CommandShell
 		return true
 	end
 
+	##
+	# :category: Msf::Session::Provider::SingleCommandShell implementors
 	#
 	# Explicitly run a single command, return the output.
 	#
@@ -100,6 +106,8 @@ class CommandShell
 		buff
 	end
 
+	##
+	# :category: Msf::Session::Provider::SingleCommandShell implementors
 	#
 	# Read from the command shell.
 	#
@@ -161,6 +169,8 @@ class CommandShell
 		buff
 	end
 
+	##
+	# :category: Msf::Session::Provider::SingleCommandShell implementors
 	#
 	# Writes to the command shell.
 	#
@@ -177,6 +187,8 @@ class CommandShell
 		end
 	end
 
+	##
+	# :category: Msf::Session::Provider::SingleCommandShell implementors
 	#
 	# Closes the shell.
 	#
@@ -225,6 +237,9 @@ class CommandShell
 
 protected
 
+	##
+	# :category: Msf::Session::Interactive implementors
+	#
 	# Override the basic session interaction to use shell_read and
 	# shell_write instead of operating on rstream directly.
 	def _interact
@@ -236,6 +251,9 @@ protected
 		end
 	end
 
+	##
+	# :category: Msf::Session::Interactive implementors
+	#
 	def _interact_stream
 		fds = [rstream.fd, user_input.fd]
 		while self.interacting
@@ -256,7 +274,7 @@ protected
 
 		begin
 
-		rdr = Rex::ThreadFactory.spawn("RingMonitor", false) do
+		rdr = framework.threads.spawn("RingMonitor", false) do
 			seq = nil
 			while self.interacting
 

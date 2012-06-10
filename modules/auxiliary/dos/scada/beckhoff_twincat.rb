@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -63,7 +63,7 @@ cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00010213
 TCATSysSrv+0x14f6a:
 00414f6a 66833802        cmp     word ptr [eax],2         ds:0023:02a1f9cf=????
 0:016> k
-ChildEBP RetAddr  
+ChildEBP RetAddr
 WARNING: Stack unwind information not available. Following frames may be wrong.
 02a0f7f8 71ab265b TCATSysSrv+0x14f6a
 02a0f80c 71ab4a9e WS2_32!Prolog_v1+0x21

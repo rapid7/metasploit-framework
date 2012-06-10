@@ -42,6 +42,10 @@ module Payload
 	#
 	def self.generate_simple(payload, opts)
 
+		# Clone the module to prevent changes to the original instance
+		payload = payload.replicant
+		Msf::Simple::Framework.simplify_module(payload)
+
 		# Import any options we may need
 		payload._import_extra_options(opts)
 		framework = payload.framework
@@ -69,6 +73,10 @@ module Payload
 		# Save off the original payload length
 		len = e.encoded.length
 
+
+		if arch.index(ARCH_JAVA) and fmt == 'war'
+			return e.encoded_war.pack
+		end
 
 		output = Msf::Util::EXE.to_executable_fmt(framework, arch, plat, e.encoded, fmt, exeopts)
 

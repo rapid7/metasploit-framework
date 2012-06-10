@@ -622,7 +622,7 @@ class ModuleManager < ModuleSet
 			end
 		else
 			path.sub!(/#{File::SEPARATOR}$/, '')
-		
+
 			# Make the path completely canonical
 			path = Pathname.new(File.expand_path(path))
 
@@ -645,7 +645,7 @@ class ModuleManager < ModuleSet
 
 		epaths.each do |epath|
 			module_paths << epath
-		end		
+		end
 
 		begin
 			counts = load_modules(path, !check_cache)
@@ -873,11 +873,11 @@ protected
 	# Load all of the modules from the supplied directory or archive
 	#
 	def load_modules(bpath, demand = false)
-		( bpath =~ /\.fastlib$/ ) ? 
-			load_modules_from_archive(bpath, demand) : 
+		( bpath =~ /\.fastlib$/ ) ?
+			load_modules_from_archive(bpath, demand) :
 			load_modules_from_directory(bpath, demand)
 	end
-		
+
 	#
 	# Load all of the modules from the supplied module path (independent of
 	# module type).
@@ -928,7 +928,7 @@ protected
 
 
 	#
-	# Load all of the modules from the supplied fastlib archive 
+	# Load all of the modules from the supplied fastlib archive
 	#
 	def load_modules_from_archive(bpath, demand = false)
 		loaded = {}
@@ -938,9 +938,9 @@ protected
 		ks     = true
 
 		::FastLib.list(bpath).each do |ent|
-			
+
 			next if ent.index(".svn/")
-			
+
 			mtype, path = ent.split("/", 2)
 			mtype.sub!(/s$/, '')
 
@@ -968,7 +968,7 @@ protected
 		# Return per-module loaded counts
 		return counts
 	end
-	
+
 	#
 	# Loads a module from the supplied file.
 	#
@@ -1105,7 +1105,7 @@ protected
 	# Loads a module from the supplied archive path
 	#
 	def load_module_from_archive(path, file, loaded, recalc, counts, demand = false)
-	
+
 		# Derive the name from the path with the exclusion of the .rb
 		name = file.match(/^(.+?)#{File::SEPARATOR}(.*)(.rb?)$/)[2]
 
@@ -1219,7 +1219,7 @@ protected
 
 		return true
 	end
-	
+
 	#
 	# Checks to see if the supplied file has changed (if it's even in the
 	# cache).

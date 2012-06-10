@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -56,9 +56,9 @@ class Metasploit3 < Msf::Auxiliary
 		# try to suck it all in.
 		select(nil,nil,nil,5)
 
-		res = sock.get_once
+		res = sock.get_once || ''
 
-		res.each do |info|
+		res.each_line do |info|
 			print_status("#{info.gsub(/[^[:print:]]+/,"")}") # hack.
 		end
 

@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -45,8 +45,8 @@ class Metasploit3 < Msf::Auxiliary
 				OptAddress.new('SRVHOST',   [ true, "The local host to listen on.", '0.0.0.0' ]),
 				OptPort.new('SRVPORT',      [ true, "The local port to listen on.", 53 ]),
 				OptAddress.new('TARGETHOST', [ false, "The address that all names should resolve to", nil ]),
-				OptString.new('DOMAINBYPASS', [ true, "The list of domain names we want to fully resolve", 'www.google.com']),
-
+				OptString.new('TARGETDOMAIN', [ true, "The list of target domain names we want to fully resolve (BYPASS) or fake resolve (FAKE)", 'www.google.com']),
+				OptEnum.new('TARGETACTION', [ true, "Action for TARGETDOMAIN", "BYPASS", %w{FAKE BYPASS}]),
 			], self.class)
 
 		register_advanced_options(
@@ -88,13 +88,16 @@ class Metasploit3 < Msf::Auxiliary
 		@sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_REUSEADDR, 1)
 		@sock.bind(datastore['SRVHOST'], @port)
 		@run = true
-		@domain_bypass_list = datastore['DOMAINBYPASS'].split
+		@domain_target_list = datastore['TARGETDOMAIN'].split
+		@bypass = ( datastore['TARGETACTION'].upcase == "BYPASS" )
 
 		print_status("DNS server started")
 		begin
 
 		while @run
+			@error_resolving = false
 			packet, addr = @sock.recvfrom(65535)
+			@requestor = addr
 			break if packet.length == 0
 
 			request = Resolv::DNS::Message.decode(packet)
@@ -137,15 +140,35 @@ class Metasploit3 < Msf::Auxiliary
 					answer = Resolv::DNS::Resource::IN::A.new( @targ || ::Rex::Socket.source_address(addr[3].to_s) )
 
 					# Identify potential domain exceptions
-					@domain_bypass_list.each do |ex|
-						if (name.to_s <=> ex) == 0
-							# Resolve the exception domain
-							ip = Resolv::DNS.new().getaddress(name).to_s
-							answer = Resolv::DNS::Resource::IN::A.new( ip )
-							if (@log_console)
-								print_status("DNS bypass domain found: #{ex}")
-								print_status("DNS bypass domain #{ex} resolved #{ip}")
-							end
+					@match_target = false
+					@match_name = name.to_s
+					@domain_target_list.each do |ex|
+						escaped = Regexp.escape(ex).gsub('\*','.*?')
+						regex = Regexp.new "^#{escaped}$", Regexp::IGNORECASE
+						if ( name.to_s =~ regex )
+							@match_target = true
+							@match_name = ex
+						end
+					end
+
+					if (@match_target and not @bypass) or (not @match_target and @bypass)
+						# Resolve FAKE response
+						if (@log_console)
+							print_status("DNS target domain found: #{@match_name}")
+							print_status("DNS target domain #{name.to_s} faked")
+						end
+					else
+						# Resolve the exception domain
+						begin
+						ip = Resolv::DNS.new().getaddress(name).to_s
+						answer = Resolv::DNS::Resource::IN::A.new( ip )
+						rescue ::Exception => e
+							@error_resolving = true
+							next
+						end
+						if (@log_console)
+							print_status("DNS bypass domain found: #{@match_name}")
+							print_status("DNS bypass domain #{name.to_s} resolved #{ip}")
 						end
 					end
 
@@ -187,7 +210,11 @@ class Metasploit3 < Msf::Auxiliary
 			}
 
 			if(@log_console)
-				print_status("DNS #{addr[3]}:#{addr[1]} XID #{request.id} (#{lst.join(", ")})")
+				if(@error_resolving)
+					print_error("XID #{request.id} (#{lst.join(", ")}) - Error resolving")
+				else
+					print_status("XID #{request.id} (#{lst.join(", ")})")
+				end
 			end
 
 			if(@log_database)
@@ -210,5 +237,12 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-end
+	def print_error(msg)
+		@requestor ? super("%s:%p - DNS - %s" % [@requestor[3], @requestor[1], msg]) : super(msg)
+	end
 
+	def print_status(msg)
+		@requestor ? super("%s:%p - DNS - %s" % [@requestor[3], @requestor[1], msg]) : super(msg)
+	end
+
+end

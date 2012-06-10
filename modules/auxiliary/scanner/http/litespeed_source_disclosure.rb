@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'CVE', '2010-2333' ],
 					[ 'OSVDB', '65476' ],
 					[ 'BID', '40815' ],
-					[ 'URL', 'http://www.exploit-db.com/exploits/13850/' ]
+					[ 'EDB', 13850 ]
 				],
 			'Author'         =>
 				[
@@ -74,12 +74,8 @@ class Metasploit3 < Msf::Auxiliary
 				if (res and res.code == 200)
 
 					print_good("#{target_url} - LiteSpeed - Getting the source of page #{uri}")
-
-					save_source = File.new("#{path_save}#{uri}","w")
-					save_source.puts(res.body.to_s)
-					save_source.close
-
-					print_status("#{target_url} - LiteSpeed - File successfully saved: #{path_save}#{uri}")	if (File.exists?("#{path_save}#{uri}"))
+					p = store_loot("litespeed.source", "text/plain", rhost, res.body, path_save)
+					print_status("#{target_url} - LiteSpeed - File successfully saved: #{p}")
 
 				else
 					print_error("http://#{vhost}:#{rport} - LiteSpeed - Unrecognized #{res.code} response")

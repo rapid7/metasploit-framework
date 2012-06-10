@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -66,7 +66,6 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def getEnvironment(rhost)
-		verbose = datastore['VERBOSE']
 		print_status("#{rhost}:#{rport} [SAP] Connecting to SAP Management Console SOAP Interface ")
 		success = false
 
@@ -103,7 +102,7 @@ class Metasploit4 < Msf::Auxiliary
 
 			env = []
 
-			if res.code == 200
+			if res and res.code == 200
 				case res.body
 				when nil
 					# Nothing
@@ -113,7 +112,7 @@ class Metasploit4 < Msf::Auxiliary
 					env = body.scan(/<item>([^<]+)<\/item>/i)
 					success = true
 				end
-			elsif res.code == 500
+			elsif res and  res.code == 500
 				case res.body
 				when /<faultstring>(.*)<\/faultstring>/i
 					faultcode = $1.strip

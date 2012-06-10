@@ -11,7 +11,7 @@ CFLAGS+= -I ../../source/bionic/libc/include -I ../../source/bionic/libc/kernel/
 CFLAGS+= -I ../../source/bionic/libc/kernel/arch-x86/
 CFLAGS+= -Dwchar_t="char" -fno-builtin -D_SIZE_T_DECLARED -DElf_Size="u_int32_t"
 CFLAGS+= -D_BYTE_ORDER=_LITTLE_ENDIAN
-CFLAGS+= -lgcc -L../../source/bionic/compiled -gstabs+
+CFLAGS+= -lgcc -L../../source/bionic/compiled
 CFLAGS+= -fPIC -Os 
 CFLAGS+= -I../../source/extensions/stdapi/server -lc -lsupport
 
@@ -20,6 +20,9 @@ CFLAGS+= -march=i386 -m32
 objects = test.o
 
 all: posix_sample.so
+
+debug: CFLAGS+=-ggdb
+debug: all
 
 posix_sample.so: test.o
 	gcc -shared $(CFLAGS) -o $@ $(objects)

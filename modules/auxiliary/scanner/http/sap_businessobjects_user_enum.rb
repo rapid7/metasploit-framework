@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -64,7 +64,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def enum_user(user='administrator', pass='invalid-sap-password-0d03b389-b7a1-4ecc-8898-e62d1836b72a')
-		verbose = datastore['VERBOSE']
 		vprint_status("#{rhost}:#{rport} - Enumerating username:'#{user}'")
 		success = false
 		soapenv='http://schemas.xmlsoap.org/soap/envelope/'

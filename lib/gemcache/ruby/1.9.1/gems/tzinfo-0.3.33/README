@@ -1,0 +1,101 @@
+= TZInfo -- Daylight-savings aware timezone support for Ruby
+
+TZInfo[http://tzinfo.rubyforge.org] uses the tz database 
+(http://www.twinsun.com/tz/tz-link.htm) to provide
+daylight-savings aware transformations between times in different timezones.
+This is the same database as used for zoneinfo on Unix machines.
+
+The tz database has been imported (using TZDataParser) and turned into a set of
+Ruby modules (which are packaged with this release).
+
+
+== Example usage
+
+To convert a time in UTC to a local time in the America/New_York timezone, you
+can do the following:
+
+  require 'tzinfo'
+  
+  tz = TZInfo::Timezone.get('America/New_York')
+  local = tz.utc_to_local(Time.utc(2005,8,29,15,35,0))
+
+Note that the Time returned will look like it is UTC (Time.zone will return 
+"UTC"). This is because it is not currently possible to change the offset of 
+an individual Time instance.
+  
+To convert from a local time to UTC, the local_to_utc method can be used. 
+
+  utc = tz.local_to_utc(local)
+
+Note that the timezone information of the time you pass in is ignored. The
+following two lines will return the same result regardless of the local 
+timezone:
+
+  tz.local_to_utc(Time.local(2006,6,26,1,0,0))
+  tz.local_to_utc(Time.utc(2006,6,26,1,0,0))
+  
+To get information about the rules in force at a particular UTC or local time,
+the Timezone.period_for_utc and Timezone.period_for_local methods can be used.
+Both of these methods return TimezonePeriod objects. The following gets the 
+identifier for the period (in this case EDT).
+
+  period = tz.period_for_utc(DateTime.new(2005,8,29,15,35,0))
+  id = period.zone_identifier
+  
+In all the above examples, instances of Time can be used instead of DateTime.
+Timezone#utc_to_local and Timezone#local_to_utc both return the type they are 
+passed.
+
+You can get the current local time in a Timezone with the Timezone#now method:
+
+  now = tz.now
+
+All methods in TZInfo that take a time can be used with either Time, DateTime
+or Integers (Time#to_i). The return type will be the same as the type passed in.
+  
+You can also access Timezones by Country (ISO 3166 country code). The following 
+gets all the Timezone identifiers for the US:
+
+  us = TZInfo::Country.get('US')
+  timezones = us.zone_identifiers
+  
+The zone_info method of Country provides an additional description and
+location for each Timezone in the Country.
+  
+The above covers the most common uses of Timezone and Country. For more detail,
+see the API documentation for the individual classes.
+
+
+== Download
+
+The latest version of TZInfo can be found at
+
+* http://rubyforge.org/frs/?group_id=894
+
+API documentation can be found at 
+
+* http://tzinfo.rubyforge.org/doc/
+
+
+== Installation
+
+The preferred method of installing TZInfo is through the GEM file (RubyGems[http://docs.rubygems.org/] required):
+
+  % gem install tzinfo-x.y.z.gem
+  
+or to automatically download and install:
+
+  % gem install tzinfo --remote
+  
+
+== License
+
+TZInfo is released under the MIT[http://opensource.org/licenses/mit-license.html] license.
+
+
+== Support
+
+Please post to the TZInfo Users mailing list (http://rubyforge.org/mailman/listinfo/tzinfo-users)
+if you require assistance or have any suggestions.
+
+Alternatively, you can contact the author Philip Ross directly at phil.ross@gmail.com.

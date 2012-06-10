@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'rex/proto/http'
@@ -16,7 +16,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanDir
+	include Msf::Auxiliary::WmapScanDir
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 
@@ -172,13 +172,17 @@ class Metasploit3 < Msf::Auxiliary
 					if (res.code.to_i == 207)
 						print_status("\tFound vulnerable WebDAV Unicode bypass target #{wmap_base_url}#{tpath}%c0%af#{testfdir} #{res.code} (#{wmap_target_host})")
 
+						# Unable to use report_web_vuln as method is PROPFIND and is not part of allowed
+						# list in db.rb
+
 						report_note(
 							:host	=> ip,
 							:proto => 'tcp',
-							:sname	=> 'HTTP',
+							:sname => (ssl ? 'https' : 'http'),
 							:port	=> rport,
 							:type	=> 'UNICODE_WEBDAV_BYPASS',
-							:data	=> "#{tpath}%c0%af#{testfdir} Code: #{res.code}"
+							:data	=> "#{tpath}%c0%af#{testfdir} Code: #{res.code}",
+							:update => :unique_data
 						)
 
 					end
@@ -191,4 +195,3 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 end
-

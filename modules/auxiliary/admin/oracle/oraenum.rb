@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 			report_note(
 				:host => datastore['RHOST'],
 				:proto => 'tcp',
-				:sname => 'TNS',
+				:sname => 'oracle',
 				:port => datastore['RPORT'],
 				:type => 'ORA_ENUM',
 				:data => "Component Version: #{v.chomp}",
@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host => datastore['RHOST'],
 					:proto => 'tcp',
-					:sname => 'TNS',
+					:sname => 'oracle',
 					:port => datastore['RPORT'],
 					:type => 'ORA_ENUM',
 					:data => "Audit Trail: Disabled",
@@ -92,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host => datastore['RHOST'],
 					:proto => 'tcp',
-					:sname => 'TNS',
+					:sname => 'oracle',
 					:port => datastore['RPORT'],
 					:type => 'ORA_ENUM',
 					:data => "Audit Trail: Enabled",
@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host => datastore['RHOST'],
 					:proto => 'tcp',
-					:sname => 'TNS',
+					:sname => 'oracle',
 					:port => datastore['RPORT'],
 					:type => 'ORA_ENUM',
 					:data => "Audit SYS Ops: Disabled",
@@ -116,7 +116,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host => datastore['RHOST'],
 					:proto => 'tcp',
-					:sname => 'TNS',
+					:sname => 'oracle',
 					:port => datastore['RPORT'],
 					:type => 'ORA_ENUM',
 					:data => "Audit SYS Ops: Enabled",
@@ -136,7 +136,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host => datastore['RHOST'],
 					:proto => 'tcp',
-					:sname => 'TNS',
+					:sname => 'oracle',
 					:port => datastore['RPORT'],
 					:type => 'ORA_ENUM',
 					:data => "SQL92: Disabled",
@@ -147,7 +147,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host => datastore['RHOST'],
 					:proto => 'tcp',
-					:sname => 'TNS',
+					:sname => 'oracle',
 					:port => datastore['RPORT'],
 					:type => 'ORA_ENUM',
 					:data => "SQL92: Enabled",
@@ -163,7 +163,7 @@ class Metasploit3 < Msf::Auxiliary
 					report_note(
 						:host => datastore['RHOST'],
 						:proto => 'tcp',
-						:sname => 'TNS',
+						:sname => 'oracle',
 						:port => datastore['RPORT'],
 						:type => 'ORA_ENUM',
 						:data => "Link Encryption: Disabled",
@@ -174,7 +174,7 @@ class Metasploit3 < Msf::Auxiliary
 					report_note(
 						:host => datastore['RHOST'],
 						:proto => 'tcp',
-						:sname => 'TNS',
+						:sname => 'oracle',
 						:port => datastore['RPORT'],
 						:type => 'ORA_ENUM',
 						:data => "Link Encryption: Enabled",
@@ -187,7 +187,7 @@ class Metasploit3 < Msf::Auxiliary
 			report_note(
 				:host => datastore['RHOST'],
 				:proto => 'tcp',
-				:sname => 'TNS',
+				:sname => 'oracle',
 				:port => datastore['RPORT'],
 				:type => 'ORA_ENUM',
 				:data => "UTL_DIR: #{ vparm["utl_file_dir"]}"
@@ -197,7 +197,7 @@ class Metasploit3 < Msf::Auxiliary
 			report_note(
 				:host => datastore['RHOST'],
 				:proto => 'tcp',
-				:sname => 'TNS',
+				:sname => 'oracle',
 				:port => datastore['RPORT'],
 				:type => 'ORA_ENUM',
 				:data => "Audit Log Location: #{ vparm["audit_file_dest"]}"
@@ -220,7 +220,7 @@ class Metasploit3 < Msf::Auxiliary
 			report_note(
 				:host => datastore['RHOST'],
 				:proto => 'tcp',
-				:sname => 'TNS',
+				:sname => 'oracle',
 				:port => datastore['RPORT'],
 				:type => 'ORA_ENUM',
 				:data => "Account Lockout Time: #{lockout[0].chomp}",
@@ -245,7 +245,7 @@ class Metasploit3 < Msf::Auxiliary
 			report_note(
 				:host => datastore['RHOST'],
 				:proto => 'tcp',
-				:sname => 'TNS',
+				:sname => 'oracle',
 				:port => datastore['RPORT'],
 				:type => 'ORA_ENUM',
 				:data => "Account Fail Logins Permitted: #{failed_logins[0].chomp}",
@@ -270,7 +270,7 @@ class Metasploit3 < Msf::Auxiliary
 			report_note(
 				:host => datastore['RHOST'],
 				:proto => 'tcp',
-				:sname => 'TNS',
+				:sname => 'oracle',
 				:port => datastore['RPORT'],
 				:type => 'ORA_ENUM',
 				:data => "Account Password Grace Time: #{grace_time[0].chomp}",
@@ -295,7 +295,7 @@ class Metasploit3 < Msf::Auxiliary
 			report_note(
 				:host => datastore['RHOST'],
 				:proto => 'tcp',
-				:sname => 'TNS',
+				:sname => 'oracle',
 				:port => datastore['RPORT'],
 				:type => 'ORA_ENUM',
 				:data => "Password Life Time: #{passlife_time[0].chomp}",
@@ -320,7 +320,7 @@ class Metasploit3 < Msf::Auxiliary
 			report_note(
 				:host => datastore['RHOST'],
 				:proto => 'tcp',
-				:sname => 'TNS',
+				:sname => 'oracle',
 				:port => datastore['RPORT'],
 				:type => 'ORA_ENUM',
 				:data => "Password Reuse Time: #{passreuse[0].chomp}",
@@ -345,7 +345,7 @@ class Metasploit3 < Msf::Auxiliary
 			report_note(
 				:host => datastore['RHOST'],
 				:proto => 'tcp',
-				:sname => 'TNS',
+				:sname => 'oracle',
 				:port => datastore['RPORT'],
 				:type => 'ORA_ENUM',
 				:data => "Password Maximun Reuse Time: #{passreusemax[0].chomp}",
@@ -372,7 +372,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host => datastore['RHOST'],
 					:proto => 'tcp',
-					:sname => 'TNS',
+					:sname => 'oracle',
 					:port => datastore['RPORT'],
 					:type => 'ORA_ENUM',
 					:data => "Password Complexity is not being checked for new passwords",
@@ -383,7 +383,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host => datastore['RHOST'],
 					:proto => 'tcp',
-					:sname => 'TNS',
+					:sname => 'oracle',
 					:port => datastore['RPORT'],
 					:type => 'ORA_ENUM',
 					:data => "Password Complexity is being checked for new passwords",
@@ -415,7 +415,7 @@ class Metasploit3 < Msf::Auxiliary
 					report_note(
 						:host => datastore['RHOST'],
 						:proto => 'tcp',
-						:sname => 'TNS',
+						:sname => 'oracle',
 						:port => datastore['RPORT'],
 						:type => 'ORA_ENUM',
 						:data => "Active Account #{aa.chomp}",
@@ -435,7 +435,7 @@ class Metasploit3 < Msf::Auxiliary
 					report_note(
 						:host => datastore['RHOST'],
 						:proto => 'tcp',
-						:sname => 'TNS',
+						:sname => 'oracle',
 						:port => datastore['RPORT'],
 						:type => 'ORA_ENUM',
 						:data => "Active Account #{aa.chomp}",
@@ -464,7 +464,7 @@ class Metasploit3 < Msf::Auxiliary
 					report_note(
 						:host => datastore['RHOST'],
 						:proto => 'tcp',
-						:sname => 'TNS',
+						:sname => 'oracle',
 						:port => datastore['RPORT'],
 						:type => 'ORA_ENUM',
 						:data => "Disabled Account #{da.chomp}",
@@ -484,7 +484,7 @@ class Metasploit3 < Msf::Auxiliary
 					report_note(
 						:host => datastore['RHOST'],
 						:proto => 'tcp',
-						:sname => 'TNS',
+						:sname => 'oracle',
 						:port => datastore['RPORT'],
 						:type => 'ORA_ENUM',
 						:data => "Disabled Account #{da.chomp}",
@@ -512,7 +512,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host => datastore['RHOST'],
 					:proto => 'tcp',
-					:sname => 'TNS',
+					:sname => 'oracle',
 					:port => datastore['RPORT'],
 					:type => 'ORA_ENUM',
 					:data => "Account with DBA Priv  #{dba.chomp}",
@@ -539,7 +539,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host => datastore['RHOST'],
 					:proto => 'tcp',
-					:sname => 'TNS',
+					:sname => 'oracle',
 					:port => datastore['RPORT'],
 					:type => 'ORA_ENUM',
 					:data => "Account with ALTER SYSTEM Priv  #{as.chomp}",
@@ -565,7 +565,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host => datastore['RHOST'],
 					:proto => 'tcp',
-					:sname => 'TNS',
+					:sname => 'oracle',
 					:port => datastore['RPORT'],
 					:type => 'ORA_ENUM',
 					:data => "Account with JAVA ADMIN Priv  #{j.chomp}",
@@ -593,7 +593,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host => datastore['RHOST'],
 					:proto => 'tcp',
-					:sname => 'TNS',
+					:sname => 'oracle',
 					:port => datastore['RPORT'],
 					:type => 'ORA_ENUM',
 					:data => "Account with CREATE LIBRARY Priv  #{lp.chomp}",
@@ -620,7 +620,7 @@ class Metasploit3 < Msf::Auxiliary
 					report_note(
 						:host => datastore['RHOST'],
 						:proto => 'tcp',
-						:sname => 'TNS',
+						:sname => 'oracle',
 						:port => datastore['RPORT'],
 						:type => 'ORA_ENUM',
 						:data => "Account with Default Password #{dp.chomp}",
@@ -639,7 +639,7 @@ class Metasploit3 < Msf::Auxiliary
 				accts = {}
 				returnedstring.each do |record|
 					user,pass = record.split(",")
-					accts["#{pass.chomp}"] = "#{user}"
+					accts["#{pass.chomp}"] = user
 				end
 				::File.open(ordfltpss, "rb").each_line do  |l|
 					accrcrd =  l.split(",")
@@ -648,7 +648,7 @@ class Metasploit3 < Msf::Auxiliary
 						report_note(
 							:host => datastore['RHOST'],
 							:proto => 'tcp',
-							:sname => 'TNS',
+							:sname => 'oracle',
 							:port => datastore['RPORT'],
 							:type => 'ORA_ENUM',
 							:data => "Account with Default Password #{accrcrd[0]} is #{accrcrd[1]}",

@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 						{
 							:host   => target_host,
 							:proto  => 'tcp',
-							:sname  => 'HTTP',
+							:sname => (ssl ? 'https' : 'http'),
 							:port   => rport,
 							:type   => wdtype,
 							:data   => datastore['PATH']
@@ -79,4 +79,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

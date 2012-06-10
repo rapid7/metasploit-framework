@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'URL', 'https://issues.apache.org/bugzilla/show_bug.cgi?id=48509' ],
 					[ 'URL', 'http://www.gossamer-threads.com/lists/apache/cvs/381537' ],
 					[ 'URL', 'http://www.senseofsecurity.com.au/advisories/SOS-10-002' ],
-					[ 'URL', 'http://www.exploit-db.com/exploits/11650' ]
+					[ 'EDB', 11650 ]
 				],
 			'DisclosureDate' => 'Mar 05 2010'))
 

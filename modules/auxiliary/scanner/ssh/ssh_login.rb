@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -68,7 +68,8 @@ class Metasploit3 < Msf::Auxiliary
 			:msfmodule     => self,
 			:port          => port,
 			:disable_agent => true,
-			:password      => pass
+			:password      => pass,
+			:config        => false
 		}
 
 		opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
@@ -91,9 +92,16 @@ class Metasploit3 < Msf::Auxiliary
 			proof = ''
 			begin
 				Timeout.timeout(5) do
-					proof = self.ssh_socket.exec!("id\nuname -a").to_s
-					if(proof !~ /id=/)
-						proof << self.ssh_socket.exec!("help\n?\n\n\n").to_s
+					proof = self.ssh_socket.exec!("id\n").to_s
+					if(proof =~ /id=/)
+						proof << self.ssh_socket.exec!("uname -a\n").to_s
+					else
+						# Cisco IOS
+						if proof =~ /Unknown command or computer name/
+							proof = self.ssh_socket.exec!("ver\n").to_s
+						else
+							proof << self.ssh_socket.exec!("help\n?\n\n\n").to_s
+						end
 					end
 				end
 			rescue ::Exception
@@ -128,6 +136,8 @@ class Metasploit3 < Msf::Auxiliary
 				s.platform = "aix"
 			when /Win32|Windows/
 				s.platform = "windows"
+			when /Unknown command or computer name/
+				s.platform = "cisco-ios"
 			end
 			return [:success, proof]
 		else
@@ -182,4 +192,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

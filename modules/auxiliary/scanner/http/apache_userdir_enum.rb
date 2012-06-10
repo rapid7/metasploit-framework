@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -44,7 +44,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				Opt::RPORT(80),
 				OptString.new('URI', [true, 'The path to users Home Page', '/']),
 				OptPath.new('USER_FILE',  [ true, "File containing users, one per line",
 					File.join(Msf::Config.install_root, "data", "wordlists", "unix_users.txt") ]),
@@ -79,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
 				:host => rhost,
 				:port => rport,
 				:proto => 'tcp',
-				:sname  => 'HTTP',
+				:sname => (ssl ? 'https' : 'http'),
 				:type => 'users',
 				:data => {:users =>  @users_found.keys.join(", ")}
 			)

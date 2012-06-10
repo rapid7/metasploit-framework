@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 					This module allows for simple enumeration of MySQL Database Server
 					provided proper credentials to connect remotely.
 				},
-				'Author'        => [ 'Carlos Perez. <carlos_perez[at]darkoperator.com>' ],
+				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
 				'License'       => MSF_LICENSE,
 				'Version'       => '$Revision$',
 				'References'    =>
@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Enumerating Accounts:")
 		query = "select user, host, password from mysql.user"
 		res = mysql_query(query)
-		if res.size > 0
+		if res and res.size > 0
 			print_status("\tList of Accounts with Password Hashes:")
 			res.each do |row|
 				print_status("\t\tUser: #{row[0]} Host: #{row[1]} Password Hash: #{row[2]}")
@@ -110,7 +110,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		query = "select user, host from mysql.user where Grant_priv = 'Y'"
 		res = mysql_query(query)
-		if res.size > 0
+		if res and res.size > 0
 			print_status("\tThe following users have GRANT Privilege:")
 			res.each do |row|
 				print_status("\t\tUser: #{row[0]} Host: #{row[1]}")
@@ -119,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		query = "select user, host from mysql.user where Create_user_priv = 'Y'"
 		res = mysql_query(query)
-		if res.size > 0
+		if res and res.size > 0
 			print_status("\tThe following users have CREATE USER Privilege:")
 			res.each do |row|
 				print_status("\t\tUser: #{row[0]} Host: #{row[1]}")
@@ -127,7 +127,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		query = "select user, host from mysql.user where Reload_priv = 'Y'"
 		res = mysql_query(query)
-		if res.size > 0
+		if res and res.size > 0
 			print_status("\tThe following users have RELOAD Privilege:")
 			res.each do |row|
 				print_status("\t\tUser: #{row[0]} Host: #{row[1]}")
@@ -135,7 +135,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		query = "select user, host from mysql.user where Shutdown_priv = 'Y'"
 		res = mysql_query(query)
-		if res.size > 0
+		if res and res.size > 0
 			print_status("\tThe following users have SHUTDOWN Privilege:")
 			res.each do |row|
 				print_status("\t\tUser: #{row[0]} Host: #{row[1]}")
@@ -143,7 +143,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		query = "select user, host from mysql.user where Super_priv = 'Y'"
 		res = mysql_query(query)
-		if res.size > 0
+		if res and res.size > 0
 			print_status("\tThe following users have SUPER Privilege:")
 			res.each do |row|
 				print_status("\t\tUser: #{row[0]} Host: #{row[1]}")
@@ -151,7 +151,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		query = "select user, host from mysql.user where FILE_priv = 'Y'"
 		res = mysql_query(query)
-		if res.size > 0
+		if res and res.size > 0
 			print_status("\tThe following users have FILE Privilege:")
 			res.each do |row|
 				print_status("\t\tUser: #{row[0]} Host: #{row[1]}")
@@ -159,7 +159,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		query = "select user, host from mysql.user where Process_priv = 'Y'"
 		res = mysql_query(query)
-		if res.size > 0
+		if res and res.size > 0
 			print_status("\tThe following users have PROCESS Privilege:")
 			res.each do |row|
 				print_status("\t\tUser: #{row[0]} Host: #{row[1]}")
@@ -174,7 +174,7 @@ class Metasploit3 < Msf::Auxiliary
 				(Create_priv = 'Y') or
 				(Drop_priv = 'Y')|
 		res = mysql_query(queryinmysql)
-		if res.size > 0
+		if res and res.size > 0
 			print_status("\tThe following accounts have privileges to the mysql database:")
 			res.each do |row|
 				print_status("\t\tUser: #{row[0]} Host: #{row[1]}")
@@ -185,7 +185,7 @@ class Metasploit3 < Msf::Auxiliary
 		# Anonymous Account Check
 		queryanom = "select user, host from mysql.user where user = ''"
 		res = mysql_query(queryanom)
-		if res.size > 0
+		if res and res.size > 0
 			print_status("\tAnonymous Accounts are Present:")
 			res.each do |row|
 				print_status("\t\tUser: #{row[0]} Host: #{row[1]}")
@@ -195,7 +195,7 @@ class Metasploit3 < Msf::Auxiliary
 		# Blank Password Check
 		queryblankpass = "select user, host, password from mysql.user where length(password) = 0 or password is null"
 		res = mysql_query(queryblankpass)
-		if res.size > 0
+		if res and res.size > 0
 			print_status("\tThe following accounts have empty passwords:")
 			res.each do |row|
 				print_status("\t\tUser: #{row[0]} Host: #{row[1]}")
@@ -205,7 +205,7 @@ class Metasploit3 < Msf::Auxiliary
 		# Wildcard host
 		querywildcrd = 'select user, host from mysql.user where host = "%"'
 		res = mysql_query(querywildcrd)
-		if res.size > 0
+		if res and res.size > 0
 			print_status("\tThe following accounts are not restricted by source:")
 			res.each do |row|
 				print_status("\t\tUser: #{row[0]} Host: #{row[1]}")
@@ -216,4 +216,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

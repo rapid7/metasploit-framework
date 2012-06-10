@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -167,7 +167,7 @@ class Metasploit3 < Msf::Auxiliary
 		)
 
 		# Read the expected nul byte response.
-		buf = sock.get_once(1)
+		buf = sock.get_once(1) || ''
 		if buf != "\x00"
 			buf = sock.get_once(-1)
 			if buf.nil?

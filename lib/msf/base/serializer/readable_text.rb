@@ -165,13 +165,7 @@ class ReadableText
 		output << "\n"
 
 		# References
-		if (mod.references.length > 0)
-			output << "References:\n"
-			mod.references.each { |ref|
-				output << indent + ref.to_s + "\n"
-			}
-			output << "\n"
-		end
+		output << dump_references(mod, indent)
 
 		return output
 
@@ -209,13 +203,7 @@ class ReadableText
 		output << "\n"
 
 		# References
-		if (mod.references.length > 0)
-			output << "References:\n"
-			mod.references.each { |ref|
-				output << indent + ref.to_s + "\n"
-			}
-			output << "\n"
-		end
+		output << dump_references(mod, indent)
 
 		return output
 	end
@@ -282,7 +270,11 @@ class ReadableText
 		# Description
 		output << "Description:\n"
 		output << word_wrap(Rex::Text.compress(mod.description))
-		output << "\n\n"
+		output << "\n"
+
+		output << dump_references(mod, indent)
+
+		output << "\n"
 
 		return output
 
@@ -369,6 +361,20 @@ class ReadableText
 		return output
 	end
 
+	def self.dump_references(mod, indent = '')
+		output = ''
+
+		if (mod.respond_to? :references and mod.references and mod.references.length > 0)
+			output << "References:\n"
+			mod.references.each { |ref|
+				output << indent + ref.to_s + "\n"
+			}
+			output << "\n"
+		end
+
+		output
+	end
+
 	#
 	# Dumps the contents of a datastore.
 	#
@@ -416,7 +422,13 @@ class ReadableText
 		framework.sessions.each_sorted { |k|
 			session = framework.sessions[k]
 
-			row = [ session.sid.to_s, session.type.to_s, session.info.to_s, session.tunnel_to_s ]
+			sinfo = session.info.to_s
+			# Arbitrarily cut it at 80 columns
+			if sinfo.length > 80
+				sinfo = sinfo[0,77] + "..."
+			end
+
+			row = [ session.sid.to_s, session.type.to_s, sinfo, session.tunnel_to_s + " (#{session.session_host})" ]
 			if session.respond_to? :platform
 				row[1] += " " + session.platform
 			end

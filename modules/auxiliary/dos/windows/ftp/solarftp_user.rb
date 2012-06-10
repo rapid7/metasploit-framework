@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'References'     =>
 			[
-				[ 'URL', 'http://www.exploit-db.com/exploits/16204/' ],
+				[ 'EDB', 16204 ],
 			],
 			'DisclosureDate' => 'Feb 22 2011'))
 
@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		connect
 
-		banner = sock.get_once(-1, 10)
+		banner = sock.get_once(-1, 10) || ''
 		print_status("Banner: #{banner.strip}")
 
 		buf  = Rex::Text.pattern_create(50)

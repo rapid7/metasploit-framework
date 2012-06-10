@@ -4,8 +4,8 @@
 ##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
 				'Name'          => 'AIX Gather Dump Password Hashes',
 				'Description'   => %q{ Post Module to dump the password hashes for all users on an AIX System},
 				'License'       => MSF_LICENSE,
-				'Author'        => ['thelightcosine <thelightcosine[at]metasploit.com'],
+				'Author'        => ['thelightcosine <thelightcosine[at]metasploit.com>'],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'aix' ],
 				'SessionTypes'  => [ 'shell' ]

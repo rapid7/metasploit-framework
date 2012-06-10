@@ -1,8 +1,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -11,13 +11,14 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
+	include Msf::Auxiliary::WmapScanServer
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
 
 	def initialize
 		super(
 			'Name'        => 'HTTP TRACE Detection',
-			'Version'     => '$Revision: $',
+			'Version'     => '$Revision$',
 			'Description' => 'Test if TRACE is actually enabled.  405 (Apache) 501(IIS) if its disabled, 200 if it is',
 			'Author'       => ['CG'],
 			'License'     => MSF_LICENSE
@@ -66,4 +67,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

@@ -1,6 +1,18 @@
+require "active_record"
+
 require 'msf/core'
 require 'msf/core/db'
 require 'msf/core/task_manager'
+require 'fileutils'
+
+# Provide access to ActiveRecord models shared w/ commercial versions
+require "metasploit_data_models"
+
+# Patches issues with ActiveRecord
+require "msf/core/patches/active_record"
+
+
+require 'fileutils'
 
 module Msf
 
@@ -13,13 +25,34 @@ module Msf
 
 class DBManager
 
+	# Mainly, it's Ruby 1.9.1 that cause a lot of problems now, along with Ruby 1.8.6.
+	# Ruby 1.8.7 actually seems okay, but why tempt fate? Let's say 1.9.3 and beyond.
+	def self.warn_about_rubies
+		if ::RUBY_VERSION =~ /^1\.9\.[012]($|[^\d])/
+			$stderr.puts "**************************************************************************************"
+			$stderr.puts "Metasploit requires at least Ruby 1.9.3. For an easy upgrade path, see https://rvm.io/"
+			$stderr.puts "**************************************************************************************"
+		end
+	end
+
+  # Only include Mdm if we're not using Metasploit commercial versions
+  # If Mdm::Host is defined, the dynamically created classes
+  # are already in the object space
+  begin
+    include MetasploitDataModels unless defined? Mdm::Host
+  rescue NameError => e
+    warn_about_rubies
+    raise e
+  end
+
 	# Provides :framework and other accessors
 	include Framework::Offspring
 
 	# Returns true if we are ready to load/store data
 	def active
 		return false if not @usable
-		(ActiveRecord::Base.connected? && ActiveRecord::Base.connection.active? && migrated) rescue false
+		# We have established a connection, some connection is active, and we have run migrations
+		(ActiveRecord::Base.connected? && ActiveRecord::Base.connection_pool.connected? && migrated)# rescue false
 	end
 
 	# Returns true if the prerequisites have been installed
@@ -40,10 +73,15 @@ class DBManager
 	# Flag to indicate database migration has completed
 	attr_accessor :migrated
 
+	# Array of additional migration paths
+	attr_accessor :migration_paths
+
 	def initialize(framework, opts = {})
 
 		self.framework = framework
 		self.migrated  = false
+		self.migration_paths = [ ::File.join(Msf::Config.install_root, "data", "sql", "migrate") ]
+
 		@usable = false
 
 		# Don't load the database if the user said they didn't need it.
@@ -56,17 +94,17 @@ class DBManager
 	end
 
 	#
+	# Add additional migration paths
+	#
+	def add_migration_path(path)
+		self.migration_paths.push(path)
+	end
+
+	#
 	# Do what is necessary to load our database support
 	#
 	def initialize_database_support
-
-		# Load ActiveRecord if it is available
 		begin
-			require 'rubygems'
-			require 'active_record'
-			require 'msf/core/db_objects'
-			require 'msf/core/model'
-
 			# Database drivers can reset our KCODE, do not let them
 			$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
 
@@ -145,7 +183,11 @@ class DBManager
 			nopts['port'] = nopts['port'].to_i
 		end
 
-		nopts['pool'] = 75
+		# Prefer the config file's pool setting
+		nopts['pool'] ||= 75
+		
+		# Prefer the config file's wait_timeout setting too
+		nopts['wait_timeout'] ||= 300
 
 		begin
 			self.migrated = false
@@ -191,7 +233,10 @@ class DBManager
 				# Try to force a connection to be made to the database, if it succeeds
 				# then we know we don't need to create it :)
 				ActiveRecord::Base.establish_connection(opts)
-				conn = ActiveRecord::Base.connection
+				# Do the checkout, checkin dance here to make sure this thread doesn't
+				# hold on to a connection we don't need
+				conn = ActiveRecord::Base.connection_pool.checkout
+				ActiveRecord::Base.connection_pool.checkin(conn)
 			end
 		rescue ::Exception => e
 			errstr = e.to_s
@@ -225,16 +270,40 @@ class DBManager
 	# Migrate database to latest schema version
 	#
 	def migrate(verbose=false)
+
+		temp_dir = ::File.expand_path(::File.join( Msf::Config.config_directory, "schema", "#{Time.now.to_i}_#{$$}" ))
+		::FileUtils.rm_rf(temp_dir)
+		::FileUtils.mkdir_p(temp_dir)
+
+		self.migration_paths.each do |mpath|
+			dir = Dir.new(mpath) rescue nil
+			if not dir
+				elog("Could not access migration path #{mpath}")
+				next
+			end
+
+			dir.entries.each do |ent|
+				next unless ent =~ /^\d+.*\.rb$/
+				::FileUtils.cp( ::File.join(mpath, ent), ::File.join(temp_dir, ent) )
+			end
+		end
+
+		success = true
 		begin
-			migrate_dir = ::File.join(Msf::Config.install_root, "data", "sql", "migrate")
-			ActiveRecord::Migration.verbose = verbose
-			ActiveRecord::Migrator.migrate(migrate_dir, nil)
+
+			::ActiveRecord::Base.connection_pool.with_connection {
+				ActiveRecord::Migration.verbose = verbose
+				ActiveRecord::Migrator.migrate(temp_dir, nil)
+			}
 		rescue ::Exception => e
 			self.error = e
 			elog("DB.migrate threw an exception: #{e}")
 			dlog("Call stack:\n#{e.backtrace.join "\n"}")
-			return false
+			success = false
 		end
+
+		::FileUtils.rm_rf(temp_dir)
+
 		return true
 	end
 

@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 			::Timeout.timeout(to) do
 				res = connect
 				# This makes db_services look a lot nicer.
-				banner_santized = Rex::Text.to_hex_ascii(banner.to_s)
+				banner_santized = Rex::Text.to_hex_ascii(banner.to_s.unpack('C*').pack('U*'))
 				print_status("#{ip}:#{rport} TELNET #{banner_santized}")
 				report_service(:host => rhost, :port => rport, :name => "telnet", :info => banner_santized)
 			end
@@ -54,4 +54,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -125,7 +125,14 @@ class Metasploit3 < Msf::Post
 
 		#get impersonation token
 		print_status("Getting impersonation token...")
-		t = get_imperstoken()
+		begin
+			t = get_imperstoken()
+		rescue ::Exception => e
+			# Failure due to timeout, access denied, etc.
+			t = 0
+			vprint_error("Error #{e.message} while using get_imperstoken()")
+			vprint_error(e.backtrace)
+		end
 
 		#loop through sub dirs if we have an impers token..else error
 		if t == 0

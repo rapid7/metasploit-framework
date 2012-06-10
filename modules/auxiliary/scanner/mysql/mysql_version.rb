@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -37,8 +37,12 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		begin
 			s = connect(false)
-			data = s.get
+			data = s.get_once(-1,10)
 			disconnect(s)
+			if data.nil?
+				print_error "The connection to #{rhost}:#{rport} timed out"
+				return
+			end
 		rescue ::Rex::ConnectionError, ::EOFError
 			return
 		rescue ::Exception
@@ -82,4 +86,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

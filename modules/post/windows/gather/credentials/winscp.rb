@@ -7,8 +7,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Post
 					# If no explicit protocol entry exists it is on sFTP with SCP backup. If it is 0
 					# it is set to SCP.
 					if proto == nil or proto == 0
-						proto = "SCP"
+						proto = "SSH"
 					else
 						proto = "FTP"
 					end
@@ -160,7 +160,7 @@ class Metasploit3 < Msf::Post
 						# If no explicit protocol entry exists it is on sFTP with SCP backup. If it
 						# is 0 it is set to SCP.
 						if proto == nil or proto == 0
-							proto = "SCP"
+							proto = "SSH"
 						else
 							proto = "FTP"
 						end

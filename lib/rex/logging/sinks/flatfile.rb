@@ -4,7 +4,7 @@ module Sinks
 
 ###
 #
-# This class implements the LogSink interface and backs it against a 
+# This class implements the LogSink interface and backs it against a
 # file on disk.
 #
 ###
@@ -42,7 +42,7 @@ class Flatfile
 			end
 			fd.write("[#{get_current_timestamp}] [#{code}(#{level})] #{src}: #{msg}\n")
 		end
-			
+
 		fd.flush
 	end
 

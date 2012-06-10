@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 				system files. Tested on Solaris 2.6, 7, 8, 9, and 10.
 
 			},
-			'Author'         => [ 'hdm', 'Optyx <optyx@uberhax0r.net>' ],
+			'Author'         => [ 'hdm', 'Optyx <optyx[at]uberhax0r.net>' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
 			'References'     =>

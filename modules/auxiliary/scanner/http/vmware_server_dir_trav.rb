@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -75,11 +75,11 @@ class Metasploit3 < Msf::Auxiliary
 					}
 				)
 			else
-				''
-				#print_status("Received #{res.code} for #{trav}#{file}")
+				vprint_status("Received #{res.code} for #{trav}#{file}")
 			end
 
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
+			print_error(e.message)
 		rescue ::Timeout::Error, ::Errno::EPIPE
 		end
 	end

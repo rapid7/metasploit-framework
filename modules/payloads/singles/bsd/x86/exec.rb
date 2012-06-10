@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -53,7 +53,7 @@ module Metasploit3
 ;
 ;        Name: single_exec
 ;   Platforms: *BSD
-;     Authors: vlad902 <vlad902 [at] gmail.com>
+;      Author: vlad902 <vlad902 [at] gmail.com>
 ;     Version: $Revision$
 ;     License:
 ;

@@ -1,0 +1,57 @@
+= RI
+
++ri+ is a tool that allows Ruby documentation to be viewed on the command-line.
+
+You can use +ri+ to look up information from either the command line or
+interactively.  When you run +ri+ without any arguments it will launch in
+interactive mode.  In interactive mode you can tab-complete class and method
+names.
+
+== Usage
+
+To see information for a class, do:
+  ri ClassName
+
+For example, for the Array class, do:
+  ri Array
+
+To see information on a method on a class, do:
+  ri ClassName.method
+
+This will show both instance and class methods.  For example, the IO
+class defines both IO::read and IO#read:
+  ri IO.read
+
+To see information for an instance method, do:
+  ri ClassName#method_name
+
+For example, for Array's +join+ method, do:
+  ri Array#join
+
+To see information for a class method, do:
+  ri ClassName::method_name
+
+For example, for Module's +private+ method, do:
+  ri Module::private
+
+To read documentation for all +read+ methods, do:
+  ri read
+
+== Options
+
++ri+ supports a variety of options, all of which can be viewed via +--help+.
+Of particular interest, are:
+
+[<tt>-f</tt>]
+  Outputs ri data using the selected formatter.  You can see the available
+  formatters in <tt>ri --help</tt>
+[<tt>-T</tt>]
+  Send output to stdout, rather than to a pager.
+
+All options also can be specified through the +RI+ environment variable.
+Command-line options always override those specified in the +RI+ environment
+variable.
+
+The +RI_PAGER+ environment variable allows you to choose a particular pager or
+particular options for your pager.
+

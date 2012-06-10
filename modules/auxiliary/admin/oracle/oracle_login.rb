@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -64,15 +64,14 @@ class Metasploit3 < Msf::Auxiliary
 					report_auth_info(
 						:host  => "#{datastore['RHOST']}",
 						:port  => "#{datastore['RPORT']}",
-						:sname => 'tns',
+						:sname => 'oracle',
 						:user  => "#{datastore['SID']}/#{datastore['DBUSER']}",
 						:pass  => "#{datastore['DBPASS']}",
 						:active => true
 					)
-						print_status("Found user/pass of: #{datastore['DBUSER']}/#{datastore['DBPASS']} on #{datastore['RHOST']} with sid #{datastore['SID']}")
+					print_status("Found user/pass of: #{datastore['DBUSER']}/#{datastore['DBPASS']} on #{datastore['RHOST']} with sid #{datastore['SID']}")
 				end
 		end
 		end
 	end
 end
-

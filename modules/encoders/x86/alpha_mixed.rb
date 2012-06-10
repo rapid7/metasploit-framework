@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Encoder::Alphanum
 	# Configure SEH getpc code on Windows
 	#
 	def init_platform(platform)
-		if(platform.supports?(::Msf::Module::PlatformList.win32))
+		if(::Msf::Module::PlatformList.from_a(platform).supports?(::Msf::Module::PlatformList.win32))
 			datastore['AllowWin32SEH'] = true
 		end
 	end

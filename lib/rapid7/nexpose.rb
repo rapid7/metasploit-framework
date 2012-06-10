@@ -3,7 +3,7 @@
 #
 =begin
 
-Copyright (C) 2009-2011, Rapid7 LLC
+Copyright (C) 2009-2012, Rapid7 LLC
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -53,6 +53,7 @@ require 'net/https'
 require 'net/http'
 require 'uri'
 require 'rex/mime'
+
 
 module Nexpose
 
@@ -125,7 +126,7 @@ class APIRequest
 		@time_out = 30
 		@pause = 2
 		@uri = URI.parse(@url)
-		@http = Net::HTTP.new(@uri.host, @uri.port)
+		@http = ::Net::HTTP.new(@uri.host, @uri.port)
 		@http.use_ssl = true
 		#
 		# XXX: This is obviously a security issue, however, we handle this at the client level by forcing
@@ -143,7 +144,8 @@ class APIRequest
 
 		begin
 		prepare_http_client
-		@raw_response, @raw_response_data = @http.post(@uri.path, @req, @headers)
+		@raw_response = @http.post(@uri.path, @req, @headers)
+		@raw_response_data = @raw_response.body
 		@res = parse_xml(@raw_response_data)
 
 		if(not @res.root)
@@ -181,11 +183,11 @@ class APIRequest
 				retry
 			end
 			@error = "Nexpose host did not respond"
-		rescue ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL,::Errno::EADDRNOTAVAIL
+		rescue ::SocketError, ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL,::Errno::EADDRNOTAVAIL
 			@error = "Nexpose host is unreachable"
 		# Handle console-level interrupts
 		rescue ::Interrupt
-			@error = "received a user interrupt"
+			@error = "Received a user interrupt"
 		rescue ::Errno::ECONNRESET,::Errno::ECONNREFUSED,::Errno::ENOTCONN,::Errno::ECONNABORTED
 			@error = "Nexpose service is not available"
 		rescue ::REXML::ParseException
@@ -629,11 +631,9 @@ class Connection
 
 	# Establish a new connection and Session ID
 	def login
-		begin
-			r = execute(make_xml('LoginRequest', { 'sync-id' => 0, 'password' => @password, 'user-id' => @username }))
-		rescue APIError
-			raise AuthenticationFailed.new(r)
-		end
+
+		# This throws an APIError exception if necessary
+		r = execute(make_xml('LoginRequest', { 'sync-id' => 0, 'password' => @password, 'user-id' => @username }))
 		if(r.success)
 			@session_id = r.sid
 			return true
@@ -661,8 +661,8 @@ class Connection
 		http.use_ssl = true
 		http.verify_mode = OpenSSL::SSL::VERIFY_NONE            # XXX: security issue
 		headers = {'Cookie' => "nexposeCCSessionID=#{@session_id}"}
-		resp, data = http.get(uri.path, headers)
-		data
+		resp = http.get(uri.path, headers)
+		resp ? resp.body : nil
 	end
 end
 

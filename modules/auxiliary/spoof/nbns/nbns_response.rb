@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 
 					This module must be run as root and will bind to tcp/137 on all interfaces.
 			},
-			'Author'     => [ 'Tim Medin <tim@securitywhole.com>' ],
+			'Author'     => [ 'Tim Medin <tim[at]securitywhole.com>' ],
 			'License'    => MSF_LICENSE,
 			'Version'    => '$Revision$',
 			'References' =>

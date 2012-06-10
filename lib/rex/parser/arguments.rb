@@ -28,7 +28,7 @@ class Arguments
 		self.fmt = fmt
 		# I think reduce is a better name for this method, but it doesn't exist
 		# before 1.8.7, so use the stupid inject instead.
-		self.longest = fmt.keys.inject(0) { |max, str| 
+		self.longest = fmt.keys.inject(0) { |max, str|
 			max = ((max > str.length) ? max : str.length)
 		}
 	end

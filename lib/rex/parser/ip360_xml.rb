@@ -33,9 +33,9 @@ class IP360XMLStreamParser
 		when "macAddress"
 			@state = :is_mac
 		when "os"
-			@host['os'] = attributes['id']	
+			@host['os'] = attributes['id']
 		when "vulnerability"
-			@x = Hash.new	
+			@x = Hash.new
 			@x['vulnid'] = attributes['id']
 		when "port"
 			@state = :is_port
@@ -50,7 +50,7 @@ class IP360XMLStreamParser
 			@host['apps'].push @y
 		end
 	end
-	
+
 	def text(str)
 		case @state
 		when :is_fqdn

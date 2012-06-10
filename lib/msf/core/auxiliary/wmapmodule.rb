@@ -5,18 +5,41 @@ module Msf
 #
 ###
 
-module Auxiliary::WMAPModule
+module Auxiliary::WmapModule
+
+	attr_accessor :orderid
+	attr_accessor :requiredids
 
 	#
 	# Initializes an instance of a WMAP module
 	#
 	def initialize(info = {})
 		super
+		self.orderid = 0xFFFFFF
+		self.requiredids = {}
+	end
+
+	def register_wmap_options(options)
+		if options.has_key?('OrderID')
+			self.orderid = options['OrderID']
+		end
+
+		if 	options.has_key?('Require')
+			self.requiredids = options['Require']
+		end
 	end
 
 	def wmap_enabled
 		#enabled by default
 		true
+	end
+
+	def wmap_getoid
+		self.orderid
+	end
+
+	def wmap_setoid(oid)
+		self.orderid = oid
 	end
 
 	def wmap_type
@@ -106,11 +129,11 @@ end
 #
 ###
 
-module Auxiliary::WMAPScanSSL
-	include Auxiliary::WMAPModule
+module Auxiliary::WmapScanSSL
+	include Auxiliary::WmapModule
 
 	def wmap_type
-		:WMAP_SSL
+		:wmap_ssl
 	end
 end
 
@@ -120,11 +143,11 @@ end
 #
 ###
 
-module Auxiliary::WMAPScanFile
-	include Auxiliary::WMAPModule
+module Auxiliary::WmapScanFile
+	include Auxiliary::WmapModule
 
 	def wmap_type
-		:WMAP_FILE
+		:wmap_file
 	end
 end
 
@@ -134,11 +157,11 @@ end
 #
 ###
 
-module Auxiliary::WMAPScanDir
-	include Auxiliary::WMAPModule
+module Auxiliary::WmapScanDir
+	include Auxiliary::WmapModule
 
 	def wmap_type
-		:WMAP_DIR
+		:wmap_dir
 	end
 end
 
@@ -148,11 +171,11 @@ end
 #
 ###
 
-module Auxiliary::WMAPScanServer
-	include Auxiliary::WMAPModule
+module Auxiliary::WmapScanServer
+	include Auxiliary::WmapModule
 
 	def wmap_type
-		:WMAP_SERVER
+		:wmap_server
 	end
 end
 
@@ -162,11 +185,11 @@ end
 #
 ###
 
-module Auxiliary::WMAPScanQuery
-	include Auxiliary::WMAPModule
+module Auxiliary::WmapScanQuery
+	include Auxiliary::WmapModule
 
 	def wmap_type
-		:WMAP_QUERY
+		:wmap_query
 	end
 end
 
@@ -176,11 +199,11 @@ end
 #
 ###
 
-module Auxiliary::WMAPScanUniqueQuery
-	include Auxiliary::WMAPModule
+module Auxiliary::WmapScanUniqueQuery
+	include Auxiliary::WmapModule
 
 	def wmap_type
-		:WMAP_UNIQUE_QUERY
+		:wmap_unique_query
 	end
 
 	def signature(fpath,fquery)
@@ -197,11 +220,11 @@ module Auxiliary::WMAPScanUniqueQuery
 end
 
 
-module Auxiliary::WMAPScanGeneric
-	include Auxiliary::WMAPModule
+module Auxiliary::WmapScanGeneric
+	include Auxiliary::WmapModule
 
 	def wmap_type
-		:WMAP_GENERIC
+		:wmap_generic
 	end
 end
 
@@ -211,11 +234,11 @@ end
 #
 ###
 
-module Auxiliary::WMAPCrawler
-	include Auxiliary::WMAPModule
+module Auxiliary::WmapCrawler
+	include Auxiliary::WmapModule
 
 	def wmap_type
-		:WMAP_CRAWLER
+		:wmap_crawler
 	end
 end
 

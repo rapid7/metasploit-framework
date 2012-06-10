@@ -451,11 +451,3 @@ class BaseParser
 		self.crawler.cinipath
 	end
 end
-
-
-
-
-
-
-
-

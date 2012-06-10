@@ -1,0 +1,53 @@
+Copyright (C) 2006-2012, Rapid7 Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+    * Redistributions of source code must retain the above copyright notice,
+	  this list of conditions and the following disclaimer.
+
+    * Redistributions in binary form must reproduce the above copyright notice,
+	  this list of conditions and the following disclaimer in the documentation
+	  and/or other materials provided with the distribution.
+
+    * Neither the name of Rapid7 LLC nor the names of its contributors
+	  may be used to endorse or promote products derived from this software
+	  without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+================================================================================
+
+The Metasploit Framework is provided under the 3-clause BSD license above.
+
+The copyright on this package is held by Rapid7 LLC.
+
+This license does not apply to the following components:
+ - The Bit-Struct library located under lib/bit-struct
+ - The OpenSSL library embedded into the Meterpreter payload binaries and the
+   corresponding header files in the source tree
+ - The Packet Sniffer SDK (MicroOLAP) library embedded into the Meterpreter
+   Sniffer extension. HD Moore has a single-seat developer license.
+ - The modified TightVNC binaries and their associated source code.
+ - The Byakugan plugin located under external/source/byakugan
+ - The Metasm library located under lib/metasm
+ - The PcapRub library located under external/pcaprub
+ - The Rabal library located under lib/rabal
+ - The PacketFu library located under lib/packetfu
+ - The Ruby-Lorcon library located under external/ruby-lorcon
+ - The SNMP library located under lib/snmp
+ - The Zip library located under lib/zip
+ - The SSHKey library located under lib/sshkey
+
+Details for the above packages can be found in the THIRD-PARTY file.
+

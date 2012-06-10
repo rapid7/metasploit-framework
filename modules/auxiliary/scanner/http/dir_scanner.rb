@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'rex/proto/http'
@@ -17,7 +17,7 @@ require 'thread'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanDir
+	include Msf::Auxiliary::WmapScanDir
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 
@@ -147,14 +147,21 @@ class Metasploit3 < Msf::Auxiliary
 							print_status("NOT Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
 						end
 					else
-						report_note(
+
+						report_web_vuln(
 							:host	=> ip,
 							:port	=> rport,
-							:proto => 'tcp',
-							:sname	=> (ssl ? 'https' : 'http'),
-							:type	=> 'DIRECTORY',
-							:data	=> "#{tpath}#{testfdir} Code: #{res.code}",
-							:update => :unique_data
+							:vhost  => vhost,
+							:ssl    => ssl,
+							:path	=> "#{tpath}#{testfdir}",
+							:method => 'GET',
+							:pname  => "",
+							:proof  => "Res code: #{res.code.to_s}",
+							:risk   => 0,
+							:confidence   => 100,
+							:category     => 'directory',
+							:description  => 'Directoy found.',
+							:name   => 'directory'
 						)
 
 						print_status("Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
@@ -171,6 +178,7 @@ class Metasploit3 < Msf::Auxiliary
 								:data	=> "#{tpath}#{testfdir} Auth: #{res.headers['WWW-Authenticate']}",
 								:update => :unique_data
 							)
+
 						end
 					end
 
@@ -180,4 +188,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

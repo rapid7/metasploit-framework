@@ -109,7 +109,7 @@ module ShadowCopy
 			print_error("Insufficient Storage")
 		when 7
 			print_error("Volume is in use")
-		when 8 
+		when 8
 			print_error("Maximum number of shadow copies reached")
 		when 9
 			print_error("Another shadow copy operation is already in progress")
@@ -133,7 +133,7 @@ module ShadowCopy
 			print_status("Volume Shadow Copy service not running. Starting it now...")
 			begin
 				ss_result = service_start("VSS")
-				case ss_result 
+				case ss_result
 				when 0
 					print_status("Volume Shadow Copy started successfully.")
 				when 1
@@ -191,7 +191,7 @@ module ShadowCopy
 		# We delete the file with the wmic command output.
 		c = session.sys.process.execute("cmd.exe /c del #{wmicfl}", nil, {'Hidden' => true})
 		c.close
-		tmpout.gsub!(/[^[:print:]]/,'') #scrub out garbage 
+		tmpout.gsub!(/[^[:print:]]/,'') #scrub out garbage
 		return tmpout
 	end
 

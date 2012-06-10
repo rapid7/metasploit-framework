@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -54,8 +54,8 @@ class Metasploit3 < Msf::Auxiliary
 		clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("www.google.com")
 		searches = ["100", "200","300", "400", "500"]
 		searches.each { |num|
-			resp, data = clnt.get2("/search?hl=en&lr=&ie=UTF-8&q=%40"+targetdom+"&start=#{num}&sa=N&filter=0&num=100",header)
-			response << data
+			resp = clnt.get2("/search?hl=en&lr=&ie=UTF-8&q=%40"+targetdom+"&start=#{num}&sa=N&filter=0&num=100",header)
+			response << resp.body
 		}
 		print_status("Extracting emails from Google search results...")
 		response.gsub!(/<.?em?[>]*>/, "")
@@ -74,8 +74,8 @@ class Metasploit3 < Msf::Auxiliary
 		clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("search.yahoo.com")
 		searches = ["1", "101","201", "301", "401", "501"]
 		searches.each { |num|
-			resp, data = clnt.get2("/search?p=%40#{targetdom}&n=100&ei=UTF-8&va_vt=any&vo_vt=any&ve_vt=any&vp_vt=any&vd=all&vst=0&vf=all&vm=p&fl=0&fr=yfp-t-152&xargs=0&pstart=1&b=#{num}",header)
-			response << data.downcase
+			resp = clnt.get2("/search?p=%40#{targetdom}&n=100&ei=UTF-8&va_vt=any&vo_vt=any&ve_vt=any&vp_vt=any&vd=all&vst=0&vf=all&vm=p&fl=0&fr=yfp-t-152&xargs=0&pstart=1&b=#{num}",header)
+			response << resp.body
 
 		}
 		print_status("Extracting emails from Yahoo search results...")
@@ -96,8 +96,8 @@ class Metasploit3 < Msf::Auxiliary
 		searches = 1
 		while searches < 201
 			begin
-				resp, data = clnt.get2("/search?q=%40#{targetdom}&first=#{searches.to_s}",header)
-				response << data
+				resp = clnt.get2("/search?q=%40#{targetdom}&first=#{searches.to_s}",header)
+				response << resp.body
 			rescue
 			end
 			searches = searches + 10

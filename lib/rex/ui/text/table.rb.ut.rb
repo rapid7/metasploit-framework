@@ -9,7 +9,7 @@ class Rex::Ui::Text::Table::UnitTest < Test::Unit::TestCase
 
 	def new_table(opts = {})
 		if (opts['Columns'] == nil)
-			opts['Columns'] = 
+			opts['Columns'] =
 				[
 					'col1',
 					'col2',

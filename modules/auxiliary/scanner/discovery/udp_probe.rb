@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
 		@probes << 'probe_pkt_db2disco'
 		@probes << 'probe_pkt_citrix'
 		@probes << 'probe_pkt_pca_st'
-		@probes << 'probe_pkt_pca_nq'		
+		@probes << 'probe_pkt_pca_nq'
 
 	end
 
@@ -107,13 +107,13 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Exception => e
 			print_error("Unknown error: #{@thost}:#{@tport} #{e.class} #{e} #{e.backtrace}")
 		end
-		
+
 		@results.each_key do |k|
 			next if not @results[k].respond_to?('keys')
 			data = @results[k]
-			
+
 			next unless inside_workspace_boundary?(data[:host])
-			
+
 			conf = {
 				:host  => data[:host],
 				:port  => data[:port],
@@ -121,7 +121,7 @@ class Metasploit3 < Msf::Auxiliary
 				:name  => data[:app],
 				:info  => data[:info]
 			}
-			
+
 			if data[:hname]
 				conf[:host_name] = data[:hname].downcase
 			end
@@ -129,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
 			if data[:mac]
 				conf[:mac] = data[:mac].downcase
 			end
-			
+
 			report_service(conf)
 			print_status("Discovered #{data[:app]} on #{k} (#{data[:info]})")
 		end
@@ -140,7 +140,7 @@ class Metasploit3 < Msf::Auxiliary
 	# The response parsers
 	#
 	def parse_reply(pkt)
-		
+
 		# Ignore "empty" packets
 		return if not pkt[1]
 
@@ -154,7 +154,7 @@ class Metasploit3 < Msf::Auxiliary
 		hname = nil
 
 		hkey = "#{pkt[1]}:#{pkt[2]}"
-		
+
 		# Work with protocols that return different data in different packets
 		# These are reported at the end of the scanning loop to build state
 		case pkt[2]
@@ -162,55 +162,53 @@ class Metasploit3 < Msf::Auxiliary
 
 				@results[hkey] ||= {}
 				data = @results[hkey]
-							
-				data[:app]  = "pcAnywhere"
+				data[:app]  = "pcAnywhere_stat"
 				data[:port] = pkt[2]
 				data[:host] = pkt[1]
 
 				case pkt[0]
-				
+
 				when /^NR(........................)(........)/
 					name = $1.dup
-					caps = $2.dup		
+					caps = $2.dup
 					name = name.gsub(/_+$/, '').gsub("\x00", '').strip
-					caps = caps.gsub(/_+$/, '').gsub("\x00", '').strip	
+					caps = caps.gsub(/_+$/, '').gsub("\x00", '').strip
 					data[:name] = name
 					data[:caps] = caps
-			
+
 				when /^ST(.+)/
 					buff = $1.dup
 					stat = 'Unknown'
-			
+
 					if buff[2,1].unpack("C")[0] == 67
 						stat = "Available"
 					end
-			
+
 					if buff[2,1].unpack("C")[0] == 11
 						stat = "Busy"
 					end
-			
+
 					data[:stat] = stat
-				end	
-				
+				end
+
 				if data[:name]
 					inf << "Name: #{data[:name]} "
 				end
-			
+
 				if data[:stat]
 					inf << "- #{data[:stat]} "
 				end
 
 				if data[:caps]
 					inf << "( #{data[:caps]} ) "
-				end	
-				data[:info] = inf			
+				end
+				data[:info] = inf
 		end
-		
 
 
 		# Ignore duplicates for the protocols below
 		return if @results[hkey]
-		
+
 		case pkt[2]
 
 			when 53
@@ -271,7 +269,7 @@ class Metasploit3 < Msf::Auxiliary
 						hname = names[0][0]
 					end
 				end
-				
+
 				@results[hkey] = true
 
 			when 111
@@ -344,7 +342,7 @@ class Metasploit3 < Msf::Auxiliary
 				app = 'citrix-ica'
 				return unless citrix_parse(pkt[0])
 				@results[hkey] = true
-				
+
 		end
 
 		return unless inside_workspace_boundary?(pkt[1])
@@ -513,10 +511,9 @@ class Metasploit3 < Msf::Auxiliary
 	def probe_pkt_pca_st(ip)
 		return ["ST", 5632]
 	end
-	
+
 	def probe_pkt_pca_nq(ip)
 		return ["NQ", 5632]
 	end	
 
 end
-

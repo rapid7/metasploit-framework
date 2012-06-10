@@ -6,8 +6,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Post Windows Recon Computer Browser Discovery',
+				'Name'          => 'Windows Recon Computer Browser Discovery',
 				'Description'   => %q{ This module uses railgun to discover hostnames and IPs on the network.
 					LTYPE should be set to one of the following values: WK (all workstations), SVR (all servers),
 					SQL (all SQL servers), DC (all Domain Controllers), DCBKUP (all Domain Backup Servers),

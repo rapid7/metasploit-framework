@@ -8,5 +8,7 @@ CFLAGS+= -march=i386 -m32
 all:
 	gcc -Wl,--hash-style=sysv -shared -o libdl.so $(CFLAGS) libdl.c
 
+debug: all
+
 clean:
 	rm libdl.so

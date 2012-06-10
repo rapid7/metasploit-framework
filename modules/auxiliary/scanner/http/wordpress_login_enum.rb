@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 		)
 
 		register_options(
-			[ Opt::RPORT(80),
+			[
 				OptString.new('URI', [false, 'Define the path to the wp-login.php file', '/wp-login.php']),
 				OptBool.new('VALIDATE_USERS', [ true, "Enumerate usernames", true ]),
 				OptBool.new('BRUTEFORCE', [ true, "Perform brute force authentication", true ]),
@@ -119,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_good("#{target_url} - WordPress Enumeration- Username: '#{user}' - is VALID")
 				report_auth_info(
 					:host => rhost,
-					:sname => 'http',
+					:sname => (ssl ? 'https' : 'http'),
 					:user => user,
 					:port => rport,
 					:proof => "WEBAPP=\"Wordpress\", VHOST=#{vhost}"
@@ -156,7 +156,7 @@ class Metasploit3 < Msf::Auxiliary
 					report_auth_info(
 						:host => rhost,
 						:port => rport,
-						:sname => 'http',
+						:sname => (ssl ? 'https' : 'http'),
 						:user => user,
 						:pass => pass,
 						:proof => "WEBAPP=\"Wordpress\", VHOST=#{vhost}, COOKIE=#{res.headers['Set-Cookie']}",
@@ -182,4 +182,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'rex/proto/http'
@@ -17,7 +17,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanFile
+	include Msf::Auxiliary::WmapScanFile
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 
@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('PATH', [ true,  "The path/file to identify backups", '/index.asp']),
+				OptString.new('PATH', [ true,  "The path/file to identify backups", '/index.asp'])
 			], self.class)
 
 	end
@@ -44,6 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 			'.backup',
 			'.bak',
 			'.copy',
+			'.copia',
 			'.old',
 			'.orig',
 			'.temp',
@@ -71,13 +72,20 @@ class Metasploit3 < Msf::Auxiliary
 			if (res and res.code >= 200 and res.code < 300)
 				print_status("Found #{wmap_base_url}#{file}")
 
-				report_note(
-					:host	=> rhost,
-					:proto => 'tcp',
-					:sname	=> 'HTTP',
+				report_web_vuln(
+					:host	=> ip,
 					:port	=> rport,
-					:type	=> 'BACKUP_FILE',
-					:data	=> "#{file}"
+					:vhost  => vhost,
+					:ssl    => ssl,
+					:path	=> file,
+					:method => 'GET',
+					:pname  => "",
+					:proof  => "Res code: #{res.code.to_s}",
+					:risk   => 0,
+					:confidence   => 100,
+					:category     => 'file',
+					:description  => 'Backup file found.',
+					:name   => 'backup file'
 				)
 
 			else

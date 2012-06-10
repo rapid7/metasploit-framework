@@ -18,7 +18,7 @@ class Console::CommandDispatcher::Priv
 
 	Klass = Console::CommandDispatcher::Priv
 
-	Dispatchers = 
+	Dispatchers =
 		[
 			Klass::Elevate,
 			Klass::Passwd,

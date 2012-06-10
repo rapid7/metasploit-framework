@@ -5,8 +5,8 @@
 ##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -29,9 +29,10 @@ class Metasploit3 < Msf::Post
 
 		register_options(
 			[
-				OptBool.new(  'SPAWN',[ false,'Spawn process to migrate to. If name for process not given notepad.exe is used.', true]),
-				OptInt.new(   'PID',  [false, 'PID of process to migrate to.']),
-				OptBool.new(  'KILL', [false, 'Kill original process for the session.', false])
+				OptBool.new(   'SPAWN',[ false,'Spawn process to migrate to. If name for process not given notepad.exe is used.', true]),
+				OptInt.new(    'PID',  [false, 'PID of process to migrate to.']),
+				OptString.new( 'NAME', [false, 'Name of process to migrate to.']),
+				OptBool.new(   'KILL', [false, 'Kill original process for the session.', false])
 			], self.class)
 	end
 
@@ -49,6 +50,13 @@ class Metasploit3 < Msf::Post
 			target_pid = create_temp_proc
 		elsif datastore['PID']
 			target_pid = datastore['PID']
+		elsif datastore['NAME']
+			target_pid = session.sys.process[datstore['NAME']]
+		end
+
+		if not target_pid
+			print_error("Process or PID not found")
+			return
 		end
 
 		begin
@@ -57,7 +65,7 @@ class Metasploit3 < Msf::Post
 			print_good("Successfully migrated to process #{target_pid}")
 		rescue ::Exception => e
 			print_error("Could not migrate in to process.")
-			print_error(e)
+			print_error("Exception: #{e.class} : #{e}")
 		end
 
 		if datastore['KILL']

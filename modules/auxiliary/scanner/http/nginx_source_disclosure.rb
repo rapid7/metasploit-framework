@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -31,8 +31,8 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'CVE', '2010-2263' ],
 					[ 'OSVDB', '65531' ],
 					[ 'BID', '40760' ],
-					[ 'URL', 'http://www.exploit-db.com/exploits/13818/' ],
-					[ 'URL', 'http://www.exploit-db.com/exploits/13822/' ]
+					[ 'EDB', 13818 ],
+					[ 'EDB', 13822 ]
 				],
 			'Author'         =>
 				[

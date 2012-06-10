@@ -1,14 +1,14 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
 require 'msf/core/post/common'
 require 'msf/core/post/file'
-require 'msf/core/post/unix/enum_user_dirs'
+require 'msf/core/post/unix'
 
 class Metasploit3 < Msf::Post
 
@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'UNIX Gather credentials saved in .netrc files',
+				'Name'          => 'UNIX Gather .netrc Credentials',
 				'Description'   => %q{
 					Post Module to obtain credentials saved for FTP and other services in .netrc
 				},

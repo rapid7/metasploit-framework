@@ -35,7 +35,7 @@ module Console::InteractiveChannel
 	# Called when an interrupt is sent.
 	#
 	def _interrupt
-		prompt_yesno("Terminate channel #{self.cid}?")	
+		prompt_yesno("Terminate channel #{self.cid}?")
 	end
 
 	#

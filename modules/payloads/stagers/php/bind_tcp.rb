@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -32,14 +32,8 @@ module Metasploit3
 			))
 	end
 	def generate
-		if (datastore['LPORT'] and not datastore['LPORT'].empty?)
-			lport = datastore['LPORT']
-		else
-			lport = '4444'
-		end
-
 		bind = File.read(File.join(Msf::Config::InstallRoot, 'data', 'php', 'bind_tcp.php'))
-		bind.gsub!("4444", lport)
+		bind.gsub!("4444", "#{datastore["LPORT"]}")
 
 		return super + bind
 	end

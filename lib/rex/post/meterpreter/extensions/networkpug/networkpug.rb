@@ -18,7 +18,7 @@ class NetworkPug < Extension
 
 		client.register_extension_aliases(
 			[
-				{ 
+				{
 					'name' => 'networkpug',
 					'ext'  => self
 				},
@@ -33,7 +33,7 @@ class NetworkPug < Extension
 
 		channel = nil
 		channel_id = response.get_tlv_value(TLV_TYPE_CHANNEL_ID)
-		
+
 		if(channel_id)
 			channel = Rex::Post::Meterpreter::Channels::Pools::StreamPool.new(
 				client,
@@ -42,16 +42,16 @@ class NetworkPug < Extension
 				CHANNEL_FLAG_SYNCHRONOUS
 			)
 		end
-		
+
 		return response, channel
 	end
-	
+
 	def networkpug_stop(interface)
 		request = Packet.create_request('networkpug_stop')
 		request.add_tlv(TLV_TYPE_NETWORKPUG_INTERFACE, interface)
-		response = client.send_request(request)	
+		response = client.send_request(request)
 	end
-		
+
 end
 
 end; end; end; end; end
