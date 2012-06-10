@@ -1,3 +1,10 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+#   http://metasploit.com/framework/
+##
+
 require 'msf/core'
 
 module Metasploit3
@@ -9,7 +16,7 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'Linux Read File',
 			'Version'       => '',
-			'Description'   => 'Read a file from the local file system and write it back out to the specified file descriptor',
+			'Description'   => 'Read a file from the local file system, and write it back out to the specified file descriptor',
 			'Author'        => 'hal',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'linux',
@@ -58,7 +65,7 @@ module Metasploit3
 				call open
 				db "#{datastore['FILE']}", 0x00
 		EOS
-      
+
 		Metasm::Shellcode.assemble(Metasm::Ia32.new, payload_data).encode_string
 	end
 end
