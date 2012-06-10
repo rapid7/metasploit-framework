@@ -53,7 +53,6 @@ module ReverseTcp
 				OptInt.new('ReverseConnectRetries', [ true, 'The number of connection attempts to try before exiting the process', 5 ]),
 				OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
 				OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
-				OptBool.new('SSLHandler', [true, 'Use SSL for the listener socket', false]),
 			], Msf::Handler::ReverseTcp)
 
 
@@ -96,9 +95,7 @@ module ReverseTcp
 		addrs.each { |ip|
 			begin
 
-				if datastore['SSLHandler']
-					comm.extend(Rex::Socket::SslTcp)
-					self.listener_sock = Rex::Socket::SslTcpServer.create(
+				self.listener_sock = Rex::Socket::TcpServer.create(
 					'LocalHost' => datastore['LHOST'],
 					'LocalPort' => datastore['LPORT'].to_i,
 					'Comm'      => comm,
@@ -108,19 +105,6 @@ module ReverseTcp
 							'MsfPayload' => self,
 							'MsfExploit' => assoc_exploit
 						})
-
-				else
-					self.listener_sock = Rex::Socket::TcpServer.create(
-						'LocalHost' => datastore['LHOST'],
-						'LocalPort' => datastore['LPORT'].to_i,
-						'Comm'      => comm,
-						'Context'   =>
-							{
-								'Msf'        => framework,
-								'MsfPayload' => self,
-								'MsfExploit' => assoc_exploit
-							})
-				end
 
 				ex = false
 

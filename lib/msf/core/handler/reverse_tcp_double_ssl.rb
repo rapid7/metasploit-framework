@@ -11,7 +11,7 @@ module Handler
 # listen on.
 #
 ###
-module ReverseTcpDouble
+module ReverseTcpDoubleSsl
 
 	include Msf::Handler
 
@@ -20,7 +20,7 @@ module ReverseTcpDouble
 	# 'reverse_tcp_double'.
 	#
 	def self.handler_type
-		return "reverse_tcp_double"
+		return "reverse_tcp_double_ssl"
 	end
 
 	#
@@ -42,8 +42,7 @@ module ReverseTcpDouble
 			[
 				Opt::LHOST,
 				Opt::LPORT(4444)
-			], Msf::Handler::ReverseTcpDouble)
-
+			], Msf::Handler::ReverseTcpDoubleSsl)
 		self.conn_threads = []
 	end
 
@@ -57,16 +56,17 @@ module ReverseTcpDouble
 			raise 'tcp connectback can not be used with proxies'
 		end
 
-		self.listener_sock = Rex::Socket::TcpServer.create(
-			# 'LocalHost' => datastore['LHOST'],
-			'LocalPort' => datastore['LPORT'].to_i,
-			'Comm'      => comm,
-			'Context'   =>
-				{
-					'Msf'        => framework,
-					'MsfPayload' => self,
-					'MsfExploit' => assoc_exploit
-				})
+		comm.extend(Rex::Socket::SslTcp)
+		self.listener_sock = Rex::Socket::SslTcpServer.create(
+		'LocalHost' => datastore['LHOST'],
+		'LocalPort' => datastore['LPORT'].to_i,
+		'Comm'      => comm,
+		'Context'   =>
+			{
+				'Msf'        => framework,
+				'MsfPayload' => self,
+				'MsfExploit' => assoc_exploit
+			})
 	end
 
 	#
@@ -86,7 +86,7 @@ module ReverseTcpDouble
 	# Starts monitoring for an inbound connection.
 	#
 	def start_handler
-		self.listener_thread = framework.threads.spawn("ReverseTcpDoubleHandlerListener", false) {
+		self.listener_thread = framework.threads.spawn("ReverseTcpDoubleSslHandlerListener", false) {
 			sock_inp = nil
 			sock_out = nil
 
@@ -114,7 +114,7 @@ module ReverseTcpDouble
 				# Start a new thread and pass the client connection
 				# as the input and output pipe.  Client's are expected
 				# to implement the Stream interface.
-				conn_threads << framework.threads.spawn("ReverseTcpDoubleHandlerSession", false, sock_inp, sock_out) { | sock_inp_copy, sock_out_copy|
+				conn_threads << framework.threads.spawn("ReverseTcpDoubleSslHandlerSession", false, sock_inp, sock_out) { | sock_inp_copy, sock_out_copy|
 					begin
 						chan = TcpReverseDoubleSessionChannel.new(framework, sock_inp_copy, sock_out_copy)
 						handle_connection(chan.lsock)
@@ -205,7 +205,7 @@ protected
 	attr_accessor :conn_threads # :nodoc:
 
 
-	module TcpReverseDoubleChannelExt
+	module TcpReverseDoubleSslChannelExt
 		attr_accessor :localinfo
 		attr_accessor :peerinfo
 	end
@@ -216,7 +216,7 @@ protected
 	# connections, allowing input and output to be split across both.
 	#
 	###
-	class TcpReverseDoubleSessionChannel
+	class TcpReverseDoubleSslSessionChannel
 
 		include Rex::IO::StreamAbstraction
 
@@ -227,7 +227,7 @@ protected
 
 			initialize_abstraction
 
-			self.lsock.extend(TcpReverseDoubleChannelExt)
+			self.lsock.extend(TcpReverseDoubleSslChannelExt)
 			self.lsock.peerinfo  = @sock_inp.getpeername[1,2].map{|x| x.to_s}.join(":")
 			self.lsock.localinfo = @sock_inp.getsockname[1,2].map{|x| x.to_s}.join(":")
 
@@ -244,7 +244,7 @@ protected
 		def monitor_shell_stdout
 
 			# Start a thread to pipe data between stdin/stdout and the two sockets
-			@monitor_thread = @framework.threads.spawn("ReverseTcpDoubleHandlerMonitor", false) {
+			@monitor_thread = @framework.threads.spawn("ReverseTcpDoubleSslHandlerMonitor", false) {
 				begin
 					while true
 						# Handle data from the server and write to the client
@@ -255,7 +255,7 @@ protected
 						end
 					end
 				rescue ::Exception => e
-					ilog("ReverseTcpDouble monitor thread raised #{e.class}: #{e}")
+					ilog("ReverseTcpDoubleSsl monitor thread raised #{e.class}: #{e}")
 				end
 
 				# Clean up the sockets...
