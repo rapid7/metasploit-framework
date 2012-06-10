@@ -24,7 +24,7 @@ module Metasploit3
 			'Name'        => 'Unix Command Shell, Reverse TCP SSL (via Ruby)',
 			'Version'     => '$Revision$',
 			'Description' => 'Connect back and create a command shell via Ruby, uses SSL',
-			'Author'      => ['RageLtMan']
+			'Author'      => 'RageLtMan',
 			'License'     => MSF_LICENSE,
 			'Platform'    => 'unix',
 			'Arch'        => ARCH_CMD,

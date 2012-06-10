@@ -27,7 +27,7 @@ module Metasploit3
 			'Author'        => [
 				'hdm',	# Original module
 				'RageLtMan', # SSL support
-			]
+			],
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'unix',
 			'Arch'          => ARCH_CMD,

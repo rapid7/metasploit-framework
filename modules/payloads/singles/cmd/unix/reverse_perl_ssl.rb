@@ -24,7 +24,7 @@ module Metasploit3
 			'Name'          => 'Unix Command Shell, Reverse TCP SSL (via perl)',
 			'Version'       => '$Revision$',
 			'Description'   => 'Creates an interactive shell via perl, uses SSL',
-			'Author'        => ['RageLtMan']
+			'Author'        => 'RageLtMan',
 			'License'       => BSD_LICENSE,
 			'Platform'      => 'unix',
 			'Arch'          => ARCH_CMD,
