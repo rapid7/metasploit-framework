@@ -58,7 +58,7 @@ module Parser
 		unless in_tag("JobOrder")
 			case name
 			when "OS"
-				unless @host.nil?
+				unless @host.nil? or @text.blank?
 					tnote = {
 						:type       => "host.os.fusionvm_fingerprint",
 						:data       => { :os => @text.strip },
