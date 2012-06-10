@@ -424,6 +424,17 @@ class Export
 				end
 				report_file.write("            </vuln_details>\n")
 
+
+				# Vuln attempts sub-elements
+				report_file.write("            <vuln_attempts>\n")
+				e.vuln_attempts.find(:all).each do |d|
+					d.attributes.each_pair do |k,v|
+						el = create_xml_element(k,v)
+						report_file.write("                #{el}\n")
+					end					
+				end
+				report_file.write("            </vuln_attempts>\n")
+
 				report_file.write("      </vuln>\n")
 			end
 			report_file.write("    </vulns>\n")

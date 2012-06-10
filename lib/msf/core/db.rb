@@ -865,6 +865,24 @@ class DBManager
 	}
 	end
 
+	def report_vuln_attempt(vuln, opts)
+	::ActiveRecord::Base.connection_pool.with_connection {
+		return if not vuln
+		info = {}
+		
+		# Opts can be keyed by strings or symbols
+		::Mdm::VulnAttempt.column_names.each do |kn|
+			k = kn.to_sym
+			next if ['id', 'vuln_id'].include?(kn)
+			info[k] = opts[kn] if opts[kn]
+			info[k] = opts[k]  if opts[k]
+		end
+
+		info[:vuln_id] = vuln.id
+		Mdm::VulnAttempt.create(info)
+	}
+	end
+
 	def report_exploit_failure(opts)
 	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace = opts.delete(:workspace) || workspace
@@ -3637,6 +3655,17 @@ class DBManager
 						end
 					end
 					report_vuln_details(vobj, vdet_data)
+				end
+
+				vuln.elements.each("vuln_attempts") do |vdet|
+					vdet_data = {}
+					vdet.elements.each do |det|
+						next if ["id", "vuln-id", "loot-id", "session-id"].include?(det.name)
+						if det.text
+							vdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
+						end
+					end
+					report_vuln_attempt(vobj, vdet_data)
 				end
 			end
 
