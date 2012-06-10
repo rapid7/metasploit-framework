@@ -686,8 +686,7 @@ class DBManager
 		# it's vulnerable to, so it isn't really useful to save it.
 		if opts[:session] and session.via_exploit and session.via_exploit != "exploit/multi/handler"
 			return unless host
-			port = session.exploit_datastore["RPORT"]
-			service = (port ? host.services.find_by_port(port) : nil)
+
 			mod = framework.modules.create(session.via_exploit)
 			vuln_info = {
 				:host => host.address,
@@ -696,7 +695,27 @@ class DBManager
 				:workspace => wspace,
 				:exploited_at => Time.now.utc
 			}
+
+			port    = session.exploit_datastore["RPORT"]
+			service = (port ? host.services.find_by_port(port) : nil)
+
+			vuln_info[:service] = service if service
+
 			framework.db.report_vuln(vuln_info)
+			
+			attempt_info = {
+				:timestamp   => Time.now.utc,
+				:workspace   => wspace,
+				:module      => session.via_exploit,
+				:username    => session.username,
+				:refs        => mod.references,
+				:session_id  => s.id,
+				:host        => host,
+				:service     => service
+			}
+
+			framework.db.report_exploit_success(attempt_info)
+			
 		end
 
 		s
@@ -786,6 +805,122 @@ class DBManager
 		r.destroy if r
 	}
 	end
+
+
+	def report_exploit_success(opts)
+	::ActiveRecord::Base.connection_pool.with_connection {
+
+		wspace = opts.delete(:workspace) || workspace
+		mrefs  = opts.delete(:refs) || return
+		host   = opts.delete(:host)
+		port   = opts.delete(:port)
+		prot   = opts.delete(:proto)
+		svc    = opts.delete(:service)
+
+		# Look up or generate the host as appropriate
+		if not (host and host.kind_of? ::Mdm::Host)
+			if svc.kind_of? ::Mdm::Service
+				host = svc.host
+			else
+				host = report_host(:workspace => wspace, :address => host )
+			end
+		end
+
+		# Bail if we dont have a host object
+		return if not host
+
+		# Look up or generate the service as appropriate
+		if port and svc.nil?
+			svc = report_service(:workspace => wspace, :host => host, :port => port, :proto => prot ) if port
+		end
+
+		# Create a references map from the module list
+		ref_objs = ::Mdm::Ref.where(:name => mrefs.map { |ref|
+			if ref.respond_to?(:ctx_id) and ref.respond_to?(:ctx_val)
+				"#{ref.ctx_id}-#{ref.ctx_val}"
+			else
+				ref.to_s
+			end
+		})
+
+		# Try find a matching vulnerability
+		vuln = find_vuln_by_refs(ref_objs, host, svc)
+
+		# Give up now if nothing was found
+		return if not vuln
+
+		# We have match, lets create a vuln_attempt record
+		attempt_info = {
+			:vuln_id      => vuln.id,
+			:attempted_at => opts.delete(:timestamp) || Time.now.utc,
+			:exploited    => true,
+			:username     => opts.delete(:username)  || "unknown",
+			:module       => opts.delete(:module)
+		}
+
+		attempt_info[:session_id] = opts[:session_id] if opts[:session_id]
+		attempt_info[:loot_id]    = opts[:loot_id]    if opts[:loot_id]
+
+		Mdm::VulnAttempt.create(attempt_info)
+	}
+	end
+
+	def report_exploit_failure(opts)
+	::ActiveRecord::Base.connection_pool.with_connection {
+		wspace = opts.delete(:workspace) || workspace
+		mrefs  = opts.delete(:refs) || return
+		host   = opts.delete(:host)
+		port   = opts.delete(:port)
+		prot   = opts.delete(:proto)
+		svc    = opts.delete(:service)
+
+		# Look up the host as appropriate
+		if not (host and host.kind_of? ::Mdm::Host)
+			if svc.kind_of? ::Mdm::Service
+				host = svc.host
+			else
+				host = get_host( :workspace => wspace, :address => host )
+			end
+		end
+
+		# Bail if we dont have a host object
+		return if not host
+
+		# Look up the service as appropriate
+		if port and svc.nil?
+			prot ||= "tcp"
+			svc = get_service(wspace, host, prot, port) if port
+		end
+
+		# Create a references map from the module list
+		ref_objs = ::Mdm::Ref.where(:name => mrefs.map { |ref|
+			if ref.respond_to?(:ctx_id) and ref.respond_to?(:ctx_val)
+				"#{ref.ctx_id}-#{ref.ctx_val}"
+			else
+				ref.to_s
+			end
+		})
+
+		# Try find a matching vulnerability
+		vuln = find_vuln_by_refs(ref_objs, host, svc)
+
+		# Give up now if nothing was found
+		return if not vuln
+
+		# We have match, lets create a vuln_attempt record
+		attempt_info = {
+			:vuln_id      => vuln.id,
+			:attempted_at => opts.delete(:timestamp) || Time.now.utc,
+			:exploited    => false,
+			:fail_reason  => opts.delete(:reason),
+			:username     => opts.delete(:username)  || "unknown",
+			:module       => opts.delete(:module)
+		}
+
+		Mdm::VulnAttempt.create(attempt_info)
+	}
+	end
+
 
 	def get_client(opts)
 	::ActiveRecord::Base.connection_pool.with_connection {
@@ -1364,22 +1499,11 @@ class DBManager
 
 			# Try to find an existing vulnerability with the same service & references
 			# If there are multiple matches, choose the one with the most matches
-			if rids
-				refs_ids = rids.map{|x| x.id }
-				vuln = service.vulns.find(:all, :include => [:refs], :conditions => { 'refs.id' => refs_ids }).sort { |a,b|
-					( refs_ids - a.refs.map{|x| x.id } ).length <=> ( refs_ids - b.refs.map{|x| x.id } ).length
-				}.first
-			end
-
+			vuln = find_vuln_by_refs(rids, host, service) if rids
 		else
 			# Try to find an existing vulnerability with the same host & references
 			# If there are multiple matches, choose the one with the most matches
-			if rids		
-				refs_ids = rids.map{|x| x.id }
-				vuln = host.vulns.find(:all, :include => [:refs], :conditions => { 'service_id' => nil, 'refs.id' => refs_ids }).sort { |a,b|
-					( refs_ids - a.refs.map{|x| x.id } ).length <=> ( refs_ids - b.refs.map{|x| x.id } ).length
-				}.first
-			end
+			vuln = find_vuln_by_refs(rids, host) if rids
 		end
 
 		# No matches, so create a new vuln record
@@ -1415,6 +1539,28 @@ class DBManager
 		
 		vuln
 	}
+	end
+
+	def find_vuln_by_refs(refs, host, service=nil)
+
+		# Try to find an existing vulnerability with the same service & references
+		# If there are multiple matches, choose the one with the most matches
+		if service
+			refs_ids = refs.map{|x| x.id }
+			vuln = service.vulns.find(:all, :include => [:refs], :conditions => { 'refs.id' => refs_ids }).sort { |a,b|
+				( refs_ids - a.refs.map{|x| x.id } ).length <=> ( refs_ids - b.refs.map{|x| x.id } ).length
+			}.first
+		end
+
+		# Return if we matched based on service
+		return vuln if vuln
+
+		# Try to find an existing vulnerability with the same host & references
+		# If there are multiple matches, choose the one with the most matches
+		refs_ids = refs.map{|x| x.id }
+		vuln = host.vulns.find(:all, :include => [:refs], :conditions => { 'service_id' => nil, 'refs.id' => refs_ids }).sort { |a,b|
+			( refs_ids - a.refs.map{|x| x.id } ).length <=> ( refs_ids - b.refs.map{|x| x.id } ).length
+		}.first
 	end
 
 	def get_vuln(wspace, host, service, name, data='')
