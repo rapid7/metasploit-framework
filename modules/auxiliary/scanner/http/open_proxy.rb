@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptString.new('RIPE_ADDRESS', [ true, 'www.ripe.net IP address', '193.0.6.139' ]),
 			], self.class)
-			
+
 		register_wmap_options({
 				'OrderID' => 1,
 				'Require' => {},

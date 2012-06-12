@@ -22,7 +22,7 @@ public class SecureSocket {
 		SSLSocketFactory factory = (SSLSocketFactory) sslcontext.getSocketFactory();
 
 		socket = (SSLSocket)factory.createSocket(host, port);
-
+		socket.setTcpNoDelay(true);
 		socket.setSoTimeout(4048);
 		socket.startHandshake();
 	}

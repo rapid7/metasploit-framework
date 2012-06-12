@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 				DigitalBond.
 			},
 			'Author'         =>
-				[ 
+				[
 					'K. Reid Wightman <wightman[at]digitalbond.com>', # original module
 					'todb' # Metasploit fixups
 				],
@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 
 	end
-	
+
 	# this is used for building a Modbus frame
 	# just prepends the payload with a modbus header
 	def makeframe(packetdata)
@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 		payload += [packetdata.size].pack("c") # size byte
 		payload += packetdata
 	end
-	
+
 	# a wrapper just to be sure we increment the counter
 	def sendframe(payload)
 		sock.put(payload)
@@ -159,9 +159,6 @@ class Metasploit3 < Msf::Auxiliary
 		sendframe(makeframe(payload))
 		payload = "\x00\x5a\x01\x04"
 		sendframe(makeframe(payload))
-	end
-
-	def cleanup
 	end
 
 	def run

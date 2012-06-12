@@ -450,21 +450,9 @@ sub _launch_dialog {
 			}
 		}
 		else {
-			thread(lambda({
-				local('$r');
-				$r = call($client, "module.execute", $type, $command, $options);
-				if ("result" in $r) {
-					elog("started $command");
-					showError($r["result"]);
-				}
-				else if ("job_id" in $r) {
-					elog("started $command");
-					showError("Started service");
-				}
-				else {
-					showError($r);
-				}
-			}, \$type, \$command, \$options));
+			call_async($client, "module.execute", $type, $command, $options);
+			elog("started $command");
+			showError("Started service");
 		}
 	}, \$dialog, \$model, $title => $1, $type => $2, $command => $3, $visible => $4, \$combo, \$table, \$combobox)];
 

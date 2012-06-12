@@ -894,10 +894,10 @@ protected
 	# them into one single hash.  As it stands, modules can define
 	# compatibility in their supplied info hash through:
 	#
-	#   Compat        - direct compat definitions
-	#   PayloadCompat - payload compatibilities
-	#   EncoderCompat - encoder compatibilities
-	#   NopCompat     - nop compatibilities
+	# Compat::        direct compat definitions
+	# PayloadCompat:: payload compatibilities
+	# EncoderCompat:: encoder compatibilities
+	# NopCompat::     nop compatibilities
 	#
 	# In the end, the module specific compatibilities are merged as sub-hashes
 	# of the primary Compat hash key to make checks more uniform.

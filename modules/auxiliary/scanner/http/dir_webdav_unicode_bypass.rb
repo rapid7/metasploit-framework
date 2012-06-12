@@ -174,7 +174,7 @@ class Metasploit3 < Msf::Auxiliary
 
 						# Unable to use report_web_vuln as method is PROPFIND and is not part of allowed
 						# list in db.rb
-						
+
 						report_note(
 							:host	=> ip,
 							:proto => 'tcp',

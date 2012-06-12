@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 				Two modes are supported: "SEND" and "RECV," which behave as one might
 				expect -- use 'set mode ACTIONAME' to use either mode of operation.
 
-				In either mode, FILENAME must be set to a valid path to an existing 
+				In either mode, FILENAME must be set to a valid path to an existing
 				file (for SENDing) or a new file (for RECVing), and the directory must
 				already exist.  The default, 'modicon_ladder.apx' is a blank
 				ladder logic file which can be used for testing.
@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('FILENAME',
 					[
 						true,
-						"The file to send or receive", 
+						"The file to send or receive",
 						File.join(Msf::Config.data_directory, "exploits", "modicon_ladder.apx")
 					]),
 				OptEnum.new("MODE", [true, 'File transfer operation', "SEND",
@@ -101,7 +101,7 @@ class Metasploit3 < Msf::Auxiliary
 		sock.put(payload)
 		@modbuscounter += 1
 		# TODO: Fix with sock.timed_read -- Should make it faster, just need a test.
-		r = sock.recv(65535, 0.1) 
+		r = sock.recv(65535, 0.1)
 		return r
 	end
 
@@ -194,7 +194,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("#{rhost}:#{rport} - MODBUS - File too large, aborting.")
 			return
 		end
-		lastblocksize = buf.length - (blocksize*fullblocks) 
+		lastblocksize = buf.length - (blocksize*fullblocks)
 		fileblocks = fullblocks
 		if lastblocksize != 0
 			fileblocks += 1

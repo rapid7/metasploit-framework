@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 			if (fpversion = res.match(/FPVersion="(.*)"/))
 				fpversion = $1
 				print_status("#{info} FrontPage Version: #{fpversion}")
-				
+
 				if (fpauthor = res.match(/FPAuthorScriptUrl="([^"]*)/))
 					fpauthor = $1
 					print_status("#{info} FrontPage Author: #{info}#{fpauthor}")

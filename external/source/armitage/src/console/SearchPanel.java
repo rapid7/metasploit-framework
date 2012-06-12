@@ -12,7 +12,6 @@ import java.util.*;
 
 /** a search panel for use with a JTextComponent */
 public class SearchPanel extends JPanel implements ActionListener {
-	
 	protected JTextField     search = null;
 	protected JLabel         status = null;
 	protected JTextComponent component = null;
@@ -70,16 +69,22 @@ public class SearchPanel extends JPanel implements ActionListener {
 			return;
 
 		Highlighter.HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter( highlight );
-		
+
 		try {
 			String text = component.getText();
-			int    lastIndex = -1;
-			while ((lastIndex = text.replaceAll("\r", "").indexOf(searchstr, lastIndex + 1)) != -1) {
+
+			/* another windows work-around... */
+			if ((System.getProperty("os.name") + "").indexOf("Windows") != -1) {
+				text = text.replaceAll("\r\n", "\n");
+			}
+
+			int lastIndex = -1;
+			while ((lastIndex = text.indexOf(searchstr, lastIndex + 1)) != -1) {
 				component.getHighlighter().addHighlight(
-					lastIndex, 
+					lastIndex,
 					lastIndex + searchstr.length(),
 					painter);
-			}	
+			}
 		}
 		catch (Exception ex) {
 			// ...

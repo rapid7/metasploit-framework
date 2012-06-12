@@ -29,7 +29,7 @@ module Metasploit3
 	def self.handler_type_alias
 		"bind_ipv6_tcp"
 	end
-	
+
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Bind TCP Stager (IPv6)',
