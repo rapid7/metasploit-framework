@@ -20,14 +20,14 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'           => 'MYSQL CVE-2012-2122 Authentication Bypass Password Dump',
+			'Name'           => 'MySQL Authentication Bypass Password Dump',
 			'Version'        => '$Revision$',
 			'Description'    => %Q{
 					This module exploits a password bypass vulnerability in MySQL in order
 				to extract the usernames and encrypted password hashes from a MySQL server.
 				These hashes ares stored as loot for later cracking.
 			},
-			'Authors'        => [
+			'Author'        => [
 					'TheLightCosine <thelightcosine[at]metasploit.com>', # Original hashdump module
 					'jcran'                                              # Authentication bypass bruteforce implementation
 				],
@@ -164,7 +164,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 		if results.length > 0
-			print_good("#{rhost}:#{rport} Successful exploited the authentication bypass flaw, dumping hashes...")
+			print_good("#{rhost}:#{rport} Successfully exploited the authentication bypass flaw, dumping hashes...")
 			@mysql_handle = results.first
 			return dump_hashes
 		end
