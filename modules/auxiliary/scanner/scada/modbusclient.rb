@@ -14,16 +14,16 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Modbus Client',
+			'Name'           => 'Modbus Client Utility',
 			'Description'    => %q{
-				This module sends a command (0x06, write to one register) to a modbus endpoint.
-				You can change port, ip, register to write and data to write, as well as unit-id.
+				This module sends a command (0x06, write to one register) to a Modbus endpoint.
+				You can change port, IP, register to write and data to write, as well as unit-id.
 
 				Modbus is a clear text protocol used in common SCADA systems, developed
 				originally as a serial-line (RS232) async protocol. It is later transformed
 				to IP, which is called ModbusTCP.
 
-				There are a handful of functions which is possible to do, but this
+				There are a handful of functions which are possible to do, but this
 				client has only implemented the function "write value to register" (\x48).
 			},
 			'Author'         => [ 'EsMnemon <esm[at]mnemonic.no>' ],

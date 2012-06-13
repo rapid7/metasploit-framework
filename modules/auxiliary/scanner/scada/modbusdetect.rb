@@ -47,10 +47,14 @@ class Metasploit3 < Msf::Auxiliary
 
 		# Theory: Whene sending a modbus request of some sort, the endpoint will return
 		# with at least the same transaction-id, and protocol-id
-		if data and data[0,4] == "\x21\x00\x00\x00"
-			print_status("Received: correct MODBUS/TCP header from #{ip}")
+		if data 
+			if data[0,4] == "\x21\x00\x00\x00"
+				print_good("#{ip}:#{rport} - MODBUS - received correct MODBUS/TCP header")
+			else 
+				print_error("#{ip}:#{rport} - MODBUS - received incorrect data #{data[0,4].inspect} (not modbus/tcp?)")
+			end
 		else
-			print_status("Received: incorrect data from #{ip} (not modbus/tcp?)")
+			vprint_status("#{ip}:#{rport} - MODBUS - did not receive data.")
 		end
 
 		disconnect()
