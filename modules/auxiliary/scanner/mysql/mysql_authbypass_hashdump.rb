@@ -32,13 +32,17 @@ class Metasploit3 < Msf::Auxiliary
 					'jcran'                                              # Authentication bypass bruteforce implementation
 				],
 			'References'     => [
-					['CVE', '2012-2122']
+					['CVE', '2012-2122'],
+					['OSVDB', '82804']
 				],
 			'DisclosureDate' => 'Jun 09 2012',
 			'License'        => MSF_LICENSE
 		)
 
 		deregister_options('PASSWORD')
+		register_options( [ 
+			OptString.new('USERNAME', [ true, 'The username to authenticate as', "root" ]) 
+		], self.class )
 	end
 
 

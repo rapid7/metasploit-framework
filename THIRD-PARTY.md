@@ -1032,6 +1032,7 @@ MIT
    * activeresource - Copyright (c) 2006-2011 David Heinemeier Hansson
    * activesupport - Copyright (c) 2005-2011 David Heinemeier Hansson
    * authlogic - Copyright (c) 2011 Ben Johnson of Binary Logic
+   * carrierwave - Copyright (c) 2008-2012 Jonas Nicklas
    * chunky_png - Copyright (c) 2010 Willem van Bergen
    * daemons - Copyright (c) 2005-2012 Thomas Uehlinger
    * diff-lcs - Copyright 2004–2011 Austin Ziegler
