@@ -11,7 +11,7 @@ class AddModuleDetails < ActiveRecord::Migration
 			t.integer   :rank              # exploit rank
 			t.text      :description       #
 			t.string	:license           # MSF_LICENSE
-			t.bool		:privileged        # true or false
+			t.boolean	:privileged        # true or false
 			t.timestamp :disclosure_date   # Mar 10 2004
 			t.integer	:default_target    # 0
 			t.text		:default_action    # "scan"
