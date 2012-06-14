@@ -40,11 +40,12 @@ module Payload
 	#   NoKeyError => No valid encoder key could be found
 	#   ArgumentParseError => Options were supplied improperly
 	#
-	def self.generate_simple(payload, opts)
+	def self.generate_simple(payload, opts, &block)
 
 		# Clone the module to prevent changes to the original instance
 		payload = payload.replicant
 		Msf::Simple::Framework.simplify_module(payload)
+		yield(payload) if block_given?
 
 		# Import any options we may need
 		payload._import_extra_options(opts)
