@@ -5,7 +5,9 @@ module MetasploitDataModels::ActiveRecordModels::Vuln
       belongs_to :service, :class_name => "Mdm::Service", :foreign_key => :service_id
       has_many :vuln_details,  :dependent => :destroy, :class_name => "Mdm::VulnDetail"
       has_many :vuln_attempts,  :dependent => :destroy, :class_name => "Mdm::VulnAttempt"
+      has_many :vulns_refs, :class_name => "Mdm::VulnRef", :dependent => :destroy
       has_many :refs, :through => :vulns_refs, :class_name => "Mdm::Ref", :dependent => :destroy
+
 
       validates :name, :presence => true
       validates_associated :refs
