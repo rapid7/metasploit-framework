@@ -35,9 +35,21 @@ module DispatcherShell
 		#
 		# Returns nil for an empty set of commands.
 		#
-		# This method should be overridden
+		# This method should be overridden to return a Hash with command
+		# names for keys and brief help text for values.
 		#
 		def commands
+		end
+
+		#
+		# Returns an empty set of commands.
+		#
+		# This method should be overridden if the dispatcher has commands that
+		# should be treated as deprecated. Deprecated commands will not show up in
+		# help and will not tab-complete, but will still be callable.
+		#
+		def deprecated_commands
+			[]
 		end
 
 		#
@@ -73,6 +85,29 @@ module DispatcherShell
 		#
 		def print(msg = '')
 			shell.print(msg)
+		end
+
+		#
+		# Print a warning that the called command is deprecated and optionally
+		# forward to the replacement +method+ (useful for when commands are
+		# renamed).
+		#
+		def deprecated_cmd(method=nil, *args)
+			cmd = caller[0].match(/`cmd_(.*)'/)[1]
+			print_error "The #{cmd} command is DEPRECATED"
+			if method and self.respond_to?("cmd_#{method}")
+				print_error "Use #{method} instead"
+				self.send("cmd_#{method}", *args)
+			end
+		end
+
+		def deprecated_help(method=nil)
+			cmd = caller[0].match(/`cmd_(.*)_help'/)[1]
+			print_error "The #{cmd} command is DEPRECATED"
+			if method and self.respond_to?("cmd_#{method}_help")
+				print_error "Use 'help #{method}' instead"
+				self.send("cmd_#{method}_help")
+			end
 		end
 
 		#
@@ -337,7 +372,7 @@ module DispatcherShell
 				next if not dispatcher.respond_to?('commands')
 
 				begin
-					if (dispatcher.commands.has_key?(method))
+					if (dispatcher.commands.has_key?(method) or dispatcher.deprecated_commands.include?(method))
 						self.on_command_proc.call(line.strip) if self.on_command_proc
 						run_command(dispatcher, method, arguments)
 						found = true
