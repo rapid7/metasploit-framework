@@ -95,7 +95,9 @@ module DispatcherShell
 		def deprecated_cmd(method=nil, *args)
 			cmd = caller[0].match(/`cmd_(.*)'/)[1]
 			print_error "The #{cmd} command is DEPRECATED"
-			if method and self.respond_to?("cmd_#{method}")
+			if cmd == "db_autopwn"
+				print_error "See http://r-7.co/xY65Zr instead"
+			elsif method and self.respond_to?("cmd_#{method}")
 				print_error "Use #{method} instead"
 				self.send("cmd_#{method}", *args)
 			end
@@ -104,7 +106,9 @@ module DispatcherShell
 		def deprecated_help(method=nil)
 			cmd = caller[0].match(/`cmd_(.*)_help'/)[1]
 			print_error "The #{cmd} command is DEPRECATED"
-			if method and self.respond_to?("cmd_#{method}_help")
+			if cmd == "db_autopwn"
+				print_error "See http://r-7.co/xY65Zr instead"
+			elsif method and self.respond_to?("cmd_#{method}_help")
 				print_error "Use 'help #{method}' instead"
 				self.send("cmd_#{method}_help")
 			end
