@@ -25,7 +25,7 @@ class AddModuleDetails < ActiveRecord::Migration
 			t.text :name
 			t.text :email
 		end
-		create_table :modules_details_authors, :id => false do |t|
+		create_table :modules_details_authors do |t|
 			t.integer :module_detail_id
 			t.integer :module_author_id
 		end
@@ -33,7 +33,7 @@ class AddModuleDetails < ActiveRecord::Migration
 		create_table :modules_mixins do |t|
 			t.text :name
 		end
-		create_table :modules_details_mixins, :id => false do |t|
+		create_table :modules_details_mixins do |t|
 			t.integer :module_detail_id
 			t.integer :module_mixin_id
 		end
@@ -43,7 +43,7 @@ class AddModuleDetails < ActiveRecord::Migration
 			t.integer :index
 			t.text :name
 		end
-		create_table :modules_details_targets, :id => false do |t|
+		create_table :modules_details_targets do |t|
 			t.integer :module_detail_id
 			t.integer :module_target_id
 		end
@@ -52,7 +52,7 @@ class AddModuleDetails < ActiveRecord::Migration
 		create_table :modules_actions do |t|
 			t.text :name
 		end
-		create_table :modules_details_actions, :id => false do |t|
+		create_table :modules_details_actions do |t|
 			t.integer :module_detail_id
 			t.integer :module_action_id
 		end
@@ -61,7 +61,7 @@ class AddModuleDetails < ActiveRecord::Migration
 		create_table :modules_refs do |t|
 			t.text :name
 		end
-		create_table :modules_details_refs, :id => false do |t|
+		create_table :modules_details_refs do |t|
 			t.integer :module_detail_id
 			t.integer :module_ref_id
 		end
@@ -70,7 +70,7 @@ class AddModuleDetails < ActiveRecord::Migration
 		create_table :modules_archs do |t|
 			t.text :name
 		end
-		create_table :modules_details_archs, :id => false do |t|
+		create_table :modules_details_archs do |t|
 			t.integer :module_detail_id
 			t.integer :module_arch_id
 		end
@@ -79,7 +79,7 @@ class AddModuleDetails < ActiveRecord::Migration
 		create_table :modules_platforms do |t|
 			t.text :name
 		end
-		create_table :modules_details_platforms, :id => false do |t|
+		create_table :modules_details_platforms do |t|
 			t.integer :module_detail_id
 			t.integer :module_platform_id
 		end
