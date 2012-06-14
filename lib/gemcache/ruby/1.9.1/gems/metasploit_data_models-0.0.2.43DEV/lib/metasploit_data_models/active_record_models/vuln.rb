@@ -3,9 +3,9 @@ module MetasploitDataModels::ActiveRecordModels::Vuln
     base.class_eval {
       belongs_to :host, :class_name => "Mdm::Host", :counter_cache => :vuln_count
       belongs_to :service, :class_name => "Mdm::Service", :foreign_key => :service_id
-      has_and_belongs_to_many :refs, :join_table => :vulns_refs, :class_name => "Mdm::Ref"
       has_many :vuln_details,  :dependent => :destroy, :class_name => "Mdm::VulnDetail"
       has_many :vuln_attempts,  :dependent => :destroy, :class_name => "Mdm::VulnAttempt"
+      has_many :refs, :through => :vulns_refs, :class_name => "Mdm::Ref", :dependent => :destroy
 
       validates :name, :presence => true
       validates_associated :refs
