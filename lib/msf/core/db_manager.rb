@@ -302,7 +302,7 @@ class DBManager
 			success = false
 		end
 
-		# ::FileUtils.rm_rf(temp_dir)
+		::FileUtils.rm_rf(temp_dir)
 
 		return true
 	end
@@ -313,6 +313,132 @@ class DBManager
 
 	def workspace
 		framework.db.find_workspace(@workspace_name)
+	end
+
+	def update_module_details
+		return if not @usable
+		::ActiveRecord::Base.connection_pool.with_connection {
+		
+		removed  = []
+		outdated = []
+		skipped  = []
+
+		Mdm::ModuleDetail.find_each do |md|
+			unless md.file and ::File.exists?(md.file)
+				removed << md
+				next
+			end
+
+			if ::File.mtime(md.file).to_i != md.mtime.to_i
+				outdated << md
+				next
+			end
+
+			skipped << [md.mtype, md.refname]
+		end
+
+		removed.each  {|md| md.destroy }
+		outdated.each {|md| md.destroy }
+		removed = outdated = nil
+
+		stime = Time.now.to_f
+		[
+			[ 'exploit',   framework.exploits],
+			[ 'auxiliary', framework.auxiliary],
+			[ 'post',      framework.post]
+		].each do |mt|
+			mt[1].keys.sort.each do |mn|
+				next if skipped.include?( [ mt[0], mn ] )
+				obj   = mt[1].create(mn)
+				next if not obj
+
+				info = module_to_details_hash(obj)
+				bits = info.delete(:bits) || []
+
+				md = Mdm::ModuleDetail.create(info)
+				bits.each do |args|
+					md.add(*args)
+				end
+			end
+		end
+
+		nil
+
+		}
+	end
+
+
+	def module_to_details_hash(m)
+		res  = {}
+		bits = []
+
+		res[:mtime]   = ::File.mtime(m.file_path) rescue Time.now
+		res[:file]    = m.file_path
+		res[:mtype]   = m.type
+		res[:name]    = m.name.to_s
+		res[:refname] = m.refname
+		res[:rank]    = m.rank.to_i
+		res[:license] = m.license.to_s
+
+		res[:description] = m.description.to_s.strip
+
+		m.arch.map{ |x| 
+			bits << [ :arch, { :name => x.to_s } ] 
+		}
+
+		m.platform.platforms.map{ |x| 
+			bits << [ :platform, { :name => x.to_s } ] 
+		}
+
+		m.author.map{|x| 
+			bits << [ :author, { :name => x.to_s } ] 
+		}
+
+		m.references.map do |r|
+			bits << [ :ref, { :name => [r.ctx_id.to_s, r.ctx_val.to_s].join("-") } ]
+		end
+
+		res[:privileged] = m.privileged?
+
+
+		if m.disclosure_date
+			begin
+				res[:disclosure_date] = m.disclosure_date.to_datetime.to_time
+			rescue ::Exception
+				res.delete(:disclosure_date)
+			end
+		end
+
+		if(m.type == "exploit")
+
+			m.targets.each_index do |i|
+				bits << [ :target, { :index => i, :name => m.targets[i].name.to_s } ]
+			end
+
+			if (m.default_target)
+				res[:default_target] = m.default_target
+			end
+
+			# Some modules are a combination, which means they are actually aggressive
+			res[:stance] = m.stance.to_s.index("aggressive") ? "aggressive" : "passive"
+		end
+
+		if(m.type == "auxiliary")
+	
+			m.actions.each_index do |i|
+				bits << [ :action, { :name => m.actions[i].name.to_s } ]
+			end
+
+			if (m.default_action)
+				res[:default_action] = m.default_action.to_s
+			end
+
+			res[:stance] = m.passive? ? "passive" : "aggressive"
+		end
+
+		res[:bits] = bits
+
+		res
 	end
 
 end

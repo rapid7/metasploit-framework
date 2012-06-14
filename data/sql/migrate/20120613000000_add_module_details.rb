@@ -5,7 +5,7 @@ class AddModuleDetails < ActiveRecord::Migration
 		create_table :modules_details do |t|
 			t.timestamp :mtime             # disk modified time
 			t.text      :file              # location on disk
-			t.string    :type              # exploit, auxiliary, post, etc
+			t.string    :mtype             # exploit, auxiliary, post, etc
 			t.text      :refname           # module path (no type)
 			t.text      :name              # module title
 			t.integer   :rank              # exploit rank
