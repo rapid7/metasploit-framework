@@ -18,6 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Scanner
+	include Msf::Auxiliary::WmapModule
 
 
 	def initialize(info = {})

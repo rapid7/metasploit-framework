@@ -52,6 +52,17 @@ class Db
 			base.merge(more)
 		end
 
+		def deprecated_commands
+			[
+				"db_autopwn",
+				"db_driver",
+				"db_hosts",
+				"db_notes",
+				"db_services",
+				"db_vulns",
+			]
+		end
+
 		#
 		# Returns true if the db is connected, prints an error and returns
 		# false if not.
@@ -1073,15 +1084,44 @@ class Db
 		}
 		end
 
+		# :category: Deprecated Commands
+		def cmd_db_hosts_help; deprecated_help(:hosts); end
+		# :category: Deprecated Commands
+		def cmd_db_notes_help; deprecated_help(:notes); end
+		# :category: Deprecated Commands
+		def cmd_db_vulns_help; deprecated_help(:vulns); end
+		# :category: Deprecated Commands
+		def cmd_db_services_help; deprecated_help(:services); end
+		# :category: Deprecated Commands
+		def cmd_db_autopwn_help; deprecated_help; end
+		# :category: Deprecated Commands
+		def cmd_db_driver_help; deprecated_help; end
 
+		# :category: Deprecated Commands
+		def cmd_db_hosts(*args); deprecated_cmd(:hosts, *args); end
+		# :category: Deprecated Commands
+		def cmd_db_notes(*args); deprecated_cmd(:notes, *args); end
+		# :category: Deprecated Commands
+		def cmd_db_vulns(*args); deprecated_cmd(:vulns, *args); end
+		# :category: Deprecated Commands
+		def cmd_db_services(*args); deprecated_cmd(:services, *args); end
+		# :category: Deprecated Commands
+		def cmd_db_autopwn(*args); deprecated_cmd; end
+
+		# :category: Deprecated Commands
 		#
-		# Determine if an IP address is inside a given range
+		# This one deserves a little more explanation than standard deprecation
+		# warning, so give the user a better understanding of what's going on.
 		#
-		def range_include?(ranges, addr)
-			ranges.each do |range|
-				return true if range.include? addr
-			end
-			false
+		def cmd_db_driver(*args)
+			deprecated_cmd
+			print_line
+			print_line "Because Metasploit no longer supports databases other than the default"
+			print_line "PostgreSQL, there is no longer a need to set the driver. Thus db_driver"
+			print_line "is not useful and its functionality has been removed. Usually Metasploit"
+			print_line "will already have connected to the database; check db_status to see."
+			print_line
+			cmd_db_status
 		end
 
 		def cmd_db_import_tabs(str, words)
