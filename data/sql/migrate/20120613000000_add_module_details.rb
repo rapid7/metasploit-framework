@@ -1,4 +1,4 @@
-class AddVulnDetails < ActiveRecord::Migration
+class AddModuleDetails < ActiveRecord::Migration
 
 	def self.up
 	
