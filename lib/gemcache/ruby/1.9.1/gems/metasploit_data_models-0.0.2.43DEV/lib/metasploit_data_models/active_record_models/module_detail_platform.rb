@@ -4,6 +4,8 @@ module MetasploitDataModels::ActiveRecordModels::ModuleDetailPlatform
       base.table_name = "modules_details_platforms"
       belongs_to :module_detail, :class_name => "Mdm::ModuleDetail"
       belongs_to :module_platform, :class_name => "Mdm::ModulePlatform"
+      validate :module_detail, :presence => true
+      validate :module_platform, :presence => true
     }
   end
 end

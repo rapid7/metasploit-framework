@@ -315,31 +315,35 @@ class DBManager
 		framework.db.find_workspace(@workspace_name)
 	end
 
-	def update_module_details
+	def update_all_module_details
 		return if not @usable
 		::ActiveRecord::Base.connection_pool.with_connection {
 		
-		removed  = []
-		outdated = []
-		skipped  = []
+		refresh = []
+		skipped = []
 
 		Mdm::ModuleDetail.find_each do |md|
+
+			unless md.ready
+				refresh << md
+				next
+			end
+
 			unless md.file and ::File.exists?(md.file)
-				removed << md
+				refresh << md
 				next
 			end
 
 			if ::File.mtime(md.file).to_i != md.mtime.to_i
-				outdated << md
+				refresh << md
 				next
 			end
 
 			skipped << [md.mtype, md.refname]
 		end
 
-		removed.each  {|md| md.destroy }
-		outdated.each {|md| md.destroy }
-		removed = outdated = nil
+		refresh.each  {|md| md.destroy }
+		refresh = nil
 
 		stime = Time.now.to_f
 		[
@@ -351,18 +355,28 @@ class DBManager
 				next if skipped.include?( [ mt[0], mn ] )
 				obj   = mt[1].create(mn)
 				next if not obj
-
-				info = module_to_details_hash(obj)
-				bits = info.delete(:bits) || []
-
-				md = Mdm::ModuleDetail.create(info)
-				bits.each do |args|
-					md.add(*args)
-				end
+				update_module_details(obj)		
 			end
 		end
 
 		nil
+
+		}
+	end
+
+	def update_module_details(obj)
+		::ActiveRecord::Base.connection_pool.with_connection {
+		info = module_to_details_hash(obj)
+		bits = info.delete(:bits) || []
+
+		md = Mdm::ModuleDetail.create(info)
+		bits.each do |args|
+			md.add(*args)
+		end
+
+		md.ready = true
+		md.save
+		md.id
 
 		}
 	end
@@ -421,6 +435,11 @@ class DBManager
 
 			# Some modules are a combination, which means they are actually aggressive
 			res[:stance] = m.stance.to_s.index("aggressive") ? "aggressive" : "passive"
+
+			# XXX: Too slow
+			# m.class.mixins.each do |x|
+			# 	bits << [ :mixin, { :name => x.to_s } ]
+			# end
 		end
 
 		if(m.type == "auxiliary")

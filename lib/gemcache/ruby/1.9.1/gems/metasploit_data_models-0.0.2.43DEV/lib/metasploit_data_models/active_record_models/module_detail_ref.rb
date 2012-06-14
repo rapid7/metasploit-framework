@@ -4,6 +4,8 @@ module MetasploitDataModels::ActiveRecordModels::ModuleDetailRef
       base.table_name = "modules_details_refs"
       belongs_to :module_detail, :class_name => "Mdm::ModuleDetail"
       belongs_to :module_ref, :class_name => "Mdm::ModuleRef"
+      validate :module_detail, :presence => true
+      validate :module_ref, :presence => true
     }
   end
 end

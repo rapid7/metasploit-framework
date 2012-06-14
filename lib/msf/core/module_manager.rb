@@ -562,6 +562,7 @@ class ModuleManager < ModuleSet
 				@modcache[type].clear
 			}
 		end
+
 	end
 
 	#

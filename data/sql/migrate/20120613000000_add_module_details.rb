@@ -16,6 +16,7 @@ class AddModuleDetails < ActiveRecord::Migration
 			t.integer	:default_target    # 0
 			t.text		:default_action    # "scan"
 			t.string	:stance            # "passive"
+			t.boolean	:ready             # true/false
 		end
 
 		add_index :modules_details, :refname
@@ -108,3 +109,23 @@ class AddModuleDetails < ActiveRecord::Migration
 		drop_table	:modules_details_platforms
 	end
 end
+
+
+=begin
+
+Mdm::Host.find_by_sql("
+SELECT
+	hosts.id, hosts.address, modules_details.mtype AS mtype, modules_details.refname AS mname, vulns.name AS vname, refs.name AS vref
+FROM
+	hosts,vulns,vulns_refs,refs,modules_details_refs,modules_refs,modules_details
+WHERE
+	hosts.id = vulns.host_id AND
+	vulns.id = vulns_refs.vuln_id AND
+	vulns_refs.ref_id = refs.id AND
+	refs.name = modules_refs.name AND
+	modules_details_refs.module_ref_id = modules_refs.id AND
+	modules_details_refs.module_detail_id = modules_details.id
+").map{|x| [x.address, x.mname, x.vname, x.vref ] }
+
+
+=end
