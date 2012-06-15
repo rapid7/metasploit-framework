@@ -1,0 +1,52 @@
+#######
+# This is a default yml fingerprint file. It mostly servers to host parameter
+#   information and other required notes about the scanner.
+
+####### Thoughts ####
+#
+# - A fingerprint with no success string is preferred over no fingerprint at all.
+#       However if a success string is added please be very confident as otherwise
+#       false results are fed into the database.
+# - Unfortunately two ports cannot be done at once at this time (e.g. 80 and 443)
+# - A page that redirects from 80 to 443 will break the checks.
+ 
+
+#### Comments on parameters ####
+# Those with !! are required.
+#
+#!!   title: The title of the check. 
+#!!   fingerprint_page: The URI to check when detecting what the interface is.
+#!!   fingerprint: regex of initial response used to fingerprint the page. This is
+#           a required page or it won't detect any pages.
+#     post_to: page to send login creds to if different from fingerprint_page. 
+#     login_params: string containing login params
+#           !!NOTE!! use $$$user$$$and $$$pass$$$  for the username and pass. These
+#           will be replaced with the real creds and automatically URL encoded.
+#	    $$$domain$$$ will also add in the domain from the datastore 
+#     success: Check the login response for this string to signify a successful attempt (regex)
+#     references: places to read more about what can be done from here 
+#     method: HTTP Method to use when sending login_params, defaults to POST
+#     creds: default credentials to check for. Using null for user or pass will
+#           be replaced with a blank string. Set to nocreds:nocreds if the interface
+#           does not require credentials to login. To use multiple creds, use an array.
+#     basic_auth: if the page uses basic_auth,this must be set for basic to be attempted.
+#     hidden_id: An array of hidden params that are read from the fingerprint page
+#           and submitted with the request. Common examples are __VIEWSTATE or a CSRF token
+#           which can be read from the page and submitted with the request. The source page
+#           will need to have labeled these as <input type="hidden" for them to get picked up.
+#     cookie: Add anything you want from the cookie, this only applies to login attempts.
+#		using $$$vhost$$$ will replace the vhost in the cookie itself. 
+#     fp_headers: Add additional header strings to the fingerprint; must be YAML hash
+#     login_headers: Add additional header strings to the login attempt; must be YAML hash
+#     res_code: A success code other than 200.
+#     follow_302: After a login attempt if a 302 or 301 should be followed to check for success.
+#           This is common but not always necessary for a good fingerprint.
+
+# Test check
+# modeled after the tomcat_mgr_login aux module
+- title: Apache Tomcat
+  fingerprint_page: [/manager/html/, /tomcat/manager/html/]
+  fingerprint: Apache.*(Coyote|Tomcat)
+  creds: [tomcat:tomcat, admin:admin, manager:manager]
+  basic_auth: true
+  

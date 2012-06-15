@@ -1,0 +1,123 @@
+# See readme.yml for the parameter information
+
+# Routers
+- title: AddPac
+  fingerprint_page: [/, /index.html]
+  fingerprint: AddPac
+  basic_auth: true
+  creds: root:router
+
+# Based on cisco_device_manager module
+- title: Cisco Device Manager Unauthenticated
+  fingerprint_page: /exec/show/version/CR
+  fingerprint: (Cisco (Internetwork Operating System|IOS) Software)
+  creds: nocreds:nocreds
+  
+# Based on cisco_device_manager module
+- title: Cisco Device Manager
+  fingerprint_page: /exec/show/version/CR
+  fingerprint: (Cisco (Internetwork Operating System|IOS) Software)
+  basic_auth: true
+  creds: [cisco:cisco, Cisco:Cisco]
+    
+- title: Cisco Wireless Control System
+  fingerprint_page: /webacs/loginAction.do
+  fingerprint: /webacs/welcomeAction.do
+  login_params: action=login&requestUrl=/webacs/FwelcomeAction.do&username=$$$user$$$&password=$$$pass$$$
+  creds: Cisco:Cisco
+
+- title: Netgear DG834
+  fingerprint: DG834
+  fingerprint_page: [/, /index.html]
+  basic_auth: true
+  creds: admin:password
+
+- title: Netgear DGN1000
+  fingerprint: DGN1000
+  fingerprint_page: [/, /index.html]
+  basic_auth: true
+  creds: admin:password
+
+- title: SpeedStream Web Interface Configuration
+  fingerprint_page: /pflogin.htm
+  fingerprint: function fCheckLogin
+  login_params: password=$$$pass$$$&username=$$$user$$$
+  creds: admin:admin
+  post_to: /pflogin.cgi
+  success: (Code removed because|Profile Logout for)
+
+- title: WindWeb Server
+  fingerprint: RomPager/4.07 UPnP/1.0
+  fingerprint_page: /index.asp
+  basic_auth: true
+  creds: vxworks:vxworks
+
+- title: Zhone SLMS Web Interface
+  fingerprint: Basic realm="Zhone SLMS Web Interface"
+  fingerprint_page: [/, /index.html]
+  basic_auth: true
+  creds: admin:zhone
+
+- title: HUWAEI router
+  fingerprint: SmartAX MT882
+  fingerprint_page: [/, /index.html]
+  basic_auth: true
+  creds: admin:admin
+
+- title: 3Com Device
+  fingerprint_page: [/, /index.html]
+  fingerprint: 3Com\/v1.0
+  basic_auth: true
+  creds: [admin:admin, debug:synnet, tech:tech, adm:null, null:PASSWORD, adminttd:adminttd, admin:comcomcom, security:security, null:ADMIN]
+
+- title: Alvarion
+  fingerprint_page: [/, /index.html]
+  fingerprint: Alvarion-Webs
+  basic_auth: true
+  creds: [admin:admin, admin:user, admin:installer, admin:alvarion]
+
+- title: Pannaway Gateway NID
+  fingerprint_page: /includes/phone.css
+  fingerprint: phoneLayout
+  post_to: /cgi-bin/PanConfig
+  login_params: ID=UL1&LN=L1&userName=$$$user$$$&password=$$$pass$$$&login.x=29&login.y=10&login=submit
+  creds: Admin:pannaway
+  success: (var userNam=)
+
+- title: F5 BIG-IP Configuration Utility
+  fingerprint_page: /tmui/login.jsp
+  fingerprint: logo_f5.png
+  post_to: /tmui/logmein.html
+  login_params: username=$$$user$$$&passwd=$$$pass$$$
+  creds: admin:admin
+  success: (The document has moved <a href="/">here)
+  res_code: 302
+  # a failure will redirect back to login, unfortunately success and failure are both 302s
+
+- title: GoAhead Webs Webserver
+  fingerprint_page: /index.asp
+  post_to: /index.asp
+  fingerprint: GoAhead-Webs
+  basic_auth: true
+  creds: [admin:1234, admin:4321]
+  
+- title: Sunny WebBox
+  fingerprint_page: /home.htm
+  post_to: /login
+  fingerprint: (<title>Sunny WebBox<\/title>)(.)+(Language)+
+  creds: null:sma
+  success: (plant_devices_|home_menue.htm)
+  login_params: Language=en&Password=$$$pass$$$&ButtonLogin=Submit
+
+- title: Tahoe Frame Relay Router Unauthenticated
+  fingerprint_page: /
+  fingerprint: ((Tahoe 18xx V.35)(.)+(Frame Relay Router)+(.)+(Interface)+)
+  creds: nocreds:nocreds
+
+- title: ZyXel Zywall General
+  fingerprint_page: /
+  fingerprint: ((loginPassword.value)(.)+(ZyXEL ZyWALL Series)+)
+  creds: [admin:1234, webadmin:1234, null:admin, null:1234]
+  post_to: /Forms/rpAuth_1
+  login_params: LoginPassword=ZyXEL+ZyWALL+Series&hiddenPassword=$$$base64:pass$$$&Prestige_Login=Login
+  success: (Please select Wizard or Advanced mode)

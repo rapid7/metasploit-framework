@@ -1,0 +1,40 @@
+# See readme.yml for the parameter information
+
+# Industrial Control
+- title: Rockwell Automation PLC SLC-5/05
+  fingerprint: 1747-L551
+  fingerprint_page: /user.html
+  creds: nocreds:nocreds
+
+- title: Liebert UPS Unauthenticated
+  fingerprint_page: [/, /index.html]
+  fingerprint: <title>(UPS Monitor|Liebert)
+  creds: nocreds:nocreds
+
+# serial adapter
+- title: Moxa NPort Console Unauthenticated
+  fingerprint_page: /02.htm
+  fingerprint: (<title>Network Settings<\/title>)(.)+(Community Name)+(.)+(SnmpCommunity)+
+  creds: nocreds:nocreds
+
+# serial adapter
+- title: Moxa NPort Console
+  fingerprint_page: /
+  post_to: /main.htm
+  fingerprint: (<title>NPort Web Console<\/title>)(.)+(numofserialports)+
+  login_params: Username=$$$user$$$&Password=$$$pass$$$&MD5Password=&Submit=Login
+  success: (Model name)(.)+(Ethernet)+
+  creds: admin:null
+  hidden_id: [FakeChallenge,Submit.x,Submit.y]
+
+# serial adapter
+- title: Lantronix MSS Unauthenticated
+  fingerprint_page: /
+  fingerprint: (<title>Lantronix)(.)+(netware_mss)+
+  creds: nocreds:nocreds
+
+# serial adapter
+- title: Lantronix UDS Unauthenticated
+  fingerprint_page: /secure/welcome.htm
+  fingerprint: (<title>Lantronix)(.)+(uds)+(.)+(Device Server Configuration Manager)+
+  creds: nocreds:nocreds

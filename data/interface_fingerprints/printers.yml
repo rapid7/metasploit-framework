@@ -1,0 +1,31 @@
+# See readme.yml for the parameter information
+
+# Scanners and Printers
+- title: HP LaserJet Printer Unauthenticated
+  fingerprint: (<title>Banner Frame</title>)(.)+(HP LaserJet|HP Color LaserJet|HP Colour LaserJet)+
+  fingerprint_page: /hp/jetdirect/index_top.htm
+  creds: nocreds:nocreds
+
+- title: Ricoh Savin Multi-Function "Web Monitor" Printer Unauthenticated
+  fingerprint_page: /web/guest/en/websys/webArch/aboutWim.cgi
+  fingerprint: (<title>Version Information</title>)(.)+(RICOH|SAVIN)+
+  creds: nocreds:nocreds
+
+- title: Savin Multi-Function Printer Login
+  fingerprint_page: /web/guest/en/websys/webArch/authForm.cgi
+  fingerprint: (<title>LOGIN<\/title>)(.)+(RICOH|SAVIN)+
+  post_to: /web/guest/en/websys/webArch/login.cgi
+  login_params: userid_work=&userid=$$$base64:user$$$&password_work=&password=$$$base64:pass$$$&open=
+  creds: admin:admin
+  success: $$$$TODO$$$$
+  # need success string
+
+- title: Xerox Document Centre Unauthenticated
+  fingerprint: ((Xerox)(.)+(Document Centre)+)|((<TITLE>Document Centre)(.)+(Status)+)
+  fingerprint_page: /utCurrStat.dhtml
+  creds: nocreds:nocreds
+
+- title: Xerox Workcentre Pro Unauthenticated
+  fingerprint: ((XEROX WORKCENTRE PRO)(.)+(OG\/SEBU\/CSDD\/WebUI)+)
+  fingerprint_page: /properties/index.dhtml
+  creds: nocreds:nocreds

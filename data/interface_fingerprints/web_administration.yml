@@ -1,0 +1,110 @@
+# See readme.yml for the parameter information
+
+# Web Administration and CMS
+# Based on the tomcat_mgr_login aux module
+- title: Apache Tomcat
+  fingerprint_page: [/manager/html/, /tomcat/manager/html/]
+  fingerprint: Apache.*(Coyote|Tomcat)
+  creds: [tomcat:tomcat, admin:admin, manager:manager]
+  basic_auth: true
+
+# Based on axis_login aux module
+- title: Apache Axis2
+  fingerprint_page: [/axis/axis2-admin/, /axis2/axis2-admin/, /dswsbobje/]
+  fingerprint: Apache.*(Coyote|Tomcat)
+  post_to: /axis2/axis2-admin/login
+  login_params: userName=$$$user$$$&password=$$$pass$$$&submit=+Login+
+  creds: [admin:axis2, admin:admin]
+  success: (/upload)
+
+# Based on part of frontpage_login aux module
+- title: FrontPage Author Unauthenticated
+  fingerprint_page: /_vti_inf.html
+  fp_headers: { TE: deflate\,gzip;q=0.3, Keep-Alive: 300, Connection: Keep-Alive\,TE }
+  fingerprint: FPAuthorScriptUrl=
+  creds: nocreds:nocreds
+
+# Based on part of frontpage_login aux module
+- title: FrontPage Access Version Unauthenticated 
+  fingerprint_page: /_vti_inf.html
+  fp_headers: { TE: deflate\,gzip;q=0.3, Keep-Alive: 300, Connection: Keep-Alive\,TE }
+  fingerprint: FPVersion=
+  creds: nocreds:nocreds
+
+- title: Parallels Plesk Panel
+  fingerprint_page: /login_up.php3
+  fingerprint: Plesk Control Panel
+  creds: admin:setup
+  login_params: passwd=$$$pass$$$&locale_id=default&login_name=$$$user$$$
+  success: $$$$TODO$$$$
+  # add a success string
+
+- title: Nagios Basic Authentication Access
+  fingerprint_page: /
+  fingerprint: Nagios Access
+  creds: [nagios:nagios, nagios:nagiosadmin]
+  success: ""
+  basic_auth: true
+
+- title: Nagios XI
+  fingerprint_page: /nagiosxi/
+  fingerprint: Powered by the Nagios Synthesis Framework
+  creds: [nagiosadmin:nagios, nagiosadmin:welcome, nagios:nagios]
+  post_to: /nagiosxi/login.php
+  login_params: page=auth&debug=&pageopt=login&username=$$$user$$$&password=$$$pass$$$&loginButton=Login
+  success: (Set-Cookie)(.)+(nagiosxi)
+  res_code: 302
+  
+- title: VTiger CRM 5
+  fingerprint_page: /vtigercrm/index.php
+  fingerprint: <title>vtiger CRM
+  login_params: module=Users&action=Authenticate&return_module=Users&return_action=Login&user_name=$$$user$$$&user_password=$$$pass$$$&login_theme=softed&Login=++Login++
+  creds: admin:admin
+  hidden_id: [Login.x,Login.y]
+  success: $$$$TODO$$$$
+  # add a success string
+  
+# Based on glassfish_login
+- title: Glassfish 2.x,9.x Authentication Bypass
+  fingerprint_page: /applications/upload.jsf
+  fingerprint: <title>Deploy Enterprise Applications\/Modules
+  creds: nocreds:nocreds
+  
+# Based on glassfish_login
+- title: Glassfish 3.x Authentication Bypass
+  fingerprint_page: /common/applications/uploadFrame.jsf
+  fingerprint: <title>Deploy Applications or Modules
+  creds: nocreds:nocreds
+  
+# Based on glassfish_login
+- title: Glassfish 2.x,9.x,3.x Login
+  fingerprint_page: /common/index.jsf
+  fingerprint: (Open Source|Sun GlassFish Enterprise Server|Sun Java System Application Server)
+  post_to: /j_security_check
+  login_headers: { Content-Type: application/x-www-form-urlencoded }
+  params: j_username=$$$user$$$&j_password=$$$pass$$$&loginButton=login
+  follow_302: true
+  success: (<title>Deploy Enterprise Applications|<title>Deploy Applications or Modules)
+
+# Based on glassfish_login
+- title: Glassfish 2.x,9.x,3.x Login
+  fingerprint_page: /login.jsf
+  fingerprint: (Open Source|Sun GlassFish Enterprise Server|Sun Java System Application Server)
+  post_to: /j_security_check
+  login_headers: { Content-Type: application/x-www-form-urlencoded }
+  params: j_username=$$$user$$$&j_password=$$$pass$$$&loginButton=login
+  follow_302: true
+  success: (<title>Deploy Enterprise Applications|<title>Deploy Applications or Modules)
+
+# Based on wordpress_login bruteforce section
+# This needs a better initial fingerprint, it just assumes that
+#   finding wp-login.php is good enough
+- title: Wordpress Login
+  fingerprint_page: /wp-login.php
+  fingerprint: log
+  success: wordpress_logged_in_
+  res_code: 302
+  login_params: log=$$$user$$$&pwd=$$$pass$$$&wp-submit=Login
+  
+
+

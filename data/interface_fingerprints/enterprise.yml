@@ -1,0 +1,69 @@
+# See readme.yml for the parameter information
+# Enterprise focused products
+
+- title: McAffee EPO
+  fingerprint_page: /core/orionSplashScreen.do
+  fingerprint: (EPOCore/images/mcafee)
+  post_to: /core/j_security_check
+  creds: [mcafee:mcafee]
+  login_params: j_username=$$$user$$$&j_password=$$$pass$$$
+  success: (core/images/spinner.gif)
+  res_code: 408
+
+# Password Management
+- title: Secret Server
+  fingerprint_page: /ss/Login.aspx
+  fingerprint: (thycotic.com)
+  post_to: /ss/Login.aspx
+  creds: [secret:secret]
+  login_params: LoginUserControl1%24UserNameTextBox=$$$user$$$&LoginUserControl1%24PasswordTextBox=$$$pass$$$&LoginUserControl1%24DomainDropDownList=0&LoginUserControl1%24AcceptPolicyCheckBox=on&LoginUserControl1%24LoginButton=Login&LoginUserControl1%24LoginDialog_IsCollapsed=0  
+  success: (/ss/default.aspx)
+  res_code: 302
+  hidden_id: [__VIEWSTATE, __EVENTVALIDATION, __SCROLLPOSITIONX, __SCROLLPOSITIONY]
+
+# Mobile Device Management
+- title: Good Mobile Device Management
+  fingerprint_page: /login.do
+  fingerprint: (Sign in to Good Mobile Control)
+  post_to: /login.do
+  creds: [good:good]
+  login_params: command=login&username=$$$user$$$&password=$$$pass$$$&domain=$$$domain$$$
+  success: (home.do)
+  res_code: 302
+
+# Based on owa_login
+- title: Outlook Web Access 2010
+  fingerprint_page: /owa/auth/logon.aspx
+  fingerprint: (OutlookSession)
+  post_to: /owa/auth.owa
+  follow_302: true
+  cookie: PBack=0; owacsdc=1
+  login_headers: { Content-Type: application/x-www-form-urlencoded }
+  login_params: destination=https%3A%2F%2F$$$vhost$$$%2Fowa%2F&flags=0&forcedownlevel=0&trusted=0&username=$$$domain$$$\$$$user$$$&password=$$$pass$$$&isUtf8=1
+  success: (Junk)
+  
+# Based on owa_login, untested
+- title: Outlook Web Access 2007
+  fingerprint_page: /owa/auth/owaauth.dll
+  fingerprint: (OutlookSession)
+  follow_302: true
+  cookie: PBack=0; 
+  login_headers: { Content-Type: application/x-www-form-urlencoded }
+  login_params: destination=https%3A%2F%2F$$$vhost$$$%2Fowa%2F&flags=0&forcedownlevel=0&trusted=0&username=$$$domain$$$\$$$user$$$&password=$$$pass$$$&isUtf8=1
+  success: (addrbook.gif)
+
+# Based on owa_login, untested
+- title: Outlook Web Access 2003
+  fingerprint_page: /exchweb/bin/auth/owaauth.dll
+  fingerprint: (OutlookSession)
+  follow_302: true
+  cookie: PBack=0; 
+  login_headers: { Content-Type: application/x-www-form-urlencoded }
+  login_params: destination=https%3A%2F%2F$$$vhost$$$%2Fowa%2F&flags=0&forcedownlevel=0&trusted=0&username=$$$domain$$$\$$$user$$$&password=$$$pass$$$&isUtf8=1
+  success: (Inbox)
+
+# This needs a correct fingerprint
+- title: SeaGate BlackArmor Backdoor Unauthenticated
+  fingerprint_page: /d41d8cd98f00b204e9800998ecf8427e.php
+  fingerprint: (admin)
+  creds: nocreds:nocreds

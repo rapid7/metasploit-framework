@@ -1,0 +1,151 @@
+# See readme.yml for the parameter information
+
+# Network Cameras, DVRs, and VOIP
+- title: GeoHttpServer Webcam
+  fingerprint_page: [/, /index.html]
+  post_to: /phoneinfo
+  fingerprint: action="phoneinfo" method="POST"
+  login_params: $$$user$$$&pwd=$$$pass$$$&ImageType=1&send=Submit
+  creds: admin:admin
+  success: $$$$TODO$$$$
+  # need success string
+
+- title: DTT OnSite Camera
+  fingerprint_page: [/, /index.html]
+  fingerprint: (IDS_WEB_WEBCAM_LOGIN|IDS_WEB_ID)
+  post_to: /webcam_login
+  login_params: id=$$$user$$$&pwd=$$$pass$$$&x=12&y=20
+  creds: admin:admin
+  success: $$$$TODO$$$$
+  # need success string
+
+- title: Samsung DVR
+  fingerprint_page: /webviewer.js
+  post_to: /webviewer.js
+  fingerprint: (GoAhead-Webs)(.)+(?!Samsung DVR)+
+  basic_auth: true
+  creds: admin:4321
+  success: writeObjCtr
+
+- title: Unknown GeoHttpServer Webcam
+  fingerprint_page: /Language.js
+  fingerprint: IDS_WEB_SUBMIT
+  post_to: /password
+  login_params: id=$$$user$$$&pwd=$$$pass$$$&send=Submit
+  success: $$$$TODO$$$$
+  creds: admin:admin
+  # need success string
+
+- title: Vilar IPCamera Login
+  fingerprint_page:  /chs/setup/
+  fingerprint: <title>Vilar IPCamera Login
+  creds: admin:123456
+  basic_auth: true
+
+- title: SQ Webcam
+  fingerprint_page: /index.htm
+  fingerprint: SQ-WEBCAM
+  post_to: /home.htm
+  login_params: username=$$$user$$$&password=$$$pass$$$&Submit=Submit
+  success: OnClick="DeviceConnect
+  creds: admin:admin
+
+- title: SMC Network Camera Manager
+  fingerprint_page: /index.html
+  fingerprint: Ipcam manager
+  basic_auth: true
+  creds: admin:null
+
+- title: Softwell Wit-eye
+  fingerprint_page: /cgi-bin/login.cgi
+  fingerprint: <title>DVR Remote
+  creds: admin:admin
+  success: (<frame src|/cgi-bin/common.cgi)
+  login_params: name=$$$user$$$&password=$$$pass$$$&login=1&logout=
+  
+- title: Tandberg RX8000
+  fingerprint_page: [/, /index.html]
+  fingerprint: RX8000
+  basic_auth: true
+  creds:  [tandberg:tandberg, admin:admin, tandberg:null]
+
+# this needs a better success string
+- title: Vivotek Networki Camera Unauthenticated
+  fingerprint_page: [/, /index.html]
+  fingerprint: Vivotek Network
+  creds: nocreds:nocreds
+
+- title: VPort Video Server
+  fingerprint_page: /
+  fingerprint: (VPort [0-9]* Video Server)
+  basic_auth: true
+  creds: root:null
+  # actually the default password is the mac but no programitic way to do this
+
+- title: VPort Video Server Unauthenticated
+  fingerprint_page: /basicinfo.asp
+  fingerprint: (Model Name)(.)+(VPort [0-9]*)+
+  creds: nocreds:nocreds
+
+- title: Tivo Unauthenticated
+  fingerprint_page: /index.html
+  fingerprint: (<title>TiVo DVR</title>|<title>Congratulations!</title>)(.)+(successfully connected your TiVo)+
+  creds: nocreds:nocreds
+
+- title: Tandberg TT Series Unauthenticated
+  fingerprint_page: /tcf?cgi=show&%24path=/Status
+  fingerprint: (Name</td>)(.)+(TT[0-9]*)+
+  creds: nocreds:nocreds
+
+- title: Harmonic Divicom Ion Unauthenticated
+  fingerprint_page: /cgi-bin/sag2/?page_non_xml=Home.html
+  fingerprint: (idAlarmHistory)(.)+(idRebuildPsi)+
+  creds: nocreds:nocreds
+  
+- title: AxisTV Digital Signage Software
+  fingerprint_page: /Welcome.aspx
+  post_to: /Default.aspx
+  fingerprint: (<title>AxisTV</title>)
+  creds: [administrator:tech, axistvuser:TechTech1!]
+  login_params: userId=$$$user$$$&password=$$$pass$$$&login=+++++++++++++++++++++++++
+  success: (Welcome)(.)+(Media Bulletin)+(.)
+  hidden_id: [__VIEWSTATE, __EVENTVALIDATION]
+
+- title: DCS DLink Camera Unauthenticated
+  fingerprint_page: /top.htm?Currenttime=
+  fingerprint: (fast ethernet internet camera)
+  creds: nocreds:nocreds
+
+- title: Embedded Device (likely Camera) Unauthenticated
+  fingerprint_page: /
+  fingerprint: (Auther(.)+(Steven Wu)+)
+  creds: nocreds:nocreds
+
+- title: CS-XX Camera Unauthenticated
+  fingerprint_page: /top.htm?Currenttime=
+  fingerprint: (welcome to the internet camera)
+  creds: nocreds:nocreds
+
+- title: DCS Dlink Camera
+  fingerprint_page: /
+  fingerprint: (Basic realm(.)+(DCS-)+)
+  creds: [admin:null, admin:admin, admin:password, admin:dlink]
+  basic_auth: true
+
+- title: Polycom Soundpoint IP Telephone Configuration Unauthenticated
+  fingerprint_page: /
+  fingerprint: (Welcome to the SoundPoint IP Configuration Utility)
+  creds: nocreds:nocreds
+
+- title: Polycom Soundpoint IP Telephone Configuration
+  fingerprint_page: /netConf.htm
+  fingerprint: (Polycom SoundPoint IP Telephone HTTPd)
+  success: (802.1Q User Priority(.)+(RTP Port)+)
+  creds: Polycom:456
+  basic_auth: true
+
+- title: LG DVR Server Unauthenticated
+  fingerprint_page: /dvr/wwwroot/login.cgi
+  fingerprint: ((<!-- PTZ -->)(.)+(<!-- Play controls -->)+)
+  creds: nocreds:nocreds
+
