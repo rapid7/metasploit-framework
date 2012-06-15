@@ -14,20 +14,6 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Encoder
 
-	#
-	# In some cases, payloads can be an invalid size that is incompatible with
-	# this encoder
-	#
-	class InvalidPayloadSizeException < ::Exception
-		def initialize(msg)
-			@msg = msg
-		end
-
-		def to_s
-			@msg
-		end
-	end
-
 	# This encoder has a manual ranking because it should only be used in cases
 	# where information has been explicitly supplied, like the BufferOffset.
 	Rank = ManualRanking
@@ -82,9 +68,10 @@ class Metasploit3 < Msf::Encoder
 		off = (datastore['BufferOffset'] || 0).to_i
 
 		# Check to make sure that the length is a valid size
-
-		if is_badchar(state, len)
-			raise InvalidPayloadSizeException.new("The payload being encoded is of an incompatible size (#{len} bytes)")
+		while is_badchar(state, len)
+			# Prepend "\x90" nops to avoid break anything. Anyway it's going to be encoded.
+			state.buf = "\x90\x90\x90\x90" + state.buf
+			len = ((state.buf.length + 3) & (~0x3)) / 4
 		end
 
 		decoder =
@@ -216,7 +203,7 @@ class Metasploit3 < Msf::Encoder
 	end
 
 	def is_badchar(state, val)
-		(val >= 0x41 and val <= 0x5a) or Rex::Text.badchar_index([val].pack('C'), state.badchars)
+		(val >= 0x41 and val <= 0x5a) or val == 0x5f or Rex::Text.badchar_index([val].pack('C'), state.badchars)
 	end
 
 end
