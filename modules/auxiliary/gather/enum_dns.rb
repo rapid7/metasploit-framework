@@ -453,10 +453,11 @@ class Metasploit3 < Msf::Auxiliary
 							end
 						end
 					else
-						print_error("Zone transfer failed")
+						print_error("Zone transfer failed (length was zero)")
 					end
-				rescue
-					print_error("Zone transfer failed")
+				rescue Exception => e
+					print_error("Error executing zone transfer: #{e.message}")
+					elog("Error executing zone transfer: #{e.message}\n#{e.backtrace.join("\n")}")
 				end
 			end
 
