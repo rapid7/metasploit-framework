@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptString.new('DOMAIN', [ true, "The target domain name"]),
 				OptBool.new('ENUM_AXFR', [ true, 'Initiate a zone transfer against each NS record', true]),
-				OptBool.new('ENUM_TLD', [ true, 'Perform a top-level domain expansion by replacing the TLD and testing against IANA TLD list', false]),
+				OptBool.new('ENUM_TLD', [ true, 'Perform a TLD expansion by replacing the TLD with the IANA TLD list', false]),
 				OptBool.new('ENUM_STD', [ true, 'Enumerate standard record types (A,MX,NS,TXT and SOA)', true]),
 				OptBool.new('ENUM_BRT', [ true, 'Brute force subdomains and hostnames via the supplied wordlist', false]),
 				OptBool.new('ENUM_IP6', [ true, 'Brute force hosts with IPv6 AAAA records',false]),
