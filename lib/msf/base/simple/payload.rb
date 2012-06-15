@@ -135,8 +135,8 @@ module Payload
 	#
 	# Calls the class method.
 	#
-	def generate_simple(opts)
-		Msf::Simple::Payload.generate_simple(self, opts)
+	def generate_simple(opts, &block)
+		Msf::Simple::Payload.generate_simple(self, opts, &block)
 	end
 
 end

@@ -79,8 +79,8 @@ module Post
 	#
 	# Calls the class method.
 	#
-	def run_simple(opts = {})
-		Msf::Simple::Post.run_simple(self, opts)
+	def run_simple(opts = {}, &block)
+		Msf::Simple::Post.run_simple(self, opts, &block)
 	end
 
 protected
