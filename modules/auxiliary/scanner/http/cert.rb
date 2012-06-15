@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 	# Fingerprint a single host
 	def run_host(ip)
 
-		connect
+		connect(true, {"SSL" => true}) #Force SSL
 		cert  = OpenSSL::X509::Certificate.new(sock.peer_cert)
 		disconnect
 

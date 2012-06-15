@@ -488,28 +488,28 @@ module Text
 			return str.gsub(normal) { |s| Rex::Text.to_hex(s, '%') }
 		when 'hex-all'
 			return str.gsub(all) { |s| Rex::Text.to_hex(s, '%') }
-			when 'hex-random'
-				res = ''
-				str.each_byte do |c|
-					b = c.chr
-					res << ((rand(2) == 0) ?
-						b.gsub(all)   { |s| Rex::Text.to_hex(s, '%') } :
-						b.gsub(normal){ |s| Rex::Text.to_hex(s, '%') } )
-				end
-				return res
+		when 'hex-random'
+			res = ''
+			str.each_byte do |c|
+				b = c.chr
+				res << ((rand(2) == 0) ?
+					b.gsub(all)   { |s| Rex::Text.to_hex(s, '%') } :
+					b.gsub(normal){ |s| Rex::Text.to_hex(s, '%') } )
+			end
+			return res
 		when 'u-normal'
 			return str.gsub(normal) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
 		when 'u-all'
 			return str.gsub(all) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
-			when 'u-random'
-				res = ''
-				str.each_byte do |c|
-					b = c.chr
-					res << ((rand(2) == 0) ?
-						b.gsub(all)   { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) } :
-						b.gsub(normal){ |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) } )
-				end
-				return res
+		when 'u-random'
+			res = ''
+			str.each_byte do |c|
+				b = c.chr
+				res << ((rand(2) == 0) ?
+					b.gsub(all)   { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) } :
+					b.gsub(normal){ |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) } )
+			end
+			return res
 		when 'u-half'
 			return str.gsub(all) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms-half'), '%u', 2) }
 		else

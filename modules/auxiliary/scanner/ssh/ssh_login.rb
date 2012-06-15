@@ -47,7 +47,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_advanced_options(
 			[
-				OptBool.new('SSH_DEBUG', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false])
+				OptBool.new('SSH_DEBUG', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
+				OptInt.new('SSH_TIMEOUT', [ false, 'Specify the maximum time to negotiate a SSH session', 30])
 			]
 		)
 
@@ -75,14 +76,18 @@ class Metasploit3 < Msf::Auxiliary
 		opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
 
 		begin
-			self.ssh_socket = Net::SSH.start(
-				ip,
-				user,
-				opt_hash
-			)
+			::Timeout.timeout(datastore['SSH_TIMEOUT']) do
+				self.ssh_socket = Net::SSH.start(
+					ip,
+					user,
+					opt_hash
+				)
+			end
 		rescue Rex::ConnectionError, Rex::AddressInUse
 			return :connection_error
 		rescue Net::SSH::Disconnect, ::EOFError
+			return :connection_disconnect
+		rescue ::Timeout::Error
 			return :connection_disconnect
 		rescue Net::SSH::Exception
 			return [:fail,nil] # For whatever reason. Can't tell if passwords are on/off without timing responses.
