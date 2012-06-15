@@ -36,11 +36,12 @@ module Post
 	# 	Whether or not the module should be run in the context of a background
 	# 	job.
 	#
-	def self.run_simple(omod, opts = {})
+	def self.run_simple(omod, opts = {}, &block)
 
 		# Clone the module to prevent changes to the original instance
 		mod = omod.replicant
 		Msf::Simple::Framework.simplify_module( mod, false )
+		yield(mod) if block_given?
 
 		# Import options from the OptionStr or Option hash.
 		mod._import_extra_options(opts)
