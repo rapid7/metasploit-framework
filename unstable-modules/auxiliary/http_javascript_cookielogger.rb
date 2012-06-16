@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'			=> 'Capture: HTTP Looging Of Cookies',
+			'Name'			=> 'Capture: HTTP Logging Of Cookies',
 			'Description'	=> %q{
 					This module runs a webserver that serves a piece of javascript
 					which will transmit cookies back to metasploit. In an attempt
