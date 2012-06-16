@@ -316,7 +316,8 @@ class DBManager
 	end
 
 	def update_all_module_details
-		return if not @usable
+		return if not self.migrated
+
 		::ActiveRecord::Base.connection_pool.with_connection {
 		
 		refresh = []
@@ -347,9 +348,12 @@ class DBManager
 
 		stime = Time.now.to_f
 		[
-			[ 'exploit',   framework.exploits],
-			[ 'auxiliary', framework.auxiliary],
-			[ 'post',      framework.post]
+			[ 'exploit',   framework.exploits  ],
+			[ 'auxiliary', framework.auxiliary ],
+			[ 'post',      framework.post      ],
+			[ 'payload',   framework.payloads  ],
+			[ 'encoder',   framework.encoders  ],
+			[ 'nop',       framework.nops      ]
 		].each do |mt|
 			mt[1].keys.sort.each do |mn|
 				next if skipped.include?( [ mt[0], mn ] )
@@ -365,6 +369,8 @@ class DBManager
 	end
 
 	def update_module_details(obj)
+		return if not self.migrated
+
 		::ActiveRecord::Base.connection_pool.with_connection {
 		info = module_to_details_hash(obj)
 		bits = info.delete(:bits) || []
@@ -381,6 +387,13 @@ class DBManager
 		}
 	end
 
+	def remove_module_details(mtype, refname)
+		return if not self.migrated
+		::ActiveRecord::Base.connection_pool.with_connection {
+		md = Mdm::ModuleDetail.find(:conditions => [ 'mtype = ? and refname = ?', mtype, refname])
+		md.destroy if md
+		}
+	end
 
 	def module_to_details_hash(m)
 		res  = {}

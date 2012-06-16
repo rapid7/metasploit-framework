@@ -179,8 +179,10 @@ class PayloadSet < ModuleSet
 	# which it is, we add it to the appropriate list.
 	#
 	def add_module(pmodule, name, modinfo = nil)
+
 		if (md = name.match(/^(singles|stagers|stages)#{File::SEPARATOR}(.*)$/))
-			name = md[2]
+			ptype = md[1]
+			name  = md[2]
 		end
 
 		# Duplicate the Payload base class and extend it with the module
