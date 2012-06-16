@@ -3,7 +3,7 @@ module Handler
 
 ###
 #
-# This module implements the reverse double TCP handler. This means
+# This module implements the reverse double TCP SSL handler. This means
 # that it listens on a port waiting for a two connections, one connection
 # is treated as stdin, the other as stdout.
 #
@@ -17,7 +17,6 @@ module ReverseTcpDoubleSsl
 
 	#
 	# Returns the string representation of the handler type, in this case
-	# 'reverse_tcp_double'.
 	#
 	def self.handler_type
 		return "reverse_tcp_double_ssl"
