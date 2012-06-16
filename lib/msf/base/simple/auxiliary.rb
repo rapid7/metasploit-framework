@@ -87,8 +87,8 @@ module Auxiliary
 	#
 	# Calls the class method.
 	#
-	def run_simple(opts = {})
-		Msf::Simple::Auxiliary.run_simple(self, opts)
+	def run_simple(opts = {}, &block)
+		Msf::Simple::Auxiliary.run_simple(self, opts, &block)
 	end
 
 protected
