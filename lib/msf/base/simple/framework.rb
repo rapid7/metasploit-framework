@@ -179,15 +179,25 @@ module Framework
 				self.modules.add_module_path(path)
 			}
 		end
-
-		# Rebuild the module cache
-		self.modules.rebuild_cache
 	end
 
 	#
 	# Statistics.
 	#
 	attr_reader :stats
+
+	#
+	# Boolean indicating whether the cache is initialized yet
+	#
+	attr_reader :cache_initialized
+
+	#
+	# Thread of the running rebuild operation
+	#
+	attr_reader :cache_thread
+	attr_writer :cache_initialized # :nodoc:
+	attr_writer :cache_thread # :nodoc:
+
 
 protected
 

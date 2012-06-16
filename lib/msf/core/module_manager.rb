@@ -678,14 +678,12 @@ class ModuleManager < ModuleSet
 
 	def has_module_file_changed?(file)
 		begin 
-			mtime = ::File.mtime(file)
 			cfile = self.cache[file] 
 			return true if not cfile
 
 			# Payloads can't be cached due to stage/stager matching
 			return true if cfile[:mtype] == "payload"
-
-			return cfile[:mtime].to_i != mtime.to_i
+			return cfile[:mtime].to_i != ::File.mtime(file).to_i
 		rescue ::Errno::ENOENT
 			return true
 		end
@@ -693,14 +691,13 @@ class ModuleManager < ModuleSet
 
 	def has_archive_file_changed?(arch, file)
 		begin 		
-			mtime = ::File.mtime(arch)
 			cfile = self.cache[file]
 			return true if not cfile
 
 			# Payloads can't be cached due to stage/stager matching
 			return true if cfile[:mtype] == "payload"
 
-			return cfile[:mtime].to_i != mtime.to_i
+			return cfile[:mtime].to_i != ::File.mtime(file).to_i
 		rescue ::Errno::ENOENT
 			return true
 		end
@@ -725,6 +722,7 @@ class ModuleManager < ModuleSet
 		end
 	end
 
+	attr_accessor :cache # :nodoc:
 
 protected
 
@@ -1118,7 +1116,6 @@ protected
 	attr_accessor :module_paths # :nodoc:
 	attr_accessor :module_failed # :nodoc:
 	attr_accessor :enabled_types # :nodoc:
-	attr_accessor :cache # :nodoc:
 
 end
 

@@ -212,6 +212,11 @@ class Driver < Msf::Ui::Driver
 						end
 
 						print_error("Failed to connect to the database: #{framework.db.error} #{db.inspect} #{framework.db.error.backtrace}")
+					else
+						self.framework.modules.refresh_cache
+						if self.framework.modules.cache.keys.length == 0
+							print_status("The initial module cache will be built in the background, this can take 2-5 minutes...")
+						end
 					end
 				end
 			end
@@ -220,6 +225,14 @@ class Driver < Msf::Ui::Driver
 		# Configure the framework module paths
 		self.framework.init_module_paths		
 		self.framework.modules.add_module_path(opts['ModulePath'], false) if opts['ModulePath']
+
+		# Rebuild the module cache in a background thread
+		self.framework.threads.spawn("ModuleCacheRebuild", true) do 
+			self.framework.cache_thread = Thread.current
+			self.framework.modules.rebuild_cache
+			self.framework.cache_initialized = true
+			self.framework.cache_thread = nil
+		end
 
 		# Process things before we actually display the prompt and get rocking
 		on_startup(opts)
