@@ -382,17 +382,17 @@ class DBManager
 			when :author
 				md.add_author(vals[:name], vals[:email])
 			when :action
-				mod.add_action(vals[:name])
+				md.add_action(vals[:name])
 			when :arch
-				mod.add_arch(vals[:name])
+				md.add_arch(vals[:name])
 			when :platform
-				mod.add_platform(vals[:platform])
+				md.add_platform(vals[:platform])
 			when :target
-				mod.add_target(vals[:index], vals[:name])
+				md.add_target(vals[:index], vals[:name])
 			when :ref
-				mod.add_ref(vals[:name])
+				md.add_ref(vals[:name])
 			when :mixin
-				mod.add_ref(vals[:name])
+				md.add_ref(vals[:name])
 			end
 		end
 
