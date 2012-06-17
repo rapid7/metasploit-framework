@@ -21,44 +21,70 @@ class AddModuleDetails < ActiveRecord::Migration
 
 		add_index :module_details, :refname
 		add_index :module_details, :name
+		add_index :module_details, :description
+		add_index :module_details, :mtype
 
 		create_table :module_authors do |t|
+			t.integer :module_detail_id
 			t.text :name
 			t.text :email
 		end
+		add_index :module_authors, :module_detail_id
 
 		create_table :module_mixins do |t|
+			t.integer :module_detail_id
 			t.text :name
 		end
+		add_index :module_mixins, :module_detail_id
 
 		create_table :module_targets do |t|
+			t.integer :module_detail_id
 			t.integer :index
 			t.text :name
 		end
+		add_index :module_targets, :module_detail_id
 
 		create_table :module_actions do |t|
+			t.integer :module_detail_id
 			t.text :name
 		end
+		add_index :module_actions, :module_detail_id
 
 		create_table :module_refs do |t|
+			t.integer :module_detail_id
 			t.text :name
 		end
+		add_index :module_refs, :module_detail_id
 		add_index :module_refs, :name
 
 		create_table :module_archs do |t|
+			t.integer :module_detail_id
 			t.text :name
 		end
-
+		add_index :module_archs, :module_detail_id
+	
 		create_table :module_platforms do |t|
+			t.integer :module_detail_id
 			t.text :name
 		end
+		add_index :module_platforms, :module_detail_id
 
 	end
 
 	def self.down
 		remove_index :module_details, :refname
 		remove_index :module_details, :name
+		remove_index :module_details, :description
+		remove_index :module_details, :mtype
+
+		remove_index :module_authors, :module_detail_id
+		remove_index :module_mixins, :module_detail_id
+		remove_index :module_targets, :module_detail_id
+		remove_index :module_actions, :module_detail_id
+		remove_index :module_refs, :module_detail_id
 		remove_index :module_refs, :name
+		remove_index :module_archs, :module_detail_id
+		remove_index :module_platform, :module_detail_id
 
 		drop_table	:module_details
 		drop_table	:module_authors
