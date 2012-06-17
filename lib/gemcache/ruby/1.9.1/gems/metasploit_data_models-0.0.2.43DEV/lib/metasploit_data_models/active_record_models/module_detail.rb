@@ -29,7 +29,7 @@ module MetasploitDataModels::ActiveRecordModels::ModuleDetail
         if not tgt
           tgt = cls.create(vals)
         end
-		res
+	tgt
      end
 
     }
