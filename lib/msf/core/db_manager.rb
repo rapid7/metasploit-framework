@@ -431,7 +431,7 @@ class DBManager
 		}
 
 		m.platform.platforms.map{ |x| 
-			bits << [ :platform, { :name => x.to_s } ] 
+			bits << [ :platform, { :name => x.to_s.split('::').last.downcase } ] 
 		}
 
 		m.author.map{|x| 
