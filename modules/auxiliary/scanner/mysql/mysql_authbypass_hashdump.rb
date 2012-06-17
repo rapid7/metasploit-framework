@@ -130,7 +130,7 @@ class Metasploit3 < Msf::Auxiliary
 							:socket         => s,
 							:db             => nil
 							})
-						print_status "#{rhost}:#{rport} Successfully bypassed authentication after #{count} attempts"
+						print_status "mysql://#{username}:#{password}@#{rhost}:#{rport} Successfully bypassed authentication after #{count} attempts"
 						results << x
 					rescue RbMysql::AccessDeniedError
 					rescue Exception => e
