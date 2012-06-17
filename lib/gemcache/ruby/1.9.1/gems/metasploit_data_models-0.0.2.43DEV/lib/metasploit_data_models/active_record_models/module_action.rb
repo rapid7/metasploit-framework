@@ -1,10 +1,9 @@
 module MetasploitDataModels::ActiveRecordModels::ModuleAction
   def self.included(base)
     base.class_eval{
-      base.table_name = "modules_actions"
-      has_many :modules_details_actions, :class_name => "Mdm::ModuleDetailAction"
-      has_many :modules_details, :through => :modules_details_actions, :class_name => "Mdm::ModuleAction", :source => :module_detail
-      validate :name, :presence => true, :uniqueness => true
+      base.table_name = "module_actions"
+      belongs_to :module_detail
+      validate :name, :presence => true
     }
   end
 end
