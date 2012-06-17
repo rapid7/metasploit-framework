@@ -377,7 +377,23 @@ class DBManager
 
 		md = Mdm::ModuleDetail.create(info)
 		bits.each do |args|
-			md.add(*args)
+			otype, vals = args
+			case otype
+			when :author
+				md.add_author(vals[:name], vals[:email])
+			when :action
+				mod.add_action(vals[:name])
+			when :arch
+				mod.add_arch(vals[:name])
+			when :platform
+				mod.add_platform(vals[:platform])
+			when :target
+				mod.add_target(vals[:index], vals[:name])
+			when :ref
+				mod.add_ref(vals[:name])
+			when :mixin
+				mod.add_ref(vals[:name])
+			end
 		end
 
 		md.ready = true

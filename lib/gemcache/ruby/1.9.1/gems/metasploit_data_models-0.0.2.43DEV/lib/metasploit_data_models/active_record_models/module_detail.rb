@@ -21,17 +21,40 @@ module MetasploitDataModels::ActiveRecordModels::ModuleDetail
       validates_associated :platforms
       validates_associated :refs
 
-      # Add a new sub-object without creating duplicates
-      def add(obj,vals)
-        raise RuntimeError, "Invalid object type" unless Mdm.const_defined?("Module#{obj.to_s.capitalize}")
-        cls = Mdm.const_get("Module#{obj.to_s.capitalize}")
-        tgt = cls.find(:first, :conditions => vals)
-        if not tgt
-          tgt = cls.create(vals)
+      def add_author(name, email=nil)
+        if email
+          self.authors.find_or_create_by_name_and_email(name, email)
+        else
+          self.authors.find_or_create_by_name(name)
         end
-	tgt
-     end
+      end
 
+      def add_mixin(name)
+        self.mixins.find_or_create_by_name(name)
+      end
+
+      def add_target(idx, name)
+        obj = self.targets.find_or_create_by_index(idx)
+        obj.name = name
+        obj.save if obj.changed?
+        obj
+      end
+
+      def add_action(name)
+        self.actions.find_or_create_by_name(name)
+      end
+
+      def add_ref(name)
+        self.refs.find_or_create_by_name(name)
+      end
+
+      def add_arch(name)
+        self.archs.find_or_create_by_name(name)
+      end
+
+      def add_platform(name)
+        self.platforms.find_or_create_by_name(name)
+      end
     }
   end
 end
