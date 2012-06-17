@@ -1453,10 +1453,10 @@ class DBManager
 		wspace = opts.delete(:workspace) || workspace
 		exploited_at = opts[:exploited_at] || opts["exploited_at"]
 		details = opts.delete(:details)
-		rids = nil
+		rids = opts.delete(:ref_ids)
 
 		if opts[:refs]
-			rids = []
+			rids ||= []
 			opts[:refs].each do |r|
 				if (r.respond_to?(:ctx_id)) and (r.respond_to?(:ctx_val))
 					r = "#{r.ctx_id}-#{r.ctx_val}"
@@ -1476,16 +1476,6 @@ class DBManager
 
 		ret = {}
 
-=begin
-		if host
-			host.updated_at = host.created_at
-			host.state      = HostState::Alive
-			host.save!
-		else
-			host = get_host(:workspace => wspace, :address => addr)
-		end
-=end
-
 		# Truncate the info field at the maximum field length
 		if info
 			info = info[0,65535]
@@ -1498,46 +1488,73 @@ class DBManager
 		vuln = nil
 
 		# Identify the associated service
-		service = nil
+		service = opts.delete(:service)
 
 		# Treat port zero as no service
-		if opts[:port].to_i > 0
-			proto = nil
-			case opts[:proto].to_s.downcase # Catch incorrect usages, as in report_note
-			when 'tcp','udp'
-				proto = opts[:proto]
-			when 'dns','snmp','dhcp'
-				proto = 'udp'
-				sname = opts[:proto]
-			else
-				proto = 'tcp'
-				sname = opts[:proto]
-			end
+		if service or opts[:port].to_i > 0
 
-			service = host.services.find_or_create_by_port_and_proto(opts[:port], proto)
+			if not service
+				proto = nil
+				case opts[:proto].to_s.downcase # Catch incorrect usages, as in report_note
+				when 'tcp','udp'
+					proto = opts[:proto]
+				when 'dns','snmp','dhcp'
+					proto = 'udp'
+					sname = opts[:proto]
+				else
+					proto = 'tcp'
+					sname = opts[:proto]
+				end
+
+				service = host.services.find_or_create_by_port_and_proto(opts[:port].to_i, proto)
+			end
 
 			# Try to find an existing vulnerability with the same service & references
 			# If there are multiple matches, choose the one with the most matches
-			vuln = find_vuln_by_refs(rids, host, service) if rids
+			# If a match is found on a vulnerability with no associated service,
+			# update that vulnerability with our service information. This helps
+			# prevent dupes of the same vuln found by both local patch and
+			# service detection.		
+			if rids and rids.length > 0
+				vuln = find_vuln_by_refs(rids, host, service)
+				vuln.service = service if vuln
+			end
 		else
 			# Try to find an existing vulnerability with the same host & references
 			# If there are multiple matches, choose the one with the most matches
-			vuln = find_vuln_by_refs(rids, host) if rids
+			if rids and rids.length > 0
+				vuln = find_vuln_by_refs(rids, host)
+			end
+		end
+
+		# Try to match based on vuln_details records
+		if not vuln and opts[:details_match]
+			vuln = find_vuln_by_details(opts[:details_match], host, service)
+			if vuln and service and not vuln.service
+				vuln.service = service
+			end
 		end
 
 		# No matches, so create a new vuln record
 		unless vuln
-			if info and name !~ /^NEXPOSE-/
-				vuln = host.vulns.find_or_initialize_by_name_and_info(name, info)
+			if service
+				vuln = service.vulns.find_by_name(name)
 			else
-				vuln = host.vulns.find_or_initialize_by_name(name)
+				vuln = host.vulns.find_by_name(name)
 			end
-			vuln.service = service
-		end
+			
+			unless vuln
 
-		# Overwrite the name and information
-		vuln.name = name
-		vuln.info = info.to_s if info
+				vinf = {
+					:host_id => host.id,
+					:name    => name,
+					:info    => info
+				}
+
+				vinf[:service_id] = service.id if service 
+				vuln = Mdm::Vuln.create(vinf)
+			end
+		end
 
 		# Set the exploited_at value if provided
 		vuln.exploited_at = exploited_at if exploited_at
@@ -1562,6 +1579,8 @@ class DBManager
 
 	def find_vuln_by_refs(refs, host, service=nil)
 
+		vuln = nil
+
 		# Try to find an existing vulnerability with the same service & references
 		# If there are multiple matches, choose the one with the most matches
 		if service
@@ -1580,6 +1599,35 @@ class DBManager
 		vuln = host.vulns.find(:all, :include => [:refs], :conditions => { 'service_id' => nil, 'refs.id' => refs_ids }).sort { |a,b|
 			( refs_ids - a.refs.map{|x| x.id } ).length <=> ( refs_ids - b.refs.map{|x| x.id } ).length
 		}.first
+
+		return vuln
+	end
+
+
+	def find_vuln_by_details(details_map, host, service=nil)
+
+		# Create a modified version of the criteria in order to match against
+		# the joined version of the fields
+
+		crit = {}
+		details_map.each_pair do |k,v|
+			crit[ "vuln_details.#{k}" ] = v
+		end
+
+		vuln = nil
+
+		if service
+			vuln = service.vulns.find(:first, :include => [:vuln_details], :conditions => crit)
+		end
+
+		# Return if we matched based on service
+		return vuln if vuln
+
+		# Prevent matches against other services
+		crit["vulns.service_id"] = nil if service
+		vuln = host.vulns.find(:first, :include => [:vuln_details], :conditions => crit)
+
+		return vuln
 	end
 
 	def get_vuln(wspace, host, service, name, data='')
