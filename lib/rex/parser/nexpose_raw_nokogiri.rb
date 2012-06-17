@@ -168,25 +168,10 @@ module Rex
 			vuln_instances = @report_data[:vuln][:matches].size
 			db.emit(:vuln, [refs.last,vuln_instances], &block) if block
 
-			vuln_ids = @report_data[:vuln][:matches].map{ |v| v[0] }
-			vdet_ids = @report_data[:vuln][:matches].map{ |v| v[1] }
+			# Save some time by creating the refs up front
+			rids = refs.uniq.map{|x| db.find_or_create_ref(:name => x) }
 
-			refs = refs.uniq.map{|x| db.find_or_create_ref(:name => x) }
-
-			# Assign title and references to all vuln_ids
-			# Mass update fails due to the join table || ::Mdm::Vuln.where(:id => vuln_ids).update_all({ :name => @report_data[:vuln]["title"], :refs => refs } )
-			vuln_ids.each do |vid|
-				vuln = ::Mdm::Vuln.find(vid)
-				next unless vuln
-				vuln.name = @report_data[:vuln]["title"]
-				vuln.refs = refs
-				if vuln.changed?
-					vuln.save!
-				end
-			end
-
-			# Mass update vulnerability details across the database based on conditions
-			vdet_info = { :title => @report_data[:vuln]["title"] }
+			vdet_info                   = { :title => @report_data[:vuln]["title"] }
 			vdet_info[:description]     = @report_data[:vuln_description]      unless @report_data[:vuln_description].to_s.empty?
 			vdet_info[:solution]        = @report_data[:vuln_solution]         unless @report_data[:vuln_solution].to_s.empty? 
 			vdet_info[:nx_tags]         = @report_data[:vuln_tags].sort.uniq.join(", ") if ( @report_data[:vuln_tags].kind_of?(::Array) and @report_data[:vuln_tags].length > 0 )
@@ -202,7 +187,12 @@ module Rex
 				vdet_info[ "nx_#{tf}".to_sym ] = ts
 			end
 			
-			::Mdm::VulnDetail.where(:id => vdet_ids).update_all(vdet_info)
+			@report_data[:vuln][:matches].each do |vinfo|
+				vinfo[:name]    = @report_data[:vuln]["title"]
+				vinfo[:ref_ids] = rids
+				vinfo[:details].merge(vdet_info)
+				db.report_vuln(vinfo)
+			end
 
 			@report_data[:vuln] = nil
 
@@ -240,13 +230,10 @@ module Rex
 				:name => "NEXPOSE-" + @state[:test][:id].downcase,
 				:host => @state[:cached_host_object] || @state[:address]
 			}
-
-			if @state[:cached_service_object]
-				vuln_info[:service] = @state[:cached_service_object]
-			else
-				vuln_info[:port] = @state[:test][:port] if @state[:test][:port]
-				vuln_info[:protocol] = @state[:test][:protocol] if @state[:test][:protocol]
-			end
+	
+			vuln_info[:port]  = @state[:test][:port] if @state[:test][:port]
+			vuln_info[:proto] = @state[:test][:protocol] if @state[:test][:protocol]
+		
 
 			# This hash feeds a vuln_details row for this vulnerability
 			vdet = { :src => 'nexpose', :nx_vuln_id => @state[:test][:id] }
@@ -282,26 +269,18 @@ module Rex
 			# Configure the find key for vuln_details
 			vdet[:key] = vkey
 
-			::ActiveRecord::Base.connection_pool.with_connection {
+			# Store the details on the vuln hash
+			vuln_info[:details] = vdet
 
-			# Report the vulnerability
-			vuln = db.report_vuln(vuln_info)
-			
-			if vuln
-				# Report the vulnerability details
-				detail = db.report_vuln_details(vuln, vdet)
-
-				# Cache returned host and service objects if necessary
-				@state[:cached_host_object] ||= vuln.host
-				@state[:cached_service_object] ||= vuln.service if vuln.service
-
-				# Record the ID of this vuln for a future mass update that
-				# brings in title, risk, description, solution, etc
-				@tests[ @state[:test][:id].downcase ] ||= []
-				@tests[ @state[:test][:id].downcase ] << [ vuln.id, detail.id ]
-			end
-
-			}
+			# Record this test information for future correlation that
+			# brings in title, risk, description, solution, etc.
+			# XXX: This can be a memory hog, but a two-step update
+			#      process can result in duplicate vulns due to the
+			#      renaming step (nothing to match on otherwise)
+		
+			@tests[ @state[:test][:id].downcase ] ||= []
+			@tests[ @state[:test][:id].downcase ] << vuln_info
+	
 			@state[:test] = nil
 		end
 
