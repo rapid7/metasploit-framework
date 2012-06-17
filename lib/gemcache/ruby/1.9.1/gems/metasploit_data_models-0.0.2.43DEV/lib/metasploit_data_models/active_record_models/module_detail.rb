@@ -23,37 +23,44 @@ module MetasploitDataModels::ActiveRecordModels::ModuleDetail
 
       def add_author(name, email=nil)
         if email
-          self.authors.find_or_create_by_name_and_email(name, email)
+          r = self.authors.build(:name => name, :email => email).save
         else
-          self.authors.find_or_create_by_name(name)
+          self.authors.build(:name => name).save
         end
       end
 
       def add_mixin(name)
-        self.mixins.find_or_create_by_name(name)
+        self.mixins.build(:name => name).save
       end
 
       def add_target(idx, name)
-        obj = self.targets.find_or_create_by_index(idx)
-        obj.name = name
-        obj.save if obj.changed?
-        obj
+        self.targets.build(:index => idx, :name => name).save
       end
 
       def add_action(name)
-        self.actions.find_or_create_by_name(name)
+        self.actions.build(:name => name).save
       end
 
       def add_ref(name)
-        self.refs.find_or_create_by_name(name)
+        self.refs.build(:name => name).save
       end
 
       def add_arch(name)
-        self.archs.find_or_create_by_name(name)
+        self.archs.build(:name => name).save
       end
 
       def add_platform(name)
-        self.platforms.find_or_create_by_name(name)
+        self.platforms.build(:name => name).save
+      end
+
+      def before_destroy
+        Mdm::ModuleAuthor.delete_all('module_detail_id = ?', self.id)
+        Mdm::ModuleMixin.delete_all('module_detail_id = ?', self.id)
+        Mdm::ModuleTarget.delete_all('module_detail_id = ?', self.id)
+        Mdm::ModuleAction.delete_all('module_detail_id = ?', self.id)
+        Mdm::ModuleRef.delete_all('module_detail_id = ?', self.id)
+        Mdm::ModuleArch.delete_all('module_detail_id = ?', self.id)
+        Mdm::ModulePlatform.delete_all('module_detail_id = ?', self.id)
       end
     }
   end
