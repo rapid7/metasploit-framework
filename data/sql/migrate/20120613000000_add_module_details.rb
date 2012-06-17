@@ -7,6 +7,7 @@ class AddModuleDetails < ActiveRecord::Migration
 			t.text      :file              # location on disk
 			t.string    :mtype             # exploit, auxiliary, post, etc
 			t.text      :refname           # module path (no type)
+			t.text      :fullname          # module path with type
 			t.text      :name              # module title
 			t.integer   :rank              # exploit rank
 			t.text      :description       #

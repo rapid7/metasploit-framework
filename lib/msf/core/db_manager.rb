@@ -386,7 +386,7 @@ class DBManager
 			when :arch
 				md.add_arch(vals[:name])
 			when :platform
-				md.add_platform(vals[:platform])
+				md.add_platform(vals[:name])
 			when :target
 				md.add_target(vals[:index], vals[:name])
 			when :ref
@@ -415,13 +415,14 @@ class DBManager
 		res  = {}
 		bits = []
 
-		res[:mtime]   = ::File.mtime(m.file_path) rescue Time.now
-		res[:file]    = m.file_path
-		res[:mtype]   = m.type
-		res[:name]    = m.name.to_s
-		res[:refname] = m.refname
-		res[:rank]    = m.rank.to_i
-		res[:license] = m.license.to_s
+		res[:mtime]    = ::File.mtime(m.file_path) rescue Time.now
+		res[:file]     = m.file_path
+		res[:mtype]    = m.type
+		res[:name]     = m.name.to_s
+		res[:refname]  = m.refname
+		res[:fullname] = m.fullname
+		res[:rank]     = m.rank.to_i
+		res[:license]  = m.license.to_s
 
 		res[:description] = m.description.to_s.strip
 
@@ -465,10 +466,10 @@ class DBManager
 			# Some modules are a combination, which means they are actually aggressive
 			res[:stance] = m.stance.to_s.index("aggressive") ? "aggressive" : "passive"
 
-			# XXX: Too slow
-			# m.class.mixins.each do |x|
-			# 	bits << [ :mixin, { :name => x.to_s } ]
-			# end
+			
+			m.class.mixins.each do |x|
+			 	bits << [ :mixin, { :name => x.to_s } ]
+			end
 		end
 
 		if(m.type == "auxiliary")
