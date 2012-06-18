@@ -131,7 +131,7 @@ module Rex
 				 "ListItem",               # List item
 				 "URLLink"                 # <URLLink LinkURL="http://support.microsoft.com/kb/887429" LinkTitle="http://support.microsoft.com/kb/887429" href="http://support.microsoft.com/kb/887429">KB 887429</URLLink>
 
-					collect_formatted_content(name)
+				collect_formatted_content(name)
 			end
 			@state[:current_tag].delete name
 		end
@@ -150,26 +150,14 @@ module Rex
 			return unless in_tag("description")
 			return unless in_tag("vulnerability")
 			return unless @state[:vuln]
-
-			buff = @report_data[:vuln_description_stack].join.strip.split(/\n/).map{ |t|
-				t.sub(/^\*(\s+)/, '* ').
-				sub(/^(\s{6,20})/, '      ')
-			}.join("\n").gsub(/\n{4,10}/, "\n\n\n")
-
-			@report_data[:vuln_description] = buff
+			@report_data[:vuln_description] = clean_formatted_text( @report_data[:vuln_description_stack].join.strip )
 		end
 
 		def collect_vuln_solution
 			return unless in_tag("solution")
 			return unless in_tag("vulnerability")
 			return unless @state[:vuln]
-			
-			buff = @report_data[:vuln_solution_stack].join.strip.split(/\n/).map{ |t|
-				t.sub(/^\*(\s+)/, '* ').
-				sub(/^(\s{6,20})/, '      ')
-			}.join("\n").gsub(/\n{4,10}/, "\n\n\n")
-
-			@report_data[:vuln_solution] = buff
+			@report_data[:vuln_solution] = clean_formatted_text( @report_data[:vuln_solution_stack].join.strip )
 		end
 
 		def collect_tag
@@ -274,10 +262,7 @@ module Rex
 		end
 
 
-		def record_formatted_content(name, eattrs)
-			return unless in_tag("vulnerability")
-			return unless @state[:vuln]
-			
+		def record_formatted_content(name, eattrs)		
 			attrs  = attr_hash(eattrs)
 			stack  = nil
 
@@ -289,10 +274,13 @@ module Rex
 				stack = @report_data[:vuln_description_stack]
 			end
 
+			if in_tag("test")
+				stack = @report_data[:vuln_proof_stack]
+			end
+
 			return if not stack
 
 			@report_data[:formatted_indent] ||= 0
-			@report_data[:formatted_bullet] = false
 
 			data = @text.to_s.strip.split(/\n+/).map{|t| t.strip}.join(" ")
 			@text = ""
@@ -300,13 +288,13 @@ module Rex
 			case name
 			when 'ListItem'
 				@report_data[:formatted_indent] = 1
-				data = "\n* " + data
+				# data = "\n* " + data
 			when 'URLLink'
 				@report_data[:formatted_link] = attrs["LinkURL"]
 			else
-				data = (" " * @report_data[:formatted_indent]) + data
+				data = (" " * (@report_data[:formatted_indent] - 1)) + data
 				if @report_data[:formatted_indent] == 1
-					@report_data[:formatted_indent] = 6
+					@report_data[:formatted_indent] = 7
 				end
 			end
 
@@ -315,10 +303,7 @@ module Rex
 			end	
 		end
 
-		def collect_formatted_content(name)
-			return unless in_tag("vulnerability")
-			return unless @state[:vuln]
-			
+		def collect_formatted_content(name)	
 			stack  = nil
 			prefix = ""
 
@@ -328,6 +313,10 @@ module Rex
 
 			if in_tag("description")
 				stack = @report_data[:vuln_description_stack]
+			end
+
+			if in_tag("test")
+				stack = @report_data[:vuln_proof_stack]
 			end
 
 			return if not stack
@@ -412,7 +401,9 @@ module Rex
 				vdet[:nx_vulnerable_since] = ts if ts
 			end
 			
-			proof = @text.to_s.strip
+			proof = clean_formatted_text(@report_data[:vuln_proof_stack].join.strip)
+			@report_data[:vuln_proof_stack] = []
+
 			vuln_info[:info] = proof
 			vdet[:proof]     = proof 
 
@@ -586,6 +577,8 @@ module Rex
 			@state[:test][:nx_scan_id] = test["scan-id"] if test["scan-id"]
 			@state[:test][:nx_vulnerable_since] = test["vulnerable-since"] if test["vulnerable-since"]
 			@state[:test][:nx_pci_compliance_status] = test["pci-compliance-status"] if test["pci-compliance-status"]
+
+			@report_data[:vuln_proof_stack] = []
 		end
 
 		def record_service_test(attrs)
@@ -605,6 +598,7 @@ module Rex
 			@state[:test][:nx_scan_id] = test["scan-id"] if test["scan-id"]
 			@state[:test][:nx_vulnerable_since] = test["vulnerable-since"] if test["vulnerable-since"]
 			@state[:test][:nx_pci_compliance_status] = test["pci-compliance-status"] if test["pci-compliance-status"]
+			@report_data[:vuln_proof_stack] = []
 		end
 
 		def record_host(attrs)
@@ -671,6 +665,13 @@ module Rex
 				end
 				host_object
 			end
+		end
+
+		def clean_formatted_text(txt)
+			txt.split(/\n/).map{ |t|
+				t.sub(/^\s+$/, '').
+				  sub(/^(\s{6,20})/, '      ')
+			}.join("\n").gsub(/\n{4,10}/, "\n\n\n")
 		end
 
 	end
