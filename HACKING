@@ -31,7 +31,7 @@ interfaces other than msfconsole, such as msfrpc and msfgui, won't see
 your output.  You can use print_line to accomplish the same thing as
 puts. 
 
-2. Don't read from from standard input, doing so will make your code 
+2. Don't read from standard input, doing so will make your code 
 lock up the entire module when called from other interfaces. If you 
 need user input, you can either register an option or expose an 
 interactve session type specific for the type of exploit.
