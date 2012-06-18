@@ -470,9 +470,9 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		@res = Net::DNS::Resolver.new()
 		if datastore['TCP_DNS']
-	                vprint_good("Using DNS/TCP")
-                	@res.use_tcp = true
-                end 
+			vprint_status("Using DNS/TCP")
+			@res.use_tcp = true
+		end
 		@res.retry = datastore['RETRY'].to_i
 		@res.retry_interval = datastore['RETRY_INTERVAL'].to_i
 		@threadnum = datastore['THREADS'].to_i
