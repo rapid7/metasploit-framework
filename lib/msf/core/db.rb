@@ -862,7 +862,7 @@ class DBManager
 		attempt_info[:session_id] = opts[:session_id] if opts[:session_id]
 		attempt_info[:loot_id]    = opts[:loot_id]    if opts[:loot_id]
 
-		Mdm::VulnAttempt.create(attempt_info)
+		vuln.vuln_attempts.build(attempt_info).save
 	}
 	end
 
@@ -879,8 +879,7 @@ class DBManager
 			info[k] = opts[k]  if opts[k]
 		end
 
-		info[:vuln_id] = vuln.id
-		Mdm::VulnAttempt.create(info)
+		vuln.vuln_attempts.build(info).save
 	}
 	end
 
@@ -928,7 +927,6 @@ class DBManager
 
 		# We have match, lets create a vuln_attempt record
 		attempt_info = {
-			:vuln_id      => vuln.id,
 			:attempted_at => opts.delete(:timestamp) || Time.now.utc,
 			:exploited    => false,
 			:fail_reason  => opts.delete(:reason),
@@ -936,7 +934,7 @@ class DBManager
 			:module       => opts.delete(:module)
 		}
 
-		Mdm::VulnAttempt.create(attempt_info)
+		vuln.vuln_attempts.build(attempt_info).save
 	}
 	end
 
