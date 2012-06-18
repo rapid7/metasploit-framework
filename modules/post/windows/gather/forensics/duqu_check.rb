@@ -55,11 +55,11 @@ class Metasploit3 < Msf::Post
 					match += 1
 					report_vuln(
 						:host          => session.session_host,
-						:name          => self.fullname,
-						:info          => "#{path}\\#{query} possible CVE-2011-3402 exploitation [Duqu] artifact.",
+						:name          => self.name,
+						:info          => "Module #{self.fullname} detected #{path}\\#{query} - possible CVE-2011-3402 exploitation [Duqu] artifact.",
 						:refs          => self.references,
-						:exploited_at  => Time.now.utc
-						)
+						:exploited_at  => Time.now.utc,
+					)
 				end
 			end
 		rescue # Probably should do something here...

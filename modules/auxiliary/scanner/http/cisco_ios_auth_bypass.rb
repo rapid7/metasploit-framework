@@ -64,8 +64,9 @@ class Metasploit3 < Msf::Auxiliary
 						:host	=> rhost,
 						:port	=> rport,
 						:proto  => 'tcp',
-						:name	=> self.fullname,
-						:info	=> "http://#{rhost}:#{rport}/level/#{level}/exec/show/version/CR",
+						:name	=> self.name,
+						:sname  => ssl ? "https" : "http",
+						:info	=> "Module #{self.fullname} successfully accessed http://#{rhost}:#{rport}/level/#{level}/exec/show/version/CR",
 						:refs   => self.references,
 						:exploited_at => Time.now.utc
 					}
@@ -83,8 +84,10 @@ class Metasploit3 < Msf::Auxiliary
 					report_exploit(
 						{
 							:host		=> rhost,
-							:service	=> rport,
-							:name		=> self.fullname
+							:port		=> rport,
+							:name		=> self.name,
+							:sname      => ssl ? "https" : "http",
+							:info       => "Module #{self.fullname} successfully captured the configuration file:\n#{config}"
 						}
 					)
 				else
