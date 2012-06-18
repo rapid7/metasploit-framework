@@ -392,7 +392,7 @@ class DBManager
 			when :ref
 				md.add_ref(vals[:name])
 			when :mixin
-				md.add_ref(vals[:name])
+				# md.add_mixin(vals[:name])
 			end
 		end
 

@@ -255,6 +255,13 @@ class Export
 		extract_web_vuln_info(report_file)
 		report_file.write %Q|</web_vulns>\n|
 
+		yield(:status, "start", "module details") if block_given?
+		report_file.write %Q|<module_details>\n|
+		report_file.flush
+		extract_module_detail_info(report_file)
+		report_file.write %Q|</module_details>\n|
+
+
 		report_file.write %Q|</MetasploitV4>\n|
 		report_file.flush
 		report_file.close
@@ -350,6 +357,96 @@ class Export
 		return el
 	end
 
+
+	def extract_module_detail_info(report_file)
+		Mdm::ModuleDetail.all.each do |m|
+			report_file.write("<module_detail>\n")
+			m_id = m.attributes["id"]
+
+			# Module attributes
+			m.attributes.each_pair do |k,v|
+				el = create_xml_element(k,v)
+				report_file.write("    #{el}\n") # Not checking types
+			end
+
+			# Authors sub-elements
+			report_file.write("    <module_authors>\n")
+			m.authors.find(:all).each do |d|
+				d.attributes.each_pair do |k,v|
+					el = create_xml_element(k,v)
+					report_file.write("        #{el}\n")
+				end					
+			end
+			report_file.write("    </module_authors>\n")
+			
+			# Refs sub-elements
+			report_file.write("    <module_refs>\n")
+			m.refs.find(:all).each do |d|
+				d.attributes.each_pair do |k,v|
+					el = create_xml_element(k,v)
+					report_file.write("        #{el}\n")
+				end					
+			end
+			report_file.write("    </module_refs>\n")
+
+
+			# Archs sub-elements
+			report_file.write("    <module_archs>\n")
+			m.archs.find(:all).each do |d|
+				d.attributes.each_pair do |k,v|
+					el = create_xml_element(k,v)
+					report_file.write("        #{el}\n")
+				end					
+			end
+			report_file.write("    </module_archs>\n")
+
+
+			# Platforms sub-elements
+			report_file.write("    <module_platforms>\n")
+			m.platforms.find(:all).each do |d|
+				d.attributes.each_pair do |k,v|
+					el = create_xml_element(k,v)
+					report_file.write("        #{el}\n")
+				end					
+			end
+			report_file.write("    </module_platforms>\n")
+
+
+			# Targets sub-elements
+			report_file.write("    <module_targets>\n")
+			m.targets.find(:all).each do |d|
+				d.attributes.each_pair do |k,v|
+					el = create_xml_element(k,v)
+					report_file.write("        #{el}\n")
+				end					
+			end
+			report_file.write("    </module_targets>\n")
+
+			# Actions sub-elements
+			report_file.write("    <module_actions>\n")
+			m.actions.find(:all).each do |d|
+				d.attributes.each_pair do |k,v|
+					el = create_xml_element(k,v)
+					report_file.write("        #{el}\n")
+				end					
+			end
+			report_file.write("    </module_actions>\n")
+
+			# Mixins sub-elements
+			report_file.write("    <module_mixins>\n")
+			m.mixins.find(:all).each do |d|
+				d.attributes.each_pair do |k,v|
+					el = create_xml_element(k,v)
+					report_file.write("        #{el}\n")
+				end					
+			end
+			report_file.write("    </module_mixins>\n")
+
+			report_file.write("</module_detail>\n")
+		end
+		report_file.flush
+	end
+
 	# ActiveRecord's to_xml is easy and wrong. This isn't, on both counts.
 	def extract_host_info(report_file)
 		@hosts.each do |h|
@@ -371,6 +468,16 @@ class Export
 				end					
 			end
 			report_file.write("    </host_details>\n")
+
+			# Host exploit attempts sub-elements
+			report_file.write("    <exploit_attempts>\n")
+			h.exploit_attempts.find(:all).each do |d|
+				d.attributes.each_pair do |k,v|
+					el = create_xml_element(k,v)
+					report_file.write("        #{el}\n")
+				end					
+			end
+			report_file.write("    </exploit_attempts>\n")
 
 			# Service sub-elements
 			report_file.write("    <services>\n")
