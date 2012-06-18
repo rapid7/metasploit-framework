@@ -292,9 +292,9 @@ module Rex
 			when 'URLLink'
 				@report_data[:formatted_link] = attrs["LinkURL"]
 			else
-				data = (" " * (@report_data[:formatted_indent] - 1)) + data
+				data = (" " * (@report_data[:formatted_indent])) + data
 				if @report_data[:formatted_indent] == 1
-					@report_data[:formatted_indent] = 7
+					@report_data[:formatted_indent] = 6
 				end
 			end
 
