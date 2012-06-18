@@ -900,23 +900,6 @@ class DBManager
 	}
 	end
 
-	def report_vuln_attempt(vuln, opts)
-	::ActiveRecord::Base.connection_pool.with_connection {
-		return if not vuln
-		info = {}
-		
-		# Opts can be keyed by strings or symbols
-		::Mdm::VulnAttempt.column_names.each do |kn|
-			k = kn.to_sym
-			next if ['id', 'vuln_id'].include?(kn)
-			info[k] = opts[kn] if opts[kn]
-			info[k] = opts[k]  if opts[k]
-		end
-
-		vuln.vuln_attempts.create(info)
-	}
-	end
-
 	def report_exploit_failure(opts)
 	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace = opts.delete(:workspace) || workspace
@@ -997,6 +980,40 @@ class DBManager
 	}
 	end
 
+
+	def report_vuln_attempt(vuln, opts)
+	::ActiveRecord::Base.connection_pool.with_connection {
+		return if not vuln
+		info = {}
+		
+		# Opts can be keyed by strings or symbols
+		::Mdm::VulnAttempt.column_names.each do |kn|
+			k = kn.to_sym
+			next if ['id', 'vuln_id'].include?(kn)
+			info[k] = opts[kn] if opts[kn]
+			info[k] = opts[k]  if opts[k]
+		end
+
+		vuln.vuln_attempts.create(info)
+	}
+	end
+
+	def report_exploit_attempt(host, opts)
+	::ActiveRecord::Base.connection_pool.with_connection {
+		return if not host
+		info = {}
+		
+		# Opts can be keyed by strings or symbols
+		::Mdm::VulnAttempt.column_names.each do |kn|
+			k = kn.to_sym
+			next if ['id', 'host_id'].include?(kn)
+			info[k] = opts[kn] if opts[kn]
+			info[k] = opts[k]  if opts[k]
+		end
+
+		host.exploit_attempts.create(info)
+	}
+	end
 
 	def get_client(opts)
 	::ActiveRecord::Base.connection_pool.with_connection {
@@ -3676,6 +3693,17 @@ class DBManager
 					end
 				end
 				report_host_details(hobj, hdet_data)
+			end
+
+			host.elements.each("exploit_attempts") do |hdet|
+				hdet_data = {}
+				hdet.elements.each do |det|
+					next if ["id", "host-id", "session-id", "vuln-id", "service-id", "loot-id"].include?(det.name)
+					if det.text
+						hdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
+					end
+				end
+				report_exploit_attempt(hobj, hdet_data)
 			end
 
 			host.elements.each('services/service') do |service|
