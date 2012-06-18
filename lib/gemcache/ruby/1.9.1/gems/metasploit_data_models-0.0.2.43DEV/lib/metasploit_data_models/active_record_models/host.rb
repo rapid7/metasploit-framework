@@ -18,6 +18,7 @@ module MetasploitDataModels::ActiveRecordModels::Host
       has_many :exploited_hosts, :dependent => :destroy, :class_name => "Mdm::ExploitedHost"
 
       has_many :host_details, :dependent => :destroy, :class_name => "Mdm::HostDetail"
+      has_many :exploit_attempts, :dependent => :destroy, :class_name => "Mdm::ExploitAttempt"
 
       validates :address, :presence => true, :ip_format => true
       validates_exclusion_of :address, :in => ['127.0.0.1']

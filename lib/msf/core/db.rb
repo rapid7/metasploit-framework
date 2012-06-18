@@ -691,18 +691,19 @@ class DBManager
 			mod = framework.modules.create(session.via_exploit)
 			vuln_info = {
 				:host => host.address,
-				:name => session.via_exploit,
+				:name => mod.name,
 				:refs => mod.references,
 				:workspace => wspace,
-				:exploited_at => Time.now.utc
+				:exploited_at => Time.now.utc,
+				:info => "Exploited by #{mod.fullname} to create Session #{s.id}"
 			}
 
 			port    = session.exploit_datastore["RPORT"]
-			service = (port ? host.services.find_by_port(port) : nil)
+			service = (port ? host.services.find_by_port(port.to_i) : nil)
 
 			vuln_info[:service] = service if service
 
-			framework.db.report_vuln(vuln_info)
+			vuln = framework.db.report_vuln(vuln_info)
 			
 			attempt_info = {
 				:timestamp   => Time.now.utc,
@@ -712,7 +713,8 @@ class DBManager
 				:refs        => mod.references,
 				:session_id  => s.id,
 				:host        => host,
-				:service     => service
+				:service     => service,
+				:vuln        => vuln
 			}
 
 			framework.db.report_exploit_success(attempt_info)
@@ -817,6 +819,7 @@ class DBManager
 		port   = opts.delete(:port)
 		prot   = opts.delete(:proto)
 		svc    = opts.delete(:service)
+		vuln   = opts.delete(:vuln)
 
 		# Look up or generate the host as appropriate
 		if not (host and host.kind_of? ::Mdm::Host)
@@ -835,34 +838,65 @@ class DBManager
 			svc = report_service(:workspace => wspace, :host => host, :port => port, :proto => prot ) if port
 		end
 
-		# Create a references map from the module list
-		ref_objs = ::Mdm::Ref.where(:name => mrefs.map { |ref|
-			if ref.respond_to?(:ctx_id) and ref.respond_to?(:ctx_val)
-				"#{ref.ctx_id}-#{ref.ctx_val}"
-			else
-				ref.to_s
-			end
-		})
-
-		# Try find a matching vulnerability
-		vuln = find_vuln_by_refs(ref_objs, host, svc)
-
-		# Give up now if nothing was found
-		return if not vuln
+		if not vuln
+			# Create a references map from the module list
+			ref_objs = ::Mdm::Ref.where(:name => mrefs.map { |ref|
+				if ref.respond_to?(:ctx_id) and ref.respond_to?(:ctx_val)
+					"#{ref.ctx_id}-#{ref.ctx_val}"
+				else
+					ref.to_s
+				end
+			})
+		
+			# Try find a matching vulnerability
+			vuln = find_vuln_by_refs(ref_objs, host, svc)
+		end
 
 		# We have match, lets create a vuln_attempt record
+		if vuln
+			attempt_info = {
+				:vuln_id      => vuln.id,
+				:attempted_at => opts.delete(:timestamp) || Time.now.utc,
+				:exploited    => true,
+				:username     => opts.delete(:username)  || "unknown",
+				:module       => opts.delete(:module)
+			}
+
+			attempt_info[:session_id] = opts[:session_id] if opts[:session_id]
+			attempt_info[:loot_id]    = opts[:loot_id]    if opts[:loot_id]
+
+			vuln.vuln_attempts.create(attempt_info)
+	
+			# Correct the vuln's associated service if necessary
+			if svc and vuln.service_id.nil?
+				vuln.service = svc
+				vuln.save
+			end
+		end
+
+		# Report an exploit attempt all the same
 		attempt_info = {
-			:vuln_id      => vuln.id,
 			:attempted_at => opts.delete(:timestamp) || Time.now.utc,
 			:exploited    => true,
 			:username     => opts.delete(:username)  || "unknown",
 			:module       => opts.delete(:module)
 		}
 
+		attempt_info[:vuln_id]    = vuln.id           if vuln
 		attempt_info[:session_id] = opts[:session_id] if opts[:session_id]
 		attempt_info[:loot_id]    = opts[:loot_id]    if opts[:loot_id]
+		
+		if svc
+			attempt_info[:port]  = svc.port
+			attempt_info[:proto] = svc.proto
+		end
+		
+		if port and svc.nil?
+			attempt_info[:port]  = port
+			attempt_info[:proto] = prot || "tcp"
+		end
 
-		vuln.vuln_attempts.build(attempt_info).save
+		host.exploit_attempts.create(attempt_info)
 	}
 	end
 
@@ -879,7 +913,7 @@ class DBManager
 			info[k] = opts[k]  if opts[k]
 		end
 
-		vuln.vuln_attempts.build(info).save
+		vuln.vuln_attempts.create(info)
 	}
 	end
 
@@ -891,6 +925,7 @@ class DBManager
 		port   = opts.delete(:port)
 		prot   = opts.delete(:proto)
 		svc    = opts.delete(:service)
+		vuln   = opts.delete(:vuln)
 
 		# Look up the host as appropriate
 		if not (host and host.kind_of? ::Mdm::Host)
@@ -910,31 +945,55 @@ class DBManager
 			svc = get_service(wspace, host, prot, port) if port
 		end
 
-		# Create a references map from the module list
-		ref_objs = ::Mdm::Ref.where(:name => mrefs.map { |ref|
-			if ref.respond_to?(:ctx_id) and ref.respond_to?(:ctx_val)
-				"#{ref.ctx_id}-#{ref.ctx_val}"
-			else
-				ref.to_s
-			end
-		})
+		if not vuln
+			# Create a references map from the module list
+			ref_objs = ::Mdm::Ref.where(:name => mrefs.map { |ref|
+				if ref.respond_to?(:ctx_id) and ref.respond_to?(:ctx_val)
+					"#{ref.ctx_id}-#{ref.ctx_val}"
+				else
+					ref.to_s
+				end
+			})
+		
+			# Try find a matching vulnerability
+			vuln = find_vuln_by_refs(ref_objs, host, svc)
+		end
 
-		# Try find a matching vulnerability
-		vuln = find_vuln_by_refs(ref_objs, host, svc)
+		# Report a vuln_attempt if we found a match
+		if vuln
+			attempt_info = {
+				:attempted_at => opts.delete(:timestamp) || Time.now.utc,
+				:exploited    => false,
+				:fail_reason  => opts.delete(:reason),
+				:username     => opts.delete(:username)  || "unknown",
+				:module       => opts.delete(:module)
+			}
 
-		# Give up now if nothing was found
-		return if not vuln
+			vuln.vuln_attempts.create(attempt_info)
+		end
 
-		# We have match, lets create a vuln_attempt record
+		# Report an exploit attempt all the same
 		attempt_info = {
 			:attempted_at => opts.delete(:timestamp) || Time.now.utc,
 			:exploited    => false,
-			:fail_reason  => opts.delete(:reason),
 			:username     => opts.delete(:username)  || "unknown",
-			:module       => opts.delete(:module)
+			:module       => opts.delete(:module),
+			:fail_reason  => opts.delete(:reason),
 		}
 
-		vuln.vuln_attempts.build(attempt_info).save
+		attempt_info[:vuln_id] = vuln.id if vuln
+
+		if svc
+			attempt_info[:port]  = svc.port
+			attempt_info[:proto] = svc.proto
+		end
+		
+		if port and svc.nil?
+			attempt_info[:port]  = port
+			attempt_info[:proto] = prot || "tcp"
+		end
+
+		host.exploit_attempts.create(attempt_info)
 	}
 	end
 
