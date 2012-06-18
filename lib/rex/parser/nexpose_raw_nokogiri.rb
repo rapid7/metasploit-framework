@@ -51,13 +51,26 @@ module Rex
 				@state[:has_text] = true
 				record_reference(attrs)
 			when "description"
-				@state[:has_text] = true	
+				@state[:has_text] = true
+				record_vuln_description(attrs)
 			when "solution"
 				@state[:has_text] = true
+				record_vuln_solution(attrs)
 			when "tag"
 				@state[:has_text] = true
 			when "tags"
 				@state[:tags] = []
+			#
+			# These are markup tags only present within description/solutions
+			#
+			when "ContainerBlockElement",  # Overall container, no formatting
+				 "Paragraph",              # <Paragraph preformat="true">
+				 "UnorderedList",          # List container (bulleted)
+				 "ListItem",               # List item
+				 "URLLink"                 # <URLLink LinkURL="http://support.microsoft.com/kb/887429" LinkTitle="http://support.microsoft.com/kb/887429" href="http://support.microsoft.com/kb/887429">KB 887429</URLLink>
+
+				record_formatted_content(name, attrs)
+
 			end
 		end
 
@@ -109,6 +122,16 @@ module Rex
 			when "tags"
 				@report_data[:vuln_tags] = @state[:tags]
 				@state.delete(:tags)
+				#
+				# These are markup tags only present within description/solutions
+				#
+			when "ContainerBlockElement",  # Overall container, no formatting
+				 "Paragraph",              # <Paragraph preformat="true">
+				 "UnorderedList",          # List container (bulleted)
+				 "ListItem",               # List item
+				 "URLLink"                 # <URLLink LinkURL="http://support.microsoft.com/kb/887429" LinkTitle="http://support.microsoft.com/kb/887429" href="http://support.microsoft.com/kb/887429">KB 887429</URLLink>
+
+					collect_formatted_content(name)
 			end
 			@state[:current_tag].delete name
 		end
@@ -127,14 +150,26 @@ module Rex
 			return unless in_tag("description")
 			return unless in_tag("vulnerability")
 			return unless @state[:vuln]
-			@report_data[:vuln_description] = @text.to_s.strip
+
+			buff = @report_data[:vuln_description_stack].join.strip.split(/\n/).map{ |t|
+				t.sub(/^\*(\s+)/, '* ').
+				sub(/^(\s{6,20})/, '      ')
+			}.join("\n").gsub(/\n{4,10}/, "\n\n\n")
+
+			@report_data[:vuln_description] = buff
 		end
 
 		def collect_vuln_solution
 			return unless in_tag("solution")
 			return unless in_tag("vulnerability")
 			return unless @state[:vuln]
-			@report_data[:vuln_solution] = @text.to_s.strip
+			
+			buff = @report_data[:vuln_solution_stack].join.strip.split(/\n/).map{ |t|
+				t.sub(/^\*(\s+)/, '* ').
+				sub(/^(\s{6,20})/, '      ')
+			}.join("\n").gsub(/\n{4,10}/, "\n\n\n")
+
+			@report_data[:vuln_solution] = buff
 		end
 
 		def collect_tag
@@ -228,6 +263,99 @@ module Rex
 			return if matching_tests.empty?
 			@state[:vuln] = vuln
 			@state[:vuln][:matches] = matching_tests
+		end
+
+		def record_vuln_description(attrs)
+			@report_data[:vuln_description_stack] = []
+		end
+
+		def record_vuln_solution(attrs)
+			@report_data[:vuln_solution_stack] = []
+		end
+
+
+		def record_formatted_content(name, eattrs)
+			return unless in_tag("vulnerability")
+			return unless @state[:vuln]
+			
+			attrs  = attr_hash(eattrs)
+			stack  = nil
+
+			if in_tag("solution")
+				stack = @report_data[:vuln_solution_stack]
+			end
+
+			if in_tag("description")
+				stack = @report_data[:vuln_description_stack]
+			end
+
+			return if not stack
+
+			@report_data[:formatted_indent] ||= 0
+			@report_data[:formatted_bullet] = false
+
+			data = @text.to_s.strip.split(/\n+/).map{|t| t.strip}.join(" ")
+			@text = ""
+
+			case name
+			when 'ListItem'
+				@report_data[:formatted_indent] = 1
+				data = "\n* " + data
+			when 'URLLink'
+				@report_data[:formatted_link] = attrs["LinkURL"]
+			else
+				data = (" " * @report_data[:formatted_indent]) + data
+				if @report_data[:formatted_indent] == 1
+					@report_data[:formatted_indent] = 6
+				end
+			end
+
+			if data.length > 0
+				stack << data
+			end	
+		end
+
+		def collect_formatted_content(name)
+			return unless in_tag("vulnerability")
+			return unless @state[:vuln]
+			
+			stack  = nil
+			prefix = ""
+
+			if in_tag("solution")
+				stack = @report_data[:vuln_solution_stack]
+			end
+
+			if in_tag("description")
+				stack = @report_data[:vuln_description_stack]
+			end
+
+			return if not stack
+			
+			data = @text.to_s.strip.split(/\n+/).map{|t| t.strip}.join(" ")
+			@text = ""
+
+			case name
+			when 'URLLink'
+				if @report_data[:formatted_link]
+					if data != @report_data[:formatted_link]
+						if data.empty?
+							data << (" " + @report_data[:formatted_link])
+						else
+							data = " " + data + " ( " + @report_data[:formatted_link] + " )"
+						end
+					end
+				end
+			when 'Paragraph'
+				data << "\n\n"
+			when 'ListItem'
+				@report_data[:formatted_indent] = 0
+				data << "\n"
+			end
+
+			if data.length > 0
+				stack << data
+			end
 		end
 
 		# XML Export 2.0 includes additional test keys:
