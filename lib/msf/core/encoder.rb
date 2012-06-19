@@ -106,6 +106,10 @@ class Encoder < Module
 		#
 		NonUpperUtf8Safe = "non_upper_utf8_safe"
 		#
+		# tolower safe underscore safe for CVE-2012-2329 - PHP CGI apache_request_headers bof
+		#
+		NonUpperUnderscoreSafe = "non_upper_underscore"
+		#
 		# May result in the generation of any characters
 		#
 		Unspecified = "unspecified"

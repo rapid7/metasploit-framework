@@ -122,17 +122,17 @@ class Metasploit3 < Msf::Auxiliary
 			elsif wordcount == 0x0C
 				smb_cmd_session_setup(c, buff, true)
 			else
-				print_status("Unknown SMB_COM_SESSION_SETUP_ANDX request type , ignoring... ")
+				print_status("SMB Capture - #{smb[:ip]} Unknown SMB_COM_SESSION_SETUP_ANDX request type , ignoring... ")
 				smb_error(cmd, c, CONST::SMB_STATUS_SUCCESS, @s_smb_esn)
 			end
 
 
 		when CONST::SMB_COM_TREE_CONNECT
-			print_status("Denying tree connect from #{smb[:name]}")
+			print_status("SMB Capture - Denying tree connect from #{smb[:name]} - #{smb[:ip]}")
 			smb_error(cmd, c, SMB_SMB_STATUS_ACCESS_DENIED, @s_smb_esn)
 
 		else
-			print_status("Ignoring request from #{smb[:name]} (#{cmd})")
+			print_status("SMB Capture - Ignoring request from #{smb[:name]} - #{smb[:ip]} (#{cmd})")
 			smb_error(cmd, c, CONST::SMB_STATUS_SUCCESS, @s_smb_esn)
 		end
 	end
@@ -226,7 +226,7 @@ class Metasploit3 < Msf::Auxiliary
 				if start
 					blob.slice!(0,start)
 				else
-					print_status("Error finding NTLM in SMB_COM_SESSION_SETUP_ANDX request from #{smb[:name]}, ignoring ...")
+					print_status("SMB Capture - Error finding NTLM in SMB_COM_SESSION_SETUP_ANDX request from #{smb[:name]} - #{smb[:ip]}, ignoring ...")
 					smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
 					return
 				end
@@ -318,11 +318,11 @@ class Metasploit3 < Msf::Auxiliary
 						:nt_cli_challenge 	=> ntlm_message.ntlm_response[16, nt_len - 16].unpack('H*')[0]
 					}
 				elsif nt_len == 0
-					print_status("Empty hash from #{smb[:name]} captured, ignoring ... ")
+					print_status("SMB Capture - Empty hash from #{smb[:name]} - #{smb[:ip]} captured, ignoring ... ")
 					smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
 					return
 				else
-					print_status("Unknown hash type from #{smb[:name]}, ignoring ...")
+					print_status("SMB Capture - Unknown hash type from #{smb[:name]} - #{smb[:ip]}, ignoring ...")
 					smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
 					return
 				end
@@ -339,7 +339,7 @@ class Metasploit3 < Msf::Auxiliary
 				begin
 					smb_get_hash(smb,arg,true)
 				rescue ::Exception => e
-					print_status("Error processing Hash from #{smb[:name]} : #{e.class} #{e} #{e.backtrace}")
+					print_status("SMB Capture - Error processing Hash from #{smb[:name]} - #{smb[:ip]} : #{e.class} #{e} #{e.backtrace}")
 				end
 
 				smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
@@ -379,11 +379,11 @@ class Metasploit3 < Msf::Auxiliary
 					:nt_cli_challenge => pkt['Payload'].v['Payload'][lm_len + 16, nt_len - 16].unpack("H*")[0]
 				}
 			elsif nt_len == 0
-				print_status("Empty hash captured from #{smb[:name]} captured, ignoring ... ")
+				print_status("SMB Capture - Empty hash captured from #{smb[:name]} - #{smb[:ip]} captured, ignoring ... ")
 				smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
 				return
 			else
-				print_status("Unknown hash type capture from #{smb[:name]}, ignoring ...")
+				print_status("SMB Capture - Unknown hash type capture from #{smb[:name]} - #{smb[:ip]}, ignoring ...")
 				smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
 				return
 			end
@@ -401,7 +401,7 @@ class Metasploit3 < Msf::Auxiliary
 				smb_get_hash(smb,arg,false)
 
 			rescue ::Exception => e
-				print_status("Error processing Hash from #{smb[:name]} : #{e.class} #{e} #{e.backtrace}")
+				print_status("SMB Capture - Error processing Hash from #{smb[:name]} : #{e.class} #{e} #{e.backtrace}")
 			end
 
 			smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
@@ -441,7 +441,7 @@ class Metasploit3 < Msf::Auxiliary
 			when NTLM_CONST::NTLM_V1_RESPONSE
 				if NTLM_CRYPT::is_hash_from_empty_pwd?({:hash => [nt_hash].pack("H*"),:srv_challenge => @challenge,
 								:ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE, :type => 'ntlm' })
-					print_status("NLMv1 Hash correspond to an empty password, ignoring ... ")
+					print_status("SMB Capture - NLMv1 Hash correspond to an empty password, ignoring ... #{smb[:ip]}")
 					return
 				end
 				if (lm_hash == nt_hash or lm_hash == "" or lm_hash =~ /^0*$/ ) then
@@ -459,7 +459,7 @@ class Metasploit3 < Msf::Auxiliary
 								:user => Rex::Text::to_ascii(smb[:username]),
 								:domain => Rex::Text::to_ascii(smb[:domain]),
 								:ntlm_ver => NTLM_CONST::NTLM_V2_RESPONSE, :type => 'ntlm' })
-					print_status("NTLMv2 Hash correspond to an empty password, ignoring ... ")
+					print_status("SMB Capture - NTLMv2 Hash correspond to an empty password, ignoring ... #{smb[:ip]}")
 					return
 				end
 				if lm_hash == '0' * 32 and lm_cli_challenge == '0' * 16
@@ -481,7 +481,7 @@ class Metasploit3 < Msf::Auxiliary
 				if NTLM_CRYPT::is_hash_from_empty_pwd?({:hash => [nt_hash].pack("H*"),:srv_challenge => @challenge,
 								:cli_challenge => [lm_hash].pack("H*")[0,8],
 								:ntlm_ver => NTLM_CONST::NTLM_2_SESSION_RESPONSE, :type => 'ntlm' })
-					print_status("NTLM2_session Hash correspond to an empty password, ignoring ... ")
+					print_status("SMB Capture - NTLM2_session Hash correspond to an empty password, ignoring ... #{smb[:ip]}")
 					return
 				end
 				lm_hash_message = lm_hash
@@ -500,13 +500,13 @@ class Metasploit3 < Msf::Auxiliary
 			when NTLM_CONST::NTLM_V1_RESPONSE
 				smb_db_type_hash = "smb_netv1_hash"
 				capturelogmessage =
-					"#{capturedtime}\nNTLMv1 Response Captured from #{smb[:name]} \n" +
+					"SMB Captured - #{capturedtime}\nNTLMv1 Response Captured from #{smb[:name]} - #{smb[:ip]} \n" +
 					"USER:#{smb[:username]} DOMAIN:#{smb[:domain]} OS:#{smb[:peer_os]} LM:#{smb[:peer_lm]}\n" +
 					"LMHASH:#{lm_hash_message ? lm_hash_message : "<NULL>"} \nNTHASH:#{nt_hash ? nt_hash : "<NULL>"}\n"
 			when NTLM_CONST::NTLM_V2_RESPONSE
 				smb_db_type_hash = "smb_netv2_hash"
 				capturelogmessage =
-					"#{capturedtime}\nNTLMv2 Response Captured from #{smb[:name]} \n" +
+					"SMB Captured - #{capturedtime}\nNTLMv2 Response Captured from #{smb[:name]} - #{smb[:ip]} \n" +
 					"USER:#{smb[:username]} DOMAIN:#{smb[:domain]} OS:#{smb[:peer_os]} LM:#{smb[:peer_lm]}\n" +
 					"LMHASH:#{lm_hash_message ? lm_hash_message : "<NULL>"} " +
 					"LM_CLIENT_CHALLENGE:#{lm_chall_message ? lm_chall_message : "<NULL>"}\n" +
@@ -517,7 +517,7 @@ class Metasploit3 < Msf::Auxiliary
 				#also 'real' netv1 is almost never seen nowadays except with smbmount or msf server capture
 				smb_db_type_hash = "smb_netv1_hash"
 				capturelogmessage =
-					"#{capturedtime}\nNTLM2_SESSION Response Captured from #{smb[:name]} \n" +
+					"SMB Captured - #{capturedtime}\nNTLM2_SESSION Response Captured from #{smb[:name]} - #{smb[:ip]} \n" +
 					"USER:#{smb[:username]} DOMAIN:#{smb[:domain]} OS:#{smb[:peer_os]} LM:#{smb[:peer_lm]}\n" +
 					"NTHASH:#{nt_hash ? nt_hash : "<NULL>"}\n" +
 					"NT_CLIENT_CHALLENGE:#{lm_hash_message ? lm_hash_message[0,16] : "<NULL>"} \n"
