@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 		)
 
 		register_options(
-			[ OptString.new('CONFIG', [false, 'Path to the Interface fingerprinter db', "#{Msf::Config.install_root}/data/interface_fingerprints/readme.yml"]),
+			[ OptPath.new('CONFIG', [false, 'Path to the Interface fingerprinter db', "#{Msf::Config.install_root}/data/interface_fingerprints/readme.yml"]),
 			OptString.new('SingleInterface', [false, 'A single web interface to check for.', ""]),
 			OptString.new('DIR', [false, 'To check in a non default directory (e.g. /admin/', ""]),
 		], self.class)
@@ -47,6 +47,9 @@ class Metasploit3 < Msf::Auxiliary
 			[OptBool.new('NoDefault', [false, 'Do not attempt the default credentials', false]),
 			OptInt.new('Delay', [false, 'Wait n seconds between requests', 0]),
 		], self.class)
+		
+		# To support older versions of ruby
+		YAML::ENGINE.yamler= 'syck'
 	end
 
 	def run_host(ip)
