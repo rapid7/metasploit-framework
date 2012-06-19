@@ -905,6 +905,7 @@ class DBManager
 	end
 
 	def report_exploit_failure(opts)
+
 	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace = opts.delete(:workspace) || workspace
 		mrefs  = opts.delete(:refs) || return
@@ -914,10 +915,11 @@ class DBManager
 		svc    = opts.delete(:service)
 		vuln   = opts.delete(:vuln)
 
-		timestamp = opts.delete(:timestamp)
-		reason    = opts.delete(:reason)
-		username  = opts.delete(:username)
-		mname     = opts.delete(:module)
+		timestamp  = opts.delete(:timestamp)
+		freason    = opts.delete(:fail_reason)
+		fdetail    = opts.delete(:fail_detail)		
+		username   = opts.delete(:username)
+		mname      = opts.delete(:module)
 
 		# Look up the host as appropriate
 		if not (host and host.kind_of? ::Mdm::Host)
@@ -956,7 +958,8 @@ class DBManager
 			attempt_info = {
 				:attempted_at => timestamp || Time.now.utc,
 				:exploited    => false,
-				:fail_reason  => reason,
+				:fail_reason  => freason,
+				:fail_detail  => fdetail,
 				:username     => username  || "unknown",
 				:module       => mname
 			}
@@ -970,7 +973,8 @@ class DBManager
 			:exploited    => false,
 			:username     => username  || "unknown",
 			:module       => mname,
-			:fail_reason  => reason,
+			:fail_reason  => freason,
+			:fail_detail  => fdetail
 		}
 
 		attempt_info[:vuln_id] = vuln.id if vuln
