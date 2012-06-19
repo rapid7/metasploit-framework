@@ -54,6 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptInt.new('RETRY', [ false, "Number of times to try to resolve a record if no response is received", 2]),
 				OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry", 2]),
+				OptBool.new('TCP_DNS', [false, "Run queries over TCP", false]),
 			], self.class)
 	end
 
@@ -468,6 +469,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run
 		@res = Net::DNS::Resolver.new()
+		if datastore['TCP_DNS']
+			vprint_status("Using DNS/TCP")
+			@res.use_tcp = true
+		end
 		@res.retry = datastore['RETRY'].to_i
 		@res.retry_interval = datastore['RETRY_INTERVAL'].to_i
 		@threadnum = datastore['THREADS'].to_i

