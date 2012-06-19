@@ -821,6 +821,10 @@ class DBManager
 		svc    = opts.delete(:service)
 		vuln   = opts.delete(:vuln)
 
+		timestamp = opts.delete(:timestamp)
+		username  = opts.delete(:username)
+		mname     = opts.delete(:module)
+
 		# Look up or generate the host as appropriate
 		if not (host and host.kind_of? ::Mdm::Host)
 			if svc.kind_of? ::Mdm::Service
@@ -856,10 +860,10 @@ class DBManager
 		if vuln
 			attempt_info = {
 				:vuln_id      => vuln.id,
-				:attempted_at => opts.delete(:timestamp) || Time.now.utc,
+				:attempted_at => timestamp || Time.now.utc,
 				:exploited    => true,
-				:username     => opts.delete(:username)  || "unknown",
-				:module       => opts.delete(:module)
+				:username     => username  || "unknown",
+				:module       => mname
 			}
 
 			attempt_info[:session_id] = opts[:session_id] if opts[:session_id]
@@ -876,10 +880,10 @@ class DBManager
 
 		# Report an exploit attempt all the same
 		attempt_info = {
-			:attempted_at => opts.delete(:timestamp) || Time.now.utc,
+			:attempted_at => timestamp || Time.now.utc,
 			:exploited    => true,
-			:username     => opts.delete(:username)  || "unknown",
-			:module       => opts.delete(:module)
+			:username     => username  || "unknown",
+			:module       => mname
 		}
 
 		attempt_info[:vuln_id]    = vuln.id           if vuln
@@ -909,6 +913,11 @@ class DBManager
 		prot   = opts.delete(:proto)
 		svc    = opts.delete(:service)
 		vuln   = opts.delete(:vuln)
+
+		timestamp = opts.delete(:timestamp)
+		reason    = opts.delete(:reason)
+		username  = opts.delete(:username)
+		mname     = opts.delete(:module)
 
 		# Look up the host as appropriate
 		if not (host and host.kind_of? ::Mdm::Host)
@@ -945,11 +954,11 @@ class DBManager
 		# Report a vuln_attempt if we found a match
 		if vuln
 			attempt_info = {
-				:attempted_at => opts.delete(:timestamp) || Time.now.utc,
+				:attempted_at => timestamp || Time.now.utc,
 				:exploited    => false,
-				:fail_reason  => opts.delete(:reason),
-				:username     => opts.delete(:username)  || "unknown",
-				:module       => opts.delete(:module)
+				:fail_reason  => reason,
+				:username     => username  || "unknown",
+				:module       => mname
 			}
 
 			vuln.vuln_attempts.create(attempt_info)
@@ -957,11 +966,11 @@ class DBManager
 
 		# Report an exploit attempt all the same
 		attempt_info = {
-			:attempted_at => opts.delete(:timestamp) || Time.now.utc,
+			:attempted_at => timestamp || Time.now.utc,
 			:exploited    => false,
-			:username     => opts.delete(:username)  || "unknown",
-			:module       => opts.delete(:module),
-			:fail_reason  => opts.delete(:reason),
+			:username     => username  || "unknown",
+			:module       => mname,
+			:fail_reason  => reason,
 		}
 
 		attempt_info[:vuln_id] = vuln.id if vuln
