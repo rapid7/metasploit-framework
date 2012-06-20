@@ -34,6 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 			'License'        => MSF_LICENSE,
 			'References'     =>
 				[
+					[ 'BID', '25676'],
 					[ 'URL', 'http://packetstormsecurity.org/files/59347/boa-bypass.txt.html']
 				],
 			'DisclosureDate' => 'Sep 10 2007'))
