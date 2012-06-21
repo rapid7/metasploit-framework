@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Post
 			source_id = nil
 		end
 		report_auth_info(
-		:host  => http_proxy_host,
+		:host  => Rex::Socket.resolv(http_proxy_host), # TODO: Fix up report_host?
 		:port => http_proxy_port,
 		:sname => "http",
 		:source_id => source_id,
