@@ -107,6 +107,9 @@ class Metasploit3 < Msf::Post
 				if e.message =~ /The device is not ready/
 					print_error("#{my_drive} drive is not ready")
 					next
+				elsif e.message =~ /The system cannot find the path specified/
+					print_error("Path does not exist")
+					next
 				else
 					raise e
 				end
