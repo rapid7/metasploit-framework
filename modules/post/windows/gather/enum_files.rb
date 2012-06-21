@@ -69,7 +69,8 @@ class Metasploit3 < Msf::Post
 		elsif sysnfo =~/(Windows XP|2003|.NET)/
 			print_status("Searching #{profile_path_old} through windows user profile structure")
 			getfile = client.fs.file.search(profile_path_old,file_type,recurse=true,timeout=-1)
-    		else sysnfo =~/(Windows 7|Windows Vista|2008)/
+    	else
+			# For systems such as: Windows 7|Windows Vista|2008
 			print_status("Searching #{profile_path_new} through windows user profile structure")
 			getfile = client.fs.file.search(profile_path_new,file_type,recurse=true,timeout=-1)
 		end
