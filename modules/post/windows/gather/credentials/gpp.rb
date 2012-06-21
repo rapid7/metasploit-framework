@@ -70,7 +70,8 @@ class Metasploit3 < Msf::Post
 			print_status "User supplied domains #{user_domains}"
 			
 			user_domains.each do |domain_name|
-				dcs << enum_dcs(domain_name)
+				found_dcs = enum_dcs(domain_name)
+				dcs << found_dcs[0] unless found_dcs.to_a.empty?
 			end
 		elsif datastore['ALL']
 			enum_domains.each do |domain|
