@@ -35,8 +35,8 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 				'Name'          => 'Multi Gather Skype User Data Enumeration',
 				'Description'   => %q{
-					This module will enumerate the Skype accounts settings, contact list, call history, chat logs,
-					file transfer history and voicemail log saving all the data in to CSV files for analysis.
+					This module will enumerate Skype account settings, contact list, call history, chat logs,
+					file transfer history, and voicemail logs, saving all the data to CSV files for analysis.
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Post
 	# Run Method for when run command is issued
 	def run
 		# syinfo is only on meterpreter sessions
-		print_status("Running module for Skype enumeration against #{sysinfo['Computer']}") if not sysinfo.nil?
+		print_status("Running Skype enumeration against #{sysinfo['Computer']}") if not sysinfo.nil?
 
 		# Ensure that SQLite3 gem is installed
 		begin

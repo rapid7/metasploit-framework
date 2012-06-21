@@ -944,6 +944,20 @@ module MetasploitDataModels::ActiveRecordModels::Host
           #	# fingerprint.  Otherwise, it's samba which doesn't give us much of
           #	# anything in most cases.
           #	ret[:certainty] = 1.0 if fp.data[:os_name] =~ /Windows/
+        when 'host.os.fusionvm_fingerprint'
+          case data[:os]
+          when /Windows/
+            ret.update(parse_windows_os_str(data[:os]))
+          when /Linux ([^[:space:]]*) ([^[:space:]]*) .* (\(.*\))/
+            ret[:os_name] = "Linux"
+            ret[:name]    = $1
+            ret[:os_sp]   = $2
+            ret[:arch]    = get_arch_from_string($3)
+          else
+            ret[:os_name] = data[:os]
+          end
+          ret[:arch] = data[:arch] if data[:arch]
+          ret[:name] = data[:name] if data[:name]
         else
           # If you've fallen through this far, you've hit a generalized
           # pass-through fingerprint parser.
