@@ -109,7 +109,8 @@ class Metasploit3 < Msf::Post
 				next if file_name == "." or file_name == ".."
 				savedpwds = analyze_file(path+file_name)
 			end
-		rescue
+		rescue => e
+			print_error "Exception raised: #{e.message}"
 			print_status("No configuration files located: TortoiseSVN may not be installed or configured.") 
 			return
 		end
@@ -176,13 +177,14 @@ class Metasploit3 < Msf::Post
 			source_id = nil
 		end
 		report_auth_info(
-		:host  => host,
+		:host  => ::Rex::Socket.resolv_to_dotted(host), # XXX: Workaround for unresolved hostnames
 		:port => portnum,
 		:sname => sname,
 		:source_id => source_id,
 		:source_type => "exploit",
 		:user => user_name,
 		:pass => password)
+		print_debug "Should have reported..."
 		
 		# Set savedpwds to 1 on return
 		return 1 
