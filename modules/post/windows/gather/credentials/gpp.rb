@@ -28,14 +28,15 @@ class Metasploit3 < Msf::Post
 
 				Users can specify ALL=True to target all domains and their domain controllers
 				on the network.
+
+				Utilizes code from enum_domain and enum_domains post modules.
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        =>[
-				'TheLightCosine <thelightcosine[at]gmail.com>',
-				'Meatballs <eat_meatballs[at]hotmail.co.uk>',
+				'Ben Campbell <eat_meatballs[at]hotmail.co.uk>',
 				'Loic Jaquemet <loic.jaquemet+msf[at]gmail.com>',
-				'Rob Fuller <mubix[at]hak5.org>', #domain/dc enumeration code
-				'Joshua Abraham <jabra[at]rapid7.com>' #enum_domain.rb code
+				'scriptmonkey <scriptmonkey[at]owobble.co.uk>',
+				'TheLightCosine <thelightcosine[at]gmail.com'
 				],
 			'References'    =>
 				[
