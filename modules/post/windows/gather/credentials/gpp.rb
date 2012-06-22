@@ -227,7 +227,7 @@ class Metasploit3 < Msf::Post
 			epassword = node.attributes['cpassword']
 			next if epassword.to_s.empty?
 
-			user = node.attributes['username']
+			user = node.attributes['userName']
 			path = node.attributes['path']
 
 			changed = node.parent.attributes['changed']
@@ -244,7 +244,7 @@ class Metasploit3 < Msf::Post
 			epassword = node.attributes['cpassword']
 			next if epassword.to_s.empty?
 
-			user = node.attributes['username']
+			user = node.attributes['userName']
 			path = node.attributes['path']
 
 			changed = node.parent.attributes['changed']
@@ -261,7 +261,7 @@ class Metasploit3 < Msf::Post
 			epassword = node.attributes['cpassword']
 			next if epassword.to_s.empty?
 
-			user = node.attributes['username']
+			user = node.attributes['userName']
 			dsn = node.attributes['dsn']
 
 			changed = node.parent.attributes['changed']
