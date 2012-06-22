@@ -40,7 +40,8 @@ class Metasploit3 < Msf::Post
 			'References'    =>
 				[
 					['URL', 'http://esec-pentest.sogeti.com/exploiting-windows-2008-group-policy-preferences'],
-					['URL', 'http://msdn.microsoft.com/en-us/library/cc232604(v=prot.13)']
+					['URL', 'http://msdn.microsoft.com/en-us/library/cc232604(v=prot.13)'],
+					['URL', 'http://rewtdance.blogspot.com/2012/06/exploiting-windows-2008-group-policy.html']
 				],
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ]
@@ -271,7 +272,7 @@ class Metasploit3 < Msf::Post
 			epassword = node.attributes['cpassword']
 			next if epassword.to_s.empty?
 
-			user = node.attributes['runas']
+			user = node.attributes['runAs']
 			task_name = node.attributes['name']
 
 			changed = node.parent.attributes['changed']
