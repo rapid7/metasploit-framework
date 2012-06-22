@@ -1,72 +1,29 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "common", "common\common.vcproj", "{9E4DE963-873F-4525-A7D0-CE34EDBBDCCA}"
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "common", "common\common.vcxproj", "{9E4DE963-873F-4525-A7D0-CE34EDBBDCCA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_priv", "ext_server_priv\ext_server_priv.vcproj", "{87C64204-C82F-415D-AF45-D0B33BDFE39A}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9E4DE963-873F-4525-A7D0-CE34EDBBDCCA} = {9E4DE963-873F-4525-A7D0-CE34EDBBDCCA}
-		{72F0246A-A38D-4547-9057-46020E8E503D} = {72F0246A-A38D-4547-9057-46020E8E503D}
-		{37E24F8F-1BD9-490B-8CD2-4768B89E5EAB} = {37E24F8F-1BD9-490B-8CD2-4768B89E5EAB}
-		{662AFBB3-F64A-4AD1-8956-B9F1B846231C} = {662AFBB3-F64A-4AD1-8956-B9F1B846231C}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_priv", "ext_server_priv\ext_server_priv.vcxproj", "{87C64204-C82F-415D-AF45-D0B33BDFE39A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_stdapi", "ext_server_stdapi\ext_server_stdapi.vcproj", "{405245AB-0071-4CB9-BFBE-ED4E2A987EFF}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9E4DE963-873F-4525-A7D0-CE34EDBBDCCA} = {9E4DE963-873F-4525-A7D0-CE34EDBBDCCA}
-		{72F0246A-A38D-4547-9057-46020E8E503D} = {72F0246A-A38D-4547-9057-46020E8E503D}
-		{37E24F8F-1BD9-490B-8CD2-4768B89E5EAB} = {37E24F8F-1BD9-490B-8CD2-4768B89E5EAB}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_stdapi", "ext_server_stdapi\ext_server_stdapi.vcxproj", "{405245AB-0071-4CB9-BFBE-ED4E2A987EFF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "metcli", "metcli\metcli.vcproj", "{4DECF649-2B11-47A2-908E-031105D706F8}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9E4DE963-873F-4525-A7D0-CE34EDBBDCCA} = {9E4DE963-873F-4525-A7D0-CE34EDBBDCCA}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "metcli", "metcli\metcli.vcxproj", "{4DECF649-2B11-47A2-908E-031105D706F8}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "metsrv", "metsrv\metsrv.vcproj", "{37E24F8F-1BD9-490B-8CD2-4768B89E5EAB}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9E4DE963-873F-4525-A7D0-CE34EDBBDCCA} = {9E4DE963-873F-4525-A7D0-CE34EDBBDCCA}
-		{72F0246A-A38D-4547-9057-46020E8E503D} = {72F0246A-A38D-4547-9057-46020E8E503D}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "metsrv", "metsrv\metsrv.vcxproj", "{37E24F8F-1BD9-490B-8CD2-4768B89E5EAB}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReflectiveDLLInjection", "ReflectiveDLLInjection\ReflectiveDLLInjection.vcproj", "{72F0246A-A38D-4547-9057-46020E8E503D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReflectiveDLLInjection", "ReflectiveDLLInjection\ReflectiveDLLInjection.vcxproj", "{72F0246A-A38D-4547-9057-46020E8E503D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_incognito", "ext_server_incognito\ext_server_incognito.vcproj", "{C427F6B9-C287-4BDA-A5BB-401FC19E207C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9E4DE963-873F-4525-A7D0-CE34EDBBDCCA} = {9E4DE963-873F-4525-A7D0-CE34EDBBDCCA}
-		{72F0246A-A38D-4547-9057-46020E8E503D} = {72F0246A-A38D-4547-9057-46020E8E503D}
-		{37E24F8F-1BD9-490B-8CD2-4768B89E5EAB} = {37E24F8F-1BD9-490B-8CD2-4768B89E5EAB}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_incognito", "ext_server_incognito\ext_server_incognito.vcxproj", "{C427F6B9-C287-4BDA-A5BB-401FC19E207C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_boiler", "ext_server_boiler\ext_server_boiler.vcproj", "{488BE203-8407-42D1-B334-8B5C3BC5AB3E}"
-	ProjectSection(ProjectDependencies) = postProject
-		{72F0246A-A38D-4547-9057-46020E8E503D} = {72F0246A-A38D-4547-9057-46020E8E503D}
-		{37E24F8F-1BD9-490B-8CD2-4768B89E5EAB} = {37E24F8F-1BD9-490B-8CD2-4768B89E5EAB}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_boiler", "ext_server_boiler\ext_server_boiler.vcxproj", "{488BE203-8407-42D1-B334-8B5C3BC5AB3E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_espia", "ext_server_espia\ext_server_espia.vcproj", "{CF56DDCC-505F-4D5C-AC2E-9787C7EF1504}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9E4DE963-873F-4525-A7D0-CE34EDBBDCCA} = {9E4DE963-873F-4525-A7D0-CE34EDBBDCCA}
-		{72F0246A-A38D-4547-9057-46020E8E503D} = {72F0246A-A38D-4547-9057-46020E8E503D}
-		{37E24F8F-1BD9-490B-8CD2-4768B89E5EAB} = {37E24F8F-1BD9-490B-8CD2-4768B89E5EAB}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_espia", "ext_server_espia\ext_server_espia.vcxproj", "{CF56DDCC-505F-4D5C-AC2E-9787C7EF1504}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_sniffer", "ext_server_sniffer\ext_server_sniffer.vcproj", "{BF0C0D6E-9119-4518-A3BC-2CF99C0E27D9}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9E4DE963-873F-4525-A7D0-CE34EDBBDCCA} = {9E4DE963-873F-4525-A7D0-CE34EDBBDCCA}
-		{72F0246A-A38D-4547-9057-46020E8E503D} = {72F0246A-A38D-4547-9057-46020E8E503D}
-		{37E24F8F-1BD9-490B-8CD2-4768B89E5EAB} = {37E24F8F-1BD9-490B-8CD2-4768B89E5EAB}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_sniffer", "ext_server_sniffer\ext_server_sniffer.vcxproj", "{BF0C0D6E-9119-4518-A3BC-2CF99C0E27D9}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "elevator", "elevator\elevator.vcproj", "{662AFBB3-F64A-4AD1-8956-B9F1B846231C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{72F0246A-A38D-4547-9057-46020E8E503D} = {72F0246A-A38D-4547-9057-46020E8E503D}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "elevator", "elevator\elevator.vcxproj", "{662AFBB3-F64A-4AD1-8956-B9F1B846231C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "screenshot", "screenshot\screenshot.vcproj", "{09DF8FBC-EDFB-44E6-ACE6-9C0F5A60AB1C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{72F0246A-A38D-4547-9057-46020E8E503D} = {72F0246A-A38D-4547-9057-46020E8E503D}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "screenshot", "screenshot\screenshot.vcxproj", "{09DF8FBC-EDFB-44E6-ACE6-9C0F5A60AB1C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_pivot", "ext_server_pivot\ext_server_pivot.vcproj", "{C4801040-A3B8-11DF-811F-2A3AE0D72085}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -75,12 +32,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_pivot", "ext_ser
 		{37E24F8F-1BD9-490B-8CD2-4768B89E5EAB} = {37E24F8F-1BD9-490B-8CD2-4768B89E5EAB}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_lanattacks", "ext_server_lanattacks\ext_server_lanattacks.vcproj", "{2FCCCE33-77E9-43F3-928E-DBF6B9340A62}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9E4DE963-873F-4525-A7D0-CE34EDBBDCCA} = {9E4DE963-873F-4525-A7D0-CE34EDBBDCCA}
-		{72F0246A-A38D-4547-9057-46020E8E503D} = {72F0246A-A38D-4547-9057-46020E8E503D}
-		{37E24F8F-1BD9-490B-8CD2-4768B89E5EAB} = {37E24F8F-1BD9-490B-8CD2-4768B89E5EAB}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_lanattacks", "ext_server_lanattacks\ext_server_lanattacks.vcxproj", "{2FCCCE33-77E9-43F3-928E-DBF6B9340A62}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
