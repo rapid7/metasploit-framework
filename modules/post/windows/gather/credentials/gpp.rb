@@ -382,7 +382,13 @@ class Metasploit3 < Msf::Post
 
 		base = 0
 		domains = []
+
+		if count == 0
+			return domains
+		end
+
 		mem = client.railgun.memread(startmem, 8*count)
+
 		count.times do |i|
 				x = {}
 				x[:platform] = mem[(base + 0),4].unpack("V*")[0]
