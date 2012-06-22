@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Post
 		service_paths = []
 		service_path = "Services\\Services.xml"
 		printer_paths = []
-		printer_path = "\rinters\\Printers.xml"
+		printer_path = "Printers\\Printers.xml"
 		drive_paths = []
 		drive_path = "Drives\\Drives.xml"
 		datasource_paths = []
