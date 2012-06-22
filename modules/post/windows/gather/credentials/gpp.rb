@@ -365,7 +365,11 @@ class Metasploit3 < Msf::Post
 		result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domain_enum,nil,nil)
 		# Estimate new buffer size on percentage recovered.
 		percent_found = (result['entriesread'].to_f/result['totalentries'].to_f)
-		buffersize = (buffersize/percent_found).to_i
+		if percent_found > 0
+			buffersize = (buffersize/percent_found).to_i
+		else
+			buffersize += 500
+		end
 
 		while result['return'] == 234
 			buffersize = buffersize + 500
