@@ -245,7 +245,7 @@ class Metasploit3 < Msf::Post
 			epassword = node.attributes['cpassword']
 			next if epassword.to_s.empty?
 
-			user = node.attributes['username'] #lowercase in MSDN
+			user = node.attributes['userName'] #lowercase in MSDN but camelCase in practice
 			path = node.attributes['path']
 
 			changed = node.parent.attributes['changed']
