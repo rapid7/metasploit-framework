@@ -70,6 +70,20 @@ __forceinline DWORD hash( char * c )
 
     return h;
 }
+
+__forceinline char * inline_strstr( char *p, char *q )
+{
+	for(; *p; ++p)
+	{
+		const char *p_tmp = p;
+		const char *q_tmp = q;
+		for( ; *p_tmp == *q_tmp && *q_tmp; ++p_tmp, ++q_tmp)
+			if( *p == *q && !*q_tmp ) return p;
+	}
+    return NULL;
+}
+
+
 //===============================================================================================//
 typedef struct _UNICODE_STR
 {
@@ -192,6 +206,8 @@ typedef struct
 	WORD	offset:12;
 	WORD	type:4;
 } IMAGE_RELOC, *PIMAGE_RELOC;
+
+
 //===============================================================================================//
 #endif
 //===============================================================================================//

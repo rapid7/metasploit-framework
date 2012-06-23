@@ -36,6 +36,7 @@ UINT_PTR eip( VOID ) { return (UINT_PTR)_ReturnAddress(); }
 #endif
 //===============================================================================================//
 
+
 // Note 1: If you want to have your own DllMain, define REFLECTIVEDLLINJECTION_CUSTOM_DLLMAIN,  
 //         otherwise the DllMain at the end of this file will be used.
 
@@ -74,14 +75,43 @@ DLLEXPORT UINT_PTR WINAPI ReflectiveLoader( VOID )
 	UINT_PTR uiValueC;
 	UINT_PTR uiValueD;
 
+	// hijacked import pointers for backwards compatibility
+	UINT_PTR encodePointerStub = 0;
+	UINT_PTR encodePointerStubBody = 0;
+	UINT_PTR heapSetInfoStub = 0;
+	UINT_PTR heapSetInfoStubBody = 0;
+
+	// matching string for function stubs
+	char patEncodePointer[12]      = { 'c', 'o', 'd', 'e', 'P', 'o', 'i', 'n', 't', 'e', 'r', 0 };
+	char patHeapSetInformation[19] = { 'H', 'e', 'a', 'p', 'S', 'e', 't', 'I', 'n', 'f', 'o', 'r', 'm', 'a', 't', 'i', 'o', 'n', 0 };
+
 	// STEP 0: calculate our images current base address
 
 	// we will start searching backwards from our current EIP
 #ifdef _WIN64
 	uiLibraryAddress = eip();
 #else
-	__asm call geteip
-	__asm geteip: pop uiLibraryAddress
+	__asm {
+		call geteip
+geteip:
+		pop uiLibraryAddress
+	}
+	
+	__asm {
+		call get_encodepointer
+		mov eax, [esp+4]
+		ret 4
+get_encodepointer:
+		pop encodePointerStubBody
+
+
+		call get_heapsetinfo
+		mov eax, 1
+		ret 16
+get_heapsetinfo:
+		pop heapSetInfoStubBody
+	}
+
 #endif
 
 	// loop through memory backwards searching for our images base address
@@ -103,7 +133,7 @@ DLLEXPORT UINT_PTR WINAPI ReflectiveLoader( VOID )
 		}
 		uiLibraryAddress--;
 	}
-
+	
 	// STEP 1: process the kernels exports for the functions our loader needs...
 
 	// get the Process Enviroment Block
@@ -214,6 +244,17 @@ DLLEXPORT UINT_PTR WINAPI ReflectiveLoader( VOID )
 	uiValueC = uiBaseAddress;
 	__movsb( (PBYTE)uiValueC, (PBYTE)uiValueB, uiValueA );
 
+	// create a new allocation just for our EncodePointer stub and copy the method body into it
+	if (encodePointerStubBody) {
+		encodePointerStub = (UINT_PTR)pVirtualAlloc( NULL, 128, MEM_RESERVE|MEM_COMMIT, PAGE_EXECUTE_READWRITE );
+		__movsb( (PBYTE)encodePointerStub, (PBYTE)encodePointerStubBody, 128 );
+	}
+
+	// create a new allocation just for our EncodePointer stub and copy the method body into it
+	if (heapSetInfoStubBody) {
+		heapSetInfoStub = (UINT_PTR)pVirtualAlloc( NULL, 128, MEM_RESERVE|MEM_COMMIT, PAGE_EXECUTE_READWRITE );
+		__movsb( (PBYTE)heapSetInfoStub, (PBYTE)heapSetInfoStubBody, 128 );
+	}
 	// STEP 3: load in all of our sections...
 
 	// uiValueA = the VA of the first section
@@ -235,6 +276,7 @@ DLLEXPORT UINT_PTR WINAPI ReflectiveLoader( VOID )
 		// get the VA of the next section
 		uiValueA += sizeof( IMAGE_SECTION_HEADER );
 	}
+
 
 	// STEP 4: process our images import table...
 
@@ -285,9 +327,23 @@ DLLEXPORT UINT_PTR WINAPI ReflectiveLoader( VOID )
 			{
 				// get the VA of this functions import by name struct
 				uiValueB = ( uiBaseAddress + DEREF(uiValueA) );
-
+			
 				// use GetProcAddress and patch in the address for this imported function
 				DEREF(uiValueA) = (UINT_PTR)pGetProcAddress( (HMODULE)uiLibraryAddress, (LPCSTR)((PIMAGE_IMPORT_BY_NAME)uiValueB)->Name );
+		
+				// handled failed lookups for specific routines unimplemented in older Windows
+				// this enables VC2010+ compatiblity for older target platforms
+				if (! DEREF(uiValueA)) {
+					// (System)(Encode|Decode)Pointer
+					if (inline_strstr( (char *)((PIMAGE_IMPORT_BY_NAME)uiValueB)->Name, patEncodePointer) > 0) {
+						if (encodePointerStub) DEREF(uiValueA) = encodePointerStub;
+					}
+					// HeapSetInformation
+					if (inline_strstr( (char *)((PIMAGE_IMPORT_BY_NAME)uiValueB)->Name, patHeapSetInformation) > 0) {
+						if (encodePointerStub) DEREF(uiValueA) = heapSetInfoStub;
+					}
+				}		
+
 			}
 			// get the next imported function
 			uiValueA += sizeof( UINT_PTR );
@@ -307,13 +363,13 @@ DLLEXPORT UINT_PTR WINAPI ReflectiveLoader( VOID )
 	// uiValueB = the address of the relocation directory
 	uiValueB = (UINT_PTR)&((PIMAGE_NT_HEADERS)uiHeaderValue)->OptionalHeader.DataDirectory[ IMAGE_DIRECTORY_ENTRY_BASERELOC ];
 
-	// check if their are any relocations present
+	// check if there are any relocations present
 	if( ((PIMAGE_DATA_DIRECTORY)uiValueB)->Size )
 	{
 		// uiValueC is now the first entry (IMAGE_BASE_RELOCATION)
 		uiValueC = ( uiBaseAddress + ((PIMAGE_DATA_DIRECTORY)uiValueB)->VirtualAddress );
 
-		// and we itterate through all entries...
+		// and we iterate through all entries...
 		while( ((PIMAGE_BASE_RELOCATION)uiValueC)->SizeOfBlock )
 		{
 			// uiValueA = the VA for this relocation block
