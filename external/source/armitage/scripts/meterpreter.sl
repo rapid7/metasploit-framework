@@ -257,7 +257,7 @@ sub showMeterpreterMenu {
 
 	separator($1);
 
-	item($1, "Kill", 'K', lambda({ cmd_safe("sessions -k $sid"); }, $sid => "$sid"));
+	item($1, "Kill", 'K', lambda({ call_async($client, "session.stop", $sid); }, $sid => "$sid"));
 }
 
 sub launch_msf_scans {
