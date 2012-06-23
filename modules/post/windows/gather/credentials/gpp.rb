@@ -111,8 +111,8 @@ class Metasploit3 < Msf::Post
 						next if sub =~ /^(\.|\.\.)$/
 						locals << "#{tpath}\\#{sub2}\\"
 					end
-				rescue
-					print_error "Could not access #{tpath}"
+				rescue Rex::Post::Meterpreter::RequestError => e
+					print_error "Could not access #{tpath}  : #{e.message}"
 				end
 			end
 		rescue Rex::Post::Meterpreter::RequestError => e
