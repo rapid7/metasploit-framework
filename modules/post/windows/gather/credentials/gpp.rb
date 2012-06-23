@@ -22,19 +22,15 @@ class Metasploit3 < Msf::Post
 				files containing local user accounts and passwords and decrypts them
 				using Microsofts public AES key.
 
-				Tested directly on a Win2k8 x64 DC, Win2k12RC x64 DC, and a Windows 7 x32 Client
-				Workstation.
-
-				Using the ALL or DOMAINS flags whilst on a DC will not enumerate that DC as it
-				is looking externally on the network for other Domain Controllers, however the
-				default (CURRENT=True which inspects the registry) should work successfully.
+				Tested on WinXP SP3 Client and Win2k8 R2 DC.
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        =>[
 				'Ben Campbell <eat_meatballs[at]hotmail.co.uk>',
 				'Loic Jaquemet <loic.jaquemet+msf[at]gmail.com>',
 				'scriptmonkey <scriptmonkey[at]owobble.co.uk>',
-				'TheLightCosine <thelightcosine[at]gmail.com>'
+				'TheLightCosine <thelightcosine[at]metasploit.com>',
+				'Rob Fuller <mubix[at]hak5.org>' #domain/dc enumeration code
 				],
 			'References'    =>
 				[
@@ -252,7 +248,6 @@ class Metasploit3 < Msf::Post
 		return domains
 	end
 
-
 	def enum_dcs(domain)
 		print_status("Enumerating DCs for #{domain}")
 		domaincontrollers = 24  # 10 + 8 (SV_TYPE_DOMAIN_BAKCTRL || SV_TYPE_DOMAIN_CTRL)
@@ -284,8 +279,5 @@ class Metasploit3 < Msf::Post
 		}
 		return hostnames
 	end
-
-
-
 
 end
