@@ -1,0 +1,9 @@
+﻿Build started 6/24/2012 1:28:20 PM.
+     1>Project "C:\Users\Developer\Documents\GitHub\metasploit-framework\external\source\meterpreter\workspace\backcompat\backcompat.vcxproj" on node 3 (clean target(s)).
+     1>_PrepareForClean:
+         Deleting file "Release\backcompat.lastbuildstate".
+     1>Done Building Project "C:\Users\Developer\Documents\GitHub\metasploit-framework\external\source\meterpreter\workspace\backcompat\backcompat.vcxproj" (clean target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.03

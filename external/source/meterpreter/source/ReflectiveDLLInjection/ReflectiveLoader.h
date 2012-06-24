@@ -42,11 +42,15 @@
 typedef HMODULE (WINAPI * LOADLIBRARYA)( LPCSTR );
 typedef FARPROC (WINAPI * GETPROCADDRESS)( HMODULE, LPCSTR );
 typedef LPVOID  (WINAPI * VIRTUALALLOC)( LPVOID, SIZE_T, DWORD, DWORD );
+typedef LPVOID  (WINAPI * VIRTUALLOCK)( LPVOID, SIZE_T);
+typedef LPVOID  (WINAPI * OUTPUTDEBUG)(LPCSTR);
 
 #define KERNEL32DLL_HASH		0x6A4ABC5B
 #define LOADLIBRARYA_HASH		0xEC0E4E8E
 #define GETPROCADDRESS_HASH		0x7C0DFCAA
 #define VIRTUALALLOC_HASH		0x91AFCA54
+#define VIRTUALLOCK_HASH		0x0ef632f2
+#define OUTPUTDEBUG_HASH		0x470d22bc
 
 #define HASH_KEY	13
 //===============================================================================================//
@@ -70,19 +74,6 @@ __forceinline DWORD hash( char * c )
 
     return h;
 }
-
-__forceinline char * inline_strstr( char *p, char *q )
-{
-	for(; *p; ++p)
-	{
-		const char *p_tmp = p;
-		const char *q_tmp = q;
-		for( ; *p_tmp == *q_tmp && *q_tmp; ++p_tmp, ++q_tmp)
-			if( *p == *q && !*q_tmp ) return p;
-	}
-    return NULL;
-}
-
 
 //===============================================================================================//
 typedef struct _UNICODE_STR

@@ -40,6 +40,10 @@ FARPROC WINAPI GetProcAddressR( HANDLE hModule, LPCSTR lpProcName )
 	// a module handle is really its base address
 	uiLibraryAddress = (UINT_PTR)hModule;
 
+	OutputDebugStringA("GetProcAddressR: ");
+	OutputDebugStringA(lpProcName);
+	OutputDebugStringA("\n");
+
 	__try
 	{
 		UINT_PTR uiAddressArray = 0;

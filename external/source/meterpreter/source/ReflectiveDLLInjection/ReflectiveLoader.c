@@ -54,6 +54,9 @@ DLLEXPORT UINT_PTR WINAPI ReflectiveLoader( VOID )
 	LOADLIBRARYA pLoadLibraryA;
 	GETPROCADDRESS pGetProcAddress;
 	VIRTUALALLOC pVirtualAlloc;
+	VIRTUALLOCK pVirtualLock;
+	OUTPUTDEBUG pOutputDebug;
+
 	USHORT usCounter;
 
 	// the initial location of this image in memory
@@ -74,19 +77,11 @@ DLLEXPORT UINT_PTR WINAPI ReflectiveLoader( VOID )
 	UINT_PTR uiValueB;
 	UINT_PTR uiValueC;
 	UINT_PTR uiValueD;
+	UINT_PTR uiValueE;
 
-	// hijacked import pointers for backwards compatibility
-	UINT_PTR encodePointerStub = 0;
-	UINT_PTR encodePointerStubBody = 0;
-	UINT_PTR heapSetInfoStub = 0;
-	UINT_PTR heapSetInfoStubBody = 0;
-
-	// matching string for function stubs
-	char patEncodePointer[12]      = { 'c', 'o', 'd', 'e', 'P', 'o', 'i', 'n', 't', 'e', 'r', 0 };
-	char patHeapSetInformation[19] = { 'H', 'e', 'a', 'p', 'S', 'e', 't', 'I', 'n', 'f', 'o', 'r', 'm', 'a', 't', 'i', 'o', 'n', 0 };
+	register UINT_PTR inspect;
 
 	// STEP 0: calculate our images current base address
-
 	// we will start searching backwards from our current EIP
 #ifdef _WIN64
 	uiLibraryAddress = eip();
@@ -95,21 +90,6 @@ DLLEXPORT UINT_PTR WINAPI ReflectiveLoader( VOID )
 		call geteip
 geteip:
 		pop uiLibraryAddress
-	}
-	
-	__asm {
-		call get_encodepointer
-		mov eax, [esp+4]
-		ret 4
-get_encodepointer:
-		pop encodePointerStubBody
-
-
-		call get_heapsetinfo
-		mov eax, 1
-		ret 16
-get_heapsetinfo:
-		pop heapSetInfoStubBody
 	}
 
 #endif
@@ -160,7 +140,7 @@ get_heapsetinfo:
 		do
 		{
 			uiValueC = ror( (DWORD)uiValueC );
-			// normalize to uppercase if the madule name is in lowercase
+			// normalize to uppercase if the module name is in lowercase
 			if( *((BYTE *)uiValueB) >= 'a' )
 				uiValueC += *((BYTE *)uiValueB) - 0x20;
 			else
@@ -193,7 +173,7 @@ get_heapsetinfo:
 	// get the VA for the array of name ordinals
 	uiNameOrdinals = ( uiBaseAddress + ((PIMAGE_EXPORT_DIRECTORY )uiExportDir)->AddressOfNameOrdinals );
 
-	usCounter = 3;
+	usCounter = 5;
 
 	// loop while we still have imports to find
 	while( usCounter > 0 )
@@ -202,7 +182,7 @@ get_heapsetinfo:
 		dwHashValue = hash( (char *)( uiBaseAddress + DEREF_32( uiNameArray ) )  );
 				
 		// if we have found a function we want we get its virtual address
-		if( dwHashValue == LOADLIBRARYA_HASH || dwHashValue == GETPROCADDRESS_HASH || dwHashValue == VIRTUALALLOC_HASH )
+		if( dwHashValue == LOADLIBRARYA_HASH || dwHashValue == GETPROCADDRESS_HASH || dwHashValue == VIRTUALALLOC_HASH || dwHashValue == VIRTUALLOCK_HASH || dwHashValue == OUTPUTDEBUG_HASH )
 		{
 			// get the VA for the array of addresses
 			uiAddressArray = ( uiBaseAddress + ((PIMAGE_EXPORT_DIRECTORY )uiExportDir)->AddressOfFunctions );
@@ -217,7 +197,10 @@ get_heapsetinfo:
 				pGetProcAddress = (GETPROCADDRESS)( uiBaseAddress + DEREF_32( uiAddressArray ) );
 			else if( dwHashValue == VIRTUALALLOC_HASH )
 				pVirtualAlloc = (VIRTUALALLOC)( uiBaseAddress + DEREF_32( uiAddressArray ) );
-			
+			else if( dwHashValue == VIRTUALLOCK_HASH )
+				pVirtualLock = (VIRTUALLOCK)( uiBaseAddress + DEREF_32( uiAddressArray ) );
+			else if( dwHashValue == OUTPUTDEBUG_HASH )
+				pOutputDebug = (OUTPUTDEBUG)( uiBaseAddress + DEREF_32( uiAddressArray ) );
 			// decrement our counter
 			usCounter--;
 		}
@@ -237,6 +220,9 @@ get_heapsetinfo:
 	// allocate all the memory for the DLL to be loaded into. we can load at any address because we will  
 	// relocate the image. Also zeros all memory and marks it as READ, WRITE and EXECUTE to avoid any problems.
 	uiBaseAddress = (UINT_PTR)pVirtualAlloc( NULL, ((PIMAGE_NT_HEADERS)uiHeaderValue)->OptionalHeader.SizeOfImage, MEM_RESERVE|MEM_COMMIT, PAGE_EXECUTE_READWRITE );
+	
+	// prevent our image from being swapped to the pagefile
+	pVirtualLock((LPVOID)uiBaseAddress, ((PIMAGE_NT_HEADERS)uiHeaderValue)->OptionalHeader.SizeOfImage);
 
 	// we must now copy over the headers
 	uiValueA = ((PIMAGE_NT_HEADERS)uiHeaderValue)->OptionalHeader.SizeOfHeaders;
@@ -244,24 +230,16 @@ get_heapsetinfo:
 	uiValueC = uiBaseAddress;
 	__movsb( (PBYTE)uiValueC, (PBYTE)uiValueB, uiValueA );
 
-	// create a new allocation just for our EncodePointer stub and copy the method body into it
-	if (encodePointerStubBody) {
-		encodePointerStub = (UINT_PTR)pVirtualAlloc( NULL, 128, MEM_RESERVE|MEM_COMMIT, PAGE_EXECUTE_READWRITE );
-		__movsb( (PBYTE)encodePointerStub, (PBYTE)encodePointerStubBody, 128 );
-	}
 
-	// create a new allocation just for our EncodePointer stub and copy the method body into it
-	if (heapSetInfoStubBody) {
-		heapSetInfoStub = (UINT_PTR)pVirtualAlloc( NULL, 128, MEM_RESERVE|MEM_COMMIT, PAGE_EXECUTE_READWRITE );
-		__movsb( (PBYTE)heapSetInfoStub, (PBYTE)heapSetInfoStubBody, 128 );
-	}
 	// STEP 3: load in all of our sections...
 
 	// uiValueA = the VA of the first section
 	uiValueA = ( (UINT_PTR)&((PIMAGE_NT_HEADERS)uiHeaderValue)->OptionalHeader + ((PIMAGE_NT_HEADERS)uiHeaderValue)->FileHeader.SizeOfOptionalHeader );
-	
-	// itterate through all sections, loading them into memory.
-	while( ((PIMAGE_NT_HEADERS)uiHeaderValue)->FileHeader.NumberOfSections-- )
+
+	uiValueE = ((PIMAGE_NT_HEADERS)uiHeaderValue)->FileHeader.NumberOfSections;
+
+	// iterate through all sections, loading them into memory.
+	while( uiValueE-- )
 	{
 		// uiValueB is the VA for this section
 		uiValueB = ( uiBaseAddress + ((PIMAGE_SECTION_HEADER)uiValueA)->VirtualAddress );
@@ -280,18 +258,29 @@ get_heapsetinfo:
 
 	// STEP 4: process our images import table...
 
+
 	// uiValueB = the address of the import directory
 	uiValueB = (UINT_PTR)&((PIMAGE_NT_HEADERS)uiHeaderValue)->OptionalHeader.DataDirectory[ IMAGE_DIRECTORY_ENTRY_IMPORT ];
-	
-	// we assume their is an import table to process
-	// uiValueC is the first entry in the import table
-	uiValueC = ( uiBaseAddress + ((PIMAGE_DATA_DIRECTORY)uiValueB)->VirtualAddress );
-	
-	// itterate through all imports
-	while( ((PIMAGE_IMPORT_DESCRIPTOR)uiValueC)->Name )
+	uiValueC = ( uiBaseAddress + (UINT_PTR)((PIMAGE_DATA_DIRECTORY)uiValueB)->VirtualAddress );
+
+	// iterate through all imports until a null RVA is found (Characteristics is mis-named)
+	while( ((PIMAGE_IMPORT_DESCRIPTOR)uiValueC)->Characteristics )
 	{
+		/*
+		pOutputDebug("Loading library: ");
+		pOutputDebug((LPCSTR)( uiBaseAddress + ((PIMAGE_IMPORT_DESCRIPTOR)uiValueC)->Name ));
+		pOutputDebug("\n");
+		*/
+
 		// use LoadLibraryA to load the imported module into memory
 		uiLibraryAddress = (UINT_PTR)pLoadLibraryA( (LPCSTR)( uiBaseAddress + ((PIMAGE_IMPORT_DESCRIPTOR)uiValueC)->Name ) );
+
+		if (! uiLibraryAddress) {
+			//pOutputDebug("Loading library FAILED\n");
+			// get the next import
+			uiValueC += sizeof( IMAGE_IMPORT_DESCRIPTOR );
+			continue;
+		}
 
 		// uiValueD = VA of the OriginalFirstThunk
 		uiValueD = ( uiBaseAddress + ((PIMAGE_IMPORT_DESCRIPTOR)uiValueC)->OriginalFirstThunk );
@@ -327,22 +316,14 @@ get_heapsetinfo:
 			{
 				// get the VA of this functions import by name struct
 				uiValueB = ( uiBaseAddress + DEREF(uiValueA) );
-			
+	/*
+				pOutputDebug("Resolving function: ");
+				pOutputDebug((LPCSTR)( (LPCSTR)((PIMAGE_IMPORT_BY_NAME)uiValueB)->Name ));
+				pOutputDebug("\n");
+	*/
+
 				// use GetProcAddress and patch in the address for this imported function
-				DEREF(uiValueA) = (UINT_PTR)pGetProcAddress( (HMODULE)uiLibraryAddress, (LPCSTR)((PIMAGE_IMPORT_BY_NAME)uiValueB)->Name );
-		
-				// handled failed lookups for specific routines unimplemented in older Windows
-				// this enables VC2010+ compatiblity for older target platforms
-				if (! DEREF(uiValueA)) {
-					// (System)(Encode|Decode)Pointer
-					if (inline_strstr( (char *)((PIMAGE_IMPORT_BY_NAME)uiValueB)->Name, patEncodePointer) > 0) {
-						if (encodePointerStub) DEREF(uiValueA) = encodePointerStub;
-					}
-					// HeapSetInformation
-					if (inline_strstr( (char *)((PIMAGE_IMPORT_BY_NAME)uiValueB)->Name, patHeapSetInformation) > 0) {
-						if (encodePointerStub) DEREF(uiValueA) = heapSetInfoStub;
-					}
-				}		
+				DEREF(uiValueA) = (UINT_PTR)pGetProcAddress( (HMODULE)uiLibraryAddress, (LPCSTR)((PIMAGE_IMPORT_BY_NAME)uiValueB)->Name );	
 
 			}
 			// get the next imported function
@@ -354,6 +335,7 @@ get_heapsetinfo:
 		// get the next import
 		uiValueC += sizeof( IMAGE_IMPORT_DESCRIPTOR );
 	}
+
 
 	// STEP 5: process all of our images relocations...
 
