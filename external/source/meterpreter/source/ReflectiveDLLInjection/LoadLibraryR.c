@@ -63,8 +63,6 @@ DWORD GetReflectiveLoaderOffset( VOID * lpReflectiveDllBuffer )
 	DWORD dwMeterpreterArch = 1;
 #endif
 
-	OutputDebugStringA("GetReflectiveLoaderOffset\n");
-
 	uiBaseAddress = (UINT_PTR)lpReflectiveDllBuffer;
 
 	// get the File Offset of the modules NT Header
@@ -74,13 +72,11 @@ DWORD GetReflectiveLoaderOffset( VOID * lpReflectiveDllBuffer )
 	// been compiled as, due to various offset in the PE structures being defined at compile time.
 	if( ((PIMAGE_NT_HEADERS)uiExportDir)->OptionalHeader.Magic == 0x010B ) // PE32
 	{
-		OutputDebugStringA("GetReflectiveLoaderOffset: Win32\n");
 		if( dwMeterpreterArch != 1 )
 			return 0;
 	}
 	else if( ((PIMAGE_NT_HEADERS)uiExportDir)->OptionalHeader.Magic == 0x020B ) // PE64
 	{
-		OutputDebugStringA("GetReflectiveLoaderOffset: Win64\n");
 		if( dwMeterpreterArch != 2 )
 			return 0;
 	}
@@ -107,19 +103,12 @@ DWORD GetReflectiveLoaderOffset( VOID * lpReflectiveDllBuffer )
 	// get a counter for the number of exported functions...
 	dwCounter = ((PIMAGE_EXPORT_DIRECTORY )uiExportDir)->NumberOfNames;
 
-	OutputDebugStringA("GetReflectiveLoaderOffset: Looping\n");
-
 	// loop through all the exported functions to find the ReflectiveLoader
 	while( dwCounter-- )
 	{
 		char * cpExportedFunctionName = (char *)(uiBaseAddress + Rva2Offset( DEREF_32( uiNameArray ), uiBaseAddress ));
-		OutputDebugStringA("GetReflectiveLoaderOffset: Found ");
-		OutputDebugStringA(cpExportedFunctionName);
-		OutputDebugStringA("\n");
-
 		if( strstr( cpExportedFunctionName, "ReflectiveLoader" ) != NULL )
 		{
-			OutputDebugStringA("GetReflectiveLoaderOffset: Found Function\n");
 			// get the File Offset for the array of addresses
 			uiAddressArray = uiBaseAddress + Rva2Offset( ((PIMAGE_EXPORT_DIRECTORY )uiExportDir)->AddressOfFunctions, uiBaseAddress );	
 	
@@ -152,8 +141,6 @@ HMODULE WINAPI LoadLibraryR( LPVOID lpBuffer, DWORD dwLength )
 	if( lpBuffer == NULL || dwLength == 0 )
 		return NULL;
 
-	OutputDebugStringA("LoadLibraryR()\n");
-
 	__try
 	{
 		// check if the library has a ReflectiveLoader...
@@ -167,11 +154,9 @@ HMODULE WINAPI LoadLibraryR( LPVOID lpBuffer, DWORD dwLength )
 			if( VirtualProtect( lpBuffer, dwLength, PAGE_EXECUTE_READWRITE, &dwOldProtect1 ) )
 			{
 				// call the librarys ReflectiveLoader...
-				OutputDebugStringA("Calling pReflectiveLoader\n");
 				pDllMain = (DLLMAIN)pReflectiveLoader();
 				if( pDllMain != NULL )
 				{
-					OutputDebugStringA("Calling DLLMain\n");
 					// call the loaded librarys DllMain to get its HMODULE
 					// Dont call DLL_METASPLOIT_ATTACH/DLL_METASPLOIT_DETACH as that is for payloads only.
 					if( !pDllMain( NULL, DLL_QUERY_HMODULE, &hResult ) )	

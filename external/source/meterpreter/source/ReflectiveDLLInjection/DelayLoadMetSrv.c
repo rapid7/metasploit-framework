@@ -53,26 +53,16 @@ FARPROC WINAPI delayHook( unsigned dliNotify, PDelayLoadInfo pdli )
 	switch( dliNotify )
 	{
 		case dliNotePreLoadLibrary:
-			OutputDebugStringA("DELAY LOAD: ");
-			OutputDebugStringA(pdli->szDll);
-			OutputDebugStringA("\n");
 			// If we are trying to delay load metsrv.dll we can just return the
 			// HMODULE of the injected metsrv library (set in InitServerExtension).
-			if( strcmp( pdli->szDll, "metsrv.dll" ) == 0 )
-				OutputDebugStringA("FOUND!\n");
+			if( strcmp( pdli->szDll, "metsrv.dll" ) == 0 );
 				return (FARPROC)hMetSrv;
 			break;
-		case dliNotePreGetProcAddress :
-			OutputDebugStringA("DELAY FIND: ");
-			OutputDebugStringA(pdli->szDll);
-			OutputDebugStringA(" - ");
-			OutputDebugStringA(pdli->dlp.szProcName);
-			OutputDebugStringA("\n");
+		case dliNotePreGetProcAddress:
 			// If we are trying to get the address of an exported function in the
 			// metsrv.dll we must use GetProcAddressR() in case the metsrv was loaded
 			// via reflective dll injection
 			if( strcmp( pdli->szDll, "metsrv.dll" ) == 0 )
-				OutputDebugStringA("FOUND!\n");
 				return GetProcAddressR( pdli->hmodCur, pdli->dlp.szProcName );
 			break;
 		default:
