@@ -22,7 +22,12 @@ public class SecureSocket {
 		SSLSocketFactory factory = (SSLSocketFactory) sslcontext.getSocketFactory();
 
 		socket = (SSLSocket)factory.createSocket(host, port);
-		socket.setTcpNoDelay(true);
+
+		/* give users a means to disable TCP_NO_DELAY. I experienced a bad_mac SSL error
+		   on another network when this option was enabled. *shrug* */
+		if (!"true".equals(System.getProperty("armitage.enable_nagle"))) {
+			socket.setTcpNoDelay(true);
+		}
 		socket.setSoTimeout(4048);
 		socket.startHandshake();
 	}
