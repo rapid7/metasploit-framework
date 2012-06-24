@@ -218,6 +218,10 @@
     <ClInclude Include="..\..\source\extensions\boiler\server\boiler.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\backcompat\backcompat.vcxproj">
+      <Project>{c6fb3275-9067-4bba-9206-0a720d2bc64f}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
     <ProjectReference Include="..\metsrv\metsrv.vcxproj">
       <Project>{37e24f8f-1bd9-490b-8cd2-4768b89e5eab}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>

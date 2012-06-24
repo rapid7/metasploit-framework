@@ -176,6 +176,12 @@
     <ClInclude Include="..\..\source\ReflectiveDLLInjection\ReflectiveDLLInjection.h" />
     <ClInclude Include="..\..\source\ReflectiveDLLInjection\ReflectiveLoader.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\backcompat\backcompat.vcxproj">
+      <Project>{c6fb3275-9067-4bba-9206-0a720d2bc64f}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />

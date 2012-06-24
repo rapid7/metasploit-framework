@@ -55,7 +55,7 @@ FARPROC WINAPI delayHook( unsigned dliNotify, PDelayLoadInfo pdli )
 		case dliNotePreLoadLibrary:
 			// If we are trying to delay load metsrv.dll we can just return the
 			// HMODULE of the injected metsrv library (set in InitServerExtension).
-			if( strcmp( pdli->szDll, "metsrv.dll" ) == 0 );
+			if( strcmp( pdli->szDll, "metsrv.dll" ) == 0 )
 				return (FARPROC)hMetSrv;
 			break;
 		case dliNotePreGetProcAddress:

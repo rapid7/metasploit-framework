@@ -216,6 +216,10 @@ copy /y "$(ProjectDir)\release\elevator.dll" "$(ProjectDir)..\..\output\"</Comma
     <ClInclude Include="..\..\source\elevator\tokendup.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\backcompat\backcompat.vcxproj">
+      <Project>{c6fb3275-9067-4bba-9206-0a720d2bc64f}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
     <ProjectReference Include="..\ReflectiveDLLInjection\ReflectiveDLLInjection.vcxproj">
       <Project>{72f0246a-a38d-4547-9057-46020e8e503d}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>

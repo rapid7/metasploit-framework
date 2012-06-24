@@ -235,6 +235,10 @@
     <ClCompile Include="..\..\source\extensions\sniffer\sniffer.c" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\backcompat\backcompat.vcxproj">
+      <Project>{c6fb3275-9067-4bba-9206-0a720d2bc64f}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
     <ProjectReference Include="..\common\common.vcxproj">
       <Project>{9e4de963-873f-4525-a7d0-ce34edbbdcca}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
