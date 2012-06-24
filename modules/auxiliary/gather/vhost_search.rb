@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 			# Create -site exceptions for next query
 			exceptions = ""
 			vhosts.each do |vhost|
-        			exceptions << "%20-site:#{vhost}"
+				exceptions << "%20-site:#{vhost}"
 			end
 		end
 		if searches == @max_searches
