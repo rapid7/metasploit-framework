@@ -49,6 +49,7 @@ module Parser
 			@state[:current_tag] = {}
 			@block = block if block
 			@report_data = {:wspace => args[:wspace]}
+			@nx_console_id = args[:nx_console_id]
 			super()
 		end
 

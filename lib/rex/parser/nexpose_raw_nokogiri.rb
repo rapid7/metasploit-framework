@@ -394,7 +394,7 @@ module Rex
 				vkey[:nx_proof_key] = @state[:test][:key]
 			end
 
-			vdet[:nx_console_id]  = @console_id if @console_id
+			vdet[:nx_console_id]  = @nx_console_id if @nx_console_id
 			vdet[:nx_vuln_status] = @state[:test][:status] if @state[:test][:status]
 
 			vdet[:nx_scan_id] = @state[:test][:nx_scan_id] if @state[:test][:nx_scan_id]
