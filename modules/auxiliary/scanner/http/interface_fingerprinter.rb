@@ -182,7 +182,7 @@ class Metasploit3 < Msf::Auxiliary
 				vprint_status("#{target_url}#{login} - Storing response")
 				
 				# This is updates the login with the response. It's kind of ugly but
-				#	had to do it for ruby1.9.2 support
+				#	had to do it for ruby1.9.3 support
 				@responses = @responses.merge({ login => res})
 			else
 				vprint_status("#{target_url}#{login} - Duplicate response, not storing.")
@@ -297,7 +297,7 @@ class Metasploit3 < Msf::Auxiliary
 					if @interface['creds'] and not datastore['NoDefault']
 						# First try the default credentials in the config file
 						@interface['creds'].each do |cred|
-							do_login_basic(cred.to_s.split(":")[0],cred.split(":")[1])
+							do_login_basic(cred.split(":")[0],cred.split(":")[1])
 						end
 					end
 
