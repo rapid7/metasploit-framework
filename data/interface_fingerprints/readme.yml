@@ -45,8 +45,12 @@
 # Test check
 # modeled after the tomcat_mgr_login aux module
 - title: Apache Tomcat
-  fingerprint_page: [/manager/html/, /tomcat/manager/html/]
+  creds:
+    - tomcat:tomcat
+    - admin:admin
+    - manager:manager
+  fingerprint_page:
+    - /manager/html/
+    - /tomcat/manager/html/
   fingerprint: Apache.*(Coyote|Tomcat)
-  creds: [tomcat:tomcat, admin:admin, manager:manager]
   basic_auth: true
-  

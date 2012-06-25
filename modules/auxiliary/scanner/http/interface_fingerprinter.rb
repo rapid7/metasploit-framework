@@ -47,9 +47,6 @@ class Metasploit3 < Msf::Auxiliary
 			[OptBool.new('NoDefault', [false, 'Do not attempt the default credentials', false]),
 			OptInt.new('Delay', [false, 'Wait n seconds between requests', 0]),
 		], self.class)
-		
-		# To support older versions of ruby
-		YAML::ENGINE.yamler= 'syck'
 	end
 
 	def run_host(ip)
@@ -127,7 +124,13 @@ class Metasploit3 < Msf::Auxiliary
 			else
 				# A user can add their own headers for the initial request and they will be respected
 				#	with a 302.
-				headers = fingerprint_page['fp_headers'] if fingerprint_page['fp_headers']
+				# A user can headers into the login process, useful for strange interfaces
+				if fingerprint_page['fp_headers']
+					fingerprint_page['fp_headers'].each do |header|
+						key,value = header.split(":")
+						headers[key] = value
+					end
+				end
 			end
 		end
 
@@ -177,7 +180,10 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			if (res.body != @last_response or (login == "/" or login == "/index.html"))
 				vprint_status("#{target_url}#{login} - Storing response")
-				@responses[login] = res
+				
+				# This is updates the login with the response. It's kind of ugly but
+				#	had to do it for ruby1.9.2 support
+				@responses = @responses.merge({ login => res})
 			else
 				vprint_status("#{target_url}#{login} - Duplicate response, not storing.")
 			end
@@ -291,7 +297,7 @@ class Metasploit3 < Msf::Auxiliary
 					if @interface['creds'] and not datastore['NoDefault']
 						# First try the default credentials in the config file
 						@interface['creds'].each do |cred|
-							do_login_basic(cred.split(":")[0],cred.split(":")[1])
+							do_login_basic(cred.to_s.split(":")[0],cred.split(":")[1])
 						end
 					end
 
@@ -300,7 +306,7 @@ class Metasploit3 < Msf::Auxiliary
 						do_login_basic(user, pass)
 					end
 				end
-			end
+		end
 	end
 
 	def do_login(user=nil,pass=nil)
@@ -353,7 +359,12 @@ class Metasploit3 < Msf::Auxiliary
 			}
 
 		# A user can headers into the login process, useful for strange interfaces
-		headers = headers.merge(@interface['login_headers']) if @interface['login_headers']
+		if @interface['login_headers']
+			@interface['login_headers'].each do |header|
+				key,value = header.split(":")
+				headers[key] = value
+			end
+		end
 
 		user = "" if user == "null"
 		pass = "" if pass == "null"
@@ -558,7 +569,7 @@ class Metasploit3 < Msf::Auxiliary
 		report_web_page(info)
 	end
 
-		def target_url
+	def target_url
 		vhost = rhost if not vhost
 		"#{vhost}:#{rport}#{datastore['Dir']}"
 	end
