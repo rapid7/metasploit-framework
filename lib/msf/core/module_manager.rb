@@ -205,8 +205,6 @@ protected
 		end
 	end
 
-   # load_module_from_file(paths[idx], file, nil, nil, nil, true)
-
 	#
 	# Enumerates the modules in the supplied array with possible limiting
 	# factors.

@@ -139,7 +139,6 @@ class Driver < Msf::Ui::Driver
 			print_error("***")
 		end
 
-
 		begin
 			require 'openssl'
 		rescue ::LoadError
@@ -154,9 +153,6 @@ class Driver < Msf::Ui::Driver
 
 		# Re-enable output
 		self.disable_output = false
-
-		# Load console-specific configuration
-		load_config(opts['Config'])
 
 		# Whether or not command passthru should be allowed
 		self.command_passthru = (opts['AllowCommandPassthru'] == false) ? false : true
@@ -233,6 +229,9 @@ class Driver < Msf::Ui::Driver
 			self.framework.cache_initialized = true
 			self.framework.cache_thread = nil
 		end
+
+		# Load console-specific configuration (after module paths are added)
+		load_config(opts['Config'])
 
 		# Process things before we actually display the prompt and get rocking
 		on_startup(opts)
