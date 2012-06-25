@@ -384,9 +384,9 @@ module Rex
 			# This hash defines the matching criteria to overwrite an existing entry
 			vkey = { :src => 'nexpose', :nx_vuln_id => @state[:test][:id] }
 
-			if @state[:device_id]	
-				vdet[:nx_device_id] = @state[:device_id]
-				vkey[:nx_device_id] = @state[:device_id]
+			if @state[:nx_device_id]	
+				vdet[:nx_device_id] = @state[:nx_device_id]
+				vkey[:nx_device_id] = @state[:nx_device_id]
 			end
 
 			if @state[:test][:key]
