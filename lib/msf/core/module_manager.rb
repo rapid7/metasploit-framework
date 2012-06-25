@@ -64,11 +64,6 @@ class ModuleSet < Hash
 	#
 	def create(name)
 
-		# if (mod_ambiguous[name])
-		#	raise Rex::AmbiguousArgumentError.new(name),
-		#		"The module name #{name} is ambiguous.", caller
-		# end
-
 		klass    = get_hash_val(name)
 		instance = nil
 
@@ -79,14 +74,18 @@ class ModuleSet < Hash
 			# type's demand loading until we find one that works for us.
 			if (module_type.nil?)
 				MODULE_TYPES.each { |type|
-					framework.modules.demand_load_module(type + '/' + name)
+					framework.modules.demand_load_module(type, name)
 				}
 			else
-				framework.modules.demand_load_module(module_type + '/' + name)
+				framework.modules.demand_load_module(module_type, name)
 			end
+
+			recalculate
 
 			klass = get_hash_val(name)
 		end
+
+		
 
 		# If the klass is valid for this name, try to create it
 		if (klass and klass != SymbolicModule)
@@ -105,9 +104,7 @@ class ModuleSet < Hash
 	# Checks to see if the supplied module name is valid.
 	#
 	def valid?(name)
-		# If we're using cache, then we need to pre-create an instance of this.
-		create(name) if (using_cache)
-
+		create(name)
 		(self[name]) ? true : false
 	end
 
@@ -129,7 +126,7 @@ class ModuleSet < Hash
 	def each_module(opts = {}, &block)
 		demand_load_modules
 
-		self.mod_sorted = self.sort if (mod_sorted == nil)
+		self.mod_sorted = self.sort
 
 		each_module_list(mod_sorted, opts, &block)
 	end
@@ -141,7 +138,7 @@ class ModuleSet < Hash
 	def each_module_ranked(opts = {}, &block)
 		demand_load_modules
 
-		self.mod_ranked = rank_modules if (mod_ranked == nil)
+		self.mod_ranked = rank_modules
 
 		each_module_list(mod_ranked, opts, &block)
 	end
@@ -288,25 +285,7 @@ protected
 			self[name] = mod
 		end
 
-		# Check to see if we should update info
-		noup = true if (modinfo and modinfo['noup'])
-
-		# Add this module to the module cache for this type
-		framework.modules.cache_module(mod) if (noup != true)
-
-		# Invalidate the sorted array
-		invalidate_sorted_cache
-
-		# Return the modlicated instance for use
 		mod
-	end
-
-	#
-	# Invalidates the sorted and ranked module caches.
-	#
-	def invalidate_sorted_cache
-		mod_sorted = nil
-		mod_ranked = nil
 	end
 
 	attr_writer   :module_type
@@ -341,20 +320,17 @@ class ModuleManager < ModuleSet
 	#
 	def initialize(framework,types=MODULE_TYPES)
 		self.module_paths         = []
-		self.module_history       = {}
-		self.module_history_mtime = {}
 		self.module_sets          = {}
 		self.module_failed        = {}
 		self.enabled_types        = {}
 		self.framework            = framework
+		self.cache                = {}
 
 		types.each { |type|
 			init_module_set(type)
 		}
 
 		super(nil)
-
-		@modcache_invalidated = false
 	end
 
 	def init_module_set(type)
@@ -449,223 +425,51 @@ class ModuleManager < ModuleSet
 
 	##
 	#
-	# Module cache management to support demand loaded modules.
-	#
-	##
-
-	#
-	# Sets the path that the module cache information is loaded from and
-	# synchronized with.  This method should be called prior to loading any
-	# modules in order to take advantage of caching information.
-	#
-	def set_module_cache_file(file_path)
-		@modcache_file = file_path
-		@modcache      = Rex::Parser::Ini.new
-
-		begin
-			@modcache.from_file(@modcache_file)
-		rescue Errno::ENOENT
-			@modcache_invalidated = true
-		end
-
-		# Initialize the standard groups
-		@modcache.add_group('FileModificationTimes', false)
-
-		MODULE_TYPES.each { |type|
-			@modcache.add_group(type, false)
-
-			@modcache[type].each_key { |name|
-				next if not @modcache[type]
-				next if not module_sets[type]
-
-				fullname = type + '/' + name
-
-				# Make sure the files associated with this module exist.  If it
-				# doesn't, then we don't create a symbolic module for it.  This is
-				# to ensure that module counts are accurately reflected after a
-				# module is removed or moved.
-				next if (@modcache.group?(fullname) == false)
-				next if (@modcache[fullname]['FileNames'].nil?)
-
-				begin
-					@modcache[fullname]['FileNames'].split(',').each { |f|
-						File::Stat.new(f)
-					}
-				rescue Errno::ENOENT
-					dlog("File requirement does not exist for #{fullname}", 'core',
-						LEV_1);
-					next
-				end
-				module_sets[type][name] = SymbolicModule
-			}
-		}
-
-	end
-
-	#
-	# Returns true if the module cache is currently being used.
-	#
-	def using_cache
-		(@modcache_invalidated != true)
-	end
-
-	#
-	# Persists the current contents of the module cache to disk.
-	#
-	def save_module_cache
-		if (@modcache)
-			@modcache.to_file(@modcache_file)
-		end
-	end
-
-	#
-	# Checks to make sure the cache state is okay.  If it's not, the cache is
-	# cleared and all modules are forced to be loaded.  If the cached mtime for
-	# the file is the same as the current mtime, then we don't load it until
-	# it's needed on demand.
-	#
-	def check_cache(file)
-		# If the module cache has been invalidated, then we return false to
-		# indicate that we should go ahead and load the file now.
-		return false if (@modcache_invalidated)
-
-		if (@modcache and @modcache.group?('FileModificationTimes'))
-			no_exist = false
-
-			begin
-				curr_mtime = File::Stat.new(file).mtime
-			rescue Errno::ENOENT
-				no_exist = true
-			end
-
-			if (no_exist or
-			    @modcache['FileModificationTimes'][file].nil? or
-			    @modcache['FileModificationTimes'][file].to_s != curr_mtime.to_i.to_s)
-				raise ModuleCacheInvalidated, "File #{file} has a new mtime or did not exist"
-			end
-		end
-
-		return true
-	end
-
-	#
-	# Invalidates the current cache.
-	#
-	def invalidate_cache
-		@modcache_invalidated = true
-
-		# Clear the module cache.
-		if (@modcache)
-			@modcache['FileModificationTimes'].clear
-
-			MODULE_TYPES.each { |type|
-				@modcache[type].clear
-			}
-		end
-	end
-
-	#
-	# Synchronizes the module cache information
-	#
-	def update_module_cache_info(fullname, mod, modinfo)
-		return if (modinfo and modinfo['noup'] == true)
-
-		if (@modcache)
-			if (fullname)
-				@modcache.add_group(fullname)
-				@modcache[fullname].clear
-				@modcache[fullname]['FileNames'] = modinfo['files'].join(',')
-				@modcache[fullname]['FilePaths'] = modinfo['paths'].join(',')
-				@modcache[fullname]['Type']      = modinfo['type']
-
-
-				# Deep cache classes (ignore payloads)
-				# if(mod.class == ::Class and mod.cached?)
-				# 	@modcache[fullname]['CacheData'] = [Marshal.dump(mod.infos)].pack("m").gsub(/\s+/, '')
-				# end
-
-			end
-
-			modinfo['files'].each do |f|
-				begin
-					@modcache['FileModificationTimes'][f] = File::Stat.new(f).mtime.to_i.to_s
-				rescue Errno::ENOENT
-				end
-			end
-		end
-	end
-
-	#
-	# Caches this module under a specific module type and name
-	#
-	def cache_module(mod)
-		@modcache[mod.type][mod.refname] = 1
-	end
-
-	##
-	#
 	# Module path management
 	#
 	##
 
 	#
-	# Adds a path to be searched for new modules.  If check_cache is false,
-	# all modules in the specified path will be demand loaded.  Furthermore,
-	# their loading will not impact the module path.
+	# Adds a path to be searched for new modules.
 	#
-	def add_module_path(path, check_cache = true)
-		epaths = []
-
+	def add_module_path(path)
+		npaths = []
+		
 		if path =~ /\.fastlib$/
 			unless ::File.exist?(path)
 				raise RuntimeError, "The path supplied does not exist", caller
 			end
+			npaths << ::File.expand_path(path)
 		else
 			path.sub!(/#{File::SEPARATOR}$/, '')
 
 			# Make the path completely canonical
 			path = Pathname.new(File.expand_path(path))
 
-			# Make sure the path is a valid directory before we try to rock the
-			# house
+			# Make sure the path is a valid directory
 			unless path.directory?
 				raise RuntimeError, "The path supplied is not a valid directory.", caller
 			end
 
 			# Now that we've confirmed it exists, get the full, cononical path
-			path = path.realpath.to_s
+			path    = ::File.expand_path(path)
+			npaths << path
 
 			# Identify any fastlib archives inside of this path
 			Dir["#{path}/**/*.fastlib"].each do |fp|
-				epaths << fp
+				npaths << fp
 			end
 		end
 
-		module_paths << path
-
-		epaths.each do |epath|
-			module_paths << epath
-		end
-
-		begin
-			counts = load_modules(path, !check_cache)
-		rescue ModuleCacheInvalidated
-			invalidate_cache
-
-			# Re-load all the modules now that the cache has been invalidated
-			module_paths.each { |p|
-				counts = load_modules(p, true)
-			}
-		end
-
-		# Synchronize the module cache if the module cache is not being used.
-		# We only do this if the caller wanted us to check the cache in the
-		# first place.  By default, check_cache will be true.  One scenario
-		# where it will be false is from the loadpath command in msfconsole.
-		if !using_cache and check_cache
-			save_module_cache
-		end
-
+		# Update the module paths appropriately
+		self.module_paths = (module_paths + npaths).flatten.uniq
+	
+		# Load all of the modules from the new paths
+		counts = nil
+		npaths.each { |d|
+			counts = load_modules(d, false)
+		}
+		
 		return counts
 	end
 
@@ -674,6 +478,7 @@ class ModuleManager < ModuleSet
 	#
 	def remove_module_path(path)
 		module_paths.delete(path)
+		module_paths.delete(::File.expand_path(path))
 	end
 
 	def register_type_extension(type, ext)
@@ -683,10 +488,8 @@ class ModuleManager < ModuleSet
 	# Reloads modules from all module paths
 	#
 	def reload_modules
-		invalidate_cache
 
 		self.module_history = {}
-		self.module_history_mtime = {}
 		self.clear
 
 		self.enabled_types.each_key do |type|
@@ -698,7 +501,9 @@ class ModuleManager < ModuleSet
 			counts = load_modules(path, true)
 		end
 
-		save_module_cache
+		rebuild_cache
+		
+		counts
 	end
 
 	#
@@ -765,9 +570,7 @@ class ModuleManager < ModuleSet
 			return nil
 		end
 
-
 		self.module_failed.delete(mod.file_path)
-
 
 		# Remove the original reference to this module
 		self.delete(mod.refname)
@@ -786,9 +589,11 @@ class ModuleManager < ModuleSet
 		end
 
 		# Let the specific module sets have an opportunity to handle the fact
-		# that this module was reloaded.  For instance, the payload module set
-		# will need to flush the blob cache entry associated with this module
+		# that this module was reloaded.
 		module_sets[mod.type].on_module_reload(mod)
+
+		# Rebuild the cache for just this module
+		rebuild_cache(mod)
 
 		mod
 	end
@@ -802,12 +607,6 @@ class ModuleManager < ModuleSet
 		# Call the module set implementation of add_module
 		dup = super
 
-		# If the module cache is not being used, update the cache with
-		# information about the files that are associated with this module.
-		if (!using_cache)
-			update_module_cache_info(dup.fullname, mod, file_paths)
-		end
-
 		# Automatically subscribe a wrapper around this module to the necessary
 		# event providers based on whatever events it wishes to receive.  We
 		# only do this if we are the module manager instance, as individual
@@ -817,33 +616,6 @@ class ModuleManager < ModuleSet
 		# Notify the framework that a module was loaded
 		framework.events.on_module_load(name, dup)
 	end
-
-	#
-	# Loads the files associated with a module and recalculates module
-	# associations.
-	#
-	def demand_load_module(fullname)
-		dlog("Demand loading module #{fullname}.", 'core', LEV_1)
-
-		return nil if (@modcache.group?(fullname) == false)
-		return nil if (@modcache[fullname]['FileNames'].nil?)
-		return nil if (@modcache[fullname]['FilePaths'].nil?)
-
-		type  = fullname.split(/\//)[0]
-		files = @modcache[fullname]['FileNames'].split(',')
-		paths = @modcache[fullname]['FilePaths'].split(',')
-
-		files.each_with_index { |file, idx|
-			dlog("Loading from file #{file}", 'core', LEV_2)
-
-			load_module_from_file(paths[idx], file, nil, nil, nil, true)
-		}
-
-		if (module_sets[type].postpone_recalc != true)
-			module_sets[type].recalculate
-		end
-	end
-
 
 	#
 	# Provide a list of the types of modules in the set
@@ -865,6 +637,90 @@ class ModuleManager < ModuleSet
 	def load_module_source(file)
 		::File.read(file, ::File.size(file))
 	end
+
+	#
+	# Rebuild the cache for the module set
+	#
+	def rebuild_cache(mod = nil)
+		return if not (framework.db and framework.db.migrated)
+		if mod
+			framework.db.update_module_details(mod)
+		else
+			framework.db.update_all_module_details
+		end
+		refresh_cache
+	end
+
+	#
+	# Return a listing of all cached modules
+	#
+	def cache_entries
+		return {} if not (framework.db and framework.db.migrated)
+		res = {}
+		::Mdm::ModuleDetail.find(:all).each do |m|
+			res[m.file] = { :mtype => m.mtype, :refname => m.refname, :file => m.file, :mtime => m.mtime }
+			unless module_set(m.mtype).has_key?(m.refname)
+				module_set(m.mtype)[m.refname] = SymbolicModule
+			end
+		end
+	
+		res
+	end
+
+	#
+	# Reset the module cache
+	#
+	def refresh_cache
+		self.cache = cache_entries
+	end
+
+	def has_module_file_changed?(file)
+		begin 
+			cfile = self.cache[file] 
+			return true if not cfile
+
+			# Payloads can't be cached due to stage/stager matching
+			return true if cfile[:mtype] == "payload"
+			return cfile[:mtime].to_i != ::File.mtime(file).to_i
+		rescue ::Errno::ENOENT
+			return true
+		end
+	end
+
+	def has_archive_file_changed?(arch, file)
+		begin 		
+			cfile = self.cache[file]
+			return true if not cfile
+
+			# Payloads can't be cached due to stage/stager matching
+			return true if cfile[:mtype] == "payload"
+
+			return cfile[:mtime].to_i != ::File.mtime(file).to_i
+		rescue ::Errno::ENOENT
+			return true
+		end
+	end
+
+	def demand_load_module(mtype, mname)
+		n = self.cache.keys.select { |k| 
+			self.cache[k][:mtype]   == mtype and 
+			self.cache[k][:refname] == mname 
+		}.first
+
+		return nil unless n
+		m = self.cache[n]
+
+		path = nil
+		if m[:file] =~ /^(.*)\/#{m[:mtype]}s?\//
+			path = $1
+			load_module_from_file(path, m[:file], nil, nil, nil, true)
+		else
+			dlog("Could not demand load module #{mtype}/#{mname} (unknown base name in #{m[:file]})", 'core', LEV_2)
+			nil
+		end
+	end
+
+	attr_accessor :cache # :nodoc:
 
 protected
 
@@ -910,17 +766,15 @@ protected
 				next if (file =~ /rb\.(ut|ts)\.rb$/)
 
 				# Skip files with a leading period
-				next if file[0,1] =="."
+				next if file[0,1] == "."
 
 				load_module_from_file(bpath, file, loaded, recalc, counts, demand)
 			end
 		end
 
-		# Perform any required recalculations for the individual module types
-		# that actually had load changes
-		recalc.each_key { |key|
-			module_sets[key].recalculate
-		}
+		recalc.each_key do |mtype|
+			module_set(mtype).recalculate		
+		end
 
 		# Return per-module loaded counts
 		return counts
@@ -954,16 +808,14 @@ protected
 			next if (ent =~ /rb\.(ut|ts)\.rb$/)
 
 			# Skip files with a leading period
-			next if ent[0,1] =="."
+			next if ent[0,1] == "."
 
 			load_module_from_archive(bpath, ent, loaded, recalc, counts, demand)
 		end
 
-		# Perform any required recalculations for the individual module types
-		# that actually had load changes
-		recalc.each_key { |key|
-			module_sets[key].recalculate
-		}
+		recalc.each_key do |mtype|
+			module_set(mtype).recalculate		
+		end
 
 		# Return per-module loaded counts
 		return counts
@@ -974,10 +826,7 @@ protected
 	#
 	def load_module_from_file(path, file, loaded, recalc, counts, demand = false)
 
-
-		# If the file on disk hasn't changed with what we have stored in the
-		# cache, then there's no sense in loading it
-		if (!has_module_file_changed?(file))
+		if not ( demand or has_module_file_changed?(file))
 			dlog("Cached module from file #{file} has not changed.", 'core', LEV_2)
 			return false
 		end
@@ -1061,12 +910,6 @@ protected
 			elog("Exception caught during is_usable check: #{$!}")
 		end
 
-		# Synchronize the modification time for this file.
-		update_module_cache_info(nil, added, {
-			'paths' => [ path ],
-			'files' => [ file ],
-			'type'  => type}) if (!using_cache)
-
 		if (usable == false)
 			ilog("Skipping module in #{file} because is_usable returned false.", 'core', LEV_1)
 			return false
@@ -1088,10 +931,6 @@ protected
 		# Append the added module to the hash of file->module
 		loaded[file] = added if (loaded)
 
-		# Track module load history for future reference
-		module_history[file]       = added
-		module_history_mtime[file] = File::Stat.new(file).mtime.to_i
-
 		# The number of loaded modules this round
 		if (counts)
 			counts[type] = (counts[type]) ? (counts[type] + 1) : 1
@@ -1105,6 +944,11 @@ protected
 	# Loads a module from the supplied archive path
 	#
 	def load_module_from_archive(path, file, loaded, recalc, counts, demand = false)
+		
+		if not ( demand or has_archive_module_file_changed?(file))
+			dlog("Cached module from file #{file} has not changed.", 'core', LEV_2)
+			return false
+		end
 
 		# Derive the name from the path with the exclusion of the .rb
 		name = file.match(/^(.+?)#{File::SEPARATOR}(.*)(.rb?)$/)[2]
@@ -1181,12 +1025,6 @@ protected
 			elog("Exception caught during is_usable check: #{$!}")
 		end
 
-		# Synchronize the modification time for this file.
-		update_module_cache_info(nil, added, {
-			'paths' => [ path ],
-			'files' => [ file ],
-			'type'  => type}) if (!using_cache)
-
 		if (usable == false)
 			ilog("Skipping module in #{path}::#{file} because is_usable returned false.", 'core', LEV_1)
 			return false
@@ -1208,10 +1046,6 @@ protected
 		# Append the added module to the hash of file->module
 		loaded[file] = added if (loaded)
 
-		# Track module load history for future reference
-		module_history[file]       = added
-		module_history_mtime[file] = ::Time.now.to_i
-
 		# The number of loaded modules this round
 		if (counts)
 			counts[type] = (counts[type]) ? (counts[type] + 1) : 1
@@ -1220,17 +1054,6 @@ protected
 		return true
 	end
 
-	#
-	# Checks to see if the supplied file has changed (if it's even in the
-	# cache).
-	#
-	def has_module_file_changed?(file)
-		begin
-			return (module_history_mtime[file] != File::Stat.new(file).mtime.to_i)
-		rescue Errno::ENOENT
-			return true
-		end
-	end
 
 	#
 	# Called when a module is initially loaded such that it can be
@@ -1244,7 +1067,7 @@ protected
 		# off to a special payload set.  The payload set, in turn, will
 		# automatically create all the permutations after all the payload
 		# modules have been loaded.
-
+		
 		if (type != MODULE_PAYLOAD)
 			# Add the module class to the list of modules and add it to the
 			# type separated set of module classes
@@ -1289,7 +1112,6 @@ protected
 
 	attr_accessor :modules, :module_sets # :nodoc:
 	attr_accessor :module_paths # :nodoc:
-	attr_accessor :module_history, :module_history_mtime # :nodoc:
 	attr_accessor :module_failed # :nodoc:
 	attr_accessor :enabled_types # :nodoc:
 

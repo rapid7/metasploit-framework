@@ -102,32 +102,13 @@ module Framework
 		# Load the configuration
 		framework.load_config
 
-		# Set the file that will be used to cache information about modules for
-		# the purpose of providing demand-loaded modules.
-		framework.modules.set_module_cache_file(
-			File.join(Msf::Config.config_directory, 'modcache'))
-
-		# Initialize the default module search paths
-		if (Msf::Config.module_directory)
-			framework.modules.add_module_path(Msf::Config.module_directory)
-		end
-		
-		# Initialize the user module search path
-		if (Msf::Config.user_module_directory)
-			framework.modules.add_module_path(Msf::Config.user_module_directory)
-		end
-
-		# If additional module paths have been defined globally, then load them.
-		# They should be separated by semi-colons.
-		if framework.datastore['MsfModulePaths']
-			framework.datastore['MsfModulePaths'].split(";").each { |path|
-				framework.modules.add_module_path(path)
-			}
-		end
-
 		# Register the framework as its own general event subscriber in this
 		# instance
 		framework.events.add_general_subscriber(framework)
+
+		unless opts['DeferModuleLoads']
+			framework.init_module_paths
+		end
 
 		return framework
 	end
@@ -144,6 +125,7 @@ module Framework
 			instance.init_simplified(load_saved_config)
 		end
 	end
+
 
 	##
 	#
@@ -173,9 +155,49 @@ module Framework
 	end
 
 	#
+	# Initialize the module paths
+	#
+	def init_module_paths
+
+		# Ensure the module cache is accurate
+		self.modules.refresh_cache
+
+		# Initialize the default module search paths
+		if (Msf::Config.module_directory)
+			self.modules.add_module_path(Msf::Config.module_directory)
+		end
+		
+		# Initialize the user module search path
+		if (Msf::Config.user_module_directory)
+			self.modules.add_module_path(Msf::Config.user_module_directory)
+		end
+
+		# If additional module paths have been defined globally, then load them.
+		# They should be separated by semi-colons.
+		if self.datastore['MsfModulePaths']
+			self.datastore['MsfModulePaths'].split(";").each { |path|
+				self.modules.add_module_path(path)
+			}
+		end
+	end
+
+	#
 	# Statistics.
 	#
 	attr_reader :stats
+
+	#
+	# Boolean indicating whether the cache is initialized yet
+	#
+	attr_reader :cache_initialized
+
+	#
+	# Thread of the running rebuild operation
+	#
+	attr_reader :cache_thread
+	attr_writer :cache_initialized # :nodoc:
+	attr_writer :cache_thread # :nodoc:
+
 
 protected
 

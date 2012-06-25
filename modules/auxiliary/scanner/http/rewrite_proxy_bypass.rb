@@ -17,7 +17,7 @@ class Metasploit4 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'Reverse Proxy Bypass Scanner',
+			'Name'        => 'Apache Reverse Proxy Bypass Vulnerability Scanner',
 			'Version'     => '$Revision$',
 			'Description' => %q{
 				Scan for poorly configured reverse proxy servers.
@@ -66,15 +66,15 @@ class Metasploit4 < Msf::Auxiliary
 		end
 
 		if response.nil?
-			vprint_error "Request against #{host} timed out"
+			vprint_error "#{rhost}:#{rport} Request timed out"
 			return nil
 		end
 
 		seconds_transpired = (responded_at - requested_at).to_f
-		vprint_status "#{host} took #{seconds_transpired} seconds to respond to URI #{uri}"
+		vprint_status "#{rhost}:#{rport} Server took #{seconds_transpired} seconds to respond to URI #{uri}"
 
 		status_code = response.code
-		vprint_status "#{host} responded with status code #{status_code} to URI #{uri}"
+		vprint_status "#{rhost}:#{rport} Server responded with status code #{status_code} to URI #{uri}"
 
 		return {
 			:requested_at => requested_at,
@@ -92,7 +92,7 @@ class Metasploit4 < Msf::Auxiliary
 		end
 
 		if baseline[:status_code] == test_status_code
-			vprint_error "The baseline status code for #{host} matches our test's"
+			vprint_error "#{rhost}:#{rport} The baseline status code for #{host} matches our test's"
 			return
 		end
 
@@ -101,13 +101,14 @@ class Metasploit4 < Msf::Auxiliary
 
 		status_code = injection_info[:status_code]
 		if status_code == test_status_code
-			print_good "#{host}:#{rport} is vulnerable!"
+			print_good "#{rhost}:#{rport} Server appears to be vulnerable!"
 			report_vuln(
 				:host   => host,
 				:port   => rport,
 				:proto  => 'tcp',
-				:name   => self.fullname,
-				:info   => "Returned #{status_code} when requested #{uri}",
+				:sname  => ssl ? 'https' : 'http',
+				:name   => self.name,
+				:info   => "Module #{self.fullname} obtained #{status_code} when requesting #{uri}",
 				:refs   => self.references,
 				:exploited_at => injection_info[:requested_at]
 			)

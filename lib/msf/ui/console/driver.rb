@@ -139,7 +139,6 @@ class Driver < Msf::Ui::Driver
 			print_error("***")
 		end
 
-
 		begin
 			require 'openssl'
 		rescue ::LoadError
@@ -154,12 +153,6 @@ class Driver < Msf::Ui::Driver
 
 		# Re-enable output
 		self.disable_output = false
-
-		# Load additional modules as necessary
-		self.framework.modules.add_module_path(opts['ModulePath'], false) if opts['ModulePath']
-
-		# Load console-specific configuration
-		load_config(opts['Config'])
 
 		# Whether or not command passthru should be allowed
 		self.command_passthru = (opts['AllowCommandPassthru'] == false) ? false : true
@@ -215,11 +208,30 @@ class Driver < Msf::Ui::Driver
 						end
 
 						print_error("Failed to connect to the database: #{framework.db.error} #{db.inspect} #{framework.db.error.backtrace}")
+					else
+						self.framework.modules.refresh_cache
+						if self.framework.modules.cache.keys.length == 0
+							print_status("The initial module cache will be built in the background, this can take 2-5 minutes...")
+						end
 					end
 				end
 			end
 		end
 
+		# Configure the framework module paths
+		self.framework.init_module_paths
+		self.framework.modules.add_module_path(opts['ModulePath']) if opts['ModulePath']
+
+		# Rebuild the module cache in a background thread
+		self.framework.threads.spawn("ModuleCacheRebuild", true) do
+			self.framework.cache_thread = Thread.current
+			self.framework.modules.rebuild_cache
+			self.framework.cache_initialized = true
+			self.framework.cache_thread = nil
+		end
+
+		# Load console-specific configuration (after module paths are added)
+		load_config(opts['Config'])
 
 		# Process things before we actually display the prompt and get rocking
 		on_startup(opts)

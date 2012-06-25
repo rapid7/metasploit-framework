@@ -3,10 +3,12 @@
 
 #ifdef _WIN32
 
+#include "../../common/common.h"
+
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
-#include "HNPsSdkUser.h"
+#include <HNPsSdkUser.h>
 #include "dnet.h"
 
 #else

@@ -687,17 +687,38 @@ class DBManager
 		# it's vulnerable to, so it isn't really useful to save it.
 		if opts[:session] and session.via_exploit and session.via_exploit != "exploit/multi/handler"
 			return unless host
-			port = session.exploit_datastore["RPORT"]
-			service = (port ? host.services.find_by_port(port) : nil)
+
 			mod = framework.modules.create(session.via_exploit)
 			vuln_info = {
 				:host => host.address,
-				:name => session.via_exploit,
+				:name => mod.name,
 				:refs => mod.references,
 				:workspace => wspace,
-				:exploited_at => Time.now.utc
+				:exploited_at => Time.now.utc,
+				:info => "Exploited by #{mod.fullname} to create Session #{s.id}"
 			}
-			framework.db.report_vuln(vuln_info)
+
+			port    = session.exploit_datastore["RPORT"]
+			service = (port ? host.services.find_by_port(port.to_i) : nil)
+
+			vuln_info[:service] = service if service
+
+			vuln = framework.db.report_vuln(vuln_info)
+			
+			attempt_info = {
+				:timestamp   => Time.now.utc,
+				:workspace   => wspace,
+				:module      => session.via_exploit,
+				:username    => session.username,
+				:refs        => mod.references,
+				:session_id  => s.id,
+				:host        => host,
+				:service     => service,
+				:vuln        => vuln
+			}
+
+			framework.db.report_exploit_success(attempt_info)
+			
 		end
 
 		s
@@ -785,6 +806,225 @@ class DBManager
 		subnet, netmask = route.split("/")
 		r = s.routes.find_by_subnet_and_netmask(subnet, netmask)
 		r.destroy if r
+	}
+	end
+
+
+	def report_exploit_success(opts)
+	::ActiveRecord::Base.connection_pool.with_connection {
+
+		wspace = opts.delete(:workspace) || workspace
+		mrefs  = opts.delete(:refs) || return
+		host   = opts.delete(:host)
+		port   = opts.delete(:port)
+		prot   = opts.delete(:proto)
+		svc    = opts.delete(:service)
+		vuln   = opts.delete(:vuln)
+
+		timestamp = opts.delete(:timestamp)
+		username  = opts.delete(:username)
+		mname     = opts.delete(:module)
+
+		# Look up or generate the host as appropriate
+		if not (host and host.kind_of? ::Mdm::Host)
+			if svc.kind_of? ::Mdm::Service
+				host = svc.host
+			else
+				host = report_host(:workspace => wspace, :address => host )
+			end
+		end
+
+		# Bail if we dont have a host object
+		return if not host
+
+		# Look up or generate the service as appropriate
+		if port and svc.nil?
+			svc = report_service(:workspace => wspace, :host => host, :port => port, :proto => prot ) if port
+		end
+
+		if not vuln
+			# Create a references map from the module list
+			ref_objs = ::Mdm::Ref.where(:name => mrefs.map { |ref|
+				if ref.respond_to?(:ctx_id) and ref.respond_to?(:ctx_val)
+					"#{ref.ctx_id}-#{ref.ctx_val}"
+				else
+					ref.to_s
+				end
+			})
+		
+			# Try find a matching vulnerability
+			vuln = find_vuln_by_refs(ref_objs, host, svc)
+		end
+
+		# We have match, lets create a vuln_attempt record
+		if vuln
+			attempt_info = {
+				:vuln_id      => vuln.id,
+				:attempted_at => timestamp || Time.now.utc,
+				:exploited    => true,
+				:username     => username  || "unknown",
+				:module       => mname
+			}
+
+			attempt_info[:session_id] = opts[:session_id] if opts[:session_id]
+			attempt_info[:loot_id]    = opts[:loot_id]    if opts[:loot_id]
+
+			vuln.vuln_attempts.create(attempt_info)
+	
+			# Correct the vuln's associated service if necessary
+			if svc and vuln.service_id.nil?
+				vuln.service = svc
+				vuln.save
+			end
+		end
+
+		# Report an exploit attempt all the same
+		attempt_info = {
+			:attempted_at => timestamp || Time.now.utc,
+			:exploited    => true,
+			:username     => username  || "unknown",
+			:module       => mname
+		}
+
+		attempt_info[:vuln_id]    = vuln.id           if vuln
+		attempt_info[:session_id] = opts[:session_id] if opts[:session_id]
+		attempt_info[:loot_id]    = opts[:loot_id]    if opts[:loot_id]
+		
+		if svc
+			attempt_info[:port]  = svc.port
+			attempt_info[:proto] = svc.proto
+		end
+		
+		if port and svc.nil?
+			attempt_info[:port]  = port
+			attempt_info[:proto] = prot || "tcp"
+		end
+
+		host.exploit_attempts.create(attempt_info)
+	}
+	end
+
+	def report_exploit_failure(opts)
+
+	::ActiveRecord::Base.connection_pool.with_connection {
+		wspace = opts.delete(:workspace) || workspace
+		mrefs  = opts.delete(:refs) || return
+		host   = opts.delete(:host)
+		port   = opts.delete(:port)
+		prot   = opts.delete(:proto)
+		svc    = opts.delete(:service)
+		vuln   = opts.delete(:vuln)
+
+		timestamp  = opts.delete(:timestamp)
+		freason    = opts.delete(:fail_reason)
+		fdetail    = opts.delete(:fail_detail)		
+		username   = opts.delete(:username)
+		mname      = opts.delete(:module)
+
+		# Look up the host as appropriate
+		if not (host and host.kind_of? ::Mdm::Host)
+			if svc.kind_of? ::Mdm::Service
+				host = svc.host
+			else
+				host = get_host( :workspace => wspace, :address => host )
+			end
+		end
+
+		# Bail if we dont have a host object
+		return if not host
+
+		# Look up the service as appropriate
+		if port and svc.nil?
+			prot ||= "tcp"
+			svc = get_service(wspace, host, prot, port) if port
+		end
+
+		if not vuln
+			# Create a references map from the module list
+			ref_objs = ::Mdm::Ref.where(:name => mrefs.map { |ref|
+				if ref.respond_to?(:ctx_id) and ref.respond_to?(:ctx_val)
+					"#{ref.ctx_id}-#{ref.ctx_val}"
+				else
+					ref.to_s
+				end
+			})
+		
+			# Try find a matching vulnerability
+			vuln = find_vuln_by_refs(ref_objs, host, svc)
+		end
+
+		# Report a vuln_attempt if we found a match
+		if vuln
+			attempt_info = {
+				:attempted_at => timestamp || Time.now.utc,
+				:exploited    => false,
+				:fail_reason  => freason,
+				:fail_detail  => fdetail,
+				:username     => username  || "unknown",
+				:module       => mname
+			}
+
+			vuln.vuln_attempts.create(attempt_info)
+		end
+
+		# Report an exploit attempt all the same
+		attempt_info = {
+			:attempted_at => timestamp || Time.now.utc,
+			:exploited    => false,
+			:username     => username  || "unknown",
+			:module       => mname,
+			:fail_reason  => freason,
+			:fail_detail  => fdetail
+		}
+
+		attempt_info[:vuln_id] = vuln.id if vuln
+
+		if svc
+			attempt_info[:port]  = svc.port
+			attempt_info[:proto] = svc.proto
+		end
+		
+		if port and svc.nil?
+			attempt_info[:port]  = port
+			attempt_info[:proto] = prot || "tcp"
+		end
+
+		host.exploit_attempts.create(attempt_info)
+	}
+	end
+
+
+	def report_vuln_attempt(vuln, opts)
+	::ActiveRecord::Base.connection_pool.with_connection {
+		return if not vuln
+		info = {}
+		
+		# Opts can be keyed by strings or symbols
+		::Mdm::VulnAttempt.column_names.each do |kn|
+			k = kn.to_sym
+			next if ['id', 'vuln_id'].include?(kn)
+			info[k] = opts[kn] if opts[kn]
+			info[k] = opts[k]  if opts[k]
+		end
+
+		vuln.vuln_attempts.create(info)
+	}
+	end
+
+	def report_exploit_attempt(host, opts)
+	::ActiveRecord::Base.connection_pool.with_connection {
+		return if not host
+		info = {}
+		
+		# Opts can be keyed by strings or symbols
+		::Mdm::VulnAttempt.column_names.each do |kn|
+			k = kn.to_sym
+			next if ['id', 'host_id'].include?(kn)
+			info[k] = opts[kn] if opts[kn]
+			info[k] = opts[k]  if opts[k]
+		end
+
+		host.exploit_attempts.create(info)
 	}
 	end
 
@@ -1281,11 +1521,12 @@ class DBManager
 	#
 	# opts MUST contain
 	# +:host+:: the host where this vulnerability resides
-	# +:name+:: the scanner-specific id of the vuln (e.g. NEXPOSE-cifs-acct-password-never-expires)
+	# +:name+:: the friendly name for this vulnerability (title)
 	#
 	# opts can contain
-	# +:info+:: a human readable description of the vuln, free-form text
-	# +:refs+:: an array of Ref objects or string names of references
+	# +:info+::   a human readable description of the vuln, free-form text
+	# +:refs+::   an array of Ref objects or string names of references
+	# +:details:: a hash with :key pointed to a find criteria hash and the rest containing VulnDetail fields
 	#
 	def report_vuln(opts)
 		return if not active
@@ -1298,10 +1539,11 @@ class DBManager
 
 		wspace = opts.delete(:workspace) || workspace
 		exploited_at = opts[:exploited_at] || opts["exploited_at"]
-		rids = nil
+		details = opts.delete(:details)
+		rids = opts.delete(:ref_ids)
 
 		if opts[:refs]
-			rids = []
+			rids ||= []
 			opts[:refs].each do |r|
 				if (r.respond_to?(:ctx_id)) and (r.respond_to?(:ctx_val))
 					r = "#{r.ctx_id}-#{r.ctx_val}"
@@ -1321,16 +1563,6 @@ class DBManager
 
 		ret = {}
 
-=begin
-		if host
-			host.updated_at = host.created_at
-			host.state      = HostState::Alive
-			host.save!
-		else
-			host = get_host(:workspace => wspace, :address => addr)
-		end
-=end
-
 		# Truncate the info field at the maximum field length
 		if info
 			info = info[0,65535]
@@ -1339,39 +1571,150 @@ class DBManager
 		# Truncate the name field at the maximum field length
 		name = name[0,255]
 
-		if info and name !~ /^NEXPOSE-/
-			vuln = host.vulns.find_or_initialize_by_name_and_info(name, info)
+		# Placeholder for the vuln object
+		vuln = nil
+
+		# Identify the associated service
+		service = opts.delete(:service)
+
+		# Treat port zero as no service
+		if service or opts[:port].to_i > 0
+
+			if not service
+				proto = nil
+				case opts[:proto].to_s.downcase # Catch incorrect usages, as in report_note
+				when 'tcp','udp'
+					proto = opts[:proto]
+				when 'dns','snmp','dhcp'
+					proto = 'udp'
+					sname = opts[:proto]
+				else
+					proto = 'tcp'
+					sname = opts[:proto]
+				end
+
+				service = host.services.find_or_create_by_port_and_proto(opts[:port].to_i, proto)
+			end
+
+			# Try to find an existing vulnerability with the same service & references
+			# If there are multiple matches, choose the one with the most matches
+			# If a match is found on a vulnerability with no associated service,
+			# update that vulnerability with our service information. This helps
+			# prevent dupes of the same vuln found by both local patch and
+			# service detection.		
+			if rids and rids.length > 0
+				vuln = find_vuln_by_refs(rids, host, service)
+				vuln.service = service if vuln
+			end
 		else
-			vuln = host.vulns.find_or_initialize_by_name(name)
+			# Try to find an existing vulnerability with the same host & references
+			# If there are multiple matches, choose the one with the most matches
+			if rids and rids.length > 0
+				vuln = find_vuln_by_refs(rids, host)
+			end
 		end
 
-		vuln.info = info.to_s if info
+		# Try to match based on vuln_details records
+		if not vuln and opts[:details_match]
+			vuln = find_vuln_by_details(opts[:details_match], host, service)
+			if vuln and service and not vuln.service
+				vuln.service = service
+			end
+		end
+
+		# No matches, so create a new vuln record
+		unless vuln
+			if service
+				vuln = service.vulns.find_by_name(name)
+			else
+				vuln = host.vulns.find_by_name(name)
+			end
+			
+			unless vuln
+
+				vinf = {
+					:host_id => host.id,
+					:name    => name,
+					:info    => info
+				}
+
+				vinf[:service_id] = service.id if service 
+				vuln = Mdm::Vuln.create(vinf)
+			end
+		end
+
+		# Set the exploited_at value if provided
 		vuln.exploited_at = exploited_at if exploited_at
 
-		if opts[:port]
-			proto = nil
-			case opts[:proto].to_s.downcase # Catch incorrect usages, as in report_note
-			when 'tcp','udp'
-				proto = opts[:proto]
-			when 'dns','snmp','dhcp'
-				proto = 'udp'
-				sname = opts[:proto]
-			else
-				proto = 'tcp'
-				sname = opts[:proto]
-			end
-			vuln.service = host.services.find_or_create_by_port_and_proto(opts[:port], proto)
-		end
-
+		# Merge the references
 		if rids
 			vuln.refs << (rids - vuln.refs)
 		end
 
+		# Finalize
 		if vuln.changed?
 			msf_import_timestamps(opts,vuln)
 			vuln.save!
 		end
+
+		# Handle vuln_details parameters
+		report_vuln_details(vuln, details) if details
+		
+		vuln
 	}
+	end
+
+	def find_vuln_by_refs(refs, host, service=nil)
+
+		vuln = nil
+
+		# Try to find an existing vulnerability with the same service & references
+		# If there are multiple matches, choose the one with the most matches
+		if service
+			refs_ids = refs.map{|x| x.id }
+			vuln = service.vulns.find(:all, :include => [:refs], :conditions => { 'refs.id' => refs_ids }).sort { |a,b|
+				( refs_ids - a.refs.map{|x| x.id } ).length <=> ( refs_ids - b.refs.map{|x| x.id } ).length
+			}.first
+		end
+
+		# Return if we matched based on service
+		return vuln if vuln
+
+		# Try to find an existing vulnerability with the same host & references
+		# If there are multiple matches, choose the one with the most matches
+		refs_ids = refs.map{|x| x.id }
+		vuln = host.vulns.find(:all, :include => [:refs], :conditions => { 'service_id' => nil, 'refs.id' => refs_ids }).sort { |a,b|
+			( refs_ids - a.refs.map{|x| x.id } ).length <=> ( refs_ids - b.refs.map{|x| x.id } ).length
+		}.first
+
+		return vuln
+	end
+
+
+	def find_vuln_by_details(details_map, host, service=nil)
+
+		# Create a modified version of the criteria in order to match against
+		# the joined version of the fields
+
+		crit = {}
+		details_map.each_pair do |k,v|
+			crit[ "vuln_details.#{k}" ] = v
+		end
+
+		vuln = nil
+
+		if service
+			vuln = service.vulns.find(:first, :include => [:vuln_details], :conditions => crit)
+		end
+
+		# Return if we matched based on service
+		return vuln if vuln
+
+		# Prevent matches against other services
+		crit["vulns.service_id"] = nil if service
+		vuln = host.vulns.find(:first, :include => [:vuln_details], :conditions => crit)
+
+		return vuln
 	end
 
 	def get_vuln(wspace, host, service, name, data='')
@@ -1408,6 +1751,54 @@ class DBManager
 	def get_ref(name)
 	::ActiveRecord::Base.connection_pool.with_connection {
 		::Mdm::Ref.find_by_name(name)
+	}
+	end
+
+	#
+	# Populate the vuln_details table with additional
+	# information, matched by a specific criteria
+	#
+	def report_vuln_details(vuln, details)
+	::ActiveRecord::Base.connection_pool.with_connection {
+		detail = ::Mdm::VulnDetail.where(( details.delete(:key) || {} ).merge(:vuln_id => vuln.id)).first
+		if detail
+			details.each_pair do |k,v|
+				detail[k] = v
+			end
+			detail.save! if detail.changed?
+			detail
+		else
+			detail = ::Mdm::VulnDetail.create(details.merge(:vuln_id => vuln.id))
+		end
+	}
+	end
+
+	#
+	# Update vuln_details records en-masse based on specific criteria
+	# Note that this *can* update data across workspaces
+	#
+	def update_vuln_details(details)
+		criteria = details.delete(:key) || {}
+		::Mdm::VulnDetail.update(key, details)
+	end
+
+	#
+	# Populate the host_details table with additional
+	# information, matched by a specific criteria
+	#
+	def report_host_details(host, details)
+	::ActiveRecord::Base.connection_pool.with_connection {
+
+		detail = ::Mdm::HostDetail.where(( details.delete(:key) || {} ).merge(:host_id => host.id)).first
+		if detail
+			details.each_pair do |k,v|
+				detail[k] = v
+			end
+			detail.save! if detail.changed?
+			detail
+		else
+			detail = ::Mdm::HostDetail.create(details.merge(:host_id => host.id))
+		end
 	}
 	end
 
@@ -3305,6 +3696,29 @@ class DBManager
 			}
 			host_address = host_data[:host].dup # Preserve after report_host() deletes
 			hobj = report_host(host_data)
+
+			host.elements.each("host_details") do |hdet|
+				hdet_data = {}
+				hdet.elements.each do |det|
+					next if ["id", "host-id"].include?(det.name)
+					if det.text
+						hdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
+					end
+				end
+				report_host_details(hobj, hdet_data)
+			end
+
+			host.elements.each("exploit_attempts") do |hdet|
+				hdet_data = {}
+				hdet.elements.each do |det|
+					next if ["id", "host-id", "session-id", "vuln-id", "service-id", "loot-id"].include?(det.name)
+					if det.text
+						hdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
+					end
+				end
+				report_exploit_attempt(hobj, hdet_data)
+			end
+
 			host.elements.each('services/service') do |service|
 				service_data = {}
 				service_data[:workspace] = wspace
@@ -3322,6 +3736,7 @@ class DBManager
 				}
 				report_service(service_data)
 			end
+
 			host.elements.each('notes/note') do |note|
 				note_data = {}
 				note_data[:workspace] = wspace
@@ -3342,6 +3757,7 @@ class DBManager
 				}
 				report_note(note_data)
 			end
+
 			host.elements.each('tags/tag') do |tag|
 				tag_data = {}
 				tag_data[:addr] = host_address
@@ -3359,6 +3775,7 @@ class DBManager
 				end
 				report_host_tag(tag_data)
 			end
+
 			host.elements.each('vulns/vuln') do |vuln|
 				vuln_data = {}
 				vuln_data[:workspace] = wspace
@@ -3376,8 +3793,32 @@ class DBManager
 						vuln_data[:refs] << nils_for_nulls(ref.text.to_s.strip)
 					end
 				end
-				report_vuln(vuln_data)
+
+				vobj = report_vuln(vuln_data)
+
+				vuln.elements.each("vuln_details") do |vdet|
+					vdet_data = {}
+					vdet.elements.each do |det|
+						next if ["id", "vuln-id"].include?(det.name)
+						if det.text
+							vdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
+						end
+					end
+					report_vuln_details(vobj, vdet_data)
+				end
+
+				vuln.elements.each("vuln_attempts") do |vdet|
+					vdet_data = {}
+					vdet.elements.each do |det|
+						next if ["id", "vuln-id", "loot-id", "session-id"].include?(det.name)
+						if det.text
+							vdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
+						end
+					end
+					report_vuln_attempt(vobj, vdet_data)
+				end
 			end
+
 			host.elements.each('creds/cred') do |cred|
 				cred_data = {}
 				cred_data[:workspace] = wspace
@@ -4614,26 +5055,50 @@ class DBManager
 		REXML::Document.parse_stream(data, parser)
 	end
 
-	# This is starting to be more than just nmap -> msf, other
-	# things are creeping in here. Consider renaming the method
-	# and intentionally making it more general.
 	def nmap_msf_service_map(proto)
+		service_name_map(proto)
+	end
+
+	#
+	# This method normalizes an incoming service name to one of the
+	# the standard ones recognized by metasploit
+	# 
+	def service_name_map(proto)
 		return proto unless proto.kind_of? String
 		case proto.downcase
-		when "msrpc", "nfs-or-iis";         "dcerpc"
-		when "netbios-ns";                  "netbios"
-		when "netbios-ssn", "microsoft-ds"; "smb"
-		when "ms-sql-s";                    "mssql"
-		when "ms-sql-m";                    "mssql-m"
+		when "msrpc", "nfs-or-iis", "dce endpoint resolution"
+			"dcerpc"
+		when "ms-sql-s", "tds"
+			"mssql"
+		when "ms-sql-m","microsoft sql monitor"
+			"mssql-m"
 		when "postgresql";                  "postgres"
 		when "http-proxy";                  "http"
 		when "iiimsf";                      "db2"
 		when "oracle-tns";                  "oracle"
 		when "quickbooksrds";               "metasploit"
+		when "microsoft remote display protocol"
+			"rdp"
+		when "vmware authentication daemon"
+			"vmauthd"
+		when "netbios-ns", "cifs name service"
+			"netbios"
+		when "netbios-ssn", "microsoft-ds", "cifs"
+			"smb"
+		when "remote shell"
+			"shell"
+		when "remote login"
+			"login"
+		when "nfs lockd"
+			"lockd"
+		when "hp jetdirect"
+			"jetdirect"
+		when "dhcp server"
+			"dhcp"
 		when /^dns-(udp|tcp)$/;             "dns"
 		when /^dce[\s+]rpc$/;               "dcerpc"
 		else
-			proto.downcase
+			proto.downcase.gsub(/\s*\(.*/, '')   # "service (some service)"
 		end
 	end
 

@@ -49,6 +49,7 @@ module Parser
 			@state[:current_tag] = {}
 			@block = block if block
 			@report_data = {:wspace => args[:wspace]}
+			@nx_console_id = args[:nx_console_id]
 			super()
 		end
 
@@ -149,7 +150,11 @@ module Parser
 					[:host, :host_name, :mac, :workspace]
 			when :vuln
 				::Mdm::Vuln.new.attribute_names.map {|x| x.to_sym} |
-					[:host, :refs, :workspace, :port, :proto]
+					[:host, :refs, :workspace, :port, :proto, :details, :exploited_at]
+			when :vuln_details
+				::Mdm::VulnDetails.new.attribute_names.map {|x| x.to_sym} | [ :key ]
+			when :host_details
+				::Mdm::HostDetails.new.attribute_names.map {|x| x.to_sym} | [ :key ]
 			when :note, :web_site, :web_page, :web_form, :web_vuln
 				# These guys don't complain
 				[:anything]

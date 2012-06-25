@@ -110,6 +110,11 @@ class Auxiliary
 			)
 		rescue ::Timeout::Error
 			print_error("Auxiliary triggered a timeout exception")
+			print_error("Call stack:")
+			e.backtrace.each do |line|
+				break if line =~ /lib.msf.base.simple/
+				print_error("  #{line}")
+			end
 		rescue ::Interrupt
 			print_error("Auxiliary interrupted by the console user")
 		rescue ::Exception => e

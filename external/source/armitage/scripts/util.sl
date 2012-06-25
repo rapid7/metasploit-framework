@@ -94,7 +94,12 @@ sub setupEventStyle {
 sub createDisplayTab {
 	local('$console $host $queue $file');
 	$queue = [new ConsoleQueue: $client];
-	$console = [new Console: $preferences];
+	if ($1 eq "Log Keystrokes") {
+		$console = [new ActivityConsole: $preferences];
+	}
+	else {
+		$console = [new Console: $preferences];
+	}
 	setupConsoleStyle($console);
 	[$queue setDisplay: $console];
 	[new QueueTabCompletion: $console, $queue];

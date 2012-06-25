@@ -1870,12 +1870,20 @@ End Sub
 			end
 
 		when 'elf'
-			if (not arch or (arch.index(ARCH_X86)))
-				output = Msf::Util::EXE.to_linux_x86_elf(framework, code, exeopts)
-			end
-
-			if (arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
-				output = Msf::Util::EXE.to_linux_x64_elf(framework, code, exeopts)
+			if (not plat or (plat.index(Msf::Module::Platform::Linux)))
+				if (not arch or (arch.index(ARCH_X86)))
+					output = Msf::Util::EXE.to_linux_x86_elf(framework, code, exeopts)
+				elsif (arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
+					output = Msf::Util::EXE.to_linux_x64_elf(framework, code, exeopts)
+				end
+			elsif(plat and (plat.index(Msf::Module::Platform::BSD)))
+				if (not arch or (arch.index(ARCH_X86)))
+					output = Msf::Util::EXE.to_bsd_x86_elf(framework, code, exeopts)
+				end
+			elsif(plat and (plat.index(Msf::Module::Platform::Solaris)))
+				if (not arch or (arch.index(ARCH_X86)))
+					output = Msf::Util::EXE.to_solaris_x86_elf(framework, code, exeopts)
+				end
 			end
 
 		when 'macho'

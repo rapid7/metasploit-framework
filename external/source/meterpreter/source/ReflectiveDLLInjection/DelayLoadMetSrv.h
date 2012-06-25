@@ -31,7 +31,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <Delayimp.h>
-#include "DelayLoadMetSrv.h"
+
 #pragma comment (lib,"Delayimp.lib")
 
 // we use this like a macro to set the hook in an server extension that requires it

@@ -129,10 +129,11 @@ void real_dprintf(char *filename, int line, const char *function, char *format, 
 
 #ifdef _WIN32
 
+
 #include <wininet.h>
 
 // Enable debugging
-// #define DEBUGTRACE 1
+//#define DEBUGTRACE 1
 
 #ifdef DEBUGTRACE
 #define dprintf(...) real_dprintf(__VA_ARGS__)

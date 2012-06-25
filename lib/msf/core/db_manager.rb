@@ -315,6 +315,181 @@ class DBManager
 		framework.db.find_workspace(@workspace_name)
 	end
 
+	def update_all_module_details
+		return if not self.migrated
+
+		::ActiveRecord::Base.connection_pool.with_connection {
+		
+		refresh = []
+		skipped = []
+
+		Mdm::ModuleDetail.find_each do |md|
+
+			unless md.ready
+				refresh << md
+				next
+			end
+
+			unless md.file and ::File.exists?(md.file)
+				refresh << md
+				next
+			end
+
+			if ::File.mtime(md.file).to_i != md.mtime.to_i
+				refresh << md
+				next
+			end
+
+			skipped << [md.mtype, md.refname]
+		end
+
+		refresh.each  {|md| md.destroy }
+		refresh = nil
+
+		stime = Time.now.to_f
+		[
+			[ 'exploit',   framework.exploits  ],
+			[ 'auxiliary', framework.auxiliary ],
+			[ 'post',      framework.post      ],
+			[ 'payload',   framework.payloads  ],
+			[ 'encoder',   framework.encoders  ],
+			[ 'nop',       framework.nops      ]
+		].each do |mt|
+			mt[1].keys.sort.each do |mn|
+				next if skipped.include?( [ mt[0], mn ] )
+				obj   = mt[1].create(mn)
+				next if not obj
+				update_module_details(obj)		
+			end
+		end
+
+		nil
+
+		}
+	end
+
+	def update_module_details(obj)
+		return if not self.migrated
+
+		::ActiveRecord::Base.connection_pool.with_connection {
+		info = module_to_details_hash(obj)
+		bits = info.delete(:bits) || []
+
+		md = Mdm::ModuleDetail.create(info)
+		bits.each do |args|
+			otype, vals = args
+			case otype
+			when :author
+				md.add_author(vals[:name], vals[:email])
+			when :action
+				md.add_action(vals[:name])
+			when :arch
+				md.add_arch(vals[:name])
+			when :platform
+				md.add_platform(vals[:name])
+			when :target
+				md.add_target(vals[:index], vals[:name])
+			when :ref
+				md.add_ref(vals[:name])
+			when :mixin
+				# md.add_mixin(vals[:name])
+			end
+		end
+
+		md.ready = true
+		md.save
+		md.id
+
+		}
+	end
+
+	def remove_module_details(mtype, refname)
+		return if not self.migrated
+		::ActiveRecord::Base.connection_pool.with_connection {
+		md = Mdm::ModuleDetail.find(:conditions => [ 'mtype = ? and refname = ?', mtype, refname])
+		md.destroy if md
+		}
+	end
+
+	def module_to_details_hash(m)
+		res  = {}
+		bits = []
+
+		res[:mtime]    = ::File.mtime(m.file_path) rescue Time.now
+		res[:file]     = m.file_path
+		res[:mtype]    = m.type
+		res[:name]     = m.name.to_s
+		res[:refname]  = m.refname
+		res[:fullname] = m.fullname
+		res[:rank]     = m.rank.to_i
+		res[:license]  = m.license.to_s
+
+		res[:description] = m.description.to_s.strip
+
+		m.arch.map{ |x| 
+			bits << [ :arch, { :name => x.to_s } ] 
+		}
+
+		m.platform.platforms.map{ |x| 
+			bits << [ :platform, { :name => x.to_s.split('::').last.downcase } ] 
+		}
+
+		m.author.map{|x| 
+			bits << [ :author, { :name => x.to_s } ] 
+		}
+
+		m.references.map do |r|
+			bits << [ :ref, { :name => [r.ctx_id.to_s, r.ctx_val.to_s].join("-") } ]
+		end
+
+		res[:privileged] = m.privileged?
+
+
+		if m.disclosure_date
+			begin
+				res[:disclosure_date] = m.disclosure_date.to_datetime.to_time
+			rescue ::Exception
+				res.delete(:disclosure_date)
+			end
+		end
+
+		if(m.type == "exploit")
+
+			m.targets.each_index do |i|
+				bits << [ :target, { :index => i, :name => m.targets[i].name.to_s } ]
+			end
+
+			if (m.default_target)
+				res[:default_target] = m.default_target
+			end
+
+			# Some modules are a combination, which means they are actually aggressive
+			res[:stance] = m.stance.to_s.index("aggressive") ? "aggressive" : "passive"
+
+			
+			m.class.mixins.each do |x|
+			 	bits << [ :mixin, { :name => x.to_s } ]
+			end
+		end
+
+		if(m.type == "auxiliary")
+	
+			m.actions.each_index do |i|
+				bits << [ :action, { :name => m.actions[i].name.to_s } ]
+			end
+
+			if (m.default_action)
+				res[:default_action] = m.default_action.to_s
+			end
+
+			res[:stance] = m.passive? ? "passive" : "aggressive"
+		end
+
+		res[:bits] = bits
+
+		res
+	end
+
 end
 end
 

@@ -448,15 +448,31 @@ when /java/i
 		print_error("Could not generate payload format")
 	end
 when /elf/i
-	if opts[:arch] =~ /x64/
-		elf = Msf::Util::EXE.to_linux_x64_elf($framework, payload_raw, exeopts)
-	elsif opts[:arch] =~ /x86/
-		elf = Msf::Util::EXE.to_linux_x86_elf($framework, payload_raw, exeopts)
-	elsif opts[:arch] =~ /arm/
-		elf = Msf::Util::EXE.to_linux_armle_elf($framework, payload_raw, exeopts)
-	else
-		print_error("This format does not support that architecture")
-		exit
+	if (not opts[:platform] or (opts[:platform].index(Msf::Module::Platform::Linux)))
+		if opts[:arch] =~ /x64/
+			elf = Msf::Util::EXE.to_linux_x64_elf($framework, payload_raw, exeopts)
+		elsif opts[:arch] =~ /x86/
+			elf = Msf::Util::EXE.to_linux_x86_elf($framework, payload_raw, exeopts)
+		elsif opts[:arch] =~ /arm/
+			elf = Msf::Util::EXE.to_linux_armle_elf($framework, payload_raw, exeopts)
+		else
+			print_error("This format does not support that architecture")
+			exit
+		end
+	elsif(opts[:platform].index(Msf::Module::Platform::BSD))
+		if opts[:arch] =~ /x86/
+			elf = Msf::Util::EXE.to_bsd_x86_elf($framework, payload_raw, exeopts)
+		else
+			print_error("This format does not support that architecture")
+			exit
+		end
+	elsif(opts[:platform].index(Msf::Module::Platform::Solaris))
+		if opts[:arch] =~ /x86/
+			elf = Msf::Util::EXE.to_solaris_x86_elf($framework, payload_raw, exeopts)
+		else
+			print_error("This format does not support that architecture")
+			exit
+		end
 	end
 	$stdout.write elf
 when /macho/i

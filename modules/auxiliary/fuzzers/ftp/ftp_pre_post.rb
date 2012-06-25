@@ -1,4 +1,3 @@
-##
 # $Id$
 ##
 
@@ -167,7 +166,7 @@ class Metasploit3 < Msf::Auxiliary
 			@evilchars = ['']
 		end
 
-		print_status("Connecting to host " + ip + " on port " + datastore['RPORT'])
+		print_status("Connecting to host " + ip + " on port " + datastore['RPORT'].to_s)
 
 		if (startstage == 1)
 			process_phase(1, "Fuzzing without command")
