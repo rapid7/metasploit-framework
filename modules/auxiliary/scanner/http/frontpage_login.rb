@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 		if datastore['RPORT'].to_i == 80 or datastore['RPORT'].to_i == 443
 			port = ""
 		else
-			port = ":" + datastore['RPORT']
+			port = ":" + datastore['RPORT'].to_s
 		end
 
 		info = (datastore['SSL'] ? "https" : "http") + "://#{target_host}#{port}/"
