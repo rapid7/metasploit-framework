@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 					This module will allow for multiple SQL queries contained within a specified 
 					file to be executed against a MSSQL instance given the appropiate credentials.
 			},
-			'Author'         => [ 'j0hn__f : <jf [at] tinternet dot org dot uk>' ],
+			'Author'         => [ 'j0hn__f : <jf[at]tinternet.org.uk>' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision: 1 $'
 		))
@@ -38,17 +38,20 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run
 
-		print_status "> loaded the following SQL:"
 		queries = File.readlines(datastore['SQL_FILE'])
-		print_status queries.to_s
 
 		prefix = datastore['QUERY_PREFIX']
 		suffix = datastore['QUERY_SUFFIX']
 
-		queries.each do |sql_query|
-			mssql_query(prefix+sql_query.chomp+suffix,true) if mssql_login_datastore
+		begin
+			queries.each do |sql_query|
+				mssql_query(prefix+sql_query.chomp+suffix,true) if mssql_login_datastore
+			end
+		rescue Rex::ConnectionRefused, Rex::ConnectionTimeout
+			print_error "Error connecting to server: #{$!}"
+		ensure
+			disconnect
 		end
-		disconnect
 	end
 end
 
