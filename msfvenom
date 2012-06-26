@@ -310,7 +310,7 @@ opts[:badchars] = Rex::Text.hex_to_raw(opts[:badchars])                if opts[:
 # set the defaults unless something is already set by the user
 if opts[:payload] != 'stdin'
 	opts[:arch]     ||= payload.arch[0]
-	opts[:platform] ||= payload.platform.platforms
+	opts[:platform] ||= Msf::Module::PlatformList.transform(payload.platform.platforms)
 else
 	# defaults for stdin payloads users should define them
 	unless opts[:arch]
