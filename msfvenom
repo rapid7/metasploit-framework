@@ -375,7 +375,8 @@ if opts[:encode]
 
 			1.upto(opts[:iterations].to_i) do |iteration|
 					begin
-						raw = enc.encode(payload_raw.dup, opts[:badchars], nil, opts[:platform])
+						plist = ::Msf::Module::PlatformList.from_a(opts[:platform])
+						raw = enc.encode(payload_raw.dup, opts[:badchars], nil, plist)
 					rescue Msf::EncodingError
 						print_error("#{enc.refname} failed: #{$!.class} : #{$!}")
 						skip = true
