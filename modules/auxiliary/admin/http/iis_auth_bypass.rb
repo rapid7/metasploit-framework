@@ -13,9 +13,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'MS10-065 Microsoft Internet Information Services 5 NTFS Stream Authentication Bypass',
+			'Name'           => 'MS10-065 Microsoft IIS 5 NTFS Stream Authentication Bypass',
 			'Description'    => %q{
-					This module bypasses basic authentication for Internet Information Services.
+					This module bypasses basic authentication for Internet Information Services (IIS).
 				By appending the NTFS stream name to the directory name in a request, it is
 				possible to bypass authentication.
 			},
