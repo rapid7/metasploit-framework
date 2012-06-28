@@ -36,7 +36,6 @@ class Metasploit3 < Msf::Post
 	end
 
 	def parse_tcptable(buffer)
-		
 		entries = buffer[0,4].unpack("V*")[0]
 		print_status("Total TCP Entries: #{entries}")
 
