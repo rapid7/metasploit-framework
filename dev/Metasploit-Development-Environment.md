@@ -243,7 +243,7 @@ $ git checkout master
 $ git fetch
 ````
 
-And finally, rebase against the upstream:
+And finally, rebase against your local checkout of the upstream master branch:
 
 ````bash
 $ git rebase upstream-master
@@ -253,7 +253,9 @@ Rebasing is the easiest way to make sure that your master branch is identical to
 
 [[/screens/git03.png]]
 
-Of course, you might occasionally run into rebase conflicts, but let's just assume you won't for now. :) Resolving merge conflicts is a little beyond the scope of this document, but the [Git Community Book](http://book.git-scm.com/) should be able to help.
+Of course, you might occasionally run into rebase conflicts, but let's just assume you won't for now. :) Resolving merge conflicts is a little beyond the scope of this document, but the [Git Community Book](http://book.git-scm.com/) should be able to help. In the meantime, we're working up another wiki page to deal specifically with the details of merging, rebasing, and conflict resolution.
+
+> Note that you can skip the checkout to a local branch and simply always `git rebase upstream/master` as well, but you then lose the chance to review the changes in a local branch first -- this can make unwinding merge problems a little harder.
 
 > A note on terminology: In Git, we often refer to "origin" and "master," which can be confusing. "Origin" is a remote repository which contains all of **your** branches. "Master" is a branch of the source code -- usually the first branch, and the branch you don't tend to commit directly to. 
 
