@@ -292,6 +292,7 @@ protected
 	attr_accessor :mod_arch_hash, :mod_platform_hash
 	attr_accessor :mod_sorted, :mod_ranked
 	attr_accessor :mod_extensions, :mod_ambiguous
+	attr_accessor :module_history
 
 end
 
@@ -497,12 +498,16 @@ class ModuleManager < ModuleSet
 			init_module_set(type)
 		end
 
+		# The counts loaded modules in the following categories:
+		# auxiliary/encoder/exploit/nop/payload/post
+		counts = 0
 		module_paths.each do |path|
-			counts = load_modules(path, true)
+			mods = load_modules(path, true)
+			mods.each_value {|c| counts += c}
 		end
 
 		rebuild_cache
-		
+
 		counts
 	end
 
