@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Post
 			offset = offset + 20
 			rtable << [x[:state], x[:lhost], x[:lport], x[:rhost], x[:rport]]
 		end
-		print_status(rtable.inspect)
+		print_status(rtable.to_s)
 	end
 
 	def run
