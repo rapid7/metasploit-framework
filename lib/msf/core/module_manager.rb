@@ -498,17 +498,17 @@ class ModuleManager < ModuleSet
 			init_module_set(type)
 		end
 
-		# The counts loaded modules in the following categories:
+		# The number of loaded modules in the following categories:
 		# auxiliary/encoder/exploit/nop/payload/post
-		counts = 0
+		count = 0
 		module_paths.each do |path|
 			mods = load_modules(path, true)
-			mods.each_value {|c| counts += c}
+			mods.each_value {|c| count += c}
 		end
 
 		rebuild_cache
 
-		counts
+		count
 	end
 
 	#
