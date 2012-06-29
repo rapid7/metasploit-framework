@@ -167,7 +167,7 @@ class Driver < Msf::Ui::Driver
 		end
 
 		# Parse any specified database.yml file
-		if framework.db.usable and not opts['SkipDatabaseInit'] and not opts['Framework']
+		if framework.db.usable and not opts['SkipDatabaseInit']
 		
 			# Append any migration paths necessary to bring the database online
 			if opts['DatabaseMigrationPaths']
