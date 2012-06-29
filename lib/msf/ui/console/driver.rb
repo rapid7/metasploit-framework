@@ -167,7 +167,7 @@ class Driver < Msf::Ui::Driver
 		end
 
 		# Parse any specified database.yml file
-		if framework.db.usable and not opts['SkipDatabaseInit']
+		if framework.db.usable and not opts['SkipDatabaseInit'] and not opts['Framework']
 		
 			# Append any migration paths necessary to bring the database online
 			if opts['DatabaseMigrationPaths']
@@ -219,16 +219,19 @@ class Driver < Msf::Ui::Driver
 			end
 		end
 
-		# Configure the framework module paths
-		self.framework.init_module_paths
-		self.framework.modules.add_module_path(opts['ModulePath']) if opts['ModulePath']
+		# Initialize the module paths only if we didn't get passed a Framework instance
+		unless opts['Framework']
+			# Configure the framework module paths
+			self.framework.init_module_paths
+			self.framework.modules.add_module_path(opts['ModulePath']) if opts['ModulePath']
 
-		# Rebuild the module cache in a background thread
-		self.framework.threads.spawn("ModuleCacheRebuild", true) do
-			self.framework.cache_thread = Thread.current
-			self.framework.modules.rebuild_cache
-			self.framework.cache_initialized = true
-			self.framework.cache_thread = nil
+			# Rebuild the module cache in a background thread
+			self.framework.threads.spawn("ModuleCacheRebuild", true) do
+				self.framework.cache_thread = Thread.current
+				self.framework.modules.rebuild_cache
+				self.framework.cache_initialized = true
+				self.framework.cache_thread = nil
+			end
 		end
 
 		# Load console-specific configuration (after module paths are added)
