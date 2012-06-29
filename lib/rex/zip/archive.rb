@@ -65,7 +65,7 @@ class Archive
 	# Compress this archive and return the resulting zip file as a String.
 	#
 	def pack
-		ret = ''
+		ret = ''.unpack("C*").pack("C*")
 
 		# save the offests
 		offsets = []
