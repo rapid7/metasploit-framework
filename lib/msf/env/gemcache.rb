@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 #
 # This handles gem requirements for bundled installer environments
 #

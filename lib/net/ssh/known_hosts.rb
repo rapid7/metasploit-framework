@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'strscan'
 require 'net/ssh/buffer'
 

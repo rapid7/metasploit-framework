@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'open3'
 require 'fileutils'
 require 'rex/proto/ntlm/crypt'

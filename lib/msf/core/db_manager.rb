@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require "active_record"
 
 require 'msf/core'

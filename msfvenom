@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 #
 # $Id: msfvenom 14909 2012-03-10 06:50:03Z rapid7 $
 # $Revision: 14909 $

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module PacketFu
 
 	# The Config class holds various bits of useful default information 

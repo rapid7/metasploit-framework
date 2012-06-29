@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/socket'
 require 'rex/socket/tcp_server'
 require 'rex/io/stream_server'

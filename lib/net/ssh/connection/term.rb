@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Net; module SSH; module Connection
       
   # These constants are used when requesting a pseudo-terminal (via

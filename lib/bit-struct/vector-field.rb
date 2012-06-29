@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'bit-struct/vector'
 
 class BitStruct

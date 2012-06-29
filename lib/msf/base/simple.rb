@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 # Buffer management
 require 'msf/base/simple/buffer'
 require 'msf/base/simple/statistics'

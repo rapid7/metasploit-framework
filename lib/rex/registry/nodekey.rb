@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require_relative "lfkey"
 require_relative "valuelist"
 

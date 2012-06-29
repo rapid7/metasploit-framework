@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/arch/x86'
 
 module Rex

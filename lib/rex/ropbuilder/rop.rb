@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'metasm'
 require 'rex/compat'
 require 'rex/ui/text/table'

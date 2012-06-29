@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'net/ssh/transport/hmac/md5'
 require 'net/ssh/transport/hmac/md5_96'
 require 'net/ssh/transport/hmac/sha1'
