@@ -66,7 +66,7 @@ Note that we still have our tarball, so if we need to reinstate any of these bra
 
 # Repeat for the unmerged branches
 
-Pretty much the same as above, but use `--no-merge` instead of `--merge` and allow for older unmerged branches (say, 2 months).
+Pretty much the same as above, but use `--no-merged` instead of `--merged` and allow for older unmerged branches (say, 2 months).
 
 # Tell people about it.
 
