@@ -21,9 +21,9 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'WPAD.dat File Server',
 			'Version'     => '$Revision$',
 			'Description' => %q{
-				This module generates a valid wpad.dat file for WPAD mitm attacks.
- 				Usually this module is used in combination with DNS attacks or the
- 				'NetBIOS Name Service Spoofer' module. Please remember as the
+					This module generates a valid wpad.dat file for WPAD mitm 
+				attacks. Usually this module is used in combination with DNS attacks 
+				or the 'NetBIOS Name Service Spoofer' module. Please remember as the
  				server will be running by default on TCP port 80 you will need the
  				required privileges to open that port.
 			},
