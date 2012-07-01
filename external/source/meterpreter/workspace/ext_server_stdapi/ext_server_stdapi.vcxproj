@@ -610,9 +610,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\source\extensions\stdapi\server\resource\hook.dll" />
-    <None Include="..\..\source\server\win\pointer.asm">
-      <FileType>Document</FileType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\backcompat\backcompat.vcxproj">
