@@ -93,7 +93,7 @@ module ReverseHttp
 			[
 				OptString.new('LHOST', [ true, "The local listener hostname" ]),
 				OptPort.new('LPORT', [ true, "The local listener port", 8443 ])
-			], Msf::Handler::ReverseHttps
+			], Msf::Handler::ReverseHttp)
 
 		register_advanced_options(
 			[
