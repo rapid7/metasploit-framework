@@ -63,7 +63,13 @@ class Metasploit3 < Msf::Post
 	# and return an array or tables
 	#
 	def extract_creds(f)
-		xml = REXML::Document.new(f)
+		begin
+			xml = REXML::Document.new(f)
+		rescue REXML::ParseException => e
+			print_error("Invalid XML format")
+			vprint_line(e.message)
+			return []
+		end
 		base_node = 'unattend/settings/component/UserAccounts'
 		user_accounts = xml.elements[base_node]
 
