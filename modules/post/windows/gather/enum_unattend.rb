@@ -23,6 +23,10 @@ class Metasploit3 < Msf::Post
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Sean Verity <veritysr1980[at]gmail.com>' ],
+			'References'     =>
+				[
+					['URL', 'http://technet.microsoft.com/en-us/library/ff715801']
+				],
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
