@@ -37,7 +37,6 @@ class Metasploit3 < Msf::Post
 	# Determie if unattend.xml exists or not
 	#
 	def unattend_exists?(xml_path)
-		print_status(xml_path)
 		x = session.fs.file.stat(xml_path) rescue nil
 		return !x.nil?
 	end
