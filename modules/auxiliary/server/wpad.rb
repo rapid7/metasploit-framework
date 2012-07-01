@@ -21,11 +21,11 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'WPAD.dat File Server',
 			'Version'     => '$Revision$',
 			'Description' => %q{
-					This module generates a valid wpad.dat file for WPAD mitm 
-				attacks. Usually this module is used in combination with DNS attacks 
+					This module generates a valid wpad.dat file for WPAD mitm
+				attacks. Usually this module is used in combination with DNS attacks
 				or the 'NetBIOS Name Service Spoofer' module. Please remember as the
- 				server will be running by default on TCP port 80 you will need the
- 				required privileges to open that port.
+				server will be running by default on TCP port 80 you will need the
+				required privileges to open that port.
 			},
 			'Author'      =>
 				[
@@ -41,9 +41,9 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					'WebServer'
 				],
-			'DefaultOptions' => 
-				{ 
-					'SRVPORT' => 80 
+			'DefaultOptions' =>
+				{
+					'SRVPORT' => 80
 				},
 			'DefaultAction'  => 'WebServer'))
 
@@ -56,16 +56,15 @@ class Metasploit3 < Msf::Auxiliary
 				OptPort.new('PROXYPORT',[ true, "Proxy port", 8080 ])
 			], self.class)
 	end
-	
+
 	def on_request_uri(cli, request)
 		print_status("Request '#{request.method} #{request.headers['user-agent']} from #{cli.peerhost}:#{cli.peerport}")
-
 
 		return if request.method == "POST"
 
 		html = <<-EOS
 function FindProxyForURL(url, host) {
-      // URLs within this network are accessed directly 
+      // URLs within this network are accessed directly
       if (isInNet(host, "#{datastore['EXCLUDENETWORK']}", "#{datastore['EXCLUDENETMASK']}"))
       {
          return "DIRECT";
