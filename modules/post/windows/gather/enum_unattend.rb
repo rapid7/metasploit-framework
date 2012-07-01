@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows Gather Shell Setup unattend.xml Enumeration',
+			'Name'          => 'Windows Gather Unattended Answer File (unattend.xml) Enumeration',
 			'Description'   => %q{
 					This module will check the file system for a copy of
 				unattend.xml then extract sensitive information such as username
