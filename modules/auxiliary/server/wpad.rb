@@ -33,19 +33,11 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'Version'     => '$Revision$',
 			'License'     => MSF_LICENSE,
-			'Actions'     =>
-				[
-					[ 'WebServer' ]
-				],
-			'PassiveActions' =>
-				[
-					'WebServer'
-				],
 			'DefaultOptions' =>
 				{
 					'SRVPORT' => 80
 				},
-			'DefaultAction'  => 'WebServer'))
+			'Passive' => true))
 
 		register_options(
 			[
