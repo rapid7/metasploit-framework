@@ -85,7 +85,6 @@ class Metasploit3 < Msf::Post
 		domains.compact!
 		domains.uniq!
 
-
 		domains.each do |domain|
 			dcs = enum_dcs(domain)
 			next if dcs.blank?
@@ -346,17 +345,28 @@ class Metasploit3 < Msf::Post
 	end
 
 	def get_domain_reg
-		begin
-			subkey = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\"
-			v_name = "Domain"
-			domain = registry_getvaldata(subkey, v_name)
-			print_status "Retrieved domain #{domain} from registry "
-		rescue Rex::Post::Meterpreter::RequestError => e
-			print_error "Received error code #{e.code} - #{e.message} when reading the registry."
+		locations = []
+		locations << ["HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\", "Domain"]
+		locations << ["HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\", "DefaultDomainName"]
+		locations << ["HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\DomainCache", "DefaultDomainName"]
+		locations << ["HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\", "MachineDomain"]
+		
+		domains = []
+		
+		locations.each do |location|
+			begin
+				subkey = location[0]
+				v_name = location[1]
+				domain = registry_getvaldata(subkey, v_name)
+			rescue Rex::Post::Meterpreter::RequestError => e
+				print_error "Received error code #{e.code} - #{e.message}"
+			end
+			domains << domain.split('.')[0].upcase unless domain.blank?
 		end
-		domain = domain.split('.')[0].upcase
-
-		return domain
+		
+		domains.uniq!
+	    print_status "Retrieved domains #{domains} from registry"
+		return domains
 	end
 
 end
