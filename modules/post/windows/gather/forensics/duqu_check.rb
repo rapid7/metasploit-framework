@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Post
 						:name          => self.name,
 						:info          => "Module #{self.fullname} detected #{path}\\#{query} - possible CVE-2011-3402 exploitation [Duqu] artifact.",
 						:refs          => self.references,
-						:exploited_at  => Time.now.utc,
+						:exploited_at  => Time.now.utc
 					)
 				end
 			end
