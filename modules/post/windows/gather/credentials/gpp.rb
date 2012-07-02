@@ -79,8 +79,18 @@ class Metasploit3 < Msf::Post
 			domains.reject!{|n| n == "WORKGROUP" || n.to_s.empty?}
 		end
 
-		datastore['DOMAINS'].split('').each{|ud| domains << ud} if datastore['DOMAINS']
-		domains << get_domain_reg
+		# Add user specified domains to list.
+		if datastore['DOMAINS']
+			user_domains = datastore['DOMAINS'].split(' ')
+			print_status "Looking for the user supplied domains: #{user_domains}"
+			user_domains.each{|ud| domains << ud} if datastore['DOMAINS']
+		end
+		
+		# If we find a local policy store then assume we are on DC and do not wish to enumerate the current DC again. 
+		if locals.blank?
+			domains << get_domain_reg
+		end	
+		
 		domains.flatten!
 		domains.compact!
 		domains.uniq!
