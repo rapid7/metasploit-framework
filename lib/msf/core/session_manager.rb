@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'thread'
 
 module Msf
@@ -229,7 +230,7 @@ class SessionManager < Hash
 				framework.events.on_session_open(session)
 			rescue ::Exception => e
 				wlog("Exception in on_session_open event handler: #{e.class}: #{e}")
-				wlog("Call Stack\n#{e.backtrace.join("\n")}", 'core', LEV_3)
+				wlog("Call Stack\n#{e.backtrace.join("\n")}")
 			end
 
 			if session.respond_to?("console")

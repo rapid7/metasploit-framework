@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'net/ssh/authentication/methods/abstract'
 
 module Net

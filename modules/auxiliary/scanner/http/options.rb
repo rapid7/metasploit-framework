@@ -67,8 +67,8 @@ class Metasploit3 < Msf::Auxiliary
 						:port	=> rport,
 						:proto => 'tcp',
 						:sname => (ssl ? 'https' : 'http'),
-						:name	=> self.fullname,
-						:info	=> res.headers['Allow'],
+						:name	=> "HTTP Trace Method Allowed",
+						:info	=> "Module #{self.fullname} detected TRACE access through the Allow header: #{res.headers['Allow']}",
 						:refs   => self.references,
 						:exploited_at => Time.now.utc
 					)

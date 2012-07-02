@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 #
 # $Id$
 #
@@ -34,7 +35,9 @@ class OptsConsole
 	# Return a hash describing the options.
 	#
 	def self.parse(args)
-		options = {}
+		options = {
+			'DeferModuleLoads' => true
+		}
 
 		opts = OptionParser.new do |opts|
 			opts.banner = "Usage: msfconsole [options]"

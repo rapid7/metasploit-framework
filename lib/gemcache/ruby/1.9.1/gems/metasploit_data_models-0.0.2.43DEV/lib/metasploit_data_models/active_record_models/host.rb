@@ -17,6 +17,9 @@ module MetasploitDataModels::ActiveRecordModels::Host
       has_many :creds, :through => :services, :class_name => "Mdm::Cred"
       has_many :exploited_hosts, :dependent => :destroy, :class_name => "Mdm::ExploitedHost"
 
+      has_many :host_details, :dependent => :destroy, :class_name => "Mdm::HostDetail"
+      has_many :exploit_attempts, :dependent => :destroy, :class_name => "Mdm::ExploitAttempt"
+
       validates :address, :presence => true, :ip_format => true
       validates_exclusion_of :address, :in => ['127.0.0.1']
       validates_uniqueness_of :address, :scope => :workspace_id, :unless => Proc.new { |host| host.ip_address_invalid? }

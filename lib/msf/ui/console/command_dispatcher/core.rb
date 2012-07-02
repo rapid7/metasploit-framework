@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'msf/ui/console/command_dispatcher/encoder'
 require 'msf/ui/console/command_dispatcher/exploit'
 require 'msf/ui/console/command_dispatcher/nop'
@@ -1232,7 +1233,7 @@ class Core
 				curr_path = path
 
 				# Load modules, but do not consult the cache
-				if (counts = framework.modules.add_module_path(path, false))
+				if (counts = framework.modules.add_module_path(path))
 					counts.each_pair { |type, count|
 						totals[type] = (totals[type]) ? (totals[type] + count) : count
 
@@ -1703,6 +1704,14 @@ class Core
 			global = true
 		end
 
+		# Decide if this is an append operation
+		append = false
+
+		if (args[0] == '-a')
+			args.shift
+			append = true
+		end
+
 		# Determine which data store we're operating on
 		if (active_module and global == false)
 			datastore = active_module.datastore
@@ -1760,9 +1769,13 @@ class Core
 			return true
 		end
 
-		datastore[name] = value
+		if append
+			datastore[name] = datastore[name] + value
+		else
+			datastore[name] = value
+		end
 
-		print_line("#{name} => #{value}")
+		print_line("#{name} => #{datastore[name]}")
 	end
 
 	#
@@ -2278,7 +2291,7 @@ class Core
 	# Returns the revision of the framework and console library
 	#
 	def cmd_version(*args)
-		svn_console_version = "$Revision: 14065 $"
+		svn_console_version = "$Revision: 15168 $"
 		svn_metasploit_version = Msf::Framework::Revision.match(/ (.+?) \$/)[1] rescue nil
 		if svn_metasploit_version
 			print_line("Framework: #{Msf::Framework::Version}.#{svn_metasploit_version}")

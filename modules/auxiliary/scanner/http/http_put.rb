@@ -150,13 +150,14 @@ class Metasploit4 < Msf::Auxiliary
 
 			#Check file
 			if not res.nil? and file_exists(path, data)
-				print_good("File uploaded: #{(ssl ? 'https' : 'http')}://#{ip}:#{rport}#{path}")
+				turl = "#{(ssl ? 'https' : 'http')}://#{ip}:#{rport}#{path}"
+				print_good("File uploaded: #{turl}")
 				report_vuln(
 					:host         => ip,
 					:port         => rport,
 					:proto        => 'tcp',
-					:name         => self.fullname,
-					:info         => "PUT Enabled",
+					:name         => self.name,
+					:info         => "Module #{self.fullname} confirmed write access to #{turl} via PUT",
 					:refs         => self.references,
 					:exploited_at => Time.now.utc
 				)
@@ -182,14 +183,15 @@ class Metasploit4 < Msf::Auxiliary
 			if res.nil? or file_exists(path, data)
 				print_error("DELETE failed. File is still there.")
 			else
-				print_good("File deleted: #{(ssl ? 'https' : 'http')}://#{ip}:#{rport}#{path}")
+				turl = "#{(ssl ? 'https' : 'http')}://#{ip}:#{rport}#{path}"
+				print_good("File deleted: #{turl}")
 				report_vuln(
 					:host         => ip,
 					:port         => rport,
 					:proto        => 'tcp',
 					:sname => (ssl ? 'https' : 'http'),
-					:name         => self.fullname,
-					:info         => "DELETE ENABLED",
+					:name         => self.name,
+					:info         => "Module #{self.fullname} confirmed write access to #{turl} via DELETE",
 					:refs         => self.references,
 					:exploited_at => Time.now.utc
 				)

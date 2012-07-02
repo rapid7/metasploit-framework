@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'msf/base'
 
 module Msf

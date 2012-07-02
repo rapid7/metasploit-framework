@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 # A Convenience to load all field classes and yaml handling.
 # XXX: Pretty certian this monkeypatch isn't required in Metasploit.
 

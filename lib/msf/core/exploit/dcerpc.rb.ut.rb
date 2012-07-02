@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..', '..'))
 

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require_relative "regf"
 require_relative "nodekey"
 

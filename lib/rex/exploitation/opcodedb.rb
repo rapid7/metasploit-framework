@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rexml/rexml'
 require 'rexml/source'
 require 'rexml/document'

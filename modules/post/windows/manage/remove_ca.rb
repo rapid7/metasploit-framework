@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows Certificate Authority Removal',
+			'Name'          => 'Windows Manage Certificate Authority Removal',
 			'Description'   => %q{
 				This module allows the attacker to remove an arbitrary CA certificate
 				from the victim's Trusted Root store.},

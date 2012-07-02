@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 #
 # This is a Ruby port of the Python manifest parsing code posted to:
 # 	http://stackoverflow.com/questions/3085153/how-to-parse-the-manifest-mbdb-file-in-an-ios-4-0-itunes-backup/3130860#3130860

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'openssl'
 require 'net/ssh/buffer'
 

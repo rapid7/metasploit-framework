@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/proto/dcerpc/uuid'
 require 'rex/proto/dcerpc/exceptions'
 
