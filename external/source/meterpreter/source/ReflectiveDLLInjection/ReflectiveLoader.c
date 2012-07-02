@@ -32,7 +32,11 @@ HINSTANCE hAppInstance = NULL;
 //===============================================================================================//
 #ifdef _WIN64
 #pragma intrinsic( _ReturnAddress )
-UINT_PTR eip( VOID ) { return (UINT_PTR)_ReturnAddress(); }
+// This function can not be inlined by the compiler or we will not get the address we expect. Ideally 
+// this code will be compiled with the /O2 and /Ob1 switches. Bonus points if we could take advantage of 
+// RIP relative addressing in this instance but I dont believe we can do so with the compiler intrinsics 
+// available (and no inline asm available under x64).
+__declspec(noinline) UINT_PTR eip( VOID ) { return (UINT_PTR)_ReturnAddress(); }
 #endif
 //===============================================================================================//
 
