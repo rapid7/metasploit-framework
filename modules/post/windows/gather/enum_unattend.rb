@@ -100,7 +100,7 @@ class Metasploit3 < Msf::Post
 				})
 
 				password = node.elements['Value'].get_text rescue ''
-				plaintext = node.element['PlainText'].get_text rescue 'false'
+				plaintext = node.elements['PlainText'].get_text rescue 'false'
 
 				if plaintext == 'false'
 					password = Rex::Text.decode_base64(password)
