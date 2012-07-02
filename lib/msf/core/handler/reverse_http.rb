@@ -245,7 +245,7 @@ protected
 				blob = obj.stage_payload
 
 				# Replace the user agent string with our option
-				i = blob.index("Meterpreter\/Windows")
+				i = blob.index("METERPRETER_UA\x00")
 				if i
 					str = datastore['MeterpreterUserAgent'][0,255] + "\x00"
 					blob[i, str.length] = str
