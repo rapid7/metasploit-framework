@@ -22,8 +22,12 @@ class Metasploit3 < Msf::Post
 				and decoded passwords.
 			},
 			'License'       => MSF_LICENSE,
-			'Author'        => [ 'Sean Verity <veritysr1980[at]gmail.com>' ],
-			'References'     =>
+			'Author'        =>
+				[
+					'Sean Verity <veritysr1980[at]gmail.com>',
+					'sinn3r'
+				],
+			'References'    =>
 				[
 					['URL', 'http://technet.microsoft.com/en-us/library/ff715801']
 				],
