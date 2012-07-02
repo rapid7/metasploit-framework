@@ -404,7 +404,7 @@ class Metasploit3 < Msf::Post
 			rescue Rex::Post::Meterpreter::RequestError => e
 				print_error "Received error code #{e.code} - #{e.message}"
 			end
-			
+
 			unless domain.blank?
 				domain_parts = domain.split('.')
 				domains << domain.split('.').first.upcase unless domain_parts.empty?
