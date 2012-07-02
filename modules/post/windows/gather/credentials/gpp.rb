@@ -388,6 +388,7 @@ class Metasploit3 < Msf::Post
 
 	def get_domain_reg
 		locations = []
+		# Lots of redundancy but hey this is quick!
 		locations << ["HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\", "Domain"]
 		locations << ["HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\", "DefaultDomainName"]
 		locations << ["HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\DomainCache", "DefaultDomainName"]
@@ -403,7 +404,11 @@ class Metasploit3 < Msf::Post
 			rescue Rex::Post::Meterpreter::RequestError => e
 				print_error "Received error code #{e.code} - #{e.message}"
 			end
-			domains << domain.split('.')[0].upcase unless domain.blank?
+			
+			unless domain.blank?
+				domain_parts = domain.split('.')
+				domains << domain.split('.').first.upcase unless domain_parts.empty?
+			end
 		end
 
 		domains.uniq!
