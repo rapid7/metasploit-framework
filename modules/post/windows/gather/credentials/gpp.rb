@@ -83,6 +83,10 @@ class Metasploit3 < Msf::Post
 
 		# Add user specified domains to list.
 		if !datastore['DOMAINS'].blank?
+			#if datastore['DOMAINS'].match(/./)
+			#	print_error "DOMAINS must not contain DNS style domain names e.g. 'mydomain.net'. Instead use 'mydomain'."
+			#	return
+			#end
 			user_domains = datastore['DOMAINS'].split(' ')
 			user_domains = user_domains.map {|x| x.upcase}
 			print_status "Enumerating the user supplied Domain(s): #{user_domains.join(', ')}..."
@@ -102,15 +106,15 @@ class Metasploit3 < Msf::Post
 
 		# Dont check registry if we find local files.
 		cached_dc = get_cached_domain_controller if locals.blank?
-		
+
 		domains.each do |domain|
 			dcs = enum_dcs(domain)
-			
+
 			# Add registry cached DC for the test case where no DC is enumerated on the network.
-			if cached_dc.match(domain)
+			if !cached_dc.nil? && (cached_dc.include? domain)
 				dcs << cached_dc
 			end
-			
+
 			next if dcs.blank?
 			dcs.uniq!
 			tbase = []
@@ -126,10 +130,7 @@ class Metasploit3 < Msf::Post
 				end
 			end
 		end
-		
-		# For the odd scenario where no domain controllers can be located on the network but a DC is cached in the registry
 
-		
 		basepaths.flatten!
 		basepaths.compact!
 		print_status "Searching for Group Policy XML Files..."
@@ -367,7 +368,13 @@ class Metasploit3 < Msf::Post
 	end
 
 	def enum_dcs(domain)
-		print_status("Enumerating DCs for #{domain}")
+		# Prevent crash if DNS style domains are searched for.
+		if domain.include? "."
+			print_error("Cannot enumerate DNS style domain names: #{domain}")
+			return nil
+		end
+
+		print_status("Enumerating DCs for #{domain} on the network...")
 		domaincontrollers = 24  # 10 + 8 (SV_TYPE_DOMAIN_BAKCTRL || SV_TYPE_DOMAIN_CTRL)
 		buffersize = 500
 		result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domaincontrollers,domain,nil)
@@ -397,7 +404,7 @@ class Metasploit3 < Msf::Post
 		}
 		return hostnames
 	end
-	
+
 	# We use this for the odd test case where a DC is unable to be enumerated from the network
 	# but is cached in the registry.
 	def get_cached_domain_controller
@@ -420,13 +427,13 @@ class Metasploit3 < Msf::Post
 		locations << ["HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\", "MachineDomain"]
 
 		domains = []
-		
-		# Pulls cached domains 
+
+		# Pulls cached domains from registry
 		domain_cache = registry_enumvals("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\DomainCache\\")
 		if domain_cache
 			domain_cache.each { |ud| domains << ud }
 		end
-		
+
 		locations.each do |location|
 			begin
 				subkey = location[0]
