@@ -391,11 +391,10 @@ class Metasploit3 < Msf::Post
 		# Lots of redundancy but hey this is quick!
 		locations << ["HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\", "Domain"]
 		locations << ["HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\", "DefaultDomainName"]
-		locations << ["HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\DomainCache", "DefaultDomainName"]
 		locations << ["HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\", "MachineDomain"]
 
 		domains = []
-
+		registry_enumvals("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\DomainCache\\").each() { |ud| domains << ud }
 		locations.each do |location|
 			begin
 				subkey = location[0]
