@@ -109,6 +109,7 @@ class Metasploit3 < Msf::Post
 
 		domains.each do |domain|
 			dcs = enum_dcs(domain)
+			dcs = [] if dcs.nil?
 
 			# Add registry cached DC for the test case where no DC is enumerated on the network.
 			if !cached_dc.nil? && (cached_dc.include? domain)
