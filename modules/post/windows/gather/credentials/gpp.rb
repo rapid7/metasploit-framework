@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Post
 
 		# Add user specified domains to list.
 		if !datastore['DOMAINS'].blank?
-			if datastore['DOMAINS'].match(/./)
+			if datastore['DOMAINS'].match(/\./)
 				print_error "DOMAINS must not contain DNS style domain names e.g. 'mydomain.net'. Instead use 'mydomain'."
 				return
 			end
