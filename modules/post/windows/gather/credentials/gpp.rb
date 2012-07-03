@@ -131,7 +131,7 @@ class Metasploit3 < Msf::Post
 					basepaths << tbase
 				end
 			rescue
-				print_error("This host is not part of a domain.")
+				print_status("The target is not part of a domain, no PDC found in registry.")
 			end
 		end
 		
