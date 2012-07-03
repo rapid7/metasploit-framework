@@ -17,9 +17,9 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 			'Name'          => 'Windows Gather Unattended Answer File (unattend.xml) Enumeration',
 			'Description'   => %q{
-					This module will check the file system for a copy of
-				unattend.xml then extract sensitive information such as username
-				and decoded passwords.
+					This module will check the file system for a copy of unattend.xml found in
+				Windows Vista, or newer Windows systems.  And then extract sensitive information
+				such as usernames and decoded passwords.
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        =>
