@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 # Check Rex::Parser.nokogiri_loaded for status of the Nokogiri parsers
 require 'rex/parser/nmap_nokogiri'
 require 'rex/parser/nexpose_simple_nokogiri'

@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 #
 # FASTLIB is a mechanism for loading large sets of libraries in a way that is

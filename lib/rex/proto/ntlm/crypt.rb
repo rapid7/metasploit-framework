@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 #
 # An NTLM Authentication Library for Ruby
 #

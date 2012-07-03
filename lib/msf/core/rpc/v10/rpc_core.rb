@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Msf
 module RPC
 class RPC_Core < RPC_Base

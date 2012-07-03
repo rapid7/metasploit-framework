@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module PacketFu
 
 	# ARPHeader is a complete ARP struct, used in ARPPacket. 

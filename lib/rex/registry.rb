@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/registry/hive'
 require 'rex/registry/regf'
 require 'rex/registry/nodekey'

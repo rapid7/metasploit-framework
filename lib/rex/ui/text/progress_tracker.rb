@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/ui/progress_tracker'
 
 module Rex

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'net/ssh/ruby_compat'
 require 'net/ssh/transport/openssl'
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/sniffer/tlv'
 require 'rex/proto/smb/utils'

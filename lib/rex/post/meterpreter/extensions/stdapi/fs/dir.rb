@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 require 'rex/post/dir'
 require 'rex/post/meterpreter/extensions/stdapi/stdapi'

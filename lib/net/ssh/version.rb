@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Net; module SSH
   # A class for describing the current version of a library. The version
   # consists of three parts: the +major+ number, the +minor+ number, and the

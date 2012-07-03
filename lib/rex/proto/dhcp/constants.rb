@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 # $Id$
 require 'rex/proto/dhcp'
 

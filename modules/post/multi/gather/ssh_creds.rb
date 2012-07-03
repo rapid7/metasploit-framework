@@ -40,7 +40,8 @@ class Metasploit3 < Msf::Post
 	def run
 		print_status("Finding .ssh directories")
 		paths = enum_user_directories.map {|d| d + "/.ssh"}
-		paths.select! { |d| directory?(d) }
+		# Array#select! is only in 1.9
+		paths = paths.select { |d| directory?(d) }
 
 		if paths.nil? or paths.empty?
 			print_error("No users found with a .ssh directory")

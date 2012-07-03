@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'net/ssh/errors'
 
 module Net; module SSH; module Proxy

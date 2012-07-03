@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/constants'
 
 module Rex

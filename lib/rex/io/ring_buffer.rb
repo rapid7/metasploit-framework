@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 #
 # This class implements a ring buffer with "cursors" in the form of sequence numbers.
 # To use this class, pass in a file descriptor and a ring size, the class will read

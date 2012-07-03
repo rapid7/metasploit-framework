@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'net/ssh'
 require 'test/unit'
 

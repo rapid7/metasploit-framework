@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 ##
 # $Id: exe.rb 14286 2011-11-20 01:41:04Z rapid7 $
 ##

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 # "Pure Ruby PostgreSQL interface," also known as "Postgres-PR" is:
 # Copyright (c) 2005, 2008 by Michael Neumann (mneumann@ntecs.de).
 #

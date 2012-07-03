@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 ##
 # $Id: meterpreter_options.rb 10595 2010-10-08 04:11:47Z hdm $
 ##
