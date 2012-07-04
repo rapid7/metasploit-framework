@@ -517,6 +517,7 @@ class ModuleManager < ModuleSet
 	# module or a module class.
 	#
 	def reload_module(mod)
+		omod    = mod
 		refname = mod.refname
 		ds      = mod.datastore
 
@@ -592,6 +593,8 @@ class ModuleManager < ModuleSet
 			mod.datastore.update(ds)
 		else
 			elog("Failed to create instance of #{refname} after reload.", 'core')
+			# Return the old module instance to avoid a strace trace
+			return omod
 		end
 
 		# Let the specific module sets have an opportunity to handle the fact
