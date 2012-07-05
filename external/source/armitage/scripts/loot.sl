@@ -63,10 +63,17 @@ sub _downloadLoot {
 		closef($handle);
 
 		[$progress setProgress: $index + 1];
+
+		if ([$progress isCanceled]) {
+			break;
+		}
 	}
-	[$progress close];
-	showError("File(s) saved to:\n $+ $dest");
-	[gotoFile([new java.io.File: $dest])];
+
+	dispatchEvent(lambda({
+		[$progress close];
+		showError("File(s) saved to:\n $+ $dest");
+		[gotoFile([new java.io.File: $dest])];
+	}, \$dest, \$progress));
 }
 
 sub showLoot {
