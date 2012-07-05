@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Post
 		end
 
 		# Add user specified domains to list.
-		if !datastore['DOMAINS'].blank?
+		unless datastore['DOMAINS'].blank?
 			if datastore['DOMAINS'].match(/\./)
 				print_error "DOMAINS must not contain DNS style domain names e.g. 'mydomain.net'. Instead use 'mydomain'."
 				return
@@ -277,16 +277,12 @@ class Metasploit3 < Msf::Post
 
 			print_good table.to_s
 
-			store_data(xmlfile[:xml], filetype, xmlfile[:path])
+			if datastore['STORE']
+				stored_path = store_loot('windows.gpp.xml', 'text/plain', session, xmlfile[:xml], filetype, xmlfile[:path])
+				print_status("XML file saved to: #{stored_path}")
+			end
 
 			report_creds(user,pass) unless disabled and disabled == '1'
-		end
-	end
-
-	def store_data(data, filename, path)
-		if datastore['STORE']
-			stored_path = store_loot('windows.gpp.xml', 'text/plain', session, data, filename, path)
-			print_status("XML file saved to: #{stored_path}")
 		end
 	end
 
