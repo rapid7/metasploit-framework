@@ -365,9 +365,10 @@ class Metasploit3 < Msf::Post
 	end
 
 	def enum_dcs(domain)
-		# Prevent crash if DNS style domains are searched for.
-		if domain.include? "."
-			print_error("Cannot enumerate DNS style domain names: #{domain}")
+		# Prevent crash if FQDN domain names are searched for or other disallowed characters:
+		# http://support.microsoft.com/kb/909264 \/:*?"<>|
+		if domain =~ /[:\*?"<>\\\/.]/
+			print_error("Cannot enumerate domain name contains disallowed characters: #{domain}")
 			return nil
 		end
 
