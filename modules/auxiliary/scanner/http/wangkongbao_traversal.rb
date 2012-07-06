@@ -52,10 +52,9 @@ class Metasploit3 < Msf::Auxiliary
 		travs = "../" * datastore['DEPTH']
 
 		# Create request
-		path = "/src/acloglogin.php"
 		res = send_request_raw({
 			'method' => 'GET',
-			'uri'    => "path",
+			'uri'    => "/src/acloglogin.php",
 			'headers' =>
 				{
 					'Connection' => "keep-alive",
