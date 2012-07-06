@@ -1333,16 +1333,43 @@ class Core
 				match += val + " "
 			end
 		}
+		
+		if framework.db and framework.db.migrated
+			return search_modules_sql(match)
+		end
+		
+		print_error("Warning: no database connected, falling back to slow search")
 
 		tbl = generate_module_table("Matching Modules")
-		framework.modules.each do |m|
-			o = framework.modules.create(m[0])
-			if not o.search_filter(match)
-				tbl << [ o.fullname, o.disclosure_date.to_s, o.rank_to_s, o.name ]
+		[ 
+			framework.exploits, 
+			framework.auxiliary, 
+			framework.post, 
+			framework.payloads, 
+			framework.nops,
+			framework.encoders 
+		].each do |mset|
+			mset.each do |m|
+				o = mset.create(m[0])
+				
+				# Expected if modules are loaded without the right pre-requirements
+				next if not o
+				
+				if not o.search_filter(match)
+					tbl << [ o.fullname, o.disclosure_date.to_s, o.rank_to_s, o.name ]
+				end
 			end
 		end
 		print_line(tbl.to_s)
 
+	end
+	
+	def search_modules_sql(match)
+		tbl = generate_module_table("Matching Modules")
+		framework.db.search_modules(match).each do |o|
+			tbl << [ o.fullname, o.disclosure_date.to_s, RankingName[o.rank].to_s, o.name ]
+		end
+		print_line(tbl.to_s)
 	end
 
 	def cmd_search_tabs(str, words)

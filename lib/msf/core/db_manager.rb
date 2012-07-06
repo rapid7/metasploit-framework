@@ -5,6 +5,7 @@ require 'msf/core'
 require 'msf/core/db'
 require 'msf/core/task_manager'
 require 'fileutils'
+require 'shellwords'
 
 # Provide access to ActiveRecord models shared w/ commercial versions
 require "metasploit_data_models"
@@ -13,7 +14,6 @@ require "metasploit_data_models"
 require "msf/core/patches/active_record"
 
 
-require 'fileutils'
 
 module Msf
 
@@ -489,6 +489,106 @@ class DBManager
 		res[:bits] = bits
 
 		res
+	end
+	
+	
+	
+	#
+	# This provides a standard set of search filters for every module.
+	# The search terms are in the form of:
+	#   {
+	#     "text" => [  [ "include_term1", "include_term2", ...], [ "exclude_term1", "exclude_term2"], ... ],
+	#     "cve" => [  [ "include_term1", "include_term2", ...], [ "exclude_term1", "exclude_term2"], ... ]
+	#   }
+	#
+	# Returns true on no match, false on match
+	#
+	def search_modules(search_string, inclusive=false)
+		return false if not search_string
+
+		search_string += " "
+
+		# Split search terms by space, but allow quoted strings
+		terms = Shellwords.shellwords(search_string)
+		terms.delete('')
+
+		# All terms are either included or excluded
+		res = {}
+
+		terms.each do |t|
+			f,v = t.split(":", 2)
+			if not v
+				v = f
+				f = 'text'
+			end
+			next if v.length == 0
+			f.downcase!
+			v.downcase!
+			res[f] ||= [  ]
+			res[f]  << v
+		end
+
+		::ActiveRecord::Base.connection_pool.with_connection {
+	
+		where_q = []
+		where_v = []
+
+		res.keys.each do |kt|
+			res[kt].each do |kv|
+				kv = kv.downcase
+				case kt
+				when 'text'
+					xv = "%#{kv}%"
+					where_q << ' ( ' + 
+						'module_details.fullname ILIKE ? OR module_details.name ILIKE ? OR module_details.description ILIKE ? OR ' +
+						'module_authors.name ILIKE ? OR module_actions.name ILIKE ? OR module_archs.name ILIKE ? OR ' +
+						'module_targets.name ILIKE ? OR module_platforms.name ILIKE ? ' +
+						') '
+					where_v << [ xv, xv, xv, xv, xv, xv, xv, xv ]
+				when 'name'
+					xv = "%#{kv}%"
+					where_q << ' ( module_details.fullname ILIKE ? OR module_details.name ILIKE ? ) '
+					where_v << [ xv, xv ]
+				when 'author'
+					xv = "%#{kv}%"
+					where_q << ' ( module_authors.name ILIKE ? OR module_authors.email ILIKE ? ) '
+					where_v << [ xv, xv ]
+				when 'os','platform'
+					xv = "%#{kv}%"
+					where_q << ' ( module_targets.name ILIKE ? ) '
+					where_v << [ xv ]
+				when 'port'
+					# TODO
+				when 'type'
+					where_q << ' ( module_details.mtype = ? ) '
+					where_v << [ kv ]				
+				when 'app'
+					where_q << ' ( module_details.stance = ? )'
+					where_v << [ ( kv == "client") ? "passive" : "active"  ]
+				when 'ref'
+					where_q << ' ( module_refs.name ILIKE ? )'
+					where_v << [ '%' + kv + '%' ]
+				when 'cve','bid','osvdb','edb'
+					where_q << ' ( module_refs.name = ? )'
+					where_v << [ kt.upcase + '-' + kv ]
+	
+				end
+			end
+		end
+		
+		res = Mdm::ModuleDetail.select("DISTINCT(module_details.*)").
+			joins(
+				"LEFT OUTER JOIN module_authors   ON module_details.id = module_authors.module_detail_id " +
+				"LEFT OUTER JOIN module_actions   ON module_details.id = module_actions.module_detail_id " +
+				"LEFT OUTER JOIN module_archs     ON module_details.id = module_archs.module_detail_id " +
+				"LEFT OUTER JOIN module_refs      ON module_details.id = module_refs.module_detail_id " +
+				"LEFT OUTER JOIN module_targets   ON module_details.id = module_targets.module_detail_id " +
+				"LEFT OUTER JOIN module_platforms ON module_details.id = module_platforms.module_detail_id "
+			).
+			where(where_q.join(inclusive ? " OR " : " AND "), *(where_v.flatten)).
+			group("module_details.id").
+			all
+		}
 	end
 
 end
