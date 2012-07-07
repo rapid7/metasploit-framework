@@ -360,7 +360,11 @@ class DBManager
 				next if skipped.include?( [ mt[0], mn ] )
 				obj   = mt[1].create(mn)
 				next if not obj
-				update_module_details(obj)		
+				begin
+					update_module_details(obj)
+				rescue ::Exception
+					elog("Error updating module details for #{obj.fullname}: #{$!.class} #{$!}")
+				end
 			end
 		end
 
