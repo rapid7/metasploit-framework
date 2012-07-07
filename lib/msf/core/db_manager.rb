@@ -576,7 +576,7 @@ class DBManager
 			end
 		end
 		
-		res = Mdm::ModuleDetail.select("DISTINCT(module_details.*)").
+		qry = Mdm::ModuleDetail.select("DISTINCT(module_details.*)").
 			joins(
 				"LEFT OUTER JOIN module_authors   ON module_details.id = module_authors.module_detail_id " +
 				"LEFT OUTER JOIN module_actions   ON module_details.id = module_actions.module_detail_id " +
@@ -586,8 +586,10 @@ class DBManager
 				"LEFT OUTER JOIN module_platforms ON module_details.id = module_platforms.module_detail_id "
 			).
 			where(where_q.join(inclusive ? " OR " : " AND "), *(where_v.flatten)).
-			group("module_details.id").
-			all
+			group("module_details.id, module_details.*")
+
+		res = qry.all
+
 		}
 	end
 
