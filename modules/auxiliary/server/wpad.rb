@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -19,7 +15,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'WPAD.dat File Server',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module generates a valid wpad.dat file for WPAD mitm
 				attacks. Usually this module is used in combination with DNS attacks
@@ -31,7 +26,6 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					'et'            # Metasploit module
 				],
-			'Version'     => '$Revision$',
 			'License'     => MSF_LICENSE,
 			'DefaultOptions' =>
 				{
@@ -41,16 +35,24 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('URIPATH',[ true, "WPAD/PAC Data file name (wpad.dat, proxy.pac)", '/wpad.dat' ]),
+				OptEnum.new('TYPE', [true, 'WPAD/PAC Data File', 'DAT', ['DAT', 'PAC']]),
 				OptAddress.new('EXCLUDENETWORK', [ true, "Network to exclude",'127.0.0.1' ]),
 				OptAddress.new('EXCLUDENETMASK', [ true, "Netmask to exclude",'255.255.255.0' ]),
 				OptAddress.new('PROXY', [ true, "Proxy to redirect traffic to", '0.0.0.0' ]),
 				OptPort.new('PROXYPORT',[ true, "Proxy port", 8080 ])
 			], self.class)
+
+		deregister_options('URIPATH')
 	end
 
+
+	def cleanup
+		datastore['URIPATH'] = @previous_uri
+	end
+
+
 	def on_request_uri(cli, request)
-		print_status("Request '#{request.method} #{request.headers['user-agent']} from #{cli.peerhost}:#{cli.peerport}")
+		print_status("Request '#{request.method} #{request.headers['user-agent']}")
 
 		return if request.method == "POST"
 
@@ -72,9 +74,23 @@ EOS
 			})
 	end
 
+
 	def run
-		print_status("WPAD Server started on port #{datastore['SRVPORT']}.")
-		exploit
+		@previous_uri = datastore['URIPATH']
+		datastore['URIPATH'] = (datastore['TYPE'] == 'DAT') ? 'wpad.dat' : 'proxy.pac'
+
+		print_status("Serving #{datastore['URIPATH']} on port #{datastore['SRVPORT']}")
+
+		begin
+			exploit
+		rescue Errno::EACCES => e
+			if e.message =~ /Permission denied - bind/
+				print_error("You need to have permission to bind to #{datastore['SRVPORT']}")
+			else
+				raise e
+			end
+		end
 	end
+
 end
 
