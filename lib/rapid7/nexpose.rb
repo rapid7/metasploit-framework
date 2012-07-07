@@ -347,6 +347,18 @@ module NexposeAPI
 		r.success
 	end
 
+	def asset_group_create(name, description, devices)
+		req = make_xml('AssetGroupSaveRequest')
+		req_ag = make_xml('AssetGroup', { 'id' => "-1", 'name' => name, 'description' => description })
+ 		req_devices = make_xml('Devices')
+		devices.each do |did|
+			req_devices << make_xml('device', { 'id' => did })
+		end
+		req_ag << req_devices
+		req    << req_ag
+		r = execute(req)
+	end
+
 	#-------------------------------------------------------------------------
 	# Returns all asset group information
 	#-------------------------------------------------------------------------
