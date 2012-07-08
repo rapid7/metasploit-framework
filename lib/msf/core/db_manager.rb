@@ -590,7 +590,8 @@ class DBManager
 				"LEFT OUTER JOIN module_platforms ON module_details.id = module_platforms.module_detail_id "
 			).
 			where(where_q.join(inclusive ? " OR " : " AND "), *(where_v.flatten)).
-			group("module_details.id, module_details.*")
+			# Compatibility for Postgres installations prior to 9.1 - doesn't have support for wildcard group by clauses
+			group("module_details.id, module_details.mtime, module_details.file, module_details.mtype, module_details.refname, module_details.fullname, module_details.name, module_details.rank, module_details.description, module_details.license, module_details.privileged, module_details.disclosure_date, module_details.default_target, module_details.default_action, module_details.stance, module_details.ready")
 
 		res = qry.all
 
