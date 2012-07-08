@@ -21,9 +21,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'VMware Server Directory Transversal Vulnerability',
+			'Name'        => 'VMware Server Directory Traversal Vulnerability',
 			'Version'     => '$Revision$',
-			'Description' => 'This modules exploits the VMware Server Directory traversal
+			'Description' => 'This modules exploits the VMware Server Directory Traversal
 				vulnerability in VMware Server 1.x before 1.0.10 build 203137 and 2.x before
 				2.0.2 build 203138 on Linux, VMware ESXi 3.5, and VMware ESX 3.0.3 and 3.5
 				allows remote attackers to read arbitrary files. Common VMware server ports
@@ -68,8 +68,8 @@ class Metasploit3 < Msf::Auxiliary
 						:host   => target_host,
 						:port	=> rport,
 						:proto  => 'tcp',
-						:name	=> self.fullname,
-						:info   => res.code,
+						:name	=> self.name,
+						:info   => "Module #{self.fullname} reports directory traversal of #{target_host}:#{rport} with response code #{res.code}",
 						:refs   => self.references,
 						:exploited_at => Time.now.utc
 					}

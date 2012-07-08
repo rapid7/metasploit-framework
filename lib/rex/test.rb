@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'test/unit'
 
 # DEFAULTS

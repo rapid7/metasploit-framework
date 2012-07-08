@@ -1,6 +1,33 @@
 Armitage Changelog
 ==================
 
+5 Jul 12
+--------
+- Login -> psexec now sets a different LPORT for each host it's
+  launched against when using a reverse payload. Fixes a bug where
+  using a reverse connect payload against X hosts didn't work.
+- Progressbar Cancel button now works with the Sync Files button
+  in View -> Downloads and View -> Loot
+- Fixed a potential deadlock with the Sync Files feature
+- Clicking the Size column in View -> Downloads now sorts properly
+
+24 Jun 12
+---------
+- Meterpreter -> Kill now uses session.stop RPC call
+- Simplified code to stop a running job
+- Added an option to disable TCP_NODELAY from the comamnd line:
+
+	java -Darmitage.enable_nagle=true -jar armitage.jar
+
+  Use this if you see "bad mac" SSL errors when connected to a
+  team server.
+- Log Keystrokes tab now changes color when there is activity
+- Randomized filename for USERPASS_FILE to allow multiple brute
+  forces to happen at once.
+- Added a View item in the File Browser's popup menu. This will
+  let you quickly read several highlighted text files (it also
+  saves the files to the right place locally too)
+
 7 Jun 12 - Adding on to those quick bug fixes / tweaks
 --------
 - Disabled Nagles algorithm for team server and client SSL sockets.

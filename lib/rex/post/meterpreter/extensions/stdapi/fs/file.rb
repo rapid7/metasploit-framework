@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 require 'rex/post/file'
 require 'rex/post/meterpreter/channel'

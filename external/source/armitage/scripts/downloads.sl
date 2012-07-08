@@ -46,6 +46,9 @@ sub createDownloadBrowser {
 	$sorter = [new TableRowSorter: $model];
         [$sorter toggleSortOrder: 0];
 	[$sorter setComparator: 0, &compareHosts];
+	[$sorter setComparator: 3, {
+		return $1 <=> $2;
+	}];
 	[$sorter setComparator: 4, {
 		return convertDate($1) <=> convertDate($2);
 	}];

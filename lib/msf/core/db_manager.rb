@@ -1,9 +1,11 @@
+# -*- coding: binary -*-
 require "active_record"
 
 require 'msf/core'
 require 'msf/core/db'
 require 'msf/core/task_manager'
 require 'fileutils'
+require 'shellwords'
 
 # Provide access to ActiveRecord models shared w/ commercial versions
 require "metasploit_data_models"
@@ -12,7 +14,6 @@ require "metasploit_data_models"
 require "msf/core/patches/active_record"
 
 
-require 'fileutils'
 
 module Msf
 
@@ -313,6 +314,288 @@ class DBManager
 
 	def workspace
 		framework.db.find_workspace(@workspace_name)
+	end
+
+	def update_all_module_details
+		return if not self.migrated
+
+		::ActiveRecord::Base.connection_pool.with_connection {
+		
+		refresh = []
+		skipped = []
+
+		Mdm::ModuleDetail.find_each do |md|
+
+			unless md.ready
+				refresh << md
+				next
+			end
+
+			unless md.file and ::File.exists?(md.file)
+				refresh << md
+				next
+			end
+
+			if ::File.mtime(md.file).to_i != md.mtime.to_i
+				refresh << md
+				next
+			end
+
+			skipped << [md.mtype, md.refname]
+		end
+
+		refresh.each  {|md| md.destroy }
+		refresh = nil
+
+		stime = Time.now.to_f
+		[
+			[ 'exploit',   framework.exploits  ],
+			[ 'auxiliary', framework.auxiliary ],
+			[ 'post',      framework.post      ],
+			[ 'payload',   framework.payloads  ],
+			[ 'encoder',   framework.encoders  ],
+			[ 'nop',       framework.nops      ]
+		].each do |mt|
+			mt[1].keys.sort.each do |mn|
+				next if skipped.include?( [ mt[0], mn ] )
+				obj   = mt[1].create(mn)
+				next if not obj
+				begin
+					update_module_details(obj)
+				rescue ::Exception
+					elog("Error updating module details for #{obj.fullname}: #{$!.class} #{$!}")
+				end
+			end
+		end
+
+		nil
+
+		}
+	end
+
+	def update_module_details(obj)
+		return if not self.migrated
+
+		::ActiveRecord::Base.connection_pool.with_connection {
+		info = module_to_details_hash(obj)
+		bits = info.delete(:bits) || []
+
+		md = Mdm::ModuleDetail.create(info)
+		bits.each do |args|
+			otype, vals = args
+			case otype
+			when :author
+				md.add_author(vals[:name], vals[:email])
+			when :action
+				md.add_action(vals[:name])
+			when :arch
+				md.add_arch(vals[:name])
+			when :platform
+				md.add_platform(vals[:name])
+			when :target
+				md.add_target(vals[:index], vals[:name])
+			when :ref
+				md.add_ref(vals[:name])
+			when :mixin
+				# md.add_mixin(vals[:name])
+			end
+		end
+
+		md.ready = true
+		md.save
+		md.id
+
+		}
+	end
+
+	def remove_module_details(mtype, refname)
+		return if not self.migrated
+		::ActiveRecord::Base.connection_pool.with_connection {
+		md = Mdm::ModuleDetail.find(:conditions => [ 'mtype = ? and refname = ?', mtype, refname])
+		md.destroy if md
+		}
+	end
+
+	def module_to_details_hash(m)
+		res  = {}
+		bits = []
+
+		res[:mtime]    = ::File.mtime(m.file_path) rescue Time.now
+		res[:file]     = m.file_path
+		res[:mtype]    = m.type
+		res[:name]     = m.name.to_s
+		res[:refname]  = m.refname
+		res[:fullname] = m.fullname
+		res[:rank]     = m.rank.to_i
+		res[:license]  = m.license.to_s
+
+		res[:description] = m.description.to_s.strip
+
+		m.arch.map{ |x| 
+			bits << [ :arch, { :name => x.to_s } ] 
+		}
+
+		m.platform.platforms.map{ |x| 
+			bits << [ :platform, { :name => x.to_s.split('::').last.downcase } ] 
+		}
+
+		m.author.map{|x| 
+			bits << [ :author, { :name => x.to_s } ] 
+		}
+
+		m.references.map do |r|
+			bits << [ :ref, { :name => [r.ctx_id.to_s, r.ctx_val.to_s].join("-") } ]
+		end
+
+		res[:privileged] = m.privileged?
+
+
+		if m.disclosure_date
+			begin
+				res[:disclosure_date] = m.disclosure_date.to_datetime.to_time
+			rescue ::Exception
+				res.delete(:disclosure_date)
+			end
+		end
+
+		if(m.type == "exploit")
+
+			m.targets.each_index do |i|
+				bits << [ :target, { :index => i, :name => m.targets[i].name.to_s } ]
+			end
+
+			if (m.default_target)
+				res[:default_target] = m.default_target
+			end
+
+			# Some modules are a combination, which means they are actually aggressive
+			res[:stance] = m.stance.to_s.index("aggressive") ? "aggressive" : "passive"
+
+			
+			m.class.mixins.each do |x|
+			 	bits << [ :mixin, { :name => x.to_s } ]
+			end
+		end
+
+		if(m.type == "auxiliary")
+	
+			m.actions.each_index do |i|
+				bits << [ :action, { :name => m.actions[i].name.to_s } ]
+			end
+
+			if (m.default_action)
+				res[:default_action] = m.default_action.to_s
+			end
+
+			res[:stance] = m.passive? ? "passive" : "aggressive"
+		end
+
+		res[:bits] = bits
+
+		res
+	end
+	
+	
+	
+	#
+	# This provides a standard set of search filters for every module.
+	# The search terms are in the form of:
+	#   {
+	#     "text" => [  [ "include_term1", "include_term2", ...], [ "exclude_term1", "exclude_term2"], ... ],
+	#     "cve" => [  [ "include_term1", "include_term2", ...], [ "exclude_term1", "exclude_term2"], ... ]
+	#   }
+	#
+	# Returns true on no match, false on match
+	#
+	def search_modules(search_string, inclusive=false)
+		return false if not search_string
+
+		search_string += " "
+
+		# Split search terms by space, but allow quoted strings
+		terms = Shellwords.shellwords(search_string)
+		terms.delete('')
+
+		# All terms are either included or excluded
+		res = {}
+
+		terms.each do |t|
+			f,v = t.split(":", 2)
+			if not v
+				v = f
+				f = 'text'
+			end
+			next if v.length == 0
+			f.downcase!
+			v.downcase!
+			res[f] ||= [  ]
+			res[f]  << v
+		end
+
+		::ActiveRecord::Base.connection_pool.with_connection {
+	
+		where_q = []
+		where_v = []
+
+		res.keys.each do |kt|
+			res[kt].each do |kv|
+				kv = kv.downcase
+				case kt
+				when 'text'
+					xv = "%#{kv}%"
+					where_q << ' ( ' + 
+						'module_details.fullname ILIKE ? OR module_details.name ILIKE ? OR module_details.description ILIKE ? OR ' +
+						'module_authors.name ILIKE ? OR module_actions.name ILIKE ? OR module_archs.name ILIKE ? OR ' +
+						'module_targets.name ILIKE ? OR module_platforms.name ILIKE ? ' +
+						') '
+					where_v << [ xv, xv, xv, xv, xv, xv, xv, xv ]
+				when 'name'
+					xv = "%#{kv}%"
+					where_q << ' ( module_details.fullname ILIKE ? OR module_details.name ILIKE ? ) '
+					where_v << [ xv, xv ]
+				when 'author'
+					xv = "%#{kv}%"
+					where_q << ' ( module_authors.name ILIKE ? OR module_authors.email ILIKE ? ) '
+					where_v << [ xv, xv ]
+				when 'os','platform'
+					xv = "%#{kv}%"
+					where_q << ' ( module_targets.name ILIKE ? ) '
+					where_v << [ xv ]
+				when 'port'
+					# TODO
+				when 'type'
+					where_q << ' ( module_details.mtype = ? ) '
+					where_v << [ kv ]				
+				when 'app'
+					where_q << ' ( module_details.stance = ? )'
+					where_v << [ ( kv == "client") ? "passive" : "active"  ]
+				when 'ref'
+					where_q << ' ( module_refs.name ILIKE ? )'
+					where_v << [ '%' + kv + '%' ]
+				when 'cve','bid','osvdb','edb'
+					where_q << ' ( module_refs.name = ? )'
+					where_v << [ kt.upcase + '-' + kv ]
+	
+				end
+			end
+		end
+		
+		qry = Mdm::ModuleDetail.select("DISTINCT(module_details.*)").
+			joins(
+				"LEFT OUTER JOIN module_authors   ON module_details.id = module_authors.module_detail_id " +
+				"LEFT OUTER JOIN module_actions   ON module_details.id = module_actions.module_detail_id " +
+				"LEFT OUTER JOIN module_archs     ON module_details.id = module_archs.module_detail_id " +
+				"LEFT OUTER JOIN module_refs      ON module_details.id = module_refs.module_detail_id " +
+				"LEFT OUTER JOIN module_targets   ON module_details.id = module_targets.module_detail_id " +
+				"LEFT OUTER JOIN module_platforms ON module_details.id = module_platforms.module_detail_id "
+			).
+			where(where_q.join(inclusive ? " OR " : " AND "), *(where_v.flatten)).
+			# Compatibility for Postgres installations prior to 9.1 - doesn't have support for wildcard group by clauses
+			group("module_details.id, module_details.mtime, module_details.file, module_details.mtype, module_details.refname, module_details.fullname, module_details.name, module_details.rank, module_details.description, module_details.license, module_details.privileged, module_details.disclosure_date, module_details.default_target, module_details.default_action, module_details.stance, module_details.ready")
+
+		res = qry.all
+
+		}
 	end
 
 end

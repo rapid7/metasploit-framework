@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'net/ssh/buffer'
 require 'net/ssh/known_hosts'
 require 'net/ssh/loggable'

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'postgres_msf'
 
 # Namespace for Metasploit branch.

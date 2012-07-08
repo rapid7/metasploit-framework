@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rexml/document'
 require 'rex/ui'
 

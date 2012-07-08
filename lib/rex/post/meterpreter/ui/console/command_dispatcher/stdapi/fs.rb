@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'tempfile'
 require 'rex/post/meterpreter'
 

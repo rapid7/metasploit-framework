@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'OSVDB', '2577' ],
 					[ 'CVE', '2003-0694' ],
 					[ 'BID', '8641' ],
-					[ 'URL', 'http://www.milw0rm.com/exploits/24' ],
+					[ 'EDB', '24' ]
 				],
 			'DisclosureDate' => 'Sep 17 2003'))
 	end

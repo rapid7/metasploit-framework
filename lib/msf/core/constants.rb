@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 ###
 #
 # This file contains constants that are referenced by the core

@@ -40,21 +40,25 @@ HMODULE hMetSrv = NULL;
 // To enable all of this in a new extnesion:
 // 1. Add metsrv.dll to the DELAYLOAD option in the projects properties (Configuration->Linker->Input).
 // 2. Add in the include file #include "DelayLoadMetSrv.h".
-// 3. Add the macro "EnableDelayLoadMetSrv();" after all you includes.
+// 3. Add the macro "EnableDelayLoadMetSrv();" after all your includes.
 // 4. Add the line "hMetSrv = remote->hMetSrv;" in your InitServerExtension() function.
 
 //===============================================================================================//
+
+
+
+
 FARPROC WINAPI delayHook( unsigned dliNotify, PDelayLoadInfo pdli )
 {
 	switch( dliNotify )
 	{
 		case dliNotePreLoadLibrary:
-			// If we are tryinig to delay load metsrv.dll we can just return the
+			// If we are trying to delay load metsrv.dll we can just return the
 			// HMODULE of the injected metsrv library (set in InitServerExtension).
 			if( strcmp( pdli->szDll, "metsrv.dll" ) == 0 )
 				return (FARPROC)hMetSrv;
 			break;
-		case dliNotePreGetProcAddress :
+		case dliNotePreGetProcAddress:
 			// If we are trying to get the address of an exported function in the
 			// metsrv.dll we must use GetProcAddressR() in case the metsrv was loaded
 			// via reflective dll injection

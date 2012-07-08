@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 #
 # Log severities
 #

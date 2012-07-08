@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'msf/ui/console/command_dispatcher/encoder'
 require 'msf/ui/console/command_dispatcher/exploit'
 require 'msf/ui/console/command_dispatcher/nop'
@@ -1232,7 +1233,7 @@ class Core
 				curr_path = path
 
 				# Load modules, but do not consult the cache
-				if (counts = framework.modules.add_module_path(path, false))
+				if (counts = framework.modules.add_module_path(path))
 					counts.each_pair { |type, count|
 						totals[type] = (totals[type]) ? (totals[type] + count) : count
 
@@ -1332,16 +1333,43 @@ class Core
 				match += val + " "
 			end
 		}
+		
+		if framework.db and framework.db.migrated
+			return search_modules_sql(match)
+		end
+		
+		print_error("Warning: no database connected, falling back to slow search")
 
 		tbl = generate_module_table("Matching Modules")
-		framework.modules.each do |m|
-			o = framework.modules.create(m[0])
-			if not o.search_filter(match)
-				tbl << [ o.fullname, o.disclosure_date.to_s, o.rank_to_s, o.name ]
+		[ 
+			framework.exploits, 
+			framework.auxiliary, 
+			framework.post, 
+			framework.payloads, 
+			framework.nops,
+			framework.encoders 
+		].each do |mset|
+			mset.each do |m|
+				o = mset.create(m[0])
+				
+				# Expected if modules are loaded without the right pre-requirements
+				next if not o
+				
+				if not o.search_filter(match)
+					tbl << [ o.fullname, o.disclosure_date.to_s, o.rank_to_s, o.name ]
+				end
 			end
 		end
 		print_line(tbl.to_s)
 
+	end
+	
+	def search_modules_sql(match)
+		tbl = generate_module_table("Matching Modules")
+		framework.db.search_modules(match).each do |o|
+			tbl << [ o.fullname, o.disclosure_date.to_s, RankingName[o.rank].to_s, o.name ]
+		end
+		print_line(tbl.to_s)
 	end
 
 	def cmd_search_tabs(str, words)
@@ -1703,6 +1731,14 @@ class Core
 			global = true
 		end
 
+		# Decide if this is an append operation
+		append = false
+
+		if (args[0] == '-a')
+			args.shift
+			append = true
+		end
+
 		# Determine which data store we're operating on
 		if (active_module and global == false)
 			datastore = active_module.datastore
@@ -1760,9 +1796,13 @@ class Core
 			return true
 		end
 
-		datastore[name] = value
+		if append
+			datastore[name] = datastore[name] + value
+		else
+			datastore[name] = value
+		end
 
-		print_line("#{name} => #{value}")
+		print_line("#{name} => #{datastore[name]}")
 	end
 
 	#
@@ -2278,7 +2318,7 @@ class Core
 	# Returns the revision of the framework and console library
 	#
 	def cmd_version(*args)
-		svn_console_version = "$Revision: 14065 $"
+		svn_console_version = "$Revision: 15168 $"
 		svn_metasploit_version = Msf::Framework::Revision.match(/ (.+?) \$/)[1] rescue nil
 		if svn_metasploit_version
 			print_line("Framework: #{Msf::Framework::Version}.#{svn_metasploit_version}")

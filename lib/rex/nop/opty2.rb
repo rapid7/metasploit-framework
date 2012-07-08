@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/arch/x86'
 require 'rex/nop/opty2_tables'
 

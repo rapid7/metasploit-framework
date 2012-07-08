@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Encoder::Alphanum
 	# Configure SEH getpc code on Windows
 	#
 	def init_platform(platform)
-		if(::Msf::Module::PlatformList.from_a(platform).supports?(::Msf::Module::PlatformList.win32))
+		if(platform.supports?(::Msf::Module::PlatformList.win32))
 			datastore['AllowWin32SEH'] = true
 		end
 	end

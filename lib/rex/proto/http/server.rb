@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/socket'
 require 'rex/proto/http'
 require 'rex/proto/http/handler'

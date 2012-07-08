@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'msf/core/post/common'
 require 'msf/core/post/windows/eventlog'
 require 'msf/core/post/windows/priv'

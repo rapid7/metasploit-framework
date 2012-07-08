@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'singleton'
 module PacketFu
 

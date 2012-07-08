@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					[ 'CVE', '2008-5666' ],
 					[ 'OSVDB', '49043' ],
-					[ 'URL', 'http://milw0rm.com/exploits/6581' ]
+					[ 'EDB', '6581' ]
 				],
 			'DisclosureDate' => 'Sep 26 2008'))
 	end
