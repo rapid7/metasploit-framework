@@ -72,13 +72,26 @@ module Parser
 			return if ref_type.nil? || ref_type.empty? || ref_value.nil? || ref_value.empty?
 			ref_value = ref_value.strip
 			ref_type = ref_type.strip.upcase
+
 			ret = case ref_type
 				when "CVE"
 					ref_value.gsub("CAN", "CVE")
 				when "MS"
-					"MSB-MS-#{ref_value}"
+					if ref_value =~ /^MS[0-9]/
+						"MSB-#{ref_value}"
+					else
+						"MSB-MS#{ref_value}"
+					end
 				when "URL", "BID"
 					"#{ref_type}-#{ref_value}"
+				when "APPLE"
+					ref_value
+				when "XF"
+					if ref_value =~ /\((\d+)\)$/
+						"#{ref_type}-#{$1}"
+					else
+						"#{ref_type}-#{ref_value}"
+					end
 				else # Handle others?
 					"#{ref_type}-#{ref_value}"
 				end
@@ -89,6 +102,7 @@ module Parser
 			return [] unless orig_refs
 			refs = []
 			orig_refs.each do |ref_hash|
+			
 				ref_hash_sym = Hash[ref_hash.map {|k, v| [k.to_sym, v] }]
 				ref_type = ref_hash_sym[:source].to_s.strip.upcase
 				ref_value = ref_hash_sym[:value].to_s.strip
