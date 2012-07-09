@@ -212,7 +212,7 @@ VOID command_throtle( int maxthreads )
 }
 */
 
-#ifndef WIN32
+#ifndef _WIN32
 /*
  * Reap child zombie threads on linux 2.4 (before NPTL)
  * each thread appears as a process and pthread_join don't necessarily reap it
