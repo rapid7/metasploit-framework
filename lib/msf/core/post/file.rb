@@ -333,7 +333,8 @@ protected
 		line_max = _unix_max_line_length
 		# Leave plenty of room for the filename we're writing to and the
 		# command to echo it out
-		line_max -= file_name.length - 64
+		line_max -= file_name.length
+		line_max -= 64
 
 		# Ordered by descending likeliness to work
 		[
