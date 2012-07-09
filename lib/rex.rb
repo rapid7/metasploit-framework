@@ -74,8 +74,8 @@ require 'rex/io/stream_server'
 require 'rex/socket'
 
 # Protocols
-
 require 'rex/proto'
+require 'rex/mac_oui'
 
 # Parsers
 require 'rex/parser/arguments'
