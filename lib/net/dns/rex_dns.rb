@@ -1,0 +1,145 @@
+require 'rex'
+
+##
+# Provides Rex::Sockets compatible methods for Net::DNS::Resolver
+##
+
+module Net # :nodoc:
+  module DNS
+    class Resolver
+
+      def send(argument,type=Net::DNS::A,cls=Net::DNS::IN)
+        if @config[:nameservers].size == 0
+          raise ResolverError, "No nameservers specified!"
+        end
+
+        method = :send_udp
+
+        if argument.kind_of? Net::DNS::Packet
+          packet = argument
+        else
+          packet = make_query_packet(argument,type,cls)
+        end
+
+        # Store packet_data for performance improvements,
+        # so methods don't keep on calling Packet#data
+        packet_data = packet.data
+        packet_size = packet_data.size
+
+        # Choose whether use TCP, UDP
+        if packet_size > @config[:packet_size] # Must use TCP
+          @logger.info "Sending #{packet_size} bytes using TCP"
+          method = :send_tcp
+        else # Packet size is inside the boundaries
+          if use_tcp? # User requested TCP
+            @logger.info "Sending #{packet_size} bytes using TCP"
+            method = :send_tcp
+          else # Finally use UDP
+            @logger.info "Sending #{packet_size} bytes using UDP"
+            method = :send_udp
+          end
+        end
+
+        if type == Net::DNS::AXFR
+          @logger.warn "AXFR query, switching to TCP"
+          method = :send_tcp
+        end
+
+        ans = self.old_send(method,packet,packet_data)
+
+        unless ans
+          @logger.fatal "No response from nameservers list: aborting"
+          raise NoResponseError
+        end
+
+        @logger.info "Received #{ans[0].size} bytes from #{ans[1][2]+":"+ans[1][1].to_s}"
+        response = Net::DNS::Packet.parse(ans[0],ans[1])
+
+        if response.header.truncated? and not ignore_truncated?
+          @logger.warn "Packet truncated, retrying using TCP"
+          self.use_tcp = true
+          begin
+            return send(argument,type,cls)
+          ensure
+            self.use_tcp = false
+          end
+        end
+
+        return response
+      end
+
+      # TODO: figure out how to pass proxies from datastore
+      def send_tcp(packet,packet_data,proxies = nil)
+        ans = nil
+        length = [packet_data.size].pack("n")
+        @config[:nameservers].each do |ns|
+          begin
+            buffer = ""
+            @config[:tcp_timeout].timeout do
+              begin
+                begin
+                  socket = Rex::Socket::Tcp.create(
+                    'PeerHost' => ns.to_s,
+                    'PeerPort' => @config[:port].to_i
+                    'Proxies' => proxies
+                  )
+                rescue
+                  @logger.info "TCP Socket could not be established to #{ns}:#{@config[:port]}"
+                end
+                @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
+                socket.write(length+packet_data)
+                ans = socket.recv(Net::DNS::INT16SZ)
+                len = ans.unpack("n")[0]
+
+                @logger.info "Receiving #{len} bytes..."
+
+                if len == 0
+                  @logger.warn "Receiving 0 lenght packet from nameserver #{ns}, trying next."
+                  next
+                end
+
+                while (buffer.size < len)
+                  left = len - buffer.size
+                  temp,from = socket.recvfrom(left)
+                  buffer += temp
+                end
+
+                unless buffer.size == len
+                  @logger.warn "Malformed packet from nameserver #{ns}, trying next."
+                  next
+                end
+              ensure
+                socket.close# unless socket.closed?
+              end
+            end
+            return [buffer,["",@config[:port],ns.to_s,ns.to_s]]
+          rescue Timeout::Error
+            @logger.warn "Nameserver #{ns} not responding within TCP timeout, trying next one"
+            next
+          end
+        end
+      end
+
+      def send_udp(packet,packet_data)
+        socket = Rex::Socket::Udp.create
+        ans = nil
+        response = ""
+        @config[:nameservers].each do |ns|
+          begin
+            @config[:udp_timeout].timeout do
+              @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
+              socket.sendto(packet_data, ns.to_s, @config[:port].to_i, 0)
+              ans = socket.recvfrom(@config[:packet_size])
+            end
+            break if ans
+          rescue Timeout::Error
+            @logger.warn "Nameserver #{ns} not responding within UDP timeout, trying next one"
+            next
+          end
+        end
+        ans
+      end
+
+    end # class Resolver
+  end # module DNS
+end # module Net
