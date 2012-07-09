@@ -123,14 +123,22 @@ module Net # :nodoc:
       end
 
       def send_udp(packet,packet_data)
-        socket = Rex::Socket::Udp.create
         ans = nil
         response = ""
         @config[:nameservers].each do |ns|
           begin
             @config[:udp_timeout].timeout do
+              begin
+                socket = Rex::Socket::Udp.create(
+                  'PeerHost' => ns.to_s,
+                  'PeerPort' => @config[:port].to_i
+                )
+              rescue
+                @logger.warn "UDP Socket could not be established to #{ns}:#{@config[:port]}"
+              end
               @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
-              socket.sendto(packet_data, ns.to_s, @config[:port].to_i, 0)
+              #socket.sendto(packet_data, ns.to_s, @config[:port].to_i, 0)
+              socket.write(packet_data)
               ans = socket.recvfrom(@config[:packet_size])
             end
             break if ans
