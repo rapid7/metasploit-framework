@@ -328,6 +328,7 @@ protected
 		chunks = []
 		command = nil
 		encoding = :hex
+		cmd_name = ""
 
 		line_max = _unix_max_line_length
 		# Leave plenty of room for the filename we're writing to and the
@@ -341,14 +342,17 @@ protected
 			# nulls, so "printf %b '\0\101'" produces a 0-length string. The
 			# standalone version seems to be more likely to work than the buitin
 			# version, so try it first
-			{ :cmd => %q^/usr/bin/printf %b 'CONTENTS'^ , :enc => :octal },
-			{ :cmd => %q^printf %b 'CONTENTS'^ , :enc => :octal },
+			{ :cmd => %q^/usr/bin/printf %b 'CONTENTS'^ , :enc => :octal, :name => "printf" },
+			{ :cmd => %q^printf %b 'CONTENTS'^ , :enc => :octal, :name => "printf" },
 			# Perl supports both octal and hex escapes, but octal is usually
 			# shorter (e.g. 0 becomes \0 instead of \x00)
-			{ :cmd => %q^perl -e 'print("CONTENTS")'^ , :enc => :octal },
+			{ :cmd => %q^perl -e 'print("CONTENTS")'^ , :enc => :octal, :name => "perl" },
 			# POSIX awk doesn't have \xNN escapes, use gawk to ensure we're
 			# getting the GNU version.
-			{ :cmd => %q^gawk 'BEGIN {ORS = ""; print "CONTENTS"}' </dev/null^ , :enc => :hex },
+			{ :cmd => %q^gawk 'BEGIN {ORS="";print "CONTENTS"}' </dev/null^ , :enc => :hex, :name => "awk" },
+			# xxd's -p flag specifies a postscript-style hexdump of unadorned hex
+			# digits, e.g. ABCD would be 41424344
+			{ :cmd => %q^echo 'CONTENTS'|xxd -p -r^ , :enc => :bare_hex, :name => "xxd" },
 			# Use echo as a last resort since it frequently doesn't support -e
 			# or -n.  bash and zsh's echo builtins are apparently the only ones
 			# that support both.  Most others treat all options as just more
@@ -359,18 +363,24 @@ protected
 		].each { |foo|
 			# Some versions of printf mangle %.
 			test_str = "\0\xff\xfeABCD\x7f%%\r\n"
-			if foo[:enc] == :hex
+			#test_str = "\0\xff\xfe"
+			case foo[:enc]
+			when :hex
 				cmd = foo[:cmd].sub("CONTENTS"){ Rex::Text.to_hex(test_str) }
-			else
+			when :octal
 				cmd = foo[:cmd].sub("CONTENTS"){ Rex::Text.to_octal(test_str) }
+			when :bare_hex
+				cmd = foo[:cmd].sub("CONTENTS"){ Rex::Text.to_hex(test_str,'') }
 			end
 			a = session.shell_command_token("#{cmd}")
+
 			if test_str == a
 				command = foo[:cmd]
 				encoding = foo[:enc]
+				cmd_name = foo[:name]
 				break
 			else
-				p a
+				vprint_status("#{cmd} Failed: #{a.inspect} != #{test_str.inspect}")
 			end
 		}
 
@@ -384,15 +394,19 @@ protected
 
 		i = 0
 		while (i < d.length)
-			if encoding == :hex
-				chunks << Rex::Text.to_hex(d.slice(i...(i+max)))
-			else
-				chunks << Rex::Text.to_octal(d.slice(i...(i+max)))
+			slice = d.slice(i...(i+max))
+			case encoding
+			when :hex
+				chunks << Rex::Text.to_hex(slice)
+			when :octal
+				chunks << Rex::Text.to_octal(slice)
+			when :bare_hex
+				chunks << Rex::Text.to_hex(slice,'')
 			end
 			i += max
 		end
 
-		vprint_status("Writing #{d.length} bytes in #{chunks.length} chunks of #{chunks.first.length} bytes (#{encoding}-encoded), using #{command.split(" ",2).first}")
+		vprint_status("Writing #{d.length} bytes in #{chunks.length} chunks of #{chunks.first.length} bytes (#{encoding}-encoded), using #{cmd_name}")
 
 		# The first command needs to use the provided redirection for either
 		# appending or truncating.
