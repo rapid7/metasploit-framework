@@ -20,18 +20,8 @@ module Oui
 		mac = mac.upcase.gsub(':','')[0,6]
 		oui = OUI_LIST[mac]
 		if oui
-			return oui[0]
-		else
-			return 'UNKNOW'
-		end 
-	end
-
-	def self.lookup_oui_company_desc(mac)
-		check_mac(mac)
-		mac = mac.upcase.gsub(':','')[0,6]
-		oui = OUI_LIST[mac]
-		if oui
-			return oui[1]
+			fullname = oui[0]
+			fullname = oui[1] if oui[1] != ""
 		else
 			return 'UNKNOW'
 		end 
