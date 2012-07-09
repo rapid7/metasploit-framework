@@ -11,6 +11,7 @@
 
 require 'msf/core'
 require "net/dns/resolver"
+require "net/dns/rex_dns"
 
 class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report

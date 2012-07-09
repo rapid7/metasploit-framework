@@ -50,6 +50,7 @@ module Net # :nodoc:
         unless ans
           @logger.fatal "No response from nameservers list: aborting"
           raise NoResponseError
+          return nil
         end
 
         @logger.info "Received #{ans[0].size} bytes from #{ans[1][2]+":"+ans[1][1].to_s}"
@@ -69,7 +70,7 @@ module Net # :nodoc:
       end
 
       # TODO: figure out how to pass proxies from datastore
-      def send_tcp(packet,packet_data,proxies = nil)
+      def send_tcp(packet,packet_data,proxies=nil)
         ans = nil
         length = [packet_data.size].pack("n")
         @config[:nameservers].each do |ns|
@@ -80,12 +81,13 @@ module Net # :nodoc:
                 begin
                   socket = Rex::Socket::Tcp.create(
                     'PeerHost' => ns.to_s,
-                    'PeerPort' => @config[:port].to_i
+                    'PeerPort' => @config[:port].to_i,
                     'Proxies' => proxies
                   )
                 rescue
-                  @logger.info "TCP Socket could not be established to #{ns}:#{@config[:port]}"
+                  @logger.warn "TCP Socket could not be established to #{ns}:#{@config[:port]}"
                 end
+                next unless socket #
                 @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
                 socket.write(length+packet_data)
                 ans = socket.recv(Net::DNS::INT16SZ)
@@ -109,7 +111,7 @@ module Net # :nodoc:
                   next
                 end
               ensure
-                socket.close# unless socket.closed?
+                socket.close if socket
               end
             end
             return [buffer,["",@config[:port],ns.to_s,ns.to_s]]
