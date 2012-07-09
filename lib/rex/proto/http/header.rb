@@ -48,7 +48,7 @@ class Packet::Header < Hash
 
 		# Extract each header value pair
 		header.split(/\r\n/mn).each { |str|
-			if (md = str.match(/^(.+?): (.+?)$/))
+			if (md = str.match(/^(.+?)\s*:\s*(.+?)\s*$/))
 				if (self[md[1]])
 					self[md[1]] << ", " + md[2]
 				else
@@ -153,7 +153,7 @@ class Packet::Header < Hash
 		end
 		list.each(&block)
 	end
-	
+
 	#
 	# The raw command string associated with the header which will vary between
 	# requests and responses.
@@ -171,4 +171,3 @@ end
 end
 end
 end
-
