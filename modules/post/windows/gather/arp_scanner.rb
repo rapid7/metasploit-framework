@@ -19,6 +19,7 @@ class Metasploit3 < Msf::Post
 	include Msf::Post::Common
 	include Msf::Auxiliary::Report
 
+	OUI_LIST = Rex::Oui
 
 	def initialize(info={})
 		super( update_info( info,
@@ -69,8 +70,10 @@ class Metasploit3 < Msf::Post
 						h = iphlp.SendARP(ip,0,6,6)
 						if h["return"] == client.railgun.const("NO_ERROR")
 							mac_text = h["pMacAddr"].unpack('C*').map { |e| "%02x" % e }.join(':')
-							print_status("\tIP: #{ip_text} MAC #{mac_text}")
+							company = OUI_LIST::lookup_oui_company_name(mac_text )
+							print_status("\tIP: #{ip_text} MAC #{mac_text} (#{company})")
 							report_host(:host => ip_text,:mac => mac_text)
+							report_note(:host  => ip_text, :type  => "mac_oui", :data  => company) 
 						end
 					})
 				i += 1

@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
 	def find_link_local(opts = {})
 		shost = opts['SHOST'] || datastore['SHOST'] || ipv6_link_address
 		hosts = opts['HOSTS'] || []
-		smac  = opts['SMAC'] || datastore['SMAC'] || ipv6_mac
+		smac  = @smac 
 		timeout = opts['TIMEOUT_NEIGHBOR'] || datastore['TIMEOUT_NEIGHBOR']
 		network_prefix = Rex::Socket.addr_aton(shost)[0,8]
 
@@ -91,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def create_router_advertisment(opts={})
 		dhost = "FF02::1"
-		smac = opts['SMAC'] || datastore['SMAC'] || ipv6_mac
+		smac = @smac
 		shost = opts['SHOST'] || datastore['SHOST'] || ipv6_link_address
 		lifetime = opts['LIFETIME'] || datastore['TIMEOUT']
 		prefix = opts['PREFIX'] || datastore['PREFIX']
@@ -151,6 +151,22 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		# Start caputure
 		open_pcap({'FILTER' => "icmp6"})
+
+		@netifaces = true
+		if not netifaces_implemented?
+			print_error("WARNING : Pcaprub is not uptodate, some functionality will not be available")
+			@netifaces = false
+		end
+
+		@interface = datastore['INTERFACE'] || Pcap.lookupdev
+		@shost = datastore['SHOST']
+		@shost ||= get_ipv4_addr(@interface) if @netifaces
+		raise RuntimeError ,'SHOST should be defined' unless @shost
+
+		@smac  = datastore['SMAC']
+		@smac ||= get_mac(@interface) if @netifaces
+		@smac ||= ipv6_mac
+		raise RuntimeError ,'SMAC should be defined' unless @smac
 
 		# Send router advertisement
 		print_status("Sending router advertisement...")
