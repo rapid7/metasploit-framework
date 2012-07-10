@@ -3700,7 +3700,7 @@ class DBManager
 			host_address = host_data[:host].dup # Preserve after report_host() deletes
 			hobj = report_host(host_data)
 
-			host.elements.each("host_details") do |hdet|
+			host.elements.each("host_details/host_detail") do |hdet|
 				hdet_data = {}
 				hdet.elements.each do |det|
 					next if ["id", "host-id"].include?(det.name)
@@ -3711,7 +3711,7 @@ class DBManager
 				report_host_details(hobj, hdet_data)
 			end
 
-			host.elements.each("exploit_attempts") do |hdet|
+			host.elements.each("exploit_attempts/exploit_attempt") do |hdet|
 				hdet_data = {}
 				hdet.elements.each do |det|
 					next if ["id", "host-id", "session-id", "vuln-id", "service-id", "loot-id"].include?(det.name)
