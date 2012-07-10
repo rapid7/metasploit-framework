@@ -1008,7 +1008,7 @@ class DBManager
 			info[k] = opts[k]  if opts[k]
 		end
 
-		return unless info[:attempted_at] and info.has_key(:exploited)
+		return unless info[:attempted_at] and info.has_key?(:exploited)
 
 		vuln.vuln_attempts.create(info)
 	}
