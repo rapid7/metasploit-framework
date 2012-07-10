@@ -1008,6 +1008,8 @@ class DBManager
 			info[k] = opts[k]  if opts[k]
 		end
 
+		return unless info[:attempted_at] and info.has_key(:exploited)
+
 		vuln.vuln_attempts.create(info)
 	}
 	end
@@ -3797,7 +3799,7 @@ class DBManager
 
 				vobj = report_vuln(vuln_data)
 
-				vuln.elements.each("vuln_details") do |vdet|
+				vuln.elements.each("vuln_details/vuln_detail") do |vdet|
 					vdet_data = {}
 					vdet.elements.each do |det|
 						next if ["id", "vuln-id"].include?(det.name)
@@ -3808,7 +3810,7 @@ class DBManager
 					report_vuln_details(vobj, vdet_data)
 				end
 
-				vuln.elements.each("vuln_attempts") do |vdet|
+				vuln.elements.each("vuln_attempts/vuln_attempt") do |vdet|
 					vdet_data = {}
 					vdet.elements.each do |det|
 						next if ["id", "vuln-id", "loot-id", "session-id"].include?(det.name)
