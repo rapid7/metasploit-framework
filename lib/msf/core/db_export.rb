@@ -529,12 +529,12 @@ class Export
 				# Vuln details sub-elements
 				report_file.write("            <vuln_details>\n")
 				e.vuln_details.find(:all).each do |d|
-					report_file.write("            <vuln_detail>\n")
+					report_file.write("                <vuln_detail>\n")
 					d.attributes.each_pair do |k,v|
 						el = create_xml_element(k,v)
 						report_file.write("                    #{el}\n")
 					end
-					report_file.write("            </vuln_detail>\n")				
+					report_file.write("                </vuln_detail>\n")				
 				end
 				report_file.write("            </vuln_details>\n")
 
