@@ -36,15 +36,15 @@ class DBManager
 		end
 	end
 
-  # Only include Mdm if we're not using Metasploit commercial versions
-  # If Mdm::Host is defined, the dynamically created classes
-  # are already in the object space
-  begin
+	# Only include Mdm if we're not using Metasploit commercial versions
+	# If Mdm::Host is defined, the dynamically created classes
+	# are already in the object space
+	begin
     include MetasploitDataModels unless defined? Mdm::Host
-  rescue NameError => e
-    warn_about_rubies
-    raise e
-  end
+	rescue NameError => e
+	warn_about_rubies
+	raise e
+	end
 
 	# Provides :framework and other accessors
 	include Framework::Offspring
@@ -77,11 +77,19 @@ class DBManager
 	# Array of additional migration paths
 	attr_accessor :migration_paths
 
+	# Flag to indicate that modules are cached
+	attr_accessor :modules_cached
+
+	# Flag to indicate that the module cacher is running
+	attr_accessor :modules_caching
+
 	def initialize(framework, opts = {})
 
 		self.framework = framework
 		self.migrated  = false
 		self.migration_paths = [ ::File.join(Msf::Config.install_root, "data", "sql", "migrate") ]
+		self.modules_cached  = false
+		self.modules_caching = false
 
 		@usable = false
 
@@ -316,8 +324,24 @@ class DBManager
 		framework.db.find_workspace(@workspace_name)
 	end
 
+
+	def purge_all_module_details
+		return if not self.migrated
+		return if self.modules_caching
+
+		::ActiveRecord::Base.connection_pool.with_connection do
+			Mdm::ModuleDetail.destroy_all
+		end
+
+		true
+	end
+
 	def update_all_module_details
 		return if not self.migrated
+		return if self.modules_caching
+
+		self.modules_cached  = false
+		self.modules_caching = true
 
 		::ActiveRecord::Base.connection_pool.with_connection {
 		
@@ -367,6 +391,9 @@ class DBManager
 				end
 			end
 		end
+
+		self.modules_cached  = true
+		self.modules_caching = false
 
 		nil
 
