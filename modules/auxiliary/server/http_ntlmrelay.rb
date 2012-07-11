@@ -667,7 +667,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_error("Problem processing respfile. Continuing...")
 			end
 		end
-		if (response.body == nil)
+		if (response.body.empty?)
 			response.body = "<HTML><HEAD><TITLE>My Page</TITLE></HEAD></HTML>"
 		end
 		return response
