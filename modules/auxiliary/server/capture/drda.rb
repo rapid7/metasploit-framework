@@ -220,15 +220,15 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if @state[c][:user] and @state[c][:pass]
-			print_status("DRDA LOGIN Database: #{@state[c][:database]}; #{@state[c][:user]} / #{@state[c][:pass]}")
+			print_status("DRDA LOGIN #{@state[c][:name]} Database: #{@state[c][:database]}; #{@state[c][:user]} / #{@state[c][:pass]}")
 			report_auth_info(
-			:host      => @state[c][:ip],
-			:port      => datastore['SRVPORT'],
-			:sname     => 'db2_client',
-			:user      => @state[c][:user],
-			:pass      => @state[c][:pass],
-			:source_type => "captured",
-			:active    => true
+				:host      => @state[c][:ip],
+				:port      => datastore['SRVPORT'],
+				:sname     => 'db2_client',
+				:user      => @state[c][:user],
+				:pass      => @state[c][:pass],
+				:source_type => "captured",
+				:active    => true
 			)
 
 			params = []
