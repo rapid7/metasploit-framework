@@ -18,7 +18,7 @@ module Auxiliary::WebAudit
 	attr_reader :target
 	attr_reader :parent
 
-	def initialize(info = {})
+	def initialize( info = {} )
 		super
 	end
 
@@ -34,20 +34,45 @@ module Auxiliary::WebAudit
 		"xssmsfpro"
 	end
 
+	#
+	# Should be overridden to return a Regexp which will be used against the
+	# response body in order to identify the vulnerability.
+	#
+	# You can go one deeper and override #find_proof for more complex processing.
+	#
 	def signature
 	end
 
+	#
+	# Default #run, will audit all methods/forms and try to use #signature
+	# to identify vulnerabilities.
+	#
 	def run
-		return if !signature.kind_of? ::Regexp
-
 		target.auditable[:methods].each do |method|
 			audit_form_methods( method, target.auditable[:params] )
 		end
 	end
 
-	def audit_form_methods( method, params )
+	#
+	# Uses the Regexp in #signature against the response body in order to
+	# identify vulnerabilities and return a String that proves it.
+	#
+	# Override it if you need more complex processing, but remember to return
+	# the proof as a String.
+	#
+	# response - Net::HTTPResponse
+	#
+	def find_proof( response )
 		return if !signature.kind_of? ::Regexp
 
+		m = response.body.match( signature )
+		return if !m || m.size < 1
+
+		1.upto( m.length - 1 ) { |i| return m[i].gsub( /[\r\n]/, ' ' ) if m[i] }
+		nil
+	end
+
+	def audit_form_methods( method, params )
 		generate_parameters( method, params ).each do |form, param, pname|
 			response = submit_request( method, param )
 
@@ -55,14 +80,6 @@ module Auxiliary::WebAudit
 				process_vulnerability( method, form, param, pname, proof )
 			end
 		end
-	end
-
-	def find_proof( response )
-		m = response.body.match( signature )
-		return if !m || m.size < 1
-
-		1.upto( m.length - 1 ) { |i| return m[i].gsub( /[\r\n]/, ' ' ) if m[i] }
-		nil
 	end
 
 	def submit_request( method, params )
@@ -281,7 +298,7 @@ module Auxiliary::WebAudit
 
 	def process_vulnerability( method, form, param, pname, proof )
 		mode  = details[:category].to_sym
-		vhash = [target.to_url, mode, pname].map{|x| x.to_s}.join("|")
+		vhash = [target.to_url, mode, pname].map{ |x| x.to_s }.join( '|' )
 
 		parent.vulns[mode] ||= {}
 		return parent.vulns[mode][vhash] if parent.vulns[mode][vhash]
