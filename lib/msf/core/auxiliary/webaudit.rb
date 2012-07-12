@@ -140,7 +140,7 @@ module Auxiliary::WebAudit
 			if resp = conn.request( req )
 				case resp.code.to_i
 					when 200,404,301,302,303
-						# print_status("	#{resp.code} - #{method.upcase} #{t[:path]} #{buff}")
+						# print_status("	#{resp.code} - #{method.upcase} #{target.path} #{buff}")
 					when 500,503,401,403
 						print_good  "    #{resp.code} - #{method.upcase} #{target.path} #{buff}"
 					else
@@ -267,7 +267,7 @@ module Auxiliary::WebAudit
 
 		http = ::Net::HTTP.new( target.host, target.port, proxy_host,
 		                        proxy_port, proxy_user, proxy_pass )
-		if target.ssl
+		if target.ssl?
 			http.use_ssl     = true
 			http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 		end
