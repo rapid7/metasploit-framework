@@ -73,21 +73,21 @@ module Auxiliary::WebAudit
 
             # Configure the headers
             headers = {
-                'User-Agent' => datastore['UserAgent'] || "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)",
+                'User-Agent' => parent.datastore['UserAgent'] || "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)",
                 'Accept'     => "*/*",
                 'Host'       => target[:vhost]
             }
 
-            if datastore['HTTPCookie']
-                headers['Cookie'] = datastore['HTTPCookie']
+            if parent.datastore['HTTPCookie']
+                headers['Cookie'] = parent.datastore['HTTPCookie']
             end
 
-            if datastore['BasicAuthUser']
-                auth = [ datastore['BasicAuthUser'].to_s + ":" + datastore['BasicAuthPass'] ].pack("m*").gsub(/\s+/, '')
+            if parent.datastore['BasicAuthUser']
+                auth = [ parent.datastore['BasicAuthUser'].to_s + ":" + parent.datastore['BasicAuthPass'] ].pack("m*").gsub(/\s+/, '')
                 headers["Authorization"] ="Basic #{auth}\r\n"
             end
 
-            datastore['HttpAdditionalHeaders'].to_s.split("\x01").each do |hdr|
+            parent.datastore['HttpAdditionalHeaders'].to_s.split("\x01").each do |hdr|
                 next if not (hdr and hdr.strip.length > 0)
                 k,v = hdr.split(":", 2)
                 next if not v
