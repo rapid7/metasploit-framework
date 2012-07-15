@@ -282,7 +282,7 @@ DWORD windows_get_tcp_table(struct connection_table **table_connection)
 					// force program_name to "-" and try to get real name through GetOwnerModuleFromXXXEntry
 					strncpy(current_connection->program_name, "-", sizeof(current_connection->program_name));
 
-					set_process_name(currentv4->dwOwningPid, current_connection->program_name, sizeof(current_connection->program_name));
+					set_process_name(currentv6->dwOwningPid, current_connection->program_name, sizeof(current_connection->program_name));
 					
 					(*table_connection)->entries++;
 				}
@@ -450,7 +450,7 @@ DWORD windows_get_udp_table(struct connection_table **table_connection)
 					// force program_name to "-" and try to get real name through GetOwnerModuleFromXXXEntry
 					strncpy(current_connection->program_name, "-", sizeof(current_connection->program_name));
 
-					set_process_name(currentv4->dwOwningPid, current_connection->program_name, sizeof(current_connection->program_name));
+					set_process_name(currentv6->dwOwningPid, current_connection->program_name, sizeof(current_connection->program_name));
 					
 					(*table_connection)->entries++;
 				}
