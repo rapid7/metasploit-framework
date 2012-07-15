@@ -86,7 +86,7 @@ class PayloadSet < ModuleSet
 		# Initialize a temporary hash
 		_temp = {}
 
-		# Popular the temporary hash
+		# Populate the temporary hash
 		_singles.each_pair { |name, op|
 			_temp[name] = op
 		}
@@ -116,11 +116,11 @@ class PayloadSet < ModuleSet
 		# Initialize a temporary hash
 		_temp = {}
 
-		# Popular the temporary hash
+		# Populate the temporary hash
 		_stagers.each_pair { |stager_name, op|
 			_temp[stager_name] = op
 		}
-		# Recalculate single payloads
+		# Recalculate staged payloads
 		_temp.each_pair { |stager_name, op|
 			mod, handler = op
 			stager_mod, handler, stager_platform, stager_arch, stager_inst = op
