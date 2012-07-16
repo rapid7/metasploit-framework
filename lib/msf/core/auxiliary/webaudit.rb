@@ -30,6 +30,18 @@ module Auxiliary::WebAudit
 		@target = target
 	end
 
+	# Should be overridden to return the exploit to use for this
+	# vulnerability type as an Array of Strings.
+	def self.exploits
+		[]
+	end
+
+	# Should be overridden to return the exploit to use for this
+	# vulnerability type as an Array of Strings.
+	def payloads
+		[]
+	end
+
 	def token
 		"xssmsfpro"
 	end
