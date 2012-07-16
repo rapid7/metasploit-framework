@@ -23,8 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %q{
 				This module provides a fake MySQL service that is designed to
 				capture authentication credentials. It captures	challenge and
-				response pairs that can be supplied to Cain or JTR for
-				cracking.
+				response pairs that can be supplied to Cain for	cracking.
 			},
 			'Author'         => 'Patrik Karlsson patrik[at]cqure.net',
 			'License'        => MSF_LICENSE,
@@ -38,10 +37,6 @@ class Metasploit3 < Msf::Auxiliary
 				OptPort.new('SRVPORT', [ true, "The local port to listen on.", 3306 ]),
 				OptString.new('CHALLENGE', [ true, "The 16 byte challenge", "112233445566778899AABBCCDDEEFF1122334455" ]),
 				OptString.new("SRVVERSION", [ true, "The server version to report in the greeting response", "5.5.16" ]),
-				# There's currenlty no "official" JTR module for cracking MySQL challenge + responses
-				# I've created one that can be downloaded from here:
-				# https://raw.github.com/nevdull77/magnum-jumbo/magnum-jumbo/src/mysqlSHA1chall_fmt_plug.c
-				OptString.new('JOHNPWFILE',  [ false, "The prefix to the local filename to store the hashes in JOHN format", nil ]),
 				OptString.new('CAINPWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ]),
 			], self.class)
 	end
@@ -166,11 +161,6 @@ class Metasploit3 < Msf::Auxiliary
 				:active => true
 			)
 
-			if(datastore['JOHNPWFILE'])
-				fd = File.open(datastore['JOHNPWFILE'] + '_mysql' , "ab")
-				fd.puts hash_line
-				fd.close
-			end
 			if (datastore['CAINPWFILE'])
 				fd = File.open(datastore['CAINPWFILE'], "ab")
 				fd.puts(
