@@ -54,6 +54,7 @@ module ReverseTcp
 				OptInt.new('ReverseConnectRetries', [ true, 'The number of connection attempts to try before exiting the process', 5 ]),
 				OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
 				OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
+				OptBool.new('ReverseAllowProxy', [ true, 'Allow reverse tcp even with Proxies specified. Connect back will NOT go through proxy but directly to LHOST', false]),
 			], Msf::Handler::ReverseTcp)
 
 
@@ -66,8 +67,8 @@ module ReverseTcp
 	# if it fails to start the listener.
 	#
 	def setup_handler
-		if datastore['Proxies']
-			raise RuntimeError, 'TCP connect-back payloads cannot be used with Proxies'
+		if datastore['Proxies'] and not datastore['ReverseAllowProxy']
+			raise RuntimeError, 'TCP connect-back payloads cannot be used with Proxies. Can be overriden by setting ReverseAllowProxy to true'
 		end
 
 		ex = false

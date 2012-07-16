@@ -83,8 +83,15 @@ class PayloadSet < ModuleSet
 			v != SymbolicModule
 		}
 
-		# Recalculate single payloads
+		# Initialize a temporary hash
+		_temp = {}
+
+		# Populate the temporary hash
 		_singles.each_pair { |name, op|
+			_temp[name] = op
+		}
+		# Recalculate single payloads
+		_temp.each_pair { |name, op|
 			mod, handler = op
 
 			# Build the payload dupe using the determined handler
@@ -106,8 +113,16 @@ class PayloadSet < ModuleSet
 			end
 		}
 
-		# Recalculate stagers and stages
+		# Initialize a temporary hash
+		_temp = {}
+
+		# Populate the temporary hash
 		_stagers.each_pair { |stager_name, op|
+			_temp[stager_name] = op
+		}
+		# Recalculate staged payloads
+		_temp.each_pair { |stager_name, op|
+			mod, handler = op
 			stager_mod, handler, stager_platform, stager_arch, stager_inst = op
 
 			# Walk the array of stages
