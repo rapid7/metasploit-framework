@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 		}
 		mysql_send_greeting(c)
 	end
-	
+
 	def mysql_send_greeting(c)
 		# http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol#Handshake_Initialization_Packet
 
@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
 		chall = String.new(@challenge)
 		data = [
 			( length & 0x00FFFFFF ) + ( packetno << 24 ), # length + packet no
-			10, # protocol version: 10
+			10, # protocol version: 10e
 			@version, # server version: 5.5.16 (unless changed)
 			rand(1..10000), # thread id
 			chall.slice!(0,8), # the first 8 bytes of the challenge
@@ -93,7 +93,7 @@ class Metasploit3 < Msf::Auxiliary
 		].pack("VCZ*VA*CnCvH*Z*Z*")
 		c.put data
 	end
-	
+
 	def mysql_process_login(data, info)
 		length = ( data.slice(0,4).unpack("V")[0] & 0x00FFFFFF )
 		packetno = ( data.slice!(0,4).unpack("V")[0] & 0xFF000000 ) >> 24
@@ -102,28 +102,28 @@ class Metasploit3 < Msf::Auxiliary
 			info[:errors] << "Unsupported protocol detected"
 			return info
 		end
-		
+
 		# we're dealing with the 4.1+ protocol
 		extflags = data.slice!(0,2).unpack("v")[0]
 		maxpacket= data.slice!(0,4).unpack("N")[0]
 		charset = data.slice!(0,1).unpack("C")[0]
-		
+
 		# slice away 23 bytes of filler
 		data.slice!(0,23)
-				
+
 		info[:username] = data.slice!(0, data.index("\x00")+1).unpack("Z*")[0]
 		response_len = data.slice!(0,1).unpack("C")[0]
 		if response_len != 20
 			return
 		end
 		info[:response] = data.slice!(0, 20).unpack("A*")[0]
-		
+
 		if ( flags & 0x0008 ) == 0x0008
 			info[:database] = data.slice!(0, data.index("\x00")).unpack("A*")[0]
 		end
 		info
 	end
-	
+
 	def mysql_send_error(c, msg)
 		length = 9 + msg.length
 		packetno = 2
@@ -142,7 +142,7 @@ class Metasploit3 < Msf::Auxiliary
 		info = { :errors => [] }
 		data = c.get_once
 		return if not data
-				
+
 		mysql_process_login(data, info)
 		if info[:errors] and not info[:errors].empty?
 			print_error("#{info[:errors].join("\n")}")
