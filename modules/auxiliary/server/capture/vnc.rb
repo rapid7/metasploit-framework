@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
 		elsif @state[c][:chall]
 			c.put [0x00000001].pack("N")
 			c.close
-			print_status("VNC LOGIN: Challenge: #{@challenge.unpack('H*')[0]}; Response: #{data.unpack('H*')[0]}")
+			print_status("VNC LOGIN: #{@state[c][:name]} Challenge: #{@challenge.unpack('H*')[0]}; Response: #{data.unpack('H*')[0]}")
 			hash_line = "$vnc$*#{@state[c][:chall].unpack("H*")[0]}*#{data.unpack('H*')[0]}"
 			report_auth_info(
 				:host  => c.peerhost,
@@ -103,14 +103,14 @@ class Metasploit3 < Msf::Auxiliary
 			)
 
 			if(datastore['JOHNPWFILE'])
-				fd = File.open(datastore['JOHNPWFILE'] + '_vnc' , "ab")
+				fd = ::File.open(datastore['JOHNPWFILE'] + '_vnc' , "ab")
 				fd.puts hash_line
 				fd.close
 			end
 		# we have got the protocol sorted out and have offered the VNC sectype (2)
 		elsif @state[c][:proto] == "003.007"
 			if ( data.unpack("C")[0] != 2 )
-				print_error("Client chose a sectype that was not offered! #{data.unpack("H*")}")
+				print_error("Error: #{@state[c][:name]} Client chose a sectype that was not offered! #{data.unpack("H*")}")
 				c.close
 				return
 			end
