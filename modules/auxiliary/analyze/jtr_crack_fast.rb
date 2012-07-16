@@ -129,6 +129,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				# Store the cracked results based on user_id => cred.id
 				cracked_ntlm.each_pair do |k,v|
+					next if not cred.user.to_s.strip.length > 0
 					next if not k =~ /^cred_(\d+)/m
 					cid = $1.to_i
 
