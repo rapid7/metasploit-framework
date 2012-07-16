@@ -153,7 +153,7 @@ class Metasploit3 < Msf::Auxiliary
 			else
 				print_status("MYSQL LOGIN: User: #{info[:username]}; Challenge: #{@challenge.unpack('H*')[0]}; Response: #{info[:response].unpack('H*')[0]}")
 			end
-			hash_line = "$mysql$#{@challenge.unpack("H*")[0]}$#{info[:response].unpack('H*')[0]}"
+			hash_line = "#{info[:username]}:$mysql$#{@challenge.unpack("H*")[0]}$#{info[:response].unpack('H*')[0]}"
 			report_auth_info(
 				:host  => c.peerhost,
 				:port => datastore['SRVPORT'],
