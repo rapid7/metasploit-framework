@@ -158,7 +158,7 @@ class Metasploit3 < Msf::Auxiliary
 				:host  => c.peerhost,
 				:port => datastore['SRVPORT'],
 				:sname => 'mysql_client',
-				:user => "",
+				:user => info[:username],
 				:pass => hash_line,
 				:type => "mysql_hash",
 				:proof => info[:database] ? info[:database] : hash_line,
@@ -170,7 +170,8 @@ class Metasploit3 < Msf::Auxiliary
 				fd = File.open(datastore['JOHNPWFILE'] + '_mysql' , "ab")
 				fd.puts hash_line
 				fd.close
-			elsif (datastore['CAINPWFILE'])
+			end
+			if (datastore['CAINPWFILE'])
 				fd = File.open(datastore['CAINPWFILE'], "ab")
 				fd.puts(
 				[
