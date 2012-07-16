@@ -117,6 +117,8 @@ rest.each do |x|
 	options[k] = v.to_s
 end
 
+payload.datastore.merge! options
+
 if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w)/)
 	fmt = 'perl' if (cmd =~ /^p/)
 	fmt = 'ruby' if (cmd =~ /^y/)
