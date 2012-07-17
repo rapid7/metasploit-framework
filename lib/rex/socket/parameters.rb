@@ -32,69 +32,69 @@ class Rex::Socket::Parameters
 	# Initializes the attributes from the supplied hash.  The following hash
 	# keys can be specified.
 	#
-	# PeerHost / PeerAddr
+	# [PeerHost / PeerAddr]
 	#
 	# 	The remote host to connect to.
 	#
-	# PeerPort
+	# [PeerPort]
 	#
 	# 	The remote port to connect to.
 	#
-	# LocalHost / LocalAddr
+	# [LocalHost / LocalAddr]
 	#
 	# 	The local host to communicate from, if any.
 	#
-	# LocalPort
+	# [LocalPort]
 	#
 	# 	The local port to communicate from, if any.
 	#
-	# Bare
+	# [Bare]
 	#
 	# 	Create a bare socket.
 	#
-	# Server
+	# [Server]
 	#
 	# 	Whether or not this should be a server.
 	#
-	# SSL
+	# [SSL]
 	#
 	# 	Whether or not SSL should be used.
 	#
-	# SSLVersion
+	# [SSLVersion]
 	#
 	# 	Specify SSL2, SSL3, or TLS1 (SSL3 is default)
 	#
-	# SSLCert
+	# [SSLCert]
 	#
 	# 	A file containing an SSL certificate (for server sockets)
 	#
-	# Proxies
+	# [Proxies]
 	#
 	#	List of proxies to use.
 	#
-	# Proto
+	# [Proto]
 	#
 	#	The underlying protocol to use.
 	#
-	# IPv6
+	# [IPv6]
 	#
 	#	Force the use of IPv6.
 	#
-	# Comm
+	# [Comm]
 	#
 	# 	The underlying Comm class to use to create the socket for this parameter
 	# 	set.
 	#
-	# Context
+	# [Context]
 	#
 	# 	A context hash that can allow users of this parameter class instance to
 	# 	determine who is responsible for requesting that a socket be created.
 	#
-	# Retries
+	# [Retries]
 	#
 	# 	The number of times a connection should be retried.
 	#
-	# Timeout
+	# [Timeout]
 	#
 	# 	The number of seconds before a connection should time out
 	#
