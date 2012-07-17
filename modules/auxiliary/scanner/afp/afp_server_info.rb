@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		print_status("AFP #{ip} Scanning...")
+		print_status("Scanning IP: #{ip.to_s}")
 		begin
 			connect
 			response = get_info
@@ -44,30 +44,24 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Rex::ConnectionError, ::IOError, ::Errno::ECONNRESET, ::Errno::ENOPROTOOPT
 		rescue ::Exception
 			raise $!
-			print_error("AFP #{rhost}:#{rport} #{$!.class} #{$!}")
+			print_error("#{rhost}:#{rport} #{$!.class} #{$!}")
 		ensure
 			disconnect
 		end
 	end
 
 	def report(response)
-		report_info = "AFP #{rhost}:#{rport} Server Name: #{response[:server_name]} \n" +
-		"AFP #{rhost}:#{rport}  Server Flags: \n" +
+		report_info = "Server Name: #{response[:server_name]} \n" +
+		" Server Flags: \n" +
 		format_flags_report(response[:server_flags]) +
-		"AFP #{rhost}:#{rport}  Machine Type: #{response[:machine_type]} \n" +
-		"AFP #{rhost}:#{rport}  AFP Versions: #{response[:versions].join(', ')} \n" +
-		"AFP #{rhost}:#{rport}  UAMs: #{response[:uams].join(', ')}\n" +
-		"AFP #{rhost}:#{rport}  Server Signature: #{response[:signature]}\n" +
-		"AFP #{rhost}:#{rport}  Server Network Address: \n" +
+		" Machine Type: #{response[:machine_type]} \n" +
+		" AFP Versions: #{response[:versions].join(', ')} \n" +
+		" UAMs: #{response[:uams].join(', ')}\n" +
+		" Server Signature: #{response[:signature]}\n" +
+		" Server Network Address: \n" +
 		format_addresses_report(response[:network_addresses]) +
-		"AFP #{rhost}:#{rport}   UTF8 Server Name: #{response[:utf8_server_name]}"
-
-
-		lines = "AFP #{rhost}:#{rport}:#{rport} AFP:\n#{report_info}"
-
-		lines.split(/\n/).each do |line|
-			print_status(line)
-		end
+		"  UTF8 Server Name: #{response[:utf8_server_name]}"
+		print_status("#{rhost}:#{rport} APF:\n #{report_info}")
 
 		report_note(:host => datastore['RHOST'],
 			:proto => 'tcp',
@@ -88,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
 	def format_flags_report(parsed_flags)
 		report = ''
 		parsed_flags.each do |flag, val|
-			report << "AFP #{rhost}:#{rport}     *  #{flag}: #{val.to_s} \n"
+			report << "    *  #{flag}: #{val.to_s} \n"
 		end
 		return report
 	end
@@ -96,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
 	def format_addresses_report(parsed_network_addresses)
 		report = ''
 		parsed_network_addresses.each do |val|
-			report << "AFP #{rhost}:#{rport}     *  #{val.to_s} \n"
+			report << "    *  #{val.to_s} \n"
 		end
 		return report
 	end

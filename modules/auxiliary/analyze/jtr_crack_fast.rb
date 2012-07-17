@@ -129,13 +129,13 @@ class Metasploit3 < Msf::Auxiliary
 
 				# Store the cracked results based on user_id => cred.id
 				cracked_ntlm.each_pair do |k,v|
-					next if not cred.user.to_s.strip.length > 0
 					next if not k =~ /^cred_(\d+)/m
 					cid = $1.to_i
 
 					cred_find = smb_hashes.select{|x| x[:id] == cid}
 					next if cred_find.length == 0
 					cred = cred_find.first
+					next if cred.user.to_s.strip.length == 0
 
 					print_good("Cracked: #{cred.user}:#{v} (#{cred.service.host.address}:#{cred.service.port})")
 					report_auth_info(
