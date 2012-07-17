@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -19,17 +15,16 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'MSSQL - Execute SQL from file',
 			'Description'    => %q{
-					This module will allow for multiple SQL queries contained within a specified 
-					file to be executed against a MSSQL instance given the appropiate credentials.
+				This module will allow for multiple SQL queries contained within a specified 
+				file to be executed against a MSSQL instance given the appropiate credentials.
 			},
 			'Author'         => [ 'j0hn__f : <jf[at]tinternet.org.uk>' ],
-			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision: 1 $'
+			'License'        => MSF_LICENSE
 		))
 
 		register_options(
 			[
-				OptString.new('SQL_FILE', [ true, "file containing multiple SQL queries execute (one per line)"]),
+				OptPath.new('SQL_FILE', [ true, "File containing multiple SQL queries execute (one per line)"]),
 				OptString.new('QUERY_PREFIX', [ false, "string to append each line of the file",""]),
 				OptString.new('QUERY_SUFFIX', [ false, "string to prepend each line of the file",""])
 			], self.class)
@@ -37,7 +32,6 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run
-
 		queries = File.readlines(datastore['SQL_FILE'])
 
 		prefix = datastore['QUERY_PREFIX']
@@ -45,6 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			queries.each do |sql_query|
+				vprint_status("Executing: #{sql_query}")
 				mssql_query(prefix+sql_query.chomp+suffix,true) if mssql_login_datastore
 			end
 		rescue Rex::ConnectionRefused, Rex::ConnectionTimeout
@@ -54,5 +49,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-
-
