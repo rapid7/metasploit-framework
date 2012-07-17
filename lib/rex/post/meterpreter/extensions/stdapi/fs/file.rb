@@ -186,6 +186,9 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 	# Upload one or more files to the remote computer the remote
 	# directory supplied in destination.
 	#
+	# If a block is given, it will be called before each file is uploaded and
+	# again when each upload is complete.
+	#
 	def File.upload(destination, *src_files, &stat)
 		src_files.each { |src|
 			dest = destination
@@ -223,6 +226,9 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 	#
 	# Download one or more files from the remote computer to the local
 	# directory supplied in destination.
+	#
+	# If a block is given, it will be called before each file is downloaded and
+	# again when each download is complete.
 	#
 	def File.download(dest, *src_files, &stat)
 		src_files.each { |src|
