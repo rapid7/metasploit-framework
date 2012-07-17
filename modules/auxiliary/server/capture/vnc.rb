@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module provides a fake VNC service that
 			is designed to capture authentication credentials.
 			},
-			'Author'         => 'Patrik Karlsson patrik[at]cqure.net',
+			'Author'         => 'Patrik Karlsson <patrik[at]cqure.net>',
 			'License'        => MSF_LICENSE,
 			'Actions'        => [ [ 'Capture' ] ],
 			'PassiveActions' => [ 'Capture' ],
