@@ -1,9 +1,6 @@
 # -*- coding: binary -*-
 
-module Msf
-class Post
-
-module File
+module Msf::Post::File
 
 	def cd(path)
 		if session.type == "meterpreter"
@@ -445,7 +442,4 @@ protected
 
 		line_max
 	end
-end
-
-end
 end
