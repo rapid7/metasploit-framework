@@ -9,7 +9,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'SQL Server - Local Authorization Bypass - Add SYSADMIN',
+				'Name'          => 'SQL Server - Local Authorization Bypass',
 				'Description'   => %q{ When this module is executed via an existing 
 				meterpreter session it can be used to add a sysadmin to local 
 				SQL Server instances.  It first attempts to gain LocalSystem privileges 
@@ -39,7 +39,6 @@ class Metasploit3 < Msf::Post
 				OptBool.new('VERBOSE',  [false, 'Set how verbose the output should be', 'false']),
 			], self.class)
 	end
-	
 
 	def run
 				
