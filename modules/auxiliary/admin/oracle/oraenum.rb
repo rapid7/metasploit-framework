@@ -656,7 +656,11 @@ class Metasploit3 < Msf::Auxiliary
 						)
 					end
 				end
-			end
+      end
+    rescue => e
+      if e.to_s =~ /ORA-00942: table or view does not exist/
+        print_error("It appears you do not have sufficient rights to perform the check")
+      end
 		end
 	end
 end
