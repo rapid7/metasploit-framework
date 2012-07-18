@@ -40,11 +40,6 @@ class Metasploit3 < Msf::Post
 			], self.class)
 	end
 	
-	# TODO
-	# - test execute thread migration option
-	# - test incognito token stuff
-	# - test all fucntions on all version
-	# - run through ruby module validation process
 
 	def run
 				
