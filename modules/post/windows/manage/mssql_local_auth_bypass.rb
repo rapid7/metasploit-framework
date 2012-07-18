@@ -368,7 +368,9 @@ class Metasploit3 < Msf::Post
 	## Method for executing cmd and returning the response
 	## 
 	## Note: This is from one of Jabra's modules - Thanks man!
-	## #craps out when escalating from local admin to system
+	## Note: This craps out when escalating from local admin to system
+	##       I assume it has something to do with the token, but don't 
+	##       really know.
 	##----------------------------------------------
 	def run_cmd(cmd,token=true)
 		opts = {'Hidden' => true, 'Channelized' => true, 'UseThreadToken' => token} 
@@ -442,9 +444,11 @@ class Metasploit3 < Msf::Post
 		end		
 	end	
 	
-	##
-	## Check user is already system
-	##
+	
+	## ----------------------------------------------
+	## Method to become SYSTEM if required
+	## Note: This is from one of Jabra's modules.
+	## ----------------------------------------------
 	def givemesystem
 		
 		# Statusing
