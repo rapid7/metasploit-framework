@@ -113,7 +113,7 @@ class Metasploit3 < Msf::Auxiliary
 		# we have got the protocol sorted out and have offered the VNC sectype (2)
 		elsif @state[c][:proto] == "003.007"
 			if ( data.unpack("C")[0] != 2 )
-				print_error("#{peer} - #{@state[c][:name]} sectype not offered! #{data.unpack("H*")}")
+				print_error("#{peer} - sectype not offered! #{data.unpack("H*")}")
 				c.close
 				return
 			end
