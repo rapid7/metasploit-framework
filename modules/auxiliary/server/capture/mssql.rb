@@ -54,11 +54,11 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('CHALLENGE',   [ true, "The 8 byte challenge ", "1122334455667788" ])
 			], self.class)
 
-			register_advanced_options(
-				[
-					OptBool.new("SMB_EXTENDED_SECURITY", [ true, "Use smb extended security negociation, when set client will use ntlmssp, if not then client will use classic lanman authentification", false ]),
-					OptString.new('DOMAIN_NAME',         [ true, "The domain name used during smb exchange with smb extended security set ", "anonymous" ])
-				], self.class)
+		register_advanced_options(
+			[
+				OptBool.new("SMB_EXTENDED_SECURITY", [ true, "Use smb extended security negociation, when set client will use ntlmssp, if not then client will use classic lanman authentification", false ]),
+				OptString.new('DOMAIN_NAME',         [ true, "The domain name used during smb exchange with smb extended security set ", "anonymous" ])
+			], self.class)
 
 	end
 
