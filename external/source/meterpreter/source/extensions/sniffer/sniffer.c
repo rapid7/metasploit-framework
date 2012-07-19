@@ -1098,8 +1098,6 @@ DWORD __declspec(dllexport) InitServerExtension(Remote *remote)
 {
 	DWORD index;
 
-	hMetSrv = remote->hMetSrv;
-
 	dprintf("[SERVER] Registering command handlers...");
 	for (index = 0; customCommands[index].method; index++) {
 		dprintf("Registering command index %d", index);
@@ -1112,6 +1110,7 @@ DWORD __declspec(dllexport) InitServerExtension(Remote *remote)
 	memset(open_captures, 0, sizeof(open_captures));
 
 #ifdef _WIN32
+	hMetSrv = remote->hMetSrv;
 	// initialize structures for the packet sniffer sdk
 	hMgr = NULL;
 	hErr = 0;

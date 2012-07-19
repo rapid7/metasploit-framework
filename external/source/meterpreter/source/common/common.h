@@ -15,6 +15,8 @@
 
 #include <fcntl.h>
 
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <sys/select.h>
 #include <sys/endian.h>
 #include <netinet/in.h>
