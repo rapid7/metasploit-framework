@@ -62,4 +62,31 @@ enum thread_signal {
 };
 typedef  struct mirv_thread_t mirv_thread;
 
+#define MAX_KEY_LENGTH 255
+#define MAX_VALUE_NAME 16383
+#define MAX_VALUE_DATA 65535
+#define MAX_RESOURCES 1024
+#define MAX_WAIT_HANDLES 256
+#define MAX_WAIT_TIME 1000 // 1 sec
+typedef struct messageProviders_struct {
+	char* providerNameBestGuess;
+	char* CategoryMessageFile;
+	char* EventMessageFile;
+	char* ParameterMessageFile;
+} messageProvider;
+
+int getProviders(messageProvider **mpArray);
+unsigned int getEventLogProviders(char **providers);
+
+
+typedef struct event_reader_struct {
+	HANDLE resources[1024];
+	DWORD resourceHandleCount;
+	HANDLE aWaitHandles[MAX_WAIT_HANDLES];
+	HANDLE eventLoghandles[MAX_WAIT_HANDLES];
+} event_reader;
+
+int open_log(char *provider, event_reader *er_out);
+int get_event(event_reader *er, char **message);
+int close_log(event_reader *er);
 #endif

@@ -15,7 +15,7 @@ int l_sendudp (lua_State *L){
 	struct addrinfo *result = NULL,
 		*ptr = NULL,
 		hints;
-	struct sockaddr_in *RecvAddr;
+//	struct sockaddr_in *RecvAddr;
 	int iResult;
 	char buf[8192];
 	message=luaL_checkstring(L,1);
@@ -32,7 +32,7 @@ int l_sendudp (lua_State *L){
 	hints.ai_protocol = IPPROTO_UDP;
 
 	// Resolve the server address and port
-	sprintf(buf,"%i",port);
+	sprintf_s(buf,8192,"%i",port);
 	iResult = getaddrinfo(dest, buf, &hints, &result);
 	if ( iResult != 0 ) {
 		WSACleanup();
@@ -63,3 +63,74 @@ int l_sendudp (lua_State *L){
 	}
 	return 0;
 }
+
+
+
+int l_openlog (lua_State *L){
+	
+	const char *provider;
+	event_reader *er;
+//	event_reader *er_lua;
+	er=(event_reader *)malloc(sizeof(event_reader));
+	provider=luaL_checkstring(L,1);
+	if (ERROR_SUCCESS == open_log((char *)provider,er)){
+		lua_pushlightuserdata(L,er);
+		return 1;
+	}
+	else {
+		return luaL_error(L,"Error while opening log: %s", GetLastError());
+	}
+}
+
+int l_getevent(lua_State *L){
+	event_reader *er;
+	void *ptr;
+	char *message=NULL;
+	//printf("There are %i elements on the stack\n",lua_gettop(L));
+	//ptr=lua_touserdata(L,1);
+	if(lua_islightuserdata(L,1)){
+		ptr=lua_touserdata(L,1);
+		er= (event_reader *) ptr;
+		get_event(er,&message);
+		if(message){
+			lua_pushstring(L,(const char*)message);
+			free(message);
+			return 1;
+		}else{
+			lua_pushnil(L);
+			return 1;
+		}
+
+	}else{
+		lua_pushstring(L,"Invalid handle passed");
+		lua_error(L);
+		return 0;
+	}
+
+	return 0;
+
+}
+
+int l_closelog(lua_State *L){
+	event_reader *er;
+	void *ptr;
+	char *message=NULL;
+	//printf("There are %i elements on the stack\n",lua_gettop(L));
+	//ptr=lua_touserdata(L,1);
+	if(lua_islightuserdata(L,1)){
+		
+		er= (event_reader *) ptr;
+		close_log(er);
+		lua_pop(L,1);
+		return 0;
+
+	}else{
+		lua_pushstring(L,"Invalid handle passed");
+		lua_error(L);
+		return 0;
+	}
+
+	return 0;
+}
+
+

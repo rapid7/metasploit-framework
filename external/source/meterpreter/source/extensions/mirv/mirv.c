@@ -115,6 +115,15 @@ LPCSTR do_lua(LPCSTR lua_code,DWORD thread_id){
 	luaL_openlibs(l);
 	lua_pushcfunction(l, l_sendudp);
     lua_setglobal(l, "sendudp");
+
+	lua_pushcfunction(l, l_openlog);
+    lua_setglobal(l, "openlog");
+
+	lua_pushcfunction(l, l_getevent);
+    lua_setglobal(l, "getevent");
+
+	lua_pushcfunction(l, l_closelog);
+    lua_setglobal(l, "closelog");
 	;
 	if(luaL_dostring(l,lua_code)!=0){	// Error parsing code
 		dprintf("Error parsing code :( ");

@@ -8,4 +8,7 @@
 
 int l_sendudp (lua_State *L);
 // function sendudp(message,dest,port) str,str,int
+int l_openlog (lua_State *L);
+int l_getevent(lua_State *L);
+int l_closelog(lua_State *L);
 	
