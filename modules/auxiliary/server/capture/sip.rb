@@ -10,6 +10,7 @@
 ##
 
 require 'msf/core'
+require 'rex/socket'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -99,24 +100,26 @@ class Metasploit3 < Msf::Auxiliary
 		auth << "Content-Length: 0"
 		auth << ""
 
-		@sock.send(auth.join("\r\n") << "\r\n", 0, @requestor[:ip], @requestor[:port])
+		@sock.sendto(auth.join("\r\n") << "\r\n", @requestor[:ip].to_s, @requestor[:port])
 	end
 
 	def run
 		begin
 			@port = datastore['SRVPORT'].to_i
-			@sock = ::UDPSocket.new()
-			@sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_REUSEADDR, 1)
-			@sock.bind(datastore['SRVHOST'], @port)
+			@sock = Rex::Socket::Udp.create(
+						'LocalHost' => datastore['SRVHOST'],
+						'LocalPort' => @port,
+						'Context'   => {'Msf' => framework, 'MsfExploit' => self} )
 			@run = true
 
 			while @run
-				packet, addr = @sock.recvfrom(65535)
+				res = @sock.recvfrom()
 				@requestor = {
-					:ip => addr[3],
-					:port => addr[1]
+					:ip => res[1],
+					:port => res[2]
 				}
-				request = sip_parse_request(packet)
+				next if not res[0] or res[0].empty?
+				request = sip_parse_request(res[0])
 				method = request[:method]
 
 				case method
