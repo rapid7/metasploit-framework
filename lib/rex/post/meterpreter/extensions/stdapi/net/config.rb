@@ -2,7 +2,9 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/stdapi/tlv'
+require 'rex/post/meterpreter/extensions/stdapi/net/arp'
 require 'rex/post/meterpreter/extensions/stdapi/net/route'
+require 'rex/post/meterpreter/extensions/stdapi/net/netstat'
 require 'rex/post/meterpreter/extensions/stdapi/net/interface'
 
 module Rex
@@ -103,9 +105,69 @@ class Config
 
 	##
 	#
+	# Network connections
+	#
+	##
+
+	#
+	# Returns an array of network connection entries with each element being a Netstat.
+	#
+
+	def get_netstat
+		request = Packet.create_request('stdapi_net_config_get_netstat')
+                netstat  = []
+
+		response = client.send_request(request)
+		
+		# Build out the array of netstat
+		response.each(TLV_TYPE_NETSTAT_ENTRY) { |connection|
+			netstat << Netstat.new(
+			                :local_addr   => connection.get_tlv_value(TLV_TYPE_LOCAL_HOST_RAW),
+					:remote_addr  => connection.get_tlv_value(TLV_TYPE_PEER_HOST_RAW),
+					:local_port   => connection.get_tlv_value(TLV_TYPE_LOCAL_PORT),
+					:remote_port  => connection.get_tlv_value(TLV_TYPE_PEER_PORT),
+					:protocol     => connection.get_tlv_value(TLV_TYPE_MAC_NAME), # tcp/tcp6/udp/udp6
+					:state        => connection.get_tlv_value(TLV_TYPE_SUBNET_STRING),
+					:uid          => connection.get_tlv_value(TLV_TYPE_PID),
+					:inode        => connection.get_tlv_value(TLV_TYPE_ROUTE_METRIC),
+					:pid_name     => connection.get_tlv_value(TLV_TYPE_PROCESS_NAME)
+					)
+		}
+
+		return netstat
+	end
+
+	alias netstat get_netstat
+
+	##
+	#
 	# Routing
 	#
 	##
+
+	#
+	# Returns an array of arp entries with each element being an Arp.
+	#
+
+	def get_arp_table
+		request = Packet.create_request('stdapi_net_config_get_arp_table')
+                arps  = []
+
+		response = client.send_request(request)
+
+		# Build out the array of arp
+		response.each(TLV_TYPE_ARP_ENTRY) { |arp|
+			arps << Arp.new(
+					:ip_addr   => arp.get_tlv_value(TLV_TYPE_IP),
+					:mac_addr  => arp.get_tlv_value(TLV_TYPE_MAC_ADDRESS),
+					:interface => arp.get_tlv_value(TLV_TYPE_MAC_NAME)
+					)
+		}
+
+		return arps
+	end
+
+	alias arp_table get_arp_table
 
 	#
 	# Enumerates each route.
