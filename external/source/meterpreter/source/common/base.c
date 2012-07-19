@@ -125,7 +125,7 @@ DWORD command_register(Command *command)
 {
 	Command *newCommand;
 
-	dprintf("Registering a new command...");
+	dprintf("Registering a new command (%s)...", command->method);
 	if (!(newCommand = (Command *)malloc(sizeof(Command))))
 		return ERROR_NOT_ENOUGH_MEMORY;
 
@@ -212,6 +212,23 @@ VOID command_throtle( int maxthreads )
 }
 */
 
+#ifndef _WIN32
+/*
+ * Reap child zombie threads on linux 2.4 (before NPTL)
+ * each thread appears as a process and pthread_join don't necessarily reap it
+ * threads are created using the clone syscall, so use special __WCLONE flag in waitpid
+ */
+
+VOID reap_zombie_thread(void * param)
+{
+	while(1) {
+		waitpid(-1, NULL, __WCLONE);
+		// on 2.6 kernels, don't chew 100% CPU
+		usleep(500000);
+	}
+}
+#endif
+
 /*
  * Process a single command in a seperate thread of execution.
  */
@@ -243,6 +260,11 @@ DWORD THREADCALL command_process_thread( THREAD * thread )
 		commandThreadList = list_create();
 		if( commandThreadList == NULL )
 			return ERROR_INVALID_HANDLE;
+#ifndef _WIN32
+		pthread_t tid;
+		pthread_create(&tid, NULL, reap_zombie_thread, NULL);
+		dprintf("reap_zombie_thread created, thread_id : 0x%x",tid);
+#endif
 	}
 
 	list_add( commandThreadList, thread );

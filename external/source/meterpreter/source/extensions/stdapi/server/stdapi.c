@@ -326,13 +326,13 @@ Command customCommands[] =
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
 
-#ifdef _WIN32
 	// Socket
 	{ "stdapi_net_socket_tcp_shutdown",
 	  { request_net_socket_tcp_shutdown,                   { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
 
+#ifdef _WIN32
 	// UI
 	{ "stdapi_ui_enable_mouse",
 	  { request_ui_enable_mouse,                           { 0 }, 0 },
