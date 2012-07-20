@@ -332,6 +332,11 @@ module Auxiliary::WebAudit
 
 		parent.vulns[mode][vhash].merge!( confidence: confidence )
 
+		payload = nil
+		if payloads
+			payload = payloads.select{ |p| Hash[param][pname].include?( p ) }.first
+		end
+
 		info = {
 			:web_site    => form.web_site,
 			:path	     => form.path,
@@ -345,7 +350,9 @@ module Auxiliary::WebAudit
 			:blame	     => details[:blame],
 			:category    => details[:category],
 			:description => details[:description],
-			:confidence  => confidence
+			:confidence  => confidence,
+			:payload     => payload,
+			:owner       => self
 		}
 
 		report_web_vuln( info )
