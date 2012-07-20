@@ -151,7 +151,7 @@ class Metasploit3 < Msf::Auxiliary
 						report_auth_info(
 							:host  => @requestor[:ip],
 							:port => @requestor[:port],
-							:sname => 'sip_challenge',
+							:sname => 'sip_client',
 							:user => username,
 							:pass => response + ":" + auth_tokens['nonce'] + ":" + algorithm,
 							:type => "sip_hash",
