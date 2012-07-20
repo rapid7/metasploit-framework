@@ -705,7 +705,7 @@ class DBManager
 			vuln_info[:service] = service if service
 
 			vuln = framework.db.report_vuln(vuln_info)
-			
+
 			attempt_info = {
 				:timestamp   => Time.now.utc,
 				:workspace   => wspace,
@@ -719,7 +719,7 @@ class DBManager
 			}
 
 			framework.db.report_exploit_success(attempt_info)
-			
+
 		end
 
 		s
@@ -852,7 +852,7 @@ class DBManager
 					ref.to_s
 				end
 			})
-		
+
 			# Try find a matching vulnerability
 			vuln = find_vuln_by_refs(ref_objs, host, svc)
 		end
@@ -871,7 +871,7 @@ class DBManager
 			attempt_info[:loot_id]    = opts[:loot_id]    if opts[:loot_id]
 
 			vuln.vuln_attempts.create(attempt_info)
-	
+
 			# Correct the vuln's associated service if necessary
 			if svc and vuln.service_id.nil?
 				vuln.service = svc
@@ -890,12 +890,12 @@ class DBManager
 		attempt_info[:vuln_id]    = vuln.id           if vuln
 		attempt_info[:session_id] = opts[:session_id] if opts[:session_id]
 		attempt_info[:loot_id]    = opts[:loot_id]    if opts[:loot_id]
-		
+
 		if svc
 			attempt_info[:port]  = svc.port
 			attempt_info[:proto] = svc.proto
 		end
-		
+
 		if port and svc.nil?
 			attempt_info[:port]  = port
 			attempt_info[:proto] = prot || "tcp"
@@ -918,7 +918,7 @@ class DBManager
 
 		timestamp  = opts.delete(:timestamp)
 		freason    = opts.delete(:fail_reason)
-		fdetail    = opts.delete(:fail_detail)		
+		fdetail    = opts.delete(:fail_detail)
 		username   = opts.delete(:username)
 		mname      = opts.delete(:module)
 
@@ -949,7 +949,7 @@ class DBManager
 					ref.to_s
 				end
 			})
-		
+
 			# Try find a matching vulnerability
 			vuln = find_vuln_by_refs(ref_objs, host, svc)
 		end
@@ -984,7 +984,7 @@ class DBManager
 			attempt_info[:port]  = svc.port
 			attempt_info[:proto] = svc.proto
 		end
-		
+
 		if port and svc.nil?
 			attempt_info[:port]  = port
 			attempt_info[:proto] = prot || "tcp"
@@ -999,7 +999,7 @@ class DBManager
 	::ActiveRecord::Base.connection_pool.with_connection {
 		return if not vuln
 		info = {}
-		
+
 		# Opts can be keyed by strings or symbols
 		::Mdm::VulnAttempt.column_names.each do |kn|
 			k = kn.to_sym
@@ -1016,7 +1016,7 @@ class DBManager
 	::ActiveRecord::Base.connection_pool.with_connection {
 		return if not host
 		info = {}
-		
+
 		# Opts can be keyed by strings or symbols
 		::Mdm::VulnAttempt.column_names.each do |kn|
 			k = kn.to_sym
@@ -1602,7 +1602,7 @@ class DBManager
 			# If a match is found on a vulnerability with no associated service,
 			# update that vulnerability with our service information. This helps
 			# prevent dupes of the same vuln found by both local patch and
-			# service detection.		
+			# service detection.
 			if rids and rids.length > 0
 				vuln = find_vuln_by_refs(rids, host, service)
 				vuln.service = service if vuln
@@ -1630,7 +1630,7 @@ class DBManager
 			else
 				vuln = host.vulns.find_by_name(name)
 			end
-			
+
 			unless vuln
 
 				vinf = {
@@ -1639,7 +1639,7 @@ class DBManager
 					:info    => info
 				}
 
-				vinf[:service_id] = service.id if service 
+				vinf[:service_id] = service.id if service
 				vuln = Mdm::Vuln.create(vinf)
 			end
 		end
@@ -1660,7 +1660,7 @@ class DBManager
 
 		# Handle vuln_details parameters
 		report_vuln_details(vuln, details) if details
-		
+
 		vuln
 	}
 	end
@@ -2371,6 +2371,8 @@ class DBManager
 		desc    = opts[:description].to_s.strip
 		conf    = opts[:confidence].to_i
 		cat     = opts[:category].to_s.strip
+		payload = opts[:payload].to_s
+		owner   = opts[:owner] ? opts[:owner].shortname : nil
 
 		site    = nil
 
@@ -2424,6 +2426,8 @@ class DBManager
 		vuln.blame    = blame
 		vuln.description = desc
 		vuln.confidence  = conf
+		vuln.payload = payload
+		vuln.owner   = owner
 		msf_import_timestamps(opts, vuln)
 		vuln.save!
 
@@ -5063,7 +5067,7 @@ class DBManager
 	#
 	# This method normalizes an incoming service name to one of the
 	# the standard ones recognized by metasploit
-	# 
+	#
 	def service_name_map(proto)
 		return proto unless proto.kind_of? String
 		case proto.downcase
