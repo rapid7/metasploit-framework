@@ -149,8 +149,8 @@ class Metasploit3 < Msf::Auxiliary
 						print_status("SIP LOGIN: #{proof}")
 
 						report_auth_info(
-							:host  => client_ip,
-							:port => server_ip,
+							:host  => @requestor[:ip],
+							:port => @requestor[:port],
 							:sname => 'sip_challenge',
 							:user => username,
 							:pass => response + ":" + auth_tokens['nonce'] + ":" + algorithm,
