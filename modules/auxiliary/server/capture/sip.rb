@@ -120,7 +120,7 @@ class Metasploit3 < Msf::Auxiliary
 						'Context'   => {'Msf' => framework, 'MsfExploit' => self} )
 			@run = true
 			server_ip = sip_sanitize_address(datastore['SRVHOST'])
-			
+
 			while @run
 				res = @sock.recvfrom()
 				@requestor = {
