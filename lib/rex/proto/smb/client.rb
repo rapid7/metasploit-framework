@@ -1894,9 +1894,9 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 				last_search_id = sid
 				last_offset = loff
 				last_filename = name
-				if eos != 1
+				if eos != 1 #If we aren't at the end of the search, run find_next
 					resp = find_next(last_search_id, last_offset, last_filename)
-					search_next = 1
+					search_next = 1 # Flip bit so response params will parse correctly
 				end
 			end until eos == 1
 		rescue ::Exception
@@ -1906,18 +1906,18 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		return files
 	end
 
-	# TODO: Finish this method... requires search_id, resume_key, and filename from first
+	# Supplements find_first if file/dir count exceeds max search count
 	def find_next(sid, resume_key, last_filename)
 
 		parm = [
 			sid, # Search ID
-			20, # Maximum search count
+			20, # Maximum search count (Size of 20 keeps response to 1 packet)
 			260, # Level of interest
-			resume_key,   # Resume key from previous
+			resume_key,   # Resume key from previous (Last name offset)
 			6,   # Close search if end of search
-		].pack('vvvVv') + last_filename + "\x00"
+		].pack('vvvVv') + last_filename + "\x00" # Last filename returned from find_first or find_next
 		resp = trans2(CONST::TRANS2_FIND_NEXT2, parm, '')
-		return resp
+		return resp # Returns the FIND_NEXT2 response packet for parsing by the find_first function
 	end
 
 	# Creates a new directory on the mounted tree
