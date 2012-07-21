@@ -119,7 +119,7 @@ class Driver < Msf::Ui::Driver
 
 		# Add the core command dispatcher as the root of the dispatcher
 		# stack
-		@@core = enstack_dispatcher(CommandDispatcher::Core)
+		@core = enstack_dispatcher(CommandDispatcher::Core)
 
 		# Report readline error if there was one..
 		if not rl_err.nil?
@@ -632,9 +632,6 @@ protected
 
 	attr_writer   :framework # :nodoc:
 	attr_writer   :command_passthru # :nodoc:
-
-	# we could link allow_aliases to the same value as command_passthru to make life easier, but 
-	# let's see if we can make it it's own option for now
 	attr_writer   :allow_aliases #:nodoc:
 	# would it be wise to do a block_command("cmd_alias") in here somewhere?
 
@@ -644,7 +641,7 @@ protected
 	#
 	def unknown_command(method, line)
 		# what should take precedence sys commands or console aliases?  We go with aliases for now.
-		aliases = @@core.aliases || {}
+		aliases = @core.aliases
 		if ( allow_aliases == true and aliases.keys.include?(method) )
 			# we want to run the alias, which may contain options (like sessions -l), plus any newly supplied opts
 			additional_opts = line.sub(method,'')

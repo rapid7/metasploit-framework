@@ -2365,19 +2365,19 @@ class Core
 				end
 				return
 			end
+			# smash everything that's left together
 			value = args.join(" ")
 
 			allow = (@allow_aliases == false) ? false : true
 			if allow
-				if true
-					# if valid alias (value is a ref to a valid cmd or alias & name is sane)
+				if is_valid_alias?(name,value)
 					if force or (not Rex::FileUtils.find_full_path(name) and not @aliases.keys.include?(name))
 						@aliases[name] = value
 					else
 						print_error("#{name} already exists as system command or current alias, use -f to force")
 					end
 				else
-					print_error("#{name} is not allowed or #{value} is not a valid command or alias}")
+					print_error("\'#{name}\' is not a permitted name or \'#{value}\' is not a valid/permitted console or system command")
 				end
 			else
 				print_error("Aliasing is disabled")
@@ -2393,6 +2393,14 @@ class Core
 		print_line
 		print_line "List, clear, or assign alias name to value.  -f to force.  -c to clear (use * for all)"
 		print_line
+	end
+
+	#
+	# Tab completion for the alias command
+	#
+	def cmd_alias_tabs(str, words)
+		tab_complete_aliases_and_commands(str, words)
+		#driver.tab_complete(words.first + str)
 	end
 
 	#
@@ -2435,6 +2443,16 @@ class Core
 		return res.sort
 	end
 
+	#
+	# Provie tab completion for aliases and commands
+	#
+	def tab_complete_aliases_and_commands(str, words)
+		#TODO:  return the same shit that driver.tab_complete essentially returns, but
+		# w/o updating the command line to overwrite the word alias
+		items = []
+		items.concat(driver.commands.keys) if driver.respond_to?('commands')
+		items.concat(driver.aliases.keys) if driver.respond_to?("aliases")
+	end
 
 	#
 	# Provide tab completion for option values
@@ -2661,9 +2679,58 @@ class Core
 protected
 
 	#
+	# Validate a proposed alias
+	#
+	def is_valid_alias?(name,value)
+
+		# value
+
+		# some "safe words" to avoid for the value.  value would have to not match these regexes
+		value.strip!
+		safe_words = [/^rm -rf \/.*$/, /^msfconsole$/]
+		safe_words.each do |regex|
+			# don't mess around, just return false in this case
+			return false if value =~ regex
+		end
+		# we're only gonna validate the first part of the cmd, e.g. just ls from "ls -lh"
+		value = value.split(" ").first
+		valid_value = false
+
+		# value is considered valid if it's a ref to a valid console command or system executable or existing alias
+		if driver.is_valid_dispatcher_command?(value)
+			valid_value = true
+		elsif @aliases.keys.include?(value)
+			valid_value = true
+		else
+			[value, value+".exe"].each do |cmd|
+				if Rex::FileUtils.find_full_path(cmd)
+					valid_value = true
+				end
+			end
+		end
+
+		# name
+
+		# we don't check if this alias name exists or if it's a console command already etc as -f can override that
+		# so those need to be checked externally.  We pretty much just check to see if the name is sane
+		valid_name = true
+		name.strip!
+		safe_words = [/^alias$/,/\*/]
+		# there are probably a bunch of others that need to be added here.
+		# we prevent you from naming your alias "alias" cuz you can end up unable to clear your aliases
+		# for example you alias -f set unset and then alias -f alias sessions, now you're screwed.
+		# this prevents you from aliasing alias to alias -f etc, but too bad.
+		safe_words.each do |regex|
+			# don't mess around, just return false in this case, prevents wasted processing of further checks
+			return false if name =~ regex
+		end
+
+		return (valid_name && valid_value)
+	end
+
+	#
 	# Module list enumeration
 	#
-
 	def show_encoders(regex = nil, minrank = nil, opts = nil) # :nodoc:
 		# If an active module has been selected and it's an exploit, get the
 		# list of compatible encoders and display them
