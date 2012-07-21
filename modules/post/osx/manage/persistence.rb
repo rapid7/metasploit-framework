@@ -163,7 +163,6 @@ class Metasploit3 < Msf::Post
 
 
 	# Function to make the binary file persistent
-	# Warning : on some system like OEL crontab may not be in PATH 
 	#-------------------------------------------------------------------------------
 	def make_persistent(binpath)
 
