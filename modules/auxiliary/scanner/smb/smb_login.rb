@@ -69,6 +69,9 @@ class Metasploit3 < Msf::Auxiliary
 				print_error("#{ip} - This system allows guest sessions with any credentials, these instances will not be reported.")
 			end
 		end unless datastore['RECORD_GUEST']
+		
+		# If unset SMBDomain is used valid local logins are returned as invalid. set SMBDomain "" works.
+		datastore['SMBDomain'] = "" if datastore['SMBDomain'].nil?
 
 		begin
 			each_user_pass do |user, pass|
@@ -172,6 +175,7 @@ class Metasploit3 < Msf::Auxiliary
 		# "SMBPass" to be populated.
 		datastore["SMBPass"] = pass
 		orig_domain = datastore["SMBDomain"]
+		print_status datastore["SMBDomain"]
 		# Note that unless PRESERVE_DOMAINS is true, we're more
 		# than happy to pass illegal usernames that contain
 		# slashes.
@@ -182,6 +186,7 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			datastore["SMBUser"] = user.to_s.gsub(/<BLANK>/i,"")
 		end
+		
 
 		# Connection problems are dealt with at a higher level
 		connect()
