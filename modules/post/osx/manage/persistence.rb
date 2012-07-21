@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Post
 		unless datastore['REXEPATH'].nil? or datastore['REXEPATH'].empty?
 			@use_home_dir = false;
 			rexepath = ::File.expand_path(datastore['REXEPATH'])
-			if not dir_exists? rexepath
+			if not directory_exist? rexepath
 				print_error("The directory #{datastore['REXEPATH']} does not exists on the remote system")
 				return
 			end
@@ -206,7 +206,7 @@ class Metasploit3 < Msf::Post
 			agentsdir = ::File.join(@homedir, "/Library/LaunchAgents")
 			plistfile = ::File.join(agentsdir, plistname)
 			#Not created upon install
-			unless dir_exists? agentsdir
+			unless directory_exist? agentsdir
 				cmd_exec('mkdir -p ' + agentsdir)
 			end
 			write_file(plistfile, plist)

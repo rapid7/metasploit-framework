@@ -121,20 +121,6 @@ module Unix
 		end		
 	end
 
-	def dir_exists? dir
-		dir = ::File.expand_path(dir)
-		cmddir = '[ -d "' +  dir + '" ] && echo "OK" || echo "KO"'
-		checkdir = cmd_exec(cmddir)
-		return checkdir == 'OK'
-	end
-
-	def file_exists? file
-		dir = ::File.expand_path(file)
-		cmdfile = '[ -f "' +  file + '" ] && echo "OK" || echo "KO"'
-		checkfile = cmd_exec(cmdfile)
-		return checkfile == 'OK'
-	end
-
 end
 end
 end

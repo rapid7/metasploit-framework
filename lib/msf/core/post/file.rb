@@ -45,6 +45,8 @@ module Msf::Post::File
 		end
 	end
 
+	alias directory_exist? directory?
+
 	def expand_path(path)
 		if session.type == "meterpreter"
 			return session.fs.file.expand_path(path)
