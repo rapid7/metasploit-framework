@@ -32,20 +32,20 @@ class Metasploit3 < Msf::Auxiliary
 				and connected to a database this module will record successful
 				logins and hosts so you can track your access.
 			},
-			'Author'         => 'tebo <tebo [at] attackresearch [dot] com>',
+			'Author'         => [
+								'tebo <tebo [at] attackresearch [dot] com>', # Original
+								'Ben Campbell <eat_meatballs [at] hotmail.co.uk>' # Refactoring
+								],
 			'References'     =>
 				[
-					[ 'CVE', '1999-0506'], # Weak password
-					['URL', 'http://msdn.microsoft.com/en-us/library/cc704588(v=prot.10).aspx'] #SMB Login Status Codes		
+					[ 'CVE', '1999-0506'], # Weak password	
 				],
 			'License'     => MSF_LICENSE
 		)
 		deregister_options('RHOST','USERNAME','PASSWORD')
 
-		@accepts_bogus_domains = []
 		@accepts_guest_logins = {}
 		@correct_credentials_status_codes = ["STATUS_INVALID_LOGON_HOURS",
-											"STATUS_ACCOUNT_LOCKED_OUT",
 											"STATUS_ACCOUNT_RESTRICTION",
 											"STATUS_ACCOUNT_EXPIRED",
 											"STATUS_ACCOUNT_DISABLED",
@@ -73,14 +73,13 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 
-		begin
+		unless datastore['RECORD_GUEST']
 			if accepts_guest_logins?
 				print_status("#{ip} - This system allows guest sessions with any credentials, these instances will not be reported.")
 			end
-		end unless datastore['RECORD_GUEST']
-		
-		# If unset SMBDomain is used valid local logins are returned as invalid. set SMBDomain "." works.
-		domain = datastore['Domain'] || "."
+		end 
+
+		domain = datastore['SMBDomain'] || ""
 
 		begin
 			each_user_pass do |user, pass|
@@ -110,7 +109,7 @@ class Metasploit3 < Msf::Auxiliary
 												datastore['SMB::Native_LM'],
 												{:use_spn => datastore['NTLM::SendSPN'], :name =>  self.rhost}
 			)
-			# Is this required to check valid logins? simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
+			# This does not appear to be required to validate login details? simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
 		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
 			status_code = e.get_error(e.error_code)
 		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
@@ -122,14 +121,15 @@ class Metasploit3 < Msf::Auxiliary
 		return status_code
 	end
 
-	# No idea how this is different to accepts_bogus_logins?
+	# Unsure how this result is different than bogus logins
 	def accepts_guest_logins?
 		guest = false
 		user = Rex::Text.rand_text_alpha(8)
 		pass = Rex::Text.rand_text_alpha(8)
 		
-		check_login_status(datastore['SMBDomain'], user, pass) # This is better method than checking auth_user? == "STATUS_SUCCESS"
-		begin
+		check_login_status(datastore['SMBDomain'], user, pass)
+
+		unless(simple.client.auth_user) 
 			guest = true
 			@accepts_guest_logins['rhost'] ||=[] unless @accepts_guest_logins.include?(rhost) #'rhost' should be rhost?
 			report_note(
@@ -141,8 +141,7 @@ class Metasploit3 < Msf::Auxiliary
 				:data   => 'accepts guest login from any account',
 				:update => :unique_data
 			)
-		end unless(simple.client.auth_user) 
-		#simple.client.auth_user == 'guest'?
+		end 
 		
 		return guest
 	end
@@ -150,25 +149,26 @@ class Metasploit3 < Msf::Auxiliary
 	def accepts_bogus_logins?
 		user = Rex::Text.rand_text_alpha(8)
 		pass = Rex::Text.rand_text_alpha(8)
-		return check_login_status(datastore['SMBDomain'], user, pass) == "STATUS_SUCCESS"
-		#simple.client.auth_user == user?
+		check_login_status(datastore['SMBDomain'], user, pass)
+		return simple.client.auth_user ? true : false
 	end
 
-	def accepts_bogus_domains?(addr)
-		if @accepts_bogus_domains.include? addr
-			return true
+	# This logic is not universal ie a local account will not care about workgroup
+	# but remote domain authentication will so check each instance
+	def accepts_bogus_domains?(user, pass, rhost)
+		domain  = Rex::Text.rand_text_alpha(8)
+		status = check_login_status(domain, user, pass)
+		
+		bogus_domain = valid_credentials?(status)
+		if bogus_domain
+			vprint_status "Domain is ignored"
 		end
 		
-		domain  = Rex::Text.rand_text_alpha(8)
-
-		status = check_login_status(domain, datastore['SMBUser'], datastore['SMBPass'])
-
-		if status == "STATUS_SUCCESS"
-			@accepts_bogus_domains << addr
-			return true
-		else
-			return false
-		end
+		return valid_credentials?(status)
+	end
+	
+	def valid_credentials?(status)
+		return (status == "STATUS_SUCCESS" || @correct_credentials_status_codes.include?(status))
 	end
 
 	def try_user_pass(domain, user, pass)
@@ -183,37 +183,48 @@ class Metasploit3 < Msf::Auxiliary
 
 		user = user.to_s.gsub(/<BLANK>/i,"")
 		
-		print_status "#{user}, #{domain}, #{pass}"	
 		status = check_login_status(domain, user, pass)
+		
+		output_message = "#{smbhost} - %s (#{smb_peer_os}) #{user} : #{pass} [#{status}]"
 
 		case status
-		when 'STATUS_SUCCESS'
-			unless user == user.downcase
-				lower_status = check_login_status(domain, user.downcase, pass)
-				if lower_status == 'STATUS_SUCCESS'
-					print_status("Username is case insensitive")
-					user = user.downcase
-				end
-			end
-				
+		when 'STATUS_SUCCESS'		
 			if(simple.client.auth_user)
-				print_status("Auth-User: #{simple.client.auth_user}")
-				print_good("#{smbhost} - SUCCESSFUL LOGIN (#{smb_peer_os}) '#{user}' : '#{pass}'")
+				print_good(output_message % "SUCCESSFUL LOGIN")
+				vprint_status("Auth-User: #{simple.client.auth_user}")
 			else
-				print_status("#{rhost} - GUEST LOGIN (#{smb_peer_os}) #{user} : #{pass}") # Why rhost not smbhost?
+				print_status(output_message % "GUEST LOGIN")
 				@accepts_guest_logins[rhost] = [user, pass] unless datastore['RECORD_GUEST']
 			end
-			# SHould this check RECORD GUEST?
-			report_creds(domain,user,pass) if @accepts_guest_logins.select{ |g_host, g_creds| g_host == rhost and g_creds == [user,pass] }.empty?
+
+			report_creds(domain,user,pass,true) if @accepts_guest_logins.select{ |g_host, g_creds| g_host == rhost and g_creds == [user,pass] }.empty?
+			validuser_case_sensitive?(domain, user, pass)
+		when *@correct_credentials_status_codes
+			print_status(output_message % "FAILED LOGIN, VALID CREDENTIALS" )
+			report_creds(domain,user,pass,false)
+			validuser_case_sensitive?(domain, user, pass)
 		when 'STATUS_LOGON_FAILURE', 'STATUS_ACCESS_DENIED'
-			vprint_error("#{smbhost} - FAILED LOGIN (#{smb_peer_os}) #{splitname(user)} : #{pass} (#{status})")
-		# These status only return if the correct login details are supplied
-		when *@correct_credentials_status_codes # not sure what @ is? static var?
-			note_creds(domain,user,pass,status)
-			print_good("#{smbhost} - FAILED LOGIN (#{smb_peer_os}) #{splitname(user)} : #{pass} (#{status})")
+			vprint_error(output_message % "FAILED LOGIN")
 		else
-			print_error("#{smbhost} - FAILED LOGIN (#{smb_peer_os}) #{splitname(user)} : #{pass} (#{status})")
+			vprint_error(output_message % "FAILED LOGIN")
 		end
+	end
+	
+	
+	def validuser_case_sensitive?(domain, user, pass)
+		if user == user.downcase
+			user = user.upcase
+		else
+			user = user.downcase
+		end
+		
+		status = check_login_status(domain, user, pass)
+		case_insensitive = valid_credentials?(status)
+		if case_insensitive
+			vprint_status("Username is case insensitive")
+		end
+		
+		return case_insensitive
 	end
 	
 	def note_creds(domain,user,pass,reason)
@@ -228,15 +239,23 @@ class Metasploit3 < Msf::Auxiliary
 		)
 	end
 
-	def report_creds(domain,user,pass)
+	def report_creds(domain,user,pass,active)
+		login_name = ""
+		
+		if accepts_bogus_domains?(user,pass,rhost)
+			login_name = user
+		else
+			login_name = "#{domain}\\#{user}"
+		end
+	
 		report_hash = {
 			:host	=> rhost,
 			:port   => datastore['RPORT'],
 			:sname	=> 'smb',
-			:user 	=> user,
+			:user 	=> login_name,
 			:pass   => pass,
 			:source_type => "user_supplied",
-			:active => true
+			:active => active
 		}
 
 		if pass =~ /[0-9a-fA-F]{32}:[0-9a-fA-F]{32}/
