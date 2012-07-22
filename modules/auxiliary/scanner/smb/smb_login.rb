@@ -95,20 +95,21 @@ class Metasploit3 < Msf::Auxiliary
 		connect()
 		status_code = ""
 		begin
-			status_code = simple.login(	datastore['SMBName'],
-												user,
-												pass,
-												domain,
-												datastore['SMB::VerifySignature'],
-												datastore['NTLM::UseNTLMv2'],
-												datastore['NTLM::UseNTLM2_session'],
-												datastore['NTLM::SendLM'],
-												datastore['NTLM::UseLMKey'],
-												datastore['NTLM::SendNTLM'],
-												datastore['SMB::Native_OS'],
-												datastore['SMB::Native_LM'],
-												{:use_spn => datastore['NTLM::SendSPN'], :name =>  self.rhost}
-			)
+			if simple.login(	datastore['SMBName'],
+								user,
+								pass,
+								domain,
+								datastore['SMB::VerifySignature'],
+								datastore['NTLM::UseNTLMv2'],
+								datastore['NTLM::UseNTLM2_session'],
+								datastore['NTLM::SendLM'],
+								datastore['NTLM::UseLMKey'],
+								datastore['NTLM::SendNTLM'],
+								datastore['SMB::Native_OS'],
+								datastore['SMB::Native_LM'],
+								{:use_spn => datastore['NTLM::SendSPN'], :name =>  self.rhost})
+				status_code = 'STATUS_SUCCESS'
+			end
 			# This does not appear to be required to validate login details? simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
 		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
 			status_code = e.get_error(e.error_code)
@@ -130,7 +131,6 @@ class Metasploit3 < Msf::Auxiliary
 		check_login_status(datastore['SMBDomain'], user, pass)
 
 		unless(simple.client.auth_user)
-
 			guest = true
 			@accepts_guest_logins['rhost'] ||=[] unless @accepts_guest_logins.include?(rhost) #'rhost' should be rhost?
 			report_note(

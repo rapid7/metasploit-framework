@@ -211,11 +211,6 @@ attr_accessor	:socket, :client, :direct, :shares, :last_share
 			self.client.spnopt = spnopt
 
 			ok = self.client.session_setup(user, pass, domain)
-			error_class = ok['Payload']['SMB'].v['ErrorClass']
-			if error_class == 0
-				return "STATUS_SUCCESS"
-			end
-			
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
@@ -227,7 +222,7 @@ attr_accessor	:socket, :client, :direct, :shares, :last_share
 			end
 			raise n
 		end
-		
+
 		return true
 	end
 
