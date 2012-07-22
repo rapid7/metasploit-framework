@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Post
 		print_status("ARP Scanning #{cidr}")
 		ws = client.railgun.ws2_32
 		iphlp = client.railgun.iphlpapi
-		i, a = 0, []
+		a = []
 		iplst,found = [],""
 		ipadd = Rex::Socket::RangeWalker.new(cidr)
 		numip = ipadd.num_ips
@@ -62,27 +62,26 @@ class Metasploit3 < Msf::Post
 			end
 			iplst << ipa
 		end
-		iplst.each do |ip_text|
-			if i < threads
-				a.push(::Thread.new {
-						h = ws.inet_addr(ip_text)
-						ip = h["return"]
-						h = iphlp.SendARP(ip,0,6,6)
-						if h["return"] == client.railgun.const("NO_ERROR")
-							mac_text = h["pMacAddr"].unpack('C*').map { |e| "%02x" % e }.join(':')
-							company = OUI_LIST::lookup_oui_company_name(mac_text )
-							print_status("\tIP: #{ip_text} MAC #{mac_text} (#{company})")
-							report_host(:host => ip_text,:mac => mac_text)
-							report_note(:host  => ip_text, :type  => "mac_oui", :data  => company) 
-						end
-					})
-				i += 1
-			else
-				sleep(0.05) and a.delete_if {|x| not x.alive?} while not a.empty?
-				i = 0
+
+		while(not iplst.nil? and not iplst.empty?)
+			1.upto(threads) do
+				a << framework.threads.spawn("Module(#{self.refname})", false, iplst.shift) do |ip_text|
+			 		next if ip_text.nil?
+					h = ws.inet_addr(ip_text)
+					ip = h["return"]
+					h = iphlp.SendARP(ip,0,6,6)
+					if h["return"] == client.railgun.const("NO_ERROR")
+						mac_text = h["pMacAddr"].unpack('C*').map { |e| "%02x" % e }.join(':')
+						company = OUI_LIST::lookup_oui_company_name(mac_text )
+						print_status("\tIP: #{ip_text} MAC #{mac_text} (#{company})")
+						report_host(:host => ip_text,:mac => mac_text)
+						next if company.nil?
+						report_note(:host  => ip_text, :type  => "mac_oui", :data  => company)
+					end
+				end
+				a.map {|x| x.join }
 			end
 		end
-		a.delete_if {|x| not x.alive?} while not a.empty?
 		return found
 	end
 
