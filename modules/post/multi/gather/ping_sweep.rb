@@ -104,8 +104,8 @@ class Metasploit3 < Msf::Post
 			print_status("The following Error was encountered: #{e.class} #{e}")
 		end
 
-		ip_found.each do |ips|
-			report_host(:host => ips)
+		ip_found.each do |ip|
+			report_host(:host => ip)
 		end
 	end
 end
