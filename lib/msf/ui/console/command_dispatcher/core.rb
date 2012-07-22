@@ -2337,9 +2337,9 @@ class Core
 		when 1
 			return cmd_alias_help if args[0] == "-h" or args[0] == "--help"
 			if @aliases.keys.include?(args[0])
-				print_status("#{args[0]} is aliased to \'#{@aliases[args[0]]}\'")
+				print_status("\'#{args[0]}\' is aliased to \'#{@aliases[args[0]]}\'")
 			else
-				print_status("#{args[0]} is not currently aliased")
+				print_status("\'#{args[0]}\' is not currently aliased")
 			end
 		else
 			force = false
@@ -2447,11 +2447,10 @@ class Core
 	# Provie tab completion for aliases and commands
 	#
 	def tab_complete_aliases_and_commands(str, words)
-		#TODO:  return the same shit that driver.tab_complete essentially returns, but
-		# w/o updating the command line to overwrite the word alias
 		items = []
 		items.concat(driver.commands.keys) if driver.respond_to?('commands')
 		items.concat(driver.aliases.keys) if driver.respond_to?("aliases")
+		items
 	end
 
 	#
@@ -2686,8 +2685,9 @@ protected
 		# value
 
 		# some "safe words" to avoid for the value.  value would have to not match these regexes
+		# this is just basic idiot protection, it's not meant to be "undefeatable"
 		value.strip!
-		safe_words = [/^rm -rf \/.*$/, /^msfconsole$/]
+		safe_words = [/^rm +(-rf|-r +-f|-f +-r) +\/+.*$/, /^msfconsole$/]
 		safe_words.each do |regex|
 			# don't mess around, just return false in this case
 			return false if value =~ regex

@@ -308,7 +308,7 @@ module DispatcherShell
 		# Enumerate each entry in the dispatcher stack
 		dispatcher_stack.each { |dispatcher|
 
-			# TODO:  update this to use the new is_valid_dispatcher_command methods
+			# TODO:  update this to use is_valid_dispatcher_command methods?
 			# If no command is set and it supports commands, add them all and aliases
 			# Or if the command is alias and aliases are supported, add all
 			if ( (tab_words.empty? and dispatcher.respond_to?('commands')) or
