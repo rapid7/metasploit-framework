@@ -210,7 +210,9 @@ attr_accessor	:socket, :client, :direct, :shares, :last_share
 
 			self.client.spnopt = spnopt
 
-			if self.client.session_setup(user, pass, domain)['Payload']['SMB'].v['ErrorClass'] == 0
+			ok = self.client.session_setup(user, pass, domain)
+			error_class = ok['Payload']['SMB'].v['ErrorClass']
+			if error_class == 0
 				return "STATUS_SUCCESS"
 			end
 			
@@ -223,6 +225,7 @@ attr_accessor	:socket, :client, :direct, :shares, :last_share
 				n.error_code   = e.error_code
 				n.error_reason = e.get_error(e.error_code)
 			end
+			raise n
 		end
 		
 		return true

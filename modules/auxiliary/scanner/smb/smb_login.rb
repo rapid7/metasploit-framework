@@ -79,12 +79,12 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end unless datastore['RECORD_GUEST']
 		
-		# If unset SMBDomain is used valid local logins are returned as invalid. set SMBDomain "" works.
-		datastore['SMBDomain'] = "" if datastore['SMBDomain'].nil?
+		# If unset SMBDomain is used valid local logins are returned as invalid. set SMBDomain "." works.
+		domain = datastore['Domain'] || "."
 
 		begin
 			each_user_pass do |user, pass|
-				result = try_user_pass(user, pass)
+				result = try_user_pass(domain, user, pass)
 			end
 		rescue ::Rex::ConnectionError
 			nil
@@ -96,7 +96,21 @@ class Metasploit3 < Msf::Auxiliary
 		connect()
 		status_code = ""
 		begin
-			status_code = smb_login({:smbdomain => domain, :smbuser => user, :smbpass => pass})
+			status_code = simple.login(	datastore['SMBName'],
+												user,
+												pass,
+												domain,
+												datastore['SMB::VerifySignature'],
+												datastore['NTLM::UseNTLMv2'],
+												datastore['NTLM::UseNTLM2_session'],
+												datastore['NTLM::SendLM'],
+												datastore['NTLM::UseLMKey'],
+												datastore['NTLM::SendNTLM'],
+												datastore['SMB::Native_OS'],
+												datastore['SMB::Native_LM'],
+												{:use_spn => datastore['NTLM::SendSPN'], :name =>  self.rhost}
+			)
+			# Is this required to check valid logins? simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
 		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
 			status_code = e.get_error(e.error_code)
 		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
@@ -157,19 +171,19 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-	def try_user_pass(user, pass)
+	def try_user_pass(domain, user, pass)
 		# Note that unless PRESERVE_DOMAINS is true, we're more
 		# than happy to pass illegal usernames that contain
 		# slashes.
 		if datastore["PRESERVE_DOMAINS"]
 			d,u = domain_username_split(user)
-			user = u.to_s.gsub(/<BLANK>/i,"")
+			user = u
 			domain = d if d
-		else
-			user = user.to_s.gsub(/<BLANK>/i,"")
-			domain = datastore['SMBDomain']
 		end
-	
+
+		user = user.to_s.gsub(/<BLANK>/i,"")
+		
+		print_status "#{user}, #{domain}, #{pass}"	
 		status = check_login_status(domain, user, pass)
 
 		case status
@@ -183,7 +197,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 				
 			if(simple.client.auth_user)
-				print_status("Auth-User: #{simple.client.auth_user.inspect}")
+				print_status("Auth-User: #{simple.client.auth_user}")
 				print_good("#{smbhost} - SUCCESSFUL LOGIN (#{smb_peer_os}) '#{user}' : '#{pass}'")
 			else
 				print_status("#{rhost} - GUEST LOGIN (#{smb_peer_os}) #{user} : #{pass}") # Why rhost not smbhost?
