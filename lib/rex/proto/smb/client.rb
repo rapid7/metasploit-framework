@@ -962,7 +962,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		ret = self.smb_send(pkt.to_s)
 		return ret if not do_recv
 
-		self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, true)
+		self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, false)
 	end
 
 
