@@ -259,7 +259,8 @@ class Metasploit3 < Msf::Auxiliary
 					"Connection: Keep-Alive\r\n" )
 
 		if (method == 'POST')
-			theaders << 'Content-Length: ' + (datastore['FINALPUTDATA'].length + 4).to_s()<< "\r\n"
+			theaders << 'Content-Length: ' <<
+				(datastore['FINALPUTDATA'].length + 4).to_s()<< "\r\n"
 		end
 
 		# HTTP_HEADERFILE is how this module supports cookies, multipart forms, etc
