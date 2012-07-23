@@ -38,7 +38,7 @@ module Common
 	#
 	# Returns a (possibly multi-line) String.
 	#
-	def cmd_exec(cmd, args=nil, time_out=15)
+	def cmd_exec(cmd, args=nil, time_out=15, opts={})
 		case session.type
 		when /meterpreter/
 			#
@@ -64,7 +64,8 @@ module Common
 			end
 
 			session.response_timeout = time_out
-			process = session.sys.process.execute(cmd, args, {'Hidden' => true, 'Channelized' => true})
+			opts.merge!({'Hidden' => true, 'Channelized' => true})
+			process = session.sys.process.execute(cmd, args, opts)
 			o = ""
 			while (d = process.channel.read)
 				break if d == ""
