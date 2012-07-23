@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows','linux', 'osx', 'bsd', 'solaris' ],
-				'SessionTypes'  => [ 'meterpreter','shell' ]
+				'SessionTypes'  => [ 'meterpreter', 'shell' ]
 			))
 		register_options(
 			[
@@ -42,11 +42,10 @@ class Metasploit3 < Msf::Post
 	# Run Method for when run command is issued
 	def run
 		iprange = datastore['RHOSTS']
-		found_hosts = []
 		print_status("Performing DNS Reverse Lookup for IP range #{iprange}")
 		iplst = []
 
-		i, a = 0, []
+		a = []
 		ipadd = Rex::Socket::RangeWalker.new(iprange)
 		numip = ipadd.num_ips
 		while (iplst.length < numip)
@@ -60,68 +59,59 @@ class Metasploit3 < Msf::Post
 		if session.type =~ /shell/
 			# Only one thread possible when shell
 			thread_num = 1
+			# Use the shell platform for selecting the command
+			platform = session.platform
 		else
-			# When Meterpreter the safest thread number is 10
+			# When in Meterpreter the safest thread number is 10
 			thread_num = 10
+			# For Meterpreter use the sysinfo OS since java Meterpreter returns java as platform
+			platform = session.sys.config.sysinfo['OS']
 		end
 
+		platform = session.platform
 
-		iplst.each do |ip|
-			# Set count option for ping command
-			plat = session.platform
-			case plat
-			when /win/i
-				ns_opt = " #{ip}"
-				cmd = "nslookup"
-			when /solaris/i
-				ns_opt = " #{ip}"
-				cmd = "/usr/sbin/host"
-			else
-				ns_opt = " #{ip}"
-				cmd = "/usr/bin/host"
-			end
-
-			if i <= thread_num
-				a.push(::Thread.new {
-						r = cmd_exec(cmd, ns_opt)
-
-						case plat
-						when /win/
-							if r =~ /(Name)/
-								r.scan(/Name:\s*\S*\s/) do |n|
-									hostname = n.split(":    ")
-									print_good "\t #{ip} is #{hostname[1].chomp("\n")}"
-									report_host({
-										:host => ip,
-										:name => hostname[1].strip,
-										:comm => "Discovered thru post reverse DNS lookup"
-										})
-								end
-							else
-								vprint_status("#{ip} does not have a Reverse Lookup Record")
+		case platform
+		when /win/i
+			cmd = "nslookup"
+		when /solaris/i
+			cmd = "/usr/sbin/host"
+		else
+			cmd = "/usr/bin/host"
+		end
+		while(not iplst.nil? and not iplst.empty?)
+			 1.upto(thread_num) do
+			 	a << framework.threads.spawn("Module(#{self.refname})", false, iplst.shift) do |ip_add|
+			 		next if ip_add.nil?
+					r = cmd_exec(cmd, " #{ip_add}")
+					case platform
+					when /win/
+						if r =~ /(Name)/
+							r.scan(/Name:\s*\S*\s/) do |n|
+								hostname = n.split(":    ")
+								print_good "\t #{ip_add} is #{hostname[1].chomp("\n")}"
+								report_host({
+									:host => ip_add,
+									:name => hostname[1].strip
+									})
 							end
 						else
-							if r !~ /not found/i
-								hostname = r.scan(/domain name pointer (\S*)\./).join
-								print_good "\t #{ip} is #{hostname}"
-								report_host({
-										:host => ip,
-										:name => hostname.strip,
-										:comm => "Discovered thru post reverse DNS lookup"
-									})
-							else
-								vprint_status("#{ip} does not have a Reverse Lookup Record")
-							end
+							vprint_status("#{ip_add} does not have a Reverse Lookup Record")
 						end
-
-					})
-				i += 1
-			else
-				sleep(0.05) and a.delete_if {|x| not x.alive?} while not a.empty?
-				i = 0
-			end
+					else
+						if r !~ /not found/i
+							hostname = r.scan(/domain name pointer (\S*)\./).join
+							print_good "\t #{ip_add} is #{hostname}"
+							report_host({
+									:host => ip_add,
+									:name => hostname.strip
+								})
+						else
+							vprint_status("#{ip_add} does not have a Reverse Lookup Record")
+						end
+					end
+				end
+			 	a.map {|x| x.join }
+			 end
 		end
-		a.delete_if {|x| not x.alive?} while not a.empty?
-
 	end
 end

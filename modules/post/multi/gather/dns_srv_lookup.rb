@@ -53,71 +53,71 @@ class Metasploit3 < Msf::Post
 			'_certificates._tcp.', '_crls._tcp.', '_pgpkeys._tcp.',
 			'_pgprevokations._tcp.', '_cmp._tcp.', '_svcp._tcp.', '_crl._tcp.',
 			'_ocsp._tcp.', '_PKIXREP._tcp.', '_smtp._tcp.', '_hkp._tcp.',
-			'_hkps._tcp.', '_jabber._udp.','_xmpp-server._udp.', '_xmpp-client._udp.',
-			'_jabber-client._tcp.', '_jabber-client._udp.','_kerberos.tcp.dc._msdcs.',
-			'_ldap._tcp.ForestDNSZones.'
+			'_hkps._tcp.', '_jabber._udp.', '_xmpp-server._udp.', '_xmpp-client._udp.',
+			'_jabber-client._tcp.', '_jabber-client._udp.', '_kerberos.tcp.dc._msdcs.',
+			'_ldap._tcp.ForestDNSZones.', '_ldap._tcp.dc._msdcs.', '_ldap._tcp.pdc._msdcs.',
+			'_ldap._tcp.gc._msdcs.', '_kerberos._tcp.dc._msdcs.', '_kpasswd._tcp.', '_kpasswd._udp.',
+			'_imap._tcp.'
 		]
 
 		domain = datastore['DOMAIN']
 
 		print_status("Performing DNS SRV Record Lookup for Domain #{domain}")
 
-		i, a = 0, []
+		a = []
 
 
 		if session.type =~ /shell/
 			# Only one thread possible when shell
 			thread_num = 1
+			# Use the shell platform for selecting the command
+			platform = session.platform
 		else
-			# When Meterpreter the safest thread number is 10
+			# When in Meterpreter the safest thread number is 10
 			thread_num = 10
+			# For Meterpreter use the sysinfo OS since java Meterpreter returns java as platform
+			platform = session.sys.config.sysinfo['OS']
 		end
 
+		platform = session.platform
 
-		srvrcd.each do |srv|
-			# Set count option for ping command
-			plat = session.platform
-			case plat
-			when /win/i
-				ns_opt = " -query=srv #{srv}#{domain}"
-				cmd = "nslookup"
-			when /solaris/i
-				ns_opt = " -t srv #{srv}#{domain}"
-				cmd = "/usr/sbin/host"
-			else
-				ns_opt = " -t srv #{srv}#{domain}"
-				cmd = "/usr/bin/host"
-			end
+		case platform
+		when /win/i
+			ns_opt = " -query=srv "
+			cmd = "nslookup"
+		when /solaris/i
+			ns_opt = " -t srv "
+			cmd = "/usr/sbin/host"
+		else
+			ns_opt = " -t srv "
+			cmd = "/usr/bin/host"
+		end
 
-			if i <= thread_num
-				a.push(::Thread.new {
-						r = cmd_exec(cmd, ns_opt)
+		while(not srvrcd.nil? and not srvrcd.empty?)
+			 1.upto(thread_num) do
+				a << framework.threads.spawn("Module(#{self.refname})", false, srvrcd.shift) do |srv|
+					next if srv.nil?
+					r = cmd_exec(cmd, ns_opt + "#{srv}#{domain}")
 
-						case plat
-						when /win/
-							if r =~ /\s*internet\saddress\s\=\s/
-								nslookup_srv_consume("#{srv}#{domain}", r).each do |f|
-									print_status("\t#{f[:srv]} #{f[:target]} #{f[:port]} #{f[:ip]}")
-								end
-							end
-						else
-							found = host_srv_consume(r)
-							if found
-								found.each do |f|
-									print_status("\t#{f[:srv]} #{f[:target]} #{f[:port]} #{f[:ip]}")
-								end
+					case platform
+					when /win/
+						if r =~ /\s*internet\saddress\s\=\s/
+							nslookup_srv_consume("#{srv}#{domain}", r).each do |f|
+								print_good("\t#{f[:srv]} #{f[:target]} #{f[:port]} #{f[:ip]}")
 							end
 						end
-
-					})
-				i += 1
-			else
-				sleep(0.05) and a.delete_if {|x| not x.alive?} while not a.empty?
-				i = 0
-			end
+					else
+						found = host_srv_consume(r)
+						if found
+							found.each do |f|
+								print_good("\t#{f[:srv]} #{f[:target]} #{f[:port]} #{f[:ip]}")
+							end
+						end
+					end
+				end
+				a.map {|x| x.join }
+			 end
 		end
-		a.delete_if {|x| not x.alive?} while not a.empty?
-
 	end
 
 
