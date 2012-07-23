@@ -11,7 +11,7 @@ module Oui
 			fullname = oui[0] + ' / ' + oui[1] if oui[1] != ""
 			
 		else
-			return 'UNKNOW'
+			return 'UNKNOWN'
 		end 
 	end
 
@@ -23,7 +23,7 @@ module Oui
 			fullname = oui[0]
 			fullname = oui[1] if oui[1] != ""
 		else
-			return 'UNKNOW'
+			return 'UNKNOWN'
 		end 
 	end
 
