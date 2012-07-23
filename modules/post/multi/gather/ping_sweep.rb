@@ -100,6 +100,7 @@ class Metasploit3 < Msf::Post
 				 	a.map {|x| x.join }
 				 end
 			end
+		rescue Rex::TimeoutError, Rex::Post::Meterpreter::RequestError
 		rescue ::Exception => e
 			print_status("The following Error was encountered: #{e.class} #{e}")
 		end
