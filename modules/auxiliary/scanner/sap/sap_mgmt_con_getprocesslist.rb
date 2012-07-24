@@ -9,7 +9,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'SAP Management Console GetProcessList',
-			'Version'      => '$Revision 1$',
 			'Description'  => %q{
 				This module attempts to list SAP processes through the SAP Management Console SOAP Interface
 				},
@@ -21,7 +20,7 @@ class Metasploit4 < Msf::Auxiliary
 			'Author'       => 
 				[ 
 					'Chris John Riley', # most of the code this module is based on
-					'Bruno Morisson <bm@integrity.pt>' # request ProcessList and parsing output
+					'Bruno Morisson <bm[at]integrity.pt>' # request ProcessList and parsing output
 					
 				],
 			'License'      => MSF_LICENSE
@@ -43,11 +42,7 @@ class Metasploit4 < Msf::Auxiliary
 	def run_host(ip)
 		res = send_request_cgi({
 			'uri'      => "/#{datastore['URI']}",
-			'method'   => 'GET',
-			'headers'  =>
-				{
-					'User-Agent' => datastore['UserAgent']
-				}
+			'method'   => 'GET'
 		}, 25)
 
 		if not res
@@ -98,8 +93,6 @@ class Metasploit4 < Msf::Auxiliary
 			if res and res.code == 200
 				
 				case res.body
-				when nil
-					# Nothing
 				when /<process>(.*?)<\/process>/i
 					body = []
 					body = res.body

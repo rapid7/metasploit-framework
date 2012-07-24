@@ -34,7 +34,7 @@ class Metasploit4 < Msf::Auxiliary
 				],
 			'Author'       => 
 				[	'Chris John Riley', # original msf module
-					'Bruno Morisson <bm@integrity.pt>' # bulk file retrieval
+					'Bruno Morisson <bm[at]integrity.pt>' # bulk file retrieval
 				],
 			'License'      => MSF_LICENSE
 		)
@@ -59,11 +59,7 @@ class Metasploit4 < Msf::Auxiliary
 	def run_host(ip)
 		res = send_request_cgi({
 			'uri'      => "/#{datastore['URI']}",
-			'method'   => 'GET',
-			'headers'  =>
-				{
-					'User-Agent' => datastore['UserAgent']
-				}
+			'method'   => 'GET'
 		}, 25)
 
 		if not res
@@ -91,6 +87,9 @@ class Metasploit4 < Msf::Auxiliary
 			ns1 = 'ns1:ListLogFiles'
 		when /^TRACE/i
 			ns1 = 'ns1:ListDeveloperTraces'
+		else
+			print_error("#{rhost}:#{rport} [SAP] unsupported filetype #{datastore['FILETYPE']}")
+			return
 		end
 
 		data = '<?xml version="1.0" encoding="utf-8"?>' + "\r\n"
@@ -121,8 +120,6 @@ class Metasploit4 < Msf::Auxiliary
 			env = []
 			if res and res.code == 200
 				case res.body
-				when nil
-					# Nothing
 				when /<file>(.*)<\/file>/i
 					body = []
 					body = res.body
@@ -179,6 +176,9 @@ class Metasploit4 < Msf::Auxiliary
 			ns1 = 'ns1:ReadLogFile'
 		when /^TRACE/i
 			ns1 = 'ns1:ReadDeveloperTrace'
+		else
+			print_error("#{rhost}:#{rport} [SAP] unsupported filetype: #{datastore['FILETYPE']}")
+			return
 		end
 
 		data = '<?xml version="1.0" encoding="utf-8"?>' + "\r\n"
@@ -210,8 +210,6 @@ class Metasploit4 < Msf::Auxiliary
 
 			if res and res.code == 200
 				case res.body
-				when nil
-					# Nothing
 				when /<item>([^<]+)<\/item>/i
 					body = []
 					body = res.body
@@ -220,8 +218,6 @@ class Metasploit4 < Msf::Auxiliary
 				end
 
 				case res.body
-				when nil
-					# Nothing
 				when /<name>([^<]+)<\/name>/i
 					name = $1.strip
 					success = true
