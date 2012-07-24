@@ -1,3 +1,10 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+#   http://metasploit.com/framework/
+##
+
 require 'msf/core'
 
 class Metasploit4 < Msf::Auxiliary
@@ -17,11 +24,10 @@ class Metasploit4 < Msf::Auxiliary
 					# General
 					[ 'URL', 'http://blog.c22.cc' ]
 				],
-			'Author'       => 
+			'Author'       =>
 				[ 
 					'Chris John Riley', # most of the code this module is based on
 					'Bruno Morisson <bm[at]integrity.pt>' # request ProcessList and parsing output
-					
 				],
 			'License'      => MSF_LICENSE
 		)
@@ -91,7 +97,7 @@ class Metasploit4 < Msf::Auxiliary
 			env = []
 
 			if res and res.code == 200
-				
+
 				case res.body
 				when /<process>(.*?)<\/process>/i
 					body = []
@@ -99,7 +105,7 @@ class Metasploit4 < Msf::Auxiliary
 					env = body.scan(/<name>(.*?)<\/name><description>(.*?)<\/description><dispstatus>(.*?)<\/dispstatus><textstatus>(.*?)<\/textstatus><starttime>(.*?)<\/starttime><elapsedtime>(.*?)<\/elapsedtime>/i)
 					success = true
 				end
-			elsif res and  res.code == 500
+			elsif res and res.code == 500
 				case res.body
 				when /<faultstring>(.*)<\/faultstring>/i
 					faultcode = $1.strip
@@ -114,7 +120,7 @@ class Metasploit4 < Msf::Auxiliary
 
 		if success
 			print_good("#{rhost}:#{rport} [SAP] #{env.length} processes listed")
-			
+
 			saptbl = Msf::Ui::Console::Table.new(
 					Msf::Ui::Console::Table::Style::Default,
 					'Header'    => "[SAP] Process List",

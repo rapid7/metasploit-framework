@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -32,7 +28,7 @@ class Metasploit4 < Msf::Auxiliary
 					# General
 					[ 'URL', 'http://blog.c22.cc' ]
 				],
-			'Author'       => 
+			'Author'       =>
 				[	'Chris John Riley', # original msf module
 					'Bruno Morisson <bm[at]integrity.pt>' # bulk file retrieval
 				],
@@ -239,7 +235,7 @@ class Metasploit4 < Msf::Auxiliary
 		if success
 			print_good("#{rhost}:#{rport} [SAP] #{datastore['FILETYPE'].downcase}:#{logfile.downcase} looted")
 			addr = Rex::Socket.getaddress(rhost) # Convert rhost to ip for DB
-			store_loot(
+			p = store_loot(
 				"sap.#{datastore['FILETYPE'].downcase}.file",
 				"text/xml",
 				addr,
@@ -247,6 +243,7 @@ class Metasploit4 < Msf::Auxiliary
 				"sap_#{logfile.downcase}.xml",
 				"SAP Get Logfile"
 			)
+			print_status("Logfile stored in: #{p}")
 		elsif fault
 			print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
 			return
