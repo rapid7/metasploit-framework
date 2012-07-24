@@ -130,7 +130,7 @@ class Message
 
 		self.parts.each do |part|
 			msg << "--" + self.bound + "\r\n"
-			msg << part.to_s + "\r\n"
+			msg << part.to_s #+  "\r\n"
 		end
 
 		if self.parts.length > 0
