@@ -12,43 +12,78 @@ require 'uri'
 module Msf
 
 module Auxiliary::Web
+
+#
+# Represents a webpage path.
+#
 class Path
 
-	attr_accessor :method
-	attr_accessor :input
-	attr_reader   :action
+	# URL String to which to submit the params
+	attr_accessor :action
 
+	# Injected value as a String
+	attr_accessor :input
+
+	# Mdm::WebForm model if available
 	attr_accessor :model
 
+	#
+	# opts - Options Hash (default: {})
+	#        :action - Action URL of the form
+	#        :inputs - PATH_INFO as a String
+	#
 	def initialize( opts = {} )
 		self.action = opts[:action]
 		self.action.chop! if self.action.end_with?( '?' )
 
-		self.method = :get
 		self.input = (opts[:inputs] || opts[:input]).to_s.dup
 	end
 
+	#
+	# Sets the injected PATH_INFO value.
+	#
+	# value -   PATH_INFO String.
+	#
 	def input=( value )
 		@inputs = value.to_s.dup
 	end
 	alias :param :input
 
+	#
+	# Examples
+	#
+	#   { :name => input, :value => input, :type => 'path' }
+	#
 	def inputs
-		{ :name => params.keys.first, :value => params.values.first, :type => 'path' }
+		{ :name => input, :value => input, :type => 'path' }
 	end
 
+	#
+	# Examples
+	#
+	#   { input => input }
+	#
 	def params
 		{ input => input }
 	end
 
+	#
+	# Returns 'path'
+	#
 	def altered
 		'path'
 	end
 
+	# Returns the PATH_INFO as a String.
 	def altered_value
 		input.to_s
 	end
 
+	#
+	# Creates an HTTPRequest for this path.
+	#
+	# headers   -   Hash of optional headers
+	#
 	def request( headers = {} )
 		uri = URI( action )
 		path = uri.path
@@ -57,14 +92,26 @@ class Path
 		::Net::HTTP::Get.new( "#{path}/#{param}?#{uri.query}", headers )
 	end
 
+	#
+	# Submits the path and returns an HTTPResponse
+	#
+	# connection -  Net::HTTPSession to use for the request
+	# headers    -  Hash of optional headers (default: {})
+	#
 	def submit( connection, headers = {} )
 		connection.request request( headers )
 	end
 
+	# Bool  -   true if PATH_INFO is empty, false otherwise.
 	def empty?
 		param.empty?
 	end
 
+	#
+	# A copy of self with seed as PATH_INFO.
+	#
+	# seed  -   String to use as PATH_INFO.
+	#
 	def permutations_for( seed )
 		return [] if empty?
 

@@ -12,14 +12,36 @@ require 'uri'
 module Msf
 
 module Auxiliary::Web
+
+#
+# Represents a webpage form.
+#
 class Form
 
+	# Method type Symbol: :get, :post
 	attr_accessor :method
+
+	# URL String to which to submit the params
 	attr_accessor :action
+
+	# Inputs Array in the form of:
+	#
+	#   [{ :name => 'name', :value => 'John', :type => 'text' }]
+	#
 	attr_accessor :inputs
+
+	# Name of the altered input as a String
 	attr_accessor :altered
+
+	# Mdm::WebForm model if available
 	attr_accessor :model
 
+	#
+	# opts - Options Hash (default: {})
+	#        :action - Action URL of the form
+	#        :method - Form method (:get, :post)
+	#        :inputs - Form inputs [{ :name => 'name', :value => 'John', :type => 'text' }]
+	#
 	def initialize( opts = {} )
 		self.action = opts[:action]
 		self.action.chop! if self.action.end_with?( '?' )
@@ -28,34 +50,71 @@ class Form
 		self.inputs = (opts[:inputs] || []).dup
 	end
 
+	#
+	# Set the name of the altered field (will be used as the vuln param when logging)
+	#
+	# input_name    - String
+	#
 	def altered=( input_name )
 		@altered = input_name.to_s.dup
 	end
 
+	#
+	# Set the form method.
+	#
+	# input_name    - String, Symbol
+	#
 	def method=( m )
 		@method = m.to_s.downcase.to_sym
 	end
 
+	#
+	# i -   Array of form inputs
+	#
+	# Examples
+	#
+	#   [{ :name => 'name', :value => 'John', :type => 'text' }]
+	#
 	def inputs=( i )
 		# nil it out so that it'll be updated next time it's requested
 		@params = nil
 		@inputs = i
 	end
 
+	#
+	# Hash of params to be submited (derived by #inputs)
+	#
+	# Examples
+	#
+	#   { 'name' => 'John' }
+	#
 	def params
 		@params ||= inputs.inject( {} ) { |h, i| h[i[:name]] = i[:value]; h }
 	end
 
+	#
+	# Value of the {#altered} input (i.e. the injected value).
+	#
 	def altered_value
 		params[altered].to_s
 	end
 
+	#
+	# Converts a Hash of params to a query String
+	#
+	# i -   Hash of params (default: #params)
+	#
 	def to_query( i = self.params )
 		i.map do |k, v|
 			Rex::Text.uri_encode( k.to_s ) + '=' + Rex::Text.uri_encode( v.to_s )
 		end.join( '&' )
 	end
 
+	#
+	# Converts a query String to a Hash of params
+	#
+	# query -   String
+	#
 	def query_to_params( query )
 		query = query.to_s
 		return {} if query.empty?
@@ -67,6 +126,11 @@ class Form
 		end
 	end
 
+	#
+	# Creates an HTTPRequest for this form.
+	#
+	# headers   -   Hash of optional headers
+	#
 	def request( headers = {} )
 		case method
 			when :get
@@ -81,23 +145,48 @@ class Form
 
 	end
 
+	#
+	# Submits the form and returns an HTTPResponse
+	#
+	# connection -  Net::HTTPSession to use for the request
+	# headers    -  Hash of optional headers (default: {})
+	#
 	def submit( connection, headers = {} )
 		connection.request request( headers )
 	end
 
+	# Bool  -   true if params are empty, false otherwise.
 	def empty?
 		params.empty?
 	end
 
+	#
+	# Param reader shortcut -- returns the value of a param by name, as a String.
+	#
+	# field -   Param name as a String
+	#
 	def []( field )
 		params[field.to_s]
 	end
 
+	#
+	# Param writer shortcut -- sets the value of a param by name, as a String.
+	#
+	# field -   Param name as a String
+	# value -   Param value as a String
+	#
 	def []=( field, value )
 		update( field, value )
 		[field]
 	end
 
+	#
+	# Update the form inputs.
+	#
+	# field -   Field name as a Sting (updated if already exists, created otherwise).
+	# value -   Field Value as a String.
+	# type -    Field type ('text' if no type has been provided).
+	#
 	def update( field, value, type = nil )
 		@params = nil
 		inputs.each do |i|
@@ -112,10 +201,20 @@ class Form
 		self
 	end
 
+	#
+	# Get a field type, by name, as a String.
+	#
+	# field -   Field name as a Sting
+	#
 	def field_type_for( name )
 		inputs.select{ |i| i[:name] == name.to_s }[:type]
 	end
 
+	#
+	# Get an Array with permutations of the form for the given seed.
+	#
+	# seed  -   String to inject
+	#
 	def permutations_for( seed )
 		return [] if empty?
 
