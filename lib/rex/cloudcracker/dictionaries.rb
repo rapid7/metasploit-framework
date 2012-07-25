@@ -7,6 +7,8 @@ class Dictionaries
 
   attr_accessor :is_test
 
+  #this method gets a list of dictionaries that are able to be used by the cloudcracking service
+  #each format has it's own set of dictionaries available
   def self.get_dictionaries(format)
     formats = %w[wpa ntlm cryptsha512 cryptmd5]
 
@@ -15,8 +17,8 @@ class Dictionaries
     end
 
     uri = ""
-    uri = uri + "/test" if @is_test
-    uri = uri + "/api/" + format + "/dictionaries" 
+    uri << "/test" if @is_test
+    uri << "/api/" + format + "/dictionaries" 
 
     client = Rex::Proto::Http::Client.new("www.cloudcracker.com", 443, {}, true, 'SSLv3')
 

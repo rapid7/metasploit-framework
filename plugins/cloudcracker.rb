@@ -205,6 +205,8 @@ module Msf
           job.dictionary = dictionary
           job.dictionary_size = size
           job.msfframework = framework
+          job.parent_mechanism = "Metasploit-CloudCracker-Plugin"
+          job.parent_mechanism_version = "1.0"
           job.is_test = true
           res = job.submit_wpa_job
         else

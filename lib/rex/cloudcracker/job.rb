@@ -9,6 +9,7 @@ module CloudCracker
     #is_test allows you to play with the API in a sandbox of a sort
     attr_accessor :is_test, :msfframework
 
+    #this method creates a special one-use token that the web service uses to charge the credit card
     def self.create_stripe_payment(credit_card, security_code, exp_month, exp_year, job_reference, format)
       client = Rex::Proto::Http::Client.new('api.stripe.com', 443, {}, true, 'SSLv3')
 
@@ -40,6 +41,7 @@ module CloudCracker
       end
     end
 
+    #this method verifies a payment using the one-use token created by create_stripe_payment
     def self.verify_stripe_payment(stripe_token, job_reference, format)
       client = Rex::Proto::Http::Client.new('www.cloudcracker.com', 443, {}, true, 'SSLv3')
 
@@ -67,6 +69,7 @@ module CloudCracker
       return JSON.parse(res.body)
     end
 
+    #this method gets the bitcoin address to remit payment to as well as the amount to be remitted
     def self.get_bitcoin_payment_info job_reference, format
       client = Rex::Proto::Http::Client.new('www.cloudcracker.com', 443, {}, true, "SSLv3")
 
@@ -87,8 +90,8 @@ module CloudCracker
       return JSON.parse(res.body)
     end
 
+    #gets the status of a cloudcracker job
     def self.get_status job_reference, format
-
       client = Rex::Proto::Http::Client.new('www.cloudcracker.com', 443, {}, true, "SSLv3")
 
       uri = ""
