@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'Web Site Crawler',
 			'Version'     => '$Revision$',
 			'Description' => 'Crawl a web site and store information about what was found',
-			'Author'      => 'hdm',
+			'Author'      => %w(hdm tasos),
 			'License'     => MSF_LICENSE
 		)
 
@@ -199,7 +199,20 @@ class Metasploit3 < Msf::Auxiliary
 					form[:params] << [inp['name'].to_s, inp['value'] || inp.content || '', { :type => inp['type'].to_s }]
 				end
 
-				# XXX: handle SELECT elements
+				f.css( 'select' ).each do |s|
+					value = nil
+
+					# iterate over each option to find the default value (if there is a selected one)
+					s.children.each do |opt|
+						ov = opt['value'] || opt.content
+						value = ov if opt['selected']
+					end
+
+					# set the first one as the default value if we don't already have one
+					value ||= s.children.first['value'] || s.children.first.content
+
+					form[:params] << [ s['name'].to_s, value.to_s, [ :type => 'select'] ]
+				end
 
 				forms << form
 			end
