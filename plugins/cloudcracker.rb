@@ -121,31 +121,7 @@ module Msf
         exp_month = expiration.split('/')[0]
         exp_year = expiration.split('/')[1]
 
-        client = Rex::Proto::Http::Client.new('api.stripe.com', 443, {}, true, 'SSLv3')
-        query =  "card[number]=#{credit_card}"
-        query << "&card[cvc]=#{security_code}"
-        query << "&card[exp_month]=#{exp_month}"
-        query << "&card[exp_year]=#{exp_year}"
-
-        req = client.request_cgi(
-          'uri' => "/v1/tokens",
-          'query' => query,
-          'method' => "POST",
-          'headers' => {
-
-          },
-          'basic_auth' =>  'pk_XW3m8FFAXOCI8sz3aHKWsfGowofO4:'
-        )
-
-        res = client.send_recv(req, 300)
-
-        if res.nil? || res.body.nil?
-          print_error("Request failed.")
-          return 
-        end
-
-        res = JSON.parse(res.body)
-        res = verify_stripe_payment(res["id"], job_reference, format)
+        res = Rex::CloudCracker::Job.create_stripe_payment(credit_card, security_code, exp_month, exp_year, job_reference, format)
 
         if res["error"]
           print_error(res["error"])
@@ -241,33 +217,6 @@ module Msf
         else
           print_good("Job reference ID: " + res["reference"])
         end
-      end
-
-      def verify_stripe_payment(stripe_token, job_reference, format)
-        client = Rex::Proto::Http::Client.new('www.cloudcracker.com', 443, {}, true, "SSLv3")
-
-        uri = ""
-        uri << "/test"
-        uri << "/api/#{format}/payment/#{job_reference}"
-
-        doc = Rex::MIME::Message.new
-        doc.add_part(stripe_token, nil, nil, "form-data; name=stripeToken")
-
-        req = client.request_raw(
-          'uri' => uri,
-          'method' => 'POST',
-          'headers' => {
-          'Content-Type' => 'multipart/form-data; boundary=' + doc.bound,
-          'Content-Length' => doc.to_s.length
-        },
-          'data' => doc.to_s
-        )
-
-        res = client.send_recv(req, 300)
-
-        raise "Request failed." if res.nil? || res.body.nil?
-
-        return JSON.parse(res.body)
       end
 
       def cmd_get_job_status(*args)
