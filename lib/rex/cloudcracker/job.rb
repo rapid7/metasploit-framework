@@ -9,7 +9,27 @@ module CloudCracker
     #is_test allows you to play with the API in a sandbox of a sort
     attr_accessor :is_test, :msfframework
 
-    def get_status job_reference, format
+    def self.get_bitcoin_payment_info job_reference, format
+      client = Rex::Proto::Http::Client.new('www.cloudcracker.com', 443, {}, true, "SSLv3")
+
+      uri = ""
+      uri << "/test"
+      uri << "/api/" + format + "/payment/" + job_reference
+
+      req = client.request_cgi(
+        'uri' => uri,
+        'method' => 'GET'
+      )
+
+      printf req
+      res = client.send_recv(req)
+
+      raise "Response failed" if res.nil? or res.body.nil?
+
+      return JSON.parse(res.body)
+    end
+
+    def self.get_status job_reference, format
 
       client = Rex::Proto::Http::Client.new('www.cloudcracker.com', 443, {}, true, "SSLv3")
 

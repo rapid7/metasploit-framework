@@ -19,7 +19,52 @@ module Msf
           'create_bitcoin_payment' => 'Pay for a job via Bitcoin',
           'get_job_status' => 'Get the status of a previously created job',
           'get_dictionaries' => 'Get the available dictionaries and their prices',
+          'get_bitcoin_payment_info' => 'Get the bitcoin amount and address needed to make a payment via bitcoin.'
         }
+      end
+
+      def cmd_get_bitcoin_payment_info(*args)
+        if args.length == 0 || args[0] == "-h" || args[0] == "--help"
+          print_status("Usage: get_bitcoin_payment_info -f format -j job_reference")
+          print_status("\t-f\tThe format of the job (wpa ntlm cryptmd5 cryptsha512)")
+          print_status("\t-j\tThe job reference ID returned from create_cloudcracker_job")
+          return
+        end
+
+        format = ""
+        job_reference = ""
+        opts = Rex::Parser::Arguments.new(
+          '-f' => [true, "The format of the job (wpa ntlm cryptmd5 cryptsha512)"],
+          '-j' => [true, "The job reference ID returned by create_cloudcracker_job"]
+        )
+
+        opts.parse(args) do |opt, idx, val|
+            case opt
+            when "-f"
+              format = val
+            when "-j"
+              job_reference = val
+          end
+        end
+
+        if not format or format.empty?
+          print_error "I need a format specified"
+          return
+        end
+
+        if not job_reference or job_reference.empty?
+          print_error "I need a job_reference"
+          return
+        end
+
+        res = Rex::CloudCracker::Job.get_bitcoin_payment_info(job_reference, format)
+
+        if res["error"]
+          print_error res["error"]
+        else
+          print_status("Bitcoin address: " + res["bitcoinAddress"])
+          print_status("Bitcoin amount: " + res["bitcoinAmount"])
+        end
       end
 
       def cmd_create_stripe_payment(*args)
@@ -233,7 +278,7 @@ module Msf
 
         format = args[0]
         job_reference = args[1]
-        res = Rex::CloudCracker::Job.new().get_status job_reference, format
+        res = Rex::CloudCracker::Job.get_status job_reference, format
 
         print_status("\tStatus:\t\t#{res["status"]}")
         print_status("\tTime Elapsed:\t#{res["elapsedTime"]}")
