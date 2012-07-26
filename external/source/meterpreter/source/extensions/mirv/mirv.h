@@ -89,4 +89,13 @@ typedef struct event_reader_struct {
 int open_log(char *provider, event_reader *er_out);
 int get_event(event_reader *er, char **message);
 int close_log(event_reader *er);
+
+typedef struct rdp_sessions_struct {
+	int id;
+	char *user;
+	char *station;
+} rdp_sessions;
+int get_rdp_sessions(struct rdp_sessions_struct ***sessions);
+int rdp_hijack(ULONG sessionid, char *cmdline);
+
 #endif

