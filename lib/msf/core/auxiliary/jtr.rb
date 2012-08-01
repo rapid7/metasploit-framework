@@ -25,7 +25,9 @@ module Auxiliary::JohnTheRipper
 		register_options(
 			[
 				OptPath.new('JOHN_BASE', [false, 'The directory containing John the Ripper (src, run, doc)']),
-				OptPath.new('JOHN_PATH', [false, 'The absolute path to the John the Ripper executable'])
+				OptPath.new('JOHN_PATH', [false, 'The absolute path to the John the Ripper executable']),
+				OptPath.new('Wordlist', [false, 'The path to an optional Wordlist']),
+				OptBool.new('Munge',[false, 'Munge the Wordlist (Slower)', false])
 			], Msf::Auxiliary::JohnTheRipper
 		)
 
@@ -279,6 +281,119 @@ module Auxiliary::JohnTheRipper
 		end
 
 		res
+	end
+
+	def build_seed
+
+		seed = []
+		#Seed the wordlist with Database , Table, and Instance Names
+		
+		count = 0
+		schemas = myworkspace.notes.where('ntype like ?', '%.schema%')
+		unless schemas.nil? or schemas.empty?
+			schemas.each do |anote|
+				seed << anote.data['DBName']
+				count += 1
+				anote.data['Tables'].each do |table|
+					seed << table['TableName']
+					count += 1
+					table['Columns'].each do |column|
+						seed << column['ColumnName']
+						count += 1
+					end
+				end
+			end
+		end
+		print_status "Seeding wordlist with DB schema info... #{count} words added"
+		count = 0
+
+		instances = myworkspace.notes.find(:all, :conditions => ['ntype=?', 'mssql.instancename'])
+		unless instances.nil? or instances.empty?
+			instances.each do |anote|
+				seed << anote.data['InstanceName']
+				count += 1
+			end
+		end
+		print_status "Seeding with MSSQL Instance Names....#{count} words added"
+		count = 0
+
+		# Seed the wordlist with usernames, passwords, and hostnames
+		
+		myworkspace.hosts.find(:all).each do |o| 
+			if o.name 
+				seed << john_expand_word( o.name ) 
+				count += 1
+			end
+		end
+		print_status "Seeding with hostnames....#{count} words added"
+		count = 0
+
+
+		myworkspace.creds.each do |o|
+			if o.user
+				seed << john_expand_word( o.user ) 
+				count +=1
+			end
+			if (o.pass and o.ptype !~ /hash/)
+				seed << john_expand_word( o.pass ) 
+				count += 1
+			end
+		end
+		print_status "Seeding with found credentials....#{count} words added"
+		count = 0
+
+		# Grab any known passwords out of the john.pot file
+		john_cracked_passwords.values do |v| 
+			seed << v 
+			count += 1
+		end
+		print_status "Seeding with cracked passwords from John....#{count} words added"
+		count = 0
+
+		#Grab the default John Wordlist
+		john = File.open(john_wordlist_path, "rb")
+		john.each_line do |line| 
+			seed << line.chomp
+			count += 1
+		end
+		print_status "Seeding with default John wordlist...#{count} words added"
+		count = 0
+
+		if datastore['Wordlist']
+			wordlist= File.open(datastore['Wordlist'], "rb")
+			wordlist.each_line do |line| 
+				seed << line.chomp
+				count ==1
+			end
+			print_status "Seeding from user supplied wordlist...#{count} words added"
+		end
+
+
+
+		unless seed.empty?
+			seed.flatten!
+			seed.uniq!
+			if datastore['Munge']
+				mungedseed=[]
+				seed.each do |word|
+					munged = word.gsub(/[sS]/, "$").gsub(/[aA]/,"@").gsub(/[oO]/,"0")
+					mungedseed << munged
+					munged.gsub!(/[eE]/, "3")
+					munged.gsub!(/[tT]/, "7")
+					mungedseed << munged
+				end
+				print_status "Adding #{mungedseed.count} words from munging..."
+				seed << mungedseed
+				seed.flatten!
+				seed.uniq!
+			end
+		end
+		print_status "De-duping the wordlist...."
+
+		print_status("Wordlist Seeded with #{seed.length} words")
+
+		return seed
+
 	end
 end
 end
