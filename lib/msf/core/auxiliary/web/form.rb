@@ -237,6 +237,7 @@ class Form
 
 	def self.from_model( form )
 		inputs = form.params.map do |name, value, extra|
+			extra ||= {}
 			{ :name => name, :value => value, :type => extra[:type] }
 		end
 		e = new( :action => "#{form.path}?#{form.query}", :method => form.method, :inputs => inputs )
