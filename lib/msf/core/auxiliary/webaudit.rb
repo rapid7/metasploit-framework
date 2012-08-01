@@ -71,8 +71,9 @@ module Auxiliary::WebAudit
 	# the proof as a String.
 	#
 	# response - Net::HTTPResponse
+	# element - the submitted element
 	#
-	def find_proof( response )
+	def find_proof( response, element )
 		return if !signature.kind_of? ::Regexp
 
 		m = response.body.match( signature )
@@ -88,7 +89,7 @@ module Auxiliary::WebAudit
 				element.permutations_for( seed ).each do |p|
 					response = submit_element( p )
 
-					if proof = find_proof( response )
+					if proof = find_proof( response, p )
 						process_vulnerability( p, proof )
 					end
 				end
