@@ -8,9 +8,7 @@
 # web site for more information on licensing and terms of use.
 #   http://metasploit.com/
 ##
-
 require 'msf/core'
-
 class Metasploit3 < Msf::Auxiliary
 	Rank = NormalRanking
 	include Msf::Exploit::Remote::HttpServer::HTML
