@@ -500,8 +500,11 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *h, const u_char *byt
 
 	if(j->idx_pkts >= j->max_pkts) j->idx_pkts = 0;
 
-	if(j->pkts[j->idx_pkts]) free((void*)(j->pkts[j->idx_pkts]));
-
+	if(j->pkts[j->idx_pkts]) {
+		j->cur_pkts--;
+		j->cur_bytes -= ((PeterPacket *)(j->pkts[j->idx_pkts]))->h.caplen;
+		free((void*)(j->pkts[j->idx_pkts]));
+	}
 	j->pkts[j->idx_pkts++] = pkt;
 
 	lock_release(snifferm);
