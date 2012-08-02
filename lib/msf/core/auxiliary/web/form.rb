@@ -209,13 +209,15 @@ class Form < Fuzzable
 		return [] if empty?
 
 		params.map do |name, value|
-			fuzzer.seeds_for( value ).map do |seed|
-				form = self.dup
-				form.altered = name.dup
-				form[name]   = seed.dup
-				form
-			end
+			fuzzer.seeds_for( value ).map { |seed| permutation_for( name, seed ) }
 		end.flatten.uniq
+	end
+
+	def permutation_for( field_name, field_value )
+		form = self.dup
+		form.altered = field_name.dup
+		form[field_name]   = field_value.dup
+		form
 	end
 
 	def to_hash

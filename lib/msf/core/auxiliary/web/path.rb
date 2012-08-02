@@ -104,12 +104,13 @@ class Path  < Fuzzable
 	#
 	def permutations
 		return [] if empty?
+		seeds_for( value ).map { |seed| permutation_for( nil, seed ) }.uniq
+	end
 
-		seeds_for( value ).map do |seed|
-			path = self.dup
-			path.input = seed.dup
-			path
-		end.uniq
+	def permutation_for( field_name, field_value )
+		path = self.dup
+		path.input = field_value.dup
+		path
 	end
 
 	def to_hash
