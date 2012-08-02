@@ -16,7 +16,7 @@ module Auxiliary::Web
 #
 # Represents a webpage form.
 #
-class Form
+class Form < Fuzzable
 
 	# Method type Symbol: :get, :post
 	attr_accessor :method
@@ -145,16 +145,6 @@ class Form
 
 	end
 
-	#
-	# Submits the form and returns an HTTPResponse
-	#
-	# connection -  Net::HTTPSession to use for the request
-	# headers    -  Hash of optional headers (default: {})
-	#
-	def submit( connection, headers = {} )
-		connection.request request( headers )
-	end
-
 	# Bool  -   true if params are empty, false otherwise.
 	def empty?
 		params.empty?
@@ -215,24 +205,22 @@ class Form
 	#
 	# seed  -   String to inject
 	#
-	def permutations_for( seed )
+	def permutations
 		return [] if empty?
 
-		params.keys.map do |k|
-			form = self.dup
-			form.altered = k.dup
-			form[k] = seed
-			form
-		end
+		params.map do |name, value|
+			fuzzer.seeds_for( value ).map do |seed|
+				form = self.dup
+				form.altered = name.dup
+				form[name]   = seed.dup
+				form
+			end
+		end.flatten.uniq
 	end
 
 	def to_hash
 		{ :action => action.dup, :method => method,
 		  :inputs => inputs.dup, :altered => altered ? altered.dup : nil }
-	end
-
-	def dup
-		Marshal.load( Marshal.dump( self ) )
 	end
 
 	def self.from_model( form )

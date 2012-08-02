@@ -16,7 +16,7 @@ module Auxiliary::Web
 #
 # Represents a webpage path.
 #
-class Path
+class Path  < Fuzzable
 
 	# URL String to which to submit the params
 	attr_accessor :action
@@ -92,16 +92,6 @@ class Path
 		::Net::HTTP::Get.new( "#{path}/#{param}?#{uri.query}", headers )
 	end
 
-	#
-	# Submits the path and returns an HTTPResponse
-	#
-	# connection -  Net::HTTPSession to use for the request
-	# headers    -  Hash of optional headers (default: {})
-	#
-	def submit( connection, headers = {} )
-		connection.request request( headers )
-	end
-
 	# Bool  -   true if PATH_INFO is empty, false otherwise.
 	def empty?
 		param.empty?
@@ -112,20 +102,18 @@ class Path
 	#
 	# seed  -   String to use as PATH_INFO.
 	#
-	def permutations_for( seed )
+	def permutations
 		return [] if empty?
 
-		path = self.dup
-		path.input = seed
-		path
+		seeds_for( value ).map do |seed|
+			path = self.dup
+			path.input = seed.dup
+			path
+		end.uniq
 	end
 
 	def to_hash
 		{ :action => action.dup, :input => input.dup }
-	end
-
-	def dup
-		Marshal.load( Marshal.dump( self ) )
 	end
 
 	def self.from_model( form )

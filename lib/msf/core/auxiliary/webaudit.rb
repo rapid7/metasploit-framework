@@ -1,8 +1,9 @@
 # -*- coding: binary -*-
 
-require 'net/https'
-require 'net/http'
-require 'uri'
+require 'msf/core/auxiliary/web/fuzzable'
+require 'msf/core/auxiliary/web/form'
+require 'msf/core/auxiliary/web/path'
+require 'msf/core/auxiliary/web/target'
 
 module Msf
 
@@ -84,75 +85,15 @@ module Auxiliary::WebAudit
 	end
 
 	def audit_element( element )
-		element.params.values.each do |default_value|
-			(seeds_for( default_value ) | ["unknown#{token}"] ).each do |seed|
-				element.permutations_for( seed ).each do |p|
-					response = submit_element( p )
-
-					if proof = find_proof( response, p )
-						process_vulnerability( p, proof )
-					end
-				end
+		element.fuzz( self ) do |response, permutation|
+			if response && (proof = find_proof( response, permutation ))
+				process_vulnerability( permutation, proof )
 			end
 		end
 	end
 
-	def submit_element( element )
+	def increment_request_counter
 		parent.increment_request_counter
-
-		retries = 0
-		begin
-			# Configure the headers
-			headers = {
-				'User-Agent' => parent.datastore['UserAgent'] || 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)',
-				'Accept'	 => '*/*',
-				'Host'	     => target.vhost
-			}
-
-			if parent.datastore['HTTPCookie']
-				headers['Cookie'] = parent.datastore['HTTPCookie']
-			end
-
-			if parent.datastore['BasicAuthUser']
-				auth = [ parent.datastore['BasicAuthUser'].to_s + ':' +
-					         parent.datastore['BasicAuthPass'] ].pack( 'm*' ).gsub( /\s+/, '' )
-
-				headers['Authorization'] = "Basic #{auth}\r\n"
-			end
-
-			parent.datastore['HttpAdditionalHeaders'].to_s.split( "\x01" ).each do |hdr|
-				next if !( hdr && hdr.strip.size > 0 )
-
-				k, v = hdr.split( ':', 2 )
-				next if !v
-
-				headers[k.strip] = v.strip
-			end
-
-			if resp = element.submit( http, headers )
-				str = "    #{resp.code} - #{element.method.to_s.upcase} #{element.action} #{element.params}"
-				case resp.code.to_i
-					when 200,404,301,302,303
-						# print_status str
-					when 500,503,401,403
-						print_good str
-					else
-						print_error str
-				end
-			end
-
-			resp
-		# Some CGI servers just spew errors without headers, we need to process these anyways
-		rescue ::Net::HTTPBadResponse, ::Net::HTTPHeaderSyntaxError => e
-			print_status "Error processing response for #{target.to_url} #{e.class} #{e} "
-			return
-		rescue ::Exception => e
-			retries += 1
-			retry if retries < 3
-
-			print_error "Maximum retry count for #{target.to_url} reached (#{e})"
-			return
-		end
 	end
 
 	def http
