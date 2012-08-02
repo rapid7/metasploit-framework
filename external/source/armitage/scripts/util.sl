@@ -44,24 +44,7 @@ sub call {
 
 # recurses through Java/Sleep data structures and makes sure everything is a Sleep data structure.
 sub convertAll {
-	if ($1 is $null) {
-		return $1;
-	}
-	else if ($1 isa ^Map) {
-		return convertAll(copy([SleepUtils getHashWrapper: $1]));
-	}
-	else if ($1 isa ^Collection) {
-		return convertAll(copy([SleepUtils getArrayWrapper: $1]));
-	}
-	else if (-isarray $1 || -ishash $1) {
-		local('$key $value');
-
-		foreach $key => $value ($1) {
-			$value = convertAll($value);
-		}
-	}
-
-	return $1;
+	return [cortana.core.FilterManager convertAll: $1];
 }
 
 # cleans the prompt text from an MSF RPC call
@@ -77,7 +60,8 @@ sub setupConsoleStyle {
 		$style = join("\n", readAll($handle));
 		closef($handle);
 	}
-	[$1 setStyle: $style];
+	
+	[$1 setStyle: filter_data("console_style", $style)[0]];
 }
 
 sub setupEventStyle {
@@ -88,7 +72,8 @@ sub setupEventStyle {
 		$style = join("\n", readAll($handle));
 		closef($handle);
 	}
-	[$1 setStyle: $style];
+
+	[$1 setStyle: filter_data("event_style", $style)[0]];
 }
 
 sub createDisplayTab {
@@ -115,7 +100,7 @@ sub createConsolePanel {
 	setupConsoleStyle($console);
 
 	$result = call($client, "console.create");
-	$thread = [new ConsoleClient: $console, $client, "console.read", "console.write", "console.destroy", $result['id'], $1];
+	$thread = [new ConsoleClient: $console, $aclient, "console.read", "console.write", "console.destroy", $result['id'], $1];
 	[$thread setMetasploitConsole];
 
 	[$thread setSessionListener: {
@@ -183,6 +168,11 @@ sub createDefaultHandler {
 
 sub setupHandlers {
 	find_job("Exploit: multi/handler", {
+		if ($cortana !is $null) {
+			warn("Starting Cortana on $MY_ADDRESS");
+			[$cortana start: $MY_ADDRESS];
+		}
+
 		if ($1 == -1) {
 			createDefaultHandler();
 		}
@@ -239,8 +229,8 @@ sub getBindAddress {
 	local('$queue');
 	if ('LHOST' in %MSF_GLOBAL) {
 		$MY_ADDRESS = %MSF_GLOBAL['LHOST'];
-		setupHandlers();
 		warn("Used the incumbent: $MY_ADDRESS");
+		setupHandlers();
 	}
 	else {
 		$queue = [new ConsoleQueue: $client];
@@ -249,7 +239,7 @@ sub getBindAddress {
 			local('$address');
 			$address = convertAll([$queue tabComplete: "setg LHOST "]);
 			$address = split('\\s+', $address[0])[2];
-		
+	
 			if ($address eq "127.0.0.1") {
 				[SwingUtilities invokeLater: {
 					local('$address');
@@ -266,8 +256,8 @@ sub getBindAddress {
 			else {
 				warn("Used the tab method: $address");
 				setg("LHOST", $address);
-				setupHandlers();
 				$MY_ADDRESS = $address;
+				setupHandlers();
 			}
 		}, \$queue)];
 		[$queue start];
@@ -453,6 +443,10 @@ sub elog {
 }
 
 sub module_execute {
+	return invoke(&_module_execute, filter_data_array("user_launch", @_));
+}
+
+sub _module_execute {
 	if ([$preferences getProperty: "armitage.show_all_commands.boolean", "true"] eq "true") {
 		local('$host');
 
@@ -527,11 +521,11 @@ sub listDownloads {
 				%types[$1] = $type;
 			}
 
-                        # figure out the path...
-                        $path = strrep(getFileParent($1), $root, '');
-                        if (strlen($path) >= 2) {
-                                $path = substr($path, 1);
-                        }
+			# figure out the path...
+			$path = strrep(getFileParent($1), $root, '');
+			if (strlen($path) >= 2) {
+				$path = substr($path, 1);
+			}
 
 			# return a description of the file.
 			return %(

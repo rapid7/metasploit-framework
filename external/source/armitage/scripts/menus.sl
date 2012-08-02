@@ -72,6 +72,7 @@ sub view_items {
 	item($1, 'Downloads', 'D', { thread(&createDownloadBrowser); });
 	item($1, 'Jobs', 'J', { thread(&createJobsTab); });
 	item($1, 'Loot', 'L', { thread(&createLootBrowser) });
+	item($1, 'Script Console', 'S', { showScriptConsole(); });
 
 	setupMenu($1, "view_middle", @());
 
@@ -150,6 +151,8 @@ sub armitage_items {
 		item($m, 'Bind (connect to)', 'B', &connect_for_shellz);
 		item($m, 'Reverse (wait for)', 'R', &listen_for_shellz); 
 
+	item($1, 'Scripts...', 'S', { showScriptManager(); });
+
 	setupMenu($1, "main_middle", @());
 
 	separator($1);
@@ -189,7 +192,8 @@ sub gotoURL {
 
 sub help_items {
 	item($1, "Homepage", 'H', gotoURL("http://www.fastandeasyhacking.com/")); 
-	item($1, "Tutorial", 'T', gotoURL("http://www.fastandeasyhacking.com/manual")); 
+	item($1, "Tutorial", 'T', gotoURL("http://www.fastandeasyhacking.com/manual"));
+	item($1, "Scripts", 'S', gotoURL("https://github.com/rsmudge/cortana-scripts"));
 	item($1, "Issue Tracker", 'I', gotoURL("http://code.google.com/p/armitage/issues/list")); 
 	item($1, "User Survey", 'U', gotoURL("https://docs.google.com/spreadsheet/viewform?formkey=dEdSNGdJY2Z1LVloWXBnX2o4SkdGZHc6MQ"));
 	setupMenu($1, "help", @());

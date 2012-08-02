@@ -24,6 +24,10 @@ import ui.*;
 # Create a new menu, returns the menu, you have to attach it to something
 # menu([$parent], "Name", 'Accelerator')
 sub menu {
+	return invoke(&_menu, filter_data_array("menu_parent", @_));
+}
+
+sub _menu {
 	local('$menu');
 	if (size(@_) == 2) {
 		$menu = [new JMenu: $1];
@@ -56,7 +60,15 @@ sub separator {
 # create a menu item, attaches it to the specified parent (based on the Name)
 # item($parent, "Name", 'accelerator', &listener)
 sub item {
+	return invoke(&_item, filter_data_array("menu_item", @_));
+}
+
+sub _item {
 	local('$item');
+	if ($1 is $null || $2 is $null) {
+		return;
+	}
+
 	$item = [new JMenuItem: $2];
 	if ($3 !is $null) {
 		[$item setMnemonic: casti(charAt($3, 0), 'c')];
@@ -510,9 +522,9 @@ sub setClipboard {
 }
 
 sub setupMenu {
-	# do nothing for now... this is for something coming later.
+	[$frame setupMenu: $1, $2, _args($3)];
 }
 
 sub installMenu {
-	# do nothing for now... this is for something coming later.
+	[$frame installMenu: $1, $2, _args($3)];
 }
