@@ -7,7 +7,7 @@ import java.io.*;
 global('%logs');
 %logs = ohash();
 setMissPolicy(%logs, {
-	return [new PrintStream: [new FileOutputStream: $2, 1], 1, "UTF-8"];
+	return [[$cortana getSharedData] getLogger: $2];
 });
 
 # logNow("file", "host|all", "text to log");

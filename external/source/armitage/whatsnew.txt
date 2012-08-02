@@ -1,6 +1,26 @@
 Armitage Changelog
 ==================
 
+2 Aug 12 (tested again msf r15698)
+--------
+- Armitage now reports vulnerability module and descriptions 
+  properly (again) when exporting data. Had to update to match a
+  change to the db schema.
+- Pass-the-Hash and Login dialogs now stay open if you press 
+  shift while clicking Launch. This convention is pretty universal
+  to Armitage.
+- Team server now buffers all of its outgoing data. I've also 
+  disabled SO_NODELAY. This will greatly improve team server latency
+  on congested networks without impacting responsiveness otherwise.
+- Added Cortana, a DARPA funded scripting technology, into Armitage.
+  There's a lot of fun to be had here.
+- Armitage now queues messages to destroy a console rather than
+  spinning up a new thread for each closed console.
+- Rendering of icons for hosts now happens outside of UI thread.
+- Increased timeout for meterpreter read command
+- Armitage now detects a corrupt module cache and attempts to clear
+  it so it can be rebuilt. 
+
 5 Jul 12
 --------
 - Login -> psexec now sets a different LPORT for each host it's

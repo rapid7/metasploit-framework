@@ -288,9 +288,25 @@ public class DatabaseImpl implements RpcConnection  {
 				results.put("values", executeQuery("SELECT DISTINCT * FROM notes WHERE ntype = '" + key + "' ORDER BY id ASC"));
 				return results;
 			}
+			else if (methodName.equals("db.clear_cache")) {
+				/* force a clear of the module cache */
+				executeUpdate(
+					"BEGIN;" +
+					"DELETE FROM module_details;" +
+					"DELETE FROM module_details;" +
+					"DELETE FROM module_targets;" +
+					"DELETE FROM module_authors;" +
+					"DELETE FROM module_actions;" +
+					"DELETE FROM module_mixins;" +
+					"DELETE FROM module_platforms;" +
+					"DELETE FROM module_archs;" +
+					"DELETE FROM module_refs;" +
+					"COMMIT");
+				return new HashMap();
+			}
 			else if (methodName.equals("db.clear")) {
 				executeUpdate(
-					"BEGIN;" + 
+					"BEGIN;" +
 					"DELETE FROM hosts;" +
 					"DELETE FROM services;" +
 					"DELETE FROM events;" +
