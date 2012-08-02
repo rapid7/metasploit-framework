@@ -28,10 +28,10 @@ public class SecureServerSocket {
 	public IOObject accept() {
 		try {
 			Socket client = server.accept();
-			client.setTcpNoDelay(true);
+			//client.setTcpNoDelay(true);
 			IOObject temp = new IOObject();
 			temp.openRead(client.getInputStream());
-			temp.openWrite(client.getOutputStream());
+			temp.openWrite(new BufferedOutputStream(client.getOutputStream(), 8192 * 8));
 			last = client.getInetAddress().getHostAddress();
 			client.setSoTimeout(0);
 			return temp;

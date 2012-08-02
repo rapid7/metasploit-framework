@@ -15,9 +15,15 @@ import graph.*;
 
 import java.awt.image.*;
 
-global('$frame $tabs $menubar $msfrpc_handle $REMOTE');
+global('$frame $tabs $menubar $msfrpc_handle $REMOTE $cortana $MY_ADDRESS');
 
 sub describeHost {
+	local('$desc');
+	$desc = _describeHost($1);
+	return filter_data("host_describe", $desc, $1)[0];
+}
+
+sub _describeHost {
 	local('$sessions $os @overlay $ver $info');
 	($sessions, $os, $ver) = values($1, @('sessions', 'os_name', 'os_flavor'));
 
@@ -89,7 +95,7 @@ sub showHost {
 		push(@overlay, 'resources/computer.png');
 	}
 
-	return overlay_images(@overlay);
+	return overlay_images(filter_data("host_image", @overlay, $1)[0]);
 }
 
 sub connectToMetasploit {
@@ -99,7 +105,7 @@ sub connectToMetasploit {
 }
 
 sub _connectToMetasploit {
-	global('$database $client $mclient $console @exploits @auxiliary @payloads @post');
+	global('$database $aclient $client $mclient $console @exploits @auxiliary @payloads @post');
 
 	# reset rejected fingerprints
 	let(&verify_server, %rejected => %());
@@ -146,16 +152,17 @@ sub _connectToMetasploit {
 
 			# connecting locally? go to Metasploit directly...
 			if ($1 eq "127.0.0.1" || $1 eq "::1" || $1 eq "localhost") {
-			        $client = [new MsgRpcImpl: $3, $4, $1, long($2), $null, $debug];
+				$client = [new MsgRpcImpl: $3, $4, $1, long($2), $null, $debug];
+				$aclient = [new RpcAsync: $client];
 				$mclient = $client;
 				initConsolePool();
-				initReporting();
 			}
 			# we have a team server... connect and authenticate to it.
 			else {
 				$client = c_client($1, $2);
 				setField(^msf.MeterpreterSession, DEFAULT_WAIT => 20000L);
 				$mclient = setup_collaboration($3, $4, $1, $2);
+				$aclient = $mclient;
 			}
 			$flag = $null;
 		}
@@ -198,6 +205,14 @@ sub _connectToMetasploit {
 		}
 	}
 
+	# check the module cache...
+	local('$sanity');
+	$sanity = call($mclient, "module.options", "exploit", "windows/smb/ms08_067_netapi");
+	if ($sanity is $null) {
+		warn("Detected corrupt module cache... forcing rebuild");
+		call($mclient, "db.clear_cache");
+	}
+
 	[$progress setNote: "Connected: Getting local address"];
 	[$progress setProgress: 50];
 
@@ -226,27 +241,74 @@ sub _connectToMetasploit {
 sub postSetup {
 	thread(lambda({
 		[$progress setNote: "Connected: Fetching exploits"];
-		[$progress setProgress: 70];
+		[$progress setProgress: 65];
 
 		@exploits  = sorta(call($mclient, "module.exploits")["modules"]);
 
 		[$progress setNote: "Connected: Fetching auxiliary modules"];
-		[$progress setProgress: 80];
+		[$progress setProgress: 70];
 
 		@auxiliary = sorta(call($mclient, "module.auxiliary")["modules"]);
 
 		[$progress setNote: "Connected: Fetching payloads"];
-		[$progress setProgress: 90];
+		[$progress setProgress: 80];
 
 		@payloads  = sorta(call($mclient, "module.payloads")["modules"]);
 
 		[$progress setNote: "Connected: Fetching post modules"];
-		[$progress setProgress: 100];
+		[$progress setProgress: 90];
 
 		@post      = sorta(call($mclient, "module.post")["modules"]);
 
+		[$progress setNote: "Connected: Starting script engine"];
+		[$progress setProgress: 95];
+
+		$cortana = [new cortana.Cortana: $client, $mclient, $__events__, $__filters__];
+		[$cortana setupCallbackIO];
+
 		[$progress close];
-		main();
+
+		local('$frame');
+		$frame = main();
+		[$cortana setupArmitage: $frame, $preferences];
+
+		# export some local functions for use by Cortana...
+		[[$cortana getSharedData] put: "&launch_dialog",      &launch_dialog];
+		[[$cortana getSharedData] put: "&attack_dialog",      &attack_dialog];
+		[[$cortana getSharedData] put: "&savePreferences",    &savePreferences];
+		[[$cortana getSharedData] put: "&showModules",        &showModules];
+		[[$cortana getSharedData] put: "&show_login_dialog",  &show_login_dialog];
+		[[$cortana getSharedData] put: "&show_psexec_dialog", &pass_the_hash];
+		[[$cortana getSharedData] put: "&module_execute",     &module_execute];
+		[[$cortana getSharedData] put: "&createDashboard",    &createDashboard];
+		[[$cortana getSharedData] put: "&launch_msf_scans",   &launch_msf_scans];
+		[[$cortana getSharedData] put: "&quickListDialog",    &quickListDialog];
+		[[$cortana getSharedData] put: "&setupConsoleStyle",  &setupConsoleStyle];
+		[[$cortana getSharedData] put: "&showScriptConsole",  &showScriptConsole];
+		[[$cortana getSharedData] put: "&generateArtifacts",  &_generateArtifacts];
+		[[$cortana getSharedData] put: "&createFileBrowser",  &createFileBrowser];
+
+		if ($MY_ADDRESS ne "") {
+			warn("Starting Cortana on $MY_ADDRESS ...");
+			[$cortana start: $MY_ADDRESS];
+		}
+
+		# this will tell Cortana to start consuming the output from our scripts.
+		getCortanaConsole();
+
+		local('$script');
+		foreach $script (listScripts()) {
+			try {
+				if (-exists $script && -canread $script) {
+					[$progress setNote: "Connected: Loading $script"];
+					[$cortana loadScript: $script];
+				}
+			}
+			catch $exception {
+				showError("Could not load $script $+ :\n $+ $exception");
+			}
+		}
+
 		createDashboard();
 	}, \$progress));
 }
@@ -287,6 +349,8 @@ sub main {
 	if (-exists "command.txt") {
 		deleteFile("command.txt");
 	}
+
+	return $frame;
 }
 
 sub checkDir {

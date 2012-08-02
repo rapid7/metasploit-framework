@@ -9,6 +9,8 @@ import java.awt.event.*;
 
 import java.util.*;
 
+import cortana.gui.MenuBuilder;
+
 import ui.*;
 
 public class ArmitageApplication extends JFrame {
@@ -17,9 +19,33 @@ public class ArmitageApplication extends JFrame {
 	protected JMenuBar menus = new JMenuBar();
 	protected ScreenshotManager screens = null;
 	protected KeyBindings keys = new KeyBindings();
+	protected MenuBuilder builder = null;
 
 	public void setScreenshotManager(ScreenshotManager m) {
 		screens = m;
+	}
+
+	public void installMenu(MouseEvent ev, String key, Stack args) {
+		if (builder == null) {
+			System.err.println("Menu builder was never installed! " + key);
+			return;
+		}
+
+		builder.installMenu(ev, key, args);
+	}
+
+	public void setupMenu(JComponent parent, String key, Stack args) {
+		if (builder == null) {
+			System.err.println("Menu builder was never installed! " + key);
+			return;
+		}
+
+		builder.setupMenu(parent, key, args);
+	}
+
+	public void setMenuBuilder(MenuBuilder b) {
+		System.err.println("Setting up menu builder: " + b);
+		builder = b;
 	}
 
 	public void bindKey(String description, KeyHandler b) {
