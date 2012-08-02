@@ -18,10 +18,7 @@ class Fuzzable
 
 	def fuzz( cfuzzer = nil, &block )
 		self.fuzzer ||= cfuzzer
-
-		permutations.each do |p|
-			block.call( p.submit, p )
-		end
+		permutations.each { |p| block.call( p.submit, p ) }
 	end
 
 	def submit( cfuzzer = nil )
