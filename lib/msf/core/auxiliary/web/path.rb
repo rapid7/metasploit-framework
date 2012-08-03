@@ -11,11 +11,12 @@ require 'uri'
 
 module Msf
 
-module Auxiliary::Web
-
 #
 # Represents a webpage path.
 #
+module Auxiliary::Web
+
+
 class Path  < Fuzzable
 
 	# URL String to which to submit the params
@@ -76,7 +77,11 @@ class Path  < Fuzzable
 
 	# Returns the PATH_INFO as a String.
 	def altered_value
-		input.to_s
+		input
+	end
+
+	def altered_value=( value )
+		self.input = value.to_s.dup
 	end
 
 	#

@@ -11,11 +11,11 @@ require 'uri'
 
 module Msf
 
-module Auxiliary::Web
-
 #
 # Represents a webpage form.
 #
+module Auxiliary::Web
+
 class Form < Fuzzable
 
 	# Method type Symbol: :get, :post
@@ -96,7 +96,11 @@ class Form < Fuzzable
 	# Value of the {#altered} input (i.e. the injected value).
 	#
 	def altered_value
-		params[altered].to_s
+		params[altered]
+	end
+
+	def altered_value=( value )
+		params[altered] = value.to_s.dup
 	end
 
 	#

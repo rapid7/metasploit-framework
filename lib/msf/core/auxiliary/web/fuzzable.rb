@@ -14,6 +14,12 @@ module Msf
 module Auxiliary::Web
 
 class Fuzzable
+
+	# load and include all available analysis/audit techniques
+	lib = File.dirname( __FILE__ ) + '/analysis/*.rb'
+	Dir.glob( lib ).each { |f| require f }
+	Analysis.constants.each { |technique| include Analysis.const_get( technique ) }
+
 	attr_accessor :fuzzer
 
 	def fuzz( cfuzzer = nil, &block )
@@ -21,10 +27,10 @@ class Fuzzable
 		permutations.each { |p| block.call( p.submit, p ) }
 	end
 
-	def submit( cfuzzer = nil )
-		self.fuzzer ||= cfuzzer
+	def submit( opts = {} )
 		fuzzer.increment_request_counter
 
+		max_retries = opts[:retries] || 3
 		retries = 0
 		begin
 			# Configure the headers
@@ -54,7 +60,9 @@ class Fuzzable
 				headers[k.strip] = v.strip
 			end
 
-			if resp = fuzzer.http.request( request( headers ) )
+			chttp = http
+			chttp.read_timeout = opts[:timeout] if opts[:timeout]
+			if resp = chttp.request( request( headers ) )
 				str = "    #{resp.code} - #{method.to_s.upcase} #{action} #{params}"
 				case resp.code.to_i
 					when 200,404,301,302,303
@@ -72,12 +80,19 @@ class Fuzzable
 			fuzzer.print_status "Error processing response for #{fuzzer.target.to_url} #{e.class} #{e} "
 			return
 		rescue ::Exception => e
-			retries += 1
-			retry if retries < 3
+			if max_retries > 0
+				retries += 1
+				retry if retries < max_retries
 
-			fuzzer.print_error "Maximum retry count for #{fuzzer.target.to_url} reached (#{e})"
-			return
+				fuzzer.print_error "Maximum retry count for #{fuzzer.target.to_url} reached (#{e})"
+			else
+				raise e
+			end
 		end
+	end
+
+	def http
+		fuzzer.http
 	end
 
 	def hash

@@ -1,11 +1,16 @@
 # -*- coding: binary -*-
 
+module Msf
+
+module Auxiliary::Web
+	module Analysis
+	end
+end
+
 require 'msf/core/auxiliary/web/fuzzable'
 require 'msf/core/auxiliary/web/form'
 require 'msf/core/auxiliary/web/path'
 require 'msf/core/auxiliary/web/target'
-
-module Msf
 
 ###
 #
@@ -59,8 +64,13 @@ module Auxiliary::WebAudit
 	# to identify vulnerabilities.
 	#
 	def run
-		target.auditable.each do |element|
-			audit_element( element )
+		auditable.each { |element| audit_element( element ) }
+	end
+
+	def auditable
+		target.auditable.map do |element|
+			element.fuzzer = self
+			element
 		end
 	end
 
