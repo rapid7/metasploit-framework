@@ -148,7 +148,6 @@ module ReverseHttp
 			},
 			'VirtualDirectory' => true)
 
-		self.conn_ids = []
 		print_status("Started HTTP reverse handler on http://#{datastore['LHOST']}:#{datastore['LPORT']}/")
 	end
 
@@ -175,7 +174,6 @@ module ReverseHttp
 	end
 
 	attr_accessor :service # :nodoc:
-	attr_accessor :conn_ids
 
 protected
 
@@ -222,7 +220,6 @@ protected
 				blob << [packet.length+8, 0].pack('NN') + packet
 
 				resp.body = blob
-				conn_ids << conn_id
 
 				# Short-circuit the payload's handle_connection processing for create_session
 				create_session(cli, {
@@ -251,7 +248,7 @@ protected
 					blob[i, str.length] = str
 					print_status("Patched user-agent at offset #{i}...")
 				end
-				
+
 				# Replace the transport string first (TRANSPORT_SOCKET_SSL)
 				i = blob.index("METERPRETER_TRANSPORT_SSL")
 				if i
@@ -285,7 +282,22 @@ protected
 
 				resp.body = blob
 
-				conn_ids << conn_id
+				# Short-circuit the payload's handle_connection processing for create_session
+				create_session(cli, {
+					:passive_dispatcher => obj.service,
+					:conn_id            => conn_id,
+					:url                => url,
+					:expiration         => datastore['SessionExpirationTimeout'].to_i,
+					:comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
+					:ssl                => false
+				})
+			when /^\/CONN_.*\//
+				resp.body = ""
+				# Grab the checksummed version of CONN from the payload's request.
+				conn_id = req.relative_resource[1,21]
+				print_line("Received poll from #{conn_id}")
+
+				print_status("Incoming orphaned session #{conn_id}, reattaching...")
 
 				# Short-circuit the payload's handle_connection processing for create_session
 				create_session(cli, {
@@ -296,25 +308,7 @@ protected
 					:comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
 					:ssl                => false
 				})
-			when /^\/(CONN_.*)\//
-				resp.body = ""
-				conn_id = $1
-				print_line("Received poll from #{conn_id}")
 
-				if not self.conn_ids.include?(conn_id)
-					print_status("Incoming orphaned session #{conn_id}, reattaching...")
-					conn_ids << conn_id
-
-					# Short-circuit the payload's handle_connection processing for create_session
-					create_session(cli, {
-						:passive_dispatcher => obj.service,
-						:conn_id            => conn_id,
-						:url                => url,
-						:expiration         => datastore['SessionExpirationTimeout'].to_i,
-						:comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
-						:ssl                => false
-					})
-				end
 			else
 				print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{uri_match} #{req.inspect}...")
 				resp.code    = 200

