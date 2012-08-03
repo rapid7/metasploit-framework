@@ -123,7 +123,7 @@ module Auxiliary::WebAudit
 		100
 	end
 
-	def process_vulnerability( element, proof )
+	def process_vulnerability( element, proof, opts = {} )
 		mode  = details[:category].to_sym
 		vhash = [target.to_url, mode, element.altered].map{ |x| x.to_s }.join( '|' )
 
@@ -149,9 +149,10 @@ module Auxiliary::WebAudit
 
 		parent.vulns[mode][vhash].merge!( confidence: confidence )
 
-		payload = nil
-		if payloads
-			payload = payloads.select{ |p| element.altered_value.include?( p ) }.first
+		if !(payload = opts[:payload])
+			if payloads
+				payload = payloads.select{ |p| element.altered_value.include?( p ) }.first
+			end
 		end
 
 		uri = URI( element.action )

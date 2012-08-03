@@ -46,7 +46,8 @@ module Analysis::Timing
 			next if p.responsive?( timeout - 1 )
 
 			# log it!
-			fuzzer.process_vulnerability( p, 'Manipulatable response times.' )
+			fuzzer.process_vulnerability( p, 'Manipulatable response times.',
+				:payload => p.altered_value )
 		end
 	end
 
