@@ -25,7 +25,7 @@ class Metasploit4 < Msf::Auxiliary
 					[ 'URL', 'http://blog.c22.cc' ]
 				],
 			'Author'       =>
-				[ 
+				[
 					'Chris John Riley', # most of the code this module is based on
 					'Bruno Morisson <bm[at]integrity.pt>' # request ProcessList and parsing output
 				],
