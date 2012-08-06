@@ -122,6 +122,8 @@ class Metasploit3 < Msf::Auxiliary
 		return if page.url.query =~ /^C=[A-Z];O=/ # Apache
 
 		forms = []
+		form_template = { :web_site => t[:site] }
+
 		if form = form_from_url( t[:site], page.url )
 			forms << form
 		end
