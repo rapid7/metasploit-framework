@@ -2368,8 +2368,7 @@ class Core
 			# smash everything that's left together
 			value = args.join(" ")
 
-			allow = (@allow_aliases == false) ? false : true
-			if allow
+			if @allow_aliases
 				if is_valid_alias?(name,value)
 					if force or (not Rex::FileUtils.find_full_path(name) and not @aliases.keys.include?(name))
 						@aliases[name] = value
