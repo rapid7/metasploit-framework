@@ -4,9 +4,9 @@ require 'webrick/cookie'
 
 module Anemone
 
-	# Path extractor container namespace.
-	module Extractors
-	end
+    # Path extractor container namespace.
+    module Extractors
+    end
 
   class Page
 
@@ -59,28 +59,28 @@ module Anemone
     end
 
     def self.extractors
-	    return @extractors if @extractors
+      return @extractors if @extractors
 
-	    lib = File.dirname( __FILE__ ) + '/extractors/*.rb'
-	    Dir.glob( lib ).each { |e| require e }
+      lib = File.dirname( __FILE__ ) + '/extractors/*.rb'
+      Dir.glob( lib ).each { |e| require e }
 
-	    @extractors = Extractors.constants.map { |e| Extractors.const_get( e ) }
+      @extractors = Extractors.constants.map { |e| Extractors.const_get( e ) }
     end
 
     def run_extractors
-	    return [] if !doc
-	    self.class.extractors.map { |e| e.new.run( doc ) }.flatten.
-		    map do |p|
-		        abs = to_absolute( URI( p ) ) rescue next
-		        !in_domain?( abs ) ? nil : abs
-	        end.compact.uniq
+      return [] if !doc
+      self.class.extractors.map { |e| e.new.run( doc ) }.flatten.
+          map do |p|
+              abs = to_absolute( URI( p ) ) rescue next
+              !in_domain?( abs ) ? nil : abs
+          end.compact.uniq
     end
 
     #
     # Array of distinct A tag HREFs from the page
     #
- 	# MODIFIED: Dig URLs from elements other than "A" refs
- 	#
+     # MODIFIED: Dig URLs from elements other than "A" refs
+     #
     def links
       return @links if @links
       @links = []
@@ -90,15 +90,15 @@ module Anemone
 
       @links |= @links.map do |u|
         # back-off to the parent dir
-	      to_absolute( URI( u.path.gsub( /(.*\/)[^\/]+$/, "\\1" ) ) ) rescue next
+          to_absolute( URI( u.path.gsub( /(.*\/)[^\/]+$/, "\\1" ) ) ) rescue next
       end.uniq.compact
 
       @links |= @links.map do |u|
-      	bits = u.path.split( '/' )
-      	while bits.length > 0
+          bits = u.path.split( '/' )
+          while bits.length > 0
           bits.pop
           to_absolute( URI( bits.join( '/' ) ) ) rescue next
-      	end
+          end
       end.uniq.compact
 
       @links.flatten!
