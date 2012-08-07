@@ -75,6 +75,13 @@ module Auxiliary::WebAudit
 		end
 	end
 
+	def resource_exist?( path )
+		res = http.get( path )
+		res.code.to_i == 200 && !custom_404?( path, res.body )
+	end
+	alias :file_exist?      :resource_exist?
+	alias :directory_exist? :resource_exist?
+
 	#
 	# Serves as a default detection method for when performing taint analysis.
 	#
@@ -115,6 +122,8 @@ module Auxiliary::WebAudit
 	end
 
 	def custom_404?( path, body )
+		return if !path || !body
+
 		precision = 2
 
 		@@_404 ||= {}
