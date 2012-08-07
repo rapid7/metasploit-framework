@@ -60,13 +60,14 @@ module Auxiliary::WebAudit
 	end
 
 	#
-	# Default #run, will audit all methods/forms and try to use #signature
-	# to identify vulnerabilities.
+	# Default #run, will audit all elements using taint analysis and log
+	# results based on #find_proof return values.
 	#
 	def run
-		auditable.each { |element| audit_element( element ) }
+		auditable.each { |element| element.taint_analysis }
 	end
 
+	# Returns an Array of elements prepared to be audited.
 	def auditable
 		target.auditable.map do |element|
 			element.fuzzer = self
@@ -74,6 +75,8 @@ module Auxiliary::WebAudit
 		end
 	end
 
+	#
+	# Serves as a default detection method for when performing taint analysis.
 	#
 	# Uses the Regexp in #signature against the response body in order to
 	# identify vulnerabilities and return a String that proves it.
@@ -92,14 +95,6 @@ module Auxiliary::WebAudit
 
 		1.upto( m.length - 1 ) { |i| return m[i].gsub( /[\r\n]/, ' ' ) if m[i] }
 		nil
-	end
-
-	def audit_element( element )
-		element.fuzz( self ) do |response, permutation|
-			if response && (proof = find_proof( response, permutation ))
-				process_vulnerability( permutation, proof )
-			end
-		end
 	end
 
 	def increment_request_counter
