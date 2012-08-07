@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'URL', 'http://www.wireshark.org/security/wnpa-sec-2011-04.html' ],
 					[ 'URL', 'https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5717' ],
 				],
-			'DisclosureDate' => '2011-03-01'))
+			'DisclosureDate' => 'Mar 1 2011'))
 
 		register_options([
 			OptInt.new('RPORT', [true, 'The destination port', 389]),

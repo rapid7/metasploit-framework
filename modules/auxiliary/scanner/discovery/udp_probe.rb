@@ -514,6 +514,6 @@ class Metasploit3 < Msf::Auxiliary
 
 	def probe_pkt_pca_nq(ip)
 		return ["NQ", 5632]
-	end	
+	end
 
 end

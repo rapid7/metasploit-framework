@@ -84,7 +84,7 @@ class Metasploit3 < Msf::Post
 
 		apps.each do |a|
 			output = which(env_paths, a)
- 			if output
+			if output
 				print_good("#{a} found: #{output}")
 
 				report_note(
