@@ -79,10 +79,10 @@ class Metasploit3 < Msf::Post
 			cmd = "/usr/bin/host "
 		end
 		while(not name_list.nil? and not name_list.empty?)
-			 1.upto(thread_num) do
-			 	a << framework.threads.spawn("Module(#{self.refname})", false, name_list.shift) do |n|
-			 		next if n.nil?
-			 		vprint_status("Trying #{n.strip}.#{domain}")
+			1.upto(thread_num) do
+				a << framework.threads.spawn("Module(#{self.refname})", false, name_list.shift) do |n|
+					next if n.nil?
+					vprint_status("Trying #{n.strip}.#{domain}")
 					r = cmd_exec(cmd, "#{n.strip}.#{domain}")
 
 					case session.platform
@@ -92,8 +92,8 @@ class Metasploit3 < Msf::Post
 						process_nix(r, "#{n.strip}.#{domain}")
 					end
 				end
-			 	a.map {|x| x.join }
-			 end
+				a.map {|x| x.join }
+			end
 		end
 	end
 

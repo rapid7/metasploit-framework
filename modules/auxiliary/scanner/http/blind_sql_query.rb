@@ -437,7 +437,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		# 2% 50%
 		max_diff_perc = 2
- 		min_diff_perc = 50
+		min_diff_perc = 50
 
 		if normalr and truer
 			if falser

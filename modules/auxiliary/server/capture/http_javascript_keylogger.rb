@@ -207,12 +207,12 @@ class Metasploit3 < Msf::Auxiliary
 </head>
 <body bgcolor="white">
 <br><br>
-<div align="center"> 
+<div align="center">
 <h1>Keylogger Demo Form</h1>
 <form method=\"POST\" name=\"logonf\" action=\"#{base_url}/demo/?id=#{cid}\">
 <p><font color="red"><i>This form submits data to the Metasploit listener for demonstration purposes.</i></font>
 <br><br>
-<table border="0" cellspacing="0" cellpadding="0"> 
+<table border="0" cellspacing="0" cellpadding="0">
 <tr><td>Username:</td> <td><input name="username" size="20"></td> </tr>
 <tr><td>Password:</td> <td><input type="password" name="password" size="20"></td> </tr>
 </table>

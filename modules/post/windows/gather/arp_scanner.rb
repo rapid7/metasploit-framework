@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Post
 		while(not iplst.nil? and not iplst.empty?)
 			1.upto(threads) do
 				a << framework.threads.spawn("Module(#{self.refname})", false, iplst.shift) do |ip_text|
-			 		next if ip_text.nil?
+					next if ip_text.nil?
 					h = ws.inet_addr(ip_text)
 					ip = h["return"]
 					h = iphlp.SendARP(ip,0,6,6)

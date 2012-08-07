@@ -81,14 +81,14 @@ class Metasploit3 < Msf::Post
 			ip_found = []
 
 			while(not iplst.nil? and not iplst.empty?)
-				 1.upto(thread_num) do
-				 	a << framework.threads.spawn("Module(#{self.refname})", false, iplst.shift) do |ip_add|
-				 		next if ip_add.nil?
-				 		if platform =~ /solaris/i
+				1.upto(thread_num) do
+					a << framework.threads.spawn("Module(#{self.refname})", false, iplst.shift) do |ip_add|
+						next if ip_add.nil?
+						if platform =~ /solaris/i
 				 			r = cmd_exec(cmd, "-n #{ip_add} 1")
-				 		else
+						else
 				 			r = cmd_exec(cmd, count + ip_add)
-				 		end
+						end
 						if r =~ /(TTL|Alive)/i
 							print_status "\t#{ip_add} host found"
 							ip_found << ip_add
@@ -96,9 +96,9 @@ class Metasploit3 < Msf::Post
 							vprint_status("\t#{ip_add} host not found")
 						end
 
-				 	end
-				 	a.map {|x| x.join }
-				 end
+					end
+					a.map {|x| x.join }
+				end
 			end
 		rescue Rex::TimeoutError, Rex::Post::Meterpreter::RequestError
 		rescue ::Exception => e
