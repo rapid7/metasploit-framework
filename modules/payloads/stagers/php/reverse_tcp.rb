@@ -22,7 +22,7 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'PHP Reverse TCP stager',
+			'Name'          => 'PHP Reverse TCP Stager',
 			'Version'       => '$Revision$',
 			'Description'   => 'Reverse PHP connect back stager with checks for disabled functions',
 			'Author'        => 'egypt',

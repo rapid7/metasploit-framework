@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'   		=> 'Apache HTTPD mod_negotiation scanner',
+			'Name'   		=> 'Apache HTTPD mod_negotiation Scanner',
 			'Description'	=> %q{
 					This module scans the webserver of the given host(s) for the existence of mod_negotiate.
 				If the webserver has mod_negotiation enabled, the IP address will be displayed.

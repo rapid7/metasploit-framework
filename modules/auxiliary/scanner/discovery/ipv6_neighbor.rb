@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			found = {}
 			hosts.each do |dhost|
-				
+
 				probe = buildprobe(@shost, @smac, dhost)
 				capture.inject(probe)
 				while(reply = getreply())
