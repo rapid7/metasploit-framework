@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Scrutinizer NetFlow and sFlow Analyzer HTTP Authentication Bypass',
+			'Name'           => 'Plixer Scrutinizer NetFlow and sFlow Analyzer HTTP Authentication Bypass',
 			'Description'    => %q{
 				This will add an administrative account to Scrutinizer NetFlow and sFlow Analyzer
 				without any authentication.  Versions such as 9.0.1 or older are affected.
