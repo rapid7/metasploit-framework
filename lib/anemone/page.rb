@@ -4,9 +4,20 @@ require 'webrick/cookie'
 
 module Anemone
 
-    # Path extractor container namespace.
-    module Extractors
+  # Path extractor container namespace.
+  module Extractors
+    class Base
+      attr_reader :page
+
+      def initialize( page )
+        @page = page
+      end
+
+      def doc
+        page.doc
+      end
     end
+  end
 
   class Page
 
@@ -64,12 +75,15 @@ module Anemone
       lib = File.dirname( __FILE__ ) + '/extractors/*.rb'
       Dir.glob( lib ).each { |e| require e }
 
-      @extractors = Extractors.constants.map { |e| Extractors.const_get( e ) }
+      @extractors = Extractors.constants.map do |e|
+          next if e == :Base
+          Extractors.const_get( e )
+      end.compact
     end
 
     def run_extractors
       return [] if !doc
-      self.class.extractors.map { |e| e.new.run( doc ) }.flatten.
+      self.class.extractors.map { |e| e.new( self ).run }.flatten.
           map do |p|
               abs = to_absolute( URI( p ) ) rescue next
               !in_domain?( abs ) ? nil : abs

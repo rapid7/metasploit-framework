@@ -1,8 +1,8 @@
 require 'uri'
 
-class Anemone::Extractors::Generic
+class Anemone::Extractors::Generic < Anemone::Extractors::Base
 
-	def run( doc )
+	def run
         URI.extract( doc.to_s, %w(http https) ).map do |u|
             #
             # This extractor needs to be a tiny bit intelligent because

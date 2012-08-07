@@ -1,6 +1,6 @@
-class Anemone::Extractors::Frames
+class Anemone::Extractors::Frames < Anemone::Extractors::Base
 
-    def run( doc )
+    def run
         doc.css( 'frame', 'iframe' ).map { |a| a.attributes['src'].content rescue next }
     end
 

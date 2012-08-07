@@ -1,6 +1,6 @@
-class Anemone::Extractors::MetaRefresh
+class Anemone::Extractors::MetaRefresh < Anemone::Extractors::Base
 
-    def run( doc )
+    def run
         doc.search( "//meta[@http-equiv='refresh']" ).map do |url|
             begin
                 _, url = url['content'].split( ';', 2 )

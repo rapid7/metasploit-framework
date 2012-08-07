@@ -1,6 +1,6 @@
-class Anemone::Extractors::Forms
+class Anemone::Extractors::Forms < Anemone::Extractors::Base
 
-    def run( doc )
+    def run
         doc.search( '//form[@action]' ).map { |a| a['action'] }
     end
 
