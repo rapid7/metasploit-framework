@@ -24,10 +24,22 @@ module Analysis::Timing
 	#
 	# Performs timeout/time-delay analysis and logs an issue should there be one.
 	#
+	# Fuzzer must provide:
+	#   - #seeds_for -- Array of Strings with server-side code which, when interpreted,
+	#       will cause a delay in response. Must include 'stub'.
+	#
+	# Here's how it goes:
+	# * Ensures that the server is responsive.
+	# * Injects the seed and makes sure that the expected delay has been successfully introduced.
+	# * Ensures that the server is responsive -- blocks until the attack has worn off.
+	# * Increases the original delay and makes sure that the expected delay has been successfully introduced.
+	# * Ensures that the server is responsive-- blocks until the attack has worn off.
+	# * Logs the vulnerability.
 	#
 	# opts - Options Hash (default: {})
-    #        :timeout - amount of seconds to wait for the request to complete
-    #        :multi - __TIME__ = timeout * multi
+    #        :timeout - Integer amount of seconds to wait for the request to complete (default: 5)
+	#        :stub - String stub to be replaced by delay * multi (default: __TIME__)
+    #        :multi - Integer multiplier (stub = timeout * multi) (default: 1)
 	#
 	def timeout_analysis( opts = {} )
 		opts = TIMING_OPTIONS.merge( opts )
