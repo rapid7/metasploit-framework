@@ -10,7 +10,16 @@ module Msf
 module Auxiliary::Web
 module Analysis::Timing
 
-	TIME_STUB = '__TIME__'
+	TIMING_OPTIONS =  {
+		# stub to be replaced by delay * multi
+		stub:  '__TIME__',
+
+		# stub = delay * multi
+		multi: 1,
+
+		# delay in seconds to attempt to introduce
+		delay: 5
+	}
 
 	#
 	# Performs timeout/time-delay analysis and logs an issue should there be one.
@@ -21,8 +30,11 @@ module Analysis::Timing
     #        :multi - __TIME__ = timeout * multi
 	#
 	def timeout_analysis( opts = {} )
-		multi   = opts[:multi]   || 1
-		timeout = opts[:timeout] || 5
+		opts = TIMING_OPTIONS.merge( opts )
+
+		multi   = opts[:multi]
+		timeout = opts[:delay]
+		stub    = opts[:stub]
 
 		permutations.each do |p|
 			seed = p.altered_value.dup
@@ -32,7 +44,7 @@ module Analysis::Timing
 
 			# 2nd pass, see if we can manipulate the response times
 			timeout += 1
-			p.altered_value = seed.gsub( TIME_STUB, (timeout * multi).to_s )
+			p.altered_value = seed.gsub( stub, (timeout * multi).to_s )
 			next if p.responsive?( timeout - 1 )
 
 			# 3rd pass, make sure that the previous step wasn't a fluke (like a dead web server)
@@ -42,7 +54,7 @@ module Analysis::Timing
 			# manipulating the webapp and this isn't all a coincidence
 			timeout *= 2
 			timeout += 1
-			p.altered_value = seed.gsub( TIME_STUB, (timeout * multi).to_s )
+			p.altered_value = seed.gsub( stub, (timeout * multi).to_s )
 			next if p.responsive?( timeout - 1 )
 
 			# log it!
