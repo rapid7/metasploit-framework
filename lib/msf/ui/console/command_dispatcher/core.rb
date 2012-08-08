@@ -69,6 +69,7 @@ class Core
 
 	@@alias_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner."                                   ],
+		"-c" => [ false, "Clear alias name (* to clear all aliases)"	  ],
 		"-f" => [ false, "Force alias even if the name conflicts"		  ])
 
 	@@search_opts = Rex::Parser::Arguments.new(
@@ -2368,7 +2369,7 @@ class Core
 			# smash everything that's left together
 			value = args.join(" ")
 
-			if @allow_aliases
+			if self.allow_aliases
 				if is_valid_alias?(name,value)
 					if force or (not Rex::FileUtils.find_full_path(name) and not @aliases.keys.include?(name))
 						@aliases[name] = value
@@ -2388,18 +2389,20 @@ class Core
 	# Help for the 'alias' command
 	#
 	def cmd_alias_help
-		print_line "Usage: alias [-c] [-f] [name [value]]"
+		print_line "Usage: alias [options] [name [value]]"
 		print_line
-		print_line "List, clear, or assign alias name to value.  -f to force.  -c to clear (use * for all)"
-		print_line
+		print(@@alias_opts.usage())
 	end
 
 	#
 	# Tab completion for the alias command
 	#
 	def cmd_alias_tabs(str, words)
-		tab_complete_aliases_and_commands(str, words)
-		#driver.tab_complete(words.first + str)
+		if words.length <= 1
+			return @@alias_opts.fmt.keys + tab_complete_aliases_and_commands(str, words)
+		else
+			return tab_complete_aliases_and_commands(str, words)
+		end
 	end
 
 	#
@@ -2714,12 +2717,12 @@ protected
 		# so those need to be checked externally.  We pretty much just check to see if the name is sane
 		valid_name = true
 		name.strip!
-		safe_words = [/^alias$/,/\*/]
+		bad_words = [/^alias$/,/\*/]
 		# there are probably a bunch of others that need to be added here.
 		# we prevent you from naming your alias "alias" cuz you can end up unable to clear your aliases
 		# for example you alias -f set unset and then alias -f alias sessions, now you're screwed.
 		# this prevents you from aliasing alias to alias -f etc, but too bad.
-		safe_words.each do |regex|
+		bad_words.each do |regex|
 			# don't mess around, just return false in this case, prevents wasted processing of further checks
 			return false if name =~ regex
 		end

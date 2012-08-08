@@ -46,11 +46,11 @@ module DispatcherShell
 		# Returns an empty hash for an empty set of aliases.
 		#
 		# This method should be overridden to return a Hash with alias
-		# names for keys and alias values as the hash values.
+		# names for keys and alias values as the hash values. e.g. { 'ses' => 'sessions -l'}
 		#
-		#def aliases
-		#	{}
-		#end
+		def aliases
+			{}
+		end
 
 		#
 		# Returns an empty set of commands.
