@@ -744,6 +744,7 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 		default:
 			dprintf("child pid is %d\n", pid);
 			packet_add_tlv_uint(response, TLV_TYPE_PID,(DWORD)pid);
+			packet_add_tlv_uint(response, TLV_TYPE_PROCESS_HANDLE,(DWORD)pid);
 			if (flags & PROCESS_EXECUTE_FLAG_CHANNELIZED) {
 				if(have_pty) {
 					dprintf("child channelized\n");
@@ -1005,7 +1006,6 @@ DWORD process_channel_read(Channel *channel, Packet *request,
 	if((*bytesRead = read(ctx->pStdout, buffer, bufferSize) < 0)) {
 		result = GetLastError();
 	}
-	
 #endif
 	return result;
 }
