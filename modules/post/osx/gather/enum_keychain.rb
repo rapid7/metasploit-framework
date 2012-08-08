@@ -121,7 +121,7 @@ class Metasploit3 < Msf::Post
 				passwords = get_passwords(accounts)
 			rescue
 				print_error("#{@peer} - Module timed out, no passwords found.")
-				print_errir("#{@peer} - This is likely due to the host not responding to the prompt.")
+				print_error("#{@peer} - This is likely due to the host not responding to the prompt.")
 			end
 			save(passwords)
 		end
