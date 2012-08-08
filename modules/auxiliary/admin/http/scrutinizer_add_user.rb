@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'Author'         =>
 				[
-					'Mario Ceballos',
+					'MC',
 					'Jonathan Claudius',
 					'Tanya Secker',
 					'sinn3r'
