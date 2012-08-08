@@ -17,7 +17,9 @@ class Metasploit3 < Msf::Post
 			'Name'          => 'OSX Gather Keychain Enumeration',
 			'Description'   => %q{
 				This module presents a way to quickly go through the current users keychains and
-				collect data such as email accounts, servers, and other services.
+				collect data such as email accounts, servers, and other services.  Please note:
+				when using the GETPASS option, the user will have to manually enter the password,
+				and then click 'allow' in order to collect each password.
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'ipwnstuff <e[at]ipwnstuff.com>'],
@@ -27,7 +29,7 @@ class Metasploit3 < Msf::Post
 
 		register_options(
 			[
-				OptBool.new('GETPASS', [false, 'Adds passwords to the if the host clicks "allow" on prompt.', false])
+				OptBool.new('GETPASS', [false, 'Collect passwords.', false])
 			], self.class)
 	end
 
