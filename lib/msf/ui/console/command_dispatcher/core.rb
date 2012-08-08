@@ -21,6 +21,8 @@ class Core
 
 	include Msf::Ui::Console::CommandDispatcher
 
+	attr_reader :aliases
+
 	# Session command options
 	@@sessions_opts = Rex::Parser::Arguments.new(
 		"-c" => [ true,  "Run a command on the session given with -i, or all" ],
@@ -65,6 +67,11 @@ class Core
 		"-w" => [ true,  "Specify connect timeout."                       ],
 		"-z" => [ false, "Just try to connect, then return."              ])
 
+	@@alias_opts = Rex::Parser::Arguments.new(
+		"-h" => [ false, "Help banner."                                   ],
+		"-c" => [ false, "Clear alias name (* to clear all aliases)"	  ],
+		"-f" => [ false, "Force alias even if the name conflicts"		  ])
+
 	@@search_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner."                                   ])
 
@@ -76,6 +83,7 @@ class Core
 	def commands
 		{
 			"?"        => "Help menu",
+			"alias"    => "Alias a console command",
 			"back"     => "Move back from the current context",
 			"banner"   => "Display an awesome metasploit banner",
 			"cd"       => "Change the current working directory",
@@ -123,6 +131,7 @@ class Core
 		@dscache = {}
 		@cache_payloads = nil
 		@previous_module = nil
+		@aliases = {}
 		@module_name_stack = []
 	end
 
@@ -2306,6 +2315,97 @@ class Core
 	end
 
 	#
+	# Command to establish an alias
+	#
+	def cmd_alias(*args)
+		case args.length
+		when 0
+			# print the list of current aliases
+			if @aliases.length == 0 
+				return print_status("No aliases currently defined")
+			end
+			tbl = Table.new(
+				Table::Style::Default,
+				'Header'  => "Current Aliases",
+				'Prefix'  => "\n",
+				'Postfix' => "\n",
+				'Columns' => [ 'Alias Name', 'Alias Value' ]
+			)
+			@aliases.each_pair do |key,val|
+				tbl << [key,val]
+			end
+			return print(tbl.to_s)
+		when 1
+			return cmd_alias_help if args[0] == "-h" or args[0] == "--help"
+			if @aliases.keys.include?(args[0])
+				print_status("\'#{args[0]}\' is aliased to \'#{@aliases[args[0]]}\'")
+			else
+				print_status("\'#{args[0]}\' is not currently aliased")
+			end
+		else
+			force = false
+			clear = false
+			# if using -f or -c, they must be the first arg, because -f/-c may also show up in the alias
+			# value so we can't do something like if args.include("-f") or delete_if etc.
+			if args[0] == "-f"
+				force = true
+				args.shift
+			elsif args[0] == "-c"
+				clear = true
+				args.shift
+			end
+			name = args.shift
+			if clear
+				# clear all aliases if "*"
+				if name == "*"
+					@aliases = {}
+					print_status "Cleared all aliases"
+				else # clear the named alias
+					@aliases.delete(name)
+					print_status "Cleared alias #{name}"
+				end
+				return
+			end
+			# smash everything that's left together
+			value = args.join(" ")
+
+			if self.allow_aliases
+				if is_valid_alias?(name,value)
+					if force or (not Rex::FileUtils.find_full_path(name) and not @aliases.keys.include?(name))
+						@aliases[name] = value
+					else
+						print_error("#{name} already exists as system command or current alias, use -f to force")
+					end
+				else
+					print_error("\'#{name}\' is not a permitted name or \'#{value}\' is not a valid/permitted console or system command")
+				end
+			else
+				print_error("Aliasing is disabled")
+			end
+		end
+	end
+
+	#
+	# Help for the 'alias' command
+	#
+	def cmd_alias_help
+		print_line "Usage: alias [options] [name [value]]"
+		print_line
+		print(@@alias_opts.usage())
+	end
+
+	#
+	# Tab completion for the alias command
+	#
+	def cmd_alias_tabs(str, words)
+		if words.length <= 1
+			return @@alias_opts.fmt.keys + tab_complete_aliases_and_commands(str, words)
+		else
+			return tab_complete_aliases_and_commands(str, words)
+		end
+	end
+
+	#
 	# Tab completion for the use command
 	#
 	def cmd_use_tabs(str, words)
@@ -2345,6 +2445,15 @@ class Core
 		return res.sort
 	end
 
+	#
+	# Provie tab completion for aliases and commands
+	#
+	def tab_complete_aliases_and_commands(str, words)
+		items = []
+		items.concat(driver.commands.keys) if driver.respond_to?('commands')
+		items.concat(driver.aliases.keys) if driver.respond_to?("aliases")
+		items
+	end
 
 	#
 	# Provide tab completion for option values
@@ -2576,9 +2685,59 @@ class Core
 protected
 
 	#
+	# Validate a proposed alias
+	#
+	def is_valid_alias?(name,value)
+
+		# value
+
+		# some "safe words" to avoid for the value.  value would have to not match these regexes
+		# this is just basic idiot protection, it's not meant to be "undefeatable"
+		value.strip!
+		safe_words = [/^rm +(-rf|-r +-f|-f +-r) +\/+.*$/, /^msfconsole$/]
+		safe_words.each do |regex|
+			# don't mess around, just return false in this case
+			return false if value =~ regex
+		end
+		# we're only gonna validate the first part of the cmd, e.g. just ls from "ls -lh"
+		value = value.split(" ").first
+		valid_value = false
+
+		# value is considered valid if it's a ref to a valid console command or system executable or existing alias
+		if driver.is_valid_dispatcher_command?(value)
+			valid_value = true
+		elsif @aliases.keys.include?(value)
+			valid_value = true
+		else
+			[value, value+".exe"].each do |cmd|
+				if Rex::FileUtils.find_full_path(cmd)
+					valid_value = true
+				end
+			end
+		end
+
+		# name
+
+		# we don't check if this alias name exists or if it's a console command already etc as -f can override that
+		# so those need to be checked externally.  We pretty much just check to see if the name is sane
+		valid_name = true
+		name.strip!
+		bad_words = [/^alias$/,/\*/]
+		# there are probably a bunch of others that need to be added here.
+		# we prevent you from naming your alias "alias" cuz you can end up unable to clear your aliases
+		# for example you alias -f set unset and then alias -f alias sessions, now you're screwed.
+		# this prevents you from aliasing alias to alias -f etc, but too bad.
+		bad_words.each do |regex|
+			# don't mess around, just return false in this case, prevents wasted processing of further checks
+			return false if name =~ regex
+		end
+
+		return (valid_name && valid_value)
+	end
+
+	#
 	# Module list enumeration
 	#
-
 	def show_encoders(regex = nil, minrank = nil, opts = nil) # :nodoc:
 		# If an active module has been selected and it's an exploit, get the
 		# list of compatible encoders and display them

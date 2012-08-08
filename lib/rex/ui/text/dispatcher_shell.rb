@@ -43,6 +43,16 @@ module DispatcherShell
 		end
 
 		#
+		# Returns an empty hash for an empty set of aliases.
+		#
+		# This method should be overridden to return a Hash with alias
+		# names for keys and alias values as the hash values. e.g. { 'ses' => 'sessions -l'}
+		#
+		def aliases
+			{}
+		end
+
+		#
 		# Returns an empty set of commands.
 		#
 		# This method should be overridden if the dispatcher has commands that
@@ -298,9 +308,13 @@ module DispatcherShell
 		# Enumerate each entry in the dispatcher stack
 		dispatcher_stack.each { |dispatcher|
 
-			# If no command is set and it supports commands, add them all
-			if (tab_words.empty? and dispatcher.respond_to?('commands'))
+			# TODO:  update this to use is_valid_dispatcher_command methods?
+			# If no command is set and it supports commands, add them all and aliases
+			# Or if the command is alias and aliases are supported, add all
+			if ( (tab_words.empty? and dispatcher.respond_to?('commands')) or
+				(tab_words[0] == "alias" and dispatcher.respond_to?("aliases")) )
 				items.concat(dispatcher.commands.keys)
+				items.concat(dispatcher.aliases.keys) if dispatcher.respond_to?("aliases")
 			end
 
 			# If the dispatcher exports a tab completion function, use it
@@ -346,7 +360,7 @@ module DispatcherShell
 
 		tabs_meth = "cmd_#{words[0]}_tabs"
 		# Is the user trying to tab complete one of our commands?
-		if (dispatcher.commands.include?(words[0]) and dispatcher.respond_to?(tabs_meth))
+		if ( is_valid_dispatcher_command?(words[0],dispatcher,false) and dispatcher.respond_to?(tabs_meth) )
 			res = dispatcher.send(tabs_meth, str, words)
 			return [] if res.nil?
 			items.concat(res)
@@ -359,13 +373,45 @@ module DispatcherShell
 	end
 
 	#
+	# determine if a given method (command) is valid
+	#
+	def is_valid_dispatcher_command?(method,specific_dispatcher=nil,include_deprecated=false)
+		if specific_dispatcher
+			dispatchers = [specific_dispatcher]
+		else
+			dispatchers = dispatcher_stack
+		end
+		dispatchers.each do |dispatcher|
+			next if not dispatcher.respond_to?('commands')
+			if include_deprecated
+				if (dispatcher.commands.has_key?(method) or dispatcher.deprecated_commands.include?(method))
+					return true
+				end
+			elsif dispatcher.commands.has_key?(method)
+				return true
+			end
+		end
+		return false
+	end
+
+	#
+	# find the dispatcher that responds to the given method (command) if any
+	#
+	def get_responding_dispatcher(method,include_deprecated=true)
+		dispatcher_stack.each do |dispatcher|
+			next if not dispatcher.respond_to?('commands') # don't bother if it doesn't have any commands
+			return dispatcher if is_valid_dispatcher_command?(method,dispatcher,include_deprecated)
+		end
+		# otherwise, we didn't find a winner
+		return nil
+	end
+
+	#
 	# Run a single command line.
 	#
 	def run_single(line)
 		arguments = parse_line(line)
 		method    = arguments.shift
-		found     = false
-		error     = false
 
 		# If output is disabled output will be nil
 		output.reset_color if (output)
@@ -373,39 +419,30 @@ module DispatcherShell
 		if (method)
 			entries = dispatcher_stack.length
 
-			dispatcher_stack.each { |dispatcher|
-				next if not dispatcher.respond_to?('commands')
-
+			# to avoid walking the dispatcher stack twice, and we need the responding dispatcher
+			# we don't use is_valid_command? but rather get_responding_dispatcher
+			dispatcher = get_responding_dispatcher(method)
+			if dispatcher
 				begin
-					if (dispatcher.commands.has_key?(method) or dispatcher.deprecated_commands.include?(method))
-						self.on_command_proc.call(line.strip) if self.on_command_proc
-						run_command(dispatcher, method, arguments)
-						found = true
-					end
+					self.on_command_proc.call(line.strip) if self.on_command_proc
+					run_command(dispatcher, method, arguments)
+					return true
 				rescue
 					error = $!
-
 					print_error(
 						"Error while running command #{method}: #{$!}" +
 						"\n\nCall stack:\n#{$@.join("\n")}")
 				rescue ::Exception
 					error = $!
-
 					print_error(
 						"Error while running command #{method}: #{$!}")
 				end
-
-				# If the dispatcher stack changed as a result of this command,
-				# break out
-				break if (dispatcher_stack.length != entries)
-			}
-
-			if (found == false and error == false)
+			else
 				unknown_command(method, line)
 			end
+			return false
 		end
-
-		return found
+		return false
 	end
 
 	#
