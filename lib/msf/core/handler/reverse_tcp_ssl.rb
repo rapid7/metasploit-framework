@@ -20,18 +20,22 @@ module ReverseTcpSsl
 
 	#
 	# Returns the string representation of the handler type, in this case
-	# 'reverse_tcp'.
+	# 'reverse_tcp_ssl'.
 	#
 	def self.handler_type
 		return "reverse_tcp_ssl"
 	end
 
 	#
-	# Returns the connection-described general handler type, in this case
-	# 'reverse'.
+	# Initializes the reverse TCP SSL handler and adds the certificate option.
 	#
-	def self.general_handler_type
-		"reverse"
+	def initialize(info = {})
+		super
+		register_advanced_options(
+			[
+				OptPath.new('SSLCert',    [ false, 'Path to a custom SSL certificate (default is randomly generated)'])
+			], Msf::Handler::ReverseTcpSsl)
+
 	end
 
 	#
@@ -75,6 +79,7 @@ module ReverseTcpSsl
 				'LocalHost' => datastore['LHOST'],
 				'LocalPort' => datastore['LPORT'].to_i,
 				'Comm'      => comm,
+				'SSLCert'	=> datastore['SSLCert'],
 				'Context'   =>
 					{
 						'Msf'        => framework,
