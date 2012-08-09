@@ -47,6 +47,7 @@ module Metasploit3
 	# Constructs the payload
 	#
 	def generate
+		
 		return super + command_string
 	end
 

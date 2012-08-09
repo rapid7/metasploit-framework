@@ -23,6 +23,14 @@ module ReverseTcpDoubleSsl
 	end
 
 	#
+	# Returns the connection-described general handler type, in this case
+	# 'reverse'.
+	#
+	def self.general_handler_type
+		"reverse"
+	end
+
+	#
 	# Initializes the reverse TCP handler and ads the options that are required
 	# for all reverse TCP payloads, like local host and local port.
 	#
@@ -33,7 +41,7 @@ module ReverseTcpDoubleSsl
 		register_advanced_options(
 			[
 				OptPath.new('SSLCert',    [ false, 'Path to a custom SSL certificate (default is randomly generated)'])
-			], Msf::Handler::ReverseTcpSslDouble)
+			], Msf::Handler::ReverseTcpDoubleSsl)
 	end
 
 	#

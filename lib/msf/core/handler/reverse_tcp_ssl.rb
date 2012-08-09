@@ -27,6 +27,14 @@ module ReverseTcpSsl
 	end
 
 	#
+	# Returns the connection-described general handler type, in this case
+	# 'reverse'.
+	#
+	def self.general_handler_type
+		"reverse"
+	end
+
+	#
 	# Initializes the reverse TCP SSL handler and adds the certificate option.
 	#
 	def initialize(info = {})
