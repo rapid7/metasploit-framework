@@ -16,7 +16,7 @@ module Handler
 ###
 module ReverseTcpSsl
 
-	include Msf::Handler
+	include Msf::Handler::ReverseTcp
 
 	#
 	# Returns the string representation of the handler type, in this case
@@ -32,31 +32,6 @@ module ReverseTcpSsl
 	#
 	def self.general_handler_type
 		"reverse"
-	end
-
-	#
-	# Initializes the reverse TCP handler and ads the options that are required
-	# for all reverse TCP payloads, like local host and local port.
-	#
-	def initialize(info = {})
-		super
-
-		register_options(
-			[
-				Opt::LHOST,
-				Opt::LPORT(4444)
-			], Msf::Handler::ReverseTcpSsl)
-
-		# XXX: Not supported by all modules
-		register_advanced_options(
-			[
-				OptInt.new('ReverseConnectRetries', [ true, 'The number of connection attempts to try before exiting the process', 5 ]),
-				OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
-				OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
-			], Msf::Handler::ReverseTcpSsl)
-
-
-		self.handler_queue = ::Queue.new
 	end
 
 	#
@@ -128,77 +103,6 @@ module ReverseTcpSsl
 		raise ex if (ex)
 	end
 
-	#
-	# Closes the listener socket if one was created.
-	#
-	def cleanup_handler
-		stop_handler
-	end
-
-	#
-	# Starts monitoring for an inbound connection.
-	#
-	def start_handler
-		self.listener_thread = framework.threads.spawn("ReverseTcpHandlerListener-#{datastore['LPORT']}", false) {
-			client = nil
-
-			begin
-				# Accept a client connection
-				begin
-					client = self.listener_sock.accept
-				rescue
-					wlog("Exception raised during listener accept: #{$!}\n\n#{$@.join("\n")}")
-					break
-				end
-
-				# Increment the has connection counter
-				self.pending_connections += 1
-
-				self.handler_queue.push( client )
-			end while true
-		}
-
-		self.handler_thread = framework.threads.spawn("ReverseTcpSslHandlerWorker-#{datastore['LPORT']}", false) {
-			while true
-				client = self.handler_queue.pop
-				begin
-					handle_connection(client)
-				rescue ::Exception
-					elog("Exception raised from handle_connection: #{$!.class}: #{$!}\n\n#{$@.join("\n")}")
-				end
-			end
-		}
-
-	end
-
-	#
-	# Stops monitoring for an inbound connection.
-	#
-	def stop_handler
-		# Terminate the listener thread
-		if (self.listener_thread and self.listener_thread.alive? == true)
-			self.listener_thread.kill
-			self.listener_thread = nil
-		end
-
-		# Terminate the handler thread
-		if (self.handler_thread and self.handler_thread.alive? == true)
-			self.handler_thread.kill
-			self.handler_thread = nil
-		end
-
-		if (self.listener_sock)
-			self.listener_sock.close
-			self.listener_sock = nil
-		end
-	end
-
-protected
-
-	attr_accessor :listener_sock # :nodoc:
-	attr_accessor :listener_thread # :nodoc:
-	attr_accessor :handler_thread # :nodoc:
-	attr_accessor :handler_queue # :nodoc:
 end
 
 end
