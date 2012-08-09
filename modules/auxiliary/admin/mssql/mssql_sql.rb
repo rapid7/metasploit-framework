@@ -39,6 +39,15 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 	end
 
+	def auxiliary_commands
+		{ "select" => "Run a select query (a LIMIT clause is probably a really good idea)" }
+	end
+
+	def cmd_select(*args)
+		datastore["SQL"] = "select #{args.join(" ")}"
+		run
+	end
+
 	def run
 		mssql_query(datastore['SQL'], true) if mssql_login_datastore
 		disconnect

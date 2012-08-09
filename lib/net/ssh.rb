@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/socket'
 
 # Make sure HOME is set, regardless of OS, so that File.expand_path works

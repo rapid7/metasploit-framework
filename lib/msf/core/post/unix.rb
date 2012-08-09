@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 
 module Msf
 class Post
@@ -68,9 +69,9 @@ module Unix
 		end
 
 		user_dirs.flatten!
+		user_dirs.compact!
 		user_dirs.sort!
 		user_dirs.uniq!
-		user_dirs.compact!
 
 		user_dirs
 	end

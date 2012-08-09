@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/socket'
 require 'rex/proto/http'
 require 'rex/text'
@@ -248,7 +249,7 @@ class Client
 
 		if (config['pad_post_params'])
 			1.upto(config['pad_post_params_count'].to_i) do |i|
-				pstr << '&' if qstr.length > 0
+				pstr << '&' if pstr.length > 0
 				pstr << set_encode_uri(Rex::Text.rand_text_alphanumeric(rand(32)+1))
 				pstr << '='
 				pstr << set_encode_uri(Rex::Text.rand_text_alphanumeric(rand(32)+1))

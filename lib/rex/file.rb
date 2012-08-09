@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'find'
 require 'rex/compat'
 require 'tempfile'

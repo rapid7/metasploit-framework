@@ -90,24 +90,11 @@ sub manage_job {
 			[$startf];
 		}
 		else {
-			local('$job $confirm $foo');
+			local('$job $confirm $foo $confirm');
 			$job = call($client, "job.info", $1);
-
-			$foo = lambda({
-				local('$confirm');
-				$confirm = askYesNo([$stopf : $jid, $job], "Stop Job");
-				if ($confirm eq "0") {
-					cmd_safe("jobs -k $jid", {
-						if ($3 ne "") { showError($3); }
-					});
-				}
-			}, \$stopf, \$job, $jid => $1);
-
-			if ([SwingUtilities isEventDispatchThread]) {
-				[$foo];				
-			}
-			else {
-				[SwingUtilities invokeLater: $foo];
+			$confirm = askYesNo([$stopf : $1, $job], "Stop Job");
+			if ($confirm eq "0") {
+				call_async($client, "job.stop", $1);
 			}
 		}		
 	}, \$startf, \$stopf));
@@ -126,11 +113,13 @@ sub generatePayload {
 		$options["Format"] = $format;
 		$data = call($client, "module.execute", "payload", $module, $options);
 
-		$handle = openf("> $+ $file");
-		writeb($handle, $data["payload"]);
-		closef($handle);
+		if ($data !is $null) {
+			$handle = openf("> $+ $file");
+			writeb($handle, $data["payload"]);
+			closef($handle);
 
-		showError("Saved $file");
+			showError("Saved $file");
+		}
 	}, $args => @_, \$file));
 }
 
@@ -254,7 +243,7 @@ sub _launch_dialog {
 
 	$model = [new GenericTableModel: @("Option", "Value"), "Option", 128];
 	[$model setCellEditable: 1];
-	foreach $key => $value ($options) {	
+	foreach $key => $value ($options) {
 		if ($key eq "THREADS") {
 			$default = "24";
 		}
@@ -364,6 +353,9 @@ sub _launch_dialog {
 		if (!isShift($1)) {
 			[$dialog setVisible: 0];
 		}
+
+		# it's go time buddy... time to filter some stuff...
+		($type, $command, $options) = filter_data("user_launch", $type, $command, $options);
 
 		if ($visible) {
 			if ('SESSION' in $options) {

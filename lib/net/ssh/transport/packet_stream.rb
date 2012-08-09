@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'net/ssh/buffered_io'
 require 'net/ssh/errors'
 require 'net/ssh/packet'

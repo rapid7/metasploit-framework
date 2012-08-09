@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 # $Id$
 require 'rex/socket'
 require 'rex/proto/tftp'

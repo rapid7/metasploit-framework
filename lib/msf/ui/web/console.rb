@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Msf
 module Ui
 module Web
@@ -45,6 +46,11 @@ class WebConsole
 
 		# Create a read subscriber
 		self.pipe.create_subscriber('msfweb')
+
+		# Skip database initialization if it is already configured
+		if framework.db and framework.db.usable and framework.db.migrated
+			opts['SkipDatabaseInit'] = true
+		end
 
 		# Initialize the console with our pipe
 		self.console = Msf::Ui::Console::Driver.new(

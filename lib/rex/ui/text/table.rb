@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/ui'
 require 'rex/socket'
 
@@ -53,6 +54,10 @@ class Table
 	# Postfix
 	#
 	# 	The text to affix to the end of the table.
+	#
+	# Sortindex
+	#
+	#	The column to sort the table on, -1 disables sorting.
 	#
 	def initialize(opts = {})
 		self.header   = opts['Header']
@@ -183,6 +188,7 @@ class Table
 	# avoid actually resolving domain names.
 	#
 	def sort_rows(index=sort_index)
+		return if index == -1
 		return unless rows
 		rows.sort! do |a,b|
 			if a[index].nil?

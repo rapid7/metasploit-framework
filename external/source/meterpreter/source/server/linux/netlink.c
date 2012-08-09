@@ -348,25 +348,22 @@ int netlink_parse_routing_table(struct nlmsghdr *nh, void *data)
 		// netmask6 is set to 0 at the beginning of the function, no need to reset the values to 0 if it is needed
 		// XXX really ugly, but works
 		if (rm->rtm_dst_len >= 96) {
-			netmask6.a4 = (1 << (rm->rtm_dst_len-96))-1;
+			netmask6.a4 = (rm->rtm_dst_len == 96) ? 0 : htonl(0xffffffff<<(32-(rm->rtm_dst_len%32)));
 			netmask6.a1 = netmask6.a2 = netmask6.a3 =  0xffffffff;
 		}
 		else if (rm->rtm_dst_len >= 64) {
-			netmask6.a3 = (1 << (rm->rtm_dst_len-64))-1;
+			netmask6.a3 = (rm->rtm_dst_len == 64) ? 0 : htonl(0xffffffff<<(32-(rm->rtm_dst_len%32)));
 			netmask6.a1 = netmask6.a2 =  0xffffffff;
 		}
 		else if (rm->rtm_dst_len >= 32) {
-			netmask6.a2 = (1 << (rm->rtm_dst_len-32))-1;
-			netmask6.a1 =  0xffffffff;
+			netmask6.a2 = (rm->rtm_dst_len == 32) ? 0 : htonl(0xffffffff<<(32-(rm->rtm_dst_len%32)));
+			netmask6.a1 = 0xffffffff;
 		}
 		else
-			netmask6.a1 = (1 << rm->rtm_dst_len)-1;
+			netmask6.a1 = (rm->rtm_dst_len == 0) ? 0 : htonl(0xffffffff<<(32-rm->rtm_dst_len));
     }
 	else {
-		if (rm->rtm_dst_len == 32)
-			netmask =  0xffffffff;
-		else
-			netmask = ((1 << rm->rtm_dst_len) - 1);
+		netmask = (rm->rtm_dst_len == 0) ? 0 : htonl(0xffffffff<<(32-rm->rtm_dst_len));
 	}
 
     if (is_ipv6) {
@@ -840,25 +837,22 @@ void address_calculate_netmask(struct iface_address *address, int ifa_prefixlen)
 		// XXX really ugly, but works
 		memset(&address->nm.netmask6, 0, sizeof(__u128));
 		if (ifa_prefixlen >= 96) {
-			address->nm.netmask6.a4 = (1 << (ifa_prefixlen-96))-1;
+			address->nm.netmask6.a4 = (ifa_prefixlen == 96) ? 0 : htonl(0xffffffff<<(32-(ifa_prefixlen%32)));
 			address->nm.netmask6.a1 = address->nm.netmask6.a2 = address->nm.netmask6.a3 =  0xffffffff;
 		}
 		else if (ifa_prefixlen >= 64) {
-			address->nm.netmask6.a3 = (1 << (ifa_prefixlen-64))-1;
+			address->nm.netmask6.a3 = (ifa_prefixlen == 64) ? 0 : htonl(0xffffffff<<(32-(ifa_prefixlen%32)));
 			address->nm.netmask6.a1 = address->nm.netmask6.a2 =  0xffffffff;
 		}
 		else if (ifa_prefixlen >= 32) {
-			address->nm.netmask6.a2 = (1 << (ifa_prefixlen-32))-1;
-			address->nm.netmask6.a1 =  0xffffffff;
+			address->nm.netmask6.a2 = (ifa_prefixlen == 32) ? 0 : htonl(0xffffffff<<(32-(ifa_prefixlen%32)));
+			address->nm.netmask6.a1 = 0xffffffff;
 		}
 		else
-			address->nm.netmask6.a1 = (1 << ifa_prefixlen)-1;
+			address->nm.netmask6.a1 = (ifa_prefixlen == 0) ? 0 : htonl(0xffffffff<<(32-ifa_prefixlen));
 	}
 	else {
-		if (ifa_prefixlen == 32)
-			address->nm.netmask = 0xffffffff;
-		else
-			address->nm.netmask = ((1 << ifa_prefixlen) - 1);
+		address->nm.netmask = (ifa_prefixlen == 0) ? 0 : htonl(0xffffffff<<(32-ifa_prefixlen));
 	}
 }
 

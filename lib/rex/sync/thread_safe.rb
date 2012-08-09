@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'timeout'
 
 module Rex

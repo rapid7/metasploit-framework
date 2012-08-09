@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'msf/core'
 require 'msf/core/module_manager'
 
@@ -82,8 +83,15 @@ class PayloadSet < ModuleSet
 			v != SymbolicModule
 		}
 
-		# Recalculate single payloads
+		# Initialize a temporary hash
+		_temp = {}
+
+		# Populate the temporary hash
 		_singles.each_pair { |name, op|
+			_temp[name] = op
+		}
+		# Recalculate single payloads
+		_temp.each_pair { |name, op|
 			mod, handler = op
 
 			# Build the payload dupe using the determined handler
@@ -105,8 +113,16 @@ class PayloadSet < ModuleSet
 			end
 		}
 
-		# Recalculate stagers and stages
+		# Initialize a temporary hash
+		_temp = {}
+
+		# Populate the temporary hash
 		_stagers.each_pair { |stager_name, op|
+			_temp[stager_name] = op
+		}
+		# Recalculate staged payloads
+		_temp.each_pair { |stager_name, op|
+			mod, handler = op
 			stager_mod, handler, stager_platform, stager_arch, stager_inst = op
 
 			# Walk the array of stages
@@ -179,8 +195,10 @@ class PayloadSet < ModuleSet
 	# which it is, we add it to the appropriate list.
 	#
 	def add_module(pmodule, name, modinfo = nil)
+
 		if (md = name.match(/^(singles|stagers|stages)#{File::SEPARATOR}(.*)$/))
-			name = md[2]
+			ptype = md[1]
+			name  = md[2]
 		end
 
 		# Duplicate the Payload base class and extend it with the module

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'socket'
 require 'thread'
 require 'resolv'

@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 require 'rex/encoding/xor/exceptions'
 require 'rex/encoding/xor/generic'

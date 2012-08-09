@@ -21,7 +21,7 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'PHP Command Shell, Bind TCP (via perl)',
+			'Name'          => 'PHP Command Shell, Bind TCP (via Perl)',
 			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection and spawn a command shell via perl (persistent)',
 			'Author'        => ['Samy <samy@samy.pl>', 'cazz'],

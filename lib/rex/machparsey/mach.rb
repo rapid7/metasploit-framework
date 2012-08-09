@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 require 'rex/machparsey/machbase'
 require 'rex/machparsey/exceptions'

@@ -107,7 +107,6 @@ DWORD GetReflectiveLoaderOffset( VOID * lpReflectiveDllBuffer )
 	while( dwCounter-- )
 	{
 		char * cpExportedFunctionName = (char *)(uiBaseAddress + Rva2Offset( DEREF_32( uiNameArray ), uiBaseAddress ));
-
 		if( strstr( cpExportedFunctionName, "ReflectiveLoader" ) != NULL )
 		{
 			// get the File Offset for the array of addresses

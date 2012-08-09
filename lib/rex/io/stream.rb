@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/sync/thread_safe'
 
 module Rex

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'msf/core'
 require 'msf/util'
 
@@ -16,7 +17,7 @@ class Framework
 	#
 
 	Major    = 4
-	Minor    = 4
+	Minor    = 5
 	Point    = 0
 	Release  = "-dev"
 

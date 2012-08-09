@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'tempfile'
 require 'rex/post/meterpreter'
 
@@ -160,11 +161,13 @@ class Console::CommandDispatcher::Stdapi::Fs
 			print_error("#{args[0]} is a directory")
 		else
 			fd = client.fs.file.new(args[0], "rb")
-
-			until fd.eof?
-				print(fd.read)
+			begin
+				until fd.eof?
+					print(fd.read)
+				end
+			# EOFError is raised if file is empty, do nothing, just catch
+			rescue EOFError
 			end
-
 			fd.close
 		end
 

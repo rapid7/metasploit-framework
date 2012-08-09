@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'bit-struct/char-field'
 
 class BitStruct

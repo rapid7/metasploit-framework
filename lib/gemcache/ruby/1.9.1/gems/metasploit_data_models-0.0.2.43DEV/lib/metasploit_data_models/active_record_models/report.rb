@@ -5,7 +5,7 @@ module MetasploitDataModels::ActiveRecordModels::Report
       belongs_to :workspace, :class_name => "Mdm::Workspace"
       serialize :options, ::MetasploitDataModels::Base64Serializer.new
 
-      validates_format_of :name, :with => /^[A-Za-z0-9\x20\x2e\x2d\x5c]+$/, :message => "name must be A-Z, 0-9, space, dot, underscore, or dash", :allow_blank => true
+      validates_format_of :name, :with => /^[A-Za-z0-9\x20\x2e\x2d\x5f\x5c]+$/, :message => "name must consist of A-Z, 0-9, space, dot, underscore, or dash", :allow_blank => true
 
       serialize :options, MetasploitDataModels::Base64Serializer.new
 

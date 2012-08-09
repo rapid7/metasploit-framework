@@ -54,6 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		@myhost = datastore['SRVHOST']
 		@myport = datastore['SRVPORT']
+		print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
 		exploit()
 	end
 

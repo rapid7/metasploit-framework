@@ -188,7 +188,7 @@ class Metasploit3 < Msf::Post
 						print_status("     Outgoing Mail Server (SMTP) User Name: #{smtp_user}")
 						print_status("     Outgoing Mail Server (SMTP) Password: #{smtp_decrypted_password}")
 					end
-								
+
 					smtp_use_ssl = get_valdata(k, 'SMTP Use SSL')
 					if smtp_use_ssl == nil
 						print_status("     SMTP Use SSL: No")

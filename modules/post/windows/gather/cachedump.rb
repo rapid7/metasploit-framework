@@ -231,7 +231,7 @@ class Metasploit3 < Msf::Post
 		hash = dec_data[i...i+0x10]
 		i+=72
 
-		username = dec_data[i...i+(s.userNameLength)]
+		username = dec_data[i...i+(s.userNameLength)].split("\x00\x00").first.gsub("\x00", '')
 		i+=s.userNameLength
 		i+=2 * ( ( s.userNameLength / 2 ) % 2 )
 
@@ -245,56 +245,56 @@ class Metasploit3 < Msf::Post
 		i+=s.domainNameLength
 
 		if( s.dnsDomainNameLength != 0)
-			dnsDomainName = dec_data[i...i+s.dnsDomainNameLength+1]
+			dnsDomainName = dec_data[i...i+s.dnsDomainNameLength+1].split("\x00\x00").first.gsub("\x00", '')
 			i+=s.dnsDomainNameLength
 			i+=2 * ( ( s.dnsDomainNameLength / 2 ) % 2 )
 			vprint_good "DNS Domain Name\t: #{dnsDomainName}"
 		end
 
 		if( s.upnLength != 0)
-			upn = dec_data[i...i+s.upnLength+1]
+			upn = dec_data[i...i+s.upnLength+1].split("\x00\x00").first.gsub("\x00", '')
 			i+=s.upnLength
 			i+=2 * ( ( s.upnLength / 2 ) % 2 )
 			vprint_good "UPN\t\t\t: #{upn}"
 		end
 
 		if( s.effectiveNameLength != 0 )
-			effectiveName = dec_data[i...i+s.effectiveNameLength+1]
+			effectiveName = dec_data[i...i+s.effectiveNameLength+1].split("\x00\x00").first.gsub("\x00", '')
 			i+=s.effectiveNameLength
 			i+=2 * ( ( s.effectiveNameLength / 2 ) % 2 )
 			vprint_good "Effective Name\t: #{effectiveName}"
 		end
 
 		if( s.fullNameLength != 0 )
-			fullName = dec_data[i...i+s.fullNameLength+1]
+			fullName = dec_data[i...i+s.fullNameLength+1].split("\x00\x00").first.gsub("\x00", '')
 			i+=s.fullNameLength
 			i+=2 * ( ( s.fullNameLength / 2 ) % 2 )
 			vprint_good "Full Name\t\t: #{fullName}"
 		end
 
 		if( s.logonScriptLength != 0 )
-			logonScript = dec_data[i...i+s.logonScriptLength+1]
+			logonScript = dec_data[i...i+s.logonScriptLength+1].split("\x00\x00").first.gsub("\x00", '')
 			i+=s.logonScriptLength
 			i+=2 * ( ( s.logonScriptLength / 2 ) % 2 )
 			vprint_good "Logon Script\t\t: #{logonScript}"
 		end
 
 		if( s.profilePathLength != 0 )
-			profilePath = dec_data[i...i+s.profilePathLength+1]
+			profilePath = dec_data[i...i+s.profilePathLength+1].split("\x00\x00").first.gsub("\x00", '')
 			i+=s.profilePathLength
 			i+=2 * ( ( s.profilePathLength / 2 ) % 2 )
 			vprint_good "Profile Path\t\t: #{profilePath}"
 		end
 
 		if( s.homeDirectoryLength != 0 )
-			homeDirectory = dec_data[i...i+s.homeDirectoryLength+1]
+			homeDirectory = dec_data[i...i+s.homeDirectoryLength+1].split("\x00\x00").first.gsub("\x00", '')
 			i+=s.homeDirectoryLength
 			i+=2 * ( ( s.homeDirectoryLength / 2 ) % 2 )
 			vprint_good "Home Directory\t\t: #{homeDirectory}"
 		end
 
 		if( s.homeDirectoryDriveLength != 0 )
-			homeDirectoryDrive = dec_data[i...i+s.homeDirectoryDriveLength+1]
+			homeDirectoryDrive = dec_data[i...i+s.homeDirectoryDriveLength+1].split("\x00\x00").first.gsub("\x00", '')
 			i+=s.homeDirectoryDriveLength
 			i+=2 * ( ( s.homeDirectoryDriveLength / 2 ) % 2 )
 			vprint_good "Home Directory Drive\t: #{homeDirectoryDrive}"
@@ -316,7 +316,7 @@ class Metasploit3 < Msf::Post
 		vprint_good "Additional groups\t: #{relativeId.join ' '}"
 
 		if( s.logonDomainNameLength != 0 )
-			logonDomainName = dec_data[i...i+s.logonDomainNameLength+1]
+			logonDomainName = dec_data[i...i+s.logonDomainNameLength+1].split("\x00\x00").first.gsub("\x00", '')
 			i+=s.logonDomainNameLength
 			i+=2 * ( ( s.logonDomainNameLength / 2 ) % 2 )
 			vprint_good "Logon domain name\t: #{logonDomainName}"

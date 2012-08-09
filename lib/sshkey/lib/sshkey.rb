@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'openssl'
 require 'base64'
 require 'digest/md5'

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'zlib'
 require 'msf/core/post/common'
 
