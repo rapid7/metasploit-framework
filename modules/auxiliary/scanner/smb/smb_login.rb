@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptString.new('SMBPass', [ false, "SMB Password" ]),
 				OptString.new('SMBUser', [ false, "SMB Username" ]),
-				OptString.new('SMBDomain', [ false, "SMB Domain", 'WORKGROUP']),
+				OptString.new('SMBDomain', [ false, "SMB Domain", '.']),
 				OptBool.new('PRESERVE_DOMAINS', [ false, "Respect a username that contains a domain name.", true]),
 				OptBool.new('RECORD_GUEST', [ false, "Record guest-privileged random logins to the database", false]),
 			], self.class)
@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 
-		domain = datastore['SMBDomain'] || ""
+		domain = datastore['SMBDomain'] || "."
 
 		begin
 			each_user_pass do |user, pass|
@@ -199,7 +199,10 @@ class Metasploit3 < Msf::Auxiliary
 				@accepts_guest_logins[rhost] = [user, pass] unless datastore['RECORD_GUEST']
 			end
 
-			report_creds(domain,user,pass,true) if @accepts_guest_logins.select{ |g_host, g_creds| g_host == rhost and g_creds == [user,pass] }.empty?
+			unless @accepts_guest_logins.find { |g_host, g_creds| g_host == rhost and g_creds == [user,pass] }
+				report_creds(domain,user,pass,true)
+			end
+			
 			validuser_case_sensitive?(domain, user, pass)
 		when *@correct_credentials_status_codes
 			print_status(output_message % "FAILED LOGIN, VALID CREDENTIALS" )
