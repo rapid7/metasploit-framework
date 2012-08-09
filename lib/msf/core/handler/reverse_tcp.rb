@@ -98,7 +98,7 @@ module ReverseTcp
 			begin
 
 				self.listener_sock = Rex::Socket::TcpServer.create(
-					'LocalHost' => ip,
+					'LocalHost' => datastore['LHOST'],
 					'LocalPort' => datastore['LPORT'].to_i,
 					'Comm'      => comm,
 					'Context'   =>
