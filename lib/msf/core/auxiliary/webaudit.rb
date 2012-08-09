@@ -7,6 +7,7 @@ module Auxiliary::Web
 	end
 end
 
+require 'msf/core/auxiliary/web/http'
 require 'msf/core/auxiliary/web/fuzzable'
 require 'msf/core/auxiliary/web/form'
 require 'msf/core/auxiliary/web/path'
@@ -19,7 +20,7 @@ require 'msf/core/auxiliary/web/target'
 ###
 
 module Auxiliary::WebAudit
-	include Msf::Auxiliary::Report
+	include Auxiliary::Report
 
 	attr_reader :target
 	attr_reader :parent
@@ -108,19 +109,6 @@ module Auxiliary::WebAudit
 		parent.increment_request_counter
 	end
 
-	def http
-		proxy_host = proxy_port = proxy_user = proxy_pass = nil
-
-		http = ::Net::HTTP.new( target.host, target.port, proxy_host,
-		                        proxy_port, proxy_user, proxy_pass )
-		if target.ssl?
-			http.use_ssl     = true
-			http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-		end
-
-		http
-	end
-
 	def custom_404?( path, body )
 		return if !path || !body
 
@@ -158,7 +146,7 @@ module Auxiliary::WebAudit
 				@@_404[path][i] ||= {}
 
 				precision.times {
-					res = get( generator.call )
+					res = http.get( generator.call, :follow_redirect => true )
 					gathered += 1
 
 					if gathered == generators.size * precision
@@ -184,23 +172,32 @@ module Auxiliary::WebAudit
 		end
 	end
 
-	def get( path )
-		limit = 20
+	def http
+		# only one connection per thread pl0x, kthxb
+		return @http if @http
 
-		while limit >= 0
-			limit -= 1
+		opts = {
+			:target  => target,
+			:headers => {}
+		}
 
-			res = http.get( path )
-
-			if !path = res.header['location']
-				return res
-			else
-				p = URI( path )
-				path = p.path
-				path << "?#{p.query}" if p.query
-			end
+		if datastore['BasicAuthUser']
+			opts[:auth] = {
+				:user => datastore['BasicAuthUser'],
+				:password => datastore['BasicAuthPass']
+			}
 		end
-		nil
+
+		datastore['HttpAdditionalHeaders'].to_s.split( "\x01" ).each do |hdr|
+			next if !( hdr && hdr.strip.size > 0 )
+
+			k, v = hdr.split( ':', 2 )
+			next if !v
+
+			opts[:headers][k.strip] = v.strip
+		end
+
+		@http = Auxiliary::Web::HTTP.new( opts )
 	end
 
 	def is_404?( path, body )

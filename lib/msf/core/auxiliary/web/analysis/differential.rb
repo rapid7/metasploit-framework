@@ -60,7 +60,8 @@ module Analysis::Differential
 		# any superfluous dynamic content
 		opts[:precision].times {
 			# get the default responses
-			res = submit
+			next if !(res = submit)
+
 			responses[:orig] ||= res.body.to_s
 			# remove context-irrelevant dynamic content like banners and such
 			responses[:orig] = Rex::Text.refine( responses[:orig], res.body.to_s )
@@ -74,7 +75,7 @@ module Analysis::Differential
 				fuzzer.fault_seeds_for( value ).map { |seed| permutation_for( name, seed ) }
 			end.flatten.uniq.each do |elem|
 				# submit the mutation and store the response
-				res = elem.submit
+				next if !(res = elem.submit)
 
 				responses[:bad][elem.altered] ||= res.body.to_s.dup
 
@@ -90,7 +91,8 @@ module Analysis::Differential
 			fuzzer.boolean_seeds_for( value ).map { |seed| permutation_for( name, seed ) }
 		end.flatten.uniq.each do |elem|
 			# submit the mutation and store the response
-			res = elem.submit
+			next if !(res = elem.submit)
+
 			responses[:good][elem.altered] ||= []
 			# save the response and some data for analysis
 			responses[:good][elem.altered] << {

@@ -45,10 +45,11 @@ module Analysis::Timing
 		opts = TIMING_OPTIONS.merge( opts )
 
 		multi   = opts[:multi]
-		timeout = opts[:delay]
 		stub    = opts[:stub]
 
 		permutations.each do |p|
+			timeout = opts[:delay]
+
 			seed = p.altered_value.dup
 
 			# 1st pass, make sure the webapp is responsive
@@ -72,12 +73,15 @@ module Analysis::Timing
 			# log it!
 			fuzzer.process_vulnerability( p, 'Manipulatable response times.',
 				:payload => p.altered_value )
+
+			# we got what we wanted, bail out
+			return
 		end
 	end
 
 	def responsive?( timeout = 120 )
 		begin
-			submit :retries => 0, :timeout => timeout
+			submit :timeout => timeout
 			true
 		rescue Timeout::Error
 			false

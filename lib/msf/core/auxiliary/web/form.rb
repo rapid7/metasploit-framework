@@ -119,7 +119,7 @@ class Form < Fuzzable
 	#
 	# query -   String
 	#
-	def query_to_params( query )
+	def self.query_to_params( query )
 		query = query.to_s
 		return {} if query.empty?
 
@@ -129,24 +129,20 @@ class Form < Fuzzable
 			h
 		end
 	end
+	def query_to_params( query )
+		self.class.query_to_params( query)
+	end
 
-	#
-	# Creates an HTTPRequest for this form.
-	#
-	# headers   -   Hash of optional headers
-	#
-	def request( headers = {} )
-		case method
+	def request( opts = {} )
+		p = case method
 			when :get
-				h = query_to_params( URI( action ).query ).merge( params )
-				::Net::HTTP::Get.new( "#{action}?#{to_query( h )}", headers )
+				query_to_params( URI( action ).query ).merge( params )
 
 			when :post
-				req = ::Net::HTTP::Post.new( action, headers )
-				req.form_data = params
-				req
+				params
 		end
 
+		[ action, opts.merge( :method => method, :params => p ) ]
 	end
 
 	# Bool  -   true if params are empty, false otherwise.

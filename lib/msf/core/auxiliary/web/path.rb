@@ -84,17 +84,12 @@ class Path  < Fuzzable
 		self.input = value.to_s.dup
 	end
 
-	#
-	# Creates an HTTPRequest for this path.
-	#
-	# headers   -   Hash of optional headers
-	#
-	def request( headers = {} )
+	def request( opts = {} )
 		uri = URI( action )
 		path = uri.path
 		path << '/' if !path.end_with?( '/' )
 
-		::Net::HTTP::Get.new( "#{path}/#{param}?#{uri.query}", headers )
+		[ "#{path}/#{param}?#{uri.query}", opts.merge( :method => method ) ]
 	end
 
 	# Bool  -   true if PATH_INFO is empty, false otherwise.
