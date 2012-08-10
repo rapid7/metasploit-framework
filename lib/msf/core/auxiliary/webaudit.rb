@@ -24,6 +24,7 @@ module Auxiliary::WebAudit
 
 	attr_reader :target
 	attr_reader :parent
+	attr_reader :page
 
 	def initialize( info = {} )
 		super
@@ -32,9 +33,10 @@ module Auxiliary::WebAudit
 	#
 	# Called directly before 'run'
 	#
-	def setup( parent, target )
+	def setup( parent, target, page = nil )
 		@parent = parent
 		@target = target
+		@page   = page
 	end
 
 	# Should be overridden to return the exploit to use for this
@@ -81,7 +83,27 @@ module Auxiliary::WebAudit
 		res.code.to_i == 200 && !custom_404?( path, res.body )
 	end
 	alias :file_exist?      :resource_exist?
-	alias :directory_exist? :resource_exist?
+
+	def directory_exist?( path )
+		dir = path.dup
+		dir << '/' if !dir.end_with?( '/' )
+		resource_exist?( dir )
+	end
+
+	def log_resource_if_exists( path )
+		log_resource( :location => path ) if resource_exist?( path )
+	end
+	alias :log_file_if_exists      :log_resource_if_exists
+
+	def log_directory_if_exists( path )
+		dir = path.dup
+		dir << '/' if !dir.end_with?( '/' )
+		log_resource_if_exists( dir )
+	end
+
+	def match_and_log_fingerprint( fingerprint )
+		page.body.to_s.match( fingerprint ) && log_fingerprint( :fingerprint => fingerprint )
+	end
 
 	#
 	# Serves as a default detection method for when performing taint analysis.
@@ -209,6 +231,72 @@ module Auxiliary::WebAudit
 		100
 	end
 
+	def log_fingerprint( opts = {} )
+		mode  = details[:category].to_sym
+		vhash = [target.to_url, mode, opts[:location]].map { |x| x.to_s }.join( '|' ).hash
+
+		@@vulns ||= Set.new
+		return if @@vulns.include?( vhash )
+		@@vulns << vhash
+
+		location = opts[:location] ? URI( opts[:location].to_s ) : page.url
+		info = {
+			:web_site    => target.site,
+			:path	     => location.path,
+			:query	     => location.query,
+			:method      => 'GET',
+			:params      => [],
+			:pname	     => 'path',
+			:proof	     => opts[:fingerprint],
+			:risk	     => details[:risk],
+			:name	     => details[:name],
+			:blame	     => details[:blame],
+			:category    => details[:category],
+			:description => details[:description],
+			:confidence  => details[:category] || opts[:confidence] || 100,
+			#:payload     => nil,
+			:owner       => self
+		}
+
+		report_web_vuln( info )
+
+		print_good "	VULNERABLE(#{mode.to_s.upcase}) URL(#{target.to_url})"
+		print_good "		 PROOF(#{opts[:fingerprint]})"
+	end
+
+	def log_resource( opts = {} )
+		mode  = details[:category].to_sym
+		vhash = [target.to_url, mode, opts[:location]].map { |x| x.to_s }.join( '|' ).hash
+
+		@@vulns ||= Set.new
+		return if @@vulns.include?( vhash )
+		@@vulns << vhash
+
+		location = URI( opts[:location].to_s )
+		info = {
+			:web_site    => target.site,
+			:path	     => location.path,
+			:query	     => location.query,
+			:method      => 'GET',
+			:params      => [],
+			:pname	     => 'path',
+			:proof	     => opts[:location],
+			:risk	     => details[:risk],
+			:name	     => details[:name],
+			:blame	     => details[:blame],
+			:category    => details[:category],
+			:description => details[:description],
+			:confidence  => details[:category] || opts[:confidence] || 100,
+			#:payload     => nil,
+			:owner       => self
+		}
+
+		report_web_vuln( info )
+
+		print_good "	VULNERABLE(#{mode.to_s.upcase}) URL(#{target.to_url})"
+		print_good "		 PROOF(#{opts[:location]})"
+	end
+
 	def process_vulnerability( element, proof, opts = {} )
 		mode  = details[:category].to_sym
 		vhash = [target.to_url, mode, element.altered].map{ |x| x.to_s }.join( '|' )
@@ -263,7 +351,7 @@ module Auxiliary::WebAudit
 		report_web_vuln( info )
 
 		print_good "	VULNERABLE(#{mode.to_s.upcase}) URL(#{target.to_url}) PARAMETER(#{element.altered}) VALUES(#{element.params})"
-		print_good "		 PROOF( #{proof} )"
+		print_good "		 PROOF(#{proof})"
 
 		return
 	end
