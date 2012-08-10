@@ -26,6 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			'License'     => MSF_LICENSE
 		)
 
+		@for_each_page_blocks = []
 	end
 
 =begin
@@ -43,6 +44,10 @@ class Metasploit3 < Msf::Auxiliary
 			report_web_form( form )
 			self.form_count += 1
 		end
+	end
+
+	def for_each_page( &block )
+		@for_each_page_blocks << block if block_given?
 	end
 
 	#
@@ -198,6 +203,8 @@ class Metasploit3 < Msf::Auxiliary
 			report_web_form(form)
 			self.form_count += 1
 		end
+
+		@for_each_page_blocks.each { |p| p.call( page ) }
 	end
 
 	def form_from_url( website, url )
