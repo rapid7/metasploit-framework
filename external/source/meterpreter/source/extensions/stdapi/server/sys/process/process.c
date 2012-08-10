@@ -567,10 +567,10 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 	dprintf( "[PROCESS] request_sys_process_execute" );
 
 	do {
-                // Get the execution arguments
-                arguments = packet_get_tlv_value_string(packet, TLV_TYPE_PROCESS_ARGUMENTS);
-                path      = packet_get_tlv_value_string(packet, TLV_TYPE_PROCESS_PATH);
-                flags     = packet_get_tlv_value_uint(packet, TLV_TYPE_PROCESS_FLAGS);
+		// Get the execution arguments
+		arguments = packet_get_tlv_value_string(packet, TLV_TYPE_PROCESS_ARGUMENTS);
+		path      = packet_get_tlv_value_string(packet, TLV_TYPE_PROCESS_PATH);
+		flags     = packet_get_tlv_value_uint(packet, TLV_TYPE_PROCESS_FLAGS);
 
 		dprintf("path: %s, arguments: %s\n", path ? path : "(null)", arguments ? arguments : "(null)");
 
@@ -743,8 +743,8 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 			exit(EXIT_FAILURE);
 		default:
 			dprintf("child pid is %d\n", pid);
-			packet_add_tlv_uint(response, TLV_TYPE_PID,(DWORD)pid);
-			packet_add_tlv_uint(response, TLV_TYPE_PROCESS_HANDLE,(DWORD)pid);
+			packet_add_tlv_uint(response, TLV_TYPE_PID, (DWORD)pid);
+			packet_add_tlv_uint(response, TLV_TYPE_PROCESS_HANDLE, (DWORD)pid);
 			if (flags & PROCESS_EXECUTE_FLAG_CHANNELIZED) {
 				if(have_pty) {
 					dprintf("child channelized\n");
@@ -1003,7 +1003,7 @@ DWORD process_channel_read(Channel *channel, Packet *request,
 	if (!ReadFile(ctx->pStdout, buffer, bufferSize, bytesRead, NULL))
 		result = GetLastError();
 #else
-	if((*bytesRead = read(ctx->pStdout, buffer, bufferSize) < 0)) {
+	if ((*bytesRead = read(ctx->pStdout, buffer, bufferSize)) < 0) {
 		result = GetLastError();
 	}
 #endif
