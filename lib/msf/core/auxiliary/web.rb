@@ -2,24 +2,22 @@
 
 module Msf
 
-module Auxiliary::Web
-	module Analysis
-	end
-end
-
-require 'msf/core/auxiliary/web/http'
-require 'msf/core/auxiliary/web/fuzzable'
-require 'msf/core/auxiliary/web/form'
-require 'msf/core/auxiliary/web/path'
-require 'msf/core/auxiliary/web/target'
-
 ###
 #
 # This module provides methods for brute forcing authentication
 #
 ###
 
-module Auxiliary::WebAudit
+module Auxiliary::Web
+	module Analysis
+	end
+
+	require 'msf/core/auxiliary/web/http'
+	require 'msf/core/auxiliary/web/fuzzable'
+	require 'msf/core/auxiliary/web/form'
+	require 'msf/core/auxiliary/web/path'
+	require 'msf/core/auxiliary/web/target'
+
 	include Auxiliary::Report
 
 	attr_reader :target
@@ -82,7 +80,7 @@ module Auxiliary::WebAudit
 		res = http.get( path )
 		res.code.to_i == 200 && !custom_404?( path, res.body )
 	end
-	alias :file_exist?      :resource_exist?
+	alias :file_exist? :resource_exist?
 
 	def directory_exist?( path )
 		dir = path.dup
@@ -93,7 +91,7 @@ module Auxiliary::WebAudit
 	def log_resource_if_exists( path )
 		log_resource( :location => path ) if resource_exist?( path )
 	end
-	alias :log_file_if_exists      :log_resource_if_exists
+	alias :log_file_if_exists :log_resource_if_exists
 
 	def log_directory_if_exists( path )
 		dir = path.dup
