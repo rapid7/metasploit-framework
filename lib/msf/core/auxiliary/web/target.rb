@@ -16,8 +16,14 @@ module Msf
 #
 class Auxiliary::Web::Target
 
+	# Original URL as a String.
+	attr_accessor :original
+
 	# Service information as an Mdm::Service object.
 	attr_accessor :service
+
+	# Mdm::WebSite object.
+	attr_accessor :site
 
 	# True if HTTPS, False otherwise.
 	attr_accessor :ssl
@@ -31,8 +37,17 @@ class Auxiliary::Web::Target
 	# String URI path.
 	attr_accessor :path
 
+	# String URI query.
+	attr_accessor :query
+
 	# Port Number.
 	attr_accessor :port
+
+	# Port Number.
+	attr_accessor :username
+
+	# Port Number.
+	attr_accessor :password
 
 	# Array of Web::Form objects.
 	attr_accessor   :forms
@@ -118,6 +133,10 @@ class Auxiliary::Web::Target
 	# String URL to the webapp.
 	def to_url
 		"#{proto}://#{vhost || host}:#{port}#{path}"
+	end
+
+	def dup
+		Marshal.load( Marshal.dump( self ) )
 	end
 
 end
