@@ -37,9 +37,13 @@ module Auxiliary::Web
 		@page   = page
 	end
 
-	# Should be overridden to return the exploit to use for this
-	# vulnerability type as an Array of Strings.
+	# Should be overridden to return the exploits to use for this
+	# vulnerability typeas an Array of Strings.
 	def self.exploits
+	end
+
+	# Must return a configuration Hash for the given exploit and vulnerability.
+	def self.configure_exploit( exploit, vuln )
 	end
 
 	# Should be overridden to return the payloads used for this
@@ -252,7 +256,6 @@ module Auxiliary::Web
 			:category    => details[:category],
 			:description => details[:description],
 			:confidence  => details[:category] || opts[:confidence] || 100,
-			#:payload     => nil,
 			:owner       => self
 		}
 
