@@ -251,5 +251,10 @@ module Anemone
       end
       page
     end
+
+    def dup
+	  Marshal.load( Marshal.dump( self ) )
+    end
+
   end
 end
