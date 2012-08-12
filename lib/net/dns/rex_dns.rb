@@ -8,6 +8,19 @@ module Net # :nodoc:
   module DNS
     class Resolver
 
+      def proxies
+        @config[:proxies].inspect
+      end
+
+      def proxies=(arg)
+        if arg.is_a?(String) and arg =~ /^socks/i
+          @config[:proxies] = arg
+          @config[:use_tcp] = true
+        else
+          raise ResolverError, "Only socks proxies supported"
+        end
+      end
+
       def send(argument,type=Net::DNS::A,cls=Net::DNS::IN)
         if @config[:nameservers].size == 0
           raise ResolverError, "No nameservers specified!"
@@ -31,7 +44,7 @@ module Net # :nodoc:
           @logger.info "Sending #{packet_size} bytes using TCP"
           method = :send_tcp
         else # Packet size is inside the boundaries
-          if use_tcp? # User requested TCP
+          if use_tcp? or !(proxies.nil? or proxies.empty?) # User requested TCP
             @logger.info "Sending #{packet_size} bytes using TCP"
             method = :send_tcp
           else # Finally use UDP
@@ -70,7 +83,7 @@ module Net # :nodoc:
       end
 
       # TODO: figure out how to pass proxies from datastore
-      def send_tcp(packet,packet_data,proxies=nil)
+      def send_tcp(packet,packet_data)
         ans = nil
         length = [packet_data.size].pack("n")
         @config[:nameservers].each do |ns|
@@ -82,7 +95,7 @@ module Net # :nodoc:
                   socket = Rex::Socket::Tcp.create(
                     'PeerHost' => ns.to_s,
                     'PeerPort' => @config[:port].to_i,
-                    'Proxies' => proxies
+                    'Proxies' => @config[:proxies]
                   )
                 rescue
                   @logger.warn "TCP Socket could not be established to #{ns}:#{@config[:port]}"
@@ -96,7 +109,7 @@ module Net # :nodoc:
                 @logger.info "Receiving #{len} bytes..."
 
                 if len == 0
-                  @logger.warn "Receiving 0 lenght packet from nameserver #{ns}, trying next."
+                  @logger.warn "Receiving 0 length packet from nameserver #{ns}, trying next."
                   next
                 end
 
