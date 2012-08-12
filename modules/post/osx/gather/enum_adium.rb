@@ -135,7 +135,7 @@ class Metasploit3 < Msf::Post
 			#
 			# Make a copy of the file we want to convert and steal
 			#
-		 	fpath = "#{base}#{file}"
+			fpath = "#{base}#{file}"
 			rand_name = "/tmp/#{Rex::Text.rand_text_alpha(5)}"
 			tmp = exec("cp #{fpath} #{rand_name}")
 

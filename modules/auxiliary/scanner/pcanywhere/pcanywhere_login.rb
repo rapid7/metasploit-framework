@@ -21,10 +21,11 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'pcAnywhere Login Scanner',
+			'Name'        => 'PcAnywhere Login Scanner',
 			'Version'     => '$Revision$',
-			'Description' => %q{This module will test pcAnywhere logins on a range of machines and
-								report successful logins.
+			'Description' => %q{
+				This module will test pcAnywhere logins on a range of machines and
+				report successful logins.
 			},
 			'Author'      => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'References'     =>
