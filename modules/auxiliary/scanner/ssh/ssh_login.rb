@@ -41,7 +41,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				Opt::RPORT(22)
+				Opt::RPORT(22),
+				Opt::Proxies
 			], self.class
 		)
 
@@ -70,7 +71,8 @@ class Metasploit3 < Msf::Auxiliary
 			:port          => port,
 			:disable_agent => true,
 			:password      => pass,
-			:config        => false
+			:config        => false,
+			:proxies       => datastore['Proxies']
 		}
 
 		opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
