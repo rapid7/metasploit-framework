@@ -47,7 +47,8 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(22),
-				OptPath.new('KEY_FILE', [false, 'Filename of one or several cleartext private keys.'])
+				OptPath.new('KEY_FILE', [false, 'Filename of one or several cleartext private keys.']),
+				Opt::Proxies
 			], self.class
 		)
 
@@ -179,7 +180,8 @@ class Metasploit3 < Msf::Auxiliary
 				:key_data     => key_data,
 				:disable_agent => true,
 				:config => false,
-				:record_auth_info => true
+				:record_auth_info => true,
+				:proxies	=> datastore['Proxies']
 			}
 			opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
 			begin
