@@ -44,7 +44,8 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(22),
-				OptPath.new('KEY_FILE', [false, 'Filename of one or several cleartext public keys.'])
+				OptPath.new('KEY_FILE', [false, 'Filename of one or several cleartext public keys.']),
+				Opt::Proxies
 			], self.class
 		)
 
@@ -54,7 +55,8 @@ class Metasploit3 < Msf::Auxiliary
 				OptBool.new('SSH_BYPASS', [ false, 'Verify that authentication was not bypassed when keys are found', false]),
 				OptString.new('SSH_KEYFILE_B64', [false, 'Raw data of an unencrypted SSH public key. This should be used by programmatic interfaces to this module only.', '']),
 				OptPath.new('KEY_DIR', [false, 'Directory of several keys. Filenames must not begin with a dot in order to be read.']),
-				OptInt.new('SSH_TIMEOUT', [ false, 'Specify the maximum time to negotiate a SSH session', 30])
+				OptInt.new('SSH_TIMEOUT', [ false, 'Specify the maximum time to negotiate a SSH session', 30]),
+				Opt
 			]
 		)
 
@@ -203,7 +205,8 @@ class Metasploit3 < Msf::Auxiliary
 				:record_auth_info  => true,
 				:skip_private_keys => true,
 				:config =>false,
-				:accepted_key_callback => Proc.new {|key| accepted << key }
+				:accepted_key_callback => Proc.new {|key| accepted << key },
+				:proxies	  => datastore['Proxies']
 			}
 
 			opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
