@@ -44,8 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(22),
-				OptPath.new('KEY_FILE', [false, 'Filename of one or several cleartext public keys.']),
-				Opt::Proxies
+				OptPath.new('KEY_FILE', [false, 'Filename of one or several cleartext public keys.'])
 			], self.class
 		)
 
@@ -55,8 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptBool.new('SSH_BYPASS', [ false, 'Verify that authentication was not bypassed when keys are found', false]),
 				OptString.new('SSH_KEYFILE_B64', [false, 'Raw data of an unencrypted SSH public key. This should be used by programmatic interfaces to this module only.', '']),
 				OptPath.new('KEY_DIR', [false, 'Directory of several keys. Filenames must not begin with a dot in order to be read.']),
-				OptInt.new('SSH_TIMEOUT', [ false, 'Specify the maximum time to negotiate a SSH session', 30]),
-				Opt
+				OptInt.new('SSH_TIMEOUT', [ false, 'Specify the maximum time to negotiate a SSH session', 30])
 			]
 		)
 

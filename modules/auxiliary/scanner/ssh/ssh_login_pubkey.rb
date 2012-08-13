@@ -47,8 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(22),
-				OptPath.new('KEY_FILE', [false, 'Filename of one or several cleartext private keys.']),
-				Opt::Proxies
+				OptPath.new('KEY_FILE', [false, 'Filename of one or several cleartext private keys.'])
 			], self.class
 		)
 

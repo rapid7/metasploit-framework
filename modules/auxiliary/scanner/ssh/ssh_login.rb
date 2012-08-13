@@ -41,8 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				Opt::RPORT(22),
-				Opt::Proxies
+				Opt::RPORT(22)
 			], self.class
 		)
 
