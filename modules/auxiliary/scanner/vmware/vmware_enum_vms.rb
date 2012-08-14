@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		if vim_do_login(datastore['USERNAME'], datastore['PASSWORD']) == :success
 			virtual_machines = vim_get_vms
-			virtual_machines.each do |vm| 
+			virtual_machines.each do |vm|
 				print_good YAML.dump(vm)
 				report_note(
 					:host  => rhost,

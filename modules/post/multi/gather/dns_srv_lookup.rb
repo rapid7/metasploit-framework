@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Post
 		end
 
 		while(not srvrcd.nil? and not srvrcd.empty?)
-			 1.upto(thread_num) do
+			1.upto(thread_num) do
 				a << framework.threads.spawn("Module(#{self.refname})", false, srvrcd.shift) do |srv|
 					next if srv.nil?
 					r = cmd_exec(cmd, ns_opt + "#{srv}#{domain}")
@@ -116,7 +116,7 @@ class Metasploit3 < Msf::Post
 					end
 				end
 				a.map {|x| x.join }
-			 end
+			end
 		end
 	end
 

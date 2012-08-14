@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Post
 		register_advanced_options(
 			[
 				OptString.new('EXEC_STRING',   [false, 'Execution parameters when run from download directory' ]),
-        OptInt.new('EXEC_TIMEOUT',     [true, 'Execution timeout', 60 ]),
+				OptInt.new('EXEC_TIMEOUT',     [true, 'Execution timeout', 60 ]),
 				OptBool.new(  'DELETE',        [true, 'Delete file after execution', false ]),
 			], self.class)
 

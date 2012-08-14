@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
 	def find_link_local(opts = {})
 		shost = opts['SHOST'] || datastore['SHOST'] || ipv6_link_address
 		hosts = opts['HOSTS'] || []
-		smac  = @smac 
+		smac  = @smac
 		timeout = opts['TIMEOUT_NEIGHBOR'] || datastore['TIMEOUT_NEIGHBOR']
 		network_prefix = Rex::Socket.addr_aton(shost)[0,8]
 
