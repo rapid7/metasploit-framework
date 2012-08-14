@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'          => 'OSX Gather Chicken of the VNC Profile',
+			'Name'          => 'OS X Gather Chicken of the VNC Profile',
 			'Description'   => %q{
 				This module will download the "Chicken of the VNC" client application's
 				profile file,	which is used to store other VNC servers' information such
