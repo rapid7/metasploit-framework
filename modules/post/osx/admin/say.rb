@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => "OSX Text to Speech Utility",
+			'Name'          => "OS X Text to Speech Utility",
 			'Description'   => %q{
 				This module will speak whatever is in the 'TEXT' option on the victim machine.
 			},
