@@ -11,9 +11,17 @@ module MetasploitDataModels::ActiveRecordModels::Tag
       }
       validates :desc, :length => {:maximum => 8191, :message => "desc must be less than 8k."}
 
+      before_destroy :cleanup_hosts
+
       def to_s
         name
       end
+
+      def cleanup_hosts
+        # Clean up association table records
+        Mdm::HostTag.delete_all("tag_id = #{self.id}")
+      end
+      
     }
   end
 end
