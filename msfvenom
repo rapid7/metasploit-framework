@@ -300,6 +300,7 @@ if opts[:payload]
 				::Msf::Serializer::ReadableText.dump_options(payload,'    '))
 			exit
 		end
+		payload.datastore.merge! datastore
 	end
 end
 

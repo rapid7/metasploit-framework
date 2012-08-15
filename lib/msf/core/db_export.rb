@@ -463,20 +463,24 @@ class Export
 			# Host details sub-elements
 			report_file.write("    <host_details>\n")
 			h.host_details.find(:all).each do |d|
+				report_file.write("        <host_detail>\n")
 				d.attributes.each_pair do |k,v|
 					el = create_xml_element(k,v)
-					report_file.write("        #{el}\n")
-				end					
+					report_file.write("            #{el}\n")
+				end
+				report_file.write("        </host_detail>\n")			
 			end
 			report_file.write("    </host_details>\n")
 
 			# Host exploit attempts sub-elements
 			report_file.write("    <exploit_attempts>\n")
 			h.exploit_attempts.find(:all).each do |d|
+				report_file.write("        <exploit_attempt>\n")
 				d.attributes.each_pair do |k,v|
 					el = create_xml_element(k,v)
-					report_file.write("        #{el}\n")
+					report_file.write("            #{el}\n")
 				end					
+				report_file.write("        </exploit_attempt>\n")
 			end
 			report_file.write("    </exploit_attempts>\n")
 
@@ -525,10 +529,12 @@ class Export
 				# Vuln details sub-elements
 				report_file.write("            <vuln_details>\n")
 				e.vuln_details.find(:all).each do |d|
+					report_file.write("                <vuln_detail>\n")
 					d.attributes.each_pair do |k,v|
 						el = create_xml_element(k,v)
-						report_file.write("                #{el}\n")
-					end					
+						report_file.write("                    #{el}\n")
+					end
+					report_file.write("                </vuln_detail>\n")				
 				end
 				report_file.write("            </vuln_details>\n")
 
@@ -536,10 +542,12 @@ class Export
 				# Vuln attempts sub-elements
 				report_file.write("            <vuln_attempts>\n")
 				e.vuln_attempts.find(:all).each do |d|
+					report_file.write("                <vuln_attempt>\n")
 					d.attributes.each_pair do |k,v|
 						el = create_xml_element(k,v)
-						report_file.write("                #{el}\n")
-					end					
+						report_file.write("                    #{el}\n")
+					end
+					report_file.write("                </vuln_attempt>\n")		
 				end
 				report_file.write("            </vuln_attempts>\n")
 

@@ -45,6 +45,11 @@ module ReverseTcpDouble
 				Opt::LPORT(4444)
 			], Msf::Handler::ReverseTcpDouble)
 
+		register_advanced_options(
+			[
+				OptBool.new('ReverseAllowProxy', [ true, 'Allow reverse tcp even with Proxies specified. Connect back will NOT go through proxy but directly to LHOST', false]),
+			], Msf::Handler::ReverseTcpDouble)
+
 		self.conn_threads = []
 	end
 
@@ -54,10 +59,9 @@ module ReverseTcpDouble
 	# if it fails to start the listener.
 	#
 	def setup_handler
-		if datastore['Proxies']
-			raise 'tcp connectback can not be used with proxies'
+		if datastore['Proxies'] and not datastore['ReverseAllowProxy']
+			raise RuntimeError, 'TCP connect-back payloads cannot be used with Proxies. Can be overriden by setting ReverseAllowProxy to true'
 		end
-
 		self.listener_sock = Rex::Socket::TcpServer.create(
 			# 'LocalHost' => datastore['LHOST'],
 			'LocalPort' => datastore['LPORT'].to_i,

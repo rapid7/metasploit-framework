@@ -34,12 +34,14 @@ class Socket
 	##
 
 	#
-	# Initialize the socket subsystem and start monitoring sockets as they come in.
+	# Initialize the socket subsystem and start monitoring sockets as they come
+	# in.
 	#
 	def initialize(client)
 		self.client = client
 
-		# register the inbound handler for the tcp server channel (allowing us to receive new client connections to a tcp server channel)
+		# register the inbound handler for the tcp server channel (allowing us to
+		# receive new client connections to a tcp server channel)
 		client.register_inbound_handler( Rex::Post::Meterpreter::Extensions::Stdapi::Net::SocketSubsystem::TcpServerChannel )
 
 	end
@@ -58,9 +60,9 @@ class Socket
 	##
 
 	#
-	# Creates an arbitrary client socket channel using the information
-	# supplied in the socket parameters instance.  The 'params' argument
-	# is expected to be of type Rex::Socket::Parameters.
+	# Creates an arbitrary client socket channel using the information supplied
+	# in the socket parameters instance.  The +params+ argument is expected to be
+	# of type Rex::Socket::Parameters.
 	#
 	def create( params )
 		res = nil

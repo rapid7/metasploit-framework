@@ -59,7 +59,19 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 	end
 
 	#
-	# Search for files.
+	# Search for files matching +glob+ starting in directory +root+.
+	#
+	# Returns an Array (possibly empty) of Hashes. Each element has the following
+	# keys:
+	# 'path'::  The directory in which the file was found
+	# 'name'::  File name
+	# 'size'::  Size of the file, in bytes
+	#
+	# Example:
+	#    client.fs.file.search(client.fs.dir.pwd, "*.txt")
+	#    # => [{"path"=>"C:\\Documents and Settings\\user\\Desktop", "name"=>"foo.txt", "size"=>0}]
+	#
+	# Raises a RequestError if +root+ is not a directory.
 	#
 	def File.search( root=nil, glob="*.*", recurse=true, timeout=-1 )
 
@@ -108,6 +120,18 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 	# Expands a file path, substituting all environment variables, such as
 	# %TEMP%.
 	#
+	# Examples:
+	#    client.fs.file.expand_path("%appdata%")
+	#    # => "C:\\Documents and Settings\\user\\Application Data"
+	#    client.fs.file.expand_path("asdf")
+	#    # => "asdf"
+	#
+	# NOTE: This method is fairly specific to Windows. It has next to no relation
+	# to the ::File.expand_path method! In particular, it does *not* do ~
+	# expansion or environment variable expansion on non-Windows systems. For
+	# these reasons, this method may be deprecated in the future. Use it with
+	# caution.
+	#
 	def File.expand_path(path)
 		request = Packet.create_request('stdapi_fs_file_expand_path')
 
@@ -155,7 +179,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 	end
 
 	#
-	# Determines if a file exists and returns true/false
+	# Returns true if the remote file +name+ exists, false otherwise
 	#
 	def File.exists?(name)
 		r = client.fs.filestat.new(name) rescue nil
@@ -163,7 +187,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 	end
 
 	#
-	# Performs a delete on the specified file.
+	# Performs a delete on the remote file +name+
 	#
 	def File.rm(name)
 		request = Packet.create_request('stdapi_fs_delete_file')
@@ -175,16 +199,17 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 		return response
 	end
 
-	#
-	# Performs a delete on the specified file.
-	#
-	def File.unlink(name)
-		return File.rm(name)
+	class << self
+		alias unlink rm
+		alias delete rm
 	end
 
 	#
-	# Upload one or more files to the remote computer the remote
-	# directory supplied in destination.
+	# Upload one or more files to the remote remote directory supplied in
+	# +destination+.
+	#
+	# If a block is given, it will be called before each file is uploaded and
+	# again when each upload is complete.
 	#
 	def File.upload(destination, *src_files, &stat)
 		src_files.each { |src|
@@ -223,6 +248,9 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 	#
 	# Download one or more files from the remote computer to the local
 	# directory supplied in destination.
+	#
+	# If a block is given, it will be called before each file is downloaded and
+	# again when each download is complete.
 	#
 	def File.download(dest, *src_files, &stat)
 		src_files.each { |src|

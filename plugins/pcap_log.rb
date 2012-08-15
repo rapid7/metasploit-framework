@@ -63,6 +63,12 @@ class Plugin::PcapLog < Msf::Plugin
 		end
 
 		def cmd_pcap_start(*args)
+
+			unless @pcaprub_loaded 
+				print_error("Pcap module not available")
+				return false
+			end
+
 			if @capture_thread && @capture_thread.alive?
 				print_error "Capture already started."
 				return false
@@ -154,7 +160,7 @@ class Plugin::PcapLog < Msf::Plugin
 
 		def initialize(*args)
 			super
-			@dir = "/tmp"
+			@dir = File.join(Msf::Config.config_directory, 'logs')
 			@prefix = "msf3-session"
 			@filter = nil
 			@pcaprub_loaded = false

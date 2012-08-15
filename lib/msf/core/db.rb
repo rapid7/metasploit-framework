@@ -1008,6 +1008,8 @@ class DBManager
 			info[k] = opts[k]  if opts[k]
 		end
 
+		return unless info[:attempted_at]
+
 		vuln.vuln_attempts.create(info)
 	}
 	end
@@ -3702,7 +3704,7 @@ class DBManager
 			host_address = host_data[:host].dup # Preserve after report_host() deletes
 			hobj = report_host(host_data)
 
-			host.elements.each("host_details") do |hdet|
+			host.elements.each("host_details/host_detail") do |hdet|
 				hdet_data = {}
 				hdet.elements.each do |det|
 					next if ["id", "host-id"].include?(det.name)
@@ -3713,7 +3715,7 @@ class DBManager
 				report_host_details(hobj, hdet_data)
 			end
 
-			host.elements.each("exploit_attempts") do |hdet|
+			host.elements.each("exploit_attempts/exploit_attempt") do |hdet|
 				hdet_data = {}
 				hdet.elements.each do |det|
 					next if ["id", "host-id", "session-id", "vuln-id", "service-id", "loot-id"].include?(det.name)
@@ -3801,7 +3803,7 @@ class DBManager
 
 				vobj = report_vuln(vuln_data)
 
-				vuln.elements.each("vuln_details") do |vdet|
+				vuln.elements.each("vuln_details/vuln_detail") do |vdet|
 					vdet_data = {}
 					vdet.elements.each do |det|
 						next if ["id", "vuln-id"].include?(det.name)
@@ -3812,7 +3814,7 @@ class DBManager
 					report_vuln_details(vobj, vdet_data)
 				end
 
-				vuln.elements.each("vuln_attempts") do |vdet|
+				vuln.elements.each("vuln_attempts/vuln_attempt") do |vdet|
 					vdet_data = {}
 					vdet.elements.each do |det|
 						next if ["id", "vuln-id", "loot-id", "session-id"].include?(det.name)

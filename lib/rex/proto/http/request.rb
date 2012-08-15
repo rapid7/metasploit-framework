@@ -314,9 +314,6 @@ class Request < Packet
 	# encoding uri
 	attr_accessor :uri_encode_mode
 
-
-protected
-
 	#
 	# Parses a CGI query string into the var/val combinations.
 	#

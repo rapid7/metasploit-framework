@@ -45,6 +45,7 @@ class Db
 				"db_import"     => "Import a scan result file (filetype will be auto-detected)",
 				"db_export"     => "Export a file containing the contents of the database",
 				"db_nmap"       => "Executes nmap and records the output automatically",
+				"db_rebuild_cache" => "Rebuilds the database-stored module cache"
 			}
 
 			# Always include commands that only make sense when connected.
@@ -1424,12 +1425,26 @@ class Db
 				if (::File.exists? ::File.expand_path(file))
 					db = YAML.load(::File.read(file))['production']
 					framework.db.connect(db)
+
+					if framework.db.active and not framework.db.modules_cached
+						print_status("Rebuilding the module cache in the background...")
+						framework.threads.spawn("ModuleCacheRebuild", true) do
+							framework.db.update_all_module_details
+						end
+					end
+
 					return
 				end
 			end
 			meth = "db_connect_#{framework.db.driver}"
 			if(self.respond_to?(meth))
 				self.send(meth, *args)
+				if framework.db.active and not framework.db.modules_cached
+					print_status("Rebuilding the module cache in the background...")
+					framework.threads.spawn("ModuleCacheRebuild", true) do
+						framework.db.update_all_module_details
+					end
+				end
 			else
 				print_error("This database driver #{framework.db.driver} is not currently supported")
 			end
@@ -1455,6 +1470,26 @@ class Db
 			end
 		end
 
+
+		def cmd_db_rebuild_cache
+			unless framework.db.active
+				print_error("The database is not connected")
+				return
+			end
+					
+			print_status("Purging and rebuilding the module cache in the background...")
+			framework.threads.spawn("ModuleCacheRebuild", true) do
+				framework.db.purge_all_module_details
+				framework.db.update_all_module_details
+			end
+		end
+
+		def cmd_db_rebuild_cache_help
+			print_line "Usage: db_rebuild_cache"
+			print_line
+			print_line "Purge and rebuild the SQL module cache."
+			print_line
+		end
 
 		#
 		# Set RHOSTS in the +active_module+'s (or global if none) datastore from an array of addresses

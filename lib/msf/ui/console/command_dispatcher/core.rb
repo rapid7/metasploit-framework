@@ -1334,11 +1334,11 @@ class Core
 			end
 		}
 		
-		if framework.db and framework.db.migrated
+		if framework.db and framework.db.migrated and framework.db.modules_cached
 			return search_modules_sql(match)
 		end
 		
-		print_error("Warning: no database connected, falling back to slow search")
+		print_error("Warning: database not connected or cache not built, falling back to slow search")
 
 		tbl = generate_module_table("Matching Modules")
 		[ 
@@ -2377,7 +2377,7 @@ class Core
 		end
 
 		# Well-known option names specific to post-exploitation
-		if (mod.post?)
+		if (mod.post? or mod.exploit?)
 			return option_values_sessions() if opt.upcase == 'SESSION'
 		end
 
