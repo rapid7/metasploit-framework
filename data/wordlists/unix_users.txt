@@ -63,6 +63,7 @@ nuucp
 nxpgsql
 operator
 oracle
+pi
 popr
 postgres
 postmaster
