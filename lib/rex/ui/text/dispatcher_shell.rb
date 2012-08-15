@@ -395,15 +395,16 @@ module DispatcherShell
 	end
 
 	#
-	# find the dispatcher that responds to the given method (command) if any
+	# find all dispatchers that respond to the given method (command) if any
 	#
-	def get_responding_dispatcher(method,include_deprecated=true)
+	def get_responding_dispatchers(method,include_deprecated=true)
+		resp_dispatchers = []
 		dispatcher_stack.each do |dispatcher|
 			next if not dispatcher.respond_to?('commands') # don't bother if it doesn't have any commands
-			return dispatcher if is_valid_dispatcher_command?(method,dispatcher,include_deprecated)
+			resp_dispatchers << dispatcher if is_valid_dispatcher_command?(method,dispatcher,include_deprecated)
 		end
 		# otherwise, we didn't find a winner
-		return nil
+		return resp_dispatchers
 	end
 
 	#
@@ -412,39 +413,47 @@ module DispatcherShell
 	def run_single(line)
 		arguments = parse_line(line)
 		method    = arguments.shift
+		found     = false
+		error     = false
 
 		# If output is disabled output will be nil
 		output.reset_color if (output)
 
 		if (method)
 			entries = dispatcher_stack.length
+			# to avoid walking the dispatcher stack twice, and we need the responding dispatchers,
+			# we don't use is_valid_command? but rather get_responding_dispatchers
+			dispatchers = get_responding_dispatchers(method)
+			if (dispatchers and not dispatchers.empty?)
+				dispatchers.each do |dispatcher|
+					begin
+						self.on_command_proc.call(line.strip) if self.on_command_proc
+						run_command(dispatcher, method, arguments)
+						found = true
+					rescue
+						error = $!
+						print_error(
+							"Error while running command #{method}: #{$!}" +
+							"\n\nCall stack:\n#{$@.join("\n")}")
+					rescue ::Exception
+						error = $!
+						print_error(
+							"Error while running command #{method}: #{$!}")
+					end
 
-			# to avoid walking the dispatcher stack twice, and we need the responding dispatcher
-			# we don't use is_valid_command? but rather get_responding_dispatcher
-			dispatcher = get_responding_dispatcher(method)
-			if dispatcher
-				begin
-					self.on_command_proc.call(line.strip) if self.on_command_proc
-					run_command(dispatcher, method, arguments)
-					return true
-				rescue
-					error = $!
-					print_error(
-						"Error while running command #{method}: #{$!}" +
-						"\n\nCall stack:\n#{$@.join("\n")}")
-				rescue ::Exception
-					error = $!
-					print_error(
-						"Error while running command #{method}: #{$!}")
+					# If the dispatcher stack changed as a result of this command,
+					# break out
+					break if (dispatcher_stack.length != entries)
 				end
-			else
+			end
+
+			if (found == false and error == false)
 				unknown_command(method, line)
 			end
-			return false
 		end
-		return false
-	end
 
+		return found
+	end
 	#
 	# Runs the supplied command on the given dispatcher.
 	#
