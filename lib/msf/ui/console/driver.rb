@@ -640,7 +640,7 @@ protected
 	# executable.  This is only allowed if aliases and/or command passthru have been permitted
 	#
 	def unknown_command(method, line)
-		# what should take precedence sys commands or console aliases?  We go with aliases for now.
+		# aliases take precedence
 		aliases = @core.aliases
 		if ( allow_aliases == true and aliases.keys.include?(method) )
 			# we want to run the alias, which may contain options (like sessions -l), plus any newly supplied opts
