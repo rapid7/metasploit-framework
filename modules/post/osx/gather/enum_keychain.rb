@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Post
 		super(update_info(info,
 			'Name'          => 'OS X Gather Keychain Enumeration',
 			'Description'   => %q{
-				This module presents a way to quickly go through the current users keychains and
+				This module presents a way to quickly go through the current user's keychains and
 				collect data such as email accounts, servers, and other services.  Please note:
 				when using the GETPASS option, the user will have to manually enter the password,
 				and then click 'allow' in order to collect each password.
