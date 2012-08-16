@@ -92,15 +92,18 @@ EOS
 
 		end
 		# PS uses .NET 2.0 by default which doesnt work @ present (20120814, RLTM)
-		return elevate_net_clr(compiler) 
+		# x86 targets also need to be compiled in x86 powershell instance
+		run_32 = compiler_opts =~ /platform:x86/i ? true : false
+		return elevate_net_clr(compiler, run_32) 
 
 	end
 
-	def elevate_net_clr(ps_code, net_ver = '4.0')
+	def elevate_net_clr(ps_code, run_32 = false, net_ver = '4.0')
 		var_func = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_conf_path = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_env_name = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_env_old = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_run32 = Rex::Text.rand_text_alpha(rand(8)+8)
 
 		exec_wrapper = <<EOS
 function #{var_func} {
@@ -108,12 +111,9 @@ function #{var_func} {
 param (
 [Parameter(Mandatory=$true)]
 [ScriptBlock]
-$ScriptBlock,
-[Parameter(ValueFromRemainingArguments=$true)]
-[Alias('Args')]
-[object[]]
-$ArgumentList
+$ScriptBlock
 )
+$#{var_run32} = $#{run_32.to_s}
 if ($PSVersionTable.CLRVersion.Major -eq #{net_ver.to_i}) {
 Invoke-Command -ScriptBlock $ScriptBlock -ArgumentList $ArgumentList
 return
@@ -131,9 +131,11 @@ New-Item -Path $#{var_conf_path} -ItemType Container | Out-Null
 $#{var_env_name} = 'COMPLUS_ApplicationMigrationRuntimeActivationConfigPath'
 $#{var_env_old} = [Environment]::GetEnvironmentVariable($#{var_env_name})
 [Environment]::SetEnvironmentVariable($#{var_env_name}, $#{var_conf_path})
-try {
-& powershell.exe -inputformat text -command $ScriptBlock -args $ArgumentList
-} finally {
+try { if ($#{var_run32} -and [IntPtr]::size -eq 8 ) {
+&"$env:windir\\syswow64\\windowspowershell\\v1.0\\powershell.exe" -inputformat text -command $ScriptBlock -noninteractive
+} else {
+& powershell.exe -inputformat text -command $ScriptBlock -noninteractive
+}} finally {
 [Environment]::SetEnvironmentVariable($#{var_env_name}, $#{var_env_old})
 $#{var_conf_path} | Remove-Item -Recurse
 }
