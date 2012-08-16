@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: enum_dns.rb 15475 2012-06-18 23:39:04Z rapid7 $
 ##
 
 ##
@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
 			'License'		=> MSF_LICENSE,
-			'Version'		=> '$Revision$',
+			'Version'		=> '$Revision: 15475 $',
 			'References' 	=>
 				[
 					['CVE', '1999-0532'],
@@ -361,16 +361,18 @@ class Metasploit3 < Msf::Auxiliary
 			(query.answer.select { |i| i.class == Net::DNS::RR::NS}).each do |nsrcd|
 				print_status("Testing nameserver: #{nsrcd.nsdname}")
 				nssrvquery = @res.query(nsrcd.nsdname, "A")
-				begin
+				if nssrvquery.answer.length == 0
+					nssrvip = Rex::Socket.gethostbyname(nsrcd.nsdname)[3].bytes.reduce {|a,b| [a,b].join(".")}
+				else
 					nssrvip = nssrvquery.answer[0].address.to_s
+				end
+				begin
 					@res.nameserver=(nssrvip)
 					zone = []
 					zone = @res.query(target,Net::DNS::AXFR)
 					if zone.answer.length != 0
-						namesrvips = @res.query(nsrcd.nsdname,"A")
-						nsip = namesrvips.answer[0]
 						print_status("Zone transfer successful")
-						report_note(:host => nsip.address.to_s,
+						report_note(:host => nssrvip,
 							:proto => 'udp',
 							:sname => 'dns',
 							:port => 53 ,
@@ -389,7 +391,7 @@ class Metasploit3 < Msf::Auxiliary
 									:data => "#{rr.address.to_s},#{rr.name},A")
 							when "SOA"
 								print_status("Name: #{rr.mname} Record: SOA")
-								report_note(:host => nsip.address.to_s,
+								report_note(:host => nssrvip,
 									:proto => 'udp',
 									:sname => 'dns',
 									:port => 53 ,
@@ -397,7 +399,7 @@ class Metasploit3 < Msf::Auxiliary
 									:data => "#{rr.name},SOA")
 							when "MX"
 								print_status("Name: #{rr.exchange} Preference: #{rr.preference} Record: MX")
-								report_note(:host => nsip.address.to_s,
+								report_note(:host => nssrvip,
 									:proto => 'udp',
 									:sname => 'dns',
 									:port => 53 ,
@@ -405,7 +407,7 @@ class Metasploit3 < Msf::Auxiliary
 									:data => "#{rr.exchange},MX")
 							when "CNAME"
 								print_status("Name: #{rr.cname} Record: CNAME")
-								report_note(:host => nsip.address.to_s,
+								report_note(:host => nssrvip,
 									:proto => 'udp',
 									:sname => 'dns',
 									:port => 53 ,
@@ -413,7 +415,7 @@ class Metasploit3 < Msf::Auxiliary
 									:data => "#{rr.cname},CNAME")
 							when "HINFO"
 								print_status("CPU: #{rr.cpu} OS: #{rr.os} Record: HINFO")
-								report_note(:host => nsip.address.to_s,
+								report_note(:host => nssrvip,
 									:proto => 'udp',
 									:sname => 'dns',
 									:port => 53 ,
@@ -429,7 +431,7 @@ class Metasploit3 < Msf::Auxiliary
 									:data => "#{rr.address.to_s}, AAAA")
 							when "NS"
 								print_status("Name: #{rr.nsdname} Record: NS")
-								report_note(:host =>  nsip.address.to_s,
+								report_note(:host =>  nssrvip,
 									:proto => 'udp',
 									:sname => 'dns',
 									:port => 53 ,
@@ -437,7 +439,7 @@ class Metasploit3 < Msf::Auxiliary
 									:data => "#{rr.nsdname},NS")
 							when "TXT"
 								print_status("Text: #{rr.inspect}")
-								report_note(:host =>  nsip.address.to_s,
+								report_note(:host =>  nssrvip,
 									:proto => 'udp',
 									:sname => 'dns',
 									:port => 53 ,
@@ -445,7 +447,7 @@ class Metasploit3 < Msf::Auxiliary
 									:data => rr.inspect)
 							when "SRV"
 								print_status("Host: #{rr.host} Port: #{rr.port} Priority: #{rr.priority} Record: SRV")
-								report_note(:host =>  nsip.address.to_s,
+								report_note(:host =>  nssrvip,
 									:proto => 'udp',
 									:sname => 'dns',
 									:port => 53 ,
