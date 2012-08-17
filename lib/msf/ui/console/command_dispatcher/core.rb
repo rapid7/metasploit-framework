@@ -2684,13 +2684,12 @@ protected
 	#
 	def is_valid_alias?(name,value)
 
-		# value
-
-		# some "safe words" to avoid for the value.  value would have to not match these regexes
+		# check value
+		# some "bad words" to avoid for the value.  value would have to not match these regexes
 		# this is just basic idiot protection, it's not meant to be "undefeatable"
 		value.strip!
-		safe_words = [/^rm +(-rf|-r +-f|-f +-r) +\/+.*$/, /^msfconsole$/]
-		safe_words.each do |regex|
+		bad_words = [/^rm +(-rf|-r +-f|-f +-r) +\/+.*$/, /^msfconsole$/]
+		bad_words.each do |regex|
 			# don't mess around, just return false in this case
 			return false if value =~ regex
 		end
@@ -2711,8 +2710,7 @@ protected
 			end
 		end
 
-		# name
-
+		# check name
 		# we don't check if this alias name exists or if it's a console command already etc as -f can override that
 		# so those need to be checked externally.  We pretty much just check to see if the name is sane
 		valid_name = true
