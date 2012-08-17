@@ -19,6 +19,12 @@ public class DatabaseImpl implements RpcConnection  {
 	protected int hindex = 0;
 	protected int sindex = 0;
 
+	/* define the maximum hosts in a workspace */
+	protected int maxhosts = 512;
+
+	/* define the maximum services in a workspace */
+	protected int maxservices = 512 * 24;
+
 	public void resetHostsIndex() {
 		hindex = 0;
 		queries = build();
@@ -186,8 +192,8 @@ public class DatabaseImpl implements RpcConnection  {
 		/* this is an optimization. If we have a network or OS filter, we need to pull back all host/service records and
 		   filter them here. If we do not have these types of filters, then we can let the database do the heavy lifting
 		   and limit the size of the final result there. */
-		int limit1 = rFilter == null && oFilter == null ? 512 : 30000;
-		int limit2 = rFilter == null && oFilter == null ? 12288 : 100000;
+		int limit1 = rFilter == null && oFilter == null ? maxhosts : 30000;
+		int limit2 = rFilter == null && oFilter == null ? maxservices : 100000;
 
 		temp.put("db.creds", "SELECT DISTINCT creds.*, hosts.address as host, services.name as sname, services.port as port, services.proto as proto FROM creds, services, hosts WHERE services.id = creds.service_id AND hosts.id = services.host_id AND hosts.workspace_id = " + workspaceid);
 
@@ -226,10 +232,10 @@ public class DatabaseImpl implements RpcConnection  {
 				Map result = new HashMap();
 
 				if (methodName.equals("db.services")) {
-					result.put(methodName.substring(3), filterByRoute(executeQuery(query), 12288));
+					result.put(methodName.substring(3), filterByRoute(executeQuery(query), maxservices));
 				}
 				else if (methodName.equals("db.hosts")) {
-					result.put(methodName.substring(3), filterByRoute(executeQuery(query), 512));
+					result.put(methodName.substring(3), filterByRoute(executeQuery(query), maxhosts));
 				}
 				else {
 					result.put(methodName.substring(3), executeQuery(query));
@@ -335,6 +341,15 @@ public class DatabaseImpl implements RpcConnection  {
 					//srvcs.add("sessions.host_id = hosts.id AND sessions.closed_at IS NULL");
 				}
 
+				if (values.containsKey("size")) {
+					try {
+						maxhosts = Integer.parseInt(values.get("size") + "");
+						maxservices = maxhosts * 24;
+					}
+					catch (Exception ex) {
+					}
+				}
+
 				if (values.containsKey("hosts") && (values.get("hosts") + "").length() > 0) {
 					String h = values.get("hosts") + "";
 					if (!h.matches("[0-9a-fA-F\\.:\\%\\_/, ]+")) {
@@ -362,6 +377,7 @@ public class DatabaseImpl implements RpcConnection  {
 						//ports2.add("s.port = " + p[x]);
 					}
 					hosts.add("services.host_id = hosts.id");
+					hosts.add("services.state = 'open'");
 					hosts.add("(" + join(ports, " OR ") + ")");
 				}
 

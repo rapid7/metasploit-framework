@@ -25,6 +25,7 @@ public class ShellSession implements Runnable {
 
 	public static interface ShellCallback {
 		public void commandComplete(String session, Object token, String response);
+		public void commandUpdate(String session, Object token, String response);
 	}
 
 	public void addListener(ShellCallback l) {
@@ -33,13 +34,17 @@ public class ShellSession implements Runnable {
 		}
 	}
 
-	public void fireEvent(Command command, String output) {
+	public void fireEvent(Command command, String output, boolean done) {
 		Iterator i;
 		synchronized (this) {
 			i = new LinkedList(listeners).iterator();
 		}
+
 		while (i.hasNext()) {
-			((ShellCallback)i.next()).commandComplete(session, command != null ? command.token : null, output);
+			if (done)
+				((ShellCallback)i.next()).commandComplete(session, command != null ? command.token : null, output);
+			else
+				((ShellCallback)i.next()).commandUpdate(session, command != null ? command.token : null, output);
 		}
 	}
 
@@ -68,25 +73,28 @@ public class ShellSession implements Runnable {
 			/* read until we encounter AAAAAAAAAA */
 			StringBuffer output = new StringBuffer();
 
-			/* loop for 60s trying to read output... give up after 60s, some commands may simply take this long */
-			for (int x = 0; x < 600; x++) {
+			/* loop forever waiting for response to come back. If session is dead
+			   then this loop will break with an exception */
+			while (true) {
 				response = readResponse();
 				String data = (response.get("data") + "");
+
 				if (data.length() > 0) {
 					if (data.endsWith(marker)) {
 						data = data.substring(0, data.length() - marker.length());
+						fireEvent(c, data, false);
 						output.append(data);
-						fireEvent(c, output.toString());
+						fireEvent(c, output.toString(), true);
 						return;
 					}
 					else {
+						fireEvent(c, data, false);
 						output.append(data);
 					}
 				}
 
 				Thread.sleep(100);
 			}
-			fireEvent(c, output.toString());
 		}
 		catch (Exception ex) {
 			System.err.println(session + " -> " + c.text + " ( " + response + ")");

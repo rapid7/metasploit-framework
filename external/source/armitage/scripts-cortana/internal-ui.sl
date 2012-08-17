@@ -48,7 +48,7 @@ sub open_console_tab {
 			quit();
 		}
 
-		_call_("&setupConsoleStyle", $tab);
+		_call_later_("&setupConsoleStyle", $tab);
 		return $console;
 	}, $title => $1, $log_folder => $2, $popup_hook => $3, $q_activity => $4);
 }
