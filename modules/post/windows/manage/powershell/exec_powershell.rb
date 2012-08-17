@@ -69,23 +69,10 @@ class Metasploit3 < Msf::Post
 		# check/set vars
 		subs = process_subs(datastore['SUBSTITUTIONS'])
 		script_in = read_script(datastore['SCRIPT'])
-		print_status(script_in)
 
 		# Make substitutions in script if needed
 		script_in = make_subs(script_in, subs) unless subs.empty?
-
-		# Get target's computer name
-		computer_name = session.sys.config.sysinfo['Computer']
-
-		# Create unique log directory
-		log_dir = ::File.join(Msf::Config.log_directory,'scripts', computer_name)
-		::FileUtils.mkdir_p(log_dir)
-
-		# Define log filename
-		script_ext  = ::File.extname(datastore['SCRIPT'])
-		script_base = ::File.basename(datastore['SCRIPT'], script_ext)
-		time_stamp  = ::Time.now.strftime('%Y%m%d:%H%M%S')
-		log_file    = ::File.join(log_dir,"#{script_base}-#{time_stamp}.txt")
+		vprint_good("Script to be executed:\n#{script_in}")
 
 		# Compress
 		print_status('Compressing script contents.')
@@ -111,11 +98,8 @@ class Metasploit3 < Msf::Post
 
 		# Execute the powershell script
 		print_status('Executing the script.')
-		cmd_out, running_pids, open_channels = execute_script(script, datastore['TIMEOUT'])
-
-		# Write output to log
-		print_status("Logging output to #{log_file}.")
-		write_to_log(cmd_out, log_file, eof)
+		cmd_out, running_pids, open_channels = execute_script(script)
+		get_ps_output(cmd_out, eof)
 
 		# Clean up
 		print_status('Cleaning up residual objects and processes.')

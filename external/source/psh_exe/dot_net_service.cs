@@ -1,4 +1,5 @@
-﻿using System;
+
+using System;
 using System.ComponentModel;
 using System.Configuration.Install;
 using System.Net;
@@ -213,3 +214,4 @@ namespace Wrapper
         }
     }
 }
+

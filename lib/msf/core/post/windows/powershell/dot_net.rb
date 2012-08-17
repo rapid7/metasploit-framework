@@ -15,8 +15,12 @@ def dot_net_compiler(opts = {})
 		dot_net_code = opts[:harness]
 		if ::File.file?(dot_net_code)
 			dot_net_code = ::File.read(dot_net_code)
+			#vprint_good("Read file in #{dot_net_code.encoding.name} encoding")
 		end
 		return if dot_net_code.nil? or dot_net_code.empty?
+
+		# Ensure we're not running ASCII-8bit through powershell
+		dot_net_code = dot_net_code.force_encoding('ASCII')
 
 		# Optional
 		provider = opts[:provider] || 'Microsoft.CSharp.CSharpCodeProvider' # This should also work with 'Microsoft.VisualBasic.VBCodeProvider'
@@ -41,7 +45,7 @@ def dot_net_compiler(opts = {})
 
 
 		if payload
-			dot_net_code.gsub!('MSF_PAYLOAD_SPACE', payload)
+			dot_net_code = dot_net_code.gsub('MSF_PAYLOAD_SPACE', payload)
 		end
 
 		var_gen_exe = target ? '$true' : '$false'
@@ -75,9 +79,10 @@ $#{var_output}.Errors |% { Write-Error $_.ToString() }
 } else { return $#{var_output}.CompiledAssembly}        
 }
 #{var_func} -#{var_code} @'
-#{dot_net_code}
-'@
 
+#{dot_net_code}
+
+'@
 
 EOS
 
@@ -134,7 +139,7 @@ $#{var_env_old} = [Environment]::GetEnvironmentVariable($#{var_env_name})
 try { if ($#{var_run32} -and [IntPtr]::size -eq 8 ) {
 &"$env:windir\\syswow64\\windowspowershell\\v1.0\\powershell.exe" -inputformat text -command $ScriptBlock -noninteractive
 } else {
-& powershell.exe -inputformat text -command $ScriptBlock -noninteractive
+&"$env:windir\\system32\\windowspowershell\\v1.0\\powershell.exe" -inputformat text -command $ScriptBlock -noninteractive
 }} finally {
 [Environment]::SetEnvironmentVariable($#{var_env_name}, $#{var_env_old})
 $#{var_conf_path} | Remove-Item -Recurse
@@ -142,10 +147,11 @@ $#{var_conf_path} | Remove-Item -Recurse
 }
 #{var_func} -ScriptBlock { 
 #{ps_code}
-
-
 }
+
+
 EOS
+
 	end
 
 end; end; end; end; end

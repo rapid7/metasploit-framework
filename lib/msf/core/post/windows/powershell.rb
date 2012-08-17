@@ -9,12 +9,14 @@ module Windows
 module Powershell
 	include ::Msf::Post::Common
 
-
-	# List of running processes, open channels, and env variables...
-
-
-	# Suffix for environment variables
-
+	def initialize(info = {})
+		super
+		register_advanced_options(
+			[
+				OptInt.new('PS_TIMEOUT',   [true, 'Powershell execution timeout', 15]),
+				OptBool.new('LOG_OUTPUT', [true, 'Write output to log file', false])
+			], self.class)
+	end
 
 	def have_powershell?
 		cmd_out = cmd_exec("powershell get-host")
@@ -23,6 +25,10 @@ module Powershell
 	end
 
 	def make_subs(script, subs)
+		if ::File.file?(script)
+			script = ::File.read(script)
+		end
+
 		subs.each do |set|
 			script.gsub!(set[0],set[1])
 		end
@@ -30,6 +36,7 @@ module Powershell
 			print_good("Final Script: ")
 			script.each_line {|l| print_status("\t#{l}")}
 		end
+		return script
 	end
 
 	def process_subs(subs)
@@ -96,10 +103,10 @@ module Powershell
 		return encoded_expression
 	end
 
-	def execute_script(script, time_out = 15)
+	def execute_script(script)
 		running_pids, open_channels = [], []
 		# Execute using -EncodedCommand
-		session.response_timeout = time_out
+		session.response_timeout = datastore['PS_TIMEOUT'].to_i
 		cmd_out = session.sys.process.execute("powershell -EncodedCommand " +
 			"#{script}", nil, {'Hidden' => true, 'Channelized' => true})
 
@@ -159,24 +166,43 @@ module Powershell
 		return encoded_script
 	end
 
-	def write_to_log(cmd_out, log_file, eof)
-		# Open log file for writing
-		fd = ::File.new(log_file, 'w+')
+ 	def get_ps_output(cmd_out, eof, read_wait = 5)
 
-		# Read output until eof and write to log
-		while (line = cmd_out.channel.read())
+		if datastore['LOG_OUTPUT']
+			# Get target's computer name
+			computer_name = session.sys.config.sysinfo['Computer']
+
+			# Create unique log directory
+			log_dir = ::File.join(Msf::Config.log_directory,'scripts','powershell', computer_name)
+			::FileUtils.mkdir_p(log_dir)
+
+			# Define log filename
+			time_stamp  = ::Time.now.strftime('%Y%m%d:%H%M%S')
+			log_file    = ::File.join(log_dir,"#{time_stamp}.txt")
+
+
+			# Open log file for writing
+			fd = ::File.new(log_file, 'w+')
+		end
+
+		# Read output until eof or nil read and write to log
+		while (1)
+			line = ::Timeout.timeout(read_wait) {
+				cmd_out.channel.read()
+			} rescue nil
+			break if line.nil?
 			if (line.sub!(/#{eof}/, ''))
-				fd.write(line)
+				fd.write(line) if fd
 				vprint_good("\t#{line}")
-				cmd_out.channel.close()
 				break
 			end
-			fd.write(line)
-			vprint_good("\t#{line}")
+			fd.write(line) if fd
+			vprint_good("\n#{line}")
 		end
 
 		# Close log file
-		fd.close()
+		cmd_out.channel.close()
+		fd.close() if fd
 
 		return
 	end
@@ -188,7 +214,7 @@ module Powershell
 		env_del_command += "[Environment]::SetEnvironmentVariable($_,$null,'User')}"
 		script = compress_script(env_del_command, eof)
 		cmd_out, running_pids, open_channels = *execute_script(script)
-		write_to_log(cmd_out, "/dev/null", eof)
+		get_ps_output(cmd_out, eof)
 
 		# Kill running processes
 		running_pids.each() do |pid|
@@ -205,7 +231,6 @@ module Powershell
 
 		return
 	end
-
 
 
 end; end; end; end
