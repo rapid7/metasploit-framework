@@ -135,11 +135,16 @@ public class DataManager implements ArmitageTimerClient, Loadable, Function, Pre
 					Map workspace = new HashMap();
 					Object[] argz = new Object[1];
 
-					if (args.size() == 4) {
+					if (args.size() >= 4) {
 						String hosts   = BridgeUtilities.getString(args, "");
 						String ports   = BridgeUtilities.getString(args, "");
 						String os      = BridgeUtilities.getString(args, "");
 						String session = BridgeUtilities.getString(args, "");
+
+						if (!args.isEmpty()) {
+							String size = BridgeUtilities.getString(args, "512");
+							workspace.put("size", size);
+						}
 
 						if (!hosts.equals(""))
 							workspace.put("hosts", hosts);
