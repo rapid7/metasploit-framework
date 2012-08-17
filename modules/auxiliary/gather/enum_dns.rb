@@ -369,8 +369,8 @@ class Metasploit3 < Msf::Auxiliary
 				begin
 					@res.nameserver=(nssrvip)
 					zone = []
-					zone = @res.query(target,Net::DNS::AXFR)
-					if zone.answer.length != 0
+					zone = @res.axfr(target)
+					if zone.length != 0
 						print_status("Zone transfer successful")
 						report_note(:host => nssrvip,
 							:proto => 'udp',
@@ -379,80 +379,86 @@ class Metasploit3 < Msf::Auxiliary
 							:type => 'dns.enum',
 							:data => "Zone transfer successful")
 						#Prints each record according to its type
-						zone.answer.each do |rr|
-							case rr.type
-							when "A"
-								print_status("Name: #{rr.name} IP address: #{rr.address} Record: A ")
-								report_note(:host => rr.address.to_s,
-									:proto => 'udp',
-									:sname => 'dns',
-									:port => 53 ,
-									:type => 'dns.enum',
-									:data => "#{rr.address.to_s},#{rr.name},A")
-							when "SOA"
-								print_status("Name: #{rr.mname} Record: SOA")
-								report_note(:host => nssrvip,
-									:proto => 'udp',
-									:sname => 'dns',
-									:port => 53 ,
-									:type => 'dns.enum',
-									:data => "#{rr.name},SOA")
-							when "MX"
-								print_status("Name: #{rr.exchange} Preference: #{rr.preference} Record: MX")
-								report_note(:host => nssrvip,
-									:proto => 'udp',
-									:sname => 'dns',
-									:port => 53 ,
-									:type => 'dns.enum',
-									:data => "#{rr.exchange},MX")
-							when "CNAME"
-								print_status("Name: #{rr.cname} Record: CNAME")
-								report_note(:host => nssrvip,
-									:proto => 'udp',
-									:sname => 'dns',
-									:port => 53 ,
-									:type => 'dns.enum',
-									:data => "#{rr.cname},CNAME")
-							when "HINFO"
-								print_status("CPU: #{rr.cpu} OS: #{rr.os} Record: HINFO")
-								report_note(:host => nssrvip,
-									:proto => 'udp',
-									:sname => 'dns',
-									:port => 53 ,
-									:type => 'dns.enum',
-									:data => "CPU:#{rr.cpu},OS:#{rr.os},HINFO")
-							when "AAAA"
-								print_status("IPv6 Address: #{rr.address} Record: AAAA")
-								report_note(:host => rr.address.to_s,
-									:proto => 'udp',
-									:sname => 'dns',
-									:port => 53 ,
-									:type => 'dns.enum',
-									:data => "#{rr.address.to_s}, AAAA")
-							when "NS"
-								print_status("Name: #{rr.nsdname} Record: NS")
-								report_note(:host =>  nssrvip,
-									:proto => 'udp',
-									:sname => 'dns',
-									:port => 53 ,
-									:type => 'dns.enum',
-									:data => "#{rr.nsdname},NS")
-							when "TXT"
-								print_status("Text: #{rr.inspect}")
-								report_note(:host =>  nssrvip,
-									:proto => 'udp',
-									:sname => 'dns',
-									:port => 53 ,
-									:type => 'dns.enum',
-									:data => rr.inspect)
-							when "SRV"
-								print_status("Host: #{rr.host} Port: #{rr.port} Priority: #{rr.priority} Record: SRV")
-								report_note(:host =>  nssrvip,
-									:proto => 'udp',
-									:sname => 'dns',
-									:port => 53 ,
-									:type => 'dns.enum',
-									:data => "#{rr.host},#{rr.port},#{rr.priority},SRV")
+						zone.each do |response|
+							response.answer.each do |rr|
+								begin
+								case rr.type
+								when "A"
+									print_status("Name: #{rr.name} IP address: #{rr.address} Record: A ")
+									report_note(:host => rr.address.to_s,
+										:proto => 'udp',
+										:sname => 'dns',
+										:port => 53 ,
+										:type => 'dns.enum',
+										:data => "#{rr.address.to_s},#{rr.name},A")
+								when "SOA"
+									print_status("Name: #{rr.mname} Record: SOA")
+									report_note(:host => nssrvip,
+										:proto => 'udp',
+										:sname => 'dns',
+										:port => 53 ,
+										:type => 'dns.enum',
+										:data => "#{rr.name},SOA")
+								when "MX"
+									print_status("Name: #{rr.exchange} Preference: #{rr.preference} Record: MX")
+									report_note(:host => nssrvip,
+										:proto => 'udp',
+										:sname => 'dns',
+										:port => 53 ,
+										:type => 'dns.enum',
+										:data => "#{rr.exchange},MX")
+								when "CNAME"
+									print_status("Name: #{rr.cname} Record: CNAME")
+									report_note(:host => nssrvip,
+										:proto => 'udp',
+										:sname => 'dns',
+										:port => 53 ,
+										:type => 'dns.enum',
+										:data => "#{rr.cname},CNAME")
+								when "HINFO"
+									print_status("CPU: #{rr.cpu} OS: #{rr.os} Record: HINFO")
+									report_note(:host => nssrvip,
+										:proto => 'udp',
+										:sname => 'dns',
+										:port => 53 ,
+										:type => 'dns.enum',
+										:data => "CPU:#{rr.cpu},OS:#{rr.os},HINFO")
+								when "AAAA"
+									print_status("IPv6 Address: #{rr.address} Record: AAAA")
+									report_note(:host => rr.address.to_s,
+										:proto => 'udp',
+										:sname => 'dns',
+										:port => 53 ,
+										:type => 'dns.enum',
+										:data => "#{rr.address.to_s}, AAAA")
+								when "NS"
+									print_status("Name: #{rr.nsdname} Record: NS")
+									report_note(:host =>  nssrvip,
+										:proto => 'udp',
+										:sname => 'dns',
+										:port => 53 ,
+										:type => 'dns.enum',
+										:data => "#{rr.nsdname},NS")
+								when "TXT"
+									print_status("Text: #{rr.inspect}")
+									report_note(:host =>  nssrvip,
+										:proto => 'udp',
+										:sname => 'dns',
+										:port => 53 ,
+										:type => 'dns.enum',
+										:data => rr.inspect)
+								when "SRV"
+									print_status("Host: #{rr.host} Port: #{rr.port} Priority: #{rr.priority} Record: SRV")
+									report_note(:host =>  nssrvip,
+										:proto => 'udp',
+										:sname => 'dns',
+										:port => 53 ,
+										:type => 'dns.enum',
+										:data => "#{rr.host},#{rr.port},#{rr.priority},SRV")
+								end
+								rescue ActiveRecord::RecordInvalid
+									#Do nothing. Probably tried to store :host => 127.0.0.1
+								end
 							end
 						end
 					else
