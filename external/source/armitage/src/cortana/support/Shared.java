@@ -16,6 +16,7 @@ public class Shared implements Function, Loadable {
 		   the armitage function must register itself though */
 		script.getScriptEnvironment().getEnvironment().put("&_call_", this);
 		script.getScriptEnvironment().getEnvironment().put("&_call_async_", this);
+		script.getScriptEnvironment().getEnvironment().put("&_call_later_", this);
 	}
 
 	public void scriptUnloaded(ScriptInstance script) {
@@ -36,6 +37,16 @@ public class Shared implements Function, Loadable {
 						SleepUtils.runCode(f, function, f.getOwner(), argz);
 					}
 				}).start();
+				return SleepUtils.getEmptyScalar();
+			}
+			else if (name.equals("&_call_later_")) {
+				final SleepClosure f = (SleepClosure)values.get(function);
+				final Stack argz     = EventManager.shallowCopy(args);
+				javax.swing.SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						SleepUtils.runCode(f, function, f.getOwner(), argz);
+					}
+				});
 				return SleepUtils.getEmptyScalar();
 			}
 		}
