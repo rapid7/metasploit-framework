@@ -6,7 +6,16 @@ module Windows
 module Powershell
 module DotNet
 
-def dot_net_compiler(opts = {})
+	def initialize(info = {})
+		super
+		register_advanced_options(
+		[
+			OptString.new('CERT_PATH', [false, 'Path on host to .pfx fomatted certificate for signing' ]),
+
+		], self.class)
+	end
+
+	def dot_net_compiler(opts = {})
 		#TODO: 
 		# allow compilation entirely in memory with a b64 encoded product for export without disk access
 		# Dynamically assign assemblies based on dot_net_code require/includes
@@ -31,7 +40,7 @@ def dot_net_compiler(opts = {})
 
 		assemblies = ["mscorlib.dll", "System.dll", "System.Xml.dll", "System.Data.dll", "System.Net.dll"]
 		if opts[:assemblies]
-			opts[:assemblies] = [opts[:assemblies]] unless opts[:assemblies].is_a?(Array)
+			opts[:assemblies] = opts[:assemblies].split(',').map {|a| agsub(/\s+/,'')} unless opts[:assemblies].is_a?(Array)
 			assemblies += opts[:assemblies]
 		end
 		# 	# Read our code, attempt to find required assemblies
@@ -100,7 +109,11 @@ EOS
 		# PS uses .NET 2.0 by default which doesnt work @ present (20120814, RLTM)
 		# x86 targets also need to be compiled in x86 powershell instance
 		run_32 = compiler_opts =~ /platform:x86/i ? true : false
-		return elevate_net_clr(compiler, run_32) 
+		if opts[:net_clr] > 2 # PS before 3.0 natively uses NET 2
+			return elevate_net_clr(compiler, run_32, opts[:net_clr]) 
+		else
+			return compiler
+		end
 
 	end
 
