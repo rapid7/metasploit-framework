@@ -109,7 +109,7 @@ EOS
 		# PS uses .NET 2.0 by default which doesnt work @ present (20120814, RLTM)
 		# x86 targets also need to be compiled in x86 powershell instance
 		run_32 = compiler_opts =~ /platform:x86/i ? true : false
-		if opts[:net_clr] > 2 # PS before 3.0 natively uses NET 2
+		if opts[:net_clr] and opts[:net_clr] > 2 # PS before 3.0 natively uses NET 2
 			return elevate_net_clr(compiler, run_32, opts[:net_clr]) 
 		else
 			return compiler
