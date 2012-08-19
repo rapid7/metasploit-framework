@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'          => 'OSX Gather Colloquy Enumeration',
+			'Name'          => 'OS X Gather Colloquy Enumeration',
 			'Description'   => %q{
 					This module will collect Colloquy's info plist file and chat logs from the
 				victim's machine.  There are three actions you may choose:  INFO, CHATS, and

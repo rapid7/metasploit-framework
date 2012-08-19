@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'DNSpwn DNS hijack',
+			'Name'        => 'DNSpwn DNS Hijack',
 			'Version'     => '$Revision$',
 			'Description'    => %q{
 				Race DNS responses and replace DNS queries

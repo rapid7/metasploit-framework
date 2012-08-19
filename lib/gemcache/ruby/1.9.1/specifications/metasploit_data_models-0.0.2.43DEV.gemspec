@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Trevor Rosen"]
-  s.date = "2012-06-25"
+  s.date = "2012-08-16"
   s.description = "Implements minimal ActiveRecord models and database helper code used in both the Metasploit Framework (MSF) and Metasploit commercial editions."
   s.email = ["trevor_rosen@rapid7.com"]
   s.executables = ["mdm_console"]

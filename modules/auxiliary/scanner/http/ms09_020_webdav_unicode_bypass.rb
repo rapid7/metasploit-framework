@@ -24,9 +24,9 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'   		=> 'MS09-020 IIS6 WebDAV Unicode Authentication Bypass',
 			'Description'	=> %q{
-				This module attempts to to bypass authentication using the WebDAV IIS6 
+				This module attempts to to bypass authentication using the WebDAV IIS6
 				Unicode vulnerability discovered by Kingcope. The vulnerability appears
-				to be exploitable where WebDAV is enabled on the IIS6 server, and any 
+				to be exploitable where WebDAV is enabled on the IIS6 server, and any
 				protected folder requires either Basic, Digest or NTLM authentication.
 			},
 			'Author' 		=> [ 'et', 'patrick' ],

@@ -71,12 +71,14 @@ sub update_viewer {
 		logFile($file, sessionToHost($1), $type);
 		$image = [ImageIO read: [new File: $file]];
 
+		fire_event_async("user_" . lc(strrep($type, " ", "_")), $1, $file);
+
 		dispatchEvent(lambda({
 			[$container[$id] setIcon: [new ImageIcon: $image]];
 		}, \$container, \$image, $id => $1));
 
 		if (-isFile $file && "*.jpeg" iswm $file) { 
-			deleteFile($file);
+			deleteOnExit($file);
 		}
 	}
 }

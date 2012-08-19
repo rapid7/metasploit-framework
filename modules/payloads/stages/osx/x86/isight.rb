@@ -29,7 +29,7 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'          => 'Mac OS X x86 iSight photo capture',
+			'Name'          => 'Mac OS X x86 iSight Photo Capture',
 			'Version'       => '$Revision$',
 			'Description'   => 'Inject a Mach-O bundle to capture a photo from the iSight (staged)',
 			'Author'        => 'ddz',
