@@ -1003,7 +1003,7 @@ module Net # :nodoc:
           raise Resolver::Error, "No nameservers specified!"
         end
 
-        method = :query_tcp
+        method = :send_tcp
         packet = make_query_packet(name, Net::DNS::AXFR, cls)
 
         # Store packet_data for performance improvements,
@@ -1016,85 +1016,30 @@ module Net # :nodoc:
 		  method = :send_raw_tcp
 		else
 		  @logger.warn "AXFR query, switching to TCP"
-		  method = :query_tcp
+		  method = :send_tcp
 		end
 
-        answers = []
-        length = [packet_data.size].pack("n")
+        ans = self.old_send(method, packet, packet_data)
 
-        @config[:nameservers].each do |ns|
-          begin
-            socket = Socket.new(Socket::AF_INET,Socket::SOCK_STREAM,0)
-            socket.bind(Socket.pack_sockaddr_in(@config[:source_port],@config[:source_address].to_s))
+        unless ans
+          @logger.fatal "No response from nameservers list: aborting"
+          raise NoResponseError
+        end
 
-            sockaddr = Socket.pack_sockaddr_in(@config[:port],ns.to_s)
+        @logger.info "Received #{ans[0].size} bytes from #{ans[1][2]+":"+ans[1][1].to_s}"
 
-            @config[:tcp_timeout].timeout do
-              catch "next nameserver" do
-                socket.connect(sockaddr)
-                @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
-                socket.write(length+packet_data)
-                soa = 0
-                while soa < 2 do
-                  buffer = ""
-                  ans = socket.recv(Net::DNS::INT16SZ)
-                  if ans.size == 0
-                    if soa == 1
-                      break #No records in zone
-                    else
-                      @logger.warn "Couldn't recv from nameserver #{ns}, trying next."
-                      throw "next nameserver"
-                    end
-                  end
-                  len = ans.unpack("n")[0]
-
-                  @logger.info "Receiving #{len} bytes..."
-
-                  if len == 0
-                    @logger.warn "Receiving 0 length packet from nameserver #{ns}, trying next."
-                    throw "next nameserver"
-                  end
-
-                  while (buffer.size < len)
-                    left = len - buffer.size
-                    temp,from = socket.recvfrom(left)
-                    buffer += temp
-                  end
-
-                  unless buffer.size == len
-                    @logger.warn "Malformed packet from nameserver #{ns}, trying next."
-                    throw "next nameserver"
-                  end
-                  @logger.info "Received #{buffer.size} bytes from #{ns.to_s}:#{@config[:port].to_s}"
-				  begin
-					  response = Net::DNS::Packet.parse(buffer,["",@config[:port],ns.to_s,ns.to_s])
-					  if response.answer[0].type == "SOA"
-						soa += 1
-					  end
-					  answers << response
-				  rescue NameError => e
-					  @logger.warn "Error parsing axfr response: #{e.message}"
-				  end
-                end
-				if soa == 2
-					answers.pop #Remove duplicate SOA
-				end
-              end
-            end
-          rescue TimeoutError
-            @logger.warn "Nameserver #{ns} not responding within TCP timeout, trying next one"
-            answers = []
-            next
-          ensure
-            socket.close
+        pos = 0
+        begin
+          while pos < buffer.size
+            len = buffer.unpack("n")[0]
+            response = Net::DNS::Packet.parse(ans[0][pos,len],ans[1])
+            pos += len
+            answers << response
           end
+        rescue NameError => e
+          @logger.warn "Error parsing axfr response: #{e.message}"
         end
 
-        unless answers
-          message = "No response from nameservers list"
-          @logger.fatal(message)
-          raise NoResponseError, message
-        end
         return answers
       end
 
@@ -1214,38 +1159,52 @@ module Net # :nodoc:
 
         @config[:nameservers].each do |ns|
           begin
-            buffer = ""
             socket = Socket.new(Socket::AF_INET,Socket::SOCK_STREAM,0)
             socket.bind(Socket.pack_sockaddr_in(@config[:source_port],@config[:source_address].to_s))
 
             sockaddr = Socket.pack_sockaddr_in(@config[:port],ns.to_s)
 
             @config[:tcp_timeout].timeout do
-              socket.connect(sockaddr)
-              @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
-              socket.write(length+packet_data)
-              ans = socket.recv(Net::DNS::INT16SZ)
-              len = ans.unpack("n")[0]
+              catch "next nameserver" do
+                buffer = ""
+                socket.connect(sockaddr)
+                @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
+                socket.write(length+packet_data)
+                loop do
+                  ansbuf = ""
+                  ans = socket.recv(Net::DNS::INT16SZ)
+                  if ans.size == 0
+                    if buffer.size > 0
+                      break #Proper exit from loop
+                    else
+                      @logger.warn "Connection reset to namserver #{ns}, trying next."
+                      throw "next nameserver"
+                    end
+                  end
+                  len = ans.unpack("n")[0]
 
-              @logger.info "Receiving #{len} bytes..."
+                  @logger.info "Receiving #{len} bytes..."
 
-              if len == 0
-                @logger.warn "Receiving 0 lenght packet from nameserver #{ns}, trying next."
-                next
+                  if len == 0
+                    @logger.warn "Receiving 0 length packet from nameserver #{ns}, trying next."
+                    throw "next nameserver"
+                  end
+
+                  while (ansbuf.size < len)
+                    left = len - ansbuf.size
+                    temp,from = socket.recvfrom(left)
+                    ansbuf += temp
+                  end
+
+                  unless ansbuf.size == len
+                    @logger.warn "Malformed packet from nameserver #{ns}, trying next."
+                    throw "next nameserver"
+                  end
+                  buffer += ansbuf
+                end
               end
-
-              while (buffer.size < len)
-                left = len - buffer.size
-                temp,from = socket.recvfrom(left)
-                buffer += temp
-              end
-
-              unless buffer.size == len
-                @logger.warn "Malformed packet from nameserver #{ns}, trying next."
-                next
-              end
+              return [buffer,["",@config[:port],ns.to_s,ns.to_s]]
             end
-            return [buffer,["",@config[:port],ns.to_s,ns.to_s]]
           rescue Timeout::Error
             @logger.warn "Nameserver #{ns} not responding within TCP timeout, trying next one"
             next
