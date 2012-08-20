@@ -40,8 +40,8 @@ class Metasploit3 < Msf::Auxiliary
 		)
 
 		deregister_options('PASSWORD')
-		register_options( [ 
-			OptString.new('USERNAME', [ true, 'The username to authenticate as', "root" ]) 
+		register_options( [
+			OptString.new('USERNAME', [ true, 'The username to authenticate as', "root" ])
 		], self.class )
 	end
 

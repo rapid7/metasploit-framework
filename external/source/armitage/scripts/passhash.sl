@@ -207,7 +207,10 @@ sub pass_the_hash {
 			}
 			elog("psexec: " . [$user getText] . ":" . [$pass getText] . " @ " . join(", ", $hosts));
 		}
-		[$dialog setVisible: 0];
+
+		if (!isShift($1)) {
+			[$dialog setVisible: 0];
+		}
 	}, \$dialog, \$user, \$domain, \$pass, \$reverse, \$hosts, \$brute, \$model)];
 
 	$b2 = [new JPanel];
@@ -274,7 +277,9 @@ sub show_login_dialog {
 			elog("login $srvc with " . [$user getText] . ":" . [$pass getText] . " @ " . %options["RHOSTS"]);
 			module_execute("auxiliary", "scanner/ $+ $srvc $+ / $+ $srvc $+ _login", %options);
 		}
-		[$dialog setVisible: 0];
+		if (!isShift($1)) {
+			[$dialog setVisible: 0];
+		}
 	}, \$dialog, \$user, \$pass, \$hosts, \$srvc, \$port, \$brute, \$model)];
 
 	$b2 = [new JPanel];

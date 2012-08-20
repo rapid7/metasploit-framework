@@ -1,6 +1,50 @@
 Armitage Changelog
 ==================
 
+16 Aug 12 (tested against msf r15753)
+----------
+- Dynamic workspaces now removes closed services from its set of
+  hosts matching certain open ports.
+- Cortana console now reports a clear error message a built-in
+  command is executed without the right number of arguments.
+- Added host icons for Android and iOS. You may now set these
+  operating systems by going to [host] -> Host -> Operating System
+- Armitage now shows the client-side exploit dialog for any exploit
+  that does not target an RHOST (for example, windows/smb/smb_relay)
+- Added support for remote exploits that use RHOSTS over RHOST
+  (this includes the new windows/local/current_user_psexec)
+- Added a helper for setting the SESSION option
+
+Cortana Updates (for scripters)
+--------
+- s_cmd no longer times out after 60s. It will wait forever for
+  a command to complete now.
+- added shell_read event which fires when a shell s_cmd comes
+  back with intermediate output.
+- fixed a potential deadlock with &open_console_tab
+- scripts now have the ability to redefine the max size of a 
+  workspace: db_workspace(%(size => #####));
+
+2 Aug 12 (tested again msf r15698)
+--------
+- Armitage now reports vulnerability module and descriptions 
+  properly (again) when exporting data. Had to update to match a
+  change to the db schema.
+- Pass-the-Hash and Login dialogs now stay open if you press 
+  shift while clicking Launch. This convention is pretty universal
+  to Armitage.
+- Team server now buffers all of its outgoing data. I've also 
+  disabled SO_NODELAY. This will greatly improve team server latency
+  on congested networks without impacting responsiveness otherwise.
+- Added Cortana, a DARPA funded scripting technology, into Armitage.
+  There's a lot of fun to be had here.
+- Armitage now queues messages to destroy a console rather than
+  spinning up a new thread for each closed console.
+- Rendering of icons for hosts now happens outside of UI thread.
+- Increased timeout for meterpreter read command
+- Armitage now detects a corrupt module cache and attempts to clear
+  it so it can be rebuilt. 
+
 5 Jul 12
 --------
 - Login -> psexec now sets a different LPORT for each host it's

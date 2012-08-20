@@ -65,7 +65,7 @@ module Metasploit3
 				}
 			))
 	end
-	
+
 	#
 	# Do not transmit the stage over the connection.  We handle this via HTTPS
 	#

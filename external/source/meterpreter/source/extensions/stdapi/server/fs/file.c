@@ -85,8 +85,8 @@ static DWORD file_channel_eof(Channel *channel, Packet *request,
 		LPVOID context, LPBOOL isEof)
 {
 	FileContext *ctx = (FileContext *)context;
-	
-	return feof(ctx->fd) ? TRUE : FALSE;
+	*isEof = feof(ctx->fd) ? TRUE : FALSE;
+	return ERROR_SUCCESS;
 }
 
 /*
