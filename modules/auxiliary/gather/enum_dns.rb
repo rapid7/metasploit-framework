@@ -10,7 +10,7 @@
 ##
 
 require 'msf/core'
-require "net/dns/resolver"
+require "net/dns"
 
 class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
@@ -468,7 +468,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		@res = Net::DNS::Resolver.new()
+		@res = Net::DNS::Resolver.new({:proxies => datastore['Proxies']})
 		if datastore['TCP_DNS']
 			vprint_status("Using DNS/TCP")
 			@res.use_tcp = true
