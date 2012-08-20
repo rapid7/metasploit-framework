@@ -3,7 +3,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::TcpServer
+	include Msf::Exploit::Remote::HttpServer::HTML
 	include Msf::Auxiliary::Report
 
 	def initialize
@@ -54,42 +54,9 @@ class Metasploit3 < Msf::Auxiliary
 		exploit()
 	end
 
-	def on_client_connect(c)
-		c.extend(Rex::Proto::Http::ServerClient)
-		c.init_cli(self)
-	end
-
-	def on_client_data(cli)
-		begin
-			data = cli.get_once(-1, 5)
-			raise ::Errno::ECONNABORTED if !data or data.length == 0
-			case cli.request.parse(data)
-				when Rex::Proto::Http::Packet::ParseCode::Completed
-					dispatch_request(cli, cli.request)
-					cli.reset_cli
-				when  Rex::Proto::Http::Packet::ParseCode::Error
-					close_client(cli)
-			end
-		rescue ::EOFError, ::Errno::EACCES, ::Errno::ECONNABORTED, ::Errno::ECONNRESET
-		rescue ::OpenSSL::SSL::SSLError
-		rescue ::Exception
-			print_error("Error: #{$!.class} #{$!} #{$!.backtrace}")
-		end
-
-		close_client(cli)
-	end
-
-	def close_client(cli)
-		cli.close
-		# Require to clean up the service properly
-		raise ::EOFError
-	end
-
-	def dispatch_request(cli, req)
-
+	def on_request_uri(cli, req)
 		phost = cli.peerhost
 		mysrc = Rex::Socket.source_address(cli.peerhost)
-
 
 
 		if(req['Authorization'] and req['Authorization'] =~ /basic/i)
@@ -107,28 +74,11 @@ class Metasploit3 < Msf::Auxiliary
 			)
 
 			print_status("HTTP LOGIN #{cli.peerhost} > :#{@myport} #{user} / #{pass} => #{req.resource}")
+			send_not_found(cli)
 		else
-			data = %Q^
-				<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-				"http://www.w3.org/TR/1999/REC-html401-19991224/loose.dtd">
-				<HTML>
-					<HEAD>
-						<TITLE>Error</TITLE>
-							<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
-					</HEAD>
-						<BODY><H1>401 Unauthorized.</H1></BODY>
-				</HTML>
-				^
-
-		res  =
-			"HTTP/1.1 401 Authorization Required\r\n" +
-			"WWW-Authenticate: Basic realm=\"#{@realm}\"\r\n" +
-			"Cache-Control: must-revalidate\r\n" +
-			"Content-Type: text/html\r\n" +
-			"Content-Length: #{data.length}\r\n" +
-			"Connection: Close\r\n\r\n#{data}"
-
-		cli.put(res)
+			response = create_response(401, "Unauthorized")
+			response.headers['WWW-Authenticate'] = "Basic realm=\"#{@realm}\""
+			cli.send_response(response)
 		end
 
 		return
