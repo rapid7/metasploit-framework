@@ -248,7 +248,7 @@ module DispatcherShell
 			matches
 		end
 
-	end
+	end # end CommandDispatcher module
 
 	#
 	# DispatcherShell derives from shell.
@@ -277,23 +277,14 @@ module DispatcherShell
 	# Readline.basic_word_break_characters variable being set to \x00
 	#
 	def tab_complete(str)
-		# Check trailing whitespace so we can tell 'x' from 'x '
-		str_match = str.match(/\s+$/)
-		str_trail = (str_match.nil?) ? '' : str_match[0]
-
-		# Split the line up by whitespace into words
-		str_words = str.split(/[\s\t\n]+/)
-
-		# Append an empty word if we had trailing whitespace
-		str_words << '' if str_trail.length > 0
-
 		# Place the word list into an instance variable
-		self.tab_words = str_words
+		self.tab_words = get_words(str)
 
 		# Pop the last word and pass it to the real method
 		tab_complete_stub(self.tab_words.pop)
 	end
 
+	#
 	# Performs tab completion of a command, if supported
 	# Current words can be found in self.tab_words
 	#
@@ -302,10 +293,11 @@ module DispatcherShell
 
 		return nil if not str
 
-		# puts "Words(#{tab_words.join(", ")}) Partial='#{str}'"
+		# puts "Words(#{tab_words.join(', ')}) Partial='#{str}'"
 
-		# Next, try to match internal command or value completion
+		# Next, try to match internal command/alias or value completion
 		# Enumerate each entry in the dispatcher stack
+		orig_tab_words = nil
 		dispatcher_stack.each { |dispatcher|
 
 			# TODO:  update this to use is_valid_dispatcher_command methods?
@@ -317,8 +309,28 @@ module DispatcherShell
 				items.concat(dispatcher.aliases.keys) if dispatcher.respond_to?("aliases")
 			end
 
+
+			if dispatcher.respond_to?("aliases")
+				aleeus_value = dispatcher.aliases[tab_words[0]]
+				if aleeus_value
+					# then tab_words[0] is an alias, dup original for later use
+					orig_tab_words = tab_words.dup
+					tab_words.shift # drop the alias word
+					# now insert aleeus_value into tab_words, however aleeus_value
+					# might itself need to be broken down more.  e.g. if 's' is aliased to
+					# 'sessions -l' we want to insert both 'sesssions' and '-l' as words
+					# we use the same parsing scheme as the original, but don't check for trailing whitespace
+					get_words(aleeus_value,false).each_with_index do |werd,idx|
+						tab_words.insert(idx,werd)
+						# e.g. if aleeus_value was 'sessions -l', then insert 
+						# 'sessions' at 0 and insert '-l' at 1
+						# this way we are tab completing the translated value, not the alias
+					end
+				end
+			end
+
 			# If the dispatcher exports a tab completion function, use it
-			if(dispatcher.respond_to?('tab_complete_helper'))
+			if (dispatcher.respond_to?('tab_complete_helper'))
 				res = dispatcher.tab_complete_helper(str, tab_words)
 			else
 				res = tab_complete_helper(dispatcher, str, tab_words)
@@ -344,12 +356,26 @@ module DispatcherShell
 		# ./lib/rex/ui/text/dispatcher_shell.rb:171: warning: regexp has `]' without escape
 
 		# Match based on the partial word
-		items.find_all { |e|
+		matches = items.find_all do |e|
 			e =~ /^#{str}/
 		# Prepend the rest of the command (or it gets replaced!)
-		}.map { |e|
-			tab_words.dup.push(e).join(' ')
-		}
+		# using the original alias version if it was an alias
+		end
+
+		# if orig_tab_words is not nil, this was an alias situation, so we use those words, assuming
+		# AliasTranslateOnTab is not something true-like (the datastore always returns a String)
+		if ( orig_tab_words and not framework.datastore['AliasTranslateOnTab'] =~ /^(y|t|1)/i)
+			# datastore['AliasTranslateOnTab'] can be used to toggle this behavior
+			# sometimes you'd like your alias to get translated to it's real command when you tab (set it to true)
+			# and sometimes you'd prefer that the alias remained as is while tab completing (set to false, default)
+			matches.map do |e|
+				orig_tab_words.dup.push(e).join(' ')
+			end
+		else
+			matches.map do |e|
+				tab_words.dup.push(e).join(' ')
+			end
+		end
 	end
 
 	#
@@ -368,7 +394,6 @@ module DispatcherShell
 			# Avoid the default completion list for known commands
 			return []
 		end
-
 		return items
 	end
 
@@ -569,6 +594,22 @@ module DispatcherShell
 	attr_accessor :tab_words # :nodoc:
 	attr_accessor :busy # :nodoc:
 	attr_accessor :blocked # :nodoc:
+
+	protected
+	def get_words(str, check_trail_ws=true)
+		if check_trail_ws
+			# Check trailing whitespace so we can tell 'x' from 'x '
+			str_match = str.match(/\s+$/)
+			str_trail = (str_match.nil?) ? '' : str_match[0]
+		end
+
+		# Split the line up by whitespace into words
+		str_words = str.split(/[\s\t\n]+/)
+
+		# Append an empty word if we are checking for trailing whitespace & we had some
+		str_words << '' if (check_trail_ws and str_trail.length > 0)
+		return str_words
+	end
 
 end
 

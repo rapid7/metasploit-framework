@@ -55,6 +55,10 @@ class Driver < Msf::Ui::Driver
 	#
 	# 	Whether or not console command aliasing should be permitted
 	#
+	# AliasTranslateOnTab
+	#
+	# 	Whether or not to translate aliases to their true values on a tab complete operation
+	#
 	# RealReadline
 	#
 	# 	Whether or to use the system Readline or the RBReadline (default)
@@ -164,6 +168,10 @@ class Driver < Msf::Ui::Driver
 
 		# Whether or not console command aliases should be allowed
 		self.allow_aliases = (opts['AllowCommandAliases'] == false) ? false : true
+
+		# Whether or not to translate aliases to their true values on a tab complete operation
+		# We set this in the datastore so it will be visible to a user running or tab completing the 'set' command
+		framework.datastore['AliasTranslateOnTab'] = (opts['AliasTranslateOnTab']) ? true : false
 
 		# Disables "dangerous" functionality of the console
 		@defanged = opts['Defanged'] == true
