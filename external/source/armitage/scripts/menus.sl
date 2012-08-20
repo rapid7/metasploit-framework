@@ -36,6 +36,8 @@ sub host_selected_items {
 	$h = menu($1, "Host", 'H');
 
 		$o = menu($h, "Operating System", 'O');
+		item($o, "Android", 'A', setHostValueFunction($2, "os_name", "Android"));
+		item($o, "Apple iOS", 'i', setHostValueFunction($2, "os_name", "Apple iOS"));
 		item($o, "Cisco IOS", 'C', setHostValueFunction($2, "os_name", "Cisco IOS"));
 		item($o, "FreeBSD", 'F', setHostValueFunction($2, "os_name", "FreeBSD"));
 		item($o, "Linux", 'L', setHostValueFunction($2, "os_name", "Linux"));

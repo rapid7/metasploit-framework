@@ -63,6 +63,9 @@ sub showHost {
 			push(@overlay, 'resources/windows7.png');
 		}
 	}
+	else if ($os eq "Apple iOS" || "*AppleTV*" iswm $os) {
+		push(@overlay, 'resources/ios.png');
+	}
 	else if ($os eq "Mac OS X" || "*apple*" iswm lc($os) || "*mac*os*x*" iswm lc($os)) {
 		push(@overlay, 'resources/macosx.png');
 	}
@@ -80,6 +83,9 @@ sub showHost {
 	}
 	else if ("*VMware*" iswm $os) {
 		push(@overlay, 'resources/vmware.png');
+	}
+	else if ($os eq "Android") {
+		push(@overlay, 'resources/android.png');
 	}
 	else if ($purpose eq "firewall") {
 		return overlay_images(@('resources/firewall.png'));
