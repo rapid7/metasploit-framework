@@ -22,7 +22,7 @@ public class SecureSocket {
 		SSLSocketFactory factory = (SSLSocketFactory) sslcontext.getSocketFactory();
 
 		socket = (SSLSocket)factory.createSocket(host, port);
-		socket.setTcpNoDelay(true);
+
 		socket.setSoTimeout(4048);
 		socket.startHandshake();
 	}
@@ -31,7 +31,7 @@ public class SecureSocket {
 		try {
 			IOObject temp = new IOObject();
 			temp.openRead(socket.getInputStream());
-			temp.openWrite(socket.getOutputStream());
+			temp.openWrite(new BufferedOutputStream(socket.getOutputStream(), 8192 * 8));
 			socket.setSoTimeout(0);
 			return temp;
 		}

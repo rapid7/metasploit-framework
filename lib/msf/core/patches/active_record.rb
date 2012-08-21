@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module ActiveRecord
 module ConnectionAdapters
 class ConnectionPool

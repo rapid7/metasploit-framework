@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 
 require 'rexml/document'
 require 'rex/parser/nmap_xml'
@@ -44,12 +45,24 @@ class Db
 				"db_import"     => "Import a scan result file (filetype will be auto-detected)",
 				"db_export"     => "Export a file containing the contents of the database",
 				"db_nmap"       => "Executes nmap and records the output automatically",
+				"db_rebuild_cache" => "Rebuilds the database-stored module cache"
 			}
 
 			# Always include commands that only make sense when connected.
 			# This avoids the problem of them disappearing unexpectedly if the
 			# database dies or times out.  See #1923
 			base.merge(more)
+		end
+
+		def deprecated_commands
+			[
+				"db_autopwn",
+				"db_driver",
+				"db_hosts",
+				"db_notes",
+				"db_services",
+				"db_vulns",
+			]
 		end
 
 		#
@@ -1073,15 +1086,44 @@ class Db
 		}
 		end
 
+		# :category: Deprecated Commands
+		def cmd_db_hosts_help; deprecated_help(:hosts); end
+		# :category: Deprecated Commands
+		def cmd_db_notes_help; deprecated_help(:notes); end
+		# :category: Deprecated Commands
+		def cmd_db_vulns_help; deprecated_help(:vulns); end
+		# :category: Deprecated Commands
+		def cmd_db_services_help; deprecated_help(:services); end
+		# :category: Deprecated Commands
+		def cmd_db_autopwn_help; deprecated_help; end
+		# :category: Deprecated Commands
+		def cmd_db_driver_help; deprecated_help; end
 
+		# :category: Deprecated Commands
+		def cmd_db_hosts(*args); deprecated_cmd(:hosts, *args); end
+		# :category: Deprecated Commands
+		def cmd_db_notes(*args); deprecated_cmd(:notes, *args); end
+		# :category: Deprecated Commands
+		def cmd_db_vulns(*args); deprecated_cmd(:vulns, *args); end
+		# :category: Deprecated Commands
+		def cmd_db_services(*args); deprecated_cmd(:services, *args); end
+		# :category: Deprecated Commands
+		def cmd_db_autopwn(*args); deprecated_cmd; end
+
+		# :category: Deprecated Commands
 		#
-		# Determine if an IP address is inside a given range
+		# This one deserves a little more explanation than standard deprecation
+		# warning, so give the user a better understanding of what's going on.
 		#
-		def range_include?(ranges, addr)
-			ranges.each do |range|
-				return true if range.include? addr
-			end
-			false
+		def cmd_db_driver(*args)
+			deprecated_cmd
+			print_line
+			print_line "Because Metasploit no longer supports databases other than the default"
+			print_line "PostgreSQL, there is no longer a need to set the driver. Thus db_driver"
+			print_line "is not useful and its functionality has been removed. Usually Metasploit"
+			print_line "will already have connected to the database; check db_status to see."
+			print_line
+			cmd_db_status
 		end
 
 		def cmd_db_import_tabs(str, words)
@@ -1383,12 +1425,26 @@ class Db
 				if (::File.exists? ::File.expand_path(file))
 					db = YAML.load(::File.read(file))['production']
 					framework.db.connect(db)
+
+					if framework.db.active and not framework.db.modules_cached
+						print_status("Rebuilding the module cache in the background...")
+						framework.threads.spawn("ModuleCacheRebuild", true) do
+							framework.db.update_all_module_details
+						end
+					end
+
 					return
 				end
 			end
 			meth = "db_connect_#{framework.db.driver}"
 			if(self.respond_to?(meth))
 				self.send(meth, *args)
+				if framework.db.active and not framework.db.modules_cached
+					print_status("Rebuilding the module cache in the background...")
+					framework.threads.spawn("ModuleCacheRebuild", true) do
+						framework.db.update_all_module_details
+					end
+				end
 			else
 				print_error("This database driver #{framework.db.driver} is not currently supported")
 			end
@@ -1414,6 +1470,26 @@ class Db
 			end
 		end
 
+
+		def cmd_db_rebuild_cache
+			unless framework.db.active
+				print_error("The database is not connected")
+				return
+			end
+					
+			print_status("Purging and rebuilding the module cache in the background...")
+			framework.threads.spawn("ModuleCacheRebuild", true) do
+				framework.db.purge_all_module_details
+				framework.db.update_all_module_details
+			end
+		end
+
+		def cmd_db_rebuild_cache_help
+			print_line "Usage: db_rebuild_cache"
+			print_line
+			print_line "Purge and rebuild the SQL module cache."
+			print_line
+		end
 
 		#
 		# Set RHOSTS in the +active_module+'s (or global if none) datastore from an array of addresses

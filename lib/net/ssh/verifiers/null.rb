@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Net; module SSH; module Verifiers
 
   # The Null host key verifier simply allows every key it sees, without

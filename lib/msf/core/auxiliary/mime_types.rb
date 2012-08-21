@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'action_dispatch/http/mime_type'
 
 module Msf
@@ -5,7 +6,7 @@ module Msf
 module Auxiliary::MimeTypes
 
   def mime_lookup_by_extension(extension)
-    return nil if extension.nil? or extension.empty?
+    return 'application/octet-stream' if extension.nil? or extension.empty?
     if extension.starts_with? '.'
       extension.gsub!('.','')
     end

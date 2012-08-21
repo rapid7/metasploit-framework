@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/proto/ntlm/constants'
 require 'rex/proto/ntlm/crypt'
 require 'rex/proto/ntlm/exceptions'

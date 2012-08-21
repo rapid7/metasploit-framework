@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptString.new('DOMAIN', [ true, "The target domain name"]),
 				OptBool.new('ENUM_AXFR', [ true, 'Initiate a zone transfer against each NS record', true]),
-				OptBool.new('ENUM_TLD', [ true, 'Perform a top-level domain expansion by replacing the TLD and testing against IANA TLD list', false]),
+				OptBool.new('ENUM_TLD', [ true, 'Perform a TLD expansion by replacing the TLD with the IANA TLD list', false]),
 				OptBool.new('ENUM_STD', [ true, 'Enumerate standard record types (A,MX,NS,TXT and SOA)', true]),
 				OptBool.new('ENUM_BRT', [ true, 'Brute force subdomains and hostnames via the supplied wordlist', false]),
 				OptBool.new('ENUM_IP6', [ true, 'Brute force hosts with IPv6 AAAA records',false]),
@@ -54,6 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptInt.new('RETRY', [ false, "Number of times to try to resolve a record if no response is received", 2]),
 				OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry", 2]),
+				OptBool.new('TCP_DNS', [false, "Run queries over TCP", false]),
 			], self.class)
 	end
 
@@ -453,10 +454,11 @@ class Metasploit3 < Msf::Auxiliary
 							end
 						end
 					else
-						print_error("Zone transfer failed")
+						print_error("Zone transfer failed (length was zero)")
 					end
-				rescue
-					print_error("Zone transfer failed")
+				rescue Exception => e
+					print_error("Error executing zone transfer: #{e.message}")
+					elog("Error executing zone transfer: #{e.message}\n#{e.backtrace.join("\n")}")
 				end
 			end
 
@@ -467,6 +469,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run
 		@res = Net::DNS::Resolver.new()
+		if datastore['TCP_DNS']
+			vprint_status("Using DNS/TCP")
+			@res.use_tcp = true
+		end
 		@res.retry = datastore['RETRY'].to_i
 		@res.retry_interval = datastore['RETRY_INTERVAL'].to_i
 		@threadnum = datastore['THREADS'].to_i

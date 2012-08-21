@@ -63,9 +63,15 @@ sub dumpData {
 }
 
 sub fixHosts {
+	# avoid duplicate host entries
+	local('%unique $entry');
+	foreach $entry ($1) {
+		%unique[$entry['address']] = $entry;
+	}
+
 	return sort({
 		return [graph.Route ipToLong: $1['address']] <=> [graph.Route ipToLong: $2['address']];
-	}, $1);
+	}, values(%unique));
 }
 
 sub fixSessions {
@@ -98,7 +104,7 @@ sub fixTimeline {
 }
 
 sub fixVulns {
-	local('$id $vuln %vulns %refs $info');
+	local('$id $vuln %vulns %refs $info $type $module');
 	%refs  = ohash();
 	setMissPolicy(%refs, { return @(); });
 
@@ -113,8 +119,17 @@ sub fixVulns {
 	# fix the references...
 	foreach $id => $vuln (%vulns) {
 		$vuln['refs'] = join(", ", %refs[$id]); 
-		
-		if ("exploit/*" iswm $vuln['name'] && substr($vuln['name'], 8) in @exploits) {
+
+		if ($vuln['info'] ismatch "Exploited by (.*?)/(.*?) to create Session \\d+") {
+			($type, $module) = matched();			
+
+			$info = call($mclient, "module.info", $type, $module);
+
+			# fix some options
+			$vuln['module'] = "$type $+ / $+ $module";
+			$vuln['info'] = replace($info['description'], "\n\\s+", "\n");
+		}
+		else if ("exploit/*" iswm $vuln['name'] && substr($vuln['name'], 8) in @exploits) {
 			$info = call($mclient, "module.info", "exploit", substr($vuln['name'], 8));
 
 			# fix some options
@@ -312,6 +327,8 @@ sub _generateArtifacts {
 
 	[$progress setProgress: 100];
 	[$progress close];
+
+	fire_event_async("user_export", %data);
 
 	return getFileProper(dataDirectory(), formatDate("yyMMdd"), "artifacts");
 }

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/socket'
 
 # Make sure HOME is set, regardless of OS, so that File.expand_path works
@@ -71,7 +72,8 @@ module Net
       :rekey_limit, :rekey_packet_limit, :timeout, :verbose,
       :global_known_hosts_file, :user_known_hosts_file, :host_key_alias,
       :host_name, :user, :properties, :passphrase, :msframework, :msfmodule,
-      :record_auth_info, :skip_private_keys, :accepted_key_callback, :disable_agent
+      :record_auth_info, :skip_private_keys, :accepted_key_callback, :disable_agent,
+      :proxies
     ]
 
     # The standard means of starting a new SSH connection. When used with a

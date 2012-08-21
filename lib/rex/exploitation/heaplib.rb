@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/text'
 require 'rex/exploitation/obfuscatejs'
 require 'rex/exploitation/jsobfu'

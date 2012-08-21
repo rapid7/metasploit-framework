@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/text'
 module Rex
 module Exploitation

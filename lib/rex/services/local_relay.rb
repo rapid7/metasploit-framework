@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'thread'
 require 'rex/socket'
 

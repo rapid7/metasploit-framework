@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'digest/md5'
 require 'stringio'
 

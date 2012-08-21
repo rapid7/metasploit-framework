@@ -2,20 +2,23 @@
  * This module implements packet sniffing features
  */
 #define _CRT_SECURE_NO_DEPRECATE 1
-#include "../../common/common.h"
 
-#include "sniffer.h"
+
+#include "precomp.h"
+
 
 #ifdef _WIN32
 
-#include "../../ReflectiveDLLInjection/DelayLoadMetSrv.h"
 // include the Reflectiveloader() function, we end up linking back to the metsrv.dll's Init function
-// but this doesnt matter as we wont ever call DLL_METASPLOIT_ATTACH as that is only used by the
+// but this doesnt matter as we wont ever call DLL_METASPLOIT_ATTACH as that is only used by the 
 // second stage reflective dll inject payload and not the metsrv itself when it loads extensions.
 #include "../../ReflectiveDLLInjection/ReflectiveLoader.c"
 
+// NOTE: _CRT_SECURE_NO_WARNINGS has been added to Configuration->C/C++->Preprocessor->Preprocessor
+
 // this sets the delay load hook function, see DelayLoadMetSrv.h
 EnableDelayLoadMetSrv();
+
 
 #define check_pssdk(); if(!hMgr && pktsdk_initialize()!=0){packet_transmit_response(hErr, remote, response);return(hErr);}
 
@@ -23,6 +26,8 @@ HANDLE hMgr;
 DWORD hErr;
 
 DWORD pktsdk_initialize(void) {
+	dprintf("sniffer>> calling MgrCreate()...");
+
 	hMgr = MgrCreate();
 	if(! hMgr){
 		dprintf("sniffer>> failed to allocate a new Mgr object");
@@ -59,6 +64,10 @@ int sniffer_excludeports[1024];
 void __stdcall sniffer_receive(DWORD_PTR Param, DWORD_PTR ThParam, HANDLE hPacket, LPVOID pPacketData, DWORD IncPacketSize);
 
 #else // posix side
+
+#include "sniffer.h"
+#include "../../common/common.h"
+
 
 #define check_pssdk()
 
@@ -491,8 +500,11 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *h, const u_char *byt
 
 	if(j->idx_pkts >= j->max_pkts) j->idx_pkts = 0;
 
-	if(j->pkts[j->idx_pkts]) free((void*)(j->pkts[j->idx_pkts]));
-
+	if(j->pkts[j->idx_pkts]) {
+		j->cur_pkts--;
+		j->cur_bytes -= ((PeterPacket *)(j->pkts[j->idx_pkts]))->h.caplen;
+		free((void*)(j->pkts[j->idx_pkts]));
+	}
 	j->pkts[j->idx_pkts++] = pkt;
 
 	lock_release(snifferm);
@@ -671,7 +683,7 @@ DWORD request_sniffer_capture_start(Remote *remote, Packet *packet) {
 
 #endif
 
-		j->pkts = calloc(maxp, sizeof(HANDLE));
+		j->pkts = (HANDLE *) calloc(maxp, sizeof(HANDLE));
 		if(j->pkts == NULL) {
 #ifdef _WIN32
 			AdpCloseAdapter(j->adp);
@@ -1101,6 +1113,7 @@ DWORD __declspec(dllexport) InitServerExtension(Remote *remote)
 	memset(open_captures, 0, sizeof(open_captures));
 
 #ifdef _WIN32
+	hMetSrv = remote->hMetSrv;
 	// initialize structures for the packet sniffer sdk
 	hMgr = NULL;
 	hErr = 0;

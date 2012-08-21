@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/proto/iax2/constants'
 require 'rex/proto/iax2/codecs'
 require 'rex/proto/iax2/call'

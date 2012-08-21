@@ -152,7 +152,7 @@ sub updatePrefModel {
 	
 	foreach $key => $value (convertAll($preferences)) {
 		($component, $name, $type) = split('\\.', $key);
-		if ($type eq "color" || $type eq "shortcut" || $type eq "font" || $type eq "folder") {
+		if ($type eq "color" || $type eq "shortcut" || $type eq "font" || $type eq "folder" || $type eq "file") {
 			$type = "$type \u271A";
 		}
 
@@ -215,6 +215,14 @@ sub createPreferencesTab {
 			else if ($type eq "folder") {
 				local('$file');
 				$file = chooseFile($dirsonly => 1);
+				if ($file !is $null) {
+					[$model setValueAtRow: $row, "value", $file];
+					[$model fireListeners];
+				}
+			}
+			else if ($type eq "file") {
+				local('$file');
+				$file = chooseFile();
 				if ($file !is $null) {
 					[$model setValueAtRow: $row, "value", $file];
 					[$model fireListeners];

@@ -58,11 +58,9 @@ sub sessionToHost {
 	return $null;
 }
 
-sub refreshSessions {
-	if ($0 ne "result") { return; }
-
-	local('$address $key $session $data @routes @highlights $highlight $id $host $route $mask $peer $gateway %addr');
-	$data = convertAll($3);
+on sessions {
+	local('$address $key $session $data @routes @highlights $highlight $id $host $route $mask $peer %addr @nodes');
+	$data = $1;
 #	warn("&refreshSessions - $data");
 
 	# clear all sessions from the hosts
@@ -108,34 +106,38 @@ sub refreshSessions {
 		foreach $key => $session ($data) {
 			$host = %addr[$key];
 			if ($gateway ne $host && [$route shouldRoute: $host]) {
-				push(@highlights, @($gateway, $host)); 
+				push(@highlights, @($gateway, $host));
 			}
 		}
 	}
 
-	[SwingUtilities invokeLater: lambda(&refreshGraph, \@routes, \@highlights, \$graph)];
+	# create a data structure with id, description, icon, and tooltip
+	foreach $id => $host (%hosts) { 
+		local('$tooltip');
+		if ('os_match' in $host) {
+			$tooltip = $host['os_match'];
+		}
+		else {
+			$tooltip = "I know nothing about $id";
+		}
 
-	return [$graph isAlive];
+		if ($host['show'] eq "1") {
+			push(@nodes, @($id, describeHost($host), showHost($host), $tooltip));
+		}
+	}
+
+	[SwingUtilities invokeLater: let(&refreshGraph, \@routes, \@highlights, \@nodes)];
 }
 
 sub refreshGraph {
-	local('$address $key $session $data $highlight $id $host $route $mask');
+	local('$node $id $description $icons $tooltip $highlight');
 
 	# update everything...
 	[$graph start];
-		# update the hosts
-		foreach $id => $host (%hosts) { 
-			local('$tooltip');
-			if ('os_match' in $host) {
-				$tooltip = $host['os_match'];
-			}
-			else {
-				$tooltip = "I know nothing about $id";
-			}
-
-			if ($host['show'] eq "1") {
-				[$graph addNode: $id, describeHost($host), showHost($host), $tooltip];
-			}
+		# do the hosts?
+		foreach $node (@nodes) {
+			($id, $description, $icons, $tooltip) = $node;
+			[$graph addNode: $id, $description, $icons, $tooltip];
 		}
 
 		# update the routes
@@ -155,16 +157,14 @@ sub _refreshServices {
 	# clear all sessions from the hosts
 	map({ $1['services'] = %(); }, values(%hosts));
 
-	foreach $service ($1['services']) {
+	foreach $service ($1) {
 		($host, $port) = values($service, @('host', 'port'));
 		%hosts[$host]['services'][$port] = $service;
 	}
 }
 
-sub refreshServices {
-	if ($0 ne "result") { return; }
-	_refreshServices(convertAll($3));
-	return [$graph isAlive];
+on services {
+	_refreshServices($1);
 }
 
 sub quickParse {
@@ -180,14 +180,12 @@ sub quickParse {
 	}
 }
 
-sub refreshHosts {
-	if ($0 ne "result") { return; }
-
+on hosts {
 	local('$host $data $address %newh @fixes $key $value');
-	$data = convertAll($3);
+	$data = $1;
 #	warn("&refreshHosts - $data");
 
-	foreach $host ($data["hosts"]) {
+	foreach $host ($data) {
 		$address = $host['address'];
 		if ($address in %hosts && size(%hosts[$address]) > 1) {
 			%newh[$address] = %hosts[$address];
@@ -218,7 +216,6 @@ sub refreshHosts {
 	}
 
 	%hosts = %newh;
-	return [$graph isAlive];
 }
 
 sub auto_layout_function {
@@ -413,24 +410,16 @@ sub createDashboard {
 		}
 	}, \$graph)];
 
-
 	setDefaultAutoLayout($graph);
 
 	[$frame setTop: createModuleBrowser($graph, $transfer)];
 
 	$targets = $graph;
+	[[$cortana getSharedData] put: "targets", $graph];
 	[$targets setTransferHandler: $transfer];
 
-	if ($client !is $mclient) {
-		[new ArmitageTimer: $mclient, "db.hosts", 2.5 * 1000L, lambda(&refreshHosts, \$graph), 1];
-		[new ArmitageTimer: $mclient, "db.services", 10 * 1000L, lambda(&refreshServices, \$graph), 1];
-		[new ArmitageTimer: $mclient, "session.list", 2 * 1000L, lambda(&refreshSessions, \$graph), 1];
-	}
-	else {
-		[new ArmitageTimer: $mclient, "db.hosts", 2.5 * 1000L, lambda(&refreshHosts, \$graph), $null];
-		[new ArmitageTimer: $mclient, "db.services", 10 * 1000L, lambda(&refreshServices, \$graph), $null];
-		[new ArmitageTimer: $mclient, "session.list", 2 * 1000L, lambda(&refreshSessions, \$graph), $null];
-	}
+	# now we can tell the scripting engine to start pulling data from metasploit...
+	let(&refreshGraph, \$graph);
 
 	[$graph setGraphPopup: lambda(&targetPopup, \$graph)];
 	[$graph addActionForKeySetting: "graph.save_screenshot.shortcut", "ctrl pressed P", lambda({

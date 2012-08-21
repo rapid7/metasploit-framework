@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module PacketFu
 
 	# Check the repo's for version release histories

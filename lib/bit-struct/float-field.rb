@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 class BitStruct
   # Class for floats (single and double precision) in network order.
   # Declared with BitStruct.float.

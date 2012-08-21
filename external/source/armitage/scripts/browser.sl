@@ -306,6 +306,44 @@ sub convertDate {
 	}
 };
 
+sub openFileViewer {
+	local('$dialog $display');
+	$dialog = [new JPanel];
+	[$dialog setLayout: [new BorderLayout]];
+	$display = [new console.Display: $preferences];
+	[$dialog add: $display, [BorderLayout CENTER]];
+	[$frame addTab: "View", $dialog, $null, $null];
+	return $display;
+}
+
+%handlers["cat"] = {
+	this('$file @files');
+	if ($0 eq "begin") {
+		$file = shift(@files);
+		local('$host $handle');
+
+		# show the file
+		$host = sessionToHost($1);
+		[$display append: "
+\c9#
+\c9# $host $+ : $file
+\c9#\n"];
+		if ($2 !ismatch '\p{ASCII}*') {
+			[$display append: "\c4This is a binary file\n"];
+			# don't save binary files as the cat command doesn't preserve them
+		}
+		else {
+			[$display append: $2];
+
+			# save the file
+			mkdir(getFileProper(dataDirectory(), "downloads", $host, $path));
+			$handle = openf(">" . getFileProper(dataDirectory(), "downloads", $host, $path, $file));
+			writeb($handle, $2);
+			closef($handle);
+		}
+	}
+};
+
 sub buildFileBrowserMenu {
 	# ($popup, [$model getSelectedValue: $table], @rows);
 	
@@ -316,10 +354,25 @@ sub buildFileBrowserMenu {
 	# need to pass current working directory, selected file, and type
 	setupMenu($1, "file_browser", @($2, %types, [$text getText]));
 
+	item($1, "View", 'V', lambda({ 
+		local('$f $dir @temp $tdir');
+
+		@temp = split('\\\\', [$text getText]);
+		$dir = join("/", @temp);
+		%handlers['cat']['$path'] = $dir;
+		%handlers['cat']['@files'] = @();
+		%handlers['cat']['$display'] = openFileViewer();
+
+		[$setcwd];
+		foreach $f ($file) {
+			push(%handlers['cat']['@files'], $f);
+			m_cmd($sid, "cat \" $+ $f $+ \""); 
+		}
+	}, $file => $2, \$sid, \%types, \$setcwd, \$text));
+
 	item($1, "Download", 'D', lambda({ 
 		local('$f $dir @temp $tdir');
 		@temp = split('\\\\', [$text getText]);
-
 		$dir = strrep(downloadDirectory(sessionToHost($sid), join("/", @temp)), "\\", "/");
 		
 		foreach $f ($file) {
@@ -334,6 +387,7 @@ sub buildFileBrowserMenu {
 		}
 		showError("Downloading:\n\n" . join("\n", $file) . "\n\nUse View -> Downloads to see files");
 		elog("downloaded " . join(", ", $file) . " from " . [$text getText] . " on " . sessionToHost($sid));
+		fire_event_async("user_download", $sid, $file);
 	}, $file => $2, \$sid, \%types, \$setcwd, \$text));
 
 	item($1, "Execute", 'E', lambda({ 

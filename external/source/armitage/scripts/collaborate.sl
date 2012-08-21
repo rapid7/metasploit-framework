@@ -11,11 +11,11 @@ sub createEventLogTab {
 	this('$console $client');
 
 	if ($client is $null && $console is $null) {
-		$client = [new ConsoleClient: $null, $mclient, "armitage.poll", "armitage.push", $null, "", $null];
-        	$console = [new ActivityConsole: $preferences];
+		$console = [new ActivityConsole: $preferences];
 		setupEventStyle($console);
 		logCheck($console, "all", "events");
-	        [$client setWindow: $console];
+
+		$client = [$cortana getEventLog: $console];
 		[$client setEcho: $null];
 		[$console updatePrompt: "> "];
 	}
@@ -62,6 +62,7 @@ sub c_client {
 		local('$client');
 		$client = newInstance(^RpcConnection, lambda({
 			writeObject($handle, @_);
+			[[$handle getOutputStream] flush];
 			return readObject($handle);
 		}, \$handle));
 		return [new RpcAsync: $client];

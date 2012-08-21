@@ -3,6 +3,7 @@ module MetasploitDataModels::ActiveRecordModels::Host
     base.class_eval{
 
       belongs_to :workspace, :class_name => "Mdm::Workspace"
+      # hosts_tags are cleaned up in before_destroy:
       has_many :hosts_tags, :class_name => "Mdm::HostTag"
       has_many :tags, :through => :hosts_tags, :class_name => "Mdm::Tag"
       has_many :services, :dependent => :destroy, :class_name => "Mdm::Service", :order => "services.port, services.proto"
@@ -17,9 +18,14 @@ module MetasploitDataModels::ActiveRecordModels::Host
       has_many :creds, :through => :services, :class_name => "Mdm::Cred"
       has_many :exploited_hosts, :dependent => :destroy, :class_name => "Mdm::ExploitedHost"
 
+      has_many :host_details, :dependent => :destroy, :class_name => "Mdm::HostDetail"
+      has_many :exploit_attempts, :dependent => :destroy, :class_name => "Mdm::ExploitAttempt"
+
       validates :address, :presence => true, :ip_format => true
       validates_exclusion_of :address, :in => ['127.0.0.1']
       validates_uniqueness_of :address, :scope => :workspace_id, :unless => Proc.new { |host| host.ip_address_invalid? }
+
+      before_destroy :cleanup_tags
 
       # This is replicated by the IpAddressValidator class. Had to put it here as well to avoid
       # SQL errors when checking address uniqueness.
@@ -54,10 +60,13 @@ module MetasploitDataModels::ActiveRecordModels::Host
 
       accepts_nested_attributes_for :services, :reject_if => lambda { |s| s[:port].blank? }, :allow_destroy => true
 
-      def before_destroy
+      def cleanup_tags
+        # No need to keep tags with no hosts
         tags.each do |tag|
           tag.destroy if tag.hosts == [self]
         end
+        # Clean up association table records
+        Mdm::HostTag.delete_all("host_id = #{self.id}")
       end
 
       # Determine if the fingerprint data is readable. If not, it nearly always
@@ -944,6 +953,20 @@ module MetasploitDataModels::ActiveRecordModels::Host
           #	# fingerprint.  Otherwise, it's samba which doesn't give us much of
           #	# anything in most cases.
           #	ret[:certainty] = 1.0 if fp.data[:os_name] =~ /Windows/
+        when 'host.os.fusionvm_fingerprint'
+          case data[:os]
+          when /Windows/
+            ret.update(parse_windows_os_str(data[:os]))
+          when /Linux ([^[:space:]]*) ([^[:space:]]*) .* (\(.*\))/
+            ret[:os_name] = "Linux"
+            ret[:name]    = $1
+            ret[:os_sp]   = $2
+            ret[:arch]    = get_arch_from_string($3)
+          else
+            ret[:os_name] = data[:os]
+          end
+          ret[:arch] = data[:arch] if data[:arch]
+          ret[:name] = data[:name] if data[:name]
         else
           # If you've fallen through this far, you've hit a generalized
           # pass-through fingerprint parser.

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'net/ssh/buffer'
 require 'net/ssh/errors'
 require 'net/ssh/authentication/methods/abstract'
