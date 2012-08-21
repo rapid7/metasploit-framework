@@ -143,7 +143,14 @@ class Metasploit3 < Msf::Auxiliary
 			case protocol
 				when 'HTTP'
 					resp, ser_sock = http_relay_toserver(hash)
-					t2hash = resp.headers["WWW-Authenticate"].split(" ")[1]
+					if resp.headers["WWW-Authenticate"]
+						t2hash = resp.headers["WWW-Authenticate"].split(" ")[1]
+					else
+						print_error "#{rhost} is not requesting authentication."
+						cli_sock.close
+						ser_sock.close
+						return false
+					end
 				when 'SMB'
 					t2hash, ser_sock = smb_relay_toservert1(hash)
 			end
