@@ -1022,8 +1022,20 @@ class Core
 
 		when "add", "remove", "del"
 			if (args.length < 3)
-				print_error("Missing arguments to route #{arg}.")
-				return false
+				if args.first =~ /\/\d\d/ or Rex::Socket.is_ipv4?(args.first)
+					if Rex::Socket.is_ipv4?(args.first)
+						args = [args.first, '255.255.255.255', args.last]
+						print_line "Converted #{args[0]} to #{args[0]} #{args[1]}"
+					else
+						addr, mask = args.first[0..args.first.index(/\/\d\d/)-1], args.first.slice(/\/\d\d/)[1..-1]
+						ask = Rex::Socket.bit2netmask(mask.to_i)
+						print_line "Converted #{args[0]} to #{addr} #{mask}"
+						args = [addr, mask, args.last]
+					end
+				else
+					print_error("Missing arguments to route #{arg}.")
+					return false
+				end
 			end
 
 			# Satisfy check to see that formatting is correct
@@ -1160,7 +1172,7 @@ class Core
 			# We can't really complete the subnet and netmask args without
 			# diving pretty deep into all sessions, so just be content with
 			# completing sids for the last arg
-			if words.length == 4
+			if words.length == 3
 				ret = framework.sessions.keys.map { |k| k.to_s }
 			end
 		# The "get" command takes one arg, but we can't complete it either...
