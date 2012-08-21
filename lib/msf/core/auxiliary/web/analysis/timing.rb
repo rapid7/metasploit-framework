@@ -50,7 +50,8 @@ module Analysis::Timing
 		permutations.each do |p|
 			timeout = opts[:delay]
 
-			seed = p.altered_value.dup
+			seed    = p.altered_value.dup
+			payload = fuzzer.payloads.select{ |pl| seed.include?( pl ) }.first
 
 			# 1st pass, make sure the webapp is responsive
 			next if !responsive?
@@ -72,7 +73,7 @@ module Analysis::Timing
 
 			# log it!
 			fuzzer.process_vulnerability( p, 'Manipulatable response times.',
-				:payload => p.altered_value )
+			                              :payload => payload.gsub( stub, (timeout * multi).to_s ) )
 
 			# we got what we wanted, bail out
 			return
