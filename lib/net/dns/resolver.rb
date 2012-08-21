@@ -1019,25 +1019,27 @@ module Net # :nodoc:
 		  method = :send_tcp
 		end
 
-        ans = self.old_send(method, packet, packet_data)
+        answers = []
+        soa = 0
+        self.old_send(method, packet, packet_data) do |ans|
+          @logger.info "Received #{ans[0].size} bytes from #{ans[1][2]+":"+ans[1][1].to_s}"
 
-        unless ans
+          begin
+            response = Net::DNS::Packet.parse(ans[0],ans[1])
+            if response.answer[0].type == "SOA"
+              soa += 1
+              if soa >= 2
+                break
+              end
+            end
+            answers << response
+          rescue NameError => e
+            @logger.warn "Error parsing axfr response: #{e.message}"
+          end
+        end
+        if answers.empty?
           @logger.fatal "No response from nameservers list: aborting"
           raise NoResponseError
-        end
-
-        @logger.info "Received #{ans[0].size} bytes from #{ans[1][2]+":"+ans[1][1].to_s}"
-
-        pos = 0
-        begin
-          while pos < buffer.size
-            len = buffer.unpack("n")[0]
-            response = Net::DNS::Packet.parse(ans[0][pos,len],ans[1])
-            pos += len
-            answers << response
-          end
-        rescue NameError => e
-          @logger.warn "Error parsing axfr response: #{e.message}"
         end
 
         return answers
@@ -1166,21 +1168,22 @@ module Net # :nodoc:
 
             @config[:tcp_timeout].timeout do
               catch "next nameserver" do
-                buffer = ""
                 socket.connect(sockaddr)
                 @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
                 socket.write(length+packet_data)
+                got_something = false
                 loop do
-                  ansbuf = ""
+                  buffer = ""
                   ans = socket.recv(Net::DNS::INT16SZ)
                   if ans.size == 0
-                    if buffer.size > 0
+                    if got_something
                       break #Proper exit from loop
                     else
-                      @logger.warn "Connection reset to namserver #{ns}, trying next."
+                      @logger.warn "Connection reset to nameserver #{ns}, trying next."
                       throw "next nameserver"
                     end
                   end
+                  got_something = true
                   len = ans.unpack("n")[0]
 
                   @logger.info "Receiving #{len} bytes..."
@@ -1190,20 +1193,23 @@ module Net # :nodoc:
                     throw "next nameserver"
                   end
 
-                  while (ansbuf.size < len)
-                    left = len - ansbuf.size
+                  while (buffer.size < len)
+                    left = len - buffer.size
                     temp,from = socket.recvfrom(left)
-                    ansbuf += temp
+                    buffer += temp
                   end
 
-                  unless ansbuf.size == len
+                  unless buffer.size == len
                     @logger.warn "Malformed packet from nameserver #{ns}, trying next."
                     throw "next nameserver"
                   end
-                  buffer += ansbuf
+                  if block_given?
+                    yield [buffer,["",@config[:port],ns.to_s,ns.to_s]]
+                  else
+                    return [buffer,["",@config[:port],ns.to_s,ns.to_s]]
+                  end
                 end
               end
-              return [buffer,["",@config[:port],ns.to_s,ns.to_s]]
             end
           rescue Timeout::Error
             @logger.warn "Nameserver #{ns} not responding within TCP timeout, trying next one"
@@ -1212,6 +1218,7 @@ module Net # :nodoc:
             socket.close
           end
         end
+        return nil
       end
 
       def send_udp(packet,packet_data)
