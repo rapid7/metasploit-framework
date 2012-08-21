@@ -38,17 +38,15 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'     => '$Revision:$',
 			'Description' => %q{
 					This module relays negotiated NTLM Credentials from an HTTP server to multiple
-					protocols (currently it supports relaying to SMB and HTTP).
+					protocols. Currently, this module supports relaying to SMB and HTTP.
 
 					Complicated custom attacks requiring multiple requests that depend on each
-					other can be written using the SYNC* options. For example, a typical CSRF
-					style attack might look like:
-
-					1)	Set an HTTP_GET request with a unique SNYNCID
-					2)	Set an HTTP_POST request with a SYNCFILE, which contains logic to look
-						through the database and parse out important values, such as the CSRF token
-						or authentication cookies. It then sets these as configuration options
-					3)	Create a web page with iframes pointing at 1 and then 2
+					other can be written using the SYNC* options. For example, a CSRF-style
+					attack might first set an HTTP_GET request with a unique SNYNCID and set
+					an HTTP_POST request with a SYNCFILE, which contains logic to look
+					through the database and parse out important values, such as the CSRF token
+					or authentication cookies, setting these as configuration options, and finally
+					create a web page with iframe elements pointing at the HTTP_GET and HTTP_POSTs.
 				},
 			'Author'      =>
 				[
@@ -233,14 +231,14 @@ class Metasploit3 < Msf::Auxiliary
 	# this is useful for multi staged relay attacks
 	# ideally I would use a resource file but it's not easily exposed, and this is simpler
 	def sync_options()
-		print_status("Dynamically evaling local ruby file: #{datastore['SYNCFILE']}")
+		print_status("Dynamically eval()'ing local ruby file: #{datastore['SYNCFILE']}")
 		# previous request might create the file, so error thrown at runtime
 		if not ::File.readable?(datastore['SYNCFILE'])
 			print_error("SYNCFILE unreadable, aborting")
 			raise ArgumentError
 		end
 		data = ::File.read(datastore['SYNCFILE'])
-		eval(data)
+		eval(data) # WARNING: This can be insanely insecure!
 	end
 
 	# relay creds to server and perform any HTTP specific attacks
