@@ -68,8 +68,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options([
 			OptBool.new('RSSL', [true, "SSL on the remote connection ", false]),
-			OptString.new('RTYPE', [true,
-				"HTTP_GET,HTTP_POST,SMB_GET,SMB_PUT,SMB_RM,SMB_ENUM,SMB_LS,SMB_PWN", "HTTP_GET"]),
+			OptEnum.new('RTYPE', [true, "Type of action to perform on remote target", "HTTP_GET",
+				[   "HTTP_GET", "HTTP_POST", "SMB_GET", "SMB_PUT", "SMB_RM", "SMB_ENUM",
+					"SMB_LS", "SMB_PWN" ]]),
 			OptString.new('RURIPATH', [true, "The path to relay credentials ", "/"]),
 			OptString.new('PUTDATA', [false, "This is the HTTP_POST or SMB_PUT data" ]),
 			OptPath.new('FILEPUTDATA', [false, "PUTDATA, but specified by a local file" ]),
@@ -137,7 +138,7 @@ class Metasploit3 < Msf::Auxiliary
 	def handle_relay(cli_sock, hash)
 		print_status("Beginning NTLM Relay...")
 		message = Rex::Text.decode_base64(hash)
-		#get type of message, which will be HTTP, SMB, ... RTYPE config options validated earlier
+		#get type of message, which will be HTTP, SMB, ...
 		protocol = datastore['RTYPE'].split('_')[0]
 		if(message[8,1] != "\x03")
 			#Relay NTLMSSP_NETOTIATE from client to server (type 1)
@@ -225,13 +226,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		if (not framework.db.active) and (not datastore['VERBOSE'])
 			print_error("No database configured and verbose disabled, info may be lost. Continuing")
-		end
-
-		#validate RTYPE
-		valid = ['HTTP_GET','HTTP_POST','SMB_GET','SMB_PUT','SMB_RM','SMB_ENUM','SMB_LS','SMB_PWN']
-		if valid.index(datastore['RTYPE']) == nil
-			print_error("invalid RTYPE")
-			raise ArgumentError
 		end
 	end
 
