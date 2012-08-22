@@ -120,13 +120,12 @@ module Auxiliary::Web
 	# element - the submitted element
 	#
 	def find_proof( response, element )
-		return if !signature.kind_of? ::Regexp
+		return if !signature
 
-		m = response.body.match( signature )
+		m = response.body.match( signature ).to_s
 		return if !m || m.size < 1
 
-		1.upto( m.length - 1 ) { |i| return m[i].gsub( /[\r\n]/, ' ' ) if m[i] }
-		nil
+		m.gsub( /[\r\n]/, ' ' )
 	end
 
 	def increment_request_counter
