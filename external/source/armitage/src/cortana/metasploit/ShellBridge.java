@@ -28,6 +28,27 @@ public class ShellBridge implements Loadable, Function, ShellSession.ShellCallba
 		public SleepClosure   function;
 	}
 
+	public void commandUpdate(String session, Object token, String output) {
+		if (!(token instanceof ShellToken))
+			return;
+
+		ScriptInstance script   = ((ShellToken)token).script;
+		String         command  = ((ShellToken)token).command;
+		SleepClosure   function = ((ShellToken)token).function;
+
+		Stack args = new Stack();
+		args.push(FilterManager.convertAll(output));
+		args.push(SleepUtils.getScalar(command));
+		args.push(SleepUtils.getScalar(session));
+
+		if (function == null) {
+			events.fireEvent("shell_read", args, script);
+		}
+		else {
+			SleepUtils.runCode(function, "read", script, args);
+		}
+	}
+
 	public void commandComplete(String session, Object token, String output) {
 		if (!(token instanceof ShellToken))
 			return;

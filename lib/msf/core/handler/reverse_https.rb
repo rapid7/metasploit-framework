@@ -302,7 +302,7 @@ protected
 				resp.body = ""
 				conn_id = $1
 
-				if not self.conn_ids.include?(conn_id)
+				if true # if not self.conn_ids.include?(conn_id)
 					print_status("Incoming orphaned session #{conn_id}, reattaching...")
 					conn_ids << conn_id
 

@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'          => 'OSX Gather Keychain Enumeration',
+			'Name'          => 'OS X Gather Keychain Enumeration',
 			'Description'   => %q{
 				This module presents a way to quickly go through the current user's keychains and
 				collect data such as email accounts, servers, and other services.  Please note:

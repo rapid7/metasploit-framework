@@ -27,7 +27,7 @@ module ReverseIPv6Https
 	def self.general_handler_type
 		"tunnel"
 	end
-	
+
 end
 end
 end
