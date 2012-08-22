@@ -1028,7 +1028,7 @@ class Core
 						print_line "Converted #{args[0]} to #{args[0]} #{args[1]}"
 					else
 						addr, mask = args.first[0..args.first.index(/\/\d\d/)-1], args.first.slice(/\/\d\d/)[1..-1]
-						ask = Rex::Socket.bit2netmask(mask.to_i)
+						mask = Rex::Socket.bit2netmask(mask.to_i)
 						print_line "Converted #{args[0]} to #{addr} #{mask}"
 						args = [addr, mask, args.last]
 					end
