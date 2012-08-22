@@ -1219,4 +1219,3 @@ end
 class Hash # :nodoc:
   include ExtendHash
 end
-

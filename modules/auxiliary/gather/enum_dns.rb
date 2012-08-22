@@ -10,7 +10,8 @@
 ##
 
 require 'msf/core'
-require "net/dns/resolver"
+require "net/dns"
+require "net/dns/rex_dns"
 
 class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
@@ -45,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptBool.new('ENUM_RVL', [ true, 'Reverse lookup a range of IP addresses', false]),
 				OptBool.new('ENUM_SRV', [ true, 'Enumerate the most common SRV records', true]),
 				OptPath.new('WORDLIST', [ false, "Wordlist for domain name bruteforcing", ::File.join(Msf::Config.install_root, "data", "wordlists", "namelist.txt")]),
-				OptAddress.new('NS', [ false, "Specify the nameserver to use for queries (default is system DNS)" ]),
+				OptAddress.new('NS', [ true, "Specify the nameserver to use for queries (default is system DNS)" ]),
 				OptAddressRange.new('IPRANGE', [false, "The target address range or CIDR identifier"]),
 				OptBool.new('STOP_WLDCRD', [ true, 'Stops bruteforce enumeration if wildcard resolution is detected', false])
 			], self.class)
@@ -468,8 +469,10 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		@res = Net::DNS::Resolver.new()
-		if datastore['TCP_DNS']
+		@res = Net::DNS::Resolver.new
+		@res.proxies=datastore['Proxies'] if datastore['Proxies']
+		@res.nameservers = datastore['NS'].split(/\s|,/)
+		if datastore['TCP_DNS'] || datastore['Proxies']
 			vprint_status("Using DNS/TCP")
 			@res.use_tcp = true
 		end
