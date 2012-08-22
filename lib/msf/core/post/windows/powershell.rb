@@ -9,12 +9,14 @@ module Windows
 module Powershell
 	include ::Msf::Post::Common
 
-
-	# List of running processes, open channels, and env variables...
-
-
-	# Suffix for environment variables
-
+	def initialize(info = {})
+		super
+		register_advanced_options(
+			[
+				OptInt.new('PS_TIMEOUT',   [true, 'Powershell execution timeout', 15]),
+				OptBool.new('LOG_OUTPUT', [true, 'Write output to log file', false])
+			], self.class)
+	end
 
 	def have_powershell?
 		cmd_out = cmd_exec("powershell get-host")
@@ -23,6 +25,10 @@ module Powershell
 	end
 
 	def make_subs(script, subs)
+		if ::File.file?(script)
+			script = ::File.read(script)
+		end
+
 		subs.each do |set|
 			script.gsub!(set[0],set[1])
 		end
@@ -30,6 +36,7 @@ module Powershell
 			print_good("Final Script: ")
 			script.each_line {|l| print_status("\t#{l}")}
 		end
+		return script
 	end
 
 	def process_subs(subs)
@@ -96,12 +103,35 @@ module Powershell
 		return encoded_expression
 	end
 
-	def execute_script(script, time_out = 15)
-		running_pids, open_channels = [], []
+	def get_ps_pids(pids = [])
+		# Get/compare list of current PS processes - nested execution can spawn many children
+		# doing checks before and after execution allows us to kill more children...
+		# This is a hack, better solutions are welcome since this could kill user 
+		# spawned powershell windows created between comparisons.
+		current_pids = session.sys.process.get_processes.keep_if {|p| 
+			p['name'].downcase == 'powershell.exe'
+		}.map {|p| p['pid']}
+		# Subtract previously known pids
+		current_pids = (current_pids - pids).uniq
+		return current_pids
+	end
+
+
+	def execute_script(script, greedy_kill = false)
+
+		running_pids = greedy_kill ? get_ps_pids : []
+		open_channels = []
 		# Execute using -EncodedCommand
-		session.response_timeout = time_out
+		session.response_timeout = datastore['PS_TIMEOUT'].to_i
 		cmd_out = session.sys.process.execute("powershell -EncodedCommand " +
-			"#{script}", nil, {'Hidden' => true, 'Channelized' => true})
+			"#{script}", nil, {'Hidden' => true, 'Channelized' => true}
+		)
+
+		# Subtract prior PIDs from current
+		if greedy_kill
+			Rex::ThreadSafe.sleep(3) # Let PS start child procs
+			running_pids = get_ps_pids(running_pids) 
+		end
 
 		# Add to list of running processes
 		running_pids << cmd_out.pid
@@ -109,7 +139,7 @@ module Powershell
 		# Add to list of open channels
 		open_channels << cmd_out
 
-		return [cmd_out, running_pids, open_channels]
+		return [cmd_out, running_pids.uniq, open_channels]
 	end
 
 	def stage_to_env(compressed_script, env_suffix = Rex::Text.rand_text_alpha(8))
@@ -159,26 +189,49 @@ module Powershell
 		return encoded_script
 	end
 
-	def write_to_log(cmd_out, log_file, eof)
-		# Open log file for writing
-		fd = ::File.new(log_file, 'w+')
+ 	def get_ps_output(cmd_out, eof, read_wait = 5)
 
-		# Read output until eof and write to log
-		while (line = cmd_out.channel.read())
+ 		results = ''
+
+		if datastore['LOG_OUTPUT']
+			# Get target's computer name
+			computer_name = session.sys.config.sysinfo['Computer']
+
+			# Create unique log directory
+			log_dir = ::File.join(Msf::Config.log_directory,'scripts','powershell', computer_name)
+			::FileUtils.mkdir_p(log_dir)
+
+			# Define log filename
+			time_stamp  = ::Time.now.strftime('%Y%m%d:%H%M%S')
+			log_file    = ::File.join(log_dir,"#{time_stamp}.txt")
+
+
+			# Open log file for writing
+			fd = ::File.new(log_file, 'w+')
+		end
+
+		# Read output until eof or nil read and write to log
+		while (1)
+			line = ::Timeout.timeout(read_wait) {
+				cmd_out.channel.read
+			} rescue nil
+			break if line.nil?
 			if (line.sub!(/#{eof}/, ''))
-				fd.write(line)
+				results << line
+				fd.write(line) if fd
 				vprint_good("\t#{line}")
-				cmd_out.channel.close()
 				break
 			end
-			fd.write(line)
-			vprint_good("\t#{line}")
+			results << line
+			fd.write(line) if fd
+			vprint_good("\n#{line}")
 		end
 
 		# Close log file
-		fd.close()
+		cmd_out.channel.close()
+		fd.close() if fd
 
-		return
+		return results
 	end
 
 	def clean_up(script_file = nil, eof = '', running_pids =[], open_channels = [], env_suffix = Rex::Text.rand_text_alpha(8), delete = false)
@@ -187,24 +240,25 @@ module Powershell
 		env_del_command += "Select-String #{env_suffix}|%{"
 		env_del_command += "[Environment]::SetEnvironmentVariable($_,$null,'User')}"
 		script = compress_script(env_del_command, eof)
-		cmd_out, running_pids, open_channels = *execute_script(script)
-		write_to_log(cmd_out, "/dev/null", eof)
+		cmd_out, new_running_pids, new_open_channels = *execute_script(script)
+		get_ps_output(cmd_out, eof)
 
 		# Kill running processes
-		running_pids.each() do |pid|
+		(running_pids + new_running_pids).each do |pid|
 			session.sys.process.kill(pid)
 		end
 
 
 		# Close open channels
-		open_channels.each() do |chan|
-			chan.channel.close()
+		(open_channels + new_open_channels).each do |chan|
+			chan.channel.close
 		end
 
 		::File.delete(script_file) if (script_file and delete)
 
 		return
 	end
+
 
 end; end; end; end
 

