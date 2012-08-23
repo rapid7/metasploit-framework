@@ -278,6 +278,12 @@ public class Cortana implements Loadable, RuntimeWarningWatcher {
 		states.add("askon");
 		states.add("askoff");
 
+		Set cmds = new HashSet();
+		cmds.addAll(states);
+		cmds.add("unload");
+		cmds.add("load");
+		cmds.add("reload");
+
 		if ("ls".equals(text)) {
 			p("");
 			p("Scripts");
@@ -291,6 +297,9 @@ public class Cortana implements Loadable, RuntimeWarningWatcher {
 				}
 			}
 			p("");
+		}
+		else if (cmds.contains(data[0]) && data.length != 2) {
+			p("[-] Missing arguments");
 		}
 		else if (states.contains(data[0]) && data.length == 2) {
 			String script = findScript(data[1]);

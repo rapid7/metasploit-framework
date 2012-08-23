@@ -937,7 +937,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 
 	# An exploit helper function for sending arbitrary SPNEGO blobs
-	def session_setup_with_ntlmssp_blob(blob = '', do_recv = true)
+	def session_setup_with_ntlmssp_blob(blob = '', do_recv = true, userid = 0)
 		native_data = ''
 		native_data << self.native_os + "\x00"
 		native_data << self.native_lm + "\x00"
@@ -949,7 +949,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2801
 		pkt['Payload']['SMB'].v['WordCount'] = 12
-		pkt['Payload']['SMB'].v['UserID'] = 0
+		pkt['Payload']['SMB'].v['UserID'] = userid
 		pkt['Payload'].v['AndX'] = 255
 		pkt['Payload'].v['MaxBuff'] = 0xffdf
 		pkt['Payload'].v['MaxMPX'] = 2

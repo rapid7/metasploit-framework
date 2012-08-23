@@ -119,6 +119,12 @@ pull request, and is the preferred method for bringing new modules
 and framework enhancements to the attention of the core Metasploit
 development team. Note that this process requires a GitHub account.
 
+For Git commits, please adhere to 50/72 formatting: your commits should
+start with a line 50 characters or less, followed by a blank line,
+followed by one or more lines of explanitory text wrapped at at 72
+characters Pull requests with commits not formmated this way will
+be rejected without review.
+
 For modules, note that Author field is not automatic, and should be 
 filled in in the format of 'Your Name <user[at]domain.tld>' so future 
 developers can contact you with any questions.

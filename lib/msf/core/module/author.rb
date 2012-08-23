@@ -41,7 +41,8 @@ class Msf::Module::Author
 			'sinn3r'	=> 'sinn3r' + 0x40.chr + 'metasploit.com',
 			'bannedit'	=> 'bannedit' + 0x40.chr + 'metasploit.com',
 			'amaloteaux'	=> 'alex_maloteaux' + 0x40.chr + 'metasploit.com',
-			'Carlos Perez'  => 'carlos_perez' + 0x40.chr + 'darkoperator.com'
+			'Carlos Perez'  => 'carlos_perez' + 0x40.chr + 'darkoperator.com',
+			'juan vazquez' =>  'juan.vazquez' + 0x40.chr + 'metasploit.com'
 		}
 
 	#

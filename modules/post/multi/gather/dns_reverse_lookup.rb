@@ -79,9 +79,9 @@ class Metasploit3 < Msf::Post
 			cmd = "/usr/bin/host"
 		end
 		while(not iplst.nil? and not iplst.empty?)
-			 1.upto(thread_num) do
-			 	a << framework.threads.spawn("Module(#{self.refname})", false, iplst.shift) do |ip_add|
-			 		next if ip_add.nil?
+			1.upto(thread_num) do
+				a << framework.threads.spawn("Module(#{self.refname})", false, iplst.shift) do |ip_add|
+					next if ip_add.nil?
 					r = cmd_exec(cmd, " #{ip_add}")
 					case platform
 					when /win/
@@ -110,8 +110,8 @@ class Metasploit3 < Msf::Post
 						end
 					end
 				end
-			 	a.map {|x| x.join }
-			 end
+				a.map {|x| x.join }
+			end
 		end
 	end
 end

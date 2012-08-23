@@ -50,7 +50,7 @@ module Metasploit3
 		))
 		register_options([
 			OptInt.new('SCOPEID', [false, "IPv6 scope ID, for link-local addresses", 0])
-		])		
+		])
 	end
 
 end

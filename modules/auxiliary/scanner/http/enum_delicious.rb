@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
 	def initialize(info = {})
 		super(update_info(info,
-			'Name' => 'Pull Del.icio.us Links (URLs) for a domain',
+			'Name' => 'Del.icio.us Domain Links (URLs) Enumerator',
 			'Description' => %q{
 					This module pulls and parses the URLs stored by Del.icio.us users for the
 				purpose of replaying during a web assessment. Finding unlinked and old pages.
