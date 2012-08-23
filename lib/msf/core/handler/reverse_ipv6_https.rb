@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'msf/core/handler/reverse_http'
 require 'msf/core/handler/reverse_https'
 
 module Msf
