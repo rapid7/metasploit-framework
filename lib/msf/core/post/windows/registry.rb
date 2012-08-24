@@ -10,7 +10,9 @@ module Registry
 
 	include Msf::Post::Windows::CliParse
 
-
+	#
+	# Load a hive file
+	#
 	def registry_loadkey(key,file)
 		if session_has_registry_ext
 			retval=meterpreter_registry_loadkey(key,file)
@@ -20,6 +22,9 @@ module Registry
 		return retval
 	end
 
+	#
+	# Unload a hive file
+	#
 	def registry_unloadkey(key)
 		if session_has_registry_ext
 			retval=meterpreter_registry_unloadkey(key)
@@ -141,7 +146,9 @@ protected
 	# Generic registry manipulation methods based on reg.exe
 	##
 
-
+	#
+	# Use reg.exe to load the hive file +file+ into +key+
+	#
 	def shell_registry_loadkey(key,file)
 		key = normalize_key(key)
 		boo = false
@@ -158,6 +165,9 @@ protected
 		return boo
 	end
 
+	#
+	# Use reg.exe to unload the hive in +key+
+	#
 	def shell_registry_unloadkey(key)
 		key = normalize_key(key)
 		boo = false
@@ -174,6 +184,9 @@ protected
 	end
 
 
+	#
+	# Use reg.exe to create a new registry key
+	#
 	def shell_registry_createkey(key)
 		key = normalize_key(key)
 		boo = false
@@ -191,6 +204,9 @@ protected
 		end
 	end
 
+	#
+	# Use reg.exe to delete +valname+ in +key+
+	#
 	def shell_registry_deleteval(key, valname)
 		key = normalize_key(key)
 		boo = false
@@ -209,6 +225,9 @@ protected
 		return boo
 	end
 
+	#
+	# Use reg.exe to delete +key+ and all its subkeys and values
+	#
 	def shell_registry_deletekey(key)
 		key = normalize_key(key)
 		boo = false
@@ -227,6 +246,9 @@ protected
 		return boo
 	end
 
+	#
+	# Use reg.exe to enumerate all the subkeys in +key+
+	#
 	def shell_registry_enumkeys(key)
 		key = normalize_key(key)
 		subkeys = []
@@ -258,6 +280,9 @@ protected
 		return subkeys
 	end
 
+	#
+	# Use reg.exe to enumerate all the values in +key+
+	#
 	def shell_registry_enumvals(key)
 		key = normalize_key(key)
 		values = []
@@ -285,6 +310,9 @@ protected
 		return values
 	end
 
+	#
+	# Returns the data portion of the value +valname+
+	#
 	def shell_registry_getvaldata(key, valname)
 		value = nil
 		begin
@@ -294,6 +322,10 @@ protected
 		return value
 	end
 
+	#
+	# Enumerate the type and data stored in the registry value +valname+ in 
+	# +key+
+	#
 	def shell_registry_getvalinfo(key, valname)
 		key = normalize_key(key)
 		value = {}
@@ -319,6 +351,10 @@ protected
 		return value
 	end
 
+	#
+	# Use reg.exe to add a value +valname+ in the key +key+ with the specified
+	# +type+ and +data+
+	#
 	def shell_registry_setvaldata(key, valname, data, type)
 		key = normalize_key(key)
 		boo = false
@@ -343,6 +379,9 @@ protected
 	# Meterpreter-specific registry manipulation methods
 	##
 
+	#
+	# Load a registry hive stored in +file+ into +key+
+	#
 	def meterpreter_registry_loadkey(key,file)
 		begin
 			client.sys.config.getprivs()
@@ -376,6 +415,9 @@ protected
 
 	end
 
+	#
+	# Unload the hive file stored in +key+
+	#
 	def meterpreter_registry_unloadkey(key)
 		begin
 			client.sys.config.getprivs()
@@ -400,6 +442,9 @@ protected
 		end
 	end
 
+	#
+	# Create a new registry key
+	#
 	def meterpreter_registry_createkey(key)
 		begin
 			root_key, base_key = session.sys.registry.splitkey(key)
@@ -412,6 +457,9 @@ protected
 		end
 	end
 
+	#
+	# Delete the registry value +valname+ store in +key+
+	#
 	def meterpreter_registry_deleteval(key, valname)
 		begin
 			root_key, base_key = session.sys.registry.splitkey(key)
@@ -424,6 +472,9 @@ protected
 		end
 	end
 
+	#
+	# Delete the registry key +key+
+	#
 	def meterpreter_registry_deletekey(key)
 		begin
 			root_key, base_key = session.sys.registry.splitkey(key)
@@ -434,6 +485,9 @@ protected
 		end
 	end
 
+	#
+	# Enumerate the subkeys in +key+
+	#
 	def meterpreter_registry_enumkeys(key)
 		subkeys = []
 		begin
@@ -450,6 +504,9 @@ protected
 		return subkeys
 	end
 
+	#
+	# Enumerate the values in +key+
+	#
 	def meterpreter_registry_enumvals(key)
 		values = []
 		begin
@@ -467,6 +524,9 @@ protected
 		return values
 	end
 
+	#
+	# Get the data stored in the value +valname+
+	#
 	def meterpreter_registry_getvaldata(key, valname)
 		value = nil
 		begin
@@ -481,6 +541,9 @@ protected
 		return value
 	end
 
+	#
+	# Enumerate the type and data of the value +valname+
+	#
 	def meterpreter_registry_getvalinfo(key, valname)
 		value = {}
 		begin
@@ -496,6 +559,9 @@ protected
 		return value
 	end
 
+	#
+	# Add the value +valname+ to the key +key+ with the specified +type+ and +data+
+	#
 	def meterpreter_registry_setvaldata(key, valname, data, type)
 		begin
 			root_key, base_key = session.sys.registry.splitkey(key)
