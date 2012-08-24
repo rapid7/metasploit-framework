@@ -2,6 +2,9 @@
 
 module Msf::Post::File
 
+	#
+	# Change directory in the remote session to +path+
+	#
 	def cd(path)
 		if session.type == "meterpreter"
 			e_path = session.fs.file.expand_path(path) rescue path
@@ -11,6 +14,9 @@ module Msf::Post::File
 		end
 	end
 
+	#
+	# Returns the current working directory in the remote session
+	#
 	def pwd
 		if session.type == "meterpreter"
 			return session.fs.dir.getwd
@@ -110,7 +116,7 @@ module Msf::Post::File
 	end
 
 	#
-	# Writes a given string to a file specified
+	# Writes a given string to a given local file
 	#
 	def file_local_write(file2wrt, data2wrt)
 		if not ::File.exists?(file2wrt)
@@ -141,7 +147,6 @@ module Msf::Post::File
 	#
 	# Returns a MD5 checksum of a given remote file
 	#
-
 	def file_remote_digestmd5(file2md5)
 		data = read_file(file2md5)
 		chksum = nil
@@ -266,7 +271,8 @@ module Msf::Post::File
 	end
 
 	#
-	# Read a local file and write it to the remote file system
+	# Read a local file +local+ and write it as +remote+ on the remote file 
+	# system
 	#
 	def upload_file(remote, local)
 		write_file(remote, ::File.read(local))

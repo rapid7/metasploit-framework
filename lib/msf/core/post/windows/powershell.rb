@@ -15,13 +15,18 @@ module Powershell
 
 	# Suffix for environment variables
 
-
+	#
+	# Returns true if powershell is installed
+	#
 	def have_powershell?
 		cmd_out = cmd_exec("powershell get-host")
 		return true if cmd_out =~ /Name.*Version.*InstanceID/
 		return false
 	end
 
+	#
+	# Insert substitutions into the powershell script
+	#
 	def make_subs(script, subs)
 		subs.each do |set|
 			script.gsub!(set[0],set[1])
@@ -32,6 +37,9 @@ module Powershell
 		end
 	end
 
+	#
+	# Return an array of substitutions for use in make_subs
+	#
 	def process_subs(subs)
 		return [] if subs.nil? or subs.empty?
 		new_subs = []
@@ -41,6 +49,9 @@ module Powershell
 		return new_subs
 	end
 
+	#
+	# Read in a powershell script stored in +script+
+	#
 	def read_script(script)
 		script_in = ''
 		begin
@@ -60,8 +71,10 @@ module Powershell
 	end
 
 
+	#
+	# Return a zlib compressed powershell script
+	#
 	def compress_script(script_in, eof = nil)
-
 
 		# Compress using the Deflate algorithm
 		compressed_stream = ::Zlib::Deflate.deflate(script_in,
@@ -96,6 +109,10 @@ module Powershell
 		return encoded_expression
 	end
 
+	#
+	# Execute a powershell script and return the results. The script is never written
+	# to disk.
+	#
 	def execute_script(script, time_out = 15)
 		running_pids, open_channels = [], []
 		# Execute using -EncodedCommand
@@ -112,6 +129,13 @@ module Powershell
 		return [cmd_out, running_pids, open_channels]
 	end
 
+
+	#
+	# Powershell scripts that are longer than 8000 bytes are split into 8000 
+	# 8000 byte chunks and stored as environment variables. A new powershell 
+	# script is built that will reassemble the chunks and execute the script.
+	# Returns the reassembly script.
+	#
 	def stage_to_env(compressed_script, env_suffix = Rex::Text.rand_text_alpha(8))
 
 		# Check to ensure script is encoded and compressed
@@ -159,6 +183,9 @@ module Powershell
 		return encoded_script
 	end
 
+	#
+	# Log the results of the powershell script
+	#
 	def write_to_log(cmd_out, log_file, eof)
 		# Open log file for writing
 		fd = ::File.new(log_file, 'w+')
@@ -181,6 +208,9 @@ module Powershell
 		return
 	end
 
+	#
+	# Clean up powershell script including process and chunks stored in environment variables
+	#
 	def clean_up(script_file = nil, eof = '', running_pids =[], open_channels = [], env_suffix = Rex::Text.rand_text_alpha(8), delete = false)
 		# Remove environment variables
 		env_del_command =  "[Environment]::GetEnvironmentVariables('User').keys|"
@@ -206,5 +236,8 @@ module Powershell
 		return
 	end
 
-end; end; end; end
+end
+end
+end
+end
 
