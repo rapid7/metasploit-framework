@@ -263,6 +263,7 @@ class DLL
 		#puts "receiving Stuff from meterpreter"
 		#puts "out_only_layout:"
 		#puts out_only_layout
+		puts response.inspect
 
 		rec_inout_buffers = response.get_tlv_value(TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT)
 		rec_out_only_buffers = response.get_tlv_value(TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT)
