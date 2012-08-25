@@ -81,6 +81,19 @@ DWORD railgun_call( RAILGUN_INPUT * pInput, RAILGUN_OUTPUT * pOutput )
 	const ULONG_PTR * pStackDescriptorBuffer = NULL; // do not free! Just convenience ptr to TLV
 	DWORD dwStackSizeInElements              = 0;
 	DWORD dwIndex                            = 0; 
+	
+	//Set up vars for FormateMessage call
+	DWORD dwNumChars = 0;
+		//Set flags to look in the system error tabl if not found in the module table
+	DWORD dwMsgFlags = (FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_FROM_HMODULE);   
+		//Set the Language ID for the Message to US English
+	DWORD dwLangId = 5;
+	const DWORD dwBufSize = 100+1;
+	LPTSTR buffer;
+
+
+
+
 
 	do
 	{
@@ -105,6 +118,9 @@ DWORD railgun_call( RAILGUN_INPUT * pInput, RAILGUN_OUTPUT * pOutput )
 		pOutput->pBufferINOUT      = pInput->pBufferINOUT;
 		pOutput->dwBufferSizeOUT   = pInput->dwBufferSizeOUT;
 		pOutput->dwBufferSizeINOUT = pInput->dwBufferSizeINOUT;
+		pOutput->pErrMsg           = "Test Message";
+
+
 
 		if( pOutput->dwBufferSizeOUT )
 		{
@@ -252,6 +268,9 @@ DWORD railgun_call( RAILGUN_INPUT * pInput, RAILGUN_OUTPUT * pOutput )
 		}
 			
 		pOutput->dwLastError = GetLastError();
+		//dwNumChars = FormatMessage(dwMsgFlags,hDll,pOutput->dwLastError,dwLangId,buffer,dwBufSize,NULL);
+		//pOutput->pErrMsg = buffer;
+		
 
 #ifdef _WIN64
 		dprintf("[RAILGUN] railgun_call: pOutput->dwLastError=0x%08X, pOutput->qwReturnValue=0x%llX", pOutput->dwLastError, pOutput->qwReturnValue );
@@ -444,6 +463,9 @@ DWORD request_railgun_api( Remote * pRemote, Packet * pPacket )
 			packet_add_tlv_qword( pResponse, TLV_TYPE_RAILGUN_BACK_RET, rOutput.qwReturnValue );
 			packet_add_tlv_raw( pResponse, TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT, rOutput.pBufferOUT, (DWORD)rOutput.dwBufferSizeOUT );
 			packet_add_tlv_raw( pResponse, TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT, rOutput.pBufferINOUT, (DWORD)rOutput.dwBufferSizeINOUT );
+			packet_add_tlv_string(pResponse, TLV_TYPE_RAILGUN_BACK_MSG, rOutput.pErrMsg);
+
+
 		}
 
 		dwResult = packet_transmit( pRemote, pResponse, NULL );
