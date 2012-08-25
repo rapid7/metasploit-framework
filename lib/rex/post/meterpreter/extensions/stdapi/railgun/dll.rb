@@ -269,13 +269,17 @@ class DLL
 		rec_out_only_buffers = response.get_tlv_value(TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT)
 		rec_return_value = response.get_tlv_value(TLV_TYPE_RAILGUN_BACK_RET)
 		rec_last_error = response.get_tlv_value(TLV_TYPE_RAILGUN_BACK_ERR)
+		rec_err_msg = response.get_tlv_value(TLV_TYPE_RAILGUN_BACK_MSG)
 
 		#puts "received stuff"
 		#puts "out_only_layout:"
 		#puts out_only_layout
 
 		# The hash the function returns
-		return_hash={"GetLastError" => rec_last_error}
+		return_hash={
+			"GetLastError" => rec_last_error,
+			"ErrorMessage" => rec_err_msg
+		}
 
 		#process return value
 		case function.return_type
