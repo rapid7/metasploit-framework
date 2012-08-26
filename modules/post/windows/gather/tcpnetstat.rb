@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Post
 		print_status("Total TCP Entries: #{entries}")
 
 		rtable = Rex::Ui::Text::Table.new(
-			'Header' => 'Routing Table',
+			'Header' => 'Connection Table',
 			'Indent' => 2,
 			'Columns' => ['STATE', 'LHOST', 'LPORT', 'RHOST', 'RPORT']
 		)
