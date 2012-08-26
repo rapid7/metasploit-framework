@@ -82,13 +82,13 @@ DWORD railgun_call( RAILGUN_INPUT * pInput, RAILGUN_OUTPUT * pOutput )
 	DWORD dwStackSizeInElements              = 0;
 	DWORD dwIndex                            = 0; 
 	
+	DWORD dwErr;
 	//Set up vars for FormateMessage call
 	DWORD dwNumChars = 0;
 		//Set flags to look in the system error tabl if not found in the module table
-	DWORD dwMsgFlags = (FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_FROM_HMODULE);   
+	DWORD dwMsgFlags = (FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_FROM_HMODULE | FORMAT_MESSAGE_IGNORE_INSERTS);   
 		//Set the Language ID for the Message to US English
-	DWORD dwLangId = 5;
-	const DWORD dwBufSize = 100+1;
+	DWORD dwLangId = 0;
 	LPTSTR buffer;
 
 
@@ -268,8 +268,8 @@ DWORD railgun_call( RAILGUN_INPUT * pInput, RAILGUN_OUTPUT * pOutput )
 		}
 			
 		pOutput->dwLastError = GetLastError();
-		//dwNumChars = FormatMessage(dwMsgFlags,hDll,pOutput->dwLastError,dwLangId,buffer,dwBufSize,NULL);
-		//pOutput->pErrMsg = buffer;
+		dwNumChars = FormatMessage(dwMsgFlags,hDll,pOutput->dwLastError,dwLangId,(LPTSTR)&buffer,0,NULL);
+		pOutput->pErrMsg = buffer;
 		
 
 #ifdef _WIN64
