@@ -124,8 +124,8 @@ class Form < Fuzzable
 		return {} if query.empty?
 
 		query.split( '&' ).inject( {} ) do |h, pair|
-			k, v = pair.to_s.split( '=', 2 )
-			k[Rex::Text.uri_decode( k.to_s )] = Rex::Text.uri_decode( v.to_s )
+      k, v = pair.to_s.split( '=', 2 )
+			h[Rex::Text.uri_decode( k.to_s )] = Rex::Text.uri_decode( v.to_s )
 			h
 		end
 	end
