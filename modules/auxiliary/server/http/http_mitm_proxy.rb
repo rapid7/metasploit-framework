@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		# Get response 
 		begin 			
-			res = send_request_cgi(headers)
+			res = proxy_request_cgi(headers)
 		rescue ::Rex::ConnectionError
 			# What should go here?
 		end
@@ -92,45 +92,19 @@ class Metasploit3 < Msf::Auxiliary
 		datastore.except!('RHOST','RPORT')
 	end
 
-	def make_subs(resp)
-
-		@response_subs.each do |set|
-			resp.body.gsub!(set[0],set[1])
-			# resp.headers.each do |key, val|
-			# 	val.gsub!(set[0],set[1])
-			# end
+	# Proxy oriented modification of send_request_cgi from Msf::Exploit::HttpClient
+	def proxy_request_cgi(opts={}, timeout = 20)
+		begin
+			c = proxy_connect(opts)
+			r = c.request_cgi(opts)
+			c.send_recv(r, opts[:timeout] ? opts[:timeout] : timeout)
+		rescue ::Errno::EPIPE, ::Timeout::Error
+			nil
 		end
-
-		return resp
 	end
 
-	def process_subs(subs = nil)
-		return if subs.nil? or subs.empty?
-		new_subs = []
-		subs.split(';').each do |substitutions|
-			new_subs << substitutions.split(',', 2).map do |sub|
-				if !sub.scan(/\/.*\//).empty?
-					sub = Regexp.new(sub[1..-2])
-				else
-					sub
-				end
-			end
-		end
-		return new_subs
-	end
-end
-
-module Exploit::Remote::HttpClient
-	# HDM said that modules should never set datastore options. 
-	# However, HttpClient references the datastore options in its 
-	# connection methods. There are no setters for the references
-	# used by connect and no dynamic way to assign the vhost.
-	#
-	# This method overloads the standard HttpClient behavior by 
-	# assigning the connection parameters from the options hash
-	# passed during the exploit module's lifespan
-
-	def connect(opts={})
+	# Proxy modification of connect method from Msf::Exploit::HttpClient
+	def proxy_connect(opts={})
 		dossl = false
 		if(opts.has_key?('SSL'))
 			dossl = opts['SSL']
@@ -160,7 +134,7 @@ module Exploit::Remote::HttpClient
 		# Configure the HTTP client with the supplied parameter
 		nclient.set_config(
 			'vhost' => opts['Vhost'] || self.vhost(),
-			'agent' => datastore['UserAgent'],
+			'agent' => opts['UserAgent'] || datastore['UserAgent'],
 			'basic_auth' => self.basic_auth,
 			'uri_encode_mode'        => datastore['HTTP::uri_encode_mode'],
 			'uri_full_url'           => datastore['HTTP::uri_full_url'],
@@ -198,6 +172,32 @@ module Exploit::Remote::HttpClient
 		return nclient
 	end
 
+	# Run substitution sets through response
+	def make_subs(resp)
 
+		@response_subs.each do |set|
+			resp.body.gsub!(set[0],set[1])
+			# resp.headers.each do |key, val|
+			# 	val.gsub!(set[0],set[1])
+			# end
+		end
+
+		return resp
+	end
+
+	# Convert substitution definition strings to gsub compatible format
+	def process_subs(subs = nil)
+		return if subs.nil? or subs.empty?
+		new_subs = []
+		subs.split(';').each do |substitutions|
+			new_subs << substitutions.split(',', 2).map do |sub|
+				if !sub.scan(/\/.*\//).empty?
+					sub = Regexp.new(sub[1..-2])
+				else
+					sub
+				end
+			end
+		end
+		return new_subs
+	end
 end
-
