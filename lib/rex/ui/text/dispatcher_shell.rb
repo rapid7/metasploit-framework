@@ -43,6 +43,16 @@ module DispatcherShell
 		end
 
 		#
+		# Returns an empty hash for an empty set of aliases.
+		#
+		# This method should be overridden to return a Hash with alias
+		# names for keys and alias values as the hash values. e.g. { 'ses' => 'sessions -l'}
+		#
+		def aliases
+			{}
+		end
+
+		#
 		# Returns an empty set of commands.
 		#
 		# This method should be overridden if the dispatcher has commands that
@@ -238,7 +248,7 @@ module DispatcherShell
 			matches
 		end
 
-	end
+	end # end CommandDispatcher module
 
 	#
 	# DispatcherShell derives from shell.
@@ -267,23 +277,14 @@ module DispatcherShell
 	# Readline.basic_word_break_characters variable being set to \x00
 	#
 	def tab_complete(str)
-		# Check trailing whitespace so we can tell 'x' from 'x '
-		str_match = str.match(/\s+$/)
-		str_trail = (str_match.nil?) ? '' : str_match[0]
-
-		# Split the line up by whitespace into words
-		str_words = str.split(/[\s\t\n]+/)
-
-		# Append an empty word if we had trailing whitespace
-		str_words << '' if str_trail.length > 0
-
 		# Place the word list into an instance variable
-		self.tab_words = str_words
+		self.tab_words = get_words(str)
 
 		# Pop the last word and pass it to the real method
 		tab_complete_stub(self.tab_words.pop)
 	end
 
+	#
 	# Performs tab completion of a command, if supported
 	# Current words can be found in self.tab_words
 	#
@@ -292,19 +293,44 @@ module DispatcherShell
 
 		return nil if not str
 
-		# puts "Words(#{tab_words.join(", ")}) Partial='#{str}'"
+		# puts "Words(#{tab_words.join(', ')}) Partial='#{str}'"
 
-		# Next, try to match internal command or value completion
+		# Next, try to match internal command/alias or value completion
 		# Enumerate each entry in the dispatcher stack
+		orig_tab_words = nil
 		dispatcher_stack.each { |dispatcher|
 
-			# If no command is set and it supports commands, add them all
-			if (tab_words.empty? and dispatcher.respond_to?('commands'))
+			# TODO:  update this to use is_valid_dispatcher_command methods?
+			# If no command is set and it supports commands, add them all and aliases
+			# Or if the command is alias and aliases are supported, add all
+			if ( (tab_words.empty? and dispatcher.respond_to?('commands')) or
+				(tab_words[0] == "alias" and dispatcher.respond_to?("aliases")) )
 				items.concat(dispatcher.commands.keys)
+				items.concat(dispatcher.aliases.keys) if dispatcher.respond_to?("aliases")
+			end
+
+
+			if dispatcher.respond_to?("aliases")
+				aleeus_value = dispatcher.aliases[tab_words[0]]
+				if aleeus_value
+					# then tab_words[0] is an alias, dup original for later use
+					orig_tab_words = tab_words.dup
+					tab_words.shift # drop the alias word
+					# now insert aleeus_value into tab_words, however aleeus_value
+					# might itself need to be broken down more.  e.g. if 's' is aliased to
+					# 'sessions -l' we want to insert both 'sesssions' and '-l' as words
+					# we use the same parsing scheme as the original, but don't check for trailing whitespace
+					get_words(aleeus_value,false).each_with_index do |werd,idx|
+						tab_words.insert(idx,werd)
+						# e.g. if aleeus_value was 'sessions -l', then insert 
+						# 'sessions' at 0 and insert '-l' at 1
+						# this way we are tab completing the translated value, not the alias
+					end
+				end
 			end
 
 			# If the dispatcher exports a tab completion function, use it
-			if(dispatcher.respond_to?('tab_complete_helper'))
+			if (dispatcher.respond_to?('tab_complete_helper'))
 				res = dispatcher.tab_complete_helper(str, tab_words)
 			else
 				res = tab_complete_helper(dispatcher, str, tab_words)
@@ -330,12 +356,26 @@ module DispatcherShell
 		# ./lib/rex/ui/text/dispatcher_shell.rb:171: warning: regexp has `]' without escape
 
 		# Match based on the partial word
-		items.find_all { |e|
+		matches = items.find_all do |e|
 			e =~ /^#{str}/
 		# Prepend the rest of the command (or it gets replaced!)
-		}.map { |e|
-			tab_words.dup.push(e).join(' ')
-		}
+		# using the original alias version if it was an alias
+		end
+
+		# if orig_tab_words is not nil, this was an alias situation, so we use those words, assuming
+		# AliasTranslateOnTab is not something true-like (the datastore always returns a String)
+		if ( orig_tab_words and not framework.datastore['AliasTranslateOnTab'] =~ /^(y|t|1)/i)
+			# datastore['AliasTranslateOnTab'] can be used to toggle this behavior
+			# sometimes you'd like your alias to get translated to it's real command when you tab (set it to true)
+			# and sometimes you'd prefer that the alias remained as is while tab completing (set to false, default)
+			matches.map do |e|
+				orig_tab_words.dup.push(e).join(' ')
+			end
+		else
+			matches.map do |e|
+				tab_words.dup.push(e).join(' ')
+			end
+		end
 	end
 
 	#
@@ -346,7 +386,7 @@ module DispatcherShell
 
 		tabs_meth = "cmd_#{words[0]}_tabs"
 		# Is the user trying to tab complete one of our commands?
-		if (dispatcher.commands.include?(words[0]) and dispatcher.respond_to?(tabs_meth))
+		if ( is_valid_dispatcher_command?(words[0],dispatcher,false) and dispatcher.respond_to?(tabs_meth) )
 			res = dispatcher.send(tabs_meth, str, words)
 			return [] if res.nil?
 			items.concat(res)
@@ -354,8 +394,42 @@ module DispatcherShell
 			# Avoid the default completion list for known commands
 			return []
 		end
-
 		return items
+	end
+
+	#
+	# determine if a given method (command) is valid
+	#
+	def is_valid_dispatcher_command?(method,specific_dispatcher=nil,include_deprecated=false)
+		if specific_dispatcher
+			dispatchers = [specific_dispatcher]
+		else
+			dispatchers = dispatcher_stack
+		end
+		dispatchers.each do |dispatcher|
+			next if not dispatcher.respond_to?('commands')
+			if include_deprecated
+				if (dispatcher.commands.has_key?(method) or dispatcher.deprecated_commands.include?(method))
+					return true
+				end
+			elsif dispatcher.commands.has_key?(method)
+				return true
+			end
+		end
+		return false
+	end
+
+	#
+	# find all dispatchers that respond to the given method (command) if any
+	#
+	def get_responding_dispatchers(method,include_deprecated=true)
+		resp_dispatchers = []
+		dispatcher_stack.each do |dispatcher|
+			next if not dispatcher.respond_to?('commands') # don't bother if it doesn't have any commands
+			resp_dispatchers << dispatcher if is_valid_dispatcher_command?(method,dispatcher,include_deprecated)
+		end
+		# otherwise, we didn't find a winner
+		return resp_dispatchers
 	end
 
 	#
@@ -372,33 +446,31 @@ module DispatcherShell
 
 		if (method)
 			entries = dispatcher_stack.length
-
-			dispatcher_stack.each { |dispatcher|
-				next if not dispatcher.respond_to?('commands')
-
-				begin
-					if (dispatcher.commands.has_key?(method) or dispatcher.deprecated_commands.include?(method))
+			# to avoid walking the dispatcher stack twice, and we need the responding dispatchers,
+			# we don't use is_valid_command? but rather get_responding_dispatchers
+			dispatchers = get_responding_dispatchers(method)
+			if (dispatchers and not dispatchers.empty?)
+				dispatchers.each do |dispatcher|
+					begin
 						self.on_command_proc.call(line.strip) if self.on_command_proc
 						run_command(dispatcher, method, arguments)
 						found = true
+					rescue
+						error = $!
+						print_error(
+							"Error while running command #{method}: #{$!}" +
+							"\n\nCall stack:\n#{$@.join("\n")}")
+					rescue ::Exception
+						error = $!
+						print_error(
+							"Error while running command #{method}: #{$!}")
 					end
-				rescue
-					error = $!
 
-					print_error(
-						"Error while running command #{method}: #{$!}" +
-						"\n\nCall stack:\n#{$@.join("\n")}")
-				rescue ::Exception
-					error = $!
-
-					print_error(
-						"Error while running command #{method}: #{$!}")
+					# If the dispatcher stack changed as a result of this command,
+					# break out
+					break if (dispatcher_stack.length != entries)
 				end
-
-				# If the dispatcher stack changed as a result of this command,
-				# break out
-				break if (dispatcher_stack.length != entries)
-			}
+			end
 
 			if (found == false and error == false)
 				unknown_command(method, line)
@@ -407,7 +479,6 @@ module DispatcherShell
 
 		return found
 	end
-
 	#
 	# Runs the supplied command on the given dispatcher.
 	#
@@ -523,6 +594,22 @@ module DispatcherShell
 	attr_accessor :tab_words # :nodoc:
 	attr_accessor :busy # :nodoc:
 	attr_accessor :blocked # :nodoc:
+
+	protected
+	def get_words(str, check_trail_ws=true)
+		if check_trail_ws
+			# Check trailing whitespace so we can tell 'x' from 'x '
+			str_match = str.match(/\s+$/)
+			str_trail = (str_match.nil?) ? '' : str_match[0]
+		end
+
+		# Split the line up by whitespace into words
+		str_words = str.split(/[\s\t\n]+/)
+
+		# Append an empty word if we are checking for trailing whitespace & we had some
+		str_words << '' if (check_trail_ws and str_trail.length > 0)
+		return str_words
+	end
 
 end
 

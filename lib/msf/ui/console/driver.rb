@@ -51,6 +51,14 @@ class Driver < Msf::Ui::Driver
 	# 	Whether or not unknown commands should be passed through and executed by
 	# 	the local system.
 	#
+	# AllowAliases
+	#
+	# 	Whether or not console command aliasing should be permitted
+	#
+	# AliasTranslateOnTab
+	#
+	# 	Whether or not to translate aliases to their true values on a tab complete operation
+	#
 	# RealReadline
 	#
 	# 	Whether or to use the system Readline or the RBReadline (default)
@@ -115,7 +123,7 @@ class Driver < Msf::Ui::Driver
 
 		# Add the core command dispatcher as the root of the dispatcher
 		# stack
-		enstack_dispatcher(CommandDispatcher::Core)
+		@core = enstack_dispatcher(CommandDispatcher::Core)
 
 		# Report readline error if there was one..
 		if not rl_err.nil?
@@ -158,12 +166,20 @@ class Driver < Msf::Ui::Driver
 		# Whether or not command passthru should be allowed
 		self.command_passthru = (opts['AllowCommandPassthru'] == false) ? false : true
 
+		# Whether or not console command aliases should be allowed
+		self.allow_aliases = (opts['AllowCommandAliases'] == false) ? false : true
+
+		# Whether or not to translate aliases to their true values on a tab complete operation
+		# We set this in the datastore so it will be visible to a user running or tab completing the 'set' command
+		framework.datastore['AliasTranslateOnTab'] = (opts['AliasTranslateOnTab']) ? true : false
+
 		# Disables "dangerous" functionality of the console
 		@defanged = opts['Defanged'] == true
 
-		# If we're defanged, then command passthru should be disabled
+		# If we're defanged, then aliases and command passthru should be disabled
 		if @defanged
 			self.command_passthru = false
+			self.allow_aliases = false
 		end
 
 		# Parse any specified database.yml file
@@ -592,6 +608,10 @@ class Driver < Msf::Ui::Driver
 	#
 	attr_accessor :active_module
 	#
+	# Whether or not to allow console command aliases.
+	#
+	attr_reader   :allow_aliases
+	#
 	# The active session associated with the driver.
 	#
 	attr_accessor :active_session
@@ -602,8 +622,8 @@ class Driver < Msf::Ui::Driver
 
 	#
 	# If defanged is true, dangerous functionality, such as exploitation, irb,
-	# and command shell passthru is disabled.  In this case, an exception is
-	# raised.
+	# command aliasing, and command shell passthru is disabled.  In this case,
+	# an exception is raised.
 	#
 	def defanged?
 		if @defanged
@@ -620,31 +640,40 @@ protected
 
 	attr_writer   :framework # :nodoc:
 	attr_writer   :command_passthru # :nodoc:
+	attr_writer   :allow_aliases #:nodoc:
+	# would it be wise to do a block_command("cmd_alias") in here somewhere?
 
 	#
-	# If an unknown command was passed, try to see if it's a valid local
-	# executable.  This is only allowed if command passthru has been permitted
+	# If an unknown command was passed, try to see if it's an alias or a valid local
+	# executable.  This is only allowed if aliases and/or command passthru have been permitted
 	#
 	def unknown_command(method, line)
+		# aliases take precedence
+		aliases = @core.aliases
+		if ( allow_aliases == true and aliases.keys.include?(method) )
+			# we want to run the alias, which may contain options (like sessions -l), plus any newly supplied opts
+			additional_opts = line.sub(method,'')
+			return run_single("#{aliases[method]}#{additional_opts}")
+		else
+			[method, method+".exe"].each do |cmd|
+				if (command_passthru == true and Rex::FileUtils.find_full_path(cmd))
 
-		[method, method+".exe"].each do |cmd|
-			if (command_passthru == true and Rex::FileUtils.find_full_path(cmd))
+					print_status("exec: #{line}")
+					print_line('')
 
-				print_status("exec: #{line}")
-				print_line('')
-
-				self.busy = true
-				begin
-					io = ::IO.popen(line, "r")
-					io.each_line do |data|
-						print(data)
+					self.busy = true
+					begin
+						io = ::IO.popen(line, "r")
+						io.each_line do |data|
+							print(data)
+						end
+						io.close
+					rescue ::Errno::EACCES, ::Errno::ENOENT
+						print_error("Permission denied exec: #{line}")
 					end
-					io.close
-				rescue ::Errno::EACCES, ::Errno::ENOENT
-					print_error("Permission denied exec: #{line}")
+					self.busy = false
+					return
 				end
-				self.busy = false
-				return
 			end
 		end
 
