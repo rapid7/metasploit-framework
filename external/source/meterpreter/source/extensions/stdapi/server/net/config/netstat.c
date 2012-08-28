@@ -58,7 +58,7 @@ DWORD set_process_name(DWORD pid, char * buffer, DWORD buffer_size)
 		if(p32f(hSnapshot,&pe32)) {
 			do {
 				if (pe32.th32ProcessID == pid) {
-					sprintf_s(buffer, buffer_size, "%d/%s",pid, pe32.szExeFile);
+					_snprintf_s(buffer, buffer_size-1, _TRUNCATE, "%d/%s",pid, pe32.szExeFile);
 					break;
 				}
             } while(p32n(hSnapshot,&pe32));
