@@ -2,7 +2,7 @@
 
 #ifdef _WIN32
 
-DWORD windows_get_arp_table(Remote *remote, Packet *response) 
+DWORD windows_get_arp_table(Remote *remote, Packet *response)
 {
 	PMIB_IPNETTABLE pIpNetTable = NULL;
 	DWORD result = ERROR_SUCCESS;
@@ -28,12 +28,12 @@ DWORD windows_get_arp_table(Remote *remote, Packet *response)
 			result = GetLastError();
 			break;
 		}
-		
+
 		if ((dwRetVal = GetIpNetTable(pIpNetTable, &dwSize, 0)) == NO_ERROR) {
 			dprintf("[ARP] found %d arp entries", pIpNetTable->dwNumEntries);
 			for (i = 0 ; i < pIpNetTable->dwNumEntries ; i++) {
 				// send only dynamic or static entry
-				if ((pIpNetTable->table[i].dwType == MIB_IPNET_TYPE_DYNAMIC) || 
+				if ((pIpNetTable->table[i].dwType == MIB_IPNET_TYPE_DYNAMIC) ||
 					(pIpNetTable->table[i].dwType == MIB_IPNET_TYPE_STATIC)) {
 					Tlv arp[3];
 					// can't send interface name as it can be _big_, so send index instead
@@ -42,15 +42,15 @@ DWORD windows_get_arp_table(Remote *remote, Packet *response)
 					arp[0].header.type	= TLV_TYPE_IP;
 					arp[0].header.length 	= sizeof(DWORD);
 					arp[0].buffer 		= (PUCHAR)&pIpNetTable->table[i].dwAddr;
-	
+
 					arp[1].header.type	= TLV_TYPE_MAC_ADDR;
 					arp[1].header.length	= 6;
 					arp[1].buffer		= (PUCHAR)pIpNetTable->table[i].bPhysAddr;
-	
+
 					arp[2].header.type	= TLV_TYPE_MAC_NAME;
-					arp[2].header.length	= strlen(interface_index) + 1; 
+					arp[2].header.length	= strlen(interface_index) + 1;
 					arp[2].buffer		= (PUCHAR)interface_index;
-		
+
 					packet_add_tlv_group(response, TLV_TYPE_ARP_ENTRY, arp, 3);
 				}
 			}
@@ -91,7 +91,7 @@ DWORD linux_proc_get_arp_table(struct arp_table ** table_arp)
 	 */
 	while (!feof(fd) && fgetc(fd) != '\n');
 	while (!feof(fd) && (fscanf(fd, " %15[0-9.] %*s %*s %17[A-Fa-f0-9:] %*s %30s", buffer_ip, buffer_mac, buffer_int) == 3)) {
-		
+
 		// allocate size for new entry
 		newsize = sizeof(struct arp_table);
 		newsize += ((*table_arp)->entries + 1) * sizeof(struct arp_entry);
@@ -104,12 +104,12 @@ DWORD linux_proc_get_arp_table(struct arp_table ** table_arp)
 		// ip address
 		inet_pton(AF_INET, buffer_ip, &ip_addr);
 		table_tmp->table[table_tmp->entries].ipaddr = ip_addr.s_addr;
-			
+
 		// mac address
 		for(i = 0; i < 6 ; i++) {
 			b = strtol(&buffer_mac[3*i], 0, 16);
 			table_tmp->table[table_tmp->entries].hwaddr[i] = (unsigned char)b;
-		}	 
+		}
 
 		// interface name
 		strncpy(table_tmp->table[table_tmp->entries].name, buffer_int, IFNAMSIZ);
@@ -117,7 +117,7 @@ DWORD linux_proc_get_arp_table(struct arp_table ** table_arp)
 		table_tmp->entries++;
 		*table_arp = table_tmp;
 
-	}	
+	}
 
 	fclose(fd);
 	return result;
@@ -140,15 +140,15 @@ DWORD linux_get_arp_table(Remote *remote, Packet *response)
 		arp[0].header.type	= TLV_TYPE_IP;
 		arp[0].header.length 	= sizeof(__u32);
 		arp[0].buffer 		= (PUCHAR)&table_arp->table[index].ipaddr;
-	
+
 		arp[1].header.type	= TLV_TYPE_MAC_ADDR;
 		arp[1].header.length	= 6;
 		arp[1].buffer		= (PUCHAR)(table_arp->table[index].hwaddr);
-	
+
 		arp[2].header.type	= TLV_TYPE_MAC_NAME;
-		arp[2].header.length	= strlen(table_arp->table[index].name) + 1; 
+		arp[2].header.length	= strlen(table_arp->table[index].name) + 1;
 		arp[2].buffer		= (PUCHAR)(table_arp->table[index].name);
-		
+
 		packet_add_tlv_group(response, TLV_TYPE_ARP_ENTRY, arp, 3);
 	}
 	dprintf("sent %d arp entries", table_arp->entries);
@@ -171,7 +171,7 @@ DWORD request_net_config_get_arp_table(Remote *remote, Packet *packet)
 
 #ifdef _WIN32
 	result = windows_get_arp_table(remote, response);
-#else 
+#else
 	result = linux_get_arp_table(remote, response);
 #endif
 

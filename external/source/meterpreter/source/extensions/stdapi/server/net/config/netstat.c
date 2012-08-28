@@ -165,7 +165,7 @@ DWORD windows_get_tcp_table_win2000_down(struct connection_table **table_connect
 				strncpy(current_connection->state, tcp_connection_states[state], sizeof(current_connection->state));
 				strncpy(current_connection->protocol, "tcp", sizeof(current_connection->protocol));
 
-				// force program_name to "-" 
+				// force program_name to "-"
 				strncpy(current_connection->program_name, "-", sizeof(current_connection->program_name));
 
 				(*table_connection)->entries++;
@@ -194,7 +194,7 @@ DWORD windows_get_tcp_table(struct connection_table **table_connection)
 	MIB_TCP6ROW_OWNER_MODULE * currentv6 = NULL;
 	DWORD i, state, dwSize;
 
-	
+
 	ptr_GetExtendedTcpTable gett            = NULL;
 
 	gett    = (ptr_GetExtendedTcpTable)GetProcAddress(GetModuleHandle("iphlpapi"), "GetExtendedTcpTable");
@@ -237,7 +237,7 @@ DWORD windows_get_tcp_table(struct connection_table **table_connection)
 					strncpy(current_connection->program_name, "-", sizeof(current_connection->program_name));
 
 					set_process_name(currentv4->dwOwningPid, current_connection->program_name, sizeof(current_connection->program_name));
-					
+
 					(*table_connection)->entries++;
 				}
 			}
@@ -283,7 +283,7 @@ DWORD windows_get_tcp_table(struct connection_table **table_connection)
 					strncpy(current_connection->program_name, "-", sizeof(current_connection->program_name));
 
 					set_process_name(currentv6->dwOwningPid, current_connection->program_name, sizeof(current_connection->program_name));
-					
+
 					(*table_connection)->entries++;
 				}
 			}
@@ -345,7 +345,7 @@ DWORD windows_get_udp_table_win2000_down(struct connection_table **table_connect
 				strncpy(current_connection->state, "", sizeof(current_connection->state));
 				strncpy(current_connection->protocol, "udp", sizeof(current_connection->protocol));
 
-				// force program_name to "-" 
+				// force program_name to "-"
 				strncpy(current_connection->program_name, "-", sizeof(current_connection->program_name));
 
 				(*table_connection)->entries++;
@@ -375,11 +375,10 @@ DWORD windows_get_udp_table(struct connection_table **table_connection)
 	MIB_UDP6ROW_OWNER_MODULE * currentv6 = NULL;
 	DWORD i, dwSize;
 
-	
 	ptr_GetExtendedUdpTable geut            = NULL;
 
 	geut    = (ptr_GetExtendedTcpTable)GetProcAddress(GetModuleHandle("iphlpapi"), "GetExtendedUdpTable");
-	
+
 	// systems that don't support GetExtendedUdpTable
 	if (geut == NULL) {
 		return windows_get_udp_table_win2000_down(table_connection);
@@ -412,7 +411,7 @@ DWORD windows_get_udp_table(struct connection_table **table_connection)
 					strncpy(current_connection->program_name, "-", sizeof(current_connection->program_name));
 
 					set_process_name(currentv4->dwOwningPid, current_connection->program_name, sizeof(current_connection->program_name));
-					
+
 					(*table_connection)->entries++;
 				}
 			}
@@ -451,7 +450,7 @@ DWORD windows_get_udp_table(struct connection_table **table_connection)
 					strncpy(current_connection->program_name, "-", sizeof(current_connection->program_name));
 
 					set_process_name(currentv6->dwOwningPid, current_connection->program_name, sizeof(current_connection->program_name));
-					
+
 					(*table_connection)->entries++;
 				}
 			}
@@ -610,8 +609,8 @@ DWORD linux_parse_proc_net_file(char * filename, struct connection_table ** tabl
 				continue;
 		}
 		else { // AF_INET6
-			if (sscanf(buffer, " %*u: %08X%08X%08X%08X:%x %08X%08x%08X%08X:%x %x %*X:%*X %*x:%*X %*x %u %*u %u %[^\n] ", &local_addr6.a1, 
-				&local_addr6.a2,&local_addr6.a3, &local_addr6.a4, &local_port, &remote_addr6.a1, &remote_addr6.a2, &remote_addr6.a3, 
+			if (sscanf(buffer, " %*u: %08X%08X%08X%08X:%x %08X%08x%08X%08X:%x %x %*X:%*X %*x:%*X %*x %u %*u %u %[^\n] ", &local_addr6.a1,
+				&local_addr6.a2,&local_addr6.a3, &local_addr6.a4, &local_port, &remote_addr6.a1, &remote_addr6.a2, &remote_addr6.a3,
 				&remote_addr6.a4,&remote_port, &state, &uid, &inode, buffer_junk) == 14) {
 				memcpy(&current_connection->local_addr.addr6,  &local_addr6, sizeof(__u128));
 				memcpy(&current_connection->remote_addr.addr6, &remote_addr6, sizeof(__u128));
@@ -817,7 +816,7 @@ DWORD request_net_config_get_netstat(Remote *remote, Packet *packet)
 
 #ifdef _WIN32
 	result = windows_get_connection_table(remote, response);
-#else 
+#else
 	result = linux_get_connection_table(remote, response);
 #endif
 
