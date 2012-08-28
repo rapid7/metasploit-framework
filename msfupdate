@@ -12,6 +12,16 @@ end
 
 Dir.chdir(File.dirname(msfbase))
 
+# check for presence of svn or git
+svnfound = false
+gitfound = false
+if File.directory?(".git")
+	gitfound = true
+end
+if File.directory?(".svn")
+	svnfound = true
+end
+
 $stderr.puts "[*]"
 $stderr.puts "[*] Attempting to update the Metasploit Framework..."
 $stderr.puts "[*]"
@@ -37,17 +47,20 @@ unless have_configdir
 	ARGV.push("--config-dir=#{configdir}")
 end
 
-
-res = system("svn", "cleanup")
-if res.nil?
-	$stderr.puts "[-] ERROR: Failed to run svn"
-	$stderr.puts ""
-	$stderr.puts "[-] If you used a binary installer, make sure you run the symlink in"
-	$stderr.puts "[-] /usr/local/bin instead of running this file directly (e.g.: ./msfupdate)"
-	$stderr.puts "[-] to ensure a proper environment."
+if svnfound or not gitfound
+	res = system("svn", "cleanup")
+	if res.nil?
+		$stderr.puts "[-] ERROR: Failed to run svn"
+		$stderr.puts ""
+		$stderr.puts "[-] If you used a binary installer, make sure you run the symlink in"
+		$stderr.puts "[-] /usr/local/bin instead of running this file directly (e.g.: ./msfupdate)"
+		$stderr.puts "[-] to ensure a proper environment."
+	else
+		# Cleanup worked, go ahead and update
+		system("svn", "update", *ARGV)
+	end
 else
-	# Cleanup worked, go ahead and update
-	system("svn", "update", *ARGV)
+	res = system("git","pull")
 end
 
 if wait
