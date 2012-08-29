@@ -1,0 +1,7 @@
+boot.ini
+config.sys
+autoexec.bat
+Windows\system32\drivers\etc\hosts
+winnt\system32\drivers\etc\hosts
+Windows\system32\config\SAM
+winnt\system32\config\SAM
