@@ -83,8 +83,8 @@ module Anemone
 
     def run_extractors
       return [] if !doc
-      self.class.extractors.map { |e| e.new( self ).run }.flatten.
-          map do |p|
+      self.class.extractors.map { |e| e.new( self ).run rescue next }.flatten.
+          compact.map do |p|
               abs = to_absolute( URI( p ) ) rescue next
               !in_domain?( abs ) ? nil : abs
           end.compact.uniq
