@@ -80,6 +80,10 @@ module Common
 		return o
 	end
 
+	#
+	# Reports to the database that the host is a virtual machine and reports 
+	# the type of virtual machine it is (e.g VirtualBox, VMware, Xen)
+	#
 	def report_vm(vm)
 		return unless session
 		return unless vm

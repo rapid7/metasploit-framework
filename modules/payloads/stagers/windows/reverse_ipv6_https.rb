@@ -9,10 +9,8 @@
 #   http://metasploit.com/
 ##
 
-
 require 'msf/core'
 require 'msf/core/handler/reverse_ipv6_https'
-
 
 module Metasploit3
 
