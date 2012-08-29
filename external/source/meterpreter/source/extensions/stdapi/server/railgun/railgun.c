@@ -82,7 +82,6 @@ DWORD railgun_call( RAILGUN_INPUT * pInput, RAILGUN_OUTPUT * pOutput )
 	DWORD dwStackSizeInElements              = 0;
 	DWORD dwIndex                            = 0; 
 	
-	DWORD dwErr;
 	//Set up vars for FormateMessage call
 	DWORD dwNumChars = 0;
 		//Set flags to look in the system error tabl if not found in the module table
