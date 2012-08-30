@@ -82,7 +82,9 @@ module Auxiliary::HttpCrawler
 			if Rex::Socket.is_ipv6?(host)
 				host = "[#{host}]"
 			end
-			"#{proto}://#{host}:#{self[:port]}#{self[:path]}"
+			url = "#{proto}://#{host}:#{self[:port]}#{self[:path]}"
+      url << "?#{self[:query]}" if self[:query]
+      url
 		end
 	end
 
