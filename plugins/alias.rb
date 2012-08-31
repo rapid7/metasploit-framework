@@ -121,9 +121,11 @@ class Plugin::Alias < Msf::Plugin
 		#
 		def cmd_alias_tabs(str, words)
 			if words.length <= 1
-				return @@alias_opts.fmt.keys + tab_complete_aliases_and_commands(str, words)
+				#puts "1 word or less"
+				return @@alias_opts.fmt.keys + tab_complete_aliases_and_commands
 			else
-				return tab_complete_aliases_and_commands(str, words)
+				#puts "more than 1 word"
+				return tab_complete_aliases_and_commands
 			end
 		end
 
@@ -145,12 +147,22 @@ class Plugin::Alias < Msf::Plugin
 				# define a class instance method that will tab complete the aliased command
 				# we just proxy to the top-level tab complete function and let them handle it
 				define_method "cmd_#{name}_tabs" do |str, words|
-					#print_good "Creating cmd_#{name}_tabs as driver.tab_complete(#{value} #{words.join(' ')})"
-					#driver.tab_complete("MONKEY")
-					words.delete(name)
-					driver.tab_complete("#{value} #{words.join(' ')}")
+					# we need to repair the tab complete string/words and pass back
+					# replace alias name with the root alias value
+					value_words = value.split(/[\s\t\n]+/) # in case value is e.g. 'sessions -l'
+					words[0] = value_words[0]
+					value_words.shift
+					# insert any remaining parts of value and rebuild the line
+					line = words.join(" ") + " " + value_words.join(" ") + " " + str
+					#print_good "passing (#{line.strip}) back to tab_complete"
+					# clear current tab_words
+					driver.tab_words = []
+					driver.tab_complete(line.strip)
 				end
-				# we don't need a cmd_#{name}_help method, we just let the original handle that
+				# add a cmd_#{name}_help method
+				define_method "cmd_#{name}_help" do |*args|
+					driver.run_single("help #{value}")
+				end
 			end
 			# add the alias to the list 
 			@aliases[name] = value
@@ -164,6 +176,7 @@ class Plugin::Alias < Msf::Plugin
 				# remove the methods we defined for this alias
 				remove_method("cmd_#{name}")
 				remove_method("cmd_#{name}_tab")
+				remove_method("cmd_#{name}_help")
 			end
 		end
 
@@ -232,11 +245,17 @@ class Plugin::Alias < Msf::Plugin
 		#
 		# Provide tab completion list for aliases and commands
 		#
-		def tab_complete_aliases_and_commands(str, words)
+		def tab_complete_aliases_and_commands
 			items = []
-			items.concat(driver.commands.keys) if driver.respond_to?('commands')
+			# gather all the current commands the driver's dispatcher's have
+			driver.dispatcher_stack.each do |dispatcher|
+				next unless dispatcher.respond_to?(:commands)
+				next if (dispatcher.commands.nil? or dispatcher.commands.length == 0)
+				items << dispatcher.commands.keys
+			end
+			# add all the current aliases to the list
 			items.concat(@aliases.keys)
-			items
+			return items
 		end
 
 	end # end AliasCommandDispatcher class
@@ -248,8 +267,6 @@ class Plugin::Alias < Msf::Plugin
 	# inheriting from Msf::Plugin to ensure that the framework attribute on
 	# their instance gets set.
 	#
-	attr_accessor :controller
-	
 	def initialize(framework, opts)
 		super
 
