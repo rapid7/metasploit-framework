@@ -47,9 +47,7 @@ class Console::CommandDispatcher::Stdapi::Ui
 			"setdesktop"    => [ "stdapi_ui_desktop_set" ],
 			"uictl"         => [
 				"stdapi_ui_enable_mouse",
-				"stdapi_ui_disable_mouse",
 				"stdapi_ui_enable_keyboard",
-				"stdapi_ui_disable_keyboard",
 			],
 		}
 
