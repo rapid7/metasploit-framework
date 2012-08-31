@@ -187,7 +187,7 @@ class Metasploit3 < Msf::Auxiliary
 					end
 
 					# set the first one as the default value if we don't already have one
-					value ||= s.children.first['value'] || s.children.first.content
+					value ||= s.children.first['value'] || s.children.first.content rescue ''
 
 					form[:params] << [ s['name'].to_s, value.to_s, [ :type => 'select'] ]
 				end
