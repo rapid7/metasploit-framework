@@ -26,6 +26,15 @@ module Priv
 		return root_priv
 	end
 
+	def get_user_shell
+		cmd = %q{while IFS=":" read -r a b c d e f g
+		do 
+		  echo :$c:$f:$g
+		done < /etc/passwd | /bin/grep ":$(id -u):"}
+		shell = cmd_exec(cmd).split(':')[3].gsub("\n", '').scan(/[a-zA-Z0-9]*$/)[0]
+		shell
+	end
+
 end # Priv
 end # Linux
 end # Post

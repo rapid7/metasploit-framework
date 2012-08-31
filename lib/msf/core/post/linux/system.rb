@@ -96,6 +96,16 @@ module System
 		return system_data
 	end
 
+	def is_X_running?
+		#TODO: add XFree86 too
+		checkdir = cmd_exec('ps -A | grep Xorg | wc -l')
+		if checkdir == '0'
+			return false
+		else
+			return true
+		end
+	end
+
 
 end # System
 end # Linux
