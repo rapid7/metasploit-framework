@@ -30,7 +30,8 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'URL', 'http://pastie.org/private/4egcqt9nucxnsiksudy5dw' ],
 					[ 'URL', 'http://pastie.org/private/feg8du0e9kfagng4rrg' ],
 					[ 'URL', 'http://stratsec.blogspot.com.au/2012/03/ms12-020-vulnerability-for-breakfast.html' ],
-					[ 'EDB', 18606 ]
+					[ 'EDB', 18606 ],
+					[ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2012/03/21/metasploit-update' ]
 				],
 			'Author'         =>
 				[
