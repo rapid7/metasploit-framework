@@ -28,7 +28,8 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					['BID', '51182'],
 					['CVE', '2011-4862'],
-					['EDB', 18280]
+					['EDB', 18280],
+					['URL', 'https://community.rapid7.com/community/metasploit/blog/2011/12/28/more-fun-with-bsd-derived-telnet-daemons']
 				]
 		)
 		register_options(
