@@ -114,19 +114,10 @@ module Powershell
 	# to disk.
 	#
 	def execute_script(script, time_out = 15)
-		running_pids, open_channels = [], []
 		# Execute using -EncodedCommand
-		session.response_timeout = time_out
-		cmd_out = session.sys.process.execute("powershell -EncodedCommand " +
-			"#{script}", nil, {'Hidden' => true, 'Channelized' => true})
+		cmd_out =cmd_exec("powershell","-EncodedCommand #{script}",time_out)
 
-		# Add to list of running processes
-		running_pids << cmd_out.pid
-
-		# Add to list of open channels
-		open_channels << cmd_out
-
-		return [cmd_out, running_pids, open_channels]
+		return cmd_out
 	end
 
 
@@ -211,29 +202,15 @@ module Powershell
 	#
 	# Clean up powershell script including process and chunks stored in environment variables
 	#
-	def clean_up(script_file = nil, eof = '', running_pids =[], open_channels = [], env_suffix = Rex::Text.rand_text_alpha(8), delete = false)
+	def clean_up(env_suffix)
 		# Remove environment variables
 		env_del_command =  "[Environment]::GetEnvironmentVariables('User').keys|"
 		env_del_command += "Select-String #{env_suffix}|%{"
 		env_del_command += "[Environment]::SetEnvironmentVariable($_,$null,'User')}"
 		script = compress_script(env_del_command, eof)
-		cmd_out, running_pids, open_channels = *execute_script(script)
-		write_to_log(cmd_out, "/dev/null", eof)
+		cmd_out = execute_script(script)
 
-		# Kill running processes
-		running_pids.each() do |pid|
-			session.sys.process.kill(pid)
-		end
-
-
-		# Close open channels
-		open_channels.each() do |chan|
-			chan.channel.close()
-		end
-
-		::File.delete(script_file) if (script_file and delete)
-
-		return
+		return cmd_out
 	end
 
 end

