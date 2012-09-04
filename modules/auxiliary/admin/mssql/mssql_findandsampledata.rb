@@ -16,12 +16,15 @@ class Metasploit3 < Msf::Auxiliary
 			in the associated tables, the script will select a sample of the records from each of
 			the affected tables.  The sample size is determined by the SAMPLE_SIZE option, and results
 			output in a CSV format.
-
-			Thank you Dijininja for the IDF module which was my inspiration
-			for this.  Also, thank you humble-desser, DarkOperator, HDM, and especially todb for
-			helping me refine this MSF Module.
 			},
-			'Author'         => [ 'Scott Sutherland <scott.sutherland[at]netspi.com>' ],
+			'Author'         => [ 
+				'Scott Sutherland <scott.sutherland[at]netspi.com>', # Metasploit module
+				'Robin Wood <robin[at]digininja.org>',               # IDF module which was my inspiration
+				'humble-dresser',                                    # Help on IRC
+				'Carlos Perez <carlos_perez[at]darkoperator.com>',   # Help on IRC
+				'hdm',                                               # Help on IRC
+				'todb'                                               # Help on GitHub
+			],
 			'License'        => MSF_LICENSE,
 			'References'     => [[ 'URL', 'http://www.netspi.com/blog/author/ssutherland/' ]],
 			'Targets'        => [[ 'MSSQL 2005', { 'ver' => 2005 }]]
