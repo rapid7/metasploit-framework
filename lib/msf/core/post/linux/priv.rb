@@ -7,7 +7,9 @@ module Linux
 module Priv
 	include ::Msf::Post::Common
 
+	#
 	# Returns true if running as root, false if not.
+	#
 	def is_root?
 		root_priv = false
 		user_id = cmd_exec("id -u")

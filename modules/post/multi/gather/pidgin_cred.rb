@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Post
 
 
 	def check_pidgin(purpledir)
-        path = ""
+		path = ""
 		print_status("Checking for Pidgin profile in: #{purpledir}")
 		session.fs.dir.foreach(purpledir) do |dir|
 			if dir =~ /\.purple/

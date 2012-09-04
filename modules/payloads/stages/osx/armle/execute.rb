@@ -19,7 +19,7 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'OSX Write and Execute Binary',
+			'Name'          => 'OS X Write and Execute Binary',
 			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a command shell (staged)',
 			'Author'        => 'hdm',

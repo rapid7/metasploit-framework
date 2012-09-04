@@ -360,6 +360,11 @@
 				TLV_META_TYPE_UINT,         \
 				TLV_TYPE_EXTENSION_STDAPI, \
 				1424)
+#define TLV_TYPE_ARP_ENTRY         \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_GROUP,       \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				1425)
 
 #define TLV_TYPE_IP                    \
 		MAKE_CUSTOM_TLV(                 \
@@ -434,6 +439,21 @@
 				TLV_META_TYPE_UINT,        \
 				TLV_TYPE_EXTENSION_STDAPI, \
 				1504)
+#define TLV_TYPE_NETSTAT_ENTRY         \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_GROUP,       \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				1505)
+#define TLV_TYPE_PEER_HOST_RAW               \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_RAW,         \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				1506)
+#define TLV_TYPE_LOCAL_HOST_RAW               \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_RAW,         \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				1507)
 
 #define TLV_TYPE_SHUTDOWN_HOW          \
 		MAKE_CUSTOM_TLV(                 \

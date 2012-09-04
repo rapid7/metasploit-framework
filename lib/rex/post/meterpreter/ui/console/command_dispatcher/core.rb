@@ -857,8 +857,8 @@ protected
 
 	def tab_complete_postmods
 		tabs = client.framework.modules.post.map { |name,klass|
-			mod = klass.new
-			if mod.session_compatible?(client)
+			mod = client.framework.modules.post.create(name)
+			if mod and mod.session_compatible?(client)
 				mod.fullname.dup
 			else
 				nil

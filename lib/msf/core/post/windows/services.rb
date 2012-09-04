@@ -93,6 +93,21 @@ module WindowsServices
 		adv = session.railgun.advapi32
 		manag = adv.OpenSCManagerA(machine_str,nil,0x13)
 		if(manag["return"] != 0)
+			# SC_HANDLE WINAPI CreateService(
+			#  __in       SC_HANDLE hSCManager,
+			#  __in       LPCTSTR lpServiceName,
+			# __in_opt   LPCTSTR lpDisplayName,
+			#  __in       DWORD dwDesiredAccess,
+			#  __in       DWORD dwServiceType,
+			#  __in       DWORD dwStartType,
+			#  __in       DWORD dwErrorControl,
+			#  __in_opt   LPCTSTR lpBinaryPathName,
+			#  __in_opt   LPCTSTR lpLoadOrderGroup,
+			#  __out_opt  LPDWORD lpdwTagId,
+			#  __in_opt   LPCTSTR lpDependencies,
+			#  __in_opt   LPCTSTR lpServiceStartName,
+			#  __in_opt   LPCTSTR lpPassword
+			#);
 			# SC_MANAGER_CREATE_SERVICE = 0x0002
 			newservice = adv.CreateServiceA(manag["return"],name,display_name,
 				0x0010,0X00000010,startup,0,executable_on_host,nil,nil,nil,nil,nil)

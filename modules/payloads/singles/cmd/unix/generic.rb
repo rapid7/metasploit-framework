@@ -21,7 +21,7 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Unix Command, Generic command execution',
+			'Name'          => 'Unix Command, Generic Command Execution',
 			'Version'       => '$Revision$',
 			'Description'   => 'Executes the supplied command',
 			'Author'        => 'hdm',
