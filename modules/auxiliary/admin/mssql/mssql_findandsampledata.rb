@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 			for this.  Also, thank you humble-desser, DarkOperator, HDM, and especially todb for
 			helping me refine this MSF Module.
 			},
-			'Author'         => [ 'Scott Sutherland (nullbind) <scott.sutherland@netspi.com>' ],
+			'Author'         => [ 'Scott Sutherland <scott.sutherland[at]netspi.com>' ],
 			'License'        => MSF_LICENSE,
 			'References'     => [[ 'URL', 'http://www.netspi.com/blog/author/ssutherland/' ]],
 			'Targets'        => [[ 'MSSQL 2005', { 'ver' => 2005 }]]

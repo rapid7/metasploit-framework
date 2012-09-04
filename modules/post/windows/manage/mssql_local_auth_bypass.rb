@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
 				SQL Server 2012 so that LocalSystem no longer has sysadmin privileges.
 				However, this can be overcome by migrating to the SQL Server process.},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Scott Sutherland <scott.sutherland@netspi.com>'],
+				'Author'        => [ 'Scott Sutherland <scott.sutherland[at]netspi.com>'],
 				'Platform'      => [ 'Windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
