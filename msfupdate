@@ -37,6 +37,7 @@ unless have_configdir
 	ARGV.push("--config-dir=#{configdir}")
 end
 
+ARGV.push("--non-interactive")
 
 res = system("svn", "cleanup")
 if res.nil?
