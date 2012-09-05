@@ -21,8 +21,9 @@ class Metasploit4 < Msf::Auxiliary
 				which allows to retrieve the HP SiteScope configuration, including administrative
 				credentials. It is accomplished by calling the getSiteScopeConfiguration operation
 				available through the APISiteScopeImpl AXIS service. The HP SiteScope Configuration
-				is retrieved as a gzipped file containing Java serialization data. This module has
-				been tested successfully on HP SiteScope 11.20 over Windows 2003 SP2.
+				is retrieved as file containing Java serialization data. This module has been
+				tested successfully on HP SiteScope 11.20 over Windows 2003 SP2 and Linux Centos
+				6.3.
 			},
 			'References'   =>
 				[
