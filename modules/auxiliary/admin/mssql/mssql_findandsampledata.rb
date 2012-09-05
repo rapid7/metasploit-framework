@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 			the affected tables.  The sample size is determined by the SAMPLE_SIZE option, and results
 			output in a CSV format.
 			},
-			'Author'         => [ 
+			'Author'         => [
 				'Scott Sutherland <scott.sutherland[at]netspi.com>', # Metasploit module
 				'Robin Wood <robin[at]digininja.org>',               # IDF module which was my inspiration
 				'humble-dresser',                                    # Help on IRC
