@@ -600,7 +600,7 @@ sub host_attack_items {
 
 	foreach $port => $service (%hosts[$2[0]]['services']) {
 		$name = $service['name'];
-		if ($name eq "smb" && "*Windows*" iswm getHostOS($2[0])) {
+		if ($port == 445 && "*Windows*" iswm getHostOS($2[0])) {
 			push(@options, @("psexec", lambda(&pass_the_hash, $hosts => $2)));
 		}
 		else if ("scanner/ $+ $name $+ / $+ $name $+ _login" in @auxiliary) {
@@ -645,6 +645,7 @@ sub addFileListener {
 	$actions["Template"] = $actions["*FILE*"];
 	$actions["SigningCert"] = $actions["*FILE*"];
 	$actions["SigningKey"] = $actions["*FILE*"];
+	$actions["Wordlist"]   = $actions["*FILE*"];
 	$actions["WORDLIST"]   = $actions["*FILE*"];
 
 	# set up an action to choose a session
