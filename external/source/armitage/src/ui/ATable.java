@@ -14,6 +14,7 @@ public class ATable extends JTable {
 
 	public static TableCellRenderer getDefaultTableRenderer(final JTable table, final TableModel model) {
 		final Set specialitems = new HashSet();
+		specialitems.add("Wordlist");
 		specialitems.add("PAYLOAD");
 		specialitems.add("RHOST");
 		specialitems.add("RHOSTS");

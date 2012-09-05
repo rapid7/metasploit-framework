@@ -20,11 +20,11 @@ public abstract class GenericTabCompletion {
 		return window;
 	}
 
-	public GenericTabCompletion(Console window) {
-		this.window = window;
+	public GenericTabCompletion(Console windowz) {
+		this.window = windowz;
 
 		window.addActionForKey("pressed TAB", new AbstractAction() {
-			public void actionPerformed(ActionEvent ev) {
+			public void actionPerformed(final ActionEvent ev) {
 				tabComplete(ev);
 			}
 		});
@@ -32,59 +32,76 @@ public abstract class GenericTabCompletion {
 
 	public abstract Collection getOptions(String text);
 
+	private void tabCompleteFirst(String text) {
+		try {
+			LinkedHashSet responses = new LinkedHashSet();
+			Collection options = getOptions(text);
+
+			if (options == null)
+				return;
+
+			/* cycle through all of our options, we want to split items up to the
+			   first slash. We also want them to be unique and ordered (hence the
+			   linked hash set */
+			Iterator i = options.iterator();
+			while (i.hasNext()) {
+				String option = i.next() + "";
+
+				String begin;
+				String end;
+
+				if (text.length() > option.length()) {
+					begin = option;
+					end = "";
+				}
+				else {
+					begin = option.substring(0, text.length());
+					end = option.substring(text.length());
+				}
+
+				int nextSlash;
+				if ((nextSlash = end.indexOf('/')) > -1 && (nextSlash + 1) < end.length()) {
+					end = end.substring(0, nextSlash);
+				}
+
+				responses.add(begin + end);
+			}
+
+			responses.add(text);
+
+			synchronized (window) {
+				tabs = responses.iterator();
+				last = (String)tabs.next();
+			}
+
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					window.getInput().setText(last);
+				}
+			});
+		}
+		catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
 	public void tabComplete(ActionEvent ev) {
-		String text = window.getInput().getText();
+		final String text = window.getInput().getText();
 		if (text.length() == 0)
 			return;
 
-		if (tabs != null && tabs.hasNext() && text.equals(last)) {
-			last = (String)tabs.next();
-			window.getInput().setText(last);
-		}
-		else {
-			try {
-				LinkedHashSet responses = new LinkedHashSet();
-				Collection options = getOptions(text);
-
-				if (options == null)
-					return;
-
-				/* cycle through all of our options, we want to split items up to the
-				   first slash. We also want them to be unique and ordered (hence the
-				   linked hash set */
-				Iterator i = options.iterator();
-				while (i.hasNext()) {
-					String option = i.next() + "";
-
-					String begin;
-					String end;
-
-					if (text.length() > option.length()) {
-						begin = option;
-						end = "";
-					}
-					else {
-						begin = option.substring(0, text.length());
-						end = option.substring(text.length());
-					}
-
-					int nextSlash;
-					if ((nextSlash = end.indexOf('/')) > -1 && (nextSlash + 1) < end.length()) {
-						end = end.substring(0, nextSlash);
-					}
-
-					responses.add(begin + end);
-				}
-
-				responses.add(text);
-
-				tabs = responses.iterator();
+		synchronized (window) {
+			if (tabs != null && tabs.hasNext() && text.equals(last)) {
 				last = (String)tabs.next();
-
 				window.getInput().setText(last);
+				return;
 			}
-			catch (Exception ex) {
-				ex.printStackTrace();
+			else {
+				new Thread(new Runnable() {
+					public void run() {
+						tabCompleteFirst(text);
+					}
+				}).start();
 			}
 		}
 	}
