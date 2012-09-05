@@ -1255,6 +1255,8 @@ module Net # :nodoc:
   end # module DNS
 end # module Net
 
+class ResolverError < ArgumentError # :nodoc:
+end
 class ResolverArgumentError < ArgumentError # :nodoc:
 end
 class NoResponseError < StandardError # :nodoc:
