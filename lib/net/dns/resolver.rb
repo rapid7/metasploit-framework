@@ -1000,7 +1000,7 @@ module Net # :nodoc:
       def axfr(name,cls=Net::DNS::IN)
         @logger.info "Requested AXFR transfer, zone #{name} class #{cls}"
         if @config[:nameservers].size == 0
-          raise Resolver::Error, "No nameservers specified!"
+          raise ResolverError, "No nameservers specified!"
         end
 
         method = :send_tcp
