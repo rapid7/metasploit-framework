@@ -1,8 +1,4 @@
 ##
-# $Id: enum_dns.rb 15475 2012-06-18 23:39:04Z rapid7 $
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -26,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
 			'License'		=> MSF_LICENSE,
-			'Version'		=> '$Revision: 15475 $',
+			'Version'		=> '$Revision$',
 			'References' 	=>
 				[
 					['CVE', '1999-0532'],
