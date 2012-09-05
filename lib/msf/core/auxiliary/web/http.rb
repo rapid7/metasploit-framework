@@ -68,17 +68,21 @@ class Auxiliary::Web::HTTP
 
 	private
 	def _request( url, opts = {} )
-		timeout = opts[:timeout] || 10
+		body    = opts[:body]
+    timeout = opts[:timeout] || 10
 		method  = opts[:method].to_s.upcase || 'GET'
 		url     = url.is_a?( URI ) ? url : URI( url.to_s )
 
 		param_opts = {}
-		param_opts['vars_get'] = Auxiliary::Web::Form.query_to_params( url.query )
+
+    if !(vars_get = Auxiliary::Web::Form.query_to_params( url.query )).empty?
+      param_opts['vars_get'] = vars_get
+    end
 
 		if method == 'GET'
 			param_opts['vars_get'].merge!( opts[:params] ) if opts[:params].is_a?( Hash )
 		elsif method == 'POST'
-			param_opts['vars_post'] = opts[:params]
+			param_opts['vars_post'] = opts[:params] || {}
 		end
 
 		opts = @request_opts.merge( param_opts ).merge(
@@ -86,6 +90,8 @@ class Auxiliary::Web::HTTP
 			'method'  => method,
 			'headers' => headers.merge( opts[:headers] || {} )
 		)
+
+    opts['data'] = body if body
 
 		connection.send_recv( connection.request_cgi( opts ), timeout )
 	rescue ::Errno::EPIPE
