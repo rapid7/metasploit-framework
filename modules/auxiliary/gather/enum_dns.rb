@@ -105,6 +105,7 @@ class Metasploit3 < Msf::Auxiliary
 					:sname => 'dns',
 					:port => 53 ,
 					:type => 'dns.enum',
+					:update => :unique_data,
 					:data => "#{rr.address.to_s},#{target},A")
 			end
 		end
@@ -120,6 +121,7 @@ class Metasploit3 < Msf::Auxiliary
 							:sname => 'dns',
 							:port => 53 ,
 							:type => 'dns.enum',
+							:update => :unique_data,
 							:data => "#{ip.address.to_s},#{rr.mname},SOA")
 					end
 				end
@@ -138,6 +140,7 @@ class Metasploit3 < Msf::Auxiliary
 							:sname => 'dns',
 							:port => 53 ,
 							:type => 'dns.enum',
+							:update => :unique_data,
 							:data => "#{ip.address.to_s},#{rr.nsdname},NS")
 					end
 				end
@@ -152,6 +155,7 @@ class Metasploit3 < Msf::Auxiliary
 					:sname => 'dns',
 					:port => 53 ,
 					:type => 'dns.enum',
+					:update => :unique_data,
 					:data => "#{rr.exchange},MX")
 			end
 		end
@@ -165,6 +169,7 @@ class Metasploit3 < Msf::Auxiliary
 					:sname => 'dns',
 					:port => 53 ,
 					:type => 'dns.enum',
+					:update => :unique_data,
 					:data => rr.inspect)
 			end
 		end
@@ -215,6 +220,7 @@ class Metasploit3 < Msf::Auxiliary
 						:sname => 'dns',
 						:port => 53,
 						:type => 'dns.enum',
+						:update => :unique_data,
 						:data => "#{rr.address.to_s},#{target}.#{tld},A") if rr.class == Net::DNS::RR::A
 				end
 			end
@@ -242,6 +248,7 @@ class Metasploit3 < Msf::Auxiliary
 							:sname => 'dns',
 							:port => 53 ,
 							:type => 'dns.enum',
+							:update => :unique_data,
 							:data => "#{rr.address.to_s},#{line.chomp}.#{target},A")
 						next unless rr.class == Net::DNS::RR::CNAME
 					end
@@ -271,6 +278,7 @@ class Metasploit3 < Msf::Auxiliary
 							:sname => 'dns',
 							:port => 53 ,
 							:type => 'dns.enum',
+							:update => :unique_data,
 							:data => "#{rr.address.to_s},#{line.chomp}.#{target},AAAA")
 						next unless rr.class == Net::DNS::RR::CNAME
 					end
@@ -306,6 +314,7 @@ class Metasploit3 < Msf::Auxiliary
 								:sname => 'dns',
 								:port => 53 ,
 								:type => 'dns.enum',
+								:update => :unique_data,
 								:data => "#{addresstp},#{tip},A")
 						end
 					rescue ::Interrupt
@@ -383,6 +392,7 @@ class Metasploit3 < Msf::Auxiliary
 							:sname => 'dns',
 							:port => 53 ,
 							:type => 'dns.enum',
+							:update => :unique_data,
 							:data => "Zone transfer successful")
 						#Prints each record according to its type
 						zone.each do |response|
@@ -396,6 +406,7 @@ class Metasploit3 < Msf::Auxiliary
 										:sname => 'dns',
 										:port => 53 ,
 										:type => 'dns.enum',
+										:update => :unique_data,
 										:data => "#{rr.address.to_s},#{rr.name},A")
 								when "SOA"
 									print_status("Name: #{rr.mname} Record: SOA")
@@ -404,6 +415,7 @@ class Metasploit3 < Msf::Auxiliary
 										:sname => 'dns',
 										:port => 53 ,
 										:type => 'dns.enum',
+										:update => :unique_data,
 										:data => "#{rr.name},SOA")
 								when "MX"
 									print_status("Name: #{rr.exchange} Preference: #{rr.preference} Record: MX")
@@ -412,6 +424,7 @@ class Metasploit3 < Msf::Auxiliary
 										:sname => 'dns',
 										:port => 53 ,
 										:type => 'dns.enum',
+										:update => :unique_data,
 										:data => "#{rr.exchange},MX")
 								when "CNAME"
 									print_status("Name: #{rr.cname} Record: CNAME")
@@ -420,6 +433,7 @@ class Metasploit3 < Msf::Auxiliary
 										:sname => 'dns',
 										:port => 53 ,
 										:type => 'dns.enum',
+										:update => :unique_data,
 										:data => "#{rr.cname},CNAME")
 								when "HINFO"
 									print_status("CPU: #{rr.cpu} OS: #{rr.os} Record: HINFO")
@@ -428,6 +442,7 @@ class Metasploit3 < Msf::Auxiliary
 										:sname => 'dns',
 										:port => 53 ,
 										:type => 'dns.enum',
+										:update => :unique_data,
 										:data => "CPU:#{rr.cpu},OS:#{rr.os},HINFO")
 								when "AAAA"
 									print_status("IPv6 Address: #{rr.address} Record: AAAA")
@@ -436,6 +451,7 @@ class Metasploit3 < Msf::Auxiliary
 										:sname => 'dns',
 										:port => 53 ,
 										:type => 'dns.enum',
+										:update => :unique_data,
 										:data => "#{rr.address.to_s}, AAAA")
 								when "NS"
 									print_status("Name: #{rr.nsdname} Record: NS")
@@ -444,6 +460,7 @@ class Metasploit3 < Msf::Auxiliary
 										:sname => 'dns',
 										:port => 53 ,
 										:type => 'dns.enum',
+										:update => :unique_data,
 										:data => "#{rr.nsdname},NS")
 								when "TXT"
 									print_status("Text: #{rr.inspect}")
@@ -452,6 +469,7 @@ class Metasploit3 < Msf::Auxiliary
 										:sname => 'dns',
 										:port => 53 ,
 										:type => 'dns.enum',
+										:update => :unique_data,
 										:data => rr.inspect)
 								when "SRV"
 									print_status("Host: #{rr.host} Port: #{rr.port} Priority: #{rr.priority} Record: SRV")
@@ -460,6 +478,7 @@ class Metasploit3 < Msf::Auxiliary
 										:sname => 'dns',
 										:port => 53 ,
 										:type => 'dns.enum',
+										:update => :unique_data,
 										:data => "#{rr.host},#{rr.port},#{rr.priority},SRV")
 								end
 								rescue ActiveRecord::RecordInvalid
