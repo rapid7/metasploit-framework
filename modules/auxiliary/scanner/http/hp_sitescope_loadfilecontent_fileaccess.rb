@@ -21,7 +21,7 @@ class Metasploit4 < Msf::Auxiliary
 				retrieve an arbitrary text file from the remote server. It is accomplished by
 				calling the loadFileContent operation available through the APIMonitorImpl AXIS
 				service. This module has been successfully tested on HP SiteScope 11.20 over
-				Windows 2003 SP2.
+				Windows 2003 SP2 and Linux Centos 6.3.
 			},
 			'References'   =>
 				[
