@@ -1,6 +1,28 @@
 Armitage Changelog
 ==================
 
+5 Sept 12 (tested against msf r15804)
+---------
+- Setup dialog now trims host, port, user, and pass fields.
+- Armitage now complains when it can't write to your preferences
+  file (versus just hanging without a real error message)
+- View -> Jobs now queries jobs in a thread outside of UI thread
+- Tab completion now uses a separate thread to call into the RPC
+  server. This prevents a deadlock if server is not responding.
+- Login -> psexec now shows when 445 is open on a Windows machine.
+  The old criteria was too restrictive.
+- Added a helper to set Wordlist option
+- Armitage now sets a random LPORT for non-exploit modules with an
+  LPORT option (e.g., post modules that do priv escalation)
+- Armitage now shows an error if it can't open a Win command shell
+- Steal Token dialog now uses incognito module to get token data 
+  instead of the MSF post module. This is more reliable.
+- You may now setup the reverse payload for current_user_psexec
+
+Cortana Updates (for scripters)
+--------
+- added an eventlog popup hook
+
 16 Aug 12 (tested against msf r15753)
 ----------
 - Dynamic workspaces now removes closed services from its set of
