@@ -28,6 +28,24 @@ module Auxiliary::Web
 		super
 	end
 
+  def self.checklist
+    @checklist ||= Set.new
+  end
+
+  def checklist
+    Auxiliary::Web.checklist
+  end
+
+  # String id
+  def checked( id )
+    checklist << "#{shortname}#{id}".hash
+  end
+
+  # String id
+  def checked?( id )
+    checklist.include? "#{shortname}#{id}".hash
+  end
+
 	#
 	# Called directly before 'run'
 	#
@@ -240,7 +258,11 @@ module Auxiliary::Web
 		return if @@vulns.include?( vhash )
 		@@vulns << vhash
 
-		location = opts[:location] ? URI( opts[:location].to_s ) : page.url
+    #location =  if opts[:location]
+    #            else
+    #              page.url
+    #            end
+		location = opts[:location] ? page.url.merge( URI( opts[:location].to_s )) : page.url
 		info = {
 			:web_site    => target.site,
 			:path	     => location.path,
@@ -260,7 +282,7 @@ module Auxiliary::Web
 
 		report_web_vuln( info )
 
-		print_good "	VULNERABLE(#{mode.to_s.upcase}) URL(#{target.to_url})"
+		print_good "	FOUND(#{mode.to_s.upcase}) URL(#{location})"
 		print_good "		 PROOF(#{opts[:fingerprint]})"
 	end
 
