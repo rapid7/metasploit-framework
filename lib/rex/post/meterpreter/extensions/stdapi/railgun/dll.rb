@@ -260,19 +260,12 @@ class DLL
 
 		response = client.send_request(request)
 
-		#puts "receiving Stuff from meterpreter"
-		#puts "out_only_layout:"
-		#puts out_only_layout
-
 		rec_inout_buffers = response.get_tlv_value(TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT)
 		rec_out_only_buffers = response.get_tlv_value(TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT)
 		rec_return_value = response.get_tlv_value(TLV_TYPE_RAILGUN_BACK_RET)
 		rec_last_error = response.get_tlv_value(TLV_TYPE_RAILGUN_BACK_ERR)
 		rec_err_msg = response.get_tlv_value(TLV_TYPE_RAILGUN_BACK_MSG)
 
-		#puts "received stuff"
-		#puts "out_only_layout:"
-		#puts out_only_layout
 
 		# The hash the function returns
 		return_hash={
