@@ -290,6 +290,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 		if args.empty? or args.include? "-h"
 			print_line "You must supply one or more process name to search for"
 			print_line "e.g. findpids explorer.exe notepad.exe"
+			print_line "You may also pass Regular Expressions: findpids *.svc.* *.dll.*"
 			return true
 		end
 		processes = client.sys.process.get_processes
@@ -298,8 +299,11 @@ class Console::CommandDispatcher::Stdapi::Sys
 		else
 			searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
 			processes.each do |proc| 
-				if args.include? proc["name"]
-					searched_procs << proc 
+				args.each do |arg|
+					if proc["name"].match(/#{arg}/)
+						searched_procs << proc 
+						break
+					end
 				end
 			end
 			searched_procs.compact!
