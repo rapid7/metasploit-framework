@@ -16,7 +16,6 @@ require 'ipaddr'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Capture
-    include Rex::Socket
     
     attr_accessor :sock, :thread
 
@@ -120,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
 			response << llmnr_class
 			response << [datastore['TTL']].pack("N") #Default 5 minutes
 			response << "\x00\x04" # Datalength = 4
-			response << datastore['SPOOFIP'].split('.').collect(&:to_i).pack('C*')
+			response << Rex::Socket.addr_aton(datastore['SPOOFIP'])
 
 			open_pcap
 				# Sending UDP unicast response
