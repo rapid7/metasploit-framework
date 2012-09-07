@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         => [
 				'Scott Sutherland <scott.sutherland[at]netspi.com>', # Metasploit module
 				'Robin Wood <robin[at]digininja.org>',               # IDF module which was my inspiration
-				'humble-desser <humble.desser[at]gmail.com',         # Help on IRC
+				'humble-desser <humble.desser[at]gmail.com>',         # Help on IRC
 				'Carlos Perez <carlos_perez[at]darkoperator.com>',   # Help on IRC
 				'hdm',                                               # Help on IRC
 				'todb'                                               # Help on GitHub
