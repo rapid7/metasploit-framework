@@ -405,8 +405,9 @@ THREAD * thread_create( THREADFUNK funk, LPVOID param1, LPVOID param2 )
 			return NULL;
 		}
 		// __paused_thread free's the allocated memory.
+		// create zombie thread reaper for pre-NPTL threads
 		static pthread_t tid = 0;
-		if (tid == 0){
+		if (tid == 0) {
 			pthread_create(&tid, NULL, reap_zombie_thread, NULL);
 			dprintf("reap_zombie_thread created, thread_id : 0x%x",tid);
 		}
