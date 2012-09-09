@@ -681,7 +681,7 @@ DWORD linux_proc_get_program_name(struct connection_entry * connection, unsigned
 
 	// /proc/PID/cmdline failed, try /proc/PID/status
 	if (do_status == 1) {
-		snprintf(buffer, sizeof(buffer), "/proc/%s/status", pid);
+		snprintf(buffer, sizeof(buffer)-1, "/proc/%s/status", pid);
 		fd = fopen(buffer, "r");
 
 		// will try /proc/PID/status
