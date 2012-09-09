@@ -644,26 +644,64 @@ DWORD linux_parse_proc_net_file(char * filename, struct connection_table ** tabl
 DWORD linux_proc_get_program_name(struct connection_entry * connection, unsigned char * pid)
 {
 	FILE *fd;
-	char buffer[30], buffer_file[50], name[30];
+	char buffer[30], buffer_file[256], name[256];
+	char * bname;
+	int do_status = 0;
 
-	snprintf(buffer, sizeof(buffer), "/proc/%s/status", pid);
+	do {
+		// try /proc/PID/cmdline first
+		snprintf(buffer, sizeof(buffer)-1, "/proc/%s/cmdline", pid);
+		fd = fopen(buffer, "r");
 
-	fd = fopen(buffer, "r");
-	if (fd == NULL)
-		return -1;
+		// will try /proc/PID/status
+		if (fd == NULL) {
+			do_status = 1;
+			break;
+		}
+		if (fgets(buffer_file, sizeof(buffer_file), fd) == NULL) {
+      			fclose(fd);
+			do_status = 1;
+			break;
+		}
+		// each entry in cmdline is seperated by '\0' so buffer_file contains first the path of the executable launched
+		if ((bname = basename(buffer_file)) == NULL) {
+	      		fclose(fd);
+			do_status = 1;
+			break;
+		}
+		// copy basename into name to be consistent at the end
+		strncpy(name, bname, sizeof(name)-1);
+		name[sizeof(name)-1] = '\0';
 
-	if (fgets(buffer_file, sizeof(buffer_file), fd) == NULL) {
-      		fclose(fd);
-		return -1;
-	}
+	} while (0);
 
-	if (sscanf(buffer_file, "Name: %s\n", name) != 1) {
-      		fclose(fd);
-		return -1;
-	}
+	if (fd != NULL)
+		fclose(fd);
 
-	snprintf(connection->program_name, sizeof(connection->program_name), "%s/%s",pid,name);
-	fclose(fd);
+
+	// /proc/PID/cmdline failed, try /proc/PID/status
+	if (do_status == 1) {
+		snprintf(buffer, sizeof(buffer), "/proc/%s/status", pid);
+		fd = fopen(buffer, "r");
+
+		// will try /proc/PID/status
+		if (fd == NULL) 
+			return -1;
+
+		if (fgets(buffer_file, sizeof(buffer_file), fd) == NULL) {
+      			fclose(fd);
+			return -1;
+		}
+
+		if (sscanf(buffer_file, "Name: %200s\n", name) != 1) {
+	      		fclose(fd);
+			return -1;
+		}
+		fclose(fd);
+	
+	} 
+
+	snprintf(connection->program_name, sizeof(connection->program_name), "%s/%s", pid, name);
 	return 0;
 }
 
