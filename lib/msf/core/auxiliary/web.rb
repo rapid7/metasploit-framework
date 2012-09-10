@@ -36,12 +36,12 @@ module Auxiliary::Web
     Auxiliary::Web.checklist
   end
 
-  # String id
+  # String id to push to the #checklist
   def checked( id )
     checklist << "#{shortname}#{id}".hash
   end
 
-  # String id
+  # String id to check against the #checklist
   def checked?( id )
     checklist.include? "#{shortname}#{id}".hash
   end
@@ -56,7 +56,7 @@ module Auxiliary::Web
 	end
 
 	# Should be overridden to return the exploits to use for this
-	# vulnerability typeas an Array of Strings.
+	# vulnerability type as an Array of Strings.
 	def self.exploits
 	end
 
@@ -74,8 +74,8 @@ module Auxiliary::Web
 	end
 
 	#
-	# Should be overridden to return a Regexp which will be used against the
-	# response body in order to identify the vulnerability.
+	# Should be overridden to return a pattern to be matched against response
+  # bodies in order to identify a vulnerability.
 	#
 	# You can go one deeper and override #find_proof for more complex processing.
 	#
@@ -98,29 +98,34 @@ module Auxiliary::Web
 		end
 	end
 
+  # Checks whether a resource exists based on a path String.
 	def resource_exist?( path )
 		res = http.get( path )
-		res.code.to_i == 200 && !custom_404?( path, res.body )
+		res.code.to_i == 200 && !http.custom_404?( path, res.body )
 	end
 	alias :file_exist? :resource_exist?
 
+  # Checks whether a directory exists based on a path String.
 	def directory_exist?( path )
 		dir = path.dup
 		dir << '/' if !dir.end_with?( '/' )
 		resource_exist?( dir )
 	end
 
+  # Logs the existence of a resource in the path String.
 	def log_resource_if_exists( path )
 		log_resource( :location => path ) if resource_exist?( path )
 	end
 	alias :log_file_if_exists :log_resource_if_exists
 
+  # Logs the existence of the directory in the path String.
 	def log_directory_if_exists( path )
 		dir = path.dup
 		dir << '/' if !dir.end_with?( '/' )
 		log_resource_if_exists( dir )
 	end
 
+  # Matches fingerprint pattern against the current page's body and logs matches
 	def match_and_log_fingerprint( fingerprint )
 		page.body.to_s.match( fingerprint ) && log_fingerprint( :fingerprint => fingerprint )
 	end
@@ -148,69 +153,6 @@ module Auxiliary::Web
 
 	def increment_request_counter
 		parent.increment_request_counter
-	end
-
-	def custom_404?( path, body )
-		return if !path || !body
-
-		precision = 2
-
-		@@_404 ||= {}
-		@@_404[path] ||= []
-
-		trv_back = File.dirname( path )
-		trv_back << '/' if trv_back[-1,1] != '/'
-
-		# 404 probes
-		generators = [
-			# get a random path with an extension
-			proc{ path + Rex::Text.rand_text_alpha( 10 ) + '.' + Rex::Text.rand_text_alpha( 10 )[0..precision] },
-
-			# get a random path without an extension
-			proc{ path + Rex::Text.rand_text_alpha( 10 ) },
-
-			# move up a dir and get a random file
-			proc{ trv_back + Rex::Text.rand_text_alpha( 10 ) },
-
-			# move up a dir and get a random file with an extension
-			proc{ trv_back + Rex::Text.rand_text_alpha( 10 ) + '.' + Rex::Text.rand_text_alpha( 10 )[0..precision] },
-
-			# get a random directory
-			proc{ path + Rex::Text.rand_text_alpha( 10 ) + '/' }
-		]
-
-		@@_404_gathered ||= Set.new
-
-		gathered = 0
-		if !@@_404_gathered.include?( path.hash )
-			generators.each.with_index do |generator, i|
-				@@_404[path][i] ||= {}
-
-				precision.times {
-					res = http.get( generator.call, :follow_redirect => true )
-					gathered += 1
-
-					if gathered == generators.size * precision
-						@@_404_gathered << path.hash
-						return is_404?( path, body )
-					else
-						@@_404[path][i]['rdiff_now'] ||= false
-
-						if !@@_404[path][i]['body']
-							@@_404[path][i]['body'] = res.body
-						else
-							@@_404[path][i]['rdiff_now'] = true
-						end
-
-						if @@_404[path][i]['rdiff_now'] && !@@_404[path][i]['rdiff']
-							@@_404[path][i]['rdiff'] = Rex::Text.refine( @@_404[path][i]['body'], res.body )
-						end
-					end
-				}
-			end
-		else
-			is_404?( path, body )
-		end
 	end
 
 	def http
@@ -241,11 +183,8 @@ module Auxiliary::Web
 		@http = Auxiliary::Web::HTTP.new( opts )
 	end
 
-	def is_404?( path, body )
-		@@_404[path].each { |_404| return true if Rex::Text.refine( _404['body'], body ) == _404['rdiff'] }
-		false
-	end
-
+  # Should be overridden and return an Integer (0-100) denoting the confidence
+  # in the accuracy of the logged vuln.
 	def calculate_confidence( vuln )
 		100
 	end
@@ -258,10 +197,6 @@ module Auxiliary::Web
 		return if @@vulns.include?( vhash )
 		@@vulns << vhash
 
-    #location =  if opts[:location]
-    #            else
-    #              page.url
-    #            end
 		location = opts[:location] ? page.url.merge( URI( opts[:location].to_s )) : page.url
 		info = {
 			:web_site    => target.site,

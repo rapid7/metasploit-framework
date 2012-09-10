@@ -103,26 +103,6 @@ module Analysis::Differential
 
 		responses[:good].keys.each do |key|
 			responses[:good][key].each do |res|
-				#puts 'Default'
-				#puts responses[:orig]
-				#
-				#puts '--'
-				#
-				#puts 'Bool'
-				#puts res['res'].body
-				#
-				#puts '--'
-				#
-				#puts 'Fault'
-				#puts responses[:bad][key]
-				#
-				#puts '---------------------'
-
-				#p responses[:orig] == res['res'].body
-				#p responses[:bad][key] != res['res'].body
-				#p res['res'].code == 200
-				#p res['res'].code
-				#puts '---------------------'
 
 				# if default_response_body == bool_response_body AND
 				#    fault_response_body != bool_response_body AND
@@ -133,7 +113,7 @@ module Analysis::Differential
 
 					# check to see if the current boolean response we're analyzing
 					# is a custom 404 page
-					if !fuzzer.custom_404?( action, res['res'].body )
+					if !http.custom_404?( action, res['res'].body )
 						# if this isn't a custom 404 page then it means that
 						# the element is vulnerable, so go ahead and log the issue
 						fuzzer.process_vulnerability( res['elem'], 'Manipulatable responses.',

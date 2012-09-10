@@ -32,10 +32,10 @@ class Fuzzable
 
 		begin
 			if resp = http.request( *request( opts ) )
-				str = "    #{resp.code} - #{method.to_s.upcase} #{action} #{params}"
+				str = "    #{fuzzer.shortname}: #{resp.code} - #{method.to_s.upcase} #{action} #{params}"
 				case resp.code.to_i
 					when 200,404,301,302,303
-						# fuzzer.print_status str
+						#fuzzer.print_status str
 					when 500,503,401,403
 						fuzzer.print_good str
 					else
@@ -49,6 +49,7 @@ class Fuzzable
 			raise
 		rescue => e
 			fuzzer.print_error "Error processing response for #{fuzzer.target.to_url} #{e.class} #{e} "
+      #e.backtrace.each { |l| fuzzer.print_error l }
 			return
 		end
 	end

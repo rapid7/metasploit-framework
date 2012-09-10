@@ -66,8 +66,77 @@ class Auxiliary::Web::HTTP
 		request( url, opts.merge( :method => :post ) )
 	end
 
-	private
-	def _request( url, opts = {} )
+  def custom_404?( path, body )
+    return if !path || !body
+
+    precision = 2
+
+    @@_404 ||= {}
+    @@_404[path] ||= []
+
+    trv_back = File.dirname( path )
+    trv_back << '/' if trv_back[-1,1] != '/'
+
+    # 404 probes
+    generators = [
+      # get a random path with an extension
+      proc{ path + Rex::Text.rand_text_alpha( 10 ) + '.' + Rex::Text.rand_text_alpha( 10 )[0..precision] },
+
+      # get a random path without an extension
+      proc{ path + Rex::Text.rand_text_alpha( 10 ) },
+
+      # move up a dir and get a random file
+      proc{ trv_back + Rex::Text.rand_text_alpha( 10 ) },
+
+      # move up a dir and get a random file with an extension
+      proc{ trv_back + Rex::Text.rand_text_alpha( 10 ) + '.' + Rex::Text.rand_text_alpha( 10 )[0..precision] },
+
+      # get a random directory
+      proc{ path + Rex::Text.rand_text_alpha( 10 ) + '/' }
+    ]
+
+    @@_404_gathered ||= Set.new
+
+    gathered = 0
+    if !@@_404_gathered.include?( path.hash )
+      generators.each.with_index do |generator, i|
+        @@_404[path][i] ||= {}
+
+        precision.times {
+          res = get( generator.call, :follow_redirect => true )
+          gathered += 1
+
+          if gathered == generators.size * precision
+            @@_404_gathered << path.hash
+            return is_404?( path, body )
+          else
+            @@_404[path][i]['rdiff_now'] ||= false
+
+            if !@@_404[path][i]['body']
+              @@_404[path][i]['body'] = res.body
+            else
+              @@_404[path][i]['rdiff_now'] = true
+            end
+
+            if @@_404[path][i]['rdiff_now'] && !@@_404[path][i]['rdiff']
+              @@_404[path][i]['rdiff'] = Rex::Text.refine( @@_404[path][i]['body'], res.body )
+            end
+          end
+        }
+      end
+    else
+      is_404?( path, body )
+    end
+  end
+
+  private
+
+  def is_404?( path, body )
+    @@_404[path].each { |_404| return true if Rex::Text.refine( _404['body'], body ) == _404['rdiff'] }
+    false
+  end
+
+  def _request( url, opts = {} )
 		body    = opts[:body]
     timeout = opts[:timeout] || 10
 		method  = opts[:method].to_s.upcase || 'GET'
@@ -80,6 +149,7 @@ class Auxiliary::Web::HTTP
     end
 
 		if method == 'GET'
+      param_opts['vars_get'] ||= {}
 			param_opts['vars_get'].merge!( opts[:params] ) if opts[:params].is_a?( Hash )
 		elsif method == 'POST'
 			param_opts['vars_post'] = opts[:params] || {}
