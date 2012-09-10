@@ -659,13 +659,11 @@ DWORD linux_proc_get_program_name(struct connection_entry * connection, unsigned
 			break;
 		}
 		if (fgets(buffer_file, sizeof(buffer_file), fd) == NULL) {
-      			fclose(fd);
 			do_status = 1;
 			break;
 		}
 		// each entry in cmdline is seperated by '\0' so buffer_file contains first the path of the executable launched
 		if ((bname = basename(buffer_file)) == NULL) {
-	      		fclose(fd);
 			do_status = 1;
 			break;
 		}
