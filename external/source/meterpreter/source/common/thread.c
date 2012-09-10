@@ -316,6 +316,21 @@ void *__paused_thread(void *req)
 
 	return funk(thread);	
 }
+
+/*
+ * Reap child zombie threads on linux 2.4 (before NPTL)
+ * each thread appears as a process and pthread_join don't necessarily reap it
+ * threads are created using the clone syscall, so use special __WCLONE flag in waitpid
+ */
+
+VOID reap_zombie_thread(void * param)
+{
+        while(1) {
+                waitpid(-1, NULL, __WCLONE);
+                // on 2.6 kernels, don't chew 100% CPU
+                usleep(500000);
+        }
+}
 #endif
 
 /*
@@ -390,6 +405,12 @@ THREAD * thread_create( THREADFUNK funk, LPVOID param1, LPVOID param2 )
 			return NULL;
 		}
 		// __paused_thread free's the allocated memory.
+		// create zombie thread reaper for pre-NPTL threads
+		static pthread_t tid = 0;
+		if (tid == 0) {
+			pthread_create(&tid, NULL, reap_zombie_thread, NULL);
+			dprintf("reap_zombie_thread created, thread_id : 0x%x",tid);
+		}
 
 	} while(0);
 #endif
