@@ -253,7 +253,7 @@ class DBManager
 			wspace = find_workspace(wspace)
 		end
 
-		address, scope = address.split('%', 2)
+		address = normalize_host(address)
 		return wspace.hosts.find_by_address(address)
 	}
 	end
@@ -6066,11 +6066,19 @@ class DBManager
 
 		if (host.kind_of? String)
 
-			# If it's an IPv4 addr with a port on the end, strip the port
-			if Rex::Socket.is_ipv4?(host) and host =~ /((\d{1,3}\.){3}\d{1,3}):\d+/
-				norm_host = $1
+			if Rex::Socket.is_ipv4?(host)
+				# If it's an IPv4 addr with a port on the end, strip the port
+				if host =~ /((\d{1,3}\.){3}\d{1,3}):\d+/
+					norm_host = $1
+				else
+					norm_host = host
+				end
+			elsif Rex::Socket.is_ipv6?(host)
+				# If it's an IPv6 addr, drop the scope
+				address, scope = host.split('%', 2)
+				norm_host = address
 			else
-				norm_host = host
+				norm_host = Rex::Socket.getaddress(host, true)
 			end
 		elsif host.kind_of? ::Mdm::Session
 			norm_host = host.host
