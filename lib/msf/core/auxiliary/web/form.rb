@@ -227,9 +227,10 @@ class Form < Fuzzable
 
 	def self.from_model( form )
 		inputs = form.params.map do |name, value, extra|
-			extra ||= {}
+      extra = extra.first if extra.is_a? Array
+      extra ||= {}
 			{ :name => name, :value => value, :type => extra[:type] }
-		end
+    end
 		e = new( :action => "#{form.path}?#{form.query}", :method => form.method, :inputs => inputs )
 		e.model = form
 		e
