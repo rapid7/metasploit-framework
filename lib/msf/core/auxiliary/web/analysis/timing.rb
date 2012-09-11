@@ -37,9 +37,9 @@ module Analysis::Timing
 	# * Logs the vulnerability.
 	#
 	# opts - Options Hash (default: {})
-    #        :timeout - Integer amount of seconds to wait for the request to complete (default: 5)
+  #        :timeout - Integer amount of seconds to wait for the request to complete (default: 5)
 	#        :stub - String stub to be replaced by delay * multi (default: __TIME__)
-    #        :multi - Integer multiplier (stub = timeout * multi) (default: 1)
+  #        :multi - Integer multiplier (stub = timeout * multi) (default: 1)
 	#
 	def timeout_analysis( opts = {} )
 		opts = TIMING_OPTIONS.merge( opts )
