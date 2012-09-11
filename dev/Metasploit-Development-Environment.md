@@ -32,8 +32,21 @@ Most (all?) standard distributions of Ruby are lacking in one regard or another.
 $ curl -L get.rvm.io | bash -s stable
 ````
 
-Note the *lack* of sudo; you will nearly always want to install this as a regular user, and not as root. Follow this by editing your .bashrc to include this line at the end (if it doesn't have it already):
+Note the *lack* of sudo; you will nearly always want to install this as a regular user, and not as root. Lately, though, this incantation isn't always reliable. This is nearly identical, but more typing:
 
+````bash
+$ curl -o rvm.sh -L get.rvm.io && cat rvm.sh | bash -s stable
+````
+
+Also, if you're sketchy about piping a web site directly to bash, you can perform each step individually, without the &&:
+
+````bash
+$ curl -o rvm.sh -L get.rvm.io 
+$ less rvm.sh
+$ cat rvm.sh | bash -s stable
+````
+
+However you get RVM installed, follow this by editing your .bashrc to include this line at the end (if it doesn't have it already):
 
 \[\[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM
 
