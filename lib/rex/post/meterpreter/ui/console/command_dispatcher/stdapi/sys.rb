@@ -288,9 +288,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 
 	def cmd_findpids(*args)
 		if args.empty? or args.include? "-h"
-			print_line "You must supply one or more process name to search for"
-			print_line "e.g. findpids explorer.exe notepad.exe"
-			print_line "You may also pass Regular Expressions: findpids *.svc.* *.dll.*"
+			cmd_findpids_help
 			return true
 		end
 		processes = client.sys.process.get_processes
@@ -316,6 +314,12 @@ class Console::CommandDispatcher::Stdapi::Sys
 			end
 		end
 		return true
+	end
+
+	def cmd_findpids_help
+		print_line "You must supply one or more process name to search for"
+		print_line "e.g. findpids explorer.exe notepad.exe"
+		print_line "You may also pass Regular Expressions: findpids *.svc.* *.dll.*"
 	end
 
 	#
