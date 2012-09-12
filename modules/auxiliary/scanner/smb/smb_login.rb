@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Auxiliary
 								datastore['SMB::Native_OS'],
 								datastore['SMB::Native_LM'],
 								{:use_spn => datastore['NTLM::SendSPN'], :name =>  self.rhost})
-				status_code = 'STATUS_SUCCESS'
+				status_code = 'STATUS_SUCCESS' 
 			end
 			# This does not appear to be required to validate login details? simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
 		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
