@@ -46,11 +46,15 @@ class Metasploit3 < Msf::Auxiliary
 
 		@accepts_guest_logins = {}
 		@correct_credentials_status_codes = ["STATUS_INVALID_LOGON_HOURS",
+											"STATUS_INVALID_WORKSTATION",
 											"STATUS_ACCOUNT_RESTRICTION",
 											"STATUS_ACCOUNT_EXPIRED",
 											"STATUS_ACCOUNT_DISABLED",
+											"STATUS_ACCOUNT_LOCKED_OUT",
+											"STATUS_ACCOUNT_RESTRICTION",
 											"STATUS_PASSWORD_EXPIRED",
-											"STATUS_PASSWORD_MUST_CHANGE"]
+											"STATUS_PASSWORD_MUST_CHANGE",
+											"STATUS_LOGON_TYPE_NOT_GRANTED"]
 
 		# These are normally advanced options, but for this module they have a
 		# more active role, so make them regular options.
@@ -58,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptString.new('SMBPass', [ false, "SMB Password" ]),
 				OptString.new('SMBUser', [ false, "SMB Username" ]),
-				OptString.new('SMBDomain', [ false, "SMB Domain", '.']),
+				OptString.new('SMBDomain', [ false, "SMB Domain", '']),
 				OptBool.new('PRESERVE_DOMAINS', [ false, "Respect a username that contains a domain name.", true]),
 				OptBool.new('RECORD_GUEST', [ false, "Record guest-privileged random logins to the database", false]),
 			], self.class)
@@ -79,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 
-		domain = datastore['SMBDomain'] || "."
+		domain = datastore['SMBDomain'] || ""
 
 		begin
 			each_user_pass do |user, pass|
@@ -132,7 +136,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		unless(simple.client.auth_user)
 			guest = true
-			@accepts_guest_logins['rhost'] ||=[] unless @accepts_guest_logins.include?(rhost) #'rhost' should be rhost?
+			@accepts_guest_logins['rhost'] ||=[] unless @accepts_guest_logins.include?(rhost)
 			report_note(
 				:host	=> rhost,
 				:proto => 'tcp',
