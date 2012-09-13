@@ -50,7 +50,6 @@ class Metasploit3 < Msf::Auxiliary
 											"STATUS_ACCOUNT_RESTRICTION",
 											"STATUS_ACCOUNT_EXPIRED",
 											"STATUS_ACCOUNT_DISABLED",
-											"STATUS_ACCOUNT_LOCKED_OUT",
 											"STATUS_ACCOUNT_RESTRICTION",
 											"STATUS_PASSWORD_EXPIRED",
 											"STATUS_PASSWORD_MUST_CHANGE",
@@ -112,7 +111,7 @@ class Metasploit3 < Msf::Auxiliary
 								datastore['SMB::Native_OS'],
 								datastore['SMB::Native_LM'],
 								{:use_spn => datastore['NTLM::SendSPN'], :name =>  self.rhost})
-				status_code = 'STATUS_SUCCESS' 
+				status_code = 'STATUS_SUCCESS'
 			end
 			# This does not appear to be required to validate login details? simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
 		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
