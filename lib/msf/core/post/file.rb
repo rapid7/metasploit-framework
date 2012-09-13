@@ -281,6 +281,23 @@ module Msf::Post::File
 		write_file(remote, ::File.read(local))
 	end
 
+	#
+	# Delete remote files
+	#
+	def rm_f(*remote_files)
+		remote_files.each do |remote|
+			if session.type == "meterpreter"
+				session.fs.file.delete(remote)
+			else
+				if session.platform =~ /win/
+					cmd_exec("del /q /f #{remote}")
+				else
+					cmd_exec("rm -f #{remote}")
+				end
+			end
+		end
+	end
+
 
 protected
 	#
