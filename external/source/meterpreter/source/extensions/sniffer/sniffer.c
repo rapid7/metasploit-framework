@@ -500,8 +500,11 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *h, const u_char *byt
 
 	if(j->idx_pkts >= j->max_pkts) j->idx_pkts = 0;
 
-	if(j->pkts[j->idx_pkts]) free((void*)(j->pkts[j->idx_pkts]));
-
+	if(j->pkts[j->idx_pkts]) {
+		j->cur_pkts--;
+		j->cur_bytes -= ((PeterPacket *)(j->pkts[j->idx_pkts]))->h.caplen;
+		free((void*)(j->pkts[j->idx_pkts]));
+	}
 	j->pkts[j->idx_pkts++] = pkt;
 
 	lock_release(snifferm);
@@ -1098,8 +1101,6 @@ DWORD __declspec(dllexport) InitServerExtension(Remote *remote)
 {
 	DWORD index;
 
-	hMetSrv = remote->hMetSrv;
-
 	dprintf("[SERVER] Registering command handlers...");
 	for (index = 0; customCommands[index].method; index++) {
 		dprintf("Registering command index %d", index);
@@ -1112,6 +1113,7 @@ DWORD __declspec(dllexport) InitServerExtension(Remote *remote)
 	memset(open_captures, 0, sizeof(open_captures));
 
 #ifdef _WIN32
+	hMetSrv = remote->hMetSrv;
 	// initialize structures for the packet sniffer sdk
 	hMgr = NULL;
 	hErr = 0;

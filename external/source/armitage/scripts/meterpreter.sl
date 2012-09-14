@@ -14,7 +14,7 @@ global('%sessions %handlers $handler');
 
 sub session {
 	if ($1 !in %sessions && $mclient !is $null) {
-		%sessions[$1] = [new MeterpreterSession: $client, $1, iff($client !is $mclient)];
+		%sessions[$1] = [$cortana getSession: $1];
 		[%sessions[$1] addListener: lambda(&parseMeterpreter)];		
 	}
 
@@ -28,6 +28,15 @@ sub oneTimeShow {
 			%handlers[$command] = $null;
 		}
 	}, $command => $1);
+}
+
+sub m_cmd_callback {
+	if ($mclient is $null) {
+		warn("Dropping: " . @_ . " - collab check not complete!");
+		return;
+	}
+
+	[session($1) addCommand: $3, "$2 $+ \n"];
 }
 
 # m_cmd("session", "command here")
@@ -57,7 +66,7 @@ sub parseMeterpreter {
 	# called with: sid, token, response 
 	($sid, $token, $response) = @_;
 
-	if ($token isa ^MeterpreterClient) {
+	if ($token isa ^MeterpreterClient || $token isa ^cortana.metasploit.MeterpreterBridge$MeterpreterToken) {
 		return;
 	}
 
@@ -188,6 +197,8 @@ sub showMeterpreterMenu {
 		item($j, "Pass Session", 'S', lambda({
 			launch_dialog("Pass Session", "post", "windows/manage/payload_inject", 1, $null, %(SESSION => $sid, LPORT => %MSF_GLOBAL['LPORT'], HANDLER => "0"));
 		}, $sid => "$sid"));
+
+		setupMenu($j, "meterpreter_access", @($sid));
 	}
 			
 	$j = menu($1, "Interact", 'I');
@@ -223,6 +234,8 @@ sub showMeterpreterMenu {
 				}, $sid => "$sid"));
 			}
 
+			setupMenu($j, "meterpreter_interact", @($sid));
+
 	$j = menu($1, "Explore", 'E');
 			item($j, "Browse Files", 'B', lambda({ createFileBrowser($sid, $platform); }, $sid => "$sid", \$platform));
 			item($j, "Show Processes", 'P', lambda({ createProcessBrowser($sid); }, $sid => "$sid"));
@@ -238,6 +251,8 @@ sub showMeterpreterMenu {
 				item($j, "Webcam Shot", 'W', createWebcamViewer("$sid"));
 			}
 
+			setupMenu($j, "meterpreter_explore", @($sid));
+
 			separator($j);
 
 			item($j, "Post Modules", 'M', lambda({ showPostModules($sid); }, $sid => "$sid"));
@@ -246,14 +261,14 @@ sub showMeterpreterMenu {
 			item($j, "Setup...", 'A', setupPivotDialog("$sid"));
 			item($j, "Remove", 'R', lambda({ killPivots($sid, $session); }, \$session, $sid => "$sid"));
 
+	setupMenu($1, "meterpreter_bottom", @($sid));
+
 	if ("*win*" iswm $platform) {
 		item($1, "ARP Scan...", 'A', setupArpScanDialog("$sid"));
 	}
 	else {
 		item($1, "Ping Sweep...", 'P', setupPingSweepDialog("$sid"));
 	}
-
-	setupMenu($1, "meterpreter_bottom", @($sid));
 
 	separator($1);
 

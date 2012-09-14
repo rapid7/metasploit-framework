@@ -19,9 +19,24 @@ sub createModuleBrowser {
 	return $split;
 }
 
+sub isClientside {
+	local('$options');
+	$options = call($mclient, "module.options", "exploit", $1);
+	return iff ('RHOST' in $options || 'RHOSTS' in $options, $null, 1);
+}
+
 sub showModulePopup {
+	local('$event $type $path');
+	($event, $type, $path) = @_;
+
+	# we go through this hassle because &isClientside calls module.options which could block
+	# and freeze the UI--we don't want to do that...
+	thread(lambda(&_showModulePopup, \$event, \$type, \$path));
+}
+
+sub _showModulePopup {
 	local('$menu');
-	if (($2 eq "exploit" && "*/browser/*" !iswm $3 && "*/fileformat/*" !iswm $3) || ($2 eq "auxiliary" && "*_login" iswm $3)) {
+	if (($type eq "exploit" && !isClientside($path)) || ($type eq "auxiliary" && "*_login" iswm $path)) {
 		$menu = [new JPopupMenu];
 		item($menu, "Relevant Targets", 'R', lambda({
 			thread(lambda({
@@ -61,14 +76,18 @@ sub showModulePopup {
 					showError("I'm sorry, this option doesn't work for\nthis module.");
 				}
 			}, \$module, \$type));
-		}, $module => $3, $type => $2));
+		}, $module => $path, \$type));
 
-		setupMenu($menu, "module", @($2, $3));
+		setupMenu($menu, "module", @($type, $path));
 
-		[$menu show: [$1 getSource], [$1 getX], [$1 getY]];
+		dispatchEvent(lambda({
+			[$menu show: [$event getSource], [$event getX], [$event getY]];
+		}, \$menu, \$event));
 	}
 	else {
-		installMenu($1, "module", @($2, $3));
+		dispatchEvent(lambda({
+			installMenu($event, "module", @($type, $path));
+		}, \$type, \$path, \$event));
 	}
 }
 
@@ -79,7 +98,7 @@ sub moduleAction {
 	thread(lambda({
 		if ($path in @exploits || $path in @auxiliary || $path in @payloads || $path in @post) {
 			if ($type eq "exploit") {
-				if ('*/browser/*' iswm $path || '*/fileformat/*' iswm $path) {
+				if (isClientside($path) || $path eq "windows/local/current_user_psexec") {
 					launch_dialog($path, $type, $path, 1, $hosts);
 				}
 				else {

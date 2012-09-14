@@ -937,7 +937,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 
 	# An exploit helper function for sending arbitrary SPNEGO blobs
-	def session_setup_with_ntlmssp_blob(blob = '', do_recv = true)
+	def session_setup_with_ntlmssp_blob(blob = '', do_recv = true, userid = 0)
 		native_data = ''
 		native_data << self.native_os + "\x00"
 		native_data << self.native_lm + "\x00"
@@ -949,7 +949,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2801
 		pkt['Payload']['SMB'].v['WordCount'] = 12
-		pkt['Payload']['SMB'].v['UserID'] = 0
+		pkt['Payload']['SMB'].v['UserID'] = userid
 		pkt['Payload'].v['AndX'] = 255
 		pkt['Payload'].v['MaxBuff'] = 0xffdf
 		pkt['Payload'].v['MaxMPX'] = 2
@@ -1407,7 +1407,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		pkt['Payload'].v['ParamCountTotal'] = param.length
 		pkt['Payload'].v['DataCountTotal'] = body.length
 		pkt['Payload'].v['ParamCountMax'] = 1024
-		pkt['Payload'].v['DataCountMax'] = 65504
+		pkt['Payload'].v['DataCountMax'] = 65000
 		pkt['Payload'].v['ParamCount'] = param.length
 		pkt['Payload'].v['ParamOffset'] = param_offset
 		pkt['Payload'].v['DataCount'] = body.length
@@ -1605,7 +1605,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		pkt['Payload'].v['ParamCountTotal'] = param.length
 		pkt['Payload'].v['DataCountTotal'] = body.length
 		pkt['Payload'].v['ParamCountMax'] = 1024
-		pkt['Payload'].v['DataCountMax'] = 65504
+		pkt['Payload'].v['DataCountMax'] = 65000
 		pkt['Payload'].v['ParamCount'] = param.length
 		pkt['Payload'].v['ParamOffset'] = param_offset
 		pkt['Payload'].v['DataCount'] = body.length
@@ -1651,7 +1651,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		pkt['Payload'].v['ParamCountTotal'] = param.length
 		pkt['Payload'].v['DataCountTotal'] = body.length
 		pkt['Payload'].v['ParamCountMax'] = 1024
-		pkt['Payload'].v['DataCountMax'] = 65504
+		pkt['Payload'].v['DataCountMax'] = 65000
 		pkt['Payload'].v['ParamCount'] = param.length
 		pkt['Payload'].v['ParamOffset'] = param_offset
 		pkt['Payload'].v['DataCount'] = body.length
@@ -1830,7 +1830,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		files = { }
 		parm = [
 			26,  # Search for ALL files
-			512, # Maximum search count
+			20,  # Maximum search count
 			6,   # Resume and Close on End of Search
 			260, # Level of interest
 			0,   # Storage type is zero
@@ -1838,57 +1838,67 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 		begin
 			resp = trans2(CONST::TRANS2_FIND_FIRST2, parm, '')
+			search_next = 0
+			begin
+				pcnt = resp['Payload'].v['ParamCount']
+				dcnt = resp['Payload'].v['DataCount']
+				poff = resp['Payload'].v['ParamOffset']
+				doff = resp['Payload'].v['DataOffset']
 
-			pcnt = resp['Payload'].v['ParamCount']
-			dcnt = resp['Payload'].v['DataCount']
-			poff = resp['Payload'].v['ParamOffset']
-			doff = resp['Payload'].v['DataOffset']
+				# Get the raw packet bytes
+				resp_rpkt = resp.to_s
 
-			# Get the raw packet bytes
-			resp_rpkt = resp.to_s
+				# Remove the NetBIOS header
+				resp_rpkt.slice!(0, 4)
 
-			# Remove the NetBIOS header
-			resp_rpkt.slice!(0, 4)
+				resp_parm = resp_rpkt[poff, pcnt]
+				resp_data = resp_rpkt[doff, dcnt]
 
-			resp_parm = resp_rpkt[poff, pcnt]
-			resp_data = resp_rpkt[doff, dcnt]
+				if search_next == 0
+					# search id, search count, end of search, error offset, last name offset
+					sid, scnt, eos, eoff, loff = resp_parm.unpack('v5')
+				else
+					# FINX_NEXT doesn't return a SID
+					scnt, eos, eoff, loff = resp_parm.unpack('v4')
+				end
+				didx = 0
+				while (didx < resp_data.length)
+					info_buff = resp_data[didx, 70]
+					break if info_buff.length != 70
+					info = info_buff.unpack(
+						'V'+	# Next Entry Offset
+						'V'+	# File Index
+						'VV'+	# Time Create
+						'VV'+	# Time Last Access
+						'VV'+	# Time Last Write
+						'VV'+	# Time Change
+						'VV'+	# End of File
+						'VV'+	# Allocation Size
+						'V'+	# File Attributes
+						'V'+	# File Name Length
+						'V'+	# Extended Attr List Length
+						'C'+	# Short File Name Length
+						'C' 	# Reserved
+					)
+					name = resp_data[didx + 70 + 24, info[15]].sub!(/\x00+$/, '')
+					files[name] =
+					{
+						'type' => (info[14] & 0x10) ? 'D' : 'F',
+						'attr' => info[14],
+						'info' => info
+					}
 
-			# search id, search count, end of search, error offset, last name offset
-			sid, scnt, eos, eoff, loff = resp_parm.unpack('v5')
-
-			didx = 0
-			while (didx < resp_data.length)
-				info_buff = resp_data[didx, 70]
-				break if info_buff.length != 70
-				info = info_buff.unpack(
-					'V'+	# Next Entry Offset
-					'V'+	# File Index
-					'VV'+	# Time Create
-					'VV'+	# Time Last Access
-					'VV'+	# Time Last Write
-					'VV'+	# Time Change
-					'VV'+	# End of File
-					'VV'+	# Allocation Size
-					'V'+	# File Attributes
-					'V'+	# File Name Length
-					'V'+	# Extended Attr List Length
-					'C'+	# Short File Name Length
-					'C' 	# Reserved
-				)
-				name = resp_data[didx + 70 + 24, info[15]].sub!(/\x00+$/, '')
-				files[name] =
-				{
-					'type' => (info[14] & 0x10) ? 'D' : 'F',
-					'attr' => info[14],
-					'info' => info
-				}
-
-				break if info[0] == 0
-				didx += info[0]
-			end
-
-			last_search_id = sid
-
+					break if info[0] == 0
+					didx += info[0]
+				end
+				last_search_id = sid
+				last_offset = loff
+				last_filename = name
+				if eos != 1 #If we aren't at the end of the search, run find_next
+					resp = find_next(last_search_id, last_offset, last_filename)
+					search_next = 1 # Flip bit so response params will parse correctly
+				end
+			end until eos == 1
 		rescue ::Exception
 			raise $!
 		end
@@ -1896,21 +1906,19 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		return files
 	end
 
-	# TODO: Finish this method... requires search_id, resume_key, and filename from first
-=begin
-	def find_next(path, sid = last_search_id)
+	# Supplements find_first if file/dir count exceeds max search count
+	def find_next(sid, resume_key, last_filename)
 
 		parm = [
 			sid, # Search ID
-			512, # Maximum search count
+			20, # Maximum search count (Size of 20 keeps response to 1 packet)
 			260, # Level of interest
-			0,   # Resume key from previous
-			1,   # Close search if end of search
-		].pack('vvvVv') + path + "\x00"
-
-		return files
+			resume_key,   # Resume key from previous (Last name offset)
+			6,   # Close search if end of search
+		].pack('vvvVv') + last_filename + "\x00" # Last filename returned from find_first or find_next
+		resp = trans2(CONST::TRANS2_FIND_NEXT2, parm, '')
+		return resp # Returns the FIND_NEXT2 response packet for parsing by the find_first function
 	end
-=end
 
 	# Creates a new directory on the mounted tree
 	def create_directory(name)

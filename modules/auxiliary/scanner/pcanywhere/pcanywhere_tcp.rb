@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'pcAnywhere TCP Service Discovery',
+			'Name'        => 'PcAnywhere TCP Service Discovery',
 			'Version'     => '$Revision$',
 			'Description' => 'Discover active pcAnywhere services through TCP',
 			'Author'      => 'hdm',

@@ -100,7 +100,7 @@ class Metasploit3 < Msf::Auxiliary
 			"\x80" +                      # type/subtype
 			"\x00" +                      # flags
 			"\x00\x00" +                  # duration
-			"\xff\xff\xff\xff\xff\xff" +  # dst
+			eton(datastore['ADDR_DST']) + # dst
 			bssid +                       # src
 			bssid +                       # bssid
 			seq   +                       # seq

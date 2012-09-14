@@ -12,7 +12,7 @@ module Auxiliary::MimeTypes
     end
     mtype = Mime::Type.lookup_by_extension(extension)
     mtype = mime_yaml_lookup(extension) if mtype.nil?
-    mtype = 'application/#{extension}' if mtype.nil?
+    mtype = "application/#{extension}" if mtype.nil?
     return mtype
   end
 

@@ -12,6 +12,8 @@ import java.util.*;
 
 import java.io.*;
 
+import cortana.core.*;
+
 /**
  *  This class launches Armitage and loads the scripts that are part of it.
  */
@@ -21,12 +23,31 @@ public class ArmitageMain implements RuntimeWarningWatcher, Loadable, Function {
 	}
 
 	public Scalar evaluate(String name, ScriptInstance script, Stack args) {
-		try {
-			InputStream i = this.getClass().getClassLoader().getResourceAsStream(BridgeUtilities.getString(args, ""));
-			return SleepUtils.getScalar(i);
+		if (name.equals("&_args")) {
+			ScalarArray a = BridgeUtilities.getArray(args);
+			Stack temp = new Stack();
+			Iterator i = a.scalarIterator();
+			while (i.hasNext()) {
+				temp.add(0, i.next());
+			}
+
+			return SleepUtils.getScalar(temp);
 		}
-		catch (Exception ex) {
-			throw new RuntimeException(ex.getMessage());
+		else {
+			try {
+				String file = BridgeUtilities.getString(args, "");
+				if (new File(file).exists()) {
+					InputStream i = new FileInputStream(file);
+					return SleepUtils.getScalar(i);
+				}
+				else {
+					InputStream i = this.getClass().getClassLoader().getResourceAsStream(file);
+					return SleepUtils.getScalar(i);
+				}
+			}
+			catch (Exception ex) {
+				throw new RuntimeException(ex.getMessage());
+			}
 		}
 	}
 
@@ -53,6 +74,7 @@ public class ArmitageMain implements RuntimeWarningWatcher, Loadable, Function {
 			"scripts/browser.sl",
 			"scripts/pivots.sl",
 			"scripts/services.sl",
+			"scripts/scripts.sl",
 			"scripts/loot.sl",
 			"scripts/tokens.sl",
 			"scripts/downloads.sl",
@@ -88,6 +110,7 @@ public class ArmitageMain implements RuntimeWarningWatcher, Loadable, Function {
 		/* setup a function or two */
 		Hashtable environment = new Hashtable();
 		environment.put("&resource", this);
+		environment.put("&_args", this);
 
 		/* set our command line arguments into a var */
 		variables.putScalar("@ARGV", ObjectUtilities.BuildScalar(false, args));
@@ -102,6 +125,19 @@ public class ArmitageMain implements RuntimeWarningWatcher, Loadable, Function {
 		for (x = 0; x < args.length; x++) {
 			if (args[x].equals("--server"))
 				serverMode = true;
+		}
+
+		/* setup Cortana event and filter bridges... we will install these into
+		   Armitage */
+		if (!serverMode) {
+			EventManager events   = new EventManager();
+			FilterManager filters = new FilterManager();
+
+			variables.putScalar("$__events__", SleepUtils.getScalar(events));
+			variables.putScalar("$__filters__", SleepUtils.getScalar(filters));
+
+			loader.addGlobalBridge(events.getBridge());
+			loader.addGlobalBridge(filters.getBridge());
 		}
 
 		/* load the appropriate scripts */
