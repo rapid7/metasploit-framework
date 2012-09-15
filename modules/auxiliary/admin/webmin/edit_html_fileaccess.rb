@@ -78,7 +78,6 @@ class Metasploit3 < Msf::Auxiliary
 				print_error "#{peer} - Authentication failed"
 				return
 			end
-			print_good "#{peer} - Authentication successfully"
 		else
 			print_error "#{peer} - Authentication failed"
 			return
