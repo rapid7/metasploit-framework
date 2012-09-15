@@ -16,6 +16,5 @@ Finally, something about security.
 
 # Submitting Patches
 
-# Following your bugs
+# Following your bug
 
-# Squeaky Wheels and Grease
