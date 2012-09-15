@@ -195,7 +195,8 @@ class Client
 	# - cookie:        Cookie header value
 	# - ctype:         Content-Type header value, default: +application/x-www-form-urlencoded+
 	# - data:          HTTP data (only useful with some methods, see rfc2616)
-	# - encode:        URI encode the supplied URI
+	# - encode:        URI encode the supplied URI, default: false
+	# - encode_params: URI encode the GET or POST variables, default: true
 	# - headers:       HTTP headers as a hash, e.g. <code>{ "X-MyHeader" => "value" }</code>
 	# - method:        HTTP method to use in the request, not limited to standard methods defined by rfc2616, default: GET
 	# - proto:         protocol, default: HTTP
@@ -208,28 +209,29 @@ class Client
 	# - vhost:         Host header value
 	#
 	def request_cgi(opts={})
-		c_enc  = opts['encode']     || false
-		c_cgi  = opts['uri']        || '/'
-		c_body = opts['data']       || ''
-		c_meth = opts['method']     || 'GET'
-		c_prot = opts['proto']      || 'HTTP'
-		c_vers = opts['version']    || config['version'] || '1.1'
-		c_qs   = opts['query']      || ''
-		c_varg = opts['vars_get']   || {}
-		c_varp = opts['vars_post']  || {}
-		c_head = opts['headers']    || config['headers'] || {}
-		c_rawh = opts['raw_headers']|| config['raw_headers'] || ''
-		c_type = opts['ctype']      || 'application/x-www-form-urlencoded'
-		c_ag   = opts['agent']      || config['agent']
-		c_cook = opts['cookie']     || config['cookie']
-		c_host = opts['vhost']      || config['vhost']
-		c_conn = opts['connection']
-		c_path = opts['path_info']
-		c_auth = opts['basic_auth'] || config['basic_auth'] || ''
+		c_enc   = opts['encode']        || false
+		c_enc_p = opts['encode_params'] || true
+		c_cgi   = opts['uri']           || '/'
+		c_body  = opts['data']          || ''
+		c_meth  = opts['method']        || 'GET'
+		c_prot  = opts['proto']         || 'HTTP'
+		c_vers  = opts['version']       || config['version'] || '1.1'
+		c_qs    = opts['query']         || ''
+		c_varg  = opts['vars_get']      || {}
+		c_varp  = opts['vars_post']     || {}
+		c_head  = opts['headers']       || config['headers'] || {}
+		c_rawh  = opts['raw_headers']   || config['raw_headers'] || ''
+		c_type  = opts['ctype']         || 'application/x-www-form-urlencoded'
+		c_ag    = opts['agent']         || config['agent']
+		c_cook  = opts['cookie']        || config['cookie']
+		c_host  = opts['vhost']         || config['vhost']
+		c_conn  = opts['connection']
+		c_path  = opts['path_info']
+		c_auth  = opts['basic_auth']    || config['basic_auth'] || ''
 
-		uri    = set_cgi(c_cgi)
-		qstr   = c_qs
-		pstr   = c_body
+		uri     = set_cgi(c_cgi)
+		qstr    = c_qs
+		pstr    = c_body
 
 		if (config['pad_get_params'])
 			1.upto(config['pad_get_params_count'].to_i) do |i|
@@ -242,25 +244,27 @@ class Client
 
 		c_varg.each_pair do |var,val|
 			qstr << '&' if qstr.length > 0
-			qstr << set_encode_uri(var)
+			qstr << (c_enc_p ? set_encode_uri(var) : var) 
 			qstr << '='
-			qstr << set_encode_uri(val)
+			qstr << (c_enc_p ? set_encode_uri(val) : val)
 		end
 
 		if (config['pad_post_params'])
 			1.upto(config['pad_post_params_count'].to_i) do |i|
+				rand_var = Rex::Text.rand_text_alphanumeric(rand(32)+1)
+				rand_val = Rex::Text.rand_text_alphanumeric(rand(32)+1)
 				pstr << '&' if pstr.length > 0
-				pstr << set_encode_uri(Rex::Text.rand_text_alphanumeric(rand(32)+1))
+				pstr << (c_enc_p ? set_encode_uri(rand_var) : rand_var)
 				pstr << '='
-				pstr << set_encode_uri(Rex::Text.rand_text_alphanumeric(rand(32)+1))
+				pstr << (c_enc_p ? set_encode_uri(rand_val) : rand_val)
 			end
 		end
 
 		c_varp.each_pair do |var,val|
 			pstr << '&' if pstr.length > 0
-			pstr << set_encode_uri(var)
+			pstr << (c_enc_p ? set_encode_uri(var) : var)
 			pstr << '='
-			pstr << set_encode_uri(val)
+			pstr << (c_enc_p ? set_encode_uri(val) : val)
 		end
 
 		req = ''
