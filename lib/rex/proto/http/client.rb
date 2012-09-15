@@ -196,7 +196,7 @@ class Client
 	# - ctype:         Content-Type header value, default: +application/x-www-form-urlencoded+
 	# - data:          HTTP data (only useful with some methods, see rfc2616)
 	# - encode:        URI encode the supplied URI, default: false
-	# - encode_params: URI encode the GET or POST variables, default: true
+	# - encode_params: URI encode the GET or POST variables (names and values), default: true
 	# - headers:       HTTP headers as a hash, e.g. <code>{ "X-MyHeader" => "value" }</code>
 	# - method:        HTTP method to use in the request, not limited to standard methods defined by rfc2616, default: GET
 	# - proto:         protocol, default: HTTP
@@ -209,26 +209,25 @@ class Client
 	# - vhost:         Host header value
 	#
 	def request_cgi(opts={})
-		c_enc   = opts['encode']        || false
-		c_enc_p = opts['encode_params'] || true
-		c_cgi   = opts['uri']           || '/'
-		c_body  = opts['data']          || ''
-		c_meth  = opts['method']        || 'GET'
-		c_prot  = opts['proto']         || 'HTTP'
-		c_vers  = opts['version']       || config['version'] || '1.1'
-		c_qs    = opts['query']         || ''
-		c_varg  = opts['vars_get']      || {}
-		c_varp  = opts['vars_post']     || {}
-		c_head  = opts['headers']       || config['headers'] || {}
-		c_rawh  = opts['raw_headers']   || config['raw_headers'] || ''
-		c_type  = opts['ctype']         || 'application/x-www-form-urlencoded'
-		c_ag    = opts['agent']         || config['agent']
-		c_cook  = opts['cookie']        || config['cookie']
-		c_host  = opts['vhost']         || config['vhost']
+		c_enc   = opts['encode']      || false
+		c_enc_p = (opts['encode_params'] == true or opts['encode_params'].nil? ? true : false)
+		c_cgi   = opts['uri']         || '/'
+		c_body  = opts['data']        || ''
+		c_meth  = opts['method']      || 'GET'
+		c_prot  = opts['proto']       || 'HTTP'
+		c_vers  = opts['version']     || config['version'] || '1.1'
+		c_qs    = opts['query']       || ''
+		c_varg  = opts['vars_get']    || {}
+		c_varp  = opts['vars_post']   || {}
+		c_head  = opts['headers']     || config['headers'] || {}
+		c_rawh  = opts['raw_headers'] || config['raw_headers'] || ''
+		c_type  = opts['ctype']       || 'application/x-www-form-urlencoded'
+		c_ag    = opts['agent']       || config['agent']
+		c_cook  = opts['cookie']      || config['cookie']
+		c_host  = opts['vhost']       || config['vhost']
 		c_conn  = opts['connection']
 		c_path  = opts['path_info']
-		c_auth  = opts['basic_auth']    || config['basic_auth'] || ''
-
+		c_auth  = opts['basic_auth']  || config['basic_auth'] || ''
 		uri     = set_cgi(c_cgi)
 		qstr    = c_qs
 		pstr    = c_body
