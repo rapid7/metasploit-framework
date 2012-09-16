@@ -246,7 +246,12 @@ DWORD THREADCALL command_process_thread( THREAD * thread )
 	}
 
 	list_add( commandThreadList, thread );
-
+/*
+#ifndef _WIN32
+	pthread_internal_t * ptr = (pthread_internal_t *)(thread->pid); 
+	dprintf("getpid : %d , getppid : %d, gettid : %d, kernel_id : %d", getpid(), getppid(), gettid(), ptr->kernel_id); 
+#endif
+*/
 	__try
 	{
 		do
