@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
 		if res and res.code == 302 and res.headers['Set-Cookie'] =~ /sid/
 			session = res.headers['Set-Cookie'].scan(/sid\=(\w+)\;*/).flatten[0] || ''
 			if session and not session.empty?
-				print_good "#{peer} - Authentication successfully"
+				print_good "#{peer} - Authentication successful"
 			else
 				print_error "#{peer} - Authentication failed"
 				return
