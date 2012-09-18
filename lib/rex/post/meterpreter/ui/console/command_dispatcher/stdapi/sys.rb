@@ -44,6 +44,12 @@ class Console::CommandDispatcher::Stdapi::Sys
 		"-v" => [ true,  "The registry value name (E.g. Stuff)."                   ],
 		"-r" => [ true,  "The remote machine name to connect to (with current process credentials" ],
 		"-w" => [ false,  "Set KEY_WOW64 flag, valid values [32|64]."               ])
+	#
+	# Options used by the 'ps' command.
+	#
+	@@ps_opts = Rex::Parser::Arguments.new(
+		"-S" => [ true,  "String to search for (converts to regex)"                ],
+		"-h" => [ false, "Help menu."                                              ])
 
 	#
 	# List of supported commands.
@@ -273,12 +279,67 @@ class Console::CommandDispatcher::Stdapi::Sys
 	# Lists running processes.
 	#
 	def cmd_ps(*args)
+		# Init vars
 		processes = client.sys.process.get_processes
+		search_term = nil
+
+		# Parse opts
+		@@ps_opts.parse(args) { |opt, idx, val|
+			case opt
+				when '-S'
+					search_term = val
+					if search_term.nil?
+						print_error("Enter a search term")
+						return true
+					else
+						search_term = /#{search_term}/nmi
+					end
+				when '-h'
+					print_line "Usage: ps [ options ]"
+					print_line
+					print_line "OPTIONS:"
+					print_line " -S       Search string to filter by"
+					print_line " -h 		This help menu"
+					print_line
+					return 0
+			end
+		}
+
+		tbl = Rex::Ui::Text::Table.new(
+			'Header'  => "Process list",
+			'Indent'  => 1,
+			'Columns' =>
+				[
+					"PID",
+					"Name",
+					"Arch",
+					"Session",
+					"User",
+					"Path"
+				])
+
+		processes.each { |ent|
+
+			session = ent['session'] == 0xFFFFFFFF ? '' : ent['session'].to_s
+			arch    = ent['arch']
+
+			# for display and consistency with payload naming we switch the internal 'x86_64' value to display 'x64'
+			if( arch == ARCH_X86_64 )
+				arch = "x64"
+			end
+
+			row = [ ent['pid'].to_s, ent['name'], arch, session, ent['user'], ent['path'] ]
+
+			tbl << row if (search_term.nil? or row.join(' ').to_s.match(search_term))
+
+
+		}
+
 		if (processes.length == 0)
 			print_line("No running processes were found.")
 		else
 			print_line
-			print_line(processes.to_table("Indent" => 1).to_s)
+			print("\n" + tbl.to_s + "\n")
 			print_line
 		end
 		return true
@@ -601,4 +662,3 @@ end
 end
 end
 end
-

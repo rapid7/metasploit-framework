@@ -30,6 +30,12 @@ class Console::CommandDispatcher::Stdapi::Fs
 	@@upload_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner." ],
 		"-r" => [ false, "Upload recursively." ])
+	#
+	# Options for the ls command
+	#
+	@@ls_opts = Rex::Parser::Arguments.new(
+		"-h" => [ false, "Help banner." ],
+		"-S" => [ true, "Search string." ])
 
 	#
 	# List of supported commands.
@@ -337,13 +343,39 @@ class Console::CommandDispatcher::Stdapi::Fs
 
 	alias cmd_getlwd cmd_lpwd
 
+	def cmd_ls_help
+		print_line "Usage: ls [options]"
+		print_line
+		print_line "Lists contents of directory or file info, searchable"
+		print_line @@ls_opts.usage
+	end
+
 	#
 	# Lists files
 	#
 	# TODO: make this more useful
 	#
 	def cmd_ls(*args)
-		path = args[0] || client.fs.dir.getwd
+		search_term = nil
+		path = client.fs.dir.getwd
+		@@ls_opts.parse(args) { |opt, idx, val|
+			case opt
+			when '-S'
+				search_term = val
+				if search_term.nil?
+					print_error("Enter a search term")
+					return true
+				else
+					search_term = /#{search_term}/nmi
+				end
+			when "-h"
+				cmd_ls_help
+				return 0
+			when nil
+				path = val
+			end
+		}
+		
 		tbl  = Rex::Ui::Text::Table.new(
 			'Header'  => "Listing: #{path}",
 			'SortIndex' => 4,
@@ -357,34 +389,39 @@ class Console::CommandDispatcher::Stdapi::Fs
 				])
 
 		items = 0
-		stat = client.fs.file.stat(path)
-		if stat.directory?
-			# Enumerate each item...
-			# No need to sort as Table will do it for us
-			client.fs.dir.entries_with_info(path).each { |p|
 
-				tbl <<
-					[
-						p['StatBuf'] ? p['StatBuf'].prettymode : '',
-						p['StatBuf'] ? p['StatBuf'].size       : '',
-						p['StatBuf'] ? p['StatBuf'].ftype[0,3] : '',
-						p['StatBuf'] ? p['StatBuf'].mtime      : '',
-						p['FileName'] || 'unknown'
-					]
+       stat = client.fs.file.stat(path)
+       if stat.directory?
+               # Enumerate each item...
+               # No need to sort as Table will do it for us
+               client.fs.dir.entries_with_info(path).each { |p|
 
-				items += 1
-			}
+                       row =
+                               [
+                                       p['StatBuf'] ? p['StatBuf'].prettymode : '',
+                                       p['StatBuf'] ? p['StatBuf'].size       : '',
+                                       p['StatBuf'] ? p['StatBuf'].ftype[0,3] : '',
+                                       p['StatBuf'] ? p['StatBuf'].mtime      : '',
+                                       p['FileName'] || 'unknown'
+                               ]
+                       # Check to see if the row matches criteria
+                       next if search_term and !row.join(' ').match(search_term)
+                       tbl << row
+                       items += 1
+               }
 
-			if (items > 0)
-				print("\n" + tbl.to_s + "\n")
-			else
-				print_line("No entries exist in #{path}")
-			end
-		else
-			print_line("#{stat.prettymode}  #{stat.size}  #{stat.ftype[0,3]}  #{stat.mtime}  #{path}")
-		end
+               if (items > 0)
+                       print("\n" + tbl.to_s + "\n")
+               elsif search_term
+               		   print_line("No matching entries exist in #{path}")
+               else
+                       print_line("No entries exist in #{path}")
+               end
+        else
+               print_line("#{stat.prettymode}  #{stat.size}  #{stat.ftype[0,3]}  #{stat.mtime}  #{path}")
+        end
 
-		return true
+        return true
 	end
 
 	#
@@ -505,3 +542,4 @@ end
 end
 end
 end
+
