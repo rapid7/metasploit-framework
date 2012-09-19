@@ -24,7 +24,7 @@ class Msf::Module::Author
 			'pusscat' 	=> 'pusscat' + 0x40.chr + 'metasploit.com',
 			'skylined' 	=> 'skylined' + 0x40.chr + 'edup.tudelft.nl',
 			'patrick' 	=> 'patrick' + 0x40.chr + 'osisecurity.com.au',
-			'ramon' 	=> 'ramon' + 0x40.chr + 'risesecurity.org',
+			'ramon' 	=> 'rcvalle' + 0x40.chr + 'metasploit.com',
 			'I)ruid' 	=> 'druid' +  0x40.chr + 'caughq.org',
 			'egypt' 	=> 'egypt' + 0x40.chr + 'metasploit.com',
 			'kris katterjohn' => 'katterjohn' + 0x40.chr + 'gmail.com',
