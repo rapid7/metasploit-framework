@@ -1,0 +1,10 @@
+audio/x-aiff @aif,aifc,aiff :base64
+audio/x-aac @aac
+audio/x-midi @mid,midi,kar :base64
+audio/x-pn-realaudio @ra,ram :base64
+audio/x-pn-realaudio-plugin @rpm
+audio/x-realaudio @ra :base64
+audio/x-wav @wav :base64
+audio/x-ms-wma @wma
+audio/x-ms-wax @wax
+audio/x-ms-wmv @wmv

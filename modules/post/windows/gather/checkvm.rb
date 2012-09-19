@@ -235,7 +235,7 @@ class Metasploit3 < Msf::Post
 			end
 		end
 		if vm
-			print_status("This is a Sun VirtualBox Virtual Machine") 
+			print_status("This is a Sun VirtualBox Virtual Machine")
 			return "VirtualBox"
 		end
 	end

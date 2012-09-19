@@ -18,7 +18,7 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'OSX x64 Execute Command',
+			'Name'          => 'OS X x64 Execute Command',
 			'Version'       => '$Revision$',
 			'Description'   => 'Execute an arbitrary command',
 			'Author'        => 'argp <argp[at]census-labs.com>',

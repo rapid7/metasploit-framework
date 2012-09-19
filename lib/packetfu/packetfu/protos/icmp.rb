@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module PacketFu
 
 	# ICMPHeader is a complete ICMP struct, used in ICMPPacket. ICMP is 

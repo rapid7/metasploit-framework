@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'net/ssh/buffer'
 require 'net/ssh/known_hosts'
 require 'net/ssh/loggable'
@@ -206,7 +207,7 @@ module Net; module SSH; module Transport
         algorithms[:compression_client] = algorithms[:compression_server] = algorithms[:compression]
         algorithms[:language_client   ] = algorithms[:language_server   ] = algorithms[:language]
 
-        if !options.key?(:host_key)
+        if !options.key?(:host_key) and options[:config]
           # make sure the host keys are specified in preference order, where any
           # existing known key for the host has preference.
 

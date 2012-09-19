@@ -1,0 +1,46 @@
+= Rake 0.5.4 Released
+
+Time for some minor bug fixes and small enhancements
+
+== Changes
+
+Here are the changes for version 0.5.3 ...
+
+* Added double quotes to the test runner.  This allows the location of
+  the tests (and runner) to be in a directory path that contains
+  spaces (e.g. "C:/Program Files/ruby/bin").
+
+* Added .svn to default ignore list.  Now subversion project metadata
+  is automatically ignored by Rake's FileList.
+
+* Updated FileList#include to support nested arrays and filelists.
+  FileLists are flat lists of file names.  Using a FileList in an
+  include will flatten out the nested file names.
+
+== What is Rake
+
+Rake is a build tool similar to the make program in many ways.  But
+instead of cryptic make recipes, Rake uses standard Ruby code to
+declare tasks and dependencies.  You have the full power of a modern
+scripting language built right into your build tool.
+
+== Availability
+
+The easiest way to get and install rake is via RubyGems ...
+
+  gem install rake    (you may need root/admin privileges)
+
+Otherwise, you can get it from the more traditional places:
+
+Home Page:: http://rake.rubyforge.org/
+Download::  http://rubyforge.org/project/showfiles.php?group_id=50
+
+== Thanks
+
+As usual, it was input from users that drove a alot of these changes.
+Thanks to ...
+
+* Tilman Sauerbeck for the nested FileList suggestion.
+* Josh Knowles for pointing out the spaces in directory name problem.
+
+-- Jim Weirich

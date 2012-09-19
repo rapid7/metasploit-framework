@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Rex
 	module Parser
 
@@ -49,6 +50,7 @@ module Parser
 			@state[:current_tag] = {}
 			@block = block if block
 			@report_data = {:wspace => args[:wspace]}
+			@nx_console_id = args[:nx_console_id]
 			super()
 		end
 
@@ -70,13 +72,26 @@ module Parser
 			return if ref_type.nil? || ref_type.empty? || ref_value.nil? || ref_value.empty?
 			ref_value = ref_value.strip
 			ref_type = ref_type.strip.upcase
+
 			ret = case ref_type
-				when "CVE" 
+				when "CVE"
 					ref_value.gsub("CAN", "CVE")
-				when "MS"  
-					"MSB-MS-#{ref_value}"
+				when "MS"
+					if ref_value =~ /^MS[0-9]/
+						"MSB-#{ref_value}"
+					else
+						"MSB-MS#{ref_value}"
+					end
 				when "URL", "BID"
 					"#{ref_type}-#{ref_value}"
+				when "APPLE"
+					ref_value
+				when "XF"
+					if ref_value =~ /\((\d+)\)$/
+						"#{ref_type}-#{$1}"
+					else
+						"#{ref_type}-#{ref_value}"
+					end
 				else # Handle others?
 					"#{ref_type}-#{ref_value}"
 				end
@@ -87,6 +102,7 @@ module Parser
 			return [] unless orig_refs
 			refs = []
 			orig_refs.each do |ref_hash|
+			
 				ref_hash_sym = Hash[ref_hash.map {|k, v| [k.to_sym, v] }]
 				ref_type = ref_hash_sym[:source].to_s.strip.upcase
 				ref_value = ref_hash_sym[:value].to_s.strip
@@ -99,7 +115,7 @@ module Parser
 			@state[:current_tag].keys.include? tagname
 		end
 
-		# If there's an address, it's not on the blacklist, 
+		# If there's an address, it's not on the blacklist,
 		# it has ports, and the port list isn't
 		# empty... it's okay.
 		def host_is_okay
@@ -120,7 +136,7 @@ module Parser
 		end
 
 		# Circumvent the unknown attribute logging by the various reporters. They
-		# seem to be there just for debugging anyway. 
+		# seem to be there just for debugging anyway.
 		def db_report(table, data)
 			raise "Data should be a hash" unless data.kind_of? Hash
 			nonempty_data = data.reject {|k,v| v.nil?}
@@ -135,21 +151,25 @@ module Parser
 			just_the_facts.empty? ? return : db.send("report_#{table}", just_the_facts)
 		end
 
-		# XXX: It would be better to either have a single registry of acceptable 
-		# keys if we're going to alert on bad ones, or to be more forgiving if 
-		# the caller is this thing. There is basically no way to tell if 
+		# XXX: It would be better to either have a single registry of acceptable
+		# keys if we're going to alert on bad ones, or to be more forgiving if
+		# the caller is this thing. There is basically no way to tell if
 		# report_host()'s tastes are going to change with this scheme.
 		def db_valid_attributes(table)
 			case table.to_s.to_sym
 			when :host
-				Msf::DBManager::Host.new.attribute_names.map {|x| x.to_sym} |
+				::Mdm::Host.new.attribute_names.map {|x| x.to_sym} |
 					[:host, :workspace]
 			when :service
-				Msf::DBManager::Service.new.attribute_names.map {|x| x.to_sym} |
+				::Mdm::Service.new.attribute_names.map {|x| x.to_sym} |
 					[:host, :host_name, :mac, :workspace]
 			when :vuln
-				Msf::DBManager::Vuln.new.attribute_names.map {|x| x.to_sym} |
-					[:host, :refs, :workspace, :port, :proto]
+				::Mdm::Vuln.new.attribute_names.map {|x| x.to_sym} |
+					[:host, :refs, :workspace, :port, :proto, :details, :exploited_at]
+			when :vuln_details
+				::Mdm::VulnDetails.new.attribute_names.map {|x| x.to_sym} | [ :key ]
+			when :host_details
+				::Mdm::HostDetails.new.attribute_names.map {|x| x.to_sym} | [ :key ]
 			when :note, :web_site, :web_page, :web_form, :web_vuln
 				# These guys don't complain
 				[:anything]
@@ -159,7 +179,7 @@ module Parser
 		end
 
 		# Nokogiri 1.4.4 (and presumably beyond) generates attrs as pairs,
-		# like [["value1","foo"],["value2","bar"]] (but not hashes for some 
+		# like [["value1","foo"],["value2","bar"]] (but not hashes for some
 		# reason). 1.4.3.1 (and presumably 1.4.3.x and prior) generates attrs
 		# as a flat array of strings. We want array_pairs.
 		def normalize_attrs(attrs)
@@ -168,7 +188,7 @@ module Parser
 			when Array, NilClass
 				attr_pairs = attrs
 			when String
-				attrs.each_index {|i| 
+				attrs.each_index {|i|
 					next if i % 2 == 0
 					attr_pairs << [attrs[i-1],attrs[i]]
 				}

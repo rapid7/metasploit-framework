@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 module Rex
 module Arch
@@ -21,17 +22,17 @@ module Sparc
 			'l4' => 20, 'l5' => 21, 'l6' => 22, 'l7' => 23,
 			'i0' => 24, 'i1' => 25, 'i2' => 26, 'i3' => 27,
 			'i4' => 28, 'i5' => 29, 'i6' => 30, 'i7' => 31,
-			'sp' => 14, 'fp' => 30, 
+			'sp' => 14, 'fp' => 30,
 		} # :nodoc:
 
 	#
 	# Encodes a SETHI instruction with the value 'constant' being put into 'dst' register
 	#
-	def self.sethi(constant, dst) 
-		[ 
-		  (RegisterNumber[dst] << 25) | 
-		  (4 << 22) | 
-		  (constant >> 10)
+	def self.sethi(constant, dst)
+		[
+			(RegisterNumber[dst] << 25) |
+			(4 << 22) |
+			(constant >> 10)
 		].pack('N')
 	end
 
@@ -39,18 +40,18 @@ module Sparc
 	# Encodes an OR instruction with the value 'constant' being OR'ed with the 'src' register into the 'dst' register
 	#
 	def self.ori(src, constant, dst)
-		[ 
-		  (2 << 30) | 
-		  (RegisterNumber[dst] << 25) | 
-		  (2 << 19) | 
-		  (RegisterNumber[src] << 14) | 
-		  (1 << 13) | 
-		  (constant & 0x1fff)
+		[
+			(2 << 30) |
+			(RegisterNumber[dst] << 25) |
+			(2 << 19) |
+			(RegisterNumber[src] << 14) |
+			(1 << 13) |
+			(constant & 0x1fff)
 		].pack('N')
 	end
 
 	#
-	# Puts 'constant' into the 'dst' register using as few instructions as possible by checking the size of the value. 
+	# Puts 'constant' into the 'dst' register using as few instructions as possible by checking the size of the value.
 	# XXX: signedness support
 	#
 	def self.set(constant, dst)

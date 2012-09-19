@@ -1,0 +1,828 @@
+# -*- coding: utf-8 -*-
+# $Release: 2.7.0 $
+# copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+
+- release:   2.7.0
+  date: 2011-04-01
+  enhancements:
+
+    - |
+	New option ':bufvar' supported to specify buffer variable name.
+
+	ex:
+	    input = "Hello <%= name %>!"
+	    eruby = Erubis::Eruby.new(input)
+	    puts eruby.src
+	       #=>  _buf = ''; _buf << "Hello "; _buf << ( name ).to_s; _buf << '!';
+
+	    eruby = Erubis::Eruby.new(input, :bufvar=>'@_out')
+	    puts eruby.src
+	       #=>  @_out = ''; @_out << 'Hello '; @_out << ( name ).to_s; @_out << '!';
+
+    - |
+	New enhancer 'PrefixedLineEnhancer' which is a customizable version
+	of PercentLineEnhancer.
+	The difference between PrefixedLineEnhancer and PercentLineEnhancer is:
+	* You can indent Ruby statetment lines starting with '%'
+	* You can specify prefix character by :prefixchar option.
+
+	ex:
+	    class MyEruby < Erubis::Eruby
+	      include Erubis::PrefixedLineEnhancer
+	    end
+	    input = <<END
+	    <ul>
+	      % for item in @items
+	      <li><%= item %></li>
+	      % end
+	      %% you can indent '%' lines
+	    </ul>
+	    END
+	    eruby = MyEruby.new(input, :prefixchar=>'%')   # default '%'
+	    puts eruby.src
+
+	output:
+	    _buf = ''; _buf << '<ul>
+	    ';   for item in @items
+	     _buf << '  <li>'; _buf << ( item ).to_s; _buf << '</li>
+	    ';   end
+	      % you can indent '%' lines
+	     _buf << '</ul>
+	    ';
+	    _buf.to_s
+
+    - |
+	Add helper CGI script. See 'public_html/README.txt' for details.
+
+    - |
+	Rubinius is supported as first-class Ruby implementation.
+
+    - |
+	C++ support. Try '-l cpp' command-line option.
+
+	
+  changes:
+
+    - |
+	Remove dependency to 'abstract' library.
+	You don't need to install 'abstract' gem.
+
+    - |
+	Erubis::Eruby#load_file() now sets cache file timestamp to the same
+	value as original eRuby file. For example, if you restore eRuby files
+	from backup, Erubis::Eruby#load_file() can detect it and generate
+	cache file again.
+
+	    ## generates cache file (A.rhtml.cache).
+	    eruby = Erubis::Eruby.load_file('A.rhtml')
+	    p File.mtime('A.rhtml') == File.mtime('A.rhtml.cache')  #=> true
+
+	    
+
+- release:   2.6.6
+  date: 2010-06-27
+  bugfixes:
+
+    - |
+	Fixed a bug around InterporationEnhancer and FastEruby to escape back-quote. (thanks to Andrew R Jackson)
+
+
+- release:   2.6.5
+  date: 2009-07-20
+  bugfixes:
+
+    - |
+	Fixed bug around '-z' option.
+
+
+- release:   2.6.4
+  date: 2009-02-18
+  enhancements:
+
+    - |
+	Rails 2.2 and 2.3 support.
+
+
+
+- release:   2.6.3
+  date: 2009-02-07
+  bugfixes:
+
+    - Enhancer name was not displayed in Ruby 1.9.1 when it was missing.
+
+    - Command option argument name was not displayed correctly as a part of error message.
+
+    - MethoNotFound error was raised when invalid option was specified.
+	
+
+- release:   2.6.2
+  date:	2008-06-12
+  enhancements:
+
+    - |
+	Ruby 1.9 support.
+
+  bugfixes:
+
+    - |
+	Fixed installation problem on Windows (Thanks to Tim Morgan and Allen).
+
+
+- release:   2.6.1
+  date: 2008-06-06
+  enhancements:
+
+    - |
+	Rails 2.1 support. (special thanks José Valim)
+
+
+
+- release:   2.6.0
+  date: 2008-05-05
+  enhancements:
+
+    - |
+	Improved support of Ruby on Rails 2.0.2.
+	New class ActionView::TemplateHandlers::Erubis is defined and
+	registered as default handler of *.html.erb and *.rhtml.
+	
+    - |
+	'<%% %>' and '<%%= %>' are converted into '<% %>' and '<%= %>' respectively.
+	This is for compatibility with ERB.
+
+	ex1.rhtml:
+	    <ul>
+	    <%% for item in @list %>
+	      <li><%%= item %></li>
+	    <%% end %>
+	    </ul>
+
+	result:
+	    $ erubis ex1.rhtml
+	    <ul>
+	    <% for item in @list %>
+	      <li><%= item %></li>
+	    <% end %>
+	    </ul>
+
+    - |
+	'<%= -%>' removes tail spaces and newlines.
+	This is for compatibiliy with ERB when trim mode is '-'.
+	'<%= =%>' also removes tail spaces and newlines, and this is
+	Erubis-original enhancement (cooler than '<%= -%>', isn't it?).
+
+	ex2.rhtml:
+	   <div>
+	   <%= @var -%>          # or <%= @var =%>
+	   </div>
+
+	result (version 2.6.0):
+	    $ erubis -c '{var: "AAA\n"}' ex2.rhtml
+	    <div>
+	    AAA
+	    </div>
+
+	result (version 2.5.0):
+	    $ erubis -c '{var: "AAA\n"}' ex2.rhtml
+	    <div>
+	    AAA
+	    
+	    </div>
+
+    - |
+	Erubis::Eruby.load_file() now allows you to change cache filename.
+
+	ex.
+	    eruby = Erubis::Eruby.load_file("ex3.rhtml",
+		                            :cachename=>'ex3.rhtml.cache')
+
+
+- release:   2.5.0
+  date:	     2008-01-30
+  enhancements:
+
+    - |
+      Ruby on Rails 2.0 support.
+      If you are using preprocessing, notice that _?('foo.id') will be NG
+      because it contains period ('.') character.
+
+      --------------------
+      <!-- NG in Rails 2.0 -->
+      [%= link_to 'Edit', edit_user_path(_?('@user.id')) %]
+      [%= link_to 'Show', @user %]
+      [%= link_to 'Delete', @user, :confirm=>'OK?', :method=>:delete %]
+      
+      <!-- OK in Rails 2.0 -->
+      <%= user_id = @user.id %>
+      [%= link_to 'Edit', edit_user_path(_?('user_id')) %]
+      [%= link_to 'Show', :action=>'show', :id=>_?('user_id') %]
+      [%= link_to 'Delete', {:action=>'destroy', :id=>_?('user_id')},
+                            {:confirm=>'OK?', :method=>:delete} %]
+      --------------------
+	
+    - |
+      (experimental)
+      Rails form helper methods for preprocessing are added.
+      These helper methos are available with preprocessing.
+
+      ex. _form.rhtml
+      --------------------
+       Name: <%= text_field :user, :name %>
+       Name: [%= pp_text_field :user, :name %]
+      --------------------
+
+      preprocessed:
+      --------------------
+       Name: <%= text_field :user, :name %>
+       Name: <input id="stock_name" name="stock[name]" size="30" type="text" value="<%=h @stock.name%>" />
+      --------------------
+
+      Ruby code:
+      --------------------
+       _buf << '
+        Name: '; _buf << ( text_field :stock, :name ).to_s; _buf << '
+        Name: <input id="stock_name" name="stock[name]" size="30" type="text" value="'; _buf << (h @stock.name).to_s; _buf << '" />
+      ';
+      --------------------
+
+      This shows that text_filed() is called every time when rendering,
+      but pp_text_filed() is called only once when loading template,
+      so pp_text_field() with prepocessing is much faster than text_field().
+
+      See User's guide for details.
+      http://www.kuwata-lab.com/erubis/users-guide.05.html#rails-formhelpers
+
+#
+- release:   2.4.1
+  date:      2007-09-25
+  enhancements:
+
+    - |
+      Add new section 'evaluate(context) v.s. result(binding)' to user's guide.
+      This section describes why Erubis::Eruby#evaluate(context) is recommended
+      rather than Erubis::Eruby#result(binding).
+      User's Guide > Other Topics > evaluate(context) v.s. result(binding)
+      http://www.kuwata-lab.com/erubis/users-guide.06.html#topics-context-vs-binding
+
+    - |
+      Add new command-line property '--docwrite={true|false}' to
+      Erubis::Ejavascript.
+      If this property is true then 'document.write(_buf.join(""));' is used
+      as postamble and if it is false then '_buf.join("")' is used.
+      Default is true for compatibility reason but it will be false in the
+      future release.
+      (This feature was proposed by D.Dribin. Thank you.)
+
+  bugfix:
+
+    - |
+      When using Erubis::Eruby#evaluate(), changing local variables in
+      templates have affected to variables accessible with TOPLEVEL_BINDING.
+      It means that if you change variables in templates, it is possible to
+      change variables in main program.
+      This was a bug and is now fixed not to affect to variables in main
+      program.
+
+      ex. template.rhtml
+      --------------------
+      <% for x in @items %>
+      item = <%= x %>
+      <% end %>
+      --------------------
+
+      ex. main-program.rb
+      --------------------
+      require 'erubis'
+      x = 10
+      items = ['foo', 'bar', 'baz']
+      eruby = Erubis::Eruby.new(File.read('template.rhtml'))
+      s = eruby.evaluate(:items=>items)
+      print s
+      $stderr.puts "*** debug: x=#{x.inspect}"  #=> x="baz" (2.4.0)
+                                                #=> x=10    (2.4.1)
+      --------------------
+
+    - |
+      PercentLineEnhancer was very slow. Now performance problem is solved.
+
+
+#
+- release:   2.4.0
+  date: 2007-07-19
+  enhancements:
+
+    - |
+      Preprocessing is supported by Ruby on Rails helper.
+      Preprocessing makes Ruby on Rails application about 20-40 percent faster.
+
+      For example,
+
+         [%= link_to 'Show', :action=>'show', :id=>_?('@user.id') %]
+
+      is evaluate by preprocessor and expanded into the following
+      when template file is loaded.
+
+         <a href="/users/show/<%=@user.id%>">Show</a>
+
+      It means that link_to() is not called when template is rendered
+      and rendering speed will be much faster in the result.
+
+      See User's Guide for details.
+
+    - |
+      Erubis::Eruby#evaluate() (or Erubis::RubyEvaluator#evaluate()) now
+      creates Proc object from @src and eval it.
+
+        def evaluate(context=Context.new)
+          context = Context.new(context) if context.is_a?(Hash)
+          @_proc ||= eval("proc { #{@src} }", TOPLEVEL_BINDING, @filename || '(erubis)')
+          return context.instance_eval(&@_proc)
+        end
+
+      This makes evaluate() much faster when eruby object is reused.
+      
+    - |
+      Erubis::Eruby#def_method() is supported.
+      This method defines ruby code as instance method or singleton metod.
+
+        require 'erubis'
+        s = "hello <%= name %>"
+        eruby = Erubis::Eruby.new(s)
+	filename = 'hello.rhtml'
+        
+        ## define instance method to Dummy class (or module)
+        class Dummy; end
+        eruby.def_method(Dummy, 'render(name)', filename)  # filename is optional
+        p Dummy.new.render('world')    #=> "hello world"
+        
+        ## define singleton method to an object
+        obj = Object.new
+        eruby.def_method(obj, 'render(name)', filename)    # filename is optional
+        p obj.render('world')      #=> "hello world"
+
+      This is equivarent to ERB#def_method().
+
+    - |
+      Erubis::XmlHelper.url_escape() and u() which is alias of url_escape()
+      are added.
+      This is equivarent to ERB#Util.url_escape().
+
+
+  bugfix:
+    - Help message was not shown when '-h' is specified. Fixed.
+    - 'def method()' was not availabe in template file. Fixed.
+
+
+#
+- release:   2.3.1
+  date: 2007-05-26
+  bugfix:
+    - A serious bug in 'helpers/rails_helper.rb' is fixed.
+      You must be update if you are using Erubis with Ruby on Rails.
+
+
+#
+- release:   2.3.0
+  date: 2007-05-23
+  enhancements:
+    - |
+      New class 'Erubis::FastEruby' is added.
+      It is a subclass of Erubis::Eruby and includes InterpolationEnhancer.
+      Erubis::FastEruby is compatible with and faster than Erubis::Eruby.
+
+    - |
+      New enhancer 'InterpolationEnhancer' is added.
+      This enhancer uses expression interpolation to eliminate method call
+      of String#<<. In the result, this enhancer makes Eruby a little faster.
+
+      --------------------
+      ## Assume that input is '<a href="<%=url%>"><%=name%></a>'.
+      ## Eruby convert input into the following code.  String#<< is called 5 times.
+      _buf << '<a href="'; _buf << (url).to_s; _buf << '">'; _buf << (name).to_s; _buf << '</a>';
+      
+      ## When InterpolationEnhancer is used, String#<< is called only once.
+      _buf << %Q`<a href="#{url}">#{name}</a>`;
+      --------------------
+
+    - |
+      New enhancer 'ErboutEnhancer' is added.
+      ErboutEnhancer set '_erbout' as well as '_buf' to be compatible with ERB.
+
+      ex.
+      ====================
+      $ cat ex.rhtml
+      <p>Hello</p>
+      $ erubis -x ex.rhtml
+      _buf = ''; _buf << '<p>Hello</p>
+      ';
+      _buf.to_s
+      $ erubis -xE Erbout ex.rhtml
+      _erbout = _buf = ''; _buf << '<p>Hello</p>
+      ';
+      _buf.to_s
+      ====================
+
+    - |
+      [experimental]
+      New enhancer 'DeleteIndentEnhancer' is added.
+      This enhancer deletes indentation of HTML file.
+
+      ex.
+      ====================
+      $ cat ex.rhtml
+      <div>
+        <ul>
+        <% for item in ['AAA', 'BBB', 'CCC'] %>
+          <li><%= item %></li>
+        <% end %>
+        </ul>
+      </div>
+      $ erubis ex.rhtml
+      <div>
+        <ul>
+          <li>AAA</li>
+          <li>BBB</li>
+          <li>CCC</li>
+        </ul>
+      </div>
+      $ erubis -E DeleteIndent ex.rhtml
+      <div>
+      <ul>
+      <li>AAA</li>
+      <li>BBB</li>
+      <li>CCC</li>
+      </ul>
+      </div>
+      ====================
+
+    - |
+      Mod_ruby is supported (very thanks to Andrew R Jackson!).
+      See users-guide and 'contrib/erubis-run.rb' for details.
+      
+    - |
+      New command-line option '-X', '-N', '-U', and '-C' are added.
+      These are intended to be a replacement of 'notext' command.
+      '-X' shows only ruby statements and expressions.
+      '-N' adds line numbers.
+      '-U' compress empty lines into a line.
+      '-C' removes empty lines.
+
+
+  changes:
+
+    - |
+      'helpers/rails_helper.rb' is changed to use ErboutEnhancer.
+      The following is an examle to use Erubis with Ruby on Rails.
+
+      File 'config/environment.rb':
+      ----------------------------------------
+      require 'erubis/helpers/rails_helper'
+      #Erubis::Helpers::RailsHelper.engine_class = Erubis::Eruby # or Erubis::FastEruby
+      #Erubis::Helpers::RailsHelper.init_properties = {}
+      #Erubis::Helpers::RailsHelper.show_src = false             # set true for debugging
+      ----------------------------------------
+      
+    - |
+      Command 'notext' has been removed. Use '-X', '-N', '-U', and '-C'
+      instead.
+
+    - |
+      Tab characters in YAML file are expaneded automatically.
+      If you want not to expand tab characters, add command-line optio '-T'.
+
+    - |
+      Benchmark scripts (benchmark/bench.*) are rewrited.
+
+    - |
+      Users-guide (doc/users-guide.html) is updated.
+
+    
+
+#
+- release:   2.2.0
+  date:      2007-02-11
+  enhancements:
+    - |
+      Performance tuned up. Release 2.2.0 works about 8 percent faster
+      than 2.1.0.
+      As a result, Erubis works more than 10 percent faster than eruby.
+      (eruby is the extension module of eRuby written in C.)
+
+    - |
+      Support of Ruby on Rails improved.
+      If you want to use Erubis with Ruby on Rails, add the following code
+      into your 'config/environment.rb' and restart web server.
+      This will set Erubis as eRuby compiler in Ruby on Rails instead of ERB.
+
+      --------------------
+      require 'erubis/helpers/rails_helper'
+      #Erubis::Helpers::RailsHelper.engine_class = Erubis::Eruby
+      #Erubis::Helpers::RailsHelper.init_properties = {}
+      #Erubis::Helpers::RailsHelper.show_src = true
+      --------------------
+
+      Methods 'capture()' and 'content_for()' of ActionView::Helpers::CaptureHelper
+      are available. Methd ActionView::Helpers::TextHelper#concat() is also available.
+
+      If Erubis::Helpers::RailsHelper.show_src is ture, Erubis prints converted
+      Ruby code into log file (such as 'log/development.log').
+
+    - |
+      Erubis::Engine.load_file(filename) creates cache file (filename +
+      '.cache') automatically if cache file is old or not exist.
+      Caching makes Erubis about 40-50 percent faster.
+
+      ex.
+      --------------------
+      require 'erubis'
+      eruby = Erubis::Eruby.load_file('example.rhtml')
+         ## cache file 'example.rhtml.cache' is created automatically
+      --------------------
+
+    - |
+      Command-line option '-f datafile' can take Ruby script ('*.rb')
+      as well as YAML file ('*.yaml' or '*.yml').
+
+      ex.
+      ====================
+      $ cat context.rb
+      @title = 'Example'
+      @list  = %w[AAA BBB CCC]
+      $ cat example.rhtml
+      <h1><%= @title %></h1>
+      <ul>
+      <% for item in @list %>
+        <li><%= item %></li>
+      <% end %>
+      </ul>
+      $ erubis -f context.rb example.rhtml
+      <h1>Example</h1>
+      <ul>
+        <li>AAA</li>
+        <li>BBB</li>
+        <li>CCC</li>
+      </ul>
+      ====================
+
+    - |
+      New command-line option '-c context' support. It takes context string
+      in YAML inline style or Ruby code style.
+
+      ex. YAML inline style
+      ====================
+      $ erubis -c '{title: Example, list: [AAA, BBB, CCC]}' example.rhtml
+      ====================
+
+      ex. Ruby style
+      ====================
+      $ erubis -c '@title="Example"; @list=%w[AAA BBB CCC]' example.rhtml
+      ====================
+
+    - |
+      New command-line option '-z' (syntax checking) support. It is similar
+      to 'erubis -x file.rhtml | ruby -wc', but it can take several filenames.
+
+      ex.
+      ====================
+      $ erubis -z app/views/*/*.rhtml
+      Syntax OK
+      ====================
+
+    - |
+      New constant Erubis::VERSION added.
+
+
+  changes:
+    - |
+      Class Erubis::Eruby changed to include Erubis::StringBufferEnhancer
+      instead of Erubis::ArrayBufferEnhancer.
+      This is for Ruby on Rails support.
+
+      ex.
+      ====================
+      $ cat example.rhtml
+      <ul>
+      <% for item in @list %>
+        <li><%= item %></li>
+      <% end %>
+      </ul>
+      $ erubis -x example.rhtml
+      _buf = ''; _buf << '<ul>
+      '; for item in @list 
+       _buf << '  <li>'; _buf << ( item ).to_s; _buf << '</li>
+      '; end 
+       _buf << '</ul>
+      ';
+      _buf.to_s
+      ====================
+
+    - |
+      Erubis::StringBufferEnhancer#add_postamble() prints "_buf.to_s"
+      instead of "_buf".
+      This is useful for 'erubis -x file.rhtml | ruby -wc'.
+
+    - |
+      Command-line option '-T' is removed. Use '--trim=false' instead.
+
+    - |
+      License is changed to MIT License.
+
+    - |
+      Embedded pattern '<%- -%>' can be handled.
+
+
+#
+- release:   2.1.0
+  date:      2006-09-23
+  enhancements:
+    - |
+      Ruby on Rails support. Add the following code to
+      your 'app/controllers/application.rb' and restart web server.
+      
+      --------------------
+      require 'erubis/helper/rails'
+      suffix = 'erubis' 
+      ActionView::Base.register_template_handler(suffix, Erubis::Helper::RailsTemplate)
+      #Erubis::Helper::RailsTemplate.engine_class = Erubis::EscapedEruby ## or Erubis::PI::Eruby
+      #Erubis::Helper::RailsTemplate.default_properties = { :escape=>true, :escapefunc=>'h' }
+      --------------------
+      
+      And rename your view template as 'xxx.erubis'.
+      If you got the "(eval):10:in `render': no block given" error,
+      use '@content_for_layout' instead 'yield' in your layout template.
+
+    - |
+      Another eRuby engine (PIEngine) support. This engine doesn't
+      break HTML design because it uses Processing Instructions (PI)
+      '<?rb .. ?>' as embedded pattern instead of '<% .. %>'.
+      
+      example.rhtml
+      --------------------
+      <table>
+      <?rb @list.each_with_index do |item, i| ?>
+      <?rb   klass = i % 2 == 0 ? 'odd' : 'even' ?>
+        <tr class="@{klass}@">
+          <td>@!{item}@</td>
+        </tr>
+      <?rb end ?>
+      </table>
+      --------------------
+      
+      compile:
+      ====================
+      $ erubis -x --pi example.rhtml
+      _buf = []; _buf << '<table>
+      '; @list.each_with_index do |item, i| 
+         klass = i % 2 == 0 ? 'odd' : 'even' 
+       _buf << '  <tr class="'; _buf << Erubis::XmlHelper.escape_xml(klass); _buf << '">
+          <td>'; _buf << (item).to_s; _buf << '</td>
+        </tr>
+      '; end 
+       _buf << '</table>
+      ';
+      _buf.join
+      ====================
+ 
+    - |
+      Add new command 'notext' which remove text part from eRuby
+      script and leaves only Ruby code.
+      This is very useful for debug of eRuby script.
+      
+      example2.rhtml
+      --------------------
+      <html>
+       <body>
+        <table>
+      <% @list.each_with_index do |item, i| %>
+      <%   klass = i % 2 == 0 ? 'odd' : 'even' %>
+         <tr class="<%= klass %>">
+          <td><%== item %></td>
+         </tr>
+      <% end %>
+        </table>
+       </body>
+      </html>
+      --------------------
+      
+      command line example:
+      ====================
+      $ notext example2.rhtml
+      _buf = [];
+      
+      
+       @list.each_with_index do |item, i| ;
+         klass = i % 2 == 0 ? 'odd' : 'even' ;
+                     _buf << ( klass ).to_s;
+               _buf << Erubis::XmlHelper.escape_xml( item );
+      
+       end ;
+      
+      
+      
+      _buf.join
+      $ notext -nc example2.rhtml
+        1: _buf = [];
+        4:  @list.each_with_index do |item, i| ;
+        5:    klass = i % 2 == 0 ? 'odd' : 'even' ;
+        6:                _buf << ( klass ).to_s;
+        7:          _buf << Erubis::XmlHelper.escape_xml( item );
+        9:  end ;
+       13: _buf.join
+      ====================
+ 
+    - |
+      Add new enhance 'NoCode' which removes ruby code from
+      eRuby script and leaves only HTML text part.
+      It is very useful to validate HTML of eRuby script.
+      
+      command-line example:
+      ====================
+      $ erubis -x -E NoCode example2.rhtml
+      <html>
+       <body>
+        <table>
+      
+      
+         <tr class="">
+          <td></td>
+         </tr>
+      
+        </table>
+       </body>
+      </html>
+      ====================
+
+  changes:
+    - License is changed to LGPL.
+    - Command-line property '--escape=name' is renamed to
+      '--escapefunc=name'.
+    - When command-line option '-l perl' is specified, function
+      'encode_entities()' is used ad escaping function which is
+      available wth HTML::Entities module.
+
+  bugfix:
+    - There is a certain pattern which makes Engine#convert()
+      too slow. Now Engne#convert() is fixed not to be slown.
+    - Command name is now displayed when '-h' is specified.
+
+
+#
+- release:   2.0.1
+  date:      2006-06-21
+  bugfix:
+    - some minor bugs are fixed
+
+
+#
+- release:   2.0.0
+  date:      2006-05-20
+  changes:
+    - module 'PrintEnhancer' is renamed to 'PrintEnabledEnahncer'
+    - module 'FastEnhancer' and class 'FastEruby' is obsolete because they are integrated into Eruby class
+    - Eruby#evaluate() calls instance_eval() instead of eval()
+    - XmlEruby.escape_xml() is moved to XmlHelper.escape_xml()
+  enhancements:
+    - multi programming language support (Ruby/PHP/C/Java/Scheme/Perl/Javascript)
+    - class Eruby runs very fast because FastEnhancer module is integrated into Eruby by default
+    - TinyEruby class (tiny.rb) is added
+    - module ArrayBufferEnhancer added
+    - module ArrayEnhancer added
+    - module BiPatternEnhancer added
+    - module EscapeEnhancer added
+    - module HeaderFooterEnhancer added
+    - module NoTextEnhancer added
+    - module PercentLineEnhancer added
+    - module PrintEnabledEnhancer added
+    - module PrintOutEnhancer added
+    - module SimplifyEnhancer added
+    - module StringBufferEnhancer added
+    - module StringIOEnhancer added
+    - command-line option '-b' (body only) added
+    - command-line option '-e' (escape) added
+    - command-line option '-l' (lang) added
+    - command-line option '-E' (enhancer) added
+    - command-line option '-I' (require path) added
+    - command-line option '-K' (kanji code) added
+    - command-line option '-S' (string to symbol) added
+    - command-line option '-B' (call result(binding())) added
+
+
+#
+- release:   1.1.0
+  date:      2006-03-05
+  enhancements:
+    - '<%# ... %>' is supported
+    - PrintEnhancer, PrintEruby, and PrintXmlEruby added
+
+- release:   1.0.1
+  date:      2006-02-01
+  bugfixes:
+    - bin/erubis is available with RubyGems
+
+
+#
+- release:   1.0.0
+  date:      2006-02-01
+  bugfixes:
+    - first release
+

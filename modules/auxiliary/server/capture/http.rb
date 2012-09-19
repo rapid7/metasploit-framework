@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 	def support_ipv6?
 		false
 	end
-	
+
 	def run
 		@formsdir = datastore['FORMSDIR']
 		@template = datastore['TEMPLATE']
@@ -82,6 +82,7 @@ class Metasploit3 < Msf::Auxiliary
 			@myautopwn = true
 		end
 
+		print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
 		exploit()
 	end
 
@@ -134,7 +135,7 @@ class Metasploit3 < Msf::Auxiliary
 			when /rv:([\d\.]+)/
 				ua_name = 'FF'
 				ua_vers = $1
-			when /Mozilla\/[0-9]\.[0-9] \(compatible; MSIE ([0-9]\.[0-9]+)/
+			when /Mozilla\/[0-9]\.[0-9] \(compatible; MSIE ([0-9]+\.[0-9]+)/
 				ua_name = 'IE'
 				ua_vers = $1
 			when /Version\/(\d+\.\d+\.\d+).*Safari/

@@ -35,7 +35,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				Opt::RPORT(80),
 				OptString.new('FILE', [ true, 'The file to traverse for', '/etc/passwd']),
 				OptString.new('URL', [ true, 'The path to mimencode', '/cgi-bin/ck/mimencode']),
 			], self.class)

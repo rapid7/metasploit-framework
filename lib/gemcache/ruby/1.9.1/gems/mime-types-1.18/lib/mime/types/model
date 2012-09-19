@@ -1,0 +1,15 @@
+model/example 'IANA,RFC4735
+model/iges @igs,iges 'IANA,[Parks]
+model/mesh @msh,mesh,silo 'IANA,RFC2077
+model/vnd.dwf 'IANA,[Pratt]
+model/vnd.collada+xml 'IANA,[Riordon]
+model/vnd.flatland.3dml 'IANA,[Powers]
+model/vnd.gdl 'IANA,[Babits]
+model/vnd.gs-gdl 'IANA,[Babits]
+model/vnd.gtw 'IANA,[Ozaki]
+model/vnd.moml+xml 'IANA,[Brooks]
+model/vnd.mts 'IANA,[Rabinovitch]
+model/vnd.parasolid.transmit.binary @x_b,xmt_bin 'IANA,[Parasolid]
+model/vnd.parasolid.transmit.text @x_t,xmt_txt :quoted-printable 'IANA,[Parasolid]
+model/vnd.vtu 'IANA,[Rabinovitch]
+model/vrml @wrl,vrml 'IANA,RFC2077

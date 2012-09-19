@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'FrontPage Server Extensions Login Utility',
+			'Name'        => 'FrontPage Server Extensions Anonymous Login Scanner',
 			'Version'     => '$Revision$',
 			'Description' => 'This module queries the FrontPage Server Extensions and determines whether anonymous access is allowed.',
 			'References'  =>
@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 		if datastore['RPORT'].to_i == 80 or datastore['RPORT'].to_i == 443
 			port = ""
 		else
-			port = ":" + datastore['RPORT']
+			port = ":" + datastore['RPORT'].to_s
 		end
 
 		info = (datastore['SSL'] ? "https" : "http") + "://#{target_host}#{port}/"
@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 				"Connection: Keep-Alive, TE\r\n" + "Host: #{target_host}\r\n" + "User-Agent: " +
 				datastore['UserAgent'] + "\r\n\r\n")
 
-		res = sock.get_once
+		res = sock.get_once || ''
 
 		disconnect
 
@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 			if (fpversion = res.match(/FPVersion="(.*)"/))
 				fpversion = $1
 				print_status("#{info} FrontPage Version: #{fpversion}")
-				
+
 				if (fpauthor = res.match(/FPAuthorScriptUrl="([^"]*)/))
 					fpauthor = $1
 					print_status("#{info} FrontPage Author: #{info}#{fpauthor}")
@@ -133,8 +133,8 @@ class Metasploit3 < Msf::Auxiliary
 							:host   => target_host,
 							:port	=> rport,
 							:proto	=> 'tcp',
-							:name	=> self.fullname,
-							:info   => "#{info} FrontPage ACCESS ALLOWED [#{retcode}]",
+							:name	=> self.name,
+							:info   => "Module #{self.fullname} confirmed access to #{info} [#{retcode}]",
 							:refs   => self.references,
 							:exploited_at => Time.now.utc
 						}

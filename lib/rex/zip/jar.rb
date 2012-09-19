@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 
 require 'rex/zip/archive'
 
@@ -8,7 +9,7 @@ module Zip
 # A Jar is a zip archive containing Java class files and a MANIFEST.MF listing
 # those classes.  Several variations exist based on the same idea of class
 # files inside a zip, most notably:
-# - WAR files store XML files, Java classes, JSPs and other stuff for 
+# - WAR files store XML files, Java classes, JSPs and other stuff for
 #   servlet-based webservers (e.g.: Tomcat and Glassfish)
 # - APK files are Android Package files
 #
@@ -42,7 +43,7 @@ class Jar < Archive
 		@manifest << "\r\n"
 		@entries.each { |e|
 			next if e.name =~ %r|/$|
-			if e.name == "META-INF/MANIFEST.MF" 
+			if e.name == "META-INF/MANIFEST.MF"
 				existing_manifest = e
 				next
 			end
@@ -189,7 +190,7 @@ class Jar < Archive
 			end
 		end
 
-		# Now overwrite with the new manifest 
+		# Now overwrite with the new manifest
 		m.data = new_manifest
 
 		flags = 0

@@ -1,6 +1,19 @@
+# -*- coding: binary -*-
+require "active_record"
+
 require 'msf/core'
 require 'msf/core/db'
 require 'msf/core/task_manager'
+require 'fileutils'
+require 'shellwords'
+
+# Provide access to ActiveRecord models shared w/ commercial versions
+require "metasploit_data_models"
+
+# Patches issues with ActiveRecord
+require "msf/core/patches/active_record"
+
+
 
 module Msf
 
@@ -13,13 +26,34 @@ module Msf
 
 class DBManager
 
+	# Mainly, it's Ruby 1.9.1 that cause a lot of problems now, along with Ruby 1.8.6.
+	# Ruby 1.8.7 actually seems okay, but why tempt fate? Let's say 1.9.3 and beyond.
+	def self.warn_about_rubies
+		if ::RUBY_VERSION =~ /^1\.9\.[012]($|[^\d])/
+			$stderr.puts "**************************************************************************************"
+			$stderr.puts "Metasploit requires at least Ruby 1.9.3. For an easy upgrade path, see https://rvm.io/"
+			$stderr.puts "**************************************************************************************"
+		end
+	end
+
+	# Only include Mdm if we're not using Metasploit commercial versions
+	# If Mdm::Host is defined, the dynamically created classes
+	# are already in the object space
+	begin
+    include MetasploitDataModels unless defined? Mdm::Host
+	rescue NameError => e
+	warn_about_rubies
+	raise e
+	end
+
 	# Provides :framework and other accessors
 	include Framework::Offspring
 
 	# Returns true if we are ready to load/store data
 	def active
 		return false if not @usable
-		(ActiveRecord::Base.connected? && ActiveRecord::Base.connection.active? && migrated) rescue false
+		# We have established a connection, some connection is active, and we have run migrations
+		(ActiveRecord::Base.connected? && ActiveRecord::Base.connection_pool.connected? && migrated)# rescue false
 	end
 
 	# Returns true if the prerequisites have been installed
@@ -40,10 +74,23 @@ class DBManager
 	# Flag to indicate database migration has completed
 	attr_accessor :migrated
 
+	# Array of additional migration paths
+	attr_accessor :migration_paths
+
+	# Flag to indicate that modules are cached
+	attr_accessor :modules_cached
+
+	# Flag to indicate that the module cacher is running
+	attr_accessor :modules_caching
+
 	def initialize(framework, opts = {})
 
 		self.framework = framework
 		self.migrated  = false
+		self.migration_paths = [ ::File.join(Msf::Config.install_root, "data", "sql", "migrate") ]
+		self.modules_cached  = false
+		self.modules_caching = false
+
 		@usable = false
 
 		# Don't load the database if the user said they didn't need it.
@@ -56,17 +103,17 @@ class DBManager
 	end
 
 	#
+	# Add additional migration paths
+	#
+	def add_migration_path(path)
+		self.migration_paths.push(path)
+	end
+
+	#
 	# Do what is necessary to load our database support
 	#
 	def initialize_database_support
-
-		# Load ActiveRecord if it is available
 		begin
-			require 'rubygems'
-			require 'active_record'
-			require 'msf/core/db_objects'
-			require 'msf/core/model'
-
 			# Database drivers can reset our KCODE, do not let them
 			$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
 
@@ -145,7 +192,11 @@ class DBManager
 			nopts['port'] = nopts['port'].to_i
 		end
 
-		nopts['pool'] = 75
+		# Prefer the config file's pool setting
+		nopts['pool'] ||= 75
+		
+		# Prefer the config file's wait_timeout setting too
+		nopts['wait_timeout'] ||= 300
 
 		begin
 			self.migrated = false
@@ -191,7 +242,10 @@ class DBManager
 				# Try to force a connection to be made to the database, if it succeeds
 				# then we know we don't need to create it :)
 				ActiveRecord::Base.establish_connection(opts)
-				conn = ActiveRecord::Base.connection
+				# Do the checkout, checkin dance here to make sure this thread doesn't
+				# hold on to a connection we don't need
+				conn = ActiveRecord::Base.connection_pool.checkout
+				ActiveRecord::Base.connection_pool.checkin(conn)
 			end
 		rescue ::Exception => e
 			errstr = e.to_s
@@ -225,16 +279,40 @@ class DBManager
 	# Migrate database to latest schema version
 	#
 	def migrate(verbose=false)
+
+		temp_dir = ::File.expand_path(::File.join( Msf::Config.config_directory, "schema", "#{Time.now.to_i}_#{$$}" ))
+		::FileUtils.rm_rf(temp_dir)
+		::FileUtils.mkdir_p(temp_dir)
+
+		self.migration_paths.each do |mpath|
+			dir = Dir.new(mpath) rescue nil
+			if not dir
+				elog("Could not access migration path #{mpath}")
+				next
+			end
+
+			dir.entries.each do |ent|
+				next unless ent =~ /^\d+.*\.rb$/
+				::FileUtils.cp( ::File.join(mpath, ent), ::File.join(temp_dir, ent) )
+			end
+		end
+
+		success = true
 		begin
-			migrate_dir = ::File.join(Msf::Config.install_root, "data", "sql", "migrate")
-			ActiveRecord::Migration.verbose = verbose
-			ActiveRecord::Migrator.migrate(migrate_dir, nil)
+
+			::ActiveRecord::Base.connection_pool.with_connection {
+				ActiveRecord::Migration.verbose = verbose
+				ActiveRecord::Migrator.migrate(temp_dir, nil)
+			}
 		rescue ::Exception => e
 			self.error = e
 			elog("DB.migrate threw an exception: #{e}")
 			dlog("Call stack:\n#{e.backtrace.join "\n"}")
-			return false
+			success = false
 		end
+
+		::FileUtils.rm_rf(temp_dir)
+
 		return true
 	end
 
@@ -244,6 +322,307 @@ class DBManager
 
 	def workspace
 		framework.db.find_workspace(@workspace_name)
+	end
+
+
+	def purge_all_module_details
+		return if not self.migrated
+		return if self.modules_caching
+
+		::ActiveRecord::Base.connection_pool.with_connection do
+			Mdm::ModuleDetail.destroy_all
+		end
+
+		true
+	end
+
+	def update_all_module_details
+		return if not self.migrated
+		return if self.modules_caching
+
+		self.modules_cached  = false
+		self.modules_caching = true
+
+		::ActiveRecord::Base.connection_pool.with_connection {
+		
+		refresh = []
+		skipped = []
+
+		Mdm::ModuleDetail.find_each do |md|
+
+			unless md.ready
+				refresh << md
+				next
+			end
+
+			unless md.file and ::File.exists?(md.file)
+				refresh << md
+				next
+			end
+
+			if ::File.mtime(md.file).to_i != md.mtime.to_i
+				refresh << md
+				next
+			end
+
+			skipped << [md.mtype, md.refname]
+		end
+
+		refresh.each  {|md| md.destroy }
+		refresh = nil
+
+		stime = Time.now.to_f
+		[
+			[ 'exploit',   framework.exploits  ],
+			[ 'auxiliary', framework.auxiliary ],
+			[ 'post',      framework.post      ],
+			[ 'payload',   framework.payloads  ],
+			[ 'encoder',   framework.encoders  ],
+			[ 'nop',       framework.nops      ]
+		].each do |mt|
+			mt[1].keys.sort.each do |mn|
+				next if skipped.include?( [ mt[0], mn ] )
+				obj   = mt[1].create(mn)
+				next if not obj
+				begin
+					update_module_details(obj)
+				rescue ::Exception
+					elog("Error updating module details for #{obj.fullname}: #{$!.class} #{$!}")
+				end
+			end
+		end
+
+		self.modules_cached  = true
+		self.modules_caching = false
+
+		nil
+
+		}
+	end
+
+	def update_module_details(obj)
+		return if not self.migrated
+
+		::ActiveRecord::Base.connection_pool.with_connection {
+		info = module_to_details_hash(obj)
+		bits = info.delete(:bits) || []
+
+		md = Mdm::ModuleDetail.create(info)
+		bits.each do |args|
+			otype, vals = args
+			case otype
+			when :author
+				md.add_author(vals[:name], vals[:email])
+			when :action
+				md.add_action(vals[:name])
+			when :arch
+				md.add_arch(vals[:name])
+			when :platform
+				md.add_platform(vals[:name])
+			when :target
+				md.add_target(vals[:index], vals[:name])
+			when :ref
+				md.add_ref(vals[:name])
+			when :mixin
+				# md.add_mixin(vals[:name])
+			end
+		end
+
+		md.ready = true
+		md.save
+		md.id
+
+		}
+	end
+
+	def remove_module_details(mtype, refname)
+		return if not self.migrated
+		::ActiveRecord::Base.connection_pool.with_connection {
+		md = Mdm::ModuleDetail.find(:conditions => [ 'mtype = ? and refname = ?', mtype, refname])
+		md.destroy if md
+		}
+	end
+
+	def module_to_details_hash(m)
+		res  = {}
+		bits = []
+
+		res[:mtime]    = ::File.mtime(m.file_path) rescue Time.now
+		res[:file]     = m.file_path
+		res[:mtype]    = m.type
+		res[:name]     = m.name.to_s
+		res[:refname]  = m.refname
+		res[:fullname] = m.fullname
+		res[:rank]     = m.rank.to_i
+		res[:license]  = m.license.to_s
+
+		res[:description] = m.description.to_s.strip
+
+		m.arch.map{ |x| 
+			bits << [ :arch, { :name => x.to_s } ] 
+		}
+
+		m.platform.platforms.map{ |x| 
+			bits << [ :platform, { :name => x.to_s.split('::').last.downcase } ] 
+		}
+
+		m.author.map{|x| 
+			bits << [ :author, { :name => x.to_s } ] 
+		}
+
+		m.references.map do |r|
+			bits << [ :ref, { :name => [r.ctx_id.to_s, r.ctx_val.to_s].join("-") } ]
+		end
+
+		res[:privileged] = m.privileged?
+
+
+		if m.disclosure_date
+			begin
+				res[:disclosure_date] = m.disclosure_date.to_datetime.to_time
+			rescue ::Exception
+				res.delete(:disclosure_date)
+			end
+		end
+
+		if(m.type == "exploit")
+
+			m.targets.each_index do |i|
+				bits << [ :target, { :index => i, :name => m.targets[i].name.to_s } ]
+			end
+
+			if (m.default_target)
+				res[:default_target] = m.default_target
+			end
+
+			# Some modules are a combination, which means they are actually aggressive
+			res[:stance] = m.stance.to_s.index("aggressive") ? "aggressive" : "passive"
+
+			
+			m.class.mixins.each do |x|
+			 	bits << [ :mixin, { :name => x.to_s } ]
+			end
+		end
+
+		if(m.type == "auxiliary")
+	
+			m.actions.each_index do |i|
+				bits << [ :action, { :name => m.actions[i].name.to_s } ]
+			end
+
+			if (m.default_action)
+				res[:default_action] = m.default_action.to_s
+			end
+
+			res[:stance] = m.passive? ? "passive" : "aggressive"
+		end
+
+		res[:bits] = bits
+
+		res
+	end
+	
+	
+	
+	#
+	# This provides a standard set of search filters for every module.
+	# The search terms are in the form of:
+	#   {
+	#     "text" => [  [ "include_term1", "include_term2", ...], [ "exclude_term1", "exclude_term2"], ... ],
+	#     "cve" => [  [ "include_term1", "include_term2", ...], [ "exclude_term1", "exclude_term2"], ... ]
+	#   }
+	#
+	# Returns true on no match, false on match
+	#
+	def search_modules(search_string, inclusive=false)
+		return false if not search_string
+
+		search_string += " "
+
+		# Split search terms by space, but allow quoted strings
+		terms = Shellwords.shellwords(search_string)
+		terms.delete('')
+
+		# All terms are either included or excluded
+		res = {}
+
+		terms.each do |t|
+			f,v = t.split(":", 2)
+			if not v
+				v = f
+				f = 'text'
+			end
+			next if v.length == 0
+			f.downcase!
+			v.downcase!
+			res[f] ||= [  ]
+			res[f]  << v
+		end
+
+		::ActiveRecord::Base.connection_pool.with_connection {
+	
+		where_q = []
+		where_v = []
+
+		res.keys.each do |kt|
+			res[kt].each do |kv|
+				kv = kv.downcase
+				case kt
+				when 'text'
+					xv = "%#{kv}%"
+					where_q << ' ( ' + 
+						'module_details.fullname ILIKE ? OR module_details.name ILIKE ? OR module_details.description ILIKE ? OR ' +
+						'module_authors.name ILIKE ? OR module_actions.name ILIKE ? OR module_archs.name ILIKE ? OR ' +
+						'module_targets.name ILIKE ? OR module_platforms.name ILIKE ? ' +
+						') '
+					where_v << [ xv, xv, xv, xv, xv, xv, xv, xv ]
+				when 'name'
+					xv = "%#{kv}%"
+					where_q << ' ( module_details.fullname ILIKE ? OR module_details.name ILIKE ? ) '
+					where_v << [ xv, xv ]
+				when 'author'
+					xv = "%#{kv}%"
+					where_q << ' ( module_authors.name ILIKE ? OR module_authors.email ILIKE ? ) '
+					where_v << [ xv, xv ]
+				when 'os','platform'
+					xv = "%#{kv}%"
+					where_q << ' ( module_targets.name ILIKE ? ) '
+					where_v << [ xv ]
+				when 'port'
+					# TODO
+				when 'type'
+					where_q << ' ( module_details.mtype = ? ) '
+					where_v << [ kv ]				
+				when 'app'
+					where_q << ' ( module_details.stance = ? )'
+					where_v << [ ( kv == "client") ? "passive" : "active"  ]
+				when 'ref'
+					where_q << ' ( module_refs.name ILIKE ? )'
+					where_v << [ '%' + kv + '%' ]
+				when 'cve','bid','osvdb','edb'
+					where_q << ' ( module_refs.name = ? )'
+					where_v << [ kt.upcase + '-' + kv ]
+	
+				end
+			end
+		end
+		
+		qry = Mdm::ModuleDetail.select("DISTINCT(module_details.*)").
+			joins(
+				"LEFT OUTER JOIN module_authors   ON module_details.id = module_authors.module_detail_id " +
+				"LEFT OUTER JOIN module_actions   ON module_details.id = module_actions.module_detail_id " +
+				"LEFT OUTER JOIN module_archs     ON module_details.id = module_archs.module_detail_id " +
+				"LEFT OUTER JOIN module_refs      ON module_details.id = module_refs.module_detail_id " +
+				"LEFT OUTER JOIN module_targets   ON module_details.id = module_targets.module_detail_id " +
+				"LEFT OUTER JOIN module_platforms ON module_details.id = module_platforms.module_detail_id "
+			).
+			where(where_q.join(inclusive ? " OR " : " AND "), *(where_v.flatten)).
+			# Compatibility for Postgres installations prior to 9.1 - doesn't have support for wildcard group by clauses
+			group("module_details.id, module_details.mtime, module_details.file, module_details.mtype, module_details.refname, module_details.fullname, module_details.name, module_details.rank, module_details.description, module_details.license, module_details.privileged, module_details.disclosure_date, module_details.default_target, module_details.default_action, module_details.stance, module_details.ready")
+
+		res = qry.all
+
+		}
 	end
 
 end

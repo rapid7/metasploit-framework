@@ -1,0 +1,98 @@
+grammar Arithmetic  
+  rule expression
+    comparative / additive
+  end
+  
+  rule comparative
+    head:additive
+    tail:(
+      space operator:equality_op
+      space operand:additive)* <BinaryOperation>
+  end
+  
+  rule equality_op
+    '==' {
+      def apply(a, b)
+        a == b
+      end
+    }
+  end
+  
+  rule additive
+    head:multitive
+    tail:(
+      space operator:additive_op
+      space operand:multitive)* <BinaryOperation>
+  end
+  
+  rule additive_op
+    '+' {
+      def apply(a, b)
+        a + b
+      end
+    }
+    /
+    '-' {
+      def apply(a, b)
+        a - b
+      end
+    }
+  end
+
+  rule multitive
+    head:primary
+    tail:(
+      space operator:multitive_op
+      space operand:primary)* <BinaryOperation>
+  end
+  
+  rule multitive_op
+    '*' {
+      def apply(a, b)
+        a * b
+      end
+    }
+    /
+    '/' {
+      def apply(a, b)
+        a / b
+      end
+    }
+  end  
+  
+  rule primary
+    variable
+    /
+    number
+    /
+    '(' space expression space ')' {
+      def eval(env={})
+        expression.eval(env)
+      end
+    }
+  end
+
+  rule variable
+    [a-z]+ {
+      def eval(env={})
+        env[name]
+      end
+      
+      def name
+        text_value
+      end
+    }
+  end
+
+  rule number
+    ([1-9] [0-9]* / '0') {
+      def eval(env={})
+        text_value.to_i
+      end
+    }
+  end
+  
+  rule space
+    ' '*
+  end
+end

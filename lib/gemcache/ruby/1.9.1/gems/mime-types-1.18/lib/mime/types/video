@@ -1,0 +1,69 @@
+video/1d-interleaved-parityfec 'IANA,RFC6015
+video/3gpp @3gp,3gpp 'IANA,RFC3839,RFC6381
+video/3gpp-tt 'IANA,RFC4396
+video/3gpp2 @3g2,3gpp2 'IANA,RFC4393,RFC6381
+video/BMPEG 'IANA,RFC3555
+video/BT656 'IANA,RFC3555
+video/CelB 'IANA,RFC3555
+video/DV 'IANA,RFC3189
+video/example 'IANA,RFC4735
+video/H261 'IANA,RFC4587
+video/H263 'IANA,RFC3555
+video/H263-1998 'IANA,RFC4629
+video/H263-2000 'IANA,RFC4629
+video/H264 'IANA,RFC6184
+video/H264-RCDO 'IANA,RFC6185
+video/H264-SVC 'IANA,RFC6190
+video/JPEG 'IANA,RFC3555
+video/jpeg2000 'IANA,RFC5371,RFC5372
+video/MJ2 @mj2,mjp2 'IANA,RFC3745
+video/MP1S 'IANA,RFC3555
+video/MP2P 'IANA,RFC3555
+video/MP2T @ts 'IANA,RFC3555
+video/mp4 @mp4,mpg4,f4v,f4p 'IANA,RFC4337,RFC6381,{Adobe=http://www.kaourantin.net/2007/10/new-file-extensions-and-mime-types.html}
+video/MP4V-ES 'IANA,RFC6416
+video/mpeg @mp2,mp3g,mpe,mpeg,mpg :base64 'IANA,RFC2045,RFC2046
+video/mpeg4-generic 'IANA,RFC3640
+video/MPV 'IANA,RFC3555
+video/nv 'IANA,RFC4856
+video/ogg @ogg,ogv 'IANA,RFC5334
+video/parityfec 'IANA,RFC5109
+video/pointer 'IANA,RFC2862
+video/quicktime @qt,mov :base64 'IANA,[Lindner]
+video/raw 'IANA,RFC4175
+video/rtp-enc-aescm128 'IANA,[3GPP]
+video/rtx 'IANA,RFC4588
+video/SMPTE292M 'IANA,RFC3497
+video/ulpfec 'IANA,RFC5109
+video/vc1 'IANA,RFC4425
+video/vnd.CCTV 'IANA,[Rottmann]
+video/vnd.dece.hd 'IANA,[Dolan]
+video/vnd.dece.mobile 'IANA,[Dolan]
+video/vnd.dece.mp4 'IANA,[Dolan]
+video/vnd.dece.pd 'IANA,[Dolan]
+video/vnd.dece.sd 'IANA,[Dolan]
+video/vnd.dece.video 'IANA,[Dolan]
+video/vnd.directv.mpeg 'IANA,[Zerbe]
+video/vnd.dvb.file 'IANA,[Siebert],[Murray]
+video/vnd.fvt 'IANA,[Fuldseth]
+video/vnd.hns.video 'IANA,[Swaminathan]
+video/vnd.iptvforum.1dparityfec-1010 'IANA,[Nakamura]
+video/vnd.iptvforum.1dparityfec-2005 'IANA,[Nakamura]
+video/vnd.iptvforum.2dparityfec-1010 'IANA,[Nakamura]
+video/vnd.iptvforum.2dparityfec-2005 'IANA,[Nakamura]
+video/vnd.iptvforum.ttsavc 'IANA,[Nakamura]
+video/vnd.iptvforum.ttsmpeg2 'IANA,[Nakamura]
+video/vnd.motorola.video 'IANA,[McGinty]
+video/vnd.motorola.videop 'IANA,[McGinty]
+video/vnd.mpegurl @mxu,m4u :8bit 'IANA,[Recktenwald]
+video/vnd.ms-playready.media.pyv 'IANA,[DiAcetis]
+video/vnd.nokia.interleaved-multimedia @nim 'IANA,[Kangaslampi]
+video/vnd.nokia.videovoip 'IANA,[Nokia]
+video/vnd.objectvideo @mp4,m4v 'IANA,[Clark]
+video/vnd.sealed.mpeg1 @s11 'IANA,[Petersen]
+video/vnd.sealed.mpeg4 @smpg,s14 'IANA,[Petersen]
+video/vnd.sealed.swf @sswf,ssw 'IANA,[Petersen]
+video/vnd.sealedmedia.softseal.mov @smov,smo,s1q 'IANA,[Petersen]
+video/vnd.uvvu.mp4 'IANA,[Dolan]
+video/vnd.vivo @viv,vivo 'IANA,[Wolfe]
+video/webm @webm '{WebM=http://www.webmproject.org/code/specs/container/}

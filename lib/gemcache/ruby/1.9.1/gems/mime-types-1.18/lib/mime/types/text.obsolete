@@ -1,0 +1,7 @@
+!text/directory 'IANA,RFC2425,RFC6350
+!text/ecmascript 'IANA,RFC4329
+!text/javascript 'IANA,RFC4329
+!text/x-rtf @rtf :8bit =use-instead:text/rtf
+!text/x-vnd.flatland.3dml =use-instead:model/vnd.flatland.3dml
+*!text/comma-separated-values @csv :8bit =use-instead:text/csv
+*!text/vnd.flatland.3dml =use-instead:model/vnd.flatland.3dml

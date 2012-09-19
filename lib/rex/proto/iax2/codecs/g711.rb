@@ -1,8 +1,9 @@
+# -*- coding: binary -*-
 module Rex
 module Proto
 module IAX2
 module Codecs
-class G711 
+class G711
 
 =begin
 
@@ -31,7 +32,7 @@ class G711
  * implied warranty.
  */
  
-=end 
+=end
 
 LOOKUP_ALAW2LIN16 = [
      -5504,   -5248,   -6016,   -5760,   -4480,   -4224,   -4992,
@@ -2167,7 +2168,7 @@ LOOKUP_LIN2ULAW = [
    0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80,
    0x80, 0x80, 0x80, 0x80
 ]
-	
+
 end
 end
 end

@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status("#{ip}:#{rport} returns: #{res.code.to_s}")
 
-		if res.body.empty?
+		if res and res.body.empty?
 			print_error("No file to download (empty)")
 		else
 			fname = File.basename(datastore['FILEPATH'])

@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 			content[cidx + 8, 8] = [ coff, clen ].pack("N*")
 
 			# Send the font on its merry way
-			print_status("Sending embedded font to #{cli.peerhost}:#{cli.peerport}...")
+			print_status("Sending embedded font...")
 			send_response_html(cli, content, { 'Content-Type' => 'application/octet-stream' })
 		else
 			var_title = Rex::Text.rand_text_alpha(6 + rand(32))
@@ -80,7 +80,7 @@ body {
 }
 </style></head><body> #{var_body} </body></html>|
 
-			print_status("Sending HTML page with embedded font to #{cli.peerhost}:#{cli.peerport}...")
+			print_status("Sending HTML page with embedded font...")
 			send_response_html(cli, content, { 'Content-Type' => 'text/html' })
 		end
 	end

@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 		sock.get_once
 		sock.put(db_version)
 
-		ver = sock.get_once
+		ver = sock.get_once || ''
 
 		info = ver[27,2000]
 		if (info.length > 0)

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Rex
 module Proto
 module SMB
@@ -730,7 +731,7 @@ class Error < ::RuntimeError
 		0xC003005E => "RPC_NT_WRONG_PIPE_VERSION",
 		0x400200AF => "RPC_NT_SEND_INCOMPLETE"
 	}
-		
+
 	def initialize(*args)
 		super(*args)
 	end
@@ -784,28 +785,28 @@ end
 
 class InvalidWordCount < InvalidPacket
 	def to_s
-		"The server responded with unimplemented WordCount " + 
+		"The server responded with unimplemented WordCount " +
 		self.word_count.to_s + ' for command ' + self.command.to_s
 	end
 end
 
 class InvalidCommand < InvalidPacket
 	def to_s
-		"The server responded with unimplemented command " + 
+		"The server responded with unimplemented command " +
 		self.command.to_s + ' with WordCount ' + self.word_count.to_s
 	end
 end
 
 class InvalidType < InvalidPacket
 	def to_s
-		"The server responded with unexpected packet (Command=" + 
+		"The server responded with unexpected packet (Command=" +
 		self.command.to_s + ' WordCount=' + self.word_count.to_s + ")"
 	end
 end
 
 class ErrorCode < InvalidPacket
 	def to_s
-		'The server responded with error: ' + 
+		'The server responded with error: ' +
 		self.get_error(self.error_code) +
 		" (Command=#{self.command} WordCount=#{self.word_count})"
 	end

@@ -1,0 +1,7 @@
+EventMachine is a library for Ruby, C++, and Java programs. It provides event-driven I/O using the Reactor pattern.
+
+EventMachine is designed to simultaneously meet two key needs:
+- Extremely high scalability, performance and stability for the most demanding production environments; and
+- An API that <i>eliminates</i> the complexities of high-performance threaded network programming, allowing engineers to concentrate on their application logic.
+
+This unique combination makes EventMachine a premier choice for designers of critical networked applications, including web servers and proxies, email and IM production systems, authentication/authorization processors, and many more.

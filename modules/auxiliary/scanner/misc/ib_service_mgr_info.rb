@@ -32,8 +32,8 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'	=> '$Revision$',
 			'Author'	=>
 				[
-					'ramon',
-					'Adriano Lima <adriano@risesecurity.org>',
+					'Ramon de C Valle',
+					'Adriano Lima <adriano[at]risesecurity.org>',
 				],
 			'License'	=> MSF_LICENSE
 		)

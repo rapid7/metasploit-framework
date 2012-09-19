@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/proto/http'
 
 module Rex
@@ -15,7 +16,7 @@ class Response < Packet
 	#
 	# Builtin response class wrappers.
 	#
-	## 
+	##
 
 	#
 	# HTTP 200/OK response class wrapper.
@@ -77,10 +78,10 @@ class Response < Packet
 	#
 	# Used to store a copy of the original request
 	#
-	attr_accessor :request 
-	
-	
-	attr_accessor :code 
+	attr_accessor :request
+
+
+	attr_accessor :code
 	attr_accessor :message
 	attr_accessor :proto
 end

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'metasm'
 require 'rex/compat'
 require 'rex/ui/text/table'
@@ -57,7 +58,7 @@ class RopBase
 		data.gsub!("Address,Raw,Disassembly\n", '')
 
 		@gadgets = []
-		
+
 		data.each_line do |line|
 			addr, raw, disasm = line.split(',', 3)
 			if addr.nil? or raw.nil? or disasm.nil?
@@ -182,7 +183,7 @@ class RopCollect < RopBase
 
 			# color the remaining parts of the gadget
 			if colors and line.index("%bld%grn").nil?
-				asm << "%bld%grn" + line 
+				asm << "%bld%grn" + line
 			else
 				asm << line
 			end

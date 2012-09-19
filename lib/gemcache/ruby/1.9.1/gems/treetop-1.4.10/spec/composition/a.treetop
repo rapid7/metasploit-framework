@@ -1,0 +1,11 @@
+module Test
+  grammar A
+    rule a
+      'a'
+    end
+    
+    rule inherit
+      'super'
+    end
+  end
+end

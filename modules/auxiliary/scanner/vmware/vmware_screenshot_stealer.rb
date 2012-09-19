@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
 			'cookie'  => @vim_cookie,
 			'headers' => { 'Authorization' => "Basic #{@user_pass}"}
 		}, 25)
-		if res 
+		if res
 			@vim_cookie = res.headers['Set-Cookie']
 			if res.code == 200
 				img = res.body

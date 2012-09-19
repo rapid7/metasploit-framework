@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/post/meterpreter/extensions/stdapi/railgun/dll_helper'
 
 module Rex

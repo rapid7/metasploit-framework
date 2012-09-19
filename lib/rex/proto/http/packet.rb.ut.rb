@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..'))
 
@@ -24,7 +25,7 @@ class Rex::Proto::Http::Packet::UnitTest < Test::Unit::TestCase
 	end
 
 	def test_pipeline
-		req_normalized = 
+		req_normalized =
 			"GET / HTTP/1.0\r\n" +
 			"Foo: Bar\r\n" +
 			"Content-Length: 10\r\n" +
@@ -32,13 +33,13 @@ class Rex::Proto::Http::Packet::UnitTest < Test::Unit::TestCase
 			"Super body"
 
 		req = req_normalized + req_normalized
-	   
+
 		req_base = req.dup
 		req_fold = req.gsub(/:/,  ':' + Rex::Text.rand_base(rand(10) + 1,'',"\s","\t") + "\r\n" + Rex::Text.rand_base(rand(10) + 1,'',"\s","\t"))
 		req_nocr = req.gsub(/\r\n/, "\n")
 		req_junk = req + "junk"
 
-		{ 'base' => req_base, 'fold' => req_fold, 'no cr' => req_nocr, 'extra junk' => req_junk }.each_pair { |name, test| 
+		{ 'base' => req_base, 'fold' => req_fold, 'no cr' => req_nocr, 'extra junk' => req_junk }.each_pair { |name, test|
 			h = Klass.new
 			h.auto_cl = false
 			assert_equal(Klass::ParseCode::Completed, h.parse(test), "parse #{name}")
@@ -52,7 +53,7 @@ class Rex::Proto::Http::Packet::UnitTest < Test::Unit::TestCase
 
 
 	def test_chunked
-		req_start = 
+		req_start =
 			"GET / HTTP/1.0\r\n" +
 			"Transfer-Encoding: chunked\r\n" +
 			"Foo: Bar\r\n" +
@@ -61,13 +62,13 @@ class Rex::Proto::Http::Packet::UnitTest < Test::Unit::TestCase
 		req_normalized = req_start + "Super body"
 
 		req = req_start + "1\r\nS\r\n1\r\nu\r\n1\r\np\r\n1\r\ne\r\n1\r\nr\r\n1\r\n \r\n1\r\nb\r\n1\r\no\r\n1\r\nd\r\n1\r\ny\r\n0\r\n\r\n"
-		
+
 		req_base = req.dup
 		req_fold = req.gsub(/:/,  ':' + Rex::Text.rand_base(rand(10) + 1,'',"\s","\t") + "\r\n" + Rex::Text.rand_base(rand(10) + 1,'',"\s","\t"))
 		req_nocr = req.gsub(/\r\n/, "\n")
 		req_junk = req + "junk"
 
-		{ 'base' => req_base, 'fold' => req_fold, 'no cr' => req_nocr, 'extra junk' => req_junk }.each_pair { |name, test| 
+		{ 'base' => req_base, 'fold' => req_fold, 'no cr' => req_nocr, 'extra junk' => req_junk }.each_pair { |name, test|
 			h = Klass.new
 			h.auto_cl = false
 			assert_equal(Klass::ParseCode::Completed, h.parse(test), "parse #{name}")
@@ -80,19 +81,19 @@ class Rex::Proto::Http::Packet::UnitTest < Test::Unit::TestCase
 	end
 
 	def test_content_length
-		req = 
+		req =
 			"GET / HTTP/1.0\r\n" +
 			"Foo: Bar\r\n" +
 			"Content-Length: 10\r\n" +
 			"\r\n" +
 			"Super body"
-		
+
 		req_base = req.dup
 		req_fold = req.gsub(/:/,  ':' + Rex::Text.rand_base(rand(10) + 1,'',"\s","\t") + "\r\n" + Rex::Text.rand_base(rand(10) + 1,'',"\s","\t"))
 		req_nocr = req.gsub(/\r\n/, "\n")
 		req_junk = req + "junk"
 
-		{ 'base' => req_base, 'fold' => req_fold, 'no cr' => req_nocr, 'extra junk' => req_junk }.each_pair { |name, test| 
+		{ 'base' => req_base, 'fold' => req_fold, 'no cr' => req_nocr, 'extra junk' => req_junk }.each_pair { |name, test|
 			h = Klass.new
 			h.auto_cl = false
 			assert_equal(Klass::ParseCode::Completed, h.parse(test), "parse #{name}")
@@ -103,20 +104,20 @@ class Rex::Proto::Http::Packet::UnitTest < Test::Unit::TestCase
 			assert_equal("Super body", h.body, "body #{name}")
 		}
 	end
-		
+
 	def test_parse_connection_close
-		req = 
+		req =
 			"GET / HTTP/1.0\r\n" +
 			"Foo: Bar\r\n" +
 			"Connection: close\r\n" +
 			"\r\n" +
 			"Super body"
-		
+
 		req_base = req.dup
 		req_fold = req.gsub(/:/,  ':' + Rex::Text.rand_base(rand(10) + 1,'',"\s","\t") + "\r\n" + Rex::Text.rand_base(rand(10) + 1,'',"\s","\t"))
 		req_nocr = req.gsub(/\r\n/, "\n")
 
-		{ 'base' => req_base, 'fold' => req_fold, 'no cr' => req_nocr }.each_pair { |name, test| 
+		{ 'base' => req_base, 'fold' => req_fold, 'no cr' => req_nocr }.each_pair { |name, test|
 			h = Klass.new
 			h.auto_cl = false
 			assert_equal(Klass::ParseCode::Completed, h.parse(test), "parse #{name}")

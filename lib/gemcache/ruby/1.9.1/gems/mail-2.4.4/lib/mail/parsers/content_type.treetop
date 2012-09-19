@@ -1,0 +1,68 @@
+module Mail
+  grammar ContentType
+
+    include RFC2822
+    include RFC2045
+    
+    rule content_type
+      main_type "/" sub_type param_hashes:(CFWS ";"? parameter CFWS)* {
+        def parameters
+          param_hashes.elements.map do |param|
+            param.parameter.param_hash
+          end
+        end
+      }
+    end
+
+    rule main_type
+      discrete_type / composite_type
+    end
+
+    # This matches in a case insensitive way:
+    #
+    #   rule discrete_type
+    #     "text" / "image" / "audio" / "video" / "application" / extension_token
+    #   end
+    rule discrete_type
+      [tT] [eE] [xX] [tT] / [iI] [mM] [aA] [gG] [eE] / [aA] [uU] [dD] [iI] [oO] / [vV] [iI] [dD] [eE] [oO] / [aA] [pP] [pP] [lL] [iI] [cC] [aA] [tT] [iI] [oO] [nN] / extension_token
+    end
+
+    # This matches in a case insensitive way:
+    #
+    #   rule composite_type
+    #     "message" / "multipart" / extension_token
+    #   end
+    rule composite_type
+      [mM] [eE] [sS] [sS] [aA] [gG] [eE] / [mM] [uU] [lL] [tT] [iI] [pP] [aA] [rR] [tT] / extension_token
+    end
+  
+    rule extension_token
+      ietf_token / custom_x_token
+    end
+
+    rule sub_type
+      extension_token / iana_token
+    end
+  
+    rule parameter
+      CFWS? attr:attribute "=" val:value CFWS? {
+        def param_hash
+          {attr.text_value => val.text_value}
+        end
+      }
+    end
+
+    rule attribute
+      token+
+    end
+
+    rule value
+      quoted_string {
+        def text_value
+          quoted_content.text_value
+        end
+      } / (token / [\x3d])+
+    end
+
+  end
+end

@@ -1,0 +1,27 @@
+# coding: UTF-8
+
+= Legal Notice Information
+
+The files in this distribution are covered by the Ruby license (see LICENSE) except the features mentioned below:
+
+Darkfish::
+  Darkfish was written by Michael Granger and is included under the MIT
+  license.  Darkfish contains images from the Silk Icons set by Mark James.
+
+  See lib/rdoc/generator/darkfish.rb for license information.
+
+  * lib/rdoc/generator/darkfish.rb
+  * lib/rdoc/generator/template/darkfish/*
+  * lib/rdoc/generator/template/darkfish/images
+
+Sdoc::
+  Portions of SDoc by (Володя Колесников) Vladimir Kolesnikov are included
+  under the MIT license as RDoc::Generator::JsonIndex.  See
+  lib/rdoc/generator/json_index.rb for license information.
+
+  * lib/rdoc/generator/json_index.rb
+  * lib/rdoc/generator/template/json_index/*
+  * The +#search_index+ methods on RDoc::CodeObject subclasses were derived
+    from sdoc.
+  * RDoc::ClassModule#document_self_or_methods comes from Sdoc.
+

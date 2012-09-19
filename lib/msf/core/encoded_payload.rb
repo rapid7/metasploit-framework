@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 # $Id$
 
 require 'msf/core'
@@ -333,6 +334,9 @@ class EncodedPayload
 		emod = pinst.assoc_exploit if pinst.respond_to? :assoc_exploit
 
 		if emod
+			if (emod.datastore["EXE::Custom"] and emod.respond_to? :get_custom_exe)
+				return emod.get_custom_exe
+			end
 			# This is a little ghetto, grabbing datastore options from the
 			# associated exploit, but it doesn't really make sense for the
 			# payload to have exe options if the exploit doesn't need an exe.

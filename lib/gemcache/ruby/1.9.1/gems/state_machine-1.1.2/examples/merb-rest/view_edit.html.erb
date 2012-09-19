@@ -1,0 +1,24 @@
+<h1>Editing User</h1>
+
+<%= form_for @user, :action => resource(@user) do %>
+  <%= error_messages %>
+  
+  <p>
+    <%= text_field :name, :label => 'Name' %>
+  </p>
+  
+  <p>
+    <%= label :state %><br />
+    <%= select :state_event, :selected => @user.state_event.to_s, :collection => @user.state_transitions, :value_method => :event, :text_method => :human_to_name, :prompt => @user.human_state_name %>
+  </p>
+  
+  <p>
+    <%= label :access_state %><br />
+    <%= select :access_state_event, :selected => @user.access_state_event.to_s, :collection => @user.access_state_transitions, :value_method => :event, :text_method => :human_event, :prompt => "don't change" %>
+  </p>
+  
+  <p><%= submit 'Update' %></p>
+<% end =%>
+
+<%= link_to 'Show', resource(@user) %> |
+<%= link_to 'Back', resource(:users) %>

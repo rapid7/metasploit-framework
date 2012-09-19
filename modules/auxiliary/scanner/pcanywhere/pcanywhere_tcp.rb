@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'pcAnywhere TCP Service Discovery',
+			'Name'        => 'PcAnywhere TCP Service Discovery',
 			'Version'     => '$Revision$',
 			'Description' => 'Discover active pcAnywhere services through TCP',
 			'Author'      => 'hdm',
@@ -54,8 +54,8 @@ class Metasploit3 < Msf::Auxiliary
 			print_status(Rex::Text.to_hex_dump(res))
 =end
 
-			report_service(:host => rhost, :port => rport, :name => "pcanywhere", :info => "")
-			print_status("#{rhost}:#{rport} pcAnywhere")
+			report_service(:host => rhost, :port => rport, :name => "pcanywhere_data", :info => "")
+			print_status("#{rhost}:#{rport} pcAnywhere data service")
 
 		rescue ::Rex::ConnectionError, ::EOFError, ::Errno::ECONNRESET
 		rescue ::Exception => e

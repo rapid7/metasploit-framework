@@ -33,6 +33,8 @@ module ModuleTest
 		rescue ::Exception => e
 			print_error("FAILED: #{msg}")
 			print_error("Exception: #{e.class} : #{e}")
+			dlog("Exception in testing - #{msg}")
+			dlog("Call stack: #{e.backtrace.join("\n")}")
 			return
 		end
 

@@ -153,7 +153,7 @@ class Metasploit4 < Msf::Auxiliary
 					}
 			}, 60)
 
-			if res.code == 200
+			if res and res.code == 200
 				success = true
 				body = CGI::unescapeHTML(res.body)
 				if body.match(/<exitcode>(.*)<\/exitcode>/i)
@@ -165,7 +165,7 @@ class Metasploit4 < Msf::Auxiliary
 				if body.match(/<lines>(.*)<\/lines>/i)
 					items = body.scan(/<item>(.*?)<\/item>/i)
 				end
-			elsif res.code == 500
+			elsif res and res.code == 500
 				case res.body
 				when /<faultstring>(.*)<\/faultstring>/i
 					faultcode = "#{$1}"

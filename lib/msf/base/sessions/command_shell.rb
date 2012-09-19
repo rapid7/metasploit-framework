@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'msf/base'
 require 'msf/base/sessions/scriptable'
 require 'shellwords'
@@ -274,7 +275,7 @@ protected
 
 		begin
 
-		rdr = Rex::ThreadFactory.spawn("RingMonitor", false) do
+		rdr = framework.threads.spawn("RingMonitor", false) do
 			seq = nil
 			while self.interacting
 

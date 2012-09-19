@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'net/ssh/errors'
 require 'net/ssh/known_hosts'
 
@@ -13,8 +14,10 @@ module Net; module SSH; module Verifiers
     def verify(arguments)
       options = arguments[:session].options
       host = options[:host_key_alias] || arguments[:session].host_as_string
-      matches = Net::SSH::KnownHosts.search_for(host, arguments[:session].options)
-
+      matches = []
+      if options[:config]
+        matches = Net::SSH::KnownHosts.search_for(host, arguments[:session].options)
+      end
       # we've never seen this host before, so just automatically add the key.
       # not the most secure option (since the first hit might be the one that
       # is hacked), but since almost nobody actually compares the key
@@ -22,7 +25,9 @@ module Net; module SSH; module Verifiers
       # security.
       if matches.empty?
         ip = arguments[:session].peer[:ip]
-        Net::SSH::KnownHosts.add(host, arguments[:key], arguments[:session].options)
+        if options[:config]
+          Net::SSH::KnownHosts.add(host, arguments[:key], arguments[:session].options)
+        end
         return true
       end
 
@@ -43,8 +48,10 @@ module Net; module SSH; module Verifiers
       def process_cache_miss(host, args)
         exception = HostKeyMismatch.new("fingerprint #{args[:fingerprint]} does not match for #{host.inspect}")
         exception.data = args
-        exception.callback = Proc.new do
-          Net::SSH::KnownHosts.add(host, args[:key], args[:session].options)
+        if options[:config]
+          exception.callback = Proc.new do
+            Net::SSH::KnownHosts.add(host, args[:key], args[:session].options)
+          end
         end
         raise exception
       end

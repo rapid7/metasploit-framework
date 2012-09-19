@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Rex
 module Registry
 
@@ -10,7 +11,7 @@ class ValueKey
 		offset = offset + 4
 
 		vk_header = hive[offset, 2]
-		
+
 		if vk_header !~ /vk/
 			puts "no vk at offset #{offset}"
 			return
@@ -31,10 +32,10 @@ class ValueKey
 			@readable_value_type = "Dword"
 		elsif @value_type == 7
 			@readable_value_type = "Multiple unicode strings separated with '\\x00'"
-		end		
+		end
 
 		flag = hive[offset+0x10, 2].unpack('c').first
-		
+
 		if flag == 0
 			@name = "Default"
 		else
@@ -47,7 +48,7 @@ end
 
 class ValueKeyData
 
-	attr_accessor :data	
+	attr_accessor :data
 
 	def initialize(hive, offset, length, datatype, parent_offset)
 		offset = offset + 4
@@ -56,7 +57,7 @@ class ValueKeyData
 		#the data itself!
 		if length < 5
 			@data = hive[parent_offset + 0x08, 4]
-		else 
+		else
 			@data = hive[offset + 0x1000, length]
 		end
 	end

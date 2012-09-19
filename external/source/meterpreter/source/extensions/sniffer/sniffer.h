@@ -3,10 +3,12 @@
 
 #ifdef _WIN32
 
+#include "../../common/common.h"
+
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
-#include "HNPsSdkUser.h"
+#include <HNPsSdkUser.h>
 #include "dnet.h"
 
 #else
@@ -35,6 +37,7 @@ typedef struct capturejob
 	unsigned char *dbuf;
 	unsigned int dlen;
 	unsigned int didx;
+	int capture_linktype; //current capture link type that we want to save, ie. LINKTYPE_ETHERNET
 #ifndef _WIN32
 	THREAD *thread;
 	pcap_t *pcap;

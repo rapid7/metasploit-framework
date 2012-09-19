@@ -1,0 +1,239 @@
+#!/usr/bin/env rake
+
+require 'uri'
+require 'tempfile'
+require 'rbconfig'
+require 'rake/clean'
+require 'rake/extensiontask'
+require 'rake/extensioncompiler'
+
+MISCDIR = BASEDIR + 'misc'
+
+NUM_CPUS = if File.exist?('/proc/cpuinfo')
+	File.read('/proc/cpuinfo').scan('processor').length
+elsif RUBY_PLATFORM.include?( 'darwin' )
+	`system_profiler SPHardwareDataType | grep 'Cores' | awk '{print $5}'`.chomp
+else
+	1
+end
+
+# Cross-compilation constants
+OPENSSL_VERSION            = ENV['OPENSSL_VERSION'] || '1.0.0e'
+POSTGRESQL_VERSION         = ENV['POSTGRESQL_VERSION'] || '9.1.1'
+
+COMPILE_HOME               = Pathname( "./build" ).expand_path
+STATIC_SOURCESDIR          = COMPILE_HOME + 'sources'
+STATIC_BUILDDIR            = COMPILE_HOME + 'builds'
+
+# Static OpenSSL build vars
+STATIC_OPENSSL_BUILDDIR    = STATIC_BUILDDIR + "openssl-#{OPENSSL_VERSION}"
+
+OPENSSL_SOURCE_URI         =
+	URI( "http://www.openssl.org/source/openssl-#{OPENSSL_VERSION}.tar.gz" )
+OPENSSL_TARBALL            = STATIC_SOURCESDIR + File.basename( OPENSSL_SOURCE_URI.path )
+OPENSSL_MAKEFILE           = STATIC_OPENSSL_BUILDDIR + 'Makefile'
+
+LIBSSLEAY32                = STATIC_OPENSSL_BUILDDIR + 'libssleay32.a'
+LIBEAY32                   = STATIC_OPENSSL_BUILDDIR + 'libeay32.a'
+
+OPENSSL_PATCHES            = Rake::FileList[ MISCDIR + "openssl-#{OPENSSL_VERSION}.*.patch" ]
+
+# Static PostgreSQL build vars
+STATIC_POSTGRESQL_BUILDDIR = STATIC_BUILDDIR + "postgresql-#{POSTGRESQL_VERSION}"
+POSTGRESQL_SOURCE_URI      = begin
+	uristring = "http://ftp.postgresql.org/pub/source/v%s/postgresql-%s.tar.bz2" %
+		[ POSTGRESQL_VERSION, POSTGRESQL_VERSION ]
+	URI( uristring )
+end
+POSTGRESQL_TARBALL         = STATIC_SOURCESDIR + File.basename( POSTGRESQL_SOURCE_URI.path )
+
+STATIC_POSTGRESQL_SRCDIR   = STATIC_POSTGRESQL_BUILDDIR + 'src'
+STATIC_POSTGRESQL_LIBDIR   = STATIC_POSTGRESQL_SRCDIR + 'interfaces/libpq'
+STATIC_POSTGRESQL_INCDIR   = STATIC_POSTGRESQL_SRCDIR + 'include'
+
+POSTGRESQL_GLOBAL_MAKEFILE = STATIC_POSTGRESQL_SRCDIR + 'Makefile.global'
+POSTGRESQL_SHLIB_MAKEFILE  = STATIC_POSTGRESQL_SRCDIR + 'Makefile.shlib'
+POSTGRESQL_SHLIB_MF_ORIG   = STATIC_POSTGRESQL_SRCDIR + 'Makefile.shlib.orig'
+POSTGRESQL_LIB             = STATIC_POSTGRESQL_LIBDIR + 'libpq.a'
+
+CROSS_PREFIX = begin
+	Rake::ExtensionCompiler.mingw_host
+rescue => err
+	$stderr.puts "Cross-compilation disabled -- %s" % [ err.message ]
+	'unknown'
+end
+
+
+# clean intermediate files and folders
+CLEAN.include( STATIC_BUILDDIR.to_s )
+
+
+ENV['RUBY_CC_VERSION'] ||= '1.8.7:1.9.3'
+
+def download(url, save_to)
+	part = save_to+".part"
+	sh "wget #{url.to_s.inspect} -O #{part.inspect} || curl #{url.to_s.inspect} -o #{part.inspect}"
+	FileUtils.mv part, save_to
+end
+
+def run(*args)
+	sh *args
+end
+
+#####################################################################
+### C R O S S - C O M P I L A T I O N - T A S K S
+#####################################################################
+
+
+directory STATIC_SOURCESDIR.to_s
+
+#
+# Static OpenSSL build tasks
+#
+directory STATIC_OPENSSL_BUILDDIR.to_s
+
+# openssl source file should be stored there
+file OPENSSL_TARBALL => STATIC_SOURCESDIR do |t|
+	download( OPENSSL_SOURCE_URI, t.name )
+end
+
+# Extract the openssl builds
+file STATIC_OPENSSL_BUILDDIR => OPENSSL_TARBALL do |t|
+	puts "extracting %s to %s" % [ OPENSSL_TARBALL, STATIC_OPENSSL_BUILDDIR.parent ]
+	STATIC_OPENSSL_BUILDDIR.mkpath
+	run 'tar', '-xzf', OPENSSL_TARBALL.to_s, '-C', STATIC_OPENSSL_BUILDDIR.parent.to_s
+	OPENSSL_MAKEFILE.unlink if OPENSSL_MAKEFILE.exist?
+
+	OPENSSL_PATCHES.each do |patchfile|
+		puts "  applying patch #{patchfile}..."
+		run 'patch', '-Np1', '-d', STATIC_OPENSSL_BUILDDIR.to_s,
+		'-i', File.expand_path( patchfile, BASEDIR )
+	end
+end
+
+CMD_PRELUDE = [
+	'env',
+	"CC=#{CROSS_PREFIX}-gcc",
+	"CFLAGS=-DDSO_WIN32",
+	"AR=#{CROSS_PREFIX}-ar",
+	"RANLIB=#{CROSS_PREFIX}-ranlib"
+]
+
+
+# generate the makefile in a clean build location
+file OPENSSL_MAKEFILE => STATIC_OPENSSL_BUILDDIR do |t|
+	Dir.chdir( STATIC_OPENSSL_BUILDDIR ) do
+		cmd = CMD_PRELUDE.dup
+		cmd << "./Configure" << 'mingw'
+
+		run( *cmd )
+	end
+end
+
+desc "compile static openssl libraries"
+task :openssl_libs => [ LIBSSLEAY32, LIBEAY32 ]
+
+task :compile_static_openssl => OPENSSL_MAKEFILE do |t|
+	Dir.chdir( STATIC_OPENSSL_BUILDDIR ) do
+		cmd = CMD_PRELUDE.dup
+		cmd << 'make' << "-j#{NUM_CPUS}" << 'build_libs'
+
+		run( *cmd )
+	end
+end
+
+desc "compile static #{LIBEAY32}"
+file LIBEAY32 => :compile_static_openssl do |t|
+	FileUtils.cp( STATIC_OPENSSL_BUILDDIR + 'libcrypto.a', LIBEAY32.to_s )
+end
+
+desc "compile static #{LIBSSLEAY32}"
+file LIBSSLEAY32 => :compile_static_openssl do |t|
+	FileUtils.cp( STATIC_OPENSSL_BUILDDIR + 'libssl.a', LIBSSLEAY32.to_s )
+end
+
+
+
+#
+# Static PostgreSQL build tasks
+#
+directory STATIC_POSTGRESQL_BUILDDIR.to_s
+
+
+# postgresql source file should be stored there
+file POSTGRESQL_TARBALL => STATIC_SOURCESDIR do |t|
+	download( POSTGRESQL_SOURCE_URI, t.name )
+end
+
+# Extract the postgresql sources
+file STATIC_POSTGRESQL_BUILDDIR => POSTGRESQL_TARBALL do |t|
+	puts "extracting %s to %s" % [ POSTGRESQL_TARBALL, STATIC_POSTGRESQL_BUILDDIR.parent ]
+	STATIC_POSTGRESQL_BUILDDIR.mkpath
+	run 'tar', '-xjf', POSTGRESQL_TARBALL.to_s, '-C', STATIC_POSTGRESQL_BUILDDIR.parent.to_s
+	mv POSTGRESQL_SHLIB_MAKEFILE, POSTGRESQL_SHLIB_MF_ORIG
+end
+
+# generate the makefile in a clean build location
+file POSTGRESQL_GLOBAL_MAKEFILE => [ STATIC_POSTGRESQL_BUILDDIR, :openssl_libs ] do |t|
+	options = [
+		'--target=i386-mingw32',
+		"--host=#{Rake::ExtensionCompiler.mingw_host}",
+		'--with-openssl',
+		'--without-zlib',
+		'--disable-shared',
+	]
+
+	Dir.chdir( STATIC_POSTGRESQL_BUILDDIR ) do
+		configure_path = STATIC_POSTGRESQL_BUILDDIR + 'configure'
+		cmd = [ configure_path.to_s, *options ]
+		cmd << "CFLAGS=-L#{STATIC_OPENSSL_BUILDDIR}"
+		cmd << "LDFLAGS=-L#{STATIC_OPENSSL_BUILDDIR}"
+		cmd << "LDFLAGS_SL=-L#{STATIC_OPENSSL_BUILDDIR}"
+		cmd << "LIBS=-lwsock32 -lws2_32 -lgdi32"
+		cmd << "CPPFLAGS=-I#{STATIC_OPENSSL_BUILDDIR}/include"
+
+		run( *cmd )
+	end
+end
+
+
+# patch the Makefile.shlib -- depend on the build dir so it's only
+# rewritten if the tarball is re-extracted.
+file POSTGRESQL_SHLIB_MAKEFILE => POSTGRESQL_SHLIB_MF_ORIG do |t|
+	tf = Tempfile.new( POSTGRESQL_SHLIB_MAKEFILE.basename )
+	POSTGRESQL_SHLIB_MF_ORIG.open( File::RDONLY ) do |ifh|
+		ifh.each_line do |line|
+			tf.print( line.sub(/^(\s*haslibarule\s*=\s*yes)/, "# \\1 ") )
+		end
+	end
+	tf.close
+
+	FileUtils.mv( tf.path, t.name, :verbose => $puts )
+end
+
+
+# make libpq.a
+task POSTGRESQL_LIB => [ POSTGRESQL_GLOBAL_MAKEFILE, POSTGRESQL_SHLIB_MAKEFILE ] do |t|
+	Dir.chdir( POSTGRESQL_LIB.dirname ) do
+		sh 'make', "-j#{NUM_CPUS}", POSTGRESQL_LIB.basename.to_s, 'PORTNAME=win32'
+	end
+end
+
+
+#desc 'compile static libpg.a'
+task :static_libpq => POSTGRESQL_LIB
+
+desc 'cross compile pg for win32'
+task :cross do
+	ENV['CROSS_COMPILING'] = 'yes'
+end
+task :cross => [ :mingw32, :static_libpq ]
+
+task :mingw32 do
+	# Use Rake::ExtensionCompiler helpers to find the proper host
+	unless Rake::ExtensionCompiler.mingw_host then
+		warn "You need to install mingw32 cross compile functionality to be able to continue."
+		warn "Please refer to your distribution/package manager documentation about installation."
+		fail
+	end
+end

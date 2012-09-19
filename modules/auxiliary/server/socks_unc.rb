@@ -81,8 +81,8 @@ class Metasploit3 < Msf::Auxiliary
 		return if !(req and req.length > 2)
 
 		# Versions
-		case req[0]
-		when 0x04
+		case req[0,1]
+		when "\x04"
 
 			sver, sreq, sport, shost, suser, sname = req.unpack('CCnA4Z*Z*')
 
@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			client.put("\x00\x5a\x00\x00\x00\x00\x00\x00")
 
-		when 0x05
+		when "\x05"
 
 			sver, scnt, sauth = req.unpack('CCA*')
 			client.put("\x05\x00")

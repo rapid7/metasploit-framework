@@ -1,7 +1,7 @@
+# -*- coding: binary -*-
 #
 # Provides some sanity checks against the ruby build and version
 #
-
 
 # Check for the broken pack/unpack in OS X 10.4.x
 if ([1].pack('n') == "\x01\x00")
@@ -18,17 +18,22 @@ end
 
 # Check for ruby 1.8.2 as the minimal supported version
 if (RUBY_VERSION =~ /^1\.[0-7]\./ or RUBY_VERSION =~ /^1\.8\.[0-1]$/)
-	$stderr.puts "*** This version of ruby is not supported, please upgrade to 1.8.2+"
+	$stderr.puts "*** This version of ruby is not supported, please upgrade to 1.8.7+"
 	exit(0)
 end
 
 # Check for ruby 1.9.0 and throw a big nasty warning
 if (RUBY_VERSION =~ /^1\.9\.0/)
-	$stderr.puts "*** Ruby 1.9.0 is not supported, please upgrade to Ruby 1.9.1 or newer."
+	$stderr.puts "*** Ruby 1.9.0 is not supported, please upgrade to Ruby 1.9.3 or newer."
 	exit(0)
 end
 
-if(RUBY_VERSION =~ /^1\.9\./)
+# Check for ruby 1.9.1 and throw a warning
+if (RUBY_VERSION =~ /^1\.9\.1/)
+	$stderr.puts "*** Ruby 1.9.1 is not supported, please upgrade to Ruby 1.9.3 or newer."
+end
+
+if(RUBY_VERSION =~ /^(1\.9|2\.0)\./)
 	# Load rubygems before changing default_internal, otherwise we may get
 	# Encoding::UndefinedConversionError as the gemspec files are loaded
 	require 'rubygems'
@@ -52,6 +57,8 @@ if(RUBY_PLATFORM == 'java')
 	trap Signal::list['INT'] do
 		Thread.main.raise Interrupt.new
 	end
+	
+	s.close
 end
 
 # Check for OpenSSL and print a warning if it is not installed

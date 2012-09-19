@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/proto/drda'
 
 module Rex
@@ -8,12 +9,12 @@ class Error < StandardError; end
 class RespError < Error; end
 
 # See:
-# http://publib.boulder.ibm.com/infocenter/dzichelp/v2r2/index.jsp?topic=/com.ibm.db29.doc.drda/db2z_excsat.htm 
+# http://publib.boulder.ibm.com/infocenter/dzichelp/v2r2/index.jsp?topic=/com.ibm.db29.doc.drda/db2z_excsat.htm
 class MGRLVLLS_PARAM < Struct.new(:length, :codepoint, :payload)
 	def initialize(args={})
 		self[:codepoint] = Constants::MGRLVLLS
 		self[:payload] = "\x14\x03\x00\x0a\x24\x07\x00\x0a" +
-			"\x14\x74\x00\x05\x24\x0f\x00\x08" + 
+			"\x14\x74\x00\x05\x24\x0f\x00\x08" +
 			"\x14\x40\x00\x09\x1c\x08\x04\xb8"
 		self[:length] = self[:payload].to_s.size+4
 	end
@@ -22,10 +23,10 @@ class MGRLVLLS_PARAM < Struct.new(:length, :codepoint, :payload)
 	end
 end
 
-# Currently, only takes a MGRLVLLS param. Extend the struct 
+# Currently, only takes a MGRLVLLS param. Extend the struct
 # when more parameters are defined.
 class EXCSAT_DDM < Struct.new(:length, :magic, :format, :correlid, :length2,
-	 :codepoint, :mgrlvlls) 
+	 :codepoint, :mgrlvlls)
 
 	def initialize(args={})
 		self[:magic] = 0xd0
@@ -34,7 +35,7 @@ class EXCSAT_DDM < Struct.new(:length, :magic, :format, :correlid, :length2,
 		self[:codepoint] = Constants::EXCSAT
 		self[:mgrlvlls] = args[:mgrlvlls] || MGRLVLLS_PARAM.new.to_s
 		self[:length] = (10 + self[:mgrlvlls].to_s.size)
-		self[:length2] = self[:length]-6 
+		self[:length2] = self[:length]-6
 	end
 
 	def to_s
@@ -57,7 +58,7 @@ class SECMEC_PARAM < Struct.new(:length, :codepoint, :payload)
 	end
 end
 
-# Relational Database name parameter. 
+# Relational Database name parameter.
 class RDBNAM_PARAM < Struct.new(:length, :codepoint, :payload)
 	def initialize(args={})
 		self[:length] = 22 # Since the database name is padded out.
@@ -95,7 +96,7 @@ class ACCSEC_DDM < Struct.new(:length, :magic, :format, :correlid, :length2,
 			self[:rdbnam] = RDBNAM_PARAM.new(:payload => args[:dbname]).to_s
 		end
 		self[:length] =  10 + self[:secmec].to_s.size + self[:rdbnam].to_s.size
-		self[:length2] = self[:length]-6 
+		self[:length2] = self[:length]-6
 	end
 	def dbname=(str)
 		self[:rdbnam] = RDBNAM_PARAM.new(:payload => args[:dbname]).to_s
@@ -143,7 +144,7 @@ class BASIC_DDM < Struct.new(:length, :magic, :format, :correlid,
 		rest = str[10,self[:length2]-4]
 		i = 0
 		while (i < rest.size)
-			if self[:codepoint] == Constants::SQLCARD # These aren't DDM's. 
+			if self[:codepoint] == Constants::SQLCARD # These aren't DDM's.
 				this_param = rest[i,self[:length]-10]
 			else
 				this_param = DDM_PARAM.new.read(rest[i,rest.size])
@@ -154,7 +155,7 @@ class BASIC_DDM < Struct.new(:length, :magic, :format, :correlid,
 		return self
 	end
 
-	# Just a quick test. 
+	# Just a quick test.
 	def sanity_check
 		if self[:length] < 10
 			raise DRDA::RespError, "DDM Length is too short."
@@ -233,7 +234,7 @@ class SECCHK_DDM < Struct.new(:length, :magic, :format, :correlid, :length2,
 		self[:userid] = USERID_PARAM.new(:payload => args[:dbuser]).to_s
 		self[:length] = ( 10 + self[:secmec].to_s.size + self[:rdbnam].to_s.size +
 					 self[:password].to_s.size + self[:userid].to_s.size )
-		self[:length2] = self[:length]-6 
+		self[:length2] = self[:length]-6
 	end
 	def dbname=(str)
 		self[:rdbnam] = RDBNAM_PARAM.new(:payload => args[:dbname]).to_s

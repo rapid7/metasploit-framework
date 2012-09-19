@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 #
 # An NTLM Authentication Library for Ruby
 #
@@ -6,7 +7,7 @@
 # http://jp.rubyist.net/magazine/?0013-CodeReview
 # -------------------------------------------------------------
 # Copyright (c) 2005,2006 yrock
-# 
+#
 # This program is free software.
 # You can distribute/modify this program under the terms of the
 # Ruby License.
@@ -18,8 +19,8 @@
 # -------------------------------------------------------------
 #
 # All protocol information used to write this code stems from
-# "The NTLM Authentication Protocol" by Eric Glass. The author 
-# would thank to him for this tremendous work and making it 
+# "The NTLM Authentication Protocol" by Eric Glass. The author
+# would thank to him for this tremendous work and making it
 # available on the net.
 # http://davenport.sourceforge.net/ntlm.html
 # -------------------------------------------------------------
@@ -28,7 +29,7 @@
 # Permission to use, copy, modify, and distribute this document
 # for any purpose and without any fee is hereby granted,
 # provided that the above copyright notice and this list of
-# conditions appear in all copies. 
+# conditions appear in all copies.
 # -------------------------------------------------------------
 #
 # The author also looked Mozilla-Firefox-1.0.7 source code,
@@ -37,7 +38,7 @@
 # "http://x2a.org/websvn/filedetails.php?
 # repname=libntlm-ruby&path=%2Ftrunk%2Fntlm.rb&sc=1"
 # The latter has a minor bug in its separate_keys function.
-# The third key has to begin from the 14th character of the 
+# The third key has to begin from the 14th character of the
 # input string instead of 13th:)
 #--
 # $Id: ntlm.rb 11678 2011-01-30 19:26:35Z hdm $
@@ -54,26 +55,26 @@ class Base
 
 CONST = Rex::Proto::NTLM::Constants
 
-   	# base classes for primitives
-   	class Field
-	     	attr_accessor :active, :value
+	# base classes for primitives
+	class Field
+		attr_accessor :active, :value
 
 		def initialize(opts)
 			@value  = opts[:value]
 			@active = opts[:active].nil? ? true : opts[:active]
 		end
-	      
+
 		def size
 			@active ? @size : 0
 		end
 	end
-	
+
 	class String < Field
 		def initialize(opts)
 			super(opts)
 			@size = opts[:size]
 		end
-	      
+
 		def parse(str, offset=0)
 			if @active and str.size >= offset + @size
 				@value = str[offset, @size]
@@ -82,7 +83,7 @@ CONST = Rex::Proto::NTLM::Constants
 				0
 			end
 		end
-	      
+
 		def serialize
 			if @active
 				@value
@@ -90,7 +91,7 @@ CONST = Rex::Proto::NTLM::Constants
 				""
 			end
 		end
-	      
+
 		def value=(val)
 			@value = val
 			@size = @value.nil? ? 0 : @value.size
@@ -109,10 +110,10 @@ CONST = Rex::Proto::NTLM::Constants
 				@value = str[offset, @size].unpack("v")[0]
 				@size
 			else
-		  		0
+				0
 			end
 		end
-	      
+
 		def serialize
 			[@value].pack("v")
 		end
@@ -153,7 +154,7 @@ CONST = Rex::Proto::NTLM::Constants
 				0
 			end
 		end
-	      
+
 		def serialize
 			[@value & 0x00000000ffffffff, @value >> 32].pack("V2") if @active
 		end
@@ -173,11 +174,11 @@ CONST = Rex::Proto::NTLM::Constants
 			c.module_eval(&block)
 			c
 		end
-		
+
 		def string(name, opts)
 			add_field(name, String, opts)
 		end
-		
+
 		def int16LE(name, opts)
 			add_field(name, Int16LE, opts)
 		end
@@ -189,7 +190,7 @@ CONST = Rex::Proto::NTLM::Constants
 		def int64LE(name, opts)
 			add_field(name, Int64LE, opts)
 		end
-		
+
 		def security_buffer(name, opts)
 			add_field(name, SecurityBuffer, opts)
 		end
@@ -197,7 +198,7 @@ CONST = Rex::Proto::NTLM::Constants
 		def prototypes
 			@proto
 		end
-		
+
 		def names
 			@proto.map{|n, t, o| n}
 		end
@@ -205,39 +206,39 @@ CONST = Rex::Proto::NTLM::Constants
 		def types
 			@proto.map{|n, t, o| t}
 		end
-		
+
 		def opts
 			@proto.map{|n, t, o| o}
 		end
-		
+
 		private
-		
+
 		def add_field(name, type, opts)
 			(@proto ||= []).push [name, type, opts]
 			define_accessor name
 		end
-		
+
 		def define_accessor(name)
 			module_eval(<<-End, __FILE__, __LINE__ + 1)
 			def #{name}
 				self['#{name}'].value
 			end
-		    
+
 			def #{name}=(val)
 				self['#{name}'].value = val
 			end
 			End
-		end 
+		end
 		end #self
-      
+
 		def initialize
 			@alist = self.class.prototypes.map{ |n, t, o| [n, t.new(o)] }
 		end
-	      
+
 		def serialize
 			@alist.map{|n, f| f.serialize }.join
 		end
-	      
+
 		def parse(str, offset=0)
 			@alist.inject(offset){|cur, a|  cur += a[1].parse(str, cur)}
 		end
@@ -251,17 +252,17 @@ CONST = Rex::Proto::NTLM::Constants
 			raise ArgumentError, "no such field: #{name}" unless a
 			a[1]
 		end
-	      
+
 		def []=(name, val)
 			a = @alist.assoc(name.to_s.intern)
 			raise ArgumentError, "no such field: #{name}" unless a
 			a[1] = val
 		end
-	      
+
 		def enable(name)
 			self[name].active = true
 		end
-	      
+
 		def disable(name)
 			self[name].active = false
 		end
@@ -292,7 +293,7 @@ CONST = Rex::Proto::NTLM::Constants
 			@active = opts[:active].nil? ? true : opts[:active]
 			@size = 8
 		end
-	      
+
 		def parse(str, offset=0)
 			if @active and str.size >= offset + @size
 				super(str, offset)
@@ -302,20 +303,20 @@ CONST = Rex::Proto::NTLM::Constants
 				0
 			end
 		end
-	      
+
 		def serialize
 			super if @active
 		end
-	      
+
 		def value
 			@value
 		end
-	      
+
 		def value=(val)
 			@value = val
 			self.length = self.allocated = val.size
 		end
-	      
+
 		def data_size
 			@active ? @value.size : 0
 		end

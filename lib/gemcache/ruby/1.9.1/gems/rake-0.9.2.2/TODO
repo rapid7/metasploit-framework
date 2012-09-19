@@ -1,0 +1,20 @@
+= Rake Project -- To Do List
+
+Send suggestions for this list to mailto:jim@weirichhouse.org or on
+the rake-devel@rubyforge.org mailing list.
+
+=== To Do
+* Need a nice API for accessing tasks in namespaces, namespaces in an app, etc.
+* Provide a way to disable -w warning mode.
+* Define a set of default rules that work in the absence of any Rakefile
+* What about cyclic dependencies?
+* Java support utilities
+* Installation support utilities
+  * Check out installpkg.rb
+* Autogenerate Dependencies
+* Rules should apply to existing tasks if no actions are defined.
+* How to create multiple package tasks without task name collision?
+* Trap "ln -s" commands that fail and use "cp" instead (SMB mounted
+  drives have problems with "ln -s".
+
+(moved DONE list to CHANGES file)

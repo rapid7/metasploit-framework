@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/incognito/tlv'
 
@@ -23,7 +24,7 @@ class Incognito < Extension
 
 		client.register_extension_aliases(
 			[
-				{ 
+				{
 					'name' => 'incognito',
 					'ext'  => self
 				},
@@ -36,10 +37,10 @@ class Incognito < Extension
 		request.add_tlv(TLV_TYPE_INCOGNITO_LIST_TOKENS_ORDER, token_order)
 
 		response = client.send_request(request)
-		
+
 		return {
 			'delegation' => response.get_tlv_value(TLV_TYPE_INCOGNITO_LIST_TOKENS_DELEGATION),
-			'impersonation' => response.get_tlv_value(TLV_TYPE_INCOGNITO_LIST_TOKENS_IMPERSONATION) 
+			'impersonation' => response.get_tlv_value(TLV_TYPE_INCOGNITO_LIST_TOKENS_IMPERSONATION)
 		}
 	end
 

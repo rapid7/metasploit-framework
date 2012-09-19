@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
 	def initialize(info = {})
 		super(update_info(info,
-			'Name' => 'Pull Del.icio.us Links (URLs) for a domain',
+			'Name' => 'Del.icio.us Domain Links (URLs) Enumerator',
 			'Description' => %q{
 					This module pulls and parses the URLs stored by Del.icio.us users for the
 				purpose of replaying during a web assessment. Finding unlinked and old pages.
@@ -49,8 +49,8 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("Page number: " + pagenum.to_s)
 			header = { 'User-Agent' => "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/4.0.221.6 Safari/525.13"}
 			clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("www.delicious.com")
-			resp, data = clnt.get2("/search?p=site%3A"+targetdom+"&page="+pagenum.to_s,header)
-			response << data
+			resp = clnt.get2("/search?p=site%3A"+targetdom+"&page="+pagenum.to_s,header)
+			response << resp.body
 			response.each_line do |line|
 				list << line.gsub!(/(.+<a rel=\"nofollow)(.+=+\")(.+)(\".+)/, '\3')
 			end

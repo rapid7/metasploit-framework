@@ -1,0 +1,23 @@
+= Rake 0.4.14 Released
+
+== Changes
+
+Version 0.4.14 is a compatibility fix to allow Rake's test task to
+work under Ruby 1.8.2.  A change in the Test::Unit autorun feature
+prevented Rake from running any tests.  This release fixes the
+problem.
+
+Rake 0.4.14 is the recommended release for anyone using Ruby 1.8.2.
+
+== What is Rake
+
+Rake is a build tool similar to the make program in many ways.  But
+instead of cryptic make recipes, Rake uses standard Ruby code to
+declare tasks and dependencies.  You have the full power of a modern
+scripting language built right into your build tool.
+
+== Availability
+
+Home Page:: http://rake.rubyforge.org/
+Download::  http://rubyforge.org/project/showfiles.php?group_id=50
+

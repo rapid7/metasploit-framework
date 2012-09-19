@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 							'Description' => 'OWA version 2010',
 							'AuthPath'    => '/owa/auth.owa',
 							'InboxPath'   => '/owa/',
-							'InboxCheck'  => /Inbox|location(\x20*)=(\x20*)"\\\/(\w+)\\\/logoff\.owa|A mailbox couldn\'t be found/
+							'InboxCheck'  => /Inbox|location(\x20*)=(\x20*)"\\\/(\w+)\\\/logoff\.owa|A mailbox couldn\'t be found|\<a .+onclick="return JumpTo\('logoff\.aspx.+\">/
 						}
 					]
 				],

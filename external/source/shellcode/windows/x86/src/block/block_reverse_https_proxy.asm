@@ -80,6 +80,11 @@ set_retry:
 ; InternetSetOption (hReq, INTERNET_OPTION_SECURITY_FLAGS, &dwFlags, sizeof (dwFlags) );
 set_security_options:
   push 0x00003380
+    ;0x00002000 |        ; SECURITY_FLAG_IGNORE_CERT_DATE_INVALID
+    ;0x00001000 |        ; SECURITY_FLAG_IGNORE_CERT_CN_INVALID
+    ;0x00000200 |        ; SECURITY_FLAG_IGNORE_WRONG_USAGE
+    ;0x00000100 |        ; SECURITY_FLAG_IGNORE_UNKNOWN_CA
+    ;0x00000080          ; SECURITY_FLAG_IGNORE_REVOCATION
   mov eax, esp
   push byte 4            ; sizeof(dwFlags)
   push eax               ; &dwFlags

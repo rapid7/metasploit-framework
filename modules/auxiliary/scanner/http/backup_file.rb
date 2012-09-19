@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			if (res and res.code >= 200 and res.code < 300)
 				print_status("Found #{wmap_base_url}#{file}")
-				
+
 				report_web_vuln(
 					:host	=> ip,
 					:port	=> rport,

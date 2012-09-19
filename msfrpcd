@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 #
 # $Id$
 #
@@ -15,6 +16,7 @@ end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
 require 'fastlib'
+require 'msfenv'
 
 
 

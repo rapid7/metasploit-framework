@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
-				soap_data = 
+			soap_data =
 			%Q|<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 			<env:Body>
 			<RetrieveServiceContent xmlns="urn:vim25">

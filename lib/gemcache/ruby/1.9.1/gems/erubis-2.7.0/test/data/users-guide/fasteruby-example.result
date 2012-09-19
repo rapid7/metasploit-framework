@@ -1,0 +1,18 @@
+$ ruby fasteruby-example.rb
+----- Erubis::Eruby -----
+_buf = ''; _buf << '<div>
+'; for item in list 
+ _buf << '  <p>'; _buf << ( item ).to_s; _buf << '</p>
+  <p>'; _buf << Erubis::XmlHelper.escape_xml( item ); _buf << '</p>
+'; end 
+ _buf << '</div>
+';
+_buf.to_s
+----- Erubis::FastEruby -----
+_buf = ''; _buf << %Q`<div>\n`
+ for item in list 
+ _buf << %Q`  <p>#{ item }</p>
+  <p>#{Erubis::XmlHelper.escape_xml( item )}</p>\n`
+ end 
+ _buf << %Q`</div>\n`
+_buf.to_s

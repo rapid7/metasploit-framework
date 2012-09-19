@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/post/meterpreter'
 require 'rex/parser/arguments'
 
@@ -43,11 +44,9 @@ class Console::CommandDispatcher::Core
 			"close"      => "Closes a channel",
 			"channel"    => "Displays information about active channels",
 			"exit"       => "Terminate the meterpreter session",
-			"detach"     => "Detach the meterpreter session (for http/https)",
 			"help"       => "Help menu",
 			"interact"   => "Interacts with a channel",
 			"irb"        => "Drop into irb scripting mode",
-			"migrate"    => "Migrate the server to another process",
 			"use"        => "Deprecated alias for 'load'",
 			"load"       => "Load one or more meterpreter extensions",
 			"quit"       => "Terminate the meterpreter session",
@@ -61,6 +60,18 @@ class Console::CommandDispatcher::Core
 			"enable_unicode_encoding"  => "Enables encoding of unicode strings",
 			"disable_unicode_encoding" => "Disables encoding of unicode strings"
 		}
+
+		if client.passive_service
+			c["detach"] = "Detach the meterpreter session (for http/https)"
+		end
+		# The only meterp that implements this right now is native Windows and for
+		# whatever reason it is not adding core_migrate to its list of commands.
+		# Use a dumb platform til it gets sorted.
+		#if client.commands.include? "core_migrate"
+		if client.platform =~ /win/
+			c["migrate"] = "Migrate the server to another process"
+		end
+
 		if (msf_loaded?)
 			c["info"] = "Displays information about a Post module"
 		end
@@ -846,8 +857,8 @@ protected
 
 	def tab_complete_postmods
 		tabs = client.framework.modules.post.map { |name,klass|
-			mod = klass.new
-			if mod.session_compatible?(client)
+			mod = client.framework.modules.post.create(name)
+			if mod and mod.session_compatible?(client)
 				mod.fullname.dup
 			else
 				nil

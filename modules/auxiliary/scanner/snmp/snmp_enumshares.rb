@@ -36,9 +36,9 @@ class Metasploit3 < Msf::Auxiliary
 						"1.3.6.1.4.1.77.1.2.27.1.2",
 						"1.3.6.1.4.1.77.1.2.27.1.3"]
 
+			@shares = []
 			if snmp.get_value('sysDescr.0') =~ /Windows/
 
-				@shares = []
 				snmp.walk(share_tbl) do |entry|
 					@shares << entry.collect{|x|x.value}
 				end

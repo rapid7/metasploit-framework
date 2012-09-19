@@ -96,7 +96,7 @@ class Metasploit3 < Msf::Auxiliary
 									'data'         => post_data,
 								}, 25)
 
-								if (res.code == 302)
+								if (res and res.code == 302)
 
 									res = send_request_cgi({
 										'uri'     => "/admin/",
@@ -104,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
 										'cookie'  => "JSESSIONID=#{jsessionid}",
 									}, 25)
 
-									if (res.code == 302)
+									if (res and res.code == 302)
 
 										res = send_request_cgi({
 											'uri'     => "/admin/frameset.jsp",
@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Auxiliary
 											'cookie'  => "JSESSIONID=#{jsessionid}",
 										}, 25)
 
-										if (res.code == 200)
+										if (res and res.code == 200)
 											print_status("http://#{target_host}:#{rport}/admin [#{res.headers['Server']}] [#{ver}] [Tomcat Server Administration] [#{username}/#{password}]")
 										end
 

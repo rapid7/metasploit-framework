@@ -1,0 +1,8 @@
+$ erubis -l ruby -e example3.eruby
+_buf = ''; for item in list 
+ _buf << '  <p>'; _buf << Erubis::XmlHelper.escape_xml( item ); _buf << '</p>
+  <p>'; _buf << ( item ).to_s; _buf << '</p>
+  <p>'; $stderr.puts("*** debug: item=#{(item).inspect}"); _buf << '</p>
+
+'; end 
+_buf.to_s

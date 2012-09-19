@@ -1,0 +1,8 @@
+Description:
+    Create session model that represents the user’s current session.
+
+Example:
+    rails generate authlogic:session UserSession
+
+    This will create:
+        Model UserSession in app/models directory 

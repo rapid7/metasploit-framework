@@ -1,17 +1,18 @@
+# -*- coding: binary -*-
 require "rex/parser/nokogiri_doc_mixin"
 
 module Rex
 	module Parser
 
-		# If Nokogiri is available, define AppScan document class. 
+		# If Nokogiri is available, define AppScan document class.
 		load_nokogiri && class AppscanDocument < Nokogiri::XML::SAX::Document
 
 		include NokogiriDocMixin
 
 		# The resolver prefers your local /etc/hosts (or windows equiv), but will
-		# fall back to regular DNS. It retains a cache for the import to avoid 
+		# fall back to regular DNS. It retains a cache for the import to avoid
 		# spamming your network with DNS requests.
-		attr_reader :resolv_cache 
+		attr_reader :resolv_cache
 
 		# If name resolution of the host fails out completely, you will not be
 		# able to import that Scan task. Other scan tasks in the same report
@@ -43,7 +44,7 @@ module Rex
 			when "Issue" # Wrap it up
 				record_issue
 				# Reset the state once we close an issue
-				@state = @state.select do 
+				@state = @state.select do
 					|k| [:current_tag, :web_sites].include? k
 				end
 			when "Url" # Populates @state[:web_site]
@@ -59,7 +60,7 @@ module Rex
 			when "OriginalHttpTraffic" # Request and response
 				@state[:has_text] = false
 				record_request_and_response
-				report_service_info 
+				report_service_info
 				page_info = report_web_page(&block)
 				if page_info
 					form_info = report_web_form(page_info,&block)
@@ -80,11 +81,11 @@ module Rex
 			return unless @state[:issue]["Noise"].to_s.downcase == "false"
 			return unless @state[:issue][:vuln_param]
 			web_vuln_info = {}
-			web_vuln_info[:web_site] = form_info[:web_site] 
-			web_vuln_info[:path] = form_info[:path] 
-			web_vuln_info[:query] = form_info[:query] 
-			web_vuln_info[:method] = form_info[:method] 
-			web_vuln_info[:params] = form_info[:params] 
+			web_vuln_info[:web_site] = form_info[:web_site]
+			web_vuln_info[:path] = form_info[:path]
+			web_vuln_info[:query] = form_info[:query]
+			web_vuln_info[:method] = form_info[:method]
+			web_vuln_info[:params] = form_info[:params]
 			web_vuln_info[:pname] = @state[:issue][:vuln_param]
 			web_vuln_info[:proof] = "" # TODO: pick this up from <Difference> maybe?
 			web_vuln_info[:risk] = @state[:issue][:risk]
@@ -150,9 +151,9 @@ module Rex
 			web_page_info[:query] = @state[:uri].query
 			code = @state[:response_headers].cmd_string.split(/\s+/)[1]
 			return unless code
-			web_page_info[:code] = code 
+			web_page_info[:code] = code
 			parsed_headers = {}
-		 	@state[:response_headers].each do |k,v| 
+			@state[:response_headers].each do |k,v|
 				parsed_headers[k.to_s.downcase] ||= []
 				parsed_headers[k.to_s.downcase] << v
 			end
@@ -181,7 +182,7 @@ module Rex
 				:proto => service.proto,
 				:info => banner
 			}
-			db_report(:service, service_info) 
+			db_report(:service, service_info)
 		end
 
 		def record_request_and_response
@@ -200,7 +201,7 @@ module Rex
 				request_body_text = nil
 			end
 			response_headers_text = split_traffic[1].to_s[content_length,split_traffic[1].to_s.size].lstrip
-			request = request_headers_text 
+			request = request_headers_text
 			return unless(request && response_headers_text)
 			response_body_text = split_traffic[2]
 			req_header = Rex::Proto::Http::Packet::Header.new
@@ -318,7 +319,7 @@ module Rex
 			return address
 		end
 
-		# Alias this 
+		# Alias this
 		def resolve_issue_url_address(uri)
 			if uri.host
 				address = resolve_address(uri.host)

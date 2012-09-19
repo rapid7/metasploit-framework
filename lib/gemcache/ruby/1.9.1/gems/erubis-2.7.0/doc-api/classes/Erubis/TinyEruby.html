@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class: Erubis::TinyEruby</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Class</strong></td>
+          <td class="class-name-in-header">Erubis::TinyEruby</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../files/erubis/tiny_rb.html">
+                erubis/tiny.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        <tr class="top-aligned-row">
+            <td><strong>Parent:</strong></td>
+            <td>
+                Object
+            </td>
+        </tr>
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <p>
+tiny and the simplest implementation of eRuby
+</p>
+<p>
+ex.
+</p>
+<pre>
+  eruby = TinyEruby.new(File.read('example.rhtml'))
+  print eruby.src                 # print ruby code
+  print eruby.result(binding())   # eval ruby code with Binding object
+  print eruby.evalute(context)    # eval ruby code with context object
+</pre>
+
+    </div>
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000219">convert</a>&nbsp;&nbsp;
+      <a href="#M000221">evaluate</a>&nbsp;&nbsp;
+      <a href="#M000218">new</a>&nbsp;&nbsp;
+      <a href="#M000220">result</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+    <div id="constants-list">
+      <h3 class="section-bar">Constants</h3>
+
+      <div class="name-list">
+        <table summary="Constants">
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">EMBEDDED_PATTERN</td>
+          <td>=</td>
+          <td class="context-item-value">/&lt;%(=+|\#)?(.*?)-?%&gt;/m</td>
+        </tr>
+        </table>
+      </div>
+    </div>
+
+
+
+    <div id="attribute-list">
+      <h3 class="section-bar">Attributes</h3>
+
+      <div class="name-list">
+        <table>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">src</td>
+          <td class="context-item-value">&nbsp;[R]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        </table>
+      </div>
+    </div>
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Class methods</h3>
+
+      <div id="method-M000218" class="method-detail">
+        <a name="M000218"></a>
+
+        <div class="method-heading">
+          <a href="#M000218" class="method-signature">
+          <span class="method-name">new</span><span class="method-args">(input=nil)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000218-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000218-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/tiny.rb, line 19</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">initialize</span>(<span class="ruby-identifier">input</span>=<span class="ruby-keyword kw">nil</span>)
+      <span class="ruby-ivar">@src</span> = <span class="ruby-identifier">convert</span>(<span class="ruby-identifier">input</span>) <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">input</span>
+    <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000219" class="method-detail">
+        <a name="M000219"></a>
+
+        <div class="method-heading">
+          <a href="#M000219" class="method-signature">
+          <span class="method-name">convert</span><span class="method-args">(input)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000219-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000219-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/tiny.rb, line 26</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">convert</span>(<span class="ruby-identifier">input</span>)
+      <span class="ruby-identifier">src</span> = <span class="ruby-value str">&quot;_buf = '';&quot;</span>           <span class="ruby-comment cmt"># preamble</span>
+      <span class="ruby-identifier">pos</span> = <span class="ruby-value">0</span>
+      <span class="ruby-identifier">input</span>.<span class="ruby-identifier">scan</span>(<span class="ruby-constant">EMBEDDED_PATTERN</span>) <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">indicator</span>, <span class="ruby-identifier">code</span><span class="ruby-operator">|</span>
+        <span class="ruby-identifier">m</span> = <span class="ruby-constant">Regexp</span>.<span class="ruby-identifier">last_match</span>
+        <span class="ruby-identifier">text</span> = <span class="ruby-identifier">input</span>[<span class="ruby-identifier">pos</span><span class="ruby-operator">...</span><span class="ruby-identifier">m</span>.<span class="ruby-identifier">begin</span>(<span class="ruby-value">0</span>)]
+        <span class="ruby-identifier">pos</span>  = <span class="ruby-identifier">m</span>.<span class="ruby-identifier">end</span>(<span class="ruby-value">0</span>)
+        <span class="ruby-comment cmt">#src &lt;&lt; &quot; _buf &lt;&lt; '&quot; &lt;&lt; escape_text(text) &lt;&lt; &quot;';&quot;</span>
+        <span class="ruby-identifier">text</span>.<span class="ruby-identifier">gsub!</span>(<span class="ruby-regexp re">/['\\]/</span>, <span class="ruby-value str">'\\\\\&amp;'</span>)
+        <span class="ruby-identifier">src</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value str">&quot; _buf &lt;&lt; '&quot;</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">text</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value str">&quot;';&quot;</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">text</span>.<span class="ruby-identifier">empty?</span>
+        <span class="ruby-keyword kw">if</span> <span class="ruby-operator">!</span><span class="ruby-identifier">indicator</span>              <span class="ruby-comment cmt"># &lt;% %&gt;</span>
+          <span class="ruby-identifier">src</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">code</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value str">&quot;;&quot;</span>
+        <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">indicator</span> <span class="ruby-operator">==</span> <span class="ruby-value str">'#'</span>     <span class="ruby-comment cmt"># &lt;%# %&gt;</span>
+          <span class="ruby-identifier">src</span> <span class="ruby-operator">&lt;&lt;</span> (<span class="ruby-value str">&quot;\n&quot;</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">code</span>.<span class="ruby-identifier">count</span>(<span class="ruby-value str">&quot;\n&quot;</span>))
+        <span class="ruby-keyword kw">else</span>                       <span class="ruby-comment cmt"># &lt;%= %&gt;</span>
+          <span class="ruby-identifier">src</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value str">&quot; _buf &lt;&lt; (&quot;</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">code</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value str">&quot;).to_s;&quot;</span>
+        <span class="ruby-keyword kw">end</span>
+      <span class="ruby-keyword kw">end</span>
+      <span class="ruby-comment cmt">#rest = $' || input                        # ruby1.8</span>
+      <span class="ruby-identifier">rest</span> = <span class="ruby-identifier">pos</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span> <span class="ruby-operator">?</span> <span class="ruby-identifier">input</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">input</span>[<span class="ruby-identifier">pos</span><span class="ruby-operator">..</span><span class="ruby-value">-1</span>]   <span class="ruby-comment cmt"># ruby1.9</span>
+      <span class="ruby-comment cmt">#src &lt;&lt; &quot; _buf &lt;&lt; '&quot; &lt;&lt; escape_text(rest) &lt;&lt; &quot;';&quot;</span>
+      <span class="ruby-identifier">rest</span>.<span class="ruby-identifier">gsub!</span>(<span class="ruby-regexp re">/['\\]/</span>, <span class="ruby-value str">'\\\\\&amp;'</span>)
+      <span class="ruby-identifier">src</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value str">&quot; _buf &lt;&lt; '&quot;</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">rest</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value str">&quot;';&quot;</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">rest</span>.<span class="ruby-identifier">empty?</span>
+      <span class="ruby-identifier">src</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value str">&quot;\n_buf.to_s\n&quot;</span>       <span class="ruby-comment cmt"># postamble</span>
+      <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">src</span>
+    <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000221" class="method-detail">
+        <a name="M000221"></a>
+
+        <div class="method-heading">
+          <a href="#M000221" class="method-signature">
+          <span class="method-name">evaluate</span><span class="method-args">(_context=Object.new)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000221-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000221-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/tiny.rb, line 61</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">evaluate</span>(<span class="ruby-identifier">_context</span>=<span class="ruby-constant">Object</span>.<span class="ruby-identifier">new</span>)
+      <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">_context</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Hash</span>)
+        <span class="ruby-identifier">_obj</span> = <span class="ruby-constant">Object</span>.<span class="ruby-identifier">new</span>
+        <span class="ruby-identifier">_context</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">k</span>, <span class="ruby-identifier">v</span><span class="ruby-operator">|</span> <span class="ruby-identifier">_obj</span>.<span class="ruby-identifier">instance_variable_set</span>(<span class="ruby-node">&quot;@#{k}&quot;</span>, <span class="ruby-identifier">v</span>) <span class="ruby-keyword kw">end</span>
+        <span class="ruby-identifier">_context</span> = <span class="ruby-identifier">_obj</span>
+      <span class="ruby-keyword kw">end</span>
+      <span class="ruby-identifier">_context</span>.<span class="ruby-identifier">instance_eval</span> <span class="ruby-ivar">@src</span>
+    <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000220" class="method-detail">
+        <a name="M000220"></a>
+
+        <div class="method-heading">
+          <a href="#M000220" class="method-signature">
+          <span class="method-name">result</span><span class="method-args">(_binding=TOPLEVEL_BINDING)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+def escape_text(text)
+</p>
+<pre>
+  return text.gsub!(/['\\]/, '\\\\\&amp;') || text
+</pre>
+<p>
+end
+</p>
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000220-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000220-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/tiny.rb, line 57</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">result</span>(<span class="ruby-identifier">_binding</span>=<span class="ruby-constant">TOPLEVEL_BINDING</span>)
+      <span class="ruby-identifier">eval</span> <span class="ruby-ivar">@src</span>, <span class="ruby-identifier">_binding</span>
+    <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

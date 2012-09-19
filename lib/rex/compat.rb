@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Rex
 
 ###
@@ -224,10 +225,22 @@ end
 # Verify the Console2 environment
 #
 def self.win32_console2_verify
+	return nil if ! (is_windows and @@loaded_win32api)
 	buf = "\x00" * 512
 	out = Win32API.new("kernel32", "GetStdHandle", ["L"], "L").call(STD_OUTPUT_HANDLE)
 	res = Win32API.new("kernel32","GetConsoleTitle", ["PL"], "L").call(buf, buf.length-1) rescue 0
 	( res > 0 and buf.index("Console2 command").nil? ) ? false : true
+end
+
+#
+# Expand a 8.3 path to a full path
+#
+def self.win32_expand_path(path)
+	return nil if ! (is_windows and @@loaded_win32api)
+	glp = Win32API.new('kernel32', 'GetLongPathName', 'PPL', 'L')
+	buf = "\x00" * 260
+	len = glp.call(path, buf, buf.length)
+	buf[0, len]
 end
 
 #

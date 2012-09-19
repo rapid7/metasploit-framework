@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 #
 # Log severities
 #
@@ -13,7 +14,7 @@ LOG_RAW   = 'raw'
 #
 ##
 
-# 
+#
 # LEV_0 - Default
 #
 # This log level is the default log level if none is specified.  It should be
@@ -29,7 +30,7 @@ LEV_0     = 0
 #
 # This log level should be used when extra information may be needed to
 # understand the cause of an error or warning message or to get debugging
-# information that might give clues as to why something is happening.  This 
+# information that might give clues as to why something is happening.  This
 # log level should be used only when information may be useful to understanding
 # the behavior of something at a basic level.  This log level should not be
 # used in an exhaustively verbose fashion.
@@ -50,10 +51,10 @@ LEV_2     = 2
 #
 # LEV_3 - Insanity
 #
-# This log level should contain very verbose information about the 
+# This log level should contain very verbose information about the
 # behavior of the framework, such as detailed information about variable
 # states at certain phases including, but not limited to, loop iterations,
-# function calls, and so on.  This log level will rarely be displayed, 
+# function calls, and so on.  This log level will rarely be displayed,
 # but when it is the information provided should make it easy to analyze
 # any problem.
 #

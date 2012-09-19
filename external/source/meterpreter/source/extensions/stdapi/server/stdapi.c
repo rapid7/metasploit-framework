@@ -296,6 +296,7 @@ Command customCommands[] =
 	  { request_sys_config_getprivs,                       { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
+#ifdef _WIN32
 	{ "stdapi_sys_config_steal_token",
 	  { request_sys_config_steal_token,                    { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },
@@ -304,6 +305,7 @@ Command customCommands[] =
 	  { request_sys_config_drop_token,                     { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
+#endif
 
 
 	// Net
@@ -323,14 +325,22 @@ Command customCommands[] =
 	  { request_net_config_get_interfaces,                 { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
+	{ "stdapi_net_config_get_arp_table",
+	  { request_net_config_get_arp_table,                  { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
+	{ "stdapi_net_config_get_netstat",
+	  { request_net_config_get_netstat,                    { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
 
-#ifdef _WIN32
 	// Socket
 	{ "stdapi_net_socket_tcp_shutdown",
 	  { request_net_socket_tcp_shutdown,                   { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
 
+#ifdef _WIN32
 	// UI
 	{ "stdapi_ui_enable_mouse",
 	  { request_ui_enable_mouse,                           { 0 }, 0 },

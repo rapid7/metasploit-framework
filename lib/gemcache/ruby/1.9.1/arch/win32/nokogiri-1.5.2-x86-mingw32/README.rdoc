@@ -1,0 +1,178 @@
+= Nokogiri {<img src="https://secure.travis-ci.org/tenderlove/nokogiri.png?rvm=1.9.3" />}[http://travis-ci.org/tenderlove/nokogiri]
+
+* http://nokogiri.org
+* http://github.com/tenderlove/nokogiri/wikis
+* http://github.com/tenderlove/nokogiri/tree/master
+* http://groups.google.com/group/nokogiri-talk
+* http://github.com/tenderlove/nokogiri/issues
+
+== DESCRIPTION:
+
+Nokogiri (鋸) is an HTML, XML, SAX, and Reader parser.  Among Nokogiri's
+many features is the ability to search documents via XPath or CSS3 selectors.
+
+XML is like violence - if it doesn’t solve your problems, you are not using
+enough of it.
+
+== FEATURES:
+
+* XPath support for document searching
+* CSS3 selector support for document searching
+* XML/HTML builder
+
+Nokogiri parses and searches XML/HTML very quickly, and also has
+correctly implemented CSS3 selector support as well as XPath support.
+
+== SUPPORT:
+
+Before filing a bug report, please read our {submission guidelines}[http://nokogiri.org/tutorials/getting_help.html] at:
+
+  * http://nokogiri.org/tutorials/getting_help.html
+
+The Nokogiri {mailing list}[http://groups.google.com/group/nokogiri-talk]
+is available here:
+
+  * http://groups.google.com/group/nokogiri-talk
+
+The {bug tracker}[http://github.com/tenderlove/nokogiri/issues]
+is available here:
+
+  * http://github.com/tenderlove/nokogiri/issues
+
+The IRC channel is #nokogiri on freenode.
+
+== SYNOPSIS:
+
+  require 'nokogiri'
+  require 'open-uri'
+
+  # Get a Nokogiri::HTML:Document for the page we’re interested in...
+
+  doc = Nokogiri::HTML(open('http://www.google.com/search?q=tenderlove'))
+
+  # Do funky things with it using Nokogiri::XML::Node methods...
+
+  ####
+  # Search for nodes by css
+  doc.css('h3.r a').each do |link|
+    puts link.content
+  end
+
+  ####
+  # Search for nodes by xpath
+  doc.xpath('//h3/a').each do |link|
+    puts link.content
+  end
+
+  ####
+  # Or mix and match.
+  doc.search('h3.r a.l', '//h3/a').each do |link|
+    puts link.content
+  end
+
+
+== REQUIREMENTS:
+
+* ruby 1.8 or 1.9
+* libxml2
+* libxml2-dev
+* libxslt
+* libxslt-dev
+
+== ENCODING:
+
+Strings are always stored as UTF-8 internally.  Methods that return
+text values will always return UTF-8 encoded strings.  Methods that
+return XML (like to_xml, to_html and inner_html) will return a string
+encoded like the source document.
+
+*WARNING*
+
+Some documents declare one particular encoding, but use a different
+one. So, which encoding should the parser choose?
+
+Remember that data is just a stream of bytes. Only us humans add
+meaning to that stream. Any particular set of bytes could be valid
+characters in multiple encodings, so detecting encoding with 100%
+accuracy is not possible. libxml2 does its best, but it can't be right
+100% of the time.
+
+If you want Nokogiri to handle the document encoding properly, your
+best bet is to explicitly set the encoding.  Here is an example of
+explicitly setting the encoding to EUC-JP on the parser:
+
+    doc = Nokogiri.XML('<foo><bar /><foo>', nil, 'EUC-JP')
+
+== INSTALL:
+
+* sudo gem install nokogiri
+
+=== Binary packages
+
+Binary packages are available for:
+
+* SuSE[http://download.opensuse.org/repositories/devel:/languages:/ruby:/extensions/]
+* Fedora[http://s390.koji.fedoraproject.org/koji/packageinfo?packageID=6756]
+
+== DEVELOPMENT:
+
+=== Developing on C Ruby (MRI)
+
+Developing Nokogiri requires racc and rexical to generate the parser and
+tokenizer.  To start development, make sure you have `libxml2` and `libxslt`
+installed.
+
+Then install hoe and rake-compiler:
+
+    $ gem install hoe rake-compiler racc rexical minitest
+
+Then run rake:
+
+    $ rake
+
+=== Developing on JRuby
+
+Currently, development with JRuby depends on CRuby being installed.  With
+CRuby, install racc and rexical:
+
+    $ gem install racc rexical
+
+Make sure hoe and rake compiler are installed with JRuby:
+
+    $ jgem install hoe rake-compiler
+
+Then run rake:
+
+    $ jruby -S rake
+
+== LICENSE:
+
+(The MIT License)
+
+Copyright (c) 2008 - 2012:
+
+* {Aaron Patterson}[http://tenderlovemaking.com]
+* {Mike Dalessio}[http://mike.daless.io]
+* {Charles Nutter}[http://blog.headius.com]
+* {Sergio Arbeo}[http://www.serabe.com]
+* {Patrick Mahoney}[http://polycrystal.org]
+* {Yoko Harada}[http://yokolet.blogspot.com]
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+'Software'), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

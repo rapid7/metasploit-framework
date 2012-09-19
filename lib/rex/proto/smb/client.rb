@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Rex
 module Proto
 module SMB
@@ -57,10 +58,10 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		self.sequence_counter = 0
 		self.signing_key      = ''
 		self.require_signing  = false
-		
+
 		#Misc
 		self.spnopt = {}
-		
+
 	end
 
 	# Read a SMB packet from the socket
@@ -97,8 +98,8 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 		#signing
 		if self.require_signing && self.signing_key != ''
-			if self.verify_signature		
-				raise XCEPT::IncorrectSigningError if not CRYPT::is_signature_correct?(self.signing_key,self.sequence_counter,data)			
+			if self.verify_signature
+				raise XCEPT::IncorrectSigningError if not CRYPT::is_signature_correct?(self.signing_key,self.sequence_counter,data)
 			end
 			self.sequence_counter += 1
 		end
@@ -159,7 +160,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		pkt = CONST::SMB_BASE_PKT.make_struct
 		pkt.from_s(data)
 		res  = pkt
-		
+
 		begin
 			case pkt['Payload']['SMB'].v['Command']
 
@@ -560,8 +561,8 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		self.system_time = UTILS.time_smb_to_unix(ack['Payload'].v['SystemTimeHigh'],ack['Payload'].v['SystemTimeLow'])
 		self.system_time = ::Time.at( self.system_time )
 
-		# A signed 16-bit signed integer that represents the server's time zone, in minutes, 
-		# from UTC. The time zone of the server MUST be expressed in minutes, plus or minus, 
+		# A signed 16-bit signed integer that represents the server's time zone, in minutes,
+		# from UTC. The time zone of the server MUST be expressed in minutes, plus or minus,
 		# from UTC.
 		# NOTE: althought the spec says +/- it doesn't say that it should be inverted :-/
 		system_zone = ack['Payload'].v['ServerTimeZone']
@@ -581,7 +582,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 	def session_setup(*args)
 
 		if (self.dialect =~ /^(NT LANMAN 1.0|NT LM 0.12)$/)
-			
+
 			if (self.challenge_key)
 				return self.session_setup_no_ntlmssp(*args)
 			end
@@ -656,17 +657,17 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		#raise XCEPT::SigningError if self.require_signing
 		self.require_signing = false if self.require_signing
 
-		
+
 		if NTLM_UTILS.is_pass_ntlm_hash?(pass)
 			arglm = {
 				:lm_hash => [ pass.upcase()[0,32] ].pack('H32'),
-				:challenge =>  self.challenge_key 
+				:challenge =>  self.challenge_key
 			}
 			hash_lm = NTLM_CRYPT::lm_response(arglm)
 
 			argntlm = {
-				:ntlm_hash =>  [ pass.upcase()[33,65] ].pack('H32'), 
-				:challenge =>  self.challenge_key 
+				:ntlm_hash =>  [ pass.upcase()[33,65] ].pack('H32'),
+				:challenge =>  self.challenge_key
 			}
 			hash_nt = NTLM_CRYPT::ntlm_response(argntlm)
 		else
@@ -768,7 +769,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		return ack
 	end
 
-	# Authenticate using extended security negotiation 
+	# Authenticate using extended security negotiation
 	def session_setup_with_ntlmssp(user = '', pass = '', domain = '', name = nil, do_recv = true)
 
 		ntlm_options = {
@@ -865,17 +866,17 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 		resp_lm, resp_ntlm, client_challenge, ntlm_cli_challenge = NTLM_UTILS.create_lm_ntlm_responses(user, pass, self.challenge_key, domain,
 												default_name, default_domain, dns_host_name,
-												dns_domain_name, chall_MsvAvTimestamp , 
+												dns_domain_name, chall_MsvAvTimestamp ,
 												self.spnopt, ntlm_options)
 		enc_session_key = ''
 		self.sequence_counter = 0
 
 		if self.require_signing
-			self.signing_key, enc_session_key, ntlmssp_flags = NTLM_UTILS.create_session_key(ntlmssp_flags, server_ntlmssp_flags, user, pass, domain, 
-											self.challenge_key, client_challenge, ntlm_cli_challenge, 
+			self.signing_key, enc_session_key, ntlmssp_flags = NTLM_UTILS.create_session_key(ntlmssp_flags, server_ntlmssp_flags, user, pass, domain,
+											self.challenge_key, client_challenge, ntlm_cli_challenge,
 											ntlm_options)
 		end
-		
+
 		# Create the security blob data
 		blob = NTLM_UTILS.make_ntlmssp_secblob_auth(domain, name, user, resp_lm, resp_ntlm, enc_session_key, ntlmssp_flags)
 
@@ -909,11 +910,11 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 		# Make sure that authentication succeeded
 		if (ack['Payload']['SMB'].v['ErrorClass'] != 0)
-		
+
 			if (user.length == 0)
 				# Ensure that signing is disabled when we hit this corner case
 				self.require_signing = false
-				
+
 				# Fall back to the non-ntlmssp authentication method
 				return self.session_setup_no_ntlmssp(user, pass, domain)
 			end
@@ -936,7 +937,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 
 	# An exploit helper function for sending arbitrary SPNEGO blobs
-	def session_setup_with_ntlmssp_blob(blob = '', do_recv = true)
+	def session_setup_with_ntlmssp_blob(blob = '', do_recv = true, userid = 0)
 		native_data = ''
 		native_data << self.native_os + "\x00"
 		native_data << self.native_lm + "\x00"
@@ -948,7 +949,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2801
 		pkt['Payload']['SMB'].v['WordCount'] = 12
-		pkt['Payload']['SMB'].v['UserID'] = 0
+		pkt['Payload']['SMB'].v['UserID'] = userid
 		pkt['Payload'].v['AndX'] = 255
 		pkt['Payload'].v['MaxBuff'] = 0xffdf
 		pkt['Payload'].v['MaxMPX'] = 2
@@ -1406,7 +1407,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		pkt['Payload'].v['ParamCountTotal'] = param.length
 		pkt['Payload'].v['DataCountTotal'] = body.length
 		pkt['Payload'].v['ParamCountMax'] = 1024
-		pkt['Payload'].v['DataCountMax'] = 65504
+		pkt['Payload'].v['DataCountMax'] = 65000
 		pkt['Payload'].v['ParamCount'] = param.length
 		pkt['Payload'].v['ParamOffset'] = param_offset
 		pkt['Payload'].v['DataCount'] = body.length
@@ -1604,7 +1605,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		pkt['Payload'].v['ParamCountTotal'] = param.length
 		pkt['Payload'].v['DataCountTotal'] = body.length
 		pkt['Payload'].v['ParamCountMax'] = 1024
-		pkt['Payload'].v['DataCountMax'] = 65504
+		pkt['Payload'].v['DataCountMax'] = 65000
 		pkt['Payload'].v['ParamCount'] = param.length
 		pkt['Payload'].v['ParamOffset'] = param_offset
 		pkt['Payload'].v['DataCount'] = body.length
@@ -1650,7 +1651,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		pkt['Payload'].v['ParamCountTotal'] = param.length
 		pkt['Payload'].v['DataCountTotal'] = body.length
 		pkt['Payload'].v['ParamCountMax'] = 1024
-		pkt['Payload'].v['DataCountMax'] = 65504
+		pkt['Payload'].v['DataCountMax'] = 65000
 		pkt['Payload'].v['ParamCount'] = param.length
 		pkt['Payload'].v['ParamOffset'] = param_offset
 		pkt['Payload'].v['DataCount'] = body.length
@@ -1829,7 +1830,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		files = { }
 		parm = [
 			26,  # Search for ALL files
-			512, # Maximum search count
+			20,  # Maximum search count
 			6,   # Resume and Close on End of Search
 			260, # Level of interest
 			0,   # Storage type is zero
@@ -1837,57 +1838,67 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 		begin
 			resp = trans2(CONST::TRANS2_FIND_FIRST2, parm, '')
+			search_next = 0
+			begin
+				pcnt = resp['Payload'].v['ParamCount']
+				dcnt = resp['Payload'].v['DataCount']
+				poff = resp['Payload'].v['ParamOffset']
+				doff = resp['Payload'].v['DataOffset']
 
-			pcnt = resp['Payload'].v['ParamCount']
-			dcnt = resp['Payload'].v['DataCount']
-			poff = resp['Payload'].v['ParamOffset']
-			doff = resp['Payload'].v['DataOffset']
+				# Get the raw packet bytes
+				resp_rpkt = resp.to_s
 
-			# Get the raw packet bytes
-			resp_rpkt = resp.to_s
+				# Remove the NetBIOS header
+				resp_rpkt.slice!(0, 4)
 
-			# Remove the NetBIOS header
-			resp_rpkt.slice!(0, 4)
+				resp_parm = resp_rpkt[poff, pcnt]
+				resp_data = resp_rpkt[doff, dcnt]
 
-			resp_parm = resp_rpkt[poff, pcnt]
-			resp_data = resp_rpkt[doff, dcnt]
+				if search_next == 0
+					# search id, search count, end of search, error offset, last name offset
+					sid, scnt, eos, eoff, loff = resp_parm.unpack('v5')
+				else
+					# FINX_NEXT doesn't return a SID
+					scnt, eos, eoff, loff = resp_parm.unpack('v4')
+				end
+				didx = 0
+				while (didx < resp_data.length)
+					info_buff = resp_data[didx, 70]
+					break if info_buff.length != 70
+					info = info_buff.unpack(
+						'V'+	# Next Entry Offset
+						'V'+	# File Index
+						'VV'+	# Time Create
+						'VV'+	# Time Last Access
+						'VV'+	# Time Last Write
+						'VV'+	# Time Change
+						'VV'+	# End of File
+						'VV'+	# Allocation Size
+						'V'+	# File Attributes
+						'V'+	# File Name Length
+						'V'+	# Extended Attr List Length
+						'C'+	# Short File Name Length
+						'C' 	# Reserved
+					)
+					name = resp_data[didx + 70 + 24, info[15]].sub!(/\x00+$/, '')
+					files[name] =
+					{
+						'type' => (info[14] & 0x10) ? 'D' : 'F',
+						'attr' => info[14],
+						'info' => info
+					}
 
-			# search id, search count, end of search, error offset, last name offset
-			sid, scnt, eos, eoff, loff = resp_parm.unpack('v5')
-
-			didx = 0
-			while (didx < resp_data.length)
-				info_buff = resp_data[didx, 70]
-				break if info_buff.length != 70
-				info = info_buff.unpack(
-					'V'+	# Next Entry Offset
-					'V'+	# File Index
-					'VV'+	# Time Create
-					'VV'+	# Time Last Access
-					'VV'+	# Time Last Write
-					'VV'+	# Time Change
-					'VV'+	# End of File
-					'VV'+	# Allocation Size
-					'V'+	# File Attributes
-					'V'+	# File Name Length
-					'V'+	# Extended Attr List Length
-					'C'+	# Short File Name Length
-					'C' 	# Reserved
-				)
-				name = resp_data[didx + 70 + 24, info[15]].sub!(/\x00+$/, '')
-				files[name] =
-				{
-					'type' => (info[14] & 0x10) ? 'D' : 'F',
-					'attr' => info[14],
-					'info' => info
-				}
-
-				break if info[0] == 0
-				didx += info[0]
-			end
-
-			last_search_id = sid
-
+					break if info[0] == 0
+					didx += info[0]
+				end
+				last_search_id = sid
+				last_offset = loff
+				last_filename = name
+				if eos != 1 #If we aren't at the end of the search, run find_next
+					resp = find_next(last_search_id, last_offset, last_filename)
+					search_next = 1 # Flip bit so response params will parse correctly
+				end
+			end until eos == 1
 		rescue ::Exception
 			raise $!
 		end
@@ -1895,21 +1906,19 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		return files
 	end
 
-	# TODO: Finish this method... requires search_id, resume_key, and filename from first
-=begin
-	def find_next(path, sid = last_search_id)
+	# Supplements find_first if file/dir count exceeds max search count
+	def find_next(sid, resume_key, last_filename)
 
 		parm = [
 			sid, # Search ID
-			512, # Maximum search count
+			20, # Maximum search count (Size of 20 keeps response to 1 packet)
 			260, # Level of interest
-			0,   # Resume key from previous
-			1,   # Close search if end of search
-		].pack('vvvVv') + path + "\x00"
-
-		return files
+			resume_key,   # Resume key from previous (Last name offset)
+			6,   # Close search if end of search
+		].pack('vvvVv') + last_filename + "\x00" # Last filename returned from find_first or find_next
+		resp = trans2(CONST::TRANS2_FIND_NEXT2, parm, '')
+		return resp # Returns the FIND_NEXT2 response packet for parsing by the find_first function
 	end
-=end
 
 	# Creates a new directory on the mounted tree
 	def create_directory(name)
@@ -1920,7 +1929,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 # public read/write methods
 	attr_accessor	:native_os, :native_lm, :encrypt_passwords, :extended_security, :read_timeout, :evasion_opts
-	attr_accessor	:verify_signature, :use_ntlmv2, :usentlm2_session, :send_lm, :use_lanman_key, :send_ntlm 
+	attr_accessor	:verify_signature, :use_ntlmv2, :usentlm2_session, :send_lm, :use_lanman_key, :send_ntlm
 	attr_accessor  	:system_time, :system_zone
 	#misc
 	attr_accessor   :spnopt # used for SPN
@@ -1931,7 +1940,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 	attr_reader		:multiplex_id, :last_tree_id, :last_file_id, :process_id, :last_search_id
 	attr_reader		:dns_host_name, :dns_domain_name
 	attr_reader		:security_mode, :server_guid
-	#signing related 
+	#signing related
 	attr_reader		:sequence_counter,:signing_key, :require_signing
 
 # private methods
@@ -1940,7 +1949,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 	attr_writer		:dns_host_name, :dns_domain_name
 	attr_writer		:multiplex_id, :last_tree_id, :last_file_id, :process_id, :last_search_id
 	attr_writer		:security_mode, :server_guid
-	#signing related 
+	#signing related
 	attr_writer		:sequence_counter,:signing_key, :require_signing
 
 	attr_accessor	:socket

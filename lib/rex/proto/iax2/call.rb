@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Rex
 module Proto
 module IAX2
@@ -14,33 +15,33 @@ class Call
 	attr_accessor :audio_buff
 	attr_accessor :time_limit
 	attr_accessor :busy
-	
+
 	attr_accessor :caller_name
 	attr_accessor :caller_number
 	attr_accessor :dtmf
-	
-	
+
+
 	def initialize(client, src_id)
 		self.client = client
 		self.scall  = src_id
-		self.dcall  = 0 
+		self.dcall  = 0
 		self.iseq   = 0
 		self.oseq   = 0
 		self.state  = nil
-		
+
 		self.itime  = ::Time.now
-		self.queue  = ::Queue.new 
-		
+		self.queue  = ::Queue.new
+
 		self.audio_buff = []
-		
+
 		self.busy = false
 		self.dtmf = ''
 	end
-	
-	
+
+
 	def dprint(msg)
 		self.client.dprint(msg)
-	end 
+	end
 
 	def wait_for(*stypes)
 		begin
@@ -55,46 +56,46 @@ class Call
 			return nil
 		end
 	end
-	
+
 	# Register with the IAX endpoint
 	def register
 		self.client.send_regreq(self)
 		res = wait_for( IAX_SUBTYPE_REGAUTH, IAX_SUBTYPE_REGREJ )
 		return if not res
 
-		if res[1] == IAX_SUBTYPE_REGREJ 
+		if res[1] == IAX_SUBTYPE_REGREJ
 			reason = res[2][IAX_IE_REGREJ_CAUSE] || "Unknown Reason"
 			dprint("REGREJ: #{reason}")
 			# Acknowledge the REGREJ
-			self.client.send_ack(self)			
+			self.client.send_ack(self)
 			return
-		end 
+		end
 
 		chall = nil
 		if res[2][14] == "\x00\x03" and res[2][IAX_IE_CHALLENGE_DATA]
 			self.dcall = res[0][0]
 			chall = res[2][IAX_IE_CHALLENGE_DATA]
 		end
-		
+
 		self.client.send_regreq_chall_response(self, chall)
 		res = wait_for( IAX_SUBTYPE_REGACK, IAX_SUBTYPE_REGREJ )
 		return if not res
 
-		if res[1] == IAX_SUBTYPE_REGREJ 
+		if res[1] == IAX_SUBTYPE_REGREJ
 			reason = res[2][IAX_IE_REGREJ_CAUSE] || "Unknown Reason"
 			dprint("REGREJ: #{reason}")
 			return
-		end 
-		
+		end
+
 		if res[2][IAX_IE_APPARENT_ADDR]
 			r_fam, r_port, r_addr = res[2][IAX_IE_APPARENT_ADDR].unpack('nnA4')
 			r_addr = r_addr.unpack("C*").map{|x| x.to_s }.join(".")
 			dprint("REGACK: Registered from address #{r_addr}:#{r_port}")
 		end
-		
+
 		# Acknowledge the REGACK
 		self.client.send_ack(self)
-		
+
 		self.state = :registered
 
 		true
@@ -130,7 +131,7 @@ class Call
 		self.state = :hangup
 		true
 	end
-	
+
 	def ring_time
 		(self.ring_finish || Time.now).to_i - self.ring_start.to_i
 	end
@@ -149,7 +150,7 @@ class Call
 		end
 		res
 	end
-	
+
 	# Handling incoming control packets
 	# TODO: Enforce sequence order to prevent duplicates from breaking our state
 	def handle_control(pkt)
@@ -172,7 +173,7 @@ class Call
 
 		# Increment the received sequence number
 		self.iseq = (self.iseq + 1) & 0xff
-					
+
 		if self.state == :hangup
 			dprint("Packet received after hangup, replying with invalid")
 			self.client.send_invalid(self)
@@ -186,49 +187,49 @@ class Call
 		when IAX_TYPE_DTMF_BEGIN
 			self.dprint("DTMF BEG: #{pkt[11,1]}")
 			self.dtmf << pkt[11,1]
-			
+
 		when IAX_TYPE_DTMF_END
 			self.dprint("DTMF END: #{pkt[11,1]}")
-			
+
 		when IAX_TYPE_CONTROL
 			case stype
 			when IAX_CTRL_HANGUP
 				dprint("HANGUP")
 				self.client.send_ack(self)
 				self.state = :hangup
-				
+
 			when IAX_CTRL_RINGING
 				dprint("RINGING")
 				self.client.send_ack(self)
-				
+
 			when IAX_CTRL_BUSY
 				dprint("BUSY")
-				self.busy  = true 
+				self.busy  = true
 				self.state = :hangup
 				self.client.send_ack(self)
-				
+
 			when IAX_CTRL_ANSWER
 				dprint("ANSWER")
 				if self.state == :ringing
 					self.state = :answered
 					self.ring_finish = ::Time.now.to_i
-				end 
+				end
 				self.client.send_ack(self)
-			
+
 			when IAX_CTRL_PROGRESS
 				dprint("PROGRESS")
 
 			when IAX_CTRL_PROCEED
 				dprint("PROCEED")
-												
+
 			when 255
 				dprint("STOP SOUNDS")
 			end
-			# Acknowledge all control packets	
+			# Acknowledge all control packets
 			# self.client.send_ack(self)
-		
+
 		when IAX_TYPE_IAX
-				
+
 			dprint( ["RECV", phdr, stype, info].inspect )
 			case stype
 			when IAX_SUBTYPE_HANGUP
@@ -240,7 +241,7 @@ class Call
 			when IAX_SUBTYPE_ACK
 				# Nothing to do here
 			when IAX_SUBTYPE_PING
-				# Pongs echo the timestamp 
+				# Pongs echo the timestamp
 				self.client.send_pong(self, tstamp)
 			when IAX_SUBTYPE_PONG
 				self.client.send_ack(self)
@@ -248,7 +249,7 @@ class Call
 				dprint( ["RECV-QUEUE", phdr, stype, info].inspect )
 				self.queue.push( [phdr, stype, info ] )
 			end
-			
+
 		when IAX_TYPE_VOICE
 			v_codec = stype
 			if self.state == :answered
@@ -261,18 +262,18 @@ class Call
 		end
 	end
 
-	
+
 	# Encoded audio from the client
 	def handle_audio(pkt)
 		# Ignore audio received before the call is answered (ring ring)
 		return if self.state != :answered
-		
+
 		# Extract the data from the packet (full or mini)
 		data = audio_packet_data(pkt)
 
 		# Decode the data into linear PCM frames
 		buff = decode_audio_frame(data)
-		
+
 		# Call the caller-provided hook if its exists
 		if self.audio_hook
 			self.audio_buff(buff)
@@ -290,26 +291,26 @@ class Call
 
 	def decode_audio_frame(buff)
 		case self.codec
-		
+
 		# Convert u-law into signed PCM
 		when IAX_CODEC_G711_MULAW
 			Rex::Proto::IAX2::Codecs::MuLaw.decode(buff)
-		
+
 		# Convert a-law into signed PCM
 		when IAX_CODEC_G711_ALAW
 			Rex::Proto::IAX2::Codecs::ALaw.decode(buff)
-			
-		# Linear little-endian signed PCM is our native format		
+
+		# Linear little-endian signed PCM is our native format
 		when IAX_CODEC_LINEAR_PCM
 			buff
-		
+
 		# Unsupported codec, return empty
 		else
 			dprint("UNKNOWN CODEC: #{self.codec.inspect}")
 			''
 		end
 	end
-	
+
 	def audio_packet_data(pkt)
 		(pkt[0,1].unpack("C")[0] & 0x80 == 0) ? pkt[4,pkt.length-4] : pkt[12,pkt.length-12]
 	end

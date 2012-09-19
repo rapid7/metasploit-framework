@@ -1,0 +1,86 @@
+# IBM Dataservers
+#
+# Home Page
+#   http://rubyforge.org/projects/rubyibm/
+#
+# To install the ibm_db gem:
+#
+#   On Linux:
+#       . /home/db2inst1/sqllib/db2profile
+#       export IBM_DB_INCLUDE=/opt/ibm/db2/V9.7/include
+#       export IBM_DB_LIB=/opt/ibm/db2/V9.7/lib32
+#       gem install ibm_db
+#
+#   On Mac OS X 10.5:
+#       . /home/db2inst1/sqllib/db2profile
+#       export IBM_DB_INCLUDE=/opt/ibm/db2/V9.7/include
+#       export IBM_DB_LIB=/opt/ibm/db2/V9.7/lib32
+#       export ARCHFLAGS="-arch i386"
+#       gem install ibm_db
+#
+#   On Mac OS X 10.6:
+#       . /home/db2inst1/sqllib/db2profile
+#       export IBM_DB_INCLUDE=/opt/ibm/db2/V9.7/include
+#       export IBM_DB_LIB=/opt/ibm/db2/V9.7/lib64
+#       export ARCHFLAGS="-arch x86_64"
+#       gem install ibm_db
+#
+#   On Windows:
+#       Issue the command: gem install ibm_db
+#
+# Configure Using Gemfile
+# gem 'ibm_db'
+#
+# For more details on the installation and the connection parameters below,
+# please refer to the latest documents at http://rubyforge.org/docman/?group_id=2361
+
+development:
+  adapter: ibm_db
+  username: db2inst1
+  password:
+  database: <%= app_name[0,4] %>_dev
+  #schema: db2inst1
+  #host: localhost
+  #port: 50000
+  #account: my_account
+  #app_user: my_app_user
+  #application: my_application
+  #workstation: my_workstation
+  #security: SSL
+  #timeout: 10
+  #authentication: SERVER
+  #parameterized: false
+
+test:
+  adapter: ibm_db
+  username: db2inst1
+  password:
+  database: <%= app_name[0,4] %>_tst
+  #schema: db2inst1
+  #host: localhost
+  #port: 50000
+  #account: my_account
+  #app_user: my_app_user
+  #application: my_application
+  #workstation: my_workstation
+  #security: SSL
+  #timeout: 10
+  #authentication: SERVER
+  #parameterized: false
+
+production:
+  adapter: ibm_db
+  username: db2inst1
+  password:
+  database: <%= app_name[0,8] %>
+  #schema: db2inst1
+  #host: localhost
+  #port: 50000
+  #account: my_account
+  #app_user: my_app_user
+  #application: my_application
+  #workstation: my_workstation
+  #security: SSL
+  #timeout: 10
+  #authentication: SERVER
+  #parameterized: false

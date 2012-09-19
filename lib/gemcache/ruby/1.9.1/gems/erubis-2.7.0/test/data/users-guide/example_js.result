@@ -1,0 +1,22 @@
+$ erubis -l js example.ejs
+var _buf = [];
+   var user = 'Erubis';
+   var list = ['<aaa>', 'b&b', '"ccc"'];
+ 
+_buf.push("<html>\n\
+ <body>\n\
+  <p>Hello "); _buf.push(user); _buf.push("!</p>\n\
+  <table>\n\
+   <tbody>\n");
+     var i; 
+     for (i = 0; i < list.length; i++) { 
+_buf.push("    <tr bgcolor=\""); _buf.push(i % 2 == 0 ? '#FFCCCC' : '#CCCCFF'); _buf.push("\">\n\
+     <td>"); _buf.push(i + 1); _buf.push("</td>\n\
+     <td>"); _buf.push(list[i]); _buf.push("</td>\n\
+    </tr>\n");
+     } 
+_buf.push("   </tbody>\n\
+  </table>\n\
+ </body>\n\
+</html>\n");
+document.write(_buf.join(""));

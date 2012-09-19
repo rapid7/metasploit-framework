@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 		# Force http verb to be upper-case, because otherwise some web servers such as
 		# Apache might throw you a 501
 		http_method = datastore['METHOD'].upcase
- 
+
 		gvars = Hash.new()
 		pvars = Hash.new()
 		cvars = Hash.new()
@@ -92,9 +92,9 @@ class Metasploit3 < Msf::Auxiliary
 		inivalstr.each do |vstr|
 			# With true values
 			valstr << vstr
-			# With false values, appending 'x' to real value 
+			# With false values, appending 'x' to real value
 			valstr << ['False char '+vstr[0],'x'+vstr[1],'x'+vstr[2]]
-			# With false values, appending '0' to real value 
+			# With false values, appending '0' to real value
 			valstr << ['False num '+vstr[0],'0'+vstr[1],'0'+vstr[2]]
 		end
 
@@ -228,8 +228,8 @@ class Metasploit3 < Msf::Auxiliary
 					pinjd = detection_d(normalres,trueres,falseres,tarr)
 
 					if pinja or pinjb or pinjc  or pinjd
-						print_error("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
-						print_error("[#{t}]")
+						print_good("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
+						print_good("[#{t}]")
 
 						report_web_vuln(
 							:host	=> ip,
@@ -306,7 +306,7 @@ class Metasploit3 < Msf::Auxiliary
 						}, 20)
 					rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 					rescue ::Timeout::Error, ::Errno::EPIPE
-					end	
+					end
 
 					pinja = false
 					pinjb = false
@@ -319,8 +319,8 @@ class Metasploit3 < Msf::Auxiliary
 					pinjd = detection_d(normalres,trueres,falseres,tarr)
 
 					if pinja or pinjb or pinjc or pinjd
-						print_error("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
-						print_error("[#{t}]")
+						print_good("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
+						print_good("[#{t}]")
 
 						report_web_vuln(
 							:host	=> ip,
@@ -437,7 +437,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		# 2% 50%
 		max_diff_perc = 2
- 		min_diff_perc = 50
+		min_diff_perc = 50
 
 		if normalr and truer
 			if falser

@@ -1,14 +1,15 @@
+# -*- coding: binary -*-
 require_relative "valuekey"
 
 module Rex
 module Registry
 
 class ValueList
-	
-	attr_accessor :values	
+
+	attr_accessor :values
 
 	def initialize(hive, offset, number_of_values)
-		offset = offset + 4		
+		offset = offset + 4
 		inner_offset = 0
 
 		@values = []

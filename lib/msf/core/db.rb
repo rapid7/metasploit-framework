@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 # Check Rex::Parser.nokogiri_loaded for status of the Nokogiri parsers
 require 'rex/parser/nmap_nokogiri'
 require 'rex/parser/nexpose_simple_nokogiri'
@@ -8,6 +9,9 @@ require 'rex/parser/acunetix_nokogiri'
 require 'rex/parser/appscan_nokogiri'
 require 'rex/parser/burp_session_nokogiri'
 require 'rex/parser/ci_nokogiri'
+require 'rex/parser/wapiti_nokogiri'
+require 'rex/parser/openvas_nokogiri'
+require 'rex/parser/fusionvm_nokogiri'
 
 # Legacy XML parsers -- these will be converted some day
 
@@ -25,6 +29,7 @@ require 'packetfu'
 require 'uri'
 require 'tmpdir'
 require 'csv'
+
 
 module Msf
 
@@ -190,27 +195,37 @@ class DBManager
 	# Determines if the database is functional
 	#
 	def check
-		res = Host.find(:first)
+	::ActiveRecord::Base.connection_pool.with_connection {
+		res = ::Mdm::Host.find(:first)
+	}
 	end
 
 
 	def default_workspace
-		Workspace.default
+	::ActiveRecord::Base.connection_pool.with_connection {
+		::Mdm::Workspace.default
+	}
 	end
 
 	def find_workspace(name)
-		Workspace.find_by_name(name)
+	::ActiveRecord::Base.connection_pool.with_connection {
+		::Mdm::Workspace.find_by_name(name)
+	}
 	end
 
 	#
 	# Creates a new workspace in the database
 	#
 	def add_workspace(name)
-		Workspace.find_or_create_by_name(name)
+	::ActiveRecord::Base.connection_pool.with_connection {
+		::Mdm::Workspace.find_or_create_by_name(name)
+	}
 	end
 
 	def workspaces
-		Workspace.find(:all)
+	::ActiveRecord::Base.connection_pool.with_connection {
+		::Mdm::Workspace.find(:all)
+	}
 	end
 
 	#
@@ -224,21 +239,23 @@ class DBManager
 	# Find a host.  Performs no database writes.
 	#
 	def get_host(opts)
-		if opts.kind_of? Host
+		if opts.kind_of? ::Mdm::Host
 			return opts
 		elsif opts.kind_of? String
 			raise RuntimeError, "This invokation of get_host is no longer supported: #{caller}"
 		else
 			address = opts[:addr] || opts[:address] || opts[:host] || return
-			return address if address.kind_of? Host
+			return address if address.kind_of? ::Mdm::Host
 		end
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace = opts.delete(:workspace) || workspace
 		if wspace.kind_of? String
 			wspace = find_workspace(wspace)
 		end
-		
-		address, scope = address.split('%', 2)
+
+		address = normalize_host(address)
 		return wspace.hosts.find_by_address(address)
+	}
 	end
 
 	#
@@ -275,18 +292,19 @@ class DBManager
 			return
 		end
 
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace = opts.delete(:workspace) || workspace
 		if wspace.kind_of? String
 			wspace = find_workspace(wspace)
 		end
-				
+
 		ret = { }
 
-		if not addr.kind_of? Host
+		if not addr.kind_of? ::Mdm::Host
 			addr = normalize_host(addr)
 			addr, scope = addr.split('%', 2)
 			opts[:scope] = scope if scope
-			 
+
 			unless ipv46_validator(addr)
 				raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"
 			end
@@ -316,22 +334,23 @@ class DBManager
 					host[k] = v.to_s.gsub(/[\x00-\x1f]/, '')
 				end
 			else
-				dlog("Unknown attribute for Host: #{k}")
+				dlog("Unknown attribute for ::Mdm::Host: #{k}")
 			end
 		}
-		host.info = host.info[0,Host.columns_hash["info"].limit] if host.info
+		host.info = host.info[0,::Mdm::Host.columns_hash["info"].limit] if host.info
 
 		# Set default fields if needed
 		host.state       = HostState::Alive if not host.state
 		host.comm        = ''        if not host.comm
 		host.workspace   = wspace    if not host.workspace
-		
+
 		if host.changed?
 			msf_import_timestamps(opts,host)
 			host.save!
 		end
 
 		host
+	}
 	end
 
 
@@ -340,7 +359,7 @@ class DBManager
 	#
 	# The opts parameter MUST contain the following entries
 	# +:host+::           -- the host's ip address
-	# +:info+::           -- the information hash 
+	# +:info+::           -- the information hash
 	# * 'Computer'        -- the host name
 	# * 'OS'              -- the operating system string
 	# * 'Architecture'    -- the hardware architecture
@@ -360,16 +379,17 @@ class DBManager
 			return
 		end
 
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace = opts.delete(:workspace) || workspace
 		if wspace.kind_of? String
 			wspace = find_workspace(wspace)
 		end
 
-		if not addr.kind_of? Host
+		if not addr.kind_of? ::Mdm::Host
 			addr = normalize_host(addr)
 			addr, scope = addr.split('%', 2)
 			opts[:scope] = scope if scope
-			 
+
 			unless ipv46_validator(addr)
 				raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"
 			end
@@ -382,36 +402,36 @@ class DBManager
 		else
 			host = addr
 		end
-		
+
 		res = {}
-		
+
 		if info['Computer']
 			res[:name] = info['Computer']
 		end
-		
+
 		if info['Architecture']
 			res[:arch] = info['Architecture'].split(/\s+/).first
 		end
-		
+
 		if info['OS'] =~ /^Windows\s*([^\(]+)\(([^\)]+)\)/i
 			res[:os_name]   = "Microsoft Windows"
 			res[:os_flavor] = $1.strip
 			build = $2.strip
-			
+
 			if build =~ /Service Pack (\d+)/
 				res[:os_sp] = "SP" + $1
 			else
 				res[:os_sp] = "SP0"
 			end
 		end
-		
+
 		if info["System Language"]
 			case info["System Language"]
 				when /^en_/
 					res[:os_lang] = "English"
 			end
 		end
-		
+
 
 		# Truncate the info field at the maximum field length
 		if res[:info]
@@ -422,7 +442,7 @@ class DBManager
 		if res[:name]
 			res[:name] = res[:name][0,255]
 		end
-		
+
 		res.each { |k,v|
 
 			if (host.attribute_names.include?(k.to_s))
@@ -433,36 +453,41 @@ class DBManager
 				dlog("Unknown attribute for Host: #{k}")
 			end
 		}
-		
+
 		# Set default fields if needed
 		host.state       = HostState::Alive if not host.state
 		host.comm        = ''        if not host.comm
 		host.workspace   = wspace    if not host.workspace
-		
+
 		if host.changed?
 			host.save!
 		end
 
 		host
+	}
 	end
 	#
 	# Iterates over the hosts table calling the supplied block with the host
 	# instance of each entry.
 	#
 	def each_host(wspace=workspace, &block)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace.hosts.each do |host|
 			block.call(host)
 		end
+	}
 	end
 
 	#
 	# Returns a list of all hosts in the database
 	#
 	def hosts(wspace = workspace, only_up = false, addresses = nil)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		conditions = {}
 		conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if only_up
 		conditions[:address] = addresses if addresses
-		wspace.hosts.all(:conditions => conditions, :order => :address)
+		wspace.hosts.where(conditions).order(:address)
+	}
 	end
 
 
@@ -485,12 +510,12 @@ class DBManager
 	#
 	def report_service(opts)
 		return if not active
+	::ActiveRecord::Base.connection_pool.with_connection { |conn|
 		addr  = opts.delete(:host) || return
 		hname = opts.delete(:host_name)
 		hmac  = opts.delete(:mac)
 		host  = nil
 		wspace = opts.delete(:workspace) || workspace
-
 		hopts = {:workspace => wspace, :host => addr}
 		hopts[:name] = hname if hname
 		hopts[:mac]  = hmac  if hmac
@@ -502,7 +527,7 @@ class DBManager
 			opts[:name] = opts.delete(:sname)
 		end
 
-		if addr.kind_of? Host
+		if addr.kind_of? ::Mdm::Host
 			host = addr
 			addr = host.address
 		else
@@ -534,20 +559,23 @@ class DBManager
 				dlog("Unknown attribute for Service: #{k}")
 			end
 		}
-		if (service.state == nil)
-			service.state = ServiceState::Open
-		end
+		service.state ||= ServiceState::Open
+		service.info  ||= ""
+
 		if (service and service.changed?)
 			msf_import_timestamps(opts,service)
 			service.save!
 		end
 		ret[:service] = service
+	}
 	end
 
 	def get_service(wspace, host, proto, port)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		host = get_host(:workspace => wspace, :address => host)
 		return if not host
 		return host.services.find_by_proto_and_port(proto, port)
+	}
 	end
 
 	#
@@ -555,33 +583,39 @@ class DBManager
 	# service instance of each entry.
 	#
 	def each_service(wspace=workspace, &block)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		services(wspace).each do |service|
 			block.call(service)
 		end
+	}
 	end
 
 	#
 	# Returns a list of all services in the database
 	#
 	def services(wspace = workspace, only_up = false, proto = nil, addresses = nil, ports = nil, names = nil)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		conditions = {}
 		conditions[:state] = [ServiceState::Open] if only_up
 		conditions[:proto] = proto if proto
 		conditions["hosts.address"] = addresses if addresses
 		conditions[:port] = ports if ports
 		conditions[:name] = names if names
-		wspace.services.all(:include => :host, :conditions => conditions, :order => "hosts.address, port")
+		wspace.services.includes(:host).where(conditions).order("hosts.address, port")
+	}
 	end
 
 	# Returns a session based on opened_time, host address, and workspace
 	# (or returns nil)
 	def get_session(opts)
 		return if not active
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace = opts[:workspace] || opts[:wspace] || workspace
 		addr   = opts[:addr] || opts[:address] || opts[:host] || return
 		host = get_host(:workspace => wspace, :host => addr)
 		time = opts[:opened_at] || opts[:created_at] || opts[:time] || return
-		Msf::DBManager::Session.find_by_host_id_and_opened_at(host.id, time)
+		::Mdm::Session.find_by_host_id_and_opened_at(host.id, time)
+	}
 	end
 
 	# Record a new session in the database
@@ -592,6 +626,7 @@ class DBManager
 	#
 	def report_session(opts)
 		return if not active
+	::ActiveRecord::Base.connection_pool.with_connection {
 		if opts[:session]
 			raise ArgumentError.new("Invalid :session, expected Msf::Session") unless opts[:session].kind_of? Msf::Session
 			session = opts[:session]
@@ -615,7 +650,7 @@ class DBManager
 				:local_id => session.sid
 			}
 		elsif opts[:host]
-			raise ArgumentError.new("Invalid :host, expected Host object") unless opts[:host].kind_of? Host
+			raise ArgumentError.new("Invalid :host, expected Host object") unless opts[:host].kind_of? ::Mdm::Host
 			host = opts[:host]
 			sess_data = {
 				:host_id => host.id,
@@ -641,7 +676,7 @@ class DBManager
 			sess_data[:desc] = sess_data[:desc][0,255]
 		end
 
-		s = Msf::DBManager::Session.new(sess_data)
+		s = ::Mdm::Session.new(sess_data)
 		s.save!
 
 		if opts[:session]
@@ -653,27 +688,49 @@ class DBManager
 		# it's vulnerable to, so it isn't really useful to save it.
 		if opts[:session] and session.via_exploit and session.via_exploit != "exploit/multi/handler"
 			return unless host
-			port = session.exploit_datastore["RPORT"]
-			service = (port ? host.services.find_by_port(port) : nil)
+
 			mod = framework.modules.create(session.via_exploit)
 			vuln_info = {
 				:host => host.address,
-				:name => session.via_exploit,
+				:name => mod.name,
 				:refs => mod.references,
 				:workspace => wspace,
-				:exploited_at => Time.now.utc
+				:exploited_at => Time.now.utc,
+				:info => "Exploited by #{mod.fullname} to create Session #{s.id}"
 			}
-			framework.db.report_vuln(vuln_info)
+
+			port    = session.exploit_datastore["RPORT"]
+			service = (port ? host.services.find_by_port(port.to_i) : nil)
+
+			vuln_info[:service] = service if service
+
+			vuln = framework.db.report_vuln(vuln_info)
+			
+			attempt_info = {
+				:timestamp   => Time.now.utc,
+				:workspace   => wspace,
+				:module      => session.via_exploit,
+				:username    => session.username,
+				:refs        => mod.references,
+				:session_id  => s.id,
+				:host        => host,
+				:service     => service,
+				:vuln        => vuln
+			}
+
+			framework.db.report_exploit_success(attempt_info)
+			
 		end
 
 		s
+	}
 	end
 
 	#
 	# Record a session event in the database
 	#
 	# opts MUST contain one of:
-	# +:session+:: the Msf::Session OR the Msf::DBManager::Session we are reporting
+	# +:session+:: the Msf::Session OR the ::Mdm::Session we are reporting
 	# +:etype+::   event type, enum: command, output, upload, download, filedelete
 	#
 	# opts may contain
@@ -688,6 +745,7 @@ class DBManager
 		raise ArgumentError.new("Expected an :etype") unless opts[:etype]
 		session = nil
 
+	::ActiveRecord::Base.connection_pool.with_connection {
 		if opts[:session].respond_to? :db_record
 			session = opts[:session].db_record
 			if session.nil?
@@ -712,7 +770,8 @@ class DBManager
 			event_data[attr] = opts[attr] if opts[attr]
 		end
 
-		s = Msf::DBManager::SessionEvent.create(event_data)
+		s = ::Mdm::SessionEvent.create(event_data)
+	}
 	end
 
 	def report_session_route(session, route)
@@ -726,9 +785,11 @@ class DBManager
 			raise ArgumentError.new("Invalid :session, expected Session object got #{session.class}")
 		end
 
+	::ActiveRecord::Base.connection_pool.with_connection {
 
 		subnet, netmask = route.split("/")
 		s.routes.create(:subnet => subnet, :netmask => netmask)
+	}
 	end
 
 	def report_session_route_remove(session, route)
@@ -742,16 +803,241 @@ class DBManager
 			raise ArgumentError.new("Invalid :session, expected Session object got #{session.class}")
 		end
 
+	::ActiveRecord::Base.connection_pool.with_connection {
 		subnet, netmask = route.split("/")
 		r = s.routes.find_by_subnet_and_netmask(subnet, netmask)
 		r.destroy if r
+	}
+	end
+
+
+	def report_exploit_success(opts)
+	::ActiveRecord::Base.connection_pool.with_connection {
+
+		wspace = opts.delete(:workspace) || workspace
+		mrefs  = opts.delete(:refs) || return
+		host   = opts.delete(:host)
+		port   = opts.delete(:port)
+		prot   = opts.delete(:proto)
+		svc    = opts.delete(:service)
+		vuln   = opts.delete(:vuln)
+
+		timestamp = opts.delete(:timestamp)
+		username  = opts.delete(:username)
+		mname     = opts.delete(:module)
+
+		# Look up or generate the host as appropriate
+		if not (host and host.kind_of? ::Mdm::Host)
+			if svc.kind_of? ::Mdm::Service
+				host = svc.host
+			else
+				host = report_host(:workspace => wspace, :address => host )
+			end
+		end
+
+		# Bail if we dont have a host object
+		return if not host
+
+		# Look up or generate the service as appropriate
+		if port and svc.nil?
+			svc = report_service(:workspace => wspace, :host => host, :port => port, :proto => prot ) if port
+		end
+
+		if not vuln
+			# Create a references map from the module list
+			ref_objs = ::Mdm::Ref.where(:name => mrefs.map { |ref|
+				if ref.respond_to?(:ctx_id) and ref.respond_to?(:ctx_val)
+					"#{ref.ctx_id}-#{ref.ctx_val}"
+				else
+					ref.to_s
+				end
+			})
+		
+			# Try find a matching vulnerability
+			vuln = find_vuln_by_refs(ref_objs, host, svc)
+		end
+
+		# We have match, lets create a vuln_attempt record
+		if vuln
+			attempt_info = {
+				:vuln_id      => vuln.id,
+				:attempted_at => timestamp || Time.now.utc,
+				:exploited    => true,
+				:username     => username  || "unknown",
+				:module       => mname
+			}
+
+			attempt_info[:session_id] = opts[:session_id] if opts[:session_id]
+			attempt_info[:loot_id]    = opts[:loot_id]    if opts[:loot_id]
+
+			vuln.vuln_attempts.create(attempt_info)
+	
+			# Correct the vuln's associated service if necessary
+			if svc and vuln.service_id.nil?
+				vuln.service = svc
+				vuln.save
+			end
+		end
+
+		# Report an exploit attempt all the same
+		attempt_info = {
+			:attempted_at => timestamp || Time.now.utc,
+			:exploited    => true,
+			:username     => username  || "unknown",
+			:module       => mname
+		}
+
+		attempt_info[:vuln_id]    = vuln.id           if vuln
+		attempt_info[:session_id] = opts[:session_id] if opts[:session_id]
+		attempt_info[:loot_id]    = opts[:loot_id]    if opts[:loot_id]
+		
+		if svc
+			attempt_info[:port]  = svc.port
+			attempt_info[:proto] = svc.proto
+		end
+		
+		if port and svc.nil?
+			attempt_info[:port]  = port
+			attempt_info[:proto] = prot || "tcp"
+		end
+
+		host.exploit_attempts.create(attempt_info)
+	}
+	end
+
+	def report_exploit_failure(opts)
+
+	::ActiveRecord::Base.connection_pool.with_connection {
+		wspace = opts.delete(:workspace) || workspace
+		mrefs  = opts.delete(:refs) || return
+		host   = opts.delete(:host)
+		port   = opts.delete(:port)
+		prot   = opts.delete(:proto)
+		svc    = opts.delete(:service)
+		vuln   = opts.delete(:vuln)
+
+		timestamp  = opts.delete(:timestamp)
+		freason    = opts.delete(:fail_reason)
+		fdetail    = opts.delete(:fail_detail)		
+		username   = opts.delete(:username)
+		mname      = opts.delete(:module)
+
+		# Look up the host as appropriate
+		if not (host and host.kind_of? ::Mdm::Host)
+			if svc.kind_of? ::Mdm::Service
+				host = svc.host
+			else
+				host = get_host( :workspace => wspace, :address => host )
+			end
+		end
+
+		# Bail if we dont have a host object
+		return if not host
+
+		# Look up the service as appropriate
+		if port and svc.nil?
+			prot ||= "tcp"
+			svc = get_service(wspace, host, prot, port) if port
+		end
+
+		if not vuln
+			# Create a references map from the module list
+			ref_objs = ::Mdm::Ref.where(:name => mrefs.map { |ref|
+				if ref.respond_to?(:ctx_id) and ref.respond_to?(:ctx_val)
+					"#{ref.ctx_id}-#{ref.ctx_val}"
+				else
+					ref.to_s
+				end
+			})
+		
+			# Try find a matching vulnerability
+			vuln = find_vuln_by_refs(ref_objs, host, svc)
+		end
+
+		# Report a vuln_attempt if we found a match
+		if vuln
+			attempt_info = {
+				:attempted_at => timestamp || Time.now.utc,
+				:exploited    => false,
+				:fail_reason  => freason,
+				:fail_detail  => fdetail,
+				:username     => username  || "unknown",
+				:module       => mname
+			}
+
+			vuln.vuln_attempts.create(attempt_info)
+		end
+
+		# Report an exploit attempt all the same
+		attempt_info = {
+			:attempted_at => timestamp || Time.now.utc,
+			:exploited    => false,
+			:username     => username  || "unknown",
+			:module       => mname,
+			:fail_reason  => freason,
+			:fail_detail  => fdetail
+		}
+
+		attempt_info[:vuln_id] = vuln.id if vuln
+
+		if svc
+			attempt_info[:port]  = svc.port
+			attempt_info[:proto] = svc.proto
+		end
+		
+		if port and svc.nil?
+			attempt_info[:port]  = port
+			attempt_info[:proto] = prot || "tcp"
+		end
+
+		host.exploit_attempts.create(attempt_info)
+	}
+	end
+
+
+	def report_vuln_attempt(vuln, opts)
+	::ActiveRecord::Base.connection_pool.with_connection {
+		return if not vuln
+		info = {}
+		
+		# Opts can be keyed by strings or symbols
+		::Mdm::VulnAttempt.column_names.each do |kn|
+			k = kn.to_sym
+			next if ['id', 'vuln_id'].include?(kn)
+			info[k] = opts[kn] if opts[kn]
+			info[k] = opts[k]  if opts[k]
+		end
+
+		return unless info[:attempted_at]
+
+		vuln.vuln_attempts.create(info)
+	}
+	end
+
+	def report_exploit_attempt(host, opts)
+	::ActiveRecord::Base.connection_pool.with_connection {
+		return if not host
+		info = {}
+		
+		# Opts can be keyed by strings or symbols
+		::Mdm::VulnAttempt.column_names.each do |kn|
+			k = kn.to_sym
+			next if ['id', 'host_id'].include?(kn)
+			info[k] = opts[kn] if opts[kn]
+			info[k] = opts[k]  if opts[k]
+		end
+
+		host.exploit_attempts.create(info)
+	}
 	end
 
 	def get_client(opts)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace = opts.delete(:workspace) || workspace
 		host   = get_host(:workspace => wspace, :host => opts[:host]) || return
-		client = host.clients.find(:first, :conditions => {:ua_string => opts[:ua_string]})
+		client = host.clients.where({:ua_string => opts[:ua_string]}).first()
 		return client
+	}
 	end
 
 	def find_or_create_client(opts)
@@ -774,6 +1060,7 @@ class DBManager
 	#
 	def report_client(opts)
 		return if not active
+	::ActiveRecord::Base.connection_pool.with_connection {
 		addr = opts.delete(:host) || return
 		wspace = opts.delete(:workspace) || workspace
 		report_host(:workspace => wspace, :host => addr)
@@ -806,6 +1093,7 @@ class DBManager
 			client.save!
 		end
 		ret[:client] = client
+	}
 	end
 
 	#
@@ -813,34 +1101,38 @@ class DBManager
 	# vuln instance of each entry.
 	#
 	def each_vuln(wspace=workspace,&block)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace.vulns.each do |vulns|
 			block.call(vulns)
 		end
+	}
 	end
 
 	#
 	# This methods returns a list of all vulnerabilities in the database
 	#
 	def vulns(wspace=workspace)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace.vulns
+	}
 	end
 
 	#
 	# This methods returns a list of all credentials in the database
 	#
 	def creds(wspace=workspace)
-		Cred.find(
-			:all,
-			:include => {:service => :host}, # That's some magic right there.
-			:conditions => ["hosts.workspace_id = ?", wspace.id]
-		)
+	::ActiveRecord::Base.connection_pool.with_connection {
+		Mdm::Cred.includes({:service => :host}).where("hosts.workspace_id = ?", wspace.id)
+	}
 	end
 
 	#
 	# This method returns a list of all exploited hosts in the database.
 	#
 	def exploited_hosts(wspace=workspace)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace.exploited_hosts
+	}
 	end
 
 	#
@@ -848,9 +1140,11 @@ class DBManager
 	# note instance of each entry.
 	#
 	def each_note(wspace=workspace, &block)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace.notes.each do |note|
 			block.call(note)
 		end
+	}
 	end
 
 	#
@@ -861,7 +1155,7 @@ class DBManager
 	end
 
 	#
-	# Report a Note to the database.  Notes can be tied to a Workspace, Host, or Service.
+	# Report a Note to the database.  Notes can be tied to a ::Mdm::Workspace, Host, or Service.
 	#
 	# opts MUST contain
 	# +:data+::  whatever it is you're making a note of
@@ -887,6 +1181,7 @@ class DBManager
 	#
 	def report_note(opts)
 		return if not active
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace = opts.delete(:workspace) || workspace
 		if wspace.kind_of? String
 			wspace = find_workspace(wspace)
@@ -897,7 +1192,7 @@ class DBManager
 		addr = nil
 		# Report the host so it's there for the Proc to use below
 		if opts[:host]
-			if opts[:host].kind_of? Host
+			if opts[:host].kind_of? ::Mdm::Host
 				host = opts[:host]
 			else
 				addr = normalize_host(opts[:host])
@@ -938,7 +1233,7 @@ class DBManager
 		end
 		if host and (opts[:port] and opts[:proto])
 			service = get_service(wspace, host, opts[:proto], opts[:port])
-		elsif opts[:service] and opts[:service].kind_of? Service
+		elsif opts[:service] and opts[:service].kind_of? ::Mdm::Service
 			service = opts[:service]
 		end
 =begin
@@ -960,7 +1255,7 @@ class DBManager
 
 		case mode
 		when :unique
-			notes = wspace.notes.find(:all, :conditions => conditions)
+			notes = wspace.notes.where(conditions)
 
 			# Only one note of this type should exist, make a new one if it
 			# isn't there. If it is, grab it and overwrite its data.
@@ -971,7 +1266,7 @@ class DBManager
 			end
 			note.data = data
 		when :unique_data
-			notes = wspace.notes.find(:all, :conditions => conditions)
+			notes = wspace.notes.where(conditions)
 
 			# Don't make a new Note with the same data as one that already
 			# exists for the given: type and (host or service)
@@ -995,7 +1290,7 @@ class DBManager
 			if host
 				note.host_id = host[:id]
 			end
-			if opts[:service] and opts[:service].kind_of? Service
+			if opts[:service] and opts[:service].kind_of? ::Mdm::Service
 				note.service_id = opts[:service][:id]
 			end
 			note.seen     = seen
@@ -1006,13 +1301,16 @@ class DBManager
 		msf_import_timestamps(opts,note)
 		note.save!
 		ret[:note] = note
+	}
 	end
 
 	#
 	# This methods returns a list of all notes in the database
 	#
 	def notes(wspace=workspace)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace.notes
+	}
 	end
 
 	# This is only exercised by MSF3 XML importing for now. Needs the wait
@@ -1024,10 +1322,11 @@ class DBManager
 		raise DBImportError.new("Missing required option :addr") unless addr
 		wspace = opts.delete(:wspace)
 		raise DBImportError.new("Missing required option :wspace") unless wspace
+	::ActiveRecord::Base.connection_pool.with_connection {
 		if wspace.kind_of? String
 			wspace = find_workspace(wspace)
 		end
-		
+
 		host = nil
 		report_host(:workspace => wspace, :address => addr)
 
@@ -1037,14 +1336,8 @@ class DBManager
 		summary = opts.delete(:summary)
 		detail = opts.delete(:detail)
 		crit = opts.delete(:crit)
-		possible_tag = Tag.find(:all,
-			:include => :hosts,
-			:conditions => ["hosts.workspace_id = ? and tags.name = ?",
-				wspace.id,
-				name
-			]
-		).first
-		tag = possible_tag || Tag.new
+		possible_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and tags.name = ?", wspace.id, name).order("tags.id DESC").limit(1)
+		tag = (possible_tags.blank? ? Mdm::Tag.new : possible_tags.first)
 		tag.name = name
 		tag.desc = desc
 		tag.report_summary = !!summary
@@ -1052,6 +1345,7 @@ class DBManager
 		tag.critical = !!crit
 		tag.hosts = tag.hosts | [host]
 		tag.save! if tag.changed?
+	}
 	end
 
 	#
@@ -1089,7 +1383,7 @@ class DBManager
 		raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
 		raise ArgumentError.new("Missing required option :port") if (opts[:port].nil? and opts[:service].nil?)
 
-		if (not opts[:host].kind_of?(Host)) and (not validate_ips(opts[:host]))
+		if (not opts[:host].kind_of?(::Mdm::Host)) and (not validate_ips(opts[:host]))
 			raise ArgumentError.new("Invalid address or object for :host (#{opts[:host].inspect})")
 		end
 
@@ -1205,15 +1499,19 @@ class DBManager
 	# cred instance of each entry.
 	#
 	def each_cred(wspace=workspace,&block)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace.creds.each do |cred|
 			block.call(cred)
 		end
+	}
 	end
 
 	def each_exploited_host(wspace=workspace,&block)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace.exploited_hosts.each do |eh|
 			block.call(eh)
 		end
+	}
 	end
 
 	#
@@ -1226,11 +1524,12 @@ class DBManager
 	#
 	# opts MUST contain
 	# +:host+:: the host where this vulnerability resides
-	# +:name+:: the scanner-specific id of the vuln (e.g. NEXPOSE-cifs-acct-password-never-expires)
+	# +:name+:: the friendly name for this vulnerability (title)
 	#
 	# opts can contain
-	# +:info+:: a human readable description of the vuln, free-form text
-	# +:refs+:: an array of Ref objects or string names of references
+	# +:info+::   a human readable description of the vuln, free-form text
+	# +:refs+::   an array of Ref objects or string names of references
+	# +:details:: a hash with :key pointed to a find criteria hash and the rest containing VulnDetail fields
 	#
 	def report_vuln(opts)
 		return if not active
@@ -1238,14 +1537,19 @@ class DBManager
 		raise ArgumentError.new("Deprecated data column for vuln, use .info instead") if opts[:data]
 		name = opts[:name] || return
 		info = opts[:info]
+
+	::ActiveRecord::Base.connection_pool.with_connection {
+
 		wspace = opts.delete(:workspace) || workspace
 		exploited_at = opts[:exploited_at] || opts["exploited_at"]
-		rids = nil
+		details = opts.delete(:details)
+		rids = opts.delete(:ref_ids)
+
 		if opts[:refs]
-			rids = []
+			rids ||= []
 			opts[:refs].each do |r|
-				if r.respond_to? :ctx_id
-					r = r.ctx_id + '-' + r.ctx_val
+				if (r.respond_to?(:ctx_id)) and (r.respond_to?(:ctx_val))
+					r = "#{r.ctx_id}-#{r.ctx_val}"
 				end
 				rids << find_or_create_ref(:name => r)
 			end
@@ -1253,7 +1557,7 @@ class DBManager
 
 		host = nil
 		addr = nil
-		if opts[:host].kind_of? Host
+		if opts[:host].kind_of? ::Mdm::Host
 			host = opts[:host]
 		else
 			host = report_host({:workspace => wspace, :host => opts[:host]})
@@ -1261,16 +1565,6 @@ class DBManager
 		end
 
 		ret = {}
-
-=begin
-		if host
-			host.updated_at = host.created_at
-			host.state      = HostState::Alive
-			host.save!
-		else
-			host = get_host(:workspace => wspace, :address => addr)
-		end
-=end
 
 		# Truncate the info field at the maximum field length
 		if info
@@ -1280,50 +1574,164 @@ class DBManager
 		# Truncate the name field at the maximum field length
 		name = name[0,255]
 
-		if info and name !~ /^NEXPOSE-/
-			vuln = host.vulns.find_or_initialize_by_name_and_info(name, info, :include => :refs)
+		# Placeholder for the vuln object
+		vuln = nil
+
+		# Identify the associated service
+		service = opts.delete(:service)
+
+		# Treat port zero as no service
+		if service or opts[:port].to_i > 0
+
+			if not service
+				proto = nil
+				case opts[:proto].to_s.downcase # Catch incorrect usages, as in report_note
+				when 'tcp','udp'
+					proto = opts[:proto]
+				when 'dns','snmp','dhcp'
+					proto = 'udp'
+					sname = opts[:proto]
+				else
+					proto = 'tcp'
+					sname = opts[:proto]
+				end
+
+				service = host.services.find_or_create_by_port_and_proto(opts[:port].to_i, proto)
+			end
+
+			# Try to find an existing vulnerability with the same service & references
+			# If there are multiple matches, choose the one with the most matches
+			# If a match is found on a vulnerability with no associated service,
+			# update that vulnerability with our service information. This helps
+			# prevent dupes of the same vuln found by both local patch and
+			# service detection.		
+			if rids and rids.length > 0
+				vuln = find_vuln_by_refs(rids, host, service)
+				vuln.service = service if vuln
+			end
 		else
-			vuln = host.vulns.find_or_initialize_by_name(name, :include => :refs)
+			# Try to find an existing vulnerability with the same host & references
+			# If there are multiple matches, choose the one with the most matches
+			if rids and rids.length > 0
+				vuln = find_vuln_by_refs(rids, host)
+			end
 		end
 
-		vuln.info = info.to_s if info
+		# Try to match based on vuln_details records
+		if not vuln and opts[:details_match]
+			vuln = find_vuln_by_details(opts[:details_match], host, service)
+			if vuln and service and not vuln.service
+				vuln.service = service
+			end
+		end
+
+		# No matches, so create a new vuln record
+		unless vuln
+			if service
+				vuln = service.vulns.find_by_name(name)
+			else
+				vuln = host.vulns.find_by_name(name)
+			end
+			
+			unless vuln
+
+				vinf = {
+					:host_id => host.id,
+					:name    => name,
+					:info    => info
+				}
+
+				vinf[:service_id] = service.id if service 
+				vuln = Mdm::Vuln.create(vinf)
+			end
+		end
+
+		# Set the exploited_at value if provided
 		vuln.exploited_at = exploited_at if exploited_at
 
-		if opts[:port]
-			proto = nil
-			case opts[:proto].to_s.downcase # Catch incorrect usages, as in report_note
-			when 'tcp','udp'
-				proto = opts[:proto]
-			when 'dns','snmp','dhcp'
-				proto = 'udp'
-				sname = opts[:proto]
-			else
-				proto = 'tcp'
-				sname = opts[:proto]
-			end
-			vuln.service = host.services.find_or_create_by_port_and_proto(opts[:port], proto)
-		end
-
+		# Merge the references
 		if rids
 			vuln.refs << (rids - vuln.refs)
 		end
 
+		# Finalize
 		if vuln.changed?
 			msf_import_timestamps(opts,vuln)
 			vuln.save!
 		end
+
+		# Handle vuln_details parameters
+		report_vuln_details(vuln, details) if details
+		
+		vuln
+	}
+	end
+
+	def find_vuln_by_refs(refs, host, service=nil)
+
+		vuln = nil
+
+		# Try to find an existing vulnerability with the same service & references
+		# If there are multiple matches, choose the one with the most matches
+		if service
+			refs_ids = refs.map{|x| x.id }
+			vuln = service.vulns.find(:all, :include => [:refs], :conditions => { 'refs.id' => refs_ids }).sort { |a,b|
+				( refs_ids - a.refs.map{|x| x.id } ).length <=> ( refs_ids - b.refs.map{|x| x.id } ).length
+			}.first
+		end
+
+		# Return if we matched based on service
+		return vuln if vuln
+
+		# Try to find an existing vulnerability with the same host & references
+		# If there are multiple matches, choose the one with the most matches
+		refs_ids = refs.map{|x| x.id }
+		vuln = host.vulns.find(:all, :include => [:refs], :conditions => { 'service_id' => nil, 'refs.id' => refs_ids }).sort { |a,b|
+			( refs_ids - a.refs.map{|x| x.id } ).length <=> ( refs_ids - b.refs.map{|x| x.id } ).length
+		}.first
+
+		return vuln
+	end
+
+
+	def find_vuln_by_details(details_map, host, service=nil)
+
+		# Create a modified version of the criteria in order to match against
+		# the joined version of the fields
+
+		crit = {}
+		details_map.each_pair do |k,v|
+			crit[ "vuln_details.#{k}" ] = v
+		end
+
+		vuln = nil
+
+		if service
+			vuln = service.vulns.find(:first, :include => [:vuln_details], :conditions => crit)
+		end
+
+		# Return if we matched based on service
+		return vuln if vuln
+
+		# Prevent matches against other services
+		crit["vulns.service_id"] = nil if service
+		vuln = host.vulns.find(:first, :include => [:vuln_details], :conditions => crit)
+
+		return vuln
 	end
 
 	def get_vuln(wspace, host, service, name, data='')
 		raise RuntimeError, "Not workspace safe: #{caller.inspect}"
+	::ActiveRecord::Base.connection_pool.with_connection {
 		vuln = nil
 		if (service)
-			vuln = Vuln.find(:first, :conditions => [ "name = ? and service_id = ? and host_id = ?", name, service.id, host.id])
+			vuln = ::Mdm::Vuln.find.where("name = ? and service_id = ? and host_id = ?", name, service.id, host.id).order("vulns.id DESC").first()
 		else
-			vuln = Vuln.find(:first, :conditions => [ "name = ? and host_id = ?", name, host.id])
+			vuln = ::Mdm::Vuln.find.where("name = ? and host_id = ?", name, host.id).first()
 		end
 
 		return vuln
+	}
 	end
 
 	#
@@ -1334,14 +1742,67 @@ class DBManager
 		ret[:ref] = get_ref(opts[:name])
 		return ret[:ref] if ret[:ref]
 
-		ref = Ref.find_or_initialize_by_name(opts[:name])
+	::ActiveRecord::Base.connection_pool.with_connection {
+		ref = ::Mdm::Ref.find_or_initialize_by_name(opts[:name])
 		if ref and ref.changed?
 			ref.save!
 		end
 		ret[:ref] = ref
+	}
 	end
+
 	def get_ref(name)
-		Ref.find_by_name(name)
+	::ActiveRecord::Base.connection_pool.with_connection {
+		::Mdm::Ref.find_by_name(name)
+	}
+	end
+
+	#
+	# Populate the vuln_details table with additional
+	# information, matched by a specific criteria
+	#
+	def report_vuln_details(vuln, details)
+	::ActiveRecord::Base.connection_pool.with_connection {
+		detail = ::Mdm::VulnDetail.where(( details.delete(:key) || {} ).merge(:vuln_id => vuln.id)).first
+		if detail
+			details.each_pair do |k,v|
+				detail[k] = v
+			end
+			detail.save! if detail.changed?
+			detail
+		else
+			detail = ::Mdm::VulnDetail.create(details.merge(:vuln_id => vuln.id))
+		end
+	}
+	end
+
+	#
+	# Update vuln_details records en-masse based on specific criteria
+	# Note that this *can* update data across workspaces
+	#
+	def update_vuln_details(details)
+		criteria = details.delete(:key) || {}
+		::Mdm::VulnDetail.update(key, details)
+	end
+
+	#
+	# Populate the host_details table with additional
+	# information, matched by a specific criteria
+	#
+	def report_host_details(host, details)
+	::ActiveRecord::Base.connection_pool.with_connection {
+
+		detail = ::Mdm::HostDetail.where(( details.delete(:key) || {} ).merge(:host_id => host.id)).first
+		if detail
+			details.each_pair do |k,v|
+				detail[k] = v
+			end
+			detail.save! if detail.changed?
+			detail
+		else
+			detail = ::Mdm::HostDetail.create(details.merge(:host_id => host.id))
+		end
+	}
 	end
 
 	# report_exploit() used to be used to track sessions and which modules
@@ -1359,9 +1820,11 @@ class DBManager
 	# Deletes a host and associated data matching this address/comm
 	#
 	def del_host(wspace, address, comm='')
+	::ActiveRecord::Base.connection_pool.with_connection {
 		address, scope = address.split('%', 2)
 		host = wspace.hosts.find_by_address_and_comm(address, comm)
 		host.destroy if host
+	}
 	end
 
 	#
@@ -1372,46 +1835,58 @@ class DBManager
 		host = get_host(:workspace => wspace, :address => address)
 		return unless host
 
-		host.services.all(:conditions => {:proto => proto, :port => port}).each { |s| s.destroy }
+	::ActiveRecord::Base.connection_pool.with_connection {
+		host.services.where({:proto => proto, :port => port}).each { |s| s.destroy }
+	}
 	end
 
 	#
 	# Find a reference matching this name
 	#
 	def has_ref?(name)
-		Ref.find_by_name(name)
+	::ActiveRecord::Base.connection_pool.with_connection {
+		Mdm::Ref.find_by_name(name)
+	}
 	end
 
 	#
 	# Find a vulnerability matching this name
 	#
 	def has_vuln?(name)
-		Vuln.find_by_name(name)
+	::ActiveRecord::Base.connection_pool.with_connection {
+		Mdm::Vuln.find_by_name(name)
+	}
 	end
 
 	#
 	# Look for an address across all comms
 	#
 	def has_host?(wspace,addr)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		address, scope = addr.split('%', 2)
 		wspace.hosts.find_by_address(addr)
+	}
 	end
 
 	def events(wspace=workspace)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace.events.find :all, :order => 'created_at ASC'
+	}
 	end
 
 	def report_event(opts = {})
 		return if not active
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace = opts.delete(:workspace) || workspace
 		return if not wspace # Temp fix?
 		uname  = opts.delete(:username)
 
-		if ! opts[:host].kind_of? Host and opts[:host]
+		if ! opts[:host].kind_of? ::Mdm::Host and opts[:host]
 			opts[:host] = report_host(:workspace => wspace, :host => opts[:host])
 		end
 
-		Event.create(opts.merge(:workspace_id => wspace[:id], :username => uname))
+		::Mdm::Event.create(opts.merge(:workspace_id => wspace[:id], :username => uname))
+	}
 	end
 
 	#
@@ -1422,9 +1897,11 @@ class DBManager
 	# instance of each entry.
 	#
 	def each_loot(wspace=workspace, &block)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace.loots.each do |note|
 			block.call(note)
 		end
+	}
 	end
 
 	#
@@ -1436,6 +1913,7 @@ class DBManager
 
 	def report_loot(opts)
 		return if not active
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace = opts.delete(:workspace) || workspace
 		path = opts.delete(:path) || (raise RuntimeError, "A loot :path is required")
 
@@ -1444,7 +1922,7 @@ class DBManager
 
 		# Report the host so it's there for the Proc to use below
 		if opts[:host]
-			if opts[:host].kind_of? Host
+			if opts[:host].kind_of? ::Mdm::Host
 				host = opts[:host]
 			else
 				host = report_host({:workspace => wspace, :host => opts[:host]})
@@ -1464,7 +1942,7 @@ class DBManager
 		if host
 			loot.host_id = host[:id]
 		end
-		if opts[:service] and opts[:service].kind_of? Service
+		if opts[:service] and opts[:service].kind_of? ::Mdm::Service
 			loot.service_id = opts[:service][:id]
 		end
 
@@ -1488,13 +1966,16 @@ class DBManager
 		end
 
 		ret[:loot] = loot
+	}
 	end
 
 	#
 	# This methods returns a list of all loot in the database
 	#
 	def loots(wspace=workspace)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace.loots
+	}
 	end
 
 	#
@@ -1506,6 +1987,7 @@ class DBManager
 
 	def report_task(opts)
 		return if not active
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace = opts.delete(:workspace) || workspace
 		path = opts.delete(:path) || (raise RuntimeError, "A task :path is required")
 
@@ -1540,13 +2022,16 @@ class DBManager
 		end
 		task.save!
 		ret[:task] = task
+	}
 	end
 
 	#
 	# This methods returns a list of all tasks in the database
 	#
 	def tasks(wspace=workspace)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace.tasks
+	}
 	end
 
 
@@ -1559,6 +2044,7 @@ class DBManager
 
 	def report_report(opts)
 		return if not active
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace = opts.delete(:workspace) || workspace
 		path = opts.delete(:path) || (raise RuntimeError, "A report :path is required")
 
@@ -1575,13 +2061,16 @@ class DBManager
 		report.save!
 
 		ret[:task] = report
+	}
 	end
 
 	#
 	# This methods returns a list of all reports in the database
 	#
 	def reports(wspace=workspace)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace.reports
+	}
 	end
 
 	#
@@ -1611,6 +2100,7 @@ class DBManager
 	#
 	def report_web_site(opts)
 		return if not active
+	::ActiveRecord::Base.connection_pool.with_connection { |conn|
 		wspace = opts.delete(:workspace) || workspace
 		vhost  = opts.delete(:vhost)
 
@@ -1620,7 +2110,7 @@ class DBManager
 		serv = nil
 		info = nil
 
-		if opts[:service] and opts[:service].kind_of?(Service)
+		if opts[:service] and opts[:service].kind_of?(::Mdm::Service)
 			serv = opts[:service]
 		else
 			addr = opts[:host]
@@ -1674,7 +2164,7 @@ class DBManager
 =end
 
 		vhost ||= host.address
-		site = WebSite.find_or_initialize_by_vhost_and_service_id(vhost, serv[:id])
+		site = ::Mdm::WebSite.find_or_initialize_by_vhost_and_service_id(vhost, serv[:id])
 		site.options = opts[:options] if opts[:options]
 
 		# XXX:
@@ -1682,6 +2172,7 @@ class DBManager
 		site.save!
 
 		ret[:web_site] = site
+	}
 	end
 
 	#
@@ -1715,6 +2206,7 @@ class DBManager
 
 	def report_web_page(opts)
 		return if not active
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace = opts.delete(:workspace) || workspace
 
 		path    = opts[:path]
@@ -1728,7 +2220,7 @@ class DBManager
 			raise ArgumentError, "report_web_page requires the path, query, code, body, and headers parameters"
 		end
 
-		if opts[:web_site] and opts[:web_site].kind_of?(WebSite)
+		if opts[:web_site] and opts[:web_site].kind_of?(::Mdm::WebSite)
 			site = opts.delete(:web_site)
 		else
 			site = report_web_site(
@@ -1743,7 +2235,7 @@ class DBManager
 
 		ret = {}
 
-		page = WebPage.find_or_initialize_by_web_site_id_and_path_and_query(site[:id], path, query)
+		page = ::Mdm::WebPage.find_or_initialize_by_web_site_id_and_path_and_query(site[:id], path, query)
 		page.code     = code
 		page.body     = body
 		page.headers  = headers
@@ -1756,6 +2248,7 @@ class DBManager
 		page.save!
 
 		ret[:web_page] = page
+	}
 
 	end
 
@@ -1781,6 +2274,7 @@ class DBManager
 
 	def report_web_form(opts)
 		return if not active
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace = opts.delete(:workspace) || workspace
 
 		path    = opts[:path]
@@ -1797,7 +2291,7 @@ class DBManager
 			raise ArgumentError, "report_web_form requires the method to be one of GET, POST, PATH"
 		end
 
-		if opts[:web_site] and opts[:web_site].kind_of?(WebSite)
+		if opts[:web_site] and opts[:web_site].kind_of?(::Mdm::WebSite)
 			site = opts.delete(:web_site)
 		else
 			site = report_web_site(
@@ -1816,14 +2310,14 @@ class DBManager
 		# comparisons through ruby and not SQL.
 
 		form = nil
-		WebForm.find_all_by_web_site_id_and_path_and_method_and_query(site[:id], path, meth, quer).each do |xform|
+		::Mdm::WebForm.find_all_by_web_site_id_and_path_and_method_and_query(site[:id], path, meth, quer).each do |xform|
 			if xform.params == para
 				form = xform
 				break
 			end
 		end
 		if not form
-			form = WebForm.new
+			form = ::Mdm::WebForm.new
 			form.web_site_id = site[:id]
 			form.path        = path
 			form.method      = meth
@@ -1834,6 +2328,7 @@ class DBManager
 		msf_import_timestamps(opts, form)
 		form.save!
 		ret[:web_form] = form
+	}
 	end
 
 
@@ -1863,6 +2358,7 @@ class DBManager
 
 	def report_web_vuln(opts)
 		return if not active
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace = opts.delete(:workspace) || workspace
 
 		path    = opts[:path]
@@ -1904,7 +2400,7 @@ class DBManager
 			raise ArgumentError, "report_web_vuln requires the name to be a valid string"
 		end
 
-		if opts[:web_site] and opts[:web_site].kind_of?(WebSite)
+		if opts[:web_site] and opts[:web_site].kind_of?(::Mdm::WebSite)
 			site = opts.delete(:web_site)
 		else
 			site = report_web_site(
@@ -1921,7 +2417,7 @@ class DBManager
 
 		meth = meth.to_s.upcase
 
-		vuln = WebVuln.find_or_initialize_by_web_site_id_and_path_and_method_and_pname_and_name_and_category_and_query(site[:id], path, meth, pname, name, cat, quer)
+		vuln = ::Mdm::WebVuln.find_or_initialize_by_web_site_id_and_path_and_method_and_pname_and_name_and_category_and_query(site[:id], path, meth, pname, name, cat, quer)
 		vuln.name     = name
 		vuln.risk     = risk
 		vuln.params   = para
@@ -1934,6 +2430,7 @@ class DBManager
 		vuln.save!
 
 		ret[:web_vuln] = vuln
+	}
 	end
 
 	#
@@ -1941,12 +2438,24 @@ class DBManager
 	# Selected host
 	#
 	def selected_host
-		selhost = WmapTarget.find(:first, :conditions => ["selected != 0"] )
+	::ActiveRecord::Base.connection_pool.with_connection {
+		selhost = ::Mdm::WmapTarget.where("selected != 0").first()
 		if selhost
 			return selhost.host
 		else
 			return
 		end
+	}
+	end
+
+	#
+	# WMAP
+	# Selected target
+	#
+	def selected_wmap_target
+	::ActiveRecord::Base.connection_pool.with_connection {
+		::Mdm::WmapTarget.find.where("selected != 0")
+	}
 	end
 
 	#
@@ -1954,7 +2463,7 @@ class DBManager
 	# Selected port
 	#
 	def selected_port
-		WmapTarget.find(:first, :conditions => ["selected != 0"] ).port
+		selected_wmap_target.port
 	end
 
 	#
@@ -1962,7 +2471,7 @@ class DBManager
 	# Selected ssl
 	#
 	def selected_ssl
-		WmapTarget.find(:first, :conditions => ["selected != 0"] ).ssl
+		selected_wmap_target.ssl
 	end
 
 	#
@@ -1970,7 +2479,7 @@ class DBManager
 	# Selected id
 	#
 	def selected_id
-		WmapTarget.find(:first, :conditions => ["selected != 0"] ).object_id
+		selected_wmap_target.object_id
 	end
 
 	#
@@ -1990,7 +2499,9 @@ class DBManager
 	# This method wiil be remove on second phase of db merging.
 	#
 	def request_distinct_targets
-		WmapRequest.find(:all, :select => 'DISTINCT host,address,port,ssl')
+	::ActiveRecord::Base.connection_pool.with_connection {
+		::Mdm::WmapRequest.select('DISTINCT host,address,port,ssl')
+	}
 	end
 
 	#
@@ -2048,7 +2559,9 @@ class DBManager
 	# This method returns a list of all requests from target
 	#
 	def target_requests(extra_condition)
-		WmapRequest.find(:all, :conditions => ["wmap_requests.host = ? AND wmap_requests.port = ? #{extra_condition}",selected_host,selected_port])
+	::ActiveRecord::Base.connection_pool.with_connection {
+		::Mdm::WmapRequest.where("wmap_requests.host = ? AND wmap_requests.port = ? #{extra_condition}",selected_host,selected_port)
+	}
 	end
 
 	#
@@ -2067,7 +2580,9 @@ class DBManager
 	# This method allows to query directly the requests table. To be used mainly by modules
 	#
 	def request_sql(host,port,extra_condition)
-		WmapRequest.find(:all, :conditions => ["wmap_requests.host = ? AND wmap_requests.port = ? #{extra_condition}",host,port])
+	::ActiveRecord::Base.connection_pool.with_connection {
+		::Mdm::WmapRequest.where("wmap_requests.host = ? AND wmap_requests.port = ? #{extra_condition}", host , port)
+	}
 	end
 
 	#
@@ -2075,7 +2590,9 @@ class DBManager
 	# This methods returns a list of all targets in the database
 	#
 	def requests
-		WmapRequest.find(:all)
+	::ActiveRecord::Base.connection_pool.with_connection {
+		::Mdm::WmapRequest.find(:all)
+	}
 	end
 
 	#
@@ -2094,7 +2611,9 @@ class DBManager
 	# This methods returns a list of all targets in the database
 	#
 	def targets
-		WmapTarget.find(:all)
+	::ActiveRecord::Base.connection_pool.with_connection {
+		::Mdm::WmapTarget.find(:all)
+	}
 	end
 
 	#
@@ -2102,7 +2621,9 @@ class DBManager
 	# This methods deletes all targets from targets table in the database
 	#
 	def delete_all_targets
-		WmapTarget.delete_all
+	::ActiveRecord::Base.connection_pool.with_connection {
+		::Mdm::WmapTarget.delete_all
+	}
 	end
 
 	#
@@ -2110,8 +2631,10 @@ class DBManager
 	# Find a target matching this id
 	#
 	def get_target(id)
-		target = WmapTarget.find(:first, :conditions => [ "id = ?", id])
+	::ActiveRecord::Base.connection_pool.with_connection {
+		target = ::Mdm::WmapTarget.where("id = ?", id).first()
 		return target
+	}
 	end
 
 	#
@@ -2119,7 +2642,8 @@ class DBManager
 	# Create a target
 	#
 	def create_target(host,port,ssl,sel)
-		tar = WmapTarget.create(
+	::ActiveRecord::Base.connection_pool.with_connection {
+		tar = ::Mdm::WmapTarget.create(
 				:host => host,
 				:address => host,
 				:port => port,
@@ -2127,6 +2651,7 @@ class DBManager
 				:selected => sel
 			)
 		#framework.events.on_db_target(rec)
+	}
 	end
 
 
@@ -2135,7 +2660,8 @@ class DBManager
 	# Create a request (by hand)
 	#
 	def create_request(host,port,ssl,meth,path,headers,query,body,respcode,resphead,response)
-		req = WmapRequest.create(
+	::ActiveRecord::Base.connection_pool.with_connection {
+		req = ::Mdm::WmapRequest.create(
 				:host => host,
 				:address => host,
 				:port => port,
@@ -2150,6 +2676,7 @@ class DBManager
 				:response => response
 			)
 		#framework.events.on_db_request(rec)
+	}
 	end
 
 	#
@@ -2157,7 +2684,9 @@ class DBManager
 	# Quick way to query the database (used by wmap_sql)
 	#
 	def sql_query(sqlquery)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		ActiveRecord::Base.connection.select_all(sqlquery)
+	}
 	end
 
 
@@ -2205,14 +2734,19 @@ class DBManager
 
 		data = ""
 		::File.open(filename, 'rb') do |f|
-			data = f.read(f.stat.size)
+			data = f.read(4)
 		end
 
 		case data[0,4]
 		when "PK\x03\x04"
 			data = Zip::ZipFile.open(filename)
 		when "\xd4\xc3\xb2\xa1", "\xa1\xb2\xc3\xd4"
-			data = PacketFu::PcapFile.new.readfile(filename)
+			data = PacketFu::PcapFile.new(:filename => filename)
+		else
+			::File.open(filename, 'rb') do |f|
+				sz = f.stat.size
+				data = f.read(sz)
+			end
 		end
 		if block
 			import(args.merge(:data => data)) { |type,data| yield type,data }
@@ -2260,7 +2794,10 @@ class DBManager
 		end
 
 		if data and data.kind_of? PacketFu::PcapFile
-			raise DBImportError.new("The pcap file provided is empty.") if data.body.empty?
+			# Don't check for emptiness here because unlike other formats, we
+			# haven't read any actual data in yet, only magic bytes to discover
+			# that this is indeed a pcap file.
+			#raise DBImportError.new("The pcap file provided is empty.") if data.body.empty?
 			@import_filedata ||= {}
 			@import_filedata[:type] = "Libpcap Packet Capture"
 			return :libpcap
@@ -2280,6 +2817,9 @@ class DBManager
 		if (firstline.index("<NeXposeSimpleXML"))
 			@import_filedata[:type] = "NeXpose Simple XML"
 			return :nexpose_simplexml
+		elsif (firstline.index("<FusionVM"))
+			@import_filedata[:type] = "FusionVM XML"
+			return :fusionvm_xml
 		elsif (firstline.index("<NexposeReport"))
 			@import_filedata[:type] = "NeXpose XML Report"
 			return :nexpose_rawxml
@@ -2289,6 +2829,12 @@ class DBManager
 		elsif (firstline.index("<scanJob>"))
 			@import_filedata[:type] = "Retina XML"
 			return :retina_xml
+		elsif (firstline.index("<get_reports_response status=\"200\" status_text=\"OK\">"))
+			@import_filedata[:type] = "OpenVAS XML"
+			return :openvas_new_xml
+		elsif (firstline.index("<report id=\""))
+			@import_filedata[:type] = "OpenVAS XML"
+			return :openvas_new_xml
 		elsif (firstline.index("<NessusClientData>"))
 			@import_filedata[:type] = "Nessus XML (v1)"
 			return :nessus_xml
@@ -2303,6 +2849,7 @@ class DBManager
 			line_count = 0
 			data.each_line { |line|
 				line =~ /<([a-zA-Z0-9\-\_]+)[ >]/
+
 				case $1
 				when "niktoscan"
 					@import_filedata[:type] = "Nikto XML"
@@ -2322,6 +2869,9 @@ class DBManager
 				when "SCAN"
 					@import_filedata[:type] = "Qualys Scan XML"
 					return :qualys_scan_xml
+				when "report"
+					@import_filedata[:type] = "Wapiti XML"
+					return :wapiti_xml
 				when "ASSET_DATA_REPORT"
 					@import_filedata[:type] = "Qualys Asset XML"
 					return :qualys_asset_xml
@@ -2454,11 +3004,53 @@ class DBManager
 		end
 	end
 
+	def import_wapiti_xml_file(args={})
+		filename = args[:filename]
+		wspace = args[:wspace] || workspace
+
+		data = ""
+		::File.open(filename, 'rb') do |f|
+			data = f.read(f.stat.size)
+    		end
+		import_wapiti_xml(args.merge(:data => data))
+	end
+
+	def import_wapiti_xml(args={}, &block)
+		if block
+			doc = Rex::Parser::WapitiDocument.new(args,framework.db) {|type, data| yield type,data }
+		else
+			doc = Rex::Parser::WapitiDocument.new(args,self)
+		end
+		parser = ::Nokogiri::XML::SAX::Parser.new(doc)
+		parser.parse(args[:data])
+	end
+
+	def import_openvas_new_xml_file(args={})
+		filename = args[:filename]
+		wspace = args[:wspace] || workspace
+
+		data = ""
+		::File.open(filename, 'rb') do |f|
+			data = f.read(f.stat.size)
+		end
+		import_wapiti_xml(args.merge(:data => data))
+	end
+
+	def import_openvas_new_xml(args={}, &block)
+		if block
+			doc = Rex::Parser::OpenVASDocument.new(args,framework.db) {|type, data| yield type,data }
+		else
+			doc = Rex::Parser::OpenVASDocument.new(args,self)
+		end
+		parser = ::Nokogiri::XML::SAX::Parser.new(doc)
+		parser.parse(args[:data])
+	end
+
 	def import_libpcap_file(args={})
 		filename = args[:filename]
 		wspace = args[:wspace] || workspace
 
-		data = PacketFu::PcapFile.new.readfile(filename)
+		data = PacketFu::PcapFile.new(:filename => filename)
 		import_libpcap(args.merge(:data => data))
 	end
 
@@ -2478,7 +3070,7 @@ class DBManager
 		seen_hosts = {}
 		decoded_packets = 0
 		last_count = 0
-		data.body.map {|p| p.data}.each do |p|
+		data.read_packet_bytes do |p|
 			if (decoded_packets >= last_count + 1000) and block
 				yield(:pcap_count, decoded_packets)
 				last_count = decoded_packets
@@ -2649,7 +3241,7 @@ class DBManager
 
 			next unless ip
 			next if bl.include? ip
-	
+
 			conf = {
 			:workspace => wspace,
 			:host      => ip,
@@ -2662,7 +3254,7 @@ class DBManager
 			info << "Serial Number: #{serialno}" unless (serialno.blank? or serialno == name)
 			info << "Location: #{location}" unless location.blank?
 			conf[:info] = info.join(", ") unless info.empty?
-	
+
 			host = report_host(conf)
 			report_import_note(wspace, host)
 		end
@@ -2843,7 +3435,7 @@ class DBManager
 			::File.unlink target if ::File.exists?(target) # Yep. Deleted.
 			data.extract(e,target)
 			if target =~ /^.*.xml$/
-				target_data = ::File.open(target) {|f| f.read 1024}
+				target_data = ::File.open(target, "rb") {|f| f.read 1024}
 				if import_filetype_detect(target_data) == :msf_xml
 					@import_filedata[:zip_extracted_xml] = target
 					#break
@@ -3107,6 +3699,29 @@ class DBManager
 			}
 			host_address = host_data[:host].dup # Preserve after report_host() deletes
 			hobj = report_host(host_data)
+
+			host.elements.each("host_details/host_detail") do |hdet|
+				hdet_data = {}
+				hdet.elements.each do |det|
+					next if ["id", "host-id"].include?(det.name)
+					if det.text
+						hdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
+					end
+				end
+				report_host_details(hobj, hdet_data)
+			end
+
+			host.elements.each("exploit_attempts/exploit_attempt") do |hdet|
+				hdet_data = {}
+				hdet.elements.each do |det|
+					next if ["id", "host-id", "session-id", "vuln-id", "service-id", "loot-id"].include?(det.name)
+					if det.text
+						hdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
+					end
+				end
+				report_exploit_attempt(hobj, hdet_data)
+			end
+
 			host.elements.each('services/service') do |service|
 				service_data = {}
 				service_data[:workspace] = wspace
@@ -3124,6 +3739,7 @@ class DBManager
 				}
 				report_service(service_data)
 			end
+
 			host.elements.each('notes/note') do |note|
 				note_data = {}
 				note_data[:workspace] = wspace
@@ -3144,6 +3760,7 @@ class DBManager
 				}
 				report_note(note_data)
 			end
+
 			host.elements.each('tags/tag') do |tag|
 				tag_data = {}
 				tag_data[:addr] = host_address
@@ -3161,6 +3778,7 @@ class DBManager
 				end
 				report_host_tag(tag_data)
 			end
+
 			host.elements.each('vulns/vuln') do |vuln|
 				vuln_data = {}
 				vuln_data[:workspace] = wspace
@@ -3178,8 +3796,32 @@ class DBManager
 						vuln_data[:refs] << nils_for_nulls(ref.text.to_s.strip)
 					end
 				end
-				report_vuln(vuln_data)
+
+				vobj = report_vuln(vuln_data)
+
+				vuln.elements.each("vuln_details/vuln_detail") do |vdet|
+					vdet_data = {}
+					vdet.elements.each do |det|
+						next if ["id", "vuln-id"].include?(det.name)
+						if det.text
+							vdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
+						end
+					end
+					report_vuln_details(vobj, vdet_data)
+				end
+
+				vuln.elements.each("vuln_attempts/vuln_attempt") do |vdet|
+					vdet_data = {}
+					vdet.elements.each do |det|
+						next if ["id", "vuln-id", "loot-id", "session-id"].include?(det.name)
+						if det.text
+							vdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
+						end
+					end
+					report_vuln_attempt(vobj, vdet_data)
+				end
 			end
+
 			host.elements.each('creds/cred') do |cred|
 				cred_data = {}
 				cred_data[:workspace] = wspace
@@ -3553,8 +4195,6 @@ class DBManager
 					vstruct.refs.push('MSB-' + ref["value"])
 				elsif ref['source'] == 'URL'
 					vstruct.refs.push('URL-' + ref["value"])
-					#else
-					#	$stdout.puts("Unknown source: #{ref["source"]}")
 				end
 			end
 			ret.push vstruct
@@ -3602,7 +4242,7 @@ class DBManager
 			h["notes"].each do |v,k|
 				note[:data][v] ||= []
 				next if note[:data][v].include? k
-			 	note[:data][v] << k
+				note[:data][v] << k
 			end
 			report_note(note)
 		end
@@ -4144,6 +4784,15 @@ class DBManager
 		res
 	end
 
+	def import_fusionvm_xml(args={})
+		args[:wspace] ||= workspace
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+		doc = Rex::Parser::FusionVMDocument.new(args,self)
+		parser = ::Nokogiri::XML::SAX::Parser.new(doc)
+		parser.parse(args[:data])
+	end
+
+
 	#
 	# Import Nmap's -oX xml output
 	#
@@ -4409,26 +5058,50 @@ class DBManager
 		REXML::Document.parse_stream(data, parser)
 	end
 
-	# This is starting to be more than just nmap -> msf, other
-	# things are creeping in here. Consider renaming the method
-	# and intentionally making it more general.
 	def nmap_msf_service_map(proto)
+		service_name_map(proto)
+	end
+
+	#
+	# This method normalizes an incoming service name to one of the
+	# the standard ones recognized by metasploit
+	# 
+	def service_name_map(proto)
 		return proto unless proto.kind_of? String
 		case proto.downcase
-		when "msrpc", "nfs-or-iis";         "dcerpc"
-		when "netbios-ns";                  "netbios"
-		when "netbios-ssn", "microsoft-ds"; "smb"
-		when "ms-sql-s";                    "mssql"
-		when "ms-sql-m";                    "mssql-m"
+		when "msrpc", "nfs-or-iis", "dce endpoint resolution"
+			"dcerpc"
+		when "ms-sql-s", "tds"
+			"mssql"
+		when "ms-sql-m","microsoft sql monitor"
+			"mssql-m"
 		when "postgresql";                  "postgres"
 		when "http-proxy";                  "http"
 		when "iiimsf";                      "db2"
 		when "oracle-tns";                  "oracle"
 		when "quickbooksrds";               "metasploit"
+		when "microsoft remote display protocol"
+			"rdp"
+		when "vmware authentication daemon"
+			"vmauthd"
+		when "netbios-ns", "cifs name service"
+			"netbios"
+		when "netbios-ssn", "microsoft-ds", "cifs"
+			"smb"
+		when "remote shell"
+			"shell"
+		when "remote login"
+			"login"
+		when "nfs lockd"
+			"lockd"
+		when "hp jetdirect"
+			"jetdirect"
+		when "dhcp server"
+			"dhcp"
 		when /^dns-(udp|tcp)$/;             "dns"
 		when /^dce[\s+]rpc$/;               "dcerpc"
 		else
-			proto.downcase
+			proto.downcase.gsub(/\s*\(.*/, '')   # "service (some service)"
 		end
 	end
 
@@ -4921,7 +5594,7 @@ class DBManager
 
 		base = ::File.join(Msf::Config.config_directory, "data", "ncircle")
 		::FileUtils.mkdir_p(base)
-		::File.open(::File.join(base, "ip360.aspl"), "w") do |fd|
+		::File.open(::File.join(base, "ip360.aspl"), "wb") do |fd|
 			fd.write(data)
 		end
 		yield(:notice, "Saved the IP360 ASPL database to #{base}...")
@@ -4967,12 +5640,6 @@ class DBManager
 			@asplhash = asplh
 		}
 		REXML::Document.parse_stream(aspl, parser)
-
-		#@host = {'hname' => nil, 'addr' => nil, 'mac' => nil, 'os' => nil, 'hid' => nil,
-                #         'vulns' => ['vuln' => {'vulnid' => nil, 'port' => nil, 'proto' => nil	} ],
-                #         'apps' => ['app' => {'appid' => nil, 'svcid' => nil, 'port' => nil, 'proto' => nil } ],
-                #         'shares' => []
-                #        }
 
 		# nCircle has some quotes escaped which causes the parser to break
 		# we don't need these lines so just replace \" with "
@@ -5394,18 +6061,26 @@ class DBManager
 	# address
 	#
 	def normalize_host(host)
-		return host if host.kind_of? Host
+		return host if host.kind_of? ::Mdm::Host
 		norm_host = nil
 
 		if (host.kind_of? String)
-		
-			# If it's an IPv4 addr with a port on the end, strip the port
-			if Rex::Socket.is_ipv4?(host) and host =~ /((\d{1,3}\.){3}\d{1,3}):\d+/
-				norm_host = $1
+
+			if Rex::Socket.is_ipv4?(host)
+				# If it's an IPv4 addr with a port on the end, strip the port
+				if host =~ /((\d{1,3}\.){3}\d{1,3}):\d+/
+					norm_host = $1
+				else
+					norm_host = host
+				end
+			elsif Rex::Socket.is_ipv6?(host)
+				# If it's an IPv6 addr, drop the scope
+				address, scope = host.split('%', 2)
+				norm_host = address
 			else
-				norm_host = host
+				norm_host = Rex::Socket.getaddress(host, true)
 			end
-		elsif host.kind_of? Session
+		elsif host.kind_of? ::Mdm::Session
 			norm_host = host.host
 		elsif host.respond_to?(:session_host)
 			# Then it's an Msf::Session object
@@ -5438,12 +6113,6 @@ class DBManager
 	# Used by the SAX parsers.
 	def emit(sym,data,&block)
 		yield(sym,data)
-	end
-
-	# Debug logger
-	def xxx(desc,thing)
-		$stderr.puts "**** #{desc} ****"
-		$stderr.puts thing.inspect
 	end
 
 protected

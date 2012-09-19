@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'           => 'DNS and DNSSEC fuzzer',
+			'Name'           => 'DNS and DNSSEC Fuzzer',
 			'Description'    => %q{
 				This module will connect to a DNS server and perform DNS and
 				DNSSEC protocol-level fuzzing. Note that this module may inadvertently

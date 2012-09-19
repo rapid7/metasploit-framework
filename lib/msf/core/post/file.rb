@@ -1,22 +1,101 @@
+# -*- coding: binary -*-
 
-module Msf
-class Post
-
-module File
+module Msf::Post::File
 
 	#
-	# Check for a file on the remote system
+	# Change directory in the remote session to +path+
 	#
-	def file_exist?(file)
+	def cd(path)
 		if session.type == "meterpreter"
-			stat = session.fs.file.stat(file) rescue nil
+			e_path = session.fs.file.expand_path(path) rescue path
+			session.fs.dir.chdir(e_path)
+		else
+			session.shell_command_token("cd '#{path}'")
+		end
+	end
+
+	#
+	# Returns the current working directory in the remote session
+	#
+	def pwd
+		if session.type == "meterpreter"
+			return session.fs.dir.getwd
+		else
+			if session.platform =~ /win/
+				# XXX: %CD% only exists on XP and newer, figure something out for NT4
+				# and 2k
+				return session.shell_command_token("echo %CD%")
+			else
+				return session.shell_command_token("pwd")
+			end
+		end
+	end
+
+	#
+	# See if +path+ exists on the remote system and is a directory
+	#
+	def directory?(path)
+		if session.type == "meterpreter"
+			stat = session.fs.file.stat(path) rescue nil
+			return false unless stat
+			return stat.directory?
+		else
+			if session.platform =~ /win/
+				# XXX
+			else
+				f = session.shell_command_token("test -d '#{path}' && echo true")
+				return false if f.nil? or f.empty?
+				return false unless f =~ /true/
+				return true
+			end
+		end
+	end
+
+	#
+	# Expand any environment variables to return the full path specified by +path+.
+	#
+	def expand_path(path)
+		if session.type == "meterpreter"
+			return session.fs.file.expand_path(path)
+		else
+			return cmd_exec("echo #{path}")
+		end
+	end
+
+	#
+	# See if +path+ exists on the remote system and is a regular file
+	#
+	def file?(path)
+		if session.type == "meterpreter"
+			stat = session.fs.file.stat(path) rescue nil
 			return false unless stat
 			return stat.file?
 		else
 			if session.platform =~ /win/
 				# XXX
 			else
-				f = session.shell_command_token("test -f '#{file}' && echo true")
+				f = session.shell_command_token("test -f '#{path}' && echo true")
+				return false if f.nil? or f.empty?
+				return false unless f =~ /true/
+				return true
+			end
+		end
+	end
+
+	alias file_exist? file?
+
+	#
+	# Check for existence of +path+ on the remote file system
+	#
+	def exist?(path)
+		if session.type == "meterpreter"
+			stat = session.fs.file.stat(path) rescue nil
+			return !!(stat)
+		else
+			if session.platform =~ /win/
+				# XXX
+			else
+				f = session.shell_command_token("test -e '#{path}' && echo true")
 				return false if f.nil? or f.empty?
 				return false unless f =~ /true/
 				return true
@@ -40,7 +119,7 @@ module File
 	end
 
 	#
-	# Writes a given string to a file specified
+	# Writes a given string to a given local file
 	#
 	def file_local_write(file2wrt, data2wrt)
 		if not ::File.exists?(file2wrt)
@@ -71,7 +150,6 @@ module File
 	#
 	# Returns a MD5 checksum of a given remote file
 	#
-
 	def file_remote_digestmd5(file2md5)
 		data = read_file(file2md5)
 		chksum = nil
@@ -195,6 +273,31 @@ module File
 		return true
 	end
 
+	#
+	# Read a local file +local+ and write it as +remote+ on the remote file 
+	# system
+	#
+	def upload_file(remote, local)
+		write_file(remote, ::File.read(local))
+	end
+
+	#
+	# Delete remote files
+	#
+	def rm_f(*remote_files)
+		remote_files.each do |remote|
+			if session.type == "meterpreter"
+				session.fs.file.delete(remote)
+			else
+				if session.platform =~ /win/
+					cmd_exec("del /q /f #{remote}")
+				else
+					cmd_exec("rm -f #{remote}")
+				end
+			end
+		end
+	end
+
 
 protected
 	#
@@ -212,7 +315,7 @@ protected
 			return nil
 		end
 
-		data = ''
+		data = fd.read
 		begin
 			until fd.eof?
 				data << fd.read
@@ -247,77 +350,98 @@ protected
 
 		chunks = []
 		command = nil
+		encoding = :hex
+		cmd_name = ""
 
 		line_max = _unix_max_line_length
 		# Leave plenty of room for the filename we're writing to and the
 		# command to echo it out
-		line_max -= file_name.length - 64
+		line_max -= file_name.length
+		line_max -= 64
 
-		# Default to simple echo. If the data is binary, though, we have to do
-		# something fancy
-		if d =~ /[^[:print:]]/
-			# Ordered by descending likeliness to work
-			[
-				%q^perl -e 'print("\x41")'^,
-				# POSIX awk doesn't have \xNN escapes, use gawk to ensure we're
-				# getting the GNU version.
-				%q^gawk 'BEGIN {ORS = ""; print "\x41"}' </dev/null^,
-				# bash and zsh's echo builtins are apparently the only ones
-				# that support both -e and -n as we need them.  Most others
-				# treat all options as just more arguments to print. In
-				# particular, the standalone /bin/echo or /usr/bin/echo appear
-				# never to have -e so don't bother trying them.
-				%q^echo -ne '\x41'^,
-				# printf seems to have different behavior on bash vs sh vs
-				# other shells, try a full path (and hope it's the actual path)
-				%q^/usr/bin/printf '\x41'^,
-				%q^printf '\x41'^,
-			].each { |c|
-				a = session.shell_command_token("#{c}")
-				if "A" == a
-					command = c
-					break
-				#else
-				#	p a
-				end
-			}
+		# Ordered by descending likeliness to work
+		[
+			# POSIX standard requires %b which expands octal (but not hex)
+			# escapes in the argument. However, some versions truncate input on
+			# nulls, so "printf %b '\0\101'" produces a 0-length string. The
+			# standalone version seems to be more likely to work than the buitin
+			# version, so try it first
+			{ :cmd => %q^/usr/bin/printf %b 'CONTENTS'^ , :enc => :octal, :name => "printf" },
+			{ :cmd => %q^printf %b 'CONTENTS'^ , :enc => :octal, :name => "printf" },
+			# Perl supports both octal and hex escapes, but octal is usually
+			# shorter (e.g. 0 becomes \0 instead of \x00)
+			{ :cmd => %q^perl -e 'print("CONTENTS")'^ , :enc => :octal, :name => "perl" },
+			# POSIX awk doesn't have \xNN escapes, use gawk to ensure we're
+			# getting the GNU version.
+			{ :cmd => %q^gawk 'BEGIN {ORS="";print "CONTENTS"}' </dev/null^ , :enc => :hex, :name => "awk" },
+			# xxd's -p flag specifies a postscript-style hexdump of unadorned hex
+			# digits, e.g. ABCD would be 41424344
+			{ :cmd => %q^echo 'CONTENTS'|xxd -p -r^ , :enc => :bare_hex, :name => "xxd" },
+			# Use echo as a last resort since it frequently doesn't support -e
+			# or -n.  bash and zsh's echo builtins are apparently the only ones
+			# that support both.  Most others treat all options as just more
+			# arguments to print. In particular, the standalone /bin/echo or
+			# /usr/bin/echo appear never to have -e so don't bother trying
+			# them.
+			{ :cmd => %q^echo -ne 'CONTENTS'^ , :enc => :hex },
+		].each { |foo|
+			# Some versions of printf mangle %.
+			test_str = "\0\xff\xfeABCD\x7f%%\r\n"
+			#test_str = "\0\xff\xfe"
+			case foo[:enc]
+			when :hex
+				cmd = foo[:cmd].sub("CONTENTS"){ Rex::Text.to_hex(test_str) }
+			when :octal
+				cmd = foo[:cmd].sub("CONTENTS"){ Rex::Text.to_octal(test_str) }
+			when :bare_hex
+				cmd = foo[:cmd].sub("CONTENTS"){ Rex::Text.to_hex(test_str,'') }
+			end
+			a = session.shell_command_token("#{cmd}")
 
-			if command.nil?
-				raise RuntimeError, "Can't find command on the victim for writing binary data", caller
+			if test_str == a
+				command = foo[:cmd]
+				encoding = foo[:enc]
+				cmd_name = foo[:name]
+				break
+			else
+				vprint_status("#{cmd} Failed: #{a.inspect} != #{test_str.inspect}")
 			end
+		}
 
-			# each byte will balloon up to 4 when we hex encode
-			max = line_max/4
-			i = 0
-			while (i < d.length)
-				chunks << Rex::Text.to_hex(d.slice(i...(i+max)))
-				i += max
-			end
-		else
-			i = 0
-			while (i < d.length)
-				chunk = d.slice(i...(i+line_max))
-				# POSIX standard says single quotes cannot appear inside single
-				# quotes and can't be escaped. Replace them with an equivalent.
-				# (Close single quotes, open double quotes containing a single
-				# quote, re-open single qutoes)
-				chunk.gsub!("'", %q|'"'"'|)
-				chunks << chunk
-				i += line_max
-			end
-			command = "echo -n '\\x41'"
+		if command.nil?
+			raise RuntimeError, "Can't find command on the victim for writing binary data", caller
 		end
-		vprint_status("Writing #{d.length} bytes in #{chunks.length} chunks, using #{command.split(" ",2).first}")
+
+		# each byte will balloon up to 4 when we encode
+		# (A becomes \x41 or \101)
+		max = line_max/4
+
+		i = 0
+		while (i < d.length)
+			slice = d.slice(i...(i+max))
+			case encoding
+			when :hex
+				chunks << Rex::Text.to_hex(slice)
+			when :octal
+				chunks << Rex::Text.to_octal(slice)
+			when :bare_hex
+				chunks << Rex::Text.to_hex(slice,'')
+			end
+			i += max
+		end
+
+		vprint_status("Writing #{d.length} bytes in #{chunks.length} chunks of #{chunks.first.length} bytes (#{encoding}-encoded), using #{cmd_name}")
 
 		# The first command needs to use the provided redirection for either
 		# appending or truncating.
-		cmd = command.sub("\\x41", chunks.shift)
+		cmd = command.sub("CONTENTS") { chunks.shift }
 		session.shell_command_token("#{cmd} #{redirect} '#{file_name}'")
 
 		# After creating/truncating or appending with the first command, we
 		# need to append from here on out.
 		chunks.each { |chunk|
-			cmd = command.sub("\\x41", chunk)
+			vprint_status("Next chunk is #{chunk.length} bytes")
+			cmd = command.sub("CONTENTS") { chunk }
 
 			session.shell_command_token("#{cmd} >> '#{file_name}'")
 		}
@@ -325,6 +449,9 @@ protected
 		true
 	end
 
+	#
+	# Calculate the maximum line length for a unix shell.
+	#
 	def _unix_max_line_length
 		# Based on autoconf's arg_max calculator, see
 		# http://www.in-ulm.de/~mascheck/various/argmax/autoconf_check.html
@@ -336,11 +463,12 @@ protected
 				i=`expr $i + 1`; str=$str$str;\
 			done; echo $max'
 		line_max = session.shell_command_token(calc_line_max).to_i
+
+		# Fall back to a conservative 4k which should work on even the most
+		# restrictive of embedded shells.
 		line_max = (line_max == 0 ? 4096 : line_max)
+		vprint_status("Max line length is #{line_max}")
 
 		line_max
 	end
-end
-
-end
 end

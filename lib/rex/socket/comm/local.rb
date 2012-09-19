@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'singleton'
 require 'rex/socket'
 require 'rex/socket/tcp'
@@ -222,22 +223,22 @@ class Rex::Socket::Comm::Local
 
 			# If we were supplied with host information
 			if (param.peerhost)
-		
+
 				# A flag that indicates whether we need to try multiple scopes
 				retry_scopes = false
-				
+
 				# Always retry with link-local IPv6 addresses
 				if Rex::Socket.is_ipv6?( param.peerhost ) and param.peerhost =~ /^fe80::/
 					retry_scopes = true
 				end
-		
+
 				# Prepare a list of scope IDs to try when connecting to
 				# link-level addresses. Read from /proc if it is available,
 				# otherwise increment through the first 255 IDs.
 				@@ip6_lla_scopes ||= []
-				
+
 				if @@ip6_lla_scopes.length == 0 and retry_scopes
-				
+
 					# Linux specific interface lookup code
 					if ::File.exists?( "/proc/self/net/igmp6" )
 						::File.open("/proc/self/net/igmp6") do |fd|
@@ -245,11 +246,11 @@ class Rex::Socket::Comm::Local
 								line = line.strip
 								tscope, tint, junk = line.split(/\s+/, 3)
 								next if not tint
-								
+
 								# Specifying lo in any connect call results in the socket
 								# being unusable, even if the correct interface is set.
 								next if tint == "lo"
-								
+
 								@@ip6_lla_scopes << tscope
 							end
 						end
@@ -258,7 +259,7 @@ class Rex::Socket::Comm::Local
 						[*(1 .. 255)].map{ |x| @@ip6_lla_scopes << x.to_s }
 					end
 				end
-				
+
 				ip6_scope_idx = 0
 				ip   = param.peerhost
 				port = param.peerport
@@ -269,7 +270,7 @@ class Rex::Socket::Comm::Local
 					ip = chain[0][1]
 					port = chain[0][2].to_i
 				end
-									
+
 				begin
 
 					begin
@@ -284,11 +285,11 @@ class Rex::Socket::Comm::Local
 
 					# Rescue errors caused by a bad Scope ID for a link-local address
 					if retry_scopes and @@ip6_lla_scopes[ ip6_scope_idx ]
-						ip = param.peerhost + "%" + @@ip6_lla_scopes[ ip6_scope_idx ]			
+						ip = param.peerhost + "%" + @@ip6_lla_scopes[ ip6_scope_idx ]
 						ip6_scope_idx += 1
 						retry
 					end
-				
+
 					sock.close
 					raise Rex::HostUnreachable.new(param.peerhost, param.peerport), caller
 

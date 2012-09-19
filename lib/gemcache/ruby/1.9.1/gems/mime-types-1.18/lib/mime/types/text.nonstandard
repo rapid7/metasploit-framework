@@ -1,0 +1,6 @@
+text/x-component @htc :8bit
+text/x-setext @etx
+text/x-vcalendar @vcs :8bit
+text/x-vcard @vcf :8bit
+text/x-yaml @yaml,yml :8bit
+text/x-coffescript @coffee :8bit

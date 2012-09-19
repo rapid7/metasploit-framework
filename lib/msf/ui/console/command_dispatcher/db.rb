@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 
 require 'rexml/document'
 require 'rex/parser/nmap_xml'
@@ -44,12 +45,24 @@ class Db
 				"db_import"     => "Import a scan result file (filetype will be auto-detected)",
 				"db_export"     => "Export a file containing the contents of the database",
 				"db_nmap"       => "Executes nmap and records the output automatically",
+				"db_rebuild_cache" => "Rebuilds the database-stored module cache"
 			}
 
 			# Always include commands that only make sense when connected.
 			# This avoids the problem of them disappearing unexpectedly if the
 			# database dies or times out.  See #1923
 			base.merge(more)
+		end
+
+		def deprecated_commands
+			[
+				"db_autopwn",
+				"db_driver",
+				"db_hosts",
+				"db_notes",
+				"db_services",
+				"db_vulns",
+			]
 		end
 
 		#
@@ -80,6 +93,7 @@ class Db
 
 		def cmd_workspace(*args)
 			return unless active?
+		::ActiveRecord::Base.connection_pool.with_connection {
 			while (arg = args.shift)
 				case arg
 				when '-h','--help'
@@ -166,6 +180,7 @@ class Db
 					print_line("#{pad}#{s.name}")
 				end
 			end
+		}
 		end
 
 		def cmd_workspace_tabs(str, words)
@@ -183,6 +198,7 @@ class Db
 
 		def cmd_hosts(*args)
 			return unless active?
+		::ActiveRecord::Base.connection_pool.with_connection {
 			onlyup = false
 			host_search = nil
 			set_rhosts = false
@@ -193,7 +209,7 @@ class Db
 			search_term = nil
 
 			output = nil
-			default_columns = ::Msf::DBManager::Host.column_names.sort
+			default_columns = ::Mdm::Host.column_names.sort
 			virtual_columns = [ 'svcs', 'vulns', 'workspace' ]
 
 			col_search = [ 'address', 'mac', 'name', 'os_name', 'os_flavor', 'os_sp', 'purpose', 'info', 'comments']
@@ -330,6 +346,7 @@ class Db
 			# of hosts to go into RHOSTS.
 			set_rhosts_from_addrs(rhosts) if set_rhosts
 			print_status("Deleted #{delete_count} hosts") if delete_count > 0
+		}
 		end
 
 		def cmd_services_help
@@ -340,12 +357,13 @@ class Db
 
 		def cmd_services(*args)
 			return unless active?
+		::ActiveRecord::Base.connection_pool.with_connection {
 			mode = :search
 			onlyup = false
 			output_file = nil
 			set_rhosts = nil
 			col_search = ['port', 'proto', 'name', 'state', 'info']
-			default_columns = ::Msf::DBManager::Service.column_names.sort
+			default_columns = ::Mdm::Service.column_names.sort
 			default_columns.delete_if {|v| (v[-2,2] == "id")}
 
 			host_ranges = []
@@ -514,6 +532,7 @@ class Db
 			set_rhosts_from_addrs(rhosts) if set_rhosts
 			print_status("Deleted #{delete_count} services") if delete_count > 0
 
+		}
 		end
 
 
@@ -526,6 +545,7 @@ class Db
 			print_line "  -p,--port <portspec>  List vulns matching this port spec"
 			print_line "  -s <svc names>        List vulns matching these service names"
 			print_line "  -S,--search           Search string to filter by"
+			print_line "  -i,--info             Display Vuln Info"
 			print_line
 			print_line "Examples:"
 			print_line "  vulns -p 1-65536          # only vulns with associated services"
@@ -536,11 +556,13 @@ class Db
 
 		def cmd_vulns(*args)
 			return unless active?
+		::ActiveRecord::Base.connection_pool.with_connection {
 
 			host_ranges = []
 			port_ranges = []
 			svcs        = []
 			search_term = nil
+			show_info   = false
 
 			# Short-circuit help
 			if args.delete "-h"
@@ -571,6 +593,8 @@ class Db
 					svcs = service.split(/[\s]*,[\s]*/)
 				when '-S', '--search'
 					search_term = /#{args.shift}/nmi
+				when '-i', '--info'
+					show_info = true
 				else
 					# Anything that wasn't an option is a host to search for
 					unless (arg_host_range(arg, host_ranges))
@@ -600,15 +624,17 @@ class Db
 							next unless ports.empty? or ports.include? vuln.service.port
 							# Same for service names
 							next unless svcs.empty? or svcs.include?(vuln.service.name)
-							print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} port=#{vuln.service.port} proto=#{vuln.service.proto} name=#{vuln.name} refs=#{reflist.join(',')}")
+							print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')} #{(show_info && vuln.info) ? "info=#{vuln.info}" : ""}")
+
 						else
 							# This vuln has no service, so it can't match
 							next unless ports.empty? and svcs.empty?
-							print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')}")
+							print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')} #{(show_info && vuln.info) ? "info=#{vuln.info}" : ""}")
 						end
 					end
 				end
 			end
+		}
 		end
 
 
@@ -643,6 +669,7 @@ class Db
 		#
 		def cmd_creds(*args)
 			return unless active?
+		::ActiveRecord::Base.connection_pool.with_connection {
 
 			search_param = nil
 			inactive_ok = false
@@ -817,6 +844,7 @@ class Db
 
 			set_rhosts_from_addrs(rhosts) if set_rhosts
 			print_status "Found #{creds_returned} credential#{creds_returned == 1 ? "" : "s"}."
+		}
 		end
 
 		def cmd_notes_help
@@ -838,6 +866,7 @@ class Db
 
 		def cmd_notes(*args)
 			return unless active?
+		::ActiveRecord::Base.connection_pool.with_connection {
 			mode = :search
 			data = nil
 			types = nil
@@ -945,6 +974,7 @@ class Db
 			set_rhosts_from_addrs(rhosts) if set_rhosts
 
 			print_status("Deleted #{delete_count} note#{delete_count == 1 ? "" : "s"}") if delete_count > 0
+		}
 		end
 
 		def cmd_loot_help
@@ -958,6 +988,7 @@ class Db
 
 		def cmd_loot(*args)
 			return unless active?
+		::ActiveRecord::Base.connection_pool.with_connection {
 			mode = :search
 			host_ranges = []
 			types = nil
@@ -1052,17 +1083,47 @@ class Db
 			print_line
 			print_line tbl.to_s
 			print_status "Deleted #{delete_count} loots" if delete_count > 0
+		}
 		end
 
+		# :category: Deprecated Commands
+		def cmd_db_hosts_help; deprecated_help(:hosts); end
+		# :category: Deprecated Commands
+		def cmd_db_notes_help; deprecated_help(:notes); end
+		# :category: Deprecated Commands
+		def cmd_db_vulns_help; deprecated_help(:vulns); end
+		# :category: Deprecated Commands
+		def cmd_db_services_help; deprecated_help(:services); end
+		# :category: Deprecated Commands
+		def cmd_db_autopwn_help; deprecated_help; end
+		# :category: Deprecated Commands
+		def cmd_db_driver_help; deprecated_help; end
 
+		# :category: Deprecated Commands
+		def cmd_db_hosts(*args); deprecated_cmd(:hosts, *args); end
+		# :category: Deprecated Commands
+		def cmd_db_notes(*args); deprecated_cmd(:notes, *args); end
+		# :category: Deprecated Commands
+		def cmd_db_vulns(*args); deprecated_cmd(:vulns, *args); end
+		# :category: Deprecated Commands
+		def cmd_db_services(*args); deprecated_cmd(:services, *args); end
+		# :category: Deprecated Commands
+		def cmd_db_autopwn(*args); deprecated_cmd; end
+
+		# :category: Deprecated Commands
 		#
-		# Determine if an IP address is inside a given range
+		# This one deserves a little more explanation than standard deprecation
+		# warning, so give the user a better understanding of what's going on.
 		#
-		def range_include?(ranges, addr)
-			ranges.each do |range|
-				return true if range.include? addr
-			end
-			false
+		def cmd_db_driver(*args)
+			deprecated_cmd
+			print_line
+			print_line "Because Metasploit no longer supports databases other than the default"
+			print_line "PostgreSQL, there is no longer a need to set the driver. Thus db_driver"
+			print_line "is not useful and its functionality has been removed. Usually Metasploit"
+			print_line "will already have connected to the database; check db_status to see."
+			print_line
+			cmd_db_status
 		end
 
 		def cmd_db_import_tabs(str, words)
@@ -1101,6 +1162,7 @@ class Db
 		#
 		def cmd_db_import(*args)
 			return unless active?
+		::ActiveRecord::Base.connection_pool.with_connection {
 			if (args.include?("-h") or not (args and args.length > 0))
 				cmd_db_import_help
 				return
@@ -1171,6 +1233,7 @@ class Db
 					end
 				}
 			}
+		}
 		end
 
 		def cmd_db_export_help
@@ -1184,6 +1247,7 @@ class Db
 		#
 		def cmd_db_export(*args)
 			return unless active?
+		::ActiveRecord::Base.connection_pool.with_connection {
 
 			export_formats = %W{xml pwdump}
 			format = 'xml'
@@ -1214,7 +1278,7 @@ class Db
 			end
 
 			print_status("Starting export of workspace #{framework.db.workspace.name} to #{output} [ #{format} ]...")
-			exporter = Msf::DBManager::Export.new(framework.db.workspace)
+			exporter = ::Msf::DBManager::Export.new(framework.db.workspace)
 
 			exporter.send("to_#{format}_file".intern,output) do |mtype, mstatus, mname|
 				if mtype == :status
@@ -1227,6 +1291,7 @@ class Db
 				end
 			end
 			print_status("Finished export of workspace #{framework.db.workspace.name} to #{output} [ #{format} ]...")
+		}
 		end
 
 		#
@@ -1234,6 +1299,7 @@ class Db
 		#
 		def cmd_db_nmap(*args)
 			return unless active?
+		::ActiveRecord::Base.connection_pool.with_connection {
 			if (args.length == 0)
 				print_status("Usage: db_nmap [nmap options]")
 				return
@@ -1303,6 +1369,7 @@ class Db
 				print_status "Saved NMAP XML results to #{saved_path}"
 			end
 			fd.close(true)
+		}
 		end
 
 
@@ -1329,10 +1396,13 @@ class Db
 		#
 		def cmd_db_status(*args)
 			return if not db_check_driver
-			if ActiveRecord::Base.connected? and ActiveRecord::Base.connection.active?
-				if ActiveRecord::Base.connection.respond_to? :current_database
-					cdb = ActiveRecord::Base.connection.current_database
-				end
+			if ::ActiveRecord::Base.connected?
+				cdb = ""
+				::ActiveRecord::Base.connection_pool.with_connection { |conn|
+					if conn.respond_to? :current_database
+						cdb = conn.current_database
+					end
+				}
 				print_status("#{framework.db.driver} connected to #{cdb}")
 			else
 				print_status("#{framework.db.driver} selected, no connection")
@@ -1355,12 +1425,26 @@ class Db
 				if (::File.exists? ::File.expand_path(file))
 					db = YAML.load(::File.read(file))['production']
 					framework.db.connect(db)
+
+					if framework.db.active and not framework.db.modules_cached
+						print_status("Rebuilding the module cache in the background...")
+						framework.threads.spawn("ModuleCacheRebuild", true) do
+							framework.db.update_all_module_details
+						end
+					end
+
 					return
 				end
 			end
 			meth = "db_connect_#{framework.db.driver}"
 			if(self.respond_to?(meth))
 				self.send(meth, *args)
+				if framework.db.active and not framework.db.modules_cached
+					print_status("Rebuilding the module cache in the background...")
+					framework.threads.spawn("ModuleCacheRebuild", true) do
+						framework.db.update_all_module_details
+					end
+				end
 			else
 				print_error("This database driver #{framework.db.driver} is not currently supported")
 			end
@@ -1386,6 +1470,26 @@ class Db
 			end
 		end
 
+
+		def cmd_db_rebuild_cache
+			unless framework.db.active
+				print_error("The database is not connected")
+				return
+			end
+					
+			print_status("Purging and rebuilding the module cache in the background...")
+			framework.threads.spawn("ModuleCacheRebuild", true) do
+				framework.db.purge_all_module_details
+				framework.db.update_all_module_details
+			end
+		end
+
+		def cmd_db_rebuild_cache_help
+			print_line "Usage: db_rebuild_cache"
+			print_line
+			print_line "Purge and rebuild the SQL module cache."
+			print_line
+		end
 
 		#
 		# Set RHOSTS in the +active_module+'s (or global if none) datastore from an array of addresses

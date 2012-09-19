@@ -1,0 +1,26 @@
+0.10.0
+  - Make sure the fetch robots.txt operation happens with a user agent (via rb2k)
+0.9.0
+  - Fix http://github.com/fizx/robots/issues#issue/1
+  - Tests don't rely on network.
+0.8.0
+  - Add multiple values from robots.txt (via joost)
+0.7.3
+  - Move to jeweler, gemcutter
+0.7.2
+  - Add Ruby 1.9 compatibility
+0.5-0.7.1
+  - Lost the changelog information :/
+0.4.0 
+  - Fixed other_values bug
+  - added crawl-delay support
+0.3.2
+	- fixed breaking on reddit.com
+0.3.1
+  - fixed bug in disallows handling
+  - partially mocked out open-uri
+0.3.0
+  - added loggable dependency 
+0.2.0
+	- IF robot.txt 404s, assume allowed.
+  - Added CHANGELOG

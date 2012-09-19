@@ -1,0 +1,15 @@
+<h1>Simple#index</h1>
+
+<h2>ENV</h2>
+<%= request.env.to_yaml %>
+
+<h2>Cookies</h2>
+<%= request.cookies.to_yaml %>
+
+<h2>Params</h2>
+<%= params.to_yaml %>
+
+<% form_tag '/simple' do %>
+  <%= text_field_tag :a %>
+  <%= submit_tag 'Submit' %>
+<% end %>

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'msf/core'
 require 'metasm'
 
@@ -528,11 +529,26 @@ protected
 		end
 
 		# Assemble the payload from the assembly
-		sc = Metasm::Shellcode.assemble(Metasm::Ia32.new, asm).encoded
+		a = self.arch
+		if a.kind_of? Array
+			a = self.arch.first
+		end
+		cpu = case a
+			when ARCH_X86    then Metasm::Ia32.new
+			when ARCH_X86_64 then Metasm::X86_64.new
+			when ARCH_X64    then Metasm::X86_64.new
+			when ARCH_PPC    then Metasm::PowerPC.new
+			when ARCH_ARMLE  then Metasm::ARM.new
+			else
+				elog("Broken payload #{refname} has arch unsupported with assembly: #{module_info["Arch"].inspect}")
+				elog("Call stack:\n#{caller.join("\n")}")
+				return ""
+			end
+		sc = Metasm::Shellcode.assemble(cpu, asm).encoded
 
 		# Calculate the actual offsets now that it's been built
 		off.each_pair { |option, val|
-			off[option] = [ sc.offset_of_reloc(option), val[1] ]
+			off[option] = [ sc.offset_of_reloc(option) || val[0], val[1] ]
 		}
 
 		# Cache the payload blob

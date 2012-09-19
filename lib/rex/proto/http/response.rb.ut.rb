@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..'))
 
@@ -17,7 +18,7 @@ class Rex::Proto::Http::Response::UnitTest < Test::Unit::TestCase
 			"HTTP/1.1 200 OK\r\n" +
 			"Content-Length: 14\r\n" +
 			"Content-Encoding: deflate\r\n\r\n" +
-			"x\234\313\310T\310\315\317\005\000\a\225\002;", 
+			"x\234\313\310T\310\315\317\005\000\a\225\002;",
 			h.to_s, 'deflate'
 			)
 	end
@@ -34,7 +35,7 @@ class Rex::Proto::Http::Response::UnitTest < Test::Unit::TestCase
 
 		assert_equal(
 			"HTTP/1.1 200 OK\r\n" +
-			"Content-Length: 26\r\n"+			
+			"Content-Length: 26\r\n"+
 			"Content-Encoding: gzip\r\n\r\n",
 			http_header, 'http headers'
 			)
@@ -64,7 +65,7 @@ class Rex::Proto::Http::Response::UnitTest < Test::Unit::TestCase
 		assert_equal(
 			"HTTP/1.1 200 OK\r\n" +
 			"Content-Length: 6\r\n" +
-			"Foo: Fishing\r\n" +			
+			"Foo: Fishing\r\n" +
 			"Chicken: 47\r\n\r\nhi mom", h.to_s, 'to_s w/ body')
 	end
 
@@ -84,7 +85,7 @@ class Rex::Proto::Http::Response::UnitTest < Test::Unit::TestCase
 			"Foo: Fishing\r\n" +
 			"Chicken: 47\r\n\r\n0\r\n\r\n", h.to_s, 'chunked w/o body'
 			)
-		
+
 		srand(0)
 		h.body = Rex::Text.rand_text_alphanumeric(100)
 		assert_equal(
@@ -103,10 +104,10 @@ class Rex::Proto::Http::Response::UnitTest < Test::Unit::TestCase
 			"Transfer-Encoding: chunked\r\n" +
 			"Foo: Fishing\r\n" +
 			"Chicken: 47\r\n\r\n" +
-			"1\r\nh\r\n1\r\ni\r\n1\r\n \r\n1\r\nm\r\n1\r\no\r\n1\r\nm\r\n0\r\n\r\n", 
+			"1\r\nh\r\n1\r\ni\r\n1\r\n \r\n1\r\nm\r\n1\r\no\r\n1\r\nm\r\n0\r\n\r\n",
 			h.to_s, '1 byte chunks'
 			)
-		
+
 		h.chunk_min_size = 2
 		assert_equal(
 			"HTTP/1.1 200 OK\r\n" +

@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 				system files. Tested on Solaris 2.6, 7, 8, 9, and 10.
 
 			},
-			'Author'         => [ 'hdm', 'Optyx <optyx@uberhax0r.net>' ],
+			'Author'         => [ 'hdm', 'Optyx <optyx[at]uberhax0r.net>' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
 			'References'     =>

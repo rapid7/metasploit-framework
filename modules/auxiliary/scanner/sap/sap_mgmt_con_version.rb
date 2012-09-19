@@ -98,7 +98,7 @@ class Metasploit4 < Msf::Auxiliary
 					}
 			}, 15)
 
-			if res.code == 200
+			if res and res.code == 200
 				body = res.body
 				if body.match(/<VersionInfo>([^<]+)<\/VersionInfo>/)
 					version = $1
@@ -110,7 +110,7 @@ class Metasploit4 < Msf::Auxiliary
 				else
 					sapsid = "Unknown"
 				end
-			elsif res.code == 500
+			elsif res and res.code == 500
 				case res.body
 				when /<faultstring>(.*)<\/faultstring>/i
 						faultcode = $1

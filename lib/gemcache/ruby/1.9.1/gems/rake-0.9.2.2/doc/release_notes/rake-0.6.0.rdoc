@@ -1,0 +1,141 @@
+= Rake 0.6.0 Released
+
+Its time for some long requested enhancements and lots of bug fixes
+... And a whole new web page.
+
+== New Web Page
+
+The primary documentation for rake has moved from the RubyForge based
+wiki to its own Hieraki based web site.  Constant spam on the wiki
+made it a difficult to keep clean.  The new site will be easier to
+update and organize.
+
+Check out the new documentation at: http://docs.rubyrake.org
+
+We will be adding new documentation to the site as time goes on.
+
+In addition to the new docs page, make sure you check out Martin
+Fowlers article on rake at http://martinfowler.com/articles/rake.html
+
+== Changes
+
+=== New Features
+
+* Multiple prerequisites on Rake rules now allowed.  However, keep the
+  following in mind:
+
+  1. All the prerequisites of a rule must be available before a rule
+     is triggered, where "enabled" means (a) an existing file, (b) a
+     defined rule, or (c) another rule which also must be
+     trigger-able.
+  2. Rules are checked in order of definition, so it is important to
+     order your rules properly.  If a file can be created by two
+     different rules, put the more specific rule first (otherwise the
+     more general rule will trigger first and the specific one will
+     never be triggered).
+  3. The <tt>source</tt> method now returns the name of the first
+     prerequisite listed in the rule.  <tt>sources</tt> returns the
+     names of all the rule prerequisites, ordered as they are defined
+     in the rule.  If the task has other prerequisites not defined in
+     the rule (but defined in an explicit task definition), then they
+     will _not_ be included in the sources list.
+
+* FileLists may now use the egrep command.  This popular enhancement
+  is now a core part of the FileList object.  If you want to get a
+  list of all your to-dos, fixmes and TBD comments, add the following
+  to your Rakefile.
+
+    desc "Look for TODO and FIXME tags in the code"
+    task :todo do
+      FileList['**/*.rb'].egrep /#.*(FIXME|TODO|TBD)/
+    end
+
+* The <tt>investigation</tt> method was added to task object to dump
+  out some important values.  This makes it a bit easier to debug Rake
+  tasks.
+
+  For example, if you are having problems with a particular task, just
+  print it out:
+
+    task :huh do
+      puts Rake::Task['huh'].investigation
+    end
+
+* The Rake::TestTask class now supports a "ruby_opts" option to pass
+  arbitrary ruby options to a test subprocess.
+
+=== Some Incompatibilities
+
+* When using the <tt>ruby</tt> command to start a Ruby subprocess, the
+  Ruby interpreter that is currently running rake is used by default.
+  This makes it easier to use rake in an environment with multiple
+  ruby installation.  (Previously, the first ruby command found in the
+  PATH was used).
+
+  If you wish to chose a different Ruby interpreter, you can
+  explicitly choose the interpreter via the <tt>sh</tt> command.
+
+* The major rake classes (Task, FileTask, FileCreationTask, RakeApp)
+  have been moved out of the toplevel scope and are now accessible as
+  Rake::Task, Rake::FileTask, Rake::FileCreationTask and
+  Rake::Application.  If your Rakefile
+  directly references any one of these tasks, you may:
+
+  1. Update your Rakefile to use the new classnames
+  2. Use the --classic-namespace option on the rake command to get the
+     old behavior,
+  3. Add <code>require 'rake/classic_namespace'</code> to the
+     Rakefile to get the old behavior.
+
+  <tt>rake</tt> will print a rather annoying warning whenever a
+  deprecated class name is referenced without enabling classic
+  namespace.
+
+=== Bug Fixes
+
+* Several unit tests and functional tests were fixed to run better
+  under windows.
+
+* Directory tasks are now a specialized version of a File task.  A
+  directory task will only be triggered if it doesn't exist.  It will
+  not be triggered if it is out of date w.r.t. any of its
+  prerequisites.
+
+* Fixed a bug in the Rake::GemPackageTask class so that the gem now
+  properly contains the platform name.
+
+* Fixed a bug where a prerequisite on a <tt>file</tt> task would cause
+  an exception if the prerequisite did not exist.
+
+== What is Rake
+
+Rake is a build tool similar to the make program in many ways.  But
+instead of cryptic make recipes, Rake uses standard Ruby code to
+declare tasks and dependencies.  You have the full power of a modern
+scripting language built right into your build tool.
+
+== Availability
+
+The easiest way to get and install rake is via RubyGems ...
+
+  gem install rake    (you may need root/admin privileges)
+
+Otherwise, you can get it from the more traditional places:
+
+Home Page:: http://rake.rubyforge.org/
+Download::  http://rubyforge.org/project/showfiles.php?group_id=50
+
+== Thanks
+
+As usual, it was input from users that drove a alot of these changes.
+The following people either contributed patches, made suggestions or
+made otherwise helpful comments.  Thanks to ...
+
+* Greg Fast (better ruby_opt test options)
+* Kelly Felkins (requested by better namespace support)
+* Martin Fowler (suggested Task.investigation)
+* Stuart Jansen (send initial patch for multiple prerequisites).
+* Masao Mutch (better support for non-ruby Gem platforms)
+* Philipp Neubeck (patch for file task exception fix)
+
+-- Jim Weirich

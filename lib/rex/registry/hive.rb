@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require_relative "regf"
 require_relative "nodekey"
 
@@ -12,10 +13,12 @@ class Hive
 		hive_blob = open(hivepath, "rb") { |io| io.read }
 
 		@hive_regf = RegfBlock.new(hive_blob)
+		return nil if !@hive_regf.root_key_offset
+
 		@root_key = NodeKey.new(hive_blob, 0x1000 + @hive_regf.root_key_offset)
+		return nil if !@root_key.lf_record
 
 		keys = []
-
 		root_key.lf_record.children.each do |key|
 			keys << key.name
 		end

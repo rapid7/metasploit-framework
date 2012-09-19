@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
-$:.unshift(File.join(File.dirname(__FILE__), '..', '..','..','..','..','..', '..', '..', 'lib')) 
+$:.unshift(File.join(File.dirname(__FILE__), '..', '..','..','..','..','..', '..', '..', 'lib'))
 
 require 'rex/post/meterpreter/extensions/stdapi/railgun/type/pointer_util'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/platform_util'
@@ -17,14 +18,14 @@ module Type
 class PlatformUtil::UnitTest < Test::Unit::TestCase
 
 	include Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::MockMagic
-	
+
 	# memread value of win x86 pointer mapped to target unpack value
 	X86_32_POINTERS = {
 		"8D\x15\x00"       => 1393720,
 		"\x1C\x84\x15\x00" => 1410076,
-		"\x0E\x84\x15\x00" => 1410062, 
-		"\x02\x84\x15\x00" => 1410050, 
-		"\xE6\x83\x15\x00" => 1410022, 
+		"\x0E\x84\x15\x00" => 1410062,
+		"\x02\x84\x15\x00" => 1410050,
+		"\xE6\x83\x15\x00" => 1410022,
 		"\xC4\x83\x15\x00" => 1409988,
 		"\x00\x00\x00\x00" => 0,
 	}
@@ -45,12 +46,12 @@ class PlatformUtil::UnitTest < Test::Unit::TestCase
 
 	def test_pack_pointer
 		X86_64_POINTERS.invert.each_pair do |unpacked, packed|
-			assert_equal(packed, PointerUtil.pack_pointer(unpacked.to_i, X86_64), 
+			assert_equal(packed, PointerUtil.pack_pointer(unpacked.to_i, X86_64),
 				"pack_pointer should pack 64-bit numberic pointers")
 		end
 
 		X86_32_POINTERS.invert.each_pair do |unpacked, packed|
-			assert_equal(packed, PointerUtil.pack_pointer(unpacked.to_i, X86_32), 
+			assert_equal(packed, PointerUtil.pack_pointer(unpacked.to_i, X86_32),
 				"pack_pointer should pack 32-bit numberic pointers")
 		end
 
@@ -69,16 +70,16 @@ class PlatformUtil::UnitTest < Test::Unit::TestCase
 
 	def test_unpack_pointer
 		X86_64_POINTERS.each_pair do |packed, unpacked|
-			assert_equal(unpacked, PointerUtil.unpack_pointer(packed, X86_64), 
+			assert_equal(unpacked, PointerUtil.unpack_pointer(packed, X86_64),
 				"unpack_pointer should unpack 64-bit pointers")
 		end
 
 		X86_32_POINTERS.each_pair do |packed, unpacked|
-			assert_equal(unpacked, PointerUtil.unpack_pointer(packed, X86_32), 
+			assert_equal(unpacked, PointerUtil.unpack_pointer(packed, X86_32),
 				"unpack_pointer should unpack 32-bit pointers")
 		end
 
-		
+
 	end
 
 	def test_is_null_pointer
@@ -93,7 +94,7 @@ class PlatformUtil::UnitTest < Test::Unit::TestCase
 		assert_equal(true, PointerUtil.is_null_pointer?(X86_64_NULL_POINTER, X86_64),
 			'is_null_pointer? should return true for packed 64-bit null pointers')
 
-	end	
+	end
 
 	def test_pointer_size
 		assert_equal(8, PointerUtil.pointer_size(X86_64),

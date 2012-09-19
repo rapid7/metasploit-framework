@@ -16,20 +16,21 @@ public class stdapi_sys_process_execute implements Command {
 	private static int pid = 0;
 
 	public int execute(Meterpreter meterpreter, TLVPacket request, TLVPacket response) throws Exception {
+		StringBuffer cmdbuf = new StringBuffer();
 		String cmd = request.getStringValue(TLVType.TLV_TYPE_PROCESS_PATH);
 		String argsString = request.getStringValue(TLVType.TLV_TYPE_PROCESS_ARGUMENTS, "");
-		StringTokenizer st = new StringTokenizer(argsString);
-		String[] cmdarray = new String[st.countTokens() + 1];
-		cmdarray[0] = cmd;
-		for (int i = 0; i < cmdarray.length - 1; i++) {
-			cmdarray[i + 1] = st.nextToken();
-		}
 		int flags = request.getIntValue(TLVType.TLV_TYPE_PROCESS_FLAGS);
+
+    cmdbuf.append(cmd);
+    if (argsString.length() > 0) {
+      cmdbuf.append(argsString);
+    }
+
 
 		if (cmd.length() == 0)
 			return ERROR_FAILURE;
 
-		Process proc = execute(cmdarray);
+		Process proc = execute(cmdbuf.toString());
 
 		if ((flags & PROCESS_EXECUTE_FLAG_CHANNELIZED) != 0) {
 			ProcessChannel channel = new ProcessChannel(meterpreter, proc);
@@ -47,8 +48,8 @@ public class stdapi_sys_process_execute implements Command {
 		return ERROR_SUCCESS;
 	}
 
-	protected Process execute(String[] cmdarray) throws IOException {
-		Process proc = Runtime.getRuntime().exec(cmdarray);
+	protected Process execute(String cmdstr) throws IOException {
+		Process proc = Runtime.getRuntime().exec(cmdstr);
 		return proc;
 	}
 }

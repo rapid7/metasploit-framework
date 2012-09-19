@@ -1,0 +1,132 @@
+grammar LambdaCalculus
+  include Arithmetic
+
+  rule program
+    expression more_expressions:(';' space expression)* {
+      def eval(env={})
+        env = env.clone
+        last_eval = nil
+        expressions.each do |exp|
+          last_eval = exp.eval(env)
+        end
+        last_eval
+      end
+      
+      def expressions
+        [expression] + more_expressions.elements.map {|elt| elt.expression}
+      end
+    }
+  end
+
+  rule expression
+    definition / conditional / application / function / super
+  end
+  
+  rule definition
+    'def' space variable space expression {
+      def eval(env)
+        env[variable.name] = expression.eval(env)
+      end
+    }
+  end
+  
+  rule conditional
+    'if' space '(' space condition:expression space ')' space
+    true_case:expression space 'else' space false_case:expression {
+      def eval(env)
+        if condition.eval(env)
+          true_case.eval(env)
+        else
+          false_case.eval(env)
+        end
+      end
+    }
+  end
+  
+  rule primary
+    application / super
+  end
+
+  rule application
+    operator space expression <Application> {
+      def eval(env={})
+        left_associative_apply(operator.eval(env), env)
+      end
+      
+      def left_associative_apply(operator, env)
+        if expression.instance_of?(Application)
+          expression.left_associative_apply(operator.apply(expression.operator.eval(env)), env)
+        else
+          operator.apply(expression.eval(env))
+        end
+      end
+      
+      def to_s(env={})
+        operator.to_s(env) + ' ' + expression.to_s(env)
+      end
+    }
+  end
+  
+  rule operator
+    function / variable
+  end
+  
+  rule non_application
+    function / variable
+  end
+  
+  rule function
+    '\\' param:variable '(' body:expression ')' {
+      class Closure
+        attr_reader :env, :function
+        
+        def initialize(function, env)
+          @function = function
+          @env = env
+        end
+      
+        def apply(arg)
+          function.body.eval(function.param.bind(arg, env))
+        end
+      
+        def to_s(other_env={})
+          "\\#{function.param.to_s}(#{function.body.to_s(other_env.merge(env))})"
+        end
+      end
+      
+      def eval(env={})
+        Closure.new(self, env)
+      end
+      
+      def to_s(env={})
+        eval(env).to_s
+      end
+    }
+  end
+  
+  rule variable
+    !keyword (
+      super {
+        def bind(value, env)
+          env.merge(name => value)
+        end
+
+        def to_s(env={})
+          env.has_key?(name) ? env[name].to_s : name
+      end
+      }
+    )
+  end
+  
+  rule keyword
+    ('if' / 'else') !non_space_char
+  end
+  
+  rule non_space_char
+    ![ \n] .
+  end
+  
+  rule space
+    [ \n]*
+  end
+end

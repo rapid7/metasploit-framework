@@ -53,7 +53,8 @@ class Metasploit3 < Msf::Auxiliary
 				OptBool.new('SSH_DEBUG', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
 				OptBool.new('SSH_BYPASS', [ false, 'Verify that authentication was not bypassed when keys are found', false]),
 				OptString.new('SSH_KEYFILE_B64', [false, 'Raw data of an unencrypted SSH public key. This should be used by programmatic interfaces to this module only.', '']),
-				OptPath.new('KEY_DIR', [false, 'Directory of several keys. Filenames must not begin with a dot in order to be read.'])
+				OptPath.new('KEY_DIR', [false, 'Directory of several keys. Filenames must not begin with a dot in order to be read.']),
+				OptInt.new('SSH_TIMEOUT', [ false, 'Specify the maximum time to negotiate a SSH session', 30])
 			]
 		)
 
@@ -201,15 +202,18 @@ class Metasploit3 < Msf::Auxiliary
 				:disable_agent     => true,
 				:record_auth_info  => true,
 				:skip_private_keys => true,
-				:accepted_key_callback => Proc.new {|key| accepted << key }
+				:config =>false,
+				:accepted_key_callback => Proc.new {|key| accepted << key },
+				:proxies	  => datastore['Proxies']
 			}
 
 			opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
 
 			begin
-				ssh_socket = Net::SSH.start(ip, user, opt_hash)
+				ssh_socket = nil
+				::Timeout.timeout(datastore['SSH_TIMEOUT']) { ssh_socket = Net::SSH.start(ip, user, opt_hash) } rescue nil
 
-				if datastore['SSH_BYPASS']
+				if datastore['SSH_BYPASS'] and ssh_socket
 					data = nil
 
 					print_status("#{ip}:#{rport} SSH - User #{user} is being tested for authentication bypass...")
@@ -222,7 +226,7 @@ class Metasploit3 < Msf::Auxiliary
 					print_brute(:level => :good, :msg => "User #{user} successfully bypassed authentication: #{data.inspect} ") if data
 				end
 
-				::Timeout.timeout(1) { ssh_socket.close } rescue nil
+				::Timeout.timeout(1) { ssh_socket.close if ssh_socket } rescue nil
 
 			rescue Rex::ConnectionError, Rex::AddressInUse
 				return :connection_error
@@ -281,7 +285,7 @@ class Metasploit3 < Msf::Auxiliary
 		keyfile_path = store_loot(
 			ltype,
 			"application/octet-stream", # Text, but always want to mime-type attach it
-			ip, 
+			ip,
 			(key_data + "\n"),
 			"#{safe_username}_#{ktype}.pub",
 			key_id
@@ -289,7 +293,7 @@ class Metasploit3 < Msf::Auxiliary
 		return keyfile_path
 	end
 
-	def run_host(ip) 
+	def run_host(ip)
 		# Since SSH collects keys and tries them all on one authentication session, it doesn't
 		# make sense to iteratively go through all the keys individually. So, ignore the pass variable,
 		# and try all available keys for all users.

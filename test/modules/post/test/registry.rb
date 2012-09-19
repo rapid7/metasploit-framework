@@ -16,118 +16,140 @@ require 'msf/core/post/windows/registry'
 
 class Metasploit3 < Msf::Post
 
+	include Msf::ModuleTest::PostTest
 	include Msf::Post::Windows::Registry
 
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'registry_post_testing',
-				'Description'   => %q{ This module will test registry code used in post modules},
+				'Description'   => %q{ This module will test Post::Windows::Registry API methods },
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'kernelsmith'],
+				'Author'        => [
+					'kernelsmith', # original
+					'egypt',       # PostTest conversion
+				],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ]
 			))
-		register_options(
-		[
-				OptString.new("KEY" , [true, "Registry key to test", "HKLM\\Software\\Microsoft\\Active Setup"]),
-				OptString.new("VALUE" , [true, "Registry value to test", "DisableRepair"]),
-			], self.class)
+	end
+
+	def test_0_registry_read
+		pending "should evaluate key existence" do
+			# these methods are not implemented
+			k_exists = registry_key_exist?(%q#HKCU\Environment#)
+			k_dne    = registry_key_exist?(%q#HKLM\\Non\Existent\Key#)
+
+			(k_exists && !k_dne)
+		end
+
+		pending "should evaluate value existence" do
+			# these methods are not implemented
+			v_exists = registry_value_exist?(%q#HKCU\Environment#, "TEMP")
+			v_dne    = registry_value_exist?(%q#HKLM\\Non\Existent\Key#, "asdf")
+
+			(v_exists && !v_dne)
+		end
+
+		it "should read values" do
+			ret = true
+			valinfo = registry_getvalinfo(%q#HKCU\Environment#, "TEMP")
+			ret &&= !!(valinfo["Data"])
+			ret &&= !!(valinfo["Type"])
+
+			valdata = registry_getvaldata(%q#HKCU\Environment#, "TEMP")
+			ret &&= !!(valinfo["Data"] == valdata)
+
+			ret
+		end
+
+		it "should return normalized values" do
+			ret = true
+			valinfo = registry_getvalinfo(%q#HKCU\Environment#, "TEMP")
+			if (valinfo.nil?)
+				ret = false
+			else
+				# type == 2 means string
+				ret &&= !!(valinfo["Type"] == 2)
+				ret &&= !!(valinfo["Data"].kind_of? String)
+
+				valinfo = registry_getvalinfo(%q#HKLM\Software\Microsoft\Active Setup#, "DisableRepair")
+				if (valinfo.nil?)
+					ret = false
+				else
+					# type == 4 means DWORD
+					ret &&= !!(valinfo["Type"] == 4)
+					ret &&= !!(valinfo["Data"].kind_of? Numeric)
+				end
+			end
+
+			ret
+		end
+
+		it "should enumerate keys and values" do
+			ret = true
+			# Has no keys, should return an empty Array
+			keys = registry_enumkeys(%q#HKCU\Environment#)
+			ret &&= (keys.kind_of? Array)
+
+			vals = registry_enumvals(%q#HKCU\Environment#)
+			ret &&= (vals.kind_of? Array)
+			ret &&= (vals.count > 0)
+			ret &&= (vals.include? "TEMP")
+
+			ret
+		end
 
 	end
 
-	def run
-		print_status("Running against session #{datastore["SESSION"]}")
-		print_status("Session type is #{session.type}")
+	def test_1_registry_write
+		it "should create keys" do
+			ret = registry_createkey(%q#HKCU\test_key#)
+		end
 
-		print_status()
-		print_status("TESTING:  registry_value_exist? for key:#{datastore['KEY']}, val:#{datastore['VALUE']}")
-		results = registry_value_exist?(datastore['KEY'],datastore['VALUE'])
-		print_status("RESULTS:  #{results.class} #{results.inspect}")
-		
-		print_status()
-		print_status("TESTING:  registry_value_exist? for key:#{'HKLM\\Non\Existent\key'}, val:#{datastore['VALUE']}")
-		results = registry_value_exist?('HKLM\\Non\Existent\key',datastore['VALUE'])
-		print_status("RESULTS (Expecting false):  #{results.class} #{results.inspect}")
-		
-		print_status()
-		print_status("TESTING:  registry_value_exist? for key:#{datastore['KEY']}, val:'NonExistentValue'")
-		results = registry_value_exist?(datastore['KEY'],'NonExistentValue')
-		print_status("RESULTS (Expecting false):  #{results.class} #{results.inspect}")
-		
-		print_status()
-		print_status("TESTING:  registry_key_exist? for key: 'HKLM\\Non\Existent\key'")
-		results = registry_key_exist?('HKLM\\Non\Existent\key')  # need to error handle this properly in meterp ver
-		print_status("RESULTS (Expecting false):  #{results.class} #{results.inspect}")
-		
-		print_status()
-		print_status("TESTING:  registry_key_exist? for key:#{datastore['KEY']}")
-		results = registry_key_exist?(datastore['KEY'])
-		print_status("RESULTS:  #{results.class} #{results.inspect}")
-		
-		print_status()
-		print_status("TESTING:  registry_getvalinfo for key:#{datastore['KEY']}, val:#{datastore['VALUE']}")
-		results = registry_getvalinfo(datastore['KEY'], datastore['VALUE'])
-		print_error("reported failure") unless results
-		print_status("RESULTS:  #{results.class} #{results.inspect}")
-		
-		print_status()
-		print_status("TESTING:  registry_getvaldata for key:#{datastore['KEY']}, val:#{datastore['VALUE']}")
-		results = registry_getvaldata(datastore['KEY'], datastore['VALUE'])
-		print_error("reported failure") unless results
-		print_status("RESULTS:  #{results.class} #{results.inspect}")
+		it "should write REG_SZ values" do
+			ret = true
+			registry_setvaldata(%q#HKCU\test_key#, "test_val_str", "str!", "REG_SZ")
+			registry_setvaldata(%q#HKCU\test_key#, "test_val_dword", 1234, "REG_DWORD")
+			valinfo = registry_getvalinfo(%q#HKCU\test_key#, "test_val_str")
+			if (valinfo.nil?)
+				ret = false
+			else
+				# type == REG_SZ means string
+				ret &&= !!(valinfo["Type"] == 1)
+				ret &&= !!(valinfo["Data"].kind_of? String)
+				ret &&= !!(valinfo["Data"] == "str!")
+			end
 
-		print_status()
-		print_status("TESTING:  registry_createkey for key:#{datastore['KEY']}\\test")
-		results = registry_createkey("#{datastore['KEY']}\\test")
-		print_error("reported failure") if results
-		print_status("RESULTS:  #{results.class} #{results.inspect}")
+			ret
+		end
 
-		print_status()
-		print_status("TESTING:  registry_setvaldata for key:#{datastore['KEY']}\\test, val:test, data:test, type:REG_SZ")
-		results = registry_setvaldata("#{datastore['KEY']}\\test", "test", "test", "REG_SZ")
-		print_error("reported failure") if results
-		print_status("RESULTS:  #{results.class} #{results.inspect}")
 
-		print_status()
-		print_status("Running registry_getvalinfo for freshly created key:#{datastore['KEY']}\\test, val:test")
-		results = registry_getvalinfo("#{datastore['KEY']}\\test", "test")
-		print_error("reported failure") unless results
-		print_status("RESULTS:  #{results.class} #{results.inspect}")
+		it "should write REG_DWORD values" do
+			ret = true
+			registry_setvaldata(%q#HKCU\test_key#, "test_val_dword", 1234, "REG_DWORD")
+			valinfo = registry_getvalinfo(%q#HKCU\test_key#, "test_val_dword")
+			if (valinfo.nil?)
+				ret = false
+			else
+				ret &&= !!(valinfo["Type"] == 4)
+				ret &&= !!(valinfo["Data"].kind_of? Numeric)
+				ret &&= !!(valinfo["Data"] == 1234)
+			end
+			ret
+		end
 
-		print_status()
-		print_status("TESTING:  registry_deleteval for key:#{datastore['KEY']}\\test, val:test")
-		results = registry_deleteval("#{datastore['KEY']}\\test", "test")
-		print_error("reported failure") if results
-		print_status("RESULTS:  #{results.class} #{results.inspect}")
+		it "should delete keys" do
+			ret = registry_deleteval(%q#HKCU\test_key#, "test_val_str")
+			valinfo = registry_getvalinfo(%q#HKCU\test_key#, "test_val_str")
+			# getvalinfo should return nil for a non-existent key
+			ret &&= (valinfo.nil?)
+			ret &&= registry_deletekey(%q#HKCU\test_key#)
+			# Deleting the key should delete all its values
+			valinfo = registry_getvalinfo(%q#HKCU\test_key#, "test_val_dword")
+			ret &&= (valinfo.nil?)
 
-		print_status()
-		print_status("TESTING:  registry_deletekey")
-		results = registry_deletekey("#{datastore['KEY']}\\test")
-		print_error("reported failure") if results
-		print_status("RESULTS:  #{results.class} #{results.inspect}")
-
-		print_status()
-		print_status("Running registry_getvalinfo for deleted key:#{datastore['KEY']}\\test, val:test")
-		print_status("NOTE: this OUGHT to return nil")
-		results = registry_getvalinfo("#{datastore['KEY']}\\test", "test")
-		print_status("RESULTS (Expecting nil):  #{results.class} #{results.inspect}")
-		print_error("reported failure") if results
-		print_status("nil is correct.  sweet.")  if !results
-		
-		print_status()
-		print_status("TESTING:  registry_enumkeys")
-		results = registry_enumkeys(datastore['KEY'])
-		print_error("reported failure") unless results
-		print_status("RESULTS:  #{results.class} #{results.inspect}")
-
-		print_status()
-		print_status("TESTING:  registry_enumvals")
-		results = registry_enumvals(datastore['KEY'])
-		print_error("reported failure") unless results
-		print_status("RESULTS:  #{results.class} #{results.inspect}")
-		
-		print_status()
-		print_status("Testing Complete!")
+			ret
+		end
 
 	end
 

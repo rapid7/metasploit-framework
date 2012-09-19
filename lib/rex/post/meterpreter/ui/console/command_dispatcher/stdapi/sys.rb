@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/post/meterpreter'
 
 module Rex
@@ -48,23 +49,67 @@ class Console::CommandDispatcher::Stdapi::Sys
 	# List of supported commands.
 	#
 	def commands
-		{
-			"clearev"  => "Clear the event log",
-			"execute"  => "Execute a command",
-			"getpid"   => "Get the current process identifier",
-			"getuid"   => "Get the user that the server is running as",
-			"getprivs" => "Attempt to enable all privileges available to the current process",
-			"kill"     => "Terminate a process",
-			"ps"       => "List running processes",
-			"reboot"   => "Reboots the remote computer",
-			"reg"      => "Modify and interact with the remote registry",
-			"rev2self" => "Calls RevertToSelf() on the remote machine",
-			"sysinfo"  => "Gets information about the remote system, such as OS",
-			"shell"    => "Drop into a system command shell",
-			"shutdown" => "Shuts down the remote computer",
-			"steal_token" => "Attempts to steal an impersonation token from the target process",
+		all = {
+			"clearev"     => "Clear the event log",
 			"drop_token"  => "Relinquishes any active impersonation token.",
+			"execute"     => "Execute a command",
+			"getpid"      => "Get the current process identifier",
+			"getprivs"    => "Attempt to enable all privileges available to the current process",
+			"getuid"      => "Get the user that the server is running as",
+			"kill"        => "Terminate a process",
+			"ps"          => "List running processes",
+			"reboot"      => "Reboots the remote computer",
+			"reg"         => "Modify and interact with the remote registry",
+			"rev2self"    => "Calls RevertToSelf() on the remote machine",
+			"shell"       => "Drop into a system command shell",
+			"shutdown"    => "Shuts down the remote computer",
+			"steal_token" => "Attempts to steal an impersonation token from the target process",
+			"sysinfo"     => "Gets information about the remote system, such as OS",
 		}
+		reqs = {
+			"clearev"     => [ "stdapi_sys_eventlog_open", "stdapi_sys_eventlog_clear" ],
+			"drop_token"  => [ "stdapi_sys_config_drop_token" ],
+			"execute"     => [ "stdapi_sys_process_execute" ],
+			"getpid"      => [ "stdapi_sys_process_getpid"  ],
+			"getprivs"    => [ "stdapi_sys_config_getprivs" ],
+			"getuid"      => [ "stdapi_sys_config_getuid" ],
+			"kill"        => [ "stdapi_sys_process_kill" ],
+			"ps"          => [ "stdapi_sys_process_get_processes" ],
+			"reboot"      => [ "stdapi_sys_power_exitwindows" ],
+			"reg"         => [
+				"stdapi_registry_load_key",
+				"stdapi_registry_unload_key",
+				"stdapi_registry_open_key",
+				"stdapi_registry_open_remote_key",
+				"stdapi_registry_create_key",
+				"stdapi_registry_delete_key",
+				"stdapi_registry_close_key",
+				"stdapi_registry_enum_key",
+				"stdapi_registry_set_value",
+				"stdapi_registry_query_value",
+				"stdapi_registry_delete_value",
+				"stdapi_registry_query_class",
+				"stdapi_registry_enum_value",
+			],
+			"rev2self"    => [ "stdapi_sys_config_rev2self" ],
+			"shell"       => [ "stdapi_sys_process_execute" ],
+			"shutdown"    => [ "stdapi_sys_power_exitwindows" ],
+			"steal_token" => [ "stdapi_sys_config_steal_token" ],
+			"sysinfo"     => [ "stdapi_sys_config_sysinfo" ],
+		}
+
+		all.delete_if do |cmd, desc|
+			del = false
+			reqs[cmd].each do |req|
+				next if client.commands.include? req
+				del = true
+				break
+			end
+
+			del
+		end
+
+		all
 	end
 
 	#
@@ -229,38 +274,13 @@ class Console::CommandDispatcher::Stdapi::Sys
 	#
 	def cmd_ps(*args)
 		processes = client.sys.process.get_processes
-		tbl = Rex::Ui::Text::Table.new(
-			'Header'  => "Process list",
-			'Indent'  => 1,
-			'Columns' =>
-				[
-					"PID",
-					"Name",
-					"Arch",
-					"Session",
-					"User",
-					"Path"
-				])
-
-		processes.each { |ent|
-
-			session = ent['session'] == 0xFFFFFFFF ? '' : ent['session'].to_s
-			arch    = ent['arch']
-
-			# for display and consistency with payload naming we switch the internal 'x86_64' value to display 'x64'
-			if( arch == ARCH_X86_64 )
-				arch = "x64"
-			end
-
-			tbl << [ ent['pid'].to_s, ent['name'], arch, session, ent['user'], ent['path'] ]
-		}
-
 		if (processes.length == 0)
 			print_line("No running processes were found.")
 		else
-			print("\n" + tbl.to_s + "\n")
+			print_line
+			print_line(processes.to_table("Indent" => 1).to_s)
+			print_line
 		end
-
 		return true
 	end
 
@@ -308,7 +328,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 						"    queryclass Queries the class of the supplied key [-k <key>]\n" +
 						"    setval     Set a registry value [-k <key> -v <val> -d <data>]\n" +
 						"    deleteval  Delete the supplied registry value [-k <key> -v <val>]\n" +
-						"    queryval   Queries the data contents of a value [-k <key> -v <val>]\n\n") 
+						"    queryval   Queries the data contents of a value [-k <key> -v <val>]\n\n")
 					return false
 				when "-k"
 					key   = val
@@ -342,7 +362,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 			# Rock it
 			case cmd
 				when "enumkey"
-				
+
 					open_key = nil
 					if not rem
 						open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ + wowflag)
@@ -392,7 +412,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 						if remote_key
 							open_key = remote_key.create_key(base_key, KEY_WRITE + wowflag)
 						end
-					end				
+					end
 
 					print_line("Successfully created key: #{key}")
 

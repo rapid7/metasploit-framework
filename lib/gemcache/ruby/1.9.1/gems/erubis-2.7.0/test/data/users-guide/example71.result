@@ -1,0 +1,13 @@
+$ erubis -f context.yaml example7.eruby
+<h1>Users List</h1>
+<ul>
+  <li>
+    <a href="mailto:foo@mail.com">foo</a>
+  </li>
+  <li>
+    <a href="mailto:bar@mail.net">bar</a>
+  </li>
+  <li>
+    <a href="mailto:baz@mail.org">baz</a>
+  </li>
+</ul>

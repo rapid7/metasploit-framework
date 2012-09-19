@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 #
 # An NTLM Authentication Library for Ruby
 #
@@ -6,7 +7,7 @@
 # http://jp.rubyist.net/magazine/?0013-CodeReview
 # -------------------------------------------------------------
 # Copyright (c) 2005,2006 yrock
-# 
+#
 # This program is free software.
 # You can distribute/modify this program under the terms of the
 # Ruby License.
@@ -21,8 +22,8 @@
 # -------------------------------------------------------------
 #
 # All protocol information used to write this code stems from
-# "The NTLM Authentication Protocol" by Eric Glass. The author 
-# would thank to him for this tremendous work and making it 
+# "The NTLM Authentication Protocol" by Eric Glass. The author
+# would thank to him for this tremendous work and making it
 # available on the net.
 # http://davenport.sourceforge.net/ntlm.html
 # -------------------------------------------------------------
@@ -31,7 +32,7 @@
 # Permission to use, copy, modify, and distribute this document
 # for any purpose and without any fee is hereby granted,
 # provided that the above copyright notice and this list of
-# conditions appear in all copies. 
+# conditions appear in all copies.
 # -------------------------------------------------------------
 #
 # The author also looked Mozilla-Firefox-1.0.7 source code,
@@ -40,7 +41,7 @@
 # "http://x2a.org/websvn/filedetails.php?
 # repname=libntlm-ruby&path=%2Ftrunk%2Fntlm.rb&sc=1"
 # The latter has a minor bug in its separate_keys function.
-# The third key has to begin from the 14th character of the 
+# The third key has to begin from the 14th character of the
 # input string instead of 13th:)
 #--
 # $Id: ntlm.rb 11678 2011-01-30 19:26:35Z hdm $
@@ -59,7 +60,7 @@ CONST = Rex::Proto::NTLM::Constants
 BASE = Rex::Proto::NTLM::Base
 
 	@@loaded_openssl = false
-	
+
 	begin
 		require 'openssl'
 		require 'openssl/digest'
@@ -70,7 +71,7 @@ BASE = Rex::Proto::NTLM::Base
 	def self.gen_keys(str)
 		str.scan(/.{7}/).map{ |key| des_56_to_64(key) }
 	end
- 
+
 	def self.des_56_to_64(ckey56s)
 		ckey64 = []
 		ckey56 = ckey56s.unpack('C*')
@@ -84,7 +85,7 @@ BASE = Rex::Proto::NTLM::Base
 		ckey64[7] =  (ckey56[6] << 1) & 0xFF
 		ckey64.pack('C*')
 	end
-	     
+
 	def self.apply_des(plain, keys)
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
 		dec = OpenSSL::Cipher::DES.new
@@ -93,13 +94,13 @@ BASE = Rex::Proto::NTLM::Base
 			dec.encrypt.update(plain)
 		end
 	end
-      
+
 	def self.lm_hash(password, half = false)
 		size = half ? 7 : 14
 		keys = gen_keys(password.upcase.ljust(size, "\0"))
 		apply_des(CONST::LM_MAGIC, keys).join
-	end   
-      
+	end
+
 	def self.ntlm_hash(password, opt = {})
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
 		pwd = password.dup
@@ -108,16 +109,16 @@ BASE = Rex::Proto::NTLM::Base
 		end
 		OpenSSL::Digest::MD4.digest(pwd)
 	end
-	
+
 	# This hash is used for lmv2/ntlmv2 response calculation
 	def self.ntlmv2_hash(user, password, domain, opt={})
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
-		
+
 		if opt[:pass_is_hash]
 			ntlmhash = password
 		else
 			ntlmhash = ntlm_hash(password, opt)
-		end	
+		end
 		# With Win 7 and maybe other OSs we sometimes get the domain not uppercased
 		userdomain = user.upcase  + domain
 		unless opt[:unicode]
@@ -141,13 +142,13 @@ BASE = Rex::Proto::NTLM::Base
 	end
 
 	# Synonym of lm_response for old compatibility with lib/rex/proto/smb/crypt
-	def self.lanman_des(password, challenge)		
+	def self.lanman_des(password, challenge)
 		lm_response({
 			:lm_hash => self.lm_hash(password),
 			:challenge => challenge
 		})
 	end
-      
+
 	def self.ntlm_response(arg)
 		hash = arg[:ntlm_hash]
 		chal = arg[:challenge]
@@ -159,14 +160,14 @@ BASE = Rex::Proto::NTLM::Base
 	#synonym of ntlm_response for old compatibility with lib/rex/proto/smb/crypt
 	def self.ntlm_md4(password, challenge)
 		ntlm_response({
-			:ntlm_hash =>  self.ntlm_hash(password), 
+			:ntlm_hash =>  self.ntlm_hash(password),
 			:challenge => challenge
 		})
 	end
 
 	def self.ntlmv2_response(arg, opt = {})
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
-		
+
 		key, chal = arg[:ntlmv2_hash], arg[:challenge]
 		if not (key and chal)
 			raise ArgumentError , 'ntlmv2_hash and challenge are mandatory'
@@ -174,10 +175,10 @@ BASE = Rex::Proto::NTLM::Base
 
 		chal = BASE::pack_int64le(chal) if chal.is_a?(::Integer)
 		bb   = nil
-		
+
 		if opt[:nt_client_challenge]
 			if opt[:nt_client_challenge].to_s.length <= 8
-				raise ArgumentError,"nt_client_challenge is not in a correct format " 
+				raise ArgumentError,"nt_client_challenge is not in a correct format "
 			end
 			bb = opt[:nt_client_challenge]
 		else
@@ -199,25 +200,25 @@ BASE = Rex::Proto::NTLM::Base
 			blob.timestamp = ts
 			blob.challenge = cc
 			blob.target_info = ti
-		
+
 			bb = blob.serialize
 		end
 
 		OpenSSL::HMAC.digest(OpenSSL::Digest::MD5.new, key, chal + bb) + bb
 	end
-      
+
 	def self.lmv2_response(arg, opt = {})
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
 		key = arg[:ntlmv2_hash]
 		chal = arg[:challenge]
-        
+
 		chal = BASE::pack_int64le(chal) if chal.is_a?(::Integer)
 		cc   = opt[:client_challenge] || rand(CONST::MAX64)
 		cc   = BASE::pack_int64le(cc) if cc.is_a?(::Integer)
 
 		OpenSSL::HMAC.digest(OpenSSL::Digest::MD5.new, key, chal + cc) + cc
 	end
-      
+
 	def self.ntlm2_session(arg, opt = {})
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
 		passwd_hash,chal = arg[:ntlm_hash],arg[:challenge]
@@ -234,43 +235,43 @@ BASE = Rex::Proto::NTLM::Base
 		[cc.ljust(24, "\0"), response]
 	end
 
-	#this function will check if the net lm response provided correspond to en empty password 
+	#this function will check if the net lm response provided correspond to en empty password
 	def self.is_hash_from_empty_pwd?(arg)
 		hash_type = arg[:type]
-		raise ArgumentError,"arg[:type] is mandatory" if not hash_type 
+		raise ArgumentError,"arg[:type] is mandatory" if not hash_type
 		raise ArgumentError,"arg[:type] must be lm or ntlm" if not hash_type  =~ /^((lm)|(ntlm))$/
 
 		ntlm_ver = arg[:ntlm_ver]
 		raise ArgumentError,"arg[:ntlm_ver] is mandatory" if not ntlm_ver
- 
+
 		hash = arg[:hash]
 		raise ArgumentError,"arg[:hash] is mandatory" if not hash
 
-		srv_chall = arg[:srv_challenge] 
-		raise ArgumentError,"arg[:srv_challenge] is mandatory" if not srv_chall		
+		srv_chall = arg[:srv_challenge]
+		raise ArgumentError,"arg[:srv_challenge] is mandatory" if not srv_chall
 		raise ArgumentError,"Server challenge length must be exactly 8 bytes" if srv_chall.length != 8
 
 		#calculate responses for empty pwd
 		case ntlm_ver
-		when CONST::NTLM_V1_RESPONSE 
+		when CONST::NTLM_V1_RESPONSE
 			if hash.length != 24
 				raise ArgumentError,"hash length must be exactly 24 bytes "
 			end
 			case hash_type
-			when 'lm'	
+			when 'lm'
 				arglm = { 	:lm_hash => self.lm_hash(''),
 						:challenge => srv_chall}
 				calculatedhash = self.lm_response(arglm)
 			when 'ntlm'
-				argntlm = { 	:ntlm_hash =>  self.ntlm_hash(''), 
+				argntlm = { 	:ntlm_hash =>  self.ntlm_hash(''),
 						:challenge => srv_chall }
 				calculatedhash = self.ntlm_response(argntlm)
 			end
 		when CONST::NTLM_V2_RESPONSE
 			raise ArgumentError,"hash length must be exactly 16 bytes " if hash.length != 16
-			cli_chall = arg[:cli_challenge] 
+			cli_chall = arg[:cli_challenge]
 			raise ArgumentError,"arg[:cli_challenge] is mandatory in this case" if not cli_chall
-			user = arg[:user] 
+			user = arg[:user]
 			raise ArgumentError,"arg[:user] is mandatory in this case" if not user
 			domain = arg[:domain]
 			raise ArgumentError,"arg[:domain] is mandatory in this case" if not domain
@@ -291,14 +292,14 @@ BASE = Rex::Proto::NTLM::Base
 			end
 		when CONST::NTLM_2_SESSION_RESPONSE
 			raise ArgumentError,"hash length must be exactly 16 bytes " if hash.length != 24
-			cli_chall = arg[:cli_challenge] 
+			cli_chall = arg[:cli_challenge]
 			raise ArgumentError,"arg[:cli_challenge] is mandatory in this case" if not cli_chall
 			raise ArgumentError,"Client challenge length must be exactly 8 bytes " if cli_chall.length != 8
 			case hash_type
 			when 'lm'
 				raise ArgumentError, "ntlm2_session is incompatible with lm"
 			when 'ntlm'
-				argntlm = { 	:ntlm_hash =>  self.ntlm_hash(''), 
+				argntlm = { 	:ntlm_hash =>  self.ntlm_hash(''),
 						:challenge => srv_chall }
 				optntlm = {	:client_challenge => cli_chall}
 			end
@@ -314,7 +315,7 @@ BASE = Rex::Proto::NTLM::Base
 	#
 	# Signing method added for metasploit project
 	#
-	
+
 	# Used when only the LMv1 response is provided (i.e., with Win9x clients)
 	def self.lmv1_user_session_key(pass, opt = {})
 		if opt[:pass_is_hash]
@@ -324,7 +325,7 @@ BASE = Rex::Proto::NTLM::Base
 		end
 		usk.ljust(16,"\x00")
 	end
-		
+
 	# This variant is used when the client sends the NTLMv1 response
 	def self.ntlmv1_user_session_key(pass, opt = {})
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
@@ -379,7 +380,7 @@ BASE = Rex::Proto::NTLM::Base
 		cipher = OpenSSL::Cipher::Cipher.new('rc4')
 		cipher.encrypt
 		cipher.key = user_session_key
-		cipher.update(session_key) 
+		cipher.update(session_key)
 	end
 
 	def self.decrypt_sessionkey(encrypted_session_key, user_session_key)
@@ -387,24 +388,24 @@ BASE = Rex::Proto::NTLM::Base
 		cipher = OpenSSL::Cipher::Cipher.new('rc4')
 		cipher.decrypt
 		cipher.key = user_session_key
-		cipher.update(encrypted_session_key) 
+		cipher.update(encrypted_session_key)
 	end
 
 	def self.make_weak_sessionkey(session_key,key_size,lanman_key = false)
 		case key_size
 		when 40
 			if lanman_key
-				return session_key[0,5] + "\xe5\x38\xb0" 
+				return session_key[0,5] + "\xe5\x38\xb0"
 			else
-				return session_key[0,5] 
+				return session_key[0,5]
 			end
 		when 56
 			if lanman_key
 				return session_key[0,7]  + "\xa0"
 			else
-				return session_key[0,7]  
+				return session_key[0,7]
 			end
-		else #128 
+		else #128
 			return session_key[0,16]
 		end
 	end

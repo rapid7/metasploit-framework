@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Post
 
 	def run
 		if session.platform =~ /win/
-			res = session.shell_command_token_win32('"c:\Program Files\Oracle\VirtualBox\vboxmanage" list -l vms')
+			res = session.shell_command_token_win32('"c:\Program Files\Oracle\VirtualBox\vboxmanage" list -l vms') || ''
 			if res.include? "The system cannot find the path specified"
 				print_error "VirtualBox does not appear to be installed on this machine"
 				return nil

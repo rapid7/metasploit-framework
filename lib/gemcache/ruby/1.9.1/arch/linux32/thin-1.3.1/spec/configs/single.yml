@@ -1,0 +1,9 @@
+--- 
+pid: tmp/pids/thin.pid
+log: log/thin.log
+timeout: 60
+port: 6000
+chdir: spec/rails_app
+environment: production
+daemonize: true
+address: 127.0.0.1

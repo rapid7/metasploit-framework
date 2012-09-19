@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 require 'rex/post/process'
 require 'rex/post/meterpreter/packet'
@@ -212,12 +213,12 @@ class Process < Rex::Post::Process
 	end
 
 	#
-	# Returns an array of processes with hash objects that have
-	# keys for 'pid', 'parentid', 'name', 'path', 'user' and 'arch'.
+	# Returns a ProcessList of processes as Hash objects with keys for 'pid',
+	# 'ppid', 'name', 'path', 'user', 'session' and 'arch'.
 	#
 	def Process.get_processes
 		request   = Packet.create_request('stdapi_sys_process_get_processes')
-		processes = []
+		processes = ProcessList.new
 
 		response = client.send_request(request)
 
@@ -236,7 +237,7 @@ class Process < Rex::Post::Process
 		processes <<
 				{
 					'pid'      => p.get_tlv_value(TLV_TYPE_PID),
-					'parentid' => p.get_tlv_value(TLV_TYPE_PARENT_PID),
+					'ppid'     => p.get_tlv_value(TLV_TYPE_PARENT_PID),
 					'name'     => client.unicode_filter_encode( p.get_tlv_value(TLV_TYPE_PROCESS_NAME) ),
 					'path'     => client.unicode_filter_encode( p.get_tlv_value(TLV_TYPE_PROCESS_PATH) ),
 					'session'  => p.get_tlv_value(TLV_TYPE_PROCESS_SESSION),
@@ -364,6 +365,44 @@ protected
 		return info
 	end
 
+end
+
+#
+# Simple wrapper class for storing processes
+#
+class ProcessList < Array
+
+	#
+	# Create a Rex::Ui::Text::Table out of the processes stored in this list
+	#
+	# +opts+ is passed on to Rex::Ui::Text::Table.new, mostly unmolested
+	#
+	# Note that this output is affected by Rex::Post::Meterpreter::Client#unicode_filter_encode
+	#
+	def to_table(opts={})
+		if empty?
+			return Rex::Ui::Text::Table.new(opts)
+		end
+
+		cols = [ "PID", "PPID", "Name", "Arch", "Session", "User", "Path" ]
+		# Arch and Session are specific to native Windows, PHP and Java can't do
+		# ppid.  Cut columns from the list if they aren't there.  It is conceivable
+		# that processes might have different columns, but for now assume that the
+		# first one is representative.
+		cols.delete_if { |c| !( first.has_key?(c.downcase) ) or first[c.downcase].nil? }
+
+		opts = {
+			"Header"  => "Process List",
+			"Columns" => cols
+		}.merge(opts)
+
+		tbl = Rex::Ui::Text::Table.new(opts)
+		each { |process|
+			tbl << cols.map {|c| process[c.downcase] }.compact
+		}
+
+		tbl
+	end
 end
 
 end; end; end; end; end; end

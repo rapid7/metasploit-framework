@@ -31,7 +31,7 @@ interfaces other than msfconsole, such as msfrpc and msfgui, won't see
 your output.  You can use print_line to accomplish the same thing as
 puts. 
 
-2. Don't read from from standard input, doing so will make your code 
+2. Don't read from standard input, doing so will make your code 
 lock up the entire module when called from other interfaces. If you 
 need user input, you can either register an option or expose an 
 interactve session type specific for the type of exploit.
@@ -112,12 +112,18 @@ Submitting Your Code
 
 The process for submitting new modules via GitHub is documented here:
 
-https://github.com/rapid7/metasploit-framework/wiki/Working-with-the-Framework-Repo
+https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment
 
 This describes the process of forking, editing, and generating a
 pull request, and is the preferred method for bringing new modules
 and framework enhancements to the attention of the core Metasploit
 development team. Note that this process requires a GitHub account.
+
+For Git commits, please adhere to 50/72 formatting: your commits should
+start with a line 50 characters or less, followed by a blank line,
+followed by one or more lines of explanitory text wrapped at at 72
+characters Pull requests with commits not formmated this way will
+be rejected without review.
 
 For modules, note that Author field is not automatic, and should be 
 filled in in the format of 'Your Name <user[at]domain.tld>' so future 

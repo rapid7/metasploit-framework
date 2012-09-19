@@ -152,7 +152,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("Number of parent companies: " + num_parents)
 			print_status("Number of child companies: " + num_children)
 			print_status("Max lookup year: " + max_year)
-			print_status("Min lookup year: " + min_year) 
+			print_status("Min lookup year: " + min_year)
 		}
 
 		if datastore['GET_LOCATIONS']
@@ -215,7 +215,7 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("Full Address: " + full_address)
 					print_status("Street 1: " + street1)
 					print_status("Street 2: " + street2)
-					print_status("City: " + city) 
+					print_status("City: " + city)
 					print_status("State:" + state)
 					print_status("Postal Code: " + zip)
 					print_status("Date address was valid: " + date_valid)
@@ -233,7 +233,7 @@ class Metasploit3 < Msf::Auxiliary
 				'method'  => 'GET'
 			}, 25)
 
-			if res == nil 
+			if res == nil
 				print_error("Server down or bad response")
 				return
 			end
@@ -293,7 +293,7 @@ class Metasploit3 < Msf::Auxiliary
 				'method'  => 'GET'
 			}, 25)
 
-			if res == nil 
+			if res == nil
 				print_error("Server down or response broken")
 				return
 			end
@@ -371,7 +371,7 @@ class Metasploit3 < Msf::Auxiliary
 				'method'   => 'GET'
 			}, 25)
 
-			if res == nil 
+			if res == nil
 				print_error("Server down or bad response")
 				return
 			end
@@ -424,13 +424,13 @@ class Metasploit3 < Msf::Auxiliary
 						print_status("SIC Code: " + sic_code)
 						print_status("Sector: " + sector)
 						print_status("Source Type: " + source)
-	
+
 						print_line("")
 						print_status("Address and Location Information\n-----------------------------")
 						print_status("Full Address: " + address)
 						print_status("Country Code: " + country)
 						print_status("Subdivision: " + subdiv)
-	
+
 						print_line("")
 						print_status("Parent and Children Information\n---------------------------")
 						print_status("Top Parent ID: " + top_parent)

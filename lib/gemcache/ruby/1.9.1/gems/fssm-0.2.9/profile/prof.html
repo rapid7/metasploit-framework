@@ -1,0 +1,2379 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <style media="all" type="text/css">
+        table {
+            border-collapse: collapse;
+            border: 1px solid #CCC;
+            font-family: Verdana, Arial, Helvetica, sans-serif;
+            font-size: 9pt;
+            line-height: normal;
+            width: 100%;
+        }
+
+        th {
+            text-align: center;
+            border-top: 1px solid #FB7A31;
+            border-bottom: 1px solid #FB7A31;
+            background: #FFC;
+            padding: 0.3em;
+            border-left: 1px solid silver;
+        }
+
+        tr.break td {
+            border: 0;
+            border-top: 1px solid #FB7A31;
+            padding: 0;
+            margin: 0;
+        }
+
+        tr.method td {
+            font-weight: bold;
+        }
+
+        td {
+            padding: 0.3em;
+        }
+
+        td:first-child {
+            width: 190px;
+        }
+
+        td {
+            border-left: 1px solid #CCC;
+            text-align: center;
+        }
+
+        .method_name {
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+<h1>Profile Report</h1>
+<!-- Threads Table -->
+<table>
+    <tr>
+        <th>Thread ID</th>
+        <th>Total Time</th>
+    </tr>
+
+    <tr>
+        <td><a href="#109440">109440</a></td>
+        <td>91.978859</td>
+    </tr>
+
+</table>
+
+<!-- Methods Tables -->
+
+<h2><a name="109440">Thread 109440</a></h2>
+
+<table>
+<tr>
+    <th> %Total</th>
+    <th> %Self</th>
+    <th> Total</th>
+    <th> Self</th>
+    <th> Wait</th>
+    <th> Child</th>
+    <th> Calls</th>
+    <th class="method_name">Name</th>
+    <th>Line</th>
+</tr>
+
+
+<!-- Parents -->
+
+
+<tr class="method">
+    <td> 100.00%</td>
+    <td> 1.61%</td>
+    <td> 91.98</td>
+    <td> 1.48</td>
+    <td> 0.00</td>
+    <td> 90.50</td>
+    <td> 1</td>
+    <td class="method_name"><a name="Global_[No method]_109440">Global#[No method]</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/prof-cache.rb#line=12"
+           title="/Users/ttilley/tmp/fssm/profile/prof-cache.rb:12">12</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 1.06</td>
+    <td> 0.13</td>
+    <td> 0.00</td>
+    <td> 0.94</td>
+
+    <td> 5000/5000</td>
+    <td class="method_name"><a href="#FSSM__Tree__NodeInsertion_unset_109440">FSSM::Tree::NodeInsertion#unset</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/prof-cache.rb#line=22"
+           title="/Users/ttilley/tmp/fssm/profile/prof-cache.rb:22">22</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 89.44</td>
+    <td> 1.82</td>
+    <td> 0.00</td>
+    <td> 87.62</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#FSSM__Tree__Cache_set_109440">FSSM::Tree::Cache#set</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/prof-cache.rb#line=29"
+           title="/Users/ttilley/tmp/fssm/profile/prof-cache.rb:29">29</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 89.44</td>
+    <td> 1.82</td>
+    <td> 0.00</td>
+    <td> 87.62</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#Global_[No method]_109440">Global#[No method]</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/prof-cache.rb#line=29"
+           title="/Users/ttilley/tmp/fssm/profile/prof-cache.rb:29">29</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 97.24%</td>
+    <td> 1.98%</td>
+    <td> 89.44</td>
+    <td> 1.82</td>
+    <td> 0.00</td>
+    <td> 87.62</td>
+    <td> 165000</td>
+    <td class="method_name"><a name="FSSM__Tree__Cache_set_109440">FSSM::Tree::Cache#set</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=145"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:145">145</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 7.78</td>
+    <td> 1.35</td>
+    <td> 0.00</td>
+    <td> 6.43</td>
+
+    <td> 165000/500000</td>
+    <td class="method_name"><a href="#_Class__FSSM__Pathname__for_109440">&lt;Class::FSSM::Pathname&gt;#for</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=148"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:148">148</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 9.28</td>
+    <td> 1.45</td>
+    <td> 0.00</td>
+    <td> 7.83</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#FSSM__Pathname_expand_path_109440">FSSM::Pathname#expand_path</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=148"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:148">148</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 70.56</td>
+    <td> 1.48</td>
+    <td> 0.00</td>
+    <td> 69.08</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#FSSM__Tree__NodeInsertion_set_109440">FSSM::Tree::NodeInsertion#set</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=149"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:149">149</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 70.56</td>
+    <td> 1.48</td>
+    <td> 0.00</td>
+    <td> 69.08</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#FSSM__Tree__Cache_set_109440">FSSM::Tree::Cache#set</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=149"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:149">149</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 76.71%</td>
+    <td> 1.61%</td>
+    <td> 70.56</td>
+    <td> 1.48</td>
+    <td> 0.00</td>
+    <td> 69.08</td>
+    <td> 165000</td>
+    <td class="method_name"><a name="FSSM__Tree__NodeInsertion_set_109440">FSSM::Tree::NodeInsertion#set</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=66"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:66">66</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 58.98</td>
+    <td> 0.86</td>
+    <td> 0.00</td>
+    <td> 58.12</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#FSSM__Tree__NodeInsertion_descendant!_109440">FSSM::Tree::NodeInsertion#descendant!</a>
+    </td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=67"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:67">67</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 10.10</td>
+    <td> 2.91</td>
+    <td> 0.00</td>
+    <td> 7.19</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#FSSM__Tree__Node_from_path_109440">FSSM::Tree::Node#from_path</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=68"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:68">68</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 58.98</td>
+    <td> 0.86</td>
+    <td> 0.00</td>
+    <td> 58.12</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#FSSM__Tree__NodeInsertion_set_109440">FSSM::Tree::NodeInsertion#set</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=67"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:67">67</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 64.12%</td>
+    <td> 0.93%</td>
+    <td> 58.98</td>
+    <td> 0.86</td>
+    <td> 0.00</td>
+    <td> 58.12</td>
+    <td> 165000</td>
+    <td class="method_name"><a
+            name="FSSM__Tree__NodeInsertion_descendant!_109440">FSSM::Tree::NodeInsertion#descendant!</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=82"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:82">82</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 58.12</td>
+    <td> 17.58</td>
+    <td> 0.00</td>
+    <td> 40.54</td>
+
+    <td> 165000/170000</td>
+    <td class="method_name"><a href="#FSSM__Tree__NodeInsertion_recurse_109440">FSSM::Tree::NodeInsertion#recurse</a>
+    </td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=83"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:83">83</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 58.12</td>
+    <td> 17.58</td>
+    <td> 0.00</td>
+    <td> 40.54</td>
+
+    <td> 165000/170000</td>
+    <td class="method_name"><a href="#FSSM__Tree__NodeInsertion_descendant!_109440">FSSM::Tree::NodeInsertion#descendant!</a>
+    </td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=83"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:83">83</a></td>
+</tr>
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.11</td>
+    <td> 0.06</td>
+    <td> 0.00</td>
+    <td> 0.05</td>
+
+    <td> 5000/170000</td>
+    <td class="method_name">FSSM::Tree::NodeInsertion#descendant</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=79"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:79">79</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 63.31%</td>
+    <td> 19.17%</td>
+    <td> 58.23</td>
+    <td> 17.64</td>
+    <td> 0.00</td>
+    <td> 40.60</td>
+    <td> 170000</td>
+    <td class="method_name"><a name="FSSM__Tree__NodeInsertion_recurse_109440">FSSM::Tree::NodeInsertion#recurse</a>
+    </td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=86"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:86">86</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 8.99</td>
+    <td> 6.67</td>
+    <td> 0.00</td>
+    <td> 2.32</td>
+
+    <td> 1215000/1215000</td>
+    <td class="method_name"><a href="#FSSM__Tree__NodeBase_child!_109440">FSSM::Tree::NodeBase#child!</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=92"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:92">92</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 2.32</td>
+    <td> 2.32</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 1385000/1390000</td>
+    <td class="method_name"><a href="#Array_empty__109440">Array#empty?</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=90"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:90">90</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 27.21</td>
+    <td> 2.10</td>
+    <td> 0.00</td>
+    <td> 25.11</td>
+
+    <td> 170000/175000</td>
+    <td class="method_name"><a href="#FSSM__Tree__NodeInsertion_key_segments_109440">FSSM::Tree::NodeInsertion#key_segments</a>
+    </td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=87"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:87">87</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 2.09</td>
+    <td> 2.09</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 1215000/1215000</td>
+    <td class="method_name"><a href="#Array_shift_109440">Array#shift</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=91"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:91">91</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.74</td>
+    <td> 0.06</td>
+    <td> 0.00</td>
+    <td> 0.68</td>
+
+    <td> 5000/175000</td>
+    <td class="method_name"><a href="#FSSM__Tree__NodeInsertion_unset_109440">FSSM::Tree::NodeInsertion#unset</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=49"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:49">49</a></td>
+</tr>
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 27.21</td>
+    <td> 2.10</td>
+    <td> 0.00</td>
+    <td> 25.11</td>
+
+    <td> 170000/175000</td>
+    <td class="method_name"><a href="#FSSM__Tree__NodeInsertion_recurse_109440">FSSM::Tree::NodeInsertion#recurse</a>
+    </td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=87"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:87">87</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 30.39%</td>
+    <td> 2.35%</td>
+    <td> 27.95</td>
+    <td> 2.16</td>
+    <td> 0.00</td>
+    <td> 25.79</td>
+    <td> 175000</td>
+    <td class="method_name"><a name="FSSM__Tree__NodeInsertion_key_segments_109440">FSSM::Tree::NodeInsertion#key_segments</a>
+    </td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=73"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:73">73</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 1.62</td>
+    <td> 1.13</td>
+    <td> 0.00</td>
+    <td> 0.49</td>
+
+    <td> 170000/500000</td>
+    <td class="method_name"><a href="#_Class__FSSM__Pathname__for_109440">&lt;Class::FSSM::Pathname&gt;#for</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=75"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:75">75</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 23.84</td>
+    <td> 4.05</td>
+    <td> 0.00</td>
+    <td> 19.80</td>
+
+    <td> 170000/170000</td>
+    <td class="method_name"><a href="#FSSM__Pathname_segments_109440">FSSM::Pathname#segments</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=75"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:75">75</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.32</td>
+    <td> 0.32</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 175000/675000</td>
+    <td class="method_name"><a href="#Kernel_is_a__109440">Kernel#is_a?</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=74"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:74">74</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 23.84</td>
+    <td> 4.05</td>
+    <td> 0.00</td>
+    <td> 19.80</td>
+
+    <td> 170000/170000</td>
+    <td class="method_name"><a href="#FSSM__Tree__NodeInsertion_key_segments_109440">FSSM::Tree::NodeInsertion#key_segments</a>
+    </td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=75"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:75">75</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 25.92%</td>
+    <td> 4.40%</td>
+    <td> 23.84</td>
+    <td> 4.05</td>
+    <td> 0.00</td>
+    <td> 19.80</td>
+    <td> 170000</td>
+    <td class="method_name"><a name="FSSM__Pathname_segments_109440">FSSM::Pathname#segments</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=43"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:43">43</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.29</td>
+    <td> 0.29</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 170000/170000</td>
+    <td class="method_name">String#empty?</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=48"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:48">48</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.42</td>
+    <td> 0.42</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name">Array#unshift</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=48"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:48">48</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 13.85</td>
+    <td> 6.04</td>
+    <td> 0.00</td>
+    <td> 7.81</td>
+
+    <td> 170000/170000</td>
+    <td class="method_name"><a
+            href="#FSSM__Pathname_set_prefix_and_names_109440">FSSM::Pathname#set_prefix_and_names</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=45"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:45">45</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 1.46</td>
+    <td> 0.86</td>
+    <td> 0.00</td>
+    <td> 0.59</td>
+
+    <td> 170000/340000</td>
+    <td class="method_name"><a href="#Kernel_dup_109440">Kernel#dup</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=46"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:46">46</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 3.78</td>
+    <td> 2.04</td>
+    <td> 0.00</td>
+    <td> 1.73</td>
+
+    <td> 170000/340000</td>
+    <td class="method_name"><a href="#Array_delete_109440">Array#delete</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=47"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:47">47</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 13.85</td>
+    <td> 6.04</td>
+    <td> 0.00</td>
+    <td> 7.81</td>
+
+    <td> 170000/170000</td>
+    <td class="method_name"><a href="#FSSM__Pathname_segments_109440">FSSM::Pathname#segments</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=45"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:45">45</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 15.06%</td>
+    <td> 6.57%</td>
+    <td> 13.85</td>
+    <td> 6.04</td>
+    <td> 0.00</td>
+    <td> 7.81</td>
+    <td> 170000</td>
+    <td class="method_name"><a name="FSSM__Pathname_set_prefix_and_names_109440">FSSM::Pathname#set_prefix_and_names</a>
+    </td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=144"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:144">144</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.37</td>
+    <td> 0.37</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name">MatchData#[]</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=150"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:150">150</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 1.35</td>
+    <td> 1.35</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 170000/170000</td>
+    <td class="method_name"><a href="#String_split_109440">String#split</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=154"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:154">154</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.36</td>
+    <td> 0.36</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 170000/170000</td>
+    <td class="method_name">Array#+</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=154"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:154">154</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.31</td>
+    <td> 0.31</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name">MatchData#post_match</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=151"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:151">151</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.66</td>
+    <td> 0.66</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name">FSSM::Pathname#to_s</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=150"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:150">150</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.68</td>
+    <td> 0.68</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 170000/170000</td>
+    <td class="method_name">Regexp#match</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=149"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:149">149</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.29</td>
+    <td> 0.29</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 170000/170000</td>
+    <td class="method_name">Array#compact!</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=157"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:157">157</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 3.78</td>
+    <td> 2.05</td>
+    <td> 0.00</td>
+    <td> 1.73</td>
+
+    <td> 170000/340000</td>
+    <td class="method_name"><a href="#Array_delete_109440">Array#delete</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=158"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:158">158</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 1.36</td>
+    <td> 1.07</td>
+    <td> 0.00</td>
+    <td> 0.29</td>
+
+    <td> 165000/500000</td>
+    <td class="method_name"><a href="#FSSM__Tree__Node_from_path_109440">FSSM::Tree::Node#from_path</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=130"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:130">130</a></td>
+</tr>
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 7.78</td>
+    <td> 1.35</td>
+    <td> 0.00</td>
+    <td> 6.43</td>
+
+    <td> 165000/500000</td>
+    <td class="method_name"><a href="#FSSM__Tree__Cache_set_109440">FSSM::Tree::Cache#set</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=148"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:148">148</a></td>
+</tr>
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 1.62</td>
+    <td> 1.13</td>
+    <td> 0.00</td>
+    <td> 0.49</td>
+
+    <td> 170000/500000</td>
+    <td class="method_name"><a href="#FSSM__Tree__NodeInsertion_key_segments_109440">FSSM::Tree::NodeInsertion#key_segments</a>
+    </td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=75"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:75">75</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 11.70%</td>
+    <td> 3.86%</td>
+    <td> 10.76</td>
+    <td> 3.55</td>
+    <td> 0.00</td>
+    <td> 7.21</td>
+    <td> 500000</td>
+    <td class="method_name"><a name="_Class__FSSM__Pathname__for_109440">&lt;Class::FSSM::Pathname&gt;#for</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=21"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:21">21</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.90</td>
+    <td> 0.90</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 500000/675000</td>
+    <td class="method_name"><a href="#Kernel_is_a__109440">Kernel#is_a?</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=22"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:22">22</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 6.32</td>
+    <td> 0.92</td>
+    <td> 0.00</td>
+    <td> 5.39</td>
+
+    <td> 170000/335038</td>
+    <td class="method_name"><a href="#Class_new_109440">Class#new</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=22"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:22">22</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 10.10</td>
+    <td> 2.91</td>
+    <td> 0.00</td>
+    <td> 7.19</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#FSSM__Tree__NodeInsertion_set_109440">FSSM::Tree::NodeInsertion#set</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=68"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:68">68</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 10.98%</td>
+    <td> 3.16%</td>
+    <td> 10.10</td>
+    <td> 2.91</td>
+    <td> 0.00</td>
+    <td> 7.19</td>
+    <td> 165000</td>
+    <td class="method_name"><a name="FSSM__Tree__Node_from_path_109440">FSSM::Tree::Node#from_path</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=129"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:129">129</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 1.36</td>
+    <td> 1.07</td>
+    <td> 0.00</td>
+    <td> 0.29</td>
+
+    <td> 165000/500000</td>
+    <td class="method_name"><a href="#_Class__FSSM__Pathname__for_109440">&lt;Class::FSSM::Pathname&gt;#for</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=130"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:130">130</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 1.99</td>
+    <td> 0.86</td>
+    <td> 0.00</td>
+    <td> 1.13</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#FSSM__Pathname_mtime_109440">FSSM::Pathname#mtime</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=134"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:134">134</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 1.79</td>
+    <td> 0.87</td>
+    <td> 0.00</td>
+    <td> 0.92</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#FSSM__Pathname_symlink__109440">FSSM::Pathname#symlink?</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=134"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:134">134</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 2.05</td>
+    <td> 0.86</td>
+    <td> 0.00</td>
+    <td> 1.19</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#FSSM__Pathname_ftype_109440">FSSM::Pathname#ftype</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=131"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:131">131</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 6.32</td>
+    <td> 0.92</td>
+    <td> 0.00</td>
+    <td> 5.39</td>
+
+    <td> 170000/335038</td>
+    <td class="method_name"><a href="#_Class__FSSM__Pathname__for_109440">&lt;Class::FSSM::Pathname&gt;#for</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=22"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:22">22</a></td>
+</tr>
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 38/335038</td>
+    <td class="method_name"><a href="#FSSM__Tree__NodeBase_child!_109440">FSSM::Tree::NodeBase#child!</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=14"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:14">14</a></td>
+</tr>
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 3.01</td>
+    <td> 0.91</td>
+    <td> 0.00</td>
+    <td> 2.11</td>
+
+    <td> 165000/335038</td>
+    <td class="method_name"><a href="#FSSM__Pathname_expand_path_109440">FSSM::Pathname#expand_path</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=247"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:247">247</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 10.14%</td>
+    <td> 1.99%</td>
+    <td> 9.33</td>
+    <td> 1.83</td>
+    <td> 0.00</td>
+    <td> 7.50</td>
+    <td> 335038</td>
+    <td class="method_name"><a name="Class_new_109440">Class#new</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=0"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:0">0</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 38/38</td>
+    <td class="method_name">&lt;Class::Object&gt;#allocate</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=14"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:14">14</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.59</td>
+    <td> 0.59</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 335000/505000</td>
+    <td class="method_name">&lt;Class::String&gt;#allocate</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=22"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:22">22</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 38/38</td>
+    <td class="method_name">FSSM::Tree::NodeBase#initialize</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=14"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:14">14</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 6.91</td>
+    <td> 3.04</td>
+    <td> 0.00</td>
+    <td> 3.87</td>
+
+    <td> 335000/335000</td>
+    <td class="method_name"><a href="#FSSM__Pathname_initialize_109440">FSSM::Pathname#initialize</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=22"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:22">22</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 9.28</td>
+    <td> 1.45</td>
+    <td> 0.00</td>
+    <td> 7.83</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#FSSM__Tree__Cache_set_109440">FSSM::Tree::Cache#set</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=148"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:148">148</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 10.09%</td>
+    <td> 1.58%</td>
+    <td> 9.28</td>
+    <td> 1.45</td>
+    <td> 0.00</td>
+    <td> 7.83</td>
+    <td> 165000</td>
+    <td class="method_name"><a name="FSSM__Pathname_expand_path_109440">FSSM::Pathname#expand_path</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=247"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:247">247</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.28</td>
+    <td> 0.28</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name">Kernel#class</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=247"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:247">247</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 4.54</td>
+    <td> 4.54</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#_Class__File__expand_path_109440">&lt;Class::File&gt;#expand_path</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=247"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:247">247</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 3.01</td>
+    <td> 0.91</td>
+    <td> 0.00</td>
+    <td> 2.11</td>
+
+    <td> 165000/335038</td>
+    <td class="method_name"><a href="#Class_new_109440">Class#new</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=247"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:247">247</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 8.99</td>
+    <td> 6.67</td>
+    <td> 0.00</td>
+    <td> 2.32</td>
+
+    <td> 1215000/1215000</td>
+    <td class="method_name"><a href="#FSSM__Tree__NodeInsertion_recurse_109440">FSSM::Tree::NodeInsertion#recurse</a>
+    </td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=92"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:92">92</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 9.77%</td>
+    <td> 7.25%</td>
+    <td> 8.99</td>
+    <td> 6.67</td>
+    <td> 0.00</td>
+    <td> 2.32</td>
+    <td> 1215000</td>
+    <td class="method_name"><a name="FSSM__Tree__NodeBase_child!_109440">FSSM::Tree::NodeBase#child!</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=13"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:13">13</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 38/38</td>
+    <td class="method_name">Hash#[]=</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=14"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:14">14</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 38/335038</td>
+    <td class="method_name"><a href="#Class_new_109440">Class#new</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=14"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:14">14</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 2.32</td>
+    <td> 2.32</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 1215000/1215000</td>
+    <td class="method_name"><a href="#Hash_[]_109440">Hash#[]</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=14"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:14">14</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 3.78</td>
+    <td> 2.04</td>
+    <td> 0.00</td>
+    <td> 1.73</td>
+
+    <td> 170000/340000</td>
+    <td class="method_name"><a href="#FSSM__Pathname_segments_109440">FSSM::Pathname#segments</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=47"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:47">47</a></td>
+</tr>
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 3.78</td>
+    <td> 2.05</td>
+    <td> 0.00</td>
+    <td> 1.73</td>
+
+    <td> 170000/340000</td>
+    <td class="method_name"><a
+            href="#FSSM__Pathname_set_prefix_and_names_109440">FSSM::Pathname#set_prefix_and_names</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=158"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:158">158</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 8.22%</td>
+    <td> 4.45%</td>
+    <td> 7.56</td>
+    <td> 4.09</td>
+    <td> 0.00</td>
+    <td> 3.47</td>
+    <td> 340000</td>
+    <td class="method_name"><a name="Array_delete_109440">Array#delete</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=0"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:0">0</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 3.47</td>
+    <td> 3.47</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 2110000/2110000</td>
+    <td class="method_name"><a href="#String____109440">String#==</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=158"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:158">158</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 6.91</td>
+    <td> 3.04</td>
+    <td> 0.00</td>
+    <td> 3.87</td>
+
+    <td> 335000/335000</td>
+    <td class="method_name"><a href="#Class_new_109440">Class#new</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=22"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:22">22</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 7.51%</td>
+    <td> 3.30%</td>
+    <td> 6.91</td>
+    <td> 3.04</td>
+    <td> 0.00</td>
+    <td> 3.87</td>
+    <td> 335000</td>
+    <td class="method_name"><a name="FSSM__Pathname_initialize_109440">FSSM::Pathname#initialize</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=26"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:26">26</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.28</td>
+    <td> 0.28</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 170000/170000</td>
+    <td class="method_name">Kernel#=~</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=27"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:27">27</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 3.59</td>
+    <td> 1.19</td>
+    <td> 0.00</td>
+    <td> 2.39</td>
+
+    <td> 335000/335000</td>
+    <td class="method_name"><a href="#String_initialize_109440">String#initialize</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=31"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:31">31</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 4.54</td>
+    <td> 4.54</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#FSSM__Pathname_expand_path_109440">FSSM::Pathname#expand_path</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=247"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:247">247</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 4.94%</td>
+    <td> 4.94%</td>
+    <td> 4.54</td>
+    <td> 4.54</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+    <td> 165000</td>
+    <td class="method_name"><a name="_Class__File__expand_path_109440">&lt;Class::File&gt;#expand_path</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=0"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:0">0</a></td>
+</tr>
+
+<!-- Children -->
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 3.59</td>
+    <td> 1.19</td>
+    <td> 0.00</td>
+    <td> 2.39</td>
+
+    <td> 335000/335000</td>
+    <td class="method_name"><a href="#FSSM__Pathname_initialize_109440">FSSM::Pathname#initialize</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=31"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:31">31</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 3.90%</td>
+    <td> 1.30%</td>
+    <td> 3.59</td>
+    <td> 1.19</td>
+    <td> 0.00</td>
+    <td> 2.39</td>
+    <td> 335000</td>
+    <td class="method_name"><a name="String_initialize_109440">String#initialize</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=0"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:0">0</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 2.39</td>
+    <td> 0.84</td>
+    <td> 0.00</td>
+    <td> 1.55</td>
+
+    <td> 170000/170000</td>
+    <td class="method_name"><a href="#Pathname_to_str_109440">Pathname#to_str</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=31"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:31">31</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 3.47</td>
+    <td> 3.47</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 2110000/2110000</td>
+    <td class="method_name"><a href="#Array_delete_109440">Array#delete</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=158"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:158">158</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 3.77%</td>
+    <td> 3.77%</td>
+    <td> 3.47</td>
+    <td> 3.47</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+    <td> 2110000</td>
+    <td class="method_name"><a name="String____109440">String#==</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=0"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:0">0</a></td>
+</tr>
+
+<!-- Children -->
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 1.46</td>
+    <td> 0.86</td>
+    <td> 0.00</td>
+    <td> 0.59</td>
+
+    <td> 170000/340000</td>
+    <td class="method_name"><a href="#FSSM__Pathname_segments_109440">FSSM::Pathname#segments</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=46"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:46">46</a></td>
+</tr>
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 1.55</td>
+    <td> 0.87</td>
+    <td> 0.00</td>
+    <td> 0.67</td>
+
+    <td> 170000/340000</td>
+    <td class="method_name"><a href="#Pathname_to_str_109440">Pathname#to_str</a></td>
+    <td><a href="file:///System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/pathname.rb#line=242"
+           title="/System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/pathname.rb:242">242</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 3.27%</td>
+    <td> 1.89%</td>
+    <td> 3.00</td>
+    <td> 1.74</td>
+    <td> 0.00</td>
+    <td> 1.27</td>
+    <td> 340000</td>
+    <td class="method_name"><a name="Kernel_dup_109440">Kernel#dup</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=0"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:0">0</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.30</td>
+    <td> 0.30</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 170000/505000</td>
+    <td class="method_name">&lt;Class::String&gt;#allocate</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=242"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:242">242</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.29</td>
+    <td> 0.29</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 170000/170000</td>
+    <td class="method_name">&lt;Class::Array&gt;#allocate</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=46"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:46">46</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.37</td>
+    <td> 0.37</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 170000/170000</td>
+    <td class="method_name">String#initialize_copy</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=242"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:242">242</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.30</td>
+    <td> 0.30</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 170000/170000</td>
+    <td class="method_name">Array#initialize_copy</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=46"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:46">46</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 2.39</td>
+    <td> 0.84</td>
+    <td> 0.00</td>
+    <td> 1.55</td>
+
+    <td> 170000/170000</td>
+    <td class="method_name"><a href="#String_initialize_109440">String#initialize</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=31"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:31">31</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 2.60%</td>
+    <td> 0.92%</td>
+    <td> 2.39</td>
+    <td> 0.84</td>
+    <td> 0.00</td>
+    <td> 1.55</td>
+    <td> 170000</td>
+    <td class="method_name"><a name="Pathname_to_str_109440">Pathname#to_str</a></td>
+    <td><a href="file:///System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/pathname.rb#line=241"
+           title="/System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/pathname.rb:241">241</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 1.55</td>
+    <td> 0.87</td>
+    <td> 0.00</td>
+    <td> 0.67</td>
+
+    <td> 170000/340000</td>
+    <td class="method_name"><a href="#Kernel_dup_109440">Kernel#dup</a></td>
+    <td><a href="file:///System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/pathname.rb#line=242"
+           title="/System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/pathname.rb:242">242</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.01</td>
+    <td> 0.01</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 5000/1390000</td>
+    <td class="method_name"><a href="#FSSM__Tree__NodeInsertion_unset_109440">FSSM::Tree::NodeInsertion#unset</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=51"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:51">51</a></td>
+</tr>
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 2.32</td>
+    <td> 2.32</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 1385000/1390000</td>
+    <td class="method_name"><a href="#FSSM__Tree__NodeInsertion_recurse_109440">FSSM::Tree::NodeInsertion#recurse</a>
+    </td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=90"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:90">90</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 2.53%</td>
+    <td> 2.53%</td>
+    <td> 2.33</td>
+    <td> 2.33</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+    <td> 1390000</td>
+    <td class="method_name"><a name="Array_empty__109440">Array#empty?</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=0"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:0">0</a></td>
+</tr>
+
+<!-- Children -->
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 2.32</td>
+    <td> 2.32</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 1215000/1215000</td>
+    <td class="method_name"><a href="#FSSM__Tree__NodeBase_child!_109440">FSSM::Tree::NodeBase#child!</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=14"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:14">14</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 2.52%</td>
+    <td> 2.52%</td>
+    <td> 2.32</td>
+    <td> 2.32</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+    <td> 1215000</td>
+    <td class="method_name"><a name="Hash_[]_109440">Hash#[]</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=0"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:0">0</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 38/38</td>
+    <td class="method_name">Hash#default</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=14"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:14">14</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 2.09</td>
+    <td> 2.09</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 1215000/1215000</td>
+    <td class="method_name"><a href="#FSSM__Tree__NodeInsertion_recurse_109440">FSSM::Tree::NodeInsertion#recurse</a>
+    </td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=91"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:91">91</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 2.27%</td>
+    <td> 2.27%</td>
+    <td> 2.09</td>
+    <td> 2.09</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+    <td> 1215000</td>
+    <td class="method_name"><a name="Array_shift_109440">Array#shift</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=0"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:0">0</a></td>
+</tr>
+
+<!-- Children -->
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 2.05</td>
+    <td> 0.86</td>
+    <td> 0.00</td>
+    <td> 1.19</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#FSSM__Tree__Node_from_path_109440">FSSM::Tree::Node#from_path</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=131"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:131">131</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 2.23%</td>
+    <td> 0.93%</td>
+    <td> 2.05</td>
+    <td> 0.86</td>
+    <td> 0.00</td>
+    <td> 1.19</td>
+    <td> 165000</td>
+    <td class="method_name"><a name="FSSM__Pathname_ftype_109440">FSSM::Pathname#ftype</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=229"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:229">229</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 1.19</td>
+    <td> 1.19</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#_Class__File__ftype_109440">&lt;Class::File&gt;#ftype</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=229"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:229">229</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 1.99</td>
+    <td> 0.86</td>
+    <td> 0.00</td>
+    <td> 1.13</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#FSSM__Tree__Node_from_path_109440">FSSM::Tree::Node#from_path</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=134"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:134">134</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 2.17%</td>
+    <td> 0.94%</td>
+    <td> 1.99</td>
+    <td> 0.86</td>
+    <td> 0.00</td>
+    <td> 1.13</td>
+    <td> 165000</td>
+    <td class="method_name"><a name="FSSM__Pathname_mtime_109440">FSSM::Pathname#mtime</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=231"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:231">231</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 1.13</td>
+    <td> 1.13</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#_Class__File__mtime_109440">&lt;Class::File&gt;#mtime</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=231"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:231">231</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 1.79</td>
+    <td> 0.87</td>
+    <td> 0.00</td>
+    <td> 0.92</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#FSSM__Tree__Node_from_path_109440">FSSM::Tree::Node#from_path</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=134"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:134">134</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 1.94%</td>
+    <td> 0.94%</td>
+    <td> 1.79</td>
+    <td> 0.87</td>
+    <td> 0.00</td>
+    <td> 0.92</td>
+    <td> 165000</td>
+    <td class="method_name"><a name="FSSM__Pathname_symlink__109440">FSSM::Pathname#symlink?</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=216"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:216">216</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.92</td>
+    <td> 0.92</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#_Module__FileTest__symlink__109440">&lt;Module::FileTest&gt;#symlink?</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=216"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:216">216</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 1.35</td>
+    <td> 1.35</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 170000/170000</td>
+    <td class="method_name"><a
+            href="#FSSM__Pathname_set_prefix_and_names_109440">FSSM::Pathname#set_prefix_and_names</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=154"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:154">154</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 1.47%</td>
+    <td> 1.47%</td>
+    <td> 1.35</td>
+    <td> 1.35</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+    <td> 170000</td>
+    <td class="method_name"><a name="String_split_109440">String#split</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=0"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:0">0</a></td>
+</tr>
+
+<!-- Children -->
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.90</td>
+    <td> 0.90</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 500000/675000</td>
+    <td class="method_name"><a href="#_Class__FSSM__Pathname__for_109440">&lt;Class::FSSM::Pathname&gt;#for</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=22"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:22">22</a></td>
+</tr>
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.32</td>
+    <td> 0.32</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 175000/675000</td>
+    <td class="method_name"><a href="#FSSM__Tree__NodeInsertion_key_segments_109440">FSSM::Tree::NodeInsertion#key_segments</a>
+    </td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=74"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:74">74</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 1.32%</td>
+    <td> 1.32%</td>
+    <td> 1.22</td>
+    <td> 1.22</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+    <td> 675000</td>
+    <td class="method_name"><a name="Kernel_is_a__109440">Kernel#is_a?</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=0"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:0">0</a></td>
+</tr>
+
+<!-- Children -->
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 1.19</td>
+    <td> 1.19</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#FSSM__Pathname_ftype_109440">FSSM::Pathname#ftype</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=229"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:229">229</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 1.30%</td>
+    <td> 1.30%</td>
+    <td> 1.19</td>
+    <td> 1.19</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+    <td> 165000</td>
+    <td class="method_name"><a name="_Class__File__ftype_109440">&lt;Class::File&gt;#ftype</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=0"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:0">0</a></td>
+</tr>
+
+<!-- Children -->
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 1.13</td>
+    <td> 1.13</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#FSSM__Pathname_mtime_109440">FSSM::Pathname#mtime</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=231"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:231">231</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 1.23%</td>
+    <td> 1.23%</td>
+    <td> 1.13</td>
+    <td> 1.13</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+    <td> 165000</td>
+    <td class="method_name"><a name="_Class__File__mtime_109440">&lt;Class::File&gt;#mtime</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=0"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:0">0</a></td>
+</tr>
+
+<!-- Children -->
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 1.06</td>
+    <td> 0.13</td>
+    <td> 0.00</td>
+    <td> 0.94</td>
+
+    <td> 5000/5000</td>
+    <td class="method_name"><a href="#Global_[No method]_109440">Global#[No method]</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/prof-cache.rb#line=22"
+           title="/Users/ttilley/tmp/fssm/profile/prof-cache.rb:22">22</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 1.15%</td>
+    <td> 0.14%</td>
+    <td> 1.06</td>
+    <td> 0.13</td>
+    <td> 0.00</td>
+    <td> 0.94</td>
+    <td> 5000</td>
+    <td class="method_name"><a name="FSSM__Tree__NodeInsertion_unset_109440">FSSM::Tree::NodeInsertion#unset</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=48"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:48">48</a></td>
+</tr>
+
+<!-- Children -->
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.01</td>
+    <td> 0.01</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 5000/5000</td>
+    <td class="method_name">Array#pop</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=56"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:56">56</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.14</td>
+    <td> 0.03</td>
+    <td> 0.00</td>
+    <td> 0.11</td>
+
+    <td> 5000/5000</td>
+    <td class="method_name">FSSM::Tree::NodeInsertion#descendant</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=57"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:57">57</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.04</td>
+    <td> 0.03</td>
+    <td> 0.00</td>
+    <td> 0.01</td>
+
+    <td> 5000/5000</td>
+    <td class="method_name">FSSM::Tree::NodeBase#remove_child</td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=61"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:61">61</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.01</td>
+    <td> 0.01</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 5000/1390000</td>
+    <td class="method_name"><a href="#Array_empty__109440">Array#empty?</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=51"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:51">51</a></td>
+</tr>
+
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.74</td>
+    <td> 0.06</td>
+    <td> 0.00</td>
+    <td> 0.68</td>
+
+    <td> 5000/175000</td>
+    <td class="method_name"><a href="#FSSM__Tree__NodeInsertion_key_segments_109440">FSSM::Tree::NodeInsertion#key_segments</a>
+    </td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/tree.rb#line=49"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/tree.rb:49">49</a></td>
+</tr>
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+
+<!-- Parents -->
+
+<tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td> 0.92</td>
+    <td> 0.92</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+
+    <td> 165000/165000</td>
+    <td class="method_name"><a href="#FSSM__Pathname_symlink__109440">FSSM::Pathname#symlink?</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/lib/fssm/pathname.rb#line=216"
+           title="/Users/ttilley/tmp/fssm/lib/fssm/pathname.rb:216">216</a></td>
+</tr>
+
+
+<tr class="method">
+    <td> 1.00%</td>
+    <td> 1.00%</td>
+    <td> 0.92</td>
+    <td> 0.92</td>
+    <td> 0.00</td>
+    <td> 0.00</td>
+    <td> 165000</td>
+    <td class="method_name"><a name="_Module__FileTest__symlink__109440">&lt;Module::FileTest&gt;#symlink?</a></td>
+    <td><a href="file:///Users/ttilley/tmp/fssm/profile/ruby_runtime#line=0"
+           title="/Users/ttilley/tmp/fssm/profile/ruby_runtime:0">0</a></td>
+</tr>
+
+<!-- Children -->
+
+<!-- Create divider row -->
+<tr class="break">
+    <td colspan="9"></td>
+</tr>
+
+</table>
+
+</body>
+</html>

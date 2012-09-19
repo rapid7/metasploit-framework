@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..'))
 
@@ -6,7 +7,7 @@ require 'rex/test'
 require 'rex/proto/drda/packet'
 
 class Rex::Proto::DRDA::UnitTest < Test::Unit::TestCase
-	
+
 	Klass = Rex::Proto::DRDA
 	Konst = Rex::Proto::DRDA::Constants
 
@@ -24,7 +25,7 @@ class Rex::Proto::DRDA::UnitTest < Test::Unit::TestCase
 		assert_equal Konst::SECCHK, d.codepoint
 	end
 
-	# All parameter names should have a corresponding codepoint, 
+	# All parameter names should have a corresponding codepoint,
 	# except "DDM_PARAM" (a generic parameter).
 	def test_all_param_codepoints
 		params = Klass.constants.map {|x| x if x =~ /PARAM$/}.compact
@@ -67,7 +68,7 @@ class Rex::Proto::DRDA::UnitTest < Test::Unit::TestCase
 		ddms = Klass.constants.map {|x| x if x =~ /DDM$/}.compact
 		ddms.each do |d|
 			obj = Klass.const_get(d).new
-			assert_operator obj.size, :>=, 7 
+			assert_operator obj.size, :>=, 7
 			assert_respond_to obj, :length
 			assert_respond_to obj, :magic
 			assert_respond_to obj, :format
@@ -99,7 +100,7 @@ class Rex::Proto::DRDA::UnitTest < Test::Unit::TestCase
 		assert_equal Konst::SECCHKRM, s[0].codepoint
 		assert_equal Konst::ACCRDBRM, s[1].codepoint
 		assert_equal Konst::SQLCARD, s[2].codepoint
-		assert_equal 0xd0, s[0].magic 
+		assert_equal 0xd0, s[0].magic
 		assert_equal 0x52, s[1].format
 		assert_equal 134, s[2].length2
 		assert_equal 21+80+140, s.sz

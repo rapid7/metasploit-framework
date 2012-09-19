@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			snmp = connect_snmp
 
-			print_status("Try to connect to #{ip}...");
+			print_status("Try to connect to #{ip}...")
 
 			# get request
 			check = snmp.get_value(oid)
@@ -81,15 +81,17 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("Check new value : OID #{oid} => #{check}")
 
 			else
-				print_status("#{ip} not provides WRITE access with community '#{comm}'")
+				print_status("#{ip} - OID not writable or does not provide WRITE access with community '#{comm}'")
 			end
 
 			disconnect_snmp
 
 		rescue ::SNMP::RequestTimeout
-			print_error("Can't connect to #{ip} with community '#{comm}'")
+			print_error("#{ip} - SNMP request timeout with community '#{comm}'.")
 		rescue ::Rex::ConnectionRefused
-			print_error("Can't connect to #{ip} : 'Connection Refused'")
+			print_error("#{ip} - 'Connection Refused'")
+		rescue SNMP::UnsupportedVersion
+			print_error("#{ip} - Unsupported SNMP version specified. Select from '1' or '2c'.")
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e

@@ -1,0 +1,11 @@
+.*.sw[pon]
+coverage
+pkg
+.nfs.*
+.idea
+java/Json.iml
+Gemfile.lock
+.rvmrc
+*.rbc
+.rbx
+.AppleDouble

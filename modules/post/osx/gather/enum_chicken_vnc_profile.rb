@@ -17,11 +17,11 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'          => 'OSX Gather Chicken of the VNC Profile ',
+			'Name'          => 'OS X Gather Chicken of the VNC Profile',
 			'Description'   => %q{
-				This module will download Chicken of the VNC client's profile file,
-				which is used to store other VNC server's information such as the
-				IP and password.
+				This module will download the "Chicken of the VNC" client application's
+				profile file,	which is used to store other VNC servers' information such
+				as as the	IP and password.
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'sinn3r'],
@@ -40,14 +40,21 @@ class Metasploit3 < Msf::Post
 	# and retry under certain conditions.
 	#
 	def exec(cmd)
+		tries = 0
 		begin
 			out = cmd_exec(cmd).chomp
 		rescue ::Timeout::Error => e
-			vprint_error("#{@peer} - #{e.message} - retrying...")
-			retry
+			tries += 1
+			if tries < 3
+				vprint_error("#{@peer} - #{e.message} - retrying...")
+				retry
+			end
 		rescue EOFError => e
-			vprint_error("#{@peer} - #{e.message} - retrying...")
-			retry
+			tries += 1
+			if tries < 3
+				vprint_error("#{@peer} - #{e.message} - retrying...")
+				retry
+			end
 		end
 	end
 

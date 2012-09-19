@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'pcAnywhere UDP Service Discovery',
+			'Name'        => 'PcAnywhere UDP Service Discovery',
 			'Version'     => '$Revision$',
 			'Description' => 'Discover active pcAnywhere services through UDP',
 			'Author'      => 'hdm',
@@ -120,8 +120,8 @@ class Metasploit3 < Msf::Auxiliary
 				info << "( #{data[:caps]} ) "
 			end
 
-			report_service(:host => ip, :port => rport, :proto => 'udp', :name => "pcanywhere", :info => info)
-			report_note(:host => ip, :port => rport, :proto => 'udp', :name => "pcanywhere", :update => :unique, :ntype => "pcanywhere.status", :data => data )
+			report_service(:host => ip, :port => rport, :proto => 'udp', :name => "pcanywhere_stat", :info => info)
+			report_note(:host => ip, :port => rport, :proto => 'udp', :name => "pcanywhere_stat", :update => :unique, :ntype => "pcanywhere.status", :data => data )
 			print_status("#{ip}:#{rport} #{info}")
 		end
 	end

@@ -1,0 +1,6 @@
+# edit version.rb
+git ci -am "version bump"                  # commit changes
+git tag X.X.X                              # tag the new version in the code base too
+gem build formtastic.gemspec               # build the gem
+gem push formtastic-X.X.X.gem              # publish the gem
+git push && git push --tags                # push to remote

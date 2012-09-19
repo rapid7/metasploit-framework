@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <body>
+    <h3>List</h3>
+    <% if @list.nil? || @list.empty? %>
+    <p>not found.</p>
+    <% else %>
+    <table>
+      <tbody>
+        <% @list.each_with_index do |item, i| %>
+        <tr bgcolor="<%= i % 2 == 0 ? '#FCC' : '#CCF' %>">
+          <td><%= item %></td>
+        </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <% end %>
+  </body>
+</html>

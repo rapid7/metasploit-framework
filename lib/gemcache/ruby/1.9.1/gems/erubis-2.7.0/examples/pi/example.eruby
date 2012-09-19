@@ -1,0 +1,15 @@
+<?rb
+   user = 'Erubis'
+   list = ['<aaa>', 'b&b', '"ccc"']
+ ?>
+<p>Hello @{user}@!</p>
+<table>
+  <tbody>
+    <?rb list.each_with_index do |item, i| ?>
+    <tr bgcolor="@!{i % 2 == 0 ? '#FFCCCC' : '#CCCCFF'}@">
+      <td>@!{i + 1}@</td>
+      <td>@{item}@</td>
+    </tr>
+    <?rb end ?>
+  </tbody>
+</table>

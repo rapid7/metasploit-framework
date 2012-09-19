@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Net; module SSH; module Transport
   module Constants
 

@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'SIP Invite Spoof',
 			'Version'        => '$Revision$',
 			'Description'    => 'This module will create a fake SIP invite request making the targeted device ring and display fake caller id information.',
-			'Author'         => 'David Maynor <dave@erratasec.com>',
+			'Author'         => 'David Maynor <dave[at]erratasec.com>',
 			'License'        =>  MSF_LICENSE
 		)
 

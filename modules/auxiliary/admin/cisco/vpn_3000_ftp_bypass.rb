@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		connect
 		res = sock.get_once
-		if (res =~ /220 Session will be terminated after/)
+		if (res and res =~ /220 Session will be terminated after/)
 			print_status("Target appears to be a Cisco VPN Concentrator 3000 series.")
 
 			test = Rex::Text.rand_text_alphanumeric(8)

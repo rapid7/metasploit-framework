@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
 			p.tcp_src = rand(64511)+1024
 			p.tcp_seq = rand(64511)+1024
 			p.recalc
-			
+
 			ackbpf = "tcp [8:4] == 0x#{(p.tcp_seq + 1).to_s(16)}"
 			pcap.setfilter("tcp and tcp[13] == 18 and not host #{ip} and src port #{p.tcp_dst} and dst port #{p.tcp_src} and #{ackbpf}")
 			capture_sendto(p, ip)

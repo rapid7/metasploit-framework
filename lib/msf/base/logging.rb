@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex'
 require 'msf/base'
 

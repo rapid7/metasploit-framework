@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
 				select(nil,nil,nil,0.4)
 			end
 			sock.put(command)
-			@result = sock.get_once
+			@result = sock.get_once || ''
 		rescue ::Exception => err
 			print_error("Error: #{err.to_s}")
 		end

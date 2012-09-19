@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..'))
 
@@ -15,7 +16,7 @@ class Rex::IO::RingBuffer::UnitTest < Test::Unit::TestCase
 		lport  = server.getsockname[2]
 		@client = Rex::Socket.create_tcp('PeerHost' => '127.0.0.1', 'PeerPort' => lport)
 		conn   = server.accept
-		#server.close		
+		#server.close
 
 		@r = Rex::IO::RingBuffer.new(conn, {:size => 64})
 		@r.start_monitor
@@ -23,7 +24,7 @@ class Rex::IO::RingBuffer::UnitTest < Test::Unit::TestCase
 
 	def teardown
 		begin
-			@client.close		
+			@client.close
 			@r.stop_monitor
 		rescue ::Exception
 		end
@@ -83,7 +84,7 @@ s,d = r.read_data(s)
 
 test_counter = 11
 1.upto(100) do
-	client.put( "X" )			
+	client.put( "X" )
 	test_counter += 1
 end
 

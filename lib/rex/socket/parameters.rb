@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/socket'
 
 ###
@@ -31,73 +32,73 @@ class Rex::Socket::Parameters
 	# Initializes the attributes from the supplied hash.  The following hash
 	# keys can be specified.
 	#
-	# PeerHost / PeerAddr
+	# [PeerHost / PeerAddr]
 	#
 	# 	The remote host to connect to.
 	#
-	# PeerPort
+	# [PeerPort]
 	#
 	# 	The remote port to connect to.
 	#
-	# LocalHost / LocalAddr
+	# [LocalHost / LocalAddr]
 	#
 	# 	The local host to communicate from, if any.
 	#
-	# LocalPort
+	# [LocalPort]
 	#
 	# 	The local port to communicate from, if any.
 	#
-	# Bare
+	# [Bare]
 	#
 	# 	Create a bare socket.
 	#
-	# Server
+	# [Server]
 	#
 	# 	Whether or not this should be a server.
 	#
-	# SSL
+	# [SSL]
 	#
 	# 	Whether or not SSL should be used.
 	#
-	# SSLVersion
+	# [SSLVersion]
 	#
 	# 	Specify SSL2, SSL3, or TLS1 (SSL3 is default)
-	#	
-	# SSLCert
+	#
+	# [SSLCert]
 	#
 	# 	A file containing an SSL certificate (for server sockets)
 	#
-	# Proxies
+	# [Proxies]
 	#
 	#	List of proxies to use.
 	#
-	# Proto
+	# [Proto]
 	#
 	#	The underlying protocol to use.
 	#
-	# IPv6
+	# [IPv6]
 	#
 	#	Force the use of IPv6.
 	#
-	# Comm
+	# [Comm]
 	#
 	# 	The underlying Comm class to use to create the socket for this parameter
 	# 	set.
 	#
-	# Context
+	# [Context]
 	#
 	# 	A context hash that can allow users of this parameter class instance to
 	# 	determine who is responsible for requesting that a socket be created.
 	#
-	# Retries
+	# [Retries]
 	#
 	# 	The number of times a connection should be retried.
 	#
-	# Timeout
+	# [Timeout]
 	#
 	# 	The number of seconds before a connection should time out
 	#
-	
+
 	def initialize(hash)
 		if (hash['PeerHost'])
 			self.peerhost = hash['PeerHost']
@@ -138,11 +139,11 @@ class Rex::Socket::Parameters
 		else
 			self.ssl = false
 		end
-		
+
 		if (hash['SSLVersion'] and hash['SSLVersion'].to_s =~ /^(SSL2|SSL3|TLS1)$/i)
 			self.ssl_version = hash['SSLVersion']
 		end
-		
+
 		if (hash['SSLCert'] and ::File.file?(hash['SSLCert']))
 			begin
 				self.ssl_cert = ::File.read(hash['SSLCert'])
@@ -150,11 +151,11 @@ class Rex::Socket::Parameters
 				elog("Failed to read cert: #{e.class}: #{e}", LogSource)
 			end
 		end
-		
-		if hash['Proxies']	
+
+		if hash['Proxies']
 			self.proxies = hash['Proxies'].split('-').map{|a| a.strip}.map{|a| a.split(':').map{|b| b.strip}}
 		end
-		
+
 		# The protocol this socket will be using
 		if (hash['Proto'])
 			self.proto = hash['Proto'].downcase
@@ -170,7 +171,7 @@ class Rex::Socket::Parameters
 
 		# The context that was passed in, if any.
 		self.context   = hash['Context'] || {}
-		
+
 		# If no comm was supplied, try to use the comm that is best fit to
 		# handle the provided host based on the current routing table.
 		if( self.server )
@@ -185,13 +186,13 @@ class Rex::Socket::Parameters
 
 		# If we still haven't found a comm, we default to the local comm.
 		self.comm      = Rex::Socket::Comm::Local if (self.comm == nil)
-		
-		# If we are a UDP server, turn off the server flag as it was only set when 
+
+		# If we are a UDP server, turn off the server flag as it was only set when
 		# creating the UDP socket in order to avail of the switch board above.
 		if( self.server and self.proto == 'udp' )
 			self.server = false
 		end
-		
+
 		# The number of connection retries to make (client only)
 		if hash['Retries']
 			self.retries = hash['Retries'].to_i
@@ -205,7 +206,7 @@ class Rex::Socket::Parameters
 		else
 			self.timeout = 5
 		end
-	
+
 		# Whether to force IPv6 addressing
 		self.v6        = hash['IPv6'] || false
 	end
@@ -250,7 +251,7 @@ class Rex::Socket::Parameters
 	def ip?
 		return (proto == 'ip')
 	end
-	
+
 	#
 	# Returns true if the socket is a bare socket that does not inherit from
 	# any extended Rex classes.
@@ -354,7 +355,7 @@ class Rex::Socket::Parameters
 	# Synonyms
 	#
 	##
-	
+
 	alias peeraddr  peerhost
 	alias localaddr localhost
 

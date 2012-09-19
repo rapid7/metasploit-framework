@@ -1,0 +1,25 @@
+LEGAL NOTICE INFORMATION
+------------------------
+
+EventMachine is Copyright (C) 2006-07 by Francis Cianfrocca.
+
+EventMachine is copyrighted software owned by Francis Cianfrocca
+(blackhedd ... gmail.com). You may redistribute and/or modify this
+software as long as you comply with either the terms of the GPL
+(see the file GPL), or Ruby's license (see the file COPYING).
+
+Your use of all the files in this distribution is controlled by these
+license terms, except for those files specifically mentioned below:
+
+
+
+setup.rb
+	This file is Copyright (C) 2000-2005 by Minero Aoki
+	You can distribute/modify this file under the terms of
+	the GNU LGPL, Lesser General Public License version 2.1.
+
+
+lib/em/buftok.rb
+	This file is Copyright (C) 2007 by Tony Arcieri. This file is
+	covered by the terms of Ruby's License (see the file COPYING).
+

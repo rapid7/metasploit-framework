@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Rex
 module Parser
 
@@ -8,7 +9,7 @@ class NetSparkerXMLStreamParser
 
 	def initialize(on_found_vuln = nil)
 		self.on_found_vuln = on_found_vuln if on_found_vuln
-		reset_state		
+		reset_state
 	end
 
 	def reset_state
@@ -20,7 +21,7 @@ class NetSparkerXMLStreamParser
 	def tag_start(name, attributes)
 		@state = "in_#{name.downcase}".intern
 		@attr  = attributes
-		
+
 		case name
 		when "vulnerability"
 			@vuln['confirmed'] = attributes['confirmed']
@@ -33,7 +34,7 @@ class NetSparkerXMLStreamParser
 			@vuln['url'] ||= ""
 			@vuln['url']  += str
 		when :in_type
-			@vuln['type'] ||= ""		
+			@vuln['type'] ||= ""
 			@vuln['type']  += str
 		when :in_severity
 			@vuln['severity'] ||= ""
@@ -42,13 +43,13 @@ class NetSparkerXMLStreamParser
 			@vuln["vparam_type"] ||= ""
 			@vuln["vparam_type"]  += str
 		when :in_vulnerableparameter
-			@vuln["vparam_name"] ||= ""			
-			@vuln["vparam_name"]  += str		
+			@vuln["vparam_name"] ||= ""
+			@vuln["vparam_name"]  += str
 		when :in_vulnerableparametervalue
-			@vuln["vparam_value"] ||= ""		
-			@vuln["vparam_value"]  += str				
+			@vuln["vparam_value"] ||= ""
+			@vuln["vparam_value"]  += str
 		when :in_rawrequest
-			@vuln["request"] ||= ""			
+			@vuln["request"] ||= ""
 			@vuln["request"]  += str
 		when :in_rawresponse
 			@vuln["response"] ||= ""
@@ -64,7 +65,7 @@ class NetSparkerXMLStreamParser
 		when :generic_state
 		when :in_vulnerability
 		when :in_extrainformation
-		else 
+		else
 			# $stderr.puts "unknown state: #{@state}"
 		end
 	end

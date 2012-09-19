@@ -62,7 +62,12 @@ class Metasploit3 < Msf::Auxiliary
 			'uri'    => uri
 		}, 25)
 
-		print_status("#{ip}:#{rport} returns: #{res.code.to_s}")
+		if res
+			print_status("#{ip}:#{rport} returns: #{res.code.to_s}")
+		else
+			print_error("#{ip}:#{rport} - No response")
+			return
+		end
 
 		if res.body.empty?
 			print_error("No file to download (empty)")

@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 module Rex
 module Post
@@ -44,7 +45,7 @@ module ObjectAliasesContainer
 
 				items << current_path
 
-				items.concat(dump_alias_tree(current_path, 
+				items.concat(dump_alias_tree(current_path,
 					current.aliases[x]))
 			}
 		end
@@ -60,19 +61,19 @@ end
 
 ###
 #
-# Generic object aliases from a class instance referenced symbol to an 
+# Generic object aliases from a class instance referenced symbol to an
 # associated object of an arbitrary type
 #
 ###
 class ObjectAliases
 	include Rex::Post::Meterpreter::ObjectAliasesContainer
-	
+
 	##
 	#
 	# Constructor
 	#
 	##
-	
+
 	# An instance
 	def initialize(aliases = {})
 		initialize_aliases(aliases)

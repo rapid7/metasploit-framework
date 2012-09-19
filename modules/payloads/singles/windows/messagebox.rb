@@ -268,7 +268,7 @@ start_main:
 	push edx		;put 0 on stack (hWnd)
 	call eax		;call MessageBoxA(hWnd,Text,Title,Style)
 
-;ExitFunc
+;EXITFUNC
 	#{doexit}
 EOS
 		the_payload = Metasm::Shellcode.assemble(Metasm::Ia32.new, payload_data).encode_string

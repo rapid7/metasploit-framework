@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		connect
 
-		banner = sock.get_once(-1, 10)
+		banner = sock.get_once(-1, 10) || ''
 		print_status("Banner: #{banner.strip}")
 
 		buf  = Rex::Text.pattern_create(50)

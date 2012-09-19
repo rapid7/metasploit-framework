@@ -1,0 +1,51 @@
+#!/usr/bin/env ruby
+# Automate benchmarking with ab with various concurrency levels.
+require 'optparse'
+
+options = {
+  :address  => '0.0.0.0',
+  :port     => 3000,
+  :requests => 1000,
+  :start    => 1,
+  :end      => 100,
+  :step     => 10
+}
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: #{$PROGRAM_NAME} [options]"
+
+  opts.on("-n", "--requests NUM", "Number of requests")         { |num| options[:requests] = num }
+  opts.on("-a", "--address HOST", "Address (default: 0.0.0.0)") { |host| options[:address] = host }
+  opts.on("-p", "--port PORT", "use PORT (default: 3000)")      { |port| options[:port] = port.to_i }
+  opts.on("-s", "--start N", "First concurrency level")         { |n| options[:start] = n.to_i }
+  opts.on("-e", "--end N", "Last concurrency level")            { |n| options[:end] = n.to_i }
+  opts.on("-S", "--step N", "Concurrency level step")           { |n| options[:step] = n.to_i }
+  opts.on("-u", "--uri PATH", "Path to send to")                { |u| options[:uri] = u }
+  opts.on("-k", "--keep-alive", "Use Keep-Alive")               { options[:keep_alive] = true }
+  
+  opts.on_tail("-h", "--help", "Show this message")     { puts opts; exit }
+end.parse!(ARGV)
+
+puts 'request   concurrency   req/s    failures'
+puts '=' * 42
+
+c = options[:start]
+until c >= options[:end]
+  sleep 0.5
+  out = `nice -n20 ab #{'-k' if options[:keep_alive]} -c #{c} -n #{options[:requests]} #{options[:address]}:#{options[:port]}/#{options[:uri]} 2> /dev/null`
+
+  r = if requests = out.match(/^Requests.+?(\d+\.\d+)/)
+    requests[1].to_i
+  else
+    0
+  end
+  f = if requests = out.match(/^Failed requests.+?(\d+)/)
+    requests[1].to_i
+  else
+    0
+  end
+  
+  puts "#{options[:requests].to_s.ljust(9)} #{c.to_s.ljust(13)} #{r.to_s.ljust(8)} #{f}"
+  
+  c += options[:step]
+end

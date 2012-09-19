@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require_relative "lfkey"
 require_relative "valuelist"
 
@@ -11,17 +12,17 @@ class NodeKey
 	attr_accessor :class_name_offset, :name_length, :class_name_length, :full_path
 	attr_accessor :name, :lf_record, :value_list, :class_name_data, :readable_timestamp
 
-	def initialize(hive, offset)	
+	def initialize(hive, offset)
 
-		offset = offset + 0x04		
+		offset = offset + 0x04
 
 		nk_header = hive[offset, 2]
 		nk_type = hive[offset+0x02, 2]
 
-		if nk_header !~ /nk/ 
+		if nk_header !~ /nk/
 			return
 		end
-	
+
 		@timestamp = hive[offset+0x04, 8].unpack('q').first
 		@parent_offset = hive[offset+0x10, 4].unpack('l').first
 		@subkeys_count = hive[offset+0x14, 4].unpack('l').first
@@ -34,15 +35,15 @@ class NodeKey
 		@class_name_length = hive[offset+0x4a, 2].unpack('c').first
 		@name = hive[offset+0x4c, @name_length].to_s
 
-	 	windows_time = @timestamp
-	 	unix_time = windows_time/10000000-11644473600
-	 	ruby_time = Time.at(unix_time)	
+		windows_time = @timestamp
+		unix_time = windows_time/10000000-11644473600
+		ruby_time = Time.at(unix_time)
 
 		@readable_timestamp = ruby_time
 
-		@lf_record = LFBlock.new(hive, @lf_record_offset + 0x1000) if @lf_record_offset != -1	
+		@lf_record = LFBlock.new(hive, @lf_record_offset + 0x1000) if @lf_record_offset != -1
 		@value_list = ValueList.new(hive, @value_list_offset + 0x1000, @value_count) if @value_list_offset != -1
-		
+
 		@class_name_data = hive[@class_name_offset + 0x04 + 0x1000, @class_name_length]
 
 	end

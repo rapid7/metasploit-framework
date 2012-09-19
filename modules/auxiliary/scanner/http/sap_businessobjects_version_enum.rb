@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
 					}
 			}, 15)
 
-			if res.code == 200
+			if res and res.code == 200
 				case res.body
 				when nil
 					# Nothing

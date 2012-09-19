@@ -80,7 +80,7 @@ class Metasploit3 < Msf::Post
 					found << reg['key'] + '\\' + reg['val']
 				end
 			end
-			
+
 			# Did we find anything? If so store it in the evidence hash to be
 			# saved in the loot.
 			if found.empty?

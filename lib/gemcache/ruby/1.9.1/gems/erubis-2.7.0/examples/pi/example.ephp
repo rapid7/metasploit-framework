@@ -1,0 +1,17 @@
+<?php
+   $user = "World";
+   $list = array('<aaa>', 'b&b', '"ccc"');
+?>
+<p>Hello @{$user}@!</p>
+<table>
+  <tbody>
+    <?php $i = 0 ?>
+    <?php foreach ($list as $item) { ?>
+    <?php   $i++; ?>
+    <tr bgcolor="@!{$i % 2 == 0 ? '#FFCCCC' : '#CCCCFF'}@">
+      <td>@!{$i}@</td>
+      <td>@{$item}@</td>
+    </tr>
+    <?php } ?>
+  </tbody>
+</table>

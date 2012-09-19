@@ -1,0 +1,36 @@
+<?xml version='1.0'?>
+<!DOCTYPE service_bundle SYSTEM '/usr/share/lib/xml/dtd/service_bundle.dtd.1'>
+<service_bundle type='manifest' name='thin/<%= service_name %>-production'>
+  <service name='network/thin/<%= service_name %>-production' type='service' version='0'>
+    <!-- Dependancies for all Thin servers. -->
+    <dependency name='fs' grouping='require_all' restart_on='none' type='service'>
+      <service_fmri value='svc:/system/filesystem/local'/>
+    </dependency>
+    <dependency name='net' grouping='require_all' restart_on='none' type='service'>
+      <service_fmri value='svc:/network/loopback'/>
+      <!-- uncomment the following line if you are on an L+ Accelerator since /home is mounted through nfs -->
+      <!--<service_fmri value='svc:/network/nfs/client'/>-->
+    </dependency>
+    <% 0.upto(thin_max_instances - 1) do |instance| %>
+    <!-- instance names can't start with digits. Bummer. -->
+    <instance name='i_<%= instance.to_s %>' enabled='false'>
+      <!-- Cause the multi-user milestone to bring these services up -->
+      <dependent name='<%= service_name %>_<%= instance.to_s %>_multi-user' restart_on='none' grouping='optional_all'>
+        <service_fmri value='svc:/milestone/multi-user'/>
+      </dependent>
+      <exec_method name='start' type='method'
+            exec='/opt/csw/bin/thin -C config/thin.yml --only <%= instance.to_s %> start'
+            timeout_seconds='10'>
+        <method_context working_directory='<%= working_directory %>'>
+          <method_credential user='<%= user %>' group='<%= group %>' />
+          <method_environment>
+            <envvar name='PATH' value='/usr/bin:/bin:/opt/csw/bin' />
+          </method_environment>
+        </method_context>
+      </exec_method>
+      <exec_method name='stop' type='method' exec=':kill' timeout_seconds='10' />
+    </instance>
+    <% end %>
+  </service>
+</service_bundle>
+

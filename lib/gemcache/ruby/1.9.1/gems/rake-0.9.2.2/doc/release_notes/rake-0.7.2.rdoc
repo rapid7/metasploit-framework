@@ -1,0 +1,121 @@
+= Rake 0.7.2 Released
+
+Version 0.7.2 supplies a bug fix and a few minor enhancements.  In
+particular, the new version fixes an incompatibility with the soon to
+be released Ruby 1.8.6.  We strongly recommend upgrading to Rake 0.7.2
+in order to be compatible with the new version of Ruby.
+
+== Changes
+
+=== Bug Fixes in 0.7.2
+
+There are quite a number of bug fixes in the new 0.7.2 version of
+Rake:
+
+* Removed dependency on internal fu_xxx functions from FileUtils.
+
+* Error messages are now send to stderr rather than stdout (from
+  Payton Quackenbush).
+
+* Better error handling on invalid command line arguments (from Payton
+  Quackenbush).
+
+* Fixed some bugs where the application object was going to the global
+  appliation instead of using its own data.
+
+* Fixed the method name leak from FileUtils (bug found by Glenn
+  Vanderburg).
+
+* Added test for noop, bad_option and verbose flags to sh command.
+
+* Added a description to the gem task in GemPackageTask.
+
+* Fixed a bug when rules have multiple prerequisites (patch by Joel
+  VanderWerf)
+
+* Added the handful of RakeFileUtils to the private method as well.
+
+=== New Features in 0.7.2
+
+The following new features are available in Rake version 0.7.2:
+
+* Added square and curly bracket patterns to FileList#include (Tilman
+  Sauerbeck).
+
+* FileLists can now pass a block to FileList#exclude to exclude files
+  based on calculated values.
+
+* Added plain filename support to rule dependents (suggested by Nobu
+  Nakada).
+
+* Added pathmap support to rule dependents.  In other words, if a
+  pathmap format (beginning with a '%') is given as a Rake rule
+  dependent, then the name of the depend will be the name of the
+  target with the pathmap format applied.
+
+* Added a 'tasks' method to a namespace to get a list of tasks
+  associated with the namespace.
+
+* Added tar_command and zip_command options to the Package task.
+
+* The clean task will no longer delete 'core' if it is a directory.
+
+=== Internal Rake Improvements
+
+The following changes will are mainly internal improvements and
+refactorings and have little effect on the end user.  But they may be
+of interest to the general public.
+
+* Added rcov task and updated unit testing for better code coverage.
+
+* Added a 'shame' task to the Rakefile.
+
+* Added rake_extension to handle detection of extension collisions.
+
+* Added a protected 'require "rubygems"' to test/test_application to
+  unbreak cruisecontrol.rb.
+
+* Removed rake_dup.  Now we just simply rescue a bad dup.
+
+* Refactored the FileList reject logic to remove duplication.
+
+* Removed if __FILE__ at the end of the rake.rb file.
+
+== What is Rake
+
+Rake is a build tool similar to the make program in many ways.  But
+instead of cryptic make recipes, Rake uses standard Ruby code to
+declare tasks and dependencies.  You have the full power of a modern
+scripting language built right into your build tool.
+
+== Availability
+
+The easiest way to get and install rake is via RubyGems ...
+
+  gem install rake    (you may need root/admin privileges)
+
+Otherwise, you can get it from the more traditional places:
+
+Home Page:: http://rake.rubyforge.org/
+Download::  http://rubyforge.org/project/showfiles.php?group_id=50
+
+== Thanks
+
+As usual, it was input from users that drove a alot of these changes.
+The following people either contributed patches, made suggestions or
+made otherwise helpful comments.  Thanks to ...
+
+* Payton Quackenbush -- For several error handling improvements.
+
+* Glenn Vanderburg -- For finding and fixing the method name leak from
+  FileUtils.
+
+* Joel VanderWerf -- for finding and fixing a bug in the handling of
+  multiple prerequisites.
+
+* Tilman Sauerbeck -- For some enhancing FileList to support more
+  advanced file globbing.
+
+* Nobu Nakada -- For suggesting plain file name support to rule dependents.
+
+-- Jim Weirich

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require "rex/parser/nokogiri_doc_mixin"
 require 'rex'
 require 'uri'
@@ -5,15 +6,15 @@ require 'uri'
 module Rex
 	module Parser
 
-		# If Nokogiri is available, define the Acunetix document class. 
+		# If Nokogiri is available, define the Acunetix document class.
 		load_nokogiri && class AcunetixDocument < Nokogiri::XML::SAX::Document
 
 		include NokogiriDocMixin
 
 		# The resolver prefers your local /etc/hosts (or windows equiv), but will
-		# fall back to regular DNS. It retains a cache for the import to avoid 
+		# fall back to regular DNS. It retains a cache for the import to avoid
 		# spamming your network with DNS requests.
-		attr_reader :resolv_cache 
+		attr_reader :resolv_cache
 
 		# If name resolution of the host fails out completely, you will not be
 		# able to import that Scan task. Other scan tasks in the same report
@@ -48,8 +49,8 @@ module Rex
 		def end_element(name=nil)
 			block = @block
 			case name
-			when "Scan" 
-				# Clears most of the @state out, we're done with this web site. 
+			when "Scan"
+				# Clears most of the @state out, we're done with this web site.
 				@state.delete_if {|k| k != :current_tag}
 			when "Name"
 				@state[:has_text] = false
@@ -58,7 +59,7 @@ module Rex
 				@text = nil
 			when "StartURL" # Populates @state[:starturl_uri], we use this a lot
 				@state[:has_text] = false
-				collect_host 
+				collect_host
 				collect_service
 				@text = nil
 				handle_parse_warnings &block
@@ -138,7 +139,7 @@ module Rex
 			return if @text.strip.empty?
 			uri = URI.parse(@text) rescue nil
 			return unless uri
-			@state[:starturl_uri] = uri 
+			@state[:starturl_uri] = uri
 			@report_data[:ports] ||= []
 			@report_data[:ports] << @state[:starturl_port]
 		end
@@ -169,7 +170,7 @@ module Rex
 		def record_variable(attrs)
 			return unless in_tag("Inputs")
 			return unless @state[:fullurl].kind_of? URI
-			method = attr_hash(attrs)["Type"] 
+			method = attr_hash(attrs)["Type"]
 			return unless method
 			return if method.strip.empty?
 			@state[:form_variables] ||= []
@@ -246,7 +247,7 @@ module Rex
 		end
 
 		# XXX Rex::Proto::Http::Packet seems broken for
-		# actually parsing requests and responses, but all I 
+		# actually parsing requests and responses, but all I
 		# need are the headers anyway
 		def parse_request(request)
 			headers = Rex::Proto::Http::Packet::Header.new
@@ -262,8 +263,8 @@ module Rex
 			headers = Rex::Proto::Http::Packet::Header.new
 			headers.from_s response.dup # It's destructive.
 			return unless headers.cmd_string
-			http,code,msg = headers.cmd_string.split(/\s+/) 
-			return unless code 
+			http,code,msg = headers.cmd_string.split(/\s+/)
+			return unless code
 			return unless code.to_i.to_s == code
 			parsed = {}
 			parsed[:code] = code

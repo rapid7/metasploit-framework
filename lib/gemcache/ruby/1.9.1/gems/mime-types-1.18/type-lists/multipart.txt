@@ -1,0 +1,14 @@
+multipart/alternative 'IANA,RFC2045,RFC2046
+multipart/appledouble 'IANA,[Faltstrom]
+multipart/byteranges 'IANA,RFC2616
+multipart/digest 'IANA,RFC2045,RFC2046
+multipart/encrypted 'IANA,RFC1847
+multipart/example 'IANA,RFC4735
+multipart/form-data 'IANA,RFC2388
+multipart/header-set 'IANA,[Crocker]
+multipart/mixed 'IANA,RFC2045,RFC2046
+multipart/parallel 'IANA,RFC2045,RFC2046
+multipart/related 'IANA,RFC2387
+multipart/report 'IANA,RFC3462
+multipart/signed 'IANA,RFC1847
+multipart/voice-message 'IANA,RFC2421,RFC2423

@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 ###
 #
@@ -6,7 +7,7 @@
 # --------------------------
 #
 # These are put into the global namespace for now
-# so that they can be referenced globally.  
+# so that they can be referenced globally.
 #
 ###
 
@@ -81,13 +82,13 @@ KEY_NOTIFY               = 0x00000010
 KEY_CREATE_LINK          = 0x00000020
 KEY_WOW64_64KEY          = 0x00000100
 KEY_WOW64_32KEY          = 0x00000200
-KEY_READ                 = (STANDARD_RIGHTS_READ | KEY_QUERY_VALUE | 
+KEY_READ                 = (STANDARD_RIGHTS_READ | KEY_QUERY_VALUE |
                             KEY_ENUMERATE_SUB_KEYS | KEY_NOTIFY) & ~SYNCHRONIZE
-KEY_WRITE                = (STANDARD_RIGHTS_WRITE | KEY_SET_VALUE | 
+KEY_WRITE                = (STANDARD_RIGHTS_WRITE | KEY_SET_VALUE |
                             KEY_CREATE_SUB_KEY) & ~SYNCHRONIZE
 KEY_EXECUTE              = KEY_READ
 KEY_ALL_ACCESS           = (STANDARD_RIGHTS_ALL | KEY_QUERY_VALUE |
-                            KEY_SET_VALUE | KEY_CREATE_SUB_KEY | 
+                            KEY_SET_VALUE | KEY_CREATE_SUB_KEY |
                             KEY_ENUMERATE_SUB_KEYS | KEY_NOTIFY |
                             KEY_CREATE_LINK) & ~SYNCHRONIZE
 
@@ -143,7 +144,7 @@ THREAD_SUSPEND_RESUME       = 0x00000002
 THREAD_GET_CONTEXT          = 0x00000008
 THREAD_SET_CONTEXT          = 0x00000010
 THREAD_SET_INFORMATION      = 0x00000020
-THREAD_QUERY_INFORMATION    = 0x00000040  
+THREAD_QUERY_INFORMATION    = 0x00000040
 THREAD_SET_THREAD_TOKEN     = 0x00000080
 THREAD_IMPERSONATE          = 0x00000100
 THREAD_DIRECT_IMPERSONATION = 0x00000200

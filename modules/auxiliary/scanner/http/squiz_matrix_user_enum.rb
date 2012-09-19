@@ -46,7 +46,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				Opt::RPORT(80),
 				OptString.new('URI', [true, 'The path to users Squiz Matrix installation', '/']),
 				OptInt.new('ASSETBEGIN',  [ true, "Asset ID to start at", 1]),
 				OptInt.new('ASSETEND',  [ true, "Asset ID to stop at", 100]),

@@ -1,0 +1,10 @@
+--- 
+publish_on_announce: false
+exclude: !ruby/regexp /\.(?:svn|git)|(?:\.(?:swp|hoerc|DS_Store)|~|email.txt)$|(?:coverage|type-lists)\//
+blogs: 
+- user: user
+  url: url
+  extra_headers: 
+    mt_convert_breaks: markdown
+  blog_id: blog_id
+  password: password

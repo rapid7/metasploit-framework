@@ -1,0 +1,7 @@
+$ ruby example6.rb
+<span>Erubis Example</span>
+<ul>
+  <li>aaa</li>
+  <li>bbb</li>
+  <li>ccc</li>
+</ul>

@@ -1,0 +1,124 @@
+<html><head><link href="./screen.css" rel="stylesheet" type="text/css" />
+          <script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+          </script>
+          <script type="text/javascript">
+          _uacct = "UA-3418876-1";
+          urchinTracker();
+          </script>
+        </head><body><div id="top"><div id="main_navigation"><ul><li><a href="syntactic_recognition.html">Documentation</a></li><li>Contribute</li><li><a href="index.html">Home</a></li></ul></div></div><div id="middle"><div id="main_content"><h1>Google Group</h1>
+
+<p>I've created a <a href="http://groups.google.com/group/treetop-dev">Google Group</a> as a better place to organize discussion and development.
+treetop-dev@google-groups.com</p>
+
+<h1>Contributing</h1>
+
+<p>Visit <a href="http://github.com/nathansobo/treetop/tree/master">the Treetop repository page on GitHub</a> in your browser for more information about checking out the source code.</p>
+
+<p>I like to try Rubinius's policy regarding commit rights. If you submit one patch worth integrating, I'll give you commit rights. We'll see how this goes, but I think it's a good policy.</p>
+
+<h2>Getting Started with the Code</h2>
+
+<p>Treetop compiler is interesting in that it is implemented in itself. Its functionality revolves around <code>metagrammar.treetop</code>, which specifies the grammar for Treetop grammars. I took a hybrid approach with regard to definition of methods on syntax nodes in the metagrammar. Methods that are more syntactic in nature, like those that provide access to elements of the syntax tree, are often defined inline, directly in the grammar. More semantic methods are defined in custom node classes.</p>
+
+<p>Iterating on the metagrammar is tricky. The current testing strategy uses the last stable version of Treetop to parse the version under test. Then the version under test is used to parse and functionally test the various pieces of syntax it should recognize and translate to Ruby. As you change <code>metagrammar.treetop</code> and its associated node classes, note that the node classes you are changing are also used to support the previous stable version of the metagrammar, so must be kept backward compatible until such time as a new stable version can be produced to replace it.</p>
+
+<h2>Tests</h2>
+
+<p>Most of the compiler's tests are functional in nature. The grammar under test is used to parse and compile piece of sample code. Then I attempt to parse input with the compiled output and test its results.</p>
+
+<h1>What Needs to be Done</h1>
+
+<h2>Small Stuff</h2>
+
+<ul>
+<li>Improve the <code>tt</code> command line tool to allow <code>.treetop</code> extensions to be elided in its arguments.</li>
+<li>Generate and load temp files with <code>Treetop.load</code> rather than evaluating strings to improve stack trace readability.</li>
+<li>Allow <code>do/end</code> style blocks as well as curly brace blocks. This was originally omitted because I thought it would be confusing. It probably isn't.</li>
+</ul>
+
+
+<h2>Big Stuff</h2>
+
+<h4>Transient Expressions</h4>
+
+<p>Currently, every parsing expression instantiates a syntax node. This includes even very simple parsing expressions, like single characters. It is probably unnecessary for every single expression in the parse to correspond to its own syntax node, so much savings could be garnered from a transient declaration that instructs the parser only to attempt a match without instantiating nodes.</p>
+
+<h3>Generate Rule Implementations in C</h3>
+
+<p>Parsing expressions are currently compiled into simple Ruby source code that comprises the body of parsing rules, which are translated into Ruby methods. The generator could produce C instead of Ruby in the body of these method implementations.</p>
+
+<h3>Global Parsing State and Semantic Backtrack Triggering</h3>
+
+<p>Some programming language grammars are not entirely context-free, requiring that global state dictate the behavior of the parser in certain circumstances. Treetop does not currently expose explicit parser control to the grammar writer, and instead automatically constructs the syntax tree for them. A means of semantic parser control compatible with this approach would involve callback methods defined on parsing nodes. Each time a node is successfully parsed it will be given an opportunity to set global state and optionally trigger a parse failure on <em>extrasyntactic</em> grounds. Nodes will probably need to define an additional method that undoes their changes to global state when there is a parse failure and they are backtracked.</p>
+
+<p>Here is a sketch of the potential utility of such mechanisms. Consider the structure of YAML, which uses indentation to indicate block structure.</p>
+
+<pre><code>level_1:
+  level_2a:
+  level_2b:
+    level_3a:
+  level_2c:    
+</code></pre>
+
+<p>Imagine a grammar like the following:</p>
+
+<pre><code>rule yaml_element
+  name ':' block
+  /
+  name ':' value
+end
+
+rule block
+  indent yaml_elements outdent
+end
+
+rule yaml_elements
+  yaml_element (samedent yaml_element)*
+end
+
+rule samedent
+  newline spaces {
+    def after_success(parser_state)
+      spaces.length == parser_state.indent_level
+    end
+  }
+end
+
+rule indent
+  newline spaces {
+    def after_success(parser_state)
+      if spaces.length == parser_state.indent_level + 2
+        parser_state.indent_level += 2
+        true
+      else
+        false # fail the parse on extrasyntactic grounds
+      end
+    end
+
+    def undo_success(parser_state)
+      parser_state.indent_level -= 2
+    end
+  }
+end
+
+rule outdent
+  newline spaces {
+    def after_success(parser_state)
+      if spaces.length == parser_state.indent_level - 2
+        parser_state.indent_level -= 2
+        true
+      else
+        false # fail the parse on extrasyntactic grounds
+      end
+    end
+
+    def undo_success(parser_state)
+      parser_state.indent_level += 2
+    end
+  }
+end
+</code></pre>
+
+<p>In this case a block will be detected only if a change in indentation warrants it. Note that this change in the state of indentation must be undone if a subsequent failure causes this node not to ultimately be incorporated into a successful result.</p>
+
+<p>I am by no means sure that the above sketch is free of problems, or even that this overall strategy is sound, but it seems like a promising path.</p></div></div><div id="bottom"></div></body></html>

@@ -1,0 +1,20 @@
+check process blog1
+    with pidfile /u/apps/blog/shared/pids/thin.1.pid
+    start program = "ruby thin start -d -e production -S /u/apps/blog/shared/pids/thin.1.sock -P tmp/pids/thin.1.pid -c /u/apps/blog/current"
+    stop program  = "ruby thin stop -P /u/apps/blog/shared/pids/thin.1.pid"
+    if totalmem > 90.0 MB for 5 cycles then restart
+		if failed unixsocket /u/apps/blog/shared/pids/thin.1.sock then restart
+    if cpu usage > 95% for 3 cycles then restart
+    if 5 restarts within 5 cycles then timeout
+		group blog
+
+check process blog2
+    with pidfile /u/apps/blog/shared/pids/thin.2.pid
+    start program = "ruby thin start -d -e production -S /u/apps/blog/shared/pids/thin.2.sock -P tmp/pids/thin.2.pid -c /u/apps/blog/current"
+    stop program  = "ruby thin stop -P /u/apps/blog/shared/pids/thin.2.pid"
+    if totalmem > 90.0 MB for 5 cycles then restart
+		if failed unixsocket /u/apps/blog/shared/pids/thin.2.sock then restart
+    if cpu usage > 95% for 3 cycles then restart
+    if 5 restarts within 5 cycles then timeout
+		group blog
+

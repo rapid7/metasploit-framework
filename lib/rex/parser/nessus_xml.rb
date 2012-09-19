@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rexml/document'
 require 'rex/ui'
 
@@ -17,7 +18,7 @@ class NessusXMLStreamParser
 	def reset_state
 		@host = {'hname' => nil, 'addr' => nil, 'mac' => nil, 'os' => nil, 'ports' => [
 			'port' => {'port' => nil, 'svc_name'  => nil, 'proto' => nil, 'severity' => nil,
-			'nasl' => nil, 'nasl_name' => nil, 'description' => nil, 
+			'nasl' => nil, 'nasl_name' => nil, 'description' => nil,
 			'cve' => [], 'bid' => [], 'xref' => [], 'msf' => nil } ] }
 		@state = :generic_state
 	end
@@ -67,7 +68,7 @@ class NessusXMLStreamParser
 			@state = :msf
 		end
 	end
-	
+
 	def text(str)
 		case @state
 		when :is_fqdn

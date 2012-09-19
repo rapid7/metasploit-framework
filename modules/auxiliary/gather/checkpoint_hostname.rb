@@ -10,6 +10,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Tcp
+	include Msf::Auxiliary::Report
 
 	def initialize(info = {})
 		super(update_info(info,
@@ -55,11 +56,11 @@ class Metasploit3 < Msf::Auxiliary
 		sock.put("\x51\x00\x00\x00")
 		sock.put("\x00\x00\x00\x21")
 		res = sock.get_once(4)
-		if (res == "Y\x00\x00\x00")
+		if (res and res == "Y\x00\x00\x00")
 			print_good("Appears to be a CheckPoint Firewall...")
 			sock.put("\x00\x00\x00\x0bsecuremote\x00")
 			res = sock.get_once
-			if (res =~ /CN=(.+),O=(.+)\./i)
+			if (res and res =~ /CN=(.+),O=(.+)\./i)
 				fw_hostname = $1
 				sc_hostname = $2
 				print_good("Firewall Host: #{fw_hostname}")

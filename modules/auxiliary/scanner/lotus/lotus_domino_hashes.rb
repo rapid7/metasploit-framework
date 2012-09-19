@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 		)
 
 	register_options(
-		[ Opt::RPORT(80),
+		[
 			OptString.new('NOTES_USER', [false, 'The username to authenticate as', '']),
 			OptString.new('NOTES_PASS', [false, 'The password for the specified username' ]),
 			OptString.new('URI', [false, 'Define the path to the names.nsf file', '/names.nsf']),

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/post/meterpreter'
 
 module Rex
@@ -20,11 +21,29 @@ class Console::CommandDispatcher::Stdapi::Webcam
 	# List of supported commands.
 	#
 	def commands
-		{
+		all = {
 			"webcam_list"   => "List webcams",
 			"webcam_snap"   => "Take a snapshot from the specified webcam",
 			"record_mic"    => "Record audio from the default microphone for X seconds"
 		}
+		reqs = {
+			"webcam_list"   => [ "webcam_list" ],
+			"webcam_snap"   => [ "webcam_start", "webcam_get_frame", "webcam_stop" ],
+			"record_mic"    => [ "webcam_record_audio" ],
+		}
+
+		all.delete_if do |cmd, desc|
+			del = false
+			reqs[cmd].each do |req|
+				next if client.commands.include? req
+				del = true
+				break
+			end
+
+			del
+		end
+
+		all
 	end
 
 	#
@@ -36,7 +55,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
 
 	def cmd_webcam_list
 		begin
-			client.webcam.webcam_list.each_with_index { |name, indx| 
+			client.webcam.webcam_list.each_with_index { |name, indx|
 				print_line("#{indx + 1}: #{name}")
 			}
 			return true
@@ -51,7 +70,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
 		quality = 50
 		view    = true
 		index   = 1
-		wc_list = []		
+		wc_list = []
 
 		webcam_snap_opts = Rex::Parser::Arguments.new(
 			"-h" => [ false, "Help Banner" ],
@@ -78,7 +97,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
 					view = false if ( val =~ /^(f|n|0)/i )
 			end
 		}
-		begin 
+		begin
 			wc_list << client.webcam.webcam_list
 		rescue
 		end
@@ -108,7 +127,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
 	def cmd_record_mic(*args)
 		path    = Rex::Text.rand_text_alpha(8) + ".wav"
 		play    = true
-		duration   = 1	
+		duration   = 1
 
 		record_mic_opts = Rex::Parser::Arguments.new(
 			"-h" => [ false, "Help Banner" ],

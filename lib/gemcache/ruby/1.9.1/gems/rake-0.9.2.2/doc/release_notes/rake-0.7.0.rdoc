@@ -1,0 +1,119 @@
+= Rake 0.7.0 Released
+
+These changes for Rake have been brewing for a long time.  Here they
+are, I hope you enjoy them.
+
+== Changes
+
+=== New Features
+
+* Name space support for task names (see below).
+
+* Prerequisites can be executed in parallel (see below).
+
+* Added safe_ln support for openAFS (via Ludvig Omholt).
+
+* RDoc defaults to internal (in-process) invocation.  The old behavior
+  is still available by setting the +external+ flag to true.
+
+* Rakefiles are now loaded with the expanded path to prevent
+  accidental polution from the Ruby load path.
+
+* Task objects my now be used in prerequisite lists directly.
+
+* Task objects (in addition to task names) may now be included in the
+  prerequisite list of a task.
+
+* Internals cleanup and refactoring.
+
+=== Bug Fixes
+
+* Compatibility fixes for Ruby 1.8.4 FileUtils changes.
+
+=== Namespaces
+
+Tasks can now be nested inside their own namespaces.  Tasks within one
+namespace will not accidently interfer with tasks named in a different
+namespace.
+
+For example:
+
+  namespace "main" do
+    task :build do
+      # Build the main program
+    end
+  end
+
+  namespace "samples" do
+    task :build do
+      # Build the sample programs
+    end
+  end
+
+  task :build_all => ["main:build", "samples:build"]
+
+Even though both tasks are named :build, they are separate tasks in
+their own namespaces.  The :build_all task (defined in the toplevel
+namespace) references both build tasks in its prerequisites.
+
+You may invoke each of the individual build tasks with the following
+commands:
+
+  rake main:build
+  rake samples:build
+
+Or invoke both via the :build_all command:
+
+  rake build_all
+
+Namespaces may be nested arbitrarily.  Since the name of file tasks
+correspond to the name of a file in the external file system,
+FileTasks are not affected by the namespaces.
+
+See the Rakefile format documentation (in the Rake API documents) for
+more information.
+
+=== Parallel Tasks
+
+Sometimes you have several tasks that can be executed in parallel.  By
+specifying these tasks as prerequisites to a +multitask+ task.
+
+In the following example the tasks copy_src, copy_doc and copy_bin
+will all execute in parallel in their own thread.
+
+  multitask :copy_files => [:copy_src, :copy_doc, :copy_bin] do
+    puts "All Copies Complete"
+  end
+
+== What is Rake
+
+Rake is a build tool similar to the make program in many ways.  But
+instead of cryptic make recipes, Rake uses standard Ruby code to
+declare tasks and dependencies.  You have the full power of a modern
+scripting language built right into your build tool.
+
+== Availability
+
+The easiest way to get and install rake is via RubyGems ...
+
+  gem install rake    (you may need root/admin privileges)
+
+Otherwise, you can get it from the more traditional places:
+
+Home Page:: http://rake.rubyforge.org/
+Download::  http://rubyforge.org/project/showfiles.php?group_id=50
+
+== Thanks
+
+As usual, it was input from users that drove a alot of these changes.
+The following people either contributed patches, made suggestions or
+made otherwise helpful comments.  Thanks to ...
+
+* Doug Young (inspriation for the parallel task)
+
+* David Heinemeier Hansson (for --trace message enhancement and for
+  pushing for namespace support).
+
+* Ludvig Omholt (for the openAFS fix)
+
+-- Jim Weirich

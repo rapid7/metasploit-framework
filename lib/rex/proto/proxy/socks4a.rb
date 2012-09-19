@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 #
 # sf - Sept 2010
 #

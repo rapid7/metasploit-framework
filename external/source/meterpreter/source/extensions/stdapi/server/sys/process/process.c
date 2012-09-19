@@ -1,7 +1,7 @@
 #include "precomp.h"
+#include "ps.h" // include the code for listing proceses
 
 #ifdef _WIN32 
-#include "ps.h" // include the code for listing proceses
 #include "./../session.h"
 #include "in-mem-exe.h" /* include skapetastic in-mem exe exec */
 
@@ -553,11 +553,12 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 #else
 	PCHAR path, arguments;;
 	DWORD flags;
-	char *argv[64], *p;
+	char *argv[8], *command_line;
+	int cl_len = 0;
 	int in[2] = { -1, -1 }, out[2] = {-1, -1}; // file descriptors
 	int master = -1, slave = -1;
 	int devnull = -1;
-	int idx;
+	int idx, i;
 	pid_t pid;
 	int have_pty = -1;
 
@@ -566,10 +567,10 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 	dprintf( "[PROCESS] request_sys_process_execute" );
 
 	do {
-                // Get the execution arguments
-                arguments = packet_get_tlv_value_string(packet, TLV_TYPE_PROCESS_ARGUMENTS);
-                path      = packet_get_tlv_value_string(packet, TLV_TYPE_PROCESS_PATH);
-                flags     = packet_get_tlv_value_uint(packet, TLV_TYPE_PROCESS_FLAGS);
+		// Get the execution arguments
+		arguments = packet_get_tlv_value_string(packet, TLV_TYPE_PROCESS_ARGUMENTS);
+		path      = packet_get_tlv_value_string(packet, TLV_TYPE_PROCESS_PATH);
+		flags     = packet_get_tlv_value_uint(packet, TLV_TYPE_PROCESS_FLAGS);
 
 		dprintf("path: %s, arguments: %s\n", path ? path : "(null)", arguments ? arguments : "(null)");
 
@@ -585,18 +586,26 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 
 		idx = 0;
 		if(arguments) {
-			p = arguments;
-			argv[idx++] = path;
-			argv[idx++] = arguments;
-			for(p = strchr(p, ' '); p && idx < 63; p = strchr(p, ' ')) {
-				*p++ = 0;
-				argv[idx++] = p;
-			}
-			argv[idx++] = NULL;
+			// Add one for the null, one for the space
+			cl_len = strlen(path) + strlen(arguments) + 2;
+			command_line = malloc(cl_len);
+			memset(command_line, 0, cl_len);
+			strcat(command_line, path);
+			strcat(command_line, " ");
+			strcat(command_line, arguments);
+
+			argv[idx++] = "sh";
+			argv[idx++] = "-c";
+			argv[idx++] = command_line;
+			path = "/bin/sh";
 		} else {
 			argv[idx++] = path;
-			argv[idx++] = NULL;
 		}	
+		argv[idx++] = NULL;
+
+		//for (i = 0; i < idx; i++) {
+		//	dprintf("  argv[%d] = %s", i, argv[i]);
+		//}
 
 		// If the channelized flag is set, create a pipe for stdin/stdout/stderr
 		// such that input can be directed to and from the remote endpoint
@@ -684,7 +693,6 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 		pid = fork();
 		switch(pid) {
 
-			int i;
 		case -1:
 			result = errno;
 			break;
@@ -735,8 +743,11 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 			exit(EXIT_FAILURE);
 		default:
 			dprintf("child pid is %d\n", pid);
+			packet_add_tlv_uint(response, TLV_TYPE_PID, (DWORD)pid);
+			packet_add_tlv_uint(response, TLV_TYPE_PROCESS_HANDLE, (DWORD)pid);
 			if (flags & PROCESS_EXECUTE_FLAG_CHANNELIZED) {
 				if(have_pty) {
+					dprintf("child channelized\n");
 					close(slave);
 				} else {
 					close(in[0]);
@@ -849,8 +860,10 @@ DWORD request_sys_process_get_processes( Remote * remote, Packet * packet )
 #else
 	DWORD result = ERROR_NOT_SUPPORTED;
 	Packet * response = packet_create_response( packet );
-
-	packet_transmit_response( result, remote, response );
+	if (response) {
+		result = ps_list_linux( response );
+		packet_transmit_response( result, remote, response );
+	}
 #endif
 	
 	return result;
@@ -990,10 +1003,9 @@ DWORD process_channel_read(Channel *channel, Packet *request,
 	if (!ReadFile(ctx->pStdout, buffer, bufferSize, bytesRead, NULL))
 		result = GetLastError();
 #else
-	if((*bytesRead = read(ctx->pStdout, buffer, bufferSize) < 0)) {
+	if ((*bytesRead = read(ctx->pStdout, buffer, bufferSize)) < 0) {
 		result = GetLastError();
 	}
-	
 #endif
 	return result;
 }

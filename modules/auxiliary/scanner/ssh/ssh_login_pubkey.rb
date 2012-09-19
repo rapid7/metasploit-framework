@@ -55,7 +55,8 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptBool.new('SSH_DEBUG', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
 				OptString.new('SSH_KEYFILE_B64', [false, 'Raw data of an unencrypted SSH public key. This should be used by programmatic interfaces to this module only.', '']),
-				OptPath.new('KEY_DIR', [false, 'Directory of several cleartext private keys. Filenames must not begin with a dot, or end in ".pub" in order to be read.'])
+				OptPath.new('KEY_DIR', [false, 'Directory of several cleartext private keys. Filenames must not begin with a dot, or end in ".pub" in order to be read.']),
+				OptInt.new('SSH_TIMEOUT', [ false, 'Specify the maximum time to negotiate a SSH session', 30])
 			]
 		)
 
@@ -177,18 +178,24 @@ class Metasploit3 < Msf::Auxiliary
 				:port         => port,
 				:key_data     => key_data,
 				:disable_agent => true,
-				:record_auth_info => true
+				:config => false,
+				:record_auth_info => true,
+				:proxies	=> datastore['Proxies']
 			}
 			opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
 			begin
-				self.ssh_socket = Net::SSH.start(
-					ip,
-					user,
-					opt_hash
-				)
+				::Timeout.timeout(datastore['SSH_TIMEOUT']) do
+					self.ssh_socket = Net::SSH.start(
+						ip,
+						user,
+						opt_hash
+					)
+				end
 			rescue Rex::ConnectionError, Rex::AddressInUse
 				return :connection_error
 			rescue Net::SSH::Disconnect, ::EOFError
+				return :connection_disconnect
+			rescue ::Timeout::Error
 				return :connection_disconnect
 			rescue Net::SSH::AuthenticationFailed
 				# Try, try, again
@@ -210,9 +217,16 @@ class Metasploit3 < Msf::Auxiliary
 			proof = ''
 			begin
 				Timeout.timeout(5) do
-					proof = self.ssh_socket.exec!("id\nuname -a").to_s
-					if(proof !~ /id=/)
-						proof << self.ssh_socket.exec!("help\n?\n\n\n").to_s
+					proof = self.ssh_socket.exec!("id\n").to_s
+					if(proof =~ /id=/)
+						proof << self.ssh_socket.exec!("uname -a\n").to_s
+					else
+						# Cisco IOS
+						if proof =~ /Unknown command or computer name/
+							proof = self.ssh_socket.exec!("ver\n").to_s
+						else
+							proof << self.ssh_socket.exec!("help\n?\n\n\n").to_s
+						end
 					end
 				end
 			rescue ::Exception
@@ -238,7 +252,27 @@ class Metasploit3 < Msf::Auxiliary
 					)
 			end
 
-			start_session(self, "SSH #{user}:#{self.good_key} (#{ip}:#{port})", merge_me, false, conn.lsock)
+			s = start_session(self, "SSH #{user}:#{self.good_key} (#{ip}:#{port})", merge_me, false, conn.lsock)
+
+			# Set the session platform
+			case proof
+			when /Linux/
+				s.platform = "linux"
+			when /Darwin/
+				s.platform = "osx"
+			when /SunOS/
+				s.platform = "solaris"
+			when /BSD/
+				s.platform = "bsd"
+			when /HP-UX/
+				s.platform = "hpux"
+			when /AIX/
+				s.platform = "aix"
+			when /Win32|Windows/
+				s.platform = "windows"
+			when /Unknown command or computer name/
+				s.platform = "cisco-ios"
+			end
 
 			return [:success, proof]
 		else

@@ -102,7 +102,7 @@ class Metasploit4 < Msf::Auxiliary
 
 			env = []
 
-			if res.code == 200
+			if res and res.code == 200
 				case res.body
 				when nil
 					# Nothing
@@ -112,7 +112,7 @@ class Metasploit4 < Msf::Auxiliary
 					env = body.scan(/<item>([^<]+)<\/item>/i)
 					success = true
 				end
-			elsif res.code == 500
+			elsif res and  res.code == 500
 				case res.body
 				when /<faultstring>(.*)<\/faultstring>/i
 					faultcode = $1.strip

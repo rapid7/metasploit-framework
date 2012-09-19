@@ -1,0 +1,82 @@
+= RUBY/EventMachine
+
+Homepage::  http://rubyeventmachine.com
+Rubyforge Page:: http://rubyforge.org/projects/eventmachine
+Google Group:: http://groups.google.com/group/eventmachine
+Mailing List:: http://rubyforge.org/pipermail/eventmachine-talk
+RDoc:: http://eventmachine.rubyforge.org
+IRC:: ##eventmachine on irc.freenode.net
+Copyright:: (C) 2006-07 by Francis Cianfrocca. All Rights Reserved.
+Email:: gmail address: garbagecat10
+
+EventMachine is copyrighted free software made available under the terms
+of either the GPL or Ruby's License. See the file COPYING for full licensing
+information.
+See EventMachine and EventMachine::Connection for documentation and
+usage examples.
+
+EventMachine implements a fast, single-threaded engine for arbitrary network
+communications. It's extremely easy to use in Ruby. EventMachine wraps all
+interactions with IP sockets, allowing programs to concentrate on the
+implementation of network protocols. It can be used to create both network
+servers and clients. To create a server or client, a Ruby program only needs
+to specify the IP address and port, and provide a Module that implements the
+communications protocol. Implementations of several standard network protocols
+are provided with the package, primarily to serve as examples. The real goal
+of EventMachine is to enable programs to easily interface with other programs
+using TCP/IP, especially if custom protocols are required.
+
+A Ruby program uses EventMachine by registering the addresses and ports of
+network servers and clients, and then entering an event-handling loop.
+EventMachine contains glue code in Ruby which will execute callbacks to
+user-supplied code for all significant events occurring in the clients
+and servers. These events include connection acceptance, startup, data-receipt,
+shutdown, and timer events. Arbitrary processing can be performed by user code
+during event callbacks, including sending data to one or more remote network
+peers, startup and shutdown of network connections, and installation of new
+event handlers.
+
+The EventMachine implements a very familiar model for network programming.
+It emphasizes: 1) the maximum possible isolation of user code from network
+objects like sockets; 2) maximum performance and scalability; and 3) extreme
+ease-of-use for user code. It attempts to provide a higher-level interface
+than similar projects which expose a variety of low-level event-handling
+and networking objects to Ruby programs.
+
+The design and implementation of EventMachine grows out of nearly ten years
+of experience writing high-performance, high-scaling network server applications.
+We have taken particular account of the challenges and lessons described as
+the "C10K problem" by Dan Kegel and others.
+
+EventMachine consists of an extension library written in C++ (which can be
+accessed from languages other than Ruby), and a Ruby module which can be dropped
+into user programs. On most platforms, EventMachine uses the
+<tt>select(2)</tt> system call,
+so it will run on a large range of Unix-like systems and on Microsoft
+Windows with good performance and scalability. On Linux 2.6 kernels, EventMachine
+automatically configures itself to use <tt>epoll(4)</tt> instead of
+<tt>select(2),</tt> so scalability on that platform can be significantly
+improved.
+
+Here's a fully-functional echo server written with EventMachine:
+
+ require 'eventmachine'
+
+ module EchoServer
+   def post_init
+     puts "-- someone connected to the echo server!"
+   end
+
+   def receive_data data
+     send_data ">>>you sent: #{data}"
+     close_connection if data =~ /quit/i
+   end
+
+   def unbind
+     puts "-- someone disconnected from the echo server!"
+   end
+ end
+
+ EventMachine::run {
+   EventMachine::start_server "127.0.0.1", 8081, EchoServer
+ }

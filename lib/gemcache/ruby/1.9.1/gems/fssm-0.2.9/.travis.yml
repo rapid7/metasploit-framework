@@ -1,0 +1,9 @@
+branches:
+  only:
+    - cleanup
+rvm:
+  - jruby
+#  - 1.8.7
+#  - 1.9.2
+#  - rbx-head
+

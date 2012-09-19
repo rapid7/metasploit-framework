@@ -1,0 +1,44 @@
+<html>
+  <head>
+    <title>Sample Rack::Cache Sinatra app</title>
+    <style type="text/css" media="screen">
+      body {
+        font-family: Georgia;
+        font-size: 24px;
+        text-align: center;
+      }
+
+      #headers {
+        font-size: 16px;
+      }
+
+      input {
+        font-size: 24px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Last updated at: <%= $updated_at.strftime('%l:%m:%S%P') %></h1>
+
+    <p>
+      <form action="/" method="post">
+        <input type="hidden" name="_method" value="PUT">
+        <input type="submit" value="Expire the cache.">
+      </form>
+    </p>
+
+    <div id="headers">
+      <h3>Headers:</h3>
+
+      <% response.headers.each do |key, value| %>
+        <p><%= key %>: <%= value %></p>
+      <% end %>
+
+      <h3>Params:</h3>
+      <% params.each do |key, value| %>
+        <p><%= key %>: <%= value || '(blank)' %></p>
+      <% end %>
+    </div>
+  </body>
+</html>

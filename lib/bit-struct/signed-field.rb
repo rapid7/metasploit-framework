@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 class BitStruct
   # Class for signed integers in network order, 1-16 bits, or 8n bits.
   # Declared with BitStruct.signed.

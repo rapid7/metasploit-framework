@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Escalate SMB Icon LNK dropper',
+				'Name'          => 'Windows Escalate SMB Icon LNK Dropper',
 				'Description'   => %q{
 					This module drops a shortcut (LNK file) that has a ICON reference
 					existing on the specified remote host, causing SMB and WebDAV

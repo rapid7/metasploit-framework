@@ -3,7 +3,7 @@
 #
 =begin
 
-Copyright (C) 2009-2011, Rapid7 LLC
+Copyright (C) 2009-2012, Rapid7 LLC
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -53,6 +53,7 @@ require 'net/https'
 require 'net/http'
 require 'uri'
 require 'rex/mime'
+
 
 module Nexpose
 
@@ -125,7 +126,7 @@ class APIRequest
 		@time_out = 30
 		@pause = 2
 		@uri = URI.parse(@url)
-		@http = Net::HTTP.new(@uri.host, @uri.port)
+		@http = ::Net::HTTP.new(@uri.host, @uri.port)
 		@http.use_ssl = true
 		#
 		# XXX: This is obviously a security issue, however, we handle this at the client level by forcing
@@ -143,7 +144,9 @@ class APIRequest
 
 		begin
 		prepare_http_client
-		@raw_response, @raw_response_data = @http.post(@uri.path, @req, @headers)
+
+		@raw_response = @http.post(@uri.path, @req, @headers)
+		@raw_response_data = @raw_response.body
 		@res = parse_xml(@raw_response_data)
 
 		if(not @res.root)
@@ -153,19 +156,32 @@ class APIRequest
 
 		@sid = attributes['session-id']
 
-		if(attributes['success'] and attributes['success'].to_i == 1)
-			@success = true
-		else
+		@success = true
+
+		if(attributes['success'] and attributes['success'].to_i == 0)
 			@success = false
-			@res.elements.each('//Failure/Exception') do |s|
-				s.elements.each('message') do |m|
-					@error = m.text
-				end
-				s.elements.each('stacktrace') do |m|
-					@trace = m.text
-				end
+		end
+
+		# Look for a stack trace
+		@res.elements.each('//Failure/Exception') do |s|
+
+			# 1.1 returns lower case elements
+			s.elements.each('message') do |m|
+				@error = m.text
+			end
+			s.elements.each('stacktrace') do |m|
+				@trace = m.text
+			end
+
+			# 1.2 returns capitalized elements
+			s.elements.each('Message') do |m|
+				@error = m.text
+			end
+			s.elements.each('Stacktrace') do |m|
+				@trace = m.text
 			end
 		end
+		
 		# This is a hack to handle corner cases where a heavily loaded Nexpose instance
 		# drops our HTTP connection before processing. We try 5 times to establish a
 		# connection in these situations. The actual exception occurs in the Ruby
@@ -181,20 +197,18 @@ class APIRequest
 				retry
 			end
 			@error = "Nexpose host did not respond"
-		rescue ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL,::Errno::EADDRNOTAVAIL
+		rescue ::SocketError, ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL,::Errno::EADDRNOTAVAIL
 			@error = "Nexpose host is unreachable"
 		# Handle console-level interrupts
 		rescue ::Interrupt
-			@error = "received a user interrupt"
+			@error = "Received a user interrupt"
 		rescue ::Errno::ECONNRESET,::Errno::ECONNREFUSED,::Errno::ENOTCONN,::Errno::ECONNABORTED
 			@error = "Nexpose service is not available"
 		rescue ::REXML::ParseException
 			@error = "Nexpose has not been properly licensed"
 		end
 
-		if ! (@success or @error)
-			@error = "Nexpose service returned an unrecognized response: #{@raw_response_data.inspect}"
-		end
+		@success = false if @error
 
 		@sid
 	end
@@ -232,6 +246,17 @@ module NexposeAPI
 		xml
 	end
 
+	def make_xml_plain(name, opts={}, data='')
+		xml = REXML::Element.new(name)
+
+		opts.keys.each do |k|
+			xml.attributes[k] = "#{opts[k]}"
+		end
+		
+		xml.text = data
+
+		xml
+	end
 	def scan_stop(param)
 		r = execute(make_xml('ScanStopRequest', { 'scan-id' => param }))
 		r.success
@@ -340,9 +365,43 @@ module NexposeAPI
 		r.success
 	end
 
+	def vuln_exception_create(vuln_id, reason, scope, comment='', attrs={})
+		attrs = attrs.merge({ 'vuln-id' => vuln_id, 'reason' => reason, 'scope' => scope })
+		req = make_xml('VulnerabilityExceptionCreateRequest', attrs)
+ 		com = make_xml_plain('comment', {}, comment.to_s)
+		req << com
+		r = execute(req, '1.2')
+	end
+
+	def vuln_exception_approve(exception_id, comment='', attrs={})
+		attrs = attrs.merge({ 'exception-id' => exception_id })
+		req = make_xml('VulnerabilityExceptionApproveRequest', attrs)
+ 		com = make_xml_plain('comment', {}, comment.to_s)
+		req << com
+		r = execute(req, '1.2')
+	end
+
+	def vuln_exception_update_expiration(exception_id, expiration_date, attrs={})
+		attrs = attrs.merge({ 'exception-id' => exception_id, 'expiration-date' => expiration_date })
+		req = make_xml('VulnerabilityExceptionUpdateExpirationDateRequest', attrs)
+		r = execute(req, '1.2')
+	end
+
 	def asset_group_delete(connection, id, debug = false)
 		r = execute(make_xml('AssetGroupDeleteRequest', { 'group-id' => param }))
 		r.success
+	end
+
+	def asset_group_create(name, description, devices)
+		req = make_xml('AssetGroupSaveRequest')
+		req_ag = make_xml_plain('AssetGroup', { 'id' => "-1", 'name' => name, 'description' => description })
+ 		req_devices = make_xml_plain('Devices')
+		devices.each do |did|
+			req_devices << make_xml_plain('device', { 'id' => did })
+		end
+		req_ag << req_devices
+		req    << req_ag
+		r = execute(req)
 	end
 
 	#-------------------------------------------------------------------------
@@ -625,23 +684,27 @@ class Connection
 		@session_id = nil
 		@error = false
 		@url = "https://#{@host}:#{@port}/api/1.1/xml"
+		@url_base = "https://#{@host}:#{@port}/api/"
 	end
 
 	# Establish a new connection and Session ID
 	def login
-		begin
-			r = execute(make_xml('LoginRequest', { 'sync-id' => 0, 'password' => @password, 'user-id' => @username }))
-		rescue APIError
-			raise AuthenticationFailed.new(r)
-		end
+
+		# This throws an APIError exception if necessary
+		r = execute(make_xml('LoginRequest', { 'sync-id' => 0, 'password' => @password, 'user-id' => @username }))
 		if(r.success)
 			@session_id = r.sid
 			return true
 		end
+
+		false
 	end
 
 	# Logout of the current connection
 	def logout
+		# Bypass logout unless we have an actual session ID
+		return true unless @session_id
+
 		r = execute(make_xml('LogoutRequest', {'sync-id' => 0}))
 		if(r.success)
 			return true
@@ -650,8 +713,8 @@ class Connection
 	end
 
 	# Execute an API request
-	def execute(xml)
-		APIRequest.execute(url,xml.to_s)
+	def execute(xml, version='1.1')
+		APIRequest.execute("#{@url_base}#{version}/xml", xml.to_s)
 	end
 
 	# Download a specific URL
@@ -661,8 +724,8 @@ class Connection
 		http.use_ssl = true
 		http.verify_mode = OpenSSL::SSL::VERIFY_NONE            # XXX: security issue
 		headers = {'Cookie' => "nexposeCCSessionID=#{@session_id}"}
-		resp, data = http.get(uri.path, headers)
-		data
+		resp = http.get(uri.path, headers)
+		resp ? resp.body : nil
 	end
 end
 

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'msf/base'
 
 module Msf
@@ -32,8 +33,8 @@ module Module
 	#
 	# Initializes the simplified interface.
 	#
-	def init_simplified
-		load_config
+	def init_simplified(load_saved_config=true)
+		load_config if load_saved_config
 	end
 
 	#

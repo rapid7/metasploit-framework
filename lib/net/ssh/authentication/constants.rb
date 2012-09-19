@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Net; module SSH; module Authentication
 
   # Describes the constants used by the Net::SSH::Authentication components

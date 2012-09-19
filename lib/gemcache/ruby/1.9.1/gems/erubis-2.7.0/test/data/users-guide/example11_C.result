@@ -1,0 +1,10 @@
+$ erubis -XC example11.rhtml
+_buf = '';
+     if @list.nil? || @list.empty? 
+     else 
+         @list.each_with_index do |item, i| 
+                      _buf << ( i % 2 == 0 ? '#FCC' : '#CCF' ).to_s;
+               _buf << ( item ).to_s;
+         end 
+     end 
+_buf.to_s

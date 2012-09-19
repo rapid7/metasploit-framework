@@ -137,7 +137,7 @@ class Metasploit3 < Msf::Auxiliary
 	def finger_slurp_data
 		buff = ""
 		begin
-			while(res = sock.get_once(-1, 5))
+			while(res = sock.get_once(-1, 5) || '')
 				buff << res
 				break if buff.length > (1024*1024)
 			end

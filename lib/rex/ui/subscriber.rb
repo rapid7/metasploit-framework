@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Rex
 module Ui
 
@@ -21,7 +22,7 @@ module Subscriber
 		def print_line(msg='')
 			if (user_output)
 				print_blank_line if user_output.prompting?
-				user_output.print_line(msg) 
+				user_output.print_line(msg)
 			end
 		end
 
@@ -31,7 +32,7 @@ module Subscriber
 		def print_status(msg='')
 			if (user_output)
 				print_blank_line if user_output.prompting?
-				user_output.print_status(msg) 
+				user_output.print_status(msg)
 			end
 		end
 
@@ -41,17 +42,17 @@ module Subscriber
 		def print_error(msg='')
 			if (user_output)
 				print_blank_line if user_output.prompting?
-				user_output.print_error(msg) 
+				user_output.print_error(msg)
 			end
 		end
-		
+
 		#
 		# Wraps user_output.print_good
 		#
 		def print_good(msg='')
 			if (user_output)
 				print_blank_line if user_output.prompting?
-				user_output.print_good(msg) 
+				user_output.print_good(msg)
 			end
 		end
 
@@ -83,10 +84,10 @@ module Subscriber
 		# The user output handle.
 		#
 		attr_accessor :user_output
-	
+
 	protected
 
-		# 
+		#
 		# Prints a blank line.  Used when the input is prompting.
 		#
 		def print_blank_line
@@ -109,7 +110,7 @@ module Subscriber
 		def gets
 			user_input.gets if (user_input)
 		end
-	
+
 		#
 		# The user intput handle.
 		#

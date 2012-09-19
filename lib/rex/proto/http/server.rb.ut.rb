@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..'))
 
@@ -18,7 +19,7 @@ class Rex::Proto::Http::Server::UnitTest < Test::Unit::TestCase
 			s   = start_srv
 			c   = CliKlass.new(ListenHost, ListenPort)
 
-			1.upto(10) { 
+			1.upto(10) {
 				req = c.request_raw('uri' => '/')
 				res = c.send_recv(req)
 				assert_not_nil(res)
@@ -34,16 +35,16 @@ class Rex::Proto::Http::Server::UnitTest < Test::Unit::TestCase
 			s   = start_srv
 			c   = CliKlass.new(ListenHost, ListenPort)
 
-			s.add_resource('/foo', 
+			s.add_resource('/foo',
 				'Proc' => Proc.new { |cli, req|
 					resp = Rex::Proto::Http::Response::OK.new
 
 					resp.body = "Chickens everywhere"
-				
+
 					cli.send_response(resp)
 				})
 
-			1.upto(10) { 
+			1.upto(10) {
 				req = c.request_raw('uri' => '/foo')
 				res = c.send_recv(req)
 				assert_not_nil(res)

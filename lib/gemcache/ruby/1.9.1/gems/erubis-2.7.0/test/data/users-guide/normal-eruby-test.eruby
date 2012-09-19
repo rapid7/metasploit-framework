@@ -1,0 +1,9 @@
+<%
+def list_items(items)
+%>
+<% for item in items %>
+<li><%= item %></li>
+<% end %>
+<%
+end
+%>

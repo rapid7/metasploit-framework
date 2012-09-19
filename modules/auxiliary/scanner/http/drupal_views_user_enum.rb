@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
 			else
 				print_error("Unexpected results from server")
 				return
-			end	
+			end
 		end
 
 		final_results = results.flatten.uniq
