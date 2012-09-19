@@ -324,7 +324,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 		end
 
 		# Get rid of that pesky temporary file
-		temp_path.close(true)
+		::File.delete(temp_path) rescue nil
 	end
 
 	#

@@ -290,6 +290,25 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 		end
 	end
 
+	#
+	# With no associated block, File.open is a synonym for ::new. If the optional
+	# code block is given, it will be passed the opened file as an argument, and
+	# the File object will automatically be closed when the block terminates. In
+	# this instance, File.open returns the value of the block.
+	#
+	# (doc stolen from http://www.ruby-doc.org/core-1.9.3/File.html#method-c-open)
+	#
+	def File.open(name, mode="r", perms=0)
+		f = new(name, mode, perms)
+		if block_given?
+			ret = yield f
+			f.close
+			return ret
+		else
+			return f
+		end
+	end
+
 	##
 	#
 	# Constructor

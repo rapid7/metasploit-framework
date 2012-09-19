@@ -130,10 +130,15 @@ sub loadDatabasePreferences {
 }
 
 sub savePreferences {
-	local('$file');
-	$file = getFileProper(systemProperties()["user.home"], ".armitage.prop");
-	if (-exists getFileParent($file)) {
-		[$preferences save: [new java.io.FileOutputStream: $file], "Armitage Configuration"];
+	try {
+		local('$file $exception');
+		$file = getFileProper(systemProperties()["user.home"], ".armitage.prop");
+		if (-exists getFileParent($file)) {
+			[$preferences save: [new java.io.FileOutputStream: $file], "Armitage Configuration"];
+		}
+	}
+	catch $exception {
+		showError("I could not save your preferences:\n $+ $exception");
 	}
 }
 
