@@ -25,7 +25,7 @@ module Metasploit3
 			'Name'          => 'OSX Command Shell, Bind TCP Inline',
 			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection and spawn a command shell',
-			'Author'        => 'ramon',
+			'Author'        => 'Ramon de C Valle',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'osx',
 			'Arch'          => ARCH_X86,
