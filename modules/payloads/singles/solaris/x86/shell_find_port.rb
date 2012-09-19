@@ -25,7 +25,7 @@ module Metasploit3
 			'Name'          => 'Solaris Command Shell, Find Port Inline',
 			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a shell on an established connection',
-			'Author'        => 'ramon',
+			'Author'        => 'Ramon de C Valle <rcvalle[at]metasploit.com>',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'solaris',
 			'Arch'          => ARCH_X86,

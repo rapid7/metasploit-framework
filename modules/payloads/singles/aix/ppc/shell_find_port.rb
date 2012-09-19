@@ -25,7 +25,7 @@ module Metasploit3
 			'Name'          => 'AIX Command Shell, Find Port Inline',
 			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a shell on an established connection',
-			'Author'        => 'ramon',
+			'Author'        => 'Ramon de C Valle <rcvalle[at]metasploit.com>',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'aix',
 			'Arch'          => ARCH_PPC,

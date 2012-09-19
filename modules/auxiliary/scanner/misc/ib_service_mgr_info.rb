@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'	=> '$Revision$',
 			'Author'	=>
 				[
-					'ramon',
+					'Ramon de C Valle <rcvalle[at]metasploit.com>',
 					'Adriano Lima <adriano[at]risesecurity.org>',
 				],
 			'License'	=> MSF_LICENSE
