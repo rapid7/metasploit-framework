@@ -117,7 +117,7 @@ DWORD railgun_call( RAILGUN_INPUT * pInput, RAILGUN_OUTPUT * pOutput )
 		pOutput->pBufferINOUT      = pInput->pBufferINOUT;
 		pOutput->dwBufferSizeOUT   = pInput->dwBufferSizeOUT;
 		pOutput->dwBufferSizeINOUT = pInput->dwBufferSizeINOUT;
-		pOutput->pErrMsg           = "Test Message";
+		pOutput->pErrMsg           = NULL;
 
 
 
