@@ -45,6 +45,10 @@ class Console::CommandDispatcher::Stdapi::Sys
 		"-r" => [ true,  "The remote machine name to connect to (with current process credentials" ],
 		"-w" => [ false,  "Set KEY_WOW64 flag, valid values [32|64]."               ])
 
+	@@ps_opts = Rex::Parser::Arguments.new(
+		"-h" => [false, "Help menu."],
+		"-S" => [true, "RegEx term(s) to filter results with "])
+
 	#
 	# List of supported commands.
 	#
@@ -58,7 +62,6 @@ class Console::CommandDispatcher::Stdapi::Sys
 			"getuid"      => "Get the user that the server is running as",
 			"kill"        => "Terminate a process",
 			"ps"          => "List running processes",
-			"findpids"    => "Find Processes by name",
 			"reboot"      => "Reboots the remote computer",
 			"reg"         => "Modify and interact with the remote registry",
 			"rev2self"    => "Calls RevertToSelf() on the remote machine",
@@ -76,7 +79,6 @@ class Console::CommandDispatcher::Stdapi::Sys
 			"getuid"      => [ "stdapi_sys_config_getuid" ],
 			"kill"        => [ "stdapi_sys_process_kill" ],
 			"ps"          => [ "stdapi_sys_process_get_processes" ],
-			"findpids"    => [ "stdapi_sys_process_get_processes" ],
 			"reboot"      => [ "stdapi_sys_power_exitwindows" ],
 			"reg"         => [
 				"stdapi_registry_load_key",
@@ -276,6 +278,24 @@ class Console::CommandDispatcher::Stdapi::Sys
 	#
 	def cmd_ps(*args)
 		processes = client.sys.process.get_processes
+		@@ps_opts.parse(args) do |opt, idx, val|
+			case opt 
+			when "-h"
+				cmd_ps_help
+				return true
+			when "-S"
+				print_line "Performing Search..."
+				searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
+				processes.each do |proc| 
+					if val.nil? or val.empty?
+						print_line "You must supply a search term!"
+						return false
+					end
+					searched_procs << proc  if proc["name"].match(/#{val}/)
+				end
+				processes = searched_procs
+			end
+		end
 		if (processes.length == 0)
 			print_line("No running processes were found.")
 		else
@@ -286,40 +306,14 @@ class Console::CommandDispatcher::Stdapi::Sys
 		return true
 	end
 
-	def cmd_findpids(*args)
-		if args.empty? or args.include? "-h"
-			cmd_findpids_help
-			return true
-		end
-		processes = client.sys.process.get_processes
-		if (processes.length == 0)
-			print_line("No running processes were found.")
-		else
-			searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
-			processes.each do |proc| 
-				args.each do |arg|
-					if proc["name"].match(/#{arg}/)
-						searched_procs << proc 
-						break
-					end
-				end
-			end
-			searched_procs.compact!
-			if searched_procs.length == 0
-				print_line("No running processes were found matching the supplied names.")
-			else
-				print_line
-				print_line(searched_procs.to_table("Indent" => 1).to_s)
-				print_line
-			end
-		end
-		return true
-	end
-
-	def cmd_findpids_help
-		print_line "You must supply one or more process name to search for"
-		print_line "e.g. findpids explorer.exe notepad.exe"
-		print_line "You may also pass Regular Expressions: findpids *.svc.* *.dll.*"
+	def cmd_ps_help
+		print_line "Use the command with no arguments to see all running processes."
+		print_line "You may supply a search term to filter the results:"
+		print_line "\t ps -S explorer.exe"
+		print_line "\t Would return any processes named explorer.exe"
+		print_line "You may also pass Regular Expressions:"
+		print_line "\tps -S *.svc.* "
+		print_line "Would return any processes with 'svc' in the name"
 	end
 
 	#
