@@ -199,16 +199,16 @@ class Metasploit4 < Msf::Post
 
 		it "should create and remove files" do
 			res = true
-			res &&= session.fs.file.open("meterpreter-test", "wb") { |fd|
-				fd.write("test")
-			}
+			fd = session.fs.file.new("meterpreter-test", "wb")
+			fd.write("test")
+			fd.close
 
 			vprint_status("Wrote to meterpreter-test, checking contents")
-			res &&= session.fs.file.open("meterpreter-test", "rb") { |fd|
-				contents = fd.read
-				vprint_status("Wrote #{contents}")
-				(contents == "test")
-			}
+			fd = session.fs.file.new("meterpreter-test", "rb")
+			contents = fd.read
+			vprint_status("Wrote #{contents}")
+			res &&= (contents == "test")
+			fd.close
 
 			session.fs.file.rm("meterpreter-test")
 			res &&= !session.fs.dir.entries.include?("meterpreter-test")

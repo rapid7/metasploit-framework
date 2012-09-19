@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(4848),
-				OptString.new('TARGETURI', [true, 'The URI path of the GlassFish Server', '/']),
+				OptString.new('URI', [true, 'The URI path of the GlassFish Server', '/']),
 				OptString.new('USERNAME',[true, 'A specific username to authenticate as','admin']),
 			], self.class)
 	end
@@ -104,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
 		headers['Content-Length'] = data.length if data != nil
 
 		res = send_request_raw({
-			'uri'	  => "#{target_uri.path}#{path}".gsub(/\/\//, '/'),
+			'uri'	  => path,
 			'method'  => method,
 			'data'	  => data,
 			'headers' => headers,

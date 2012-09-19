@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'   		=> 'HTTP Vuln Scanner',
+			'Name'   		=> 'HTTP Vuln scanner',
 			'Description'	=> %q{
 				This module identifies common vulnerable files or cgis.
 			},

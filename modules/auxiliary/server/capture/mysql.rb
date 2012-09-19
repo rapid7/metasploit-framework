@@ -50,7 +50,6 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 		@version = datastore['SRVVERSION']
-		print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
 		exploit()
 	end
 
@@ -141,9 +140,9 @@ class Metasploit3 < Msf::Auxiliary
 		elsif info[:username] and info[:response]
 			mysql_send_error(c, "Access denied for user '#{info[:username]}'@'#{c.peerhost}' (using password: YES)")
 			if info[:database]
-				print_status("#{@state[c][:name]} - User: #{info[:username]}; Challenge: #{@challenge.unpack('H*')[0]}; Response: #{info[:response].unpack('H*')[0]}; Database: #{info[:database]}")
+				print_status("MYSQL LOGIN: #{@state[c][:name]}; User: #{info[:username]}; Challenge: #{@challenge.unpack('H*')[0]}; Response: #{info[:response].unpack('H*')[0]}; Database: #{info[:database]}")
 			else
-				print_status("#{@state[c][:name]} - User: #{info[:username]}; Challenge: #{@challenge.unpack('H*')[0]}; Response: #{info[:response].unpack('H*')[0]}")
+				print_status("MYSQL LOGIN: #{@state[c][:name]}; User: #{info[:username]}; Challenge: #{@challenge.unpack('H*')[0]}; Response: #{info[:response].unpack('H*')[0]}")
 			end
 			hash_line = "#{info[:username]}:$mysql$#{@challenge.unpack("H*")[0]}$#{info[:response].unpack('H*')[0]}"
 			report_auth_info(

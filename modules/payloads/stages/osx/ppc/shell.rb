@@ -19,7 +19,7 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'OS X Command Shell',
+			'Name'          => 'OSX Command Shell',
 			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a command shell (staged)',
 			'Author'        => 'hdm',

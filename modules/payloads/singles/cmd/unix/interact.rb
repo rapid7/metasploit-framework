@@ -21,7 +21,7 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Unix Command, Interact with Established Connection',
+			'Name'          => 'Unix Command, Interact with established connection',
 			'Version'       => '$Revision$',
 			'Description'   => 'Interacts with a shell on an established socket connection',
 			'Author'        => 'hdm',

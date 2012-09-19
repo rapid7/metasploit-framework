@@ -203,8 +203,7 @@ class Metasploit3 < Msf::Auxiliary
 				:record_auth_info  => true,
 				:skip_private_keys => true,
 				:config =>false,
-				:accepted_key_callback => Proc.new {|key| accepted << key },
-				:proxies	  => datastore['Proxies']
+				:accepted_key_callback => Proc.new {|key| accepted << key }
 			}
 
 			opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']

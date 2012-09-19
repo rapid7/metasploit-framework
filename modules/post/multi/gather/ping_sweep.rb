@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows','linux', 'osx', 'bsd', 'solaris' ],
-				'SessionTypes'  => [ 'meterpreter', 'shell' ]
+				'SessionTypes'  => [ 'meterpreter','shell' ]
 			))
 		register_options(
 			[
@@ -40,10 +40,11 @@ class Metasploit3 < Msf::Post
 	# Run Method for when run command is issued
 	def run
 		iprange = datastore['RHOSTS']
+		found_hosts = []
 		print_status("Performing ping sweep for IP range #{iprange}")
 		iplst = []
 		begin
-			a = []
+			i, a = 0, []
 			ipadd = Rex::Socket::RangeWalker.new(iprange)
 			numip = ipadd.num_ips
 			while (iplst.length < numip)
@@ -56,57 +57,52 @@ class Metasploit3 < Msf::Post
 			if session.type =~ /shell/
 				# Only one thread possible when shell
 				thread_num = 1
-				# Use the shell platform for selecting the command
-				platform = session.platform
 			else
 				# When in Meterpreter the safest thread number is 10
 				thread_num = 10
-				# For Meterpreter use the sysinfo OS since java Meterpreter returns java as platform
-				platform = session.sys.config.sysinfo['OS']
-			end
-
-			platform = session.platform
-
-			case platform
-			when /win/i
-				count = " -n 1 "
-				cmd = "ping"
-			when /solaris/i
-				cmd = "/usr/sbin/ping"
-			else
-				count = " -n -c 1 -W 2 "
-				cmd = "ping"
 			end
 
 			ip_found = []
 
-			while(not iplst.nil? and not iplst.empty?)
-				1.upto(thread_num) do
-					a << framework.threads.spawn("Module(#{self.refname})", false, iplst.shift) do |ip_add|
-						next if ip_add.nil?
-						if platform =~ /solaris/i
-				 			r = cmd_exec(cmd, "-n #{ip_add} 1")
-						else
-				 			r = cmd_exec(cmd, count + ip_add)
-						end
-						if r =~ /(TTL|Alive)/i
-							print_status "\t#{ip_add} host found"
-							ip_found << ip_add
-						else
-							vprint_status("\t#{ip_add} host not found")
-						end
+			iplst.each do |ip|
+				# Set count option for ping command
+				case session.platform
+				when /win/i
+					count = " -n 1 " + ip
+					cmd = "ping"
+				when /solaris/i
+					count = " #{ip} 1"
+					cmd = "/bin/ping"
+				else
+					count = " -c 1 #{ip}"
+					cmd = "/bin/ping"
+				end
 
-					end
-					a.map {|x| x.join }
+				if i <= thread_num
+					a.push(::Thread.new {
+							r = cmd_exec(cmd, count)
+							if r =~ /(TTL|Alive)/i
+								print_status "\t#{ip.inspect} host found"
+								ip_found << ip
+							else
+								vprint_status("\t#{ip} host not found")
+							end
+
+						})
+					i += 1
+				else
+					sleep(0.5) and a.delete_if {|x| not x.alive?} while not a.empty?
+					i = 0
 				end
 			end
-		rescue Rex::TimeoutError, Rex::Post::Meterpreter::RequestError
+			a.delete_if {|x| not x.alive?} while not a.empty?
+
 		rescue ::Exception => e
 			print_status("The following Error was encountered: #{e.class} #{e}")
-		end
 
-		ip_found.each do |ip|
-			report_host(:host => ip)
+		end
+		ip_found.each do |i|
+			report_host(:host => i)
 		end
 	end
 end

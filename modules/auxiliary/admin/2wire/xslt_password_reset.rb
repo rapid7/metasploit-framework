@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => "$Revision$",
 			'Author'         =>
 				[
-					'hkm [at] hakim.ws',              #Initial discovery, poc
+					'hkm',              #Initial discovery, poc
 					'Travis Phillips',  #Msf module
 				],
 			'References'     =>

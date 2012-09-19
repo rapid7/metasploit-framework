@@ -9,11 +9,10 @@ module Linux
 module System
 	include ::Msf::Post::Common
 	include ::Msf::Post::File
+
 	include ::Msf::Post::Unix
 
-	#
 	# Returns a Hash containing Distribution Name, Version and Kernel Information
-	#
 	def get_sysinfo
 		system_data = {}
 		etc_files = cmd_exec("ls /etc").split()
@@ -98,6 +97,6 @@ module System
 
 
 end # System
-end # Linux
+end #Linux
 end # Post
 end # Msf

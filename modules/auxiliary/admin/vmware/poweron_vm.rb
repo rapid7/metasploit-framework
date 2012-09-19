@@ -23,9 +23,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'           => 'VMWare Power On Virtual Machine',
 			'Description'    => %Q{
-				This module will log into the Web API of VMWare and try to power on
-				a specified Virtual Machine.
-			},
+							This module will log into the Web API of VMWare and try to power on
+							a specified Virtual Machine.},
 			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'License'        => MSF_LICENSE
 		)
@@ -37,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ]),
 				OptString.new('VM', [true, "The VM to try to Power On"])
 			], self.class)
-
+			
 		register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
 	end
 
@@ -68,5 +67,9 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 	end
+
+
+
+
 
 end

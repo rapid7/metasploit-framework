@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Nop
 
 	def initialize
 		super(
-			'Name'        => 'SPARC NOP Generator',
+			'Name'        => 'SPARC NOP generator',
 			'Alias'       => 'sparc_simple',
 			'Version'     => '$Revision$',
 			'Description' => 'SPARC NOP generator',

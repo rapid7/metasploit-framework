@@ -17,10 +17,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'Pcap Replay Utility',
+			'Name'        => 'Pcap replay utility',
 			'Version'     => '$Revision$',
 			'Description' => %q{
-				Replay a pcap capture file
+				replay a pcap capture file
 			},
 			'Author'      => 'amaloteaux',
 			'License'     => MSF_LICENSE

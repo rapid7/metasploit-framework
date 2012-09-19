@@ -101,7 +101,7 @@ class Metasploit3 < Msf::Post
 			end
 
 			# Set the proper payload
-			case datastore['PAYLOAD_TYPE']
+			case datastore['STARTUP']
 			when /TCP/i
 				payload = "windows/meterpreter/reverse_tcp"
 			when /HTTP/i

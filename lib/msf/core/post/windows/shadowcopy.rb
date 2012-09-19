@@ -12,17 +12,10 @@ module ShadowCopy
 
 	include Msf::Post::Windows::WindowsServices
 
-	#
-	# Get the device name for the shadow copy, which is used when accessing  
-	# files on the volume.
-	#
 	def get_vss_device(id)
 		result = get_sc_param(id,'DeviceObject')
 	end
 
-	#
-	# Returns a list of volume shadow copies.
-	#
 	def vss_list
 		ids = vss_get_ids
 		shadow_copies = []
@@ -33,18 +26,12 @@ module ShadowCopy
 		return shadow_copies
 	end
 
-	#
-	# Use WMIC to get a list of volume shadow copy IDs.
-	#
 	def vss_get_ids
 		result = wmicexec('shadowcopy get id')
 		ids = result.scan(/\{\w{8}-\w{4}-\w{4}-\w{4}-\w{12}\}/)
 		return ids
 	end
 
-	#
-	# Get volume shadow storage parameters.
-	# 
 	def vss_get_storage
 		storage={}
 		storage['AllocatedSpace'] = vss_get_storage_param('AllocatedSpace')
@@ -53,9 +40,6 @@ module ShadowCopy
 		return storage
 	end
 
-	#
-	# Get detailed information about the volume shadow copy specified by +id+
-	#
 	def get_sc_details(id)
 		shadowcopy={}
 		shadowcopy['ID'] = id
@@ -83,29 +67,18 @@ module ShadowCopy
 		return shadowcopy
 	end
 
-	#
-	# Return the value of the +param_name+ for the volume shadow copy 
-	# specified by +id+
-	#
 	def get_sc_param(id,param_name)
 		result = wmicexec("shadowcopy where(id=#{id}) get #{param_name}")
 		result.gsub!(param_name,'')
 		result.gsub!(/\s/,'')
 	end
 
-	#
-	# Return the value of the shadowstorage parameter specified by 
-	# +param_name+
-	#
 	def vss_get_storage_param(param_name)
 		result = wmicexec("shadowstorage get #{param_name}")
 		result.gsub!(param_name,'')
 		result.gsub!(/\s/,'')
 	end
 
-	#
-	# Set the shadowstorage MaxSpace parameter to +bytes+ size
-	#
 	def vss_set_storage(bytes)
 		result = wmicexec("shadowstorage set MaxSpace=\"#{bytes}\"")
 		if result.include?("success")
@@ -115,9 +88,6 @@ module ShadowCopy
 		end
 	end
 
-	#
-	# Create a new shadow copy of the volume specified by +volume+
-	#
 	def create_shadowcopy(volume)
 		result = wmicexec("shadowcopy call create \"ClientAccessible\", \"#{volume}\"")
 		retval = result.match(/ReturnValue = (\d)/)
@@ -156,9 +126,6 @@ module ShadowCopy
 		return nil
 	end
 
-	#
-	# Start the Volume Shadow Service
-	#
 	def start_vss
 		vss_state = wmicexec('Service where(name="VSS") get state')
 		if vss_state=~ /Running/
@@ -191,9 +158,6 @@ module ShadowCopy
 		return true
 	end
 
-	#
-	# Execute a WMIC command
-	#
 	def wmicexec(wmiccmd)
 		tmpout = ''
 		session.response_timeout=120

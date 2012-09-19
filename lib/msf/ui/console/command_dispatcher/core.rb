@@ -2414,12 +2414,7 @@ class Core
 							res << addr
 						end
 					when 'LHOST'
-						rh = self.active_module.datastore["RHOST"]
-						if rh and not rh.empty?
-							res << Rex::Socket.source_address(rh)
-						else
-							res << Rex::Socket.source_address()
-						end
+						res << Rex::Socket.source_address()
 					else
 				end
 

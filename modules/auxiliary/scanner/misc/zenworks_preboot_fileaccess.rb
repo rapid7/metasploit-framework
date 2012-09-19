@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         =>
 				[
 					'Luigi Auriemma', # Vulnerability Discovery
-					'juan vazquez' # Metasploit module
+					'juan' # Metasploit module
 				],
 			'References'     =>
 				[

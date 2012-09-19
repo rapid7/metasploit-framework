@@ -3,7 +3,6 @@ module MetasploitDataModels::ActiveRecordModels::Host
     base.class_eval{
 
       belongs_to :workspace, :class_name => "Mdm::Workspace"
-      # hosts_tags are cleaned up in before_destroy:
       has_many :hosts_tags, :class_name => "Mdm::HostTag"
       has_many :tags, :through => :hosts_tags, :class_name => "Mdm::Tag"
       has_many :services, :dependent => :destroy, :class_name => "Mdm::Service", :order => "services.port, services.proto"
@@ -24,8 +23,6 @@ module MetasploitDataModels::ActiveRecordModels::Host
       validates :address, :presence => true, :ip_format => true
       validates_exclusion_of :address, :in => ['127.0.0.1']
       validates_uniqueness_of :address, :scope => :workspace_id, :unless => Proc.new { |host| host.ip_address_invalid? }
-
-      before_destroy :cleanup_tags
 
       # This is replicated by the IpAddressValidator class. Had to put it here as well to avoid
       # SQL errors when checking address uniqueness.
@@ -60,13 +57,10 @@ module MetasploitDataModels::ActiveRecordModels::Host
 
       accepts_nested_attributes_for :services, :reject_if => lambda { |s| s[:port].blank? }, :allow_destroy => true
 
-      def cleanup_tags
-        # No need to keep tags with no hosts
+      def before_destroy
         tags.each do |tag|
           tag.destroy if tag.hosts == [self]
         end
-        # Clean up association table records
-        Mdm::HostTag.delete_all("host_id = #{self.id}")
       end
 
       # Determine if the fingerprint data is readable. If not, it nearly always

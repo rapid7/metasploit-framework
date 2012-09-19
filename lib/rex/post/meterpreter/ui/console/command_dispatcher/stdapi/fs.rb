@@ -161,13 +161,11 @@ class Console::CommandDispatcher::Stdapi::Fs
 			print_error("#{args[0]} is a directory")
 		else
 			fd = client.fs.file.new(args[0], "rb")
-			begin
-				until fd.eof?
-					print(fd.read)
-				end
-			# EOFError is raised if file is empty, do nothing, just catch
-			rescue EOFError
+
+			until fd.eof?
+				print(fd.read)
 			end
+
 			fd.close
 		end
 
@@ -324,7 +322,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 		end
 
 		# Get rid of that pesky temporary file
-		::File.delete(temp_path) rescue nil
+		temp_path.close(true)
 	end
 
 	#

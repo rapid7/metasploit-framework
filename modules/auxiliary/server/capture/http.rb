@@ -82,7 +82,6 @@ class Metasploit3 < Msf::Auxiliary
 			@myautopwn = true
 		end
 
-		print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
 		exploit()
 	end
 

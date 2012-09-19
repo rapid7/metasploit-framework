@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
 	def initialize(info = {})
 		super(update_info(info,
-			'Name' => 'Archive.org Stored Domain URLs',
+			'Name' => 'Pull Archive.org stored URLs for a domain',
 			'Description' => %q{
 					This module pulls and parses the URLs stored by Archive.org for the purpose of
 				replaying during a web assessment. Finding unlinked and old pages.

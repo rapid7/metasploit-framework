@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'Airpwn TCP Hijack',
+			'Name'        => 'Airpwn TCP hijack',
 			'Version'     => '$Revision$',
 			'Description'    => %q{
 				TCP streams are 'protected' only in so much as the sequence

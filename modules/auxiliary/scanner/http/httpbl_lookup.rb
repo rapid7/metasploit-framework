@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'		   => 'Http:BL Lookup',
+			'Name'		   => 'Http:BL lookup',
 			'Description'	=> %q{
 					This module can be used to enumerate information
 				about an IP addresses from Project HoneyPot's HTTP Block List.

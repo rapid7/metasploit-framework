@@ -4,10 +4,7 @@ class Post
 module Windows
 
 module Eventlog
-
-	#
-	# Enumerate eventlogs
-	#
+	#enumerate eventlogs
 	def eventlog_list
 		key = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\"
 		if session.sys.config.sysinfo['OS'] =~ /Windows 2003|.Net|XP|2000/
@@ -19,10 +16,7 @@ module Eventlog
 		return eventlogs
 	end
 
-	#
-	# Clears a given eventlog or all eventlogs if none is given. Returns an array of eventlogs 
-	# that where cleared.
-	#
+	#clears a given eventlog or all eventlogs if none is given. Returns an array of eventlogs that where cleared.
 	def eventlog_clear(evt = "")
 		evntlog = []
 		if evt.empty?

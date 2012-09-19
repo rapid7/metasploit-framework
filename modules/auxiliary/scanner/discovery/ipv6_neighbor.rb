@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('SHOST', [false, "Source IP Address"]),
-				OptString.new('SMAC', [false, "Source MAC Address"]),
+				OptString.new('SMAC', [true, "Source MAC Address"]),
 		], self.class)
 
 		deregister_options('SNAPLEN', 'FILTER')
@@ -48,30 +48,19 @@ class Metasploit3 < Msf::Auxiliary
 	def run_batch(hosts)
 		open_pcap({'SNAPLEN' => 68, 'FILTER' => "arp[6:2] == 0x0002"})
 
-		@netifaces = true
-		if not netifaces_implemented?
-			print_error("WARNING : Pcaprub is not uptodate, some functionality will not be available")
-			@netifaces = false
-		end
-
 		print_status("Discovering IPv4 nodes via ARP...")
 
-		@interface = datastore['INTERFACE'] || Pcap.lookupdev
-		@shost = datastore['SHOST']
-		@shost ||= get_ipv4_addr(@interface) if @netifaces
-		raise RuntimeError ,'SHOST should be defined' unless @shost
-
-		@smac  = datastore['SMAC']
-		@smac ||= get_mac(@interface) if @netifaces
-		raise RuntimeError ,'SMAC should be defined' unless @smac
+		shost = datastore['SHOST']
+		smac  = datastore['SMAC']
 
 		addrs = []
 
 		begin
 			found = {}
 			hosts.each do |dhost|
+				shost = datastore['SHOST'] || Rex::Socket.source_address(dhost)
 
-				probe = buildprobe(@shost, @smac, dhost)
+				probe = buildprobe(datastore['SHOST'], datastore['SMAC'], dhost)
 				capture.inject(probe)
 				while(reply = getreply())
 					next unless reply.is_arp?
@@ -121,7 +110,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Discovering IPv6 addresses for IPv4 nodes...")
 		print_status("")
 
-		smac  = @smac
+		smac  = datastore['SMAC']
 		open_pcap({'SNAPLEN' => 68, 'FILTER' => "icmp6"})
 
 		begin

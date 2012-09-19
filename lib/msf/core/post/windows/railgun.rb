@@ -40,16 +40,10 @@ module Railgun
 		end
 	end
 
-	#
-	# Read +length+ bytes starting at +address+
-	#
 	def memread(address, length)
 		railgun.memread(address, length)
 	end
 
-	#
-	# Write +length+ bytes starting at +address+
-	#
 	def memwrite(address, length)
 		railgun.memwrite(address, length)
 	end
@@ -58,9 +52,6 @@ module Railgun
 		client.railgun
 	end
 
-	#
-	# Returns the pointer size of the remote system
-	#
 	def pointer_size
 		railgun.util.pointer_size
 	end

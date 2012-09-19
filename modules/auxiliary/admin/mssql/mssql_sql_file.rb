@@ -5,7 +5,7 @@
 #   http://metasploit.com/
 ##
 
-require 'msf/core'
+require 'msf/core' 
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -13,11 +13,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Microsoft SQL Server Generic Query from File',
+			'Name'           => 'MSSQL - Execute SQL from file',
 			'Description'    => %q{
-				This module will allow for multiple SQL queries contained within a specified
-				file to be executed against a Microsoft SQL (MSSQL) Server instance, given
-				the appropiate credentials.
+				This module will allow for multiple SQL queries contained within a specified 
+				file to be executed against a MSSQL instance given the appropiate credentials.
 			},
 			'Author'         => [ 'j0hn__f : <jf[at]tinternet.org.uk>' ],
 			'License'        => MSF_LICENSE

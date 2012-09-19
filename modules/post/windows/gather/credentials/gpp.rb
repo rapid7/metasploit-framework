@@ -9,7 +9,6 @@ require 'msf/core'
 require 'rex'
 require 'rexml/document'
 require 'msf/core/post/windows/registry'
-require 'msf/core/post/windows/priv'
 
 class Metasploit3 < Msf::Post
 	include Msf::Auxiliary::Report

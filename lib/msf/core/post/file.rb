@@ -2,9 +2,6 @@
 
 module Msf::Post::File
 
-	#
-	# Change directory in the remote session to +path+
-	#
 	def cd(path)
 		if session.type == "meterpreter"
 			e_path = session.fs.file.expand_path(path) rescue path
@@ -14,9 +11,6 @@ module Msf::Post::File
 		end
 	end
 
-	#
-	# Returns the current working directory in the remote session
-	#
 	def pwd
 		if session.type == "meterpreter"
 			return session.fs.dir.getwd
@@ -51,9 +45,6 @@ module Msf::Post::File
 		end
 	end
 
-	#
-	# Expand any environment variables to return the full path specified by +path+.
-	#
 	def expand_path(path)
 		if session.type == "meterpreter"
 			return session.fs.file.expand_path(path)
@@ -119,7 +110,7 @@ module Msf::Post::File
 	end
 
 	#
-	# Writes a given string to a given local file
+	# Writes a given string to a file specified
 	#
 	def file_local_write(file2wrt, data2wrt)
 		if not ::File.exists?(file2wrt)
@@ -150,6 +141,7 @@ module Msf::Post::File
 	#
 	# Returns a MD5 checksum of a given remote file
 	#
+
 	def file_remote_digestmd5(file2md5)
 		data = read_file(file2md5)
 		chksum = nil
@@ -274,28 +266,10 @@ module Msf::Post::File
 	end
 
 	#
-	# Read a local file +local+ and write it as +remote+ on the remote file 
-	# system
+	# Read a local file and write it to the remote file system
 	#
 	def upload_file(remote, local)
 		write_file(remote, ::File.read(local))
-	end
-
-	#
-	# Delete remote files
-	#
-	def rm_f(*remote_files)
-		remote_files.each do |remote|
-			if session.type == "meterpreter"
-				session.fs.file.delete(remote)
-			else
-				if session.platform =~ /win/
-					cmd_exec("del /q /f #{remote}")
-				else
-					cmd_exec("rm -f #{remote}")
-				end
-			end
-		end
 	end
 
 
@@ -449,9 +423,6 @@ protected
 		true
 	end
 
-	#
-	# Calculate the maximum line length for a unix shell.
-	#
 	def _unix_max_line_length
 		# Based on autoconf's arg_max calculator, see
 		# http://www.in-ulm.de/~mascheck/various/argmax/autoconf_check.html

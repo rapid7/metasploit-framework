@@ -42,8 +42,7 @@ class Msf::Module::Author
 			'bannedit'	=> 'bannedit' + 0x40.chr + 'metasploit.com',
 			'amaloteaux'	=> 'alex_maloteaux' + 0x40.chr + 'metasploit.com',
 			'Carlos Perez'  => 'carlos_perez' + 0x40.chr + 'darkoperator.com',
-			'tasos'     => 'tasos.laskos' + 0x40.chr + 'gmail.com',
-			'juan vazquez' =>  'juan.vazquez' + 0x40.chr + 'metasploit.com'
+			'tasos'     => 'tasos.laskos' + 0x40.chr + 'gmail.com'
 		}
 
 	#
