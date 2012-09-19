@@ -25,8 +25,8 @@ class Metasploit3 < Msf::Auxiliary
 			'Description' => 'AIX SNMP Scanner Auxiliary Module',
 			'Author'      =>
 				[
+					'Ramon de C Valle <rcvalle[at]metasploit.com>',
 					'Adriano Lima <adriano[at]risesecurity.org>',
-					'ramon'
 				],
 			'License'     => MSF_LICENSE
 		)
