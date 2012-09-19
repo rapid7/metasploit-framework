@@ -93,7 +93,7 @@ def check_single_file(dparts, fparts, f_rel)
 		[words.first, words.last].each do |word|
 			if word[0,1] =~ /[a-z]/ and word[1,1] !~ /[A-Z0-9]/
 				next if word =~ /php[A-Z]/
-				next if %w{iseemedia activePDF freeFTPd osCommerce myBB}.include? word
+				next if %w{iseemedia activePDF freeFTPd osCommerce myBB qdPM}.include? word
 				show_missing(f, "WARNING: bad capitalization in module title: #{word}", false)
 			end
 		end
