@@ -417,6 +417,18 @@ module DispatcherShell
 		if(blocked_command?(method))
 			print_error("The #{method} command has been disabled.")
 		else
+			# check for and replace '!$'
+			his_len = Readline::HISTORY.length
+			spot = arguments.index('!$')
+			if spot
+				if his_len < 1
+					print_error('No commands in history to use for !$ substitution')
+					return self.busy = false
+				else
+					arguments[spot] = parse_line(Readline::HISTORY[his_len-2]).last
+					# we use -2 because -1 is the last one in history, which is actually the currently executing command
+				end
+			end
 			dispatcher.send('cmd_' + method, *arguments)
 		end
 		self.busy = false
