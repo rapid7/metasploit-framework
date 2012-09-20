@@ -20,7 +20,7 @@ That should cover the cases where you shouldn't open a bug at all, so let's move
 
 The final destination for bug reports in Metasploit is our Redmine [issue tracker](https://dev.metasploit.com/redmine/projects/framework/issues?set_filter=1). In order to file bug reports, you must first [create an account](https://dev.metasploit.com/redmine/account/register). Sadly, we can't take anonymous bug reports at this time due to spam, but we are actively exploring ways to make the registration as painless as possible.
 
-In casual conversation, when we ask, "is there a bug?" or refer to "the bug tracker" or simply "Redmine," we're nearly always talking about this system.
+In conversation about Metasploit and someone asks, "is there a bug?" or refers to "the bug tracker" or "Redmine," we're nearly always talking about this system.
 
 # Avoiding Duplicates
 
