@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
 				on the specified interface.
 			},
 			'License'       => MSF_LICENSE,
-			'Author'        => ['TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Author'        => ['theLightCosine'],
 			'Version'       => '$Revision$',
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ]

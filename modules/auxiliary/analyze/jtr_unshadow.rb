@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 					This module takes a passwd and shadow file and 'unshadows'
 					them and saves them as linux.hashes loot.
 			},
-			'Author'            => ['TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Author'            => ['theLightCosine'],
 			'License'           => MSF_LICENSE
 		)
 

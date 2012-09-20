@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
 				password is used.
 				},
 			'License'       => MSF_LICENSE,
-			'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Author'        => [ 'theLightCosine'],
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))

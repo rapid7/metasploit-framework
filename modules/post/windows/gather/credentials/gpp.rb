@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Post
 				'Ben Campbell <eat_meatballs[at]hotmail.co.uk>',
 				'Loic Jaquemet <loic.jaquemet+msf[at]gmail.com>',
 				'scriptmonkey <scriptmonkey[at]owobble.co.uk>',
-				'TheLightCosine <thelightcosine[at]metasploit.com>',
+				'theLightCosine',
 				'Rob Fuller <mubix[at]hak5.org>' #domain/dc enumeration code
 				],
 			'References'    =>

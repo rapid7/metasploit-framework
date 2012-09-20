@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %Q{
 				This module will log into the Web API of VMWare and try to terminate
 				user login sessions as specified by the session keys.},
-			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
+			'Author'         => ['theLightCosine'],
 			'License'        => MSF_LICENSE
 		)
 
