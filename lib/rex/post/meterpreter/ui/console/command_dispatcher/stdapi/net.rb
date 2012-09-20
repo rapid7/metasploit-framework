@@ -52,6 +52,13 @@ class Console::CommandDispatcher::Stdapi::Net
 		"-L" => [ true,  "The local host to listen on (optional)." ])
 
 	#
+	# Options for the ls command
+	#
+	@@netstat_opts = Rex::Parser::Arguments.new(
+		"-h" => [ false, "Help banner." ],
+		"-S" => [ true, "Search string." ])
+
+	#
 	# List of supported commands.
 	#
 	def commands
@@ -100,11 +107,36 @@ class Console::CommandDispatcher::Stdapi::Net
 	def name
 		"Stdapi: Networking"
 	end
+
+	def cmd_netstat_help
+		print_line "Usage: netstat [options]"
+		print_line
+		print_line "Shows current sockets and connections"
+		print_line @@netstat_opts.usage
+	end
 	#
 	# Displays network connections of the remote machine.
 	#
 	def cmd_netstat(*args)
 		connection_table = client.net.config.netstat
+		search_term = nil
+		@@netstat_opts.parse(args) { |opt, idx, val|
+			case opt
+			when '-S'
+				search_term = val
+				if search_term.nil?
+					print_error("Enter a search term")
+					return true
+				else
+					search_term = /#{search_term}/nmi
+				end
+			when "-h"
+				cmd_netstat_help
+				return 0
+
+			end
+		}
+
 		tbl = Rex::Ui::Text::Table.new(
 		'Header'  => "Connection list",
 		'Indent'  => 4,
@@ -120,12 +152,17 @@ class Console::CommandDispatcher::Stdapi::Net
 			])
 
 		connection_table.each { |connection|
-			tbl << [ connection.protocol, connection.local_addr_str, connection.remote_addr_str,
+			row = [ connection.protocol, connection.local_addr_str, connection.remote_addr_str,
 				connection.state, connection.uid, connection.inode, connection.pid_name]
+			# Check to see if the row matches criteria
+           next if search_term and !row.join(' ').match(search_term)
+           tbl << row
 		}
 
 		if tbl.rows.length > 0
 			print("\n" + tbl.to_s + "\n")
+		elsif search_term
+			print_line("No matching connections found")
 		else
 			print_line("Connection list is empty.")
 		end
