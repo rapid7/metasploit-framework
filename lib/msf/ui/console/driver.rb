@@ -251,8 +251,8 @@ class Driver < Msf::Ui::Driver
 		end
 
 		# Process any additional startup commands
-		if opts['SCommands'] and opts['SCommands'].kind_of? Array
-			opts['SCommands'].each { |c|
+		if opts['XCommands'] and opts['XCommands'].kind_of? Array
+			opts['XCommands'].each { |c|
 				run_single(c)
 			}
 		end

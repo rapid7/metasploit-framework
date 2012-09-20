@@ -101,9 +101,9 @@ class OptsConsole
 				options['DisableBanner'] = true
 			end
 
-			opts.on("-s", "-s <string>", "Execute the specified string as console commands") do |s|
-				options['SCommands'] ||= []
-				options['SCommands'] += s.split('\n')
+			opts.on("-x", "-x <command>", "Execute the specified string as console commands (use ; for multiples)") do |s|
+				options['XCommands'] ||= []
+				options['XCommands'] += s.split(/\s*;\s*/)
 			end
 
 			opts.separator ""
