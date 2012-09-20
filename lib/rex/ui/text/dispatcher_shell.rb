@@ -426,7 +426,9 @@ module DispatcherShell
 					return self.busy = false
 				else
 					arguments[spot] = parse_line(Readline::HISTORY[his_len-2]).last
-					# we use -2 because -1 is the last one in history, which is actually the currently executing command
+					# we use -2 above because -1 is the last one in history, which is actually the currently executing command
+					# update the history file itself so consecutive uses of !$ don't return '!$' instead of replaced value
+					Readline::HISTORY[his_len-1] = "#{method} #{arguments.join(' ')}"
 				end
 			end
 			dispatcher.send('cmd_' + method, *arguments)
