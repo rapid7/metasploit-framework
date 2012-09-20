@@ -36,6 +36,17 @@ Finally, you might find a bug that's been rejected or closed. In these cases, th
 
 # Describing your bug
 
+## Make your bug findable
+
+Since we talk a lot about the importance of finding dupes before submitting, make sure that your bug is findable. Use specific module names and error messages in the title, and include as much of the error as you can in the report. "The Windows login aux mod is broken" is a terrible title, while "NoMethodError raised on smb_login module" is much better. 
+
+Check out [Bug #6905](https://dev.metasploit.com/redmine/issues/6905). If all our bug reports looked like this, I'd be delighted. It's pretty short, and has the all basics -- a short but descriptive title, a full backtrace of the error, a complete history of how he got there, and version information. This bug is very search-friendly, as well as easy to reproduce.
+
+## Reproducing your bug
+
+Sometimes, though, your bug is trickier to reproduce.
+
+
 # Submitting Patches
 
 # Following your bug
