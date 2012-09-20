@@ -249,6 +249,13 @@ class Driver < Msf::Ui::Driver
 			# If the opt is nil here, we load ~/.msf3/msfconsole.rc
 			load_resource(opts['Resource'])
 		end
+
+		# Process any additional startup commands
+		if opts['XCommands'] and opts['XCommands'].kind_of? Array
+			opts['XCommands'].each { |c|
+				run_single(c)
+			}
+		end
 	end
 
 	#
