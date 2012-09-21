@@ -19,8 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %q{
 				This module provides a fake MySQL service that is designed to
 				capture authentication credentials. It captures	challenge and
-				response pairs that can be supplied to Cain or JtR (faster and
-				multi-core capable) for cracking.
+				response pairs that can be supplied to Cain or JtR for cracking.
 			},
 			'Author'         => 'Patrik Karlsson <patrik[at]cqure.net>',
 			'License'        => MSF_LICENSE,
