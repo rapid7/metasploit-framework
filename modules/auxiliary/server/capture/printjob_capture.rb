@@ -149,17 +149,15 @@ class Metasploit3 < Msf::Auxiliary
                 @state[c][:prn_type] = "PS"
                 print_good("Printjob intercepted - type PostScript")
                 # extract PostScript data including header and EOF marker
-                @state[c][:raw_data] = @state[c][:data].scan(/%!PS-Adobe.*%%EOF/im).first
-            end
-
+                @state[c][:raw_data] = @state[c][:data].match(/%!PS-Adobe.*%%EOF/im)[0]
             # pcl data (capture PCL or PJL start code)
-            if @state[c][:data].unpack("H*")[0] =~ /[1b45|1b25|1b26]/
+            elsif @state[c][:data].unpack("H*")[0] =~ /(1b45|1b25|1b26)/
                 @state[c][:prn_type] = "PCL"
                 print_good("Printjob intercepted - type PCL")
                 #extract everything between PCL start and end markers (various)
-                @state[c][:raw_data] = \
-                    Array(@state[c][:data].unpack("H*")[0]
-                    .scan(/[1b45|1b25|1b26].*[1b45|1b252d313233343558]/i)).pack("H*")
+                @state[c][:raw_data] = Array(@state[c][:data].unpack("H*")[0]
+                    .match(/((1b45|1b25|1b26).*(1b45|1b252d313233343558))/i)[0]) \
+                    .pack("H*")
             end
 
             # extract Postsript Metadata
@@ -181,7 +179,8 @@ class Metasploit3 < Msf::Auxiliary
             # output discovered Metadata if set
             if @state[c][:meta_output] and @metadata
                 @state[c][:meta_output].sort.each do | out |
-                    print_status("#{out}")
+                    # print metadata if not empty
+                    print_status("#{out}") if not out.empty?
                 end
             else
                 print_status("No metadata gathered from printjob")
@@ -233,7 +232,7 @@ class Metasploit3 < Msf::Auxiliary
             if meta[0] =~ /^Title/i
                 @state[c][:prn_title] = meta[0].strip
             end
-            end
+        end
     end
 
     def metadata_ipp(c)
