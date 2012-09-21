@@ -2,7 +2,7 @@
 
 As any open source software product grows in popularity, there is a tendency to see an **increase** in bug report volume coupled with a corresponding **decrease** in bug report quality. We are not against getting bug reports for Metasploit -- we need bug reports in order to know what's broken. So, rather than trying to stem the tide of bugs, this page will attempt to make sure that each bug report we get is written in a way that maximizes its chances of actually getting resolved.
 
-By this point, the Metasploit development community has read thousands of bug reports, and it turns out, well-written bug reports tend to make fixing those bugs much, much easier, and therefore, faster. It's really pretty amazing, and this speed-to-close is pretty independent of the complexity of the bug itself. It all relies on the bug report quality.
+By this point, the Metasploit development community has read thousands of bug reports, and it turns out, well-written bug reports tend to make fixing those bugs much faster and easier. It's really pretty remarkable that a speedy time-to-close seems to corellate so strongly with bug report quality and not the  complexity of the bug itself.
 
 That said, there are two situations where you generally oughtn't open a bug at all, and that's when you have a support contract, or when you've found a security issue with Metasploit itself.
 
