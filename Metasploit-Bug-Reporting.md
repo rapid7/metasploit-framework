@@ -1,6 +1,6 @@
 # Metasploit Bug Reporting
 
-As any open source software grows in popularity, there is a tendency to see an increase in bug report volume against that software coupled with a corresponding decrease in bug report quality. We are not against getting bug reports for Metasploit -- we need bug reports in order to know what's broken. So, rather than trying to stem the tide of bugs, this page will attempt to make sure that each bug report we get is written in a way that maximizes its chances of actually getting resolved.
+As any open source software product grows in popularity, there is a tendency to see an **increase** in bug report volume coupled with a corresponding **decrease** in bug report quality. We are not against getting bug reports for Metasploit -- we need bug reports in order to know what's broken. So, rather than trying to stem the tide of bugs, this page will attempt to make sure that each bug report we get is written in a way that maximizes its chances of actually getting resolved.
 
 That said, there are two situations where you generally oughtn't open a bug at all, and that's when you have a support contract, or when you've found a security issue with Metasploit itself.
 
@@ -16,21 +16,23 @@ Also, if you could report your security bug in the form of a Metasploit module s
 
 That should cover the cases where you shouldn't open a bug at all, so let's move on to our main issue tracking system, Redmine.
 
-# Intro to Redmine
+# Introducing Redmine
 
-The final destination for bug reports in Metasploit is our Redmine [issue tracker](https://dev.metasploit.com/redmine/projects/framework/issues?set_filter=1). In order to file bug reports, you must first [create an account](https://dev.metasploit.com/redmine/account/register). Sadly, we can't take anonymous bug reports at this time due to spam, but we are actively exploring ways to make the registration as painless as possible.
+The final destination for bug reports in Metasploit is our Redmine [issue tracker](https://dev.metasploit.com/redmine/projects/framework/issues?set_filter=1). This is where all issues that we want to track are born, grow old, and eventually die.
+
+In order to file bug reports, you must first [create an account](https://dev.metasploit.com/redmine/account/register). It's easy and fun. Sadly, we can't take truly anonymous bug reports at this time due to spambots, but we are actively exploring ways to make this registration as painless and easy for humans as we can.
 
 In conversation about Metasploit and someone asks, "is there a bug?" or refers to "the bug tracker" or "Redmine," we're nearly always talking about this system.
 
 ## They're all Bugs
 
-Speaking of conversation, it's important to note that we will tend to refer to all issues as "bugs," regardless if it's actually a defect, a feature request, a or a support request. It's just fewer syllables and characters.
+Speaking of conversation, it's important to note that we will tend to refer to all issues as "bugs," regardless if it's actually a defect, a feature request, a or a support request. It's just fewer syllables and characters, and is not meant to disparage the content of the issue.
 
 ## GitHub Issues
 
 We have an [Issue Tracker](https://github.com/rapid7/metasploit-framework/issues) enabled on the GitHub repo, but, as mentioned above, bugs should hit Redmine if they're going to be tracked. We had a fantasy of closing down Redmine for a while there and switching over to GitHub Issues completely, but Redmine is still just too useful to abandon.
 
-So, in the interim, nobody is going to stop you from filing GitHub issues. Many GitHub projects have an "Issues" button, and we'd rather not surprise people and make them dig through the wiki to figure out how to report bugs.
+So, in the interim, nobody is going to stop you from filing GitHub issues. Many GitHub projects have an "Issues" button, and we'd rather not surprise people and make them dig through the wiki to figure out how to report bugs. If you're reading this, you're now enlightened, so should avoid that Issues tab.
 
 ## E-mail
 
@@ -116,6 +118,8 @@ So, you go to all the effort of filing a bug, and you want to make sure it gets 
 
 If you opened a bug on Redmine, you should automatically be getting updates to it via e-mail, and the same goes for GitHub pull requests. If you're not for some reason, you should check your own spam filters as well as your [Notification Settings](https://dev.metasploit.com/redmine/my/account). If you want to follow some bug you're not already involved in, you can always tick the "Watch" star ath the top right of any issue, and you'll start getting updates every time it changes.
 
+*TODO: Hook up Redmine updates to [Metasploit-Notifications](https://lists.sourceforge.net/lists/listinfo/metasploit-notifications) which is already watching GitHub. It'll take ten minutes.*
+
 ## Bug discussion
 
 Some projects are persnickety about talking about bugs in the bug itself. We're not. If you have a comment or question, ask about it in the bug. We far prefer this public communication over private communication because it makes things easily searchable, captures all the information regarding an issue, and can help future bug-squashers who are searching for similar issues.
@@ -132,6 +136,8 @@ Your bug should be considered "Resolved" once there's a fix landed in the [Metas
 
 Once a week, usually Wednesdays, we release an update to the [Metasploit Installation](http://www.rapid7.com/downloads/metasploit.jsp). Generally speaking, Metasploit framework fixes will hit that installation on a weekly basis after appropriate QA. So, while we may refer to a bug as "resolved," it may not be available quite yet.
 
-
-
 # EOF
+
+That's it, for now. This document will surely change and evolve as the Metasploit community does.
+
+***
