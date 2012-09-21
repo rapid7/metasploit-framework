@@ -126,7 +126,8 @@ class Metasploit3 < Msf::Auxiliary
 
         if (Rex::Text.to_hex(curr_data.first)) == '\x02' and \
             (Rex::Text.to_hex(curr_data.last)) == '\x0a'
-            print_status("LPR Jobcmd \"%s\" received" % curr_data[1..-2])
+            print_status("LPR Jobcmd \"%s\" received" % curr_data[1..-2]) \
+                if not curr_data[1..-2].empty?
         end
 
         return if not @state[c][:data]
@@ -155,7 +156,7 @@ class Metasploit3 < Msf::Auxiliary
                 @state[c][:prn_type] = "PCL"
                 print_good("Printjob intercepted - type PCL")
                 #extract everything between PCL start and end markers (various)
-                @state[c][:raw_data] = Array(@state[c][:data].unpack("H*")[0]
+                @state[c][:raw_data] = Array(@state[c][:data].unpack("H*")[0] \
                     .match(/((1b45|1b25|1b26).*(1b45|1b252d313233343558))/i)[0]) \
                     .pack("H*")
             end
@@ -166,7 +167,7 @@ class Metasploit3 < Msf::Auxiliary
             # extract PJL Metadata
             metadata_pjl(c) if @state[c][:data] =~ /@PJL/i
 
-            # extract IPP Metdata
+            # extract IPP Metadata
             metadata_ipp(c) if @state[c][:data] =~ /POST \/ipp/i or \
                 @state[c][:data] =~ /application\/ipp/i
 
@@ -242,11 +243,11 @@ class Metasploit3 < Msf::Auxiliary
         print_good("Extracting IPP Metadata")
         case @state[c][:prn_metadata]
         when /User-Agent:/i
-            @state[c][:meta_output] << @state[c][:prn_metdata].scan(/^User-Agent:.*&/i)
+            @state[c][:meta_output] << @state[c][:prn_metadata].scan(/^User-Agent:.*/i)
         when /Server:/i
-            @state[c][:meta_output] << @state[c][:prn_metdata].scan(/^Server:.*&/i)
+            @state[c][:meta_output] << @state[c][:prn_metadata].scan(/^Server:.*/i)
         when /printer-uri..ipp:\/\/.*\/ipp\//i
-            @state[c][:meta_output] << @state[c][:prn_metdata].scan(/printer-uri..ipp:\/\/.*\/ipp\//i)
+            @state[c][:meta_output] << @state[c][:prn_metadata].scan(/printer-uri..ipp:\/\/.*\/ipp\//i)
         when /requesting-user-name..\w+/i
             @state[c][:meta_output] << @state[c][:prn_metadata].scan(/requesting-user-name..\w+/i)
         end
