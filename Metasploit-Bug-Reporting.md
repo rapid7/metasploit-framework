@@ -36,15 +36,28 @@ Finally, you might find a bug that's been rejected or closed. In these cases, th
 
 # Describing your bug
 
-## Make your bug findable
+## Make your bug searchable
 
-Since we talk a lot about the importance of finding dupes before submitting, make sure that your bug is findable. Use specific module names and error messages in the title, and include as much of the error as you can in the report. "The Windows login aux mod is broken" is a terrible title, while "NoMethodError raised on smb_login module" is much better. 
+Since we talk a lot about the importance of finding dupes before submitting, make sure that your bug is findable. Use specific module names and error messages in the title, and include as much of the error as you can in the report. "The Windows login aux mod is broken" is a terrible title, while "NoMethodError raised on smb_login module" is much better.
+
+Most of the time, bugs you run into don't have nice, clean error messages. In these cases, try to pin down what you can in the title. For example, see [Bug #7215](https://dev.metasploit.com/redmine/issues/7215) -- this is a pretty typical complaint that some module is failing to open a shell, but notice that while the module name isn't in the title, it is in the opening description. Also, this bug has tons of logs and screen captures.
+
+## Logs and screen captures
 
 Check out [Bug #6905](https://dev.metasploit.com/redmine/issues/6905). If all our bug reports looked like this, I'd be delighted. It's pretty short, and has the all basics -- a short but descriptive title, a full backtrace of the error, a complete history of how he got there, and version information. This bug is very search-friendly, as well as easy to reproduce.
 
-## Reproducing your bug
+If you're testing a module in a lab or virtual environment, we'd love to get as much data about the target as you can provide. This means exact versions of the target including patch levels, pcaps if you can capture them, and any kind of logging inside or outside of Framework.
 
-Sometimes, though, your bug is trickier to reproduce.
+On the other hand, if you run into an issue on an engagement, we understand that you can't include a bunch of client data in your bug report. In those cases, we will still bug you for logs, but you'll need to santize them first, and we won't have our feelings hurt if you need to refuse. Such is the business of penetration testing.
+
+## Mention Your Environment
+
+It may be that the bug you're describing only comes up in your environment. If you're not on the normal [Metasploit Development Environment](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment) or the [Default Metasploit Installation](http://www.rapid7.com/downloads/metasploit.jsp) you will want to mention this specifically in your bug report. The output of the commands `ruby -v` , and  `uname -a` (or `winver`) is usually very helpful.
+
+## Include steps to reproduce
+
+
+
 
 
 # Submitting Patches
