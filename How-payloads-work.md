@@ -11,6 +11,7 @@ Single payloads are fire-and-forget. They can create a communications mechanism 
 Stagers are a small stub designed to create some form of communication and then pass execution to the next stage. Using a stager solves two problems. First, it allows us to use a small payload initially to load up a larger payload with more functionality. Second, it makes it possible to separate the communications mechanism from the final stage so one payload can be used with multiple transports without duplicating code.
 
 ### Stages
+Since the stager will have taken care of dealing with any size restrictions by allocating a big chunk of memory for us to run in, stages can be arbitrarily large. One advantage of that is the ability to write final-stage payloads in a higher-level language like C.
 
 ## Meterpreter
 To avoid confusion, the victim running meterpreter is always called the server and the ruby side controlling it is always called the client, regardless of the direction of the original connection.
