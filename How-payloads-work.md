@@ -17,9 +17,9 @@ Since the stager will have taken care of dealing with any size restrictions by a
 To avoid confusion, the victim running meterpreter is always called the server and the ruby side controlling it is always called the client, regardless of the direction of the original connection.
 
 The Meterpreter server is broken into several pieces:
-  - metsrv.dll - this is the heart of meterpreter where the protocol and extension systems are implemented
-  - ext_server_stdapi.dll - this extension implements most of the commands familiar to users
-  - ext_server_*.dll - other extensions provide further functionality
+  - ```metsrv.dll``` - this is the heart of meterpreter where the protocol and extension systems are implemented
+  - ```ext_server_stdapi.dll``` - this extension implements most of the commands familiar to users
+  - ```ext_server_*.dll``` - other extensions provide further functionality
 
 ### Delivering Meterpreter
 
