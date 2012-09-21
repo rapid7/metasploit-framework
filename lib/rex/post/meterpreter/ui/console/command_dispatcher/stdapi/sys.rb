@@ -341,12 +341,23 @@ class Console::CommandDispatcher::Stdapi::Sys
 
 	def cmd_ps_help
 		print_line "Use the command with no arguments to see all running processes."
-		print_line "You may supply a search term to filter the results:"
-		print_line "\t ps -S explorer.exe"
-		print_line "\t Would return any processes named explorer.exe"
-		print_line "You may also pass Regular Expressions:"
-		print_line "\tps -S *.svc.* "
-		print_line "Would return any processes with 'svc' in the name"
+		print_line "The following options can be used to filter those results:"
+		
+		tbl = Rex::Ui::Text::Table.new(
+			'Header'      => "Options List",
+			'Indent'       => 1,
+			'Columns'   => 
+			[
+				"Option",
+				"Details"
+			]
+		)
+
+		tbl << ["-s", "Display only SYSTEM processes"]
+		tbl << ["-S <RegEx>", "Filters processes on the process name using the supplied RegEx"]
+		tbl << ["-A <arch>", "Filters processes on the arch. (x86, x86_64)"]
+		tbl << ["-U <username>", "Filters processes on the user using the supplied RegEx"]
+		print_line tbl.to_s
 	end
 
 
