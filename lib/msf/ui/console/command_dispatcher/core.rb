@@ -65,6 +65,13 @@ class Core
 		"-w" => [ true,  "Specify connect timeout."                       ],
 		"-z" => [ false, "Just try to connect, then return."              ])
 
+	@@grep_opts = Rex::Parser::Arguments.new(
+		"-h" => [ false, "Help banner."                                   ],
+		"-i" => [ false, "Ignore case."                                   ],
+		"-m" => [ true,  "Stop after arg matches."                        ],
+		"-v" => [ false, "Invert match."                                  ],
+		"-c" => [ false, "Only print a count of matching lines."          ])
+
 	@@search_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner."                                   ])
 
@@ -82,6 +89,7 @@ class Core
 			"connect"  => "Communicate with a host",
 			"color"    => "Toggle color",
 			"exit"     => "Exit the console",
+			"grep"     => "Grep the output of another command",
 			"help"     => "Help menu",
 			"info"     => "Displays information about one or more module",
 			"irb"      => "Drop into irb scripting mode",
@@ -2328,6 +2336,99 @@ class Core
 		print_line("Console  : #{Msf::Framework::Version}.#{svn_console_version.match(/ (.+?) \$/)[1]}")
 
 		return true
+	end
+
+	def cmd_grep_help
+		print_line "Usage: grep [options] pattern cmd"
+		print_line
+		print_line "Grep the results of a console command (similar to Linux grep command)"
+		print(@@grep_opts.usage())
+	end
+
+	##
+	# Greps the output of another console command
+	# 
+	# :call-seq:
+	#   cmd_grep(grep_opt1, grep_opt2, pattern, command, cmd_arg)
+	#   cmd_grep(pattern, command)
+	def cmd_grep(*args)
+		return cmd_grep_help if args.length < 2
+		match_mods = {:insensitive => false}
+		output_mods = {:count => false, :invert => false}
+		@@grep_opts.parse(args.dup) do |opt, idx, val|
+			case opt
+				when "-h"
+					return cmd_grep_help
+				when "-m"
+					# limit to arg matches
+					match_mods[:max] = val.to_i
+					# delete opt and val from args list
+					args.shift
+					args.shift
+				when "-v"
+					# invert match
+					match_mods[:invert] = true
+					# delete opt from args list
+					args.shift
+				when "-i"
+					# case insensitive
+					match_mods[:insensitive] = true
+					args.shift
+				when "-c"
+					# just count matches
+					output_mods[:count] = true
+					args.shift
+			end
+		end
+		# after deleting parsed options, the only args left should be the pattern, the cmd to run, and cmd args
+		pattern = args.shift
+		if match_mods[:insensitive]
+			rx = Regexp.new(pattern, true)
+		else
+			rx = Regexp.new(pattern)
+		end
+		cmd = args.join(" ")
+
+		# redirect stdout (only) temporarily
+		# we use a rex buffer but add a write method to the instance, which is required in order to be valid $stdout
+		orig_stdout = $stdout
+		buf = Rex::Ui::Text::Output::Buffer.new
+		def buf.write(msg = '')
+			self.print_raw(msg)
+		end
+		$stdout = buf # stdout is now redirected to buf
+		driver.run_single(cmd)
+		$stdout = orig_stdout # stdout is now restored
+		cmd_output = buf.dump_buffer
+		# control matching based on remaining match_mods (:insensitive was already handled)
+		statement = 'line =~ rx'
+		statement = 'not line =~ rx' if match_mods[:invert]
+		our_lines = []
+		if match_mods[:max]
+			count = 0
+			cmd_output.lines do |line|
+				# we don't wan't to keep processing if we've reached :max already
+				break if count >= match_mods[:max]
+				if (eval statement)
+					count += 1
+					our_lines << line
+				end
+			end
+		else
+			our_lines = cmd_output.lines.select {|line| line if (eval statement)}
+		end
+
+		# now control output based on output_mods such as :count
+		if output_mods[:count]
+			return print_status our_lines.length.to_s
+		else
+			our_lines.each {|line| print line}
+		end
+	end
+
+	def cmd_grep_tabs(str, words)
+		# TODO, make sure this works, just guessed to start
+		tab_complete(words.join(" "))
 	end
 
 	#
