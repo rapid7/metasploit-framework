@@ -48,6 +48,8 @@ Check out [Bug #6905](https://dev.metasploit.com/redmine/issues/6905). If all ou
 
 If you're testing a module in a lab or virtual environment, we'd love to get as much data about the target as you can provide. This means exact versions of the target including patch levels, pcaps if you can capture them, and any kind of logging inside or outside of Framework.
 
+Often, we'll ask for the `framework.log` -- that's usually kept in `$HOME/.msf4/framework.log`.
+
 On the other hand, if you run into an issue on an engagement, we understand that you can't include a bunch of client data in your bug report. In those cases, we will still bug you for logs, but you'll need to santize them first, and we won't have our feelings hurt if you need to refuse. Such is the business of penetration testing.
 
 ## Mention Your Environment
@@ -56,10 +58,33 @@ It may be that the bug you're describing only comes up in your environment. If y
 
 ## Include steps to reproduce
 
+At a minimum, the steps you took to get to your predictament are probably found in `$HOME/.msf4/history`, so you can cut and paste from there. If there's more background than what's contained in the command history, like funny network configurations that might be in play, then mention that, too.
 
+We love resource scripts (rc scripts) that can be used to reliably trigger your bug. Those scripts can eventually find their way into repeatable test cases, so if you can put one together, great! For more on resource script writing, see [this blog post](https://community.rapid7.com/community/metasploit/blog/2010/03/22/automating-the-metasploit-console).
 
+# Patches
 
+## Providing Patches
 
-# Submitting Patches
+Maybe you've run into a bug, and you already know how to fix it. Or, you're just a kind stranger on the Internet who wants to help out. The most reliable way to get your patches into Metasploit is to patch your own fork, and sling a [pull request](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment#wiki-pull) our way. Since you're attacking a bug that already exists, you can use a special commit message string of either `[SeeRM #1234]` or `[FixRM #1234]` and that will update Redmine with a pointer to your commit automatically, once the fix is landed. Since it's human-readable, we can tell immediately that you're talking about a Redmine issue, as well, so you or someone can update Redmine with a link to your pull requestr.
+
+Of course, this all presumes you're hooked into GitHub. If this doesn't work for you, you can attach patches to a Redmine issue by simply creating a patch diff against a recent checkout of Metasploit -- this is going to be the case for most SVN users (and in that case, you'll want to use `svn diff`).
+
+Now, be forewarned: patches submitted directly to Redmine are more cumbersome to work with, especially if there are more questions. If you plan on patching more than once or twice, it would behoove you to take a little time to set up your [Metasploit Development Environment](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment) and start playing along at home.
+
+## Providing Test Cases
+
+We like -- no, love -- to have tests that show that a patch actually works. Again, [Resource Scripts](https://community.rapid7.com/community/metasploit/blog/2010/03/22/automating-the-metasploit-console) are a great way to get something quick put together, and you can combine this with the standard utility `screen` for some excellent resolutions:
+
+  * Fire up `screen` and hit `Ctrl-a H` (mind the caps)
+  * `msfconsole -L -q -r /path/to/your/test.rc`
+  * Exit msfconsole and `git checkout branch-containing-fix`
+  * `msfconsole -L -q -r /path/to/your/test.rc`
+  * `exit` to leave screen
+
+This will generate a screen log of your fix that includes all your output and all your keystrokes. Yes, it'll look horrible in a regular text editor due to the various escape codes, but `cat` and `less` are both more than adequate to resolve those.
+
+If you're on Windows, the msfconsole `spool` command should provide enough output to at least demo the problem and its solution.
 
 # Following your bug
+ 
