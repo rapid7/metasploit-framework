@@ -36,11 +36,8 @@ class Metasploit3 < Msf::Post
 
 	# method called when command run is issued
 	def run
-		print_status("=============================================")
-		print_status(" Database Enumeration Module")
-		print_status("=============================================")
-		print_status("Running module against #{sysinfo['Computer']}")
-		print_status("Checking for Database Server installations.")
+		
+		print_status("Enumerating Databases on #{sysinfo['Computer']}")
 		found = false
 		if check_mssql
 			enumerate_mssql
@@ -61,15 +58,12 @@ class Metasploit3 < Msf::Post
 		if check_sybase
 			enumerate_sybase
 			found = true
-		end
-		
-		print_status("=============================================")
+		end	
 		if found
 			print_status("Enumeration Complete, Databases Found.")
 		else
 			print_status("Enumeration Complete, No Databases were found")
 		end
-		print_status("=============================================")
 	end
 
 	##### initial identification methods #####
@@ -177,7 +171,6 @@ class Metasploit3 < Msf::Post
 						end
 					end
 					print_good("\t\t+ #{val_ORACLE_SID} (Port:#{port})")				
-					
 				else
 					print_error("\t\t+ #{val_ORACLE_SID} (No Listener Found)")				
 				end
@@ -201,9 +194,21 @@ class Metasploit3 < Msf::Post
 				elsif session.fs.file.exists?(val_Location + "\\my.cnf")
 					found = true
 					data = read_file(val_Location + "\\my.cnf")
+				else
+					sysdriv=session.fs.file.expand_path("%SYSTEMDRIVE%")			
+					getfile = session.fs.file.search(sysdriv + "\\","my.ini",recurse=true,timeout=-1)
+					data = 0
+					getfile.each do |file|
+						if data == 0
+							if session.fs.file.exists?("#{file['path']}\\#{file['name']}")
+								found = true
+								data = read_file("#{file['path']}\\#{file['name']}")
+							end
+						end
+					end
 				end
 				if found
-					port = data.scan(/port\=(\d+)/)
+					ports = data.scan(/port\=(\d+)/)
 					port = 0
 					ports.each do |p|
 						if port == 0
