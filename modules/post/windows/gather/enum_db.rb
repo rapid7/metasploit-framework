@@ -13,10 +13,11 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/registry'
 require 'msf/core/post/file'
-
+require 'msf/core/post/common'
 
 class Metasploit3 < Msf::Post
 
+	include Msf::Post::Common
 	include Msf::Post::File
 	include Msf::Post::Windows::Registry
 	include Msf::Auxiliary::Report
@@ -136,6 +137,7 @@ class Metasploit3 < Msf::Post
 
 	##### deep analysis methods #####
 	
+	
 	# method to identify mssql instances
 	def enumerate_mssql
 		key = "HKLM\\SOFTWARE\\Microsoft\\Microsoft SQL Server\\Instance Names\\SQL"
@@ -217,7 +219,7 @@ class Metasploit3 < Msf::Post
 					end
 					print_good("\t\t+ MYSQL (Port:#{port})")
 				else
-					print_error("\t\t+couldnt locate file.")
+					print_error("\t\t+ couldnt locate file.")
 				end
 				
 			end
@@ -250,16 +252,43 @@ class Metasploit3 < Msf::Post
 	
 	# method to identify db2 instances
 	def enumerate_db2
-		key = "HKLM\\SOFTWARE\\IBM\\DB2\\GLOBAL_PROFILE"
-		instance = registry_getvaldata(key,"DB2INSTDEF")
-		tcpkey = "HKLM\\SOFTWARE\\IBM\\DB2\\PROFILES\\#{instance}"
-		tcpport = registry_getvaldata(tcpkey,"DB2PORTRANGE")
-		account = registry_getvaldata(tcpkey,"DB2ACCOUNTNAME")
-		owner = registry_getvaldata(tcpkey,"DB2INSTOWNER")
-		print_good("\t\t+ #{instance} (Port:#{tcpport} , User:#{account}, Owner:#{owner})")
+		cmd_i = run_cmd("db2cmd /c db2ilist")
+		cmd_p = session.sys.process.execute("db2cmd /c db2 get dbm cfg", nil, {'Hidden' => true})
+		ports = cmd_p.scan(/\ ?TCP\/IP\ Service\ name[\ ]+\(SVCENAME\)\ =\ (\w+)/)
+		port = 0
+		ports.each do |p|
+			if port == 0
+				port = $1
+				if port.eql? "db2c_DB2"
+					port = 50000
+				end
+			end
+		end
+		cmd_i.split("\n").compact.each do |line|
+			print_good("\t\t+ #{line.strip} (Port:#{port})")	
+		end
+		
 	rescue
-		print_error("\t\t+#{instance}, couldnt identify instance information.")
+		print_error("\t\t+ could not identify instances information")
 	end
+	
+	
+	##### helper methods #####
+	
+	# method to run a command and retrieve output
+	def run_cmd(cmd)
+		process = session.sys.process.execute(cmd, nil, {'Hidden' => true, 'Channelized' => true})
+		res = ""
+		while (d = process.channel.read)
+			break if d == ""
+			res << d
+		end
+		process.channel.close
+		process.close
+		return res
+	rescue
+	end
+	
 	
 
 	
