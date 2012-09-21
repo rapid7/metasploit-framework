@@ -4,11 +4,11 @@ As any open source software grows in popularity, there is a tendency to see an i
 
 That said, there are two situations where you generally oughtn't open a bug at all, and that's when you have a support contract, or when you've found a security issue with Metasploit itself.
 
-# Support Contracts
+## Support Contracts
 
 If you have a support contract for a Metasploit product, you ought to get in touch with your Rapid7 support representative, or write to support@rapid7.com. The people who work Metasploit support full time are really pretty with-it are likely to have a fix or a workaround for you on the spot.
 
-# Security Issues
+## Security Issues
 
 If you have a security issue with Metasploit itself, then we'd really appreciate it if you let us know at security@metasploit.com. After all,  we'd like to [be treated as we treat other software projects](http://www.rapid7.com/disclosure.jsp). It's not because we'd like to bury your bug -- we'd just like to have a shot at fixing your bug before someone starts messing with our innocent users. We're happy to give you credit, keep you anonymous, inform you about progress, and explore related issues with you -- but if we see someone reporting security bugs out in public, then it gets a lot harder to keep all that attribution and communication straight as we try not to break our necks implementing a fix as fast as we can.
 
@@ -16,13 +16,35 @@ Also, if you could report your security bug in the form of a Metasploit module s
 
 That should cover the cases where you shouldn't open a bug at all, so let's move on to our main issue tracking system, Redmine.
 
-# Redmine
+# Intro to Redmine
 
 The final destination for bug reports in Metasploit is our Redmine [issue tracker](https://dev.metasploit.com/redmine/projects/framework/issues?set_filter=1). In order to file bug reports, you must first [create an account](https://dev.metasploit.com/redmine/account/register). Sadly, we can't take anonymous bug reports at this time due to spam, but we are actively exploring ways to make the registration as painless as possible.
 
 In conversation about Metasploit and someone asks, "is there a bug?" or refers to "the bug tracker" or "Redmine," we're nearly always talking about this system.
 
-# Avoiding Duplicates
+## They're all Bugs
+
+Speaking of conversation, it's important to note that we will tend to refer to all issues as "bugs," regardless if it's actually a defect, a feature request, a or a support request. It's just fewer syllables and characters.
+
+## GitHub Issues
+
+We have an [Issue Tracker](https://github.com/rapid7/metasploit-framework/issues) enabled on the GitHub repo, but, as mentioned above, bugs should hit Redmine if they're going to be tracked. We had a fantasy of closing down Redmine for a while there and switching over to GitHub Issues completely, but Redmine is still just too useful to abandon.
+
+So, in the interim, nobody is going to stop you from filing GitHub issues. Many GitHub projects have an "Issues" button, and we'd rather not surprise people and make them dig through the wiki to figure out how to report bugs.
+
+## E-mail
+
+We maintain a couple mailing lists -- the [Metasploit Framework](http://mail.metasploit.com/mailman/listinfo/framework) and the [Metasploit-Hackers](https://lists.sourceforge.net/lists/listinfo/metasploit-hackers) lists. Sometimes people will run into problems and they'll mention them there. Sometimes, someone will put together bug reports based on traffic on these lists, but sometimes nobody will. The point is, if you're not sure if you have a bug or just a question on usage, start off with an e-mail to the Framework list. If you're pretty sure you have a bug, it's probably best to start off with a regular ol' bug report, and maybe mention it afterwards on one of these lists.
+
+## Rapid7 Community
+
+Rapid7 runs a Metasploit user community over at (wait for it) [community.rapid7.com](https://community.rapid7.com/community/metasploit). Like e-mail, this is mostly a venue for discussion and help with using Metasploit, and not so much for bug reporting.
+
+# Getting Started 
+
+Enough talk, on to the mechanics of bug reporting!
+
+## Avoiding Duplicates
 
 You may not be the first person to notice the problem you're running into, so here are some strategies for ensuring that a previously reported bug gets attention.
 
@@ -54,7 +76,7 @@ On the other hand, if you run into an issue on an engagement, we understand that
 
 ## Mention Your Environment
 
-It may be that the bug you're describing only comes up in your environment. If you're not on the normal [Metasploit Development Environment](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment) or the [Default Metasploit Installation](http://www.rapid7.com/downloads/metasploit.jsp) you will want to mention this specifically in your bug report. The output of the commands `ruby -v` , and  `uname -a` (or `winver`) is usually very helpful.
+It may be that the bug you're describing only comes up in your environment. If you're not on the normal [Metasploit Development Environment](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment) or the [Metasploit Installation](http://www.rapid7.com/downloads/metasploit.jsp) you will want to mention this specifically in your bug report. The output of the commands `ruby -v` , and  `uname -a` (or `winver`) is usually very helpful.
 
 ## Include steps to reproduce
 
@@ -86,5 +108,30 @@ This will generate a screen log of your fix that includes all your output and al
 
 If you're on Windows, the msfconsole `spool` command should provide enough output to at least demo the problem and its solution.
 
-# Following your bug
- 
+# Following bugs
+
+So, you go to all the effort of filing a bug, and you want to make sure it gets resolved. What next?
+
+## Notification settings
+
+If you opened a bug on Redmine, you should automatically be getting updates to it via e-mail, and the same goes for GitHub pull requests. If you're not for some reason, you should check your own spam filters as well as your [Notification Settings](https://dev.metasploit.com/redmine/my/account). If you want to follow some bug you're not already involved in, you can always tick the "Watch" star ath the top right of any issue, and you'll start getting updates every time it changes.
+
+## Bug discussion
+
+Some projects are persnickety about talking about bugs in the bug itself. We're not. If you have a comment or question, ask about it in the bug. We far prefer this public communication over private communication because it makes things easily searchable, captures all the information regarding an issue, and can help future bug-squashers who are searching for similar issues.
+
+GitHub pull requests also are known to get chatty. If a bug already has a pull request associated with it, there's a very good chance there's discussion happening over there.
+
+Finally, there are often quick conversations about current events going on on Metasploit's Freenode IRC channel, #metasploit.
+
+Somewhat surprisingly, the [Metasploit Framework](http://mail.metasploit.com/mailman/listinfo/framework)  and the [Metasploit-Hackers](https://lists.sourceforge.net/lists/listinfo/metasploit-hackers) mailing lists don't get a lot of action in terms of issue discussion. Maybe that will change, especially if there's a move to get fascist about what kind of comments are appropriate for Redmine issues and pull requests.
+
+## Resolving Bugs
+
+Your bug should be considered "Resolved" once there's a fix landed in the [Metasploit-Framework master branch](https://github.com/rapid7/metasploit-framework). People who track that branch, of course, will have the fix instantly available. A few minutes after that, everyone who relies on `msfupdate` over SVN will have access to the fix. These are the bleeding-edge branches.
+
+Once a week, usually Wednesdays, we release an update to the [Metasploit Installation](http://www.rapid7.com/downloads/metasploit.jsp). Generally speaking, Metasploit framework fixes will hit that installation on a weekly basis after appropriate QA. So, while we may refer to a bug as "resolved," it may not be available quite yet.
+
+
+
+# EOF
