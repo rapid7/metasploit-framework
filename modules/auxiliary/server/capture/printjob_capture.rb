@@ -88,7 +88,6 @@ class Metasploit3 < Msf::Auxiliary
                 raise ArgumentError, "#{name}: Cannot intercept LPR/IPP without a forwarding target"
             end
             @metadata = datastore['METADATA']
-            @verbose = datastore['VERBOSE']
 
             exploit()
 
@@ -176,7 +175,7 @@ class Metasploit3 < Msf::Auxiliary
             if not @state[c][:prn_type]
                 print_error("#{name}: Unable to detect printjob type, dumping complete output")
                 @state[c][:prn_type] = "Unknown Type"
-                @state[c][:prn_type] = @state[c][:data]
+                @state[c][:raw_data] = @state[c][:data]
             end
 
             # output discovered Metadata if set
@@ -262,10 +261,8 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     def stream_data(data_to_send)
-        if @verbose
-            print_status("#{name}: Streaming %d bytes of data to #{@rhost}:#{@rport}" \
-                % data_to_send.length)
-        end
+        vprint_status("#{name}: Streaming %d bytes of data to #{@rhost}:#{@rport}" \
+            % data_to_send.length)
         connect if not sock
         sock.put(data_to_send)
         response = sock.get_once
