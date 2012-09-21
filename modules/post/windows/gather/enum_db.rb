@@ -253,7 +253,7 @@ class Metasploit3 < Msf::Post
 	# method to identify db2 instances
 	def enumerate_db2
 		cmd_i = run_cmd("db2cmd /c db2ilist")
-		cmd_p = session.sys.process.execute("db2cmd /c db2 get dbm cfg", nil, {'Hidden' => true})
+		cmd_p = run_cmd("db2cmd /c db2 get dbm cfg")
 		ports = cmd_p.scan(/\ ?TCP\/IP\ Service\ name[\ ]+\(SVCENAME\)\ =\ (\w+)/)
 		port = 0
 		ports.each do |p|
