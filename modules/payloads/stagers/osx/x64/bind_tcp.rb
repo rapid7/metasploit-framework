@@ -29,7 +29,7 @@ module Metasploit3
 			'Name'		=> 'Bind TCP Stager',
 			'Version'	=> '$Revision$',
 			'Description'	=> 'Listen, read length, read buffer, execute',
-			'Author'	=> 'nemo',
+			'Author'	=> 'nemo <nemo[at]felinemenace.org>',
 			'License'	=> MSF_LICENSE,
 			'Platform'	=> 'osx',
 			'Arch'		=> ARCH_X86_64,
