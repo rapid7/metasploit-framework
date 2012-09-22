@@ -256,16 +256,33 @@ class Metasploit3 < Msf::Post
 		cmd_p = run_cmd("db2cmd -i -w /c db2 get dbm cfg")
 		ports = cmd_p.scan(/\ ?TCP\/IP\ Service\ name[\ ]+\(SVCENAME\)\ =\ (\w+)/)
 		port = 0
+		port_t = 0
 		ports.each do |p|
 			if port == 0
 				port = $1
-				if port.eql? "db2c_DB2"
-					port = 50000
+				#if port.eql? "db2c_DB2"
+				#	port = 50000
+				#end
+			end
+		end
+		windir = session.fs.file.expand_path("%windir%")
+		getfile = session.fs.file.search(windir + "\\system32\\drivers\\etc\\","services.*",recurse=true,timeout=-1)
+		data = 0
+		getfile.each do |file|
+			if data == 0
+				if session.fs.file.exists?("#{file['path']}\\#{file['name']}")
+					data = read_file("#{file['path']}\\#{file['name']}")
 				end
 			end
 		end
+		port_translated = data.scan(/#{port}[\ \t]+(\d+)/)
+		port_translated.each do |t|
+			if port_t == 0 
+				port_t = $1
+			end
+		end
 		cmd_i.split("\n").compact.each do |line|
-			print_good("\t\t+ #{line.strip} (Port:#{port})")	
+			print_good("\t\t+ #{line.strip} (Port:#{port_t})")	
 		end
 		
 	rescue
