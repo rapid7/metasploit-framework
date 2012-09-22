@@ -61,9 +61,9 @@ class Metasploit3 < Msf::Post
 			found = true
 		end	
 		if found
-			print_status("Enumeration Complete, Databases Found.")
+			print_status("Done, Databases Found.")
 		else
-			print_status("Enumeration Complete, No Databases were found")
+			print_status("Done, No Databases were found")
 		end
 	end
 
@@ -227,7 +227,7 @@ class Metasploit3 < Msf::Post
 	rescue
 	end
 	
-	# method to identify mysql instances
+	# method to identify sybase instances
 	def enumerate_sybase
 		basekey = "HKLM\\SOFTWARE\\Sybase\\SQLServer"
 		instance = registry_getvaldata(basekey,"DSLISTEN")
@@ -252,8 +252,8 @@ class Metasploit3 < Msf::Post
 	
 	# method to identify db2 instances
 	def enumerate_db2
-		cmd_i = run_cmd("db2cmd /c db2ilist")
-		cmd_p = run_cmd("db2cmd /c db2 get dbm cfg")
+		cmd_i = run_cmd("db2cmd -i -w /c db2ilist")
+		cmd_p = run_cmd("db2cmd -i -w /c db2 get dbm cfg")
 		ports = cmd_p.scan(/\ ?TCP\/IP\ Service\ name[\ ]+\(SVCENAME\)\ =\ (\w+)/)
 		port = 0
 		ports.each do |p|
