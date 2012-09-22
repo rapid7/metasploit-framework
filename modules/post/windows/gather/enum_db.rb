@@ -260,9 +260,6 @@ class Metasploit3 < Msf::Post
 		ports.each do |p|
 			if port == 0
 				port = $1
-				#if port.eql? "db2c_DB2"
-				#	port = 50000
-				#end
 			end
 		end
 		windir = session.fs.file.expand_path("%windir%")
@@ -284,7 +281,6 @@ class Metasploit3 < Msf::Post
 		cmd_i.split("\n").compact.each do |line|
 			print_good("\t\t+ #{line.strip} (Port:#{port_t})")	
 		end
-		
 	rescue
 		print_error("\t\t+ could not identify instances information")
 	end
