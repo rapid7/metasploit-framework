@@ -232,6 +232,7 @@ class Metasploit3 < Msf::Post
 		basekey = "HKLM\\SOFTWARE\\Sybase\\SQLServer"
 		instance = registry_getvaldata(basekey,"DSLISTEN")
 		location = registry_getvaldata(basekey,"RootDir")
+		port = 0
 		if session.fs.file.exists?(location + "\\ini\\sql.ini")
 			data = read_file(location + "\\ini\\sql.ini")
 			segments = data.scan(/\[#{instance}\]([^\[]*)/)
@@ -241,10 +242,15 @@ class Metasploit3 < Msf::Post
 					segment = $1
 				end
 			end
-			port = segment.scan(/master\=\w+\,0.0.0.0\,(\d+)/)
+			ports = segment.scan(/master\=\w+\,[^\,]+\,(\d+)/)
+			ports.each do |p|
+				if port == 0
+					port = $1
+				end
+			end		
 			print_good("\t\t+ #{instance} (Port:#{port})")
 		else
-			print_error("\t\t+couldnt locate file.")
+			print_error("\t\t+could not locate configuration file.")
 		end
 	rescue
 		print_error("\t\t+ couldnt locate information.")
