@@ -47,11 +47,18 @@ BOOL MapNewExecutableRegionInProcess(
 //
 #ifdef _WIN64
 //
-// meaty parts based on MemExec64 source by steve10120 [at] ic0de.org
+// based on MemExec64 source by steve10120 [at] ic0de.org
 //	clever method of getting contextinformation for entry point data, x64 doesnt give us ThreadContext.Eax
 // adaptation for in-mem-exe.c by RageLtMan
 // TODO: add wow64 launcher, add src/target image arch checks
 //
+BOOL MapNewExecutableRegionInProcess(
+		IN HANDLE TargetProcessHandle,
+		IN HANDLE TargetThreadHandle,
+		IN LPVOID NewExecutableRawImage);
+
+typedef LONG (WINAPI * NtUnmapViewOfSection)(HANDLE ProcessHandle, PVOID BaseAddress);
+
 DWORD_PTR Align(DWORD_PTR Value, DWORD_PTR Alignment)
 {
     DWORD_PTR dwResult = Value;
@@ -63,33 +70,16 @@ DWORD_PTR Align(DWORD_PTR Value, DWORD_PTR Alignment)
     }
     return dwResult;
 }
-BOOL MapNewExecutableRegionInProcess64(
-		IN HANDLE TargetProcessHandle,
-		IN HANDLE TargetThreadHandle,
-		IN LPVOID NewExecutableRawImage);
 
-BOOL MapNewExecutableRegionInProcess32(
-		IN HANDLE TargetProcessHandle,
-		IN HANDLE TargetThreadHandle,
-		IN LPVOID NewExecutableRawImage);
-
-BOOL MapNewExecutableRegionInProcess32(
+BOOL MapNewExecutableRegionInProcess(
 		IN HANDLE TargetProcessHandle,
 		IN HANDLE TargetThreadHandle,
 		IN LPVOID NewExecutableRawImage)
-		//TODO: need to rewrite 64version with getprocessinfo wow64
-{ return FALSE; }
-
-BOOL MapNewExecutableRegionInProcess64(
-		IN HANDLE TargetProcessHandle,
-		IN HANDLE TargetThreadHandle,
-		IN LPVOID NewExecutableRawImage)
-{
-	typedef LONG (WINAPI * NtUnmapViewOfSection)(HANDLE ProcessHandle, PVOID BaseAddress); 
-	PROCESS_BASIC_INFORMATION BasicInformation;
+{ 
+	PROCESS_INFORMATION       BasicInformation;
 	PIMAGE_SECTION_HEADER     SectionHeader;
 	PIMAGE_DOS_HEADER         DosHeader;
-	PIMAGE_NT_HEADERS64       NtHeader64;
+	PIMAGE_NT_HEADERS         NtHeader64;
 	DWORD_PTR                 dwImageBase;
     NtUnmapViewOfSection      pNtUnmapViewOfSection;
     LPVOID                    pImageBase;
@@ -143,35 +133,6 @@ BOOL MapNewExecutableRegionInProcess64(
 	return Success;
 }
 
-
-BOOL MapNewExecutableRegionInProcess(
-		IN HANDLE TargetProcessHandle,
-		IN HANDLE TargetThreadHandle,
-		IN LPVOID NewExecutableRawImage)
-{
-	PIMAGE_DOS_HEADER         DosHeader;
-	PIMAGE_NT_HEADERS         NtHeader;
-	PIMAGE_NT_HEADERS64       NtHeader64;
-	BOOL                      Success = FALSE;
-
-	//
-	// Error checking? Bah.
-	//
-	// Well, some. TODO: add check for target process arch, bail on mismatch
-	DosHeader = (PIMAGE_DOS_HEADER)NewExecutableRawImage;
-	NtHeader = (PIMAGE_NT_HEADERS)((PCHAR)NewExecutableRawImage + DosHeader->e_lfanew);
-	NtHeader64 = (PIMAGE_NT_HEADERS64)((PCHAR)NewExecutableRawImage + DosHeader->e_lfanew);
-	if (NtHeader64->Signature == IMAGE_NT_SIGNATURE) {
-		if (MapNewExecutableRegionInProcess64) {
-			Success = TRUE;
-		}
-	} else {
-		if (MapNewExecutableRegionInProcess32) {
-			Success = TRUE;
-		}
-	}
-	return Success;
-}
 #else
 BOOL MapNewExecutableRegionInProcess(
 		IN HANDLE TargetProcessHandle,
