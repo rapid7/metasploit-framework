@@ -19,12 +19,15 @@ $ sudo apt-get -y install \
   libreadline6-dev libcurl4-openssl-dev git-core \
   libssl-dev libyaml-dev openssl autoconf libtool \
   ncurses-dev bison curl wget postgresql \
-  postgresql-contrib libpq-dev
+  postgresql-contrib libpq-dev \
+  libapr1 libaprutil1 libsvn1
 ````
 
 Note that this does **not** include an appropriate text editor or IDE, nor does it include the Ruby interpreter. We'll get to that in a second.
 
 <h2 id="rvm">Getting Ruby</h2>
+
+*TODO: Document an alternative installation strategy of just compiling Ruby from source. RVM is getting cumbersome.*
 
 Most (all?) standard distributions of Ruby are lacking in one regard or another. Lucky for all of us, Wayne Seguin's RVM has become quite excellent at providing several proven Ruby interpreters. Visit [https://rvm.io/](https://rvm.io/) to read up on it or just trust that it'll all work out with a simple:
 
@@ -46,38 +49,28 @@ $ less rvm.sh
 $ cat rvm.sh | bash -s stable
 ````
 
-However you get RVM installed, follow this by editing your .bashrc to include this line at the end (if it doesn't have it already):
-
-\[\[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM
-
-(wow, it is hard to render bracket-bracket in Markdown-generated &lt;pre&gt; tags!)
-
-
 Next, run the RVM scripts by either opening a new terminal window, or just run: 
 
 ````bash
 $ source ~/.rvm/scripts/rvm
 ````
 
-Once this is done, you need to install Ruby 1.8.7 to bootstrap up to Ruby 1.9.3:
+Once this is done, you need to install Ruby 1.8.7 to bootstrap up to Ruby 1.9.3. This will likely complain about missing patches to Ruby 1.8.7, but you won't be using that version, so no matter. 
 
 ````bash
 $ rvm install 1.8.7
-````
-
-This will likely complain about missing patches to Ruby 1.8.7, but you won't be using that version, so no matter. You can now install:
-
-````bash
 $ rvm install 1.9.3-p125
+$ rvm use 1.9.3-p125
+$ rvm alias create default 1.9.3-p125
 ````
 
-What this all does is fetch RVM, which performs a bunch of shell voodoo, and installs Ruby version 1.9.3 patchlevel 125 (there are lots of other Rubies to choose from, but we like this one the most right now). It'll take a few minutes (depending on network and CPU I/O).
+If you haven't already, you will need to tick he `Run command as login shell` on the default profile of gnome-terminal, or else you will get the error message that [RVM is not a function](http://stackoverflow.com/questions/9336596/rvm-installation-not-working-rvm-is-not-a-function).
 
-**TODO:** Document an alternative installation strategy of just compiling Ruby from source.
 
 Assuming all goes as planned, you should end up with something like this in your shell:
 
 [[/screens/rvm02.png]]
+*TODO: update this screenshot with the new convolutions we need*
 
 Once that's finished, it would behoove you to set your default ruby and gemset, as described [in this gist](https://gist.github.com/2625441) by [@claudijd](https://github.com/claudijd) . What I use is:
 
