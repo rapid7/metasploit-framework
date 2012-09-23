@@ -64,7 +64,7 @@ $ rvm use 1.9.3-p125
 $ rvm alias create default 1.9.3-p125
 ````
 
-If you haven't already, you will need to tick he `Run command as login shell` on the default profile of gnome-terminal, or else you will get the error message that [RVM is not a function](http://stackoverflow.com/questions/9336596/rvm-installation-not-working-rvm-is-not-a-function).
+If you haven't already, you will need to tick the `Run command as login shell` on the default profile of gnome-terminal, or else you will get the error message that [RVM is not a function](http://stackoverflow.com/questions/9336596/rvm-installation-not-working-rvm-is-not-a-function).
 
 
 Assuming all goes as planned, you should end up with something like this in your shell:
