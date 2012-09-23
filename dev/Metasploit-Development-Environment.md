@@ -26,7 +26,7 @@ Note that this does **not** include an appropriate text editor or IDE, nor does 
 
 <h2 id="rvm">Getting Ruby</h2>
 
-Most (all?) standard distributions of Ruby are lacking in one regard or another. Lucky for all of us, Wayne Seguin's RVM has been getting steadily more excellent in providing several proven Ruby interpreters. Visit [https://rvm.io/](https://rvm.io/) to read up on it or just trust that it'll all work out with a simple:
+Most (all?) standard distributions of Ruby are lacking in one regard or another. Lucky for all of us, Wayne Seguin's RVM has become quite excellent at providing several proven Ruby interpreters. Visit [https://rvm.io/](https://rvm.io/) to read up on it or just trust that it'll all work out with a simple:
 
 ````bash
 $ curl -L get.rvm.io | bash -s stable
@@ -59,13 +59,21 @@ Next, run the RVM scripts by either opening a new terminal window, or just run:
 $ source ~/.rvm/scripts/rvm
 ````
 
-And finally:
+Once this is done, you need to install Ruby 1.8.7 to bootstrap up to Ruby 1.9.3:
+
+````bash
+$ rvm install 1.8.7
+````
+
+This will likely complain about missing patches to Ruby 1.8.7, but you won't be using that version, so no matter. You can now install:
 
 ````bash
 $ rvm install 1.9.3-p125
 ````
 
-What this does is fetch RVM, which performs a bunch of shell voodoo, and installs Ruby version 1.9.3 patchlevel 125 (there are lots of other Rubies to choose from, but we like this one the most right now). It'll take a few minutes (depending on network and CPU I/O). 
+What this all does is fetch RVM, which performs a bunch of shell voodoo, and installs Ruby version 1.9.3 patchlevel 125 (there are lots of other Rubies to choose from, but we like this one the most right now). It'll take a few minutes (depending on network and CPU I/O).
+
+**TODO:** Document an alternative installation strategy of just compiling Ruby from source.
 
 Assuming all goes as planned, you should end up with something like this in your shell:
 
