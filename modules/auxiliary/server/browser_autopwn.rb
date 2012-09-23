@@ -485,7 +485,7 @@ class Metasploit3 < Msf::Auxiliary
 				multihandler.datastore['EXITFUNC'] = datastore['EXITFUNC'] || 'thread'
 				multihandler.datastore["ReverseListenerBindAddress"] = datastore["ReverseListenerBindAddress"]
 				# XXX: Revisit this when we have meterpreter working on more than just windows
-				if (lport == @win_lport)
+				if (lport == @win_lport or lport == @java_lport)
 					multihandler.datastore['AutoRunScript'] = datastore['AutoRunScript']
 					multihandler.datastore['AutoSystemInfo'] = datastore['AutoSystemInfo']
 					multihandler.datastore['InitialAutoRunScript'] = datastore['InitialAutoRunScript']
