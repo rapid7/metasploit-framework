@@ -70,6 +70,8 @@ class Core
 		"-i" => [ false, "Ignore case."                                   ],
 		"-m" => [ true,  "Stop after arg matches."                        ],
 		"-v" => [ false, "Invert match."                                  ],
+		"-A" => [ true, "Show arg lines after a match."                  ],
+		"-B" => [ true, "Show arg lines before a match."                 ],
 		"-c" => [ false, "Only print a count of matching lines."          ])
 
 	@@search_opts = Rex::Parser::Arguments.new(
@@ -2365,6 +2367,18 @@ class Core
 					# delete opt and val from args list
 					args.shift
 					args.shift
+				when "-A"
+					# also return arg lines after a match
+					output_mods[:also] = val.to_i
+					# delete opt and val from args list
+					args.shift
+					args.shift
+				when "-B"
+					# also return arg lines before a match
+					output_mods[:also] = (val.to_i * -1)
+					# delete opt and val from args list
+					args.shift
+					args.shift
 				when "-v"
 					# invert match
 					match_mods[:invert] = true
@@ -2400,30 +2414,25 @@ class Core
 		driver.run_single(cmd)
 		$stdout = orig_stdout # stdout is now restored
 		cmd_output = buf.dump_buffer
+		# put lines into an array so we can access them more easily and split('\n') doesn't work
+		all_lines = cmd_output.lines.select {|line| line}
 		# control matching based on remaining match_mods (:insensitive was already handled)
 		statement = 'line =~ rx'
 		statement = 'not line =~ rx' if match_mods[:invert]
 		our_lines = []
-		if match_mods[:max]
-			count = 0
-			cmd_output.lines do |line|
-				# we don't wan't to keep processing if we've reached :max already
-				break if count >= match_mods[:max]
-				if (eval statement)
-					count += 1
-					our_lines << line
-				end
+		count = 0
+		all_lines.each_with_index do |line, line_num|
+			# we don't wan't to keep processing if we have a :max and we've reached it already
+			break if ( match_mods[:max] and count >= match_mods[:max] )
+			if (eval statement)
+				count += 1
+				our_lines += get_grep_lines(all_lines,line_num,output_mods[:also])
 			end
-		else
-			our_lines = cmd_output.lines.select {|line| line if (eval statement)}
 		end
 
-		# now control output based on output_mods such as :count
-		if output_mods[:count]
-			return print_status our_lines.length.to_s
-		else
-			our_lines.each {|line| print line}
-		end
+		# now control output based on remaining output_mods such as :count
+		return print_status(count.to_s) if output_mods[:count]
+		our_lines.each {|line| print line}
 	end
 
 	def cmd_grep_tabs(str, words)
@@ -2892,6 +2901,20 @@ protected
 			'Postfix' => "\n",
 			'Columns' => [ 'Name', 'Disclosure Date', 'Rank', 'Description' ]
 			)
+	end
+	#
+	# Returns array of matched line at +line_num+ plus any after/before lines requested as 
+	# integer +also+ from the lines specified as +all_lines+. +also+ is positive for "after" 
+	# and negative for "before" lines
+	#
+	def get_grep_lines(all_lines,line_num, also=nil)
+		return [all_lines[line_num]] unless also
+		also = also.to_i
+		if also < 0
+			return all_lines.slice(line_num + also, also.abs + 1)
+		else
+			return all_lines.slice(line_num, also + 1)
+		end
 	end
 end
 
