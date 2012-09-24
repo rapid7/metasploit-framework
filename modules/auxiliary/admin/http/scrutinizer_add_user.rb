@@ -69,8 +69,6 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		begin
-			require 'json'
-
 			j = JSON.parse(res.body)
 
 			if j['error']
