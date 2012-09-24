@@ -6,7 +6,6 @@
 ##
 
 require 'msf/core'
-require 'json'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -45,7 +44,6 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 	end
 
-
 	def run
 		res = send_request_cgi({
 			'method'    => 'POST',
@@ -64,6 +62,15 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		begin
+			require 'json'
+		rescue LoadError
+			print_error("Json is not available on your machine")
+			return
+		end
+
+		begin
+			require 'json'
+
 			j = JSON.parse(res.body)
 
 			if j['error']
@@ -78,7 +85,6 @@ class Metasploit3 < Msf::Auxiliary
 		rescue JSON::ParserError
 			print_error("Unable to parse JSON")
 			print_line(res.body)
-
 		end
 	end
 
