@@ -940,9 +940,9 @@ class Db
 					end
 				end
 			end
-			if search_term
-				note_list.delete_if do |n|
-					!!n.attribute_names.any? { |a| n[a.intern].to_s.match(search_term) }
+			if search_term and search_term.to_s != "(?-mix:)"
+				note_list = note_list.keep_if do |n|
+					n.attribute_names.any? { |a| n[a.intern].to_s.match(search_term) }
 				end
 			end
 			# Now display them
