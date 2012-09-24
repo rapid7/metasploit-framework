@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module also saves information about the server version and
 				table names, which can be used to seed the wordlist.
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
+			'Author'         => ['theLightCosine'],
 			'License'        => MSF_LICENSE
 		)
 	end

@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 					This module extracts the schema information from a
 					Postgres server.
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Author'         => ['theLightCosine'],
 			'License'        => MSF_LICENSE
 		)
 		register_options([

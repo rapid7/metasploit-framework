@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         =>
 				[
 					'hdm', #original msf2 module
-					'TheLightCosine <thelightcosine[at]gmail.com>'
+					'theLightCosine'
 				],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
