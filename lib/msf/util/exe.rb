@@ -1080,15 +1080,15 @@ End Sub
 	end
 
 	def self.to_win32pe_psh_net(framework, code, opts={})
-		var_code = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_kernel32 = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_baseaddr = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_threadHandle = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_output = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_temp = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_codeProvider = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_compileParams = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_syscode = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_code = Rex::Text.rand_text_alpha(rand(3)+3
+		var_kernel32 = Rex::Text.rand_text_alpha(rand(3)+3
+		var_baseaddr = Rex::Text.rand_text_alpha(rand(3)+3
+		var_threadHandle = Rex::Text.rand_text_alpha(rand(3)+3
+		var_output = Rex::Text.rand_text_alpha(rand(3)+3
+		var_temp = Rex::Text.rand_text_alpha(rand(3)+3
+		var_codeProvider = Rex::Text.rand_text_alpha(rand(3)+3
+		var_compileParams = Rex::Text.rand_text_alpha(rand(3)+3
+		var_syscode = Rex::Text.rand_text_alpha(rand(3)+3
 
 		code = code.unpack('C*')
 		psh = "Set-StrictMode -Version 2\r\n"
@@ -1130,12 +1130,12 @@ End Sub
 
 	def self.to_win32pe_psh(framework, code, opts={})
 
-		var_code = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_win32_func = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_payload = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_size = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_rwx = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_iter = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_code = Rex::Text.rand_text_alpha(rand(3)+3
+		var_win32_func = Rex::Text.rand_text_alpha(rand(3)+3
+		var_payload = Rex::Text.rand_text_alpha(rand(3)+3
+		var_size = Rex::Text.rand_text_alpha(rand(3)+3
+		var_rwx = Rex::Text.rand_text_alpha(rand(3)+3
+		var_iter = Rex::Text.rand_text_alpha(rand(3)+3
 		code = code.unpack("C*")
 
 		# Add wrapper script
