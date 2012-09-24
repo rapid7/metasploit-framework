@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -37,7 +33,8 @@ module Metasploit3
 	# build the shellcode payload dynamically based on the user-provided CMD
 	def generate
 		say = (datastore['SAY'] || '') << "\x00"
-		call = "\xe8" + [say.length + 0xd].pack('V') 
+		call = "\xe8" + [say.length + 0xd].pack('V')
+
 		payload =
 			"\x48\x31\xC0" +                    # xor rax,rax
 			"\xB8\x3B\x00\x00\x02" +            # mov eax,0x200003b

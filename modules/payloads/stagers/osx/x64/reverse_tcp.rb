@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -12,30 +8,22 @@
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 
-###
-#
-# ReverseTcp
-# -------
-#
-# Mac OS X x86 Reverse TCP stager.
-#
-###
 module Metasploit3
 
 	include Msf::Payload::Stager
 
 	def initialize(info = { })
 		super(merge_info(info,
-			'Name'		=> 'Reverse TCP Stager',
-			'Version'	=> '$Revision$',
-			'Description'	=> 'Connect, read length, read buffer, execute',
-			'Author'	=> 'nemo <nemo[at]felinemenace.org>',
-			'License'	=> MSF_LICENSE,
-			'Platform'	=> 'osx',
-			'Arch'		=> ARCH_X86_64,
-			'Handler'	=> Msf::Handler::ReverseTcp,
-			'Convention'	=> 'sockedi',
-			'Stager'        =>
+			'Name'        => 'Reverse TCP Stager',
+			'Version'     => '$Revision$',
+			'Description' => 'Connect, read length, read buffer, execute',
+			'Author'      => 'nemo <nemo[at]felinemenace.org>',
+			'License'     => MSF_LICENSE,
+			'Platform'    => 'osx',
+			'Arch'        => ARCH_X86_64,
+			'Handler'     => Msf::Handler::ReverseTcp,
+			'Convention'  => 'sockedi',
+			'Stager'      =>
 			{
 				'Offsets' =>
 				{
