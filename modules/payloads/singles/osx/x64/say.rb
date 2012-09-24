@@ -26,13 +26,13 @@ module Metasploit3
 		# exec payload options
 		register_options(
 			[
-				OptString.new('SAY',  [ true,  "The string to say", "owned by nemo"]),
+				OptString.new('TEXT',  [ true,  "The text to say", "Hello\!"]),
 		], self.class)
 	end
 
 	# build the shellcode payload dynamically based on the user-provided CMD
 	def generate
-		say = (datastore['SAY'] || '') << "\x00"
+		say = (datastore['TEXT'] || '') << "\x00"
 		call = "\xe8" + [say.length + 0xd].pack('V')
 
 		payload =
