@@ -92,7 +92,7 @@ class Metasploit3 < Msf::Post
 			print_status("\tMicrosoft SQL Server found.")
 			return true
 		end
-	return false
+		return false
 	rescue
 		return false
 	end
@@ -107,7 +107,7 @@ class Metasploit3 < Msf::Post
 			print_status("\tOracle Server found.")
 			return true
 		end
-	return false
+		return false
 	rescue
 		return false
 	end
@@ -119,7 +119,7 @@ class Metasploit3 < Msf::Post
 			print_status("\tDB2 Server found.")
 			return true
 		end
-	return false
+		return false
 	rescue
 		return false
 	end
@@ -131,7 +131,7 @@ class Metasploit3 < Msf::Post
 			print_status("\tMySQL Server found.")
 			return true
 		end
-	return false
+		return false
 	rescue
 		return false
 	end
@@ -146,7 +146,7 @@ class Metasploit3 < Msf::Post
 			print_status("\tSybase Server found.")
 			return true
 		end
-	return false
+		return false
 	rescue
 		return false
 	end
