@@ -114,7 +114,8 @@ public abstract class RpcConnection {
 	 * @throws IOException
 	 */
 	protected void disconnect() throws SocketException, IOException{
-		connection.close();
+		if(connection != null)
+			connection.close();
 	}
 
 	/**
