@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 				These hashes ares stored as loot for later cracking.
 			},
 			'Author'        => [
-					'TheLightCosine <thelightcosine[at]metasploit.com>', # Original hashdump module
+					'theLightCosine', # Original hashdump module
 					'jcran'                                              # Authentication bypass bruteforce implementation
 				],
 			'References'     => [

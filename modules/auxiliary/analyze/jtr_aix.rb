@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'          =>
 				[
-					'TheLightCosine <thelightcosine[at]gmail.com>',
+					'theLightCosine',
 					'hdm'
 				] ,
 			'License'         => MSF_LICENSE  # JtR itself is GPLv2, but this wrapper is MSF (BSD)

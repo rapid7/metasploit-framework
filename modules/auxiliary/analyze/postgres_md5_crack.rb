@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 				such as hostnames, usernames, passwords, and database schema information.
 				The user can also supply an additional external wordlist if they wish.
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Author'         => ['theLightCosine'],
 			'License'        => MSF_LICENSE
 		)
 

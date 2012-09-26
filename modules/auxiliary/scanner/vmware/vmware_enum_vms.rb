@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module attempts to discover virtual machines on any VMWare instance
 				running the web interface. This would include ESX/ESXi and VMWare Server.
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
+			'Author'         => ['theLightCosine'],
 			'License'        => MSF_LICENSE
 		)
 
