@@ -38,6 +38,10 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options([
 			OptString.new('TARGETURI', [true, 'Path to the iDRAC Administration page', '/data/login']),
+			OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
+				File.join(Msf::Config.install_root, "data", "wordlists", "idrac_default_users.txt") ]),
+			OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
+				File.join(Msf::Config.install_root, "data", "wordlists", "idrac_default_pass.txt") ]),
 			OptInt.new('RPORT', [true, "Default remote port", 443])
 		], self.class)
 
@@ -54,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 		"#{proto}://#{vhost}:#{rport}#{datastore['URI']}"
 	end
 	
-	def do_login(user='root', pass='calvin')
+	def do_login(user=nil, pass=nil)
 	
 		auth = send_request_cgi({
 			'method' => 'POST',
