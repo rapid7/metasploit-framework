@@ -178,10 +178,8 @@ class Metasploit3 < Msf::Post
 	# method to identify oracle instances
 	def enumerate_oracle
 		results = []
-		#basekey = "HKLM\\SOFTWARE\\Oracle\\SYSMAN"
 		found_key = false
 		basekey_set = ["HKLM\\SOFTWARE\\Oracle\\SYSMAN","HKLM\\SOFTWARE\\ORACLE\\KEY_XE"]
-		
 		basekey_set.each do |basekey|
 			next if found_key		
 			instances = registry_enumkeys(basekey)
