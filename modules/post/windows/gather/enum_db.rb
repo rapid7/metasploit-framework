@@ -106,6 +106,9 @@ class Metasploit3 < Msf::Post
 		elsif registry_enumkeys(key).include?("SYSMAN")
 			print_status("\tOracle Server found.")
 			return true
+		elsif registry_enumkeys(key).include?("KEY_XE")
+			print_status("\tOracle Server found.")
+			return true
 		end
 		return false
 	rescue
@@ -175,35 +178,45 @@ class Metasploit3 < Msf::Post
 	# method to identify oracle instances
 	def enumerate_oracle
 		results = []
-		basekey = "HKLM\\SOFTWARE\\Oracle\\SYSMAN"
-		instances = registry_enumkeys(basekey)
-		if instances.nil? or instances.empty?
-			print_error("\t\t! Oracle instances not found")
-			return results
-		end
-
-		instances.each do |i|
-			key = "#{basekey}\\#{i}"
-			val_ORACLE_SID = registry_getvaldata(key,"ORACLE_SID")
-			val_ORACLE_HOME = registry_getvaldata(key,"ORACLE_HOME")
-
-			if not exist?(val_ORACLE_HOME + "\\NETWORK\\ADMIN\\tnsnames.ora")
-				print_error("\t\t! #{val_ORACLE_SID} (No Listener Found)")
+		found_key = false
+		basekey_set = ["HKLM\\SOFTWARE\\Oracle\\SYSMAN","HKLM\\SOFTWARE\\ORACLE\\KEY_XE"]
+		basekey_set.each do |basekey|
+			next if found_key		
+			instances = registry_enumkeys(basekey)
+			if instances.nil? or instances.empty?
 				next
-			end
-
-			data_TNSNAMES = read_file(val_ORACLE_HOME + "\\NETWORK\\ADMIN\\tnsnames.ora")
-			if data_TNSNAMES =~ /PORT\ \=\ (\d+)/
-				port = $1
-				print_good("\t\t+ #{val_ORACLE_SID} (Port:#{port})")
-				results << [ "oracle","instance:#{val_ORACLE_SID} port:#{port}","Oracle Database Server",port ]
 			else
-				print_error("\t\t! #{val_ORACLE_SID} (No Listener Found)")
+				found_key = true
+			end
+				
+			instances.each do |i|
+				if basekey.include?"KEY_XE"
+					val_ORACLE_SID = registry_getvaldata(basekey,"ORACLE_SID")
+					val_ORACLE_HOME = registry_getvaldata(basekey,"ORACLE_HOME")			
+				else
+					key = "#{basekey}\\#{i}"
+					val_ORACLE_SID = registry_getvaldata(key,"ORACLE_SID")
+					val_ORACLE_HOME = registry_getvaldata(key,"ORACLE_HOME")
+				end
+				if not exist?(val_ORACLE_HOME + "\\NETWORK\\ADMIN\\tnsnames.ora")
+					print_error("\t\t! #{val_ORACLE_SID} (No Listener Found)")
+					next
+				end
+
+				data_TNSNAMES = read_file(val_ORACLE_HOME + "\\NETWORK\\ADMIN\\tnsnames.ora")
+				if data_TNSNAMES =~ /PORT\ \=\ (\d+)/
+					port = $1
+					print_good("\t\t+ #{val_ORACLE_SID} (Port:#{port})")
+					results << [ "oracle","instance:#{val_ORACLE_SID} port:#{port}","Oracle Database Server",port ]
+				else
+					print_error("\t\t! #{val_ORACLE_SID} (No Listener Found)")
+				end
 			end
 		end
-
+		if not found_key
+			print_error("\t\t! Oracle instances not found")
+		end
 		return results
-
 	rescue
 		print_error("\t\t! could not identify information")
 		return results || []
@@ -337,3 +350,4 @@ class Metasploit3 < Msf::Post
 	end
 
 end
+
