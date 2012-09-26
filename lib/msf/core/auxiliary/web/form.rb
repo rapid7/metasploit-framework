@@ -209,7 +209,7 @@ class Form < Fuzzable
 		return [] if empty?
 
 		params.map do |name, value|
-			fuzzer.seeds_for( value ).map { |seed| permutation_for( name, seed ) }
+			fuzzer.seeds_for( value || '' ).map { |seed| permutation_for( name, seed ) }
 		end.flatten.uniq
 	end
 

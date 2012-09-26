@@ -41,6 +41,9 @@ module Analysis::Differential
 	def differential_analysis( opts = {}, &block )
 		opts = DIFFERENTIAL_OPTIONS.merge( opts )
 
+    return if fuzzed? :type => :differential
+    fuzzed :type => :differential
+
 		# don't continue if there's a missing value
 		params.values.each { |val| return if !val || val.empty? }
 
@@ -58,71 +61,76 @@ module Analysis::Differential
 		# submit the element, as is, opts[:precision] amount of times and
 		# rdiff the responses in order to arrive to a refined response without
 		# any superfluous dynamic content
-		opts[:precision].times {
+		opts[:precision].times do
 			# get the default responses
-			next if !(res = submit)
-
-			responses[:orig] ||= res.body.to_s
-			# remove context-irrelevant dynamic content like banners and such
-			responses[:orig] = Rex::Text.refine( responses[:orig], res.body.to_s )
-		}
+			submit_async do |res|
+        responses[:orig] ||= res.body.to_s
+        # remove context-irrelevant dynamic content like banners and such
+        responses[:orig] = Rex::Text.refine( responses[:orig], res.body.to_s )
+      end
+		end
 
 		# perform fault injection opts[:precision] amount of times and
 		# rdiff the responses in order to arrive to a refined response without
 		# any superfluous dynamic content
-		opts[:precision].times {
+		opts[:precision].times do
 			params.map do |name, value|
 				fuzzer.fault_seeds_for( value ).map { |seed| permutation_for( name, seed ) }
-			end.flatten.uniq.each do |elem|
+      end.flatten.uniq.each do |elem|
+
 				# submit the mutation and store the response
-				next if !(res = elem.submit)
+				elem.submit_async do |res|
+          responses[:bad][elem.altered] ||= res.body.to_s.dup
 
-				responses[:bad][elem.altered] ||= res.body.to_s.dup
-
-				# remove context-irrelevant dynamic content like banners and such
-				# from the error page
-				responses[:bad][elem.altered] =
-					Rex::Text.refine( responses[:bad][elem.altered], res.body.to_s.dup )
-			end
-		}
+          # remove context-irrelevant dynamic content like banners and such
+          # from the error page
+          responses[:bad][elem.altered] =
+            Rex::Text.refine( responses[:bad][elem.altered], res.body.to_s.dup )
+        end
+      end
+		end
 
 		# get injection variations that will not affect the outcome of the query
 		params.map do |name, value|
 			fuzzer.boolean_seeds_for( value ).map { |seed| permutation_for( name, seed ) }
 		end.flatten.uniq.each do |elem|
+
 			# submit the mutation and store the response
-			next if !(res = elem.submit)
-
-			responses[:good][elem.altered] ||= []
-			# save the response and some data for analysis
-			responses[:good][elem.altered] << {
-				'res'  => res,
-				'elem' => elem
-			}
+			elem.submit_async do |res|
+        responses[:good][elem.altered] ||= []
+        # save the response and some data for analysis
+        responses[:good][elem.altered] << {
+          'res'  => res,
+          'elem' => elem
+        }
+      end
 		end
 
-		responses[:good].keys.each do |key|
-			responses[:good][key].each do |res|
+    http.after_run do
 
-				# if default_response_body == bool_response_body AND
-				#    fault_response_body != bool_response_body AND
-				#    bool_response_code == 200
-				if responses[:orig] == res['res'].body &&
-					responses[:bad][key] != res['res'].body &&
-					res['res'].code.to_i == 200
+      responses[:good].keys.each do |key|
+        responses[:good][key].each do |res|
 
-					# check to see if the current boolean response we're analyzing
-					# is a custom 404 page
-					if !http.custom_404?( action, res['res'].body )
-						# if this isn't a custom 404 page then it means that
-						# the element is vulnerable, so go ahead and log the issue
-						fuzzer.process_vulnerability( res['elem'], 'Manipulatable responses.',
-						                              :payload => res['elem'].altered_value )
-					end
-				end
+          # if default_response_body == bool_response_body AND
+          #    fault_response_body != bool_response_body AND
+          #    bool_response_code == 200
+          if responses[:orig] == res['res'].body &&
+            responses[:bad][key] != res['res'].body &&
+            res['res'].code.to_i == 200
 
-			end
-		end
+            # check to see if the current boolean response we're analyzing
+            # is a custom 404 page
+            http.if_not_custom_404( action, res['res'].body ) do
+              # if this isn't a custom 404 page then it means that
+              # the element is vulnerable, so go ahead and log the issue
+              fuzzer.process_vulnerability( res['elem'], 'Manipulatable responses.',
+                                            :payload => res['elem'].altered_value )
+            end
+          end
+
+        end
+      end
+    end
 	end
 
 end

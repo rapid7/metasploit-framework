@@ -21,6 +21,7 @@ module Auxiliary::Web
 	include Auxiliary::Report
 
 	attr_reader :target
+  attr_reader :http
 	attr_reader :parent
 	attr_reader :page
 
@@ -49,10 +50,11 @@ module Auxiliary::Web
 	#
 	# Called directly before 'run'
 	#
-	def setup( parent, target, page = nil )
-		@parent = parent
-		@target = target
-		@page   = page
+	def setup( opts = {} )
+		@parent = opts[:parent]
+		@target = opts[:target]
+		@page   = opts[:page]
+    @http   = opts[:http]
 	end
 
 	# Should be overridden to return the exploits to use for this
@@ -153,34 +155,6 @@ module Auxiliary::Web
 
 	def increment_request_counter
 		parent.increment_request_counter
-	end
-
-	def http
-		# only one connection per thread pl0x, kthxb
-		return @http if @http
-
-		opts = {
-			:target  => target,
-			:headers => {}
-		}
-
-		if datastore['BasicAuthUser']
-			opts[:auth] = {
-				:user => datastore['BasicAuthUser'],
-				:password => datastore['BasicAuthPass']
-			}
-		end
-
-		datastore['HttpAdditionalHeaders'].to_s.split( "\x01" ).each do |hdr|
-			next if !( hdr && hdr.strip.size > 0 )
-
-			k, v = hdr.split( ':', 2 )
-			next if !v
-
-			opts[:headers][k.strip] = v.strip
-		end
-
-		@http = Auxiliary::Web::HTTP.new( opts )
 	end
 
   # Should be overridden and return an Integer (0-100) denoting the confidence

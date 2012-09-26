@@ -47,6 +47,9 @@ module Analysis::Timing
 		multi   = opts[:multi]
 		stub    = opts[:stub]
 
+    return if fuzzed? :type => :timing
+    fuzzed :type => :timing
+
 		permutations.each do |p|
 			timeout = opts[:delay]
 
@@ -54,40 +57,48 @@ module Analysis::Timing
 			payload = fuzzer.payloads.select{ |pl| seed.include?( pl ) }.first
 
 			# 1st pass, make sure the webapp is responsive
-			next if !responsive?
+      if_responsive do
+        # 2nd pass, see if we can manipulate the response times
+        timeout += 1
+        p.altered_value = seed.gsub( stub, (timeout * multi).to_s )
 
-			# 2nd pass, see if we can manipulate the response times
-			timeout += 1
-			p.altered_value = seed.gsub( stub, (timeout * multi).to_s )
-			next if p.responsive?( timeout - 1 )
+        p.if_unresponsive( timeout - 1 ) do
+          # 3rd pass, make sure that the previous step wasn't a fluke (like a dead web server)
+          if_responsive do
 
-			# 3rd pass, make sure that the previous step wasn't a fluke (like a dead web server)
-			next if !responsive?
+            # 4th pass, increase the delay and timeout to make sure that we are the ones
+            # manipulating the webapp and this isn't all a coincidence
+            timeout *= 2
+            timeout += 1
+            p.altered_value = seed.gsub( stub, (timeout * multi).to_s )
 
-			# 4th pass, increase the delay and timeout to make sure that we are the ones
-			# manipulating the webapp and this isn't all a coincidence
-			timeout *= 2
-			timeout += 1
-			p.altered_value = seed.gsub( stub, (timeout * multi).to_s )
-			next if p.responsive?( timeout - 1 )
+            p.if_unresponsive( timeout - 1 ) do
+              # log it!
+              fuzzer.process_vulnerability( p, 'Manipulatable response times.',
+                                            :payload => payload.gsub( stub, (timeout * multi).to_s ) )
+            end
+          end
+        end
 
-			# log it!
-			fuzzer.process_vulnerability( p, 'Manipulatable response times.',
-			                              :payload => payload.gsub( stub, (timeout * multi).to_s ) )
-
-			# we got what we wanted, bail out
-			return
+      end
 		end
 	end
 
 	def responsive?( timeout = 120 )
-		begin
-			submit :timeout => timeout
-			true
-		rescue Timeout::Error
-			false
-		end
-	end
+    !submit( :timeout => timeout ).timed_out?
+  end
+
+  def responsive_async?( timeout = 120, &callback )
+    submit_async( :timeout => timeout ) { |r| callback.call !r.timed_out? }
+  end
+
+  def if_responsive( timeout = 120, &callback )
+    responsive_async?( timeout ) { |b| callback.call if b }
+  end
+
+  def if_unresponsive( timeout = 120, &callback )
+    responsive_async?( timeout ) { |b| callback.call if !b }
+  end
 
 end
 end

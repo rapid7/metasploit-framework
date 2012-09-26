@@ -22,39 +22,46 @@ class Fuzzable
 
 	attr_accessor :fuzzer
 
-	def fuzz( cfuzzer = nil, &block )
-		self.fuzzer ||= cfuzzer
-		permutations.each { |p| block.call( p.submit, p ) }
-	end
+  def fuzzed?( opts = {} )
+    fuzzer.checked? fuzz_id( opts )
+  end
 
-	def submit( opts = {} )
-		fuzzer.increment_request_counter
+  def fuzzed( opts = {} )
+    fuzzer.checked fuzz_id( opts )
+  end
 
-		begin
-			if resp = http.request( *request( opts ) )
-				str = "    #{fuzzer.shortname}: #{resp.code} - #{method.to_s.upcase} #{action} #{params}"
-				case resp.code.to_i
-					when 200,404,301,302,303
-						#fuzzer.print_status str
-					when 500,503,401,403
-						fuzzer.print_good str
-					else
-						fuzzer.print_error str
-				end
-			end
+  def fuzz_id( opts = {} )
+    "#{opts[:type]}:#{fuzzer.shortname}:#{method}:#{action}:#{params.keys.sort.to_s}:#{altered}=#{altered_value}"
+  end
 
-			resp
-		# timing attacks depend on this so pass it up
-		rescue ::Timeout::Error
-			raise
-		rescue => e
-			fuzzer.print_error "Error processing response for #{fuzzer.target.to_url} #{e.class} #{e} "
-      #e.backtrace.each { |l| fuzzer.print_error l }
-			return
-		end
-	end
+  def fuzz( cfuzzer = nil, &callback )
+    fuzz_wrapper( cfuzzer ) { |p| callback.call( p.submit, p ) }
+  end
 
-	def http
+  def fuzz_async( cfuzzer = nil, &callback )
+    fuzz_wrapper( cfuzzer ) { |p| p.submit_async { |res| callback.call( res, p ) } }
+  end
+
+  def submit( opts = {} )
+    fuzzer.increment_request_counter
+
+    resp = http.request_async( *request( opts ) )
+    handle_response( resp )
+    resp
+  end
+
+  def submit_async( opts = {}, &callback )
+    fuzzer.increment_request_counter
+
+    http.request_async( *request( opts ) ) do |resp|
+      handle_response( resp )
+      callback.call resp if callback
+    end
+
+    nil
+  end
+
+  def http
 		fuzzer.http
 	end
 
@@ -72,7 +79,28 @@ class Fuzzable
 		ce = Marshal.load( Marshal.dump( self ) )
 		self.fuzzer = ce.fuzzer = cf
 		ce
-	end
+  end
+
+  private
+  def fuzz_wrapper( cfuzzer = nil, &block )
+    self.fuzzer ||= cfuzzer
+    permutations.each do |p|
+      block.call p
+    end
+  end
+
+  def handle_response( resp )
+    str = "    #{fuzzer.shortname}: #{resp.code} - #{method.to_s.upcase} #{action} #{params}"
+
+    case resp.code.to_i
+      when 200,404,301,302,303
+        #fuzzer.print_status str
+      when 500,503,401,403
+        fuzzer.print_good str
+      else
+        fuzzer.print_error str
+    end
+  end
 
 end
 
