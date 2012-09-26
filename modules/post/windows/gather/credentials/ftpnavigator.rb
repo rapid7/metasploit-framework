@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
 				It will decode the saved passwords and store them in the database.
 			},
 			'License'        => MSF_LICENSE,
-			'Author'         => ['TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Author'         => ['theLightCosine'],
 			'Version'        => "$Revision$",
 			'Platform'       => [ 'windows' ],
 			'SessionTypes'   => [ 'meterpreter' ]

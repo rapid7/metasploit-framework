@@ -25,10 +25,10 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'HTTP Form Field Fuzzer',
 			'Description'    => %q{
-						This module will grab all fields from a form,
-						and launch a series of POST actions, fuzzing the contents
-						of the form fields. You can optionally fuzz headers too
-						(option is enabled by default)
+				This module will grab all fields from a form,
+				and launch a series of POST actions, fuzzing the contents
+				of the form fields. You can optionally fuzz headers too
+				(option is enabled by default)
 			},
 			'Author'  => [
 				'corelanc0d3r',
@@ -69,28 +69,12 @@ class Metasploit3 < Msf::Auxiliary
 			proto = "https://"
 		end
 
-		useragent="Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.15) Gecko/2009102814 Ubuntu/8.10 (intrepid) Firefox/3.0.15"
-		if datastore['UserAgent'] != nil
-			if datastore['UserAgent'].length > 0
-				useragent = datastore['UserAgent']
-			end
-		end
-
-		host = datastore['RHOST']
-		if datastore['VHOST']
-			if datastore['VHOST'].length > 0
-				host = datastore['VHOST']
-			end
-		end
-
 		@send_data = {
 				:uri => '',
 				:version => '1.1',
 				:method => 'POST',
 				:headers => {
 					'Content-Length' => 100,
-					'Host' => host,
-					'User-Agent' => useragent,
 					'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
 					'Accept-Language' => 'en-us,en;q=0.5',
 					'Accept-Encoding' => 'gzip,deflate',
@@ -98,12 +82,10 @@ class Metasploit3 < Msf::Auxiliary
 					'Keep-Alive' => '300',
 					'Connection' => 'keep-alive',
 					'Referer' => proto + datastore['RHOST'] + ":" + datastore['RPORT'].to_s,
-					'Content-Type' => 'application/x-www-form-urlencoded',
+					'Content-Type' => 'application/x-www-form-urlencoded'
 				}
 			}
 		@get_data_headers = {
-				'Host' => host,
-				'User-Agent' => useragent,
 				'Referer' => proto + datastore['RHOST'] + ":" + datastore['RPORT'].to_s,
 			}
 	end
@@ -272,6 +254,8 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			datastr=datastr[0,datastr.length-1]
 			@send_data[:uri] = form[:action]
+			@send_data[:uri] = "/#{form[:action]}" if @send_data[:uri][0,1] != '/'
+
 			@send_data[:method] = form[:method].upcase
 			response = send_fuzz(@send_data,datastr)
 			if not process_response(response,field,"field")
@@ -322,7 +306,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def get_field_val(input)
-		tmp = input.split(/=/)
+		tmp = input.split(/\=/)
 		#get delimeter
 		tmp2 = tmp[1].strip
 		delim = tmp2[0,1]
@@ -435,7 +419,7 @@ class Metasploit3 < Msf::Auxiliary
 										location = fielddata[0].index(thisfield)
 										delta = fielddata[0].size - location
 										remaining = fielddata[0][location,delta]
-										tmp = remaining.strip.split(/=/)
+										tmp = remaining.strip.split(/\=/)
 										if tmp.size > 1
 											delim = tmp[1][0,1]
 											tmp2 = tmp[1].split(delim)

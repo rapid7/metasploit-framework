@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
 					It finds saved FTP connections in the wcx_ftp.ini file.
 				},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
+				'Author'        => [ 'theLightCosine'],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]

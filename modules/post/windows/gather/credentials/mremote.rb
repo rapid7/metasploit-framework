@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
 				'License'       => MSF_LICENSE,
 				'Author'        =>
 					[
-						'TheLightCosine <thelightcosine[at]gmail.com>',
+						'theLightCosine',
 						'hdm', #Helped write the Decryption Routine
 						'Rob Fuller <mubix[at]hak5.org>' #Helped write the Decryption Routine
 					],

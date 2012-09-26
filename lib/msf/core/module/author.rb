@@ -24,7 +24,7 @@ class Msf::Module::Author
 			'pusscat' 	=> 'pusscat' + 0x40.chr + 'metasploit.com',
 			'skylined' 	=> 'skylined' + 0x40.chr + 'edup.tudelft.nl',
 			'patrick' 	=> 'patrick' + 0x40.chr + 'osisecurity.com.au',
-			'ramon' 	=> 'ramon' + 0x40.chr + 'risesecurity.org',
+			'Ramon de C Valle'=> 'rcvalle' + 0x40.chr + 'metasploit.com',
 			'I)ruid' 	=> 'druid' +  0x40.chr + 'caughq.org',
 			'egypt' 	=> 'egypt' + 0x40.chr + 'metasploit.com',
 			'kris katterjohn' => 'katterjohn' + 0x40.chr + 'gmail.com',
@@ -42,7 +42,8 @@ class Msf::Module::Author
 			'bannedit'	=> 'bannedit' + 0x40.chr + 'metasploit.com',
 			'amaloteaux'	=> 'alex_maloteaux' + 0x40.chr + 'metasploit.com',
 			'Carlos Perez'  => 'carlos_perez' + 0x40.chr + 'darkoperator.com',
-			'juan vazquez' =>  'juan.vazquez' + 0x40.chr + 'metasploit.com'
+			'juan vazquez' =>  'juan.vazquez' + 0x40.chr + 'metasploit.com',
+			'theLightCosine' => 'theLightCosine' + 0x40.chr + 'metasploit.com'
 		}
 
 	#
@@ -141,4 +142,3 @@ class Msf::Module::Author
 	attr_accessor :email
 	attr_reader   :name
 end
-
