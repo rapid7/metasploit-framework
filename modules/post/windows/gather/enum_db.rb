@@ -320,7 +320,7 @@ class Metasploit3 < Msf::Post
 	def find_mysql_conf(val_location)
 		data = nil
 		if exist?(val_location + "\\my.ini")
-			data = read_file(val_Location + "\\my.ini")
+			data = read_file(val_location + "\\my.ini")
 		elsif exist?(val_location + "\\my.cnf")
 			data = read_file(val_location + "\\my.cnf")
 		else
