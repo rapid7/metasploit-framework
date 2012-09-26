@@ -477,7 +477,7 @@ class Metasploit3 < Msf::Auxiliary
 				multihandler.datastore['WORKSPACE'] = datastore["WORKSPACE"] if datastore["WORKSPACE"]
 				multihandler.datastore['ParentUUID'] = datastore["ParentUUID"] if datastore["ParentUUID"]
 				multihandler.datastore['CAMPAIGN_ID'] = datastore["CAMPAIGN_ID"] if datastore["CAMPAIGN_ID"]
-				multihandler.datastore['BAP'] = true
+				multihandler.datastore['ParentModule'] = self.fullname
 				multihandler.datastore['AutopwnUUID'] = self.uuid
 				multihandler.datastore['LPORT'] = lport
 				multihandler.datastore['LHOST'] = @lhost
