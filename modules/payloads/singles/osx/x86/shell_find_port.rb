@@ -25,7 +25,7 @@ module Metasploit3
 			'Name'          => 'OS X Command Shell, Find Port Inline',
 			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a shell on an established connection',
-			'Author'        => 'ramon',
+			'Author'        => 'Ramon de C Valle',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'osx',
 			'Arch'          => ARCH_X86,

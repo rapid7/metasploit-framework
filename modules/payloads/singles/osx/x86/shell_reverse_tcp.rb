@@ -25,7 +25,7 @@ module Metasploit3
 			'Name'          => 'OS X Command Shell, Reverse TCP Inline',
 			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to attacker and spawn a command shell',
-			'Author'        => 'ramon',
+			'Author'        => 'Ramon de C Valle',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'osx',
 			'Arch'          => ARCH_X86,

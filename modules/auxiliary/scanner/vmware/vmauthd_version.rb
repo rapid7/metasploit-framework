@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module will identify information about a host through the
 			vmauthd service.
 			},
-			'Author'      => ['TheLightCosine <thelightcosine[at]metasploit.com>', 'hdm'],
+			'Author'      => ['theLightCosine', 'hdm'],
 			'License'     => MSF_LICENSE
 		)
 

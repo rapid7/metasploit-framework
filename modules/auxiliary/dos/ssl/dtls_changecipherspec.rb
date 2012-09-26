@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'	=> [
 						'Jon Oberheide <jon[at]oberheide.org>', #original code
-						'TheLightCosine <thelightcosine[at]gmail.com>' # metasploit module
+						'theLightCosine' # metasploit module
 						],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',

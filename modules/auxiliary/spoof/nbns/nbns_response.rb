@@ -134,7 +134,7 @@ class Metasploit3 < Msf::Auxiliary
 				p.ip_saddr = Rex::Socket.source_address(rhost)
 				p.ip_daddr = rhost
 				p.ip_ttl = 255
-				p.udp_sport = 1337
+				p.udp_sport = 137
 				p.udp_dport = 137
 				p.payload = response
 				p.recalc

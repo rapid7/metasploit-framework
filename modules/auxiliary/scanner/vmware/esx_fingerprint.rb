@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module accesses the web API interfaces for VMware ESX/ESXi servers
 				and attempts to identify version information for that server.
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
+			'Author'         => ['theLightCosine'],
 			'License'        => MSF_LICENSE
 		)
 
