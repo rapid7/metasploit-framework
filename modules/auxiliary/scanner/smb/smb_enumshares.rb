@@ -181,6 +181,12 @@ class Metasploit3 < Msf::Auxiliary
 				end
 
 				if not @shares.empty?
+					# Share names end up in hex quite often, clean up
+					@shares = @shares.map do |share|
+						share.map do |s| 
+							s =~ /\x00\x00/ ? Rex::Text.to_ascii(s).chop : s
+						end
+					end
 					print_status("#{ip}:#{rport} #{@shares.map{|x| "#{x[0]} - #{x[2]} (#{x[1]})" }.join(", ")}")
 					report_note(
 						:host => ip,
