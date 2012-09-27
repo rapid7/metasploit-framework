@@ -20,7 +20,7 @@ class Metasploit4 < Msf::Auxiliary
 					This module exploits a directory traversal vulnerability in Indusoft WebStudio.
 				The vulnerability exists in the NTWebServer component and allows to read arbitrary
 				remote files with the privileges of the NTWebServer process. The module has been
-				successfully tested on Indusoft WebStudio 6.1 SP6.
+				tested successfully on Indusoft WebStudio 6.1 SP6.
 			},
 			'References'   =>
 				[
