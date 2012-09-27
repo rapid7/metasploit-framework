@@ -860,8 +860,9 @@ protected
 
 		added = nil
 
+    wrap = self.class.wrapper_module(name)
+
 		begin
-			wrap = ::Module.new
 			wrap.module_eval(load_module_source(file), file)
 			if(wrap.const_defined?(:RequiredVersions))
 				mins = wrap.const_get(:RequiredVersions)
@@ -1124,6 +1125,63 @@ protected
 	attr_accessor :module_failed # :nodoc:
 	attr_accessor :enabled_types # :nodoc:
 
+  # Returns a nested module to wrap the Metasploit(1|2|3) class so that it doesn't overwrite other (metasploit) module's
+  # classes.  The wrapper module must be named so that active_support's autoloading code doesn't break when searching
+  # constants from inside the Metasploit(1|2|3) class.
+  #
+  # @return [Module] Msf::Modules::<name>
+  def self.wrapper_module(name)
+    relative_module_name = name.camelize
+    fully_qualified_module_name = "#{parent.name}::Modules::#{relative_module_name}"
+
+    wrapper_module = Object
+    module_names = fully_qualified_module_name.split('::')
+
+    until module_names.empty?
+      parent = wrapper_module
+      child_name = module_names.shift
+
+      # constant names can't contain a leading digit or any non-alphanumeric characters, so convert to hexcode with
+      # 'X' prefix.
+      child_name = child_name.gsub(/^[0-9]|[^A-Za-z0-9]/) do |invalid_constant_name_character|
+        unpacked = invalid_constant_name_character.unpack('H*')
+        # unpack always returns an array, so get first value to get character's encoding
+        hex_code = unpacked[0]
+
+        # as a convention start each hex-code with X so that it'll make a valid constant name since constants can't
+        # start with digits.
+        "X#{hex_code}"
+      end
+
+      # don't look for constants in ancestors since the namespace modules should be defined directly on the parent and
+      # previously by this same method.
+      inherit = false
+
+      if module_names.empty? and parent.const_defined?(child_name, inherit)
+        ilog("Removing #{child_name} constant from #{parent.name} so it can be reloaded", 'core', LEV_1)
+        # if this is the leaf module name then it needs to be destroyed and recreated if it already exists as this is
+        # a reload
+        # remove_const is private, so invoke in instance context
+        parent.instance_eval do
+          remove_const child_name
+        end
+      end
+
+      if parent.const_defined?(child_name, inherit)
+        wrapper_module = parent.const_get(child_name)
+      else
+        # stub module to represent namespace
+        # use ruby Module, not Msf::Module
+        namespace_module = ::Module.new
+
+        ilog("Adding #{child_name} constant to #{parent.name} as a namespace Module", 'core', LEV_1)
+        # once it's assigned to a constant, then wrapper_module.name will work.
+        wrapper_module = parent.const_set(child_name, namespace_module)
+      end
+    end
+
+    wrapper_module
+  end
 end
 
 end
