@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
             OptPort.new('RPORT',        [ false, 'Forward to remote port', 9100 ]),
             OptAddress.new('RHOST',     [ false, 'Forward to remote host' ]),
             OptBool.new('METADATA',     [ true, 'Display Metadata from printjobs', true ]),
-            OptEnum.new('MODE',         [ true,  'Print mode', 'RAW', ['RAW', 'LPR']])
+            OptEnum.new('MODE',         [ true,  'Print mode', 'RAW', ['RAW', 'LPR']]) # TODO: Add IPP
 
         ], self.class)
 
