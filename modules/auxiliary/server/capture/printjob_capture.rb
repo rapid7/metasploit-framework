@@ -278,7 +278,7 @@ class Metasploit3 < Msf::Auxiliary
             loot = store_loot(
                     "prn_snarf.#{@state[c][:prn_type].downcase}",
                     "#{@state[c][:prn_type]} printjob",
-                    @state[c][:peerhost],
+                    c.peerhost,
                     @state[c][:raw_data],
                     filename,
                     "PrintJob capture"
