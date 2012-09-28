@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
                 (required for LPR printjobs). Resulting PCL/PS files can be
                 read with GhostScript/GhostPCL.
 
-								Note, this module does not yet support IPP connections.
+                Note, this module does not yet support IPP connections.
             },
             'Author'      =>     'Chris John Riley',
             'License'     =>     MSF_LICENSE,
