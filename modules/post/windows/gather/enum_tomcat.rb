@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Post
 			if not installs.empty?
 				installs.each do |inst|
 					results += enumerate_tomcat(inst[0],inst[1])
-					users += enumerate_tomcat_creds(inst[0],inst[1])
+					users += enumerate_tomcat_creds(inst[0])
 				end
 			else
 				print_status("Done, Tomcat Not Found")
@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Post
 				])
 
 		results.each { |r|
-			report_service(:host => session.sock.peerhost, :port => r[2], :name => "HTTP", :info => "#{r[0]} #{r[1]}, Application:#{r[3]}")
+			report_service(:host => session.sock.peerhost, :port => r[2], :name => "HTTP", :info => "#{r[0]} Tomcat #{r[1]}, Application:#{r[3]}")
 			tbl_services << r
 		}
 				
@@ -151,7 +151,7 @@ class Metasploit3 < Msf::Post
 	end
 	
 	# enumerate tomcat users from its user base
-	def enumerate_tomcat_creds(val_installpath,val_version)
+	def enumerate_tomcat_creds(val_installpath)
 		users = []
 		userpath = val_installpath + "\\conf\\tomcat-users.xml"
 		if exist?(userpath)
@@ -223,12 +223,10 @@ class Metasploit3 < Msf::Post
 		end
 		
 		index_file.each do |i|
-			
 			if not exist?("#{path}\\ROOT\\#{i}")
 				next
 			end
 			data = read_file(path + "\\ROOT\\#{i}")
-			
 			if data =~ /(?i)<title>([^<]+)<\/title>/
 				return $1
 			else
@@ -243,5 +241,4 @@ class Metasploit3 < Msf::Post
 		print_error("\t\t! could not identify application name")
 		return "Unknown"
 	end
-	
 end
