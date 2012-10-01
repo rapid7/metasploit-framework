@@ -23,12 +23,18 @@ if not (Process.uid == 0 or File.stat(msfbase).owned?)
 	$stderr.puts "Please run msfupdate as the same user who installed metasploit."
 end
 
-wait = (@args.shift.to_s == "wait")
-
 have_configdir = false
-@args.each do |arg|
+wait_index = nil
+@args.each_with_index do |arg,i|
+	if arg == "wait"
+		wait_index = i
+	end
 	next unless arg =~ /--config-dir/
 	have_configdir = true
+end
+
+if wait_index
+	@args.delete_at wait_index
 end
 
 unless have_configdir
@@ -49,11 +55,10 @@ if res.nil?
 	$stderr.puts "[-] to ensure a proper environment."
 else
 	# Cleanup worked, go ahead and update
-	$stderr.puts "DEBUG: Going with *@args: #{@args.inspect}"
 	system("svn", "update", *@args)
 end
 
-if wait
+if wait_index
 	$stderr.puts ""
 	$stderr.puts "[*] Please hit enter to exit"
 	$stderr.puts ""
