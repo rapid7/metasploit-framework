@@ -69,9 +69,7 @@ class Metasploit3 < Msf::Auxiliary
             @srvhost = datastore['SRVHOST']
             @srvport = datastore['SRVPORT'] || 9100
             @mode = datastore['MODE'].upcase || 'RAW'
-            print_status("Starting Print Server on %s:%s - %s mode" \
-                % [@srvhost, @srvport, @mode])
-
+            print_status("Starting Print Server on %s:%s - %s mode" % [@srvhost, @srvport, @mode])
             if datastore['FORWARD']
                 @forward = datastore['FORWARD']
                 @rport = datastore['RPORT'] || 9100
@@ -122,18 +120,15 @@ class Metasploit3 < Msf::Auxiliary
             c.put(response)
         end
 
-        if (Rex::Text.to_hex(curr_data.first)) == '\x02' and \
-            (Rex::Text.to_hex(curr_data.last)) == '\x0a'
-            print_status("LPR Jobcmd \"%s\" received" % curr_data[1..-2]) \
-                if not curr_data[1..-2].empty?
+        if (Rex::Text.to_hex(curr_data.first)) == '\x02' and (Rex::Text.to_hex(curr_data.last)) == '\x0a'
+            print_status("LPR Jobcmd \"%s\" received" % curr_data[1..-2]) if not curr_data[1..-2].empty?
         end
 
         return if not @state[c][:data]
     end
 
     def on_client_close(c)
-        print_status("#{name}: Client #{c.peerhost}:#{c.peerport} closed connection after %d bytes of data" \
-            % @state[c][:data].length)
+        print_status("#{name}: Client #{c.peerhost}:#{c.peerport} closed connection after %d bytes of data" % @state[c][:data].length)
         sock.close if sock
 
         # forward RAW data as it's not streamed
@@ -154,9 +149,7 @@ class Metasploit3 < Msf::Auxiliary
                 @state[c][:prn_type] = "PCL"
                 print_good("Printjob intercepted - type PCL")
                 #extract everything between PCL start and end markers (various)
-                @state[c][:raw_data] = Array(@state[c][:data].unpack("H*")[0] \
-                    .match(/((1b45|1b25|1b26).*(1b45|1b252d313233343558))/i)[0]) \
-                    .pack("H*")
+                @state[c][:raw_data] = Array(@state[c][:data].unpack("H*")[0].match(/((1b45|1b25|1b26).*(1b45|1b252d313233343558))/i)[0]).pack("H*")
             end
 
             # extract Postsript Metadata
@@ -166,8 +159,7 @@ class Metasploit3 < Msf::Auxiliary
             metadata_pjl(c) if @state[c][:data] =~ /@PJL/i
 
             # extract IPP Metadata
-            metadata_ipp(c) if @state[c][:data] =~ /POST \/ipp/i or \
-                @state[c][:data] =~ /application\/ipp/i
+            metadata_ipp(c) if @state[c][:data] =~ /POST \/ipp/i or @state[c][:data] =~ /application\/ipp/i
 
             if not @state[c][:prn_type]
                 print_error("Unable to detect printjob type, dumping complete output")
@@ -259,8 +251,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     def stream_data(data_to_send)
-        vprint_status("Streaming %d bytes of data to #{@rhost}:#{@rport}" \
-            % data_to_send.length)
+        vprint_status("Streaming %d bytes of data to #{@rhost}:#{@rport}" % data_to_send.length)
         connect if not sock
         sock.put(data_to_send)
         response = sock.get_once
