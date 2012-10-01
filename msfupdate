@@ -23,28 +23,27 @@ if not (Process.uid == 0 or File.stat(msfbase).owned?)
 	$stderr.puts "Please run msfupdate as the same user who installed metasploit."
 end
 
-have_configdir = false
+configdir = nil
 wait_index = nil
+
 @args.each_with_index do |arg,i|
-	if arg == "wait"
+	case arg
+	when "wait"
 		wait_index = i
+	when /--config-dir/
+		# Spaces in the directory should be fine since this whole thing is passed
+		# as a single argument via the multi-arg syntax for system() below.
+		# TODO: Test this spaces business. I don't buy it. -todb
+		configdir = File.join(File.dirname(msfbase), "data", "svn")
+		configdir_index = i
 	end
-	next unless arg =~ /--config-dir/
-	have_configdir = true
 end
 
-if wait_index
-	@args.delete_at wait_index
-end
-
-unless have_configdir
-	configdir = File.join(File.dirname(msfbase), "data", "svn")
-	# Spaces in the directory should be fine since this whole thing is passed
-	# as a single argument via the multi-arg syntax for system() below.
-	@args.push("--config-dir=#{configdir}")
-end
+@args.delete_at wait_index if wait_index
+@args.delete_at configdir_index if configdir_index
 
 @args.push("--non-interactive")
+@args.push("--config-dir=#{configdir}") if configdir
 
 res = system("svn", "cleanup")
 if res.nil?
