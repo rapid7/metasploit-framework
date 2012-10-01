@@ -9,6 +9,7 @@ while File.symlink?(msfbase)
 	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 
+@args = ARGV.dup
 
 Dir.chdir(File.dirname(msfbase))
 
@@ -22,10 +23,10 @@ if not (Process.uid == 0 or File.stat(msfbase).owned?)
 	$stderr.puts "Please run msfupdate as the same user who installed metasploit."
 end
 
-wait = (ARGV.shift.to_s == "wait")
+wait = (@args.shift.to_s == "wait")
 
 have_configdir = false
-ARGV.each do |arg|
+@args.each do |arg|
 	next unless arg =~ /--config-dir/
 	have_configdir = true
 end
@@ -34,10 +35,10 @@ unless have_configdir
 	configdir = File.join(File.dirname(msfbase), "data", "svn")
 	# Spaces in the directory should be fine since this whole thing is passed
 	# as a single argument via the multi-arg syntax for system() below.
-	ARGV.push("--config-dir=#{configdir}")
+	@args.push("--config-dir=#{configdir}")
 end
 
-ARGV.push("--non-interactive")
+@args.push("--non-interactive")
 
 res = system("svn", "cleanup")
 if res.nil?
@@ -48,7 +49,8 @@ if res.nil?
 	$stderr.puts "[-] to ensure a proper environment."
 else
 	# Cleanup worked, go ahead and update
-	system("svn", "update", *ARGV)
+	$stderr.puts "DEBUG: Going with *@args: #{@args.inspect}"
+	system("svn", "update", *@args)
 end
 
 if wait
