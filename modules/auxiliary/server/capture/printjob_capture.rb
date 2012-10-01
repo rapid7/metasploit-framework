@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -25,8 +21,10 @@ class Metasploit3 < Msf::Auxiliary
                 This module is designed to listen for PJL or PostScript print
                 jobs. Once a print job is detected it is saved to loot. The
                 captured printjob can then be forwarded on to another printer
-                (required for LPR/IPP printjobs). Resulting PCL/PS files can be
-                read with GhostScript/GhostPCL
+                (required for LPR printjobs). Resulting PCL/PS files can be
+                read with GhostScript/GhostPCL.
+
+                Note, this module does not yet support IPP connections.
             },
             'Author'      =>     'Chris John Riley',
             'License'     =>     MSF_LICENSE,
@@ -54,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
             OptPort.new('RPORT',        [ false, 'Forward to remote port', 9100 ]),
             OptAddress.new('RHOST',     [ false, 'Forward to remote host' ]),
             OptBool.new('METADATA',     [ true, 'Display Metadata from printjobs', true ]),
-            OptEnum.new('MODE',         [ true,  'Print mode', 'RAW', ['RAW', 'LPR', 'IPP']])
+            OptEnum.new('MODE',         [ true,  'Print mode', 'RAW', ['RAW', 'LPR']]) # TODO: Add IPP
 
         ], self.class)
 
@@ -278,7 +276,7 @@ class Metasploit3 < Msf::Auxiliary
             loot = store_loot(
                     "prn_snarf.#{@state[c][:prn_type].downcase}",
                     "#{@state[c][:prn_type]} printjob",
-                    @state[c][:peerhost],
+                    c.peerhost,
                     @state[c][:raw_data],
                     filename,
                     "PrintJob capture"
