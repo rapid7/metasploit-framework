@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				Note, this module does not yet support IPP connections.
 			},
-			'Author'      =>     'Chris John Riley',
+			'Author'      =>     ['Chris John Riley', 'todb'],
 			'License'     =>     MSF_LICENSE,
 			'References'    =>
 			[
