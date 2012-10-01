@@ -298,6 +298,15 @@ module Msf::Post::File
 		end
 	end
 
+	#
+	# Rename a remote file
+	#
+	def rename_file(new_file, old_file)
+		write_file(new_file, (read_file(old_file))
+		rm_f(old_file)
+	end
+	alias :move_file :rename_file
+	alias :mv_file :rename_file
 
 protected
 	#
