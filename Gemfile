@@ -1,6 +1,10 @@
 source 'http://rubygems.org'
-gem 'rails', '3.2.2'
-gem 'metasploit_data_models', '0.0.2', :git => "git://github.com/rapid7/metasploit_data_models.git"
-gem 'pg', '>=0.13'
-gem 'msgpack'
-gem 'nokogiri'
+
+group :development do
+  # running documention generation tasks
+  gem 'rake'
+  # Markdown formatting for yara
+  gem 'redcarpet'
+  # generating documention
+  gem 'yard'
+end
