@@ -120,7 +120,7 @@ class RopDb
 	#
 	def load_rop(file_path)
 		f = File.open(file_path)
-		xml = REXML::Document.new(f.read)
+		xml = REXML::Document.new(f.read(f.stat.size))
 		f.close
 		return xml
 	end
