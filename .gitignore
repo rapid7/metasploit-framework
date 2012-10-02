@@ -1,5 +1,8 @@
 # Rubymine project directory
 .idea
+# RVM control file
+.rvmrc
+# YARD cache directory
 .yardoc
 # Mac OS X files
 .DS_Store
