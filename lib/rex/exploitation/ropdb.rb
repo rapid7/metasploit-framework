@@ -13,9 +13,7 @@ module Exploitation
 ###
 class RopDb
 	def initialize
-		f = open(File.join(File.dirname(__FILE__), '../../../data/ropdb', 'ropdb.xml'))
-		@xml = REXML::Document.new(f.read)
-		f.close
+		@base_path = File.join(File.dirname(__FILE__), '../../../data/ropdb/')
 	end
 
 	public
@@ -24,17 +22,14 @@ class RopDb
 	#
 	# Returns true if a ROP chain is available, otherwise false
 	#
-	def has_rop?(rop)
-		@xml.elements.each("db/rop") { |e|
-			name = e.attributes['name']
-			return true if name =~ /#{rop}/i
-		}
-		return false
+	def has_rop?(rop_name)
+		File.exists?(File.join(@base_path, "#{rop_name}.xml"))
 	end
 
 	#
 	# Returns an array of ROP gadgets. Each gadget can either be an offset, or a value (symbol or
-	# some integer).  When the value is a symbol, it can be one of these: :nop, :junk, :size.
+	# some integer).  When the value is a symbol, it can be one of these: :nop, :junk, :size,
+	# and :size_negate.
 	# Note if no RoP is found, it returns an empry array.
 	# Arguments:
 	# rop_name - name of the ROP chain.
@@ -46,10 +41,13 @@ class RopDb
 		target = opts['target'] || ''
 		base   = opts['base']   || nil
 
+		raise RuntimeError, "#{rop} ROP chain is not available" if not has_rop?(rop)
+		xml = load_rop(File.join(@base_path, "#{rop}.xml"))
+
 		gadgets = []
-		@xml.elements.each("db/rop") { |e|
+
+		xml.elements.each("db/rop") { |e|
 			name = e.attributes['name']
-			next if name !~ /^#{rop}$/i
 			next if not has_target?(e, target)
 
 			if not base
@@ -57,33 +55,9 @@ class RopDb
 				base = default.to_i(16)
 			end
 
-			e.elements.each('gadgets/gadget') { |g|
-				offset = g.attributes['offset']
-				value  = g.attributes['value']
-
-				if offset
-					addr = offset.scan(/^0x([0-9a-f]+)$/i).flatten[0]
-					gadgets << (base + addr.to_i(16))
-				elsif value
-					case value
-					when 'nop'
-						gadgets << :nop
-					when 'junk'
-						gadgets << :junk
-					when 'size'
-						gadgets << :size
-					when 'size_negate'
-						gadgets << :size_negate
-					else
-						gadgets << value.to_i(16)
-					end
-				else
-					raise RuntimeError, "Missing offset or value attribute in '#{name}'"
-				end
-			}
+			gadgets << parse_gadgets(e, base)
 		}
-		gadgets = gadgets.flatten
-		return gadgets
+		return gadgets.flatten
 	end
 
 
@@ -139,6 +113,49 @@ class RopDb
 			return true if t.text =~ /#{target}/i
 		}
 		return false
+	end
+
+	#
+	# Returns the database in XML
+	#
+	def load_rop(file_path)
+		f = open(file_path)
+		xml = REXML::Document.new(f.read)
+		f.close
+		return xml
+	end
+
+
+	#
+	# Returns gadgets
+	#
+	def parse_gadgets(e, image_base)
+		gadgets = []
+		e.elements.each('gadgets/gadget') { |g|
+			offset = g.attributes['offset']
+			value  = g.attributes['value']
+
+			if offset
+				addr = offset.scan(/^0x([0-9a-f]+)$/i).flatten[0]
+				gadgets << (image_base + addr.to_i(16))
+			elsif value
+				case value
+				when 'nop'
+					gadgets << :nop
+				when 'junk'
+					gadgets << :junk
+				when 'size'
+					gadgets << :size
+				when 'size_negate'
+					gadgets << :size_negate
+				else
+					gadgets << value.to_i(16)
+				end
+			else
+				raise RuntimeError, "Missing offset or value attribute in '#{name}'"
+			end
+		}
+		return gadgets
 	end
 end
 
