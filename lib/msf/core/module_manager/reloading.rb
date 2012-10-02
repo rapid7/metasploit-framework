@@ -1,7 +1,5 @@
 # Concerns reloading modules
 module Msf::ModuleManager::Reloading
-  extend ActiveSupport::Concern
-
   # Reloads the module specified in mod.  This can either be an instance of a module or a module class.
   #
   # @param [Msf::Module, Class] mod either an instance of a module or a module class
