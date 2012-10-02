@@ -119,7 +119,7 @@ class RopDb
 	# Returns the database in XML
 	#
 	def load_rop(file_path)
-		f = File.open(file_path)
+		f = File.open(file_path, 'rb')
 		xml = REXML::Document.new(f.read(f.stat.size))
 		f.close
 		return xml
