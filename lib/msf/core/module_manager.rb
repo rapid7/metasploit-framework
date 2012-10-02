@@ -12,18 +12,10 @@ require 'msf/core'
 require 'msf/core/module_set'
 
 module Msf
-  ###
+  # Upper management decided to throw in some middle management # because the modules were getting out of hand.  This
+  # bad boy takes care of the work of managing the interaction with modules in terms of loading and instantiation.
   #
-  # Upper management decided to throw in some middle management
-  # because the modules were getting out of hand.  This bad boy
-  # takes care of the work of managing the interaction with
-  # modules in terms of loading and instantiation.
-  #
-  # TODO:
-  #
-  #   - add unload support
-  #
-  ###
+  # @todo add unload support
   class ModuleManager < ModuleSet
     require 'msf/core/payload_set'
 
@@ -47,11 +39,13 @@ module Msf
     # Regex for parsing the module type from a module name.
     MODULE_TYPE_FROM_NAME_REGEX = /^(#{MODULE_TYPES.join('|')})\/(.*)$/
 
-    # Overrides the module set method for adding a module so that some extra
-    # steps can be taken to subscribe the module and notify the event
-    # dispatcher.
+    # Overrides the module set method for adding a module so that some extra steps can be taken to subscribe the module
+    # and notify the event dispatcher.
+    #
+    # @param (see Msf::ModuleSet#add_module)
+    # @return (see Msf::ModuleSet#add_module)
     def add_module(mod, name, file_paths)
-      # Call the module set implementation of add_module
+      # Call {Msf::ModuleSet#add_module} with same arguments
       dup = super
 
       # Automatically subscribe a wrapper around this module to the necessary
@@ -62,11 +56,15 @@ module Msf
 
       # Notify the framework that a module was loaded
       framework.events.on_module_load(name, dup)
+
+      dup
     end
 
+    # Creates a module instance using the supplied reference name.
     #
-    # Creates a module using the supplied name.
-    #
+    # @param [String] name a module reference name.  It may optionally be prefixed with a "<type>/", in which case the
+    #   module will be created from the {Msf::ModuleSet} for the given <type>.
+    # @return (see Msf::ModuleSet#create)
     def create(name)
       # Check to see if it has a module type prefix.  If it does,
       # try to load it from the specific module set for that type.
@@ -84,10 +82,18 @@ module Msf
       end
     end
 
-    def demand_load_module(mtype, mname)
+    # Forces loading of the module with the given type and module reference name.
+    #
+    # @param [String] type the type of the module.
+    # @param [String] reference_name the module reference name.
+    # @return [nil] if a module with the given type and reference name does not exist in {#cache}.
+    # @return [nil] if the module type is not in the cached file for the module.
+    # @return [true] if the module can be loaded
+    # @return [false] if the module cannot be loaded
+    def demand_load_module(type, reference_name)
       n = self.cache.keys.select { |k|
-        self.cache[k][:mtype]   == mtype and
-            self.cache[k][:refname] == mname
+        self.cache[k][:mtype]   == type and
+            self.cache[k][:refname] == reference_name
       }.first
 
       return nil unless n
@@ -97,17 +103,14 @@ module Msf
         path = $1
         load_module_from_file(path, m[:file], nil, nil, nil, true)
       else
-        dlog("Could not demand load module #{mtype}/#{mname} (unknown base name in #{m[:file]})", 'core', LEV_2)
+        dlog("Could not demand load module #{type}/#{reference_name} (unknown base name in #{m[:file]})", 'core', LEV_2)
         nil
       end
     end
 
-    #
-    # Initializes an instance of the overall module manager using the supplied
-    # framework instance. The types parameter can be used to only load specific
-    # module types on initialization
-    #
-    def initialize(framework, types=MODULE_TYPES)
+    # @param [Msf::Framework] framework The framework for which this instance is managing the modules.
+    # @param [Array<String>] types List of module types to load.  Defaults to all module types in {Msf::MODULE_TYPES}.
+    def initialize(framework, types=Msf::MODULE_TYPES)
       #
       # defaults
       #
@@ -131,18 +134,15 @@ module Msf
       super(nil)
     end
 
-    def register_type_extension(type, ext)
-    end
-
     protected
 
+    # This method automatically subscribes a module to whatever event providers it wishes to monitor.  This can be used
+    # to allow modules to automatically # execute or perform other tasks when certain events occur.  For instance, when
+    # a new host is detected, other aux modules may wish to run such that they can collect more information about the
+    # host that was detected.
     #
-    # This method automatically subscribes a module to whatever event providers
-    # it wishes to monitor.  This can be used to allow modules to automatically
-    # execute or perform other tasks when certain events occur.  For instance,
-    # when a new host is detected, other aux modules may wish to run such
-    # that they can collect more information about the host that was detected.
-    #
+    # @param [Class] mod a Msf::Module subclass
+    # @return [void]
     def auto_subscribe_module(mod)
       # If auto-subscribe has been disabled
       if (framework.datastore['DisableAutoSubscribe'] and
@@ -168,7 +168,5 @@ module Msf
         framework.events.add_session_subscriber((inst) ? inst : (inst = mod.new))
       end
     end
-
-    attr_accessor :modules # :nodoc:
   end
 end

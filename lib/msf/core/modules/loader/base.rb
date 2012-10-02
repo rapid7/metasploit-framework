@@ -4,15 +4,24 @@
 require 'msf/core/modules/loader'
 require 'msf/core/modules/namespace'
 
-# Responsible for loading modules for {Msf::ModuleManagers}.
+# Responsible for loading modules for {Msf::ModuleManager}.
 #
-# @abstract Subclass and override {#base_path}, {#each_module_reference_name}, {#loadable?}, and
+# @abstract Subclass and override {#each_module_reference_name}, {#loadable?}, {#module_path}, and
 #   {#read_module_content}.
 class Msf::Modules::Loader::Base
   #
   # CONSTANTS
   #
 
+  # Not all types are pluralized when a directory name, so here's the mapping that currently exists
+  DIRECTORY_BY_TYPE = {
+    Msf::MODULE_AUX => 'auxiliary',
+    Msf::MODULE_ENCODER => 'encoders',
+    Msf::MODULE_EXPLOIT => 'exploits',
+    Msf::MODULE_NOP => 'nops',
+    Msf::MODULE_PAYLOAD => 'payloads',
+    Msf::MODULE_POST => 'post'
+  }
   # This must calculate the first line of the NAMESPACE_MODULE_CONTENT string so that errors are reported correctly
   NAMESPACE_MODULE_LINE = __LINE__ + 4
   # By calling module_eval from inside the module definition, the lexical scope is captured and available to the code in
@@ -43,7 +52,6 @@ class Msf::Modules::Loader::Base
       module_eval(module_content)
     end
   EOS
-
   # The extension for metasploit modules.
   MODULE_EXTENSION = '.rb'
   # String used to separate module names in a qualified module name.
@@ -52,15 +60,6 @@ class Msf::Modules::Loader::Base
   NAMESPACE_MODULE_NAMES = ['Msf', 'Modules']
   # Regex that can distinguish regular ruby source from unit test source.
   UNIT_TEST_REGEX = /rb\.(ut|ts)\.rb$/
-  # Not all types are pluralized when a directory name, so here's the mapping that currently exists
-  DIRECTORY_BY_TYPE = {
-    Msf::MODULE_AUX => 'auxiliary',
-    Msf::MODULE_ENCODER => 'encoders',
-    Msf::MODULE_EXPLOIT => 'exploits',
-    Msf::MODULE_NOP => 'nops',
-    Msf::MODULE_PAYLOAD => 'payloads',
-    Msf::MODULE_POST => 'post'
-  }
 
   # @param [Msf::ModuleManager] module_manager The module manager that caches the loaded modules.
   def initialize(module_manager)
@@ -68,6 +67,9 @@ class Msf::Modules::Loader::Base
   end
 
   # Returns whether the path can be loaded this module loader.
+  #
+  # @abstract Override and determine from properties of the path or the file to which the path points whether it is
+  #   loadable using {#load_modules} for the subclass.
   #
   # @param path (see #load_modules)
   # @return [Boolean]
@@ -113,7 +115,12 @@ class Msf::Modules::Loader::Base
 
   # Reloads the specified module.
   #
-  # @param [Class, Msf::Module] original_metasploit_class_or_instance either an instance of a module or a module class
+  # @param [Class, Msf::Module] original_metasploit_class_or_instance either an instance of a module or a module class.
+  #   If an instance is given, then the datastore will be copied to the new instance returned by this method.
+  # @return [Class, Msf::Module] original_metasploit_class_or_instance if an instance of the reloaded module cannot be
+  #   created.
+  # @return [Msf::Module] new instance of original_metasploit_class with datastore copied from
+  #   original_metasploit_instance.
   def reload_module(original_metasploit_class_or_instance)
     if original_metasploit_class_or_instance.is_a? Msf::Module
       original_metasploit_instance = original_metasploit_class_or_instance
@@ -135,14 +142,16 @@ class Msf::Modules::Loader::Base
       # Create a new instance of the module
       reloaded_module_instance = module_manager.create(module_reference_name)
 
-      if reloaded_module_instance and original_metasploit_instance
-        # copy over datastore
-        reloaded_module_instance.datastore.update(original_metasploit_instance.datastore)
+      if reloaded_module_instance
+        if original_metasploit_instance
+          # copy over datastore
+          reloaded_module_instance.datastore.update(original_metasploit_instance.datastore)
+        end
       else
         elog("Failed to create instance of #{refname} after reload.", 'core')
 
         # Return the old module instance to avoid a strace trace
-        return original_module
+        return original_metasploit_class_or_instance
       end
     else
       elog("Failed to reload #{module_reference_name}")
@@ -166,6 +175,8 @@ class Msf::Modules::Loader::Base
 
   # Yields module reference names under path.
   #
+  # @abstract Override and search the path for modules.
+  #
   # @param path (see #load_modules)
   # @yield [parent_path, type, module_reference_name] Gives the path and the module_reference_name of the module found
   #   under the path.
@@ -187,7 +198,16 @@ class Msf::Modules::Loader::Base
   # @option options [Hash{String => Integer}] :count_by_type Maps the module type to the number of module loaded
   # @option options [Boolean] :force (false) whether to force loading of the module even if the module has not changed.
   # @option options [Hash{String => Boolean}] :recalculate_by_type Maps type to whether its
-  #   {Msf::ModuleManager#module_set} needs to be recalculated.
+  #   {Msf::ModuleManager::ModuleSets#module_set} needs to be recalculated.
+  # @return [false] if :force is false and parent_path has not changed.
+  # @return [false] if exception encountered while parsing module content
+  # @return [false] if the module is incompatible with the Core or API version.
+  # @return [false] if the module does not implement a Metasploit(\d+) class.
+  # @return [false] if the module's is_usable method returns false.
+  # @return [true] if all those condition pass and the module is successfully loaded.
+  #
+  # @see #read_module_content
+  # @see Msf::ModuleManager::Loading#file_changed?
   def load_module(parent_path, type, module_reference_name, options={})
     options.assert_valid_keys(:count_by_type, :force, :recalculate_by_type)
     force = options[:force] || false
@@ -214,12 +234,23 @@ class Msf::Modules::Loader::Base
     rescue ::Exception => error
       # Hide eval errors when the module version is not compatible
       begin
-        namespace_module.version_compatible!
+        namespace_module.version_compatible!(module_path, module_reference_name)
       rescue Msf::Modules::VersionCompatibilityError => version_compatibility_error
         error_message = "Failed to load module (#{module_path}) due to error and #{version_compatibility_error}"
       else
         error_message = "#{error.class} #{error}:\n#{error.backtrace}"
       end
+
+      elog(error_message)
+      module_manager.module_load_error_by_reference_name[module_reference_name] = error_message
+
+      return false
+    end
+
+    begin
+      namespace_module.version_compatible!(module_path, module_reference_name)
+    rescue Msf::Modules::VersionCompatibilityError => version_compatibility_error
+      error_message = version_compatibility_error.to_s
 
       elog(error_message)
       module_manager.module_load_error_by_reference_name[module_reference_name] = error_message
@@ -283,10 +314,13 @@ class Msf::Modules::Loader::Base
     return true
   end
 
+  # @return [Msf::ModuleManager] The module manager for which this loader is loading modules.
   attr_reader :module_manager
 
   # Returns path to module that can be used for reporting errors in evaluating the
   # {#read_module_content module_content}.
+  #
+  # @abstract Override to return the path to the module on the file system so that errors can be reported correctly.
   #
   # @param path (see #load_module)
   # @param type (see #load_module)
@@ -301,7 +335,7 @@ class Msf::Modules::Loader::Base
   #
   # @param [String] path to module without the type directory.
   # @return [true] if the extname is {MODULE_EXTENSION} AND
-  #                   the path does not match {UNIT_TEXT_REGEX} AND
+  #                   the path does not match {UNIT_TEST_REGEX} AND
   #                   the path is not hidden (starts with '.')
   # @return [false] otherwise
   def module_path?(path)
@@ -321,7 +355,7 @@ class Msf::Modules::Loader::Base
   # Changes a file name path to a canonical module reference name.
   #
   # @param [String] path Relative path to module.
-  # @return [String] MODULE_EXTENSION removed from path.
+  # @return [String] {MODULE_EXTENSION} removed from path.
   def module_reference_name_from_path(path)
     path.gsub(/#{MODULE_EXTENSION}$/, '')
   end
@@ -329,6 +363,13 @@ class Msf::Modules::Loader::Base
   # Returns a nested module to wrap the Metasploit(1|2|3) class so that it doesn't overwrite other (metasploit)
   # module's classes.  The wrapper module must be named so that active_support's autoloading code doesn't break when
   # searching constants from inside the Metasploit(1|2|3) class.
+  #
+  # @param [String] module_reference_name The canonical name for referring to the module that this namespace_module will
+  #   wrap.
+  # @return [Module] module that can wrap the module content from {#read_module_content} using
+  #   module_eval_with_lexical_scope.
+  #
+  # @see NAMESPACE_MODULE_CONTENT
   def namespace_module(module_reference_name)
     namespace_module_names = self.namespace_module_names(module_reference_name)
 
@@ -385,6 +426,14 @@ class Msf::Modules::Loader::Base
     namespace_module
   end
 
+  # Returns the fully-qualified name to the {#namespace_module} that wraps the module with the given module reference
+  # name.
+  #
+  # @param [String] module_reference_name The canonical name for referring to the module.
+  # @return [String] name of module.
+  #
+  # @see MODULE_SEPARATOR
+  # @see #namespace_module_names
   def namespace_module_name(module_reference_name)
     namespace_module_names = self.namespace_module_names(module_reference_name)
     namespace_module_name = namespace_module_names.join(MODULE_SEPARATOR)
@@ -392,12 +441,12 @@ class Msf::Modules::Loader::Base
     namespace_module_name
   end
 
-  # Returns a fully qualified module name to wrap the Metasploit(1|2|3) class so that it doesn't overwrite other
-  # (metasploit) module's classes.  Invalid module name characters are escaped by using 'H*' unpacking and prefixing
-  # each code with X so the code remains a valid module name when it starts with a digit.
+  # Returns an Array of names to make a fully qualified module name to wrap the Metasploit(1|2|3) class so that it
+  # doesn't overwrite other (metasploit) module's classes.  Invalid module name characters are escaped by using 'H*'
+  # unpacking and prefixing each code with X so the code remains a valid module name when it starts with a digit.
   #
   # @param [String] module_reference_name The canonical name for the module.
-  # @return [Module] Msf::Modules::<name>
+  # @return [Array<String>] {NAMESPACE_MODULE_NAMES} + <derived-constant-safe names>
   #
   # @see namespace_module
   def namespace_module_names(module_reference_name)
@@ -426,6 +475,8 @@ class Msf::Modules::Loader::Base
   end
 
   # Read the content of the module from under path.
+  #
+  # @abstract Override to read the module content based on the method of the loader subclass and return a string.
   #
   # @param parent_path (see #load_module)
   # @param type (see #load_module)
@@ -457,6 +508,9 @@ class Msf::Modules::Loader::Base
   # it is defined.
   #
   # @param [Msf::Module] metasploit_class As returned by {Msf::Modules::Namespace#metasploit_class}
+  # @return [false] if metasploit_class.is_usable returns false.
+  # @return [true] if metasploit_class does not respond to is_usable.
+  # @return [true] if metasploit_class.is_usable returns true.
   def usable?(metasploit_class)
     # If the module indicates that it is not usable on this system, then we
     # will not try to use it.
