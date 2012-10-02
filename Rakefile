@@ -5,7 +5,8 @@ require 'yard'
 namespace :yard do
   yard_files = [
       # Ruby source files first
-      'lib/**/*.rb',
+      'lib/msf/**/*.rb',
+      'lib/rex/**/*.rb',
       # Anything after '-' is a normal documentation, not source
       '-',
       'COPYING',
@@ -13,8 +14,6 @@ namespace :yard do
       'THIRD-PARTY.md'
   ]
   yard_options = [
-      # don't generate documentation from the source of the gems in the gemcache.
-      '--exclude', 'lib/gemcache',
       # include documentation for protected methods for developers extending the code.
       '--protected'
   ]
