@@ -6,8 +6,6 @@ module Msf::ModuleManager::Reloading
   def reload_module(mod)
     refname = mod.refname
 
-    dlog("Reloading module #{refname}...", 'core')
-
     # if it's can instance, then get its class
     if mod.is_a? Msf::Module
       metasploit_class = mod.class
