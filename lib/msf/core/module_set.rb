@@ -16,7 +16,7 @@ Msf::SymbolicModule = '__SYMBOLIC__'
 #
 ###
 class Msf::ModuleSet < Hash
-  include Framework::Offspring
+  include Msf::Framework::Offspring
 
   # Wrapper that detects if a symbolic module is in use.  If it is, it creates an instance to demand load the module
   # and then returns the now-loaded class afterwords.
@@ -24,7 +24,7 @@ class Msf::ModuleSet < Hash
   # @param [String] name the module reference name
   # @return [Msf::Module] instance of the of the Msf::Module subclass with the given reference name
   def [](name)
-    if (super == SymbolicModule)
+    if (super == Msf::SymbolicModule)
       create(name)
     end
 
@@ -41,11 +41,11 @@ class Msf::ModuleSet < Hash
 
     # If there is no module associated with this class, then try to demand
     # load it.
-    if klass.nil? or klass == SymbolicModule
+    if klass.nil? or klass == Msf::SymbolicModule
       # If we are the root module set, then we need to try each module
       # type's demand loading until we find one that works for us.
       if module_type.nil?
-        MODULE_TYPES.each { |type|
+        Msf::MODULE_TYPES.each { |type|
           framework.modules.demand_load_module(type, name)
         }
       else
@@ -58,7 +58,7 @@ class Msf::ModuleSet < Hash
     end
 
     # If the klass is valid for this name, try to create it
-    if klass and klass != SymbolicModule
+    if klass and klass != Msf::SymbolicModule
       instance = klass.new
     end
 
@@ -211,7 +211,7 @@ class Msf::ModuleSet < Hash
 
     cached_module = self[name]
 
-    if (cached_module and cached_module != SymbolicModule)
+    if (cached_module and cached_module != Msf::SymbolicModule)
       ambiguous_module_reference_name_set.add(name)
 
       # TODO this isn't terribly helpful since the refnames will always match, that's why they are ambiguous.
@@ -229,7 +229,7 @@ class Msf::ModuleSet < Hash
   def demand_load_modules
     # Pre-scan the module list for any symbolic modules
     self.each_pair { |name, mod|
-      if (mod == SymbolicModule)
+      if (mod == Msf::SymbolicModule)
         self.postpone_recalculate = true
 
         mod = create(name)
@@ -263,7 +263,7 @@ class Msf::ModuleSet < Hash
       name, mod = entry
 
       # Skip any lingering symbolic modules.
-      next if (mod == SymbolicModule)
+      next if (mod == Msf::SymbolicModule)
 
       # Filter out incompatible architectures
       if (opts['Arch'])
@@ -336,12 +336,12 @@ class Msf::ModuleSet < Hash
       b_name, b_mod = b
 
       # Dynamically loads the module if needed
-      a_mod = create(a_name) if a_mod == SymbolicModule
-      b_mod = create(b_name) if b_mod == SymbolicModule
+      a_mod = create(a_name) if a_mod == Msf::SymbolicModule
+      b_mod = create(b_name) if b_mod == Msf::SymbolicModule
 
       # Extract the ranking between the two modules
-      a_rank = a_mod.const_defined?('Rank') ? a_mod.const_get('Rank') : NormalRanking
-      b_rank = b_mod.const_defined?('Rank') ? b_mod.const_get('Rank') : NormalRanking
+      a_rank = a_mod.const_defined?('Rank') ? a_mod.const_get('Rank') : Msf::NormalRanking
+      b_rank = b_mod.const_defined?('Rank') ? b_mod.const_get('Rank') : Msf::NormalRanking
 
       # Compare their relevant rankings.  Since we want highest to lowest,
       # we compare b_rank to a_rank in terms of higher/lower precedence
