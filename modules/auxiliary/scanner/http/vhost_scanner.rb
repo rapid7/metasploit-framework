@@ -45,13 +45,15 @@ require 'cgi'
 				OptString.new('QUERY', [ false,  "HTTP URI Query", '']),
 				OptString.new('DOMAIN', [ true,  "Domain name", '']),
 				OptString.new('HEADERS', [ false,  "HTTP Headers", '']),
+				OptPath.new('SUBDOM_LIST', [false, "Path to text file with subdomains"]),
 			], self.class)
 
 		end
 
 		def run_host(ip)
-
-			valstr = [
+			valstr = ::File.file?(datastore['SUBDOM_LIST']) ?
+			IO.readlines(datastore['SUBDOM_LIST']).map {|e| e.gsub(".#{datastore['DOMAIN']}", "").chomp} :
+			 [
 				"admin",
 				"services",
 				"webmail",
@@ -102,7 +104,8 @@ require 'cgi'
 				print_error("[#{ip}] Unable to identify error response")
 				return
 			end
-
+			
+			vprint_status("Running with #{valstr.length} sudomains")
 			valstr.each do |astr|
 				thost = astr+"."+datastore['DOMAIN']
 
