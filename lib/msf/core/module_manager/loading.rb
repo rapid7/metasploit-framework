@@ -1,3 +1,11 @@
+#
+# Gems
+#
+require 'active_support/concern'
+
+#
+# Project
+#
 require 'msf/core/modules/loader/archive'
 require 'msf/core/modules/loader/directory'
 

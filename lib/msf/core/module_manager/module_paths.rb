@@ -1,3 +1,8 @@
+#
+# Gems
+#
+require 'active_support/concern'
+
 # Deals with module paths in the {Msf::ModuleManager}
 module Msf::ModuleManager::ModulePaths
   extend ActiveSupport::Concern

@@ -1,3 +1,12 @@
+#
+# Gems
+#
+require 'active_support/concern'
+
+#
+# Project
+#
+
 # Defines the MODULE_* constants
 require 'msf/core/constants'
 

@@ -1,3 +1,8 @@
+#
+# Gems
+#
+require 'active_support/concern'
+
 # Concerns the module cache maintained by the {Msf::ModuleManager}.
 module Msf::ModuleManager::Cache
   extend ActiveSupport::Concern
