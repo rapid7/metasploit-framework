@@ -92,6 +92,8 @@ class Metasploit3 < Msf::Auxiliary
 			sdata = [ 0x45, 97 - 8 + @state[c][:username].length].pack("CN")
 			sdata << "SFATAL"
 			sdata << "\x00"
+			sdata << "C28P01"
+			sdata << "\x00"
 			sdata << "Mpassword authentication failed for user \"#{@state[c][:username]}\""
 			sdata << "\x00"
 			sdata << "Fauth.c"
