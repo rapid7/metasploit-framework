@@ -27,7 +27,7 @@ module Msf::ModuleManager::Cache
             :mtime => module_detail.mtime
         }
 
-        module_set(module_type)[refname] ||= SymbolicModule
+        module_set(module_type)[refname] ||= Msf::SymbolicModule
       end
     end
 

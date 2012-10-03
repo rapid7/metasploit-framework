@@ -37,7 +37,7 @@ module Msf
     #
 
     # Regex for parsing the module type from a module name.
-    MODULE_TYPE_FROM_NAME_REGEX = /^(#{MODULE_TYPES.join('|')})\/(.*)$/
+    MODULE_TYPE_FROM_NAME_REGEX = /^(#{Msf::MODULE_TYPES.join('|')})\/(.*)$/
 
     # Overrides the module set method for adding a module so that some extra steps can be taken to subscribe the module
     # and notify the event dispatcher.
@@ -157,14 +157,14 @@ module Msf
       #
       # Exploit event subscriber check
       #
-      if (mod.include?(ExploitEvent) == true)
+      if (mod.include?(Msf::ExploitEvent) == true)
         framework.events.add_exploit_subscriber((inst) ? inst : (inst = mod.new))
       end
 
       #
       # Session event subscriber check
       #
-      if (mod.include?(SessionEvent) == true)
+      if (mod.include?(Msf::SessionEvent) == true)
         framework.events.add_session_subscriber((inst) ? inst : (inst = mod.new))
       end
     end

@@ -37,7 +37,7 @@ module Msf::ModuleManager::Loading
 
     # if uncached then it counts as changed
     # Payloads can't be cached due to stage/stager matching
-    if module_details.nil? or module_details[:mtype] == MODULE_PAYLOAD
+    if module_details.nil? or module_details[:mtype] == Msf::MODULE_PAYLOAD
       changed = true
     else
       begin
