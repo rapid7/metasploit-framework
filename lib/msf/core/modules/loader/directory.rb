@@ -60,9 +60,8 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
   # @param (see Msf::Modules::Loader::Base#module_path)
   # @return [String] Path to module file on disk.
   def module_path(parent_path, type, module_reference_name)
-    file_name = module_reference_name + MODULE_EXTENSION
-    type_directory = DIRECTORY_BY_TYPE[type]
-    full_path = File.join(parent_path, type_directory, file_name)
+    typed_path = self.typed_path(type, module_reference_name)
+    full_path = File.join(parent_path, typed_path)
 
     full_path
   end
