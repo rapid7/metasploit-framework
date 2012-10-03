@@ -3,9 +3,8 @@ module Msf::ModuleManager::Reloading
   # Reloads the module specified in mod.  This can either be an instance of a module or a module class.
   #
   # @param [Msf::Module, Class] mod either an instance of a module or a module class
+  # @return (see Msf::Modules::Loader::Base#reload_module)
   def reload_module(mod)
-    refname = mod.refname
-
     # if it's can instance, then get its class
     if mod.is_a? Msf::Module
       metasploit_class = mod.class
@@ -18,9 +17,9 @@ module Msf::ModuleManager::Reloading
     loader.reload_module(mod)
   end
 
-  #
   # Reloads modules from all module paths
   #
+  # @return (see Msf::ModuleManager::Loading#load_modules)
   def reload_modules
     self.module_history = {}
     self.clear
@@ -30,16 +29,20 @@ module Msf::ModuleManager::Reloading
       init_module_set(type)
     end
 
-    # The number of loaded modules in the following categories:
-    # auxiliary/encoder/exploit/nop/payload/post
-    count = 0
+    # default the count to zero the first time a type is accessed
+    count_by_type = Hash.new(0)
+
     module_paths.each do |path|
-      mods = load_modules(path, true)
-      mods.each_value {|c| count += c}
+      path_count_by_type = load_modules(path, :force => true)
+
+      # merge count with count from other paths
+      path_count_by_type.each do |type, count|
+        count_by_type[type] += count
+      end
     end
 
     rebuild_cache
 
-    count
+    count_by_type
   end
 end
