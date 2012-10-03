@@ -452,7 +452,7 @@ class Msf::Modules::Loader::Base
   def namespace_module_names(module_reference_name)
     relative_module_name = module_reference_name.camelize
 
-    module_names = relative_module_name.split('::')
+    module_names = relative_module_name.split(MODULE_SEPARATOR)
 
     # The module_reference_name is path-like, so it can include characters that are invalid in module names
     valid_module_names = module_names.collect { |module_name|
