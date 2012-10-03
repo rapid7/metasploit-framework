@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptInt.new('RETRY', [ false, "Number of times to try to resolve a record if no response is received", 2]),
 				OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry", 2]),
-				OptInt.new('BRT_THREADS', [ true, "Number of threads to use for brute force", 1]),
+				OptInt.new('THREADS', [ true, "Number of threads to use for BRT and RVL", 1]),
 				OptBool.new('BRT_REPORT_HOST', [false, "Add hosts found via bruteforce to DB", false]),
 				OptBool.new('TCP_DNS', [false, "Run queries over TCP", false]),
 			], self.class)
@@ -241,120 +241,108 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	#-------------------------------------------------------------------------------
-	def dnsbrute(target, wordlist, nssrv, wldcrd = nil, threads = 1)
-		print_status("Running bruteforce against domain #{target}")
+	def split_wordlist(words)
+		length = (words.length / @threadnum).ceil
+		words = words.each_slice(length).to_a
+	end
+
+	#-------------------------------------------------------------------------------
+	def dnsbrute(target, wordlist, nssrv, wldcrd = nil)
+		print_status("Bruteforcing IPv4 addresses against domain #{target}")
 		# Read words, split list for threaded bruteforce
-		words = ::File.read(wordlist).split("\n").uniq
-		chunk_size = words.length/threads
-		words = words.each_slice(chunk_size).to_a
-		vprint_status("Running with #{words.flatten.length} words in #{threads} threads of #{chunk_size} each")
-		vprint_status("Ignoring #{wldcrd}") if wldcrd
+		words = split_wordlist(
+			::File.read(wordlist).split("\n").uniq.map {|w| w.gsub(".#{target}", '')}
+		)
+		vprint_status("Running with #{words.flatten.length} words in #{@threadnum} threads of #{words.first.length} each")
+		print_good("Ignoring #{wldcrd}") if wldcrd
 		# Give each thread a chunk of words to test
-		words.each do |chunk|
-			@brt_threads << Rex::ThreadFactory.spawn("DNS Brute Force #{target} #{@brt_threads.length + 1}", false) do 
-				chunk.each do |line|
-					if not nssrv.nil?
-						@res.nameserver=(nssrv)
-						@nsinuse = nssrv
-					end
-					query1 = @res.search("#{line.chomp}.#{target}")
-					if (query1)
-						query1.answer.each do |rr|
-							if rr.class == Net::DNS::RR::A and rr.address.to_s != wldcrd
-								print_status("Hostname: #{line.chomp}.#{target} IP address: #{rr.address.to_s}")
-								report_note(:host => @nsinuse.to_s,
-									:proto => (datastore['Proxies'] || datastore['TCP_DNS']) ? 'tcp' : 'udp',
-									:sname => 'dns',
-									:port => 53 ,
-									:type => 'dns.enum',
-									:update => :unique_data,
-									:data => "#{rr.address.to_s},#{line.chomp}.#{target},A")
-								if datastore['BRT_REPORT_HOST']
-									report_host(
-										:host => rr.address.to_s,
-										:name => "#{line.chomp}.#{target}",
-										:state => Msf::HostState::Alive
-									)
+		while !words.empty? do
+			if @dns_enum_threads.length < @threadnum
+				chunk = words.pop
+				@dns_enum_threads << Rex::ThreadFactory.spawn("DNS Brute Force #{target} #{@dns_enum_threads.length + 1}", false) do 
+					chunk.each do |line|
+						if not nssrv.nil?
+							@res.nameserver=(nssrv)
+							@nsinuse = nssrv
+						end
+						query1 = @res.search("#{line.chomp}.#{target}")
+						if (query1)
+							query1.answer.each do |rr|
+								if rr.class == Net::DNS::RR::AAAA and rr.address.to_s != wldcrd
+									print_status("Hostname: #{line.chomp}.#{target} IPv4 address: #{rr.address.to_s}")
+									report_note(:host => @nsinuse.to_s,
+
+										:proto => @res.use_tcp? ? 'tcp' : 'udp',
+										:sname => 'dns',
+										:port => 53,
+										:type => 'dns.enum',
+										:update => :unique_data,
+										:data => "#{rr.address.to_s},#{line.chomp}.#{target},A")
+									if datastore['BRT_REPORT_HOST']
+										report_host(
+											:host => rr.address.to_s,
+											:name => "#{line.chomp}.#{target}",
+											:state => Msf::HostState::Alive
+										)
+									end
+									next unless rr.class == Net::DNS::RR::CNAME
 								end
-								next unless rr.class == Net::DNS::RR::CNAME
 							end
 						end
 					end
 				end
+			else
+				Rex::ThreadSafe.sleep(5)
 			end
 		end
 	end
 
 	#-------------------------------------------------------------------------------
-	# def bruteipv6(target, wordlist, nssrv)
-	# 	print_status("Bruteforcing IPv6 addresses against domain #{target}")
-	# 	arr = []
-	# 	i, a = 0, []
-	# 	arr = IO.readlines(wordlist)
-	# 	if not nssrv.nil?
-	# 		@res.nameserver=(nssrv)
-	# 		@nsinuse = nssrv
-	# 	end
-	# 	arr.each do |line|
-	# 		query1 = @res.search("#{line.chomp}.#{target}", "AAAA")
-	# 		if (query1)
-	# 			query1.answer.each do |rr|
-	# 				if rr.class == Net::DNS::RR::AAAA
-	# 					print_status("Hostname: #{line.chomp}.#{target} IPv6 Address: #{rr.address.to_s}")
-	# 					report_note(:host => @nsinuse.to_s,
-	# 						:proto => 'udp',
-	# 						:sname => 'dns',
-	# 						:port => 53 ,
-	# 						:type => 'dns.enum',
-	# 						:update => :unique_data,
-	# 						:data => "#{rr.address.to_s},#{line.chomp}.#{target},AAAA")
-	# 					next unless rr.class == Net::DNS::RR::CNAME
-	# 				end
-	# 			end
-	# 		end
-
-	# 	end
-	# end
-	def bruteipv6(target, wordlist, nssrv, wldcrd = nil, threads = 1)
+	def bruteipv6(target, wordlist, nssrv, wldcrd = nil)
 		print_status("Bruteforcing IPv6 addresses against domain #{target}")
 		# Read words, split list for threaded bruteforce
-		words = ::File.read(wordlist).split("\n").uniq
-		chunk_size = words.length/threads
-		words = words.each_slice(chunk_size).to_a
-		print_status("Running with #{words.flatten.length} words in #{threads} threads of #{chunk_size} each")
+		words = split_wordlist(
+			::File.read(wordlist).split("\n").uniq.map {|w| w.gsub(".#{target}", '')}
+		)
+		vprint_status("Running with #{words.flatten.length} words in #{@threadnum} threads of #{words.first.length} each")
 		print_good("Ignoring #{wldcrd}") if wldcrd
 		# Give each thread a chunk of words to test
-		words.each do |chunk|
-			@brt_threads << Rex::ThreadFactory.spawn("DNS Brute Force #{target} #{@brt_threads.length + 1}", false) do 
-				chunk.each do |line|
-					if not nssrv.nil?
-						@res.nameserver=(nssrv)
-						@nsinuse = nssrv
-					end
-					query1 = @res.search("#{line.chomp}.#{target}", "AAAA")
-					if (query1)
-						query1.answer.each do |rr|
-							if rr.class == Net::DNS::RR::AAAA and rr.address.to_s != wldcrd
-								print_status("Hostname: #{line.chomp}.#{target} IPv6 address: #{rr.address.to_s}")
-								report_note(:host => @nsinuse.to_s,
-									:proto => (datastore['Proxies'] || datastore['TCP_DNS']) ? 'tcp' : 'udp',
-									:sname => 'dns',
-									:port => 53 ,
-									:type => 'dns.enum',
-									:update => :unique_data,
-									:data => "#{rr.address.to_s},#{line.chomp}.#{target},AAAA")
-								if datastore['BRT_REPORT_HOST']
-									report_host(
-										:host => rr.address.to_s,
-										:name => "#{line.chomp}.#{target}",
-										:state => Msf::HostState::Alive
-									)
+		while !words.empty? do
+			if @dns_enum_threads.length < @threadnum
+				chunk = words.pop
+				@dns_enum_threads << Rex::ThreadFactory.spawn("DNS Brute Force #{target} #{@dns_enum_threads.length + 1}", false) do 
+					chunk.each do |line|
+						if not nssrv.nil?
+							@res.nameserver=(nssrv)
+							@nsinuse = nssrv
+						end
+						query1 = @res.search("#{line.chomp}.#{target}", "AAAA")
+						if (query1)
+							query1.answer.each do |rr|
+								if rr.class == Net::DNS::RR::AAAA and rr.address.to_s != wldcrd
+									print_status("Hostname: #{line.chomp}.#{target} IPv6 address: #{rr.address.to_s}")
+									report_note(:host => @nsinuse.to_s,
+										:proto => @res.use_tcp? ? 'tcp' : 'udp',
+										:sname => 'dns',
+										:port => 53,
+										:type => 'dns.enum',
+										:update => :unique_data,
+										:data => "#{rr.address.to_s},#{line.chomp}.#{target},AAAA")
+									if datastore['BRT_REPORT_HOST']
+										report_host(
+											:host => rr.address.to_s,
+											:name => "#{line.chomp}.#{target}",
+											:state => Msf::HostState::Alive
+										)
+									end
+									next unless rr.class == Net::DNS::RR::CNAME
 								end
-								next unless rr.class == Net::DNS::RR::CNAME
 							end
 						end
 					end
 				end
+			else
+				Rex::ThreadSafe.sleep(5)
 			end
 		end
 	end
@@ -369,13 +357,12 @@ class Metasploit3 < Msf::Auxiliary
 			@nsinuse = nssrv
 		end
 		ar = Rex::Socket::RangeWalker.new(iprange)
-		tl = []
 		while (true)
 			# Spawn threads for each host
-			while (tl.length < @threadnum)
+			while (@dns_enum_threads.length < @threadnum)
 				ip = ar.next_ip
 				break if not ip
-				tl << framework.threads.spawn("Module(#{self.refname})-#{ip}", false, ip.dup) do |tip|
+				@dns_enum_threads << framework.threads.spawn("Module(#{self.refname})-#{ip}", false, ip.dup) do |tip|
 					begin
 						query = @res.query(tip)
 						query.each_ptr do |addresstp|
@@ -398,11 +385,11 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 			# Exit once we run out of hosts
-			if(tl.length == 0)
+			if(@dns_enum_threads.length == 0)
 				break
 			end
-			tl.first.join
-			tl.delete_if { |t| not t.alive? }
+			@dns_enum_threads.first.join
+			@dns_enum_threads.delete_if { |t| not t.alive? }
 		end
 	end
 	#-------------------------------------------------------------------------------
@@ -572,8 +559,15 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		@brt_threads = []
+		@dns_enum_threads = []
 		@res = Net::DNS::Resolver.new()
+		# The following line requires rex_dns.rb so checking for poxies
+		if @res.methods.include?(:proxies)
+			@res.proxies=datastore['Proxies']
+		end
+		# Prevent us from using system DNS by default - net/dns pulls OS settings
+        @res.nameservers = datastore['NS'].split(/\s|,/) if datastore['NS']
+        # If querying over TCP
 		if datastore['TCP_DNS']
 			vprint_status("Using DNS/TCP")
 			@res.use_tcp = true
@@ -597,7 +591,7 @@ class Metasploit3 < Msf::Auxiliary
 			if wldcrd and datastore['STOP_WLDCRD']
 				print_error("Wildcard record found!")
 			else
-				dnsbrute(datastore['DOMAIN'],datastore['WORDLIST'],datastore['NS'],wldcrd,datastore['BRT_THREADS'])
+				dnsbrute(datastore['DOMAIN'],datastore['WORDLIST'],datastore['NS'],wldcrd)
 			end
 		end
 
@@ -605,7 +599,7 @@ class Metasploit3 < Msf::Auxiliary
 			if wldcrd and datastore['STOP_WLDCRD']
 				print_status("Wildcard Record Found!")
 			else
-				bruteipv6(datastore['DOMAIN'],datastore['WORDLIST'],datastore['NS'],wldcrd6,datastore['BRT_THREADS'])
+				bruteipv6(datastore['DOMAIN'],datastore['WORDLIST'],datastore['NS'],wldcrd6)
 			end
 		end
 
@@ -621,8 +615,8 @@ class Metasploit3 < Msf::Auxiliary
 			reverselkp(datastore['IPRANGE'],datastore['NS'])
 		end
 		# Do not let module finish while threads exist
-		while not @brt_threads.empty? do
-			vprint_status("Waiting on #{@brt_threads.length} DNS brute force threads to finish")
+		while not @dns_enum_threads.empty? do
+			vprint_status("Waiting on #{@dns_enum_threads.length} DNS brute force threads to finish")
 			Rex::ThreadSafe.sleep(10)
 		end
 	end
