@@ -52,6 +52,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry", 2]),
 				OptInt.new('THREADS', [ true, "Number of threads to use for BRT and RVL", 1]),
 				OptBool.new('BRT_REPORT_HOST', [false, "Add hosts found via bruteforce to DB", false]),
+				OptBool.new('RVL_EXISTING_ONLY', [false, "Only perform lookups on hosts in DB", true]),
 				OptBool.new('TCP_DNS', [false, "Run queries over TCP", false]),
 			], self.class)
 	end
@@ -350,13 +351,22 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	#-------------------------------------------------------------------------------
-	def reverselkp(iprange,nssrv)
+	def reverselkp(iprange,nssrv,existing_only)
 		print_status("Running reverse lookup against IP range #{iprange}")
 		if not nssrv.nil?
 			@res.nameserver = (nssrv)
 			@nsinuse = nssrv
 		end
-		ar = Rex::Socket::RangeWalker.new(iprange)
+		if existing_only
+			rng = Rex::Socket::RangeWalker.new(iprange)
+			ws =  Mdm::Workspace.where(:name => self.workspace).first
+			lookup_hosts = ws.hosts.map(&:address).keep_if do |addr|
+				rng.include?(addr)
+			end
+			ar = Rex::Socket::RangeWalker.new(lookup_hosts)
+		else
+			ar = Rex::Socket::RangeWalker.new(iprange)
+		end
 		while (true)
 			# Spawn threads for each host
 			while (@dns_enum_threads.length < @threadnum)
@@ -612,7 +622,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if(datastore['ENUM_RVL'] and datastore['IPRANGE'] and not datastore['IPRANGE'].empty?)
-			reverselkp(datastore['IPRANGE'],datastore['NS'])
+			reverselkp(datastore['IPRANGE'],datastore['NS'],datastore['RVL_EXISTING_ONLY'])
 		end
 		# Do not let module finish while threads exist
 		while not @dns_enum_threads.empty? do
