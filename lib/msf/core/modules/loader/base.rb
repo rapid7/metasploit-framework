@@ -77,6 +77,132 @@ class Msf::Modules::Loader::Base
     raise ::NotImplementedError
   end
 
+  # Loads a module from the supplied path and module_reference_name.
+  #
+  # @param [String] parent_path The path under which the module exists.  This is not necessarily the same path as passed
+  #   to {#load_modules}: it may just be derived from that path.
+  # @param [String] type The type of module.
+  # @param [String] module_reference_name The canonical name for referring to the module.
+  # @param [Hash] options Options used to force loading and track statistics
+  # @option options [Hash{String => Integer}] :count_by_type Maps the module type to the number of module loaded
+  # @option options [Boolean] :force (false) whether to force loading of the module even if the module has not changed.
+  # @option options [Hash{String => Boolean}] :recalculate_by_type Maps type to whether its
+  #   {Msf::ModuleManager::ModuleSets#module_set} needs to be recalculated.
+  # @return [false] if :force is false and parent_path has not changed.
+  # @return [false] if exception encountered while parsing module content
+  # @return [false] if the module is incompatible with the Core or API version.
+  # @return [false] if the module does not implement a Metasploit(\d+) class.
+  # @return [false] if the module's is_usable method returns false.
+  # @return [true] if all those condition pass and the module is successfully loaded.
+  #
+  # @see #read_module_content
+  # @see Msf::ModuleManager::Loading#file_changed?
+  def load_module(parent_path, type, module_reference_name, options={})
+    options.assert_valid_keys(:count_by_type, :force, :recalculate_by_type)
+    force = options[:force] || false
+
+    unless force or module_manager.file_changed?(parent_path)
+      dlog("Cached module from #{parent_path} has not changed.", 'core', LEV_2)
+
+      return false
+    end
+
+    namespace_module = self.namespace_module(module_reference_name)
+
+    # set the parent_path so that the module can be reloaded with #load_module
+    namespace_module.parent_path = parent_path
+
+    module_content = read_module_content(parent_path, type, module_reference_name)
+    module_path = self.module_path(parent_path, type, module_reference_name)
+
+    begin
+      namespace_module.module_eval_with_lexical_scope(module_content, module_path)
+    # handle interrupts as pass-throughs unlike other Exceptions
+    rescue ::Interrupt
+      raise
+    rescue ::Exception => error
+      # Hide eval errors when the module version is not compatible
+      begin
+        namespace_module.version_compatible!(module_path, module_reference_name)
+      rescue Msf::Modules::VersionCompatibilityError => version_compatibility_error
+        error_message = "Failed to load module (#{module_path}) due to error and #{version_compatibility_error}"
+      else
+        error_message = "#{error.class} #{error}:\n#{error.backtrace}"
+      end
+
+      elog(error_message)
+      module_manager.module_load_error_by_reference_name[module_reference_name] = error_message
+
+      return false
+    end
+
+    begin
+      namespace_module.version_compatible!(module_path, module_reference_name)
+    rescue Msf::Modules::VersionCompatibilityError => version_compatibility_error
+      error_message = version_compatibility_error.to_s
+
+      elog(error_message)
+      module_manager.module_load_error_by_reference_name[module_reference_name] = error_message
+
+      return false
+    end
+
+    metasploit_class = namespace_module.metasploit_class
+
+    unless metasploit_class
+      error_message = "Missing Metasploit class constant"
+
+      elog(error_message)
+      module_manager.module_load_error_by_reference_name[module_reference_name] = error_message
+    end
+
+    unless usable?(metasploit_class)
+      ilog("Skipping module #{module_reference_name} under #{parent_path} because is_usable returned false.", 'core', LEV_1)
+
+      return false
+    end
+
+    ilog("Loaded #{type} module #{module_reference_name} under #{parent_path}", 'core', LEV_2)
+
+    # if this is a reload, then there may be a pre-existing error that should now be cleared
+    module_manager.module_load_error_by_reference_name.delete(module_reference_name)
+
+    # Do some processing on the loaded module to get it into the right associations
+    module_manager.on_module_load(
+        metasploit_class,
+        type,
+        module_reference_name,
+        {
+            # files[0] is stored in the {Msf::Module#file_path} and is used to reload the module, so it needs to be a
+            # full path
+            'files' => [
+                module_path
+            ],
+            'paths' => [
+                module_reference_name
+            ],
+            'type' => type
+        }
+    )
+
+    # Set this module type as needing recalculation
+    recalculate_by_type = options[:recalculate_by_type]
+
+    if recalculate_by_type
+      recalculate_by_type[type] = true
+    end
+
+    # The number of loaded modules this round
+    count_by_type = options[:count_by_type]
+
+    if count_by_type
+      count_by_type[type] ||= 0
+      count_by_type[type] += 1
+    end
+
+    return true
+  end
+
   # Loads all of the modules from the supplied path.
   #
   # @note Only paths where {#loadable?} returns true should be passed to this method.
@@ -166,7 +292,7 @@ class Msf::Modules::Loader::Base
     module_set.on_module_reload(reloaded_module_instance)
 
     # Rebuild the cache for just this module
-    module_manager.rebuild_cache(reloaded_module_instance)
+    module_manager.refresh_cache_from_module_files(reloaded_module_instance)
 
     reloaded_module_instance
   end
@@ -186,132 +312,6 @@ class Msf::Modules::Loader::Base
   # @return [void]
   def each_module_reference_name(path)
     raise ::NotImplementedError
-  end
-
-  # Loads a module from the supplied path and module_reference_name.
-  #
-  # @param [String] parent_path The path under which the module exists.  This is not necessarily the same path as passed
-  #   to {#load_modules}: it may just be derived from that path.
-  # @param [String] type The type of module.
-  # @param [String] module_reference_name The canonical name for referring to the module.
-  # @param [Hash] options Options used to force loading and track statistics
-  # @option options [Hash{String => Integer}] :count_by_type Maps the module type to the number of module loaded
-  # @option options [Boolean] :force (false) whether to force loading of the module even if the module has not changed.
-  # @option options [Hash{String => Boolean}] :recalculate_by_type Maps type to whether its
-  #   {Msf::ModuleManager::ModuleSets#module_set} needs to be recalculated.
-  # @return [false] if :force is false and parent_path has not changed.
-  # @return [false] if exception encountered while parsing module content
-  # @return [false] if the module is incompatible with the Core or API version.
-  # @return [false] if the module does not implement a Metasploit(\d+) class.
-  # @return [false] if the module's is_usable method returns false.
-  # @return [true] if all those condition pass and the module is successfully loaded.
-  #
-  # @see #read_module_content
-  # @see Msf::ModuleManager::Loading#file_changed?
-  def load_module(parent_path, type, module_reference_name, options={})
-    options.assert_valid_keys(:count_by_type, :force, :recalculate_by_type)
-    force = options[:force] || false
-
-    unless force or module_manager.file_changed?(parent_path)
-      dlog("Cached module from #{parent_path} has not changed.", 'core', LEV_2)
-
-      return false
-    end
-
-    namespace_module = self.namespace_module(module_reference_name)
-
-    # set the parent_path so that the module can be reloaded with #load_module
-    namespace_module.parent_path = parent_path
-
-    module_content = read_module_content(parent_path, type, module_reference_name)
-    module_path = module_path(parent_path, type, module_reference_name)
-
-    begin
-      namespace_module.module_eval_with_lexical_scope(module_content, module_path)
-    # handle interrupts as pass-throughs unlike other Exceptions
-    rescue ::Interrupt
-      raise
-    rescue ::Exception => error
-      # Hide eval errors when the module version is not compatible
-      begin
-        namespace_module.version_compatible!(module_path, module_reference_name)
-      rescue Msf::Modules::VersionCompatibilityError => version_compatibility_error
-        error_message = "Failed to load module (#{module_path}) due to error and #{version_compatibility_error}"
-      else
-        error_message = "#{error.class} #{error}:\n#{error.backtrace}"
-      end
-
-      elog(error_message)
-      module_manager.module_load_error_by_reference_name[module_reference_name] = error_message
-
-      return false
-    end
-
-    begin
-      namespace_module.version_compatible!(module_path, module_reference_name)
-    rescue Msf::Modules::VersionCompatibilityError => version_compatibility_error
-      error_message = version_compatibility_error.to_s
-
-      elog(error_message)
-      module_manager.module_load_error_by_reference_name[module_reference_name] = error_message
-
-      return false
-    end
-
-    metasploit_class = namespace_module.metasploit_class
-
-    unless metasploit_class
-      error_message = "Missing Metasploit class constant"
-
-      elog(error_message)
-      module_manager.module_load_error_by_reference_name[module_reference_name] = error_message
-    end
-
-    unless usable?(metasploit_class)
-      ilog("Skipping module #{module_reference_name} under #{parent_path} because is_usable returned false.", 'core', LEV_1)
-
-      return false
-    end
-
-    ilog("Loaded #{type} module #{module_reference_name} under #{parent_path}", 'core', LEV_2)
-
-    # if this is a reload, then there may be a pre-existing error that should now be cleared
-    module_manager.module_load_error_by_reference_name.delete(module_reference_name)
-
-    # Do some processing on the loaded module to get it into the right associations
-    module_manager.on_module_load(
-        metasploit_class,
-        type,
-        module_reference_name,
-        {
-            # files[0] is stored in the {Msf::Module#file_path} and is used to reload the module, so it needs to be a
-            # full path
-            'files' => [
-                module_path
-            ],
-            'paths' => [
-                module_reference_name
-            ],
-            'type' => type
-        }
-    )
-
-    # Set this module type as needing recalculation
-    recalculate_by_type = options[:recalculate_by_type]
-
-    if recalculate_by_type
-      recalculate_by_type[type] = true
-    end
-
-    # The number of loaded modules this round
-    count_by_type = options[:count_by_type]
-
-    if count_by_type
-      count_by_type[type] ||= 0
-      count_by_type[type] += 1
-    end
-
-    return true
   end
 
   # @return [Msf::ModuleManager] The module manager for which this loader is loading modules.
@@ -486,22 +486,29 @@ class Msf::Modules::Loader::Base
     raise ::NotImplementedError
   end
 
-
   # The path to the module qualified by the type directory.
-  #
-  # @note To get the full path to the module, use {#module_path}
   #
   # @param [String] type The type of the module.
   # @param [String] module_reference_name The canonical name for the module.
   # @return [String] path to the module starting with the type directory.
   #
   # @see DIRECTORY_BY_TYPE
-  def typed_path(type, module_reference_name)
+  def self.typed_path(type, module_reference_name)
     file_name = module_reference_name + MODULE_EXTENSION
     type_directory = DIRECTORY_BY_TYPE[type]
     typed_path = File.join(type_directory, file_name)
 
     typed_path
+  end
+
+  # The path to the module qualified by the type directory.
+  #
+  # @note To get the full path to the module, use {#module_path}.
+  #
+  # @param (see typed_path)
+  # @return (see typed_path)
+  def typed_path(type, module_reference_name)
+    self.class.typed_path(type, module_reference_name)
   end
 
   # Returns whether the metasploit_class is usable on the current system.  Defer's to metasploit_class's #is_usable if

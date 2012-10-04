@@ -33,7 +33,7 @@ module Msf::ModuleManager::Loading
   def file_changed?(path)
     changed = false
 
-    module_details = self.cache[path]
+    module_details = self.module_info_by_path[path]
 
     # if uncached then it counts as changed
     # Payloads can't be cached due to stage/stager matching

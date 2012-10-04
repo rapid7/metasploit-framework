@@ -46,19 +46,19 @@ class Msf::ModuleSet < Hash
       # type's demand loading until we find one that works for us.
       if module_type.nil?
         Msf::MODULE_TYPES.each { |type|
-          framework.modules.demand_load_module(type, name)
+          framework.modules.load_cached_module(type, name)
         }
       else
-        framework.modules.demand_load_module(module_type, name)
+        framework.modules.load_cached_module(module_type, name)
       end
 
       recalculate
 
-      klass = fetch(name)
+      klass = fetch(name, nil)
     end
 
     # If the klass is valid for this name, try to create it
-    if klass and klass != Msf::SymbolicModule
+    unless klass and klass == Msf::SymbolicModule
       instance = klass.new
     end
 
@@ -209,7 +209,8 @@ class Msf::ModuleSet < Hash
     mod.file_path = ((modinfo and modinfo['files']) ? modinfo['files'][0] : nil)
     mod.orig_cls  = mod
 
-    cached_module = self[name]
+    # don't want to trigger a create, so use fetch
+    cached_module = self.fetch(name, nil)
 
     if (cached_module and cached_module != Msf::SymbolicModule)
       ambiguous_module_reference_name_set.add(name)

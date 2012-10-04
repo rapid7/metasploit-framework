@@ -14,29 +14,34 @@ module Msf::ModuleManager::ModulePaths
   def add_module_path(path)
     nested_paths = []
 
-    if path =~ /\.fastlib$/
-      unless ::File.exist?(path)
+    # remove trailing file separator
+    path.sub!(/#{File::SEPARATOR}$/, '')
+
+    pathname = Pathname.new(path)
+    extension = pathname.extname
+
+    if extension == Msf::Modules::Loader::Archive::ARCHIVE_EXTENSION
+      unless pathname.exist?
         raise RuntimeError, "The path supplied does not exist", caller
       end
 
-      nested_paths << ::File.expand_path(path)
+      nested_paths << pathname.expand_path.to_path
     else
-      path.sub!(/#{File::SEPARATOR}$/, '')
-
       # Make the path completely canonical
-      path = Pathname.new(path).expand_path
+      pathname = Pathname.new(path).expand_path
 
       # Make sure the path is a valid directory
-      unless path.directory?
+      unless pathname.directory?
         raise RuntimeError, "The path supplied is not a valid directory.", caller
       end
 
-      nested_paths << path
+      nested_paths << pathname.to_path
 
       # Identify any fastlib archives inside of this path
-      fastlib_glob = path.join('**', '*.fastlib')
-      Dir.glob(fastlib_glob).each do |fp|
-        nested_paths << fp
+      fastlib_glob = pathname.join('**', "*#{Msf::Modules::Loader::Archive::ARCHIVE_EXTENSION}")
+
+      Dir.glob(fastlib_glob).each do |fastlib_path|
+        nested_pathnames << fastlib_path
       end
     end
 

@@ -36,8 +36,8 @@ module Msf
     # CONSTANTS
     #
 
-    # Regex for parsing the module type from a module name.
-    MODULE_TYPE_FROM_NAME_REGEX = /^(#{Msf::MODULE_TYPES.join('|')})\/(.*)$/
+    # Maps module type directory to its module type.
+    TYPE_BY_DIRECTORY = Msf::Modules::Loader::Base::DIRECTORY_BY_TYPE.invert
 
     # Overrides the module set method for adding a module so that some extra steps can be taken to subscribe the module
     # and notify the event dispatcher.
@@ -68,13 +68,21 @@ module Msf
     def create(name)
       # Check to see if it has a module type prefix.  If it does,
       # try to load it from the specific module set for that type.
-      match = name.match(MODULE_TYPE_FROM_NAME_REGEX)
+      names = name.split(File::SEPARATOR)
+      potential_type_or_directory = names.first
 
-      if match
-        type = match[1]
+      # if first name is a type
+      if Msf::Modules::Loader::Base::DIRECTORY_BY_TYPE.has_key? potential_type_or_directory
+        type = potential_type_or_directory
+      # if first name is a type directory
+      else
+        type = TYPE_BY_DIRECTORY[potential_type_or_directory]
+      end
+
+      if type
         module_set = module_set_by_type[type]
 
-        module_reference_name = match[2]
+        module_reference_name = names[1 .. -1].join(File::SEPARATOR)
         module_set.create(module_reference_name)
       # Otherwise, just try to load it by name.
       else
@@ -82,31 +90,6 @@ module Msf
       end
     end
 
-    # Forces loading of the module with the given type and module reference name.
-    #
-    # @param [String] type the type of the module.
-    # @param [String] reference_name the module reference name.
-    # @return [nil] if a module with the given type and reference name does not exist in {#cache}.
-    # @return [nil] if the module type is not in the cached file for the module.
-    # @return [true] if the module can be loaded
-    # @return [false] if the module cannot be loaded
-    def demand_load_module(type, reference_name)
-      n = self.cache.keys.select { |k|
-        self.cache[k][:mtype]   == type and
-            self.cache[k][:refname] == reference_name
-      }.first
-
-      return nil unless n
-      m = self.cache[n]
-
-      if m[:file] =~ /^(.*)\/#{m[:mtype]}s?\//
-        path = $1
-        load_module_from_file(path, m[:file], nil, nil, nil, true)
-      else
-        dlog("Could not demand load module #{type}/#{reference_name} (unknown base name in #{m[:file]})", 'core', LEV_2)
-        nil
-      end
-    end
 
     # @param [Msf::Framework] framework The framework for which this instance is managing the modules.
     # @param [Array<String>] types List of module types to load.  Defaults to all module types in {Msf::MODULE_TYPES}.
@@ -115,7 +98,7 @@ module Msf
       # defaults
       #
 
-      self.cache = {}
+      self.module_info_by_path = {}
       self.enablement_by_type = {}
       self.module_load_error_by_reference_name = {}
       self.module_paths = []

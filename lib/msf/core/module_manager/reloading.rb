@@ -41,7 +41,7 @@ module Msf::ModuleManager::Reloading
       end
     end
 
-    rebuild_cache
+    refresh_cache_from_module_files
 
     count_by_type
   end
