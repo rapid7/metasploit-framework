@@ -49,7 +49,7 @@ class Msf::Modules::Loader::Base
     def self.module_eval_with_lexical_scope(module_content, module_path)
       # By calling module_eval from inside the module definition, the lexical scope is captured and available to the
       # code in module_content.
-      module_eval(module_content)
+      module_eval(module_content, module_path)
     end
   EOS
   # The extension for metasploit modules.
@@ -127,11 +127,13 @@ class Msf::Modules::Loader::Base
       rescue Msf::Modules::VersionCompatibilityError => version_compatibility_error
         error_message = "Failed to load module (#{module_path}) due to error and #{version_compatibility_error}"
       else
-        error_message = "#{error.class} #{error}:\n#{error.backtrace}"
+        error_message = "#{error.class} #{error}"
       end
 
-      elog(error_message)
       module_manager.module_load_error_by_reference_name[module_reference_name] = error_message
+
+      error_message_with_backtrace = "#{error_message}:\n#{error.backtrace.join("\n")}"
+      elog(error_message_with_backtrace)
 
       return false
     end
@@ -414,7 +416,9 @@ class Msf::Modules::Loader::Base
       lines.join("\n")
     }
 
-    Object.module_eval(namespace_module_content, __FILE__, NAMESPACE_MODULE_LINE)
+    # - because the added wrap lines have to act like they were written before NAMESPACE_MODULE_CONTENT
+    line_with_wrapping = NAMESPACE_MODULE_LINE - nested_module_names.length
+    Object.module_eval(namespace_module_content, __FILE__, line_with_wrapping)
 
     # The namespace_module exists now, so no need to use constantize to do const_missing
     namespace_module = namespace_module_names.inject(Object) { |parent, module_name|
