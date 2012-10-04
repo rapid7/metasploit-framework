@@ -51,22 +51,26 @@ require 'cgi'
 		end
 
 		def run_host(ip)
-			valstr = ::File.file?(datastore['SUBDOM_LIST']) ?
-			IO.readlines(datastore['SUBDOM_LIST']).map {|e| e.gsub(".#{datastore['DOMAIN']}", "").chomp} :
-			 [
-				"admin",
-				"services",
-				"webmail",
-				"console",
-				"apps",
-				"mail",
-				"intranet",
-				"intra",
-				"spool",
-				"corporate",
-				"www",
-				"web"
-			]
+			if ::File.file?(datastore['SUBDOM_LIST'])
+				valstr = IO.readlines(datastore['SUBDOM_LIST']).map {
+					|e| e.gsub(".#{datastore['DOMAIN']}", "").chomp
+				}
+			else
+				 valstr = [
+					"admin",
+					"services",
+					"webmail",
+					"console",
+					"apps",
+					"mail",
+					"intranet",
+					"intra",
+					"spool",
+					"corporate",
+					"www",
+					"web"
+				]
+			end
 
 			datastore['QUERY'] ? tquery = queryparse(datastore['QUERY']): nil
 			datastore['HEADERS'] ? thead = headersparse(datastore['HEADERS']) : nil
