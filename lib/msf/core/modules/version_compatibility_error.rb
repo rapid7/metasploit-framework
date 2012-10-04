@@ -1,5 +1,5 @@
-# Error raised by {Msf::Modules::Namespace#version_compatible!} on {Msf::Modules::Loader::Base#namespace_module} if the
-# API or Core version does not meet the minimum requirements defined in the RequiredVersions constant in the
+# Error raised by {Msf::Modules::Namespace#version_compatible!} on {Msf::Modules::Loader::Base#create_namespace_module}
+# if the API or Core version does not meet the minimum requirements defined in the RequiredVersions constant in the
 # {Msf::Modules::Loader::Base#read_module_content module content}.
 class Msf::Modules::VersionCompatibilityError < StandardError
   # @param [Hash{Symbol => Float}] attributes

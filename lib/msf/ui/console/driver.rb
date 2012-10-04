@@ -525,12 +525,14 @@ class Driver < Msf::Ui::Driver
 	#
 	def on_startup(opts = {})
 		# Check for modules that failed to load
-		if (framework.modules.failed.length > 0)
+		if framework.modules.module_load_error_by_path.length > 0
 			print_error("WARNING! The following modules could not be loaded!")
-			framework.modules.failed.each_pair do |file, err|
-				print_error("\t#{file}: #{err}")
+
+			framework.modules.module_load_error_by_path.each do |path, error|
+				print_error("\t#{path}: #{error}")
 			end
-		end
+    end
+
 		framework.events.on_ui_start(Msf::Framework::Revision)
 
 		run_single("banner") unless opts['DisableBanner']

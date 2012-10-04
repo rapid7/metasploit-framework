@@ -23,13 +23,6 @@ module Msf::ModuleManager::Loading
       Msf::Modules::Loader::Directory
   ]
 
-  #
-  # Returns the set of modules that failed to load.
-  #
-  def failed
-    return module_load_error_by_reference_name
-  end
-
   def file_changed?(path)
     changed = false
 
@@ -58,7 +51,7 @@ module Msf::ModuleManager::Loading
     changed
   end
 
-  attr_accessor :module_load_error_by_reference_name
+  attr_accessor :module_load_error_by_path
 
   # Called when a module is initially loaded such that it can be
   # categorized accordingly.

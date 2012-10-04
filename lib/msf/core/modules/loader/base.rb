@@ -77,6 +77,7 @@ class Msf::Modules::Loader::Base
     raise ::NotImplementedError
   end
 
+
   # Loads a module from the supplied path and module_reference_name.
   #
   # @param [String] parent_path The path under which the module exists.  This is not necessarily the same path as passed
@@ -88,6 +89,7 @@ class Msf::Modules::Loader::Base
   # @option options [Boolean] :force (false) whether to force loading of the module even if the module has not changed.
   # @option options [Hash{String => Boolean}] :recalculate_by_type Maps type to whether its
   #   {Msf::ModuleManager::ModuleSets#module_set} needs to be recalculated.
+  # @option options [Boolean] :reload (false) whether this is a reload.
   # @return [false] if :force is false and parent_path has not changed.
   # @return [false] if exception encountered while parsing module content
   # @return [false] if the module is incompatible with the Core or API version.
@@ -98,8 +100,9 @@ class Msf::Modules::Loader::Base
   # @see #read_module_content
   # @see Msf::ModuleManager::Loading#file_changed?
   def load_module(parent_path, type, module_reference_name, options={})
-    options.assert_valid_keys(:count_by_type, :force, :recalculate_by_type)
+    options.assert_valid_keys(:count_by_type, :force, :recalculate_by_type, :reload)
     force = options[:force] || false
+    reload = options[:reload] || false
 
     unless force or module_manager.file_changed?(parent_path)
       dlog("Cached module from #{parent_path} has not changed.", 'core', LEV_2)
@@ -107,67 +110,88 @@ class Msf::Modules::Loader::Base
       return false
     end
 
-    namespace_module = self.namespace_module(module_reference_name)
-
-    # set the parent_path so that the module can be reloaded with #load_module
-    namespace_module.parent_path = parent_path
-
-    module_content = read_module_content(parent_path, type, module_reference_name)
+    metasploit_class = nil
     module_path = self.module_path(parent_path, type, module_reference_name)
 
-    begin
-      namespace_module.module_eval_with_lexical_scope(module_content, module_path)
-    # handle interrupts as pass-throughs unlike other Exceptions
-    rescue ::Interrupt
-      raise
-    rescue ::Exception => error
-      # Hide eval errors when the module version is not compatible
+    loaded = namespace_module_transaction(module_reference_name, :reload => reload) { |namespace_module|
+      # set the parent_path so that the module can be reloaded with #load_module
+      namespace_module.parent_path = parent_path
+
+      module_content = read_module_content(parent_path, type, module_reference_name)
+
+      begin
+        namespace_module.module_eval_with_lexical_scope(module_content, module_path)
+          # handle interrupts as pass-throughs unlike other Exceptions
+      rescue ::Interrupt
+        raise
+      rescue ::Exception => error
+        # Hide eval errors when the module version is not compatible
+        begin
+          namespace_module.version_compatible!(module_path, module_reference_name)
+        rescue Msf::Modules::VersionCompatibilityError => version_compatibility_error
+          error_message = "Failed to load module (#{module_path}) due to error and #{version_compatibility_error}"
+        else
+          error_message = "#{error.class} #{error}"
+        end
+
+        # record the error message without the backtrace for the console
+        module_manager.module_load_error_by_path[module_path] = error_message
+
+        error_message_with_backtrace = "#{error_message}:\n#{error.backtrace.join("\n")}"
+        elog(error_message_with_backtrace)
+
+        return false
+      end
+
       begin
         namespace_module.version_compatible!(module_path, module_reference_name)
       rescue Msf::Modules::VersionCompatibilityError => version_compatibility_error
-        error_message = "Failed to load module (#{module_path}) due to error and #{version_compatibility_error}"
-      else
-        error_message = "#{error.class} #{error}"
+        error_message = version_compatibility_error.to_s
+
+        elog(error_message)
+        module_manager.module_load_error_by_path[module_path] = error_message
+
+        return false
       end
 
-      module_manager.module_load_error_by_reference_name[module_reference_name] = error_message
+      metasploit_class = namespace_module.metasploit_class
 
-      error_message_with_backtrace = "#{error_message}:\n#{error.backtrace.join("\n")}"
-      elog(error_message_with_backtrace)
+      unless metasploit_class
+        error_message = "Missing Metasploit class constant"
 
+        elog(error_message)
+        module_manager.module_load_error_by_path[module_path] = error_message
+
+        return false
+      end
+
+      unless usable?(metasploit_class)
+        ilog(
+            "Skipping module #{module_reference_name} under #{parent_path} because is_usable returned false.",
+            'core',
+            LEV_1
+        )
+
+        return false
+      end
+
+      ilog("Loaded #{type} module #{module_reference_name} under #{parent_path}", 'core', LEV_2)
+
+      module_manager.module_load_error_by_path.delete(module_path)
+
+      true
+    }
+
+    unless loaded
       return false
     end
 
-    begin
-      namespace_module.version_compatible!(module_path, module_reference_name)
-    rescue Msf::Modules::VersionCompatibilityError => version_compatibility_error
-      error_message = version_compatibility_error.to_s
-
-      elog(error_message)
-      module_manager.module_load_error_by_reference_name[module_reference_name] = error_message
-
-      return false
+    if reload
+      # Delete the original copy of the module so that module_manager.on_load_module called from inside load_module does
+      # not trigger an ambiguous name warning, which would cause the reloaded module to not be stored in the
+      # ModuleManager.
+      module_manager.delete(module_reference_name)
     end
-
-    metasploit_class = namespace_module.metasploit_class
-
-    unless metasploit_class
-      error_message = "Missing Metasploit class constant"
-
-      elog(error_message)
-      module_manager.module_load_error_by_reference_name[module_reference_name] = error_message
-    end
-
-    unless usable?(metasploit_class)
-      ilog("Skipping module #{module_reference_name} under #{parent_path} because is_usable returned false.", 'core', LEV_1)
-
-      return false
-    end
-
-    ilog("Loaded #{type} module #{module_reference_name} under #{parent_path}", 'core', LEV_2)
-
-    # if this is a reload, then there may be a pre-existing error that should now be cleared
-    module_manager.module_load_error_by_reference_name.delete(module_reference_name)
 
     # Do some processing on the loaded module to get it into the right associations
     module_manager.on_module_load(
@@ -266,7 +290,8 @@ class Msf::Modules::Loader::Base
 
     dlog("Reloading module #{module_reference_name}...", 'core')
 
-    if load_module(parent_path, type, module_reference_name, :force => true)
+
+    if load_module(parent_path, type, module_reference_name, :force => true, :reload => true)
       # Create a new instance of the module
       reloaded_module_instance = module_manager.create(module_reference_name)
 
@@ -278,14 +303,13 @@ class Msf::Modules::Loader::Base
       else
         elog("Failed to create instance of #{refname} after reload.", 'core')
 
-        # Return the old module instance to avoid a strace trace
+        # Return the old module instance to avoid an strace trace
         return original_metasploit_class_or_instance
       end
     else
       elog("Failed to reload #{module_reference_name}")
 
-      # Return the old module isntance to avoid a strace trace
-      return original_metasploit_class_or_instance
+      return nil
     end
 
     # Let the specific module sets have an opportunity to handle the fact
@@ -300,6 +324,66 @@ class Msf::Modules::Loader::Base
   end
 
   protected
+
+  # Returns a nested module to wrap the Metasploit(1|2|3) class so that it doesn't overwrite other (metasploit)
+  # module's classes.  The wrapper module must be named so that active_support's autoloading code doesn't break when
+  # searching constants from inside the Metasploit(1|2|3) class.
+  #
+  # @param [String] namespace_module_names (see #{namespace_module_names})
+  # @return [Module] module that can wrap the module content from {#read_module_content} using
+  #   module_eval_with_lexical_scope.
+  #
+  # @see NAMESPACE_MODULE_CONTENT
+  def create_namespace_module(namespace_module_names)
+    # In order to have constants defined in Msf resolve without the Msf qualifier in the module_content, the
+    # Module.nesting must resolve for the entire nesting.  Module.nesting is strictly lexical, and can't be faked with
+    # module_eval(&block). (There's actually code in ruby's implementation to stop module_eval from being added to
+    # Module.nesting when using the block syntax.) All this means is the modules have to be declared as a string that
+    # gets module_eval'd.
+
+    nested_module_names = namespace_module_names.reverse
+
+    namespace_module_content = nested_module_names.inject(NAMESPACE_MODULE_CONTENT) { |wrapped_content, module_name|
+      lines = []
+      lines << "module #{module_name}"
+      lines << wrapped_content
+      lines << "end"
+
+      lines.join("\n")
+    }
+
+    # - because the added wrap lines have to act like they were written before NAMESPACE_MODULE_CONTENT
+    line_with_wrapping = NAMESPACE_MODULE_LINE - nested_module_names.length
+    Object.module_eval(namespace_module_content, __FILE__, line_with_wrapping)
+
+    # The namespace_module exists now, so no need to use constantize to do const_missing
+    namespace_module = current_module(namespace_module_names)
+    # record the loader, so that the namespace module and its metasploit_class can be reloaded
+    namespace_module.loader = self
+
+    namespace_module
+  end
+
+  # Returns the module with {#module_names} if it exists.
+  #
+  # @param [Array<String>] module_names a list of module names to resolve from Object downward.
+  # @return [Module] module that wraps the previously loaded content from {#read_module_content}.
+  # @return [nil] if any module name along the chain does not exist.
+  def current_module(module_names)
+    # don't look at ancestors for constant
+    inherit = false
+
+    # Don't want to trigger ActiveSupport's const_missing, so can't use constantize.
+    named_module = module_names.inject(Object) { |parent, module_name|
+      if parent.const_defined?(module_name, inherit)
+        parent.const_get(module_name, inherit)
+      else
+        break
+      end
+    }
+
+    named_module
+  end
 
   # Yields module reference names under path.
   #
@@ -362,76 +446,8 @@ class Msf::Modules::Loader::Base
     path.gsub(/#{MODULE_EXTENSION}$/, '')
   end
 
-  # Returns a nested module to wrap the Metasploit(1|2|3) class so that it doesn't overwrite other (metasploit)
-  # module's classes.  The wrapper module must be named so that active_support's autoloading code doesn't break when
-  # searching constants from inside the Metasploit(1|2|3) class.
-  #
-  # @param [String] module_reference_name The canonical name for referring to the module that this namespace_module will
-  #   wrap.
-  # @return [Module] module that can wrap the module content from {#read_module_content} using
-  #   module_eval_with_lexical_scope.
-  #
-  # @see NAMESPACE_MODULE_CONTENT
-  def namespace_module(module_reference_name)
-    namespace_module_names = self.namespace_module_names(module_reference_name)
-
-    # If this is a reload, then the pre-existing namespace_module needs to be removed.
-
-    # don't check ancestors for the constants
-    inherit = false
-
-    # Don't want to trigger ActiveSupport's const_missing, so can't use constantize.
-    namespace_module = namespace_module_names.inject(Object) { |parent, module_name|
-      if parent.const_defined?(module_name, inherit)
-        parent.const_get(module_name, inherit)
-      else
-        break
-      end
-    }
-
-    # if a reload
-    unless namespace_module.nil?
-      parent_module = namespace_module.parent
-
-      # remove_const is private, so invoke in instance context
-      parent_module.instance_eval do
-        remove_const namespace_module_names.last
-      end
-    end
-
-    # In order to have constants defined in Msf resolve without the Msf qualifier in the module_content, the
-    # Module.nesting must resolve for the entire nesting.  Module.nesting is strictly lexical, and can't be faked with
-    # module_eval(&block). (There's actually code in ruby's implementation to stop module_eval from being added to
-    # Module.nesting when using the block syntax.) All this means is the modules have to be declared as a string that
-    # gets module_eval'd.
-
-    nested_module_names = namespace_module_names.reverse
-
-    namespace_module_content = nested_module_names.inject(NAMESPACE_MODULE_CONTENT) { |wrapped_content, module_name|
-      lines = []
-      lines << "module #{module_name}"
-      lines << wrapped_content
-      lines << "end"
-
-      lines.join("\n")
-    }
-
-    # - because the added wrap lines have to act like they were written before NAMESPACE_MODULE_CONTENT
-    line_with_wrapping = NAMESPACE_MODULE_LINE - nested_module_names.length
-    Object.module_eval(namespace_module_content, __FILE__, line_with_wrapping)
-
-    # The namespace_module exists now, so no need to use constantize to do const_missing
-    namespace_module = namespace_module_names.inject(Object) { |parent, module_name|
-      parent.const_get(module_name, inherit)
-    }
-    # record the loader, so that the namespace module and its metasploit_class can be reloaded
-    namespace_module.loader = self
-
-    namespace_module
-  end
-
-  # Returns the fully-qualified name to the {#namespace_module} that wraps the module with the given module reference
-  # name.
+  # Returns the fully-qualified name to the {#create_namespace_module} that wraps the module with the given module
+  # reference name.
   #
   # @param [String] module_reference_name The canonical name for referring to the module.
   # @return [String] name of module.
@@ -478,6 +494,49 @@ class Msf::Modules::Loader::Base
     namespace_module_names
   end
 
+  def namespace_module_transaction(module_reference_name, options={}, &block)
+    options.assert_valid_keys(:reload)
+
+    reload = options[:reload] || false
+    namespace_module_names = self.namespace_module_names(module_reference_name)
+
+    previous_namespace_module = current_module(namespace_module_names)
+
+    if previous_namespace_module and not reload
+      elog("Reloading namespace_module #{previous_namespace_module} when :reload => false")
+    end
+
+    if previous_namespace_module
+      parent_module = previous_namespace_module.parent
+      relative_name = namespace_module_names.last
+
+      # remove_const is private, so invoke in instance context
+      parent_module.instance_eval do
+        remove_const relative_name
+      end
+    else
+      parent_module = nil
+      relative_name = namespace_module_names.last
+    end
+
+    namespace_module = create_namespace_module(namespace_module_names)
+
+    begin
+      loaded = block.call(namespace_module)
+    rescue Exception
+      restore_namespace_module(parent_module, relative_name, previous_namespace_module)
+
+      # re-raise the original exception in the original context
+      raise
+    else
+      unless loaded
+        restore_namespace_module(parent_module, relative_name, previous_namespace_module)
+      end
+
+      loaded
+    end
+  end
+
   # Read the content of the module from under path.
   #
   # @abstract Override to read the module content based on the method of the loader subclass and return a string.
@@ -485,9 +544,28 @@ class Msf::Modules::Loader::Base
   # @param parent_path (see #load_module)
   # @param type (see #load_module)
   # @param module_reference_name (see #load_module)
-  # @return [String] module content that can be module_evaled into the {#namespace_module}
+  # @return [String] module content that can be module_evaled into the {#create_namespace_module}
   def read_module_content(parent_path, type, module_reference_name)
     raise ::NotImplementedError
+  end
+
+  # Restores the namespace module to it's original name under it's original parent Module if there was a previous
+  # namespace module.
+  #
+  # @param [Module] parent_module The .parent of namespace_module before it was removed from the constant tree.
+  # @param [String] relative_name The name of the constant under parent_module where namespace_module was attached.
+  # @param [Module] namespace_module The previous namespace module containing the old module content.
+  # @return [void]
+  def restore_namespace_module(parent_module, relative_name, namespace_module)
+    if parent_module and namespace_module
+      # the const may have been redefined by {#create_namespace_module}, in which case that new namespace_module needs
+      # to be removed so the original can replace it.
+      if parent_module.const_defined? relative_name
+        remove_const relative_name
+      end
+
+      parent_module.const_set(relative_name, namespace_module)
+    end
   end
 
   # The path to the module qualified by the type directory.
