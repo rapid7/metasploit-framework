@@ -58,7 +58,7 @@ class Msf::ModuleSet < Hash
     end
 
     # If the klass is valid for this name, try to create it
-    unless klass and klass == Msf::SymbolicModule
+    unless klass.nil? or klass == Msf::SymbolicModule
       instance = klass.new
     end
 
