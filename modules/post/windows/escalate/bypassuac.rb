@@ -41,12 +41,12 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		print_status("***********************************************")
-		print_status("*                                             *")
-		print_status("* Module will be depricated on Dec 4 2012     *")
-		print_status("* Please use exploits/windows/local/bypassuac *")
-		print_status("*                                             *")
-		print_status("***********************************************")
+		print_error("***********************************************")
+		print_error("*                                             *")
+		print_error("* Module will be depricated on Jan 4 2013     *")
+		print_error("* Please use exploits/windows/local/bypassuac *")
+		print_error("*                                             *")
+		print_error("***********************************************")
 		vuln = false
 		sysinfo = session.sys.config.sysinfo
 		winver = sysinfo["OS"]
