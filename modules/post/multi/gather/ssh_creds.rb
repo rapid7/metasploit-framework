@@ -13,6 +13,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/file'
 require 'msf/core/post/common'
+require 'msf/core/post/unix'
 require 'sshkey'
 
 class Metasploit3 < Msf::Post
