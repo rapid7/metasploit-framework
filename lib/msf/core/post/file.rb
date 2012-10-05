@@ -299,10 +299,12 @@ module Msf::Post::File
 	end
 
 	#
-	# Rename a remote file
+	# Rename a remote file.  This is a stopgap until a proper API version is added:
+	# http://dev.metasploit.com/redmine/issues/7288
 	#
 	def rename_file(new_file, old_file)
-		write_file(new_file, (read_file(old_file)))
+		#TODO:  this is not ideal as the file contents are sent to meterp server and back to the client
+		write_file(new_file, read_file(old_file)) 
 		rm_f(old_file)
 	end
 	alias :move_file :rename_file
