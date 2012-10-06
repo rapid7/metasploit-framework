@@ -45,10 +45,15 @@ walk you through the whole process starting from installing all the
 dependencies, to cloning the repository, and finally to submitting a
 pull request.
 
+If you already have changes you'd like to submit you can view
+[CONTRIBUTING][contributing] to ensure you've followed the coding style
+guide. [CONTRIBUTING][contributing] also a brief summary of the steps in
+[Dev Environment Setup][wiki-devenv].
 
+
+[contributing]: https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING "Contribution Guidelines"
 [wiki-devenv]: https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment "Metasploit Development Environment Setup"
 [wiki-start]: https://github.com/rapid7/metasploit-framework/wiki/ "Metasploit Wiki"
 [wiki-usage]: https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit "Using Metasploit"
 [unleashed]: http://www.offensive-security.com/metasploit-unleashed/ "Metasploit Unleashed"
-
 
