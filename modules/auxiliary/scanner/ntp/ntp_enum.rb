@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 		[
-			Opt::CHOST,
+			Opt::RPORT(123),
 			OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
 			OptInt.new('CLIENT_TIME', [false, 'Set client current time yyyymmddhhmmss']),
 			OptInt.new('NTP_TIMEOUT', [true, 'Query Timeout', 60])
@@ -36,17 +36,18 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
-
 	# Define our batch size
 	def run_batch_size
 		datastore['BATCHSIZE'].to_i
 	end
 
+	#
+	# Runs NTP get query against specified server or using a provided socket
+	#
 	def run_query(addr, port=123, timeout=nil, udp_sock=nil, c_time=nil)
-		vprint_status "running with #{addr}, #{port}, #{timeout.to_i}"#, #{udp_sock}, #{c_time}"
 		resp = Net::NTP.get(
 					addr,
-					port,
+					port.to_i || 123,
 					timeout, 
 					udp_sock,
 					c_time
@@ -54,59 +55,48 @@ class Metasploit3 < Msf::Auxiliary
 		return if resp.nil? or resp.raw_data.empty?
 		resp_fields = resp.send(:packet_data_by_field)
 
-		print_status("#{resp.time} from #{addr} with #{resp_fields[:ident]} ID")
+		print_good("#{resp.time} from #{addr} with #{resp_fields[:ident]} ID")
 
 		report_service(
 			:host  => addr,
 			:proto => 'udp',
-			:port  => datastore['RPORT'].to_i,
+			:port  => datastore['RPORT'],
 			:name  => 'ntp'
 		)
 
 		report_note(
 			:host  => addr,
 			:proto => 'udp',
-			:port  => datastore['RPORT'].to_i,
+			:port  => datastore['RPORT'],
 			:type  => 'ntp.ident',
 			:data  => "#{resp_fields[:ident]}"
 		)
 	end
 
-	# Fingerprint a single host
+	# Fingerprint rhosts
 	def run_batch(batch)
-		c_time = datastore['CLIENT_TIME']
-		port = datastore['RPORT']
 		@ntp_threads = []
 		ip_array = []
+		# Maybe RangeWalker should pop IPs too
 		batch.each {|ip| ip_array << ip}
 
 		begin
+			c_time = datastore['CLIENT_TIME']
 			udp_sock = nil
-			if datastore['CHOST']
-				udp_sock = Rex::Socket::Udp.create( 
-					{ 
-						'LocalHost' => datastore['CHOST'] || nil, 
-						'Context' => {'Msf' => framework, 
-						'MsfExploit' => self}
-					 }
-				) 
-				add_socket(udp_sock)
-			end
-
 			while not ip_array.empty? do
 				if @ntp_threads.length < datastore['THREADS'].to_i
-					@ntp_threads << Rex::ThreadFactory.spawn("SMBServer", false) { 
-						run_query(ip_array.pop,port,datastore['NTP_TIMEOUT'],udp_sock,c_time) 
+					@ntp_threads << Rex::ThreadFactory.spawn("NTPQuery", false) { 
+						run_query(ip_array.pop,datastore['RPORT'],datastore['NTP_TIMEOUT'],nil,c_time) 
 					}
 				else
 					Rex::ThreadSafe.sleep(2)
 				end
 			end
 
-		# rescue ::Interrupt
-		# 	raise $!
-		# rescue ::Exception => e
-		# 	print_error("Unknown error: #{e.class} #{e}")
+		rescue ::Interrupt
+			raise $!
+		rescue ::Exception => e
+			print_error("Unknown error: #{e.class} #{e}")
 		end
 
 	end
