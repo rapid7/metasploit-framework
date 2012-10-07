@@ -12,7 +12,6 @@
 
 require 'msf/core'
 require 'rex/proto/ntlm/message'
-require 'pry'
 
 
 class Metasploit3 < Msf::Auxiliary
@@ -27,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'           => 'WinRM Login Utility',
 			'Version'        => '$Revision$',
-			'Description'    => 'This module attempts to authenticate to an HTTP service.',
+			'Description'    => 'This module attempts to authenticate to a WinRM service.',
 			'References'  =>
 				[
 

@@ -12,7 +12,6 @@
 
 require 'msf/core'
 require 'rex/proto/ntlm/message'
-require 'pry'
 
 
 class Metasploit3 < Msf::Auxiliary
