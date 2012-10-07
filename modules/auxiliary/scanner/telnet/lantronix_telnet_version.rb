@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'Lantronix Telnet Service Banner Detection',
 			'Version'     => '$Revision$',
 			'Description' => 'Detect Lantronix telnet services',
-			'Author'      => ['TheLightCosine <thelightcosine[at]metasploit.com>', 'hdm'],
+			'Author'      => ['theLightCosine', 'hdm'],
 			'License'     => MSF_LICENSE
 		)
 		register_options(

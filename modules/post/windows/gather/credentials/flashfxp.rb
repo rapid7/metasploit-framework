@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
 				This module extracts weakly encrypted saved FTP Passwords  from FlashFXP. It
 				finds saved FTP connections in the Sites.dat file. },
 			'License'       => MSF_LICENSE,
-			'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Author'        => [ 'theLightCosine'],
 			'Version'       => '$Revision$',
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ]

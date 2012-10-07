@@ -50,7 +50,6 @@ class Metasploit3 < Msf::Post
 					defaultkey = session.sys.registry.open_key(root_key, base_key + '\\Default', KEY_READ)
 					print_good('Systems connected to:')
 					(defaultkey.enum_value).each do |x|
-						print_status(x.inspect)
 						if x.name =~ /^MRU/
 							print_good("--> #{defaultkey.query_value(x.name).data}")
 						end

@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
 				Windows XP we will get the PBKDF2 derived key.
 			},
 			'License'       => MSF_LICENSE,
-			'Author'        => ['TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Author'        => ['theLightCosine'],
 			'Version'       => '$Revision$',
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ]

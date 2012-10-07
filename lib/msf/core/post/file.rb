@@ -281,6 +281,34 @@ module Msf::Post::File
 		write_file(remote, ::File.read(local))
 	end
 
+	#
+	# Delete remote files
+	#
+	def rm_f(*remote_files)
+		remote_files.each do |remote|
+			if session.type == "meterpreter"
+				session.fs.file.delete(remote)
+			else
+				if session.platform =~ /win/
+					cmd_exec("del /q /f #{remote}")
+				else
+					cmd_exec("rm -f #{remote}")
+				end
+			end
+		end
+	end
+
+	#
+	# Rename a remote file.  This is a stopgap until a proper API version is added:
+	# http://dev.metasploit.com/redmine/issues/7288
+	#
+	def rename_file(new_file, old_file)
+		#TODO:  this is not ideal as the file contents are sent to meterp server and back to the client
+		write_file(new_file, read_file(old_file)) 
+		rm_f(old_file)
+	end
+	alias :move_file :rename_file
+	alias :mv_file :rename_file
 
 protected
 	#
