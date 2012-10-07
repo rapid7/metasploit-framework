@@ -25,7 +25,7 @@ module Msf::ModuleManager::ModulePaths
         raise RuntimeError, "The path supplied does not exist", caller
       end
 
-      nested_paths << pathname.expand_path.to_path
+      nested_paths << pathname.expand_path.to_s
     else
       # Make the path completely canonical
       pathname = Pathname.new(path).expand_path
@@ -35,7 +35,7 @@ module Msf::ModuleManager::ModulePaths
         raise RuntimeError, "The path supplied is not a valid directory.", caller
       end
 
-      nested_paths << pathname.to_path
+      nested_paths << pathname.to_s
 
       # Identify any fastlib archives inside of this path
       fastlib_glob = pathname.join('**', "*#{Msf::Modules::Loader::Archive::ARCHIVE_EXTENSION}")
