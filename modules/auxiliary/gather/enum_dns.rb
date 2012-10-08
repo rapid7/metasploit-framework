@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('DOMAIN', [ true, "The target domain name"]),
-				OptBool.new('ENUM_AXFR', [ true, 'Initiate a zone transfer against each NS record', true]),
+				OptBool.new('ENUM_AXFR', [ true, 'Initiate a zone transfer against each NS record', false]),
 				OptBool.new('ENUM_TLD', [ true, 'Perform a TLD expansion by replacing the TLD with the IANA TLD list', false]),
 				OptBool.new('ENUM_STD', [ true, 'Enumerate standard record types (A,MX,NS,TXT and SOA)', true]),
 				OptBool.new('ENUM_BRT', [ true, 'Brute force subdomains and hostnames via the supplied wordlist', false]),
@@ -51,8 +51,8 @@ class Metasploit3 < Msf::Auxiliary
 				OptInt.new('RETRY', [ false, "Number of times to try to resolve a record if no response is received", 2]),
 				OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry", 2]),
 				OptInt.new('THREADS', [ true, "Number of threads to use for BRT and RVL", 1]),
-				OptBool.new('BRT_REPORT_HOST', [false, "Add hosts found via bruteforce to DB", false]),
-				OptBool.new('RVL_EXISTING_ONLY', [false, "Only perform lookups on hosts in DB", true]),
+				OptBool.new('REPORT_A_RECORDS', [false, "Add hosts found via BRT and RVL to DB", true]),
+				OptBool.new('RVL_EXISTING_ONLY', [false, "Only perform lookups on hosts in DB", false]),
 				OptBool.new('TCP_DNS', [false, "Run queries over TCP", false]),
 			], self.class)
 	end
@@ -254,7 +254,9 @@ class Metasploit3 < Msf::Auxiliary
 		words = split_wordlist(
 			::File.read(wordlist).split("\n").uniq.map {|w| w.gsub(".#{target}", '')}
 		)
-		vprint_status("Running with #{words.flatten.length} words in #{@threadnum} threads of #{words.first.length} each")
+		# chunk_size = words.length/@threadnum
+		# words = words.each_slice(chunk_size).to_a
+		print_status("Running with #{words.flatten.length} words in #{@threadnum} threads of #{words.first.length} each")
 		print_good("Ignoring #{wldcrd}") if wldcrd
 		# Give each thread a chunk of words to test
 		while !words.empty? do
@@ -269,7 +271,7 @@ class Metasploit3 < Msf::Auxiliary
 						query1 = @res.search("#{line.chomp}.#{target}")
 						if (query1)
 							query1.answer.each do |rr|
-								if rr.class == Net::DNS::RR::AAAA and rr.address.to_s != wldcrd
+								if rr.class == Net::DNS::RR::A and rr.address.to_s != wldcrd
 									print_status("Hostname: #{line.chomp}.#{target} IPv4 address: #{rr.address.to_s}")
 									report_note(:host => @nsinuse.to_s,
 
@@ -279,7 +281,7 @@ class Metasploit3 < Msf::Auxiliary
 										:type => 'dns.enum',
 										:update => :unique_data,
 										:data => "#{rr.address.to_s},#{line.chomp}.#{target},A")
-									if datastore['BRT_REPORT_HOST']
+									if datastore['REPORT_A_RECORDS']
 										report_host(
 											:host => rr.address.to_s,
 											:name => "#{line.chomp}.#{target}",
@@ -302,10 +304,10 @@ class Metasploit3 < Msf::Auxiliary
 	def bruteipv6(target, wordlist, nssrv, wldcrd = nil)
 		print_status("Bruteforcing IPv6 addresses against domain #{target}")
 		# Read words, split list for threaded bruteforce
-		words = split_wordlist(
-			::File.read(wordlist).split("\n").uniq.map {|w| w.gsub(".#{target}", '')}
-		)
-		vprint_status("Running with #{words.flatten.length} words in #{@threadnum} threads of #{words.first.length} each")
+		words = ::File.read(wordlist).split("\n").uniq.map {|w| w.gsub(".#{target}", '')}
+		chunk_size = words.length/@threadnum
+		words = words.each_slice(chunk_size).to_a
+		print_status("Running with #{words.flatten.length} words in #{@threadnum} threads of #{chunk_size} each")
 		print_good("Ignoring #{wldcrd}") if wldcrd
 		# Give each thread a chunk of words to test
 		while !words.empty? do
@@ -329,7 +331,7 @@ class Metasploit3 < Msf::Auxiliary
 										:type => 'dns.enum',
 										:update => :unique_data,
 										:data => "#{rr.address.to_s},#{line.chomp}.#{target},AAAA")
-									if datastore['BRT_REPORT_HOST']
+									if datastore['REPORT_A_RECORDS']
 										report_host(
 											:host => rr.address.to_s,
 											:name => "#{line.chomp}.#{target}",
@@ -351,13 +353,13 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	#-------------------------------------------------------------------------------
-	def reverselkp(iprange,nssrv,existing_only)
+	def reverselkp(iprange,nssrv)
 		print_status("Running reverse lookup against IP range #{iprange}")
 		if not nssrv.nil?
 			@res.nameserver = (nssrv)
 			@nsinuse = nssrv
 		end
-		if existing_only
+		if datastore['RVL_EXISTING_ONLY']
 			rng = Rex::Socket::RangeWalker.new(iprange)
 			ws =  Mdm::Workspace.where(:name => self.workspace).first
 			lookup_hosts = ws.hosts.map(&:address).keep_if do |addr|
@@ -372,18 +374,27 @@ class Metasploit3 < Msf::Auxiliary
 			while (@dns_enum_threads.length < @threadnum)
 				ip = ar.next_ip
 				break if not ip
-				@dns_enum_threads << framework.threads.spawn("Module(#{self.refname})-#{ip}", false, ip.dup) do |tip|
+				@dns_enum_threads << framework.threads.spawn("Module(#{self.refname})-#{ip} RVL", false, ip.dup) do |tip|
 					begin
 						query = @res.query(tip)
 						query.each_ptr do |addresstp|
 							print_status("Hostname: #{addresstp} IP address: #{tip.to_s}")
-							report_note(:host => @nsinuse.to_s,
+							report_note(
+								:host => @nsinuse.to_s,
 								:proto => 'udp',
 								:sname => 'dns',
 								:port => 53 ,
 								:type => 'dns.enum',
 								:update => :unique_data,
-								:data => "#{addresstp},#{tip},A")
+								:data => "#{addresstp},#{tip},A,RVL"
+							)
+							if datastore['REPORT_A_RECORDS']
+								report_host(
+									:host => tip.to_s,
+									:name => "#{addresstp}",
+									:update => :unique_data,
+								)
+							end
 						end
 					rescue ::Interrupt
 						raise $!
@@ -573,11 +584,11 @@ class Metasploit3 < Msf::Auxiliary
 		@res = Net::DNS::Resolver.new()
 		# The following line requires rex_dns.rb so checking for poxies
 		if @res.methods.include?(:proxies)
-			@res.proxies=datastore['Proxies']
+			@res.proxies=datastore['Proxies'] if datastore['Proxies']
 		end
 		# Prevent us from using system DNS by default - net/dns pulls OS settings
-        @res.nameservers = datastore['NS'].split(/\s|,/) if datastore['NS']
-        # If querying over TCP
+		@res.nameservers = datastore['NS'].split(/\s|,/) if datastore['NS']
+		# If querying over TCP
 		if datastore['TCP_DNS']
 			vprint_status("Using DNS/TCP")
 			@res.use_tcp = true
@@ -622,11 +633,11 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if(datastore['ENUM_RVL'] and datastore['IPRANGE'] and not datastore['IPRANGE'].empty?)
-			reverselkp(datastore['IPRANGE'],datastore['NS'],datastore['RVL_EXISTING_ONLY'])
+			reverselkp(datastore['IPRANGE'],datastore['NS'])
 		end
 		# Do not let module finish while threads exist
 		while not @dns_enum_threads.empty? do
-			vprint_status("Waiting on #{@dns_enum_threads.length} DNS brute force threads to finish")
+			vprint_status("Waiting on #{@dns_enum_threads.length} threads to finish")
 			Rex::ThreadSafe.sleep(10)
 		end
 	end
