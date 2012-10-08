@@ -9,6 +9,7 @@ while File.symlink?(msfbase)
 	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 
+@args = ARGV.dup
 
 Dir.chdir(File.dirname(msfbase))
 
@@ -22,22 +23,24 @@ if not (Process.uid == 0 or File.stat(msfbase).owned?)
 	$stderr.puts "Please run msfupdate as the same user who installed metasploit."
 end
 
-wait = (ARGV.shift.to_s == "wait")
-
-have_configdir = false
-ARGV.each do |arg|
-	next unless arg =~ /--config-dir/
-	have_configdir = true
+@args.each_with_index do |arg,i|
+	case arg
+	when "wait"
+		@wait_index = i
+	when /--config-dir/
+		# Spaces in the directory should be fine since this whole thing is passed
+		# as a single argument via the multi-arg syntax for system() below.
+		# TODO: Test this spaces business. I don't buy it. -todb
+		@configdir_index = i
+		@configdir = File.join(File.dirname(msfbase), "data", "svn")
+	end
 end
 
-unless have_configdir
-	configdir = File.join(File.dirname(msfbase), "data", "svn")
-	# Spaces in the directory should be fine since this whole thing is passed
-	# as a single argument via the multi-arg syntax for system() below.
-	ARGV.push("--config-dir=#{configdir}")
-end
+@args.delete_at @wait_index if @wait_index
+@args.delete_at @configdir_index if @configdir_index
 
-ARGV.push("--non-interactive")
+@args.push("--non-interactive")
+@args.push("--config-dir=#{@configdir}") if @configdir_index
 
 res = system("svn", "cleanup")
 if res.nil?
@@ -48,10 +51,10 @@ if res.nil?
 	$stderr.puts "[-] to ensure a proper environment."
 else
 	# Cleanup worked, go ahead and update
-	system("svn", "update", *ARGV)
+	system("svn", "update", *@args)
 end
 
-if wait
+if @wait_index
 	$stderr.puts ""
 	$stderr.puts "[*] Please hit enter to exit"
 	$stderr.puts ""
