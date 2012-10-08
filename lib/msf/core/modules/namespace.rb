@@ -14,11 +14,11 @@ module Msf::Modules::Namespace
     #inherit = false
 
     ::Msf::Framework::Major.downto(1) do |major|
-			# Since we really only care about the deepest namespace, we don't
-			# need to look for parents' constants. However, the "inherit"
-			# parameter for const_defined? only exists after 1.9. If we ever
-			# drop 1.8 support, we can save a few cycles here by passing false
-			# here.
+      # Since we really only care about the deepest namespace, we don't
+      # need to look for parents' constants. However, the "inherit"
+      # parameter for const_defined? only exists after 1.9. If we ever
+      # drop 1.8 support, we can save a few cycles here by passing false
+      # here.
       if const_defined?("Metasploit#{major}")
         metasploit_class = const_get("Metasploit#{major}")
 
