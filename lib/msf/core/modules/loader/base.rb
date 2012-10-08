@@ -370,13 +370,14 @@ class Msf::Modules::Loader::Base
   # @return [Module] module that wraps the previously loaded content from {#read_module_content}.
   # @return [nil] if any module name along the chain does not exist.
   def current_module(module_names)
-    # don't look at ancestors for constant
-    inherit = false
-
     # Don't want to trigger ActiveSupport's const_missing, so can't use constantize.
     named_module = module_names.inject(Object) { |parent, module_name|
-      if parent.const_defined?(module_name, inherit)
-        parent.const_get(module_name, inherit)
+			# Since we're searching parent namespaces first anyway, this is
+			# semantically equivalent to providing false for the 1.9-only
+			# "inherit" parameter to const_defined?. If we ever drop 1.8
+			# support, we can save a few cycles here by adding it back.
+      if parent.const_defined?(module_name)
+        parent.const_get(module_name)
       else
         break
       end
