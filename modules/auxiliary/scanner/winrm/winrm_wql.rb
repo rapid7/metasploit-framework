@@ -12,7 +12,6 @@
 
 require 'msf/core'
 require 'rex/proto/ntlm/message'
-require 'pry'
 
 
 class Metasploit3 < Msf::Auxiliary
@@ -53,8 +52,15 @@ class Metasploit3 < Msf::Auxiliary
 			'password' => datastore['PASSWORD']
 		}
 		resp,c = send_request_ntlm(opts)
-		binding.pry
+		unless resp.code == 200
+			print_error "Got unexpected response from #{ip}: \n #{resp.to_s}"
+			return
+		end
+		resp_tbl = parse_wql_response(resp)
+		print_good resp_tbl.to_s
+		store_loot("winrm.wql_results", "text/csv", ip, resp_tbl.to_csv, "winrm_wql_results.csv", "WinRM WQL Query Results")
 	end
+
 
 
 end
