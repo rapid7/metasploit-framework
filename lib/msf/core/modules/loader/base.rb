@@ -113,7 +113,7 @@ class Msf::Modules::Loader::Base
     metasploit_class = nil
     module_path = self.module_path(parent_path, type, module_reference_name)
 
-    loaded = namespace_module_transaction(module_reference_name, :reload => reload) { |namespace_module|
+    loaded = namespace_module_transaction(type + "/" + module_reference_name, :reload => reload) { |namespace_module|
       # set the parent_path so that the module can be reloaded with #load_module
       namespace_module.parent_path = parent_path
 
@@ -301,7 +301,7 @@ class Msf::Modules::Loader::Base
           reloaded_module_instance.datastore.update(original_metasploit_instance.datastore)
         end
       else
-        elog("Failed to create instance of #{refname} after reload.", 'core')
+        elog("Failed to create instance of #{original_metasploit_class_or_instance.refname} after reload.", 'core')
 
         # Return the old module instance to avoid an strace trace
         return original_metasploit_class_or_instance
@@ -455,8 +455,8 @@ class Msf::Modules::Loader::Base
   #
   # @see MODULE_SEPARATOR
   # @see #namespace_module_names
-  def namespace_module_name(module_reference_name)
-    namespace_module_names = self.namespace_module_names(module_reference_name)
+  def namespace_module_name(uniq_module_reference_name)
+    namespace_module_names = self.namespace_module_names(uniq_module_reference_name)
     namespace_module_name = namespace_module_names.join(MODULE_SEPARATOR)
 
     namespace_module_name
@@ -466,40 +466,19 @@ class Msf::Modules::Loader::Base
   # doesn't overwrite other (metasploit) module's classes.  Invalid module name characters are escaped by using 'H*'
   # unpacking and prefixing each code with X so the code remains a valid module name when it starts with a digit.
   #
-  # @param [String] module_reference_name The canonical name for the module.
+  # @param [String] uniq_module_reference_name The unique canonical name for the module including type.
   # @return [Array<String>] {NAMESPACE_MODULE_NAMES} + <derived-constant-safe names>
   #
   # @see namespace_module
-  def namespace_module_names(module_reference_name)
-    relative_module_name = module_reference_name.camelize
-
-    module_names = relative_module_name.split(MODULE_SEPARATOR)
-
-    # The module_reference_name is path-like, so it can include characters that are invalid in module names
-    valid_module_names = module_names.collect { |module_name|
-      valid_module_name = module_name.gsub(/^[0-9]|[^A-Za-z0-9]/) { |invalid_constant_name_character|
-        unpacked = invalid_constant_name_character.unpack('H*')
-        # unpack always returns an array, so get first value to get character's encoding
-        hex_code = unpacked[0]
-
-        # as a convention start each hex-code with X so that it'll make a valid constant name since constants can't
-        # start with digits.
-        "X#{hex_code}"
-      }
-
-      valid_module_name
-    }
-
-    namespace_module_names = NAMESPACE_MODULE_NAMES + valid_module_names
-
-    namespace_module_names
+  def namespace_module_names(uniq_module_reference_name)
+    NAMESPACE_MODULE_NAMES + [ "Mod" + uniq_module_reference_name.unpack("H*").first.downcase ]
   end
 
-  def namespace_module_transaction(module_reference_name, options={}, &block)
+  def namespace_module_transaction(uniq_module_reference_name, options={}, &block)
     options.assert_valid_keys(:reload)
 
     reload = options[:reload] || false
-    namespace_module_names = self.namespace_module_names(module_reference_name)
+    namespace_module_names = self.namespace_module_names(uniq_module_reference_name)
 
     previous_namespace_module = current_module(namespace_module_names)
 
