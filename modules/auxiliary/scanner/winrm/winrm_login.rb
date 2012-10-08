@@ -48,6 +48,10 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
+		unless accepts_ntl_auth
+			print_error "The Remote WinRM  server  (#{ip} does not appear to allow Negotiate(NTLM) auth"
+			return
+		end
 		each_user_pass do |user, pass|
 			opts = {
 				'uri' => datastore['URI'],
@@ -74,6 +78,10 @@ class Metasploit3 < Msf::Auxiliary
 				print_error "Recieved unexpected Response Code: #{resp.code}"
 			end
 		end
+	end
+
+	def accepts_ntl_auth
+		 parse_auth_methods(winrm_poke).include? "Negotiate"
 	end
 
 	def test_request

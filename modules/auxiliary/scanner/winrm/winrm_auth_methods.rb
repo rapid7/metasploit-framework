@@ -41,11 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
-		opts = {
-			'uri' => datastore['URI'],
-			'data' => 'test',
-		}
-		resp = poke(opts)
+		resp = winrm_poke
 		if resp.code == 401
 			methods = parse_auth_methods(resp)
 			desc = resp.headers['Server'] + " Authentication Methods: " + methods.to_s
