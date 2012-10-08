@@ -430,7 +430,7 @@ class Msf::Modules::Loader::Base
 
     extension = File.extname(path)
 
-    unless (path[0,1] == ".") or
+    unless (path[0,1] == "." or
             extension != MODULE_EXTENSION or
             path =~ UNIT_TEST_REGEX)
       module_path = true
