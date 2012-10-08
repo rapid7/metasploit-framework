@@ -13,7 +13,6 @@
 require 'msf/core'
 require 'rex/proto/ntlm/message'
 
-
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::WinRM
@@ -26,7 +25,11 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'           => 'WinRM Login Utility',
 			'Version'        => '$Revision$',
-			'Description'    => 'This module attempts to authenticate to a WinRM service.',
+			'Description'    => %q{
+				This module attempts to authenticate to a WinRM service. It currently
+				works only if the remote end allows Negotiate(NTLM) authentication.
+				Kerberos is not currently supported.
+				},
 			'References'  =>
 				[
 
@@ -85,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def test_request
-		data = %q|<?xml version="1.0" encoding="UTF-8"?><env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:env="http://www.w3.org/2003/05/soap-envelope" xmlns:a="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:b="http://schemas.dmtf.org/wbem/wsman/1/cimbinding.xsd" xmlns:n="http://schemas.xmlsoap.org/ws/2004/09/enumeration" xmlns:x="http://schemas.xmlsoap.org/ws/2004/09/transfer" xmlns:w="http://schemas.dmtf.org/wbem/wsman/1/wsman.xsd" xmlns:p="http://schemas.microsoft.com/wbem/wsman/1/wsman.xsd" xmlns:rsp="http://schemas.microsoft.com/wbem/wsman/1/windows/shell" xmlns:cfg="http://schemas.microsoft.com/wbem/wsman/1/config"><env:Header><a:To>http://172.16.221.145:5985/wsman</a:To><a:ReplyTo><a:Address mustUnderstand="true">http://schemas.xmlsoap.org/ws/2004/08/addressing/role/anonymous</a:Address></a:ReplyTo><w:MaxEnvelopeSize mustUnderstand="true">153600</w:MaxEnvelopeSize><a:MessageID>uuid:BE2777BF-0AF2-41E5-A15C-E8A4403DEFD8</a:MessageID><w:Locale xml:lang="en-US" mustUnderstand="false"/><p:DataLocale xml:lang="en-US" mustUnderstand="false"/><w:OperationTimeout>PT60S</w:OperationTimeout><w:ResourceURI mustUnderstand="true">http://schemas.microsoft.com/wbem/wsman/1/wmi/root/cimv2/*</w:ResourceURI><a:Action mustUnderstand="true">http://schemas.xmlsoap.org/ws/2004/09/enumeration/Enumerate</a:Action></env:Header><env:Body><n:Enumerate><w:OptimizeEnumeration xsi:nil="true"/><w:MaxElements>32000</w:MaxElements><w:Filter Dialect="http://schemas.microsoft.com/wbem/wsman/1/WQL">select Name,Status from Win32_Service</w:Filter></n:Enumerate></env:Body></env:Envelope>|
+		data = winrm_wql_msg("Select Name,Status from Win32_Service")
 	end
 
 end
