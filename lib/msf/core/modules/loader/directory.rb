@@ -73,6 +73,13 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
   def read_module_content(parent_path, type, module_reference_name)
     full_path = module_path(parent_path, type, module_reference_name)
 
-    ::File.read(full_path)
+    module_content = ''
+
+    # force to read in binary mode so Pro modules won't be truncated on Windows
+    File.open(full_path, 'rb') do |f|
+      module_content = f.read
+    end
+
+    module_content
   end
 end
