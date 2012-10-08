@@ -619,3 +619,4 @@ class Msf::Modules::Loader::Base
     usable
   end
 end
+

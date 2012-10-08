@@ -58,3 +58,4 @@ module Msf::Modules::Namespace
     end
   end
 end
+
