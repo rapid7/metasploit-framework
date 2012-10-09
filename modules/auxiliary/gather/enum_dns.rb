@@ -284,7 +284,8 @@ class Metasploit3 < Msf::Auxiliary
 									if datastore['REPORT_A_RECORDS']
 										report_host(
 											:host => rr.address.to_s,
-											:name => "#{line.chomp}.#{target}",
+											:name => "#{line.chomp}.#{target}".chomp('.'),
+											:update => :unique_data,
 											:state => Msf::HostState::Alive
 										)
 									end
@@ -334,7 +335,8 @@ class Metasploit3 < Msf::Auxiliary
 									if datastore['REPORT_A_RECORDS']
 										report_host(
 											:host => rr.address.to_s,
-											:name => "#{line.chomp}.#{target}",
+											:name => "#{line.chomp}.#{target}".chomp('.'),
+											:update => :unique_data,
 											:state => Msf::HostState::Alive
 										)
 									end
@@ -391,7 +393,7 @@ class Metasploit3 < Msf::Auxiliary
 							if datastore['REPORT_A_RECORDS']
 								report_host(
 									:host => tip.to_s,
-									:name => "#{addresstp}",
+									:name => "#{addresstp}".chomp('.'),
 									:update => :unique_data,
 								)
 							end
