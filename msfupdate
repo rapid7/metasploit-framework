@@ -11,6 +11,9 @@ end
 
 @args = ARGV.dup
 
+# May be changed 
+@configdir = File.expand_path(File.join(File.dirname(msfbase), "data", "svn"))
+
 Dir.chdir(File.dirname(msfbase))
 
 $stderr.puts "[*]"
@@ -32,15 +35,12 @@ end
 		# as a single argument via the multi-arg syntax for system() below.
 		# TODO: Test this spaces business. I don't buy it. -todb
 		@configdir_index = i
-		@configdir = File.join(File.dirname(msfbase), "data", "svn")
 	end
 end
 
 @args.delete_at @wait_index if @wait_index
-@args.delete_at @configdir_index if @configdir_index
-
+@args.push("--config-dir=#{@configdir}") unless @configdir_index
 @args.push("--non-interactive")
-@args.push("--config-dir=#{@configdir}") if @configdir_index
 
 res = system("svn", "cleanup")
 if res.nil?
