@@ -36,6 +36,10 @@ If you'd rather these settings only apply to ruby files, you can use an autogrou
 
 You can also use `:set list` to see all whitespace as distinct characters to make it easier to see errant whitespace.
 
+### Rubymine
+
+Go to Preferences in the Rubymine window menu.  In the 'Project Settings [metasploit-framework]' section go to Code Style > Ruby.  Change the Scheme dropdown from Default to Project.  Then in the Project section under the Tabs and Indents tab, check 'Use tab character' and 'Smart tabs'.  Set the 'Tab size' and 'Indent' to 4 and the 'Continuation indent' to 8 as it should be twice the normal indent.  All other Code Style options can follow the defaults.
+
 ## Grammar and capitalization
 
 While we understand that the world reads many, many languages, Metasploit is developed primarily in U.S English. Therefore, description grammar in modules should adhere to U.S. English conventions. Doing so not only ensures ease of use for the majority of Metasploit users, but also helps automatic (and manual) translators for other languages.
