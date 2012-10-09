@@ -1,0 +1,75 @@
+# dns_enum.rc
+# Author: RageLtMan
+
+# This resource file can be used to enumerate workspace target DNS resources.
+
+<ruby>
+if (framework.datastore['VERBOSE'] == "true")	#we look in the global datastore for a global VERBOSE option and use it
+	verbose = 1 #true
+else
+	verbose = 0
+end
+
+# Test and see if we have a database connected
+begin
+	framework.db.hosts
+rescue ::ActiveRecord::ConnectionNotEstablished
+	print_error("Database connection isn't established")
+	return
+end
+
+# Set max threadcount
+threadcount = 16
+# Configure current workspace
+ws = framework.db.workspace
+# Get DNS names
+if framework.datastore['DNS_ENUM_DOMAIN']
+	# pull from global datastore if set
+	names = framework.datastore['DNS_ENUM_DOMAIN'].split(/,|\s/).map(&:strip).delete_if(&:empty?)
+else
+	# Find all top primary domains and enumerate each
+	names = ws.hosts.map(&:name).delete_if { 
+		|i| Rex::Socket.is_ipv4?(i) or i.chomp('.') !~ /\w+\.\w+$/
+	}.map {
+		|n| n.scan(/\w+\.\w+$/).first.chomp('.')
+	}.uniq
+end
+# Sort by IP
+addrs = ws.hosts.map(&:address).sort {|a| IPAddr.new(a)}
+
+# Create module and merge with framework datastore
+mod = framework.auxiliary.create('gather/enum_dns')
+mod.datastore.merge(framework.datastore)
+mod.datastore['ENUM_RVL'] = true
+# Do reverse lookups for existing hosts only
+mod.datastore['RVL_EXISTING_ONLY'] = true
+
+# The following should work but fails for some reason
+#self.output.print_raw("#{addrs.first}-#{addrs.last}")
+#mod.datastore['IPRANGE'] = "#{addrs.first}-#{addrs.last}"
+# Workaround for above
+mod.datastore['IPRANGE'] = '0.0.0.0/0'
+
+# Pull settings from datastore or set to true
+mod.datastore['ENUM_BRT'] ||=  true
+mod.datastore['REPORT_A_RECORDS'] ||= true
+names.each do |name|
+	mod.datastore['DOMAIN'] = name
+	# Assign reasonable fraction of max threads to module
+	mod.datastore['THREADS'] = framework.datastore['DNS_ENUM_THREADS'] || threadcount/names.length
+	# DEBUG: 
+self.output.print_raw("using #{name}\n")
+	if verbose
+		mod.run_simple(
+			'LocalOutput'    => self.output,
+			'RunAsJob'       => true
+		)
+	else
+		mod.run_simple(
+			'LocalOutput'    => nil,
+			'RunAsJob'       => true
+		)
+	end
+end		
+
+</ruby>
