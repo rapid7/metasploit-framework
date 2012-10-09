@@ -28,11 +28,18 @@ if framework.datastore['DNS_ENUM_DOMAIN']
 	names = framework.datastore['DNS_ENUM_DOMAIN'].split(/,|\s/).map(&:strip).delete_if(&:empty?)
 else
 	# Find all top primary domains and enumerate each
-	names = ws.hosts.map(&:name).delete_if { 
+	names = ws.hosts.map(&:name).compact.uniq.delete_if { 
 		|i| Rex::Socket.is_ipv4?(i) or i.chomp('.') !~ /\w+\.\w+$/
 	}.map {
-		|n| n.scan(/\w+\.\w+$/).first.chomp('.')
-	}.uniq
+		|n| n.scan(/\w+\.\w+$/).first
+	}.compact.map {|n| n.chomp('.')}.uniq
+end
+
+if names.empty?
+	print_error("No domain names defined or found, set DNS_ENUM_DOMAIN")
+	return
+else
+	print_good("Enumerating #{names.join(', ')}")
 end
 # Sort by IP
 addrs = ws.hosts.map(&:address).sort {|a| IPAddr.new(a)}
@@ -57,8 +64,7 @@ names.each do |name|
 	mod.datastore['DOMAIN'] = name
 	# Assign reasonable fraction of max threads to module
 	mod.datastore['THREADS'] = framework.datastore['DNS_ENUM_THREADS'] || threadcount/names.length
-	# DEBUG: 
-self.output.print_raw("using #{name}\n")
+	# DEBUG: self.output.print_raw("using #{name}\n")
 	if verbose
 		mod.run_simple(
 			'LocalOutput'    => self.output,
