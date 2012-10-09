@@ -2,6 +2,8 @@
 # Gems
 #
 require 'active_support/concern'
+require 'active_support/core_ext/hash'
+require 'active_support/core_ext/module'
 
 # Deals with module paths in the {Msf::ModuleManager}
 module Msf::ModuleManager::ModulePaths
