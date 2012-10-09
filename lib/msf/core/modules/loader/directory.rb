@@ -77,7 +77,11 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
 
     # force to read in binary mode so Pro modules won't be truncated on Windows
     File.open(full_path, 'rb') do |f|
-      module_content = f.read
+      # Pass the size of the file as it leads to faster reads due to fewer buffer resizes. Greatest effect on Windows.
+      # @see http://www.ruby-forum.com/topic/209005
+      # @see https://github.com/ruby/ruby/blob/ruby_1_8_7/io.c#L1205
+      # @see https://github.com/ruby/ruby/blob/ruby_1_9_3/io.c#L2038
+      module_content = f.read(f.stat.size)
     end
 
     module_content
