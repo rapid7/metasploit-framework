@@ -11,7 +11,7 @@ end
 
 @args = ARGV.dup
 
-# May be changed 
+# May be changed
 @configdir = File.expand_path(File.join(File.dirname(msfbase), "data", "svn"))
 
 Dir.chdir(File.dirname(msfbase))
