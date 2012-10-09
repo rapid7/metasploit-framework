@@ -11,15 +11,13 @@
 
 require 'msf/core'
 
-module Msf
-
 ###
 #
 # This sample auxiliary module simply displays the selected action and
 # registers a custom command that will show up when the module is used.
 #
 ###
-class Auxiliary::Sample < Msf::Auxiliary
+class Metasploit4 < Msf::Auxiliary
 
 	def initialize
 		super(
@@ -48,7 +46,5 @@ class Auxiliary::Sample < Msf::Auxiliary
 	def cmd_aux_extra_command(*args)
 		print_status("Running inside aux_extra_command()")
 	end
-
-end
 
 end

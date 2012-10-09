@@ -11,16 +11,12 @@
 
 require 'msf/core'
 
-module Msf
-module Payloads
-module Singles
-
 ###
 #
 # This sample payload is designed to trigger a debugger exception via int3.
 #
 ###
-module Sample
+module Metasploit4
 
 	include Msf::Payload::Single
 
@@ -39,8 +35,4 @@ module Sample
 			))
 	end
 
-end
-
-end
-end
 end

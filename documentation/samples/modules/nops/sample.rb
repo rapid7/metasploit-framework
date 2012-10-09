@@ -11,16 +11,13 @@
 
 require 'msf/core'
 
-module Msf
-module Nops
-
 ###
 #
 # This class implements a very basic NOP sled generator that just returns a
 # string of 0x90's.
 #
 ###
-class Sample < Msf::Nop
+class Metasploit4 < Msf::Nop
 
 	def initialize
 		super(
@@ -38,7 +35,4 @@ class Sample < Msf::Nop
 		"\x90" * length
 	end
 
-end
-
-end 
 end
