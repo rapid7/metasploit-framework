@@ -20,7 +20,7 @@ class DBManager
 
 	# Mainly, it's Ruby 1.9.1 that cause a lot of problems now, along with Ruby 1.8.6.
 	# Ruby 1.8.7 actually seems okay, but why tempt fate? Let's say 1.9.3 and beyond.
-	def self.warn_about_rubies
+	def warn_about_rubies
 		if ::RUBY_VERSION =~ /^1\.9\.[012]($|[^\d])/
 			$stderr.puts "**************************************************************************************"
 			$stderr.puts "Metasploit requires at least Ruby 1.9.3. For an easy upgrade path, see https://rvm.io/"
@@ -119,7 +119,9 @@ class DBManager
 		# If Mdm::Host is defined, the dynamically created classes
 		# are already in the object space
 		begin
-			include MetasploitDataModels unless defined? Mdm::Host
+			unless defined? Mdm::Host
+				self.class.send :include, MetasploitDataModels
+			end
 		rescue NameError => e
 			warn_about_rubies
 			raise e
