@@ -32,17 +32,23 @@ end
 	when "wait", "nowait"
 		@wait_index = i
 		@actually_wait = (arg == "wait")
-	# Handle passing a config-dir especially
-	when /--config-dir/
+	# An empty or absent config-dir means a default config-dir
+	when "--config-dir"
+		@configdir_index = i
+	# A defined config dir means a defined config-dir
+	when /--config-dir=(.*)?/
 		# Spaces in the directory should be fine since this whole thing is passed
 		# as a single argument via the multi-arg syntax for system() below.
 		# TODO: Test this spaces business. I don't buy it. -todb
+		@configdir = $1
 		@configdir_index = i
 	end
 end
 
-@args.delete_at @wait_index if @wait_index
-@args.push("--config-dir=#{@configdir}") unless @configdir_index
+@args[@wait_index] = nil      if @wait_index
+@args[@configdir_index] = nil if @configdir_index
+@args = @args.compact
+@args.push("--config-dir=#{@configdir}")
 @args.push("--non-interactive")
 
 res = system("svn", "cleanup")
