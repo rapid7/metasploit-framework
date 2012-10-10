@@ -28,8 +28,11 @@ end
 
 @args.each_with_index do |arg,i|
 	case arg
-	when "wait"
+	# Handle the old wait/nowait argument behavior
+	when "wait", "nowait"
 		@wait_index = i
+		@actually_wait = (arg == "wait")
+	# Handle passing a config-dir especially
 	when /--config-dir/
 		# Spaces in the directory should be fine since this whole thing is passed
 		# as a single argument via the multi-arg syntax for system() below.
@@ -54,7 +57,7 @@ else
 	system("svn", "update", *@args)
 end
 
-if @wait_index
+if @actually_wait
 	$stderr.puts ""
 	$stderr.puts "[*] Please hit enter to exit"
 	$stderr.puts ""
