@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 
+require 'msf/base/config'
 require 'msf/core'
 require 'msf/core/db'
 require 'msf/core/task_manager'

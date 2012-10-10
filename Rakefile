@@ -1,6 +1,11 @@
 require 'bundler/setup'
 
+require 'rspec/core/rake_task'
 require 'yard'
+
+RSpec::Core::RakeTask.new(:spec)
+
+task :default => :spec
 
 namespace :yard do
   yard_files = [
