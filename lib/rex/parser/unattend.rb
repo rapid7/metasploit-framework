@@ -19,7 +19,7 @@ class Unattend
                                         results << extract_deployment(c.elements['WindowsDeploymentServices'])
                                 end
                         end
-		return results
+		return results.flatten
 	end
 
         #
