@@ -163,12 +163,68 @@ class Metasploit3 < Msf::Post
 			# XML failed to parse, will not go on from here
 			return if not xml
 			
-			tables = Rex::Parser::Unatted.parse(xml)
+			results = Rex::Parser::Unatted.parse(xml)
+			tables = create_display_tables(results)
 
 			# Save the data
 			save_cred_tables(tables.flatten) if not tables.empty?
 
 			return if not datastore['GETALL']
 		end
+	end
+
+	def create_display_tables(results)
+		wds_table = Rex::Ui::Text::Table.new({
+                        'Header' => 'WindowsDeploymentServices',
+                        'Indent' => 1,
+                        'Columns' => ['Domain', 'Username', 'Password']
+                })
+
+		autologin_table = Rex::Ui::Text::Table.new({
+                        'Header' => 'AutoLogon',
+                        'Indent' => 1,
+                        'Columns' => ['Domain', 'Username', 'Password']
+                })
+
+		admin_table = Rex::Ui::Text::Table.new({
+						'Header'  => 'AdministratorPasswords',
+						'Indent'  => 1,
+						'Columns' => ['Username', 'Password']
+				})
+
+		domain_table = Rex::Ui::Text::Table.new({
+                                        'Header'  => 'DomainAccounts',
+                                        'Indent'  => 1,
+                                        'Columns' => ['Username', 'Group']
+                                })
+
+		local_table = Rex::Ui::Text::Table.new({
+                                        'Header'  => 'LocalAccounts',
+                                        'Indent'  => 1,
+                                        'Columns' => ['Username', 'Password']
+                                })
+
+		results.each do |result|
+			case result['type']
+				when 'wds'
+					wds_table << [result['domain'], result['username'], result['password']]	
+                	        when 'auto'              
+        	                        autologin_table << [result['domain'], result['username'], result['password']]   
+	                        when 'admin'              
+        	                        admin_table << [result['username'], result['password']]   
+	                        when 'domain' 
+                                	domain_table << [result['username'], result['group']]
+                        	when 'local' 
+                          	      local_table << [result['username'], result['password']]  
+			end	
+
+		tables << wds_table
+		tables << autologin_table
+		tables << admin_table
+		tables << domain_table
+		tables << local_table
+
+		return tables
+	end	
 	end
 end

