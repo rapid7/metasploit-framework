@@ -5,10 +5,11 @@ require 'fileutils'
 
 module Msf
 	module Util
-		class SwitchConfig
+
+		class SvnSwitchConfig
 
 			SEP = File::SEPARATOR
-			GITHUB_SVN = 'https://github.com/rapid7/metasploit-framework/trunk'
+			GITHUB_SVN = 'https://github.com/rapid7/metasploit-framework'
 
 			attr_reader :i, :new_svn_checkout, :new_source
 
@@ -43,10 +44,41 @@ module Msf
 			end
 
 			def checkout_cmd
-				"svn checkout #{self.new_source} #{self.new_svn_checkout}"
+				cmd = [svn_binary]
+				cmd += ["checkout", "--non-recursive"]
+				cmd << self.new_source
+				cmd << self.new_svn_checkout
 			end
 
+			def cleanup_cmd
+				cmd = [svn_binary]
+				cmd += ["cleanup"]
+				cmd << self.msfbase
+			end
+
+			def update_cmd
+				cmd = [svn_binary]
+				cmd << "update"
+				cmd << [self.new_svn_checkout,SEP,"trunk"].join
+			end
 
 		end
+
+		class SvnSwitch
+
+			def initialize
+				@config = SvnSwitchConfig.new
+			end
+
+			def exec(arg)
+				raise ArgumentError unless arg.kind_of? Symbol
+				raise ArgumentError unless arg.to_s =~ /_cmd$/
+				raise ArgumentError unless @config.respond_to? arg
+				cmd = @config.send arg
+				system(*cmd)
+			end
+
+		end
+
 	end
 end
