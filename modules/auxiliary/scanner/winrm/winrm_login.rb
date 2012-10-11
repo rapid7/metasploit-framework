@@ -56,13 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 		each_user_pass do |user, pass|
-			opts = {
-				'uri' => datastore['URI'],
-				'data' => test_request,
-				'username' => user,
-				'password' => pass
-			}
-			resp,c = send_request_ntlm(opts)
+			resp,c = send_request_ntlm(test_request)
 			if resp.code == 200
 				cred_hash = {
 					:host              => ip,

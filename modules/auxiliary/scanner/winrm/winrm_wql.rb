@@ -45,13 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
-		opts = {
-			'uri' => datastore['URI'],
-			'data' => winrm_wql_msg(datastore['WQL']),
-			'username' => datastore['USERNAME'],
-			'password' => datastore['PASSWORD']
-		}
-		resp,c = send_request_ntlm(opts)
+		resp,c = send_request_ntlm(winrm_wql_msg(datastore['WQL']))
 		unless resp.code == 200
 			print_error "Got unexpected response from #{ip}: \n #{resp.to_s}"
 			return
