@@ -29,22 +29,14 @@ module Auxiliary::Web
 		super
 	end
 
-  def self.checklist
-    @checklist ||= Set.new
-  end
-
-  def checklist
-    Auxiliary::Web.checklist
-  end
-
   # String id to push to the #checklist
   def checked( id )
-    checklist << "#{shortname}#{id}".hash
+    parent.checklist << "#{shortname}#{id}".hash
   end
 
   # String id to check against the #checklist
   def checked?( id )
-    checklist.include? "#{shortname}#{id}".hash
+    parent.checklist.include? "#{shortname}#{id}".hash
   end
 
 	#
@@ -165,11 +157,10 @@ module Auxiliary::Web
 
 	def log_fingerprint( opts = {} )
 		mode  = details[:category].to_sym
-		vhash = [target.to_url, mode, opts[:location]].map { |x| x.to_s }.join( '|' ).hash
+		vhash = [target.to_url, opts[:fingerprint], mode, opts[:location]].map { |x| x.to_s }.join( '|' ).hash
 
-		@@vulns ||= Set.new
-		return if @@vulns.include?( vhash )
-		@@vulns << vhash
+		return if parent.vulns.include?( vhash )
+		parent.vulns[vhash] = true
 
 		location = opts[:location] ? page.url.merge( URI( opts[:location].to_s )) : page.url
 		info = {
@@ -199,9 +190,8 @@ module Auxiliary::Web
 		mode  = details[:category].to_sym
 		vhash = [target.to_url, mode, opts[:location]].map { |x| x.to_s }.join( '|' ).hash
 
-		@@vulns ||= Set.new
-		return if @@vulns.include?( vhash )
-		@@vulns << vhash
+		return if parent.vulns.include?( vhash )
+    parent.vulns[vhash] = true
 
 		location = URI( opts[:location].to_s )
 		info = {
@@ -230,7 +220,7 @@ module Auxiliary::Web
 
 	def process_vulnerability( element, proof, opts = {} )
 		mode  = details[:category].to_sym
-		vhash = [target.to_url, mode, element.altered].map{ |x| x.to_s }.join( '|' )
+		vhash = [target.to_url, mode, element.altered].map{ |x| x.to_s }.join( '|' ).hash
 
 		parent.vulns[mode] ||= {}
 		return parent.vulns[mode][vhash] if parent.vulns[mode][vhash]
