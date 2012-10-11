@@ -12,16 +12,14 @@ require 'rex/parser/unattend'
 
 class Metasploit3 < Msf::Auxiliary
 
-    include Msf::Exploit::Remote::DCERPC
-	include Msf::Auxiliary::Report 
+	include Msf::Exploit::Remote::DCERPC
+	include Msf::Auxiliary::Report
 
-    DCERPCPacket   = Rex::Proto::DCERPC::Packet
-    DCERPCClient   = Rex::Proto::DCERPC::Client
-    DCERPCResponse = Rex::Proto::DCERPC::Response
-    DCERPCUUID     = Rex::Proto::DCERPC::UUID
-	
-	WDS_CONST 	= Rex::Proto::DCERPC::WDSCP::Constants
-
+	DCERPCPacket   	= Rex::Proto::DCERPC::Packet
+	DCERPCClient   	= Rex::Proto::DCERPC::Client
+	DCERPCResponse 	= Rex::Proto::DCERPC::Response
+	DCERPCUUID     	= Rex::Proto::DCERPC::UUID
+	WDS_CONST 		= Rex::Proto::DCERPC::WDSCP::Constants
 	
 	def initialize(info = {})
 		super(update_info(info,
