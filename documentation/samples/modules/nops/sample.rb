@@ -1,18 +1,11 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
-
-module Msf
-module Nops
 
 ###
 #
@@ -20,7 +13,7 @@ module Nops
 # string of 0x90's.
 #
 ###
-class Sample < Msf::Nop
+class Metasploit4 < Msf::Nop
 
 	def initialize
 		super(
@@ -38,7 +31,4 @@ class Sample < Msf::Nop
 		"\x90" * length
 	end
 
-end
-
-end 
 end
