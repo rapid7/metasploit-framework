@@ -1,0 +1,9 @@
+*.gem
+.bundle
+.idea
+Gemfile.lock
+gemfiles/*.lock
+pkg/*
+
+doc
+log
