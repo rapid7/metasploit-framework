@@ -36,9 +36,8 @@ class Packet
 		@variables.each do |var|
 			packet_size += var.length
 		end
-		puts "var length %i" % packet_size	
+	
 		packet_size += 16 # variables + operation
-		puts "packet size %i" % packet_size
 
 		# These bytes are not part of the spec but are not part of DCERPC according to Wireshark
 		# Perhaps something from MSRPC specific? Basically length of the WDSCP packet twice...
