@@ -36,8 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('URI', [ true, "The URI of the WinRM service", "/wsman" ]),
-				OptString.new('CMD', [ true, "The WQL query to run", "ipconfig /all" ]),
+				OptString.new('CMD', [ true, "The windows command to run", "ipconfig /all" ]),
 				OptString.new('USERNAME', [ true, "The username to authenticate as"]),
 				OptString.new('PASSWORD', [ true, "The password to authenticate with"]),
 				OptBool.new('SAVE_OUTPUT', [true, "Store output as loot", false])
