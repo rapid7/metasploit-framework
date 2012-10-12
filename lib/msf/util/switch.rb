@@ -89,6 +89,16 @@ module Msf
 				cmd << [self.new_svn_checkout,SEP,"trunk"].join
 			end
 
+			def untracked_files_list
+				File.join(self.new_svn_checkout, "msf-svn-untracked.txt")
+			end
+
+			def status_current_cmd
+				cmd = [svn_binary]
+				cmd << "status"
+				cmd << self.msfbase
+			end
+
 		end
 
 		class SvnSwitch
@@ -99,17 +109,24 @@ module Msf
 				@config = SvnSwitchConfig.new
 			end
 
-			def exec(arg)
+			# Pass args as a *array to protect against spaces
+			def system(arg)
 				raise ArgumentError unless arg.kind_of? Symbol
 				raise ArgumentError unless arg.to_s =~ /_cmd$/
 				raise ArgumentError unless @config.respond_to? arg
 				cmd = @config.send arg
 				# $stderr.puts "[!] #{cmd.join(' ')}"
-				system(*cmd)
+				::Kernel.system(*cmd)
 			end
 
 			def delete_new_svn_checkout
 				FileUtils.rm_rf self.config.new_svn_checkout
+			end
+
+			def create_untracked_files_list
+				fname = self.config.untracked_files_list
+				res = %x|#{self.config.svn_binary} status '#{self.config.msfbase}' > '#{fname}'|
+				return fname
 			end
 
 		end

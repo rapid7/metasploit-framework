@@ -1,5 +1,8 @@
 #!/usr/bin/env ruby
 
+
+start_time = Time.now.utc
+
 msfbase = __FILE__
 while File.symlink?(msfbase)
 	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
@@ -8,43 +11,45 @@ end
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
 
 require 'msf/util/switch'
+require 'msf/util/svn'
+unless Msf::Util::SVN.root =~ /\.metasploit\.com/
+	$stdout.puts "[-] This is not an anonymous SVN checkout, aborting."
+	exit 1
+end
 
-start_time = Time.now.utc
 @svn_switcher = Msf::Util::SvnSwitch.new
 
 $stdout.puts "[*]"
-$stdout.puts "[*] Validating the Metaspoit Framework SVN checkout."
-$stdout.puts "[*]"
-res = @svn_switcher.exec :cleanup_current_cmd
-if res
-	$stdout.puts "[*]"
-	$stdout.puts "[*] Switching Metasploit Framework to the official GitHub SVN repo."
-	$stdout.puts "[*] This procedure will take several minutes."
-	$stdout.puts "[*]"
-else
-	$stdout.puts ""
-	$stdout.puts "[-] Current svn checkout cannot be cleaned up, aborting."
-	$stdout.puts "[-] Please check that this is an SVN checkout, and if so,"
-	$stdout.puts "[-] re-run msfupdate to ensure switchability."
-	$stdout.puts ""
-	exit 1
-end
-	
+$stdout.puts "[*] Switching Metasploit Framework to the official GitHub SVN repo."
+$stdout.puts "[*] This procedure will take several minutes."
 $stdout.puts "[*]"
 $stdout.puts ""
 temp_checkout = @svn_switcher.config.new_svn_checkout
+$stdout.puts "[*] Prepping current checkout #{@svn_switcher.config.msfbase}"
+unless @svn_switcher.system :cleanup_current_cmd
+	$stdout.puts "[-] Error with svn cleanup, aborting!"
+	exit 2
+end
+
+$stdout.puts "[*] Enumerating untracked files"
+
+FileUtils.mkdir temp_checkout
+@svn_switcher.create_untracked_files_list
+
+exit 666
+
 $stdout.puts "[*] Creating temporary checkout at #{temp_checkout}"
-@svn_switcher.exec :checkout_cmd
+@svn_switcher.system :checkout_cmd
 $stdout.puts "[*] Staging the svn update."
-@svn_switcher.exec :stage_cmd
+@svn_switcher.system :stage_cmd
 $stdout.puts "[*] Updating contents."
-@svn_switcher.exec :update_cmd
+@svn_switcher.system :update_cmd
 $stdout.puts "[*] Cleaning up and getting svn info"
-@svn_switcher.exec :cleanup_cmd
-@svn_switcher.exec :revert_cmd
-@svn_switcher.exec :info_cmd
+@svn_switcher.system :cleanup_cmd
+@svn_switcher.system :revert_cmd
+@svn_switcher.system :info_cmd
 # $stdout.puts "[*] Deleting the temporary checkout."
 # @svn_switcher.delete_new_svn_checkout
 
 end_time = Time.now.utc - start_time
-$stdout.puts "Time elapsed: %0.2fm" % (end_time / 60.0)
+$stdout.puts "[*] Time elapsed: %0.2fm" % (end_time / 60.0)

@@ -122,5 +122,20 @@ describe Msf::Util::SvnSwitchConfig do
 		end
 	end
 
+	describe '.untracked_files_list' do
+		it 'should be a valid filename' do
+			subject.untracked_files_list.should_not be_nil
+		end
+	end
+
+	describe '.status_current_cmd' do
+		it 'svn status should be a valid command' do
+			subject.status_current_cmd.should be_a Array
+			File.executable_real?(subject.status_current_cmd.first).should be true
+			subject.status_current_cmd.join(' ').should match /svn status #{subject.msfbase}/
+		end
+
+	end
+
 end
 
