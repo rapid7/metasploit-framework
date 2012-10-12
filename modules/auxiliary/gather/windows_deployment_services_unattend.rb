@@ -14,7 +14,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::DCERPC
 	include Msf::Auxiliary::Report
-
+	include Msf::Auxiliary::Scanner
+	
 	DCERPCPacket   	= Rex::Proto::DCERPC::Packet
 	DCERPCClient   	= Rex::Proto::DCERPC::Client
 	DCERPCResponse 	= Rex::Proto::DCERPC::Response
@@ -40,8 +41,11 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				Opt::RPORT(5040),
+				Opt::RPORT(135),
+				OptPort.new('WDS_PORT', [true, "Windows Deployment Services Port", 5040])
 			], self.class)
+		
+		deregister_options('RHOST', 'CHOST', 'CPORT', 'SSL', 'SSLVersion')
 			
 		register_advanced_options(
 			[
@@ -49,12 +53,51 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)	
 	end
 	
-	def run 
+	# Obtain information about a single host
+	def run_host(ip)
+			begin
+					ids = dcerpc_endpoint_list(datastore['ConnectTimeout'])
+					return if not ids
+					name = nil
+					ids.each do |id|
+							next if not id[:prot]
+							if id[:uuid].upcase == Rex::Proto::DCERPC::WDSCP::Constants::WDSCP_RPC_UUID
+									line = "#{id[:uuid]} v#{id[:vers]} "
+									line << "#{id[:prot].upcase} "
+									line << "(#{id[:port]}) " if id[:port]
+									line << "(#{id[:pipe]}) " if id[:pipe]
+									line << "#{id[:host]} " if id[:host]
+									line << "[#{id[:note]}]" if id[:note]
+
+									print_good("Windows Deployment Services found: %s" %line)
+
+									report_service(
+											:host => ip,
+											:port => id[:port],
+											:proto => id[:prot].downcase,
+											:name => "dcerpc",
+											:info => "#{id[:uuid]} v#{id[:vers]} Windows Deployment Services"
+									)
+									
+									query_host(ip)
+							end
+					end
+
+			rescue ::Interrupt
+					raise $!
+			rescue ::Rex::Proto::DCERPC::Exceptions::Fault
+			rescue ::Exception => e
+					print_error("#{ip}:#{rport} error: #{e}")
+			end
+	end
+
+	
+	def query_host(rhost)
 		# Create a handler with our UUID and Transfer Syntax
 		self.handle = Rex::Proto::DCERPC::Handle.new(	[WDS_CONST::WDSCP_RPC_UUID, '1.0','71710533-beba-4937-8319-b5dbef9ccc36', 1],
 														'ncacn_ip_tcp', 
 														rhost, 
-														[datastore['RPORT']])
+														[datastore['WDS_PORT']])
 		
 		print_status("Binding to #{handle} ...")
 		begin
@@ -103,7 +146,7 @@ class Metasploit3 < Msf::Auxiliary
 			table.print 
 			print_line
 		else
-			print_error("No Unattend files received, service is unlikely to be configured for zero-touch install.")
+			print_error("No Unattend files received, service is unlikely to be configured for completely unattended installation.")
 		end
 	end
 	
