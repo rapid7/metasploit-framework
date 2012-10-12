@@ -74,11 +74,27 @@ describe Msf::Util::SvnSwitchConfig do
 		end
 	end
 
-	describe '.cleanup_cmd' do
+	describe '.cleanup_current_cmd' do
 		it 'svn cleanup should be a valid command' do
+			subject.cleanup_current_cmd.should be_a Array
+			File.executable_real?(subject.cleanup_current_cmd.first).should be true
+			subject.cleanup_current_cmd.join(' ').should match /svn cleanup #{subject.msfbase}/
+		end
+	end
+
+	describe '.cleanup_cmd' do
+		it 'svn cleanup current should cleanup the current dir' do
 			subject.cleanup_cmd.should be_a Array
 			File.executable_real?(subject.cleanup_cmd.first).should be true
-			subject.cleanup_cmd.join(' ').should match /svn cleanup #{subject.msfbase}/
+			subject.cleanup_cmd.join(' ').should match /svn cleanup #{subject.new_svn_checkout}/
+		end
+	end
+
+	describe '.stage_cmd' do
+		it 'svn update --non-recursive be a valid command' do
+			subject.stage_cmd.should be_a Array
+			File.executable_real?(subject.stage_cmd.first).should be true
+			subject.stage_cmd.join(' ').should match /svn update --non-recursive #{subject.new_svn_checkout}\/trunk/
 		end
 	end
 
@@ -86,7 +102,7 @@ describe Msf::Util::SvnSwitchConfig do
 		it 'svn update should be a valid command' do
 			subject.update_cmd.should be_a Array
 			File.executable_real?(subject.update_cmd.first).should be true
-			subject.update_cmd.join(' ').should match /svn update #{subject.new_svn_checkout}\/trunk/
+			subject.update_cmd.join(' ').should match /svn update --set-depth infinity #{subject.new_svn_checkout}\/trunk/
 		end
 	end
 
@@ -95,6 +111,14 @@ describe Msf::Util::SvnSwitchConfig do
 			subject.info_cmd.should be_a Array
 			File.executable_real?(subject.info_cmd.first).should be true
 			subject.info_cmd.join(' ').should match /svn info #{subject.new_svn_checkout}\/trunk/
+		end
+	end
+
+	describe '.revert_cmd' do
+		it 'svn revert should be a valid command' do
+			subject.revert_cmd.should be_a Array
+			File.executable_real?(subject.revert_cmd.first).should be true
+			subject.revert_cmd.join(' ').should match /svn revert #{subject.new_svn_checkout}\/trunk/
 		end
 	end
 

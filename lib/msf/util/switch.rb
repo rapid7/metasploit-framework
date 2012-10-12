@@ -53,12 +53,27 @@ module Msf
 			def cleanup_cmd
 				cmd = [svn_binary]
 				cmd += ["cleanup"]
+				cmd << self.new_svn_checkout
+			end
+
+			def cleanup_current_cmd
+				cmd = [svn_binary]
+				cmd += ["cleanup"]
 				cmd << self.msfbase
+			end
+
+			def stage_cmd
+				cmd = [svn_binary]
+				cmd << "update"
+				cmd << "--non-recursive"
+				cmd << [self.new_svn_checkout,SEP,"trunk"].join
 			end
 
 			def update_cmd
 				cmd = [svn_binary]
 				cmd << "update"
+				cmd << "--set-depth"
+				cmd << "infinity"
 				cmd << [self.new_svn_checkout,SEP,"trunk"].join
 			end
 
@@ -68,9 +83,17 @@ module Msf
 				cmd << [self.new_svn_checkout,SEP,"trunk"].join
 			end
 
+			def revert_cmd
+				cmd = [svn_binary]
+				cmd << "revert"
+				cmd << [self.new_svn_checkout,SEP,"trunk"].join
+			end
+
 		end
 
 		class SvnSwitch
+
+			attr_reader :config
 
 			def initialize
 				@config = SvnSwitchConfig.new
@@ -81,6 +104,7 @@ module Msf
 				raise ArgumentError unless arg.to_s =~ /_cmd$/
 				raise ArgumentError unless @config.respond_to? arg
 				cmd = @config.send arg
+				$stderr.puts "[!] #{cmd.join(' ')}"
 				system(*cmd)
 			end
 
