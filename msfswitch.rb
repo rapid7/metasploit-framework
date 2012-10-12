@@ -13,7 +13,7 @@ start_time = Time.now.utc
 @svn_switcher = Msf::Util::SvnSwitch.new
 
 $stdout.puts "[*]"
-$stdout.puts "[*] Checking Metaspoit SVN checkout."
+$stdout.puts "[*] Validating the Metaspoit Framework SVN checkout."
 $stdout.puts "[*]"
 res = @svn_switcher.exec :cleanup_current_cmd
 if res
