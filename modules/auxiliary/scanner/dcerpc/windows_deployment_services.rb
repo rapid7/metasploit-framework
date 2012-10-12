@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 	# Obtain information about a single host
 	def run_host(ip)
 			begin
-					ids = dcerpc_endpoint_list(datastore['ConnectTimeout'])
+					ids = dcerpc_endpoint_list
 					return if not ids
 					name = nil
 					ids.each do |id|
