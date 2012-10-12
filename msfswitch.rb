@@ -11,9 +11,25 @@ require 'msf/util/switch'
 
 start_time = Time.now.utc
 @svn_switcher = Msf::Util::SvnSwitch.new
+
 $stdout.puts "[*]"
-$stdout.puts "[*] Checking out Metasploit Framework from the official GitHub repo."
-$stdout.puts "[*] This procedure will take several minutes."
+$stdout.puts "[*] Checking Metaspoit SVN checkout."
+$stdout.puts "[*]"
+res = @svn_switcher.exec :cleanup_current_cmd
+if res
+	$stdout.puts "[*]"
+	$stdout.puts "[*] Switching Metasploit Framework to the official GitHub SVN repo."
+	$stdout.puts "[*] This procedure will take several minutes."
+	$stdout.puts "[*]"
+else
+	$stdout.puts ""
+	$stdout.puts "[-] Current svn checkout cannot be cleaned up, aborting."
+	$stdout.puts "[-] Please check that this is an SVN checkout, and if so,"
+	$stdout.puts "[-] re-run msfupdate to ensure switchability."
+	$stdout.puts ""
+	exit 1
+end
+	
 $stdout.puts "[*]"
 $stdout.puts ""
 temp_checkout = @svn_switcher.config.new_svn_checkout

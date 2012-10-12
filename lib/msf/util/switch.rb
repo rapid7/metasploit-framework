@@ -104,7 +104,7 @@ module Msf
 				raise ArgumentError unless arg.to_s =~ /_cmd$/
 				raise ArgumentError unless @config.respond_to? arg
 				cmd = @config.send arg
-				$stderr.puts "[!] #{cmd.join(' ')}"
+				# $stderr.puts "[!] #{cmd.join(' ')}"
 				system(*cmd)
 			end
 
