@@ -59,7 +59,9 @@ class Msftidy
 	##
 
 	def check_executable
-		warn("File is not executable") if not File.executable?(@name)
+		if not File.executable?(@name)
+			warn("File is not executable. Double check your file type and permissions.")
+		end
 	end
 
 	def test_old_rubies(f_rel)
