@@ -58,9 +58,9 @@ class Msftidy
 	#
 	##
 
-	def check_executable
-		if not File.executable?(@name)
-			warn("File is not executable. Double check your file type and permissions.")
+	def check_extname
+		if File.extname(@name) != '.rb'
+			error("Module should be a '.rb' file, or it won't load.")
 		end
 	end
 
@@ -228,7 +228,7 @@ end
 
 def run_checks(f_rel)
 	tidy = Msftidy.new(f_rel)
-	tidy.check_executable
+	tidy.check_extname
 	tidy.test_old_rubies(f_rel)
 	tidy.check_ranking
 	tidy.check_disclosure_date
