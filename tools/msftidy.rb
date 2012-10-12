@@ -74,6 +74,8 @@ class Msftidy
 	end
 
 	def check_ranking
+		return if @source !~ / \< Msf::Exploit/
+
 		available_ranks = [
 			'ManualRanking',
 			'LowRanking',
