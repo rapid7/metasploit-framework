@@ -43,7 +43,6 @@ class Metasploit3 < Msf::Post
 		print_status("Performing ping sweep for IP range #{iprange}")
 		iplst = []
 		begin
-			a = []
 			ipadd = Rex::Socket::RangeWalker.new(iprange)
 			numip = ipadd.num_ips
 			while (iplst.length < numip)
@@ -81,6 +80,7 @@ class Metasploit3 < Msf::Post
 			ip_found = []
 
 			while(not iplst.nil? and not iplst.empty?)
+				a = []
 				1.upto(thread_num) do
 					a << framework.threads.spawn("Module(#{self.refname})", false, iplst.shift) do |ip_add|
 						next if ip_add.nil?
