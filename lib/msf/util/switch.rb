@@ -62,6 +62,12 @@ module Msf
 				cmd << [self.new_svn_checkout,SEP,"trunk"].join
 			end
 
+			def info_cmd
+				cmd = [svn_binary]
+				cmd << "info"
+				cmd << [self.new_svn_checkout,SEP,"trunk"].join
+			end
+
 		end
 
 		class SvnSwitch
@@ -78,7 +84,12 @@ module Msf
 				system(*cmd)
 			end
 
+			def delete_new_svn_checkout
+				FileUtils.rm_rf self.config.new_svn_checkout
+			end
+
 		end
 
 	end
 end
+
