@@ -97,8 +97,8 @@ class Metasploit3 < Msf::Post
 						end
 
 					end
-					a.map {|x| x.join }
 				end
+				a.map {|x| x.join }
 			end
 		rescue Rex::TimeoutError, Rex::Post::Meterpreter::RequestError
 		rescue ::Exception => e
