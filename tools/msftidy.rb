@@ -88,7 +88,7 @@ class Msftidy
 
 		if @source =~ /Rank \= (\w+)/
 			if not available_ranks.include?($1)
-				warn("Invalid ranking. You have '#{$1}'")
+				error("Invalid ranking. You have '#{$1}'")
 			end
 		end
 	end
@@ -108,9 +108,9 @@ class Msftidy
 					'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 				]
 
-				warn('Incorrect disclosure month format') if months.index(m).nil?
+				error('Incorrect disclosure month format') if months.index(m).nil?
 			else
-				warn('Incorrect disclosure date format')
+				error('Incorrect disclosure date format')
 			end
 		end
 	end
@@ -123,7 +123,7 @@ class Msftidy
 				if word[0,1] =~ /[a-z]/ and word[1,1] !~ /[A-Z0-9]/
 					next if word =~ /php[A-Z]/
 					next if %w{iseemedia activePDF freeFTPd osCommerce myBB qdPM}.include? word
-					warn("Bad capitalization in module title: #{word}")
+					warn("Improper capitalization in module title: '#{word}...'")
 				end
 			end
 		end
@@ -145,7 +145,7 @@ class Msftidy
 		functions.each do |func_name, args|
 			# Check argument length
 			args_length = args.split(",").length
-			warn("Poorly designed argument list in '#{func_name}'. Try a hash.") if args_length > 6
+			warn("Poorly designed argument list in '#{func_name}()'. Try a hash.") if args_length > 6
 		end
 	end
 
