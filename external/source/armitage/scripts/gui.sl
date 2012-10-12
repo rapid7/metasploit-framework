@@ -432,13 +432,17 @@ sub setupTable {
 # creates a list dialog,
 # $1 = title, $2 = button text, $3 = columns, $4 = rows, $5 = callback
 sub quickListDialog {
-	local('$dialog $panel $table $row $model $button $sorter $after $a');
+	local('$dialog $panel $table $row $model $button $sorter $after $a $tablef');
 	$dialog = dialog($1, $width, $height);
 	$panel = [new JPanel];
 	[$panel setLayout: [new BorderLayout]];
 	
 	($table, $model) = setupTable($3[0], sublist($3, 1), $4);
 	[$panel add: [new JScrollPane: $table], [BorderLayout CENTER]];
+
+	if ($tablef !is $null) {
+		[$tablef: $table, $model];
+	}
 	
 	$button = [new JButton: $2];
 	[$button addActionListener: lambda({

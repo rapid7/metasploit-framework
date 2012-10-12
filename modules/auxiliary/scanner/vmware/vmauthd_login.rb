@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description' => %q{This module will test vmauthd logins on a range of machines and
 								report successful logins.
 			},
-			'Author'      => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
+			'Author'      => ['theLightCosine'],
 			'References'     =>
 				[
 					[ 'CVE', '1999-0502'] # Weak password

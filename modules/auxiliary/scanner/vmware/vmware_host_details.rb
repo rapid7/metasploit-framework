@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module attempts to enumerate information about the host systems through the VMWare web API.
 				This can include information about the hardware installed on the host machine.
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
+			'Author'         => ['theLightCosine'],
 			'License'        => MSF_LICENSE
 		)
 

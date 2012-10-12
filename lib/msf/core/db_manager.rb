@@ -1,19 +1,11 @@
 # -*- coding: binary -*-
-require "active_record"
 
+require 'msf/base/config'
 require 'msf/core'
 require 'msf/core/db'
 require 'msf/core/task_manager'
 require 'fileutils'
 require 'shellwords'
-
-# Provide access to ActiveRecord models shared w/ commercial versions
-require "metasploit_data_models"
-
-# Patches issues with ActiveRecord
-require "msf/core/patches/active_record"
-
-
 
 module Msf
 
@@ -28,22 +20,12 @@ class DBManager
 
 	# Mainly, it's Ruby 1.9.1 that cause a lot of problems now, along with Ruby 1.8.6.
 	# Ruby 1.8.7 actually seems okay, but why tempt fate? Let's say 1.9.3 and beyond.
-	def self.warn_about_rubies
+	def warn_about_rubies
 		if ::RUBY_VERSION =~ /^1\.9\.[012]($|[^\d])/
 			$stderr.puts "**************************************************************************************"
 			$stderr.puts "Metasploit requires at least Ruby 1.9.3. For an easy upgrade path, see https://rvm.io/"
 			$stderr.puts "**************************************************************************************"
 		end
-	end
-
-	# Only include Mdm if we're not using Metasploit commercial versions
-	# If Mdm::Host is defined, the dynamically created classes
-	# are already in the object space
-	begin
-    include MetasploitDataModels unless defined? Mdm::Host
-	rescue NameError => e
-	warn_about_rubies
-	raise e
 	end
 
 	# Provides :framework and other accessors
@@ -117,12 +99,32 @@ class DBManager
 			# Database drivers can reset our KCODE, do not let them
 			$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
 
+			require "active_record"
+
+			# Provide access to ActiveRecord models shared w/ commercial versions
+			require "metasploit_data_models"
+
+			# Patches issues with ActiveRecord
+			require "msf/core/patches/active_record"
+
 			@usable = true
 
 		rescue ::Exception => e
 			self.error = e
 			elog("DB is not enabled due to load error: #{e}")
 			return false
+		end
+
+		# Only include Mdm if we're not using Metasploit commercial versions
+		# If Mdm::Host is defined, the dynamically created classes
+		# are already in the object space
+		begin
+			unless defined? Mdm::Host
+				self.class.send :include, MetasploitDataModels
+			end
+		rescue NameError => e
+			warn_about_rubies
+			raise e
 		end
 
 		#

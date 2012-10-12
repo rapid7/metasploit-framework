@@ -1,6 +1,52 @@
 Armitage Changelog
 ==================
 
+5 Sept 12 (tested against msf r15804)
+---------
+- Setup dialog now trims host, port, user, and pass fields.
+- Armitage now complains when it can't write to your preferences
+  file (versus just hanging without a real error message)
+- View -> Jobs now queries jobs in a thread outside of UI thread
+- Tab completion now uses a separate thread to call into the RPC
+  server. This prevents a deadlock if server is not responding.
+- Login -> psexec now shows when 445 is open on a Windows machine.
+  The old criteria was too restrictive.
+- Added a helper to set Wordlist option
+- Armitage now sets a random LPORT for non-exploit modules with an
+  LPORT option (e.g., post modules that do priv escalation)
+- Armitage now shows an error if it can't open a Win command shell
+- Steal Token dialog now uses incognito module to get token data 
+  instead of the MSF post module. This is more reliable.
+- You may now setup the reverse payload for current_user_psexec
+
+Cortana Updates (for scripters)
+--------
+- added an eventlog popup hook
+
+16 Aug 12 (tested against msf r15753)
+----------
+- Dynamic workspaces now removes closed services from its set of
+  hosts matching certain open ports.
+- Cortana console now reports a clear error message a built-in
+  command is executed without the right number of arguments.
+- Added host icons for Android and iOS. You may now set these
+  operating systems by going to [host] -> Host -> Operating System
+- Armitage now shows the client-side exploit dialog for any exploit
+  that does not target an RHOST (for example, windows/smb/smb_relay)
+- Added support for remote exploits that use RHOSTS over RHOST
+  (this includes the new windows/local/current_user_psexec)
+- Added a helper for setting the SESSION option
+
+Cortana Updates (for scripters)
+--------
+- s_cmd no longer times out after 60s. It will wait forever for
+  a command to complete now.
+- added shell_read event which fires when a shell s_cmd comes
+  back with intermediate output.
+- fixed a potential deadlock with &open_console_tab
+- scripts now have the ability to redefine the max size of a 
+  workspace: db_workspace(%(size => #####));
+
 2 Aug 12 (tested again msf r15698)
 --------
 - Armitage now reports vulnerability module and descriptions 

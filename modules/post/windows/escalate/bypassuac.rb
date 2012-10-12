@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Post
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ],
 			'References'    => [
-				[ 'URL', 'http://www.secmaniac.com/december-2010/bypass-windows-uac/' ]
+				[ 'URL', ' http://www.trustedsec.com/december-2010/bypass-windows-uac/' ]
 			],
 			'DisclosureDate'=> "Dec 31, 2010"
 		))
@@ -41,7 +41,12 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-
+		print_error("***********************************************")
+		print_error("*                                             *")
+		print_error("* Module will be depricated on Jan 4 2013     *")
+		print_error("* Please use exploits/windows/local/bypassuac *")
+		print_error("*                                             *")
+		print_error("***********************************************")
 		vuln = false
 		sysinfo = session.sys.config.sysinfo
 		winver = sysinfo["OS"]

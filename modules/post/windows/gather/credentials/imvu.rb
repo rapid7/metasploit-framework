@@ -1,5 +1,5 @@
 ##
-# $Id: enum_imvu.rb 14100 2011-10-28 18:00:10Z thelightcosine $
+# $Id: enum_imvu.rb 14100 2011-10-28 18:00:10Z theLightCosine $
 ##
 
 ##

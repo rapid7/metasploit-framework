@@ -30,6 +30,15 @@ sub oneTimeShow {
 	}, $command => $1);
 }
 
+sub m_cmd_callback {
+	if ($mclient is $null) {
+		warn("Dropping: " . @_ . " - collab check not complete!");
+		return;
+	}
+
+	[session($1) addCommand: $3, "$2 $+ \n"];
+}
+
 # m_cmd("session", "command here")
 sub m_cmd {
 	if ($mclient is $null) {

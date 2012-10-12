@@ -398,16 +398,23 @@ sub connectDialog {
 	[$dialog add: center($button, $help), [BorderLayout SOUTH]];
 
 	[$button addActionListener: lambda({
-		[$dialog setVisible: 0];
-		connectToMetasploit([$host getText], [$port getText], [$user getText], [$pass getText]);
+		local('$h $p $u $s @o');
 
-		if ([$host getText] eq "127.0.0.1") {
+		# clean up the user options...
+		@o = @([$host getText], [$port getText], [$user getText], [$pass getText]);
+		@o = map({ return ["$1" trim]; }, @o);
+		($h, $p, $u, $s) = @o;
+
+		[$dialog setVisible: 0];
+		connectToMetasploit($h, $p, $u, $s);
+
+		if ($h eq "127.0.0.1" || $h eq "localhost") {
 			try {
-				closef(connect("127.0.0.1", [$port getText], 1000));
+				closef(connect("127.0.0.1", $p, 1000));
 			}
 			catch $ex {
 				if (!askYesNo("A Metasploit RPC server is not running or\nnot accepting connections yet. Would you\nlike me to start Metasploit's RPC server\nfor you?", "Start Metasploit?")) {
-					startMetasploit([$user getText], [$pass getText], [$port getText]);
+					startMetasploit($u, $s, $p);
 				}
 			}
 		}

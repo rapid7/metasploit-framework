@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module will log into the Web API of VMWare and try to enumerate
 				all the login sessions.
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
+			'Author'         => ['theLightCosine'],
 			'License'        => MSF_LICENSE
 		)
 

@@ -78,6 +78,7 @@ if (framework.datastore['MOD_MULTI'] != nil)
 else
 	modules_multi = [
 		'post/multi/gather/env',
+		'post/multi/gather/gpg_creds',
 		'post/multi/gather/ssh_creds'
 	]
 end

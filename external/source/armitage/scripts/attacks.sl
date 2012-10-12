@@ -397,6 +397,9 @@ sub attack_dialog {
 		if ($key eq "RHOST") {
 			$value["default"] = join(", ", $3);
 		}
+		else if ($key eq "RHOSTS") {
+			$value["default"] = join(", ", $3);
+		}
 		
 		[$model _addEntry: %(Option => $key, 
 					Value => $value["default"], 
@@ -454,32 +457,61 @@ sub attack_dialog {
 
 		$options["TARGET"] = split(' \=\> ', [$combobox getSelectedItem])[0];
 
-		thread(lambda({
-			local('$host $hosts');
-			$hosts = split(', ', $options["RHOST"]);
+		if ('RHOSTS' in $options) {
+			thread(lambda({
+				local('$hosts $host');
+				$hosts = split(', ', $options["RHOSTS"]);
 
-			foreach $host ($hosts) {
-				$options["PAYLOAD"] = best_payload($host, $exploit, [$b isSelected]);
-				$options["RHOST"] = $host;
+				if (size($hosts) == 0) {
+					showError("Please specify an RHOSTS value");
+					return;
+				}
+				$options["PAYLOAD"] = best_payload($hosts[0], $exploit, [$b isSelected]);
+
 				if ([$b isSelected]) {
 					$options["LPORT"] = randomPort();
 				}
 
-				($exploit, $host, $options) = filter_data("exploit", $exploit, $host, $options);
-
-				if (size($hosts) >= 4) {
-					call_async($client, "module.execute", "exploit", $exploit, $options);
+				# give scripts a chance to filter this data.
+				foreach $host ($hosts) {
+					($exploit, $host, $options) = filter_data("exploit", $exploit, $host, $options);
 				}
-				else {
-					module_execute("exploit", $exploit, copy($options));
-				}
-				yield 100;
-			}
+	
+				module_execute("exploit", $exploit, copy($options));
 
-			if ([$preferences getProperty: "armitage.show_all_commands.boolean", "true"] eq "false" || size($hosts) >= 4) {
-				showError("Launched $exploit at " . size($hosts) . " host" . iff(size($hosts) == 1, "", "s"));
-			}
-		}, $options => copy($options), \$exploit, \$b));
+				if ([$preferences getProperty: "armitage.show_all_commands.boolean", "true"] eq "false" || size($hosts) >= 4) {
+					showError("Launched $exploit at " . size($hosts) . " host" . iff(size($hosts) == 1, "", "s"));
+				}
+			}, $options => copy($options), \$exploit, \$b));
+		}
+		else {
+			thread(lambda({
+				local('$host $hosts');
+				$hosts = split(', ', $options["RHOST"]);
+
+				foreach $host ($hosts) {
+					$options["PAYLOAD"] = best_payload($host, $exploit, [$b isSelected]);
+					$options["RHOST"] = $host;
+					if ([$b isSelected]) {
+						$options["LPORT"] = randomPort();
+					}
+
+					($exploit, $host, $options) = filter_data("exploit", $exploit, $host, $options);
+	
+					if (size($hosts) >= 4) {
+						call_async($client, "module.execute", "exploit", $exploit, $options);
+					}
+					else {
+						module_execute("exploit", $exploit, copy($options));
+					}
+					yield 100;
+				}
+
+				if ([$preferences getProperty: "armitage.show_all_commands.boolean", "true"] eq "false" || size($hosts) >= 4) {
+					showError("Launched $exploit at " . size($hosts) . " host" . iff(size($hosts) == 1, "", "s"));
+				}
+			}, $options => copy($options), \$exploit, \$b));
+		}
 
 		if (!isShift($1)) {
 			[$dialog setVisible: 0];
@@ -568,7 +600,7 @@ sub host_attack_items {
 
 	foreach $port => $service (%hosts[$2[0]]['services']) {
 		$name = $service['name'];
-		if ($name eq "smb" && "*Windows*" iswm getHostOS($2[0])) {
+		if ($port == 445 && "*Windows*" iswm getHostOS($2[0])) {
 			push(@options, @("psexec", lambda(&pass_the_hash, $hosts => $2)));
 		}
 		else if ("scanner/ $+ $name $+ / $+ $name $+ _login" in @auxiliary) {
@@ -613,7 +645,37 @@ sub addFileListener {
 	$actions["Template"] = $actions["*FILE*"];
 	$actions["SigningCert"] = $actions["*FILE*"];
 	$actions["SigningKey"] = $actions["*FILE*"];
+	$actions["Wordlist"]   = $actions["*FILE*"];
 	$actions["WORDLIST"]   = $actions["*FILE*"];
+
+	# set up an action to choose a session
+	$actions["SESSION"] = {
+		local('@data $sid $data $host $hdata $temp $tablef');
+
+		# obtain a list of sessions
+		foreach $host (keys(%hosts)) {
+			foreach $sid => $data (getSessions($host)) {
+				$temp = copy($data);
+				$temp['sid'] = $sid;
+				push(@data, $temp);
+			}
+		}
+
+		# sort the session data
+		@data = sort({ return $1['sid'] <=> $2['sid']; }, @data);
+
+		# update the table widths
+		$tablef = {
+        	        [[$1 getColumn: "sid"] setPreferredWidth: 100];
+        	        [[$1 getColumn: "session_host"] setPreferredWidth: 300];
+        	        [[$1 getColumn: "info"] setPreferredWidth: 1024];
+		};
+
+		# let the user choose a session
+		quickListDialog("Choose a session", "Select", @("sid", "sid", "session_host", "info"), @data, $width => 640, $height => 240, lambda({
+			[$call : $1];
+		}, $call => $4), \$tablef);
+	};
 
 	# set up an action to pop up a file chooser for different file type values.
 	$actions["RHOST"] = {

