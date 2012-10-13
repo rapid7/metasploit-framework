@@ -63,8 +63,8 @@ describe Msf::Util::SvnSwitch do
 	describe '.backup_local_files' do
 
 		before(:each) do
-			@new_svn_checkout = subject.config.new_svn_checkout
-			FileUtils.mkdir @new_svn_checkout
+			@new_svn_checkout = File.join(subject.config.new_svn_checkout, "trunk")
+			FileUtils.mkdir_p @new_svn_checkout
 			msfbase = subject.msfbase
 			%x[touch #{@test_file_1 = File.join(msfbase,"test1.txt")}]
 			@test_dir = FileUtils.mkdir File.join(msfbase,"testdir")
@@ -72,7 +72,7 @@ describe Msf::Util::SvnSwitch do
 			@test_dir_deep = FileUtils.mkdir_p File.join(msfbase,"testdir_deep","another","another")
 		end
 		after(:each) do
-			FileUtils.rm_rf @new_svn_checkout
+			FileUtils.rm_rf File.split(@new_svn_checkout).first
 			FileUtils.rm_rf @test_file_1
 			FileUtils.rm_rf @test_dir
 			FileUtils.rm_rf File.join(subject.config.msfbase, "testdir_deep")
@@ -114,18 +114,18 @@ describe Msf::Util::SvnSwitch do
 	describe '.copy_new_checkout' do
 		it {should respond_to :copy_new_checkout}
 		before(:each) do
-			@new_svn_checkout = subject.new_svn_checkout
+			@new_svn_checkout = File.join(subject.new_svn_checkout,"trunk")
 			@msfbase = subject.msfbase
 			fname = File.join(@msfbase,"HACKING")
 			@hacking_data = File.open(fname, "rb") {|f| f.read f.stat.size}
-			FileUtils.mkdir @new_svn_checkout
+			FileUtils.mkdir_p @new_svn_checkout
 			fh = File.open(File.join(@new_svn_checkout, "new_test.txt"), "wb")
 			fh.close
 			FileUtils.cp(fh.path, File.join(@new_svn_checkout, "HACKING"))
 		end
 		after(:each) do
 			fname = File.join(@msfbase,"HACKING")
-			FileUtils.rm_rf @new_svn_checkout
+			FileUtils.rm_rf File.split(@new_svn_checkout).first
 			FileUtils.rm_rf File.join(@msfbase, "new_test.txt")
 			fh = File.open(fname, "wb")
 			fh.write @hacking_data

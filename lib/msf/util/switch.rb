@@ -76,7 +76,7 @@ module Msf
 				cmd = [svn_binary]
 				cmd << "update"
 				cmd << "--non-recursive"
-				cmd << [self.new_svn_checkout,SEP,"trunk"].join
+				cmd << File.join(new_svn_checkout, "trunk")
 			end
 
 			def update_cmd
@@ -84,7 +84,7 @@ module Msf
 				cmd << "update"
 				cmd << "--set-depth"
 				cmd << "infinity"
-				cmd << [self.new_svn_checkout,SEP,"trunk"].join
+				cmd << File.join(new_svn_checkout, "trunk")
 			end
 
 			def update_current_cmd
@@ -96,13 +96,13 @@ module Msf
 			def info_cmd
 				cmd = [svn_binary]
 				cmd << "info"
-				cmd << [self.new_svn_checkout,SEP,"trunk"].join
+				cmd << File.join(new_svn_checkout, "trunk")
 			end
 
 			def revert_cmd
 				cmd = [svn_binary]
 				cmd << "revert"
-				cmd << [self.new_svn_checkout,SEP,"trunk"].join
+				cmd << File.join(new_svn_checkout, "trunk")
 			end
 
 			def status_current_cmd
@@ -169,7 +169,7 @@ module Msf
 				files = @config.locally_modified_files
 				files.each do |file|
 					src = file
-					dst = @config.new_svn_checkout
+					dst = File.join(@config.new_svn_checkout, "trunk")
 					FileUtils.cp_r(src, dst, {:remove_destination => true})
 				end
 				return files
@@ -177,11 +177,12 @@ module Msf
 
 			def copy_new_checkout
 				files = []
-				Dir.foreach(@config.new_svn_checkout) do |entry|
+				src_dir = File.join(@config.new_svn_checkout, "trunk")
+				Dir.foreach(src_dir) do |entry|
 					next if entry == ".."
 					next if entry == "."
 					next if entry == /^msfswitch/
-					src = File.join(self.new_svn_checkout, entry)
+					src = File.join(src_dir,entry)
 					dst = File.join(self.msfbase)
 					FileUtils.cp_r(src, dst, {:remove_destination => true})
 				end
