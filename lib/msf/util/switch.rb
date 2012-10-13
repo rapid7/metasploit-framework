@@ -164,17 +164,18 @@ module Msf
 				FileUtils.rm_rf self.config.new_svn_checkout
 			end
 
-			def backup_local_files
+			def backup_local_files(&block)
 				files = @config.locally_modified_files
 				files.each do |file|
 					src = file
 					dst = File.join(@config.new_svn_checkout, "trunk")
 					FileUtils.cp_r(src, dst, {:remove_destination => true})
+					yield [src, dst] if block
 				end
 				return files
 			end
 
-			def copy_new_checkout
+			def copy_new_checkout(&block)
 				files = []
 				src_dir = File.join(@config.new_svn_checkout, "trunk")
 				Dir.foreach(src_dir) do |entry|
@@ -184,6 +185,7 @@ module Msf
 					src = File.join(src_dir,entry)
 					dst = File.join(self.msfbase)
 					FileUtils.cp_r(src, dst, {:remove_destination => true})
+					yield [src, dst] if block
 				end
 			end
 

@@ -44,9 +44,9 @@ $stdout.puts "[*] Staging the svn update."
 $stdout.puts "[*] Updating contents."
 @svn_switcher.system :update_cmd
 $stdout.puts "[*] Preserving locally changed files and directories"
-@svn_switcher.backup_local_files
+@svn_switcher.backup_local_files {|s,d| $stdout.puts "[*] Copying #{s} to #{d}"}
 $stdout.puts "[*] Replacing the current checkout with the new checkout"
-@svn_switcher.copy_new_checkout
+@svn_switcher.copy_new_checkout {|s,d| $stdout.puts "[*] Copying #{s} to #{d}"}
 $stdout.puts "[*] Cleaning up"
 @svn_switcher.system :cleanup_current_cmd
 @svn_switcher.system :revert_gemfile_current_cmd
