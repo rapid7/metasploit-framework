@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 
-require 'find'
 require 'fileutils'
 
 module Msf
@@ -113,7 +112,7 @@ module Msf
 
 			def locally_modified_files
 				return @eligable_files if @eligable_files
-				cmd = "#{svn_binary} status '#{self.msfbase}'"	
+				cmd = "#{svn_binary} status '#{self.msfbase}'"
 				results = %x[#{cmd}].split(/\n/)
 				okay_to_copy = results.select {|line| line[0,1] =~ /[ACIMR?]/}
 				@eligable_files = okay_to_copy.map {|line| line[8,line.size]}
@@ -126,7 +125,7 @@ module Msf
 			end
 
 			def switchable?
-				cmd = "#{svn_binary} status '#{self.msfbase}'"	
+				cmd = "#{svn_binary} status '#{self.msfbase}'"
 				results = %x[#{cmd}].split(/\n/)
 				results.map {|line| line[8,line.size]} == locally_modified_files
 			end

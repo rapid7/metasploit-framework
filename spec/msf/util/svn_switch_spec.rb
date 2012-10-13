@@ -5,6 +5,7 @@ require 'msf/util/switch'
 describe Msf::Util::SvnSwitch do
 
 	before(:all) do
+		# Yes, this is requiring a very specific path to an SVN checkout.
 		@subject = Msf::Util::SvnSwitch.new(1234,"/tmp/msf3-anon")
 	end
 	subject {@subject}

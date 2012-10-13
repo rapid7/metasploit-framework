@@ -31,6 +31,7 @@ $stdout.puts "[*]"
 $stdout.puts ""
 temp_checkout = @svn_switcher.new_svn_checkout
 $stdout.puts "[*] Prepping current checkout #{@svn_switcher.config.msfbase}"
+
 unless @svn_switcher.system :cleanup_current_cmd
 	$stdout.puts "[-] Error with svn cleanup, aborting!"
 	exit 2
@@ -53,7 +54,7 @@ $stdout.puts "[*] Cleaning up"
 $stdout.puts "[*] Deleting the temporary Git checkout."
 @svn_switcher.delete_new_svn_checkout
 $stdout.puts "[+] Conversion complete!"
-@svn_switcher.status_current_cmd
+@svn_switcher.system :status_current_cmd
 
 end_time = Time.now.utc - start_time
 $stdout.puts "[*] Time elapsed: %0.2fm" % (end_time / 60.0)
