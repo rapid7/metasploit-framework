@@ -4,13 +4,31 @@ require 'msf/util/switch'
 
 describe Msf::Util::SvnSwitch do
 
+	before(:all) do
+		@subject = Msf::Util::SvnSwitch.new(1234,"/tmp/msf3-anon")
+	end
+	subject {@subject}
+
 	it 'should exist' do
 		subject.should be_a ::Msf::Util::SvnSwitch
+	end
+
+	it 'should take a configurable i and msfbase' do
+		i = 1234
+		base = "/tmp/msf3-anon"
+		obj = Msf::Util::SvnSwitch.new(i, base)
+		obj.should be
 	end
 
 	describe '.config' do
 		it 'should return a config object' do
 			subject.config.should be_a Msf::Util::SvnSwitchConfig
+		end
+	end
+
+	describe '.msfbase' do
+		it 'should return a path' do
+			File.directory?(subject.msfbase).should be_true
 		end
 	end
 
@@ -25,44 +43,21 @@ describe Msf::Util::SvnSwitch do
 				subject.system(:foobar)
 			}.to raise_error
 		end
-		it 'should return true or false when it gets a valid command' do
-			[TrueClass, FalseClass].should include subject.system(:info_cmd).class
+		it 'should return false when the commands fails' do
+			subject.system(:info_cmd).should be_false
+		end
+		it 'should return true when the command succeeds' do
+			subject.system(:status_current_cmd).should be_true
 		end
 	end
 
 	describe '.delete_new_svn_checkout' do
-		it 'should attempt to rm -rf the named directory' do
-			subject.delete_new_svn_checkout.should == [subject.config.new_svn_checkout]
+		it 'should attempt to rm -rf the new checkout' do
+			checkout_dir = File.join(subject.msfbase, "msf-github-1234")
+			FileUtils.mkdir(checkout_dir)
+			subject.delete_new_svn_checkout.should == [checkout_dir]
+			File.exist? checkout_dir
 		end
-	end
-
-	describe '.create_untracked_files_list' do
-
-		before(:all) do
-			FileUtils.mkdir subject.config.new_svn_checkout
-		end
-		after(:all) do
-			FileUtils.rm_rf subject.config.new_svn_checkout
-		end
-
-		it 'should create a file in the temp checkout' do
-			subject.create_untracked_files_list.should =~ /#{subject.config.new_svn_checkout}/
-			subject.create_untracked_files_list.should =~ /msf-svn-untracked\.txt$/
-			File.readable?(subject.config.untracked_files_list).should be true
-		end
-
-		it 'should write a list of untracked files to that file' do
-			fname = subject.config.untracked_files_list
-			fdata = File.open(fname, "rb") {|f| f.read f.stat.size}
-			fdata.should_not be_nil
-		end
-
-		context 'given some untracked files' do
-			it 'should list those files' do
-				pending('test in an SVN environment')
-			end
-		end
-
 	end
 
 end

@@ -7,37 +7,58 @@ describe Msf::Util::SvnSwitchConfig do
 		subject.should be_a ::Msf::Util::SvnSwitchConfig
 	end
 
+	before(:each) do
+		checkout_dir = "/tmp/msf3-anon"
+		@subject = Msf::Util::SvnSwitchConfig.new(1234, checkout_dir)
+		pwd = File.expand_path(File.dirname(__FILE__))
+		@top = File.expand_path(File.join(pwd, "..", "..", ".."))
+	end
+	subject {@subject}
+
 	describe '.msfbase' do
-		it 'should return the base install directory for Metasploit' do
-			pwd = File.expand_path(File.dirname(__FILE__))
-			top = File.expand_path(File.join(pwd, "..", "..", ".."))
-			subject.msfbase.should == top
+		context 'when msfbase has not been set' do
+			it 'should return the base install directory for Metasploit' do
+				fake_subject = subject.class.new
+				fake_subject.msfbase.should == @top
+			end
+		end
+		context 'when msfbase has been set' do
+			it 'should return the specified directory' do
+				my_msfbase = '/tmp/msf3-anon'
+				subject.msfbase.should == my_msfbase
+			end
+			it 'should return the real msfbase when nil' do
+				fake_subject = subject.class.new
+				fake_subject.msfbase = nil
+				fake_subject.msfbase.should == @top
+			end
 		end
 	end
 
 	describe '.i' do
 		it 'should be an integer' do
-			subject.i.should be_a Integer
+			subject.i.should be_an Integer
 		end
-
-		it 'should be random if undefined' do
+		context 'when undefined' do
+			it 'should be random' do
 			obj1 = Msf::Util::SvnSwitchConfig.new
 			obj2 = Msf::Util::SvnSwitchConfig.new
 			obj1.i.should_not == obj2.i
+			end
 		end
-
-		it 'should be fixed if defined' do
-			i = 4321
-			new_obj = Msf::Util::SvnSwitchConfig.new(i)
-			new_obj.i == i
+		context 'when defined' do
+			it 'should be fixed' do
+				i = 4321
+				new_obj = Msf::Util::SvnSwitchConfig.new(i)
+				new_obj.i == i
+			end
 		end
-
 	end
 
 	describe '.github_svn_checkout_target' do
 		it 'should return the target subdir for the github svn checkout' do
 			subject.github_svn_checkout_target.should_not be_empty
-			subject.github_svn_checkout_target.should include subject.msfbase
+			subject.github_svn_checkout_target.should match /#{subject.msfbase}/
 		end
 	end
 
@@ -122,19 +143,67 @@ describe Msf::Util::SvnSwitchConfig do
 		end
 	end
 
-	describe '.untracked_files_list' do
-		it 'should be a valid filename' do
-			subject.untracked_files_list.should_not be_nil
-		end
-	end
-
 	describe '.status_current_cmd' do
 		it 'svn status should be a valid command' do
 			subject.status_current_cmd.should be_a Array
 			File.executable_real?(subject.status_current_cmd.first).should be true
 			subject.status_current_cmd.join(' ').should match /svn status #{subject.msfbase}/
 		end
+	end
 
+	before(:each) do
+		@test_fname = File.join(subject.msfbase, "HACKING")
+		fh = File.open(@test_fname, "rb")
+		@hacking_data = fh.read fh.stat.size
+		fh.close
+		fh = File.open(@test_fname, "wb")
+		fh.print "And here's a change."
+		fh.close
+	end
+	after(:each) do
+		@test_fname = File.join(subject.msfbase, "HACKING")
+		fh = File.open(@test_fname, "wb")
+		fh.write @hacking_data
+		fh.close
+	end
+
+	describe '.locally_modified_files' do
+		it 'should return an array' do
+			subject.locally_modified_files.should be_an Array
+		end
+		context 'given some untracked files' do
+			it 'should have some elements' do
+				subject.locally_modified_files.should include(@test_fname)
+			end
+		end
+		context 'given no untracked files' do
+			it 'should have no elements' do
+				fake_subject = subject.class.new(666, '/tmp')
+				fake_subject.locally_modified_files.size.should be_zero
+			end
+		end
+	end
+
+	describe '.switchable?' do
+		context 'when there are no unexpectedly untracked files' do
+			it 'should be switchable' do
+				subject.should be_switchable
+			end
+		end
+		context 'when there are missing files' do
+			before(:each) do
+				FileUtils.rm(@test_fname)
+			end
+			after(:each) do
+				fh = File.open(@test_fname, "wb")
+				fh.write @hacking_data
+				fh.close
+			end
+			it 'should not be switchable' do
+				subject.should_not be_switchable
+			end
+		end
+		
 	end
 
 end

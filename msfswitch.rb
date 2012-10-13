@@ -17,7 +17,7 @@ unless Msf::Util::SVN.root =~ /\.metasploit\.com/
 	exit 1
 end
 
-@svn_switcher = Msf::Util::SvnSwitch.new
+@svn_switcher = Msf::Util::SvnSwitch.new(1234)
 
 $stdout.puts "[*]"
 $stdout.puts "[*] Switching Metasploit Framework to the official GitHub SVN repo."
@@ -32,11 +32,8 @@ unless @svn_switcher.system :cleanup_current_cmd
 end
 
 $stdout.puts "[*] Enumerating untracked files"
-
-FileUtils.mkdir temp_checkout
+FileUtils.mkdir temp_checkout rescue nil
 @svn_switcher.create_untracked_files_list
-
-exit 666
 
 $stdout.puts "[*] Creating temporary checkout at #{temp_checkout}"
 @svn_switcher.system :checkout_cmd
@@ -44,10 +41,14 @@ $stdout.puts "[*] Staging the svn update."
 @svn_switcher.system :stage_cmd
 $stdout.puts "[*] Updating contents."
 @svn_switcher.system :update_cmd
-$stdout.puts "[*] Cleaning up and getting svn info"
+$stdout.puts "[*] Cleaning up"
 @svn_switcher.system :cleanup_cmd
 @svn_switcher.system :revert_cmd
 @svn_switcher.system :info_cmd
+$stdout.puts "[*] Preserving untracked files"
+@svn_switcher.copy_untracked_files do |x|
+	puts x.inspect
+end
 # $stdout.puts "[*] Deleting the temporary checkout."
 # @svn_switcher.delete_new_svn_checkout
 

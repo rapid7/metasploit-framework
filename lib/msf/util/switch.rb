@@ -11,21 +11,31 @@ module Msf
 			SEP = File::SEPARATOR
 			GITHUB_SVN = 'https://github.com/rapid7/metasploit-framework'
 
-			attr_reader :i, :new_svn_checkout, :new_source
+			attr_reader :i, :new_svn_checkout, :new_source, :msfbase
 
-			def initialize(i=nil)
+			def initialize(i=nil, base=nil)
 				@i = (i || rand(2**16))
+				self.msfbase = base
 				@new_svn_checkout = github_svn_checkout_target
 				@new_source = GITHUB_SVN
 			end
 
-			def msfbase
-				base = __FILE__
-				while File.symlink?(base)
-					base = File.expand_path(File.readlink(base), File.dirname(base))
+			def resolve_symlink(fname)
+				while File.symlink?(fname)
+					fname = File.expand_path(File.readlink(fname), File.dirname(fname))
 				end
-				pwd = File.dirname(base)
-				File.expand_path(File.join(pwd, "..", "..", ".."))
+				return fname
+			end
+
+			def msfbase
+				return @msfbase if @msfbase
+				pwd = File.dirname(__FILE__)
+				self.msfbase = File.expand_path(File.join(pwd, "..", "..", ".."))
+			end
+
+			def msfbase=(path=nil)
+				@msfbase = nil
+				@msfbase = resolve_symlink (path || msfbase)
 			end
 
 			def github_svn_checkout_target
@@ -89,24 +99,40 @@ module Msf
 				cmd << [self.new_svn_checkout,SEP,"trunk"].join
 			end
 
-			def untracked_files_list
-				File.join(self.new_svn_checkout, "msf-svn-untracked.txt")
-			end
-
 			def status_current_cmd
 				cmd = [svn_binary]
 				cmd << "status"
 				cmd << self.msfbase
 			end
 
+			def locally_modified_files
+				return @eligable_results if @eligable_results
+				cmd = "#{svn_binary} status '#{self.msfbase}'"	
+				results = %x[#{cmd}].split(/\n/)
+				okay_to_copy = results.select {|line| line[0,1] =~ /[ACIMR?]/}
+				@eligable_results = okay_to_copy.map {|line| line[8,line.size]}
+			end
+
+			def switchable?
+				cmd = "#{svn_binary} status '#{self.msfbase}'"	
+				results = %x[#{cmd}].split(/\n/)
+				results.map {|line| line[8,line.size]} == locally_modified_files
+			end
+
 		end
 
 		class SvnSwitch
 
+			SEP = File::SEPARATOR
+
 			attr_reader :config
 
-			def initialize
-				@config = SvnSwitchConfig.new
+			def initialize(i=nil, base=nil)
+				@config = SvnSwitchConfig.new(i,base)
+			end
+
+			def msfbase
+				@config.msfbase
 			end
 
 			# Pass args as a *array to protect against spaces
@@ -121,12 +147,6 @@ module Msf
 
 			def delete_new_svn_checkout
 				FileUtils.rm_rf self.config.new_svn_checkout
-			end
-
-			def create_untracked_files_list
-				fname = self.config.untracked_files_list
-				res = %x|#{self.config.svn_binary} status '#{self.config.msfbase}' > '#{fname}'|
-				return fname
 			end
 
 		end
