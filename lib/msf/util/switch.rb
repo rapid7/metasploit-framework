@@ -99,10 +99,10 @@ module Msf
 				cmd << File.join(new_svn_checkout, "trunk")
 			end
 
-			def revert_cmd
+			def revert_gemfile_current_cmd
 				cmd = [svn_binary]
 				cmd << "revert"
-				cmd << File.join(new_svn_checkout, "trunk")
+				cmd << File.join(self.msfbase,"Gemfile.lock")
 			end
 
 			def status_current_cmd
@@ -188,8 +188,18 @@ module Msf
 				end
 			end
 
+			def cleanup_empty_dirs(&block)
+				old_list = @config.locally_modified_files
+				@config.reset_file_list
+				@config.locally_modified_files.each do |fname|
+					next if old_list.include? fname
+					next if fname == ".svn"
+					next unless File.directory?(fname)
+					FileUtils.rm_rf(fname)
+					yield fname if block
+				end
+			end
 		end
-
 	end
 end
 

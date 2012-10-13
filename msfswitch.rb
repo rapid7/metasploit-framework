@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 
-
 start_time = Time.now.utc
 
 msfbase = __FILE__
@@ -43,9 +42,11 @@ $stdout.puts "[*] Replacing the current checkout with the new checkout"
 @svn_switcher.copy_new_checkout
 $stdout.puts "[*] Cleaning up"
 @svn_switcher.system :cleanup_current_cmd
+@svn_switcher.system :revert_gemfile_current_cmd
+@svn_switcher.cleanup_empty_dirs { |f| $stdout.puts "[*]  Removing empty dir #{f}" }
 @svn_switcher.system :info_cmd
-$stdout.puts "[*] Deleting the temporary Git checkout."
-@svn_switcher.delete_new_svn_checkout
+# $stdout.puts "[*] Deleting the temporary Git checkout."
+# @svn_switcher.delete_new_svn_checkout
 $stdout.puts "[+] Conversion complete!"
 
 end_time = Time.now.utc - start_time

@@ -143,11 +143,11 @@ describe Msf::Util::SvnSwitchConfig do
 		end
 	end
 
-	describe '.revert_cmd' do
+	describe '.revert_gemfile_current_cmd' do
 		it 'svn revert should be a valid command' do
-			subject.revert_cmd.should be_a Array
-			File.executable_real?(subject.revert_cmd.first).should be true
-			subject.revert_cmd.join(' ').should match /svn revert #{subject.new_svn_checkout}\/trunk/
+			subject.revert_gemfile_current_cmd.should be_a Array
+			File.executable_real?(subject.revert_gemfile_current_cmd.first).should be true
+			subject.revert_gemfile_current_cmd.join(' ').should match /svn revert #{subject.msfbase}\/Gemfile.lock/
 		end
 	end
 
