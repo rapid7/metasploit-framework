@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super(update_info(info,
 				'Name'          => 'Windows Gather Product Key',
-				'Description'   => %q{ This module will enumerate the OS license key },
+				'Description'   => %q{ This module will enumerate the OS license key and various other MS product keys. },
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Brandon Perry <bperry.volatile[at]gmail.com>'],
 				'Version'         => '$Revision$',
@@ -93,13 +93,13 @@ class Metasploit3 < Msf::Post
 
 	def decode(chunk)
 		start = 52
-		finish = start + 15
+		string_length = 15
+		finish = start + string_length
 
 		#charmap idex
 		alphas = %w[B C D F G H J K M P Q R T V W X Y 2 3 4 6 7 8 9]
 
 		decode_length = 29
-		string_length = 15
 
 		#product ID in coded bytes
 		product_id = Array.new
@@ -108,7 +108,7 @@ class Metasploit3 < Msf::Post
 		key = ""
 
 		#From byte 52 to byte 67, inclusive
-		(52).upto(67) do |i|
+		(start).upto(finish) do |i|
 			product_id[i-start] = chunk[i]
 		end
 
@@ -135,8 +135,19 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
+		if not os_supportable? sysinfo['OS']
+			print_error("Sorry, #{sysinfo['OS']} is not supported");
+			return
+		end
+
 		print_status("Finding Microsoft key on #{sysinfo['Computer']}")
 		app_list
+	end
+
+	#MS removes the key from the registry after windows 7
+	def os_supportable?(os)
+		return true if os =~ / XP / || os =~ / Vista / || os =~ / 7 /
+		false
 	end
 
 end
