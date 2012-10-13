@@ -87,6 +87,12 @@ module Msf
 				cmd << [self.new_svn_checkout,SEP,"trunk"].join
 			end
 
+			def update_current_cmd
+				cmd = [svn_binary]
+				cmd << "update"
+				cmd << self.msfbase
+			end
+
 			def info_cmd
 				cmd = [svn_binary]
 				cmd << "info"
@@ -106,11 +112,17 @@ module Msf
 			end
 
 			def locally_modified_files
-				return @eligable_results if @eligable_results
+				return @eligable_files if @eligable_files
 				cmd = "#{svn_binary} status '#{self.msfbase}'"	
 				results = %x[#{cmd}].split(/\n/)
 				okay_to_copy = results.select {|line| line[0,1] =~ /[ACIMR?]/}
-				@eligable_results = okay_to_copy.map {|line| line[8,line.size]}
+				@eligable_files = okay_to_copy.map {|line| line[8,line.size]}
+				@eligable_files.delete new_svn_checkout
+				return @eligable_files
+			end
+
+			def reset_file_list
+				@eligable_files = nil
 			end
 
 			def switchable?
@@ -135,6 +147,10 @@ module Msf
 				@config.msfbase
 			end
 
+			def new_svn_checkout
+				@config.new_svn_checkout
+			end
+
 			# Pass args as a *array to protect against spaces
 			def system(arg)
 				raise ArgumentError unless arg.kind_of? Symbol
@@ -147,6 +163,28 @@ module Msf
 
 			def delete_new_svn_checkout
 				FileUtils.rm_rf self.config.new_svn_checkout
+			end
+
+			def backup_local_files
+				files = @config.locally_modified_files
+				files.each do |file|
+					src = file
+					dst = @config.new_svn_checkout
+					FileUtils.cp_r(src, dst, {:remove_destination => true})
+				end
+				return files
+			end
+
+			def copy_new_checkout
+				files = []
+				Dir.foreach(@config.new_svn_checkout) do |entry|
+					next if entry == ".."
+					next if entry == "."
+					next if entry == /^msfswitch/
+					src = File.join(self.new_svn_checkout, entry)
+					dst = File.join(self.msfbase)
+					FileUtils.cp_r(src, dst, {:remove_destination => true})
+				end
 			end
 
 		end
