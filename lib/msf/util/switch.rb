@@ -187,13 +187,13 @@ module Msf
 				end
 			end
 
-			# This is nearly always just empty directories
-			def cleanup_unwanted_elements(&block)
+			def cleanup_empty_dirs(&block)
 				old_list = @config.locally_modified_files
 				@config.reset_file_list
 				@config.locally_modified_files.each do |fname|
 					next if old_list.include? fname
 					next if fname == ".svn"
+					next unless File.directory?(fname)
 					FileUtils.rm_rf(fname)
 					yield fname if block
 				end
