@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
 # TODO: Allow the user to specify the msfbase, might be useful
-# TODO: More or less verbosity? Some steps are silent, others are verbose.
 # TODO: Need to test on basically everything, since this is a one-way trip
 
 $stdout.puts  "[*] #{__FILE__} is an experimental mechanism to switch"
