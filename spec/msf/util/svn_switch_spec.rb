@@ -110,6 +110,11 @@ describe Msf::Util::SvnSwitch do
 			subject.backup_local_files
 			file_test = File.directory? overwrite_file
 		end
+		it 'should not just land in the top level dir' do
+			test2 = File.join(@new_svn_checkout, "test2.txt")
+			File.exists?(test2).should be_false
+		end
+
 	end
 
 	describe '.copy_new_checkout' do
