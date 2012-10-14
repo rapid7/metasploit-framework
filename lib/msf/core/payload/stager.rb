@@ -76,7 +76,7 @@ module Msf::Payload::Stager
 		substitute_vars(p, stage_offsets) if (stage_offsets)
 
 		# Encode the stage of stage encoding is enabled
-		#p = encode_stage(p)
+		p = encode_stage(p)
 
 		return p
 	end
@@ -147,20 +147,23 @@ module Msf::Payload::Stager
 	# Encodes the stage prior to transmission
 	def encode_stage(stg)
 
-		# If DisableStageEncoding is set, we do not encode the stage
-		return stg if datastore['DisableStageEncoding'] =~ /^(y|1|t)/i
+		if datastore['StageEncodersList']
+			print_status("Encoding stage...")
 
-		# Generate an encoded version of the stage.  We tell the encoding system
-		# to save edi to ensure that it does not get clobbered.
-		encp = Msf::EncodedPayload.create(
-			self,
-			'Raw'           => stg,
-			'SaveRegisters' => ['edi'],
-			'ForceEncode'   => true)
+			# Generate an encoded version of the stage.  We tell the encoding system
+			# to save edi to ensure that it does not get clobbered.
+			encp = Msf::EncodedPayload.create(
+				self,
+				'Raw'           => stg,
+				'StageEncoders'	=> datastore['StageEncodersList'],
+				'SaveRegisters' => ['edi'],
+				'ForceEncode'   => true)	
+			print_status("Stage successfully encoded")
+			return encp.encoded
+			else
+				return stg
+			end
 
-		# If the encoding succeeded, use the encoded buffer.  Otherwise, fall
-		# back to using the non-encoded stage
-		encp.encoded || stg
 	end
 
 	# Aliases
