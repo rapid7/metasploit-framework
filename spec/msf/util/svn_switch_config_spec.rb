@@ -8,6 +8,9 @@ describe Msf::Util::SvnSwitchConfig do
 	end
 
 	before(:each) do
+		# Yes, this is requiring a very specific path to an SVN checkout.
+		# Someone with more rspec smarts than me can resolve this. That
+		# someone might be me from the future.
 		checkout_dir = "/tmp/msf3-anon"
 		@subject = Msf::Util::SvnSwitchConfig.new(1234, checkout_dir)
 		pwd = File.expand_path(File.dirname(__FILE__))
