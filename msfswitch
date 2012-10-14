@@ -8,12 +8,9 @@ $stdout.puts  "[*] from one SVN checkout to another. It is potentially"
 $stdout.puts  "[*] destructive and requires more testing. If YOU ARE SURE"
 $stdout.print "[*] you'd like to proceed, type 'yes' here: "
 answer = $stdin.gets
-if answer =~ /^'?yes/i
-	$stdout.puts
-	exit 0 
-else
+unless answer =~ /^'?yes/i
 	$stdout.puts "    Phew! That was close!"
-	$stdout.puts
+	exit 0 
 end
 
 start_time = Time.now.utc
