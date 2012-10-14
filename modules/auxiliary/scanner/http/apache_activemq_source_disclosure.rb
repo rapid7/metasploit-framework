@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(8161),
-				OptString.new('TARGETURI', [true, 'Path to the 	JSP file to disclose source code', '/admin/index.jsp']),
+				OptString.new('TARGETURI', [true, 'Path to the JSP file to disclose source code', '/admin/index.jsp']),
 			], self.class)
 	end
 
