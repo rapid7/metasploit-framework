@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		# No point to continue if no filename is specified
 		if datastore['FILEPATH'].nil? or datastore['FILEPATH'].empty?
-			print_error("#{rhost}:#{rport} - Please supply the name of the file you want to download")
+			print_error("#{rhost}:#{rport} - Please supply FILEPATH")
 			return
 		end
 
