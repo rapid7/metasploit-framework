@@ -3,7 +3,19 @@
 # TODO: Allow the user to specify the msfbase, might be useful
 # TODO: More or less verbosity? Some steps are silent, others are verbose.
 # TODO: Need to test on basically everything, since this is a one-way trip
-# TODO: Consider an Are You Sure confirmation.
+
+$stdout.puts  "[*] #{__FILE__} is an experimental mechanism to switch"
+$stdout.puts  "[*] from one SVN checkout to another. It is potentially"
+$stdout.puts  "[*] destructive and requires more testing. If YOU ARE SURE"
+$stdout.print "[*] you'd like to proceed, type 'yes' here: "
+answer = $stdin.gets
+if answer =~ /^'?yes/i
+	$stdout.puts
+	exit 0 
+else
+	$stdout.puts "    Phew! That was close!"
+	$stdout.puts
+end
 
 start_time = Time.now.utc
 

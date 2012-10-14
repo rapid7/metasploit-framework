@@ -170,7 +170,7 @@ module Msf
 					src = file
 					src_dir = File.split(src).first.gsub(/^#{msfbase}/, "")
 					dst = File.join(@config.new_svn_checkout, "trunk", src_dir)
-					FileUtils.mkdir_p dst unless File.directory?(dst)
+					FileUtils.mkdir_p(dst) unless File.directory?(dst)
 					FileUtils.cp_r(src, dst, {:remove_destination => true})
 					yield [src, dst] if block
 				end
