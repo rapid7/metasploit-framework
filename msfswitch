@@ -22,12 +22,6 @@ end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
 
-require 'msf/util/svn'
-unless Msf::Util::SVN.root =~ /^http.+metasploit\.com/
-	$stdout.puts "[-] This is not an anonymous SVN checkout, aborting."
-	exit 1
-end
-
 require 'msf/util/switch'
 
 @svn_switcher = Msf::Util::SvnSwitch.new

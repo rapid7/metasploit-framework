@@ -42,7 +42,11 @@ module Msf
 			end
 
 			def svn_binary
-				res = %x|which 'svn'|
+				if RbConfig::CONFIG['host_os'] =~ /^(mswin|mingw|cygwin)/
+					res = 'svn'
+				else
+					res = %x|which 'svn'|
+				end
 				return res.chomp
 			end
 
