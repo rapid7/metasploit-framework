@@ -45,18 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
-		resp,c = send_request_ntlm(winrm_open_shell_msg)
-		unless resp.code == 200
-			print_error "Got unexpected response from #{ip}: \n #{resp.to_s}"
-			return
-		end
-		shell_id = winrm_get_shell_id(resp)
-		resp,c = send_request_ntlm(winrm_cmd_msg(datastore['CMD'], shell_id))
-		cmd_id = winrm_get_cmd_id(resp)
-		resp,c = send_request_ntlm(winrm_cmd_recv_msg(shell_id,cmd_id))
-		streams = winrm_get_cmd_streams(resp)
-		resp,c = send_request_ntlm(winrm_terminate_cmd_msg(shell_id,cmd_id))
-		resp,c = send_request_ntlm(winrm_delete_shell_msg(shell_id))
+		streams = winrm_run_cmd(datastore['CMD'])
 		print_error streams['stderr'] unless streams['stderr'] == ''
 		print_good streams['stdout']
 		if datastore['SAVE_OUTPUT']
