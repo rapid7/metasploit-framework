@@ -2,6 +2,8 @@
 # Gems
 #
 require 'active_support/concern'
+require 'active_support/core_ext/hash'
+require 'active_support/core_ext/module'
 
 # Deals with module paths in the {Msf::ModuleManager}
 module Msf::ModuleManager::ModulePaths
@@ -15,24 +17,22 @@ module Msf::ModuleManager::ModulePaths
     nested_paths = []
 
     # remove trailing file separator
-    path.sub!(/#{File::SEPARATOR}$/, '')
+    path_without_trailing_file_separator = path.sub(/#{File::SEPARATOR}$/, '')
 
-    pathname = Pathname.new(path)
+    # Make the path completely canonical
+    pathname = Pathname.new(path_without_trailing_file_separator).expand_path
     extension = pathname.extname
 
     if extension == Msf::Modules::Loader::Archive::ARCHIVE_EXTENSION
       unless pathname.exist?
-        raise RuntimeError, "The path supplied does not exist", caller
+        raise ArgumentError, "The path supplied does not exist", caller
       end
 
-      nested_paths << pathname.expand_path.to_s
+      nested_paths << pathname.to_s
     else
-      # Make the path completely canonical
-      pathname = Pathname.new(path).expand_path
-
       # Make sure the path is a valid directory
       unless pathname.directory?
-        raise RuntimeError, "The path supplied is not a valid directory.", caller
+        raise ArgumentError, "The path supplied is not a valid directory.", caller
       end
 
       nested_paths << pathname.to_s
@@ -41,7 +41,7 @@ module Msf::ModuleManager::ModulePaths
       fastlib_glob = pathname.join('**', "*#{Msf::Modules::Loader::Archive::ARCHIVE_EXTENSION}")
 
       Dir.glob(fastlib_glob).each do |fastlib_path|
-        nested_pathnames << fastlib_path
+        nested_paths << fastlib_path
       end
     end
 

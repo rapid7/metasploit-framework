@@ -11,6 +11,9 @@ end
 
 @args = ARGV.dup
 
+# May be changed
+@configdir = File.expand_path(File.join(File.dirname(msfbase), "data", "svn"))
+
 Dir.chdir(File.dirname(msfbase))
 
 $stderr.puts "[*]"
@@ -25,22 +28,28 @@ end
 
 @args.each_with_index do |arg,i|
 	case arg
-	when "wait"
+	# Handle the old wait/nowait argument behavior
+	when "wait", "nowait"
 		@wait_index = i
-	when /--config-dir/
+		@actually_wait = (arg == "wait")
+	# An empty or absent config-dir means a default config-dir
+	when "--config-dir"
+		@configdir_index = i
+	# A defined config dir means a defined config-dir
+	when /--config-dir=(.*)?/
 		# Spaces in the directory should be fine since this whole thing is passed
 		# as a single argument via the multi-arg syntax for system() below.
 		# TODO: Test this spaces business. I don't buy it. -todb
+		@configdir = $1
 		@configdir_index = i
-		@configdir = File.join(File.dirname(msfbase), "data", "svn")
 	end
 end
 
-@args.delete_at @wait_index if @wait_index
-@args.delete_at @configdir_index if @configdir_index
-
+@args[@wait_index] = nil      if @wait_index
+@args[@configdir_index] = nil if @configdir_index
+@args = @args.compact
+@args.push("--config-dir=#{@configdir}")
 @args.push("--non-interactive")
-@args.push("--config-dir=#{@configdir}") if @configdir_index
 
 res = system("svn", "cleanup")
 if res.nil?
@@ -54,7 +63,7 @@ else
 	system("svn", "update", *@args)
 end
 
-if @wait_index
+if @actually_wait
 	$stderr.puts ""
 	$stderr.puts "[*] Please hit enter to exit"
 	$stderr.puts ""
