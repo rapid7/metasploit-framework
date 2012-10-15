@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2003-2004, Mark Borgerding
+Copyright (c) 2003-2010, Mark Borgerding
 
 All rights reserved.
 
@@ -17,21 +17,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 /* The guts header contains all the multiplication and addition macros that are defined for
  fixed or floating point complex numbers.  It also delares the kf_ internal functions.
  */
-
-static kiss_fft_cpx *scratchbuf=NULL;
-static size_t nscratchbuf=0;
-static kiss_fft_cpx *tmpbuf=NULL;
-static size_t ntmpbuf=0;
-
-#define CHECKBUF(buf,nbuf,n) \
-    do { \
-        if ( nbuf < (size_t)(n) ) {\
-            free(buf); \
-            buf = (kiss_fft_cpx*)KISS_FFT_MALLOC(sizeof(kiss_fft_cpx)*(n)); \
-            nbuf = (size_t)(n); \
-        } \
-   }while(0)
-
 
 static void kf_bfly2(
         kiss_fft_cpx * Fout,
@@ -68,6 +53,7 @@ static void kf_bfly4(
     size_t k=m;
     const size_t m2=2*m;
     const size_t m3=3*m;
+
 
     tw3 = tw2 = tw1 = st->twiddles;
 
@@ -222,29 +208,30 @@ static void kf_bfly_generic(
     kiss_fft_cpx t;
     int Norig = st->nfft;
 
-    CHECKBUF(scratchbuf,nscratchbuf,p);
+    kiss_fft_cpx * scratch = (kiss_fft_cpx*)KISS_FFT_TMP_ALLOC(sizeof(kiss_fft_cpx)*p);
 
     for ( u=0; u<m; ++u ) {
         k=u;
         for ( q1=0 ; q1<p ; ++q1 ) {
-            scratchbuf[q1] = Fout[ k  ];
-            C_FIXDIV(scratchbuf[q1],p);
+            scratch[q1] = Fout[ k  ];
+            C_FIXDIV(scratch[q1],p);
             k += m;
         }
 
         k=u;
         for ( q1=0 ; q1<p ; ++q1 ) {
             int twidx=0;
-            Fout[ k ] = scratchbuf[0];
+            Fout[ k ] = scratch[0];
             for (q=1;q<p;++q ) {
                 twidx += fstride * k;
                 if (twidx>=Norig) twidx-=Norig;
-                C_MUL(t,scratchbuf[q] , twiddles[twidx] );
+                C_MUL(t,scratch[q] , twiddles[twidx] );
                 C_ADDTO( Fout[ k ] ,t);
             }
             k += m;
         }
     }
+    KISS_FFT_TMP_FREE(scratch);
 }
 
 static
@@ -265,7 +252,8 @@ void kf_work(
 #ifdef _OPENMP
     // use openmp extensions at the 
     // top-level (not recursive)
-    if (fstride==1) {
+    if (fstride==1 && p<=5)
+    {
         int k;
 
         // execute the p different work units in different threads
@@ -380,14 +368,15 @@ kiss_fft_cfg kiss_fft_alloc(int nfft,int inverse_fft,void * mem,size_t * lenmem 
 }
 
 
-
-    
 void kiss_fft_stride(kiss_fft_cfg st,const kiss_fft_cpx *fin,kiss_fft_cpx *fout,int in_stride)
 {
     if (fin == fout) {
-        CHECKBUF(tmpbuf,ntmpbuf,st->nfft);
+        //NOTE: this is not really an in-place FFT algorithm.
+        //It just performs an out-of-place FFT into a temp buffer
+        kiss_fft_cpx * tmpbuf = (kiss_fft_cpx*)KISS_FFT_TMP_ALLOC( sizeof(kiss_fft_cpx)*st->nfft);
         kf_work(tmpbuf,fin,1,in_stride, st->factors,st);
         memcpy(fout,tmpbuf,sizeof(kiss_fft_cpx)*st->nfft);
+        KISS_FFT_TMP_FREE(tmpbuf);
     }else{
         kf_work( fout, fin, 1,in_stride, st->factors,st );
     }
@@ -399,17 +388,9 @@ void kiss_fft(kiss_fft_cfg cfg,const kiss_fft_cpx *fin,kiss_fft_cpx *fout)
 }
 
 
-/* not really necessary to call, but if someone is doing in-place ffts, they may want to free the 
-   buffers from CHECKBUF
- */ 
 void kiss_fft_cleanup(void)
 {
-    free(scratchbuf);
-    scratchbuf = NULL;
-    nscratchbuf=0;
-    free(tmpbuf);
-    tmpbuf=NULL;
-    ntmpbuf=0;
+    // nothing needed any more
 }
 
 int kiss_fft_next_fast_size(int n)
