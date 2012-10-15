@@ -475,12 +475,7 @@ sub gotoFile {
 	return lambda({
 		local('$exception');
 		try {
-			if ([Desktop isDesktopSupported]) {
-				[[Desktop getDesktop] open: $f];
-			}
-			else {
-				ask("Browse to this file:", $f);
-			}
+			[[Desktop getDesktop] open: $f];
 		}
 		catch $exception {
 			showError("Could not open $f $+ \n $+ $exception");

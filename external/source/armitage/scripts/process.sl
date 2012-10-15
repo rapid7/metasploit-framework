@@ -27,12 +27,6 @@ sub parseProcessList {
 			# REMOVEME--this is a backwards compatability hack.
 			@rows = parseTextTable($2, @("PID", "Name", "Arch", "Session", "User", "Path"));
 		}
-
-		# this is the format for Java meterpreter
-		if (size(@rows) == 0) {
-			@rows = parseTextTable($2, @("PID", "Name", "Arch", "User", "Path"));
-		}
-
 		foreach $row (@rows) {
 			[%processes[$1] addEntry: $row];
 		}

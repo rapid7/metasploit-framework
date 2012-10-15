@@ -297,24 +297,19 @@ sub show_login_dialog {
 }
 
 sub createUserPassFile {
-	local('$handle $user $pass $type $row $2 $name %entries');
+	local('$handle $user $pass $type $row $2 $name');
 	$name = "userpass" . rand(10000) . ".txt";
 
-	# loop through our entries and store them
-	%entries = ohash();
+	$handle = openf("> $+ $name");
 	foreach $row ($1) {
 		($user, $pass, $type) = values($row, @("user", "pass", "ptype"));
 		if ($type eq "password" || $type eq $2) {
-			%entries["$user $pass"] = "$user $pass";
+			println($handle, "$user $pass");
 		}
 		else {
-			%entries[$user] = $user;
+			println($handle, "$user");
 		}
 	}	
-
-	# print out unique entry values
-	$handle = openf("> $+ $name");
-	printAll($handle, values(%entries));
 	closef($handle);
 
 	if ($client !is $mclient) {

@@ -152,10 +152,7 @@ sub createConsoleTab {
 
 sub setg {
 	%MSF_GLOBAL[$1] = $2;
-	local('$c');
-	$c = createConsole($client);
-	call_async($client, "console.write", $c, "setg $1 $2 $+ \n");
-	call_async($client, "console.release", $c);
+	call_async($client, "core.setg", $1, $2);
 }
 
 sub createDefaultHandler {

@@ -356,16 +356,6 @@ sub _launch_dialog {
 		if (!isShift($1)) {
 			[$dialog setVisible: 0];
 		}
-	
-		# fix some module options...
-		if ($command eq "windows/manage/persistence") {
-			if ('REXE' in $options) {
-				$options['ACTION'] = 'REXE';
-			}
-			else {
-				$options['ACTION'] = 'TEMPLATE';
-			}
-		}
 
 		# it's go time buddy... time to filter some stuff...
 		($type, $command, $options) = filter_data("user_launch", $type, $command, $options);

@@ -188,12 +188,7 @@ sub main_attack_items {
 
 sub gotoURL {
 	return lambda({ 
-		if ([Desktop isDesktopSupported]) {
-			[[Desktop getDesktop] browse: $url];
-		}
-		else {
-			ask("Browse to this URL:", $url);
-		}
+		[[Desktop getDesktop] browse: $url];
 	}, $url => [[new URL: $1] toURI]);
 }
 

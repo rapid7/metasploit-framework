@@ -355,7 +355,7 @@ sub client {
 
 sub main {
 	global('$client $mclient');
-	local('$server %sessions $sess_lock $read_lock $poll_lock $lock_lock %locks %readq $id @events $error $auth %cache $cach_lock $client_cache $handle $console');
+	local('$server %sessions $sess_lock $read_lock $poll_lock $lock_lock %locks %readq $id @events $error $auth %cache $cach_lock $client_cache $handle');
 
 	$auth = unpack("H*", digest(rand() . ticks(), "MD5"))[0];
 
@@ -400,6 +400,9 @@ sub main {
 	$mclient = $client;
 	initConsolePool(); # this needs to happen... right now.
 
+	# set the LHOST to whatever the user specified
+	call_async($client, "core.setg", "LHOST", $host);
+
 	# we need this global to be set so our reverse listeners work as expected.
 	$MY_ADDRESS = $host;
 
@@ -420,13 +423,6 @@ sub main {
 	$lock_lock = semaphore(1);
 	$cach_lock = semaphore(1);
 
-	# set the LHOST to whatever the user specified (use console.write to make the string not UTF-8)
-	$console = createConsole($client);
-	call($client, "console.write", $console, "setg LHOST $host $+ \n");
-	sleep(2000);
-		# absorb the output of this command which is LHOST => ...
-	call($client, "console.read", $console);
-
 	#
 	# create a thread to push console messages to the event queue for all clients.
 	#
@@ -441,7 +437,7 @@ sub main {
 				release($poll_lock);
 			}
 		}
-	}, \$client, \$poll_lock, \@events, \$console);
+	}, \$client, \$poll_lock, \@events, $console => createConsole($client));
 
 	#
 	# Create a shared hash that contains a thread for each session...
