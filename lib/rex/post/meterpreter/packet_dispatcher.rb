@@ -367,6 +367,11 @@ module PacketDispatcher
 					end
 				end
 
+				# detect a CPU starvation condition and force a sleep to mitigate it
+				if (backlog.length > 0 && backlog.length == incomplete.length)
+					::IO.select(nil, nil, nil, 0.10)
+				end
+
 				@pqueue.unshift(*incomplete)
 
 				if(@pqueue.length > 100)
