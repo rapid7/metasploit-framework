@@ -44,7 +44,7 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
         if module_path?(entry_descendant_path)
           entry_descendant_pathname = Pathname.new(entry_descendant_path)
           relative_entry_descendant_pathname = entry_descendant_pathname.relative_path_from(full_entry_pathname)
-          relative_entry_descendant_path = relative_entry_descendant_pathname.to_path
+          relative_entry_descendant_path = relative_entry_descendant_pathname.to_s
 
           # The module_reference_name doesn't have a file extension
           module_reference_name = module_reference_name_from_path(relative_entry_descendant_path)
@@ -73,6 +73,17 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
   def read_module_content(parent_path, type, module_reference_name)
     full_path = module_path(parent_path, type, module_reference_name)
 
-    ::File.read(full_path)
+    module_content = ''
+
+    # force to read in binary mode so Pro modules won't be truncated on Windows
+    File.open(full_path, 'rb') do |f|
+      # Pass the size of the file as it leads to faster reads due to fewer buffer resizes. Greatest effect on Windows.
+      # @see http://www.ruby-forum.com/topic/209005
+      # @see https://github.com/ruby/ruby/blob/ruby_1_8_7/io.c#L1205
+      # @see https://github.com/ruby/ruby/blob/ruby_1_9_3/io.c#L2038
+      module_content = f.read(f.stat.size)
+    end
+
+    module_content
   end
 end
