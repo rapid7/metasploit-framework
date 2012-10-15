@@ -367,7 +367,13 @@ module PacketDispatcher
 					end
 				end
 
-				# detect a CPU starvation condition and force a sleep to mitigate it
+				# If the backlog and incomplete arrays are the same, it means
+				# dispatch_inbound_packet wasn't able to handle any of the
+				# packets. When that's the case, we can get into a situation
+				# where @pqueue is not empty and, since nothing else bounds this
+				# loop, we spin CPU trying to handle packets that can't be
+				# handled. Sleep here to treat that situation as though the
+				# queue is empty.
 				if (backlog.length > 0 && backlog.length == incomplete.length)
 					::IO.select(nil, nil, nil, 0.10)
 				end
