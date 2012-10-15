@@ -101,7 +101,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			smb_login()
-		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
+		rescue ::Rex::Proto::SMB::Exceptions::LoginError
+		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode
 		end
 
 		begin
@@ -135,7 +136,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			smb_login()
-		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
+		rescue ::Rex::Proto::SMB::Exceptions::LoginError
+		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode
 		end
 
 		disconnect()
@@ -155,6 +157,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			smb_login()
 		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
+		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode
 		end
 		disconnect()
 		datastore['SMBDomain'] = orig_domain
