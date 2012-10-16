@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		resp = winrm_poke
-		if resp.code == 401
+		if resp.code == 401 and resp.headers['Server'].include? "Microsoft-HTTPAPI"
 			methods = parse_auth_methods(resp)
 			desc = resp.headers['Server'] + " Authentication Methods: " + methods.to_s
 			report_service(

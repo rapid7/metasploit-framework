@@ -45,6 +45,11 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		resp,c = send_request_ntlm(winrm_wql_msg(datastore['WQL']))
+		if resp.code == 401
+			print_error "Login Failure! Recheck the supplied credentials."
+			return
+		end
+		
 		unless resp.code == 200
 			print_error "Got unexpected response from #{ip}: \n #{resp.to_s}"
 			return
