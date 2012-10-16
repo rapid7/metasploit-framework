@@ -7,13 +7,13 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Microsoft SQL Server NTLM Stealer',
+			'Name'           => 'Microsoft SQL Server NTLM Stealer - SQLi',
 			'Description'    => %q{
 				This module can be used to help capture or relay the LM/NTLM
 				credentials of the account running the remote SQL Server service.
 				The module will use the SQL injection from GET_PATH to connect to the
 				target SQL Server instance and execute the native "xp_dirtree" or
-				"xp_fileexist" stored procedure.   The stored procedures will then
+				stored procedure.   The stored procedures will then
 				force the service account to authenticate to the system defined in
 				the SMBProxy option. In order for the attack to be successful, the
 				SMB capture or relay module must be running on the system defined
