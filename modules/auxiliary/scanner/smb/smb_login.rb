@@ -156,7 +156,7 @@ class Metasploit3 < Msf::Auxiliary
 		connect()
 		begin
 			smb_login()
-		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
+		rescue ::Rex::Proto::SMB::Exceptions::LoginError
 		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode
 		end
 		disconnect()
