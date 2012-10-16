@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
 		connect()
 		status_code = ""
 		begin
-			if simple.login(	datastore['SMBName'],
+			simple.login(	datastore['SMBName'],
 								user,
 								pass,
 								domain,
@@ -111,9 +111,10 @@ class Metasploit3 < Msf::Auxiliary
 								datastore['SMB::Native_OS'],
 								datastore['SMB::Native_LM'],
 								{:use_spn => datastore['NTLM::SendSPN'], :name =>  self.rhost})
-				status_code = 'STATUS_SUCCESS'
-			end
-			# This does not appear to be required to validate login details? simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
+								
+			# Windows SMB will return an error code during Session Setup, but nix Samba requires a Tree Connect:
+			simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
+			status_code = 'STATUS_SUCCESS'
 		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
 			status_code = e.get_error(e.error_code)
 		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
@@ -125,16 +126,16 @@ class Metasploit3 < Msf::Auxiliary
 		return status_code
 	end
 
-	# Unsure how this result is different than bogus logins
+	# If login is succesful and auth_user is unset
+	# the login was as a guest user. 
 	def accepts_guest_logins?
 		guest = false
 		user = Rex::Text.rand_text_alpha(8)
 		pass = Rex::Text.rand_text_alpha(8)
 
-		check_login_status(datastore['SMBDomain'], user, pass)
-
-		unless(simple.client.auth_user)
-			guest = true
+		guest_login = ((check_login_status(datastore['SMBDomain'], user, pass) == 'STATUS_SUCCESS') && simple.client.auth_user.nil?)
+		
+		if guest_login
 			@accepts_guest_logins['rhost'] ||=[] unless @accepts_guest_logins.include?(rhost)
 			report_note(
 				:host	=> rhost,
@@ -147,14 +148,16 @@ class Metasploit3 < Msf::Auxiliary
 			)
 		end
 
-		return guest
+		return guest_login
 	end
 
+	# If login is successul and auth_user is set
+	# then bogus creds are accepted. 
 	def accepts_bogus_logins?
 		user = Rex::Text.rand_text_alpha(8)
 		pass = Rex::Text.rand_text_alpha(8)
-		check_login_status(datastore['SMBDomain'], user, pass)
-		return simple.client.auth_user ? true : false
+		bogus_login = ((check_login_status(datastore['SMBDomain'], user, pass) == 'STATUS_SUCCESS') && !simple.client.auth_user.nil?)
+		return bogus_login
 	end
 
 	# This logic is not universal ie a local account will not care about workgroup
@@ -186,14 +189,11 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		user = user.to_s.gsub(/<BLANK>/i,"")
-
 		status = check_login_status(domain, user, pass)
-
 		output_message = "#{smbhost} - %s (#{smb_peer_os}) #{user} : #{pass} [#{status}]"
 
 		case status
 		when 'STATUS_SUCCESS'
-
 			if(simple.client.auth_user)
 				print_good(output_message % "SUCCESSFUL LOGIN")
 				vprint_status("Auth-User: #{simple.client.auth_user}")
