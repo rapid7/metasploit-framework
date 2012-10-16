@@ -80,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		unless datastore['RECORD_GUEST']
 			if accepts_guest_logins?(domain)
-				print_status("#{ip} - This system allows guest sessions with any credentials, these instances will not be reported.")
+				print_status("#{ip} - This system allows guest sessions with any credentials, these instances will not be recorded.")
 			end
 		end
 
@@ -197,15 +197,15 @@ class Metasploit3 < Msf::Auxiliary
 			# Auth user indicates if the login was as a guest or not
 			if(simple.client.auth_user)
 				print_good(output_message % "SUCCESSFUL LOGIN")
-				vprint_status("Auth-User: #{simple.client.auth_user}")
 				validuser_case_sensitive?(domain, user, pass)
 				report_creds(domain,user,pass,true)
 			else
 				if datastore['RECORD_GUEST']
 					print_status(output_message % "GUEST LOGIN")
-					@accepts_guest_logins[rhost] = [user, pass]
 					report_creds(domain,user,pass,true)
-				end
+				elsif datastore['VERBOSE']
+						print_status(output_message % "GUEST LOGIN")
+				end		
 			end			
 		when *@correct_credentials_status_codes
 			print_status(output_message % "FAILED LOGIN, VALID CREDENTIALS" )
