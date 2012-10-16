@@ -85,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
 		)
 		
 		table = Rex::Ui::Text::Table.new({
-                        'Header' => 'WindowsDeploymentServices',
+                        'Header' => 'Windows Deployment Services',
                         'Indent' => 1,
                         'Columns' => ['Architecture', 'Domain', 'Username', 'Password']
         })
@@ -107,10 +107,12 @@ class Metasploit3 < Msf::Auxiliary
 				results.each do |result|
 					unless result.empty?
 						unless result['username'].nil? || result['password'].nil?
-							print_good("Retrived credentials for #{architecture[0]}")
+							print_good("Retrived #{result['type']} credentials for #{architecture[0]}")
 							creds_found = true
-							report_creds(result['domain'], result['username'], result['password'])
-							table << [architecture[0], result['domain'], result['username'], result['password']]
+							domain = ""
+							domain = result['domain'] if result['domain']
+							report_creds(domain, result['username'], result['password'])
+							table << [architecture[0], domain, result['username'], result['password']]
 						end
 					end
 				end
