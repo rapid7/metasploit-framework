@@ -1,6 +1,23 @@
 Armitage Changelog
 ==================
 
+16 Oct 12 (tested against msf 15972)
+---------
+- Added port 5985 to MSF Scans list.
+- Meterpreter -> Access -> Persistence sets ACTION option for you
+- Changed how LHOST and LPORT are set globally to prevent Ruby 
+  character encoding conversion error in the framework.
+- Pass Session, Log Keystrokes, and Persist now query module info
+  in a separate thread (avoids a deadlock opportunity)
+- Armitage now shows folder/URL in a popup dialog for environments
+  where JDesktop API to open them directly is not supported
+- Check all credentials option now filters the list to avoid trying
+  a pair of credentials twice.
+- Armitage's exploit payload selection now selects cmd/unix/interact
+  when appropriate.
+- Explore -> Processes now works with Java Meterpreter again.
+- MSF Scans feature now runs http_version against port 443
+
 5 Sept 12 (tested against msf r15804)
 ---------
 - Setup dialog now trims host, port, user, and pass fields.
