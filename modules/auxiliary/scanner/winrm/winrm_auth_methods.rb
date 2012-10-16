@@ -37,6 +37,9 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptString.new('URI', [ true, "The URI of the WinRM service", "/wsman" ])
 			], self.class)
+
+		deregister_options('USERNAME', 'PASSWORD')
+
 	end
 
 
