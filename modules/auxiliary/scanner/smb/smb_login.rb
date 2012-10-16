@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_brute(:level => :vstatus, :ip => ip, :msg => "Starting SMB login bruteforce")
 
 		domain = datastore['SMBDomain'] || ""
-		
+
 		if accepts_bogus_logins?(domain)
 			print_error("#{smbhost} - This system accepts authentication with any credentials, brute force is ineffective.")
 			return
@@ -111,7 +111,6 @@ class Metasploit3 < Msf::Auxiliary
 								datastore['SMB::Native_OS'],
 								datastore['SMB::Native_LM'],
 								{:use_spn => datastore['NTLM::SendSPN'], :name =>  self.rhost})
-								
 			# Windows SMB will return an error code during Session Setup, but nix Samba requires a Tree Connect:
 			simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
 			status_code = 'STATUS_SUCCESS'
@@ -127,14 +126,14 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	# If login is succesful and auth_user is unset
-	# the login was as a guest user. 
+	# the login was as a guest user.
 	def accepts_guest_logins?(domain)
 		guest = false
 		user = Rex::Text.rand_text_alpha(8)
 		pass = Rex::Text.rand_text_alpha(8)
 
 		guest_login = ((check_login_status(domain, user, pass) == 'STATUS_SUCCESS') && simple.client.auth_user.nil?)
-		
+
 		if guest_login
 			@accepts_guest_logins['rhost'] ||=[] unless @accepts_guest_logins.include?(rhost)
 			report_note(
@@ -152,7 +151,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	# If login is successul and auth_user is set
-	# then bogus creds are accepted. 
+	# then bogus creds are accepted.
 	def accepts_bogus_logins?(domain)
 		user = Rex::Text.rand_text_alpha(8)
 		pass = Rex::Text.rand_text_alpha(8)
@@ -205,8 +204,8 @@ class Metasploit3 < Msf::Auxiliary
 					report_creds(domain,user,pass,true)
 				elsif datastore['VERBOSE']
 						print_status(output_message % "GUEST LOGIN")
-				end		
-			end			
+				end
+			end
 		when *@correct_credentials_status_codes
 			print_status(output_message % "FAILED LOGIN, VALID CREDENTIALS" )
 			report_creds(domain,user,pass,false)
