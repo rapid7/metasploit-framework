@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_good "Kerberos protocol supported" if methods.include? "Kerberos"
 			print_good "Basic protocol supported" if methods.include? "Basic"	
 		else 
-			print_error "Got unexpected response: \n #{resp.to_s}"
+			print_error "#{ip}:#{rport} Does not appear to be a WinRM server"
 		end
 	end
 
