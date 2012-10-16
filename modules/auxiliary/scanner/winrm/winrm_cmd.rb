@@ -45,6 +45,10 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
+		unless accepts_ntlm_auth
+			print_error "The Remote WinRM  server  (#{ip} does not appear to allow Negotiate(NTLM) auth"
+			return
+		end
 		streams = winrm_run_cmd(datastore['CMD'])
 		print_error streams['stderr'] unless streams['stderr'] == ''
 		print_good streams['stdout']

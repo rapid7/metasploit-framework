@@ -44,12 +44,17 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
+		unless accepts_ntlm_auth
+			print_error "The Remote WinRM  server  (#{ip} does not appear to allow Negotiate(NTLM) auth"
+			return
+		end
+		
 		resp,c = send_request_ntlm(winrm_wql_msg(datastore['WQL']))
 		if resp.code == 401
 			print_error "Login Failure! Recheck the supplied credentials."
 			return
 		end
-		
+
 		unless resp.code == 200
 			print_error "Got unexpected response from #{ip}: \n #{resp.to_s}"
 			return
