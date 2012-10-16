@@ -71,18 +71,18 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		print_brute(:level => :vstatus, :ip => ip, :msg => "Starting SMB login bruteforce")
 
-		if accepts_bogus_logins?
+		domain = datastore['SMBDomain'] || ""
+		
+		if accepts_bogus_logins?(domain)
 			print_error("#{smbhost} - This system accepts authentication with any credentials, brute force is ineffective.")
 			return
 		end
 
 		unless datastore['RECORD_GUEST']
-			if accepts_guest_logins?
+			if accepts_guest_logins?(domain)
 				print_status("#{ip} - This system allows guest sessions with any credentials, these instances will not be reported.")
 			end
 		end
-
-		domain = datastore['SMBDomain'] || ""
 
 		begin
 			each_user_pass do |user, pass|
@@ -128,12 +128,12 @@ class Metasploit3 < Msf::Auxiliary
 
 	# If login is succesful and auth_user is unset
 	# the login was as a guest user. 
-	def accepts_guest_logins?
+	def accepts_guest_logins?(domain)
 		guest = false
 		user = Rex::Text.rand_text_alpha(8)
 		pass = Rex::Text.rand_text_alpha(8)
 
-		guest_login = ((check_login_status(datastore['SMBDomain'], user, pass) == 'STATUS_SUCCESS') && simple.client.auth_user.nil?)
+		guest_login = ((check_login_status(domain, user, pass) == 'STATUS_SUCCESS') && simple.client.auth_user.nil?)
 		
 		if guest_login
 			@accepts_guest_logins['rhost'] ||=[] unless @accepts_guest_logins.include?(rhost)
@@ -153,10 +153,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	# If login is successul and auth_user is set
 	# then bogus creds are accepted. 
-	def accepts_bogus_logins?
+	def accepts_bogus_logins?(domain)
 		user = Rex::Text.rand_text_alpha(8)
 		pass = Rex::Text.rand_text_alpha(8)
-		bogus_login = ((check_login_status(datastore['SMBDomain'], user, pass) == 'STATUS_SUCCESS') && !simple.client.auth_user.nil?)
+		bogus_login = ((check_login_status(domain, user, pass) == 'STATUS_SUCCESS') && !simple.client.auth_user.nil?)
 		return bogus_login
 	end
 
@@ -194,19 +194,19 @@ class Metasploit3 < Msf::Auxiliary
 
 		case status
 		when 'STATUS_SUCCESS'
+			# Auth user indicates if the login was as a guest or not
 			if(simple.client.auth_user)
 				print_good(output_message % "SUCCESSFUL LOGIN")
 				vprint_status("Auth-User: #{simple.client.auth_user}")
-			else
-				print_status(output_message % "GUEST LOGIN")
-				@accepts_guest_logins[rhost] = [user, pass] unless datastore['RECORD_GUEST']
-			end
-
-			unless @accepts_guest_logins.find { |g_host, g_creds| g_host == rhost and g_creds == [user,pass] }
+				validuser_case_sensitive?(domain, user, pass)
 				report_creds(domain,user,pass,true)
-			end
-			
-			validuser_case_sensitive?(domain, user, pass)
+			else
+				if datastore['RECORD_GUEST']
+					print_status(output_message % "GUEST LOGIN")
+					@accepts_guest_logins[rhost] = [user, pass]
+					report_creds(domain,user,pass,true)
+				end
+			end			
 		when *@correct_credentials_status_codes
 			print_status(output_message % "FAILED LOGIN, VALID CREDENTIALS" )
 			report_creds(domain,user,pass,false)
