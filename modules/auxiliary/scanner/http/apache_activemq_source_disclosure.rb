@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Apache ActiveMQ Directory Traversal',
+			'Name'           => 'Apache ActiveMQ JSP files Source Disclosure',
 			'Description'    => %q{
 					This module exploits a source code disclosure in Apache ActiveMQ. The
 				vulnerability is due to the Jetty's ResourceHandler handling of specially crafted
