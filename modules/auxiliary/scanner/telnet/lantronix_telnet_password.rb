@@ -7,12 +7,6 @@
 
 require 'msf/core'
 
-###
-#
-# This sample auxiliary module simply displays the selected action and
-# registers a custom command that will show up when the module is used.
-#
-###
 class Metasploit4 < Msf::Auxiliary
 	include Msf::Exploit::Remote::Udp
 	include Msf::Auxiliary::Report
@@ -21,7 +15,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Lantronix Telnet Password Recovery',
-			'Version'     => '$Revision: 1 $',
 			'Description' => %q{
 					This module retrieves the setup record
 					from Lantronix serial-to-ethernet
@@ -90,14 +83,6 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def parse_reply(pkt)
-		@results ||= {}
-
-		return if not pkt[1]
-
-		if (pkt[1] =~ /^::ffff:/)
-			pkt[1] = pkt[1].sub(/^::ffff:/, '')
-		end
-
 		setup_record = pkt[0]
 
 		# If response is a setup record, extract password bytes 13-16
