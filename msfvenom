@@ -487,8 +487,8 @@ when /macho/i
 	$stdout.write bin
 when /dll/i
 	dll = case opts[:arch]
-		when /x86/; Msf::Util::EXE.to_win32pe_dll($framework, payload_raw)
-		when /x64/; Msf::Util::EXE.to_win64pe_dll($framework, payload_raw)
+		when /x86/;        Msf::Util::EXE.to_win32pe_dll($framework, payload_raw)
+		when /x64|x86_64/; Msf::Util::EXE.to_win64pe_dll($framework, payload_raw)
 		end
 	if dll.nil?
 		print_error("This format does not support that architecture")
