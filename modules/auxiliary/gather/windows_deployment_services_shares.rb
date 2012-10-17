@@ -40,6 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(445),
+				OptString.new('SMBDomain', [ false, "SMB Domain", '']),
 			], self.class)
 		
 		deregister_options('RHOST', 'CHOST', 'CPORT', 'SSL', 'SSLVersion')
@@ -150,24 +151,8 @@ class Metasploit3 < Msf::Auxiliary
 			end
 	end
 	
-	# To live in SMB Constants?
-	FILE_ATTR_READ_ONLY = 1
-	FILE_ATTR_HIDDEN = 2
-	FILE_ATTR_SYSTEM = 4
-	FILE_ATTR_VOL_ID = 8
-	FILE_ATTR_DIR = 16
-	FILE_ATTR_ARCHIVE = 32
-	FILE_ATTR_DEVICE = 64
-	FILE_ATTR_NORMAL = 128
-	FILE_ATTR_TEMP = 256
-	FILE_ATTR_SPARSE = 512
-	FILE_ATTR_REPARSE = 1024
-	FILE_ATTR_COMPRESSED = 2048
-	FILE_ATTR_OFFLINE = 4096
-	FILE_ATTR_CONTENT_INDEXED = 8192
-	FILE_ATTR_ENCRYPTED = 16384
-	
-	# Test Handle SMB exceptions like no permissions?
+
+	# MOve this to client.rb?
 	def file_search(current_path, regex, depth)
 		depth -= 1
 		if depth < 0
@@ -182,10 +167,10 @@ class Metasploit3 < Msf::Auxiliary
 				next
 			end
 
-			if result[1]['attr'] & FILE_ATTR_DIR > 0
+			if result[1]['attr'] & Rex::Proto::SMB::Constants::SMB_EXT_FILE_ATTR_DIRECTORY > 0
 				search_path = "#{current_path}#{result[0]}\\"
 				begin
-					files << file_search(search_path, regex, depth)
+					files << file_search(search_path, regex, depth).flatten.compact
 				rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
 					vprint_error("#{search_path} : #{e.message}")
 				end
