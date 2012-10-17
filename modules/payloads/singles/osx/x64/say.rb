@@ -38,10 +38,10 @@ module Metasploit3
 		payload =
 			"\x48\x31\xC0" +                    # xor rax,rax
 			"\xB8\x3B\x00\x00\x02" +            # mov eax,0x200003b
-			call + 
-			"/usr/bin/say\x00" + 
+			call +
+			"/usr/bin/say\x00" +
 			say +
-			"\x48\x8B\x3C\x24" +                # mov rdi,[rsp] 
+			"\x48\x8B\x3C\x24" +                # mov rdi,[rsp]
 			"\x4C\x8D\x57\x0D" +                # lea r10,[rdi+0xd]
 			"\x48\x31\xD2" +                    # xor rdx,rdx
 			"\x52" +                            # push rdx
