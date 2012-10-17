@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
 		table = Rex::Ui::Text::Table.new({
                         'Header' => 'Windows Deployment Services',
                         'Indent' => 1,
-                        'Columns' => ['Architecture', 'Domain', 'Username', 'Password']
+                        'Columns' => ['Architecture', 'Type', 'Domain', 'Username', 'Password']
         })
 		
 		creds_found = false
@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Auxiliary
 							domain = ""
 							domain = result['domain'] if result['domain']
 							report_creds(domain, result['username'], result['password'])
-							table << [architecture[0], domain, result['username'], result['password']]
+							table << [architecture[0], result['type'], domain, result['username'], result['password']]
 						end
 					end
 				end

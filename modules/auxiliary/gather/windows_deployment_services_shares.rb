@@ -205,7 +205,7 @@ class Metasploit3 < Msf::Auxiliary
 		table = Rex::Ui::Text::Table.new({
                         'Header' => share_path,
                         'Indent' => 1,
-                        'Columns' => ['Path', 'Domain', 'Username', 'Password']
+                        'Columns' => ['Path', 'Type', 'Domain',  'Username', 'Password']
         })
 		
 		creds_found = false
@@ -235,7 +235,7 @@ class Metasploit3 < Msf::Auxiliary
 							domain = ""
 							domain = cred['domain'] if cred['domain']
 							report_creds(domain, cred['username'], cred['password'])
-							table << [file_path, domain, cred['username'], cred['password']]
+							table << [file_path, cred['type'], domain, cred['username'], cred['password']]
 						end
 					end
 				end
