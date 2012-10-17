@@ -16,10 +16,10 @@ class Metasploit4 < Msf::Auxiliary
 		super(
 			'Name'        => 'Lantronix Telnet Password Recovery',
 			'Description' => %q{
-						This module retrieves the setup record from Lantronix serial-to-ethernet
-					devices via the config port (30718/udp, enabled by default) and extracts the
-					telnet password. It has been tested successfully on a Lantronix Device Server
-					with software version V5.8.0.1.
+					This module retrieves the setup record from Lantronix serial-to-ethernet
+				devices via the config port (30718/udp, enabled by default) and extracts the
+				telnet password. It has been tested successfully on a Lantronix Device Server
+				with software version V5.8.0.1.
 			},
 			'Author'      => 'jgor',
 			'License'     => MSF_LICENSE
@@ -30,7 +30,6 @@ class Metasploit4 < Msf::Auxiliary
 				Opt::CHOST,
 				Opt::RPORT(30718)
 			], self.class)
-
 	end
 
 	def run_host(ip)
@@ -71,11 +70,11 @@ class Metasploit4 < Msf::Auxiliary
 		if password
 			print_good("#{rhost} - Telnet password found: #{password.to_s}")
 			report_auth_info({
-				:host		=> rhost,
-				:port		=> 9999,
-				:sname		=> 'telnet',
-				:duplicate_ok	=> false,
-				:pass		=> password,
+				:host         => rhost,
+				:port         => 9999,
+				:sname        => 'telnet',
+				:duplicate_ok => false,
+				:pass         => password,
 			})
 		end
 
