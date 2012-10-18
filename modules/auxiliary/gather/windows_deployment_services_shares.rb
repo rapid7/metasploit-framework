@@ -10,6 +10,8 @@ require 'rex/proto/dcerpc'
 require 'rex/proto/dcerpc/wdscp'
 require 'rex/parser/unattend'
 
+load '/opt/metasploit/msf3/lib/rex/proto/smb/client.rb'
+
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::SMB
@@ -150,40 +152,7 @@ class Metasploit3 < Msf::Auxiliary
 					raise $!
 			end
 	end
-	
 
-	# MOve this to client.rb?
-	def file_search(current_path, regex, depth)
-		depth -= 1
-		if depth < 0
-			return
-		end
-		
-		results = simple.client.find_first("#{current_path}*")
-		files = []
-		
-		results.each do |result|
-			if result[0] =~ /^(\.){1,2}$/  # Ignore . ..
-				next
-			end
-
-			if result[1]['attr'] & Rex::Proto::SMB::Constants::SMB_EXT_FILE_ATTR_DIRECTORY > 0
-				search_path = "#{current_path}#{result[0]}\\"
-				begin
-					files << file_search(search_path, regex, depth).flatten.compact
-				rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
-					vprint_error("#{search_path} : #{e.message}")
-				end
-			else
-				if result[0] =~ regex
-					files << "#{current_path}#{result[0]}"
-				end
-			end
-		end
-		
-		return files.flatten.compact		
-	end
-	
 	def query_share(rhost, deploy_share)
 		share_path = "\\\\#{rhost}\\#{deploy_share}"
 		print_status("Enumerating #{share_path}")
@@ -203,7 +172,7 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 
-		results = file_search("\\", /unattend.xml$/i, 10)
+		results = simple.client.file_search("\\", /unattend.xml$/i, 10)
 		
 		results.each do |file_path|
 			file = simple.open(file_path, 'o').read()
