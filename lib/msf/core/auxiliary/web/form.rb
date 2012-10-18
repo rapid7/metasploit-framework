@@ -89,7 +89,8 @@ class Form < Fuzzable
 	#   { 'name' => 'John' }
 	#
 	def params
-		@params ||= inputs.inject( {} ) { |h, i| h[i[:name]] = i[:value]; h }
+		@params ||= inputs.reject{ |i| i[:name].to_s.empty? }.
+      inject( {} ) { |h, i| h[i[:name]] = i[:value]; h }
 	end
 
 	#
