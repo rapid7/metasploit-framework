@@ -11,7 +11,7 @@ describe Msf::Util::SvnSwitchConfig do
 		# Yes, this is requiring a very specific path to an SVN checkout.
 		# Someone with more rspec smarts than me can resolve this. That
 		# someone might be me from the future.
-		checkout_dir = "/tmp/msf3-anon"
+		checkout_dir = "#{ENV['HOME']}/svn/msf3-anon"
 		@subject = Msf::Util::SvnSwitchConfig.new(1234, checkout_dir)
 		pwd = File.expand_path(File.dirname(__FILE__))
 		@top = File.expand_path(File.join(pwd, "..", "..", ".."))
@@ -27,7 +27,7 @@ describe Msf::Util::SvnSwitchConfig do
 		end
 		context 'when msfbase has been set' do
 			it 'should return the specified directory' do
-				my_msfbase = '/tmp/msf3-anon'
+				my_msfbase = "#{ENV['HOME']}/svn/msf3-anon"
 				subject.msfbase.should == my_msfbase
 			end
 			it 'should return the real msfbase when nil' do
