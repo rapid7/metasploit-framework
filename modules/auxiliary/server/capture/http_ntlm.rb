@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def on_request_uri(cli, request)
 		print_status("Request '#{request.uri}'...")
-		
+
 		case request.method
 		when 'OPTIONS'
 			process_options(cli, request)
@@ -101,7 +101,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		exploit()
 	end
-	
+
 	def process_options(cli, request)
 		print_status("OPTIONS #{request.uri}")
 		headers = {

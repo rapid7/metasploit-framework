@@ -93,7 +93,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Handles the initial requests waiting for the browser to try NTLM auth
 	def on_request_uri(cli, request)
-	
+
 		case request.method
 		when 'OPTIONS'
 			process_options(cli, request)
@@ -136,7 +136,7 @@ class Metasploit3 < Msf::Auxiliary
 		parse_args()
 		exploit()
 	end
-	
+
 	def process_options(cli, request)
 		print_status("OPTIONS #{request.uri}")
 		headers = {
