@@ -37,7 +37,7 @@ namespace :yard do
   task :stats => :environment do
     stats = YARD::CLI::Stats.new
     yard_arguments = yard_options + ['--compact', '--list-undoc'] + yard_files
-    stats.run *yard_arguments
+    stats.run(*yard_arguments)
   end
 end
 
