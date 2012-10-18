@@ -10,8 +10,6 @@ require 'rex/proto/dcerpc'
 require 'rex/proto/dcerpc/wdscp'
 require 'rex/parser/unattend'
 
-load '/opt/metasploit/msf3/lib/rex/proto/smb/client.rb'
-
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::SMB
@@ -48,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 		deregister_options('RHOST', 'CHOST', 'CPORT', 'SSL', 'SSLVersion')
 	end
 	
-	# Move this to mixin?
+
 	def share_type(val)
 			stypes = [
 					'DISK',
@@ -66,7 +64,8 @@ class Metasploit3 < Msf::Auxiliary
 			stypes[val]
 	end
 	
-	# move this and lanmanenum to simple client?
+	# Stolen from enumshares - Tried refactoring into simple client, but the two methods need to go in EXPLOIT::SMB and EXPLOIT::DCERPC
+	# and then the lanman method calls the RPC method. Suggestions where to refactor to welcomed!
 	def srvsvc_netshareenum
 			simple.connect("IPC$")
 			handle = dcerpc_handle('4b324fc8-1670-01d3-1278-5a47bf6ee188', '3.0', 'ncacn_np', ["\\srvsvc"])
@@ -163,6 +162,8 @@ class Metasploit3 < Msf::Auxiliary
         })
 		
 		creds_found = false
+		
+		# ruby 1.8 compat?
 		share = deploy_share.force_encoding('utf-16LE').encode('ASCII-8BIT').strip
 	
 		begin
