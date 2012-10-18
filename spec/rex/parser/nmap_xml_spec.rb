@@ -1,8 +1,5 @@
 
-require 'testbase'
-require 'rexml/document'
 require 'rex/parser/nmap_xml'
-require 'spec'
 
 xml = '
 <?xml version="1.0" ?>
@@ -46,9 +43,9 @@ describe Rex::Parser::NmapXMLStreamParser do
 			host["addrs"]["ipv4"].should == "192.168.0.1"
 		end
 	}
+	REXML::Document.parse_stream(StringIO.new(xml), parser)
 	it "should have found exactly one host" do
 		total_hosts.should == 1
 	end
-	REXML::Document.parse_stream(StringIO.new(xml), parser)
 end
 
