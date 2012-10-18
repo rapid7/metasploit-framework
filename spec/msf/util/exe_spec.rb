@@ -78,8 +78,8 @@ describe Msf::Util::EXE do
             bin = subject.to_executable_fmt($framework, arch, platform, "\xcc", fmt, {})
             bin.should be_a String
 
-						f = IO.popen("file -","w+")
-						f.write(bin)
+            f = IO.popen("file -","w+")
+            f.write(bin)
             f.close_write
             fp = f.read
             f.close
