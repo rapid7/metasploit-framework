@@ -82,12 +82,11 @@ describe Msf::Util::EXE do
 						f.write(bin)
             f.close_write
             fp = f.read
-            $stderr.print fp
             f.close
             fp.should =~ format_hash[:file_fp] if format_hash[:file_fp]
           end
 
-          it "should output nil when given bogus format" do
+          it "returns nil when given bogus format for arch=#{arch}" do
             bin = subject.to_executable_fmt($framework, arch, platform, "\xcc", "asdf", {})
             bin.should == nil
           end
