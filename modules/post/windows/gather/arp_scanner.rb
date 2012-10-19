@@ -64,6 +64,7 @@ class Metasploit3 < Msf::Post
 		end
 
 		while(not iplst.nil? and not iplst.empty?)
+			a = []
 			1.upto(threads) do
 				a << framework.threads.spawn("Module(#{self.refname})", false, iplst.shift) do |ip_text|
 					next if ip_text.nil?
@@ -79,8 +80,8 @@ class Metasploit3 < Msf::Post
 						report_note(:host  => ip_text, :type  => "mac_oui", :data  => company)
 					end
 				end
-				a.map {|x| x.join }
 			end
+			a.map {|x| x.join }
 		end
 		return found
 	end

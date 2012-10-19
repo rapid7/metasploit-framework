@@ -19,9 +19,9 @@ struct kiss_fftr_state{
     kiss_fft_cfg substate;
     kiss_fft_cpx * tmpbuf;
     kiss_fft_cpx * super_twiddles;
-#ifdef USE_SIMD    
-    long pad;
-#endif    
+#ifdef USE_SIMD
+    void * pad;
+#endif
 };
 
 kiss_fftr_cfg kiss_fftr_alloc(int nfft,int inverse_fft,void * mem,size_t * lenmem)
