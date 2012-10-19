@@ -208,6 +208,10 @@ class Module
 		super(print_prefix + msg)
 	end
 
+	def print_warning(msg='')
+		super(print_prefix + msg)
+	end
+
 
 	#
 	# Overwrite the Subscriber print_line to do custom prefixes
@@ -240,6 +244,10 @@ class Module
 	# Verbose version of #print_debug
 	def vprint_debug(msg)
 		print_debug(msg) if datastore['VERBOSE'] || framework.datastore['VERBOSE']
+	end
+	# Verbose version of #print_warning
+	def vprint_warning(msg)
+		print_warning(msg) if datastore['VERBOSE'] || framework.datastore['VERBOSE']
 	end
 
 	#
