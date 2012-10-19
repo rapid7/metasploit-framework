@@ -141,6 +141,14 @@ class Plugin
 	end
 
 	#
+	# Prints a warning
+	#
+	def print_warning(msg='')
+		output.print_warning(msg) if (output)
+	end
+
+
+	#
 	# Prints a message with no decoration.
 	#
 	def print(msg='')
