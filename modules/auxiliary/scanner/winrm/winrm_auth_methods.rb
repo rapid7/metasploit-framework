@@ -34,11 +34,6 @@ class Metasploit3 < Msf::Auxiliary
 			'License'        => MSF_LICENSE
 		)
 
-		register_options(
-			[
-				OptString.new('URI', [ true, "The URI of the WinRM service", "/wsman" ])
-			], self.class)
-
 		deregister_options('USERNAME', 'PASSWORD')
 
 	end
