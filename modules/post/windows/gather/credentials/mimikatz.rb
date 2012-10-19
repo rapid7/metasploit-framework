@@ -2,6 +2,7 @@ require 'msf/core'
 
 ##
 # Notes:
+#  Requires mimikatz-x86.exe and/or mimikatz-x64.exe in mimikatz_bin_dir
 #  Tested with: 
 #   mimikatz 1.0 x86 (RC)  /* Traitement du Kiwi (Sep  8 2012 18:17:53) */ 
 #   mimikatz 1.0 x64 (RC)  /* Traitement du Kiwi (Sep  8 2012 18:17:53) */
