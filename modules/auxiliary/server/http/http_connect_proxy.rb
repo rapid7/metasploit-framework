@@ -39,13 +39,9 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run
-		start_service
-		loop do
-			# Wait for termination
-			Rex::ThreadSafe.sleep(2)
-		end
+    print_status("HTTP connect proxy server started")
+    exploit
 	end
-	alias_method :exploit, :run
 
 	def on_request_uri(cli, req)
 		vprint_good("Client #{cli.peerinfo} connected")
