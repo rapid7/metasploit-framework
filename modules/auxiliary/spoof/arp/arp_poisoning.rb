@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 		open_pcap({'SNAPLEN' => 68, 'FILTER' => "arp[6:2] == 0x0002"})
 		@netifaces = true
 		if not netifaces_implemented?
-			print_error("WARNING : Pcaprub is not uptodate, some functionality will not be available")
+			print_warning("WARNING : Pcaprub is not uptodate, some functionality will not be available")
 			@netifaces = false
 		end
 		@spoofing = false
