@@ -144,7 +144,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if(reps < 30)
-			print_status("WARNING: This server did not reply to all of our requests")
+			print_warning("WARNING: This server did not reply to all of our requests")
 		end
 
 		if(random)
@@ -198,7 +198,7 @@ class Metasploit3 < Msf::Auxiliary
 
 						print_status("Switching to target port #{sport} based on Metasploit service")
 						if target != t_addr
-							print_status("Warning: target address #{target} is not the same as the nameserver's query source address #{t_addr}!")
+							print_warning("Warning: target address #{target} is not the same as the nameserver's query source address #{t_addr}!")
 						end
 					end
 				end

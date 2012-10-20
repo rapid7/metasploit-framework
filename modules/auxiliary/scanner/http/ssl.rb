@@ -69,7 +69,7 @@ class Metasploit4 < Msf::Auxiliary
 				alg = cert.signature_algorithm
 
 				if alg.downcase.include? "md5"
-					print_status("#{ip}:#{rport} WARNING: Signature algorithm using MD5 (#{alg})")
+					print_warning("#{ip}:#{rport} WARNING: Signature algorithm using MD5 (#{alg})")
 				end
 
 				vhostn = nil

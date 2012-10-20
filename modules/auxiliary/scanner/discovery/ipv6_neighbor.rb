@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		@netifaces = true
 		if not netifaces_implemented?
-			print_error("WARNING : Pcaprub is not uptodate, some functionality will not be available")
+			print_warning("WARNING : Pcaprub is not uptodate, some functionality will not be available")
 			@netifaces = false
 		end
 
