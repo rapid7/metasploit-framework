@@ -15,19 +15,19 @@ class Metasploit3 < Msf::Post
 				'Name'          => 'Windows Recon Resolve Hostname',
 				'Description'   => %q{ This module resolves a hostname to IP address via the victim, similiar to the Unix dig command},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Rob Fuller <mubix[at]hak5.org>'],
+				'Author'        => [ 'mubix <mubix[at]hak5.org>'],
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
 
 		register_options(
 			[
-				OptString.new('HOSTNAME', [true, 'Hostname to lookup', nil])
+				OptString.new('HOSTNAME', [false, 'Hostname to lookup', nil]),
+				OptString.new('HOSTFILE', [false, 'Line separated file with hostnames to resolve', nil])
 			], self.class)
 	end
 
-	def run
-		### MAIN ###
+	def resolve_hostname
 
 		if client.platform =~ /^x64/
 			size = 64
@@ -39,7 +39,6 @@ class Metasploit3 < Msf::Post
 
 		hostname = datastore['HOSTNAME']
 
-		## get IP for host
 		begin
 			vprint_status("Looking up IP for #{hostname}")
 			result = client.railgun.ws2_32.getaddrinfo(hostname, nil, nil, 4 )
@@ -56,6 +55,19 @@ class Metasploit3 < Msf::Post
 		rescue ::Exception => e
 			print_error(e)
 			print_status('Windows 2000 and prior does not support getaddrinfo')
+		end
+
+	end
+
+	def run
+		if datastore['HOSTNAME']
+			resolve_hostname(datastore['HOSTNAME'])
+		end
+
+		if datastore['HOSTFILE']
+			::File.open(datastore['HOSTFILE'], "rb").each_line do |hostname|
+				resolve_hostname(hostname)
+			end
 		end
 	end
 end
