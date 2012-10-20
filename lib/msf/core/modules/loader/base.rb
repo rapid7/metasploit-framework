@@ -541,7 +541,9 @@ class Msf::Modules::Loader::Base
       # the const may have been redefined by {#create_namespace_module}, in which case that new namespace_module needs
       # to be removed so the original can replace it.
       if parent_module.const_defined? relative_name
-        remove_const relative_name
+        parent_module.instance_eval do
+          remove_const relative_name
+        end
       end
 
       parent_module.const_set(relative_name, namespace_module)
