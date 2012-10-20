@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'           => 'WinRM Authentication Methos Detection',
+			'Name'           => 'WinRM Authentication Method Detection',
 			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module sends a request to a an http/https service to see if it is a WinRM service.
