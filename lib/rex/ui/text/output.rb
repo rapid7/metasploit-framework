@@ -67,6 +67,10 @@ class Output < Rex::Ui::Output
 		print(msg + "\n")
 	end
 
+	def print_warning(msg = '')
+		print_line("%bld%yel[!]%clr #{msg}")
+	end
+
 	def print(msg = '')
 		print_raw(substitute_colors(msg))
 	end
