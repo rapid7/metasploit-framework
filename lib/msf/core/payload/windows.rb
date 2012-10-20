@@ -75,7 +75,7 @@ module Msf::Payload::Windows
 		if (test_arch.include?(ARCH_X86))
 
 			# PrependMigrate
-			if (datastore['PrependMigrate'])
+			if datastore['PrependMigrate'] and datastore['PrependMigrate'].to_s.downcase == 'true'
 				payloadsize = "0x%04x" % buf.length
 				procname = datastore['PrependMigrateProc'] || 'rundll32'
 
