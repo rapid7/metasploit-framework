@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
 			], self.class)
 	end
 
-	def resolve_hostname
+	def resolve_hostname(hostname)
 
 		if client.platform =~ /^x64/
 			size = 64
@@ -37,13 +37,11 @@ class Metasploit3 < Msf::Post
 			addrinfoinmem = 24
 		end
 
-		hostname = datastore['HOSTNAME']
-
 		begin
 			vprint_status("Looking up IP for #{hostname}")
 			result = client.railgun.ws2_32.getaddrinfo(hostname, nil, nil, 4 )
 			if result['GetLastError'] == 11001
-				print_error("Failed to resolve the host")
+				print_error("Failed to resolve #{hostname}")
 				return
 			end
 			addrinfo = client.railgun.memread( result['ppResult'], size )
@@ -66,7 +64,9 @@ class Metasploit3 < Msf::Post
 
 		if datastore['HOSTFILE']
 			::File.open(datastore['HOSTFILE'], "rb").each_line do |hostname|
-				resolve_hostname(hostname)
+				if hostname.strip != ""
+					resolve_hostname(hostname.strip)
+				end
 			end
 		end
 	end
