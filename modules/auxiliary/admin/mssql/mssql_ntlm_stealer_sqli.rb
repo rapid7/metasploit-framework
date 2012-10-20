@@ -33,8 +33,8 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'Automatic', { } ],
 				],
 			'DefaultTarget'  => 0,
-			'Platform'      => [ 'Windows' ],
-			'References'     => [[ 'URL', 'http://en.wikipedia.org/wiki/SMBRelay' ]],
+			'Platform'      => [ 'win' ],
+			'References'     => [[ 'URL', 'http://en.wikipedia.org/wiki/SMBRelay' ]]
 		))
 
 		register_options(
