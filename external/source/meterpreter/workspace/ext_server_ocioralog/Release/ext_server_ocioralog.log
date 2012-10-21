@@ -1,0 +1,52 @@
+﻿Build started 9/30/2012 2:34:43 AM.
+     1>Project "Z:\metasploit\metasploit-framework\external\source\meterpreter\workspace\ext_server_ocioralog\ext_server_ocioralog.vcxproj" on node 3 (rebuild target(s)).
+     1>_PrepareForClean:
+         Deleting file ".\Release\ext_server_ocioralog.lastbuildstate".
+       InitializeBuildStatus:
+         Creating ".\Release\ext_server_ocioralog.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /I..\..\source\extensions\lanattacks /I..\..\source\openssl\include /Zi /nologo /W3 /WX- /O2 /Oi /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D EXT_SERVER_OCIORALOG_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo".\Release/" /Fd".\Release/vc100.pdb" /Gd /TC /errorReport:prompt "..\..\source\extensions\ocioralog\disasm-lib\cpu.c" "..\..\source\extensions\ocioralog\disasm-lib\disasm.c" "..\..\source\extensions\ocioralog\disasm-lib\disasm_x86.c" "..\..\source\extensions\ocioralog\disasm-lib\misc.c" ..\..\source\extensions\ocioralog\ocioralog.c
+         cpu.c
+         disasm.c
+         disasm_x86.c
+         misc.c
+         ocioralog.c
+     1>z:\metasploit\metasploit-framework\external\source\meterpreter\source\extensions\ocioralog\../../common/common.h(161): warning C4133: 'function' : incompatible types - from 'char [1024]' to 'LPCWSTR'
+     1>z:\metasploit\metasploit-framework\external\source\meterpreter\source\extensions\ocioralog\../../ReflectiveDLLInjection/ReflectiveLoader.c(86): warning C4101: 'inspect' : unreferenced local variable
+     1>..\..\source\extensions\ocioralog\ocioralog.c(496): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /I..\..\source\extensions\lanattacks /I..\..\source\openssl\include /Zi /nologo /W3 /WX- /O2 /Oi /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D EXT_SERVER_OCIORALOG_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo".\Release/" /Fd".\Release/vc100.pdb" /Gd /TP /errorReport:prompt "..\..\source\extensions\ocioralog\mhook-lib\mhook.cpp"
+         mhook.cpp
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(990,5): warning MSB8012: TargetPath(Z:\metasploit\metasploit-framework\external\source\meterpreter\workspace\ext_server_ocioralog\.\Release\ext_server_ocioralog.dll) does not match the Linker's OutputFile property value (Z:\metasploit\metasploit-framework\external\source\meterpreter\workspace\ext_server_ocioralog\Release\ext_server_ocioralog.x64.dll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(992,5): warning MSB8012: TargetName(ext_server_ocioralog) does not match the Linker's OutputFile property value (ext_server_ocioralog.x64). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:".\Release/ext_server_ocioralog.x64.dll" /INCREMENTAL:NO /NOLOGO /LIBPATH:..\backcompat\Release /LIBPATH:..\metsrv\Release /LIBPATH:..\..\source\openssl\lib\win\x64 backcompat.lib Netapi32.lib Mpr.lib metsrv.lib libeay32.lib ssleay32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib Delayimp.lib /DELAYLOAD:metsrv.dll /MANIFEST /ManifestFile:".\Release\ext_server_ocioralog.dll.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /PDB:"Z:\metasploit\metasploit-framework\external\source\meterpreter\workspace\ext_server_ocioralog\Release\ext_server_ocioralog.pdb" /MAP:".\Release/ext_server_ocioralog.map" /SUBSYSTEM:WINDOWS,"5.0" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT /IMPLIB:".\Release/ext_server_ocioralog.lib" /MACHINE:X64 /DLL .\Release/cpu.obj
+         .\Release/disasm.obj
+         .\Release/disasm_x86.obj
+         .\Release/misc.obj
+         .\Release/mhook.obj
+         .\Release/ocioralog.obj
+         "Z:\metasploit\metasploit-framework\external\source\meterpreter\workspace\backcompat\Release\backcompat.lib"
+         "Z:\metasploit\metasploit-framework\external\source\meterpreter\workspace\common\Release\common.lib"
+         "Z:\metasploit\metasploit-framework\external\source\meterpreter\workspace\ReflectiveDLLInjection\Release\ReflectiveDllInjection.lib"
+         "Z:\metasploit\metasploit-framework\external\source\meterpreter\workspace\metsrv\Release\metsrv.lib"
+            Creating library .\Release/ext_server_ocioralog.lib and object .\Release/ext_server_ocioralog.exp
+     1>LINK : warning LNK4010: invalid subsystem version number 5.00; default subsystem version assumed
+         Generating code
+     1>z:\metasploit\metasploit-framework\external\source\meterpreter\source\extensions\ocioralog\ocioralog.c(427): warning C4715: 'unhookOCIAttrSet' : not all control paths return a value
+     1>z:\metasploit\metasploit-framework\external\source\meterpreter\source\extensions\ocioralog\ocioralog.c(400): warning C4715: 'unhookOCIStmtExecute' : not all control paths return a value
+     1>z:\metasploit\metasploit-framework\external\source\meterpreter\source\extensions\ocioralog\ocioralog.c(373): warning C4715: 'unhookOCIServerAttach' : not all control paths return a value
+     1>z:\metasploit\metasploit-framework\external\source\meterpreter\source\extensions\ocioralog\ocioralog.c(331): warning C4715: 'request_ocioralog_hookOCIAttrSet' : not all control paths return a value
+     1>z:\metasploit\metasploit-framework\external\source\meterpreter\source\extensions\ocioralog\ocioralog.c(280): warning C4715: 'request_ocioralog_hookOCIStmtExecute' : not all control paths return a value
+     1>z:\metasploit\metasploit-framework\external\source\meterpreter\source\extensions\ocioralog\ocioralog.c(228): warning C4715: 'request_ocioralog_hookOCIServerAttach' : not all control paths return a value
+         Finished generating code
+         ext_server_ocioralog.vcxproj -> Z:\metasploit\metasploit-framework\external\source\meterpreter\workspace\ext_server_ocioralog\.\Release\ext_server_ocioralog.dll
+       Manifest:
+         C:\Program Files\Microsoft SDKs\Windows\v7.1\bin\mt.exe /nologo /verbose /outputresource:".\Release/ext_server_ocioralog.x64.dll;#2" /manifest .\Release\ext_server_ocioralog.dll.intermediate.manifest
+       FinalizeBuildStatus:
+         Deleting file ".\Release\ext_server_ocioralog.unsuccessfulbuild".
+         Touching ".\Release\ext_server_ocioralog.lastbuildstate".
+     1>Done Building Project "Z:\metasploit\metasploit-framework\external\source\meterpreter\workspace\ext_server_ocioralog\ext_server_ocioralog.vcxproj" (rebuild target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:09.56
