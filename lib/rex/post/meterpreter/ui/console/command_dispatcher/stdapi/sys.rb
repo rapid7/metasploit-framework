@@ -43,14 +43,14 @@ class Console::CommandDispatcher::Stdapi::Sys
 		"-t" => [ true,  "The registry value type (E.g. REG_SZ)."                  ],
 		"-v" => [ true,  "The registry value name (E.g. Stuff)."                   ],
 		"-r" => [ true,  "The remote machine name to connect to (with current process credentials" ],
-		"-w" => [ false,  "Set KEY_WOW64 flag, valid values [32|64]."               ])
+		"-w" => [ false, "Set KEY_WOW64 flag, valid values [32|64]."               ])
 
 	@@ps_opts = Rex::Parser::Arguments.new(
-		"-h" => [false, "Help menu."],
-		"-S" => [true, "RegEx term to filter on process name with "],
-		"-A" => [true, "Arch to filter on (x86 or x86_64"],
-		"-s"  =>[false, "Show only SYSTEM processes"],
-		"-U"  => [true, "RegEx term to filter on user name with"])
+		"-h" => [ false, "Help menu."                                              ],
+		"-S" => [ true,  "Filters processes on the process name using the supplied RegEx"],
+		"-A" => [ true,  "Filters processes on architecture (x86 or x86_64)"       ],
+		"-s" => [ false, "Show only SYSTEM processes"                              ],
+		"-U" => [ true,  "Filters processes on the user using the supplied RegEx"  ])
 
 	#
 	# List of supported commands.
@@ -343,21 +343,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 		print_line "Use the command with no arguments to see all running processes."
 		print_line "The following options can be used to filter those results:"
 		
-		tbl = Rex::Ui::Text::Table.new(
-			'Header'      => "Options List",
-			'Indent'       => 1,
-			'Columns'   => 
-			[
-				"Option",
-				"Details"
-			]
-		)
-
-		tbl << ["-s", "Display only SYSTEM processes"]
-		tbl << ["-S <RegEx>", "Filters processes on the process name using the supplied RegEx"]
-		tbl << ["-A <arch>", "Filters processes on the arch. (x86, x86_64)"]
-		tbl << ["-U <username>", "Filters processes on the user using the supplied RegEx"]
-		print_line tbl.to_s
+		print_line @@ps_opts.usage
 	end
 
 
