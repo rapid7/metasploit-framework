@@ -40,7 +40,6 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'OSVDB', '65533'],
 					[ 'URL', 'http://seclists.org/bugtraq/2010/Jun/160' ]
 				],
-			'Privileged'     => true,
 			'DisclosureDate' => 'Jun 15 2010'
 		)
 
