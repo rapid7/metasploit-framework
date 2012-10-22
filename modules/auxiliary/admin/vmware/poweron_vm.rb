@@ -23,16 +23,9 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'           => 'VMWare Power On Virtual Machine',
 			'Description'    => %Q{
-<<<<<<< HEAD
 							This module will log into the Web API of VMWare and try to power on
 							a specified Virtual Machine.},
 			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
-=======
-				This module will log into the Web API of VMWare and try to power on
-				a specified Virtual Machine.
-			},
-			'Author'         => ['theLightCosine'],
->>>>>>> upstream/master
 			'License'        => MSF_LICENSE
 		)
 
