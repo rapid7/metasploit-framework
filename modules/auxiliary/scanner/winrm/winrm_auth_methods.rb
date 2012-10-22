@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'WinRM Authentication Method Detection',
 			'Version'        => '$Revision$',
 			'Description'    => %q{
-				This module sends a request to a an http/https service to see if it is a WinRM service.
+				This module sends a request to an HTTP/HTTPS service to see if it is a WinRM service.
 				If it is a WinRM service, it also gathers the Authentication Methods supported.
 				},
 			'Author'         => [ 'thelightcosine' ],
