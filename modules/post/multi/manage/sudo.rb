@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Post
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'todb <todb[at]metasploit.com>'],
-				'Version'       => '$Revision: $',
+				'Version'       => '$Revision$',
 				'Platform'      => [ 'linux','unix','osx','solaris','aix' ],
 				'References'    =>
 					[
