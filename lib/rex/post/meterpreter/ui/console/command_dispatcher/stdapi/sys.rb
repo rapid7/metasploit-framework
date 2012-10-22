@@ -45,6 +45,13 @@ class Console::CommandDispatcher::Stdapi::Sys
 		"-r" => [ true,  "The remote machine name to connect to (with current process credentials" ],
 		"-w" => [ false,  "Set KEY_WOW64 flag, valid values [32|64]."               ])
 
+	@@ps_opts = Rex::Parser::Arguments.new(
+		"-h" => [false, "Help menu."],
+		"-S" => [true, "RegEx term to filter on process name with "],
+		"-A" => [true, "Arch to filter on (x86 or x86_64"],
+		"-s"  =>[false, "Show only SYSTEM processes"],
+		"-U"  => [true, "RegEx term to filter on user name with"])
+
 	#
 	# List of supported commands.
 	#
@@ -274,6 +281,54 @@ class Console::CommandDispatcher::Stdapi::Sys
 	#
 	def cmd_ps(*args)
 		processes = client.sys.process.get_processes
+		@@ps_opts.parse(args) do |opt, idx, val|
+			case opt 
+			when "-h"
+				cmd_ps_help
+				return true
+			when "-S"
+				print_line "Filtering on process name..."
+				searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
+				processes.each do |proc| 
+					if val.nil? or val.empty?
+						print_line "You must supply a search term!"
+						return false
+					end
+					searched_procs << proc  if proc["name"].match(/#{val}/)
+				end
+				processes = searched_procs
+			when "-A"
+				print_line "Filtering on arch..."
+				searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
+				processes.each do |proc| 
+					next if proc['arch'].nil? or proc['arch'].empty?
+					if val.nil? or val.empty? or !(val == "x86" or val == "x86_64")
+						print_line "You must select either x86 or x86_64"
+						return false
+					end
+					searched_procs << proc  if proc["arch"] == val
+				end
+				processes = searched_procs
+			when "-s"
+				print_line "Filtering on SYSTEM processes..."
+				searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
+				processes.each do |proc| 
+					searched_procs << proc  if proc["user"] == "NT AUTHORITY\\SYSTEM"
+				end
+				processes = searched_procs
+			when "-U"
+				print_line "Filtering on user name..."
+				searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
+				processes.each do |proc| 
+					if val.nil? or val.empty?
+						print_line "You must supply a search term!"
+						return false
+					end
+					searched_procs << proc  if proc["user"].match(/#{val}/)
+				end
+				processes = searched_procs
+			end
+		end
 		if (processes.length == 0)
 			print_line("No running processes were found.")
 		else
@@ -283,6 +338,29 @@ class Console::CommandDispatcher::Stdapi::Sys
 		end
 		return true
 	end
+
+	def cmd_ps_help
+		print_line "Use the command with no arguments to see all running processes."
+		print_line "The following options can be used to filter those results:"
+		
+		tbl = Rex::Ui::Text::Table.new(
+			'Header'      => "Options List",
+			'Indent'       => 1,
+			'Columns'   => 
+			[
+				"Option",
+				"Details"
+			]
+		)
+
+		tbl << ["-s", "Display only SYSTEM processes"]
+		tbl << ["-S <RegEx>", "Filters processes on the process name using the supplied RegEx"]
+		tbl << ["-A <arch>", "Filters processes on the arch. (x86, x86_64)"]
+		tbl << ["-U <username>", "Filters processes on the user using the supplied RegEx"]
+		print_line tbl.to_s
+	end
+
+
 
 	#
 	# Reboots the remote computer.
@@ -594,6 +672,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 
 		client.sys.power.shutdown
 	end
+
 
 end
 
