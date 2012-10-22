@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Post
 			memtext = client.railgun.memread(ptr2dns['return'],255)
 			host_inmem = memtext.split(ip_ino)[1].split("\00")[0]
 			print_good("#{ip} resolves to #{host_inmem}")
-		rescue ::Exception => e
+		rescue Rex::Post::Meterpreter::RequestError
 			print_error("Failed to resolve #{ip}")
 		end
 	end

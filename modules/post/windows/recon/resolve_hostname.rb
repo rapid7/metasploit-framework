@@ -50,8 +50,7 @@ class Metasploit3 < Msf::Post
 			ip = sockaddr[4,4].unpack('N').first
 			hostip = Rex::Socket.addr_itoa(ip)
 			print_status("#{hostname} resolves to #{hostip}")
-		rescue ::Exception => e
-			print_error(e)
+		rescue Rex::Post::Meterpreter::RequestError
 			print_status('Windows 2000 and prior does not support getaddrinfo')
 		end
 
