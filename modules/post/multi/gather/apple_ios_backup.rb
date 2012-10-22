@@ -1,5 +1,5 @@
 ##
-# $Id: apple_ios_backup.rb 14175 2011-11-06 22:02:26Z sinn3r $
+# $Id: 
 ##
 
 ##
@@ -8,7 +8,7 @@
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
 #
-# The script is updated to support iOS 5 and iOS 6 backups : by Satish B (@satishb3) - www.securitylearn.net
+# 
 ##
 
 require 'msf/core'
@@ -27,12 +27,12 @@ class Metasploit3 < Msf::Post
 			'Author'         =>
 				[
 					'hdm',
-					'Satishb3',#http://www.securitylearn.net
+					'Satishb3',#Added support to iOS 5 & iOS 6backups - http://www.securitylearn.net
 					'bannedit' # Based on bannedit's pidgin_cred module structure
 				],
-			'Version'        => '$Revision: 14175 $',
-			'Platform'       => ['windows'],
-			'SessionTypes'   => ['meterpreter' ]
+			'Version'        => '$Revision$',
+			'Platform'       => ['windows','osx'],
+			'SessionTypes'   => ['meterpreter','shell' ]
 		))
 		register_options(
 			[
