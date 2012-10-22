@@ -18,7 +18,7 @@ include Msf::Auxiliary::Scanner
 	def initialize
 		super(
 			'Name'         => 'Syslog Spoofing a Custom Messages',
-			'Version'      => '$Revision: $',
+			'Version'      => '$Revision$',
 			'Description'  => 'This module allows you to spoof custom syslog messages to and from single hosts or a range of hosts.',
 			'Author'       => 'Jeremy Conway <jeremy[at]sudosecure.net>',
 			'License'      => MSF_LICENSE

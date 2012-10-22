@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
             },
             'Author'         => [ 'pello' ],
             'License'        => MSF_LICENSE,
-            'Version'        => '$Revision: $'
+            'Version'        => '$Revision$'
         )
         register_options(
             [

@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'MITM DNS Service',
-			'Version'     => '$Revision: 5541 $',
+			'Version'     => '$Revision$',
 			'Description'    => %q{
 			  This hack of the metasploit fakedns.rb serves as a sort 
 			  of MITM DNS server.  Requests are passed through to a real

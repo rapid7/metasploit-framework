@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Inject HTML',
-			'Version'     => '$Revision: 1 $',
+			'Version'     => '$Revision$',
 			'Description' => %q{
 				Transparent proxy in ruby which is able to inject code in html page.
 			},

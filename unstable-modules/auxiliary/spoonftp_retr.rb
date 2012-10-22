@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 				},
 				'Author' => "C4SS!0 G0M3S",
 				'License'        => MSF_LICENSE,
-				'Version'        => '$Revision: 9169 $',
+				'Version'        => '$Revision$',
 				
 				'References' =>
 				[	

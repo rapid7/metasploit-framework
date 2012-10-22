@@ -8,7 +8,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info, 
 			'Name'        => 'Basic HTTP Server',
-			'Version'     => '$$',
 			'Description' => %q{
 				A basic webserver to serve out files
 				},

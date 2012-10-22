@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 					This module makes a request to the Oracle Application Server (tested against Oracle HRMS [self service])
 					 in an attempt to find some of the vulnerabilities described by Joxean Koret. It will also try to find DAD to be used with /pls/
 			},
-			'Version'     => '$Revision:$',
+			'Version'     => '$Revision$',
 			'References'  =>
 				[
 					[ 'URL', 'http://www.oracle.com/technology/deploy/security/critical-patch-updates/cpuapr2010.html' 
