@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 					connections to be initiated from any user that views the shortcut.
 				},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Rob Fuller <mubix[at]hak5.org>'],
+				'Author'        => [ 'mubix' ],
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))

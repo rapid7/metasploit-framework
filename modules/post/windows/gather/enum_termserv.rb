@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Post
 				This module dumps MRU and connection data for RDP sessions
 			},
 			'License'       => MSF_LICENSE,
-			'Author'        => ['Rob Fuller <mubix[at]hak5.org>'],
+			'Author'        => [ 'mubix' ],
 			'Version'       => '$Revision$',
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ]
