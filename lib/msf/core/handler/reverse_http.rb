@@ -153,7 +153,8 @@ module ReverseHttp
 				OptInt.new('SessionExpirationTimeout', [ false, 'The number of seconds before this session should be forcibly shut down', (24*3600*7)]),
 				OptInt.new('SessionCommunicationTimeout', [ false, 'The number of seconds of no activity before this session should be killed', 300]),
 				OptString.new('MeterpreterUserAgent', [ false, 'The user-agent that the payload should use for communication', 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)' ]),
-				OptString.new('MeterpreterServerName', [ false, 'The server header that the handler will send in response to requests', 'Apache' ])
+				OptString.new('MeterpreterServerName', [ false, 'The server header that the handler will send in response to requests', 'Apache' ]),
+				OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system'])
 			], Msf::Handler::ReverseHttp)
 	end
 
@@ -176,10 +177,17 @@ module ReverseHttp
 			comm = nil
 		end
 
+		# Determine where to bind the HTTP(S) server to
+		bindaddrs = ipv6 ? '::' : '0.0.0.0'
+
+		if not datastore['ReverseListenerBindAddress'].to_s.empty?
+			bindaddrs = datastore['ReverseListenerBindAddress']
+		end
+
 		# Start the HTTPS server service on this host/port
 		self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
 			datastore['LPORT'].to_i,
-			ipv6 ? '::' : '0.0.0.0',
+			bindaddrs,
 			ssl?,
 			{
 				'Msf'        => framework,
