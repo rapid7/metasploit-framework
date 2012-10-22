@@ -26,7 +26,8 @@ def initialize(info = {})
 
 	register_advanced_options([
 		OptBool.new('ShowProgress', [true, 'Display progress messages during a scan', true]),
-		OptInt.new('ShowProgressPercent', [true, 'The interval in percent that progress should be shown', 10])
+		OptInt.new('ShowProgressPercent', [true, 'The interval in percent that progress should be shown', 10]),
+		OptBool.new('RandomizeRHOSTS', [true, 'Randomize the list of RHOSTS to scan', false]),
 	], Auxiliary::Scanner)
 
 end
@@ -41,9 +42,24 @@ def run
 	@show_percent  = datastore['ShowProgressPercent'].to_i
 
 	ar             = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
+	ar_random      = []
+
 	@range_count   = ar.length || 0
 	@range_done    = 0
 	@range_percent = 0
+
+	userandomlist = false
+
+	if datastore['RandomizeRHOSTS'].to_s.downcase == 'true'
+		userandomlist = true
+		while (true)
+			ip = ar.next_ip
+			break if not ip
+			ar_random << ip
+		end
+		ar_random = ar_random.shuffle
+		@range_count   = ar_random.length || 0
+	end
 
 	threads_max = datastore['THREADS'].to_i
 	@tl = []
@@ -78,13 +94,22 @@ def run
 	if (self.respond_to?('run_host'))
 
 		@tl = []
+		randomcnt = 0
 
 		while (true)
 			# Spawn threads for each host
 			while (@tl.length < threads_max)
-				ip = ar.next_ip
-				break if not ip
-
+				if not userandomlist
+					ip = ar.next_ip
+					break if not ip
+				else
+					if randomcnt < ar_random.length
+						ip = ar_random[randomcnt]
+						randomcnt += 1
+					else
+						break
+					end
+				end
 				@tl << framework.threads.spawn("ScannerHost(#{self.refname})-#{ip}", false, ip.dup) do |tip|
 					targ = tip
 					nmod = self.replicant
@@ -139,6 +164,8 @@ def run
 
 		@tl = []
 
+		randomcnt = 0
+
 		while(true)
 			nohosts = false
 			while (@tl.length < threads_max)
@@ -146,15 +173,25 @@ def run
 				batch = []
 
 				# Create batches from each set
-				while (batch.length < size)
-					ip = ar.next_ip
-					if (not ip)
+				if not userandomlist
+					while (batch.length < size)
+						ip = ar.next_ip
+						if (not ip)
+							nohosts = true
+							break
+						end
+						batch << ip
+					end
+				else
+					if randomcnt < ar_random.length
+						ip = ar_random[randomcnt]
+						batch << ip
+						randomcnt += 1
+					else
 						nohosts = true
 						break
 					end
-					batch << ip
 				end
-
 				# Create a thread for each batch
 				if (batch.length > 0)
 					thread = framework.threads.spawn("ScannerBatch(#{self.refname})", false, batch) do |bat|
