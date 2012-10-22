@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
 		register_options(
 			[
 				OptString.new('HOSTNAME', [false, 'Hostname to lookup', nil]),
-				OptString.new('HOSTFILE', [false, 'Line separated file with hostnames to resolve', nil])
+				OptPath.new('HOSTFILE', [false, 'Line separated file with hostnames to resolve', nil])
 			], self.class)
 	end
 
