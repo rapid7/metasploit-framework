@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
 				However, this can be overcome by migrating to the SQL Server process.},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Scott Sutherland <scott.sutherland[at]netspi.com>'],
-				'Platform'      => [ 'Windows' ],
+				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
 
