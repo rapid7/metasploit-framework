@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Post
 			'References'    => [
 				[ 'URL', ' http://www.trustedsec.com/december-2010/bypass-windows-uac/' ]
 			],
-			'DisclosureDate'=> "Dec 31, 2010"
+			'DisclosureDate'=> "Dec 31 2010"
 		))
 
 		register_options([
