@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 					This module pulls and parses the URLs stored by Archive.org for the purpose of
 				replaying during a web assessment. Finding unlinked and old pages.
 			},
-			'Author' => [ 'Rob Fuller <mubix [at] hak5.org>' ],
+			'Author' => [ 'mubix' ],
 			'License' => MSF_LICENSE,
 			'Version' => '$Revision$'
 		))

@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
 					Winlogon.exe. Using idle time and natural system changes to give a
 					false sense of security to the user.},
 			'License'      => MSF_LICENSE,
-			'Author'       => ['Rob Fuller <mubix[at]hak5.org>', 'cg'],
+			'Author'       => [ 'mubix', 'cg' ],
 			'Version'      => '$Revision$',
 			'Platform'     => ['windows'],
 			'SessionTypes' => ['meterpreter'],
