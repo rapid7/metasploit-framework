@@ -30,8 +30,10 @@ class Metasploit3 < Msf::Post
 					This module extract DES encrypted passwords in known VNC locations
 				},
 				'License'       => MSF_LICENSE,
-				'Author'        => ['Kurt Grutzmacher <grutz[at]jingojango.net>',
-									'Rob Fuller <mubix[at]hak5.org>'],
+				'Author'        => [
+					'Kurt Grutzmacher <grutz[at]jingojango.net>',
+					'mubix'
+				],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]
