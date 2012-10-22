@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 				'Name'          => 'Windows Recon Resolve IP',
 				'Description'   => %q{ This module reverse resolves a range or IP to a hostname},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'mubix <mubix[at]hak5.org>'],
+				'Author'        => [ 'mubix' ],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]

@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
 				'Name'          => 'Windows Recon Resolve Hostname',
 				'Description'   => %q{ This module resolves a hostname to IP address via the victim, similiar to the Unix dig command},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'mubix <mubix[at]hak5.org>'],
+				'Author'        => [ 'mubix' ],
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
