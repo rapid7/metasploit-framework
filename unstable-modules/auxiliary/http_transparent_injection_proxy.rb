@@ -30,7 +30,6 @@ class Metasploit3 < Msf::Auxiliary
 					['URL', 'http://www.freedomcoder.com.ar/2009/02/28/webrick-transparent-proxy-code-injection/'],
 					['URL', 'http://www.clshack.it/rubytransparent-proxy-inject-htmljavascript.html']
 				],
-			'Privileged'        => true,
 		)
 
 		register_options([
