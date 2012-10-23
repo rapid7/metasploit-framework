@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'balgan <balgan[at]ptcoresec.eu>', 'klinzter <klinzter[at]ptcoresec.eu'],
 				'Version'       => '$Revision: 3195e713 $',
-				'Platform'      => [ 'windows' ],
+				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 				))
 	end

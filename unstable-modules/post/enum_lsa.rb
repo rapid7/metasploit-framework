@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
 				},
 			'License'         => MSF_LICENSE,
 			'Version'         => '$Revision: 15362 $',
-			'Platform'        => ['windows'],
+			'Platform'        => ['win'],
 			'SessionTypes'    => ['meterpreter'],
 			'Author'          => ['Rob Bathurst <rob.bathurst@foundstone.com>']
 		))
