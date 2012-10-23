@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
 					'Paul Rascagneres <rascagneres[at]itrust.lu>',
 					'sinn3r' #Reporting, file parser
 				],
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 	end

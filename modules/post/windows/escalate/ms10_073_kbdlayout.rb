@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Post
 					'jduck'              # Metasploit module
 				],
 			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ],
 			'References'    =>
 				[

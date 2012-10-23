@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
 					'Metlstorm'                        # Based on the winlockpwn tool released by Metlstorm: http://www.storm.net.nz/projects/16
 				],
 			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ],
 			'References'    =>
 				[

@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Post
 					'SecurityXploded Team',  #www.SecurityXploded.com
 				],
 			'Version' => '$Revision$',
-			'Platform' => [ 'windows' ],
+			'Platform' => [ 'win' ],
 			'SessionTypes' => [ 'meterpreter' ]
 		))
 	end

@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
 			'License'      => MSF_LICENSE,
 			'Author'       => [ 'mubix', 'cg' ],
 			'Version'      => '$Revision$',
-			'Platform'     => ['windows'],
+			'Platform'     => ['win'],
 			'SessionTypes' => ['meterpreter'],
 			'References'   => [['URL', 'http://blog.metasploit.com/2010/12/capturing-windows-logons-with.html']]
 		))

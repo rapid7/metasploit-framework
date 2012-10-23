@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Post
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'mubix' ],
 			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 	end
