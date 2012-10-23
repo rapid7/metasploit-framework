@@ -22,7 +22,7 @@ class Metasploit4 < Msf::Auxiliary
 			'Name'		=> 'Local Admin Pwnage Scanner',
 			'Version'	=> '$Revision$',
 			'Description'	=> 'Using Local Admin credentials to try to achieve Domain Admin access. Uses windows/meterpreter/bind_tcp as a payload.',
-			'Author'	=> 'Joshua Abraham <jabra[at]rapid7.com',
+			'Author'	=> 'Joshua Abraham <jabra[at]rapid7.com>',
 			'License'	=> MSF_LICENSE))
 		# These are normally advanced options, but for this module they have a
 		# more active role, so make them regular options.
