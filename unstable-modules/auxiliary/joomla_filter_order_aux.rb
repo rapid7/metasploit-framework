@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Platform'       => 'php',
 			'Arch'           =>  ARCH_PHP,
 			'Targets'        => [[ 'Automatic', { }]],
-			'DisclosureDate' => 'March 17, 2011',
+			'DisclosureDate' => 'Mar 17 2011',
 			'DefaultTarget'  => 0 ))
 
 			register_options(
