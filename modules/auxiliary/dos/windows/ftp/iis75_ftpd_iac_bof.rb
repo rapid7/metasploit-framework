@@ -43,7 +43,6 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'EDB', 15803 ],
 					[ 'URL', 'http://blogs.technet.com/b/srd/archive/2010/12/22/assessing-an-iis-ftp-7-5-unauthenticated-denial-of-service-vulnerability.aspx' ]
 				],
-			'Platform'       => [ 'win' ],
 			'DisclosureDate' => 'Dec 21 2010'))
 
 		register_options(

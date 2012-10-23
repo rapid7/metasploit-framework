@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Post
 				'Shubham Dawra <shubham2dawra[at]gmail.com>' # www.SecurityXploded.com
 				],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision: 14100 $',
+			'Version'        => '$Revision$',
 			'Platform' => [ 'windows' ],
 			'SessionTypes' => [ 'meterpreter' ]
 		))

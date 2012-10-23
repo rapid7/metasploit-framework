@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
 						of the module against the sessions and validation of the options provided.
 				},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'carlos_perez[at]darkoperator.com>'],
+				'Author'        => [ '<carlos_perez[at]darkoperator.com>'],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows', 'unix', 'osx', 'linux', 'solaris' ],
 				'SessionTypes'  => [ 'meterpreter','shell' ]
