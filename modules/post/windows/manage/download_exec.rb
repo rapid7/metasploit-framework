@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
 				The user may also choose to execute the file with arguments via exec_string.
 			},
 			'License'              => MSF_LICENSE,
-			'Platform'             => ['windows'],
+			'Platform'             => ['win'],
 			'SessionTypes'         => ['meterpreter'],
 			'Author'               => ['RageLtMan']
 		))

@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Post
 				],
 			'References'     =>
 				[
-					['EDB', 11331],
+					['EDB', '11331'],
 				],
 			'Platform'       => [ 'win' ],
 			'SessionTypes'   => [ 'meterpreter' ]

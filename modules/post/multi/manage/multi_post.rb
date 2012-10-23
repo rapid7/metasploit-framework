@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Post
 				'License'       => MSF_LICENSE,
 				'Author'        => [ '<carlos_perez[at]darkoperator.com>'],
 				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows', 'unix', 'osx', 'linux', 'solaris' ],
+				'Platform'      => [ 'win', 'unix', 'osx', 'linux', 'solaris' ],
 				'SessionTypes'  => [ 'meterpreter','shell' ]
 			))
 		register_options(

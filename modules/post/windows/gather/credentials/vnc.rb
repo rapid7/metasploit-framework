@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Post
 					'mubix'
 				],
 				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
+				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
 

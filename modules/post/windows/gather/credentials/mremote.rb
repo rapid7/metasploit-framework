@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Post
 						'mubix' #Helped write the Decryption Routine
 					],
 			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 

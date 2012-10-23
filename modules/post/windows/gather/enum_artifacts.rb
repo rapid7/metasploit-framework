@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
 				matches are written to the loot. },
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'averagesecurityguy <stephen[at]averagesecurityguy.info>' ],
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 
