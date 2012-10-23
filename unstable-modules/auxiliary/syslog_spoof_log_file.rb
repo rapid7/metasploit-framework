@@ -18,7 +18,7 @@ include Msf::Auxiliary::Scanner
 	def initialize
 		super(
 			'Name'         => 'Syslog Spoofing from a log file.',
-			'Version'      => '$Revision: $',
+			'Version'      => '$Revision$',
 			'Description'  => 'This module allows you to spoof Syslog messages read from a log file to and from single hosts or a range of hosts.  There are numerous on the fly substitutions/replacements that can be made by setting the advanced options in this module.  The TIMESTAMP_REPLACE advanced option has many of the common timestamp formats already specified and will allow you to simply choose from a list to replace them with the current timestamp, which can be useful in replaying old log files.  The SRCIP_REPLACE advanced option will replace any occurrence of the text string “src_ip” tag within the log message with the spoofed source IP, which can be useful for spoofing messages from multiple source IPs using the same log file.  Remember to edit the log file with the text string “src_ip” tag before playing the logs with this module.  The REGEX_REPLACE advanced option will allow you to replace any arbitrary text string within the log message by specifying a regular expression or string, which is useful for changing things like user names within the log message itself.',
 			'Author'       => 'Jeremy Conway <jeremy[at]sudosecure.net>',
 			'License'      => MSF_LICENSE

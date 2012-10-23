@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Post
 						This module needs system access on the victime machine.},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Nikhil Mittal (Samratashok)'],
-			'Version'       => '',
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 			))

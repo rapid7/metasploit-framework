@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
 				code from cachedump.
 				},
 			'License'         => MSF_LICENSE,
-			'Version'         => '$Revision: 15362 $',
+			'Version'         => '$Revision$',
 			'Platform'        => ['windows'],
 			'SessionTypes'    => ['meterpreter'],
 			'Author'          => ['Rob Bathurst <rob.bathurst@foundstone.com>']

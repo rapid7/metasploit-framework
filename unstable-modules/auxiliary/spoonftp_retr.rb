@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 				},
 				'Author' => "C4SS!0 G0M3S",
 				'License'        => MSF_LICENSE,
-				'Version'        => '$Revision: 9169 $',
+				'Version'        => '$Revision$',
 				
 				'References' =>
 				[	
@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 					['URL','http://www.exploit-db.com/exploits/17021/'],
 					['URL','http://www.securityfocus.com/bid/46952'],
 				],
-				'DisclosureDate' => 'April 03 2011'))
+				'DisclosureDate' => 'Apr 03 2011'))
 		
 		register_options([
 			OptString.new('FTPUSER', [ true, 'Valid FTP username', 'anonymous' ]),

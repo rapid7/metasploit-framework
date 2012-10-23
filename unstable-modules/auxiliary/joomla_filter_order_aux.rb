@@ -43,10 +43,8 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'http://0x6a616d6573.blogspot.com/2011/04/joomla-160-sql-injection-analysis-and.html' ],
 				],
 			'Privileged'     =>  false,
-			'Platform'       => 'php',
-			'Arch'           =>  ARCH_PHP,
 			'Targets'        => [[ 'Automatic', { }]],
-			'DisclosureDate' => 'March 17, 2011',
+			'DisclosureDate' => 'Mar 17 2011',
 			'DefaultTarget'  => 0 ))
 
 			register_options(

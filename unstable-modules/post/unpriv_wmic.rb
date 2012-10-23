@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Post
 										SOFTWARE	= wmic product get name,version
 										HOTFIX		= wmic qfe},
 			'License'              => MSF_LICENSE,
-			'Version'              => '$Revision: $',
+			'Version'              => '$Revision$',
 			'Platform'             => ['windows'],
 			'SessionTypes'         => ['meterpreter'],
 			'Author'               => ['Kx499']

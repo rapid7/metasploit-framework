@@ -23,8 +23,8 @@ class Metasploit3 < Msf::Post
 				This module downloads any keepass kdbx files that it finds
 				},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'balgan <balgan[at]ptcoresec.eu>', 'klinzter <klinzter[at]ptcoresec.eu'],
-				'Version'       => '$Revision: 3195e713 $',
+				'Author'        => [ 'balgan <balgan[at]ptcoresec.eu>', 'klinzter <klinzter[at]ptcoresec.eu>'],
+				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 				))

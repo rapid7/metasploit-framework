@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 					'pello <fropert[at]packetfault.org>'
 				],
             'License'        => MSF_LICENSE,
-            'Version'        => '$Revision: $'
+            'Version'        => '$Revision$'
         )
 
 		begin

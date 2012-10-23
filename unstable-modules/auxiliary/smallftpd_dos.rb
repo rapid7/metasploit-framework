@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'URL', 'http://smallftpd.sf.net/' ],
 					[ 'URL', 'http://core.yehg.net/lab/pr0js/advisories/smallftpd_103-fix_saturation_dos' ]
 				],
-			'DisclosureDate' => 'June 27 2010'))
+			'DisclosureDate' => 'Jun 27 2010'))
 
 			register_options(
 				[

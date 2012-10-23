@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMB Share Enumeration',
-			'Version'     => '$Revision: 8813 $',
+			'Version'     => '$Revision$',
 			'Description' => 'Determine what shares are provided by the SMB service and which ones are readable/writable',
 			'Author'      => 
 				[
