@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Post
 			'References'    =>
 				[
 					[ 'OSVDB', '71013' ],
-					[ 'EDB', 16940 ]
+					[ 'EDB', '16940' ]
 				]
 		))
 
