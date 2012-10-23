@@ -11,6 +11,7 @@ require 'msf/core'
 require 'msf/core/post/file'
 require 'msf/core/post/common'
 require 'msf/core/post/windows/registry'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 

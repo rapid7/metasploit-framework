@@ -13,6 +13,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/registry'
 require "net/dns/resolver"
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
