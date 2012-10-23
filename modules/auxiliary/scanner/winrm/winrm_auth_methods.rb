@@ -41,7 +41,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		resp = winrm_poke
-		if resp.code == 401 and resp.headers['Server'].include? "Microsoft-HTTPAPI"
+		return nil if resp.nil?
+		if  resp.code == 401 and resp.headers['Server'].include? "Microsoft-HTTPAPI"
 			methods = parse_auth_methods(resp)
 			desc = resp.headers['Server'] + " Authentication Methods: " + methods.to_s
 			report_service(
@@ -53,8 +54,8 @@ class Metasploit3 < Msf::Auxiliary
 			)
 			print_good "Negotiate protocol supported" if methods.include? "Negotiate"
 			print_good "Kerberos protocol supported" if methods.include? "Kerberos"
-			print_good "Basic protocol supported" if methods.include? "Basic"	
-		else 
+			print_good "Basic protocol supported" if methods.include? "Basic"
+		else
 			print_error "#{ip}:#{rport} Does not appear to be a WinRM server"
 		end
 	end
