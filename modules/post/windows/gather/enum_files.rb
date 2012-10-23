@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
 					'3vi1john <Jbabio[at]me.com>',
 					'RageLtMan <rageltman[at]sempervictus>'
 				],
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 

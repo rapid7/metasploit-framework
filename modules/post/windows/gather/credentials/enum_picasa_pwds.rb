@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Post
 					'Sil3ntDre4m <sil3ntdre4m[at]gmail.com>',
 				],
 				'Version'	   => '$Revision$',
-				'Platform'	  => [ 'windows' ],
+				'Platform'	  => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
 	end

@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
 						'Myo Soe <YGN Ethical Hacker Group, http://yehg.net>'
 					],
 				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
+				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ],
 				'References'     =>
 				[
