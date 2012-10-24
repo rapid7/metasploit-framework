@@ -19,6 +19,20 @@ require 'rex/ui'
 
 module Msf
 	LogSource = "core"
+
+	# Returns Pathname of the root of the Metasploit Framework source
+	#
+	# @return [Pathname] root directory above lib, data, modules, etc.
+	def self.root
+		unless instance_variable_defined? :@root
+			msf_pathname = Pathname.new(__FILE__).dirname
+			lib_pathname = msf_pathname.parent
+
+			@root = lib_pathname.parent
+		end
+
+		@root
+	end
 end
 
 # General

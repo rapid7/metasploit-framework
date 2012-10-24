@@ -26,11 +26,11 @@ module Msf::ModuleManager::Loading
   def file_changed?(path)
     changed = false
 
-    module_details = self.module_info_by_path[path]
+    module_info = self.module_info_by_path[path]
 
     # if uncached then it counts as changed
     # Payloads can't be cached due to stage/stager matching
-    if module_details.nil? or module_details[:mtype] == Msf::MODULE_PAYLOAD
+    if module_info.nil? or module_info[:modification_time] == Msf::MODULE_PAYLOAD
       changed = true
     else
       begin
@@ -39,7 +39,7 @@ module Msf::ModuleManager::Loading
         # if the file does not exist now, that's a change
         changed = true
       else
-        cached_modification_time = module_details[:mtime].to_i
+        cached_modification_time = module_info[:modification_time].to_i
 
         # if the file's modification time's different from the cache, then it's changed
         if current_modification_time != cached_modification_time
