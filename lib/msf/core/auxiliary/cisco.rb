@@ -1,4 +1,3 @@
-# -*- coding: binary -*-
 module Msf
 
 ###
@@ -105,8 +104,22 @@ module Auxiliary::Cisco
 					cred[:collect_type] = "password"
 					store_cred(cred)
 
+				when /^set (password|enablepass) (.*)/i
+					stype = $1.strip
+					spass = $2.strip
+
+					if stype == "password" and spass.count("$") == 3
+						print_good("#{thost}:#{tport} MD5 Encrypted Login Password: #{shash}")
+						store_loot("cisco.ios.login_hash", "text/plain", thost, shash, "login_password_hash.txt", "Cisco CatOS Login Password Hash (MD5)")
+					end
+
+					if stype == "enablepass" and spass.count("$") == 3
+						print_good("#{thost}:#{tport} MD5 Encrypted Enable Password: #{shash}")
+						store_loot("cisco.ios.enable_hash", "text/plain", thost, shash, "enable_password_hash.txt", "Cisco CatOS Enable Password Hash (MD5)")
+					end
+
 #
-# SNMP
+# SNMP IOS
 #
 				when /^\s*snmp-server community ([^\s]+) (RO|RW)/i
 					stype = $2.strip
@@ -127,6 +140,28 @@ module Auxiliary::Cisco
 					cred[:proto] = "udp"
 					cred[:port]  = 161
 					store_cred(cred)
+
+#
+# SNMP CatOS
+#
+				when /^\s*set snmp community (read-only|read-write|read-write-all) ([^\s]+)/i
+					stype = $1.strip
+					scomm = $2.strip
+					print_good("#{thost}:#{tport} SNMP Community (#{stype}): #{scomm}")
+
+					if stype.downcase == "read-only"
+						ptype = "password_ro"
+					else
+						ptype = "password"
+					end
+
+					cred = cred_info.dup
+					cred[:sname] = "snmp"
+					cred[:pass] = scomm
+					cred[:type] = ptype
+					cred[:collect_type] = ptype
+					cred[:proto] = "udp"
+					cred[:port]  = 161
 
 #
 # VTY Passwords
@@ -383,6 +418,196 @@ module Auxiliary::Cisco
 						cred[:collect_type] = "password"
 						store_cred(cred)
 					end
+
+				# HSRP Authentication Key
+				when /^standby \s* authentication md5 key-string ([^\s]+) ([^\s]+)/i
+					stype = $1
+					shash = $2
+
+					if stype == 0
+						print_good("#{thost}:#{tport} HSRP Authentication Key: #{shash}")
+						store_loot("cisco.ios.hsrp_password", "text/plain", thost, shash, "hsrp_password.txt", "Cisco IOS HSRP Password")
+
+						cred = cred_info.dup
+						cred[:pass] = shash
+						cred[:type] = "password"
+						cred[:collect_type] = "password"
+						store_cred(cred)
+					end
+
+					if stype == 7
+						shash = cisco_ios_decrypt7(shash) rescue shash
+						print_good("#{thost}:#{tport} HSRP Decrypted Key: #{shash}")
+						store_loot("cisco.ios.hsrp_password", "text/plain", thost, shash, "hsrp_password.txt", "Cisco IOS HSRP Password")
+
+						cred = cred_info.dup
+						cred[:pass] = shash
+						cred[:type] = "password"
+						cred[:collect_type] = "password"
+						store_cred(cred)
+					end
+
+				# CatOS/IOS TACACS Server Key Method 1
+				when /^(set tacacs|tacacs-server) key ([^\s]+)$/i
+					shash = $1
+
+					print_good("#{thost}:#{tport} TACACS Server Key: #{shash}")
+					store_loot("cisco.ios.tacacs_server_key", "text/plain", thost, shash, "tacacs_server_key.txt", "Cisco TACACS Server Key")
+
+					cred = cred_info.dup
+					cred[:pass] = shash
+					cred[:type] = "password"
+					cred[:collect_type] = "password"
+
+				# CatOS/IOS TACACS Server Key Method 2
+				when /^tacacs-server host ([^\s]+) key 7 ([^\s]+)$/i
+					shost = $1
+					shash = $2
+
+					print_good("#{thost}:#{tport} TACACS Host #{shost} Key: #{shash}")
+					store_loot("cisco.ios.tacacs_server_key", "text/plain", thost, "#{shost}:#{shash}", "tacacs_server_key.txt", "Cisco TACACS Server Key")
+
+					cred = cred_info.dup
+					cred[:pass] = shost
+					cred[:pass] = shash
+					cred[:type] = "password"
+					cred[:collect_type] = "password"
+
+				# CatOS/IOS RADIUS Server Key Method 1
+				when /^(set radius|radius-server) key ([^\s]+)$/i
+					shash = $1
+
+					print_good("#{thost}:#{tport} RADIUS Server Key: #{shash}")
+					store_loot("cisco.ios.radius_server_key", "text/plain", thost, shash, "radius_server_key.txt", "Cisco RADIUS Server Key")
+
+					cred = cred_info.dup
+					cred[:pass] = shash
+					cred[:type] = "password"
+					cred[:collect_type] = "password"
+
+				# CatOS/IOS RADIUS Server Key Method 2
+				when /^radius-server host ([^\s]+) key 7 ([^\s]+)$/i
+					shash = $1
+
+					print_good("#{thost}:#{tport} RADIUS Host #{shost} Key: #{shash}")
+					store_loot("cisco.ios.radius_server_key", "text/plain", thost, "#{shost}:#{shash}", "radius_server_key.txt", "Cisco RADIUS Server Key")
+
+					cred = cred_info.dup
+					cred[:user] = shost
+					cred[:pass] = shash
+					cred[:type] = "password"
+					cred[:collect_type] = "password"
+
+				# IOS EIGRP Neighbor Password
+				when /\s*key-string ([^\s]+)$/i
+					shash = $1
+
+					print_good("#{thost}:#{tport} EIGRP Neighbor Password: #{shash}")
+					store_loot("cisco.ios.eigrp_neighbor_password", "text/plain", thost, shash, "eigrp_neighbor_password.txt", "Cisco IOS EIGRP Neighbor Password")
+
+					cred = cred_info.dup
+					cred[:pass] = shash
+					cred[:type] = "password"
+					cred[:collect_type] = "password"
+
+				# NXOS HSRP Neighbor Password
+				when /\s*key-string ([^\s]+) ([^\s]+)$/i
+					stype = $1
+					shash = $2
+
+					if stype == 1
+						print_good("#{thost}:#{tport} HSRP Authentication Key: #{shash}")
+						store_loot("cisco.ios.hsrp_password", "text/plain", thost, shash, "hsrp_password.txt", "Cisco NXOS HSRP Password")
+
+						cred = cred_info.dup
+						cred[:pass] = shash
+						cred[:type] = "password"
+						cred[:collect_type] = "password"
+					end
+
+					if stype == 7
+						shash = cisco_ios_decrypt7(shash) rescue shash
+						print_good("#{thost}:#{tport} HSRP Decrypted Key: #{shash}")
+						store_loot("cisco.ios.hsrp_password", "text/plain", thost, shash, "hsrp_password.txt", "Cisco NXOS HSRP Password")
+
+						cred = cred_info.dup
+						cred[:pass] = shash
+						cred[:type] = "password"
+						cred[:collect_type] = "password"
+						store_cred(cred)
+					end
+
+				# IOS OSPF Neighbor Password
+				when /^\s*ip ospf authentication-key ([^\s]+)$/i
+					shash = $1
+
+					print_good("#{thost}:#{tport} OSPF Neighbor Password: #{shash}")
+					store_loot("cisco.ios.ospf_neighbor_password", "text/plain", thost, shash, "ospf_neighbor_password.txt", "Cisco IOS OSPF Neighbor Password")
+
+					cred = cred_info.dup
+					cred[:pass] = shash
+					cred[:type] = "password"
+					cred[:collect_type] = "password"
+
+				when /^\s*ip ospf message-digest-key ([^\d]+) 1 md5 ([^\s]+)$/i
+					sid = $1
+					shash = $2
+
+					print_good("#{thost}:#{tport} OSPF Neighbor Key #{sid} Password: #{shash}")
+					store_loot("cisco.ios.ospf_neighbor_password", "text/plain", thost, "#{sid}:#{shash}", "ospf_neighbor_password.txt", "Cisco IOS OSPF Neighbor Password")
+
+					cred = cred_info.dup
+					cred[:user] = sid
+					cred[:pass] = shash
+					cred[:type] = "password"
+					cred[:collect_type] = "password"
+
+				# IOS BGP Neighbor Password
+				when /^neighbor ([^\s]+) password ([^\s]+)$/i
+					neighbor = $1
+					shash = $2
+
+					print_good("#{thost}:#{tport} BGP Neighbor '#{neighbor}' with Password: #{shash}")
+					store_loot("cisco.ios.bgp_neighbor_password", "text/plain", thost, "#{neighbor}:#{shash}", "bgp_neighbor_password.txt", "Cisco IOS BGP Neighbor Password")
+
+					cred = cred_info.dup
+					cred[:user] = neighbor
+					cred[:pass] = shash
+					cred[:type] = "password"
+					cred[:collect_type] = "password"
+
+				# NXOS BGP Neighbor Password
+				when /^password ([^\s]+) ([^\s]+)$/i
+					stype = $1
+					shash = $2
+
+					if stype == 0
+						print_good("#{thost}:#{tport} BGP Neighbor Password: #{shash}")
+						store_loot("cisco.ios.bgp_neighbor_password", "text/plain", thost, shash, "bgp_neighbor_password.txt", "Cisco NXOS BGP Neighbor Password")
+
+						cred = cred_info.dup
+						cred[:user] = neighbor
+						cred[:pass] = shash
+						cred[:type] = "password"
+						cred[:collect_type] = "password"
+					end
+
+					if stype == 3
+						print_good("#{thost}:#{tport} BGP Neighbor 3DES Hash: #{shash}")
+						store_loot("cisco.ios.bgp_neighbor_3des_hash", "text/plain", thost, shash, "bgp_neighbor_password.txt", "Cisco NXOS BGP Neighbor 3DES Hash")
+					end
+
+					if stype == 7
+						shash = cisco_ios_decrypt7(shash) rescue shash
+						print_good("#{thost}:#{tport} BGP Neighbor Decrypted Password: #{shash}")
+						store_loot("cisco.ios.bgp_neighbor_password", "text/plain", thost, shash, "bgp_neighbor_password.txt", "Cisco NXOS BGP Neighbor Password")
+
+						cred = cred_info.dup
+						cred[:pass] = shash
+						cred[:type] = "password"
+						cred[:collect_type] = "password"
+					end
+
 			end
 		end
 	end
