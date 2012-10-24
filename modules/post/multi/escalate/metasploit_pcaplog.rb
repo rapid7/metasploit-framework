@@ -13,11 +13,6 @@ require 'msf/core/post/linux/priv'
 require 'msf/core/exploit/local/linux'
 require 'msf/core/exploit/local/unix'
 
-load 'lib/msf/core/post/common.rb'
-load 'lib/msf/core/post/file.rb'
-load 'lib/msf/core/exploit/local/unix.rb'
-load 'lib/msf/core/exploit/local/linux.rb'
-
 class Metasploit3 < Msf::Post
 	Rank = ManualRanking
 
