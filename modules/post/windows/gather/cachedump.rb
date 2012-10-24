@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Post
 				'mubix'
 			],
 			'Version'      => '$Revision$',
-			'Platform'     => ['windows'],
+			'Platform'     => ['win'],
 			'SessionTypes' => ['meterpreter'],
 			'References'   => [['URL', 'http://lab.mediaservice.net/code/cachedump.rb']]
 		))

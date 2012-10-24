@@ -11,6 +11,7 @@
 
 require 'msf/core'
 require 'msf/core/post/windows/registry'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 	include Msf::Post::Windows::Registry
@@ -30,7 +31,7 @@ class Metasploit3 < Msf::Post
 					'SecurityXploded Team', #www.SecurityXploded.com
 				],
 			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 	end

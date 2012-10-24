@@ -25,12 +25,12 @@ class Metasploit3 < Msf::Post
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'David Kennedy "ReL1K" <kennedyd013[at]gmail.com>', 'mitnick' ],
 			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ],
 			'References'    => [
-				[ 'URL', ' http://www.trustedsec.com/december-2010/bypass-windows-uac/' ]
+				[ 'URL', 'http://www.trustedsec.com/december-2010/bypass-windows-uac/' ]
 			],
-			'DisclosureDate'=> "Dec 31, 2010"
+			'DisclosureDate'=> "Dec 31 2010"
 		))
 
 		register_options([

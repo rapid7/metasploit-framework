@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Post
 				Works on win2k3 and later.
 				},
 			'License'              => MSF_LICENSE,
-			'Platform'             => ['windows'],
+			'Platform'             => ['win'],
 			'SessionTypes'         => ['meterpreter'],
 			'Author'               => ['theLightCosine'],
 			'References'    => [

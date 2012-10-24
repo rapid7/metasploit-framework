@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 			'Description'   => %q{This module will perform byte-for-byte imaging of remote disks and volumes},
 			'License'       => MSF_LICENSE,
 			'Version'       => '$Revision$',
-			'Platform'      => ['windows'],
+			'Platform'      => ['win'],
 			'SessionTypes'  => ['meterpreter'],
 			'Author'        => ['Wesley McGrew <wesley[at]mcgrewsecurity.com>']
 		))

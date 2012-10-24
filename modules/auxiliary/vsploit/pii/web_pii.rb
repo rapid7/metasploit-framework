@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => 'This module emulates a webserver leaking PII data',
 			'License'        => MSF_LICENSE,
 			'Author'         => 'MJC',
-			'Version'        => '$Revision: $',
+			'Version'        => '$Revision$',
 			'References' =>
 			[
 				[ 'URL', 'http://www.metasploit.com'],

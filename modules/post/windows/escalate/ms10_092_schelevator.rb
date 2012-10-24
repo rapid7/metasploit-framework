@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Post
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'jduck' ],
 			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ],
 			'References'    =>
 				[
@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Post
 					[ 'CVE', '2010-3338' ],
 					[ 'BID', '44357' ],
 					[ 'MSB', 'MS10-092' ],
-					[ 'EDB', 15589 ]
+					[ 'EDB', '15589' ]
 				],
 			'DisclosureDate'=> 'Sep 13 2010'
 		))
