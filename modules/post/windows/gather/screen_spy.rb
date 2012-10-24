@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Post
 					'Adrian Kubok' # better record file names
 				],
 			'Version'        => '$Revision$',
-			'Platform'       => ['windows'],
+			'Platform'       => ['win'],
 			'SessionTypes'   => ['meterpreter']
 		))
 

@@ -12,6 +12,7 @@
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/common'
+require 'msf/core/auxiliary/report'
 
 
 class Metasploit3 < Msf::Post
@@ -25,9 +26,9 @@ class Metasploit3 < Msf::Post
 				'Name'          => 'Windows Gather TCP Netstat',
 				'Description'   => %q{ This Module lists current TCP sessions},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Rob Fuller <mubix[at]hak5.org>'],
+				'Author'        => [ 'mubix' ],
 				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
+				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter']
 			))
 		register_options(
