@@ -65,6 +65,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 			"getuid"      => "Get the user that the server is running as",
 			"kill"        => "Terminate a process",
 			"ps"          => "List running processes",
+			"findpids"    => "Find Processes by name",
 			"reboot"      => "Reboots the remote computer",
 			"reg"         => "Modify and interact with the remote registry",
 			"rev2self"    => "Calls RevertToSelf() on the remote machine",
@@ -82,6 +83,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 			"getuid"      => [ "stdapi_sys_config_getuid" ],
 			"kill"        => [ "stdapi_sys_process_kill" ],
 			"ps"          => [ "stdapi_sys_process_get_processes" ],
+			"findpids"    => [ "stdapi_sys_process_get_processes" ],
 			"reboot"      => [ "stdapi_sys_power_exitwindows" ],
 			"reg"         => [
 				"stdapi_registry_load_key",
@@ -339,6 +341,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 		return true
 	end
 
+<<<<<<< HEAD
 	def cmd_ps_help
 		print_line "Use the command with no arguments to see all running processes."
 		print_line "The following options can be used to filter those results:"
@@ -348,6 +351,36 @@ class Console::CommandDispatcher::Stdapi::Sys
 
 
 
+=======
+	def cmd_findpids(*args)
+		if args.empty? or args.include? "-h"
+			print_line "You must supply one or more process name to search for"
+			print_line "e.g. findpids explorer.exe notepad.exe"
+			return true
+		end
+		processes = client.sys.process.get_processes
+		if (processes.length == 0)
+			print_line("No running processes were found.")
+		else
+			searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
+			processes.each do |proc| 
+				if args.include? proc["name"]
+					searched_procs << proc 
+				end
+			end
+			searched_procs.compact!
+			if searched_procs.length == 0
+				print_line("No running processes were found matching the supplied names.")
+			else
+				print_line
+				print_line(searched_procs.to_table("Indent" => 1).to_s)
+				print_line
+			end
+		end
+		return true
+	end
+
+>>>>>>> Adds a new findpids command to meterpreter
 	#
 	# Reboots the remote computer.
 	#
