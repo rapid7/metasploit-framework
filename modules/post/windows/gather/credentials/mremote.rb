@@ -15,6 +15,7 @@ require 'msf/core'
 require 'rex'
 require 'rexml/document'
 require 'msf/core/post/windows/user_profiles'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 	include Msf::Post::Windows::UserProfiles
@@ -35,10 +36,10 @@ class Metasploit3 < Msf::Post
 					[
 						'theLightCosine',
 						'hdm', #Helped write the Decryption Routine
-						'Rob Fuller <mubix[at]hak5.org>' #Helped write the Decryption Routine
+						'mubix' #Helped write the Decryption Routine
 					],
 			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 

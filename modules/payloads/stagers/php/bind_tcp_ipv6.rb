@@ -18,6 +18,10 @@ module Metasploit3
 	include Msf::Payload::Stager
 	include Msf::Payload::Php
 
+	def self.handler_type_alias
+		"bind_tcp_ipv6"
+	end
+
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Bind TCP Stager IPv6',

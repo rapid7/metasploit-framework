@@ -45,7 +45,6 @@ class Metasploit3 < Msf::Auxiliary
 					['URL', 'http://sunsolve.sun.com/search/document.do?assetkey=1-77-1000898.1-1']
 				],
 			# Tested OK against sol8.tor 20100624 -jjd
-			'Privileged'     => true,
 			'DisclosureDate' => 'Jan 22 2003')
 
 		register_options(

@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Post
 					'Merlyn drforbin Cousins <drforbin6[at]gmail.com>'
 				],
 			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'Actions'       => [['TEMPLATE'], ['REXE']],
 			'DefaultAction' => 'TEMPLATE',
 			'SessionTypes'  => [ 'meterpreter' ]
