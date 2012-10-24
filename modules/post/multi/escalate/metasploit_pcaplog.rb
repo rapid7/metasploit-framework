@@ -56,6 +56,7 @@ class Metasploit3 < Msf::Post
 					[
 						[ 'Linux/Unix Universal', {} ],
 					],
+				'Stance' => Msf::Exploit::Stance::Passive,
 				'DefaultTarget' => 0,
 			}
 			))
