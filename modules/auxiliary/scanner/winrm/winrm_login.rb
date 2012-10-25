@@ -30,10 +30,6 @@ class Metasploit3 < Msf::Auxiliary
 				works only if the remote end allows Negotiate(NTLM) authentication.
 				Kerberos is not currently supported.
 				},
-			'References'  =>
-				[
-
-				],
 			'Author'         => [ 'thelightcosine' ],
 			'References'     =>
 				[
