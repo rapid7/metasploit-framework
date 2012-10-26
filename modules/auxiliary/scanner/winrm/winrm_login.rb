@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 		each_user_pass do |user, pass|
 			resp,c = send_request_ntlm(test_request)
 			if resp.nil?
-				print_error "Got no reply from the server, connection may have timed out"
+				print_error "#{ip}:#{rport}:  Got no reply from the server, connection may have timed out"
 				return
 			elsif  resp.code == 200
 				cred_hash = {
@@ -62,9 +62,9 @@ class Metasploit3 < Msf::Auxiliary
 					:active            => true
 				}
 				report_auth_info(cred_hash)
-				print_good "Valid credential found: #{user}:#{pass}"
+				print_good "#{ip}:#{rport}:  Valid credential found: #{user}:#{pass}"
 			elsif resp.code == 401
-				print_error "Login failed: #{user}:#{pass}"
+				print_error "#{ip}:#{rport}:  Login failed: #{user}:#{pass}"
 			else
 				print_error "Recieved unexpected Response Code: #{resp.code}"
 			end
