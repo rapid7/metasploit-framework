@@ -29,6 +29,19 @@ module Msf::Modules::Namespace
     metasploit_class
   end
 
+  def metasploit_class!(module_path, module_reference_name)
+	  metasploit_class = self.metasploit_class
+
+	  unless metasploit_class
+		  raise Msf::Modules::MetasploitClassCompatibilityError.new(
+				        :module_path => module_path,
+				        :module_reference_name => module_reference_name
+		        )
+	  end
+
+	  metasploit_class
+  end
+
   # Raises an error unless {Msf::Framework::VersionCore} and {Msf::Framework::VersionAPI} meet the minimum required
   # versions defined in RequiredVersions in the module content.
   #
