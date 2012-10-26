@@ -6,6 +6,8 @@
 .yardoc
 # Mac OS X files
 .DS_Store
+# simplecov coverage data
+coverage
 data/meterpreter/ext_server_pivot.dll
 data/meterpreter/ext_server_pivot.x64.dll
 doc
