@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'digest/md5'
+require 'digest/sha1'
 require 'stringio'
 
 begin
@@ -810,6 +811,20 @@ module Text
 	#
 	def self.md5(str)
 		Digest::MD5.hexdigest(str)
+	end
+
+	#
+	# Raw SHA1 digest of the supplied string
+	#
+	def self.sha1_raw(str)
+		Digest::SHA1.digest(str)
+	end
+
+	#
+	# Hexidecimal SHA1 digest of the supplied string
+	#
+	def self.sha1(str)
+		Digest::SHA1.hexdigest(str)
 	end
 
 	#
