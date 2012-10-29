@@ -10,7 +10,7 @@ class Metasploit3 < Msf::Post
 	include Msf::Post::File
 	include Msf::Post::Common
 	include Msf::Post::Unix
-		include Msf::Post::Windows::UserProfiles
+	include Msf::Post::Windows::UserProfiles
 
 	def initialize(info={})
 		super( update_info(info,
@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
 			},
 			'License'		=> MSF_LICENSE,
 			'Author'		 => ['Zach Grace <zgrace[at]403labs.com>'],
-			'Platform'		 => %w[linux bsd unix osx windows],
+			'Platform'		 => %w[linux bsd unix osx win],
 			'SessionTypes'	 => %w[meterpreter shell]
 		))
 	end
