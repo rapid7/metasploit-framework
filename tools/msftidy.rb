@@ -208,7 +208,6 @@ class Msftidy
 				end
 			end
 
-			# if ln =~/^[ \t]+load[ \t]+.*?\.rb/
 			if ln =~/^[ \t]*load[ \t]+[\x22\x27]/
 				error("Loading (not requiring) a file: #{ln.inspect}", idx)
 			end
