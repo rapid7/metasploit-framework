@@ -33,7 +33,9 @@ class Metasploit3 < Msf::Post
 
 					Successful exploitation results in the creation of a new superuser account.
 
-					This module requires manual clean-up - remove /tmp/msf3-session*pcap files and truncate /etc/passwd.
+					This module requires manual clean-up. Upon success, you should remove /tmp/msf3-session*pcap
+					files and truncate /etc/passwd. Note that if this module fails, you can potentially induce
+					a permanent DoS on the target by corrupting the /etc/passwd file.
 				},
 				'License'       => MSF_LICENSE,
 				'Author'	=> [ '0a29406d9794e4f9b30b3c5d6702c708'],
