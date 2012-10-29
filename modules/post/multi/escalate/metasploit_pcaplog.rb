@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Post
 				'References'    =>
 					[
 						[ 'BID', '54472' ],
-						[ 'URL', 'http://0a29.blogspot.com/2012/07/0a29-12-2-metasploit-pcaplog-plugin.html'], 
+						[ 'URL', 'http://0a29.blogspot.com/2012/07/0a29-12-2-metasploit-pcaplog-plugin.html'],
 						[ 'URL', 'https://community.rapid7.com/docs/DOC-1946' ],
 					],
 				'DisclosureDate' => "Jul 16 2012",
@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Post
 			}
 			))
 			register_options(
-			[	
+			[
 				Opt::RPORT(2940),
 				OptString.new("USERNAME", [ true, "Username for the new superuser", "metasploit" ]),
 				OptString.new("PASSWORD", [ true, "Password for the new superuser", "metasploit" ]),
@@ -98,13 +98,13 @@ class Metasploit3 < Msf::Post
 			i = (i+1) % 60 # increment second counter
 		end
 
-		if cmd_exec("(grep Metasploit /etc/passwd > /dev/null && echo true) || echo false").include?("true") 
+		if cmd_exec("(grep Metasploit /etc/passwd > /dev/null && echo true) || echo false").include?("true")
 			print_good("Success. You should now be able to login or su to the '" + datastore['USERNAME'] + "' account")
 			# TODO: Consider recording our now-created username and password as a valid credential here.
 		else
-			print_error("Failed, the '" + datastore['USERNAME'] + "' user does not appear to have been added")	
-		end 
+			print_error("Failed, the '" + datastore['USERNAME'] + "' user does not appear to have been added")
+		end
 		# 0a2940: Initially the plan was to have this post module switch user, upload & execute a new payload
-		#	  However beceause the session is not a terminal, su will not always allow this.		
+		#	  However beceause the session is not a terminal, su will not always allow this.
 	end
 end
