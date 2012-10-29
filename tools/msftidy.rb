@@ -208,6 +208,11 @@ class Msftidy
 				end
 			end
 
+			# if ln =~/^[ \t]+load[ \t]+.*?\.rb/
+			if ln =~/^[ \t]*load[ \t]+[\x22\x27]/
+				error("Loading (not requiring) a file: #{ln.inspect}", idx)
+			end
+
 			# The rest of these only count if it's not a comment line
 			next if ln =~ /[[:space:]]*#/
 
