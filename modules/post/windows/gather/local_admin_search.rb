@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
 			'Version'      => '$Revision: 14767 $',
 			'Author'       => [ 'Brandon McCann "zeknox" <bmccann [at] accuvant.com>',
 					'Royce Davis "r3dy" <rdavis [at] accuvant.com>',
-					'Thomas McCarthy "smilingracoon" <esmilingraccoon [at] gmail.com>'],
+					'Thomas McCarthy "smilingracoon" <smilingraccoon [at] gmail.com>'],
 			'Platform'     => [ 'windows'],
 			'SessionTypes' => [ 'meterpreter' ]
 		)
