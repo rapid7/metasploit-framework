@@ -113,8 +113,10 @@ class Client
 		end
 	end
 
-protected
+	attr_accessor :sock, :served, :reporter, :responses, :thread, :listen_port, :context, :ipstring	
 
+
+protected
 
 	# See if there is anything to do.. If so, dispatch it.
 	def monitor_socket

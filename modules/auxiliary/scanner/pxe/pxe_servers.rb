@@ -8,10 +8,6 @@
 require 'msf/core'
 require 'rex/proto/dhcp'
 
-load '/opt/metasploit/msf3/lib/rex/proto/dhcp.rb'
-load '/opt/metasploit/msf3/lib/rex/proto/dhcp/client.rb'
-load '/opt/metasploit/msf3/lib/rex/proto/dhcp/constants.rb'
-
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Report
