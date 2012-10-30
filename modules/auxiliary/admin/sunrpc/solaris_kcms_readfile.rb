@@ -135,8 +135,8 @@ class Metasploit3 < Msf::Auxiliary
 		sunrpc_destroy
 
 	rescue ::Rex::Proto::SunRPC::RPCTimeout
-		print_status 'Warning: ' + $!
-		print_status 'Exploit may or may not have succeeded.'
+		print_warning 'Warning: ' + $!
+		print_warning 'Exploit may or may not have succeeded.'
 	end
 
 

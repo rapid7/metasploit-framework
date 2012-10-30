@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Post
 		vuln = false
 		sysinfo = session.sys.config.sysinfo
 		winver = sysinfo["OS"]
-		affected = [ 'Windows Vista', 'Windows 7', 'Windows 2008' ]
+		affected = [ 'Windows Vista', 'Windows 7', 'Windows 2008', 'Windows 8' ]
 		affected.each { |v|
 			if winver.include? v
 				vuln = true

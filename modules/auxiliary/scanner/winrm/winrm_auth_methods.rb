@@ -52,9 +52,9 @@ class Metasploit3 < Msf::Auxiliary
 				:name  => 'winrm',
 				:info  => desc
 			)
-			print_good "Negotiate protocol supported" if methods.include? "Negotiate"
-			print_good "Kerberos protocol supported" if methods.include? "Kerberos"
-			print_good "Basic protocol supported" if methods.include? "Basic"
+			print_good "#{ip}:#{rport}: Negotiate protocol supported" if methods.include? "Negotiate"
+			print_good "#{ip}:#{rport}: Kerberos protocol supported" if methods.include? "Kerberos"
+			print_good "#{ip}:#{rport}: Basic protocol supported" if methods.include? "Basic"
 		else
 			print_error "#{ip}:#{rport} Does not appear to be a WinRM server"
 		end
