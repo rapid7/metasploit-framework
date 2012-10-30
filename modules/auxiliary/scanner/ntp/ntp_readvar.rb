@@ -1,5 +1,3 @@
-#####
-
 
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
@@ -21,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'NTP Clock Variables Disclosure',
 			'Description'    => %q{
-				This module reads the system internal NTP variables. These variables contain potentially sensitive 
+				This module reads the system internal NTP variables. These variables contain potentially sensitive
 				information, such as the NTP software version, operating system version, peers, and more..
 			},
 			'Author'         => 'Ewerson Guimaraes(Crash) <crash[at]dclabs.com.br>',
