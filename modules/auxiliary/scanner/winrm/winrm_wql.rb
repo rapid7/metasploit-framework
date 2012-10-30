@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'WinRM WQL Query Runner',
 			'Version'        => '$Revision$',
 			'Description'    => %q{
-				This module runs WQL queries against remote WinRM Services. 
+				This module runs WQL queries against remote WinRM Services.
 				Authentication is required. Currently only works with NTLM auth.
 				},
 			'Author'         => [ 'thelightcosine' ],
@@ -48,8 +48,12 @@ class Metasploit3 < Msf::Auxiliary
 			print_error "The Remote WinRM  server  (#{ip} does not appear to allow Negotiate(NTLM) auth"
 			return
 		end
-		
+
 		resp,c = send_request_ntlm(winrm_wql_msg(datastore['WQL']))
+		if resp.nil?
+			print_error "Got no reply from the server"
+			return
+		end
 		if resp.code == 401
 			print_error "Login Failure! Recheck the supplied credentials."
 			return
@@ -61,7 +65,8 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		resp_tbl = parse_wql_response(resp)
 		print_good resp_tbl.to_s
-		store_loot("winrm.wql_results", "text/csv", ip, resp_tbl.to_csv, "winrm_wql_results.csv", "WinRM WQL Query Results")
+		path = store_loot("winrm.wql_results", "text/csv", ip, resp_tbl.to_csv, "winrm_wql_results.csv", "WinRM WQL Query Results")
+		print_status "Results saved to #{path}"
 	end
 
 
