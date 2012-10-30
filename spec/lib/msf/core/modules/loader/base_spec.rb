@@ -3,6 +3,10 @@ require 'spec_helper'
 require 'msf/core'
 
 describe Msf::Modules::Loader::Base do
+	let(:described_class_pathname) do
+		root_pathname.join('lib', 'msf', 'core', 'modules', 'loader', 'base.rb')
+	end
+
 	let(:malformed_module_content) do
 		<<-EOS
       class Metasploit3
@@ -38,7 +42,11 @@ describe Msf::Modules::Loader::Base do
 	end
 
 	let(:parent_pathname) do
-		Msf.root.join('modules')
+		root_pathname.join('modules')
+	end
+
+	let(:root_pathname) do
+		Pathname.new(Msf::Config.install_root)
 	end
 
 	let(:type) do
@@ -46,9 +54,6 @@ describe Msf::Modules::Loader::Base do
 	end
 
 	context 'CONSTANTS' do
-		let(:pathname) do
-			Msf.root.join('lib', 'msf', 'core', 'modules', 'loader', 'base.rb')
-		end
 
 		context 'DIRECTORY_BY_TYPE' do
 			let(:directory_by_type) do
@@ -88,7 +93,7 @@ describe Msf::Modules::Loader::Base do
 			it 'should be line number for first line of NAMESPACE_MODULE_CONTENT' do
 				file_lines = []
 
-				pathname.open do |f|
+				described_class_pathname.open do |f|
 					file_lines = f.to_a
 				end
 
@@ -820,7 +825,7 @@ describe Msf::Modules::Loader::Base do
 						:module_eval
 				).with(
 						anything,
-				    Msf.root.join('lib', 'msf', 'core', 'modules', 'loader', 'base.rb').to_s,
+				    described_class_pathname.to_s,
 				    anything
 				)
 
