@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 		if res and res.code == 500 and res.body =~ /Error report/
-			print_error("Cannot obtain '#{fname}', here are some possible reasons:")
+			print_error("#{peer} - Cannot obtain '#{fname}', here are some possible reasons:")
 			print_error("\t1. File does not exist.")
 			print_error("\t2. The server does not have any patches deployed.")
 			print_error("\t3. Your 'DEPTH' option isn't deep enough.")
