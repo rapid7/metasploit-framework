@@ -122,12 +122,16 @@ describe Msf::ModuleManager do
 			end
 		end
 
-		it 'should return true if the cached modification time is Msf::MODULE_PAYLOAD' do
+		it 'should return true if the cached type is Msf::MODULE_PAYLOAD' do
 			Tempfile.open(module_basename) do |tempfile|
 				module_path = tempfile.path
+				modification_time = File.mtime(module_path)
 
 				subject.send(:module_info_by_path)[module_path] = {
-						:modification_time => Msf::MODULE_PAYLOAD
+						# :modification_time must match so that it is the :type that is causing the `true` and not the
+						# :modification_time causing the `true`.
+						:modification_time => modification_time,
+				    :type => Msf::MODULE_PAYLOAD
 				}
 
 				subject.file_changed?(module_path).should be_true
