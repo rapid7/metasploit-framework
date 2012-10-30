@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 		})
 
 		if res and res.body =~ /^Fatal error\:/
-			print_error("Unable to read '#{datastore['FILE']}', possibily because:")
+			print_error("#{peer} - Unable to read '#{datastore['FILE']}', possibily because:")
 			print_error("\t1. File does not exist.")
 			print_error("\t2. No permission.")
 			print_error("\t3. #{ip} isn't vulnerable to null byte poisoning.")
