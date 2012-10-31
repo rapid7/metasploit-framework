@@ -41,7 +41,7 @@ class Msf::Modules::Loader::Archive < Msf::Modules::Loader::Base
       type = entry.split('/', 2)[0]
       type = type.singularize
 
-      unless module_manager.enablement_by_type[type]
+      unless module_manager.type_enabled?(type)
         next
       end
 
