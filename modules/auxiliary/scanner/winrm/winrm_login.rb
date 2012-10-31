@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 				works only if the remote end allows Negotiate(NTLM) authentication.
 				Kerberos is not currently supported.  Please note: in order to use this
 				module without SSL, the 'AllowUnencrypted' winrm option must be set. 
-				Otherwise adjsut the port and set the SSL options in the module as appropriate.
+				Otherwise adjust the port and set the SSL options in the module as appropriate.
 			},
 			'Author'         => [ 'thelightcosine' ],
 			'References'     =>
