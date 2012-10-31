@@ -74,9 +74,6 @@ class Metasploit3 < Msf::Auxiliary
 end
 
 =begin
-=begin
 To set the AllowUncrypted option:
 winrm set winrm/config/service @{AllowUnencrypted="true"}
-=end
-
 =end
