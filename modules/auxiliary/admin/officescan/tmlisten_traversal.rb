@@ -51,6 +51,11 @@ class Metasploit3 < Msf::Auxiliary
 				'method'  => 'GET',
 			}, 20)
 
+		if not res
+			print_error("No response from server")
+			return
+		end
+
 		http_fingerprint({ :response => res })
 
 		if (res.code >= 200)
