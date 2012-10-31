@@ -106,7 +106,9 @@ class Metasploit3 < Msf::Auxiliary
                         if !response[:filename].strip.empty?
                                 if !response[:servhostname].strip.empty?                      
                                         pxeserver = response[:servhostname]
-                                else
+                                elsif !response[:nextip].strip.empty?
+					pxeserver = response[:nextip]
+				else
                                         pxeserver = server
                                 end
 
