@@ -1190,6 +1190,7 @@ class DBManager
 		crit = opts.delete(:critical) || false
 		host = nil
 		addr = nil
+		cred = nil
 		# Report the host so it's there for the Proc to use below
 		if opts[:host]
 			if opts[:host].kind_of? ::Mdm::Host
@@ -1221,6 +1222,18 @@ class DBManager
 				}
 				sopts[:name] = sname if sname
 				report_service(sopts)
+				# Add Creds if they are also specified
+				if (opts[:user] and opts[:pass])
+					copts = {
+						:workspace => wspace,
+						:host => host,
+						:port => opts[:port],
+						:user => opts[:user],
+						:pass => opts[:pass],
+					}
+					copts[:sname] = opts[:sname] if opts[:sname]
+					cred = report_auth_info(copts)
+				end
 			end
 		end
 		# Update Modes can be :unique, :unique_data, :insert
@@ -1235,6 +1248,9 @@ class DBManager
 			service = get_service(wspace, host, opts[:proto], opts[:port])
 		elsif opts[:service] and opts[:service].kind_of? ::Mdm::Service
 			service = opts[:service]
+		end
+		if opts[:cred] and opts[:cred].kind_of? ::Mdm::Cred
+			cred = opts[:cred]
 		end
 =begin
 		if host
@@ -1252,6 +1268,7 @@ class DBManager
 		conditions = { :ntype => ntype }
 		conditions[:host_id] = host[:id] if host
 		conditions[:service_id] = service[:id] if service
+		conditions[:cred_id] = cred[:id] if cred
 
 		case mode
 		when :unique

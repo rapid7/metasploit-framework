@@ -6,6 +6,7 @@ module MetasploitDataModels::ActiveRecordModels::Note
       belongs_to :workspace, :class_name => "Mdm::Workspace"
       belongs_to :host, :class_name => "Mdm::Host", :counter_cache => :note_count
       belongs_to :service, :class_name => "Mdm::Service"
+      belongs_to :cred, :class_name => "Mdm::Cred"
       serialize :data, ::MetasploitDataModels::Base64Serializer.new
 
       scope :flagged, where('critical = true AND seen = false')

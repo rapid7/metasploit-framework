@@ -2,6 +2,7 @@ module MetasploitDataModels::ActiveRecordModels::Cred
   def self.included(base)
     base.class_eval{
       belongs_to :service, :class_name => "Mdm::Service"
+      has_many :notes, :dependent => :destroy, :class_name => "Mdm::Note"
 
       unless defined? PTYPES
         const_def =<<-CONST_DEF 
