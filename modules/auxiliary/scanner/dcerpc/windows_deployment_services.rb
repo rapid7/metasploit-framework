@@ -58,7 +58,6 @@ class Metasploit3 < Msf::Auxiliary
 				query_host(ip)
 			rescue ::Interrupt
 					raise $!
-			rescue ::Rex::Proto::DCERPC::Exceptions::Fault
 			rescue ::Exception => e
 					print_error("#{ip}:#{rport} error: #{e}")
 			end
@@ -97,8 +96,14 @@ class Metasploit3 < Msf::Auxiliary
 				vprint_status "Skipping #{architecture[0]} architecture due to adv option"
 				next
 			end
-			
-			result = request_client_unattend(architecture)
+		
+			begin	
+				result = request_client_unattend(architecture)
+                        rescue ::Rex::Proto::DCERPC::Exceptions::Fault => e
+                                vprint_error(e.to_s)
+				print_error("#{rhost} DCERPC Fault - likely Windows Deployment Services is present but not configured. Perhaps a SCCM installation.")
+				return
+			end
 			
 			unless result.nil?
 				loot_unattend(architecture[0], result)
