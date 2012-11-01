@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
 								'Accept-Encoding' => "gzip,deflate",
 							},
 			}, 45)
-			return :abort if (res.code != 200)
+			return :abort if (!res or (res and res.code != 200))
 			if(res.body.match(/Account Information/i))
 				success = false
 			else

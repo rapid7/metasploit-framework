@@ -5,7 +5,7 @@ gem 'activesupport', '>= 3.0.0'
 # Needed for Msf::DbManager
 gem 'activerecord'
 # Database models shared between framework and Pro.
-gem 'metasploit_data_models', :git => 'git://github.com/rapid7/metasploit_data_models.git'
+gem 'metasploit_data_models', :git => 'git://github.com/rapid7/metasploit_data_models.git', :tag => '0.3.0'
 # Needed for module caching in Mdm::ModuleDetails
 gem 'pg', '>= 0.11'
 
