@@ -26,6 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'	=> '$Revision$',
 			'References' 	=>
 				[
+					['URL', 'http://rewtdance.blogspot.co.uk/2012/11/windows-deployment-services-clear-text.html'],
 				]
 			))
 
