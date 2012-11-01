@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
 			'Description'   => %q{
 				This module checks every directory in the system PATH for write permissions.
 				This can be used to help escalate privileges through the process of binary planting
-				due to the way DLLs are loaded within windows.
+				due to the way DLLs are loaded within Windows.
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
@@ -31,10 +31,6 @@ class Metasploit3 < Msf::Post
 				[ 'URL', 'http://www.binaryplanting.com' ]
 			]
 		))
-
-			register_options([
-				OptBool.new("VERBOSE",   [ false, "Verbose", false])
-			])
 	end
 
 	def run
@@ -57,6 +53,12 @@ class Metasploit3 < Msf::Post
 
 		print_status("Checking SYSTEM PATH folders for write access...")
 		result  = registry_getvaldata('HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path')
+		
+		if result.nil?
+			print_error("Unable to retrieve path from registry, aborting...")
+			return
+		end
+		
 		paths = result.split(';')
 
 		paths.each do |p|
