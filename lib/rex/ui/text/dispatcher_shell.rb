@@ -82,6 +82,13 @@ module DispatcherShell
 		end
 
 		#
+		# Wraps shell.print_warning
+		#
+		def print_warning(msg = '')
+			shell.print_warning(msg)
+		end
+
+		#
 		# Wraps shell.print
 		#
 		def print(msg = '')

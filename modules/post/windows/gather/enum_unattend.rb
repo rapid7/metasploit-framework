@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Post
 					['URL', 'http://technet.microsoft.com/en-us/library/ff715801'],
 					['URL', 'http://technet.microsoft.com/en-us/library/cc749415(v=ws.10).aspx']
 				],
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 

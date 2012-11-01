@@ -89,8 +89,8 @@ class Metasploit3 < Msf::Auxiliary
 						'Content-Type'  => 'text/xml; charset=UTF-8',
 					}
 			}, 45)
-			return :abort if (res.code == 404)
-			success = true if(res.body.match(/SessionInfo/i))
+			return :abort if (!res or (res and res.code == 404))
+			success = true if(res and res.body.match(/SessionInfo/i))
 			success
 
 		rescue ::Rex::ConnectionError

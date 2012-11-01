@@ -182,8 +182,8 @@ class Metasploit3 < Msf::Auxiliary
 			print_good("[#{cid}] Logging raw keystrokes to: #{@client_cache[cid][:path_raw]}")
 		end
 
-		::File.open( @client_cache[cid][:path_clean], "a") { |fd| fd.puts nice }
-		::File.open( @client_cache[cid][:path_raw], "a")   { |fd| fd.write(real) }
+		::File.open( @client_cache[cid][:path_clean], "ab") { |fd| fd.puts nice }
+		::File.open( @client_cache[cid][:path_raw], "ab")   { |fd| fd.write(real) }
 
 		if nice.length > 0
 			print_good("[#{cid}] Keys: #{nice}")

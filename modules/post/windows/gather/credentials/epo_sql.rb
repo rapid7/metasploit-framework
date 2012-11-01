@@ -13,6 +13,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/registry'
 require "net/dns/resolver"
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
@@ -30,7 +31,7 @@ class Metasploit3 < Msf::Post
 			'License'       => MSF_LICENSE,
 			'Author'        => ['Nathan Einwechter <neinwechter[at]gmail.com>'],
 			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 	end

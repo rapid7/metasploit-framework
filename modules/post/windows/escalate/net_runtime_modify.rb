@@ -29,12 +29,12 @@ class Metasploit3 < Msf::Post
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'bannedit' ],
 			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ],
 			'References'    =>
 				[
 					[ 'OSVDB', '71013' ],
-					[ 'EDB', 16940 ]
+					[ 'EDB', '16940' ]
 				]
 		))
 
