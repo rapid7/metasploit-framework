@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 			'Name'          => 'Windows Manage Process Migration',
 			'Description'   => %q{ This module will migrate a Meterpreter session.
-				It will first attempt to mgirate to winlogon.exe . If that fails it will
+				It will first attempt to migrate to winlogon.exe . If that fails it will
 				then look at all of the explorer.exe processes. If there is one that exists
 				for the user context the session is already in it will try that. Failing that it will fall back
 				and try any other explorer.exe processes it finds},
