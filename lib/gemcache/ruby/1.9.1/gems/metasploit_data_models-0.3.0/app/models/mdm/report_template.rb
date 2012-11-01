@@ -1,22 +1,27 @@
-module MetasploitDataModels::ActiveRecordModels::ReportTemplate
-  def self.included(base)
-    base.class_eval{
+class Mdm::ReportTemplate < ActiveRecord::Base
+  #
+  # Callbacks
+  #
 
-      belongs_to :workspace, :class_name => "Mdm::Workspace"
+  before_destroy :delete_file
 
-      before_destroy :delete_file
+  #
+  # Relations
+  #
 
-      private
+  belongs_to :workspace, :class_name => 'Mdm::Workspace'
 
-      def delete_file
-				c = Pro::Client.get rescue nil
-				if c
-					c.report_template_delete_file(self[:id]) 
-				else
-					::File.unlink(self.path) rescue nil
-				end
-      end
-    }
+  private
+
+  def delete_file
+    c = Pro::Client.get rescue nil
+    if c
+      c.report_template_delete_file(self[:id])
+    else
+      ::File.unlink(self.path) rescue nil
+    end
   end
+
+  ActiveSupport.run_load_hooks(:mdm_report_template, self)
 end
 

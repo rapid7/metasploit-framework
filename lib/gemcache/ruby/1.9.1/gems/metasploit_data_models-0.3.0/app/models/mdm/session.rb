@@ -1,33 +1,48 @@
-module MetasploitDataModels::ActiveRecordModels::Session
-  def self.included(base)
-    base.class_eval {
-      belongs_to :host, :class_name => "Mdm::Host"
+class Mdm::Session < ActiveRecord::Base
+  #
+  # Callbacks
+  #
 
-      has_one :workspace, :through => :host, :class_name => "Mdm::Workspace"
+  before_destroy :stop
 
-      has_many :events, :class_name => "Mdm::SessionEvent", :order => "created_at", :dependent => :delete_all
-      has_many :routes, :class_name => "Mdm::Route", :dependent => :delete_all
+  #
+  # Relations
+  #
 
-      scope :alive, where("closed_at IS NULL")
-      scope :dead, where("closed_at IS NOT NULL")
-      scope :upgradeable, where("closed_at IS NULL AND stype = 'shell' and platform ILIKE '%win%'")
+  has_many :events, :class_name => 'Mdm::SessionEvent', :order => 'created_at', :dependent => :delete_all
+  belongs_to :host, :class_name => 'Mdm::Host'
+  has_many :routes, :class_name => 'Mdm::Route', :dependent => :delete_all
 
-      serialize :datastore, ::MetasploitDataModels::Base64Serializer.new
+  #
+  # Through :host
+  #
+  has_one :workspace, :through => :host, :class_name => 'Mdm::Workspace'
 
-      before_destroy :stop
-      
-      def upgradeable?
-        (self.platform =~ /win/ and self.stype == 'shell')
-      end
-      
+  #
+  # Scopes
+  #
 
-      private
+  scope :alive, where('closed_at IS NULL')
+  scope :dead, where('closed_at IS NOT NULL')
+  scope :upgradeable, where("closed_at IS NULL AND stype = 'shell' and platform ILIKE '%win%'")
 
-      def stop
-				c = Pro::Client.get rescue nil 
-        c.session_stop(self.local_id) rescue nil # ignore exceptions (XXX - ideally, stopped an already-stopped session wouldn't throw XMLRPCException)
-      end
+  #
+  # Serializations
+  #
 
-    }
+  serialize :datastore, ::MetasploitDataModels::Base64Serializer.new
+
+  def upgradeable?
+    (self.platform =~ /win/ and self.stype == 'shell')
   end
+
+  private
+
+  def stop
+    c = Pro::Client.get rescue nil
+    # ignore exceptions (XXX - ideally, stopped an already-stopped session wouldn't throw XMLRPCException)
+    c.session_stop(self.local_id) rescue nil
+  end
+
+  ActiveSupport.run_load_hooks(:mdm_session, self)
 end

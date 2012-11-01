@@ -54,9 +54,7 @@ begin
     exit
   end
 
-  include MetasploitDataModels
-  MetasploitDataModels.create_and_load_ar_classes
-
+  MetasploitDataModels.require_models
 
   puts "\n\n\n#{mdm_banner[:color]}#{mdm_banner[:text]}\e[0m\n\n\n"
 

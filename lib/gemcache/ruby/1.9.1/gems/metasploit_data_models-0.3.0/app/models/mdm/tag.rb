@@ -1,27 +1,46 @@
-module MetasploitDataModels::ActiveRecordModels::Tag
-  def self.included(base)
-    base.class_eval {
-      has_many :hosts_tags, :class_name => "Mdm::HostTag"
-      has_many :hosts, :through => :hosts_tags, :class_name => "Mdm::Host"
+class Mdm::Tag < ActiveRecord::Base
+  #
+  # Callbacks
+  #
 
-      belongs_to :user, :class_name => "Mdm::User"
+  before_destroy :cleanup_hosts
 
-      validates :name, :presence => true, :format => {
-          :with => /^[A-Za-z0-9\x2e\x2d_]+$/, :message => "must be alphanumeric, dots, dashes, or underscores"
-      }
-      validates :desc, :length => {:maximum => 8191, :message => "desc must be less than 8k."}
+  #
+  # Relations
+  #
 
-      before_destroy :cleanup_hosts
+  has_many :hosts_tags, :class_name => 'Mdm::HostTag'
+  belongs_to :user, :class_name => 'Mdm::User'
 
-      def to_s
-        name
-      end
+  #
+  # Through :hosts_tags
+  #
+  has_many :hosts, :through => :hosts_tags, :class_name => 'Mdm::Host'
 
-      def cleanup_hosts
-        # Clean up association table records
-        Mdm::HostTag.delete_all("tag_id = #{self.id}")
-      end
-      
-    }
+
+  #
+  # Validations
+  #
+
+  validates :desc,
+            :length => {
+                :maximum => ((8 * (2 ** 10)) - 1),
+                :message => "desc must be less than 8k."
+            }
+  validates :name,
+            :format => {
+                :with => /^[A-Za-z0-9\x2e\x2d_]+$/, :message => "must be alphanumeric, dots, dashes, or underscores"
+            },
+            :presence => true
+
+  def cleanup_hosts
+    # Clean up association table records
+    Mdm::HostTag.delete_all("tag_id = #{self.id}")
   end
+
+  def to_s
+    name
+  end
+
+  ActiveSupport.run_load_hooks(:mdm_tag, self)
 end

@@ -1,9 +1,10 @@
-module MetasploitDataModels::ActiveRecordModels::ImportedCred
-  def self.included(base)
-    base.class_eval{
+class Mdm::ImportedCred < ActiveRecord::Base
+  #
+  # Relations
+  #
 
-      belongs_to :workspace, :class_name => "Mdm::Workspace"
-    }
-  end
+  belongs_to :workspace, :class_name => "Mdm::Workspace"
+
+  ActiveSupport.run_load_hooks(:mdm_imported_cred, self)
 end
 

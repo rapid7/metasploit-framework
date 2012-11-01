@@ -1,29 +1,50 @@
-module MetasploitDataModels::ActiveRecordModels::Report
-  def self.included(base)
-    base.class_eval {
+class Mdm::Report < ActiveRecord::Base
+  #
+  # Callbacks
+  #
 
-      belongs_to :workspace, :class_name => "Mdm::Workspace"
-      serialize :options, ::MetasploitDataModels::Base64Serializer.new
+  before_destroy :delete_file
 
-      validates_format_of :name, :with => /^[A-Za-z0-9\x20\x2e\x2d\x5f\x5c]+$/, :message => "name must consist of A-Z, 0-9, space, dot, underscore, or dash", :allow_blank => true
+  #
+  # Relations
+  #
 
-      serialize :options, MetasploitDataModels::Base64Serializer.new
+  belongs_to :workspace, :class_name => 'Mdm::Workspace'
 
-      before_destroy :delete_file
+  #
+  # Scopes
+  #
 
-      scope :flagged, where('reports.downloaded_at is NULL')
+  scope :flagged, where('reports.downloaded_at is NULL')
 
-      private
+  #
+  # Serializations
+  #
 
-      def delete_file
-				c = Pro::Client.get rescue nil
-				if c
-					c.report_delete_file(self[:id]) 
-				else
-					::File.unlink(self.path) rescue nil
-				end
-      end
-    }
+  serialize :options, MetasploitDataModels::Base64Serializer.new
+
+  #
+  # Validations
+  #
+
+  validates :name,
+            :format => {
+                :allow_blank => true,
+                :message => "name must consist of A-Z, 0-9, space, dot, underscore, or dash",
+                :with => /^[A-Za-z0-9\x20\x2e\x2d\x5f\x5c]+$/
+            }
+
+  private
+
+  def delete_file
+    c = Pro::Client.get rescue nil
+    if c
+      c.report_delete_file(self[:id])
+    else
+      ::File.unlink(self.path) rescue nil
+    end
   end
+
+  ActiveSupport.run_load_hooks(:mdm_report, self)
 end
 

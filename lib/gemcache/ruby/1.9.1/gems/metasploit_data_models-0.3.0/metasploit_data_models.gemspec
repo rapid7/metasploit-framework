@@ -17,9 +17,10 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   # ---- Dependencies ----
-  s.add_development_dependency "rspec"
-  s.add_runtime_dependency "activerecord"
-  s.add_runtime_dependency "activesupport"
-  s.add_runtime_dependency "pg"
-  s.add_runtime_dependency "pry"
+  s.add_development_dependency 'rake'
+
+  s.add_runtime_dependency 'activerecord'
+  s.add_runtime_dependency 'activesupport'
+  s.add_runtime_dependency 'pg'
+  s.add_runtime_dependency 'pry'
 end

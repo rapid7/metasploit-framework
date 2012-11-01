@@ -1,9 +1,17 @@
-module MetasploitDataModels::ActiveRecordModels::ModuleArch
-  def self.included(base)
-    base.class_eval{
-      base.table_name = "module_archs"
-      belongs_to :module_detail
-      validate :name, :presence => true
-    }
-  end
+class Mdm::ModuleArch < ActiveRecord::Base
+  self.table_name = 'module_archs'
+
+  #
+  # Relations
+  #
+
+  belongs_to :module_detail, :class_name => 'Mdm::ModuleDetail'
+
+  #
+  # Validations
+  #
+
+  validate :name, :presence => true
+
+  ActiveSupport.run_load_hooks(:mdm_module_arch, self)
 end

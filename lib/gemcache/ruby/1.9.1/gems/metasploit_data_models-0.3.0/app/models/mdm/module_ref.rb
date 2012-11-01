@@ -1,9 +1,17 @@
-module MetasploitDataModels::ActiveRecordModels::ModuleRef
-  def self.included(base)
-    base.class_eval{
-      base.table_name = "module_refs"
-      belongs_to :module_detail
-      validate :name, :presence => true
-    }
-  end
+class Mdm::ModuleRef < ActiveRecord::Base
+  self.table_name = 'module_refs'
+
+  #
+  # Relations
+  #
+
+  belongs_to :module_detail, :class_name => 'Mdm::ModuleDetail'
+
+  #
+  # Validations
+  #
+
+  validate :name, :presence => true
+
+  ActiveSupport.run_load_hooks(:mdm_module_ref, self)
 end

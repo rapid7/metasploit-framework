@@ -1,8 +1,14 @@
-module MetasploitDataModels::ActiveRecordModels::Ref
-  def self.included(base)
-    base.class_eval{
-      has_many :vulns, :through => :vulns_refs, :class_name => "Mdm::Vuln"
-      has_many :vulns_refs, :class_name => "Mdm::VulnRef"
-    }
-  end
+class Mdm::Ref < ActiveRecord::Base
+  #
+  # Relations
+  #
+
+  has_many :vulns_refs, :class_name => 'Mdm::VulnRef'
+
+  #
+  # Through :vuln_refs
+  #
+  has_many :vulns, :class_name => 'Mdm::Vuln', :through => :vulns_refs
+
+  ActiveSupport.run_load_hooks(:mdm_ref, self)
 end

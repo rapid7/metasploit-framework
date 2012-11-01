@@ -1,22 +1,20 @@
-module MetasploitDataModels::ActiveRecordModels::ApiKey
-  def self.included(base)
-    base.class_eval {
+class Mdm::ApiKey < ActiveRecord::Base
+  #
+  # Validators
+  #
 
-      validate do |key|
-        lic = License.get
+  validate :supports_api
+  validates :token, :presence => true, :length => { :minimum => 8 }
 
-        if lic and not lic.supports_api?
-          key.errors[:unsupported_product] = " - this product does not support API access"
-        end
+  protected
 
-        if key.token.to_s.empty?
-          key.errors[:blank_token] = " - the specified authentication token is empty"
-        end
+  def supports_api
+    license = License.get
 
-        if key.token.to_s.length < 8
-          key.errors[:token_too_short] = " - the specified authentication token must be at least 8 characters long"
-        end
-      end
-    }
+    if license and not license.supports_api?
+      errors[:license] = " - this product does not support API access"
+    end
   end
+
+  ActiveSupport.run_load_hooks(:mdm_api_key, self)
 end

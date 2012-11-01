@@ -1,8 +1,9 @@
-module MetasploitDataModels::ActiveRecordModels::Profile
-  def self.included(base)
-    base.class_eval{
-      serialize :settings, ::MetasploitDataModels::Base64Serializer.new
-    }
-  end
+class Mdm::Profile < ActiveRecord::Base
+  #
+  # Serializations
+  #
+  serialize :settings, MetasploitDataModels::Base64Serializer.new
+
+  ActiveSupport.run_load_hooks(:mdm_profile, self)
 end
 

@@ -1,9 +1,17 @@
-module MetasploitDataModels::ActiveRecordModels::ModulePlatform
-  def self.included(base)
-    base.class_eval{
-      base.table_name = "module_platforms"
-      belongs_to :module_detail
-      validate :name, :presence => true
-    }
-  end
+class Mdm::ModulePlatform < ActiveRecord::Base
+  self.table_name = 'module_platforms'
+
+  #
+  # Relations
+  #
+
+  belongs_to :module_detail
+
+  #
+  # Validations
+  #
+
+  validate :name, :presence => true
+
+  ActiveSupport.run_load_hooks(:mdm_module_platform, self)
 end

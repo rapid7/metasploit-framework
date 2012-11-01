@@ -1,15 +1,20 @@
-module MetasploitDataModels::ActiveRecordModels::Macro
-  def self.included(base)
-    base.class_eval{
+class Mdm::Macro < ActiveRecord::Base
+  extend MetasploitDataModels::SerializedPrefs
 
-      extend MetasploitDataModels::SerializedPrefs
+  #
+  # Serialization
+  #
 
-      serialize :actions, ::MetasploitDataModels::Base64Serializer.new
-      serialize :prefs, ::MetasploitDataModels::Base64Serializer.new
-      serialized_prefs_attr_accessor :max_time
+  serialize :actions, MetasploitDataModels::Base64Serializer.new
+  serialize :prefs, MetasploitDataModels::Base64Serializer.new
+  serialized_prefs_attr_accessor :max_time
 
-      validates :name, :presence => true, :format => /^[^'|"]+$/
-    }
-  end
+  #
+  # Validations
+  #
+
+  validates :name, :presence => true, :format => /^[^'|"]+$/
+
+  ActiveSupport.run_load_hooks(:mdm_macro, self)
 end
 
