@@ -16,7 +16,7 @@ require 'rex/text'
 		# Process the version strings ("1.0", 1.0, "1", 1)
 		bind_vers_maj, bind_vers_min = UUID.vers_to_nums(vers)
 		xfer_vers_maj, xfer_vers_min = UUID.vers_to_nums(xfer_syntax_vers)
-		
+
 		if UUID.is? xfer_syntax_uuid
 			xfer_syntax_uuid = UUID.uuid_pack(xfer_syntax_uuid)
 		end
@@ -48,7 +48,7 @@ require 'rex/text'
 
 		return buff, 0
 	end
-	
+
 	# Create an obfuscated DCERPC BIND request packet
 	def self.make_bind_fake_multi(uuid, vers, bind_head=0, bind_tail=0)
 

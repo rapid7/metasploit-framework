@@ -50,13 +50,13 @@ class Client
 		self.sock.close rescue nil
 	end
 
-        def report(&block)
-                self.reporter = block
-        end
+	def report(&block)
+		self.reporter = block
+	end
 
 	def create_discover(chaddr) # VMWare Mac
-                pkt =  [Request].pack('C')
-                pkt << [1].pack('C') # hwtype
+		pkt =  [Request].pack('C')
+		pkt << [1].pack('C') # hwtype
 		pkt << [6].pack('C') # hwlen
 		pkt << [0].pack('C')
 		pkt << [0].pack('N') # transaction id
@@ -78,27 +78,27 @@ class Client
 	end
 
 	def create_request(chaddr, ciaddr)
-                pkt =  [Request].pack('C')
-                pkt << [1].pack('C') # hwtype
-                pkt << [6].pack('C') # hwlen
-                pkt << [0].pack('C')
-                pkt << [0].pack('N') # transaction id
-                pkt << [0].pack('n') # seconds
-                pkt << [0].pack('n') # flags
-                pkt << Rex::Socket.addr_aton(ciaddr) # ciaddr
-                pkt << Rex::Socket.addr_aton("0.0.0.0") # yiaddr
-                pkt << Rex::Socket.addr_aton("0.0.0.0") # siaddr
-                pkt << Rex::Socket.addr_aton("0.0.0.0") # giaddr
-                pkt << chaddr + "\x00"*10 # client mac + padding
-                pkt << "\x00"*64 # sname
-                pkt << "\x00"*128 # file
-                pkt << DHCPMagic
-                pkt << dhcpoption(OpMessageType, [DHCPRequest].pack('C'))
-                pkt << dhcpoption(OpParamReqList, "\x01\x02\x03\x05\x06\x0b\x0c\x0d\x0f\x10\x11\x12\x2b\x36\x3c\x43\x80\x81\x82\x83\x84\x85\x86\x87")
-                pkt << dhcpoption(OpVendorClassID, "PXEClient:Arch:00000:UNDI:002001")
-                pkt << dhcpoption(OpEnd)
-                return pkt
-	end	
+		pkt =  [Request].pack('C')
+		pkt << [1].pack('C') # hwtype
+		pkt << [6].pack('C') # hwlen
+		pkt << [0].pack('C')
+		pkt << [0].pack('N') # transaction id
+		pkt << [0].pack('n') # seconds
+		pkt << [0].pack('n') # flags
+		pkt << Rex::Socket.addr_aton(ciaddr) # ciaddr
+		pkt << Rex::Socket.addr_aton("0.0.0.0") # yiaddr
+		pkt << Rex::Socket.addr_aton("0.0.0.0") # siaddr
+		pkt << Rex::Socket.addr_aton("0.0.0.0") # giaddr
+		pkt << chaddr + "\x00"*10 # client mac + padding
+		pkt << "\x00"*64 # sname
+		pkt << "\x00"*128 # file
+		pkt << DHCPMagic
+		pkt << dhcpoption(OpMessageType, [DHCPRequest].pack('C'))
+		pkt << dhcpoption(OpParamReqList, "\x01\x02\x03\x05\x06\x0b\x0c\x0d\x0f\x10\x11\x12\x2b\x36\x3c\x43\x80\x81\x82\x83\x84\x85\x86\x87")
+		pkt << dhcpoption(OpVendorClassID, "PXEClient:Arch:00000:UNDI:002001")
+		pkt << dhcpoption(OpEnd)
+		return pkt
+	end
 
 
 
@@ -113,7 +113,7 @@ class Client
 		end
 	end
 
-	attr_accessor :sock, :served, :reporter, :responses, :thread, :listen_port, :context, :ipstring	
+	attr_accessor :sock, :served, :reporter, :responses, :thread, :listen_port, :context, :ipstring
 
 
 protected
@@ -171,7 +171,7 @@ protected
 			:filename 		=> buf[108..235],
 			:magic			=> buf[236..239]
 		}
-		
+
 		dhcp_options = []
 
 		# options parsing loop
@@ -183,9 +183,9 @@ protected
 			optionLen = buf[spot + 1,1].unpack("C").first
 			optionValue = buf[(spot + 2)..(spot + optionLen + 1)]
 			spot = spot + optionLen + 2
-		
+
 			case optionType
-			when OpMessageType 	
+			when OpMessageType
 				optionValue = optionValue.unpack("C").first
 			when OpDHCPServer
 				optionValue = Rex::Socket.addr_ntoa(optionValue)
@@ -193,13 +193,13 @@ protected
 
 			dhcp_options << {:opt => optionType, :val => optionValue}
 		end
-		
+
 		response.merge!(:dhcp_opts => dhcp_options)
 		return response
 	end
 
 	def is_pxe_response(response)
-	end		
+	end
 end
 
 end

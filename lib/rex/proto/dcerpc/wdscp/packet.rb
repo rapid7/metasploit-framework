@@ -4,24 +4,24 @@ module Proto
 module DCERPC
 module WDSCP
 class Packet
-	
+
 	WDS_CONST 	= Rex::Proto::DCERPC::WDSCP::Constants
 
 	def initialize(packet_type, opcode)
 		if opcode.nil? || packet_type.nil?
 			raise(ArgumentError, "Packet arguments cannot be nil")
 		end
-        	
+
 		@variables = []
 		@packet_type = WDS_CONST::PACKET_TYPE[packet_type]
 		@opcode = WDS_CONST::OPCODE[opcode]
 	end
-	
+
 	def add_var(name, type_mod=0, value_length=nil, array_size=0, value)
-		padding = 0	
+		padding = 0
 		value_type = WDS_CONST::BASE_TYPE[WDS_CONST::VAR_TYPE_LOOKUP[name]]
 		name = name.encode('UTF-16LE').unpack('H*')[0]
-		
+
 		value_length ||= value.length
 
 		len = 16 * (1 + (value_length/16)) # Variable block total size should be evenly divisible by 16.
@@ -31,22 +31,22 @@ class Packet
 	def create
 		packet = []
 		var_count = @variables.count
-		
+
 		packet_size = 0
 		@variables.each do |var|
 			packet_size += var.length
 		end
-	
+
 		packet_size += 16 # variables + operation
 
 		# These bytes are not part of the spec but are not part of DCERPC according to Wireshark
 		# Perhaps something from MSRPC specific? Basically length of the WDSCP packet twice...
-		packet << [packet_size+40].pack('Q')*2 
+		packet << [packet_size+40].pack('Q')*2
 		packet << create_endpoint_header(packet_size)
-		packet << create_operation_header(packet_size, var_count, @packet_type, @opcode) 
+		packet << create_operation_header(packet_size, var_count, @packet_type, @opcode)
 		packet.concat(@variables)
-		
-		return packet.join		
+
+		return packet.join
 	end
 
 	def create_operation_header(packet_size, var_count, packet_type=:REQUEST, opcode)

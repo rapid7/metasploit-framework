@@ -163,7 +163,7 @@ class Metasploit3 < Msf::Post
 
 			# XML failed to parse, will not go on from here
 			return if not xml
-			
+
 			results = Rex::Parser::Unattend.parse(xml)
 			tables = create_display_tables(results)
 
@@ -177,16 +177,16 @@ class Metasploit3 < Msf::Post
 	def create_display_tables(results)
 		tables = []
 		wds_table = Rex::Ui::Text::Table.new({
-                        'Header' => 'WindowsDeploymentServices',
-                        'Indent' => 1,
-                        'Columns' => ['Domain', 'Username', 'Password']
-                })
+			'Header' => 'WindowsDeploymentServices',
+			'Indent' => 1,
+			'Columns' => ['Domain', 'Username', 'Password']
+		})
 
 		autologin_table = Rex::Ui::Text::Table.new({
-                        'Header' => 'AutoLogon',
-                        'Indent' => 1,
-                        'Columns' => ['Domain', 'Username', 'Password']
-                })
+			'Header' => 'AutoLogon',
+			'Indent' => 1,
+			'Columns' => ['Domain', 'Username', 'Password']
+		})
 
 		admin_table = Rex::Ui::Text::Table.new({
 						'Header'  => 'AdministratorPasswords',
@@ -195,34 +195,33 @@ class Metasploit3 < Msf::Post
 				})
 
 		domain_table = Rex::Ui::Text::Table.new({
-                                        'Header'  => 'DomainAccounts',
-                                        'Indent'  => 1,
-                                        'Columns' => ['Username', 'Group']
-                                })
+					'Header'  => 'DomainAccounts',
+					'Indent'  => 1,
+					'Columns' => ['Username', 'Group']
+				})
 
 		local_table = Rex::Ui::Text::Table.new({
-                                        'Header'  => 'LocalAccounts',
-                                        'Indent'  => 1,
-                                        'Columns' => ['Username', 'Password']
-                                })
+					'Header'  => 'LocalAccounts',
+					'Indent'  => 1,
+					'Columns' => ['Username', 'Password']
+				})
 		results.each do |result|
 			unless result.empty?
 				case result['type']
 					when 'wds'
-						wds_table << [result['domain'], result['username'], result['password']]	
-	                	        when 'auto'              
-        	                        	autologin_table << [result['domain'], result['username'], result['password']]   
-	                        	when 'admin'              
-        	        	                admin_table << [result['username'], result['password']]   
-	        	                when 'domain' 
-       		                         	domain_table << [result['username'], result['group']]
-	                        	when 'local' 
-                          		      local_table << [result['username'], result['password']]  
+						wds_table << [result['domain'], result['username'], result['password']]
+					when 'auto'
+						autologin_table << [result['domain'], result['username'], result['password']]
+					when 'admin'
+						admin_table << [result['username'], result['password']]
+					when 'domain'
+						domain_table << [result['username'], result['group']]
+					when 'local'
+						local_table << [result['username'], result['password']]
 				end
-			end	
+			end
 		end
 
-		tables << wds_table
 		tables << autologin_table
 		tables << admin_table
 		tables << domain_table

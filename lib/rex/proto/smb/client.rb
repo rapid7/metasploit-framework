@@ -1898,7 +1898,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 					resp = find_next(last_search_id, last_offset, last_filename)
 					search_next = 1 # Flip bit so response params will parse correctly
 				end
-			end until eos != 0 or last_offset == 0 
+			end until eos != 0 or last_offset == 0
 		rescue ::Exception
 			raise $!
 		end
@@ -1927,10 +1927,10 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		if depth < 0
 			return
 		end
-		
+
 		results = find_first("#{current_path}*")
 		files = []
-		
+
 		results.each do |result|
 			if result[0] =~ /^(\.){1,2}$/  # Ignore . ..
 				next
@@ -1941,7 +1941,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 				begin
 					files << file_search(search_path, regex, depth).flatten.compact
 				rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
-					# Ignore permission errors 
+					# Ignore permission errors
 					unless e.get_error(e.error_code) == 'STATUS_ACCESS_DENIED'
 						raise e
 					end
@@ -1952,8 +1952,8 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 				end
 			end
 		end
-		
-		return files.flatten.compact		
+
+		return files.flatten.compact
 	end
 
 	# Creates a new directory on the mounted tree
