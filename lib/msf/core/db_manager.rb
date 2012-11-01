@@ -120,7 +120,7 @@ class DBManager
 		# are already in the object space
 		begin
 			unless defined? Mdm::Host
-				self.class.send :include, MetasploitDataModels
+				MetasploitDataModels.require_models
 			end
 		rescue NameError => e
 			warn_about_rubies
