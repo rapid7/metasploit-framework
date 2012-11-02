@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'     => '$Revision$',
 			'Description' => 'Discover host information through the Digi International ADDP service',
 			'Author'      => 'hdm',
-			'References'  => 
+			'References'  =>
 				[
 					['URL', 'http://qbeukes.blogspot.com/2009/11/advanced-digi-discovery-protocol_21.html'],
 					['URL', 'http://www.digi.com/wiki/developer/index.php/Advanced_Device_Discovery_Protocol_%28ADDP%29'],
@@ -119,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		@results[addr] ||= {}
 		@results[addr] = Rex::Proto::ADDP.decode_reply(data)
-		
+
 		return unless @results[addr][:magic] and @results[addr][:mac]
 
 		inf = Rex::Proto::ADDP.reply_to_string(@results[addr])

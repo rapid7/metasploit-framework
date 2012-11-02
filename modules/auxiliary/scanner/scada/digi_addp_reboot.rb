@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'     => '$Revision$',
 			'Description' => 'Reboot Digi International based equipment through the ADDP service',
 			'Author'      => 'hdm',
-			'References'  => 
+			'References'  =>
 				[
 					['URL', 'http://qbeukes.blogspot.com/2009/11/advanced-digi-discovery-protocol_21.html'],
 					['URL', 'http://www.digi.com/wiki/developer/index.php/Advanced_Device_Discovery_Protocol_%28ADDP%29'],
@@ -144,7 +144,7 @@ class Metasploit3 < Msf::Auxiliary
 		if @results[addr][:cmd] == Rex::Proto::ADDP::CMD_REBOOT_REP
 			print_status("#{addr}:#{rport} Reboot Status: " + Rex::Proto::ADDP.reply_to_string(@results[addr]))
 		end
-		
+
 		return unless @results[addr][:magic] and @results[addr][:mac]
 	end
 

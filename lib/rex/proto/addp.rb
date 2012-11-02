@@ -42,34 +42,25 @@ module Proto
 		CMD_CNT                  = 14
 
 
-
-		def self.mac2bin(mac)
-			mac.split(":").map{|c| c.to_i(16) }.pack("C*")
-		end
-
-		def self.bin2mac(bin)
-			bin.unpack("C6").map{|x| "%.2x" % x }.join(":").upcase
-		end
-
 		def self.encode_password(pwd="dbps")
 			[pwd.length].pack("C") + pwd
 		end
 
 		def self.request_config(magic, dmac="\xff\xff\xff\xff\xff\xff")
-			mac = (dmac.length == 6) ? dmac : self.mac2bin(dmac)
+			mac = (dmac.length == 6) ? dmac : Rex::Socket.eth_aton(dmac)
 			req = magic + [ CMD_CONF_REQ, 6].pack("nn") + mac
 			return req
 		end
 
 		def self.request_config_all(dmac="\xff\xff\xff\xff\xff\xff")
-			mac = (dmac.length == 6) ? dmac : self.mac2bin(dmac)
+			mac = (dmac.length == 6) ? dmac : Rex::Socket.eth_aton(dmac)
 			res = []
 			MAGICS.each { |m| res << self.request_config(m, dmac) }
 			return res
 		end
 
 		def self.request_static_ip(magic, dmac, ip, mask, gw, pwd="dbps")
-			mac = (dmac.length == 6) ? dmac : self.mac2bin(dmac)
+			mac = (dmac.length == 6) ? dmac : Rex::Socket.eth_aton(dmac)
 			buf = 
 				Rex::Socket.addr_aton(ip) +
 				Rex::Socket.addr_aton(mask) +
@@ -82,7 +73,7 @@ module Proto
 		end
 
 		def self.request_dhcp(magic, dmac, enabled, pwd="dbps")
-			mac = (dmac.length == 6) ? dmac : self.mac2bin(dmac)
+			mac = (dmac.length == 6) ? dmac : Rex::Socket.eth_aton(dmac)
 			buf = 
 				[ enabled ? 1 : 0 ].pack("C") +
 				mac + 
@@ -93,7 +84,7 @@ module Proto
 		end
 
 		def self.request_reboot(magic, dmac, pwd="dbps")
-			mac = (dmac.length == 6) ? dmac : self.mac2bin(dmac)
+			mac = (dmac.length == 6) ? dmac : Rex::Socket.eth_aton(dmac)
 			buf =
 				mac + 
 				self.encode_password(pwd)
@@ -121,7 +112,7 @@ module Proto
 
 				case i_type
 				when 0x01
-					res[:mac]  = self.bin2mac(i_data)
+					res[:mac]  = Rex::Socket.eth_ntoa(i_data)
 				when 0x02
 					res[:ip]   = Rex::Socket.addr_ntoa(i_data)
 				when 0x03
