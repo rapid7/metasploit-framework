@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: sip_invite_spoof.rb 15390 2012-06-05 03:03:05Z rapid7 $
 ##
 
 ##
@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'SIP Invite Spoof',
-			'Version'        => '$Revision$',
+			'Version'        => '$Revision: 15390 $',
 			'Description'    => 'This module will create a fake SIP invite request making the targeted device ring and display fake caller id information.',
 			'Author'         => '[David Maynor <dave[at]erratasec.com>, ChrisJohnRiley]',
 			'License'        =>  MSF_LICENSE
