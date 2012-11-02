@@ -27,7 +27,10 @@ class Metasploit4 < Msf::Auxiliary
 			'References'   =>
 				[
 					# General
-					[ 'URL', 'http://blog.c22.cc' ]
+					[ 'URL', 'http://blog.c22.cc' ],
+					# Concrete5
+					[ 'URL', 'http://www.concrete5.org'],
+					[ 'URL', 'http://www.concrete5.org/documentation/using-concrete5/dashboard/users-and-groups/']
 				],
 			'Author'       => [ 'Chris John Riley' ],
 			'License'      => MSF_LICENSE
