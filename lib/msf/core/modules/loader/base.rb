@@ -3,6 +3,7 @@
 #
 require 'msf/core/modules/loader'
 require 'msf/core/modules/namespace'
+require 'msf/core/modules/version_compatibility_error'
 
 # Responsible for loading modules for {Msf::ModuleManager}.
 #
@@ -77,7 +78,6 @@ class Msf::Modules::Loader::Base
     raise ::NotImplementedError
   end
 
-
   # Loads a module from the supplied path and module_reference_name.
   #
   # @param [String] parent_path The path under which the module exists.  This is not necessarily the same path as passed
@@ -104,14 +104,18 @@ class Msf::Modules::Loader::Base
     force = options[:force] || false
     reload = options[:reload] || false
 
-    unless force or module_manager.file_changed?(parent_path)
-      dlog("Cached module from #{parent_path} has not changed.", 'core', LEV_2)
+    module_path = self.module_path(parent_path, type, module_reference_name)
+    file_changed = module_manager.file_changed?(module_path)
+
+    unless force or file_changed
+      dlog("Cached module from #{module_path} has not changed.", 'core', LEV_2)
 
       return false
     end
 
+    reload ||= force || file_changed
+
     metasploit_class = nil
-    module_path = self.module_path(parent_path, type, module_reference_name)
 
     loaded = namespace_module_transaction(type + "/" + module_reference_name, :reload => reload) { |namespace_module|
       # set the parent_path so that the module can be reloaded with #load_module
@@ -121,7 +125,7 @@ class Msf::Modules::Loader::Base
 
       begin
         namespace_module.module_eval_with_lexical_scope(module_content, module_path)
-          # handle interrupts as pass-throughs unlike other Exceptions
+      # handle interrupts as pass-throughs unlike other Exceptions so users can bail with Ctrl+C
       rescue ::Interrupt
         raise
       rescue ::Exception => error
@@ -191,6 +195,11 @@ class Msf::Modules::Loader::Base
       # not trigger an ambiguous name warning, which would cause the reloaded module to not be stored in the
       # ModuleManager.
       module_manager.delete(module_reference_name)
+
+	    # Delete the original copy of the module in the type-specific module set stores the reloaded module and doesn't
+	    # trigger an ambiguous name warning
+	    module_set = module_manager.module_set(type)
+	    module_set.delete(module_reference_name)
     end
 
     # Do some processing on the loaded module to get it into the right associations
@@ -289,7 +298,6 @@ class Msf::Modules::Loader::Base
     module_reference_name = original_metasploit_class_or_instance.refname
 
     dlog("Reloading module #{module_reference_name}...", 'core')
-
 
     if load_module(parent_path, type, module_reference_name, :force => true, :reload => true)
       # Create a new instance of the module
@@ -486,20 +494,18 @@ class Msf::Modules::Loader::Base
       elog("Reloading namespace_module #{previous_namespace_module} when :reload => false")
     end
 
+    relative_name = namespace_module_names.last
+
     if previous_namespace_module
       parent_module = previous_namespace_module.parent
-      relative_name = namespace_module_names.last
-
-      # remove_const is private, so invoke in instance context
-      parent_module.instance_eval do
-        remove_const relative_name
-      end
-    else
-      parent_module = nil
-      relative_name = namespace_module_names.last
+      # remove_const is private, so use send to bypass
+      parent_module.send(:remove_const, relative_name)
     end
 
     namespace_module = create_namespace_module(namespace_module_names)
+    # Get the parent module from the created module so that restore_namespace_module can remove namespace_module's
+    # constant if needed.
+    parent_module = namespace_module.parent
 
     begin
       loaded = block.call(namespace_module)
@@ -534,19 +540,29 @@ class Msf::Modules::Loader::Base
   #
   # @param [Module] parent_module The .parent of namespace_module before it was removed from the constant tree.
   # @param [String] relative_name The name of the constant under parent_module where namespace_module was attached.
-  # @param [Module] namespace_module The previous namespace module containing the old module content.
+  # @param [Module, nil] namespace_module The previous namespace module containing the old module content.  If `nil`,
+  #   then the relative_name constant is removed from parent_module, but nothing is set as the new constant.
   # @return [void]
   def restore_namespace_module(parent_module, relative_name, namespace_module)
-    if parent_module and namespace_module
-      # the const may have been redefined by {#create_namespace_module}, in which case that new namespace_module needs
-      # to be removed so the original can replace it.
-      if parent_module.const_defined? relative_name
-        parent_module.instance_eval do
-          remove_const relative_name
-        end
-      end
+    if parent_module
+      # If there is a current module with relative_name
+      if parent_module.const_defined?(relative_name)
+	      # if the current value isn't the value to be restored.
+	      if parent_module.const_get(relative_name) != namespace_module
+		      # remove_const is private, so use send to bypass
+		      parent_module.send(:remove_const, relative_name)
 
-      parent_module.const_set(relative_name, namespace_module)
+		      # if there was a previous module, not set it to the name
+		      if namespace_module
+			      parent_module.const_set(relative_name, namespace_module)
+		      end
+	      end
+      else
+	      # if there was a previous module, but there isn't a current module, then restore the previous module
+	      if namespace_module
+		      parent_module.const_set(relative_name, namespace_module)
+	      end
+      end
     end
   end
 
