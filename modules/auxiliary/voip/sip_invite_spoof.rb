@@ -1,17 +1,11 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
 #   http://metasploit.com/
 ##
 
-
 require 'msf/core'
-
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -21,9 +15,15 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'SIP Invite Spoof',
-			'Version'        => '$Revision$',
-			'Description'    => 'This module will create a fake SIP invite request making the targeted device ring and display fake caller id information.',
-			'Author'         => '[David Maynor <dave[at]erratasec.com>, ChrisJohnRiley]',
+			'Description'    => %q{
+				This module will create a fake SIP invite request making the targeted device ring
+				and display fake caller id information.
+			},
+			'Author'         =>
+				[
+					'David Maynor <dave[at]erratasec.com>',
+					'ChrisJohnRiley'
+				],
 			'License'        =>  MSF_LICENSE
 		)
 
@@ -48,9 +48,9 @@ class Metasploit3 < Msf::Auxiliary
 
 			if not ext.nil? and not ext.empty?
 				# set extesion name/number
-				conn_string = "#{ext}@#{ip}"	
+				conn_string = "#{ext}@#{ip}"
 			else
-				conn_string = "#{ip}"	
+				conn_string = "#{ip}"
 			end
 
 			connect_udp
