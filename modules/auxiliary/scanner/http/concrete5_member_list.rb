@@ -52,14 +52,7 @@ class Metasploit4 < Msf::Auxiliary
 		end
 
 		begin
-			res = send_request_cgi({
-				'uri'      => "#{url}/members",
-				'method'   => 'GET',
-				'headers'  =>
-					{
-						'User-Agent' => datastore['UserAgent']
-					}
-			}, 25)
+			res = send_request_raw({'uri' => "#{url}/index.php/members"})
 
 		rescue ::Rex::ConnectionError
 			print_error("#{peer} Unable to connect to #{url}")
@@ -72,9 +65,10 @@ class Metasploit4 < Msf::Auxiliary
 		end
 
 		# extract member info from response if present
-		if res and res.body	=~ /ccm-profile-member-username/i
+		if res and res.body =~ /ccm\-profile\-member\-username/i
 			extract_members(res, url)
 		elsif res
+			print_line(res.body)
 			print_status("#{peer} No members listed or profiles disabled")
 		else
 			print_error("#{peer} No response received")
@@ -83,7 +77,7 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def extract_members(res, url)
-		members = res.body.scan(/<div class="ccm-profile-member-username">(.*)<\/div>/i)
+		members = res.body.scan(/<div class="ccm\-profile\-member\-username">(.*)<\/div>/i)
 
 		if members
 			print_good("#{peer} Extracted #{members.length} entries")
