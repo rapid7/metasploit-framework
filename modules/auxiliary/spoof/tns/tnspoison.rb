@@ -6,11 +6,12 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-					'Name'           => 'TNS posion attack for arbitrary SID length',
+					'Name'           => 'TNS Posion Attack',
 					'Description'    => %q{
 					This module mimplement the TNS poisoning attack, discovered
-					by Joxean Koret. It works for SIDs with length between 1-12
-					thus with all possible length.
+					by Joxean Koret. It works for SIDs with length between 1-12
+					thus with all possible length. It wast tested against
+					11.2.0.3 64 bit on Windows and on Linux.
 					},
 					'Author'         => [ 'donctl' ],
 					'License'        => MSF_LICENSE,
@@ -22,9 +23,9 @@ class Metasploit3 < Msf::Auxiliary
 					'DisclosureDate' => 'April 18 2012'))
 		register_options(
 			[
-			OptString.new('DHOST', [ false, 	"HOST to redirect to, it should be"\
+			OptString.new('DHOST', [ true, 	"HOST to redirect to, it should be"\
 								" IP address only"]),
-			OptString.new('DPORT', [ false, 	"PORT to redrecit to, it can be 4"\
+			OptString.new('DPORT', [ true, 	"PORT to redrecit to, it can be 4"\
 								" digits only", "1521"]),
 			], self.class)
 
