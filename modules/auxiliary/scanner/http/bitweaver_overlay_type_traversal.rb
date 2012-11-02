@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		elsif res and res.code == 200
 			data = res.body
-			data = data.scan(/(.+)\n.+Notice.+/m).flatten[0] || ''
+			data = data.scan(/(.+)\n(<br \/>\n)*.+Notice/m).flatten[0] || ''
 
 			p = store_loot(
 				'bitweaver.overlay_type',
