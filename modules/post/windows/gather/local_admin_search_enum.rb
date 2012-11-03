@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Post
 			end
 
 			if datastore['DOMAIN_CONTROLLER'].nil? and datastore['ENUM_GROUPS']
-				datastore['DC_ERROR'] = false
+				@dc_error = false
 
 				# Uses DC which applied policy since it would be a DC this device normally talks to
 				cmd = "gpresult /SCOPE COMPUTER"
@@ -68,11 +68,11 @@ class Metasploit3 < Msf::Post
 
 				# Check if RSOP data exists, if not disable group check
 				unless res =~ /does not have RSOP data./
-						datastore['DOMAIN_CONTROLLER'] = /Group Policy was applied from:\s*(.*)\s*/.match(res)[1].chomp
-					else
-						datastore['DC_ERROR'] = true
-						print_error("User never logged into device, will not enumerate groups or manually specify DC.")
-					end
+					datastore['DOMAIN_CONTROLLER'] = /Group Policy was applied from:\s*(.*)\s*/.match(res)[1].chomp
+				else
+					@dc_error = true
+					print_error("User never logged into device, will not enumerate groups or manually specify DC.")
+				end
 			end
 		super
 		end
@@ -85,13 +85,13 @@ class Metasploit3 < Msf::Post
 
 	# http://msdn.microsoft.com/en-us/library/windows/desktop/aa370669(v=vs.85).aspx
 	# enumerate logged in users
-	def enum_users(host, currentdomain)
+	def enum_users(host)
 		begin
 		# Connect to host and enumerate logged in users
-		winSessions = client.railgun.netapi32.NetWkstaUserEnum("\\\\#{host}", 1, 4, -1, 4, 4, nil)
+		winsessions = client.railgun.netapi32.NetWkstaUserEnum("\\\\#{host}", 1, 4, -1, 4, 4, nil)
 
-		count = winSessions['totalentries'] * 2
-		startmem = winSessions['bufptr']
+		count = winsessions['totalentries'] * 2
+		startmem = winsessions['bufptr']
 
 		base = 0
 		userlist = Array.new
@@ -110,7 +110,7 @@ class Metasploit3 < Msf::Post
 					# Check if enumerated user's domain matches supplied domain, if there was
 					# an error, or if option disabled
 					data = ""
-					if datastore['DOMAIN'].upcase == temp[:domain].upcase and not datastore['DC_ERROR'] and datastore['ENUM_GROUPS']
+					if datastore['DOMAIN'].upcase == temp[:domain].upcase and not @dc_error and datastore['ENUM_GROUPS']
 						data = " - Groups: #{enum_groups(temp[:user]).chomp(", ")}"
 					end
 					line = "\tLogged in user:\t#{temp[:domain]}\\#{temp[:user]}#{data}\n"
@@ -138,14 +138,14 @@ class Metasploit3 < Msf::Post
 		dc = "\\\\#{datastore['DOMAIN_CONTROLLER']}"
 		begin
 			# Connect to DC and enumerate groups of user
-			userGroups = client.railgun.netapi32.NetUserGetGroups(dc, user, 0, 4, -1, 4, 4)
+			usergroups = client.railgun.netapi32.NetUserGetGroups(dc, user, 0, 4, -1, 4, 4)
 
 		rescue ::Exception => e
 			print_error("Issue connecting to DC, try manually setting domain and DC")
 		end
 
-			count = userGroups['totalentries']
-			startmem = userGroups['bufptr']
+			count = usergroups['totalentries']
+			startmem = usergroups['bufptr']
 			base = 0
 
 		begin
@@ -189,7 +189,7 @@ class Metasploit3 < Msf::Post
 			# Run enumerate users on all hosts if option was set
 
 			if datastore['ENUM_USERS']
-				enum_users(host, datastore['DOMAIN']).each {|i|
+				enum_users(host).each {|i|
 					result << i
 				}
 			end
