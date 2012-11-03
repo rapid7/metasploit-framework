@@ -37,6 +37,7 @@ class Client
 			# Evasion options
 			#
 			'uri_encode_mode'        => 'hex-normal', # hex-all, hex-random, u-normal, u-random, u-all
+			'uri_remove_dbl_slashes' => false,    # bool
 			'uri_encode_count'       => 1,       # integer
 			'uri_full_url'           => false,   # bool
 			'pad_method_uri_count'   => 1,       # integer
@@ -67,6 +68,7 @@ class Client
 		# This is not used right now...
 		self.config_types = {
 			'uri_encode_mode'        => ['hex-normal', 'hex-all', 'hex-random', 'u-normal', 'u-random', 'u-all'],
+			'uri_remove_dbl_slashes' => 'bool',
 			'uri_encode_count'       => 'integer',
 			'uri_full_url'           => 'bool',
 			'pad_method_uri_count'   => 'integer',
@@ -505,6 +507,10 @@ class Client
 			uri.gsub!('/', '/./')
 		end
 
+		if (self.config['uri_remove_dbl_slashes'])
+			uri = uri.gsub('//','/')
+		end
+
 		if (self.config['uri_dir_fake_relative'])
 			buf = ""
 			uri.split('/').each do |part|
@@ -537,6 +543,10 @@ class Client
 		if (self.config['uri_dir_self_reference'])
 			uri.gsub!('/', '/./')
 		end
+
+                if (self.config['uri_remove_dbl_slashes'])
+                        uri = uri.gsub('//','/')
+                end
 
 		if (self.config['uri_dir_fake_relative'])
 			buf = ""
