@@ -56,7 +56,7 @@ module Auxiliary::HH3C
 					confhash['uname'] = ""
 					confhash['level'] = ""
 
-				when /^\ssuper password level (\d) (simple|cipher) (.*)/i
+				when /^\s*super password level (\d) (simple|cipher) (.*)/i
 					# super password
 					level = $1
 					pwtype = $2
