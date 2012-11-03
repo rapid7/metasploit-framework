@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 			OptString.new('DHOST', [ true, 	"HOST to redirect to, it should be"\
 								" IP address only"]),
-			OptString.new('DPORT', [ true, 	"PORT to redrecit to, it can be 4"\
+			OptString.new('DPORT', [ true, 	"PORT to redirect to, it can be 4"\
 								" digits only", "1521"]),
 			], self.class)
 
