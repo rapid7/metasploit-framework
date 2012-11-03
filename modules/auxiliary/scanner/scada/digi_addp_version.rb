@@ -40,8 +40,6 @@ class Metasploit3 < Msf::Auxiliary
 		], self.class)
 	end
 
-
-	# Define our batch size
 	def run_batch_size
 		datastore['BATCHSIZE'].to_i
 	end
@@ -50,7 +48,6 @@ class Metasploit3 < Msf::Auxiliary
 		datastore['RPORT'].to_i
 	end
 
-	# Fingerprint a single host
 	def run_batch(batch)
 
 		print_status("Sending Digi ADDP probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
@@ -70,13 +67,21 @@ class Metasploit3 < Msf::Auxiliary
 
 					# Try all currently-known magic probe values
 					Rex::Proto::ADDP.request_config_all.each do |pkt|
-						udp_sock.sendto(pkt, ip, rport, 0)
+						begin
+							udp_sock.sendto(pkt, ip, rport, 0)
+						rescue ::Errno::ENOBUFS
+							print_status("Socket buffers are full, waiting for them to flush...")
+							while (r = udp_sock.recvfrom(65535, 0.1) and r[1])
+								parse_reply(r)
+							end
+							select(nil, nil, nil, 0.25)
+							retry
+						end					
 					end
 
 				rescue ::Interrupt
 					raise $!
-				rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
-					nil
+				rescue ::Rex::ConnectionError
 				end
 
 				if (idx % 30 == 0)
@@ -94,12 +99,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		rescue ::Interrupt
 			raise $!
-		rescue ::Errno::ENOBUFS
-			print_status("Socket buffers are full, waiting for them to flush...")
-			while (r = udp_sock.recvfrom(65535, 0.1) and r[1])
-				parse_reply(r)
-			end
-			select(nil, nil, nil, 0.25)
 		rescue ::Exception => e
 			print_error("Unknown error: #{e.class} #{e} #{e.backtrace}")
 		end
