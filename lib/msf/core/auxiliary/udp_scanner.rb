@@ -118,15 +118,12 @@ module Auxiliary::UDPScanner
 			next if not (res[0] and res[0].length > 0)
 
 			# Trim the IPv6-compat prefix off if needed
-			shost = res[1].gsub(/^::ffff:/, '')
-
-			# Store the source port
-			sport = res[2]
+			shost = res[1].sub(/^::ffff:/, '')
 
 			# Ignore the response if we have a boundary
 			next unless inside_workspace_boundary?(shost)
 
-			queue << [res[0], shost, sport]
+			queue << [res[0], shost, res[2]]
 
 			if queue.length > datastore['ScannerRecvQueueLimit']
 				break
