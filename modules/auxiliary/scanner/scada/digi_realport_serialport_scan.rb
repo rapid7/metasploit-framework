@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Digi RealPort Serial Server Port Scanner',
-			'Version'     => '$Revision$',
 			'Description' => 'Identify active ports on RealPort-enabled serial servers.',
 			'References'  =>
 				[
