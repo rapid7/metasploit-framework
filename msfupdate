@@ -39,9 +39,10 @@ end
 
 # TODO
 def print_deprecation_warning
-	$stdout.puts "[*] Deprecation : The next version of Metasploit will update over the git"
-  $stdout.puts "[*] protocol, which requires outbound access to github.com:9418/TCP."
-  $stdout.puts "[*] Please adjust your egress firewall rules accordingly."
+	$stdout.puts "[*] Deprecation Note: The next version of Metasploit will"
+	$stdout.puts "[*] update over the git protocol, which requires outbound"
+	$stdout.puts "[*] access to github.com:9418/TCP."
+	$stdout.puts "[*] Please adjust your egress firewall rules accordingly."
 end
 
 # Some of these args are meaningful for SVN, some for Git,
