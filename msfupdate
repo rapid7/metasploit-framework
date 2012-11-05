@@ -37,7 +37,6 @@ def is_svn
 	File.directory?(File.join(@msfbase_dir, ".svn"))
 end
 
-# TODO
 def print_deprecation_warning
 	$stdout.puts "[*] Deprecation Note: The next version of Metasploit will"
 	$stdout.puts "[*] update over the git protocol, which requires outbound"
