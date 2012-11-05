@@ -38,8 +38,10 @@ def is_svn
 end
 
 # TODO
-def print_depreciation_warning
-
+def print_deprecation_warning
+	$stdout.puts "[*] Deprecation : The next version of Metasploit will update over the git"
+  $stdout.puts "[*] protocol, which requires outbound access to github.com:9418/TCP."
+  $stdout.puts "[*] Please adjust your egress firewall rules accordingly."
 end
 
 # Some of these args are meaningful for SVN, some for Git,
@@ -77,7 +79,7 @@ end
 
 ####### Since we're SVN, do it all this way #######
 if is_svn
-	print_depreciation_warning
+	print_deprecation_warning
 	@args.push("--config-dir=#{@configdir}")
 	@args.push("--non-interactive")
 
