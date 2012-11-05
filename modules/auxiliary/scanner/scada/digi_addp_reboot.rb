@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 							end
 							select(nil, nil, nil, 0.25)
 							retry
-						end					
+						end
 					end
 
 				rescue ::Interrupt
@@ -107,7 +107,7 @@ class Metasploit3 < Msf::Auxiliary
 				info = Rex::Proto::ADDP.reply_to_string(res)
 				print_status("#{ip}:#{rport} Sending reboot request to device with MAC #{res[:mac]}...")
 				pkt = Rex::Proto::ADDP.request_reboot(res[:magic], res[:mac], datastore['ADDP_PASSWORD'])
-				
+
 				begin
 					udp_sock.sendto(pkt, ip, rport, 0)
 				rescue ::Errno::ENOBUFS
@@ -118,7 +118,7 @@ class Metasploit3 < Msf::Auxiliary
 					select(nil, nil, nil, 0.25)
 					retry
 				end
-							
+
 				while (r = udp_sock.recvfrom(65535, 0.1) and r[1])
 					parse_reply(r)
 				end
