@@ -40,5 +40,6 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("#{target_host}:#{rport} #{info}")
 			report_service(:host => rhost, :port => rport, :name => "realport", :info => info)
 		end
+		realport_disconnect
 	end
 end
