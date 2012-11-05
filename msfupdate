@@ -101,11 +101,17 @@ end
 if is_git
 	remote = @git_remote || "origin"
 	branch = @git_branch || "master"
-	# Always lose any local changes, but not unchecked files
-	# This is actually safer than the old svn way of msfupdate
-	# which would happily just generate conflicts over changes.
-	# TODO: Allow for git stash and git stash pop
-	res = system("git", "reset", "HEAD", "--hard")
+	# This will save local changes in a stash, but won't
+	# attempt to reapply them. If the user wants them back
+	# they can always git stash pop them, and that presumes
+	# they know what they're doing when they're editing local
+	# checkout, which presumes they're not using msfupdate 
+	# to begin with.
+	#
+	# Note, this requires at least user.name and user.email
+	# to be configured in the global git config. Installers should
+	# take care that this is done. TODO: Enforce this in msfupdate
+	res = system("git", "stash")
 	if res.nil?
 		$stderr.puts "[-] ERROR: Failed to run git"
 		$stderr.puts ""
@@ -115,6 +121,7 @@ if is_git
 		exit 1
 	end
 
+	system("git", "reset", "HEAD", "--hard")
 	system("git", "checkout", branch)
 	system("git", "fetch")
 	system("git", "merge", "#{remote}/#{branch}")
