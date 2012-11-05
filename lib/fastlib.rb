@@ -182,12 +182,14 @@ class FastLib
 	end
 
 
+	# This method provides a way to create a FASTLIB archive programatically.
 	#
-	# This method provides a way to create a FASTLIB archive programatically,
-	# the key arguments are the name of the destination archive, the base
-	# directory that should be excluded from the archived path, and finally
-	# the list of specific files and directories to include in the archive.
-	#
+	# @param [String] lib the output path for the archive
+	# @param [String] flag a string containing the hex values for the flags ({FLAG_COMPRESS} and {FLAG_ENCRYPT}).
+	# @param [String] bdir the path to the base directory which will be stripped from all paths included in the archive
+	# @param [Array<String>] dirs list of directories/files to pack into the archive.  All dirs should be under bdir so
+	#   that the paths are stripped correctly.
+	# @return [void]
 	def self.dump(lib, flag, bdir, *dirs)
 		head = ""
 		data = ""
