@@ -9,14 +9,14 @@ while File.symlink?(msfbase)
 	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 
-msfbase_dir = File.dirname(msfbase)
+@msfbase_dir = File.dirname(msfbase)
 
 @args = ARGV.dup
 
 # May be changed
 @configdir = File.expand_path(File.join(File.dirname(msfbase), "data", "svn"))
 
-Dir.chdir(msfbase_dir)
+Dir.chdir(@msfbase_dir)
 
 $stderr.puts "[*]"
 $stderr.puts "[*] Attempting to update the Metasploit Framework..."
@@ -29,12 +29,12 @@ if not (Process.uid == 0 or File.stat(msfbase).owned?)
 end
 
 
-def is_git(msfbase_dir)
-	File.directory?(File.join(msfbase_dir, ".git"))
+def is_git
+	File.directory?(File.join(@msfbase_dir, ".git"))
 end
 
-def is_svn(msfbase_dir)
-	File.directory?(File.join(msfbase_dir, ".svn"))
+def is_svn
+	File.directory?(File.join(@msfbase_dir, ".svn"))
 end
 
 # TODO
@@ -108,7 +108,7 @@ if is_git
 end
 
 unless is_svn || is_git
-	raise RuntimeError, "Cannot determine checkout type: `#{msfbase_dir}'"
+	raise RuntimeError, "Cannot determine checkout type: `#{@msfbase_dir}'"
 end
 
 if @actually_wait
