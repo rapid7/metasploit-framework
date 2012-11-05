@@ -33,7 +33,7 @@ def is_git(msfbase_dir)
 	File.directory?(File.join(msfbase_dir, ".git"))
 end
 
-def is_svn
+def is_svn(msfbase_dir)
 	File.directory?(File.join(msfbase_dir, ".svn"))
 end
 
