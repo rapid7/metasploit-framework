@@ -192,7 +192,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	#------------------------------------------------------------------------------------------------------------------------
-	# This code was stolen straight out of psexec.rb.  Thanks very much for all who contributed to that module!!
+	# This code was stolen straight out of psexec.rb.  Thanks very much HDM and all who contributed to that module!!
 	# Instead of uploading and runing a binary.  This method runs a single windows command fed into the #{command} paramater
 	#------------------------------------------------------------------------------------------------------------------------
 	def psexec(smbshare, command)
