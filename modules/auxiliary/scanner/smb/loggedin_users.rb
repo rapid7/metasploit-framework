@@ -86,6 +86,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
+
 	#---------------------------------------------------------------------------------------
 	# This method runs reg.exe query HKU to get a list of each key within the HKU master key
 	# Returns an array object
@@ -153,6 +154,10 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
+
+	#---------------------------------------------------------------------------------------
+	# Cleanup module.  Gets rid of .txt and .bat files created in the WINDOWS\Temp directory
+	#---------------------------------------------------------------------------------------
 	def cleanup_after(smbshare, ip, cmd, text, bat)
 		begin
 			# Try and do cleanup command
@@ -165,6 +170,7 @@ class Metasploit3 < Msf::Auxiliary
 			return cleanuperror
 		end
 	end
+
 
 
 	#------------------------------------------------------------------------------------------------------------------------
