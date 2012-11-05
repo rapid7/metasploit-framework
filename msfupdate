@@ -119,6 +119,9 @@ if is_git
 		$stderr.puts "[-] /usr/local/bin instead of running this file directly (e.g.: ./msfupdate)"
 		$stderr.puts "[-] to ensure a proper environment."
 		exit 1
+	else
+		$stdout.puts "[*] Stashed local changes (if any) to avoid merge conflicts."
+		$stdout.puts "[*] Run 'git stash pop' to reapply local changes."
 	end
 
 	system("git", "reset", "HEAD", "--hard")
