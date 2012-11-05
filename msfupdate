@@ -9,12 +9,14 @@ while File.symlink?(msfbase)
 	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 
+msfbase_dir = File.dirname(msfbase)
+
 @args = ARGV.dup
 
 # May be changed
 @configdir = File.expand_path(File.join(File.dirname(msfbase), "data", "svn"))
 
-Dir.chdir(File.dirname(msfbase))
+Dir.chdir(msfbase_dir)
 
 $stderr.puts "[*]"
 $stderr.puts "[*] Attempting to update the Metasploit Framework..."
@@ -26,16 +28,32 @@ if not (Process.uid == 0 or File.stat(msfbase).owned?)
 	$stderr.puts "Please run msfupdate as the same user who installed metasploit."
 end
 
+
+def is_git(msfbase_dir)
+	File.directory?(File.join(msfbase_dir, ".git"))
+end
+
+def is_svn
+	File.directory?(File.join(msfbase_dir, ".svn"))
+end
+
+# TODO
+def print_depreciation_warning
+
+end
+
+# Some of these args are meaningful for SVN, some for Git,
+# some for both. Fun times.
 @args.each_with_index do |arg,i|
 	case arg
-	# Handle the old wait/nowait argument behavior
+		# Handle the old wait/nowait argument behavior
 	when "wait", "nowait"
 		@wait_index = i
 		@actually_wait = (arg == "wait")
-	# An empty or absent config-dir means a default config-dir
+		# An empty or absent config-dir means a default config-dir
 	when "--config-dir"
 		@configdir_index = i
-	# A defined config dir means a defined config-dir
+		# A defined config dir means a defined config-dir
 	when /--config-dir=(.*)?/
 		# Spaces in the directory should be fine since this whole thing is passed
 		# as a single argument via the multi-arg syntax for system() below.
@@ -48,19 +66,49 @@ end
 @args[@wait_index] = nil      if @wait_index
 @args[@configdir_index] = nil if @configdir_index
 @args = @args.compact
-@args.push("--config-dir=#{@configdir}")
-@args.push("--non-interactive")
 
-res = system("svn", "cleanup")
-if res.nil?
-	$stderr.puts "[-] ERROR: Failed to run svn"
-	$stderr.puts ""
-	$stderr.puts "[-] If you used a binary installer, make sure you run the symlink in"
-	$stderr.puts "[-] /usr/local/bin instead of running this file directly (e.g.: ./msfupdate)"
-	$stderr.puts "[-] to ensure a proper environment."
-else
-	# Cleanup worked, go ahead and update
-	system("svn", "update", *@args)
+####### Since we're SVN, do it all this way #######
+if is_svn
+	print_depreciation_warning
+	@args.push("--config-dir=#{@configdir}")
+	@args.push("--non-interactive")
+
+	res = system("svn", "cleanup")
+	if res.nil?
+		$stderr.puts "[-] ERROR: Failed to run svn"
+		$stderr.puts ""
+		$stderr.puts "[-] If you used a binary installer, make sure you run the symlink in"
+		$stderr.puts "[-] /usr/local/bin instead of running this file directly (e.g.: ./msfupdate)"
+		$stderr.puts "[-] to ensure a proper environment."
+		exit 1
+	else
+		# Cleanup worked, go ahead and update
+		system("svn", "update", *@args)
+	end
+end
+
+####### Since we're Git, do it all that way #######
+if is_git
+	# Always lose any local changes, but not unchecked files
+	# TODO: Allow for git stash and git stash pop
+	res = system("git", "reset", "HEAD", "--hard")
+	if res.nil?
+		$stderr.puts "[-] ERROR: Failed to run git"
+		$stderr.puts ""
+		$stderr.puts "[-] If you used a binary installer, make sure you run the symlink in"
+		$stderr.puts "[-] /usr/local/bin instead of running this file directly (e.g.: ./msfupdate)"
+		$stderr.puts "[-] to ensure a proper environment."
+		exit 1
+	end
+
+	# TODO: Allow msfupdate to take a branch argument
+	system("git", "checkout", "master")
+	system("git", "fetch")
+	system("git", "merge", "origin/master")
+end
+
+unless is_svn || is_git
+	raise RuntimeError, "Cannot determine checkout type: `#{msfbase_dir}'"
 end
 
 if @actually_wait
