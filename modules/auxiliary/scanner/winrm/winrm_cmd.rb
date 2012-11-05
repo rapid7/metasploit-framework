@@ -26,7 +26,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'WinRM Command Runner',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module runs arbitrary Windows commands using the WinRM Service
 				},
@@ -50,6 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 		streams = winrm_run_cmd(datastore['CMD'])
+		return unless streams.class == Hash
 		print_error streams['stderr'] unless streams['stderr'] == ''
 		print_good streams['stdout']
 		if datastore['SAVE_OUTPUT']
