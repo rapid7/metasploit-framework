@@ -57,14 +57,22 @@ end
 	when /--config-dir=(.*)?/
 		# Spaces in the directory should be fine since this whole thing is passed
 		# as a single argument via the multi-arg syntax for system() below.
-		# TODO: Test this spaces business. I don't buy it. -todb
 		@configdir = $1
 		@configdir_index = i
+	when /--git-remote=([^\s]*)?/
+		@git_remote = $1
+		@git_remote_index = i
+	when /--git-branch=([^\s]*)?/
+		@git_branch = $1
+		@git_branch_index = i
 	end
 end
 
 @args[@wait_index] = nil      if @wait_index
 @args[@configdir_index] = nil if @configdir_index
+
+@args[@git_remote_index] = nil if @git_remote_index
+@args[@git_branch_index] = nil if @git_branch_index
 @args = @args.compact
 
 ####### Since we're SVN, do it all this way #######
@@ -89,7 +97,11 @@ end
 
 ####### Since we're Git, do it all that way #######
 if is_git
+	remote = @git_remote || "origin"
+	branch = @git_branch || "master"
 	# Always lose any local changes, but not unchecked files
+	# This is actually safer than the old svn way of msfupdate
+	# which would happily just generate conflicts over changes.
 	# TODO: Allow for git stash and git stash pop
 	res = system("git", "reset", "HEAD", "--hard")
 	if res.nil?
@@ -101,10 +113,9 @@ if is_git
 		exit 1
 	end
 
-	# TODO: Allow msfupdate to take a branch argument
-	system("git", "checkout", "master")
+	system("git", "checkout", branch)
 	system("git", "fetch")
-	system("git", "merge", "origin/master")
+	system("git", "merge", "#{remote}/#{branch}")
 end
 
 unless is_svn || is_git
