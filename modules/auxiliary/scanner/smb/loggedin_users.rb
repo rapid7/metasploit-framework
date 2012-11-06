@@ -99,7 +99,7 @@ class Metasploit3 < Msf::Auxiliary
 			output.each_line { |line| cleanout << line.chomp if line.include?("HKEY") && line.split("-").size == 8 && !line.split("-")[7].include?("_")}
 			return cleanout
 		rescue StandardError => hku_error
-			print_error("#{ip} - Error runigy query against HKU. #{hku_error.class}. #{hku_error}")
+			print_error("#{ip} - Error runing query against HKU. #{hku_error.class}. #{hku_error}")
 			return hku_error
 		end
 	end
