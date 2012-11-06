@@ -1,10 +1,6 @@
 #!/usr/bin/env ruby
 
 require 'msf/core'
-require 'rex'
-require 'rex/registry'
-require 'fileutils'
-
 class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
