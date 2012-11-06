@@ -1,4 +1,3 @@
-# -*- coding: binary -*-
 require 'singleton'
 require 'rex/socket'
 require 'rex/socket/tcp'
@@ -346,9 +345,79 @@ class Rex::Socket::Comm::Local
 	end
 
 	def self.proxy(sock, type, host, port)
-
-		#$stdout.print("PROXY\n")
 		case type.downcase
+		when 'ni'
+			packet_type = 'NI_ROUTE'
+			route_info_version = 2
+			ni_version = 39
+			num_of_entries = 2 
+			talk_mode = 1 # ref: http://help.sap.com/saphelp_dimp50/helpdata/En/f8/bb960899d743378ccb8372215bb767/content.htm
+			num_rest_nodes = 1
+			route_length = 0
+			current_position = 0
+			routes = {}
+			route_data = ''
+			
+			array = sock.peerinfo.split(":")
+			
+			shost = array[0]
+			sport = array[1]
+			
+			routes = {shost => sport.to_s, host => port.to_s}
+			
+			ni_packet = packet_type << [0].pack('c*') << [route_info_version].pack('c*') << [ni_version].pack('c*') << [num_of_entries].pack('c*') << [talk_mode].pack('c*') << [0].pack('c*') << [0].pack('c*') << [num_rest_nodes].pack('c*')
+
+			first = 'False'
+
+			routes.each do|host,port|
+  			  route_item = host + [0].pack("C") + port + [0, 0].pack("c*")
+  			  if first == "False"
+    		    route_data = route_data << [route_item.length].pack('N') << route_item
+    		    first = "True"
+  			  else
+    		    route_data = route_data << route_item
+  			  end
+		    end
+
+			ni_packet << [route_data.length - 4].pack('N') << route_data
+			
+			ni_packet = [ni_packet.length].pack('N') << ni_packet
+			
+			size = sock.put(ni_packet)
+			
+			if (size != ni_packet.length)
+				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to send the entire request to the proxy"), caller
+			end
+
+			begin
+			    ret_len = sock.recv(4).unpack('H*')[0]
+			    if ret_len !=0
+  				  ret = sock.recv(ret_len.to_i)
+				end
+			rescue IOError
+				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to receive a response from the proxy"), caller
+			end
+
+			if (ret.nil? or ret.length < 4)
+				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to receive a complete response from the proxy"), caller
+			end
+			
+			if (ret =~ /NI_RTERR/)
+  			  if (ret =~ /timed out/)
+    		    raise Rex::ConnectionProxyError.new(host, port, type, "Connection to remote host #{host} timed out")
+  			  elsif (ret =~ /refused/)
+    			raise Rex::ConnectionProxyError.new(host, port, type, "Connection to remote port #{port} closed")
+  			  elsif (ret =~ /denied/)
+    			raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} blocked by ACL")
+    		  else
+    		    raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} failed - #{ret}\n\n#{ni_packet}")
+  			  end
+			elsif (ret =~ /NI_PONG/)
+  			  $stdout.print("[*] remote native connection to #{host}:#{port} established\n")
+  			else
+    		    raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} failed - #{ret}\n\n#{ni_packet}")
+			end
+			
 		when 'http'
 			setup = "CONNECT #{host}:#{port} HTTP/1.0\r\n\r\n"
 			size = sock.put(setup)
