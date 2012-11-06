@@ -41,6 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options([
 			OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$']),
+			OptString.new('USERNAME', [false, 'The name of a specific user to search for', '']),
 			OptString.new('RPORT', [true, 'The Target port', 445]),
 		], self.class)
 
@@ -140,9 +141,20 @@ class Metasploit3 < Msf::Auxiliary
 			psexec(smbshare, command)
 			output = get_output(ip, smbshare, text)
 			domain, username = "",""
+			# Run this IF loop and only check for specified user if datastore['USERNAME'] is specified
+			if datastore['USERNAME'].length > 0
+				output.each_line do |line|
+					username = line if line.include?("USERNAME")
+					domain = line if line.include?("USERDOMAIN")
+				end
+				if domain.split(" ")[2].to_s.chomp + "\\" + username.split(" ")[2].to_s.chomp == datastore['USERNAME']
+					print_good("#{datastore['USERNAME']} logged into #{ip}")
+				end
+				return
+			end
 			output.each_line do |line|
-				domain << line if line.include?("USERDOMAIN")
-				username << line if line.include?("USERNAME")
+				domain = line if line.include?("USERDOMAIN")
+				username = line if line.include?("USERNAME")
 			end
 			if username && domain
 				print_good("#{ip} -  #{domain.split(" ")[2].to_s}\\#{username.split(" ")[2].to_s}")
