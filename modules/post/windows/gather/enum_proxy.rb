@@ -14,7 +14,7 @@ require 'msf/core/post/windows/services'
 
 class Metasploit3 < Msf::Post
 
-	include Post::Windows::WindowsServices
+	include Post::Windows::Services
 
 	def initialize
 		super(

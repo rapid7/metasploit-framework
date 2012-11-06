@@ -15,7 +15,7 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 
-	include Msf::Post::Windows::WindowsServices
+	include Msf::Post::Windows::Services
 
 	def initialize(info={})
 		super( update_info( info,
