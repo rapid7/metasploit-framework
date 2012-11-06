@@ -91,9 +91,9 @@ class Metasploit3 < Msf::Auxiliary
 			if (res and res.message == "OK")
 				user_list = res.body.scan(/\w+/)
 				if user_list.empty?
-					vprint_status("\tFound: Nothing")
+					vprint_line("\tFound: Nothing")
 				else
-					vprint_status("\tFound: #{user_list.inspect}")
+					vprint_line("\tFound: #{user_list.inspect}")
 					results << user_list
 				end
 			else
