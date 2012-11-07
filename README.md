@@ -1,5 +1,6 @@
 
 Metasploit
+[![Build Status](https://travis-ci.org/rapid7/metasploit-framework.png)](https://travis-ci.org/rapid7/metasploit-framework)
 ==
 The Metasploit Framework is released under a BSD-style license. See
 COPYING for more details.
