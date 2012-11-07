@@ -288,6 +288,24 @@ protected
 					print_status("Patched user-agent at offset #{i}...")
 				end
 
+				# Activate a custom proxy
+				i = blob.index("METERPRETER_PROXY")
+				if i
+					if datastore['PROXYHOST']
+						if datastore['PROXYHOST'].to_s != ""
+							proxyhost = datastore['PROXYHOST'].to_s
+							proxyport = datastore['PROXYPORT'].to_s || "80"
+							proxyinfo = proxyhost + ":" + proxyport
+							if proxyport == "80"
+								proxyinfo = proxyhost
+							end
+							proxyinfo << "\x00"
+							blob[i, proxyinfo.length] = proxyinfo
+							print_status("Activated custom proxy, patch at offset #{i}...")
+						end
+					end
+				end
+
 				# Replace the transport string first (TRANSPORT_SOCKET_SSL)
 				i = blob.index("METERPRETER_TRANSPORT_SSL")
 				if i
