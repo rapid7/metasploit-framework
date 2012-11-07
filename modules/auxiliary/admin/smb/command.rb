@@ -48,9 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#-----------------------------------
 	# This is the main controle method
-	#-----------------------------------
 	def run_host(ip)
 		cmd = "C:\\WINDOWS\\SYSTEM32\\cmd.exe"
 		text = "\\WINDOWS\\Temp\\#{Rex::Text.rand_text_alpha(16)}.txt"
@@ -85,9 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#------------------------------------
 	# Executes specified Windows Command
-	#------------------------------------
 	def execute_command(smbshare, ip, cmd, text, bat)
 		begin
 			#Try and execute the provided command
@@ -98,15 +94,13 @@ class Metasploit3 < Msf::Auxiliary
 			return True
 		rescue StandardError => execerror
 			print_error("#{ip} - Unable to execute specified command: #{execerror}")
-			return False
+			
 		end
 	end
 
 
 
-	# ----------------------------
 	# Retrive output from command
-	#-----------------------------
 	def get_output(smbshare, ip, file)
 		begin
 			simple.connect("\\\\#{ip}\\#{smbshare}")
@@ -127,9 +121,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#----------------------------------------------------------------------------------
 	# This is the cleanup method, removes .txt and .bat file/s created during execution-
-	#-----------------------------------------------------------------------------------
 	def cleanup_after(smbshare, ip, cmd, text, bat)
 		begin
 			# Try and do cleanup command
@@ -145,10 +137,8 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#------------------------------------------------------------------------------------------------------------------------
-	# This code was stolen straight out of psexec.rb.  Thanks very much for all who contributed to that module!!
+	# This code was stolen straight out of psexec.rb.  Thanks very much HDM and all who contributed to that module!!
 	# Instead of uploading and runing a binary.  This method runs a single windows command fed into the #{command} paramater
-	#------------------------------------------------------------------------------------------------------------------------
 	def psexec(smbshare, command)
 		filename = "filename"
 		servicename = "servicename"
