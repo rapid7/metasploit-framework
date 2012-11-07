@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
 			return True
 		rescue StandardError => execerror
 			print_error("#{ip} - Unable to execute specified command: #{execerror}")
-			
+			return False	
 		end
 	end
 
