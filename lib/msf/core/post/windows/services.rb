@@ -91,22 +91,22 @@ module Services
 		serviceskey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
 		a =[]
 		services = []
-		registry_enumkeys(serviceskey).each do |s|
-			1.upto 10 do
-				a.push(::Thread.new(s) { |sk|
-						begin
-							srvtype = registry_getvaldata("#{serviceskey}\\#{sk}","Type").to_s
-							if srvtype =~ /32|16/
-								services << sk
-							end
-						rescue
-						end
-					})
-			end
-			until a.empty?
+		keys = registry_enumkeys(serviceskey)
+		keys.each do |s|
+			if a.length >= 10
 				a.first.join
 				a.delete_if {|x| not x.alive?}
 			end
+			t = framework.threads.spawn(self.refname+"-ServiceRegistryList",false,s) { |sk|
+				begin
+					srvtype = registry_getvaldata("#{serviceskey}\\#{sk}","Type").to_s
+					if srvtype == "32" or srvtype == "16"
+						services << sk
+					end
+				rescue
+				end
+			}
+			a.push(t)
 		end
 
 		return services

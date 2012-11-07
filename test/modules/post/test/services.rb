@@ -6,11 +6,9 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/services'
 
-load 'lib/msf/core/post/windows/services.rb'
-
 class Metasploit3 < Msf::Post
 
-	include Msf::Post::Windows::WindowsServices
+	include Msf::Post::Windows::Services
 
 	include Msf::ModuleTest::PostTest
 
@@ -42,6 +40,11 @@ class Metasploit3 < Msf::Post
 		it "should start #{datastore["SSERVICE"]}" do
 			ret = true
 			results = service_start(datastore['SSERVICE'])
+			if results != 0
+				# Failed the first time, try to stop it first, then try again
+				service_stop(datastore['SSERVICE'])
+				results = service_start(datastore['SSERVICE'])
+			end
 			ret &&= (results == 0)
 
 			ret
