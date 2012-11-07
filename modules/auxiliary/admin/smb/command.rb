@@ -73,14 +73,14 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		smbshare = datastore['SMBSHARE']
-		begin
-			execute_command(smbshare, ip, cmd, text, bat)
+		
+		if execute_command(smbshare, ip, cmd, text, bat)
 			get_output(smbshare, ip, text)
+		else
 			cleanup_after(smbshare, ip, cmd, text, bat)
-		rescue
-			# Something went terribly wrong
 			return
 		end
+		cleanup_after(smbshare, ip, cmd, text, bat)
 	end
 
 
@@ -95,9 +95,10 @@ class Metasploit3 < Msf::Auxiliary
 			simple.connect(smbshare)
 			print_status("Executing your command on host: #{ip}")
 			psexec(smbshare, execute)
+			return True
 		rescue StandardError => execerror
-			print_error("Unable to execute specified command: #{execerror}")
-			return execerror
+			print_error("#{ip} - Unable to execute specified command: #{execerror}")
+			return False
 		end
 	end
 
@@ -120,7 +121,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_good("Command completed successfuly! Output from: #{ip}\r\n#{output}")
 		rescue StandardError => output_error
 			print_error("#{ip} - Error getting command output. #{output_error.class}. #{output_error}.")
-			return
+			return output_error
 		end
 	end
 
