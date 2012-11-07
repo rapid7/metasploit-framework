@@ -40,7 +40,7 @@ class Metasploit4 < Msf::Auxiliary
 			'License' => BSD_LICENSE
 			)
 		register_options([
-			OptEnum.new('CLIENT', [false, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
+			OptString.new('CLIENT', [false, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
 			OptBool.new('DEFAULT_CRED',[false, 'Check using the defult password and username',true]),
 			], self.class)
 		register_autofilter_ports([ 8000 ])
