@@ -125,7 +125,7 @@ class Msf::Modules::Loader::Base
 	    return false
     end
 
-    loaded = namespace_module_transaction(type + "/" + module_reference_name, :reload => reload) { |namespace_module|
+    namespace_module_transaction(type + "/" + module_reference_name, :reload => reload) { |namespace_module|
       # set the parent_path so that the module can be reloaded with #load_module
       namespace_module.parent_path = parent_path
 
@@ -179,10 +179,6 @@ class Msf::Modules::Loader::Base
 
       true
     }
-
-    unless loaded
-      return false
-    end
 
     if reload
       # Delete the original copy of the module so that module_manager.on_load_module called from inside load_module does
