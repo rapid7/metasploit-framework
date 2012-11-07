@@ -419,6 +419,7 @@ class Msf::Modules::Loader::Base
 	  log_lines << "#{module_path} failed to load due to the following error:"
 		log_lines << error.class.to_s
 		log_lines << error.to_s
+		log_lines << "Call stack:"
 		log_lines += error.backtrace
 
 		log_message = log_lines.join("\n")
