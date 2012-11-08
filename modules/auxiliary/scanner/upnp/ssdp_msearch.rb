@@ -51,58 +51,77 @@ class Metasploit3 < Msf::Auxiliary
 		scanner_send(@msearch_probe, ip, datastore['RPORT'])
 	end
 
+	def scanner_postscan(batch)
+		@results.each_pair do |skey,res|
+			sinfo = res[:service]
+			next unless sinfo
+
+			bits = []
+
+			[ :server, :location, :usn ].each do |k|
+				bits << res[:info][k] if res[:info][k]
+			end
+
+			desc = bits.join(" | ")
+			sinfo[:info] = desc
+
+			print_status("#{skey} SSDP #{desc}")
+			report_service( sinfo )
+
+			if res[:info][:ssdp_host]
+				report_service(
+					:host  => res[:info][:ssdp_host],
+					:port  => res[:info][:ssdp_port],
+					:proto => 'tcp',
+					:name  => 'upnp',
+					:info  => res[:info][:location].to_s
+				) if datastore['REPORT_LOCATION']
+ 			end
+		end
+	end
+
 	def scanner_process(data, shost, sport)
 
 		skey = "#{shost}:#{datastore['RPORT']}"
-		return if @results[skey]
 
-		info = []
-		if data =~ /^Server:[\s]*(.*)/
-			info << $1.strip
+		@results[skey] ||= {
+			:info    => { },
+			:service => {
+				:host  => shost,
+				:port  => datastore['RPORT'],
+				:proto => 'udp',
+				:name  => 'ssdp'
+			}
+		}
+
+		if data =~ /^Server:[\s]*(.*)/i
+			@results[skey][:info][:server] = $1.strip
 		end
 
 		ssdp_host = nil
 		ssdp_port = 80
 		location_string = ''
-		if data =~ /^Location:[\s]*(.*)/
+		if data =~ /^Location:[\s]*(.*)/i
 			location_string = $1
-			info << location_string.to_s.strip
+			@results[skey][:info][:location] = $1.strip
 			if location_string[/(https?):\x2f\x2f([^\x5c\x2f]+)/]
 				ssdp_host,ssdp_port = $2.split(":") if $2.respond_to?(:split)
 				if ssdp_port.nil?
 					ssdp_port = ($1 == "http" ? 80 : 443)
 				end
+
+				if ssdp_host and ssdp_port
+					@results[skey][:info][:ssdp_host] = ssdp_host
+					@results[skey][:info][:ssdp_port] = ssdp_port.to_i
+				end
+
 			end
 		end
 
-		if data =~ /^USN:[\s]*(.*)/
-			info << $1.strip
+		if data =~ /^USN:[\s]*(.*)/i
+			@results[skey][:info][:usn] = $1.strip
 		end
 
-		return unless info.length > 0
-
-		desc = info.join(" | ")
-
-		@results[skey] = {
-			:host  => shost,
-			:port  => datastore['RPORT'],
-			:proto => 'udp',
-			:name  => 'ssdp',
-			:info  => desc
-		}
-
-		print_status("#{shost}:#{sport} SSDP #{desc}")
-		report_service( @results[skey] )
-
-		if ssdp_host
-			report_service(
-				:host  => ssdp_host,
-				:port  => ssdp_port,
-				:proto => 'tcp',
-				:name  => 'upnp',
-				:info  => location_string
-			) if datastore['REPORT_LOCATION']
-		end
 	end
 
 
