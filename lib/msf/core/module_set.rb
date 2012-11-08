@@ -219,9 +219,9 @@ class Msf::ModuleSet < Hash
 
       # TODO this isn't terribly helpful since the refnames will always match, that's why they are ambiguous.
       wlog("The module #{mod.refname} is ambiguous with #{self[name].refname}.")
-    else
-      self[name] = mod
     end
+
+    self[name] = mod
 
     mod
   end

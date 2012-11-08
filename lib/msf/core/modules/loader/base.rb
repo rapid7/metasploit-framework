@@ -125,7 +125,7 @@ class Msf::Modules::Loader::Base
 	    return false
     end
 
-    namespace_module_transaction(type + "/" + module_reference_name, :reload => reload) { |namespace_module|
+    try_eval_module = lambda { |namespace_module|
       # set the parent_path so that the module can be reloaded with #load_module
       namespace_module.parent_path = parent_path
 
@@ -173,23 +173,20 @@ class Msf::Modules::Loader::Base
         return false
       end
 
-      ilog("Loaded #{type} module #{module_reference_name} under #{parent_path}", 'core', LEV_2)
+      if reload
+        ilog("Reloading #{type} module #{module_reference_name}. Ambiguous module warnings are safe to ignore", 'core', LEV_2)
+      else
+        ilog("Loaded #{type} module #{module_reference_name} under #{parent_path}", 'core', LEV_2)
+      end
 
       module_manager.module_load_error_by_path.delete(module_path)
 
       true
     }
 
-    if reload
-      # Delete the original copy of the module so that module_manager.on_load_module called from inside load_module does
-      # not trigger an ambiguous name warning, which would cause the reloaded module to not be stored in the
-      # ModuleManager.
-      module_manager.delete(module_reference_name)
-
-	    # Delete the original copy of the module in the type-specific module set stores the reloaded module and doesn't
-	    # trigger an ambiguous name warning
-	    module_set = module_manager.module_set(type)
-	    module_set.delete(module_reference_name)
+    loaded = namespace_module_transaction(type + "/" + module_reference_name, :reload => reload, &try_eval_module)
+    unless loaded
+      return false
     end
 
     # Do some processing on the loaded module to get it into the right associations
