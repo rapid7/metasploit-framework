@@ -3,6 +3,8 @@ require 'spec_helper'
 require 'msf/core'
 
 describe Msf::Modules::Loader::Base do
+	include_context 'Msf::Modules::Loader::Base'
+
 	let(:described_class_pathname) do
 		root_pathname.join('lib', 'msf', 'core', 'modules', 'loader', 'base.rb')
 	end
@@ -35,18 +37,6 @@ describe Msf::Modules::Loader::Base do
 
 	let(:module_reference_name) do
 		'rspec/mock'
-	end
-
-	let(:parent_path) do
-		parent_pathname.to_s
-	end
-
-	let(:parent_pathname) do
-		root_pathname.join('modules')
-	end
-
-	let(:root_pathname) do
-		Pathname.new(Msf::Config.install_root)
 	end
 
 	let(:type) do
@@ -230,7 +220,7 @@ describe Msf::Modules::Loader::Base do
 
 	context 'instance methods' do
 		let(:module_manager) do
-			mock('Module Manager')
+			mock('Module Manager', :module_load_error_by_path => {})
 		end
 
 		subject do
@@ -323,13 +313,14 @@ describe Msf::Modules::Loader::Base do
 				end
 
 				it 'should call #namespace_module_transaction with the module full name and :reload => true' do
+					subject.stub(:read_module_content => module_content)
+
 					subject.should_receive(:namespace_module_transaction).with(module_full_name, hash_including(:reload => true))
 
 					subject.load_module(parent_path, type, module_reference_name)
 				end
 
 				it 'should set the parent_path on the namespace_module to match the parent_path passed to #load_module' do
-					module_manager.stub(:module_load_error_by_path => {})
 					module_manager.stub(:on_module_load)
 
 					subject.stub(:read_module_content => module_content)
@@ -339,7 +330,6 @@ describe Msf::Modules::Loader::Base do
 				end
 
 				it 'should call #read_module_content to get the module content so that #read_module_content can be overridden to change loading behavior' do
-					module_manager.stub(:module_load_error_by_path => {})
 					module_manager.stub(:on_module_load)
 
 					subject.should_receive(:read_module_content).with(parent_path, type, module_reference_name).and_return(module_content)
@@ -348,12 +338,26 @@ describe Msf::Modules::Loader::Base do
 
 				it 'should call namespace_module.module_eval_with_lexical_scope with the module_path' do
 					subject.stub(:read_module_content => malformed_module_content)
-					module_manager.stub(:module_load_error_by_path => {})
 					module_manager.stub(:on_module_load)
 
 					# if the module eval error includes the module_path then the module_path was passed along correctly
 					subject.should_receive(:elog).with(/#{Regexp.escape(module_path)}/)
 					subject.load_module(parent_path, type, module_reference_name, :reload => true).should be_false
+				end
+
+				context 'with empty module content' do
+					before(:each) do
+						subject.stub(:read_module_content).with(parent_path, type, module_reference_name).and_return('')
+					end
+
+					it 'should return false' do
+						subject.load_module(parent_path, type, module_reference_name).should be_false
+					end
+
+					it 'should not attempt to make a new namespace_module' do
+					  subject.should_not_receive(:namespace_module_transaction)
+						subject.load_module(parent_path, type, module_reference_name).should be_false
+					end
 				end
 
 				context 'with errors from namespace_module_eval_with_lexical_scope' do
@@ -362,7 +366,8 @@ describe Msf::Modules::Loader::Base do
 						@namespace_module.stub(:parent_path=)
 
 						subject.stub(:namespace_module_transaction).and_yield(@namespace_module)
-						subject.stub(:read_module_content)
+						module_content = mock('Module Content', :empty? => false)
+						subject.stub(:read_module_content).and_return(module_content)
 					end
 
 					context 'with Interrupt' do
@@ -409,16 +414,8 @@ describe Msf::Modules::Loader::Base do
 								@namespace_module.stub(:version_compatible!).with(module_path, module_reference_name)
 							end
 
-							it 'should report error class and string in module_manager.module_load_error_by_path' do
-								subject.load_module(parent_path, type, module_reference_name).should be_false
-								@module_load_error_by_path[module_path].should == "#{error_class} #{error}"
-							end
-
-							it 'should report error class, string, and backtrace in the log' do
-								subject.should_receive(:elog).with(
-										# don't use join on backtrace as that will match implementation too closely
-										"#{error_class} #{error}:\n#{backtrace[0]}\n#{backtrace[1]}"
-								)
+							it 'should record the load error using the original error' do
+								subject.should_receive(:load_error).with(module_path, error)
 								subject.load_module(parent_path, type, module_reference_name).should be_false
 							end
 						end
@@ -448,18 +445,8 @@ describe Msf::Modules::Loader::Base do
 								)
 							end
 
-							it 'should report module_path and version compatibility error string in module_manager.module_load_error_by_path' do
-								subject.load_module(parent_path, type, module_reference_name).should be_false
-
-								@module_load_error_by_path[module_path].should include(module_path)
-								@module_load_error_by_path[module_path].should include(version_compatibility_error.to_s)
-							end
-
-							it 'should report backtrace of original error in the log' do
-								formatted_backtrace = "\n#{backtrace[0]}\n#{backtrace[1]}"
-								escaped_backtrace = Regexp.escape(formatted_backtrace)
-
-								subject.should_receive(:elog).with(/#{escaped_backtrace}/)
+							it 'should record the load error using the Msf::Modules::VersionCompatibilityError' do
+								subject.should_receive(:load_error).with(module_path, version_compatibility_error)
 								subject.load_module(parent_path, type, module_reference_name).should be_false
 							end
 						end
@@ -479,7 +466,7 @@ describe Msf::Modules::Loader::Base do
 						@namespace_module.stub(:module_eval_with_lexical_scope).with(module_content, module_path)
 
 						metasploit_class = mock('Metasploit Class', :parent => @namespace_module)
-						@namespace_module.stub(:metasploit_class => metasploit_class)
+						@namespace_module.stub(:metasploit_class! => metasploit_class)
 
 						subject.stub(:namespace_module_transaction).and_yield(@namespace_module)
 
@@ -521,13 +508,8 @@ describe Msf::Modules::Loader::Base do
 							)
 						end
 
-						it 'should report error in module_manage.module_load_error_by_path' do
-							subject.load_module(parent_path, type, module_reference_name).should be_false
-							@module_load_error_by_path[module_path].should == version_compatibility_error.to_s
-						end
-
-						it 'should log error' do
-							subject.should_receive(:elog).with(version_compatibility_error.to_s)
+						it 'should record the load error' do
+						  subject.should_receive(:load_error).with(module_path, version_compatibility_error)
 							subject.load_module(parent_path, type, module_reference_name).should be_false
 						end
 
@@ -548,22 +530,25 @@ describe Msf::Modules::Loader::Base do
 						end
 
 						context 'without metasploit_class' do
+							let(:error) do
+								Msf::Modules::MetasploitClassCompatibilityError.new(
+										:module_path => module_path,
+										:module_reference_name => module_reference_name
+								)
+							end
+
 							before(:each) do
-								@namespace_module.stub(:metasploit_class).and_return(nil)
+								@namespace_module.stub(:metasploit_class!).with(module_path, module_reference_name).and_raise(error)
 							end
 
-							let(:error_message) do
-								'Missing Metasploit class constant'
-							end
-
-							it 'should log missing Metasploit class' do
-								subject.should_receive(:elog).with(error_message)
+							it 'should record load error' do
+								subject.should_receive(
+										:load_error
+								).with(
+										module_path,
+										kind_of(Msf::Modules::MetasploitClassCompatibilityError)
+								)
 								subject.load_module(parent_path, type, module_reference_name).should be_false
-							end
-
-							it 'should record error in module_manager.module_load_error_by_path' do
-								subject.load_module(parent_path, type, module_reference_name).should be_false
-								@module_load_error_by_path[module_path].should == error_message
 							end
 
 							it 'should return false' do
@@ -583,7 +568,7 @@ describe Msf::Modules::Loader::Base do
 							end
 
 							before(:each) do
-								@namespace_module.stub(:metasploit_class => metasploit_class)
+								@namespace_module.stub(:metasploit_class! => metasploit_class)
 							end
 
 							it 'should check if it is usable' do
