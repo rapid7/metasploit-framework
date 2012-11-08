@@ -34,10 +34,13 @@ class Client
 			'version'         => '1.1',
 			'agent'           => DefaultUserAgent,
 			#
+			# Advanced options
+			#
+			'sanitize_uri'           => false,   # bool
+			#
 			# Evasion options
 			#
 			'uri_encode_mode'        => 'hex-normal', # hex-all, hex-random, u-normal, u-random, u-all
-			'uri_remove_dbl_slashes' => false,   # bool
 			'uri_encode_count'       => 1,       # integer
 			'uri_full_url'           => false,   # bool
 			'pad_method_uri_count'   => 1,       # integer
@@ -67,8 +70,8 @@ class Client
 
 		# This is not used right now...
 		self.config_types = {
+			'sanitize_uri'           => 'bool',
 			'uri_encode_mode'        => ['hex-normal', 'hex-all', 'hex-random', 'u-normal', 'u-random', 'u-all'],
-			'uri_remove_dbl_slashes' => 'bool',
 			'uri_encode_count'       => 'integer',
 			'uri_full_url'           => 'bool',
 			'pad_method_uri_count'   => 'integer',
@@ -507,8 +510,8 @@ class Client
 			uri.gsub!('/', '/./')
 		end
 
-		if (self.config['uri_remove_dbl_slashes'])
-			uri = uri.gsub('//','/')
+		if (self.config['sanitize_uri'])
+			uri.gsub!(/([^:]|^)\/\//, '\1/')
 		end
 
 		if (self.config['uri_dir_fake_relative'])
@@ -544,8 +547,8 @@ class Client
 			uri.gsub!('/', '/./')
 		end
 
-		if (self.config['uri_remove_dbl_slashes'])
-			uri = uri.gsub('//','/')
+		if (self.config['sanitize_uri'])
+			uri.gsub!(/([^:]|^)\/\//, '\1/')
 		end
 
 		if (self.config['uri_dir_fake_relative'])
@@ -866,4 +869,3 @@ end
 end
 end
 end
-
