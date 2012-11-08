@@ -147,6 +147,7 @@ class Metasploit3 < Msf::Auxiliary
 					print_good("#{ip} -  #{domain.split(" ")[2].to_s}\\#{username.split(" ")[2].to_s}")
 				else
 					print_status("#{ip} - Unable to determine user information for user: #{key}")
+					#print_status("#{ip} - Dumping raw output.\r\n#{output}")
 				end
 			else
 				print_status("#{ip} - Could not determine logged in users")
