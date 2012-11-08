@@ -169,12 +169,14 @@ class Msf::ModuleSet < Hash
   end
 
   # @!attribute [rw] postpone_recalc
-  #   Whether or not recalculations should be postponed.  This is used from the context of the each_module_list
-  #   handler in order to prevent the demand # loader from calling recalc for each module if it's possible that more
-  #   than one module may be loaded.  This field is not initialized until used.
+  #   Whether or not recalculations should be postponed.  This is used
+  #   from the context of the {#each_module_list} handler in order to
+  #   prevent the demand loader from calling recalc for each module if
+  #   it's possible that more than one module may be loaded.  This field
+  #   is not initialized until used.
   #
-  #   @return [true] if recalculate should not be called immediately
-  #   @return [false] if recalculate should be called immediately
+  #   @return [true] if {#recalculate} should not be called immediately
+  #   @return [false] if {#recalculate} should be called immediately
   attr_accessor :postpone_recalculate
 
   # Dummy placeholder to recalculate aliases and other fun things.
@@ -217,9 +219,9 @@ class Msf::ModuleSet < Hash
 
       # TODO this isn't terribly helpful since the refnames will always match, that's why they are ambiguous.
       wlog("The module #{mod.refname} is ambiguous with #{self[name].refname}.")
-    else
-      self[name] = mod
     end
+
+    self[name] = mod
 
     mod
   end

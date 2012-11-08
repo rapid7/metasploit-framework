@@ -20,7 +20,7 @@ describe Msf::Modules::Loader::Base do
 
 	let(:module_content) do
 		<<-EOS
-	    class Metasploit3 < Msf::Auxiliary
+			class Metasploit3 < Msf::Auxiliary
         # fully-qualified name is Msf::GoodRanking, so this will failing if lexical scope is not captured
         Rank = GoodRanking
         end
@@ -106,10 +106,10 @@ describe Msf::Modules::Loader::Base do
 				let(:namespace_module) do
 					Object.module_eval(
 							<<-EOS
-				      module #{namespace_module_names[0]}
+							module #{namespace_module_names[0]}
                 module #{namespace_module_names[1]}
                   module #{namespace_module_names[2]}
-					          #{described_class::NAMESPACE_MODULE_CONTENT}
+										#{described_class::NAMESPACE_MODULE_CONTENT}
                   end
                 end
               end
@@ -255,17 +255,26 @@ describe Msf::Modules::Loader::Base do
 				subject.stub(:module_path => module_path)
 			end
 
-			it 'should return false if :force is false and the file has not been changed' do
-				module_manager.stub(:file_changed? => false)
-
-				subject.load_module(parent_path, type, module_reference_name, :force => false).should be_false
-			end
-
 			it 'should call file_changed? with the module_path' do
 				module_manager.should_receive(:file_changed?).with(module_path).and_return(false)
 
 				subject.load_module(parent_path, type, module_reference_name, :force => false)
 			end
+
+			context 'without file changed' do
+				before(:each) do
+					module_manager.stub(:file_changed? => false)
+				end
+
+				it 'should return false if :force is false' do
+					subject.load_module(parent_path, type, module_reference_name, :force => false).should be_false
+				end
+
+				it 'should not call #read_module_content' do
+					subject.should_not_receive(:read_module_content)
+					subject.load_module(parent_path, type, module_reference_name)
+				end
+      end
 
 			context 'with file changed' do
 				let(:module_full_name) do
@@ -355,7 +364,7 @@ describe Msf::Modules::Loader::Base do
 					end
 
 					it 'should not attempt to make a new namespace_module' do
-					  subject.should_not_receive(:namespace_module_transaction)
+						subject.should_not_receive(:namespace_module_transaction)
 						subject.load_module(parent_path, type, module_reference_name).should be_false
 					end
 				end
@@ -384,7 +393,7 @@ describe Msf::Modules::Loader::Base do
 						let(:backtrace) do
 							[
 								'Backtrace Line 1',
-							  'Backtrace Line 2'
+								'Backtrace Line 2'
 							]
 						end
 
@@ -424,9 +433,9 @@ describe Msf::Modules::Loader::Base do
 							let(:version_compatibility_error) do
 								Msf::Modules::VersionCompatibilityError.new(
 										:module_path => module_path,
-								    :module_reference_name => module_reference_name,
-								    :minimum_api_version => infinity,
-								    :minimum_core_version => infinity
+										:module_reference_name => module_reference_name,
+										:minimum_api_version => infinity,
+										:minimum_core_version => infinity
 								)
 							end
 
@@ -509,7 +518,7 @@ describe Msf::Modules::Loader::Base do
 						end
 
 						it 'should record the load error' do
-						  subject.should_receive(:load_error).with(module_path, version_compatibility_error)
+							subject.should_receive(:load_error).with(module_path, version_compatibility_error)
 							subject.load_module(parent_path, type, module_reference_name).should be_false
 						end
 
@@ -621,87 +630,6 @@ describe Msf::Modules::Loader::Base do
 									subject.load_module(parent_path, type, module_reference_name).should be_true
 								end
 
-								context 'with module_reference_name already in module_manager' do
-									let(:framework) do
-										framework = mock('Framework', :datastore => {})
-										framework.stub_chain(:events, :on_module_load)
-
-										framework
-									end
-
-									let(:metasploit_class) do
-										@original_namespace_module::Metasploit3
-									end
-
-									let(:module_manager) do
-									  Msf::ModuleManager.new(framework)
-									end
-
-									before(:each) do
-										# remove the stub from before(:each) in context 'with version compatibility'
-										module_manager.unstub(:on_module_load)
-
-										# remove the stubs from before(:each) in context 'with file changed'
-										module_manager.unstub(:delete)
-										module_manager.unstub(:module_set)
-									end
-
-									it 'should not cause an ambiguous module_reference_name in the module_manager' do
-										module_manager[module_reference_name] = metasploit_class
-
-										subject.load_module(parent_path, type, module_reference_name).should be_true
-										module_manager.send(:ambiguous_module_reference_name_set).should be_empty
-									end
-
-									it 'should not cause an ambiguous module_reference_name in the type module_set' do
-										module_set = module_manager.module_set(type)
-										module_set[module_reference_name] = metasploit_class
-
-										subject.load_module(parent_path, type, module_reference_name).should be_true
-										module_set.send(:ambiguous_module_reference_name_set).should be_empty
-									end
-
-									context 'without file changed' do
-										before(:each) do
-											module_manager.stub(:file_changed => false)
-										end
-
-										context 'with :force => true' do
-											it 'should not cause an ambiguous module_reference_name in the module_manager' do
-												module_manager[module_reference_name] = metasploit_class
-
-												subject.load_module(parent_path, type, module_reference_name, :force => true).should be_true
-												module_manager.send(:ambiguous_module_reference_name_set).should be_empty
-											end
-
-											it 'should not cause an ambiguous module_reference_name in the type module_set' do
-												module_set = module_manager.module_set(type)
-												module_set[module_reference_name] = metasploit_class
-
-												subject.load_module(parent_path, type, module_reference_name, :force => true).should be_true
-												module_set.send(:ambiguous_module_reference_name_set).should be_empty
-											end
-										end
-
-										context 'with :reload => true' do
-											it 'should not cause an ambiguous module_reference_name in the module_manager' do
-												module_manager[module_reference_name] = metasploit_class
-
-												subject.load_module(parent_path, type, module_reference_name, :reload => true).should be_true
-												module_manager.send(:ambiguous_module_reference_name_set).should be_empty
-											end
-
-											it 'should not cause an ambiguous module_reference_name in the type module_set' do
-												module_set = module_manager.module_set(type)
-												module_set[module_reference_name] = metasploit_class
-
-												subject.load_module(parent_path, type, module_reference_name, :reload => true).should be_true
-												module_set.send(:ambiguous_module_reference_name_set).should be_empty
-											end
-										end
-									end
-								end
-
 								it 'should call module_manager.on_module_load' do
 									module_manager.should_receive(:on_module_load)
 									subject.load_module(parent_path, type, module_reference_name).should be_true
@@ -728,9 +656,9 @@ describe Msf::Modules::Loader::Base do
 										count_by_type.has_key?(type).should be_false
 										subject.load_module(
 												parent_path,
-										    type,
-										    module_reference_name,
-										    :count_by_type => count_by_type
+												type,
+												module_reference_name,
+												:count_by_type => count_by_type
 										).should be_true
 										count_by_type[type].should == 1
 									end
@@ -743,9 +671,9 @@ describe Msf::Modules::Loader::Base do
 
 										subject.load_module(
 												parent_path,
-										    type,
-										    module_reference_name,
-										    :count_by_type => count_by_type
+												type,
+												module_reference_name,
+												:count_by_type => count_by_type
 										).should be_true
 
 										incremented_count = original_count + 1
@@ -763,8 +691,8 @@ describe Msf::Modules::Loader::Base do
 			let(:namespace_module_names) do
 				[
 						'Msf',
-			      'Modules',
-			      relative_name
+						'Modules',
+						relative_name
 				]
 			end
 
@@ -794,8 +722,8 @@ describe Msf::Modules::Loader::Base do
 						"end\n" \
 						"end\n" \
 						"end",
-				    anything,
-				    anything
+						anything,
+						anything
 				)
 
 				namespace_module = mock('Namespace Module')
@@ -810,8 +738,8 @@ describe Msf::Modules::Loader::Base do
 						:module_eval
 				).with(
 						anything,
-				    described_class_pathname.to_s,
-				    anything
+						described_class_pathname.to_s,
+						anything
 				)
 
 				namespace_module = mock('Namespace Module')
@@ -826,8 +754,8 @@ describe Msf::Modules::Loader::Base do
 						:module_eval
 				).with(
 						anything,
-				    anything,
-				    described_class::NAMESPACE_MODULE_LINE - namespace_module_names.length
+						anything,
+						described_class::NAMESPACE_MODULE_LINE - namespace_module_names.length
 				)
 
 				namespace_module = mock('Namespace Module')
@@ -861,7 +789,7 @@ describe Msf::Modules::Loader::Base do
 				'Mod0'
 			end
 
-		  before(:each) do
+			before(:each) do
 				# copy to local variable so it is accessible in instance_eval
 				relative_name = self.relative_name
 
@@ -870,7 +798,7 @@ describe Msf::Modules::Loader::Base do
 						remove_const relative_name
 					end
 				end
-		  end
+			end
 
 			it 'should return nil if the module is not defined' do
 				Msf::Modules.const_defined?(relative_name).should be_false
@@ -1019,7 +947,7 @@ describe Msf::Modules::Loader::Base do
 				end
 
 				it 'should remove the pre-existing namespace module' do
-				  Msf::Modules.should_receive(:remove_const).with(relative_name)
+					Msf::Modules.should_receive(:remove_const).with(relative_name)
 
 					subject.send(:namespace_module_transaction, module_full_name) do |namespace_module|
 						true
@@ -1129,13 +1057,13 @@ describe Msf::Modules::Loader::Base do
 				end
 
         it 'should create a new namespace module' do
-	        expect {
-		        Msf::Modules.const_get(relative_name)
-	        }.to raise_error(NameError)
+					expect {
+						Msf::Modules.const_get(relative_name)
+					}.to raise_error(NameError)
 
-	        subject.send(:namespace_module_transaction, module_full_name) do |namespace_module|
-		        Msf::Modules.const_get(relative_name).should == namespace_module
-	        end
+					subject.send(:namespace_module_transaction, module_full_name) do |namespace_module|
+						Msf::Modules.const_get(relative_name).should == namespace_module
+					end
         end
 
 				context 'with an Exception from the block' do
@@ -1200,7 +1128,7 @@ describe Msf::Modules::Loader::Base do
 						subject.send(:namespace_module_transaction, module_full_name) do |namespace_module|
 							Msf::Modules.const_defined?(relative_name).should be_true
 
-						  created_namespace_module = namespace_module
+							created_namespace_module = namespace_module
 
 							true
 						end
@@ -1344,7 +1272,7 @@ describe Msf::Modules::Loader::Base do
 
 						subject.send(:restore_namespace_module, parent_module, relative_name, @original_namespace_module)
 
-					  parent_module.const_defined?(relative_name).should be_true
+						parent_module.const_defined?(relative_name).should be_true
 						parent_module.const_get(relative_name).should == @original_namespace_module
 					end
 				end
@@ -1353,10 +1281,10 @@ describe Msf::Modules::Loader::Base do
 
 		context '#typed_path' do
       it 'should delegate to the class method' do
-	      type = Msf::MODULE_EXPLOIT
+				type = Msf::MODULE_EXPLOIT
 
-	      described_class.should_receive(:typed_path).with(type, module_reference_name)
-	      subject.send(:typed_path, type, module_reference_name)
+				described_class.should_receive(:typed_path).with(type, module_reference_name)
+				subject.send(:typed_path, type, module_reference_name)
       end
 		end
 
