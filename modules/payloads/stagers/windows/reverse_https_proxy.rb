@@ -64,7 +64,7 @@ module Metasploit3
 		register_options(
 			[
 				OptAddress.new('PROXYHOST', [true, "The IP address of the proxy to use" ,"127.0.0.1"]),
-				OptInt.new('PROXYPORT', [ false, "The Proxy port to connect to", 80 ])
+				OptInt.new('PROXYPORT', [ false, "The Proxy port to connect to", 8080 ])
 			], self.class)
 
 	end
@@ -88,7 +88,7 @@ module Metasploit3
 		
 		# patch proxy info	
 		proxyhost = datastore['PROXYHOST'].to_s
-		proxyport = datastore['PROXYPORT'].to_s || "80"
+		proxyport = datastore['PROXYPORT'].to_s || "8080"
 		proxyinfo = proxyhost + ":" + proxyport
 		if proxyport == "80"
 			proxyinfo = proxyhost

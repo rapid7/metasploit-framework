@@ -294,14 +294,14 @@ protected
 					if datastore['PROXYHOST']
 						if datastore['PROXYHOST'].to_s != ""
 							proxyhost = datastore['PROXYHOST'].to_s
-							proxyport = datastore['PROXYPORT'].to_s || "80"
+							proxyport = datastore['PROXYPORT'].to_s || "8080"
 							proxyinfo = proxyhost + ":" + proxyport
 							if proxyport == "80"
 								proxyinfo = proxyhost
 							end
 							proxyinfo << "\x00"
 							blob[i, proxyinfo.length] = proxyinfo
-							print_status("Activated custom proxy, patch at offset #{i}...")
+							print_status("Activated custom proxy #{proxyinfo}, patch at offset #{i}...")
 						end
 					end
 				end
