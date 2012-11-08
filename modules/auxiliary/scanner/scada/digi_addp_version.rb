@@ -16,7 +16,7 @@ require 'rex/proto/addp'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Report
-	include Msf::Auxiliary::Scanner
+	include Msf::Auxiliary::UDPScanner
 
 	def initialize
 		super(
@@ -34,106 +34,40 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 		[
-		Opt::CHOST,
-			OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
-			Opt::RPORT(2362)
+			Opt::RPORT(2362),
+			OptString.new('ADDP_PASSWORD', [true, 'The ADDP protocol password for each target', 'dbps'])
 		], self.class)
 	end
 
-	def run_batch_size
-		datastore['BATCHSIZE'].to_i
-	end
-
-	def rport
-		datastore['RPORT'].to_i
-	end
-
-	def run_batch(batch)
-
-		print_status("Sending Digi ADDP probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
-
+	def scanner_prescan(batch)
+		print_status("Finding ADDP nodes within #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
 		@results = {}
-		begin
-			udp_sock = nil
-			idx = 0
+	end
 
-			# Create an unbound UDP socket if no CHOST is specified, otherwise
-			# create a UDP socket bound to CHOST (in order to avail of pivoting)
-			udp_sock = Rex::Socket::Udp.create( { 'LocalHost' => datastore['CHOST'] || nil, 'Context' => {'Msf' => framework, 'MsfExploit' => self} })
-			add_socket(udp_sock)
-
-			batch.each do |ip|
-				begin
-
-					# Try all currently-known magic probe values
-					Rex::Proto::ADDP.request_config_all.each do |pkt|
-						begin
-							udp_sock.sendto(pkt, ip, rport, 0)
-						rescue ::Errno::ENOBUFS
-							print_status("Socket buffers are full, waiting for them to flush...")
-							while (r = udp_sock.recvfrom(65535, 0.1) and r[1])
-								parse_reply(r)
-							end
-							select(nil, nil, nil, 0.25)
-							retry
-						end					
-					end
-
-				rescue ::Interrupt
-					raise $!
-				rescue ::Rex::ConnectionError
-				end
-
-				if (idx % 30 == 0)
-					while (r = udp_sock.recvfrom(65535, 0.1) and r[1])
-						parse_reply(r)
-					end
-				end
-
-				idx += 1
-			end
-
-			while (r = udp_sock.recvfrom(65535, 3) and r[1])
-				parse_reply(r)
-			end
-
-		rescue ::Interrupt
-			raise $!
-		rescue ::Exception => e
-			print_error("Unknown error: #{e.class} #{e} #{e.backtrace}")
+	def scan_host(ip)
+		Rex::Proto::ADDP.request_config_all.each do |pkt|
+			scanner_send(pkt, ip, datastore['RPORT'])
 		end
 	end
 
+	def scanner_process(data, shost, sport)
+		res = Rex::Proto::ADDP.decode_reply(data)
+		return unless res[:magic] and res[:mac]
+		res[:banner] = Rex::Proto::ADDP.reply_to_string( res )
 
-	def parse_reply(pkt)
-		# Ignore "empty" packets
-		return if not pkt[1]
-
-		addr = pkt[1]
-		if(addr =~ /^::ffff:/)
-			addr = addr.sub(/^::ffff:/, '')
-		end
-
-		data = pkt[0]
-
-		@results[addr] ||= {}
-		@results[addr] = Rex::Proto::ADDP.decode_reply(data)
-
-		return unless @results[addr][:magic] and @results[addr][:mac]
-
-		inf = Rex::Proto::ADDP.reply_to_string(@results[addr])
-
-		if inside_workspace_boundary?(addr)
+		unless @results[shost]
+			print_status("#{shost}:#{datastore['RPORT']} ADDP #{res[:banner]}")
 			report_service(
-				:host  => addr,
-				:mac   => @results[addr][:mac],
-				:port  => pkt[2],
+				:host  => shost,
+				:mac   => res[:mac],
+				:port  => datastore['RPORT'],
 				:proto => 'udp',
 				:name  => 'addp',
-				:info  => inf
+				:info  => res[:banner]
 			)
 		end
-		print_status("#{addr}:#{pkt[2]} #{inf}")
+
+		@results[shost] = res
 	end
 
 
