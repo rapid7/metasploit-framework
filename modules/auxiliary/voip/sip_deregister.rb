@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 			connect_udp
 
 			print_status("Sending deregistration packet to: #{conn_string}")
-			print_status("Using SIP proxy #{sphost}:#{spport}") if sphost
+			print_status("Using SIP proxy #{sphost}:#{spport}") if route
 
 			req =  "REGISTER sip:#{dom} SIP/2.0" + "\r\n"
 			req << route if route 
@@ -91,8 +91,12 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def parse_reply(pkt)
+		# parse response to check if the ext was successfully de-registered
 
-		return if not pkt[1]
+		if not pkt[1]
+			print_error("No response received from remote host")
+			return
+		end
 
 		if(pkt[1] =~ /^::ffff:/)
 			pkt[1] = pkt[1].sub(/^::ffff:/, '')
