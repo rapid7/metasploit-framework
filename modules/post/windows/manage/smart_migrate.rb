@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows Manage Process Migration',
+			'Name'          => 'Windows Manage Smart Process Migration',
 			'Description'   => %q{ This module will migrate a Meterpreter session.
 				It will first attempt to migrate to winlogon.exe . If that fails it will
 				then look at all of the explorer.exe processes. If there is one that exists
