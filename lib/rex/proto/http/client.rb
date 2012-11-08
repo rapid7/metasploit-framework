@@ -34,6 +34,10 @@ class Client
 			'version'         => '1.1',
 			'agent'           => DefaultUserAgent,
 			#
+			# Advanced options
+			#
+			'sanitize_uri'           => false,   # bool
+			#
 			# Evasion options
 			#
 			'uri_encode_mode'        => 'hex-normal', # hex-all, hex-random, u-normal, u-random, u-all
@@ -66,6 +70,7 @@ class Client
 
 		# This is not used right now...
 		self.config_types = {
+			'sanitize_uri'           => 'bool',
 			'uri_encode_mode'        => ['hex-normal', 'hex-all', 'hex-random', 'u-normal', 'u-random', 'u-all'],
 			'uri_encode_count'       => 'integer',
 			'uri_full_url'           => 'bool',
@@ -505,6 +510,10 @@ class Client
 			uri.gsub!('/', '/./')
 		end
 
+		if (self.config['sanitize_uri'])
+			uri.gsub!(/([^:]|^)\/\//, '\1/')
+		end
+
 		if (self.config['uri_dir_fake_relative'])
 			buf = ""
 			uri.split('/').each do |part|
@@ -536,6 +545,10 @@ class Client
 
 		if (self.config['uri_dir_self_reference'])
 			uri.gsub!('/', '/./')
+		end
+
+		if (self.config['sanitize_uri'])
+			uri.gsub!(/([^:]|^)\/\//, '\1/')
 		end
 
 		if (self.config['uri_dir_fake_relative'])
@@ -856,4 +869,3 @@ end
 end
 end
 end
-
