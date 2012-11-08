@@ -20,15 +20,17 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'			=> 'SIP Invite Spoof',
-			'Version'		=> '$Revision$',
-			'Description'	=> 'This module will create a fake SIP invite request making the targeted device ring and display fake caller id information.',
-			'Author'		=>
+			'Name'           => 'SIP Invite Spoof',
+			'Description'    => %q{
+				This module will create a fake SIP invite request making the targeted device ring
+				and display fake caller id information.
+			},
+			'Author'         =>
 				[
 					'David Maynor <dave[at]erratasec.com>', # original module
 					'ChrisJohnRiley' # modifications
 				],
-			'License'		=>  MSF_LICENSE
+			'License'        =>  MSF_LICENSE
 		)
 
 		deregister_options('Proxies','SSL','RHOST')
