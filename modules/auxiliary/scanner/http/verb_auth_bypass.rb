@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			res = send_request_raw({
-				'uri'          => datastore['PATH'],
+				'uri'          => normalize_uri(datastore['PATH']),
 				'method'       => 'GET'
 			}, 10)
 
@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 
 					verbs.each do |tv|
 						resauth = send_request_raw({
-							'uri'          => datastore['PATH'],
+							'uri'          => normalize_uri(datastore['PATH']),
 							'method'       => tv
 						}, 10)
 

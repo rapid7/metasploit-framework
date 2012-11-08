@@ -141,7 +141,7 @@ class Metasploit3 < Msf::Auxiliary
 		#SEND NORMAL REQUEST
 			begin
 				normalres = send_request_cgi({
-					'uri'  		=> datastore['PATH'],
+					'uri'  		=> normalize_uri(datastore['PATH']),
 					'vars_get' 	=> gvars,
 					'method'   	=> http_method,
 					'ctype'		=> 'application/x-www-form-urlencoded',
@@ -189,7 +189,7 @@ class Metasploit3 < Msf::Auxiliary
 
 					begin
 						trueres = send_request_cgi({
-							'uri'  		=>  datastore['PATH'],
+							'uri'  		=>  normalize_uri(datastore['PATH']),
 							'vars_get' 	=>  testgvars,
 							'method'   	=>  http_method,
 							'ctype'		=> 'application/x-www-form-urlencoded',
@@ -206,7 +206,7 @@ class Metasploit3 < Msf::Auxiliary
 
 					begin
 						falseres = send_request_cgi({
-							'uri'  		=>  datastore['PATH'],
+							'uri'  		=>  normalize_uri(datastore['PATH']),
 							'vars_get' 	=>  testgvars,
 							'method'   	=>  http_method,
 							'ctype'		=> 'application/x-www-form-urlencoded',
@@ -236,7 +236,7 @@ class Metasploit3 < Msf::Auxiliary
 							:port	=> rport,
 							:vhost  => vhost,
 							:ssl    => ssl,
-							:path	=> datastore['PATH'],
+							:path	=> normalize_uri(datastore['PATH']),
 							:method => http_method,
 							:pname  => key,
 							:proof  => "blind sql inj.",
@@ -272,7 +272,7 @@ class Metasploit3 < Msf::Auxiliary
 
 					begin
 						trueres = send_request_cgi({
-							'uri'  		=>  datastore['PATH'],
+							'uri'  		=>  normalize_uri(datastore['PATH']),
 							'vars_get' 	=>  gvars,
 							'method'   	=>  http_method,
 							'ctype'		=> 'application/x-www-form-urlencoded',
@@ -297,7 +297,7 @@ class Metasploit3 < Msf::Auxiliary
 
 					begin
 						falseres = send_request_cgi({
-							'uri'  		=>  datastore['PATH'],
+							'uri'  		=>  normalize_uri(datastore['PATH']),
 							'vars_get' 	=>  gvars,
 							'method'   	=>  http_method,
 							'ctype'		=> 'application/x-www-form-urlencoded',

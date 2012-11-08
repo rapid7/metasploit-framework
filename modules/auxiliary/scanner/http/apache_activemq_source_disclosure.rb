@@ -47,8 +47,9 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 
 		print_status("#{rhost}:#{rport} - Sending request...")
+		uri = normalize_uri(target_uri.path)
 		res = send_request_cgi({
-			'uri'          => "/#{target_uri.to_s}",
+			'uri'          => uri,
 			'method'       => 'GET',
 		})
 

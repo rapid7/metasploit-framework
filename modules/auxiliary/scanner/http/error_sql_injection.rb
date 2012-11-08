@@ -103,7 +103,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		if http_method == 'POST'
 			reqinfo = {
-				'uri'  		=> datastore['PATH'],
+				'uri'  		=> normalize_uri(datastore['PATH']),
 				'query' 	=> datastore['QUERY'],
 				'data' 		=> datastore['DATA'],
 				'method'   	=> http_method,
@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Auxiliary
 			}
 		else
 			reqinfo = {
-				'uri'  		=> datastore['PATH'],
+				'uri'  		=> normalize_uri(datastore['PATH']),
 				'query' 	=> datastore['QUERY'],
 				'method'   	=> http_method,
 				'ctype'		=> 'application/x-www-form-urlencoded',
@@ -206,7 +206,7 @@ class Metasploit3 < Msf::Auxiliary
 
 					if http_method == 'POST'
 						reqinfo = {
-							'uri'  		=> datastore['PATH'],
+							'uri'  		=> normalize_uri(datastore['PATH']),
 							'query'		=> datastore['QUERY'],
 							'data' 		=> fstr,
 							'method'   	=> http_method,
@@ -215,7 +215,7 @@ class Metasploit3 < Msf::Auxiliary
 						}
 					else
 						reqinfo = {
-							'uri'  		=> datastore['PATH'],
+							'uri'  		=> normalize_uri(datastore['PATH']),
 							'query' 	=> fstr,
 							'method'   	=> http_method,
 							'ctype'		=> 'application/x-www-form-urlencoded',

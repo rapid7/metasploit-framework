@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
 			query.merge!(test_param)
 
 			resp = send_request_cgi({
-				'uri'       => datastore['PATH'],
+				'uri'       => normalize_uri(datastore['PATH']),
 				'vars_get'  => datastore['METHOD'] == 'POST' ? queryparse(datastore['QUERY'].to_s) : query,
 				'method'    => datastore['METHOD'],
 				'ctype'     => 'application/x-www-form-urlencoded',

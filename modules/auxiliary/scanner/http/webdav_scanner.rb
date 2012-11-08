@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			res = send_request_raw({
-				'uri'          => datastore['PATH'],
+				'uri'          => normalize_uri(datastore['PATH']),
 				'method'       => 'OPTIONS'
 			}, 10)
 

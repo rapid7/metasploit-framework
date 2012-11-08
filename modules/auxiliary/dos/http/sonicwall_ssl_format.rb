@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 		fmt = datastore['FORMAT'] + "XX"  # XX is 2 bytes used to mark end of memory garbage for regexp
 		begin
 			res = send_request_raw({
-				'uri' => datastore['URI'] + fmt,
+				'uri' => normalize_uri(datastore['URI']) + fmt,
 			})
 
 			if res and res.code == 200
