@@ -16,16 +16,6 @@ As modules for these vulnerabilities get written and committed, new ones will ta
 
 Client exploits generally run as an "evil service" that a remote client will connect to. They nearly always require some kind of user interaction to trigger, such a viewing a web page, downloading a file, or otherwise connecting to the service controlled by the attacker.
 
-### [CVE-2008-5499](http://www.cvedetails.com/cve/CVE-2008-5499)
-
-**Description:** Unspecified vulnerability in Adobe Flash Player for Linux 10.0.12.36, and 9.0.151.0 and earlier, allows remote attackers to execute arbitrary code via a crafted SWF file.
-
-**Affected Software:** Adobe Flash Player for Linux, version 10.0.12.36 and 9.0.151.0 and prior (give http://kb2.adobe.com/cps/142/tn_14266.html a try)
-
-**Module Type:** exploits/linux/browser
-
-**Proof of concept:** http://www.securityfocus.com/bid/32896/exploit
-
 ### [CVE-2009-0388](http://www.cvedetails.com/cve/CVE-2009-0388)
 
 **Description:** Multiple signed integer bugs in both UltraVNC and TightVNC clients can allow malicious VNC servers to execute arbitrary code on a victim's client system.
