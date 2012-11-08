@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("Using SIP proxy #{sphost}:#{spport}") if route
 
 			req =  "REGISTER sip:#{dom} SIP/2.0" + "\r\n"
-			req << route if route 
+			req << route if route
 			req << "Via: SIP/2.0/UDP #{src}" + "\r\n"
 			req << "Max-Forwards: 70" +  "\r\n"
 			req << "To: \"#{ext}\"<sip:#{conn_string}>" + "\r\n"
@@ -83,8 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 		rescue Errno::EACCES
-		ensure 
-			udp_sock.close if udp_sock
+		ensure
 			disconnect_udp
 		end
 
