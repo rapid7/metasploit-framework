@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
 			connect_udp
 
 			print_status("Sending Fake SIP Invite to: #{conn_string}")
-			print_status("Using SIP proxy #{sphost}:#{spport}")
+			print_status("Using SIP proxy #{sphost}:#{spport}") if route
 
 			req =  "INVITE sip:#{conn_string} SIP/2.0" + "\r\n"
 			# add Route: header to req if SIP_PROXY is set
