@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'services_post_testing',
+				'Name'          => 'Test Post::Windows::Services',
 				'Description'   => %q{ This module will test windows services methods within a shell},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'kernelsmith', 'egypt' ],
@@ -150,14 +150,14 @@ class Metasploit3 < Msf::Post
 					"to #{datastore['MODE']}")
 		results = service_change_startup(datastore['QSERVICE'],datastore['MODE'])
 		print_status("RESULTS: #{results.class} #{results.pretty_inspect}")
-		print_status("Current status of this service " + 
+		print_status("Current status of this service " +
 					"#{service_query_ex(datastore['QSERVICE']).pretty_inspect}") if blab
 
 		print_status()
 		print_status("TESTING service_start on servicename: #{datastore['SSERVICE']}")
 		results = service_start(datastore['SSERVICE'])
 		print_status("RESULTS: #{results.class} #{results.pretty_inspect}")
-		print_status("Current status of this service " + 
+		print_status("Current status of this service " +
 					"#{service_query_ex(datastore['SSERVICE']).pretty_inspect}") if blab
 		print_status("Sleeping to give the service a chance to start")
 		select(nil, nil, nil, 2) # give the service time to start, reduces false negatives
@@ -166,14 +166,14 @@ class Metasploit3 < Msf::Post
 		print_status("TESTING service_stop on servicename: #{datastore['SSERVICE']}")
 		results = service_stop(datastore['SSERVICE'])
 		print_status("RESULTS: #{results.class} #{results.pretty_inspect}")
-		print_status("Current status of this service " + 
+		print_status("Current status of this service " +
 					"#{service_query_ex(datastore['SSERVICE']).pretty_inspect}") if blab
 
 		print_status()
 		print_status("TESTING service_delete on servicename: #{datastore['NSERVICE']}")
 		results = service_delete(datastore['NSERVICE'])
 		print_status("RESULTS: #{results.class} #{results.pretty_inspect}")
-		print_status("Current status of this service " + 
+		print_status("Current status of this service " +
 					"#{service_query_ex(datastore['QSERVICE']).pretty_inspect}") if blab
 		print_status()
 		print_status("Testing complete.")
