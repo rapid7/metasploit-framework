@@ -78,6 +78,9 @@ module Priv
 		return uac
 	end
 
+	#
+	# Return true if the session has extended capabilities (ie meterpreter)
+	#
 	def session_has_ext
 		begin
 			return !!(session.railgun and session.sys.config)

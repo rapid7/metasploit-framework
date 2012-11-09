@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module will log into the Web API of VMWare and try to enumerate
 				all the login sessions.
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
+			'Author'         => ['theLightCosine'],
 			'License'        => MSF_LICENSE
 		)
 
@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_error "The Session is no longer Authenticated"
 			else
 				output = ''
-				vim_sessions.each do |vsession| 
+				vim_sessions.each do |vsession|
 					tmp_line = "Name: #{vsession['fullName']} \n\t"
 					is_active = vim_session_is_active(vsession['key'],vsession['userName'])
 					if is_active == :error

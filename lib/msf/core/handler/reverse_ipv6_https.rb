@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'msf/core/handler/reverse_http'
 require 'msf/core/handler/reverse_https'
 
 module Msf
@@ -27,7 +28,7 @@ module ReverseIPv6Https
 	def self.general_handler_type
 		"tunnel"
 	end
-	
+
 end
 end
 end

@@ -102,17 +102,11 @@ public class ConsoleClient implements Runnable, ActionListener {
 	/* called when the associated tab is closed */
 	public void actionPerformed(ActionEvent ev) {
 		if (destroyCommand != null) {
-			new Thread(new Runnable() {
-				public void run() {
-					try {
-						connection.execute(destroyCommand, new Object[] { session }); 
-					}
-					catch (Exception ex) {
-						ex.printStackTrace();
-					}
-				}
-			}).start();
+			((RpcAsync)connection).execute_async(destroyCommand, new Object[] { session });
 		}
+
+		/* we don't need to keep reading from this console */
+		kill();
 	}
 
 	protected void finalize() {

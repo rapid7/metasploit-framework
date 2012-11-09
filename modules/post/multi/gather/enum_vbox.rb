@@ -28,9 +28,9 @@ class Metasploit3 < Msf::Post
 								for the current user, thereforce, this module needs to be invoked from a user context.
 								},
 			'License'        => MSF_LICENSE,
-			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
+			'Author'         => ['theLightCosine'],
 			'Version'        => '$Revision$',
-			'Platform'       => ['unix', 'bsd', 'linux', 'osx', 'windows'],
+			'Platform'       => ['unix', 'bsd', 'linux', 'osx', 'win'],
 			'SessionTypes'   => ['shell', 'meterpreter' ]
 		))
 	end

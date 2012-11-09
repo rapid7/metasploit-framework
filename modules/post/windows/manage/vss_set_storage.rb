@@ -32,9 +32,9 @@ class Metasploit3 < Msf::Post
 				Works on win2k3 and later.
 				},
 			'License'              => MSF_LICENSE,
-			'Platform'             => ['windows'],
+			'Platform'             => ['win'],
 			'SessionTypes'         => ['meterpreter'],
-			'Author'               => ['thelightcosine <thelightcosine[at]metasploit.com>'],
+			'Author'               => ['theLightCosine'],
 			'References'    => [
 				[ 'URL', 'http://pauldotcom.com/2011/11/safely-dumping-hashes-from-liv.html' ]
 			]

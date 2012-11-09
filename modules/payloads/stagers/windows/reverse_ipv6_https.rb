@@ -9,10 +9,8 @@
 #   http://metasploit.com/
 ##
 
-
 require 'msf/core'
 require 'msf/core/handler/reverse_ipv6_https'
-
 
 module Metasploit3
 
@@ -65,7 +63,7 @@ module Metasploit3
 				}
 			))
 	end
-	
+
 	#
 	# Do not transmit the stage over the connection.  We handle this via HTTPS
 	#

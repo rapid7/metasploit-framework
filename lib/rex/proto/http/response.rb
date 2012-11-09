@@ -53,6 +53,9 @@ class Response < Packet
 		# default chunk sizes (if chunked is used)
 		self.chunk_min_size = 1
 		self.chunk_max_size = 10
+
+		# 100 continue counter
+		self.count_100 = 0
 	end
 
 	#
@@ -65,6 +68,19 @@ class Response < Packet
 			self.proto   = md[1]
 		else
 			raise RuntimeError, "Invalid response command string", caller
+		end
+
+		check_100()
+	end
+
+	#
+	# Allow 100 Continues to be ignored by the caller
+	#
+	def check_100
+		# If this was a 100 continue with no data, reset
+		if self.code == 100 and (self.body_bytes_left == -1 or self.body_bytes_left == 0) and self.count_100 < 5
+			self.reset_except_queue
+			self.count_100 += 1
 		end
 	end
 
@@ -84,6 +100,7 @@ class Response < Packet
 	attr_accessor :code
 	attr_accessor :message
 	attr_accessor :proto
+	attr_accessor :count_100
 end
 
 end

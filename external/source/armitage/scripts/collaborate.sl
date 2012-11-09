@@ -11,10 +11,16 @@ sub createEventLogTab {
 	this('$console $client');
 
 	if ($client is $null && $console is $null) {
-        	$console = [new ActivityConsole: $preferences];
-		$client = [new ConsoleClient: $console, $mclient, "armitage.poll", "armitage.push", $null, "", $null];
+		$console = [new ActivityConsole: $preferences];
 		setupEventStyle($console);
 		logCheck($console, "all", "events");
+
+		# define a menu for the eventlog
+		[$console setPopupMenu: {
+			installMenu($2, "eventlog", @());
+		}];
+
+		$client = [$cortana getEventLog: $console];
 		[$client setEcho: $null];
 		[$console updatePrompt: "> "];
 	}
@@ -22,7 +28,7 @@ sub createEventLogTab {
 		[$console updateProperties: $preferences];
 	}
 
-        [$frame addTab: "Event Log", $console, $null];
+	[$frame addTab: "Event Log", $console, $null];
 }
 
 sub verify_server {
@@ -61,6 +67,7 @@ sub c_client {
 		local('$client');
 		$client = newInstance(^RpcConnection, lambda({
 			writeObject($handle, @_);
+			[[$handle getOutputStream] flush];
 			return readObject($handle);
 		}, \$handle));
 		return [new RpcAsync: $client];

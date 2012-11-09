@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
 					'Carlos Perez <carlos_perez[at]darkoperator.com>' # original meterpreter script
 				],
 			'Version'        => '$Revision$',
-			'Platform'       => ['unix', 'bsd', 'linux', 'osx', 'windows'],
+			'Platform'       => ['unix', 'bsd', 'linux', 'osx', 'win'],
 			'SessionTypes'   => ['shell', 'meterpreter' ]
 		))
 		register_options(
@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Post
 
 
 	def check_pidgin(purpledir)
-        path = ""
+		path = ""
 		print_status("Checking for Pidgin profile in: #{purpledir}")
 		session.fs.dir.foreach(purpledir) do |dir|
 			if dir =~ /\.purple/

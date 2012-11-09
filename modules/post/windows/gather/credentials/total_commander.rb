@@ -11,6 +11,8 @@ require 'msf/core'
 require 'rex'
 require 'rex/parser/ini'
 require 'msf/core/post/windows/user_profiles'
+require 'msf/core/post/windows/registry'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 	include Msf::Post::Windows::Registry
@@ -26,9 +28,9 @@ class Metasploit3 < Msf::Post
 					It finds saved FTP connections in the wcx_ftp.ini file.
 				},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
+				'Author'        => [ 'theLightCosine'],
 				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
+				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
 	end

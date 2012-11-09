@@ -57,13 +57,13 @@ class Metasploit4 < Msf::Auxiliary
 				caissuer = (/CA Issuers - URI:(.*?),/i).match(cert.extensions.to_s)
 
 				if caissuer.to_s.empty?
-					print_good("Certificate contains no CA Issuers extension... possible self signed certificate")
+					print_good("#{ip}:#{rport} Certificate contains no CA Issuers extension... possible self signed certificate")
 				else
 					print_status("#{ip}:#{rport} " +caissuer.to_s[0..-2])
 				end
 
 				if cert.issuer.to_s == cert.subject.to_s
-					print_good("Certificate Subject and Issuer match... possible self signed certificate")
+					print_good("#{ip}:#{rport} Certificate Subject and Issuer match... possible self signed certificate")
 				end
 
 				alg = cert.signature_algorithm

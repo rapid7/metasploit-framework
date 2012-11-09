@@ -12,6 +12,7 @@
 
 require 'msf/core'
 require 'rex'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
@@ -27,9 +28,9 @@ class Metasploit3 < Msf::Post
 					WINDOWS (all Windows hosts), or UNIX (all Unix hosts).
 					},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Rob Fuller <mubix[at]hak5.org>'],
+				'Author'        => [ 'mubix' ],
 				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
+				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 		))
 

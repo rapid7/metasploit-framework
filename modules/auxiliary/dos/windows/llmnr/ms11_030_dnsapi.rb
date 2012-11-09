@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'OSVDB', '71780' ],
 					[ 'MSB', 'MS11-030' ]
 				],
-			'DisclosureDate' => 'April 12 2011')
+			'DisclosureDate' => 'Apr 12 2011')
 
 		register_options(
 			[

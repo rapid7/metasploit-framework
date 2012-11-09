@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 				Device server. Allows for forensic tools to be executed on the remote disk directly.},
 			'License'       => MSF_LICENSE,
 			'Version'       => '$Revision$',
-			'Platform'      => ['windows'],
+			'Platform'      => ['win'],
 			'SessionTypes'  => ['meterpreter'],
 			'Author'        => ['Wesley McGrew <wesley[at]mcgrewsecurity.com>']
 		))

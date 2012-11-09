@@ -44,24 +44,7 @@ sub call {
 
 # recurses through Java/Sleep data structures and makes sure everything is a Sleep data structure.
 sub convertAll {
-	if ($1 is $null) {
-		return $1;
-	}
-	else if ($1 isa ^Map) {
-		return convertAll(copy([SleepUtils getHashWrapper: $1]));
-	}
-	else if ($1 isa ^Collection) {
-		return convertAll(copy([SleepUtils getArrayWrapper: $1]));
-	}
-	else if (-isarray $1 || -ishash $1) {
-		local('$key $value');
-
-		foreach $key => $value ($1) {
-			$value = convertAll($value);
-		}
-	}
-
-	return $1;
+	return [cortana.core.FilterManager convertAll: $1];
 }
 
 # cleans the prompt text from an MSF RPC call
@@ -77,7 +60,8 @@ sub setupConsoleStyle {
 		$style = join("\n", readAll($handle));
 		closef($handle);
 	}
-	[$1 setStyle: $style];
+	
+	[$1 setStyle: filter_data("console_style", $style)[0]];
 }
 
 sub setupEventStyle {
@@ -88,7 +72,8 @@ sub setupEventStyle {
 		$style = join("\n", readAll($handle));
 		closef($handle);
 	}
-	[$1 setStyle: $style];
+
+	[$1 setStyle: filter_data("event_style", $style)[0]];
 }
 
 sub createDisplayTab {
@@ -115,7 +100,7 @@ sub createConsolePanel {
 	setupConsoleStyle($console);
 
 	$result = call($client, "console.create");
-	$thread = [new ConsoleClient: $console, $client, "console.read", "console.write", "console.destroy", $result['id'], $1];
+	$thread = [new ConsoleClient: $console, $aclient, "console.read", "console.write", "console.destroy", $result['id'], $1];
 	[$thread setMetasploitConsole];
 
 	[$thread setSessionListener: {
@@ -167,7 +152,10 @@ sub createConsoleTab {
 
 sub setg {
 	%MSF_GLOBAL[$1] = $2;
-	call_async($client, "core.setg", $1, $2);
+	local('$c');
+	$c = createConsole($client);
+	call_async($client, "console.write", $c, "setg $1 $2 $+ \n");
+	call_async($client, "console.release", $c);
 }
 
 sub createDefaultHandler {
@@ -183,6 +171,11 @@ sub createDefaultHandler {
 
 sub setupHandlers {
 	find_job("Exploit: multi/handler", {
+		if ($cortana !is $null) {
+			warn("Starting Cortana on $MY_ADDRESS");
+			[$cortana start: $MY_ADDRESS];
+		}
+
 		if ($1 == -1) {
 			createDefaultHandler();
 		}
@@ -239,8 +232,8 @@ sub getBindAddress {
 	local('$queue');
 	if ('LHOST' in %MSF_GLOBAL) {
 		$MY_ADDRESS = %MSF_GLOBAL['LHOST'];
-		setupHandlers();
 		warn("Used the incumbent: $MY_ADDRESS");
+		setupHandlers();
 	}
 	else {
 		$queue = [new ConsoleQueue: $client];
@@ -249,7 +242,7 @@ sub getBindAddress {
 			local('$address');
 			$address = convertAll([$queue tabComplete: "setg LHOST "]);
 			$address = split('\\s+', $address[0])[2];
-		
+	
 			if ($address eq "127.0.0.1") {
 				[SwingUtilities invokeLater: {
 					local('$address');
@@ -266,8 +259,8 @@ sub getBindAddress {
 			else {
 				warn("Used the tab method: $address");
 				setg("LHOST", $address);
-				setupHandlers();
 				$MY_ADDRESS = $address;
+				setupHandlers();
 			}
 		}, \$queue)];
 		[$queue start];
@@ -408,16 +401,23 @@ sub connectDialog {
 	[$dialog add: center($button, $help), [BorderLayout SOUTH]];
 
 	[$button addActionListener: lambda({
-		[$dialog setVisible: 0];
-		connectToMetasploit([$host getText], [$port getText], [$user getText], [$pass getText]);
+		local('$h $p $u $s @o');
 
-		if ([$host getText] eq "127.0.0.1") {
+		# clean up the user options...
+		@o = @([$host getText], [$port getText], [$user getText], [$pass getText]);
+		@o = map({ return ["$1" trim]; }, @o);
+		($h, $p, $u, $s) = @o;
+
+		[$dialog setVisible: 0];
+		connectToMetasploit($h, $p, $u, $s);
+
+		if ($h eq "127.0.0.1" || $h eq "localhost") {
 			try {
-				closef(connect("127.0.0.1", [$port getText], 1000));
+				closef(connect("127.0.0.1", $p, 1000));
 			}
 			catch $ex {
 				if (!askYesNo("A Metasploit RPC server is not running or\nnot accepting connections yet. Would you\nlike me to start Metasploit's RPC server\nfor you?", "Start Metasploit?")) {
-					startMetasploit([$user getText], [$pass getText], [$port getText]);
+					startMetasploit($u, $s, $p);
 				}
 			}
 		}
@@ -453,6 +453,10 @@ sub elog {
 }
 
 sub module_execute {
+	return invoke(&_module_execute, filter_data_array("user_launch", @_));
+}
+
+sub _module_execute {
 	if ([$preferences getProperty: "armitage.show_all_commands.boolean", "true"] eq "true") {
 		local('$host');
 
@@ -527,11 +531,11 @@ sub listDownloads {
 				%types[$1] = $type;
 			}
 
-                        # figure out the path...
-                        $path = strrep(getFileParent($1), $root, '');
-                        if (strlen($path) >= 2) {
-                                $path = substr($path, 1);
-                        }
+			# figure out the path...
+			$path = strrep(getFileParent($1), $root, '');
+			if (strlen($path) >= 2) {
+				$path = substr($path, 1);
+			}
 
 			# return a description of the file.
 			return %(

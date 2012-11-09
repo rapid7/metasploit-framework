@@ -207,7 +207,10 @@ sub pass_the_hash {
 			}
 			elog("psexec: " . [$user getText] . ":" . [$pass getText] . " @ " . join(", ", $hosts));
 		}
-		[$dialog setVisible: 0];
+
+		if (!isShift($1)) {
+			[$dialog setVisible: 0];
+		}
 	}, \$dialog, \$user, \$domain, \$pass, \$reverse, \$hosts, \$brute, \$model)];
 
 	$b2 = [new JPanel];
@@ -274,7 +277,9 @@ sub show_login_dialog {
 			elog("login $srvc with " . [$user getText] . ":" . [$pass getText] . " @ " . %options["RHOSTS"]);
 			module_execute("auxiliary", "scanner/ $+ $srvc $+ / $+ $srvc $+ _login", %options);
 		}
-		[$dialog setVisible: 0];
+		if (!isShift($1)) {
+			[$dialog setVisible: 0];
+		}
 	}, \$dialog, \$user, \$pass, \$hosts, \$srvc, \$port, \$brute, \$model)];
 
 	$b2 = [new JPanel];
@@ -292,19 +297,24 @@ sub show_login_dialog {
 }
 
 sub createUserPassFile {
-	local('$handle $user $pass $type $row $2 $name');
+	local('$handle $user $pass $type $row $2 $name %entries');
 	$name = "userpass" . rand(10000) . ".txt";
 
-	$handle = openf("> $+ $name");
+	# loop through our entries and store them
+	%entries = ohash();
 	foreach $row ($1) {
 		($user, $pass, $type) = values($row, @("user", "pass", "ptype"));
 		if ($type eq "password" || $type eq $2) {
-			println($handle, "$user $pass");
+			%entries["$user $pass"] = "$user $pass";
 		}
 		else {
-			println($handle, "$user");
+			%entries[$user] = $user;
 		}
 	}	
+
+	# print out unique entry values
+	$handle = openf("> $+ $name");
+	printAll($handle, values(%entries));
 	closef($handle);
 
 	if ($client !is $mclient) {

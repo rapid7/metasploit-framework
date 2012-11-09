@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>', 'egypt' ],
 			'Version'       => '$Revision$',
-			'Platform'      => [ 'linux', 'windows' ],
+			'Platform'      => [ 'linux', 'win' ],
 			'SessionTypes'  => [ 'shell', 'meterpreter' ]
 		))
 		@ltype = 'generic.environment'
