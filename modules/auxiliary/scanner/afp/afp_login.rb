@@ -8,9 +8,6 @@
 require 'msf/core'
 require 'openssl'
 
-Throw a big ol' exception right here
-
-
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Report
