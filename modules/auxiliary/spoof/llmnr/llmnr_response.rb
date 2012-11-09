@@ -56,6 +56,7 @@ attr_accessor :sock, :thread
 		self.thread = nil
 		self.sock = nil
 	end
+
 	def dispatch_request(packet, addr)
 		rhost = addr[0]
 		src_port = addr[1]
@@ -90,6 +91,7 @@ attr_accessor :sock, :thread
 			print_status("type:	      #{llmnr_type.unpack('n')}")
 			print_status("class:	      #{llmnr_class.unpack('n')}")
 		end
+
 		if (llmnr_decodedname =~ /#{datastore['REGEX']}/i)
 			#Header
 			response =  llmnr_transid
@@ -122,12 +124,15 @@ attr_accessor :sock, :thread
 				p.recalc
 
 				capture_sendto(p, rhost,true)
-				vprint_good("Reply for #{llmnr_decodedname} sent to #{rhost} with spoofed IP #{datastore['SPOOFIP']}")
+				if should_print_reply?(llmnr_decodedname)
+					print_good("#{Time.now.utc} : Reply for #{llmnr_decodedname} sent to #{rhost} with spoofed IP #{datastore['SPOOFIP']}")
+				end
 			close_pcap
 		else
 			vprint_status("Packet received from #{rhost} with name #{llmnr_decodedname} did not match REGEX \"#{datastore['REGEX']}\"")
 		end
 	end
+
 	def monitor_socket
 		while true
 			rds = [self.sock]
@@ -143,6 +148,22 @@ attr_accessor :sock, :thread
 			end
 		end
 	end
+
+
+	# Don't spam with success, just throttle to every 10 seconds
+	# per host
+	def should_print_reply?(host)
+		@notified_times ||= {}
+		now = Time.now.utc
+		@notified_times[host] ||= now
+		last_notified = now - @notified_times[host]
+		if last_notified == 0 or last_notified > 10
+			@notified_times[host] = now
+		else
+			false
+		end
+	end
+
 	def run
 		check_pcaprub_loaded()
 		::Socket.do_not_reverse_lookup = true
@@ -168,7 +189,9 @@ attr_accessor :sock, :thread
 		while thread.alive?
 			select(nil, nil, nil, 0.25)
 		end
+
 		self.thread.kill
 		self.sock.close rescue nil
 	end
+
 end
