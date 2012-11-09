@@ -56,7 +56,7 @@ require 'cgi'
 					|e| e.gsub(".#{datastore['DOMAIN']}", "").chomp
 				}
 			else
-				 valstr = [
+				valstr = [
 					"admin",
 					"services",
 					"webmail",
@@ -108,7 +108,7 @@ require 'cgi'
 				print_error("[#{ip}] Unable to identify error response")
 				return
 			end
-			
+
 			vprint_status("Running with #{valstr.length} sudomains")
 			valstr.each do |astr|
 				thost = astr+"."+datastore['DOMAIN']
