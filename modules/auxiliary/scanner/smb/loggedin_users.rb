@@ -53,15 +53,9 @@ class Metasploit3 < Msf::Auxiliary
 		text = "\\WINDOWS\\Temp\\#{Rex::Text.rand_text_alpha(16)}.txt"
 		smbshare = datastore['SMBSHARE']
 
-		#Try and Connect to the target
-		begin
-			connect()
-		rescue
-			return
-		end
-
 		#Try and authenticate with given credentials
 		begin
+			connect()
 			smb_login()
 		rescue StandardError => autherror
 			print_error("#{ip} - #{autherror}")
@@ -77,6 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 			check_hku_entry(key, ip, smbshare, cmd, text, bat)
 		end
 		cleanup_after(smbshare, ip, cmd, text, bat)
+		disconnect()
 	end
 
 
