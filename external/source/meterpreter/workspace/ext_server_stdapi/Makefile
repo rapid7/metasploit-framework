@@ -32,6 +32,8 @@ objects = \
 	server/general.o \
 	server/net/config/interface.o \
 	server/net/config/route.o \
+	server/net/config/arp.o \
+	server/net/config/netstat.o \
 	server/net/socket/tcp.o \
 	server/net/socket/tcp_server.o \
 	server/net/socket/udp.o \

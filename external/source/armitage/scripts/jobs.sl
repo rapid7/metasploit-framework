@@ -113,11 +113,13 @@ sub generatePayload {
 		$options["Format"] = $format;
 		$data = call($client, "module.execute", "payload", $module, $options);
 
-		$handle = openf("> $+ $file");
-		writeb($handle, $data["payload"]);
-		closef($handle);
+		if ($data !is $null) {
+			$handle = openf("> $+ $file");
+			writeb($handle, $data["payload"]);
+			closef($handle);
 
-		showError("Saved $file");
+			showError("Saved $file");
+		}
 	}, $args => @_, \$file));
 }
 
@@ -241,12 +243,15 @@ sub _launch_dialog {
 
 	$model = [new GenericTableModel: @("Option", "Value"), "Option", 128];
 	[$model setCellEditable: 1];
-	foreach $key => $value ($options) {	
+	foreach $key => $value ($options) {
 		if ($key eq "THREADS") {
 			$default = "24";
 		}
 		else if ($key eq "LHOST") {
 			$default = $MY_ADDRESS;
+		}
+		else if ($key eq "LPORT" && $value['default'] eq '4444') {
+			$default = randomPort();
 		}
 		else if ($key eq "RHOSTS" && size($5) > 0) {
 			$default = join(", ", $5);
@@ -351,6 +356,19 @@ sub _launch_dialog {
 		if (!isShift($1)) {
 			[$dialog setVisible: 0];
 		}
+	
+		# fix some module options...
+		if ($command eq "windows/manage/persistence") {
+			if ('REXE' in $options) {
+				$options['ACTION'] = 'REXE';
+			}
+			else {
+				$options['ACTION'] = 'TEMPLATE';
+			}
+		}
+
+		# it's go time buddy... time to filter some stuff...
+		($type, $command, $options) = filter_data("user_launch", $type, $command, $options);
 
 		if ($visible) {
 			if ('SESSION' in $options) {
@@ -528,7 +546,7 @@ sub createJobsTab {
         [$sorter setComparator: 3, { return $1 <=> $2; }];
 
 	$jobsf = lambda(&updateJobsTable, \$model);
-	[$jobsf];
+	thread($jobsf);
 
 	[$panel add: [new JScrollPane: $table], [BorderLayout CENTER]];
 	

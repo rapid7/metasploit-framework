@@ -27,7 +27,6 @@ class Metasploit3 < Msf::Auxiliary
 			Code execution may be possible however this module is only a DoS.
 			},
 			'Author' 	=> [ 'patrick' ],
-			'Arch'		=> [ ARCH_X86 ],
 			'License'       => MSF_LICENSE,
 			'Version'       => '$Revision$',
 			'References'    =>

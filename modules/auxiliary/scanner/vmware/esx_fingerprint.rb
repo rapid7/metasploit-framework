@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module accesses the web API interfaces for VMware ESX/ESXi servers
 				and attempts to identify version information for that server.
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
+			'Author'         => ['theLightCosine'],
 			'License'        => MSF_LICENSE
 		)
 
@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
-				soap_data = 
+			soap_data =
 			%Q|<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 			<env:Body>
 			<RetrieveServiceContent xmlns="urn:vim25">

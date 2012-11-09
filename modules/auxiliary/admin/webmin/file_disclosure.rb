@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Webmin file disclosure',
+			'Name'           => 'Webmin File Disclosure',
 			'Description'    => %q{
 				A vulnerability has been reported in Webmin and Usermin, which can be
 				exploited by malicious people to disclose potentially sensitive information.

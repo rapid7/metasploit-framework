@@ -496,14 +496,18 @@ class Console::CommandDispatcher::Core
 			# Framework instance.  If we don't, or if no such module exists,
 			# fall back to using the scripting interface.
 			if (msf_loaded? and mod = client.framework.modules.create(script_name))
-				omod = mod
-				mod = client.framework.modules.reload_module(mod)
-				if (not mod)
-					print_error("Failed to reload module: #{client.framework.modules.failed[omod.file_path]}")
+				original_mod = mod
+				reloaded_mod = client.framework.modules.reload_module(original_mod)
+
+				unless reloaded_mod
+          error = client.framework.modules.module_load_error_by_path[original_mod.file_path]
+					print_error("Failed to reload module: #{error}")
+
 					return
-				end
+        end
+
 				opts = (args + [ "SESSION=#{client.sid}" ]).join(',')
-				mod.run_simple(
+				reloaded_mod.run_simple(
 					#'RunAsJob' => true,
 					'LocalInput'  => shell.input,
 					'LocalOutput' => shell.output,
@@ -857,8 +861,8 @@ protected
 
 	def tab_complete_postmods
 		tabs = client.framework.modules.post.map { |name,klass|
-			mod = klass.new
-			if mod.session_compatible?(client)
+			mod = client.framework.modules.post.create(name)
+			if mod and mod.session_compatible?(client)
 				mod.fullname.dup
 			else
 				nil

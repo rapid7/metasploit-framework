@@ -12,6 +12,11 @@ module CliParse
 
 	#Msf::Post::Windows::CliParse::ParseError
 	class ParseError < ArgumentError
+
+		#
+		# Create a new ParseError object. Expects a method name, an error 
+		# message, an error code, and the command that caused the error.
+		#
 		def initialize(method, einfo='', ecode=nil, clicmd=nil)
 			@method = method
 			@info = einfo
@@ -20,6 +25,9 @@ module CliParse
 			@clicmd = clicmd || "Unknown shell command"
 		end
 
+		#
+		# Convert a ParseError to a string.
+		#
 		def to_s
 			"#{@method}: Operation failed: #{@info}:#{@code} while running #{@clicmd}"
 		end

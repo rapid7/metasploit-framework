@@ -69,8 +69,10 @@ sub createServiceBrowser {
 		thread(lambda({
 			local('$services');
 			$services = call($mclient, "db.services");
-			_refreshServices($services);
-			updateServiceModel(\$hosts, \$model);
+			if ('services' in $services) {
+				_refreshServices($services['services']);
+				updateServiceModel(\$hosts, \$model);
+			}
 		}, \$hosts, \$model));
 	}, \$model, $hosts => $1)];
 

@@ -15,13 +15,14 @@ class Def_netapi32
 		dll.add_function('NetUserDel', 'DWORD',[
 			["PWCHAR","servername","in"],
 			["PWCHAR","username","in"],
-			])
+		])
 
 		dll.add_function('NetGetJoinInformation', 'DWORD',[
-			["PBLOB","lpServer","in"],
-			["PDWORD","lpNameBugger","out"],
+			["PWCHAR","lpServer","in"],
+			["PDWORD","lpNameBuffer","out"],
 			["PDWORD","BufferType","out"]
-			])
+		])
+
 		dll.add_function('NetServerEnum', 'DWORD',[
 			["PWCHAR","servername","in"],
 			["DWORD","level","in"],

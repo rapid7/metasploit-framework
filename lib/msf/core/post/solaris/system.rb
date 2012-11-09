@@ -9,7 +9,6 @@ module Solaris
 module System
 	include ::Msf::Post::Common
 	include ::Msf::Post::File
-
 	include ::Msf::Post::Unix
 
 	#

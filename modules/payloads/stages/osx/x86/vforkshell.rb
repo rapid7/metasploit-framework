@@ -19,7 +19,7 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'OSX (vfork) Command Shell',
+			'Name'          => 'OS X (vfork) Command Shell',
 			'Version'       => '$Revision$',
 			'Description'   => 'Call vfork() if necessary and spawn a command shell (staged)',
 			'Author'        => 'ddz',

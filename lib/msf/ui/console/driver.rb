@@ -210,8 +210,9 @@ class Driver < Msf::Ui::Driver
 
 						print_error("Failed to connect to the database: #{framework.db.error} #{db.inspect} #{framework.db.error.backtrace}")
 					else
-						self.framework.modules.refresh_cache
-						if self.framework.modules.cache.keys.length == 0
+						self.framework.modules.refresh_cache_from_database
+
+						if self.framework.modules.cache_empty?
 							print_status("The initial module cache will be built in the background, this can take 2-5 minutes...")
 						end
 					end
@@ -228,7 +229,7 @@ class Driver < Msf::Ui::Driver
 			# Rebuild the module cache in a background thread
 			self.framework.threads.spawn("ModuleCacheRebuild", true) do
 				self.framework.cache_thread = Thread.current
-				self.framework.modules.rebuild_cache
+				self.framework.modules.refresh_cache_from_module_files
 				self.framework.cache_initialized = true
 				self.framework.cache_thread = nil
 			end
@@ -248,6 +249,13 @@ class Driver < Msf::Ui::Driver
 		else
 			# If the opt is nil here, we load ~/.msf3/msfconsole.rc
 			load_resource(opts['Resource'])
+		end
+
+		# Process any additional startup commands
+		if opts['XCommands'] and opts['XCommands'].kind_of? Array
+			opts['XCommands'].each { |c|
+				run_single(c)
+			}
 		end
 	end
 
@@ -517,12 +525,14 @@ class Driver < Msf::Ui::Driver
 	#
 	def on_startup(opts = {})
 		# Check for modules that failed to load
-		if (framework.modules.failed.length > 0)
+		if framework.modules.module_load_error_by_path.length > 0
 			print_error("WARNING! The following modules could not be loaded!")
-			framework.modules.failed.each_pair do |file, err|
-				print_error("\t#{file}: #{err}")
+
+			framework.modules.module_load_error_by_path.each do |path, error|
+				print_error("\t#{path}: #{error}")
 			end
-		end
+    end
+
 		framework.events.on_ui_start(Msf::Framework::Revision)
 
 		run_single("banner") unless opts['DisableBanner']

@@ -15,6 +15,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/registry'
 require 'msf/core/post/windows/user_profiles'
+require 'msf/core/auxiliary/report'
 
 
 class Metasploit3 < Msf::Post
@@ -30,10 +31,12 @@ class Metasploit3 < Msf::Post
 					This module extract DES encrypted passwords in known VNC locations
 				},
 				'License'       => MSF_LICENSE,
-				'Author'        => ['Kurt Grutzmacher <grutz[at]jingojango.net>',
-									'Rob Fuller <mubix[at]hak5.org>'],
+				'Author'        => [
+					'Kurt Grutzmacher <grutz[at]jingojango.net>',
+					'mubix'
+				],
 				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
+				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
 

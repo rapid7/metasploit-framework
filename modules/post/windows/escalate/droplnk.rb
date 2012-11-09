@@ -12,15 +12,15 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Escalate SMB Icon LNK dropper',
+				'Name'          => 'Windows Escalate SMB Icon LNK Dropper',
 				'Description'   => %q{
 					This module drops a shortcut (LNK file) that has a ICON reference
 					existing on the specified remote host, causing SMB and WebDAV
 					connections to be initiated from any user that views the shortcut.
 				},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Rob Fuller <mubix[at]hak5.org>'],
-				'Platform'      => [ 'windows' ],
+				'Author'        => [ 'mubix' ],
+				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
 		register_options(

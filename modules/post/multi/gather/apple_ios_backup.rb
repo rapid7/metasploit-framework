@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Post
 					'bannedit' # Based on bannedit's pidgin_cred module structure
 				],
 			'Version'        => '$Revision$',
-			'Platform'       => ['windows', 'osx'],
+			'Platform'       => ['win', 'osx'],
 			'SessionTypes'   => ['meterpreter', 'shell']
 		))
 		register_options(

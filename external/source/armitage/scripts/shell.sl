@@ -86,6 +86,9 @@ global('%shells $ashell $achannel %maxq %wait');
 			m_cmd($sid, "read $channel");
 		}, \$command, \$channel, \$pid, $sid => $1));
 	}
+	else if ($0 eq "end") {
+		showError($2);
+	}
 };
 
 %handlers["write"] = {
@@ -270,19 +273,15 @@ sub createShellSessionTab {
 	thread(lambda({
 		local('%r $thread');
 
-		if ($client !is $mclient) {
-			%r = call($mclient, "armitage.lock", $sid);
-			if (%r["error"]) {
-				showError(%r["error"]);
-				return;
-			}
+		%r = call($mclient, "armitage.lock", $sid, "tab is already open");
+		if (%r["error"]) {
+			showError(%r["error"]);
+			return;
 		}
 
 		$thread = [new ConsoleClient: $console, $client, "session.shell_read", "session.shell_write", $null, $sid, 0];
 		[$frame addTab: "Shell $sid", $console, lambda({ 
-			if ($client !is $mclient) {
-				call_async($mclient, "armitage.unlock", $sid);
-			}
+			call_async($mclient, "armitage.unlock", $sid);
 			[$thread kill];
 		}, \$sid, \$thread), "Shell " . sessionToHost($sid)];
 	}, \$sid, \$console));

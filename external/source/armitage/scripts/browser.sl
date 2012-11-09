@@ -387,6 +387,7 @@ sub buildFileBrowserMenu {
 		}
 		showError("Downloading:\n\n" . join("\n", $file) . "\n\nUse View -> Downloads to see files");
 		elog("downloaded " . join(", ", $file) . " from " . [$text getText] . " on " . sessionToHost($sid));
+		fire_event_async("user_download", $sid, $file);
 	}, $file => $2, \$sid, \%types, \$setcwd, \$text));
 
 	item($1, "Execute", 'E', lambda({ 
