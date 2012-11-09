@@ -74,9 +74,6 @@ class Metasploit3 < Msf::Auxiliary
 		
 		if execute_command(smbshare, ip, cmd, text, bat)
 			get_output(smbshare, ip, text)
-		else
-			cleanup_after(smbshare, ip, cmd, text, bat)
-			return
 		end
 		cleanup_after(smbshare, ip, cmd, text, bat)
 	end
@@ -91,10 +88,10 @@ class Metasploit3 < Msf::Auxiliary
 			simple.connect(smbshare)
 			print_status("Executing your command on host: #{ip}")
 			psexec(smbshare, execute)
-			return True
+			return true
 		rescue StandardError => execerror
 			print_error("#{ip} - Unable to execute specified command: #{execerror}")
-			return False	
+			return false	
 		end
 	end
 
