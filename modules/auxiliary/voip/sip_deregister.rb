@@ -43,6 +43,15 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
+	def setup
+		# throw argument error if extension or domain contain spaces
+		if datastore['EXTENSION'].match(/\s/)
+			raise ArgumentError, "EXTENSION cannot contain spaces"
+		elsif datastore['DOMAIN'].match(/\s/)
+			raise ArgumentError, "DOMAIN cannot contain spaces"
+		end
+	end
+
 	def run_host(ip)
 
 		begin
@@ -77,10 +86,15 @@ class Metasploit3 < Msf::Auxiliary
 			req << "Content-Length: 0" + "\r\n\r\n"
 
 			udp_sock.put(req)
+			response = false
 
 			while (r = udp_sock.recvfrom(65535, 3) and r[1])
-				parse_reply(r)
+				response = parse_reply(r)
 			end
+
+			# print error information if no response has been received
+			# may be expected if spoofing the SRCADDR
+			print_error("No response received from remote host") if not response
 
 		rescue Errno::EACCES
 		ensure
@@ -91,11 +105,6 @@ class Metasploit3 < Msf::Auxiliary
 
 	def parse_reply(pkt)
 		# parse response to check if the ext was successfully de-registered
-
-		if not pkt[1]
-			print_error("No response received from remote host")
-			return
-		end
 
 		if(pkt[1] =~ /^::ffff:/)
 			pkt[1] = pkt[1].sub(/^::ffff:/, '')
@@ -118,6 +127,8 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			print_error("#{testn} : Undefined error code #{resp.to_i}")
 		end
+
+		return true # set response to true
 	end
 
 end
