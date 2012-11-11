@@ -134,7 +134,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if(reps < 30)
-			print_status("WARNING: This server did not reply to all of our requests")
+			print_warning("WARNING: This server did not reply to all of our requests")
 		end
 
 		if(random)

@@ -12,6 +12,7 @@
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/common'
+require 'msf/core/auxiliary/report'
 
 
 class Metasploit3 < Msf::Post
@@ -26,7 +27,7 @@ class Metasploit3 < Msf::Post
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'tebo[at]attackresearch.com'],
 				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
+				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter']
 			))
 

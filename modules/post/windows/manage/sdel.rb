@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Post
 				could stay resident within the stream descriptor.},
 			'License'       => BSD_LICENSE,
 			'Author'        => [ 'Borja Merino <bmerinofe[at]gmail.com>'],
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 

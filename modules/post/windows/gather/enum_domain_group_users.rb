@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Post
 						'Stephen Haywood <haywoodsb[at]gmail.com>'
 					],
 				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
+				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
 		register_options(

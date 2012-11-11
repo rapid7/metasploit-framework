@@ -126,6 +126,8 @@ class Metasploit4 < Msf::Auxiliary
 					}
 			}, 45)
 
+			return if not res
+
 			if (res.code != 500 and res.code != 200)
 				return
 			else

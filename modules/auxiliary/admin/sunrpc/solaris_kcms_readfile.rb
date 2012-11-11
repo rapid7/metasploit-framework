@@ -45,7 +45,6 @@ class Metasploit3 < Msf::Auxiliary
 					['URL', 'http://sunsolve.sun.com/search/document.do?assetkey=1-77-1000898.1-1']
 				],
 			# Tested OK against sol8.tor 20100624 -jjd
-			'Privileged'     => true,
 			'DisclosureDate' => 'Jan 22 2003')
 
 		register_options(
@@ -136,8 +135,8 @@ class Metasploit3 < Msf::Auxiliary
 		sunrpc_destroy
 
 	rescue ::Rex::Proto::SunRPC::RPCTimeout
-		print_status 'Warning: ' + $!
-		print_status 'Exploit may or may not have succeeded.'
+		print_warning 'Warning: ' + $!
+		print_warning 'Exploit may or may not have succeeded.'
 	end
 
 

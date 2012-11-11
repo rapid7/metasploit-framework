@@ -365,7 +365,7 @@ class Client
 	#
 	# Read a response from the server
 	#
-	def read_response(t = -1)
+	def read_response(t = -1, opts = {})
 
 		resp = Response.new
 		resp.max_data = config['read_max_data']
@@ -392,7 +392,7 @@ class Client
 
 				##########################################################################
 				# XXX: NOTE: BUG: get_once currently (as of r10042) rescues "Exception"
-				# As such, the following rescue block will ever be reached.  -jjd
+				# As such, the following rescue block will never be reached.  -jjd
 				##########################################################################
 
 				# Handle unexpected disconnects
@@ -434,14 +434,20 @@ class Client
 		return resp if not resp
 
 		# As a last minute hack, we check to see if we're dealing with a 100 Continue here.
-		if resp.proto == '1.1' and resp.code == 100
-			# If so, our real response becaome the body, so we re-parse it.
-			body = resp.body
-			resp = Response.new
-			resp.max_data = config['read_max_data']
-			rv = resp.parse(body)
-			# XXX: At some point, this may benefit from processing post-completion code
-			# as seen above.
+		# Most of the time this is handled by the parser via check_100()
+		if resp.proto == '1.1' and resp.code == 100 and not opts[:skip_100]
+			# Read the real response from the body if we found one
+			# If so, our real response became the body, so we re-parse it.
+			if resp.body.to_s =~ /^HTTP/
+				body = resp.body
+				resp = Response.new
+				resp.max_data = config['read_max_data']
+				rv = resp.parse(body)
+			# We found a 100 Continue but didn't read the real reply yet
+			# Otherwise reread the reply, but don't try this hack again
+			else
+				resp = read_response(t, :skip_100 => true)
+			end
 		end
 
 		resp

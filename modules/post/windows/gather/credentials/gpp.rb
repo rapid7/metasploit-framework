@@ -10,6 +10,7 @@ require 'rex'
 require 'rexml/document'
 require 'msf/core/post/windows/registry'
 require 'msf/core/post/windows/priv'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 	include Msf::Auxiliary::Report
@@ -33,7 +34,7 @@ class Metasploit3 < Msf::Post
 				'Loic Jaquemet <loic.jaquemet+msf[at]gmail.com>',
 				'scriptmonkey <scriptmonkey[at]owobble.co.uk>',
 				'theLightCosine',
-				'Rob Fuller <mubix[at]hak5.org>' #domain/dc enumeration code
+				'mubix' #domain/dc enumeration code
 				],
 			'References'    =>
 				[
@@ -42,7 +43,7 @@ class Metasploit3 < Msf::Post
 					['URL', 'http://rewtdance.blogspot.com/2012/06/exploiting-windows-2008-group-policy.html'],
 					['URL', 'http://blogs.technet.com/grouppolicy/archive/2009/04/22/passwords-in-group-policy-preferences-updated.aspx']
 				],
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 

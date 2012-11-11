@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 					This module can be used to enumerate information
 				about an IP addresses from Project HoneyPot's HTTP Block List.
 			},
-			'Author' 		=> [ 'Rob Fuller <mubix[at]rapid7.com>' ],
+			'Author' 		=> [ 'mubix' ],
 			'License'		=> MSF_LICENSE,
 			'Version'		=> '$Revision$',
 			'References' 	=>
