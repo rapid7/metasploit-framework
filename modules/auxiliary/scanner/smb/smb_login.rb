@@ -192,10 +192,11 @@ class Metasploit3 < Msf::Auxiliary
 
 		# Match original output message
 		if domain.empty? || domain == "."
-			output_message = "#{rhost}:#{rport} - %s (#{smb_peer_os}) #{user} : #{pass} [#{status}]"
+			domain_part = ""
 		else
-			output_message = "#{rhost}:#{rport}|#{domain} - %s (#{smb_peer_os}) #{user} : #{pass} [#{status}]"
+			domain_part = " \\\\#{domain} "
 		end
+		output_message = "#{rhost}:#{rport}#{domain_part}- %s (#{smb_peer_os}) #{user} : #{pass} [#{status}]"
 
 		case status
 		when 'STATUS_SUCCESS'
