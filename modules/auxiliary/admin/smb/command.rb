@@ -66,6 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 				o = get_output(smbshare, ip, text)
 			end
 			cleanup_after(smbshare, ip, text, bat)
+			disconnect
 		end
 	end
 
