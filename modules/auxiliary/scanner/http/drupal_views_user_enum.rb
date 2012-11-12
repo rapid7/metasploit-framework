@@ -24,7 +24,8 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         =>
 				[
 					'Justin Klein Keane', #Original Discovery
-					'Robin Francois <rof[at]navixia.com>'
+					'Robin Francois <rof[at]navixia.com>',
+					'Brandon McCann "zeknox" <bmccann [at] accuvant.com>'
 				],
 			'License'        => MSF_LICENSE,
 			'References'     =>
@@ -106,11 +107,15 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Done. " + final_results.length.to_s + " usernames found...")
 
 		final_results.each do |user|
-			report_auth_info(
-				:host => Rex::Socket.getaddress(datastore['RHOST']),
-				:port => datastore['RPORT'],
-				:user => user,
-				:type => "drupal_user"
+			print_good("Found User: #{user}")
+
+			store_loot(
+				type,
+				'text/plain',
+				Rex::Socket.getaddress(datastore['RHOST']),
+				user,
+				'drupal_user.txt',
+				user
 			)
 		end
 	end
