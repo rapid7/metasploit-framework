@@ -190,6 +190,7 @@ class Metasploit3 < Msf::Auxiliary
 		user = user.to_s.gsub(/<BLANK>/i,"")
 		status = check_login_status(domain, user, pass)
 
+		# Match original output message
 		if domain.empty? || domain == "."
 			output_message = "#{rhost}:#{rport} - %s (#{smb_peer_os}) #{user} : #{pass} [#{status}]"
 		else
