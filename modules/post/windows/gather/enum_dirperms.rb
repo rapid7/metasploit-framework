@@ -100,6 +100,7 @@ class Metasploit3 < Msf::Post
 				realpath = dpath + '\\' + d
 				if session.fs.file.stat(realpath).directory?
 					perm = check_dir(realpath, token)
+					next if perm.nil?
 					if !filter or perm.include? filter
 						print_status(perm + "\t" + realpath)
 					end
