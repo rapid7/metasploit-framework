@@ -194,9 +194,9 @@ class Metasploit3 < Msf::Auxiliary
 		if domain.empty? || domain == "."
 			domain_part = ""
 		else
-			domain_part = " \\\\#{domain} "
+			domain_part = " \\\\#{domain}"
 		end
-		output_message = "#{rhost}:#{rport}#{domain_part}- %s (#{smb_peer_os}) #{user} : #{pass} [#{status}]"
+		output_message = "#{rhost}:#{rport}#{domain_part} - %s (#{smb_peer_os}) #{user} : #{pass} [#{status}]"
 
 		case status
 		when 'STATUS_SUCCESS'
