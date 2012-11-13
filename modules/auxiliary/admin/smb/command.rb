@@ -246,7 +246,7 @@ class Metasploit3 < Msf::Auxiliary
 		vprint_status("Removing the service...")
 		stubdata =
 			svc_handle +
-			NDR.wstring("C:\\WINDOWS\\Temp\\msfcommandoutput.txt")
+			NDR.wstring("%WINDIR%\\Temp\\msfcommandoutput.txt")
 		begin
 			response = dcerpc.call(0x02, stubdata)
 			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
@@ -268,10 +268,10 @@ class Metasploit3 < Msf::Auxiliary
 			#This is not really useful but will prevent double \\ on the wire :)
 		if datastore['SHARE'] =~ /.[\\\/]/
 			simple.connect(smbshare)
-			simple.delete("C:\\WINDOWS\\Temp\\msfcommandoutput.txt")
+			simple.delete("%WINDIR%\\Temp\\msfcommandoutput.txt")
 		else
 			simple.connect(smbshare)
-			simple.delete("C:\\WINDOWS\\Temp\\msfcommandoutput.txt")
+			simple.delete("%WINDIR%\\Temp\\msfcommandoutput.txt")
 		end
 
 		rescue ::Interrupt
