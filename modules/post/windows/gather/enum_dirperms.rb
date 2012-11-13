@@ -29,7 +29,12 @@ class Metasploit3 < Msf::Post
 			'Version'        => '$Revision$',
 			'Platform'       => ['win'],
 			'SessionTypes'   => ['meterpreter'],
-			'Author'         => ['Kx499']
+			'Author'         =>
+				[
+					'Kx499',
+					'Ben Campbell <eat_meatballs[at]hotmail.co.uk>',
+					'sinn3r'
+				]
 		))
 
 		register_options(
