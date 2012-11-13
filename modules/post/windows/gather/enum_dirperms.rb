@@ -111,7 +111,7 @@ class Metasploit3 < Msf::Post
 				realpath = dpath + '\\' + d
 				if session.fs.file.stat(realpath).directory?
 					perm = check_dir(realpath, token)
-					if perm_filter and perm.include?(perm_filter)
+					if perm_filter and perm and perm.include?(perm_filter)
 						print_status(perm + "\t" + realpath)
 					end
 					enum_subdirs(perm_filter, realpath, maxdepth - 1,token)
