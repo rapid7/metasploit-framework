@@ -68,8 +68,8 @@ class Metasploit3 < Msf::Post
 		# If path doesn't exist, do not continue
 		begin
 			session.fs.dir.entries(dir)
-		rescue
-			print_error("Path seems invalid: #{dir}")
+		rescue => e
+			vprint_error("#{e.message}: #{dir}")
 			return nil
 		end
 
@@ -103,7 +103,12 @@ class Metasploit3 < Msf::Post
 		filter = datastore['FILTER']
 		filter = nil if datastore['FILTER'] == 'NA'
 
-		dirs = session.fs.dir.foreach(dpath)
+		begin
+			dirs = session.fs.dir.foreach(dpath)
+		rescue Rex::Post::Meterpreter::RequestError
+			# Sometimes we cannot see the dir
+			dirs = []
+		end
 
 		if maxdepth >= 1 or maxdepth < 0
 			dirs.each do|d|
