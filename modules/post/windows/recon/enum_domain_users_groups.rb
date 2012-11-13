@@ -49,6 +49,7 @@ class Metasploit3 < Msf::Post
 			if datastore['DOMAIN'].nil?
 				user = client.sys.config.getuid
 				datastore['DOMAIN'] = user.split('\\')[0]
+				print_status("Domain blank, using #{datastore['DOMAIN']} for group enumeration")
 			end
 
 			if datastore['DOMAIN_CONTROLLER'].nil? and datastore['ENUM_GROUPS']
@@ -65,6 +66,7 @@ class Metasploit3 < Msf::Post
 				# Check if RSOP data exists, if not disable group check
 				unless res =~ /does not have RSOP data./
 					datastore['DOMAIN_CONTROLLER'] = /Group Policy was applied from:\s*(.*)\s*/.match(res)[1].chomp
+					print_status("DC blank, using #{datastore['DOMAIN_CONTROLLER']} for group enumeration")
 				else
 					@dc_error = true
 					print_error("User never logged into device, will not enumerate groups. Manually set DC.")
@@ -142,7 +144,6 @@ class Metasploit3 < Msf::Post
 		begin
 			# Connect to DC and enumerate groups of user
 			usergroups = client.railgun.netapi32.NetUserGetGroups(dc, user, 0, 4, -1, 4, 4)
-
 		rescue ::Exception => e
 			print_error("Issue connecting to DC, try manually setting domain and DC")
 		end
@@ -154,7 +155,7 @@ class Metasploit3 < Msf::Post
 		begin
 			mem = client.railgun.memread(startmem, 8*count)
 		rescue ::Exception => e
-			print_error("Issue reading memory for groups for user #{user}")
+			print_error("Issue reading memory for groups for user #{user}, if this happens often check domain controller")
 		end
 
 		begin
@@ -198,7 +199,7 @@ class Metasploit3 < Msf::Post
 			# close the handle if connection was made
 			adv.CloseServiceHandle(manag["return"])
 
-			print_good("#{host} has live sessions:\n#{result.chomp("\n")}") unless result.nil?
+			print_good("#{host} has live sessions:\n#{result.chomp("\n")}") unless result.empty?
 		else
 			# Insufficient rights
 			print_error("#{host.ljust(16)} - Insufficient rights to enumerate (not local admin on this device)") if datastore['VERBOSE']
