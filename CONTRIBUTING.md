@@ -5,14 +5,14 @@
 If you would like to report a bug, please take a look at [our Redmine
 issue
 tracker](https://dev.metasploit.com/redmine/projects/framework/issues?query_id=420)
--- your bug may already have been reported there!
+-- your bug may already have been reported there! Simply [searching](https://dev.metasploit.com/redmine/projects/framework/search) for some appropriate keywords may save everyone a lot of hassle.
 
 If your bug is new and you'd like to report it you will need to
 [register
 first](https://dev.metasploit.com/redmine/account/register). Don't
 worry, it's easy and fun and takes about 30 seconds.
 
-## Contributing Exploits
+## Contributing Metasploit Modules
 
 If you have an exploit that you'd like to contribute to the Metasploit
 Framework, please familiarize yourself with the
