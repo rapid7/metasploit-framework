@@ -58,7 +58,7 @@ describe Msf::Util::EXE do
 
         it "should output nil when given bogus format" do
           bin = subject.to_executable_fmt($framework, formats.first[:arch], platform, "\xcc", "asdf", {})
-          bin.should == nil
+          bin.should_not be_nil
         end
         it "should output nil when given bogus arch" do
           bin = subject.to_executable_fmt($framework, "asdf", platform, "\xcc", formats.first[:format], {})
