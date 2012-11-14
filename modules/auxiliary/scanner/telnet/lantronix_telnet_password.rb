@@ -84,7 +84,7 @@ class Metasploit4 < Msf::Auxiliary
 		setup_record = pkt[0]
 
 		# If response is a setup record, extract password bytes 13-16
-		if setup_record[3].ord == 0xF9
+		if setup_record[3] and setup_record[3].ord == 0xF9
 			return setup_record[12,4]
 		else
 			return nil
