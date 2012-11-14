@@ -11,6 +11,7 @@ require 'rex'
 class Metasploit3 < Msf::Post
 
 	include Msf::Post::Windows::Priv
+	include Msf::Post::Common
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 
@@ -61,7 +62,7 @@ class Metasploit3 < Msf::Post
 					if (client.sys.config.sysinfo['OS'] =~ /Build [6-9]\d\d\d/)
 						cmd << " /R"
 					end
-				res = run_cmd(cmd)
+				res = cmd_exec(cmd)
 
 				# Check if RSOP data exists, if not disable group check
 				unless res =~ /does not have RSOP data./
@@ -204,22 +205,6 @@ class Metasploit3 < Msf::Post
 			# Insufficient rights
 			print_error("#{host.ljust(16)} - Insufficient rights to enumerate (not local admin on this device)") if datastore['VERBOSE']
 		end
-	end
-
-	# From enum_domain_group_users.rb by Carlos Perez and Stephen Haywood
-	# Run command, return results
-	def run_cmd(cmd)
-		process = session.sys.process.execute(cmd, nil, {'Hidden' => true, 'Channelized' => true})
-		res = ""
-
-		while (d = process.channel.read)
-		break if d == ""
-			res << d
-		end
-
-		process.channel.close
-		process.close
-		return res
 	end
 
 	# Write to notes database
