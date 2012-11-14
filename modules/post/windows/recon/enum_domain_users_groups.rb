@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Post
 		else
 			@adv = client.railgun.advapi32
 			# Get domain and domain controller if options left blank
-			if datastore['DOMAIN'].empty?
+			if datastore['DOMAIN'].nil?
 				user = client.sys.config.getuid
 				datastore['DOMAIN'] = user.split('\\')[0]
 				print_status("Domain blank, using #{datastore['DOMAIN']} for group enumeration")
