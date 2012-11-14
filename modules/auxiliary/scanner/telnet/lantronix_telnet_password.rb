@@ -69,17 +69,18 @@ class Metasploit4 < Msf::Auxiliary
 
 		if password
 			if password == "\x00\x00\x00\x00"
-				password = "(not used, or secure)"
-			end
+				print_status("#{rhost} - Password isn't used, or secure")
+			else
+				print_good("#{rhost} - Telnet password found: #{password.to_s}")
 
-			print_good("#{rhost} - Telnet password found: #{password.to_s}")
-			report_auth_info({
-				:host         => rhost,
-				:port         => 9999,
-				:sname        => 'telnet',
-				:duplicate_ok => false,
-				:pass         => password,
-			})
+				report_auth_info({
+					:host         => rhost,
+					:port         => 9999,
+					:sname        => 'telnet',
+					:duplicate_ok => false,
+					:pass         => password.to_s
+				})
+			end
 		end
 
 	end
