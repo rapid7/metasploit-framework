@@ -6,13 +6,13 @@
 ##
 
 ##
-# This module is based on, inspired by, or is a port of a plugin available in 
-# the Onapsis Bizploit Opensource ERP Penetration Testing framework - 
+# This module is based on, inspired by, or is a port of a plugin available in
+# the Onapsis Bizploit Opensource ERP Penetration Testing framework -
 # http://www.onapsis.com/research-free-solutions.php.
-# Mariano Nuñez (the author of the Bizploit framework) helped me in my efforts
+# Mariano Nunez (the author of the Bizploit framework) helped me in my efforts
 # in producing the Metasploit modules and was happy to share his knowledge and
-# experience - a very cool guy. I'd also like to thank Chris John Riley, 
-# Ian de Villiers and Joris van de Vis who have Beta tested the modules and 
+# experience - a very cool guy. I'd also like to thank Chris John Riley,
+# Ian de Villiers and Joris van de Vis who have Beta tested the modules and
 # provided excellent feedback. Some people just seem to enjoy hacking SAP :)
 ##
 
@@ -23,16 +23,15 @@ class Metasploit4 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 	include Msf::Exploit::Remote::Tcp
-  
+
 	def initialize
 		super(
 			'Name' => 'SAPRouter Admin Request',
-			'Version' => '$Revision$',
 			'Description' => %q{
 				SAPRouter Admin Request (display remote route information).
 				http://help.sap.com/saphelp_nw70ehp3/helpdata/en/48/6c68b01d5a350ce10000000a42189d/content.htm
 				},
-			'References' => [[ 'URL', 'http://labs.mwrinfosecurity.com' ]],
+			'References' => [[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]],
 			'Author' => [ 'nmonkee' ],
 			'License' => BSD_LICENSE
 			)
@@ -41,10 +40,10 @@ class Metasploit4 < Msf::Auxiliary
 				Opt::RPORT(3299)
 			], self.class)
 	end
-	
+
 	def get_data(size, packet_len)
 		info = ''
-		for i in 1..size
+		1.upto(size) do |i|
 			data = sock.recv(1)
 			packet_len -= 1
 			if data == "\x00"
@@ -52,12 +51,12 @@ class Metasploit4 < Msf::Auxiliary
 				packet_len -= size - i
 				return info, packet_len
 				break
-			elsif
+			else
 				info << data
 			end
 		end
 	end
-	
+
 	def run_host(ip)
 		type = 'ROUTER_ADM'
 		version = 0x26
@@ -86,15 +85,15 @@ class Metasploit4 < Msf::Auxiliary
 			connect
 		rescue ::Rex::ConnectionRefused
 			print_status("#{ip}:#{datastore['RPORT']} - connection refused")
-			connected == 'false'
+			connected = false
 		rescue ::Rex::ConnectionError, ::IOError, ::Timeout::Error
 			print_status("#{ip}:#{datastore['RPORT']} - connection timeout")
-			connected == 'false'
+			connected = false
 		rescue ::Exception => e
 			print_error("#{ip}:#{datastore['RPORT']} - exception #{e.class} #{e} #{e.backtrace}")
-			connected == 'false'
+			connected = false
 		end
-		if connected != 'false'
+		if connected != false
 			print_good("connected to saprouter")
 			print_good("sending ROUTER_ADM packet info request")
 			sock.put(ni_packet)
@@ -113,7 +112,7 @@ class Metasploit4 < Msf::Auxiliary
 						sock.recv(2)
 						packet_len -= 2
 						saptbl << [source, destination, service]
-						while packet_len !=0
+						while packet_len > 0
 							sock.recv(13)
 							packet_len -= 13
 							source, packet_len = get_data(46,packet_len)
