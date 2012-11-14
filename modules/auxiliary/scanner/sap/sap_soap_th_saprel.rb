@@ -6,13 +6,13 @@
 ##
 
 ##
-# This module is based on, inspired by, or is a port of a plugin available in 
-# the Onapsis Bizploit Opensource ERP Penetration Testing framework - 
+# This module is based on, inspired by, or is a port of a plugin available in
+# the Onapsis Bizploit Opensource ERP Penetration Testing framework -
 # http://www.onapsis.com/research-free-solutions.php.
-# Mariano Nuñez (the author of the Bizploit framework) helped me in my efforts
+# Mariano Nunez (the author of the Bizploit framework) helped me in my efforts
 # in producing the Metasploit modules and was happy to share his knowledge and
-# experience - a very cool guy. I'd also like to thank Chris John Riley, 
-# Ian de Villiers and Joris van de Vis who have Beta tested the modules and 
+# experience - a very cool guy. I'd also like to thank Chris John Riley,
+# Ian de Villiers and Joris van de Vis who have Beta tested the modules and
 # provided excellent feedback. Some people just seem to enjoy hacking SAP :)
 ##
 
@@ -28,8 +28,8 @@ class Metasploit4 < Msf::Auxiliary
 		super(
 			'Name' => 'SAP RFC TH_SAPREL',
 			'Version' => '$Revision$',
-			'Description' => %q{ This module makes use of the TH_SAPREL RFC (via SOAP) to return the SAP software, OS and DB versions.}, 
-			'References' => [[ 'URL', 'http://labs.mwrinfosecurity.com' ]],
+			'Description' => %q{ This module makes use of the TH_SAPREL RFC (via SOAP) to return the SAP software, OS and DB versions.},
+			'References' => [[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]],
 			'Author' => [ 'Agnivesh Sathasivam','nmonkee' ],
 			'License' => BSD_LICENSE
 			)
@@ -37,10 +37,10 @@ class Metasploit4 < Msf::Auxiliary
 			[
 				OptString.new('CLIENT', [true, 'Client', nil]),
 				OptString.new('USERNAME', [true, 'Username', nil]),
-				OptString.new('PASSWORD', [true, 'Password', nil]),
+				OptString.new('PASSWORD', [true, 'Password', nil])
 			], self.class)
 	end
-	
+
 	def run_host(ip)
 		data = '<?xml version="1.0" encoding="utf-8" ?>'
 		data << '<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
@@ -61,12 +61,11 @@ class Metasploit4 < Msf::Auxiliary
 					'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
 					'Cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
 					'Authorization' => 'Basic ' + user_pass,
-					'Content-Type' => 'text/xml; charset=UTF-8',
+					'Content-Type' => 'text/xml; charset=UTF-8'
 					}
 				}, 45)
 			if res and res.code == 500
 				response = res.body
-				#error.push(response.scan(%r{<faultstring>(.*?)</faultstring>}))
 				error.push(response.scan(%r{<message>(.*?)</message>}))
 				success = false
 			elsif res and res.code == 200
@@ -93,7 +92,7 @@ class Metasploit4 < Msf::Auxiliary
 				saptbl << [ "SAP Version", kern_rel ]
 				print(saptbl.to_s)
 			else
-				print_error("[SAP] #{ip}:#{rport} - error message: " + res.code.to_s + " " + res.message)
+				print_error("[SAP] #{ip}:#{rport} - error message: " + res.code.to_s + " " + res.message) if res
 			end
 		rescue ::Rex::ConnectionError
 			print_error("#[SAP] #{ip}:#{rport} - Unable to connect")
