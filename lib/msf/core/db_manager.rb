@@ -120,7 +120,7 @@ class DBManager
 		# are already in the object space
 		begin
 			unless defined? Mdm::Host
-				self.class.send :include, MetasploitDataModels
+				MetasploitDataModels.require_models
 			end
 		rescue NameError => e
 			warn_about_rubies
@@ -588,8 +588,8 @@ class DBManager
 					where_v << [ xv, xv ]
 				when 'os','platform'
 					xv = "%#{kv}%"
-					where_q << ' ( module_targets.name ILIKE ? ) '
-					where_v << [ xv ]
+					where_q << ' (  module_platforms.name ILIKE ? OR module_targets.name ILIKE ? ) '
+					where_v << [ xv, xv ]
 				when 'port'
 					# TODO
 				when 'type'

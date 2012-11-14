@@ -10,6 +10,7 @@ require 'msf/core'
 require 'msf/core/post/file'
 require 'msf/core/post/common'
 require 'msf/core/post/windows/registry'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
@@ -27,7 +28,7 @@ class Metasploit3 < Msf::Post
 				'Barry Shteiman <barry[at]sectorix.com>', # Module author
 				'juan vazquez' # minor help
 			],
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 	end
@@ -181,18 +182,18 @@ class Metasploit3 < Msf::Post
 		found_key = false
 		basekey_set = ["HKLM\\SOFTWARE\\Oracle\\SYSMAN","HKLM\\SOFTWARE\\ORACLE\\KEY_XE"]
 		basekey_set.each do |basekey|
-			next if found_key		
+			next if found_key
 			instances = registry_enumkeys(basekey)
 			if instances.nil? or instances.empty?
 				next
 			else
 				found_key = true
 			end
-				
+
 			instances.each do |i|
 				if basekey.include?"KEY_XE"
 					val_ORACLE_SID = registry_getvaldata(basekey,"ORACLE_SID")
-					val_ORACLE_HOME = registry_getvaldata(basekey,"ORACLE_HOME")			
+					val_ORACLE_HOME = registry_getvaldata(basekey,"ORACLE_HOME")
 				else
 					key = "#{basekey}\\#{i}"
 					val_ORACLE_SID = registry_getvaldata(key,"ORACLE_SID")

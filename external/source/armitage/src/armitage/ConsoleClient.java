@@ -104,6 +104,9 @@ public class ConsoleClient implements Runnable, ActionListener {
 		if (destroyCommand != null) {
 			((RpcAsync)connection).execute_async(destroyCommand, new Object[] { session });
 		}
+
+		/* we don't need to keep reading from this console */
+		kill();
 	}
 
 	protected void finalize() {

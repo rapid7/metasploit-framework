@@ -46,6 +46,12 @@ class Output
 	end
 
 	#
+	# Prints a warning
+	#
+	def print_warning(msg='')
+	end
+
+	#
 	# Prints a message with no decoration.
 	#
 	def print(msg='')

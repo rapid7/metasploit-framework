@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					['OSVDB', '77455'],
 					['BID', '50890'],
-					['EDB', 18189],
+					['EDB', '18189'],
 					['URL', 'http://secpod.org/advisories/SecPod_Ipswitch_TFTP_Server_Dir_Trav.txt']
 				],
 			'DisclosureDate' => "Dec 12 2011"

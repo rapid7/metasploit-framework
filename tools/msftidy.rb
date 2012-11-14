@@ -96,13 +96,13 @@ class Msftidy
 	end
 
 	def check_disclosure_date
-		return if @source =~ /Generic Payload Handler/
+		return if @source =~ /Generic Payload Handler/ or @source !~ / \< Msf::Exploit/
 
 		# Check disclosure date format
-		if @source =~ /'DisclosureDate' => ['|\"](.+)['|\"]/
+		if @source =~ /'DisclosureDate'.*\=\>[\x0d|\x20]*['|\"](.+)['|\"]/
 			d = $1  #Captured date
 			# Flag if overall format is wrong
-			if d =~ /^... \d{1,2} \d{4}/
+			if d =~ /^... \d{1,2}\,* \d{4}/
 				# Flag if month format is wrong
 				m = d.split[0]
 				months = [
@@ -114,6 +114,8 @@ class Msftidy
 			else
 				error('Incorrect disclosure date format')
 			end
+		else
+			error('Exploit is missing a disclosure date')
 		end
 	end
 
@@ -204,6 +206,10 @@ class Msftidy
 				if not ln =~ /[\"\'][wra]\+?b\+?[\"\']/
 					warn("File.open without binary mode", idx)
 				end
+			end
+
+			if ln =~/^[ \t]*load[ \t]+[\x22\x27]/
+				error("Loading (not requiring) a file: #{ln.inspect}", idx)
 			end
 
 			# The rest of these only count if it's not a comment line

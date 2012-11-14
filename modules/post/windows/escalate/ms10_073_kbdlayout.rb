@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Post
 					'jduck'              # Metasploit module
 				],
 			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ],
 			'References'    =>
 				[
@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
 					[ 'MSB', 'MS10-073' ],
 					[ 'URL', 'http://www.vupen.com/blog/20101018.Stuxnet_Win32k_Windows_Kernel_0Day_Exploit_CVE-2010-2743.php' ],
 					[ 'URL', 'http://www.reversemode.com/index.php?option=com_content&task=view&id=71&Itemid=1' ],
-					[ 'EDB', 15985 ]
+					[ 'EDB', '15985' ]
 				],
 			'DisclosureDate'=> "Oct 12 2010"
 		))

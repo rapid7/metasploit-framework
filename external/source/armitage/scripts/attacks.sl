@@ -349,6 +349,9 @@ sub best_payload {
 	else if ("java/jsp_shell_bind_tcp" in $compatible) {
 		return "java/jsp_shell_bind_tcp";
 	}
+	else if ("cmd/unix/interact" in $compatible) {
+		return "cmd/unix/interact";
+	}
 	else {
 		return "generic/shell_bind_tcp";
 	}
