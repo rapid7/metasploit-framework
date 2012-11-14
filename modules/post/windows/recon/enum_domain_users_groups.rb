@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Post
 		else
 			@adv = client.railgun.advapi32
 			# Get domain and domain controller if options left blank
-			if datastore['DOMAIN'].nil?
+			if datastore['DOMAIN'].empty?
 				user = client.sys.config.getuid
 				datastore['DOMAIN'] = user.split('\\')[0]
 				print_status("Domain blank, using #{datastore['DOMAIN']} for group enumeration")
@@ -201,6 +201,9 @@ class Metasploit3 < Msf::Post
 			adv.CloseServiceHandle(manag["return"])
 
 			print_good("#{host} has live sessions:\n#{result.chomp("\n")}") unless result.empty?
+			if result.empty?
+				print_status("No logged in users on host #{host}") if datastore['VERBOSE']
+			end
 		else
 			# Insufficient rights
 			print_error("#{host.ljust(16)} - Insufficient rights to enumerate (not local admin on this device)") if datastore['VERBOSE']
