@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 		headers = {
 			'Content-Type'	=> 'text/xml'
 		}
-		data = '<?xml version="1.0" encoding="UTF-8"?><LoginRequest sync-id="1" user-id="' << user << '" password="' << pass  << '"></LoginRequest>' 
+		data = '<?xml version="1.0" encoding="UTF-8"?><LoginRequest sync-id="1" user-id="' << user << '" password="' << pass  << '"></LoginRequest>'
 		begin
 			res = send_request_cgi({
 				'encode'   => true,
@@ -97,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if res.code == 200
-			if res.body =~ /LoginResponse.*success="1"/ 
+			if res.body =~ /LoginResponse.*success="1"/
 				print_good("#{msg} SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
 
 				report_hash = {
