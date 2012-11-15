@@ -95,7 +95,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if res.code == 200
-			if res.body =~ /<status>OK<\/status>/ 
+			if res.body =~ /<status>OK<\/status>/
 				print_good("#{msg} SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
 
 				report_hash = {

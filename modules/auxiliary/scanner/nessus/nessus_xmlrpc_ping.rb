@@ -1,5 +1,5 @@
 ##
-# nessus_xmlrpc_ping.rb 
+# nessus_xmlrpc_ping.rb
 ##
 
 ##
