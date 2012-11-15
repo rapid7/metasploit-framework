@@ -67,9 +67,9 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 
-		each_user_pass { |user, pass|
+		each_user_pass do |user, pass|
 			do_login(user, pass)
-		}
+		end
 	end
 
 	def do_login(user='openvas', pass='openvas')
