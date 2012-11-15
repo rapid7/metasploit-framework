@@ -71,7 +71,7 @@ class Plugin::Alias < Msf::Plugin
 				clear = false
 				# if using -f or -c, they must be the first arg, because -f/-c may also show up in the alias
 				# value so we can't do something like if args.include("-f") or delete_if etc
-				# we sould never have to force and clear simultaneously.
+				# we should never have to force and clear simultaneously.
 				if args[0] == "-f"
 					force = true
 					args.shift
@@ -80,7 +80,7 @@ class Plugin::Alias < Msf::Plugin
 					args.shift
 				end
 				name = args.shift
-				print_good "The alias name is #{name}"
+
 				if clear
 					# clear all aliases if "*"
 					if name == "*"
@@ -89,9 +89,12 @@ class Plugin::Alias < Msf::Plugin
 						end
 						print_status "Cleared all aliases"
 					else # clear the named alias if it exists
-						print_status "Checking alias #{name} for clear"
-						deregister_alias(name) if @aliases.keys.include?(name)
-						print_status "Cleared alias #{name}"
+						if @aliases.keys.include?(name)
+							deregister_alias(name)
+							print_status "Cleared alias #{name}"
+						else
+							print_error("#{name} is not a currently active alias")
+						end
 					end
 					return
 				end
@@ -150,10 +153,13 @@ class Plugin::Alias < Msf::Plugin
 					# we need to repair the tab complete string/words and pass back
 					# replace alias name with the root alias value
 					value_words = value.split(/[\s\t\n]+/) # in case value is e.g. 'sessions -l'
+					# valwords is now [sessions,-l]
 					words[0] = value_words[0]
-					value_words.shift
+					# words[0] is now 'sessions' (was 'sue')
+					value_words.shift # valwords is now ['-l']
 					# insert any remaining parts of value and rebuild the line
 					line = words.join(" ") + " " + value_words.join(" ") + " " + str
+
 					#print_good "passing (#{line.strip}) back to tab_complete"
 					# clear current tab_words
 					driver.tab_words = []
@@ -173,11 +179,13 @@ class Plugin::Alias < Msf::Plugin
 		#
 		def deregister_alias(name)
 			self.class_eval do
-				# remove the methods we defined for this alias
+				# remove the class methods we created when the alias was registered 
 				remove_method("cmd_#{name}")
-				remove_method("cmd_#{name}_tab")
+				remove_method("cmd_#{name}_tabs")
 				remove_method("cmd_#{name}_help")
 			end
+			# remove the alias from the list of active aliases
+			@aliases.delete(name)
 		end
 
 		#
@@ -284,13 +292,16 @@ class Plugin::Alias < Msf::Plugin
 		# If we had previously registered a console dispatcher with the console,
 		# deregister it now.
 		remove_console_dispatcher('Alias')
+
+		# we don't need to remove class methods we added because they were added to
+		# AliasCommandDispatcher class
 	end
 
 	#
 	# This method returns a short, friendly name for the plugin.
 	#
 	def name
-		"Alias"
+		"alias"
 	end
 
 	#
