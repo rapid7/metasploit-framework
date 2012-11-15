@@ -1,0 +1,78 @@
+##
+# nessus_xmlrpc_ping.rb 
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Auxiliary
+
+	include Msf::Exploit::Remote::HttpClient
+	include Msf::Auxiliary::Report
+
+	include Msf::Auxiliary::Scanner
+
+	def initialize
+		super(
+			'Name'           => 'Nessus XMLRPC Interface Ping Utility',
+			'Description'    => 'This module simply attempts to login to a Nessus XMLRPC interface using a specific user/pass.',
+			'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
+			'License'        => MSF_LICENSE
+		)
+
+		register_options(
+			[
+				Opt::RPORT(8834),
+				OptInt.new('THREADS', [true, "The number of concurrent threads", 25]),
+				OptString.new('URI', [true, "URI for Nessus XMLRPC. Default is /", "/"]),
+			], self.class)
+
+		register_advanced_options(
+		[
+			OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true])
+		], self.class)
+	end
+
+	def run_host(ip)
+		begin
+			res = send_request_cgi({
+				'uri'     => "#{datastore['URI']}",
+				'method'  => 'GET'
+				}, 25)
+			http_fingerprint({ :response => res })
+		rescue ::Rex::ConnectionError => e
+			# vprint_error("#{msg} #{datastore['URI']} - #{e}")
+			return
+		end
+
+		if not res
+			# vprint_error("#{msg} #{datastore['URI']} - No response")
+			return
+		end
+		if res.code != 200
+			# vprint_error("#{msg} - HTTP Response was not 200")
+			return
+		end
+		if res.headers['Server'] =~ /NessusWWW/
+			print_good("#{msg} SUCCESS. '#{ip}' : '#{datastore['RPORT']}'")
+			report_service(
+				:host => ip,
+				:port => datastore['RPORT'],
+				:name => "nessus-xmlrpc",
+				:info => 'Nessus XMLRPC',
+				:state => 'UP'
+			)
+		end
+
+	end
+
+	def msg
+		"#{vhost}:#{rport} NessusXMLRPC -"
+	end
+end
