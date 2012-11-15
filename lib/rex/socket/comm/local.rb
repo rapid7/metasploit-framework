@@ -367,25 +367,25 @@ class Rex::Socket::Comm::Local
 			
 			ni_packet = packet_type << [0].pack('c*') << [route_info_version].pack('c*') << [ni_version].pack('c*') << [num_of_entries].pack('c*') << [talk_mode].pack('c*') << [0].pack('c*') << [0].pack('c*') << [num_rest_nodes].pack('c*')
 
-			first = 'False'
+			first = false
 
 			routes.each do|host,port|
   			  route_item = host + [0].pack("C") + port + [0, 0].pack("c*")
-  			  if first == "False"
+  			  if first
     		    route_data = route_data << [route_item.length].pack('N') << route_item
-    		    first = "True"
+    		    first = true
   			  else
-    		    route_data = route_data << route_item
+    		    route_data << route_item
   			  end
 		    end
 
-			ni_packet << [route_data.length - 4].pack('N') << route_data
-			
+			ni_packet << [route_data.length - 4].pack('N') 
+			ni_packet << route_data
 			ni_packet = [ni_packet.length].pack('N') << ni_packet
 			
 			size = sock.put(ni_packet)
 			
-			if (size != ni_packet.length)
+			if size != ni_packet.length
 				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to send the entire request to the proxy"), caller
 			end
 
@@ -398,22 +398,22 @@ class Rex::Socket::Comm::Local
 				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to receive a response from the proxy"), caller
 			end
 
-			if (ret.nil? or ret.length < 4)
+			if ret or ret.length < 4
 				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to receive a complete response from the proxy"), caller
 			end
 			
-			if (ret =~ /NI_RTERR/)
-  			  if (ret =~ /timed out/)
+			if ret =~ /NI_RTERR/
+  			  if ret =~ /timed out/
     		    raise Rex::ConnectionProxyError.new(host, port, type, "Connection to remote host #{host} timed out")
-  			  elsif (ret =~ /refused/)
+  			  elsif ret =~ /refused/
     			raise Rex::ConnectionProxyError.new(host, port, type, "Connection to remote port #{port} closed")
-  			  elsif (ret =~ /denied/)
+  			  elsif ret =~ /denied/
     			raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} blocked by ACL")
     		  else
     		    raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} failed - #{ret}\n\n#{ni_packet}")
   			  end
-			elsif (ret =~ /NI_PONG/)
-  			  $stdout.print("[*] remote native connection to #{host}:#{port} established\n")
+			elsif ret =~ /NI_PONG/
+  			  print_good("[*] remote native connection to #{host}:#{port} established\n")
   			else
     		    raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} failed - #{ret}\n\n#{ni_packet}")
 			end
