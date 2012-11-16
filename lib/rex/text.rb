@@ -220,6 +220,33 @@ module Text
 	end
 
 	#
+	# Returns the words in +str+ as an Array.
+	#
+	# strict - include *only* words, no boundary characters (like spaces, etc.)
+	#
+	def self.to_words( str, strict = false )
+		splits = str.split( /\b/ )
+		splits.reject! { |w| !(w =~ /\w/) } if strict
+		splits
+	end
+
+	#
+	# Removes noise from 2 Strings and return a refined String version.
+	#
+	def self.refine( str1, str2 )
+		return str1 if str1 == str2
+
+		# get the words of the first str in an array
+		s_words = to_words( str1 )
+
+		# get the words of the second str in an array
+		o_words = to_words( str2 )
+
+		# get what hasn't changed (the rdiff, so to speak) as a string
+		(s_words - (s_words - o_words)).join
+	end
+
+	#
 	# Returns a unicode escaped string for Javascript
 	#
 	def self.to_unescape(data, endian=ENDIAN_LITTLE)
