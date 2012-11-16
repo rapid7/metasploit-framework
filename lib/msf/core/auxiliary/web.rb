@@ -21,7 +21,7 @@ module Auxiliary::Web
 	include Auxiliary::Report
 
 	attr_reader :target
-  attr_reader :http
+	attr_reader :http
 	attr_reader :parent
 	attr_reader :page
 
@@ -29,15 +29,15 @@ module Auxiliary::Web
 		super
 	end
 
-  # String id to push to the #checklist
-  def checked( id )
-    parent.checklist << "#{shortname}#{id}".hash
-  end
+	# String id to push to the #checklist
+	def checked( id )
+		parent.checklist << "#{shortname}#{id}".hash
+	end
 
-  # String id to check against the #checklist
-  def checked?( id )
-    parent.checklist.include? "#{shortname}#{id}".hash
-  end
+	# String id to check against the #checklist
+	def checked?( id )
+		parent.checklist.include? "#{shortname}#{id}".hash
+	end
 
 	#
 	# Called directly before 'run'
@@ -46,7 +46,7 @@ module Auxiliary::Web
 		@parent = opts[:parent]
 		@target = opts[:target]
 		@page   = opts[:page]
-    @http   = opts[:http]
+		@http   = opts[:http]
 	end
 
 	# Should be overridden to return the exploits to use for this
@@ -69,7 +69,7 @@ module Auxiliary::Web
 
 	#
 	# Should be overridden to return a pattern to be matched against response
-  # bodies in order to identify a vulnerability.
+	# bodies in order to identify a vulnerability.
 	#
 	# You can go one deeper and override #find_proof for more complex processing.
 	#
@@ -92,34 +92,34 @@ module Auxiliary::Web
 		end
 	end
 
-  # Checks whether a resource exists based on a path String.
+	# Checks whether a resource exists based on a path String.
 	def resource_exist?( path )
 		res = http.get( path )
 		res.code.to_i == 200 && !http.custom_404?( path, res.body )
 	end
 	alias :file_exist? :resource_exist?
 
-  # Checks whether a directory exists based on a path String.
+	# Checks whether a directory exists based on a path String.
 	def directory_exist?( path )
 		dir = path.dup
 		dir << '/' if !dir.end_with?( '/' )
 		resource_exist?( dir )
 	end
 
-  # Logs the existence of a resource in the path String.
+	# Logs the existence of a resource in the path String.
 	def log_resource_if_exists( path )
 		log_resource( :location => path ) if resource_exist?( path )
 	end
 	alias :log_file_if_exists :log_resource_if_exists
 
-  # Logs the existence of the directory in the path String.
+	# Logs the existence of the directory in the path String.
 	def log_directory_if_exists( path )
 		dir = path.dup
 		dir << '/' if !dir.end_with?( '/' )
 		log_resource_if_exists( dir )
 	end
 
-  # Matches fingerprint pattern against the current page's body and logs matches
+	# Matches fingerprint pattern against the current page's body and logs matches
 	def match_and_log_fingerprint( fingerprint )
 		page.body.to_s.match( fingerprint ) && log_fingerprint( :fingerprint => fingerprint )
 	end
@@ -149,35 +149,38 @@ module Auxiliary::Web
 		parent.increment_request_counter
 	end
 
-  # Should be overridden and return an Integer (0-100) denoting the confidence
-  # in the accuracy of the logged vuln.
+	# Should be overridden and return an Integer (0-100) denoting the confidence
+	# in the accuracy of the logged vuln.
 	def calculate_confidence( vuln )
 		100
 	end
 
 	def log_fingerprint( opts = {} )
 		mode  = details[:category].to_sym
-		vhash = [target.to_url, opts[:fingerprint], mode, opts[:location]].map { |x| x.to_s }.join( '|' ).hash
+		vhash = [target.to_url, opts[:fingerprint], mode, opts[:location]].
+			map { |x| x.to_s }.join( '|' ).hash
 
 		return if parent.vulns.include?( vhash )
 		parent.vulns[vhash] = true
 
-		location = opts[:location] ? page.url.merge( URI( opts[:location].to_s )) : page.url
+		location = opts[:location] ?
+			page.url.merge( URI( opts[:location].to_s )) : page.url
+
 		info = {
-			:web_site    => target.site,
-			:path	     => location.path,
-			:query	     => location.query,
-			:method      => 'GET',
-			:params      => [],
-			:pname	     => 'path',
-			:proof	     => opts[:fingerprint],
-			:risk	     => details[:risk],
-			:name	     => details[:name],
-			:blame	     => details[:blame],
-			:category    => details[:category],
+			:web_site   => target.site,
+			:path		=> location.path,
+			:query		=> location.query,
+			:method		=> 'GET',
+			:params		=> [],
+			:pname		=> 'path',
+			:proof		=> opts[:fingerprint],
+			:risk		=> details[:risk],
+			:name		=> details[:name],
+			:blame		=> details[:blame],
+			:category	=> details[:category],
 			:description => details[:description],
 			:confidence  => details[:category] || opts[:confidence] || 100,
-			:owner       => self
+			:owner	  => self
 		}
 
 		report_web_vuln( info )
@@ -188,28 +191,28 @@ module Auxiliary::Web
 
 	def log_resource( opts = {} )
 		mode  = details[:category].to_sym
-		vhash = [target.to_url, mode, opts[:location]].map { |x| x.to_s }.join( '|' ).hash
+		vhash = [target.to_url, mode, opts[:location]].
+			map { |x| x.to_s }.join( '|' ).hash
 
 		return if parent.vulns.include?( vhash )
-    parent.vulns[vhash] = true
+		parent.vulns[vhash] = true
 
 		location = URI( opts[:location].to_s )
 		info = {
-			:web_site    => target.site,
-			:path	     => location.path,
-			:query	     => location.query,
-			:method      => 'GET',
-			:params      => [],
-			:pname	     => 'path',
-			:proof	     => opts[:location],
-			:risk	     => details[:risk],
-			:name	     => details[:name],
-			:blame	     => details[:blame],
-			:category    => details[:category],
+			:web_site	 => target.site,
+			:path		 => location.path,
+			:query		 => location.query,
+			:method		 => 'GET',
+			:params		 => [],
+			:pname		 => 'path',
+			:proof		 => opts[:location],
+			:risk		 => details[:risk],
+			:name		 => details[:name],
+			:blame		 => details[:blame],
+			:category	 => details[:category],
 			:description => details[:description],
 			:confidence  => details[:category] || opts[:confidence] || 100,
-			#:payload     => nil,
-			:owner       => self
+			:owner		 => self
 		}
 
 		report_web_vuln( info )
@@ -220,23 +223,24 @@ module Auxiliary::Web
 
 	def process_vulnerability( element, proof, opts = {} )
 		mode  = details[:category].to_sym
-		vhash = [target.to_url, mode, element.altered].map{ |x| x.to_s }.join( '|' ).hash
+		vhash = [target.to_url, mode, element.altered].
+			map{ |x| x.to_s }.join( '|' ).hash
 
 		parent.vulns[mode] ||= {}
 		return parent.vulns[mode][vhash] if parent.vulns[mode][vhash]
 
 		parent.vulns[mode][vhash] = {
-			:target      => target,
-			:method      => element.method.to_s.upcase,
-			:params      => element.params.to_a,
-			:mode        => mode,
-			:pname       => element.altered,
-			:proof       => proof,
-			:form        => element.model,
-			:risk	     => details[:risk],
-			:name	     => details[:name],
-			:blame	     => details[:blame],
-			:category    => details[:category],
+			:target		 => target,
+			:method		 => element.method.to_s.upcase,
+			:params		 => element.params.to_a,
+			:mode		 => mode,
+			:pname		 => element.altered,
+			:proof		 => proof,
+			:form		 => element.model,
+			:risk		 => details[:risk],
+			:name		 => details[:name],
+			:blame		 => details[:blame],
+			:category	 => details[:category],
 			:description => details[:description]
 		}
 
@@ -252,29 +256,28 @@ module Auxiliary::Web
 
 		uri = URI( element.action )
 		info = {
-			:web_site    => element.model.web_site,
-			:path	     => uri.path,
-			:query	     => uri.query,
-			:method      => element.method.to_s.upcase,
-			:params      => element.params.to_a,
-			:pname	     => element.altered,
-			:proof	     => proof,
-			:risk	     => details[:risk],
-			:name	     => details[:name],
-			:blame	     => details[:blame],
-			:category    => details[:category],
+			:web_site	 => element.model.web_site,
+			:path		 => uri.path,
+			:query		 => uri.query,
+			:method		 => element.method.to_s.upcase,
+			:params		 => element.params.to_a,
+			:pname		 => element.altered,
+			:proof		 => proof,
+			:risk		 => details[:risk],
+			:name		 => details[:name],
+			:blame		 => details[:blame],
+			:category	 => details[:category],
 			:description => details[:description],
 			:confidence  => confidence,
-			:payload     => payload,
-			:owner       => self
+			:payload	 => payload,
+			:owner		 => self
 		}
 
 		report_web_vuln( info )
 
-		print_good "	VULNERABLE(#{mode.to_s.upcase}) URL(#{target.to_url}) PARAMETER(#{element.altered}) VALUES(#{element.params})"
+		print_good "	VULNERABLE(#{mode.to_s.upcase}) URL(#{target.to_url})" +
+					   " PARAMETER(#{element.altered}) VALUES(#{element.params})"
 		print_good "		 PROOF(#{proof})"
-
-		return
 	end
 
 end

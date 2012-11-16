@@ -2373,8 +2373,8 @@ class DBManager
 		desc    = opts[:description].to_s.strip
 		conf    = opts[:confidence].to_i
 		cat     = opts[:category].to_s.strip
-        payload = opts[:payload].to_s
-        owner   = opts[:owner] ? opts[:owner].shortname : nil
+		payload = opts[:payload].to_s
+		owner   = opts[:owner] ? opts[:owner].shortname : nil
 
 
 		site    = nil
@@ -2429,8 +2429,8 @@ class DBManager
 		vuln.blame    = blame
 		vuln.description = desc
 		vuln.confidence  = conf
-        vuln.payload = payload
-        vuln.owner   = owner
+		vuln.payload = payload
+		vuln.owner   = owner
 
 		msf_import_timestamps(opts, vuln)
 		vuln.save!
