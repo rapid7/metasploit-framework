@@ -138,7 +138,7 @@ class Metasploit4 < Msf::Auxiliary
 				print_good("[SAP] #{ip}:#{rport} - Data stored in #{loot_path}")
 				return
 			else
-				print_eror("[SAP] #{ip}:#{rport} - Unknown error")
+				print_error("[SAP] #{ip}:#{rport} - Unknown error")
 				return
 			end
 		rescue ::Rex::ConnectionError
