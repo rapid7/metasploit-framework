@@ -26,15 +26,26 @@ class Metasploit4 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name' => 'SAP RFC TH_SAPREL',
-			'Version' => '$Revision$',
-			'Description' => %q{ This module makes use of the TH_SAPREL RFC (via SOAP) to return the SAP software, OS and DB versions.},
-			'References' => [[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]],
-			'Author' => [ 'Agnivesh Sathasivam','nmonkee' ],
-			'License' => BSD_LICENSE
+			'Name' => 'SAP /sap/bc/soap/rfc SOAP Service TH_SAPREL Function Information Disclosure',
+			'Description' => %q{
+					This module attempts to identify software, OS and DB versions through the SAP
+				function TH_SAPREL using the /sap/bc/soap/rfc SOAP service.
+			},
+			'References' =>
+				[
+					[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
+				],
+			'Author' =>
+				[
+					'Agnivesh Sathasivam',
+					'nmonkee'
+				],
+			'License' => MSF_LICENSE
 			)
+
 		register_options(
 			[
+				Opt::RPORT(8000),
 				OptString.new('CLIENT', [true, 'Client', nil]),
 				OptString.new('USERNAME', [true, 'Username', nil]),
 				OptString.new('PASSWORD', [true, 'Password', nil])
@@ -42,6 +53,7 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
+
 		data = '<?xml version="1.0" encoding="utf-8" ?>'
 		data << '<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
 		data << '<env:Body>'
@@ -49,8 +61,11 @@ class Metasploit4 < Msf::Auxiliary
 		data << '</n1:TH_SAPREL>'
 		data << '</env:Body>'
 		data << '</env:Envelope>'
+
 		user_pass = Rex::Text.encode_base64(datastore['USERNAME'] + ":" + datastore['PASSWORD'])
+
 		print_status("[SAP] #{ip}:#{rport} - sending SOAP TH_SAPREL request")
+
 		begin
 			res = send_request_raw({
 				'uri' => '/sap/bc/soap/rfc?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
@@ -64,11 +79,7 @@ class Metasploit4 < Msf::Auxiliary
 					'Content-Type' => 'text/xml; charset=UTF-8'
 					}
 				}, 45)
-			if res and res.code == 500
-				response = res.body
-				error.push(response.scan(%r{<message>(.*?)</message>}))
-				success = false
-			elsif res and res.code == 200
+			if res and res.code == 200
 				kern_comp_on = $1 if res.body =~ /<KERN_COMP_ON>(.*)<\/KERN_COMP_ON>/i
 				kern_comp_time = $1 if res.body =~ /<KERN_COMP_TIME>(.*)<\/KERN_COMP_TIME>/i
 				kern_dblib = $1 if res.body =~ /<KERN_DBLIB>(.*)<\/KERN_DBLIB>/i
@@ -91,16 +102,20 @@ class Metasploit4 < Msf::Auxiliary
 				saptbl << [ "SAP patch level", kern_patchlevel ]
 				saptbl << [ "SAP Version", kern_rel ]
 				print(saptbl.to_s)
+			elsif res and res.code == 500
+				response = res.body
+				error.push(response.scan(%r{<message>(.*?)</message>}))
+				err = error.join().chomp
+				print_error("[SAP] #{ip}:#{rport} - #{err.gsub('&#39;','\'')}")
+				return
 			else
 				print_error("[SAP] #{ip}:#{rport} - error message: " + res.code.to_s + " " + res.message) if res
+				return
 			end
 		rescue ::Rex::ConnectionError
-			print_error("#[SAP] #{ip}:#{rport} - Unable to connect")
+			print_error("[SAP] #{ip}:#{rport} - Unable to connect")
 			return
 		end
-		if success == false
-			err = error.join().chomp
-			print_error("#[SAP] #{ip}:#{rport} - #{err.gsub('&#39;','\'')}")
-		end
+
 	end
 end
