@@ -104,7 +104,8 @@ class Auxiliary::Web::Target
 				@forms << element
 			when Mdm::WebForm
 				self.<< element.method.to_s.downcase == 'path' ?
-		            Auxiliary::Web::Path.from_model( element ) : Auxiliary::Web::Form.from_model( element )
+					Auxiliary::Web::Path.from_model( element ) :
+			            Auxiliary::Web::Form.from_model( element )
 		end
 	end
 

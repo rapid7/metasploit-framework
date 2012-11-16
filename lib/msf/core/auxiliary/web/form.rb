@@ -90,7 +90,7 @@ class Form < Fuzzable
 	#
 	def params
 		@params ||= inputs.reject{ |i| i[:name].to_s.empty? }.
-      inject( {} ) { |h, i| h[i[:name]] = i[:value]; h }
+			inject( {} ) { |h, i| h[i[:name]] = i[:value]; h }
 	end
 
 	#
@@ -125,11 +125,12 @@ class Form < Fuzzable
 		return {} if query.empty?
 
 		query.split( '&' ).inject( {} ) do |h, pair|
-      k, v = pair.to_s.split( '=', 2 )
+			k, v = pair.to_s.split( '=', 2 )
 			h[Rex::Text.uri_decode( k.to_s )] = Rex::Text.uri_decode( v.to_s )
 			h
 		end
 	end
+
 	def query_to_params( query )
 		self.class.query_to_params( query)
 	end
@@ -228,11 +229,13 @@ class Form < Fuzzable
 
 	def self.from_model( form )
 		inputs = form.params.map do |name, value, extra|
-      extra = extra.first if extra.is_a? Array
-      extra ||= {}
+			extra = extra.first if extra.is_a? Array
+			extra ||= {}
 			{ :name => name, :value => value, :type => extra[:type] }
-    end
-		e = new( :action => "#{form.path}?#{form.query}", :method => form.method, :inputs => inputs )
+		end
+
+		e = new( :action => "#{form.path}?#{form.query}", :method => form.method,
+		         :inputs => inputs )
 		e.model = form
 		e
 	end
