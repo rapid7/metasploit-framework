@@ -52,10 +52,10 @@ class Plugin::Alias < Msf::Plugin
 						'Header'  => "Current Aliases",
 						'Prefix'  => "\n",
 						'Postfix' => "\n",
-						'Columns' => [ 'Alias Name', 'Alias Value' ]
+						'Columns' => [ '', 'Alias Name', 'Alias Value' ]
 					)
 					@aliases.each_pair do |key,val|
-						tbl << [key,val]
+						tbl << ["alias",key,val]
 					end
 					return print(tbl.to_s)
 				end
