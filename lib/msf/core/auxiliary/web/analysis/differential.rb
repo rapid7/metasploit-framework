@@ -12,7 +12,7 @@ module Analysis::Differential
 
 	DIFFERENTIAL_OPTIONS =  {
 		# amount of refinement iterations
-		precision: 2
+		:precision => 2
 	}
 
 	#
@@ -49,13 +49,13 @@ module Analysis::Differential
 
 		responses = {
 			# will hold the original, default, response that results from submitting
-			orig: nil,
+			:orig => nil,
 
 			# will hold responses of boolean injections
-			good: {},
+			:good => {},
 
 			# will hold responses of fault injections
-			bad:  {}
+			:bad =>  {}
 		}
 
 		# submit the element, as is, opts[:precision] amount of times and

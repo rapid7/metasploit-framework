@@ -12,13 +12,13 @@ module Analysis::Timing
 
 	TIMING_OPTIONS =  {
 		# stub to be replaced by delay * multi
-		stub:  '__TIME__',
+		:stub =>  '__TIME__',
 
 		# stub = delay * multi
-		multi: 1,
+		:multi => 1,
 
 		# delay in seconds to attempt to introduce
-		delay: 5
+		:delay => 5
 	}
 
 	#

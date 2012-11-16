@@ -108,10 +108,10 @@ class Auxiliary::Web::HTTP
 			'SSLv23'
 		)
 
-		c.set_config(
+		c.set_config({
 			'vhost' => opts[:target].vhost,
 			'agent' => opts[:user_agent] || 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)',
-		)
+		})
 		c
 	end
 

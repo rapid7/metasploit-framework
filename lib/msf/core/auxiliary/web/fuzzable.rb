@@ -58,7 +58,7 @@ class Fuzzable
 			callback.call resp if callback
 		end
 
-        nil
+		nil
 	end
 
 	def http
@@ -83,15 +83,15 @@ class Fuzzable
 
 	private
 	def fuzz_wrapper( cfuzzer = nil, &block )
-        self.fuzzer ||= cfuzzer
-        permutations.each do |p|
+		self.fuzzer ||= cfuzzer
+		permutations.each do |p|
 			block.call p
 		end
 	end
 
 	def handle_response( resp )
-        str = "    #{fuzzer.shortname}: #{resp.code} - #{method.to_s.upcase}" +
-	        " #{action} #{params}"
+		str = "    #{fuzzer.shortname}: #{resp.code} - #{method.to_s.upcase}" +
+			" #{action} #{params}"
 
 		case resp.code.to_i
 			when 200,404,301,302,303
