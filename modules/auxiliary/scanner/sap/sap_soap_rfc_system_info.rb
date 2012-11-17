@@ -27,9 +27,11 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name' => 'SAP /sap/bc/soap/rfc SOAP Service RFC_SYSTEM_INFO Function Sensitive Information Gathering',
-			'Description' => %q{'SAP NetWeaver could allow a remote attacker to obtain sensitive information.
-								By sending a RFC_SYSTEM_INFO RfcCallReceive request to TCP port 33NN an attacker
-								could obtain the operating system version, SAP version, and real IP address of the server.},
+			'Description' => %q{
+				This module makes use of the RFC_SYSTEM_INFO Function to obtain the operating
+				system version, SAP version, IP address and other information through the use of
+				the /sap/bc/soap/rfc SOAP service.
+			},
 			'References' =>
 				[
 					[ 'CVE', '2006-6010' ],
