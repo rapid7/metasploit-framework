@@ -26,23 +26,30 @@ class Metasploit4 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name' => 'SAP SOAP RFC_PING',
+			'Name' => 'SAP /sap/bc/soap/rfc SOAP Service RFC_PING Function Service Discovery',
 			'Description' => %q{
-				Calls the RFC_PING RFC module via SOAP to test the availability of the function.
-				The function simply tests connectivity to remote RFC destinations.
+					This module makes use of the RFC_PING function, through the	/sap/bc/soap/rfc
+				SOAP service, to test connectivity to remote RFC destinations.
 				},
-			'References' => [[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]],
-			'Author' => [ 'Agnivesh Sathasivam','nmonkee' ],
-			'License' => BSD_LICENSE
-			)
+			'References' =>
+				[
+					[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
+				],
+			'Author' =>
+				[
+					'Agnivesh Sathasivam',
+					'nmonkee'
+				],
+			'License' => MSF_LICENSE
+		)
 
 		register_options(
 			[
-				OptString.new('CLIENT', [true, 'Client', nil]),
+				Opt::RPORT(8000),
+				OptString.new('CLIENT', [true, 'Client', '001']),
 				OptString.new('USERNAME', [true, 'Username ', 'SAP*']),
 				OptString.new('PASSWORD', [true, 'Password ', '06071992'])
 			], self.class)
-		register_autofilter_ports([ 8000 ])
 	end
 
 	def run_host(ip)
@@ -78,9 +85,19 @@ class Metasploit4 < Msf::Auxiliary
 				end
 				return
 			elsif res and res.body =~ /Response/
-				print_status("[SAP] #{ip}:#{rport} - RFC service is alive")
+				print_good("[SAP] #{ip}:#{rport} - RFC service is alive")
+				report_note(
+					:host => ip,
+					:proto => 'tcp',
+					:port => rport,
+					:sname => 'sap',
+					:type => 'sap.services.available',
+					:data => "The Remote Function Call (RFC) Service is available through the SOAP service."
+				)
+				return
 			else
 				print_status("[SAP] #{ip}:#{rport} - RFC service is not alive")
+				return
 			end
 		rescue ::Rex::ConnectionError
 			print_error("[SAP] #{ip}:#{rport} - Unable to connect")
