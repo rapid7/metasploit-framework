@@ -54,6 +54,7 @@ class Plugin::Alias < Msf::Plugin
 						'Postfix' => "\n",
 						'Columns' => [ '', 'Alias Name', 'Alias Value' ]
 					)
+					# add 'alias' in front of each row so that the output can be copy pasted into an rc file if desired
 					@aliases.each_pair do |key,val|
 						tbl << ["alias",key,val]
 					end
