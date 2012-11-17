@@ -34,7 +34,7 @@ module Metasploit3
 			'Payload'       =>
 				{
 					'Offsets' => {} ,
-					'Payload' => '' 
+					'Payload' => ''
 				})
 		)
 	end
@@ -46,7 +46,7 @@ module Metasploit3
 
 		port = Integer(datastore['LPORT'])
 		port = [port].pack("n").unpack("cc");
-		
+
 		# based on vaicebine at gmail dot com shellcode
 		# and scut paper Writing MIPS/Irix shellcode
 		shellcode =
