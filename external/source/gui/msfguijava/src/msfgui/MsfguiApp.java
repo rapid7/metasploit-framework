@@ -287,12 +287,19 @@ public class MsfguiApp extends SingleFrameApplication {
 		}
 		Map hash = (Map)args.get(2);
 		StringBuilder name = new StringBuilder(args.get(0) + " " + args.get(1));
+		//Save these options
+		if(!propRoot.containsKey("modOptions")) //first ensure option map exists
+			propRoot.put("modOptions", new HashMap());
+		((Map)propRoot.get("modOptions")).put(name.toString(), args);
+
+		//Generate display name
 		for(Object ento : hash.entrySet()){
 			Entry ent = (Entry)ento;
 			String propName = ent.getKey().toString();
 			if(propName.endsWith("HOST") || propName.endsWith("PORT") || propName.equals("PAYLOAD"))
 				name.append(" ").append(propName).append("-").append(ent.getValue());
 		}
+		//Make menu item
 		final JMenuItem item = new JMenuItem(name.toString());
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
