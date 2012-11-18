@@ -43,6 +43,7 @@ class Metasploit4 < Msf::Auxiliary
 			'License' => MSF_LICENSE
 		)
 		register_options([
+			Opt::RPORT(8000),
 			OptString.new('CLIENT', [true, 'SAP client', '001']),
 			OptString.new('USERNAME', [true, 'Username', 'SAP*']),
 			OptString.new('PASSWORD', [true, 'Password', '06071992']),

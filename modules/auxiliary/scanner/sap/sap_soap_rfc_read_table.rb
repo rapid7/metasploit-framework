@@ -46,9 +46,9 @@ class Metasploit4 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(8000),
-				OptString.new('CLIENT', [true, 'Client', nil]),
-				OptString.new('USERNAME', [true, 'Username', nil]),
-				OptString.new('PASSWORD', [true, 'Password', nil]),
+				OptString.new('CLIENT', [true, 'SAP client', '001']),
+				OptString.new('USERNAME', [true, 'Username', 'SAP*']),
+				OptString.new('PASSWORD', [true, 'Password', '06071992']),
 				OptString.new('TABLE', [true, 'Table to read', nil]),
 				OptString.new('FIELDS', [true, 'Fields to read', '*'])
 			], self.class)
