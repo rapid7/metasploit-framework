@@ -25,7 +25,7 @@ end
 
 class Msftidy
 
-	LONG_LINE_LENGTH = 200 # From 100 to 200 which is stupidly long
+	LONG_LINE_LENGTH = 100 # From 100 to 200 which is stupidly long
 
 	def initialize(source_file)
 		@source  = load_file(source_file)
@@ -93,6 +93,11 @@ class Msftidy
 				error("Invalid ranking. You have '#{$1}'")
 			end
 		end
+	end
+
+	def check_version
+		return if @source !~ /'Version'.*\=\>/
+		warn('Version field is no longer required')
 	end
 
 	def check_disclosure_date
@@ -237,6 +242,7 @@ def run_checks(f_rel)
 	tidy.check_extname
 	tidy.test_old_rubies(f_rel)
 	tidy.check_ranking
+	tidy.check_version
 	tidy.check_disclosure_date
 	tidy.check_title_format
 	tidy.check_bad_terms
