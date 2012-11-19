@@ -45,7 +45,7 @@ class Plugin::Alias < Msf::Plugin
 			# we parse args manually instead of using @@alias.opts.parse to handle special cases
 			case args.length
 			when 0 # print the list of current aliases
-				if @aliases.length == 0 
+				if @aliases.length == 0
 					return print_status("No aliases currently defined")
 				else
 					tbl = Rex::Ui::Text::Table.new(
@@ -86,7 +86,7 @@ class Plugin::Alias < Msf::Plugin
 				# for example you 'alias -f set unset and then 'alias -f alias sessions', now you're screwed.  The byproduct
 				# of this is that it prevents you from aliasing 'alias' to 'alias -f' etc, but that's acceptable
 				reserved_words = [/^alias/i]
-				reserved_words.each do |regex|	
+				reserved_words.each do |regex|
 					if name =~ regex
 						print_error "You cannot use #{name} as the name for an alias, sorry"
 						return false
@@ -150,7 +150,7 @@ class Plugin::Alias < Msf::Plugin
 		def cmd_alias_help
 			print_line "Usage: alias [options] [name [value]]"
 			print_line
-			print(@@alias_opts.usage())	
+			print(@@alias_opts.usage())
 		end
 
 		#
@@ -204,7 +204,7 @@ class Plugin::Alias < Msf::Plugin
 					driver.run_single("help #{value}")
 				end
 			end
-			# add the alias to the list 
+			# add the alias to the list
 			@aliases[name] = value
 		end
 
@@ -213,7 +213,7 @@ class Plugin::Alias < Msf::Plugin
 		#
 		def deregister_alias(name)
 			self.class_eval do
-				# remove the class methods we created when the alias was registered 
+				# remove the class methods we created when the alias was registered
 				remove_method("cmd_#{name}")
 				remove_method("cmd_#{name}_tabs")
 				remove_method("cmd_#{name}_help")
@@ -223,7 +223,7 @@ class Plugin::Alias < Msf::Plugin
 		end
 
 		#
-		# Validate a proposed alias
+		# Validate a proposed alias with the +name+ and having the value +value+
 		#
 		def is_valid_alias?(name,value)
 			#print_good "Assessing validay for #{name} and #{value}"
@@ -343,4 +343,4 @@ class Plugin::Alias < Msf::Plugin
 	end
 
 end ## End Plugin Class
-end ## End Module	
+end ## End Module
