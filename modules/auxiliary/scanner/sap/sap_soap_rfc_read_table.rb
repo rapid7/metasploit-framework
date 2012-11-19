@@ -58,7 +58,7 @@ class Metasploit4 < Msf::Auxiliary
 		columns = []
 		columns << '*' if datastore['FIELDS'].nil? or datastore['FIELDS'].empty?
 		if datastore['FIELDS']
-			columns.push (datastore['FIELDS']) if datastore['FIELDS'] =~ /^\w?/
+			columns.push(datastore['FIELDS']) if datastore['FIELDS'] =~ /^\w?/
 			columns = datastore['FIELDS'].split(',') if datastore['FIELDS'] =~ /\w*,\w*/
 		end
 		fields = ''
