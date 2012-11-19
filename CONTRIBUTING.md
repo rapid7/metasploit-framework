@@ -16,7 +16,7 @@ worry, it's easy and fun and takes about 30 seconds.
 
 If you have an exploit that you'd like to contribute to the Metasploit
 Framework, please familiarize yourself with the
-[HACKING](https://github.com/rapid7/metasploit-framework/blob/master/HACKING)
+**[HACKING](https://github.com/rapid7/metasploit-framework/blob/master/HACKING)**
 document in the
 Metasploit-Framework repository. There are many mysteries revealed in
 HACKING concerning code style and content.
