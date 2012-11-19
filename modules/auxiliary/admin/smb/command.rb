@@ -119,9 +119,11 @@ class Metasploit3 < Msf::Auxiliary
 			simple.connect(smbshare)
 			print_status("Executing cleanup on host: #{ip}")
 			psexec(smbshare, cleanup)
-			#if !check_cleanup(smbshare, ip, text)
-			#	print_error("#{ip} - Unable to cleanup.  Need to manually remove #{text} and #{bat} from the target.")
-			#end
+			if !check_cleanup(smbshare, ip, text)
+				print_error("#{ip} - Unable to cleanup.  Need to manually remove #{text} and #{bat} from the target.")
+			else
+				print_status("#{ip} - Cleanup was successful")
+			end
 		rescue StandardError => cleanuperror
 			print_error("Unable to processes cleanup commands: #{cleanuperror}")
 			return cleanuperror
@@ -132,13 +134,18 @@ class Metasploit3 < Msf::Auxiliary
 
 	def check_cleanup(smbshare, ip, text)
 		simple.connect("\\\\#{ip}\\#{smbshare}")
-		if checktext = simple.open(text, 'ro')
-			check = false
-		else
-			check = true
+		begin
+			if checktext = simple.open(text, 'ro')
+				check = false
+			else
+				check = true
+			end
+			simple.disconnect("\\\\#{ip}\\#{smbshare}")
+			return check
+		rescue StandardError => check_error
+			simple.disconnect("\\\\#{ip}\\#{smbshare}")
+			return true
 		end
-		simple.disconnect("\\\\#{ip}\\#{smbshare}")
-		return check
 	end
 
 
