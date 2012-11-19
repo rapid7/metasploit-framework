@@ -153,7 +153,6 @@ class Metasploit3 < Msf::Auxiliary
 	# This code was stolen straight out of psexec.rb.  Thanks very much HDM and all who contributed to that module!!
 	# Instead of uploading and runing a binary.  This method runs a single windows command fed into the #{command} paramater
 	def psexec(smbshare, command)
-		filename = "filename"
 		servicename = "servicename"
 		simple.disconnect(smbshare)
 
@@ -180,7 +179,8 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 
-		displayname = "displayname"
+		#displayname = "displayname"
+		displayname = Rex::Text.rand_text_alpha(16)
 		holdhandle = scm_handle
 		svc_handle  = nil
 		svc_status  = nil
