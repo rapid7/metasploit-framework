@@ -81,6 +81,17 @@ class Plugin::Alias < Msf::Plugin
 					args.shift
 				end
 				name = args.shift
+				# alias name can NEVER be certain reserved words like 'alias', add any other reserved words here
+				# We prevent the user from naming the alias "alias" cuz they could end up unable to clear the aliases,
+				# for example you 'alias -f set unset and then 'alias -f alias sessions', now you're screwed.  The byproduct
+				# of this is that it prevents you from aliasing 'alias' to 'alias -f' etc, but that's acceptable
+				reserved_words = [/^alias/i]
+				reserved_words.each do |regex|	
+					if name =~ regex
+						print_error "You cannot use #{name} as the name for an alias, sorry"
+						return false
+					end
+				end
 
 				if clear
 					# clear all aliases if "*"
@@ -101,15 +112,37 @@ class Plugin::Alias < Msf::Plugin
 				end
 				# smash everything that's left together
 				value = args.join(" ")
-
-				if is_valid_alias?(name,value)
-					if force or (not Rex::FileUtils.find_full_path(name) and not @aliases.keys.include?(name))
-						register_alias(name, value)
-					else
-						print_error("#{name} already exists as system command or current alias, use -f to force")
+				value.strip!
+				# valule can NEVER be certain bad words like 'rm -rf /', add any other reserved words here
+				# this is basic idiot protection, not meant to be impervious to subversive intentions
+				reserved_words = [/^rm +(-rf|-r +-f|-f +-r) +\/.*$/]
+				reserved_words.each do |regex|
+					if value =~ regex
+						print_error "You cannot use #{value} as the value for an alias, sorry"
+						return false
 					end
+				end
+
+				is_valid_alias = is_valid_alias?(name,value)
+				#print_good "Alias validity = #{is_valid_alias.to_s}"
+				is_sys_cmd = Rex::FileUtils.find_full_path(name)
+				is_already_alias = @aliases.keys.include?(name)
+				if is_valid_alias and not is_sys_cmd and not is_already_alias
+					register_alias(name, value)
+				elsif force
+					if not is_valid_alias
+						print_status "The alias failed validation, but force is set so we allow this.  This is often the case"
+						print_status "when for instance 'exploit' is being overridden but msfconsole is not currently in the"
+						print_status "exploit context (an exploit is not loaded), or you are overriding a system command"
+					end
+					register_alias(name, value)
 				else
-					print_error("\'#{name}\' is not a permitted name or \'#{value}\' is not a valid/permitted console or system command")
+					print_error("#{name} already exists as a system command, use -f to force override") if is_sys_cmd
+					print_error("#{name} is already an alias, use -f to force override") if is_already_alias
+					if not is_valid_alias and not force
+						print_error("\'#{name}\' is not a permitted name or \'#{value}\' is not valid/permitted")
+						print_error("It's possible the responding dispatcher isn't loaded yet, try changing to the proper context or using -f to force")
+					end
 				end
 			end
 		end
@@ -193,20 +226,42 @@ class Plugin::Alias < Msf::Plugin
 		# Validate a proposed alias
 		#
 		def is_valid_alias?(name,value)
-			# some "bad words" to avoid for the value.  value would have to not match these regexes
-			# this is just basic idiot protection, it's not meant to be "undefeatable"
+			#print_good "Assessing validay for #{name} and #{value}"
+			# we validate two things, the name and the value
+
+			### name
+			# we don't check if this alias name exists or if it's a console command already etc as -f can override
+			# that so those need to be checked externally, we pretty much just check to see if the name is sane
+			name.strip!
+			bad_words = [/\*/] # add any additional "bad word" regexes here
+			bad_words.each do |regex|
+				# don't mess around, just return false in this case, prevents wasted processing
+				return false if name =~ regex
+			end
+
+			### value
+			# value is considered valid if it's a ref to a valid console cmd, a system executable, or an existing
+			# alias AND isn't a "bad word"
+			# Here we check for "bad words" to avoid for the value...value would have to NOT match these regexes
+			# this is just basic idiot protection
 			value.strip!
-			bad_words = [/^rm +(-rf|-r +-f|-f +-r) +\/+.*$/, /^msfconsole$/]
+			bad_words = [/^msfconsole$/]
 			bad_words.each do |regex|
 				# don't mess around, just return false if we match
 				return false if value =~ regex
 			end
+
 			# we're only gonna validate the first part of the cmd, e.g. just ls from "ls -lh"
 			value = value.split(" ").first
-			valid_value = false
-
-			# value is considered valid if it's a ref to a valid console command or
-			#  a system executable or existing alias
+			if @aliases.keys.include?(value)
+				return true
+			else
+				[value, value+".exe"].each do |cmd|
+					if Rex::FileUtils.find_full_path(cmd)
+						return true
+					end
+				end
+			end
 
 			# gather all the current commands the driver's dispatcher's have & check 'em
 			driver.dispatcher_stack.each do |dispatcher|
@@ -215,40 +270,14 @@ class Plugin::Alias < Msf::Plugin
 				next if (dispatcher.commands.length == 0)
 
 				if dispatcher.respond_to?("cmd_#{value.split(" ").first}")
-					valid_value = true
-					break
-				end
-			end
-			if not valid_value # then check elsewhere
-				if @aliases.keys.include?(value)
-					valid_value = true
+					#print_status "Dispatcher (#{dispatcher.name}) responds to cmd_#{value.split(" ").first}"
+					return true
 				else
-					[value, value+".exe"].each do |cmd|
-						if Rex::FileUtils.find_full_path(cmd)
-							valid_value = true
-						end
-					end
+					#print_status "Dispatcher (#{dispatcher.name}) does not respond to cmd_#{value.split(" ").first}"
 				end
 			end
-			# go ahead and return false at this point if the value isn't valid
-			return false if not valid_value
 
-			# we don't check if this alias name exists or if it's a console command already etc as
-			#  -f can override that so those need to be checked externally.
-			#  We pretty much just check to see if the name is sane
-			valid_name = true
-			name.strip!
-			bad_words = [/^alias$/,/\*/]
-			# there are probably a bunch of others that need to be added here.  We prevent the user
-			#  from naming the alias "alias" cuz they can end up unable to clear the aliases
-			# for example you 'alias -f set unse't and then 'alias -f alias sessions', now you're 
-			#  screwed.  This prevents you from aliasing alias to alias -f etc, but no biggie.
-			bad_words.each do |regex|
-				# don't mess around, just return false in this case, prevents wasted processing
-				return false if name =~ regex
-			end
-
-			return valid_name
+			return false
 		end
 
 		#
