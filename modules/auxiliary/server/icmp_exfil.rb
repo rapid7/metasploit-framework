@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				To use this module you will need to send an initial ICMP echo request containing the
 				specific start trigger (defaults to '^BOF') this can be followed by the filename being sent (or
-				a random filename can be assisnged). All data received from this source will automatically 
+				a random filename can be assisnged). All data received from this source will automatically
 				be added to the receive buffer until an ICMP echo request containing a specific end trigger
 				(defaults to 'EOL') is received.
 			},
@@ -80,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
 			@record_data = ''
 
 			if datastore['PROMISC']
-				 print_status("Warning: Promiscuous mode enabled. This may cause issues!")
+				print_status("Warning: Promiscuous mode enabled. This may cause issues!")
 			end
 
 			# start icmp listener process - loop
@@ -113,7 +113,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				if packet.is_icmp? and data =~ /#{datastore['START_TRIGGER']}/
 					# start of new file detected
-					vprint_status("#{Time.now}: ICMP (type %d code %d) SRC:%s DST:%s" % 
+					vprint_status("#{Time.now}: ICMP (type %d code %d) SRC:%s DST:%s" %
 								[packet.icmp_type, packet.icmp_code, packet.ip_saddr, packet.ip_daddr])
 
 					# detect and warn if system is responding to ICMP echo requests
