@@ -38,7 +38,6 @@ class Metasploit4 < Msf::Auxiliary
 				],
 			'Author' =>
 				[
-					'Agnivesh Sathasivam',
 					'nmonkee'
 				],
 			'License' => MSF_LICENSE
