@@ -13,6 +13,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/registry'
 require 'msf/core/post/windows/priv'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
@@ -34,7 +35,7 @@ class Metasploit3 < Msf::Post
 					'Sil3ntDre4m <sil3ntdre4m[at]gmail.com>',
 				],
 				'Version'	   => '$Revision$',
-				'Platform'	  => [ 'windows' ],
+				'Platform'	  => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
 	end

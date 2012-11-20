@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'        =>
 					[
 						'sid', # Original POC
-						'TheLightCosine <thelightcosine[at]gmail.com>' # msf module
+						'theLightCosine' # msf module
 					],
 			'License'       => MSF_LICENSE,
 			'Version'       => '$Revision$',
@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					[ 'CVE', '2010-2156' ],
 					[ 'OSVDB', '65246'],
-					[ 'EDB', 14185]
+					[ 'EDB', '14185']
 				]
 		)
 		register_options(

@@ -15,19 +15,19 @@ class Metasploit3 < Msf::Post
 				'Name'          => 'Windows Recon Resolve Hostname',
 				'Description'   => %q{ This module resolves a hostname to IP address via the victim, similiar to the Unix dig command},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Rob Fuller <mubix[at]hak5.org>'],
-				'Platform'      => [ 'windows' ],
+				'Author'        => [ 'mubix' ],
+				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
 
 		register_options(
 			[
-				OptString.new('HOSTNAME', [true, 'Hostname to lookup', nil])
+				OptString.new('HOSTNAME', [false, 'Hostname to lookup', nil]),
+				OptPath.new('HOSTFILE', [false, 'Line separated file with hostnames to resolve', nil])
 			], self.class)
 	end
 
-	def run
-		### MAIN ###
+	def resolve_hostname(hostname)
 
 		if client.platform =~ /^x64/
 			size = 64
@@ -37,14 +37,11 @@ class Metasploit3 < Msf::Post
 			addrinfoinmem = 24
 		end
 
-		hostname = datastore['HOSTNAME']
-
-		## get IP for host
 		begin
 			vprint_status("Looking up IP for #{hostname}")
 			result = client.railgun.ws2_32.getaddrinfo(hostname, nil, nil, 4 )
 			if result['GetLastError'] == 11001
-				print_error("Failed to resolve the host")
+				print_error("Failed to resolve #{hostname}")
 				return
 			end
 			addrinfo = client.railgun.memread( result['ppResult'], size )
@@ -53,9 +50,23 @@ class Metasploit3 < Msf::Post
 			ip = sockaddr[4,4].unpack('N').first
 			hostip = Rex::Socket.addr_itoa(ip)
 			print_status("#{hostname} resolves to #{hostip}")
-		rescue ::Exception => e
-			print_error(e)
+		rescue Rex::Post::Meterpreter::RequestError
 			print_status('Windows 2000 and prior does not support getaddrinfo')
+		end
+
+	end
+
+	def run
+		if datastore['HOSTNAME']
+			resolve_hostname(datastore['HOSTNAME'])
+		end
+
+		if datastore['HOSTFILE']
+			::File.open(datastore['HOSTFILE'], "rb").each_line do |hostname|
+				if hostname.strip != ""
+					resolve_hostname(hostname.strip)
+				end
+			end
 		end
 	end
 end

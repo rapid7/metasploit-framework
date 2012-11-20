@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'HTTP Client MS Credential Relayer',
-			'Version'     => '$Revision:$',
+			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module relays negotiated NTLM Credentials from an HTTP server to multiple
 					protocols. Currently, this module supports relaying to SMB and HTTP.
@@ -52,7 +52,6 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					'Rich Lundeen <richard.lundeen[at]gmail.com>',
 				],
-			'Version'     => '$Revision:$',
 			'License'     => MSF_LICENSE,
 			'Actions'     =>
 				[
@@ -93,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Handles the initial requests waiting for the browser to try NTLM auth
 	def on_request_uri(cli, request)
-	
+
 		case request.method
 		when 'OPTIONS'
 			process_options(cli, request)
@@ -136,7 +135,7 @@ class Metasploit3 < Msf::Auxiliary
 		parse_args()
 		exploit()
 	end
-	
+
 	def process_options(cli, request)
 		print_status("OPTIONS #{request.uri}")
 		headers = {

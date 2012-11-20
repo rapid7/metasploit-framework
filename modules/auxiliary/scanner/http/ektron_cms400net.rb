@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			#Check for HTTP 200 response.
 			#Numerous versions and configs make if difficult to further fingerprint.
-			if (res.code == 200)
+			if (res and res.code == 200)
 				print_status("Ektron CMS400.NET install found at #{target_url}  [HTTP 200]")
 
 				#Gather __VIEWSTATE and __EVENTVALIDATION from HTTP response.

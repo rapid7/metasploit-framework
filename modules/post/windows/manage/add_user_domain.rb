@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
 				'License'       => MSF_LICENSE,
 				'Author'        => 'Joshua Abraham <jabra[at]rapid7.com>',
 				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
+				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
 		register_options(

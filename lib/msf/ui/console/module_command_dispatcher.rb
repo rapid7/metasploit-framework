@@ -88,17 +88,22 @@ module ModuleCommandDispatcher
 
 		print_status('Reloading module...')
 
-		omod = self.mod
-		self.mod = framework.modules.reload_module(mod)
+		original_mod = self.mod
+		reloaded_mod = framework.modules.reload_module(original_mod)
 
-		if(not self.mod)
-			print_error("Failed to reload module: #{framework.modules.failed[omod.file_path]}")
-			self.mod = omod
-			return
-		end
+		unless reloaded_mod
+      error = framework.modules.module_load_error_by_path[original_mod.file_path]
 
-		self.mod.init_ui(driver.input, driver.output)
-		mod
+			print_error("Failed to reload module: #{error}")
+
+			self.mod = original_mod
+    else
+      self.mod = reloaded_mod
+
+      self.mod.init_ui(driver.input, driver.output)
+    end
+
+    reloaded_mod
 	end
 
 end

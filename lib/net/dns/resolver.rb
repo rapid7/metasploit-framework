@@ -995,12 +995,54 @@ module Net # :nodoc:
       #
       # Performs a zone transfer for the zone passed as a parameter.
       #
-      # It is actually only a wrapper to a send with type set as Net::DNS::AXFR,
-      # since it is using the same infrastucture.
+	  # Returns a list of Net::DNS::Packet (not answers!)
       #
       def axfr(name,cls=Net::DNS::IN)
         @logger.info "Requested AXFR transfer, zone #{name} class #{cls}"
-        send(name,Net::DNS::AXFR,cls)
+        if @config[:nameservers].size == 0
+          raise ResolverError, "No nameservers specified!"
+        end
+
+        method = :send_tcp
+        packet = make_query_packet(name, Net::DNS::AXFR, cls)
+
+        # Store packet_data for performance improvements,
+        # so methods don't keep on calling Packet#data
+        packet_data = packet.data
+        packet_size = packet_data.size
+
+		if @raw
+		  @logger.warn "AXFR query, switching to TCP over RAW socket"
+		  method = :send_raw_tcp
+		else
+		  @logger.warn "AXFR query, switching to TCP"
+		  method = :send_tcp
+		end
+
+        answers = []
+        soa = 0
+        self.old_send(method, packet, packet_data) do |ans|
+          @logger.info "Received #{ans[0].size} bytes from #{ans[1][2]+":"+ans[1][1].to_s}"
+
+          begin
+            response = Net::DNS::Packet.parse(ans[0],ans[1])
+            if response.answer[0].type == "SOA"
+              soa += 1
+              if soa >= 2
+                break
+              end
+            end
+            answers << response
+          rescue NameError => e
+            @logger.warn "Error parsing axfr response: #{e.message}"
+          end
+        end
+        if answers.empty?
+          @logger.fatal "No response from nameservers list: aborting"
+          raise NoResponseError
+        end
+
+        return answers
       end
 
       #
@@ -1119,38 +1161,56 @@ module Net # :nodoc:
 
         @config[:nameservers].each do |ns|
           begin
-            buffer = ""
             socket = Socket.new(Socket::AF_INET,Socket::SOCK_STREAM,0)
             socket.bind(Socket.pack_sockaddr_in(@config[:source_port],@config[:source_address].to_s))
 
             sockaddr = Socket.pack_sockaddr_in(@config[:port],ns.to_s)
 
             @config[:tcp_timeout].timeout do
-              socket.connect(sockaddr)
-              @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
-              socket.write(length+packet_data)
-              ans = socket.recv(Net::DNS::INT16SZ)
-              len = ans.unpack("n")[0]
+              catch "next nameserver" do
+                socket.connect(sockaddr)
+                @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
+                socket.write(length+packet_data)
+                got_something = false
+                loop do
+                  buffer = ""
+                  ans = socket.recv(Net::DNS::INT16SZ)
+                  if ans.size == 0
+                    if got_something
+                      break #Proper exit from loop
+                    else
+                      @logger.warn "Connection reset to nameserver #{ns}, trying next."
+                      throw "next nameserver"
+                    end
+                  end
+                  got_something = true
+                  len = ans.unpack("n")[0]
 
-              @logger.info "Receiving #{len} bytes..."
+                  @logger.info "Receiving #{len} bytes..."
 
-              if len == 0
-                @logger.warn "Receiving 0 lenght packet from nameserver #{ns}, trying next."
-                next
-              end
+                  if len == 0
+                    @logger.warn "Receiving 0 length packet from nameserver #{ns}, trying next."
+                    throw "next nameserver"
+                  end
 
-              while (buffer.size < len)
-                left = len - buffer.size
-                temp,from = socket.recvfrom(left)
-                buffer += temp
-              end
+                  while (buffer.size < len)
+                    left = len - buffer.size
+                    temp,from = socket.recvfrom(left)
+                    buffer += temp
+                  end
 
-              unless buffer.size == len
-                @logger.warn "Malformed packet from nameserver #{ns}, trying next."
-                next
+                  unless buffer.size == len
+                    @logger.warn "Malformed packet from nameserver #{ns}, trying next."
+                    throw "next nameserver"
+                  end
+                  if block_given?
+                    yield [buffer,["",@config[:port],ns.to_s,ns.to_s]]
+                  else
+                    return [buffer,["",@config[:port],ns.to_s,ns.to_s]]
+                  end
+                end
               end
             end
-            return [buffer,["",@config[:port],ns.to_s,ns.to_s]]
           rescue Timeout::Error
             @logger.warn "Nameserver #{ns} not responding within TCP timeout, trying next one"
             next
@@ -1158,6 +1218,7 @@ module Net # :nodoc:
             socket.close
           end
         end
+        return nil
       end
 
       def send_udp(packet,packet_data)
@@ -1194,6 +1255,8 @@ module Net # :nodoc:
   end # module DNS
 end # module Net
 
+class ResolverError < ArgumentError # :nodoc:
+end
 class ResolverArgumentError < ArgumentError # :nodoc:
 end
 class NoResponseError < StandardError # :nodoc:

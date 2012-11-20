@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 					a note for each DB found, and store a YAML formatted output
 					as loot for easy reading.
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Author'         => ['theLightCosine'],
 			'License'        => MSF_LICENSE
 		)
 

@@ -367,6 +367,7 @@ protected
 			if (self.body_bytes_left == 0)
 				self.bufq.sub!(/^\r?\n/s,'')
 				self.state = ParseState::Completed
+				self.check_100
 				return
 			end
 
@@ -396,8 +397,13 @@ protected
 		# ready to go.
 		if (not self.transfer_chunked and self.body_bytes_left == 0)
 			self.state = ParseState::Completed
+			self.check_100
 			return
 		end
+	end
+
+	# Override this as needed
+	def check_100
 	end
 
 end

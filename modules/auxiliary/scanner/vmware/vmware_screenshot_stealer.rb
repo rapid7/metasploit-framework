@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 				the web interface. It then searches through the datastores looking for screenshots.
 				It will downlaod any screenshots it finds and save them as loot.
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
+			'Author'         => ['theLightCosine'],
 			'License'        => MSF_LICENSE
 		)
 

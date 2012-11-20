@@ -11,6 +11,7 @@
 
 require 'msf/core'
 require 'msf/core/post/windows/registry'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 	include Msf::Post::Windows::Registry
@@ -23,7 +24,7 @@ class Metasploit3 < Msf::Post
 					This module recovers the saved premium download account passwords from
 				Internet Download Manager (IDM). These passwords are stored in an encoded
 				format in the registry. This module traverses through these registry entries
-				and decodes them. Thanks to the template code of thelightcosine's CoreFTP
+				and decodes them. Thanks to the template code of theLightCosine's CoreFTP
 				password module.
 			},
 			'License'       => MSF_LICENSE,
@@ -33,7 +34,7 @@ class Metasploit3 < Msf::Post
 					'SecurityXploded Team <contact[at]securityxploded.com>'
 				],
 			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 	end

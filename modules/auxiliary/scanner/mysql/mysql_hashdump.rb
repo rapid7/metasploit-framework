@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 					This module extracts the usernames and encrypted password
 				hashes from a MySQL server and stores them for later cracking.
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
+			'Author'         => ['theLightCosine'],
 			'License'        => MSF_LICENSE
 		)
 	end

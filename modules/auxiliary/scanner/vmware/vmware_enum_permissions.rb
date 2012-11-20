@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 				users and groups that specifically have permissions defined within
 				the VMware product
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
+			'Author'         => ['theLightCosine'],
 			'License'        => MSF_LICENSE
 		)
 

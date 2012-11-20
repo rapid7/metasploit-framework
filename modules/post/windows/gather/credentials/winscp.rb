@@ -16,6 +16,7 @@ require 'rex'
 require 'msf/core/post/windows/registry'
 require 'rex/parser/ini'
 require 'msf/core/post/windows/user_profiles'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 	include Msf::Post::Windows::Registry
@@ -33,8 +34,8 @@ class Metasploit3 < Msf::Post
 				password is used.
 				},
 			'License'       => MSF_LICENSE,
-			'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
-			'Platform'      => [ 'windows' ],
+			'Author'        => [ 'theLightCosine'],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 	end
