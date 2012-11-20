@@ -149,7 +149,7 @@ class Metasploit3 < Msf::Auxiliary
 					icmp_response, contents = icmp_packet(packet, datastore['RESP_START'])
 
 					if not icmp_response
-						raise RuntimeError ,"Could not build ICMP resonse"
+						raise RuntimeError ,"Could not build ICMP response"
 					else
 						# send response packet icmp_pkt
 						send_icmp(icmp_response, contents)
@@ -168,7 +168,7 @@ class Metasploit3 < Msf::Auxiliary
 						icmp_response, contents = icmp_packet(packet, datastore['RESP_END'])
 
 						if not icmp_response
-							raise RuntimeError , "Could not build ICMP resonse"
+							raise RuntimeError , "Could not build ICMP response"
 						else
 							# send response packet icmp_pkt
 							send_icmp(icmp_response, contents)
@@ -188,7 +188,7 @@ class Metasploit3 < Msf::Auxiliary
 						icmp_response, contents = icmp_packet(packet, datastore['RESP_CONT'])
 
 						if not icmp_response
-							raise RuntimeError , "Could not build ICMP resonse"
+							raise RuntimeError , "Could not build ICMP response"
 						else
 							# send response packet icmp_pkt
 							send_icmp(icmp_response, contents)
