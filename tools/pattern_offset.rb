@@ -29,7 +29,51 @@ value  = value.hex if (value.length >= 8 and value.hex > 0)
 buffer = Rex::Text.pattern_create(len.to_i)
 
 offset = Rex::Text.pattern_offset(buffer, value)
+
+# Handle cases where there is no match by looking for "close" matches
+unless offset
+	found = false
+	$stderr.puts "[*] No exact matches, looking for likely candidates..."
+
+	# Look for shifts by a single byte
+	0.upto(3) do |idx|
+		0.upto(255) do |c|
+			nvb = [value].pack("V")
+			nvb[idx, 1] = [c].pack("C")
+			nvi = nvb.unpack("V").first
+
+			off = Rex::Text.pattern_offset(buffer, nvi)
+			if off
+				mle = value - buffer[off,4].unpack("V").first
+				mbe = value - buffer[off,4].unpack("N").first
+				puts "[+] Possible match at offset #{off} (adjusted [ little-endian: #{mle} | big-endian: #{mbe} ] ) byte offset #{idx}"
+				found = true
+			end
+		end
+	end
+
+	exit if found
+
+	# Look for 16-bit offsets
+	[0, 2].each do |idx|
+		0.upto(65535) do |c|
+			nvb = [value].pack("V")
+			nvb[idx, 2] = [c].pack("v")
+			nvi = nvb.unpack("V").first
+
+			off = Rex::Text.pattern_offset(buffer, nvi)
+			if off
+				mle = value - buffer[off,4].unpack("V").first
+				mbe = value - buffer[off,4].unpack("N").first
+				puts "[+] Possible match at offset #{off} (adjusted [ little-endian: #{mle} | big-endian: #{mbe} ] )"
+				found = true
+			end
+		end
+	end
+
+end
+
 while offset
-	puts offset
+	puts "[*] Exact match at offset #{offset}"
 	offset = Rex::Text.pattern_offset(buffer, value, offset + 1)
 end
