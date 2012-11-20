@@ -26,7 +26,7 @@ class Metasploit4 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name' => 'SAP SOAP RFC SXPG_CALL_SYSTEM Command Exec',
+			'Name' => 'SAP /sap/bc/soap/rfc SOAP Service SXPG_CALL_SYSTEM Function Command Execution',
 			'Description' => %q{
 					This module makes use of the SXPG_CALL_SYSTEM Remote Function Call, through the
 				use of the /sap/bc/soap/rfc SOAP service to execute OS commands as configured in
