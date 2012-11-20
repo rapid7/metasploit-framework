@@ -25,6 +25,42 @@ end
 value = ARGV.shift
 len   = ARGV.shift || 8192
 
+=begin
+
+Examples:
+
+$ ./tools/pattern_create.rb 128
+Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2Ad3Ad4Ad5Ad6Ad7Ad8Ad9Ae0Ae1Ae
+
+$ ./tools/pattern_offset.rb 8Ac9
+[*] Exact match at offset 86
+
+$ ./tools/pattern_offset.rb 39634138
+[*] Exact match at offset 86
+
+$ ./tools/pattern_offset.rb 0x39634138
+[*] Exact match at offset 86
+
+$ ./tools/pattern_offset.rb 0x396341FF
+[*] No exact matches, looking for likely candidates...
+[+] Possible match at offset 86 (adjusted [ little-endian: 199 | big-endian: 18996934 ] ) byte offset 0
+
+$ ./tools/pattern_offset.rb 0x3963FFFF
+[*] No exact matches, looking for likely candidates...
+[+] Possible match at offset 86 (adjusted [ little-endian: 48839 | big-endian: 19045574 ] )
+[ snip ]
+
+$ ./tools/pattern_offset.rb 0xFFFF4138
+[*] No exact matches, looking for likely candidates...
+[+] Possible match at offset 26 (adjusted [ little-endian: 3332243456 | big-endian: 3351109631 ] )
+[+] Possible match at offset 56 (adjusted [ little-endian: 3332177920 | big-endian: 3351109375 ] )
+[+] Possible match at offset 86 (adjusted [ little-endian: 3332112384 | big-endian: 3351109119 ] )
+[ snip ]
+
+=end
+
+
+
 # The normal format is a full hexadecimal value: 0x41424344
 if (value.length >= 8 and value.hex > 0)
 	value = value.hex
