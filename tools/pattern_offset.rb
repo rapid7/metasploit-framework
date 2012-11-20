@@ -25,11 +25,14 @@ end
 value = ARGV.shift
 len   = ARGV.shift || 8192
 
+# The normal format is a full hexadecimal value: 0x41424344
 if (value.length >= 8 and value.hex > 0)
 	value = value.hex
+# However, you can also specify a four-byte string
 elsif (value.length == 4)
 	value = value.unpack("V").first
 else
+# Or even a hex value that isn't 8 bytes long
 	value = value.to_i(16)
 end
 
