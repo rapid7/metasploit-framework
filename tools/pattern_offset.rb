@@ -25,7 +25,12 @@ end
 value = ARGV.shift
 len   = ARGV.shift || 8192
 
-value  = value.hex if (value.length >= 8 and value.hex > 0)
+if (value.length >= 8 and value.hex > 0)
+	value = value.hex
+else
+	value = value[0,4].unpack("V").first
+end
+
 buffer = Rex::Text.pattern_create(len.to_i)
 
 offset = Rex::Text.pattern_offset(buffer, value)
