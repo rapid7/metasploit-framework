@@ -27,6 +27,8 @@ len   = ARGV.shift || 8192
 
 if (value.length >= 8 and value.hex > 0)
 	value = value.hex
+elsif (value.length == 4)
+	value = value.unpack("V").first
 else
 	value = value.to_i(16)
 end
