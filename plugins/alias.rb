@@ -85,7 +85,7 @@ class Plugin::Alias < Msf::Plugin
 				# We prevent the user from naming the alias "alias" cuz they could end up unable to clear the aliases,
 				# for example you 'alias -f set unset and then 'alias -f alias sessions', now you're screwed.  The byproduct
 				# of this is that it prevents you from aliasing 'alias' to 'alias -f' etc, but that's acceptable
-				reserved_words = [/^alias/i]
+				reserved_words = [/^alias$/i]
 				reserved_words.each do |regex|
 					if name =~ regex
 						print_error "You cannot use #{name} as the name for an alias, sorry"
@@ -113,7 +113,7 @@ class Plugin::Alias < Msf::Plugin
 				# smash everything that's left together
 				value = args.join(" ")
 				value.strip!
-				# valule can NEVER be certain bad words like 'rm -rf /', add any other reserved words here
+				# value can NEVER be certain bad words like 'rm -rf /', add any other reserved words here
 				# this is basic idiot protection, not meant to be impervious to subversive intentions
 				reserved_words = [/^rm +(-rf|-r +-f|-f +-r) +\/.*$/]
 				reserved_words.each do |regex|
