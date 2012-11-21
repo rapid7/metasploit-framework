@@ -204,7 +204,7 @@ class FastLib
 		}
 		
 		dirs.each do |dir|
-			::Find.find(dir).each do |path|
+			::Find.find(dir) do |path|
 				next if not ::File.file?(path)
 				name = fastlib_filter_encode( lib, path.sub( brex, "" ) )
 				
