@@ -81,8 +81,8 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("Executing your command on host: #{ip}")
 			psexec(smbshare, execute)
 			return true
-		rescue StandardError => execerror
-			print_error("#{ip} - Unable to execute specified command: #{execerror}")
+		rescue StandardError => exec_command_cerror
+			print_error("#{ip} - Unable to execute specified command: #{exec_command_error}")
 			return false	
 		end
 	end
@@ -273,18 +273,10 @@ class Metasploit3 < Msf::Auxiliary
 			#print_status("Deleting \\#{filename}...")
 			select(nil, nil, nil, 1.0)
 			#This is not really useful but will prevent double \\ on the wire :)
-		if datastore['SHARE'] =~ /.[\\\/]/
 			simple.connect(smbshare)
 			simple.delete("%WINDIR%\\Temp\\msfcommandoutput.txt")
-		else
-			simple.connect(smbshare)
-			simple.delete("%WINDIR%\\Temp\\msfcommandoutput.txt")
-		end
-
-		rescue ::Interrupt
-			raise $!
-		rescue ::Exception
-			#raise $!
+		rescue StandardError => psexec_cleanup_error
+			print_error("Error occured cleaning up the service. #{psexec_cleanup_error}")
 		end
 		simple.disconnect("IPC$")
 		simple.disconnect(smbshare)
