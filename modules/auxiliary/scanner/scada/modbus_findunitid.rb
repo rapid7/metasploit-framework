@@ -22,12 +22,12 @@ class Metasploit3 < Msf::Auxiliary
 				This module sends a command (0x04, read input register) to the modbus endpoint.
 				If this command is sent to the correct unit-id, it returns with the same funcion-id.
 				if not, it should be added 0x80, so that it sys 0x84, and an exception-code follows
-				which do not interest us.  This does not always happen, but at least the first 4
+				which do not interest us. This does not always happen, but at least the first 4
 				bytes in the return-packet should be exact the same as what was sent.
 
-				You can change port, ip and the scan-range for unit-id.  There is also added a
+				You can change port, ip and the scan-range for unit-id. There is also added a
 				value - BENICE - to make the scanner sleep a second or more between probes. We
-				have seen installations where scanning too many too fast workes like a DoS.
+				have seen installations where scanning too many too fast works like a DoS.
 			},
 			'References'  =>
 				[

@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 				'version' => '1.1',
 				'method'  => 'POST',
 				'ctype'   => "text/xml",
-				'data'    => message,
+				'data'    => message
 			})
 		rescue ::Errno::ECONNRESET
 			print_good("#{peer} - NFR Agent didn't answer, DoS seems successful")
