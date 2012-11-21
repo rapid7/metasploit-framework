@@ -28,12 +28,13 @@ class Metasploit3 < Msf::Auxiliary
 				These hashes ares stored as loot for later cracking.
 			},
 			'Author'        => [
-					'TheLightCosine <thelightcosine[at]metasploit.com>', # Original hashdump module
+					'theLightCosine', # Original hashdump module
 					'jcran'                                              # Authentication bypass bruteforce implementation
 				],
 			'References'     => [
 					['CVE', '2012-2122'],
-					['OSVDB', '82804']
+					['OSVDB', '82804'],
+					['URL', 'https://community.rapid7.com/community/metasploit/blog/2012/06/11/cve-2012-2122-a-tragically-comedic-security-flaw-in-mysql']
 				],
 			'DisclosureDate' => 'Jun 09 2012',
 			'License'        => MSF_LICENSE

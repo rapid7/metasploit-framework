@@ -24,6 +24,7 @@ require 'msf/core'
 module Metasploit3
 
 	include Msf::Payload::Single
+	include Msf::Payload::Osx
 
 	def initialize(info = {})
 		super(merge_info(info,
@@ -45,7 +46,7 @@ module Metasploit3
 	#
 	# Dynamically builds the exec payload based on the user's options.
 	#
-	def generate
+	def generate_stage
 		cmd     = datastore['CMD'] || ''
 		len     = cmd.length + 1
 		payload =

@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 				'uri' => datastore['URI'] + fmt,
 			})
 
-			if res.code == 200
+			if res and res.code == 200
 				res.body.scan(/\<td class\=\"loginError\"\>(.+)XX/ism)
 				print_status("Information leaked: #{$1}")
 			end

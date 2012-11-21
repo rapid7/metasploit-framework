@@ -12,6 +12,7 @@
 require 'msf/core'
 require 'msf/core/post/windows/services'
 require 'rex'
+require 'msf/core//post/windows/services'
 
 class Metasploit3 < Msf::Post
 
@@ -32,7 +33,7 @@ class Metasploit3 < Msf::Post
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'scriptjunkie' ],
 			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 
@@ -46,6 +47,12 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
+		print_error("*********************************************************")
+		print_error("*                                                       *")
+		print_error("*       Module will be depricated on Jan 10 2013        *")
+		print_error("* Please use exploits/windows/local/service_permissions *")
+		print_error("*                                                       *")
+		print_error("*********************************************************")
 		print_status("running")
 
 		lhost = datastore["LHOST"] || Rex::Socket.source_address

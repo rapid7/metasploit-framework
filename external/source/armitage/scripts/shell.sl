@@ -86,6 +86,9 @@ global('%shells $ashell $achannel %maxq %wait');
 			m_cmd($sid, "read $channel");
 		}, \$command, \$channel, \$pid, $sid => $1));
 	}
+	else if ($0 eq "end") {
+		showError($2);
+	}
 };
 
 %handlers["write"] = {

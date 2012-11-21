@@ -10,6 +10,11 @@ module UserProfiles
 	include Msf::Post::Windows::Registry
 	include Msf::Post::Windows::Accounts
 
+	#
+	# Load the registry hive for each user on the machine and parse out the 
+	# user profile information. Next, unload the hives we loaded and return 
+	# the user profiles.
+	#
 	def grab_user_profiles
 		hives = load_missing_hives()
 		profiles = parse_profiles(hives)
@@ -17,6 +22,9 @@ module UserProfiles
 		return profiles
 	end
 
+	#
+	# Unload any hives we loaded.
+	#
 	def unload_our_hives(hives)
 		hives.each do |hive|
 			next unless hive['OURS']==true
@@ -24,6 +32,9 @@ module UserProfiles
 		end
 	end
 
+	#
+	# Return a list of user profiles parsed each of the hives in +hives+.
+	#
 	def parse_profiles(hives)
 		profiles=[]
 		hives.each do |hive|
@@ -33,6 +44,9 @@ module UserProfiles
 		return profiles
 	end
 
+	#
+	# Get the user profile information from the hive specified by +hive+
+	#
 	def parse_profile(hive)
 		profile={}
 		sidinf = resolve_sid(hive['SID'].to_s)
@@ -54,7 +68,9 @@ module UserProfiles
 		return profile
 	end
 
-
+	#
+	# Load any user hives that are not already loaded.
+	#
 	def load_missing_hives
 		hives=[]
 		read_profile_list().each do |hive|
@@ -72,6 +88,10 @@ module UserProfiles
 		return hives
 	end
 
+	#
+	# Read HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList to 
+	# get a list of user profiles on the machine.
+	#
 	def read_profile_list
 		hives=[]
 		registry_enumkeys('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList').each do |profkey|
@@ -88,6 +108,9 @@ module UserProfiles
 		return hives
 	end
 
+	#
+	# Return a list of loaded registry hives.
+	#
 	def loaded_hives
 		hives=[]
 		registry_enumkeys('HKU').each do |k|

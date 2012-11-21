@@ -8,33 +8,45 @@ import java.awt.event.*;
 import javax.swing.*;
 
 sub updateTokenList {
-	local('$queue');
-	$queue = [new armitage.ConsoleQueue: $client];
-	[$queue addCommand: $null, "use post/windows/gather/enum_domain_tokens"];
-	[$queue addCommand: $null, "set SESSION $1"];
-	[$queue addCommand: "x", "run"];
-
+	# update the dialog to indicate that things are changing...
 	[$3 setEnabled: 0];
 	[$3 setText: "Grabbing tokens..."];
 
-	[$queue addListener: lambda({
-		local('@rows $row');
+	# setup incognito and list the tokens...
+	m_cmd_callback($1, "use incognito", {});
+	m_cmd_callback($1, "sysinfo", {});
+	m_cmd_callback($1, "sysinfo", {});
+	m_cmd_callback($1, "sysinfo", {});
+	m_cmd_callback($1, "list_tokens -u", lambda({
+		if ($0 eq "end") {
+			local('$entry $row $type');
+			[$model clear: 32];
+			foreach $entry (split("\n", $2)) {
+				$entry = ["$entry" trim];
+				if ($entry eq "Delegation Tokens Available") {
+					$type = "delegation";
+				}
+				else if ($entry eq "Impersonation Tokens Available") {
+					$type = "impersonation";
+				}
+				else if ($entry ismatch '=*' || $entry eq "No tokens available" || " " isin $entry) {
+					# do nothing...	
+				}
+				else if ($entry ne "") {
+					$row = %();
+					$row['Token Type'] = $type;
+					$row['Name']       = $entry;
+					[$model addEntry: $row];
+				}
+			}
+			[$model fireListeners];
 
-		@rows = parseTextTable($3, @("Token Type", "Account Type", "Name", "Domain Admin"));
-		[$model clear: size(@rows)];
-		foreach $row (@rows) {
-			[$model addEntry: $row];
+			dispatchEvent(lambda({
+				[$refresh setEnabled: 1];
+				[$refresh setText: "Refresh"];
+			}, \$refresh));
 		}
-		[$model fireListeners];
-
-		dispatchEvent(lambda({
-			[$refresh setEnabled: 1];
-			[$refresh setText: "Refresh"];
-		}, \$refresh));
-
-		[$queue stop];
-	}, $model => $2, $refresh => $3, \$queue)];
-	[$queue start];
+	}, $model => $2, $refresh => $3));
 }
 
 sub stealToken {
@@ -42,7 +54,7 @@ sub stealToken {
         $dialog = [new JPanel];
         [$dialog setLayout: [new BorderLayout]];
 
-        ($table, $model) = setupTable("Name", @("Token Type", "Account Type", "Name", "Domain Admin"), @());
+        ($table, $model) = setupTable("Name", @("Token Type", "Name"), @());
 	[$table setSelectionMode: [ListSelectionModel SINGLE_SELECTION]];
         [$dialog add: [new JScrollPane: $table], [BorderLayout CENTER]];
 

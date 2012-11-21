@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 					from Oracle given the proper Credentials and SID.
 					These are then stored as loot for later cracking.
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
+			'Author'         => ['theLightCosine'],
 			'License'        => MSF_LICENSE
 		)
 	end

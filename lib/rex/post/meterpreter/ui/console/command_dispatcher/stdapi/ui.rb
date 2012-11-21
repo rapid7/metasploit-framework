@@ -30,8 +30,7 @@ class Console::CommandDispatcher::Stdapi::Ui
 			"keyscan_stop"  => "Stop capturing keystrokes",
 			"screenshot"    => "Grab a screenshot of the interactive desktop",
 			"setdesktop"    => "Change the meterpreters current desktop",
-			"uictl"         => "Control some of the user interface components",
-
+			"uictl"         => "Control some of the user interface components"
 			#  not working yet
 			# "unlockdesktop" => "Unlock or lock the workstation (must be inside winlogon.exe)",
 		}
@@ -47,10 +46,8 @@ class Console::CommandDispatcher::Stdapi::Ui
 			"setdesktop"    => [ "stdapi_ui_desktop_set" ],
 			"uictl"         => [
 				"stdapi_ui_enable_mouse",
-				"stdapi_ui_disable_mouse",
-				"stdapi_ui_enable_keyboard",
-				"stdapi_ui_disable_keyboard",
-			],
+				"stdapi_ui_enable_keyboard"
+			]
 		}
 
 		all.delete_if do |cmd, desc|
