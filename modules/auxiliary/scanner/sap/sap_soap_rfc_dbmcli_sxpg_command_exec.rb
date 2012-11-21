@@ -108,26 +108,27 @@ class Metasploit4 < Msf::Auxiliary
 						'Content-Type' => 'text/xml; charset=UTF-8'
 						}
 				}, 45)
-			if res and res.code != 500 and res.code != 200
-				print_error("[SAP] #{ip}:#{rport} - something went wrong!")
-				return
-			elsif res and res.body =~ /faultstring/
-				error = res.body.scan(%r{<faultstring>(.*?)</faultstring>}).flatten
-				0.upto(output.length-1) do |i|
-					print_error("[SAP] #{ip}:#{rport} - error #{error[i]}")
+			if res
+				if res.code != 500 and res.code != 200
+					print_error("[SAP] #{ip}:#{rport} - something went wrong!")
+					return
+				elsif res.body =~ /faultstring/
+					error = res.body.scan(%r{<faultstring>(.*?)</faultstring>}).flatten
+					0.upto(output.length-1) do |i|
+						print_error("[SAP] #{ip}:#{rport} - error #{error[i]}")
+					end
+					return
 				end
-				return
-			elsif res
 				print_status("[SAP] #{ip}:#{rport} - got response")
 				output = res.body.scan(%r{<MESSAGE>([^<]+)</MESSAGE>}).flatten
 				result = []
 				0.upto(output.length-1) do |i|
 					if output[i] =~ /E[rR][rR]/ || output[i] =~ /---/ || output[i] =~ /for database \(/
-						#nothing
+					#nothing
 					elsif output[i] =~ /unknown host/ || output[i] =~ /; \(see/ || output[i] =~ /returned with/
-						#nothing
+					#nothing
 					elsif output[i] =~ /External program terminated with exit code/
-						#nothing
+					#nothing
 					else
 						temp = output[i].gsub("&#62",">")
 						temp_ = temp.gsub("&#34","\"")
@@ -143,14 +144,13 @@ class Metasploit4 < Msf::Auxiliary
 					'Indent'  => 1,
 					'Columns' =>["Output"]
 					)
-				for i in 0..result.length/2-1
+				0.upto(result.length/2-1) do |i|
 					saptbl << [result[i].chomp]
 				end
 				print (saptbl.to_s)
 				return
 			else
-				print_error("[SAP] #{ip}:#{rport} - Unknown error")
-				return
+				print_error("[SAP] #{ip}:#{rport} - no response")
 			end
 		rescue ::Rex::ConnectionError
 			print_error("[SAP] #{ip}:#{rport} - Unable to connect")
