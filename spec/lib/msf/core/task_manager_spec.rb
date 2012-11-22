@@ -1,4 +1,5 @@
 
+require 'msf/core'
 require 'msf/core/task_manager'
 
 describe Msf::TaskManager do
@@ -87,11 +88,11 @@ describe Msf::TaskManager do
     t.status.should == :dropped
     t.exception.class.should == ::NoMethodError
 
-    t = Msf::TaskManager::Task.new(Proc.new { return 12345 })
+    t = Msf::TaskManager::Task.new(Proc.new { eval "'" })
     tm.queue_task(t)
     t.wait
     t.status.should == :dropped
-    t.exception.should be_a ::LocalJumpError
+    t.exception.should be_a ::SyntaxError
   end
 end
 
