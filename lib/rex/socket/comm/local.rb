@@ -398,22 +398,23 @@ class Rex::Socket::Comm::Local
 				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to receive a response from the proxy"), caller
 			end
 
-			if ret or ret.length < 4
+			if ret and ret.length < 4
 				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to receive a complete response from the proxy"), caller
 			end
-			
+			case 
 			if ret =~ /NI_RTERR/
-  			  if ret =~ /timed out/
-    		    raise Rex::ConnectionProxyError.new(host, port, type, "Connection to remote host #{host} timed out")
-  			  elsif ret =~ /refused/
-    			raise Rex::ConnectionProxyError.new(host, port, type, "Connection to remote port #{port} closed")
-  			  elsif ret =~ /denied/
-    			raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} blocked by ACL")
-    		  else
-    		    raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} failed - #{ret}\n\n#{ni_packet}")
-  			  end
+				case ret
+				when =~ /timed out/
+					raise Rex::ConnectionProxyError.new(host, port, type, "Connection to remote host #{host} timed out")
+				when =~ /refused/
+					raise Rex::ConnectionProxyError.new(host, port, type, "Connection to remote port #{port} closed")
+				when =~ /denied/
+					raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} blocked by ACL")
+				else
+					raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} failed - #{ret}\n\n#{ni_packet}")
+				end
 			elsif ret =~ /NI_PONG/
-  			  print_good("[*] remote native connection to #{host}:#{port} established\n")
+				# would like to print this "[*] remote native connection to #{host}:#{port} established\n"
   			else
     		    raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} failed - #{ret}\n\n#{ni_packet}")
 			end
