@@ -401,7 +401,7 @@ class Rex::Socket::Comm::Local
 			if ret and ret.length < 4
 				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to receive a complete response from the proxy"), caller
 			end
-			case 
+
 			if ret =~ /NI_RTERR/
 				case ret
 				when /timed out/
