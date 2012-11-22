@@ -404,11 +404,11 @@ class Rex::Socket::Comm::Local
 			case 
 			if ret =~ /NI_RTERR/
 				case ret
-				when =~ /timed out/
+				when /timed out/
 					raise Rex::ConnectionProxyError.new(host, port, type, "Connection to remote host #{host} timed out")
-				when =~ /refused/
+				when /refused/
 					raise Rex::ConnectionProxyError.new(host, port, type, "Connection to remote port #{port} closed")
-				when =~ /denied/
+				when /denied/
 					raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} blocked by ACL")
 				else
 					raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} failed - #{ret}\n\n#{ni_packet}")
