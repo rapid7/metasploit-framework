@@ -78,6 +78,7 @@ module Msf
 					"nessus_report_list" => "List all Nessus reports.",
 					"nessus_report_get" => "Import a report from the nessus server in Nessus v2 format.",
 					"nessus_report_del" => "Delete a report.",
+					"nessus_report_vulns" => "Get list of vulns from a report.",
 					"nessus_report_hosts" => "Get list of hosts from a report.",
 					"nessus_report_host_ports" => "Get list of open ports from a host from a report.",
 					"nessus_report_host_detail" => "Detail from a report item on a host.",
@@ -221,6 +222,7 @@ module Msf
 				tbl << [ "-----------------", "-----------------"]
 				tbl << [ "nessus_report_list", "List all Nessus reports" ]
 				tbl << [ "nessus_report_get", "Import a report from the nessus server in Nessus v2 format" ]
+				tbl << [ "nessus_report_vulns", "Get list of vulns from a report" ]
 				tbl << [ "nessus_report_hosts", "Get list of hosts from a report" ]
 				tbl << [ "nessus_report_host_ports", "Get list of open ports from a host from a report" ]
 				tbl << [ "nessus_report_host_detail", "Detail from a report item on a host" ]
@@ -952,6 +954,64 @@ module Msf
 				hosts=@n.report_hosts(rid)
 				hosts.each {|host|
 					tbl << [ host['hostname'], host['severity'], host['sev0'], host['sev1'], host['sev2'], host['sev3'], host['current'], host['total'] ]
+				}
+				print_good("Report Info")
+				print_good "\n"
+				print_line tbl.to_s
+				print_status("You can:")
+				print_status("        Get information from a particular host:          nessus_report_host_ports <hostname> <report id>")
+			end
+
+			def cmd_nessus_report_vulns(*args)
+
+				if args[0] == "-h"
+					print_status("Usage: ")
+					print_status("       nessus_report_vulns <report id>")
+					print_status(" Example:> nessus_report_vulns f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
+					print_status()
+					print_status("Returns all the vulns associated with a scan and details about hosts and their vulnerabilities")
+					print_status("use nessus_report_list to list all available scans")
+					return
+				end
+
+				if ! nessus_verify_token
+					return
+				end
+
+				case args.length
+				when 1
+					rid = args[0]
+				else
+					print_status("Usage: ")
+					print_status("       nessus_report_vulns <report id>")
+					print_status("       use nessus_report_vulns to list all available reports")
+					return
+				end
+
+				tbl = Rex::Ui::Text::Table.new(
+					'Columns' => [
+						'Hostname',
+						'Port',
+						'Proto',
+						'Sev',
+						'PluginID',
+						'Plugin Name'
+					])
+				hosts=@n.report_hosts(rid)
+				hosts.each {|host|
+					ports=@n.report_host_ports(rid, host['hostname'])
+					ports.each {|port|
+						details=@n.report_host_port_details(rid, host['hostname'], port['portnum'], port['protocol'])
+						details.each {|detail|
+							tbl << [host['hostname'],
+							port['portnum'],
+							port['protocol'],
+							detail['severity'],
+							detail['pluginID'],
+							detail['pluginName']
+							]
+						}
+					}
 				}
 				print_good("Report Info")
 				print_good "\n"
