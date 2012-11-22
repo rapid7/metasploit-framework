@@ -997,6 +997,7 @@ module Msf
 						'PluginID',
 						'Plugin Name'
 					])
+				print_status("Grabbing all vulns for report #{rid}")
 				hosts=@n.report_hosts(rid)
 				hosts.each {|host|
 					ports=@n.report_host_ports(rid, host['hostname'])
