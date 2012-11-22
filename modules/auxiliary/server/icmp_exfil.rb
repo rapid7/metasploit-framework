@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run
 		begin
-			#Check Pcaprub is up to date
+			# check Pcaprub is up to date
 			if not netifaces_implemented?
 				print_error("WARNING : Pcaprub is not uptodate, some functionality will not be available")
 				netifaces = false
@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			@interface = datastore['INTERFACE'] || Pcap.lookupdev
-			#This is needed on windows cause we send interface directly to Pcap functions
+			# this is needed on windows cause we send interface directly to Pcap functions
 			@interface = get_interface_guid(@interface)
 			@iface_ip = datastore['LOCALIP']
 			@iface_ip ||= Pcap.lookupaddrs(@interface)[0] if netifaces
