@@ -106,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
 				vprint_error("#{msg} Rejected user: '#{user}' with password: '#{pass}': #{@result}")
 				return :fail
 			end
-			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			rescue ::Rex::ConnectionError
 			rescue ::Timeout::Error, ::Errno::EPIPE
 		end
 	end
