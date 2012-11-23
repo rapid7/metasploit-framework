@@ -61,7 +61,7 @@ module Msf
 
 		class ConsoleCommandDispatcher
 			include Msf::Ui::Console::CommandDispatcher
-			
+
 			def name
 				"Nessus"
 			end
@@ -753,7 +753,7 @@ module Msf
 				plugins = total.sum
 				tbl << [users, policies, scans, reports, plugins]
 				print_good "\n"
-				print_line tbl.to_s 
+				print_line tbl.to_s
 			end
 
 			def cmd_nessus_plugin_list(*args)
@@ -1479,7 +1479,7 @@ module Msf
 					return
 				end
 
-				
+
 					del = @n.policy_del(pid)
 					status = del.root.elements['status'].text
 					if status == "OK"
@@ -1539,7 +1539,7 @@ module Msf
 				tbl << [ "Plugin Pub Date", entry['plugin_publication_date'] ]
 				tbl << [ "Plugin Modification Date", entry['plugin_modification_date'] ]
 				print_good "\n"
-				print_line tbl.to_s 
+				print_line tbl.to_s
 			end
 
 			def cmd_nessus_report_del(*args)
@@ -1656,7 +1656,7 @@ module Msf
 
 		def initialize(framework, opts)
 			super
-			
+
 			add_console_dispatcher(ConsoleCommandDispatcher)
 			@nbver = "1.1" # Nessus Plugin Version.  Increments each time we commit to msf
 			@xindex = "#{Msf::Config.get_config_root}/nessus_index" # location of the exploit index file used to speed up searching for valid exploits.
