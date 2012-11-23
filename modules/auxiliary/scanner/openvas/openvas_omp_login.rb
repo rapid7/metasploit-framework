@@ -43,10 +43,10 @@ class Metasploit3 < Msf::Auxiliary
 			each_user_pass do |user, pass|
 				do_login(user, pass)
 			end
-		end
 		rescue ::Rex::ConnectionError
 		rescue ::Exception => e
 			vprint_error("#{msg} #{e.to_s} #{e.backtrace}")
+		end
 	end
 
 	def omp_send(data=nil, con=true)
