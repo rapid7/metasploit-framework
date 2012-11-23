@@ -59,12 +59,13 @@ class Metasploit3 < Msf::Auxiliary
 				)
 			end
 
-		rescue ::SNMP::UnsupportedVersion
-		rescue ::SNMP::RequestTimeout
+		rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::UnsupportedVersion
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
-			print_error("Unknown error: #{e.class} #{e}")
+			print_error("#{ip} Unknown error: #{e.class} #{e}")
+		ensure
+			disconnect_snmp
 		end
 
 	end
