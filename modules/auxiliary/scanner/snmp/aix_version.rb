@@ -69,8 +69,11 @@ class Metasploit3 < Msf::Auxiliary
 
 				print_status(status)
 			end
-			disconnect_snmp
-		rescue SNMP::RequestTimeout, Rex::ConnectionError, ::Errno::ECONNREFUSED
+
+		# No need to make noise about timeouts
+		rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::UnsupportedVersion
+		rescue ::Interrupt
+			raise $!
 		rescue Exception => e
 			print_error("#{ip} #{e.class}, #{e.message}")
 		ensure
