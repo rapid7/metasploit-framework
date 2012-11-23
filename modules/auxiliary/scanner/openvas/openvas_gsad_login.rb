@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			res = send_request_cgi({
 				'encode'   => true,
-				'uri'      => "#{datastore['URI']}",
+				'uri'      => datastore['URI'],
 				'method'   => 'POST',
 				'headers'  => headers,
 				'data'     => data
