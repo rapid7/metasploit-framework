@@ -75,14 +75,18 @@ class Metasploit3 < Msf::Auxiliary
 	def do_login(user='openvas', pass='openvas')
 		vprint_status("#{msg} - Trying username:'#{user}' with password:'#{pass}'")
 		headers = {}
-		data = 'cmd=' << datastore['OMP_cmd'] << '&text=' << datastore['OMP_text'] << '&login=' << user << '&password=' << pass
 		begin
 			res = send_request_cgi({
 				'encode'   => true,
 				'uri'      => datastore['URI'],
 				'method'   => 'POST',
 				'headers'  => headers,
-				'data'     => data
+				'vars_post' => {
+					'cmd' => datastore['OMP_cmd'],
+					'text' => datastore['OMP_text'],
+					'login' => user,
+					'password' => pass
+				}
 			}, 25)
 
 		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
