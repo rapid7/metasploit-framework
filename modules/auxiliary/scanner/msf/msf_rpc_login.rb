@@ -21,9 +21,11 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name' 		=> 'Metasploit RPC interface Login Utility',
-			'Description'	=> 'This module simply attempts to '
-					'login to a Metasploit RPC interface '
-					'using a specific user/pass.',
+			'Description'	=> %q{
+				This module simply attempts to login to a 
+				Metasploit RPC interface using a specific
+				user/pass.
+			},
 			'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
 			'License'        => MSF_LICENSE
 		)
