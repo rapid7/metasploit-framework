@@ -47,11 +47,12 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def target_url
+		uri = normalize_uri(datastore['URI'])
 		"http://#{vhost}:#{rport}#{datastore['URI']}"
 	end
 
 	def run_host(ip)
-		uri = datastore['URI']
+		uri = normalize_uri(datastore['URI'])
 		path_save = datastore['PATH_SAVE']
 
 		vuln_versions = [
@@ -63,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			res = send_request_raw({
 				'method'  => 'GET',
-				'uri'     => "/#{uri}#{nullbytetxt}",
+				'uri'     => "#{uri}#{nullbytetxt}",
 			}, 25)
 
 			version = res.headers['Server'] if res

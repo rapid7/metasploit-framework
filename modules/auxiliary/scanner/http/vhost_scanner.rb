@@ -85,7 +85,7 @@ require 'cgi'
 
 				begin
 					noexistsres = send_request_cgi({
-						'uri'  		=>  datastore['PATH'],
+						'uri'  		=>  normalize_uri(datastore['PATH']),
 						'vars_get' 	=>  tquery,
 						'headers' 	=>  thead,
 						'vhost'		=>  randhost,
@@ -115,7 +115,7 @@ require 'cgi'
 
 				begin
 					res = send_request_cgi({
-						'uri'  		=>  datastore['PATH'],
+						'uri'  		=>  normalize_uri(datastore['PATH']),
 						'vars_get' 	=>  tquery,
 						'headers' 	=>  thead,
 						'vhost'		=>  thost,

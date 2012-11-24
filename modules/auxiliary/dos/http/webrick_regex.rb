@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		begin
 			o = {
-				'uri' => datastore['URI'] || '/',
+				'uri' => normalize_uri(datastore['URI']) || '/',
 				'headers' => {
 					'If-None-Match' => %q{foo=""} + %q{bar="baz" } * 100
 				}
