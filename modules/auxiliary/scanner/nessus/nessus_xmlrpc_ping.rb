@@ -47,16 +47,16 @@ class Metasploit3 < Msf::Auxiliary
 				}, 25)
 			http_fingerprint({ :response => res })
 		rescue ::Rex::ConnectionError => e
-			# vprint_error("#{msg} #{datastore['URI']} - #{e}")
+			vprint_error("#{msg} #{datastore['URI']} - #{e}")
 			return
 		end
 
 		if not res
-			# vprint_error("#{msg} #{datastore['URI']} - No response")
+			vprint_error("#{msg} #{datastore['URI']} - No response")
 			return
 		end
-		if res.code != 200
-			# vprint_error("#{msg} - HTTP Response was not 200")
+		if not (res.code == 200 or res.code ==302)
+			vprint_error("#{msg} - HTTP Response was not 200/302")
 			return
 		end
 		if res.headers['Server'] =~ /NessusWWW/
@@ -68,6 +68,8 @@ class Metasploit3 < Msf::Auxiliary
 				:info => 'Nessus XMLRPC',
 				:state => 'UP'
 			)
+		else
+			vprint_error("#{msg} - Wrong HTTP Server header: #{res.headers['Server']}")
 		end
 
 	end
