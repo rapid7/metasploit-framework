@@ -33,11 +33,11 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(55553),
-				register_autofilter_ports(3790),
 				OptString.new('USERNAME', [true, "A specific username to authenticate as. Default is msf", "msf"]),
 				OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false]),
 				OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true])
 			], self.class)
+		register_autofilter_ports([3790])
 
 	end
 
