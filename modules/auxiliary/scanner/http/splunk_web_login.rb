@@ -135,11 +135,6 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("#{msg} HTTP Connection Failed, Aborting")
 			return :abort
 		end
-
-		if not res
-			print_error("#{msg} HTTP Connection Error - res, Aborting")
-			return :abort
-		end
 	end
 
 	def msg
