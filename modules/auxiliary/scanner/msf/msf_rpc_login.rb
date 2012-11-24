@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name' 		=> 'Metasploit RPC interface Login Utility',
 			'Description'	=> %q{
-				This module simply attempts to login to a 
+				This module simply attempts to login to a
 				Metasploit RPC interface using a specific
 				user/pass.
 			},
