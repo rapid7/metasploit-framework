@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'           => 'Nessus XMLRPC Interface Ping Utility',
 			'Description'    => %q{
-				This module simply attempts to find and check 
+				This module simply attempts to find and check
 				for Nessus XMLRPC interface.'
 			},
 			'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
