@@ -28,6 +28,9 @@ if not (Process.uid == 0 or File.stat(msfbase).owned?)
 	$stderr.puts "Please run msfupdate as the same user who installed metasploit."
 end
 
+def is_pro
+	File.exists?(File.expand_path(File.join(@msfbase_dir, "..", "engine", "update.rb")))
+end
 
 def is_git
 	File.directory?(File.join(@msfbase_dir, ".git"))
@@ -105,7 +108,7 @@ if is_git
 	# attempt to reapply them. If the user wants them back
 	# they can always git stash pop them, and that presumes
 	# they know what they're doing when they're editing local
-	# checkout, which presumes they're not using msfupdate 
+	# checkout, which presumes they're not using msfupdate
 	# to begin with.
 	#
 	# Note, this requires at least user.name and user.email
@@ -130,7 +133,12 @@ if is_git
 	system("git", "merge", "#{remote}/#{branch}")
 end
 
-unless is_svn || is_git
+if is_pro
+	update_script = File.expand_path(File.join(@msfbase, "..", "engine", "update.rb"))
+	system("ruby", update_script)
+end
+
+unless is_svn || is_git || is_pro
 	raise RuntimeError, "Cannot determine checkout type: `#{@msfbase_dir}'"
 end
 
