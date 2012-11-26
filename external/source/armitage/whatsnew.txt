@@ -1,6 +1,29 @@
 Armitage Changelog
 ==================
 
+26 Nov 12 (tested against msf 16114)
+---------
+- Windows command shell tab is now friendlier to commands that prompt
+  for input (e.g., time command)
+- [host] -> Meterpreter -> Access -> Escalate Privileges now shows all
+  the framework's new exploit/windows/local modules too
+- [host] -> Shell -> Post Modules now shows the framework's unix/local 
+  and exploit/linux/local modules
+- Added Ctrl+I shortcut. Lets you choose a session to interact with.
+- Added Steal Token button to Processes dialog.
+- Armitage now asks Metasploit for a non-expiring authentication token.
+  This will prevent Armitage from losing its access to msfrpcd when you
+  put your computer to sleep or pause the VM running Metasploit.
+- add_user and add_[local]group_user now show all of their output when
+  the -h flag is used to operate on a remote host.
+- added a Delete menu to creds table. Right-click a cred to delete it
+
+Cortana Updates (for scripters)
+--------
+- aliased &data_delete to &data_clear to match the documentation.
+- &file_get, &loot_get, and &file_content no longer delete the remote 
+  file when connected to a teamserver.
+
 16 Oct 12 (tested against msf 15972)
 ---------
 - Added port 5985 to MSF Scans list.
