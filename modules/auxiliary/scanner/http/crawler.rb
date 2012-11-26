@@ -213,7 +213,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			# Scrub out the jsessionid appends
 			url.path = url.path.sub(/;jsessionid=[a-zA-Z0-9]+/, '')
-		rescue
+		rescue URI::Error
 		end
 
 		#
