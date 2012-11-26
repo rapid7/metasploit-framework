@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 				[ 'URL', 'http://www.accuvant.com/blog/2012/11/13/owning-computers-without-shell-access' ],
 				[ 'URL', 'http://sourceforge.net/projects/smbexec/' ],
 				[ 'URL', 'http://technet.microsoft.com/en-us/sysinternals/bb897553.aspx' ]
-			],
+			]
 		))
 
 		register_options([
