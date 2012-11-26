@@ -210,8 +210,11 @@ class Metasploit3 < Msf::Auxiliary
 	def form_from_url( website, url )
 		url = URI( url.to_s ) if !url.is_a?( URI )
 
-		# Scrub out the jsessionid appends
-		url.path = url.path.sub(/;jsessionid=[a-zA-Z0-9]+/, '')
+		begin
+			# Scrub out the jsessionid appends
+			url.path = url.path.sub(/;jsessionid=[a-zA-Z0-9]+/, '')
+		rescue URI::Error
+		end
 
 		#
 		# Continue processing forms
