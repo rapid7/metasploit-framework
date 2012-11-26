@@ -1,8 +1,4 @@
 ##
-# msf_web_login.rb
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -50,20 +46,20 @@ class Metasploit3 < Msf::Auxiliary
 				}, 25)
 			http_fingerprint({ :response => res })
 		rescue ::Rex::ConnectionError => e
-			vprint_error("#{msg} #{datastore['URILOGIN']} - #{e}")
+			vprint_error("#{datastore['URILOGIN']} - #{e}")
 			return
 		end
 
 		if not res
-			vprint_error("#{msg} #{datastore['URILOGIN']} - No response")
+			vprint_error(" #{datastore['URILOGIN']} - No response")
 			return
 		end
 		if !(res.code == 200 or res.code == 302)
-			vprint_error("#{msg} Expected 200 HTTP code - not msf web? Got: #{res.code}")
+			vprint_error("Expected 200 HTTP code - not msf web? Got: #{res.code}")
 			return
 		end
 		if res.body !~ /<title>Metasploit<\/title>/
-			vprint_error("#{msg} Expected metasploit page - not msf web interface? #{res.body}")
+			vprint_error("Expected metasploit page - not msf web interface? #{res.body}")
 			return
 		end
 
@@ -73,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def do_login(user='msf', pass='msf')
-		vprint_status("#{msg} - Trying username:'#{user}' with password:'#{pass}'")
+		vprint_status(" - Trying username:'#{user}' with password:'#{pass}'")
 		begin
 			res = send_request_cgi({
 				'uri'     => datastore['URILOGIN'],
@@ -82,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			token = ''
 			uisession = ''
-			if res and res.code == 200
+			if res and res.code == 200 and res.headers['Set-Cookie']
 				# extract tokens from cookie
 				res.headers['Set-Cookie'].split(';').each {|c|
 					c.split(',').each {|v|
@@ -94,18 +90,22 @@ class Metasploit3 < Msf::Auxiliary
 					}
 				}
 				# extract authenticity_token from hidden field
-				atoken = res.body.scan(/<input name="authenticity_token" type="hidden" value="(.*)"/)[0][0]
+				atoken = res.body.scan(/<input name="authenticity_token" type="hidden" value="(.*)"/).flatten[0]
+
+				if atoken.nil?
+					print_error("No auth token found")
+					return :abort
+				end
 			else
-				print_error("#{msg} Failed to get login cookies, aborting")
+				print_error("Failed to get login cookies, aborting")
 				return :abort
 			end
 
-			# vprint_status("#{msg} '#{user}' with '#{pass}': #{atoken} - #{token} - #{uisession}")
 			res = send_request_cgi(
 			{
-				'uri'     => datastore['URIGUESS'],
-				'method'  => 'POST',
-				'cookie'	=> "token=#{token}; _ui_session=#{uisession}",
+				'uri'       => datastore['URIGUESS'],
+				'method'    => 'POST',
+				'cookie'    => "token=#{token}; _ui_session=#{uisession}",
 				'vars_post' =>
 					{
 						'commit' => 'Sign in',
@@ -117,14 +117,14 @@ class Metasploit3 < Msf::Auxiliary
 			}, 25)
 
 			if not res or res.code != 302
-				vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}' with code #{res.code}")
+				vprint_error("FAILED LOGIN. '#{user}' : '#{pass}' with code #{res.code}")
 				return :skip_pass
 			end
 			if res.headers['Location'] =~ /\/login/
-				vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}' with wrong redirect")
+				vprint_error("FAILED LOGIN. '#{user}' : '#{pass}' with wrong redirect")
 				return :skip_pass
 			else
-				print_good("#{msg} SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
+				print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
 
 				report_hash = {
 					:host   => datastore['RHOST'],
@@ -139,12 +139,8 @@ class Metasploit3 < Msf::Auxiliary
 				return :next_user
 			end
 		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-			print_error("#{msg} HTTP Connection Failed, Aborting")
+			print_error("HTTP Connection Failed, Aborting")
 			return :abort
 		end
-	end
-
-	def msg
-		"#{vhost}:#{rport} Metasploit Web -"
 	end
 end
