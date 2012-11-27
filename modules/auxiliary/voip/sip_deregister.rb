@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -21,8 +17,11 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'SIP Deregister Extension',
-			'Version'        => '$Revision$',
-			'Description'    => 'This module will attempt to deregister the SIP user from the provider.',
+			'Description'   => %q{
+					This module will will attempt to deregister a SIP user from the provider. It
+				has been tested successfully when the sip provider/server doesn't use REGISTER
+				authentication.
+			},
 			'Author'         => [ 'ChrisJohnRiley' ],
 			'License'        =>  MSF_LICENSE
 		)
@@ -31,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(5060),
-				OptString.new('SRCADDR', [true, "The sip address the spoofed call is coming from",'192.168.1.1']),
+				OptString.new('SRCADDR', [true, "The sip address the spoofed deregister request is coming from",'192.168.1.1']),
 				OptString.new('EXTENSION', [true, "The specific extension or name to target", '100']),
 				OptString.new('DOMAIN', [true, "Use a specific SIP domain", 'example.com'])
 			],  self.class)
