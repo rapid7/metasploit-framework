@@ -16,13 +16,15 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::AuthBrute
-
 	include Msf::Auxiliary::Scanner
 
 	def initialize
 		super(
 			'Name'           => 'Nessus XMLRPC Interface Login Utility',
-			'Description'    => 'This module simply attempts to login to a Nessus XMLRPC interface using a specific user/pass.',
+			'Description'    => %q{
+				This module simply attempts to login to a Nessus XMLRPC interface using a
+				specific user/pass.
+			},
 			'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
 			'License'        => MSF_LICENSE
 		)
