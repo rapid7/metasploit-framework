@@ -89,47 +89,53 @@ class Metasploit3 < Msf::Post
 	# enumerate logged in users
 	def enum_users(host)
 		begin
-		# Connect to host and enumerate logged in users
-		winsessions = client.railgun.netapi32.NetWkstaUserEnum("\\\\#{host}", 1, 4, -1, 4, 4, nil)
-
+			# Connect to host and enumerate logged in users
+			winsessions = client.railgun.netapi32.NetWkstaUserEnum("\\\\#{host}", 1, 4, -1, 4, 4, nil)
+		rescue ::Exception => e
+			print_error("Issue enumerating users on #{host}")
+		end
 		count = winsessions['totalentries'] * 2
 		startmem = winsessions['bufptr']
 
 		base = 0
 		userlist = Array.new
-		mem = client.railgun.memread(startmem, 8*count)
+		begin
+			mem = client.railgun.memread(startmem, 8*count)
+		rescue ::Exception => e
+			print_error("Issue reading memory for #{host}")
+		end
 		# For each entry returned, get domain and name of logged in user
-		count.times{|i|
-				temp = {}
-				userptr = mem[(base + 0),4].unpack("V*")[0]
-				temp[:user] = client.railgun.memread(userptr,255).split("\0\0")[0].split("\0").join
-				nameptr = mem[(base + 4),4].unpack("V*")[0]
-				temp[:domain] = client.railgun.memread(nameptr,255).split("\0\0")[0].split("\0").join
+		begin
+			count.times{|i|
+					temp = {}
+					userptr = mem[(base + 0),4].unpack("V*")[0]
+					temp[:user] = client.railgun.memread(userptr,255).split("\0\0")[0].split("\0").join
+					nameptr = mem[(base + 4),4].unpack("V*")[0]
+					temp[:domain] = client.railgun.memread(nameptr,255).split("\0\0")[0].split("\0").join
 
-				# Ignore if empty or machine account
-				unless temp[:user].empty? or temp[:user][-1, 1] == "$"
+					# Ignore if empty or machine account
+					unless temp[:user].empty? or temp[:user][-1, 1] == "$"
 
-					# Check if enumerated user's domain matches supplied domain, if there was
-					# an error, or if option disabled
-					data = ""
-					if datastore['DOMAIN'].upcase == temp[:domain].upcase and not @dc_error and datastore['ENUM_GROUPS']
-						data = " - Groups: #{enum_groups(temp[:user]).chomp(", ")}"
+						# Check if enumerated user's domain matches supplied domain, if there was
+						# an error, or if option disabled
+						data = ""
+						if datastore['DOMAIN'].upcase == temp[:domain].upcase and not @dc_error and datastore['ENUM_GROUPS']
+							data = " - Groups: #{enum_groups(temp[:user]).chomp(", ")}"
+						end
+						line = "\tLogged in user:\t#{temp[:domain]}\\#{temp[:user]}#{data}\n"
+
+						# Write user and groups to notes database
+						db_note(host, "#{temp[:domain]}\\#{temp[:user]}#{data}", "localadmin.user.loggedin")
+						userlist << line unless userlist.include? line
+
 					end
-					line = "\tLogged in user:\t#{temp[:domain]}\\#{temp[:user]}#{data}\n"
 
-					# Write user and groups to notes database
-					db_note(host, "#{temp[:domain]}\\#{temp[:user]}#{data}", "localadmin.user.loggedin")
-					userlist << line unless userlist.include? line
-
-				end
-
-				base = base + 8
-		}
+					base = base + 8
+			}
 		rescue ::Exception => e
 			print_error("Issue enumerating users on #{host}")
 		end
 		return userlist
-
 	end
 
 	# http://msdn.microsoft.com/en-us/library/windows/desktop/aa370653(v=vs.85).aspx
