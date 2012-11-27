@@ -999,11 +999,11 @@ module Msf
 					])
 				print_status("Grabbing all vulns for report #{rid}")
 				hosts=@n.report_hosts(rid)
-				hosts.each {|host|
+				hosts.each do |host|
 					ports=@n.report_host_ports(rid, host['hostname'])
-					ports.each {|port|
+					ports.each do |port|
 						details=@n.report_host_port_details(rid, host['hostname'], port['portnum'], port['protocol'])
-						details.each {|detail|
+						details.each do |detail|
 							tbl << [host['hostname'],
 							port['portnum'],
 							port['protocol'],
@@ -1011,11 +1011,11 @@ module Msf
 							detail['pluginID'],
 							detail['pluginName']
 							]
-						}
-					}
-				}
+						end
+					end
+				end
 				print_good("Report Info")
-				print_good "\n"
+				print_line
 				print_line tbl.to_s
 				print_status("You can:")
 				print_status("        Get information from a particular host:          nessus_report_host_ports <hostname> <report id>")
