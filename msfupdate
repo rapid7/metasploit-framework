@@ -45,7 +45,7 @@ end
 # the user originally cloned or forked.
 def add_git_upstream
 	$stdout.puts "[*] Attempting to add remote 'upstream' to your local git repository."
-	system("git", "remote", "add", "upstream", "git://github.com/rapid7/rapid7metasploit-framework.git")
+	system("git", "remote", "add", "upstream", "git://github.com/rapid7/metasploit-framework.git")
 	$stdout.puts "[*] Added remote 'upstream' to your local git repository."
 end
 
@@ -115,7 +115,7 @@ if is_git
 	add_git_upstream unless $?.success? and out =~ %r{(https|git|git@github\.com):(//github\.com/)?(rapid7/metasploit-framework\.git)}
 
 	remote = @git_remote || "upstream"
-	branch = @git_branchch || "master"
+	branch = @git_branch || "master"
 
 	# This will save local changes in a stash, but won't
 	# attempt to reapply them. If the user wants them back
