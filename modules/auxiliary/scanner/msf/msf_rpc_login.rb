@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
-	@@loaded_msfrpc
+	@@loaded_msfrpc = false
 	begin
 		require 'msf/core/rpc/v10/client'
 		@@loaded_msfrpc = true
