@@ -41,13 +41,13 @@ class Metasploit3 < Msf::Post
 			], self.class)
 	end
 
-	def run()
+	def run
 		if is_system?
 			# running as SYSTEM and will not pass any network credentials
 			print_error "Running as SYSTEM, module should be run with USER level rights"
 			return
 		else
-			@adv = client.railgun.advapi32
+			adv = client.railgun.advapi32
 
 			# Get domain and domain controller if options left blank
 			if datastore['DOMAIN'].nil?
@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Post
 				# Uses DC which applied policy since it would be a DC this device normally talks to
 				cmd = "gpresult /SCOPE COMPUTER"
 					# If Vista/2008 or later add /R
-					if (client.sys.config.sysinfo['OS'] =~ /Build [6-9]\d\d\d/)
+					if (sysinfo['OS'] =~ /Build [6-9]\d\d\d/)
 						cmd << " /R"
 					end
 				res = run_cmd(cmd)
@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Post
 		end
 	end
 
-	# main contrl method
+	# main control method
 	def run_host(ip)
 		connect(ip)
 	end
@@ -182,7 +182,7 @@ class Metasploit3 < Msf::Post
 	def connect(host)
 		user = client.sys.config.getuid
 		# use railgun and OpenSCManagerA api to connect to remote host
-		manag = @adv.OpenSCManagerA("\\\\#{host}", nil, 0xF003F) # SC_MANAGER_ALL_ACCESS
+		manag = adv.OpenSCManagerA("\\\\#{host}", nil, 0xF003F) # SC_MANAGER_ALL_ACCESS
 
 		if(manag["return"] != 0) # we have admin rights
 			result = "#{host.ljust(16)} #{user} - Local admin found\n"
@@ -195,7 +195,7 @@ class Metasploit3 < Msf::Post
 			end
 
 			# close the handle if connection was made
-			@adv.CloseServiceHandle(manag["return"])
+			adv.CloseServiceHandle(manag["return"])
 			# Append data to loot table within database
 			db_loot(host, user, "localadmin.user")
 			print_good(result.chomp("\n")) unless result.nil?
