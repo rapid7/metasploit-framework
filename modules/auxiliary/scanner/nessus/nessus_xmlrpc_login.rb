@@ -48,16 +48,16 @@ class Metasploit3 < Msf::Auxiliary
 				}, 25)
 			http_fingerprint({ :response => res })
 		rescue ::Rex::ConnectionError => e
-			vprint_error("#{msg} #{datastore['URI']} - #{e}")
+			vprint_error("#{datastore['URI']} - #{e}")
 			return
 		end
 
 		if not res
-			vprint_error("#{msg} #{datastore['URI']} - No response")
+			vprint_error("#{datastore['URI']} - No response")
 			return
 		end
 		if res.code != 403
-			vprint_error("#{msg} - Authorization not requested")
+			vprint_error("Authorization not requested")
 			return
 		end
 
@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def do_login(user='nessus', pass='nessus')
-		vprint_status("#{msg} - Trying username:'#{user}' with password:'#{pass}'")
+		vprint_status("Trying username:'#{user}' with password:'#{pass}'")
 		headers = {}
 		data = 'login=' << user << '&password=' << pass
 		begin
@@ -80,23 +80,23 @@ class Metasploit3 < Msf::Auxiliary
 			}, 25)
 
 		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-			print_error("#{msg} HTTP Connection Failed, Aborting")
+			print_error("HTTP Connection Failed, Aborting")
 			return :abort
 		end
 
 		if not res
-			print_error("#{msg} HTTP Connection Error - res, Aborting")
+			print_error("HTTP Connection Error - res, Aborting")
 			return :abort
 		end
 
 		if res.code != 200
-			vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'")
+			vprint_error("FAILED LOGIN. '#{user}' : '#{pass}'")
 			return :skip_pass
 		end
 
 		if res.code == 200
 			if res.body =~ /<status>OK<\/status>/
-				print_good("#{msg} SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
+				print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
 
 				report_hash = {
 					:host   => datastore['RHOST'],
@@ -111,11 +111,7 @@ class Metasploit3 < Msf::Auxiliary
 				return :next_user
 			end
 		end
-		vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'")
+		vprint_error("FAILED LOGIN. '#{user}' : '#{pass}'")
 		return :skip_pass
-	end
-
-	def msg
-		"#{vhost}:#{rport} NessusXMLRPC -"
 	end
 end
