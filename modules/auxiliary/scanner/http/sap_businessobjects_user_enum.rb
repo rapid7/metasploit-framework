@@ -93,8 +93,8 @@ class Metasploit3 < Msf::Auxiliary
 			}, 45)
 
 			if res
-				return :abort if (res.code == 404)
-				success = true if(res.body.match(/Invalid password/i))
+				return :abort if (!res or (res and res.code == 404))
+				success = true if(res and res.body.match(/Invalid password/i))
 				success
 			else
 				vprint_error("[SAP BusinessObjects] No response")

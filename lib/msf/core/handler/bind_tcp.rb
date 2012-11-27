@@ -127,7 +127,7 @@ module BindTcp
 				rescue Rex::ConnectionRefused
 					# Connection refused is a-okay
 				rescue ::Exception
-					wlog("Exception caught in bind handler: #{$!}")
+					wlog("Exception caught in bind handler: #{$!.class} #{$!}")
 				end
 
 				break if client
@@ -138,7 +138,6 @@ module BindTcp
 
 			# Valid client connection?
 			if (client)
-
 				# Increment the has connection counter
 				self.pending_connections += 1
 

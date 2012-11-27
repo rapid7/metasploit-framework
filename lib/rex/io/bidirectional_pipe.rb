@@ -98,6 +98,10 @@ class BidirectionalPipe < Rex::Ui::Text::Input
 		print_line('[*] ' + msg)
 	end
 
+	def print_warning(msg='')
+		print_warning('[!] ' + msg)
+	end
+
 	#
 	# Wrappers for the pipe_input methods
 	#

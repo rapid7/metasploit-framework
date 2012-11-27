@@ -27,9 +27,12 @@ class Metasploit3 < Msf::Post
 				cached as a result of a GPO setting. The default setting on Windows is to store
 				the last ten successful logins.},
 			'License'      => MSF_LICENSE,
-			'Author'       => ['Maurizio Agazzini <inode[at]mediaservice.net>','Rob Fuller <mubix[at]hak5.org>'],
+			'Author'       => [
+				'Maurizio Agazzini <inode[at]mediaservice.net>',
+				'mubix'
+			],
 			'Version'      => '$Revision$',
-			'Platform'     => ['windows'],
+			'Platform'     => ['win'],
 			'SessionTypes' => ['meterpreter'],
 			'References'   => [['URL', 'http://lab.mediaservice.net/code/cachedump.rb']]
 		))
