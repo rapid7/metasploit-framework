@@ -7,12 +7,14 @@
 
 require 'msf/core'
 require 'rex'
+require 'msf/core/post/common'
 
 class Metasploit3 < Msf::Post
 
 	include Msf::Post::Windows::Priv
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
+	include Msf::Post::Common
 
 	def initialize(info={})
 		super(
@@ -64,7 +66,7 @@ class Metasploit3 < Msf::Post
 					if (sysinfo['OS'] =~ /Build [6-9]\d\d\d/)
 						cmd << " /R"
 					end
-				res = run_cmd(cmd)
+				res = cmd_exec("cmd.exe","/c #{cmd}")
 
 				# Check if RSOP data exists, if not disable group check
 				unless res =~ /does not have RSOP data./
@@ -203,22 +205,6 @@ class Metasploit3 < Msf::Post
 			# we dont have admin rights
 			print_error("#{host.ljust(16)} #{user} - No Local Admin rights")
 		end
-	end
-
-	# From enum_domain_group_users.rb by Carlos Perez and Stephen Haywood
-	# Run command, return results
-	def run_cmd(cmd)
-		process = session.sys.process.execute(cmd, nil, {'Hidden' => true, 'Channelized' => true})
-		res = ""
-
-		while (d = process.channel.read)
-		break if d == ""
-			res << d
-		end
-
-		process.channel.close
-		process.close
-		return res
 	end
 
 	# Write to notes database
