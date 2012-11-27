@@ -6,7 +6,6 @@
 ##
 
 require 'msf/core'
-require 'msf/core/rpc/v10/client'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -38,6 +37,13 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
+		begin
+			require 'msf/core/rpc/v10/client'
+		rescue LoadError
+			print_error("You don't have 'msgpack', please install that gem manually.")
+			return
+		end
+
 		begin
 			@rpc = Msf::RPC::Client.new(
 				:host => datastore['rhost'],
