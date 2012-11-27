@@ -251,7 +251,7 @@ class Metasploit3 < Msf::Auxiliary
 				obj << hashes[1]
 				obj << ":::"
 				if obj.length > 0
-					print_good("#{obj.join}")
+					report_creds(obj.join)
 				else
 					print_status("#{ip} No local user hashes.  System is likely a DC")
 				end
@@ -260,6 +260,19 @@ class Metasploit3 < Msf::Auxiliary
 			vprint_error("#{ip} - Error extracting creds from hives. #{dumpcreds}")
 			return dumpcreds
 		end
+	end
+
+
+	# Report to the database
+	def report_creds(hash)
+		print_good("#{hash}")
+		creds_entry = {
+			:rhost => rhost,
+			:username => hash.split(":")[0],
+			:userid => hash.split(":")[1],
+			:hash => hash.split(":")[2] + ":" + hash.split(":")[3]
+		}
+		report_auth_info(creds_entry)
 	end
 
 
