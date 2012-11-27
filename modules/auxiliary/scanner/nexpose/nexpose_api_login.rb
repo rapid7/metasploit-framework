@@ -16,13 +16,15 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::AuthBrute
-
 	include Msf::Auxiliary::Scanner
 
 	def initialize
 		super(
 			'Name'           => 'NeXpose API Interface Login Utility',
-			'Description'    => 'This module simply attempts to login to a NeXpose API interface using a specific user/pass.',
+			'Description'    => %q{
+				This module simply attempts to login to a NeXpose API interface using a
+				specific user/pass.
+			},
 			'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
 			'License'        => MSF_LICENSE
 		)
@@ -43,21 +45,21 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		begin
 			res = send_request_cgi({
-				'uri'     => "#{datastore['URI']}",
+				'uri'     => datastore['URI'],
 				'method'  => 'GET'
 				}, 25)
 			http_fingerprint({ :response => res })
 		rescue ::Rex::ConnectionError => e
-			vprint_error("#{msg} #{datastore['URI']} - #{e}")
+			vprint_error("#{datastore['URI']} - #{e.to_s}")
 			return
 		end
 
 		if not res
-			vprint_error("#{msg} #{datastore['URI']} - No response")
+			vprint_error("#{datastore['URI']} - No response")
 			return
 		end
 		if res.code != 200
-			vprint_error("#{msg} - did not get 200 for API XML interface")
+			vprint_error("Did not get 200 for API XML interface")
 			return
 		end
 
@@ -67,9 +69,9 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def do_login(user='nxadmin', pass='nxadmin')
-		vprint_status("#{msg} - Trying username:'#{user}' with password:'#{pass}'")
+		vprint_status("Trying username:'#{user}' with password:'#{pass}'")
 		headers = {
-			'Content-Type'	=> 'text/xml'
+			'Content-Type' => 'text/xml'
 		}
 		data = '<?xml version="1.0" encoding="UTF-8"?><LoginRequest sync-id="1" user-id="' << user << '" password="' << pass  << '"></LoginRequest>'
 		begin
@@ -82,23 +84,23 @@ class Metasploit3 < Msf::Auxiliary
 			}, 25)
 
 		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-			print_error("#{msg} HTTP Connection Failed, Aborting")
+			print_error("HTTP Connection Failed, Aborting")
 			return :abort
 		end
 
 		if not res
-			print_error("#{msg} HTTP Connection Error - res, Aborting")
+			print_error("HTTP Connection Error - res, Aborting")
 			return :abort
 		end
 
 		if res.code != 200
-			vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'")
+			vprint_error("FAILED LOGIN. '#{user}' : '#{pass}'")
 			return :skip_pass
 		end
 
 		if res.code == 200
 			if res.body =~ /LoginResponse.*success="1"/
-				print_good("#{msg} SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
+				print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
 
 				report_hash = {
 					:host   => datastore['RHOST'],
@@ -113,11 +115,7 @@ class Metasploit3 < Msf::Auxiliary
 				return :next_user
 			end
 		end
-		vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'")
+		vprint_error("FAILED LOGIN. '#{user}' : '#{pass}'")
 		return :skip_pass
-	end
-
-	def msg
-		"#{vhost}:#{rport} NeXpose API -"
 	end
 end
