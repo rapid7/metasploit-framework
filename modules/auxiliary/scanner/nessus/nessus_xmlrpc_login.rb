@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		begin
 			res = send_request_cgi({
-				'uri'     => "#{datastore['URI']}",
+				'uri'     => datastore['URI'],
 				'method'  => 'GET'
 				}, 25)
 			http_fingerprint({ :response => res })
@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			res = send_request_cgi({
 				'encode'   => true,
-				'uri'      => "#{datastore['URI']}",
+				'uri'      => datastore['URI'],
 				'method'   => 'POST',
 				'headers'  => headers,
 				'data'     => data
