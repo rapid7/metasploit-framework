@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if not res
-			print_error("HTTP Connection Error - res, Aborting")
+			print_error("Connection timed out, Aborting")
 			return :abort
 		end
 
