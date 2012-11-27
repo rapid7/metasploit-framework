@@ -15,7 +15,6 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Report
-
 	include Msf::Auxiliary::Scanner
 
 	def initialize
@@ -33,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				Opt::RPORT(8834),
 				OptInt.new('THREADS', [true, "The number of concurrent threads", 25]),
-				OptString.new('URI', [true, "URI for Nessus XMLRPC. Default is /", "/"]),
+				OptString.new('URI', [true, "URI for Nessus XMLRPC. Default is /", "/"])
 			], self.class)
 
 		register_advanced_options(
@@ -50,20 +49,20 @@ class Metasploit3 < Msf::Auxiliary
 				}, 25)
 			http_fingerprint({ :response => res })
 		rescue ::Rex::ConnectionError => e
-			vprint_error("#{msg} #{datastore['URI']} - #{e}")
+			vprint_error("#{datastore['URI']} - #{e.to_s}")
 			return
 		end
 
 		if not res
-			vprint_error("#{msg} #{datastore['URI']} - No response")
+			vprint_error("#{datastore['URI']} - No response")
 			return
 		end
 		if not (res.code == 200 or res.code ==302)
-			vprint_error("#{msg} - HTTP Response was not 200/302")
+			vprint_error("HTTP Response was not 200/302")
 			return
 		end
 		if res.headers['Server'] =~ /NessusWWW/
-			print_good("#{msg} SUCCESS. '#{ip}' : '#{datastore['RPORT']}'")
+			print_good("SUCCESS. '#{ip}' : '#{datastore['RPORT']}'")
 			report_service(
 				:host => ip,
 				:port => datastore['RPORT'],
@@ -72,12 +71,8 @@ class Metasploit3 < Msf::Auxiliary
 				:state => 'UP'
 			)
 		else
-			vprint_error("#{msg} - Wrong HTTP Server header: #{res.headers['Server']}")
+			vprint_error("Wrong HTTP Server header: #{res.headers['Server'] || ''}")
 		end
 
-	end
-
-	def msg
-		"#{vhost}:#{rport} NessusXMLRPC -"
 	end
 end
