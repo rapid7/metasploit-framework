@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'          => 'Metasploit RPC interface Login Utility',
+			'Name'          => 'Metasploit RPC Interface Login Utility',
 			'Description'   => %q{
 				This module simply attempts to login to a
 				Metasploit RPC interface using a specific
@@ -36,21 +36,29 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
+	@@loaded_msfrpc
+	begin
+		require 'msf/core/rpc/v10/client'
+		@@loaded_msfrpc = true
+	rescue LoadError
+	end
+
 	def run_host(ip)
-		begin
-			require 'msf/core/rpc/v10/client'
-		rescue LoadError
+
+		unless @@loaded_msfrpc
 			print_error("You don't have 'msgpack', please install that gem manually.")
 			return
 		end
 
 		begin
 			@rpc = Msf::RPC::Client.new(
-				:host => datastore['rhost'],
-				:port => datastore['rport'],
+				:host => datastore['RHOST'],
+				:port => datastore['RPORT'],
 				:ssl  => datastore['SSL']
 			)
-		rescue => e
+		rescue ::Interrupt
+			raise $!
+		rescue ::Exception => e
 			vprint_error("#{datastore['SSL'].to_s} Cannot create RPC client : #{e.to_s}")
 			return
 		end
