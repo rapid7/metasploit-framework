@@ -69,14 +69,17 @@ class Metasploit3 < Msf::Auxiliary
 	def do_login(user='nessus', pass='nessus')
 		vprint_status("Trying username:'#{user}' with password:'#{pass}'")
 		headers = {}
-		data = 'login=' << user << '&password=' << pass
+
 		begin
 			res = send_request_cgi({
-				'encode'   => true,
-				'uri'      => datastore['URI'],
-				'method'   => 'POST',
-				'headers'  => headers,
-				'data'     => data
+				'encode'    => true,
+				'uri'       => datastore['URI'],
+				'method'    => 'POST',
+				'headers'   => headers,
+				'vars_post' => {
+					'login'    => user,
+					'password' => pass
+				}
 			}, 25)
 
 		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
