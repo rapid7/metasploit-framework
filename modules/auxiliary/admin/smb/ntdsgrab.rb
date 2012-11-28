@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
