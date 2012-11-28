@@ -31,7 +31,8 @@ class Metasploit3 < Msf::Auxiliary
 
 			'License'        => MSF_LICENSE,
 			'References'     => [
-				[ 'URL', 'http://sourceforge.net/projects/smbexec.' ],
+				[ 'URL', 'http://sourceforge.net/projects/smbexec' ],
+				[ 'URL', 'http://www.accuvant.com/blog/2012/11/13/owning-computers-without-shell-access' ]
 			],
 		))
 
