@@ -228,14 +228,8 @@ class Metasploit3 < Msf::Post
 	# Write to loot database
 	def db_loot(host, user, type)
 		if db
-			store_loot(
-				type,
-				'text/plain',
-				host,
-				"#{host}:#{user}",
-				'hosts_localadmin.txt',
-				user
-			)
+			p = store_loot(type, 'text/plain', host, "#{host}:#{user}", 'hosts_localadmin.txt', user)
+			print_status("User data stored in: #{p}")
 		end
 	end
 end
