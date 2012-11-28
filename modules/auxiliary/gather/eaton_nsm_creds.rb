@@ -16,10 +16,9 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'Network Shutdown Module <= 3.21 (sort_values) Credential Dumper',
 			'Description'    => %q{
-				This module exploits a vulnerability in lib/dbtools.inc which uses
-				unsanitized user input inside a eval() call. Additionally the base64 encoded
-				user credentials are extracted from the database of the application. Please
-				note that in order to be able to steal credentials, the vulnerable service
+				This module will extract user credentials from Network Shutdown Module by exploiting
+				a vulnerability found in lib/dbtools.inc, which uses unsanitized user input inside a
+				eval() call.  Please note that in order to extract credentials,the vulnerable service
 				must have at least one USV module (an entry in the "nodes" table in mgedb.db)
 			},
 			'References'     =>
