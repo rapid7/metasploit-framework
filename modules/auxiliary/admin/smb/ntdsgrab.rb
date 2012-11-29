@@ -308,7 +308,7 @@ class Metasploit3 < Msf::Auxiliary
 			NDR.long(0xF003F)
 		begin
 			response = dcerpc.call(0x0f, stubdata)
-			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
+			if dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil
 				scm_handle = dcerpc.last_response.stub_data[0,20]
 			end
 		rescue ::Exception => e
@@ -342,7 +342,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			vprint_status("#{peer} - Creating the service...")
 			response = dcerpc.call(0x0c, stubdata)
-			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
+			if dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil
 				svc_handle = dcerpc.last_response.stub_data[0,20]
 				svc_status = dcerpc.last_response.stub_data[24,4]
 			end
@@ -365,7 +365,7 @@ class Metasploit3 < Msf::Auxiliary
 				NDR.long(0xF01FF)
 
 			response = dcerpc.call(0x10, stubdata)
-			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
+			if dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil
 				svc_handle = dcerpc.last_response.stub_data[0,20]
 			end
 		rescue ::Exception => e
@@ -380,7 +380,7 @@ class Metasploit3 < Msf::Auxiliary
 			NDR.long(0)
 		begin
 			response = dcerpc.call(0x13, stubdata)
-			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
+			if dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil
 			end
 		rescue ::Exception => e
 			print_error("#{peer} - Error: #{e}")
@@ -392,7 +392,7 @@ class Metasploit3 < Msf::Auxiliary
 			svc_handle
 		begin
 			response = dcerpc.call(0x02, stubdata)
-			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
+			if dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil
 		end
 			rescue ::Exception => e
 			print_error("#{peer} - Error: #{e}")
