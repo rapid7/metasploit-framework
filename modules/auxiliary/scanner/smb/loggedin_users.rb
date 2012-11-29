@@ -111,7 +111,7 @@ class Metasploit3 < Msf::Auxiliary
 			return output
 		rescue StandardError => output_error
 			print_error("#{ip} - Error getting command output. #{output_error.class}. #{output_error}.")
-			return nil
+			return false
 		end
 	end
 
