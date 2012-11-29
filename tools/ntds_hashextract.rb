@@ -131,8 +131,7 @@ def decrypt_single_hash(rid, enc_hash)
   
 	p2 = d2.decrypt.update(enc_hash[8,enc_hash.length])
 	p2 << d2.final
-	hash = ""
-	hash << p1 + p2
+	hash = p1 + p2
 	return hash.unpack("H*")[0].to_s
 end
 
