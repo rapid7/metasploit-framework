@@ -91,7 +91,6 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		credentials = response.body.to_s.scan(/\d{10}(.*)\d{10}(.*)\d{10}/)
-		return [] if credentials.length == 0
 		return credentials
 	end
 
