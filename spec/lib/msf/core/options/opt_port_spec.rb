@@ -8,7 +8,7 @@ describe Msf::OptPort do
 		# falls back to just returning the original value
 		[ v, v ]
 	}
-  invalid_values = [ "yer mom", "0.1", "-1" "65536" ]
+  invalid_values = [ "yer mom", "0.1", "-1", "65536" ]
 
   it_behaves_like "an option", valid_values, invalid_values
 end
