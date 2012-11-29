@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Post
 		cmd = ""
 
 		begin
-			case datastore['type']
+			case datastore['TYPE']
 			when /auto/i
 				cmd = auto_create_session(lhost,lport)
 			when /ruby/i
