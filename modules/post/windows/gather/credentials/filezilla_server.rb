@@ -193,25 +193,25 @@ class Metasploit3 < Msf::Post
 		end
 		# report the goods!
 		if config['admin_port'] == "<none>"
-		  #if report_auth_info executes with admin_port equal to "<none>"
-		  #the module will crash with an error.
-		  vprint_status("(No admin information found.)")
+			#if report_auth_info executes with admin_port equal to "<none>"
+			#the module will crash with an error.
+			vprint_status("(No admin information found.)")
 		else
-		  report_auth_info(
-			  :host  => session.sock.peerhost,
-			  :port => config['admin_port'],
-			  :sname => 'filezilla-admin',
-			  :proto => 'tcp',
-			  :user => 'admin',
-			  :pass => config['admin_pass'],
-			  :type => "password",
-			  :source_id => source_id,
-			  :source_type => "exploit",
-			  :target_host => config['admin_bindip'],
-			  :target_port => config['admin_port']
-		  )
+			report_auth_info(
+				:host  => session.sock.peerhost,
+				:port => config['admin_port'],
+				:sname => 'filezilla-admin',
+				:proto => 'tcp',
+				:user => 'admin',
+				:pass => config['admin_pass'],
+				:type => "password",
+				:source_id => source_id,
+				:source_type => "exploit",
+				:target_host => config['admin_bindip'],
+				:target_port => config['admin_port']
+			)
 		end
-    
+		
 		p = store_loot("filezilla.server.creds", "text/csv", session, credentials.to_csv,
 			"filezilla_server_credentials.csv", "FileZilla FTP Server Credentials")
 
