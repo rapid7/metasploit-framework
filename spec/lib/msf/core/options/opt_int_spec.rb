@@ -4,13 +4,15 @@ require 'msf/core/option_container'
 
 describe Msf::OptInt do
   valid_values = [
-    "1", "10", "0", 
-    #"-1", # Negatives don't work
-  ].map{|v| [ v, v.to_i ] }
-  valid_values.push([ "0x10", 16 ])
+    { :value => "1",    :normalized => 1  },
+    { :value => "10",   :normalized => 10 },
+    { :value => "0",    :normalized => 0  },
+    { :value => "0x10", :normalized => 16 },
+    { :pending => "Redmine #7540", :value => "-1", :normalized => -1 }
+  ]
   invalid_values = [
-    #"yer mom", # to_i makes this 0
-    #"0.1", # to_i makes this 0
+    { :pending => "Redmine #7539", :value => "yer mom", },
+    { :pending => "Redmine #7539", :value => "0.1",     },
   ]
 
   it_behaves_like "an option", valid_values, invalid_values
