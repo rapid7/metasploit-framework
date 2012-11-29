@@ -37,8 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				Opt::RPORT(4679),
-				OptString.new("PARAM", [false, 'Specify a parameter for the action'])
+				Opt::RPORT(4679)
 			], self.class)
 	end
 
