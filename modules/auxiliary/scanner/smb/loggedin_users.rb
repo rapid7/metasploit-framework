@@ -29,8 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 					'Twitter: <[at]R3dy__>',
 				],
 			'References'  => [
-				['URL', 'http://www.pentestgeek.conm'],
-				['URL', 'http://www.accuvant.com'],
+				['URL', 'http://www.pentestgeek.com/2012/11/05/finding-logged-in-users-metasploit-module/']
 			],
 			'License'     => MSF_LICENSE
 		)
