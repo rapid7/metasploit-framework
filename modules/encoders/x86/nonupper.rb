@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Encoder::NonUpper
 	def encode_block(state, block)
 		begin
 			newchar, state.key, state.decoder_key_size =
-				Rex::Encoder::NonUpper::encode_byte(datastore['badchars'], block.unpack('C')[0], state.key, state.decoder_key_size)
+				Rex::Encoder::NonUpper::encode_byte(datastore['BadChars'], block.unpack('C')[0], state.key, state.decoder_key_size)
 		rescue RuntimeError => e
 			# This is a bandaid to deal with the fact that, since it's in
 			# the Rex namespace, the encoder itself doesn't have access to the
