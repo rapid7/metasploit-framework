@@ -227,7 +227,7 @@ class Metasploit3 < Msf::Post
 			print_status("System has currently been idle for #{currentidle} seconds")
 			while currentidle <= datastore['LOCKTIME'] do
 				print_status("Current Idle time: #{currentidle} seconds")
-				select(nil,nil,nil,datastore['HEARBEAT'])
+				select(nil,nil,nil,datastore['HEARTBEAT'])
 				currentidle = session.ui.idle_time
 			end
 			client.railgun.user32.LockWorkStation()
