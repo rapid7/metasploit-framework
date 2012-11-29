@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMB - Query Logged On Users',
-			'Version'     => '$Revision: 14976 $',
 			'Description' => %Q{
 				This module authenticates to a remote host or hosts and determines which users are currently logged in.  It uses reg.exe
 				to query the HKU base registry key.
