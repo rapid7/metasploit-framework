@@ -19,13 +19,12 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'        => 'SMB - Query Logged On Users',
 			'Description' => %Q{
-				This module authenticates to a remote host or hosts and determines which users are currently logged in.  It uses reg.exe
-				to query the HKU base registry key.
+				This module authenticates to a remote host or hosts and determines which users are 
+				currently logged in.  It uses reg.exe to query the HKU base registry key.
 			},
 			'Author'      =>
 				[
-					'Royce Davis <rdavis[at]accuvant.com>',    # Metasploit module
-					'Twitter: <[at]R3dy__>',
+					'Royce Davis @R3dy__ <rdavis[at]accuvant.com>'    # Metasploit module
 				],
 			'References'  => [
 				['URL', 'http://www.pentestgeek.com/2012/11/05/finding-logged-in-users-metasploit-module/']
