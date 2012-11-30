@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options([
 				OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true]),
-				OptInt.new('RPORT', [true, "The target port", 443]),
+				Opt::RPORT(443)
 			])
 	end
 
