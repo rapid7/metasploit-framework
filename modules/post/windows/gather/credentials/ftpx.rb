@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Post
 			next if !pass or pass.empty?
 
 			# show results to the user
-			print_good("#{host}:#{port} - USER: #{user} PASS: #{pass}")
+			print_good("#{session.sock.peerhost}:#{port} (#{host}) - '#{user}:#{pass}'")
 
 			# save results to the db
 			if session.db_record
