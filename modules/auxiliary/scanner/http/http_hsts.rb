@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_good("#{ip}:#{rport} - Strict-Transport-Security:#{hsts}")
 				report_note({
 					:data => hsts,
-					:type => "hsts_data",
+					:type => "hsts.data",
 					:host => ip,
 					:port => rport
 				})
