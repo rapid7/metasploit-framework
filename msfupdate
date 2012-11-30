@@ -148,7 +148,7 @@ if is_git
 end
 
 if is_pro
-	update_script = File.expand_path(File.join(@msfbase, "..", "engine", "update.rb"))
+	update_script = File.expand_path(File.join(@msfbase_dir, "..", "engine", "update.rb"))
 	system("ruby", update_script)
 end
 
