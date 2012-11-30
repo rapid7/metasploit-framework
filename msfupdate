@@ -111,7 +111,7 @@ end
 
 ####### Since we're Git, do it all that way #######
 if is_git
-	out = `git remote show upstream`
+	out = `git remote show upstream` # Actually need the output for this one.
 	add_git_upstream unless $?.success? and out =~ %r{(https|git|git@github\.com):(//github\.com/)?(rapid7/metasploit-framework\.git)}
 
 	remote = @git_remote || "upstream"
