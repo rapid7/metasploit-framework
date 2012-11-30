@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Post
 			pass = node.elements['Password'].text
 
 			# skip blank passwords
-			next if pass.empty?
+			next if !pass or pass.empty?
 
 			# show results to the user
 			print_good("#{host}:#{port} - USER: #{user} PASS: #{pass}")
