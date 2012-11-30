@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows Gather FTP Explorer Saved Password Extraction',
+			'Name'          => 'Windows Gather FTP Explorer (FTPX) Credential Extraction',
 			'Description'   => %q{
 				This module finds saved login credentials for the FTP Explorer (FTPx)
 				FTP client for Windows.
