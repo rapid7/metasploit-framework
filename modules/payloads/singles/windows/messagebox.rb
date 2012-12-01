@@ -266,7 +266,8 @@ start_main:
 ;EXITFUNC
 	#{doexit}
 EOS
-		the_payload = Metasm::Shellcode.assemble(Metasm::Ia32.new, payload_data).encode_string
+		self.assembly = payload_data
+		super
 	end
 
 	#
