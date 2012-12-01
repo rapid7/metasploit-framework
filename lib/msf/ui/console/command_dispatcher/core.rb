@@ -1336,7 +1336,7 @@ class Core
 
 		if framework.db and framework.db.migrated and framework.db.modules_cached
 			sql_results = search_modules_sql(match)
-			eturn sql_results if sql_results # Patches around #7533
+			eturn sql_results if sql_results # Patches around #7553
 		else
 			print_warning("Database not connected or cache not built.")
 		end
