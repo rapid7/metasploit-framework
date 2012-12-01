@@ -105,6 +105,7 @@ class Metasploit3 < Msf::Post
 			mem = client.railgun.memread(startmem, 8*count)
 		rescue ::Exception => e
 			print_error("Issue reading memory for #{host}")
+			print_error(e.backtrace) if datastore['VERBOSE']
 		end
 		# For each entry returned, get domain and name of logged in user
 		begin
@@ -153,6 +154,7 @@ class Metasploit3 < Msf::Post
 
 		rescue ::Exception => e
 			print_error("Issue connecting to DC, try manually setting domain and DC")
+			print_error(e.backtrace) if datastore['VERBOSE']
 		end
 
 			count = usergroups['totalentries']
@@ -163,6 +165,7 @@ class Metasploit3 < Msf::Post
 			mem = client.railgun.memread(startmem, 8*count)
 		rescue ::Exception => e
 			print_error("Issue reading memory for groups for user #{user}")
+			print_error(e.backtrace) if datastore['VERBOSE']
 		end
 
 		begin
@@ -182,6 +185,7 @@ class Metasploit3 < Msf::Post
 
 		rescue ::Exception => e
 			print_error("Issue enumerating groups for user #{user}, check domain")
+			print_error(e.backtrace) if datastore['VERBOSE']
 		end
 
 		return grouplist.chomp("\n\t-   ")
