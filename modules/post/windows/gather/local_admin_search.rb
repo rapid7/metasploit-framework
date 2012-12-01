@@ -23,19 +23,36 @@ class Metasploit3 < Msf::Post
 			to the remote host.
 			},
 			'License'      => MSF_LICENSE,
-			'Author'       => [ 'Brandon McCann "zeknox" <bmccann [at] accuvant.com>', 'Royce Davis "r3dy" <rdavis [at] accuvant.com>', 'Thomas McCarthy "smilingracoon" <smilingraccoon [at] gmail.com>'],
-			'Platform'     => [ 'windows'],
-			'SessionTypes' => [ 'meterpreter' ]
+			'Version'      => '$Revision: 14767 $',
+			'Author'       => [ 'Brandon McCann "zeknox" <bmccann [at] accuvant.com>', 'Royce Davis "r3dy" <rdavis [at] accuvant.com>', 'Thomas McCarthy "smilingracoon" <esmilingraccoon [at] gmail.com>'],
+				'Platform'     => [ 'windows'],
+				'SessionTypes' => [ 'meterpreter' ]
 		)
 	end
 
-	def run()
+	def setup()
+		super
+
 		if is_system?
 			# running as SYSTEM and will not pass any network credentials
 			print_error "Running as SYSTEM, module should be run with USER level rights"
 			return
 		else
-			super
+			begin
+				@user = client.sys.config.getuid
+			rescue
+				print_error("Issues enumerating username via getuid")
+			end
+
+			begin
+				@adv = client.railgun.advapi32
+			rescue
+				print_error("Issues loading advapi32 from railgun")
+			end
+
+			if @adv.nil?
+				return
+			end
 		end
 	end
 
@@ -46,21 +63,19 @@ class Metasploit3 < Msf::Post
 
 	# method to connect to remote host using windows api
 	def connect(host)
-		user = client.sys.config.getuid
 		# use railgun and OpenSCManagerA api to connect to remote host
-		adv = client.railgun.advapi32
-		manag = adv.OpenSCManagerA("\\\\#{host}", nil, 0xF003F) # SC_MANAGER_ALL_ACCESS
+		manag = @adv.OpenSCManagerA("\\\\#{host}", nil, 0xF003F) # SC_MANAGER_ALL_ACCESS
 
 		if(manag["return"] != 0) # we have admin rights
-			print_good("#{host.ljust(16)} #{user} - Local admin found")
+			print_good("#{host.ljust(16)} #{@user} - Local admin found")
 			# close the handle if connection was made
-			adv.CloseServiceHandle(manag["return"])
+			@adv.CloseServiceHandle(manag["return"])
 
 			# report the success to the db
-			db_note(host,user)
+			db_note(host,@user)
 		else
 			# we dont have admin rights
-			print_error("#{host.ljust(16)} #{user} - No Local Admin rights")
+			print_error("#{host.ljust(16)} #{@user} - No Local Admin rights")
 		end
 	end
 
@@ -68,7 +83,7 @@ class Metasploit3 < Msf::Post
 		# write the local admin privs to the database
 		if db
 			store_loot(
-				"#{user}.localadmin",'text/plain',session,"#{host}:#{user}",'hosts_localadmin.txt','Local Admin on Hosts'
+				"#{@user}.localadmin",'text/plain',session,"#{host}:#{@user}",'hosts_localadmin.txt','Local Admin on Hosts'
 			)
 		end
 	end
