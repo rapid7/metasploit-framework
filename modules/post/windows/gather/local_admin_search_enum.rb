@@ -43,13 +43,15 @@ class Metasploit3 < Msf::Post
 			], self.class)
 	end
 
-	def run
+	def setup
+		super
+
 		if is_system?
 			# running as SYSTEM and will not pass any network credentials
 			print_error "Running as SYSTEM, module should be run with USER level rights"
 			return
 		else
-			adv = client.railgun.advapi32
+			@adv = client.railgun.advapi32
 
 			# Get domain and domain controller if options left blank
 			if datastore['DOMAIN'].nil?
@@ -76,7 +78,6 @@ class Metasploit3 < Msf::Post
 					print_error("User never logged into device, will not enumerate groups or manually specify DC.")
 				end
 			end
-		super
 		end
 	end
 
@@ -93,6 +94,7 @@ class Metasploit3 < Msf::Post
 			winsessions = client.railgun.netapi32.NetWkstaUserEnum("\\\\#{host}", 1, 4, -1, 4, 4, nil)
 		rescue ::Exception => e
 			print_error("Issue enumerating users on #{host}")
+			print_error(e.backtrace) if datastore['VERBOSE']
 		end
 		count = winsessions['totalentries'] * 2
 		startmem = winsessions['bufptr']
@@ -120,7 +122,7 @@ class Metasploit3 < Msf::Post
 						# an error, or if option disabled
 						data = ""
 						if datastore['DOMAIN'].upcase == temp[:domain].upcase and not @dc_error and datastore['ENUM_GROUPS']
-							data = " - Groups: #{enum_groups(temp[:user]).chomp(", ")}"
+							data << " - Groups: #{enum_groups(temp[:user]).chomp(", ")}"
 						end
 						line = "\tLogged in user:\t#{temp[:domain]}\\#{temp[:user]}#{data}\n"
 
@@ -134,6 +136,7 @@ class Metasploit3 < Msf::Post
 			}
 		rescue ::Exception => e
 			print_error("Issue enumerating users on #{host}")
+			print_error(e.backtrace) if datastore['VERBOSE']
 		end
 		return userlist
 	end
@@ -188,9 +191,13 @@ class Metasploit3 < Msf::Post
 	# http://msdn.microsoft.com/en-us/library/windows/desktop/ms684323(v=vs.85).aspx
 	# method to connect to remote host using windows api
 	def connect(host)
+		if @adv.nil?
+			return
+		end
+
 		user = client.sys.config.getuid
 		# use railgun and OpenSCManagerA api to connect to remote host
-		manag = adv.OpenSCManagerA("\\\\#{host}", nil, 0xF003F) # SC_MANAGER_ALL_ACCESS
+		manag = @adv.OpenSCManagerA("\\\\#{host}", nil, 0xF003F) # SC_MANAGER_ALL_ACCESS
 
 		if(manag["return"] != 0) # we have admin rights
 			result = "#{host.ljust(16)} #{user} - Local admin found\n"
@@ -203,10 +210,10 @@ class Metasploit3 < Msf::Post
 			end
 
 			# close the handle if connection was made
-			adv.CloseServiceHandle(manag["return"])
+			@adv.CloseServiceHandle(manag["return"])
 			# Append data to loot table within database
-			db_loot(host, user, "localadmin.user")
 			print_good(result.chomp("\n")) unless result.nil?
+			db_loot(host, user, "localadmin.user")
 		else
 			# we dont have admin rights
 			print_error("#{host.ljust(16)} #{user} - No Local Admin rights")
@@ -229,7 +236,7 @@ class Metasploit3 < Msf::Post
 	def db_loot(host, user, type)
 		if db
 			p = store_loot(type, 'text/plain', host, "#{host}:#{user}", 'hosts_localadmin.txt', user)
-			print_status("User data stored in: #{p}")
+			print_status("User data stored in: #{p}") if datastore['VERBOSE']
 		end
 	end
 end
