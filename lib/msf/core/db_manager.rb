@@ -575,9 +575,9 @@ class DBManager
 					where_q << ' ( ' +
 						'module_details.fullname ILIKE ? OR module_details.name ILIKE ? OR module_details.description ILIKE ? OR ' +
 						'module_authors.name ILIKE ? OR module_actions.name ILIKE ? OR module_archs.name ILIKE ? OR ' +
-						'module_targets.name ILIKE ? OR module_platforms.name ILIKE ? ' +
+						'module_targets.name ILIKE ? OR module_platforms.name ILIKE ? OR module_refs.name ILIKE ?' +
 						') '
-					where_v << [ xv, xv, xv, xv, xv, xv, xv, xv ]
+					where_v << [ xv, xv, xv, xv, xv, xv, xv, xv, xv ]
 				when 'name'
 					xv = "%#{kv}%"
 					where_q << ' ( module_details.fullname ILIKE ? OR module_details.name ILIKE ? ) '
