@@ -342,6 +342,8 @@ class DBManager
 		return if not self.migrated
 		return if self.modules_caching
 
+		self.framework.cache_thread = Thread.current
+
 		self.modules_cached  = false
 		self.modules_caching = true
 
@@ -393,6 +395,9 @@ class DBManager
 				end
 			end
 		end
+
+		self.framework.cache_initialized = true
+		self.framework.cache_thread = nil
 
 		self.modules_cached  = true
 		self.modules_caching = false
