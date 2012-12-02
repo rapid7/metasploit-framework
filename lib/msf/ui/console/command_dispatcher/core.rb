@@ -1335,13 +1335,11 @@ class Core
 		}
 
 		if framework.db and framework.db.migrated and framework.db.modules_cached
-			sql_results = search_modules_sql(match)
-			return sql_results if sql_results # Patches around #7553
-		else
-			print_warning("Database not connected or cache not built.")
+			search_modules_sql(match)
+			return
 		end
 
-		print_warning("Falling back to slow search.")
+		print_warning("Database not connected or cache not built, using slow search")
 
 		tbl = generate_module_table("Matching Modules")
 		[
