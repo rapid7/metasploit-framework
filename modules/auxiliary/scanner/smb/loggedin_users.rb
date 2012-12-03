@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 			connect()
 			smb_login()
 		rescue StandardError => autherror
-			print_error("#{ip} - #{autherror}")
+			print_error("#{peer} - #{autherror}")
 			return
 		end
 
@@ -92,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
 			output.each_line { |line| cleanout << line.chomp if line.include?("HKEY") && line.split("-").size == 8 && !line.split("-")[7].include?("_")}
 			return cleanout
 		rescue StandardError => hku_error
-			print_error("#{ip} - Error runing query against HKU. #{hku_error.class}. #{hku_error}")
+			print_error("#{peer} - Error runing query against HKU. #{hku_error.class}. #{hku_error}")
 			return nil
 		end
 	end
@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Auxiliary
 			simple.disconnect("\\\\#{ip}\\#{smbshare}")
 			return output
 		rescue StandardError => output_error
-			print_error("#{ip} - Error getting command output. #{output_error.class}. #{output_error}.")
+			print_error("#{peer} - Error getting command output. #{output_error.class}. #{output_error}.")
 			return false
 		end
 	end
@@ -160,10 +160,10 @@ class Metasploit3 < Msf::Auxiliary
 					end
 				end
 			else
-				print_status("#{ip} - Could not determine logged in users")
+				print_status("#{peer} - Could not determine logged in users")
 			end
 		rescue StandardError => check_error
-			print_error("#{ip} - Error checking reg key. #{check_error.class}. #{check_error}")
+			print_error("#{peer} - Error checking reg key. #{check_error.class}. #{check_error}")
 			return check_error
 		end
 	end
@@ -176,7 +176,7 @@ class Metasploit3 < Msf::Auxiliary
 			# Try and do cleanup command
 			cleanup = "#{cmd} /C del C:#{text} & del #{bat}"
 			simple.connect(smbshare)
-			print_status("Executing cleanup on host: #{ip}")
+			print_status("Executing cleanup on host: #{peer}")
 			psexec(smbshare, cleanup)
 		rescue StandardError => cleanuperror
 			print_error("Unable to processes cleanup commands: #{cleanuperror}")
