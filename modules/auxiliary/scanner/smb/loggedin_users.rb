@@ -58,8 +58,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		#Try and authenticate with given credentials
 		begin
-			connect()
-			smb_login()
+			connect
+			smb_login
 		rescue StandardError => autherror
 			print_error("#{peer} - #{autherror}")
 			return
@@ -68,13 +68,14 @@ class Metasploit3 < Msf::Auxiliary
 		keys = get_hku(ip, smbshare, cmd, text, bat)
 		if !keys
 			cleanup_after(smbshare, ip, cmd, text, bat)
+			disconnect
 			return
 		end
 		keys.each do |key|
 			check_hku_entry(key, ip, smbshare, cmd, text, bat)
 		end
 		cleanup_after(smbshare, ip, cmd, text, bat)
-		disconnect()
+		disconnect
 	end
 
 
