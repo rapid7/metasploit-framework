@@ -109,7 +109,7 @@ def decrypt_with_pek(pek, enc_hash)
 		md5.update(enc_hash[0,16])
 		rc4 = OpenSSL::Cipher::Cipher.new('rc4')
 		rc4.key = md5.digest
-		hash = rc4.update(enc_hash[16,enc_hash.size])
+		hash = rc4.update(enc_hash[16,enc_hash.size + 1])
 	rescue
 		return "NO PASSWORD"
 	end
@@ -129,7 +129,7 @@ def decrypt_single_hash(rid, enc_hash)
 	p1 = d1.decrypt.update(enc_hash[0,8])
 	p1 << d1.final
   
-	p2 = d2.decrypt.update(enc_hash[8,enc_hash.length])
+	p2 = d2.decrypt.update(enc_hash[8,(enc_hash.length - 1)])
 	p2 << d2.final
 	hash = p1 + p2
 	return hash.unpack("H*")[0].to_s
