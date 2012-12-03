@@ -144,7 +144,7 @@ class Metasploit3 < Msf::Auxiliary
 						domain = line if line.include?("USERDOMAIN")
 					end
 					if domain.split(" ")[2].to_s.chomp + "\\" + username.split(" ")[2].to_s.chomp == datastore['USERNAME']
-						print_good("#{datastore['USERNAME']} is logged into #{ip}")
+						print_good("#{datastore['USERNAME']} is logged into #{peer}")
 						report_user(datastore['USERNAME'])
 					end
 					return
