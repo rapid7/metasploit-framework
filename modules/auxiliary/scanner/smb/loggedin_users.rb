@@ -115,6 +115,18 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
+	
+	def report_user(username)
+		report_note = {
+			:host => rhost,
+			:proto => 'tcp',
+			:port => rport,
+			:type => 'loggedin users',
+			:data => username
+		}
+	end
+
+
 
 	# This method checks a provided HKU entry to determine if it is a valid SID
 	# Either returns nil or returns the name of a valid user
@@ -133,6 +145,7 @@ class Metasploit3 < Msf::Auxiliary
 					end
 					if domain.split(" ")[2].to_s.chomp + "\\" + username.split(" ")[2].to_s.chomp == datastore['USERNAME']
 						print_good("#{datastore['USERNAME']} is logged into #{ip}")
+						report_user(datastore['USERNAME'])
 					end
 					return
 				end
@@ -144,16 +157,22 @@ class Metasploit3 < Msf::Auxiliary
 					logonserver = line if line.include?("LOGONSERVER")
 				end
 				if username.length > 0 && domain.length > 0
-					print_good("#{peer} - #{domain.split(" ")[2].to_s}\\#{username.split(" ")[2].to_s}")
+					user = domain.split(" ")[2].to_s + "\\" + username.split(" ")[2].to_s
+					print_good("#{peer} - #{user}")
+					report_user(user)
 				elsif logonserver.length > 0 && homepath.length > 0
 					uname = homepath.split('\\')[homepath.split('\\').size - 1]
 					if uname.include?(".")
 						uname = uname.split(".")[0]
 					end
-					print_good("#{peer} - #{logonserver.split('\\\\')[1].chomp}\\#{uname}")
+					user = logonserver.split('\\\\')[1].chomp.to_s + "\\" + uname.to_s
+					print_good("#{peer} - #{user}")
+					report_user(user)
 				else
 					if username = query_session(smbshare, ip, cmd, text, bat)
-						print_good("#{peer} - #{dnsdomain.split(" ")[2].split(".")[0].to_s}\\#{username}")
+						user = dnsdomain.split(" ")[2].split(".")[0].to_s + "\\" + username.to_s
+						print_good("#{peer} - #{user}")
+						report_user(user)
 					else
 						print_status("#{peer} - Unable to determine user information for user: #{key}")
 					end
