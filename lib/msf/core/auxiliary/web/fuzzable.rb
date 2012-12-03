@@ -43,9 +43,9 @@ class Fuzzable
 	end
 
 	def submit( opts = {} )
-		fuzzer.increment_request_counter
+		fuzzer.increment_request_counter if fuzzer
 
-		resp = http.request_async( *request( opts ) )
+		resp = http.request( *request( opts ) )
 		handle_response( resp )
 		resp
 	end
@@ -90,6 +90,8 @@ class Fuzzable
 	end
 
 	def handle_response( resp )
+		return if !fuzzer || !resp
+
 		str = "    #{fuzzer.shortname}: #{resp.code} - #{method.to_s.upcase}" +
 			" #{action} #{params}"
 
