@@ -12,11 +12,15 @@ require 'msf/core'
 require 'msf/core/module_set'
 
 module Msf
-  # Upper management decided to throw in some middle management # because the modules were getting out of hand.  This
-  # bad boy takes care of the work of managing the interaction with modules in terms of loading and instantiation.
+  # Upper management decided to throw in some middle management
+  # because the modules were getting out of hand.  This bad boy takes
+  # care of the work of managing the interaction with modules in terms
+  # of loading and instantiation.
   #
   # @todo add unload support
-  class ModuleManager < ModuleSet
+  class ModuleManager #< ModuleSet
+    include Msf::Framework::Offspring
+
     require 'msf/core/payload_set'
 
     # require here so that Msf::ModuleManager is already defined
@@ -39,25 +43,14 @@ module Msf
     # Maps module type directory to its module type.
     TYPE_BY_DIRECTORY = Msf::Modules::Loader::Base::DIRECTORY_BY_TYPE.invert
 
-    # Overrides the module set method for adding a module so that some extra steps can be taken to subscribe the module
-    # and notify the event dispatcher.
-    #
-    # @param (see Msf::ModuleSet#add_module)
-    # @return (see Msf::ModuleSet#add_module)
-    def add_module(mod, name, file_paths)
-      # Call {Msf::ModuleSet#add_module} with same arguments
-      dup = super
+    def [](key)
+      names = key.split("/")
+      type = names.shift
 
-      # Automatically subscribe a wrapper around this module to the necessary
-      # event providers based on whatever events it wishes to receive.  We
-      # only do this if we are the module manager instance, as individual
-      # module sets need not subscribe.
-      auto_subscribe_module(dup)
+      module_set = module_set_by_type[type]
 
-      # Notify the framework that a module was loaded
-      framework.events.on_module_load(name, dup)
-
-      dup
+      module_reference_name = names.join("/")
+      module_set.create(module_reference_name)
     end
 
     # Creates a module instance using the supplied reference name.
@@ -91,7 +84,7 @@ module Msf
     end
 
 
-    # @param [Msf::Framework] framework The framework for which this instance is managing the modules.
+    # @param framework [Msf::Framework] The framework for which this instance is managing the modules.
     # @param [Array<String>] types List of module types to load.  Defaults to all module types in {Msf::MODULE_TYPES}.
     def initialize(framework, types=Msf::MODULE_TYPES)
       #
@@ -113,18 +106,18 @@ module Msf
       types.each { |type|
         init_module_set(type)
       }
-
-      super(nil)
     end
 
     protected
 
-    # This method automatically subscribes a module to whatever event providers it wishes to monitor.  This can be used
-    # to allow modules to automatically # execute or perform other tasks when certain events occur.  For instance, when
-    # a new host is detected, other aux modules may wish to run such that they can collect more information about the
-    # host that was detected.
+    # This method automatically subscribes a module to whatever event
+    # providers it wishes to monitor.  This can be used to allow modules
+    # to automatically execute or perform other tasks when certain
+    # events occur.  For instance, when a new host is detected, other
+    # aux modules may wish to run such that they can collect more
+    # information about the host that was detected.
     #
-    # @param [Class] mod a Msf::Module subclass
+    # @param mod [Class] A subclass of Msf::Module
     # @return [void]
     def auto_subscribe_module(mod)
       # If auto-subscribe has been disabled
