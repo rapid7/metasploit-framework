@@ -90,4 +90,37 @@ describe Rex::Post::Meterpreter::Tlv do
     end
   end
 
+  context "A Method TLV" do
+    subject{Rex::Post::Meterpreter::Tlv.new(Rex::Post::Meterpreter::TLV_TYPE_METHOD,"test")}
+    it "should return true when checked for a meta type of String" do
+      subject.meta_type?(Rex::Post::Meterpreter::TLV_META_TYPE_STRING).should == true
+    end
+
+    it "should show the correct type and meta type in inspect" do
+      tlv_to_s = "#<Rex::Post::Meterpreter::Tlv type=METHOD          meta=STRING     value=\"test\">"
+      subject.inspect.should == tlv_to_s
+    end
+  end
+
+  context "A String TLV with a number value" do
+    subject{Rex::Post::Meterpreter::Tlv.new(Rex::Post::Meterpreter::TLV_TYPE_STRING,5)}
+    it "should return the string version of the number" do
+      subject.value.should == "5"
+    end
+  end
+
+end
+
+describe Rex::Post::Meterpreter::GroupTlv do
+  subject{Rex::Post::Meterpreter::GroupTlv.new(Rex::Post::Meterpreter::TLV_TYPE_CHANNEL_DATA_GROUP)}
+
+  it "should respond to tlvs" do
+    subject.should respond_to :tlvs
+  end
+
+  it "should return an empty array for tlvs by default" do
+    subject.tlvs.should == []
+  end
+
+  
 end
