@@ -50,18 +50,21 @@ module Msf
       module_set = module_set_by_type[type]
 
       module_reference_name = names.join("/")
-      module_set.create(module_reference_name)
+      module_set[module_reference_name]
     end
 
     # Creates a module instance using the supplied reference name.
     #
-    # @param [String] name a module reference name.  It may optionally be prefixed with a "<type>/", in which case the
-    #   module will be created from the {Msf::ModuleSet} for the given <type>.
+    # @param name [String] A module reference name.  It may optionally
+    #   be prefixed with a "<type>/", in which case the module will be
+    #   created from the {Msf::ModuleSet} for the given <type>.
+    #   Otherwise, we step through all sets until we find one that
+    #   matches.
     # @return (see Msf::ModuleSet#create)
     def create(name)
       # Check to see if it has a module type prefix.  If it does,
       # try to load it from the specific module set for that type.
-      names = name.split(File::SEPARATOR)
+      names = name.split("/")
       potential_type_or_directory = names.first
 
       # if first name is a type
@@ -72,20 +75,31 @@ module Msf
         type = TYPE_BY_DIRECTORY[potential_type_or_directory]
       end
 
+      m = nil
       if type
         module_set = module_set_by_type[type]
 
-        module_reference_name = names[1 .. -1].join(File::SEPARATOR)
-        module_set.create(module_reference_name)
-      # Otherwise, just try to load it by name.
+        # First element in names is the type, so skip it
+        module_reference_name = names[1 .. -1].join("/")
+        m = module_set.create(module_reference_name)
       else
-        super
+        # Then we don't have a type, so we have to step through each set
+        # to see if we can create this module.
+        module_set_by_type.each do |_, set|
+          module_reference_name = names.join("/")
+          m = set.create(module_reference_name)
+          break if m
+        end
       end
+
+      m
     end
 
 
-    # @param framework [Msf::Framework] The framework for which this instance is managing the modules.
-    # @param [Array<String>] types List of module types to load.  Defaults to all module types in {Msf::MODULE_TYPES}.
+    # @param framework [Msf::Framework] The framework for which this
+    #   instance is managing the modules.
+    # @param types [Array<String>] List of module types to load.
+    #   Defaults to all module types in {Msf::MODULE_TYPES}.
     def initialize(framework, types=Msf::MODULE_TYPES)
       #
       # defaults
