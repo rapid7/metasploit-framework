@@ -16,10 +16,6 @@ class ConvertBinary < ActiveRecord::Migration
 	end
 
 	def self.up
-		rename_column :web_pages, :body, :body_text
-		rename_column :web_pages, :request, :request_text
-		rename_column :web_vulns, :request, :request_text
-		rename_column :web_vulns, :proof, :proof_text
 
 		add_column :web_pages, :body, :binary
 		add_column :web_pages, :request, :binary
@@ -38,11 +34,6 @@ class ConvertBinary < ActiveRecord::Migration
 	end
 
 	def self.down
-
-		rename_column :web_pages, :body, :body_binary
-		rename_column :web_pages, :request, :request_binary
-		rename_column :web_vulns, :request, :request_binary
-		rename_column :web_vulns, :proof, :proof_binary
 
 		add_column :web_pages, :body, :text
 		add_column :web_pages, :request, :text
