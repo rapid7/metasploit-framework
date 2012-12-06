@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Post
 
 		register_options(
 			[
-				OptString.new(   'SMBHOST',    [ true,  'IP Address where SMB host is listening to capture hashes.' ])
+				OptAddress.new(   'SMBHOST',    [ true,  'IP Address where SMB host is listening to capture hashes.' ])
 			], self.class)
 	end
 
