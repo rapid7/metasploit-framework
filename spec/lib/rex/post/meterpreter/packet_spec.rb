@@ -188,6 +188,7 @@ describe Rex::Post::Meterpreter::GroupTlv do
     it  "should replace any existing TLV of the same type when the replace flag is set to true" do
       subject.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_STRING,"test")
       subject.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_STRING,"test2", true)
+      subject.tlvs.count.should == 1
       subject.tlvs.first.value.should == "test2"
     end
 
@@ -200,13 +201,151 @@ describe Rex::Post::Meterpreter::GroupTlv do
   end
 
   context "the add_tlvs method" do
+    it "should be able to add an array of type-value hashes" do
+      tlv_array = [
+        {'type' => Rex::Post::Meterpreter::TLV_TYPE_STRING, 'value' => "test"},
+        {'type' => Rex::Post::Meterpreter::TLV_TYPE_STRING, 'value' => "test2"}
+      ]
+      subject.add_tlvs(tlv_array)
+      subject.tlvs.count.should == 2
+      subject.tlvs.first.value.should == "test"
+      subject.tlvs.last.value.should == "test2"
+    end
 
+    it "should raise an error when given something other than nil or an array" do
+      pending "RM #7598"
+      subject.add_tlvs("bad value").should raise_error
+    end
+
+    it "should raise an error when given an array of objects other than hashes" do
+      pending "RM #7598"
+      subject.add_tlvs([1,2,3]).should raise_error
+    end
+
+    it "should raise an error when any of the hashes are missing a key" do
+      pending "RM #7598"
+      tlv_array = [
+        {:type => Rex::Post::Meterpreter::TLV_TYPE_STRING, :value => "test"},
+        {:type => Rex::Post::Meterpreter::TLV_TYPE_STRING}
+      ]
+      subject.add_tlvs(tlv_array).should raise_error
+    end
   end
 
   context "with TLVs added" do
-    before(:all) do
-      #subject.add_tlv
+    before(:each) do
+      subject.reset
+      tlv_array = [
+        {'type' => Rex::Post::Meterpreter::TLV_TYPE_STRING, 'value' => "test"},
+        {'type' => Rex::Post::Meterpreter::TLV_TYPE_STRING, 'value' => "test2"},
+        {'type' => Rex::Post::Meterpreter::TLV_TYPE_UINT, 'value' => 5}
+      ]
+      subject.add_tlvs(tlv_array)
+      @raw_group =  "\x00\x00\x00/@\x00\x005\x00\x00\x00\r\x00\x01\x00\ntest\x00\x00\x00\x00\x0E\x00\x01\x00\ntest2\x00\x00\x00\x00\f\x00\x02\x00\v\x00\x00\x00\x05"
     end
+
+    it "should empty the array of TLV when reset is called" do
+      subject.reset
+      subject.tlvs.should == []
+    end
+
+    it "should convert to raw bytes when to_r is called" do
+      subject.to_r.should == @raw_group
+    end
+
+
+    context "the from_r method" do
+      it "should build the TLV group when given the propper raw bytes" do
+        subject.reset 
+        subject.from_r( @raw_group)
+        subject.tlvs[0].inspect.should == "#<Rex::Post::Meterpreter::Tlv type=STRING          meta=STRING     value=\"test\">"
+        subject.tlvs[1].inspect.should == "#<Rex::Post::Meterpreter::Tlv type=STRING          meta=STRING     value=\"test2\">"
+        subject.tlvs[2].inspect.should == "#<Rex::Post::Meterpreter::Tlv type=UINT            meta=INT        value=5>"
+      end
+    end
+
+
+    context "the get_tlvs method" do
+      it "should return all TLVs of the supplied type" do
+        tlvs = subject.get_tlvs(Rex::Post::Meterpreter::TLV_TYPE_STRING)
+        tlvs.count.should == 2
+        tlvs.first.value.should == "test"
+        tlvs.last.value.should == "test2"
+      end
+
+      it "should return all TLVs when supplied the ANY TLV type" do
+        tlvs = subject.get_tlvs(Rex::Post::Meterpreter::TLV_TYPE_ANY)
+        tlvs.count.should == subject.tlvs.count
+      end
+
+      it "should return an empty array for a TLV type that isn't present" do
+        subject.get_tlvs(Rex::Post::Meterpreter::TLV_TYPE_BOOL).should == []
+      end
+
+      it "should return an empty array for a nonexistant TLV type" do
+        subject.get_tlvs(55555555).should == []
+      end
+    end
+
+    context "the get tlv_method" do
+      it "should return the first TLV of the specified type by default" do
+        subject.get_tlv(Rex::Post::Meterpreter::TLV_TYPE_STRING).should == subject.tlvs.first
+        subject.get_tlv(Rex::Post::Meterpreter::TLV_TYPE_UINT).should == subject.tlvs.last
+      end
+
+      it "should return the correct TLV of the specified type for the given index" do
+        subject.get_tlv(Rex::Post::Meterpreter::TLV_TYPE_STRING,1).should == subject.tlvs[1]
+      end
+
+      it "should return nil if given an out of bounds index" do
+        subject.get_tlv(Rex::Post::Meterpreter::TLV_TYPE_STRING,5).should == nil
+      end
+
+      it "should return nil if given a non-present TLV type" do
+        subject.get_tlv(Rex::Post::Meterpreter::TLV_TYPE_BOOL).should == nil
+      end
+    end
+
+    context "the get_tlv_value method" do
+      it "should return the value of the first TLV with the given type" do
+        subject.get_tlv_value(Rex::Post::Meterpreter::TLV_TYPE_STRING).should == subject.tlvs.first.value
+      end
+
+      it "should return the correct TLV value of the specified type for the given index" do
+        subject.get_tlv_value(Rex::Post::Meterpreter::TLV_TYPE_STRING,1).should == subject.tlvs[1].value
+      end
+
+      it "should return nil if given an out of bounds index" do
+        subject.get_tlv_value(Rex::Post::Meterpreter::TLV_TYPE_STRING,5).should == nil
+      end
+
+      it "should return nil if given a non-present TLV type" do
+        subject.get_tlv_value(Rex::Post::Meterpreter::TLV_TYPE_BOOL).should == nil
+      end
+    end
+
+    context "the get_tlv_values method" do
+      it "should return an array of values for the designated TLV types" do
+        subject.get_tlv_values(Rex::Post::Meterpreter::TLV_TYPE_STRING).should == ["test", "test2"]
+      end
+
+      it "should return an empty array for a non-present TLV type" do
+        subject.get_tlv_values(Rex::Post::Meterpreter::TLV_TYPE_BOOL).should == []
+      end
+    end
+
+    context "the has_tlv? method" do
+      it "should return true if the TLV Type is present" do
+        subject.has_tlv?(Rex::Post::Meterpreter::TLV_TYPE_STRING).should == true
+      end
+
+      it "should return false if the TLV type is not present" do
+        subject.has_tlv?(Rex::Post::Meterpreter::TLV_TYPE_BOOL).should == false
+      end
+    end
+
+    
+
   end
 
 
