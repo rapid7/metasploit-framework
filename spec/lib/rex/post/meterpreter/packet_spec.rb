@@ -118,9 +118,96 @@ describe Rex::Post::Meterpreter::GroupTlv do
     subject.should respond_to :tlvs
   end
 
+  it "should respond to each" do
+    subject.should respond_to :each
+  end
+
+  it "should respond to each_tlv" do
+    subject.should respond_to :each_tlv
+  end
+
+  it "should respond to each_with_index" do
+    subject.should respond_to :each_with_index
+  end
+
+  it "should respond to each_tlv_with_index" do
+    subject.should respond_to :each_tlv_with_index
+  end
+
+  it "should respond to get_tlvs" do
+    subject.should respond_to :get_tlvs
+  end
+
+  it "should respond to add_tlv" do
+    subject.should respond_to :add_tlv
+  end
+
+  it "should respond to add_tlvs" do
+    subject.should respond_to :add_tlvs
+  end
+
+  it "should respond to get_tlv" do
+    subject.should respond_to :get_tlv
+  end
+
+  it "should respond to get_tlv_value" do
+    subject.should respond_to :get_tlv_value
+  end
+
+  it "should respond to get_tlv_values" do
+    subject.should respond_to :get_tlv_values
+  end
+
+  it "should respond to has_tlv?" do
+    subject.should respond_to :has_tlv?
+  end
+
+  it "should respond to reset" do
+    subject.should respond_to :reset
+  end
+
+  it "should respond to to_r" do
+    subject.should respond_to :to_r
+  end
+
+  it "should respond to from_r" do
+    subject.should respond_to :from_r
+  end
+
   it "should return an empty array for tlvs by default" do
     subject.tlvs.should == []
   end
 
-  
+  context "the add_tlv method" do
+    it "should add to the tlvs array when given basic tlv paramaters" do
+      subject.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_STRING,"test")
+      subject.tlvs.first.type.should == Rex::Post::Meterpreter::TLV_TYPE_STRING
+      subject.tlvs.first.value.should == "test"
+    end
+
+    it  "should replace any existing TLV of the same type when the replace flag is set to true" do
+      subject.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_STRING,"test")
+      subject.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_STRING,"test2", true)
+      subject.tlvs.first.value.should == "test2"
+    end
+
+    it "should add both if replace is set to false" do
+      subject.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_STRING,"test")
+      subject.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_STRING,"test2", false)
+      subject.tlvs.first.value.should == "test"
+      subject.tlvs.last.value.should == "test2"
+    end
+  end
+
+  context "the add_tlvs method" do
+
+  end
+
+  context "with TLVs added" do
+    before(:all) do
+      #subject.add_tlv
+    end
+  end
+
+
 end
