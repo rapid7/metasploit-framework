@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 		@calls = {}
 
 		print_status("Opening interface: #{datastore['INTERFACE']}")
-		print_status("Using band: #{datastore['band']}")
+		print_status("Using band: #{datastore['BAND']}")
 
 		open_coa
 

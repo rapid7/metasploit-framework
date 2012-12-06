@@ -239,6 +239,23 @@ sub init_menus {
 	dynmenu($top, "Help", 'H', &help_items);
 
 	# setup some global keyboard shortcuts...
+	[$frame bindKey: "Ctrl+I", { 
+		thread({
+			chooseSession($null, $null, $null, {
+				local('$session');
+				$session = sessionData($1);
+				if ($session is $null) {
+					showError("Session $1 does not exist");
+				}
+				else if ($session['desc'] eq "Meterpreter") {
+					createMeterpreterTab($1);
+				}
+				else {
+					createShellSessionTab(\$session, $sid => $1);
+				}
+			});
+		});
+	}];
 	[$frame bindKey: "Ctrl+N", { thread(&createConsoleTab); }];
 	[$frame bindKey: "Ctrl+W", { [$frame openActiveTab]; }];
 	[$frame bindKey: "Ctrl+D", { [$frame closeActiveTab]; }];

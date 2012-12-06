@@ -42,10 +42,10 @@ class Metasploit3 < Msf::Post
 	def run
 
 		# Set verbosity level
-		verbose = datastore['verbose'].to_s.downcase
+		verbose = datastore['VERBOSE'].to_s.downcase
 
 		# Set instance name (if specified)
-		instance = datastore['instance'].to_s.upcase
+		instance = datastore['INSTANCE'].to_s.upcase
 
 		# Display target
 		print_status("Running module against #{sysinfo['Computer']}")
