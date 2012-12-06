@@ -22,7 +22,7 @@ end
 if not _msf_gemcache
 	# The user is running outside of the installer environment and not using
 	# our bundled gemset, so we fallback on bundler instead
-	ENV['BUNDLE_GEMFILE'] = ::File.expand_path(::File.join(::File.dirname(__FILE__), "..", "Gemfile"))
+	ENV['BUNDLE_GEMFILE'] ||= ::File.expand_path(::File.join(::File.dirname(__FILE__), "..", "Gemfile"))
 	begin
 		require 'bundler/setup'
 	rescue ::LoadError

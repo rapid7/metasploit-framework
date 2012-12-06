@@ -31,15 +31,15 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptPath.new('passwd', [true, 'The path to the passwd file']),
-				OptPath.new('shadow', [true, 'The path to the shadow file']),
+				OptPath.new('PASSWD_PATH', [true, 'The path to the passwd file']),
+				OptPath.new('SHADOW_PATH', [true, 'The path to the shadow file']),
 				OptAddress.new('IP', [true, 'The IP address if the host the shadow file came from']),
 			], self.class)
 	end
 
 	def run
 
-		unshadow = john_unshadow(datastore['passwd'],datastore['shadow'])
+		unshadow = john_unshadow(datastore['PASSWD_PATH'],datastore['SHADOW_PATH'])
 		if unshadow
 			print_good(unshadow)
 			filename= "#{datastore['IP']}_Linux_Hashes.txt"

@@ -3,6 +3,7 @@
 #
 require 'msf/core/modules/loader'
 require 'msf/core/modules/namespace'
+require 'msf/core/modules/metasploit_class_compatibility_error'
 require 'msf/core/modules/version_compatibility_error'
 
 # Responsible for loading modules for {Msf::ModuleManager}.
@@ -117,11 +118,16 @@ class Msf::Modules::Loader::Base
 
     metasploit_class = nil
 
-    loaded = namespace_module_transaction(type + "/" + module_reference_name, :reload => reload) { |namespace_module|
+    module_content = read_module_content(parent_path, type, module_reference_name)
+
+    if module_content.empty?
+	    # read_module_content is responsible for calling {#load_error}, so just return here.
+	    return false
+    end
+
+    try_eval_module = lambda { |namespace_module|
       # set the parent_path so that the module can be reloaded with #load_module
       namespace_module.parent_path = parent_path
-
-      module_content = read_module_content(parent_path, type, module_reference_name)
 
       begin
         namespace_module.module_eval_with_lexical_scope(module_content, module_path)
@@ -133,16 +139,10 @@ class Msf::Modules::Loader::Base
         begin
           namespace_module.version_compatible!(module_path, module_reference_name)
         rescue Msf::Modules::VersionCompatibilityError => version_compatibility_error
-          error_message = "Failed to load module (#{module_path}) due to error and #{version_compatibility_error}"
+	        load_error(module_path, version_compatibility_error)
         else
-          error_message = "#{error.class} #{error}"
+	        load_error(module_path, error)
         end
-
-        # record the error message without the backtrace for the console
-        module_manager.module_load_error_by_path[module_path] = error_message
-
-        error_message_with_backtrace = "#{error_message}:\n#{error.backtrace.join("\n")}"
-        elog(error_message_with_backtrace)
 
         return false
       end
@@ -150,28 +150,22 @@ class Msf::Modules::Loader::Base
       begin
         namespace_module.version_compatible!(module_path, module_reference_name)
       rescue Msf::Modules::VersionCompatibilityError => version_compatibility_error
-        error_message = version_compatibility_error.to_s
-
-        elog(error_message)
-        module_manager.module_load_error_by_path[module_path] = error_message
+	      load_error(module_path, version_compatibility_error)
 
         return false
       end
 
-      metasploit_class = namespace_module.metasploit_class
+      begin
+	      metasploit_class = namespace_module.metasploit_class!(module_path, module_reference_name)
+      rescue Msf::Modules::MetasploitClassCompatibilityError => error
+	      load_error(module_path, error)
 
-      unless metasploit_class
-        error_message = "Missing Metasploit class constant"
-
-        elog(error_message)
-        module_manager.module_load_error_by_path[module_path] = error_message
-
-        return false
+	      return false
       end
 
       unless usable?(metasploit_class)
         ilog(
-            "Skipping module #{module_reference_name} under #{parent_path} because is_usable returned false.",
+            "Skipping module (#{module_reference_name} from #{module_path}) because is_usable returned false.",
             'core',
             LEV_1
         )
@@ -179,27 +173,20 @@ class Msf::Modules::Loader::Base
         return false
       end
 
-      ilog("Loaded #{type} module #{module_reference_name} under #{parent_path}", 'core', LEV_2)
+      if reload
+        ilog("Reloading #{type} module #{module_reference_name}. Ambiguous module warnings are safe to ignore", 'core', LEV_2)
+      else
+        ilog("Loaded #{type} module #{module_reference_name} under #{parent_path}", 'core', LEV_2)
+      end
 
       module_manager.module_load_error_by_path.delete(module_path)
 
       true
     }
 
+    loaded = namespace_module_transaction(type + "/" + module_reference_name, :reload => reload, &try_eval_module)
     unless loaded
       return false
-    end
-
-    if reload
-      # Delete the original copy of the module so that module_manager.on_load_module called from inside load_module does
-      # not trigger an ambiguous name warning, which would cause the reloaded module to not be stored in the
-      # ModuleManager.
-      module_manager.delete(module_reference_name)
-
-	    # Delete the original copy of the module in the type-specific module set stores the reloaded module and doesn't
-	    # trigger an ambiguous name warning
-	    module_set = module_manager.module_set(type)
-	    module_set.delete(module_reference_name)
     end
 
     # Do some processing on the loaded module to get it into the right associations
@@ -408,6 +395,29 @@ class Msf::Modules::Loader::Base
   def each_module_reference_name(path)
     raise ::NotImplementedError
   end
+
+	# Records the load error to {Msf::ModuleManager::Loading#module_load_error_by_path} and the log.
+	#
+	# @param [String] module_path Path to the module as returned by {#module_path}.
+	# @param [Exception, #class, #to_s, #backtrace] error the error that cause the module not to load.
+	# @return [void]
+	#
+	# @see #module_path
+	def load_error(module_path, error)
+		# module_load_error_by_path does not get the backtrace because the value is echoed to the msfconsole where
+		# backtraces should not appear.
+	  module_manager.module_load_error_by_path[module_path] = "#{error.class} #{error}"
+
+		log_lines = []
+	  log_lines << "#{module_path} failed to load due to the following error:"
+		log_lines << error.class.to_s
+		log_lines << error.to_s
+		log_lines << "Call stack:"
+		log_lines += error.backtrace
+
+		log_message = log_lines.join("\n")
+		elog(log_message)
+	end
 
   # @return [Msf::ModuleManager] The module manager for which this loader is loading modules.
   attr_reader :module_manager

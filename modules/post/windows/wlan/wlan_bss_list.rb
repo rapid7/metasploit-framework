@@ -102,8 +102,6 @@ class Metasploit3 < Msf::Post
 		networks = []
 
 		bss_list = @wlanapi.WlanGetNetworkBssList(wlan_handle,guid,nil,3,true,nil,4)
-		print_status(bss_list.inspect)
-
 		pointer = bss_list['ppWlanBssList']
 		totalsize = @host_process.memory.read(pointer,4)
 		totalsize = totalsize.unpack("V")[0]
