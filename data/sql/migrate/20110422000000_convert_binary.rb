@@ -16,6 +16,10 @@ class ConvertBinary < ActiveRecord::Migration
 	end
 
 	def self.up
+		rename_column :web_pages, :body, :body_text
+		rename_column :web_pages, :request, :request_text
+		rename_column :web_vulns, :request, :request_text
+		rename_column :web_vulns, :proof, :proof_text
 
 		add_column :web_pages, :body, :binary
 		add_column :web_pages, :request, :binary
@@ -31,9 +35,19 @@ class ConvertBinary < ActiveRecord::Migration
 		remove_column :web_pages, :request_text
 		remove_column :web_vulns, :request_text
 		remove_column :web_vulns, :proof_text
+
+		WebPage.connection.schema_cache.clear!
+		WebPage.reset_column_information
+		WebVuln.connection.schema_cache.clear!
+		WebVuln.reset_column_information
 	end
 
 	def self.down
+
+		rename_column :web_pages, :body, :body_binary
+		rename_column :web_pages, :request, :request_binary
+		rename_column :web_vulns, :request, :request_binary
+		rename_column :web_vulns, :proof, :proof_binary
 
 		add_column :web_pages, :body, :text
 		add_column :web_pages, :request, :text
@@ -50,5 +64,9 @@ class ConvertBinary < ActiveRecord::Migration
 		remove_column :web_vulns, :request_binary
 		remove_column :web_vulns, :proof_binary
 
+		WebPage.connection.schema_cache.clear!
+		WebPage.reset_column_information
+		WebVuln.connection.schema_cache.clear!
+		WebVuln.reset_column_information
 	end
 end
