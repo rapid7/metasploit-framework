@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -25,35 +21,32 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'Description'    => %q{
 					Scan for servers that allow access to the SVN wc.db file.
-					Based on the work by Tim Meddin as described at
-					http://pen-testing.sans.org/blog/pen-testing/2012/12/06/all-your-svn-are-belong-to-us#
+					Based on the work by Tim Meddin.	
 			},
 			'Author'         =>
 				[
-					'Stephen Haywood <stephen@averagesecurityguy.info',
+					'Stephen Haywood <stephen[at]averagesecurityguy.info>',
 				],
 			'References'     =>
 				[
+					['URL', 'http://pen-testing.sans.org/blog/pen-testing/2012/12/06/all-your-svn-are-belong-to-us#']
 				],
 			'License'        =>  MSF_LICENSE
 		)
 
-		register_options(
-			[
-			], self.class)
-
 	end
 
-	def target_url
+	def target_url(path)
 		if ssl
-			return "https://#{vhost}:#{rport}"
+			return "https://#{vhost}:#{rport}#{path}"
 		else
-			return "http://#{vhost}:#{rport}"
+			return "http://#{vhost}:#{rport}#{path}"
 		end
 	end
 
 	def run_host(ip)
-		if wcdb_exists("#{target_url}")
+		path = '/.svn/wc.db'
+		if wcdb_exists(target_url, path)
 			print_good("SVN database found on #{target_url}")
 			report_note(
 				:host => rhost,
@@ -68,18 +61,18 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 	
-	def wcdb_exists(url)
+	def wcdb_exists(url, path)
 
-		vprint_status("Trying url: #{url}")
+		vprint_status("Trying #{url}#{path}")
 		begin
 			res = send_request_cgi(
 				{
 					'method'  => 'GET',
-					'uri'     => '/.svn/wc.db',
+					'uri'     => path,
 					'ctype'   => 'text/plain'
-				}, 20)
+				})
 
-			if res.code == 200
+			if res and res.code == 200
 				return true
 			else
 				return false
