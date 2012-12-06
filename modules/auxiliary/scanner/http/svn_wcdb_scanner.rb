@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'SVN wc.db Scanner',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 					Scan for servers that allow access to the SVN wc.db file.
 					Based on the work by Tim Meddin.	
