@@ -414,6 +414,15 @@ describe Rex::Post::Meterpreter::Packet do
       req.response?.should == false
       req.method?("test_method").should == true
     end
+
+    it "should return the correct raw byte form of the packet" do
+      rid = subject.rid
+      meth = subject.method
+      raw = subject.to_r
+      subject.from_r(raw)
+      subject.rid.should == rid
+      subject.method.should == meth
+    end
   end
 
   context "a response packet" do
