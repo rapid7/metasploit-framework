@@ -32,49 +32,54 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'License'        =>  MSF_LICENSE
 		)
-
-	end
-
-	def target_url(path)
-		if ssl
-			return "https://#{vhost}:#{rport}#{path}"
-		else
-			return "http://#{vhost}:#{rport}#{path}"
-		end
+		
+		register_advanced_options(
+			[
+			   OptString.new('BASE_PATH', [false, 'Path to the directory with the .svn folder.', nil])
+			], self.class)
 	end
 
 	def run_host(ip)
-		path = '/.svn/wc.db'
-		if wcdb_exists(target_url, path)
-			print_good("SVN database found on #{target_url}")
-			report_note(
-				:host => rhost,
-				:port => rport,
-				:proto => 'tcp',
-				:sname => (ssl ? 'https' : 'http'),
-				:type => 'users',
-				:data => 'SVN wc.db database is available'
-			)
-		else
-			vprint_error("SVN database not found")
-		end
+		path = datastore['BASE_PATH'] + '/.svn/wc.db'
+		get_wcdb(path)
 	end
 	
-	def wcdb_exists(url, path)
-
-		vprint_status("Trying #{url}#{path}")
+	def get_wcdb(path)
+		proto = (ssl ? 'https://' : 'http://')
+		vprint_status("Trying #{proto}#{vhost}:#{rport}#{path}")
 		begin
 			res = send_request_cgi(
 				{
 					'method'  => 'GET',
 					'uri'     => path,
 					'ctype'   => 'text/plain'
-				})
+				}
+			)
 
 			if res and res.code == 200
-				return true
+				print_good("SVN wc.db database found on #{vhost}:#{rport}")
+			
+				file = store_loot(
+					"svn.wcdb.database",
+					"application/octet-stream",
+					vhost,
+					res.body,
+					"wc.db",
+					"SVN wc.db database"
+				)
+				
+				print_good("SVN wc.db database stored in #{file}")
+
+				report_note(
+					:host => rhost,
+					:port => rport,
+					:proto => 'tcp',
+					:sname => (ssl ? 'https' : 'http'),
+					:type => 'svn_wc_database',
+					:data => "SVN wc.db database is stored in #{file}"
+				)
 			else
-				return false
+				vprint_error("SVN wc.db database not found on #{vhost}:#{rport}")
 			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE
