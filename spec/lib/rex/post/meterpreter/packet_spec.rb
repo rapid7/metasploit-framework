@@ -343,10 +343,104 @@ describe Rex::Post::Meterpreter::GroupTlv do
         subject.has_tlv?(Rex::Post::Meterpreter::TLV_TYPE_BOOL).should == false
       end
     end
+  end
+end
 
-    
+describe Rex::Post::Meterpreter::Packet do
+  context "Request Packet" do
+    subject{Rex::Post::Meterpreter::Packet.new(Rex::Post::Meterpreter::PACKET_TYPE_REQUEST, "test_method")}
 
+    it "should respond to created_at" do
+      subject.should respond_to :created_at
+    end
+
+    it "should respond to response?" do
+      subject.should respond_to :response?
+    end
+
+    it "should respond to method?" do
+      subject.should respond_to :method?
+    end
+
+    it "should respond to method" do
+      subject.should respond_to :method
+    end
+
+    it "should respond to result?" do
+      subject.should respond_to :result?
+    end
+
+    it "should respond to result=" do
+      subject.should respond_to :result=
+    end
+
+    it "should respond to result" do
+      subject.should respond_to :result
+    end
+
+    it "should respond to rid" do
+      subject.should respond_to :rid
+    end
+
+    it "should return false for response?" do
+      subject.response?.should == false
+    end
+
+    it "should evaluate the method correctly" do
+      subject.method?("test_method").should == true
+      subject.method?("blah").should == false
+    end
+
+    it "should accept new methods" do
+      subject.method= "test_method2"
+      subject.method?("test_method2").should == true
+    end
+
+    it "should return the correct method" do
+      subject.method.should == "test_method"
+    end
+
+    it "should not have a result" do
+      subject.result.should == nil
+    end
+
+    it "should return a valid request id" do
+      subject.rid.should =~ /\A\d{32}\Z/
+    end
+
+    it "should be created when Packet.create_request is called" do
+      req = Rex::Post::Meterpreter::Packet.create_request("test_method")
+      req.class.should == Rex::Post::Meterpreter::Packet
+      req.response?.should == false
+      req.method?("test_method").should == true
+    end
   end
 
+  context "a response packet" do
+    subject{Rex::Post::Meterpreter::Packet.new(Rex::Post::Meterpreter::PACKET_TYPE_RESPONSE, "test_method")}
+    before(:all) do
+      subject.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_RESULT, "a-ok")
+    end
 
+    it "should return the correct result" do
+      subject.result.should == "a-ok"
+    end
+
+    it "should evaluate result correctly" do
+      subject.result?("a-ok").should == true
+      subject.result?("5by5").should == false
+    end
+
+    it "should accept a new result" do
+      subject.result= "test2"
+      subject.result.should == "test2"
+    end
+
+    it "should be created when Packet.create_response is called" do
+      resp = Rex::Post::Meterpreter::Packet.create_response
+      resp.class.should == Rex::Post::Meterpreter::Packet
+      resp.response?.should == true
+    end
+
+  end
 end
