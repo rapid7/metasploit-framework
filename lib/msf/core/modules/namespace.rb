@@ -10,8 +10,6 @@ module Msf::Modules::Namespace
   # @return [nil] if such as class is not defined.
   def metasploit_class
     metasploit_class = nil
-    # don't search ancestors for the metasploit_class
-    #inherit = false
 
     ::Msf::Framework::Major.downto(1) do |major|
       # Since we really only care about the deepest namespace, we don't
@@ -27,6 +25,19 @@ module Msf::Modules::Namespace
     end
 
     metasploit_class
+  end
+
+  def metasploit_class!(module_path, module_reference_name)
+	  metasploit_class = self.metasploit_class
+
+	  unless metasploit_class
+		  raise Msf::Modules::MetasploitClassCompatibilityError.new(
+				        :module_path => module_path,
+				        :module_reference_name => module_reference_name
+		        )
+	  end
+
+	  metasploit_class
   end
 
   # Raises an error unless {Msf::Framework::VersionCore} and {Msf::Framework::VersionAPI} meet the minimum required

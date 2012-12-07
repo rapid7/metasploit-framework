@@ -154,7 +154,7 @@ class Client
 		ssl = OpenSSL::SSL::SSLSocket.new(sock, ctx)
 
 		# Use non-blocking OpenSSL operations on Windows
-		if not ( ssl.respond_to?(:accept_nonblock) and Rex::Compat.is_windows )
+		if !( ssl.respond_to?(:accept_nonblock) and Rex::Compat.is_windows )
 			ssl.accept
 		else
 			begin
@@ -211,12 +211,19 @@ class Client
 		cert.version = 2
 		cert.serial  = rand(0xFFFFFFFF)
 
+		# Depending on how the socket was created, getsockname will
+		# return either a struct sockaddr as a String (the default ruby
+		# Socket behavior) or an Array (the extend'd Rex::Socket::Tcp
+		# behavior). Avoid the ambiguity by always picking a random
+		# hostname. See #7350.
+		subject_cn = Rex::Text.rand_hostname
+
 		subject = OpenSSL::X509::Name.new([
 				["C","US"],
 				['ST', Rex::Text.rand_state()],
 				["L", Rex::Text.rand_text_alpha(rand(20) + 10)],
 				["O", Rex::Text.rand_text_alpha(rand(20) + 10)],
-				["CN", self.sock.getsockname[1] || Rex::Text.rand_hostname],
+				["CN", subject_cn],
 			])
 		issuer = OpenSSL::X509::Name.new([
 				["C","US"],

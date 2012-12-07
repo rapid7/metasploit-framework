@@ -181,7 +181,7 @@ class APIRequest
 				@trace = m.text
 			end
 		end
-		
+
 		# This is a hack to handle corner cases where a heavily loaded Nexpose instance
 		# drops our HTTP connection before processing. We try 5 times to establish a
 		# connection in these situations. The actual exception occurs in the Ruby
@@ -202,7 +202,7 @@ class APIRequest
 		# Handle console-level interrupts
 		rescue ::Interrupt
 			@error = "Received a user interrupt"
-		rescue ::Errno::ECONNRESET,::Errno::ECONNREFUSED,::Errno::ENOTCONN,::Errno::ECONNABORTED
+		rescue ::Errno::ECONNRESET,::Errno::ECONNREFUSED,::Errno::ENOTCONN,::Errno::ECONNABORTED, ::OpenSSL::SSL::SSLError
 			@error = "Nexpose service is not available"
 		rescue ::REXML::ParseException
 			@error = "Nexpose has not been properly licensed"
@@ -240,7 +240,7 @@ module NexposeAPI
 		opts.keys.each do |k|
 			xml.attributes[k] = "#{opts[k]}"
 		end
-		
+
 		xml.text = data
 
 		xml
@@ -252,7 +252,7 @@ module NexposeAPI
 		opts.keys.each do |k|
 			xml.attributes[k] = "#{opts[k]}"
 		end
-		
+
 		xml.text = data
 
 		xml
@@ -341,6 +341,26 @@ module NexposeAPI
 			if (stk.length > 0)
 				stk.sort!{|a,b| b[0] <=> a[0]}
 				res = stk[0][1]
+			end
+		end
+		res
+	end
+
+	def report_last_detail(param)
+		r = execute(make_xml('ReportHistoryRequest', { 'reportcfg-id' => param }))
+		res = nil
+		if(r.success)
+			stk = {}
+			r.res.elements.each("//ReportSummary") do |rep|
+				stk[ rep.attributes['id'].to_i ] = {
+					'id'     => rep.attributes['id'].to_i,
+					'url'    => rep.attributes['report-URI'],
+					'status' => rep.attributes['status'],
+					'date'   => rep.attributes['generated-on']
+				}
+			end
+			if (stk.keys.length > 0)
+				res = stk[ stk.keys.sort{|a,b| b[0] <=> a[0]}.first ]
 			end
 		end
 		res
@@ -504,10 +524,10 @@ module NexposeAPI
 		r = execute(make_xml('SiteDeleteRequest', { 'site-id' => param }))
 		r.success
 	end
-		
+
 	def site_listing
 		r = execute(make_xml('SiteListingRequest', { }))
-		
+
 		if(r.success)
 			res = []
 			r.res.elements.each("//SiteSummary") do |site|
@@ -549,7 +569,7 @@ module NexposeAPI
 
 	def site_device_listing(site_id)
 		r = execute(make_xml('SiteDeviceListingRequest', { 'site-id' => site_id.to_s }))
-	
+
 		if(r.success)
 			res = []
 			r.res.elements.each("//device") do |device|
@@ -576,7 +596,7 @@ module NexposeAPI
 				template.elements.each("//description") do |ent|
 					desc = ent.text
 				end
-				
+
 				res << {
 					:template_id   => template.attributes['id'].to_s,
 					:name          => template.attributes['name'].to_s,
@@ -587,7 +607,7 @@ module NexposeAPI
 		else
 			return false
 		end
-	end	
+	end
 
 
 	def console_command(cmd_string)
@@ -595,7 +615,7 @@ module NexposeAPI
 		cmd = REXML::Element.new('Command')
 		cmd.text = cmd_string
 		xml << cmd
-		
+
 		r = execute(xml)
 
 		if(r.success)
@@ -603,12 +623,12 @@ module NexposeAPI
 			r.res.elements.each("//Output") do |out|
 				res << out.text.to_s
 			end
-			
+
 			return res
 		else
 			return false
 		end
-	end	
+	end
 
 	def system_information
 		r = execute(make_xml('SystemInformationRequest', { }))
@@ -618,13 +638,13 @@ module NexposeAPI
 			r.res.elements.each("//Statistic") do |stat|
 				res[ stat.attributes['name'].to_s ] = stat.text.to_s
 			end
-			
+
 			return res
 		else
 			return false
 		end
-	end		
-		
+	end
+
 end
 
 # === Description
@@ -725,6 +745,7 @@ class Connection
 		http.verify_mode = OpenSSL::SSL::VERIFY_NONE            # XXX: security issue
 		headers = {'Cookie' => "nexposeCCSessionID=#{@session_id}"}
 		resp = http.get(uri.path, headers)
+
 		resp ? resp.body : nil
 	end
 end
@@ -2312,7 +2333,7 @@ class ReportConfig
 	def generateReport(debug = false)
 		return generateReport(@connection, @config_id, debug)
 	end
-	
+
 	# === Description
 	# Save the report definition to the NSC.
 	# Returns the config-id.
@@ -2576,4 +2597,3 @@ def self.printXML(object)
 end
 
 end
-

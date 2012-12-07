@@ -28,8 +28,10 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %q{
 				This module attempts to authenticate to a WinRM service. It currently
 				works only if the remote end allows Negotiate(NTLM) authentication.
-				Kerberos is not currently supported.
-				},
+				Kerberos is not currently supported.  Please note: in order to use this
+				module without SSL, the 'AllowUnencrypted' winrm option must be set.
+				Otherwise adjust the port and set the SSL options in the module as appropriate.
+			},
 			'Author'         => [ 'thelightcosine' ],
 			'References'     =>
 				[
@@ -77,3 +79,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
+
+=begin
+To set the AllowUncrypted option:
+winrm set winrm/config/service @{AllowUnencrypted="true"}
+=end
