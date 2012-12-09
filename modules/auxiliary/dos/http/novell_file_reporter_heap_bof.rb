@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         => [ 'juan vazquez' ],
 			'License'        => MSF_LICENSE,
 			'References'     => [
-				[ 'CVE', 'CVE-2012-4956' ],
+				[ 'CVE', '2012-4956' ],
 				[ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2012/11/16/nfr-agent-buffer-vulnerabilites-cve-2012-4959' ]
 			],
 			'DisclosureDate' => 'Nov 16 2012'))
