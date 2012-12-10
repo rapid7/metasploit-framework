@@ -18,7 +18,7 @@ module Msf
   # of loading and instantiation.
   #
   # @todo add unload support
-  class ModuleManager #< ModuleSet
+  class ModuleManager
     include Msf::Framework::Offspring
 
     require 'msf/core/payload_set'
@@ -75,24 +75,24 @@ module Msf
         type = TYPE_BY_DIRECTORY[potential_type_or_directory]
       end
 
-      m = nil
+      module_instance = nil
       if type
         module_set = module_set_by_type[type]
 
         # First element in names is the type, so skip it
         module_reference_name = names[1 .. -1].join("/")
-        m = module_set.create(module_reference_name)
+        module_instance = module_set.create(module_reference_name)
       else
         # Then we don't have a type, so we have to step through each set
         # to see if we can create this module.
         module_set_by_type.each do |_, set|
           module_reference_name = names.join("/")
-          m = set.create(module_reference_name)
-          break if m
+          module_instance = set.create(module_reference_name)
+          break if module_instance
         end
       end
 
-      m
+      module_instance
     end
 
 
