@@ -8,8 +8,18 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Enumerate details of users',
-				'Description'   => %q{ This module enumerates users and their details. The information is gathered purely through WinAPI calls, meaning this module leaves less of a trace than executing commands. The information reported (with the exception of group info) corresponds to the various USER_INFO data structures that NetAPI32's NetUserEnum function returns and can be controlled in the same manner with this module's 'LEVEL' option. Not all levels are supported on all operating systems, see the documentation for NetUserEnum (http://goo.gl/JdjKa) for more information. Also, the amount of information may further be restricted depending on the session's privileges. Note, Computer accounts are shown (and designated as such).},
+				'Name'          => 'Windows Enumerate Users and Details',
+				'Description'   => %q{ This module enumerates users and their details.
+							The information is gathered purely through WinAPI calls, meaning this
+							module leaves less of a trace than executing commands. The information
+							reported (with the exception of group info) corresponds to the various
+							USER_INFO data structures that NetAPI32's NetUserEnum function returns
+							and can be controlled in the same manner with this module's 'LEVEL' option.
+							Not all levels are supported on all operating systems, see the documentation
+							for NetUserEnum (http://goo.gl/JdjKa) for more information. Also, the
+							amount of information may further be restricted depending on the
+							session's privileges. Note, Computer accounts are shown (and designated as such).
+							},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'chao-mu'],
 				'Platform'      => [ 'windows' ],
@@ -42,7 +52,7 @@ class Metasploit3 < Msf::Post
 		:use_des_key_only => 'Principal restricted to use only DES encryption types for keys',
 		:dont_require_preauth => 'Acount does not require Kerberos preauthentication for logon',
 		:trusted_for_delegation => 'Account is enabled for delegation',
-		:password_expired => 'Password has expired', 
+		:password_expired => 'Password has expired',
 		:trusted_to_authenticate_for_delegation => 'Account is trusted to authenticate a user outside of the Kerberos security package and delegate that user through constrained delegation',
 		:normal_account => 'Account type represents a typical user',
 		:temp_duplicate_account => 'This account is for a user whose primary account is in another domain',
@@ -110,13 +120,12 @@ class Metasploit3 < Msf::Post
 
 				unless flag_descriptions.empty?
 					print_line 'Notable flags: '
-					
 					flag_descriptions.each do |description|
 						print_line '    ' << description
 					end
 				end
 			end
-		
+
 			if user_info.has_key?(:auth_flags) && !user_info[:auth_flags].empty?
 				print_line 'Auth flags: '
 
