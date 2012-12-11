@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'		=> 'Safe Delete Meterpreter Module',
+			'Name'		=> 'Windows Manage Safe Delete',
 			'Description'   => %q{
 					The goal of the module is to hinder the recovery of deleted files by overwriting
 				its contents.  This could be useful when you need to download some file on the victim
