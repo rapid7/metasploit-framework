@@ -426,7 +426,7 @@ $stdout.binmode
 if opts[:format] !~/ruby|rb|perl|pl|bash|sh|c|js|dll|elf/i
 	exe = Msf::Util::EXE.to_executable_fmt($framework, opts[:arch], opts[:platform], payload_raw, opts[:format], exeopts)
 end
-puts opts[:format].inspect
+
 case opts[:format]
 when /ruby|rb|perl|pl|bash|^sh$|^c$|js_le|raw/i
 	$stdout.write Msf::Simple::Buffer.transform(payload_raw, opts[:format])
@@ -499,8 +499,8 @@ when /dll/i
 when /exe-service/i
 	exeopts[:servicename] = "msfsrv"
 	case opts[:arch]
-		when /x64|x86_64/; exe = Msf::Util::EXE.to_win64pe_service($framework, payload_raw, exeopts)
-		when /x86/; exe = Msf::Util::EXE.to_win32pe_service($framework, payload_raw, exeopts)
+	when /x64|x86_64/; exe = Msf::Util::EXE.to_win64pe_service($framework, payload_raw, exeopts)
+	when /x86/; exe = Msf::Util::EXE.to_win32pe_service($framework, payload_raw, exeopts)
 	end
 	$stdout.write exe
 when /exe/i
