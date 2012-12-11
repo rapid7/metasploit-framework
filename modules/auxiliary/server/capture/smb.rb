@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		@s_smb_esn = datastore['SMB_EXTENDED_SECURITY']
 		@s_ntlm_esn = datastore['NTLM_UseNTLM2_session']
-		@s_gss_neg = datastore['USE_GSS_NEGOCIATION']
+		@s_gss_neg = datastore['USE_GSS_NEGOTIATION']
 		@domain_name = datastore['DOMAIN_NAME']
 
 		@s_GUID = [Rex::Text.rand_text_hex(32)].pack('H*')
