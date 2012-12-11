@@ -523,6 +523,13 @@ when /psh/i
 when /psh-net/i
 	psh = Msf::Util::EXE.to_win32pe_psh_net($framework, payload_raw, exeopts)
 	$stdout.write psh
+when /exe-service/i
+	exeopts[:servicename] = "msfsrv"
+	case opts[:arch]
+	when /x64|x86_64/; exe = Msf::Util::EXE.to_win64pe_service($framework, payload_raw, exeopts)
+	when /x86/; exe = Msf::Util::EXE.to_win32pe_service($framework, payload_raw, exeopts)
+	end
+		$stdout.write exe
 else
 	print_error("Unsupported format")
 	exit
