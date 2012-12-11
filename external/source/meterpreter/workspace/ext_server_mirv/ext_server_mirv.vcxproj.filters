@@ -21,9 +21,24 @@
     <ClCompile Include="..\..\source\extensions\mirv\lua_mirv_extensions.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\extensions\mirv\reghelper.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\extensions\mirv\recvevent.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\extensions\mirv\rdphijack.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\extensions\mirv\mirv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\extensions\mirv\lua_mirv_extensions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\extensions\mirv\rdphijack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

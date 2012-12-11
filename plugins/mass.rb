@@ -96,7 +96,7 @@ module Msf
 
 
         begin
-          if mod.respond_to? "run":
+          if mod.respond_to? "run" then
               mod.run
             session=nil
           else

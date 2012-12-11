@@ -95,9 +95,14 @@
   <ItemGroup>
     <ClCompile Include="..\..\source\extensions\mirv\lua_mirv_extensions.c" />
     <ClCompile Include="..\..\source\extensions\mirv\mirv.c" />
+    <ClCompile Include="..\..\source\extensions\mirv\rdphijack.c" />
+    <ClCompile Include="..\..\source\extensions\mirv\recvevent.c" />
+    <ClCompile Include="..\..\source\extensions\mirv\reghelper.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\source\extensions\mirv\lua_mirv_extensions.h" />
     <ClInclude Include="..\..\source\extensions\mirv\mirv.h" />
+    <ClInclude Include="..\..\source\extensions\mirv\rdphijack.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\..\lib\rex\post\meterpreter\extensions\mirv\mirv.rb" />
