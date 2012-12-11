@@ -58,6 +58,73 @@ class Msftidy
 	#
 	##
 
+	def check_badchars
+		badchars = %Q|&<=>|
+
+		in_super  = false
+		in_author = false
+
+		# First off, we need to capture the "super()" code block.
+		# That's where we want to check our badchars.
+		@source.each_line do |line|
+			#
+			# Mark our "super" code block
+			#
+			if !in_super and line =~ /[\n\t]+super\(/
+				in_super = true
+			elsif in_super and line =~ /(.+)\)\n/
+				if $1 !~ /#/
+					in_super = false
+				end
+			end
+
+			#
+			# While in super() code block
+			#
+			if in_super and line =~ /'Name'[[:space:]]*=>[[:space:]]*['|"](.+)['|"]/
+				# Now we're checking the module titlee
+				mod_title = $1
+				mod_title.each_char do |c|
+					if badchars.include?(c)
+						error("'#{c}' is a bad character in module title.")
+					end
+				end
+
+				if not mod_title.ascii_only?
+					error("Please avoid unicode in module title.")
+				end
+
+				# Since we're looking at the module title, this line clearly cannot be
+				# the author block, so no point to run more code below.
+				next
+			end
+
+			#
+			# Mark our 'Author' block
+			#
+			if in_super and !in_author and line =~ /'Author'[[:space:]]*=>/
+				in_author = true
+			elsif in_super and in_author and line =~ /\],*\n/
+				in_author = false
+			end
+
+
+			#
+			# While in 'Author' block, check for Twitter handles
+			#
+			if in_super and in_author and line =~ /['|"](.+)['|"]/
+				author_name = $1
+				if author_name =~ /^@.+$/
+					error("No Twitter handle, please. Try leaving it in a comment instead.")
+				end
+
+				if not author_name.ascii_only?
+					error("Please avoid unicode in Author")
+				end
+			end
+		end
+	end
+
 	def check_extname
 		if File.extname(@name) != '.rb'
 			error("Module should be a '.rb' file, or it won't load.")
@@ -234,6 +301,7 @@ end
 
 def run_checks(f_rel)
 	tidy = Msftidy.new(f_rel)
+	tidy.check_badchars
 	tidy.check_extname
 	tidy.test_old_rubies(f_rel)
 	tidy.check_ranking
