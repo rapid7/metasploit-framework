@@ -118,6 +118,9 @@ class Metasploit3 < Msf::Auxiliary
 			}
 		})
 
+		if not res
+			print_error("#{peer} - Unable to download the file. The server timed out.")
+			return
 		if res and res.body.empty?
 			print_error("#{peer} - File not found or empty.")
 			return
