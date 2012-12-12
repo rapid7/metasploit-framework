@@ -36,8 +36,9 @@ class Msftidy
 
 	##
 	#
-	# The following two functions only print what you throw at them.
-	# With an option of displaying the line number.
+	# The following two functions only print what you throw at them,
+	# with the option of displying the line number.  error() is meant
+	# for mistakes that might actually break something.
 	#
 	##
 
@@ -61,21 +62,22 @@ class Msftidy
 	def check_badchars
 		badchars = %Q|&<=>|
 
-		in_super  = false
-		in_author = false
+		in_super   = false
+		in_author  = false
+		is_text    = false
+		is_comment = false
 
-		# First off, we need to capture the "super()" code block.
-		# That's where we want to check our badchars.
 		@source.each_line do |line|
 			#
 			# Mark our "super" code block
 			#
-			if !in_super and line =~ /[\n\t]+super\(/
+			if line =~ /^#/ or line =~ /^=begin/
+				next
+			elsif !in_super and line =~ /[\n\t]+super\(/
 				in_super = true
-			elsif in_super and line =~ /(.+)\)\n/
-				if $1 !~ /#/
-					in_super = false
-				end
+			elsif in_super and line =~ /[[:space:]]*def \w+[\(\w+\)]*/
+				in_super = false
+				break
 			end
 
 			#
@@ -193,7 +195,7 @@ class Msftidy
 			[words.first, words.last].each do |word|
 				if word[0,1] =~ /[a-z]/ and word[1,1] !~ /[A-Z0-9]/
 					next if word =~ /php[A-Z]/
-					next if %w{iseemedia activePDF freeFTPd osCommerce myBB qdPM}.include? word
+					next if %w{iseemedia activePDF freeFTPd osCommerce myBB qdPM inetd wallet.dat}.include? word
 					warn("Improper capitalization in module title: '#{word}...'")
 				end
 			end
