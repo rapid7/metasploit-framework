@@ -59,6 +59,34 @@ class Msftidy
 	#
 	##
 
+	def check_old_keywords
+		max_count = 10
+		counter   = 0
+		if @source =~ /^##/
+			first_line = true
+			@source.each_line do |line|
+				# If exists, the $Id$ keyword should appear at the top of the code.
+				# If not (within the first 10 lines), then we assume there's no
+				# $Id$, and then bail.
+				break if counter >= max_count
+
+				if line =~ /^#[[:space:]]*\$Id\$/i
+					warn("Keyword $Id$ is no longer needed.")
+					break
+				end
+
+				return if !first_line and line =~ /^##/
+				first_line = false
+
+				counter += 1
+			end
+		end
+
+		if @source =~ /'Version'[[:space:]]*=>[[:space:]]*['|"]\$Revision\$['|"]/
+			warn("Keyword $Revision$ is no longer needed.")
+		end
+	end
+
 	def check_badchars
 		badchars = %Q|&<=>|
 
@@ -299,6 +327,7 @@ end
 
 def run_checks(f_rel)
 	tidy = Msftidy.new(f_rel)
+	tidy.check_old_keywords
 	tidy.check_badchars
 	tidy.check_extname
 	tidy.test_old_rubies(f_rel)
