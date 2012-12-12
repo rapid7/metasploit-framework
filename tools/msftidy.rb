@@ -63,7 +63,6 @@ class Msftidy
 		max_count = 10
 		counter   = 0
 		if @source =~ /^##/
-			first_line = true
 			@source.each_line do |line|
 				# If exists, the $Id$ keyword should appear at the top of the code.
 				# If not (within the first 10 lines), then we assume there's no
@@ -75,14 +74,11 @@ class Msftidy
 					break
 				end
 
-				return if !first_line and line =~ /^##/
-				first_line = false
-
 				counter += 1
 			end
 		end
 
-		if @source =~ /'Version'[[:space:]]*=>[[:space:]]*['|"]\$Revision\$['|"]/
+		if @source =~ /'Version'[[:space:]]*=>[[:space:]]*['"]\$Revision\$['"]/
 			warn("Keyword $Revision$ is no longer needed.")
 		end
 	end
