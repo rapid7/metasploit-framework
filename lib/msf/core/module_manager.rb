@@ -32,6 +32,8 @@ module Msf
     include Msf::ModuleManager::ModuleSets
     include Msf::ModuleManager::Reloading
 
+    include Enumerable
+
     #
     # CONSTANTS
     #
@@ -87,6 +89,19 @@ module Msf
       # Otherwise, just try to load it by name.
       else
         super
+      end
+    end
+
+
+    # Iterate over all modules in all sets
+    #
+    # @yieldparam name [String] The module's reference name
+    # @yieldparam mod_class [Msf::Module] A module class
+    def each
+      module_set_by_type.each do |type, set|
+        set.each do |name, mod_class|
+          yield name, mod_class
+        end
       end
     end
 
@@ -151,5 +166,6 @@ module Msf
         framework.events.add_session_subscriber((inst) ? inst : (inst = mod.new))
       end
     end
+
   end
 end
