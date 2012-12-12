@@ -64,16 +64,12 @@ class Msftidy
 
 		in_super   = false
 		in_author  = false
-		is_text    = false
-		is_comment = false
 
 		@source.each_line do |line|
 			#
 			# Mark our "super" code block
 			#
-			if line =~ /^#/ or line =~ /^=begin/
-				next
-			elsif !in_super and line =~ /[\n\t]+super\(/
+			if !in_super and line =~ /[\n\t]+super\(/
 				in_super = true
 			elsif in_super and line =~ /[[:space:]]*def \w+[\(\w+\)]*/
 				in_super = false
