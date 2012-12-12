@@ -43,7 +43,6 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		drive = expand_path('%SystemDrive%')
 		steamappdata = 'SteamAppData.vdf'
 		steamconfig = 'config.vdf'
 		u_rx = /AutoLoginUser\W*\"(.*)\"/
@@ -52,9 +51,9 @@ class Metasploit3 < Msf::Post
 		# the correct program files folder.
 		# We will just use an x64 only defined env variable to check.
 		if not expand_path('%ProgramFiles(X86)%').empty?
-			progs = drive + '\\Program Files (x86)' #x64
+			progs = expand_path('%ProgramFiles(X86)%') #x64
 		else
-			progs = drive + '\\Program Files' #x86
+			progs = expand_path('%ProgramFiles%') #x86
 		end
 		path = progs + '\\Steam\\config\\'
 
