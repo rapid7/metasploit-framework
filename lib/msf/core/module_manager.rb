@@ -36,6 +36,8 @@ module Msf
     include Msf::ModuleManager::ModuleSets
     include Msf::ModuleManager::Reloading
 
+    include Enumerable
+
     #
     # CONSTANTS
     #
@@ -96,10 +98,21 @@ module Msf
     end
 
 
-    # @param framework [Msf::Framework] The framework for which this
-    #   instance is managing the modules.
-    # @param types [Array<String>] List of module types to load.
-    #   Defaults to all module types in {Msf::MODULE_TYPES}.
+    # Iterate over all modules in all sets
+    #
+    # @yieldparam name [String] The module's reference name
+    # @yieldparam mod_class [Msf::Module] A module class
+    def each
+      module_set_by_type.each do |type, set|
+        set.each do |name, mod_class|
+          yield name, mod_class
+        end
+      end
+    end
+
+
+    # @param [Msf::Framework] framework The framework for which this instance is managing the modules.
+    # @param [Array<String>] types List of module types to load.  Defaults to all module types in {Msf::MODULE_TYPES}.
     def initialize(framework, types=Msf::MODULE_TYPES)
       #
       # defaults
@@ -158,5 +171,6 @@ module Msf
         framework.events.add_session_subscriber((inst) ? inst : (inst = mod.new))
       end
     end
+
   end
 end
