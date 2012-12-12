@@ -57,21 +57,16 @@ module Msf::ModuleManager::Loading
   # categorized accordingly.
   #
   def on_module_load(mod, type, name, modinfo)
-    # Payload modules require custom loading as the individual files
-    # may not directly contain a logical payload that a user would
-    # reference, such as would be the case with a payload stager or
-    # stage.  As such, when payload modules are loaded they are handed
-    # off to a special payload set.  The payload set, in turn, will
-    # automatically create all the permutations after all the payload
-    # modules have been loaded.
+    dup = module_set_by_type[type].add_module(mod, name, modinfo)
 
-    if (type != Msf::MODULE_PAYLOAD)
-      # Add the module class to the list of modules and add it to the
-      # type separated set of module classes
-      add_module(mod, name, modinfo)
-    end
+    # Automatically subscribe a wrapper around this module to the necessary
+    # event providers based on whatever events it wishes to receive.
+    auto_subscribe_module(dup)
 
-    module_set_by_type[type].add_module(mod, name, modinfo)
+    # Notify the framework that a module was loaded
+    framework.events.on_module_load(name, dup)
+
+    dup
   end
 
   protected

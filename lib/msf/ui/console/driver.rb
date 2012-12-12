@@ -528,7 +528,7 @@ class Driver < Msf::Ui::Driver
 			framework.modules.module_load_error_by_path.each do |path, error|
 				print_error("\t#{path}: #{error}")
 			end
-    end
+		end
 
 		framework.events.on_ui_start(Msf::Framework::Revision)
 
@@ -551,7 +551,7 @@ class Driver < Msf::Ui::Driver
 		case var.downcase
 			when "payload"
 
-				if (framework and framework.modules.valid?(val) == false)
+				if (framework and framework.payloads.valid?(val) == false)
 					return false
 				elsif (active_module)
 					active_module.datastore.clear_non_user_defined
