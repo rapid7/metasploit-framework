@@ -1,7 +1,12 @@
 require 'rex/post/meterpreter/packet'
 
 describe Rex::Post::Meterpreter::Tlv do
-  subject{Rex::Post::Meterpreter::Tlv.new(Rex::Post::Meterpreter::TLV_TYPE_STRING,"test")}
+  subject{
+    Rex::Post::Meterpreter::Tlv.new(
+      Rex::Post::Meterpreter::TLV_TYPE_STRING,
+      "test"
+    )
+  }
 
   it "should respond to type" do
     subject.should respond_to :type
@@ -48,7 +53,7 @@ describe Rex::Post::Meterpreter::Tlv do
       subject.value.should == "test"
     end
 
-    context "the type? method" do
+    context "#type?" do
       it "should return true for STRING" do
         subject.type?(Rex::Post::Meterpreter::TLV_TYPE_STRING).should == true
       end
@@ -58,7 +63,7 @@ describe Rex::Post::Meterpreter::Tlv do
       end
     end
 
-    context "the value? method" do
+    context "#value?" do
       it "should return true for the correct value" do
         subject.value?("test").should == true
       end
@@ -68,21 +73,21 @@ describe Rex::Post::Meterpreter::Tlv do
       end
     end
 
-    context "the inspect method" do
+    context "#inspect" do
       it "should return a string representation of the TLV" do
         tlv_to_s = "#<Rex::Post::Meterpreter::Tlv type=STRING          meta=STRING     value=\"test\">"
         subject.inspect.should == tlv_to_s
       end
     end
 
-    context "the to_r method" do
+    context "#to_r" do
       it "should return the raw bytes of the TLV to send over the wire" do
         tlv_bytes = "\x00\x00\x00\r\x00\x01\x00\ntest\x00"
         subject.to_r.should == tlv_bytes
       end
     end
 
-    context "the from_r method" do
+    context "#from_r" do
       it "should adjust the tlv attributes from the given raw bytes" do
         subject.from_r("\x00\x00\x00\r\x00\x01\x00\ntes2\x00")
         subject.value.should == "tes2"
@@ -91,8 +96,13 @@ describe Rex::Post::Meterpreter::Tlv do
   end
 
   context "A Method TLV" do
-    subject{Rex::Post::Meterpreter::Tlv.new(Rex::Post::Meterpreter::TLV_TYPE_METHOD,"test")}
-    it "should return true when checked for a meta type of String" do
+    subject{
+      Rex::Post::Meterpreter::Tlv.new(
+        Rex::Post::Meterpreter::TLV_TYPE_METHOD,
+        "test"
+      )
+    }
+    it "should have a meta type of String" do
       subject.meta_type?(Rex::Post::Meterpreter::TLV_META_TYPE_STRING).should == true
     end
 
@@ -112,7 +122,11 @@ describe Rex::Post::Meterpreter::Tlv do
 end
 
 describe Rex::Post::Meterpreter::GroupTlv do
-  subject{Rex::Post::Meterpreter::GroupTlv.new(Rex::Post::Meterpreter::TLV_TYPE_CHANNEL_DATA_GROUP)}
+  subject{
+    Rex::Post::Meterpreter::GroupTlv.new(
+      Rex::Post::Meterpreter::TLV_TYPE_CHANNEL_DATA_GROUP
+    )
+  }
 
   it "should respond to tlvs" do
     subject.should respond_to :tlvs
@@ -178,7 +192,7 @@ describe Rex::Post::Meterpreter::GroupTlv do
     subject.tlvs.should == []
   end
 
-  context "the add_tlv method" do
+  context "#add_tlv" do
     it "should add to the tlvs array when given basic tlv paramaters" do
       subject.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_STRING,"test")
       subject.tlvs.first.type.should == Rex::Post::Meterpreter::TLV_TYPE_STRING
@@ -200,7 +214,7 @@ describe Rex::Post::Meterpreter::GroupTlv do
     end
   end
 
-  context "the add_tlvs method" do
+  context "#add_tlvs" do
     it "should be able to add an array of type-value hashes" do
       tlv_array = [
         {'type' => Rex::Post::Meterpreter::TLV_TYPE_STRING, 'value' => "test"},
@@ -254,7 +268,7 @@ describe Rex::Post::Meterpreter::GroupTlv do
     end
 
 
-    context "the from_r method" do
+    context "#from_r" do
       it "should build the TLV group when given the propper raw bytes" do
         subject.reset 
         subject.from_r( @raw_group)
@@ -265,7 +279,7 @@ describe Rex::Post::Meterpreter::GroupTlv do
     end
 
 
-    context "the get_tlvs method" do
+    context "#get_tlvs" do
       it "should return all TLVs of the supplied type" do
         tlvs = subject.get_tlvs(Rex::Post::Meterpreter::TLV_TYPE_STRING)
         tlvs.count.should == 2
@@ -287,7 +301,7 @@ describe Rex::Post::Meterpreter::GroupTlv do
       end
     end
 
-    context "the get tlv_method" do
+    context "#get_tlv" do
       it "should return the first TLV of the specified type by default" do
         subject.get_tlv(Rex::Post::Meterpreter::TLV_TYPE_STRING).should == subject.tlvs.first
         subject.get_tlv(Rex::Post::Meterpreter::TLV_TYPE_UINT).should == subject.tlvs.last
@@ -306,7 +320,7 @@ describe Rex::Post::Meterpreter::GroupTlv do
       end
     end
 
-    context "the get_tlv_value method" do
+    context "#get_tlv_value" do
       it "should return the value of the first TLV with the given type" do
         subject.get_tlv_value(Rex::Post::Meterpreter::TLV_TYPE_STRING).should == subject.tlvs.first.value
       end
@@ -324,7 +338,7 @@ describe Rex::Post::Meterpreter::GroupTlv do
       end
     end
 
-    context "the get_tlv_values method" do
+    context "#get_tlv_values" do
       it "should return an array of values for the designated TLV types" do
         subject.get_tlv_values(Rex::Post::Meterpreter::TLV_TYPE_STRING).should == ["test", "test2"]
       end
@@ -334,7 +348,7 @@ describe Rex::Post::Meterpreter::GroupTlv do
       end
     end
 
-    context "the has_tlv? method" do
+    context "#has_tlv?" do
       it "should return true if the TLV Type is present" do
         subject.has_tlv?(Rex::Post::Meterpreter::TLV_TYPE_STRING).should == true
       end
@@ -348,7 +362,12 @@ end
 
 describe Rex::Post::Meterpreter::Packet do
   context "Request Packet" do
-    subject{Rex::Post::Meterpreter::Packet.new(Rex::Post::Meterpreter::PACKET_TYPE_REQUEST, "test_method")}
+    subject{
+      Rex::Post::Meterpreter::Packet.new(
+        Rex::Post::Meterpreter::PACKET_TYPE_REQUEST, 
+        "test_method"
+      )
+    }
 
     it "should respond to created_at" do
       subject.should respond_to :created_at
@@ -426,7 +445,12 @@ describe Rex::Post::Meterpreter::Packet do
   end
 
   context "a response packet" do
-    subject{Rex::Post::Meterpreter::Packet.new(Rex::Post::Meterpreter::PACKET_TYPE_RESPONSE, "test_method")}
+    subject{
+      Rex::Post::Meterpreter::Packet.new(
+        Rex::Post::Meterpreter::PACKET_TYPE_RESPONSE, 
+        "test_method"
+      )
+    }
     before(:all) do
       subject.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_RESULT, "a-ok")
     end
