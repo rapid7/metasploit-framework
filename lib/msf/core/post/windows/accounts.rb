@@ -7,8 +7,6 @@ class Post
 module Windows
 
 module Accounts
-
-	#include Msf::Post::Windows::Railgun::NetAPI32
  
 	# We will want to access the data types defined therein, but not have to type it out
 	NETAPI32_DEF = Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Def::Def_netapi32
