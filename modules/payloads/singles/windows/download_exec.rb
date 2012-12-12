@@ -312,7 +312,7 @@ get_server_uri:
 	call httpopenrequest
 
 server_uri:
-	db "/#{server_uri}", 0x00
+	db "#{server_uri}", 0x00
 
 create_file:
 	jmp.i8 get_filename
