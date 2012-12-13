@@ -86,7 +86,7 @@ class Metasploit4 < Msf::Auxiliary
 				cert.subject.to_a.each do |n|
 					vhostn = n[1] if n[0] == 'CN'
 				end
-				if public_key_size = 1024
+				if public_key_size == 1024
 					print_status("#{ip}:#{rport} WARNING: Public Key only 1024 bits")
 				elsif public_key_size < 1024
 					print_status("#{ip}:#{rport} WARNING: Weak Public Key: #{public_key_size} bits")
