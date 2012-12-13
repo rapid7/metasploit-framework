@@ -21,9 +21,6 @@ module Msf::ModuleManager::Reloading
   #
   # @return (see Msf::ModuleManager::Loading#load_modules)
   def reload_modules
-    self.module_history = {}
-    self.clear
-
     self.enablement_by_type.each_key do |type|
       module_set_by_type[type].clear
       init_module_set(type)
