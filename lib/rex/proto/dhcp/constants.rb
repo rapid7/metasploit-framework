@@ -23,6 +23,9 @@ OpRouter = 3
 OpDns = 6
 OpHostname = 0x0c
 OpEnd = 0xff
+OpVendorClassID = 0x3C
+OpMessageType = 0x35
+OpParamReqList = 0x37
 
 PXEMagic = "\xF1\x00\x74\x7E"
 OpPXEMagic = 0xD0
