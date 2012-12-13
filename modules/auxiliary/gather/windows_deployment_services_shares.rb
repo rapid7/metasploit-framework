@@ -7,7 +7,6 @@
 
 require 'msf/core'
 require 'rex/proto/dcerpc'
-require 'rex/proto/dcerpc/wdscp'
 require 'rex/parser/unattend'
 
 class Metasploit3 < Msf::Auxiliary
