@@ -1,4 +1,4 @@
-##
+#
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -29,13 +29,11 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '',
 			'References'     =>
 				[
 					[ 'MSDN', 'http://technet.microsoft.com/en-us/library/cc749415(v=ws.10).aspx'],
 					[ 'URL', 'http://rewtdance.blogspot.co.uk/2012/11/windows-deployment-services-clear-text.html'],
 				],
-			'DisclosureDate' => 'N/A',
 			))
 
 		register_options(
