@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Windows Domain Controller - Download NTDS.dit and SYSTEM hive',
+			'Name'           => 'Windows Domain Controller - Download NTDS.dit and SYSTEM Hive',
 			'Description'    => %q{This module authenticates to an Active Directory Domain Controller and creates
 				a volume shadow copy of the %SYSTEMDRIVE%.  It then pulls down copies of the ntds.dit file as well
 				as the SYSTEM hive and stores them on your attacking machine.  The ntds.dit and SYSTEM copy can be used
