@@ -9,7 +9,7 @@ require 'anemone/storage/base'
 
 module Anemone
 
-  VERSION = '0.5.0';
+  VERSION = '0.5.0'
 
   #
   # Convenience method to start a crawl
@@ -48,7 +48,7 @@ module Anemone
       :cookies => nil,
       # basic authentication data to send with HTTP requests
       :http_basic_auth => nil,
-      # array or raw header lines to inject into each request 
+      # array or raw header lines to inject into each request
       :inject_headers => [],
       # accept cookies from the server and send them back?
       :accept_cookies => false,
@@ -77,7 +77,7 @@ module Anemone
       @skip_link_patterns = []
       @after_crawl_blocks = []
       @opts = opts
-      
+
       yield self if block_given?
     end
 
@@ -277,7 +277,7 @@ module Anemone
         false
       end
     end
-    
+
     #
     # Returns +true+ if *link* should not be visited because
     # it has a query string and +skip_query_strings+ is true.
@@ -301,6 +301,6 @@ module Anemone
       @tentacles.each {|t| t.kill rescue nil }
       @pages = nil
 	end
-	
+
   end
 end
