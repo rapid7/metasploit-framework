@@ -57,6 +57,13 @@ public class MsgRpcImpl extends RpcConnectionImpl {
 		/* login to msf server */
 		Object[] params = new Object[]{ username, password };
 		Map results = exec("auth.login",params);
+
+		/* save the temp token (lasts for 5 minutes of inactivity) */
+		rpcToken = results.get("token").toString();
+
+		/* generate a non-expiring token and use that */
+		params = new Object[]{ rpcToken };
+		results = exec("auth.token_generate", params);
 		rpcToken = results.get("token").toString();
 	}
 
