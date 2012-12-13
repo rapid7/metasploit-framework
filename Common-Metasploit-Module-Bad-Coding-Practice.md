@@ -7,7 +7,7 @@ Note: Some of these examples use puts() for demo purposes, but you should always
 1. Not checking the return value of a Metasploit API
 2. Ruby 1.9.3 vs 1.8.7... gotcha!
 3. Not checking the return value when using match()
-4. Not checking nil before accessing a function
+4. Not checking nil before accessing a method
 5. Using exception handling to shut an error up
 6. Not taking advantage of the 'ensure' block
 7. Adding the 'VERBOSE' option
