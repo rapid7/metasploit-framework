@@ -208,15 +208,14 @@ class Msftidy
 		end
 	end
 
-	def check_title_format
-		if @source =~ /'Name'\s+=>\s[\x22\x27](.+)[\x22\x27],\s*$/
-			name = $1
+	def check_title_casing
+		if @source =~ /'Name'[[:space:]]*=>[[:space:]]*['|"](.+)['|"],*$/
 			words = $1.split
-			[words.first, words.last].each do |word|
-				if word[0,1] =~ /[a-z]/ and word[1,1] !~ /[A-Z0-9]/
-					next if word =~ /php[A-Z]/
-					next if %w{iseemedia activePDF freeFTPd osCommerce myBB qdPM inetd wallet.dat}.include? word
-					warn("Improper capitalization in module title: '#{word}...'")
+			words.each do |word|
+				if %w{and or the for to in of as with a an}.include?(word)
+					next
+				elsif word =~ /^[a-z]+$/
+					warn("Improper capitalization in module title: '#{word}'")
 				end
 			end
 		end
@@ -329,7 +328,7 @@ def run_checks(f_rel)
 	tidy.test_old_rubies(f_rel)
 	tidy.check_ranking
 	tidy.check_disclosure_date
-	tidy.check_title_format
+	tidy.check_title_casing
 	tidy.check_bad_terms
 	tidy.check_function_basics
 	tidy.check_lines
