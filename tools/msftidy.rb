@@ -216,7 +216,7 @@ class Msftidy
 					next
 				elsif %w{and or the for via to}.include?(word)
 					next
-				elsif word =~ /^[a-z]+$/
+				elsif word[0, 1] == word[0, 1].capitalize
 					warn("Improper capitalization in module title: '#{word}...'")
 				end
 			end
