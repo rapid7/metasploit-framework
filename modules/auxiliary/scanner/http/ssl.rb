@@ -29,6 +29,7 @@ class Metasploit4 < Msf::Auxiliary
 				[
 					'et', #original module
 					'Chris John Riley', #additions
+					'Veit Hailperin', # checks for public key size, valid time
 				],
 			'License'     => MSF_LICENSE
 		)
@@ -52,6 +53,15 @@ class Metasploit4 < Msf::Auxiliary
 				print_status("#{ip}:#{rport} Subject: #{cert.subject}")
 				print_status("#{ip}:#{rport} Issuer: #{cert.issuer}")
 				print_status("#{ip}:#{rport} Signature Alg: #{cert.signature_algorithm}")
+				 public_key = cert.public_key.to_pem()
+				# removing header and footer
+				public_key = public_key.sub("-----BEGIN RSA PUBLIC KEY-----","")
+				public_key = public_key.sub("-----END RSA PUBLIC KEY-----","")
+				public_key_size = Rex::Text.decode_base64(public_key).size    
+				# removing 12 bytes for some shmoo of exponent and modulus
+				print_status("#{ip}:#{rport} Public Key Size: #{(public_key_size - 12) * 8} bits")
+				print_status("#{ip}:#{rport} Not Valid Before: #{cert.not_before}")
+				print_status("#{ip}:#{rport} Not Valid After: #{cert.not_after}")
 
 				# Checks for common properties of self signed certificates
 				caissuer = (/CA Issuers - URI:(.*?),/i).match(cert.extensions.to_s)
@@ -76,6 +86,17 @@ class Metasploit4 < Msf::Auxiliary
 				cert.subject.to_a.each do |n|
 					vhostn = n[1] if n[0] == 'CN'
 				end
+				if public_key_size = 1024
+					print_status("#{ip}:#{rport} WARNING: Public Key only 1024 bits")
+				elsif public_key_size < 1024
+					print_status("#{ip}:#{rport} WARNING: Weak Public Key: #{public_key_size} bits")
+				end
+				if cert.not_after < Time.now
+					print_status("#{ip}:#{rport} WARNING: Certificate not valid anymore")
+				end
+				if cert.not_before > Time.now
+					print_status("#{ip}:#{rport} WARNING: Certificate not valid yet")
+				end
 
 				if vhostn
 					print_status("#{ip}:#{rport} has common name #{vhostn}")
@@ -98,7 +119,10 @@ class Metasploit4 < Msf::Auxiliary
 						:data	=> {
 							:cn        => vhostn,
 							:subject   => cert.subject.to_a,
-							:algorithm => alg
+							:algorithm => alg,
+							:valid_from => cert.not_before,
+							:valid_after => cert.not_after,
+							:key_size => public_key_size
 
 						}
 					)
