@@ -71,7 +71,7 @@ Note: Some of these examples use puts() for demo purposes, but you should always
 	end
 ```
 
-**4. Not checking nil first before accessing a function**
+**4. Not checking nil first before accessing a method**
 ```ruby
 	str = "These things are round and tasty, let's call them... tastycles!"
 
@@ -98,6 +98,8 @@ Note: Some of these examples use puts() for demo purposes, but you should always
 		# wrong for the user without a backtrace.
 		# When you do this, the error also won't be logged in
 		# framework.log, either.
+		# Note that rescuing ::Exception is especially harmful
+		# because it can even hide syntax errors.
 	end
 ```
 **6. Not taking advantage of the 'ensure' block**
