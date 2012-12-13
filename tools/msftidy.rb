@@ -324,16 +324,16 @@ end
 
 def run_checks(f_rel)
 	tidy = Msftidy.new(f_rel)
-	#tidy.check_old_keywords
-	#tidy.check_badchars
-	#tidy.check_extname
-	#tidy.test_old_rubies(f_rel)
-	#tidy.check_ranking
-	#tidy.check_disclosure_date
+	tidy.check_old_keywords
+	tidy.check_badchars
+	tidy.check_extname
+	tidy.test_old_rubies(f_rel)
+	tidy.check_ranking
+	tidy.check_disclosure_date
 	tidy.check_title_format
-	#tidy.check_bad_terms
-	#tidy.check_function_basics
-	#tidy.check_lines
+	tidy.check_bad_terms
+	tidy.check_function_basics
+	tidy.check_lines
 end
 
 ##
