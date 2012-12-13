@@ -36,8 +36,9 @@ class Msftidy
 
 	##
 	#
-	# The following two functions only print what you throw at them.
-	# With an option of displaying the line number.
+	# The following two functions only print what you throw at them,
+	# with the option of displying the line number.  error() is meant
+	# for mistakes that might actually break something.
 	#
 	##
 
@@ -57,6 +58,94 @@ class Msftidy
 	# The functions below are actually the ones checking the source code
 	#
 	##
+
+	def check_old_keywords
+		max_count = 10
+		counter   = 0
+		if @source =~ /^##/
+			@source.each_line do |line|
+				# If exists, the $Id$ keyword should appear at the top of the code.
+				# If not (within the first 10 lines), then we assume there's no
+				# $Id$, and then bail.
+				break if counter >= max_count
+
+				if line =~ /^#[[:space:]]*\$Id\$/i
+					warn("Keyword $Id$ is no longer needed.")
+					break
+				end
+
+				counter += 1
+			end
+		end
+
+		if @source =~ /'Version'[[:space:]]*=>[[:space:]]*['"]\$Revision\$['"]/
+			warn("Keyword $Revision$ is no longer needed.")
+		end
+	end
+
+	def check_badchars
+		badchars = %Q|&<=>|
+
+		in_super   = false
+		in_author  = false
+
+		@source.each_line do |line|
+			#
+			# Mark our "super" code block
+			#
+			if !in_super and line =~ /[\n\t]+super\(/
+				in_super = true
+			elsif in_super and line =~ /[[:space:]]*def \w+[\(\w+\)]*/
+				in_super = false
+				break
+			end
+
+			#
+			# While in super() code block
+			#
+			if in_super and line =~ /'Name'[[:space:]]*=>[[:space:]]*['|"](.+)['|"]/
+				# Now we're checking the module titlee
+				mod_title = $1
+				mod_title.each_char do |c|
+					if badchars.include?(c)
+						error("'#{c}' is a bad character in module title.")
+					end
+				end
+
+				if not mod_title.ascii_only?
+					error("Please avoid unicode in module title.")
+				end
+
+				# Since we're looking at the module title, this line clearly cannot be
+				# the author block, so no point to run more code below.
+				next
+			end
+
+			#
+			# Mark our 'Author' block
+			#
+			if in_super and !in_author and line =~ /'Author'[[:space:]]*=>/
+				in_author = true
+			elsif in_super and in_author and line =~ /\],*\n/
+				in_author = false
+			end
+
+
+			#
+			# While in 'Author' block, check for Twitter handles
+			#
+			if in_super and in_author and line =~ /['|"](.+)['|"]/
+				author_name = $1
+				if author_name =~ /^@.+$/
+					error("No Twitter handle, please. Try leaving it in a comment instead.")
+				end
+
+				if not author_name.ascii_only?
+					error("Please avoid unicode in Author")
+				end
+			end
+		end
+	end
 
 	def check_extname
 		if File.extname(@name) != '.rb'
@@ -126,7 +215,7 @@ class Msftidy
 			[words.first, words.last].each do |word|
 				if word[0,1] =~ /[a-z]/ and word[1,1] !~ /[A-Z0-9]/
 					next if word =~ /php[A-Z]/
-					next if %w{iseemedia activePDF freeFTPd osCommerce myBB qdPM}.include? word
+					next if %w{iseemedia activePDF freeFTPd osCommerce myBB qdPM inetd wallet.dat}.include? word
 					warn("Improper capitalization in module title: '#{word}...'")
 				end
 			end
@@ -234,6 +323,8 @@ end
 
 def run_checks(f_rel)
 	tidy = Msftidy.new(f_rel)
+	tidy.check_old_keywords
+	tidy.check_badchars
 	tidy.check_extname
 	tidy.test_old_rubies(f_rel)
 	tidy.check_ranking

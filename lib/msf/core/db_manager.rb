@@ -375,7 +375,6 @@ class DBManager
 		refresh.each  {|md| md.destroy }
 		refresh = nil
 
-		stime = Time.now.to_f
 		[
 			[ 'exploit',   framework.exploits  ],
 			[ 'auxiliary', framework.auxiliary ],

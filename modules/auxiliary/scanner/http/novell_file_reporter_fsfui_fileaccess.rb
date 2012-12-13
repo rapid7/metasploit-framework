@@ -25,7 +25,7 @@ class Metasploit4 < Msf::Auxiliary
 			},
 			'References'   =>
 				[
-					[ 'CVE', 'CVE-2012-4958' ],
+					[ 'CVE', '2012-4958' ],
 					[ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2012/11/16/nfr-agent-buffer-vulnerabilites-cve-2012-4959' ]
 				],
 			'Author'       =>
