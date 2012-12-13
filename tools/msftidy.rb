@@ -214,6 +214,8 @@ class Msftidy
 			words.each do |word|
 				if word =~ /^['"].+['"]$/ or word =~ /^[a-z].*[A-Z].+$/
 					next
+				elsif %w{and or the for via}.include?(word)
+					next
 				elsif word =~ /^[a-z]+$/
 					warn("Improper capitalization in module title: '#{word}...'")
 				end
