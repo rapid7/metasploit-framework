@@ -212,7 +212,7 @@ class Msftidy
 		if @source =~ /'Name'[[:space:]]*=>[[:space:]]*['|"](.+)['|"],*$/
 			words = $1.split
 			words.each do |word|
-				if word =~ /^['"].+['"]$/ or word =~ /^[a-z].*[A-Z].+$/ or word =~ /^.+\(\)$/
+				if word =~ /^['"].+['"]$/ or word =~ /^[a-z].*[A-Z].+$/ or word =~ /^.+\(\)$/ or word =~ /^[vb][\d\.\-r]+$/
 					next
 				elsif %w{and or the for via to}.include?(word)
 					next
