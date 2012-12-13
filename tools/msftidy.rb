@@ -209,13 +209,14 @@ class Msftidy
 	end
 
 	def check_title_format
-		if @source =~ /'Name'\s+=>\s[\x22\x27](.+)[\x22\x27],\s*$/
-			name = $1
+		if @source =~ /'Name'[[:space:]]*=>[[:space:]]*['|"](.+)['|"],*$/
 			words = $1.split
-			[words.first, words.last].each do |word|
-				if word[0,1] =~ /[a-z]/ and word[1,1] !~ /[A-Z0-9]/
-					next if word =~ /php[A-Z]/
-					next if %w{iseemedia activePDF freeFTPd osCommerce myBB qdPM inetd wallet.dat}.include? word
+			words.each do |word|
+				if word =~ /^['"].+['"]$/ or word =~ /^[a-z].*[A-Z].+$/ or word =~ /^.+\(\)$/ or word =~ /^[vb][\d\.\-r]+$/
+					next
+				elsif %w{and or the for via to}.include?(word)
+					next
+				elsif word[0, 1] != word[0, 1].capitalize
 					warn("Improper capitalization in module title: '#{word}...'")
 				end
 			end
