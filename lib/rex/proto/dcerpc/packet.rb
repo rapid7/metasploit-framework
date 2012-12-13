@@ -11,15 +11,11 @@ require 'rex/text'
 	UUID = Rex::Proto::DCERPC::UUID
 
 	# Create a standard DCERPC BIND request packet
-	def self.make_bind(uuid, vers, xfer_syntax_uuid=UUID.xfer_syntax_uuid, xfer_syntax_vers=UUID.xfer_syntax_vers)
+	def self.make_bind(uuid, vers)
 
 		# Process the version strings ("1.0", 1.0, "1", 1)
 		bind_vers_maj, bind_vers_min = UUID.vers_to_nums(vers)
-		xfer_vers_maj, xfer_vers_min = UUID.vers_to_nums(xfer_syntax_vers)
-
-		if UUID.is? xfer_syntax_uuid
-			xfer_syntax_uuid = UUID.uuid_pack(xfer_syntax_uuid)
-		end
+		xfer_vers_maj, xfer_vers_min = UUID.vers_to_nums(UUID.xfer_syntax_vers)
 
 		# Create the bind request packet
 		buff =
@@ -41,7 +37,7 @@ require 'rex/text'
 			UUID.uuid_pack(uuid),   # interface uuid
 			bind_vers_maj,       # interface major version
 			bind_vers_min,       # interface minor version
-			xfer_syntax_uuid,  # transfer syntax
+			UUID.xfer_syntax_uuid,  # transfer syntax
 			xfer_vers_maj,       # syntax major version
 			xfer_vers_min,       # syntax minor version
 		].pack('CCCCNvvVvvVVvvA16vvA16vv')

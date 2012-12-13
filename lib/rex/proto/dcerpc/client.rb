@@ -252,14 +252,7 @@ require 'rex/proto/smb/exceptions'
 
 			bind, context = Rex::Proto::DCERPC::Packet.make_bind_fake_multi(*args)
 		else
-			if self.handle.uuid.length == 4
-				bind, context = Rex::Proto::DCERPC::Packet.make_bind(	self.handle.uuid[0],
-																		self.handle.uuid[1],
-																		self.handle.uuid[2],
-																		self.handle.uuid[3])
-			else
-				bind, context = Rex::Proto::DCERPC::Packet.make_bind(self.handle.uuid[0], self.handle.uuid[1])
-			end
+			bind, context = Rex::Proto::DCERPC::Packet.make_bind(self.handle.uuid[0], self.handle.uuid[1])
 		end
 
 		raise 'make_bind failed' if !bind
