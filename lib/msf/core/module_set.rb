@@ -305,7 +305,6 @@ class Msf::ModuleSet < Hash
   #
   #   @return [String] type of modules
   attr_writer   :module_type
-  attr_accessor :module_history
 
   # Ranks modules based on their constant rank value, if they have one.  Modules without a Rank are treated as if they
   # had {Msf::NormalRanking} for Rank.
