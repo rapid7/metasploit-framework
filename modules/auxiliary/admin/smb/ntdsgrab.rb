@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
 					download_sys_hive(smbshare, (datastore['WINPATH'] + "\\Temp\\sys"), ip, logdir)
 				end
 			else
-				print_error("#{peer} - Failed to find volume shadow copy")
+				print_error("#{peer} - Failed to find a volume shadow copy")
 			end
 			cleanup_after(ip)
 			disconnect
