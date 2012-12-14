@@ -40,6 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$']),
 			OptString.new('USERNAME', [false, 'The name of a specific user to search for', '']),
 			OptString.new('RPORT', [true, 'The Target port', 445]),
+			OptString.new('WINPATH', [true, 'The name of the Windows directory', 'WINDOWS']),
 		], self.class)
 
 		deregister_options('RHOST')
@@ -51,9 +52,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	# This is the main controller function
 	def run_host(ip)
-		cmd = "C:\\WINDOWS\\SYSTEM32\\cmd.exe"
-		bat = "C:\\WINDOWS\\Temp\\#{Rex::Text.rand_text_alpha(16)}.bat"
-		text = "\\WINDOWS\\Temp\\#{Rex::Text.rand_text_alpha(16)}.txt"
+		cmd = "%SYSTEMDRIVE%\\#{datastore['WINPATH']}\\SYSTEM32\\cmd.exe"
+		bat = "%SYSTEMDRIVE%\\#{datastore['WINPATH']}\\Temp\\#{Rex::Text.rand_text_alpha(16)}.bat"
+		text = "\\#{datastore['WINPATH']}\\Temp\\#{Rex::Text.rand_text_alpha(16)}.txt"
 		smbshare = datastore['SMBSHARE']
 
 		#Try and authenticate with given credentials
@@ -83,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
 	def get_hku(ip, smbshare, cmd, text, bat)
 		begin
 			# Try and query HKU
-			command = "#{cmd} /C echo reg.exe QUERY HKU ^> C:#{text} > #{bat} & #{cmd} /C start cmd.exe /C #{bat}"
+			command = "#{cmd} /C echo reg.exe QUERY HKU ^> %SYSTEMDRIVE%#{text} > #{bat} & #{cmd} /C start cmd.exe /C #{bat}"
 			out = psexec(command)
 			output = get_output(ip, smbshare, text)
 			cleanout = Array.new
@@ -127,7 +128,7 @@ class Metasploit3 < Msf::Auxiliary
 	def check_hku_entry(key, ip, smbshare, cmd, text, bat)
 		begin
 			key = key.split("HKEY_USERS\\")[1].chomp
-			command = "#{cmd} /C echo reg.exe QUERY \"HKU\\#{key}\\Volatile Environment\" ^> C:#{text} > #{bat} & #{cmd} /C start cmd.exe /C #{bat}"
+			command = "#{cmd} /C echo reg.exe QUERY \"HKU\\#{key}\\Volatile Environment\" ^> %SYSTEMDRIVE%#{text} > #{bat} & #{cmd} /C start cmd.exe /C #{bat}"
 			out = psexec(command)
 			if output = get_output(ip, smbshare, text)
 				domain, username, dnsdomain, homepath, logonserver = "","","","",""
@@ -180,16 +181,16 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-	# Cleanup module.  Gets rid of .txt and .bat files created in the WINDOWS\Temp directory
+	# Cleanup module.  Gets rid of .txt and .bat files created in the #{datastore['WINPATH']}\Temp directory
 	def cleanup_after(cmd, text, bat)
 		begin
 			# Try and do cleanup command
-			cleanup = "#{cmd} /C del C:#{text} & del #{bat}"
+			cleanup = "#{cmd} /C del %SYSTEMDRIVE%#{text} & del #{bat}"
 			print_status("#{peer} - Executing cleanup")
 			out = psexec(cleanup)
 		rescue StandardError => cleanuperror
 			print_error("#{peer} - Unable to processes cleanup commands: #{cleanuperror}")
-			print_warning("#{peer} - Maybe C:#{text} must be deleted manually")
+			print_warning("#{peer} - Maybe %SYSTEMDRIVE%#{text} must be deleted manually")
 			print_warning("#{peer} - Maybe #{bat} must be deleted manually")
 			return cleanuperror
 		end
@@ -198,7 +199,7 @@ class Metasploit3 < Msf::Auxiliary
 	# Method trys to use "query session" to determine logged in user
 	def query_session(smbshare, ip, cmd, text, bat)
 		begin
-			command = "#{cmd} /C echo query session ^> C:#{text} > #{bat} & #{cmd} /C start cmd.exe /C #{bat}"
+			command = "#{cmd} /C echo query session ^> %SYSTEMDRIVE%#{text} > #{bat} & #{cmd} /C start cmd.exe /C #{bat}"
 			out = psexec(command)
 			userline = ""
 			if output = get_output(ip, smbshare, text)

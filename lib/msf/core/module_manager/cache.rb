@@ -24,8 +24,8 @@ module Msf::ModuleManager::Cache
   def load_cached_module(type, reference_name)
     loaded = false
 
-    module_info = self.module_info_by_path.values.find { |module_info|
-      module_info[:type] == type and module_info[:reference_name] == reference_name
+    module_info = self.module_info_by_path.values.find { |inner_info|
+      inner_info[:type] == type and inner_info[:reference_name] == reference_name
     }
 
     if module_info
@@ -116,8 +116,9 @@ module Msf::ModuleManager::Cache
 
         typed_module_set = module_set(type)
 
-        # Don't want to trigger as {Msf::ModuleSet#create} so check for key instead of using ||= which would call
-        # {Msf::ModuleSet#[]} which would potentially call {Msf::ModuleSet#create}.
+        # Don't want to trigger as {Msf::ModuleSet#create} so check for
+        # key instead of using ||= which would call {Msf::ModuleSet#[]}
+        # which would potentially call {Msf::ModuleSet#create}.
         unless typed_module_set.has_key? reference_name
           typed_module_set[reference_name] = Msf::SymbolicModule
         end

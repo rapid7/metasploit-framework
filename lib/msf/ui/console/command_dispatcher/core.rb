@@ -1859,7 +1859,7 @@ class Core
 		end
 
 		if (mod.exploit? and mod.datastore['PAYLOAD'])
-			p = framework.modules.create(mod.datastore['PAYLOAD'])
+			p = framework.payloads.create(mod.datastore['PAYLOAD'])
 			if (p)
 				p.options.sorted.each { |e|
 					name, opt = e
@@ -2389,7 +2389,7 @@ class Core
 
 		# How about the selected payload?
 		if (mod.exploit? and mod.datastore['PAYLOAD'])
-			p = framework.modules.create(mod.datastore['PAYLOAD'])
+			p = framework.payloads.create(mod.datastore['PAYLOAD'])
 			if (p and p.options.include?(opt))
 				res.concat(option_values_dispatch(p.options[opt], str, words))
 			end
@@ -2623,7 +2623,7 @@ protected
 		# If it's an exploit and a payload is defined, create it and
 		# display the payload's options
 		if (mod.exploit? and mod.datastore['PAYLOAD'])
-			p = framework.modules.create(mod.datastore['PAYLOAD'])
+			p = framework.payloads.create(mod.datastore['PAYLOAD'])
 
 			if (!p)
 				print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")
@@ -2688,7 +2688,7 @@ protected
 		# If it's an exploit and a payload is defined, create it and
 		# display the payload's options
 		if (mod.exploit? and mod.datastore['PAYLOAD'])
-			p = framework.modules.create(mod.datastore['PAYLOAD'])
+			p = framework.payloads.create(mod.datastore['PAYLOAD'])
 
 			if (!p)
 				print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")
@@ -2711,7 +2711,7 @@ protected
 		# If it's an exploit and a payload is defined, create it and
 		# display the payload's options
 		if (mod.exploit? and mod.datastore['PAYLOAD'])
-			p = framework.modules.create(mod.datastore['PAYLOAD'])
+			p = framework.payloads.create(mod.datastore['PAYLOAD'])
 
 			if (!p)
 				print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")

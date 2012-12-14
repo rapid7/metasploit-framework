@@ -61,10 +61,10 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_advanced_options(
 			[
-				OptBool.new("SMB_EXTENDED_SECURITY", [ true, "Use smb extended security negociation, when set client will use ntlmssp, if not then client will use classic lanman authentification", false ]),
-				OptBool.new("NTLM_UseNTLM2_session", [ true, "Activate the 'negociate NTLM2 key' flag in NTLM authentication. " +
-					"When SMB extended security negociation is set, client will use ntlm2_session instead of ntlmv1 (default on win 2K and above)", false ]),
-				OptBool.new("USE_GSS_NEGOCIATION",   [ true, "Send a gss_security blob in smb_negociate response when SMB extended security is set. " +
+				OptBool.new("SMB_EXTENDED_SECURITY", [ true, "Use smb extended security negotiation, when set client will use ntlmssp, if not then client will use classic lanman authentification", false ]),
+				OptBool.new("NTLM_UseNTLM2_session", [ true, "Activate the 'negotiate NTLM2 key' flag in NTLM authentication. " +
+					"When SMB extended security negotiate is set, client will use ntlm2_session instead of ntlmv1 (default on win 2K and above)", false ]),
+				OptBool.new("USE_GSS_NEGOTIATION",   [ true, "Send a gss_security blob in smb_negotiate response when SMB extended security is set. " +
 					"When this flag is not set, Windows will respond without gss encapsulation, Ubuntu will still use gss.", true ]),
 				OptString.new('DOMAIN_NAME',         [ true, "The domain name used during smb exchange with smb extended security set ", "anonymous" ])
 			], self.class)
@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		@s_smb_esn = datastore['SMB_EXTENDED_SECURITY']
 		@s_ntlm_esn = datastore['NTLM_UseNTLM2_session']
-		@s_gss_neg = datastore['USE_GSS_NEGOCIATION']
+		@s_gss_neg = datastore['USE_GSS_NEGOTIATION']
 		@domain_name = datastore['DOMAIN_NAME']
 
 		@s_GUID = [Rex::Text.rand_text_hex(32)].pack('H*')
@@ -103,7 +103,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		case cmd
 		when CONST::SMB_COM_NEGOTIATE
-			#client set extended security negociation
+			#client set extended security negotiation
 			if (pkt['Payload']['SMB'].v['Flags2'] & 0x800 != 0)
 				smb_cmd_negotiate(c, buff, true)
 			else
@@ -204,7 +204,7 @@ class Metasploit3 < Msf::Auxiliary
 	def smb_cmd_session_setup(c, buff, esn)
 		smb = @state[c]
 
-		#extended security has been negociated
+		#extended security has been negotiated
 		if esn
 			pkt = CONST::SMB_SETUP_NTLMV2_PKT.make_struct
 			pkt.from_s(buff)
@@ -422,7 +422,7 @@ class Metasploit3 < Msf::Auxiliary
 			nt_cli_challenge = arg[:nt_cli_challenge]
 		end
 
-		# Clean up the data for loggging
+		# Clean up the data for logging
 		if (smb[:username] == "")
 			smb[:username] = nil
 		end
