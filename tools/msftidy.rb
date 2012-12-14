@@ -381,7 +381,6 @@ end
 def run_checks(f_rel)
 	tidy = Msftidy.new(f_rel)
 	tidy.check_ref_identifiers
-	return
 	tidy.check_old_keywords
 	tidy.check_badchars
 	tidy.check_extname
