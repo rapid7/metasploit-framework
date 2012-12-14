@@ -14,7 +14,6 @@ class Metasploit3 < Msf::Auxiliary
 	XCEPT  = Rex::Proto::SMB::Exceptions
 	CONST  = Rex::Proto::SMB::Constants
 
-
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'           => 'Windows Domain Controller - Download NTDS.dit and SYSTEM Hive',
