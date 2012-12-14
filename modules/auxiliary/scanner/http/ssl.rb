@@ -29,7 +29,7 @@ class Metasploit4 < Msf::Auxiliary
 				[
 					'et', #original module
 					'Chris John Riley', #additions
-					'Veit Hailperin', # checks for public key size, valid time
+					'Veit Hailperin <hailperv@gmail.com>', # checks for public key size, valid time
 				],
 			'License'     => MSF_LICENSE
 		)
