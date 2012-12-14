@@ -59,6 +59,64 @@ class Msftidy
 	#
 	##
 
+	def check_ref_identifiers
+		in_super = false
+		in_refs  = false
+
+		@source.each_line do |line|
+			if !in_super and line =~ /[\n\t]+super\(/
+				in_super = true
+			elsif in_super and line =~ /[[:space:]]*def \w+[\(\w+\)]*/
+				in_super = false
+				break
+			end
+
+			if in_super and line =~ /'References'[[:space:]]*=>/
+				in_refs = true
+			elsif in_super and in_refs and line =~ /^[[:space:]]+\],*/m
+				break
+			elsif in_super and in_refs and line =~ /[^#]+\[[[:space:]]*['"](.+)['"][[:space:]]*,[[:space:]]*['"](.+)['"][[:space:]]*\]/
+				identifier = $1.strip.upcase
+				value      = $2.strip
+
+				case identifier
+				when 'CVE'
+					warn("Invalid CVE format: '#{value}'") if value !~ /^\d{4}\-\d{4}$/
+				when 'OSVDB'
+					warn("Invalid OSVDB format: '#{value}'") if value !~ /^\d+$/
+				when 'BID'
+					warn("Invalid BID format: '#{value}'") if value !~ /^\d+$/
+				when 'MSB'
+					warn("Invalid MSB format: '#{value}'") if value !~ /^MS\d+\-\d+$/
+				when 'MIL'
+					warn("milw0rm references are no longer supported.")
+				when 'EDB'
+					warn("Invalid EDB reference") if value !~ /^\d+$/
+				when 'WVE'
+					warn("Invalid WVE reference") if value !~ /^\d+\-\d+$/
+				when 'US-CERT-VU'
+					warn("Invalid US-CERT-VU reference") if value !~ /^\d+$/
+				when 'URL'
+					if value =~ /^http:\/\/www\.osvdb\.org/
+						warn("Please use 'OSVDB' for '#{value}'")
+					elsif value =~ /^http:\/\/cvedetails\.com\/cve/
+						warn("Please use 'CVE' for '#{value}'")
+					elsif value =~ /^http:\/\/www\.securityfocus\.com\/bid\//
+						warn("Please use 'BID' for '#{value}'")
+					elsif value =~ /^http:\/\/www\.microsoft\.com\/technet\/security\/bulletin\//
+						warn("Please use 'MSB' for '#{value}'")
+					elsif value =~ /^http:\/\/www\.exploit\-db\.com\/exploits\//
+						warn("Please use 'EDB' for '#{value}'")
+					elsif value =~ /^http:\/\/www\.wirelessve\.org\/entries\/show\/WVE\-/
+						warn("Please use 'WVE' for '#{value}'")
+					elsif value =~ /^http:\/\/www\.kb\.cert\.org\/vuls\/id\//
+						warn("Please use 'US-CERT-VU' for '#{value}'")
+					end
+				end
+			end
+		end
+	end
+
 	def check_old_keywords
 		max_count = 10
 		counter   = 0
@@ -322,6 +380,8 @@ end
 
 def run_checks(f_rel)
 	tidy = Msftidy.new(f_rel)
+	tidy.check_ref_identifiers
+	return
 	tidy.check_old_keywords
 	tidy.check_badchars
 	tidy.check_extname
