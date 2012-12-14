@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 
 			'Author'         => [
-				'Royce Davis | @R3dy__ | <rdavis[at]accuvant.com>',
+				'Royce Davis @R3dy__ <rdavis[at]accuvant.com>',
 			],
 
 			'License'        => MSF_LICENSE,
