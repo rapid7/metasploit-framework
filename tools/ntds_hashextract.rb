@@ -135,38 +135,38 @@ def decrypt_single_hash(rid, enc_hash)
 	return hash.unpack("H*")[0].to_s
 end
 
- def sid_to_key(sid)
-  s1 = ""
-  s1 << (sid & 0xFF).chr
-  s1 << ((sid >> 8) & 0xFF).chr
-  s1 << ((sid >> 16) & 0xFF).chr
-  s1 << ((sid >> 24) & 0xFF).chr
-  s1 << s1[0]
-  s1 << s1[1]
-  s1 << s1[2]
-  s2 = s1[3] + s1[0] + s1[1] + s1[2]
-  s2 << s2[0] + s2[1] + s2[2]
+def sid_to_key(rid)
+	s1 = ""
+	s1 << (rid & 0xFF).chr
+	s1 << ((rid >> 8) & 0xFF).chr
+	s1 << ((rid >> 16) & 0xFF).chr
+	s1 << ((rid >> 24) & 0xFF).chr
+	s1 << s1[0]
+	s1 << s1[1]
+	s1 << s1[2]
+	s2 = s1[3] + s1[0] + s1[1] + s1[2]
+	s2 << s2[0] + s2[1] + s2[2]
 
-  return string_to_key(s1), string_to_key(s2)
+	return string_to_key(s1), string_to_key(s2)
 end
 
 def string_to_key(s)
-  key = []
-  key << (s[0].unpack('C')[0] >> 1)
-  key << ( ((s[0].unpack('C')[0]&0x01)<<6) | (s[1].unpack('C')[0]>>2) )
-  key << ( ((s[1].unpack('C')[0]&0x03)<<5) | (s[2].unpack('C')[0]>>3) )
-  key << ( ((s[2].unpack('C')[0]&0x07)<<4) | (s[3].unpack('C')[0]>>4) )
-  key << ( ((s[3].unpack('C')[0]&0x0F)<<3) | (s[4].unpack('C')[0]>>5) )
-  key << ( ((s[4].unpack('C')[0]&0x1F)<<2) | (s[5].unpack('C')[0]>>6) )
-  key << ( ((s[5].unpack('C')[0]&0x3F)<<1) | (s[6].unpack('C')[0]>>7) )
-  key << ( s[6].unpack('C')[0]&0x7F)
+	key = []
+	key << (s[0].unpack('C')[0] >> 1)
+	key << ( ((s[0].unpack('C')[0]&0x01)<<6) | (s[1].unpack('C')[0]>>2) )
+	key << ( ((s[1].unpack('C')[0]&0x03)<<5) | (s[2].unpack('C')[0]>>3) )
+	key << ( ((s[2].unpack('C')[0]&0x07)<<4) | (s[3].unpack('C')[0]>>4) )
+	key << ( ((s[3].unpack('C')[0]&0x0F)<<3) | (s[4].unpack('C')[0]>>5) )
+	key << ( ((s[4].unpack('C')[0]&0x1F)<<2) | (s[5].unpack('C')[0]>>6) )
+	key << ( ((s[5].unpack('C')[0]&0x3F)<<1) | (s[6].unpack('C')[0]>>7) )
+	key << ( s[6].unpack('C')[0]&0x7F)
     
-  0.upto(7).each do |i|
-    key[i] = (key[i]<<1)
-    key[i] = @parity[key[i]]
-  end
+	0.upto(7).each do |i|
+		key[i] = (key[i]<<1)
+		key[i] = @parity[key[i]]
+	end
     
-  return key.pack("<C*")
+	return key.pack("<C*")
 end
 
 @enc_pek = get_pek(@db)
@@ -175,25 +175,25 @@ end
 
 @db.each_line do |line|
 	record = line.to_s.split("\t")
-	encnthash = [record[@nthash].to_s[16,record[@nthash].size].to_s].pack("H*")
-	enclmhash = [record[@lmhash].to_s[16,record[@lmhash].size].to_s].pack("H*")
+	encnthash = [record[@nthash].to_s[16,record[@nthash].size - 1].to_s].pack("H*")
+	enclmhash = [record[@lmhash].to_s[16,record[@lmhash].size - 1].to_s].pack("H*")
 	username = record[@username].to_s
 	sid = record[@sid].to_s
 	sid = [sid[sid.size - 8, sid.size]].pack("H*").unpack("N*")[0].to_i
 	pek = record[@pek]
 	if !enclmhash.to_s.empty? || !encnthash.to_s.empty?
-	  nthash = decrypt_with_pek(@dec_pek, encnthash)
-	  if nthash == "NO PASSWORD"
-	    nthash = "31d6cfe0d16ae931b73c59d7e0c089c0"
-	  else
-      nthash = decrypt_single_hash(sid, nthash)
-    end
-	  lmhash = decrypt_with_pek(@dec_pek, enclmhash)
-	  if lmhash == "NO PASSWORD"
-	    lmhash = "aad3b435b51404eeaad3b435b51404ee"
-	  else
-	    lmhash = decrypt_single_hash(sid, lmhash)
-	  end
-	  puts username + ":" + sid.to_s + ":" + lmhash + ":" + nthash + ":::"
+		nthash = decrypt_with_pek(@dec_pek, encnthash)
+		if nthash == "NO PASSWORD"
+			nthash = "31d6cfe0d16ae931b73c59d7e0c089c0"
+		else
+			nthash = decrypt_single_hash(sid, nthash)
+		end
+		lmhash = decrypt_with_pek(@dec_pek, enclmhash)
+		if lmhash == "NO PASSWORD"
+			lmhash = "aad3b435b51404eeaad3b435b51404ee"
+		else
+			lmhash = decrypt_single_hash(sid, lmhash)
+		end
+		puts username + ":" + sid.to_s + ":" + lmhash + ":" + nthash + ":::"
 	end
 end
