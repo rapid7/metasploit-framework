@@ -75,7 +75,7 @@ class Msftidy
 				in_refs = true
 			elsif in_super and in_refs and line =~ /^[[:space:]]+\],*/m
 				break
-			elsif in_super and in_refs and line =~ /\[[[:space:]]*['"](.+)['"][[:space:]]*,[[:space:]]*['"](.+)['"][[:space:]]*\]/
+			elsif in_super and in_refs and line =~ /[^#]+\[[[:space:]]*['"](.+)['"][[:space:]]*,[[:space:]]*['"](.+)['"][[:space:]]*\]/
 				identifier = $1.strip.upcase
 				value      = $2.strip
 
@@ -381,6 +381,7 @@ end
 def run_checks(f_rel)
 	tidy = Msftidy.new(f_rel)
 	tidy.check_ref_identifiers
+	return
 	tidy.check_old_keywords
 	tidy.check_badchars
 	tidy.check_extname
