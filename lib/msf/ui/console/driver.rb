@@ -168,12 +168,12 @@ class Driver < Msf::Ui::Driver
 
 		# Parse any specified database.yml file
 		if framework.db.usable and not opts['SkipDatabaseInit']
-		
+
 			# Append any migration paths necessary to bring the database online
 			if opts['DatabaseMigrationPaths']
 				opts['DatabaseMigrationPaths'].each {|m| framework.db.add_migration_path(m) }
 			end
-		
+
 			# Look for our database configuration in the following places, in order:
 			#	command line arguments
 			#	environment variable
@@ -208,7 +208,7 @@ class Driver < Msf::Ui::Driver
 							print_error("")
 						end
 
-						print_error("Failed to connect to the database: #{framework.db.error} #{db.inspect} #{framework.db.error.backtrace}")
+						print_error("Failed to connect to the database: #{framework.db.error}")
 					else
 						self.framework.modules.refresh_cache_from_database
 
@@ -311,7 +311,7 @@ class Driver < Msf::Ui::Driver
 
 		print_error("Test Error: #{tname} - #{ftype} - #{data}")
 	end
-	
+
 	#
 	# Emit a new jUnit XML output file representing a success
 	#
@@ -721,4 +721,3 @@ end
 end
 end
 end
-
