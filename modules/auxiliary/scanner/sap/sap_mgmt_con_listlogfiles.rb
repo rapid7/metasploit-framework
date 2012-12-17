@@ -51,7 +51,7 @@ class Metasploit4 < Msf::Auxiliary
 
 	def run_host(ip)
 		res = send_request_cgi({
-			'uri'      => "/#{datastore['URI']}",
+			'uri'      => normalize_uri(datastore['URI']),
 			'method'   => 'GET',
 			'headers'  =>
 				{
@@ -96,7 +96,7 @@ class Metasploit4 < Msf::Auxiliary
 
 		begin
 			res = send_request_raw({
-				'uri'      => "/#{datastore['URI']}",
+				'uri'      => normalize_uri(datastore['URI']),
 				'method'   => 'POST',
 				'data'     => data,
 				'headers'  =>
