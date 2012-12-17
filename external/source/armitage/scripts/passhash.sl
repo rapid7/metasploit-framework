@@ -96,6 +96,33 @@ sub createCredentialsTab {
 	($dialog, $table, $model) = show_hashes("", 320);
 	[$dialog removeAll];
 
+	addMouseListener($table, lambda({
+		if ([$1 isPopupTrigger]) {
+			local('$popup $entries');
+			$popup = [new JPopupMenu];
+			$entries = [$model getSelectedValuesFromColumns: $table, @("user", "pass", "host")];
+			item($popup, "Delete", 'D', lambda({
+				local('$queue $entry $user $pass $host');
+				$queue = [new armitage.ConsoleQueue: $client];
+				foreach $entry ($entries) {
+					($user, $pass, $host) = $entry;
+					[$queue addCommand: $null, "creds -d $host -u $user -P $pass"];
+				}
+
+				[$queue addCommand: "x", "creds -h"];
+
+				[$queue addListener: lambda({
+					[$queue stop];
+					refreshCredsTable($model, $null);
+				}, \$model, \$queue)];
+
+				[$queue start];
+				[$queue stop];
+			}, \$table, \$model, \$entries));
+			[$popup show: [$1 getSource], [$1 getX], [$1 getY]];
+		}
+	}, \$table, \$model));
+
 	$panel = [new JPanel];
 	[$panel setLayout: [new BorderLayout]];
 	[$panel add: [new JScrollPane: $table], [BorderLayout CENTER]];

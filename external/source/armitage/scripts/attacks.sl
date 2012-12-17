@@ -623,6 +623,34 @@ sub host_attack_items {
 	}
 }
 
+sub chooseSession {
+	local('@data $sid $data $host $hdata $temp $tablef');
+
+	# obtain a list of sessions
+	foreach $host (keys(%hosts)) {
+		foreach $sid => $data (getSessions($host)) {
+			$temp = copy($data);
+			$temp['sid'] = $sid;
+			push(@data, $temp);
+		}
+	}
+
+	# sort the session data
+	@data = sort({ return $1['sid'] <=> $2['sid']; }, @data);
+
+	# update the table widths
+	$tablef = {
+       	        [[$1 getColumn: "sid"] setPreferredWidth: 100];
+       	        [[$1 getColumn: "session_host"] setPreferredWidth: 300];
+       	        [[$1 getColumn: "info"] setPreferredWidth: 1024];
+	};
+
+	# let the user choose a session
+	quickListDialog("Choose a session", "Select", @("sid", "sid", "session_host", "info"), @data, $width => 640, $height => 240, lambda({
+		[$call : $1];
+	}, $call => $4), \$tablef);
+}
+
 sub addFileListener {
 	local('$table $model $actions');
 	($table, $model, $actions) = @_; 
@@ -652,33 +680,7 @@ sub addFileListener {
 	$actions["WORDLIST"]   = $actions["*FILE*"];
 
 	# set up an action to choose a session
-	$actions["SESSION"] = {
-		local('@data $sid $data $host $hdata $temp $tablef');
-
-		# obtain a list of sessions
-		foreach $host (keys(%hosts)) {
-			foreach $sid => $data (getSessions($host)) {
-				$temp = copy($data);
-				$temp['sid'] = $sid;
-				push(@data, $temp);
-			}
-		}
-
-		# sort the session data
-		@data = sort({ return $1['sid'] <=> $2['sid']; }, @data);
-
-		# update the table widths
-		$tablef = {
-        	        [[$1 getColumn: "sid"] setPreferredWidth: 100];
-        	        [[$1 getColumn: "session_host"] setPreferredWidth: 300];
-        	        [[$1 getColumn: "info"] setPreferredWidth: 1024];
-		};
-
-		# let the user choose a session
-		quickListDialog("Choose a session", "Select", @("sid", "sid", "session_host", "info"), @data, $width => 640, $height => 240, lambda({
-			[$call : $1];
-		}, $call => $4), \$tablef);
-	};
+	$actions["SESSION"] = lambda(&chooseSession);
 
 	# set up an action to pop up a file chooser for different file type values.
 	$actions["RHOST"] = {

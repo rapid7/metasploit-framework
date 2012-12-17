@@ -228,10 +228,7 @@ class Driver < Msf::Ui::Driver
 
 			# Rebuild the module cache in a background thread
 			self.framework.threads.spawn("ModuleCacheRebuild", true) do
-				self.framework.cache_thread = Thread.current
 				self.framework.modules.refresh_cache_from_module_files
-				self.framework.cache_initialized = true
-				self.framework.cache_thread = nil
 			end
 		end
 
@@ -531,7 +528,7 @@ class Driver < Msf::Ui::Driver
 			framework.modules.module_load_error_by_path.each do |path, error|
 				print_error("\t#{path}: #{error}")
 			end
-    end
+		end
 
 		framework.events.on_ui_start(Msf::Framework::Revision)
 
@@ -554,7 +551,7 @@ class Driver < Msf::Ui::Driver
 		case var.downcase
 			when "payload"
 
-				if (framework and framework.modules.valid?(val) == false)
+				if (framework and framework.payloads.valid?(val) == false)
 					return false
 				elsif (active_module)
 					active_module.datastore.clear_non_user_defined

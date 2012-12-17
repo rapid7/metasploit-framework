@@ -101,13 +101,13 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 
-		disconnect_snmp()
-
-		rescue SNMP::RequestTimeout
-			print_status("#{ip}, SNMP request timeout.")
+		# No need to make noise about timeouts
+		rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::UnsupportedVersion
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
-			print_status("Unknown error: #{e.class} #{e}")
+			print_error("#{ip} Error: #{e.class} #{e} #{e.backtrace}")
+		ensure
+			disconnect_snmp
 		end
 end

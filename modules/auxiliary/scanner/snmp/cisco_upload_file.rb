@@ -127,14 +127,16 @@ class Metasploit3 < Msf::Auxiliary
 			varbind = SNMP::VarBind.new("#{ciscoFlashCopyEntryStatus}#{session}" , SNMP::Integer.new(1))
 			value = snmp.set(varbind)
 
-			disconnect_snmp
+
 
 		# No need to make noise about timeouts
-		rescue ::SNMP::RequestTimeout, ::Rex::ConnectionRefused
+		rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::UnsupportedVersion
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
 			print_error("#{ip} Error: #{e.class} #{e} #{e.backtrace}")
+		ensure
+			disconnect_snmp
 		end
 	end
 

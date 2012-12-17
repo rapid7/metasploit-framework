@@ -550,6 +550,11 @@ sub data_delete {
 	call("db.key_clear", $1);
 }
 
+# data_clear('key') -- clears all data associated with the specified key
+sub data_clear {
+	data_delete($1);
+}
+
 # data_add('key', $object) -- appends value into the database... 
 sub data_add {
 	local('$buffer $data');
@@ -860,7 +865,7 @@ sub file_content {
 	}
 	else {
 		local('%r');
-		%r = call("armitage.download", $1);
+		%r = call("armitage.download_nodelete", $1);
 		return %r['data'];
 	}
 }
