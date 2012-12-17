@@ -7,7 +7,7 @@ module Stdapi
 module Railgun
 module Def
 
-class Def_wlanapi
+class Def_wldap32
 
 	def self.create_dll(dll_path = 'wldap32')
 		dll = DLL.new(dll_path, ApiConstants.manager)
@@ -88,6 +88,10 @@ class Def_wlanapi
 		
 		dll.add_function('ldap_err2string', 'DWORD',[
 				['DWORD', 'err', 'in']
+		])
+		
+		dll.add_function('ldap_msgfree', 'DWORD', [
+			['DWORD', 'res', 'in']
 		])
 		
 		return dll

@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'         => 'Windows Gather Enumerate Computers',
+				'Name'         => 'Windows Gather AD Enumerate Computers',
 				'Description'  => %q{
 						This module will enumerate computers included in the primary Domain.
 				},
@@ -33,8 +33,13 @@ class Metasploit3 < Msf::Post
 				'SessionTypes' => [ 'meterpreter' ]
 			))
 	end
+	
+	def read_value(addr)
+		val_size = client.railgun.memread(addr-4,4).unpack('V*')[0]
+		value = client.railgun.memread(addr, val_size)
+		return value.strip
+	end
 
-	# Run Method for when run command is issued
 	def run
 	
 		attributes = [ 'dNSHostName', 'distinguishedName', 'description', 'operatingSystem', 'operatingSystemServicePack', 'serverReferenceBL', 'userAccountControl']
@@ -51,53 +56,36 @@ class Metasploit3 < Msf::Post
 		#			]
 					
 		print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
-		unless client.railgun.known_dll_names.include? 'wldap32'
-			print_status ("Adding wldap32.dll")
-			client.railgun.add_dll('wldap32','C:\\WINDOWS\\system32\\wldap32.dll')
-		end
-		wldap32 = client.railgun.wldap32
-		
 
+		wldap32 = client.railgun.wldap32
 		
 		print_status ("Initialize LDAP connection.")
 		ldap_handle = wldap32.ldap_sslinitA(nil, 389, 0)['return']
 		vprint_status("LDAP Handle: #{ldap_handle}")
 
-
-		
 		print_status ("Bindings to LDAP server.")
-		bind = wldap32.ldap_bind_sA(ldap_handle, nil, nil, 0x0486) #LDAP_AUTH_NEGOTIATE < add to ../api_constants.rb?
-		
+		bind = wldap32.ldap_bind_sA(ldap_handle, nil, nil, 0x0486) #LDAP_AUTH_NEGOTIATE
 		
 		print_status ("Searching LDAP directory.")
 
-		lDAP_SCOPE_BASE = 0
-		lDAP_SCOPE_ONELEVEL = 1
-		lDAP_SCOPE_SUBTREE =  2
-
 		base = "DC=test,DC=lab"
-		scope = lDAP_SCOPE_SUBTREE
+		scope = 2 #LDAP_SCOPE_SUBTREE
 
 		search = wldap32.ldap_search_sA(ldap_handle, base, scope, "(objectClass=computer)", nil, 0, 4) 
 		vprint_status("search: #{search}")
 		
 		if search['return'] != 0
-			client.railgun.add_function('wldap32', 'ldap_msgfree', 'DWORD', [
-				['DWORD', 'res', 'in']
-			])
-			
-			wldap32.ldap_msgfree(search['res'])
-			
 			print_error("No results")
+			wldap32.ldap_msgfree(search['res'])
 			return
 		end
 
-		print_status ("Counting number of search results")
 		search_count = wldap32.ldap_count_entries(ldap_handle, search['res'])['return']
-		vprint_status("Search count: #{search_count}")
+		print_status("Entries retrieved: #{search_count}")
 	
 		
-		print_status("Retrieve results")
+		print_status("Retrieving results...")
+		
 		entries = {}
 		for i in 0..(search_count-1)
 			print_line "-"*46
@@ -107,15 +95,6 @@ class Metasploit3 < Msf::Post
 				entries[i] = wldap32.ldap_next_entry(ldap_handle, entries[i-1])['return']
 			end
 			vprint_status("Entry #{i}: #{entries[i]}")
-
-			#addr = valloc
-			#attribute =  wldap32.ldap_first_attributeA(ldap_handle, entries[i], addr)
-			#puts attribute
-			#p_attribute = attribute['return']
-			#vprint_status("p_attribute: #{p_attribute}")
-			#addr2 = client.railgun.memread(addr,16).unpack('V*')[0]
-			#puts addr2
-			#attr = client.railgun.memread(p_attribute, 16)
 			
 			attributes.each do |attr|
 				print_status("Attr: #{attr}")
@@ -145,18 +124,6 @@ class Metasploit3 < Msf::Post
 					vprint_status("Free value memory.")
 					wldap32.ldap_value_free(pp_value)
 				end
-				
-				#puts "free attribute"
-				#wldap32.ldap_memfree(p_attribute)
-				
-				#attribute =  wldap32.ldap_next_attributeA(ldap_handle, entries[i], addr2)
-				#p_attribute = attribute['return']
-				#vprint_status("Next Attribute: #{attribute}")
-				#if p_attribute == 0
-				#	attr = nil
-				#else
-				# 	attr = client.railgun.memread(p_attribute, 16).strip
-				#end
 			end
 		end
 	end
