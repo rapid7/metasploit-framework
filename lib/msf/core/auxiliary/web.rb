@@ -133,7 +133,7 @@ module Auxiliary::Web
 	# Override it if you need more complex processing, but remember to return
 	# the proof as a String.
 	#
-	# response - Net::HTTPResponse
+	# response - Auxiliary::Web::HTTP::Response
 	# element - the submitted element
 	#
 	def find_proof( response, element )
