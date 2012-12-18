@@ -11,6 +11,7 @@
 
 require 'msf/core'
 require 'rex'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 	include Msf::Auxiliary::Report
@@ -25,9 +26,9 @@ class Metasploit3 < Msf::Post
 				Windows XP we will get the PBKDF2 derived key.
 			},
 			'License'       => MSF_LICENSE,
-			'Author'        => ['TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Author'        => ['theLightCosine'],
 			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 	end

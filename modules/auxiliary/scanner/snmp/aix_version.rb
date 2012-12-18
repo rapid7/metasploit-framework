@@ -25,8 +25,8 @@ class Metasploit3 < Msf::Auxiliary
 			'Description' => 'AIX SNMP Scanner Auxiliary Module',
 			'Author'      =>
 				[
+					'Ramon de C Valle',
 					'Adriano Lima <adriano[at]risesecurity.org>',
-					'ramon'
 				],
 			'License'     => MSF_LICENSE
 		)
@@ -70,11 +70,14 @@ class Metasploit3 < Msf::Auxiliary
 				print_status(status)
 			end
 
-			disconnect_snmp
-
+		# No need to make noise about timeouts
+		rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::UnsupportedVersion
+		rescue ::Interrupt
+			raise $!
 		rescue Exception => e
-			print_error("#{e.class}, #{e.message}")
-
+			print_error("#{ip} #{e.class}, #{e.message}")
+		ensure
+			disconnect_snmp
 		end
 
 	end

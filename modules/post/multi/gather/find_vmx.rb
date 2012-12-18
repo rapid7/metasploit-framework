@@ -26,9 +26,9 @@ class Metasploit3 < Msf::Post
 				This module will attempt to find any VMWare virtual machines stored on the target.
 			},
 			'License'        => MSF_LICENSE,
-			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
+			'Author'         => ['theLightCosine'],
 			'Version'        => '$Revision$',
-			'Platform'       => ['unix', 'bsd', 'linux', 'osx', 'windows'],
+			'Platform'       => ['unix', 'bsd', 'linux', 'osx', 'win'],
 			'SessionTypes'   => ['shell', 'meterpreter' ]
 		))
 	end

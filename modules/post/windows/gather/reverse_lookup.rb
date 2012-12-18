@@ -23,9 +23,9 @@ class Metasploit3 < Msf::Post
 			},
 			'License'              => MSF_LICENSE,
 			'Version'              => '$Revision$',
-			'Platform'             => ['windows'],
+			'Platform'             => ['win'],
 			'SessionTypes'         => ['meterpreter'],
-			'Author'               => ['mubix']
+			'Author'               => [ 'mubix' ]
 			))
 		register_options(
 			[

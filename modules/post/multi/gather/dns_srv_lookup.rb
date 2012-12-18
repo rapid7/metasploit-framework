@@ -12,6 +12,7 @@
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/common'
+require 'msf/core/auxiliary/report'
 
 
 class Metasploit3 < Msf::Post
@@ -28,7 +29,7 @@ class Metasploit3 < Msf::Post
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
 				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows','linux', 'osx', 'bsd', 'solaris' ],
+				'Platform'      => [ 'win','linux', 'osx', 'bsd', 'solaris' ],
 				'SessionTypes'  => [ 'meterpreter','shell' ]
 			))
 		register_options(

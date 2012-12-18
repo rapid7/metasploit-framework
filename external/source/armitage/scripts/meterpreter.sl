@@ -104,13 +104,16 @@ sub parseMeterpreter {
 }
 
 sub interpretMeterpreterCommand {
-	if ([$1 getActionCommand] eq "shell") {
+	local('$c');
+	$c = [lc([$1 getActionCommand] . "") trim];
+
+	if ($c eq "shell") {
 		createShellTab($sid);
 	}
-	else if ([$1 getActionCommand] eq "screenshot") {
+	else if ($c eq "screenshot") {
 		[createScreenshotViewer($sid)];
 	}
-	else if ([$1 getActionCommand] eq "webcam_snap") {
+	else if ($c eq "webcam_snap") {
 		[createWebcamViewer($sid)];
 	}
 }
@@ -168,7 +171,9 @@ sub showMeterpreterMenu {
 		}, $sid => "$sid"));
 
 		item($j, "Escalate Privileges", 'E', lambda({
-			showPostModules($sid, "*escalate*");
+			showPostModules($sid, "*escalate*", 
+				ohash(exploit => buildTree(filter({ return iff("*windows/local/*" iswm $1, $1); }, @exploits)))
+			);
 		}, $sid => "$sid"));
 
 		item($j, "Steal Token" , "S", lambda({
@@ -191,11 +196,15 @@ sub showMeterpreterMenu {
 		}, $sid => "$sid"));
 
 		item($j, "Persist", 'P', lambda({
-			launch_dialog("Persistence", "post", "windows/manage/persistence", 1, $null, %(SESSION => $sid, LPORT => %MSF_GLOBAL['LPORT'], HANDLER => "0"));
+			thread(lambda({
+				launch_dialog("Persistence", "post", "windows/manage/persistence", 1, $null, %(SESSION => $sid, LPORT => %MSF_GLOBAL['LPORT'], HANDLER => "0"));
+			}, \$sid));
 		}, $sid => "$sid"));
 
 		item($j, "Pass Session", 'S', lambda({
-			launch_dialog("Pass Session", "post", "windows/manage/payload_inject", 1, $null, %(SESSION => $sid, LPORT => %MSF_GLOBAL['LPORT'], HANDLER => "0"));
+			thread(lambda({
+				launch_dialog("Pass Session", "post", "windows/manage/payload_inject", 1, $null, %(SESSION => $sid, LPORT => %MSF_GLOBAL['LPORT'], HANDLER => "0"));
+			}, \$sid));
 		}, $sid => "$sid"));
 
 		setupMenu($j, "meterpreter_access", @($sid));
@@ -241,7 +250,9 @@ sub showMeterpreterMenu {
 			item($j, "Show Processes", 'P', lambda({ createProcessBrowser($sid); }, $sid => "$sid"));
 			if ("*win*" iswm $platform) {
 				item($j, "Log Keystrokes", 'K', lambda({ 
-					launch_dialog("Log Keystrokes", "post", "windows/capture/keylog_recorder", 1, $null, %(SESSION => $sid, MIGRATE => 1, ShowKeystrokes => 1));
+					thread(lambda({
+						launch_dialog("Log Keystrokes", "post", "windows/capture/keylog_recorder", 1, $null, %(SESSION => $sid, MIGRATE => 1, ShowKeystrokes => 1));
+					}, \$sid));
 				}, $sid => "$sid"));
 			}
 
@@ -305,6 +316,9 @@ sub launch_msf_scans {
 				if ('RPORT' in %o) {
 					$port = %o['RPORT']['default'];
 					push(%ports[$port], $scanner);
+					if ($port == 80) {
+						push(%ports['443'], $scanner);
+					}
 				}
 
 				safetyCheck();
@@ -313,7 +327,7 @@ sub launch_msf_scans {
 
 		# add these ports to our list of ports to scan.. these come from querying all of Metasploit's modules
 		# for the default ports
-		foreach $port (@(50000, 21, 1720, 80, 443, 143, 3306, 1521, 110, 5432, 50013, 25, 161, 22, 23, 17185, 135, 8080, 4848, 1433, 5560, 512, 513, 514, 445, 5900, 5038, 111, 139, 49, 515, 7787, 2947, 7144, 9080, 8812, 2525, 2207, 3050, 5405, 1723, 1099, 5555, 921, 10001, 123, 3690, 548, 617, 6112, 6667, 3632, 783, 10050, 38292, 12174, 2967, 5168, 3628, 7777, 6101, 10000, 6504, 41523, 41524, 2000, 1900, 10202, 6503, 6070, 6502, 6050, 2103, 41025, 44334, 2100, 5554, 12203, 26000, 4000, 1000, 8014, 5250, 34443, 8028, 8008, 7510, 9495, 1581, 8000, 18881, 57772, 9090, 9999, 81, 3000, 8300, 8800, 8090, 389, 10203, 5093, 1533, 13500, 705, 623, 4659, 20031, 16102, 6080, 6660, 11000, 19810, 3057, 6905, 1100, 10616, 10628, 5051, 1582, 65535, 105, 22222, 30000, 113, 1755, 407, 1434, 2049, 689, 3128, 20222, 20034, 7580, 7579, 38080, 12401, 910, 912, 11234, 46823, 5061, 5060, 2380, 69, 5800, 62514, 42, 5631, 902)) {
+		foreach $port (@(50000, 21, 1720, 80, 443, 143, 3306, 1521, 110, 5432, 50013, 25, 161, 22, 23, 17185, 135, 8080, 4848, 1433, 5560, 512, 513, 514, 445, 5900, 5038, 111, 139, 49, 515, 7787, 2947, 7144, 9080, 8812, 2525, 2207, 3050, 5405, 1723, 1099, 5555, 921, 10001, 123, 3690, 548, 617, 6112, 6667, 3632, 783, 10050, 38292, 12174, 2967, 5168, 3628, 7777, 6101, 10000, 6504, 41523, 41524, 2000, 1900, 10202, 6503, 6070, 6502, 6050, 2103, 41025, 44334, 2100, 5554, 12203, 26000, 4000, 1000, 8014, 5250, 34443, 8028, 8008, 7510, 9495, 1581, 8000, 18881, 57772, 9090, 9999, 81, 3000, 8300, 8800, 8090, 389, 10203, 5093, 1533, 13500, 705, 623, 4659, 20031, 16102, 6080, 6660, 11000, 19810, 3057, 6905, 1100, 10616, 10628, 5051, 1582, 65535, 105, 22222, 30000, 113, 1755, 407, 1434, 2049, 689, 3128, 20222, 20034, 7580, 7579, 38080, 12401, 910, 912, 11234, 46823, 5061, 5060, 2380, 69, 5800, 62514, 42, 5631, 902, 5985)) {
 			$temp = %ports[$port];
 		}
 
@@ -343,7 +357,12 @@ sub launch_msf_scans {
 						if ($port in %ports) {
 							$modules = %ports[$port];
 							foreach $module ($modules) {
-								push(@launch, @($module, %(RHOSTS => join(", ", $hosts), RPORT => $port, THREADS => 24)));
+								if ($port == 443) {
+									push(@launch, @($module, %(RHOSTS => join(", ", $hosts), RPORT => $port, THREADS => 24, SSL => "1")));
+								}
+								else {
+									push(@launch, @($module, %(RHOSTS => join(", ", $hosts), RPORT => $port, THREADS => 24)));
+								}
 							}
 						}
 					}

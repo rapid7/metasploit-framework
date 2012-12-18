@@ -27,6 +27,12 @@ sub parseProcessList {
 			# REMOVEME--this is a backwards compatability hack.
 			@rows = parseTextTable($2, @("PID", "Name", "Arch", "Session", "User", "Path"));
 		}
+
+		# this is the format for Java meterpreter
+		if (size(@rows) == 0) {
+			@rows = parseTextTable($2, @("PID", "Name", "Arch", "User", "Path"));
+		}
+
 		foreach $row (@rows) {
 			[%processes[$1] addEntry: $row];
 		}
@@ -69,7 +75,7 @@ sub createProcessBrowser {
 
 	[$panel add: [new JScrollPane: $table], [BorderLayout CENTER]];
 
-	local('$a $b $bb $c');
+	local('$a $b $bb $bbb $c');
 	$a = [new JButton: "Kill"];
 	[$a addActionListener: lambda({ 
 		local('$procs $v');
@@ -99,6 +105,15 @@ sub createProcessBrowser {
 		}	
 	}, $m => $1, \$table, \$model)];
 
+	$bbb = [new JButton: "Steal Token"];
+	[$bbb addActionListener: lambda({
+		local('$v');
+		$v = [$model getSelectedValue: $table];
+		if ($v !is $null) {
+			m_cmd_callback($m, "steal_token $v", { if ($0 eq "end") { showError(["$2" trim]); } }); 
+		}
+	}, $m => $1, \$table, \$model)];
+
 	$c = [new JButton: "Refresh"];
 	[$c addActionListener: 
 		lambda({ 
@@ -106,7 +121,7 @@ sub createProcessBrowser {
 		}, $m => $1)
 	];
 
-	[$panel add: center($a, $b, $bb, $c), [BorderLayout SOUTH]];
+	[$panel add: center($a, $b, $bb, $bbb, $c), [BorderLayout SOUTH]];
 
 	[$frame addTab: "Processes $1", $panel, $null, "Processes " . sessionToHost($1)];
 	m_cmd($1, "ps");

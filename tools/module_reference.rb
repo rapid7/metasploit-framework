@@ -105,7 +105,7 @@ $framework.modules.each { |name, mod|
 	x = mod.new
 	x.references.each do |r|
 		if type=='All' or type==r.ctx_id
-			ref = r.ctx_id + '-' + r.ctx_val
+			ref = "#{r.ctx_id}-#{r.ctx_val}"
 			tbl << [ x.fullname, ref ]
 		end
 	end

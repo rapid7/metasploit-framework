@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			if(not @banner)
-				print_status("The service may have crashed (no banner): iteration:#{cnt-1} method=#{last_inp} string=#{last_str.unpack("H*")[0]} ")
+				print_status("The service may have crashed (no banner): iteration:#{cnt-1} method=#{last_inp} string=#{last_str.to_s.unpack("H*")[0]} ")
 				return
 			end
 

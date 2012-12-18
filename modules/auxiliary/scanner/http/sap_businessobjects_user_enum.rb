@@ -49,8 +49,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		res = send_request_cgi({
-			'uri'	 => "/#{datastore['URI']}/services/listServices",
-			'method'  => 'GET',
+			'uri'    => normalize_uri(datastore['URI']) + "/services/listServices",
+			'method' => 'GET',
 				'headers' => {
 					'User-Agent' => datastore['UserAgent']
 				}
@@ -81,9 +81,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			res = send_request_raw({
-				'uri'		  => "/#{datastore['URI']}/services/Session",
-				'method'	   => 'POST',
-				'data'	  => data,
+				'uri'     => normalize_uri(datastore['URI']) + "/services/Session",
+				'method'  => 'POST',
+				'data'    => data,
 				'headers' =>
 					{
 						'Content-Length' => data.length,
@@ -93,8 +93,8 @@ class Metasploit3 < Msf::Auxiliary
 			}, 45)
 
 			if res
-				return :abort if (res.code == 404)
-				success = true if(res.body.match(/Invalid password/i))
+				return :abort if (!res or (res and res.code == 404))
+				success = true if(res and res.body.match(/Invalid password/i))
 				success
 			else
 				vprint_error("[SAP BusinessObjects] No response")
