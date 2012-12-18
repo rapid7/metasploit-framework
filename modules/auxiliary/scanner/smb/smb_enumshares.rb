@@ -107,7 +107,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def srvsvc_netshareenum
 
-		simple.connect("IPC$")
+		simple.connect("\\\\#{rhost}\\IPC$")
 		handle = dcerpc_handle('4b324fc8-1670-01d3-1278-5a47bf6ee188', '3.0', 'ncacn_np', ["\\srvsvc"])
 		begin
 			dcerpc_bind(handle)
