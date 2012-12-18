@@ -19,8 +19,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'           => 'SVN wc.db Scanner',
 			'Description'    => %q{
-					Scan for servers that allow access to the SVN wc.db file.
-					Based on the work by Tim Meddin.	
+				Scan for servers that allow access to the SVN wc.db file.
+				Based on the work by Tim Meddin.
 			},
 			'Author'         =>
 				[
@@ -32,10 +32,10 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'License'        =>  MSF_LICENSE
 		)
-		
+
 		register_advanced_options(
 			[
-			   OptString.new('BASE_PATH', [false, 'Path to the directory with the .svn folder.', nil])
+				OptString.new('BASE_PATH', [false, 'Path to the directory with the .svn folder.', nil])
 			], self.class)
 	end
 
@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 			get_wcdb('/.svn/wc.db')
 		end
 	end
-	
+
 	def get_wcdb(path)
 		proto = (ssl ? 'https://' : 'http://')
 		vprint_status("Trying #{proto}#{vhost}:#{rport}#{path}")
@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			if res and res.code == 200
 				print_good("SVN wc.db database found on #{vhost}:#{rport}")
-			
+
 				file = store_loot(
 					"svn.wcdb.database",
 					"application/octet-stream",
@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 					"wc.db",
 					"SVN wc.db database"
 				)
-				
+
 				print_good("SVN wc.db database stored in #{file}")
 
 				report_note(
