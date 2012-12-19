@@ -289,7 +289,7 @@ class Metasploit3 < Msf::Post
 	def read_hashdump
 		host,port = session.session_host, session.session_port
 		collected_hashes = ""
-		tries = 0
+		tries = 1
 		
 		begin
 
