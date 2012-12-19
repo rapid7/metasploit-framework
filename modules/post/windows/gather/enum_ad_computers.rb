@@ -5,21 +5,13 @@
 #   http://metasploit.com/
 ##
 
-require 'msf/core'
 require 'rex'
-
-# Multi platform requiere
-require 'msf/core/post/common'
-require 'msf/core/post/file'
-
-require 'msf/core/post/windows/registry'
+require 'msf/core'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
-	include Msf::Post::Common
-	include Msf::Post::File
-
-	include Msf::Post::Windows::Registry
+	include Msf::Auxiliary::Report
 
 	def initialize(info={})
 		super( update_info( info,
@@ -28,21 +20,54 @@ class Metasploit3 < Msf::Post
 						This module will enumerate computers included in the primary Domain.
 				},
 				'License'      => MSF_LICENSE,
-				'Author'       => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>'],
-				'Platform'     => [ 'win'],
+				'Author'       => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
+				'Platform'     => [ 'win' ],
 				'SessionTypes' => [ 'meterpreter' ]
 			))
 	end
-	
+
 	def read_value(addr)
 		val_size = client.railgun.memread(addr-4,4).unpack('V*')[0]
 		value = client.railgun.memread(addr, val_size)
 		return value.strip
 	end
-
-	def run
 	
+	def run
+		print_status("Connecting to default LDAP server")
+		session_handle = bind_default_ldap_server
+		
+		if session_handle == 0
+			return
+		end
+		
+		print_status("Querying default naming context")
+		defaultNamingContext = query_ldap(session_handle, "", 0, "(objectClass=computer)", ["defaultNamingContext"])[0]['attributes'][0]['values']
+		print_status("Default Naming Context #{defaultNamingContext}")
+		
 		attributes = [ 'dNSHostName', 'distinguishedName', 'description', 'operatingSystem', 'operatingSystemServicePack', 'serverReferenceBL', 'userAccountControl']
+		
+		print_status("Querying computer objects - Please wait...")
+		results = query_ldap(session_handle, defaultNamingContext, 2, "(objectClass=computer)", attributes)
+		
+		results_table = Rex::Ui::Text::Table.new(
+				'Header'     => 'AD Computers',
+				'Indent'     => 1,
+				'SortIndex'  => -1,
+				'Columns'    => attributes
+			)
+			
+		results.each do |result|
+			row = []
+			
+			result['attributes'].each do |attr|
+				row << attr['values']
+			end
+
+			results_table << row
+		end
+		
+		print_line results_table.to_s
+		
 		#attributes = [	'objectClass','cn', 'description', 'distinguishedName','instanceType','whenCreated',
 		#				'whenChanged','uSNCreated','uSNChanged','name','objectGUID',
 		#				'userAccountControl','badPwdCount','codePage','countryCode',
@@ -54,24 +79,36 @@ class Metasploit3 < Msf::Post
 		#				'netbootSCPBL','isCriticalSystemObject','frsComputerReferenceBL',
 		#				'lastLogonTimestamp','msDS-SupportedEncryptionTypes'
 		#			]
-					
-		print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
-
-		wldap32 = client.railgun.wldap32
+	end
+	
+	def wldap32
+		return client.railgun.wldap32
+	end
+	
+	def bind_default_ldap_server
+		vprint_status ("Initializing LDAP connection.")
+		session_handle = wldap32.ldap_sslinitA("\x00\x00\x00\x00", 389, 0)['return']
+		vprint_status("LDAP Handle: #{session_handle}")
 		
-		print_status ("Initialize LDAP connection.")
-		ldap_handle = wldap32.ldap_sslinitA(nil, 389, 0)['return']
-		vprint_status("LDAP Handle: #{ldap_handle}")
+		if session_handle == 0
+			print_error("Unable to connect to LDAP server")
+			return 0
+		end
 
-		print_status ("Bindings to LDAP server.")
-		bind = wldap32.ldap_bind_sA(ldap_handle, nil, nil, 0x0486) #LDAP_AUTH_NEGOTIATE
+		vprint_status ("Binding to LDAP server.")
+		bind = wldap32.ldap_bind_sA(session_handle, nil, nil, 0x0486)['return'] #LDAP_AUTH_NEGOTIATE
 		
-		print_status ("Searching LDAP directory.")
+		if bind != 0
+			print_error("Unable to bind to LDAP server")
+			return 0
+		end 
+		
+		return session_handle
+	end
 
-		base = "DC=test,DC=lab"
-		scope = 2 #LDAP_SCOPE_SUBTREE
-
-		search = wldap32.ldap_search_sA(ldap_handle, base, scope, "(objectClass=computer)", nil, 0, 4) 
+	def query_ldap(session_handle, base, scope, filter, attributes)
+		vprint_status ("Searching LDAP directory.")
+		search = wldap32.ldap_search_sA(session_handle, base, scope, filter, nil, 0, 4) 
 		vprint_status("search: #{search}")
 		
 		if search['return'] != 0
@@ -80,26 +117,30 @@ class Metasploit3 < Msf::Post
 			return
 		end
 
-		search_count = wldap32.ldap_count_entries(ldap_handle, search['res'])['return']
+		search_count = wldap32.ldap_count_entries(session_handle, search['res'])['return']
 		print_status("Entries retrieved: #{search_count}")
-	
 		
-		print_status("Retrieving results...")
+		vprint_status("Retrieving results...")
 		
 		entries = {}
+		entry_results = []
+		
+		# user definied limit on entries to search?
 		for i in 0..(search_count-1)
-			print_line "-"*46
+			print '.'
+		
 			if i==0
-				entries[i] = wldap32.ldap_first_entry(ldap_handle, search['res'])['return']
+				entries[i] = wldap32.ldap_first_entry(session_handle, search['res'])['return']
 			else
-				entries[i] = wldap32.ldap_next_entry(ldap_handle, entries[i-1])['return']
+				entries[i] = wldap32.ldap_next_entry(session_handle, entries[i-1])['return']
 			end
 			vprint_status("Entry #{i}: #{entries[i]}")
 			
+			attribute_results = []
 			attributes.each do |attr|
-				print_status("Attr: #{attr}")
+				vprint_status("Attr: #{attr}")
 				
-				pp_value = wldap32.ldap_get_values(ldap_handle, entries[i], attr)['return']
+				pp_value = wldap32.ldap_get_values(session_handle, entries[i], attr)['return']
 				vprint_status("ppValue: 0x#{pp_value.to_s(16)}")
 				
 				if pp_value == 0
@@ -108,6 +149,7 @@ class Metasploit3 < Msf::Post
 					count = wldap32.ldap_count_values(pp_value)['return']
 					vprint_status "Value count: #{count}"
 				
+					value_results = []
 					if count < 1
 						vprint_error("Bad Value List")
 					else
@@ -115,8 +157,10 @@ class Metasploit3 < Msf::Post
 							p_value = client.railgun.memread(pp_value+(j*4), 4).unpack('V*')[0]
 							vprint_status "p_value: 0x#{p_value.to_s(16)}"
 							value = read_value(p_value)
-							print_status "Value: #{value}"
+							vprint_status "Value: #{value}"
+							value_results << value
 						end
+						value_results = value_results.join('|')
 					end
 				end
 
@@ -124,7 +168,14 @@ class Metasploit3 < Msf::Post
 					vprint_status("Free value memory.")
 					wldap32.ldap_value_free(pp_value)
 				end
+				
+				attribute_results << {"name" => attr, "values" => value_results}
 			end
+			
+			entry_results << {"id" => i, "attributes" => attribute_results}
 		end
+		
+		print_line
+		return entry_results
 	end
 end
