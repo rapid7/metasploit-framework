@@ -911,7 +911,7 @@ End Sub
 		exe = exes.unpack("H*").join
 		vbs = ""
 
-		var_bytes   = Rex::Text.rand_text_alpha(rand(8)+8) 
+		var_bytes   = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_byte    = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_fname   = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_func    = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -966,7 +966,7 @@ End Sub
 		exe = exes.unpack("H*").join
 		vbs = "<%\r\n"
 
-		var_bytes   = Rex::Text.rand_text_alpha(rand(8)+8) 
+		var_bytes   = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_byte    = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_fname   = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_func    = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -1051,7 +1051,7 @@ End Sub
 		source << "\t\tFileStream #{var_fs} = File.Create(#{var_tempexe});\r\n"
 		source << "\t\ttry\r\n"
 		source << "\t\t{\r\n"
-		source << "\t\t\tbyte[] #{var_bytes} = Convert.FromBase64String(#{var_file}.ToString());\r\n" 
+		source << "\t\t\tbyte[] #{var_bytes} = Convert.FromBase64String(#{var_file}.ToString());\r\n"
 		source << "\t\t\t#{var_fs}.Write(#{var_bytes},0, #{var_bytes}.Length);\r\n"
 		source << "\t\t}\r\n"
 		source << "\t\tfinally\r\n"
