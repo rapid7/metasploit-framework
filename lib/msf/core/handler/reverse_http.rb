@@ -153,7 +153,9 @@ module ReverseHttp
 				OptInt.new('SessionExpirationTimeout', [ false, 'The number of seconds before this session should be forcibly shut down', (24*3600*7)]),
 				OptInt.new('SessionCommunicationTimeout', [ false, 'The number of seconds of no activity before this session should be killed', 300]),
 				OptString.new('MeterpreterUserAgent', [ false, 'The user-agent that the payload should use for communication', 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)' ]),
-				OptString.new('MeterpreterServerName', [ false, 'The server header that the handler will send in response to requests', 'Apache' ])
+				OptString.new('MeterpreterServerName', [ false, 'The server header that the handler will send in response to requests', 'Apache' ]),
+				OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
+				OptString.new('HttpUknownRequestResponse', [ false, 'The returned HTML response body when the handler receives a request that is not from a payload', '<html><body><h1>It works!</h1></body></html>'  ])
 			], Msf::Handler::ReverseHttp)
 	end
 
@@ -176,10 +178,17 @@ module ReverseHttp
 			comm = nil
 		end
 
+		# Determine where to bind the HTTP(S) server to
+		bindaddrs = ipv6 ? '::' : '0.0.0.0'
+
+		if not datastore['ReverseListenerBindAddress'].to_s.empty?
+			bindaddrs = datastore['ReverseListenerBindAddress']
+		end
+
 		# Start the HTTPS server service on this host/port
 		self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
 			datastore['LPORT'].to_i,
-			ipv6 ? '::' : '0.0.0.0',
+			bindaddrs,
 			ssl?,
 			{
 				'Msf'        => framework,
@@ -351,7 +360,7 @@ protected
 				print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{uri_match} #{req.inspect}...")
 				resp.code    = 200
 				resp.message = "OK"
-				resp.body    = "<h3>No site configured at this address</h3>"
+				resp.body    = datastore['HttpUknownRequestResponse'].to_s
 		end
 
 		cli.send_response(resp) if (resp)

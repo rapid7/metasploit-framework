@@ -150,7 +150,7 @@ class Metasploit3 < Msf::Auxiliary
 	# Instead of uploading and runing a binary.  This method runs a single windows command fed into the COMMAND paramater
 	def psexec(command)
 
-		simple.connect("IPC$")
+		simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
 
 		handle = dcerpc_handle('367abb81-9844-35f1-ad32-98f038001003', '2.0', 'ncacn_np', ["\\svcctl"])
 		vprint_status("#{peer} - Binding to #{handle} ...")

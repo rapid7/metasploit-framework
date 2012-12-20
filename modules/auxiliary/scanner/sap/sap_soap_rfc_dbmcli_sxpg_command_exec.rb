@@ -115,7 +115,7 @@ class Metasploit4 < Msf::Auxiliary
 					return
 				elsif res.body =~ /faultstring/
 					error = res.body.scan(%r{<faultstring>(.*?)</faultstring>}).flatten
-					0.upto(output.length-1) do |i|
+					0.upto(error.length-1) do |i|
 						print_error("[SAP] #{ip}:#{rport} - error #{error[i]}")
 					end
 					return

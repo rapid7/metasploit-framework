@@ -43,18 +43,15 @@ class Fuzzable
 	end
 
 	def submit( opts = {} )
-		fuzzer.increment_request_counter
+		fuzzer.increment_request_counter if fuzzer
 
-		resp = http.request_async( *request( opts ) )
-		handle_response( resp )
-		resp
+		http.request( *request( opts ) )
 	end
 
 	def submit_async( opts = {}, &callback )
 		fuzzer.increment_request_counter
 
 		http.request_async( *request( opts ) ) do |resp|
-			handle_response( resp )
 			callback.call resp if callback
 		end
 
@@ -86,20 +83,6 @@ class Fuzzable
 		self.fuzzer ||= cfuzzer
 		permutations.each do |p|
 			block.call p
-		end
-	end
-
-	def handle_response( resp )
-		str = "    #{fuzzer.shortname}: #{resp.code} - #{method.to_s.upcase}" +
-			" #{action} #{params}"
-
-		case resp.code.to_i
-			when 200,404,301,302,303
-				#fuzzer.print_status str
-			when 500,503,401,403
-				fuzzer.print_good str
-			else
-				fuzzer.print_error str
 		end
 	end
 
