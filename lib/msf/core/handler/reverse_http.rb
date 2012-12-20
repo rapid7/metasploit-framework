@@ -360,7 +360,7 @@ protected
 				print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{uri_match} #{req.inspect}...")
 				resp.code    = 200
 				resp.message = "OK"
-				resp.body    = "#{datastore['HttpUknownRequestResponse']}"
+				resp.body    = datastore['HttpUknownRequestResponse'].to_s
 		end
 
 		cli.send_response(resp) if (resp)
