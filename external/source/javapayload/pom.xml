@@ -45,6 +45,7 @@
 	<modules>
 		<module>javapayload</module>
 		<module>meterpreter</module>
+		<module>version-compatibility-check</module>
 	</modules>
 	<prerequisites>
 		<maven>3.0</maven>
