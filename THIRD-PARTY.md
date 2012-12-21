@@ -998,23 +998,29 @@ MIT
    * activeresource - Copyright (c) 2006-2011 David Heinemeier Hansson
    * activesupport - Copyright (c) 2005-2011 David Heinemeier Hansson
    * authlogic - Copyright (c) 2011 Ben Johnson of Binary Logic
+   * builder - Copyright (c) 2003-2012 Jim Weirich (jim.weirich@gmail.com)
    * carrierwave - Copyright (c) 2008-2012 Jonas Nicklas
    * chunky_png - Copyright (c) 2010 Willem van Bergen
+   * coderay - By Rob Aldred
    * daemons - Copyright (c) 2005-2012 Thomas Uehlinger
    * diff-lcs - Copyright 2004–2011 Austin Ziegler
    * formtastic - Copyright (c) 2008-2010 Justin French
    * fssm - Copyright (c) 2011 Travis Tilley
    * hike - Copyright (c) 2011 Sam Stephenson
    * i18n - Copyright (c) 2008 The Ruby I18n team
+   * journey - Copyright (c) 2011 Aaron Patterson
    * jquery-rails - Copyright (c) 2010 Andre Arko
    * liquid - Copyright (c) 2005, 2006 Tobias Luetke
+   * metasploit_data_models - Copyright (C) 2012, Rapid7, Inc.
    * method_source - Copyright (c) 2011 John Mair (banisterfiend)
    * multi_json - Copyright (c) 2010 Michael Bleigh, Josh Kalderimis, Erik Michaels-Ober, and Intridea, Inc.
    * rack - Copyright (c) 2007, 2008, 2009, 2010 Christian Neukirchen <purl.org/net/chneukirchen>
    * rack-cache - Copyright (c) 2008 Ryan Tomayko <http://tomayko.com/about>
    * rack-ssl - Copyright (c) 2010 Joshua Peek
+   * railties - No copyright statement provided
    * rake - Copyright (c) 2003, 2004 Jim Weirich
    * slop - Copyright (c) 2012 Lee Jarvis
+   * spork - Copyright (c) 2009 Tim Harper
    * sprockets - Copyright (c) 2011 Sam Stephenson, Copyright (c) 2011 Joshua Peek
    * state_machine - Copyright (c) 2006-2012 Aaron Pfeifer
    * thor - Copyright (c) 2008 Yehuda Katz
