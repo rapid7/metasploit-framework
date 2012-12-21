@@ -18,6 +18,8 @@ Ruby
    Copyright (c) 2004 David R. Halliday
  - The Zip library located under lib/zip.
    Copyright (C) 2002-2004 Thomas Sondergaard
+ - FastLib located at lib/fastlib.rb
+   Copyright (C) 2011 Rapid7
  - Gem components located under lib/gemcache/
    * rdoc - RDoc is Copyright (c) 2001-2003 Dave Thomas, The Pragmatic Programmers.
    Portions (c) 2007-2011 Eric Hodel.  Portions copyright others, see individual
