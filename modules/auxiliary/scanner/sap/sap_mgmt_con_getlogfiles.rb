@@ -41,8 +41,8 @@ class Metasploit4 < Msf::Auxiliary
 				Opt::RPORT(50013),
 				OptString.new('URI', [false, 'Path to the SAP Management Console ', '/']),
 				OptString.new('RFILE', [ true, 'The name of the file to download ', 'sapstart.log']),
-				OptString.new('FILETYPE', [true, 'Specify LOGFILE or TRACEFILE', 'TRACEFILE']),
-				OptBool.new('GETALL', [ false, 'Download all available files (WARNING: may take long!)', false]),
+				OptEnum.new('FILETYPE', [true, 'Specify LOGFILE or TRACEFILE', 'TRACEFILE', ['TRACEFILE','LOGFILE']]),
+				OptBool.new('GETALL', [ false, 'Download all available files (WARNING: may take a long time!)', false])
 			], self.class)
 		register_autofilter_ports([ 50013 ])
 		deregister_options('RHOST')
