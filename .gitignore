@@ -19,6 +19,11 @@ external/source/javapayload/*/.project
 external/source/javapayload/*/.settings
 external/source/javapayload/*/bin
 external/source/javapayload/*/target
+external/source/javapayload/*/*/.classpath
+external/source/javapayload/*/*/.project
+external/source/javapayload/*/*/.settings
+external/source/javapayload/*/*/bin
+external/source/javapayload/*/*/target
 # Packaging directory
 pkg
 tags

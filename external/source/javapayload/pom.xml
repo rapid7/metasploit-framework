@@ -44,7 +44,7 @@
 	</build>
 	<modules>
 		<module>javapayload</module>
-		<!-- <module>meterpreter</module> -->
+		<module>meterpreter</module>
 	</modules>
 	<prerequisites>
 		<maven>3.0</maven>

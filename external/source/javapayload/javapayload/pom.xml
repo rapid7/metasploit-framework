@@ -11,9 +11,6 @@
 	<packaging>jar</packaging>
 	<name>JavaPayload for Metasploit</name>
 	<url>http://www.metasploit.com/</url>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>javax.servlet</groupId>
