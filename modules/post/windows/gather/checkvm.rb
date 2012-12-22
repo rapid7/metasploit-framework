@@ -19,71 +19,56 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Gather Virtual Environment Detection',
-				'Description'   => %q{
-					This module attempts to determine whether the system is running
-					inside of a virtual environment and if so, which one. This
-					module supports detectoin of Hyper-V, VMWare, Virtual PC,
-					VirtualBox, Xen, and QEMU.
-					},
-				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-				'Platform'      => [ 'win' ],
-				'SessionTypes'  => [ 'meterpreter' ]
-			))
+			'Name'          => 'Windows Gather Virtual Environment Detection',
+			'Description'   => %q{
+				This module attempts to determine whether the system is running
+				inside of a virtual environment and if so, which one. This
+				module supports detectoin of Hyper-V, VMWare, Virtual PC,
+				VirtualBox, Xen, and QEMU.
+			},
+			'License'       => MSF_LICENSE,
+			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
+			'Platform'      => [ 'win' ],
+			'SessionTypes'  => [ 'meterpreter' ]
+		))
 	end
 
 	# Method for detecting if it is a Hyper-V VM
 	def hypervchk(session)
-		begin
-			vm = false
-			sfmsvals = registry_enumkeys('HKLM\SOFTWARE\Microsoft')
-			if sfmsvals.include?("Hyper-V")
+		vm = false
+		sfmsvals = registry_enumkeys('HKLM\SOFTWARE\Microsoft')
+		if sfmsvals and sfmsvals.include?("Hyper-V")
+			vm = true
+		elsif sfmsvals and sfmsvals.include?("VirtualMachine")
+			vm = true
+		end
+		if not vm
+			if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System','SystemBiosVersion') =~ /vrtual/i
 				vm = true
-			elsif sfmsvals.include?("VirtualMachine")
+			end
+		end
+		if not vm
+			srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\FADT')
+			if srvvals and srvvals.include?("VRTUAL")
 				vm = true
 			end
-		rescue
 		end
 		if not vm
-			begin
-				if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System','SystemBiosVersion').data.downcase =~ /vrtual/
-					vm = true
-				end
-			rescue
+			srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\RSDT')
+			if srvvals and srvvals.include?("VRTUAL")
+				vm = true
 			end
 		end
 		if not vm
-			begin
-				srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\FADT')
-				if srvvals.include?("VRTUAL")
-					vm = true
-				end
-			rescue
-			end
-		end
-		if not vm
-			begin
-				srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\RSDT')
-				if srvvals.include?("VRTUAL")
-					vm = true
-				end
-			rescue
-			end
-		end
-		if not vm
-			begin
-				srvvals = registry_enumkeys('HKLM\SYSTEM\ControlSet001\Services')
-				if srvvals.include?("vmicheartbeat")
-					vm = true
-				elsif srvvals.include?("vmicvss")
-					vm = true
-				elsif srvvals.include?("vmicshutdown")
-					vm = true
-				elsif srvvals.include?("vmicexchange")
-					vm = true
-				end
-			rescue
+			srvvals = registry_enumkeys('HKLM\SYSTEM\ControlSet001\Services')
+			if srvvals and srvvals.include?("vmicheartbeat")
+				vm = true
+			elsif srvvals and srvvals.include?("vmicvss")
+				vm = true
+			elsif srvvals and srvvals.include?("vmicshutdown")
+				vm = true
+			elsif srvvals and srvvals.include?("vmicexchange")
+				vm = true
 			end
 		end
 		if vm
@@ -101,34 +86,25 @@ class Metasploit3 < Msf::Post
 	# Method for checking if it is a VMware VM
 	def vmwarechk(session)
 		vm = false
-		begin
-			srvvals = registry_enumkeys('HKLM\SYSTEM\ControlSet001\Services')
-			if srvvals.include?("vmdebug")
-				vm = true
-			elsif srvvals.include?("vmmouse")
-				vm = true
-			elsif srvvals.include?("VMTools")
-				vm = true
-			elsif srvvals.include?("VMMEMCTL")
-				vm = true
-			end
-		rescue
+		srvvals = registry_enumkeys('HKLM\SYSTEM\ControlSet001\Services')
+		if srvvals and  srvvals.include?("vmdebug")
+			vm = true
+		elsif srvvals and srvvals.include?("vmmouse")
+			vm = true
+		elsif srvvals and srvvals.include?("VMTools")
+			vm = true
+		elsif srvvals and srvvals.include?("VMMEMCTL")
+			vm = true
 		end
 		if not vm
-			begin
-				if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System\BIOS','SystemManufacturer').data.downcase =~ /vmware/
-					vm = true
-				end
-			rescue
+			if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System\BIOS','SystemManufacturer') =~ /vmware/i
+				vm = true
 			end
 		end
 		if not vm
-			begin
-				key_path = 'HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0'
-				if registry_getvaldata(key_path,'Identifier').data.downcase =~ /vmware/
-					vm = true
-				end
-			rescue
+			key_path = 'HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0'
+			if registry_getvaldata(key_path,'Identifier') =~ /vmware/i
+				vm = true
 			end
 		end
 		if not vm
@@ -172,16 +148,13 @@ class Metasploit3 < Msf::Post
 			end
 		end
 		if not vm
-			begin
-				srvvals = registry_enumkeys('HKLM\SYSTEM\ControlSet001\Services')
-				if srvvals.include?("vpc-s3")
-					vm = true
-				elsif srvvals.include?("vpcuhub")
-					vm = true
-				elsif srvvals.include?("msvmmouf")
-					vm = true
-				end
-			rescue
+			srvvals = registry_enumkeys('HKLM\SYSTEM\ControlSet001\Services')
+			if srvvals and srvvals.include?("vpc-s3")
+				vm = true
+			elsif srvvals and srvvals.include?("vpcuhub")
+				vm = true
+			elsif srvvals and srvvals.include?("msvmmouf")
+				vm = true
 			end
 		end
 		if vm
@@ -211,62 +184,44 @@ class Metasploit3 < Msf::Post
 			end
 		end
 		if not vm
-			begin
-				srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\DSDT')
-				if srvvals.include?("VBOX__")
-					vm = true
-				end
-			rescue
+			srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\DSDT')
+			if srvvals and srvvals.include?("VBOX__")
+				vm = true
 			end
 		end
 		if not vm
-			begin
-				srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\FADT')
-				if srvvals.include?("VBOX__")
-					vm = true
-				end
-			rescue
+			srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\FADT')
+			if srvvals and srvvals.include?("VBOX__")
+				vm = true
 			end
 		end
 		if not vm
-			begin
-				srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\RSDT')
-				if srvvals.include?("VBOX__")
-					vm = true
-				end
-			rescue
+			srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\RSDT')
+			if srvvals and srvvals.include?("VBOX__")
+				vm = true
 			end
 		end
 		if not vm
-			begin
-				key_path = 'HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0'
-				if registry_getvaldata(key_path,'Identifier').data.downcase =~ /vbox/
-					vm = true
-				end
-			rescue
+			key_path = 'HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0'
+			if registry_getvaldata(key_path,'Identifier') =~ /vbox/i
+				vm = true
 			end
 		end
 		if not vm
-			begin
-				if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System','SystemBiosVersion').data.downcase =~ /vbox/
-					vm = true
-				end
-			rescue
+			if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System','SystemBiosVersion') =~ /vbox/i
+				vm = true
 			end
 		end
 		if not vm
-			begin
-				srvvals = registry_enumkeys('HKLM\SYSTEM\ControlSet001\Services')
-				if srvvals.include?("VBoxMouse")
-					vm = true
-				elsif srvvals.include?("VBoxGuest")
-					vm = true
-				elsif srvvals.include?("VBoxService")
-					vm = true
-				elsif srvvals.include?("VBoxSF")
-					vm = true
-				end
-			rescue
+			srvvals = registry_enumkeys('HKLM\SYSTEM\ControlSet001\Services')
+			if srvvals and srvvals.include?("VBoxMouse")
+				vm = true
+			elsif srvvals and srvvals.include?("VBoxGuest")
+				vm = true
+			elsif srvvals and srvvals.include?("VBoxService")
+				vm = true
+			elsif srvvals and srvvals.include?("VBoxSF")
+				vm = true
 			end
 		end
 		if vm
@@ -295,47 +250,35 @@ class Metasploit3 < Msf::Post
 			end
 		end
 		if not vm
-			begin
-				srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\DSDT')
-				if srvvals.include?("Xen")
-					vm = true
-				end
-			rescue
+			srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\DSDT')
+			if srvvals and srvvals.include?("Xen")
+				vm = true
 			end
 		end
 		if not vm
-			begin
-				srvvals = registry_enumkeys('HARDWARE\ACPI\FADT')
-				if srvvals.include?("Xen")
-					vm = true
-				end
-			rescue
+			srvvals = registry_enumkeys('HARDWARE\ACPI\FADT')
+			if srvvals and srvvals.include?("Xen")
+				vm = true
 			end
 		end
 		if not vm
-			begin
-				srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\RSDT')
-				if srvvals.include?("Xen")
-					vm = true
-				end
-			rescue
+			srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\RSDT')
+			if srvvals and srvvals.include?("Xen")
+				vm = true
 			end
 		end
 		if not vm
-			begin
-				srvvals = registry_enumkeys('HKLM\SYSTEM\ControlSet001\Services')
-				if srvvals.include?("xenevtchn")
-					vm = true
-				elsif srvvals.include?("xennet")
-					vm = true
-				elsif srvvals.include?("xennet6")
-					vm = true
-				elsif srvvals.include?("xensvc")
-					vm = true
-				elsif srvvals.include?("xenvdb")
-					vm = true
-				end
-			rescue
+			srvvals = registry_enumkeys('HKLM\SYSTEM\ControlSet001\Services')
+			if srvvals and srvvals.include?("xenevtchn")
+				vm = true
+			elsif srvvals and srvvals.include?("xennet")
+				vm = true
+			elsif srvvals and srvvals.include?("xennet6")
+				vm = true
+			elsif srvvals and srvvals.include?("xensvc")
+				vm = true
+			elsif srvvals and srvvals.include?("xenvdb")
+				vm = true
 			end
 		end
 		if vm
@@ -353,23 +296,17 @@ class Metasploit3 < Msf::Post
 	def qemuchk(session)
 		vm = false
 		if not vm
-			begin
-				key_path = 'HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0'
-				if registry_getvaldata(key_path,'Identifier').data.downcase =~ /qemu/
-					print_status("This is a QEMU/KVM Virtual Machine")
-					vm = true
-				end
-			rescue
+			key_path = 'HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0'
+			if registry_getvaldata(key_path,'Identifier') =~ /qemu/i
+				print_status("This is a QEMU/KVM Virtual Machine")
+				vm = true
 			end
 		end
 		if not vm
-			begin
-				key_path = 'HKLM\HARDWARE\DESCRIPTION\System\CentralProcessor\0'
-				if registry_getvaldata(key_path,'ProcessorNameString').data.downcase =~ /qemu/
-					print_status("This is a QEMU/KVM Virtual Machine")
-					vm = true
-				end
-			rescue
+			key_path = 'HKLM\HARDWARE\DESCRIPTION\System\CentralProcessor\0'
+			if registry_getvaldata(key_path,'ProcessorNameString') =~ /qemu/i
+				print_status("This is a QEMU/KVM Virtual Machine")
+				vm = true
 			end
 		end
 
