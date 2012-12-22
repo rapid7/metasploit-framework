@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -30,7 +26,7 @@ class Metasploit3 < Msf::Post
 					},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-				'Version'       => '$Revision$',
+				'Version'       => '',
 				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
@@ -49,6 +45,36 @@ class Metasploit3 < Msf::Post
 			end
 			key.close
 		rescue
+		end
+		if not vm
+			begin
+				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\DESCRIPTION\System', KEY_READ)
+				if key.query_value('SystemBiosVersion').data.downcase =~ /vrtual/
+					vm = true
+				end
+				key.close
+			rescue
+			end
+		end
+		if not vm
+			begin
+				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\ACPI\FADT', KEY_READ)
+				srvvals = key.enum_key
+				if srvvals.include?("VRTUAL")
+					vm = true
+				end
+			rescue
+			end
+		end
+		if not vm
+			begin
+				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\ACPI\RSDT', KEY_READ)
+				srvvals = key.enum_key
+				if srvvals.include?("VRTUAL")
+					vm = true
+				end
+			rescue
+			end
 		end
 		if not vm
 			begin
@@ -92,7 +118,17 @@ class Metasploit3 < Msf::Post
 		end
 		if not vm
 			begin
-				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0')
+				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\DESCRIPTION\System\BIOS', KEY_READ)
+				if key.query_value('SystemManufacturer').data.downcase =~ /vmware/
+					vm = true
+				end
+				key.close
+			rescue
+			end
+		end
+		if not vm
+			begin
+				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0', KEY_READ)
 				if key.query_value('Identifier').data.downcase =~ /vmware/
 					vm = true
 				end
@@ -113,6 +149,7 @@ class Metasploit3 < Msf::Post
 				end
 			end
 		end
+
 		if vm
 			print_status("This is a VMware Virtual Machine")
 			return "VMWare"
