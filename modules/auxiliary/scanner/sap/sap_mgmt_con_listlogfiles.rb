@@ -39,7 +39,7 @@ class Metasploit4 < Msf::Auxiliary
 			[
 				Opt::RPORT(50013),
 				OptString.new('URI', [false, 'Path to the SAP Management Console ', '/']),
-				OptString.new('FILETYPE', [true, 'Specify LOGFILE or TRACEFILE', 'TRACEFILE']),
+				OptEnum.new('FILETYPE', [true, 'Specify LOGFILE or TRACEFILE', 'TRACEFILE', ['TRACEFILE','LOGFILE']])
 			], self.class)
 		register_autofilter_ports([ 50013 ])
 		deregister_options('RHOST')
@@ -52,11 +52,7 @@ class Metasploit4 < Msf::Auxiliary
 	def run_host(ip)
 		res = send_request_cgi({
 			'uri'      => normalize_uri(datastore['URI']),
-			'method'   => 'GET',
-			'headers'  =>
-				{
-					'User-Agent' => datastore['UserAgent']
-				}
+			'method'   => 'GET'
 		}, 25)
 
 		if not res
