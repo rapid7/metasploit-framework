@@ -58,6 +58,97 @@ module Accounts
 		return nil
 	end
 
+	##
+	# add_user(username, password = nil, comment = nil, dont_expire_pwd = false, server_name = nil)
+	#
+	# Summary:
+	#   Adds a user account to the given server (or local, if none specified)
+	#
+	# Parameters
+	#   username        - The username of the account to add (not-qualified, e.g. BOB)
+	#   password        - The password to be assigned to the new user account
+	#   comment         - A comment or description of the user account
+	#   dont_expire_pwd - toggles the "Password never expires" flag on the account
+	#   server_name     - DNS or NetBIOS name of remote server on which to add user
+	#
+	# Returns:
+	#   One of the following:
+	#      :success          - Account was created successfully
+	#      :access_denied    - You do not have permission to add the account
+	#      :user_exists      - A user account with +username+ already exists
+	#      :group_exists     - Group exists (unclear why NetUserAdd would return this, but it does)
+	#      :invalid_server   - The server name provided was invalid
+	#      :not_on_primary   - Operation allowed only on domain controller
+	#      :invalid_password - Password violates password policy somehow (complexity, length, etc.)
+	#
+	#   OR nil if there was an exceptional windows error (example: ran out of memory)
+	#
+	# Caveats:
+	#   nil is returned if there is an *exceptional* windows error. That error is printed.
+	#   Everything other than ':success' signifies failure
+	##
+	def add_user(username, password = nil, comment = nil, dont_expire_pwd = false, server_name = nil)
+		addr_username = set_value(username)
+		addr_password = set_value(password)
+		addr_comment  = set_value(comment)
+
+		if addr_username.nil? || addr_password.nil? || addr_comment.nil?
+			return nil
+		end
+
+		acct_flags = 'UF_SCRIPT | UF_NORMAL_ACCOUNT'
+		if dont_expire_pwd
+			acct_flags << ' | UF_DONT_EXPIRE_PASSWD'
+		end
+
+		usri1 = [ # struct USER_INFO_1
+			addr_username, # usri1_name
+			addr_password, # usri1_password
+			0, # usri1_password_age
+			1, # usri1_priv = USER_PRIV_USER
+			0, # usri1_home_dir
+			addr_comment, # usri1_comment
+			client.railgun.const(acct_flags), # usri1_flags
+			0 # usri1_script_path
+		].pack("VVVVVVVV")
+
+		result = client.railgun.netapi32.NetUserAdd(server_name, 1, usri1, 4)
+
+		client.railgun.multi([
+			["kernel32", "VirtualFree", [addr_username, 0, MEM_RELEASE]],
+			["kernel32", "VirtualFree", [addr_password, 0, MEM_RELEASE]],
+			["kernel32", "VirtualFree", [addr_comment, 0, MEM_RELEASE]]
+		])
+
+		case result['return']
+		when 0
+			return :success
+		when client.railgun.const('ERROR_ACCESS_DENIED')
+			return :access_denied
+		when 2224 # NERR_UserExists
+			return :user_exists
+		when 2223 # NERR_GroupExists
+			return :group_exists
+		when 2351 # NERR_InvalidComputer
+			return :invalid_server
+		when 2226 # NERR_NotPrimary
+			return :not_on_primary
+		when 2245 # NERR_PasswordTooShort
+			return :invalid_password
+		else
+			error = result['GetLastError']
+			if error != 0
+				print_error "Unexpected Windows System Error #{error}"
+			else
+				# Uh... we shouldn't be here
+				print_error "add_user unexpectedly returned #{result['return']}"
+			end
+		end
+
+		# If we got here, then something above failed
+		return nil
+	end
+
 
 	##
 	# resolve_sid(sid, system_name = nil)
@@ -176,6 +267,35 @@ module Accounts
 			#SidTypeLabel
 			:integrity_label
 		][enum_value - 1]
+	end
+
+	##
+	# Writes a ruby string as null-terminated Unicode string to host's memory.
+	# Returns:
+	#     The affected memory address, if all goes well
+	#     Or 0 if value argument is nil
+	#     Or nil if an error occurs
+	##
+	def set_value(value)
+		if value == nil
+			return 0
+		else
+			data = client.railgun.util.str_to_uni_z(value)
+			result = client.railgun.kernel32.VirtualAlloc(nil, data.length, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE)
+
+			if result['return'].nil?
+				print_error "Failed to allocate memory on the host."
+				return nil
+			end
+
+			addr = result['return']
+			if client.railgun.memwrite(addr, data, data.length)
+				return addr
+			else
+				print_error "Failed to write to memory on the host."
+				return nil
+			end
+		end
 	end
 end # Accounts
 end # Windows
