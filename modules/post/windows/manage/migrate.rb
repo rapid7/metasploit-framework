@@ -44,14 +44,14 @@ class Metasploit3 < Msf::Post
 		print_status("Current server process: #{server.name} (#{server.pid})")
 
 		target_pid = nil
-
+		
 		if datastore['SPAWN']
 			print_status("Spawning notepad.exe process to migrate to")
 			target_pid = create_temp_proc
-		elsif datastore['PID']
+		elsif datastore['PID'] != 0
 			target_pid = datastore['PID']
 		elsif datastore['NAME']
-			target_pid = session.sys.process[datstore['NAME']]
+			target_pid = session.sys.process[datastore['NAME']]
 		end
 
 		if not target_pid
