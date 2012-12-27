@@ -1,0 +1,27 @@
+**This should never appear in Metasploit Framework's master branch!**
+
+The components under the unstable-* directories are unstable, in that
+they are untested, unverified, or otherwise incomplete. Many may be
+useful, but all require some level of work to get into the Metasploit
+master branch.
+
+In order to load the modules specifically, use:
+
+$ ./msfconsole -m unstable-modules/
+
+Unstable scripts and plugins may be referenced by full pathname
+normally.
+
+In order to help move these out of unstable and into the master
+branch, please fork the Metasploit framework project and send pull
+requests with your fixes back to the unstable branch. If you're
+reading this, you already probably have a GitHub account and are
+already familiar with the mechanics of forking and branching.
+Specifically, you probably know everything discussed on:
+
+https://github.com/rapid7/metasploit-framework/wiki
+
+Thanks for taking a look at these unstable modules!
+
+- Tod Beardsley, todb[at]metasploit[dot]com
+
