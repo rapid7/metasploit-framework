@@ -91,7 +91,7 @@ class Metasploit3 < Msf::Post
 				contents = config.read
 
 				# look for lines containing string 'password'
-				password= contents.split("\n").grep(/password/)
+				password = contents.split("\n").grep(/password/)
 				if password.nil?
 					# file doesn't contain a password
 					print_status("#{file} does not contain any saved passwords")
