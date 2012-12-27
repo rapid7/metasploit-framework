@@ -53,8 +53,12 @@ class Metasploit3 < Msf::Post
 		password = ::Rex::Text.to_utf8(password)
 
 		user, pass = password.scan(/[[:print:]]+/)
-		return pass.nil? or pass.empty?
-		print_good("Decrypted Username #{user} Password: #{pass}")
+		if pass.nil? or pass.empty?
+			print_status("Username found: #{user}, but no password")
+			pass = ''
+		else
+			print_good("Decrypted Username #{user} Password: #{pass}")
+		end
 
 		store_creds(user, pass)
 	end
