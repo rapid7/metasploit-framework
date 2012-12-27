@@ -64,9 +64,9 @@ class Metasploit3 < Msf::Post
 		if db
 			report_auth_info(
 				:host   => client.sock.peerhost,
-				:port   => 445,
+				:port   => 5222,
 				:ptype  => 'password',
-				:sname  => 'smb',
+				:sname  => 'spark',
 				:user   => credentials[0],
 				:pass   => credentials[1],
 				:duplicate_ok => true,
