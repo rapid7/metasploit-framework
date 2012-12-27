@@ -98,7 +98,6 @@ class Metasploit3 < Msf::Auxiliary
 
 	def icmp_listener
 		# start icmp listener
-		$stderr.puts "Starting for real"
 
 		print_status("ICMP Listener started on #{@interface} (#{@iface_ip}). Monitoring for trigger packet containing #{datastore['START_TRIGGER']}")
 		if datastore['FNAME_IN_PACKET']
@@ -115,8 +114,6 @@ class Metasploit3 < Msf::Auxiliary
 			cap.stream.each do | pkt |
 				packet = PacketFu::Packet.parse(pkt)
 				data = packet.payload[4..-1]
-				$stderr.puts packet.inspect
-				$stderr.puts packet.inspect_hex
 
 				if packet.is_icmp? and data =~ /#{datastore['START_TRIGGER']}/
 					# start of new file detected
