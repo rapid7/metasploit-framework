@@ -19,15 +19,16 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super(update_info(info,
 			'Name'           => 'Windows Gather Spark IM Password Extraction',
-			'Description'    => %q{ This module will enumerate passwords stored by the Spark IM client.
-				The encryption key is publicly known. This module will not only extract encrypted password
-				but will also decrypt password using public key.
+			'Description'    => %q{
+						This module will enumerate passwords stored by the Spark IM client.
+					The encryption key is publicly known. This module will not only extract encrypted
+					password but will also decrypt password using public key.
 				},
 			'License'        => MSF_LICENSE,
 			'Author'         =>
 				[
-					'Brandon McCann "zeknox" <bmccann [at] accuvant.com>',
-					'Thomas McCarthy "smilingraccoon" <smilingraccoon [at] gmail.com>'
+					'Brandon McCann "zeknox" <bmccann[at]accuvant.com>',
+					'Thomas McCarthy "smilingraccoon" <smilingraccoon[at]gmail.com>'
 				],
 			'SessionTypes'   => [ 'meterpreter' ],
 			'References'     =>
