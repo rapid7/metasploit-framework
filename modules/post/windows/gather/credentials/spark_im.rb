@@ -112,8 +112,8 @@ class Metasploit3 < Msf::Post
 
 					# call method to decrypt hash
 					decrypt(hash)
-					config.close
 				end
+				config.close
 			end
 		end
 	end
