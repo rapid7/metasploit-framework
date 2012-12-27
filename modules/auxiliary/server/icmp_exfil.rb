@@ -127,7 +127,10 @@ class Metasploit3 < Msf::Auxiliary
 					# -(Windows) netsh firewall set opmode mode = ENABLE
 
 					if packet.icmp_type == 0 and packet.icmp_code == 0 and packet.ip_saddr == @iface_ip
-						raise RuntimeError , "Dectected ICMP echo response. Disable OS ICMP handling!"
+						print_error "Dectected ICMP echo response. You must either disable ICMP handling"
+						print_error "or try a more restrictive BPF filter. You might try:"
+						print_error " set BPF_FILTER icmp and not src #{datastore['LOCALIP']}"
+						return
 					end
 
 					if @record
