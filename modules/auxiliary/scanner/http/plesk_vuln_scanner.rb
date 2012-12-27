@@ -6,7 +6,13 @@ class Metasploit3 < Msf::Auxiliary
 				super(
 						'Name'           => 'Plesk 8.6.0 Vulnerability Scanner',
 						'Description'    => 'This module scans network host[s] for vulnerable plesk installations',
-						'Author'         => 'eSecForte Technologies Pvt. Ltd. <sploitlab[at]esecforte.com>',
+						'Author'         =>
+							[
+								'Gaurav Baruah <gaurav[at]esecforte.com>',
+								'Sachin Kumar <sachin[at]esecforte.com>',
+								'Vivek Razdan <vivek[at]esecforte.com>'
+								#'eSecForte Technologies Pvt. Ltd. <sploitlab[at]esecforte.com>',
+							],
 						'License'        => MSF_LICENSE,
 						'References'     =>
 							[
@@ -17,8 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 					)
 					register_options(
 						[
-								Opt::RPORT(8880),
-								OptBool.new('SSL', [false, 'Use SSL', false]),
+								Opt::RPORT(8880)
 						], self.class)
 		end
 
@@ -26,9 +31,10 @@ class Metasploit3 < Msf::Auxiliary
 			data = <<-EOF
 <?xml version="1.0" encoding="UTF-8"?><packet version="1.5.1.0">
 <dns><add_rec><domain_id>1</domain_id><type>A</type><host>mail</host>
-<value>192.0.2.12</value></add_rec></dns></packet>
+<value>127.0.0.1</value></add_rec></dns></packet>
 EOF
 			if(connect())
+				passwd = rand_text_alpha(6)
 				res = send_request_raw({
 				'uri'	  => "/enterprise/control/agent.php",
 				'method'  => 'POST',
@@ -36,7 +42,7 @@ EOF
 				'headers' =>
 				{
 					'HTTP_AUTH_LOGIN'	 => "'",
-					'HTTP_AUTH_PASSWD'	 => 'test',
+					'HTTP_AUTH_PASSWD'	 => passwd,
 					'Content-Type'       => 'text/xml',
 					'Content-Length'     => data.length,
 				}
