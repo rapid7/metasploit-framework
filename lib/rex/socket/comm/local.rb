@@ -365,20 +365,31 @@ class Rex::Socket::Comm::Local
 			
 			routes = {shost => sport.to_s, host => port.to_s}
 			
-			ni_packet = packet_type << [0].pack('c*') << [route_info_version].pack('c*') << [ni_version].pack('c*') << [num_of_entries].pack('c*') << [talk_mode].pack('c*') << [0].pack('c*') << [0].pack('c*') << [num_rest_nodes].pack('c*')
+			ni_packet = [
+				packet_type,
+				0,
+				route_info_version,
+				ni_version,
+				num_of_entries,
+				talk_mode,
+				0,
+				0,
+				num_rest_nodes
+			].pack("A8c7")
 
 			first = false
 
-			routes.each do|host,port|
-  			  route_item = host + [0].pack("C") + port + [0, 0].pack("c*")
+			routes.each do |host,port|
+					route_item = [host, 0, port, 0, 0].pack("A*CA*CC")
   			  if first
-    		    route_data = route_data << [route_item.length].pack('N') << route_item
+						route_data = [route_data, route_item.length, route_item].pack("A*NA*")
     		    first = true
   			  else
     		    route_data << route_item
   			  end
 		    end
 
+			# TODO: This is really hard to follow
 			ni_packet << [route_data.length - 4].pack('N') 
 			ni_packet << route_data
 			ni_packet = [ni_packet.length].pack('N') << ni_packet
