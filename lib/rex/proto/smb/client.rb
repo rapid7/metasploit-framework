@@ -1899,7 +1899,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 					resp = find_next(last_search_id, last_offset, last_filename)
 					search_next = 1 # Flip bit so response params will parse correctly
 				end
-			end until eos != 0 or last_offset == 0 
+			end until eos != 0 or last_offset == 0
 		rescue ::Exception
 			raise $!
 		end
@@ -1919,6 +1919,42 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		].pack('vvvVv') + last_filename + "\x00" # Last filename returned from find_first or find_next
 		resp = trans2(CONST::TRANS2_FIND_NEXT2, parm, '')
 		return resp # Returns the FIND_NEXT2 response packet for parsing by the find_first function
+	end
+
+	# Recursively search through directories, to a max depth, searching for filenames
+	# that matches regex and returns path to matching files.
+	def file_search(current_path, regex, depth)
+		depth -= 1
+		if depth < 0
+			return
+		end
+
+		results = find_first("#{current_path}*")
+		files = []
+
+		results.each do |result|
+			if result[0] =~ /^(\.){1,2}$/  # Ignore . ..
+				next
+			end
+
+			if result[1]['attr'] & CONST::SMB_EXT_FILE_ATTR_DIRECTORY > 0
+				search_path = "#{current_path}#{result[0]}\\"
+				begin
+					files << file_search(search_path, regex, depth).flatten.compact
+				rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
+					# Ignore permission errors
+					unless e.get_error(e.error_code) == 'STATUS_ACCESS_DENIED'
+						raise e
+					end
+				end
+			else
+				if result[0] =~ regex
+					files << "#{current_path}#{result[0]}"
+				end
+			end
+		end
+
+		return files.flatten.compact
 	end
 
 	# Creates a new directory on the mounted tree
