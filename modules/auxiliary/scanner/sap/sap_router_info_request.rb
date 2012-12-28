@@ -61,7 +61,7 @@ class Metasploit4 < Msf::Auxiliary
 		version = 0x26
 		cmd = 0x2
 		count = 0
-		connected = 'false'
+		connected = true
 		port = datastore['RPORT']
 		source = ''
 		destination = ''
@@ -92,7 +92,7 @@ class Metasploit4 < Msf::Auxiliary
 			print_error("#{host_port} - Exception #{e.class} #{e} #{e.backtrace}")
 			connected = false
 		end
-		if connected != false
+		if connected
 			print_good("#{host_port} - Connected to saprouter")
 			print_good("#{host_port} - Sending ROUTER_ADM packet info request")
 			sock.put(ni_packet)
