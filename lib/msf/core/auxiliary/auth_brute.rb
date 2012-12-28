@@ -22,6 +22,8 @@ module Auxiliary::AuthBrute
 			OptBool.new('VERBOSE', [ true, "Whether to print output for all attempts", true]),
 			OptBool.new('BLANK_PASSWORDS', [ false, "Try blank passwords for all users", true]),
 			OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", true]),
+			OptBool.new('DB_USERPASS', [false,"Try each user/password couple stored in the current database",true]),
+			OptBool.new('DB_ADD_ALL', [false,"Add all user and passwords in the current database to the lists (This will try every user with every password)",false]),
 			OptBool.new('STOP_ON_SUCCESS', [ true, "Stop guessing when a credential works for a host", false]),
 		], Auxiliary::AuthBrute)
 
@@ -177,6 +179,14 @@ module Auxiliary::AuthBrute
 		return credentials if datastore['USERPASS_FILE'] =~ /^memory:/
 		users = load_user_vars(credentials)
 		passwords = load_password_vars(credentials)
+
+		if datastore['DB_ADD_ALL']
+			myworkspace.creds.each do |o|
+				users << o.user
+				passwords << o.pass unless o.ptype =~ /hash/
+			end
+		end
+
 		cleanup_files()
 		if datastore['USER_AS_PASS']
 			credentials = gen_user_as_password(users, credentials)
@@ -184,6 +194,13 @@ module Auxiliary::AuthBrute
 		if datastore['BLANK_PASSWORDS']
 			credentials = gen_blank_passwords(users, credentials)
 		end
+		if datastore['DB_USERPASS']
+			myworkspace.creds.each do |o|
+				credentials << [o.user, o.pass] unless o.ptype =~ /hash/
+			end
+		end
+		
+
 		credentials.concat(combine_users_and_passwords(users, passwords))
 		credentials.uniq!
 		credentials = just_uniq_users(credentials) if @strip_passwords
