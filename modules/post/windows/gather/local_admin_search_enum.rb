@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Post
 			@adv = client.railgun.advapi32
 
 			# Get domain and domain controller if options left blank
-			if datastore['DOMAIN'].nil?
+			if datastore['DOMAIN'].nil? or datastore['DOMAIN'].empty?
 				user = client.sys.config.getuid
 				datastore['DOMAIN'] = user.split('\\')[0]
 			end
@@ -104,7 +104,6 @@ class Metasploit3 < Msf::Post
 			winsessions = client.railgun.netapi32.NetWkstaUserEnum("\\\\#{host}", 1, 4, -1, 4, 4, nil)
 		rescue ::Exception => e
 			print_error("Issue enumerating users on #{host}")
-			vprint_error(e.backtrace)
 			return userlist
 		end
 
@@ -119,7 +118,7 @@ class Metasploit3 < Msf::Post
 			mem = client.railgun.memread(startmem, 8*count)
 		rescue ::Exception => e
 			print_error("Issue reading memory for #{host}")
-			vprint_error(e.backtrace)
+			vprint_error(e.to_s)
 			return userlist
 		end
 		# For each entry returned, get domain and name of logged in user
@@ -162,26 +161,25 @@ class Metasploit3 < Msf::Post
 	def enum_groups(user)
 		grouplist = ""
 
-		dc = "\\\\#{datastore['DOMAIN_CONTROLLER']}"
+		dc = "\\\\#{@domain_controller}"
 		begin
 			# Connect to DC and enumerate groups of user
 			usergroups = client.railgun.netapi32.NetUserGetGroups(dc, user, 0, 4, -1, 4, 4)
-
 		rescue ::Exception => e
 			print_error("Issue connecting to DC, try manually setting domain and DC")
-			vprint_error(e.backtrace)
+			vprint_error(e.to_s)
 			return grouplist
 		end
 
-			count = usergroups['totalentries']
-			startmem = usergroups['bufptr']
-			base = 0
+		count = usergroups['totalentries']
+		startmem = usergroups['bufptr']
+		base = 0
 
 		begin
 			mem = client.railgun.memread(startmem, 8*count)
 		rescue ::Exception => e
 			print_error("Issue reading memory for groups for user #{user}")
-			vprint_error(e.backtrace)
+			vprint_error(e.to_s)
 			return grouplist
 		end
 
