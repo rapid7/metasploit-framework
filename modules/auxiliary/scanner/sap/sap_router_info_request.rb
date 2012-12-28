@@ -17,7 +17,7 @@ class Metasploit4 < Msf::Auxiliary
 		super(
 			'Name' => 'SAPRouter Admin Request',
 			'Description' => %q{
-				Display remote route information.
+				Display the remote connection table from a SAPRouter.
 				},
 			'References' => [
 					[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ],
@@ -56,6 +56,7 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
+		host_port = "#{ip}:#{datastore['RPORT']}"
 		type = 'ROUTER_ADM'
 		version = 0x26
 		cmd = 0x2
@@ -82,21 +83,21 @@ class Metasploit4 < Msf::Auxiliary
 		begin
 			connect
 		rescue ::Rex::ConnectionRefused
-			print_status("#{ip}:#{datastore['RPORT']} - connection refused")
+			print_status("#{host_port} - Connection refused")
 			connected = false
 		rescue ::Rex::ConnectionError, ::IOError, ::Timeout::Error
-			print_status("#{ip}:#{datastore['RPORT']} - connection timeout")
+			print_status("#{host_port} - Connection timeout")
 			connected = false
 		rescue ::Exception => e
-			print_error("#{ip}:#{datastore['RPORT']} - exception #{e.class} #{e} #{e.backtrace}")
+			print_error("#{host_port} - Exception #{e.class} #{e} #{e.backtrace}")
 			connected = false
 		end
 		if connected != false
-			print_good("connected to saprouter")
-			print_good("sending ROUTER_ADM packet info request")
+			print_good("#{host_port} - Connected to saprouter")
+			print_good("#{host_port} - Sending ROUTER_ADM packet info request")
 			sock.put(ni_packet)
 			packet_len = sock.read(4).unpack('H*')[0].to_i 16
-			print_good("got INFO response")
+			print_good("#{host_port} - Got INFO response")
 			while packet_len !=0
 				count += 1
 				case count
@@ -122,7 +123,7 @@ class Metasploit4 < Msf::Auxiliary
 						end
 						packet_len = sock.recv(4).unpack('H*')[0].to_i 16
 					else
-						print_error("no connected clients :'(")
+						print_error("#{host_port} - No connected clients")
 						sock.recv(packet_len)
 						packet_len = sock.recv(4).unpack('H*')[0].to_i 16
 					end
@@ -150,6 +151,7 @@ class Metasploit4 < Msf::Auxiliary
 				end
 			end
 			disconnect
+		# TODO: This data should be saved somewhere. A note on the host would be nice.
 		print(saptbl.to_s)
 		end
 	end
