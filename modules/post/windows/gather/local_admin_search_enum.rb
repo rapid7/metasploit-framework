@@ -124,30 +124,30 @@ class Metasploit3 < Msf::Post
 		# For each entry returned, get domain and name of logged in user
 		begin
 			count.times{|i|
-					temp = {}
-					userptr = mem[(base + 0),4].unpack("V*")[0]
-					temp[:user] = client.railgun.memread(userptr,255).split("\0\0")[0].split("\0").join
-					nameptr = mem[(base + 4),4].unpack("V*")[0]
-					temp[:domain] = client.railgun.memread(nameptr,255).split("\0\0")[0].split("\0").join
+				temp = {}
+				userptr = mem[(base + 0),4].unpack("V*")[0]
+				temp[:user] = client.railgun.memread(userptr,255).split("\0\0")[0].split("\0").join
+				nameptr = mem[(base + 4),4].unpack("V*")[0]
+				temp[:domain] = client.railgun.memread(nameptr,255).split("\0\0")[0].split("\0").join
 
-					# Ignore if empty or machine account
-					unless temp[:user].empty? or temp[:user][-1, 1] == "$"
+				# Ignore if empty or machine account
+				unless temp[:user].empty? or temp[:user][-1, 1] == "$"
 
-						# Check if enumerated user's domain matches supplied domain, if there was
-						# an error, or if option disabled
-						data = ""
-						if datastore['DOMAIN'].upcase == temp[:domain].upcase and not @dc_error and datastore['ENUM_GROUPS']
-							data << " - Groups: #{enum_groups(temp[:user]).chomp(", ")}"
-						end
-						line = "\tLogged in user:\t#{temp[:domain]}\\#{temp[:user]}#{data}\n"
-
-						# Write user and groups to notes database
-						db_note(host, "#{temp[:domain]}\\#{temp[:user]}#{data}", "localadmin.user.loggedin")
-						userlist << line unless userlist.include? line
-
+					# Check if enumerated user's domain matches supplied domain, if there was
+					# an error, or if option disabled
+					data = ""
+					if datastore['DOMAIN'].upcase == temp[:domain].upcase and not @dc_error and datastore['ENUM_GROUPS']
+						data << " - Groups: #{enum_groups(temp[:user]).chomp(", ")}"
 					end
+					line = "\tLogged in user:\t#{temp[:domain]}\\#{temp[:user]}#{data}\n"
 
-					base = base + 8
+					# Write user and groups to notes database
+					db_note(host, "#{temp[:domain]}\\#{temp[:user]}#{data}", "localadmin.user.loggedin")
+					userlist << line unless userlist.include? line
+
+				end
+
+				base = base + 8
 			}
 		rescue ::Exception => e
 			print_error("Issue enumerating users on #{host}")
