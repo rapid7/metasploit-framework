@@ -1,9 +1,10 @@
 ##
-# ## This file is part of the Metasploit Framework and may be subject to
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+#   http://metasploit.com/framework/
 ##
+
 
 require 'msf/core'
 require 'rex'
@@ -17,34 +18,41 @@ class Metasploit3 < Msf::Post
 	include Msf::Post::Common
 
 	def initialize(info={})
-		super(
-			'Name'         => 'Windows Local Admin Search',
+		super(update_info(info,
+			'Name'         => 'Windows Gather Local Admin Search',
 			'Description'  => %q{
-				This module will identify systems in a given range that the
+					This module will identify systems in a given range that the
 				supplied domain user (should migrate into a user pid) has administrative
-				access to by using the windows api OpenSCManagerA to establishing a handle
+				access to by using the Windows API OpenSCManagerA to establishing a handle
 				to the remote host. Additionally it can enumerate logged in users and group
-				membership via windows api NetWkstaUserEnum and NetUserGetGroups.
-				},
+				membership via Windows API NetWkstaUserEnum and NetUserGetGroups.
+			},
 			'License'      => MSF_LICENSE,
-			'Version'      => '$Revision: 14767 $',
-			'Author'       => [ 'Brandon McCann "zeknox" <bmccann [at] accuvant.com>', 'Thomas McCarthy "smilingraccoon" <smilingraccoon [at] gmail.com>', 'Royce Davis "r3dy" <rdavis [at] accuvant.com>'],
+			'Author'       =>
+				[
+					'Brandon McCann "zeknox" <bmccann[at]accuvant.com>',
+					'Thomas McCarthy "smilingraccoon" <smilingraccoon[at]gmail.com>',
+					'Royce Davis "r3dy" <rdavis[at]accuvant.com>'
+				],
 			'Platform'     => [ 'windows'],
 			'SessionTypes' => [ 'meterpreter' ]
-			)
+			))
 
 		register_options(
 			[
 				OptBool.new('ENUM_USERS', [ true, 'Enumerates logged on users.', true]),
 				OptBool.new('ENUM_GROUPS', [ false, 'Enumerates groups for identified users.', true]),
-				OptString.new('DOMAIN', [false, 'Domain to enumerate user\'s groups for', nil]),
-				OptString.new('DOMAIN_CONTROLLER', [false, 'Domain Controller to query groups', nil])
-
+				OptString.new('DOMAIN', [false, 'Domain to enumerate user\'s groups for']),
+				OptString.new('DOMAIN_CONTROLLER', [false, 'Domain Controller to query groups'])
 			], self.class)
 	end
 
 	def setup
 		super
+
+		# This datastore option can be modified during runtime.
+		# Saving it here so the modified value remains with this module.
+		@domain_controller = datastore['DOMAIN_CONTROLLER']
 
 		if is_system?
 			# running as SYSTEM and will not pass any network credentials
@@ -59,7 +67,7 @@ class Metasploit3 < Msf::Post
 				datastore['DOMAIN'] = user.split('\\')[0]
 			end
 
-			if datastore['DOMAIN_CONTROLLER'].nil? and datastore['ENUM_GROUPS']
+			if @domain_controll.nil? and datastore['ENUM_GROUPS']
 				@dc_error = false
 
 				# Uses DC which applied policy since it would be a DC this device normally talks to
@@ -72,7 +80,7 @@ class Metasploit3 < Msf::Post
 
 				# Check if RSOP data exists, if not disable group check
 				unless res =~ /does not have RSOP data./
-					datastore['DOMAIN_CONTROLLER'] = /Group Policy was applied from:\s*(.*)\s*/.match(res)[1].chomp
+					@domain_controller = /Group Policy was applied from:\s*(.*)\s*/.match(res)[1].chomp
 				else
 					@dc_error = true
 					print_error("User never logged into device, will not enumerate groups or manually specify DC.")
@@ -89,13 +97,19 @@ class Metasploit3 < Msf::Post
 	# http://msdn.microsoft.com/en-us/library/windows/desktop/aa370669(v=vs.85).aspx
 	# enumerate logged in users
 	def enum_users(host)
+		userlist = Array.new
+
 		begin
 			# Connect to host and enumerate logged in users
 			winsessions = client.railgun.netapi32.NetWkstaUserEnum("\\\\#{host}", 1, 4, -1, 4, 4, nil)
 		rescue ::Exception => e
 			print_error("Issue enumerating users on #{host}")
-			print_error(e.backtrace) if datastore['VERBOSE']
+			vprint_error(e.backtrace)
+			return userlist
 		end
+
+		return userlist if winsessions.nil?
+
 		count = winsessions['totalentries'] * 2
 		startmem = winsessions['bufptr']
 
@@ -105,7 +119,8 @@ class Metasploit3 < Msf::Post
 			mem = client.railgun.memread(startmem, 8*count)
 		rescue ::Exception => e
 			print_error("Issue reading memory for #{host}")
-			print_error(e.backtrace) if datastore['VERBOSE']
+			vprint_error(e.backtrace)
+			return userlist
 		end
 		# For each entry returned, get domain and name of logged in user
 		begin
@@ -137,7 +152,7 @@ class Metasploit3 < Msf::Post
 			}
 		rescue ::Exception => e
 			print_error("Issue enumerating users on #{host}")
-			print_error(e.backtrace) if datastore['VERBOSE']
+			vprint_error(e.backtrace)
 		end
 		return userlist
 	end
@@ -154,7 +169,8 @@ class Metasploit3 < Msf::Post
 
 		rescue ::Exception => e
 			print_error("Issue connecting to DC, try manually setting domain and DC")
-			print_error(e.backtrace) if datastore['VERBOSE']
+			vprint_error(e.backtrace)
+			return grouplist
 		end
 
 			count = usergroups['totalentries']
@@ -165,7 +181,8 @@ class Metasploit3 < Msf::Post
 			mem = client.railgun.memread(startmem, 8*count)
 		rescue ::Exception => e
 			print_error("Issue reading memory for groups for user #{user}")
-			print_error(e.backtrace) if datastore['VERBOSE']
+			vprint_error(e.backtrace)
+			return grouplist
 		end
 
 		begin
@@ -185,7 +202,8 @@ class Metasploit3 < Msf::Post
 
 		rescue ::Exception => e
 			print_error("Issue enumerating groups for user #{user}, check domain")
-			print_error(e.backtrace) if datastore['VERBOSE']
+			vprint_error(e.backtrace)
+			return grouplist
 		end
 
 		return grouplist.chomp("\n\t-   ")
@@ -226,21 +244,17 @@ class Metasploit3 < Msf::Post
 
 	# Write to notes database
 	def db_note(host, data, type)
-		if db
-			report_note(
-				:type  => type,
-				:data  => data,
-				:host  => host,
-				:update => :unique_data
-			)
-		end
+		report_note(
+			:type  => type,
+			:data  => data,
+			:host  => host,
+			:update => :unique_data
+		)
 	end
 
 	# Write to loot database
 	def db_loot(host, user, type)
-		if db
-			p = store_loot(type, 'text/plain', host, "#{host}:#{user}", 'hosts_localadmin.txt', user)
-			print_status("User data stored in: #{p}") if datastore['VERBOSE']
-		end
+		p = store_loot(type, 'text/plain', host, "#{host}:#{user}", 'hosts_localadmin.txt', user)
+		vprint_status("User data stored in: #{p}")
 	end
 end
