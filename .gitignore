@@ -22,3 +22,12 @@ tags
 *.swp
 *.orig
 *.rej
+*.user
+*.old
+*.filters
+Upgrade
+Debug
+workspace
+ipch
+*.ipch
+*.vcxproj.filters
