@@ -60,7 +60,6 @@ DEPENDENCIES
   activerecord
   activesupport (>= 3.0.0)
   metasploit_data_models!
-  pg (>= 0.11)
   rake
   redcarpet
   rspec (>= 2.12)
