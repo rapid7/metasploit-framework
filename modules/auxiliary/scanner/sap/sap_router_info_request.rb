@@ -5,34 +5,32 @@
 # http://metasploit.com/framework/
 ##
 
-##
-# This module is based on, inspired by, or is a port of a plugin available in
-# the Onapsis Bizploit Opensource ERP Penetration Testing framework -
-# http://www.onapsis.com/research-free-solutions.php.
-# Mariano Nunez (the author of the Bizploit framework) helped me in my efforts
-# in producing the Metasploit modules and was happy to share his knowledge and
-# experience - a very cool guy. I'd also like to thank Chris John Riley,
-# Ian de Villiers and Joris van de Vis who have Beta tested the modules and
-# provided excellent feedback. Some people just seem to enjoy hacking SAP :)
-##
-
 require 'msf/core'
 
 class Metasploit4 < Msf::Auxiliary
 
+	include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
-	include Msf::Exploit::Remote::Tcp
 
 	def initialize
 		super(
 			'Name' => 'SAPRouter Admin Request',
 			'Description' => %q{
-				SAPRouter Admin Request (display remote route information).
-				http://help.sap.com/saphelp_nw70ehp3/helpdata/en/48/6c68b01d5a350ce10000000a42189d/content.htm
+				Display remote route information.
 				},
-			'References' => [[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]],
-			'Author' => [ 'nmonkee' ],
+			'References' => [
+					[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ],
+					[ 'URL', 'http://help.sap.com/saphelp_nw70ehp3/helpdata/en/48/6c68b01d5a350ce10000000a42189d/content.htm'],
+					[ 'URL', 'http://www.onapsis.com/research-free-solutions.php' ] # Bizsploit Opensource ERP Pentesting Framework
+				],
+			'Author' => [
+				'nomnkee',
+				'Mariano Nunez',    # Wrote Bizploit, helped on this module, very cool guy
+				'Chris John Riley', # Testing
+				'Ian de Villiers',  # Testing
+				'Joris van de Vis'  # Testing
+			 ],
 			'License' => BSD_LICENSE
 			)
 		register_options(
