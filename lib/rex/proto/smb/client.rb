@@ -1046,6 +1046,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 		pkt = CONST::SMB_TREE_CONN_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
+		pkt['Payload']['SMB'].v['TreeID'] = 0
 
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TREE_CONNECT_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18

@@ -33,8 +33,9 @@ class Msf::ModuleSet < Hash
 
   # Create an instance of the supplied module by its name
   #
-  # @param [String] name the module reference name.
-  # @return [Msf::Module] instance of the named module.
+  # @param name [String] The module reference name.
+  # @return [Msf::Module,nil] Instance of the named module or nil if it
+  #   could not be created.
   def create(name)
     klass = fetch(name, nil)
     instance = nil
@@ -42,15 +43,7 @@ class Msf::ModuleSet < Hash
     # If there is no module associated with this class, then try to demand
     # load it.
     if klass.nil? or klass == Msf::SymbolicModule
-      # If we are the root module set, then we need to try each module
-      # type's demand loading until we find one that works for us.
-      if module_type.nil?
-        Msf::MODULE_TYPES.each { |type|
-          framework.modules.load_cached_module(type, name)
-        }
-      else
-        framework.modules.load_cached_module(module_type, name)
-      end
+      framework.modules.load_cached_module(module_type, name)
 
       recalculate
 
@@ -168,17 +161,6 @@ class Msf::ModuleSet < Hash
   def on_module_reload(mod)
   end
 
-  # @!attribute [rw] postpone_recalc
-  #   Whether or not recalculations should be postponed.  This is used
-  #   from the context of the {#each_module_list} handler in order to
-  #   prevent the demand loader from calling recalc for each module if
-  #   it's possible that more than one module may be loaded.  This field
-  #   is not initialized until used.
-  #
-  #   @return [true] if {#recalculate} should not be called immediately
-  #   @return [false] if {#recalculate} should be called immediately
-  attr_accessor :postpone_recalculate
-
   # Dummy placeholder to recalculate aliases and other fun things.
   #
   # @return [void]
@@ -193,8 +175,6 @@ class Msf::ModuleSet < Hash
     create(name)
     (self[name]) ? true : false
   end
-
-  protected
 
   # Adds a module with a the supplied name.
   #
@@ -226,25 +206,24 @@ class Msf::ModuleSet < Hash
     mod
   end
 
+  protected
+
   # Load all modules that are marked as being symbolic.
   #
   # @return [void]
   def demand_load_modules
+    found_symbolics = false
     # Pre-scan the module list for any symbolic modules
     self.each_pair { |name, mod|
       if (mod == Msf::SymbolicModule)
-        self.postpone_recalculate = true
-
+        found_symbolics = true
         mod = create(name)
-
         next if (mod.nil?)
       end
     }
 
     # If we found any symbolic modules, then recalculate.
-    if (self.postpone_recalculate)
-      self.postpone_recalculate = false
-
+    if (found_symbolics)
       recalculate
     end
   end
@@ -326,7 +305,6 @@ class Msf::ModuleSet < Hash
   #
   #   @return [String] type of modules
   attr_writer   :module_type
-  attr_accessor :module_history
 
   # Ranks modules based on their constant rank value, if they have one.  Modules without a Rank are treated as if they
   # had {Msf::NormalRanking} for Rank.

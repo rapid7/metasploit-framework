@@ -18,6 +18,8 @@ Ruby
    Copyright (c) 2004 David R. Halliday
  - The Zip library located under lib/zip.
    Copyright (C) 2002-2004 Thomas Sondergaard
+ - FastLib located at lib/fastlib.rb
+   Copyright (C) 2011 Rapid7
  - Gem components located under lib/gemcache/
    * rdoc - RDoc is Copyright (c) 2001-2003 Dave Thomas, The Pragmatic Programmers.
    Portions (c) 2007-2011 Eric Hodel.  Portions copyright others, see individual
@@ -84,42 +86,6 @@ Ruby
      PURPOSE.
 
 ````
-
-
-PacketFu
-========
- - The PacketFu library located under lib/packetfu.
-   Copyright (c) 2008-2012, Tod Beardsley
-
-````
-Copyright (c) 2008-2012, Tod Beardsley
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in the
-      documentation and/or other materials provided with the distribution.
-    * Neither the name of Tod Beardsley nor the
-      names of its contributors may be used to endorse or promote products
-      derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY TOD BEARDSLEY ''AS IS'' AND ANY
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL TOD BEARDSLEY BE LIABLE FOR ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-````
-
-
 
 GPL
 ===
@@ -1016,15 +982,15 @@ OpenSSL License
 
 MIT
 ===
- - The SSHKey library located under lib/sshkey.
+ - The SSHKey library located under lib/sshkey/
    Copyright (c) 2011 James Miller
- - The Net::SSH library located under lib/net/ssh.
+ - The Net::SSH library located under lib/net/ssh/
    Copyright (c) 2008 Jamis Buck <jamis@37signals.com>
- - Anemone located under lib/anemone
+ - Anemone located under lib/anemone/
    Copyright (c) 2009 Vertive, Inc.
  - RKelly located under lib/rkelly/
    Copyright (c) 2007, 2008, 2009 Aaron Patterson, John Barnette
- - Gem components located under lib/gemcache
+ - Gem components located under lib/gemcache/
    * actionmailer - Copyright (c) 2004-2011 David Heinemeier Hansson
    * actionpack - Copyright (c) 2004-2011 David Heinemeier Hansson
    * activemodel - Copyright (c) 2004-2011 David Heinemeier Hansson
@@ -1032,23 +998,29 @@ MIT
    * activeresource - Copyright (c) 2006-2011 David Heinemeier Hansson
    * activesupport - Copyright (c) 2005-2011 David Heinemeier Hansson
    * authlogic - Copyright (c) 2011 Ben Johnson of Binary Logic
+   * builder - Copyright (c) 2003-2012 Jim Weirich (jim.weirich@gmail.com)
    * carrierwave - Copyright (c) 2008-2012 Jonas Nicklas
    * chunky_png - Copyright (c) 2010 Willem van Bergen
+   * coderay - By Rob Aldred
    * daemons - Copyright (c) 2005-2012 Thomas Uehlinger
    * diff-lcs - Copyright 2004–2011 Austin Ziegler
    * formtastic - Copyright (c) 2008-2010 Justin French
    * fssm - Copyright (c) 2011 Travis Tilley
    * hike - Copyright (c) 2011 Sam Stephenson
    * i18n - Copyright (c) 2008 The Ruby I18n team
+   * journey - Copyright (c) 2011 Aaron Patterson
    * jquery-rails - Copyright (c) 2010 Andre Arko
    * liquid - Copyright (c) 2005, 2006 Tobias Luetke
+   * metasploit_data_models - Copyright (C) 2012, Rapid7, Inc.
    * method_source - Copyright (c) 2011 John Mair (banisterfiend)
    * multi_json - Copyright (c) 2010 Michael Bleigh, Josh Kalderimis, Erik Michaels-Ober, and Intridea, Inc.
    * rack - Copyright (c) 2007, 2008, 2009, 2010 Christian Neukirchen <purl.org/net/chneukirchen>
    * rack-cache - Copyright (c) 2008 Ryan Tomayko <http://tomayko.com/about>
    * rack-ssl - Copyright (c) 2010 Joshua Peek
+   * railties - No copyright statement provided
    * rake - Copyright (c) 2003, 2004 Jim Weirich
    * slop - Copyright (c) 2012 Lee Jarvis
+   * spork - Copyright (c) 2009 Tim Harper
    * sprockets - Copyright (c) 2011 Sam Stephenson, Copyright (c) 2011 Joshua Peek
    * state_machine - Copyright (c) 2006-2012 Aaron Pfeifer
    * thor - Copyright (c) 2008 Yehuda Katz
@@ -1079,5 +1051,41 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+````
+
+3-Clause BSD
+============
+ - The PacketFu library located under lib/packetfu/
+   Copyright (c) 2008-2012, Tod Beardsley
+ - The Kiss FFT library located under external/ruby-kissfft/
+   Copyright (c) 2003-2010 Mark Borgerding
+ - The Kiss FFT wrapper layer, located under external/ruby-kissfft/
+   Copyright (C) 2009-2012 H D Moore < hdm[at]rapid7.com >
+ - Armitage, located under external/source/armitage and data/armitage/
+   Copyright (C) 2010-2012 Raphael Mudge
+
+````
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of Tod Beardsley nor the
+      names of its contributors may be used to endorse or promote products
+      derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY TOD BEARDSLEY ''AS IS'' AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL TOD BEARDSLEY BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ````
 

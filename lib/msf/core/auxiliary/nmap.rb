@@ -224,7 +224,7 @@ def nmap_validate_arg(str)
 	disallowed_characters = /([\x00-\x19\x21\x23-\x26\x28\x29\x3b\x3e\x60\x7b\x7c\x7d\x7e-\xff])/n
 	badchar = str[disallowed_characters]
 	if badchar
-		print_error "Malformed nmap arguments (contains '#{c}'): #{str}"
+		print_error "Malformed nmap arguments (contains '#{badchar}'): #{str}"
 		return false
 	end
 	# Check for commas outside of quoted arguments

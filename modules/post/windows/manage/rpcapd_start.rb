@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Enable Remote Packet Capture Service',
+			'Name'          => 'Windows Manage Remote Packet Capture Service Starter',
 			'Description'   => %q{
 					This module enables the Remote Packet Capture System (rpcapd service)
 				included in the default installation of Winpcap. The module allows you to set up

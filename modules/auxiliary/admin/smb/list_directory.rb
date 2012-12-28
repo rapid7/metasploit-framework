@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
 			connect()
 			smb_login()
 			print_status("Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
-						self.simple.connect("#{datastore['SMBSHARE']}")
+						self.simple.connect("\\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}")
 			if datastore['RPATH']
 				print_status("Listing \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}\\#{datastore['RPATH']}'...")
 			end

@@ -76,7 +76,7 @@ class Metasploit4 < Msf::Auxiliary
 
 		begin
 			res = send_request_raw({
-				'uri'     => "/#{datastore['URI']}",
+				'uri'     => normalize_uri(datastore['URI']),
 				'method'  => 'POST',
 				'data'    => data,
 				'headers' =>
@@ -141,7 +141,7 @@ class Metasploit4 < Msf::Auxiliary
 
 		begin
 			res = send_request_raw({
-				'uri'     => "/#{datastore['URI']}",
+				'uri'     => normalize_uri(datastore['URI']),
 				'method'  => 'POST',
 				'data'    => data,
 				'headers' =>
