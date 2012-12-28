@@ -8,7 +8,7 @@ describe Rex::Post::Meterpreter::PacketParser do
   }
   before(:each) do
     @req_packt = Rex::Post::Meterpreter::Packet.new(
-          Rex::Post::Meterpreter::PACKET_TYPE_REQUEST, 
+          Rex::Post::Meterpreter::PACKET_TYPE_REQUEST,
           "test_method")
     @raw = @req_packt.to_r
     @sock = double('Socket')
