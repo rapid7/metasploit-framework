@@ -108,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
 			simple.connect("\\\\#{ip}\\#{datastore['SMBSHARE']}")
 			outfile = simple.open(text, 'ro')
 			data = outfile.read
-			vscs = Array.new
+			vscs = []
 			simple.disconnect("\\\\#{ip}\\#{datastore['SMBSHARE']}")
 			cleanup = "%COMSPEC% /C del /F /Q %SYSTEMDRIVE%#{text} & del /F /Q #{bat}"
 			result = psexec(cleanup)
