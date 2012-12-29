@@ -10,10 +10,11 @@ objects += external/source/meterpreter/source/bionic/compiled/libssl.so
 objects += external/source/meterpreter/source/bionic/compiled/libsupport.so
 objects += external/source/meterpreter/source/bionic/compiled/libmetsrv_main.so
 objects += external/source/meterpreter/source/bionic/compiled/libpcap.so
-objects += data/meterpreter/msflinker_linux_x86.bin
-objects += data/meterpreter/ext_server_stdapi.lso
-objects += data/meterpreter/ext_server_sniffer.lso
-objects += data/meterpreter/ext_server_networkpug.lso
+
+outputs  = data/meterpreter/msflinker_linux_x86.bin
+outputs += data/meterpreter/ext_server_stdapi.lso
+outputs += data/meterpreter/ext_server_sniffer.lso
+outputs += data/meterpreter/ext_server_networkpug.lso
 
 BIONIC=$(PWD)/external/source/meterpreter/source/bionic
 LIBC=$(BIONIC)/libc
@@ -26,7 +27,7 @@ OSSL_CFLAGS=-Os -Wl,--hash-style=sysv -march=i386 -m32 -nostdinc -nostdlib -fno-
 
 workspace = external/source/meterpreter/workspace
 
-all: $(objects)
+all: $(objects) $(outputs)
 
 debug: DEBUG=true
 # I'm 99% sure this is the wrong way to do this
