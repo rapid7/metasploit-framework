@@ -25,7 +25,12 @@ unless ARGV.length > 0
 	exit!
 end    
 
-@db = File.open(ARGV[0], 'rb')
+if File.exists?(ARGV[0])
+	@db = File.open(ARGV[0], 'rb')
+else
+	puts "Error opening Datatable"
+	exit!
+end
 @line = @db.readline.to_s
 @record = @line.split("\t")
 @nthash = @record.index("ATTk589914")
