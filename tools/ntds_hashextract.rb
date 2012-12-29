@@ -6,7 +6,7 @@
 
 msfbase = __FILE__
 while File.symlink?(msfbase)
-        msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', 'lib')))
@@ -21,14 +21,14 @@ require 'rex/registry/hive'
 require 'msf/core'
 
 unless ARGV.length > 0
-	puts "USAGE: ./ntds_hashextract.rb <datatable> <SYSTEM HIVE>\r\n\r\n"
+	print_status("USAGE: ./ntds_hashextract.rb <datatable> <SYSTEM HIVE>\r\n\r\n")
 	exit!
-end    
+end
 
 if File.exists?(ARGV[0])
 	@db = File.open(ARGV[0], 'rb')
 else
-	puts "Error opening Datatable"
+	print_status("Error opening Datatable")
 	exit!
 end
 @line = @db.readline.to_s
@@ -86,7 +86,7 @@ def get_boot_key(hive)
 		end
 		bootkey << [tmp].pack("H*")
 	end
-	keybytes = bootkey.unpack("C*")              
+	keybytes = bootkey.unpack("C*")
 	p = [8, 5, 4, 2, 11, 9, 13, 3, 0, 6, 1, 12, 14, 10, 15, 7]
 	scrambled = ""
 	p.each do |i|
@@ -126,14 +126,14 @@ def decrypt_single_hash(rid, enc_hash)
 	d1 = OpenSSL::Cipher::Cipher.new('des-ecb')
 	d1.padding = 0
 	d1.key = des_k1
-    
+
 	d2 = OpenSSL::Cipher::Cipher.new('des-ecb')
 	d2.padding = 0
 	d2.key = des_k2
-  
+
 	p1 = d1.decrypt.update(enc_hash[0,8])
 	p1 << d1.final
-  
+
 	p2 = d2.decrypt.update(enc_hash[8,(enc_hash.length - 1)])
 	p2 << d2.final
 	hash = p1 + p2
@@ -165,12 +165,12 @@ def string_to_key(s)
 	key << ( ((s[4].unpack('C')[0]&0x1F)<<2) | (s[5].unpack('C')[0]>>6) )
 	key << ( ((s[5].unpack('C')[0]&0x3F)<<1) | (s[6].unpack('C')[0]>>7) )
 	key << ( s[6].unpack('C')[0]&0x7F)
-    
+
 	0.upto(7).each do |i|
 		key[i] = (key[i]<<1)
 		key[i] = @parity[key[i]]
 	end
-    
+
 	return key.pack("<C*")
 end
 
@@ -199,6 +199,6 @@ end
 		else
 			lmhash = decrypt_single_hash(sid, lmhash)
 		end
-		puts username + ":" + sid.to_s + ":" + lmhash + ":" + nthash + ":::"
+		print_status("#{username}:#{sid.to_s}:#{lmhash}:#{nthash}:::")
 	end
 end
