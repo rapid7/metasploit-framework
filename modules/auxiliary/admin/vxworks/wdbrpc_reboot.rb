@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					['OSVDB', '66842'],
 					['URL', 'http://blog.metasploit.com/2010/08/vxworks-vulnerabilities.html'],
-					['URL', 'http://www.kb.cert.org/vuls/id/362332']
+					['US-CERT-VU', '362332']
 				],
 			'Actions'     =>
 				[

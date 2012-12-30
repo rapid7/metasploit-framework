@@ -168,12 +168,12 @@ class Driver < Msf::Ui::Driver
 
 		# Parse any specified database.yml file
 		if framework.db.usable and not opts['SkipDatabaseInit']
-		
+
 			# Append any migration paths necessary to bring the database online
 			if opts['DatabaseMigrationPaths']
 				opts['DatabaseMigrationPaths'].each {|m| framework.db.add_migration_path(m) }
 			end
-		
+
 			# Look for our database configuration in the following places, in order:
 			#	command line arguments
 			#	environment variable
@@ -208,7 +208,7 @@ class Driver < Msf::Ui::Driver
 							print_error("")
 						end
 
-						print_error("Failed to connect to the database: #{framework.db.error} #{db.inspect} #{framework.db.error.backtrace}")
+						print_error("Failed to connect to the database: #{framework.db.error}")
 					else
 						self.framework.modules.refresh_cache_from_database
 
@@ -228,10 +228,7 @@ class Driver < Msf::Ui::Driver
 
 			# Rebuild the module cache in a background thread
 			self.framework.threads.spawn("ModuleCacheRebuild", true) do
-				self.framework.cache_thread = Thread.current
 				self.framework.modules.refresh_cache_from_module_files
-				self.framework.cache_initialized = true
-				self.framework.cache_thread = nil
 			end
 		end
 
@@ -314,7 +311,7 @@ class Driver < Msf::Ui::Driver
 
 		print_error("Test Error: #{tname} - #{ftype} - #{data}")
 	end
-	
+
 	#
 	# Emit a new jUnit XML output file representing a success
 	#
@@ -531,7 +528,7 @@ class Driver < Msf::Ui::Driver
 			framework.modules.module_load_error_by_path.each do |path, error|
 				print_error("\t#{path}: #{error}")
 			end
-    end
+		end
 
 		framework.events.on_ui_start(Msf::Framework::Revision)
 
@@ -554,7 +551,7 @@ class Driver < Msf::Ui::Driver
 		case var.downcase
 			when "payload"
 
-				if (framework and framework.modules.valid?(val) == false)
+				if (framework and framework.payloads.valid?(val) == false)
 					return false
 				elsif (active_module)
 					active_module.datastore.clear_non_user_defined
@@ -724,4 +721,3 @@ end
 end
 end
 end
-

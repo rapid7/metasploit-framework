@@ -196,7 +196,7 @@ class DBManager
 
 		# Prefer the config file's pool setting
 		nopts['pool'] ||= 75
-		
+
 		# Prefer the config file's wait_timeout setting too
 		nopts['wait_timeout'] ||= 300
 
@@ -342,11 +342,13 @@ class DBManager
 		return if not self.migrated
 		return if self.modules_caching
 
+		self.framework.cache_thread = Thread.current
+
 		self.modules_cached  = false
 		self.modules_caching = true
 
 		::ActiveRecord::Base.connection_pool.with_connection {
-		
+
 		refresh = []
 		skipped = []
 
@@ -373,7 +375,6 @@ class DBManager
 		refresh.each  {|md| md.destroy }
 		refresh = nil
 
-		stime = Time.now.to_f
 		[
 			[ 'exploit',   framework.exploits  ],
 			[ 'auxiliary', framework.auxiliary ],
@@ -393,6 +394,9 @@ class DBManager
 				end
 			end
 		end
+
+		self.framework.cache_initialized = true
+		self.framework.cache_thread = nil
 
 		self.modules_cached  = true
 		self.modules_caching = false
@@ -460,16 +464,16 @@ class DBManager
 
 		res[:description] = m.description.to_s.strip
 
-		m.arch.map{ |x| 
-			bits << [ :arch, { :name => x.to_s } ] 
+		m.arch.map{ |x|
+			bits << [ :arch, { :name => x.to_s } ]
 		}
 
-		m.platform.platforms.map{ |x| 
-			bits << [ :platform, { :name => x.to_s.split('::').last.downcase } ] 
+		m.platform.platforms.map{ |x|
+			bits << [ :platform, { :name => x.to_s.split('::').last.downcase } ]
 		}
 
-		m.author.map{|x| 
-			bits << [ :author, { :name => x.to_s } ] 
+		m.author.map{|x|
+			bits << [ :author, { :name => x.to_s } ]
 		}
 
 		m.references.map do |r|
@@ -500,14 +504,14 @@ class DBManager
 			# Some modules are a combination, which means they are actually aggressive
 			res[:stance] = m.stance.to_s.index("aggressive") ? "aggressive" : "passive"
 
-			
+
 			m.class.mixins.each do |x|
 			 	bits << [ :mixin, { :name => x.to_s } ]
 			end
 		end
 
 		if(m.type == "auxiliary")
-	
+
 			m.actions.each_index do |i|
 				bits << [ :action, { :name => m.actions[i].name.to_s } ]
 			end
@@ -523,9 +527,9 @@ class DBManager
 
 		res
 	end
-	
-	
-	
+
+
+
 	#
 	# This provides a standard set of search filters for every module.
 	# The search terms are in the form of:
@@ -562,7 +566,7 @@ class DBManager
 		end
 
 		::ActiveRecord::Base.connection_pool.with_connection {
-	
+
 		where_q = []
 		where_v = []
 
@@ -572,12 +576,12 @@ class DBManager
 				case kt
 				when 'text'
 					xv = "%#{kv}%"
-					where_q << ' ( ' + 
+					where_q << ' ( ' +
 						'module_details.fullname ILIKE ? OR module_details.name ILIKE ? OR module_details.description ILIKE ? OR ' +
 						'module_authors.name ILIKE ? OR module_actions.name ILIKE ? OR module_archs.name ILIKE ? OR ' +
-						'module_targets.name ILIKE ? OR module_platforms.name ILIKE ? ' +
+						'module_targets.name ILIKE ? OR module_platforms.name ILIKE ? OR module_refs.name ILIKE ?' +
 						') '
-					where_v << [ xv, xv, xv, xv, xv, xv, xv, xv ]
+					where_v << [ xv, xv, xv, xv, xv, xv, xv, xv, xv ]
 				when 'name'
 					xv = "%#{kv}%"
 					where_q << ' ( module_details.fullname ILIKE ? OR module_details.name ILIKE ? ) '
@@ -594,7 +598,7 @@ class DBManager
 					# TODO
 				when 'type'
 					where_q << ' ( module_details.mtype = ? ) '
-					where_v << [ kv ]				
+					where_v << [ kv ]
 				when 'app'
 					where_q << ' ( module_details.stance = ? )'
 					where_v << [ ( kv == "client") ? "passive" : "active"  ]
@@ -604,11 +608,11 @@ class DBManager
 				when 'cve','bid','osvdb','edb'
 					where_q << ' ( module_refs.name = ? )'
 					where_v << [ kt.upcase + '-' + kv ]
-	
+
 				end
 			end
 		end
-		
+
 		qry = Mdm::ModuleDetail.select("DISTINCT(module_details.*)").
 			joins(
 				"LEFT OUTER JOIN module_authors   ON module_details.id = module_authors.module_detail_id " +
@@ -629,4 +633,3 @@ class DBManager
 
 end
 end
-

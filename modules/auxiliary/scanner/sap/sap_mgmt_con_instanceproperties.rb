@@ -49,12 +49,8 @@ class Metasploit4 < Msf::Auxiliary
 
 	def run_host(ip)
 		res = send_request_cgi({
-			'uri'      => "/#{datastore['URI']}",
-			'method'   => 'GET',
-			'headers' =>
-				{
-					'User-Agent' => datastore['UserAgent']
-				}
+			'uri'      => normalize_uri(datastore['URI']),
+			'method'   => 'GET'
 		}, 25)
 
 		if not res
@@ -89,7 +85,7 @@ class Metasploit4 < Msf::Auxiliary
 
 		begin
 			res = send_request_raw({
-				'uri'      => "/#{datastore['URI']}",
+				'uri'      => normalize_uri(datastore['URI']),
 				'method'   => 'POST',
 				'data'     => data,
 				'headers'  =>
@@ -213,7 +209,6 @@ class Metasploit4 < Msf::Auxiliary
 							:data => {:proto => "soap", :igsurl => igsurl})
 			end
 			if dbstring
-				dbstring = CGI.unescapeHTML(dbstring)
 				print_good("#{rhost}:#{rport} [SAP] ABAP DATABASE: #{dbstring}")
 				report_note(:host => rhost,
 							:proto => 'tcp',
@@ -223,7 +218,6 @@ class Metasploit4 < Msf::Auxiliary
 							:update => :unique_data )
 			end
 			if j2eedbstring
-				j2eedbstring = CGI.unescapeHTML(j2eedbstring)
 				print_good("#{rhost}:#{rport} [SAP] J2EE DATABASE: #{j2eedbstring}")
 				report_note(:host => rhost,
 							:proto => 'tcp',
@@ -234,10 +228,8 @@ class Metasploit4 < Msf::Auxiliary
 			end
 			if protectedweb
 				protectedweb_arr = protectedweb.split(",")
-				print_good("#{rhost}:#{rport} [SAP] Protected Webmethods (auth required) :")
-				protectedweb_arr.each do | pweb |
-					print_status("#{pweb}")
-				end
+				print_good("#{rhost}:#{rport} [SAP] Protected Webmethods (auth required) :::")
+				print_status("#{protectedweb}")
 				report_note(:host => rhost,
 							:proto => 'tcp',
 							:port => rport,
@@ -246,12 +238,14 @@ class Metasploit4 < Msf::Auxiliary
 							:update => :unique_data )
 			end
 			if webmethods
+				webmethods_output = [] # create empty webmethods array
 				webmethods_arr = webmethods.split(",")
-				print_good("#{rhost}:#{rport} [SAP] Unprotected Webmethods :")
+				print_good("#{rhost}:#{rport} [SAP] Unprotected Webmethods :::")
 				webmethods_arr.each do | webm |
-					# Only print webmethods not found in protectedweb_arr
-					print_status("#{webm}") if not protectedweb_arr.include?(webm)
+					# Only add webmethods not found in protectedweb_arr
+					webmethods_output << webm if not protectedweb_arr.include?(webm)
 				end
+				print_status("#{webmethods_output.join(',')}") if webmethods_output
 				report_note(:host => rhost,
 							:proto => 'tcp',
 							:port => rport,
@@ -259,7 +253,6 @@ class Metasploit4 < Msf::Auxiliary
 							:data => {:proto => "soap", :webmethods => webmethods},
 							:update => :unique_data )
 			end
-
 			return
 		elsif fault
 			print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")

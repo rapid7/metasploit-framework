@@ -48,11 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		res = send_request_cgi({
 			'uri'	 => "/dswsbobje/services/listServices",
-			'method'  => 'GET',
-				'headers' => {
-					'User-Agent' => datastore['UserAgent']
-				}
-
+			'method'  => 'GET'
 		}, 25)
 		return if not res
 
@@ -79,8 +75,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			res = send_request_raw({
-				'uri'		  => "/#{datastore['URI']}/services/Session",
-				'method'	   => 'POST',
+				'uri'     => normalize_uri(datastore['URI']) + "/services/Session",
+				'method'  => 'POST',
 				'data'	  => data,
 				'headers' =>
 					{
