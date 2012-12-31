@@ -72,6 +72,16 @@ begin
 		# Build the SSL connection
 		self.sslctx  = OpenSSL::SSL::SSLContext.new(version)
 
+		# Configure client certificate
+		if params and params.ssl_client_cert
+			self.sslctx.cert = OpenSSL::X509::Certificate.new(params.ssl_client_cert)
+		end
+
+		# Configure client key
+		if params and params.ssl_client_key
+			self.sslctx.key = OpenSSL::PKey::RSA.new(params.ssl_client_key)
+		end
+
 		# Configure the SSL context
 		# TODO: Allow the user to specify the verify mode and callback
 		# Valid modes:

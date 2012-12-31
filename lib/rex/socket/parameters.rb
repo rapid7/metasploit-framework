@@ -152,6 +152,22 @@ class Rex::Socket::Parameters
 			end
 		end
 
+		if (hash['SSLClientCert'] and ::File.file?(hash['SSLClientCert']))
+			begin
+				self.ssl_client_cert = ::File.read(hash['SSLClientCert'])
+			rescue ::Exception => e
+				elog("Failed to read client cert: #{e.class}: #{e}", LogSource)
+			end
+		end
+
+		if (hash['SSLClientKey'] and ::File.file?(hash['SSLClientKey']))
+			begin
+				self.ssl_client_key = ::File.read(hash['SSLClientKey'])
+			rescue ::Exception => e
+				elog("Failed to read client key: #{e.class}: #{e}", LogSource)
+			end
+		end
+
 		if hash['Proxies']
 			self.proxies = hash['Proxies'].split('-').map{|a| a.strip}.map{|a| a.split(':').map{|b| b.strip}}
 		end
