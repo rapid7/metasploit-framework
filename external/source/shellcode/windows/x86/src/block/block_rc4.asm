@@ -10,7 +10,7 @@
 ;        EDI - pointer to 0x100 bytes scratch space for S-box
 ; Direction flag has to be cleared
 ; Output: None. Data is decoded in place.
-; Clobbers: EAX, EBX, ECX, EDX, ESI, EBP (stack is not used)
+; Clobbers: EAX, EBX, ECX, EDX, EBP (stack is not used)
 
   ; Initialize S-box
   xor eax, eax           ; Start with 0
@@ -35,8 +35,7 @@ permute:
   
   
   ; decryption loop
-  xor ebx, ebx           ; Clear EBX and EDX (EAX is already cleared)
-  xor edx, edx
+  xor ebx, ebx           ; Clear EBX (EAX is already cleared)
 decrypt:
   inc al                 ; AL += 1
   add bl, [edi+eax]      ; BL += S[AL]
