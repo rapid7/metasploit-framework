@@ -28,6 +28,7 @@ Ruby
    * eventmachine - Copyright (C) 2006-07 by Francis Cianfrocca
    * json - Copyright Daniel Luz <dev at mernen dot com>
    * pg - Copyright (c) 1997-2012 by the authors
+   * thin - Copyright (c) Marc-Andre Cournoyer
 
 
 
@@ -1020,6 +1021,7 @@ MIT
    * metasploit_data_models - Copyright (c) 2012, Rapid7, Inc.
    * method_source - Copyright (c) 2011 John Mair (banisterfiend)
    * multi_json - Copyright (c) 2010 Michael Bleigh, Josh Kalderimis, Erik Michaels-Ober, and Intridea, Inc.
+   * nokogiri - Copyright (c) 2008 - 2012 Aaron Patterson, Mike Dalessio, Charles Nutter, Sergio Arbeo, Patrick Mahoney, Yoko Harada
    * polyglot - Copyright (c) 2007 Clifford Heath
    * prototype_legacy_helper - No copyright statement provided (unmaintained per https://github.com/rails/prototype_legacy_helper)
    * rack - Copyright (c) 2007, 2008, 2009, 2010 Christian Neukirchen <purl.org/net/chneukirchen>
