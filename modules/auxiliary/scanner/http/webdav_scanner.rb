@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 						wdtype = 'SHAREPOINT DAV'
 					end
 
-					print_status("#{target_host} (#{tserver}) has #{wdtype} ENABLED")
+					print_good("#{target_host} (#{tserver}) has #{wdtype} ENABLED")
 
 					report_note(
 						{
