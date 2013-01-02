@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # A Very simple Module to fuzzer some SMTP commands.
 # It allows to respect the order or just throw everything at it....
 ##

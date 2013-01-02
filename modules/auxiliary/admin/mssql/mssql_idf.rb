@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # Author: Robin Wood <robin@digininja.org> <http://www.digininja.org>
 # Version: 0.1
 #

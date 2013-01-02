@@ -1,7 +1,3 @@
-##
-# $Id$
-##
-
 require 'msf/core'
 require 'net/dns'
 require 'resolv'
