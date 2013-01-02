@@ -21,6 +21,7 @@ Ruby
  - FastLib located at lib/fastlib.rb
    Copyright (C) 2011 Rapid7
  - Gem components located under lib/gemcache/
+   * mime-types - Copyright (C) Austin Ziegler
    * rdoc - RDoc is Copyright (c) 2001-2003 Dave Thomas, The Pragmatic Programmers.
    Portions (c) 2007-2011 Eric Hodel.  Portions copyright others, see individual
    files for details.
@@ -997,28 +998,37 @@ MIT
    * activerecord - Copyright (c) 2004-2011 David Heinemeier Hansson
    * activeresource - Copyright (c) 2006-2011 David Heinemeier Hansson
    * activesupport - Copyright (c) 2005-2011 David Heinemeier Hansson
+   * acts_as_list - Copyright (c) 2007 David Heinemeier Hansson
+   * arel- Copyright (c) 2007-2010 Nick Kallen, Bryan Helmkamp, Emilio Tagua, Aaron Patterson
    * authlogic - Copyright (c) 2011 Ben Johnson of Binary Logic
    * builder - Copyright (c) 2003-2012 Jim Weirich (jim.weirich@gmail.com)
    * carrierwave - Copyright (c) 2008-2012 Jonas Nicklas
    * chunky_png - Copyright (c) 2010 Willem van Bergen
    * coderay - By Rob Aldred
    * daemons - Copyright (c) 2005-2012 Thomas Uehlinger
-   * diff-lcs - Copyright 2004–2011 Austin Ziegler
+   * diff-lcs - Copyright 2004-2011 Austin Ziegler
+   * erubis - copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
    * formtastic - Copyright (c) 2008-2010 Justin French
    * fssm - Copyright (c) 2011 Travis Tilley
    * hike - Copyright (c) 2011 Sam Stephenson
    * i18n - Copyright (c) 2008 The Ruby I18n team
+   * ice_cube - Copyright (c) 2010-2012 John Crepezzi
    * journey - Copyright (c) 2011 Aaron Patterson
    * jquery-rails - Copyright (c) 2010 Andre Arko
    * liquid - Copyright (c) 2005, 2006 Tobias Luetke
-   * metasploit_data_models - Copyright (C) 2012, Rapid7, Inc.
+   * mail - Copyright (c) 2009, 2010, 2011, 2012 Mikel Lindsaar
+   * metasploit_data_models - Copyright (c) 2012, Rapid7, Inc.
    * method_source - Copyright (c) 2011 John Mair (banisterfiend)
    * multi_json - Copyright (c) 2010 Michael Bleigh, Josh Kalderimis, Erik Michaels-Ober, and Intridea, Inc.
+   * polyglot - Copyright (c) 2007 Clifford Heath
+   * prototype_legacy_helper - No copyright statement provided (unmaintained per https://github.com/rails/prototype_legacy_helper)
    * rack - Copyright (c) 2007, 2008, 2009, 2010 Christian Neukirchen <purl.org/net/chneukirchen>
    * rack-cache - Copyright (c) 2008 Ryan Tomayko <http://tomayko.com/about>
    * rack-ssl - Copyright (c) 2010 Joshua Peek
+   * rack-test - Copyright (c) 2008-2009 Bryan Helmkamp, Engine Yard Inc.
    * railties - No copyright statement provided
    * rake - Copyright (c) 2003, 2004 Jim Weirich
+   * robots - Copyright (c) 2008 Kyle Maxwell, contributors
    * slop - Copyright (c) 2012 Lee Jarvis
    * spork - Copyright (c) 2009 Tim Harper
    * sprockets - Copyright (c) 2011 Sam Stephenson, Copyright (c) 2011 Joshua Peek
