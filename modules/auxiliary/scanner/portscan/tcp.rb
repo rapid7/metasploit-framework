@@ -19,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'TCP Port Scanner',
-			'Version'     => '$Revision$',
 			'Description' => 'Enumerate open TCP services',
 			'Author'      => [ 'hdm', 'kris katterjohn' ],
 			'License'     => MSF_LICENSE

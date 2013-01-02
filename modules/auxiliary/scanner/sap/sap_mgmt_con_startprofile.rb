@@ -16,7 +16,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'SAP Management Console getStartProfile',
-			'Version'      => '$Revision$',
 			'Description'  => %q{
 				This module simply attempts to acces the SAP startup profile
 				through the SAP Management Console SOAP Interface.

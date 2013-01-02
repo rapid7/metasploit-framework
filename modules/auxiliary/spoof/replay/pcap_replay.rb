@@ -14,7 +14,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Pcap Replay Utility',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				Replay a pcap capture file
 			},

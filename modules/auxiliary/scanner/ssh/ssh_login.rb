@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SSH Login Check Scanner',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				This module will test ssh logins on a range of machines and
 				report successful logins.  If you have loaded a database plugin

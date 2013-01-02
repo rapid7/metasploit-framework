@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 				This module scans for commonly found SAP Internet Communication Manager URLs
 				and outputs return codes for the user.
 			},
-			'Version'         => '$Revision$',
 			'Author'          => [ 'Chris John Riley' ],
 			'References'      =>
 				[

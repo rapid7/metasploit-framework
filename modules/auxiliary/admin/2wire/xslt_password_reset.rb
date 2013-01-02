@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 				configuration changes (such as resetting the password) as administrators.
 			},
 			'License'        => MSF_LICENSE,
-			'Version'        => "$Revision$",
 			'Author'         =>
 				[
 					'hkm [at] hakim.ws',              #Initial discovery, poc

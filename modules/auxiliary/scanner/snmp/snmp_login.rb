@@ -19,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SNMP Community Scanner',
-			'Version'     => '$Revision$',
 			'Description' => 'Scan for SNMP devices using common community names',
 			'Author'      => 'hdm',
 			'References'     =>

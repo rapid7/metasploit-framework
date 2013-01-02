@@ -24,7 +24,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMB File Upload Utility',
-			'Version'     => '$Revision$',
 			'Description' => %Q{
 				This module uploads a file to a target share and path. The only reason
 			to use this module is if your existing SMB client is not able to support the features

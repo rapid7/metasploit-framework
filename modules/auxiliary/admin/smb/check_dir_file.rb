@@ -25,7 +25,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMB Scanner Check File/Directory Utility',
-			'Version'     => '$Revision$',
 			'Description' => %Q{
 				This module is useful when checking an entire network
 				of SMB hosts for the presence of a known file or directory.

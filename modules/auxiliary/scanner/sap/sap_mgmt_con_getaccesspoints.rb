@@ -16,7 +16,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'SAP Management Console Get Access Points',
-			'Version'      => '$Revision$',
 			'Description'  => %q{
 				This module simply attempts to output a list of SAP access points through the
 				SAP Management Console SOAP Interface.

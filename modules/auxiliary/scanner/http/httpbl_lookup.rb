@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author' 		=> [ 'mubix' ],
 			'License'		=> MSF_LICENSE,
-			'Version'		=> '$Revision$',
 			'References' 	=>
 				[
 					['URL', 'http://www.projecthoneypot.org/httpbl_api.php'],

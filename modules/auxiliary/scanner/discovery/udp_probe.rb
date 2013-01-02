@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'UDP Service Prober',
-			'Version'     => '$Revision$',
 			'Description' => 'Detect common UDP services using sequential probes',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE

@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'sid[at]notsosecure.com' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2010-0866'],

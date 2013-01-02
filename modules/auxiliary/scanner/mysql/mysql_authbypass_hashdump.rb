@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'MySQL Authentication Bypass Password Dump',
-			'Version'        => '$Revision$',
 			'Description'    => %Q{
 					This module exploits a password bypass vulnerability in MySQL in order
 				to extract the usernames and encrypted password hashes from a MySQL server.

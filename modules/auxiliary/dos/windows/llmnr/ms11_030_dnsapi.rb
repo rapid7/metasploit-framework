@@ -29,7 +29,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'      => 'jduck',
 			'License'     => MSF_LICENSE,
-			'Version'     => '$Revision$',
 			'References'  =>
 				[
 					[ 'CVE', '2011-0657' ],

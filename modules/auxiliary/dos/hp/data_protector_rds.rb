@@ -27,7 +27,6 @@ class Metasploit3 < Msf::Auxiliary
 					'sinn3r',                            #msf
 				],
 			'License'     => MSF_LICENSE,
-			'Version'     => '$Revision$',
 			'References'  =>
 				[
 					[ 'CVE', '2011-0514' ],

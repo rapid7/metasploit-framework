@@ -14,7 +14,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Apache Reverse Proxy Bypass Vulnerability Scanner',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				Scan for poorly configured reverse proxy servers.
 				By default, this module attempts to force the server to make

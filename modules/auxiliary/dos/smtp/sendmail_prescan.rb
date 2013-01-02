@@ -23,7 +23,6 @@ class Metasploit3 < Msf::Auxiliary
 				bytes can be used, limiting the likelihood for arbitrary code execution.
 			},
 			'Author'         => [ 'patrick' ],
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'OSVDB', '2577' ],

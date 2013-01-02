@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 				program entries and their running port numbers.
 			},
 			'Author'	       => ['<tebo [at] attackresearch.com>'],
-			'Version'       => '$Revision$',
 			'References'	 =>
 				[
 					['URL',	'http://www.ietf.org/rfc/rfc1057.txt'],

@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Auxiliary
 
 			'Author'         => [ 'j.v.vallejo[at]gmail.com' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References' =>
 				[
 					['MSB', 'MS09-001'],

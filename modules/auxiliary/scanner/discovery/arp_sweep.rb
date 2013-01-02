@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'ARP Sweep Local Network Discovery',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				Enumerate alive Hosts in local network using ARP requests.
 			},

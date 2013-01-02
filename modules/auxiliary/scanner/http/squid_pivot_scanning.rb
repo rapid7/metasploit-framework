@@ -33,7 +33,6 @@ class Metasploit3 < Msf::Auxiliary
 					the attack to pivot to another part of the network).
 			},
 			'Author'	       => ['willis'],
-			'Version'       => '$Revision$',
 			'References'	 =>
 				[
 							'URL','http://wiki.squid-cache.org/SquidFaq/SecurityPitfalls'

@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'John the Ripper Oracle Password Cracker (Fast Mode)',
-			'Version'        => "$Revision$",
 			'Description'    => %Q{
 					This module uses John the Ripper to identify weak passwords that have been
 				acquired from the oracle_hashdump module. Passwords that have been successfully

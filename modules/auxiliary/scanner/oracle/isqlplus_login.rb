@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Oracle iSQL*Plus Login Utility',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				This module attempts to authenticate against an Oracle ISQL*Plus
 				administration web site using username and password combinations indicated

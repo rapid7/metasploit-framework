@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'DCERPC TCP Service Auditor',
-			'Version'     => '$Revision$',
 			'Description' => 'Determine what DCERPC services are accessible over a TCP port',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE

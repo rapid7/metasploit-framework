@@ -28,7 +28,6 @@ class Metasploit3 < Msf::Auxiliary
 					'Paulino Calderon <calderon [at] websec {dot} mx>', #metasploit module
 				],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2010-2227' ],

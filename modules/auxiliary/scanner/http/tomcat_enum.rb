@@ -19,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Apache Tomcat User Enumeration',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 					Apache Tomcat user enumeration utility, for Apache Tomcat servers prior to version
 				6.0.20, 5.5.28, and 4.1.40.

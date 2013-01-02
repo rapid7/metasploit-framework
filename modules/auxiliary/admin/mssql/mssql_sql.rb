@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'tebo <tebo [at] attackresearch [dot] com>' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'URL', 'http://www.attackresearch.com' ],

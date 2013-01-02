@@ -19,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP Options Detection',
-			'Version'     => '$Revision$',
 			'Description' => 'Display available HTTP options for each system',
 			'Author'       => ['CG'],
 			'License'     => MSF_LICENSE,

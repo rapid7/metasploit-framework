@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'WinRM WQL Query Runner',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module runs WQL queries against remote WinRM Services.
 				Authentication is required. Currently only works with NTLM auth.

@@ -27,7 +27,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'patrick' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'URL', 'http://archives.neohapsis.com/archives/bugtraq/2004-02/0650.html' ],

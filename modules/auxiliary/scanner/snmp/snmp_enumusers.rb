@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SNMP Windows Username Enumeration',
-			'Version'     => '$Revision$',
 			'Description' => "This module will use LanManager OID values to enumerate local user accounts on a Windows system via SNMP",
 			'Author'      => ['tebo[at]attackresearch.com'],
 			'License'     => MSF_LICENSE

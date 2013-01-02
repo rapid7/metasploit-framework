@@ -25,7 +25,6 @@ class Metasploit3 < Msf::Auxiliary
 				and implementation of the InterBase server from InterBase
 				Services Manager.
 			},
-			'Version'	=> '$Revision$',
 			'Author'	=>
 				[
 					'Ramon de C Valle',

@@ -19,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'rsh Authentication Scanner',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module will test a shell (rsh) service on a range of machines and
 				report successful logins.

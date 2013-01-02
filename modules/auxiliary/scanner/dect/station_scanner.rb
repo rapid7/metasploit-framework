@@ -14,7 +14,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'DECT Base Station Scanner',
-			'Version'        => '$Revision$',
 			'Description'    => 'This module scans for DECT base stations',
 			'Author'         => [ 'DK <privilegedmode[at]gmail.com>' ],
 			'License'        => MSF_LICENSE,

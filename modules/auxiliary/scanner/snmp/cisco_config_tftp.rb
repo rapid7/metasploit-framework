@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Cisco IOS SNMP Configuration Grabber (TFTP)',
-			'Version'        => '$Revision$',
 			'Description' => %q{
 					This module will download the startup or running configuration
 				from a Cisco IOS device using SNMP and TFTP. A read-write SNMP

@@ -24,7 +24,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMB User Enumeration (SAM EnumUsers)',
-			'Version'     => '$Revision$',
 			'Description' => 'Determine what local users exist via the SAM RPC service',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,

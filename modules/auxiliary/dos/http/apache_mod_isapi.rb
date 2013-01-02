@@ -39,7 +39,6 @@ class Metasploit3 < Msf::Auxiliary
 					'Brett Gervasoni',  # original discovery
 					'jduck'
 				],
-			'Version'        => '$Revision$',
 			'License'        => MSF_LICENSE,
 			'References'     =>
 				[

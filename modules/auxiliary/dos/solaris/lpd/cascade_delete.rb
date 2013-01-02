@@ -27,7 +27,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'hdm', 'Optyx <optyx[at]uberhax0r.net>' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2005-4797' ],

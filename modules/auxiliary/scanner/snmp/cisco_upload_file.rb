@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Cisco IOS SNMP File Upload (TFTP)',
-			'Version'        => '$Revision$',
 			'Description' => %q{
 					This module will copy file to a Cisco IOS device using SNMP and TFTP.
 				A read-write SNMP community is required. The SNMP community scanner module can

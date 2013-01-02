@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'DNS Spoofing Helper Service',
-			'Version'     => '$Revision$',
 			'Description'    => %q{
 				This module provides a DNS service that returns TXT
 			records indicating information about the querying service.

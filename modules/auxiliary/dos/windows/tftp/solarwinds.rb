@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => 'Nullthreat',
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2010-2115' ],

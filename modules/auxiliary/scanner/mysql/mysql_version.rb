@@ -19,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 			'Description' => %q{
 				Enumerates the version of MySQL servers
 			},
-			'Version'     => '$Revision$',
 			'Author'      => 'kris katterjohn',
 			'License'     => MSF_LICENSE
 		)

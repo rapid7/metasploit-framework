@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'VMWare Web Login Scanner',
-			'Version'        => '$Revision$',
 			'Description'    => 'This module attempts to authenticate to the VMWare HTTP service
 				for VmWare Server, ESX, and ESXI',
 			'Author'         => ['theLightCosine'],

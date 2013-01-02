@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SIP Endpoint Scanner (TCP)',
-			'Version'     => '$Revision$',
 			'Description' => 'Scan for SIP devices using OPTIONS requests',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE

@@ -19,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'		   => 'SAP BusinessObjects User Enumeration',
-			'Version'		=> '$Revision$',
 			'Description'	=> %Q{
 				This module simply attempts to enumerate SAP BusinessObjects
 				users.The dswsbobje interface is only used to verify valid

@@ -24,7 +24,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMB Share Enumeration',
-			'Version'     => '$Revision$',
 			'Description' => 'Determine what shares are provided by the SMB service',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,

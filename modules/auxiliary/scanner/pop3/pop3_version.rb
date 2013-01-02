@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'POP3 Banner Grabber',
-			'Version'     => '$Revision$',
 			'Description' => 'POP3 Banner Grabber',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE

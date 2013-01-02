@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'spinbad <spinbad.security[at]googlemail.com>' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					['OSVDB', '52048'],

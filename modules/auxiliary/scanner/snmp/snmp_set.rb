@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'SNMP Set Module',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module, similar to snmpset tool, uses the SNMP SET request
 					to set information on a network entity. A OID (numeric notation)

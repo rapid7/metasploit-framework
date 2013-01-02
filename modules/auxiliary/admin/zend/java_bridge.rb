@@ -23,7 +23,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'ikki', 'MC' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'OSVDB', '71420'],

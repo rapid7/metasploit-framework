@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'HTTP Client Automatic Exploiter',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module has three actions.  The first (and the default)
 				is 'WebServer' which uses a combination of client-side and

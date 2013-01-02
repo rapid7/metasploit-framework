@@ -26,7 +26,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMB 2.0 Protocol Detection',
-			'Version'     => '$Revision$',
 			'Description' => 'Detect systems that support the SMB 2.0 protocol',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE

@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SSH Public Key Login Scanner',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				This module will test ssh logins on a range of machines using
 				a defined private key file, and report successful logins.

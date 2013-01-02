@@ -27,7 +27,6 @@ class Metasploit3 < Msf::Auxiliary
 				'sinn3r',                                  #Metasploit edit/commit
 			],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 			[
 				[ 'EDB', '16204' ],

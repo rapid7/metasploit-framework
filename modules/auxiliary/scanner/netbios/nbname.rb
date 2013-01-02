@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'NetBIOS Information Discovery',
-			'Version'     => '$Revision$',
 			'Description' => 'Discover host information through NetBIOS',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE

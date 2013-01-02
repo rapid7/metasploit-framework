@@ -25,7 +25,6 @@ class Metasploit3 < Msf::Auxiliary
 					'jfa',            # Metasploit module
 				],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2011-3486' ],

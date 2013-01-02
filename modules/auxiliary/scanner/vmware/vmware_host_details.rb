@@ -19,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'VMWare Enumerate Host Details',
-			'Version'        => '$Revision$',
 			'Description'    => %Q{
 				This module attempts to enumerate information about the host systems through the VMWare web API.
 				This can include information about the hardware installed on the host machine.

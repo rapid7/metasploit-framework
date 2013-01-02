@@ -33,7 +33,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'		=> [ 'Patrick Webster <patrick[at]aushack.com>', 'hdm' ],
 			'License'		=> MSF_LICENSE,
-			'Version'		=> '$Revision$',
 			'References'	=>
 				[
 					[ 'BID', '2936'],

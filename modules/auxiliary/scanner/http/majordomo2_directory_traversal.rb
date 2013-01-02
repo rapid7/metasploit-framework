@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Auxiliary
 				module will attempt to download the Majordomo config.pl file.
 			},
 			'Author'         =>	['Nikolas Sotiriu'],
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					['OSVDB', '70762'],

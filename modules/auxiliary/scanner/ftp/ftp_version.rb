@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'FTP Version Scanner',
-			'Version'     => '$Revision$',
 			'Description' => 'Detect FTP Version.',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE

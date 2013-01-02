@@ -15,7 +15,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'ARP Spoof',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				Spoof ARP replies and poison remote ARP caches to conduct IP address spoofing or a denial of service.
 			},

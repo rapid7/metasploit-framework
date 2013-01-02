@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 				Metaframe ICA server.
 			},
 			'Author'         => [ 'patrick' ],
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'OSVDB', '50617' ],

@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'MYSQL Schema Dump',
-			'Version'        => '$Revision$',
 			'Description'    => %Q{
 					This module extracts the schema information from a
 					MySQL DB server.

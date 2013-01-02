@@ -30,7 +30,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => 'jduck',
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'OSVDB', '65533'],

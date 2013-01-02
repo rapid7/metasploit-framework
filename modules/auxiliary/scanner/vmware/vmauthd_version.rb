@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'VMWare Authentication Daemon Version Scanner',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				This module will identify information about a host through the
 			vmauthd service.

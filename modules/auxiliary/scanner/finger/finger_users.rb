@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Finger Service User Enumerator',
-			'Version'     => '$Revision$',
 			'Description' => 'Identify valid users through the finger service using a variety of tricks',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE

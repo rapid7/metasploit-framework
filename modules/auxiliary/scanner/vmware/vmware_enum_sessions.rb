@@ -19,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'VMWare Enumerate Active Sessions',
-			'Version'        => '$Revision$',
 			'Description'    => %Q{
 				This module will log into the Web API of VMWare and try to enumerate
 				all the login sessions.

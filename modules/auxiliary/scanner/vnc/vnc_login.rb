@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'VNC Authentication Scanner',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module will test a VNC server on a range of machines and
 				report successful logins. Currently it supports RFB protocol

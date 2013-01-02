@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Apache Axis2 v1.4.1 Local File Inclusion',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 					This module exploits an Apache Axis2 v1.4.1 local file inclusion (LFI) vulnerability.
 				By loading a local XML file which contains a cleartext username and password, attackers can trivially

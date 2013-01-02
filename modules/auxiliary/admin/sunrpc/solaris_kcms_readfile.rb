@@ -31,7 +31,6 @@ class Metasploit3 < Msf::Auxiliary
 					'jduck'  # Ported to MSF v3
 				],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					['CVE', '2003-0027'],

@@ -16,7 +16,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'SAP Management Console getEnvironment',
-			'Version'      => '$Revision$',
 			'Description'  => %q{
 				This module simply attempts to identify SAP Environment
 				settings through the SAP Management Console SOAP Interface.

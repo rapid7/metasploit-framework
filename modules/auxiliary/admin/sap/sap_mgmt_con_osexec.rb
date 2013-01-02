@@ -16,7 +16,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'SAP Management Console OSExecute',
-			'Version'      => '$Revision$',
 			'Description'  => %q{
 				This module allows execution of operating system commands through the SAP
 				Management Console SOAP Interface. A valid username and password must be

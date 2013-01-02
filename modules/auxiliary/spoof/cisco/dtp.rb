@@ -14,7 +14,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(
 			'Name'        => 'Forge Cisco DTP Packets',
-			'Version'     => '$Revision$',
 			'Description'	=> %q{
 				This module forges DTP packets to initialize a trunk port.
 			},

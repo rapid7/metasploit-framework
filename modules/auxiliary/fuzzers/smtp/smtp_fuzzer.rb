@@ -14,7 +14,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMTP Simple Fuzzer',
-			'Version'     => '$Revision$',
 			'Description' => 'SMTP Simple Fuzzer',
 			'References'  =>
 				[

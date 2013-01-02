@@ -31,7 +31,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'		=> [ 'hdm' ],
 			'License'		=> MSF_LICENSE,
-			'Version'		=> '$Revision$',
 			'References'	=>
 				[
 					[ 'BID', '1846'],

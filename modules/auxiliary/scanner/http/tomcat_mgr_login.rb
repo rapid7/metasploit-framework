@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Tomcat Application Manager Login Utility',
-			'Version'        => '$Revision$',
 			'Description'    => 'This module simply attempts to login to a Tomcat Application Manager instance using a specific user/pass.',
 			'References'     =>
 				[

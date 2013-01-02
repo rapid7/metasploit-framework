@@ -19,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP Subversion Scanner',
-			'Version'     => '$Revision$',
 			'Description' => 'Detect subversion directories and files and analize its content. Only SVN Version > 7 supported',
 			'Author'       => ['et'],
 			'License'     => MSF_LICENSE

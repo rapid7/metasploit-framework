@@ -26,7 +26,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'				=> 'pSnuffle Packet Sniffer',
-			'Version'           => '$Revision$',
 			'Description'       => 'This module sniffs passwords like dsniff did in the past',
 			'Author'			=> 'Max Moser  <mmo@remote-exploit.org>',
 			'License'			=> MSF_LICENSE,

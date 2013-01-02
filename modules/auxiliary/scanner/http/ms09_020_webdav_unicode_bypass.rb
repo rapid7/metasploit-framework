@@ -26,7 +26,6 @@ class Metasploit3 < Msf::Auxiliary
 				protected folder requires either Basic, Digest or NTLM authentication.
 			},
 			'Author' 		=> [ 'et', 'patrick' ],
-			'Version'		=> '$Revision$',
 			'License'		=> MSF_LICENSE,
 			'References'   =>
 				[

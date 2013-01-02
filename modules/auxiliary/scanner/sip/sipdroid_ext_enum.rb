@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 			(other versions may be affected).
 				},
 			'Author'         => 'Anibal Aguiar <anibal.aguiar[at]gmail.com>',
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					['BID', '47710'],

@@ -25,7 +25,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'     => [ 'Tim Medin <tim[at]securitywhole.com>' ],
 			'License'    => MSF_LICENSE,
-			'Version'    => '$Revision$',
 			'References' =>
 				[
 					[ 'URL', 'http://www.packetstan.com/2011/03/nbns-spoofing-on-your-way-to-world.html' ]

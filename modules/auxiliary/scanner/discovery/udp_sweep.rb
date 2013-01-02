@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'UDP Service Sweeper',
-			'Version'     => '$Revision$',
 			'Description' => 'Detect interesting UDP services',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE

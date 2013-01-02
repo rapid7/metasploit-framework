@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Authentication Capture: SMTP',
-			'Version'     => '$Revision$',
 			'Description'    => %q{
 				This module provides a fake SMTP service that
 			is designed to capture authentication credentials.

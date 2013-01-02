@@ -27,7 +27,6 @@ class Metasploit3 < Msf::Auxiliary
 					'Masashi Fujiwara' #metasploit module
 				],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'BID', '49303'],

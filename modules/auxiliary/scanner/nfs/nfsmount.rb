@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 				This module scans NFS mounts and their permissions.
 			},
 			'Author'	       => ['<tebo[at]attackresearch.com>'],
-			'Version'       => '$Revision$',
 			'References'	 =>
 				[
 					['CVE', '1999-0170'],

@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 				a published list of applications.
 			},
 			'Author'         => [ 'patrick' ],
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'URL', 'http://www.securiteam.com/exploits/5CP0B1F80S.html' ],

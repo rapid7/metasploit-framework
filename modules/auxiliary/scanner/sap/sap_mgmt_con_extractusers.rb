@@ -16,7 +16,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'SAP Management Console Extract Users',
-			'Version'      => '$Revision$',
 			'Description'  =>  %q{
 				This module simply attempts to extract SAP users from the ABAP
 				Syslog through the SAP Management Console SOAP Interface.

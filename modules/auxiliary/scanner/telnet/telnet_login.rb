@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Telnet Login Check Scanner',
-			#'Version'     => '$Revision$',
+			#
 			'Description' => %q{
 				This module will test a telnet login on a range of machines and
 				report successful logins.  If you have loaded a database plugin

@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Authentication Capture: POP3',
-			'Version'     => '$Revision$',
 			'Description'    => %q{
 				This module provides a fake POP3 service that
 			is designed to capture authentication credentials.

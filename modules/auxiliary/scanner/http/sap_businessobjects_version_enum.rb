@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'		   => 'SAP BusinessObjects Version Detection',
-			'Version'		=> '$Revision$',
 			'Description'	=> 'This module simply attempts to identify the version of SAP BusinessObjects.',
 			'References'  =>
 				[

@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Auxiliary
 
 			'Author'         => [ 'Laurent Gaffie <laurent.gaffie[at]gmail.com>', 'hdm' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References' =>
 				[
 					['CVE', '2009-3103'],

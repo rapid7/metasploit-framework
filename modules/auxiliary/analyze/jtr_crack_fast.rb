@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'				=> 'John the Ripper Password Cracker (Fast Mode)',
-			'Version'           => '$Revision$',
 			'Description'       => %Q{
 					This module uses John the Ripper to identify weak passwords that have been
 				acquired as hashed files (loot) or raw LANMAN/NTLM hashes (hashdump). The goal

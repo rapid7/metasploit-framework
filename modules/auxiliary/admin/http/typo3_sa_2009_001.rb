@@ -15,7 +15,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'TYPO3 sa-2009-001 Weak Encryption Key File Disclosure',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module exploits a flaw in TYPO3 encryption ey creation process to allow for
 				file disclosure in the jumpUrl mechanism. This flaw can be used to read any file

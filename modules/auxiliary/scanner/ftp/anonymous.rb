@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Anonymous FTP Access Detection',
-			'Version'     => '$Revision$',
 			'Description' => 'Detect anonymous (read/write) FTP server access.',
 			'References'  =>
 				[

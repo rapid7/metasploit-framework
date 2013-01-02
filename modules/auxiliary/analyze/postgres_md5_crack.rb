@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Postgres SQL md5 Password Cracker',
-			'Version'        => '$Revision$',
 			'Description'    => %Q{
 					This module attempts to crack Postgres SQL md5 password hashes.
 				It creates hashes based on information saved in the MSF Database

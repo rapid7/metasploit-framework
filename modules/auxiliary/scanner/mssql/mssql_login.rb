@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'MSSQL Login Utility',
-			'Version'        => '$Revision$',
 			'Description'    => 'This module simply queries the MSSQL instance for a specific user/pass (default is sa with blank).',
 			'Author'         => 'MC',
 			'References'     =>

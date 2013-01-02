@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Lotus Domino Version',
-			'Version'     => '$Revision$',
 			'Description' => 'Several checks to determine Lotus Domino Server Version.',
 			'Author'       => ['CG'],
 			'License'     => MSF_LICENSE

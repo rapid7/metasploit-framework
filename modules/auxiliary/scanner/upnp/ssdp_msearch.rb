@@ -15,7 +15,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'UPnP SSDP M-SEARCH Information Discovery',
-			'Version'     => '$Revision$',
 			'Description' => 'Discover information from UPnP-enabled systems',
 			'Author'      => 'todb',
 			'License'     => MSF_LICENSE

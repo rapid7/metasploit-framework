@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'HTTP Open Proxy Detection',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					Checks if an HTTP proxy is open. False positive are avoided
 				verifing the HTTP return code and matching a pattern.

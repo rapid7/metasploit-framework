@@ -27,7 +27,6 @@ class Metasploit3 < Msf::Auxiliary
 						'theLightCosine' # metasploit module
 						],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2009-1386' ],

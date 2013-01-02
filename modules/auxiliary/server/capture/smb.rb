@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Authentication Capture: SMB',
-			'Version'     => '$Revision$',
 			'Description'    => %q{
 				This module provides a SMB service that can be used to
 			capture the challenge-response password hashes of SMB client

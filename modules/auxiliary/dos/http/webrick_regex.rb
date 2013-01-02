@@ -23,7 +23,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => 'kris katterjohn',
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     => [
 				[ 'BID', '30644'],
 				[ 'CVE', '2008-3656'],

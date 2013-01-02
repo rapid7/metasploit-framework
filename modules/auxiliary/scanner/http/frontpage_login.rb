@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'FrontPage Server Extensions Anonymous Login Scanner',
-			'Version'     => '$Revision$',
 			'Description' => 'This module queries the FrontPage Server Extensions and determines whether anonymous access is allowed.',
 			'References'  =>
 				[

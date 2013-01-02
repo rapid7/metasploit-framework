@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Authentication Capture: Telnet',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module provides a fake Telnet service that
 			is designed to capture authentication credentials.  DONTs

@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMTP User Enumeration Utility',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				The SMTP service has two internal commands that allow the enumeration
 				of users: VRFY (confirming the names of valid users) and EXPN (which

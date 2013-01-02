@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'MSSQL Ping Utility',
-			'Version'        => '$Revision$',
 			'Description'    => 'This module simply queries the MSSQL instance for information.',
 			'Author'         => 'MC',
 			'License'        => MSF_LICENSE

@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Telnet Service Banner Detection',
-			'Version'     => '$Revision$',
 			'Description' => 'Detect telnet services',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE

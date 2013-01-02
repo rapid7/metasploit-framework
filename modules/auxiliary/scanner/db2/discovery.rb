@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'DB2 Discovery Service Detection',
-			'Version'        => '$Revision$',
 			'Description'    => 'This module simply queries the DB2 discovery service for information.',
 			'Author'         => [ 'MC' ],
 			'License'        => MSF_LICENSE

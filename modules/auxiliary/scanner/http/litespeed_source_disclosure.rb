@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 					This module exploits a source code disclosure/download vulnerability in
 				versions 4.0.14 and prior of LiteSpeed.
 			},
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2010-2333' ],

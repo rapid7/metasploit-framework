@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMB Session Pipe Auditor',
-			'Version'     => '$Revision$',
 			'Description' => 'Determine what named pipes are accessible over SMB',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE

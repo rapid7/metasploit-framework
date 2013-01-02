@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Java RMI Server Insecure Endpoint Code Execution Scanner',
-			'Version'     => '$Revision$',
 			'Description' => 'Detect Java RMI endpoints',
 			'Author'     => ['mihi', 'hdm'],
 			'License'     => MSF_LICENSE,

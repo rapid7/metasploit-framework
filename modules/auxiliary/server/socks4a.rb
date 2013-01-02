@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Socks4a Proxy Server',
-			'Version'     => '$Revision$',
 			'Description' => 'This module provides a socks4a proxy server that uses the builtin Metasploit routing to relay connections.',
 			'Author'      => 'sf',
 			'License'     => MSF_LICENSE,

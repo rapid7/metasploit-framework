@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'BNAT Router',
-			'Version'      => '$Revision$',
 			'Description'  => %q{
 					This module will properly route BNAT traffic and allow for connections to be
 				established to machines on ports which might not otherwise be accessible.},

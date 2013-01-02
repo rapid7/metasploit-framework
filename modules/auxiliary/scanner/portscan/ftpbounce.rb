@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'FTP Bounce Port Scanner',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				Enumerate TCP services via the FTP bounce PORT/LIST
 				method, which can still come in handy every once in

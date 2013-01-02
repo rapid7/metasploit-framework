@@ -23,7 +23,6 @@ class Metasploit3 < Msf::Auxiliary
 					},
 			'Author'         => ['CG'],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2007-5511'],

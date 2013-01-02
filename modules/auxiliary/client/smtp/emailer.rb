@@ -27,7 +27,6 @@ class Metasploit3 < Msf::Auxiliary
 				engineering.
 			},
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'URL', 'http://spl0it.org/' ],

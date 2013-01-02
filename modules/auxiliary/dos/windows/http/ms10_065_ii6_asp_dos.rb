@@ -28,7 +28,6 @@ class Metasploit3 < Msf::Auxiliary
 					'Leandro Oliveira <leadro[at]alligatorteam.org>'
 				],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2010-1899' ],

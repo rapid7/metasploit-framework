@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'MC' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'URL', 'http://www.metasploit.com' ],

@@ -17,7 +17,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'SAP Management Console Brute Force',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module simply attempts to brute force the username |
 				password for the SAP Management Console SOAP Interface. By

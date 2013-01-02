@@ -15,7 +15,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'TYPO3 Winstaller default Encryption Keys',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module exploits known default encryption keys found in the TYPO3 Winstaller.
 				This flaw allows for file disclosure in the jumpUrl mechanism. This issue can be

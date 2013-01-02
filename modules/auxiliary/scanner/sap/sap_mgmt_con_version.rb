@@ -16,7 +16,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'SAP Management Console Version Detection',
-			'Version'      => '$Revision$',
 			'Description'  => %q{
 				This module simply attempts to identify the version of SAP
 				through the SAP Management Console SOAP Interface.

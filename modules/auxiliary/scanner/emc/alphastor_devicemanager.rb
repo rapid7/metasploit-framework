@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'EMC AlphaStor Device Manager Service',
-			'Version'        => '$Revision$',
 			'Description'    => 'This module queries the remote host for the EMC Alphastor Device Management Service.',
 			'Author'         => 'MC',
 			'License'        => MSF_LICENSE

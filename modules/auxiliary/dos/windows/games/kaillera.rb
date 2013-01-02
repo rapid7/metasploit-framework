@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => ["Sil3nt_Dre4m"],
 			'License'        => MSF_LICENSE,
-			'Version'        => "$Revision$",
 			'References'     =>
 				[
 					[ 'URL', 'http://kaillerahacks.blogspot.com/2011/07/kaillera-server-086-dos-vulnerability.html' ]

@@ -24,7 +24,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'corelanc0d3r <peter.ve[at]corelan.be>' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => "$Revision$",
 			'References'     =>
 				[
 					[ 'URL', 'http://www.corelan.be:8800/index.php/2010/10/12/death-of-an-ftp-client/' ],

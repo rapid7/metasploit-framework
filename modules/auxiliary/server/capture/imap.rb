@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Authentication Capture: IMAP',
-			'Version'     => '$Revision$',
 			'Description'    => %q{
 				This module provides a fake IMAP service that
 			is designed to capture authentication credentials.

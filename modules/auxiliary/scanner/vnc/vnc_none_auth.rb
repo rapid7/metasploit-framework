@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'VNC Authentication None Detection',
-			'Version'     => '$Revision$',
 			'Description' => 'Detect VNC servers that support the "None" authentication method.',
 			'References'  =>
 				[

@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'SNMP Enumeration Module',
-			'Version'     => '$Revision$',
 			'Description' => 'This module allows enumeration of any devices with SNMP
 				protocol support. It supports hardware, software, and network information.
 				The default community used is "public".',

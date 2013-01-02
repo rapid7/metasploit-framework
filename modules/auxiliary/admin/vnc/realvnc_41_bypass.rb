@@ -28,7 +28,6 @@ class Metasploit3 < Msf::Auxiliary
 					'theLightCosine'
 				],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					['BID', '17978'],

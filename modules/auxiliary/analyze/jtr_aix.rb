@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'            => 'John the Ripper AIX Password Cracker',
-			'Version'         => '$Revision$',
 			'Description'     => %Q{
 					This module uses John the Ripper to identify weak passwords that have been
 				acquired from passwd files on AIX systems.

@@ -15,7 +15,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'TrendMicro OfficeScanNT Listener Traversal Arbitrary File Access',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module tests for directory traversal vulnerability in the UpdateAgent
 				function in the OfficeScanNT Listener (TmListen.exe) service in Trend Micro

@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'IPv6 Local Neighbor Discovery',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				Enumerate local IPv6 hosts which respond to Neighbor Solicitations with a link-local address.
 				Note, that like ARP scanning, this usually cannot be performed beyond the local

@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'ColdFusion Version Scanner',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module attempts identify various flavors of ColdFusion as well as the underlying OS
 			},

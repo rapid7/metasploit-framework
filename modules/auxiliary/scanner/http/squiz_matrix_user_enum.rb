@@ -33,7 +33,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'Troy Rose <troy[at]osisecurity.com.au>', 'patrick' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'URL', 'http://www.osisecurity.com.au/advisories/' ],

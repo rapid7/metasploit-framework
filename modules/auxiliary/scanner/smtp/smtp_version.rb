@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMTP Banner Grabber',
-			'Version'     => '$Revision$',
 			'Description' => 'SMTP Banner Grabber',
 			'References'  =>
 				[

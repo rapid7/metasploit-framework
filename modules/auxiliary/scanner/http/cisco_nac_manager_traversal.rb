@@ -15,7 +15,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Cisco Network Access Manager Directory Traversal Vulnerability',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				This module tests whether a directory traversal vulnerablity is present
 				in versions of Cisco Network Access Manager 4.8.x You may wish to change

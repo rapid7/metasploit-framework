@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'MYSQL Password Hashdump',
-			'Version'        => '$Revision$',
 			'Description'    => %Q{
 					This module extracts the usernames and encrypted password
 				hashes from a MySQL server and stores them for later cracking.

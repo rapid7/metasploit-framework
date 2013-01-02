@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Web Site Crawler',
-			'Version'     => '$Revision$',
 			'Description' => 'Crawl a web site and store information about what was found',
 			'Author'      => %w(hdm tasos),
 			'License'     => MSF_LICENSE

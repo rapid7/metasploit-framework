@@ -16,7 +16,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'SAP Management Console List Logfiles',
-			'Version'      => '$Revision$',
 			'Description'  => %q{
 				This module simply attempts to output a list of available
 				logfiles and developer tracefiles through the SAP Management

@@ -32,7 +32,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'	    => [ 'Bernardo Damele A. G. <bernardo.damele[at]gmail.com>' ],
 			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision$',
 			'References'	=>
 				[
 					['URL', 'http://sqlmap.sourceforge.net'],

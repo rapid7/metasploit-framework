@@ -19,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'		   => 'SAP BusinessObjects Web User Bruteforcer',
-			'Version'		=> '$Revision$',
 			'Description'	=> 'This module simply attempts to bruteforce SAP BusinessObjects users by using CmcApp.',
 			'References'  =>
 				[

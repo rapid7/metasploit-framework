@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Apache Axis2 v1.4.1 Brute Force Utility',
-			'Version'        => '$Revision$',
 			'Description'    => %q{This module attempts to login to an Apache Axis2 v1.4.1
 				instance using username and password combindations indicated by the USER_FILE,
 				PASS_FILE, and USERPASS_FILE options.

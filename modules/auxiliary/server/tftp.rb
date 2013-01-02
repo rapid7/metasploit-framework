@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'TFTP File Server',
-			'Version'     => '$Revision$',
 			'Description'    => %q{
 				This module provides a TFTP service
 			},

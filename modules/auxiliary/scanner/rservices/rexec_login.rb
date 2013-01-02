@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'rexec Authentication Scanner',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module will test an rexec service on a range of machines and
 				report successful logins.

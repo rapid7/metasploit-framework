@@ -24,7 +24,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Samba Symlink Directory Traversal',
-			'Version'     => '$Revision$',
 			'Description' => %Q{
 				This module exploits a directory traversal flaw in the Samba
 			CIFS server. To exploit this flaw, a writeable share must be specified.

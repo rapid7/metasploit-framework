@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'VxWorks WDB Agent Boot Parameter Scanner',
-			'Version'     => '$Revision$',
 			'Description' => 'Scan for exposed VxWorks wdbrpc daemons and dump the boot parameters from memory',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,

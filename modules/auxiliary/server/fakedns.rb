@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Fake DNS Service',
-			'Version'     => '$Revision$',
 			'Description'    => %q{
 				This module provides a DNS service that redirects
 			all queries to a particular address.

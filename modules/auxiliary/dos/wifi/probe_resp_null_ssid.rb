@@ -27,7 +27,6 @@ class Metasploit3 < Msf::Auxiliary
 
 			'Author'         => [ 'hdm' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 			[
 				['URL', 'http://802.11ninja.net/papers/firmware_attack.pdf'],

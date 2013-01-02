@@ -24,7 +24,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMB Local User Enumeration (LookupSid)',
-			'Version'     => '$Revision$',
 			'Description' => 'Determine what local users exist via brute force SID lookups',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,

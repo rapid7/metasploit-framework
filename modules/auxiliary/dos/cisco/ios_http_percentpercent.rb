@@ -25,7 +25,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author' 		=> [ 'Patrick Webster <patrick[at]aushack.com>' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'BID', '1154'],

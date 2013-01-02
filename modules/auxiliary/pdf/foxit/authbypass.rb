@@ -23,7 +23,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         => [ 'MC', 'Didier Stevens <didier.stevens[at]gmail.com>', ],
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2009-0836' ],

@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Remote Management Interface Discovery',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				This module can be used to obtain information from the Remote
 				Management Interface DCERPC service.

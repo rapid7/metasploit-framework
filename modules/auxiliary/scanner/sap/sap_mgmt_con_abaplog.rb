@@ -16,7 +16,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'SAP Management Console ABAP syslog',
-			'Version'      => '$Revision$',
 			'Description'  => %q{ This module simply attempts to extract the ABAP syslog through the SAP Management Console SOAP Interface. },
 			'References'   =>
 				[

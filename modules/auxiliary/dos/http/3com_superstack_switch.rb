@@ -27,7 +27,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'patrick' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					# patrickw - I am not sure if these are correct, but the closest match!

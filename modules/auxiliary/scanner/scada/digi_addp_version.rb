@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Digi ADDP Information Discovery',
-			'Version'     => '$Revision$',
 			'Description' => 'Discover host information through the Digi International ADDP service',
 			'Author'      => 'hdm',
 			'References'  =>

@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Lotus Domino Password Hash Collector',
-			'Version'        => '$Revision$',
 			'Description'    => 'Get users passwords hashes from names.nsf page',
 			'Author'         => 'Tiago Ferreira <tiago.ccna[at]gmail.com>',
 			'License'        => MSF_LICENSE

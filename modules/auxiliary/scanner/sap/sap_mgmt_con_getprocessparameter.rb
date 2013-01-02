@@ -16,7 +16,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'SAP Management Console Get Process Parameters',
-			'Version'      => '$Revision$',
 			'Description'  => %q{
 				This module simply attempts to output a SAP process parameters and
 				configuration settings through the SAP Management Console SOAP Interface.

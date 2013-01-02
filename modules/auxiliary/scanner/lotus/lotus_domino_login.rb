@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Lotus Domino Brute Force Utility',
-			'Version'        => '$Revision$',
 			'Description'    => 'Lotus Domino Authentication Brute Force Utility',
 			'Author'         => 'Tiago Ferreira <tiago.ccna[at]gmail.com>',
 			'License'        =>  MSF_LICENSE

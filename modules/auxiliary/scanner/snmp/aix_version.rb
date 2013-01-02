@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'AIX SNMP Scanner Auxiliary Module',
-			'Version'     => '$Revision$',
 			'Description' => 'AIX SNMP Scanner Auxiliary Module',
 			'Author'      =>
 				[

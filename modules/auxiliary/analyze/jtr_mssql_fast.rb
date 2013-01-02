@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'John the Ripper MS SQL Password Cracker (Fast Mode)',
-			'Version'        => "$Revision$",
 			'Description'    => %Q{
 					This module uses John the Ripper to identify weak passwords that have been
 				acquired from the mssql_hashdump module. Passwords that have been successfully

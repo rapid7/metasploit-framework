@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Xerox WorkCentre User Enumeration (SNMP)',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 					This module will do user enumeration based on the Xerox WorkCentre present on the network.
 					SNMP is used to extract the usernames.

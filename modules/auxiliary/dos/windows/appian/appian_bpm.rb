@@ -24,7 +24,6 @@ class Metasploit3 < Msf::Auxiliary
 
 			'Author'         => [ 'guiness.stout <guinness.stout[at]gmail.com>' ],
 			'License'        => BSD_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					['CVE', '2007-6509'],

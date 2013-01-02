@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'BNAT Scanner',
-			'Version'      => '$Revision$',
 			'Description'  => %q{
 					This module is a scanner which can detect Broken NAT (network address translation)
 				implementations, which could result in a inability to reach ports on remote

@@ -26,7 +26,6 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'     => '$Revision $',
 			'Description' => 'Determine what domain users are logged into a remote system via a DCERPC to NetWkstaUserEnum.',
 			'Author'      => 'natron',
-			'Version'     => '$Revision$',
 			'References'  =>
 				[
 					[ 'URL', 'http://msdn.microsoft.com/en-us/library/aa370669%28VS.85%29.aspx' ]

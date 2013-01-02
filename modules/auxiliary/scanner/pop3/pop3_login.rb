@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	super(
 		'Name'        => 'POP3 Login Utility',
 		'Description' => 'This module attempts to authenticate to an POP3 service.',
-		'Version'     => '$Revision$',
 		'Author'      =>
 		[
 			'==[ Alligator Security Team ]==',

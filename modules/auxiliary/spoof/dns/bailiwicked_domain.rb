@@ -34,7 +34,6 @@ class Metasploit3 < Msf::Auxiliary
 					'Cedric Blancher <sid[at]rstack.org>'
 				],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2008-1447' ],

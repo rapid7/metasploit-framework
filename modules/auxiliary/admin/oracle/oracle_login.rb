@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'MC' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'URL', 'http://www.petefinnigan.com/default/oracle_default_passwords.csv' ],

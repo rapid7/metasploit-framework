@@ -17,7 +17,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP Writable Path PUT/DELETE File Access',
-			'Version'     => '$Revision$',
 			'Description'    => %q{
 				This module can abuse misconfigured web servers to upload and delete web content
 				via PUT and DELETE HTTP requests. Set ACTION to either PUT or DELETE.

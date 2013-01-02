@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Postgres Schema Dump',
-			'Version'        => '$Revision$',
 			'Description'    => %Q{
 					This module extracts the schema information from a
 					Postgres server.

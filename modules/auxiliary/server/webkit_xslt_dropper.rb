@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 				C:\Program Files\
 			},
 			'Author'      => [ 'Nicolas Gregoire' ],
-			'Version'     => '$Revision$',
 			'License'     => MSF_LICENSE,
 			'Actions'     =>
 				[

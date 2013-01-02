@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Oracle Password Hashdump',
-			'Version'        => '$Revision$',
 			'Description'    => %Q{
 					This module dumps the usernames and password hashes
 					from Oracle given the proper Credentials and SID.

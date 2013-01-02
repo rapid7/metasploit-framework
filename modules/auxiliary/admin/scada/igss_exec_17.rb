@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'Luigi Auriemma', 'MC' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2011-1566'],

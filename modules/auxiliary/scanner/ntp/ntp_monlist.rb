@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'NTP Monitor List Scanner',
-			'Version'     => '$Revision$',
 			'Description' => 'Obtain the list of recent clients from an NTP server',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE

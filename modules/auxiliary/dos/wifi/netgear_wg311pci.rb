@@ -28,7 +28,6 @@ class Metasploit3 < Msf::Auxiliary
 				(external/ruby-lorcon/README) for more information.
 			},
 			'Author'         => [ 'Laurent Butti <0x9090 [at] gmail.com>' ], # initial discovery and metasploit module
-			'Version'        => '$Revision$',
 			'License'        => MSF_LICENSE,
 			'References'     =>
 				[

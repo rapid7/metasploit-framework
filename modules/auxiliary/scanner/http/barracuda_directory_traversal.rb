@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Barracuda Multiple Product "locale" Directory Traversal',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 					This module exploits a directory traversal vulnerability present in
 				serveral Barracuda products, including the Barracuda Spam and Virus Firewall,

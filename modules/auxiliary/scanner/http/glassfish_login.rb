@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'GlassFish Brute Force Utility',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module attempts to login to GlassFish instance using username
 				and password combindations indicated by the USER_FILE, PASS_FILE,

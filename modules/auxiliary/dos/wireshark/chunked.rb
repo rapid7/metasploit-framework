@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author' 	=> [ 'Matteo Cantoni <goony[at]nothink.org>' ],
 			'License'       => MSF_LICENSE,
-			'Version'       => '$Revision$',
 			'References'    =>
 				[
 					[ 'CVE', '2007-3389'],

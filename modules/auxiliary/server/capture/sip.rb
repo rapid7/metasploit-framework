@@ -15,7 +15,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Authentication Capture: SIP',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module provides a fake SIP service that is designed to
 				capture authentication credentials. It captures	challenge and

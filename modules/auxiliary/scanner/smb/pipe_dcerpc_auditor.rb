@@ -23,7 +23,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMB Session Pipe DCERPC Auditor',
-			'Version'     => '$Revision$',
 			'Description' => 'Determine what DCERPC services are accessible over a SMB pipe',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE

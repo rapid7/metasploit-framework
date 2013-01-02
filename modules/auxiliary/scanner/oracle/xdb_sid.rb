@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 					This module simply makes a authenticated request to retrieve
 					the sid from the Oracle XML DB httpd server.
 			},
-			'Version'     => '$Revision$',
 			'References'  =>
 				[
 					[ 'URL', 'http://dsecrg.com/files/pub/pdf/Different_ways_to_guess_Oracle_database_SID_(eng).pdf' ],

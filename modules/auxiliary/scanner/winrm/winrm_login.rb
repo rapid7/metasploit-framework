@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'WinRM Login Utility',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module attempts to authenticate to a WinRM service. It currently
 				works only if the remote end allows Negotiate(NTLM) authentication.

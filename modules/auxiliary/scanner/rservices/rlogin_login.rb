@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'rlogin Authentication Scanner',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module will test an rlogin service on a range of machines and
 				report successful logins.

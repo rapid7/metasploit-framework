@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SNMP Windows SMB Share Enumeration',
-			'Version'     => '$Revision$',
 			'Description' => "This module will use LanManager OID values to enumerate SMB shares on a Windows system via SNMP",
 			'Author'      => ['tebo[at]attackresearch.com'],
 			'License'     => MSF_LICENSE

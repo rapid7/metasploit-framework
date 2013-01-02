@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SOCKS Proxy UNC Path Redirection',
-			'Version'     => '$Revision$',
 			'Description'    => %q{
 				This module provides a Socks proxy service
 			that redirects all HTTP requests to a web page that

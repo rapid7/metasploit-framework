@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => ['CG'],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'DisclosureDate' => 'Jan 7 2009'))
 
 		register_options(

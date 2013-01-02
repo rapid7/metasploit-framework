@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'VxWorks WDB Agent Version Scanner',
-			'Version'     => '$Revision$',
 			'Description' => 'Scan for exposed VxWorks wdbrpc daemons',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,

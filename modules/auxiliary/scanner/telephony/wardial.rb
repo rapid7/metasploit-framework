@@ -44,7 +44,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Wardialer',
-			'Version'     => '$Revision$',
 			'Description' => 'Scan for dial-up systems that are connected to modems and answer telephony indials.',
 			'Author'      => [ 'I)ruid' ],
 			'License'     => MSF_LICENSE

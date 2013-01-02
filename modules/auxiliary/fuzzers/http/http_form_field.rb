@@ -31,7 +31,6 @@ class Metasploit3 < Msf::Auxiliary
 				'Paulino Calderon <calderon[at]websec.mx>' #Added cookie handling
 				],
 			'License'       => MSF_LICENSE,
-			'Version'       => '$Revision$',
 			'References'    =>
 				[
 					['URL','http://www.corelan.be:8800/index.php/2010/11/12/metasploit-module-http-form-field-fuzzer'],

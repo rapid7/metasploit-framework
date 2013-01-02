@@ -31,7 +31,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'K. Reid Wightman <wightman[at]digitalbond.com>' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'DisclosureDate' => 'Jan 19 2012'
 			))
 

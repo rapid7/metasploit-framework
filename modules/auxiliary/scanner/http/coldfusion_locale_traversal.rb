@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'ColdFusion Server Check',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module attempts to exploit the directory traversal in the 'locale'
 				attribute.  According to the advisory the following versions are vulnerable:

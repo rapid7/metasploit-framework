@@ -25,7 +25,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'Sh2kerr <research[ad]dsecrg.com>' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'URL', 'http://dsecrg.com/pages/pub/show.php?id=17' ],

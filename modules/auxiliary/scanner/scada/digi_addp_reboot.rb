@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Digi ADDP Remote Reboot Initiator',
-			'Version'     => '$Revision$',
 			'Description' => 'Reboot Digi International based equipment through the ADDP service',
 			'Author'      => 'hdm',
 			'References'  =>

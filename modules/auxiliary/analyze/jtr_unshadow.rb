@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'              => 'Unix Unshadow Utility',
-			'Version'           => "$Revision$",
 			'Description'       => %Q{
 					This module takes a passwd and shadow file and 'unshadows'
 					them and saves them as linux.hashes loot.

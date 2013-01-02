@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'FTP File Server',
-			'Version'     => '$Revision$',
 			'Description'    => %q{
 				This module provides a FTP service
 			},

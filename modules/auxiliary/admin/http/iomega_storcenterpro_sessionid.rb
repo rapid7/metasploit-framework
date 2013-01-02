@@ -15,7 +15,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Iomega StorCenter Pro NAS Web Authentication Bypass',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				The Iomega StorCenter Pro Network Attached Storage device web interface increments sessions IDs,
 				allowing for simple brute force attacks to bypass authentication and gain administrative

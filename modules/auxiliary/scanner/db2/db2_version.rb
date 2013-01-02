@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'DB2 Probe Utility',
-			'Version'        => '$Revision$',
 			'Description'    => 'This module queries a DB2 instance information.',
 			'Author'         => ['todb'],
 			'License'        => MSF_LICENSE
