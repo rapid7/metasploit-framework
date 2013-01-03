@@ -16,7 +16,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'Atlassian Crowd XML Entity Expansion Remote File Access',
-			'Version'      => '$Revision$',
 			'Description'  =>  %q{
 					This module simply attempts to read a remote file from the server using a
 				vulnerability in the way Atlassian Crowd handles XML files. The vulnerability

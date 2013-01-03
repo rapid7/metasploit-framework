@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -25,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP Page Scraper',
-			'Version'     => '$Revision$',
 			'Description' => 'Scrap defined data from a specific web page based on a regular expresion',
 			'Author'       => ['et'],
 			'License'     => MSF_LICENSE

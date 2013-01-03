@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,7 +16,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'SAP Management Console Get Access Points',
-			'Version'      => '$Revision$',
 			'Description'  => %q{
 				This module simply attempts to output a list of SAP access points through the
 				SAP Management Console SOAP Interface.

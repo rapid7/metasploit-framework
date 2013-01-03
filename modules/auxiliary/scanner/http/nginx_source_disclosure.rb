@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Nginx Source Code Disclosure/Download',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 					This module exploits a source code disclosure/download vulnerability in
 				versions 0.7 and 0.8 of the nginx web server. Versions 0.7.66 and 0.8.40

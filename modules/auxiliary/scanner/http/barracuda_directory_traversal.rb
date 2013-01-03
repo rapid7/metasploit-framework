@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Barracuda Multiple Product "locale" Directory Traversal',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 					This module exploits a directory traversal vulnerability present in
 				serveral Barracuda products, including the Barracuda Spam and Virus Firewall,

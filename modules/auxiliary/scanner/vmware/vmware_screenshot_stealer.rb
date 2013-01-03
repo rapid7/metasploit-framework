@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -23,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'VMWare Screenshot Stealer',
-			'Version'        => '$Revision$',
 			'Description'    => %Q{
 				This module uses supplied login credentials to connect to VMWare via
 				the web interface. It then searches through the datastores looking for screenshots.
