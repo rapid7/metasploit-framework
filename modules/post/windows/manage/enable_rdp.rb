@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
 
 	include Msf::Post::Windows::Accounts
 	include Msf::Post::Windows::Registry
-	include Msf::Post::Windows::WindowsServices
+	include Msf::Post::Windows::Services
 	include Msf::Post::Windows::Priv
 	include Msf::Post::Common
 	include Msf::Post::File

@@ -9,7 +9,9 @@ puts "\n[*] Running checks for netifaces code added by metasploit project"
 puts "-----------------------------------------------------------------"
 #uncoment to force ioctl on non windows systems
 #@force_ioctl = true
-@supported_archs = ["i386-mingw32", "i486-linux", "universal-darwin10.0", "i386-openbsd4.8","i386-freebsd8","arm-linux-eabi"]
+@supported_archs = [ "i386-mingw32", "i486-linux", "x86_64-linux",
+	"universal-darwin10.0", "i386-openbsd4.8", "i386-freebsd8",
+	"arm-linux-eabi" ]
 #arm-linux-eabi tested on maemo5 / N900
 puts "[*] Warning : this platform as not been tested" unless @supported_archs.include? RUBY_PLATFORM
 
