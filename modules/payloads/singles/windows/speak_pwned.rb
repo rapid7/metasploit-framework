@@ -48,7 +48,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'Windows Speech API - Say "You Got Pwned!"',
-			'Version'       => '$Revision$',
 			'Description'   => 'Causes the target to say "You Got Pwned" via the Windows Speech API',
 			'Author'        => [ 'Berend-Jan "SkyLined" Wever <berendjanwever[at]gmail.com>' ],
 			'License'       => BSD_LICENSE,

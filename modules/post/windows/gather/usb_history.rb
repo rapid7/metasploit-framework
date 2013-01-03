@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{ This module will enumerate USB Drive history on a target host.},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'nebulus'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))

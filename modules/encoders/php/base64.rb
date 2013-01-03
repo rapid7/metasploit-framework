@@ -15,7 +15,6 @@ class Metasploit3 < Msf::Encoder
 	def initialize
 		super(
 			'Name'             => 'PHP Base64 Encoder',
-			'Version'          => '$Revision$',
 			'Description'      => %q{
 				This encoder returns a base64 string encapsulated in
 				eval(base64_decode()), increasing the size by a bit more than

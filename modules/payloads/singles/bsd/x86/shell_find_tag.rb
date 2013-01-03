@@ -19,7 +19,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'BSD Command Shell, Find Tag Inline',
-			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a shell on an established connection (proxy/nat safe)',
 			'Author'        => 'skape',
 			'License'       => MSF_LICENSE,

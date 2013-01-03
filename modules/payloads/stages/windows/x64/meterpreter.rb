@@ -25,7 +25,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'Windows x64 Meterpreter',
-			'Version'       => '$Revision$',
 			'Description'   => 'Inject the meterpreter server DLL via the Reflective Dll Injection payload (Windows x64) (staged)',
 			'Author'        => [ 'sf' ],
 			'License'       => MSF_LICENSE,

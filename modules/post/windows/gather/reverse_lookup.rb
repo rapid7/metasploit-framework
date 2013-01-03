@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Post
 				to an IP.
 			},
 			'License'              => MSF_LICENSE,
-			'Version'              => '$Revision$',
 			'Platform'             => ['win'],
 			'SessionTypes'         => ['meterpreter'],
 			'Author'               => [ 'mubix' ]

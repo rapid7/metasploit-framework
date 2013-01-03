@@ -23,7 +23,6 @@ class Metasploit3 < Msf::Encoder
 	def initialize
 		super(
 			'Name'             => 'printf(1) via PHP magic_quotes Utility Command Encoder',
-			'Version'          => '$Revision$',
 			'Description'      => %q{
 					This encoder uses the printf(1) utility to avoid restricted
 				characters. Some shell variable substituion may also be used

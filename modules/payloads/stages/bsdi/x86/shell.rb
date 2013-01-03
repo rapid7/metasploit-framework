@@ -16,7 +16,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'BSDi Command Shell',
-			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a command shell (staged)',
 			'Author'        => 'skape',
 			'License'       => MSF_LICENSE,

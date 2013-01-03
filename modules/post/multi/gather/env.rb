@@ -19,7 +19,6 @@ class Metasploit3 < Msf::Post
 			'Description'   => %q{ This module prints out the operating system environment variables },
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>', 'egypt' ],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'linux', 'win' ],
 			'SessionTypes'  => [ 'shell', 'meterpreter' ]
 		))

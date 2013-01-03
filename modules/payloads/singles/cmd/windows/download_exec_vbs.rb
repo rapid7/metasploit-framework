@@ -17,7 +17,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'        => 'Windows Executable Download and Execute (via .vbs)',
-			'Version'     => '$Revision$',
 			'Description' => 'Download an EXE from an HTTP(S) URL and execute it',
 			'Author'      => 'scriptjunkie',
 			'License'     => BSD_LICENSE,

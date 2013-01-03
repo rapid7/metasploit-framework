@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Post
 					execute the commands in the specified Meterpreter or shell session.},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'win', 'linux', 'bsd', 'unix', 'osx' ],
 				'SessionTypes'  => [ 'meterpreter','shell' ]
 			))

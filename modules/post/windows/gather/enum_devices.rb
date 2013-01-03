@@ -24,7 +24,6 @@ class Metasploit3 < Msf::Post
 				background job.
 				},
 			'License'        => MSF_LICENSE,
-			'Version'        => "$Revision$",
 			'Author'         => [ 'Brandon Perry <bperry.volatile[at]gmail.com>' ],
 			'Platform'       => [ 'win' ],
 			'SessionTypes'   => [ 'meterpreter' ]

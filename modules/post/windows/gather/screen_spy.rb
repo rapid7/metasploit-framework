@@ -25,7 +25,6 @@ class Metasploit3 < Msf::Post
 					'kernelsmith <kernelsmith /x40 kernelsmith /x2E com>', # record support
 					'Adrian Kubok' # better record file names
 				],
-			'Version'        => '$Revision$',
 			'Platform'       => ['win'],
 			'SessionTypes'   => ['meterpreter']
 		))

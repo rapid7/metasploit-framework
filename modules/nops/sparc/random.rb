@@ -77,7 +77,6 @@ class Metasploit3 < Msf::Nop
 		super(
 			'Name'        => 'SPARC NOP Generator',
 			'Alias'       => 'sparc_simple',
-			'Version'     => '$Revision$',
 			'Description' => 'SPARC NOP generator',
 			'Author'      => 'vlad902',
 			'License'     => MSF_LICENSE,

@@ -19,7 +19,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'AIX Command Shell, Reverse TCP Inline',
-			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to attacker and spawn a command shell',
 			'Author'        => 'Ramon de C Valle',
 			'License'       => MSF_LICENSE,

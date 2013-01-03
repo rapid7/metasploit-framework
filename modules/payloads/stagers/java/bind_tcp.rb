@@ -18,7 +18,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Java Bind TCP Stager',
-			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection',
 			'Author'        => [
 					'mihi',  # all the hard work

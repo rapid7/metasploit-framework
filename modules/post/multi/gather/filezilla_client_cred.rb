@@ -26,7 +26,6 @@ class Metasploit3 < Msf::Post
 					'bannedit', # post port, added support for shell sessions
 					'Carlos Perez <carlos_perez[at]darkoperator.com>' # original meterpreter script
 				],
-			'Version'        => '$Revision$',
 			'Platform'       => ['unix', 'bsd', 'linux', 'osx', 'win'],
 			'SessionTypes'   => ['shell', 'meterpreter' ]
 		))

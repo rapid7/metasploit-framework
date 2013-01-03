@@ -29,7 +29,6 @@ class Metasploit3 < Msf::Post
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'jduck' ],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ],
 			'References'    =>

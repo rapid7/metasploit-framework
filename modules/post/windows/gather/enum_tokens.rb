@@ -25,7 +25,6 @@ class Metasploit3 < Msf::Post
 					privileges are available, the script will not continue.
 				},
 			'License'         => MSF_LICENSE,
-			'Version'         => '$Revision$',
 			'Platform'        => ['win'],
 			'SessionTypes'    => ['meterpreter'],
 			'Author'          => ['Joshua Abraham <jabra[at]rapid7.com>']

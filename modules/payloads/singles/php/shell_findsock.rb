@@ -21,7 +21,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'PHP Command Shell, Find Sock',
-			'Version'       => '$Revision$',
 			'Description'   => %Q{
 				Spawn a shell on the established connection to
 				the webserver.  Unfortunately, this payload

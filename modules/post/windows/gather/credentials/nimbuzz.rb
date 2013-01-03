@@ -26,7 +26,6 @@ class Metasploit3 < Msf::Post
 					'sil3ntdre4m <sil3ntdre4m[at]gmail.com>',
 					'SecurityXploded Team', #www.SecurityXploded.com
 				],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))

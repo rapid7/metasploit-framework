@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Post
 				specified Meterpreter session.},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))

@@ -18,7 +18,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Unix Command Shell, Reverse TCP (/dev/tcp)',
-			'Version'       => '$Revision$',
 			'Description'   => %q{
 				Creates an interactive shell via bash's builtin /dev/tcp.
 				This will not work on most Debian-based Linux distributions

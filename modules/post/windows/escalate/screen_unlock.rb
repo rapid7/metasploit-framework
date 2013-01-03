@@ -28,7 +28,6 @@ class Metasploit3 < Msf::Post
 					'L4teral <l4teral[4t]gmail com>',  # Meterpreter script
 					'Metlstorm'                        # Based on the winlockpwn tool released by Metlstorm: http://www.storm.net.nz/projects/16
 				],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ],
 			'References'    =>

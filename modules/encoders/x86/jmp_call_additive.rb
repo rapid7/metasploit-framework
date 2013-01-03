@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 	def initialize
 		super(
 			'Name'             => 'Jump/Call XOR Additive Feedback Encoder',
-			'Version'          => '$Revision$',
 			'Description'      => 'Jump/Call XOR Additive Feedback',
 			'Author'           => 'skape',
 			'Arch'             => ARCH_X86,

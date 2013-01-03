@@ -17,7 +17,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'PHP Meterpreter',
-			'Version'       => '$Revision$',
 			'Description'   => 'Run a meterpreter server in PHP',
 			'Author'        => ['egypt'],
 			'Platform'      => 'php',

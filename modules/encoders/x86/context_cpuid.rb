@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 	def initialize
 		super(
 			'Name'             => 'CPUID-based Context Keyed Payload Encoder',
-			'Version'          => '$Revision$',
 			'Description'      => %q{
 				This is a Context-Keyed Payload Encoder based on CPUID and Shikata Ga Nai.
 			},

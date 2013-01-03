@@ -24,7 +24,6 @@ class Metasploit3 < Msf::Encoder
 	def initialize
 		super(
 			'Name'             => 'Single Static Bit',
-			'Version'          => '$Revision$',
 			'Description'      => 'Static value for specific bit',
 			'Author'           => 'jduck',
 			'Arch'             => ARCH_X86,

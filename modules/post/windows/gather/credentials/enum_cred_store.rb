@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Post
 				display the username and location.
 			},
 			'License'         => MSF_LICENSE,
-			'Version'         => '$Revision$',
 			'Platform'        => ['win'],
 			'SessionTypes'    => ['meterpreter'],
 			'Author'          => ['Kx499']

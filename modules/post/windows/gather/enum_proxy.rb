@@ -15,7 +15,6 @@ class Metasploit3 < Msf::Post
 	def initialize
 		super(
 			'Name'        => 'Windows Gather Proxy Setting',
-			'Version'     => '$Revision$',
 			'Description'    => %q{
 				This module pulls a user's proxy settings. If neither RHOST or SID
 				are set it pulls the current user, else it will pull the user's settings

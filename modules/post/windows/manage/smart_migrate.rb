@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Post
 				and try any other explorer.exe processes it finds},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'thelightcosine'],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))

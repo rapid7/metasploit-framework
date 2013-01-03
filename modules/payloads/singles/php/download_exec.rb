@@ -18,7 +18,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'PHP Executable Download and Execute',
-			'Version'       => '$Revision$',
 			'Description'   => 'Download an EXE from an HTTP URL and execute it',
 			'Author'        => [ 'egypt' ],
 			'License'       => BSD_LICENSE,

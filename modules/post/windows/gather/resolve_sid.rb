@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{ This module prints information about a given SID from the perspective of this session },
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'chao-mu'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))

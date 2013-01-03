@@ -18,7 +18,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'        => 'Windows Command Shell, Reverse TCP (via Ruby)',
-			'Version'     => '$Revision$',
 			'Description' => 'Connect back and create a command shell via Ruby',
 			'Author'      => 'kris katterjohn',
 			'License'     => MSF_LICENSE,

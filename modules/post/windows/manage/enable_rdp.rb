@@ -31,7 +31,6 @@ class Metasploit3 < Msf::Post
 				Remote Desktop Users group. It can also forward the target's port 3389/tcp.},
 			'License'       => BSD_LICENSE,
 			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))

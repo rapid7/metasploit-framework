@@ -26,7 +26,6 @@ class Metasploit3 < Msf::Post
 				finds saved FTP connections in the Sites.dat file. },
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'theLightCosine'],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))

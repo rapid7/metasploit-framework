@@ -13,7 +13,6 @@ class Metasploit3 < Msf::Post
 			'Name'          => 'Windows Gather Physical Drives and Logical Volumes',
 			'Description'   => %q{This module will list physical drives and logical volumes},
 			'License'       => MSF_LICENSE,
-			'Version'       => '$Revision$',
 			'Platform'      => ['win'],
 			'SessionTypes'  => ['meterpreter'],
 			'Author'        => ['Wesley McGrew <wesley[at]mcgrewsecurity.com>']

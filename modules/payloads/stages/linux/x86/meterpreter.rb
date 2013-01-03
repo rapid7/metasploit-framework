@@ -16,7 +16,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'Linux Meterpreter',
-			'Version'       => '$Revision$',
 			'Description'   => 'Staged meterpreter server',
 			'Author'        => ['PKS', 'egypt'],
 			'Platform'      => 'linux',

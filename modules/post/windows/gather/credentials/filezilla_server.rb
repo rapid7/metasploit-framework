@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Post
 			'Description'    => %q{ This module will collect credentials from the FileZilla FTP server if installed. },
 			'License'        => MSF_LICENSE,
 			'Author'         => ['bannedit'],
-			'Version'        => '$Revision$',
 			'Platform'       => ['win'],
 			'SessionTypes'   => ['meterpreter' ]
 		))

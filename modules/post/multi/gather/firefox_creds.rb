@@ -31,7 +31,6 @@ class Metasploit3 < Msf::Post
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         => ['bannedit'],
-			'Version'        => '$Revision$',
 			'Platform'       => ['win', 'linux', 'bsd', 'unix', 'osx'],
 			'SessionTypes'   => ['meterpreter', 'shell' ]
 		))

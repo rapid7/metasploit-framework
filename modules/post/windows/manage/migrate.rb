@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Post
 				migrate to that newly spawned process.},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))

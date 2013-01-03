@@ -22,7 +22,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Reverse TCP Stager (DNS)',
-			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to the attacker',
 			'Author'        => ['hdm', 'skape', 'sf'],
 			'License'       => MSF_LICENSE,

@@ -19,7 +19,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Linux Command Shell, Bind TCP Inline (IPv6)',
-			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection over IPv6 and spawn a command shell',
 			'Author'        => 'kris katterjohn',
 			'License'       => MSF_LICENSE,

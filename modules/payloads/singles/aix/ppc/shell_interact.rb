@@ -19,7 +19,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'AIX execve shell for inetd',
-			'Version'       => '$Revision$',
 			'Description'   => 'Simply execve /bin/sh (for inetd programs)',
 			'Author'        => 'jduck',
 			'License'       => MSF_LICENSE,

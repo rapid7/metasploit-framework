@@ -19,7 +19,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Windows Disable Windows ICF, Command Shell, Bind TCP Inline',
-			'Version'       => '$Revision$',
 			'Description'   => 'Disable the Windows ICF, then listen for a connection and spawn a command shell',
 			'Author'        => 'Lin0xx <lin0xx [at] metasploit.com>',
 			'License'       => MSF_LICENSE,

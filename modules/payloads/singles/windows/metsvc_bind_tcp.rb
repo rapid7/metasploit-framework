@@ -20,7 +20,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Windows Meterpreter Service, Bind TCP',
-			'Version'       => '$Revision$',
 			'Description'   => 'Stub payload for interacting with a Meterpreter Service',
 			'Author'        => 'hdm',
 			'License'       => MSF_LICENSE,

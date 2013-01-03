@@ -24,7 +24,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Linux Add User',
-			'Version'       => '$Revision$',
 			'Description'   => 'Create a new user with UID 0',
 			'Author'        => [ 'Jonathan Salwan' ],
 			'License'       => MSF_LICENSE,

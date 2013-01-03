@@ -18,7 +18,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Java Reverse TCP Stager',
-			'Version'       => '$Revision$',
 			'Description'   => 'Connect back stager',
 			'Author'        => [
 					'mihi',  # all the hard work

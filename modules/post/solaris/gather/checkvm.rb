@@ -28,7 +28,6 @@ class Metasploit3 < Msf::Post
 					and QEMU/KVM.},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'solaris' ],
 				'SessionTypes'  => [ 'shell' ]
 			))

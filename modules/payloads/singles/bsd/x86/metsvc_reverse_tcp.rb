@@ -20,7 +20,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'FreeBSD Meterpreter Service, Reverse TCP Inline',
-			'Version'       => '$Revision$',
 			'Description'   => 'Stub payload for interacting with a Meterpreter Service',
 			'Author'        => 'hdm',
 			'License'       => BSD_LICENSE,

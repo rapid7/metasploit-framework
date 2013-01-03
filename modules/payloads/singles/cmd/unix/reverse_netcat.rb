@@ -18,7 +18,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Unix Command Shell, Reverse TCP (via netcat -e)',
-			'Version'       => '$Revision$',
 			'Description'   => 'Creates an interactive shell via netcat',
 			'Author'        => 'hdm',
 			'License'       => MSF_LICENSE,

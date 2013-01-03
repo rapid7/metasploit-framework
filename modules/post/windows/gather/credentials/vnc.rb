@@ -31,7 +31,6 @@ class Metasploit3 < Msf::Post
 					'Kurt Grutzmacher <grutz[at]jingojango.net>',
 					'mubix'
 				],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))

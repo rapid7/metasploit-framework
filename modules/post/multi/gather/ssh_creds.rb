@@ -28,7 +28,6 @@ class Metasploit3 < Msf::Post
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         => ['Jim Halfpenny'],
-			'Version'        => "$Revision$",
 			'Platform'       => ['linux', 'bsd', 'unix', 'osx'],
 			'SessionTypes'   => ['meterpreter', 'shell' ]
 		))

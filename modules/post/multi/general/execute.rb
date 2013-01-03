@@ -19,7 +19,6 @@ class Metasploit3 < Msf::Post
 			'Description'   => %q{ This module executes an arbitrary command line},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'hdm' ],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'linux', 'win', 'unix', 'osx' ],
 			'SessionTypes'  => [ 'shell', 'meterpreter' ]
 		))

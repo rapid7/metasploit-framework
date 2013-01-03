@@ -14,7 +14,6 @@ class Metasploit3 < Msf::Encoder::Xor
 	def initialize
 		super(
 			'Name'             => 'XOR Encoder',
-			'Version'          => '$Revision$',
 			'Description'      => 'An x64 XOR encoder. Uses an 8 byte key and takes advantage of x64 relative addressing.',
 			'Author'           => [ 'sf' ],
 			'Arch'             => ARCH_X86_64,

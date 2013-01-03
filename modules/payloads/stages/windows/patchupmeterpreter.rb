@@ -24,7 +24,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'Windows Meterpreter (skape/jt Injection)',
-			'Version'       => '$Revision$',
 			'Description'   => 'Inject the meterpreter server DLL (staged)',
 			'Author'        => 'skape',
 			'License'       => MSF_LICENSE,

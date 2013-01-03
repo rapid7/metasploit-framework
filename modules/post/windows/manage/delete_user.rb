@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Post
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'chao-mu'],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))

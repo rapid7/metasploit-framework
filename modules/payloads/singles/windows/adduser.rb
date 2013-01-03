@@ -22,7 +22,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'Windows Execute net user /ADD',
-			'Version'       => '$Revision$',
 			'Description'   => %q{
 				Create a new user and add them to local administration group.
 

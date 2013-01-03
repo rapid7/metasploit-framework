@@ -19,7 +19,6 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 	def initialize
 		super(
 			'Name'             => 'Polymorphic XOR Additive Feedback Encoder',
-			'Version'          => '$Revision$',
 			'Description'      => %q{
 				This encoder implements a polymorphic XOR additive feedback encoder.
 				The decoder stub is generated based on dynamic instruction

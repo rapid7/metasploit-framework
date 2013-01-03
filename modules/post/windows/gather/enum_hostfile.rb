@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Post
 			},
 			'License'       => BSD_LICENSE,
 			'Author'        => [ 'vt <nick.freeman[at]security-assessment.com>'],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter', 'shell' ]
 		))

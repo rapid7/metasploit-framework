@@ -19,7 +19,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Solaris Command Shell, Find Port Inline',
-			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a shell on an established connection',
 			'Author'        => 'vlad902',
 			'License'       => MSF_LICENSE,

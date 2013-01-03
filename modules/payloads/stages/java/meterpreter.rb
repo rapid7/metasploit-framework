@@ -21,7 +21,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'Java Meterpreter',
-			'Version'       => '$Revision$',
 			'Description'   => 'Run a meterpreter server in Java',
 			'Author'        => [
 					'mihi', # all the hard work

@@ -22,7 +22,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Reverse Ordinal TCP Stager (No NX or Win7)',
-			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to the attacker',
 			'Author'        => 'spoonm',
 			'License'       => MSF_LICENSE,

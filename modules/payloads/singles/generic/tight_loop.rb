@@ -15,7 +15,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Generic x86 Tight Loop',
-			'Version'       => '$Revision$',
 			'Description'   => 'Generate a tight loop in the target process',
 			'Author'        => 'jduck',
 			'Platform'	    => [ 'win', 'linux', 'bsd', 'solaris', 'bsdi', 'osx' ],

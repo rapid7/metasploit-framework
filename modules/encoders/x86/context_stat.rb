@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 	def initialize
 		super(
 			'Name'             => 'stat(2)-based Context Keyed Payload Encoder',
-			'Version'          => '$Revision$',
 			'Description'      => %q{
 				This is a Context-Keyed Payload Encoder based on stat(2)
 				and Shikata Ga Nai.

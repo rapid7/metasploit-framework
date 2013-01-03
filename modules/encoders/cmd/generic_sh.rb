@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Encoder
 	def initialize
 		super(
 			'Name'             => 'Generic Shell Variable Substitution Command Encoder',
-			'Version'          => '$Revision$',
 			'Description'      => %q{
 				This encoder uses standard Bourne shell variable substitution
 			tricks to avoid commonly restricted characters.

@@ -27,7 +27,6 @@ class Metasploit3 < Msf::Post
 					'Ruben Santamarta',  # First public exploit
 					'jduck'              # Metasploit module
 				],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ],
 			'References'    =>

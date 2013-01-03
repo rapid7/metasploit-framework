@@ -24,7 +24,6 @@ class Metasploit3 < Msf::Nop
 	def initialize
 		super(
 			'Name'        => 'Opty2',
-			'Version'     => '$Revision$',
 			'Description' => 'Opty2 multi-byte NOP generator',
 			'Author'      => [ 'spoonm', 'optyx' ],
 			'License'     => MSF_LICENSE,

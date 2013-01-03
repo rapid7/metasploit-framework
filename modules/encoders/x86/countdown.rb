@@ -14,7 +14,6 @@ class Metasploit3 < Msf::Encoder::Xor
 	def initialize
 		super(
 			'Name'             => 'Single-byte XOR Countdown Encoder',
-			'Version'          => '$Revision$',
 			'Description'      => %q{
 				This encoder uses the length of the payload as a position-dependent
 				encoder key to produce a small decoder stub.

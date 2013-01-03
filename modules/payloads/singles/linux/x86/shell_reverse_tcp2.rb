@@ -26,7 +26,6 @@ module Metasploit3
 # and: puts shellcode.decode
 		super(merge_info(info,
 			'Name'          => 'Linux Command Shell, Reverse TCP Inline - Metasm Demo',
-			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to attacker and spawn a command shell',
 			'Author'        => ['skape', 'Yoann Guillot', 'Julien Tinnes <julien[at]cr0.org>'],
 			'License'       => MSF_LICENSE,

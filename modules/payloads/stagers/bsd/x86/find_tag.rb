@@ -25,7 +25,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Find Tag Stager',
-			'Version'       => '$Revision$',
 			'Description'   => 'Use an established connection',
 			'Author'        => 'skape',
 			'License'       => MSF_LICENSE,

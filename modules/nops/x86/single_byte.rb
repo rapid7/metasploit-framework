@@ -84,7 +84,6 @@ SINGLE_BYTE_SLED =
 		super(
 			'Name'        => 'Single Byte',
 			'Alias'       => 'ia32_singlebyte',
-			'Version'     => '$Revision$',
 			'Description' => 'Single-byte NOP generator',
 			'Author'      => 'spoonm',
 			'License'     => MSF_LICENSE,

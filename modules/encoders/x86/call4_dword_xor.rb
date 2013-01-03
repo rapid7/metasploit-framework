@@ -14,7 +14,6 @@ class Metasploit3 < Msf::Encoder::Xor
 	def initialize
 		super(
 			'Name'             => 'Call+4 Dword XOR Encoder',
-			'Version'          => '$Revision$',
 			'Description'      => 'Call+4 Dword XOR Encoder',
 			'Author'           => [ 'hdm', 'spoonm' ],
 			'Arch'             => ARCH_X86,

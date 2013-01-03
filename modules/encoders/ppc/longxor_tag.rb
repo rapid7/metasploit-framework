@@ -14,7 +14,6 @@ class Metasploit3 < Msf::Encoder::Xor
 	def initialize
 		super(
 			'Name'             => 'PPC LongXOR Encoder',
-			'Version'          => '$Revision$',
 			'Description'      => %q{
 				This encoder is ghandi's PPC dword xor encoder but uses a tag-based
 				terminator rather than a length.

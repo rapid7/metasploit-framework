@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{ This module will enumerate Microsoft Powershell settings },
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))

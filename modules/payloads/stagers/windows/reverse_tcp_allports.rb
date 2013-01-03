@@ -18,7 +18,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Reverse All-Port TCP Stager',
-			'Version'       => '$Revision$',
 			'Description'   => 'Try to connect back to the attacker, on all possible ports (1-65535, slowly)',
 			'Author'        => ['hdm', 'skape', 'sf'],
 			'License'       => MSF_LICENSE,

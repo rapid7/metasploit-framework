@@ -14,7 +14,6 @@ class Metasploit3 < Msf::Encoder
 	def initialize
 		super(
 			'Name'             => 'The "none" Encoder',
-			'Version'          => '$Revision$',
 			'Description'      => %q{
 				This "encoder" does not transform the payload in any way.
 			},

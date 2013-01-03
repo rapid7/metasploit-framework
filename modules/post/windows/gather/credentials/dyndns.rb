@@ -27,7 +27,6 @@ class Metasploit3 < Msf::Post
 					'Shubham Dawra <shubham2dawra[at]gmail.com>', #SecurityXploded.com
 					'sinn3r',  #Lots of code rewrite
 				],
-			'Version'        => '$Revision$',
 			'Platform'       => [ 'win' ],
 			'SessionTypes'   => [ 'meterpreter' ]
 		))

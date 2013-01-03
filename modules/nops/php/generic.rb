@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Nop
 		super(
 			'Name'        => 'PHP Nop Generator',
 			'Alias'       => 'php_generic',
-			'Version'     => '$Revision$',
 			'Description' => 'Generates harmless padding for PHP scripts',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,

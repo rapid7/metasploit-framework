@@ -25,7 +25,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'BSD Execute Command',
-			'Version'       => '$Revision$',
 			'Description'   => 'Execute an arbitrary command',
 			'Author'        => 'vlad902',
 			'License'       => MSF_LICENSE,
@@ -50,7 +49,6 @@ module Metasploit3
 ;        Name: single_exec
 ;   Platforms: *BSD
 ;      Author: vlad902 <vlad902 [at] gmail.com>
-;     Version: $Revision$
 ;     License:
 ;
 ;        This file is part of the Metasploit Exploit Framework

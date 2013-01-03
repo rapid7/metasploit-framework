@@ -15,7 +15,6 @@ class Metasploit3 < Msf::Nop
 		super(
 			'Name'        => 'Simple',
 			'Alias'       => 'x64_simple',
-			'Version'     => '$Revision$',
 			'Description' => 'An x64 single/multi byte NOP instruction generator.',
 			'Author'      => [ 'sf' ],
 			'License'     => MSF_LICENSE,

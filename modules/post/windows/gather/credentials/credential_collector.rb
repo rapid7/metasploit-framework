@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{ This module harvests credentials found on the host and stores them in the database.},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'tebo[at]attackresearch.com'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter']
 			))

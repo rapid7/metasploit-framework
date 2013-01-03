@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Encoder::NonAlpha
 	def initialize
 		super(
 			'Name'             => "Non-Alpha Encoder",
-			'Version'          => '$Revision$',
 			'Description'      => %q{
 					Encodes payloads as non-alpha based bytes. This allows
 				payloads to bypass both toupper() and tolower() calls,

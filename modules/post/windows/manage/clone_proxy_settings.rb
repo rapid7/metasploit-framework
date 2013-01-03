@@ -15,7 +15,6 @@ class Metasploit3 < Msf::Post
 	def initialize
 		super(
 			'Name'        => 'Windows Manage Proxy Setting Cloner',
-			'Version'     => '$Revision$',
 			'Description'    => %q{
 				This module copies the proxy settings from the current user to the
 				targeted user SID, supports remote hosts as well if remote registry

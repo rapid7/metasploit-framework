@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Post
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'illwill <illwill[at]illmob.org>'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))

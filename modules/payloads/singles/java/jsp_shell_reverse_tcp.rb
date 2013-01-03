@@ -18,7 +18,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Java JSP Command Shell, Reverse TCP Inline',
-			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to attacker and spawn a command shell',
 			'Author'        => [ 'sf' ],
 			'License'       => MSF_LICENSE,

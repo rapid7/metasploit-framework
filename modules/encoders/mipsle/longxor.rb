@@ -15,7 +15,6 @@ class Metasploit3 < Msf::Encoder::Xor
 	def initialize
 		super(
 			'Name'             => 'XOR Encoder',
-			'Version'          => '$Revision$',
 			'Description'      => %q{
 				Mips Web server exploit friendly xor encoder
 			},

@@ -113,7 +113,6 @@ class Metasploit3 < Msf::Encoder
 	def initialize
 		super(
 			'Name'             => 'Avoid UTF8/tolower',
-			'Version'          => '$Revision$',
 			'Description'      => 'UTF8 Safe, tolower Safe Encoder',
 			'Author'           => 'skape',
 			'Arch'             => ARCH_X86,

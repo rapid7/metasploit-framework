@@ -16,7 +16,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Reverse HTTPS Stager (IPv6)',
-			'Version'       => '$Revision$',
 			'Description'   => 'Tunnel communication over HTTP using SSL and IPv6',
 			'Author'        => 'hdm',
 			'License'       => MSF_LICENSE,

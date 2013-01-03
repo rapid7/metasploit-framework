@@ -24,7 +24,6 @@ class Metasploit3 < Msf::Nop
 		super(
 			'Name'        => 'Simple',
 			'Alias'       => 'armle_simple',
-			'Version'     => '$Revision$',
 			'Description' => 'Simple NOP generator',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,

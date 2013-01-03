@@ -25,7 +25,6 @@ class Metasploit3 < Msf::Post
 				particular category.
 			},
 			'License'        => MSF_LICENSE,
-			'Version'        => "$Revision$",
 			'Author'         =>
 				[
 					'sinn3r',  #Metasploit

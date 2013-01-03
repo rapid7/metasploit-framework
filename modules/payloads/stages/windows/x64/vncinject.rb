@@ -23,7 +23,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'Windows x64 VNC Server (Reflective Injection)',
-			'Version'       => '$Revision$',
 			'Description'   => 'Inject a VNC Dll via a reflective loader (Windows x64) (staged)',
 			'Author'        => [ 'sf' ],
 			'Session'       => Msf::Sessions::VncInject ))

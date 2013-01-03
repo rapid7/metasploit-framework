@@ -14,7 +14,6 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 	def initialize
 		super(
 			'Name'             => 'SPARC DWORD XOR Encoder',
-			'Version'          => '$Revision$',
 			'Description'      => %q{
 				This encoder is optyx's 48-byte SPARC encoder with some tweaks.
 			},

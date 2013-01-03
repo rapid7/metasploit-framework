@@ -23,7 +23,6 @@ module Metasploit3
 	def initialize(info = { })
 		super(merge_info(info,
 			'Name'		=> 'Reverse TCP Stager',
-			'Version'	=> '$Revision$',
 			'Description'	=> 'Connect, read length, read buffer, execute',
 			'Author'	=> 'ddz',
 			'License'	=> MSF_LICENSE,

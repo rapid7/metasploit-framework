@@ -19,7 +19,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'OS X (vfork) Command Shell, Bind TCP Inline',
-			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection, vfork if necessary, and spawn a command shell',
 			'Author'        => 'ddz',
 			'License'       => MSF_LICENSE,

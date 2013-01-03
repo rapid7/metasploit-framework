@@ -19,7 +19,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Windows x64 Command Shell, Reverse TCP Inline',
-			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to attacker and spawn a command shell (Windows x64)',
 			'Author'        => [ 'sf' ],
 			'License'       => MSF_LICENSE,

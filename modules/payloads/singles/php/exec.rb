@@ -20,7 +20,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'PHP Execute Command ',
-			'Version'       => '$Revision$',
 			'Description'   => 'Execute a single system command',
 			'Author'        => [ 'egypt' ],
 			'License'       => BSD_LICENSE,

@@ -16,7 +16,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Custom Payload',
-			'Version'       => '$Revision$',
 			'Description'   => 'Use custom string or file as payload. Set either PAYLOADFILE or
 								PAYLOADSTR.',
 			'Author'        => 'scriptjunkie <scriptjunkie[at]scriptjunkie.us>',

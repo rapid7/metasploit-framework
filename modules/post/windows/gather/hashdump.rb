@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Post
 			'Description'   => %q{ This module will dump the local user accounts from the SAM database using the registry },
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'hdm' ],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))

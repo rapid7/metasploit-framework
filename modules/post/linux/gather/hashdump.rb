@@ -24,7 +24,6 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{ Post Module to dump the password hashes for all users on a Linux System},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'linux' ],
 				'SessionTypes'  => [ 'shell' ]
 			))

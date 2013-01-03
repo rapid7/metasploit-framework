@@ -27,7 +27,6 @@ class Metasploit3 < Msf::Post
 						'Carlos Perez <carlos_perez[at]darkoperator.com>',
 						'Stephen Haywood <haywoodsb[at]gmail.com>'
 					],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))

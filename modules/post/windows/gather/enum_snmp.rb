@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{ This module will enumerate the SNMP service configuration },
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>', 'Tebo <tebo[at]attackresearch.com>'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))

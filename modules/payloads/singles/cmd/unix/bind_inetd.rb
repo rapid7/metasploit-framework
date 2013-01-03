@@ -18,7 +18,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Unix Command Shell, Bind TCP (inetd)',
-			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection and spawn a command shell (persistent)',
 			'Author'        => 'hdm',
 			'License'       => MSF_LICENSE,

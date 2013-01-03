@@ -14,7 +14,6 @@ class Metasploit3 < Msf::Encoder::Alphanum
 	def initialize
 		super(
 			'Name'             => "Alpha2 Alphanumeric Mixedcase Encoder",
-			'Version'          => '$Revision$',
 			'Description'      => %q{
 				Encodes payloads as alphanumeric mixedcase text.  This encoder uses
 				SkyLined's Alpha2 encoding suite.

@@ -25,7 +25,6 @@ class Metasploit3 < Msf::Post
 				password and then execute the command.
 			},
 			'License'              => MSF_LICENSE,
-			'Version'              => '$Revision$',
 			'Platform'             => ['win'],
 			'SessionTypes'         => ['meterpreter'],
 			'Author'               => ['Kx499']

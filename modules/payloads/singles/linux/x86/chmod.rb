@@ -19,7 +19,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'        => 'Linux Chmod',
-			'Version'     => '$Revision$',
 			'Description' => 'Runs chmod on specified file with specified mode',
 			'Author'      => 'kris katterjohn',
 			'License'     => BSD_LICENSE,

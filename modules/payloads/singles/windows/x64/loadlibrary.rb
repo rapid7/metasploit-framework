@@ -17,7 +17,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Windows x64 LoadLibrary Path',
-			'Version'       => '$Revision$',
 			'Description'   => 'Load an arbitrary x64 library path',
 			'Author'        => [ 'scriptjunkie', 'sf' ],
 			'License'       => MSF_LICENSE,

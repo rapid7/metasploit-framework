@@ -29,7 +29,6 @@ class Metasploit3 < Msf::Post
 					names, volume serial numbers, and more. },
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'davehull <dph_msf[at]trustedsignal.com>'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))

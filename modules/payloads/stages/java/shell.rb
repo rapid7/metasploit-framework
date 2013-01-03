@@ -22,7 +22,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'Command Shell',
-			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a piped command shell (cmd.exe on Windows, /bin/sh everywhere else)',
 			'Author'        => [
 					'mihi', # all the hard work

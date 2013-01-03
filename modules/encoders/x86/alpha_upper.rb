@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Encoder::Alphanum
 	def initialize
 		super(
 			'Name'             => "Alpha2 Alphanumeric Uppercase Encoder",
-			'Version'          => '$Revision$',
 			'Description'      => %q{
 				Encodes payloads as alphanumeric uppercase text.  This encoder uses
 				SkyLined's Alpha2 encoding suite.

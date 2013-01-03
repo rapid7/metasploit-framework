@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Post
 				HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\DCName.
 				},
 			'License'         => MSF_LICENSE,
-			'Version'         => '$Revision$',
 			'Platform'        => ['win'],
 			'SessionTypes'    => ['meterpreter'],
 			'Author'          => ['Joshua Abraham <jabra[at]rapid7.com>']

@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Post
 				payload in to the memory of the created module.},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter']
 		))

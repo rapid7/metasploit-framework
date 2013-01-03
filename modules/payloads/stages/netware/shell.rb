@@ -17,7 +17,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'NetWare Command Shell',
-			'Version'       => '$Revision$',
 			'Description'   => 'Connect to the NetWare console (staged)',
 			'Author'        => 'toto',
 			'License'       => MSF_LICENSE,

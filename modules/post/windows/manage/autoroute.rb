@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Post
 					compromised host when connecting to the named NETWORK and SUBMASK.},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'todb'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter']
 			))

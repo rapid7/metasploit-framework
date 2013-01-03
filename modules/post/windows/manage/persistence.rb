@@ -39,7 +39,6 @@ class Metasploit3 < Msf::Post
 					'Carlos Perez <carlos_perez[at]darkoperator.com>',
 					'Merlyn drforbin Cousins <drforbin6[at]gmail.com>'
 				],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'Actions'       => [['TEMPLATE'], ['REXE']],
 			'DefaultAction' => 'TEMPLATE',

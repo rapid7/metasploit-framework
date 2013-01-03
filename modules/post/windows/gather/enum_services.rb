@@ -26,7 +26,6 @@ class Metasploit3 < Msf::Post
 				migrate to a safe process (explorer.exe for example).
 				},
 			'License'              => MSF_LICENSE,
-			'Version'              => '$Revision$',
 			'Platform'             => ['win'],
 			'SessionTypes'         => ['meterpreter'],
 			'Author'               => ['Keith Faber', 'Kx499']

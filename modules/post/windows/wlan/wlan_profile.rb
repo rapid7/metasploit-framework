@@ -23,7 +23,6 @@ class Metasploit3 < Msf::Post
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => ['theLightCosine'],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))

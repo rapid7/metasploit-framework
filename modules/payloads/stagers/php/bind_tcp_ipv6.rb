@@ -21,7 +21,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Bind TCP Stager IPv6',
-			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection over IPv6',
 			'Author'        => ['egypt'],
 			'License'       => MSF_LICENSE,

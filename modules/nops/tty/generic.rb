@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Nop
 		super(
 			'Name'        => 'TTY Nop Generator',
 			'Alias'       => 'tty_generic',
-			'Version'     => '$Revision$',
 			'Description' => 'Generates harmless padding for TTY input',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,

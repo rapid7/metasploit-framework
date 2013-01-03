@@ -15,7 +15,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Linux Execute Command',
-			'Version'       => '$Revision$',
 			'Description'   => 'Execute an arbitrary command',
 			'Author'        => 'ricky',
 			'License'       => MSF_LICENSE,

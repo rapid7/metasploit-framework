@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Post
 				%PATH% variable.
 			},
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'Platform'       => ['win'],
 			'SessionTypes'   => ['meterpreter'],
 			'Author'         =>

@@ -18,7 +18,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'BSDi Command Shell, Find Port Inline',
-			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a shell on an established connection',
 			'Author'        => [ 'skape', 'optyx' ],
 			'License'       => MSF_LICENSE,
