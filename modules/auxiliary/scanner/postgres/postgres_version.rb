@@ -26,8 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					[ 'URL', 'http://www.postgresql.org' ]
-				],
-			'Version'        => '$Revision$' # 2009-02-05
+				]
 		))
 
 		register_options([ ], self.class) # None needed.

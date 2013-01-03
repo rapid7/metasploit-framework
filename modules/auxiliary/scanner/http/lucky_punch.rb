@@ -26,8 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 				XSS attack to redirect user browser to a attacker controller website.
 			},
 			'Author'         => [ 'et' ],
-			'License'        => BSD_LICENSE,
-			'Version'        => '$Revision$'))
+			'License'        => BSD_LICENSE))
 
 		register_options(
 			[

@@ -20,8 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 				If the webserver has mod_negotiation enabled, the IP address will be displayed.
 			},
 			'Author' 		=> [ 'diablohorn [at] gmail.com' ],
-			'License'		=> MSF_LICENSE,
-			'Version'		=> '$Revision$'))
+			'License'		=> MSF_LICENSE))
 
 		register_options(
 			[

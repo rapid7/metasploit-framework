@@ -25,8 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 				following files /backup/files.ext .
 			},
 			'Author' 		=> [ 'et [at] metasploit.com' ],
-			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision$'))
+			'License'		=> BSD_LICENSE))
 
 		register_options(
 			[

@@ -24,8 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 				in a given directory path.
 			},
 			'Author' 		=> [ 'et' ],
-			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision$'))
+			'License'		=> BSD_LICENSE))
 
 		register_options(
 			[

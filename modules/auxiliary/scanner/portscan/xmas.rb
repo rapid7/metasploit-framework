@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Auxiliary
 				PSH and URG flags.
 			},
 			'Author'      => 'kris katterjohn',
-			'Version'     => '$Revision$', # 04/08/2009
 			'License'     => MSF_LICENSE
 		)
 

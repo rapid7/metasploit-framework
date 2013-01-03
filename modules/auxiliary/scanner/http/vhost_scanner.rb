@@ -32,8 +32,7 @@ require 'cgi'
 
 					},
 				'Author' 		=> [ 'et [at] cyberspace.org' ],
-				'License'		=> BSD_LICENSE,
-				'Version'		=> '$Revision$'))
+				'License'		=> BSD_LICENSE))
 
 			register_options(
 			[

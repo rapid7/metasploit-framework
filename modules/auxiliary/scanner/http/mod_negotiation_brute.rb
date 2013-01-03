@@ -26,8 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 				files found will be displayed.
 			},
 			'Author' 		=> [ 'diablohorn [at] gmail.com' ],
-			'License'		=> MSF_LICENSE,
-			'Version'		=> '$Revision$'))
+			'License'		=> MSF_LICENSE))
 
 		register_options(
 			[

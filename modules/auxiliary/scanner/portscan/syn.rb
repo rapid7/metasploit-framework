@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 				Enumerate open TCP services using a raw SYN scan.
 			},
 			'Author'      => 'kris katterjohn',
-			'Version'     => '$Revision$', # 03/26/2009
 			'License'     => MSF_LICENSE
 		)
 

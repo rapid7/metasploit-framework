@@ -25,8 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 				of a specific file in a given path.
 			},
 			'Author' 		=> [ 'et [at] cyberspace.org' ],
-			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision$'))
+			'License'		=> BSD_LICENSE))
 
 		register_options(
 			[

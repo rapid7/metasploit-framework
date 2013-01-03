@@ -24,8 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 				hidden methods.
 			},
 			'Author'      => [ 'patrick' ],
-			'License'     => MSF_LICENSE,
-			'Version'     => '$Revision$'))
+			'License'     => MSF_LICENSE))
 
 		register_options(
 			[

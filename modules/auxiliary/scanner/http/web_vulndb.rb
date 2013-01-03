@@ -22,8 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module identifies common vulnerable files or cgis.
 			},
 			'Author' 		=> [ 'et' ],
-			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision$'))
+			'License'		=> BSD_LICENSE))
 
 		register_options(
 			[

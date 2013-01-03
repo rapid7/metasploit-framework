@@ -30,8 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 					['BID', '37670'],
 					['OSVDB', '61538'],
 					['URL','http://praetorianprefect.com/archives/2010/01/junos-juniper-flaw-exposes-core-routers-to-kernal-crash/']
-				],
-			'Version'     => '$Revision$' # 02/02/2010
+				]
 		)
 
 		register_options([

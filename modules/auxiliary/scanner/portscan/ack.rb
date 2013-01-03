@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Auxiliary
 				not in place for them.
 			},
 			'Author'      => 'kris katterjohn',
-			'Version'     => '$Revision$', # 03/26/2009
 			'License'     => MSF_LICENSE
 		)
 

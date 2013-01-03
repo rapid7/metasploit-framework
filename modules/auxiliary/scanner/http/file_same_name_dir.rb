@@ -27,8 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 				Only works if PATH is differenet than '/'.
 			},
 			'Author' 		=> [ 'et [at] metasploit.com' ],
-			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision$'))
+			'License'		=> BSD_LICENSE))
 
 		register_options(
 			[
