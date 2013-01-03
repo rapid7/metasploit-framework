@@ -272,7 +272,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			# If not DNS, expand list of IPs and scan each
 			if @if_dns == false && hash
-				ip_list = Rex::Socket::RangeWalker.new(@target)
+				ip_list = Rex::Socket::RangeWalker.new(datastore['TARGET'])
 				ip_list.each { |ip|
 					generate_requests(hash, "http://#{ip}")
 				}
