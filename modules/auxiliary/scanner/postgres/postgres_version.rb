@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -30,8 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					[ 'URL', 'http://www.postgresql.org' ]
-				],
-			'Version'        => '$Revision$' # 2009-02-05
+				]
 		))
 
 		register_options([ ], self.class) # None needed.

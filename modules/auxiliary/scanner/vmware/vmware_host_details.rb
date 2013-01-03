@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -23,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'VMWare Enumerate Host Details',
-			'Version'        => '$Revision$',
 			'Description'    => %Q{
 				This module attempts to enumerate information about the host systems through the VMWare web API.
 				This can include information about the hardware installed on the host machine.

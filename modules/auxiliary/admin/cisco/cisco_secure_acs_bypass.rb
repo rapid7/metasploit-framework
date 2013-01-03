@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,7 +16,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'         => 'Cisco Secure ACS Version < 5.1.0.44.5 or 5.2.0.26.2 Unauthorized Password Change',
-			'Version'      => '$Revision$',
 			'Description'  => %q{
 				This module exploits an authentication bypass issue which allows arbitrary
 				password change requests to be issued for any user in the local store.

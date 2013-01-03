@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'SNMP Enumeration Module',
-			'Version'     => '$Revision$',
 			'Description' => 'This module allows enumeration of any devices with SNMP
 				protocol support. It supports hardware, software, and network information.
 				The default community used is "public".',
