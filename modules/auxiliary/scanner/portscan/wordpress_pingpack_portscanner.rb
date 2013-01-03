@@ -134,27 +134,27 @@ class Metasploit3 < Msf::Auxiliary
 			return false
 		end
 
-			# parse out links and place in array
-			links = res.to_s.scan(/<link>([^<]+)<\/link>/i)
+		# parse out links and place in array
+		links = res.to_s.scan(/<link>([^<]+)<\/link>/i)
 
-			if res.code != 200 or links.nil? or links.empty?
-				return false
+		if res.code != 200 or links.nil? or links.empty?
+			return blog_posts
+		end
+
+		links.each do |link|
+			blog_post = link[0]
+			pingback_request = get_pingback_request(xml_rpc, 'http://127.0.0.1', blog_post)
+
+			pingback_disabled_match = pingback_request.body.match(/<value><int>33<\/int><\/value>/i)
+			if pingback_request.code == 200 and pingback_disabled_match.nil?
+				print_good("Pingback enabled: #{link.join}\n")
+				blog_posts << {:xml_rpc => xml_rpc, :blog_post => blog_post}
+				return blog_posts
+			else
+				print_status("Pingback disabled: #{link.join}")
 			end
-
-			links.each do |link|
-				blog_post = link[0]
-				pingback_request = get_pingback_request(xml_rpc, 'http://127.0.0.1', blog_post)
-
-				pingback_disabled_match = pingback_request.body.match(/<value><int>33<\/int><\/value>/i)
-				if pingback_request.code == 200 and pingback_disabled_match.nil?
-					print_good("Pingback enabled: #{link.join}\n")
-					blog_posts << {:xml_rpc => xml_rpc, :blog_post => blog_post}
-					return blog_posts
-				else
-					print_status("Pingback disabled: #{link.join}")
-				end
-			end
-		return false
+		end
+		return blog_posts
 	end
 
 	# Creates the XML data to be sent
@@ -272,7 +272,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			# If not DNS, expand list of IPs and scan each
 			if @if_dns == false && hash
-				ip_list = Rex::Socket::RangeWalker.new(datastore['TARGET'])
+				ip_list = Rex::Socket::RangeWalker.new(@target)
 				ip_list.each { |ip|
 					generate_requests(hash, "http://#{ip}")
 				}
