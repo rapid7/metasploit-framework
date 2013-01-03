@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -81,7 +77,6 @@ class Metasploit3 < Msf::Nop
 		super(
 			'Name'        => 'SPARC NOP Generator',
 			'Alias'       => 'sparc_simple',
-			'Version'     => '$Revision$',
 			'Description' => 'SPARC NOP generator',
 			'Author'      => 'vlad902',
 			'License'     => MSF_LICENSE,

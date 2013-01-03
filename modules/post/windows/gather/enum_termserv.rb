@@ -1,7 +1,3 @@
-##
-# $Id$
-##
-
 # post/windows/gather/enum_termserv.rb
 
 ##
@@ -32,7 +28,6 @@ class Metasploit3 < Msf::Post
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'mubix' ],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
