@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # Author: Robin Wood <robin@digininja.org> <http://www.digininja.org>
 # Version: 0.1
 #
@@ -38,7 +34,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'Robin Wood <robin[at]digininja.org>' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'URL', 'http://www.digininja.org/metasploit/mssql_idf.php' ],

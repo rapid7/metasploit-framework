@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -25,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'WinRM Authentication Method Detection',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module sends a request to an HTTP/HTTPS service to see if it is a WinRM service.
 				If it is a WinRM service, it also gathers the Authentication Methods supported.

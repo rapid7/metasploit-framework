@@ -13,7 +13,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 		'Name'        => 'IPv6 Link Local/Node Local Ping Discovery',
-		'Version'     => '$Revision$',
 		'Description' => %q{
 				Send a ICMPv6 ping request to all default multicast addresses, and wait to see who responds.
 		},

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -22,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Tomcat Application Manager Login Utility',
-			'Version'        => '$Revision$',
 			'Description'    => 'This module simply attempts to login to a Tomcat Application Manager instance using a specific user/pass.',
 			'References'     =>
 				[

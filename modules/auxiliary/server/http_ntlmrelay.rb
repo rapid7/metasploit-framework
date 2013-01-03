@@ -35,7 +35,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'HTTP Client MS Credential Relayer',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module relays negotiated NTLM Credentials from an HTTP server to multiple
 					protocols. Currently, this module supports relaying to SMB and HTTP.

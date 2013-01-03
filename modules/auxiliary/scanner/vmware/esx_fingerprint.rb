@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -23,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'VMWare ESX/ESXi Fingerprint Scanner',
-			'Version'        => '$Revision$',
 			'Description'    => %Q{
 				This module accesses the web API interfaces for VMware ESX/ESXi servers
 				and attempts to identify version information for that server.

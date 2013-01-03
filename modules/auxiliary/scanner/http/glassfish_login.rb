@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -21,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'GlassFish Brute Force Utility',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module attempts to login to GlassFish instance using username
 				and password combindations indicated by the USER_FILE, PASS_FILE,

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -28,7 +24,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMB Local User Enumeration (LookupSid)',
-			'Version'     => '$Revision$',
 			'Description' => 'Determine what local users exist via brute force SID lookups',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,
