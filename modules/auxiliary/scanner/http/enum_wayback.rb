@@ -19,8 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 				replaying during a web assessment. Finding unlinked and old pages.
 			},
 			'Author' => [ 'mubix' ],
-			'License' => MSF_LICENSE,
-			'Version' => '$Revision$'
+			'License' => MSF_LICENSE
 		))
 		register_options(
 			[

@@ -29,8 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 					['URL', 'http://seclists.org/fulldisclosure/2010/Aug/122']
 				],
 			'Author'         => [ 'Laurent Gaffie <laurent.gaffie[at]gmail.com>', 'jduck' ],
-			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$'
+			'License'        => MSF_LICENSE
 		))
 
 		register_options(

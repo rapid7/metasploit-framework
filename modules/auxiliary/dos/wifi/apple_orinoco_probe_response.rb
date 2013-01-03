@@ -33,8 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					['CVE', '2006-5710'],
 					['OSVDB', '30180'],
-				],
-			'Version'        => '$Revision$'
+				]
 		))
 		register_options(
 			[

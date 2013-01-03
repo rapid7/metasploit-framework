@@ -21,8 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 					against a MySQL instance given the appropriate credentials.
 			},
 			'Author'		=> [ 'Bernardo Damele A. G. <bernardo.damele[at]gmail.com>' ],
-			'License'		=> MSF_LICENSE,
-			'Version'		=> '$Revision$'
+			'License'		=> MSF_LICENSE
 		))
 
 		register_options(

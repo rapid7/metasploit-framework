@@ -25,8 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 
 			'Author'         => [ 'hdm', 'kris katterjohn' ],
-			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$'
+			'License'        => MSF_LICENSE
 		))
 
 		register_options([

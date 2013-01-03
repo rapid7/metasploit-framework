@@ -20,8 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module sends a series of SMB create pipe requests with corrupted bytes.
 			},
 			'Author'         => [ 'hdm' ],
-			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$'
+			'License'        => MSF_LICENSE
 		))
 		register_options([
 			OptInt.new('MAXDEPTH', [false, 'Specify a maximum byte depth to test']),

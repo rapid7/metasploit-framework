@@ -20,8 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module sends a series of malformed TDS login requests.
 			},
 			'Author'         => [ 'hdm' ],
-			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$'
+			'License'        => MSF_LICENSE
 		))
 	end
 

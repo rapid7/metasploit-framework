@@ -27,8 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					[ 'URL', 'http://michaeldaw.org/sql-injection-cheat-sheet#postgres' ]
-				],
-			'Version'        => '$Revision$'
+				]
 		))
 
 		register_options(

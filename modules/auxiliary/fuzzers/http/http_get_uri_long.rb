@@ -20,8 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module sends a series of HTTP GET request with incrementing URL lengths.
 			},
 			'Author'         => [ 'nullthreat' ],
-			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$'
+			'License'        => MSF_LICENSE
 		))
 		register_options([
 			Opt::RPORT(80),

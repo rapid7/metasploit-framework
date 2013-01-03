@@ -20,8 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module sends a series of SSH requests with a corrupted version string
 			},
 			'Author'         => [ 'hdm' ],
-			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$'
+			'License'        => MSF_LICENSE
 		))
 		register_options([
 			Opt::RPORT(22),

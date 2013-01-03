@@ -23,8 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 			should be flagged via an internal or external SMTP server.
 			},
 			'License'        => MSF_LICENSE,
-			'Author'         =>  ['willis'],
-			'Version'        => '$Revision$'
+			'Author'         =>  ['willis']
 		))
 			register_options(
 				[

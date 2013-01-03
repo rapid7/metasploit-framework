@@ -22,8 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 				run.
 			},
 			'Author'         => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
-			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$'
+			'License'        => MSF_LICENSE
 		))
 
 	end

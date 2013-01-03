@@ -21,8 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 			the NTLMv1 protocol with corrupted bytes.
 			},
 			'Author'         => [ 'hdm' ],
-			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$'
+			'License'        => MSF_LICENSE
 		))
 		register_options([
 			Opt::RPORT(445),

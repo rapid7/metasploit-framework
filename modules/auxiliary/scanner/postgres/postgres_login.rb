@@ -30,8 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					[ 'URL', 'http://www.postgresql.org' ],
 					[ 'CVE', '1999-0502'] # Weak password
-				],
-			'Version'        => '$Revision$'
+				]
 		))
 
 		register_options(

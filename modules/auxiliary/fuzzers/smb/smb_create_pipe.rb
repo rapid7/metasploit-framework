@@ -21,8 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 			requests using malicious strings.
 			},
 			'Author'         => [ 'hdm' ],
-			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$'
+			'License'        => MSF_LICENSE
 		))
 	end
 

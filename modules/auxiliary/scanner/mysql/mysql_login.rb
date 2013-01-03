@@ -26,8 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					[ 'CVE', '1999-0502'] # Weak password
-				],
-			'Version'		=> '$Revision$'
+				]
 		))
 	end
 

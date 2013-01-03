@@ -33,8 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'URL', 'http://www.oracle.com/us/products/database/index.html' ],
 					[ 'CVE', '1999-0502'], # Weak password CVE
 					[ 'URL', 'http://nmap.org/nsedoc/scripts/oracle-brute.html']
-				],
-			'Version'        => '$Revision$'
+				]
 		))
 
 		register_options(

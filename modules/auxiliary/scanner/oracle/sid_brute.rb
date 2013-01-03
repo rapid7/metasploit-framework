@@ -25,8 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 				SIDs read from the named file will be attempted in sequence instead.
 			},
 			'Author'         => [ 'todb' ],
-			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$'
+			'License'        => MSF_LICENSE
 		))
 
 		register_options(
