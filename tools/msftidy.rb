@@ -369,7 +369,7 @@ class Msftidy
 	end
 
 	def check_comma
-		comma_match = @source.match(/[^\n\r]*(?<m>,\s*[\)\}\]])[^\n\r]*/)
+		comma_match = @source.match(/[^\n\r]*(?<m>,\s*[\)])[^\n\r]*/)
 		unless comma_match.nil?
 			# inspect replaces special chars, but surrounds the string with ""
 			match_string = comma_match[:m].to_s.inspect.sub(/^"(?<foo>.*)"$/, '\k<foo>')
