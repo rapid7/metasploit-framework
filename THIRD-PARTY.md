@@ -21,12 +21,14 @@ Ruby
  - FastLib located at lib/fastlib.rb
    Copyright (C) 2011 Rapid7
  - Gem components located under lib/gemcache/
+   * mime-types - Copyright (C) Austin Ziegler
    * rdoc - RDoc is Copyright (c) 2001-2003 Dave Thomas, The Pragmatic Programmers.
    Portions (c) 2007-2011 Eric Hodel.  Portions copyright others, see individual
    files for details.
    * eventmachine - Copyright (C) 2006-07 by Francis Cianfrocca
    * json - Copyright Daniel Luz <dev at mernen dot com>
    * pg - Copyright (c) 1997-2012 by the authors
+   * thin - Copyright (c) Marc-Andre Cournoyer
 
 
 
@@ -997,28 +999,38 @@ MIT
    * activerecord - Copyright (c) 2004-2011 David Heinemeier Hansson
    * activeresource - Copyright (c) 2006-2011 David Heinemeier Hansson
    * activesupport - Copyright (c) 2005-2011 David Heinemeier Hansson
+   * acts_as_list - Copyright (c) 2007 David Heinemeier Hansson
+   * arel- Copyright (c) 2007-2010 Nick Kallen, Bryan Helmkamp, Emilio Tagua, Aaron Patterson
    * authlogic - Copyright (c) 2011 Ben Johnson of Binary Logic
    * builder - Copyright (c) 2003-2012 Jim Weirich (jim.weirich@gmail.com)
    * carrierwave - Copyright (c) 2008-2012 Jonas Nicklas
    * chunky_png - Copyright (c) 2010 Willem van Bergen
    * coderay - By Rob Aldred
    * daemons - Copyright (c) 2005-2012 Thomas Uehlinger
-   * diff-lcs - Copyright 2004–2011 Austin Ziegler
+   * diff-lcs - Copyright 2004-2011 Austin Ziegler
+   * erubis - copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
    * formtastic - Copyright (c) 2008-2010 Justin French
    * fssm - Copyright (c) 2011 Travis Tilley
    * hike - Copyright (c) 2011 Sam Stephenson
    * i18n - Copyright (c) 2008 The Ruby I18n team
+   * ice_cube - Copyright (c) 2010-2012 John Crepezzi
    * journey - Copyright (c) 2011 Aaron Patterson
    * jquery-rails - Copyright (c) 2010 Andre Arko
    * liquid - Copyright (c) 2005, 2006 Tobias Luetke
-   * metasploit_data_models - Copyright (C) 2012, Rapid7, Inc.
+   * mail - Copyright (c) 2009, 2010, 2011, 2012 Mikel Lindsaar
+   * metasploit_data_models - Copyright (c) 2012, Rapid7, Inc.
    * method_source - Copyright (c) 2011 John Mair (banisterfiend)
    * multi_json - Copyright (c) 2010 Michael Bleigh, Josh Kalderimis, Erik Michaels-Ober, and Intridea, Inc.
+   * nokogiri - Copyright (c) 2008 - 2012 Aaron Patterson, Mike Dalessio, Charles Nutter, Sergio Arbeo, Patrick Mahoney, Yoko Harada
+   * polyglot - Copyright (c) 2007 Clifford Heath
+   * prototype_legacy_helper - No copyright statement provided (unmaintained per https://github.com/rails/prototype_legacy_helper)
    * rack - Copyright (c) 2007, 2008, 2009, 2010 Christian Neukirchen <purl.org/net/chneukirchen>
    * rack-cache - Copyright (c) 2008 Ryan Tomayko <http://tomayko.com/about>
    * rack-ssl - Copyright (c) 2010 Joshua Peek
+   * rack-test - Copyright (c) 2008-2009 Bryan Helmkamp, Engine Yard Inc.
    * railties - No copyright statement provided
    * rake - Copyright (c) 2003, 2004 Jim Weirich
+   * robots - Copyright (c) 2008 Kyle Maxwell, contributors
    * slop - Copyright (c) 2012 Lee Jarvis
    * spork - Copyright (c) 2009 Tim Harper
    * sprockets - Copyright (c) 2011 Sam Stephenson, Copyright (c) 2011 Joshua Peek
@@ -1089,3 +1101,373 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ````
 
+
+Artistic 2.0
+============
+
+ - Gem components located under lib/gemcache/
+   * win32-api - Copyright (c) 2003-2011, Daniel J. Berger
+   * win32-service - Copyright (c) 2003-2011, Daniel J. Berger
+   * windows-api - Copyright (c) 2003-2011, Daniel J. Berger
+   * windows-pr - Copyright (c) 2003-2011, Daniel J. Berger
+
+````
+
+Artistic License 2.0 Copyright (c) 2000-2006, The Perl Foundation.
+
+Everyone is permitted to copy and distribute verbatim copies of this license
+document, but changing it is not allowed.
+
+Preamble This license establishes the terms under which a given free software
+Package may be copied, modified, distributed, and/or redistributed. The intent
+is that the Copyright Holder maintains some artistic control over the
+development of that Package while still keeping the Package available as open
+source and free software.
+
+You are always permitted to make arrangements wholly outside of this license
+directly with the Copyright Holder of a given Package. If the terms of this
+license do not permit the full use that you propose to make of the Package, you
+should contact the Copyright Holder and seek a different licensing arrangement.
+
+Definitions "Copyright Holder" means the individual(s) or organization(s) named
+in the copyright notice for the entire Package.
+
+"Contributor" means any party that has contributed code or other material to
+the Package, in accordance with the Copyright Holder's procedures.
+
+"You" and "your" means any person who would like to copy, distribute, or modify
+the Package.
+
+"Package" means the collection of files distributed by the Copyright Holder,
+and derivatives of that collection and/or of those files. A given Package may
+consist of either the Standard Version, or a Modified Version.
+
+"Distribute" means providing a copy of the Package or making it accessible to
+anyone else, or in the case of a company or organization, to others outside of
+your company or organization.
+
+"Distributor Fee" means any fee that you charge for Distributing this Package
+or providing support for this Package to another party. It does not mean
+licensing fees.
+
+"Standard Version" refers to the Package if it has not been modified, or has
+been modified only in ways explicitly requested by the Copyright Holder.
+
+"Modified Version" means the Package, if it has been changed, and such changes
+were not explicitly requested by the Copyright Holder.
+
+"Original License" means this Artistic License as Distributed with the Standard
+Version of the Package, in its current version or as it may be modified by The
+Perl Foundation in the future.
+
+"Source" form means the source code, documentation source, and configuration
+files for the Package.
+
+"Compiled" form means the compiled bytecode, object code, binary, or any other
+form resulting from mechanical transformation or translation of the Source
+form.
+
+Permission for Use and Modification Without Distribution (1) You are permitted
+to use the Standard Version and create and use Modified Versions for any
+purpose without restriction, provided that you do not Distribute the Modified
+Version.
+
+Permissions for Redistribution of the Standard Version (2) You may Distribute
+verbatim copies of the Source form of the Standard Version of this Package in
+any medium without restriction, either gratis or for a Distributor Fee,
+provided that you duplicate all of the original copyright notices and
+associated disclaimers. At your discretion, such verbatim copies may or may not
+include a Compiled form of the Package.
+
+(3) You may apply any bug fixes, portability changes, and other modifications
+made available from the Copyright Holder. The resulting Package will still be
+considered the Standard Version, and as such will be subject to the Original
+License.
+
+Distribution of Modified Versions of the Package as Source (4) You may
+Distribute your Modified Version as Source (either gratis or for a Distributor
+Fee, and with or without a Compiled form of the Modified Version) provided that
+you clearly document how it differs from the Standard Version, including, but
+not limited to, documenting any non-standard features, executables, or modules,
+and provided that you do at least ONE of the following:
+
+(a) make the Modified Version available to the Copyright Holder of the Standard
+Version, under the Original License, so that the Copyright Holder may include
+your modifications in the Standard Version.  (b) ensure that installation of
+your Modified Version does not prevent the user installing or running the
+Standard Version. In addition, the Modified Version must bear a name that is
+different from the name of the Standard Version.  (c) allow anyone who receives
+a copy of the Modified Version to make the Source form of the Modified Version
+available to others under (i) the Original License or (ii) a license that
+permits the licensee to freely copy, modify and redistribute the Modified
+Version using the same licensing terms that apply to the copy that the licensee
+received, and requires that the Source form of the Modified Version, and of any
+works derived from it, be made freely available in that license fees are
+prohibited but Distributor Fees are allowed.
+
+Distribution of Compiled Forms of the Standard Version or Modified Versions
+without the Source (5) You may Distribute Compiled forms of the Standard
+Version without the Source, provided that you include complete instructions on
+how to get the Source of the Standard Version. Such instructions must be valid
+at the time of your distribution. If these instructions, at any time while you
+are carrying out such distribution, become invalid, you must provide new
+instructions on demand or cease further distribution. If you provide valid
+instructions or cease distribution within thirty days after you become aware
+that the instructions are invalid, then you do not forfeit any of your rights
+under this license.
+
+(6) You may Distribute a Modified Version in Compiled form without the Source,
+provided that you comply with Section 4 with respect to the Source of the
+Modified Version.
+
+Aggregating or Linking the Package (7) You may aggregate the Package (either
+the Standard Version or Modified Version) with other packages and Distribute
+the resulting aggregation provided that you do not charge a licensing fee for
+the Package. Distributor Fees are permitted, and licensing fees for other
+components in the aggregation are permitted. The terms of this license apply to
+the use and Distribution of the Standard or Modified Versions as included in
+the aggregation.
+
+(8) You are permitted to link Modified and Standard Versions with other works,
+to embed the Package in a larger work of your own, or to build stand-alone
+binary or bytecode versions of applications that include the Package, and
+Distribute the result without restriction, provided the result does not expose
+a direct interface to the Package.
+
+Items That are Not Considered Part of a Modified Version (9) Works (including,
+but not limited to, modules and scripts) that merely extend or make use of the
+Package, do not, by themselves, cause the Package to be a Modified Version. In
+addition, such works are not considered parts of the Package itself, and are
+not subject to the terms of this license.
+
+General Provisions (10) Any use, modification, and distribution of the Standard
+or Modified Versions is governed by this Artistic License. By using, modifying
+or distributing the Package, you accept this license. Do not use, modify, or
+distribute the Package, if you do not accept this license.
+
+(11) If your Modified Version has been derived from a Modified Version made by
+someone other than you, you are nevertheless required to ensure that your
+Modified Version complies with the requirements of this license.
+
+(12) This license does not grant you the right to use any trademark, service
+mark, tradename, or logo of the Copyright Holder.
+
+(13) This license includes the non-exclusive, worldwide, free-of-charge patent
+license to make, have made, use, offer to sell, sell, import and otherwise
+transfer the Package with respect to any patent claims licensable by the
+Copyright Holder that are necessarily infringed by the Package. If you
+institute patent litigation (including a cross-claim or counterclaim) against
+any party alleging that the Package constitutes direct or contributory patent
+infringement, then this Artistic License to you shall terminate on the date
+that such litigation is filed.
+
+(14) Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER
+AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES. THE
+IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
+NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW.
+UNLESS REQUIRED BY LAW, NO COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY
+OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+DAMAGE.
+
+````
+
+Apache 2.0
+==========
+
+ - Gem components located under lib/gemcache/
+    * Msgpack - Copyright (c) 2008-2010 FURUHASHI Sadayuki
+
+````
+
+Apache License
+Version 2.0, January 2004
+http://www.apache.org/licenses/
+
+TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+1. Definitions.
+
+"License" shall mean the terms and conditions for use, reproduction, and
+distribution as defined by Sections 1 through 9 of this document.
+
+"Licensor" shall mean the copyright owner or entity authorized by the copyright
+owner that is granting the License.
+
+"Legal Entity" shall mean the union of the acting entity and all other entities
+that control, are controlled by, or are under common control with that entity.
+For the purposes of this definition, "control" means (i) the power, direct or
+indirect, to cause the direction or management of such entity, whether by
+contract or otherwise, or (ii) ownership of fifty percent (50%) or more of the
+outstanding shares, or (iii) beneficial ownership of such entity.
+
+"You" (or "Your") shall mean an individual or Legal Entity exercising
+permissions granted by this License.
+
+"Source" form shall mean the preferred form for making modifications, including
+but not limited to software source code, documentation source, and
+configuration files.
+
+"Object" form shall mean any form resulting from mechanical transformation or
+translation of a Source form, including but not limited to compiled object
+code, generated documentation, and conversions to other media types.
+
+"Work" shall mean the work of authorship, whether in Source or Object form,
+made available under the License, as indicated by a copyright notice that is
+included in or attached to the work (an example is provided in the Appendix
+below).
+
+"Derivative Works" shall mean any work, whether in Source or Object form, that
+is based on (or derived from) the Work and for which the editorial revisions,
+annotations, elaborations, or other modifications represent, as a whole, an
+original work of authorship. For the purposes of this License, Derivative Works
+shall not include works that remain separable from, or merely link (or bind by
+name) to the interfaces of, the Work and Derivative Works thereof.
+
+"Contribution" shall mean any work of authorship, including the original
+version of the Work and any modifications or additions to that Work or
+Derivative Works thereof, that is intentionally submitted to Licensor for
+inclusion in the Work by the copyright owner or by an individual or Legal
+Entity authorized to submit on behalf of the copyright owner. For the purposes
+of this definition, "submitted" means any form of electronic, verbal, or
+written communication sent to the Licensor or its representatives, including
+but not limited to communication on electronic mailing lists, source code
+control systems, and issue tracking systems that are managed by, or on behalf
+of, the Licensor for the purpose of discussing and improving the Work, but
+excluding communication that is conspicuously marked or otherwise designated in
+writing by the copyright owner as "Not a Contribution."
+
+"Contributor" shall mean Licensor and any individual or Legal Entity on behalf
+of whom a Contribution has been received by Licensor and subsequently
+incorporated within the Work.
+
+2. Grant of Copyright License.
+
+Subject to the terms and conditions of this License, each Contributor hereby
+grants to You a perpetual, worldwide, non-exclusive, no-charge, royalty-free,
+irrevocable copyright license to reproduce, prepare Derivative Works of,
+publicly display, publicly perform, sublicense, and distribute the Work and
+such Derivative Works in Source or Object form.
+
+3. Grant of Patent License.
+
+Subject to the terms and conditions of this License, each Contributor hereby
+grants to You a perpetual, worldwide, non-exclusive, no-charge, royalty-free,
+irrevocable (except as stated in this section) patent license to make, have
+made, use, offer to sell, sell, import, and otherwise transfer the Work, where
+such license applies only to those patent claims licensable by such Contributor
+that are necessarily infringed by their Contribution(s) alone or by combination
+of their Contribution(s) with the Work to which such Contribution(s) was
+submitted. If You institute patent litigation against any entity (including a
+cross-claim or counterclaim in a lawsuit) alleging that the Work or a
+Contribution incorporated within the Work constitutes direct or contributory
+patent infringement, then any patent licenses granted to You under this License
+for that Work shall terminate as of the date such litigation is filed.
+
+4. Redistribution.
+
+You may reproduce and distribute copies of the Work or Derivative Works thereof
+in any medium, with or without modifications, and in Source or Object form,
+provided that You meet the following conditions:
+
+You must give any other recipients of the Work or Derivative Works a copy of
+this License; and You must cause any modified files to carry prominent notices
+stating that You changed the files; and You must retain, in the Source form of
+any Derivative Works that You distribute, all copyright, patent, trademark, and
+attribution notices from the Source form of the Work, excluding those notices
+that do not pertain to any part of the Derivative Works; and If the Work
+includes a "NOTICE" text file as part of its distribution, then any Derivative
+Works that You distribute must include a readable copy of the attribution
+notices contained within such NOTICE file, excluding those notices that do not
+pertain to any part of the Derivative Works, in at least one of the following
+places: within a NOTICE text file distributed as part of the Derivative Works;
+within the Source form or documentation, if provided along with the Derivative
+Works; or, within a display generated by the Derivative Works, if and wherever
+such third-party notices normally appear. The contents of the NOTICE file are
+for informational purposes only and do not modify the License. You may add Your
+own attribution notices within Derivative Works that You distribute, alongside
+or as an addendum to the NOTICE text from the Work, provided that such
+additional attribution notices cannot be construed as modifying the License.
+You may add Your own copyright statement to Your modifications and may provide
+additional or different license terms and conditions for use, reproduction, or
+distribution of Your modifications, or for any such Derivative Works as a
+whole, provided Your use, reproduction, and distribution of the Work otherwise
+complies with the conditions stated in this License.
+
+5. Submission of Contributions.
+
+Unless You explicitly state otherwise, any Contribution intentionally submitted
+for inclusion in the Work by You to the Licensor shall be under the terms and
+conditions of this License, without any additional terms or conditions.
+Notwithstanding the above, nothing herein shall supersede or modify the terms
+of any separate license agreement you may have executed with Licensor regarding
+such Contributions.
+
+6. Trademarks.
+
+This License does not grant permission to use the trade names, trademarks,
+service marks, or product names of the Licensor, except as required for
+reasonable and customary use in describing the origin of the Work and
+reproducing the content of the NOTICE file.
+
+7. Disclaimer of Warranty.
+
+Unless required by applicable law or agreed to in writing, Licensor provides
+the Work (and each Contributor provides its Contributions) on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied,
+including, without limitation, any warranties or conditions of TITLE,
+NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR PURPOSE. You are
+solely responsible for determining the appropriateness of using or
+redistributing the Work and assume any risks associated with Your exercise of
+permissions under this License.
+
+8. Limitation of Liability.
+
+In no event and under no legal theory, whether in tort (including negligence),
+contract, or otherwise, unless required by applicable law (such as deliberate
+and grossly negligent acts) or agreed to in writing, shall any Contributor be
+liable to You for damages, including any direct, indirect, special, incidental,
+or consequential damages of any character arising as a result of this License
+or out of the use or inability to use the Work (including but not limited to
+damages for loss of goodwill, work stoppage, computer failure or malfunction,
+or any and all other commercial damages or losses), even if such Contributor
+has been advised of the possibility of such damages.
+
+9. Accepting Warranty or Additional Liability.
+
+While redistributing the Work or Derivative Works thereof, You may choose to
+offer, and charge a fee for, acceptance of support, warranty, indemnity, or
+other liability obligations and/or rights consistent with this License.
+However, in accepting such obligations, You may act only on Your own behalf and
+on Your sole responsibility, not on behalf of any other Contributor, and only
+if You agree to indemnify, defend, and hold each Contributor harmless for any
+liability incurred by, or claims asserted against, such Contributor by reason
+of your accepting any such warranty or additional liability.
+
+END OF TERMS AND CONDITIONS
+
+APPENDIX: How to apply the Apache License to your work
+
+To apply the Apache License to your work, attach the following boilerplate
+notice, with the fields enclosed by brackets "[]" replaced with your own
+identifying information. (Don't include the brackets!) The text should be
+enclosed in the appropriate comment syntax for the file format. We also
+recommend that a file or class name and description of purpose be included on
+the same "printed page" as the copyright notice for easier identification
+within third-party archives.
+
+   Copyright [yyyy] [name of copyright owner]
+
+   Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License.  You may obtain a copy of
+the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+License for the specific language governing permissions and limitations under
+the License.
+
+````
