@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
 #
-# $Id$
-#
 # Web Crawler.
 #
 # Author:  Efrain Torres   et [at] metasploit.com 2010
