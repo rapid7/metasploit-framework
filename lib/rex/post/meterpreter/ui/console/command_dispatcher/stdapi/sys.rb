@@ -412,8 +412,8 @@ class Console::CommandDispatcher::Stdapi::Sys
 			end
 		}
 		print_line("Rebooting...")
-		rsn = SHTDN_REASON_MAJOR_OTHER | SHTDN_REASON_MINOR_OTHER
-		result = client.sys.power.reboot(force, rsn)
+
+		client.sys.power.reboot(force, SHTDN_REASON_DEFAULT)
 	end
 
 	#
@@ -731,8 +731,8 @@ class Console::CommandDispatcher::Stdapi::Sys
 		}
 
 		print_line("Shutting down...")
-		rsn = SHTDN_REASON_MAJOR_OTHER | SHTDN_REASON_MINOR_OTHER
-		result = client.sys.power.shutdown(force, rsn)
+
+		client.sys.power.shutdown(force, SHTDN_REASON_DEFAULT)
 	end
 
 
