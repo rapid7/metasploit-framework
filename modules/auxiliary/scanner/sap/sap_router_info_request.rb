@@ -30,7 +30,7 @@ class Metasploit4 < Msf::Auxiliary
 				'Chris John Riley', # Testing
 				'Ian de Villiers',  # Testing
 				'Joris van de Vis'  # Testing
-			 ],
+			],
 			'License' => BSD_LICENSE
 			)
 		register_options(
