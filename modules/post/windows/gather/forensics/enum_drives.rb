@@ -1,4 +1,3 @@
-# $Id$
 #
 # List physical drives and logical volumes on the remote system
 #

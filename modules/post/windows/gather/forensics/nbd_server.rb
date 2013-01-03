@@ -1,7 +1,3 @@
-##
-# $Id$
-##
-
 # nbd_server.rb
 #
 # Maps remote disks and logical volumes to a local Network Block Device

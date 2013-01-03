@@ -1,4 +1,3 @@
-# $Id$
 #
 # Forensic byte-for-byte imaging of remote disks and volumes
 #

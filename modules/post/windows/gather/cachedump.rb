@@ -1,7 +1,3 @@
-##
-# $Id$
-##
-
 # post/windows/gather/cachedump.rb
 
 ##

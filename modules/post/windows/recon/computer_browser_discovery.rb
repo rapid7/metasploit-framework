@@ -1,7 +1,3 @@
-##
-# $Id$
-##
-
 
 ##
 # This file is part of the Metasploit Framework and may be subject to

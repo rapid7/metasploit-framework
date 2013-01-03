@@ -1,4 +1,3 @@
-# $Id$
 #
 # Maps remote disks and logical volumes to a local Network Block Device
 # server. Allows for forensic tools to be executed on the remote disk
