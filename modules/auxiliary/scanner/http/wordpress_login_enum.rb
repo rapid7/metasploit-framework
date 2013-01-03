@@ -138,8 +138,7 @@ class Metasploit3 < Msf::Auxiliary
 					:sname => (ssl ? 'https' : 'http'),
 					:user => user,
 					:port => rport,
-					:proof => "WEBAPP=\"Wordpress\", VHOST=#{vhost}",
-					
+					:proof => "WEBAPP=\"Wordpress\", VHOST=#{vhost}"
 				)
 
 				@users_found[user] = :reported
