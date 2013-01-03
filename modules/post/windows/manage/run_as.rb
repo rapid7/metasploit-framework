@@ -28,9 +28,9 @@ class Metasploit3 < Msf::Post
 			'Name'                 => "Windows Managed Run Command As User",
 			'Description'          => %q{
 				This module will login with the specified username/password and execute the
-				supplied command as a hidden process. Output is not returned by default, by setting
-				CMDOUT to false output will be redirected to a temp file and read back in to
-				display.
+				supplied command as a hidden process. By setting
+				CMDOUT to true output will be redirected to a temp file and read back into the
+				display.  CMDOUT is set to true by default.
 			},
 			'License'              => MSF_LICENSE,
 			'Version'              => '$Revision: 14774 $',
