@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			register_options(
 				[
-					OptAddress.new('TARGET', [ true, "Target host you would like to port scan", "127.0.0.1"]),
+					OptAddressRange.new('TARGET', [ true, "Target host you would like to port scan", "127.0.0.1"]),
 					OptString.new('PORTS', [ true, "List of ports to scan (e.g. 22,80,137-139)","21-23,80,443"]),
 
 				], self.class)
@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_cgi(
 			{
 					'method'	=> 'HEAD',
-			}, 20)
+			})
 			# Check if X-Pingback exists and return value
 			unless res.nil?
 				unless res['X-Pingback'].nil?
@@ -106,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_cgi({
 				'uri'    => '/?feed=rss2',
 				'method' => 'GET',
-				}, 25)
+				})
 
 			resolve = true
 			count = datastore['NUM_REDIRECTS']
@@ -121,7 +121,7 @@ class Metasploit3 < Msf::Auxiliary
 				res = send_request_cgi({
 					'uri'    => "#{uri}",
 					'method' => 'GET',
-					}, 25)
+					})
 
 				if res.code == 200
 					print_status("Feed located at http://#{datastore['RHOST']}#{uri}")
@@ -182,7 +182,7 @@ class Metasploit3 < Msf::Auxiliary
 				'uri'    => "#{uri}",
 				'method' => 'POST',
 				'data'	 => "#{pingback_xml}",
-				}, 25)
+				})
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 			return false
 		rescue ::Timeout::Error, ::Errno::EPIPE
@@ -243,7 +243,7 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_cgi({
 				'uri'    => '/',
 				'method' => 'GET',
-			}, 25)
+			})
 
 			count = datastore['NUM_REDIRECTS']
 
@@ -252,7 +252,7 @@ class Metasploit3 < Msf::Auxiliary
 				res = send_request_cgi({
 					'uri'    => "/",
 					'method' => 'GET',
-				}, 25)
+				})
 				count = count - 1
 			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
@@ -265,11 +265,8 @@ class Metasploit3 < Msf::Auxiliary
 		xmlrpc = get_xml_rpc_url()
 
 		# once xmlrpc url is found, get_blog_posts
-		if xmlrpc == false
+		if xmlrpc.nil?
 			print_error("#{datastore['RHOST']} does not appear to be vulnerable")
-		elsif xmlrpc.nil?
-			print_error("XML-RPC URL not found")
-			return false
 		else
 			hash = get_blog_posts(xmlrpc)
 
