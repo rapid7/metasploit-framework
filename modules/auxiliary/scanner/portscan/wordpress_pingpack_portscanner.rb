@@ -84,12 +84,15 @@ class Metasploit3 < Msf::Auxiliary
 					return res['X-Pingback']
 				else
 					print_error("X-Pingback header not found, quiting")
+					return false
 				end
 			else
 				return false
 			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			return false
 		rescue ::Timeout::Error, ::Errno::EPIPE
+			return false
 		end
 	end
 
@@ -119,13 +122,16 @@ class Metasploit3 < Msf::Auxiliary
 					'uri'    => "#{uri}",
 					'method' => 'GET',
 					}, 25)
+
 				if res.code == 200
 					print_status("Feed located at http://#{datastore['RHOST']}#{uri}")
 				end
 				count = count - 1
 			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			return false
 		rescue ::Timeout::Error, ::Errno::EPIPE
+			return false
 		end
 
 			# parse out links and place in array
@@ -144,7 +150,6 @@ class Metasploit3 < Msf::Auxiliary
 					print_good("Pingback enabled: #{link.join}\n")
 					blog_posts << {:xml_rpc => xml_rpc, :blog_post => blog_post}
 					return blog_posts
-					break
 				else
 					print_status("Pingback disabled: #{link.join}")
 				end
@@ -179,7 +184,9 @@ class Metasploit3 < Msf::Auxiliary
 				'data'	 => "#{pingback_xml}",
 				}, 25)
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			return false
 		rescue ::Timeout::Error, ::Errno::EPIPE
+			return false
 		end
 		return res
 	end
@@ -249,7 +256,9 @@ class Metasploit3 < Msf::Auxiliary
 				count = count - 1
 			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			return false
 		rescue ::Timeout::Error, ::Errno::EPIPE
+			return false
 		end
 
 		# call method to get xmlrpc url
@@ -260,6 +269,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("#{datastore['RHOST']} does not appear to be vulnerable")
 		elsif xmlrpc.nil?
 			print_error("XML-RPC URL not found")
+			return false
 		else
 			hash = get_blog_posts(xmlrpc)
 
