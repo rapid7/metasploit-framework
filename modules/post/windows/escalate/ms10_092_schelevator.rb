@@ -13,8 +13,7 @@ require 'zlib'
 
 class Metasploit3 < Msf::Post
 
-	#require 'msf/core/module/deprecated'
-	load 'lib/msf/core/module/deprecated.rb'
+	require 'msf/core/module/deprecated'
 	include Msf::Module::Deprecated
 	deprecated Date.new(2013,6,1), "exploit/windows/local/ms10_092_schelevator"
 
