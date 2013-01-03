@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			register_options(
 				[
-					OptString.new('TARGET', [ true, "Target host you would like to port scan", "127.0.0.1"]),
+					OptAddress.new('TARGET', [ true, "Target host you would like to port scan", "127.0.0.1"]),
 					OptString.new('PORTS', [ true, "List of ports to scan (e.g. 22,80,137-139)","21-23,80,443"]),
 
 				], self.class)
@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 			@if_dns = true
 			unless datastore['TARGET'] =~ /^http:\/\/.*/
 				@target_ip = Rex::Socket.getaddress(datastore['TARGET'])
-				datastore['TARGET'] = "http://#{datastore['TARGET']}"
+				@target = "http://#{datastore['TARGET']}"
 			else
 				@target_ip = Rex::Socket.getaddress(datastore['TARGET'].sub(/^http:\/\//,""))
 			end
@@ -84,10 +84,10 @@ class Metasploit3 < Msf::Auxiliary
 					return res['X-Pingback']
 				else
 					print_error("X-Pingback header not found, quiting")
-					return false
+					return nil
 				end
 			else
-				return false
+				return nil
 			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 			return false
@@ -236,7 +236,7 @@ class Metasploit3 < Msf::Auxiliary
 		report_service(:host => ip, :port => port, :state => state)
 	end
 
-	# mMin control method
+	# main control method
 	def run
 		begin
 			# handle redirect
@@ -280,7 +280,7 @@ class Metasploit3 < Msf::Auxiliary
 					generate_requests(hash, "http://#{ip}")
 				}
 			elsif hash
-				generate_requests(hash, datastore['TARGET'])
+				generate_requests(hash, @target)
 			else
 				print_error("No vulnerable blogs found...")
 			end
