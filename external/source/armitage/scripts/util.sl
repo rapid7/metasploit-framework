@@ -294,6 +294,11 @@ sub startMetasploit {
 					[System exit: 0];
 				}
 
+				# if the user chooses c:\metasploit AND we're in the 4.5 environment... adjust
+				if (-exists getFileProper($msfdir, "apps", "pro", "msf3")) {
+					$msfdir = getFileProper($msfdir, "apps", "pro");
+				}
+
 				if (charAt($msfdir, -1) ne "\\") {
 					$msfdir = "$msfdir $+ \\";
 				}
