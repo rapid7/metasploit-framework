@@ -22,7 +22,7 @@ setMissPolicy(%results2, { return @(); });
 # %exploits is populated in menus.sl when the client-side attacks menu is constructed
 
 # a list of exploits that should always use a reverse shell... this list needs to grow.
-@always_reverse = @("multi/samba/usermap_script", "unix/misc/distcc_exec", "windows/http/xampp_webdav_upload_php");
+@always_reverse = @("multi/samba/usermap_script", "unix/misc/distcc_exec", "windows/http/xampp_webdav_upload_php", "windows/postgres/postgres_payload", "linux/postgres/postgres_payload");
 
 #
 # generate menus for a given OS
@@ -599,26 +599,28 @@ sub host_attack_items {
 		}
 	}
 
-	local('$service $name @options $a $port $foo');
+	local('$name %options $a $port $host $service');
+	%options = ohash();
 
-	foreach $port => $service (%hosts[$2[0]]['services']) {
-		$name = $service['name'];
-		if ($port == 445 && "*Windows*" iswm getHostOS($2[0])) {
-			push(@options, @("psexec", lambda(&pass_the_hash, $hosts => $2)));
-		}
-		else if ("scanner/ $+ $name $+ / $+ $name $+ _login" in @auxiliary) {
-			push(@options, @($name, lambda(&show_login_dialog, \$service, $hosts => $2)));
-		}
-		else if ($name eq "microsoft-ds") {
-			push(@options, @("psexec", lambda(&pass_the_hash, $hosts => $2)));
+	foreach $host ($2) {
+		foreach $port => $service (%hosts[$host]['services']) {
+			$name = $service['name'];
+			if ($port == 445 && "*Windows*" iswm getHostOS($host)) {
+				%options["psexec"] = lambda(&pass_the_hash, $hosts => $2);
+			}
+			else if ("scanner/ $+ $name $+ / $+ $name $+ _login" in @auxiliary) {
+				%options[$name] = lambda(&show_login_dialog, \$service, $hosts => $2);
+			}
+			else if ($name eq "microsoft-ds") {
+				%options["psexec"] = lambda(&pass_the_hash, $hosts => $2);
+			}
 		}
 	}
 
-	if (size(@options) > 0) {
+	if (size(%options) > 0) {
 		$a = menu($1, 'Login', 'L');
-		foreach $service (@options) {
-			($name, $foo) = $service;
-			item($a, $name, $null, $foo);
+		foreach $name (sorta(keys(%options))) {
+			item($a, $name, $null, %options[$name]);
 		}
 	}
 }
@@ -678,6 +680,7 @@ sub addFileListener {
 	$actions["SigningKey"] = $actions["*FILE*"];
 	$actions["Wordlist"]   = $actions["*FILE*"];
 	$actions["WORDLIST"]   = $actions["*FILE*"];
+	$actions["REXE"]   = $actions["*FILE*"];
 
 	# set up an action to choose a session
 	$actions["SESSION"] = lambda(&chooseSession);
