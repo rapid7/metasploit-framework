@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -19,7 +15,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'Android Content Provider File Disclosure',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module exploits a cross-domain issue within the Android web browser to
 				exfiltrate files from a vulnerable device.
@@ -29,7 +24,6 @@ class Metasploit3 < Msf::Auxiliary
 					'Thomas Cannon',   # Original discovery, partial disclsoure
 					'jduck'            # Metasploit module
 				],
-			'Version'     => '$Revision$',
 			'License'     => MSF_LICENSE,
 			'Actions'     =>
 				[

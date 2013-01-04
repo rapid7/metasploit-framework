@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -22,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'EMC AlphaStor Library Manager Service',
-			'Version'        => '$Revision$',
 			'Description'    => 'This module queries the remote host for the EMC Alphastor Library Management Service.',
 			'Author'         => 'MC',
 			'License'        => MSF_LICENSE

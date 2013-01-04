@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,7 +16,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'TYPO3 sa-2010-020 Remote File Disclosure',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module exploits a flaw in the way the TYPO3 jumpurl feature matches hashes.
 				Due to this flaw a Remote File Disclosure is possible by matching the juhash of 0.
