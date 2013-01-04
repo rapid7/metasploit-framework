@@ -60,7 +60,7 @@ sure you peruse the FAQ and Manual first.
 7. License
    -------
 
-(c) 2010-2012 Raphael Mudge. This project is licensed under the BSD license. 
+(c) 2010-2013 Raphael Mudge. This project is licensed under the BSD license. 
 See section 8 for more information.
 
 lib/jgraphx.jar is used here within the terms of the BSD license offered by

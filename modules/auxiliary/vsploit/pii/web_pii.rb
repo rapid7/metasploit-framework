@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -25,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => 'This module emulates a webserver leaking PII data',
 			'License'        => MSF_LICENSE,
 			'Author'         => 'MJC',
-			'Version'        => '$Revision$',
 			'References' =>
 			[
 				[ 'URL', 'http://www.metasploit.com'],

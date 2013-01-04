@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'ColdFusion Server Check',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module attempts to exploit the directory traversal in the 'locale'
 				attribute.  According to the advisory the following versions are vulnerable:

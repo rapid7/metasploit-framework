@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -14,12 +10,11 @@ require 'msf/core/post/windows/services'
 
 class Metasploit3 < Msf::Post
 
-	include Post::Windows::WindowsServices
+	include Post::Windows::Services
 
 	def initialize
 		super(
 			'Name'        => 'Windows Gather Proxy Setting',
-			'Version'     => '$Revision$',
 			'Description'    => %q{
 				This module pulls a user's proxy settings. If neither RHOST or SID
 				are set it pulls the current user, else it will pull the user's settings

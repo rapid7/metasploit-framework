@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -21,7 +17,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'SAP Management Console Brute Force',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module simply attempts to brute force the username |
 				password for the SAP Management Console SOAP Interface. By
@@ -52,11 +47,7 @@ class Metasploit4 < Msf::Auxiliary
 	def run_host(ip)
 		res = send_request_cgi({
 			'uri'     => normalize_uri(datastore['URI']),
-			'method'  => 'GET',
-			'headers' =>
-				{
-					'User-Agent' => datastore['UserAgent']
-				}
+			'method'  => 'GET'
 		}, 25)
 
 		if not res

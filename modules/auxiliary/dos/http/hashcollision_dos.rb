@@ -36,7 +36,6 @@ class Metasploit3 < Msf::Auxiliary
 					'Christian Mehlmauer <FireFart[at]gmail.com>' # metasploit module
 				],
 			'License'       => MSF_LICENSE,
-			'Version'       => '$Revision$',
 			'References'    =>
 				[
 					['URL', 'http://www.ocert.org/advisories/ocert-2011-003.html'],

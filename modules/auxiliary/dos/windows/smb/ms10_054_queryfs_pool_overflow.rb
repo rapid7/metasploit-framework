@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -33,8 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 					['URL', 'http://seclists.org/fulldisclosure/2010/Aug/122']
 				],
 			'Author'         => [ 'Laurent Gaffie <laurent.gaffie[at]gmail.com>', 'jduck' ],
-			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$'
+			'License'        => MSF_LICENSE
 		))
 
 		register_options(

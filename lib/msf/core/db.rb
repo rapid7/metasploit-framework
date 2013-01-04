@@ -675,6 +675,13 @@ class DBManager
 		if sess_data[:desc]
 			sess_data[:desc] = sess_data[:desc][0,255]
 		end
+    
+		# In the case of multi handler we cannot yet determine the true
+		# exploit responsible. But we can at least show the parent versus
+		# just the generic handler:
+		if session.via_exploit == "exploit/multi/handler"
+	  	sess_data[:via_exploit] = sess_data[:datastore]['ParentModule']
+		end
 
 		s = ::Mdm::Session.new(sess_data)
 		s.save!
@@ -684,19 +691,26 @@ class DBManager
 		end
 
 		# If this is a live session, we know the host is vulnerable to something.
-		# If the exploit used was multi/handler, though, we don't know what
-		# it's vulnerable to, so it isn't really useful to save it.
-		if opts[:session] and session.via_exploit and session.via_exploit != "exploit/multi/handler"
+		if opts[:session] and session.via_exploit
 			return unless host
 
 			mod = framework.modules.create(session.via_exploit)
+
+			if session.via_exploit == "exploit/multi/handler"
+		  	mod_fullname = sess_data[:datastore]['ParentModule']
+		  	mod_name = ::Mdm::ModuleDetail.find_by_fullname(mod_fullname).name
+			else 
+				mod_name = mod.name
+				mod_fullname = mod.fullname
+			end
+
 			vuln_info = {
 				:host => host.address,
-				:name => mod.name,
+				:name => mod_name,
 				:refs => mod.references,
 				:workspace => wspace,
 				:exploited_at => Time.now.utc,
-				:info => "Exploited by #{mod.fullname} to create Session #{s.id}"
+				:info => "Exploited by #{mod_fullname} to create Session #{s.id}"
 			}
 
 			port    = session.exploit_datastore["RPORT"]
@@ -706,10 +720,15 @@ class DBManager
 
 			vuln = framework.db.report_vuln(vuln_info)
 			
+			if session.via_exploit == "exploit/multi/handler"
+				via_exploit = sess_data[:datastore]['ParentModule']
+			else
+				via_exploit = session.via_exploit
+			end
 			attempt_info = {
 				:timestamp   => Time.now.utc,
 				:workspace   => wspace,
-				:module      => session.via_exploit,
+				:module      => via_exploit,
 				:username    => session.username,
 				:refs        => mod.references,
 				:session_id  => s.id,

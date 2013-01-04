@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SNMP Windows SMB Share Enumeration',
-			'Version'     => '$Revision$',
 			'Description' => "This module will use LanManager OID values to enumerate SMB shares on a Windows system via SNMP",
 			'Author'      => ['tebo[at]attackresearch.com'],
 			'License'     => MSF_LICENSE
