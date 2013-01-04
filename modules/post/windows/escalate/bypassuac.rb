@@ -10,6 +10,10 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 
+	require 'msf/core/module/deprecated'
+	include Msf::Module::Deprecated
+	deprecated Date.new(2013,1,4), "exploit/windows/local/bypassuac"
+
 	def initialize(info={})
 		super( update_info( info,
 			'Name'          => 'Windows Escalate UAC Protection Bypass',
@@ -36,12 +40,6 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		print_error("***********************************************")
-		print_error("*                                             *")
-		print_error("* Module will be depricated on Jan 4 2013     *")
-		print_error("* Please use exploits/windows/local/bypassuac *")
-		print_error("*                                             *")
-		print_error("***********************************************")
 		vuln = false
 		sysinfo = session.sys.config.sysinfo
 		winver = sysinfo["OS"]
