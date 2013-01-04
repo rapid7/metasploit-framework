@@ -41,6 +41,7 @@ import ui.*;
 
 		# strip any funky characters that will cause this call to throw an exception
 		$user = replace($user, '\P{Graph}', "");
+		$hash = fixPass($hash);
 
 		[$queue addCommand: $null, "creds -a $host -p 445 -t smb_hash -u $user -P $hash"];
 	}
@@ -106,6 +107,7 @@ sub createCredentialsTab {
 				$queue = [new armitage.ConsoleQueue: $client];
 				foreach $entry ($entries) {
 					($user, $pass, $host) = $entry;
+					$pass = fixPass($pass);
 					[$queue addCommand: $null, "creds -d $host -u $user -P $pass"];
 				}
 
