@@ -32,7 +32,6 @@ class Metasploit3 < Msf::Post
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Justin Cacak'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))

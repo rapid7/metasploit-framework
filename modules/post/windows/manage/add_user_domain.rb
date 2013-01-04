@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -32,7 +28,6 @@ class Metasploit3 < Msf::Post
 					},
 				'License'       => MSF_LICENSE,
 				'Author'        => 'Joshua Abraham <jabra[at]rapid7.com>',
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
