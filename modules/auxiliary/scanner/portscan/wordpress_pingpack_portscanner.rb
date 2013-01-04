@@ -50,9 +50,9 @@ class Metasploit3 < Msf::Auxiliary
 	def setup()
 		# If DNS name set variables
 		unless datastore['TARGET'] =~ /[a-zA-Z]+/
-			@if_dns = false
+			@is_dns = false
 		else
-			@if_dns = true
+			@is_dns = true
 			unless datastore['TARGET'] =~ /^http:\/\/.*/
 				@target_ip = Rex::Socket.getaddress(datastore['TARGET'])
 				@target = "http://#{datastore['TARGET']}"
@@ -90,9 +90,9 @@ class Metasploit3 < Msf::Auxiliary
 				return nil
 			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			return false
+			return nil
 		rescue ::Timeout::Error, ::Errno::EPIPE
-			return false
+			return nil
 		end
 	end
 
@@ -129,9 +129,9 @@ class Metasploit3 < Msf::Auxiliary
 				count = count - 1
 			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			return false
+			return nil
 		rescue ::Timeout::Error, ::Errno::EPIPE
-			return false
+			return nil
 		end
 
 		# parse out links and place in array
@@ -185,10 +185,10 @@ class Metasploit3 < Msf::Auxiliary
 				})
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 			print_error("Unable to connect to #{uri}")
-			return false
+			return nil
 		rescue ::Timeout::Error, ::Errno::EPIPE
 			print_error("Unable to connect to #{uri}")
-			return false
+			return nil
 		end
 		return res
 	end
@@ -198,7 +198,7 @@ class Metasploit3 < Msf::Auxiliary
 		port_range = Rex::Socket.portspec_to_portlist(datastore['PORTS'])
 
 		# If target is a DNS name, include IP address in print
-		if @if_dns
+		if @is_dns
 			the_ip = " (#{@target_ip})"
 		else
 			the_ip = ""
@@ -259,10 +259,10 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 			print_error("Unable to connect to #{datastore[RHOST]}")
-			return false
+			return nil
 		rescue ::Timeout::Error, ::Errno::EPIPE
 			print_error("Unable to connect to #{datastore[RHOST]}")
-			return false
+			return nil
 		end
 
 		# call method to get xmlrpc url
@@ -275,7 +275,7 @@ class Metasploit3 < Msf::Auxiliary
 			hash = get_blog_posts(xmlrpc)
 
 			# If not DNS, expand list of IPs and scan each
-			if @if_dns == false && hash
+			if not @is_dns and hash
 				ip_list = Rex::Socket::RangeWalker.new(datastore['TARGET'])
 				ip_list.each { |ip|
 					generate_requests(hash, "http://#{ip}")
