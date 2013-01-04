@@ -206,7 +206,7 @@ class Metasploit3 < Msf::Post
 				:target_port => config['admin_port']
 			)
 		end
-		
+
 		p = store_loot("filezilla.server.creds", "text/csv", session, credentials.to_csv,
 			"filezilla_server_credentials.csv", "FileZilla FTP Server Credentials")
 
