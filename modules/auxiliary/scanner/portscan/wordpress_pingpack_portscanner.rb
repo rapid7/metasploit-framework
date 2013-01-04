@@ -184,8 +184,10 @@ class Metasploit3 < Msf::Auxiliary
 				'data'	 => "#{pingback_xml}",
 				})
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			print_error("Unable to connect to #{uri}")
 			return false
 		rescue ::Timeout::Error, ::Errno::EPIPE
+			print_error("Unable to connect to #{uri}")
 			return false
 		end
 		return res
@@ -256,8 +258,10 @@ class Metasploit3 < Msf::Auxiliary
 				count = count - 1
 			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			print_error("Unable to connect to #{datastore[RHOST]}")
 			return false
 		rescue ::Timeout::Error, ::Errno::EPIPE
+			print_error("Unable to connect to #{datastore[RHOST]}")
 			return false
 		end
 
