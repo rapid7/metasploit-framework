@@ -194,7 +194,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	# method to generate pingback xml-rpc requests
-	def generate_requests(xml_rpcs, target)
+	def generate_requests(xml_rpc_hash, target)
 		port_range = Rex::Socket.portspec_to_portlist(datastore['PORTS'])
 
 		# If target is a DNS name, include IP address in print
@@ -209,7 +209,6 @@ class Metasploit3 < Msf::Auxiliary
 		# Port scanner
 		port_range.each do |i|
 			random = (0...8).map { 65.+(rand(26)).chr }.join
-			xml_rpc_hash = xml_rpcs.sample
 			uri = URI(target)
 			uri.port = i
 			uri.scheme = i == 443 ? "https" : "http"
