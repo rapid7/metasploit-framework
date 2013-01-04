@@ -243,14 +243,18 @@ sub session_exploit {
 # credentials API
 #
 
+sub _fix_pass {
+	return replace(strrep($1, '\\', '\\\\'), '(\p{Punct})', '\\\\$1');
+}
+
 # credential_add("host", "port", "user, "pass", "type")
 sub credential_add {
-	cmd_safe("creds -a $1 -p $2 -t $5 -u $3 -P $4");
+	cmd_safe("creds -a $1 -p $2 -t $5 -u $3 -P " . _fix_pass($4));
 }
 
 # credential_delete("host", port, "user", "pass");
 sub credential_delete {
-	cmd_safe("creds -a $1 -p $2 -u $3 -P $4 -d");
+	cmd_safe("creds -a $1 -p $2 -u $3 -P " . _fix_pass($4) . " -d");
 }
 
 sub credential_list {
