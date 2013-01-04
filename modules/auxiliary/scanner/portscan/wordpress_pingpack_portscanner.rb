@@ -248,7 +248,7 @@ class Metasploit3 < Msf::Auxiliary
 			count = datastore['NUM_REDIRECTS']
 
 			while (res.code == 301 || res.code == 302) && count != 0
-				datastore['RHOST'] = res.headers['location'].chomp("/").sub(/^http:\/\//, "")
+				@target = res.headers['location'].chomp("/").sub(/^http:\/\//, "")
 				res = send_request_cgi({
 					'uri'    => "/",
 					'method' => 'GET',
