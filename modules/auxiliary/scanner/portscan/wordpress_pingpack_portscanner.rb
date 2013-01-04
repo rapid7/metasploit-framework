@@ -99,7 +99,7 @@ class Metasploit3 < Msf::Auxiliary
 	def get_blog_posts(xml_rpc)
 		# find all blog posts within RHOST and determine if pingback is enabled
 		print_status("Enumerating Blog posts...")
-		blog_posts = Array.new
+		blog_posts = {}
 
 		# make http request to feed url
 		begin
@@ -148,7 +148,7 @@ class Metasploit3 < Msf::Auxiliary
 			pingback_disabled_match = pingback_request.body.match(/<value><int>33<\/int><\/value>/i)
 			if pingback_request.code == 200 and pingback_disabled_match.nil?
 				print_good("Pingback enabled: #{link.join}\n")
-				blog_posts << {:xml_rpc => xml_rpc, :blog_post => blog_post}
+				blog_posts = {:xml_rpc => xml_rpc, :blog_post => blog_post}
 				return blog_posts
 			else
 				print_status("Pingback disabled: #{link.join}")
