@@ -257,7 +257,8 @@ require 'digest/sha1'
 
 		p_length = payload.length + 256
 		if(text.size < p_length)
-			msg  = "The .text section is too small. "
+			fname = ::File.basename(opts[:template])
+			msg  = "The .text section for '#{fname}' is too small. "
 			msg << "Minimum is #{p_length.to_s} bytes, your .text section is #{text.size.to_s} bytes"
 			raise RuntimeError, msg
 		end
