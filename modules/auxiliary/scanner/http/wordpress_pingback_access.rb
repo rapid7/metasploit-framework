@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def get_xml_rpc_url(ip)
-		# code to find the xmlrpc url when passed in RHOST
+		# code to find the xmlrpc url when passed in IP
 		vprint_status("Enumerating XML-RPC URI for #{ip}...")
 
 		begin
@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def get_blog_posts(xml_rpc, ip)
-		# find all blog posts within RHOST and determine if pingback is enabled
+		# find all blog posts within IP and determine if pingback is enabled
 		vprint_status("Enumerating Blog posts...")
 		blog_posts = {}
 
@@ -110,14 +110,14 @@ class Metasploit3 < Msf::Auxiliary
 				else
 					vprint_status("Web server returned a #{res.code}...following to #{res.headers['location']}")
 				end
-				uri = res.headers['location'].sub(/.*?#{datastore['RHOST']}/, "")
+				uri = res.headers['location'].sub(/.*?#{ip}/, "")
 				res = send_request_cgi({
 					'uri'    => "#{uri}",
 					'method' => 'GET',
 					})
 
 				if res.code == 200
-					print_status("Feed located at http://#{datastore['RHOST']}#{uri}")
+					vprint_status("Feed located at http://#{ip}#{uri}")
 				end
 				count = count - 1
 			end
@@ -152,7 +152,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# method to send xml-rpc requests
 	def get_pingback_request(xml_rpc, target, blog_post)
-		uri = xml_rpc.sub(/.*?#{datastore['RHOST']}/,"")
+		uri = xml_rpc.sub(/.*?#{ip}/,"")
 		# create xml pingback request
 		pingback_xml = generate_pingback_xml(target, blog_post)
 
