@@ -15,14 +15,15 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name' => 'Wordpress Pingback Port Scanner',
 			'Description' => %q{
-					This module will perform a port scan using the Pingback API.
-					You can even scan the server itself or discover some hosts on
-					the internal network this server is part of.
+					This module will scan for wordpress sites with the Pingback
+					API enabled. By interfacing with the API an attacker can cause
+					the wordpress site to port scan an external target and return
+					results. Refer to the wordpress_pingback_portscanner module.
 				},
 			'Author' =>
 				[
-					'Brandon McCann "zeknox" <bmccann[at]accuvant.com>' ,
 					'Thomas McCarthy "smilingraccoon" <smilingraccoon[at]gmail.com>',
+					'Brandon McCann "zeknox" <bmccann[at]accuvant.com>' ,
 					'FireFart', # Original PoC
 				],
 			'License' => MSF_LICENSE,
