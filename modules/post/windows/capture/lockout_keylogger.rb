@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -26,7 +22,6 @@ class Metasploit3 < Msf::Post
 					false sense of security to the user.},
 			'License'      => MSF_LICENSE,
 			'Author'       => [ 'mubix', 'cg' ],
-			'Version'      => '$Revision$',
 			'Platform'     => ['win'],
 			'SessionTypes' => ['meterpreter'],
 			'References'   => [['URL', 'http://blog.metasploit.com/2010/12/capturing-windows-logons-with.html']]

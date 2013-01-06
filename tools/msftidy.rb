@@ -21,6 +21,10 @@ class String
 	def yellow
 		"\e[1;33;40m#{self}\e[0m"
 	end
+
+	def ascii_only?
+		self =~ Regexp.new('[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]', nil, 'n') ? false : true
+	end
 end
 
 class Msftidy
@@ -171,7 +175,7 @@ class Msftidy
 				end
 
 				if not mod_title.ascii_only?
-					error("Please avoid unicode in module title.")
+					error("Please avoid unicode or non-printable characters in module title.")
 				end
 
 				# Since we're looking at the module title, this line clearly cannot be
@@ -184,7 +188,7 @@ class Msftidy
 			#
 			if in_super and !in_author and line =~ /'Author'[[:space:]]*=>/
 				in_author = true
-			elsif in_super and in_author and line =~ /\],*\n/
+			elsif in_super and in_author and line =~ /\],*\n/ or line =~ /['"][[:print:]]*['"][[:space:]]*=>/
 				in_author = false
 			end
 
@@ -192,14 +196,19 @@ class Msftidy
 			#
 			# While in 'Author' block, check for Twitter handles
 			#
-			if in_super and in_author and line =~ /['|"](.+)['|"]/
-				author_name = $1
+			if in_super and in_author
+				if line =~ /Author/
+					author_name = line.scan(/\[[[:space:]]*['"](.+)['"]/).flatten[-1] || ''
+				else
+					author_name = line.scan(/['"](.+)['"]/).flatten[-1] || ''
+				end
+
 				if author_name =~ /^@.+$/
 					error("No Twitter handle, please. Try leaving it in a comment instead.")
 				end
 
 				if not author_name.ascii_only?
-					error("Please avoid unicode in Author")
+					error("Please avoid unicode or non-printable characters in Author")
 				end
 			end
 		end
@@ -246,7 +255,7 @@ class Msftidy
 		return if @source =~ /Generic Payload Handler/ or @source !~ / \< Msf::Exploit/
 
 		# Check disclosure date format
-		if @source =~ /'DisclosureDate'.*\=\>[\x0d|\x20]*['|\"](.+)['|\"]/
+		if @source =~ /'DisclosureDate'.*\=\>[\x0d\x20]*['\"](.+)['\"]/
 			d = $1  #Captured date
 			# Flag if overall format is wrong
 			if d =~ /^... \d{1,2}\,* \d{4}/
@@ -267,7 +276,7 @@ class Msftidy
 	end
 
 	def check_title_casing
-		if @source =~ /'Name'[[:space:]]*=>[[:space:]]*['|"](.+)['|"],*$/
+		if @source =~ /'Name'[[:space:]]*=>[[:space:]]*['"](.+)['"],*$/
 			words = $1.split
 			words.each do |word|
 				if %w{and or the for to in of as with a an}.include?(word)

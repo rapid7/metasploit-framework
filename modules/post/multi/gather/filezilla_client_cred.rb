@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -30,7 +26,6 @@ class Metasploit3 < Msf::Post
 					'bannedit', # post port, added support for shell sessions
 					'Carlos Perez <carlos_perez[at]darkoperator.com>' # original meterpreter script
 				],
-			'Version'        => '$Revision$',
 			'Platform'       => ['unix', 'bsd', 'linux', 'osx', 'win'],
 			'SessionTypes'   => ['shell', 'meterpreter' ]
 		))
