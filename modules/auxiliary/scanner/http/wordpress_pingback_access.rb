@@ -24,16 +24,21 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					'Thomas McCarthy "smilingraccoon" <smilingraccoon[at]gmail.com>',
 					'Brandon McCann "zeknox" <bmccann[at]accuvant.com>' ,
-					'FireFart', # Original PoC
+					'FireFart' # Original PoC
 				],
 			'License' => MSF_LICENSE,
 			'References'  =>
 				[
 					[ 'URL', 'http://www.securityfocus.com/archive/1/525045/30/30/threaded'],
 					[ 'URL', 'http://www.ethicalhack3r.co.uk/security/introduction-to-the-wordpress-xml-rpc-api/'],
-					[ 'URL', 'https://github.com/FireFart/WordpressPingbackPortScanner'],
-				],
+					[ 'URL', 'https://github.com/FireFart/WordpressPingbackPortScanner']
+				]
 			))
+
+			register_options(
+				[
+					OptString.new('TARGETURI', [ true, 'The path to wordpress installation (e.g. /wordpress/)', '/'])
+				], self.class)
 
 			register_advanced_options(
 				[
@@ -55,16 +60,21 @@ class Metasploit3 < Msf::Auxiliary
 		vprint_status("Enumerating XML-RPC URI for #{ip}...")
 
 		begin
+			
+			uri = target_uri.path
+			uri << '/' if uri[-1,1] != '/'
+
 			res = send_request_cgi(
 			{
 					'method'	=> 'HEAD',
+					'uri'		=> "#{uri}"
 			})
 			# Check if X-Pingback exists and return value
-			unless res.nil?
-				unless res['X-Pingback'].nil?
+			if res
+				if res['X-Pingback']
 					return res['X-Pingback']
 				else
-					print_error("X-Pingback header not found, quiting")
+					vprint_status("X-Pingback header not found at #{ip}")
 					return nil
 				end
 			else
@@ -92,29 +102,29 @@ class Metasploit3 < Msf::Auxiliary
 
 	def get_blog_posts(xml_rpc, ip)
 		# find all blog posts within IP and determine if pingback is enabled
-		vprint_status("Enumerating Blog posts...")
-		blog_posts = {}
+		vprint_status("Enumerating Blog posts on #{ip}...")
+		blog_posts = ""
+
+		uri = target_uri.path
+		uri << '/' if uri[-1,1] != '/'
 
 		# make http request to feed url
 		begin
+			vprint_status("Resolving #{ip}#{uri}?feed=rss2 to locate wordpress feed...")
 			res = send_request_cgi({
-				'uri'    => '/?feed=rss2',
-				'method' => 'GET',
+				'uri'    => "#{uri}?feed=rss2",
+				'method' => 'GET'
 				})
 
-			resolve = true
 			count = datastore['NUM_REDIRECTS']
-			while (res.code == 301 || res.code == 302) and count != 0
-				if resolve
-					print_status("Resolving #{ip}/?feed=rss2 to locate wordpress feed...")
-					resolve = false
-				else
-					vprint_status("Web server returned a #{res.code}...following to #{res.headers['location']}")
-				end
-				uri = res.headers['location'].sub(/.*?#{ip}/, "")
+
+			# Follow redirects
+			while (res.code == 301 || res.code == 302) and res.headers['Location'] and count != 0
+				vprint_status("Web server returned a #{res.code}...following to #{res.headers['Location']}")
+				uri = res.headers['Location'].sub(/.*?#{ip}/, "")
 				res = send_request_cgi({
 					'uri'    => "#{uri}",
-					'method' => 'GET',
+					'method' => 'GET'
 					})
 
 				if res.code == 200
@@ -129,23 +139,29 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		# parse out links and place in array
-		links = res.to_s.scan(/<link>([^<]+)<\/link>/i)
-
-		if res.code != 200 or links.nil? or links.empty?
+		if res.nil? or res.code != 200
 			return blog_posts
 		end
 
+		links = res.to_s.scan(/<link>([^<]+)<\/link>/i)
+
+		if links.nil? or links.empty?
+			return blog_posts
+		end
+
+
 		links.each do |link|
 			blog_post = link[0]
-			pingback_request = get_pingback_request(xml_rpc, 'http://127.0.0.1', blog_post)
-
-			pingback_disabled_match = pingback_request.body.match(/<value><int>33<\/int><\/value>/i)
-			if pingback_request.code == 200 and pingback_disabled_match.nil?
-				print_good("Pingback enabled: #{link.join}")
-				blog_posts = link.join
-				return blog_posts
-			else
-				vprint_status("Pingback disabled: #{link.join}")
+			pingback_response = get_pingback_request(xml_rpc, 'http://127.0.0.1', blog_post)
+			if pingback_response
+				pingback_disabled_match = pingback_response.body.match(/<value><int>33<\/int><\/value>/i)
+				if pingback_response.code == 200 and pingback_disabled_match.nil?
+					print_good("Pingback enabled: #{link.join}")
+					blog_posts = link.join
+					return blog_posts
+				else
+					vprint_status("Pingback disabled: #{link.join}")
+				end
 			end
 		end
 		return blog_posts
@@ -153,7 +169,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# method to send xml-rpc requests
 	def get_pingback_request(xml_rpc, target, blog_post)
-		uri = xml_rpc.sub(/.*?#{ip}/,"")
+		uri = xml_rpc.sub(/.*?#{target}/,"")
 		# create xml pingback request
 		pingback_xml = generate_pingback_xml(target, blog_post)
 
@@ -162,7 +178,7 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_cgi({
 				'uri'    => "#{uri}",
 				'method' => 'POST',
-				'data'	 => "#{pingback_xml}",
+				'data'	 => "#{pingback_xml}"
 				})
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 			print_error("Unable to connect to #{uri}")
@@ -177,9 +193,12 @@ class Metasploit3 < Msf::Auxiliary
 	# Save data to vuln table
 	def store_vuln(ip, blog)
 		report_vuln(
-			:host			=> ip,
-			:name			=> self.name,
-			:info			=> "Module #{self.fullname} found pingback at #{blog}"
+			:host		=> ip,
+			:proto		=> 'tcp',
+			:port		=> datastore['RPORT'],
+			:name		=> self.name,
+			:info		=> "Module #{self.fullname} found pingback at #{blog}",
+			:sname		=> datastore['SSL'] ? "https" : "http"
 		)
 	end
 
