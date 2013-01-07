@@ -46,7 +46,7 @@ public class stdapi_sys_process_get_processes implements Command {
 			br.close();
 			proc.waitFor();
 		} else {
-			Process proc = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", "ps ax -w -o pid,user,cmd --no-header 2>/dev/null" });
+			Process proc = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", "ps ax -w -o pid=,user=,command=" });
 			BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 			String line;
 			while ((line = br.readLine()) != null) {
