@@ -16,7 +16,8 @@ class Metasploit3 < Msf::Auxiliary
 	XCEPT  = Rex::Proto::SMB::Exceptions
 	CONST  = Rex::Proto::SMB::Constants
 
-	def initialize(info = {})
+
+    def initialize(info = {})
 		super(update_info(info,
 			'Name'           => 'Windows Domain Controller - Download NTDS.dit and SYSTEM Hive',
 			'Description'    => %q{This module authenticates to an Active Directory Domain Controller and creates
@@ -177,7 +178,6 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-	# Create a copy of the SYSTEM hive file and stores it in the Windows
 	# Temp directory on the target host
 	def copy_sys_hive(ip)
 		print_status("Copying SYSTEM hive file to Windows Temp directory")
