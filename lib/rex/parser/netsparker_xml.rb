@@ -83,7 +83,7 @@ class NetSparkerXMLStreamParser
 
 	# We don't need these methods, but they're necessary to keep REXML happy
 	def xmldecl(version, encoding, standalone); end
-	def cdata; end
+	def cdata(*args); end
 	def comment(str); end
 	def instruction(name, instruction); end
 	def attlist; end
