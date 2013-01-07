@@ -35,9 +35,9 @@ class Metasploit3 < Msf::Auxiliary
 
 			register_options(
 				[
-					OptAddressRange.new('TARGET', [ true, "Target host you would like to port scan", "127.0.0.1"]),
+					OptAddressRange.new('SCAN_TARGET', [ true, "Target host you would like to port scan", "127.0.0.1"]),
 					OptString.new('PORTS', [ true, "List of ports to scan (e.g. 22,80,137-139)","21-23,80,443"]),
-
+					OptString.new('TARGETURI', [ true, 'The path to wordpress installation (e.g. /wordpress/)', '/'])
 				], self.class)
 
 			register_advanced_options(
@@ -49,15 +49,15 @@ class Metasploit3 < Msf::Auxiliary
 
 	def setup()
 		# If DNS name set variables
-		unless datastore['TARGET'] =~ /[a-zA-Z]+/
+		unless datastore['SCAN_TARGET'] =~ /[a-zA-Z]+/
 			@is_dns = false
 		else
 			@is_dns = true
-			unless datastore['TARGET'] =~ /^http:\/\/.*/
-				@target_ip = Rex::Socket.getaddress(datastore['TARGET'])
-				@target = "http://#{datastore['TARGET']}"
+			unless datastore['SCAN_TARGET'] =~ /^http:\/\/.*/
+				@target_ip = Rex::Socket.getaddress(datastore['SCAN_TARGET'])
+				@target = "http://#{datastore['SCAN_TARGET']}"
 			else
-				@target_ip = Rex::Socket.getaddress(datastore['TARGET'].sub(/^http:\/\//,""))
+				@target_ip = Rex::Socket.getaddress(datastore['SCAN_TARGET'].sub(/^http:\/\//,""))
 			end
 		end
 
@@ -74,9 +74,13 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Enumerating XML-RPC URI...")
 
 		begin
+			uri = target_uri.path
+			uri << '/' if uri[-1,1] != '/'
+
 			res = send_request_cgi(
 			{
 					'method'	=> 'HEAD',
+					'uri'		=> "#{uri}"
 			})
 			# Check if X-Pingback exists and return value
 			unless res.nil?
@@ -101,32 +105,40 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Enumerating Blog posts...")
 		blog_posts = {}
 
+		uri = target_uri.path
+		uri << '/' if uri[-1,1] != '/'
+
 		# make http request to feed url
 		begin
 			res = send_request_cgi({
-				'uri'    => '/?feed=rss2',
+				'uri'    => "#{uri}?feed=rss2",
 				'method' => 'GET',
 				})
 
 			resolve = true
 			count = datastore['NUM_REDIRECTS']
-			while (res.code == 301 || res.code == 302) and count != 0
-				if resolve
-					print_status("Resolving /?feed=rss2 to locate wordpress feed...")
-					resolve = false
-				else
-					print_status("Web server returned a #{res.code}...following to #{res.headers['location']}")
-				end
-				uri = res.headers['location'].sub(/.*?#{datastore['RHOST']}/, "")
-				res = send_request_cgi({
-					'uri'    => "#{uri}",
-					'method' => 'GET',
-					})
 
-				if res.code == 200
-					print_status("Feed located at http://#{datastore['RHOST']}#{uri}")
+			if res	
+				while (res.code == 301 || res.code == 302) and count != 0
+					if resolve
+						print_status("Resolving #{datastore['rhost']}#{uri}?feed=rss2 to locate wordpress feed...")
+						resolve = false
+					else
+						print_status("Web server returned a #{res.code}...following to #{res.headers['location']}")
+					end
+					uri = res.headers['location'].sub(/.*?#{datastore['RHOST']}/, "")
+					res = send_request_cgi({
+						'uri'    => "#{uri}",
+						'method' => 'GET',
+						})
+
+					if res.code == 200
+						print_status("Feed located at http://#{datastore['RHOST']}#{uri}")
+					end
+					count = count - 1
 				end
-				count = count - 1
+			else
+				return nil
 			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 			return nil
@@ -136,7 +148,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		# parse out links and place in array
 		links = res.to_s.scan(/<link>([^<]+)<\/link>/i)
-
 		if res.code != 200 or links.nil? or links.empty?
 			return blog_posts
 		end
@@ -257,10 +268,10 @@ class Metasploit3 < Msf::Auxiliary
 				count = count - 1
 			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			print_error("Unable to connect to #{datastore[RHOST]}")
+			print_error("Unable to connect to #{datastore['RHOST']}")
 			return nil
 		rescue ::Timeout::Error, ::Errno::EPIPE
-			print_error("Unable to connect to #{datastore[RHOST]}")
+			print_error("Unable to connect to #{datastore['RHOST']}")
 			return nil
 		end
 
@@ -272,14 +283,13 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("#{datastore['RHOST']} does not appear to be vulnerable")
 		else
 			hash = get_blog_posts(xmlrpc)
-
 			# If not DNS, expand list of IPs and scan each
-			if not @is_dns and hash
-				ip_list = Rex::Socket::RangeWalker.new(datastore['TARGET'])
+			if not @is_dns and hash and not hash.empty?
+				ip_list = Rex::Socket::RangeWalker.new(datastore['SCAN_TARGET'])
 				ip_list.each { |ip|
 					generate_requests(hash, "http://#{ip}")
 				}
-			elsif hash
+			elsif hash and not hash.empty?
 				generate_requests(hash, @target)
 			else
 				print_error("No vulnerable blogs found...")
