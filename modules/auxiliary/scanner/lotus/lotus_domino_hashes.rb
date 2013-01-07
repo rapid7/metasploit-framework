@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		user = datastore['NOTES_USER'].to_s
 		pass = datastore['NOTES_PASS'].to_s
-		$uri =  datastore['URI'].to_s
+		$uri = normalize_uri(datastore['URI'])
 
 		if (user.length == 0 and pass.length == 0)
 			print_status("http://#{vhost}:#{rport} - Lotus Domino - Trying dump password hashes without credentials")

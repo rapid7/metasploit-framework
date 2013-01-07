@@ -298,7 +298,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		opts = {
-		'uri'     => datastore['RURIPATH'],
+		'uri'     => normalize_uri(datastore['RURIPATH']),
 		'method'  => method,
 		'version' => '1.1',
 		}

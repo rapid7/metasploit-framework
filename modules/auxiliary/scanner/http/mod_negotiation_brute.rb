@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 		ecode = nil
 		emesg = nil
 
-		tpath = datastore['PATH']
+		tpath = normalize_uri(datastore['PATH'])
 		tfile = datastore['FILEPATH']
 
 		if tpath[-1,1] != '/'

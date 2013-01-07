@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		uri = target_uri.path
+		uri = normalize_uri(target_uri.path)
 		uri << '/' if uri[-1, 1] != '/'
 
 		t = "/.." * datastore['DEPTH']
