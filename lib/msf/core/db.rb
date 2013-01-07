@@ -2372,7 +2372,8 @@ class DBManager
 	# +:ssl+::   whether or not SSL is in use on this port
 	#
 	#
-	# Duplicate records for a given web_site, path, method, pname, and name combination will be overwritten
+	# Duplicate records for a given web_site, path, method, pname, and name
+	# combination will be overwritten
 	#
 
 	def report_web_vuln(opts)
@@ -4562,6 +4563,9 @@ class DBManager
 			end
 
 			info = {
+				# XXX: There is a :request attr in the model, but report_web_vuln
+				# doesn't seem to know about it, so this gets ignored.
+				#:request  => vuln['request'],
 				:path     => uri.path,
 				:query    => uri.query,
 				:method   => method,
