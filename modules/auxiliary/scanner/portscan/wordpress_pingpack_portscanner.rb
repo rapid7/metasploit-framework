@@ -83,8 +83,8 @@ class Metasploit3 < Msf::Auxiliary
 					'uri'		=> "#{uri}"
 			})
 			# Check if X-Pingback exists and return value
-			unless res.nil?
-				unless res['X-Pingback'].nil?
+			if res
+				if res['X-Pingback']
 					return res['X-Pingback']
 				else
 					print_error("X-Pingback header not found, quiting")
@@ -110,23 +110,21 @@ class Metasploit3 < Msf::Auxiliary
 
 		# make http request to feed url
 		begin
+			print_status("Resolving #{datastore['rhost']}#{uri}?feed=rss2 to locate wordpress feed...")
+
 			res = send_request_cgi({
 				'uri'    => "#{uri}?feed=rss2",
 				'method' => 'GET',
 				})
 
-			resolve = true
 			count = datastore['NUM_REDIRECTS']
 
 			if res	
-				while (res.code == 301 || res.code == 302) and count != 0
-					if resolve
-						print_status("Resolving #{datastore['rhost']}#{uri}?feed=rss2 to locate wordpress feed...")
-						resolve = false
-					else
-						print_status("Web server returned a #{res.code}...following to #{res.headers['location']}")
-					end
-					uri = res.headers['location'].sub(/.*?#{datastore['RHOST']}/, "")
+				while (res.code == 301 || res.code == 302) and res.headers['Location'] and count != 0
+
+					print_status("Web server returned a #{res.code}...following to #{res.headers['Location']}")
+
+					uri = res.headers['Location'].sub(/.*?#{datastore['RHOST']}/, "")
 					res = send_request_cgi({
 						'uri'    => "#{uri}",
 						'method' => 'GET',
@@ -147,17 +145,23 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		# parse out links and place in array
+		if res.nil? or res.code != 200
+			return blog_posts
+		end
+
 		links = res.to_s.scan(/<link>([^<]+)<\/link>/i)
-		if res.code != 200 or links.nil? or links.empty?
+
+		# handle emtpy feeds
+		if links.nil? or links.empty?
 			return blog_posts
 		end
 
 		links.each do |link|
 			blog_post = link[0]
-			pingback_request = get_pingback_request(xml_rpc, 'http://127.0.0.1', blog_post)
+			pingback_response = get_pingback_request(xml_rpc, 'http://127.0.0.1', blog_post)
 
-			pingback_disabled_match = pingback_request.body.match(/<value><int>33<\/int><\/value>/i)
-			if pingback_request.code == 200 and pingback_disabled_match.nil?
+			pingback_disabled_match = pingback_response.body.match(/<value><int>33<\/int><\/value>/i)
+			if pingback_response.code == 200 and pingback_disabled_match.nil?
 				print_good("Pingback enabled: #{link.join}\n")
 				blog_posts = {:xml_rpc => xml_rpc, :blog_post => blog_post}
 				return blog_posts
@@ -260,7 +264,7 @@ class Metasploit3 < Msf::Auxiliary
 			count = datastore['NUM_REDIRECTS']
 
 			while (res.code == 301 || res.code == 302) && count != 0
-				@target = res.headers['location'].chomp("/").sub(/^http:\/\//, "")
+				@target = res.headers['Location'].chomp("/").sub(/^http:\/\//, "")
 				res = send_request_cgi({
 					'uri'    => "/",
 					'method' => 'GET',
