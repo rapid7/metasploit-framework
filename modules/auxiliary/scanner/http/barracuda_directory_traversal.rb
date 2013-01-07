@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def target_url
-		uri = normalize_uri(datastore['URI']
+		uri = normalize_uri(datastore['URI'])
 		"http://#{vhost}:#{rport}#{uri}"
 	end
 
