@@ -24,6 +24,7 @@ class NetSparkerXMLStreamParser
 
 		case name
 		when "vulnerability"
+			@vuln = { 'info' => [] }
 			@vuln['confirmed'] = attributes['confirmed']
 		end
 	end
