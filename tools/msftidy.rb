@@ -368,6 +368,7 @@ class Msftidy
 		}
 	end
 
+	# breaks ruby 1.8 compatibility
 	def check_comma
 		comma_match = @source.match(/[^\n\r]*(?<m>,\s*[\)])[^\n\r]*/)
 		unless comma_match.nil?
@@ -375,7 +376,7 @@ class Msftidy
 			match_string = comma_match[:m].to_s.inspect.sub(/^"(?<foo>.*)"$/, '\k<foo>')
 			comma_match_2 = comma_match.to_s.inspect.sub(/^"(?<foo>.*)"$/, '\k<foo>')
 			# colorize the match
-			colorized_string = comma_match_2.gsub(match_string, "\e[31m#{match_string}\e[0m").strip
+			colorized_string = comma_match_2.gsub(match_string, match_string.red)
 			error("Comma at end of definition: #{colorized_string}")
 		end
 	end

