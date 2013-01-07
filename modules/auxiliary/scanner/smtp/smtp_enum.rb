@@ -1,4 +1,5 @@
-d: smtp_enum.rb 14774 2012-02-21 01:42:17Z rapid7 $
+##
+# $Id: smtp_enum.rb 14774 2012-02-21 01:42:17Z rapid7 $
 ##
 
 ##
