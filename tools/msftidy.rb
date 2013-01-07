@@ -377,6 +377,19 @@ class Msftidy
 		}
 	end
 
+	# breaks ruby 1.8 compatibility
+	def check_comma
+		comma_match = @source.match(/[^\n\r]*(?<m>,\s*[\)])[^\n\r]*/)
+		unless comma_match.nil?
+			# inspect replaces special chars, but surrounds the string with ""
+			match_string = comma_match[:m].to_s.inspect.sub(/^"(?<foo>.*)"$/, '\k<foo>')
+			comma_match_2 = comma_match.to_s.inspect.sub(/^"(?<foo>.*)"$/, '\k<foo>')
+			# colorize the match
+			colorized_string = comma_match_2.gsub(match_string, match_string.red)
+			error("Comma at end of definition: #{colorized_string}")
+		end
+	end
+
 	private
 
 	def load_file(file)
@@ -400,6 +413,7 @@ def run_checks(f_rel)
 	tidy.check_bad_terms
 	tidy.check_function_basics
 	tidy.check_lines
+  tidy.check_comma
 end
 
 ##
