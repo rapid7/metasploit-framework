@@ -103,7 +103,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		vprint_status("#{rhost}:#{rport} Trying username:'#{user}' with password:'#{pass}'")
 		begin
-			mysql_login(user, pass)
+			m = mysql_login(user, pass)
+			return :fail if not m
+
 			print_good("#{rhost}:#{rport} - SUCCESSFUL LOGIN '#{user}' : '#{pass}'")
 			report_auth_info(
 				:host   => rhost,
@@ -115,10 +117,6 @@ class Metasploit3 < Msf::Auxiliary
 				:active => true
 			)
 			return :next_user
-
-		rescue ::RbMysql::AccessDeniedError
-			vprint_status("#{rhost}:#{rport} failed to login as '#{user}' with password '#{pass}'")
-			return :fail
 
 		rescue ::RbMysql::Error => e
 			vprint_error("#{rhost}:#{rport} failed to login: #{e.class} #{e}")
