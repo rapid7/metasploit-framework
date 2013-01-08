@@ -53,13 +53,7 @@ class Metasploit4 < Msf::Auxiliary
 				print_status("#{ip}:#{rport} Subject: #{cert.subject}")
 				print_status("#{ip}:#{rport} Issuer: #{cert.issuer}")
 				print_status("#{ip}:#{rport} Signature Alg: #{cert.signature_algorithm}")
-				public_key = cert.public_key.to_pem()
-				# removing header and footer
-				public_key = public_key.sub("-----BEGIN RSA PUBLIC KEY-----","")
-				public_key = public_key.sub("-----END RSA PUBLIC KEY-----","")
-				public_key_size = Rex::Text.decode_base64(public_key).size
-				# removing 12 bytes for some shmoo of exponent and modulus and turn bytes into bits
-				public_key_size = (public_key_size - 12) * 8
+				public_key_size = cert.public_key.n.num_bytes * 8
 				print_status("#{ip}:#{rport} Public Key Size: #{public_key_size} bits")
 				print_status("#{ip}:#{rport} Not Valid Before: #{cert.not_before}")
 				print_status("#{ip}:#{rport} Not Valid After: #{cert.not_after}")
