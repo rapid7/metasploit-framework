@@ -675,11 +675,11 @@ class DBManager
 		if sess_data[:desc]
 			sess_data[:desc] = sess_data[:desc][0,255]
 		end
-    
+
 		# In the case of multi handler we cannot yet determine the true
 		# exploit responsible. But we can at least show the parent versus
 		# just the generic handler:
-		if session.via_exploit == "exploit/multi/handler"
+		if session and session.via_exploit == "exploit/multi/handler"
 	  	sess_data[:via_exploit] = sess_data[:datastore]['ParentModule']
 		end
 
