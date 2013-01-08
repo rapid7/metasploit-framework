@@ -67,9 +67,25 @@ class EncodedPayload
 			# Generate the raw version of the payload first
 			generate_raw() if self.raw.nil?
 
-			# Encode the payload
-			encode()
 
+			if self.reqs["StageEncoders"]
+				encodersList=self.reqs["StageEncoders"].split(',')
+				for i in encodersList
+					reqs['Encoder']=i
+					encode()
+					self.raw=self.encoded
+				end
+			elsif self.pinst.datastore["EncodersList"]
+				encodersList=self.pinst.datastore["EncodersList"].split(',')
+				for i in encodersList
+					reqs['Encoder']=i
+					encode()
+					self.raw=self.encoded
+				end
+			else
+			# Encode the payload
+				encode()
+			end
 			# Build the NOP sled
 			generate_sled()
 
