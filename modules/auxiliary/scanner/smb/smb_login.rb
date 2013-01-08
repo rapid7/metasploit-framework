@@ -196,9 +196,7 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			domain_part = " \\\\#{domain}"
 		end
-		output_message = "#{rhost}:#{rport}#{domain_part} - ".gsub('%', '%%')
-		output_message << "%s"
-		output_message << " (#{smb_peer_os}) #{user} : #{pass} [#{status}]".gsub('%', '%%')
+		output_message = "#{rhost}:#{rport}#{domain_part} - %s (#{smb_peer_os}) #{user} : #{pass} [#{status}]"
 
 		case status
 		when 'STATUS_SUCCESS'
