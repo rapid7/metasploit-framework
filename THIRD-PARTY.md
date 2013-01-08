@@ -1075,6 +1075,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    Copyright (C) 2009-2012 H D Moore < hdm[at]rapid7.com >
  - Armitage, located under external/source/armitage and data/armitage/
    Copyright (C) 2010-2012 Raphael Mudge
+ - Byakugan, located under external/source/byakugan/
+   Copyright (c) Lurene Grenier, 2009
 
 ````
 Redistribution and use in source and binary forms, with or without
