@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 
-		url = datastore['URL']
+		url = normalize_uri(datastore['URL'])
 		locale = "?locale="
 		trav = datastore['PATH']
 

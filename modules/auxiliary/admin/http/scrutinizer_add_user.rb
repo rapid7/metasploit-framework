@@ -45,9 +45,10 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
+		uri = normalize_uri(target_uri.path)
 		res = send_request_cgi({
 			'method'    => 'POST',
-			'uri'       => target_uri.path,
+			'uri'       => uri,
 			'vars_post' => {
 				'tool'              => 'userprefs',
 				'newUser'           => datastore['USERNAME'],

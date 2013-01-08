@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 			</env:Envelope>|
 		begin
 			res = send_request_cgi({
-				'uri'     => datastore['URI'],
+				'uri'     => normalize_uri(datastore['URI']),
 				'method'  => 'POST',
 				'agent'   => 'VMware VI Client',
 				'data' =>  soap_data,

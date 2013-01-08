@@ -74,8 +74,9 @@ class Metasploit4 < Msf::Auxiliary
 		print_status("Issuing password change request for: " + datastore['USERNAME'])
 
 		begin
+			uri = normalize_uri(target_uri.path)
 			res = send_request_cgi({
-				'uri'     => target_uri.path,
+				'uri'     => uri,
 				'method'  => 'POST',
 				'data'    => data,
 				'headers' =>

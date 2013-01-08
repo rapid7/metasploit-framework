@@ -44,6 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def target_url
+		uri = normalize_uri(datastore['URI'])
 		"http://#{vhost}:#{rport}#{datastore['URI']}"
 	end
 
@@ -52,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 			'../',
 			'./.../'
 		]
-		uri  = datastore['URI']
+		uri  = normalize_uri(datastore['URI'])
 		file = datastore['FILE']
 		deep = datastore['DEPTH']
 		file = file.gsub(/^\//, "")

@@ -80,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		conn = false
 
-		tpath = datastore['PATH']
+		tpath = normalize_uri(datastore['PATH'])
 		if tpath[-1,1] != '/'
 			tpath += '/'
 		end

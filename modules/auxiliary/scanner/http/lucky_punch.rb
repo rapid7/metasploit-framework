@@ -81,7 +81,7 @@ EOF
 
 	begin
 		normalres = send_request_cgi({
-			'uri'          =>  datastore['URI'],
+			'uri'          =>  normalize_uri(datastore['URI']),
 			'vars_get'     =>  gvars,
 			'method'       => 'GET',
 			'ctype'        => 'text/plain'

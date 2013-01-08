@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 		]
 
 		bakextensions.each do |ext|
-			file = datastore['PATH']+ext
+			file = normalize_uri(datastore['PATH'])+ext
 			check_for_file(file)
 		end
 		if datastore['PATH'] =~ %r#(.*)(/.+$)#

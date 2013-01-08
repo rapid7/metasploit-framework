@@ -119,11 +119,8 @@ class Metasploit4 < Msf::Auxiliary
 	# Main function for the module, duh!
 	#
 	def run_host(ip)
-		path   = datastore['PATH']
+		path   = normalize_uri(datastore['PATH'])
 		data   = datastore['FILEDATA']
-
-		#Add "/" if necessary
-		path = "/#{path}" if path[0,1] != '/'
 
 		if path[-1,1] != '/'
 			path += '/'

@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 		falsecond = "'%20and%20'#{rnum}'='#{rnum+1}"
 
 		hmeth = datastore['METHOD']
-		tpath = datastore['PATH']
+		tpath = normalize_uri(datastore['PATH'])
 		prequery = datastore['PRE_QUERY']
 		postquery = datastore['POST_QUERY']
 		emesg = datastore['ERROR_MSG']

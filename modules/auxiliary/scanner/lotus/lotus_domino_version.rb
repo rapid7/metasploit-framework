@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 
-		path = datastore['PATH']
+		path = normalize_uri(datastore['PATH'])
 		check1 = [
 			'iNotes/Forms5.nsf',
 			'iNotes/Forms6.nsf',
