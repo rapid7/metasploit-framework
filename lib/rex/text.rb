@@ -2,7 +2,7 @@
 require 'digest/md5'
 require 'digest/sha1'
 require 'stringio'
-require 'CGI'
+require 'cgi'
 
 begin
 	old_verbose = $VERBOSE
