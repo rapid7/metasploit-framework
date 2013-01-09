@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 ##
-# $Id: bourne.rb 12595 2011-05-12 18:33:49Z zeroSteiner $
+# $Id: bourne.rb
 ##
 
 require 'rex/text'
@@ -17,11 +17,10 @@ class CmdStagerBourne < CmdStagerBase
 
 		@var_encoded = Rex::Text.rand_text_alpha(5)
 		@var_decoded = Rex::Text.rand_text_alpha(5)
-		@decoder     = nil # filled in later
 	end
 
 	def generate(opts = {})
-		opts.merge!({:temp => '/tmp/'})
+		opts[:temp] = opts[:temp] || '/tmp/'
 		super
 	end
 
@@ -30,7 +29,7 @@ class CmdStagerBourne < CmdStagerBase
 	#
 	def generate_cmds(opts)
 		# Set the start/end of the commands here (vs initialize) so we have @tempdir
-		@cmd_start = "echo "
+		@cmd_start = "echo -n "
 		@cmd_end   = ">>#{@tempdir}#{@var_encoded}.b64"
 		xtra_len = @cmd_start.length + @cmd_end.length + 1
 		opts.merge!({ :extra => xtra_len })
@@ -71,13 +70,13 @@ class CmdStagerBourne < CmdStagerBase
 	def generate_cmds_decoder(opts)
 		case opts[:decoder]
 		when 'base64'
-			decoder = "base64 -d #{@tempdir}#{@var_encoded}.b64"
+			decoder = "base64 --decode #{@tempdir}#{@var_encoded}.b64"
 		when 'openssl'
 			decoder = "openssl enc -d -A -base64 -in #{@tempdir}#{@var_encoded}.b64"
 		when 'python'
 			decoder = "python -c 'import sys; import base64; print base64.standard_b64decode(sys.stdin.read());' < #{@tempdir}#{@var_encoded}.b64"
 		when 'perl'
-			decoder = "perl -MIO -e 'use MIME::Base64; print decode_base64(<>);' < #{@tempdir}#{@var_encoded}.b64"
+			decoder = "perl -MIO -e 'use MIME::Base64; while (<>) { print decode_base64($_); }' < #{@tempdir}#{@var_encoded}.b64"
 		end
 		decoder << " > #{@tempdir}#{@var_decoded}.bin"
 		[ decoder ]
