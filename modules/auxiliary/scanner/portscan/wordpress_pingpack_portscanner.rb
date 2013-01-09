@@ -139,8 +139,10 @@ class Metasploit3 < Msf::Auxiliary
 				return nil
 			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			print_error("Unable to connect to #{uri}")
 			return nil
 		rescue ::Timeout::Error, ::Errno::EPIPE
+			print_error("Unable to connect to #{uri}")
 			return nil
 		end
 
@@ -232,7 +234,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			# Check returns, determine port status
 			if pingback_request.nil?
-				print_status("Issues with port #{i}")
+				print_status("\tIssues with port #{i}")
 				next
 			else
 				closed_match = pingback_request.body.match(/<value><int>16<\/int><\/value>/i)
