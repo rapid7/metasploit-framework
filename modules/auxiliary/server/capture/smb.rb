@@ -339,7 +339,7 @@ class Metasploit3 < Msf::Auxiliary
 				begin
 					smb_get_hash(smb,arg,true)
 				rescue ::Exception => e
-					print_status("SMB Capture - Error processing Hash from #{smb[:name]} - #{smb[:ip]} : #{e.class} #{e} #{e.backtrace}")
+					print_error("SMB Capture - Error processing Hash from #{smb[:name]} - #{smb[:ip]} : #{e.class} #{e} #{e.backtrace}")
 				end
 
 				smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
@@ -401,7 +401,7 @@ class Metasploit3 < Msf::Auxiliary
 				smb_get_hash(smb,arg,false)
 
 			rescue ::Exception => e
-				print_status("SMB Capture - Error processing Hash from #{smb[:name]} : #{e.class} #{e} #{e.backtrace}")
+				print_error("SMB Capture - Error processing Hash from #{smb[:name]} : #{e.class} #{e} #{e.backtrace}")
 			end
 
 			smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
@@ -528,16 +528,17 @@ class Metasploit3 < Msf::Auxiliary
 
 			print_status(capturelogmessage)
 
+			lm_text = lm_hash + lm_cli_challenge.to_s ? lm_hash + lm_cli_challenge.to_s : "00" * 24
+			nt_text = nt_hash + nt_cli_challenge.to_s ? nt_hash + nt_cli_challenge.to_s :  "00" * 24
+			pass = "#{smb[:domain]}:#{lm_text}:#{nt_text}:#{datastore['CHALLENGE'].to_s}" 
+
 			# DB reporting
 			report_auth_info(
 				:host  => smb[:ip],
 				:port => datastore['SRVPORT'],
 				:sname => 'smb_challenge',
 				:user => smb[:username],
-				:pass => smb[:domain] + ":" +
-					( lm_hash + lm_cli_challenge.to_s ? lm_hash + lm_cli_challenge.to_s : "00" * 24 ) + ":" +
-					( nt_hash + nt_cli_challenge.to_s ? nt_hash + nt_cli_challenge.to_s :  "00" * 24 ) + ":" +
-					datastore['CHALLENGE'].to_s,
+				:pass => pass,
 				:type => smb_db_type_hash,
 				:proof => "NAME=#{smb[:nbsrc]} DOMAIN=#{smb[:domain]} OS=#{smb[:peer_os]}",
 				:source_type => "captured",
