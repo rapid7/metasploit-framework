@@ -29,7 +29,6 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 
 		if (not mysql_login_datastore)
-			print_error("Invalid MySQL Server credentials")
 			return
 		end
 
