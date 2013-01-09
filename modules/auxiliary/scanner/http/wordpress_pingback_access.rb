@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name' => 'Wordpress Pingback Port Scanner',
+			'Name' => 'Wordpress Pingback Locator',
 			'Description' => %q{
 					This module will scan for wordpress sites with the Pingback
 					API enabled. By interfacing with the API an attacker can cause
