@@ -56,6 +56,14 @@ class Console::CommandDispatcher::Stdapi::Sys
 		"-U" => [ true,  "Filters processes on the user using the supplied RegEx"  ])
 
 	#
+	# Options for the 'suspend' command.
+	#
+	@@suspend_opts = Rex::Parser::Arguments.new(
+		"-h" => [ false, "Help menu."                                              ],
+		"-c" => [ false, "Continues suspending or resuming even if an error is encountered"],
+		"-r" => [ false, "Resumes the target processes instead of suspending"      ])
+
+	#
 	# List of supported commands.
 	#
 	def commands
@@ -74,6 +82,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 			"shell"       => "Drop into a system command shell",
 			"shutdown"    => "Shuts down the remote computer",
 			"steal_token" => "Attempts to steal an impersonation token from the target process",
+			"suspend"     => "Suspends or resumes a list of processes"
 			"sysinfo"     => "Gets information about the remote system, such as OS",
 		}
 		reqs = {
@@ -105,6 +114,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 			"shell"       => [ "stdapi_sys_process_execute" ],
 			"shutdown"    => [ "stdapi_sys_power_exitwindows" ],
 			"steal_token" => [ "stdapi_sys_config_steal_token" ],
+			"suspend"     => [ "stdapi_sys_process_attach"],
 			"sysinfo"     => [ "stdapi_sys_config_sysinfo" ],
 		}
 
@@ -688,6 +698,84 @@ class Console::CommandDispatcher::Stdapi::Sys
 		client.sys.power.shutdown
 	end
 
+	#
+	# @param args [Array] Suspends a list of one or more pids
+	#     args can optionally be -c to continue on error or -r to resume instead of suspend,
+	#     followed by a list of one or more valid pids
+	#     A suspend which will accept process names will be added later
+	# @return [Boolean] Returns true if command was successful, else false
+	#
+	def cmd_suspend(*args)
+		# give'em help if they want it, or seem confused
+		if ( args.length == 0 or (args.length == 1 and args[0].strip == "-h") )
+			cmd_suspend_help
+			return true
+		end
+
+		continue = args.delete("-c") || false 
+		resume = args.delete ("-r") || false
+
+		# TODO add -u/-r to unsuspend/resume and -c continue
+		# validate all the proposed pids first so we can bail if one is bogus
+		args.each do |arg|
+			if not is_valid_pid?(arg)
+				print_error("#{arg} is not a valid pid")
+				cmd_suspend_help
+				return false
+			end
+		end
+
+		# suspend
+		print_line("Suspending: #{args.join(", ")}")
+		#client.sys.process.kill(*(args.map { |x| x.to_i }))
+		targetprocess = nil
+		if resume
+			begin
+				pids.each do |pid|
+					print_status("Targeting process with PID #{pid}...")
+					targetprocess = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
+					vprint_status "Resuming threads"
+					targetprocess.thread.each_thread do |x|
+	    				targetprocess.thread.open(x).resume
+					end
+				end
+			rescue ::Rex::Post::Meterpreter::RequestError => e
+				print_error "Error resuming the process threads:  #{e.to_s}.  " + 
+							"Try migrating to a process with the same owner as the target process"
+							"Also consider running the win_privs post module and confirm SeDebug priv."
+			ensure
+				targetprocess.close if targetprocess
+				return false unless continue
+			end
+		else
+			begin
+				pids.each do |pid|
+					print_status("Targeting process with PID #{pid}...")
+					targetprocess = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
+					vprint_status "Suspending threads"
+					targetprocess.thread.each_thread do |x|
+	    				targetprocess.thread.open(x).suspend
+					end
+				end
+			rescue ::Rex::Post::Meterpreter::RequestError => e
+				print_error "Error suspending the process threads:  #{e.to_s}.  " + 
+							"Try migrating to a process with the same owner as the target process"
+							"Also consider running the win_privs post module and confirm SeDebug priv."
+			ensure
+				targetprocess.close if targetprocess
+				return false unless continue
+			end
+		end
+		return true
+	end
+
+	#
+	# help for the suspend command
+	#
+	def cmd_suspend_help
+		print_line("Usage: suspend [options] pid1 pid2 pid3 ...\n\nSuspend one or more processes.")
+		print @@connect_opts.usage
+	end
 
 end
 
