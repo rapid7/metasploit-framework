@@ -81,8 +81,10 @@ class Metasploit3 < Msf::Auxiliary
 				return nil
 			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			print_error("Unable to connect to #{ip}")
 			return nil
 		rescue ::Timeout::Error, ::Errno::EPIPE
+			print_error("Unable to connect to #{ip}")
 			return nil
 		end
 	end
@@ -133,8 +135,10 @@ class Metasploit3 < Msf::Auxiliary
 				count = count - 1
 			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			print_error("Unable to connect to #{ip}")
 			return nil
 		rescue ::Timeout::Error, ::Errno::EPIPE
+			print_error("Unable to connect to #{ip}")
 			return nil
 		end
 
