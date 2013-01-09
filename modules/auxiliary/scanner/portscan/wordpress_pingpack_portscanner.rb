@@ -42,7 +42,9 @@ class Metasploit3 < Msf::Auxiliary
 
 			register_advanced_options(
 				[
-					OptInt.new('NUM_REDIRECTS', [ true, "Number of HTTP redirects to follow", 10])
+					OptInt.new('NUM_REDIRECTS', [ true, "Number of HTTP redirects to follow", 3]),
+					OptInt.new('MAX_RETRIES', [ true, "Number of retries if cannot determine port status", 3])
+
 				], self.class)
 
 	end
@@ -119,7 +121,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			count = datastore['NUM_REDIRECTS']
 
-			if res	
+			if res
 				while (res.code == 301 || res.code == 302) and res.headers['Location'] and count != 0
 
 					print_status("Web server returned a #{res.code}...following to #{res.headers['Location']}")
@@ -224,6 +226,8 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Scanning: #{target}#{the_ip}")
 
 		# Port scanner
+		max_retry = datastore['MAX_RETRIES']
+		current_retry = max_retry
 		port_range.each do |i|
 			random = (0...8).map { 65.+(rand(26)).chr }.join
 			uri = URI(target)
@@ -234,16 +238,25 @@ class Metasploit3 < Msf::Auxiliary
 
 			# Check returns, determine port status
 			if pingback_request.nil?
-				print_status("\tIssues with port #{i}")
-				next
+				if current_retry > 0
+					vprint_status("\tIssues with port #{i}, retrying")
+					current_retry -= 1
+					redo
+				else
+					print_status("\tCould not identify port #{i}")
+					current_retry = max_retry
+					next
+				end
 			else
 				closed_match = pingback_request.body.match(/<value><int>16<\/int><\/value>/i)
 				if pingback_request.code == 200 and closed_match.nil?
 					print_good("\tPort #{i} is open")
 					store_service(@target_ip, i, "open") if @db_active
+					current_retry = max_retry
 				else
 					print_status("\tPort #{i} is closed")
 					store_service(@target_ip, i, "closed") if @db_active
+					current_retry = max_retry
 				end
 			end
 		end
@@ -262,13 +275,12 @@ class Metasploit3 < Msf::Auxiliary
 				'uri'    => '/',
 				'method' => 'GET',
 			})
-
 			count = datastore['NUM_REDIRECTS']
-
 			while (res.code == 301 || res.code == 302) && count != 0
+				uri = res.headers['Location'].sub(/^http:\/\/.*?#{datastore['RHOST']}/, "")
 				@target = res.headers['Location'].chomp("/").sub(/^http:\/\//, "")
 				res = send_request_cgi({
-					'uri'    => "/",
+					'uri'    => "#{uri}",
 					'method' => 'GET',
 				})
 				count = count - 1
