@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 				]
 		))
 
-		register_options(
+		register_options([
 			OptString.new('URIPATH', [true, "The URI to test", "/"])
 		], self.class)
 	end
