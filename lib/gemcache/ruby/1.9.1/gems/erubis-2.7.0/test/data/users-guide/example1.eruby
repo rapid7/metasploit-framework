@@ -1,6 +1,0 @@
-<ul>
-  <% for item in list %>
-  <li><%= item %></li>
-  <% end %>
-  <%# here is ignored because starting with '#' %>
-</ul>
