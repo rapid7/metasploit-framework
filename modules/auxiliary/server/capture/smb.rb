@@ -529,7 +529,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status(capturelogmessage)
 			lm_text = (lm_hash + lm_cli_challenge.to_s).empty? ? "00" * 24 : lm_hash + lm_cli_challenge.to_s
 			nt_text = (nt_hash + nt_cli_challenge.to_s).empty? ? "00" * 24 : nt_hash + nt_cli_challenge.to_s
-			pass = "#{smb[:domain]}:#{lm_text}:#{nt_text}:#{datastore['CHALLENGE'].to_s}" 
+			pass = "#{smb[:domain]}:#{lm_text}:#{nt_text}:#{datastore['CHALLENGE'].to_s}"
 
 			# DB reporting
 			report_auth_info(
@@ -575,7 +575,7 @@ class Metasploit3 < Msf::Auxiliary
 							smb[:username],
 							smb[:domain] ? smb[:domain] : "NULL",
 							@challenge.unpack("H*")[0],
-							lm_hash.empty? ? "0" * 48 : lm_hash, 
+							lm_hash.empty? ? "0" * 48 : lm_hash,
 							nt_hash.empty? ? "0" * 48 : nt_hash
 						].join(":").gsub(/\n/, "\\n")
 					)
