@@ -35,16 +35,12 @@ class Metasploit3 < Msf::Auxiliary
 
 	def send_probe(ptype, pdata)
 		odata = %Q^<?xml version="1.0" encoding="UTF-8"?>\n<probe type="#{ptype}"><![CDATA[\n#{pdata}\n]]></probe>^
-		begin
-			res = send_request_cgi({
-				'uri'    => datastore['URIPATH'] || "/",
-				'method' => 'POST',
-				'ctype'  => 'application/xml',
-				'data'   => odata
-			}, 25)
-		rescue ::Timeout::Error
-			nil
-		end
+		res = send_request_cgi({
+			'uri'    => datastore['URIPATH'] || "/",
+			'method' => 'POST',
+			'ctype'  => 'application/xml',
+			'data'   => odata
+		}, 25)
 	end
 
 	def run_host(ip)
