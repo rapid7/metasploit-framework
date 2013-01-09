@@ -123,7 +123,12 @@ class Auxiliary::Web::HTTP
 			# Spawn threads for each host
 			while tl.size <= (opts[:max_threads] || 5) && !@queue.empty? && (req = @queue.pop)
 				tl << framework.threads.spawn( "#{self.class.name} - #{req})", false, req ) do |request|
-					request.handle_response request( request.url, request.opts )
+					begin
+						request.handle_response request( request.url, request.opts )
+					rescue => e
+						print_error e.to_s
+						e.backtrace.each { |l| print_error "-- #{l}" }
+					end
 				end
 			end
 
