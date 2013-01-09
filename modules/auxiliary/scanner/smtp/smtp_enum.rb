@@ -88,6 +88,8 @@ class Metasploit3 < Msf::Auxiliary
 			smtp_send(cmd,!@connected)
 			if (@result.match(%r{Cannot})) or (@result.match(%r{recognized}))
 				vprint_status("VRFY command disabled")
+			elsif (@result.match(%r{restricted}))
+				vprint_status("VRFY command restricted")
 			else
 				vprint_status("VRFY command enabled")
 				vrfy_ok=true
