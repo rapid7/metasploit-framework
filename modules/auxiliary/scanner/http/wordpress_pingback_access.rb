@@ -122,8 +122,9 @@ class Metasploit3 < Msf::Auxiliary
 
 			# Follow redirects
 			while (res.code == 301 || res.code == 302) and res.headers['Location'] and count != 0
-				vprint_status("Web server returned a #{res.code}...following to #{res.headers['Location']}")
-				uri = res.headers['Location'].sub(/.*?#{ip}/, "")
+				vprint_status("Web server returned a #{res.code}...following to #{res.headers['Location']}")	
+
+				uri = res.headers['Location'].sub(/(http|https):\/\/.*?\//, "/")
 				res = send_request_cgi({
 					'uri'    => "#{uri}",
 					'method' => 'GET'
@@ -150,7 +151,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		# parse out links and place in array
-		links = res.to_s.scan(/<link>([^<]+)<\/link>/i)
+		links = res.body.scan(/<link>([^<]+)<\/link>/i)
 
 		if links.nil? or links.empty?
 			vprint_status("Feed at #{ip} did not have any links present")
