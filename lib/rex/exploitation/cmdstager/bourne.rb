@@ -21,6 +21,8 @@ class CmdStagerBourne < CmdStagerBase
 
 	def generate(opts = {})
 		opts[:temp] = opts[:temp] || '/tmp/'
+		opts[:temp] = opts[:temp].gsub(/'/, "\\\\'")
+		opts[:temp] = opts[:temp].gsub(/ /, "\\ ")
 		super
 	end
 
