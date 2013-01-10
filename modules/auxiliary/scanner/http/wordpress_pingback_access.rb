@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def get_xml_rpc_url(ip)
 		# code to find the xmlrpc url when passed in IP
-		vprint_status("Enumerating XML-RPC URI for #{ip}...")
+		vprint_status("#{ip} - Enumerating XML-RPC URI...")
 
 		begin
 			
@@ -74,23 +74,23 @@ class Metasploit3 < Msf::Auxiliary
 				if res['X-Pingback']
 					return res['X-Pingback']
 				else
-					vprint_status("X-Pingback header not found at #{ip}")
+					vprint_status("#{ip} - X-Pingback header not found")
 					return nil
 				end
 			else
 				return nil
 			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			print_error("Unable to connect to #{ip}")
+			vprint_error("#{ip} - Unable to connect")
 			return nil
 		rescue ::Timeout::Error, ::Errno::EPIPE
-			print_error("Unable to connect to #{ip}")
+			vprint_error("#{ip} - Unable to connect")
 			return nil
 		end
 	end
 
 	# Creates the XML data to be sent
-	def generate_pingback_xml (target, valid_blog_post)
+	def generate_pingback_xml(target, valid_blog_post)
 		xml = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>"
 		xml << "<methodCall>"
 		xml << "<methodName>pingback.ping</methodName>"
@@ -104,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def get_blog_posts(xml_rpc, ip)
 		# find all blog posts within IP and determine if pingback is enabled
-		vprint_status("Enumerating Blog posts on #{ip}...")
+		vprint_status("#{ip} - Enumerating Blog posts on...")
 		blog_posts = nil
 
 		uri = target_uri.path
@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		# make http request to feed url
 		begin
-			vprint_status("Resolving #{ip}#{uri}?feed=rss2 to locate wordpress feed...")
+			vprint_status("#{ip} - Resolving #{uri}?feed=rss2 to locate wordpress feed...")
 			res = send_request_cgi({
 				'uri'    => "#{uri}?feed=rss2",
 				'method' => 'GET'
@@ -122,7 +122,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			# Follow redirects
 			while (res.code == 301 || res.code == 302) and res.headers['Location'] and count != 0
-				vprint_status("Web server returned a #{res.code}...following to #{res.headers['Location']}")	
+				vprint_status("#{ip} - Web server returned a #{res.code}...following to #{res.headers['Location']}")
 
 				uri = res.headers['Location'].sub(/(http|https):\/\/.*?\//, "/")
 				res = send_request_cgi({
@@ -131,22 +131,22 @@ class Metasploit3 < Msf::Auxiliary
 					})
 
 				if res.code == 200
-					vprint_status("Feed located at http://#{ip}#{uri}")
+					vprint_status("#{ip} - Feed located at #{uri}")
 				else
-					vprint_status("#{ip} returned a #{res.code}...")
+					vprint_status("#{ip} - Returned a #{res.code}...")
 				end
 				count = count - 1
 			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			print_error("Unable to connect to #{ip}")
+			vprint_error("#{ip} - Unable to connect")
 			return nil
 		rescue ::Timeout::Error, ::Errno::EPIPE
-			print_error("Unable to connect to #{ip}")
+			vprint_error("#{ip} - Unable to connect")
 			return nil
 		end
 
 		if res.nil? or res.code != 200
-			vprint_status("Did not recieve HTTP response from #{ip}")
+			vprint_status("#{ip} - Did not recieve HTTP response from #{ip}")
 			return blog_posts
 		end
 
@@ -154,7 +154,7 @@ class Metasploit3 < Msf::Auxiliary
 		links = res.body.scan(/<link>([^<]+)<\/link>/i)
 
 		if links.nil? or links.empty?
-			vprint_status("Feed at #{ip} did not have any links present")
+			vprint_status("#{ip} - Feed at #{ip} did not have any links present")
 			return blog_posts
 		end
 
@@ -164,11 +164,11 @@ class Metasploit3 < Msf::Auxiliary
 			if pingback_response
 				pingback_disabled_match = pingback_response.body.match(/<value><int>33<\/int><\/value>/i)
 				if pingback_response.code == 200 and pingback_disabled_match.nil?
-					print_good("Pingback enabled: #{link.join}")
+					print_good("#{ip} - Pingback enabled: #{link.join}")
 					blog_posts = link.join
 					return blog_posts
 				else
-					vprint_status("Pingback disabled: #{link.join}")
+					vprint_status("#{ip} - Pingback disabled: #{link.join}")
 				end
 			end
 		end
@@ -189,10 +189,10 @@ class Metasploit3 < Msf::Auxiliary
 				'data'	 => "#{pingback_xml}"
 				})
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			print_error("Unable to connect to #{uri}")
+			vprint_error("Unable to connect to #{uri}")
 			return nil
 		rescue ::Timeout::Error, ::Errno::EPIPE
-			print_error("Unable to connect to #{uri}")
+			vprint_error("Unable to connect to #{uri}")
 			return nil
 		end
 		return res
@@ -217,14 +217,14 @@ class Metasploit3 < Msf::Auxiliary
 
 		# once xmlrpc url is found, get_blog_posts
 		if xmlrpc.nil?
-			print_error("#{ip} does not appear to be vulnerable")
+			vprint_error("#{ip} - It doesn't appear to be vulnerable")
 		else
 			hash = get_blog_posts(xmlrpc, ip)
 
 			if hash
 				store_vuln(ip, hash) if @db_active
 			else
-				print_status("X-Pingback enabled but no vulnerable blogs found on #{ip}...")
+				vprint_status("#{ip} - X-Pingback enabled but no vulnerable blogs found")
 			end
 		end
 	end
