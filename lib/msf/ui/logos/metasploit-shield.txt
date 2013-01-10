@@ -18,5 +18,4 @@
 %bluMMMMMMMMMMNm,%clr            %blueMMMMMNMMNMM%clr
 %bluMMMMNNMNMMMMMNx%clr        %bluMMMMMMNMMNMMNM%clr
 %bluMMMMMMMMNMMNMMMMm+..+MMNMMNMNMMNMMNMM%clr
-%clr
-
+%clr%bld        http://metasploit.pro
