@@ -33,11 +33,15 @@ module Banner
   def self.readfile(fname)
     base = File.expand_path(File.dirname(__FILE__))
     pathname = File.join(base, "logos", fname)
+    fdata = "<< Missing banner: #{fname} >>"
     begin 
+      raise ArgumentError unless File.readable?(pathname)
+      raise ArgumentError unless File.stat(pathname).size < 4096
       fdata = File.open(pathname) {|f| f.read f.stat.size}
-    rescue SystemCallError
-      fdata = ""
+    rescue SystemCallError, ArgumentError
+      nil
     end
+    return fdata
   end
 
 	def self.to_s
