@@ -131,6 +131,8 @@ class Metasploit3 < Msf::Auxiliary
 
 				if res.code == 200
 					vprint_status("Feed located at http://#{ip}#{uri}")
+				else
+					vprint_status("#{ip} returned a #{res.code}")
 				end
 				count = count - 1
 			end
