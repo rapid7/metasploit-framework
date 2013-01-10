@@ -329,8 +329,11 @@ class Console::CommandDispatcher::Core
 	#
 	# Migrates the server to the supplied process identifier.
 	#
+	# @param args [Array<String>] Commandline arguments, only -h or a pid
+	# @return [void]
+
 	def cmd_migrate(*args)
-		if (args.length == 0)
+		if ( args.length == 0 or args.include?("-h") )
 			cmd_migrate_help
 			return true
 		end
