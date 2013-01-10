@@ -32,16 +32,23 @@ module Banner
 
   def self.readfile(fname)
     base = File.expand_path(File.dirname(__FILE__))
-    File.open(File.join(base, "logos", fname)) {|f| f.read f.stat.size}
+    pathname = File.join(base, "logos", fname)
+    begin 
+      fdata = File.open(pathname) {|f| f.read f.stat.size}
+    rescue SystemCallError
+      fdata = ""
+    end
   end
 
 	def self.to_s
 		if ENV['GOCOW']
-			case rand(2)
+			case rand(3)
 				when 0
 					self.readfile Logos[1]
 				when 1
 					self.readfile Logos[5]
+				when 2
+					self.readfile Logos[6]
 			end
 		else
 			self.readfile Logos[rand(Logos.length)]
