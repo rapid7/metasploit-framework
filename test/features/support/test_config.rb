@@ -5,11 +5,14 @@ class TestConfig
   include Singleton
   
   def initialize(*args)
-    if @yaml_options = YAML::load(File.open(File.join(File.dirname(__FILE__),'test_config.yml')))
-      
-    else
-      @yaml_options = {}
-    end
+
+	yml_path = File.join(File.dirname(__FILE__),'test_config.yml')
+  
+	if File.exists?(yml_path)
+		@yaml_options = YAML::load(File.open(yml_path))
+	else
+		@yaml_options = {}
+	end
     
     @options = {
     	"rhost" => "localhost",
