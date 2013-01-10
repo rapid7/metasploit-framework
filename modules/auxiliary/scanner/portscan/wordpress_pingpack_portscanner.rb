@@ -126,7 +126,7 @@ class Metasploit3 < Msf::Auxiliary
 
 					print_status("Web server returned a #{res.code}...following to #{res.headers['Location']}")
 
-					uri = res.headers['Location'].sub(/.*?#{datastore['RHOST']}/, "")
+					uri = res.headers['Location'].sub(/(http|https):\/\/.*?\//, "/")
 					res = send_request_cgi({
 						'uri'    => "#{uri}",
 						'method' => 'GET',
@@ -153,7 +153,7 @@ class Metasploit3 < Msf::Auxiliary
 			return blog_posts
 		end
 
-		links = res.to_s.scan(/<link>([^<]+)<\/link>/i)
+		links = res.body.scan(/<link>([^<]+)<\/link>/i)
 
 		# handle emtpy feeds
 		if links.nil? or links.empty?
