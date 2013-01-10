@@ -124,7 +124,6 @@ class Metasploit3 < Msf::Auxiliary
 			while (res.code == 301 || res.code == 302) and res.headers['Location'] and count != 0
 				vprint_status("Web server returned a #{res.code}...following to #{res.headers['Location']}")
 				uri = res.headers['Location'].sub(/.*?#{ip}/, "")
-				puts uri
 				res = send_request_cgi({
 					'uri'    => "#{uri}",
 					'method' => 'GET'
@@ -146,7 +145,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if res.nil? or res.code != 200
-			vprint_status("")
+			vprint_status("Did not recieve HTTP response from #{ip}")
 			return blog_posts
 		end
 
