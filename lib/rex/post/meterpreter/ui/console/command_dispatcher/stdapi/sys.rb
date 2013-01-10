@@ -735,22 +735,23 @@ class Console::CommandDispatcher::Stdapi::Sys
 
 	#
 	# Suspends or resumes a list of one or more pids
-	# args can optionally be -c to continue on error or -r to resume instead of suspend,
-	# followed by a list of one or more valid pids
-	# @todo  A suspend which will accept process names, much of that code is done (kernelsmith)
 	#
-	# @param args [Array] List of one of more pids
+	# +args+ can optionally be -c to continue on error or -r to resume
+	# instead of suspend, followed by a list of one or more valid pids
+	#
+	# @todo  Accept process names, much of that code is done (kernelsmith)
+	#
+	# @param args [Array<String>] List of one of more pids
 	# @return [Boolean] Returns true if command was successful, else false
-	
 	def cmd_suspend(*args)
 		# give'em help if they want it, or seem confused
-		if ( args.length == 0 or (args.length == 1 and args[0].strip == "-h") )
+		if args.length == 0 or (args.include? "-h")
 			cmd_suspend_help
 			return true
 		end
 
 		continue = args.delete("-c") || false 
-		resume = args.delete ("-r") || false
+		resume = args.delete("-r") || false
 
 		# validate all the proposed pids first so we can bail if one is bogus
 		valid_pids = validate_pids(args)
@@ -766,7 +767,6 @@ class Console::CommandDispatcher::Stdapi::Sys
 			end
 		end
 
-		#client.sys.process.kill(*(args.map { |x| x.to_i }))
 		targetprocess = nil
 		if resume
 			print_status("Resuming: #{valid_pids.join(", ").to_s}")
@@ -779,16 +779,16 @@ class Console::CommandDispatcher::Stdapi::Sys
 				targetprocess = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
 				targetprocess.thread.each_thread do |x|
 					if resume
-    					targetprocess.thread.open(x).resume
-    				else
-    					targetprocess.thread.open(x).suspend
-    				end
+						targetprocess.thread.open(x).resume
+					else
+						targetprocess.thread.open(x).suspend
+					end
 				end
 			end
 		rescue ::Rex::Post::Meterpreter::RequestError => e
-			print_error "Error acting on the process:  #{e.to_s}.  " + 
-						"Try migrating to a process with the same owner as the target process"
-						"Also consider running the win_privs post module and confirm SeDebug priv."
+			print_error "Error acting on the process:  #{e.to_s}."
+			print_error "Try migrating to a process with the same owner as the target process."
+			print_error "Also consider running the win_privs post module and confirm SeDebug priv."
 			return false unless continue
 		ensure
 			targetprocess.close if targetprocess
