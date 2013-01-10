@@ -286,7 +286,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 		args.uniq!
 		diff = args - valid_pids.map {|e| e.to_s}
 		if not diff.empty? # then we had an invalid pid
-			print_error("The following pids are not valid:#{diff.join(", ").to_s}, quitting")
+			print_error("The following pids are not valid:  #{diff.join(", ").to_s}.  Quitting")
 			return false
 		end
 
@@ -300,26 +300,27 @@ class Console::CommandDispatcher::Stdapi::Sys
 	# help for the kill command
 	#
 	def cmd_kill_help
-		print_line("Usage: kill pid1 pid2 pid3 ...\n\nTerminate one or more processes.")
+		print_line("Usage: kill pid1 pid2 pid3 ...")
+		print_line("Terminate one or more processes.")
 	end
 
 	#
 	# validates an array of pids against the running processes on target host
-	#    behavior can be controlled to allow/deny proces 0 and the session's process
-	#    the pids:
-	#     - are converted to integers
-	#     - have had pid 0 removed unless allow_pid_0
-	#     - have had current session pid removed unless allow_session_pid (to protect the session)
-	#     - have redundant entries removed
+	# behavior can be controlled to allow/deny proces 0 and the session's process
+	# the pids:
+	# - are converted to integers
+	# - have had pid 0 removed unless allow_pid_0
+	# - have had current session pid removed unless allow_session_pid (to protect the session)
+	# - have redundant entries removed
 	#
 	# @param pids [Array<String>] The pids to validate
 	# @param allow_pid_0 [Boolean] whether to consider a pid of 0 as valid
 	# @param allow_session_pid [Boolean] whether to consider a pid = the current session pid as valid
 	# @return [Array] Returns an array of valid pids 
 
-	def validate_pids(arr_pids, allow_pid_0 = false, allow_session_pid = false)
+	def validate_pids(pids, allow_pid_0 = false, allow_session_pid = false)
 
-		return [] if (arr_pids.class != Array or arr_pids.empty?)
+		return [] if (pids.class != Array or pids.empty?)
 		valid_pids = []
 		# to minimize network traffic, we only get host processes once
 		host_processes = client.sys.process.get_processes
@@ -339,7 +340,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 		end
 		clean_pids.each do |pid|
 			# find the process with this pid
-			theprocess = host_processes.select {|x| x["pid"] == pid}.first
+			theprocess = host_processes.find {|x| x["pid"] == pid}
 			if ( theprocess.nil? )
 				next
 			else
@@ -734,9 +735,9 @@ class Console::CommandDispatcher::Stdapi::Sys
 
 	#
 	# Suspends or resumes a list of one or more pids
-	#     args can optionally be -c to continue on error or -r to resume instead of suspend,
-	#     followed by a list of one or more valid pids
-	#     A suspend which will accept process names will be added later
+	# args can optionally be -c to continue on error or -r to resume instead of suspend,
+	# followed by a list of one or more valid pids
+	# TODO:  A suspend which will accept process names, much of that code is done
 	#
 	# @param args [Array] List of one of more pids
 	# @return [Boolean] Returns true if command was successful, else false
@@ -756,7 +757,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 		args.uniq!
 		diff = args - valid_pids.map {|e| e.to_s}
 		if not diff.empty? # then we had an invalid pid
-			print_error("The following pids are not valid:#{diff.join(", ").to_s}")
+			print_error("The following pids are not valid:  #{diff.join(", ").to_s}.")
 			if continue
 				print_status("Continuing.  Invalid args have been removed from the list.")
 			else
@@ -769,40 +770,28 @@ class Console::CommandDispatcher::Stdapi::Sys
 		targetprocess = nil
 		if resume
 			print_status("Resuming: #{valid_pids.join(", ").to_s}")
-			begin
-				valid_pids.each do |pid|
-					print_status("Targeting process with PID #{pid}...")
-					targetprocess = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
-					targetprocess.thread.each_thread do |x|
-	    				targetprocess.thread.open(x).resume
-					end
-				end
-			rescue ::Rex::Post::Meterpreter::RequestError => e
-				print_error "Error resuming the process threads:  #{e.to_s}.  " + 
-							"Try migrating to a process with the same owner as the target process"
-							"Also consider running the win_privs post module and confirm SeDebug priv."
-			ensure
-				targetprocess.close if targetprocess
-				return false unless continue
-			end
-		else # suspend
+		else
 			print_status("Suspending: #{valid_pids.join(", ").to_s}")
-			begin
-				valid_pids.each do |pid|
-					print_status("Targeting process with PID #{pid}...")
-					targetprocess = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
-					targetprocess.thread.each_thread do |x|
-	    				targetprocess.thread.open(x).suspend
-					end
+		end
+		begin
+			valid_pids.each do |pid|
+				print_status("Targeting process with PID #{pid}...")
+				targetprocess = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
+				targetprocess.thread.each_thread do |x|
+					if resume
+    					targetprocess.thread.open(x).resume
+    				else
+    					targetprocess.thread.open(x).suspend
+    				end
 				end
-			rescue ::Rex::Post::Meterpreter::RequestError => e
-				print_error "Error suspending the process threads:  #{e.to_s}.  " + 
-							"Try migrating to a process with the same owner as the target process"
-							"Also consider running the win_privs post module and confirm SeDebug priv."
-			ensure
-				targetprocess.close if targetprocess
-				return false unless continue
 			end
+		rescue ::Rex::Post::Meterpreter::RequestError => e
+			print_error "Error acting on the process:  #{e.to_s}.  " + 
+						"Try migrating to a process with the same owner as the target process"
+						"Also consider running the win_privs post module and confirm SeDebug priv."
+			return false unless continue
+		ensure
+			targetprocess.close if targetprocess
 		end
 		return true
 	end
@@ -811,7 +800,8 @@ class Console::CommandDispatcher::Stdapi::Sys
 	# help for the suspend command
 	#
 	def cmd_suspend_help
-		print_line("Usage: suspend [options] pid1 pid2 pid3 ...\n\nSuspend one or more processes.")
+		print_line("Usage: suspend [options] pid1 pid2 pid3 ...")
+		print_line("Suspend one or more processes.")
 		print @@suspend_opts.usage
 	end
 
