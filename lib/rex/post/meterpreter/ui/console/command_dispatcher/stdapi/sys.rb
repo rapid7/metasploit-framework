@@ -82,7 +82,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 			"shell"       => "Drop into a system command shell",
 			"shutdown"    => "Shuts down the remote computer",
 			"steal_token" => "Attempts to steal an impersonation token from the target process",
-			"suspend"     => "Suspends or resumes a list of processes"
+			"suspend"     => "Suspends or resumes a list of processes",
 			"sysinfo"     => "Gets information about the remote system, such as OS",
 		}
 		reqs = {
@@ -282,17 +282,17 @@ class Console::CommandDispatcher::Stdapi::Sys
 		end
 
 		# validate all the proposed pids first so we can bail if one is bogus
-		args.each do |arg|
-			if not is_valid_pid?(arg)
-				print_error("#{arg} is not a valid pid")
-				cmd_kill_help
-				return false
-			end
+		clean_pids = validate_pids(args)
+		args.uniq!
+		diff = args - clean_pids.map {|e| e.to_s}
+		if not diff.empty? # then we had an invalid pid
+			print_error("The following pids are not valid:#{diff.join(", ").to_s}, quitting")
+			return false
 		end
 
 		# kill kill kill
-		print_line("Killing: #{args.join(", ")}")
-		client.sys.process.kill(*(args.map { |x| x.to_i }))
+		print_line("Killing: #{clean_pids.join(", ").to_s}")
+		client.sys.process.kill(*(clean_pids.map { |x| x }))
 		return true
 	end
 
@@ -304,15 +304,56 @@ class Console::CommandDispatcher::Stdapi::Sys
 	end
 
 	#
-	# Checks if +pid+ is a valid looking pid
+	# validates an array of pids against the running processes on target host
+	#    behavior can be controlled to allow/deny proces 0 and the session's process
+	#    the pids:
+	#     - are converted to integers
+	#     - have had pid 0 removed unless allow_pid_0
+	#     - have had current session pid removed unless allow_session_pid (to protect the session)
+	#     - have redundant entries removed
 	#
-	def is_valid_pid?(pid)
-		# in lieu of checking server side for pid validity at the moment, we just sanity check here
-		pid.strip!
-		return false if pid.strip =~ /^-/ # invalid if it looks "negative"
-		return true if pid == "0" # allow them to kill pid 0, otherwise false
-		# cuz everything returned from .to_i that's not an int returns 0, we depend on the statement above
-		return true if pid.to_i > 0
+	# @param pids [Array<String>] The pids to validate
+	# @param allow_pid_0 [Boolean] whether to consider a pid of 0 as valid
+	# @param allow_session_pid [Boolean] whether to consider a pid = the current session pid as valid
+	# @return [Array] Returns an array of valid pids 
+
+	def validate_pids(arr_pids, allow_pid_0 = false, allow_session_pid = false)
+
+		return [] if (arr_pids.class != Array or arr_pids.empty?)
+		pids = arr_pids.dup
+		clean_pids = []
+		# to minimize network traffic, we only get host processes once
+		host_processes = client.sys.process.get_processes
+		if host_processes.length < 1
+			print_error "No running processes found on the target host."
+			return []
+		end
+
+		# get the current session pid so we don't suspend it later
+		mypid = client.sys.process.getpid.to_i
+
+		# we convert to integers here separately because we want to uniq this array first so we
+		# can avoid redundant lookups later
+		pids.each_with_index do |pid,idx|
+			next if pid.nil?
+			pids[idx] = pid.to_i
+		end
+		# uniq'ify
+		pids.uniq!
+		# now we look up the pids & remove bad stuff if nec
+		pids.delete_if do |p|
+			( (p == 0 and not allow_pid_0) or (p == mypid and not allow_session_pid) )
+		end
+		pids.each do |pid|
+			# find the process with this pid
+			theprocess = host_processes.select {|x| x["pid"] == pid}.first
+			if ( theprocess.nil? )
+				next
+			else
+				clean_pids << pid
+			end
+		end
+		return clean_pids
 	end
 
 	#
@@ -715,26 +756,28 @@ class Console::CommandDispatcher::Stdapi::Sys
 		continue = args.delete("-c") || false 
 		resume = args.delete ("-r") || false
 
-		# TODO add -u/-r to unsuspend/resume and -c continue
 		# validate all the proposed pids first so we can bail if one is bogus
-		args.each do |arg|
-			if not is_valid_pid?(arg)
-				print_error("#{arg} is not a valid pid")
-				cmd_suspend_help
+		clean_pids = validate_pids(args)
+		args.uniq!
+		diff = args - clean_pids.map {|e| e.to_s}
+		if not diff.empty? # then we had an invalid pid
+			print_error("The following pids are not valid:#{diff.join(", ").to_s}")
+			if continue
+				print_status("Continuing.  Invalid args have been removed from the list.")
+			else
+				print_error("Quitting.  Use -c to continue using only the valid pids.")
 				return false
 			end
 		end
 
-		# suspend
-		print_line("Suspending: #{args.join(", ")}")
 		#client.sys.process.kill(*(args.map { |x| x.to_i }))
 		targetprocess = nil
 		if resume
+			print_status("Resuming: #{clean_pids.join(", ").to_s}")
 			begin
-				pids.each do |pid|
+				clean_pids.each do |pid|
 					print_status("Targeting process with PID #{pid}...")
 					targetprocess = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
-					vprint_status "Resuming threads"
 					targetprocess.thread.each_thread do |x|
 	    				targetprocess.thread.open(x).resume
 					end
@@ -747,12 +790,12 @@ class Console::CommandDispatcher::Stdapi::Sys
 				targetprocess.close if targetprocess
 				return false unless continue
 			end
-		else
+		else # suspend
+			print_status("Suspending: #{clean_pids.join(", ").to_s}")
 			begin
-				pids.each do |pid|
+				clean_pids.each do |pid|
 					print_status("Targeting process with PID #{pid}...")
 					targetprocess = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
-					vprint_status "Suspending threads"
 					targetprocess.thread.each_thread do |x|
 	    				targetprocess.thread.open(x).suspend
 					end
@@ -774,7 +817,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 	#
 	def cmd_suspend_help
 		print_line("Usage: suspend [options] pid1 pid2 pid3 ...\n\nSuspend one or more processes.")
-		print @@connect_opts.usage
+		print @@suspend_opts.usage
 	end
 
 end
