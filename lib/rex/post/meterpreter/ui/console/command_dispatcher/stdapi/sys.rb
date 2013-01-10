@@ -737,7 +737,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 	# Suspends or resumes a list of one or more pids
 	# args can optionally be -c to continue on error or -r to resume instead of suspend,
 	# followed by a list of one or more valid pids
-	# TODO:  A suspend which will accept process names, much of that code is done
+	# @todo  A suspend which will accept process names, much of that code is done (kernelsmith)
 	#
 	# @param args [Array] List of one of more pids
 	# @return [Boolean] Returns true if command was successful, else false
