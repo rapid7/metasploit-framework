@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
 	def get_blog_posts(xml_rpc, ip)
 		# find all blog posts within IP and determine if pingback is enabled
 		vprint_status("Enumerating Blog posts on #{ip}...")
-		blog_posts = ""
+		blog_posts = nil
 
 		uri = target_uri.path
 		uri << '/' if uri[-1,1] != '/'
@@ -124,6 +124,7 @@ class Metasploit3 < Msf::Auxiliary
 			while (res.code == 301 || res.code == 302) and res.headers['Location'] and count != 0
 				vprint_status("Web server returned a #{res.code}...following to #{res.headers['Location']}")
 				uri = res.headers['Location'].sub(/.*?#{ip}/, "")
+				puts uri
 				res = send_request_cgi({
 					'uri'    => "#{uri}",
 					'method' => 'GET'
@@ -132,7 +133,7 @@ class Metasploit3 < Msf::Auxiliary
 				if res.code == 200
 					vprint_status("Feed located at http://#{ip}#{uri}")
 				else
-					vprint_status("#{ip} returned a #{res.code}")
+					vprint_status("#{ip} returned a #{res.code}...")
 				end
 				count = count - 1
 			end
@@ -144,17 +145,18 @@ class Metasploit3 < Msf::Auxiliary
 			return nil
 		end
 
-		# parse out links and place in array
 		if res.nil? or res.code != 200
+			vprint_status("")
 			return blog_posts
 		end
 
+		# parse out links and place in array
 		links = res.to_s.scan(/<link>([^<]+)<\/link>/i)
 
 		if links.nil? or links.empty?
+			vprint_status("Feed at #{ip} did not have any links present")
 			return blog_posts
 		end
-
 
 		links.each do |link|
 			blog_post = link[0]
