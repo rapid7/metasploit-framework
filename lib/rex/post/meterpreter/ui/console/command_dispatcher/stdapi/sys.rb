@@ -282,17 +282,17 @@ class Console::CommandDispatcher::Stdapi::Sys
 		end
 
 		# validate all the proposed pids first so we can bail if one is bogus
-		clean_pids = validate_pids(args)
+		valid_pids = validate_pids(args)
 		args.uniq!
-		diff = args - clean_pids.map {|e| e.to_s}
+		diff = args - valid_pids.map {|e| e.to_s}
 		if not diff.empty? # then we had an invalid pid
 			print_error("The following pids are not valid:#{diff.join(", ").to_s}, quitting")
 			return false
 		end
 
 		# kill kill kill
-		print_line("Killing: #{clean_pids.join(", ").to_s}")
-		client.sys.process.kill(*(clean_pids.map { |x| x }))
+		print_line("Killing: #{valid_pids.join(", ").to_s}")
+		client.sys.process.kill(*(valid_pids.map { |x| x }))
 		return true
 	end
 
@@ -320,8 +320,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 	def validate_pids(arr_pids, allow_pid_0 = false, allow_session_pid = false)
 
 		return [] if (arr_pids.class != Array or arr_pids.empty?)
-		pids = arr_pids.dup
-		clean_pids = []
+		valid_pids = []
 		# to minimize network traffic, we only get host processes once
 		host_processes = client.sys.process.get_processes
 		if host_processes.length < 1
@@ -332,28 +331,22 @@ class Console::CommandDispatcher::Stdapi::Sys
 		# get the current session pid so we don't suspend it later
 		mypid = client.sys.process.getpid.to_i
 
-		# we convert to integers here separately because we want to uniq this array first so we
-		# can avoid redundant lookups later
-		pids.each_with_index do |pid,idx|
-			next if pid.nil?
-			pids[idx] = pid.to_i
-		end
-		# uniq'ify
-		pids.uniq!
+		# remove nils & redundant pids, conver to int
+		clean_pids = pids.compact.uniq.map{|x| x.to_i}
 		# now we look up the pids & remove bad stuff if nec
-		pids.delete_if do |p|
+		clean_pids.delete_if do |p|
 			( (p == 0 and not allow_pid_0) or (p == mypid and not allow_session_pid) )
 		end
-		pids.each do |pid|
+		clean_pids.each do |pid|
 			# find the process with this pid
 			theprocess = host_processes.select {|x| x["pid"] == pid}.first
 			if ( theprocess.nil? )
 				next
 			else
-				clean_pids << pid
+				valid_pids << pid
 			end
 		end
-		return clean_pids
+		return valid_pids
 	end
 
 	#
@@ -740,12 +733,14 @@ class Console::CommandDispatcher::Stdapi::Sys
 	end
 
 	#
-	# @param args [Array] Suspends a list of one or more pids
+	# Suspends or resumes a list of one or more pids
 	#     args can optionally be -c to continue on error or -r to resume instead of suspend,
 	#     followed by a list of one or more valid pids
 	#     A suspend which will accept process names will be added later
-	# @return [Boolean] Returns true if command was successful, else false
 	#
+	# @param args [Array] List of one of more pids
+	# @return [Boolean] Returns true if command was successful, else false
+	
 	def cmd_suspend(*args)
 		# give'em help if they want it, or seem confused
 		if ( args.length == 0 or (args.length == 1 and args[0].strip == "-h") )
@@ -757,9 +752,9 @@ class Console::CommandDispatcher::Stdapi::Sys
 		resume = args.delete ("-r") || false
 
 		# validate all the proposed pids first so we can bail if one is bogus
-		clean_pids = validate_pids(args)
+		valid_pids = validate_pids(args)
 		args.uniq!
-		diff = args - clean_pids.map {|e| e.to_s}
+		diff = args - valid_pids.map {|e| e.to_s}
 		if not diff.empty? # then we had an invalid pid
 			print_error("The following pids are not valid:#{diff.join(", ").to_s}")
 			if continue
@@ -773,9 +768,9 @@ class Console::CommandDispatcher::Stdapi::Sys
 		#client.sys.process.kill(*(args.map { |x| x.to_i }))
 		targetprocess = nil
 		if resume
-			print_status("Resuming: #{clean_pids.join(", ").to_s}")
+			print_status("Resuming: #{valid_pids.join(", ").to_s}")
 			begin
-				clean_pids.each do |pid|
+				valid_pids.each do |pid|
 					print_status("Targeting process with PID #{pid}...")
 					targetprocess = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
 					targetprocess.thread.each_thread do |x|
@@ -791,9 +786,9 @@ class Console::CommandDispatcher::Stdapi::Sys
 				return false unless continue
 			end
 		else # suspend
-			print_status("Suspending: #{clean_pids.join(", ").to_s}")
+			print_status("Suspending: #{valid_pids.join(", ").to_s}")
 			begin
-				clean_pids.each do |pid|
+				valid_pids.each do |pid|
 					print_status("Targeting process with PID #{pid}...")
 					targetprocess = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
 					targetprocess.thread.each_thread do |x|
