@@ -4,6 +4,7 @@ module Poly
 
 require 'rex/poly/register'
 require 'rex/poly/block'
+require 'rex/poly/machine'
 
 ###
 #
