@@ -269,6 +269,7 @@ class DBManager
 		begin
 			ActiveRecord::Base.remove_connection
 			self.migrated = false
+			self.modules_cached = false
 		rescue ::Exception => e
 			self.error = e
 			elog("DB.disconnect threw an exception: #{e}")
