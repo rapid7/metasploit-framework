@@ -445,7 +445,7 @@ class OptInt < OptBase
 	def valid?(value)
 		return false if empty_required_value?(value)
 
-		if value and not value.to_s.match(/^\d+$/)
+		if value and not value.to_s.match(/^(?:0x)?\d+$/)
 			return false
 		end
 

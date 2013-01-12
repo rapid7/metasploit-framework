@@ -11,8 +11,8 @@ describe Msf::OptInt do
     { :pending => "Redmine #7540", :value => "-1", :normalized => -1 }
   ]
   invalid_values = [
-    { :pending => "Redmine #7539", :value => "yer mom", },
-    { :pending => "Redmine #7539", :value => "0.1",     },
+    { :value => "yer mom", },
+    { :value => "0.1",     },
   ]
 
   it_behaves_like "an option", valid_values, invalid_values
