@@ -1,7 +1,7 @@
 source 'http://rubygems.org'
 
 # Need 3+ for ActiveSupport::Concern
-gem 'activesupport', '>= 3.0.0'
+gem 'activesupport', '>= 3.2.11'
 # Needed for Msf::DbManager
 gem 'activerecord', '>= 3.2.11'
 # Database models shared between framework and Pro.
