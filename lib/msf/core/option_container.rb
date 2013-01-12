@@ -302,6 +302,10 @@ class OptPort < OptBase
 		return 'port'
 	end
 
+	def normalize(value)
+		value.to_i
+	end
+
 	def valid?(value)
 		return false if empty_required_value?(value)
 
