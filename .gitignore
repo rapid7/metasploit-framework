@@ -10,7 +10,7 @@
 coverage
 data/meterpreter/ext_server_pivot.dll
 data/meterpreter/ext_server_pivot.x64.dll
-doc
+doc/
 external/source/meterpreter/java/bin
 external/source/meterpreter/java/build
 external/source/meterpreter/java/extensions
