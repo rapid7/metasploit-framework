@@ -30,8 +30,8 @@ class Metasploit3 < Msf::Auxiliary
 						],
 				'Author'        =>
 						[
-								'Christian Mehlmauer <FireFart[at]gmail.com>',	# Metasploit module
-								'Jason A. Donenfeld <Jason[at]zx2c4 com>'			# POC
+								'Christian Mehlmauer <FireFart[at]gmail.com>',  # Metasploit module
+								'Jason A. Donenfeld <Jason[at]zx2c4 com>'       # POC
 						]
 		)
 
