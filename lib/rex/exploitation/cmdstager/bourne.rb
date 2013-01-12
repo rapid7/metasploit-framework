@@ -65,7 +65,6 @@ class CmdStagerBourne < CmdStagerBase
 		cmds
 	end
 
-
 	#
 	# Generate the commands that will decode the file we just created
 	#
