@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 				url="/#{datastore["URL"]}/#{datastore["WP_CONTENT_DIR"]}/w3tc/dbcache#{hash_path}"
 				url = normalize_uri(url)
 
-				result = ""
+				result = nil
 				begin
 					result = send_request_cgi({ "uri" => url, "method" => "GET" })
 				rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
