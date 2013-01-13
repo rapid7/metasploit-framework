@@ -74,7 +74,6 @@ class Core
 		"-B" => [ true, "Show arg lines before a match."                  ],
 		"-s" => [ true, "Skip arg lines before attempting match."         ],
 		"-k" => [ true, "Keep (include) arg lines at start of file."      ],
-
 		"-c" => [ false, "Only print a count of matching lines."          ])
 
 	@@search_opts = Rex::Parser::Arguments.new(
@@ -2436,11 +2435,11 @@ class Core
 		our_lines = []
 		count = 0
 		all_lines.each_with_index do |line, line_num| # @todo switch to map?
-			next if output_mods[:skip] and line_num < output_mods[:skip]
-			our_lines += line if output_mods[:keep] and line_num < output_mods[:keep]
+			next if (output_mods[:skip] and line_num < output_mods[:skip])
+			our_lines << line if (output_mods[:keep] and line_num < output_mods[:keep])
 			# we don't wan't to keep processing if we have a :max and we've reached it already (not counting skips/keeps)
 			break if match_mods[:max] and count >= match_mods[:max]
-			if eval statement or 
+			if eval statement 
 				count += 1
 				our_lines += get_grep_lines(all_lines,line_num,output_mods[:also])
 			end
