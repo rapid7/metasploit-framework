@@ -2451,8 +2451,11 @@ class Core
 	end
 
 	def cmd_grep_tabs(str, words)
-		# TODO, make sure this works, just guessed to start
-		tab_complete(words.join(" "))
+		# @todo, make sure this works, just guessed to start
+		tabs = []
+		tabs += @@grep_opts.fmt.keys if (str and not str =~ /\w/)
+		#tabs += driver.tab_complete_stub(str)
+		tabs
 	end
 
 	#
