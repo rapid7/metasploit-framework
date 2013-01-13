@@ -44,7 +44,7 @@ class IrbShell
 			begin
 				irb.signal_handle
 			rescue RubyLex::TerminateLineInput
-				print ">> "
+				irb.eval_input
 			end
 		end
 
