@@ -70,8 +70,11 @@ class Core
 		"-i" => [ false, "Ignore case."                                   ],
 		"-m" => [ true,  "Stop after arg matches."                        ],
 		"-v" => [ false, "Invert match."                                  ],
-		"-A" => [ true, "Show arg lines after a match."                  ],
-		"-B" => [ true, "Show arg lines before a match."                 ],
+		"-A" => [ true, "Show arg lines after a match."                   ],
+		"-B" => [ true, "Show arg lines before a match."                  ],
+		"-s" => [ true, "Skip arg lines before attempting match."         ],
+		"-k" => [ true, "Keep (include) arg lines at start of file."      ],
+
 		"-c" => [ false, "Only print a count of matching lines."          ])
 
 	@@search_opts = Rex::Parser::Arguments.new(
@@ -2347,12 +2350,13 @@ class Core
 		print(@@grep_opts.usage())
 	end
 
-	##
-	# Greps the output of another console command
+	#
+	# Greps the output of another console command, usage is similar the shell grep command
+	# grep [options] pattern other_cmd [other command's args], similar to grep [options] pattern file
 	# 
-	# :call-seq:
-	#   cmd_grep(grep_opt1, grep_opt2, pattern, command, cmd_arg)
-	#   cmd_grep(pattern, command)
+	# @param [Array<String>] Args to the grep command minimally including a pattern & a command to search
+	# @return [String,nil] Results matching the regular expression given 
+
 	def cmd_grep(*args)
 		return cmd_grep_help if args.length < 2
 		match_mods = {:insensitive => false}
@@ -2365,20 +2369,17 @@ class Core
 					# limit to arg matches
 					match_mods[:max] = val.to_i
 					# delete opt and val from args list
-					args.shift
-					args.shift
+					args.shift(s)
 				when "-A"
 					# also return arg lines after a match
 					output_mods[:also] = val.to_i
 					# delete opt and val from args list
-					args.shift
-					args.shift
+					args.shift(2)
 				when "-B"
 					# also return arg lines before a match
 					output_mods[:also] = (val.to_i * -1)
 					# delete opt and val from args list
-					args.shift
-					args.shift
+					args.shift(2)
 				when "-v"
 					# invert match
 					match_mods[:invert] = true
@@ -2392,6 +2393,14 @@ class Core
 					# just count matches
 					output_mods[:count] = true
 					args.shift
+				when "-k"
+					# keep arg number of lines at the top of the output, useful for commands with table headers in output
+					output_mods[:keep] = val.to_i
+					args.shift(2)
+				when "-s"
+					# skip arg number of lines at the top of the output, useful for avoiding undesirable matches
+					output_mods[:skip] = val.to_i
+					args.shift(2)
 			end
 		end
 		# after deleting parsed options, the only args left should be the pattern, the cmd to run, and cmd args
@@ -2406,7 +2415,7 @@ class Core
 		# redirect stdout (only) temporarily
 		# we use a rex buffer but add a write method to the instance, which is required in order to be valid $stdout
 		orig_stdout = $stdout
-		buf = Rex::Ui::Text::Output::Buffer.new
+		buf = Rex::Ui::Text::Output::Buffer.new # @todo, change per scriptjunkie's comments?
 		def buf.write(msg = '')
 			self.print_raw(msg)
 		end
@@ -2417,14 +2426,20 @@ class Core
 		# put lines into an array so we can access them more easily and split('\n') doesn't work
 		all_lines = cmd_output.lines.select {|line| line}
 		# control matching based on remaining match_mods (:insensitive was already handled)
-		statement = 'line =~ rx'
-		statement = 'not line =~ rx' if match_mods[:invert]
+		if match_mods[:invert]
+			statement = 'not line =~ rx' 
+		else
+			statement = 'line =~ rx'
+		end
+		
 		our_lines = []
 		count = 0
-		all_lines.each_with_index do |line, line_num|
-			# we don't wan't to keep processing if we have a :max and we've reached it already
-			break if ( match_mods[:max] and count >= match_mods[:max] )
-			if (eval statement)
+		all_lines.each_with_index do |line, line_num| # @todo switch to map?
+			next if output_mods[:skip] and line_num < output_mods[:skip]
+			our_lines += line if output_mods[:keep] and line_num < output_mods[:keep]
+			# we don't wan't to keep processing if we have a :max and we've reached it already (not counting skips/keeps)
+			break if match_mods[:max] and count >= match_mods[:max]
+			if eval statement or 
 				count += 1
 				our_lines += get_grep_lines(all_lines,line_num,output_mods[:also])
 			end
@@ -2908,8 +2923,8 @@ protected
 	# and negative for "before" lines
 	#
 	def get_grep_lines(all_lines,line_num, also=nil)
-		return [all_lines[line_num]] unless also
 		also = also.to_i
+		return [all_lines[line_num]] unless also or also == 0
 		if also < 0
 			return all_lines.slice(line_num + also, also.abs + 1)
 		else
