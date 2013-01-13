@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -22,14 +18,13 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'VxWorks WDB Agent Version Scanner',
-			'Version'     => '$Revision$',
 			'Description' => 'Scan for exposed VxWorks wdbrpc daemons',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,
 			'References'  =>
 				[
 					['URL', 'http://blog.metasploit.com/2010/08/vxworks-vulnerabilities.html'],
-					['URL', 'http://www.kb.cert.org/vuls/id/362332']
+					['US-CERT-VU', '362332']
 				]
 		)
 

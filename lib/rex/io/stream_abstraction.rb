@@ -149,6 +149,9 @@ protected
 							closed = true
 							wlog("monitor_rsock: closed remote socket due to nil read")
 						end
+					rescue EOFError => e
+						closed = true
+						dlog("monitor_rsock: EOF in rsock")
 					rescue ::Exception => e
 						closed = true
 						wlog("monitor_rsock: exception during read: #{e.class} #{e}")

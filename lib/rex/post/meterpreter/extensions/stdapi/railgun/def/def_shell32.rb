@@ -15,6 +15,15 @@ class Def_shell32
 		dll.add_function('IsUserAnAdmin', 'BOOL', [
 			])
 
+		dll.add_function('ShellExecuteA', 'DWORD',[
+			["DWORD","hwnd","in"],
+			["PCHAR","lpOperation","in"],
+			["PCHAR","lpFile","in"],
+			["PCHAR","lpParameters","in"],
+			["PCHAR","lpDirectory","in"],
+			["DWORD","nShowCmd","in"]
+			])
+
 		return dll
 	end
 

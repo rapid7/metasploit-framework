@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -25,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP WebDAV Internal IP Scanner',
-			'Version'     => '$Revision$',
 			'Description' => 'Detect webservers internal IPs though WebDAV',
 			'Author'       => ['et'],
 			'License'     => MSF_LICENSE
@@ -41,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			res = send_request_cgi({
-				'uri'          => datastore['PATH'],
+				'uri'          => normalize_uri(datastore['PATH']),
 				'method'       => 'PROPFIND',
 				'data'	=>	'',
 				'ctype'   => 'text/xml',

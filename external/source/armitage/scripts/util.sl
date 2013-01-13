@@ -152,7 +152,10 @@ sub createConsoleTab {
 
 sub setg {
 	%MSF_GLOBAL[$1] = $2;
-	call_async($client, "core.setg", $1, $2);
+	local('$c');
+	$c = createConsole($client);
+	call_async($client, "console.write", $c, "setg $1 $2 $+ \n");
+	call_async($client, "console.release", $c);
 }
 
 sub createDefaultHandler {
@@ -289,6 +292,11 @@ sub startMetasploit {
 
 				if ($msfdir eq "") {
 					[System exit: 0];
+				}
+
+				# if the user chooses c:\metasploit AND we're in the 4.5 environment... adjust
+				if (-exists getFileProper($msfdir, "apps", "pro", "msf3")) {
+					$msfdir = getFileProper($msfdir, "apps", "pro");
 				}
 
 				if (charAt($msfdir, -1) ne "\\") {
@@ -469,6 +477,15 @@ sub _module_execute {
 			$host = "all";
 		}
 
+		# fix SMBPass and PASSWORD options if necessary...
+		if ("PASSWORD" in $3) {
+			$3['PASSWORD'] = fixPass($3['PASSWORD']);
+		}
+
+		if ("SMBPass" in $3) {
+			$3['SMBPass'] = fixPass($3['SMBPass']);
+		}
+
 		# okie then, let's create a console and execute all of this stuff...	
 
 		local('$queue $key $value');
@@ -604,3 +621,8 @@ sub initConsolePool {
 	[$client addHook: "console.release", $pool];
 	[$client addHook: "console.release_and_destroy", $pool];
 }
+
+sub fixPass {
+	return replace(strrep($1, '\\', '\\\\'), '(\p{Punct})', '\\\\$1');
+}
+

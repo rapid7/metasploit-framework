@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -11,6 +7,7 @@
 
 require 'msf/core'
 require 'msf/core/post/windows/registry'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
@@ -28,14 +25,13 @@ class Metasploit3 < Msf::Post
 				particular category.
 			},
 			'License'        => MSF_LICENSE,
-			'Version'        => "$Revision$",
 			'Author'         =>
 				[
 					'sinn3r',  #Metasploit
 				],
 			'References'     =>
 				[
-					['EDB', 11331],
+					['EDB', '11331'],
 				],
 			'Platform'       => [ 'win' ],
 			'SessionTypes'   => [ 'meterpreter' ]

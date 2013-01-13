@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -28,10 +24,9 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'	=> [
 						'Jon Oberheide <jon[at]oberheide.org>', #original code
-						'TheLightCosine <thelightcosine[at]gmail.com>' # metasploit module
+						'theLightCosine' # metasploit module
 						],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2009-1386' ],

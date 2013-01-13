@@ -312,7 +312,8 @@ opts[:badchars] = Rex::Text.hex_to_raw(opts[:badchars])                if opts[:
 # set the defaults unless something is already set by the user
 if opts[:payload] != 'stdin'
 	opts[:arch]     ||= payload.arch[0]
-	opts[:platform] ||= Msf::Module::PlatformList.transform(payload.platform.platforms)
+	# If it's not stdin, we'll already have a PlatfromList
+	opts[:platform] ||= payload.platform
 else
 	# defaults for stdin payloads users should define them
 	unless opts[:arch]
@@ -324,6 +325,8 @@ else
 		opts[:platform] = Msf::Module::PlatformList.transform("Windows")
 	end
 end
+
+# After this point, we will have set a platform, even if it's wrong.
 
 opts[:format]   ||= 'ruby'
 opts[:encoder]  ||= nil
@@ -351,7 +354,7 @@ exeopts = { :inject => opts[:inject], :template_path => path, :template => altex
 
 # If we were given addshellcode for a win32 payload,
 # create a double-payload; one running in one thread, one running in the other
-if opts[:addshellcode] and opts[:platform].include?(Msf::Module::Platform::Windows) and opts[:arch] == 'x86'
+if opts[:addshellcode] and opts[:platform].platforms.include?(Msf::Module::Platform::Windows) and opts[:arch] == 'x86'
 	payload_raw = Msf::Util::EXE.win32_rwx_exec_thread(payload_raw,0,'end')
 	file = ::File.new(opts[:addshellcode])
 	file.binmode
@@ -366,7 +369,7 @@ if opts[:encode]
 		next if not enc
 		begin
 			break if done
-			#enc.datastore.import_options_from_s(datastore, '_|_')
+			enc.datastore.import_options_from_hash(datastore)
 			skip = false
 			raw = nil
 
@@ -450,52 +453,46 @@ when /java/i
 		print_error("Could not generate payload format")
 	end
 when /elf/i
-	if (not opts[:platform] or (opts[:platform].index(Msf::Module::Platform::Linux)))
-		if opts[:arch] =~ /x64/
-			elf = Msf::Util::EXE.to_linux_x64_elf($framework, payload_raw, exeopts)
-		elsif opts[:arch] =~ /x86/
-			elf = Msf::Util::EXE.to_linux_x86_elf($framework, payload_raw, exeopts)
-		elsif opts[:arch] =~ /arm/
-			elf = Msf::Util::EXE.to_linux_armle_elf($framework, payload_raw, exeopts)
-		else
-			print_error("This format does not support that architecture")
-			exit
-		end
+	if (opts[:platform].index(Msf::Module::Platform::Linux))
+		elf = case opts[:arch]
+			when /x64/; Msf::Util::EXE.to_linux_x64_elf($framework, payload_raw, exeopts)
+			when /x86/; Msf::Util::EXE.to_linux_x86_elf($framework, payload_raw, exeopts)
+			when /arm/; Msf::Util::EXE.to_linux_armle_elf($framework, payload_raw, exeopts)
+			end
 	elsif(opts[:platform].index(Msf::Module::Platform::BSD))
-		if opts[:arch] =~ /x86/
-			elf = Msf::Util::EXE.to_bsd_x86_elf($framework, payload_raw, exeopts)
-		else
-			print_error("This format does not support that architecture")
-			exit
-		end
+		elf = case opts[:arch]
+			when /x86/; Msf::Util::EXE.to_bsd_x86_elf($framework, payload_raw, exeopts)
+			end
 	elsif(opts[:platform].index(Msf::Module::Platform::Solaris))
-		if opts[:arch] =~ /x86/
-			elf = Msf::Util::EXE.to_solaris_x86_elf($framework, payload_raw, exeopts)
-		else
-			print_error("This format does not support that architecture")
-			exit
-		end
+		elf = case opts[:arch]
+			when /x86/; Msf::Util::EXE.to_solaris_x86_elf($framework, payload_raw, exeopts)
+			end
+	end
+	if elf.nil?
+		print_error("This format does not support that architecture")
+		exit
 	end
 	$stdout.write elf
 when /macho/i
-	if opts[:arch] =~ /x64/
-		bin = Msf::Util::EXE.to_osx_x64_macho($framework, payload_raw, exeopts)
-	elsif opts[:arch] =~ /x86/
-		bin = Msf::Util::EXE.to_osx_x86_macho($framework, payload_raw, exeopts)
-	elsif opts[:arch] =~ /arm/
-		bin = Msf::Util::EXE.to_osx_arm_macho($framework, payload_raw, exeopts)
-	elsif opts[:arch] =~ /ppc/
-		bin = Msf::Util::EXE.to_osx_ppc_macho($framework, payload_raw, exeopts)
-	else
+	bin = case opts[:arch]
+		when /x64/; Msf::Util::EXE.to_osx_x64_macho($framework, payload_raw, exeopts)
+		when /x86/; Msf::Util::EXE.to_osx_x86_macho($framework, payload_raw, exeopts)
+		when /arm/; Msf::Util::EXE.to_osx_arm_macho($framework, payload_raw, exeopts)
+		when /ppc/; Msf::Util::EXE.to_osx_ppc_macho($framework, payload_raw, exeopts)
+		end
+	if bin.nil?
 		print_error("This format does not support that architecture")
 		exit
 	end
 	$stdout.write bin
 when /dll/i
-	if opts[:arch] == "x86"
-		dll = Msf::Util::EXE.to_win32pe_dll($framework, payload_raw)
-	elsif opts[:arch] == "x86_64"
-		dll = Msf::Util::EXE.to_win64pe_dll($framework, payload_raw)
+	dll = case opts[:arch]
+		when /x86/;        Msf::Util::EXE.to_win32pe_dll($framework, payload_raw)
+		when /x64|x86_64/; Msf::Util::EXE.to_win64pe_dll($framework, payload_raw)
+		end
+	if dll.nil?
+		print_error("This format does not support that architecture")
+		exit
 	end
 
 	$stdout.write dll

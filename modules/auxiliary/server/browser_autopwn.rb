@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -25,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'HTTP Client Automatic Exploiter',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module has three actions.  The first (and the default)
 				is 'WebServer' which uses a combination of client-side and
@@ -476,6 +471,8 @@ class Metasploit3 < Msf::Auxiliary
 				multihandler.datastore['MODULE_OWNER'] = self.datastore['MODULE_OWNER']
 				multihandler.datastore['WORKSPACE'] = datastore["WORKSPACE"] if datastore["WORKSPACE"]
 				multihandler.datastore['ParentUUID'] = datastore["ParentUUID"] if datastore["ParentUUID"]
+				multihandler.datastore['CAMPAIGN_ID'] = datastore["CAMPAIGN_ID"] if datastore["CAMPAIGN_ID"]
+				multihandler.datastore['ParentModule'] = self.fullname
 				multihandler.datastore['AutopwnUUID'] = self.uuid
 				multihandler.datastore['LPORT'] = lport
 				multihandler.datastore['LHOST'] = @lhost
@@ -483,7 +480,7 @@ class Metasploit3 < Msf::Auxiliary
 				multihandler.datastore['EXITFUNC'] = datastore['EXITFUNC'] || 'thread'
 				multihandler.datastore["ReverseListenerBindAddress"] = datastore["ReverseListenerBindAddress"]
 				# XXX: Revisit this when we have meterpreter working on more than just windows
-				if (lport == @win_lport)
+				if (lport == @win_lport or lport == @java_lport)
 					multihandler.datastore['AutoRunScript'] = datastore['AutoRunScript']
 					multihandler.datastore['AutoSystemInfo'] = datastore['AutoSystemInfo']
 					multihandler.datastore['InitialAutoRunScript'] = datastore['InitialAutoRunScript']

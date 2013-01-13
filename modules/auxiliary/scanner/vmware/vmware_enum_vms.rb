@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -27,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module attempts to discover virtual machines on any VMWare instance
 				running the web interface. This would include ESX/ESXi and VMWare Server.
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
+			'Author'         => ['theLightCosine'],
 			'License'        => MSF_LICENSE
 		)
 

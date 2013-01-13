@@ -251,7 +251,7 @@ sub showExploitModules {
 # shows the post modules compatible with a session... for this to work, the
 # code that creates the module browser must call: let(&showPostModules, $tree => ..., $search => ...)
 sub showPostModules {
-	local('@allowed $2');
+	local('@allowed $2 $3');
 	@allowed = getOS(sessionToOS($1));
 	fork({
 		local('$modules %list $model');
@@ -270,7 +270,13 @@ sub showPostModules {
 			$modules = filter(lambda({ return iff($filter iswm $1, $1); }, \$filter), $modules);
 		}
 
-		%list = ohash(post => buildTree($modules));
+		if ($base is $null) {
+			%list = ohash(post => buildTree($modules));
+		}
+		else {
+			%list = $base;
+			%list['post'] = buildTree($modules);
+		}
 		$model = treeNodes($null, %list);
 
 		dispatchEvent(lambda({
@@ -282,7 +288,7 @@ sub showPostModules {
 			}
 			[$search setText: ""];
 		}, \$search, \$tree, \$model));
-	}, \$tree, \$search, $sid => $1, \$client, \@allowed, $filter => $2);
+	}, \$tree, \$search, $sid => $1, \$client, \@allowed, $filter => $2, $base => $3);
 }
 
 sub createModuleBrowserTab {

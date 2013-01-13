@@ -1,7 +1,3 @@
-##
-# $Id$
-##
-
 
 ##
 # This file is part of the Metasploit Framework and may be subject to
@@ -22,14 +18,13 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 			'Name'          => 'Windows Gather SmartFTP Saved Password Extraction',
-			'Version'       => '$Revision$',
 			'Description'   => %q{ This module finds saved login credentials
 						for the SmartFTP FTP client for windows.
 						It finds the saved passwords and decrypts
 						them.},
 			'License'       => MSF_LICENSE,
-			'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
-			'Platform'      => [ 'windows' ],
+			'Author'        => [ 'theLightCosine'],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 	end

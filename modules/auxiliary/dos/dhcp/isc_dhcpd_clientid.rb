@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -29,15 +25,14 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'        =>
 					[
 						'sid', # Original POC
-						'TheLightCosine <thelightcosine[at]gmail.com>' # msf module
+						'theLightCosine' # msf module
 					],
 			'License'       => MSF_LICENSE,
-			'Version'       => '$Revision$',
 			'References'    =>
 				[
 					[ 'CVE', '2010-2156' ],
 					[ 'OSVDB', '65246'],
-					[ 'EDB', 14185]
+					[ 'EDB', '14185']
 				]
 		)
 		register_options(

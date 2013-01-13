@@ -6,10 +6,17 @@ require 'msf/core'
 ###
 module Msf::Payload::Php
 
-	def initialize(info = {})
-		super(info)
-	end
-
+	#
+	# Generate a chunk of PHP code that should be eval'd before
+	# #php_system_block.
+	#
+	# The generated code will initialize
+	#
+	# @option options [String] :disabled_varname PHP variable name in which to
+	#   store an array of disabled functions.
+	#
+	# @return [String] A chunk of PHP code
+	#
 	def php_preamble(options = {})
 		dis = options[:disabled_varname] || '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
 		dis = '$' + dis if (dis[0,1] != '$')
@@ -32,6 +39,20 @@ module Msf::Payload::Php
 		return preamble
 	end
 
+	#
+	# Generate a chunk of PHP code that tries to run a command.
+	#
+	# @option options [String] :cmd_varname PHP variable name containing the
+	#   command to run
+	# @option options [String] :disabled_varname PHP variable name containing
+	#   an array of disabled functions. See #php_preamble
+	# @option options [String] :output_varname PHP variable name in which to
+	#   store the output of the command. Will contain 0 if no exec functions
+	#   work.
+	#
+	# @return [String] A chunk of PHP code that, with a little luck, will run a
+	#   command.
+	#
 	def php_system_block(options = {})
 		cmd = options[:cmd_varname] || '$cmd'
 		dis = options[:disabled_varname] || @dis || '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
@@ -102,12 +123,12 @@ module Msf::Payload::Php
 		# Currently unused until we can figure out how to get output with COM
 		# objects (which are not subject to safe mode restrictions) instead of
 		# PHP functions.
-		win32_com = "
-			if (FALSE !== strpos(strtolower(PHP_OS), 'win' )) {
-				$wscript = new COM('Wscript.Shell');
-				$wscript->run(#{cmd} . ' > %TEMP%\\out.txt');
-				#{output} = file_get_contents('%TEMP%\\out.txt');
-			}else"
+		#win32_com = "
+		#	if (FALSE !== strpos(strtolower(PHP_OS), 'win' )) {
+		#		$wscript = new COM('Wscript.Shell');
+		#		$wscript->run(#{cmd} . ' > %TEMP%\\out.txt');
+		#		#{output} = file_get_contents('%TEMP%\\out.txt');
+		#	}else"
 		fail_block = "
 			{
 				#{output}=0;

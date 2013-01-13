@@ -50,10 +50,11 @@ class Metasploit3 < Msf::Auxiliary
 			proto = "http"
 		end
 
+		uri = normalize_uri(datastore['URI'])
 		if vhost != ""
-			"#{proto}://#{vhost}:#{rport}#{datastore['URI'].to_s}"
+			"#{proto}://#{vhost}:#{rport}#{uri.to_s}"
 		else
-			"#{proto}://#{rhost}:#{rport}#{datastore['URI'].to_s}"
+			"#{proto}://#{rhost}:#{rport}#{uri.to_s}"
 		end
 	end
 
@@ -62,12 +63,12 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_cgi(
 			{
 				'method'  => 'GET',
-				'uri'     => datastore['URI']
+				'uri'     => normalize_uri(datastore['URI'])
 			}, 20)
 
 			#Check for HTTP 200 response.
 			#Numerous versions and configs make if difficult to further fingerprint.
-			if (res.code == 200)
+			if (res and res.code == 200)
 				print_status("Ektron CMS400.NET install found at #{target_url}  [HTTP 200]")
 
 				#Gather __VIEWSTATE and __EVENTVALIDATION from HTTP response.
@@ -126,7 +127,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			res = send_request_cgi({
 				'method'  => 'POST',
-				'uri'     => datastore['URI'],
+				'uri'     => normalize_uri(datastore['URI']),
 				'data'    => post_data,
 			}, 20)
 

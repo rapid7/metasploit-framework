@@ -340,6 +340,14 @@ class Msf::Module::Platform
 	end
 
 	#
+	# Ruby
+	#
+	class Ruby < Msf::Module::Platform
+		Rank = 100
+		Alias = "ruby"
+	end
+
+	#
 	# Linux
 	#
 	class Linux < Msf::Module::Platform

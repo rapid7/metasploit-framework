@@ -22,7 +22,7 @@ setMissPolicy(%results2, { return @(); });
 # %exploits is populated in menus.sl when the client-side attacks menu is constructed
 
 # a list of exploits that should always use a reverse shell... this list needs to grow.
-@always_reverse = @("multi/samba/usermap_script", "unix/misc/distcc_exec", "windows/http/xampp_webdav_upload_php");
+@always_reverse = @("multi/samba/usermap_script", "unix/misc/distcc_exec", "windows/http/xampp_webdav_upload_php", "windows/postgres/postgres_payload", "linux/postgres/postgres_payload");
 
 #
 # generate menus for a given OS
@@ -349,6 +349,9 @@ sub best_payload {
 	else if ("java/jsp_shell_bind_tcp" in $compatible) {
 		return "java/jsp_shell_bind_tcp";
 	}
+	else if ("cmd/unix/interact" in $compatible) {
+		return "cmd/unix/interact";
+	}
 	else {
 		return "generic/shell_bind_tcp";
 	}
@@ -596,28 +599,58 @@ sub host_attack_items {
 		}
 	}
 
-	local('$service $name @options $a $port $foo');
+	local('$name %options $a $port $host $service');
+	%options = ohash();
 
-	foreach $port => $service (%hosts[$2[0]]['services']) {
-		$name = $service['name'];
-		if ($port == 445 && "*Windows*" iswm getHostOS($2[0])) {
-			push(@options, @("psexec", lambda(&pass_the_hash, $hosts => $2)));
-		}
-		else if ("scanner/ $+ $name $+ / $+ $name $+ _login" in @auxiliary) {
-			push(@options, @($name, lambda(&show_login_dialog, \$service, $hosts => $2)));
-		}
-		else if ($name eq "microsoft-ds") {
-			push(@options, @("psexec", lambda(&pass_the_hash, $hosts => $2)));
+	foreach $host ($2) {
+		foreach $port => $service (%hosts[$host]['services']) {
+			$name = $service['name'];
+			if ($port == 445 && "*Windows*" iswm getHostOS($host)) {
+				%options["psexec"] = lambda(&pass_the_hash, $hosts => $2);
+			}
+			else if ("scanner/ $+ $name $+ / $+ $name $+ _login" in @auxiliary) {
+				%options[$name] = lambda(&show_login_dialog, \$service, $hosts => $2);
+			}
+			else if ($name eq "microsoft-ds") {
+				%options["psexec"] = lambda(&pass_the_hash, $hosts => $2);
+			}
 		}
 	}
 
-	if (size(@options) > 0) {
+	if (size(%options) > 0) {
 		$a = menu($1, 'Login', 'L');
-		foreach $service (@options) {
-			($name, $foo) = $service;
-			item($a, $name, $null, $foo);
+		foreach $name (sorta(keys(%options))) {
+			item($a, $name, $null, %options[$name]);
 		}
 	}
+}
+
+sub chooseSession {
+	local('@data $sid $data $host $hdata $temp $tablef');
+
+	# obtain a list of sessions
+	foreach $host (keys(%hosts)) {
+		foreach $sid => $data (getSessions($host)) {
+			$temp = copy($data);
+			$temp['sid'] = $sid;
+			push(@data, $temp);
+		}
+	}
+
+	# sort the session data
+	@data = sort({ return $1['sid'] <=> $2['sid']; }, @data);
+
+	# update the table widths
+	$tablef = {
+       	        [[$1 getColumn: "sid"] setPreferredWidth: 100];
+       	        [[$1 getColumn: "session_host"] setPreferredWidth: 300];
+       	        [[$1 getColumn: "info"] setPreferredWidth: 1024];
+	};
+
+	# let the user choose a session
+	quickListDialog("Choose a session", "Select", @("sid", "sid", "session_host", "info"), @data, $width => 640, $height => 240, lambda({
+		[$call : $1];
+	}, $call => $4), \$tablef);
 }
 
 sub addFileListener {
@@ -647,35 +680,10 @@ sub addFileListener {
 	$actions["SigningKey"] = $actions["*FILE*"];
 	$actions["Wordlist"]   = $actions["*FILE*"];
 	$actions["WORDLIST"]   = $actions["*FILE*"];
+	$actions["REXE"]   = $actions["*FILE*"];
 
 	# set up an action to choose a session
-	$actions["SESSION"] = {
-		local('@data $sid $data $host $hdata $temp $tablef');
-
-		# obtain a list of sessions
-		foreach $host (keys(%hosts)) {
-			foreach $sid => $data (getSessions($host)) {
-				$temp = copy($data);
-				$temp['sid'] = $sid;
-				push(@data, $temp);
-			}
-		}
-
-		# sort the session data
-		@data = sort({ return $1['sid'] <=> $2['sid']; }, @data);
-
-		# update the table widths
-		$tablef = {
-        	        [[$1 getColumn: "sid"] setPreferredWidth: 100];
-        	        [[$1 getColumn: "session_host"] setPreferredWidth: 300];
-        	        [[$1 getColumn: "info"] setPreferredWidth: 1024];
-		};
-
-		# let the user choose a session
-		quickListDialog("Choose a session", "Select", @("sid", "sid", "session_host", "info"), @data, $width => 640, $height => 240, lambda({
-			[$call : $1];
-		}, $call => $4), \$tablef);
-	};
+	$actions["SESSION"] = lambda(&chooseSession);
 
 	# set up an action to pop up a file chooser for different file type values.
 	$actions["RHOST"] = {

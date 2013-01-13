@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -21,7 +17,7 @@ class Metasploit3 < Msf::Post
 
 	include Msf::Post::Windows::Accounts
 	include Msf::Post::Windows::Registry
-	include Msf::Post::Windows::WindowsServices
+	include Msf::Post::Windows::Services
 	include Msf::Post::Windows::Priv
 	include Msf::Post::Common
 	include Msf::Post::File
@@ -35,8 +31,7 @@ class Metasploit3 < Msf::Post
 				Remote Desktop Users group. It can also forward the target's port 3389/tcp.},
 			'License'       => BSD_LICENSE,
 			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 

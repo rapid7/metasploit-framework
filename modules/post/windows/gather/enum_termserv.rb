@@ -1,7 +1,3 @@
-##
-# $Id$
-##
-
 # post/windows/gather/enum_termserv.rb
 
 ##
@@ -15,6 +11,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/registry'
 require 'msf/core/post/windows/user_profiles'
+require 'msf/core/auxiliary/report'
 
 
 class Metasploit3 < Msf::Post
@@ -30,9 +27,8 @@ class Metasploit3 < Msf::Post
 				This module dumps MRU and connection data for RDP sessions
 			},
 			'License'       => MSF_LICENSE,
-			'Author'        => ['Rob Fuller <mubix[at]hak5.org>'],
-			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Author'        => [ 'mubix' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 	end
@@ -50,7 +46,6 @@ class Metasploit3 < Msf::Post
 					defaultkey = session.sys.registry.open_key(root_key, base_key + '\\Default', KEY_READ)
 					print_good('Systems connected to:')
 					(defaultkey.enum_value).each do |x|
-						print_status(x.inspect)
 						if x.name =~ /^MRU/
 							print_good("--> #{defaultkey.query_value(x.name).data}")
 						end

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -29,9 +25,8 @@ class Metasploit3 < Msf::Post
 						of the module against the sessions and validation of the options provided.
 				},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'carlos_perez[at]darkoperator.com>'],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows', 'unix', 'osx', 'linux', 'solaris' ],
+				'Author'        => [ '<carlos_perez[at]darkoperator.com>'],
+				'Platform'      => [ 'win', 'unix', 'osx', 'linux', 'solaris' ],
 				'SessionTypes'  => [ 'meterpreter','shell' ]
 			))
 		register_options(

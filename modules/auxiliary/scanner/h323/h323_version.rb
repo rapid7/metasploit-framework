@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'H.323 Version Scanner',
-			'Version'     => '$Revision: 9804 $',
 			'Description' => 'Detect H.323 Version.',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE

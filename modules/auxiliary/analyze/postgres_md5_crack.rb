@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -22,14 +18,13 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Postgres SQL md5 Password Cracker',
-			'Version'        => '$Revision$',
 			'Description'    => %Q{
 					This module attempts to crack Postgres SQL md5 password hashes.
 				It creates hashes based on information saved in the MSF Database
 				such as hostnames, usernames, passwords, and database schema information.
 				The user can also supply an additional external wordlist if they wish.
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Author'         => ['theLightCosine'],
 			'License'        => MSF_LICENSE
 		)
 

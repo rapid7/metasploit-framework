@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -15,7 +11,7 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 
-	include Msf::Post::Windows::WindowsServices
+	include Msf::Post::Windows::Services
 
 	def initialize(info={})
 		super( update_info( info,
@@ -28,13 +24,12 @@ class Metasploit3 < Msf::Post
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'bannedit' ],
-			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ],
 			'References'    =>
 				[
 					[ 'OSVDB', '71013' ],
-					[ 'EDB', 16940 ]
+					[ 'EDB', '16940' ]
 				]
 		))
 

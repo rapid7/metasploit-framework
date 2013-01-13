@@ -18,8 +18,8 @@ class Metasploit3 < Msf::Post
 				controllers for that domain.
 			},
 			'License'       => MSF_LICENSE,
-			'Author'        => [ 'Rob Fuller <mubix[at]hak5.org>'],
-			'Platform'      => [ 'windows' ],
+			'Author'        => [ 'mubix' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 	end

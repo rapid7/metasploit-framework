@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Lotus Domino Version',
-			'Version'     => '$Revision$',
 			'Description' => 'Several checks to determine Lotus Domino Server Version.',
 			'Author'       => ['CG'],
 			'License'     => MSF_LICENSE
@@ -33,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 
-		path = datastore['PATH']
+		path = normalize_uri(datastore['PATH'])
 		check1 = [
 			'iNotes/Forms5.nsf',
 			'iNotes/Forms6.nsf',

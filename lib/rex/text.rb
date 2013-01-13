@@ -1,6 +1,8 @@
 # -*- coding: binary -*-
 require 'digest/md5'
+require 'digest/sha1'
 require 'stringio'
+require 'cgi'
 
 begin
 	old_verbose = $VERBOSE
@@ -216,6 +218,33 @@ module Text
 		rescue
 			self.from_ebcdic_rex(str)
 		end
+	end
+
+	#
+	# Returns the words in +str+ as an Array.
+	#
+	# strict - include *only* words, no boundary characters (like spaces, etc.)
+	#
+	def self.to_words( str, strict = false )
+		splits = str.split( /\b/ )
+		splits.reject! { |w| !(w =~ /\w/) } if strict
+		splits
+	end
+
+	#
+	# Removes noise from 2 Strings and return a refined String version.
+	#
+	def self.refine( str1, str2 )
+		return str1 if str1 == str2
+
+		# get the words of the first str in an array
+		s_words = to_words( str1 )
+
+		# get the words of the second str in an array
+		o_words = to_words( str2 )
+
+		# get what hasn't changed (the rdiff, so to speak) as a string
+		(s_words - (s_words - o_words)).join
 	end
 
 	#
@@ -535,6 +564,14 @@ module Text
 	end
 
 	#
+	# Decode a string that's html encoded
+	#
+	def self.html_decode(str)
+		decoded_str = CGI.unescapeHTML(str)
+		return decoded_str
+	end
+
+	#
 	# Encode an ASCII string so it's safe for XML. It's a wrapper for to_hex_ascii.
 	#
 	def self.xml_char_encode(str)
@@ -810,6 +847,20 @@ module Text
 	#
 	def self.md5(str)
 		Digest::MD5.hexdigest(str)
+	end
+
+	#
+	# Raw SHA1 digest of the supplied string
+	#
+	def self.sha1_raw(str)
+		Digest::SHA1.digest(str)
+	end
+
+	#
+	# Hexidecimal SHA1 digest of the supplied string
+	#
+	def self.sha1(str)
+		Digest::SHA1.hexdigest(str)
 	end
 
 	#

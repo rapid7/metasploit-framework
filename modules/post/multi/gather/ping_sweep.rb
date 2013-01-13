@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -25,8 +21,7 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{ Performs IPv4 ping sweep using the OS included ping command.},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows','linux', 'osx', 'bsd', 'solaris' ],
+				'Platform'      => [ 'win','linux', 'osx', 'bsd', 'solaris' ],
 				'SessionTypes'  => [ 'meterpreter', 'shell' ]
 			))
 		register_options(
@@ -43,7 +38,6 @@ class Metasploit3 < Msf::Post
 		print_status("Performing ping sweep for IP range #{iprange}")
 		iplst = []
 		begin
-			a = []
 			ipadd = Rex::Socket::RangeWalker.new(iprange)
 			numip = ipadd.num_ips
 			while (iplst.length < numip)
@@ -81,13 +75,14 @@ class Metasploit3 < Msf::Post
 			ip_found = []
 
 			while(not iplst.nil? and not iplst.empty?)
+				a = []
 				1.upto(thread_num) do
 					a << framework.threads.spawn("Module(#{self.refname})", false, iplst.shift) do |ip_add|
 						next if ip_add.nil?
 						if platform =~ /solaris/i
-				 			r = cmd_exec(cmd, "-n #{ip_add} 1")
+							r = cmd_exec(cmd, "-n #{ip_add} 1")
 						else
-				 			r = cmd_exec(cmd, count + ip_add)
+							r = cmd_exec(cmd, count + ip_add)
 						end
 						if r =~ /(TTL|Alive)/i
 							print_status "\t#{ip_add} host found"
@@ -97,8 +92,8 @@ class Metasploit3 < Msf::Post
 						end
 
 					end
-					a.map {|x| x.join }
 				end
+				a.map {|x| x.join }
 			end
 		rescue Rex::TimeoutError, Rex::Post::Meterpreter::RequestError
 		rescue ::Exception => e

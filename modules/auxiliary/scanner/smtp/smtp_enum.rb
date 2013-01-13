@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -21,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMTP User Enumeration Utility',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				The SMTP service has two internal commands that allow the enumeration
 				of users: VRFY (confirming the names of valid users) and EXPN (which
@@ -93,6 +88,8 @@ class Metasploit3 < Msf::Auxiliary
 			smtp_send(cmd,!@connected)
 			if (@result.match(%r{Cannot})) or (@result.match(%r{recognized}))
 				vprint_status("VRFY command disabled")
+			elsif (@result.match(%r{restricted}))
+				vprint_status("VRFY command restricted")
 			else
 				vprint_status("VRFY command enabled")
 				vrfy_ok=true

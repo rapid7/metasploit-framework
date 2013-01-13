@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -22,8 +18,7 @@ class Metasploit3 < Msf::Post
 				migrate to that newly spawned process.},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 
@@ -48,10 +43,10 @@ class Metasploit3 < Msf::Post
 		if datastore['SPAWN']
 			print_status("Spawning notepad.exe process to migrate to")
 			target_pid = create_temp_proc
-		elsif datastore['PID']
+		elsif datastore['PID'] != 0
 			target_pid = datastore['PID']
 		elsif datastore['NAME']
-			target_pid = session.sys.process[datstore['NAME']]
+			target_pid = session.sys.process[datastore['NAME']]
 		end
 
 		if not target_pid

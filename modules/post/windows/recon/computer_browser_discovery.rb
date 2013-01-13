@@ -1,7 +1,3 @@
-##
-# $Id$
-##
-
 
 ##
 # This file is part of the Metasploit Framework and may be subject to
@@ -12,6 +8,7 @@
 
 require 'msf/core'
 require 'rex'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
@@ -27,9 +24,8 @@ class Metasploit3 < Msf::Post
 					WINDOWS (all Windows hosts), or UNIX (all Unix hosts).
 					},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Rob Fuller <mubix[at]hak5.org>'],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
+				'Author'        => [ 'mubix' ],
+				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 		))
 

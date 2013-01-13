@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -15,7 +11,6 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Tcp
-	include Msf::Exploit::Capture
 
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
@@ -24,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'TCP Port Scanner',
-			'Version'     => '$Revision$',
 			'Description' => 'Enumerate open TCP services',
 			'Author'      => [ 'hdm', 'kris katterjohn' ],
 			'License'     => MSF_LICENSE
@@ -75,6 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 						vprint_status("#{ip}:#{port} - TCP closed")
 						r << [ip,port,"closed"]
 					rescue ::Rex::ConnectionError, ::IOError, ::Timeout::Error
+					rescue ::Rex::Post::Meterpreter::RequestError
 					rescue ::Interrupt
 						raise $!
 					rescue ::Exception => e

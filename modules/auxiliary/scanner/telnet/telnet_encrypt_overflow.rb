@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Telnet Service Encyption Key ID Overflow Detection',
-			'Version'     => '$Revision$',
 			'Description' => 'Detect telnet services vulnerable to the encrypt option Key ID overflow (BSD-derived telnetd)',
 			'Author'      => [ 'Jaime Penalba Estebanez <jpenalbae[at]gmail.com>', 'hdm' ],
 			'License'     => MSF_LICENSE,
@@ -28,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					['BID', '51182'],
 					['CVE', '2011-4862'],
-					['EDB', 18280],
+					['EDB', '18280'],
 					['URL', 'https://community.rapid7.com/community/metasploit/blog/2011/12/28/more-fun-with-bsd-derived-telnet-daemons']
 				]
 		)

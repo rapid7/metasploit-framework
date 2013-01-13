@@ -216,7 +216,13 @@ module Auxiliary::HttpCrawler
 			# Bubble this up to the top-level handler
 			raise $!
 		rescue ::Exception => e
-			print_error("Crawler Exception: #{url} #{e} #{e.backtrace}")
+			# Ridiculous f'ing anonymous timeout exception which I've no idea
+			# how it comes into existence.
+			if e.to_s =~ /execution expired/
+				raise ::Timeout::Error
+			else
+				print_error("Crawler Exception: #{url} #{e} #{e.backtrace}")
+			end
 		ensure
 			@crawler.shutdown rescue nil
 			@crawler = nil

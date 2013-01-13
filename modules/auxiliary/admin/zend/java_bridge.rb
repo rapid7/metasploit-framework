@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -27,12 +23,11 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'ikki', 'MC' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'OSVDB', '71420'],
 					[ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-11-113/' ],
-					[ 'EDB', 17078 ],
+					[ 'EDB', '17078' ],
 				],
 			'DisclosureDate' => 'Mar 28 2011'))
 

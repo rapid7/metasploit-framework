@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -34,7 +30,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMB Version Detection',
-			'Version'     => '$Revision$',
 			'Description' => 'Display version information about each system',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE
@@ -101,6 +96,8 @@ class Metasploit3 < Msf::Auxiliary
 
 				conf[:os_sp]   = res['sp']   if res['sp']
 				conf[:os_lang] = res['lang'] if res['os'] =~ /Windows/
+				conf[:SMBName] = simple.client.default_name if simple.client.default_name
+				conf[:SMBDomain] = simple.client.default_domain if simple.client.default_domain
 
 				report_note(
 					:host  => ip,

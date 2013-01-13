@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -21,7 +17,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP Writable Path PUT/DELETE File Access',
-			'Version'     => '$Revision$',
 			'Description'    => %q{
 				This module can abuse misconfigured web servers to upload and delete web content
 				via PUT and DELETE HTTP requests. Set ACTION to either PUT or DELETE.
@@ -124,11 +119,8 @@ class Metasploit4 < Msf::Auxiliary
 	# Main function for the module, duh!
 	#
 	def run_host(ip)
-		path   = datastore['PATH']
+		path   = normalize_uri(datastore['PATH'])
 		data   = datastore['FILEDATA']
-
-		#Add "/" if necessary
-		path = "/#{path}" if path[0,1] != '/'
 
 		if path[-1,1] != '/'
 			path += '/'

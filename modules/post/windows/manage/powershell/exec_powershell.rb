@@ -32,8 +32,7 @@ class Metasploit3 < Msf::Post
 				Setting VERBOSE to true will output both the script prior to execution and the results.
 			},
 			'License'              => MSF_LICENSE,
-			'Version'              => '$Revision$',
-			'Platform'             => ['windows'],
+			'Platform'             => ['win'],
 			'SessionTypes'         => ['meterpreter'],
 			'Author'               => [
 				'Nicholas Nam (nick[at]executionflow.org)', # original meterpreter script

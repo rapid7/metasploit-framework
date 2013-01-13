@@ -1,19 +1,11 @@
 # -*- coding: binary -*-
-require "active_record"
 
+require 'msf/base/config'
 require 'msf/core'
 require 'msf/core/db'
 require 'msf/core/task_manager'
 require 'fileutils'
 require 'shellwords'
-
-# Provide access to ActiveRecord models shared w/ commercial versions
-require "metasploit_data_models"
-
-# Patches issues with ActiveRecord
-require "msf/core/patches/active_record"
-
-
 
 module Msf
 
@@ -28,22 +20,12 @@ class DBManager
 
 	# Mainly, it's Ruby 1.9.1 that cause a lot of problems now, along with Ruby 1.8.6.
 	# Ruby 1.8.7 actually seems okay, but why tempt fate? Let's say 1.9.3 and beyond.
-	def self.warn_about_rubies
+	def warn_about_rubies
 		if ::RUBY_VERSION =~ /^1\.9\.[012]($|[^\d])/
 			$stderr.puts "**************************************************************************************"
 			$stderr.puts "Metasploit requires at least Ruby 1.9.3. For an easy upgrade path, see https://rvm.io/"
 			$stderr.puts "**************************************************************************************"
 		end
-	end
-
-	# Only include Mdm if we're not using Metasploit commercial versions
-	# If Mdm::Host is defined, the dynamically created classes
-	# are already in the object space
-	begin
-    include MetasploitDataModels unless defined? Mdm::Host
-	rescue NameError => e
-	warn_about_rubies
-	raise e
 	end
 
 	# Provides :framework and other accessors
@@ -117,12 +99,32 @@ class DBManager
 			# Database drivers can reset our KCODE, do not let them
 			$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
 
+			require "active_record"
+
+			# Provide access to ActiveRecord models shared w/ commercial versions
+			require "metasploit_data_models"
+
+			# Patches issues with ActiveRecord
+			require "msf/core/patches/active_record"
+
 			@usable = true
 
 		rescue ::Exception => e
 			self.error = e
 			elog("DB is not enabled due to load error: #{e}")
 			return false
+		end
+
+		# Only include Mdm if we're not using Metasploit commercial versions
+		# If Mdm::Host is defined, the dynamically created classes
+		# are already in the object space
+		begin
+			unless defined? Mdm::Host
+				MetasploitDataModels.require_models
+			end
+		rescue NameError => e
+			warn_about_rubies
+			raise e
 		end
 
 		#
@@ -194,7 +196,7 @@ class DBManager
 
 		# Prefer the config file's pool setting
 		nopts['pool'] ||= 75
-		
+
 		# Prefer the config file's wait_timeout setting too
 		nopts['wait_timeout'] ||= 300
 
@@ -340,11 +342,13 @@ class DBManager
 		return if not self.migrated
 		return if self.modules_caching
 
+		self.framework.cache_thread = Thread.current
+
 		self.modules_cached  = false
 		self.modules_caching = true
 
 		::ActiveRecord::Base.connection_pool.with_connection {
-		
+
 		refresh = []
 		skipped = []
 
@@ -371,7 +375,6 @@ class DBManager
 		refresh.each  {|md| md.destroy }
 		refresh = nil
 
-		stime = Time.now.to_f
 		[
 			[ 'exploit',   framework.exploits  ],
 			[ 'auxiliary', framework.auxiliary ],
@@ -391,6 +394,9 @@ class DBManager
 				end
 			end
 		end
+
+		self.framework.cache_initialized = true
+		self.framework.cache_thread = nil
 
 		self.modules_cached  = true
 		self.modules_caching = false
@@ -458,16 +464,16 @@ class DBManager
 
 		res[:description] = m.description.to_s.strip
 
-		m.arch.map{ |x| 
-			bits << [ :arch, { :name => x.to_s } ] 
+		m.arch.map{ |x|
+			bits << [ :arch, { :name => x.to_s } ]
 		}
 
-		m.platform.platforms.map{ |x| 
-			bits << [ :platform, { :name => x.to_s.split('::').last.downcase } ] 
+		m.platform.platforms.map{ |x|
+			bits << [ :platform, { :name => x.to_s.split('::').last.downcase } ]
 		}
 
-		m.author.map{|x| 
-			bits << [ :author, { :name => x.to_s } ] 
+		m.author.map{|x|
+			bits << [ :author, { :name => x.to_s } ]
 		}
 
 		m.references.map do |r|
@@ -498,14 +504,14 @@ class DBManager
 			# Some modules are a combination, which means they are actually aggressive
 			res[:stance] = m.stance.to_s.index("aggressive") ? "aggressive" : "passive"
 
-			
+
 			m.class.mixins.each do |x|
 			 	bits << [ :mixin, { :name => x.to_s } ]
 			end
 		end
 
 		if(m.type == "auxiliary")
-	
+
 			m.actions.each_index do |i|
 				bits << [ :action, { :name => m.actions[i].name.to_s } ]
 			end
@@ -521,9 +527,9 @@ class DBManager
 
 		res
 	end
-	
-	
-	
+
+
+
 	#
 	# This provides a standard set of search filters for every module.
 	# The search terms are in the form of:
@@ -560,7 +566,7 @@ class DBManager
 		end
 
 		::ActiveRecord::Base.connection_pool.with_connection {
-	
+
 		where_q = []
 		where_v = []
 
@@ -570,12 +576,12 @@ class DBManager
 				case kt
 				when 'text'
 					xv = "%#{kv}%"
-					where_q << ' ( ' + 
+					where_q << ' ( ' +
 						'module_details.fullname ILIKE ? OR module_details.name ILIKE ? OR module_details.description ILIKE ? OR ' +
 						'module_authors.name ILIKE ? OR module_actions.name ILIKE ? OR module_archs.name ILIKE ? OR ' +
-						'module_targets.name ILIKE ? OR module_platforms.name ILIKE ? ' +
+						'module_targets.name ILIKE ? OR module_platforms.name ILIKE ? OR module_refs.name ILIKE ?' +
 						') '
-					where_v << [ xv, xv, xv, xv, xv, xv, xv, xv ]
+					where_v << [ xv, xv, xv, xv, xv, xv, xv, xv, xv ]
 				when 'name'
 					xv = "%#{kv}%"
 					where_q << ' ( module_details.fullname ILIKE ? OR module_details.name ILIKE ? ) '
@@ -586,13 +592,13 @@ class DBManager
 					where_v << [ xv, xv ]
 				when 'os','platform'
 					xv = "%#{kv}%"
-					where_q << ' ( module_targets.name ILIKE ? ) '
-					where_v << [ xv ]
+					where_q << ' (  module_platforms.name ILIKE ? OR module_targets.name ILIKE ? ) '
+					where_v << [ xv, xv ]
 				when 'port'
 					# TODO
 				when 'type'
 					where_q << ' ( module_details.mtype = ? ) '
-					where_v << [ kv ]				
+					where_v << [ kv ]
 				when 'app'
 					where_q << ' ( module_details.stance = ? )'
 					where_v << [ ( kv == "client") ? "passive" : "active"  ]
@@ -602,11 +608,11 @@ class DBManager
 				when 'cve','bid','osvdb','edb'
 					where_q << ' ( module_refs.name = ? )'
 					where_v << [ kt.upcase + '-' + kv ]
-	
+
 				end
 			end
 		end
-		
+
 		qry = Mdm::ModuleDetail.select("DISTINCT(module_details.*)").
 			joins(
 				"LEFT OUTER JOIN module_authors   ON module_details.id = module_authors.module_detail_id " +
@@ -627,4 +633,3 @@ class DBManager
 
 end
 end
-

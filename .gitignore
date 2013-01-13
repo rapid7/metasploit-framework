@@ -1,11 +1,25 @@
+# Rubymine project directory
+.idea
+# RVM control file
+.rvmrc
+# YARD cache directory
+.yardoc
+# Mac OS X files
+.DS_Store
+# simplecov coverage data
+coverage
 data/meterpreter/ext_server_pivot.dll
 data/meterpreter/ext_server_pivot.x64.dll
+doc/
 external/source/meterpreter/java/bin
 external/source/meterpreter/java/build
 external/source/meterpreter/java/extensions
 external/source/javapayload/bin
 external/source/javapayload/build
+# Packaging directory
+pkg
 tags
 *.swp
 *.orig
 *.rej
+*~

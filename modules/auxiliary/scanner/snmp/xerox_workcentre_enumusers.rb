@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Xerox WorkCentre User Enumeration (SNMP)',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 					This module will do user enumeration based on the Xerox WorkCentre present on the network.
 					SNMP is used to extract the usernames.
@@ -58,16 +53,14 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 
-			disconnect_snmp
-
 		# No need to make noise about timeouts
-		rescue ::SNMP::UnsupportedVersion
-		rescue ::SNMP::RequestTimeout
-		rescue ::Rex::ConnectionRefused
+		rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::UnsupportedVersion
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
 			print_error("#{ip} Error: #{e.class} #{e} #{e.backtrace}")
+		ensure
+			disconnect_snmp
 		end
 	end
 end

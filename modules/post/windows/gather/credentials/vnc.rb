@@ -1,7 +1,3 @@
-##
-# $Id$
-##
-
 # post/windows/gather/enum_vnc_pw.rb
 
 ##
@@ -15,6 +11,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/registry'
 require 'msf/core/post/windows/user_profiles'
+require 'msf/core/auxiliary/report'
 
 
 class Metasploit3 < Msf::Post
@@ -30,10 +27,11 @@ class Metasploit3 < Msf::Post
 					This module extract DES encrypted passwords in known VNC locations
 				},
 				'License'       => MSF_LICENSE,
-				'Author'        => ['Kurt Grutzmacher <grutz[at]jingojango.net>',
-									'Rob Fuller <mubix[at]hak5.org>'],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
+				'Author'        => [
+					'Kurt Grutzmacher <grutz[at]jingojango.net>',
+					'mubix'
+				],
+				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
 

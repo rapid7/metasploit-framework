@@ -1,8 +1,4 @@
 ##
-#$Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -14,6 +10,8 @@ require 'rex'
 require 'rex/parser/ini'
 require 'base64'
 require 'msf/core/post/windows/user_profiles'
+require 'msf/core/post/windows/registry'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
@@ -34,8 +32,7 @@ class Metasploit3 < Msf::Post
 					'Sil3ntDre4m <sil3ntdre4m[at]gmail.com>',
 					'SecurityXploded Team',  #www.SecurityXploded.com
 				],
-			'Version' => '$Revision$',
-			'Platform' => [ 'windows' ],
+			'Platform' => [ 'win' ],
 			'SessionTypes' => [ 'meterpreter' ]
 		))
 	end

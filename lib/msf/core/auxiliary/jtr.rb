@@ -179,10 +179,10 @@ module Auxiliary::JohnTheRipper
 	end
 
 	def john_binary_path
+		path = nil
 		if datastore['JOHN_PATH'] and ::File.file?(datastore['JOHN_PATH'])
 			path = datastore['JOHN_PATH']
 			::FileUtils.chmod(0755, path) rescue nil
-			path
 		end
 
 		if not @run_path
@@ -191,13 +191,18 @@ module Auxiliary::JohnTheRipper
 			else
 				path = ::File.join(john_base_path, "john")
 				::FileUtils.chmod(0755, path) rescue nil
-				path
 			end
 		else
 			path = ::File.join(john_base_path, @run_path)
 			::FileUtils.chmod(0755, path) rescue nil
-			path
 		end
+
+		if path and ::File.exists?(path)
+			return path
+		end
+
+		path = Rex::FileUtils.find_full_path("john") ||
+			Rex::FileUtils.find_full_path("john.exe")
 	end
 
 	def john_base_path
@@ -287,7 +292,7 @@ module Auxiliary::JohnTheRipper
 
 		seed = []
 		#Seed the wordlist with Database , Table, and Instance Names
-		
+
 		count = 0
 		schemas = myworkspace.notes.where('ntype like ?', '%.schema%')
 		unless schemas.nil? or schemas.empty?
@@ -318,10 +323,10 @@ module Auxiliary::JohnTheRipper
 		count = 0
 
 		# Seed the wordlist with usernames, passwords, and hostnames
-		
-		myworkspace.hosts.find(:all).each do |o| 
-			if o.name 
-				seed << john_expand_word( o.name ) 
+
+		myworkspace.hosts.find(:all).each do |o|
+			if o.name
+				seed << john_expand_word( o.name )
 				count += 1
 			end
 		end
@@ -331,11 +336,11 @@ module Auxiliary::JohnTheRipper
 
 		myworkspace.creds.each do |o|
 			if o.user
-				seed << john_expand_word( o.user ) 
+				seed << john_expand_word( o.user )
 				count +=1
 			end
 			if (o.pass and o.ptype !~ /hash/)
-				seed << john_expand_word( o.pass ) 
+				seed << john_expand_word( o.pass )
 				count += 1
 			end
 		end
@@ -343,8 +348,8 @@ module Auxiliary::JohnTheRipper
 		count = 0
 
 		# Grab any known passwords out of the john.pot file
-		john_cracked_passwords.values do |v| 
-			seed << v 
+		john_cracked_passwords.values do |v|
+			seed << v
 			count += 1
 		end
 		print_status "Seeding with cracked passwords from John....#{count} words added"
@@ -352,7 +357,7 @@ module Auxiliary::JohnTheRipper
 
 		#Grab the default John Wordlist
 		john = File.open(john_wordlist_path, "rb")
-		john.each_line do |line| 
+		john.each_line do |line|
 			seed << line.chomp
 			count += 1
 		end
@@ -361,7 +366,7 @@ module Auxiliary::JohnTheRipper
 
 		if datastore['Wordlist']
 			wordlist= File.open(datastore['Wordlist'], "rb")
-			wordlist.each_line do |line| 
+			wordlist.each_line do |line|
 				seed << line.chomp
 				count ==1
 			end
@@ -397,4 +402,3 @@ module Auxiliary::JohnTheRipper
 	end
 end
 end
-

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -31,8 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			},
 			'Author' 		=> [ 'et [at] metasploit.com' ],
-			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision$'))
+			'License'		=> BSD_LICENSE))
 
 		register_options(
 			[
@@ -53,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			res = send_request_raw({
-				'uri'          => datastore['PATH'],
+				'uri'          => normalize_uri(datastore['PATH']),
 				'method'       => 'GET'
 			}, 10)
 
@@ -76,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 
 					verbs.each do |tv|
 						resauth = send_request_raw({
-							'uri'          => datastore['PATH'],
+							'uri'          => normalize_uri(datastore['PATH']),
 							'method'       => tv
 						}, 10)
 

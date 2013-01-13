@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -29,7 +25,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'     => [ 'Tim Medin <tim[at]securitywhole.com>' ],
 			'License'    => MSF_LICENSE,
-			'Version'    => '$Revision$',
 			'References' =>
 				[
 					[ 'URL', 'http://www.packetstan.com/2011/03/nbns-spoofing-on-your-way-to-world.html' ]
@@ -134,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
 				p.ip_saddr = Rex::Socket.source_address(rhost)
 				p.ip_daddr = rhost
 				p.ip_ttl = 255
-				p.udp_sport = 1337
+				p.udp_sport = 137
 				p.udp_dport = 137
 				p.payload = response
 				p.recalc

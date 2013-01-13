@@ -1046,6 +1046,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 		pkt = CONST::SMB_TREE_CONN_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
+		pkt['Payload']['SMB'].v['TreeID'] = 0
 
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TREE_CONNECT_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
@@ -1894,11 +1895,11 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 				last_search_id = sid
 				last_offset = loff
 				last_filename = name
-				if eos != 1 #If we aren't at the end of the search, run find_next
+				if eos == 0 and last_offset != 0 #If we aren't at the end of the search, run find_next
 					resp = find_next(last_search_id, last_offset, last_filename)
 					search_next = 1 # Flip bit so response params will parse correctly
 				end
-			end until eos == 1
+			end until eos != 0 or last_offset == 0 
 		rescue ::Exception
 			raise $!
 		end

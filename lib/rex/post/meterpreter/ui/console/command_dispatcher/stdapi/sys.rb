@@ -43,7 +43,25 @@ class Console::CommandDispatcher::Stdapi::Sys
 		"-t" => [ true,  "The registry value type (E.g. REG_SZ)."                  ],
 		"-v" => [ true,  "The registry value name (E.g. Stuff)."                   ],
 		"-r" => [ true,  "The remote machine name to connect to (with current process credentials" ],
-		"-w" => [ false,  "Set KEY_WOW64 flag, valid values [32|64]."               ])
+		"-w" => [ false, "Set KEY_WOW64 flag, valid values [32|64]."               ])
+
+	#
+	# Options for the 'ps' command.
+	#
+	@@ps_opts = Rex::Parser::Arguments.new(
+		"-h" => [ false, "Help menu."                                              ],
+		"-S" => [ true,  "Filters processes on the process name using the supplied RegEx"],
+		"-A" => [ true,  "Filters processes on architecture (x86 or x86_64)"       ],
+		"-s" => [ false, "Show only SYSTEM processes"                              ],
+		"-U" => [ true,  "Filters processes on the user using the supplied RegEx"  ])
+
+	#
+	# Options for the 'suspend' command.
+	#
+	@@suspend_opts = Rex::Parser::Arguments.new(
+		"-h" => [ false, "Help menu."                                              ],
+		"-c" => [ false, "Continues suspending or resuming even if an error is encountered"],
+		"-r" => [ false, "Resumes the target processes instead of suspending"      ])
 
 	#
 	# List of supported commands.
@@ -64,6 +82,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 			"shell"       => "Drop into a system command shell",
 			"shutdown"    => "Shuts down the remote computer",
 			"steal_token" => "Attempts to steal an impersonation token from the target process",
+			"suspend"     => "Suspends or resumes a list of processes",
 			"sysinfo"     => "Gets information about the remote system, such as OS",
 		}
 		reqs = {
@@ -95,6 +114,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 			"shell"       => [ "stdapi_sys_process_execute" ],
 			"shutdown"    => [ "stdapi_sys_power_exitwindows" ],
 			"steal_token" => [ "stdapi_sys_config_steal_token" ],
+			"suspend"     => [ "stdapi_sys_process_attach"],
 			"sysinfo"     => [ "stdapi_sys_config_sysinfo" ],
 		}
 
@@ -255,18 +275,79 @@ class Console::CommandDispatcher::Stdapi::Sys
 	# Kills one or more processes.
 	#
 	def cmd_kill(*args)
-		if (args.length == 0)
-			print_line(
-				"Usage: kill pid1 pid2 pid3 ...\n\n" +
-				"Terminate one or more processes.")
+		# give'em help if they want it, or seem confused
+		if ( args.length == 0 or (args.length == 1 and args[0].strip == "-h") )
+			cmd_kill_help
 			return true
 		end
 
-		print_line("Killing: #{args.join(", ")}")
+		# validate all the proposed pids first so we can bail if one is bogus
+		valid_pids = validate_pids(args)
+		args.uniq!
+		diff = args - valid_pids.map {|e| e.to_s}
+		if not diff.empty? # then we had an invalid pid
+			print_error("The following pids are not valid:  #{diff.join(", ").to_s}.  Quitting")
+			return false
+		end
 
-		client.sys.process.kill(*(args.map { |x| x.to_i }))
-
+		# kill kill kill
+		print_line("Killing: #{valid_pids.join(", ").to_s}")
+		client.sys.process.kill(*(valid_pids.map { |x| x }))
 		return true
+	end
+
+	#
+	# help for the kill command
+	#
+	def cmd_kill_help
+		print_line("Usage: kill pid1 pid2 pid3 ...")
+		print_line("Terminate one or more processes.")
+	end
+
+	#
+	# validates an array of pids against the running processes on target host
+	# behavior can be controlled to allow/deny proces 0 and the session's process
+	# the pids:
+	# - are converted to integers
+	# - have had pid 0 removed unless allow_pid_0
+	# - have had current session pid removed unless allow_session_pid (to protect the session)
+	# - have redundant entries removed
+	#
+	# @param pids [Array<String>] The pids to validate
+	# @param allow_pid_0 [Boolean] whether to consider a pid of 0 as valid
+	# @param allow_session_pid [Boolean] whether to consider a pid = the current session pid as valid
+	# @return [Array] Returns an array of valid pids 
+
+	def validate_pids(pids, allow_pid_0 = false, allow_session_pid = false)
+
+		return [] if (pids.class != Array or pids.empty?)
+		valid_pids = []
+		# to minimize network traffic, we only get host processes once
+		host_processes = client.sys.process.get_processes
+		if host_processes.length < 1
+			print_error "No running processes found on the target host."
+			return []
+		end
+
+		# get the current session pid so we don't suspend it later
+		mypid = client.sys.process.getpid.to_i
+
+		# remove nils & redundant pids, conver to int
+		clean_pids = pids.compact.uniq.map{|x| x.to_i}
+		# now we look up the pids & remove bad stuff if nec
+		clean_pids.delete_if do |p|
+			( (p == 0 and not allow_pid_0) or (p == mypid and not allow_session_pid) )
+		end
+		clean_pids.each do |pid|
+			# find the process with this pid
+			theprocess = host_processes.find {|x| x["pid"] == pid}
+			if ( theprocess.nil? )
+				next
+			else
+				valid_pids << pid
+			end
+		end
+		return valid_pids
 	end
 
 	#
@@ -274,6 +355,54 @@ class Console::CommandDispatcher::Stdapi::Sys
 	#
 	def cmd_ps(*args)
 		processes = client.sys.process.get_processes
+		@@ps_opts.parse(args) do |opt, idx, val|
+			case opt 
+			when "-h"
+				cmd_ps_help
+				return true
+			when "-S"
+				print_line "Filtering on process name..."
+				searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
+				processes.each do |proc| 
+					if val.nil? or val.empty?
+						print_line "You must supply a search term!"
+						return false
+					end
+					searched_procs << proc  if proc["name"].match(/#{val}/)
+				end
+				processes = searched_procs
+			when "-A"
+				print_line "Filtering on arch..."
+				searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
+				processes.each do |proc| 
+					next if proc['arch'].nil? or proc['arch'].empty?
+					if val.nil? or val.empty? or !(val == "x86" or val == "x86_64")
+						print_line "You must select either x86 or x86_64"
+						return false
+					end
+					searched_procs << proc  if proc["arch"] == val
+				end
+				processes = searched_procs
+			when "-s"
+				print_line "Filtering on SYSTEM processes..."
+				searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
+				processes.each do |proc| 
+					searched_procs << proc  if proc["user"] == "NT AUTHORITY\\SYSTEM"
+				end
+				processes = searched_procs
+			when "-U"
+				print_line "Filtering on user name..."
+				searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
+				processes.each do |proc| 
+					if val.nil? or val.empty?
+						print_line "You must supply a search term!"
+						return false
+					end
+					searched_procs << proc  if proc["user"].match(/#{val}/)
+				end
+				processes = searched_procs
+			end
+		end
 		if (processes.length == 0)
 			print_line("No running processes were found.")
 		else
@@ -283,6 +412,15 @@ class Console::CommandDispatcher::Stdapi::Sys
 		end
 		return true
 	end
+
+	def cmd_ps_help
+		print_line "Use the command with no arguments to see all running processes."
+		print_line "The following options can be used to filter those results:"
+		
+		print_line @@ps_opts.usage
+	end
+
+
 
 	#
 	# Reboots the remote computer.
@@ -593,6 +731,78 @@ class Console::CommandDispatcher::Stdapi::Sys
 		print_line("Shutting down...")
 
 		client.sys.power.shutdown
+	end
+
+	#
+	# Suspends or resumes a list of one or more pids
+	#
+	# +args+ can optionally be -c to continue on error or -r to resume
+	# instead of suspend, followed by a list of one or more valid pids
+	#
+	# @todo  Accept process names, much of that code is done (kernelsmith)
+	#
+	# @param args [Array<String>] List of one of more pids
+	# @return [Boolean] Returns true if command was successful, else false
+	def cmd_suspend(*args)
+		# give'em help if they want it, or seem confused
+		if args.length == 0 or (args.include? "-h")
+			cmd_suspend_help
+			return true
+		end
+
+		continue = args.delete("-c") || false 
+		resume = args.delete("-r") || false
+
+		# validate all the proposed pids first so we can bail if one is bogus
+		valid_pids = validate_pids(args)
+		args.uniq!
+		diff = args - valid_pids.map {|e| e.to_s}
+		if not diff.empty? # then we had an invalid pid
+			print_error("The following pids are not valid:  #{diff.join(", ").to_s}.")
+			if continue
+				print_status("Continuing.  Invalid args have been removed from the list.")
+			else
+				print_error("Quitting.  Use -c to continue using only the valid pids.")
+				return false
+			end
+		end
+
+		targetprocess = nil
+		if resume
+			print_status("Resuming: #{valid_pids.join(", ").to_s}")
+		else
+			print_status("Suspending: #{valid_pids.join(", ").to_s}")
+		end
+		begin
+			valid_pids.each do |pid|
+				print_status("Targeting process with PID #{pid}...")
+				targetprocess = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
+				targetprocess.thread.each_thread do |x|
+					if resume
+						targetprocess.thread.open(x).resume
+					else
+						targetprocess.thread.open(x).suspend
+					end
+				end
+			end
+		rescue ::Rex::Post::Meterpreter::RequestError => e
+			print_error "Error acting on the process:  #{e.to_s}."
+			print_error "Try migrating to a process with the same owner as the target process."
+			print_error "Also consider running the win_privs post module and confirm SeDebug priv."
+			return false unless continue
+		ensure
+			targetprocess.close if targetprocess
+		end
+		return true
+	end
+
+	#
+	# help for the suspend command
+	#
+	def cmd_suspend_help
+		print_line("Usage: suspend [options] pid1 pid2 pid3 ...")
+		print_line("Suspend one or more processes.")
+		print @@suspend_opts.usage
 	end
 
 end

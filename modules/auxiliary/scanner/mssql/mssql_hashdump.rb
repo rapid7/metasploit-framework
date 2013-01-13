@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -23,14 +19,13 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'MSSQL Password Hashdump',
-			'Version'        => '$Revision$',
 			'Description'    => %Q{
 					This module extracts the usernames and encrypted password
 				hashes from a MSSQL server and stores them for later cracking.
 				This module also saves information about the server version and
 				table names, which can be used to seed the wordlist.
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
+			'Author'         => ['theLightCosine'],
 			'License'        => MSF_LICENSE
 		)
 	end

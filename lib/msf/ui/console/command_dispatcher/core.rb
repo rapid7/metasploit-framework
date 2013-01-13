@@ -1346,28 +1346,29 @@ class Core
 				match += val + " "
 			end
 		}
-		
+
 		if framework.db and framework.db.migrated and framework.db.modules_cached
-			return search_modules_sql(match)
+			search_modules_sql(match)
+			return
 		end
-		
-		print_error("Warning: database not connected or cache not built, falling back to slow search")
+
+		print_warning("Database not connected or cache not built, using slow search")
 
 		tbl = generate_module_table("Matching Modules")
-		[ 
-			framework.exploits, 
-			framework.auxiliary, 
-			framework.post, 
-			framework.payloads, 
+		[
+			framework.exploits,
+			framework.auxiliary,
+			framework.post,
+			framework.payloads,
 			framework.nops,
-			framework.encoders 
+			framework.encoders
 		].each do |mset|
 			mset.each do |m|
-				o = mset.create(m[0])
-				
+				o = mset.create(m[0]) rescue nil
+
 				# Expected if modules are loaded without the right pre-requirements
 				next if not o
-				
+
 				if not o.search_filter(match)
 					tbl << [ o.fullname, o.disclosure_date.to_s, o.rank_to_s, o.name ]
 				end
@@ -1376,7 +1377,7 @@ class Core
 		print_line(tbl.to_s)
 
 	end
-	
+
 	def search_modules_sql(match)
 		tbl = generate_module_table("Matching Modules")
 		framework.db.search_modules(match).each do |o|
@@ -1871,7 +1872,7 @@ class Core
 		end
 
 		if (mod.exploit? and mod.datastore['PAYLOAD'])
-			p = framework.modules.create(mod.datastore['PAYLOAD'])
+			p = framework.payloads.create(mod.datastore['PAYLOAD'])
 			if (p)
 				p.options.sorted.each { |e|
 					name, opt = e
@@ -2513,7 +2514,7 @@ class Core
 
 		# How about the selected payload?
 		if (mod.exploit? and mod.datastore['PAYLOAD'])
-			p = framework.modules.create(mod.datastore['PAYLOAD'])
+			p = framework.payloads.create(mod.datastore['PAYLOAD'])
 			if (p and p.options.include?(opt))
 				res.concat(option_values_dispatch(p.options[opt], str, words))
 			end
@@ -2747,7 +2748,7 @@ protected
 		# If it's an exploit and a payload is defined, create it and
 		# display the payload's options
 		if (mod.exploit? and mod.datastore['PAYLOAD'])
-			p = framework.modules.create(mod.datastore['PAYLOAD'])
+			p = framework.payloads.create(mod.datastore['PAYLOAD'])
 
 			if (!p)
 				print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")
@@ -2812,7 +2813,7 @@ protected
 		# If it's an exploit and a payload is defined, create it and
 		# display the payload's options
 		if (mod.exploit? and mod.datastore['PAYLOAD'])
-			p = framework.modules.create(mod.datastore['PAYLOAD'])
+			p = framework.payloads.create(mod.datastore['PAYLOAD'])
 
 			if (!p)
 				print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")
@@ -2835,7 +2836,7 @@ protected
 		# If it's an exploit and a payload is defined, create it and
 		# display the payload's options
 		if (mod.exploit? and mod.datastore['PAYLOAD'])
-			p = framework.modules.create(mod.datastore['PAYLOAD'])
+			p = framework.payloads.create(mod.datastore['PAYLOAD'])
 
 			if (!p)
 				print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")
@@ -2935,4 +2936,3 @@ end
 
 
 end end end end
-

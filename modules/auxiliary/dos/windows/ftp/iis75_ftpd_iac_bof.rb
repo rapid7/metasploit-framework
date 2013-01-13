@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -33,17 +29,15 @@ class Metasploit3 < Msf::Auxiliary
 					'jduck'            # Metasploit module
 				],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2010-3972' ],
 					[ 'OSVDB', '70167' ],
 					[ 'BID', '45542' ],
 					[ 'MSB', 'MS11-004' ],
-					[ 'EDB', 15803 ],
+					[ 'EDB', '15803' ],
 					[ 'URL', 'http://blogs.technet.com/b/srd/archive/2010/12/22/assessing-an-iis-ftp-7-5-unauthenticated-denial-of-service-vulnerability.aspx' ]
 				],
-			'Platform'       => [ 'win' ],
 			'DisclosureDate' => 'Dec 21 2010'))
 
 		register_options(

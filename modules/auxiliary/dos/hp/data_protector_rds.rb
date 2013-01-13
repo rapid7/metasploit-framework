@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -31,12 +27,11 @@ class Metasploit3 < Msf::Auxiliary
 					'sinn3r',                            #msf
 				],
 			'License'     => MSF_LICENSE,
-			'Version'     => '$Revision$',
 			'References'  =>
 				[
 					[ 'CVE', '2011-0514' ],
 					[ 'OSVDB', '70617' ],
-					[ 'EDB', 15940 ],
+					[ 'EDB', '15940' ],
 				],
 			'DisclosureDate' => 'Jan 8 2011' ))
 

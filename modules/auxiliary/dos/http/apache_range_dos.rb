@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -31,12 +27,11 @@ class Metasploit3 < Msf::Auxiliary
 					'Masashi Fujiwara' #metasploit module
 				],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'BID', '49303'],
 					[ 'CVE', '2011-3192'],
-					[ 'EDB', 17696],
+					[ 'EDB', '17696'],
 					[ 'OSVDB', '74721' ],
 				],
 			'DisclosureDate' => 'Aug 19 2011'))
@@ -50,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		uri = datastore['URI']
+		uri = normalize_uri(datastore['URI'])
 		ranges = ''
 		for i in (0..1299) do
 			ranges += ",5-" + i.to_s

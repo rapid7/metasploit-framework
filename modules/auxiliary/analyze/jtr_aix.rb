@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,14 +16,13 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'            => 'John the Ripper AIX Password Cracker',
-			'Version'         => '$Revision$',
 			'Description'     => %Q{
 					This module uses John the Ripper to identify weak passwords that have been
 				acquired from passwd files on AIX systems.
 			},
 			'Author'          =>
 				[
-					'TheLightCosine <thelightcosine[at]gmail.com>',
+					'theLightCosine',
 					'hdm'
 				] ,
 			'License'         => MSF_LICENSE  # JtR itself is GPLv2, but this wrapper is MSF (BSD)

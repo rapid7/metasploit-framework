@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -24,11 +20,11 @@ require 'msf/core'
 module Metasploit3
 
 	include Msf::Payload::Single
+	include Msf::Payload::Osx
 
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'OS X Execute Command',
-			'Version'       => '$Revision$',
 			'Description'   => 'Execute an arbitrary command',
 			'Author'        => [ 'snagg <snagg[at]openssl.it>', 'argp <argp[at]census-labs.com>' ],
 			'License'       => BSD_LICENSE,
@@ -45,7 +41,7 @@ module Metasploit3
 	#
 	# Dynamically builds the exec payload based on the user's options.
 	#
-	def generate
+	def generate_stage
 		cmd     = datastore['CMD'] || ''
 		len     = cmd.length + 1
 		payload =

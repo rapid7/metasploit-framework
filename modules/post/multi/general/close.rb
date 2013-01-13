@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,8 +16,7 @@ class Metasploit3 < Msf::Post
 			'Description'   => %q{ This module closes the specified session. This can be useful as a finisher for automation tasks },
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'hdm' ],
-			'Version'       => '$Revision$',
-			'Platform'      => [ 'linux', 'windows', 'unix', 'osx' ],
+			'Platform'      => [ 'linux', 'win', 'unix', 'osx' ],
 			'SessionTypes'  => [ 'shell', 'meterpreter' ]
 		))
 	end

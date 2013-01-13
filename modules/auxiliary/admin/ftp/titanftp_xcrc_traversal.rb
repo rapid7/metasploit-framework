@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -34,14 +30,11 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => 'jduck',
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
-			'Platform'       => [ 'win' ],
 			'References'     =>
 				[
 					[ 'OSVDB', '65533'],
 					[ 'URL', 'http://seclists.org/bugtraq/2010/Jun/160' ]
 				],
-			'Privileged'     => true,
 			'DisclosureDate' => 'Jun 15 2010'
 		)
 

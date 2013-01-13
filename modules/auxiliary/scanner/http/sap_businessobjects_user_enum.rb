@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -23,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'		   => 'SAP BusinessObjects User Enumeration',
-			'Version'		=> '$Revision$',
 			'Description'	=> %Q{
 				This module simply attempts to enumerate SAP BusinessObjects
 				users.The dswsbobje interface is only used to verify valid
@@ -49,12 +44,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		res = send_request_cgi({
-			'uri'	 => "/#{datastore['URI']}/services/listServices",
-			'method'  => 'GET',
-				'headers' => {
-					'User-Agent' => datastore['UserAgent']
-				}
-
+			'uri'    => normalize_uri(datastore['URI']) + "/services/listServices",
+			'method' => 'GET'
 		}, 25)
 		return if not res
 
@@ -81,9 +72,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			res = send_request_raw({
-				'uri'		  => "/#{datastore['URI']}/services/Session",
-				'method'	   => 'POST',
-				'data'	  => data,
+				'uri'     => normalize_uri(datastore['URI']) + "/services/Session",
+				'method'  => 'POST',
+				'data'    => data,
 				'headers' =>
 					{
 						'Content-Length' => data.length,
@@ -93,8 +84,8 @@ class Metasploit3 < Msf::Auxiliary
 			}, 45)
 
 			if res
-				return :abort if (res.code == 404)
-				success = true if(res.body.match(/Invalid password/i))
+				return :abort if (!res or (res and res.code == 404))
+				success = true if(res and res.body.match(/Invalid password/i))
 				success
 			else
 				vprint_error("[SAP BusinessObjects] No response")

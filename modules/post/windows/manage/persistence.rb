@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -23,7 +19,7 @@ class Metasploit3 < Msf::Post
 	include Msf::Post::File
 	include Msf::Post::Windows::Priv
 	include Msf::Post::Windows::Registry
-	include Msf::Post::Windows::WindowsServices
+	include Msf::Post::Windows::Services
 
 	def initialize(info={})
 		super( update_info( info,
@@ -43,8 +39,7 @@ class Metasploit3 < Msf::Post
 					'Carlos Perez <carlos_perez[at]darkoperator.com>',
 					'Merlyn drforbin Cousins <drforbin6[at]gmail.com>'
 				],
-			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'Actions'       => [['TEMPLATE'], ['REXE']],
 			'DefaultAction' => 'TEMPLATE',
 			'SessionTypes'  => [ 'meterpreter' ]

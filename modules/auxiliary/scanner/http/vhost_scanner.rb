@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -36,8 +32,7 @@ require 'cgi'
 
 					},
 				'Author' 		=> [ 'et [at] cyberspace.org' ],
-				'License'		=> BSD_LICENSE,
-				'Version'		=> '$Revision$'))
+				'License'		=> BSD_LICENSE))
 
 			register_options(
 			[
@@ -45,26 +40,32 @@ require 'cgi'
 				OptString.new('QUERY', [ false,  "HTTP URI Query", '']),
 				OptString.new('DOMAIN', [ true,  "Domain name", '']),
 				OptString.new('HEADERS', [ false,  "HTTP Headers", '']),
+				OptPath.new('SUBDOM_LIST', [false, "Path to text file with subdomains"]),
 			], self.class)
 
 		end
 
 		def run_host(ip)
-
-			valstr = [
-				"admin",
-				"services",
-				"webmail",
-				"console",
-				"apps",
-				"mail",
-				"intranet",
-				"intra",
-				"spool",
-				"corporate",
-				"www",
-				"web"
-			]
+			if datastore['SUBDOM_LIST'] and ::File.file?(datastore['SUBDOM_LIST'])
+				valstr = IO.readlines(datastore['SUBDOM_LIST']).map {
+					|e| e.gsub(".#{datastore['DOMAIN']}", "").chomp
+				}
+			else
+				valstr = [
+					"admin",
+					"services",
+					"webmail",
+					"console",
+					"apps",
+					"mail",
+					"intranet",
+					"intra",
+					"spool",
+					"corporate",
+					"www",
+					"web"
+				]
+			end
 
 			datastore['QUERY'] ? tquery = queryparse(datastore['QUERY']): nil
 			datastore['HEADERS'] ? thead = headersparse(datastore['HEADERS']) : nil
@@ -79,7 +80,7 @@ require 'cgi'
 
 				begin
 					noexistsres = send_request_cgi({
-						'uri'  		=>  datastore['PATH'],
+						'uri'  		=>  normalize_uri(datastore['PATH']),
 						'vars_get' 	=>  tquery,
 						'headers' 	=>  thead,
 						'vhost'		=>  randhost,
@@ -103,12 +104,13 @@ require 'cgi'
 				return
 			end
 
+			vprint_status("Running with #{valstr.length} sudomains")
 			valstr.each do |astr|
 				thost = astr+"."+datastore['DOMAIN']
 
 				begin
 					res = send_request_cgi({
-						'uri'  		=>  datastore['PATH'],
+						'uri'  		=>  normalize_uri(datastore['PATH']),
 						'vars_get' 	=>  tquery,
 						'headers' 	=>  thead,
 						'vhost'		=>  thost,
