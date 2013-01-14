@@ -215,6 +215,9 @@ class Metasploit3 < Msf::Auxiliary
 						print_status(output_message % "GUEST LOGIN")
 				end
 			end
+			if datastore["STOP_ON_SUCCESS"]
+				return :next_user
+			end
 		when *@correct_credentials_status_codes
 			print_status(output_message % "FAILED LOGIN, VALID CREDENTIALS" )
 			report_creds(domain,user,pass,false)
