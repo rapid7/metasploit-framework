@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 				[
-						OptString.new('URL', [ true,	'Wordpress root', '/']),
+						OptString.new('TARGETURI', [ true,	'Wordpress root', '/']),
 						OptString.new('TABLE_PREFIX', [ true,	'Wordpress table prefix', 'wp_']),
 						OptInt.new('SITE_ITERATIONS', [ true, 'Number of sites to iterate', 25]),
 						OptInt.new('USER_ITERATIONS', [ true, 'Number of users to iterate', 25]),
@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def wordpress_url
-		url = datastore["URL"]
+		url = target_uri
 		url << "/" if url[-1,1] != "/"
 		url
 	end
