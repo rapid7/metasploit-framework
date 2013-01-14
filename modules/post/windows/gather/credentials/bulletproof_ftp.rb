@@ -62,11 +62,13 @@ class Metasploit3 < Msf::Post
 		private
 
 		def low_dword(value)
-			return [value].pack("Q").unpack("VV")[0]
+			#return [value].pack("Q").unpack("VV")[0]
+			return Rex::Text.pack_int64le(value).unpack("VV")[0]
 		end
 
 		def high_dword(value)
-			return [value].pack("Q").unpack("VV")[1]
+			return Rex::Text.pack_int64le(value).unpack("VV")[1]
+			#return [value].pack("Q").unpack("VV")[1]
 		end
 
 		def low_byte(value)
@@ -143,6 +145,8 @@ class Metasploit3 < Msf::Post
 	def check_installation
 		bullet_reg = "HKCU\\SOFTWARE\\BulletProof Software"
 		bullet_reg_ver = registry_enumkeys("#{bullet_reg}")
+
+		return false if bullet_reg_ver.nil?
 
 		bullet_reg_ver.each { |key|
 			if key =~ /BulletProof FTP Client/
@@ -234,10 +238,11 @@ class Metasploit3 < Msf::Post
 
 		print_status("Searching BulletProof FTP Client installation directory...")
 		# BulletProof FTP Client 2.6 uses the installation dir to store bookmarks files
-		if not expand_path('%ProgramFiles(X86)%').empty? and expand_path('%ProgramFiles(X86)%') !~ /%ProgramFiles\(X86\)%/
-			program_files = expand_path('%PROGRAMFILES(X86)%') #x64
+		program_files_x86 = expand_path('%ProgramFiles(X86)%')
+		if not program_files_x86.empty? and program_files_x86 !~ /%ProgramFiles\(X86\)%/
+			program_files = program_files_x86 #x64
 		else
-			program_files = expand_path('%PROGRAMFILES%') #x86
+			program_files = expand_path('%ProgramFiles%') #x86
 		end
 		session.fs.dir.foreach(program_files) do |dir|
 			if dir =~ /BulletProof FTP Client/
