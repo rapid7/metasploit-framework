@@ -62,13 +62,11 @@ class Metasploit3 < Msf::Post
 		private
 
 		def low_dword(value)
-			#return [value].pack("Q").unpack("VV")[0]
 			return Rex::Text.pack_int64le(value).unpack("VV")[0]
 		end
 
 		def high_dword(value)
 			return Rex::Text.pack_int64le(value).unpack("VV")[1]
-			#return [value].pack("Q").unpack("VV")[1]
 		end
 
 		def low_byte(value)
