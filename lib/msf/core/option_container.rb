@@ -443,7 +443,7 @@ class OptInt < OptBase
 	end
 
 	def valid?(value)
-		return super if !required and value and value.empty?
+		return super if !required? and value.to_s.empty?
 		return false if empty_required_value?(value)
 
 		if value and not value.to_s.match(/^0x[0-9a-fA-F]+$|^-?\d+$/)
