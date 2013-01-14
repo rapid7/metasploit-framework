@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'msf/core'
+require 'msf/core/option_container'
 
 ###
 #
@@ -7,6 +8,17 @@ require 'msf/core'
 #
 ###
 module Msf::Payload::Stager
+
+	def initialize(info={})
+		super
+
+		register_advanced_options(
+			[
+				Msf::OptBool.new("EnableStageEncoding", [ false, "Encode the second stage payload", false ]),
+				Msf::OptString.new("StageEncoder", [ false, "Encoder to use if EnableStageEncoding is set", nil ]),
+			], Msf::Payload::Stager)
+
+	end
 
 	#
 	# Sets the payload type to a stager.
@@ -65,6 +77,11 @@ module Msf::Payload::Stager
 		true
 	end
 
+	def encode_stage?
+		# Convert to string in case it hasn't been normalized
+		!!(datastore['EnableStageEncoding'].to_s == "true")
+	end
+
 	#
 	# Generates the stage payload and substitutes all offsets.
 	#
@@ -75,8 +92,8 @@ module Msf::Payload::Stager
 		# Substitute variables in the stage
 		substitute_vars(p, stage_offsets) if (stage_offsets)
 
-		# Encode the stage of stage encoding is enabled
-		#p = encode_stage(p)
+		# Encode the stage if stage encoding is enabled
+		p = encode_stage(p)
 
 		return p
 	end
@@ -101,14 +118,15 @@ module Msf::Payload::Stager
 				p = (self.stage_prefix || '') + p
 			end
 
+			sending_msg = "Sending #{encode_stage? ? "encoded ":""}stage"
+			sending_msg << " (#{p.length} bytes)"
 			# The connection should always have a peerhost (even if it's a
 			# tunnel), but if it doesn't, erroring out here means losing the
 			# session, so make sure it does, just to be safe.
 			if conn.respond_to? :peerhost
-				print_status("Sending stage (#{p.length} bytes) to #{conn.peerhost}")
-			else
-				print_status("Sending stage (#{p.length} bytes)")
+				sending_msg << " to #{conn.peerhost}"
 			end
+			print_status(sending_msg)
 
 			# Send the stage
 			conn.put(p)
@@ -146,15 +164,20 @@ module Msf::Payload::Stager
 
 	# Encodes the stage prior to transmission
 	def encode_stage(stg)
+		return stg unless encode_stage?
 
-		# If DisableStageEncoding is set, we do not encode the stage
-		return stg if datastore['DisableStageEncoding'] =~ /^(y|1|t)/i
+		if datastore["StageEncoder"].nil? or datastore["StageEncoder"].empty?
+			stage_enc_mod = nil
+		else
+			stage_enc_mod = datastore["StageEncoder"]
+		end
 
 		# Generate an encoded version of the stage.  We tell the encoding system
 		# to save edi to ensure that it does not get clobbered.
 		encp = Msf::EncodedPayload.create(
 			self,
 			'Raw'           => stg,
+			'Encoder'       => stage_enc_mod,
 			'SaveRegisters' => ['edi'],
 			'ForceEncode'   => true)
 
