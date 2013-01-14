@@ -11,7 +11,7 @@ describe Msf::OptInt do
     { :value => "0x0a", :normalized => 10 },
     { :value => "0x0A", :normalized => 10 },
     { :value => "0xFf", :normalized => 255},
-    { :pending => "Redmine #7540", :value => "-1", :normalized => -1 }
+    { :value => "-1",   :normalized => -1 },
   ]
   invalid_values = [
     { :value => "yer mom", },
