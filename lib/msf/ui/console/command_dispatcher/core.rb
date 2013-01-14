@@ -2412,18 +2412,26 @@ class Core
 		end
 		cmd = args.join(" ")
 
-		# redirect stdout (only) temporarily
+		# get a ref to the current console driver
+		orig_driver = self.driver
+		# redirect output after saving the old ones and getting a new output buffer to use for redirect
+		orig_driver_output = orig_driver.output
+		orig_driver_input = orig_driver.input
 		# we use a rex buffer but add a write method to the instance, which is required in order to be valid $stdout
-		orig_stdout = $stdout
-		buf = Rex::Ui::Text::Output::Buffer.new # @todo, change per scriptjunkie's comments?
-		def buf.write(msg = '')
+		temp_output = Rex::Ui::Text::Output::Buffer.new
+		def temp_output.write(msg = '')
 			self.print_raw(msg)
 		end
-		$stdout = buf # stdout is now redirected to buf
-		driver.run_single(cmd)
-		$stdout = orig_stdout # stdout is now restored
-		cmd_output = buf.dump_buffer
-		# put lines into an array so we can access them more easily and split('\n') doesn't work
+		orig_driver.init_ui(orig_driver_input,temp_output) 
+		# run the desired command to be grepped
+		orig_driver.run_single(cmd)
+		# restore original output
+		orig_driver.init_ui(orig_driver_input,orig_driver_output)
+		# @todo fix the prompt so we don't get "msf >  >".  I've tried everything to fix this... nada
+		# orig_driver.update_prompt(orig_prompt,orig_prompt_char,true) # <-- dependent on other code I added & removed
+		# dump the command's output so we can grep it
+		cmd_output = temp_output.dump_buffer
+		# put lines into an array so we can access them more easily and split('\n') doesn't work on the output obj.
 		all_lines = cmd_output.lines.select {|line| line}
 		# control matching based on remaining match_mods (:insensitive was already handled)
 		if match_mods[:invert]
@@ -2434,7 +2442,7 @@ class Core
 		
 		our_lines = []
 		count = 0
-		all_lines.each_with_index do |line, line_num| # @todo switch to map?
+		all_lines.each_with_index do |line, line_num|
 			next if (output_mods[:skip] and line_num < output_mods[:skip])
 			our_lines << line if (output_mods[:keep] and line_num < output_mods[:keep])
 			# we don't wan't to keep processing if we have a :max and we've reached it already (not counting skips/keeps)
@@ -2451,10 +2459,10 @@ class Core
 	end
 
 	def cmd_grep_tabs(str, words)
-		# @todo, make sure this works, just guessed to start
 		tabs = @@grep_opts.fmt.keys || [] # default to use grep's options
 		# if not an opt, use normal tab comp.
-		# @todo uncomment out next line when tab_completion normalization is complete RM7649
+		# @todo uncomment out next line when tab_completion normalization is complete RM7649 or
+		# replace with new code that permits "nested" tab completion
 		# tabs = driver.get_all_commands if (str and str =~ /\w/) 
 		tabs
 	end
