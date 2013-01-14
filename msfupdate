@@ -24,11 +24,13 @@ $stderr.puts "[*]"
 $stderr.puts ""
 
 if not (Process.uid == 0 or File.stat(msfbase).owned?)
-	$stderr.puts "[-] ERROR: User running msfupdate does not own the metasploit install"
-	$stderr.puts "Please run msfupdate as the same user who installed metasploit."
+	$stderr.puts "[-] ERROR: User running msfupdate does not own the Metasploit installation"
+	$stderr.puts "[-] Please run msfupdate as the same user who installed Metasploit."
+	exit 0x10
 end
 
-def is_pro
+# Are you an installer, or did you get here via a source checkout?
+def is_installed
 	File.exists?(File.expand_path(File.join(@msfbase_dir, "..", "engine", "update.rb")))
 end
 
@@ -147,12 +149,33 @@ if is_git
 	system("git", "merge", "#{remote}/#{branch}")
 end
 
-if is_pro
+if is_installed
 	update_script = File.expand_path(File.join(@msfbase_dir, "..", "engine", "update.rb"))
-	system("ruby", update_script)
+	product_key =   File.expand_path(File.join(@msfbase_dir, "..", "engine", "license", "product.key"))
+	if File.exists? product_key
+		if File.readable? product_key
+			system("ruby", update_script)
+		else
+			$stdout.puts "[-] ERROR: Failed to update Metasploit installation"
+			$stdout.puts ""
+			$stdout.puts "[-] You must be able to read the product key for the"
+		  $stdout.puts "[-]	Metasploit installation in order to run msfupdate."
+			$stdout.puts "[-] Usually, this means you must be root (EUID 0)."
+			exit 0x10
+		end
+	else
+		$stdout.puts "[-] ERROR: Failed to update Metasploit installation"
+		$stdout.puts ""
+		$stdout.puts "[-] In order to update your Metasploit installation,"
+		$stdout.puts "[-] you must first register it through the UI, here:"
+		$stderr.puts "[-] https://localhost:3790 (note, Metasploit Community"
+		$stderr.puts "[-] Edition is totally free and takes just a few seconds"
+		$stderr.puts "[-] to register!)"
+		exit 0x11
+	end
 end
 
-unless is_svn || is_git || is_pro
+unless is_svn || is_git || is_installed
 	raise RuntimeError, "Cannot determine checkout type: `#{@msfbase_dir}'"
 end
 
