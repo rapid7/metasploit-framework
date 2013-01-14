@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def wordpress_url
 		url = target_uri
-		url << "/" if url[-1,1] != "/"
+		url.path << "/" if url.path[-1,1] != "/"
 		url
 	end
 
