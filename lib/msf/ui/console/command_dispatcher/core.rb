@@ -2452,9 +2452,8 @@ class Core
 
 	def cmd_grep_tabs(str, words)
 		# @todo, make sure this works, just guessed to start
-		tabs = []
-		tabs += @@grep_opts.fmt.keys if (str and not str =~ /\w/)
-		#tabs += driver.tab_complete_stub(str)
+		tabs = @@grep_opts.fmt.keys || [] # default to use grep's options
+		tabs = driver.tab_complete(str, words) if (str and str =~ /\w/) # if not an opt, use normal tab comp.
 		tabs
 	end
 
