@@ -15,12 +15,13 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-				'Name'          => 'W3-Total-Cache Wordpress-plugin <= 0.9.2.4 Username and Hash Extract',
+				'Name'          => 'W3-Total-Cache Wordpress-plugin 0.9.2.4 (or before) Username and Hash Extract',
 				'Description'   => %q{
 					The W3-Total-Cache Wordpress Plugin can cache database statements and it's results in files for
 					fast access.
 					These files are in the webroot of the Wordpress installation and can be downloaded.
 					This modules tries to find usernames and password hashes in these files.
+					Vulnerable Versions: <= 0.9.2.4
 					Version 0.9.2.4 has been fixed afterwards so it can be vulnerable.
 				},
 				'License'       => MSF_LICENSE,
