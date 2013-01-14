@@ -74,6 +74,13 @@ class Metasploit3 < Msf::Post
 		end
 
 		def generate_xor_key
+			# Magic numbers 0x100 and 0x8088405 is obtained from bpftpclient.exe static analysis:
+			#.text:007B13C1                 mov     eax, 100h
+			# ... later
+			#.text:0040381F                 imul    edx, dword_7EF008[ebx], 8088405h
+			#.text:00403829                 inc     edx
+			#.text:0040382A                 mov     dword_7EF008[ebx], edx
+			#.text:00403830                 mul     edx
 			temp = @xor_key * 0x8088405
 			temp = low_dword(temp)
 			temp = temp + 1
