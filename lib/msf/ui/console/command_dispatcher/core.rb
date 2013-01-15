@@ -2462,7 +2462,7 @@ class Core
 					args.shift(2)
 				when "-B"
 					# also return arg lines before a match
-					output_mods[:before] = (val.to_i * -1)
+					output_mods[:before] = val.to_i
 					# delete opt and val from args list
 					args.shift(2)
 				when "-v"
@@ -3037,7 +3037,7 @@ protected
 		before = before.to_i.abs
 		start = line_num - before
 		start = 0 if start < 0
-		finish = line_num + before
+		finish = line_num + after
 		return all_lines.slice(start..finish)
 	end
 end
