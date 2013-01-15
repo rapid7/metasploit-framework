@@ -70,10 +70,10 @@ class Core
 		"-i" => [ false, "Ignore case."                                   ],
 		"-m" => [ true,  "Stop after arg matches."                        ],
 		"-v" => [ false, "Invert match."                                  ],
-		"-A" => [ true, "Show arg lines after a match."                   ],
-		"-B" => [ true, "Show arg lines before a match."                  ],
-		"-s" => [ true, "Skip arg lines before attempting match."         ],
-		"-k" => [ true, "Keep (include) arg lines at start of file."      ],
+		"-A" => [ true, "Show arg lines of output After a match."         ],
+		"-B" => [ true, "Show arg lines of output Before a match."        ],
+		"-s" => [ true, "Skip arg lines of output before attempting match."],
+		"-k" => [ true, "Keep (include) arg lines at start of output."    ],
 		"-c" => [ false, "Only print a count of matching lines."          ])
 
 	@@search_opts = Rex::Parser::Arguments.new(
@@ -2372,12 +2372,12 @@ class Core
 					args.shift(s)
 				when "-A"
 					# also return arg lines after a match
-					output_mods[:also] = val.to_i
+					output_mods[:after] = val.to_i
 					# delete opt and val from args list
 					args.shift(2)
 				when "-B"
 					# also return arg lines before a match
-					output_mods[:also] = (val.to_i * -1)
+					output_mods[:before] = (val.to_i * -1)
 					# delete opt and val from args list
 					args.shift(2)
 				when "-v"
@@ -2449,7 +2449,8 @@ class Core
 			break if match_mods[:max] and count >= match_mods[:max]
 			if eval statement 
 				count += 1
-				our_lines += get_grep_lines(all_lines,line_num,output_mods[:also])
+				# we might get a -A/after and a -B/before at the same time
+				our_lines += retrieve_grep_lines(all_lines,line_num,output_mods[:before], output_mods[:after])
 			end
 		end
 
@@ -2930,18 +2931,22 @@ protected
 			)
 	end
 	#
-	# Returns array of matched line at +line_num+ plus any after/before lines requested as 
-	# integer +also+ from the lines specified as +all_lines+. +also+ is positive for "after" 
-	# and negative for "before" lines
+	# Returns an array of lines at the provided line number plus any after/before lines requested from
+	# all_lines by supplying the 'after' and/or 'before' parameters which are always positive
 	#
-	def get_grep_lines(all_lines,line_num, also=nil)
-		also = also.to_i
-		return [all_lines[line_num]] unless also or also == 0
-		if also < 0
-			return all_lines.slice(line_num + also, also.abs + 1)
-		else
-			return all_lines.slice(line_num, also + 1)
-		end
+	# @param all_lines [Array<String>] An array of all lines being considered for matching
+	# @param line_num [Integer] The line number in all_lines which has satisifed the match
+	# @param after [Integer] The number of lines after the match line to include (should always be positive)
+	# @param before [Integer] The number of lines before the match line to include (should always be positive)
+	# @return [Array<String>] Array of lines including the line at line_num and any before and after
+
+	def retrieve_grep_lines(all_lines,line_num, before = nil, after = nil)
+		after = after.to_i.abs
+		before = before.to_i.abs
+		start = line_num - before
+		start = 0 if start < 0
+		finish = line_num + before
+		return all_lines.slice(start..finish)
 	end
 end
 
