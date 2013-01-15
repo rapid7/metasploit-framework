@@ -30,6 +30,9 @@ module Msf::Payload::Stager
 	#
 	# Return the stager payload's raw payload.
 	#
+	# Can be nil if the stager is not pre-assembled.
+	#
+	# @return [String,nil]
 	def payload
 		return module_info['Stager']['Payload']
 	end
@@ -37,6 +40,7 @@ module Msf::Payload::Stager
 	#
 	# Return the stager payload's assembly text, if any.
 	#
+	# @return [String,nil]
 	def assembly
 		return module_info['Stager']['Assembly']
 	end
@@ -44,6 +48,9 @@ module Msf::Payload::Stager
 	#
 	# Return the stager payload's offsets.
 	#
+	# These will be used for substitutions during stager generation.
+	#
+	# @return [Hash]
 	def offsets
 		return module_info['Stager']['Offsets']
 	end
@@ -51,6 +58,9 @@ module Msf::Payload::Stager
 	#
 	# Returns the raw stage payload.
 	#
+	# Can be nil if the final stage is not pre-assembled.
+	#
+	# @return [String,nil]
 	def stage_payload
 		return module_info['Stage']['Payload']
 	end
@@ -58,6 +68,7 @@ module Msf::Payload::Stager
 	#
 	# Returns the assembly text of the stage payload.
 	#
+	# @return [String]
 	def stage_assembly
 		return module_info['Stage']['Assembly']
 	end
@@ -65,6 +76,10 @@ module Msf::Payload::Stager
 	#
 	# Returns variable offsets within the stage payload.
 	#
+	# These will be used for substitutions during generation of the final
+	# stage.
+	#
+	# @return [Hash]
 	def stage_offsets
 		return module_info['Stage']['Offsets']
 	end
@@ -77,6 +92,11 @@ module Msf::Payload::Stager
 		true
 	end
 
+
+	#
+	# Whether to use an Encoder on the second stage
+	#
+	# @return [Boolean]
 	def encode_stage?
 		# Convert to string in case it hasn't been normalized
 		!!(datastore['EnableStageEncoding'].to_s == "true")
@@ -85,6 +105,7 @@ module Msf::Payload::Stager
 	#
 	# Generates the stage payload and substitutes all offsets.
 	#
+	# @return [String] The generated payload stage, as a string.
 	def generate_stage
 		# Compile the stage as necessary
 		p = build(stage_payload, stage_assembly, stage_offsets, '-stg1')
@@ -92,20 +113,22 @@ module Msf::Payload::Stager
 		# Substitute variables in the stage
 		substitute_vars(p, stage_offsets) if (stage_offsets)
 
-		# Encode the stage if stage encoding is enabled
-		p = encode_stage(p)
-
 		return p
 	end
 
 	#
 	# Transmit the associated stage.
 	#
+	# @param (see handle_connection_stage)
+	# @return (see handle_connection_stage)
 	def handle_connection(conn, opts={})
 		# If the stage should be sent over the client connection that is
 		# established (which is the default), then go ahead and transmit it.
 		if (stage_over_connection?)
 			p = generate_stage
+
+			# Encode the stage if stage encoding is enabled
+			p = encode_stage(p)
 
 			# Give derived classes an opportunity to an intermediate state before
 			# the stage is sent.  This gives derived classes an opportunity to
@@ -146,10 +169,15 @@ module Msf::Payload::Stager
 	end
 
 	#
-	# Called by handle_connection to allow the stage to process
-	# whatever it is it needs to process.  The default is to simply attempt to
-	# create a session.
+	# Allow the stage to process whatever it is it needs to process.
 	#
+	# Override to deal with sending the final stage in cases where
+	# {#generate_stage} is not the whole picture, such as when uploading
+	# an executable. The default is to simply attempt to create a session
+	# on the given +conn+ socket with {Handler#create_session}.
+	#
+	# @param (see Handler#create_session)
+	# @return (see Handler#create_session)
 	def handle_connection_stage(conn, opts={})
 		create_session(conn, opts)
 	end
@@ -180,6 +208,7 @@ module Msf::Payload::Stager
 			'Encoder'       => stage_enc_mod,
 			'SaveRegisters' => ['edi'],
 			'ForceEncode'   => true)
+		print_status("Encoded stage with #{encp.encoder.refname}")
 
 		# If the encoding succeeded, use the encoded buffer.  Otherwise, fall
 		# back to using the non-encoded stage
