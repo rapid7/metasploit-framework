@@ -42,7 +42,9 @@ class Metasploit3 < Msf::Auxiliary
 				'HEAD',
 				'TRACE',
 				'TRACK',
-				'Wmap'
+				'Wmap',
+				'get',
+				'trace'
 			]
 
 
