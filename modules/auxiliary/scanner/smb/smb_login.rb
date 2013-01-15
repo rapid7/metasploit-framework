@@ -215,10 +215,15 @@ class Metasploit3 < Msf::Auxiliary
 						print_status(output_message % "GUEST LOGIN")
 				end
 			end
+
+			return :next_user
+
 		when *@correct_credentials_status_codes
 			print_status(output_message % "FAILED LOGIN, VALID CREDENTIALS" )
 			report_creds(domain,user,pass,false)
 			validuser_case_sensitive?(domain, user, pass)
+			return :skip_user
+
 		when 'STATUS_LOGON_FAILURE', 'STATUS_ACCESS_DENIED'
 			vprint_error(output_message % "FAILED LOGIN")
 		else
