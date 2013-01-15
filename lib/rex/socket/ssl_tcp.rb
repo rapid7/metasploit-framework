@@ -38,10 +38,14 @@ begin
 	end
 
 	#
-	# Set the SSL flag to true and call the base class's create_param routine.
+	# Set the SSL flag to true,
+	# create placeholders for client certs,
+	# call the base class's create_param routine.
 	#
 	def self.create_param(param)
 		param.ssl   = true
+		param.ssl_client_cert = nil
+		param.ssl_client_key = nil
 		Rex::Socket::Tcp.create_param(param)
 	end
 
