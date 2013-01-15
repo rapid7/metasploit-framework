@@ -174,7 +174,7 @@ module Msf::Payload::Stager
 	# Override to deal with sending the final stage in cases where
 	# {#generate_stage} is not the whole picture, such as when uploading
 	# an executable. The default is to simply attempt to create a session
-	# on the given +conn+ socket with {Handler#create_session}.
+	# on the given +conn+ socket with {Msf::Handler#create_session}.
 	#
 	# @param (see Handler#create_session)
 	# @return (see Handler#create_session)
@@ -191,6 +191,7 @@ module Msf::Payload::Stager
 	end
 
 	# Encodes the stage prior to transmission
+	# @return [String] Encoded version of +stg+
 	def encode_stage(stg)
 		return stg unless encode_stage?
 
