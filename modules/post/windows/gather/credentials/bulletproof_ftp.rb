@@ -45,17 +45,13 @@ class Metasploit3 < Msf::Post
 		end
 
 		def parse_bookmarks
-			begin
-				if not parse_header
-					return
-				end
-
-				while @contents_bookmark.length > 0
-					parse_entry
-					@contents_bookmark.slice!(0, 25) # 25 null bytes between entries
-				end
-			rescue
+			if not parse_header
 				return
+			end
+
+			while @contents_bookmark.length > 0
+				parse_entry
+				@contents_bookmark.slice!(0, 25) # 25 null bytes between entries
 			end
 		end
 
@@ -93,8 +89,10 @@ class Metasploit3 < Msf::Post
 
 		def decrypt(encrypted)
 			length = encrypted.unpack("C")[0]
+			return "" if length.nil?
 			@xor_key = length
 			encrypted = encrypted[1..length]
+			return "" if encrypted.length != length
 			decrypted = ""
 			encrypted.unpack("C*").each { |byte|
 				key = generate_xor_key
@@ -104,15 +102,11 @@ class Metasploit3 < Msf::Post
 		end
 
 		def parse_object
-			begin
-				object_length = @contents_bookmark[0,1].unpack("C")[0]
-				object = @contents_bookmark[0, object_length + 1 ]
-				@contents_bookmark.slice!(0, object_length+1)
-				content = decrypt(object)
-				return content
-			rescue
-				return ""
-			end
+			object_length = @contents_bookmark[0,1].unpack("C")[0]
+			object = @contents_bookmark[0, object_length + 1 ]
+			@contents_bookmark.slice!(0, object_length+1)
+			content = decrypt(object)
+			return content
 		end
 
 		def parse_entry
@@ -141,7 +135,8 @@ class Metasploit3 < Msf::Post
 				return false # Error!
 			end
 
-			@contents_bookmark.slice!(0, 4) # "\x01\x00\x00\x00"
+			unknown = @contents_bookmark.slice!(0, 4) # "\x01\x00\x00\x00"
+			return false unless unknown == "\x01\x00\x00\x00"
 
 			return true
 		end
