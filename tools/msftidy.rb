@@ -21,6 +21,10 @@ class String
 	def yellow
 		"\e[1;33;40m#{self}\e[0m"
 	end
+
+	def ascii_only?
+		self =~ Regexp.new('[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]', nil, 'n') ? false : true
+	end
 end
 
 class Msftidy
@@ -58,6 +62,64 @@ class Msftidy
 	# The functions below are actually the ones checking the source code
 	#
 	##
+
+	def check_ref_identifiers
+		in_super = false
+		in_refs  = false
+
+		@source.each_line do |line|
+			if !in_super and line =~ /[\n\t]+super\(/
+				in_super = true
+			elsif in_super and line =~ /[[:space:]]*def \w+[\(\w+\)]*/
+				in_super = false
+				break
+			end
+
+			if in_super and line =~ /'References'[[:space:]]*=>/
+				in_refs = true
+			elsif in_super and in_refs and line =~ /^[[:space:]]+\],*/m
+				break
+			elsif in_super and in_refs and line =~ /[^#]+\[[[:space:]]*['"](.+)['"][[:space:]]*,[[:space:]]*['"](.+)['"][[:space:]]*\]/
+				identifier = $1.strip.upcase
+				value      = $2.strip
+
+				case identifier
+				when 'CVE'
+					warn("Invalid CVE format: '#{value}'") if value !~ /^\d{4}\-\d{4}$/
+				when 'OSVDB'
+					warn("Invalid OSVDB format: '#{value}'") if value !~ /^\d+$/
+				when 'BID'
+					warn("Invalid BID format: '#{value}'") if value !~ /^\d+$/
+				when 'MSB'
+					warn("Invalid MSB format: '#{value}'") if value !~ /^MS\d+\-\d+$/
+				when 'MIL'
+					warn("milw0rm references are no longer supported.")
+				when 'EDB'
+					warn("Invalid EDB reference") if value !~ /^\d+$/
+				when 'WVE'
+					warn("Invalid WVE reference") if value !~ /^\d+\-\d+$/
+				when 'US-CERT-VU'
+					warn("Invalid US-CERT-VU reference") if value !~ /^\d+$/
+				when 'URL'
+					if value =~ /^http:\/\/www\.osvdb\.org/
+						warn("Please use 'OSVDB' for '#{value}'")
+					elsif value =~ /^http:\/\/cvedetails\.com\/cve/
+						warn("Please use 'CVE' for '#{value}'")
+					elsif value =~ /^http:\/\/www\.securityfocus\.com\/bid\//
+						warn("Please use 'BID' for '#{value}'")
+					elsif value =~ /^http:\/\/www\.microsoft\.com\/technet\/security\/bulletin\//
+						warn("Please use 'MSB' for '#{value}'")
+					elsif value =~ /^http:\/\/www\.exploit\-db\.com\/exploits\//
+						warn("Please use 'EDB' for '#{value}'")
+					elsif value =~ /^http:\/\/www\.wirelessve\.org\/entries\/show\/WVE\-/
+						warn("Please use 'WVE' for '#{value}'")
+					elsif value =~ /^http:\/\/www\.kb\.cert\.org\/vuls\/id\//
+						warn("Please use 'US-CERT-VU' for '#{value}'")
+					end
+				end
+			end
+		end
+	end
 
 	def check_old_keywords
 		max_count = 10
@@ -113,7 +175,7 @@ class Msftidy
 				end
 
 				if not mod_title.ascii_only?
-					error("Please avoid unicode in module title.")
+					error("Please avoid unicode or non-printable characters in module title.")
 				end
 
 				# Since we're looking at the module title, this line clearly cannot be
@@ -126,7 +188,7 @@ class Msftidy
 			#
 			if in_super and !in_author and line =~ /'Author'[[:space:]]*=>/
 				in_author = true
-			elsif in_super and in_author and line =~ /\],*\n/
+			elsif in_super and in_author and line =~ /\],*\n/ or line =~ /['"][[:print:]]*['"][[:space:]]*=>/
 				in_author = false
 			end
 
@@ -134,14 +196,19 @@ class Msftidy
 			#
 			# While in 'Author' block, check for Twitter handles
 			#
-			if in_super and in_author and line =~ /['|"](.+)['|"]/
-				author_name = $1
+			if in_super and in_author
+				if line =~ /Author/
+					author_name = line.scan(/\[[[:space:]]*['"](.+)['"]/).flatten[-1] || ''
+				else
+					author_name = line.scan(/['"](.+)['"]/).flatten[-1] || ''
+				end
+
 				if author_name =~ /^@.+$/
 					error("No Twitter handle, please. Try leaving it in a comment instead.")
 				end
 
 				if not author_name.ascii_only?
-					error("Please avoid unicode in Author")
+					error("Please avoid unicode or non-printable characters in Author")
 				end
 			end
 		end
@@ -188,7 +255,7 @@ class Msftidy
 		return if @source =~ /Generic Payload Handler/ or @source !~ / \< Msf::Exploit/
 
 		# Check disclosure date format
-		if @source =~ /'DisclosureDate'.*\=\>[\x0d|\x20]*['|\"](.+)['|\"]/
+		if @source =~ /'DisclosureDate'.*\=\>[\x0d\x20]*['\"](.+)['\"]/
 			d = $1  #Captured date
 			# Flag if overall format is wrong
 			if d =~ /^... \d{1,2}\,* \d{4}/
@@ -209,10 +276,10 @@ class Msftidy
 	end
 
 	def check_title_casing
-		if @source =~ /'Name'[[:space:]]*=>[[:space:]]*['|"](.+)['|"],*$/
+		if @source =~ /'Name'[[:space:]]*=>[[:space:]]*['"](.+)['"],*$/
 			words = $1.split
 			words.each do |word|
-				if %w{and or the for to in of as with a an}.include?(word)
+				if %w{and or the for to in of as with a an on at}.include?(word)
 					next
 				elsif word =~ /^[a-z]+$/
 					warn("Improper capitalization in module title: '#{word}'")
@@ -322,6 +389,7 @@ end
 
 def run_checks(f_rel)
 	tidy = Msftidy.new(f_rel)
+	tidy.check_ref_identifiers
 	tidy.check_old_keywords
 	tidy.check_badchars
 	tidy.check_extname

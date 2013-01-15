@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -34,7 +30,6 @@ class Metasploit3 < Msf::Post
 					'SecurityXploded Team',  #www.SecurityXploded.com
 					'Sil3ntDre4m <sil3ntdre4m[at]gmail.com>',
 				],
-				'Version'	   => '$Revision$',
 				'Platform'	  => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -23,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'DB2 Authentication Brute Force Utility',
-			'Version'        => '$Revision$',
 			'Description'    => %q{This module attempts to authenticate against a DB2
 				instance using username and password combinations indicated by the
 				USER_FILE, PASS_FILE, and USERPASS_FILE options.},

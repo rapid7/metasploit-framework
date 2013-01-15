@@ -1,7 +1,3 @@
-##
-# $Id$
-##
-
 # nbd_server.rb
 #
 # Maps remote disks and logical volumes to a local Network Block Device
@@ -23,7 +19,6 @@ class Metasploit3 < Msf::Post
 				Allows for forensic tools to be executed on the remote disk directly.
 			},
 			'License'       => MSF_LICENSE,
-			'Version'       => '$Revision$',
 			'Platform'      => ['win'],
 			'SessionTypes'  => ['meterpreter'],
 			'Author'        => ['Wesley McGrew <wesley[at]mcgrewsecurity.com>']

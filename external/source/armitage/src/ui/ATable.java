@@ -25,6 +25,7 @@ public class ATable extends JTable {
 		specialitems.add("SigningCert");
 		specialitems.add("WORDLIST");
 		specialitems.add("SESSION");
+		specialitems.add("REXE");
 
 		return new TableCellRenderer() {
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)  {

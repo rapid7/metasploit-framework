@@ -1,4 +1,3 @@
-# $Id$
 #
 # Forensic byte-for-byte imaging of remote disks and volumes
 #
@@ -17,7 +16,6 @@ class Metasploit3 < Msf::Post
 			'Name'          => 'Windows Gather Forensic Imaging',
 			'Description'   => %q{This module will perform byte-for-byte imaging of remote disks and volumes},
 			'License'       => MSF_LICENSE,
-			'Version'       => '$Revision$',
 			'Platform'      => ['win'],
 			'SessionTypes'  => ['meterpreter'],
 			'Author'        => ['Wesley McGrew <wesley[at]mcgrewsecurity.com>']

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -19,7 +15,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Generic x86 Tight Loop',
-			'Version'       => '$Revision$',
 			'Description'   => 'Generate a tight loop in the target process',
 			'Author'        => 'jduck',
 			'Platform'	    => [ 'win', 'linux', 'bsd', 'solaris', 'bsdi', 'osx' ],
