@@ -315,8 +315,8 @@ class Core
 			driver.destack_dispatcher
 
 			# Restore the prompt
-			prompt = framework.datastore['Prompt'] || "%undmsf%clr "
-			prompt_char = framework.datastore['PromptChar'] || ">"
+			prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
+			prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
 			driver.update_prompt("#{prompt}", prompt_char, true)
 		end
 	end
@@ -2512,8 +2512,11 @@ class Core
 		orig_driver.run_single(cmd)
 		# restore original output
 		orig_driver.init_ui(orig_driver_input,orig_driver_output)
-		# @todo fix the prompt so we don't get "msf >  >".  I've tried everything to fix this... nada
-		# orig_driver.update_prompt(orig_prompt,orig_prompt_char,true) # <-- dependent on other code I added & removed
+		# restore the prompt so we don't get "msf >  >".
+		prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
+		prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
+		driver.update_prompt("#{prompt}", prompt_char, true)
+		#@todo restore the prompt context
 		# dump the command's output so we can grep it
 		cmd_output = temp_output.dump_buffer
 		# put lines into an array so we can access them more easily and split('\n') doesn't work on the output obj.
