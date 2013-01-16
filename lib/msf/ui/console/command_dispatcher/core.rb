@@ -2294,8 +2294,8 @@ class Core
 		mod.init_ui(driver.input, driver.output)
 
 		# Update the command prompt
-		prompt = framework.datastore['Prompt'] || "%undmsf%clr "
-		prompt_char = framework.datastore['PromptChar'] || ">"
+		prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
+		prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
 		driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr) ", prompt_char, true)
 	end
 
@@ -2515,8 +2515,13 @@ class Core
 		# restore the prompt so we don't get "msf >  >".
 		prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
 		prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-		driver.update_prompt("#{prompt}", prompt_char, true)
-		#@todo restore the prompt context
+		mod = active_module
+		if mod # if there is an active module, give them the fanciness they have come to expect
+			driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr) ", prompt_char, true)
+		else
+			driver.update_prompt("#{prompt}", prompt_char, true)
+		end
+
 		# dump the command's output so we can grep it
 		cmd_output = temp_output.dump_buffer
 		# put lines into an array so we can access them more easily and split('\n') doesn't work on the output obj.
@@ -2895,7 +2900,7 @@ protected
 			[ 'MinimumRank', framework.datastore['MinimumRank'] || '', 'The minimum rank of exploits that will run without explicit confirmation' ],
 			[ 'SessionLogging', framework.datastore['SessionLogging'] || '', 'Log all input and output for sessions' ],
 			[ 'TimestampOutput', framework.datastore['TimestampOutput'] || '', 'Prefix all console output with a timestamp' ],
-			[ 'Prompt', framework.datastore['Prompt'] || '', 'The prompt string, defaults to "%undmsf%clr"' ],
+			[ 'Prompt', framework.datastore['Prompt'] || '', 'The prompt string, defaults to "#{Msf::Ui::Console::Driver::DefaultPrompt}"' ],
 			[ 'PromptChar', framework.datastore['PromptChar'] || '', 'The prompt character, defaults to ">"' ],
 			[ 'PromptTimeFormat', framework.datastore['PromptTimeFormat'] || '', 'A format for timestamp escapes in the prompt, see ruby\'s strftime docs' ],
 		].each { |r| tbl << r }
