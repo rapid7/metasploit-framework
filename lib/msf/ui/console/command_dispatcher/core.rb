@@ -2454,7 +2454,7 @@ class Core
 					# limit to arg matches
 					match_mods[:max] = val.to_i
 					# delete opt and val from args list
-					args.shift(s)
+					args.shift(2)
 				when "-A"
 					# also return arg lines after a match
 					output_mods[:after] = val.to_i
