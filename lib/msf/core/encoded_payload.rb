@@ -41,6 +41,7 @@ class EncodedPayload
 	# This method generates the full encoded payload and returns the encoded
 	# payload buffer.
 	#
+	# @return [String] The encoded payload.
 	def generate(raw = nil)
 		self.raw           = raw
 		self.encoded       = nil
@@ -86,8 +87,9 @@ class EncodedPayload
 
 	#
 	# Generates the raw payload from the payload instance.  This populates the
-	# raw attribute.
+	# {#raw} attribute.
 	#
+	# @return [String] The raw, unencoded payload.
 	def generate_raw
 		self.raw = (reqs['Prepend'] || '') + pinst.generate + (reqs['Append'] || '')
 
@@ -216,7 +218,7 @@ class EncodedPayload
 			# If the encoded payload is nil, raise an exception saying that we
 			# suck at life.
 			if (self.encoded == nil)
-				encoder = nil
+				self.encoder = nil
 
 				raise NoEncodersSucceededError,
 					"#{pinst.refname}: All encoders failed to encode.",
