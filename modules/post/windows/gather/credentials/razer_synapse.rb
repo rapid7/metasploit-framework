@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
 					This module will enumerate passwords stored by the Razer Synapse
 					client. The encryption key and iv is publicly known. This module
 					will not only extract encrypted password but will also decrypt
-					password using public key. Affects version 1.7.15 and earlier. 
+					password using public key. Affects version 1.7.15 and earlier.
 				},
 			'License'        => MSF_LICENSE,
 			'Author'         =>
@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
 					'Brandon McCann "zeknox" <bmccann[at]accuvant.com>'
 				],
 			'SessionTypes'   => [ 'meterpreter' ],
-			'Platform'      => [ 'win' ],	
+			'Platform'      => [ 'win' ],
 
 		))
 	end
