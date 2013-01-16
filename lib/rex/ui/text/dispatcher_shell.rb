@@ -273,7 +273,7 @@ module DispatcherShell
 	# a design problem in the Readline module and depends on the
 	# Readline.basic_word_break_characters variable being set to \x00
 	#
-	def tab_complete(str, previous_words = [])
+	def tab_complete(str)
 		# Check trailing whitespace so we can tell 'x' from 'x '
 		str_match = str.match(/\s+$/)
 		str_trail = (str_match.nil?) ? '' : str_match[0]
@@ -288,13 +288,13 @@ module DispatcherShell
 		self.tab_words = str_words
 
 		# Pop the last word and pass it to the real method
-		tab_complete_stub(self.tab_words.pop, previous_words)
+		tab_complete_stub(self.tab_words.pop)
 	end
 
 	# Performs tab completion of a command, if supported
 	# Current words can be found in self.tab_words
 	#
-	def tab_complete_stub(str, previous_words = [])
+	def tab_complete_stub(str)
 		items = []
 
 		return nil if not str
@@ -339,9 +339,9 @@ module DispatcherShell
 		# Match based on the partial word
 		items.find_all { |e|
 			e =~ /^#{str}/
-		# Prepend the rest of the command, and all previous_words (or it all gets replaced!)
+		# Prepend the rest of the command (or it all gets replaced!)
 		}.map { |e|
-			(previous_words + tab_words).push(e).join(' ')
+			tab_words.dup.push(e).join(' ')
 		}
 	end
 
