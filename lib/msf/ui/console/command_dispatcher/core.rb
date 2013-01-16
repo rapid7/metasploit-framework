@@ -2524,6 +2524,12 @@ class Core
 
 		# dump the command's output so we can grep it
 		cmd_output = temp_output.dump_buffer
+
+		# Bail if the command failed
+		if cmd_output =~ /Unknown command:/
+			print_error("Unknown command: #{args[0]}.")
+			return false
+		end
 		# put lines into an array so we can access them more easily and split('\n') doesn't work on the output obj.
 		all_lines = cmd_output.lines.select {|line| line}
 		# control matching based on remaining match_mods (:insensitive was already handled)
