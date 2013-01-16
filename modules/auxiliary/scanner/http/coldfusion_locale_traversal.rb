@@ -103,55 +103,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		trav = datas+	def fingerprint(response)
-
-		if(response.headers.has_key?('Server') )
-			if(response.headers['Server'] =~ /IIS/ or response.headers['Server'] =~ /\(Windows/)
-				os = "Windows (#{response.headers['Server']})"
-			elsif(response.headers['Server'] =~ /Apache\//)
-					os = "Unix (#{response.headers['Server']})"
-			else
-				os = response.headers['Server']
-			end
-		end
-
-		return nil if response.body.length < 100
-
-		title = "Not Found"
-		response.body.gsub!(/[\r\n]/, '')
-		if(response.body =~ /<title.*\/?>(.+)<\/title\/?>/i)
-			title = $1
-			title.gsub!(/\s/, '')
-		end
-		return nil  if( title == 'Not Found' or not title =~ /ColdFusionAdministrator/)
-
-		out = nil
-
-		if(response.body =~ />\s*Version:\s*(.*)<\/strong\><br\s\//)
-			v = $1
-			out = (v =~ /^6/) ? "Adobe ColdFusion MX6 #{v}" : "Adobe ColdFusion MX7 #{v}"
-		elsif(response.body =~ /<meta name=\"Author\" content=\"Copyright 1995-2012 Adobe/ and response.body =~ /Administrator requires a browser that supports frames/ )
-			out = "Adobe ColdFusion MX7"
-		elsif(response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995-2006 Adobe/)
-			out = "Adobe ColdFusion 8"
-		elsif(response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995-2010 Adobe/ or
-			response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995\-2009 Adobe Systems\, Inc\. All rights reserved/)
-			out = "Adobe ColdFusion 9"
-		elsif(response.body =~ /<meta name=\"Keywords\" content=\"(.*)\">\s+<meta name/)
-			out = $1.split(/,/)[0]
-		else
-			out = 'Unknown ColdFusion'
-		end
-
-		if(title.downcase == 'coldfusionadministrator')
-			out << " (administrator access)"
-		end
-
-		out << " (#{os})"
-		return out
-	end
-
-tore['FILE']
+		trav = datastore['FILE']
 
 		if(trav == '' or datastore['FINGERPINT'])
 		# the user did not specify what they wanted, fingerprint, go after password.properties
