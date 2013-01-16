@@ -780,7 +780,7 @@ class Core
 	# @param str [String] the string currently being typed before tab was hit
 	# @param words [Array<String>] the previously completed words on the command line.  words is always
 	# at least 1 when tab completion has reached this stage since the command itself has been completed
-	
+
 	def cmd_jobs_tabs(str, words)
 		if words.length == 1
 			return @@jobs_opts.fmt.keys
@@ -810,7 +810,7 @@ class Core
 	# @param str [String] the string currently being typed before tab was hit
 	# @param words [Array<String>] the previously completed words on the command line.  words is always
 	# at least 1 when tab completion has reached this stage since the command itself has been completed
-	
+
 	def cmd_kill_tabs(str, words)
 		return [] if words.length > 1
 		framework.jobs.keys
@@ -932,7 +932,7 @@ class Core
 	# @param str [String] the string currently being typed before tab was hit
 	# @param words [Array<String>] the previously completed words on the command line.  words is always
 	# at least 1 when tab completion has reached this stage since the command itself has been completed
-	
+
 	def cmd_threads_tabs(str, words)
 		if words.length == 1
 			return @@threads_opts.fmt.keys
@@ -1012,7 +1012,7 @@ class Core
 	# @param str [String] the string currently being typed before tab was hit
 	# @param words [Array<String>] the previously completed words on the command line.  words is always
 	# at least 1 when tab completion has reached this stage since the command itself has been completed
-	
+
 	def cmd_load_tabs(str, words)
 		tabs = []
 
@@ -1175,7 +1175,7 @@ class Core
 	# @param str [String] the string currently being typed before tab was hit
 	# @param words [Array<String>] the previously completed words on the command line.  words is always
 	# at least 1 when tab completion has reached this stage since the command itself has been completed
-	
+
 	def cmd_route_tabs(str, words)
 		if words.length == 1
 			return %w{add remove get flush print}
@@ -1304,7 +1304,7 @@ class Core
 	# @param str [String] the string currently being typed before tab was hit
 	# @param words [Array<String>] the previously completed words on the command line.  words is always
 	# at least 1 when tab completion has reached this stage since the command itself has been completed
-	
+
 	def cmd_loadpath_tabs(str, words)
 		return [] if words.length > 1
 
@@ -1429,7 +1429,7 @@ class Core
 	# @param str [String] the string currently being typed before tab was hit
 	# @param words [Array<String>] the previously completed words on the command line.  words is always
 	# at least 1 when tab completion has reached this stage since the command itself has been completed
-	
+
 	def cmd_search_tabs(str, words)
 		if words.length == 1
 			return @@search_opts.fmt.keys
@@ -1748,7 +1748,7 @@ class Core
 	# @param str [String] the string currently being typed before tab was hit
 	# @param words [Array<String>] the previously completed words on the command line.  words is always
 	# at least 1 when tab completion has reached this stage since the command itself has been completed
-	
+
 	def cmd_sessions_tabs(str, words)
 		if words.length == 1
 			return @@sessions_opts.fmt.keys
@@ -1873,7 +1873,7 @@ class Core
 	# @param str [String] the string currently being typed before tab was hit
 	# @param words [Array<String>] the previously completed words on the command line.  words is always
 	# at least 1 when tab completion has reached this stage since the command itself has been completed
-	
+
 	def cmd_set_tabs(str, words)
 
 		# A value has already been specified
@@ -1958,7 +1958,7 @@ class Core
 	# @param str [String] the string currently being typed before tab was hit
 	# @param words [Array<String>] the previously completed words on the command line.  words is always
 	# at least 1 when tab completion has reached this stage since the command itself has been completed
-	
+
 	def cmd_setg_tabs(str, words)
 		cmd_set_tabs(str, words)
 	end
@@ -2058,7 +2058,7 @@ class Core
 	# @param str [String] the string currently being typed before tab was hit
 	# @param words [Array<String>] the previously completed words on the command line.  words is always
 	# at least 1 when tab completion has reached this stage since the command itself has been completed
-	
+
 	def cmd_show_tabs(str, words)
 		return [] if words.length > 1
 
@@ -2107,7 +2107,7 @@ class Core
 	# @param str [String] the string currently being typed before tab was hit
 	# @param words [Array<String>] the previously completed words on the command line.  words is always
 	# at least 1 when tab completion has reached this stage since the command itself has been completed
-	
+
 	def cmd_unload_tabs(str, words)
 		return [] if words.length > 1
 
@@ -2184,7 +2184,7 @@ class Core
 	# @param str [String] the string currently being typed before tab was hit
 	# @param words [Array<String>] the previously completed words on the command line.  words is always
 	# at least 1 when tab completion has reached this stage since the command itself has been completed
-	
+
 	def cmd_unset_tabs(str, words)
 		datastore = active_module ? active_module.datastore : self.framework.datastore
 		datastore.keys
@@ -2212,7 +2212,7 @@ class Core
 	# @param str [String] the string currently being typed before tab was hit
 	# @param words [Array<String>] the previously completed words on the command line.  words is always
 	# at least 1 when tab completion has reached this stage since the command itself has been completed
-	
+
 	def cmd_unsetg_tabs(str, words)
 		self.framework.datastore.keys
 	end
@@ -2347,7 +2347,7 @@ class Core
 	# @param str [String] the string currently being typed before tab was hit
 	# @param words [Array<String>] the previously completed words on the command line.  words is always
 	# at least 1 when tab completion has reached this stage since the command itself has been completed
-	
+
 	def cmd_pushm_tabs(str, words)
 		tab_complete_module(str, words)
 	end
@@ -2403,8 +2403,8 @@ class Core
 	#
 	# @param str [String] the string currently being typed before tab was hit
 	# @param words [Array<String>] the previously completed words on the command line.  words is always
-	# at least 1 when tab completion has reached this stage since the command itself has been completed
-	
+	# at least 1 when tab completion has reached this stage since the command itself has been completd
+
 	def cmd_use_tabs(str, words)
 		return [] if words.length > 1
 
@@ -2438,9 +2438,9 @@ class Core
 	# Greps the output of another console command, usage is similar the shell grep command
 	# grep [options] pattern other_cmd [other command's args], similar to the shell's grep [options] pattern file
 	# however it also includes -k to keep lines and -s to skip lines.  grep -k 5 is useful for keeping table headers
-	# 
+	#
 	# @param args [Array<String>] Args to the grep command minimally including a pattern & a command to search
-	# @return [String,nil] Results matching the regular expression given 
+	# @return [String,nil] Results matching the regular expression given
 
 	def cmd_grep(*args)
 		return cmd_grep_help if args.length < 2
@@ -2507,7 +2507,7 @@ class Core
 		def temp_output.write(msg = '')
 			self.print_raw(msg)
 		end
-		orig_driver.init_ui(orig_driver_input,temp_output) 
+		orig_driver.init_ui(orig_driver_input,temp_output)
 		# run the desired command to be grepped
 		orig_driver.run_single(cmd)
 		# restore original output
@@ -2534,11 +2534,11 @@ class Core
 		all_lines = cmd_output.lines.select {|line| line}
 		# control matching based on remaining match_mods (:insensitive was already handled)
 		if match_mods[:invert]
-			statement = 'not line =~ rx' 
+			statement = 'not line =~ rx'
 		else
 			statement = 'line =~ rx'
 		end
-		
+
 		our_lines = []
 		count = 0
 		all_lines.each_with_index do |line, line_num|
@@ -2546,7 +2546,7 @@ class Core
 			our_lines << line if (output_mods[:keep] and line_num < output_mods[:keep])
 			# we don't wan't to keep processing if we have a :max and we've reached it already (not counting skips/keeps)
 			break if match_mods[:max] and count >= match_mods[:max]
-			if eval statement 
+			if eval statement
 				count += 1
 				# we might get a -A/after and a -B/before at the same time
 				our_lines += retrieve_grep_lines(all_lines,line_num,output_mods[:before], output_mods[:after])
@@ -2564,13 +2564,13 @@ class Core
 	# @param str [String] the string currently being typed before tab was hit
 	# @param words [Array<String>] the previously completed words on the command line.  words is always
 	# at least 1 when tab completion has reached this stage since the command itself has been completed
-	
+
 	def cmd_grep_tabs(str, words)
 		tabs = @@grep_opts.fmt.keys || [] # default to use grep's options
 		# if not an opt, use normal tab comp.
 		# @todo uncomment out next line when tab_completion normalization is complete RM7649 or
 		# replace with new code that permits "nested" tab completion
-		# tabs = driver.get_all_commands if (str and str =~ /\w/) 
+		# tabs = driver.get_all_commands if (str and str =~ /\w/)
 		tabs
 	end
 
