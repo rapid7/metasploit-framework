@@ -15,7 +15,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Authentication Capture: MySQL',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module provides a fake MySQL service that is designed to
 				capture authentication credentials. It captures	challenge and

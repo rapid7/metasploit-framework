@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
-		base = target_uri.path
+		base = normalize_uri(target_uri.path)
 		base << '/' if base[-1,1] != '/'
 
 		peer = "#{ip}:#{rport}"

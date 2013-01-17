@@ -1,7 +1,3 @@
-##
-# $Id$
-##
-
 
 ##
 # This file is part of the Metasploit Framework and may be subject to
@@ -38,7 +34,6 @@ class Metasploit3 < Msf::Post
 						'hdm', #Helped write the Decryption Routine
 						'mubix' #Helped write the Decryption Routine
 					],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))

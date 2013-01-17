@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{ This module reverse resolves a range or IP to a hostname},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'mubix' ],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))

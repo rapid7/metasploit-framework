@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -24,7 +20,6 @@ class Metasploit3 < Msf::Post
 			'Description'    => %q{ This module will collect credentials from the FileZilla FTP server if installed. },
 			'License'        => MSF_LICENSE,
 			'Author'         => ['bannedit'],
-			'Version'        => '$Revision$',
 			'Platform'       => ['win'],
 			'SessionTypes'   => ['meterpreter' ]
 		))
@@ -211,7 +206,7 @@ class Metasploit3 < Msf::Post
 				:target_port => config['admin_port']
 			)
 		end
-		
+
 		p = store_loot("filezilla.server.creds", "text/csv", session, credentials.to_csv,
 			"filezilla_server_credentials.csv", "FileZilla FTP Server Credentials")
 

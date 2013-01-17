@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -36,8 +32,7 @@ require 'cgi'
 
 					},
 				'Author' 		=> [ 'et [at] cyberspace.org' ],
-				'License'		=> BSD_LICENSE,
-				'Version'		=> '$Revision$'))
+				'License'		=> BSD_LICENSE))
 
 			register_options(
 			[
@@ -85,7 +80,7 @@ require 'cgi'
 
 				begin
 					noexistsres = send_request_cgi({
-						'uri'  		=>  datastore['PATH'],
+						'uri'  		=>  normalize_uri(datastore['PATH']),
 						'vars_get' 	=>  tquery,
 						'headers' 	=>  thead,
 						'vhost'		=>  randhost,
@@ -115,7 +110,7 @@ require 'cgi'
 
 				begin
 					res = send_request_cgi({
-						'uri'  		=>  datastore['PATH'],
+						'uri'  		=>  normalize_uri(datastore['PATH']),
 						'vars_get' 	=>  tquery,
 						'headers' 	=>  thead,
 						'vhost'		=>  thost,

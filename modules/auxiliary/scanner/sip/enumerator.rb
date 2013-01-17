@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -21,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SIP Username Enumerator (UDP)',
-			'Version'     => '$Revision$',
 			'Description' => 'Scan for numeric username/extensions using OPTIONS/REGISTER requests',
 			'Author'      => 'et',
 			'License'     => MSF_LICENSE

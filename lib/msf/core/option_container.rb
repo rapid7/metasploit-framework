@@ -302,6 +302,10 @@ class OptPort < OptBase
 		return 'port'
 	end
 
+	def normalize(value)
+		value.to_i
+	end
+
 	def valid?(value)
 		return false if empty_required_value?(value)
 
@@ -439,9 +443,10 @@ class OptInt < OptBase
 	end
 
 	def valid?(value)
+		return super if !required? and value.to_s.empty?
 		return false if empty_required_value?(value)
 
-		if value and not normalize(value).to_s.match(/^\d+$/)
+		if value and not value.to_s.match(/^0x[0-9a-fA-F]+$|^-?\d+$/)
 			return false
 		end
 
@@ -469,7 +474,7 @@ class OptRegexp < OptBase
 			Regexp.compile(value)
 
 			return true
-		rescue RegexpError => e
+		rescue RegexpError
 			return false
 		end
 	end
