@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 		vprint_status("#{ip} - Enumerating XML-RPC URI...")
 
 		begin
-			
+
 			uri = target_uri.path
 			uri << '/' if uri[-1,1] != '/'
 
