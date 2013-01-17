@@ -103,7 +103,8 @@ class OptsConsole
 
 			opts.on("-x", "-x <command>", "Execute the specified string as console commands (use ; for multiples)") do |s|
 				options['XCommands'] ||= []
-				options['XCommands'] += s.split(/\s*;\s*/)
+				require 'rex/parser/generic_with_escape'
+				options['XCommands'] += ::Rex::Parser::GenericWithEscapeParser.new(s,';','\\').parse
 			end
 
 			opts.separator ""
@@ -132,7 +133,7 @@ options = OptsConsole.parse(ARGV)
 # NOTE: we don't require this until down here since we may not need it
 # when processing certain options (currently only -h)
 #
-require 'rex'
+#require 'rex'
 require 'msf/ui'
 
 #
