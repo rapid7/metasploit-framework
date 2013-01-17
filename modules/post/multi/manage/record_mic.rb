@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Post
 		if data
 			print_status("#{rhost} - Audio size: (#{data.length.to_s} bytes)")
 			p = store_loot(
-				"#{rhost}.webcam.snapshot",
+				"#{rhost}.audio",
 				'application/octet-stream',
 				rhost,
 				data,
