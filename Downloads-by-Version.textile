@@ -37,7 +37,7 @@ h1. Metasploit Combined Installers
 h1. Metasploit Framework Installers
 
 |Download Link|File Type|SHA1|PGP|
-| "framework-4.5.1.tar.bz2":http://downloads.metasploit.com/data/releases/archive/framework-4.5.1.tar.bz2 | Source Code | b6cd7236b810e6f84332b3b35bcc844a1974d12d | "PGP":http://downloads.metasploit.com/data/releases/framework-4.5.0.tar.bz2.asc|
+| "framework-4.5.1.tar.bz2":http://downloads.metasploit.com/data/releases/archive/framework-4.5.1.tar.bz2 | Source Code | d6e6fed2015a250c4ea4024cf8799bff9205a1ef | "PGP":http://downloads.metasploit.com/data/releases/framework-4.5.0.tar.bz2.asc|
 | "framework-4.5.0.tar.bz2":http://downloads.metasploit.com/data/releases/archive/framework-4.5.0.tar.bz2 | Source Code | 13c3e4ef5265ecb5b6303d39ca1347982b782886 | "PGP":http://downloads.metasploit.com/data/releases/framework-4.5.0.tar.bz2.asc|
 | "framework-4.4.0.tar.bz2":http://downloads.metasploit.com/data/releases/archive/framework-4.4.0.tar.bz2 | Source Code | 4188c1727364fff857ff1a58cb3f95a5f376cfb1 | "PGP":http://downloads.metasploit.com/data/releases/archive/framework-4.4.0.tar.bz2.asc|
 | "framework-4.3.0.tar.bz2":http://downloads.metasploit.com/data/releases/archive/framework-4.3.0.tar.bz2 | Source Code | 45eea26b27ffe5bcd2dc25888bad897fcdd35bfb | "PGP":http://downloads.metasploit.com/data/releases/archive/framework-4.3.0.tar.bz2.asc|
