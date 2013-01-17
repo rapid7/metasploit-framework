@@ -4869,6 +4869,7 @@ class DBManager
 	# If you have Nokogiri installed, you'll be shunted over to
 	# that. Otherwise, you'll hit the old NmapXMLStreamParser.
 	def import_nmap_xml(args={}, &block)
+		return nil if args[:data].nil? or args[:data].empty?
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
