@@ -89,10 +89,10 @@ class Metasploit3 < Msf::Post
 		'Indent'    => 1,
 		'Columns'   =>
 		[
-			"Host",
-			"Port",
 			"User",
 			"Password",
+			"Host",
+			"Port",
 			"SSL"
 		])
 
@@ -105,15 +105,14 @@ class Metasploit3 < Msf::Post
 			"User",
 			"Dir",
 			"FileRead",
-			"FileWrite",
 			"FileDelete",
 			"FileAppend",
 			"DirCreate",
 			"DirDelete",
 			"DirList",
 			"DirSubdirs",
-			"AutoCreate",
-			"Home"
+			"Home",
+			"AutoCreate"
 		])
 
 		configuration = Rex::Ui::Text::Table.new(
