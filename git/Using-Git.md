@@ -17,7 +17,7 @@ github.com/rapid7/metasploit-framework --> fork --> github.com/<...>/metasploit-
     ^                                                          |
     |                               git clone git://github.com/<...>/metasploit-framework.git
     |                                                          |
-     `-- accepted <-- pull request                             V
+    `-- accepted <-- pull request                              V
                       ^                        /home/<...>/repo/metasploit-framework
                       |                                |              |          |
    github.com/<...>/metasploit-framework/branch_xyz    |              |          |
