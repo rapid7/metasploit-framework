@@ -16,11 +16,13 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 			'Name'          => 'Multi Manage Record Microphone',
 			'Description'   => %q{
-				This module will enable and record your target's microphone.
+					This module will enable and record your target's microphone.
+				For non-Windows targets, please use Java meterpreter to be
+				able to use this feature.
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'sinn3r'],
-			'Platform'      => [ 'win'],
+			'Platform'      => [ 'win', 'linux', 'osx' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 
