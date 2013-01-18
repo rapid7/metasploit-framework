@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'rex/parser/generic_with_escape'
 require 'rex/ui'
 require 'pp'
 
@@ -363,6 +364,26 @@ module DispatcherShell
 		end
 
 		return items
+	end
+
+	#
+	# Runs multiple command lines
+	#
+	def run_multiple(line, separator = ';', escape_char = '\\')
+		line.gsub!(/(\r|\n)/, '')
+
+		lines = []
+		begin
+			# check for a multiline line (lines with cmd;other_cmd)
+			lines = Rex::Parser::GenericWithEscape.new(line, separator, escape_char).parse
+		rescue ::ArgumentError
+			print_error("Parse error: #{$!}")
+		end
+		all_found = true
+		lines.each do |aline|
+			all_found = false if not run_single(aline)
+		end
+		return all_found
 	end
 
 	#

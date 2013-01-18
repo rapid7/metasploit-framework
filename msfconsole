@@ -102,9 +102,7 @@ class OptsConsole
 			end
 
 			opts.on("-x", "-x <command>", "Execute the specified string as console commands (use ; for multiples)") do |s|
-				options['XCommands'] ||= []
-				require 'rex/parser/generic_with_escape'
-				options['XCommands'] += ::Rex::Parser::GenericWithEscapeParser.new(s,';','\\').parse
+				options['XCommands'] = s
 			end
 
 			opts.separator ""

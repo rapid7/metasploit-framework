@@ -2,8 +2,7 @@
 module Rex
 module Parser
 
-
-class GenericWithEscapeParser
+class GenericWithEscape
 
 	attr_reader :items
 	attr_reader :sep
