@@ -38,14 +38,14 @@ class Console::CommandDispatcher::Stdapi::Sys
 	#
 	@@reboot_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help menu."                                              ],
-		"-f" => [ true,  "Force a reboot, valid values [1|2]"        			   ])
+		"-f" => [ true,  "Force a reboot, valid values [1|2]"                      ])
 
 	#
 	# Options used by the 'shutdown' command.
 	#
 	@@shutdown_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help menu."                                              ],
-		"-f" => [ true,  "Force a shutdown, valid values [1|2]"        			   ])
+		"-f" => [ true,  "Force a shutdown, valid values [1|2]"                    ])
 
 	#
 	# Options used by the 'reg' command.
@@ -330,7 +330,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 	# @param pids [Array<String>] The pids to validate
 	# @param allow_pid_0 [Boolean] whether to consider a pid of 0 as valid
 	# @param allow_session_pid [Boolean] whether to consider a pid = the current session pid as valid
-	# @return [Array] Returns an array of valid pids 
+	# @return [Array] Returns an array of valid pids
 
 	def validate_pids(pids, allow_pid_0 = false, allow_session_pid = false)
 
@@ -797,7 +797,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 			return true
 		end
 
-		continue = args.delete("-c") || false 
+		continue = args.delete("-c") || false
 		resume = args.delete("-r") || false
 
 		# validate all the proposed pids first so we can bail if one is bogus
