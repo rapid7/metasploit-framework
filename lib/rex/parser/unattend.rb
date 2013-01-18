@@ -3,6 +3,12 @@
 
 module Rex
 module Parser
+
+# This is a parser for the Windows Unattended Answer File
+# format. It's used by modules/post/windows/gather/enum_unattend.rb
+# and uses REXML (as opposed to Nokogiri) for its XML parsing.
+# See: http://technet.microsoft.com/en-us/library/ff715801
+#      http://technet.microsoft.com/en-us/library/cc749415(v=ws.10).aspx
 class Unattend
 
 	def self.parse(xml)
