@@ -245,7 +245,7 @@ module Shell
 			end
 
 			if mode
-			  new_prompt = prompt + (new_prompt_char || prompt_char) + ' '
+				new_prompt = prompt + (new_prompt_char || prompt_char) + ' '
 			end
 
 			# Save the prompt before any substitutions
