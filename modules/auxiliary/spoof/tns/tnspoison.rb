@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			print_status("Sending register packet with SID %s to redirect to %s:%s\n." % [datastore["SID"],
 				datastore["DHOST"], datastore["DPORT"]])
-			if !send_register(datastore["SID"], datastore["DPORT"])
+			if !send_register(datastore["SID"], datastore["DHOST"], datastore["DPORT"])
 				print_error("Something wrong with the register packet!\n")
 			end
 			print_status("Wait for 10 seconds.\n")
