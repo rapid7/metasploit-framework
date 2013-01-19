@@ -2966,6 +2966,7 @@ class DBManager
 
 	# Boils down the validate_import_file to a boolean
 	def validate_import_file(data)
+		return false if data.nil? or data.empty?
 		begin
 			import_filetype_detect(data)
 		rescue DBImportError
@@ -2978,6 +2979,7 @@ class DBManager
 	# Imports Nikto scan data from -Format xml as notes.
 	#
 	def import_nikto_xml(args={}, &block)
+		return nil if args[data].nil? or args[data].empty?
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -3037,11 +3039,13 @@ class DBManager
 		data = ""
 		::File.open(filename, 'rb') do |f|
 			data = f.read(f.stat.size)
-    		end
+    	end
+		return nil if data.nil? or data.empty?
 		import_wapiti_xml(args.merge(:data => data))
 	end
 
 	def import_wapiti_xml(args={}, &block)
+		return nil if args[data].nil? or args[data].empty?
 		if block
 			doc = Rex::Parser::WapitiDocument.new(args,framework.db) {|type, data| yield type,data }
 		else
@@ -3059,10 +3063,12 @@ class DBManager
 		::File.open(filename, 'rb') do |f|
 			data = f.read(f.stat.size)
 		end
+		return nil if data.nil? or data.empty?
 		import_wapiti_xml(args.merge(:data => data))
 	end
 
 	def import_openvas_new_xml(args={}, &block)
+		return nil if args[data].nil? or args[data].empty?
 		if block
 			doc = Rex::Parser::OpenVASDocument.new(args,framework.db) {|type, data| yield type,data }
 		else
@@ -3077,13 +3083,15 @@ class DBManager
 		wspace = args[:wspace] || workspace
 
 		data = PacketFu::PcapFile.new(:filename => filename)
+		return nil if data.nil? or data.empty?
 		import_libpcap(args.merge(:data => data))
 	end
 
-	# The libpcap file format is handled by PacketFu for data
-	# extraction. TODO: Make this its own mixin, and possibly
+	# The libpcap file format is handled by PacketFu for data extraction.
+	# @todo Make this its own mixin, and possibly
 	# extend PacketFu to do better stream analysis on the fly.
 	def import_libpcap(args={}, &block)
+		return nil if args[data].nil? or args[data].empty?
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -3251,6 +3259,7 @@ class DBManager
 	end
 
 	def import_spiceworks_csv(args={}, &block)
+		return nil if args[data].nil? or args[data].empty?
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -3310,6 +3319,7 @@ class DBManager
 	# as "\x20". Blank usernames or passwords should be <BLANK>.
 	#
 	def import_msf_pwdump(args={}, &block)
+		return nil if args[data].nil? or args[data].empty?
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -3390,7 +3400,7 @@ class DBManager
 	#
 	# Nexpose Simple XML
 	#
-	# XXX At some point we'll want to make this a stream parser for dealing
+	# @todo At some point we'll want to make this a stream parser for dealing
 	# with large results files
 	#
 	def import_nexpose_simplexml_file(args={})
@@ -3401,6 +3411,7 @@ class DBManager
 		::File.open(filename, 'rb') do |f|
 			data = f.read(f.stat.size)
 		end
+		return nil if data.nil? or data.empty?
 		import_nexpose_simplexml(args.merge(:data => data))
 	end
 
@@ -3413,6 +3424,7 @@ class DBManager
 		::File.open(filename, 'rb') do |f|
 			data = f.read(f.stat.size)
 		end
+		return nil if data.nil? or data.empty?
 		import_msf_xml(args.merge(:data => data))
 	end
 
@@ -3422,8 +3434,9 @@ class DBManager
 	# obvious reasons). In the event directories exist, they will
 	# be reused. If target files exist, they will be overwritten.
 	#
-	# XXX: Refactor so it's not quite as sanity-blasting.
+	# @todo Refactor so it's not quite as sanity-blasting.
 	def import_msf_zip(args={}, &block)
+		return nil if args[:data].nil? or args[:data].empty?
 		data = args[:data]
 		wpsace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -3492,9 +3505,10 @@ class DBManager
 	end
 
 	# Imports loot, tasks, and reports from an MSF ZIP report.
-	# XXX: This function is stupidly long. It needs to be refactored.
+	# @todo This function is stupidly long. It needs to be refactored.
 	def import_msf_collateral(args={}, &block)
 		data = ::File.open(args[:filename], "rb") {|f| f.read(f.stat.size)}
+		return nil if data.nil? or data.empty?
 		wspace = args[:wspace] || args['wspace'] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 		basedir = args[:basedir] || args['basedir'] || ::File.join(Msf::Config.install_root, "data", "msf")
@@ -3669,10 +3683,10 @@ class DBManager
 
 	end
 
-	# For each host, step through services, notes, and vulns, and import
-	# them.
-	# TODO: loot, tasks, and reports
+	# For each host, step through services, notes, and vulns, and import them.
+	# @todo: loot, tasks, and reports
 	def import_msf_xml(args={}, &block)
+		return nil if args[:data].nil? or args[:data].empty?
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -4131,6 +4145,7 @@ class DBManager
 		::File.open(filename, 'rb') do |f|
 			data = f.read(f.stat.size)
 		end
+		return nil if data.nil? or data.empty?
 		import_nexpose_rawxml(args.merge(:data => data))
 	end
 
@@ -4346,11 +4361,13 @@ class DBManager
 		::File.open(filename, 'rb') do |f|
 			data = f.read(f.stat.size)
 		end
+		return nil if data.nil? or data.empty?
 		import_retina_xml(args.merge(:data => data))
 	end
 
 	# Process Retina XML
 	def import_retina_xml(args={}, &block)
+		return nil if args[:data].nil? or args[:data].empty?
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -4437,6 +4454,7 @@ class DBManager
 		::File.open(filename, 'rb') do |f|
 			data = f.read(f.stat.size)
 		end
+		return nil if data.nil? or data.empty?
 		import_netsparker_xml(args.merge(:data => data))
 	end
 
@@ -4814,6 +4832,7 @@ class DBManager
 	end
 
 	def import_fusionvm_xml(args={})
+		return nil if args[:data].nil? or args[:data].empty?
 		args[:wspace] ||= workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 		doc = Rex::Parser::FusionVMDocument.new(args,self)
@@ -4833,10 +4852,12 @@ class DBManager
 		::File.open(filename, 'rb') do |f|
 			data = f.read(f.stat.size)
 		end
+		return nil if data.nil? or data.empty?
 		import_nmap_xml(args.merge(:data => data))
 	end
 
 	def import_nexpose_raw_noko_stream(args, &block)
+		return nil if args[:data].nil? or args[:data].empty?
 		if block
 			doc = Rex::Parser::NexposeRawDocument.new(args,framework.db) {|type, data| yield type,data }
 		else
@@ -4847,6 +4868,7 @@ class DBManager
 	end
 
 	def import_nexpose_noko_stream(args, &block)
+		return nil if args[:data].nil? or args[:data].empty?
 		if block
 			doc = Rex::Parser::NexposeSimpleDocument.new(args,framework.db) {|type, data| yield type,data }
 		else
@@ -4857,6 +4879,7 @@ class DBManager
 	end
 
 	def import_nmap_noko_stream(args, &block)
+		return nil if args[:data].nil? or args[:data].empty?
 		if block
 			doc = Rex::Parser::NmapDocument.new(args,framework.db) {|type, data| yield type,data }
 		else
@@ -5157,12 +5180,14 @@ class DBManager
 		::File.open(filename, 'rb') do |f|
 			data = f.read(f.stat.size)
 		end
+		return nil if data.nil? or data.empty?
 		import_nessus_nbe(args.merge(:data => data))
 	end
 
 	# There is no place the NBE actually stores the plugin name used to
 	# scan. You get "Security Note" or "Security Warning," and that's it.
 	def import_nessus_nbe(args={}, &block)
+		return nil if args[data].nil? or args[data].empty?
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -5259,6 +5284,7 @@ class DBManager
 		::File.open(filename, 'rb') do |f|
 			data = f.read(f.stat.size)
 		end
+		return nil if data.nil? or data.empty?
 		import_ip360_xml_v3(args.merge(:data => data))
 	end
 
@@ -5275,6 +5301,7 @@ class DBManager
 		::File.open(filename, 'rb') do |f|
 			data = f.read(f.stat.size)
 		end
+		return nil if data.nil? or data.empty?
 
 		if data.index("NessusClientData_v2")
 			import_nessus_xml_v2(args.merge(:data => data))
@@ -5284,6 +5311,7 @@ class DBManager
 	end
 
 	def import_nessus_xml(args={}, &block)
+		return nil if args[data].nil? or args[data].empty?
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -5346,6 +5374,7 @@ class DBManager
 	end
 
 	def import_nessus_xml_v2(args={}, &block)
+		return nil if args[data].nil? or args[data].empty?
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -5438,6 +5467,7 @@ class DBManager
 	end
 
 	def import_mbsa_xml(args={}, &block)
+		return nil if args[data].nil? or args[data].empty?
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 		wspace = args[:wspace] || workspace
 		if Rex::Parser.nokogiri_loaded
@@ -5458,6 +5488,7 @@ class DBManager
 	end
 
 	def import_mbsa_noko_stream(args={},&block)
+		return nil if args[data].nil? or args[data].empty?
 		if block
 			doc = Rex::Parser::MbsaDocument.new(args,framework.db) {|type, data| yield type,data }
 		else
@@ -5468,6 +5499,7 @@ class DBManager
 	end
 
 	def import_foundstone_xml(args={}, &block)
+		return nil if args[data].nil? or args[data].empty?
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 		wspace = args[:wspace] || workspace
 		if Rex::Parser.nokogiri_loaded
@@ -5488,6 +5520,7 @@ class DBManager
 	end
 
 	def import_foundstone_noko_stream(args={},&block)
+		return nil if args[data].nil? or args[data].empty?
 		if block
 			doc = Rex::Parser::FoundstoneDocument.new(args,framework.db) {|type, data| yield type,data }
 		else
@@ -5498,6 +5531,7 @@ class DBManager
 	end
 
 	def import_acunetix_xml(args={}, &block)
+		return nil if args[data].nil? or args[data].empty?
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 		wspace = args[:wspace] || workspace
 		if Rex::Parser.nokogiri_loaded
@@ -5518,6 +5552,7 @@ class DBManager
 	end
 
 	def import_ci_xml(args={}, &block)
+		return nil if args[data].nil? or args[data].empty?
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 		wspace = args[:wspace] || workspace
 		if Rex::Parser.nokogiri_loaded
@@ -5538,6 +5573,7 @@ class DBManager
 	end
 
 	def import_acunetix_noko_stream(args={},&block)
+		return nil if args[data].nil? or args[data].empty?
 		if block
 			doc = Rex::Parser::AcunetixDocument.new(args,framework.db) {|type, data| yield type,data }
 		else
@@ -5547,8 +5583,8 @@ class DBManager
 		parser.parse(args[:data])
 	end
 
-
 	def import_appscan_xml(args={}, &block)
+		return nil if args[data].nil? or args[data].empty?
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 		wspace = args[:wspace] || workspace
 		if Rex::Parser.nokogiri_loaded
@@ -5569,6 +5605,7 @@ class DBManager
 	end
 
 	def import_appscan_noko_stream(args={},&block)
+		return nil if args[data].nil? or args[data].empty?
 		if block
 			doc = Rex::Parser::AppscanDocument.new(args,framework.db) {|type, data| yield type,data }
 		else
@@ -5579,6 +5616,7 @@ class DBManager
 	end
 
 	def import_burp_session_xml(args={}, &block)
+		return nil if args[data].nil? or args[data].empty?
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 		wspace = args[:wspace] || workspace
 		if Rex::Parser.nokogiri_loaded
@@ -5600,6 +5638,7 @@ class DBManager
 	end
 
 	def import_burp_session_noko_stream(args={},&block)
+		return nil if args[data].nil? or args[data].empty?
 		if block
 			doc = Rex::Parser::BurpSessionDocument.new(args,framework.db) {|type, data| yield type,data }
 		else
@@ -5614,6 +5653,7 @@ class DBManager
 	# Import IP360's ASPL database
 	#
 	def import_ip360_aspl_xml(args={}, &block)
+		return nil if args[data].nil? or args[data].empty?
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -5635,6 +5675,7 @@ class DBManager
 	# Import IP360's xml output
 	#
 	def import_ip360_xml_v3(args={}, &block)
+		return nil if args[data].nil? or args[data].empty?
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -5794,6 +5835,7 @@ class DBManager
 	# Import Qualys's Asset Data Report format
 	#
 	def import_qualys_asset_xml(args={}, &block)
+		return nil if args[data].nil? or args[data].empty?
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -5849,10 +5891,12 @@ class DBManager
 		::File.open(filename, 'rb') do |f|
 			data = f.read(f.stat.size)
 		end
+		return nil if data.nil? or data.empty?
 		import_qualys_scan_xml(args.merge(:data => data))
 	end
 
 	def import_qualys_scan_xml(args={}, &block)
+		return nil if args[data].nil? or args[data].empty?
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -5942,10 +5986,12 @@ class DBManager
 		::File.open(filename, 'rb') do |f|
 			data = f.read(f.stat.size)
 		end
+		return nil if data.nil? or data.empty?
 		import_ip_list(args.merge(:data => data))
 	end
 
 	def import_ip_list(args={}, &block)
+		return nil if args[data].nil? or args[data].empty?
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -5968,6 +6014,7 @@ class DBManager
 		::File.open(filename, 'rb') do |f|
 			data = f.read(f.stat.size)
 		end
+		return nil if data.nil? or data.empty?
 
 		case import_filetype_detect(data)
 		when :amap_log
@@ -5980,6 +6027,7 @@ class DBManager
 	end
 
 	def import_amap_log(args={}, &block)
+		return nil if args[data].nil? or args[data].empty?
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -6009,6 +6057,7 @@ class DBManager
 	end
 
 	def import_amap_mlog(args={}, &block)
+		return nil if args[data].nil? or args[data].empty?
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -6043,6 +6092,7 @@ class DBManager
 	end
 
 	def import_ci_noko_stream(args, &block)
+		return nil if args[data].nil? or args[data].empty?
 		if block
 			doc = Rex::Parser::CIDocument.new(args,framework.db) {|type, data| yield type,data }
 		else

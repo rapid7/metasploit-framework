@@ -2,10 +2,10 @@
 require "rex/parser/nokogiri_doc_mixin"
 
 module Rex
-	module Parser
+module Parser
 
-		# If Nokogiri is available, define Nmap document class.
-		load_nokogiri && class NmapDocument < Nokogiri::XML::SAX::Document
+	# If Nokogiri is available, define Nmap document class.
+	load_nokogiri && class NmapDocument < Nokogiri::XML::SAX::Document
 
 		include NokogiriDocMixin
 
@@ -387,8 +387,7 @@ module Rex
 			reported
 		end
 
-	end
-
-end
-end
+	end # end NmapDocument
+end # end Parser
+end # end Rex
 
