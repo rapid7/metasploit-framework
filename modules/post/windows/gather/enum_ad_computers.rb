@@ -18,6 +18,18 @@ class Metasploit3 < Msf::Post
 				'Name'         => 'Windows Gather AD Enumerate Computers',
 				'Description'  => %q{
 						This module will enumerate computers in the default AD directory.
+
+						Optional Attributes:
+						objectClass, cn, description, distinguishedName, instanceType, whenCreated,
+						whenChanged, uSNCreated, uSNChanged, name, objectGUID,
+						userAccountControl, badPwdCount, codePage, countryCode,
+						badPasswordTime, lastLogoff, lastLogon, localPolicyFlags,
+						pwdLastSet, primaryGroupID, objectSid, accountExpires,
+						logonCount, sAMAccountName, sAMAccountType, operatingSystem,
+						operatingSystemVersion, operatingSystemServicePack, serverReferenceBL,
+						dNSHostName, rIDSetPreferences, servicePrincipalName, objectCategory,
+						netbootSCPBL, isCriticalSystemObject, frsComputerReferenceBL,
+						lastLogonTimestamp, msDS-SupportedEncryptionTypes
 				},
 				'License'      => MSF_LICENSE,
 				'Author'       => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
@@ -39,6 +51,11 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
+		if sysinfo["Architecture"] =~ /x64/i
+			print_error("Does not work in x64 see: http://dev.metasploit.com/redmine/issues/7639");
+			return
+		end
+
 		print_status("Connecting to default LDAP server")
 		session_handle = bind_default_ldap_server
 
