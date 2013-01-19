@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %Q{
 					Enumerate files and directories using the MySQL load_file feature, for more information see the URL in the references.
 			},
-			'Version'     => '$Revision $', 
 			'Author'         => [ 'Robin Wood <robin[at]digininja.org>' ],
 			'References'  => [
 								[ 'URL', 'http://pauldotcom.com/2013/01/mysql-file-system-enumeration.html' ],
