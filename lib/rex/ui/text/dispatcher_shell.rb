@@ -367,15 +367,19 @@ module DispatcherShell
 	end
 
 	#
-	# Runs multiple command lines
+	# Run multiple commands from one input line of the format "cmd1;cmd2 = da\;ta;cmd3"
 	#
+	# @param line [String] The data to be parsed
+	# @param separator [String] The separator used to delimit the data, defaults to ';'
+	# @param escape_char [String] The escape character used to escape +separator+, defaults to '\\'
+	# @return [Boolean] Returns true if all commands succeeded, otherwise false
 	def run_multiple(line, separator = ';', escape_char = '\\')
 		line.gsub!(/(\r|\n)/, '')
 
 		lines = []
 		begin
 			# check for a multiline line (lines with cmd;other_cmd)
-			lines = Rex::Parser::GenericWithEscape.new(line, separator, escape_char).parse
+			lines = ::Rex::Parser::GenericWithEscape.new(line, separator, escape_char).parse
 		rescue ::ArgumentError
 			print_error("Parse error: #{$!}")
 		end
@@ -387,8 +391,10 @@ module DispatcherShell
 	end
 
 	#
-	# Run a single command line.
+	# Run a single command provided in +line+
 	#
+	# @param line [String] The command line
+	# @return [Boolean] Returns true if the command succeeds, otherwise false
 	def run_single(line)
 		arguments = parse_line(line)
 		method    = arguments.shift
