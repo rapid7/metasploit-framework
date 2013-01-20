@@ -44,7 +44,16 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 
-		mysql_query("USE " + datastore['DATABASE_NAME'])
+		begin
+			mysql_query_no_handle("USE " + datastore['DATABASE_NAME'])
+		rescue ::RbMysql::Error => e
+			print_error("MySQL Error: #{e.class} #{e.to_s}")
+			return
+		rescue Rex::ConnectionTimeout => e
+			print_error("Timeout: #{e.message}")
+			return
+		end
+
 		res = mysql_query("SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA = '" + datastore['DATABASE_NAME'] + "' AND TABLE_NAME = '" + datastore['TABLE_NAME'] + "';")
 		table_exists = (res.size == 1)
 
