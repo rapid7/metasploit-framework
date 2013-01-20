@@ -62,7 +62,7 @@ class GenericWithEscape
 			if first_half # then this is the second half
 				@items << first_half.strip+item.strip
 				first_half = nil
-			elsif item =~ /#{@esc}{1}$/ and not /#{@esc}{2,}$/ # only one escape char and no more
+			elsif item =~ /#{@esc}{1}$/ and not item =~ /#{@esc}{2,}$/ # only one escape char and no more
 				#then this was escaped and the next item should be merged w/this one
 				first_half = item.sub(/#{@esc}$/,"#{@sep}")
 			else # this is just a normal item
