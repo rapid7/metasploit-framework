@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def check_dir dir
 		begin
-			res = mysql_query_no_handle("LOAD DATA INFILE '" + dir + "' INTO TABLE brute")
+			res = mysql_query_no_handle("LOAD DATA INFILE '" + dir + "' INTO TABLE " + datastore['TABLE_NAME'])
 		rescue ::RbMysql::TextfileNotReadable
 			print_good(dir + " is a directory and exists")
 		rescue ::RbMysql::ServerError
