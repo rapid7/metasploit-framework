@@ -39,12 +39,6 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		print_status("Checking " + ip)
-		# Should check this before running at all, this is run on a
-		# per-host level
-		if not ::File.exists?(datastore['FILE_LIST'])
-			print_error "File list does not exist!"
-			return
-		end
 
 		if (not mysql_login_datastore)
 			return
