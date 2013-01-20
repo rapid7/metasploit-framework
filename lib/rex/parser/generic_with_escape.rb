@@ -57,22 +57,30 @@ class GenericWithEscape
 		# now we test for items that may have been escaped
 		# need to account for items that end with \ but that weren't just items ending in \ but not escapes
 		# e.g. we want to catch this stuff\;stuff, but not stuff\ ;stuff and not stuff\\;stuff
-		first_half = nil
+		first_part = ""
+		escaped = false
 		temp_items.each do |item|
-			if first_half # then this is the second half
-				@items << first_half.strip+item.strip
-				first_half = nil
-			elsif item =~ /#{@esc}+$/ and not $&.count("\\").even?
-				# only odd number of escape chars, usually 1
-				#then this was escaped and the next item should be merged w/this one
-				first_half = item.sub(/#{@esc}$/,"#{@sep}")
-			else # this is just a normal item
-				@items << item.strip
+			# the sep was escaped if odd number of escape chars at end, usually 1
+			# and the next item should be merged w/current one
+			escaped = item_is_escaping_the_separator?(item)
+			if escaped
+				first_part += item.sub(/#{@esc}$/,"#{@sep}")
+			else
+				unless first_part.empty?
+					@items << first_part+item.rstrip
+					first_part = ""
+				else # this is just a normal item
+					@items << item.strip
+				end
 			end
 		end
 		@items
 	end
-
+	protected
+	def item_is_escaping_the_separator?(item)
+		return true if (item =~ /#{@esc}+$/ and not $&.count(@esc).even?)
+		return false
+	end
 end # end class
 
 end
