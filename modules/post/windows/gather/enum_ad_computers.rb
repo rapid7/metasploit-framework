@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Post
 
 	def run
 		unless session.platform == "x64/win64"
-			print_error("Does not work in x86 see: http://dev.metasploit.com/redmine/issues/7639");
+			print_error("Does not work in x86 meterpreter (use x64 instead) see: http://dev.metasploit.com/redmine/issues/7639");
 			return
 		end
 
