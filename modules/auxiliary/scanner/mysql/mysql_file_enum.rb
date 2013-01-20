@@ -29,9 +29,9 @@ class Metasploit3 < Msf::Auxiliary
 		)
 
 		register_options([
-			OptString.new('FILE_LIST', [ true, "List of directories to enumerate", '' ]),
+			OptPath.new('FILE_LIST', [ true, "List of directories to enumerate", '' ]),
 			OptString.new('DATABASE_NAME', [ true, "Name of database to use", 'test' ]),
-			OptString.new('TABLE_NAME', [ true, "Name of table to use", Rex::Text.rand_text_alpha(8) ]),
+			OptString.new('TABLE_NAME', [ true, "Name of table to use - Warning, if the table already exists its contents will be corrupted", Rex::Text.rand_text_alpha(8) ]),
 			OptString.new('USERNAME', [ true, 'The username to authenticate as', "root" ])
 			])
 
