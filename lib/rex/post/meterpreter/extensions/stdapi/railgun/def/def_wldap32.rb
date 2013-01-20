@@ -94,6 +94,9 @@ class Def_wldap32
 			['DWORD', 'res', 'in']
 		])
 
+		dll.add_function('ldap_unbind', 'DWORD', [
+			['DWORD', 'ld', 'in']
+		])
 		return dll
 	end
 
