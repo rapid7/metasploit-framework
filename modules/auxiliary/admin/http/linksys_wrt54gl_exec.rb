@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 		
 		# using the RHOST for the correct lan IP settings
 		# WARNING: Attacks via the WAN IP are breaking the LAN configuration of the device!
-		if datastore['LANIP'] =~ /<RHOST>/
+		if datastore['LANIP'] !~ /<RHOST>/
 			ip = datastore['LANIP'].split('.')
 		else
 			ip = rhost.split('.')
