@@ -20,9 +20,8 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Joomla Scanner',
-			'Version'     => '$Revision: 14774 $',
 			'Description' => %q{
-					This module scans the Joomla install for information and potential vulnerabilites.
+					This module scans a Joomla install for information and potential vulnerabilites.
 			},
 			'Author'      => [ 'f8lerror' ],
 			'License'     => MSF_LICENSE
@@ -40,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 	end
 
-	def osfingerprint(response)
+	def osfingerprint (response)
 		if(response.headers.has_key?('Server') )
 			if(response.headers['Server'] =~/Win32/ or response.headers['Server'] =~ /\(Windows/ or response.headers['Server'] =~ /IIS/)
 				os = "Windows"
@@ -51,8 +50,9 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 		return os
-		end
-	def fingerprint(response, app)
+	end
+
+	def fingerprint (response, app)
 
 		if(response.body =~ /<version.*\/?>(.+)<\/version\/?>/i)
 			v = $1
@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
 		return out
 	end
 
-	def run_host(ip)
+	def run_host (ip)
 		tpath = datastore['PATH']
 			if tpath[-1,1] != '/'
 			tpath += '/'
@@ -102,12 +102,12 @@ class Metasploit3 < Msf::Auxiliary
 		apps.each do |app|
 			break if check_app(tpath,app,ip)
 			end
-		print_status("Scanning for interesting pages")
+		print_status("Scanning #{ip} for interesting pages")
 		iapps.each do |iapp|
 			scan_pages(tpath,iapp,ip)
 			end
 		if datastore['ENUMERATE']
-		print_status("Scanning for plugins")
+		print_status("Scanning #{ip} for plugins")
 		bres = send_request_cgi({
 			'uri' => tpath,
 			'method' => 'GET',
@@ -118,12 +118,13 @@ class Metasploit3 < Msf::Auxiliary
 			papp = bapp.chomp
 			plugin_search(tpath,papp,ip,bres)
 			end
-			end
-
 		end
-	def check_app(tpath, app, ip)
+
+	end
+
+	def check_app (tpath, app, ip)
 		res = send_request_cgi({
-				'uri' => tpath+app,
+				'uri' => "#{datastore['PATH']}" << app,
 				'method' => 'GET',
 				}, 5)
 		return if not res or not res.body or not res.code
@@ -159,13 +160,14 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 		end
-	rescue OpenSSL::SSL::SSLError
-	rescue Errno::ENOPROTOOPT, Errno::ECONNRESET, ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError
-	rescue ::Timeout::Error, ::Errno::EPIPE
+		rescue OpenSSL::SSL::SSLError
+		rescue Errno::ENOPROTOOPT, Errno::ECONNRESET, ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError
+		rescue ::Timeout::Error, ::Errno::EPIPE
 	end
-	def scan_pages(tpath,iapp, ip)
+
+	def scan_pages (tpath, iapp, ip)
 		res = send_request_cgi({
-				'uri' => tpath+iapp,
+				'uri' => "#{datastore['PATH']}" << iapp,
 				'method' => 'GET',
 				}, 5)
 		return if not res or not res.body or not res.code
@@ -201,13 +203,14 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("#{ip} denied access to #{url} #{res.code} #{res.message}")
 			end
 		end
-	rescue OpenSSL::SSL::SSLError
-	rescue Errno::ENOPROTOOPT, Errno::ECONNRESET, ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError
-	rescue ::Timeout::Error, ::Errno::EPIPE
+		rescue OpenSSL::SSL::SSLError
+		rescue Errno::ENOPROTOOPT, Errno::ECONNRESET, ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError
+		rescue ::Timeout::Error, ::Errno::EPIPE
 	end
-	def plugin_search(tpath,papp, ip, bres)
+
+	def plugin_search (tpath, papp, ip, bres)
 		res = send_request_cgi({
-				'uri' => tpath+papp,
+				'uri' => "#{datastore['PATH']}" << papp,
 				'method' => 'GET',
 				}, 5)
 		return if not res or not res.body or not res.code
@@ -217,30 +220,32 @@ class Metasploit3 < Msf::Auxiliary
 		if (res.code.to_i == 200 and res.body !~/#404 Component not found/ and res.body !~/<h1>Joomla! Administration Login<\/h1>/ and osize != nsize)
 			print_good("Found Plugin: #{papp} ")
 			if (papp =~/passwd/ and res.body !~/root/)
-						print_error("\tPasswd not found")
+						print_error("Passwd not found")
 			elsif(papp =~/passwd/ and res.body =~/root/)
-					print_good("\tPasswd file found in response")
+					print_good("Passwd file found in response")
 			elsif(papp =~/'/ or papp =~/union/ or papp =~/sqli/ or papp =~/-\d/ and papp !~/alert/ and res.body =~/SQL syntax/)
-					print_good("\tPossible SQL Injection")
+					print_good("Possible SQL Injection")
 			elsif(papp =~/'/ or papp =~/union/ or papp =~/sqli/ or papp =~/-\d/ and papp !~/alert/ and res.body !~/SQL syntax/)
-					print_error("\tUnable to identify SQL injection")
+					print_error("Unable to identify SQL injection")
 			elsif(papp =~/>alert/ and res.body !~/>alert/)
-				print_error("\tNo XSS")
+				print_error("No XSS")
 			elsif(papp =~/>alert/ and res.body =~/>alert/)
-				print_good("\tPossible XSS")
+				print_good("Possible XSS")
 			elsif(res.body =~/SQL syntax/ )
-				print_error("\tPossible SQL Injection")
+				print_good("Possible SQL Injection")
 			elsif(papp =~/com_/)
-			blah = papp.split('_')
-			blah1 = blah[1].gsub('/','')
+			vars = papp.split('_')
+			pages = vars[1].gsub('/','')
 			res1 = send_request_cgi({
-				'uri' => tpath+"index.php?option=com_#{blah1}",
+				'uri' => "#{datastore['PATH']}"<<"index.php?option=com_#{pages}",
 				'method' => 'GET',
 				}, 5)
 				if (res1.code.to_i == 200)
-			print_status("\tFound_page: index.php?option=com_#{blah1}")
+					print_good("Found Page: index.php?option=com_#{pages}")
+					else
+					print_error("#{datastore['PATH']}"<<"index.php?option=com_#{pages} gave a #{res1.code.to_s} response")
 				end
-				end
+			end
 				report_note(
 					:host  => ip,
 					:port  => datastore['RPORT'],
@@ -257,12 +262,12 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("#{ip} requires a SSL client certificate")
 			else
 				print_status("#{ip} denied access to #{url} #{res.code} #{res.message}")
-			end
 		end
+	end
 
-	rescue OpenSSL::SSL::SSLError
-	rescue Errno::ENOPROTOOPT, Errno::ECONNRESET, ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError
-	rescue ::Timeout::Error, ::Errno::EPIPE
+		rescue OpenSSL::SSL::SSLError
+		rescue Errno::ENOPROTOOPT, Errno::ECONNRESET, ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError
+		rescue ::Timeout::Error, ::Errno::EPIPE
 	end
 
 
