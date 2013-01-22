@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 		createvsc = "vssadmin create shadow /For=%SYSTEMDRIVE%"
 		logdir = datastore['LOGDIR']
 		smbshare = datastore['SMBSHARE']
-		remove_files = [bat, "#{datastore['SYSDRIVE']}#{text}", "#{datastore['SYSDRIVE']}#{datastore['WINPATH']}\\Temp\\ntds", "#{datastore['SYSDRIVE']}#{datastore['WINPATH']}\\Temp\\sys"]
+		remove_files = [bat, "#{datastore['SYSDRIVE']}#{text}", "#{datastore['SYSDRIVE']}\\#{datastore['WINPATH']}\\Temp\\ntds", "#{datastore['SYSDRIVE']}\\#{datastore['WINPATH']}\\Temp\\sys"]
 		# Try and connect
 		if connect
 			#Try and authenticate with given credentials
