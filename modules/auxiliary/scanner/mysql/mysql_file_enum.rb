@@ -99,6 +99,16 @@ class Metasploit3 < Msf::Auxiliary
 				:proto => 'tcp',
 				:update => :unique_data
 			)
+		rescue ::RbMysql::DataTooLong, ::RbMysql::TruncatedWrongValueForField
+			print_good("#{peer} - #{dir} is a file and exists")
+			report_note(
+				:host  => rhost,
+				:type  => "filesystem.file",
+				:data  => "#{dir} is a file and exists",
+				:port  => rport,
+				:proto => 'tcp',
+				:update => :unique_data
+			)
 		rescue ::RbMysql::ServerError
 			vprint_warning("#{peer} - #{dir} does not exist")
 		rescue ::RbMysql::Error => e
