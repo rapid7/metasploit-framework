@@ -168,7 +168,7 @@ class Metasploit3 < Msf::Post
 
 		perms.each do |perm|
 		permissions << [perm['host'], perm['user'], perm['dir'], perm['fileread'], perm['filewrite'], perm['filedelete'], perm['fileappend'],
-			perm['dircreate'], perm['dirdelete'], perm['dirlist'], perm['dirsubdirs'], perm['autocreate']]
+			perm['dircreate'], perm['dirdelete'], perm['dirlist'], perm['dirsubdirs'], perm['autocreate'], perm['home']]
 		end
 
 		vprint_status("    Collected the following configuration details:")
