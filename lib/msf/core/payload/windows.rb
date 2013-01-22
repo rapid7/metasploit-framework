@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'msf/core'
-require 'msf/core/payload/windows/prependmigrate'
 
 ###
 #
@@ -12,7 +11,9 @@ require 'msf/core/payload/windows/prependmigrate'
 ###
 module Msf::Payload::Windows
 
-	include Msf::Payload::PrependMigrate
+	require 'msf/core/payload/windows/prepend_migrate'
+	# Provides the #prepends method
+	include Msf::Payload::Windows::PrependMigrate
 
 	#
 	# ROR hash associations for some of the exit technique routines.
@@ -24,6 +25,11 @@ module Msf::Payload::Windows
 			'process' => 0x56A2B5F0, # ExitProcess
 			'none'    => 0x5DE2C5AA, # GetLastError
 		}
+
+
+	def generate
+		return prepends(super)
+	end
 
 	#
 	# This mixin is chained within payloads that target the Windows platform.
