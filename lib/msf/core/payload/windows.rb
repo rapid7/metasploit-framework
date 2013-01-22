@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'msf/core'
-require 'msf/core/payload/windows/prepend_migrate'
 
 ###
 #
@@ -12,6 +11,7 @@ require 'msf/core/payload/windows/prepend_migrate'
 ###
 module Msf::Payload::Windows
 
+	require 'msf/core/payload/windows/prepend_migrate'
 	# Provides the #prepends method
 	include Msf::Payload::Windows::PrependMigrate
 
@@ -27,8 +27,8 @@ module Msf::Payload::Windows
 		}
 
 
-	def generate(*args)
-		return prepends + super
+	def generate
+		return prepends(super)
 	end
 
 	#

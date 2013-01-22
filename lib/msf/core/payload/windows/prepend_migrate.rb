@@ -33,7 +33,7 @@ module Msf::Payload::Windows::PrependMigrate
 	#
 	# Overload the generate() call to prefix our stubs
 	#
-	def prepends
+	def prepends(buf)
 		pre = ''
 
 		test_arch = [ *(self.arch) ]
@@ -49,7 +49,7 @@ module Msf::Payload::Windows::PrependMigrate
 				pre << Metasm::Shellcode.assemble(Metasm::X64.new, migrate_asm).encode_string
 			end
 		end
-		return pre
+		return pre + buf
 	end
 
 	#
