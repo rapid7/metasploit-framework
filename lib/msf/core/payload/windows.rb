@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 require 'msf/core'
-require 'msf/core/payload/windows/prependmigrate'
+require 'msf/core/payload/windows/prepend_migrate'
 
 ###
 #
