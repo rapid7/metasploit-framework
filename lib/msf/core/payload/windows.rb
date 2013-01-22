@@ -12,6 +12,7 @@ require 'msf/core/payload/windows/prependmigrate'
 ###
 module Msf::Payload::Windows
 
+	# Provides the #prepends method
 	include Msf::Payload::Windows::PrependMigrate
 
 	#
@@ -25,13 +26,6 @@ module Msf::Payload::Windows
 			'none'    => 0x5DE2C5AA, # GetLastError
 		}
 
-
-	# @abstract Override to add additional stubs to prepend to the final
-	#   shellcode. Be sure to call super so other modules may add stubs.
-	# @return [String] Stub to place at the begginning of generated shellcode
-	def prepends
-		""
-	end
 
 	def generate(*args)
 		return prepends + super
