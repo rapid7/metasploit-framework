@@ -31,10 +31,11 @@ class Metasploit3 < Msf::Auxiliary
 				and connected to a database this module will record successful
 				logins and hosts so you can track your access.
 			},
-			'Author'         => [
-								'tebo <tebo [at] attackresearch [dot] com>', # Original
-								'Ben Campbell <eat_meatballs [at] hotmail.co.uk>' # Refactoring
-								],
+			'Author'         =>
+				[
+					'tebo <tebo [at] attackresearch [dot] com>', # Original
+					'Ben Campbell <eat_meatballs [at] hotmail.co.uk>' # Refactoring
+				],
 			'References'     =>
 				[
 					[ 'CVE', '1999-0506'], # Weak password
@@ -45,15 +46,18 @@ class Metasploit3 < Msf::Auxiliary
 		deregister_options('RHOST','USERNAME','PASSWORD')
 
 		@accepts_guest_logins = {}
-		@correct_credentials_status_codes = ["STATUS_INVALID_LOGON_HOURS",
-											"STATUS_INVALID_WORKSTATION",
-											"STATUS_ACCOUNT_RESTRICTION",
-											"STATUS_ACCOUNT_EXPIRED",
-											"STATUS_ACCOUNT_DISABLED",
-											"STATUS_ACCOUNT_RESTRICTION",
-											"STATUS_PASSWORD_EXPIRED",
-											"STATUS_PASSWORD_MUST_CHANGE",
-											"STATUS_LOGON_TYPE_NOT_GRANTED"]
+
+		@correct_credentials_status_codes = [
+			"STATUS_INVALID_LOGON_HOURS",
+			"STATUS_INVALID_WORKSTATION",
+			"STATUS_ACCOUNT_RESTRICTION",
+			"STATUS_ACCOUNT_EXPIRED",
+			"STATUS_ACCOUNT_DISABLED",
+			"STATUS_ACCOUNT_RESTRICTION",
+			"STATUS_PASSWORD_EXPIRED",
+			"STATUS_PASSWORD_MUST_CHANGE",
+			"STATUS_LOGON_TYPE_NOT_GRANTED"
+		]
 
 		# These are normally advanced options, but for this module they have a
 		# more active role, so make them regular options.
@@ -63,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('SMBUser', [ false, "SMB Username" ]),
 				OptString.new('SMBDomain', [ false, "SMB Domain", '']),
 				OptBool.new('PRESERVE_DOMAINS', [ false, "Respect a username that contains a domain name.", true]),
-				OptBool.new('RECORD_GUEST', [ false, "Record guest-privileged random logins to the database", false]),
+				OptBool.new('RECORD_GUEST', [ false, "Record guest-privileged random logins to the database", false])
 			], self.class)
 
 	end
@@ -98,19 +102,22 @@ class Metasploit3 < Msf::Auxiliary
 		connect()
 		status_code = ""
 		begin
-			simple.login(	datastore['SMBName'],
-								user,
-								pass,
-								domain,
-								datastore['SMB::VerifySignature'],
-								datastore['NTLM::UseNTLMv2'],
-								datastore['NTLM::UseNTLM2_session'],
-								datastore['NTLM::SendLM'],
-								datastore['NTLM::UseLMKey'],
-								datastore['NTLM::SendNTLM'],
-								datastore['SMB::Native_OS'],
-								datastore['SMB::Native_LM'],
-								{:use_spn => datastore['NTLM::SendSPN'], :name =>  self.rhost})
+			simple.login(
+				datastore['SMBName'],
+				user,
+				pass,
+				domain,
+				datastore['SMB::VerifySignature'],
+				datastore['NTLM::UseNTLMv2'],
+				datastore['NTLM::UseNTLM2_session'],
+				datastore['NTLM::SendLM'],
+				datastore['NTLM::UseLMKey'],
+				datastore['NTLM::SendNTLM'],
+				datastore['SMB::Native_OS'],
+				datastore['SMB::Native_LM'],
+				{:use_spn => datastore['NTLM::SendSPN'], :name =>  self.rhost}
+			)
+
 			# Windows SMB will return an error code during Session Setup, but nix Samba requires a Tree Connect:
 			simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
 			status_code = 'STATUS_SUCCESS'
@@ -196,7 +203,9 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			domain_part = " \\\\#{domain}"
 		end
-		output_message = "#{rhost}:#{rport}#{domain_part} - %s (#{smb_peer_os}) #{user} : #{pass} [#{status}]"
+		output_message = "#{rhost}:#{rport}#{domain_part} - ".gsub('%', '%%')
+		output_message << "%s"
+		output_message << " (#{smb_peer_os}) #{user} : #{pass} [#{status}]".gsub('%', '%%')
 
 		case status
 		when 'STATUS_SUCCESS'
@@ -210,13 +219,18 @@ class Metasploit3 < Msf::Auxiliary
 					print_status(output_message % "GUEST LOGIN")
 					report_creds(domain,user,pass,true)
 				elsif datastore['VERBOSE']
-						print_status(output_message % "GUEST LOGIN")
+					print_status(output_message % "GUEST LOGIN")
 				end
 			end
+
+			return :next_user
+
 		when *@correct_credentials_status_codes
 			print_status(output_message % "FAILED LOGIN, VALID CREDENTIALS" )
 			report_creds(domain,user,pass,false)
 			validuser_case_sensitive?(domain, user, pass)
+			return :skip_user
+
 		when 'STATUS_LOGON_FAILURE', 'STATUS_ACCESS_DENIED'
 			vprint_error(output_message % "FAILED LOGIN")
 		else

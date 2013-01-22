@@ -675,11 +675,11 @@ class DBManager
 		if sess_data[:desc]
 			sess_data[:desc] = sess_data[:desc][0,255]
 		end
-    
+
 		# In the case of multi handler we cannot yet determine the true
 		# exploit responsible. But we can at least show the parent versus
 		# just the generic handler:
-		if session.via_exploit == "exploit/multi/handler"
+		if session and session.via_exploit == "exploit/multi/handler"
 	  	sess_data[:via_exploit] = sess_data[:datastore]['ParentModule']
 		end
 
@@ -2372,7 +2372,8 @@ class DBManager
 	# +:ssl+::   whether or not SSL is in use on this port
 	#
 	#
-	# Duplicate records for a given web_site, path, method, pname, and name combination will be overwritten
+	# Duplicate records for a given web_site, path, method, pname, and name
+	# combination will be overwritten
 	#
 
 	def report_web_vuln(opts)
@@ -4562,6 +4563,9 @@ class DBManager
 			end
 
 			info = {
+				# XXX: There is a :request attr in the model, but report_web_vuln
+				# doesn't seem to know about it, so this gets ignored.
+				#:request  => vuln['request'],
 				:path     => uri.path,
 				:query    => uri.query,
 				:method   => method,
@@ -4865,6 +4869,7 @@ class DBManager
 	# If you have Nokogiri installed, you'll be shunted over to
 	# that. Otherwise, you'll hit the old NmapXMLStreamParser.
 	def import_nmap_xml(args={}, &block)
+		return nil if args[:data].nil? or args[:data].empty?
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 

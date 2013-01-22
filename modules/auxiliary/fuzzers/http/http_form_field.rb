@@ -479,7 +479,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Grabbing webpage #{datastore['URL']} from #{datastore['RHOST']}")
 		response = send_request_raw(
 		{
-			'uri' => datastore['URL'],
+			'uri' => normalize_uri(datastore['URL']),
 			'version' => '1.1',
 			'method' => 'GET',
 			'headers' => @get_data_headers
@@ -497,7 +497,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			response = send_request_raw(
 			{
-				'uri' => datastore['URL'],
+				'uri' => normalize_uri(datastore['URL']),
 				'version' => '1.1',
 				'method' => 'GET',
 				'headers' => @get_data_headers

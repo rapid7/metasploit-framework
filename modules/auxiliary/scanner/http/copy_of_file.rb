@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 					]
 
 
-		tpathf = datastore['PATH']
+		tpathf = normalize_uri(datastore['PATH'])
 		testf = tpathf.split('/').last
 
 

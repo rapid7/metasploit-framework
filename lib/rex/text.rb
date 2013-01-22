@@ -2,6 +2,7 @@
 require 'digest/md5'
 require 'digest/sha1'
 require 'stringio'
+require 'cgi'
 
 begin
 	old_verbose = $VERBOSE
@@ -560,6 +561,14 @@ module Text
 		else
 			raise TypeError, 'invalid mode'
 		end
+	end
+
+	#
+	# Decode a string that's html encoded
+	#
+	def self.html_decode(str)
+		decoded_str = CGI.unescapeHTML(str)
+		return decoded_str
 	end
 
 	#

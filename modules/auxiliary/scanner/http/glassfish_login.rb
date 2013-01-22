@@ -98,8 +98,9 @@ class Metasploit3 < Msf::Auxiliary
 		headers['Content-Type'] = ctype if ctype != nil
 		headers['Content-Length'] = data.length if data != nil
 
+		uri = normalize_uri(target_uri)
 		res = send_request_raw({
-			'uri'	  => "#{target_uri.path}#{path}".gsub(/\/\//, '/'),
+			'uri'	  => "#{uri}#{path}",
 			'method'  => method,
 			'data'	  => data,
 			'headers' => headers,
@@ -217,7 +218,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		#Get GlassFish version
 		edition, version, banner = get_version(res)
-		target_url = "http://#{rhost.to_s}:#{rport.to_s}/#{datastore['PATH'].to_s}"
+		path = normalize_uri(datastore['PATH'])
+		target_url = "http://#{rhost.to_s}:#{rport.to_s}/#{path.to_s}"
 		print_status("#{target_url} - GlassFish - Attempting authentication")
 
 		if (version == '2.x' or version == '9.x' or version == '3.0')

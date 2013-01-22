@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		uri = datastore['URI']
+		uri = normalize_uri(datastore['URI'])
 		ranges = ''
 		for i in (0..1299) do
 			ranges += ",5-" + i.to_s

@@ -99,7 +99,7 @@ class BidirectionalPipe < Rex::Ui::Text::Input
 	end
 
 	def print_warning(msg='')
-		print_warning('[!] ' + msg)
+		print_line('[!] ' + msg)
 	end
 
 	#
@@ -159,4 +159,3 @@ end
 
 end
 end
-

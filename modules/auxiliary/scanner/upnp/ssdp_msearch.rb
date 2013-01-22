@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 					:name  => 'upnp',
 					:info  => res[:info][:location].to_s
 				) if datastore['REPORT_LOCATION']
- 			end
+			end
 		end
 	end
 

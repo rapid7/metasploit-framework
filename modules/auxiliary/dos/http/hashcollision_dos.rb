@@ -201,7 +201,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("#{rhost}:#{rport} - Sending request ##{x}...")
 			opts = {
 				'method'	=> 'POST',
-				'uri'		=> datastore['URL'],
+				'uri'		=> normalize_uri(datastore['URL']),
 				'data'		=> payload
 			}
 			begin

