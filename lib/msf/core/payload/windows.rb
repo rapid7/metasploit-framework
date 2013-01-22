@@ -12,7 +12,7 @@ require 'msf/core/payload/windows/prependmigrate'
 ###
 module Msf::Payload::Windows
 
-	include Msf::Payload::PrependMigrate
+	include Msf::Payload::Windows::PrependMigrate
 
 	#
 	# ROR hash associations for some of the exit technique routines.
@@ -24,6 +24,18 @@ module Msf::Payload::Windows
 			'process' => 0x56A2B5F0, # ExitProcess
 			'none'    => 0x5DE2C5AA, # GetLastError
 		}
+
+
+	# @abstract Override to add additional stubs to prepend to the final
+	#   shellcode. Be sure to call super so other modules may add stubs.
+	# @return [String] Stub to place at the begginning of generated shellcode
+	def prepends
+		""
+	end
+
+	def generate(*args)
+		return prepends + super
+	end
 
 	#
 	# This mixin is chained within payloads that target the Windows platform.
