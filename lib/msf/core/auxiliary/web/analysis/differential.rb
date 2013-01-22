@@ -122,7 +122,7 @@ module Analysis::Differential
 						http.if_not_custom_404( action, res['res'].body ) do
 							# if this isn't a custom 404 page then it means that
 							# the element is vulnerable, so go ahead and log the issue
-							fuzzer.process_vulnerability( res['elem'], 'Manipulatable responses.',
+							fuzzer.process_vulnerability( res['elem'], 'Boolean manipulation.',
 														:payload => res['elem'].altered_value )
 						end
 					end
