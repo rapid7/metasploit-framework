@@ -16,8 +16,8 @@ class Metasploit3 < Msf::Post
 		super(update_info(info,
 			'Name'          => 'Windows Manage Webcam',
 			'Description'   => %q{
-					This module will allow you to these things with your target's webcam: detect,
-				take a snapshot.
+					This module will allow the user to detect installed webcams (with
+					the LIST action) or take a snapshot (with the SNAPSHOT) action.
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'sinn3r'],
@@ -133,3 +133,4 @@ class Metasploit3 < Msf::Post
 	end
 
 end
+
