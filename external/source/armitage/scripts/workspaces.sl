@@ -33,7 +33,7 @@ sub listWorkspaces {
 	$dialog = [new JPanel];
 	[$dialog setLayout: [new BorderLayout]];
 
-	($table, $model) = setupTable("name", @("name", "hosts", "ports", "os", "session"), @());
+	($table, $model) = setupTable("name", @("name", "hosts", "ports", "os", "labels", "session"), @());
 	updateWorkspaceList($table, $model);
 	[$table setSelectionMode: [ListSelectionModel MULTIPLE_INTERVAL_SELECTION]];
 	
@@ -88,15 +88,16 @@ sub workspaceDialog {
 	local('$table $model');
 	($table, $model) = $2;
 
-	local('$dialog $name $host $ports $os $button $session');
+	local('$dialog $name $host $ports $os $button $session $label');
 	$dialog = dialog($title, 640, 480);
-	[$dialog setLayout: [new GridLayout: 6, 1]];
+	[$dialog setLayout: [new GridLayout: 7, 1]];
 
 	$name  = [new ATextField: $1['name'], 16];
 	[$name setEnabled: $enable];
 	$host  = [new ATextField: $1['hosts'], 16];
 	$ports = [new ATextField: $1['ports'], 16];
 	$os    = [new ATextField: $1['os'], 16];
+	$label = [new ATextField: $1['labels'], 16];
 	$session = [new JCheckBox: "Hosts with sessions only"];
 	if ($1['session'] eq 1) {
 		[$session setSelected: 1];
@@ -108,6 +109,7 @@ sub workspaceDialog {
 	[$dialog add: label_for("Hosts:", 60, $host)]; 
 	[$dialog add: label_for("Ports:", 60, $ports)]; 
 	[$dialog add: label_for("OS:", 60, $os)]; 
+	[$dialog add: label_for("Labels:", 60, $label)];
 	[$dialog add: $session];
 
 	[$dialog add: center($button)];
@@ -116,15 +118,16 @@ sub workspaceDialog {
 
 	[$button addActionListener: lambda({
 		# yay, we have a dialog...
-		local('$n $h $p $o $s @workspaces $ws $temp');
+		local('$n $h $p $o $s $l @workspaces $ws $temp');
 		$n = [[$name getText] trim];
 		$h = [strrep([$host getText], '*', '%', '?', '_') trim];
 		$p = [[$ports getText] trim];
 		$o = [strrep([$os getText], '*', '%', '?', '_') trim];
+		$l = [[$label getText] trim];
 		$s = [$session isSelected];
 
 		# save the new menu
-		$ws = workspace($n, $h, $p, $o, $s);
+		$ws = workspace($n, $h, $p, $o, $s, $l);
 		@workspaces = workspaces();
 		foreach $temp (@workspaces) {
 			if ($temp["name"] eq $n) {
@@ -140,7 +143,7 @@ sub workspaceDialog {
 		updateWorkspaceList($table, $model);
 
 		[$dialog setVisible: 0];
-	}, \$dialog, \$host, \$ports, \$os, \$name, \$session, \$table, \$model)];
+	}, \$dialog, \$host, \$ports, \$os, \$name, \$session, \$table, \$model, \$label)];
 }
 
 sub reset_workspace {
@@ -199,16 +202,16 @@ sub set_workspace {
 }
 
 sub workspace {
-	return ohash(name => $1, hosts => $2, ports => $3, os => $4, session => $5);
+	return ohash(name => $1, hosts => $2, ports => $3, os => $4, session => $5, labels => $6);
 }
 
 sub workspaces {
-	local('$ws @r $name $host $port $os $session $workspace');
+	local('$ws @r $name $host $port $os $session $workspace $label');
 	$ws = split("!!", [$preferences getProperty: "armitage.workspaces.menus", ""]);
 	foreach $workspace ($ws) {
 		if ($workspace ne "") {
-			($name, $host, $port, $os, $session) = split('@@', $workspace);
-			push(@r, workspace($name, $host, $port, $os, $session));
+			($name, $host, $port, $os, $session, $label) = split('@@', $workspace);
+			push(@r, workspace($name, $host, $port, $os, $session, $label));
 		}
 	}
 	return @r;

@@ -16,47 +16,7 @@ import java.awt.event.*;
 import ui.*;
 
 sub manage_proxy_server {
-	manage_job("Auxiliary: server/socks4a", 
-		# start server function
-		{
-			launch_dialog("SOCKS Proxy", "auxiliary", "server/socks4a", $null);
-		},
-		# description of job (for job kill function)
-		{
-			local('$host $port');
-			($host, $port) = values($2["datastore"], @("SRVHOST", "SRVPORT"));
-			return "SOCKS proxy is running on $host $+ : $+ $port $+ .\nWould you like to stop it?";
-		}
-	);
-
-}
-
-sub report_url {
-	find_job($name, {
-		if ($1 == -1) {
-			showError("Server not found");
-		}
-		else {
-			local('$job $host $port $uripath');
-			$job = call($client, "job.info", $1);
-
-			($host, $port) = values($job["info"]["datastore"], @("SRVHOST", "SRVPORT"));
-			$uripath = $job["info"]["uripath"];
-
-			local('$dialog $text $ok');
-			$dialog = dialog("Output", 320, 240);
-			$text = [new JTextArea];
-			[$text setText: "http:// $+ $host $+ : $+ $port $+ $uripath"];
-
-			$button = [new JButton: "Ok"];
- 			[$button addActionListener: lambda({ [$dialog setVisible: 0]; }, \$dialog)];
-
-			[$dialog add: [new JScrollPane: $text], [BorderLayout CENTER]];
-			[$dialog add: center($button), [BorderLayout SOUTH]];
-
-			[$dialog setVisible: 1];
-		}
-	});
+	launch_dialog("SOCKS Proxy", "auxiliary", "server/socks4a", 1);
 }
 
 sub find_job {
@@ -78,26 +38,6 @@ sub find_job {
 		}
 		[$function: -1];
 	}, $name => $1, $function => $2));
-}
-
-# manage_job(job name, { start job function }, { job dialog info })
-sub manage_job {
-	local('$name $startf $stopf');
-	($name, $startf, $stopf) = @_;
-
-	find_job($name, lambda({
-		if ($1 == -1) {
-			[$startf];
-		}
-		else {
-			local('$job $confirm $foo $confirm');
-			$job = call($client, "job.info", $1);
-			$confirm = askYesNo([$stopf : $1, $job], "Stop Job");
-			if ($confirm eq "0") {
-				call_async($client, "job.stop", $1);
-			}
-		}		
-	}, \$startf, \$stopf));
 }
 
 sub generatePayload {
@@ -449,6 +389,11 @@ sub _launch_dialog {
 					else {
 						elog("launched DNS enum for $domain");
 					}
+				}
+				else if ($type eq "auxiliary" && $command eq "server/socks4a") {
+					local('$host $port');
+					($host, $port) = values($options, @('SRVHOST', 'SRVPORT'));
+					elog("started SOCKS proxy server at $host $+ : $+ $port");
 				}
 
 				launch_service($title, "$type $+ / $+ $command", $options, $type, $format => [$combo getSelectedItem]);
