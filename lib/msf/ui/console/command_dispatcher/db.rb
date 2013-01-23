@@ -283,8 +283,9 @@ class Db
 						if set_rhosts
 							# only unique addresses
 							addr = (host.scope ? host.address + '%' + host.scope : host.address )
-							rhosts << addr unless rhosts.include?(addr)
+							rhosts << addr
 						end
+						rhosts.uniq!
 					end
 				end
 				return
@@ -323,8 +324,9 @@ class Db
 					tbl << columns
 					if set_rhosts
 						addr = (host.scope ? host.address + '%' + host.scope : host.address )
-						rhosts << addr unless rhosts.include?(addr)
+						rhosts << addr
 					end
+					rhosts.uniq!
 					if mode == :delete
 						host.destroy
 						delete_count += 1
@@ -347,6 +349,8 @@ class Db
 			set_rhosts_from_addrs(rhosts) if set_rhosts
 			print_status("Deleted #{delete_count} hosts") if delete_count > 0
 		}
+##
+##
 		end
 
 		def cmd_services_help
@@ -508,8 +512,9 @@ class Db
 					tbl << columns
 					if set_rhosts
 						addr = (host.scope ? host.address + '%' + host.scope : host.address )
-						rhosts << addr unless rhosts.include?(addr)
+						rhosts << addr
 					end
+					rhosts.uniq!
 
 					if (mode == :delete)
 						service.destroy
@@ -828,8 +833,9 @@ class Db
 				end
 				if set_rhosts
 					addr = (cred.service.host.scope ? cred.service.host.address + '%' + cred.service.host.scope : cred.service.host.address )
-					rhosts << addr unless rhosts.include?(addr)
+					rhosts << addr
 				end
+				rhosts.uniq!
 				creds_returned += 1
 			end
 
@@ -954,8 +960,9 @@ class Db
 					msg << " host=#{note.host.address}"
 					if set_rhosts
 						addr = (host.scope ? host.address + '%' + host.scope : host.address )
-						rhosts << addr unless rhosts.include?(addr)
+						rhosts << addr
 					end
+					rhosts.uniq!
 				end
 				if (note.service)
 					name = (note.service.name ? note.service.name : "#{note.service.port}/#{note.service.proto}")
