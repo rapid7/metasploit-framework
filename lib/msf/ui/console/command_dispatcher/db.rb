@@ -205,6 +205,7 @@ class Db
 			mode = :search
 			delete_count = 0
 
+			rhosts = []
 			host_ranges = []
 			search_term = nil
 
@@ -241,7 +242,6 @@ class Db
 					output = args.shift
 				when '-R','--rhosts'
 					set_rhosts = true
-					rhosts = []
 				when '-S', '--search'
 					search_term = /#{args.shift}/nmi
 
@@ -280,12 +280,6 @@ class Db
 					range.each do |address|
 						host = framework.db.find_or_create_host(:host => address)
 						print_status("Time: #{host.created_at} Host: host=#{host.address}")
-						if set_rhosts
-							# only unique addresses
-							addr = (host.scope ? host.address + '%' + host.scope : host.address )
-							rhosts << addr
-						end
-						rhosts.uniq!
 					end
 				end
 				return
@@ -326,7 +320,6 @@ class Db
 						addr = (host.scope ? host.address + '%' + host.scope : host.address )
 						rhosts << addr
 					end
-					rhosts.uniq!
 					if mode == :delete
 						host.destroy
 						delete_count += 1
@@ -346,7 +339,7 @@ class Db
 
 			# Finally, handle the case where the user wants the resulting list
 			# of hosts to go into RHOSTS.
-			set_rhosts_from_addrs(rhosts) if set_rhosts
+			set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
 			print_status("Deleted #{delete_count} hosts") if delete_count > 0
 		}
 ##
@@ -1483,7 +1476,7 @@ class Db
 				print_error("The database is not connected")
 				return
 			end
-					
+
 			print_status("Purging and rebuilding the module cache in the background...")
 			framework.threads.spawn("ModuleCacheRebuild", true) do
 				framework.db.purge_all_module_details
@@ -1714,4 +1707,3 @@ end
 end
 end
 end
-
