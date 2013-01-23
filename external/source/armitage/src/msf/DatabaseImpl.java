@@ -14,10 +14,14 @@ public class DatabaseImpl implements RpcConnection  {
 	protected String workspaceid = "0";
 	protected String hFilter = null;
 	protected String sFilter = null;
+	protected String[] lFilter = null;
 	protected Route[]  rFilter = null;
 	protected String[] oFilter = null;
 	protected int hindex = 0;
 	protected int sindex = 0;
+
+	/* keep track of labels associated with each host */
+	protected Map labels = new HashMap();
 
 	/* define the maximum hosts in a workspace */
 	protected int maxhosts = 512;
@@ -135,6 +139,20 @@ public class DatabaseImpl implements RpcConnection  {
 		return false;
 	}
 
+	private boolean checkLabel(String host) {
+		if (!labels.containsKey(host))
+			return false;
+
+		String label_l = (labels.get(host) + "").toLowerCase();
+
+		for (int x = 0; x < lFilter.length; x++) {
+			if (label_l.indexOf(lFilter[x]) != -1) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private boolean checkOS(String os) {
 		String os_l = os.toLowerCase();
 
@@ -145,11 +163,76 @@ public class DatabaseImpl implements RpcConnection  {
 		return false;
 	}
 
+	protected void loadLabels() {
+		try {
+			/* query database for label data */
+			List rows = executeQuery("SELECT DISTINCT data FROM notes WHERE ntype = 'armitage.labels'");
+			if (rows.size() == 0)
+				return;
+
+			/* extract our BASE64 encoded data */
+			String data = ((Map)rows.get(0)).get("data") + "";
+			System.err.println("Read: " + data.length() + " bytes");
+
+			/* turn our data into raw data */
+			byte[] raw  = Base64.decode(data);
+
+			/* deserialize our notes data */
+			ByteArrayInputStream store = new ByteArrayInputStream(raw);
+			ObjectInputStream handle = new ObjectInputStream(store);
+			Map temp = (Map)(handle.readObject());
+			handle.close();
+			store.close();
+
+			/* merge with our new map */
+			labels.putAll(temp);
+		}
+		catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	protected void mergeLabels(Map l) {
+		/* accept any label values and merge them into our global data set */
+		Iterator i = l.entrySet().iterator();
+		while (i.hasNext()) {
+			Map.Entry entry = (Map.Entry)i.next();
+			if ("".equals(entry.getValue())) {
+				labels.remove(entry.getKey() + "");
+			}
+			else {
+				labels.put(entry.getKey() + "", entry.getValue() + "");
+			}
+		}
+	}
+
+	/* add labels to our hosts */
+	public List addLabels(List rows) {
+		if (labels.size() == 0)
+			return rows;
+
+		Iterator i = rows.iterator();
+		while (i.hasNext()) {
+			Map entry = (Map)i.next();
+			String address = (entry.containsKey("address") ? entry.get("address") : entry.get("host")) + "";
+			if (labels.containsKey(address)) {
+				entry.put("label", labels.get(address) + "");
+			}
+			else {
+				entry.put("label", "");
+			}
+		}
+
+		return rows;
+	}
+
 	public List filterByRoute(List rows, int max) {
-		if (rFilter != null || oFilter != null) {
+		if (rFilter != null || oFilter != null || lFilter != null) {
 			Iterator i = rows.iterator();
 			while (i.hasNext()) {
 				Map entry = (Map)i.next();
+
+				/* make sure the address is within a route we care about */
 				if (rFilter != null && entry.containsKey("address")) {
 					if (!checkRoute(entry.get("address") + "")) {
 						i.remove();
@@ -163,9 +246,26 @@ public class DatabaseImpl implements RpcConnection  {
 					}
 				}
 
+				/* make sure the host is something we care about too */
 				if (oFilter != null && entry.containsKey("os_name")) {
-					if (!checkOS(entry.get("os_name") + ""))
+					if (!checkOS(entry.get("os_name") + "")) {
 						i.remove();
+						continue;
+					}
+				}
+
+				/* make sure the host has the right label */
+				if (lFilter != null && entry.containsKey("address")) {
+					if (!checkLabel(entry.get("address") + "")) {
+						i.remove();
+						continue;
+					}
+				}
+				else if (lFilter != null && entry.containsKey("host")) {
+					if (!checkLabel(entry.get("host") + "")) {
+						i.remove();
+						continue;
+					}
 				}
 			}
 
@@ -180,6 +280,7 @@ public class DatabaseImpl implements RpcConnection  {
 	public void connect(String dbstring, String user, String password) throws Exception {
 		db = DriverManager.getConnection(dbstring, user, password);
 		setWorkspace("default");
+		loadLabels();
 	}
 
 	public Object execute(String methodName) throws IOException {
@@ -192,8 +293,8 @@ public class DatabaseImpl implements RpcConnection  {
 		/* this is an optimization. If we have a network or OS filter, we need to pull back all host/service records and
 		   filter them here. If we do not have these types of filters, then we can let the database do the heavy lifting
 		   and limit the size of the final result there. */
-		int limit1 = rFilter == null && oFilter == null ? maxhosts : 30000;
-		int limit2 = rFilter == null && oFilter == null ? maxservices : 100000;
+		int limit1 = rFilter == null && oFilter == null && lFilter == null ? maxhosts : 30000;
+		int limit2 = rFilter == null && oFilter == null && lFilter == null ? maxservices : 100000;
 
 		temp.put("db.creds", "SELECT DISTINCT creds.*, hosts.address as host, services.name as sname, services.port as port, services.proto as proto FROM creds, services, hosts WHERE services.id = creds.service_id AND hosts.id = services.host_id AND hosts.workspace_id = " + workspaceid);
 
@@ -235,7 +336,7 @@ public class DatabaseImpl implements RpcConnection  {
 					result.put(methodName.substring(3), filterByRoute(executeQuery(query), maxservices));
 				}
 				else if (methodName.equals("db.hosts")) {
-					result.put(methodName.substring(3), filterByRoute(executeQuery(query), maxhosts));
+					result.put(methodName.substring(3), addLabels(filterByRoute(executeQuery(query), maxhosts)));
 				}
 				else {
 					result.put(methodName.substring(3), executeQuery(query));
@@ -332,6 +433,7 @@ public class DatabaseImpl implements RpcConnection  {
 
 				rFilter = null;
 				oFilter = null;
+				lFilter = null;
 
 				List hosts = new LinkedList();
 				List srvcs = new LinkedList();
@@ -385,6 +487,11 @@ public class DatabaseImpl implements RpcConnection  {
 					oFilter = (values.get("os") + "").toLowerCase().split(",\\s*");
 				}
 
+				/* label filter */
+				if (values.containsKey("labels") && (values.get("labels") + "").length() > 0) {
+					lFilter = (values.get("labels") + "").toLowerCase().split(",\\s*");
+				}
+
 				if (hosts.size() == 0) {
 					hFilter = null;
 				}
@@ -405,6 +512,31 @@ public class DatabaseImpl implements RpcConnection  {
 				Map result = new HashMap();
 				result.put("rows", new Integer(stmt.executeUpdate()));
 				return result;
+			}
+			else if (methodName.equals("db.report_labels")) {
+				/* merge out global label data */
+				Map values = (Map)params[0];
+				mergeLabels(values);
+
+				/* delete our saved label data */
+				executeUpdate("DELETE FROM notes WHERE notes.ntype = 'armitage.labels'");
+
+				/* serialize our notes data */
+				ByteArrayOutputStream store = new ByteArrayOutputStream(labels.size() * 128);
+				ObjectOutputStream handle = new ObjectOutputStream(store);
+				handle.writeObject(labels);
+				handle.close();
+				store.close();
+
+				String data = Base64.encode(store.toByteArray());
+
+				/* save our label data */
+				PreparedStatement stmt = null;
+				stmt = db.prepareStatement("INSERT INTO notes (ntype, data) VALUES ('armitage.labels', ?)");
+				stmt.setString(1, data);
+				stmt.executeUpdate();
+
+				return new HashMap();
 			}
 			else if (methodName.equals("db.report_host")) {
 				Map values = (Map)params[0];

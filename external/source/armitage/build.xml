@@ -16,6 +16,8 @@
 			depend="yes"
 			debug="true"
 			optimize="yes"
+			target="1.6"
+			source="1.6"
 			includeantruntime="fuckno"
 		>
 		       <classpath path="./lib/jgraphx.jar;./lib/sleep.jar;./lib/msgpack-0.5.1-devel.jar;./lib/postgresql-9.1-901.jdbc4.jar" />

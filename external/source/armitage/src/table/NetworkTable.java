@@ -52,7 +52,7 @@ public class NetworkTable extends JComponent implements ActionListener {
 	public NetworkTable(Properties display) {
 		this.display = display;
 
-		model = new GenericTableModel(new String[] { " ", "Address", "Description", "Pivot" }, "Address", 256);
+		model = new GenericTableModel(new String[] { " ", "Address", "Label", "Description", "Pivot" }, "Address", 256);
 		table = new ATable(model);
 		TableRowSorter sorter = new TableRowSorter(model);
 		sorter.toggleSortOrder(1);
@@ -79,12 +79,13 @@ public class NetworkTable extends JComponent implements ActionListener {
 		};
 
 		sorter.setComparator(1, hostCompare);
-		sorter.setComparator(3, hostCompare);
+		sorter.setComparator(4, hostCompare);
 
 		table.setRowSorter(sorter);
 		table.setColumnSelectionAllowed(false);
 
 		table.getColumn("Address").setPreferredWidth(125);
+		table.getColumn("Label").setPreferredWidth(125);
 		table.getColumn("Pivot").setPreferredWidth(125);
 		table.getColumn(" ").setPreferredWidth(32);
 		table.getColumn(" ").setMaxWidth(32);
@@ -95,7 +96,7 @@ public class NetworkTable extends JComponent implements ActionListener {
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
 				JLabel component = (JLabel)parent.getTableCellRendererComponent(table, value, isSelected, false, row, col);
 
-				if (col == 3 && Boolean.TRUE.equals(model.getValueAt(table, row, "Active"))) {
+				if (col == 4 && Boolean.TRUE.equals(model.getValueAt(table, row, "Active"))) {
 					component.setFont(component.getFont().deriveFont(Font.BOLD));
 				}
 				else if (col == 1 && !"".equals(model.getValueAt(table, row, "Description"))) {
@@ -252,16 +253,17 @@ public class NetworkTable extends JComponent implements ActionListener {
         public void addActionForKeySetting(String key, String dvalue, Action action) {
 	}
 
-	public Object addNode(String id, String label, Image image, String tooltip) {
+	public Object addNode(String id, String label, String description, Image image, String tooltip) {
 		if (id == null || label == null)
 			return null;
 
 		HashMap map = new HashMap();
 		map.put("Address", id);
 
-		if (label.indexOf(id) > -1)
-			label = label.substring(id.length());
-		map.put("Description", label);
+		if (description.indexOf(id) > -1)
+			description = description.substring(id.length());
+		map.put("Label", label);
+		map.put("Description", description);
 		map.put("Tooltip", tooltip);
 		map.put("Image", image);
 		map.put(" ", tooltip);
