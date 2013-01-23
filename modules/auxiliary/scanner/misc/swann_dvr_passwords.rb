@@ -22,12 +22,12 @@ class Metasploit3 < Msf::Auxiliary
 				Swann DVR systems. It is possible to retrieve the username and
 				password through the TCP service running on port 9000. Other
 				brand DVRs with the same issue may include Lorex, Night Owl, Zmodo
-				URMET, nad KGuard Security.
+				URMET, and KGuard Security.
 			},
 			'Author'      =>
 				[
 					'someluser', # Python script
-					'hdm',       # Metasploit module
+					'hdm'        # Metasploit module
 				],
 			'References'  =>
 				[
