@@ -32,15 +32,16 @@ module Rex
 			load File.join(File.expand_path(File.dirname(__FILE__)),fname)
 		end
 
-	end
-end
+	end # end Parser
+end # end Rex
 
 module Rex
 module Parser
 
-		load_nokogiri && module NokogiriDocMixin
+	load_nokogiri && module NokogiriDocMixin
 
 		# Set up the getters and instance variables for the document
+		# @todo  is eval really necessary here?
 		eval("attr_reader :args, :db, :state, :block, :report_data")
 
 		def initialize(args,db,&block)
@@ -102,7 +103,6 @@ module Parser
 			return [] unless orig_refs
 			refs = []
 			orig_refs.each do |ref_hash|
-			
 				ref_hash_sym = Hash[ref_hash.map {|k, v| [k.to_sym, v] }]
 				ref_type = ref_hash_sym[:source].to_s.strip.upcase
 				ref_value = ref_hash_sym[:value].to_s.strip
@@ -130,7 +130,7 @@ module Parser
 			return true
 		end
 
-		# XXX: Document classes ought to define this
+		# @todo: Document classes ought to define this
 		def determine_port_state(v)
 			return v
 		end
@@ -151,15 +151,14 @@ module Parser
 			just_the_facts.empty? ? return : db.send("report_#{table}", just_the_facts)
 		end
 
-		# XXX: It would be better to either have a single registry of acceptable
+		# @todo: It would be better to either have a single registry of acceptable
 		# keys if we're going to alert on bad ones, or to be more forgiving if
 		# the caller is this thing. There is basically no way to tell if
 		# report_host()'s tastes are going to change with this scheme.
 		def db_valid_attributes(table)
 			case table.to_s.to_sym
 			when :host
-				::Mdm::Host.new.attribute_names.map {|x| x.to_sym} |
-					[:host, :workspace]
+				::Mdm::Host.new.attribute_names.map {|x| x.to_sym} | [:host, :workspace]
 			when :service
 				::Mdm::Service.new.attribute_names.map {|x| x.to_sym} |
 					[:host, :host_name, :mac, :workspace]
@@ -188,12 +187,13 @@ module Parser
 			when Array, NilClass
 				attr_pairs = attrs
 			when String
-				attrs.each_index {|i|
+				attrs.each_index do |i|
 					next if i % 2 == 0
 					attr_pairs << [attrs[i-1],attrs[i]]
-				}
+				end
 			else # Wow, yet another format! It's either from the distant past or distant future.
-				raise ::Msf::DBImportError.new("Unknown format for XML attributes. Please check your Nokogiri version.")
+				raise ::Msf::DBImportError.new("Unknown format for XML attributes. Please check your 
+					Nokogiri version.")
 			end
 			return attr_pairs
 		end
@@ -219,13 +219,12 @@ module Parser
 			return unless @report_type_ok
 			unless @state[:current_tag].empty?
 				missing_ends = @state[:current_tag].keys.map {|x| "'#{x}'"}.join(", ")
-	l			msg = "Warning, the provided file is incomplete, and there may be missing\n"
+				msg = "Warning, the provided file is incomplete, and there may be missing\n"
 				msg << "data. The following tags were not closed: #{missing_ends}."
 				db.emit(:warning,msg,&block) if block
 			end
 		end
 
-	end
-
-end
-end
+	end # end NokogiriDocMixin
+end # end Parser
+end # end Rex
