@@ -36,3 +36,4 @@ Aiee, Killing Interrupt handler
 %redKernel panic: Attempted to kill the idle task!
 In swapper task - not syncing
 %clr
+

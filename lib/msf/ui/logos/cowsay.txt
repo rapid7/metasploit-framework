@@ -1,4 +1,3 @@
-
 # cowsay++
  ____________
 < metasploit >
