@@ -106,6 +106,8 @@ public class RpcCacheImpl implements Runnable {
 		key.append(temp.get("ports"));
 		key.append(";");
 		key.append(temp.get("session"));
+		key.append(";");
+		key.append(temp.get("labels"));
 		return key.toString();
 	}
 

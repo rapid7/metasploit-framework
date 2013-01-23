@@ -205,6 +205,7 @@ class Db
 			mode = :search
 			delete_count = 0
 
+			rhosts = []
 			host_ranges = []
 			search_term = nil
 
@@ -241,7 +242,6 @@ class Db
 					output = args.shift
 				when '-R','--rhosts'
 					set_rhosts = true
-					rhosts = []
 				when '-S', '--search'
 					search_term = /#{args.shift}/nmi
 
@@ -280,11 +280,6 @@ class Db
 					range.each do |address|
 						host = framework.db.find_or_create_host(:host => address)
 						print_status("Time: #{host.created_at} Host: host=#{host.address}")
-						if set_rhosts
-							# only unique addresses
-							addr = (host.scope ? host.address + '%' + host.scope : host.address )
-							rhosts << addr unless rhosts.include?(addr)
-						end
 					end
 				end
 				return
@@ -323,7 +318,7 @@ class Db
 					tbl << columns
 					if set_rhosts
 						addr = (host.scope ? host.address + '%' + host.scope : host.address )
-						rhosts << addr unless rhosts.include?(addr)
+						rhosts << addr
 					end
 					if mode == :delete
 						host.destroy
@@ -344,9 +339,11 @@ class Db
 
 			# Finally, handle the case where the user wants the resulting list
 			# of hosts to go into RHOSTS.
-			set_rhosts_from_addrs(rhosts) if set_rhosts
+			set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
 			print_status("Deleted #{delete_count} hosts") if delete_count > 0
 		}
+##
+##
 		end
 
 		def cmd_services_help
@@ -366,10 +363,11 @@ class Db
 			default_columns = ::Mdm::Service.column_names.sort
 			default_columns.delete_if {|v| (v[-2,2] == "id")}
 
-			host_ranges = []
-			port_ranges = []
+			host_ranges  = []
+			port_ranges  = []
+			rhosts       = []
 			delete_count = 0
-			search_term = nil
+			search_term  = nil
 
 			# option parsing
 			while (arg = args.shift)
@@ -420,7 +418,6 @@ class Db
 					output_file = ::File.expand_path(output_file)
 				when '-R','--rhosts'
 					set_rhosts = true
-					rhosts = []
 				when '-S', '--search'
 					search_term = /#{args.shift}/nmi
 
@@ -508,7 +505,7 @@ class Db
 					tbl << columns
 					if set_rhosts
 						addr = (host.scope ? host.address + '%' + host.scope : host.address )
-						rhosts << addr unless rhosts.include?(addr)
+						rhosts << addr
 					end
 
 					if (mode == :delete)
@@ -529,7 +526,7 @@ class Db
 
 			# Finally, handle the case where the user wants the resulting list
 			# of hosts to go into RHOSTS.
-			set_rhosts_from_addrs(rhosts) if set_rhosts
+			set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
 			print_status("Deleted #{delete_count} services") if delete_count > 0
 
 		}
@@ -680,6 +677,7 @@ class Db
 
 			host_ranges = []
 			port_ranges = []
+			rhosts      = []
 			svcs        = []
 			search_term = nil
 
@@ -733,7 +731,6 @@ class Db
 					end
 				when "-R"
 					set_rhosts = true
-					rhosts = []
 				when '-S', '--search'
 					search_term = /#{args.shift}/nmi
 				when "-u","--user"
@@ -828,7 +825,7 @@ class Db
 				end
 				if set_rhosts
 					addr = (cred.service.host.scope ? cred.service.host.address + '%' + cred.service.host.scope : cred.service.host.address )
-					rhosts << addr unless rhosts.include?(addr)
+					rhosts << addr
 				end
 				creds_returned += 1
 			end
@@ -842,7 +839,7 @@ class Db
 				print_status("Wrote services to #{output_file}")
 			end
 
-			set_rhosts_from_addrs(rhosts) if set_rhosts
+			set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
 			print_status "Found #{creds_returned} credential#{creds_returned == 1 ? "" : "s"}."
 		}
 		end
@@ -873,6 +870,7 @@ class Db
 			set_rhosts = false
 
 			host_ranges = []
+			rhosts      = []
 			search_term = nil
 
 			while (arg = args.shift)
@@ -896,7 +894,6 @@ class Db
 					types = typelist.strip().split(",")
 				when '-R','--rhosts'
 					set_rhosts = true
-					rhosts = []
 				when '-S', '--search'
 					search_term = /#{args.shift}/nmi
 				when '-h','--help'
@@ -954,7 +951,7 @@ class Db
 					msg << " host=#{note.host.address}"
 					if set_rhosts
 						addr = (host.scope ? host.address + '%' + host.scope : host.address )
-						rhosts << addr unless rhosts.include?(addr)
+						rhosts << addr
 					end
 				end
 				if (note.service)
@@ -971,7 +968,7 @@ class Db
 
 			# Finally, handle the case where the user wants the resulting list
 			# of hosts to go into RHOSTS.
-			set_rhosts_from_addrs(rhosts) if set_rhosts
+			set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
 
 			print_status("Deleted #{delete_count} note#{delete_count == 1 ? "" : "s"}") if delete_count > 0
 		}
@@ -1476,7 +1473,7 @@ class Db
 				print_error("The database is not connected")
 				return
 			end
-					
+
 			print_status("Purging and rebuilding the module cache in the background...")
 			framework.threads.spawn("ModuleCacheRebuild", true) do
 				framework.db.purge_all_module_details
@@ -1707,4 +1704,3 @@ end
 end
 end
 end
-

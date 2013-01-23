@@ -21,6 +21,10 @@ sub getHostOS {
 	return iff($1 in %hosts, %hosts[$1]['os_name'], $null);
 }
 
+sub getHostLabel {
+	return iff($1 in %hosts, %hosts[$1]['label'], $null);
+}
+
 sub getSessions {
 	return iff($1 in %hosts && 'sessions' in %hosts[$1], %hosts[$1]['sessions']);
 }
@@ -122,7 +126,7 @@ on sessions {
 		}
 
 		if ($host['show'] eq "1") {
-			push(@nodes, @($id, describeHost($host), showHost($host), $tooltip));
+			push(@nodes, @($id, $host['label'] . "", describeHost($host), showHost($host), $tooltip));
 		}
 	}
 
@@ -130,14 +134,14 @@ on sessions {
 }
 
 sub refreshGraph {
-	local('$node $id $description $icons $tooltip $highlight');
+	local('$node $id $label $description $icons $tooltip $highlight');
 
 	# update everything...
 	[$graph start];
 		# do the hosts?
 		foreach $node (@nodes) {
-			($id, $description, $icons, $tooltip) = $node;
-			[$graph addNode: $id, $description, $icons, $tooltip];
+			($id, $label, $description, $icons, $tooltip) = $node;
+			[$graph addNode: $id, $label, $description, $icons, $tooltip];
 		}
 
 		# update the routes

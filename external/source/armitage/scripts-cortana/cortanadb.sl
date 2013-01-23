@@ -42,8 +42,13 @@ sub c_client {
 sub setupHandlers {
 	find_job("Exploit: multi/handler", {
 		if ($1 == -1) {
+			# set LPORT for the user...
+			local('$c');
+			$c = call($client, "console.allocate")['id'];
+			call($client, "console.write", $c, "setg LPORT " . randomPort() . "\n");
+			call($client, "console.release", $c);
+
 			# setup a handler for meterpreter
-			call($client, "core.setg", "LPORT", randomPort());
 			call($client, "module.execute", "exploit", "multi/handler", %(
 				PAYLOAD => "windows/meterpreter/reverse_tcp",
 				LHOST => "0.0.0.0",
@@ -55,7 +60,7 @@ sub setupHandlers {
 
 sub main {
 	global('$client $mclient');
-	local('%r $exception');
+	local('%r $exception $lhost $temp $c');
 
 	setField(^msf.MeterpreterSession, DEFAULT_WAIT => 20000L);
 
@@ -81,8 +86,24 @@ sub main {
 	# setup second thread.
         %r = call($client, "armitage.validate", $user, $pass, $null, "armitage", 120326);
 
+	# resolve lhost..
+	$c = call($client, "console.allocate")['id'];
+	call($client, "console.write", $c, "setg LHOST\n");
+	while ($lhost eq "") {
+		$temp = call($client, "console.read", $c)['data'];
+		if (["$temp" startsWith: "LHOST => "]) {
+			$lhost = substr(["$temp" trim], 9);
+		}
+		else {
+			# this shouldn't happen because having LHOST set is a precondition
+			# for Cortana to connect to a team server.
+			sleep(1000);
+		}
+	}
+	call($client, "console.release", $c);
+
 	# pass some objects back yo.
-	[$loader passObjects: $client, $mclient];
+	[$loader passObjects: $client, $mclient, $lhost];
 
 	# don't make previous messages available...
 	call($mclient, "armitage.skip");

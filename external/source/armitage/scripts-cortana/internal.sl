@@ -9,7 +9,7 @@ import msf.*;
 
 # setg("varname", "value")
 sub setg {
-	call_async("core.setg", $1, $2);
+	cmd_safe("setg $1 $2");
 }
 
 sub readg {
@@ -335,14 +335,22 @@ sub multi_handler {
 }
 
 sub handler {
-	local('%o $3');
+	local('%o $3 $key $value');
+
+	# default options
+	%o['PAYLOAD'] = $1;
+	%o['LPORT']   = $2;
+	%o['DisablePayloadHandler'] = 'false';
+	%o['ExitOnSession']         = 'false';
+
+	# let the user override anything
 	if ($3) {
-		%o = copy($3);
+		foreach $key => $value ($3) {
+			%o[$key] = $value;
+		}
 	}
 
-	%o['PAYLOAD'] = "payload/ $+ $1";
-	%o['LPORT']   = $2;
-
+	# make sure LHOST is correct
 	if ('LHOST' !in %o) {
 		if ("*http*" iswm $1) {
 			%o['LHOST']   = lhost();
@@ -352,6 +360,7 @@ sub handler {
 		}
 	}
 
+	# let's do it...
 	return launch('exploit', 'multi/handler', %o);
 }
 

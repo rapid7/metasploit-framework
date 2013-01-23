@@ -403,9 +403,6 @@ sub main {
 	# we need this global to be set so our reverse listeners work as expected.
 	$MY_ADDRESS = $host;
 
-	# make sure clients know a team server is present. can't happen async.
-	call($client, "core.setg", "ARMITAGE_TEAM", '1');
-
 	#
 	# setup the client cache
 	#

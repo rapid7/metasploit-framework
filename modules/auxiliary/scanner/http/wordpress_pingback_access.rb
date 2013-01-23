@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					'Thomas McCarthy "smilingraccoon" <smilingraccoon[at]gmail.com>',
 					'Brandon McCann "zeknox" <bmccann[at]accuvant.com>' ,
-					'FireFart' # Original PoC
+					'Christian Mehlmauer "FireFart" <FireFart[at]gmail.com>' # Original PoC
 				],
 			'License' => MSF_LICENSE,
 			'References'  =>
@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 		vprint_status("#{ip} - Enumerating XML-RPC URI...")
 
 		begin
-			
+
 			uri = target_uri.path
 			uri << '/' if uri[-1,1] != '/'
 
