@@ -530,7 +530,7 @@ class Plugin::OpenVAS < Msf::Plugin
 				end
 			else
 				print_status("Usage: openvas_report_import <report_id> <format_id>")
-				print_status("Only the NBE format is supported for importing.")
+				print_status("Only the NBE and XML formats are supported for importing.")
 			end
 		end
 
