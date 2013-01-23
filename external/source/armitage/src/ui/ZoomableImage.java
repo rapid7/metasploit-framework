@@ -54,6 +54,8 @@ public class ZoomableImage extends JLabel {
 				check(ev);
 			}
 		});
+
+		setHorizontalAlignment(SwingConstants.CENTER);
 	}
 
 	protected void updateIcon() {

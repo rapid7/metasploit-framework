@@ -446,7 +446,7 @@ sub quickListDialog {
 	
 	$button = [new JButton: $2];
 	[$button addActionListener: lambda({
-		[$callback : [$model getSelectedValueFromColumn: $table, $lead]]; 
+		[$callback : [$model getSelectedValueFromColumn: $table, $lead], $table, $model]; 
 		[$dialog setVisible: 0];
 	}, \$dialog, $callback => $5, \$model, \$table, $lead => $3[0])];
 
