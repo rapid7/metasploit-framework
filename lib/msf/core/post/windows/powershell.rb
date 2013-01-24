@@ -9,25 +9,33 @@ module Windows
 module Powershell
 	include ::Msf::Post::Common
 
-
-	# List of running processes, open channels, and env variables...
-
-
-	# Suffix for environment variables
+	def initialize(info = {})
+		super
+		register_advanced_options(
+			[
+				OptInt.new('PS_TIMEOUT',   [true, 'Powershell execution timeout', 30]),
+				OptBool.new('PS_LOG_OUTPUT', [true, 'Write output to log file', false]),
+				OptBool.new('PS_DRY_RUN', [true, 'Write output to log file', false])
+			], self.class)
+	end
 
 	#
 	# Returns true if powershell is installed
 	#
-	def have_powershell?
-		cmd_out = cmd_exec("powershell get-host")
-		return true if cmd_out =~ /Name.*Version.*InstanceID/
-		return false
-	end
+ 	def have_powershell?
+ 		cmd_out = cmd_exec("powershell get-host")
+ 		return true if cmd_out =~ /Name.*Version.*InstanceID/
+ 		return false
+ 	end
 
 	#
 	# Insert substitutions into the powershell script
 	#
 	def make_subs(script, subs)
+		if ::File.file?(script)
+			script = ::File.read(script)
+		end
+
 		subs.each do |set|
 			script.gsub!(set[0],set[1])
 		end
@@ -35,6 +43,7 @@ module Powershell
 			print_good("Final Script: ")
 			script.each_line {|l| print_status("\t#{l}")}
 		end
+		return script
 	end
 
 	#
@@ -110,23 +119,50 @@ module Powershell
 	end
 
 	#
-	# Execute a powershell script and return the results. The script is never written
-	# to disk.
+	# Get/compare list of current PS processes - nested execution can spawn many children
+	# doing checks before and after execution allows us to kill more children...
+	# This is a hack, better solutions are welcome since this could kill user
+	# spawned powershell windows created between comparisons.
 	#
-	def execute_script(script, time_out = 15)
-		running_pids, open_channels = [], []
+	def get_ps_pids(pids = [])
+		current_pids = session.sys.process.get_processes.keep_if {|p|
+			p['name'].downcase == 'powershell.exe'
+		}.map {|p| p['pid']}
+		# Subtract previously known pids
+		current_pids = (current_pids - pids).uniq
+		return current_pids
+	end
+
+	#
+	# Execute a powershell script and return the output, channels, and pids. The script
+	# is never written to disk.
+	#
+	def execute_script(script, greedy_kill = false)
+		@session_pids ||= []
+		running_pids = greedy_kill ? get_ps_pids : []
+		open_channels = []
 		# Execute using -EncodedCommand
-		session.response_timeout = time_out
+		session.response_timeout = datastore['PS_TIMEOUT'].to_i
 		cmd_out = session.sys.process.execute("powershell -EncodedCommand " +
-			"#{script}", nil, {'Hidden' => true, 'Channelized' => true})
+			"#{script}", nil, {'Hidden' => true, 'Channelized' => true}
+		)
+
+		# Subtract prior PIDs from current
+		if greedy_kill
+			Rex::ThreadSafe.sleep(3) # Let PS start child procs
+			running_pids = get_ps_pids(running_pids)
+		end
 
 		# Add to list of running processes
 		running_pids << cmd_out.pid
 
+		# All pids start here, so store them in a class variable
+		(@session_pids += running_pids).uniq!
+
 		# Add to list of open channels
 		open_channels << cmd_out
 
-		return [cmd_out, running_pids, open_channels]
+		return [cmd_out, running_pids.uniq, open_channels]
 	end
 
 
@@ -163,8 +199,7 @@ module Powershell
 
 			# Stage the payload
 			print_good(" - Bytes remaining: #{compressed_script.size - index}")
-			execute_script(encoded_stager)
-
+			cmd_out, running_pids, open_channels = execute_script(encoded_stager, false)
 			# Increment index
 			index += count
 
@@ -184,57 +219,153 @@ module Powershell
 	end
 
 	#
-	# Log the results of the powershell script
+	# Reads output of the command channel and empties the buffer.
+	# Will optionally log command output to disk.
 	#
-	def write_to_log(cmd_out, log_file, eof)
-		# Open log file for writing
-		fd = ::File.new(log_file, 'w+')
+ 	def get_ps_output(cmd_out, eof, read_wait = 5)
 
-		# Read output until eof and write to log
-		while (line = cmd_out.channel.read())
+ 		results = ''
+
+		if datastore['PS_LOG_OUTPUT']
+			# Get target's computer name
+			computer_name = session.sys.config.sysinfo['Computer']
+
+			# Create unique log directory
+			log_dir = ::File.join(Msf::Config.log_directory,'scripts','powershell', computer_name)
+			::FileUtils.mkdir_p(log_dir)
+
+			# Define log filename
+			time_stamp  = ::Time.now.strftime('%Y%m%d:%H%M%S')
+			log_file    = ::File.join(log_dir,"#{time_stamp}.txt")
+
+
+			# Open log file for writing
+			fd = ::File.new(log_file, 'w+')
+		end
+
+		# Read output until eof or nil return output and write to log
+		while (1)
+			line = ::Timeout.timeout(read_wait) {
+				cmd_out.channel.read
+			} rescue nil
+			break if line.nil?
 			if (line.sub!(/#{eof}/, ''))
-				fd.write(line)
+				results << line
+				fd.write(line) if fd
 				vprint_good("\t#{line}")
-				cmd_out.channel.close()
 				break
 			end
-			fd.write(line)
-			vprint_good("\t#{line}")
+			results << line
+			fd.write(line) if fd
+			vprint_good("\n#{line}")
 		end
 
 		# Close log file
-		fd.close()
+		cmd_out.channel.close()
+		fd.close() if fd
 
-		return
+		return results
 	end
 
 	#
 	# Clean up powershell script including process and chunks stored in environment variables
 	#
-	def clean_up(script_file = nil, eof = '', running_pids =[], open_channels = [], env_suffix = Rex::Text.rand_text_alpha(8), delete = false)
+	def clean_up(
+		script_file = nil,
+		eof = '',
+		running_pids =[],
+		open_channels = [],
+		env_suffix = Rex::Text.rand_text_alpha(8),
+		delete = false
+	)
 		# Remove environment variables
 		env_del_command =  "[Environment]::GetEnvironmentVariables('User').keys|"
 		env_del_command += "Select-String #{env_suffix}|%{"
 		env_del_command += "[Environment]::SetEnvironmentVariable($_,$null,'User')}"
+
 		script = compress_script(env_del_command, eof)
-		cmd_out, running_pids, open_channels = *execute_script(script)
-		write_to_log(cmd_out, "/dev/null", eof)
+		cmd_out, new_running_pids, new_open_channels = execute_script(script)
+		get_ps_output(cmd_out, eof)
 
 		# Kill running processes
-		running_pids.each() do |pid|
+		(@session_pids + running_pids + new_running_pids).uniq!
+		(running_pids + new_running_pids).each do |pid|
 			session.sys.process.kill(pid)
 		end
 
 
 		# Close open channels
-		open_channels.each() do |chan|
-			chan.channel.close()
+		(open_channels + new_open_channels).each do |chan|
+			chan.channel.close
 		end
 
 		::File.delete(script_file) if (script_file and delete)
 
 		return
 	end
+
+	#
+	# Simple script execution wrapper, performs all steps
+	# required to execute a string of powershell.
+	# This method will try to kill all powershell.exe PIDs
+	# which appeared during its execution, set greedy_kill
+	# to false if this is not desired.
+	#
+	def psh_exec(script, greedy_kill=true, ps_cleanup=true)
+		# Define vars
+		eof = Rex::Text.rand_text_alpha(8)
+		env_suffix = Rex::Text.rand_text_alpha(8)
+		# Check format
+		if script =~ /\s|\.|\;/
+			script = compress_script(script)
+		end
+		if datastore['PS_DRY_RUN']
+			print_good("powershell -EncodedCommand #{script}")
+			return
+		else
+			# Check 8k cmd buffer limit, stage if needed
+			if (script.size > 8100)
+				vprint_error("Compressed size: #{script.size}")
+				error_msg =  "Compressed size may cause command to exceed "
+				error_msg += "cmd.exe's 8kB character limit."
+				vprint_error(error_msg)
+				vprint_good('Launching stager:')
+				script = stage_to_env(script, env_suffix)
+				print_good("Payload successfully staged.")
+			else
+				print_good("Compressed size: #{script.size}")
+			end
+			# Execute the script, get the output, and kill the resulting PIDs
+			cmd_out, running_pids, open_channels = execute_script(script, greedy_kill)
+			ps_output = get_ps_output(cmd_out,eof)
+			# Kill off the resulting processes if needed
+			if ps_cleanup
+				vprint_good( "Cleaning up #{running_pids.join(', ')}" )
+				clean_up(nil, eof, running_pids, open_channels, env_suffix, false)
+			end
+			return ps_output
+		end
+	end
+
+	#
+	# Convert binary to byte array, read from file if able
+	#
+	def build_byte_array(input_data,var_name = Rex::Text.rand_text_alpha(rand(3)+3))
+		code = ::File.file?(input_data) ? ::File.read(input_data) : input_data
+		code = code.unpack('C*')
+		psh = "[Byte[]] $#{var_name} = 0x#{code[0].to_s(16)}"
+		lines = []
+		1.upto(code.length-1) do |byte|
+			if(byte % 10 == 0)
+				lines.push "\r\n$#{var_name} += 0x#{code[byte].to_s(16)}"
+			else
+				lines.push ",0x#{code[byte].to_s(16)}"
+			end
+		end
+		psh << lines.join("") + "\r\n"
+	end
+
+
 
 end
 end
