@@ -34,7 +34,8 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         =>
 				[
 					'tebo <tebo [at] attackresearch [dot] com>', # Original
-					'Ben Campbell <eat_meatballs [at] hotmail.co.uk>' # Refactoring
+					'Ben Campbell <eat_meatballs [at] hotmail.co.uk>', # Refactoring
+					'Brandon McCann "zeknox" <bmccann [at] accuvant.com>'
 				],
 			'References'     =>
 				[
@@ -98,6 +99,37 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
+	def check_login_rights(domain, user, pass)
+		connect()
+		status_code = "STATUS_SUCCESS"
+		begin
+			simple.login(	datastore['SMBName'],
+								user,
+								pass,
+								domain,
+								datastore['SMB::VerifySignature'],
+								datastore['NTLM::UseNTLMv2'],
+								datastore['NTLM::UseNTLM2_session'],
+								datastore['NTLM::SendLM'],
+								datastore['NTLM::UseLMKey'],
+								datastore['NTLM::SendNTLM'],
+								datastore['SMB::Native_OS'],
+								datastore['SMB::Native_LM'],
+								{:use_spn => datastore['NTLM::SendSPN'], :name =>  self.rhost})
+			# check if account has ability to access admin share
+			simple.connect("\\\\#{datastore['RHOST']}\\admin$")
+			status_code = 'REMOTE_ACCESS'
+		rescue
+			return status_code
+		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
+			status_code = e.error_reason
+		ensure
+			disconnect()
+		end
+
+		return status_code
+	end
+
 	def check_login_status(domain, user, pass)
 		connect()
 		status_code = ""
@@ -119,8 +151,7 @@ class Metasploit3 < Msf::Auxiliary
 			)
 
 			# Windows SMB will return an error code during Session Setup, but nix Samba requires a Tree Connect:
-			simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
-			status_code = 'STATUS_SUCCESS'
+			status_code = check_login_rights(domain, user, pass)
 		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
 			status_code = e.get_error(e.error_code)
 		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
@@ -225,6 +256,20 @@ class Metasploit3 < Msf::Auxiliary
 
 			return :next_user
 
+		when 'REMOTE_ACCESS'
+			# Auth user indicates if the login was as a guest or not
+			if(simple.client.auth_user)
+				print_good(output_message % "SUCCESSFUL LOGIN")
+				validuser_case_sensitive?(domain, user, pass)
+				report_creds(domain,user,pass,true)
+			else
+				if datastore['RECORD_GUEST']
+					print_status(output_message % "GUEST LOGIN")
+					report_creds(domain,user,pass,true)
+				elsif datastore['VERBOSE']
+						print_status(output_message % "GUEST LOGIN")
+				end
+			end
 		when *@correct_credentials_status_codes
 			print_status(output_message % "FAILED LOGIN, VALID CREDENTIALS" )
 			report_creds(domain,user,pass,false)
