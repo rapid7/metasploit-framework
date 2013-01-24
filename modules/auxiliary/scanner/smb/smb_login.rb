@@ -151,6 +151,8 @@ class Metasploit3 < Msf::Auxiliary
 			)
 
 			# Windows SMB will return an error code during Session Setup, but nix Samba requires a Tree Connect:
+			simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
+			
 			status_code = check_login_rights(domain, user, pass)
 		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
 			status_code = e.get_error(e.error_code)
