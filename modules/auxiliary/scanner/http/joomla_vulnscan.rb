@@ -2,7 +2,7 @@
 # $Id: joomla_vulnscan.rb
 ##
 ##
-#Thanks to @zeroSteiner @kaospunk helping with examples and questions. Also thanks to Joomscan and various MSF modules for code examples.
+# Huge thanks to @zeroSteiner for helping me. Also thanks to @kaospunk. Finally thanks to Joomscan and various MSF modules for code examples.
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
@@ -21,30 +21,30 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'        => 'Joomla Scanner',
 			'Description' => %q{
-					This module scans a Joomla install for information and potential vulnerabilites.
+					This module scans a Joomla install for information, plugins and potential vulnerabilites.
 			},
 			'Author'      => [ 'f8lerror' ],
 			'License'     => MSF_LICENSE
 		)
-	register_options(
+		register_options(
 			[
-				OptString.new('PATH', [ true,  "The path to the Joomla install", '/']),
+				OptString.new('TARGETURI', [ true,  "The path to the Joomla install", '/']),
 				OptBool.new('ENUMERATE', [ false, "Enumerate Plugins", true]),
 
 				OptPath.new('PLUGINS',   [ false, "Path to list of plugins to enumerate",
-						File.join(Msf::Config.install_root, "data", "wordlists", "pcheck.txt")
+						File.join(Msf::Config.install_root, "data", "wordlists", "joomla.txt")
 					]
 				)
 
 			], self.class)
 	end
 
-	def osfingerprint (response)
+	def osfingerprint(response)
 		if(response.headers.has_key?('Server') )
 			if(response.headers['Server'] =~/Win32/ or response.headers['Server'] =~ /\(Windows/ or response.headers['Server'] =~ /IIS/)
 				os = "Windows"
 			elsif(response.headers['Server'] =~ /Apache\// and response.headers['Server'] !~/(Win32)/)
-					os = "*Nix"
+				os = "*Nix"
 			else
 				os = "Unknown Server Header Reporting: "+response.headers['Server']
 			end
@@ -52,8 +52,7 @@ class Metasploit3 < Msf::Auxiliary
 		return os
 	end
 
-	def fingerprint (response, app)
-
+	def fingerprint(response, app)
 		if(response.body =~ /<version.*\/?>(.+)<\/version\/?>/i)
 			v = $1
 			out = (v =~ /^6/) ? "Joomla #{v}" : " #{v}"
@@ -87,58 +86,65 @@ class Metasploit3 < Msf::Auxiliary
 		return out
 	end
 
-	def run_host (ip)
-		tpath = datastore['PATH']
-			if tpath[-1,1] != '/'
+	def peer
+		return "#{rhost}:#{rport}"
+	end
+
+	def run_host(ip)
+		tpath = normalize_uri(target_uri.path)
+		if tpath[-1,1] != '/'
 			tpath += '/'
-			end
-		apps = [ 'language/en-GB/en-GB.xml',
+		end
+		apps = [ 'languaage/en-GB/en-GB.xml',
 				'templates/system/css/system.css',
 				'media/system/js/mootools-more.js',
 				'language/en-GB/en-GB.ini','htaccess.txt', 'language/en-GB/en-GB.com_media.ini']
-		iapps = ['robots.txt','administrator/index.php','/admin/','index.php/using-joomla/extensions/components/users-component/registration-form',
+		iapps = ['robots.txt','administrator/index.php','admin/','index.php/using-joomla/extensions/components/users-component/registration-form',
 				'index.php/component/users/?view=registration','htaccess.txt']
-		print_status("Checking Host: #{ip} for version information")
+		
 		apps.each do |app|
-			break if check_app(tpath,app,ip)
+			app_status = check_app(tpath, app, ip)
+			return if app_status == :abort
+			break if app_status
 			end
-		print_status("Scanning #{ip} for interesting pages")
+		vprint_status("#{peer} - Checking host for interesting pages")
 		iapps.each do |iapp|
 			scan_pages(tpath,iapp,ip)
 			end
 		if datastore['ENUMERATE']
-		print_status("Scanning #{ip} for plugins")
+		vprint_status("#{peer} - Checking host for interesting plugins")
 		bres = send_request_cgi({
 			'uri' => tpath,
 			'method' => 'GET',
 			}, 5)
-		return if not bres or not bres.body or not bres.code
+		return false if not bres or not bres.body or not bres.code
 		bres.body.gsub!(/[\r|\n]/, ' ')
 			File.open(datastore['PLUGINS'], 'rb').each_line do |bapp|
 			papp = bapp.chomp
 			plugin_search(tpath,papp,ip,bres)
 			end
 		end
-
 	end
 
-	def check_app (tpath, app, ip)
+	def check_app(tpath, app, ip)
 		res = send_request_cgi({
-				'uri' => "#{datastore['PATH']}" << app,
+				'uri' => "#{tpath}" << app,
 				'method' => 'GET',
 				}, 5)
-		return if not res or not res.body or not res.code
+		return :abort if res.nil?
+		return false if not res or not res.body or not res.code
+		vprint_status("#{peer} - Checking host for version information")
 		res.body.gsub!(/[\r|\n]/, ' ')
 		os = osfingerprint(res)
-		if (res.code.to_i == 200)
+		if (res.code == 200)
 			out = fingerprint(res,app)
 			return if not out
 			if(out =~ /Unknown Joomla/)
-				print_error("Unable to identify Joomla Version with this file #{app}")
+				print_error("#{peer} - Unable to identify Joomla Version with this file #{app}")
 				return false
 			else
-				print_good("Joomla Version:#{out} from: #{app} ")
-				print_good("OS: #{os}")
+				print_good("#{peer} - Joomla Version:#{out} from: #{app} ")
+				print_good("#{peer} - OS: #{os}")
 				report_note(
 					:host  => ip,
 					:port  => datastore['RPORT'],
@@ -146,44 +152,50 @@ class Metasploit3 < Msf::Auxiliary
 					:ntype => 'Joomla Version',
 					:data  => out
 				)
-				return true
+				return :next_app
 			end
-		elsif(res.code.to_i == 403 and datastore['VERBOSE'])
+		elsif(res.code == 403)
 			if(res.body =~ /secured with Secure Sockets Layer/ or res.body =~ /Secure Channel Required/ or res.body =~ /requires a secure connection/)
-				print_status("#{ip} denied access to #{url} (SSL Required)")
+				vprint_status("#{ip} denied access to #{ip} (SSL Required)")
 			elsif(res.body =~ /has a list of IP addresses that are not allowed/)
-				print_status("#{ip} restricted access by IP")
+				vprint_status("#{ip} restricted access by IP")
 			elsif(res.body =~ /SSL client certificate is required/)
-				print_status("#{ip} requires a SSL client certificate")
+				vprint_status("#{ip} requires a SSL client certificate")
 			else
-				print_status("#{ip} denied access to #{url} #{res.code} #{res.message}")
+				vprint_status("#{ip} denied access to #{ip} #{res.code} #{res.message}")
 			end
 
 		end
 		rescue OpenSSL::SSL::SSLError
+			vprint_error("#{peer} - SSL error")
+			return :abort
 		rescue Errno::ENOPROTOOPT, Errno::ECONNRESET, ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError
+			vprint_error("#{peer} - Unable to Connect")
+			return :abort
 		rescue ::Timeout::Error, ::Errno::EPIPE
+			vprint_error("#{peer} - Timeout error")
+			return :abort
 	end
 
-	def scan_pages (tpath, iapp, ip)
+	def scan_pages(tpath, iapp, ip)
 		res = send_request_cgi({
-				'uri' => "#{datastore['PATH']}" << iapp,
+				'uri' => "#{tpath}" << iapp,
 				'method' => 'GET',
 				}, 5)
-		return if not res or not res.body or not res.code
+		return false if not res or not res.body or not res.code
 		res.body.gsub!(/[\r|\n]/, ' ')
-		if (res.code.to_i == 200)
+		if (res.code == 200)
 			if(res.body =~ /Administration Login/ and res.body =~ /\(\'form-login\'\)\.submit/ or res.body =~/administration console/)
-				sout = "Administrator Login Page"
+				sout = "**Administrator Login Page"
 			elsif(res.body =~/Registration/ and res.body =~/class="validate">Register<\/button>/)
-				sout = "Registration Page"
+				sout = "**Registration Page"
 			else
-				sout = iapp
+				sout =  iapp
 			end
 			return if not sout
 			if(sout == iapp)
-				print_good("#{iapp}")
-			elsif print_good("#{sout}: #{iapp}  ")
+				print_good("#{peer} - Page: #{tpath}#{iapp}")
+			elsif print_good("#{peer} - Page: #{tpath}#{iapp} #{sout}")
 				report_note(
 					:host  => ip,
 					:port  => datastore['RPORT'],
@@ -192,58 +204,64 @@ class Metasploit3 < Msf::Auxiliary
 					:data  => sout
 				)
 			end
-		elsif(res.code.to_i == 403 and datastore['VERBOSE'])
+		elsif(res.code == 403)
 			if(res.body =~ /secured with Secure Sockets Layer/ or res.body =~ /Secure Channel Required/ or res.body =~ /requires a secure connection/)
-				print_status("#{ip} denied access to #{url} (SSL Required)")
+				vprint_status("#{ip} denied access to #{ip} (SSL Required)")
 			elsif(res.body =~ /has a list of IP addresses that are not allowed/)
-				print_status("#{ip} restricted access by IP")
+				vprint_status("#{ip} restricted access by IP")
 			elsif(res.body =~ /SSL client certificate is required/)
-				print_status("#{ip} requires a SSL client certificate")
+				vprint_status("#{ip} requires a SSL client certificate")
 			else
-				print_status("#{ip} denied access to #{url} #{res.code} #{res.message}")
+				vprint_status("#{ip} ip access to #{ip} #{res.code} #{res.message}")
 			end
 		end
 		rescue OpenSSL::SSL::SSLError
+			vprint_error("#{peer} - SSL error")
+			return :abort
 		rescue Errno::ENOPROTOOPT, Errno::ECONNRESET, ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError
+			vprint_error("#{peer} - Unable to Connect")
+			return :abort
 		rescue ::Timeout::Error, ::Errno::EPIPE
+			vprint_error("#{peer} - Timeout error")
+			return :abort
 	end
 
-	def plugin_search (tpath, papp, ip, bres)
+	def plugin_search(tpath, papp, ip, bres)
 		res = send_request_cgi({
-				'uri' => "#{datastore['PATH']}" << papp,
+				'uri' => "#{tpath}" << papp,
 				'method' => 'GET',
 				}, 5)
 		return if not res or not res.body or not res.code
 		res.body.gsub!(/[\r|\n]/, ' ')
 		osize = bres.body.size
 		nsize = res.body.size
-		if (res.code.to_i == 200 and res.body !~/#404 Component not found/ and res.body !~/<h1>Joomla! Administration Login<\/h1>/ and osize != nsize)
-			print_good("Found Plugin: #{papp} ")
+		if (res.code == 200 and res.body !~/#404 Component not found/ and res.body !~/<h1>Joomla! Administration Login<\/h1>/ and osize != nsize)
+			print_good("#{peer} - Plugin: #{tpath}#{papp} ")
 			if (papp =~/passwd/ and res.body !~/root/)
-						print_error("Passwd not found")
+						vprint_error("#{peer} - Vulnerability: LFI not found")
 			elsif(papp =~/passwd/ and res.body =~/root/)
-					print_good("Passwd file found in response")
+					print_good("#{peer} - Vulnerability: Potential LFI")
 			elsif(papp =~/'/ or papp =~/union/ or papp =~/sqli/ or papp =~/-\d/ and papp !~/alert/ and res.body =~/SQL syntax/)
-					print_good("Possible SQL Injection")
+					print_good("#{peer} - Vulnerability: Potential SQL Injection")
 			elsif(papp =~/'/ or papp =~/union/ or papp =~/sqli/ or papp =~/-\d/ and papp !~/alert/ and res.body !~/SQL syntax/)
-					print_error("Unable to identify SQL injection")
+					vprint_error("#{peer} - Vulnerability: Unable to identify SQL injection")
 			elsif(papp =~/>alert/ and res.body !~/>alert/)
-				print_error("No XSS")
+				vprint_error("#{peer} - Vulnerability: No XSS")
 			elsif(papp =~/>alert/ and res.body =~/>alert/)
-				print_good("Possible XSS")
+				print_good("#{peer} - Vulnerability: Potential XSS")
 			elsif(res.body =~/SQL syntax/ )
-				print_good("Possible SQL Injection")
+				print_good("#{peer} - Vulnerability: Potential SQL Injection")
 			elsif(papp =~/com_/)
 			vars = papp.split('_')
 			pages = vars[1].gsub('/','')
 			res1 = send_request_cgi({
-				'uri' => "#{datastore['PATH']}"<<"index.php?option=com_#{pages}",
+				'uri' => "#{tpath}"<<"index.php?option=com_#{pages}",
 				'method' => 'GET',
 				}, 5)
-				if (res1.code.to_i == 200)
-					print_good("Found Page: index.php?option=com_#{pages}")
+				if (res1.code == 200)
+					print_good("#{peer} - Page: #{tpath}index.php?option=com_#{pages}")
 					else
-					print_error("#{datastore['PATH']}"<<"index.php?option=com_#{pages} gave a #{res1.code.to_s} response")
+					vprint_error("#{peer} - Page: #{tpath}"<<"index.php?option=com_#{pages} gave a #{res1.code.to_s} response")
 				end
 			end
 				report_note(
@@ -253,21 +271,27 @@ class Metasploit3 < Msf::Auxiliary
 					:ntype => 'Plugin Found',
 					:data  => papp
 				)
-		elsif(res.code.to_i == 403 and datastore['VERBOSE'])
+		elsif(res.code == 403)
 			if(res.body =~ /secured with Secure Sockets Layer/ or res.body =~ /Secure Channel Required/ or res.body =~ /requires a secure connection/)
-				print_status("#{ip} denied access to #{url} (SSL Required)")
+				vprint_status("#{ip} ip access to #{ip} (SSL Required)")
 			elsif(res.body =~ /has a list of IP addresses that are not allowed/)
-				print_status("#{ip} restricted access by IP")
+				vprint_status("#{ip} restricted access by IP")
 			elsif(res.body =~ /SSL client certificate is required/)
-				print_status("#{ip} requires a SSL client certificate")
+				vprint_status("#{ip} requires a SSL client certificate")
 			else
-				print_status("#{ip} denied access to #{url} #{res.code} #{res.message}")
+				vprint_status("#{ip} denied access to #{ip}#{tpath}#{papp} - #{res.code} #{res.message}")
 		end
 	end
 
 		rescue OpenSSL::SSL::SSLError
+			vprint_error("#{peer} - SSL error")
+			return :abort
 		rescue Errno::ENOPROTOOPT, Errno::ECONNRESET, ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError
+			vprint_error("#{peer} - Unable to Connect")
+			return :abort
 		rescue ::Timeout::Error, ::Errno::EPIPE
+			vprint_error("#{peer} - Timeout error")
+			return :abort
 	end
 
 
