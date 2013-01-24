@@ -16,13 +16,13 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'Swann DVR Password Retriever',
+			'Name'        => 'Ray Sharp DVR Password Retriever',
 			'Description' => %q{
 					This module takes advantage of a protocol design issue with the
-				Swann DVR systems. It is possible to retrieve the username and
-				password through the TCP service running on port 9000. Other
-				brand DVRs with the same issue may include Lorex, Night Owl, Zmodo
-				URMET, and KGuard Security.
+				Ray Sharp based DVR systems. It is possible to retrieve the username and
+				password through the TCP service running on port 9000. Other brands using
+				this platform and exposing the same issue may include Swann, Lorex,
+				Night Owl, Zmodo, URMET, and KGuard Security.
 			},
 			'Author'      =>
 				[
