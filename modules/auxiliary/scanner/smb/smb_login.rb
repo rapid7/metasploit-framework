@@ -118,7 +118,7 @@ class Metasploit3 < Msf::Auxiliary
 								{:use_spn => datastore['NTLM::SendSPN'], :name =>  self.rhost})
 			# check if account has ability to access admin share
 			simple.connect("\\\\#{datastore['RHOST']}\\admin$")
-			status_code = 'REMOTE_ACCESS'
+			status_code = 'ADMIN_ACCESS'
 		rescue
 			return status_code
 		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
@@ -256,7 +256,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			return :next_user
 
-		when 'REMOTE_ACCESS'
+		when 'ADMIN_ACCESS'
 			# Auth user indicates if the login was as a guest or not
 			if(simple.client.auth_user)
 				print_good(output_message % "SUCCESSFUL LOGIN")
