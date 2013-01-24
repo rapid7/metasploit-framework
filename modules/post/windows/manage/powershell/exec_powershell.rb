@@ -50,7 +50,6 @@ class Metasploit3 < Msf::Post
 				OptString.new('SUBSTITUTIONS', [false, 'Script subs in gsub format - original,sub;original,sub' ]),
 				OptBool.new(  'DELETE',        [false, 'Delete file after execution', false ]),
 				OptBool.new(  'DRY_RUN',        [false, 'Only show what would be done', false ]),
-				OptInt.new('TIMEOUT',   [false, 'Execution timeout', 15]),
 			], self.class)
 
 	end
@@ -61,10 +60,6 @@ class Metasploit3 < Msf::Post
 		# unless error
 		return 0 if ! (session.type == "meterpreter" || have_powershell?)
 
-		# End of file marker
-		eof = Rex::Text.rand_text_alpha(8)
-		env_suffix = Rex::Text.rand_text_alpha(8)
-
 		# check/set vars
 		subs = process_subs(datastore['SUBSTITUTIONS'])
 		script_in = read_script(datastore['SCRIPT'])
@@ -73,52 +68,12 @@ class Metasploit3 < Msf::Post
 		# Make substitutions in script if needed
 		script_in = make_subs(script_in, subs) unless subs.empty?
 
-		# Get target's computer name
-		computer_name = session.sys.config.sysinfo['Computer']
-
-		# Create unique log directory
-		log_dir = ::File.join(Msf::Config.log_directory,'scripts', computer_name)
-		::FileUtils.mkdir_p(log_dir)
-
-		# Define log filename
-		script_ext  = ::File.extname(datastore['SCRIPT'])
-		script_base = ::File.basename(datastore['SCRIPT'], script_ext)
-		time_stamp  = ::Time.now.strftime('%Y%m%d:%H%M%S')
-		log_file    = ::File.join(log_dir,"#{script_base}-#{time_stamp}.txt")
-
-		# Compress
-		print_status('Compressing script contents.')
-		compressed_script = compress_script(script_in, eof)
-		if datastore['DRY_RUN']
-			print_good("powershell -EncodedCommand #{compressed_script}")
-			return
-		end
-
-		# If the compressed size is > 8100 bytes, launch stager
-		if (compressed_script.size > 8100)
-			print_error("Compressed size: #{compressed_script.size}")
-			error_msg =  "Compressed size may cause command to exceed "
-			error_msg += "cmd.exe's 8kB character limit."
-			print_error(error_msg)
-			print_status('Launching stager:')
-			script = stage_to_env(compressed_script, env_suffix)
-			print_good("Payload successfully staged.")
-		else
-			print_good("Compressed size: #{compressed_script.size}")
-			script = compressed_script
-		end
-
 		# Execute the powershell script
 		print_status('Executing the script.')
-		cmd_out, running_pids, open_channels = execute_script(script, datastore['TIMEOUT'])
 
-		# Write output to log
-		print_status("Logging output to #{log_file}.")
-		write_to_log(cmd_out, log_file, eof)
+		ps_output = psh_exec(script_in)
 
-		# Clean up
-		print_status('Cleaning up residual objects and processes.')
-		clean_up(datastore['SCRIPT'], eof, running_pids, open_channels, env_suffix)
+		print_status ps_output
 
 		# That's it
 		print_good('Finished!')
