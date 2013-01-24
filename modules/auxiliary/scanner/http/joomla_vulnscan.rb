@@ -101,7 +101,7 @@ class Metasploit3 < Msf::Auxiliary
 				'language/en-GB/en-GB.ini','htaccess.txt', 'language/en-GB/en-GB.com_media.ini']
 		iapps = ['robots.txt','administrator/index.php','admin/','index.php/using-joomla/extensions/components/users-component/registration-form',
 				'index.php/component/users/?view=registration','htaccess.txt']
-		
+
 		apps.each do |app|
 			app_status = check_app(tpath, app, ip)
 			return if app_status == :abort
