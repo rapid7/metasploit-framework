@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
 		return os
 	end
 
-	def fingerprint(response, app)
+	def fingerprint(response)
 		if(response.body =~ /<version.*\/?>(.+)<\/version\/?>/i)
 			v = $1
 			out = (v =~ /^6/) ? "Joomla #{v}" : " #{v}"
@@ -101,7 +101,6 @@ class Metasploit3 < Msf::Auxiliary
 				'language/en-GB/en-GB.ini','htaccess.txt', 'language/en-GB/en-GB.com_media.ini']
 		iapps = ['robots.txt','administrator/index.php','admin/','index.php/using-joomla/extensions/components/users-component/registration-form',
 				'index.php/component/users/?view=registration','htaccess.txt']
-
 		apps.each do |app|
 			app_status = check_app(tpath, app, ip)
 			return if app_status == :abort
@@ -137,7 +136,7 @@ class Metasploit3 < Msf::Auxiliary
 		res.body.gsub!(/[\r|\n]/, ' ')
 		os = osfingerprint(res)
 		if (res.code == 200)
-			out = fingerprint(res,app)
+			out = fingerprint(res)
 			return if not out
 			if(out =~ /Unknown Joomla/)
 				print_error("#{peer} - Unable to identify Joomla Version with this file #{app}")
