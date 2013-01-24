@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description' => %q{
 					This module scans a Joomla install for information, plugins and potential vulnerabilites.
 			},
-			'Author'      => [ 'f8lerror' ],
+			'Author'      => [ 'newpid0' ],
 			'License'     => MSF_LICENSE
 		)
 		register_options(
@@ -101,22 +101,23 @@ class Metasploit3 < Msf::Auxiliary
 				'language/en-GB/en-GB.ini','htaccess.txt', 'language/en-GB/en-GB.com_media.ini']
 		iapps = ['robots.txt','administrator/index.php','admin/','index.php/using-joomla/extensions/components/users-component/registration-form',
 				'index.php/component/users/?view=registration','htaccess.txt']
+		vprint_status("#{peer} - Checking Joomla version")
 		apps.each do |app|
 			app_status = check_app(tpath, app, ip)
 			return if app_status == :abort
 			break if app_status
 			end
-		vprint_status("#{peer} - Checking host for interesting pages")
+		vprint_status("#{peer} - Checking for interesting pages")
 		iapps.each do |iapp|
 			scan_pages(tpath,iapp,ip)
 			end
 		if datastore['ENUMERATE']
-		vprint_status("#{peer} - Checking host for interesting plugins")
+		vprint_status("#{peer} - Checking for interesting plugins")
 		bres = send_request_cgi({
 			'uri' => tpath,
 			'method' => 'GET',
 			}, 5)
-		return false if not bres or not bres.body or not bres.code
+		return if not bres or not bres.body or not bres.code
 		bres.body.gsub!(/[\r|\n]/, ' ')
 			File.open(datastore['PLUGINS'], 'rb').each_line do |bapp|
 			papp = bapp.chomp
@@ -129,10 +130,9 @@ class Metasploit3 < Msf::Auxiliary
 		res = send_request_cgi({
 				'uri' => "#{tpath}" << app,
 				'method' => 'GET',
-				}, 5)
+				})
 		return :abort if res.nil?
-		return false if not res or not res.body or not res.code
-		vprint_status("#{peer} - Checking host for version information")
+		return if not res or not res.body or not res.code
 		res.body.gsub!(/[\r|\n]/, ' ')
 		os = osfingerprint(res)
 		if (res.code == 200)
@@ -151,7 +151,7 @@ class Metasploit3 < Msf::Auxiliary
 					:ntype => 'Joomla Version',
 					:data  => out
 				)
-				return :next_app
+				return true
 			end
 		elsif(res.code == 403)
 			if(res.body =~ /secured with Secure Sockets Layer/ or res.body =~ /Secure Channel Required/ or res.body =~ /requires a secure connection/)
@@ -163,25 +163,26 @@ class Metasploit3 < Msf::Auxiliary
 			else
 				vprint_status("#{ip} denied access to #{ip} #{res.code} #{res.message}")
 			end
-
+		else
+			return
 		end
 		rescue OpenSSL::SSL::SSLError
 			vprint_error("#{peer} - SSL error")
-			return :abort
+			return
 		rescue Errno::ENOPROTOOPT, Errno::ECONNRESET, ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError
 			vprint_error("#{peer} - Unable to Connect")
-			return :abort
+			return
 		rescue ::Timeout::Error, ::Errno::EPIPE
 			vprint_error("#{peer} - Timeout error")
-			return :abort
+			return
 	end
 
 	def scan_pages(tpath, iapp, ip)
 		res = send_request_cgi({
 				'uri' => "#{tpath}" << iapp,
 				'method' => 'GET',
-				}, 5)
-		return false if not res or not res.body or not res.code
+				})
+		return if not res or not res.body or not res.code
 		res.body.gsub!(/[\r|\n]/, ' ')
 		if (res.code == 200)
 			if(res.body =~ /Administration Login/ and res.body =~ /\(\'form-login\'\)\.submit/ or res.body =~/administration console/)
@@ -213,23 +214,25 @@ class Metasploit3 < Msf::Auxiliary
 			else
 				vprint_status("#{ip} ip access to #{ip} #{res.code} #{res.message}")
 			end
+		else
+			return
 		end
 		rescue OpenSSL::SSL::SSLError
 			vprint_error("#{peer} - SSL error")
-			return :abort
+			return
 		rescue Errno::ENOPROTOOPT, Errno::ECONNRESET, ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError
 			vprint_error("#{peer} - Unable to Connect")
-			return :abort
+			return
 		rescue ::Timeout::Error, ::Errno::EPIPE
 			vprint_error("#{peer} - Timeout error")
-			return :abort
+			return
 	end
 
 	def plugin_search(tpath, papp, ip, bres)
 		res = send_request_cgi({
 				'uri' => "#{tpath}" << papp,
 				'method' => 'GET',
-				}, 5)
+				})
 		return if not res or not res.body or not res.code
 		res.body.gsub!(/[\r|\n]/, ' ')
 		osize = bres.body.size
@@ -279,18 +282,20 @@ class Metasploit3 < Msf::Auxiliary
 				vprint_status("#{ip} requires a SSL client certificate")
 			else
 				vprint_status("#{ip} denied access to #{ip}#{tpath}#{papp} - #{res.code} #{res.message}")
-		end
+			end
+		else
+			return
 	end
 
 		rescue OpenSSL::SSL::SSLError
 			vprint_error("#{peer} - SSL error")
-			return :abort
+			return
 		rescue Errno::ENOPROTOOPT, Errno::ECONNRESET, ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError
 			vprint_error("#{peer} - Unable to Connect")
-			return :abort
+			return
 		rescue ::Timeout::Error, ::Errno::EPIPE
 			vprint_error("#{peer} - Timeout error")
-			return :abort
+			return
 	end
 
 
