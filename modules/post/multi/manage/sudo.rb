@@ -30,9 +30,11 @@ class Metasploit3 < Msf::Post
 					versions from 2008 and later which support -A.
 				},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'todb <todb[at]metasploit.com>',
-						     'Ryan Baxendale <rbaxendale[at]gmail.com>' #added password option
-						   ],
+				'Author'        =>
+					[
+						'todb <todb[at]metasploit.com>',
+						'Ryan Baxendale <rbaxendale[at]gmail.com>' #added password option
+					],
 				'Platform'      => [ 'linux','unix','osx','solaris','aix' ],
 				'References'    =>
 					[
@@ -66,7 +68,7 @@ class Metasploit3 < Msf::Post
 	def get_root
 		if datastore['PASSWORD']
 			password = datastore['PASSWORD']
-		else	
+		else
 			password = session.exploit_datastore['PASSWORD']
 		end
 
