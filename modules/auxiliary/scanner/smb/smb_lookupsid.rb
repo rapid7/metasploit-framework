@@ -24,7 +24,9 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMB Local User Enumeration (LookupSid)',
-			'Description' => 'Determine what local users exist via brute force SID lookups',
+			'Description' => 'Determine what users exist via brute force SID lookups.
+				This module can enumerate both local and domain accounts by setting
+				ACTION to either LOCAL or DOMAIN',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,
 			'DefaultOptions' =>
