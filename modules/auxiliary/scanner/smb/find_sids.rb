@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -28,7 +24,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMB Username Search',
-			'Version'     => '$Revision$',
 			'Description' => 'Search for specifed user names via brute force SID lookups
 					This module can search via brute force of local RIDs when the LOCAL
 					action is set, or domain RIDs when the DOMAIN action is set.',
