@@ -227,7 +227,7 @@ class Metasploit3 < Msf::Auxiliary
 					NDR.long(1) +
 					NDR.long(rand(0x10000000)) +
 					NDR.long(5) +
-					smb_pack_sid(target_side) +
+					smb_pack_sid(target_sid) +
 					NDR.long(rid) +
 					NDR.long(0) +
 					NDR.long(0) +
