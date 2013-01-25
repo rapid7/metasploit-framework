@@ -100,6 +100,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		fname = datastore['PATH'].gsub(/[\/\\]/, '_')
 		p = store_loot("titanftp.traversal", "text/plain", "rhost", file_data, fname)
+		print_status("Saved in: #{p}")
 		vprint_status(file_data.inspect)
 
 		disconnect
