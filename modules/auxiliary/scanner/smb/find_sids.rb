@@ -226,7 +226,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 			# Store SID, local domain name, joined domain name
-			vprint_status("#{ip} PIPE(#{lsa_pipe}) LOCAL(#{host_name} - #{host_sid}) DOMAIN(#{domain_name} - #{domain_sid})")
+			print_status("#{ip} PIPE(#{lsa_pipe}) LOCAL(#{host_name} - #{host_sid}) DOMAIN(#{domain_name} - #{domain_sid})")
 
 
 			domain = {
