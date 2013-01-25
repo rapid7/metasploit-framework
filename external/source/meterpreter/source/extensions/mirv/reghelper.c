@@ -10,25 +10,6 @@
 #include <stdio.h>
 
 
-//
-//#define MAX_KEY_LENGTH 255
-//#define MAX_VALUE_NAME 16383
-//#define MAX_VALUE_DATA 65535
-//
-//typedef struct messageProviders_struct {
-//	TCHAR* providerNameBestGuess;
-//	TCHAR* CategoryMessageFile;
-//	TCHAR* EventMessageFile;
-//	TCHAR* ParameterMessageFile;
-//} messageProvider;
-//
-//
-//typedef struct node_struct {
-//	messageProvider mp;
-//	struct node_struct *next;
-//} node;
-//
-//typedef node* pnode;
 
 
 int QueryKey(char *currentRoot,messageProvider **mpArray,int mpIndex) 
@@ -83,7 +64,6 @@ int QueryKey(char *currentRoot,messageProvider **mpArray,int mpIndex)
 
 		if (cSubKeys)
 		{
-			//printf( "\nNumber of subkeys: %d\n", cSubKeys);
 
 			for (i=0; i<cSubKeys; i++) 
 			{ 
@@ -97,10 +77,9 @@ int QueryKey(char *currentRoot,messageProvider **mpArray,int mpIndex)
 					&ftLastWriteTime); 
 				if (retCode == ERROR_SUCCESS) 
 				{
-				//	_tprintf(TEXT("(%d) %s\n"), i+1, achKey);
-					//TCHAR 
+
 					int size=sizeof(newRoot);
-			//		_tprintf(_T("Current key: %s\n"),achKey);
+
 					sprintf_s(newRoot,size,"%s\\%s",currentRoot,achKey);
 					mpIndex=QueryKey(newRoot,mpArray,mpIndex); 
 
@@ -113,20 +92,18 @@ int QueryKey(char *currentRoot,messageProvider **mpArray,int mpIndex)
 
 		if (cValues) 
 		{
-		//	printf( "\nNumber of values: %d\n", cValues);
 			LPBYTE data;			
 			DWORD size;
 			data=(LPBYTE) malloc(MAX_VALUE_DATA);//FIXME
 			mp=(messageProvider *)malloc(sizeof(messageProvider));
 			ZeroMemory(mp,sizeof(messageProvider));
-			mp->providerNameBestGuess=_strdup(currentRoot);//{(TCHAR*) currentRoot,NULL,NULL,NULL};
+			mp->providerNameBestGuess=_strdup(currentRoot);
 			
 			for (i=0, retCode=ERROR_SUCCESS; i<cValues; i++) 
 			{ 
 				cchValue = MAX_VALUE_NAME; 
 				achValue[0] = '\0'; 
 				ZeroMemory(data,MAX_VALUE_DATA);
-				//data=(LPBYTE) malloc(MAX_VALUE_DATA);
 				size=MAX_VALUE_DATA;
 				retCode = RegEnumValue(hKey, i, 
 					achValue, 
@@ -138,28 +115,22 @@ int QueryKey(char *currentRoot,messageProvider **mpArray,int mpIndex)
 
 				if (retCode == ERROR_SUCCESS ) 
 				{ 
-		//			_tprintf(TEXT("(%d) '%s'\n"), i+1, achValue); 
 					BOOL valFound=FALSE;
 					if (strcmp(achValue,"ParameterMessageFile") == 0 ){
 
 						mp->ParameterMessageFile=_strdup((char *)data);
 						anyGoodValues=TRUE;
-						//valFound=TRUE;
 					}
 					if (strcmp(achValue,"CategoryMessageFile") == 0 ){
 
 						mp->CategoryMessageFile=_strdup((char *)data);
 						anyGoodValues=TRUE;
-						//valFound=TRUE;
 					}
 					if (strcmp(achValue,"EventMessageFile") == 0 ){
 						mp->ParameterMessageFile=_strdup((char *)data);		
 						anyGoodValues=TRUE;
-						//valFound=TRUE;
 					}
-					//if(!valFound){
-					//	//FIXME:
-					//}
+					
 				}
 
 			}
@@ -177,19 +148,12 @@ int QueryKey(char *currentRoot,messageProvider **mpArray,int mpIndex)
 
 
 int getProviders(messageProvider **mpArray){
-	//messageProvider mpArray[MAX_RESOURCES];
 	int mpIndex =0;
 	mpIndex=QueryKey("SYSTEM\\CurrentControlSet\\services\\eventlog",mpArray,mpIndex);
 	return mpIndex;
 
 }
-//void __cdecl _tmain(void)
-//{
-//	messageProvider mpArray[1024];
-//	int mpIndex =0;
-//	QueryKey(_T("SYSTEM\\CurrentControlSet\\services\\eventlog\\Application"),mpArray,mpIndex);
-//	return;
-//}
+
 
 unsigned int getEventLogProviders(char **providers){
 	TCHAR    achKey[MAX_KEY_LENGTH];   // buffer for subkey name
@@ -207,11 +171,9 @@ unsigned int getEventLogProviders(char **providers){
 	
 	DWORD i, retCode; 
 	size_t origsize,convertedChars=0;
-//	TCHAR  achValue[MAX_VALUE_NAME]; 
 	DWORD cchValue = MAX_VALUE_NAME; 
 
 	HKEY hKey;
-//	char nstring[1024];
 	if(RegOpenKeyEx(HKEY_LOCAL_MACHINE,"SYSTEM\\CurrentControlSet\\services\\eventlog\\",0,KEY_READ,&hKey) == ERROR_SUCCESS){
 
 
@@ -252,7 +214,6 @@ unsigned int getEventLogProviders(char **providers){
 				{
 					origsize = strlen(achKey) + 1;
 					
-					//wcstombs_s(&convertedChars, nstring, origsize, achKey,_TRUNCATE);
 					providers[i]=_strdup(achKey);			
 				}
 			}

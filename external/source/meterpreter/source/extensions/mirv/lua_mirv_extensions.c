@@ -15,7 +15,6 @@ int l_sendudp (lua_State *L){
 	struct addrinfo *result = NULL,
 		*ptr = NULL,
 		hints;
-//	struct sockaddr_in *RecvAddr;
 	int iResult;
 	char buf[8192];
 	message=luaL_checkstring(L,1);
@@ -38,7 +37,6 @@ int l_sendudp (lua_State *L){
 		WSACleanup();
 		return luaL_error(L,"getaddrinfo failed with error: %d\n", iResult);
 		
-		//return -1;
 	}
 	ConnectSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if (ConnectSocket == INVALID_SOCKET) {
@@ -48,7 +46,6 @@ int l_sendudp (lua_State *L){
 	}
 	// Attempt to connect to an address until one succeeds
 	for(ptr=result; ptr != NULL ;ptr=ptr->ai_next) {
-		//RecvAddr = (struct sockaddr_in *) ptr->ai_addr;		 
 		iResult = sendto(ConnectSocket,
 			message, strlen(message), 0, ptr->ai_addr, ptr->ai_addrlen);
 		if (iResult == SOCKET_ERROR) {
@@ -70,7 +67,6 @@ int l_openlog (lua_State *L){
 	
 	const char *provider;
 	event_reader *er;
-//	event_reader *er_lua;
 	er=(event_reader *)malloc(sizeof(event_reader));
 	provider=luaL_checkstring(L,1);
 	if (ERROR_SUCCESS == open_log((char *)provider,er)){

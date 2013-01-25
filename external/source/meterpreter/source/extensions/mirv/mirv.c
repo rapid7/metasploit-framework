@@ -63,48 +63,6 @@ int send_thread_signal(DWORD thread_id,enum thread_signal sig){
 	}
 }
 
-//enum thread_signal get_thread_signal(DWORD thread_id){
-//	int i;
-//	for(i=0;threads[i].thread_id==0;i++); // find thread 
-//	return threads[i].signal;
-//	
-//}
-
-/*
-LPCSTR do_lua(LPCSTR lua_code){
-	lua_State *l,*t;
-	const char *msg,*ret;
-	
-	int res;
-	l = luaL_newstate();
-	luaL_openlibs(l);
-	luaL_dostring(l,lua_code); // Parse code
-	//lua_pcall(l, 0, 0, 0); 
-	t=lua_newthread(l);
-	lua_getglobal(t, "loop"); // get loop to the top
-	while(TRUE){
-		res = lua_resume(t,0);
-		switch(res){
-			case LUA_YIELD:
-				// do nothing at the moment
-				break;
-			case 0: // finished execution
-				msg=lua_tostring(t, -1);
-				goto endlua;
-			default:
-				// ERROR
-				msg=lua_tostring(t, -1);
-				goto endlua;
-				break;
-		}
-	}
-endlua:
-	ret=strdup(msg);
-	lua_close(l);
-	return ret;
-	//return msg;
-}
-*/
 LPCSTR do_lua(LPCSTR lua_code,DWORD thread_id){
 	lua_State *l,*t;
 	const char *msg=NULL,*ret=NULL;
@@ -136,8 +94,8 @@ LPCSTR do_lua(LPCSTR lua_code,DWORD thread_id){
 		dprintf("Error parsing code :( ");
 		msg=lua_tostring(l, -1);
 		goto endlua;
-	}// Parse code
-	//lua_pcall(l, 0, 0, 0); 
+	}
+
 	t=lua_newthread(l);
 	lua_getglobal(t, "loop"); // get loop to the top
 
@@ -160,11 +118,9 @@ LPCSTR do_lua(LPCSTR lua_code,DWORD thread_id){
 			break;
 		case 0: // finished execution
 			dprintf("Execution finished for this thread");
-			//msg=lua_tostring(t, -1);
 			goto endlua;
 		default:
 			// ERROR
-			//msg=lua_tostring(t, -1);
 			goto endlua;
 			break;
 		}
@@ -265,10 +221,6 @@ DWORD request_mirv_thread_list(Remote *remote, Packet *packet)
 	Tlv threadlist[MAX_THREADS];
 	j=0;
 	response = packet_create_response( packet );
-	//entries[entryCount].header.length = sizeof(DWORD);
-	//		entries[entryCount].header.type   = TLV_TYPE_IP;
-	//		entries[entryCount].buffer        = (PUCHAR)&table->table[index].dwAddr;
-	//		entryCount++;
 	for (i=0;i<MAX_THREADS;++i){//FIXME i=>0
 		if(threads[i].thread_id!=0){ // a live record
 

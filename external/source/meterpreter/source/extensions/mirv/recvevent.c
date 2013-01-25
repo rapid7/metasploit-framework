@@ -4,11 +4,8 @@
 #pragma comment(lib, "advapi32.lib")
 
 #define PROVIDER_NAME "System"
-//#define RESOURCE_DLL  "C:\\Windows\\System32\\MsAuditE.dl"
-//#define KEYBOARD_EVENT     0
 #define NOTIFICATION_EVENT 0
-//#define DEFAULT_HOST "192.168.183.128"
-//#define DEFAULT_PORT "4455"
+
 
 HANDLE GetMessageResources(char *resource_dll);
 DWORD SeekToLastRecord(HANDLE hEventLog);
@@ -17,22 +14,12 @@ DWORD GetLastRecordNumber(HANDLE hEventLog, DWORD* pdwMarker);
 
 
 DWORD ReadRecord(HANDLE hEventLog, PBYTE *pBuffer, DWORD dwRecordNumber, DWORD dwFlags);
-//DWORD DumpNewRecords(HANDLE hEventLog, OUT char *message);
 DWORD DumpNewRecords(HANDLE hEventLog, char **message, struct event_reader_struct *er);
 DWORD GetEventTypeName(DWORD EventType);
 LPSTR GetMessageString(DWORD MessageId, DWORD argc, char *argv, struct event_reader_struct *er);
-//DWORD ApplyParameterStringsToMessage(CONST LPCSTR pMessage, LPSTR pFinalMessage);
 DWORD ApplyParameterStringsToMessage(CONST LPCSTR pMessage, LPSTR pFinalMessage,struct event_reader_struct *er);
-//BOOL IsKeyEvent(HANDLE hStdIn);
-//char IsKeyEvent(HANDLE hStdIn);
-//WSADATA wsaData;
-//SOCKET ConnectSocket = INVALID_SOCKET;
 
 char * pEventTypeNames[] = {"Error", "Warning", "Informational", "Audit Success", "Audit Failure"};
-//HANDLE g_hResources = NULL;
-
-//HANDLE resources[MAX_RESOURCES]; // FIXME: should be times 3
-//int resourceHandleCount;
 
 /* This function loads the DLL resources which help expand event log data into readable text */
 int loadResources(messageProvider **mpArray,int count, struct event_reader_struct *er){
@@ -56,7 +43,6 @@ int loadResources(messageProvider **mpArray,int count, struct event_reader_struc
 	finalCount=0;
 	finalResources[finalCount++]=candidateResources[0];
 
-	//_tprintf(_T("Got %i total resources\n"), candidateCount);
 	for (i=1;i<candidateCount;++i){
 		isUnique=TRUE;
 		for(j=0;j<finalCount;j++){
@@ -68,13 +54,11 @@ int loadResources(messageProvider **mpArray,int count, struct event_reader_struc
 		if(isUnique)
 			finalResources[finalCount++]=candidateResources[i];
 	}
-	//_tprintf(_T("Got %i  UNIQUE resources\n"), finalCount);
 	for (i=0;i<finalCount;++i){
 		h=GetMessageResources(finalResources[i]);
 		if(h)
 			er->resources[handleCount++]=h;
 	}
-	//_tprintf(_T("Loaded %i resource handles\n"), handleCount);
 	return handleCount;
 
 }
@@ -87,10 +71,7 @@ int open_log(char *provider, // Which event log to listen to
 struct event_reader_struct *er	// OUT variable for event_reader
 	)
 {
-	//struct event_reader_struct er;
 
-	//HANDLE hEventLog = NULL;
-	//HANDLE aWaitHandles[2];
 	DWORD status = ERROR_SUCCESS;
 	DWORD dwWaitReason = 0;
 	DWORD dwLastRecordNumber = 0;
@@ -160,7 +141,6 @@ int get_event(event_reader *er,  char **message){
 	DWORD dwWaitReason = 0;
 	DWORD dwLastRecordNumber = 0;
 	DWORD status = ERROR_SUCCESS;
-	//char *out;
 	
 		dwWaitReason = WaitForMultipleObjects(1, er->aWaitHandles, FALSE, MAX_WAIT_TIME);		
 		if (NOTIFICATION_EVENT == dwWaitReason - WAIT_OBJECT_0) // Notification results
@@ -171,7 +151,6 @@ int get_event(event_reader *er,  char **message){
 				return -1;
 			}
 
-			//wprintf("\nWaiting for notification of new events (press any key to quit)...\n");
 			ResetEvent(er->aWaitHandles[NOTIFICATION_EVENT]);
 			;
 		}
@@ -202,14 +181,12 @@ DWORD SeekToLastRecord(HANDLE hEventLog)
 	status = GetLastRecordNumber(hEventLog, &dwLastRecordNumber);
 	if (ERROR_SUCCESS != status)
 	{
-		//wprintf("GetLastRecordNumber failed.\n");
 		goto cleanup;
 	}
 
 	status = ReadRecord(hEventLog, &pRecord, dwLastRecordNumber, EVENTLOG_SEEK_READ | EVENTLOG_FORWARDS_READ);
 	if (ERROR_SUCCESS != status)
 	{
-		//wprintf("ReadRecord failed seeking to record %lu.\n", dwLastRecordNumber);
 		goto cleanup;
 	}
 
@@ -231,13 +208,11 @@ DWORD GetLastRecordNumber(HANDLE hEventLog, DWORD* pdwRecordNumber)
 
 	if (!GetOldestEventLogRecord(hEventLog, &OldestRecordNumber))
 	{
-		//wprintf("GetOldestEventLogRecord failed with %lu.\n", status = GetLastError());
 		goto cleanup;
 	}
 
 	if (!GetNumberOfEventLogRecords(hEventLog, &NumberOfRecords))
 	{
-		//wprintf("GetOldestEventLogRecord failed with %lu.\n", status = GetLastError());
 		goto cleanup;
 	}
 
@@ -266,13 +241,10 @@ HANDLE GetMessageResources(char *resource_dll)
 	char expandedString[2048];
 
 	ExpandEnvironmentStringsA(resource_dll,expandedString,sizeof(expandedString));
-	////wprintf("I expanded %s to %s\n", resource_dll, expandedString);
 	hResources = LoadLibraryExA(expandedString, NULL, LOAD_LIBRARY_AS_IMAGE_RESOURCE | LOAD_LIBRARY_AS_DATAFILE);
 	if (NULL == hResources)
 	{
-		//wprintf("LoadLibraryEx of %s failed with %lu.\n", expandedString, GetLastError());
 	}else{
-		////wprintf("LoadLibraryEx of %s succeeded with %lu.\n", expandedString, GetLastError());
 	}
 
 	return hResources;
@@ -302,9 +274,8 @@ DWORD ReadRecord(HANDLE hEventLog, PBYTE *pBuffer, DWORD dwRecordNumber, DWORD d
 		{
 			status = ERROR_SUCCESS;
 
-			//pTemp = (PBYTE)realloc(pBuffer, dwMinimumBytesToRead);
+
 			pTemp= (PBYTE)realloc(pTemp, dwMinimumBytesToRead);
-			//ZeroMemory(pTemp,dwMinimumBytesToRead);
 			if (NULL == pBuffer)
 			{
 				printf("Failed to reallocate memory for the record buffer (%d bytes).\n", dwMinimumBytesToRead);
@@ -356,8 +327,7 @@ DWORD DumpNewRecords(HANDLE hEventLog, OUT char **message, event_reader *er)
 	status = ReadRecord(hEventLog, &pRecord, 0, EVENTLOG_SEQUENTIAL_READ | EVENTLOG_FORWARDS_READ);
 
 	if (ERROR_SUCCESS != status && ERROR_HANDLE_EOF != status)
-	{
-		//wprintf("ReadRecord (priming read) failed.\n");
+	{		
 		goto cleanup;
 	}
 
@@ -373,12 +343,9 @@ DWORD DumpNewRecords(HANDLE hEventLog, OUT char **message, event_reader *er)
 		//	printf("lastRecord %lu , current record %lu, eval 
 		if (lastRecord>=((PEVENTLOGRECORD)pRecord)->RecordNumber)
 			continue;
-		//buffer=(char *)malloc(8192);
+	
 		ZeroMemory(buffer,8192);
 		lastRecord=((PEVENTLOGRECORD)pRecord)->RecordNumber;
-		////wprintf("record number: %lu ", ((PEVENTLOGRECORD)pRecord)->RecordNumber);
-		////wprintf("status code: %d ", ((PEVENTLOGRECORD)pRecord)->EventID & 0xFFFF);
-		////wprintf("event type: %s ", pEventTypeNames[GetEventTypeName(((PEVENTLOGRECORD)pRecord)->EventType)]);
 		sprintf_s(buffer,8192,"record number: %lu, status code: %d, event type: %s,",
 			((PEVENTLOGRECORD)pRecord)->RecordNumber,
 			((PEVENTLOGRECORD)pRecord)->EventID & 0xFFFF,
@@ -389,7 +356,7 @@ DWORD DumpNewRecords(HANDLE hEventLog, OUT char **message, event_reader *er)
 
 		if (pMessage)
 		{
-			////wprintf("event category: %s", pMessage);
+			
 			sprintf_s(buffer,8192,"%s event category: %s,",buffer, pMessage);
 			LocalFree(pMessage);
 			pMessage = NULL;
@@ -402,7 +369,6 @@ DWORD DumpNewRecords(HANDLE hEventLog, OUT char **message, event_reader *er)
 		{
 			status = ApplyParameterStringsToMessage(pMessage, pFinalMessage,er);
 
-			////wprintf("event message: %s", (pFinalMessage) ? pFinalMessage : pMessage);
 			sprintf_s(buffer,8192,"%s event message: %s,",buffer,(pFinalMessage) ? pFinalMessage : pMessage);
 
 			LocalFree(pMessage);
@@ -419,8 +385,7 @@ DWORD DumpNewRecords(HANDLE hEventLog, OUT char **message, event_reader *er)
 		// this example, we know that the event data is a null-terminated string.
 		if (((PEVENTLOGRECORD)pRecord)->DataLength > 0)
 		{
-			////wprintf("event data: %s\n", (LPWSTR)(pRecord + ((PEVENTLOGRECORD)pRecord)->DataOffset));
-			//wcstombs_s(&i,&dataBuffer,(size_t) 8192,buffer,_TRUNCATE);
+
 			wcstombs_s(&i,
 				dataBuffer,
 				8192,
@@ -429,20 +394,17 @@ DWORD DumpNewRecords(HANDLE hEventLog, OUT char **message, event_reader *er)
 			sprintf_s(buffer,8192,"%s event data: %s\n",buffer,dataBuffer);
 		}
 
-		////wprintf("\n");
-		//_tprintf("%s\n",buffer);
-		//sendStuffDownTheTubes((char *)buffer,_tcsclen(buffer)*sizeof(TCHAR));
+
 		pTemp=(char *)malloc(strlen(buffer)*sizeof(char)+1);
 		strncpy_s(pTemp,strlen(buffer)+1,buffer,_TRUNCATE);
 		*message = pTemp;
-		//free(buffer);
+
 
 
 		// Read sequentially through the records.
 		status = ReadRecord(hEventLog, &pRecord, 0, EVENTLOG_SEQUENTIAL_READ | EVENTLOG_FORWARDS_READ);
 		if (ERROR_SUCCESS != status && ERROR_HANDLE_EOF != status)
 		{
-			//wprintf("ReadRecord sequential failed.\n");
 			goto cleanup;
 		}
 	}
@@ -516,7 +478,7 @@ LPSTR GetMessageString(DWORD MessageId, DWORD argc, char *argv, event_reader *er
 		else
 		{
 			dwFormatFlags |= FORMAT_MESSAGE_IGNORE_INSERTS;
-			//wprintf("Failed to allocate memory for the insert string array.\n");
+		
 		}
 	}
 
@@ -529,12 +491,12 @@ LPSTR GetMessageString(DWORD MessageId, DWORD argc, char *argv, event_reader *er
 			(char *)&pMessage, 
 			0, 
 			(va_list*)pArgs) >0){
-				////wprintf("Format message succeeded!");
+		
 				break;
 		}
 		else
 		{
-			////wprintf("Format message failed with %lu\n", GetLastError());
+			//Do we need to handle something here?
 		}
 
 	}
