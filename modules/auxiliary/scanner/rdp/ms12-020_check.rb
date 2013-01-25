@@ -64,13 +64,13 @@ class Metasploit3 < Msf::Auxiliary
 
 	def connectionRequest()
 		packet = '' +
-			"\x03\x00" +	# TPKT Header version 03, reserved 0
-			"\x00\x0b" +	# Length
-			"\x06" +	# X.224 Data TPDU length
-			"\xe0" +	# X.224 Type (Connection request)
-			"\x00\x00" +	# dst reference
-			"\x00\x00" +	# src reference
-			"\x00"		# class and options
+			"\x03\x00" +    # TPKT Header version 03, reserved 0
+			"\x00\x0b" +    # Length
+			"\x06" +        # X.224 Data TPDU length
+			"\xe0" +        # X.224 Type (Connection request)
+			"\x00\x00" +    # dst reference
+			"\x00\x00" +    # src reference
+			"\x00"          # class and options
 		return packet
 	end
 
@@ -88,49 +88,49 @@ class Metasploit3 < Msf::Auxiliary
 
 	def connectInitial()
 		packet = '' +
-			"\x03\x00\x00\x65" +	# TPKT Header
-			"\x02\xf0\x80" +	# Data TPDU, EOT
-			"\x7f\x65\x5b" +	# Connect-Initial
-			"\x04\x01\x01" +	# callingDomainSelector
-			"\x04\x01\x01" +	# callingDomainSelector
-			"\x01\x01\xff" +	# upwardFlag
-			"\x30\x19" +		# targetParams + size
-			"\x02\x01\x22" +	# maxChannelIds
-			"\x02\x01\x20" +	# maxUserIds
-			"\x02\x01\x00" +	# maxTokenIds
-			"\x02\x01\x01" +	# numPriorities
-			"\x02\x01\x00" +	# minThroughput
-			"\x02\x01\x01" +	# maxHeight
-			"\x02\x02\xff\xff" +	# maxMCSPDUSize
-			"\x02\x01\x02" +	# protocolVersion
-			"\x30\x18" +		# minParams + size
-			"\x02\x01\x01" +	# maxChannelIds
-			"\x02\x01\x01" +	# maxUserIds
-			"\x02\x01\x01" +	# maxTokenIds
-			"\x02\x01\x01" +	# numPriorities
-			"\x02\x01\x00" +	# minThroughput
-			"\x02\x01\x01" +	# maxHeight
-			"\x02\x01\xff" +	# maxMCSPDUSize
-			"\x02\x01\x02" +	# protocolVersion
-			"\x30\x19" +		# maxParams + size
-			"\x02\x01\xff" +	# maxChannelIds
-			"\x02\x01\xff" +	# maxUserIds
-			"\x02\x01\xff" +	# maxTokenIds
-			"\x02\x01\x01" +	# numPriorities
-			"\x02\x01\x00" +	# minThroughput
-			"\x02\x01\x01" +	# maxHeight
-			"\x02\x02\xff\xff" +	# maxMCSPDUSize
-			"\x02\x01\x02" +	# protocolVersion
-			"\x04\x00"		# userData
+			"\x03\x00\x00\x65" + # TPKT Header
+			"\x02\xf0\x80" +     # Data TPDU, EOT
+			"\x7f\x65\x5b" +     # Connect-Initial
+			"\x04\x01\x01" +     # callingDomainSelector
+			"\x04\x01\x01" +     # callingDomainSelector
+			"\x01\x01\xff" +     # upwardFlag
+			"\x30\x19" +         # targetParams + size
+			"\x02\x01\x22" +     # maxChannelIds
+			"\x02\x01\x20" +     # maxUserIds
+			"\x02\x01\x00" +     # maxTokenIds
+			"\x02\x01\x01" +     # numPriorities
+			"\x02\x01\x00" +     # minThroughput
+			"\x02\x01\x01" +     # maxHeight
+			"\x02\x02\xff\xff" + # maxMCSPDUSize
+			"\x02\x01\x02" +     # protocolVersion
+			"\x30\x18" +         # minParams + size
+			"\x02\x01\x01" +     # maxChannelIds
+			"\x02\x01\x01" +     # maxUserIds
+			"\x02\x01\x01" +     # maxTokenIds
+			"\x02\x01\x01" +     # numPriorities
+			"\x02\x01\x00" +     # minThroughput
+			"\x02\x01\x01" +     # maxHeight
+			"\x02\x01\xff" +     # maxMCSPDUSize
+			"\x02\x01\x02" +     # protocolVersion
+			"\x30\x19" +         # maxParams + size
+			"\x02\x01\xff" +     # maxChannelIds
+			"\x02\x01\xff" +     # maxUserIds
+			"\x02\x01\xff" +     # maxTokenIds
+			"\x02\x01\x01" +     # numPriorities
+			"\x02\x01\x00" +     # minThroughput
+			"\x02\x01\x01" +     # maxHeight
+			"\x02\x02\xff\xff" + # maxMCSPDUSize
+			"\x02\x01\x02" +     # protocolVersion
+			"\x04\x00"           # userData
 		return packet
 	end
 
 	def userRequest()
 		packet = '' +
-			"\x03\x00" +		# header
-			"\x00\x08" +		# length
-			"\x02\xf0\x80" +	# X.224 Data TPDU (2 bytes: 0xf0 = Data TPDU, 0x80 = EOT, end of transmission)
-			"\x28"			# PER encoded PDU contents
+			"\x03\x00" +         # header
+			"\x00\x08" +         # length
+			"\x02\xf0\x80" +     # X.224 Data TPDU (2 bytes: 0xf0 = Data TPDU, 0x80 = EOT, end of transmission)
+			"\x28"               # PER encoded PDU contents
 		return packet
 	end
 
@@ -178,7 +178,7 @@ class Metasploit3 < Msf::Auxiliary
 			channel_one_res = sock.recv(1024)
 			if channel_one_res.unpack("H*").to_s[16..19] == '3e00'
 				# vulnerable
-				print_good("#{peer} - Vulnerable MS12-020")
+				print_good("#{peer} - Vulnerable to MS12-020")
 				report_goods
 
 				# send ChannelRequestTwo - prevent bsod
