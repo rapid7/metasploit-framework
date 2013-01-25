@@ -1,5 +1,3 @@
-
-
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
