@@ -4,7 +4,6 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Auxiliary::Report
 	include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
