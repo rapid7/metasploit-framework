@@ -27,14 +27,21 @@ class Metasploit3 < Msf::Auxiliary
 			'Description' => 'Determine what local users exist via brute force SID lookups',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,
-			'DefaultOptions' => {
-				'DCERPC::fake_bind_multi' => false
-			}
+			'DefaultOptions' =>
+				{
+					'DCERPC::fake_bind_multi' => false
+				},
+			'Actions'     =>
+				[
+					['LOCAL', { 'Description' => 'Enumerate local accounts' } ],
+					['DOMAIN', { 'Description' => 'Enumerate domain accounts' } ]
+				],
+			'DefaultAction' => 'LOCAL'
 		)
 
 		register_options(
 			[
-				OptInt.new('MaxRID', [ false, "Maximum RID to check", 4000 ])
+				OptInt.new('MaxRID', [ false, "Maximum RID to check", 4000 ]),
 			],
 			self.class
 		)
@@ -206,6 +213,8 @@ class Metasploit3 < Msf::Auxiliary
 				:groups  => {}
 			}
 
+			target_sid = host_sid if action.name =~ /LOCAL/i
+			target_sid = domain_sid if action.name =~ /DOMAIN/i
 			# Brute force through a common RID range
 			500.upto(datastore['MaxRID'].to_i) do |rid|
 
@@ -216,7 +225,7 @@ class Metasploit3 < Msf::Auxiliary
 					NDR.long(1) +
 					NDR.long(rand(0x10000000)) +
 					NDR.long(5) +
-					smb_pack_sid(host_sid) +
+					smb_pack_sid(target_side) +
 					NDR.long(rid) +
 					NDR.long(0) +
 					NDR.long(0) +
