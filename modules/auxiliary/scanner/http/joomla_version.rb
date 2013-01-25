@@ -40,9 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		case response.headers['Server']
-		when /Win32/
-		when /\(Windows/
-		when /IIS/
+		when /Win32/, /\(Windows/, /IIS/
 			os = "Windows"
 		when /Apache\//
 			os = "*Nix"
@@ -57,36 +55,36 @@ class Metasploit3 < Msf::Auxiliary
 		when /<version.*\/?>(.+)<\/version\/?>/i
 			v = $1
 			out = (v =~ /^6/) ? "Joomla #{v}" : " #{v}"
-		when /system\.css 20196 2011\-01\-09 02\:40\:25Z ian/
-		when /MooTools\.More\=\{version\:\"1\.3\.0\.1\"/
-		when /en-GB\.ini 20196 2011\-01\-09 02\:40\:25Z ian/
-		when /en-GB\.ini 20990 2011\-03\-18 16\:42\:30Z infograf768/
-		when /20196 2011\-01\-09 02\:40\:25Z ian/
+		when /system\.css 20196 2011\-01\-09 02\:40\:25Z ian/,
+			/MooTools\.More\=\{version\:\"1\.3\.0\.1\"/,
+			/en-GB\.ini 20196 2011\-01\-09 02\:40\:25Z ian/,
+			/en-GB\.ini 20990 2011\-03\-18 16\:42\:30Z infograf768/,
+			/20196 2011\-01\-09 02\:40\:25Z ian/
 			out = "1.6"
-		when /system\.css 21322 2011\-05\-11 01\:10\:29Z dextercowley /
-		when /MooTools\.More\=\{version\:\"1\.3\.2\.1\"/
-		when /22183 2011\-09\-30 09\:04\:32Z infograf768/
-		when /21660 2011\-06\-23 13\:25\:32Z infograf768/
+		when /system\.css 21322 2011\-05\-11 01\:10\:29Z dextercowley /,
+			/MooTools\.More\=\{version\:\"1\.3\.2\.1\"/,
+			/22183 2011\-09\-30 09\:04\:32Z infograf768/,
+			/21660 2011\-06\-23 13\:25\:32Z infograf768/
 			out = "1.7"
-		when /Joomla! 1.5/
-		when /MooTools\=\{version\:\'1\.12\'\}/
-		when /11391 2009\-01\-04 13\:35\:50Z ian/
+		when /Joomla! 1.5/,
+			/MooTools\=\{version\:\'1\.12\'\}/,
+			/11391 2009\-01\-04 13\:35\:50Z ian/
 			out = "1.5"
-		when /Copyright \(C\) 2005 \- 2012 Open Source Matters/
-		when /MooTools.More\=\{version\:\"1\.4\.0\.1\"/
+		when /Copyright \(C\) 2005 \- 2012 Open Source Matters/,
+			/MooTools.More\=\{version\:\"1\.4\.0\.1\"/
 			out = "2.5"
 		when /<meta name=\"Keywords\" content=\"(.*)\">\s+<meta name/
 			out = $1.split(/,/)[0]
-		when /(Copyright \(C\) 2005 - 200(6|7))/
-		when /47 2005\-09\-15 02\:55\:27Z rhuk/
-		when /423 2005\-10\-09 18\:23\:50Z stingrey/
-		when /1005 2005\-11\-13 17\:33\:59Z stingrey/
-		when /1570 2005\-12\-29 05\:53\:33Z eddieajau/
-		when /2368 2006\-02\-14 17\:40\:02Z stingrey/
-		when /4085 2006\-06\-21 16\:03\:54Z stingrey/
-		when /4756 2006\-08\-25 16\:07\:11Z stingrey/
-		when /5973 2006\-12\-11 01\:26\:33Z robs/
-		when /5975 2006\-12\-11 01\:26\:33Z robs/
+		when /(Copyright \(C\) 2005 - 200(6|7))/,
+			/47 2005\-09\-15 02\:55\:27Z rhuk/,
+			/423 2005\-10\-09 18\:23\:50Z stingrey/,
+			/1005 2005\-11\-13 17\:33\:59Z stingrey/,
+			/1570 2005\-12\-29 05\:53\:33Z eddieajau/,
+			/2368 2006\-02\-14 17\:40\:02Z stingrey/,
+			/4085 2006\-06\-21 16\:03\:54Z stingrey/,
+			/4756 2006\-08\-25 16\:07\:11Z stingrey/,
+			/5973 2006\-12\-11 01\:26\:33Z robs/,
+			/5975 2006\-12\-11 01\:26\:33Z robs/
 			out = "1.0"
 		else
 			out = 'Unknown Joomla'
