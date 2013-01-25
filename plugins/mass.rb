@@ -65,9 +65,7 @@ module Msf
 
         if(targets)
           targets.each {|range|
-            (Rex::Socket::RangeWalker(range
-)).each { |target
-|
+            (Rex::Socket::RangeWalker.new(range)).each { |target|
               mod.datastore['RHOST']=target
               cmd_exploit
             }
