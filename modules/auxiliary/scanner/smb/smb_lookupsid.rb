@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptInt.new('MaxRID', [ false, "Maximum RID to check", 4000 ]),
+				OptInt.new('MaxRID', [ false, "Maximum RID to check", 4000 ])
 			],
 			self.class
 		)
