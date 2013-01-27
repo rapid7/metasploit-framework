@@ -100,7 +100,7 @@ LPCSTR do_lua(LPCSTR lua_code,DWORD thread_id){
 	lua_getglobal(t, "loop"); // get loop to the top
 
 	while(TRUE){
-		res = lua_resume(t,0);
+		res = lua_resume(t, NULL, 0);
 		switch(res){
 		case LUA_YIELD:
 			dprintf("Checking if we need to stop... ");
