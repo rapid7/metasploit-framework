@@ -357,6 +357,14 @@ class Rex::Socket::Parameters
 	# The SSL certificate, in pem format, stored as a string.  See +SslTcpServer#make_ssl+
 	#
 	attr_accessor :ssl_cert
+  #
+  # The client SSL certificate
+  #
+  attr_accessor :ssl_client_cert
+  #
+  # The client SSL key
+  #
+  attr_accessor :ssl_client_key
 	#
 	# Whether we should use IPv6
 	#

@@ -44,8 +44,6 @@ begin
 	#
 	def self.create_param(param)
 		param.ssl   = true
-		param.ssl_client_cert = nil
-		param.ssl_client_key = nil
 		Rex::Socket::Tcp.create_param(param)
 	end
 
@@ -298,6 +296,20 @@ begin
 	#
 	def peer_cert_chain
 		sslsock.peer_cert_chain if sslsock
+	end
+
+	#
+	# Access to client cert
+	#
+	def client_cert
+		sslsock.sslctx.cert if sslsock
+	end
+
+	#
+	# Access to client key
+	#
+	def client_key
+		sslsock.sslctx.key if sslsock
 	end
 
 	#
