@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -19,7 +15,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'TrendMicro OfficeScanNT Listener Traversal Arbitrary File Access',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module tests for directory traversal vulnerability in the UpdateAgent
 				function in the OfficeScanNT Listener (TmListen.exe) service in Trend Micro

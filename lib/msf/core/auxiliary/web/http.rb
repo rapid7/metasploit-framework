@@ -291,7 +291,7 @@ class Auxiliary::Web::HTTP
 		Response.from_rex_response c.send_recv( c.request_cgi( opts ), timeout )
 	rescue ::Timeout::Error
 		Response.timed_out
-	rescue ::Errno::EPIPE, Rex::ConnectionTimeout
+	rescue ::Errno::EPIPE, ::Errno::ECONNRESET, Rex::ConnectionTimeout
 		Response.empty
 	end
 

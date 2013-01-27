@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -27,7 +23,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMB Directory Listing Utility',
-			'Version'     => '$Revision$',
 			'Description' => %Q{
 				This module lists the directory of a target share and path. The only reason
 			to use this module is if your existing SMB client is not able to support the features

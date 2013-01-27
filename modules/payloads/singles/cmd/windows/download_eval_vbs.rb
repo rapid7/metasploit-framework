@@ -1,5 +1,3 @@
-# $Id$
-
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
@@ -19,7 +17,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'        => 'Windows Executable Download and Evaluate VBS',
-			'Version'     => '$Revision$',
 			'Description' => 'Downloads a file from an HTTP(S) URL and executes it as a vbs script.
 						Use it to stage a vbs encoded payload from a short command line. ',
 			'Author'      => 'scriptjunkie',

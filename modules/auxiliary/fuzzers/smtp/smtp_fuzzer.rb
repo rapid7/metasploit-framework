@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # A Very simple Module to fuzzer some SMTP commands.
 # It allows to respect the order or just throw everything at it....
 ##
@@ -18,7 +14,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMTP Simple Fuzzer',
-			'Version'     => '$Revision$',
 			'Description' => 'SMTP Simple Fuzzer',
 			'References'  =>
 				[

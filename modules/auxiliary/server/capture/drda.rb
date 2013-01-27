@@ -38,7 +38,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Authentication Capture: DRDA (DB2, Informix, Derby)',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module provides a fake DRDA (DB2, Informix, Derby) server
 			that is designed to capture authentication credentials.

@@ -41,6 +41,7 @@ import ui.*;
 
 		# strip any funky characters that will cause this call to throw an exception
 		$user = replace($user, '\P{Graph}', "");
+		$hash = fixPass($hash);
 
 		[$queue addCommand: $null, "creds -a $host -p 445 -t smb_hash -u $user -P $hash"];
 	}
@@ -106,6 +107,7 @@ sub createCredentialsTab {
 				$queue = [new armitage.ConsoleQueue: $client];
 				foreach $entry ($entries) {
 					($user, $pass, $host) = $entry;
+					$pass = fixPass($pass);
 					[$queue addCommand: $null, "creds -d $host -u $user -P $pass"];
 				}
 
@@ -370,3 +372,34 @@ sub launchBruteForce {
 		[$console start];
 	}, $type => $1, $module => $2, $options => $3, $title => $4));
 }
+
+sub credentialHelper {
+	thread(lambda({ 
+		[Thread yield];
+
+		# gather our credentials please
+		local('$creds $cred @creds');
+		$creds = call($mclient, "db.creds2", [new HashMap])["creds2"];
+		foreach $cred ($creds) {
+			if ($PASS eq "SMBPass" || $cred['ptype'] ne "smb_hash") {
+				push(@creds, $cred);
+			}
+		}
+
+		# pop up a dialog to let the user choose their favorite set
+		quickListDialog("Choose credentials", "Select", @("user", "user", "pass", "host"), @creds, $width => 640, $height => 240, lambda({
+			if ($1 eq "") {
+				return;
+			}
+
+			local('$user $pass');
+			$user = [$3 getSelectedValueFromColumn: $2, 'user'];
+			$pass = [$3 getSelectedValueFromColumn: $2, 'pass'];
+
+			[$model setValueForKey: $USER, "Value", $user];
+			[$model setValueForKey: $PASS, "Value", $pass];
+			[$model fireListeners];
+		}, \$callback, \$model, \$USER, \$PASS));
+	}, \$USER, \$PASS, \$model, $callback => $4));
+}
+

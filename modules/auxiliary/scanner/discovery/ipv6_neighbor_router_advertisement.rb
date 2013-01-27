@@ -1,7 +1,3 @@
-##
-# $Id$
-##
-
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
@@ -12,7 +8,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 		'Name'        => 'IPv6 Local Neighbor Discovery Using Router Advertisement',
-		'Version'     => '$Revision$',
 		'Description' => %q{
 				Send a spoofed router advertisement with high priority to force hosts to
 				start the IPv6 address auto-config. Monitor for IPv6 host advertisements,

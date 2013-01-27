@@ -263,7 +263,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		select(nil, nil, nil, 1.0)
-		simple.disconnect("IPC$")
+		simple.disconnect("\\\\#{datastore['RHOST']}\\IPC$")
 		return true
 	end
 

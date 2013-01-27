@@ -108,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		@uri = target_uri
+		@uri = normalize_uri(target_uri)
 		@uri.path << "/" if @uri.path[-1, 1] != "/"
 		@peer = "#{rhost}:#{rport}"
 

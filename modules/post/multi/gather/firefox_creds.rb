@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -35,7 +31,6 @@ class Metasploit3 < Msf::Post
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         => ['bannedit'],
-			'Version'        => '$Revision$',
 			'Platform'       => ['win', 'linux', 'bsd', 'unix', 'osx'],
 			'SessionTypes'   => ['meterpreter', 'shell' ]
 		))

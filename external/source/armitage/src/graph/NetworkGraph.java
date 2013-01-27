@@ -453,17 +453,26 @@ public class NetworkGraph extends JComponent implements ActionListener {
 
 	protected Map tooltips = new HashMap();
 
-	public Object addNode(String id, String label, Image image, String tooltip) {
+	public Object addNode(String id, String label, String description, Image image, String tooltip) {
 		nodeImages.put(id, image);
+
+		if (label.length() > 0) {
+			if (description.length() > 0) {
+				description += "\n" + label;
+			}
+			else {
+				description = label;
+			}
+		}
 
 		mxCell cell;
 		if (!nodes.containsKey(id)) {
-			cell = (mxCell)graph.insertVertex(parent, id, label, 0, 0, 125, 97);
+			cell = (mxCell)graph.insertVertex(parent, id, description, 0, 0, 125, 97);
 			nodes.put(id, cell);
 		}
 		else {
 			cell = (mxCell)nodes.get(id);
-			cell.setValue(label);
+			cell.setValue(description);
 		}
 		nodes.touch(id);
 

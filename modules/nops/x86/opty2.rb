@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -28,7 +24,6 @@ class Metasploit3 < Msf::Nop
 	def initialize
 		super(
 			'Name'        => 'Opty2',
-			'Version'     => '$Revision$',
 			'Description' => 'Opty2 multi-byte NOP generator',
 			'Author'      => [ 'spoonm', 'optyx' ],
 			'License'     => MSF_LICENSE,

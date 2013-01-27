@@ -23,12 +23,15 @@ $stderr.puts "[*] Attempting to update the Metasploit Framework..."
 $stderr.puts "[*]"
 $stderr.puts ""
 
+# Bail right away, no waiting around for consoles.
 if not (Process.uid == 0 or File.stat(msfbase).owned?)
-	$stderr.puts "[-] ERROR: User running msfupdate does not own the metasploit install"
-	$stderr.puts "Please run msfupdate as the same user who installed metasploit."
+	$stderr.puts "[-] ERROR: User running msfupdate does not own the Metasploit installation"
+	$stderr.puts "[-] Please run msfupdate as the same user who installed Metasploit."
+	exit 0x10
 end
 
-def is_pro
+# Are you an installer, or did you get here via a source checkout?
+def is_installed
 	File.exists?(File.expand_path(File.join(@msfbase_dir, "..", "engine", "update.rb")))
 end
 
@@ -54,6 +57,16 @@ def print_deprecation_warning
 	$stdout.puts "[*] update over the git protocol, which requires outbound"
 	$stdout.puts "[*] access to github.com:9418/TCP."
 	$stdout.puts "[*] Please adjust your egress firewall rules accordingly."
+end
+
+def maybe_wait_and_exit(exit_code=0)
+	if @actually_wait
+		$stdout.puts ""
+		$stdout.puts "[*] Please hit enter to exit"
+		$stdout.puts ""
+		$stdin.readline
+		exit exit_code
+	end
 end
 
 # Some of these args are meaningful for SVN, some for Git,
@@ -102,7 +115,7 @@ if is_svn
 		$stderr.puts "[-] If you used a binary installer, make sure you run the symlink in"
 		$stderr.puts "[-] /usr/local/bin instead of running this file directly (e.g.: ./msfupdate)"
 		$stderr.puts "[-] to ensure a proper environment."
-		exit 1
+		maybe_wait_and_exit 1
 	else
 		# Cleanup worked, go ahead and update
 		system("svn", "update", *@args)
@@ -134,7 +147,7 @@ if is_git
 		$stderr.puts "[-] If you used a binary installer, make sure you run the symlink in"
 		$stderr.puts "[-] /usr/local/bin instead of running this file directly (e.g.: ./msfupdate)"
 		$stderr.puts "[-] to ensure a proper environment."
-		exit 1
+		maybe_wait_and_exit 1
 	elsif not committed
 		system("git", "stash")
 		$stdout.puts "[*] Stashed local changes to avoid merge conflicts."
@@ -147,18 +160,35 @@ if is_git
 	system("git", "merge", "#{remote}/#{branch}")
 end
 
-if is_pro
+if is_installed
 	update_script = File.expand_path(File.join(@msfbase_dir, "..", "engine", "update.rb"))
-	system("ruby", update_script)
+	product_key =   File.expand_path(File.join(@msfbase_dir, "..", "engine", "license", "product.key"))
+	if File.exists? product_key
+		if File.readable? product_key
+			system("ruby", update_script)
+		else
+			$stdout.puts "[-] ERROR: Failed to update Metasploit installation"
+			$stdout.puts ""
+			$stdout.puts "[-] You must be able to read the product key for the"
+		  $stdout.puts "[-]	Metasploit installation in order to run msfupdate."
+			$stdout.puts "[-] Usually, this means you must be root (EUID 0)."
+			maybe_wait_and_exit 10
+		end
+	else
+		$stdout.puts "[-] ERROR: Failed to update Metasploit installation"
+		$stdout.puts ""
+		$stdout.puts "[-] In order to update your Metasploit installation,"
+		$stdout.puts "[-] you must first register it through the UI, here:"
+		$stderr.puts "[-] https://localhost:3790 (note, Metasploit Community"
+		$stderr.puts "[-] Edition is totally free and takes just a few seconds"
+		$stderr.puts "[-] to register!)"
+		maybe_wait_and_exit 11
+	end
 end
 
-unless is_svn || is_git || is_pro
+unless is_svn || is_git || is_installed
 	raise RuntimeError, "Cannot determine checkout type: `#{@msfbase_dir}'"
 end
 
-if @actually_wait
-	$stderr.puts ""
-	$stderr.puts "[*] Please hit enter to exit"
-	$stderr.puts ""
-	$stdin.readline
-end
+maybe_wait_and_exit(0)
+

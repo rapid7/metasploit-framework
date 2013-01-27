@@ -159,12 +159,15 @@ sub setg {
 }
 
 sub createDefaultHandler {
-	warn("Creating a default reverse handler...");
 	# setup a handler for meterpreter
-	setg("LPORT", randomPort());
+	local('$port');
+	$port = randomPort();
+	setg("LPORT", $port);
+	warn("Creating a default reverse handler... 0.0.0.0: $+ $port");
 	call_async($client, "module.execute", "exploit", "multi/handler", %(
 		PAYLOAD => "windows/meterpreter/reverse_tcp",
 		LHOST => "0.0.0.0",
+		LPORT => $port,
 		ExitOnSession => "false"
 	));
 }
@@ -294,6 +297,11 @@ sub startMetasploit {
 					[System exit: 0];
 				}
 
+				# if the user chooses c:\metasploit AND we're in the 4.5 environment... adjust
+				if (-exists getFileProper($msfdir, "apps", "pro", "msf3")) {
+					$msfdir = getFileProper($msfdir, "apps", "pro");
+				}
+
 				if (charAt($msfdir, -1) ne "\\") {
 					$msfdir = "$msfdir $+ \\";
 				}
@@ -302,7 +310,12 @@ sub startMetasploit {
 				savePreferences();
 			}
 
-			$handle = [SleepUtils getIOHandle: resource("resources/msfrpcd.bat"), $null];
+			if ("*apps*pro*" iswm $msfdir) {
+				$handle = [SleepUtils getIOHandle: resource("resources/msfrpcd_new.bat"), $null];
+			}
+			else {
+				$handle = [SleepUtils getIOHandle: resource("resources/msfrpcd.bat"), $null];
+			}
 			$data = join("\r\n", readAll($handle, -1));
 			closef($handle);
 
@@ -411,7 +424,7 @@ sub connectDialog {
 		[$dialog setVisible: 0];
 		connectToMetasploit($h, $p, $u, $s);
 
-		if ($h eq "127.0.0.1" || $h eq "localhost") {
+		if ($h eq "127.0.0.1" || $h eq "::1" || $h eq "localhost") {
 			try {
 				closef(connect("127.0.0.1", $p, 1000));
 			}
@@ -470,6 +483,15 @@ sub _module_execute {
 		}
 		else {
 			$host = "all";
+		}
+
+		# fix SMBPass and PASSWORD options if necessary...
+		if ("PASSWORD" in $3) {
+			$3['PASSWORD'] = fixPass($3['PASSWORD']);
+		}
+
+		if ("SMBPass" in $3) {
+			$3['SMBPass'] = fixPass($3['SMBPass']);
 		}
 
 		# okie then, let's create a console and execute all of this stuff...	
@@ -607,3 +629,8 @@ sub initConsolePool {
 	[$client addHook: "console.release", $pool];
 	[$client addHook: "console.release_and_destroy", $pool];
 }
+
+sub fixPass {
+	return replace(strrep($1, '\\', '\\\\'), '(\p{Punct})', '\\\\$1');
+}
+

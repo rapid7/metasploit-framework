@@ -21,7 +21,6 @@ module Metasploit3
 					'corelanc0d3r <peter.ve[at]corelan.be>'
 				],
 			'License'       => MSF_LICENSE,
-			'Version'       => "$Revision$",
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86
 		))

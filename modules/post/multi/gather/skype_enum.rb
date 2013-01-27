@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -40,7 +36,6 @@ class Metasploit3 < Msf::Post
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'win', 'osx' ],
 				'SessionTypes'  => [ 'meterpreter', 'shell' ]
 			))
@@ -80,7 +75,7 @@ class Metasploit3 < Msf::Post
 						process_db(db_in_loot,p['name'])
 					end
 				end
-			elsif (session.platfom =~ /win/ and session.type =~ /meter/)
+			elsif (session.platform =~ /win/ and session.type =~ /meter/)
 				# Iterate thru each user profile in a Windows System using Meterpreter Post API
 				grab_user_profiles().each do |p|
 					if check_skype(p['AppData'],p['UserName'])

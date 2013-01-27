@@ -44,12 +44,7 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def run_host(rhost)
-		# check the only one forward slash appears in the url
-		if datastore['URI'][0,1] == "/"
-			url = datastore['URI']
-		else
-			url = "/" + datastore['URI']
-		end
+		url = normalize_uri(datastore['URI'])
 
 		begin
 			res = send_request_raw({'uri' => "#{url}/index.php/members"})

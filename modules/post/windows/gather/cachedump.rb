@@ -1,7 +1,3 @@
-##
-# $Id$
-##
-
 # post/windows/gather/cachedump.rb
 
 ##
@@ -31,7 +27,6 @@ class Metasploit3 < Msf::Post
 				'Maurizio Agazzini <inode[at]mediaservice.net>',
 				'mubix'
 			],
-			'Version'      => '$Revision$',
 			'Platform'     => ['win'],
 			'SessionTypes' => ['meterpreter'],
 			'References'   => [['URL', 'http://lab.mediaservice.net/code/cachedump.rb']]

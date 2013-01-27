@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -24,7 +20,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Linux Meterpreter Service, Reverse TCP Inline',
-			'Version'       => '$Revision$',
 			'Description'   => 'Stub payload for interacting with a Meterpreter Service',
 			'Author'        => 'hdm',
 			'License'       => MSF_LICENSE,

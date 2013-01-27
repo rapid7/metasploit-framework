@@ -52,6 +52,30 @@ sub host_selected_items {
 			item($i, '1. 95/98/2000', '1', setHostValueFunction($2, "os_name", "Micosoft Windows", "os_flavor", "2000"));
 			item($i, '2. XP/2003', '2', setHostValueFunction($2, "os_name", "Microsoft Windows", "os_flavor", "XP"));
 			item($i, '3. Vista/7', '3', setHostValueFunction($2, "os_name", "Microsoft Windows", "os_flavor", "Vista"));
+			item($i, '4. 8/RT', '4', setHostValueFunction($2, "os_name", "Microsoft Windows", "os_flavor", "8"));
+
+		item($h, "Set Label...", 'S', lambda({
+			# calculate preexisting label to prompt with
+			local('$label %l $host');
+
+			# get a label
+			foreach $host ($hosts) {
+				if ($label eq "") {
+					$label = getHostLabel($host);
+				}
+			}
+
+			# ask for a label 
+			$label = ask("Set label to:", $label);
+			if ($label !is $null) {
+				foreach $host ($hosts) {
+					%l[$host] = ["$label" trim];
+				}
+				call_async($mclient, "db.report_labels", %l);
+			}
+		}, $hosts => $2));
+
+		separator($h);
 
 		item($h, "Remove Host", 'R', clearHostFunction($2));
 }
