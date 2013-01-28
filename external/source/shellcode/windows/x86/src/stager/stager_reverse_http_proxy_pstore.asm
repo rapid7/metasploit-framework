@@ -1,9 +1,7 @@
 ;-----------------------------------------------------------------------------;
-; Author: Stephen Fewer (stephen_fewer[at]harmonysecurity[dot]com)
-; Compatible: Windows 7, 2008, Vista, 2003, XP, 2000, NT4
-; Version: 1.0 (24 July 2009)
-; Size: 274 bytes
-; Build: >build.py stager_reverse_tcp_nx
+; Author: Unknown
+; Compatible: Windows Server 2003, IE Versions 4 to 6
+; Build: >build.py stager_reverse_http_proxy_pstore
 ;-----------------------------------------------------------------------------;
 
 [BITS 32]
