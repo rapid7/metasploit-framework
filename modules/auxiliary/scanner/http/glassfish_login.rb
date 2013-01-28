@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
 		headers['Content-Type'] = ctype if ctype != nil
 		headers['Content-Length'] = data.length if data != nil
 
-		uri = normalize_uri(target_uri)
+		uri = normalize_uri(target_uri.path)
 		res = send_request_raw({
 			'uri'	  => "#{uri}#{path}",
 			'method'  => method,
