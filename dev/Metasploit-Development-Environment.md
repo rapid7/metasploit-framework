@@ -27,55 +27,45 @@ Note that this does **not** include an appropriate text editor or IDE, nor does 
 
 <h2 id="rvm">Getting Ruby</h2>
 
-*TODO: Document an alternative installation strategy of just compiling Ruby from source. RVM is getting cumbersome.*
-
-Most (all?) standard distributions of Ruby are lacking in one regard or another. Lucky for all of us, Wayne Seguin's RVM has become quite excellent at providing several proven Ruby interpreters. Visit [https://rvm.io/](https://rvm.io/) to read up on it or just trust that it'll all work out with a simple:
+Many standard distributions of Ruby are lacking in one regard or another. Lucky for all of us, Wayne Seguin's RVM has become quite excellent at providing several proven Ruby interpreters. Visit [https://rvm.io/](https://rvm.io/) to read up on it or just trust that it'll all work out with a simple:
 
 ````bash
-$ curl -L get.rvm.io | bash -s stable
+$ \curl -L https://get.rvm.io | bash -s stable --ruby
 ````
 
-Note the *lack* of sudo; you will nearly always want to install this as a regular user, and not as root. Lately, though, this incantation isn't always reliable. This is nearly identical, but more typing:
+Note the *lack* of sudo; you will nearly always want to install this as a regular user, and not as root. 
+
+Sometimes, depending on your particular platform, this incantation may not be reliable. This is nearly identical, but more typing:
 
 ````bash
-$ curl -o rvm.sh -L get.rvm.io && cat rvm.sh | bash -s stable
+$ \curl -o rvm.sh -L get.rvm.io && cat rvm.sh | bash -s stable
 ````
 
 Also, if you're sketchy about piping a web site directly to bash, you can perform each step individually, without the &&:
 
 ````bash
-$ curl -o rvm.sh -L get.rvm.io 
+$ \curl -o rvm.sh -L get.rvm.io 
 $ less rvm.sh
 $ cat rvm.sh | bash -s stable
 ````
 
-Next, run the RVM scripts by either opening a new terminal window, or just run: 
+Next, load the RVM scripts by either opening a new terminal window, or just run: 
 
 ````bash
 $ source ~/.rvm/scripts/rvm
 ````
 
-Once this is done, you need to install Ruby 1.8.7 to bootstrap up to Ruby 1.9.3. This will likely complain about missing patches to Ruby 1.8.7, but you won't be using that version, so no matter. 
-
-````bash
-$ rvm install 1.8.7
-$ rvm install 1.9.3-p125
-$ rvm use 1.9.3-p125
-$ rvm alias create default 1.9.3-p125
-````
-
-If you haven't already, you will need to tick the `Run command as login shell` on the default profile of gnome-terminal, or else you will get the error message that [RVM is not a function](http://stackoverflow.com/questions/9336596/rvm-installation-not-working-rvm-is-not-a-function).
-
+RVM by default installs a sensible 1.9.3 patchlevel for Ruby these days. No more installing Ruby 1.8 to bootstrap to 1.9. However, you will need to tick the `Run command as login shell` on the default profile of gnome-terminal (assuming stock Ubuntu), or else you will get the error message that [RVM is not a function](http://stackoverflow.com/questions/9336596/rvm-installation-not-working-rvm-is-not-a-function).
 
 Assuming all goes as planned, you should end up with something like this in your shell:
 
 [[/screens/rvm02.png]]
-*TODO: update this screenshot with the new convolutions we need*
+*TODO: update this screenshot with the new docs, namely new rvm sequence and versions*
 
 Once that's finished, it would behoove you to set your default ruby and gemset, as described [in this gist](https://gist.github.com/2625441) by [@claudijd](https://github.com/claudijd) . What I use is:
 
 ````bash
-$ rvm use --default 1.9.3-p125
+$ rvm use --default 1.9.3-p374
 ````
 
 <h2 id="editor">Your Editor</h2>
