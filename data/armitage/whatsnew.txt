@@ -1,6 +1,32 @@
 Armitage Changelog
 ==================
 
+23 Jan 13 (tested against msf 16351)
+---------
+- Added helpers to set EXE::Custom and EXE::Template options.
+- Fixed a bug displaying a Windows 8 icon for Windows 2008 hosts
+- Cleaned up Armitage -> SOCKS Proxy job management code. The code to
+  check if a proxy server is up was deadlock prone. Removed it.
+- Starting SOCKS Proxy module now opens a tab displaying the module
+  start process. An event is posted to the event log too.
+- Created an option helper to select credentials for SMBUser, SMBPass, 
+  USERNAME, and PASSWORD. 
+- Added a feature to label hosts. A label will show up in its own column
+  in table view or below all info in graph view. Any team member may
+  change a label through [host] -> host -> Set Label. You may also use
+  dynamic workspaces to show hosts with certain labels attached.
+- Fixed bad things happening when connecting Armitage to 'localhost' and
+  not '127.0.0.1'.
+- Screenshots and Webcam shots are now centered in their tab.
+- Added an alternate .bat file to start msfrpcd on Windows in the
+  Metasploit 4.5 installer's environment.
+- Added a color-style for [!] warning messages
+
+Cortana Updates (for scripters)
+--------
+- &handler function now works as advertised.
+- Cortana now avoids use of core.setg
+
 4 Jan 13 (tested against msf 16252)
 --------
 - Added a helper to set REXE option

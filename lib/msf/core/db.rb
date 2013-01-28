@@ -679,8 +679,8 @@ class DBManager
 		# In the case of multi handler we cannot yet determine the true
 		# exploit responsible. But we can at least show the parent versus
 		# just the generic handler:
-		if session and session.via_exploit == "exploit/multi/handler"
-	  	sess_data[:via_exploit] = sess_data[:datastore]['ParentModule']
+		if session and session.via_exploit == "exploit/multi/handler" and sess_data[:datastore]['ParentModule']
+			sess_data[:via_exploit] = sess_data[:datastore]['ParentModule']
 		end
 
 		s = ::Mdm::Session.new(sess_data)
@@ -696,9 +696,9 @@ class DBManager
 
 			mod = framework.modules.create(session.via_exploit)
 
-			if session.via_exploit == "exploit/multi/handler"
-		  	mod_fullname = sess_data[:datastore]['ParentModule']
-		  	mod_name = ::Mdm::ModuleDetail.find_by_fullname(mod_fullname).name
+			if session.via_exploit == "exploit/multi/handler" and sess_data[:datastore]['ParentModule']
+				mod_fullname = sess_data[:datastore]['ParentModule']
+				mod_name = ::Mdm::ModuleDetail.find_by_fullname(mod_fullname).name
 			else 
 				mod_name = mod.name
 				mod_fullname = mod.fullname
@@ -720,7 +720,7 @@ class DBManager
 
 			vuln = framework.db.report_vuln(vuln_info)
 			
-			if session.via_exploit == "exploit/multi/handler"
+			if session.via_exploit == "exploit/multi/handler" and sess_data[:datastore]['ParentModule']
 				via_exploit = sess_data[:datastore]['ParentModule']
 			else
 				via_exploit = session.via_exploit

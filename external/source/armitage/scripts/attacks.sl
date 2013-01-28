@@ -679,11 +679,19 @@ sub addFileListener {
 	$actions["SigningCert"] = $actions["*FILE*"];
 	$actions["SigningKey"] = $actions["*FILE*"];
 	$actions["Wordlist"]   = $actions["*FILE*"];
+	$actions["EXE::Custom"] = $actions["*FILE*"];
+	$actions["EXE::Template"] = $actions["*FILE*"];
 	$actions["WORDLIST"]   = $actions["*FILE*"];
 	$actions["REXE"]   = $actions["*FILE*"];
 
 	# set up an action to choose a session
 	$actions["SESSION"] = lambda(&chooseSession);
+
+	# helpers to set credential pairs from database... yay?
+	$actions["USERNAME"] = lambda(&credentialHelper, \$model, $USER => "USERNAME", $PASS => "PASSWORD");
+	$actions["PASSWORD"] = lambda(&credentialHelper, \$model, $USER => "USERNAME", $PASS => "PASSWORD");
+	$actions["SMBUser"] = lambda(&credentialHelper, \$model,  $USER => "SMBUser", $PASS => "SMBPass");
+	$actions["SMBPass"] = lambda(&credentialHelper, \$model,  $USER => "SMBUser", $PASS => "SMBPass");
 
 	# set up an action to pop up a file chooser for different file type values.
 	$actions["RHOST"] = {
