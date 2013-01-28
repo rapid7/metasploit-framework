@@ -70,7 +70,25 @@ $ rvm use --default 1.9.3-p374
 
 <h2 id="editor">Your Editor</h2>
 
-Once that's done, you can set up your preferred editor. Far be it from us to tell you what editor you use -- people get really attached to these things for some reason. After we put together some docs for sensible defaults for a couple of the more popular editors out there, we'll list them here.
+Once that's done, you can set up your preferred editor. Far be it from us to tell you what editor you use -- people get really attached to these things for some reason. An informal straw poll shows that many Metasloit developers use vim, some use [Rubymine](https://www.jetbrains.com/ruby/), and a few use emacs. For this document, let's say you're a vim kind of person, since it's free.
+
+First, get vim, your usual way. Vim-gnome is a pretty safe bet.
+
+````bash
+apt-get install vim-gnome -y
+````
+
+Next, get Janus. Janus is a set of super-useful plugins and conveniences for Vim. You can read up on it here: https://github.com/carlhuda/janus . Or, again, just trust that Things Will Be Fine, and:
+
+````bash
+curl -Lo- https://bit.ly/janus-bootstrap | bash
+````
+
+This will checkout a version of Janus (using Git) to your ~/.vim directory. Yep, you now have a git repo in one of your more important dot-directories.
+
+Finally, I have a very small set of defaults, here: https://gist.github.com/4658778 . Drop this in your `~/.vimrc.after` file. Note, the important bit is our slightly wacky use of hard tabs, as proscribed in the [HACKING](https://github.com/rapid7/metasploit-framework/blob/master/HACKING) guide.
+
+*TODO: Add Rubymine docs, add screenshots for this*
 
 <h2 id="github">Using GitHub</h2>
 
