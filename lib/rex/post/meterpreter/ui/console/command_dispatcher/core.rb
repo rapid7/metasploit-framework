@@ -342,7 +342,8 @@ class Console::CommandDispatcher::Core
 			return
 		end
 
-		print_status("Migrating to #{pid}...")
+		server = client.sys.process.open
+		print_status("Migrating from #{server.pid} to #{pid}...")
 
 		# Do this thang.
 		client.core.migrate(pid)
