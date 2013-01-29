@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-# The commit_scorecard is a way to tell who's been active over the last
+# The committer_count.rb is a way to tell who's been active over the last
 # given period. It's of course, quite coarse -- someone with 10 commits in a day
 # may or may not be more productive than someone with 3, but over long enough
 # periods, it's an okay metric to measure involvement with the project, since
@@ -10,11 +10,11 @@
 # code review happened, so it's still a measure of work). You can get different
 # stats by ignoring merge commits, once option parsing is implemented.
 #
-# Usage: ./commit_scorecard.rb 2011-01-01 | head -10 # Since a particular date
-#        ./commit_scorecard.rb 1y   | head -10       # Last year
-#        ./commit_scorecard.rb 6m   | head -10       # Last six months
-#        ./commit_scorecard.rb 12w  | head -10       # Last twelve weeks
-#        ./commit_scorecard.rb 100d | head -10       # Last hundred days
+# Usage: ./committer_count.rb 2011-01-01 | head -10 # Since a particular date
+#        ./committer_count.rb 1y   | head -10       # Last year
+#        ./committer_count.rb 6m   | head -10       # Last six months
+#        ./committer_count.rb 12w  | head -10       # Last twelve weeks
+#        ./committer_count.rb 100d | head -10       # Last hundred days
 #
 #
 # History with colors and e-mail addresses (respecting .mailmap):
@@ -49,9 +49,9 @@ end
 date = ARGV[0] || "2005-03-22" # A day before the first SVN commit.
 calc_date = parse_date(date)
 
-
 @history.each_line do |line|
 	parsed_line = line.match(/^([^\s+]+)\s(.{7,})\s'(.*)'\s(.*)[\r\n]*$/)
+	next unless parsed_line
 	break if calc_date == parsed_line[1]
 	@recent_history << GitLogLine.new(*parsed_line[1,4])
 end
