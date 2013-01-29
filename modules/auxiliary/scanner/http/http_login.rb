@@ -204,12 +204,11 @@ class Metasploit3 < Msf::Auxiliary
 
 	def do_http_auth_ntlm(user,pass)
 		begin
-			resp,c = send_http_auth_ntlm(
+			resp = send_request_auth_negotiate(
 				'uri' => @uri,
 				'username' => user,
 				'password' => pass
 			)
-			c.close
 			return :abort if (resp.code == 404)
 
 			if [200, 301, 302].include?(resp.code)
