@@ -60,8 +60,56 @@ class Metasploit3 < Msf::Auxiliary
 			desc = bits.join(" | ")
 			sinfo[:info] = desc
 
-			print_status("#{skey} SSDP #{desc}")
+			res[:vulns] = []
+
+			if res[:info][:server].to_s =~ /MiniUPnPd\/1\.0([\.\,\-\~\s]|$)/mi
+				res[:vulns] << {
+					:name => "MiniUPnPd ProcessSSDPRequest() Out of Bounds Memory Access Denial of Service",
+					:refs => [ 'CVE-2013-0229' ]
+				}
+			end
+
+			if res[:info][:server].to_s =~ /MiniUPnPd\/1\.[0-3]([\.\,\-\~\s]|$)/mi
+				res[:vulns] << {
+					:name  => "MiniUPnPd ExecuteSoapAction memcpy() Remote Code Execution",
+					:refs  => [ 'CVE-2013-0230' ],
+					:port  => res[:info][:ssdp_port] || 80,
+					:proto => 'tcp'
+				}
+			end
+
+			if res[:info][:server].to_s =~ /Intel SDK for UPnP devices.*|Portable SDK for UPnP devices(\/?\s*$|\/1\.([0-5]\..*|8\.0.*|(6\.[0-9]|6\.1[0-7])([\.\,\-\~\s]|$)))/mi
+				res[:vulns] << {
+					:name => "Portable SDK for UPnP Devices unique_service_name() Remote Code Execution",
+					:refs => [ 'CVE-2012-5958', 'CVE-2012-5959' ]
+				}
+			end
+
+			if res[:vulns].length > 0
+				vrefs = []
+				res[:vulns].each do |v|
+					v[:refs].each do |r|
+						vrefs << r
+					end
+				end
+
+				print_good("#{skey} SSDP #{desc} | vulns:#{res[:vulns].count} (#{vrefs.join(", ")})")
+			else
+				print_status("#{skey} SSDP #{desc}")
+			end
+
 			report_service( sinfo )
+
+			res[:vulns].each do |v|
+				report_vuln(
+					:host  => sinfo[:host],
+					:port  => v[:port]  || sinfo[:port],
+					:proto => v[:proto] || 'udp',
+					:name  => v[:name],
+					:info  => res[:info][:server],
+					:refs  => v[:refs]
+				)
+			end
 
 			if res[:info][:ssdp_host]
 				report_service(
