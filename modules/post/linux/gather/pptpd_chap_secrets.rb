@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Post
 			ip     = (found[3] || '').strip
 
 			report_auth_info({
-				:host   => session.sock.peerhost,
+				:host   => datastore['RHOST'],
 				:port   => 1723, #PPTP port
 				:sname  => 'pptp',
 				:user   => client,
