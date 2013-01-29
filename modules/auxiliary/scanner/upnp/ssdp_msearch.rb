@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'        => 'UPnP SSDP M-SEARCH Information Discovery',
 			'Description' => 'Discover information from UPnP-enabled systems',
-			'Author'      => [ 'todb', 'hdm'], # Original scanenr module and vuln info reporter, respectively
+			'Author'      => [ 'todb', 'hdm'], # Original scanner module and vuln info reporter, respectively
 			'License'     => MSF_LICENSE
 		)
 
