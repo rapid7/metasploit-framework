@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'        => 'UPnP SSDP M-SEARCH Information Discovery',
 			'Description' => 'Discover information from UPnP-enabled systems',
-			'Author'      => 'todb',
+			'Author'      => [ 'todb', 'hdm'], # Original scanenr module and vuln info reporter, respectively
 			'License'     => MSF_LICENSE
 		)
 
@@ -24,6 +24,10 @@ class Metasploit3 < Msf::Auxiliary
 			Opt::RPORT(1900),
 			OptBool.new('REPORT_LOCATION', [true, 'This determines whether to report the UPnP endpoint service advertised by SSDP', false ])
 		], self.class)
+	end
+
+	def rport
+		datastore['RPORT']
 	end
 
 	def setup
@@ -43,10 +47,13 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def scan_host(ip)
+		vprint_status "#{ip}:#{rport} - SSDP - sending M-SEARCH probe"
 		scanner_send(@msearch_probe, ip, datastore['RPORT'])
 	end
 
 	def scanner_postscan(batch)
+		print_status "No SSDP endpoints found." if @results.empty?
+
 		@results.each_pair do |skey,res|
 			sinfo = res[:service]
 			next unless sinfo
