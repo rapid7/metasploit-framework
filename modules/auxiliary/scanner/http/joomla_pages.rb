@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 	# Joomscan and various MSF modules for code examples.
 	def initialize
 		super(
-			'Name'        => 'Joomla Version Scanner',
+			'Name'        => 'Joomla Page Scanner',
 			'Description' => %q{
 				This module scans a Joomla install for common pages.
 			},
