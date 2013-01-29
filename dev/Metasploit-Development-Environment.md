@@ -208,15 +208,17 @@ You should end up with a complete copy of Metasploit in the metasploit-framework
 
 [[/screens/fork03.png]]
 
-<h3 id="prompt">Set Your Prompt</h3>
+<h3 id="prompt">Setting Your Prompt</h3>
 
-Now might be a good time to decorate your prompt. I've hacked [this gist](https://gist.github.com/2555109) together for my ~/.bash_aliases. It's a little ugly, but it works.
+Now might be a good time to decorate your prompt. At the minimum, you will want [something like this](https://gist.github.com/2555109) in your ~/.bash_aliases to let you know on the prompt which branch you're in, if you're in a git repo. I have no idea how else you would be able to track what branch you're in, honestly.
 
-[[/screens/fork04.png]]
+In the end, you'll have a prompt that looks like:
 
-This lets me know on the command line prompt the version of Ruby, the gemset, and the Git branch I happen to be in. The end result looks like this:
+````
+(master) fakey@mazikeen:~/git/metasploit-framework$ 
+````
 
-[[/screens/fork05.png]]
+where the master bit changes depending on what branch you're in.
 
 ## Start Metasploit
 
