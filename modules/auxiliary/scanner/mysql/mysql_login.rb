@@ -67,6 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		offset = 0
 		l0, l1, l2 = data[offset, 3].unpack('CCC')
+		return false if data.length < 3
 		length = l0 | (l1 << 8) | (l2 << 16)
 		# Read a bad amount of data
 		return if length != (data.length - 4)
