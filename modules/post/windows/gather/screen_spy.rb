@@ -137,9 +137,10 @@ class Metasploit3 < Msf::Post
 				begin
 					session.core.migrate(p['pid'].to_i)
 					print_status("Migration successful")
+					return p['pid']
 				rescue
 					print_status("Migration failed.")
-					return
+					return nil
 				end
 			end
 		end
