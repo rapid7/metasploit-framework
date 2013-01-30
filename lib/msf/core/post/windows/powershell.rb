@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
-require 'zlib'
+require 'msf/core/exploit/powershell'
 require 'msf/core/post/common'
 
 module Msf
@@ -7,6 +7,7 @@ class Post
 module Windows
 
 module Powershell
+  include ::Msf::Exploit::Powershell
 	include ::Msf::Post::Common
 
 	def initialize(info = {})
@@ -15,7 +16,7 @@ module Powershell
 			[
 				OptInt.new('PS_TIMEOUT',   [true, 'Powershell execution timeout', 30]),
 				OptBool.new('PS_LOG_OUTPUT', [true, 'Write output to log file', false]),
-				OptBool.new('PS_DRY_RUN', [true, 'Write output to log file', false])
+				OptBool.new('PS_DRY_RUN', [true, 'Write output to log file', false]),
 			], self.class)
 	end
 
@@ -27,96 +28,6 @@ module Powershell
  		return true if cmd_out =~ /Name.*Version.*InstanceID/
  		return false
  	end
-
-	#
-	# Insert substitutions into the powershell script
-	#
-	def make_subs(script, subs)
-		if ::File.file?(script)
-			script = ::File.read(script)
-		end
-
-		subs.each do |set|
-			script.gsub!(set[0],set[1])
-		end
-		if datastore['VERBOSE']
-			print_good("Final Script: ")
-			script.each_line {|l| print_status("\t#{l}")}
-		end
-		return script
-	end
-
-	#
-	# Return an array of substitutions for use in make_subs
-	#
-	def process_subs(subs)
-		return [] if subs.nil? or subs.empty?
-		new_subs = []
-		subs.split(';').each do |set|
-			new_subs << set.split(',', 2)
-		end
-		return new_subs
-	end
-
-	#
-	# Read in a powershell script stored in +script+
-	#
-	def read_script(script)
-		script_in = ''
-		begin
-			# Open script file for reading
-			fd = ::File.new(script, 'r')
-			while (line = fd.gets)
-				script_in << line
-			end
-
-			# Close open file
-			fd.close()
-		rescue Errno::ENAMETOOLONG, Errno::ENOENT
-			# Treat script as a... script
-			script_in = script
-		end
-		return script_in
-	end
-
-
-	#
-	# Return a zlib compressed powershell script
-	#
-	def compress_script(script_in, eof = nil)
-
-		# Compress using the Deflate algorithm
-		compressed_stream = ::Zlib::Deflate.deflate(script_in,
-			::Zlib::BEST_COMPRESSION)
-
-		# Base64 encode the compressed file contents
-		encoded_stream = Rex::Text.encode_base64(compressed_stream)
-
-		# Build the powershell expression
-		# Decode base64 encoded command and create a stream object
-		psh_expression =  "$stream = New-Object IO.MemoryStream(,"
-		psh_expression += "$([Convert]::FromBase64String('#{encoded_stream}')));"
-		# Read & delete the first two bytes due to incompatibility with MS
-		psh_expression += "$stream.ReadByte()|Out-Null;"
-		psh_expression += "$stream.ReadByte()|Out-Null;"
-		# Uncompress and invoke the expression (execute)
-		psh_expression += "$(Invoke-Expression $(New-Object IO.StreamReader("
-		psh_expression += "$(New-Object IO.Compression.DeflateStream("
-		psh_expression += "$stream,"
-		psh_expression += "[IO.Compression.CompressionMode]::Decompress)),"
-		psh_expression += "[Text.Encoding]::ASCII)).ReadToEnd());"
-
-		# If eof is set, add a marker to signify end of script output
-		if (eof && eof.length == 8) then psh_expression += "'#{eof}'" end
-
-		# Convert expression to unicode
-		unicode_expression = Rex::Text.to_unicode(psh_expression)
-
-		# Base64 encode the unicode expression
-		encoded_expression = Rex::Text.encode_base64(unicode_expression)
-
-		return encoded_expression
-	end
 
 	#
 	# Get/compare list of current PS processes - nested execution can spawn many children
@@ -143,7 +54,8 @@ module Powershell
 		open_channels = []
 		# Execute using -EncodedCommand
 		session.response_timeout = datastore['PS_TIMEOUT'].to_i
-		cmd_out = session.sys.process.execute("powershell -EncodedCommand " +
+		ps_bin = datastore['RUN_WOW64'] ? '%windir%\syswow64\WindowsPowerShell\v1.0\powershell.exe' : 'powershell'
+		cmd_out = session.sys.process.execute("#{ps_bin} -EncodedCommand " +
 			"#{script}", nil, {'Hidden' => true, 'Channelized' => true}
 		)
 
@@ -346,26 +258,6 @@ module Powershell
 			return ps_output
 		end
 	end
-
-	#
-	# Convert binary to byte array, read from file if able
-	#
-	def build_byte_array(input_data,var_name = Rex::Text.rand_text_alpha(rand(3)+3))
-		code = ::File.file?(input_data) ? ::File.read(input_data) : input_data
-		code = code.unpack('C*')
-		psh = "[Byte[]] $#{var_name} = 0x#{code[0].to_s(16)}"
-		lines = []
-		1.upto(code.length-1) do |byte|
-			if(byte % 10 == 0)
-				lines.push "\r\n$#{var_name} += 0x#{code[byte].to_s(16)}"
-			else
-				lines.push ",0x#{code[byte].to_s(16)}"
-			end
-		end
-		psh << lines.join("") + "\r\n"
-	end
-
-
 
 end
 end
