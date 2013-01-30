@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Post
 			# If this line is commented out, ignore it
 			next if l =~ /^[[:blank:]]*#/
 
-			found = l.scan(/(.+)[[:blank:]]+(.+)[[:blank:]]+(.+)[[:blank:]]+(.+)$/).flatten
+			found = l.split
 
 			# Nothing is found, skip!
 			next if found.empty?
@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Post
 			client = (found[0] || '').strip
 			server = (found[1] || '').strip
 			secret = (found[2] || '').strip
-			ip     = (found[3] || '').strip
+			ip     = (found[3,found.length] * ", " || '').strip
 
 			report_auth_info({
 				:host   => session.session_host,
