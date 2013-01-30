@@ -41,6 +41,13 @@ class Metasploit3 < Msf::Auxiliary
 
 		user = ""
 		password = ""
+		enabled = ""
+
+		if conf =~ /PPPOE_EN=(\d)/
+			enabled = $1
+		end
+
+		return if enabled == "0"
 
 		if conf =~ /PPPOE_USER=(.*)/
 			user = $1
@@ -71,6 +78,13 @@ class Metasploit3 < Msf::Auxiliary
 		hostname = ""
 		user = ""
 		password = ""
+		enabled = ""
+
+		if conf =~ /DDNS_EN=(\d)/
+			enabled = $1
+		end
+
+		return if enabled == "0"
 
 		if conf =~ /DDNS_HOSTNAME=(.*)/
 			hostname = $1
