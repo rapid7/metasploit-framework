@@ -10,6 +10,8 @@ require 'uri'
 module Msf
 class Auxiliary::Web::HTTP
 
+	include Exploit::Remote::HttpAuth
+
 	class Request
 		attr_accessor :url
 		attr_reader	 :opts
@@ -147,6 +149,23 @@ class Auxiliary::Web::HTTP
 		while rlimit >= 0
 			rlimit -= 1
 			res = _request( url, opts )
+			if res.code == 401 and res.headers['WWW-Authenticate'] and opts['username']
+				if res.headers['WWW-Authenticate'].include? 'Basic'
+					opts['password']||= ''
+					opts['basic_auth'] = opts['username'] + ":" + opts['password']
+					res = _request( url, opts )
+				elsif res.headers['WWW-Authenticate'].include? 'Digest'
+					opts['DigestAuthUser'] = opts['username']
+					opts['DigestAuthPassword'] = opts['password']
+					res = send_digest_request_cgi(opts,timeout)
+				elsif res.headers['WWW-Authenticate'].include? "Negotiate"
+					opts['provider'] = 'Negotiate'
+					res = send_request_auth_negotiate(opts,timeout)
+				elsif res.headers['WWW-Authenticate'].include? "NTLM"
+					opts['provider'] = 'NTLM'
+					res = send_request_auth_negotiate(opts,timeout)
+				end
+			end
 			return res if !opts[:follow_redirect] || !url = res.headers['location']
 		end
 		nil

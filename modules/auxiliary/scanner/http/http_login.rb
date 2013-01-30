@@ -204,12 +204,11 @@ class Metasploit3 < Msf::Auxiliary
 
 	def do_http_auth_ntlm(user,pass)
 		begin
-			resp,c = send_http_auth_ntlm(
+			resp = send_request_auth_negotiate(
 				'uri' => @uri,
 				'username' => user,
 				'password' => pass
 			)
-			c.close
 			return :abort if (resp.code == 404)
 
 			if [200, 301, 302].include?(resp.code)
@@ -262,7 +261,7 @@ class Metasploit3 < Msf::Auxiliary
 		path = datastore['AUTH_URI'] || "/"
 		begin
 			if requesttype == "PUT"
-				res,c = send_digest_request_cgi({
+				res= send_digest_request_cgi({
 					'uri'     => path,
 					'method'  => requesttype,
 					'data'	=> 'Test123\r\n',
@@ -271,7 +270,7 @@ class Metasploit3 < Msf::Auxiliary
 					'DigestAuthPassword' => pass
 				}, 25)
 			elsif requesttype == "PROPFIND"
-				res,c = send_digest_request_cgi({
+				res = send_digest_request_cgi({
 					'uri'     => path,
 					'method'  => requesttype,
 					'data'	=> '<?xml version="1.0" encoding="utf-8"?><D:propfind xmlns:D="DAV:"><D:allprop/></D:propfind>',
@@ -281,7 +280,7 @@ class Metasploit3 < Msf::Auxiliary
 					'headers' => { 'Depth' => '0'}
 				}, 25)
 			else
-				res,c = send_digest_request_cgi({
+				res= send_digest_request_cgi({
 					'uri'     => path,
 					'method'  => requesttype,
 					#'DigestAuthIIS' => false,
@@ -300,7 +299,7 @@ class Metasploit3 < Msf::Auxiliary
 			if ( [200, 301, 302].include?(res.code) ) or (res.code == 201)
 				if ((res.code == 201) and (requesttype == "PUT"))
 					print_good("Trying to delete #{path}")
-					del_res,c = send_digest_request_cgi({
+					del_res = send_digest_request_cgi({
 						'uri' => path,
 						'method' => 'DELETE',
 						'DigestAuthUser' => user,
