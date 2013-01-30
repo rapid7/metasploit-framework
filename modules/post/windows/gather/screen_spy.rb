@@ -87,7 +87,12 @@ class Metasploit3 < Msf::Post
 			file_locations = []
 			count.times do |num|
 				select(nil, nil, nil, datastore['DELAY'])
-				data = session.espia.espia_image_get_dev_screen
+				begin
+					data = session.espia.espia_image_get_dev_screen
+				rescue RequestError => e
+					print_error("Error taking the screenshot: #{e.class} #{e} #{e.backtrace}")
+					return false
+				end
 				if data
 					if datastore['RECORD']
 						# let's loot it using non-clobbering filename, even tho this is the source filename, not dest
@@ -104,8 +109,8 @@ class Metasploit3 < Msf::Post
 				end
 				system(cmd) if cmd
 			end
-		rescue ::Exception => e
-			print_error("Error taking or storing screenshot: #{e.class} #{e} #{e.backtrace}")
+		rescue IOError => e
+			print_error("Error storing screenshot: #{e.class} #{e} #{e.backtrace}")
 			return
 		end
 		print_status("Screen Spying Complete")
