@@ -30,8 +30,7 @@ class Metasploit3 < Msf::Post
 					'kernelsmith <kernelsmith /x40 kernelsmith /x2E com>', # record/loot support,log x approach, nx
 					'Adrian Kubok' # better record file names
 				],
-			'Version'        => '$Revision$',
-			'Platform'       => ['windows'], # @todo add support for posix meterpreter somehow?
+			'Platform'       => ['win'], # @todo add support for posix meterpreter somehow?
 			'SessionTypes'   => ['meterpreter']
 		))
 
