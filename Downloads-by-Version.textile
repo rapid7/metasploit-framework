@@ -2,6 +2,9 @@ h1. Metasploit Combined Installers
 
 |Download Link|File Type|SHA1|PGP|
 | | | |
+| "metasploit-4.5.2-windows-installer.exe":http://downloads.metasploit.com/data/releases/archive/metasploit-4.5.2-windows-installer.exe | Windows | 638fada4853861aeb51adb922791c14819f78dcf | "PGP":http://downloads.metasploit.com/data/releases/archive/metasploit-4.5.2-windows-installer.exe.asc|
+| "metasploit-4.5.2-linux-x64-installer.run":http://downloads.metasploit.com/data/releases/archive/metasploit-4.5.2-linux-x64-installer.run | Linux 64-bit | a381c797540f71d20654834285efd76ba94313a6 | "PGP":http://downloads.metasploit.com/data/releases/archive/metasploit-4.5.2-linux-x64-installer.run.asc|
+| "metasploit-4.5.2-linux-installer.run":http://downloads.metasploit.com/data/releases/archive/metasploit-4.5.2-linux-installer.run | Linux 32-bit | eb993ad4cd0f1142219cdf3884a053f4df83cae1 | "PGP":http://downloads.metasploit.com/data/releases/archive/metasploit-4.5.2-linux-installer.run.asc|
 | "metasploit-4.5.1-windows-installer.exe":http://downloads.metasploit.com/data/releases/archive/metasploit-4.5.1-windows-installer.exe | Windows | 5d4f056820e57108cf7c00968ab17fe409644d81 | "PGP":http://downloads.metasploit.com/data/releases/archive/metasploit-4.5.1-windows-installer.exe.asc|
 | "metasploit-4.5.1-linux-x64-installer.run":http://downloads.metasploit.com/data/releases/archive/metasploit-4.5.1-linux-x64-installer.run | Linux 64-bit | 3af6f2f9964f4e6fd13b57c044418aad6582e2d8 | "PGP":http://downloads.metasploit.com/data/releases/archive/metasploit-4.5.1-linux-x64-installer.run.asc|
 | "metasploit-4.5.1-linux-installer.run":http://downloads.metasploit.com/data/releases/archive/metasploit-4.5.1-linux-installer.run | Linux 32-bit | 47fe500b1a09cbc029912c28dea38180eebced94 | "PGP":http://downloads.metasploit.com/data/releases/archive/metasploit-4.5.1-linux-installer.run.asc|
@@ -37,7 +40,8 @@ h1. Metasploit Combined Installers
 h1. Metasploit Framework Installers
 
 |Download Link|File Type|SHA1|PGP|
-| "framework-4.5.1.tar.bz2":http://downloads.metasploit.com/data/releases/archive/framework-4.5.1.tar.bz2 | Source Code | d6e6fed2015a250c4ea4024cf8799bff9205a1ef | "PGP":http://downloads.metasploit.com/data/releases/framework-4.5.0.tar.bz2.asc|
+| "framework-4.5.2.tar.bz2":http://downloads.metasploit.com/data/releases/archive/framework-4.5.2.tar.bz2 | Source Code | 055478b3ed2c99237f051862b8cb56b79b915038 | "PGP":http://downloads.metasploit.com/data/releases/framework-4.5.2.tar.bz2.asc|
+| "framework-4.5.1.tar.bz2":http://downloads.metasploit.com/data/releases/archive/framework-4.5.1.tar.bz2 | Source Code | d6e6fed2015a250c4ea4024cf8799bff9205a1ef | "PGP":http://downloads.metasploit.com/data/releases/framework-4.5.1.tar.bz2.asc|
 | "framework-4.5.0.tar.bz2":http://downloads.metasploit.com/data/releases/archive/framework-4.5.0.tar.bz2 | Source Code | 13c3e4ef5265ecb5b6303d39ca1347982b782886 | "PGP":http://downloads.metasploit.com/data/releases/framework-4.5.0.tar.bz2.asc|
 | "framework-4.4.0.tar.bz2":http://downloads.metasploit.com/data/releases/archive/framework-4.4.0.tar.bz2 | Source Code | 4188c1727364fff857ff1a58cb3f95a5f376cfb1 | "PGP":http://downloads.metasploit.com/data/releases/archive/framework-4.4.0.tar.bz2.asc|
 | "framework-4.3.0.tar.bz2":http://downloads.metasploit.com/data/releases/archive/framework-4.3.0.tar.bz2 | Source Code | 45eea26b27ffe5bcd2dc25888bad897fcdd35bfb | "PGP":http://downloads.metasploit.com/data/releases/archive/framework-4.3.0.tar.bz2.asc|
