@@ -93,7 +93,6 @@ class Metasploit3 < Msf::Post
 						# let's loot it using non-clobbering filename, even tho this is the source filename, not dest
 						fn = "screenshot.%0#{leading_zeros}d.jpg" % num
 						file_locations << store_loot("screenspy.screenshot", "image/jpg", session, data, fn, "Screenshot")
-						#shot = Msf::Config.install_root + "/data/" + host + ".screenshot.%0#{leading_zeros}d.jpg" % num
 					end
 
 					# also write to disk temporarily so we can display in browser.  They may or may not have been RECORDed.
