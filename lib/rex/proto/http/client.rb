@@ -2,7 +2,11 @@
 require 'rex/socket'
 require 'rex/proto/http'
 require 'rex/text'
-require 'pry'
+require 'digest'
+require 'rex/proto/ntlm/crypt'
+require 'rex/proto/ntlm/constants'
+require 'rex/proto/ntlm/utils'
+require 'rex/proto/ntlm/exceptions'
 
 module Rex
 module Proto
@@ -244,7 +248,7 @@ class Client
 		c_host  = opts['vhost']       || config['vhost']
 		c_conn  = opts['connection']
 		c_path  = opts['path_info']
-		c_auth  = opts['basic_auth']  || config['basic_auth'] || ''
+
 		uri     = set_cgi(c_cgi)
 		qstr    = c_qs
 		pstr    = c_body
@@ -300,10 +304,6 @@ class Client
 		req << set_version(c_prot, c_vers)
 		req << set_host_header(c_host)
 		req << set_agent_header(c_ag)
-
-		if (c_auth.length > 0)
-			req << set_basic_auth_header(c_auth)
-		end
 
 		req << set_cookie_header(c_cook)
 		req << set_connection_header(c_conn)
@@ -364,6 +364,8 @@ class Client
 	# to reuse an existing connection.
 	#
 	def send_recv(req, t = -1, persist=false)
+		opts = req[:opts]
+		req = req[:string]
 		res = _send_recv(req,t,persist)
 		if res and res.code == 401 and res.headers['WWW-Authenticate'] and have_creds?
 			res = send_auth(res, opts, t, persist)
@@ -372,9 +374,10 @@ class Client
 	end
 
 	def _send_recv(req, t = -1, persist=false)
+		if req.kind_of? Hash and req[:string]
+			req = req[:string]
+		end
 		@pipeline = persist
-		opts = req[:opts]
-		req = req[:string]
 		send_request(req, t)
 		res = read_response(t)
 		res.request = req.to_s if res
@@ -396,7 +399,12 @@ class Client
 	def send_auth(res, opts, t, persist)
 		supported_auths = res.headers['WWW-Authenticate']
 		if supported_auths.include? 'Basic'
-			opts['basic_auth'] = self.username.to_s + ':' + self.password.to_s
+			if opts['headers']
+				opts['headers']['Authorization'] = basic_auth_header(self.username,self.password)
+			else
+				opts['headers'] = { 'Authorization' => basic_auth_header(self.username,self.password)}
+			end
+			
 			req = request_cgi(opts)
 			res = _send_recv(req,t,persist)
 			return res
@@ -425,8 +433,15 @@ class Client
 		end
 	end
 
+	def basic_auth_header(username,password)
+		auth_str = username.to_s + ":" + password.to_s
+		auth_str = "Basic " + Rex::Text.encode_base64(auth_str)
+	end
+
 	def digest_auth(opts={})
 		@nonce_count = 0
+
+		to = opts['timeout'] || 20
 
 		digest_user = opts['DigestAuthUser'] || ""
 		digest_password =  opts['DigestAuthPassword'] || ""
@@ -448,7 +463,7 @@ class Client
 			r = request_cgi(opts.merge({
 					'uri' => path,
 					'method' => method }))
-			resp = _send_recv(r, to)
+			resp = _send_recv(r, to, true)
 			unless resp.kind_of? Rex::Proto::Http::Response
 				return nil
 			end
@@ -545,7 +560,7 @@ class Client
 			'uri' => path,
 			'method' => method,
 			'headers' => headers }))
-		resp = _send_recv(r, to)
+		resp = _send_recv(r, to, true)
 		unless resp.kind_of? Rex::Proto::Http::Response
 			return nil
 		end
@@ -565,6 +580,8 @@ class Client
 			:send_ntlm        => self.config['send_ntlm']
 		}
 
+		to = opts['timeout'] || 20
+
 		if opts['provider'] and opts['provider'].include? 'Negotiate'
 			provider = "Negotiate " 
 		else
@@ -574,12 +591,12 @@ class Client
 		opts['method']||= 'GET'
 		opts['headers']||= {}
 
-		ntlmssp_flags = NTLM_UTILS.make_ntlm_flags(ntlm_options)
+		ntlmssp_flags = ::Rex::Proto::NTLM::Utils.make_ntlm_flags(ntlm_options)
 		workstation_name = Rex::Text.rand_text_alpha(rand(8)+1)
 		domain_name = self.config['domain']
 
 		b64_blob = Rex::Text::encode_base64(
-			NTLM_UTILS::make_ntlmssp_blob_init(
+			::Rex::Proto::NTLM::Utils::make_ntlmssp_blob_init(
 				domain_name,
 				workstation_name,
 				ntlmssp_flags
@@ -591,7 +608,7 @@ class Client
 			# First request to get the challenge
 			opts['headers']['Authorization'] = ntlm_message_1
 			r = request_cgi(opts)
-			resp = _send_recv(r, to)
+			resp = _send_recv(r, to, true)
 			unless resp.kind_of? Rex::Proto::Http::Response
 				return nil
 			end
@@ -603,7 +620,7 @@ class Client
 			return resp unless ntlm_challenge
 
 			ntlm_message_2 = Rex::Text::decode_base64(ntlm_challenge)
-			blob_data = NTLM_UTILS.parse_ntlm_type_2_blob(ntlm_message_2)
+			blob_data = ::Rex::Proto::NTLM::Utils.parse_ntlm_type_2_blob(ntlm_message_2)
 
 			challenge_key        = blob_data[:challenge_key]
 			server_ntlmssp_flags = blob_data[:server_ntlmssp_flags]       #else should raise an error
@@ -615,7 +632,7 @@ class Client
 
 			spnopt = {:use_spn => self.config['SendSPN'], :name =>  self.hostname}
 
-			resp_lm, resp_ntlm, client_challenge, ntlm_cli_challenge = NTLM_UTILS.create_lm_ntlm_responses(
+			resp_lm, resp_ntlm, client_challenge, ntlm_cli_challenge = ::Rex::Proto::NTLM::Utils.create_lm_ntlm_responses(
 				opts['username'],
 				opts['password'],
 				challenge_key,
@@ -629,7 +646,7 @@ class Client
 				ntlm_options
 			)
 
-			ntlm_message_3 = NTLM_UTILS.make_ntlmssp_blob_auth(
+			ntlm_message_3 = ::Rex::Proto::NTLM::Utils.make_ntlmssp_blob_auth(
 				domain_name,
 				workstation_name,
 				opts['username'],
