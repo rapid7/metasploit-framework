@@ -1,10 +1,10 @@
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: 73f26789500f278dd6fd555e839d09a3b81a05f4
-  tag: 0.3.0
+  revision: 448c1065329efea1eac76a3897f626f122666743
+  tag: 0.4.0
   specs:
-    metasploit_data_models (0.3.0)
-      activerecord
+    metasploit_data_models (0.4.0)
+      activerecord (>= 3.2.10)
       activesupport
       pg
       pry
@@ -12,15 +12,15 @@ GIT
 GEM
   remote: http://rubygems.org/
   specs:
-    activemodel (3.2.9)
-      activesupport (= 3.2.9)
+    activemodel (3.2.11)
+      activesupport (= 3.2.11)
       builder (~> 3.0.0)
-    activerecord (3.2.9)
-      activemodel (= 3.2.9)
-      activesupport (= 3.2.9)
+    activerecord (3.2.11)
+      activemodel (= 3.2.11)
+      activesupport (= 3.2.11)
       arel (~> 3.0.2)
       tzinfo (~> 0.3.29)
-    activesupport (3.2.9)
+    activesupport (3.2.11)
       i18n (~> 0.6)
       multi_json (~> 1.0)
     arel (3.0.2)
@@ -57,10 +57,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activerecord
   activesupport (>= 3.0.0)
   metasploit_data_models!
-  pg (>= 0.11)
   rake
   redcarpet
   rspec (>= 2.12)
