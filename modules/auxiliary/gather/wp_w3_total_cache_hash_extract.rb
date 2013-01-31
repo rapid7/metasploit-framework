@@ -91,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
 				key="w3tc_#{host}_#{site_id}_sql_#{query_md5}"
 				key_md5 = ::Rex::Text.md5(key)
 				hash_path = "/#{key_md5[0,1]}/#{key_md5[1,1]}/#{key_md5[2,1]}/#{key_md5}"
-				url = normalize_uri("/#{wordpress_url}#{datastore["WP_CONTENT_DIR"]}/w3tc/dbcache")
+				url = normalize_uri(wordpress_url, datastore["WP_CONTENT_DIR"], "/w3tc/dbcache")
 				uri << hash_path
 
 				result = nil
