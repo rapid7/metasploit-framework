@@ -81,7 +81,7 @@ class Metasploit4 < Msf::Auxiliary
 		begin
 			res = send_request_cgi(
 				{
-					'uri'    => path,
+					'uri'    => normalize_uri(path),
 					'method' => 'PUT',
 					'ctype'  => 'text/plain',
 					'data'   => data,
@@ -102,7 +102,7 @@ class Metasploit4 < Msf::Auxiliary
 		begin
 			res = send_request_cgi(
 				{
-					'uri'    => path,
+					'uri'    => normalize_uri(path),
 					'method' => 'DELETE',
 					'ctype'  => 'text/html',
 				}, 20
@@ -119,7 +119,7 @@ class Metasploit4 < Msf::Auxiliary
 	# Main function for the module, duh!
 	#
 	def run_host(ip)
-		path   = normalize_uri(datastore['PATH'])
+		path   = datastore['PATH']
 		data   = datastore['FILEDATA']
 
 		if path[-1,1] != '/'

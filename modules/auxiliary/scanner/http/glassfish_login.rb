@@ -218,7 +218,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		#Get GlassFish version
 		edition, version, banner = get_version(res)
-		path = normalize_uri(target_uri)
+		path = normalize_uri(target_uri.path)
 		target_url = "http://#{rhost.to_s}:#{rport.to_s}/#{path.to_s}"
 		print_status("#{target_url} - GlassFish - Attempting authentication")
 
