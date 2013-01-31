@@ -2,7 +2,7 @@ This is an example of how to write a module that uses the HttpClient mixin to se
 
 ### There are mainly two common functions you will see:
 
-* **send_request_raw()** - You use this to send the most basic HTTP request, such as requesting a page.  If you wish to learn about this function, it's better to look at request_raw():
+* **send_request_raw()** - You use this to send a raw HTTP request, such as requesting a page.  If you wish to learn about this function, it's better to look at request_raw():
 https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/proto/http/client.rb#L133
 
 Here's a basic example of how to use send_request_raw():
