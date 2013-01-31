@@ -74,7 +74,11 @@ class Client
 			'send_ntlm'       => true,
 			'SendSPN'  => true,
 			'UseLMKey' => false,
-			'domain' => 'WORKSTATION'
+			'domain' => 'WORKSTATION',
+			#
+			# Digest Options
+			#
+			'DigestAuthIIS' => true
 		}
 
 		# This is not used right now...
@@ -429,7 +433,7 @@ class Client
 		method = opts['method']
 		path = opts['uri']
 		iis = true
-		if (opts['DigestAuthIIS'] == false or datastore['DigestAuthIIS'] == false)
+		if (opts['DigestAuthIIS'] == false or self.config['DigestAuthIIS'])
 			iis = false
 		end
 
