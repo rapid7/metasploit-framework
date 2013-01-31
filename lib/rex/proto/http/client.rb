@@ -2,6 +2,7 @@
 require 'rex/socket'
 require 'rex/proto/http'
 require 'rex/text'
+require 'pry'
 
 module Rex
 module Proto
@@ -21,13 +22,15 @@ class Client
 	#
 	# Creates a new client instance
 	#
-	def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil)
+	def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil, username = '', password = '')
 		self.hostname = host
 		self.port     = port.to_i
 		self.context  = context
 		self.ssl      = ssl
 		self.ssl_version = ssl_version
 		self.proxies  = proxies
+		self.username = username
+		self.password = password
 		self.config = {
 			'read_max_data'   => (1024*1024*1),
 			'vhost'           => self.hostname,
@@ -61,7 +64,17 @@ class Client
 			'uri_fake_end'           => false,   # bool
 			'uri_fake_params_start'  => false,   # bool
 			'header_folding'         => false,   # bool
-			'chunked_size'           => 0        # integer
+			'chunked_size'           => 0,        # integer
+			#
+			# NTLM Options
+			#
+			'usentlm2_session' => true,
+			'use_ntlmv2'       => true,
+			'send_lm'         => true,
+			'send_ntlm'       => true,
+			'SendSPN'  => true,
+			'UseLMKey' => false,
+			'domain' => 'WORKSTATION'
 		}
 
 		# This is not used right now...
@@ -298,7 +311,7 @@ class Client
 		req << set_raw_headers(c_rawh)
 		req << set_body(pstr)
 
-		req
+		{:string => req , :opts => opts}
 	end
 
 	#
@@ -347,7 +360,16 @@ class Client
 	# to reuse an existing connection.
 	#
 	def send_recv(req, t = -1, persist=false)
+		res = _send_recv(req,t,persist)
+		if res and res.code == 401 and res.headers['WWW-Authenticate'] and have_creds?
+			send_auth(res, opts, t, persist)
+		end
+	end
+
+	def _send_recv(req, t = -1, persist=false)
 		@pipeline = persist
+		opts = req[:opts]
+		req = req[:string]
 		send_request(req, t)
 		res = read_response(t)
 		res.request = req.to_s if res
@@ -362,6 +384,271 @@ class Client
 		conn.put(req.to_s)
 	end
 
+	def have_creds?
+		!(self.username.nil?) && self.username != ''
+	end
+
+	def send_auth(res, opts, t, persist)
+		supported_auths = res.headers['WWW-Authenticate']
+		if supported_auths.include? 'Basic'
+			opts['basic_auth'] = self.username.to_s + ':' + self.password.to_s
+			req = request_cgi(opts)
+			res = _send_recv(req,t,persist)
+			return res
+		elsif  supported_auths.include? "Digest"
+			opts['DigestAuthUser'] = self.username.to_s
+			opts['DigestAuthPassword'] = self.password.to_s
+			temp_response = digest_auth(opts)
+			if temp_response.kind_of? Rex::Proto::Http::Response
+				res = temp_response
+			end
+			return res
+		elsif supported_auths.include? "NTLM"
+			opts['provider'] = 'NTLM'
+			temp_response = negotiate_auth(opts)
+			if temp_response.kind_of? Rex::Proto::Http::Response
+				res = temp_response
+			end
+			return res
+		elsif supported_auths.include? "Negotiate"
+			opts['provider'] = 'Negotiate'
+			temp_response = negotiate_auth(opts)
+			if temp_response.kind_of? Rex::Proto::Http::Response
+				res = temp_response
+			end
+			return res
+		end
+	end
+
+	def digest_auth(opts={})
+		@nonce_count = 0
+
+		digest_user = opts['DigestAuthUser'] || ""
+		digest_password =  opts['DigestAuthPassword'] || ""
+
+		method = opts['method']
+		path = opts['uri']
+		iis = true
+		if (opts['DigestAuthIIS'] == false or datastore['DigestAuthIIS'] == false)
+			iis = false
+		end
+
+		begin
+		@nonce_count += 1
+
+		resp = opts['response']
+
+		if not resp
+			# Get authentication-challenge from server, and read out parameters required
+			r = request_cgi(opts.merge({
+					'uri' => path,
+					'method' => method }))
+			resp = _send_recv(r, to)
+			unless resp.kind_of? Rex::Proto::Http::Response
+				return nil
+			end
+
+			if resp.code != 401
+				return resp
+			end
+			return resp unless resp.headers['WWW-Authenticate']
+		end
+
+		# Don't anchor this regex to the beginning of string because header
+		# folding makes it appear later when the server presents multiple
+		# WWW-Authentication options (such as is the case with IIS configured
+		# for Digest or NTLM).
+		resp['www-authenticate'] =~ /Digest (.*)/
+
+		parameters = {}
+		$1.split(/,[[:space:]]*/).each do |p|
+			k, v = p.split("=", 2)
+			parameters[k] = v.gsub('"', '')
+		end
+
+		qop = parameters['qop']
+
+		if parameters['algorithm'] =~ /(.*?)(-sess)?$/
+			algorithm = case $1
+			when 'MD5' then Digest::MD5
+			when 'SHA1' then Digest::SHA1
+			when 'SHA2' then Digest::SHA2
+			when 'SHA256' then Digest::SHA256
+			when 'SHA384' then Digest::SHA384
+			when 'SHA512' then Digest::SHA512
+			when 'RMD160' then Digest::RMD160
+			else raise Error, "unknown algorithm \"#{$1}\""
+			end
+			algstr = parameters["algorithm"]
+			sess = $2
+		else
+			algorithm = Digest::MD5
+			algstr = "MD5"
+			sess = false
+		end
+
+		a1 = if sess then
+			[
+				algorithm.hexdigest("#{digest_user}:#{parameters['realm']}:#{digest_password}"),
+				parameters['nonce'],
+				@cnonce
+			].join ':'
+		else
+			"#{digest_user}:#{parameters['realm']}:#{digest_password}"
+		end
+
+		ha1 = algorithm.hexdigest(a1)
+		ha2 = algorithm.hexdigest("#{method}:#{path}")
+
+		request_digest = [ha1, parameters['nonce']]
+		request_digest.push(('%08x' % @nonce_count), @cnonce, qop) if qop
+		request_digest << ha2
+		request_digest = request_digest.join ':'
+
+		# Same order as IE7
+		auth = [
+			"Digest username=\"#{digest_user}\"",
+			"realm=\"#{parameters['realm']}\"",
+			"nonce=\"#{parameters['nonce']}\"",
+			"uri=\"#{path}\"",
+			"cnonce=\"#{@cnonce}\"",
+			"nc=#{'%08x' % @nonce_count}",
+			"algorithm=#{algstr}",
+			"response=\"#{algorithm.hexdigest(request_digest)[0, 32]}\"",
+			# The spec says the qop value shouldn't be enclosed in quotes, but
+			# some versions of IIS require it and Apache accepts it.  Chrome
+			# and Firefox both send it without quotes but IE does it this way.
+			# Use the non-compliant-but-everybody-does-it to be as compatible
+			# as possible by default.  The user can override if they don't like
+			# it.
+			if qop.nil? then
+			elsif iis then
+				"qop=\"#{qop}\""
+			else
+				"qop=#{qop}"
+			end,
+			if parameters.key? 'opaque' then
+				"opaque=\"#{parameters['opaque']}\""
+			end
+		].compact
+
+		headers ={ 'Authorization' => auth.join(', ') }
+		headers.merge!(opts['headers']) if opts['headers']
+
+		# Send main request with authentication
+		r = request_cgi(opts.merge({
+			'uri' => path,
+			'method' => method,
+			'headers' => headers }))
+		resp = _send_recv(r, to)
+		unless resp.kind_of? Rex::Proto::Http::Response
+			return nil
+		end
+
+		return resp
+
+		rescue ::Errno::EPIPE, ::Timeout::Error
+		end
+	end
+
+	def negotiate_auth(opts={})
+		ntlm_options = {
+			:signing          => false,
+			:usentlm2_session => self.config['usentlm2_session'],
+			:use_ntlmv2       => self.config['use_ntlmv2'],
+			:send_lm          => self.config['send_lm'],
+			:send_ntlm        => self.config['send_ntlm']
+		}
+
+		if opts['provider'] and opts['provider'].include? 'Negotiate'
+			provider = "Negotiate " 
+		else
+			provider = 'NTLM '
+		end
+
+		opts['method']||= 'GET'
+		opts['headers']||= {}
+
+		ntlmssp_flags = NTLM_UTILS.make_ntlm_flags(ntlm_options)
+		workstation_name = Rex::Text.rand_text_alpha(rand(8)+1)
+		domain_name = self.config['domain']
+
+		b64_blob = Rex::Text::encode_base64(
+			NTLM_UTILS::make_ntlmssp_blob_init(
+				domain_name,
+				workstation_name,
+				ntlmssp_flags
+		))
+
+		ntlm_message_1 = provider + b64_blob
+
+		begin
+			# First request to get the challenge
+			opts['headers']['Authorization'] = ntlm_message_1
+			r = request_cgi(opts)
+			resp = _send_recv(r, to)
+			unless resp.kind_of? Rex::Proto::Http::Response
+				return nil
+			end
+
+			return resp unless resp.code == 401 && resp.headers['WWW-Authenticate']
+
+			# Get the challenge and craft the response
+			ntlm_challenge = resp.headers['WWW-Authenticate'].scan(/#{provider}([A-Z0-9\x2b\x2f=]+)/i).flatten[0]
+			return resp unless ntlm_challenge
+
+			ntlm_message_2 = Rex::Text::decode_base64(ntlm_challenge)
+			blob_data = NTLM_UTILS.parse_ntlm_type_2_blob(ntlm_message_2)
+
+			challenge_key        = blob_data[:challenge_key]
+			server_ntlmssp_flags = blob_data[:server_ntlmssp_flags]       #else should raise an error
+			default_name         = blob_data[:default_name]         || '' #netbios name
+			default_domain       = blob_data[:default_domain]       || '' #netbios domain
+			dns_host_name        = blob_data[:dns_host_name]        || '' #dns name
+			dns_domain_name      = blob_data[:dns_domain_name]      || '' #dns domain
+			chall_MsvAvTimestamp = blob_data[:chall_MsvAvTimestamp] || '' #Client time
+
+			spnopt = {:use_spn => self.config['SendSPN'], :name =>  self.hostname}
+
+			resp_lm, resp_ntlm, client_challenge, ntlm_cli_challenge = NTLM_UTILS.create_lm_ntlm_responses(
+				opts['username'],
+				opts['password'],
+				challenge_key,
+				domain_name,
+				default_name,
+				default_domain,
+				dns_host_name,
+				dns_domain_name,
+				chall_MsvAvTimestamp,
+				spnopt,
+				ntlm_options
+			)
+
+			ntlm_message_3 = NTLM_UTILS.make_ntlmssp_blob_auth(
+				domain_name,
+				workstation_name,
+				opts['username'],
+				resp_lm,
+				resp_ntlm,
+				'',
+				ntlmssp_flags
+			)
+
+			ntlm_message_3 = Rex::Text::encode_base64(ntlm_message_3)
+
+			# Send the response
+			opts['headers']['Authorization'] = "#{provider}#{ntlm_message_3}"
+			r = request_cgi(opts)
+			resp = _send_recv(r, to, true)
+			unless resp.kind_of? Rex::Proto::Http::Response
+				return nil
+			end
+			return resp
+
+		rescue ::Errno::EPIPE, ::Timeout::Error
+			return nil
+		end
+	end
 	#
 	# Read a response from the server
 	#
@@ -838,6 +1125,9 @@ class Client
 	# The proxy list
 	#
 	attr_accessor :proxies
+
+	# Auth
+	attr_accessor :username, :password
 
 
 	# When parsing the request, thunk off the first response from the server, since junk

@@ -10,7 +10,6 @@ require 'uri'
 module Msf
 class Auxiliary::Web::HTTP
 
-	include Exploit::Remote::HttpAuth
 
 	class Request
 		attr_accessor :url
