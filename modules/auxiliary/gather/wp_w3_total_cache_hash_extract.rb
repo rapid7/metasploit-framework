@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 					"uri"      => user_url,
 					"method"   => "GET",
 					"vars_get" => {
-						"author" => user_id
+						"author" => user_id.to_s
 					}
 				})
 
