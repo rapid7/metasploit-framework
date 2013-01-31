@@ -197,7 +197,7 @@ Hang out for a few seconds, and behold the animated "Hardcore Forking Action":
 
 [[/screens/fork02.png]]
 
-After that's done, switch back over to your terminal, make a sub-directory for your git clones, and use your previously defined .ssh/config alias to clone up a copy of Metasploit. Note that (note that usernames on GitHub are case-sensitive; McFakePants is different from mcfakepants):
+After that's done, switch back over to your terminal, make a sub-directory for your git clones, and use your previously defined .ssh/config alias to clone up a copy of Metasploit. Note that usernames on GitHub are case-sensitive; McFakePants is different from mcfakepants.
 
 ````bash
 $ mkdir git
