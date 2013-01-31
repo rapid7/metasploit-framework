@@ -516,9 +516,6 @@ class Metasploit3 < Msf::Post
 				end
 			end
 
-			store_loot("mscache.creds", "text/csv", session, @credentials.to_csv,
-				"mscache_credentials.txt", "MSCACHE Credentials")
-
 			print_status("John the Ripper format:")
 
 			john.split("\n").each do |pass|
@@ -527,8 +524,11 @@ class Metasploit3 < Msf::Post
 
 			if( @vista == 1 )
 				print_status("Hash are in MSCACHE_VISTA format. (mscash2)")
+				store_loot("mscache2.creds", "text/csv", session, @credentials.to_csv, "mscache2_credentials.txt", "MSCACHE v2 Credentials")
+
 			else
 				print_status("Hash are in MSCACHE format. (mscash)")
+				store_loot("mscache.creds", "text/csv", session, @credentials.to_csv, "mscache_credentials.txt", "MSCACHE v1 Credentials")
 			end
 
 		rescue ::Interrupt
