@@ -366,8 +366,9 @@ class Client
 	def send_recv(req, t = -1, persist=false)
 		res = _send_recv(req,t,persist)
 		if res and res.code == 401 and res.headers['WWW-Authenticate'] and have_creds?
-			send_auth(res, opts, t, persist)
+			res = send_auth(res, opts, t, persist)
 		end
+		res
 	end
 
 	def _send_recv(req, t = -1, persist=false)
