@@ -197,13 +197,14 @@ Hang out for a few seconds, and behold the animated "Hardcore Forking Action":
 
 [[/screens/fork02.png]]
 
-After that's done, switch back over to your terminal, make a sub-directory for your git clones, and use your previously defined .ssh/config alias to clone up a copy of Metasploit:
+After that's done, switch back over to your terminal, make a sub-directory for your git clones, and use your previously defined .ssh/config alias to clone up a copy of Metasploit. Note that (note that usernames on GitHub are case-sensitive; McFakePants is different from mcfakepants):
 
 ````bash
 $ mkdir git
 $ cd git
 $ git clone github:mcfakepants/metasploit-framework.git
 ````
+
 You should end up with a complete copy of Metasploit in the metasploit-framework sub-directory:
 
 [[/screens/fork03.png]]
