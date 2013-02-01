@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 					'Royce Davis @R3dy_ <rdavis[at]accuvant.com>',
 					'Brandon McCann @zeknox <bmccann[at]accuvant.com>'
 				],
-			'License'        => MSF_LICENSE,
+			'License'        => MSF_LICENSE
 		))
 
 		register_options(
@@ -42,36 +42,18 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 	end
 
-	def checkRdp(packet)
+	def check_rdp
 		# code to check if RDP is open or not
-		vprint_status("#{peer} - Verifying RDP Protocol")
-		begin
-			# send connection
-			sock.put(packet)
-			# read packet to see if its rdp
-			res = sock.recv(1024)
+		vprint_status("#{peer} Verifying RDP protocol...")
 
-			if res.unpack("H*").join == "0300000b06d00000123400"
-				return true
-			else
-				return false
-			end
-		rescue
-			print_error("could not connect to RHOST")
-			return false
-		end
-	end
+		# send connection
+		sock.put(connection_request)
 
-	def connectionRequest()
-		packet = '' +
-			"\x03\x00" +    # TPKT Header version 03, reserved 0
-			"\x00\x0b" +    # Length
-			"\x06" +        # X.224 Data TPDU length
-			"\xe0" +        # X.224 Type (Connection request)
-			"\x00\x00" +    # dst reference
-			"\x00\x00" +    # src reference
-			"\x00"          # class and options
-		return packet
+		# read packet to see if its rdp
+		res = sock.get_once(-1, 5)
+
+		# return true if this matches our vulnerable response
+		( res and res == "\x03\x00\x00\x0b\x06\xd0\x00\x00\x12\x34\x00" )
 	end
 
 	def report_goods
@@ -79,120 +61,118 @@ class Metasploit3 < Msf::Auxiliary
 			:host         => rhost,
 			:port         => rport,
 			:proto        => 'tcp',
-			:name         => 'The MS12-020 Checker',
-			:vuln         => 'Confirmaiton that this host is vulnerable to MS12-020',
-			:refs         => self.references,
-			:exploited_at => Time.now.utc
+			:name         => self.name,
+			:info         => 'Response indicates a missing patch',
+			:refs         => self.references
 		)
 	end
 
-	def connectInitial()
-		packet = '' +
-			"\x03\x00\x00\x65" + # TPKT Header
-			"\x02\xf0\x80" +     # Data TPDU, EOT
-			"\x7f\x65\x5b" +     # Connect-Initial
-			"\x04\x01\x01" +     # callingDomainSelector
-			"\x04\x01\x01" +     # callingDomainSelector
-			"\x01\x01\xff" +     # upwardFlag
-			"\x30\x19" +         # targetParams + size
-			"\x02\x01\x22" +     # maxChannelIds
-			"\x02\x01\x20" +     # maxUserIds
-			"\x02\x01\x00" +     # maxTokenIds
-			"\x02\x01\x01" +     # numPriorities
-			"\x02\x01\x00" +     # minThroughput
-			"\x02\x01\x01" +     # maxHeight
-			"\x02\x02\xff\xff" + # maxMCSPDUSize
-			"\x02\x01\x02" +     # protocolVersion
-			"\x30\x18" +         # minParams + size
-			"\x02\x01\x01" +     # maxChannelIds
-			"\x02\x01\x01" +     # maxUserIds
-			"\x02\x01\x01" +     # maxTokenIds
-			"\x02\x01\x01" +     # numPriorities
-			"\x02\x01\x00" +     # minThroughput
-			"\x02\x01\x01" +     # maxHeight
-			"\x02\x01\xff" +     # maxMCSPDUSize
-			"\x02\x01\x02" +     # protocolVersion
-			"\x30\x19" +         # maxParams + size
-			"\x02\x01\xff" +     # maxChannelIds
-			"\x02\x01\xff" +     # maxUserIds
-			"\x02\x01\xff" +     # maxTokenIds
-			"\x02\x01\x01" +     # numPriorities
-			"\x02\x01\x00" +     # minThroughput
-			"\x02\x01\x01" +     # maxHeight
-			"\x02\x02\xff\xff" + # maxMCSPDUSize
-			"\x02\x01\x02" +     # protocolVersion
-			"\x04\x00"           # userData
-		return packet
+	def connection_request
+		"\x03\x00" +    # TPKT Header version 03, reserved 0
+		"\x00\x0b" +    # Length
+		"\x06" +        # X.224 Data TPDU length
+		"\xe0" +        # X.224 Type (Connection request)
+		"\x00\x00" +    # dst reference
+		"\x00\x00" +    # src reference
+		"\x00"          # class and options
 	end
 
-	def userRequest()
-		packet = '' +
-			"\x03\x00" +         # header
-			"\x00\x08" +         # length
-			"\x02\xf0\x80" +     # X.224 Data TPDU (2 bytes: 0xf0 = Data TPDU, 0x80 = EOT, end of transmission)
-			"\x28"               # PER encoded PDU contents
-		return packet
+	def connect_initial
+		"\x03\x00\x00\x65" + # TPKT Header
+		"\x02\xf0\x80" +     # Data TPDU, EOT
+		"\x7f\x65\x5b" +     # Connect-Initial
+		"\x04\x01\x01" +     # callingDomainSelector
+		"\x04\x01\x01" +     # callingDomainSelector
+		"\x01\x01\xff" +     # upwardFlag
+		"\x30\x19" +         # targetParams + size
+		"\x02\x01\x22" +     # maxChannelIds
+		"\x02\x01\x20" +     # maxUserIds
+		"\x02\x01\x00" +     # maxTokenIds
+		"\x02\x01\x01" +     # numPriorities
+		"\x02\x01\x00" +     # minThroughput
+		"\x02\x01\x01" +     # maxHeight
+		"\x02\x02\xff\xff" + # maxMCSPDUSize
+		"\x02\x01\x02" +     # protocolVersion
+		"\x30\x18" +         # minParams + size
+		"\x02\x01\x01" +     # maxChannelIds
+		"\x02\x01\x01" +     # maxUserIds
+		"\x02\x01\x01" +     # maxTokenIds
+		"\x02\x01\x01" +     # numPriorities
+		"\x02\x01\x00" +     # minThroughput
+		"\x02\x01\x01" +     # maxHeight
+		"\x02\x01\xff" +     # maxMCSPDUSize
+		"\x02\x01\x02" +     # protocolVersion
+		"\x30\x19" +         # maxParams + size
+		"\x02\x01\xff" +     # maxChannelIds
+		"\x02\x01\xff" +     # maxUserIds
+		"\x02\x01\xff" +     # maxTokenIds
+		"\x02\x01\x01" +     # numPriorities
+		"\x02\x01\x00" +     # minThroughput
+		"\x02\x01\x01" +     # maxHeight
+		"\x02\x02\xff\xff" + # maxMCSPDUSize
+		"\x02\x01\x02" +     # protocolVersion
+		"\x04\x00"           # userData
 	end
 
-	def channelRequestOne
-		packet = '' +
-			"\x03\x00\x00\x0c" +
-			"\x02\xf0\x80\x38" +
-			"\x00\x01\x03\xeb"
-		return packet
+	def user_request
+		"\x03\x00" +         # header
+		"\x00\x08" +         # length
+		"\x02\xf0\x80" +     # X.224 Data TPDU (2 bytes: 0xf0 = Data TPDU, 0x80 = EOT, end of transmission)
+		"\x28"               # PER encoded PDU contents
 	end
 
-	def channelRequestTwo
-		packet = '' +
-			"\x03\x00\x00\x0c" +
-			"\x02\xf0\x80\x38" +
-			"\x00\x02\x03\xeb"
-		return packet
+	def channel_request_one
+		"\x03\x00\x00\x0c" +
+		"\x02\xf0\x80\x38" +
+		"\x00\x01\x03\xeb"
+	end
+
+	def channel_request_two
+		"\x03\x00\x00\x0c" +
+		"\x02\xf0\x80\x38" +
+		"\x00\x02\x03\xeb"
 	end
 
 	def peer
-		return "#{rhost}:#{rport}"
+		"#{rhost}:#{rport}"
 	end
 
 	def run_host(ip)
-		begin
-			# open connection
-			connect()
-		rescue
+
+		connect
+
+		# check if rdp is open
+		if not check_rdp
+			disconnect
 			return
 		end
 
-		# check if rdp is open
-		if checkRdp(connectionRequest)
+		# send connectInitial
+		sock.put(connect_initial)
 
-			# send connectInitial
-			sock.put(connectInitial)
-			# send userRequest
-			sock.put(userRequest)
-			user1_res = sock.recv(1024)
-			# send 2nd userRequest
-			sock.put(userRequest)
-			user2_res = sock.recv(1024)
-			# send channel request one
-			sock.put(channelRequestOne)
-			channel_one_res = sock.recv(1024)
-			if channel_one_res.unpack("H*").to_s[16..19] == '3e00'
-				# vulnerable
-				print_good("#{peer} - Vulnerable to MS12-020")
-				report_goods
+		# send userRequest
+		sock.put(user_request)
+		res = sock.get_once(-1, 5)
 
-				# send ChannelRequestTwo - prevent bsod
-				sock.put(channelRequestTwo)
+		# send 2nd userRequest
+		sock.put(user_request)
+		res = sock.get_once(-1, 5)
 
-				# report to the database
-			else
-				vprint_error("#{peer} - Not Vulnerable")
-			end
+		# send channel request one
+		sock.put(channel_request_one)
+		res = sock.get_once(-1, 5)
 
+		if res and res[8,2] == "\x3e\x00"
+			# send ChannelRequestTwo - prevent BSoD
+			sock.put(channel_request_two)
+
+			print_good("#{peer} Vulnerable to MS12-020")
+			report_goods
+		else
+			vprint_status("#{peer} Not Vulnerable")
 		end
-		# close connection
+
 		disconnect()
 	end
 
 end
-
