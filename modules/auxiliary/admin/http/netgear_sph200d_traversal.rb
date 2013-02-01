@@ -86,11 +86,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		user = datastore['USERNAME']
-		if datastore['PASSWORD'].nil?
-			pass = ""
-		else
-			pass = datastore['PASSWORD']
-		end
+		pass = datastore['PASSWORD']
 
 		print_status("Trying to login with #{user} / #{pass}")
 		
@@ -116,19 +112,8 @@ class Metasploit3 < Msf::Auxiliary
 				return :abort
 		end
 
-		begin
-			vprint_status("Attempting to connect to #{rhost}:#{rport}")
-			res = send_request_cgi({
-					'uri'     => '/',
-					'method'  => 'GET',
-					'basic_auth' => "#{user}:#{pass}"
-					})
-			if (res)
-				extract_words(datastore['FILELIST']).each do |file|
-					find_files(file,user,pass) unless file.empty?
-				end
-			end
-				
+		extract_words(datastore['FILELIST']).each do |file|
+			find_files(file,user,pass) unless file.empty?
 		end
 	end
 end
