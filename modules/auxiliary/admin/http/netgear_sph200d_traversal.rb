@@ -99,6 +99,7 @@ class Metasploit3 < Msf::Auxiliary
 			})
 
 			return :abort if res.nil?
+			return :abort if (res.headers['Server'].nil? or res.headers['Server'] !~ /simple httpd/)
 			return :abort if (res.code == 404)
 
 			if [200, 301, 302].include?(res.code)
