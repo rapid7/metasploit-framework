@@ -25,6 +25,8 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					[ 'URL', 'http://support.netgear.com/product/SPH200D' ],
 					[ 'URL', 'http://www.s3cur1ty.de/m1adv2013-002' ],
+					[ 'BID', '57660' ],
+					[ 'EDB', '24441' ],
 				],
 			'Author'      => [ 'm-1-k-3' ],
 			'License'     => MSF_LICENSE
@@ -63,7 +65,8 @@ class Metasploit3 < Msf::Auxiliary
 			})
 
 		if (res and res.code == 200 and res.body !~ /404\ File\ Not\ Found/)
-			print_good("Request may have succeeded on #{rhost}:#{rport}:file->#{file}! Response: \r\n #{res.body}")
+			print_good("Request may have succeeded on #{rhost}:#{rport}:file->#{file}!")
+			vprint_status("Response: \r\n #{res.body}")
 			report_web_vuln({
 				:host     => rhost,
 				:port     => rport,
@@ -99,6 +102,7 @@ class Metasploit3 < Msf::Auxiliary
 					})
 
 			return :abort if (res.code == 404)
+			return :abort if res.nil?
 
 			if [200, 301, 302].include?(res.code)
 				vprint_good("Successful login: #{user} : #{pass} on #{rhost}:#{rport}")	
