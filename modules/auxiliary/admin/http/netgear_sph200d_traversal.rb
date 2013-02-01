@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
 		user = datastore['USERNAME']
 		pass = datastore['PASSWORD']
 
-		print_status("Trying to login with #{user} / #{pass}")
+		vprint_status("#{rhost}:#{rport} - Trying to login with #{user} / #{pass}")
 		
 		#test login
 		begin
