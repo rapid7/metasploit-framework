@@ -449,7 +449,7 @@ class Client
 		method = opts['method']
 		path = opts['uri']
 		iis = true
-		if (opts['DigestAuthIIS'] == false or self.config['DigestAuthIIS'])
+		if (opts['DigestAuthIIS'] == false or self.config['DigestAuthIIS'] == false)
 			iis = false
 		end
 
