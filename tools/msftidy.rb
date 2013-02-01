@@ -226,9 +226,7 @@ class Msftidy
 		puts "Checking syntax for #{f_rel}."
 		rubies ||= RVM.list_strings
 		res = %x{rvm all do ruby -c #{f_rel}}.split("\n").select {|msg| msg =~ /Syntax OK/}
-		rubies.size == res.size
-
-		error("Fails alternate Ruby version check") if rubies.size
+		error("Fails alternate Ruby version check") if rubies.size != res.size
 	end
 
 	def check_ranking
