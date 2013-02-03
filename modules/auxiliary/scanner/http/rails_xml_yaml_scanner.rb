@@ -29,7 +29,8 @@ class Metasploit3 < Msf::Auxiliary
 		))
 
 		register_options([
-			OptString.new('URIPATH', [true, "The URI to test", "/"])
+			OptString.new('URIPATH', [true, "The URI to test", "/"]),
+			OptString.new('HTTP_METHOD', [ true, 'The HTTP request method (GET, POST, PUT typically work)', "POST"])
 		], self.class)
 	end
 
@@ -37,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 		odata = %Q^<?xml version="1.0" encoding="UTF-8"?>\n<probe type="#{ptype}"><![CDATA[\n#{pdata}\n]]></probe>^
 		res = send_request_cgi({
 			'uri'    => datastore['URIPATH'] || "/",
-			'method' => 'POST',
+			'method' => datastore['HTTP_METHOD'],
 			'ctype'  => 'application/xml',
 			'data'   => odata
 		}, 25)
