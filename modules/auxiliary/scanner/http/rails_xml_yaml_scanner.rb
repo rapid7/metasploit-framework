@@ -65,11 +65,13 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 
-		if res1.code.to_s =~ /^[45]/
+		vprint_status("Probe response codes: #{res1.code} / #{res2.code} / #{res3.code}")
+
+		if res1.code.to_s =~ /^[5]/
 			vprint_status("#{rhost}:#{rport} The server replied with #{res1.code} for our initial XML request, double check URIPATH")
 		end
 
-		if res2.code.to_s =~ /^[23]/ and res3.code != res2.code and res3.code != 200
+		if (res2.code == res1.code) and (res3.code != res2.code) and (res3.code != 200)
 			print_good("#{rhost}:#{rport} is likely vulnerable due to a #{res3.code} reply for invalid YAML")
 			report_vuln({
 				:host	=> rhost,
