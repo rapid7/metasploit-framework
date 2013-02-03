@@ -19,7 +19,10 @@ class Metasploit3 < Msf::Auxiliary
 				This module attempts to identify Ruby on Rails instances vulnerable to
 				an arbitrary object instantiation flaw in the XML request processor.
 			},
-			'Author'      => 'hdm',
+			'Author'      => [
+					  'hdm', #author
+					  'jjarmoc' #improvements
+					  ],
 			'License'     => MSF_LICENSE,
 			'References'  =>
 				[
