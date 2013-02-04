@@ -581,6 +581,8 @@ class Client
 		}
 
 		to = opts['timeout'] || 20
+		opts['username'] ||= self.username.to_s
+		opts['password'] ||= self.password.to_s
 
 		if opts['provider'] and opts['provider'].include? 'Negotiate'
 			provider = "Negotiate " 
