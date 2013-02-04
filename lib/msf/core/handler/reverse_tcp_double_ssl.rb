@@ -12,7 +12,7 @@ module Handler
 # listen on.
 #
 ###
-module ReverseTcpDoubleSSL
+module ReverseTcpDoubleSsl
 
 	include Msf::Handler
 
@@ -43,12 +43,12 @@ module ReverseTcpDoubleSSL
 			[
 				Opt::LHOST,
 				Opt::LPORT(4444)
-			], Msf::Handler::ReverseTcpDoubleSSL)
+			], Msf::Handler::ReverseTcpDoubleSsl)
 
 		register_advanced_options(
 			[
 				OptBool.new('ReverseAllowProxy', [ true, 'Allow reverse tcp even with Proxies specified. Connect back will NOT go through proxy but directly to LHOST', false]),
-			], Msf::Handler::ReverseTcpDoubleSSL)
+			], Msf::Handler::ReverseTcpDoubleSsl)
 
 		self.conn_threads = []
 	end
@@ -92,7 +92,7 @@ module ReverseTcpDoubleSSL
 	# Starts monitoring for an inbound connection.
 	#
 	def start_handler
-		self.listener_thread = framework.threads.spawn("ReverseTcpDoubleSSLHandlerListener", false) {
+		self.listener_thread = framework.threads.spawn("ReverseTcpDoubleSslHandlerListener", false) {
 			sock_inp = nil
 			sock_out = nil
 
@@ -120,7 +120,7 @@ module ReverseTcpDoubleSSL
 				# Start a new thread and pass the client connection
 				# as the input and output pipe.  Client's are expected
 				# to implement the Stream interface.
-				conn_threads << framework.threads.spawn("ReverseTcpDoubleSSLHandlerSession", false, sock_inp, sock_out) { | sock_inp_copy, sock_out_copy|
+				conn_threads << framework.threads.spawn("ReverseTcpDoubleSslHandlerSession", false, sock_inp, sock_out) { | sock_inp_copy, sock_out_copy|
 					begin
 						chan = TcpReverseDoubleSSLSessionChannel.new(framework, sock_inp_copy, sock_out_copy)
 						handle_connection(chan.lsock)
@@ -250,7 +250,7 @@ protected
 		def monitor_shell_stdout
 
 			# Start a thread to pipe data between stdin/stdout and the two sockets
-			@monitor_thread = @framework.threads.spawn("ReverseTcpDoubleSSLHandlerMonitor", false) {
+			@monitor_thread = @framework.threads.spawn("ReverseTcpDoubleSslHandlerMonitor", false) {
 				begin
 					while true
 						# Handle data from the server and write to the client
@@ -261,7 +261,7 @@ protected
 						end
 					end
 				rescue ::Exception => e
-					ilog("ReverseTcpDoubleSSL monitor thread raised #{e.class}: #{e}")
+					ilog("ReverseTcpDoubleSsl monitor thread raised #{e.class}: #{e}")
 				end
 
 				# Clean up the sockets...

@@ -1,8 +1,6 @@
 require 'rex/socket'
 require 'thread'
 
-require 'msf/core/handler/reverse_tcp'
-
 module Msf
 module Handler
 
@@ -116,6 +114,42 @@ module ReverseTcpSsl
 			end
 		}
 		raise ex if (ex)
+	end
+
+	#
+	# Starts monitoring for an inbound connection.
+	#
+	def start_handler
+		self.listener_thread = framework.threads.spawn("ReverseTcpSslHandlerListener-#{datastore['LPORT']}", false) {
+			client = nil
+
+			begin
+				# Accept a client connection
+				begin
+					client = self.listener_sock.accept
+				rescue
+					wlog("Exception raised during listener accept: #{$!}\n\n#{$@.join("\n")}")
+					break
+				end
+
+				# Increment the has connection counter
+				self.pending_connections += 1
+
+				self.handler_queue.push( client )
+			end while true
+		}
+
+		self.handler_thread = framework.threads.spawn("ReverseTcpSslHandlerWorker-#{datastore['LPORT']}", false) {
+			while true
+				client = self.handler_queue.pop
+				begin
+					handle_connection(client)
+				rescue ::Exception
+					elog("Exception raised from handle_connection: #{$!.class}: #{$!}\n\n#{$@.join("\n")}")
+				end
+			end
+		}
+
 	end
 
 end
