@@ -463,7 +463,7 @@ class Client
 			r = request_cgi(opts.merge({
 					'uri' => path,
 					'method' => method }))
-			resp = _send_recv(r, to, true)
+			resp = _send_recv(r, to)
 			unless resp.kind_of? Rex::Proto::Http::Response
 				return nil
 			end
@@ -610,7 +610,7 @@ class Client
 			# First request to get the challenge
 			opts['headers']['Authorization'] = ntlm_message_1
 			r = request_cgi(opts)
-			resp = _send_recv(r, to, true)
+			resp = _send_recv(r, to)
 			unless resp.kind_of? Rex::Proto::Http::Response
 				return nil
 			end
