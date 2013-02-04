@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 		each_user_pass do |user, pass|
-			resp,c = send_request_ntlm(test_request)
+			resp = send_winrm_request(test_request)
 			if resp.nil?
 				print_error "#{ip}:#{rport}:  Got no reply from the server, connection may have timed out"
 				return

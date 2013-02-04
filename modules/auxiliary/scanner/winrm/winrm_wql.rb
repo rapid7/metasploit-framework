@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 
-		resp,c = send_request_ntlm(winrm_wql_msg(datastore['WQL']))
+		resp = send_winrm_request(winrm_wql_msg(datastore['WQL']))
 		if resp.nil?
 			print_error "Got no reply from the server"
 			return
