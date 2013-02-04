@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 
 				],
-			'Author'         => [ 'hdm' ],
+			'Author'         => [ 'hdm' , 'thelightcosine'],
 			'References'     =>
 				[
 					[ 'CVE', '1999-0502'] # Weak password
