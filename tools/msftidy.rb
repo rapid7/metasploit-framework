@@ -204,7 +204,7 @@ class Msftidy
 				end
 
 				if author_name =~ /^@.+$/
-					error("No Twitter handle, please. Try leaving it in a comment instead.")
+					error("No Twitter handles, please. Try leaving it in a comment instead.")
 				end
 
 				if not author_name.ascii_only?
@@ -279,6 +279,7 @@ class Msftidy
 			words.each do |word|
 				if %w{and or the for to in of as with a an on at}.include?(word)
 					next
+				elsif %w{pbot}.include?(word)
 				elsif word =~ /^[a-z]+$/
 					warn("Improper capitalization in module title: '#{word}'")
 				end
