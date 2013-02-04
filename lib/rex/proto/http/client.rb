@@ -201,8 +201,8 @@ class Client
 		req << set_extra_headers(c_head)
 		req << set_raw_headers(c_rawh)
 		req << set_body(c_body)
-
-		req
+		
+		{:string => req , :opts => opts}
 	end
 
 
