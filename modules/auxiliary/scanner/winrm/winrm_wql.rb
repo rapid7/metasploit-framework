@@ -42,11 +42,6 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
-		unless accepts_ntlm_auth
-			print_error "The Remote WinRM  server  (#{ip} does not appear to allow Negotiate(NTLM) auth"
-			return
-		end
-
 		resp = send_winrm_request(winrm_wql_msg(datastore['WQL']))
 		if resp.nil?
 			print_error "Got no reply from the server"
