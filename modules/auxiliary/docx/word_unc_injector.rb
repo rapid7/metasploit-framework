@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 		metadataFileData << "2013-01-08T14:14:00Z</dcterms:created><dcterms:modified xsi:type=\"dcterms:W3CDTF\">"
 		metadataFileData << "2013-01-08T14:14:00Z</dcterms:modified></cp:coreProperties>"
 
-		#where to find the skeleton files required for creating an empty document		
+		#where to find the skeleton files required for creating an empty document
 		dataDir = File.join(Msf::Config.install_root, "data", "exploits", "docx")
 		tmpDir = "#{Dir.tmpdir}/unc_tmp"
 
@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
 		rescue
 			print_error("Error generating temp directory structure.")
 			return nil
-		end	
+		end
 
 		#here we store our on-the-fly created files
 		begin
@@ -91,14 +91,14 @@ class Metasploit3 < Msf::Auxiliary
 			vprint_status("Adding skeleton files from #{dataDir}")
 			Dir["#{dataDir}/**/**"].each do |file|
 				if not File.directory?(file)
-					docx.add_file(file.sub(dataDir,''), File.read(file)) 
+					docx.add_file(file.sub(dataDir,''), File.read(file))
 				end
 			end
 			#add on-the-fly created documents
 			vprint_status("Adding injected files")
 			Dir["#{Dir.tmpdir}/unc_tmp/**/**"].each do |file|
 				if not File.directory?(file)
-					docx.add_file(file.sub("#{Dir.tmpdir}/unc_tmp/",''), File.read(file)) 
+					docx.add_file(file.sub("#{Dir.tmpdir}/unc_tmp/",''), File.read(file))
 				end
 			end
 			#add the otherwise skipped "hidden" file
@@ -110,11 +110,11 @@ class Metasploit3 < Msf::Auxiliary
 			cleanupTmp(tmpDir)
 			return nil
 		end
-		
+
 		cleanupTmp(tmpDir)
 		return 0
 	end
-	
+
 	#cleaning up of temporary files. If it fails we say so, but continue anyway
 	def cleanupTmp(dir)
 		begin
@@ -140,10 +140,10 @@ class Metasploit3 < Msf::Auxiliary
 			#lets extract our docx
 			if unzipDocx(tmpDir).nil?
 				return nil
-			end 
+			end
 
 			fileContent = File.read("#{tmpDir}/word/settings.xml")
-			
+
 			if not fileContent.index("w:attachedTemplate r:id=\"rId1\"").nil?
 				vprint_status("Reference to rels file already exists in settings file, we dont need to add it :)")
 
@@ -215,7 +215,7 @@ class Metasploit3 < Msf::Auxiliary
 			vprint_status("Adding files from #{tmpDir}")
 			Dir["#{tmpDir}/**/**"].each do |file|
 				if not File.directory?(file)
-					docx.add_file(file.sub(tmpDir,''), File.read(file)) 
+					docx.add_file(file.sub(tmpDir,''), File.read(file))
 				end
 			end
 			#add the otherwise skipped "hidden" file
