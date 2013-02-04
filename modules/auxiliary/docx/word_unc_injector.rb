@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptAddress.new('LHOST',[true, 'Server IP or hostname that the .docx document points to.','']),
-				OptString.new('SOURCE', [false, 'Full path and filename of .docx file to use as source. If empty, creates new document', '']),
+				OptPath.new('SOURCE', [false, 'Full path and filename of .docx file to use as source. If empty, creates new document', '']),
 				OptString.new('FILENAME', [true, 'Document output filename.', 'stealnetNTLM.docx']),
 				OptString.new('DOCAUTHOR',[false,'Document author for empty document.', 'SphaZ']),
 			], self.class)
