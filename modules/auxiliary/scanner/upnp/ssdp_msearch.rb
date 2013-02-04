@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 			"ST:upnp:rootdevice\r\n" +
 			"Man:\"ssdp:discover\"\r\n" +
 			"MX:3\r\n" +
-			"\r\n\r\n" # Non-standard, but helps
+			"\r\n"
 	end
 
 	def scanner_prescan(batch)
@@ -144,14 +144,14 @@ class Metasploit3 < Msf::Auxiliary
 			}
 		}
 
-		if data =~ /^Server:[\s]*(.*)/i
+		if data =~ /^Server:[\s]*(.*)/mi
 			@results[skey][:info][:server] = $1.strip
 		end
 
 		ssdp_host = nil
 		ssdp_port = 80
 		location_string = ''
-		if data =~ /^Location:[\s]*(.*)/i
+		if data =~ /^Location:[\s]*(.*)/mi
 			location_string = $1
 			@results[skey][:info][:location] = $1.strip
 			if location_string[/(https?):\x2f\x2f([^\x5c\x2f]+)/]
@@ -168,7 +168,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 
-		if data =~ /^USN:[\s]*(.*)/i
+		if data =~ /^USN:[\s]*(.*)/mi
 			@results[skey][:info][:usn] = $1.strip
 		end
 
