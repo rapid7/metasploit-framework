@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options([
 			OptString.new('URIPATH', [true, "The URI to test", "/"]),
-			OptString.new('HTTP_METHOD', [ true, 'The HTTP request method (GET, POST, PUT typically work)', "POST"])
+			OptEnum.new('HTTP_METHOD', [true, 'HTTP Method', 'POST', ['GET', 'POST', 'PUT'] ]),
 		], self.class)
 	end
 
