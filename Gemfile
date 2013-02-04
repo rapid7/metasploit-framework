@@ -5,6 +5,8 @@ gem 'activesupport', '>= 3.0.0'
 # Database models shared between framework and Pro.
 gem 'metasploit_data_models', :git => 'git://github.com/rapid7/metasploit_data_models.git', :tag => '0.4.0'
 
+gem 'msgpack'
+
 group :development do
   # Markdown formatting for yard
   gem 'redcarpet'
