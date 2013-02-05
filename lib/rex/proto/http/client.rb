@@ -392,10 +392,21 @@ class Client
 		conn.put(req.to_s)
 	end
 
+	# Validates that the client has creds 
 	def have_creds?
 		!(self.username.nil?) && self.username != ''
 	end
 
+	#
+	# Params -
+	#    res = The 401 response we need to auth from
+	#    opts = the opts used to generate the request that created this response
+	#    t = the timeout for the http requests
+	#    persist = whether to persist the tcp connection for HTTP Pipelining
+	#
+	#  Parses the response for what Authentication methods are supported.
+	#  Sets the corect authorization options and passes them on to the correct
+	#  method for sending the next request.
 	def send_auth(res, opts, t, persist)
 		supported_auths = res.headers['WWW-Authenticate']
 		if supported_auths.include? 'Basic'
@@ -434,10 +445,27 @@ class Client
 		return res
 	end
 
+	# Converts username and password into the HTTP Basic
+	# authorization string.
 	def basic_auth_header(username,password)
 		auth_str = username.to_s + ":" + password.to_s
 		auth_str = "Basic " + Rex::Text.encode_base64(auth_str)
 	end
+
+
+	#
+	# Opts -
+	#   Inherits all the same options as send_request_cgi
+	#   Also expects some specific opts
+	#   DigestAuthUser - The username for DigestAuth
+	#   DigestAuthPass - The password for DigestAuth
+	#   DigestAuthIIS - IIS uses a slighlty different implementation, set this for IIS support
+	#
+	# This method builds new request to complete a Digest Authentication cycle.
+	# We do not persist the original connection , to clear state in preparation for our auth
+	# We do persist the rest of the connection stream because Digest is a tcp session
+	# based authentication method.
+	#
 
 	def digest_auth(opts={})
 		@nonce_count = 0
@@ -572,6 +600,15 @@ class Client
 		end
 	end
 
+	#
+	# Opts -
+	#   Inherits all the same options as send_request_cgi
+	#   provider - What Negotiate Provider to use (supports NTLM and Negotiate)
+	#
+	# Builds a series of requests to complete Negotiate Auth. Works essentially
+	# the same way as Digest auth. Same pipelining concerns exist.
+	#
+	
 	def negotiate_auth(opts={})
 		ntlm_options = {
 			:signing          => false,
