@@ -19,7 +19,10 @@ class Metasploit3 < Msf::Auxiliary
 				This module attempts to identify Ruby on Rails instances vulnerable to
 				an arbitrary object instantiation flaw in the XML request processor.
 			},
-			'Author'      => 'hdm',
+			'Author'      => [
+					  'hdm', #author
+					  'jjarmoc' #improvements
+					  ],
 			'License'     => MSF_LICENSE,
 			'References'  =>
 				[
@@ -29,7 +32,8 @@ class Metasploit3 < Msf::Auxiliary
 		))
 
 		register_options([
-			OptString.new('URIPATH', [true, "The URI to test", "/"])
+			OptString.new('URIPATH', [true, "The URI to test", "/"]),
+			OptEnum.new('HTTP_METHOD', [true, 'HTTP Method', 'POST', ['GET', 'POST', 'PUT'] ]),
 		], self.class)
 	end
 
@@ -37,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 		odata = %Q^<?xml version="1.0" encoding="UTF-8"?>\n<probe type="#{ptype}"><![CDATA[\n#{pdata}\n]]></probe>^
 		res = send_request_cgi({
 			'uri'    => datastore['URIPATH'] || "/",
-			'method' => 'POST',
+			'method' => datastore['HTTP_METHOD'],
 			'ctype'  => 'application/xml',
 			'data'   => odata
 		}, 25)
@@ -46,29 +50,35 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 
 		res1 = send_probe("string", "hello")
-		res2 = send_probe("yaml", "--- !ruby/object:Time {}\n")
-		res3 = send_probe("yaml", "--- !ruby/object:\x00")
 
 		unless res1
 			vprint_status("#{rhost}:#{rport} No reply to the initial XML request")
 			return
 		end
 
+		if res1.code.to_s =~ /^[5]/
+			vprint_status("#{rhost}:#{rport} The server replied with #{res1.code} for our initial XML request, double check URIPATH")
+			return
+		end
+
+		res2 = send_probe("yaml", "--- !ruby/object:Time {}\n")
+
 		unless res2
 			vprint_status("#{rhost}:#{rport} No reply to the initial YAML probe")
 			return
 		end
+
+		res3 = send_probe("yaml", "--- !ruby/object:\x00")
 
 		unless res3
 			vprint_status("#{rhost}:#{rport} No reply to the second YAML probe")
 			return
 		end
 
-		if res1.code.to_s =~ /^[45]/
-			vprint_status("#{rhost}:#{rport} The server replied with #{res1.code} for our initial XML request, double check URIPATH")
-		end
+		vprint_status("Probe response codes: #{res1.code} / #{res2.code} / #{res3.code}")
 
-		if res2.code.to_s =~ /^[23]/ and res3.code != res2.code and res3.code != 200
+
+		if (res2.code == res1.code) and (res3.code != res2.code) and (res3.code != 200)
 			print_good("#{rhost}:#{rport} is likely vulnerable due to a #{res3.code} reply for invalid YAML")
 			report_vuln({
 				:host	=> rhost,
@@ -79,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
 				:refs   => self.references
 			})
 		else
-			vprint_status("#{rhost}:#{rport} is not likely to be vulnerable or URIPATH must be set")
+			vprint_status("#{rhost}:#{rport} is not likely to be vulnerable or URIPATH & HTTP_METHOD must be set")
 		end
 	end
 
