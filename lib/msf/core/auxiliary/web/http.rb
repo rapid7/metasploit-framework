@@ -120,10 +120,15 @@ class Auxiliary::Web::HTTP
 
 		tl = []
 		loop do
-			# Spawn threads for each host
 			while tl.size <= (opts[:max_threads] || 5) && !@queue.empty? && (req = @queue.pop)
 				tl << framework.threads.spawn( "#{self.class.name} - #{req})", false, req ) do |request|
-					request.handle_response request( request.url, request.opts )
+					# Keep callback failures isolated.
+					begin
+						request.handle_response request( request.url, request.opts )
+					rescue => e
+						elog e.to_s
+						e.backtrace.each { |l| elog l }
+					end
 				end
 			end
 
@@ -291,7 +296,12 @@ class Auxiliary::Web::HTTP
 		Response.from_rex_response c.send_recv( c.request_cgi( opts ), timeout )
 	rescue ::Timeout::Error
 		Response.timed_out
-	rescue ::Errno::EPIPE, ::Errno::ECONNRESET, Rex::ConnectionTimeout
+	#rescue ::Errno::EPIPE, ::Errno::ECONNRESET, Rex::ConnectionTimeout
+	# This is bad but we can't anticipate the gazilion different types of network
+	# i/o errors between Rex and Errno.
+	rescue => e
+		elog e.to_s
+		e.backtrace.each { |l| elog l }
 		Response.empty
 	end
 

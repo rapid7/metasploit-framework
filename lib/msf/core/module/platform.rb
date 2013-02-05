@@ -479,4 +479,20 @@ class Msf::Module::Platform
 		Rank = 100
 		Alias = "php"
 	end
+
+        #
+        # JavaScript
+        #
+        class JavaScript < Msf::Module::Platform
+                Rank = 100
+                Alias = "js"
+        end
+
+        #
+        # Python
+        #
+        class Python < Msf::Module::Platform
+                Rank = 100
+                Alias = "python"
+        end
 end

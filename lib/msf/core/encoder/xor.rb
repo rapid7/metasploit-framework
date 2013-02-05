@@ -26,6 +26,9 @@ class Msf::Encoder::Xor < Msf::Encoder
 	# Finds keys that are incompatible with the supplied bad character list.
 	#
 	def find_bad_keys(buf, badchars)
+		# Short circuit if there are no badchars
+		return super if badchars.length == 0
+
 		bad_keys = Array.new(decoder_key_size) { Hash.new }
 		byte_idx = 0
 

@@ -6,6 +6,7 @@
 ##
 
 require 'msf/core'
+require 'msf/core/payload/ruby'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
@@ -13,6 +14,7 @@ require 'msf/base/sessions/command_shell_options'
 module Metasploit3
 
 	include Msf::Payload::Single
+	include Msf::Payload::Ruby
 	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
@@ -31,7 +33,7 @@ module Metasploit3
 	end
 
 	def generate
-		return super + ruby_string
+		return prepends(ruby_string)
 	end
 
 	def ruby_string

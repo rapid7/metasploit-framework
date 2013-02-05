@@ -204,7 +204,7 @@ class Msftidy
 				end
 
 				if author_name =~ /^@.+$/
-					error("No Twitter handle, please. Try leaving it in a comment instead.")
+					error("No Twitter handles, please. Try leaving it in a comment instead.")
 				end
 
 				if not author_name.ascii_only?
@@ -226,9 +226,7 @@ class Msftidy
 		puts "Checking syntax for #{f_rel}."
 		rubies ||= RVM.list_strings
 		res = %x{rvm all do ruby -c #{f_rel}}.split("\n").select {|msg| msg =~ /Syntax OK/}
-		rubies.size == res.size
-
-		error("Fails alternate Ruby version check") if rubies.size
+		error("Fails alternate Ruby version check") if rubies.size != res.size
 	end
 
 	def check_ranking
@@ -281,6 +279,7 @@ class Msftidy
 			words.each do |word|
 				if %w{and or the for to in of as with a an on at}.include?(word)
 					next
+				elsif %w{pbot}.include?(word)
 				elsif word =~ /^[a-z]+$/
 					warn("Improper capitalization in module title: '#{word}'")
 				end

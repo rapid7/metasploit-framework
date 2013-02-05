@@ -196,6 +196,7 @@ public class ArmitageApplication extends JFrame {
 				r.setLayout(new BorderLayout());
 				r.add(t.component, BorderLayout.CENTER);
 				r.pack();
+				t.component.validate();
 
 				r.addWindowListener(new WindowAdapter() {
 					public void windowClosing(WindowEvent ev) {
