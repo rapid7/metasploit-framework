@@ -359,9 +359,9 @@ class Client
 	end
 
 	#
-	# Transmit an HTTP request and receive the response
-	# If persist is set, then the request will attempt
-	# to reuse an existing connection.
+	# Sends a request and gets a response back
+	# If the request is a 401, and we have creds, it will attempt to
+	# complete authentication and return the final response
 	#
 	def send_recv(req, t = -1, persist=false)
 		opts = req[:opts]
@@ -373,6 +373,11 @@ class Client
 		res
 	end
 
+	#
+	# Transmit an HTTP request and receive the response
+	# If persist is set, then the request will attempt
+	# to reuse an existing connection.
+	#
 	def _send_recv(req, t = -1, persist=false)
 		if req.kind_of? Hash and req[:string]
 			req = req[:string]
@@ -608,7 +613,7 @@ class Client
 	# Builds a series of requests to complete Negotiate Auth. Works essentially
 	# the same way as Digest auth. Same pipelining concerns exist.
 	#
-	
+
 	def negotiate_auth(opts={})
 		ntlm_options = {
 			:signing          => false,
