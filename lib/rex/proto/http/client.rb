@@ -431,6 +431,7 @@ class Client
 			end
 			return res
 		end
+		return res
 	end
 
 	def basic_auth_header(username,password)
