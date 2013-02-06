@@ -65,7 +65,14 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			desc = bits.join(" | ")
-			sinfo[:info] = desc
+			# Services should not have multi-line infos
+			# Move the meat of the data to notes
+			ninfo = sinfo.dup
+			sinfo[:info] = desc.lines.first
+			ninfo[:data] = desc
+			ninfo[:type] = 'upnp'
+			ninfo[:update] = :unique_data
+
 
 			res[:vulns] = []
 
@@ -106,6 +113,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			report_service( sinfo )
+			report_note ( ninfo )
 
 			res[:vulns].each do |v|
 				report_vuln(
