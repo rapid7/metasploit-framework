@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'rex/socket'
-
 ###
 #
 # This class provides methods for interacting with an SSL TCP client
@@ -81,6 +80,9 @@ begin
 		#  VERIFY_PEER
 		self.sslctx.verify_mode = OpenSSL::SSL::VERIFY_PEER
 		self.sslctx.options = OpenSSL::SSL::OP_ALL
+		if params.ssl_cipher
+			self.sslctx.ciphers = params.ssl_cipher
+		end
 
 		# Set the verification callback
 		self.sslctx.verify_callback = Proc.new do |valid, store|
