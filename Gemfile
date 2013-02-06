@@ -16,6 +16,8 @@ gem 'nokogiri'
 gem 'pg', '>= 0.11'
 # Needed by anemone crawler
 gem 'robots'
+# For sniffer and raw socket modules
+gem 'pcaprub'
 
 group :development do
   # Markdown formatting for yard
