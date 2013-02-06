@@ -70,6 +70,7 @@ class Auxiliary::Web::HTTP
 	attr_reader :framework
 
 	attr_accessor :redirect_limit
+	attr_accessor :username , :password
 
 	def initialize( opts = {} )
 		@opts = opts.dup
@@ -85,8 +86,8 @@ class Auxiliary::Web::HTTP
 
 		@request_opts = {}
 		if opts[:auth].is_a? Hash
-			@request_opts['basic_auth'] = [ opts[:auth][:user].to_s + ':' +
-								opts[:auth][:password] ]. pack( 'm*' ).gsub( /\s+/, '' )
+			@username = opts[:auth][:user].to_s
+			@password = opts[:auth][:password].to_s
 		end
 
 		self.redirect_limit = opts[:redirect_limit] || 20
@@ -106,7 +107,9 @@ class Auxiliary::Web::HTTP
 			opts[:target].port,
 			{},
 			opts[:target].ssl,
-			'SSLv23'
+			'SSLv23',
+			username,
+			password
 		)
 
 		c.set_config({
@@ -148,23 +151,6 @@ class Auxiliary::Web::HTTP
 		while rlimit >= 0
 			rlimit -= 1
 			res = _request( url, opts )
-			if res.code == 401 and res.headers['WWW-Authenticate'] and opts['username']
-				if res.headers['WWW-Authenticate'].include? 'Basic'
-					opts['password']||= ''
-					opts['basic_auth'] = opts['username'] + ":" + opts['password']
-					res = _request( url, opts )
-				elsif res.headers['WWW-Authenticate'].include? 'Digest'
-					opts['DigestAuthUser'] = opts['username']
-					opts['DigestAuthPassword'] = opts['password']
-					res = send_digest_request_cgi(opts,timeout)
-				elsif res.headers['WWW-Authenticate'].include? "Negotiate"
-					opts['provider'] = 'Negotiate'
-					res = send_request_auth_negotiate(opts,timeout)
-				elsif res.headers['WWW-Authenticate'].include? "NTLM"
-					opts['provider'] = 'NTLM'
-					res = send_request_auth_negotiate(opts,timeout)
-				end
-			end
 			return res if !opts[:follow_redirect] || !url = res.headers['location']
 		end
 		nil
@@ -311,6 +297,10 @@ class Auxiliary::Web::HTTP
 		opts['data'] = body if body
 
 		c = connect
+		if opts['username'] and opts['username'] != ''
+			c.username = opts['username'].to_s
+			c.password = opts['password'].to_s
+		end
 		Response.from_rex_response c.send_recv( c.request_cgi( opts ), timeout )
 	rescue ::Timeout::Error
 		Response.timed_out

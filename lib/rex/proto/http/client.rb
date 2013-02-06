@@ -201,8 +201,8 @@ class Client
 		req << set_extra_headers(c_head)
 		req << set_raw_headers(c_rawh)
 		req << set_body(c_body)
-
-		req
+		
+		{:string => req , :opts => opts}
 	end
 
 
@@ -359,9 +359,9 @@ class Client
 	end
 
 	#
-	# Transmit an HTTP request and receive the response
-	# If persist is set, then the request will attempt
-	# to reuse an existing connection.
+	# Sends a request and gets a response back
+	# If the request is a 401, and we have creds, it will attempt to
+	# complete authentication and return the final response
 	#
 	def send_recv(req, t = -1, persist=false)
 		opts = req[:opts]
@@ -373,6 +373,11 @@ class Client
 		res
 	end
 
+	#
+	# Transmit an HTTP request and receive the response
+	# If persist is set, then the request will attempt
+	# to reuse an existing connection.
+	#
 	def _send_recv(req, t = -1, persist=false)
 		if req.kind_of? Hash and req[:string]
 			req = req[:string]
@@ -392,10 +397,21 @@ class Client
 		conn.put(req.to_s)
 	end
 
+	# Validates that the client has creds 
 	def have_creds?
 		!(self.username.nil?) && self.username != ''
 	end
 
+	#
+	# Params -
+	#    res = The 401 response we need to auth from
+	#    opts = the opts used to generate the request that created this response
+	#    t = the timeout for the http requests
+	#    persist = whether to persist the tcp connection for HTTP Pipelining
+	#
+	#  Parses the response for what Authentication methods are supported.
+	#  Sets the corect authorization options and passes them on to the correct
+	#  method for sending the next request.
 	def send_auth(res, opts, t, persist)
 		supported_auths = res.headers['WWW-Authenticate']
 		if supported_auths.include? 'Basic'
@@ -431,12 +447,30 @@ class Client
 			end
 			return res
 		end
+		return res
 	end
 
+	# Converts username and password into the HTTP Basic
+	# authorization string.
 	def basic_auth_header(username,password)
 		auth_str = username.to_s + ":" + password.to_s
 		auth_str = "Basic " + Rex::Text.encode_base64(auth_str)
 	end
+
+
+	#
+	# Opts -
+	#   Inherits all the same options as send_request_cgi
+	#   Also expects some specific opts
+	#   DigestAuthUser - The username for DigestAuth
+	#   DigestAuthPass - The password for DigestAuth
+	#   DigestAuthIIS - IIS uses a slighlty different implementation, set this for IIS support
+	#
+	# This method builds new request to complete a Digest Authentication cycle.
+	# We do not persist the original connection , to clear state in preparation for our auth
+	# We do persist the rest of the connection stream because Digest is a tcp session
+	# based authentication method.
+	#
 
 	def digest_auth(opts={})
 		@nonce_count = 0
@@ -449,7 +483,7 @@ class Client
 		method = opts['method']
 		path = opts['uri']
 		iis = true
-		if (opts['DigestAuthIIS'] == false or self.config['DigestAuthIIS'])
+		if (opts['DigestAuthIIS'] == false or self.config['DigestAuthIIS'] == false)
 			iis = false
 		end
 
@@ -463,7 +497,7 @@ class Client
 			r = request_cgi(opts.merge({
 					'uri' => path,
 					'method' => method }))
-			resp = _send_recv(r, to, true)
+			resp = _send_recv(r, to)
 			unless resp.kind_of? Rex::Proto::Http::Response
 				return nil
 			end
@@ -571,6 +605,15 @@ class Client
 		end
 	end
 
+	#
+	# Opts -
+	#   Inherits all the same options as send_request_cgi
+	#   provider - What Negotiate Provider to use (supports NTLM and Negotiate)
+	#
+	# Builds a series of requests to complete Negotiate Auth. Works essentially
+	# the same way as Digest auth. Same pipelining concerns exist.
+	#
+
 	def negotiate_auth(opts={})
 		ntlm_options = {
 			:signing          => false,
@@ -581,6 +624,8 @@ class Client
 		}
 
 		to = opts['timeout'] || 20
+		opts['username'] ||= self.username.to_s
+		opts['password'] ||= self.password.to_s
 
 		if opts['provider'] and opts['provider'].include? 'Negotiate'
 			provider = "Negotiate " 
@@ -608,7 +653,7 @@ class Client
 			# First request to get the challenge
 			opts['headers']['Authorization'] = ntlm_message_1
 			r = request_cgi(opts)
-			resp = _send_recv(r, to, true)
+			resp = _send_recv(r, to)
 			unless resp.kind_of? Rex::Proto::Http::Response
 				return nil
 			end
