@@ -13,6 +13,10 @@
 #
 # You must mark it executable (chmod +x), and do not name it
 # pre-commit.rb (just pre-commit)
+#
+# If you want to keep up on changes with this hook, just:
+#
+# ln -sf <this file> <path to commit hook>
 
 valid = true # Presume validity
 files_to_check = []
