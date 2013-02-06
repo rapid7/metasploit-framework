@@ -260,7 +260,8 @@ public abstract class RpcConnection {
 				// Don't fork cause we'll check if it dies
 				String rpcType = "Basic";
 				java.util.List args = new java.util.ArrayList(java.util.Arrays.asList(new String[]{
-						"msfrpcd","-f","-P",defaultPass,"-t","Msg","-U",defaultUser,"-a","127.0.0.1"}));
+						"msfrpcd","-f","-P",defaultPass,"-t","Msg","-U",defaultUser,"-a","127.0.0.1",
+						"-p",Integer.toString(defaultPort)}));
 				if(!defaultSsl)
 					args.add("-S");
 				if(disableDb)
