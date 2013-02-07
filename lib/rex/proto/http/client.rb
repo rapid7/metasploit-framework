@@ -151,27 +151,44 @@ class Client
 	#
 	# Create an arbitrary HTTP request
 	#
+	# @param opts [Hash]
+	# @option opts 'agent'         [String] User-Agent header value
+	# @option opts 'basic_auth'    [String] Basic-Auth header value
+	# @option opts 'connection'    [String] Connection header value
+	# @option opts 'cookie'        [String] Cookie header value
+	# @option opts 'data'          [String] HTTP data (only useful with some methods, see rfc2616)
+	# @option opts 'encode'        [Bool]   URI encode the supplied URI, default: false
+	# @option opts 'headers'       [Hash]   HTTP headers, e.g. <code>{ "X-MyHeader" => "value" }</code>
+	# @option opts 'method'        [String] HTTP method to use in the request, not limited to standard methods defined by rfc2616, default: GET
+	# @option opts 'proto'         [String] protocol, default: HTTP
+	# @option opts 'query'         [String] raw query string
+	# @option opts 'raw_headers'   [Hash]   HTTP headers
+	# @option opts 'uri'           [String] the URI to request
+	# @option opts 'version'       [String] version of the protocol, default: 1.1
+	# @option opts 'vhost'         [String] Host header value
+	#
+	# @return [Request]
 	def request_raw(opts={})
-		c_enc  = opts['encode']     || false
-		c_uri  = opts['uri']        || '/'
+		c_ag   = opts['agent']      || config['agent']
+		c_auth = opts['basic_auth'] || config['basic_auth'] || ''
 		c_body = opts['data']       || ''
+		c_conn = opts['connection']
+		c_cook = opts['cookie']     || config['cookie']
+		c_enc  = opts['encode']     || false
+		c_head = opts['headers']    || config['headers'] || {}
+		c_host = opts['vhost']      || config['vhost'] || self.hostname
 		c_meth = opts['method']     || 'GET'
 		c_prot = opts['proto']      || 'HTTP'
-		c_vers = opts['version']    || config['version'] || '1.1'
 		c_qs   = opts['query']
-		c_ag   = opts['agent']      || config['agent']
-		c_cook = opts['cookie']     || config['cookie']
-		c_host = opts['vhost']      || config['vhost'] || self.hostname
-		c_head = opts['headers']    || config['headers'] || {}
 		c_rawh = opts['raw_headers']|| config['raw_headers'] || ''
-		c_conn = opts['connection']
-		c_auth = opts['basic_auth'] || config['basic_auth'] || ''
+		c_uri  = opts['uri']        || '/'
+		c_vers = opts['version']    || config['version'] || '1.1'
 
 		# An agent parameter was specified, but so was a header, prefer the header
 		if c_ag and c_head.keys.map{|x| x.downcase }.include?('user-agent')
 			c_ag = nil
 		end
-		
+
 		uri    = set_uri(c_uri)
 
 		req = ''
@@ -191,7 +208,6 @@ class Client
 		req << set_host_header(c_host)
 		req << set_agent_header(c_ag)
 
-
 		if (c_auth.length > 0)
 			req << set_basic_auth_header(c_auth)
 		end
@@ -201,53 +217,45 @@ class Client
 		req << set_extra_headers(c_head)
 		req << set_raw_headers(c_rawh)
 		req << set_body(c_body)
-		
-		{:string => req , :opts => opts}
+
+		request = Request.new
+		request.parse(req)
+		request.options = opts
+
+		request
 	end
 
 
 	#
 	# Create a CGI compatible request
 	#
-	# Options:
-	# - agent:         User-Agent header value
-	# - basic_auth:    Basic-Auth header value
-	# - connection:    Connection header value
-	# - cookie:        Cookie header value
-	# - ctype:         Content-Type header value, default: +application/x-www-form-urlencoded+
-	# - data:          HTTP data (only useful with some methods, see rfc2616)
-	# - encode:        URI encode the supplied URI, default: false
-	# - encode_params: URI encode the GET or POST variables (names and values), default: true
-	# - headers:       HTTP headers as a hash, e.g. <code>{ "X-MyHeader" => "value" }</code>
-	# - method:        HTTP method to use in the request, not limited to standard methods defined by rfc2616, default: GET
-	# - proto:         protocol, default: HTTP
-	# - query:         raw query string
-	# - raw_headers:   HTTP headers as a hash
-	# - uri:           the URI to request
-	# - vars_get:      GET variables as a hash to be translated into a query string
-	# - vars_post:     POST variables as a hash to be translated into POST data
-	# - version:       version of the protocol, default: 1.1
-	# - vhost:         Host header value
+	# @param (see #request_raw)
+	# @option opts (see #request_raw)
+	# @option opts 'ctype'         [String] Content-Type header value, default: +application/x-www-form-urlencoded+
+	# @option opts 'encode_params' [Bool]   URI encode the GET or POST variables (names and values), default: true
+	# @option opts 'vars_get'      [Hash]   GET variables as a hash to be translated into a query string
+	# @option opts 'vars_post'     [Hash]   POST variables as a hash to be translated into POST data
 	#
+	# @return [Request]
 	def request_cgi(opts={})
+		c_ag    = opts['agent']       || config['agent']
+		c_body  = opts['data']        || ''
+		c_cgi   = opts['uri']         || '/'
+		c_conn  = opts['connection']
+		c_cook  = opts['cookie']      || config['cookie']
 		c_enc   = opts['encode']      || false
 		c_enc_p = (opts['encode_params'] == true or opts['encode_params'].nil? ? true : false)
-		c_cgi   = opts['uri']         || '/'
-		c_body  = opts['data']        || ''
-		c_meth  = opts['method']      || 'GET'
-		c_prot  = opts['proto']       || 'HTTP'
-		c_vers  = opts['version']     || config['version'] || '1.1'
-		c_qs    = opts['query']       || ''
-		c_varg  = opts['vars_get']    || {}
-		c_varp  = opts['vars_post']   || {}
 		c_head  = opts['headers']     || config['headers'] || {}
+		c_host  = opts['vhost']       || config['vhost']
+		c_meth  = opts['method']      || 'GET'
+		c_path  = opts['path_info']
+		c_prot  = opts['proto']       || 'HTTP'
+		c_qs    = opts['query']       || ''
 		c_rawh  = opts['raw_headers'] || config['raw_headers'] || ''
 		c_type  = opts['ctype']       || 'application/x-www-form-urlencoded'
-		c_ag    = opts['agent']       || config['agent']
-		c_cook  = opts['cookie']      || config['cookie']
-		c_host  = opts['vhost']       || config['vhost']
-		c_conn  = opts['connection']
-		c_path  = opts['path_info']
+		c_varg  = opts['vars_get']    || {}
+		c_varp  = opts['vars_post']   || {}
+		c_vers  = opts['version']     || config['version'] || '1.1'
 
 		uri     = set_cgi(c_cgi)
 		qstr    = c_qs
@@ -264,7 +272,7 @@ class Client
 
 		c_varg.each_pair do |var,val|
 			qstr << '&' if qstr.length > 0
-			qstr << (c_enc_p ? set_encode_uri(var) : var) 
+			qstr << (c_enc_p ? set_encode_uri(var) : var)
 			qstr << '='
 			qstr << (c_enc_p ? set_encode_uri(val) : val)
 		end
@@ -315,12 +323,19 @@ class Client
 		req << set_raw_headers(c_rawh)
 		req << set_body(pstr)
 
-		{:string => req , :opts => opts}
+		request = Request.new
+		request.parse(req)
+		request.options = opts
+
+		request
 	end
 
 	#
 	# Connects to the remote server if possible.
 	#
+	# @param t [Fixnum] Timeout
+	# @see Rex::Socket::Tcp.create
+	# @return [Rex::Socket::Tcp]
 	def connect(t = -1)
 		# If we already have a connection and we aren't pipelining, close it.
 		if (self.conn)
@@ -360,28 +375,29 @@ class Client
 
 	#
 	# Sends a request and gets a response back
-	# If the request is a 401, and we have creds, it will attempt to
-	# complete authentication and return the final response
+	#
+	# If the request is a 401, and we have creds, it will attempt to complete
+	# authentication and return the final response
 	#
 	def send_recv(req, t = -1, persist=false)
-		opts = req[:opts]
-		req = req[:string]
 		res = _send_recv(req,t,persist)
 		if res and res.code == 401 and res.headers['WWW-Authenticate'] and have_creds?
-			res = send_auth(res, opts, t, persist)
+			res = send_auth(res, req.options, t, persist)
 		end
 		res
 	end
 
 	#
 	# Transmit an HTTP request and receive the response
-	# If persist is set, then the request will attempt
-	# to reuse an existing connection.
 	#
+	# If persist is set, then the request will attempt to reuse an existing
+	# connection.
+	#
+	# Call this directly instead of {#send_recv} if you don't want automatic
+	# authentication handling.
+	#
+	# @return [Response]
 	def _send_recv(req, t = -1, persist=false)
-		if req.kind_of? Hash and req[:string]
-			req = req[:string]
-		end
 		@pipeline = persist
 		send_request(req, t)
 		res = read_response(t)
@@ -392,12 +408,14 @@ class Client
 	#
 	# Send an HTTP request to the server
 	#
+	# @param req [Request,#to_s] The request to send
+	# @param t (see #connect)
 	def send_request(req, t = -1)
 		connect(t)
 		conn.put(req.to_s)
 	end
 
-	# Validates that the client has creds 
+	# Validates that the client has creds
 	def have_creds?
 		!(self.username.nil?) && self.username != ''
 	end
@@ -420,7 +438,7 @@ class Client
 			else
 				opts['headers'] = { 'Authorization' => basic_auth_header(self.username,self.password)}
 			end
-			
+
 			req = request_cgi(opts)
 			res = _send_recv(req,t,persist)
 			return res
@@ -628,7 +646,7 @@ class Client
 		opts['password'] ||= self.password.to_s
 
 		if opts['provider'] and opts['provider'].include? 'Negotiate'
-			provider = "Negotiate " 
+			provider = "Negotiate "
 		else
 			provider = 'NTLM '
 		end

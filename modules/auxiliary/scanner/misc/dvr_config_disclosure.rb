@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
-	def get_ppooe_credentials(conf)
+	def get_pppoe_credentials(conf)
 
 		user = ""
 		password = ""
@@ -208,7 +208,7 @@ class Metasploit3 < Msf::Auxiliary
 		get_ftp_credentials(conf)
 		get_dvr_credentials(conf)
 		get_ddns_credentials(conf)
-		get_ppooe_credentials(conf)
+		get_pppoe_credentials(conf)
 
 		dvr_name = ""
 		if res.body =~ /DVR_NAME=(.*)/
