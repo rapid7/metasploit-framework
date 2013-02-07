@@ -144,14 +144,14 @@ class Metasploit3 < Msf::Auxiliary
 			}
 		}
 
-		if data =~ /^Server:[\s]*(.*)/mi
+		if data =~ /^Server:[\s]*(.*)/i
 			@results[skey][:info][:server] = $1.strip
 		end
 
 		ssdp_host = nil
 		ssdp_port = 80
 		location_string = ''
-		if data =~ /^Location:[\s]*(.*)/mi
+		if data =~ /^Location:[\s]*(.*)/i
 			location_string = $1
 			@results[skey][:info][:location] = $1.strip
 			if location_string[/(https?):\x2f\x2f([^\x5c\x2f]+)/]
@@ -168,7 +168,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 
-		if data =~ /^USN:[\s]*(.*)/mi
+		if data =~ /^USN:[\s]*(.*)/i
 			@results[skey][:info][:usn] = $1.strip
 		end
 
