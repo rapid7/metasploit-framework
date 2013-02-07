@@ -46,10 +46,13 @@ class Result
 		case version
 		when :SSLv2
 			@sslv2[status] << cipher_details
+			@sslv2[status].uniq!
 		when :SSLv3
 			@sslv3[status] << cipher_details
+			@sslv3[status].uniq!
 		when :TLSv1
 			@tlsv1[status] << cipher_details
+			@tlsv1[status].uniq!
 		end
 	end
 

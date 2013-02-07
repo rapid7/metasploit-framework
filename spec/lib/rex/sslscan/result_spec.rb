@@ -111,6 +111,12 @@ describe Rex::SSLScan::Result do
 				subject.sslv3[:accepted].should include({:cipher=>"AES256-SHA", :key_length=>256})
 				subject.sslv3[:accepted].should include({:cipher=>"AES128-SHA", :key_length=>128})
 			end
+
+			it "should not add duplicate entries" do
+				subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
+				subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
+				subject.sslv3[:accepted].count.should == 1
+			end
 		end
 		context "that was rejected" do
 			it "should add an SSLv2 cipher result to the SSLv2 Rejected array" do
@@ -136,6 +142,12 @@ describe Rex::SSLScan::Result do
 				subject.add_cipher(:SSLv3, "AES256-SHA", 256, :rejected)
 				subject.sslv3[:rejected].should include({:cipher=>"AES256-SHA", :key_length=>256})
 				subject.sslv3[:rejected].should include({:cipher=>"AES128-SHA", :key_length=>128})
+			end
+
+			it "should not add duplicate entries" do
+				subject.add_cipher(:SSLv3, "AES128-SHA", 128, :rejected)
+				subject.add_cipher(:SSLv3, "AES128-SHA", 128, :rejected)
+				subject.sslv3[:rejected].count.should == 1
 			end
 		end
 	end
