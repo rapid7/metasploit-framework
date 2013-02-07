@@ -45,10 +45,19 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 	end
 
+	def is_groupwise?
+		res = send_request_raw({'uri'=>'/'})
+		if res and res.headers['Server'].to_s =~ /GroupWise/
+			return true
+		else
+			return false
+		end
+	end
+
 	def run_host(ip)
-		# No point to continue if no filename is specified
-		if datastore['FILEPATH'].nil? or datastore['FILEPATH'].empty?
-			vprint_error("#{rhost}:#{rport} - Please supply FILEPATH")
+
+		if not is_groupwise?
+			vprint_error("#{rhost}:#{rport} - This isn't a GroupWise Agent HTTP Interface")
 			return
 		end
 
