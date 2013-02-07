@@ -122,22 +122,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 end
 
-=begin
-Vulnerable:
-< HTTP/1.1 200 Ok
-< Server: PMSoftware-SWS/2.3
-< Date: Thu, 07 Feb 2013 16:34:6 GMT
-< Accept-Ranges: bytes
-< Content-type: text/html
-< Content-Length: 1550
-
-Not vulnerable:
-
-< HTTP/1.1 200 Ok
-< Server: PMSoftware-SWS/2.3
-< Date: Thu, 07 Feb 2013 16:39:53 GMT
-< Accept-Ranges: bytes
-< Content-type: text/html
-< Content-Length: 1550
-
-=end
