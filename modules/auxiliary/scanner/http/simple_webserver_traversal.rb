@@ -55,7 +55,8 @@ class Metasploit3 < Msf::Auxiliary
 		status_line = str.scan(/HTTP\/(.+?)\s+(\d+)\s?(.+?)\r?\n?$/)
 
 		if status_line.empty?
-			fail_with(Exploit::Failure::Unknown, "Invalid response command string.")
+			print_error("Invalid response command string.")
+			return
 		elsif status_line.length == 1
 			proto, code, message = status_line[0]
 		else
