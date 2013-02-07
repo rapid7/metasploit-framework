@@ -69,5 +69,48 @@ class Result
 		}
 	end
 
+	def each_accepted
+		all_accepted = []
+
+		accepted.each_pair do |version, cipher_list| 
+			cipher_list.each do |cipher_details|
+				cipher_details[:version] = version
+				all_accepted << cipher_details
+			end
+		end
+		all_accepted.each do |cipher_result|
+			yield cipher_result
+		end
+	end
+
+	def each_rejected
+		all_rejected = []
+
+		rejected.each_pair do |version, cipher_list| 
+			cipher_list.each do |cipher_details|
+				cipher_details[:version] = version
+				all_rejected << cipher_details
+			end
+		end
+		all_rejected.each do |cipher_result|
+			yield cipher_result
+		end
+	end
+
+	def supports_sslv2?
+		!(accepted[:SSLv2].empty?)
+	end
+
+	def supports_sslv3?
+		!(accepted[:SSLv3].empty?)
+	end
+
+	def supports_tlsv1?
+		!(accepted[:TLSv1].empty?)
+	end
+
+	def supports_ssl?
+		supports_sslv2? or supports_sslv3? or supports_tlsv1?
+	end
 end
 end

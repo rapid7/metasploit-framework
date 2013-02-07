@@ -140,4 +140,89 @@ describe Rex::SSLScan::Result do
 		end
 	end
 
+	context "enumerating all accepted ciphers" do
+		before(:each) do
+			subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :accepted)
+			subject.add_cipher(:SSLv3, "AES256-SHA", 256, :accepted)
+			subject.add_cipher(:TLSv1, "AES256-SHA", 256, :accepted)
+			subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
+		end
+
+		it "should return an array of cipher detail hashes" do
+			subject.each_accepted do |cipher_details|
+				cipher_details.should include(:version, :cipher, :key_length)
+			end
+		end
+
+		it "should return all of the accepted cipher details" do
+			count = 0
+			subject.each_accepted do |cipher_details|
+				count = count+1
+			end
+			count.should == 4
+		end
+	end
+
+	context "enumerating all rejected ciphers" do
+		before(:each) do
+			subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :rejected)
+			subject.add_cipher(:SSLv3, "AES256-SHA", 256, :rejected)
+			subject.add_cipher(:TLSv1, "AES256-SHA", 256, :rejected)
+			subject.add_cipher(:SSLv3, "AES128-SHA", 128, :rejected)
+		end
+
+		it "should return an array of cipher detail hashes" do
+			subject.each_rejected do |cipher_details|
+				cipher_details.should include(:version, :cipher, :key_length)
+			end
+		end
+
+		it "should return all of the rejected cipher details" do
+			count = 0
+			subject.each_rejected do |cipher_details|
+				count = count+1
+			end
+			count.should == 4
+		end
+	end
+
+	context "checking SSL support" do
+		context "for SSLv2" do
+			it "should return false if there are no accepted ciphers" do
+				subject.supports_sslv2?.should == false
+			end
+			it "should return true if there are accepted ciphers" do
+				subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :accepted)
+				subject.supports_sslv2?.should == true
+			end
+		end
+		context "for SSLv3" do
+			it "should return false if there are no accepted ciphers" do
+				subject.supports_sslv3?.should == false
+			end
+			it "should return true if there are accepted ciphers" do
+				subject.add_cipher(:SSLv3, "AES256-SHA", 256, :accepted)
+				subject.supports_sslv3?.should == true
+			end
+		end
+		context "for TLSv1" do
+			it "should return false if there are no accepted ciphers" do
+				subject.supports_tlsv1?.should == false
+			end
+			it "should return true if there are accepted ciphers" do
+				subject.add_cipher(:TLSv1, "AES256-SHA", 256, :accepted)
+				subject.supports_tlsv1?.should == true
+			end
+		end
+		context "for SSL at large" do
+			it "should return false if there are no accepted ciphers" do
+				subject.supports_ssl?.should == false
+			end
+			it "should return true if there are accepted ciphers" do
+				subject.add_cipher(:TLSv1, "AES256-SHA", 256, :accepted)
+				subject.supports_ssl?.should == true
+			end
+		end
+	end
+
 end
