@@ -108,7 +108,8 @@ class Metasploit3 < Msf::Auxiliary
 		if code == 200
 
 			if body.empty?
-				print_status("#{ip}:#{rport} - File is empty.")
+				# HD's likes vprint_* in case it's hitting a large network
+				vprint_status("#{ip}:#{rport} - File is empty.")
 				return
 			end
 
