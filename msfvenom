@@ -496,6 +496,13 @@ when /dll/i
 	end
 
 	$stdout.write dll
+when /exe-service/i
+	exeopts[:servicename] = "msfsrv"
+	case opts[:arch]
+	when /x64|x86_64/; exe = Msf::Util::EXE.to_win64pe_service($framework, payload_raw, exeopts)
+	when /x86/; exe = Msf::Util::EXE.to_win32pe_service($framework, payload_raw, exeopts)
+	end
+	$stdout.write exe
 when /exe/i
 	$stdout.write exe
 when /exe-small/i
