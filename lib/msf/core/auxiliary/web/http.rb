@@ -266,10 +266,12 @@ class Auxiliary::Web::HTTP
 	end
 
 	def _request( url, opts = {} )
-		body		= opts[:body]
+		body    = opts[:body]
 		timeout = opts[:timeout] || 10
-		method	= opts[:method].to_s.upcase || 'GET'
-		url		 = url.is_a?( URI ) ? url : URI( url.to_s )
+		method  = opts[:method].to_s.upcase || 'GET'
+		url	    = url.is_a?( URI ) ? url : URI( url.to_s )
+
+		rex_overrides = opts.delete( :rex ) || {}
 
 		param_opts = {}
 
@@ -285,10 +287,11 @@ class Auxiliary::Web::HTTP
 		end
 
 		opts = @request_opts.merge( param_opts ).merge(
-			'uri'		 => url.path || '/',
-			'method'	=> method,
+			'uri'     => url.path || '/',
+			'method'  => method,
 			'headers' => headers.merge( opts[:headers] || {} )
-		)
+		# Allow for direct rex overrides
+		).merge( rex_overrides )
 
 		opts['data'] = body if body
 
