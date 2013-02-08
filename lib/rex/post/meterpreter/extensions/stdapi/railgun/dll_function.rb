@@ -70,7 +70,7 @@ class DLLFunction
 		if not @@allowed_convs.include?(conv)
 			raise ArgumentError, "Calling convention unknown: #{conv}."
 		end
-	end		
+	end
 
 	def check_type_exists (type)
 		if not @@allowed_datatypes.has_key?(type)
