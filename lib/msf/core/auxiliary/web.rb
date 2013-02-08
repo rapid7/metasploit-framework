@@ -250,7 +250,9 @@ module Auxiliary::Web
 
 		if !(payload = opts[:payload])
 			if payloads
-				payload = payloads.select{ |p| element.altered_value.include?( p ) }.first
+				payload = payloads.select { |p|
+					element.altered_value.include?( p )
+				}.sort_by { |p| p.size }.last
 			end
 		end
 
