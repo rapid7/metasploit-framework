@@ -5,33 +5,23 @@ describe Rex::SSLScan::Result do
 	subject{Rex::SSLScan::Result.new}
 
       it { should respond_to :cert }
-      it { should respond_to :sslv2 }
-      it { should respond_to :sslv3 }
-      it { should respond_to :tlsv1 }
+      it { should respond_to :ciphers }
 
 	context "with no values set" do
 		it "should return nil for the cert" do
 			subject.cert.should == nil
 		end
 
-		it "should return an empty structure for sslv2" do
-			subject.sslv2.should == {:accepted => [], :rejected => []}
+		it "should return an empty array for ciphers" do
+			subject.ciphers.should == []
 		end
 
-		it "should return an empty structure for sslv3" do
-			subject.sslv3.should == {:accepted => [], :rejected => []}
+		it "should return an empty array for accepted" do
+			subject.accepted.should == []
 		end
 
-		it "should return an empty structure for tlsv1" do
-			subject.tlsv1.should == {:accepted => [], :rejected => []}
-		end
-
-		it "should return an empty structure for #accepted" do
-			subject.accepted.should == {:SSLv2=>[], :SSLv3=>[], :TLSv1=>[]}
-		end
-
-		it "should return an emtpy structure for #rejected" do
-			subject.rejected.should == {:SSLv2=>[], :SSLv3=>[], :TLSv1=>[]}
+		it "should return an empty array for rejected" do
+			subject.rejected.should == []
 		end
 	end
 
@@ -89,65 +79,109 @@ describe Rex::SSLScan::Result do
 		context "that was accepted" do
 			it "should add an SSLv2 cipher result to the SSLv2 Accepted array" do
 				subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :accepted)
-				subject.sslv2[:accepted].should include({:cipher=>"DES-CBC3-MD5", :key_length=>168})
-				subject.accepted[:SSLv2].should include({:cipher=>"DES-CBC3-MD5", :key_length=>168})
+				subject.accepted(:SSLv2).should include({
+					:version => :SSLv2, 
+					:cipher=>"DES-CBC3-MD5", 
+					:key_length=>168, 
+					:weak=> false, 
+					:status => :accepted}) 
 			end
 
 			it "should add an SSLv3 cipher result to the SSLv3 Accepted array" do
 				subject.add_cipher(:SSLv3, "AES256-SHA", 256, :accepted)
-				subject.sslv3[:accepted].should include({:cipher=>"AES256-SHA", :key_length=>256})
-				subject.accepted[:SSLv3].should include({:cipher=>"AES256-SHA", :key_length=>256})
+				subject.accepted(:SSLv3).should include({
+					:version => :SSLv3, 
+					:cipher=>"AES256-SHA", 
+					:key_length=>256, 
+					:weak=> false, 
+					:status => :accepted})
 			end
 
 			it "should add an TLSv1 cipher result to the TLSv1 Accepted array" do
 				subject.add_cipher(:TLSv1, "AES256-SHA", 256, :accepted)
-				subject.tlsv1[:accepted].should include({:cipher=>"AES256-SHA", :key_length=>256})
-				subject.accepted[:TLSv1].should include({:cipher=>"AES256-SHA", :key_length=>256})
+				subject.accepted(:TLSv1).should include({
+					:version => :TLSv1, 
+					:cipher=>"AES256-SHA", 
+					:key_length=>256, 
+					:weak=> false, 
+					:status => :accepted})
 			end
 
 			it "should successfully add multiple entries in a row" do
 				subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
 				subject.add_cipher(:SSLv3, "AES256-SHA", 256, :accepted)
-				subject.sslv3[:accepted].should include({:cipher=>"AES256-SHA", :key_length=>256})
-				subject.sslv3[:accepted].should include({:cipher=>"AES128-SHA", :key_length=>128})
+				subject.accepted(:SSLv3).should include({
+					:version => :SSLv3, 
+					:cipher=>"AES256-SHA", 
+					:key_length=>256, 
+					:weak=> false, 
+					:status => :accepted})
+				subject.accepted(:SSLv3).should include({
+					:version => :SSLv3, 
+					:cipher=>"AES256-SHA", 
+					:key_length=>256, 
+					:weak=> false, 
+					:status => :accepted})
 			end
 
 			it "should not add duplicate entries" do
 				subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
 				subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
-				subject.sslv3[:accepted].count.should == 1
+				subject.accepted(:SSLv3).count.should == 1
 			end
 		end
 		context "that was rejected" do
 			it "should add an SSLv2 cipher result to the SSLv2 Rejected array" do
 				subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :rejected)
-				subject.sslv2[:rejected].should include({:cipher=>"DES-CBC3-MD5", :key_length=>168})
-				subject.rejected[:SSLv2].should include({:cipher=>"DES-CBC3-MD5", :key_length=>168})
+				subject.rejected(:SSLv2).should include({
+					:version => :SSLv2, 
+					:cipher=>"DES-CBC3-MD5", 
+					:key_length=>168, 
+					:weak=> false, 
+					:status => :rejected}) 
 			end
 
 			it "should add an SSLv3 cipher result to the SSLv3 Rejected array" do
 				subject.add_cipher(:SSLv3, "AES256-SHA", 256, :rejected)
-				subject.sslv3[:rejected].should include({:cipher=>"AES256-SHA", :key_length=>256})
-				subject.rejected[:SSLv3].should include({:cipher=>"AES256-SHA", :key_length=>256})
+				subject.rejected(:SSLv3).should include({
+					:version => :SSLv3, 
+					:cipher=>"AES256-SHA", 
+					:key_length=>256, 
+					:weak=> false, 
+					:status => :rejected})
 			end
 
 			it "should add an TLSv1 cipher result to the TLSv1 Rejected array" do
 				subject.add_cipher(:TLSv1, "AES256-SHA", 256, :rejected)
-				subject.tlsv1[:rejected].should include({:cipher=>"AES256-SHA", :key_length=>256})
-				subject.rejected[:TLSv1].should include({:cipher=>"AES256-SHA", :key_length=>256})
+				subject.rejected(:TLSv1).should include({
+					:version => :TLSv1, 
+					:cipher=>"AES256-SHA", 
+					:key_length=>256, 
+					:weak=> false, 
+					:status => :rejected})
 			end
 
 			it "should successfully add multiple entries in a row" do
 				subject.add_cipher(:SSLv3, "AES128-SHA", 128, :rejected)
 				subject.add_cipher(:SSLv3, "AES256-SHA", 256, :rejected)
-				subject.sslv3[:rejected].should include({:cipher=>"AES256-SHA", :key_length=>256})
-				subject.sslv3[:rejected].should include({:cipher=>"AES128-SHA", :key_length=>128})
+				subject.rejected(:SSLv3).should include({
+					:version => :SSLv3, 
+					:cipher=>"AES256-SHA", 
+					:key_length=>256, 
+					:weak=> false, 
+					:status => :rejected})
+				subject.rejected(:SSLv3).should include({
+					:version => :SSLv3, 
+					:cipher=>"AES128-SHA", 
+					:key_length=>128, 
+					:weak=> false, 
+					:status => :rejected})
 			end
 
 			it "should not add duplicate entries" do
 				subject.add_cipher(:SSLv3, "AES128-SHA", 128, :rejected)
 				subject.add_cipher(:SSLv3, "AES128-SHA", 128, :rejected)
-				subject.sslv3[:rejected].count.should == 1
+				subject.rejected(:SSLv3).count.should == 1
 			end
 		end
 	end
@@ -162,7 +196,7 @@ describe Rex::SSLScan::Result do
 
 		it "should return an array of cipher detail hashes" do
 			subject.each_accepted do |cipher_details|
-				cipher_details.should include(:version, :cipher, :key_length)
+				cipher_details.should include(:version, :cipher, :key_length, :status, :weak)
 			end
 		end
 
@@ -185,7 +219,7 @@ describe Rex::SSLScan::Result do
 
 		it "should return an array of cipher detail hashes" do
 			subject.each_rejected do |cipher_details|
-				cipher_details.should include(:version, :cipher, :key_length)
+				cipher_details.should include(:version, :cipher, :key_length, :status, :weak)
 			end
 		end
 

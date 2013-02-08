@@ -4,16 +4,12 @@ require 'rex/socket'
 module Rex::SSLScan
 class Result
 
-	attr_reader :sslv2
-	attr_reader :sslv3
-	attr_reader :tlsv1
+	attr_reader :ciphers
 	attr_reader :supported_versions
 
 	def initialize()
 		@cert = nil
-		@sslv2 = {:accepted => [], :rejected => []}
-		@sslv3 = {:accepted => [], :rejected => []}
-		@tlsv1 = {:accepted => [], :rejected => []}
+		@ciphers = []
 		@supported_versions = [:SSLv2, :SSLv3, :TLSv1]
 	end
 
@@ -26,6 +22,10 @@ class Result
 			raise ArgumentError, "Must be an X509 Cert!" 
 		end
 		@cert = input
+	end
+
+	def sslv2
+		@ciphers.reject{|cipher| cipher[:version] != :SSLv2 }
 	end
 
 	def add_cipher(version, cipher, key_length, status)
@@ -42,74 +42,86 @@ class Result
 			raise ArgumentError, "status Must be either :accepted or :rejected"
 		end
 
-		cipher_details = {:cipher => cipher, :key_length => key_length}
-		case version
-		when :SSLv2
-			@sslv2[status] << cipher_details
-			@sslv2[status].uniq!
-		when :SSLv3
-			@sslv3[status] << cipher_details
-			@sslv3[status].uniq!
-		when :TLSv1
-			@tlsv1[status] << cipher_details
-			@tlsv1[status].uniq!
+		strong_cipher_ctx = OpenSSL::SSL::SSLContext.new(version)
+		strong_cipher_ctx.ciphers = "ALL:!aNULL:!eNULL:!LOW:!EXP:RC4+RSA:+HIGH:+MEDIUM"
+		
+		if strong_cipher_ctx.ciphers.flatten.include? cipher
+			weak = false
+		else
+			weak = true
 		end
+
+		cipher_details = {:version => version, :cipher => cipher, :key_length => key_length, :weak => weak, :status => status}
+		@ciphers << cipher_details
+		@ciphers.uniq!
 	end
 
-	def accepted
-		{
-			:SSLv2 => @sslv2[:accepted],
-			:SSLv3 => @sslv3[:accepted],
-			:TLSv1 => @tlsv1[:accepted]
-		}
-	end
-
-	def rejected
-		{
-			:SSLv2 => @sslv2[:rejected],
-			:SSLv3 => @sslv3[:rejected],
-			:TLSv1 => @tlsv1[:rejected]
-		}
-	end
-
-	def each_accepted
-		all_accepted = []
-
-		accepted.each_pair do |version, cipher_list| 
-			cipher_list.each do |cipher_details|
-				cipher_details[:version] = version
-				all_accepted << cipher_details
+	def accepted(version = :all)
+		if version.kind_of? Symbol
+			case version
+			when :all
+				return @ciphers.reject{|cipher| cipher[:status] == :rejected}
+			when :SSLv2, :SSLv3, :TLSv1
+				return @ciphers.reject{|cipher| cipher[:status] == :rejected or cipher[:version] != version}
+			else
+				raise ArgumentError, "Invalid SSL Version Supplied: #{version}"
 			end
+		elsif version.kind_of? Array 
+			version.reject!{|version| @supported_versions.include? version}
+			if version.empty?
+				return @ciphers.reject{|cipher| cipher[:status] == :rejected}
+			else
+				return @ciphers.reject{|cipher| cipher[:status] == :rejected or !(version.include? cipher[:version])}
+			end
+		else
+			raise ArgumentError, "Was expecting Symbol or Array and got #{version.class}"
 		end
-		all_accepted.each do |cipher_result|
+	end
+
+	def rejected(version = :all)
+		if version.kind_of? Symbol
+			case version
+			when :all
+				return @ciphers.reject{|cipher| cipher[:status] == :accepted}
+			when :SSLv2, :SSLv3, :TLSv1
+				return @ciphers.reject{|cipher| cipher[:status] == :accepted or cipher[:version] != version}
+			else
+				raise ArgumentError, "Invalid SSL Version Supplied: #{version}"
+			end
+		elsif version.kind_of? Array 
+			version.reject!{|version| @supported_versions.include? version}
+			if version.empty?
+				return @ciphers.reject{|cipher| cipher[:status] == :accepted}
+			else
+				return @ciphers.reject{|cipher| cipher[:status] == :accepted or !(version.include? cipher[:version])}
+			end
+		else
+			raise ArgumentError, "Was expecting Symbol or Array and got #{version.class}"
+		end
+	end
+
+	def each_accepted(version = :all)
+		accepted(version).each do |cipher_result|
 			yield cipher_result
 		end
 	end
 
-	def each_rejected
-		all_rejected = []
-
-		rejected.each_pair do |version, cipher_list| 
-			cipher_list.each do |cipher_details|
-				cipher_details[:version] = version
-				all_rejected << cipher_details
-			end
-		end
-		all_rejected.each do |cipher_result|
+	def each_rejected(version = :all)
+		rejected(version).each do |cipher_result|
 			yield cipher_result
 		end
 	end
 
 	def supports_sslv2?
-		!(accepted[:SSLv2].empty?)
+		!(accepted(:SSLv2).empty?)
 	end
 
 	def supports_sslv3?
-		!(accepted[:SSLv3].empty?)
+		!(accepted(:SSLv3).empty?)
 	end
 
 	def supports_tlsv1?
-		!(accepted[:TLSv1].empty?)
+		!(accepted(:TLSv1).empty?)
 	end
 
 	def supports_ssl?
