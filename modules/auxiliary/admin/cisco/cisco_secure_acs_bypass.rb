@@ -75,6 +75,7 @@ class Metasploit4 < Msf::Auxiliary
 
 		begin
 			uri = normalize_uri(target_uri.path)
+			uri << '/' if uri[-1,1] != '/'
 			res = send_request_cgi({
 				'uri'     => uri,
 				'method'  => 'POST',

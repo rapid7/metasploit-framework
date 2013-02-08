@@ -57,7 +57,7 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		uri = normalize_uri(target_uri.to_s)
+		uri = normalize_uri(target_uri.path)
 		res = send_request_cgi({
 			'uri'     => uri,
 			'method'  => 'GET'})
@@ -71,7 +71,7 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def accessfile(rhost)
-		uri = normalize_uri(target_uri.to_s)
+		uri = normalize_uri(target_uri.path)
 		print_status("#{rhost}:#{rport} Connecting to Crowd SOAP Interface")
 
 		soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'

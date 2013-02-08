@@ -111,10 +111,10 @@ protected
 
 		# Clear the counter register
 		clear_register = Rex::Poly::LogicalBlock.new('clear_register',
-			"\x31\xc9",
-			"\x29\xc9",
-			"\x33\xc9",
-			"\x2b\xc9")
+			"\x31\xc9",  # xor ecx,ecx
+			"\x29\xc9",  # sub ecx,ecx
+			"\x33\xc9",  # xor ecx,ecx
+			"\x2b\xc9")  # sub ecx,ecx
 
 		# Initialize the counter after zeroing it
 		init_counter = Rex::Poly::LogicalBlock.new('init_counter')
@@ -126,8 +126,10 @@ protected
 
 		if (length <= 255)
 			init_counter.add_perm("\xb1" + [ length ].pack('C'))
-		else
+		elsif (length <= 65536)
 			init_counter.add_perm("\x66\xb9" + [ length ].pack('v'))
+		else
+			init_counter.add_perm("\xb9" + [ length ].pack('V'))
 		end
 
 		# Key initialization block

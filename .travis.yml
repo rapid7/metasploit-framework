@@ -6,3 +6,5 @@ rvm:
 notifications:
   irc: "irc.freenode.org#msfnotify"
 
+git:
+  depth: 1

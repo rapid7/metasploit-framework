@@ -342,7 +342,15 @@ class Console::CommandDispatcher::Core
 			return
 		end
 
-		print_status("Migrating to #{pid}...")
+		begin
+			server = client.sys.process.open
+		rescue TimeoutError => e
+			elog(e.to_s)
+		rescue RequestError => e
+			elog(e.to_s)
+		end
+
+		server ? print_status("Migrating from #{server.pid} to #{pid}...") : print_status("Migrating to #{pid}")
 
 		# Do this thang.
 		client.core.migrate(pid)

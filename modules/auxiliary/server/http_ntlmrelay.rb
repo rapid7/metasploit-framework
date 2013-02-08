@@ -84,8 +84,7 @@ class Metasploit3 < Msf::Auxiliary
 							'IPC$,ADMIN$,C$,D$,CCMLOGS$,ccmsetup$,share,netlogon,sysvol'])
 		], self.class)
 
-		deregister_options('BasicAuthPass', 'BasicAuthUser', 'DOMAIN', 'DigestAuthPassword',
-			'DigestAuthUser', 'NTLM::SendLM', 'NTLM::SendSPN', 'NTLM::SendNTLM', 'NTLM::UseLMKey',
+		deregister_options('DOMAIN', 'NTLM::SendLM', 'NTLM::SendSPN', 'NTLM::SendNTLM', 'NTLM::UseLMKey',
 			'NTLM::UseNTLM2_session', 'NTLM::UseNTLMv2')
 	end
 

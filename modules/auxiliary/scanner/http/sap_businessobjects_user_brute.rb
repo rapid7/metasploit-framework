@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			res = send_request_raw({
-				'uri'     => normalize_uri(datastore['URI']) + "/services/Session",
+				'uri'     => normalize_uri(datastore['URI'], "/services/Session"),
 				'method'  => 'POST',
 				'data'	  => data,
 				'headers' =>

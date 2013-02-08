@@ -34,6 +34,20 @@ class Console::CommandDispatcher::Stdapi::Sys
 		"-s" => [ true,  "Execute process in a given session as the session user"  ])
 
 	#
+	# Options used by the 'reboot' command.
+	#
+	@@reboot_opts = Rex::Parser::Arguments.new(
+		"-h" => [ false, "Help menu."                                              ],
+		"-f" => [ true,  "Force a reboot, valid values [1|2]"                      ])
+
+	#
+	# Options used by the 'shutdown' command.
+	#
+	@@shutdown_opts = Rex::Parser::Arguments.new(
+		"-h" => [ false, "Help menu."                                              ],
+		"-f" => [ true,  "Force a shutdown, valid values [1|2]"                    ])
+
+	#
 	# Options used by the 'reg' command.
 	#
 	@@reg_opts = Rex::Parser::Arguments.new(
@@ -316,7 +330,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 	# @param pids [Array<String>] The pids to validate
 	# @param allow_pid_0 [Boolean] whether to consider a pid of 0 as valid
 	# @param allow_session_pid [Boolean] whether to consider a pid = the current session pid as valid
-	# @return [Array] Returns an array of valid pids 
+	# @return [Array] Returns an array of valid pids
 
 	def validate_pids(pids, allow_pid_0 = false, allow_session_pid = false)
 
@@ -356,14 +370,14 @@ class Console::CommandDispatcher::Stdapi::Sys
 	def cmd_ps(*args)
 		processes = client.sys.process.get_processes
 		@@ps_opts.parse(args) do |opt, idx, val|
-			case opt 
+			case opt
 			when "-h"
 				cmd_ps_help
 				return true
 			when "-S"
 				print_line "Filtering on process name..."
 				searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
-				processes.each do |proc| 
+				processes.each do |proc|
 					if val.nil? or val.empty?
 						print_line "You must supply a search term!"
 						return false
@@ -374,7 +388,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 			when "-A"
 				print_line "Filtering on arch..."
 				searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
-				processes.each do |proc| 
+				processes.each do |proc|
 					next if proc['arch'].nil? or proc['arch'].empty?
 					if val.nil? or val.empty? or !(val == "x86" or val == "x86_64")
 						print_line "You must select either x86 or x86_64"
@@ -386,14 +400,14 @@ class Console::CommandDispatcher::Stdapi::Sys
 			when "-s"
 				print_line "Filtering on SYSTEM processes..."
 				searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
-				processes.each do |proc| 
+				processes.each do |proc|
 					searched_procs << proc  if proc["user"] == "NT AUTHORITY\\SYSTEM"
 				end
 				processes = searched_procs
 			when "-U"
 				print_line "Filtering on user name..."
 				searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
-				processes.each do |proc| 
+				processes.each do |proc|
 					if val.nil? or val.empty?
 						print_line "You must supply a search term!"
 						return false
@@ -416,7 +430,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 	def cmd_ps_help
 		print_line "Use the command with no arguments to see all running processes."
 		print_line "The following options can be used to filter those results:"
-		
+
 		print_line @@ps_opts.usage
 	end
 
@@ -426,9 +440,25 @@ class Console::CommandDispatcher::Stdapi::Sys
 	# Reboots the remote computer.
 	#
 	def cmd_reboot(*args)
+		force = 0
+
+		if args.length == 1 and args[0].strip == "-h"
+			print(
+				"Usage: reboot [options]\n\n" +
+				"Reboot the remote machine.\n" +
+				@@reboot_opts.usage)
+				return true
+		end
+
+		@@reboot_opts.parse(args) { |opt, idx, val|
+			case opt
+				when "-f"
+					force = val.to_i
+			end
+		}
 		print_line("Rebooting...")
 
-		client.sys.power.reboot
+		client.sys.power.reboot(force, SHTDN_REASON_DEFAULT)
 	end
 
 	#
@@ -728,9 +758,26 @@ class Console::CommandDispatcher::Stdapi::Sys
 	# Shuts down the remote computer.
 	#
 	def cmd_shutdown(*args)
+		force = 0
+
+		if args.length == 1 and args[0].strip == "-h"
+			print(
+				"Usage: shutdown [options]\n\n" +
+				"Shutdown the remote machine.\n" +
+				@@shutdown_opts.usage)
+				return true
+		end
+
+		@@shutdown_opts.parse(args) { |opt, idx, val|
+			case opt
+				when "-f"
+					force = val.to_i
+			end
+		}
+
 		print_line("Shutting down...")
 
-		client.sys.power.shutdown
+		client.sys.power.shutdown(force, SHTDN_REASON_DEFAULT)
 	end
 
 	#
@@ -750,7 +797,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 			return true
 		end
 
-		continue = args.delete("-c") || false 
+		continue = args.delete("-c") || false
 		resume = args.delete("-r") || false
 
 		# validate all the proposed pids first so we can bail if one is bogus

@@ -2365,6 +2365,7 @@ class Core
 			return option_values_payloads() if opt.upcase == 'PAYLOAD'
 			return option_values_targets()  if opt.upcase == 'TARGET'
 			return option_values_nops()     if opt.upcase == 'NOPS'
+			return option_values_encoders() if opt.upcase == 'StageEncoder'
 		end
 
 		# Well-known option names specific to auxiliaries
