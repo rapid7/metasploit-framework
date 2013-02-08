@@ -4,21 +4,21 @@ describe Rex::SSLScan::Result do
 	
 	subject{Rex::SSLScan::Result.new}
 
+      it { should respond_to :accepted }
       it { should respond_to :cert }
       it { should respond_to :ciphers }
+      it { should respond_to :rejected }
       it { should respond_to :sslv2 }
-      it {should respond_to :sslv3 }
-      it {should respond_to :tlsv1 }
-      it {should respond_to :accepted }
-      it {should respond_to :rejected }
-      it {should respond_to :weak_ciphers }
-      it {should respond_to :strong_ciphers }
-      it {should respond_to :supports_sslv2? }
-      it {should respond_to :supports_sslv3? }
-      it {should respond_to :supports_tlsv1? }
-      it {should respond_to :supports_ssl? }
-      it {should respond_to :supports_weak_ciphers? }
-      it {should respond_to :standards_compliant? }
+      it { should respond_to :sslv3 }
+      it { should respond_to :standards_compliant? }
+      it { should respond_to :strong_ciphers }
+      it { should respond_to :supports_ssl? }
+      it { should respond_to :supports_sslv2? }
+      it { should respond_to :supports_sslv3? }
+      it { should respond_to :supports_tlsv1? }
+      it { should respond_to :supports_weak_ciphers? }
+      it { should respond_to :tlsv1 }
+      it { should respond_to :weak_ciphers }
 
 	context "with no values set" do
 		it "should return nil for the cert" do
@@ -434,7 +434,26 @@ describe Rex::SSLScan::Result do
 	end
 
 	context "checking for standards compliance" do
+		it "should return true if there is no SSL support" do
+			subject.standards_compliant?.should == true
+		end
 		
+		it "should return false if SSLv2 is supported" do
+			subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :accepted)
+			subject.standards_compliant?.should == false
+		end
+
+		it "should return false if weak ciphers are supported" do
+			subject.add_cipher(:SSLv3, "EXP-RC2-CBC-MD5", 40, :accepted)
+			subject.standards_compliant?.should == false
+		end
+
+		it "should return true if SSLv2 and Weak Ciphers are disabled" do
+			subject.add_cipher(:SSLv3, "AES256-SHA", 256, :accepted)
+			subject.add_cipher(:TLSv1, "AES256-SHA", 256, :accepted)
+			subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
+			subject.standards_compliant?.should == true
+		end
 	end
 
 end
