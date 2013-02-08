@@ -35,15 +35,14 @@ module Msf::Payload::Java
 	end
 
 	#
-	# Used by stagers to create a jar file as a Rex::Zip::Jar.  Stagers define
-	# a list of class files in @class_files which are pulled from
-	# Msf::Config.data_directory.  The configuration file is created by the
-	# payload's #config method.
+	# Used by stagers to create a jar file as a {Rex::Zip::Jar}.  Stagers
+	# define a list of class files in @class_files which are pulled from
+	# {Msf::Config.data_directory}.  The configuration file is created by
+	# the payload's #config method.
 	#
-	# +opts+ can include:
-	# +:main_class+:: the name of the Main-Class attribute in the manifest.
-	#                 Defaults to "metasploit.Payload"
-	#
+	# @option opts :main_class [String] the name of the Main-Class
+	#   attribute in the manifest.  Defaults to "metasploit.Payload"
+	# @return [Rex::Zip::Jar]
 	def generate_jar(opts={})
 		raise if not respond_to? :config
 		# Allow changing the jar's Main Class in the manifest so wrappers
@@ -63,12 +62,12 @@ module Msf::Payload::Java
 	end
 
 	#
-	# Like #generate_jar, this method is used by stagers to create a war file
+	# Like {#generate_jar}, this method is used by stagers to create a war file
 	# as a Rex::Zip::Jar object.
 	#
-	# +opts+ can include:
-	# +:app_name+:: the name of the \<servlet-name> attribute in the web.xml.
-	#               Defaults to "NAME"
+	# @param opts [Hash]
+	# @option :app_name [String] Name of the \<servlet-name> attribute in the
+	#   web.xml.  Defaults to random
 	#
 	def generate_war(opts={})
 		raise if not respond_to? :config
