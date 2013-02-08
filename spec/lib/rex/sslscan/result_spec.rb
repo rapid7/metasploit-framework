@@ -6,6 +6,19 @@ describe Rex::SSLScan::Result do
 
       it { should respond_to :cert }
       it { should respond_to :ciphers }
+      it { should respond_to :sslv2 }
+      it {should respond_to :sslv3 }
+      it {should respond_to :tlsv1 }
+      it {should respond_to :accepted }
+      it {should respond_to :rejected }
+      it {should respond_to :weak_ciphers }
+      it {should respond_to :strong_ciphers }
+      it {should respond_to :supports_sslv2? }
+      it {should respond_to :supports_sslv3? }
+      it {should respond_to :supports_tlsv1? }
+      it {should respond_to :supports_ssl? }
+      it {should respond_to :supports_weak_ciphers? }
+      it {should respond_to :standards_compliant? }
 
 	context "with no values set" do
 		it "should return nil for the cert" do
@@ -22,6 +35,50 @@ describe Rex::SSLScan::Result do
 
 		it "should return an empty array for rejected" do
 			subject.rejected.should == []
+		end
+
+		it "should return an empty array for #sslv2" do
+			subject.sslv2.should == []
+		end
+
+		it "should return an empty array for #sslv3" do
+			subject.sslv3.should == []
+		end
+
+		it "should return an empty array for #tlsv1" do
+			subject.sslv2.should == []
+		end
+
+		it "should return an empty array for #weak_ciphers" do
+			subject.weak_ciphers.should == []
+		end
+
+		it "should return an empty array for #strong_ciphers" do
+			subject.strong_ciphers.should == []
+		end
+
+		it "should return false for #supports_ssl?" do
+			subject.supports_ssl?.should == false
+		end
+
+		it "should return false for #supports_ssl?v2" do
+			subject.supports_sslv2?.should == false
+		end
+
+		it "should return false for #supports_sslv3?" do
+			subject.supports_sslv3?.should == false
+		end
+
+		it "should return false for #supports_tlsv1?" do
+			subject.supports_tlsv1?.should == false
+		end
+
+		it "should return false for #supports_weak_ciphers?" do
+			subject.supports_weak_ciphers?.should == false
+		end
+
+		it "should return true for #standards_compliant?" do
+			subject.standards_compliant?.should == true
 		end
 	end
 
@@ -194,18 +251,52 @@ describe Rex::SSLScan::Result do
 			subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
 		end
 
-		it "should return an array of cipher detail hashes" do
-			subject.each_accepted do |cipher_details|
-				cipher_details.should include(:version, :cipher, :key_length, :status, :weak)
+		context "with no version selected" do
+			it "should return an array of cipher detail hashes" do
+				subject.each_accepted do |cipher_details|
+					cipher_details.should include(:version, :cipher, :key_length, :status, :weak)
+				end
+			end
+
+			it "should return all of the accepted cipher details" do
+				count = 0
+				subject.each_accepted do |cipher_details|
+					count = count+1
+				end
+				count.should == 4
 			end
 		end
 
-		it "should return all of the accepted cipher details" do
-			count = 0
-			subject.each_accepted do |cipher_details|
-				count = count+1
+		context "when specifying one SSL version" do
+			it "should raise an exception if not given a symbol" do
+				expect{ subject.each_accepted('sslv2')}.to raise_error
 			end
-			count.should == 4
+
+			it "should raise an exception if given an invalid SSL version" do
+				expect{ subject.each_accepted(:TLSv3)}.to raise_error
+			end
+
+			it "should return only ciphers matching the version" do
+				subject.each_accepted(:SSLv2) do |cipher_details|
+					cipher_details[:version].should == :SSLv2
+				end
+			end
+		end
+
+		context "when specifying multiple SSL Versions in an array" do
+			it "should return all versions if no valid versions were supplied" do
+				count = 0
+				subject.each_accepted([:TLSv3, :TLSv4]) do |cipher_details|
+					count = count+1
+				end
+				count.should == 4
+			end
+
+			it "should return only the ciphers for the specified version" do
+				subject.each_accepted([:SSLv3,:TLSv1]) do |cipher_details|
+					cipher_details[:version].should_not == :SSLv2
+				end
+			end
 		end
 	end
 
@@ -217,18 +308,52 @@ describe Rex::SSLScan::Result do
 			subject.add_cipher(:SSLv3, "AES128-SHA", 128, :rejected)
 		end
 
-		it "should return an array of cipher detail hashes" do
-			subject.each_rejected do |cipher_details|
-				cipher_details.should include(:version, :cipher, :key_length, :status, :weak)
+		context "with no version selected" do
+			it "should return an array of cipher detail hashes" do
+				subject.each_rejected do |cipher_details|
+					cipher_details.should include(:version, :cipher, :key_length, :status, :weak)
+				end
+			end
+
+			it "should return all of the rejected cipher details" do
+				count = 0
+				subject.each_rejected do |cipher_details|
+					count = count+1
+				end
+				count.should == 4
 			end
 		end
 
-		it "should return all of the rejected cipher details" do
-			count = 0
-			subject.each_rejected do |cipher_details|
-				count = count+1
+		context "when specifying one SSL version" do
+			it "should raise an exception if not given a symbol" do
+				expect{ subject.each_rejected('sslv2')}.to raise_error
 			end
-			count.should == 4
+
+			it "should raise an exception if given an invalid SSL version" do
+				expect{ subject.each_rejected(:TLSv3)}.to raise_error
+			end
+
+			it "should return only ciphers matching the version" do
+				subject.each_rejected(:SSLv2) do |cipher_details|
+					cipher_details[:version].should == :SSLv2
+				end
+			end
+		end
+
+		context "when specifying multiple SSL Versions in an array" do
+			it "should return all versions if no valid versions were supplied" do
+				count = 0
+				subject.each_rejected([:TLSv3, :TLSv4]) do |cipher_details|
+					count = count+1
+				end
+				count.should == 4
+			end
+
+			it "should return only the ciphers for the specified version" do
+				subject.each_rejected([:SSLv3,:TLSv1]) do |cipher_details|
+					cipher_details[:version].should_not == :SSLv2
+				end
+			end
 		end
 	end
 
@@ -269,6 +394,47 @@ describe Rex::SSLScan::Result do
 				subject.supports_ssl?.should == true
 			end
 		end
+	end
+
+	context "checking for weak ciphers" do
+		context "when weak ciphers are supported" do
+			before(:each) do
+				subject.add_cipher(:SSLv2, "DES-CBC-MD5", 56, :accepted)
+				subject.add_cipher(:SSLv2, "EXP-RC2-CBC-MD5", 40, :accepted)
+			end
+			it "should return an array of weak ciphers from #weak_ciphers" do
+				weak = subject.weak_ciphers
+				weak.class.should == Array
+				weak.each do |cipher|
+					cipher[:weak].should == true
+				end
+				weak.count.should == 2
+			end
+
+			it "should return true from #supports_weak_ciphers" do
+				subject.supports_weak_ciphers?.should == true
+			end
+		end
+
+		context "when no weak ciphers are supported" do
+			before(:each) do
+				subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :accepted)
+				subject.add_cipher(:SSLv3, "AES256-SHA", 256, :accepted)
+				subject.add_cipher(:TLSv1, "AES256-SHA", 256, :accepted)
+				subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
+			end
+			it "should return an empty array from #weak_ciphers" do
+				subject.weak_ciphers.should == []
+			end
+
+			it "should return false from #supports_weak_ciphers" do
+				subject.supports_weak_ciphers?.should == false
+			end
+		end
+	end
+
+	context "checking for standards compliance" do
+		
 	end
 
 end

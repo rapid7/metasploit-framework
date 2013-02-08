@@ -28,32 +28,20 @@ class Result
 		@ciphers.reject{|cipher| cipher[:version] != :SSLv2 }
 	end
 
-	def add_cipher(version, cipher, key_length, status)
-		unless @supported_versions.include? version
-			raise ArgumentError, "Must be a supported SSL Version"
-		end
-		unless OpenSSL::SSL::SSLContext.new(version).ciphers.flatten.include? cipher
-			raise ArgumentError, "Must be a valid SSL Cipher for #{version}!"
-		end
-		unless key_length.kind_of? Fixnum
-			raise ArgumentError, "Must supply a valid key length"
-		end
-		unless [:accepted, :rejected].include? status
-			raise ArgumentError, "status Must be either :accepted or :rejected"
-		end
+	def sslv3
+		@ciphers.reject{|cipher| cipher[:version] != :SSLv3 }
+	end
 
-		strong_cipher_ctx = OpenSSL::SSL::SSLContext.new(version)
-		strong_cipher_ctx.ciphers = "ALL:!aNULL:!eNULL:!LOW:!EXP:RC4+RSA:+HIGH:+MEDIUM"
-		
-		if strong_cipher_ctx.ciphers.flatten.include? cipher
-			weak = false
-		else
-			weak = true
-		end
+	def tlsv1
+		@ciphers.reject{|cipher| cipher[:version] != :TLSv1 }
+	end
 
-		cipher_details = {:version => version, :cipher => cipher, :key_length => key_length, :weak => weak, :status => status}
-		@ciphers << cipher_details
-		@ciphers.uniq!
+	def weak_ciphers
+		@ciphers.reject{|cipher| cipher[:weak] == false }
+	end
+
+	def strong_ciphers
+		@ciphers.reject{|cipher| cipher[:weak] }
 	end
 
 	def accepted(version = :all)
@@ -67,7 +55,7 @@ class Result
 				raise ArgumentError, "Invalid SSL Version Supplied: #{version}"
 			end
 		elsif version.kind_of? Array 
-			version.reject!{|version| @supported_versions.include? version}
+			version.reject!{|v| !(@supported_versions.include? v)}
 			if version.empty?
 				return @ciphers.reject{|cipher| cipher[:status] == :rejected}
 			else
@@ -89,7 +77,7 @@ class Result
 				raise ArgumentError, "Invalid SSL Version Supplied: #{version}"
 			end
 		elsif version.kind_of? Array 
-			version.reject!{|version| @supported_versions.include? version}
+			version.reject!{|v| !(@supported_versions.include? v)}
 			if version.empty?
 				return @ciphers.reject{|cipher| cipher[:status] == :accepted}
 			else
@@ -126,6 +114,46 @@ class Result
 
 	def supports_ssl?
 		supports_sslv2? or supports_sslv3? or supports_tlsv1?
+	end
+
+	def supports_weak_ciphers?
+		!(weak_ciphers.empty?)
+	end
+
+	def standards_compliant?
+		if supports_ssl?
+			return false if supports_sslv2?
+			return false if supports_weak_ciphers?
+		end
+		true
+	end
+
+	def add_cipher(version, cipher, key_length, status)
+		unless @supported_versions.include? version
+			raise ArgumentError, "Must be a supported SSL Version"
+		end
+		unless OpenSSL::SSL::SSLContext.new(version).ciphers.flatten.include? cipher
+			raise ArgumentError, "Must be a valid SSL Cipher for #{version}!"
+		end
+		unless key_length.kind_of? Fixnum
+			raise ArgumentError, "Must supply a valid key length"
+		end
+		unless [:accepted, :rejected].include? status
+			raise ArgumentError, "status Must be either :accepted or :rejected"
+		end
+
+		strong_cipher_ctx = OpenSSL::SSL::SSLContext.new(version)
+		strong_cipher_ctx.ciphers = "ALL:!aNULL:!eNULL:!LOW:!EXP:RC4+RSA:+HIGH:+MEDIUM"
+		
+		if strong_cipher_ctx.ciphers.flatten.include? cipher
+			weak = false
+		else
+			weak = true
+		end
+
+		cipher_details = {:version => version, :cipher => cipher, :key_length => key_length, :weak => weak, :status => status}
+		@ciphers << cipher_details
+		@ciphers.uniq!
 	end
 end
 end
