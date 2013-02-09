@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 		
 		rescue ::Rex::ConnectionError
 			vprint_error("#{rhost}:#{rport} - Failed to connect to the web server")
-			return :abort
+			return
 		end
 		
 		if res.body.include? "end"
