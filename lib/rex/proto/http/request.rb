@@ -48,6 +48,8 @@ class Request < Packet
 		end
 	end
 
+	attr_accessor :options
+
 	#
 	# Initializes an instance of an HTTP request with the supplied method, URI,
 	# and protocol.

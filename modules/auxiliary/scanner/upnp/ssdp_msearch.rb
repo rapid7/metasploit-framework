@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 			"ST:upnp:rootdevice\r\n" +
 			"Man:\"ssdp:discover\"\r\n" +
 			"MX:3\r\n" +
-			"\r\n\r\n" # Non-standard, but helps
+			"\r\n"
 	end
 
 	def scanner_prescan(batch)
