@@ -51,6 +51,7 @@ module Auxiliary::Login
 				(Login ?|User ?)(name|): |
 				^\s*\<[a-f0-9]+\>\s*$ |
 				^\s*220.*FTP
+				not\ allowed
 			)/mix
 
 		@waiting_regex = /(?:
