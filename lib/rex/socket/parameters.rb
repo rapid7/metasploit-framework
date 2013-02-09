@@ -140,7 +140,8 @@ class Rex::Socket::Parameters
 			self.ssl = false
 		end
 
-		if (hash['SSLVersion'] and hash['SSLVersion'].to_s =~ /^(SSL2|SSL3|TLS1)$/i)
+		supported_ssl_versions = ['SSL2', 'SSL23', 'TLS1', 'SSL3', :SSLv2, :SSLv3, :SSLv23, :TLSv1]
+		if (hash['SSLVersion'] and supported_ssl_versions.include? hash['SSLVersion'])
 			self.ssl_version = hash['SSLVersion']
 		end
 

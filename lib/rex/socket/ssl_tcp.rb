@@ -65,6 +65,13 @@ begin
 				version = :SSLv23
 			when 'TLS1'
 				version = :TLSv1
+			# Handle the user supplying the correct syntax themselves
+			when :SSLv2
+				version = :SSLv2
+			when :SSLv23
+				version = :SSLv23
+			when :TLSv1
+				version = :TLSv1
 			end
 		end
 
