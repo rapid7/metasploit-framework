@@ -92,3 +92,4 @@ class Metasploit3 < Msf::Auxiliary
 		@nsinuse = datastore['NS']
 	end
 end
+
