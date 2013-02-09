@@ -1,3 +1,10 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+#   http://metasploit.com/framework/
+##
+
 require 'msf/core'
 require 'rexml/document'
 
@@ -80,9 +87,10 @@ class Metasploit3 < Msf::Auxiliary
 
 		if (info[:username] and info[:password])
 			if (info[:domain] and info[:basedir])
-				print_good("#{ip}:#{datastore['RPORT']} - Domain: #{info[:domain]} Base Directory: #{info[:basedir]}")
+				print_good("#{ip}:#{datastore['RPORT']} - Domain: #{info[:domain]}")
+				print_good("#{ip}:#{datastore['RPORT']} - Base Directory: #{info[:basedir]}")
 			end
-			print_good("#{ip}:#{datastore['RPORT']} - Admin Credentials: #{info[:username]} #{info[:password]}")
+			print_good("#{ip}:#{datastore['RPORT']} - Admin Credentials: '#{info[:username]}:#{info[:password]}'")
 			report_auth_info(
 				:host       => ip,
 				:port       => datastore['RPORT'],
