@@ -90,14 +90,14 @@ class Metasploit3 < Msf::Post
 					case attr['name']
 					when 'dNSHostName'
 						dns = attr['values']
-						ip = resolve_hostname(dns)	
+						ip = resolve_hostname(dns)
 						report.merge!( {:name => dns, :host => ip } )
 					when 'operatingSystem'
 						os = attr['values']
 						index = os.index(/windows/i)
 						unless index.nil?
 							name = 'Microsoft Windows'
-							flavour = os[index..-1] 
+							flavour = os[index..-1]
 							report.merge!( {:os_name => name, :os_flavor => flavour} )
 						else
 							# Incase there are non-windows domain computers?!
@@ -115,9 +115,9 @@ class Metasploit3 < Msf::Post
 				end
 			end
 
-                        vprint_good(report.inspect)
-			if report.include? :host and report[:host] !=~ /0\.0\.0\.0/
-	                       	report_host(report)
+			vprint_good(report.inspect)
+			if report.include? :host
+				report_host(report)
 			end
 
 			results_table << row
@@ -132,33 +132,33 @@ class Metasploit3 < Msf::Post
 	end
 
 	def resolve_hostname(hostname)
-                if client.platform =~ /^x64/
-                        size = 64
-                        addrinfoinmem = 32
-                else
-                        size = 32
-                        addrinfoinmem = 24
-                end
+		if client.platform =~ /^x64/
+			size = 64
+			addrinfoinmem = 32
+		else
+			size = 32
+			addrinfoinmem = 24
+		end
 
-                begin
-                        vprint_status("Looking up IP for #{hostname}")
-                        result = client.railgun.ws2_32.getaddrinfo(hostname, nil, nil, 4 )
-                        if result['GetLastError'] == 11001
-                                return nil
-                        end
-                        addrinfo = client.railgun.memread( result['ppResult'], size )
-                        ai_addr_pointer = addrinfo[addrinfoinmem,4].unpack('L').first
-                        sockaddr = client.railgun.memread( ai_addr_pointer, size/2 )
-                        ip = sockaddr[4,4].unpack('N').first
-                        hostip = Rex::Socket.addr_itoa(ip)
+		begin
+			vprint_status("Looking up IP for #{hostname}")
+			result = client.railgun.ws2_32.getaddrinfo(hostname, nil, nil, 4 )
+			if result['GetLastError'] == 11001
+				return nil
+			end
+			addrinfo = client.railgun.memread( result['ppResult'], size )
+			ai_addr_pointer = addrinfo[addrinfoinmem,4].unpack('L').first
+			sockaddr = client.railgun.memread( ai_addr_pointer, size/2 )
+			ip = sockaddr[4,4].unpack('N').first
+			hostip = Rex::Socket.addr_itoa(ip)
 
 			if hostip =~ /0\.0\.0\.0/
 				hostip = client.session_host
 			end
-                rescue ::Exception => e
-                        print_error(e.to_s)
-                end
-		vprint_status("IP for #{hostname}: #{hostip}")		
+		rescue ::Exception => e
+			print_error(e.to_s)
+		end
+		vprint_status("IP for #{hostname}: #{hostip}")
 		return hostip
 	end
 
