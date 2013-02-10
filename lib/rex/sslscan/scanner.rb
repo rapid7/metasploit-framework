@@ -1,4 +1,5 @@
 require 'rex/socket'
+require 'rex/sslscan/result'
 
 module Rex::SSLScan
 
@@ -32,11 +33,21 @@ class Scanner
 
 	def scan
 		scan_result = Rex::SSLScan::Result.new
+		@supported_versions.each do |ssl_version|
+			sslctx = OpenSSL::SSL::SSLContext.new(ssl_version)
+			sslctx.ciphers.each do |cipher_name, ssl_ver, key_length, alg_length|
+				status = test_cipher(ssl_version, cipher_name)
+				scan_result.add_cipher(ssl_version, cipher_name, key_length, status)
+				if status == :accepted and scan_result.cert.nil?
+					scan_result.cert = get_cert(ssl_version, cipher_name)
+				end
+			end
+		end
+		scan_result
 	end
 
 	def test_cipher(ssl_version, cipher)
 		validate_params(ssl_version,cipher)
-
 		begin
 			scan_client = Rex::Socket::Tcp.create(
 				'PeerHost'     => @host,
@@ -50,6 +61,28 @@ class Scanner
 			return :rejected
 		end
 		return :accepted
+	end
+
+	def get_cert(ssl_version, cipher)
+		validate_params(ssl_version,cipher)
+		begin
+			scan_client = Rex::Socket::Tcp.create(
+				'PeerHost'     => @host,
+				'PeerPort'      => @port,
+				'SSL'               => true,
+				'SSLVersion'  => ssl_version,
+				'SSLCipher'   => cipher,
+				'Timeout'      => @timeout
+			)
+			cert = scan_client.peer_cert
+			if cert.kind_of? OpenSSL::X509::Certificate
+				return cert
+			else
+				return nil
+			end
+		rescue ::Exception => e 
+			return nil
+		end
 	end
 
 

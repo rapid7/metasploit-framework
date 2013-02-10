@@ -3,9 +3,11 @@ require 'rex/thread_factory'
 require 'rex/text'
 require 'rex/compat'
 
+require 'pry'
+
 describe Rex::SSLScan::Scanner do
 
-	subject{Rex::SSLScan::Scanner.new("127.0.0.1", 65535)}
+	subject{Rex::SSLScan::Scanner.new("google.com", 443)}
 
 	it { should respond_to :host }
 	it { should respond_to :port }
@@ -53,48 +55,38 @@ describe Rex::SSLScan::Scanner do
 			end
 		end
 
-		# context ":rejected should be returned if" do
-		# 	it "scans a non-SSL server" do
-		# 		server = Rex::Socket::TcpServer.create(
-		# 			'LocalHost' => '127.0.01',
-		# 			'LocalPort' => 65535,
-		# 			'SSL'		=> false,
-		# 		)
-		# 		server.start
-		# 		subject.test_cipher(:SSLv2, "DES-CBC3-MD5").should == :rejected
-		# 		server.stop
-		# 		server.close
-		# 	end
+		context ":rejected should be returned if" do
+			it "scans a server that doesn't support the supplied SSL version" do
+				subject.test_cipher(:SSLv2, "DES-CBC3-MD5").should == :rejected
+			end
 
-		# 	it "scans a server that doesn't support the supplied SSL version" do
-		# 		server = Rex::Socket::TcpServer.create(
-		# 			'LocalHost' => '127.0.01',
-		# 			'LocalPort' => 65535,
-		# 			'SSL'		=> true,
-		# 			'SSLVersion' => :SSLv3
-		# 		)
-		# 		server.start
-		# 		subject.test_cipher(:SSLv2, "DES-CBC3-MD5").should == :rejected
-		# 		server.stop
-		# 		server.close
-		# 	end
-		# end
+			it "scans a server that doesn't support the cipher" do
+				subject.test_cipher(:SSLv3, "DHE-DSS-AES256-SHA").should == :rejected
+			end
+		end
 
-		# context ":accepted should be returned if" do
-		# 	it "scans a server that accepts the given cipher" do
-		# 		server = Rex::Socket::TcpServer.create(
-		# 			'LocalHost' => '127.0.01',
-		# 			'LocalPort' => 65535,
-		# 			'SSL'		=> true,
-		# 			'SSLVersion' => :SSLv3,
-		# 			'SSLCipher'  => 'AES256-SHA'
-		# 		)
-		# 		server.start
-		# 		subject.test_cipher(:SSLv3, "AES256-SHA").should == :accepted
-		# 		server.stop
-		# 		server.close
-		# 	end
-		# end
+		context ":accepted should be returned if" do
+			it "scans a server that accepts the given cipher" do
+				subject.test_cipher(:SSLv3, "AES256-SHA").should == :accepted
+			end
+		end
+	end
+
+	context "when retrieving the cert" do
+		it "should return nil if it can't connect" do
+			subject.get_cert(:SSLv2, "DES-CBC3-MD5").should == nil
+		end
+
+		it "should return an X509 cert if it can connect" do
+			subject.get_cert(:SSLv3, "AES256-SHA").class.should == OpenSSL::X509::Certificate
+		end
+	end
+
+	context "when scanning https://google.com" do
+		it "should return a Result object" do
+			result = subject.scan
+			result.class.should == Rex::SSLScan::Result
+		end
 	end
 
 end

@@ -1,5 +1,6 @@
 
 require 'rex/socket'
+require 'rex/ui/text/table'
 
 module Rex::SSLScan
 class Result
@@ -154,6 +155,30 @@ class Result
 		cipher_details = {:version => version, :cipher => cipher, :key_length => key_length, :weak => weak, :status => status}
 		@ciphers << cipher_details
 		@ciphers.uniq!
+	end
+
+	def to_s
+		unless supports_ssl? 
+			return "Server does not appear to support SSL on this port!"
+		end
+		table = Rex::Ui::Text::Table.new(
+			'Header'      => 'SSL Ciphers',
+			'Indent'       => 1,
+			'Columns'   => ['Status', 'Weak', 'SSL Version', 'Key Length', 'Cipher']
+		)
+		ciphers.each do |cipher|
+			if cipher[:weak]
+				weak = '*'
+			else
+				weak = ' '
+			end
+			table << [cipher[:status], weak , cipher[:version], cipher[:key_length], cipher[:cipher]]
+		end
+		text = "#{table.to_s}"
+		if @cert
+			text <<" \n\n #{@cert.to_text}"
+		end
+		text
 	end
 end
 end

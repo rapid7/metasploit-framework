@@ -1,4 +1,5 @@
 require 'rex/sslscan/result'
+require 'pry'
 
 describe Rex::SSLScan::Result do
 	
@@ -454,6 +455,14 @@ describe Rex::SSLScan::Result do
 			subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
 			subject.standards_compliant?.should == true
 		end
+	end
+
+	it "should output to a nice printable string" do
+		subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :accepted)
+		subject.add_cipher(:SSLv3, "AES256-SHA", 256, :accepted)
+		subject.add_cipher(:TLSv1, "AES256-SHA", 256, :accepted)
+		subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
+		binding.pry
 	end
 
 end
