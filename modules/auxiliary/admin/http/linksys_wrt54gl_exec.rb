@@ -133,12 +133,13 @@ class Metasploit3 < Msf::Auxiliary
 		vprint_status("using the following target URL: #{uri}")
 
 		begin
+			auth_str = pass + ":" + pass
 			res = send_request_cgi({
 				'uri'	=> uri,
 				'method' => 'POST',
-				'basic_auth' => "#{pass}:#{pass}",
+				#'basic_auth' => "#{pass}:#{pass}",
+				'headers' => { 'Authorization' => "Basic #{Rex::Text.encode_base64(auth_str)}" },
 				#'data' => data_cmd,
-
 				'vars_post' => {
 					'submit_button' => "index",
 					'change_action' => "1",
