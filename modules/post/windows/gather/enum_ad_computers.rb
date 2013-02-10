@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'         => 'Windows Gather AD Enumerate Computers',
+				'Name'	       => 'Windows Gather AD Enumerate Computers',
 				'Description'  => %q{
 						This module will enumerate computers in the default AD directory.
 
@@ -38,24 +38,13 @@ class Metasploit3 < Msf::Post
 			))
 
 		register_options([
-			OptInt.new('MAX_SEARCH', [true, 'Maximum values to retrieve, 0 for all.', 20]),
+			OptInt.new('MAX_SEARCH', [true, 'Maximum values to retrieve, 0 for all.', 0]),
 			OptBool.new('STORE', [true, 'Store file in loot.', false]),
 			OptString.new('ATTRIBS', [true, 'Attributes to retrieve.', 'dNSHostName,distinguishedName,description,operatingSystem'])
 		], self.class)
 	end
 
-	def read_value(addr)
-		val_size = client.railgun.memread(addr-4,4).unpack('V*')[0]
-		value = client.railgun.memread(addr, val_size)
-		return value.strip
-	end
-
 	def run
-		unless session.platform == "x64/win64"
-			print_error("Does not work in x86 meterpreter (use x64 instead) see: http://dev.metasploit.com/redmine/issues/7639");
-			return
-		end
-
 		print_status("Connecting to default LDAP server")
 		session_handle = bind_default_ldap_server
 
@@ -76,6 +65,10 @@ class Metasploit3 < Msf::Post
 
 		print_status("Unbinding from LDAP service.")
 		wldap32.ldap_unbind(session_handle)
+
+		if results.nil? or results.empty?
+			return
+		end
 
 		results_table = Rex::Ui::Text::Table.new(
 				'Header'     => 'AD Computers',
@@ -133,6 +126,54 @@ class Metasploit3 < Msf::Post
 		return session_handle
 	end
 
+	# Get BERElement data structure from LDAPMessage
+	def get_ber(pEntry)
+		msg = client.railgun.memread(pEntry,41).unpack('LLLLLLLLLSCCC')
+		ber = client.railgun.memread(msg[2],60).unpack('L*')
+		ber_data = client.railgun.memread(ber[3], ber[0]+1)
+		return ber_data
+	end
+
+	# Search through the BER for our Attr string. Pull the values.
+	def get_values_from_ber(ber_data, attr)
+		attr_offset = ber_data.index(attr)
+
+		if attr_offset.nil?
+			vprint_status("Attribute not found in BER.")
+			return nil
+		end
+
+		# Value starts after our attribute string
+		values_offset = attr_offset + attr.length
+		values_start_offset = values_offset + 8
+		values_len_offset = values_offset + 5
+		curr_len_offset = values_offset + 7
+
+		values_length =  ber_data[values_len_offset].unpack('C')[0]
+		values_end_offset = values_start_offset + values_length
+
+		curr_length = ber_data[curr_len_offset].unpack('C')[0]
+		curr_start_offset = values_start_offset
+		curr_end_offset = curr_start_offset + curr_length
+
+		values = []
+		while (curr_end_offset < values_end_offset)
+			values << ber_data[curr_start_offset..curr_end_offset]
+
+			break unless ber_data[curr_end_offset] == "\x04"
+
+			curr_len_offset = curr_end_offset + 1
+			curr_length = ber_data[curr_len_offset].unpack('C')[0]
+			curr_start_offset = curr_end_offset + 2
+			curr_end_offset = curr_end_offset + curr_length + 2
+		end
+
+		# Strip trailing 0 or \x04 which is used to delimit values
+		values.map! {|x| x[0..x.length-2]}
+
+		return values
+	end
+
 	def query_ldap(session_handle, base, scope, filter, attributes)
 		vprint_status ("Searching LDAP directory.")
 		search = wldap32.ldap_search_sA(session_handle, base, scope, filter, nil, 0, 4)
@@ -166,7 +207,6 @@ class Metasploit3 < Msf::Post
 		end
 
 		0.upto(max_search - 1) do |i|
-			print '.'
 
 			if(i==0)
 				entries[0] = wldap32.ldap_first_entry(session_handle, search['res'])['return']
@@ -181,53 +221,27 @@ class Metasploit3 < Msf::Post
 				return
 			end
 
-			vprint_status("Entry #{i}: #{entries[i]}")
+			vprint_status("Entry #{i}: 0x#{entries[i].to_s(16)}")
+			ber = get_ber(entries[i])
 
 			attribute_results = []
 			attributes.each do |attr|
 				vprint_status("Attr: #{attr}")
+				value_results = ""
 
-				pp_value = wldap32.ldap_get_values(session_handle, entries[i], attr)['return']
-				vprint_status("ppValue: 0x#{pp_value.to_s(16)}")
+				values = get_values_from_ber(ber, attr)
 
-				if pp_value == 0
-					vprint_error("No attribute value returned.")
-				else
-					count = wldap32.ldap_count_values(pp_value)['return']
-					vprint_status "Value count: #{count}"
+				values_result = ""
+				values_result = Rex::Text.to_hex_ascii(values.join(',')) unless values.nil?
+				vprint_status("Values #{values}")
 
-					value_results = []
-					if count < 1
-						vprint_error("Bad Value List")
-					else
-						0.upto(count - 1) do |j|
-							p_value = client.railgun.memread(pp_value+(j*4), 4).unpack('V*')[0]
-							vprint_status "p_value: 0x#{p_value.to_s(16)}"
-							value = read_value(p_value)
-							vprint_status "Value: #{value}"
-							if value.nil?
-								value_results << ""
-							else
-								value_results << value
-							end
-						end
-						value_results = value_results.join('|')
-					end
-				end
-
-				if pp_value != 0
-					vprint_status("Free value memory.")
-					wldap32.ldap_value_free(pp_value)
-					# wldap32.ldap_memfree(attr) No need to free attributes as these are hardcoded
-				end
-
-				attribute_results << {"name" => attr, "values" => value_results}
+				attribute_results << {"name" => attr, "values" => values_result}
 			end
 
 			entry_results << {"id" => i, "attributes" => attribute_results}
 		end
 
-		print_line
 		return entry_results
 	end
 end
+
