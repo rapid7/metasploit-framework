@@ -130,7 +130,14 @@ class Metasploit3 < Msf::Post
 	def get_ber(pEntry)
 		msg = client.railgun.memread(pEntry,41).unpack('LLLLLLLLLSCCC')
 		ber = client.railgun.memread(msg[2],60).unpack('L*')
-		ber_data = client.railgun.memread(ber[3], ber[0]+1)
+
+		# BER Pointer is different between x86 and x64
+		if client.platform =~ /x86/
+			ber_data = client.railgun.memread(ber[3], ber[0])
+		else
+			ber_data = client.railgun.memread(ber[4], ber[0])
+		end
+
 		return ber_data
 	end
 
