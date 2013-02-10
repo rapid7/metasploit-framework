@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'	       => 'Windows Gather Enumerate Active Directory Computers',
+				'Name'	       => 'Windows Gather Active Directory Computers',
 				'Description'  => %q{
 						This module will enumerate computers in the default AD directory.
 
