@@ -133,7 +133,7 @@ class Metasploit3 < Msf::Auxiliary
 		vprint_status("using the following target URL: #{uri}")
 
 		begin
-			auth_str = pass + ":" + pass
+			auth_str = user + ":" + pass
 			res = send_request_cgi({
 				'uri'	=> uri,
 				'method' => 'POST',
