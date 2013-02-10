@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Post
 		register_options([
 			OptInt.new('MAX_SEARCH', [true, 'Maximum values to retrieve, 0 for all.', 0]),
 			OptBool.new('STORE', [true, 'Store file in loot.', false]),
-			OptString.new('ATTRIBS', [true, 'Attributes to retrieve.', 'dNSHostName,distinguishedName,description,operatingSystem'])
+			OptString.new('ATTRIBS', [true, 'Attributes to retrieve.', 'dNSHostName,distinguishedName,description,operatingSystem,operatingSystemServicePack'])
 		], self.class)
 	end
 
@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Post
 		end
 
 		results_table = Rex::Ui::Text::Table.new(
-				'Header'     => 'AD Computers',
+				'Header'     => "#{defaultNamingContext} Domain Computers",
 				'Indent'     => 1,
 				'SortIndex'  => -1,
 				'Columns'    => attributes
@@ -80,12 +80,44 @@ class Metasploit3 < Msf::Post
 		results.each do |result|
 			row = []
 
+			report = {}
 			result['attributes'].each do |attr|
 				if attr['values'].nil?
 					row << ""
 				else
 					row << attr['values']
+
+					case attr['name']
+					when 'dNSHostName'
+						dns = attr['values']
+						ip = resolve_hostname(dns)	
+						report.merge!( {:name => dns, :host => ip } )
+					when 'operatingSystem'
+						os = attr['values']
+						index = os.index(/windows/i)
+						unless index.nil?
+							name = 'Microsoft Windows'
+							flavour = os[index..-1] 
+							report.merge!( {:os_name => name, :os_flavor => flavour} )
+						else
+							# Incase there are non-windows domain computers?!
+							report.merge!( {:os_name => os } )
+						end
+					when 'distinguishedName'
+						if attr['values'] =~ /Domain Controllers/i
+							report.merge!( {:purpose => "DC"} )
+						end
+					when 'operatingSystemServicePack'
+						report.merge!( {:os_sp => attr['values']} )
+					when 'description'
+						report.merge!( {:info => attr['values']} )
+					end
 				end
+			end
+
+                        vprint_good(report.inspect)
+			if report.include? :host and report[:host] !=~ /0\.0\.0\.0/
+	                       	report_host(report)
 			end
 
 			results_table << row
@@ -97,6 +129,37 @@ class Metasploit3 < Msf::Post
 			stored_path = store_loot('ad.computers', 'text/plain', session, results_table.to_csv)
 			print_status("Results saved to: #{stored_path}")
 		end
+	end
+
+	def resolve_hostname(hostname)
+                if client.platform =~ /^x64/
+                        size = 64
+                        addrinfoinmem = 32
+                else
+                        size = 32
+                        addrinfoinmem = 24
+                end
+
+                begin
+                        vprint_status("Looking up IP for #{hostname}")
+                        result = client.railgun.ws2_32.getaddrinfo(hostname, nil, nil, 4 )
+                        if result['GetLastError'] == 11001
+                                return nil
+                        end
+                        addrinfo = client.railgun.memread( result['ppResult'], size )
+                        ai_addr_pointer = addrinfo[addrinfoinmem,4].unpack('L').first
+                        sockaddr = client.railgun.memread( ai_addr_pointer, size/2 )
+                        ip = sockaddr[4,4].unpack('N').first
+                        hostip = Rex::Socket.addr_itoa(ip)
+
+			if hostip =~ /0\.0\.0\.0/
+				hostip = client.session_host
+			end
+                rescue ::Exception => e
+                        print_error(e.to_s)
+                end
+		vprint_status("IP for #{hostname}: #{hostip}")		
+		return hostip
 	end
 
 	def wldap32
