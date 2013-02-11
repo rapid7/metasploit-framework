@@ -209,7 +209,7 @@ class Client
 		req << set_agent_header(c_ag)
 
 		if (c_auth.length > 0)
-			unless c_head['Authorization'].include? "Basic"
+			unless c_head['Authorization'] and c_head['Authorization'].include? "Basic"
 				req << set_basic_auth_header(c_auth)
 			end
 		end
@@ -317,7 +317,7 @@ class Client
 		req << set_agent_header(c_ag)
 
 		if (c_auth.length > 0)
-			unless c_head['Authorization'].include? "Basic"
+			unless c_head['Authorization'] and c_head['Authorization'].include? "Basic"
 				req << set_basic_auth_header(c_auth)
 			end
 		end
