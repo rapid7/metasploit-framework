@@ -209,7 +209,9 @@ class Client
 		req << set_agent_header(c_ag)
 
 		if (c_auth.length > 0)
-			req << set_basic_auth_header(c_auth)
+			unless c_head['Authorization'] and c_head['Authorization'].include? "Basic"
+				req << set_basic_auth_header(c_auth)
+			end
 		end
 
 		req << set_cookie_header(c_cook)
@@ -239,6 +241,7 @@ class Client
 	# @return [Request]
 	def request_cgi(opts={})
 		c_ag    = opts['agent']       || config['agent']
+		c_auth = opts['basic_auth'] || config['basic_auth'] || ''
 		c_body  = opts['data']        || ''
 		c_cgi   = opts['uri']         || '/'
 		c_conn  = opts['connection']
@@ -312,6 +315,12 @@ class Client
 		req << set_version(c_prot, c_vers)
 		req << set_host_header(c_host)
 		req << set_agent_header(c_ag)
+
+		if (c_auth.length > 0)
+			unless c_head['Authorization'] and c_head['Authorization'].include? "Basic"
+				req << set_basic_auth_header(c_auth)
+			end
+		end
 
 		req << set_cookie_header(c_cook)
 		req << set_connection_header(c_conn)
