@@ -7,7 +7,6 @@
 
 require 'msf/core'
 require 'rexml/element'
-require 'pry'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -76,7 +75,6 @@ class Metasploit3 < Msf::Auxiliary
 			return false
 		end
 		return true
-		#binding.pry
 	end
 
 	def clear_tokens()
