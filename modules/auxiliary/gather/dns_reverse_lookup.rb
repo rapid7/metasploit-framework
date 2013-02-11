@@ -33,14 +33,21 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptInt.new('RETRY', [ false, "Number of times to try to resolve a record if no response is received", 2]),
 				OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry", 2]),
-				OptInt.new('THREADS', [ false, "Number of seconds to wait before doing a retry", 2]),
+				OptInt.new('THREADS', [ true, "Number of seconds to wait before doing a retry", 2]),
 			], self.class)
 	end
 
 	def run
 		@res = Net::DNS::Resolver.new()
-		@res.retry = datastore['RETRY'].to_i
-		@res.retry_interval = datastore['RETRY_INTERVAL'].to_i
+
+		if datastore['RETRY']
+			@res.retry = datastore['RETRY'].to_i
+		end
+
+		if datastore['RETRY_INTERVAL']
+			@res.retry_interval = datastore['RETRY_INTERVAL'].to_i
+		end
+
 		@threadnum = datastore['THREADS'].to_i
 		switchdns() if not datastore['NS'].nil?
 		reverselkp(datastore['RANGE'])
@@ -72,7 +79,6 @@ class Metasploit3 < Msf::Auxiliary
 					rescue ::Rex::ConnectionError
 					rescue ::Exception => e
 						print_error("Error: #{tip}: #{e.message}")
-						elog("Error running against host #{tip}: #{e.message}\n#{e.backtrace.join("\n")}")
 					end
 				end
 			end
