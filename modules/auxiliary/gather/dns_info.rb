@@ -40,18 +40,23 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		print_status("Enumerating #{datastore['DOMAIN']}")
 		@res = Net::DNS::Resolver.new()
-		@res.retry = datastore['RETRY'].to_i
-		@res.retry_interval = datastore['RETRY_INTERVAL'].to_i
+
+		if datastore['RETRY']
+			@res.retry = datastore['RETRY'].to_i
+		end
+
+		if datastore['RETRY_INTERVAL']
+			@res.retry_interval = datastore['RETRY_INTERVAL'].to_i
+		end
+
 		wildcard(datastore['DOMAIN'])
 		switchdns() if not datastore['NS'].nil?
 
-		# Get A and AAAA Records for the domain
 		get_ip(datastore['DOMAIN']).each do |r|
 			print_good("#{r[:host]} #{r[:address]} #{r[:type]}")
 			report_host(:host => r[:address])
 		end
 
-		# Get Name Servers
 		get_ns(datastore['DOMAIN']).each do |r|
 			print_good("#{r[:host]} #{r[:address]} #{r[:type]}")
 			report_host(:host => r[:address], :name => r[:host])
@@ -63,13 +68,11 @@ class Metasploit3 < Msf::Auxiliary
 			)
 		end
 
-		# Get SOA
 		get_soa(datastore['DOMAIN']).each do |r|
 			print_good("#{r[:host]} #{r[:address]} #{r[:type]}")
 			report_host(:host => r[:address], :name => r[:host])
 		end
 
-		#Get MX
 		get_mx(datastore['DOMAIN']).each do |r|
 			print_good("#{r[:host]} #{r[:address]} #{r[:type]}")
 			report_host(:host => r[:address], :name => r[:host])
@@ -81,10 +84,12 @@ class Metasploit3 < Msf::Auxiliary
 			)
 		end
 
-		# Get TX
 		get_txt(datastore['DOMAIN']).each do |r|
-			print_good("#{r[:host]} #{r[:address]} #{r[:type]}")
-			report_host(:host => r[:address], :name => r[:host])
+			report_note(:host => datastore['DOMAIN'],
+							:proto => 'UDP',
+							:port => 53,
+							:type => 'dns.info',
+							:data => {:text => r[:text]})
 		end
 	end
 
@@ -175,12 +180,19 @@ class Metasploit3 < Msf::Auxiliary
 
 	#---------------------------------------------------------------------------------
 	def get_txt(target)
+		results = []
 		query = @res.query(target, "TXT")
 		if (query)
 			query.answer.each do |rr|
+				record = {}
 				print_good("Text: #{rr.txt}, TXT")
+				record[:host] = target
+				record[:text] = rr.txt
+				record[:type] = "TXT"
+				results << record
 			end
 		end
+		return results
 	end
 
 	#---------------------------------------------------------------------------------
