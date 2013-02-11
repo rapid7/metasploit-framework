@@ -13,12 +13,12 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'          => 'Rails Devise authentication gem Password Reset',
+			'Name'          => 'Rails Devise Authentication Gem Password Reset',
 			'Description'   => %q{
 					The Devise authentication gem for Ruby on Rails is vulnerable
-					to a password reset exploit leveraging type confusion.  By submitting XML 
+					to a password reset exploit leveraging type confusion.  By submitting XML
 					to rails, we can influence the type used for the reset_password_token
-					parameter.  This allows for resetting passwords of arbitrary accounts, 
+					parameter.  This allows for resetting passwords of arbitrary accounts,
 					knowing only the associated email address.
 
 					This module defaults to the most common devise URIs and response values,
@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 			'License'        => MSF_LICENSE,
 			'References'     =>
 				[
-					[ 'CVE', 'CVE-2013-0233'],
+					[ 'CVE', '2013-0233'],
 					[ 'URL', 'http://blog.plataformatec.com.br/2013/01/security-announcement-devise-v2-2-3-v2-1-3-v2-0-5-and-v1-5-3-released/'],
 					[ 'URL', 'http://www.phenoelit.org/blog/archives/2013/02/05/mysql_madness_and_rails/index.html'],
 				],
@@ -99,7 +99,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			#binding.pry if report
 
-			case res.code 
+			case res.code
 			when 200
 				# Failure, grab the error text
 				# May need to tweak this for some apps...
@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Auxiliary
 			when 302
 				#Success!
 				return true
-			else 
+			else
 				print_error("ERROR: received code #{res.code}")
 				return false
 			end
