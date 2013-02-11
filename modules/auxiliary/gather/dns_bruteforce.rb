@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 		if query.answer.length != 0
 			print_status("This Domain has Wildcards Enabled!!")
 			query.answer.each do |rr|
-				print_status("Wildcard IP for #{rendsub}.#{target} is: #{rr.address.to_s}") if rr.class != Net::DNS::RR::CNAME
+				print_warning("Wildcard IP for #{rendsub}.#{target} is: #{rr.address.to_s}") if rr.class != Net::DNS::RR::CNAME
 			end
 			return true
 		else
