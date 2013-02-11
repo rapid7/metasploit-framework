@@ -209,7 +209,9 @@ class Client
 		req << set_agent_header(c_ag)
 
 		if (c_auth.length > 0)
-			req << set_basic_auth_header(c_auth)
+			unless c_head['Authorization'].include? "Basic"
+				req << set_basic_auth_header(c_auth)
+			end
 		end
 
 		req << set_cookie_header(c_cook)
@@ -315,7 +317,9 @@ class Client
 		req << set_agent_header(c_ag)
 
 		if (c_auth.length > 0)
-			req << set_basic_auth_header(c_auth)
+			unless c_head['Authorization'].include? "Basic"
+				req << set_basic_auth_header(c_auth)
+			end
 		end
 
 		req << set_cookie_header(c_cook)
