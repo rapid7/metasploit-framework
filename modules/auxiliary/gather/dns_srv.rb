@@ -38,8 +38,13 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		records = []
 		@res = Net::DNS::Resolver.new()
-		@res.retry = datastore['RETRY'].to_i
-		@res.retry_interval = datastore['RETRY_INTERVAL'].to_i
+		if datastore['RETRY']
+			@res.retry = datastore['RETRY'].to_i
+		end
+
+		if datastore['RETRY_INTERVAL']
+			@res.retry_interval = datastore['RETRY_INTERVAL'].to_i
+		end
 
 		print_status("Enumerating SRV Records for #{datastore['DOMAIN']}")
 		records = records + srvqry(datastore['DOMAIN'])
