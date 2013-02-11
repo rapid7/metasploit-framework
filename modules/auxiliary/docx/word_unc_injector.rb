@@ -84,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
 	#here we inject an UNC path into an existing file, and store the injected file in FILENAME
 	def manipulate_file
 		ref = "<w:attachedTemplate r:id=\"rId1\"/>"
-		
+
 		if not File.stat(datastore['SOURCE']).readable?
 			print_error("Not enough rights to read the file. Aborting.")
 			return nil
