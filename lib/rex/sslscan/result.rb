@@ -164,7 +164,8 @@ class Result
 		table = Rex::Ui::Text::Table.new(
 			'Header'      => 'SSL Ciphers',
 			'Indent'       => 1,
-			'Columns'   => ['Status', 'Weak', 'SSL Version', 'Key Length', 'Cipher']
+			'Columns'   => ['Status', 'Weak', 'SSL Version', 'Key Length', 'Cipher'],
+			'SortIndex'  => -1
 		)
 		ciphers.each do |cipher|
 			if cipher[:weak]
@@ -172,8 +173,11 @@ class Result
 			else
 				weak = ' '
 			end
-			table << [cipher[:status], weak , cipher[:version], cipher[:key_length], cipher[:cipher]]
+			table << [cipher[:status].to_s.capitalize, weak , cipher[:version], cipher[:key_length], cipher[:cipher]]
 		end
+
+		# Sort by SSL Version, then Key Length, and then Status
+		table.rows.sort_by!{|row| [row[0],row[2],row[3]]}
 		text = "#{table.to_s}"
 		if @cert
 			text <<" \n\n #{@cert.to_text}"
