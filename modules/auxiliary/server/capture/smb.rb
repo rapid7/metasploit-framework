@@ -614,7 +614,7 @@ class Metasploit3 < Msf::Auxiliary
 							smb[:domain] ? smb[:domain] : "NULL",
 							@challenge.unpack("H*")[0],
 							nt_hash.empty? ? "0" * 32 : nt_hash,
-							nt_cli_challenge ? "0" * 160 : nt_cli_challenge
+							nt_cli_challenge.empty? ? "0" * 160 : nt_cli_challenge
 						].join(":").gsub(/\n/, "\\n")
 					)
 					fd.close

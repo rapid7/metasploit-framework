@@ -274,7 +274,7 @@ module Msf::Post::File
 	end
 
 	#
-	# Read a local file +local+ and write it as +remote+ on the remote file 
+	# Read a local file +local+ and write it as +remote+ on the remote file
 	# system
 	#
 	def upload_file(remote, local)
@@ -304,7 +304,7 @@ module Msf::Post::File
 	#
 	def rename_file(new_file, old_file)
 		#TODO:  this is not ideal as the file contents are sent to meterp server and back to the client
-		write_file(new_file, read_file(old_file)) 
+		write_file(new_file, read_file(old_file))
 		rm_f(old_file)
 	end
 	alias :move_file :rename_file
@@ -315,7 +315,7 @@ protected
 	# Meterpreter-specific file read.  Returns contents of remote file
 	# +file_name+ as a String or nil if there was an error
 	#
-	# You should never call this method directly.  Instead, call #read_file
+	# You should never call this method directly.  Instead, call {#read_file}
 	# which will call this if it is appropriate for the given session.
 	#
 	def _read_file_meterpreter(file_name)
