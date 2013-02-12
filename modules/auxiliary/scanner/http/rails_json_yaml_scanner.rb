@@ -31,14 +31,14 @@ class Metasploit3 < Msf::Auxiliary
 		))
 
 		register_options([
-			OptString.new('URIPATH', [true, "The URI to test", "/"]),
+			OptString.new('TARGETURI', [true, "The URI to test", "/"]),
 			OptEnum.new('HTTP_METHOD', [true, 'HTTP Method', 'POST', ['GET', 'POST', 'PUT']]),
 		], self.class)
 	end
 
 	def send_probe(pdata)
 		res = send_request_cgi({
-			'uri'    => datastore['URIPATH'] || "/",
+			'uri'    => datastore['TARGETURI'],
 			'method' => datastore['HTTP_METHOD'],
 			'ctype'  => 'application/json',
 			'data'   => pdata
@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		if res1.code.to_s =~ /^[5]/
 			print_error("#{rhost}:#{rport} The server replied with #{res1.code} for our initial JSON request")
-			print_error("\t\tDouble check URIPATH and HTTP_METHOD")
+			print_error("\t\tDouble check TARGETURI and HTTP_METHOD")
 			return
 		end
 
@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
 			})
 		else
 			# Otherwise we're not likely vulnerable.
-			vprint_status("#{rhost}:#{rport} is not likely to be vulnerable or URIPATH must be set")
+			vprint_status("#{rhost}:#{rport} is not likely to be vulnerable or TARGETURI must be set")
 		end
 	end
 
