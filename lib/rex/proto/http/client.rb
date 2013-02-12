@@ -420,8 +420,7 @@ class Client
 		!(self.username.nil?) && self.username != ''
 	end
 
-	alias :has_creds? :have_creds?
-
+	#
 	# Params -
 	#    res = The 401 response we need to auth from
 	#    opts = the opts used to generate the request that created this response
