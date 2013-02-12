@@ -87,6 +87,10 @@ class Metasploit3 < Msf::Auxiliary
 			vprint_error("http://#{rhost}:#{rport}#{uri} - No response")
 			return
 		end
+		if res.code != 401
+			vprint_error("http://#{rhost}:#{rport} - Authorization not requested")
+			return
+		end
 
 		each_user_pass { |user, pass|
 			do_login(user, pass)
@@ -103,8 +107,10 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_cgi({
 				'uri'     => uri,
 				'method'  => 'GET',
-				'username' => user,
-				'password' => pass
+				'headers' =>
+					{
+						'Authorization' => "Basic #{user_pass}",
+					}
 				}, 25)
 			unless (res.kind_of? Rex::Proto::Http::Response)
 				vprint_error("http://#{rhost}:#{rport}#{uri} not responding")

@@ -2,11 +2,6 @@
 require 'rex/socket'
 require 'rex/proto/http'
 require 'rex/text'
-require 'digest'
-require 'rex/proto/ntlm/crypt'
-require 'rex/proto/ntlm/constants'
-require 'rex/proto/ntlm/utils'
-require 'rex/proto/ntlm/exceptions'
 
 module Rex
 module Proto
@@ -26,15 +21,13 @@ class Client
 	#
 	# Creates a new client instance
 	#
-	def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil, username = '', password = '')
+	def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil)
 		self.hostname = host
 		self.port     = port.to_i
 		self.context  = context
 		self.ssl      = ssl
 		self.ssl_version = ssl_version
 		self.proxies  = proxies
-		self.username = username
-		self.password = password
 		self.config = {
 			'read_max_data'   => (1024*1024*1),
 			'vhost'           => self.hostname,
@@ -68,21 +61,7 @@ class Client
 			'uri_fake_end'           => false,   # bool
 			'uri_fake_params_start'  => false,   # bool
 			'header_folding'         => false,   # bool
-			'chunked_size'           => 0,        # integer
-			#
-			# NTLM Options
-			#
-			'usentlm2_session' => true,
-			'use_ntlmv2'       => true,
-			'send_lm'         => true,
-			'send_ntlm'       => true,
-			'SendSPN'  => true,
-			'UseLMKey' => false,
-			'domain' => 'WORKSTATION',
-			#
-			# Digest Options
-			#
-			'DigestAuthIIS' => true
+			'chunked_size'           => 0        # integer
 		}
 
 		# This is not used right now...
@@ -151,44 +130,27 @@ class Client
 	#
 	# Create an arbitrary HTTP request
 	#
-	# @param opts [Hash]
-	# @option opts 'agent'         [String] User-Agent header value
-	# @option opts 'basic_auth'    [String] Basic-Auth header value
-	# @option opts 'connection'    [String] Connection header value
-	# @option opts 'cookie'        [String] Cookie header value
-	# @option opts 'data'          [String] HTTP data (only useful with some methods, see rfc2616)
-	# @option opts 'encode'        [Bool]   URI encode the supplied URI, default: false
-	# @option opts 'headers'       [Hash]   HTTP headers, e.g. <code>{ "X-MyHeader" => "value" }</code>
-	# @option opts 'method'        [String] HTTP method to use in the request, not limited to standard methods defined by rfc2616, default: GET
-	# @option opts 'proto'         [String] protocol, default: HTTP
-	# @option opts 'query'         [String] raw query string
-	# @option opts 'raw_headers'   [Hash]   HTTP headers
-	# @option opts 'uri'           [String] the URI to request
-	# @option opts 'version'       [String] version of the protocol, default: 1.1
-	# @option opts 'vhost'         [String] Host header value
-	#
-	# @return [Request]
 	def request_raw(opts={})
-		c_ag   = opts['agent']      || config['agent']
-		c_auth = opts['basic_auth'] || config['basic_auth'] || ''
-		c_body = opts['data']       || ''
-		c_conn = opts['connection']
-		c_cook = opts['cookie']     || config['cookie']
 		c_enc  = opts['encode']     || false
-		c_head = opts['headers']    || config['headers'] || {}
-		c_host = opts['vhost']      || config['vhost'] || self.hostname
+		c_uri  = opts['uri']        || '/'
+		c_body = opts['data']       || ''
 		c_meth = opts['method']     || 'GET'
 		c_prot = opts['proto']      || 'HTTP'
-		c_qs   = opts['query']
-		c_rawh = opts['raw_headers']|| config['raw_headers'] || ''
-		c_uri  = opts['uri']        || '/'
 		c_vers = opts['version']    || config['version'] || '1.1'
+		c_qs   = opts['query']
+		c_ag   = opts['agent']      || config['agent']
+		c_cook = opts['cookie']     || config['cookie']
+		c_host = opts['vhost']      || config['vhost'] || self.hostname
+		c_head = opts['headers']    || config['headers'] || {}
+		c_rawh = opts['raw_headers']|| config['raw_headers'] || ''
+		c_conn = opts['connection']
+		c_auth = opts['basic_auth'] || config['basic_auth'] || ''
 
 		# An agent parameter was specified, but so was a header, prefer the header
 		if c_ag and c_head.keys.map{|x| x.downcase }.include?('user-agent')
 			c_ag = nil
 		end
-
+		
 		uri    = set_uri(c_uri)
 
 		req = ''
@@ -208,10 +170,9 @@ class Client
 		req << set_host_header(c_host)
 		req << set_agent_header(c_ag)
 
+
 		if (c_auth.length > 0)
-			unless c_head['Authorization'] and c_head['Authorization'].include? "Basic"
-				req << set_basic_auth_header(c_auth)
-			end
+			req << set_basic_auth_header(c_auth)
 		end
 
 		req << set_cookie_header(c_cook)
@@ -220,46 +181,53 @@ class Client
 		req << set_raw_headers(c_rawh)
 		req << set_body(c_body)
 
-		request = Request.new
-		request.parse(req)
-		request.options = opts
-
-		request
+		req
 	end
 
 
 	#
 	# Create a CGI compatible request
 	#
-	# @param (see #request_raw)
-	# @option opts (see #request_raw)
-	# @option opts 'ctype'         [String] Content-Type header value, default: +application/x-www-form-urlencoded+
-	# @option opts 'encode_params' [Bool]   URI encode the GET or POST variables (names and values), default: true
-	# @option opts 'vars_get'      [Hash]   GET variables as a hash to be translated into a query string
-	# @option opts 'vars_post'     [Hash]   POST variables as a hash to be translated into POST data
+	# Options:
+	# - agent:         User-Agent header value
+	# - basic_auth:    Basic-Auth header value
+	# - connection:    Connection header value
+	# - cookie:        Cookie header value
+	# - ctype:         Content-Type header value, default: +application/x-www-form-urlencoded+
+	# - data:          HTTP data (only useful with some methods, see rfc2616)
+	# - encode:        URI encode the supplied URI, default: false
+	# - encode_params: URI encode the GET or POST variables (names and values), default: true
+	# - headers:       HTTP headers as a hash, e.g. <code>{ "X-MyHeader" => "value" }</code>
+	# - method:        HTTP method to use in the request, not limited to standard methods defined by rfc2616, default: GET
+	# - proto:         protocol, default: HTTP
+	# - query:         raw query string
+	# - raw_headers:   HTTP headers as a hash
+	# - uri:           the URI to request
+	# - vars_get:      GET variables as a hash to be translated into a query string
+	# - vars_post:     POST variables as a hash to be translated into POST data
+	# - version:       version of the protocol, default: 1.1
+	# - vhost:         Host header value
 	#
-	# @return [Request]
 	def request_cgi(opts={})
-		c_ag    = opts['agent']       || config['agent']
-		c_auth = opts['basic_auth'] || config['basic_auth'] || ''
-		c_body  = opts['data']        || ''
-		c_cgi   = opts['uri']         || '/'
-		c_conn  = opts['connection']
-		c_cook  = opts['cookie']      || config['cookie']
 		c_enc   = opts['encode']      || false
 		c_enc_p = (opts['encode_params'] == true or opts['encode_params'].nil? ? true : false)
-		c_head  = opts['headers']     || config['headers'] || {}
-		c_host  = opts['vhost']       || config['vhost']
+		c_cgi   = opts['uri']         || '/'
+		c_body  = opts['data']        || ''
 		c_meth  = opts['method']      || 'GET'
-		c_path  = opts['path_info']
 		c_prot  = opts['proto']       || 'HTTP'
+		c_vers  = opts['version']     || config['version'] || '1.1'
 		c_qs    = opts['query']       || ''
-		c_rawh  = opts['raw_headers'] || config['raw_headers'] || ''
-		c_type  = opts['ctype']       || 'application/x-www-form-urlencoded'
 		c_varg  = opts['vars_get']    || {}
 		c_varp  = opts['vars_post']   || {}
-		c_vers  = opts['version']     || config['version'] || '1.1'
-
+		c_head  = opts['headers']     || config['headers'] || {}
+		c_rawh  = opts['raw_headers'] || config['raw_headers'] || ''
+		c_type  = opts['ctype']       || 'application/x-www-form-urlencoded'
+		c_ag    = opts['agent']       || config['agent']
+		c_cook  = opts['cookie']      || config['cookie']
+		c_host  = opts['vhost']       || config['vhost']
+		c_conn  = opts['connection']
+		c_path  = opts['path_info']
+		c_auth  = opts['basic_auth']  || config['basic_auth'] || ''
 		uri     = set_cgi(c_cgi)
 		qstr    = c_qs
 		pstr    = c_body
@@ -275,7 +243,7 @@ class Client
 
 		c_varg.each_pair do |var,val|
 			qstr << '&' if qstr.length > 0
-			qstr << (c_enc_p ? set_encode_uri(var) : var)
+			qstr << (c_enc_p ? set_encode_uri(var) : var) 
 			qstr << '='
 			qstr << (c_enc_p ? set_encode_uri(val) : val)
 		end
@@ -317,9 +285,7 @@ class Client
 		req << set_agent_header(c_ag)
 
 		if (c_auth.length > 0)
-			unless c_head['Authorization'] and c_head['Authorization'].include? "Basic"
-				req << set_basic_auth_header(c_auth)
-			end
+			req << set_basic_auth_header(c_auth)
 		end
 
 		req << set_cookie_header(c_cook)
@@ -332,19 +298,12 @@ class Client
 		req << set_raw_headers(c_rawh)
 		req << set_body(pstr)
 
-		request = Request.new
-		request.parse(req)
-		request.options = opts
-
-		request
+		req
 	end
 
 	#
 	# Connects to the remote server if possible.
 	#
-	# @param t [Fixnum] Timeout
-	# @see Rex::Socket::Tcp.create
-	# @return [Rex::Socket::Tcp]
 	def connect(t = -1)
 		# If we already have a connection and we aren't pipelining, close it.
 		if (self.conn)
@@ -383,30 +342,11 @@ class Client
 	end
 
 	#
-	# Sends a request and gets a response back
-	#
-	# If the request is a 401, and we have creds, it will attempt to complete
-	# authentication and return the final response
+	# Transmit an HTTP request and receive the response
+	# If persist is set, then the request will attempt
+	# to reuse an existing connection.
 	#
 	def send_recv(req, t = -1, persist=false)
-		res = _send_recv(req,t,persist)
-		if res and res.code == 401 and res.headers['WWW-Authenticate'] and have_creds?
-			res = send_auth(res, req.options, t, persist)
-		end
-		res
-	end
-
-	#
-	# Transmit an HTTP request and receive the response
-	#
-	# If persist is set, then the request will attempt to reuse an existing
-	# connection.
-	#
-	# Call this directly instead of {#send_recv} if you don't want automatic
-	# authentication handling.
-	#
-	# @return [Response]
-	def _send_recv(req, t = -1, persist=false)
 		@pipeline = persist
 		send_request(req, t)
 		res = read_response(t)
@@ -417,332 +357,11 @@ class Client
 	#
 	# Send an HTTP request to the server
 	#
-	# @param req [Request,#to_s] The request to send
-	# @param t (see #connect)
 	def send_request(req, t = -1)
 		connect(t)
 		conn.put(req.to_s)
 	end
 
-	# Validates that the client has creds
-	def have_creds?
-		!(self.username.nil?) && self.username != ''
-	end
-
-	#
-	# Params -
-	#    res = The 401 response we need to auth from
-	#    opts = the opts used to generate the request that created this response
-	#    t = the timeout for the http requests
-	#    persist = whether to persist the tcp connection for HTTP Pipelining
-	#
-	#  Parses the response for what Authentication methods are supported.
-	#  Sets the corect authorization options and passes them on to the correct
-	#  method for sending the next request.
-	def send_auth(res, opts, t, persist)
-		supported_auths = res.headers['WWW-Authenticate']
-		if supported_auths.include? 'Basic'
-			if opts['headers']
-				opts['headers']['Authorization'] = basic_auth_header(self.username,self.password)
-			else
-				opts['headers'] = { 'Authorization' => basic_auth_header(self.username,self.password)}
-			end
-
-			req = request_cgi(opts)
-			res = _send_recv(req,t,persist)
-			return res
-		elsif  supported_auths.include? "Digest"
-			opts['DigestAuthUser'] = self.username.to_s
-			opts['DigestAuthPassword'] = self.password.to_s
-			temp_response = digest_auth(opts)
-			if temp_response.kind_of? Rex::Proto::Http::Response
-				res = temp_response
-			end
-			return res
-		elsif supported_auths.include? "NTLM"
-			opts['provider'] = 'NTLM'
-			temp_response = negotiate_auth(opts)
-			if temp_response.kind_of? Rex::Proto::Http::Response
-				res = temp_response
-			end
-			return res
-		elsif supported_auths.include? "Negotiate"
-			opts['provider'] = 'Negotiate'
-			temp_response = negotiate_auth(opts)
-			if temp_response.kind_of? Rex::Proto::Http::Response
-				res = temp_response
-			end
-			return res
-		end
-		return res
-	end
-
-	# Converts username and password into the HTTP Basic
-	# authorization string.
-	def basic_auth_header(username,password)
-		auth_str = username.to_s + ":" + password.to_s
-		auth_str = "Basic " + Rex::Text.encode_base64(auth_str)
-	end
-
-
-	#
-	# Opts -
-	#   Inherits all the same options as send_request_cgi
-	#   Also expects some specific opts
-	#   DigestAuthUser - The username for DigestAuth
-	#   DigestAuthPass - The password for DigestAuth
-	#   DigestAuthIIS - IIS uses a slighlty different implementation, set this for IIS support
-	#
-	# This method builds new request to complete a Digest Authentication cycle.
-	# We do not persist the original connection , to clear state in preparation for our auth
-	# We do persist the rest of the connection stream because Digest is a tcp session
-	# based authentication method.
-	#
-
-	def digest_auth(opts={})
-		@nonce_count = 0
-
-		to = opts['timeout'] || 20
-
-		digest_user = opts['DigestAuthUser'] || ""
-		digest_password =  opts['DigestAuthPassword'] || ""
-
-		method = opts['method']
-		path = opts['uri']
-		iis = true
-		if (opts['DigestAuthIIS'] == false or self.config['DigestAuthIIS'] == false)
-			iis = false
-		end
-
-		begin
-		@nonce_count += 1
-
-		resp = opts['response']
-
-		if not resp
-			# Get authentication-challenge from server, and read out parameters required
-			r = request_cgi(opts.merge({
-					'uri' => path,
-					'method' => method }))
-			resp = _send_recv(r, to)
-			unless resp.kind_of? Rex::Proto::Http::Response
-				return nil
-			end
-
-			if resp.code != 401
-				return resp
-			end
-			return resp unless resp.headers['WWW-Authenticate']
-		end
-
-		# Don't anchor this regex to the beginning of string because header
-		# folding makes it appear later when the server presents multiple
-		# WWW-Authentication options (such as is the case with IIS configured
-		# for Digest or NTLM).
-		resp['www-authenticate'] =~ /Digest (.*)/
-
-		parameters = {}
-		$1.split(/,[[:space:]]*/).each do |p|
-			k, v = p.split("=", 2)
-			parameters[k] = v.gsub('"', '')
-		end
-
-		qop = parameters['qop']
-
-		if parameters['algorithm'] =~ /(.*?)(-sess)?$/
-			algorithm = case $1
-			when 'MD5' then Digest::MD5
-			when 'SHA1' then Digest::SHA1
-			when 'SHA2' then Digest::SHA2
-			when 'SHA256' then Digest::SHA256
-			when 'SHA384' then Digest::SHA384
-			when 'SHA512' then Digest::SHA512
-			when 'RMD160' then Digest::RMD160
-			else raise Error, "unknown algorithm \"#{$1}\""
-			end
-			algstr = parameters["algorithm"]
-			sess = $2
-		else
-			algorithm = Digest::MD5
-			algstr = "MD5"
-			sess = false
-		end
-
-		a1 = if sess then
-			[
-				algorithm.hexdigest("#{digest_user}:#{parameters['realm']}:#{digest_password}"),
-				parameters['nonce'],
-				@cnonce
-			].join ':'
-		else
-			"#{digest_user}:#{parameters['realm']}:#{digest_password}"
-		end
-
-		ha1 = algorithm.hexdigest(a1)
-		ha2 = algorithm.hexdigest("#{method}:#{path}")
-
-		request_digest = [ha1, parameters['nonce']]
-		request_digest.push(('%08x' % @nonce_count), @cnonce, qop) if qop
-		request_digest << ha2
-		request_digest = request_digest.join ':'
-
-		# Same order as IE7
-		auth = [
-			"Digest username=\"#{digest_user}\"",
-			"realm=\"#{parameters['realm']}\"",
-			"nonce=\"#{parameters['nonce']}\"",
-			"uri=\"#{path}\"",
-			"cnonce=\"#{@cnonce}\"",
-			"nc=#{'%08x' % @nonce_count}",
-			"algorithm=#{algstr}",
-			"response=\"#{algorithm.hexdigest(request_digest)[0, 32]}\"",
-			# The spec says the qop value shouldn't be enclosed in quotes, but
-			# some versions of IIS require it and Apache accepts it.  Chrome
-			# and Firefox both send it without quotes but IE does it this way.
-			# Use the non-compliant-but-everybody-does-it to be as compatible
-			# as possible by default.  The user can override if they don't like
-			# it.
-			if qop.nil? then
-			elsif iis then
-				"qop=\"#{qop}\""
-			else
-				"qop=#{qop}"
-			end,
-			if parameters.key? 'opaque' then
-				"opaque=\"#{parameters['opaque']}\""
-			end
-		].compact
-
-		headers ={ 'Authorization' => auth.join(', ') }
-		headers.merge!(opts['headers']) if opts['headers']
-
-		# Send main request with authentication
-		r = request_cgi(opts.merge({
-			'uri' => path,
-			'method' => method,
-			'headers' => headers }))
-		resp = _send_recv(r, to, true)
-		unless resp.kind_of? Rex::Proto::Http::Response
-			return nil
-		end
-
-		return resp
-
-		rescue ::Errno::EPIPE, ::Timeout::Error
-		end
-	end
-
-	#
-	# Opts -
-	#   Inherits all the same options as send_request_cgi
-	#   provider - What Negotiate Provider to use (supports NTLM and Negotiate)
-	#
-	# Builds a series of requests to complete Negotiate Auth. Works essentially
-	# the same way as Digest auth. Same pipelining concerns exist.
-	#
-
-	def negotiate_auth(opts={})
-		ntlm_options = {
-			:signing          => false,
-			:usentlm2_session => self.config['usentlm2_session'],
-			:use_ntlmv2       => self.config['use_ntlmv2'],
-			:send_lm          => self.config['send_lm'],
-			:send_ntlm        => self.config['send_ntlm']
-		}
-
-		to = opts['timeout'] || 20
-		opts['username'] ||= self.username.to_s
-		opts['password'] ||= self.password.to_s
-
-		if opts['provider'] and opts['provider'].include? 'Negotiate'
-			provider = "Negotiate "
-		else
-			provider = 'NTLM '
-		end
-
-		opts['method']||= 'GET'
-		opts['headers']||= {}
-
-		ntlmssp_flags = ::Rex::Proto::NTLM::Utils.make_ntlm_flags(ntlm_options)
-		workstation_name = Rex::Text.rand_text_alpha(rand(8)+1)
-		domain_name = self.config['domain']
-
-		b64_blob = Rex::Text::encode_base64(
-			::Rex::Proto::NTLM::Utils::make_ntlmssp_blob_init(
-				domain_name,
-				workstation_name,
-				ntlmssp_flags
-		))
-
-		ntlm_message_1 = provider + b64_blob
-
-		begin
-			# First request to get the challenge
-			opts['headers']['Authorization'] = ntlm_message_1
-			r = request_cgi(opts)
-			resp = _send_recv(r, to)
-			unless resp.kind_of? Rex::Proto::Http::Response
-				return nil
-			end
-
-			return resp unless resp.code == 401 && resp.headers['WWW-Authenticate']
-
-			# Get the challenge and craft the response
-			ntlm_challenge = resp.headers['WWW-Authenticate'].scan(/#{provider}([A-Z0-9\x2b\x2f=]+)/i).flatten[0]
-			return resp unless ntlm_challenge
-
-			ntlm_message_2 = Rex::Text::decode_base64(ntlm_challenge)
-			blob_data = ::Rex::Proto::NTLM::Utils.parse_ntlm_type_2_blob(ntlm_message_2)
-
-			challenge_key        = blob_data[:challenge_key]
-			server_ntlmssp_flags = blob_data[:server_ntlmssp_flags]       #else should raise an error
-			default_name         = blob_data[:default_name]         || '' #netbios name
-			default_domain       = blob_data[:default_domain]       || '' #netbios domain
-			dns_host_name        = blob_data[:dns_host_name]        || '' #dns name
-			dns_domain_name      = blob_data[:dns_domain_name]      || '' #dns domain
-			chall_MsvAvTimestamp = blob_data[:chall_MsvAvTimestamp] || '' #Client time
-
-			spnopt = {:use_spn => self.config['SendSPN'], :name =>  self.hostname}
-
-			resp_lm, resp_ntlm, client_challenge, ntlm_cli_challenge = ::Rex::Proto::NTLM::Utils.create_lm_ntlm_responses(
-				opts['username'],
-				opts['password'],
-				challenge_key,
-				domain_name,
-				default_name,
-				default_domain,
-				dns_host_name,
-				dns_domain_name,
-				chall_MsvAvTimestamp,
-				spnopt,
-				ntlm_options
-			)
-
-			ntlm_message_3 = ::Rex::Proto::NTLM::Utils.make_ntlmssp_blob_auth(
-				domain_name,
-				workstation_name,
-				opts['username'],
-				resp_lm,
-				resp_ntlm,
-				'',
-				ntlmssp_flags
-			)
-
-			ntlm_message_3 = Rex::Text::encode_base64(ntlm_message_3)
-
-			# Send the response
-			opts['headers']['Authorization'] = "#{provider}#{ntlm_message_3}"
-			r = request_cgi(opts)
-			resp = _send_recv(r, to, true)
-			unless resp.kind_of? Rex::Proto::Http::Response
-				return nil
-			end
-			return resp
-
-		rescue ::Errno::EPIPE, ::Timeout::Error
-			return nil
-		end
-	end
 	#
 	# Read a response from the server
 	#
@@ -1219,9 +838,6 @@ class Client
 	# The proxy list
 	#
 	attr_accessor :proxies
-
-	# Auth
-	attr_accessor :username, :password
 
 
 	# When parsing the request, thunk off the first response from the server, since junk
