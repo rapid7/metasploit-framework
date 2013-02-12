@@ -9,10 +9,10 @@ import sleep.engine.*;
 import sleep.parser.ParserConfig;
 
 import java.util.*;
-
 import java.io.*;
 
 import cortana.core.*;
+import ui.*;
 
 /**
  *  This class launches Armitage and loads the scripts that are part of it.
@@ -101,7 +101,7 @@ public class ArmitageMain implements RuntimeWarningWatcher, Loadable, Function {
 		};
 	}
 
-	public ArmitageMain(String[] args) {
+	public ArmitageMain(String[] args, MultiFrame window, boolean serverMode) {
 		/* tweak the parser to recognize a few useful escapes */
 		ParserConfig.installEscapeConstant('c', console.Colors.color + "");
 		ParserConfig.installEscapeConstant('U', console.Colors.underline + "");
@@ -118,15 +118,6 @@ public class ArmitageMain implements RuntimeWarningWatcher, Loadable, Function {
 		ScriptLoader loader = new ScriptLoader();
 		loader.addSpecificBridge(this);
 
-		/* check for server mode option */
-		boolean serverMode = false;
-
-		int x = 0;
-		for (x = 0; x < args.length; x++) {
-			if (args[x].equals("--server"))
-				serverMode = true;
-		}
-
 		/* setup Cortana event and filter bridges... we will install these into
 		   Armitage */
 		if (!serverMode) {
@@ -135,6 +126,7 @@ public class ArmitageMain implements RuntimeWarningWatcher, Loadable, Function {
 
 			variables.putScalar("$__events__", SleepUtils.getScalar(events));
 			variables.putScalar("$__filters__", SleepUtils.getScalar(filters));
+			variables.putScalar("$__frame__", SleepUtils.getScalar(window));
 
 			loader.addGlobalBridge(events.getBridge());
 			loader.addGlobalBridge(filters.getBridge());
@@ -142,7 +134,7 @@ public class ArmitageMain implements RuntimeWarningWatcher, Loadable, Function {
 
 		/* load the appropriate scripts */
 		String[] scripts = serverMode ? getServerScripts() : getGUIScripts();
-
+		int x = -1;
 		try {
 			for (x = 0; x < scripts.length; x++) {
 				InputStream i = this.getClass().getClassLoader().getResourceAsStream(scripts[x]);
@@ -161,6 +153,23 @@ public class ArmitageMain implements RuntimeWarningWatcher, Loadable, Function {
 	}
 
 	public static void main(String args[]) {
-		new ArmitageMain(args);
+		/* check for server mode option */
+		boolean serverMode = false;
+
+		int x = 0;
+		for (x = 0; x < args.length; x++) {
+			if (args[x].equals("--server"))
+				serverMode = true;
+		}
+
+		/* setup our armitage instance */
+		if (serverMode) {
+			new ArmitageMain(args, null, serverMode);
+		}
+		else {
+			MultiFrame.setupLookAndFeel();
+			MultiFrame frame = new MultiFrame();
+			new ArmitageMain(args, frame, serverMode);
+		}
 	}
 }

@@ -310,13 +310,13 @@ public class DatabaseImpl implements RpcConnection  {
 			if (hFilter.indexOf("sessions.") >= 0)
 				tables.add("sessions");
 
-			temp.put("db.hosts", "SELECT DISTINCT hosts.* FROM " + join(tables, ", ") + " WHERE hosts.workspace_id = " + workspaceid + " AND " + hFilter + " ORDER BY hosts.id ASC LIMIT " + limit1 + " OFFSET " + (limit1 * hindex));
+			temp.put("db.hosts", "SELECT DISTINCT hosts.id, hosts.updated_at, hosts.state, hosts.mac, hosts.purpose, hosts.os_flavor, hosts.os_name, hosts.address, hosts.os_sp FROM " + join(tables, ", ") + " WHERE hosts.workspace_id = " + workspaceid + " AND " + hFilter + " ORDER BY hosts.id ASC LIMIT " + limit1 + " OFFSET " + (limit1 * hindex));
 		}
 		else {
-			temp.put("db.hosts", "SELECT DISTINCT hosts.* FROM hosts WHERE hosts.workspace_id = " + workspaceid + " ORDER BY hosts.id ASC LIMIT " + limit1 + " OFFSET " + (hindex * limit1));
+			temp.put("db.hosts", "SELECT DISTINCT hosts.id, hosts.updated_at, hosts.state, hosts.mac, hosts.purpose, hosts.os_flavor, hosts.os_name, hosts.address, hosts.os_sp FROM hosts WHERE hosts.workspace_id = " + workspaceid + " ORDER BY hosts.id ASC LIMIT " + limit1 + " OFFSET " + (hindex * limit1));
 		}
 
-		temp.put("db.services", "SELECT DISTINCT services.*, hosts.address as host FROM services, (" + temp.get("db.hosts") + ") as hosts WHERE hosts.id = services.host_id AND services.state = 'open' ORDER BY services.id ASC LIMIT " + limit2 + " OFFSET " + (limit2 * sindex));
+		temp.put("db.services", "SELECT DISTINCT services.id, services.name, services.port, services.proto, services.info, services.updated_at, hosts.address as host FROM services, (" + temp.get("db.hosts") + ") as hosts WHERE hosts.id = services.host_id AND services.state = 'open' ORDER BY services.id ASC LIMIT " + limit2 + " OFFSET " + (limit2 * sindex));
 		temp.put("db.loots", "SELECT DISTINCT loots.*, hosts.address as host FROM loots, hosts WHERE hosts.id = loots.host_id AND hosts.workspace_id = " + workspaceid);
 		temp.put("db.workspaces", "SELECT DISTINCT * FROM workspaces");
 		temp.put("db.notes", "SELECT DISTINCT notes.*, hosts.address as host FROM notes, hosts WHERE hosts.id = notes.host_id AND hosts.workspace_id = " + workspaceid);
@@ -412,6 +412,10 @@ public class DatabaseImpl implements RpcConnection  {
 				return new HashMap();
 			}
 			else if (methodName.equals("db.clear")) {
+				/* clear our local cache of labels */
+				labels = new HashMap();
+
+				/* clear the database */
 				executeUpdate(
 					"BEGIN;" +
 					"DELETE FROM hosts;" +

@@ -95,13 +95,13 @@ sub dispatchEvent {
 
 sub showError {
 	dispatchEvent(lambda({
-		[JOptionPane showMessageDialog: $frame, $message];
+		[JOptionPane showMessageDialog: $__frame__, $message];
 	}, $message => $1));
 }
 
 sub showErrorAndQuit {
-	[JOptionPane showMessageDialog: $frame, $1];
-	[System exit: 0];
+	[JOptionPane showMessageDialog: $__frame__, $1];
+	[$__frame__ closeConnect];
 }
 
 sub ask {
@@ -155,7 +155,7 @@ sub chooseFile {
 		[$fc setFileSelectionMode: [JFileChooser DIRECTORIES_ONLY]];
 	}
 
-	[$fc showOpenDialog: $frame];
+	[$fc showOpenDialog: $__frame__];
 
 	if ($multi) {
 		return [$fc getSelectedFiles];
@@ -179,17 +179,18 @@ sub saveFile2 {
 		[$fc setSelectedFile: [new java.io.File: $sel]];
 	}
 
-	[$fc showSaveDialog: $frame];
-	$file = [$fc getSelectedFile];
-	if ($file !is $null) {
-		return $file;
+	if ([$fc showSaveDialog: $__frame__] == 0) {
+		$file = [$fc getSelectedFile];
+		if ($file !is $null) {
+			return $file;
+		}
 	}
 }
 
 sub saveFile {
 	local('$fc $file');
 	$fc = [new JFileChooser];
-	[$fc showSaveDialog: $frame];
+	[$fc showSaveDialog: $__frame__];
 	$file = [$fc getSelectedFile];
 	if ($file !is $null) {
 		local('$ihandle $data $ohandle');
@@ -250,10 +251,10 @@ sub left {
 
 sub dialog {
 	local('$dialog $4');
-        $dialog = [new JDialog: $frame, $1];
+        $dialog = [new JDialog: $__frame__, $1];
         [$dialog setSize: $2, $3];
         [$dialog setLayout: [new BorderLayout]];
-        [$dialog setLocationRelativeTo: $frame];
+        [$dialog setLocationRelativeTo: $__frame__];
 	return $dialog;
 }
 
@@ -261,7 +262,15 @@ sub window {
 	local('$dialog $4');
         $dialog = [new JFrame: $1];
 	[$dialog setIconImage: [ImageIO read: resource("resources/armitage-icon.gif")]];
-	[$dialog setDefaultCloseOperation: [JFrame EXIT_ON_CLOSE]];
+
+	fork({
+		[$dialog addWindowListener: {
+			if ($0 eq "windowClosing") {
+				[$__frame__ closeConnect];
+			}
+		}];
+	}, \$__frame__, \$dialog);
+
         [$dialog setSize: $2, $3];
         [$dialog setLayout: [new BorderLayout]];
 	return $dialog;
@@ -277,12 +286,14 @@ sub overlay_images {
 		return %cache[join(';', $1)];
 	}
 
-	local('$file $image $buffered $graphics');
+	local('$file $image $buffered $graphics $resource');
 
         $buffered = [new BufferedImage: 1000, 776, [BufferedImage TYPE_INT_ARGB]];
 	$graphics = [$buffered createGraphics];
 	foreach $file ($1) {
-		$image = [ImageIO read: resource($file)];
+		$resource = resource($file);
+		$image = [ImageIO read: $resource];
+		closef($resource);
 		[$graphics drawImage: $image, 0, 0, 1000, 776, $null];
 	}
 
@@ -371,15 +382,6 @@ sub wrapComponent {
 	return $panel;
 }
 
-sub setLookAndFeel {
-	local('$laf');
-	foreach $laf ([UIManager getInstalledLookAndFeels]) {
-		if ([$laf getName] eq [$preferences getProperty: "application.skin.skin", "Nimbus"]) {
-			[UIManager setLookAndFeel: [$laf getClassName]];
-		}
-	}
-}
-
 sub thread {
 	local('$thread');
 	$thread = [new ArmitageThread: $1];
@@ -465,6 +467,13 @@ sub quickListDialog {
 	[$dialog add: $panel, [BorderLayout CENTER]];
 	[$dialog show];
 	[$dialog setVisible: 1];
+}
+
+sub setTableColumnWidths {
+	local('$col $width $temp');
+	foreach $col => $width ($2) {
+		[[$1 getColumn: $col] setPreferredWidth: $width];
+	}
 }
 
 sub tableRenderer {
