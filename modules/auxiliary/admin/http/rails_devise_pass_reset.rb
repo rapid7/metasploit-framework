@@ -68,6 +68,11 @@ class Metasploit3 < Msf::Auxiliary
 					'data'    => postdata,
 				})
 
+		unless (res)
+			print_error("No response from server")
+			return false
+		end
+
 		if res.code == 200
 			error_text = res.body[/<div id=\"error_explanation\">\n\s+(.*?)<\/div>/m, 1]
 			print_error("Server returned an error:")
@@ -107,6 +112,10 @@ class Metasploit3 < Msf::Auxiliary
 					'ctype'   => 'application/xml',
 					'data'    => xml,
 				})
+			unless (res)
+				print_error("No response from server")
+				return false
+			end
 
 			case res.code
 			when 200
