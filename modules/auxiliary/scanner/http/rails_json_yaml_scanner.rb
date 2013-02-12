@@ -19,14 +19,15 @@ class Metasploit3 < Msf::Auxiliary
 				This module attempts to identify Ruby on Rails instances vulnerable to
 				an arbitrary object instantiation flaw in the JSON request processor.
 			},
-			'Author'      => [
+			'Author'      =>
+				[
 						'jjarmoc',	# scanner module
 						'hdm'		# CVE-2013-0156 scanner, basis of this technique.
-						],
+				],
 			'License'     => MSF_LICENSE,
 			'References'  =>
 				[
-					['CVE', '2013-0333'],
+					['CVE', '2013-0333']
 				]
 		))
 
@@ -38,11 +39,11 @@ class Metasploit3 < Msf::Auxiliary
 
 	def send_probe(pdata)
 		res = send_request_cgi({
-			'uri'    => datastore['TARGETURI'],
+			'uri'    => normalize_uri(datastore['TARGETURI']),
 			'method' => datastore['HTTP_METHOD'],
 			'ctype'  => 'application/json',
 			'data'   => pdata
-		}, 25)
+		})
 	end
 
 	def run_host(ip)
@@ -58,8 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if res1.code.to_s =~ /^[5]/
-			print_error("#{rhost}:#{rport} The server replied with #{res1.code} for our initial JSON request")
-			print_error("\t\tDouble check TARGETURI and HTTP_METHOD")
+			vprint_error("#{rhost}:#{rport} The server replied with #{res1.code} for our initial JSON request, double check TARGETURI and HTTP_METHOD")
 			return
 		end
 
@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
 			})
 		else
 			# Otherwise we're not likely vulnerable.
-			vprint_status("#{rhost}:#{rport} is not likely to be vulnerable or TARGETURI must be set")
+			vprint_status("#{rhost}:#{rport} is not likely to be vulnerable or TARGETURI & HTTP_METHOD must be set")
 		end
 	end
 
