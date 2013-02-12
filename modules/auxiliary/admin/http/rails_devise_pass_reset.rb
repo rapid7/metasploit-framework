@@ -142,7 +142,7 @@ class Metasploit3 < Msf::Auxiliary
 		if status == false
 			print_error("Failed")
 			return
-		end		 
+		end
 		print_good("Success")
 
 		# Reset a password.  We're racing users creating other reset tokens.
