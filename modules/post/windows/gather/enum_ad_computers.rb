@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Post
 
 		print_status("Default Naming Context #{defaultNamingContext}")
 
-		attributes = datastore['ATTRIBS'].split(',')
+		attributes = datastore['ATTRIBS'].gsub(/\s+/,"").split(',')
 
 		search_filter = datastore['FILTER']
 		print_status("Querying #{search_filter} - Please wait...")
@@ -214,9 +214,12 @@ class Metasploit3 < Msf::Post
 		return session_handle
 	end
 
+	def get_entry(pEntry)
+		return client.railgun.memread(pEntry,41).unpack('LLLLLLLLLSCCC')
+	end
+
 	# Get BERElement data structure from LDAPMessage
-	def get_ber(pEntry)
-		msg = client.railgun.memread(pEntry,41).unpack('LLLLLLLLLSCCC')
+	def get_ber(msg)
 		ber = client.railgun.memread(msg[2],60).unpack('L*')
 
 		# BER Pointer is different between x86 and x64
@@ -294,7 +297,7 @@ class Metasploit3 < Msf::Post
 
 		vprint_status("Retrieving results...")
 
-		entries = {}
+		pEntries = []
 		entry_results = []
 
 		if datastore['MAX_SEARCH'] == 0
@@ -306,20 +309,28 @@ class Metasploit3 < Msf::Post
 		0.upto(max_search - 1) do |i|
 
 			if(i==0)
-				entries[0] = wldap32.ldap_first_entry(session_handle, search['res'])['return']
-			else
-				entries[i] = wldap32.ldap_next_entry(session_handle, entries[i-1])['return']
+				pEntries[0] = wldap32.ldap_first_entry(session_handle, search['res'])['return']
 			end
 
-			if(entries[i] == 0)
+			if(pEntries[i] == 0)
 				print_error("Failed to get entry.")
 				wldap32.ldap_unbind(session_handle)
 				wldap32.ldap_msgfree(search['res'])
 				return
 			end
 
-			vprint_status("Entry #{i}: 0x#{entries[i].to_s(16)}")
-			ber = get_ber(entries[i])
+			vprint_status("Entry #{i}: 0x#{pEntries[i].to_s(16)}")
+
+			entry = get_entry(pEntries[i])
+
+			# Entries are a linked list...
+			if client.platform =~ /x86/
+				pEntries[i+1] = entry[3]
+			else
+				pEntries[i+1] = entry[4]
+			end
+
+			ber = get_ber(entry)
 
 			attribute_results = []
 			attributes.each do |attr|
