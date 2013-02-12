@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 		postdata="user[email]=#{account}"
 
 		res = send_request_cgi({
-					'uri'     => datastore['TARGETURI'],
+					'uri'     => normalize_uri(datastore['TARGETURI']),
 					'method'  => 'POST',
 					'data'    => postdata,
 				})
@@ -107,7 +107,7 @@ class Metasploit3 < Msf::Auxiliary
 			xml << "</user>"
 
 			res = send_request_cgi({
-					'uri'     => datastore['TARGETURI'] || "/",
+					'uri'     => normalize_uri(datastore['TARGETURI']),
 					'method'  => 'PUT',
 					'ctype'   => 'application/xml',
 					'data'    => xml,
