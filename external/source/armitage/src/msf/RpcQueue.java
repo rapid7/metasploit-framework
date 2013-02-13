@@ -66,7 +66,7 @@ public class RpcQueue implements Runnable {
 					Thread.sleep(50);
 				}
 				else {
-					Thread.sleep(500);
+					Thread.sleep(200);
 				}
 			}
 		}

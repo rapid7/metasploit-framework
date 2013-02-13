@@ -13,13 +13,32 @@ import cortana.gui.MenuBuilder;
 
 import ui.*;
 
-public class ArmitageApplication extends JFrame {
+public class ArmitageApplication extends JComponent {
 	protected JTabbedPane tabs = null;
 	protected JSplitPane split = null;
 	protected JMenuBar menus = new JMenuBar();
 	protected ScreenshotManager screens = null;
 	protected KeyBindings keys = new KeyBindings();
 	protected MenuBuilder builder = null;
+	protected String      title = "";
+	protected MultiFrame  window = null;
+
+	public KeyBindings getBindings() {
+		return keys;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+		window.setTitle(this, title);
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setIconImage(Image blah) {
+		window.setIconImage(blah);
+	}
 
 	public void setScreenshotManager(ScreenshotManager m) {
 		screens = m;
@@ -192,7 +211,7 @@ public class ArmitageApplication extends JFrame {
 
 				/* pop goes the tab! */
 				final JFrame r = new JFrame(t.title);
-				r.setIconImages(getIconImages());
+				//r.setIconImages(getIconImages());
 				r.setLayout(new BorderLayout());
 				r.add(t.component, BorderLayout.CENTER);
 				r.pack();
@@ -366,8 +385,20 @@ public class ArmitageApplication extends JFrame {
 		component.requestFocusInWindow();
 	}
 
-	public ArmitageApplication() {
+	public void touch() {
+		Component c = tabs.getSelectedComponent();
+		if (c == null)
+			return;
+
+		if (c instanceof Activity)
+			((Activity)c).resetNotification();
+
+		c.requestFocusInWindow();
+	}
+
+	public ArmitageApplication(MultiFrame f, String details, msf.RpcConnection conn) {
 		super();
+		window = f;
 		tabs = new DraggableTabbedPane();
 		setLayout(new BorderLayout());
 
@@ -383,10 +414,8 @@ public class ArmitageApplication extends JFrame {
 		/* add our tabbed pane */
 		add(split, BorderLayout.CENTER);
 
-		/* setup our key bindings */
-		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(keys);
-
 		/* ... */
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		((ui.MultiFrame)window).addButton(details, this, conn);
 	}
 }
