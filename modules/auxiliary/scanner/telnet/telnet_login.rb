@@ -132,6 +132,7 @@ class Metasploit3 < Msf::Auxiliary
 	def do_login(user,pass)
 
 		return :refused if connect_reset_safe == :refused
+		tmout = (1/datastore['BRUTEFORCE_SPEED'].to_i).to_f
 
 		begin
 
@@ -162,9 +163,10 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		recvd_sample = @recvd.dup
+    recv_telnet(self.sock, tmout) if recvd_sample =~ /#{user}/
 		# Allow for slow echos
 		1.upto(10) do
-			recv_telnet(self.sock, 0.10) unless @recvd.nil? or @recvd[/#{@password_prompt}/]
+			recv_telnet(self.sock, tmout) unless @recvd.nil? or @recvd[/#{@password_prompt}/] or @recvd[/#{user}/]
 		end
 
 		vprint_status("#{rhost}:#{rport} Prompt: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}")
@@ -174,7 +176,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			# Allow for slow echos
 			1.upto(10) do
-				recv_telnet(self.sock, 0.10) if @recvd == recvd_sample
+				recv_telnet(self.sock, tmout) if @recvd == recvd_sample
 			end
 
 
