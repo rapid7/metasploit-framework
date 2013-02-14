@@ -14,9 +14,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'		   => 'DNS Host and Subdomain Brutefoce Module',
+			'Name'		   => 'DNS host and subdomain brutefoce module',
 			'Description'	=> %q{
-					This module uses a dictionary to perform a bruteforce on Hostnames and Subdomains
+					The module uses a dictionary to perform a bruteforce on hostnames and subdomains
 					available under a given domain.
 			},
 			'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('DOMAIN', [ true, "The target domain name"]),
-				OptAddress.new('NS', [ false, "Specify the nameserver to use for queries, otherwise use the system DNS" ]),
+				OptAddress.new('NS', [ false, "Specify the name server to use for queries, otherwise use the system DNS" ]),
 				OptPath.new('WORDLIST', [ false, "Wordlist file for domain name brute force.",
 							File.join(Msf::Config.install_root, "data", "wordlists", "namelist.txt")]),
 
@@ -34,8 +34,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_advanced_options(
 			[
-				OptInt.new('RETRY', [ false, "Number of times to try to resolve a record if no response is received", 2]),
-				OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry", 2]),
+				OptInt.new('RETRY', [ false, "Number of tries to resolve a record if no response is received.", 2]),
+				OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry.", 2]),
 				OptInt.new('THREADS', [ false, "Number of threads", 1]),
 			], self.class)
 	end
@@ -55,9 +55,9 @@ class Metasploit3 < Msf::Auxiliary
 		rendsub = rand(10000).to_s
 		query = @res.query("#{rendsub}.#{target}", "A")
 		if query.answer.length != 0
-			print_status("This Domain has Wildcards Enabled!!")
+			print_status("This Domain has wild-cards enabled!!")
 			query.answer.each do |rr|
-				print_warning("Wildcard IP for #{rendsub}.#{target} is: #{rr.address.to_s}") if rr.class != Net::DNS::RR::CNAME
+				print_warning("Wild-card IP for #{rendsub}.#{target} is: #{rr.address.to_s}") if rr.class != Net::DNS::RR::CNAME
 			end
 			return true
 		else
@@ -101,7 +101,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	#---------------------------------------------------------------------------------
 	def switchdns()
-		print_status("Using DNS Server: #{datastore['NS']}")
+		print_status("Using DNS server: #{datastore['NS']}")
 		@res.nameserver=(datastore['NS'])
 		@nsinuse = datastore['NS']
 	end
