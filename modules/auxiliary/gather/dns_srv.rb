@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'		   => 'DNS Reverse Lookup',
 			'Description'	=> %q{
-					This module enumerates common DNS Service Records.
+					The module enumerates common DNS Service Records.
 			},
 			'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
 			'License'		=> BSD_LICENSE
@@ -24,14 +24,14 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('DOMAIN', [ true, "The target domain name"]),
-				OptBool.new(  'ALL_NS', [ false, "Run against all Nameservers for the given domain",false]),
+				OptString.new('DOMAIN', [ true, "The target domain name."]),
+				OptBool.new(  'ALL_NS', [ false, "Run against all name servers for the given domain.",false]),
 			], self.class)
 
 		register_advanced_options(
 			[
-				OptInt.new('RETRY', [ false, "Number of times to try to resolve a record if no response is received", 3]),
-				OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry", 4]),
+				OptInt.new('RETRY', [ false, "Number of times to try to resolve a record if no response is received.", 3]),
+				OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry.", 4]),
 			], self.class)
 	end
 
