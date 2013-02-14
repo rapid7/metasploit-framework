@@ -14,9 +14,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'		   => 'DNS Reverse Lookup',
+			'Name'		   => 'DNS reverse lookup',
 			'Description'	=> %q{
-					This module performs a Reverse Lookup against a given IP Range.
+					The module performs a reverse rookup against a given IP range.
 			},
 			'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
 			'License'		=> BSD_LICENSE
@@ -24,16 +24,16 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptAddressRange.new('RANGE', [true, 'IP Range to perform reverse lookup against.', nil]),
-				OptAddress.new('NS', [ false, "Specify the nameserver to use for queries, otherwise use the system DNS" ]),
+				OptAddressRange.new('RANGE', [true, 'IP range to perform reverse lookup against.', nil]),
+				OptAddress.new('NS', [ false, "Specify the nameserver to use for queries, otherwise use the system DNS." ]),
 
 			], self.class)
 
 		register_advanced_options(
 			[
-				OptInt.new('RETRY', [ false, "Number of times to try to resolve a record if no response is received", 2]),
-				OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry", 2]),
-				OptInt.new('THREADS', [ true, "Number of seconds to wait before doing a retry", 2]),
+				OptInt.new('RETRY', [ false, "Number of tries to resolve a record if no response is received.", 2]),
+				OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry.", 2]),
+				OptInt.new('THREADS', [ true, "Number of seconds to wait before doing a retry.", 2]),
 			], self.class)
 	end
 
@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	#-------------------------------------------------------------------------------
 	def reverselkp(iprange)
-		print_status("Running Reverse Lookup against ip range #{iprange}")
+		print_status("Running reverse lookup against IP range #{iprange}")
 		ar = Rex::Socket::RangeWalker.new(iprange)
 		tl = []
 		while (true)
@@ -93,7 +93,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	#---------------------------------------------------------------------------------
 	def switchdns()
-		print_status("Using DNS Server: #{datastore['NS']}")
+		print_status("Using DNS server: #{datastore['NS']}")
 		@res.nameserver=(datastore['NS'])
 		@nsinuse = datastore['NS']
 	end
