@@ -16,8 +16,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'		   => 'DNS Base Information',
 			'Description'	=> %q{
-					This module enumerates basic DNS information for a given Domain. Information
-					enumerated is A, AAAA, NS and MX Records for the given domain.
+					The module enumerates basic DNS information for a given domain. Information
+					enumerated is A, AAAA, NS and MX records for the given domain.
 			},
 			'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
 			'License'		=> BSD_LICENSE
@@ -26,14 +26,14 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('DOMAIN', [ true, "The target domain name"]),
-				OptAddress.new('NS', [ false, "Specify the nameserver to use for queries, otherwise use the system DNS" ]),
+				OptAddress.new('NS', [ false, "Specify the name server to use for queries, otherwise use the system configured DNS Server is used." ]),
 
 			], self.class)
 
 		register_advanced_options(
 			[
-				OptInt.new('RETRY', [ false, "Number of times to try to resolve a record if no response is received", 2]),
-				OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry", 2]),
+				OptInt.new('RETRY', [ false, "Number of tries to resolve a record if no response is received.", 2]),
+				OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry.", 2]),
 			], self.class)
 	end
 
@@ -98,9 +98,9 @@ class Metasploit3 < Msf::Auxiliary
 		rendsub = rand(10000).to_s
 		query = @res.query("#{rendsub}.#{target}", "A")
 		if query.answer.length != 0
-			print_status("This Domain has Wildcards Enabled!!")
+			print_status("This Domain has Wild-cards Enabled!!")
 			query.answer.each do |rr|
-				print_status("Wildcard IP for #{rendsub}.#{target} is: #{rr.address.to_s}") if rr.class != Net::DNS::RR::CNAME
+				print_status("Wild-card IP for #{rendsub}.#{target} is: #{rr.address.to_s}") if rr.class != Net::DNS::RR::CNAME
 				report_note(:host => datastore['DOMAIN'],
 							:proto => 'UDP',
 							:port => 53,
@@ -228,7 +228,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	#---------------------------------------------------------------------------------
 	def switchdns()
-		print_status("Using DNS Server: #{datastore['NS']}")
+		print_status("Using DNS server: #{datastore['NS']}")
 		@res.nameserver=(datastore['NS'])
 		@nsinuse = datastore['NS']
 	end
