@@ -14,9 +14,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'		   => 'DNS Reverse Lookup',
+			'Name'		   => 'DNS service record lookup',
 			'Description'	=> %q{
-					The module enumerates common DNS Service Records.
+					The module enumerates common DNS service records.
 			},
 			'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
 			'License'		=> BSD_LICENSE
