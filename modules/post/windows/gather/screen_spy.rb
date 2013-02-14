@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Post
 				end
 				system(cmd) if cmd
 			end
-		rescue IOError => e
+		rescue IOError, Errno::ENOENT => e
 			print_error("Error storing screenshot: #{e.class} #{e} #{e.backtrace}")
 			return
 		end
