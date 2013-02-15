@@ -14,43 +14,41 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'		   => 'DNS Host and Subdomain Brutefoce',
+			'Name'		   => 'DNS Brutefoce Enumeration',
 			'Description'	=> %q{
-					This module uses a dictionary to perform a bruteforce on hostnames and subdomains
-					available under a given domain.
+					This module uses a dictionary to perform a bruteforce attack to enumerate
+				hostnames and subdomains available under a given domain.
 			},
 			'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
 			'License'		=> BSD_LICENSE
-			))
+		))
 
 		register_options(
 			[
 				OptString.new('DOMAIN', [ true, "The target domain name"]),
 				OptAddress.new('NS', [ false, "Specify the name server to use for queries, otherwise use the system DNS" ]),
-				OptPath.new('WORDLIST', [ false, "Wordlist file for domain name brute force.",
-							File.join(Msf::Config.install_root, "data", "wordlists", "namelist.txt")]),
-
+				OptPath.new('WORDLIST', [ true, "Wordlist file for domain name brute force.",
+							File.join(Msf::Config.install_root, "data", "wordlists", "namelist.txt")])
 			], self.class)
 
 		register_advanced_options(
 			[
 				OptInt.new('RETRY', [ false, "Number of tries to resolve a record if no response is received.", 2]),
 				OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry.", 2]),
-				OptInt.new('THREADS', [ false, "Number of threads", 1]),
+				OptInt.new('THREADS', [ true, "Number of threads", 1])
 			], self.class)
 	end
 
 	def run
 		print_status("Enumerating #{datastore['DOMAIN']}")
 		@res = Net::DNS::Resolver.new()
-		@res.retry = datastore['RETRY'].to_i
-		@res.retry_interval = datastore['RETRY_INTERVAL'].to_i
+		@res.retry = datastore['RETRY'].to_i unless datastore['RETRY'].nil?
+		@res.retry_interval = datastore['RETRY_INTERVAL'].to_i unless datastore['RETRY_INTERVAL'].nil?
 		wildcard(datastore['DOMAIN'])
-		switchdns() if not datastore['NS'].nil?
+		switchdns() unless datastore['NS'].nil?
 		dnsbrt(datastore['DOMAIN'])
 	end
 
-	#---------------------------------------------------------------------------------
 	def wildcard(target)
 		rendsub = rand(10000).to_s
 		query = @res.query("#{rendsub}.#{target}", "A")
@@ -65,7 +63,6 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-	#---------------------------------------------------------------------------------
 	def get_ip(host)
 		results = []
 		query = @res.search(host, "A")
@@ -99,7 +96,6 @@ class Metasploit3 < Msf::Auxiliary
 		return results
 	end
 
-	#---------------------------------------------------------------------------------
 	def switchdns()
 		print_status("Using DNS server: #{datastore['NS']}")
 		@res.nameserver=(datastore['NS'])
@@ -119,7 +115,7 @@ class Metasploit3 < Msf::Auxiliary
 					Thread.current.kill if not testf
 					vprint_status("Testing #{testf}.#{domain}")
 					get_ip("#{testf}.#{domain}").each do |i|
-						print_good("#{i[:host]} #{i[:address]}")
+						print_good("Host #{i[:host]} with address #{i[:address]} found")
 						report_host(
 							:host => i[:address].to_s,
 							:name => i[:host].gsub(/\.$/,'')
