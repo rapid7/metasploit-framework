@@ -60,8 +60,10 @@ class Metasploit4 < Msf::Auxiliary
 
 		print_status("#{@peer} - Connecting to SiteScope SOAP Interface")
 
+		uri = normalize_uri(@uri, 'services/APISiteScopeImpl')
+
 		res = send_request_cgi({
-			'uri'     => "#{@uri}services/APISiteScopeImpl",
+			'uri'     => uri,
 			'method'  => 'GET'})
 
 		if not res
@@ -91,8 +93,10 @@ class Metasploit4 < Msf::Auxiliary
 
 		print_status("#{@peer} - Retrieving the SiteScope Configuration")
 
+		uri = normalize_uri(@uri, 'services/APISiteScopeImpl')
+
 		res = send_request_cgi({
-			'uri'      => "#{@uri}services/APISiteScopeImpl",
+			'uri'      => uri,
 			'method'   => 'POST',
 			'ctype'    => 'text/xml; charset=UTF-8',
 			'data'     => data,
