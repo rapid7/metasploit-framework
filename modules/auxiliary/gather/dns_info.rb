@@ -14,9 +14,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'		   => 'DNS Base Information',
+			'Name'		   => 'DNS Basic Information',
 			'Description'	=> %q{
-					The module enumerates basic DNS information for a given domain. Information
+					This module enumerates basic DNS information for a given domain. Information
 					enumerated is A, AAAA, NS and MX records for the given domain.
 			},
 			'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
