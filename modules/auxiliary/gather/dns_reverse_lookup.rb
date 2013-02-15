@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'		   => 'DNS Reverse Lookup Enumeration Module',
+			'Name'		   => 'DNS Reverse Lookup Enumeration',
 			'Description'	=> %q{
 					This module performs a reverse rookup against a given IP range.
 			},
