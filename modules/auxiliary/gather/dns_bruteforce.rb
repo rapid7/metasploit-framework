@@ -14,9 +14,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'		   => 'DNS host and subdomain brutefoce module',
+			'Name'		   => 'DNS Host and Subdomain Brutefoce Module',
 			'Description'	=> %q{
-					The module uses a dictionary to perform a bruteforce on hostnames and subdomains
+					This module uses a dictionary to perform a bruteforce on hostnames and subdomains
 					available under a given domain.
 			},
 			'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
