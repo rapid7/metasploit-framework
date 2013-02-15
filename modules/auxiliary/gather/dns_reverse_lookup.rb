@@ -16,24 +16,24 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'		   => 'DNS Reverse Lookup Enumeration',
 			'Description'	=> %q{
-					This module performs a reverse rookup against a given IP range.
+					This module performs DNS reverse lookup against a given IP range in order to
+				retrieve valid addresses and names.
 			},
 			'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
 			'License'		=> BSD_LICENSE
-			))
+		))
 
 		register_options(
 			[
-				OptAddressRange.new('RANGE', [true, 'IP range to perform reverse lookup against.', nil]),
-				OptAddress.new('NS', [ false, "Specify the nameserver to use for queries, otherwise use the system DNS." ]),
-
+				OptAddressRange.new('RANGE', [true, 'IP range to perform reverse lookup against.']),
+				OptAddress.new('NS', [ false, "Specify the nameserver to use for queries, otherwise use the system DNS." ])
 			], self.class)
 
 		register_advanced_options(
 			[
 				OptInt.new('RETRY', [ false, "Number of tries to resolve a record if no response is received.", 2]),
 				OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry.", 2]),
-				OptInt.new('THREADS', [ true, "Number of seconds to wait before doing a retry.", 2]),
+				OptInt.new('THREADS', [ true, "The number of concurrent threads.", 1])
 			], self.class)
 	end
 
@@ -49,11 +49,10 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		@threadnum = datastore['THREADS'].to_i
-		switchdns() if not datastore['NS'].nil?
+		switchdns() unless datastore['NS'].nil?
 		reverselkp(datastore['RANGE'])
 	end
 
-	#-------------------------------------------------------------------------------
 	def reverselkp(iprange)
 		print_status("Running reverse lookup against IP range #{iprange}")
 		ar = Rex::Socket::RangeWalker.new(iprange)
@@ -67,11 +66,10 @@ class Metasploit3 < Msf::Auxiliary
 					begin
 						query = @res.query(tip)
 						query.each_ptr do |addresstp|
-							print_status("Host Name: #{addresstp} IP Address: #{tip.to_s}")
-
+							print_status("Host Name: #{addresstp}, IP Address: #{tip.to_s}")
 							report_host(
-							:host => tip.to_s,
-							:name => addresstp
+								:host => tip.to_s,
+								:name => addresstp
 							)
 						end
 					rescue ::Interrupt
@@ -91,7 +89,6 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-	#---------------------------------------------------------------------------------
 	def switchdns()
 		print_status("Using DNS server: #{datastore['NS']}")
 		@res.nameserver=(datastore['NS'])
