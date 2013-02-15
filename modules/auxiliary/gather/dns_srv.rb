@@ -16,7 +16,12 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'		   => 'DNS Common Service Record Enumeration',
 			'Description'	=> %q{
-					This module enumerates common DNS service records.
+					This module enumerates common DNS service records in a given domain. By setting
+				the ALL_DNS to true, all the name servers of a given domain are used for
+				enumeration. Otherwise only the system dns is used for enumration. in order to get
+				all the available name servers for the given domain the SOA and NS records are
+				queried. In order to convert from domain names to IP addresses queries for A and
+				AAAA (IPv6) records are used.
 			},
 			'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
 			'License'		=> BSD_LICENSE
@@ -25,13 +30,13 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('DOMAIN', [ true, "The target domain name."]),
-				OptBool.new(  'ALL_NS', [ false, "Run against all name servers for the given domain.",false]),
+				OptBool.new(  'ALL_NS', [ false, "Run against all name servers for the given domain.",false])
 			], self.class)
 
 		register_advanced_options(
 			[
-				OptInt.new('RETRY', [ false, "Number of times to try to resolve a record if no response is received.", 3]),
-				OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry.", 4]),
+				OptInt.new('RETRY', [ false, "Number of times to try to resolve a record if no response is received.", 2]),
+				OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry.", 2])
 			], self.class)
 	end
 
@@ -61,6 +66,10 @@ class Metasploit3 < Msf::Auxiliary
 		records.uniq!
 		records.each do |r|
 			print_good("Host: #{r[:host]} IP: #{r[:address].to_s} Service: #{r[:service]} Protocol: #{r[:proto]} Port: #{r[:port]}")
+			report_host(
+				:host => r[:address].to_s,
+				:name => r[:host]
+			)
 			report_service(
 				:host=> r[:address].to_s,
 				:port => r[:port].to_i,
@@ -68,39 +77,34 @@ class Metasploit3 < Msf::Auxiliary
 				:name => r[:service],
 				:host_name => r[:host]
 			)
-			report_host(
-				:host => r[:address].to_s,
-				:name => r[:host]
-			)
 		end
 
 	end
-	#---------------------------------------------------------------------------------
+
 	def get_soa(target)
 		results = []
 		query = @res.query(target, "SOA")
-		if (query)
-			(query.answer.select { |i| i.class == Net::DNS::RR::SOA}).each do |rr|
-				if Rex::Socket.dotted_ip?(rr.mname)
+		return results if not query
+		(query.answer.select { |i| i.class == Net::DNS::RR::SOA}).each do |rr|
+			if Rex::Socket.dotted_ip?(rr.mname)
+				record = {}
+				record[:host] = rr.mname
+				record[:type] = "SOA"
+				record[:address] = rr.mname
+				results << record
+			else
+				get_ip(rr.mname).each do |ip|
 					record = {}
-					record[:host] = rr.mname
+					record[:host] = rr.mname.gsub(/\.$/,'')
 					record[:type] = "SOA"
-					record[:address] = rr.mname
+					record[:address] = ip[:address].to_s
 					results << record
-				else
-					get_ip(rr.mname).each do |ip|
-						record = {}
-						record[:host] = rr.mname.gsub(/\.$/,'')
-						record[:type] = "SOA"
-						record[:address] = ip[:address].to_s
-						results << record
-					end
 				end
 			end
 		end
 		return results
 	end
-	#-------------------------------------------------------------------------------
+
 	def srvqry(dom)
 		results = []
 		#Most common SRV Records
@@ -127,36 +131,35 @@ class Metasploit3 < Msf::Auxiliary
 			begin
 
 				query = @res.query(trg , Net::DNS::SRV)
-				if query
-					query.answer.each do |srv|
-						if Rex::Socket.dotted_ip?(srv.host)
+				next unless query
+				query.answer.each do |srv|
+					if Rex::Socket.dotted_ip?(srv.host)
+						record = {}
+						srv_info = srvt.scan(/^_(\S*)\._(tcp|udp)\./)[0]
+						record[:host] = srv.host.gsub(/\.$/,'')
+						record[:type] = "SRV"
+						record[:address] = srv.host
+						record[:srv] = srvt
+						record[:service] = srv_info[0]
+						record[:proto] = srv_info[1]
+						record[:port] = srv.port
+						record[:priority] = srv.priority
+						results << record
+						vprint_status("SRV Record: #{trg} Host: #{srv.host.gsub(/\.$/,'')} IP: #{srv.host} Port: #{srv.port} Priority: #{srv.priority}")
+					else
+						get_ip(srv.host.gsub(/\.$/,'')).each do |ip|
 							record = {}
 							srv_info = srvt.scan(/^_(\S*)\._(tcp|udp)\./)[0]
 							record[:host] = srv.host.gsub(/\.$/,'')
 							record[:type] = "SRV"
-							record[:address] = srv.host
+							record[:address] = ip[:address]
 							record[:srv] = srvt
 							record[:service] = srv_info[0]
 							record[:proto] = srv_info[1]
 							record[:port] = srv.port
 							record[:priority] = srv.priority
 							results << record
-							vprint_status("SRV Record: #{trg} Host: #{srv.host.gsub(/\.$/,'')} IP: #{srv.host} Port: #{srv.port} Priority: #{srv.priority}")
-						else
-							get_ip(srv.host.gsub(/\.$/,'')).each do |ip|
-								record = {}
-								srv_info = srvt.scan(/^_(\S*)\._(tcp|udp)\./)[0]
-								record[:host] = srv.host.gsub(/\.$/,'')
-								record[:type] = "SRV"
-								record[:address] = ip[:address]
-								record[:srv] = srvt
-								record[:service] = srv_info[0]
-								record[:proto] = srv_info[1]
-								record[:port] = srv.port
-								record[:priority] = srv.priority
-								results << record
-								vprint_status("SRV Record: #{trg} Host: #{srv.host} IP: #{ip[:address]} Port: #{srv.port} Priority: #{srv.priority}")
-							end
+							vprint_status("SRV Record: #{trg} Host: #{srv.host} IP: #{ip[:address]} Port: #{srv.port} Priority: #{srv.priority}")
 						end
 					end
 				end
@@ -166,7 +169,6 @@ class Metasploit3 < Msf::Auxiliary
 		return results
 	end
 
-	#---------------------------------------------------------------------------------
 	def get_ip(host)
 		results = []
 		query = @res.search(host, "A")
@@ -199,26 +201,24 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		return results
 	end
-	#---------------------------------------------------------------------------------
+
 	def switchdns(ns)
 		vprint_status("Enumerating SRV Records on: #{ns}")
 		@res.nameserver=(ns)
 		@nsinuse = ns
 	end
 
-	#---------------------------------------------------------------------------------
 	def get_ns(target)
 		results = []
 		query = @res.query(target, "NS")
-		if (query)
-			(query.answer.select { |i| i.class == Net::DNS::RR::NS}).each do |rr|
-				get_ip(rr.nsdname).each do |r|
-					record = {}
-					record[:host] = rr.nsdname.gsub(/\.$/,'')
-					record[:type] = "NS"
-					record[:address] = r[:address].to_s
-					results << record
-				end
+		return results if not query
+		(query.answer.select { |i| i.class == Net::DNS::RR::NS}).each do |rr|
+			get_ip(rr.nsdname).each do |r|
+				record = {}
+				record[:host] = rr.nsdname.gsub(/\.$/,'')
+				record[:type] = "NS"
+				record[:address] = r[:address].to_s
+				results << record
 			end
 		end
 		return results
