@@ -27,9 +27,9 @@ class Metasploit3 < Msf::Auxiliary
 
 					Affects Devise < v2.2.3, 2.1.3, 2.0.5 and 1.5.4 when backed by any database
 					except PostgreSQL or SQLite3. Tested with v2.2.2, 2.1.2, and 2.0.4 on Rails
-					3.2.11. Patch applied to Rails 3.2.12 should prevent exploitation of this
-					vulnerability, by quoting numeric values when comparing them with non numeric
-					values.
+					3.2.11. Patch applied to Rails 3.2.12 and 3.1.11 should prevent exploitation
+					of this vulnerability, by quoting numeric values when comparing them with
+					non numeric values.
 				},
 			'Author'        =>
 				[
@@ -44,7 +44,8 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'BID', '57577' ],
 					[ 'URL', 'http://blog.plataformatec.com.br/2013/01/security-announcement-devise-v2-2-3-v2-1-3-v2-0-5-and-v1-5-3-released/'],
 					[ 'URL', 'http://www.phenoelit.org/blog/archives/2013/02/05/mysql_madness_and_rails/index.html'],
-					[ 'URL', 'https://github.com/rails/rails/commit/921a296a3390192a71abeec6d9a035cc6d1865c8' ]
+					[ 'URL', 'https://github.com/rails/rails/commit/921a296a3390192a71abeec6d9a035cc6d1865c8' ],
+					[ 'URL', 'https://github.com/rails/rails/commit/26e13c3ca71cbc7859cc4c51e64f3981865985d8']
 				],
 			'DisclosureDate' => 'Jan 28 2013'
 		))
