@@ -75,18 +75,18 @@ Once that's done, you can set up your preferred editor. Far be it from us to tel
 First, get vim, your usual way. Vim-gnome is a pretty safe bet.
 
 ````bash
-apt-get install vim-gnome -y
+$ sudo apt-get install vim-gnome -y
 ````
 
 Next, get Janus. Janus is a set of super-useful plugins and conveniences for Vim. You can read up on it here: https://github.com/carlhuda/janus . Or, again, just trust that Things Will Be Fine, and:
 
 ````bash
-curl -Lo- https://bit.ly/janus-bootstrap | bash
+$ curl -Lo- https://bit.ly/janus-bootstrap | bash
 ````
 
 This will checkout a version of Janus (using Git) to your ~/.vim directory. Yep, you now have a git repo in one of your more important dot-directories.
 
-Finally, I have a very small set of defaults, here: https://gist.github.com/4658778 . Drop this in your `~/.vimrc.after` file. Note, the important bit is our slightly wacky use of hard tabs, as proscribed in the [HACKING](https://github.com/rapid7/metasploit-framework/blob/master/HACKING) guide.
+Finally, I have a very small set of defaults, here: https://gist.github.com/4658778 . Drop this in your `~/.vimrc.after` file. Note, the important bit is our slightly wacky use of hard tabs, as prescribed in the [HACKING](https://github.com/rapid7/metasploit-framework/blob/master/HACKING) guide.
 
 *TODO: Add Rubymine docs, add screenshots for this*
 
