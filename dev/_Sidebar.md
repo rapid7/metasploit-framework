@@ -10,6 +10,7 @@
 * [Setting your Prompt](#prompt)
 * [Keeping in Sync](#sync)
 * [Pull Requests](#pull)
+* [Rspec Tests](#rspec)
 
 <br>
 
