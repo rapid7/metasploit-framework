@@ -368,7 +368,7 @@ Note that Git branches are cheap (nearly free, in terms of disk space), so this 
 
 <h2 id="rspec">Rspec Tests</h2>
 
-We are slowly lurching toward a normal testing environment, and will be requiring spec tests for changes to the framework soon. To get in the habit now, run the standard set of tests against your local Metasploit branch. First, make sure you have all the gems installed, then run the `rake spec` task.
+We are slowly lurching toward a normal testing environment, and will soon be requiring spec tests to validate changes to the framework. To get in the habit now, run the standard set of tests against your local Metasploit branch. First, make sure you have all the gems installed, then run the `rake spec` task.
 
 ````
 $ gem bundle install
