@@ -20,7 +20,8 @@ $ sudo apt-get -y install \
   libssl-dev libyaml-dev openssl autoconf libtool \
   ncurses-dev bison curl wget postgresql \
   postgresql-contrib libpq-dev \
-  libapr1 libaprutil1 libsvn1
+  libapr1 libaprutil1 libsvn1 \
+  libpcap-dev
 ````
 
 Note that this does **not** include an appropriate text editor or IDE, nor does it include the Ruby interpreter. We'll get to that in a second.
