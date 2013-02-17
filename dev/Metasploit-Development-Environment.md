@@ -366,6 +366,19 @@ Note that Git branches are cheap (nearly free, in terms of disk space), so this 
 
 ***
 
+### Testing
+
+We are slowly lurching toward a normal testing environment, and will be requiring spec tests for changes to the framework soon. To get in the habit now, run the standard set of tests against your local Metasploit branch. First, make sure you have all the gems installed, then run the `rake spec` task.
+
+````
+$ gem bundle install
+$ rake spec # Do this in the top-level Metasploit root
+````
+
+For more on rpsec (which is the de-facto testing standard for Ruby projects), see http://rspec.info/ . To add tests, drop them someplace sensible in the `spec` directory, and name your tests `whatever_spec.rb`. 
+
+Adding rspec tests with your functional changes significantly increases your chances of getting your pull request landed in a timely manner.
+
 ## Thanks and Feedback
 
 First off, thanks to [@corelanc0d3r](https://github.com/corelanc0d3r) for articulating much of this. If you have suggestions for this wiki, please let [@todb-r7](https://github.com/todb-r7) know.
