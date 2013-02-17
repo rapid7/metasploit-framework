@@ -22,9 +22,7 @@ module Auxiliary::HttpCrawler
 				Opt::Proxies,
 				OptInt.new('MAX_PAGES', [ true, 'The maximum number of pages to crawl per URL', 500]),
 				OptInt.new('MAX_MINUTES', [ true, 'The maximum number of minutes to spend on each URL', 5]),
-				OptInt.new('MAX_THREADS', [ true, 'The maximum number of concurrent requests', 4]),
-				OptString.new('USERNAME', [false, 'The HTTP username to specify for authentication']),
-				OptString.new('PASSWORD', [false, 'The HTTP password to specify for authentication'])
+				OptInt.new('MAX_THREADS', [ true, 'The maximum number of concurrent requests', 4])
 			], self.class
 		)
 
@@ -36,6 +34,8 @@ module Auxiliary::HttpCrawler
 				OptString.new('UserAgent', [true, 'The User-Agent header to use for all requests',
 					"Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 				]),
+				OptString.new('BasicAuthUser', [false, 'The HTTP username to specify for basic authentication']),
+				OptString.new('BasicAuthPass', [false, 'The HTTP password to specify for basic authentication']),
 				OptString.new('HTTPAdditionalHeaders', [false, "A list of additional headers to send (separated by \\x01)"]),
 				OptString.new('HTTPCookie', [false, "A HTTP cookie header to send with each request"]),
 				OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', false]),
@@ -118,9 +118,8 @@ module Auxiliary::HttpCrawler
 			:info     => ""
 		})
 
-		if datastore['USERNAME'] and datastore['USERNAME'] != ''
-			t[:username] = datastore['USERNAME'].to_s
-			t[:password] = datastore['PASSWORD'].to_s
+		if datastore['BasicAuthUser']
+			t[:http_basic_auth] = [ "#{datastore['BasicAuthUser']}:#{datastore['BasicAuthPass']}" ].pack("m*").gsub(/\s+/, '')
 		end
 
 		if datastore['HTTPCookie']
@@ -279,8 +278,9 @@ module Auxiliary::HttpCrawler
 			opts[:cookies] = t[:cookies]
 		end
 
-		opts[:username] = t[:username] || ''
-		opts[:password] =t[:password] || ''
+		if t[:http_basic_auth]
+			opts[:http_basic_auth] = t[:http_basic_auth]
+		end
 
 		opts
 	end

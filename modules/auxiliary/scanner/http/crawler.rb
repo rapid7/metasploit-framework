@@ -21,6 +21,9 @@ class Metasploit3 < Msf::Auxiliary
 			'License'     => MSF_LICENSE
 		)
 
+		register_advanced_options([
+			OptString.new('ExcludePathPatterns', [false, 'Newline-separated list of path patterns to ignore (\'*\' is a wildcard)']),
+		])
 		@for_each_page_blocks = []
 	end
 
@@ -30,6 +33,17 @@ class Metasploit3 < Msf::Auxiliary
 		page.links
 	end
 =end
+
+	# Overrides Msf::Auxiliary::HttpCrawler#get_link_filter to add
+	# datastore['ExcludePathPatterns']
+	def get_link_filter
+		return super if datastore['ExcludePathPatterns'].to_s.empty?
+
+		patterns = opt_patterns_to_regexps( datastore['ExcludePathPatterns'].to_s )
+		patterns = patterns.map { |r| "(#{r.source})" }
+
+		Regexp.new( [["(#{super.source})"] | patterns].join( '|' ) )
+	end
 
 	def run
 		super
@@ -163,31 +177,34 @@ class Metasploit3 < Msf::Auxiliary
 					end
 				end
 
-				form = {}.merge!(form_template)
-				form[:method] = (f['method'] || 'GET').upcase
-				form[:query]  = target.query.to_s if form[:method] != "GET"
-				form[:path]   = target.path
-				form[:params] = []
-				f.css('input', 'textarea').each do |inp|
-					form[:params] << [inp['name'].to_s, inp['value'] || inp.content || '', { :type => inp['type'].to_s }]
-				end
-
-				f.css( 'select' ).each do |s|
-					value = nil
-
-					# iterate over each option to find the default value (if there is a selected one)
-					s.children.each do |opt|
-						ov = opt['value'] || opt.content
-						value = ov if opt['selected']
+				# skip this form if it matches exclusion criteria
+				if !(target.to_s =~ get_link_filter)
+					form = {}.merge!(form_template)
+					form[:method] = (f['method'] || 'GET').upcase
+					form[:query]  = target.query.to_s if form[:method] != "GET"
+					form[:path]   = target.path
+					form[:params] = []
+					f.css('input', 'textarea').each do |inp|
+						form[:params] << [inp['name'].to_s, inp['value'] || inp.content || '', { :type => inp['type'].to_s }]
 					end
 
-					# set the first one as the default value if we don't already have one
-					value ||= s.children.first['value'] || s.children.first.content rescue ''
+					f.css( 'select' ).each do |s|
+						value = nil
 
-					form[:params] << [ s['name'].to_s, value.to_s, [ :type => 'select'] ]
+						# iterate over each option to find the default value (if there is a selected one)
+						s.children.each do |opt|
+							ov = opt['value'] || opt.content
+							value = ov if opt['selected']
+						end
+
+						# set the first one as the default value if we don't already have one
+						value ||= s.children.first['value'] || s.children.first.content rescue ''
+
+						form[:params] << [ s['name'].to_s, value.to_s, [ :type => 'select'] ]
+					end
+
+					forms << form
 				end
-
-				forms << form
 			end
 		end
 
@@ -251,5 +268,15 @@ class Metasploit3 < Msf::Auxiliary
 
 		form[:method] ? form : nil
 	end
+
+	private
+	def opt_patterns_to_regexps( patterns )
+		magic_wildcard_replacement = Rex::Text.rand_text_alphanumeric( 10 )
+		patterns.to_s.split( /[\r\n]+/).map do |p|
+			Regexp.new '^' + Regexp.escape( p.gsub( '*', magic_wildcard_replacement ) ).
+				gsub( magic_wildcard_replacement, '.*' ) + '$'
+		end
+	end
+
 
 end

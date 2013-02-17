@@ -1,11 +1,11 @@
 package table;
 
-import javax.swing.*; 
-import javax.swing.event.*; 
+import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
 
-import java.awt.*; 
+import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
 
@@ -92,7 +92,7 @@ public class NetworkTable extends JComponent implements ActionListener {
 		table.getColumn("Description").setPreferredWidth(500);
 
 		final TableCellRenderer parent = table.getDefaultRenderer(Object.class);
-		table.setDefaultRenderer(Object.class, new TableCellRenderer() {
+		final TableCellRenderer phear  = new TableCellRenderer() {
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
 				JLabel component = (JLabel)parent.getTableCellRendererComponent(table, value, isSelected, false, row, col);
 
@@ -111,9 +111,15 @@ public class NetworkTable extends JComponent implements ActionListener {
 				if (tip.length() > 0) {
 					component.setToolTipText(tip);
 				}
+
 				return component;
 			}
-		});
+		};
+
+		table.getColumn("Address").setCellRenderer(phear);
+		table.getColumn("Label").setCellRenderer(phear);
+		table.getColumn("Description").setCellRenderer(phear);
+		table.getColumn("Pivot").setCellRenderer(phear);
 
 		table.getColumn(" ").setCellRenderer(new TableCellRenderer() {
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
