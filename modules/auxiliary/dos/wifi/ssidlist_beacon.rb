@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -33,8 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 
 			'Author'         => [ 'joswr1ght', 'hdm' ],
-			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$'
+			'License'        => MSF_LICENSE
 		))
 		register_options(
 			[

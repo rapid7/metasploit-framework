@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -25,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'HTTP Client Automatic Exploiter',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module has three actions.  The first (and the default)
 				is 'WebServer' which uses a combination of client-side and

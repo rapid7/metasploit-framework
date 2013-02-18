@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -25,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP Robots.txt Content Scanner',
-			'Version'     => '$Revision$',
 			'Description' => 'Detect robots.txt files and analize its content',
 			'Author'       => ['et'],
 			'License'     => MSF_LICENSE
@@ -41,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(target_host)
 
-		tpath = datastore['PATH']
+		tpath = normalize_uri(datastore['PATH'])
 		if tpath[-1,1] != '/'
 			tpath += '/'
 		end

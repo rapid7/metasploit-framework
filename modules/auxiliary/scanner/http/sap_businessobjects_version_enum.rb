@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -22,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'		   => 'SAP BusinessObjects Version Detection',
-			'Version'		=> '$Revision$',
 			'Description'	=> 'This module simply attempts to identify the version of SAP BusinessObjects.',
 			'References'  =>
 				[
@@ -48,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		res = send_request_cgi({
-			'uri'    => normalize_uri(datastore['URI']) + "/services/listServices",
+			'uri'    => normalize_uri(datastore['URI'], "/services/listServices"),
 			'method' => 'GET'
 		}, 25)
 		return if not res or res.code != 200

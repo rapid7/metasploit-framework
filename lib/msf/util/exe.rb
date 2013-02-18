@@ -1,21 +1,13 @@
 # -*- coding: binary -*-
-##
-# $Id: exe.rb 14286 2011-11-20 01:41:04Z rapid7 $
-##
 
-###
-#
-# framework-util-exe
-# --------------
+module Msf
+module Util
+
 #
 # The class provides methods for creating and encoding executable file
 # formats for various platforms. It is a replacement for the previous
 # code in Rex::Text
 #
-###
-
-module Msf
-module Util
 class EXE
 
 require 'rex'
@@ -255,8 +247,12 @@ require 'digest/sha1'
 			raise RuntimeError, "The .text section does not contain an entry point"
 		end
 
-		if(text.size < (payload.length + 256))
-			raise RuntimeError, "The .text section is too small to be usable"
+		p_length = payload.length + 256
+		if(text.size < p_length)
+			fname = ::File.basename(opts[:template])
+			msg  = "The .text section for '#{fname}' is too small. "
+			msg << "Minimum is #{p_length.to_s} bytes, your .text section is #{text.size.to_s} bytes"
+			raise RuntimeError, msg
 		end
 
 		# Store some useful offsets
@@ -605,6 +601,7 @@ require 'digest/sha1'
 	end
 
 	# Create an ELF executable containing the payload provided in +code+
+	#
 	# For the default template, this method just appends the payload, checks if
 	# the template is 32 or 64 bit and adjusts the offsets accordingly
 	# For user-provided templates, modifies the header to mark all executable
@@ -1183,8 +1180,9 @@ End Sub
 	# Creates a jar file that drops the provided +exe+ into a random file name
 	# in the system's temp dir and executes it.
 	#
-	# See also: +Msf::Core::Payload::Java+
+	# @see Msf::Payload::Java
 	#
+	# @return [Rex::Zip::Jar]
 	def self.to_jar(exe, opts={})
 		spawn = opts[:spawn] || 2
 		exe_name = Rex::Text.rand_text_alpha(8) + ".exe"
@@ -1201,8 +1199,30 @@ End Sub
 		zip
 	end
 
-	# Creates a Web Archive (WAR) file from the provided jsp code. Additional options
-	# can be provided via  the "opts" hash.
+	# Creates a Web Archive (WAR) file from the provided jsp code.
+	#
+	# On Tomcat, WAR files will be deployed into a directory with the same name
+	# as the archive, e.g. +foo.war+ will be extracted into +foo/+. If the
+	# server is in a default configuration, deoployment will happen
+	# automatically. See
+	# {http://tomcat.apache.org/tomcat-5.5-doc/config/host.html the Tomcat
+	# documentation} for a description of how this works.
+	#
+	# @param jsp_raw [String] JSP code to be added in a file called +jsp_name+
+	#   in the archive. This will be compiled by the victim servlet container
+	#   (e.g., Tomcat) and act as the main function for the servlet.
+	# @param opts [Hash]
+	# @option opts :jsp_name [String] Name of the <jsp-file> in the archive
+	#   _without the .jsp extension_. Defaults to random.
+	# @option opts :app_name [String] Name of the app to put in the <servlet-name>
+	#   tag. Mostly irrelevant, except as an identifier in web.xml. Defaults to
+	#   random.
+	# @option opts :extra_files [Array<String,String>] Additional files to add
+	#   to the archive. First elment is filename, second is data
+	#
+	# @todo Refactor to return a {Rex::Zip::Archive} or {Rex::Zip::Jar}
+	#
+	# @return [String]
 	def self.to_war(jsp_raw, opts={})
 		jsp_name = opts[:jsp_name]
 		jsp_name ||= Rex::Text.rand_text_alpha_lower(rand(8)+8)
@@ -1243,9 +1263,15 @@ End Sub
 		return zip.pack
 	end
 
-	# Creates a Web Archive (WAR) file containing a jsp page and hexdump of a payload.
-	# The jsp page converts the hexdump back to a normal .exe file and places it in
-	# the temp directory. The payload .exe file is then executed.
+	# Creates a Web Archive (WAR) file containing a jsp page and hexdump of a
+	# payload.  The jsp page converts the hexdump back to a normal binary file
+	# and places it in the temp directory. The payload file is then executed.
+	#
+	# @see to_war
+	# @param exe [String] Executable to drop and run.
+	# @param opts (see to_war)
+	# @option opts (see to_war)
+	# @return (see to_war)
 	def self.to_jsp_war(exe, opts={})
 
 		# begin <payload>.jsp

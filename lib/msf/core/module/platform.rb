@@ -340,6 +340,14 @@ class Msf::Module::Platform
 	end
 
 	#
+	# Ruby
+	#
+	class Ruby < Msf::Module::Platform
+		Rank = 100
+		Alias = "ruby"
+	end
+
+	#
 	# Linux
 	#
 	class Linux < Msf::Module::Platform
@@ -471,4 +479,20 @@ class Msf::Module::Platform
 		Rank = 100
 		Alias = "php"
 	end
+
+        #
+        # JavaScript
+        #
+        class JavaScript < Msf::Module::Platform
+                Rank = 100
+                Alias = "js"
+        end
+
+        #
+        # Python
+        #
+        class Python < Msf::Module::Platform
+                Rank = 100
+                Alias = "python"
+        end
 end

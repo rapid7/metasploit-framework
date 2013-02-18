@@ -54,7 +54,7 @@ class Metasploit4 < Msf::Auxiliary
 
 	def run_host(ip)
 		@peer = "#{rhost}:#{rport}"
-		@uri = target_uri.path
+		@uri = normalize_uri(target_uri.path)
 		@uri << '/' if @uri[-1,1] != '/'
 
 		print_status("#{@peer} - Connecting to SiteScope SOAP Interface")

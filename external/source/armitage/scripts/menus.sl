@@ -52,6 +52,30 @@ sub host_selected_items {
 			item($i, '1. 95/98/2000', '1', setHostValueFunction($2, "os_name", "Micosoft Windows", "os_flavor", "2000"));
 			item($i, '2. XP/2003', '2', setHostValueFunction($2, "os_name", "Microsoft Windows", "os_flavor", "XP"));
 			item($i, '3. Vista/7', '3', setHostValueFunction($2, "os_name", "Microsoft Windows", "os_flavor", "Vista"));
+			item($i, '4. 8/RT', '4', setHostValueFunction($2, "os_name", "Microsoft Windows", "os_flavor", "8"));
+
+		item($h, "Set Label...", 'S', lambda({
+			# calculate preexisting label to prompt with
+			local('$label %l $host');
+
+			# get a label
+			foreach $host ($hosts) {
+				if ($label eq "") {
+					$label = getHostLabel($host);
+				}
+			}
+
+			# ask for a label 
+			$label = ask("Set label to:", $label);
+			if ($label !is $null) {
+				foreach $host ($hosts) {
+					%l[$host] = ["$label" trim];
+				}
+				call_async($mclient, "db.report_labels", %l);
+			}
+		}, $hosts => $2));
+
+		separator($h);
 
 		item($h, "Remove Host", 'R', clearHostFunction($2));
 }
@@ -95,9 +119,12 @@ sub view_items {
 sub armitage_items {
 	local('$m');
 
-	item($1, 'Preferences', 'P', &createPreferencesTab);
-
+	item($1, 'New Connection', 'N', {
+		[new armitage.ArmitageMain: cast(@ARGV, ^String), $__frame__, $null];
+	});
 	separator($1);
+
+	item($1, 'Preferences', 'P', &createPreferencesTab);
 
 	dynmenu($1, 'Set Target View', 'S', {
 		local('$t1 $t2');
@@ -159,12 +186,13 @@ sub armitage_items {
 
 	separator($1);
 
-	item($1, 'Exit', 'x', { 
+	item($1, 'Close', 'C', { 
 		if ($msfrpc_handle !is $null) {
 			closef($msfrpc_handle);
 		}
 
-		[System exit: 0]; 
+		map({ closef($1); }, @CLOSEME);
+		[$__frame__ quit];
 	});
 
 }
@@ -222,7 +250,7 @@ sub help_items {
 		
 		[$dialog add: $label, [BorderLayout CENTER]];
 		[$dialog pack];
-		[$dialog setLocationRelativeTo: $null];
+		[$dialog setLocationRelativeTo: $__frame__];
 		[$dialog setVisible: 1];
 	});
 }

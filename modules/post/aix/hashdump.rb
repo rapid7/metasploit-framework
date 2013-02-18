@@ -1,6 +1,3 @@
-# $Id$
-##
-
 ##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
@@ -27,7 +24,6 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{ Post Module to dump the password hashes for all users on an AIX System},
 				'License'       => MSF_LICENSE,
 				'Author'        => ['theLightCosine'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'aix' ],
 				'SessionTypes'  => [ 'shell' ]
 			))

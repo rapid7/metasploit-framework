@@ -151,6 +151,11 @@ sub createConsoleTab {
 }
 
 sub setg {
+	# update team server's understanding of LHOST
+	if ($1 eq "LHOST") {
+		call_async($client, "armitage.set_ip", $2);
+	}
+
 	%MSF_GLOBAL[$1] = $2;
 	local('$c');
 	$c = createConsole($client);
@@ -159,12 +164,15 @@ sub setg {
 }
 
 sub createDefaultHandler {
-	warn("Creating a default reverse handler...");
 	# setup a handler for meterpreter
-	setg("LPORT", randomPort());
+	local('$port');
+	$port = randomPort();
+	setg("LPORT", $port);
+	warn("Creating a default reverse handler... 0.0.0.0: $+ $port");
 	call_async($client, "module.execute", "exploit", "multi/handler", %(
 		PAYLOAD => "windows/meterpreter/reverse_tcp",
 		LHOST => "0.0.0.0",
+		LPORT => $port,
 		ExitOnSession => "false"
 	));
 }
@@ -294,6 +302,11 @@ sub startMetasploit {
 					[System exit: 0];
 				}
 
+				# if the user chooses c:\metasploit AND we're in the 4.5 environment... adjust
+				if (-exists getFileProper($msfdir, "apps", "pro", "msf3")) {
+					$msfdir = getFileProper($msfdir, "apps", "pro");
+				}
+
 				if (charAt($msfdir, -1) ne "\\") {
 					$msfdir = "$msfdir $+ \\";
 				}
@@ -302,7 +315,12 @@ sub startMetasploit {
 				savePreferences();
 			}
 
-			$handle = [SleepUtils getIOHandle: resource("resources/msfrpcd.bat"), $null];
+			if ("*apps*pro*" iswm $msfdir) {
+				$handle = [SleepUtils getIOHandle: resource("resources/msfrpcd_new.bat"), $null];
+			}
+			else {
+				$handle = [SleepUtils getIOHandle: resource("resources/msfrpcd.bat"), $null];
+			}
 			$data = join("\r\n", readAll($handle, -1));
 			closef($handle);
 
@@ -368,7 +386,7 @@ sub connectDialog {
 		$msfrpc_handle = $null;
 	}
 
-	local('$dialog $host $port $ssl $user $pass $button $cancel $start $center $help $helper');
+	local('$dialog $host $port $ssl $user $pass $button $start $center $help $helper');
 	$dialog = window("Connect...", 0, 0);
 	
 	# setup our nifty form fields..
@@ -384,8 +402,6 @@ sub connectDialog {
 
 	$help   = [new JButton: "Help"];
 	[$help setToolTipText: "<html>Use this button to view the Getting Started Guide on the Armitage homepage</html>"];
-
-	$cancel = [new JButton: "Exit"];
 
 	# lay them out
 
@@ -409,9 +425,14 @@ sub connectDialog {
 		($h, $p, $u, $s) = @o;
 
 		[$dialog setVisible: 0];
-		connectToMetasploit($h, $p, $u, $s);
 
-		if ($h eq "127.0.0.1" || $h eq "localhost") {
+		if ($h eq "127.0.0.1" || $h eq "::1" || $h eq "localhost") {
+			if ($__frame__ && [$__frame__ checkLocal]) {
+				showError("You can't connect to localhost twice");
+				[$dialog setVisible: 1];
+				return;
+			}
+
 			try {
 				closef(connect("127.0.0.1", $p, 1000));
 			}
@@ -421,35 +442,31 @@ sub connectDialog {
 				}
 			}
 		}
+
+		connectToMetasploit($h, $p, $u, $s);
 	}, \$dialog, \$host, \$port, \$user, \$pass)];
 
 	[$help addActionListener: gotoURL("http://www.fastandeasyhacking.com/start")];
-
-	[$cancel addActionListener: {
-		[System exit: 0];
-	}];
 
 	[$dialog pack];
 	[$dialog setLocationRelativeTo: $null];
 	[$dialog setVisible: 1];
 }
 
-sub _elog {
+sub elog {
+	local('$2');
 	if ($client !is $mclient) {
+		# $2 can be NULL here. team server will populate it...
 		call_async($mclient, "armitage.log", $1, $2);
 	}
 	else {
+		# since we're not on a team server, no one else will have
+		# overwritten LHOST, so we can trust $MY_ADDRESS to be current
+		if ($2 is $null) {
+			$2 = $MY_ADDRESS;
+		}
 		call_async($client, "db.log_event", "$2 $+ //", $1);
 	}
-}
-
-sub elog {
-	local('$2');
-	if ($2 is $null) {
-		$2 = $MY_ADDRESS;
-	}
-
-	_elog($1, $2);
 }
 
 sub module_execute {
@@ -470,6 +487,15 @@ sub _module_execute {
 		}
 		else {
 			$host = "all";
+		}
+
+		# fix SMBPass and PASSWORD options if necessary...
+		if ("PASSWORD" in $3) {
+			$3['PASSWORD'] = fixPass($3['PASSWORD']);
+		}
+
+		if ("SMBPass" in $3) {
+			$3['SMBPass'] = fixPass($3['SMBPass']);
 		}
 
 		# okie then, let's create a console and execute all of this stuff...	
@@ -607,3 +633,8 @@ sub initConsolePool {
 	[$client addHook: "console.release", $pool];
 	[$client addHook: "console.release_and_destroy", $pool];
 }
+
+sub fixPass {
+	return replace(strrep($1, '\\', '\\\\'), '(\p{Punct})', '\\\\$1');
+}
+
