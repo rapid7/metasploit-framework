@@ -8,8 +8,6 @@ require 'rex/proto/ntlm/constants'
 require 'rex/proto/ntlm/utils'
 require 'rex/proto/ntlm/exceptions'
 
-require 'pry'
-
 module Rex
 module Proto
 module Http
@@ -171,62 +169,27 @@ class Client
 	#
 	# @return [Request]
 	def request_raw(opts={})
-		c_ag   = opts['agent']      || config['agent']
-		c_auth = opts['basic_auth'] || config['basic_auth'] || ''
-		c_body = opts['data']       || ''
-		c_conn = opts['connection']
-		c_cook = opts['cookie']     || config['cookie']
-		c_enc  = opts['encode']     || false
-		c_head = opts['headers']    || config['headers'] || {}
-		c_host = opts['vhost']      || config['vhost'] || self.hostname
-		c_meth = opts['method']     || 'GET'
-		c_prot = opts['proto']      || 'HTTP'
-		c_qs   = opts['query']
-		c_rawh = opts['raw_headers']|| config['raw_headers'] || ''
-		c_uri  = opts['uri']        || '/'
-		c_vers = opts['version']    || config['version'] || '1.1'
+		opts['agent']             ||= config['agent']
+		opts['basic_auth']     = opts['basic_auth'] || config['basic_auth'] || ''
+		opts['data']                ||= ''
+		opts['uri']                   ||= '/'
+		opts['cookie']            ||= config['cookie']
+		opts['encode']           ||= false
+		opts['headers']          ||= config['headers'] || {}
+		opts['vhost']              ||= config['vhost']
+		opts['method']          ||= 'GET'
+		opts['proto']              ||= 'HTTP'
+		opts['query']              ||= ''
+		opts['raw_headers']  = opts['raw_headers'] || config['raw_headers'] || ''
+		opts['version']            = opts['version']     || config['version'] || '1.1'	
+		opts['cgi']                   =  false
+		opts['port']                = self.port
 
-		# An agent parameter was specified, but so was a header, prefer the header
-		if c_ag and c_head.keys.map{|x| x.downcase }.include?('user-agent')
-			c_ag = nil
+		if opts['basic_auth'] and not opts['authorization']
+			opts['authorization'] = Rex::Text.encode_base64(opts['basic_auth'])
 		end
 
-		uri    = set_uri(c_uri)
-
-		req = ''
-		req << set_method(c_meth)
-		req << set_method_uri_spacer()
-		req << set_uri_prepend()
-		req << (c_enc ? set_encode_uri(uri) : uri)
-
-		if (c_qs)
-			req << '?'
-			req << (c_enc ? set_encode_qs(c_qs) : c_qs)
-		end
-
-		req << set_uri_append()
-		req << set_uri_version_spacer()
-		req << set_version(c_prot, c_vers)
-		req << set_host_header(c_host)
-		req << set_agent_header(c_ag)
-
-		if (c_auth.length > 0)
-			unless c_head['Authorization'] and c_head['Authorization'].include? "Basic"
-				req << set_basic_auth_header(c_auth)
-			end
-		end
-
-		req << set_cookie_header(c_cook)
-		req << set_connection_header(c_conn)
-		req << set_extra_headers(c_head)
-		req << set_raw_headers(c_rawh)
-		req << set_body(c_body)
-
-		request = Request.new
-		request.parse(req)
-		request.options = opts
-
-		request
+		req = ClientRequest.new(opts,self.config)
 	end
 
 
@@ -265,6 +228,10 @@ class Client
 			opts['encode_params'] = true
 		else
 			opts['encode_params'] = false
+		end
+
+		if opts['basic_auth'] and not opts['authorization']
+			opts['authorization'] = Rex::Text.encode_base64(opts['basic_auth'])
 		end
 
 		req = ClientRequest.new(opts,self.config)
@@ -322,7 +289,7 @@ class Client
 	def send_recv(req, t = -1, persist=false)
 		res = _send_recv(req,t,persist)
 		if res and res.code == 401 and res.headers['WWW-Authenticate'] and have_creds?
-			res = send_auth(res, req.options, t, persist)
+			res = send_auth(res, req.opts, t, persist)
 		end
 		res
 	end

@@ -2,6 +2,7 @@
 require 'uri'
 require 'rex/proto/http'
 
+
 module Rex
 module Proto
 module Http
@@ -31,6 +32,8 @@ class ClientRequest
 	attr_accessor :vars_post
 	attr_accessor :version
 
+	attr_reader :opts
+
 	def initialize(opts={}, client_config)
 		@cgi = opts['cgi']
 		@config = client_config
@@ -53,6 +56,7 @@ class ClientRequest
 		@vars_get = opts['vars_get']
 		@vars_post = opts['vars_post']
 		@version = opts['version']
+		@opts = opts
 	end
 
 	def to_s
@@ -156,13 +160,14 @@ class ClientRequest
 	end
 
 	def set_uri
+		uri_str = uri
 		if (config['uri_dir_self_reference'])
-			uri.gsub!('/', '/./')
+			uri_str.gsub!('/', '/./')
 		end
 
 		if (config['uri_dir_fake_relative'])
 			buf = ""
-			uri.split('/').each do |part|
+			uri_str.split('/').each do |part|
 				cnt = rand(8)+2
 				1.upto(cnt) { |idx|
 					buf << "/" + Rex::Text.rand_text_alphanumeric(rand(32)+1)
@@ -170,17 +175,17 @@ class ClientRequest
 				buf << ("/.." * cnt)
 				buf << "/" + part
 			end
-			uri = buf
+			uri_str = buf
 		end
 
 		if (config['uri_full_url'])
 			url = self.ssl ? "https" : "http"
 			url << self.config['vhost']
 			url << ((self.port == 80) ? "" : ":#{self.port}")
-			url << uri
+			url << uri_str
 			url
 		else
-			uri
+			uri_str
 		end
 	end
 
