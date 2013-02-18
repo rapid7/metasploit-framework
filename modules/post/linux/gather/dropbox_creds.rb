@@ -101,10 +101,6 @@ class Metasploit3 < Msf::Post
 			print_good("File stored in: #{loot_path.to_s}")
 
 			files.each do |file|
-				if file =~ /hostkeys/ or file =~ /config.dbx/i or file =~ /cookies\.sqlite/
-					print "good"
-				end
-
 				target = "#{path}#{sep}#{file}"
 				if directory?(target)
 					next
