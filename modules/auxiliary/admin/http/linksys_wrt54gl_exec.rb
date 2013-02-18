@@ -136,7 +136,7 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_cgi({
 				'uri'	=> uri,
 				'method' => 'POST',
-				'basic_auth' => "#{pass}:#{pass}",
+				'basic_auth' => "#{user}:#{pass}",
 				#'data' => data_cmd,
 
 				'vars_post' => {

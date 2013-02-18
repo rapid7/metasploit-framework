@@ -84,11 +84,39 @@ public abstract class RpcConnectionImpl implements RpcConnection, Async {
 	}
 
 	protected HashMap locks = new HashMap();
+	protected String  address = "";
+
+	public String getLocalAddress() {
+		return address;
+	}
 
 	/** Adds token, runs command, and notifies logger on call and return */
 	public Object execute(String methodName, Object[] params) throws IOException {
 		if (database != null && "db.".equals(methodName.substring(0, 3))) {
 			return database.execute(methodName, params);
+		}
+		else if (methodName.equals("armitage.ping")) {
+			try {
+				long time = System.currentTimeMillis() - Long.parseLong(params[0] + "");
+
+				HashMap res = new HashMap();
+				res.put("result", time + "");
+				return res;
+			}
+			catch (Exception ex) {
+				HashMap res = new HashMap();
+				res.put("result", "0");
+				return res;
+			}
+		}
+		else if (methodName.equals("armitage.my_ip")) {
+			HashMap res = new HashMap();
+			res.put("result", address);
+			return res;
+		}
+		else if (methodName.equals("armitage.set_ip")) {
+			address = params[0] + "";
+			return new HashMap();
 		}
 		else if (methodName.equals("armitage.lock")) {
 			if (locks.containsKey(params[0] + "")) {

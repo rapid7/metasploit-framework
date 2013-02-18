@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References'  =>
 				[
 					[ 'CVE', '2013-1625' ],
-				],
+				]
 		)
 
 		register_options([Opt::RPORT(31001)], self.class)

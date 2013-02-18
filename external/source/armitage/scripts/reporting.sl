@@ -182,28 +182,21 @@ sub queryData {
 		[$progress setProgress: 30];
 	}
 
-	# 4. clients
-	%r['clients'] = call($mclient, "db.clients")["clients"];
-
-	if ($progress) {
-		[$progress setProgress: 35];
-	}
-
-	# 5. sessions...
+	# 4. sessions...
 	%r['sessions'] = fixSessions(call($mclient, "db.sessions")["sessions"]);
 
 	if ($progress) {
 		[$progress setProgress: 36];
 	}
 
-	# 6. timeline
+	# 5. timeline
 	%r['timeline'] = fixTimeline(call($mclient, "db.events")['events']);
 
 	if ($progress) {
 		[$progress setProgress: 38];
 	}
 
-	# 7. hosts and services
+	# 6. hosts and services
 	local('@hosts @services $temp $h $s $x');
 	call($mclient, "armitage.prep_export", $1);
 
@@ -291,32 +284,27 @@ sub _generateArtifacts {
 
 	[$progress setProgress: 65];
 
-	# 4. clients
-	dumpData("clients", @("host", "created_at", "updated_at", "ua_name", "ua_ver", "ua_string"), %data['clients']);
-
-	[$progress setProgress: 70];
-
-	# 5. hosts
+	# 4. hosts
 	dumpData("hosts", @("address", "mac", "state", "address", "address6", "name", "purpose", "info", "os_name", "os_flavor", "os_sp", "os_lang", "os_match", "created_at", "updated_at"), %data['hosts']);
 
 	[$progress setProgress: 80];
 
-	# 6. services
+	# 5. services
 	dumpData("services", @("host", "port", "state", "proto", "name", "created_at", "updated_at", "info"), %data['services']);
 
 	[$progress setProgress: 90];
 
-	# 7. sessions
+	# 6. sessions
 	dumpData("sessions", @("host", "local_id", "stype", "platform", "via_payload", "via_exploit", "opened_at", "last_seen", "closed_at", "close_reason"), %data['sessions']);
 
 	[$progress setProgress: 93];
 
-	# 8. timeline
+	# 7. timeline
 	dumpData("timeline", @("source", "username", "created_at", "info"), %data['timeline']);
 
 	[$progress setProgress: 96];
 
-	# 9. take a pretty screenshot of the graph view...
+	# 8. take a pretty screenshot of the graph view...
 	[$progress setNote: "host picture :)"];
 
 	makeScreenshot("hosts.png");
@@ -330,7 +318,7 @@ sub _generateArtifacts {
 
 	fire_event_async("user_export", %data);
 
-	return getFileProper(dataDirectory(), formatDate("yyMMdd"), "artifacts");
+	return getFileProper(dataDirectory(), formatDate("yyMMdd"), $DESCRIBE, "artifacts");
 }
 
 #
@@ -368,8 +356,6 @@ sub api_export_data {
 }
 
 sub initReporting {
-	global('$poll_lock @events'); # set in the dserver, not in stand-alone Armitage
-
 	wait(fork({
 		global('$db');
 		[$client addHook: "armitage.export_data", &api_export_data];
