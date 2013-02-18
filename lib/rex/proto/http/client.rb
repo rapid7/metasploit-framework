@@ -8,6 +8,8 @@ require 'rex/proto/ntlm/constants'
 require 'rex/proto/ntlm/utils'
 require 'rex/proto/ntlm/exceptions'
 
+require 'pry'
+
 module Rex
 module Proto
 module Http
@@ -240,103 +242,32 @@ class Client
 	#
 	# @return [Request]
 	def request_cgi(opts={})
-		c_ag    = opts['agent']       || config['agent']
-		c_auth = opts['basic_auth'] || config['basic_auth'] || ''
-		c_body  = opts['data']        || ''
-		c_cgi   = opts['uri']         || '/'
-		c_conn  = opts['connection']
-		c_cook  = opts['cookie']      || config['cookie']
-		c_enc   = opts['encode']      || false
-		c_enc_p = (opts['encode_params'] == true or opts['encode_params'].nil? ? true : false)
-		c_head  = opts['headers']     || config['headers'] || {}
-		c_host  = opts['vhost']       || config['vhost']
-		c_meth  = opts['method']      || 'GET'
-		c_path  = opts['path_info']
-		c_prot  = opts['proto']       || 'HTTP'
-		c_qs    = opts['query']       || ''
-		c_rawh  = opts['raw_headers'] || config['raw_headers'] || ''
-		c_type  = opts['ctype']       || 'application/x-www-form-urlencoded'
-		c_varg  = opts['vars_get']    || {}
-		c_varp  = opts['vars_post']   || {}
-		c_vers  = opts['version']     || config['version'] || '1.1'
+		opts['agent']             ||= config['agent']
+		opts['basic_auth']     = opts['basic_auth'] || config['basic_auth'] || ''
+		opts['data']                ||= ''
+		opts['uri']                   ||= '/'
+		opts['cookie']            ||= config['cookie']
+		opts['encode']           ||= false
+		opts['headers']          ||= config['headers'] || {}
+		opts['vhost']              ||= config['vhost']
+		opts['method']          ||= 'GET'
+		opts['proto']              ||= 'HTTP'
+		opts['query']              ||= ''
+		opts['raw_headers']  = opts['raw_headers'] || config['raw_headers'] || ''
+		opts['ctype']               ||= 'application/x-www-form-urlencoded'
+		opts['vars_get']          ||= {}
+		opts['vars_post']        ||= {}
+		opts['version']            = opts['version']     || config['version'] || '1.1'	
+		opts['cgi']                   =  true
+		opts['port']                = self.port
 
-		uri     = set_cgi(c_cgi)
-		qstr    = c_qs
-		pstr    = c_body
-
-		if (config['pad_get_params'])
-			1.upto(config['pad_get_params_count'].to_i) do |i|
-				qstr << '&' if qstr.length > 0
-				qstr << set_encode_uri(Rex::Text.rand_text_alphanumeric(rand(32)+1))
-				qstr << '='
-				qstr << set_encode_uri(Rex::Text.rand_text_alphanumeric(rand(32)+1))
-			end
+		if opts['encode_params'] == true or opts['encode_params'].nil?
+			opts['encode_params'] = true
+		else
+			opts['encode_params'] = false
 		end
 
-		c_varg.each_pair do |var,val|
-			qstr << '&' if qstr.length > 0
-			qstr << (c_enc_p ? set_encode_uri(var) : var)
-			qstr << '='
-			qstr << (c_enc_p ? set_encode_uri(val) : val)
-		end
-
-		if (config['pad_post_params'])
-			1.upto(config['pad_post_params_count'].to_i) do |i|
-				rand_var = Rex::Text.rand_text_alphanumeric(rand(32)+1)
-				rand_val = Rex::Text.rand_text_alphanumeric(rand(32)+1)
-				pstr << '&' if pstr.length > 0
-				pstr << (c_enc_p ? set_encode_uri(rand_var) : rand_var)
-				pstr << '='
-				pstr << (c_enc_p ? set_encode_uri(rand_val) : rand_val)
-			end
-		end
-
-		c_varp.each_pair do |var,val|
-			pstr << '&' if pstr.length > 0
-			pstr << (c_enc_p ? set_encode_uri(var) : var)
-			pstr << '='
-			pstr << (c_enc_p ? set_encode_uri(val) : val)
-		end
-
-		req = ''
-		req << set_method(c_meth)
-		req << set_method_uri_spacer()
-		req << set_uri_prepend()
-		req << (c_enc ? set_encode_uri(uri):uri)
-
-		if (qstr.length > 0)
-			req << '?'
-			req << qstr
-		end
-
-		req << set_path_info(c_path)
-		req << set_uri_append()
-		req << set_uri_version_spacer()
-		req << set_version(c_prot, c_vers)
-		req << set_host_header(c_host)
-		req << set_agent_header(c_ag)
-
-		if (c_auth.length > 0)
-			unless c_head['Authorization'] and c_head['Authorization'].include? "Basic"
-				req << set_basic_auth_header(c_auth)
-			end
-		end
-
-		req << set_cookie_header(c_cook)
-		req << set_connection_header(c_conn)
-		req << set_extra_headers(c_head)
-
-		req << set_content_type_header(c_type)
-		req << set_content_len_header(pstr.length)
-		req << set_chunked_header()
-		req << set_raw_headers(c_rawh)
-		req << set_body(pstr)
-
-		request = Request.new
-		request.parse(req)
-		request.options = opts
-
-		request
+		req = ClientRequest.new(opts,self.config)
 	end
 
 	#
@@ -856,336 +787,11 @@ class Client
 	end
 
 	#
-	# Return the encoded URI
-	# ['none','hex-normal', 'hex-all', 'u-normal', 'u-all']
-	def set_encode_uri(uri)
-		a = uri
-		self.config['uri_encode_count'].times {
-			a = Rex::Text.uri_encode(a, self.config['uri_encode_mode'])
-		}
-		return a
-	end
-
-	#
-	# Return the encoded query string
-	#
-	def set_encode_qs(qs)
-		a = qs
-		self.config['uri_encode_count'].times {
-			a = Rex::Text.uri_encode(a, self.config['uri_encode_mode'])
-		}
-		return a
-	end
-
-	#
-	# Return the uri
-	#
-	def set_uri(uri)
-
-		if (self.config['uri_dir_self_reference'])
-			uri.gsub!('/', '/./')
-		end
-
-		if (self.config['uri_dir_fake_relative'])
-			buf = ""
-			uri.split('/').each do |part|
-				cnt = rand(8)+2
-				1.upto(cnt) { |idx|
-					buf << "/" + Rex::Text.rand_text_alphanumeric(rand(32)+1)
-				}
-				buf << ("/.." * cnt)
-				buf << "/" + part
-			end
-			uri = buf
-		end
-
-		if (self.config['uri_full_url'])
-			url = self.ssl ? "https" : "http"
-			url << self.config['vhost']
-			url << ((self.port == 80) ? "" : ":#{self.port}")
-			url << uri
-			url
-		else
-			uri
-		end
-	end
-
-	#
-	# Return the cgi
-	#
-	def set_cgi(uri)
-
-		if (self.config['uri_dir_self_reference'])
-			uri.gsub!('/', '/./')
-		end
-
-		if (self.config['uri_dir_fake_relative'])
-			buf = ""
-			uri.split('/').each do |part|
-				cnt = rand(8)+2
-				1.upto(cnt) { |idx|
-					buf << "/" + Rex::Text.rand_text_alphanumeric(rand(32)+1)
-				}
-				buf << ("/.." * cnt)
-				buf << "/" + part
-			end
-			uri = buf
-		end
-
-		url = uri
-
-		if (self.config['uri_full_url'])
-			url = self.ssl ? "https" : "http"
-			url << self.config['vhost']
-			url << (self.port == 80) ? "" : ":#{self.port}"
-			url << uri
-		end
-
-		url
-	end
-
-	#
-	# Return the HTTP method string
-	#
-	def set_method(method)
-		ret = method
-
-		if (self.config['method_random_valid'])
-			ret = ['GET', 'POST', 'HEAD'][rand(3)]
-		end
-
-		if (self.config['method_random_invalid'])
-			ret = Rex::Text.rand_text_alpha(rand(20)+1)
-		end
-
-		if (self.config['method_random_case'])
-			ret = Rex::Text.to_rand_case(ret)
-		end
-
-		ret
-	end
-
-	#
-	# Return the HTTP version string
-	#
-	def set_version(protocol, version)
-		ret = protocol + "/" + version
-
-		if (self.config['version_random_valid'])
-			ret = protocol + "/" +  ['1.0', '1.1'][rand(2)]
-		end
-
-		if (self.config['version_random_invalid'])
-			ret = Rex::Text.rand_text_alphanumeric(rand(20)+1)
-		end
-
-		if (self.config['version_random_case'])
-			ret = Rex::Text.to_rand_case(ret)
-		end
-
-		ret << "\r\n"
-	end
-
-	#
-	# Return the HTTP seperator and body string
-	#
-	def set_body(data)
-		return "\r\n" + data if self.config['chunked_size'] == 0
-		str = data.dup
-		chunked = ''
-		while str.size > 0
-			chunk = str.slice!(0,rand(self.config['chunked_size']) + 1)
-			chunked << sprintf("%x", chunk.size) + "\r\n" + chunk + "\r\n"
-		end
-		"\r\n" + chunked + "0\r\n\r\n"
-	end
-
-	#
-	# Return the HTTP path info
-	# TODO:
-	#  * Encode path information
-	def set_path_info(path)
-		path ? path : ''
-	end
-
-	#
-	# Return the spacing between the method and uri
-	#
-	def set_method_uri_spacer
-		len = self.config['pad_method_uri_count'].to_i
-		set = " "
-		buf = ""
-
-		case self.config['pad_method_uri_type']
-		when 'tab'
-			set = "\t"
-		when 'apache'
-			set = "\t \x0b\x0c\x0d"
-		end
-
-		while(buf.length < len)
-			buf << set[ rand(set.length) ]
-		end
-
-		return buf
-	end
-
-	#
-	# Return the spacing between the uri and the version
-	#
-	def set_uri_version_spacer
-		len = self.config['pad_uri_version_count'].to_i
-		set = " "
-		buf = ""
-
-		case self.config['pad_uri_version_type']
-		when 'tab'
-			set = "\t"
-		when 'apache'
-			set = "\t \x0b\x0c\x0d"
-		end
-
-		while(buf.length < len)
-			buf << set[ rand(set.length) ]
-		end
-
-		return buf
-	end
-
-	#
-	# Return the padding to place before the uri
-	#
-	def set_uri_prepend
-		prefix = ""
-
-		if (self.config['uri_fake_params_start'])
-			prefix << '/%3fa=b/../'
-		end
-
-		if (self.config['uri_fake_end'])
-			prefix << '/%20HTTP/1.0/../../'
-		end
-
-		prefix
-	end
-
-	#
-	# Return the padding to place before the uri
-	#
-	def set_uri_append
-		# TODO:
-		#  * Support different padding types
-		""
-	end
-
-	#
-	# Return the HTTP Host header
-	#
-	def set_host_header(host=nil)
-		return "" if self.config['uri_full_url']
-		host ||= self.config['vhost']
-
-		# IPv6 addresses must be placed in brackets
-		if Rex::Socket.is_ipv6?(host)
-			host = "[#{host}]"
-		end
-
-		# The port should be appended if non-standard
-		if not [80,443].include?(self.port)
-			host = host + ":#{port}"
-		end
-
-		set_formatted_header("Host", host)
-	end
-
-	#
-	# Return the HTTP agent header
-	#
-	def set_agent_header(agent)
-		agent ? set_formatted_header("User-Agent", agent) : ""
-	end
-
-	#
-	# Return the HTTP cookie header
-	#
-	def set_cookie_header(cookie)
-		cookie ? set_formatted_header("Cookie", cookie) : ""
-	end
-
-	#
-	# Return the HTTP connection header
-	#
-	def set_connection_header(conn)
-		conn ? set_formatted_header("Connection", conn) : ""
-	end
-
-	#
-	# Return the content type header
-	#
-	def set_content_type_header(ctype)
-		set_formatted_header("Content-Type", ctype)
-	end
-
-	#
-	# Return the content length header
-	def set_content_len_header(clen)
-		return "" if self.config['chunked_size'] > 0
-		set_formatted_header("Content-Length", clen)
-	end
-
-	#
 	# Return the Authorization basic-auth header
 	#
 	def set_basic_auth_header(auth)
 		auth ? set_formatted_header("Authorization", "Basic " + Rex::Text.encode_base64(auth)) : ""
 	end
-
-	#
-	# Return a string of formatted extra headers
-	#
-	def set_extra_headers(headers)
-		buf = ''
-
-		if (self.config['pad_fake_headers'])
-			1.upto(self.config['pad_fake_headers_count'].to_i) do |i|
-				buf << set_formatted_header(
-					Rex::Text.rand_text_alphanumeric(rand(32)+1),
-					Rex::Text.rand_text_alphanumeric(rand(32)+1)
-				)
-			end
-		end
-
-		headers.each_pair do |var,val|
-			buf << set_formatted_header(var, val)
-		end
-
-		buf
-	end
-
-	def set_chunked_header()
-		return "" if self.config['chunked_size'] == 0
-		set_formatted_header('Transfer-Encoding', 'chunked')
-	end
-
-	#
-	# Return a string of raw header data
-	#
-	def set_raw_headers(data)
-		data
-	end
-
-	#
-	# Return a formatted header string
-	#
-	def set_formatted_header(var, val)
-		if (self.config['header_folding'])
-			"#{var}:\r\n\t#{val}\r\n"
-		else
-			"#{var}: #{val}\r\n"
-		end
-	end
-
-
 
 	#
 	# The client request configuration
