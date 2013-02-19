@@ -66,7 +66,7 @@ class Metasploit4 < Msf::Auxiliary
 					:host => rhost,
 					:port => rport,
 					:proto => 'tcp',
-					:sname => 'sap', 
+					:sname => 'sap',
 					:type => type,
 					:data => data + value
 					) if data
