@@ -47,8 +47,8 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		print_status("Establishing a connection to the target...")
 
-		uri = normalize_uri(datastore['URI'])
-		rpath = uri + "/tiki-lastchanges.php?days=1&offset=0&sort_mode="
+		uri = normalize_uri(datastore['URI'], '/tiki-lastchanges.php')
+		rpath = uri + "?days=1&offset=0&sort_mode="
 
 		res = send_request_raw({
 			'uri'     => rpath,

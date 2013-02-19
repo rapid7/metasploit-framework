@@ -12,3 +12,7 @@ ADS_AGENT ch4ngeme
 DEVELOPER ch4ngeme
 J2EE_ADMIN ch4ngeme
 SAPJSF ch4ngeme
+SAPR3 SAP
+CTB_ADMIN sap123
+XMI_DEMO sap123
+
