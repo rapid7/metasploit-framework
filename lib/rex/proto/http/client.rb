@@ -169,27 +169,28 @@ class Client
 	#
 	# @return [Request]
 	def request_raw(opts={})
-		opts['agent']             ||= config['agent']
-		opts['basic_auth']     = opts['basic_auth'] || config['basic_auth'] || ''
-		opts['data']                ||= ''
-		opts['uri']                   ||= '/'
-		opts['cookie']            ||= config['cookie']
-		opts['encode']           ||= false
-		opts['headers']          ||= config['headers'] || {}
-		opts['vhost']              ||= config['vhost']
-		opts['method']          ||= 'GET'
-		opts['proto']              ||= 'HTTP'
-		opts['query']              ||= ''
-		opts['raw_headers']  = opts['raw_headers'] || config['raw_headers'] || ''
-		opts['version']            = opts['version']     || config['version'] || '1.1'	
-		opts['cgi']                   =  false
-		opts['port']                = self.port
+		opts['agent']   ||= config['agent']		
+		opts['data']    ||= ''
+		opts['uri']     ||= '/'
+		opts['cookie']  ||= config['cookie']
+		opts['encode']  ||= false
+		opts['headers'] ||= config['headers'] || {}
+		opts['vhost']   ||= config['vhost']
+		opts['method']  ||= 'GET'
+		opts['proto']   ||= 'HTTP'
+		opts['query']   ||= ''
+	
+		opts['cgi']         = false
+		opts['port']        = self.port
+		opts['basic_auth']  = opts['basic_auth'] || config['basic_auth'] || ''
+		opts['raw_headers'] = opts['raw_headers'] || config['raw_headers'] || ''
+		opts['version']     = opts['version']     || config['version'] || '1.1'
 
 		if opts['basic_auth'] and not opts['authorization']
 			opts['authorization'] = Rex::Text.encode_base64(opts['basic_auth'])
 		end
 
-		req = ClientRequest.new(opts,self.config)
+		req = ClientRequest.new(self.config,opts)
 	end
 
 
@@ -205,24 +206,25 @@ class Client
 	#
 	# @return [Request]
 	def request_cgi(opts={})
-		opts['agent']             ||= config['agent']
-		opts['basic_auth']     = opts['basic_auth'] || config['basic_auth'] || ''
-		opts['data']                ||= ''
-		opts['uri']                   ||= '/'
-		opts['cookie']            ||= config['cookie']
-		opts['encode']           ||= false
-		opts['headers']          ||= config['headers'] || {}
-		opts['vhost']              ||= config['vhost']
-		opts['method']          ||= 'GET'
-		opts['proto']              ||= 'HTTP'
-		opts['query']              ||= ''
-		opts['raw_headers']  = opts['raw_headers'] || config['raw_headers'] || ''
-		opts['ctype']               ||= 'application/x-www-form-urlencoded'
-		opts['vars_get']          ||= {}
-		opts['vars_post']        ||= {}
-		opts['version']            = opts['version']     || config['version'] || '1.1'	
-		opts['cgi']                   =  true
-		opts['port']                = self.port
+		opts['agent']     ||= config['agent']
+		opts['data']      ||= ''
+		opts['uri']       ||= '/'
+		opts['cookie']    ||= config['cookie']
+		opts['encode']    ||= false
+		opts['headers']   ||= config['headers'] || {}
+		opts['vhost']     ||= config['vhost']
+		opts['method']    ||= 'GET'
+		opts['proto']     ||= 'HTTP'
+		opts['query']     ||= ''
+		opts['ctype']     ||= 'application/x-www-form-urlencoded'
+		opts['vars_get']  ||= {}
+		opts['vars_post'] ||= {}
+		
+		opts['cgi']         = true
+		opts['port']        = self.port
+		opts['basic_auth']  = opts['basic_auth'] || config['basic_auth'] || ''
+		opts['raw_headers'] = opts['raw_headers'] || config['raw_headers'] || ''
+		opts['version']     = opts['version']     || config['version'] || '1.1'  
 
 		if opts['encode_params'] == true or opts['encode_params'].nil?
 			opts['encode_params'] = true
@@ -234,7 +236,7 @@ class Client
 			opts['authorization'] = Rex::Text.encode_base64(opts['basic_auth'])
 		end
 
-		req = ClientRequest.new(opts,self.config)
+		req = ClientRequest.new(self.config,opts)
 	end
 
 	#
@@ -396,7 +398,6 @@ class Client
 	# We do persist the rest of the connection stream because Digest is a tcp session
 	# based authentication method.
 	#
-
 	def digest_auth(opts={})
 		@nonce_count = 0
 
@@ -751,13 +752,6 @@ class Client
 	#
 	def pipelining?
 		pipeline
-	end
-
-	#
-	# Return the Authorization basic-auth header
-	#
-	def set_basic_auth_header(auth)
-		auth ? set_formatted_header("Authorization", "Basic " + Rex::Text.encode_base64(auth)) : ""
 	end
 
 	#
