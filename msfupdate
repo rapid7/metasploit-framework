@@ -30,9 +30,13 @@ if not (Process.uid == 0 or File.stat(msfbase).owned?)
 	exit 0x10
 end
 
+def is_apt
+	File.exists?(File.expand_path(File.join(@msfbase_dir, '.apt')))
+end
+
 # Are you an installer, or did you get here via a source checkout?
 def is_installed
-	File.exists?(File.expand_path(File.join(@msfbase_dir, "..", "engine", "update.rb")))
+	File.exists?(File.expand_path(File.join(@msfbase_dir, "..", "engine", "update.rb"))) && !is_apt
 end
 
 def is_git
@@ -66,6 +70,24 @@ def maybe_wait_and_exit(exit_code=0)
 		$stdout.puts ""
 		$stdin.readline
 		exit exit_code
+	end
+end
+
+def apt_upgrade_available(package)
+	require 'open3'
+	installed = nil
+	upgrade = nil
+	::Open3.popen3("apt-cache", "policy", package) do |stdin, stdout, stderr|
+		stdout.each do |line|
+			installed = $1 if line =~ /Installed: ([\w\-+.:~]+)$/
+			upgrade = $1 if line =~ /Candidate: ([\w\-+.:~]+)$/
+			break if installed && upgrade
+		end
+	end
+	if installed && installed != upgrade
+		upgrade
+	else
+		nil
 	end
 end
 
@@ -186,7 +208,24 @@ if is_installed
 	end
 end
 
-unless is_svn || is_git || is_installed
+if is_apt
+	$stdout.puts "[*] Checking for updates"
+	system("apt-get", "-qq", "update")
+
+	packages = []
+	packages << 'metasploit-framework' if framework_version = apt_upgrade_available('metasploit-framework')
+	packages << 'metasploit' if pro_version = apt_upgrade_available('metasploit')
+
+	if packages.empty?
+		$stdout.puts "[*] No updates available"
+	else
+		$stdout.puts "[*] Updating to version #{pro_version || framework_version}"
+		system("apt-get", "install", "--assume-yes", *packages)
+		system("/etc/init.d/metasploit start") if packages.include?('metasploit')
+	end
+end
+
+unless is_svn || is_git || is_installed || is_apt
 	raise RuntimeError, "Cannot determine checkout type: `#{@msfbase_dir}'"
 end
 

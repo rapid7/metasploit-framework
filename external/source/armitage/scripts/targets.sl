@@ -193,6 +193,11 @@ on hosts {
 		$address = $host['address'];
 		if ($address in %hosts && size(%hosts[$address]) > 1) {
 			%newh[$address] = %hosts[$address];
+
+			# set the label to empty b/c team server won't add labels if there are no labels. This fixes
+			# a corner case where a user might clear all labels and find they won't go away
+			%newh[$address]['label'] = '';
+
 			putAll(%newh[$address], keys($host), values($host));
 
 			if ($host['os_name'] eq "") {
@@ -262,7 +267,7 @@ sub _importHosts {
 	}
 
 	$console = createDisplayTab("Import", $file => "import");
-	[$console addCommand: $null, "db_import " . strrep(join(" ", $files), "\\", "\\\\")];
+	[$console addCommand: 'x', "db_import " . strrep(join(" ", $files), "\\", "\\\\")];
 	[$console addListener: lambda({
 		elog("imported hosts from $success file" . iff($success != 1, "s"));
 	}, \$success)];
@@ -346,8 +351,10 @@ sub clearHostFunction {
 }
 
 sub clearDatabase {
-	elog("cleared the database");
-	call_async($mclient, "db.clear");
+	if (!askYesNo("This action will clear the database. You will lose all information\ncollected up to this point. You will not be able toget it back.\nWould you like to clear the database?", "Clear Database")) {
+		elog("cleared the database");
+		call_async($mclient, "db.clear");
+	}
 }
 
 # called when a target is clicked on...

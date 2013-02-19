@@ -15,8 +15,8 @@ sub logNow {
 	if ([$preferences getProperty: "armitage.log_everything.boolean", "true"] eq "true") {
 		local('$today $stream');
 		$today = formatDate("yyMMdd");
-		mkdir(getFileProper(dataDirectory(), $today, $2));
-		$stream = %logs[ getFileProper(dataDirectory(), $today, $2, "$1 $+ .log") ];
+		mkdir(getFileProper(dataDirectory(), $today, $DESCRIBE, $2));
+		$stream = %logs[ getFileProper(dataDirectory(), $today, $DESCRIBE, $2, "$1 $+ .log") ];
 		[$stream println: $3];
 	}
 }
@@ -26,8 +26,8 @@ sub logCheck {
 		local('$today');
 		$today = formatDate("yyMMdd");
 		if ($2 ne "") {
-			mkdir(getFileProper(dataDirectory(), $today, $2));
-			[$1 writeToLog: %logs[ getFileProper(dataDirectory(), $today, $2, "$3 $+ .log") ]];
+			mkdir(getFileProper(dataDirectory(), $today, $DESCRIBE, $2));
+			[$1 writeToLog: %logs[ getFileProper(dataDirectory(), $today, $DESCRIBE, $2, "$3 $+ .log") ]];
 		}
 	}
 }
@@ -38,7 +38,7 @@ sub logFile {
 		local('$today $handle $data $out');
 		$today = formatDate("yyMMdd");
 		if (-exists $1 && -canread $1) {
-			mkdir(getFileProper(dataDirectory(), $today, $2, $3));
+			mkdir(getFileProper(dataDirectory(), $today, $DESCRIBE, $2, $3));
 
 			# read in the file
 			$handle = openf($1);
@@ -46,7 +46,7 @@ sub logFile {
 			closef($handle);
 
 			# write it out.
-			$out = getFileProper(dataDirectory(), $today, $2, $3, getFileName($1));
+			$out = getFileProper(dataDirectory(), $today, $DESCRIBE, $2, $3, getFileName($1));
 			$handle = openf("> $+ $out");
 			writeb($handle, $data);
 			closef($handle);
@@ -70,7 +70,7 @@ sub initLogSystem {
 			logFile([$file getAbsolutePath], "screenshots", ".");
 			deleteFile([$file getAbsolutePath]);
 
-			showError("Saved " . getFileName($file) . "\nGo to View -> Reporting -> Activity Logs\n\nThe file is in:\n[today's date]/screenshots");
+			showError("Saved " . getFileName($file) . "\nGo to View -> Reporting -> Activity Logs\n\nThe file is in:\n[today's date]/ $+ $DESCRIBE $+ /screenshots");
 		}, \$image, \$title));
 	}];
 }
