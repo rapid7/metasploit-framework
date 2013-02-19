@@ -36,7 +36,7 @@ end
 
 def print_deprecation_warning
 	$stdout.puts ""
-	$stdout.puts "[*] Deprecation Note: After 2013-02-28 (February 28, 2013), Metasploit"
+	$stdout.puts "[*] Deprecation Note: After 2013-03-15 (March 15, 2013), Metasploit"
 	$stdout.puts "[*] source checkouts will NO LONGER update over SVN, but will be using"
 	$stdout.puts "[*] GitHub exclusively. You should either download a new Metasploit"
 	$stdout.puts "[*] installer, or use a git clone of Metasploit Framework before"
