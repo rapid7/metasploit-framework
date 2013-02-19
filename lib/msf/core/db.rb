@@ -699,7 +699,7 @@ class DBManager
 			if session.via_exploit == "exploit/multi/handler" and sess_data[:datastore]['ParentModule']
 				mod_fullname = sess_data[:datastore]['ParentModule']
 				mod_name = ::Mdm::ModuleDetail.find_by_fullname(mod_fullname).name
-			else 
+			else
 				mod_name = mod.name
 				mod_fullname = mod.fullname
 			end
@@ -719,7 +719,7 @@ class DBManager
 			vuln_info[:service] = service if service
 
 			vuln = framework.db.report_vuln(vuln_info)
-			
+
 			if session.via_exploit == "exploit/multi/handler" and sess_data[:datastore]['ParentModule']
 				via_exploit = sess_data[:datastore]['ParentModule']
 			else
@@ -738,7 +738,7 @@ class DBManager
 			}
 
 			framework.db.report_exploit_success(attempt_info)
-			
+
 		end
 
 		s
@@ -871,7 +871,7 @@ class DBManager
 					ref.to_s
 				end
 			})
-		
+
 			# Try find a matching vulnerability
 			vuln = find_vuln_by_refs(ref_objs, host, svc)
 		end
@@ -890,7 +890,7 @@ class DBManager
 			attempt_info[:loot_id]    = opts[:loot_id]    if opts[:loot_id]
 
 			vuln.vuln_attempts.create(attempt_info)
-	
+
 			# Correct the vuln's associated service if necessary
 			if svc and vuln.service_id.nil?
 				vuln.service = svc
@@ -909,12 +909,12 @@ class DBManager
 		attempt_info[:vuln_id]    = vuln.id           if vuln
 		attempt_info[:session_id] = opts[:session_id] if opts[:session_id]
 		attempt_info[:loot_id]    = opts[:loot_id]    if opts[:loot_id]
-		
+
 		if svc
 			attempt_info[:port]  = svc.port
 			attempt_info[:proto] = svc.proto
 		end
-		
+
 		if port and svc.nil?
 			attempt_info[:port]  = port
 			attempt_info[:proto] = prot || "tcp"
@@ -937,7 +937,7 @@ class DBManager
 
 		timestamp  = opts.delete(:timestamp)
 		freason    = opts.delete(:fail_reason)
-		fdetail    = opts.delete(:fail_detail)		
+		fdetail    = opts.delete(:fail_detail)
 		username   = opts.delete(:username)
 		mname      = opts.delete(:module)
 
@@ -968,7 +968,7 @@ class DBManager
 					ref.to_s
 				end
 			})
-		
+
 			# Try find a matching vulnerability
 			vuln = find_vuln_by_refs(ref_objs, host, svc)
 		end
@@ -1003,7 +1003,7 @@ class DBManager
 			attempt_info[:port]  = svc.port
 			attempt_info[:proto] = svc.proto
 		end
-		
+
 		if port and svc.nil?
 			attempt_info[:port]  = port
 			attempt_info[:proto] = prot || "tcp"
@@ -1018,7 +1018,7 @@ class DBManager
 	::ActiveRecord::Base.connection_pool.with_connection {
 		return if not vuln
 		info = {}
-		
+
 		# Opts can be keyed by strings or symbols
 		::Mdm::VulnAttempt.column_names.each do |kn|
 			k = kn.to_sym
@@ -1037,7 +1037,7 @@ class DBManager
 	::ActiveRecord::Base.connection_pool.with_connection {
 		return if not host
 		info = {}
-		
+
 		# Opts can be keyed by strings or symbols
 		::Mdm::VulnAttempt.column_names.each do |kn|
 			k = kn.to_sym
@@ -1623,7 +1623,7 @@ class DBManager
 			# If a match is found on a vulnerability with no associated service,
 			# update that vulnerability with our service information. This helps
 			# prevent dupes of the same vuln found by both local patch and
-			# service detection.		
+			# service detection.
 			if rids and rids.length > 0
 				vuln = find_vuln_by_refs(rids, host, service)
 				vuln.service = service if vuln
@@ -1651,7 +1651,7 @@ class DBManager
 			else
 				vuln = host.vulns.find_by_name(name)
 			end
-			
+
 			unless vuln
 
 				vinf = {
@@ -1660,7 +1660,7 @@ class DBManager
 					:info    => info
 				}
 
-				vinf[:service_id] = service.id if service 
+				vinf[:service_id] = service.id if service
 				vuln = Mdm::Vuln.create(vinf)
 			end
 		end
@@ -1681,7 +1681,7 @@ class DBManager
 
 		# Handle vuln_details parameters
 		report_vuln_details(vuln, details) if details
-		
+
 		vuln
 	}
 	end
@@ -2867,6 +2867,9 @@ class DBManager
 		elsif (firstline.index("<SecScan ID="))
 			@import_filedata[:type] = "Microsoft Baseline Security Analyzer"
 			return :mbsa_xml
+		elsif (firstline.index('whatweb.xsl'))
+			@import_filedata[:type] = "WhatWeb XML Report"
+			return :whatweb_xml
 		elsif (data[0,1024] =~ /<!ATTLIST\s+items\s+burpVersion/)
 			@import_filedata[:type] = "Burp Session XML"
 			return :burp_session_xml
@@ -3037,7 +3040,7 @@ class DBManager
 		data = ""
 		::File.open(filename, 'rb') do |f|
 			data = f.read(f.stat.size)
-    		end
+				end
 		import_wapiti_xml(args.merge(:data => data))
 	end
 
@@ -5095,7 +5098,7 @@ class DBManager
 	#
 	# This method normalizes an incoming service name to one of the
 	# the standard ones recognized by metasploit
-	# 
+	#
 	def service_name_map(proto)
 		return proto unless proto.kind_of? String
 		case proto.downcase
@@ -5812,8 +5815,8 @@ class DBManager
 			end
 			hname = ( # Prefer NetBIOS over DNS
 				(host.elements["NETBIOS"].text if host.elements["NETBIOS"]) ||
-			 	(host.elements["DNS"].text if host.elements["DNS"]) ||
-			 	"" )
+				(host.elements["DNS"].text if host.elements["DNS"]) ||
+				"" )
 			hobj = report_host(:workspace => wspace, :host => addr, :name => hname, :state => Msf::HostState::Alive)
 			report_import_note(wspace,hobj)
 
@@ -5934,6 +5937,66 @@ class DBManager
 		end
 	end
 
+
+	def import_whatweb_xml_file(args={}, &block)
+		filename = args[:filename]
+		wspace = args[:wspace] || workspace
+
+		data = ""
+		::File.open(filename, 'rb') do |f|
+			data = f.read(f.stat.size)
+		end
+		import_whatweb_xml(args.merge(:data => data))
+	end
+
+	def import_whatweb_xml(args={}, &block)
+		data = args[:data]
+		wspace = args[:wspace] || workspace
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+		doc = rexmlify(data)
+		# Iterate through the targets list
+		# Pull out and report site information
+		doc.elements.each('/log/target') do |target|
+			site_data = {}
+			# Get our host's IP and pull info
+			target.elements.each('plugin') do |plugin|
+				begin
+					str = plugin.elements['string'].text.strip
+				rescue
+					next
+				end
+				case plugin.elements['name'].text.strip
+				when 'IP'
+					site_data[:host] = str
+				when 'HTTPServer'
+					site_data[:info] = str
+					# report_site doesnt allow OS imports AFAIK
+					# if name.elements['os']
+					#   site_data[:os] name.elements['os'].text.strip
+					# end
+				end
+			end
+			next unless site_data[:host]
+			site_data[:port] =
+			# Determine the service info
+			uri = target.elements['uri'].text.strip
+			# Check for SSL
+			site_data[:ssl] = uri.scan(/^(\w+)s\:/).flatten.first ? true : false
+			# Check for unusual ports
+			if uri.scan(':').length > 1
+				# Take everything after the second ':' which is a digit
+				site_data[:port] = uri.reverse.split(':', 2).map(&:reverse).first.scan(/^\d+/)
+			else
+				# Assign defaults based on SSL param
+				site_data[:port] = site_data[:ssl] ? 443 : 80
+			end
+			# Pull out the VHOST
+			site_data[:vhost] = uri.scan(/\/\/(.*?)(\/|\:)/).flatten.first
+			report_web_site(site_data)
+		end
+	end
+
+
 	def import_ip_list_file(args={})
 		filename = args[:filename]
 		wspace = args[:wspace] || workspace
@@ -6051,7 +6114,6 @@ class DBManager
 		parser = ::Nokogiri::XML::SAX::Parser.new(doc)
 		parser.parse(args[:data])
 	end
-
 
 	def unserialize_object(xml_elem, allow_yaml = false)
 		return nil unless xml_elem
