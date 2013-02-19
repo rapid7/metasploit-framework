@@ -145,8 +145,10 @@ class Metasploit4 < Msf::Auxiliary
 		saptbl << [ "Character Set", rfcchartyp ]
 		saptbl << [ "Daylight Saving Time", rfcdayst ]
 		saptbl << [ "Machine ID", rfcmach.gsub(/\s+/, "")]
+		# output table
 		print(saptbl.to_s)
 
+		# report notes
 		report_note(
 			:host => ip,
 			:proto => 'tcp',
@@ -154,7 +156,7 @@ class Metasploit4 < Msf::Auxiliary
 			:sname => 'sap',
 			:type => 'sap.version.release',
 			:data => "Release Status of SAP System: #{rfcsaprl}"
-		)
+		) if not rfcsaprl.empty?
 
 		report_note(
 			:host => ip,
@@ -163,7 +165,7 @@ class Metasploit4 < Msf::Auxiliary
 			:sname => 'sap',
 			:type => 'sap.version.rfc_log',
 			:data => "RFC Log Version: #{rfcproto}"
-		)
+		) if not rfcproto.empty?
 
 		report_note(
 			:host => ip,
@@ -172,7 +174,7 @@ class Metasploit4 < Msf::Auxiliary
 			:sname => 'sap',
 			:type => 'sap.version.kernel',
 			:data => "Kernel Release: #{rfckernrl}"
-		)
+		) if not rfckernrl.empty?
 
 		report_note(
 			:host => ip,
@@ -181,7 +183,7 @@ class Metasploit4 < Msf::Auxiliary
 			:sname => 'sap',
 			:type => 'system.os',
 			:data => "Operating System: #{rfcopsys}"
-		)
+		) if not rfcopsys.empty?
 
 		report_note(
 			:host => ip,
@@ -189,7 +191,7 @@ class Metasploit4 < Msf::Auxiliary
 			:port => rport,
 			:type => 'sap.db.hostname',
 			:data => "Database Host: #{rfcdbhost}"
-		)
+		) if not rfcdbhost.empty?
 
 		report_note(
 			:host => ip,
@@ -197,9 +199,9 @@ class Metasploit4 < Msf::Auxiliary
 			:port => rport,
 			:type => 'sap.db_system',
 			:data => "Central Database System: #{rfcdbsys}"
-		)
+		) if not rfcdbsys.empty?
 
-		if rfcinttyp  == 'LIT'
+		if rfcinttyp == 'LIT'
 			report_note(
 				:host => ip,
 				:proto => 'tcp',
@@ -207,7 +209,7 @@ class Metasploit4 < Msf::Auxiliary
 				:type => 'system.endianness',
 				:data => "Integer Format: Little Endian"
 			)
-		else
+		elsif not rfcinttyp.empty?
 			report_note(
 				:host => ip,
 				:proto => 'tcp',
@@ -223,7 +225,7 @@ class Metasploit4 < Msf::Auxiliary
 			:port => rport,
 			:type => 'system.hostname',
 			:data => "Hostname: #{rfchost}"
-		)
+		) if not rfchost.empty?
 
 		if rfcflotyp == 'IE3'
 			report_note(
@@ -233,7 +235,7 @@ class Metasploit4 < Msf::Auxiliary
 				:type => 'system.float_type',
 				:data => "Float Type Format: IEEE"
 			)
-		else
+		elsif not rfcflotyp.empty?
 			report_note(
 				:host => ip,
 				:proto => 'tcp',
@@ -249,7 +251,7 @@ class Metasploit4 < Msf::Auxiliary
 			:port => rport,
 			:type => 'system.ip.v4',
 			:data => "IPv4 Address: #{rfcipaddr}"
-		)
+		) if not rfcipaddr.empty?
 
 		report_note(
 			:host => ip,
@@ -257,7 +259,7 @@ class Metasploit4 < Msf::Auxiliary
 			:port => rport,
 			:type => 'system.ip.v6',
 			:data => "IPv6 Address: #{rfcipv6addr}"
-		)
+		) if not rfcipv6addr.empty?
 
 		report_note(
 			:host => ip,
@@ -265,7 +267,7 @@ class Metasploit4 < Msf::Auxiliary
 			:port => rport,
 			:type => 'sap.instance',
 			:data => "System ID: #{rfcsysid}"
-		)
+		) if not rfcsysid.empty?
 
 		report_note(
 			:host => ip,
@@ -273,7 +275,7 @@ class Metasploit4 < Msf::Auxiliary
 			:port => rport,
 			:type => 'sap.rfc.destination',
 			:data => "RFC Destination: #{rfcdest}"
-		)
+		) if not rfcdest.empty?
 
 		report_note(
 			:host => ip,
@@ -281,7 +283,7 @@ class Metasploit4 < Msf::Auxiliary
 			:port => rport,
 			:type => 'system.timezone',
 			:data => "Timezone: #{rfctzone.gsub(/\s+/, "")} (diff from UTC in seconds)"
-		)
+		) if not rfctzone.empty?
 
 		report_note(
 			:host => ip,
@@ -289,7 +291,7 @@ class Metasploit4 < Msf::Auxiliary
 			:port => rport,
 			:type => 'system.charset',
 			:data => "Character Set: #{rfcchartyp}"
-		)
+		) if not rfcchartyp.empty?
 
 		report_note(
 			:host => ip,
@@ -297,8 +299,7 @@ class Metasploit4 < Msf::Auxiliary
 			:port => rport,
 			:type => 'sap.daylight_saving_time',
 			:data => "Daylight Saving Time: #{rfcdayst}"
-		)
-
+		) if not rfcdayst.empty?
 
 		report_note(
 			:host => ip,
@@ -306,6 +307,6 @@ class Metasploit4 < Msf::Auxiliary
 			:port => rport,
 			:type => 'sap.machine_id',
 			:data => "Machine ID: #{rfcmach.gsub(/\s+/, "")}"
-		)
+		) if not rfcmach.empty?
 	end
 end
