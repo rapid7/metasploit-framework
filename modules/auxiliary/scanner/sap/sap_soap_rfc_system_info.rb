@@ -122,7 +122,7 @@ class Metasploit4 < Msf::Auxiliary
 		# create table for output
 		@saptbl = Msf::Ui::Console::Table.new(
 			Msf::Ui::Console::Table::Style::Default,
-				'Header' => "[SAP] ICF RFC_SYSTEM_INFO",
+				'Header' => "[SAP] SOAP RFC_SYSTEM_INFO",
 				'Prefix' => "\n",
 				'Postfix' => "\n",
 				'Indent' => 1,
