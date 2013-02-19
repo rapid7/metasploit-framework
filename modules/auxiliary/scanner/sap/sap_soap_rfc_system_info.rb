@@ -40,7 +40,8 @@ class Metasploit4 < Msf::Auxiliary
 			'Author' =>
 				[
 					'Agnivesh Sathasivam',
-					'nmonkee'
+					'nmonkee',
+					'ChrisJohnRiley' # module cleanup / streamlining
 				],
 			'License' => MSF_LICENSE
 			)
