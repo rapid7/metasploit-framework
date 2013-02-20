@@ -319,6 +319,7 @@ class Client
 	#
 	# @param req [Request,#to_s] The request to send
 	# @param t (see #connect)
+	#
 	def send_request(req, t = -1)
 		connect(t)
 		conn.put(req.to_s)
@@ -329,31 +330,29 @@ class Client
 		!(self.username.nil?) && self.username != ''
 	end
 
-	#
-	# Params -
-	#    res = The 401 response we need to auth from
-	#    opts = the opts used to generate the request that created this response
-	#    t = the timeout for the http requests
-	#    persist = whether to persist the tcp connection for HTTP Pipelining
-	#
-	#  Parses the response for what Authentication methods are supported.
-	#  Sets the corect authorization options and passes them on to the correct
-	#  method for sending the next request.
+	# Resends an HTTP Request with the propper authentcation headers
+	# set. If we do not support the authentication type the server requires
+	# we return the original response object
+	# @param res [Response] the HTTP Response object
+	# @param opts [Hash] the options used to generate the original HTTP request
+	# @param t [Fixnum] the timeout for the request in seconds
+	# @param persist [Boolean] whether or not to persist the TCP connection (pipelining)
+	# @return [Response] the last valid HTTP response object we received
 	def send_auth(res, opts, t, persist)
+		opts['username'] ||= self.username
+		opts['password']  ||= self.password
 		supported_auths = res.headers['WWW-Authenticate']
 		if supported_auths.include? 'Basic'
 			if opts['headers']
-				opts['headers']['Authorization'] = basic_auth_header(self.username,self.password)
+				opts['headers']['Authorization'] = basic_auth_header(username,password)
 			else
-				opts['headers'] = { 'Authorization' => basic_auth_header(self.username,self.password)}
+				opts['headers'] = { 'Authorization' => basic_auth_header(username,password)}
 			end
 
 			req = request_cgi(opts)
 			res = _send_recv(req,t,persist)
 			return res
 		elsif  supported_auths.include? "Digest"
-			opts['DigestAuthUser'] = self.username.to_s
-			opts['DigestAuthPassword'] = self.password.to_s
 			temp_response = digest_auth(opts)
 			if temp_response.kind_of? Rex::Proto::Http::Response
 				res = temp_response
@@ -403,8 +402,8 @@ class Client
 
 		to = opts['timeout'] || 20
 
-		digest_user = opts['DigestAuthUser'] || ""
-		digest_password =  opts['DigestAuthPassword'] || ""
+		digest_user = opts['username'] || ""
+		digest_password =  opts['password'] || ""
 
 		method = opts['method']
 		path = opts['uri']
@@ -539,7 +538,6 @@ class Client
 	# Builds a series of requests to complete Negotiate Auth. Works essentially
 	# the same way as Digest auth. Same pipelining concerns exist.
 	#
-
 	def negotiate_auth(opts={})
 		ntlm_options = {
 			:signing          => false,
@@ -550,8 +548,8 @@ class Client
 		}
 
 		to = opts['timeout'] || 20
-		opts['username'] ||= self.username.to_s
-		opts['password'] ||= self.password.to_s
+		opts['username'] ||= ''
+		opts['password'] ||= ''
 
 		if opts['provider'] and opts['provider'].include? 'Negotiate'
 			provider = "Negotiate "
