@@ -61,20 +61,11 @@ describe Rex::Proto::Http::Client do
 		cli.close.should be_nil
 	end
 
-	it "should send a request and receive a response" do
-		# cli.send_recv
-		pending excuse_needs_connection
-	end
+	it "should send a request and receive a response", :pending => excuse_needs_connection
 
-	it "should send a request and receive a response without auth handling" do
-		# cli._send_recv
-		pending excuse_needs_connection
-	end
+	it "should send a request and receive a response without auth handling", :pending => excuse_needs_connection
 
-	it "should send a request" do
-		# cli.send_request
-		pending excuse_needs_connection
-	end
+	it "should send a request", :pending => excuse_needs_connection
 
 	it "should test for credentials" do
 		# cli.should_not have_creds
@@ -83,9 +74,7 @@ describe Rex::Proto::Http::Client do
 		pending "Should actually respond to :has_creds"
 	end
 
-	it "should send authentication" do
-		pending excuse_needs_connection
-	end
+	it "should send authentication", :pending => excuse_needs_connection
 
 	it "should produce a basic authentication header" do
 		u = "user1"
@@ -94,20 +83,11 @@ describe Rex::Proto::Http::Client do
 		cli.basic_auth_header("user1","pass1").should == "Basic #{b64}"
 	end
 
-	it "should perform digest authentication" do
-		# cli.digest_auth
-		pending excuse_needs_auth
-	end
+	it "should perform digest authentication", :pending => excuse_needs_auth
 
-	it "should perform negotiate authentication" do
-		# cli.negotiate_auth
-		pending excuse_needs_auth
-	end
+	it "should perform negotiate authentication", :pending => excuse_needs_auth
 
-	it "should get a response" do
-		# cli.read_response
-		pending excuse_needs_connection
-	end
+	it "should get a response", :pending => excuse_needs_connection
 
 	it "should end a connection with a stop" do
 		cli.stop.should be_nil
@@ -124,96 +104,53 @@ describe Rex::Proto::Http::Client do
 		this_cli.pipelining?.should be_true
 	end
 
-	it "should return an encoded URI" do
-		pending excuse_lazy :set_encode_uri
-	end
+	it "should return an encoded URI", :pending => excuse_lazy(:set_encode_uri)
 
-	it "should return an encoded query string" do
-		pending excuse_lazy :set_encode_qa
-	end
+	it "should return an encoded query string", :pending => excuse_lazy(:set_encode_qa)
 
 	# These set_ methods all exercise the evasion opts, looks like
 
-	it "should set and return the URI" do
-		pending excuse_lazy :set_uri
-	end
+	it "should set and return the URI", :pending => excuse_lazy(:set_uri)
 
-	it "should set and return the CGI" do
-		pending excuse_lazy :set_cgi
-	end
+	it "should set and return the CGI", :pending => excuse_lazy(:set_cgi)
 
-	it "should set and return the HTTP verb" do
-		pending excuse_lazy :set_method
-	end
+	it "should set and return the HTTP verb", :pending => excuse_lazy(:set_method)
 
-	it "should set and return the version string" do
-		pending excuse_lazy :set_version
-	end
+	it "should set and return the version string", :pending => excuse_lazy(:set_version)
 
-	it "should set and return the HTTP seperator and body string" do
-		pending excuse_lazy :set_body
-	end
+	it "should set and return the HTTP seperator and body string", :pending => excuse_lazy(:set_body)
 
-	it "should set and return the path" do
-		pending excuse_lazy :set_path_info
-	end
+	it "should set and return the path", :pending => excuse_lazy(:set_path_info)
 
-	it "should set and return the whitespace between method and URI" do
-		pending excuse_lazy :set_method_uri_spacer
-	end
+	it "should set and return the whitespace between method and URI", :pending => excuse_lazy(:set_method_uri_spacer)
 
-	it "should set and return the whitespace between the version and URI" do
-		pending excuse_lazy :set_uri_version_spacer
-	end
+	it "should set and return the whitespace between the version and URI", :pending => excuse_lazy(:set_uri_version_spacer)
 
-	it "should set and return padding before the URI" do
-		pending excuse_lazy :set_uri_prepend
-	end
+	it "should set and return padding before the URI", :pending => excuse_lazy(:set_uri_prepend)
 
 	it "should set and return padding after the URI" do
 		cli.set_uri_append.should be_empty
 	end
 
-	it "should set and return the host header" do
-		pending excuse_lazy :set_host_header
-	end
+	it "should set and return the host header", :pending => excuse_lazy(:set_host_header)
 
-	it "should set and return the agent header" do
-		pending excuse_lazy :set_agent_header
-	end
+	it "should set and return the agent header", :pending => excuse_lazy(:set_agent_header)
 
-	it "should set and return the cookie header" do
-		pending excuse_lazy :set_cookie_header
-	end
+	it "should set and return the cookie header", :pending => excuse_lazy(:set_cookie_header)
 
+	it "should set and return the content-type header", :pending => excuse_lazy(:set_cookie_header)
 
-	it "should set and return the content-type header" do
-		pending excuse_lazy :set_cookie_header
-	end
+	it "should set and return the content-length header", :pending => excuse_lazy(:set_content_len_header)
 
-	it "should set and return the content-length header" do
-		pending excuse_lazy :set_content_len_header
-	end
+	it "should set and return the basic authentication header", :pending => excuse_lazy(:set_basic_auth_header)
 
-	it "should set and return the basic authentication header" do
-		pending excuse_lazy :set_basic_auth_header
-	end
+	it "should set and return any extra headers", :pending => excuse_lazy(:set_extra_headers)
 
-	it "should set and return any extra headers" do
-		pending excuse_lazy :set_extra_headers
-	end
+	it "should set the chunked encoding header", :pending => excuse_lazy(:set_chunked_header)
 
-	it "should set the chunked encoding header" do
-		pending excuse_lazy :set_chunked_header
-	end
+	it "should set and return raw_headers", :pending => "#set_raw_headers() doesn't seem to actually do anything"
 
-	it "should set and return raw_headers" do
-		pending "#set_raw_headers() doesn't seem to actually do anything"
-	end
-
-	it "should set and return a formatted header" do
-		pending :set_formatted_header
-	end
+	it "should set and return a formatted header", :pending => excuse_lazy(:set_formatted_header)
 
 	it "should respond to its various accessors" do
 		cli.should respond_to :config
