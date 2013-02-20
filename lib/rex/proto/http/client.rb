@@ -8,8 +8,6 @@ require 'rex/proto/ntlm/constants'
 require 'rex/proto/ntlm/utils'
 require 'rex/proto/ntlm/exceptions'
 
-require 'pry'
-
 module Rex
 module Proto
 module Http
@@ -356,15 +354,14 @@ class Client
 			end
 		end
 
-		return res if opts['username'].nil? or opts['username'] = ''
+		return res if opts['username'].nil? or opts['username'] == ''
 		supported_auths = res.headers['WWW-Authenticate']
 		if supported_auths.include? 'Basic'
 			if opts['headers']
-				opts['headers']['Authorization'] = basic_auth_header(username,password)
+				opts['headers']['Authorization'] = basic_auth_header(opts['username'],opts['password'] )
 			else
-				opts['headers'] = { 'Authorization' => basic_auth_header(username,password)}
+				opts['headers'] = { 'Authorization' => basic_auth_header(opts['username'],opts['password'] )}
 			end
-
 			req = request_cgi(opts)
 			res = _send_recv(req,t,persist)
 			return res
