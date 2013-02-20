@@ -88,7 +88,7 @@ require 'rex/compat'
 # Platforms
 require 'rex/platforms'
 
-#SSLScan 
+# SSLScan 
 require 'rex/sslscan/scanner'
 require 'rex/sslscan/result'
 

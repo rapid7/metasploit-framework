@@ -50,12 +50,12 @@ class Scanner
 		validate_params(ssl_version,cipher)
 		begin
 			scan_client = Rex::Socket::Tcp.create(
-				'PeerHost'     => @host,
-				'PeerPort'      => @port,
-				'SSL'               => true,
-				'SSLVersion'  => ssl_version,
-				'SSLCipher'   => cipher,
-				'Timeout'      => @timeout
+				'PeerHost'   => @host,
+				'PeerPort'   => @port,
+				'SSL'        => true,
+				'SSLVersion' => ssl_version,
+				'SSLCipher'  => cipher,
+				'Timeout'    => @timeout
 			)
 		rescue ::Exception => e 
 			return :rejected
@@ -67,12 +67,12 @@ class Scanner
 		validate_params(ssl_version,cipher)
 		begin
 			scan_client = Rex::Socket::Tcp.create(
-				'PeerHost'     => @host,
-				'PeerPort'      => @port,
-				'SSL'               => true,
-				'SSLVersion'  => ssl_version,
-				'SSLCipher'   => cipher,
-				'Timeout'      => @timeout
+				'PeerHost'   => @host,
+				'PeerPort'   => @port,
+				'SSL'        => true,
+				'SSLVersion' => ssl_version,
+				'SSLCipher'  => cipher,
+				'Timeout'    => @timeout
 			)
 			cert = scan_client.peer_cert
 			if cert.kind_of? OpenSSL::X509::Certificate

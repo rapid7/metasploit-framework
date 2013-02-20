@@ -59,18 +59,11 @@ begin
 		version = :SSLv3
 		if(params)
 			case params.ssl_version
-			when 'SSL2'
+			when 'SSL2', :SSLv2
 				version = :SSLv2
-			when 'SSL23'
+			when 'SSL23', :SSLv23
 				version = :SSLv23
-			when 'TLS1'
-				version = :TLSv1
-			# Handle the user supplying the correct syntax themselves
-			when :SSLv2
-				version = :SSLv2
-			when :SSLv23
-				version = :SSLv23
-			when :TLSv1
+			when 'TLS1', :TLSv1
 				version = :TLSv1
 			end
 		end
