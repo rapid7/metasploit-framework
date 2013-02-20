@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'Fake DNS Service',
 			'Description'    => %q{
 				This module provides a DNS service that redirects
-			all queries to a particular address.
+			all queries to a particular address. Names that are listed in the DOMAINBYPASS variable are not spoofed.
 			},
 			'Author'      => ['ddz', 'hdm'],
 			'License'     => MSF_LICENSE,
@@ -42,6 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptAddress.new('TARGETHOST', [ false, "The address that all names should resolve to", nil ]),
 				OptString.new('TARGETDOMAIN', [ true, "The list of target domain names we want to fully resolve (BYPASS) or fake resolve (FAKE)", 'www.google.com']),
 				OptEnum.new('TARGETACTION', [ true, "Action for TARGETDOMAIN", "BYPASS", %w{FAKE BYPASS}]),
+				OptString.new('DOMAINBYPASS', [true, "The space separated list of domain names we want to properly resolve.", 'www.google.com']),
 			], self.class)
 
 		register_advanced_options(
