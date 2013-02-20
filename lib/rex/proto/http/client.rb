@@ -383,20 +383,9 @@ class Client
 		auth_str = "Basic " + Rex::Text.encode_base64(auth_str)
 	end
 
-
-	#
-	# Opts -
-	#   Inherits all the same options as send_request_cgi
-	#   Also expects some specific opts
-	#   DigestAuthUser - The username for DigestAuth
-	#   DigestAuthPass - The password for DigestAuth
-	#   DigestAuthIIS - IIS uses a slighlty different implementation, set this for IIS support
-	#
-	# This method builds new request to complete a Digest Authentication cycle.
-	# We do not persist the original connection , to clear state in preparation for our auth
-	# We do persist the rest of the connection stream because Digest is a tcp session
-	# based authentication method.
-	#
+	# Send a series of requests to complete Digest Authentication
+	# @param opts [Hash] the options used to build an HTTP request
+	# @return [Response] the last valid HTTP response we received
 	def digest_auth(opts={})
 		@nonce_count = 0
 
