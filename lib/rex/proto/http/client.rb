@@ -186,11 +186,13 @@ class Client
 		opts['raw_headers'] = opts['raw_headers'] || config['raw_headers'] || ''
 		opts['version']     = opts['version']     || config['version'] || '1.1'
 
+		opts['client_config'] = self.config
+
 		if opts['basic_auth'] and not opts['authorization']
 			opts['authorization'] = Rex::Text.encode_base64(opts['basic_auth'])
 		end
 
-		req = ClientRequest.new(self.config,opts)
+		req = ClientRequest.new(opts)
 	end
 
 
@@ -226,6 +228,8 @@ class Client
 		opts['raw_headers'] = opts['raw_headers'] || config['raw_headers'] || ''
 		opts['version']     = opts['version']     || config['version'] || '1.1'  
 
+		opts['client_config'] = self.config
+
 		if opts['encode_params'] == true or opts['encode_params'].nil?
 			opts['encode_params'] = true
 		else
@@ -236,7 +240,7 @@ class Client
 			opts['authorization'] = Rex::Text.encode_base64(opts['basic_auth'])
 		end
 
-		req = ClientRequest.new(self.config,opts)
+		req = ClientRequest.new(opts)
 	end
 
 	#
