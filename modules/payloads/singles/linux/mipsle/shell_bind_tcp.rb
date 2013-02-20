@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -23,7 +19,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Linux Command Shell, Bind TCP Inline',
-			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection and spawn a command shell',
 			'Author'        => 'Vlatko Kosturjak',
 			'License'       => MSF_LICENSE,
@@ -40,7 +35,7 @@ module Metasploit3
 	end
 
 	def generate
-		if(!datastore['LPORT'] or datastore['LPORT'].empty? )
+		if !datastore['LPORT']
 			return super
 		end
 
