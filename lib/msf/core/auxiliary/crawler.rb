@@ -22,7 +22,9 @@ module Auxiliary::HttpCrawler
 				Opt::Proxies,
 				OptInt.new('MAX_PAGES', [ true, 'The maximum number of pages to crawl per URL', 500]),
 				OptInt.new('MAX_MINUTES', [ true, 'The maximum number of minutes to spend on each URL', 5]),
-				OptInt.new('MAX_THREADS', [ true, 'The maximum number of concurrent requests', 4])
+				OptInt.new('MAX_THREADS', [ true, 'The maximum number of concurrent requests', 4]),
+				OptString.new('USERNAME', [false, 'The HTTP username to specify for authentication']),
+				OptString.new('PASSWORD', [false, 'The HTTP password to specify for authentication'])
 			], self.class
 		)
 
@@ -118,8 +120,9 @@ module Auxiliary::HttpCrawler
 			:info     => ""
 		})
 
-		if datastore['BasicAuthUser']
-			t[:http_basic_auth] = [ "#{datastore['BasicAuthUser']}:#{datastore['BasicAuthPass']}" ].pack("m*").gsub(/\s+/, '')
+		if datastore['USERNAME'] and datastore['USERNAME'] != ''
+			t[:username] = datastore['USERNAME'].to_s
+			t[:password] = datastore['PASSWORD'].to_s
 		end
 
 		if datastore['HTTPCookie']
@@ -278,9 +281,8 @@ module Auxiliary::HttpCrawler
 			opts[:cookies] = t[:cookies]
 		end
 
-		if t[:http_basic_auth]
-			opts[:http_basic_auth] = t[:http_basic_auth]
-		end
+		opts[:username] = t[:username] || ''
+		opts[:password] =t[:password] || ''
 
 		opts
 	end

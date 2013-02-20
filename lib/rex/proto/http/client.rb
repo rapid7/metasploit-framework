@@ -8,6 +8,8 @@ require 'rex/proto/ntlm/constants'
 require 'rex/proto/ntlm/utils'
 require 'rex/proto/ntlm/exceptions'
 
+require 'pry'
+
 module Rex
 module Proto
 module Http
@@ -294,7 +296,7 @@ class Client
 	#
 	def send_recv(req, t = -1, persist=false)
 		res = _send_recv(req,t,persist)
-		if res and res.code == 401 and res.headers['WWW-Authenticate'] and have_creds?
+		if res and res.code == 401 and res.headers['WWW-Authenticate']
 			res = send_auth(res, req.opts, t, persist)
 		end
 		res
@@ -329,11 +331,6 @@ class Client
 		conn.put(req.to_s)
 	end
 
-	# Validates that the client has creds
-	def have_creds?
-		!(self.username.nil?) && self.username != ''
-	end
-
 	# Resends an HTTP Request with the propper authentcation headers
 	# set. If we do not support the authentication type the server requires
 	# we return the original response object
@@ -343,8 +340,23 @@ class Client
 	# @param persist [Boolean] whether or not to persist the TCP connection (pipelining)
 	# @return [Response] the last valid HTTP response object we received
 	def send_auth(res, opts, t, persist)
-		opts['username'] ||= self.username
-		opts['password']  ||= self.password
+		if opts['username'].nil? or opts['username'] == ''
+			if self.username and not (self.username == '')
+				opts['username'] = self.username
+			else
+				opts['username'] = nil
+			end
+		end
+
+		if opts['password'].nil? or opts['password'] == ''
+			if self.password and not (self.password == '')
+				opts['password'] = self.password
+			else
+				opts['password'] = nil
+			end
+		end
+
+		return res if opts['username'].nil? or opts['username'] = ''
 		supported_auths = res.headers['WWW-Authenticate']
 		if supported_auths.include? 'Basic'
 			if opts['headers']

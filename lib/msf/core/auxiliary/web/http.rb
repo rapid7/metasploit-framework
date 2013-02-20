@@ -69,6 +69,7 @@ class Auxiliary::Web::HTTP
 	attr_reader :framework
 
 	attr_accessor :redirect_limit
+	attr_accessor :username , :password
 
 	def initialize( opts = {} )
 		@opts = opts.dup
@@ -84,8 +85,8 @@ class Auxiliary::Web::HTTP
 
 		@request_opts = {}
 		if opts[:auth].is_a? Hash
-			@request_opts['basic_auth'] = [ opts[:auth][:user].to_s + ':' +
-								opts[:auth][:password] ]. pack( 'm*' ).gsub( /\s+/, '' )
+			@username = opts[:auth][:user].to_s
+			@password = opts[:auth][:password].to_s
 		end
 
 		self.redirect_limit = opts[:redirect_limit] || 20
@@ -105,7 +106,9 @@ class Auxiliary::Web::HTTP
 			opts[:target].port,
 			{},
 			opts[:target].ssl,
-			'SSLv23'
+			'SSLv23',
+			username,
+			password
 		)
 
 		c.set_config({
@@ -296,6 +299,10 @@ class Auxiliary::Web::HTTP
 		opts['data'] = body if body
 
 		c = connect
+		if opts['username'] and opts['username'] != ''
+			c.username = opts['username'].to_s
+			c.password = opts['password'].to_s
+		end
 		Response.from_rex_response c.send_recv( c.request_cgi( opts ), timeout )
 	rescue ::Timeout::Error
 		Response.timed_out
