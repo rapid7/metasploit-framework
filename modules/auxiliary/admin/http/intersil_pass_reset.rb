@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
 		@peer = "#{rhost}:#{rport}"
 		return if check != Exploit::CheckCode::Vulnerable
 
-		uri = target_uri.path
+		uri = normalize_uri(target_uri.path)
 		uri << '/' if uri[-1,1] != '/'
 
 		res = send_request_cgi({

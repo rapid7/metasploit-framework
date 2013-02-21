@@ -164,6 +164,21 @@ public class MeterpreterSession implements Runnable {
 				readUntilSuccessful(c, false);
 				return;
 			}
+			else if (c.text.startsWith("add_user") && !teammode) {
+				/* when -h [host] is specified, attempts to add a user on another
+				   host. In this case, output is split into multiple chunks.
+				   This applies to add_localgroup_user and add_group_user too. */
+				readUntilSuccessful(c, false);
+				return;
+			}
+			else if (c.text.startsWith("add_localgroup_user") && !teammode) {
+				readUntilSuccessful(c, false);
+				return;
+			}
+			else if (c.text.startsWith("add_group_user") && !teammode) {
+				readUntilSuccessful(c, false);
+				return;
+			}
 
 			//System.err.println("(" + session + ") latency: " + (System.currentTimeMillis() - c.start) + " -- " + c.text);
 

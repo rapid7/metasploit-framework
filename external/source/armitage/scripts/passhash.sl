@@ -41,6 +41,7 @@ import ui.*;
 
 		# strip any funky characters that will cause this call to throw an exception
 		$user = replace($user, '\P{Graph}', "");
+		$hash = fixPass($hash);
 
 		[$queue addCommand: $null, "creds -a $host -p 445 -t smb_hash -u $user -P $hash"];
 	}
@@ -57,12 +58,38 @@ import ui.*;
 sub refreshCredsTable {
 	thread(lambda({
 		[Thread yield];
-		local('$creds $cred');
+		local('$creds $cred $desc $aclient %check $key');
 		[$model clear: 128];
-		$creds = call($mclient, "db.creds2", [new HashMap])["creds2"];
+		foreach $desc => $aclient (convertAll([$__frame__ getClients])) {
+			$creds = call($aclient, "db.creds2", [new HashMap])["creds2"];
+			foreach $cred ($creds) {
+				$key = join("~~", values($cred, @("user", "pass", "host")));
+				if ($key in %check) {
+
+				}
+				else if ($title ne "login" || $cred['ptype'] ne "smb_hash") {
+					[$model addEntry: $cred];
+					%check[$key] = 1;
+				}
+			}
+		}
+		[$model fireListeners];
+	}, $model => $1, $title => $2));
+}
+
+sub refreshCredsTableLocal {
+	thread(lambda({
+		[Thread yield];
+		local('$creds $cred $desc $aclient %check $key');
+		[$model clear: 128];
+		$creds = call($client, "db.creds2", [new HashMap])["creds2"];
 		foreach $cred ($creds) {
-			if ($title ne "login" || $cred['ptype'] ne "smb_hash") {
+			$key = join("~~", values($cred, @("user", "pass", "host")));
+			if ($key in %check) {
+			}
+			else if ($title ne "login" || $cred['ptype'] ne "smb_hash") {
 				[$model addEntry: $cred];
+				%check[$key] = 1;
 			}
 		}
 		[$model fireListeners];
@@ -70,7 +97,7 @@ sub refreshCredsTable {
 }
 
 sub show_hashes {
-	local('$dialog $model $table $sorter $o $user $pass $button $reverse $domain $scroll');	
+	local('$dialog $model $table $sorter $o $user $pass $button $reverse $domain $scroll $3');
 
 	$dialog = dialog($1, 480, $2);
 
@@ -82,7 +109,12 @@ sub show_hashes {
 	[$sorter setComparator: 2, &compareHosts];
         [$table setRowSorter: $sorter];
 
-	refreshCredsTable($model, $1);
+	if ($3) {
+		refreshCredsTableLocal($model, $1);
+	}
+	else {
+		refreshCredsTable($model, $1);
+	}
 
 	$scroll = [new JScrollPane: $table];
 	[$scroll setPreferredSize: [new Dimension: 480, 130]];
@@ -93,8 +125,36 @@ sub show_hashes {
 
 sub createCredentialsTab {
 	local('$dialog $table $model $panel $export $crack $refresh');
-	($dialog, $table, $model) = show_hashes("", 320);
+	($dialog, $table, $model) = show_hashes("", 320, 1);
 	[$dialog removeAll];
+
+	addMouseListener($table, lambda({
+		if ([$1 isPopupTrigger]) {
+			local('$popup $entries');
+			$popup = [new JPopupMenu];
+			$entries = [$model getSelectedValuesFromColumns: $table, @("user", "pass", "host")];
+			item($popup, "Delete", 'D', lambda({
+				local('$queue $entry $user $pass $host');
+				$queue = [new armitage.ConsoleQueue: $client];
+				foreach $entry ($entries) {
+					($user, $pass, $host) = $entry;
+					$pass = fixPass($pass);
+					[$queue addCommand: $null, "creds -d $host -u $user -P $pass"];
+				}
+
+				[$queue addCommand: "x", "creds -h"];
+
+				[$queue addListener: lambda({
+					[$queue stop];
+					refreshCredsTable($model, $null);
+				}, \$model, \$queue)];
+
+				[$queue start];
+				[$queue stop];
+			}, \$table, \$model, \$entries));
+			[$popup show: [$1 getSource], [$1 getX], [$1 getY]];
+		}
+	}, \$table, \$model));
 
 	$panel = [new JPanel];
 	[$panel setLayout: [new BorderLayout]];
@@ -102,7 +162,7 @@ sub createCredentialsTab {
 
 	$refresh = [new JButton: "Refresh"];
 	[$refresh addActionListener: lambda({
-		refreshCredsTable($model, $null);
+		refreshCredsTableLocal($model, $null);
 	}, \$model)];
 
 	$crack = [new JButton: "Crack Passwords"];
@@ -343,3 +403,34 @@ sub launchBruteForce {
 		[$console start];
 	}, $type => $1, $module => $2, $options => $3, $title => $4));
 }
+
+sub credentialHelper {
+	thread(lambda({ 
+		[Thread yield];
+
+		# gather our credentials please
+		local('$creds $cred @creds');
+		$creds = call($mclient, "db.creds2", [new HashMap])["creds2"];
+		foreach $cred ($creds) {
+			if ($PASS eq "SMBPass" || $cred['ptype'] ne "smb_hash") {
+				push(@creds, $cred);
+			}
+		}
+
+		# pop up a dialog to let the user choose their favorite set
+		quickListDialog("Choose credentials", "Select", @("user", "user", "pass", "host"), @creds, $width => 640, $height => 240, lambda({
+			if ($1 eq "") {
+				return;
+			}
+
+			local('$user $pass');
+			$user = [$3 getSelectedValueFromColumn: $2, 'user'];
+			$pass = [$3 getSelectedValueFromColumn: $2, 'pass'];
+
+			[$model setValueForKey: $USER, "Value", $user];
+			[$model setValueForKey: $PASS, "Value", $pass];
+			[$model fireListeners];
+		}, \$callback, \$model, \$USER, \$PASS));
+	}, \$USER, \$PASS, \$model, $callback => $4));
+}
+

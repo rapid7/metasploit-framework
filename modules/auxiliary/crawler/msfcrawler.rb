@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
 #
-# $Id$
-#
 # Web Crawler.
 #
 # Author:  Efrain Torres   et [at] metasploit.com 2010
@@ -24,7 +22,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'			=> 'Metasploit Web Crawler',
-			'Version'           => '$Revision$',
 			'Description'       => 'This auxiliary module is a modular web crawler, to be used in conjuntion with wmap (someday) or standalone.',
 			'Author'			=> 'et',
 			'License'			=> MSF_LICENSE

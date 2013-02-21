@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -16,12 +12,11 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Report
-	include Msf::Auxiliary::Scanner
+	include Msf::Auxiliary::UDPScanner
 
 	def initialize
 		super(
 			'Name'        => 'PcAnywhere UDP Service Discovery',
-			'Version'     => '$Revision$',
 			'Description' => 'Discover active pcAnywhere services through UDP',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,
@@ -33,79 +28,23 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 		[
-			Opt::CHOST,
-			OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
 			Opt::RPORT(5632)
 		], self.class)
 	end
 
-
-	# Define our batch size
-	def run_batch_size
-		datastore['BATCHSIZE'].to_i
-	end
-
-	def rport
-		datastore['RPORT'].to_i
-	end
-
-	# Fingerprint a single host
-	def run_batch(batch)
-
+	def scanner_prescan(batch)
 		print_status("Sending pcAnywhere discovery requests to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
-
 		@results = {}
-		begin
-			udp_sock = nil
-			idx = 0
+	end
 
-			# Create an unbound UDP socket if no CHOST is specified, otherwise
-			# create a UDP socket bound to CHOST (in order to avail of pivoting)
-			udp_sock = Rex::Socket::Udp.create( { 'LocalHost' => datastore['CHOST'] || nil, 'Context' => {'Msf' => framework, 'MsfExploit' => self} })
-			add_socket(udp_sock)
+	def scan_host(ip)
+		scanner_send("NQ", ip, datastore['RPORT'])
+		scanner_send("ST", ip, datastore['RPORT'])
+	end
 
-			batch.each do |ip|
-				begin
-					# Send network query
-					udp_sock.sendto("NQ", ip, rport, 0)
-
-					# Send status query
-					udp_sock.sendto("ST", ip, rport, 0)
-				rescue ::Interrupt
-					raise $!
-				rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
-					nil
-				end
-
-				if (idx % 30 == 0)
-					while (r = udp_sock.recvfrom(65535, 0.1) and r[1])
-						parse_reply(r)
-					end
-				end
-
-				idx += 1
-			end
-
-			while (r = udp_sock.recvfrom(65535, 3) and r[1])
-				parse_reply(r)
-			end
-
-		rescue ::Interrupt
-			raise $!
-		rescue ::Errno::ENOBUFS
-			print_status("Socket buffers are full, waiting for them to flush...")
-			while (r = udp_sock.recvfrom(65535, 0.1) and r[1])
-				parse_reply(r)
-			end
-			select(nil, nil, nil, 0.25)
-		rescue ::Exception => e
-			print_error("Unknown error: #{e.class} #{e} #{e.backtrace}")
-		end
-
+	def scanner_postscan(batch)
 		@results.keys.each do |ip|
-			next unless inside_workspace_boundary?(ip)
 			data = @results[ip]
-
 			info = ""
 
 			if data[:name]
@@ -120,23 +59,13 @@ class Metasploit3 < Msf::Auxiliary
 				info << "( #{data[:caps]} ) "
 			end
 
-			report_service(:host => ip, :port => rport, :proto => 'udp', :name => "pcanywhere_stat", :info => info)
-			report_note(:host => ip, :port => rport, :proto => 'udp', :name => "pcanywhere_stat", :update => :unique, :ntype => "pcanywhere.status", :data => data )
-			print_status("#{ip}:#{rport} #{info}")
+			report_service(:host => ip, :port => datastore['RPORT'], :proto => 'udp', :name => "pcanywhere_stat", :info => info)
+			report_note(:host => ip, :port => datastore['RPORT'], :proto => 'udp', :name => "pcanywhere_stat", :update => :unique, :ntype => "pcanywhere.status", :data => data )
+			print_status("#{ip}:#{datastore['RPORT']} #{info}")
 		end
 	end
 
-	def parse_reply(pkt)
-		# Ignore "empty" packets
-		return if not pkt[1]
-
-		addr = pkt[1]
-		if(addr =~ /^::ffff:/)
-			addr = addr.sub(/^::ffff:/, '')
-		end
-
-		data = pkt[0]
-
+	def scanner_process(data, shost, sport)
 		case data
 		when /^NR(........................)(........)/
 
@@ -146,12 +75,12 @@ class Metasploit3 < Msf::Auxiliary
 			name = name.gsub(/_+$/, '').gsub("\x00", '').strip
 			caps = caps.gsub(/_+$/, '').gsub("\x00", '').strip
 
-			@results[addr] ||= {}
-			@results[addr][:name] = name
-			@results[addr][:caps] = caps
+			@results[shost] ||= {}
+			@results[shost][:name] = name
+			@results[shost][:caps] = caps
 
 		when /^ST(.+)/
-			@results[addr] ||= {}
+			@results[shost] ||= {}
 			buff = $1.dup
 			stat = 'Unknown'
 
@@ -163,9 +92,9 @@ class Metasploit3 < Msf::Auxiliary
 				stat = "Busy"
 			end
 
-			@results[addr][:stat] = stat
+			@results[shost][:stat] = stat
 		else
-			print_error("#{addr} Unknown: #{data.inspect}")
+			print_error("#{shost} Unknown: #{data.inspect}")
 		end
 
 	end

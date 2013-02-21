@@ -16,7 +16,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'OS X dup2 Command Shell',
-			'Version'       => '$Revision$',
 			'Description'   => 'dup2 socket in edi, then execve',
 			'Author'        => 'nemo',
 			'License'       => MSF_LICENSE,

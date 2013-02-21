@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -25,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'WinRM WQL Query Runner',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module runs WQL queries against remote WinRM Services.
 				Authentication is required. Currently only works with NTLM auth.
@@ -40,7 +35,8 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptString.new('WQL', [ true, "The WQL query to run", "Select Name,Status from Win32_Service" ]),
 				OptString.new('USERNAME', [ true, "The username to authenticate as"]),
-				OptString.new('PASSWORD', [ true, "The password to authenticate with"])
+				OptString.new('PASSWORD', [ true, "The password to authenticate with"]),
+				OptString.new('NAMESPACE', [true, 'The WMI namespace to use for queries', '/root/cimv2/'])
 			], self.class)
 	end
 

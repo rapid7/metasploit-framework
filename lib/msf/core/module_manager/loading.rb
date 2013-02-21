@@ -26,11 +26,11 @@ module Msf::ModuleManager::Loading
   def file_changed?(path)
     changed = false
 
-    module_details = self.module_info_by_path[path]
+    module_info = self.module_info_by_path[path]
 
     # if uncached then it counts as changed
     # Payloads can't be cached due to stage/stager matching
-    if module_details.nil? or module_details[:mtype] == Msf::MODULE_PAYLOAD
+    if module_info.nil? or module_info[:type] == Msf::MODULE_PAYLOAD
       changed = true
     else
       begin
@@ -39,7 +39,7 @@ module Msf::ModuleManager::Loading
         # if the file does not exist now, that's a change
         changed = true
       else
-        cached_modification_time = module_details[:mtime].to_i
+        cached_modification_time = module_info[:modification_time].to_i
 
         # if the file's modification time's different from the cache, then it's changed
         if current_modification_time != cached_modification_time
@@ -57,21 +57,16 @@ module Msf::ModuleManager::Loading
   # categorized accordingly.
   #
   def on_module_load(mod, type, name, modinfo)
-    # Payload modules require custom loading as the individual files
-    # may not directly contain a logical payload that a user would
-    # reference, such as would be the case with a payload stager or
-    # stage.  As such, when payload modules are loaded they are handed
-    # off to a special payload set.  The payload set, in turn, will
-    # automatically create all the permutations after all the payload
-    # modules have been loaded.
+    dup = module_set_by_type[type].add_module(mod, name, modinfo)
 
-    if (type != Msf::MODULE_PAYLOAD)
-      # Add the module class to the list of modules and add it to the
-      # type separated set of module classes
-      add_module(mod, name, modinfo)
-    end
+    # Automatically subscribe a wrapper around this module to the necessary
+    # event providers based on whatever events it wishes to receive.
+    auto_subscribe_module(dup)
 
-    module_set_by_type[type].add_module(mod, name, modinfo)
+    # Notify the framework that a module was loaded
+    framework.events.on_module_load(name, dup)
+
+    dup
   end
 
   protected

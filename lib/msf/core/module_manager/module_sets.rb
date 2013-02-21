@@ -39,7 +39,7 @@ module Msf::ModuleManager::ModuleSets
     self.enablement_by_type[type] = true
     case type
       when Msf::MODULE_PAYLOAD
-        instance = Msf::PayloadSet.new(self)
+        instance = Msf::PayloadSet.new
       else
         instance = Msf::ModuleSet.new(type)
     end

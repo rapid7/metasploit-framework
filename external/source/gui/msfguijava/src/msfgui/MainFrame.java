@@ -423,7 +423,12 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 						public ActionListener getActor(final String modName, final String type, final RpcConnection rpcConn) {
 							return new ActionListener(){
 								public void actionPerformed(ActionEvent e) {
-									new ModulePopup(modName,rpcConn,type, MainFrame.this).setVisible(true);
+									//If we have saved options for this module, use those
+									Object modOptions = MsfguiApp.getPropertiesNode().get("modOptions");
+									if(modOptions != null && ((Map)modOptions).containsKey(type+" "+modName))
+										new ModulePopup(rpcConn, ((List)((Map)modOptions).get(type+" "+modName)).toArray(), MainFrame.this).setVisible(true);
+									else //otherwise go with the default
+										new ModulePopup(modName,rpcConn,type, MainFrame.this).setVisible(true);
 								}
 							};
 						}

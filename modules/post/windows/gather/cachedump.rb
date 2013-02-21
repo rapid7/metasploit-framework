@@ -1,7 +1,3 @@
-##
-# $Id$
-##
-
 # post/windows/gather/cachedump.rb
 
 ##
@@ -31,7 +27,6 @@ class Metasploit3 < Msf::Post
 				'Maurizio Agazzini <inode[at]mediaservice.net>',
 				'mubix'
 			],
-			'Version'      => '$Revision$',
 			'Platform'     => ['win'],
 			'SessionTypes' => ['meterpreter'],
 			'References'   => [['URL', 'http://lab.mediaservice.net/code/cachedump.rb']]
@@ -521,9 +516,6 @@ class Metasploit3 < Msf::Post
 				end
 			end
 
-			store_loot("mscache.creds", "text/csv", session, @credentials.to_csv,
-				"mscache_credentials.txt", "MSCACHE Credentials")
-
 			print_status("John the Ripper format:")
 
 			john.split("\n").each do |pass|
@@ -532,8 +524,13 @@ class Metasploit3 < Msf::Post
 
 			if( @vista == 1 )
 				print_status("Hash are in MSCACHE_VISTA format. (mscash2)")
+				p = store_loot("mscache2.creds", "text/csv", session, @credentials.to_csv, "mscache2_credentials.txt", "MSCACHE v2 Credentials")
+				print_status("MSCACHE v2 saved in: #{p}")
+
 			else
 				print_status("Hash are in MSCACHE format. (mscash)")
+				p = store_loot("mscache.creds", "text/csv", session, @credentials.to_csv, "mscache_credentials.txt", "MSCACHE v1 Credentials")
+				print_status("MSCACHE v1 saved in: #{p}")
 			end
 
 		rescue ::Interrupt

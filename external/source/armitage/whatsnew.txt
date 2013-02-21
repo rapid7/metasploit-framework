@@ -1,6 +1,96 @@
 Armitage Changelog
 ==================
 
+12 Feb 13 (tested against msf 16438)
+---------
+- Fixed a corner case preventing the display of removed host labels 
+  when connected to a team server.
+- Fixed RPC call cache corruption in team server mode. This bug could 
+  lead to some exploits defaulting to a shell payload when meterpreter 
+  was a possibility.
+- Slight optimization to some DB queries. I no longer pull unused
+  fields making the query marginally faster. Team server is more
+  efficient too as changes to unused fields won't force data (re)sync.
+- Hosts -> Clear Database now clears host labels too.
+- Added the ability to manage multiple team server instances through
+  Armitage. Go to Armitage -> New Connection to connect to another
+  server. A button bar will appear that allows you to switch active
+  Armitage connections.
+	- Credentials available across instances are pooled when using
+ 	  the [host] -> Login menu and the credential helper.
+- Rewrote the event log management code in the team server
+- Added nickname tab completion to event log. I feel like I'm writing
+  an IRC client again.
+- Hosts -> Clear Database now asks you to confirm the action.
+- Hosts -> Import Hosts announces successful import to event log again.
+
+23 Jan 13 (tested against msf 16351)
+---------
+- Added helpers to set EXE::Custom and EXE::Template options.
+- Fixed a bug displaying a Windows 8 icon for Windows 2008 hosts
+- Cleaned up Armitage -> SOCKS Proxy job management code. The code to
+  check if a proxy server is up was deadlock prone. Removed it.
+- Starting SOCKS Proxy module now opens a tab displaying the module
+  start process. An event is posted to the event log too.
+- Created an option helper to select credentials for SMBUser, SMBPass, 
+  USERNAME, and PASSWORD. 
+- Added a feature to label hosts. A label will show up in its own column
+  in table view or below all info in graph view. Any team member may
+  change a label through [host] -> host -> Set Label. You may also use
+  dynamic workspaces to show hosts with certain labels attached.
+- Fixed bad things happening when connecting Armitage to 'localhost' and
+  not '127.0.0.1'.
+- Screenshots and Webcam shots are now centered in their tab.
+- Added an alternate .bat file to start msfrpcd on Windows in the
+  Metasploit 4.5 installer's environment.
+- Added a color-style for [!] warning messages
+
+Cortana Updates (for scripters)
+--------
+- &handler function now works as advertised.
+- Cortana now avoids use of core.setg
+
+4 Jan 13 (tested against msf 16252)
+--------
+- Added a helper to set REXE option
+- Added an icon to represent Windows 8
+- [host] -> Login menu is now built using open services for all 
+  highlighted hosts, not just the first one.
+- [host] -> Login items now escape punctuation characters in passwords
+  before passing them to a framework module.
+- Added the windows and linux postgres_payload exploits to the use a
+  reverse payload by default list.
+- Small tweak to allow Armitage to work with Metasploit 4.5 installed
+  environment on Windows.
+
+Cortana Updates (for scripters)
+--------
+- &credential_add and &credential_delete no longer break when a 
+  password has creative punctuation in it.
+
+26 Nov 12 (tested against msf 16114)
+---------
+- Windows command shell tab is now friendlier to commands that prompt
+  for input (e.g., time command)
+- [host] -> Meterpreter -> Access -> Escalate Privileges now shows all
+  the framework's new exploit/windows/local modules too
+- [host] -> Shell -> Post Modules now shows the framework's unix/local 
+  and exploit/linux/local modules
+- Added Ctrl+I shortcut. Lets you choose a session to interact with.
+- Added Steal Token button to Processes dialog.
+- Armitage now asks Metasploit for a non-expiring authentication token.
+  This will prevent Armitage from losing its access to msfrpcd when you
+  put your computer to sleep or pause the VM running Metasploit.
+- add_user and add_[local]group_user now show all of their output when
+  the -h flag is used to operate on a remote host.
+- added a Delete menu to creds table. Right-click a cred to delete it
+
+Cortana Updates (for scripters)
+--------
+- aliased &data_delete to &data_clear to match the documentation.
+- &file_get, &loot_get, and &file_content no longer delete the remote 
+  file when connected to a teamserver.
+
 16 Oct 12 (tested against msf 15972)
 ---------
 - Added port 5985 to MSF Scans list.

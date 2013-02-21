@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -27,7 +23,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'HTTP Client MS Credential Catcher',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module attempts to quietly catch NTLM/LM Challenge hashes.
 				},
@@ -35,7 +30,6 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					'Ryan Linn <sussurro[at]happypacket.net>',
 				],
-			'Version'     => '$Revision$',
 			'License'     => MSF_LICENSE,
 			'Actions'     =>
 				[

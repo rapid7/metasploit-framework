@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -30,8 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					[ 'CVE', '1999-0502'] # Weak password
-				],
-			'Version'		=> '$Revision$'
+				]
 		))
 	end
 
@@ -72,6 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		offset = 0
 		l0, l1, l2 = data[offset, 3].unpack('CCC')
+		return false if data.length < 3
 		length = l0 | (l1 << 8) | (l2 << 16)
 		# Read a bad amount of data
 		return if length != (data.length - 4)
@@ -108,7 +104,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		vprint_status("#{rhost}:#{rport} Trying username:'#{user}' with password:'#{pass}'")
 		begin
-			mysql_login(user, pass)
+			m = mysql_login(user, pass)
+			return :fail if not m
+
 			print_good("#{rhost}:#{rport} - SUCCESSFUL LOGIN '#{user}' : '#{pass}'")
 			report_auth_info(
 				:host   => rhost,
@@ -120,10 +118,6 @@ class Metasploit3 < Msf::Auxiliary
 				:active => true
 			)
 			return :next_user
-
-		rescue ::RbMysql::AccessDeniedError
-			vprint_status("#{rhost}:#{rport} failed to login as '#{user}' with password '#{pass}'")
-			return :fail
 
 		rescue ::RbMysql::Error => e
 			vprint_error("#{rhost}:#{rport} failed to login: #{e.class} #{e}")

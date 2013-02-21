@@ -12,10 +12,10 @@ module Msf::Payload::Php
 	#
 	# The generated code will initialize
 	#
-	# @options options [String] :disabled_varname PHP variable name in which to
+	# @option options [String] :disabled_varname PHP variable name in which to
 	#   store an array of disabled functions.
 	#
-	# @returns [String] A chunk of PHP code
+	# @return [String] A chunk of PHP code
 	#
 	def php_preamble(options = {})
 		dis = options[:disabled_varname] || '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
@@ -42,15 +42,15 @@ module Msf::Payload::Php
 	#
 	# Generate a chunk of PHP code that tries to run a command.
 	#
-	# @options options [String] :cmd_varname PHP variable name containing the
+	# @option options [String] :cmd_varname PHP variable name containing the
 	#   command to run
-	# @options options [String] :disabled_varname PHP variable name containing
+	# @option options [String] :disabled_varname PHP variable name containing
 	#   an array of disabled functions. See #php_preamble
-	# @options options [String] :output_varname PHP variable name in which to
+	# @option options [String] :output_varname PHP variable name in which to
 	#   store the output of the command. Will contain 0 if no exec functions
 	#   work.
 	#
-	# @returns [String] A chunk of PHP code that, with a little luck, will run a
+	# @return [String] A chunk of PHP code that, with a little luck, will run a
 	#   command.
 	#
 	def php_system_block(options = {})

@@ -5,7 +5,7 @@ require 'anemone/cookie_store'
 
 #
 # This is an alternate Anemone::HTTP implementation that uses the Metasploit Rex
-# library and the Rex::Proto::Http protocol stack. 
+# library and the Rex::Proto::Http protocol stack.
 #
 
 module Anemone
@@ -39,7 +39,7 @@ module Anemone
         url = URI(url) unless url.is_a?(URI)
         pages = []
         get(url, referer) do |response, code, location, redirect_to, response_time|
- 
+
           page = Page.new(location, :body => response.body.dup,
                                       :code => code,
                                       :headers => response.headers,
@@ -84,7 +84,7 @@ module Anemone
     def virtual_host(url)
       url.host
     end
-        
+
     #
     # Does this HTTP client accept cookies from the server?
     #
@@ -109,15 +109,15 @@ module Anemone
 
           response, response_time = get_response(loc, referer)
           code = response.code.to_i
-                  
+
           redirect_to = nil
           if code >= 300 and code <= 310
           	redirect_to = URI(response['location']).normalize
           end
-                    
+
           yield response, code, loc, redirect_to, response_time
-          
-          
+
+
           limit -= 1
       end while (loc = redirect_to) && allowed?(redirect_to, url) && limit > 0
     end
@@ -129,12 +129,11 @@ module Anemone
     #           it is sent to the remote system.
     #
     def get_response(url, referer = nil)
-      full_path = url.query.nil? ? url.path : "#{url.path}?#{url.query}"
-
       opts = {
-      	'uri' => url.path
+      	'uri'   => url.path,
+        'query' => url.query
       }
-      
+
       opts['agent']   = user_agent if user_agent
       opts['cookie']  = @cookie_store.to_s unless @cookie_store.empty? || (!accept_cookies? && @opts[:cookies].nil?)
 
@@ -142,7 +141,7 @@ module Anemone
       if referer
       	head['Referer'] = referer.to_s
       end
-      
+
       if @opts[:http_basic_auth]
       	head['Authorization'] = "Basic " + @opts[:http_basic_auth]
       end
@@ -151,24 +150,24 @@ module Anemone
       	k,v = hdr.split(':', 2)
       	head[k] = v
       end
-      
+
       opts['headers'] = head
-      
+
       retries = 0
       begin
         start = Time.now()
-        
+
         response = nil
         request  = nil
         begin
 			conn     = connection(url)
 			request  = conn.request_raw(opts)
-			response = conn.send_recv(request, @opts[:timeout] || 10 )		
+			response = conn.send_recv(request, @opts[:timeout] || 10 )
 		rescue ::Errno::EPIPE, ::Timeout::Error
 		end
-		
+
         finish = Time.now()
-        
+
         response_time = ((finish - start) * 1000).round
         @cookie_store.merge!(response['Set-Cookie']) if accept_cookies?
         return response, response_time
@@ -191,12 +190,12 @@ module Anemone
 			'SSLv23',
 			@opts[:proxies]
 		)
-		
+
 		conn.set_config(
 			'vhost'      => virtual_host(url),
 			'agent'      => user_agent
 		)
-				
+
 		conn
     end
 

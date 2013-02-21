@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -22,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'MYSQL Schema Dump',
-			'Version'        => '$Revision$',
 			'Description'    => %Q{
 					This module extracts the schema information from a
 					MySQL DB server.
@@ -40,7 +35,6 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 
 		if (not mysql_login_datastore)
-			print_error("Invalid MySQL Server credentials")
 			return
 		end
 		mysql_schema = get_schema

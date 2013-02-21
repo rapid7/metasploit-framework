@@ -163,6 +163,10 @@ global('%shells $ashell $achannel %maxq %wait');
 			# make our shell heuristic tolerant of prompts like this.
 			%wait[$achannel] = $null;
 		}
+		else if (size($v) > 0 && $v[-1] ismatch '.*?:') {
+			# make our shell heuristic tolerant of more prompts... this is from the time command
+			%wait[$achannel] = $null;
+		}
 		else if (size($v) > 0 && $v[-1] !ismatch '(.*?):\\\\.*?\\>') {
 			m_cmd($1, "read $achannel");
 		}
@@ -254,7 +258,14 @@ sub showShellMenu {
 	}
 
 	item($1, "Post Modules", 'P', lambda({
-		showPostModules($sid);
+		if ("*Windows*" iswm sessionToOS($sid)) {
+			showPostModules($sid);
+		}
+		else {
+			showPostModules($sid, "*",
+				ohash(exploit => buildTree(filter({ return iff("*u*x/local/*" iswm $1, $1); }, @exploits)))
+			);
+		}
 	}, \$sid));
 
 	separator($1);
