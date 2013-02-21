@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					'sinn3r', # Used sinn3r's yaws_traversal exploit as a skeleton
 					'Lucas "acidgen" Lundgren IOActive',
-					'Matt "hostess" Andreko',
+					'Matt "hostess" Andreko <mandreko[at]accuvant.com>'
 				],
 			'References'     =>
 				[
