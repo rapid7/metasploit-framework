@@ -69,7 +69,7 @@ public class Main implements Runnable, CortanaPipe.CortanaPipeListener {
 		try {
 			Object conns[] = setupConnections(host, port, user, pass, nick);
 			//new MsgRpcImpl(user, pass, host, Integer.parseInt(port), true, false);
-			engine = new Cortana((RpcConnection)conns[0], (RpcConnection)conns[1], scripts, host);
+			engine = new Cortana((RpcConnection)conns[0], (RpcConnection)conns[1], scripts, (String)conns[2]);
 			new Thread(this).start();
 		}
 		catch (java.lang.RuntimeException rex) {

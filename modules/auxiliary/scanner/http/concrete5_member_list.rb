@@ -44,10 +44,10 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def run_host(rhost)
-		url = normalize_uri(datastore['URI'])
+		url = normalize_uri(datastore['URI'], '/index.php/members')
 
 		begin
-			res = send_request_raw({'uri' => "#{url}/index.php/members"})
+			res = send_request_raw({'uri' => url})
 
 		rescue ::Rex::ConnectionError
 			print_error("#{peer} Unable to connect to #{url}")

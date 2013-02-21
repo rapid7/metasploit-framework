@@ -37,10 +37,16 @@ class Metasploit3 < Msf::Post
 	end
 
 	def progress
-		timeout = (datastore['DURATION'] < 1) ? 1 : (datastore['DURATION']*0.1)
-		datastore['DURATION'].times do |i|
-			print_status("Recording: #{(Float(i+1)/datastore['DURATION'] * 100).round}% done...")
-			select(nil, nil, nil, timeout)
+		duration = datastore['DURATION']
+		m = duration / 10
+		m = 1 if m == 0
+
+		duration.times do |i|
+			if i % m == 0
+				p = ((Float((i == 0) ? 1 : i+1) / duration) * 100).round
+				print_status("#{rhost} - #{p.to_s}%...")
+			end
+			select(nil, nil, nil, 1)
 		end
 	end
 

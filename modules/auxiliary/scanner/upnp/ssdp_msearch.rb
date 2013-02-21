@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'        => 'UPnP SSDP M-SEARCH Information Discovery',
 			'Description' => 'Discover information from UPnP-enabled systems',
-			'Author'      => 'todb',
+			'Author'      => [ 'todb', 'hdm'], # Original scanner module and vuln info reporter, respectively
 			'License'     => MSF_LICENSE
 		)
 
@@ -24,6 +24,10 @@ class Metasploit3 < Msf::Auxiliary
 			Opt::RPORT(1900),
 			OptBool.new('REPORT_LOCATION', [true, 'This determines whether to report the UPnP endpoint service advertised by SSDP', false ])
 		], self.class)
+	end
+
+	def rport
+		datastore['RPORT']
 	end
 
 	def setup
@@ -34,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 			"ST:upnp:rootdevice\r\n" +
 			"Man:\"ssdp:discover\"\r\n" +
 			"MX:3\r\n" +
-			"\r\n\r\n" # Non-standard, but helps
+			"\r\n"
 	end
 
 	def scanner_prescan(batch)
@@ -43,10 +47,13 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def scan_host(ip)
+		vprint_status "#{ip}:#{rport} - SSDP - sending M-SEARCH probe"
 		scanner_send(@msearch_probe, ip, datastore['RPORT'])
 	end
 
 	def scanner_postscan(batch)
+		print_status "No SSDP endpoints found." if @results.empty?
+
 		@results.each_pair do |skey,res|
 			sinfo = res[:service]
 			next unless sinfo
@@ -60,8 +67,56 @@ class Metasploit3 < Msf::Auxiliary
 			desc = bits.join(" | ")
 			sinfo[:info] = desc
 
-			print_status("#{skey} SSDP #{desc}")
+			res[:vulns] = []
+
+			if res[:info][:server].to_s =~ /MiniUPnPd\/1\.0([\.\,\-\~\s]|$)/mi
+				res[:vulns] << {
+					:name => "MiniUPnPd ProcessSSDPRequest() Out of Bounds Memory Access Denial of Service",
+					:refs => [ 'CVE-2013-0229' ]
+				}
+			end
+
+			if res[:info][:server].to_s =~ /MiniUPnPd\/1\.[0-3]([\.\,\-\~\s]|$)/mi
+				res[:vulns] << {
+					:name  => "MiniUPnPd ExecuteSoapAction memcpy() Remote Code Execution",
+					:refs  => [ 'CVE-2013-0230' ],
+					:port  => res[:info][:ssdp_port] || 80,
+					:proto => 'tcp'
+				}
+			end
+
+			if res[:info][:server].to_s =~ /Intel SDK for UPnP devices.*|Portable SDK for UPnP devices(\/?\s*$|\/1\.([0-5]\..*|8\.0.*|(6\.[0-9]|6\.1[0-7])([\.\,\-\~\s]|$)))/mi
+				res[:vulns] << {
+					:name => "Portable SDK for UPnP Devices unique_service_name() Remote Code Execution",
+					:refs => [ 'CVE-2012-5958', 'CVE-2012-5959' ]
+				}
+			end
+
+			if res[:vulns].length > 0
+				vrefs = []
+				res[:vulns].each do |v|
+					v[:refs].each do |r|
+						vrefs << r
+					end
+				end
+
+				print_good("#{skey} SSDP #{desc} | vulns:#{res[:vulns].count} (#{vrefs.join(", ")})")
+			else
+				print_status("#{skey} SSDP #{desc}")
+			end
+
 			report_service( sinfo )
+
+			res[:vulns].each do |v|
+				report_vuln(
+					:host  => sinfo[:host],
+					:port  => v[:port]  || sinfo[:port],
+					:proto => v[:proto] || 'udp',
+					:name  => v[:name],
+					:info  => res[:info][:server],
+					:refs  => v[:refs]
+				)
+			end
 
 			if res[:info][:ssdp_host]
 				report_service(
