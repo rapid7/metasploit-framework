@@ -40,7 +40,9 @@ def print_deprecation_warning
 	$stdout.puts "[*] source checkouts will NO LONGER update over SVN, but will be using"
 	$stdout.puts "[*] GitHub exclusively. You should either download a new Metasploit"
 	$stdout.puts "[*] installer, or use a git clone of Metasploit Framework before"
-	$stdout.puts "[*] then. You will also need outbound access to github.com:9418/TCP."
+	$stdout.puts "[*] then. You will also need outbound access to github.com on"
+	$stdout.puts "[*] TCP port 9418 (git), 22 (ssh) or 443 (https), depending on the"
+	$stdout.puts "[*] protocol used to clone Metasploit Framework (usually, git protocol)."
 end
 
 if is_svn
