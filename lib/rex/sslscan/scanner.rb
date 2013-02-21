@@ -11,6 +11,11 @@ class Scanner
 	
 	attr_reader :supported_versions
 
+	# Initializes the scanner object
+	# @param host [String] IP address or hostname to scan
+	# @param port [Fixnum] Port number to scan, default: 443
+	# @param timeout [Fixnum] Timeout for connections, in seconds. default: 20
+	# @raise [StandardError] Raised when the configuration is invalid
 	def initialize(host,port = 443,timeout=20)
 		@host       = host
 		@port       = port
@@ -19,6 +24,8 @@ class Scanner
 		raise StandardError, "The scanner configuration is invalid" unless valid?
 	end
 
+	# Checks whether the scanner option has a valid configuration
+	# @return [Boolean] True or False, the configuration is valid.
 	def valid?
 		begin
 			@host = Rex::Socket.getaddress(@host, true)
@@ -31,6 +38,8 @@ class Scanner
 		return true
 	end
 
+	# Initiate the Scan against the target. Will test each cipher one at a time.
+	# @return [Result] object containing the details of the scan
 	def scan
 		scan_result = Rex::SSLScan::Result.new
 		@supported_versions.each do |ssl_version|
@@ -46,6 +55,10 @@ class Scanner
 		scan_result
 	end
 
+	# Tests the specified SSL Version and Cipher against the configured target
+	# @param ssl_version [Symbol] The SSL version to use (:SSLv2,  :SSLv3, :TLSv1)
+	# @param cipher [String] The SSL Cipher to use
+	# @return [Symbol] Either :accepted or :rejected
 	def test_cipher(ssl_version, cipher)
 		validate_params(ssl_version,cipher)
 		begin
@@ -63,6 +76,11 @@ class Scanner
 		return :accepted
 	end
 
+	# Retrieve the X509 Cert from the target service,
+	# @param ssl_version [Symbol] The SSL version to use (:SSLv2,  :SSLv3, :TLSv1)
+	# @param cipher [String] The SSL Cipher to use
+	# @return [OpenSSL::X509::Certificate] if the certificate was retrieved
+	# @return [Nil] if the cert couldn't be retrieved
 	def get_cert(ssl_version, cipher)
 		validate_params(ssl_version,cipher)
 		begin
@@ -88,13 +106,19 @@ class Scanner
 
 	protected
 
+	# Validates that the SSL Version and Cipher are valid both seperately and 
+	# together as part of an SSL Context.
+	# @param ssl_version [Symbol] The SSL version to use (:SSLv2,  :SSLv3, :TLSv1)
+	# @param cipher [String] The SSL Cipher to use
+	# @raise [StandardError] If an invalid or unsupported SSL Version was supplied
+	# @raise [StandardError] If the cipher is not valid for that version of SSL
 	def validate_params(ssl_version, cipher)
 		raise StandardError, "The scanner configuration is invalid" unless valid?
 		unless @supported_versions.include? ssl_version
 			raise StandardError, "SSL Version must be one of: #{@supported_versions.to_s}"
 		end
 		unless OpenSSL::SSL::SSLContext.new(ssl_version).ciphers.flatten.include? cipher
-			raise ArgumentError, "Must be a valid SSL Cipher for #{version}!"
+			raise StandardError, "Must be a valid SSL Cipher for #{version}!"
 		end
 	end
 

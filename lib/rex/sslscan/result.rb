@@ -45,6 +45,11 @@ class Result
 		@ciphers.reject{|cipher| cipher[:weak] }
 	end
 
+	# Returns all accepted ciphers matching the supplied version
+	# @param version [Symbol] The SSL Version to filter on
+	# @param version [Array] An array of SSL Versions to filter on
+	# @raise [ArgumentError] if the version supplied is invalid
+	# @return [Array] An array of accepted cipher details matching the supplied versions
 	def accepted(version = :all)
 		if version.kind_of? Symbol
 			case version
@@ -67,6 +72,11 @@ class Result
 		end
 	end
 
+	# Returns all rejected ciphers matching the supplied version
+	# @param version [Symbol] The SSL Version to filter on
+	# @param version [Array] An array of SSL Versions to filter on
+	# @raise [ArgumentError] if the version supplied is invalid
+	# @return [Array] An array of rejected cipher details matching the supplied versions
 	def rejected(version = :all)
 		if version.kind_of? Symbol
 			case version
@@ -129,6 +139,11 @@ class Result
 		true
 	end
 
+	# Adds the details of a cipher test to the Result object.
+	# @param version [Symbol] the SSL Version
+	# @param cipher [String] the SSL cipher
+	# @param key_length [Fixnum] the length of encryption key
+	# @param status [Symbol] :accepted or :rejected
 	def add_cipher(version, cipher, key_length, status)
 		unless @supported_versions.include? version
 			raise ArgumentError, "Must be a supported SSL Version"
