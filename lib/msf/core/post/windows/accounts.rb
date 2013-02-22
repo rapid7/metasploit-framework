@@ -205,7 +205,7 @@ module Accounts
 	# @param [String] dir the directory path
 	# @param [Fixnum] token the access token
 	# @return [String, nil] a String describing the permissions or nil
-	def check_dir(dir, token)
+	def check_dir_perms(dir, token)
 		adv =  session.railgun.advapi32
 		si = "OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION"
 		result = ""
