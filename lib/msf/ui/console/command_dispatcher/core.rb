@@ -365,7 +365,7 @@ class Core
 				"Using notepad to track pentests? Have Metasploit Pro report on hosts,\nservices, sessions and evidence -- type ‘go_pro’ to launch it now.",
 				"Tired of typing ‘set RHOSTS’? Click & pwn with Metasploit Pro\n-- type ‘go_pro’ to launch it now."
 			]
-			banner << content.sample
+			banner << content.sample # Ruby 1.9-ism!
 			banner << "\n\n"
 		end
 
@@ -2614,9 +2614,24 @@ class Core
 
 	def cmd_go_pro(*args)
 		unless is_apt
-			print_line " This command is only available on apt-based installations,"
+			print_line " This command is only available on deb package installations,"
 			print_line " such as Kali Linux."
 			return false
+		end
+		unless metasploit_debian_package_installed
+			print_warning " You will want to install the 'metasploit' package first."
+			print_warning " Type 'apt-get install metasploit' to do this now."
+			return false
+		end
+		# If I've gotten this far, I know that this is apt-installed
+		# and the packages I need are here.
+		if metasploit_service_running
+			print_good " Metasploit services are running, launching a browser..."
+			launch_metasploit_browser
+		else
+			print_warning " Starting the Metasploit services. This will take a few minutes."
+			start_metasploit_service
+			launch_metasploit_browser
 		end
 		@@go_pro_opts.parse(args) do |opt, idx, val|
 			case opt
@@ -2626,6 +2641,18 @@ class Core
 			end
 		end
 		return true
+	end
+
+	def launch_metasploit_browser
+	end
+
+	def start_metasploit_service
+	end
+
+	def metasploit_service_running
+	end
+
+	def metasploit_debian_package_installed
 	end
 
 	# Determines if this is an apt-based install
