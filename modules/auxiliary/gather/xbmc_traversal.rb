@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('FILEPATH', [false, 'The name of the file to download', '/private/var/mobile/Library/Preferences/XBMC/userdata/passwords.xml']),
 				OptInt.new('DEPTH', [true, 'The max traversal depth', 9]),
 				OptString.new('USERNAME', [true, 'The username to use for the HTTP server', 'xbmc']),
-				OptString.new('PASSWORD', [true, 'The password to use for the HTTP server', 'xbmc']),
+				OptString.new('PASSWORD', [false, 'The password to use for the HTTP server', 'xbmc']),
 			], self.class)
 	end
 
