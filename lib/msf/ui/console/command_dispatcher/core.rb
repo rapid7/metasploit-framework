@@ -85,7 +85,7 @@ class Core
 			"connect"  => "Communicate with a host",
 			"color"    => "Toggle color",
 			"exit"     => "Exit the console",
-			"go_pro"   => "Launch Metasploit web UI",
+			"go_pro"   => "Launch Metasploit web GUI",
 			"help"     => "Help menu",
 			"info"     => "Displays information about one or more module",
 			"irb"      => "Drop into irb scripting mode",
@@ -135,6 +135,17 @@ class Core
 	#
 	def name
 		"Core"
+	end
+
+	# Indicates the base dir where Metasploit Framework is installed.
+	def msfbase_dir
+		base = __FILE__
+		while File.symlink?(base)
+			base = File.expand_path(File.readlink(base), File.dirname(base))
+		end
+		File.expand_path(
+			File.join(File.dirname(base), "..","..","..","..","..")
+		)
 	end
 
 	def cmd_color_help
@@ -2582,12 +2593,29 @@ class Core
 	def cmd_go_pro_help
 		print_line "Usage: go_pro"
 		print_line
-		print_line "Launch the Metasploit web UI"
+		print_line "Launch the Metasploit web GUI"
 		print_line
 	end
 
 	def cmd_go_pro(*args)
-		print_line "Hey now it's pro time"
+		unless is_apt
+			print_line " This command is only available on apt-based installations,"
+			print_line " such as Kali Linux."
+			return false
+		end
+		@@go_pro_opts.parse(args) do |opt, idx, val|
+			case opt
+			when "-h"
+				cmd_go_pro_help
+				return false
+			end
+		end
+		return true
+	end
+
+	# Determines if this is an apt-based install
+	def is_apt
+		File.exists?(File.expand_path(File.join(msfbase_dir, '.apt')))
 	end
 
 protected
