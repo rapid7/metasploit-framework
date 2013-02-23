@@ -355,6 +355,20 @@ class Core
 	#
 	def cmd_banner(*args)
 		banner  = "%cya" + Banner.to_s + "%clr\n\n"
+
+		if is_apt
+			content = [
+				"Large pentest? List, sort, group, tag and search your hosts and services\nin Metasploit Pro -- type ‘go_pro’ to launch it now.",
+				"Frustrated with proxy pivoting? Upgrade to layer-2 VPN pivoting with\nMetasploit Pro -- type ‘go_pro’ to launch it now.",
+				"Save your shells from AV! Upgrade to advanced AV evasion using dynamic\nexe templates with Metasploit Pro -- type ‘go_pro’ to launch it now.",
+				"Easy phishing: Set up email templates, landing pages and listeners\nin Metasploit Pro’s wizard -- type ‘go_pro’ to launch it now.",
+				"Using notepad to track pentests? Have Metasploit Pro report on hosts,\nservices, sessions and evidence -- type ‘go_pro’ to launch it now.",
+				"Tired of typing ‘set RHOSTS’? Click & pwn with Metasploit Pro\n-- type ‘go_pro’ to launch it now."
+			]
+			banner << content.sample
+			banner << "\n\n"
+		end
+
 		banner << "       =[ %yelmetasploit v#{Msf::Framework::Version} [core:#{Msf::Framework::VersionCore} api:#{Msf::Framework::VersionAPI}]%clr\n"
 		banner << "+ -- --=[ "
 		banner << "#{framework.stats.num_exploits} exploits - #{framework.stats.num_auxiliary} auxiliary - #{framework.stats.num_post} post\n"
@@ -362,6 +376,7 @@ class Core
 
 		oldwarn = nil
 		avdwarn = nil
+
 		banner << "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops\n"
 		if ( ::Msf::Framework::RepoRevision.to_i > 0 and ::Msf::Framework::RepoUpdatedDate)
 			tstamp = ::Msf::Framework::RepoUpdatedDate.strftime("%Y.%m.%d")
