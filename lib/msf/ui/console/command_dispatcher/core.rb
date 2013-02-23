@@ -68,6 +68,9 @@ class Core
 	@@search_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner."                                   ])
 
+	@@go_pro_opts = Rex::Parser::Arguments.new(
+		"-h" => [ false, "Help banner."                                   ])
+
 	# The list of data store elements that cannot be set when in defanged
 	# mode.
 	DefangedProhibitedDataStoreElements = [ "MsfModulePaths" ]
@@ -82,6 +85,7 @@ class Core
 			"connect"  => "Communicate with a host",
 			"color"    => "Toggle color",
 			"exit"     => "Exit the console",
+			"go_pro"   => "Launch Metasploit web UI",
 			"help"     => "Help menu",
 			"info"     => "Displays information about one or more module",
 			"irb"      => "Drop into irb scripting mode",
@@ -2573,6 +2577,17 @@ class Core
 		end
 
 		return res
+	end
+
+	def cmd_go_pro_help
+		print_line "Usage: go_pro"
+		print_line
+		print_line "Launch the Metasploit web UI"
+		print_line
+	end
+
+	def cmd_go_pro(*args)
+		print_line "Hey now it's pro time"
 	end
 
 protected
