@@ -2656,12 +2656,17 @@ class Core
 
 	def launch_metasploit_browser
 		cmd = "/usr/bin/xdg-open"
-		return unless ::File.executable_real? cmd
+		unless ::File.executable_real? cmd
+			print_warning "Can't figure out your default browser, please visit https://localhost:3790"
+			print_warning "to start the web UI version of Metasploit."
+			return false
+		end
 		svc_log = File.expand_path(File.join(msfbase_dir, ".." , "engine", "prosvc_stdout.log"))
 		return unless ::File.readable_real? svc_log
 		really_started = false
 		# This method is a little lame but it's a short enough file that it
 		# shouldn't really matter that we open and close it a few times.
+		timeout = 0
 		until really_started
 			select(nil,nil,nil,3)
 			log_data = ::File.open(svc_log, "rb") {|f| f.read f.stat.size}
@@ -2673,8 +2678,15 @@ class Core
 				print_good "a self-signed certificate warning. Accept it to create a new user."
 				select(nil,nil,nil,7)
 				system(cmd, "https://localhost:3790")
+			elsif timeout >= 200 # 200 * 3 seconds is 10 minutes and that is tons of time.
+				print_line
+				print_warning "For some reason, the web UI didn't start in a timely fashion."
+				print_warning "You might want to restart the Metasploit services by typing"
+				print_warning "'service metasploit restart' . Sorry it didn't work out."
+				return false
 			else
 				print "."
+				timeout += 1
 			end
 		end
 	end
