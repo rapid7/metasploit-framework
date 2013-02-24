@@ -2701,13 +2701,7 @@ class Core
 
 	def is_metasploit_service_running
 		cmd = "/usr/sbin/service"
-		return unless ::File.executable_real? cmd
-		services = %x{#{cmd} metasploit status}
-		expected = "Metasploit %s server is running."
-		%w{web rpc}.each do |svc|
-			return false unless services.include?(expected % svc)
-		end
-		return true
+		system(cmd, "metasploit", "status") # Both running returns true, otherwise, false.
 	end
 
 	def is_metasploit_debian_package_installed
