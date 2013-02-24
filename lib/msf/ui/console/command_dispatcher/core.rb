@@ -2618,14 +2618,14 @@ class Core
 			print_line " such as Kali Linux."
 			return false
 		end
-		unless metasploit_debian_package_installed
+		unless is_metasploit_debian_package_installed
 			print_warning " You will want to install the 'metasploit' package first."
 			print_warning " Type 'apt-get install metasploit' to do this now."
 			return false
 		end
 		# If I've gotten this far, I know that this is apt-installed
 		# and the packages I need are here.
-		if metasploit_service_running
+		if is_metasploit_service_running
 			print_good " Metasploit services are running, launching a browser..."
 			launch_metasploit_browser
 		else
@@ -2644,15 +2644,49 @@ class Core
 	end
 
 	def launch_metasploit_browser
+		cmd = "/usr/bin/xdg-open"
+		return unless ::File.executable_real? cmd
+		svc_log = File.join(msf_base, ".." , "engine", "prosvc_stdout.log")
+		return unless ::File.readable_real? svc_log
+		really_started = false
+		# This method is a little lame but it's a short enough file that it
+		# shouldn't really matter that we reopen it a few times.
+		until really_started
+			select(3,nil,nil,nil)
+			log_data = ::File.open(svc_log, "rb") {|f| f.read f.stat.size}
+			really_started = log_data =~ /^\[\*\] Ready/ # This is webserver ready, not totally ready.
+			print_raw "." unless really_started
+		end
+		system(cmd, "https://localhost:3790")
 	end
 
 	def start_metasploit_service
+		cmd = "/usr/sbin/service"
+		return unless ::File.executable_real? cmd
+		%x{#{cmd} metasploit start}.each_line do |line|
+			print_status line
+		end
 	end
 
-	def metasploit_service_running
+	def is_metasploit_service_running
+		cmd = "/usr/sbin/service"
+		return unless ::File.executable_real? cmd
+		services = %x{#{cmd} metasploit status}
+		expected = "Metasploit %s server is running."
+		%w{web rpc}.each do |svc|
+			return false unless services.include?(expected % svc)
+		end
 	end
 
-	def metasploit_debian_package_installed
+	def is_metasploit_debian_package_installed
+		cmd = "/usr/bin/dpkg"
+		return unless ::File.executable_real? cmd
+		installed_packages = %x{#{cmd} -l 'metasploit'}
+		installed_packages.each_line do |line|
+			if line =~ /^.i  metasploit / # Yes, trailing space
+				return true
+			end
+		end
 	end
 
 	# Determines if this is an apt-based install
