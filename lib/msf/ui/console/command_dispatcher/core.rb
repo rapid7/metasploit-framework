@@ -2620,18 +2620,20 @@ class Core
 		end
 		unless is_metasploit_debian_package_installed
 			print_warning " You will want to install the 'metasploit' package first."
-			print_warning " Type 'apt-get install metasploit' to do this now."
+			print_warning " Type 'apt-get install metasploit' to do this now, then try 'go_pro' again."
 			return false
 		end
 		# If I've gotten this far, I know that this is apt-installed
 		# and the packages I need are here.
 		if is_metasploit_service_running
-			print_good " Metasploit services are running, launching a browser..."
 			launch_metasploit_browser
 		else
-			print_warning " Starting the Metasploit services. This will take a few minutes."
+			print_status "Starting the Metasploit services. This can take a little time."
 			start_metasploit_service
-			launch_metasploit_browser
+			select(nil,nil,nil,3)
+			if is_metasploit_service_running
+				launch_metasploit_browser
+			end
 		end
 		@@go_pro_opts.parse(args) do |opt, idx, val|
 			case opt
@@ -2646,25 +2648,33 @@ class Core
 	def launch_metasploit_browser
 		cmd = "/usr/bin/xdg-open"
 		return unless ::File.executable_real? cmd
-		svc_log = File.join(msf_base, ".." , "engine", "prosvc_stdout.log")
+		svc_log = File.expand_path(File.join(msfbase_dir, ".." , "engine", "prosvc_stdout.log"))
 		return unless ::File.readable_real? svc_log
 		really_started = false
 		# This method is a little lame but it's a short enough file that it
-		# shouldn't really matter that we reopen it a few times.
+		# shouldn't really matter that we open and close it a few times.
 		until really_started
-			select(3,nil,nil,nil)
+			select(nil,nil,nil,3)
 			log_data = ::File.open(svc_log, "rb") {|f| f.read f.stat.size}
-			really_started = log_data =~ /^\[\*\] Ready/ # This is webserver ready, not totally ready.
-			print_raw "." unless really_started
+			really_started = log_data =~ /^\[\*\] Ready/ # This is webserver ready
+			if really_started
+				print_line
+				print_good "The web UI is up and running, connecting with your default browser."
+				print_good "If this is your first time connecting, you will be presented with"
+				print_good "a self-signed certificate warning. Accept it to create a new user."
+				select(nil,nil,nil,7)
+				system(cmd, "https://localhost:3790")
+			else
+				print "."
+			end
 		end
-		system(cmd, "https://localhost:3790")
 	end
 
 	def start_metasploit_service
 		cmd = "/usr/sbin/service"
 		return unless ::File.executable_real? cmd
 		%x{#{cmd} metasploit start}.each_line do |line|
-			print_status line
+			print_status line.chomp
 		end
 	end
 
@@ -2676,6 +2686,7 @@ class Core
 		%w{web rpc}.each do |svc|
 			return false unless services.include?(expected % svc)
 		end
+		return true
 	end
 
 	def is_metasploit_debian_package_installed
@@ -2687,6 +2698,7 @@ class Core
 				return true
 			end
 		end
+		return false
 	end
 
 	# Determines if this is an apt-based install
