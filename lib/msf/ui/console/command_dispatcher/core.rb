@@ -2613,19 +2613,26 @@ class Core
 	end
 
 	def cmd_go_pro(*args)
+		@@go_pro_opts.parse(args) do |opt, idx, val|
+			case opt
+			when "-h"
+				cmd_go_pro_help
+				return false
+			end
+		end
 		unless is_apt
 			print_line " This command is only available on deb package installations,"
 			print_line " such as Kali Linux."
 			return false
 		end
 		unless is_metasploit_debian_package_installed
-			print_warning "You needs to install the 'metasploit' package first."
-			print_warning "Type 'apt-get install metasploit' to do this now, then exit"
+			print_warning "You need to install the 'metasploit' package first."
+			print_warning "Type 'apt-get install -y metasploit' to do this now, then exit"
 			print_warning "and restart msfconsole to try again."
 			return false
 		end
-		# If I've gotten this far, I know that this is apt-installed
-		# and the packages I need are here.
+		# If I've gotten this far, I know that this is apt-installed, the
+		# metasploit package is here, and I'm ready to rock.
 		if is_metasploit_service_running
 			launch_metasploit_browser
 		else
@@ -2638,15 +2645,14 @@ class Core
 				print_error "Metasploit services aren't running. Type 'service start metasploit' and try again."
 			end
 		end
-		@@go_pro_opts.parse(args) do |opt, idx, val|
-			case opt
-			when "-h"
-				cmd_go_pro_help
-				return false
-			end
-		end
 		return true
 	end
+
+	protected
+
+	#
+	# Go_pro methods -- these are used to start and connect to the
+	# web UI.
 
 	def launch_metasploit_browser
 		cmd = "/usr/bin/xdg-open"
@@ -2708,8 +2714,6 @@ class Core
 	def is_apt
 		File.exists?(File.expand_path(File.join(msfbase_dir, '.apt')))
 	end
-
-protected
 
 	#
 	# Module list enumeration
