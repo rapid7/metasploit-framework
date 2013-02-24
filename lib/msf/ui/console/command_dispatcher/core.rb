@@ -2619,8 +2619,9 @@ class Core
 			return false
 		end
 		unless is_metasploit_debian_package_installed
-			print_warning " You will want to install the 'metasploit' package first."
-			print_warning " Type 'apt-get install metasploit' to do this now, then try 'go_pro' again."
+			print_warning "You needs to install the 'metasploit' package first."
+			print_warning "Type 'apt-get install metasploit' to do this now, then exit"
+			print_warning "and restart msfconsole to try again."
 			return false
 		end
 		# If I've gotten this far, I know that this is apt-installed
@@ -2633,6 +2634,8 @@ class Core
 			select(nil,nil,nil,3)
 			if is_metasploit_service_running
 				launch_metasploit_browser
+			else
+				print_error "Metasploit services aren't running. Type 'service start metasploit' and try again."
 			end
 		end
 		@@go_pro_opts.parse(args) do |opt, idx, val|
