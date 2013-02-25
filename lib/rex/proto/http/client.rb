@@ -169,7 +169,7 @@ class Client
 	#
 	# @return [Request]
 	def request_raw(opts={})
-		opts['agent']   ||= config['agent']		
+		opts['agent']   ||= config['agent']
 		opts['data']    ||= ''
 		opts['uri']     ||= '/'
 		opts['cookie']  ||= config['cookie']
@@ -179,7 +179,7 @@ class Client
 		opts['method']  ||= 'GET'
 		opts['proto']   ||= 'HTTP'
 		opts['query']   ||= ''
-	
+
 		opts['cgi']         = false
 		opts['port']        = self.port
 		opts['basic_auth']  = opts['basic_auth'] || config['basic_auth'] || ''
@@ -221,12 +221,12 @@ class Client
 		opts['ctype']     ||= 'application/x-www-form-urlencoded'
 		opts['vars_get']  ||= {}
 		opts['vars_post'] ||= {}
-		
+
 		opts['cgi']         = true
 		opts['port']        = self.port
 		opts['basic_auth']  = opts['basic_auth'] || config['basic_auth'] || ''
 		opts['raw_headers'] = opts['raw_headers'] || config['raw_headers'] || ''
-		opts['version']     = opts['version']     || config['version'] || '1.1'  
+		opts['version']     = opts['version']     || config['version'] || '1.1'
 
 		opts['client_config'] = self.config
 

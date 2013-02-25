@@ -118,9 +118,9 @@ class ClientRequest
 		if  encode
 			req << set_encode_uri(uri_str)
 		else
-			req << uri_str 
+			req << uri_str
 		end
-		
+
 
 		if (qstr.length > 0)
 			req << '?'

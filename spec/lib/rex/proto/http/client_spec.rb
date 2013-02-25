@@ -132,7 +132,7 @@ describe Rex::Proto::Http::Client do
 	# These set_ methods all exercise the evasion opts, looks like
 
 	it "should set and return the URI", :pending => excuse_lazy(:set_uri) do
-		
+
 	end
 
 	it "should set and return the CGI", :pending => excuse_lazy(:set_cgi) do
