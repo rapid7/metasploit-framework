@@ -16,8 +16,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => "XBMC Web Server Directory Traversal",
 			'Description'    => %q{
-					This module exploits a directory traversal bug in XBMC 11, up until the 2012-11-04 nightly build.
-					The module can only be used to retrieve files.
+					This module exploits a directory traversal bug in XBMC 11, up until the
+				2012-11-04 nightly build. The module can only be used to retrieve files.
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         =>
