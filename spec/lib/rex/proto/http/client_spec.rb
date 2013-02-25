@@ -28,31 +28,33 @@ describe Rex::Proto::Http::Client do
 
 	end
 
-	ip = "1.2.3.4"
+	before(:all) do
+		@ip = "1.2.3.4"
+		@cli = Rex::Proto::Http::Client.new(@ip)
+	end
 
-	cli = Rex::Proto::Http::Client.new(ip)
 	it "should respond to intialize" do
-		cli.should be
+		@cli.should be
 	end
 
 	it "should have a set of default instance variables" do
-		cli.instance_variable_get(:@hostname).should == ip
-		cli.instance_variable_get(:@port).should == 80
-		cli.instance_variable_get(:@context).should == {}
-		cli.instance_variable_get(:@ssl).should be_false
-		cli.instance_variable_get(:@proxies).should be_nil
-		# cli.instance_variable_get(:@username).should be_empty
-		# cli.instance_variable_get(:@password).should be_empty
-		cli.config.should be_a_kind_of Hash
-		cli.config_types.should be_a_kind_of Hash
+		@cli.instance_variable_get(:@hostname).should == @ip
+		@cli.instance_variable_get(:@port).should == 80
+		@cli.instance_variable_get(:@context).should == {}
+		@cli.instance_variable_get(:@ssl).should be_false
+		@cli.instance_variable_get(:@proxies).should be_nil
+		# @cli.instance_variable_get(:@username).should be_empty
+		# @cli.instance_variable_get(:@password).should be_empty
+		@cli.config.should be_a_kind_of Hash
+		@cli.config_types.should be_a_kind_of Hash
 	end
 
 	it "should produce a raw HTTP request", :pending => "Waiting for PR #1500" do
-		cli.request_raw.should be_a_kind_of Rex::Proto::Http::Request
+		@cli.request_raw.should be_a_kind_of Rex::Proto::Http::Request
 	end
 
 	it "should produce a CGI HTTP request", :pending => "Waiting for PR #1500" do
-		cli.request_cgi.should be_a_kind_of Rex::Proto::Http::Request
+		@cli.request_cgi.should be_a_kind_of Rex::Proto::Http::Request
 	end
 
 	it "should attempt to connect to a server" do
@@ -61,7 +63,7 @@ describe Rex::Proto::Http::Client do
 	end
 
 	it "should be able to close a connection" do
-		cli.close.should be_nil
+		@cli.close.should be_nil
 	end
 
 	it "should send a request and receive a response", :pending => excuse_needs_connection do
@@ -77,7 +79,7 @@ describe Rex::Proto::Http::Client do
 	end
 
 	it "should test for credentials" do
-		# cli.should_not have_creds
+		# @cli.should_not have_creds
 		# this_cli = Rex::Proto::Http::Client.new("127.0.0.1", 1, {}, false, nil, nil, "user1", "pass1" )
 		# this_cli.should have_creds
 		pending "Should actually respond to :has_creds"
@@ -89,7 +91,7 @@ describe Rex::Proto::Http::Client do
 		u = "user1"
 		p = "pass1"
 		b64 = ["#{u}:#{p}"].pack("m*").strip
-		cli.basic_auth_header("user1","pass1").should == "Basic #{b64}"
+		@cli.basic_auth_header("user1","pass1").should == "Basic #{b64}"
 	end
 
 	it "should perform digest authentication", :pending => excuse_needs_auth do
@@ -105,15 +107,15 @@ describe Rex::Proto::Http::Client do
 	end
 
 	it "should end a connection with a stop" do
-		cli.stop.should be_nil
+		@cli.stop.should be_nil
 	end
 
 	it "should test if a connection is valid" do
-		cli.conn?.should be_false
+		@cli.conn?.should be_false
 	end
 
 	it "should tell if pipelining is enabled" do
-		cli.pipelining?.should be_false
+		@cli.pipelining?.should be_false
 		this_cli = Rex::Proto::Http::Client.new("127.0.0.1", 1)
 		this_cli.pipeline = true
 		this_cli.pipelining?.should be_true
@@ -166,7 +168,7 @@ describe Rex::Proto::Http::Client do
 	end
 
 	it "should set and return padding after the URI" do
-		cli.set_uri_append.should be_empty
+		@cli.set_uri_append.should be_empty
 	end
 
 	it "should set and return the host header", :pending => excuse_lazy(:set_host_header) do
@@ -210,30 +212,30 @@ describe Rex::Proto::Http::Client do
 	end
 
 	it "should respond to its various accessors" do
-		cli.should respond_to :config
-		cli.should respond_to :config_types
-		cli.should respond_to :pipeline
-		cli.should respond_to :local_host
-		cli.should respond_to :local_port
-		cli.should respond_to :conn
-		cli.should respond_to :context
-		cli.should respond_to :proxies
-		# cli.should respond_to :username
-		# cli.should respond_to :password
-		cli.should respond_to :junk_pipeline
+		@cli.should respond_to :config
+		@cli.should respond_to :config_types
+		@cli.should respond_to :pipeline
+		@cli.should respond_to :local_host
+		@cli.should respond_to :local_port
+		@cli.should respond_to :conn
+		@cli.should respond_to :context
+		@cli.should respond_to :proxies
+		# @cli.should respond_to :username
+		# @cli.should respond_to :password
+		@cli.should respond_to :junk_pipeline
 		# These are supposed to be protected
-		cli.should respond_to :ssl
-		cli.should respond_to :ssl_version
-		cli.should respond_to :hostname
-		cli.should respond_to :port
+		@cli.should respond_to :ssl
+		@cli.should respond_to :ssl_version
+		@cli.should respond_to :hostname
+		@cli.should respond_to :port
 	end
 
 	# Not super sure why these are protected...
 	it "should refuse access to its protected accessors" do
-		expect {cli.ssl}.to raise_error NoMethodError
-		expect {cli.ssl_version}.to raise_error NoMethodError
-		expect {cli.hostname}.to raise_error NoMethodError
-		expect {cli.port}.to raise_error NoMethodError
+		expect {@cli.ssl}.to raise_error NoMethodError
+		expect {@cli.ssl_version}.to raise_error NoMethodError
+		expect {@cli.hostname}.to raise_error NoMethodError
+		expect {@cli.port}.to raise_error NoMethodError
 	end
 
 end
