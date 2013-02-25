@@ -2651,14 +2651,14 @@ class Core
 	protected
 
 	#
-	# Go_pro methods -- these are used to start and connect to the
-	# web UI.
+	# Go_pro methods -- these are used to start and connect to
+	# Metasploit Community / Pro.
 
 	def launch_metasploit_browser
 		cmd = "/usr/bin/xdg-open"
 		unless ::File.executable_real? cmd
 			print_warning "Can't figure out your default browser, please visit https://localhost:3790"
-			print_warning "to start the web UI version of Metasploit."
+			print_warning "to start Metasploit Community / Pro."
 			return false
 		end
 		svc_log = File.expand_path(File.join(msfbase_dir, ".." , "engine", "prosvc_stdout.log"))
@@ -2673,14 +2673,14 @@ class Core
 			really_started = log_data =~ /^\[\*\] Ready/ # This is webserver ready
 			if really_started
 				print_line
-				print_good "The web UI is up and running, connecting with your default browser."
+				print_good "Metasploit Community / Pro is up and running, connecting now."
 				print_good "If this is your first time connecting, you will be presented with"
 				print_good "a self-signed certificate warning. Accept it to create a new user."
 				select(nil,nil,nil,7)
 				system(cmd, "https://localhost:3790")
 			elsif timeout >= 200 # 200 * 3 seconds is 10 minutes and that is tons of time.
 				print_line
-				print_warning "For some reason, the web UI didn't start in a timely fashion."
+				print_warning "For some reason, Community / Pro didn't start in a timely fashion."
 				print_warning "You might want to restart the Metasploit services by typing"
 				print_warning "'service metasploit restart' . Sorry it didn't work out."
 				return false
