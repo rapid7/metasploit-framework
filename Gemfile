@@ -4,6 +4,8 @@ source 'http://rubygems.org'
 gem 'activesupport', '>= 3.0.0'
 # Needed for Msf::DbManager
 gem 'activerecord'
+# Needed for Ruby 2.0.0
+gem 'iconv'
 # Needed for some admin modules (scrutinizer_add_user.rb)
 gem 'json'
 # Database models shared between framework and Pro.
