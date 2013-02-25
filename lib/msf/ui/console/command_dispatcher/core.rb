@@ -89,7 +89,7 @@ class Core
 			"kill"     => "Kill a job",
 			"load"     => "Load a framework plugin",
 			"loadpath" => "Searches for and loads modules from a path",
-			"popm"     => "Pops the latest module off of the module stack and makes it active",
+			"popm"     => "Pops the latest module off the stack and makes it active",
 			"pushm"    => "Pushes the active or list of modules onto the module stack",
 			"previous" => "Sets the previously loaded module as the current module",
 			"quit"     => "Exit the console",
