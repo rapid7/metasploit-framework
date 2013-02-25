@@ -9,6 +9,9 @@ import msf.*;
 
 # setg("varname", "value")
 sub setg {
+	if ($1 eq "LHOST") {
+		call_async("armitage.set_ip", $2);
+	}
 	cmd_safe("setg $1 $2");
 }
 

@@ -38,6 +38,10 @@ module Metasploit3
 	# Construct the payload
 	#
 	def generate
+		if datastore['ARCH']
+			self.arch = actual_arch
+		end
+
 		if datastore['PAYLOADFILE']
 			IO.read(datastore['PAYLOADFILE'])
 		elsif datastore['PAYLOADSTR']

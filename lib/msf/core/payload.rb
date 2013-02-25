@@ -186,6 +186,15 @@ class Payload < Msf::Module
 	end
 
 	#
+	# Sets the assembly string that describes the payload
+	# If this method is used to define the payload, a payload with no offsets will be created
+	#
+	def assembly=(asm)
+		module_info['Payload'] ||= {'Offsets' => {} }
+		module_info['Payload']['Assembly'] = asm
+	end
+
+	#
 	# Returns the offsets to variables that must be substitute, if any.
 	#
 	def offsets
