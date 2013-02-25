@@ -5,6 +5,7 @@ module Rex::SSLScan
 
 class Scanner
 
+	attr_accessor :context
 	attr_accessor :host
 	attr_accessor :port
 	attr_accessor :timeout
@@ -16,10 +17,11 @@ class Scanner
 	# @param port [Fixnum] Port number to scan, default: 443
 	# @param timeout [Fixnum] Timeout for connections, in seconds. default: 20
 	# @raise [StandardError] Raised when the configuration is invalid
-	def initialize(host,port = 443,timeout=20)
+	def initialize(host,port = 443,context = {},timeout=20)
 		@host       = host
 		@port       = port
-		@timeout = timeout
+		@timeout    = timeout
+		@context    = context
 		@supported_versions = [:SSLv2, :SSLv3, :TLSv1]
 		raise StandardError, "The scanner configuration is invalid" unless valid?
 	end
@@ -63,6 +65,7 @@ class Scanner
 		validate_params(ssl_version,cipher)
 		begin
 			scan_client = Rex::Socket::Tcp.create(
+				'Context'    => @context,
 				'PeerHost'   => @host,
 				'PeerPort'   => @port,
 				'SSL'        => true,
