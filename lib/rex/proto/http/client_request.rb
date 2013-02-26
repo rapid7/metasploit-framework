@@ -1,13 +1,65 @@
 # -*- coding: binary -*-
 require 'uri'
-require 'rex/proto/http'
+#require 'rex/proto/http'
+require 'rex/socket'
+require 'rex/text'
 
+require 'pp'
 
 module Rex
 module Proto
 module Http
 
 class ClientRequest
+
+	DefaultUserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)"
+	DefaultConfig = {
+		#
+		# Evasion options
+		#
+		'encode_params'          => true,
+		'encode'                 => true,
+		'uri_encode_mode'        => 'hex-normal', # hex-all, hex-random, u-normal, u-random, u-all
+		'uri_encode_count'       => 1,       # integer
+		'uri_full_url'           => false,   # bool
+		'pad_method_uri_count'   => 1,       # integer
+		'pad_uri_version_count'  => 1,       # integer
+		'pad_method_uri_type'    => 'space', # space, tab, apache
+		'pad_uri_version_type'   => 'space', # space, tab, apache
+		'method_random_valid'    => false,   # bool
+		'method_random_invalid'  => false,   # bool
+		'method_random_case'     => false,   # bool
+		'version_random_valid'   => false,   # bool
+		'version_random_invalid' => false,   # bool
+		'version_random_case'    => false,   # bool
+		'uri_dir_self_reference' => false,   # bool
+		'uri_dir_fake_relative'  => false,   # bool
+		'uri_use_backslashes'    => false,   # bool
+		'pad_fake_headers'       => false,   # bool
+		'pad_fake_headers_count' => 16,      # integer
+		'pad_get_params'         => false,   # bool
+		'pad_get_params_count'   => 8,       # integer
+		'pad_post_params'        => false,   # bool
+		'pad_post_params_count'  => 8,       # integer
+		'uri_fake_end'           => false,   # bool
+		'uri_fake_params_start'  => false,   # bool
+		'header_folding'         => false,   # bool
+		'chunked_size'           => 0,        # integer
+		#
+		# NTLM Options
+		#
+		'usentlm2_session' => true,
+		'use_ntlmv2'       => true,
+		'send_lm'         => true,
+		'send_ntlm'       => true,
+		'SendSPN'  => true,
+		'UseLMKey' => false,
+		'domain' => 'WORKSTATION',
+		#
+		# Digest Options
+		#
+		'DigestAuthIIS' => true
+	}
 
 	attr_accessor :authorization
 	attr_accessor :cgi
@@ -16,8 +68,6 @@ class ClientRequest
 	attr_accessor :content_type
 	attr_accessor :cookie
 	attr_accessor :data
-	attr_accessor :encode
-	attr_accessor :encode_params
 	attr_accessor :headers
 	attr_accessor :host
 	attr_accessor :method
@@ -37,13 +87,11 @@ class ClientRequest
 
 	def initialize(opts={})
 		@cgi           = (opts['cgi'].nil? ? true : opts['cgi'])
-		@config        = opts['client_config'] || {}
+		@config        = DefaultConfig.merge(opts['client_config'] || {})
 		@connection    = opts['connection']
 		@content_type  = opts['ctype']
 		@cookie        = opts['cookie']
 		@data          = opts['data']        || ""
-		@encode        = opts['encode']
-		@encode_params = opts['encode_params']
 		@headers       = opts['headers']     || {}
 		@host          = opts['vhost']
 		@method        = opts['method']      || "GET"
@@ -51,28 +99,26 @@ class ClientRequest
 		@port          = opts['port']        || 80
 		@protocol      = opts['proto']       || "HTTP"
 		@query         = opts['query']       || ""
-		@ssl           = opts['ssl']         || false
+		@ssl           = opts['ssl']
 		@raw_headers   = opts['raw_headers'] || ""
 		@uri           = opts['uri']
 		@user_agent    = opts['agent']
 		@vars_get      = opts['vars_get']    || {}
 		@vars_post     = opts['vars_post']   || {}
-		@version       = opts['version']
+		@version       = opts['version']     || "1.1"
 		@opts = opts
 
-		config['chunked_size'] ||= 0
-		config['pad_method_uri_count'] ||= 1
 	end
 
 	def to_s
 
-		#  Start GET query string
-		qstr = query
+		# Start GET query string
+		qstr = query.dup
 
 		# Start POST data string
 		pstr = data
 
-		if cgi == true
+		if cgi
 			uri_str= set_cgi
 
 			if (config['pad_get_params'])
@@ -86,9 +132,9 @@ class ClientRequest
 
 			vars_get.each_pair do |var,val|
 				qstr << '&' if qstr.length > 0
-				qstr << (encode_params ? set_encode_uri(var) : var)
+				qstr << (config['encode_params'] ? set_encode_uri(var) : var)
 				qstr << '='
-				qstr << (encode_params ? set_encode_uri(val) : val)
+				qstr << (config['encode_params'] ? set_encode_uri(val) : val)
 			end
 
 			if (config['pad_post_params'])
@@ -96,21 +142,21 @@ class ClientRequest
 					rand_var = Rex::Text.rand_text_alphanumeric(rand(32)+1)
 					rand_val = Rex::Text.rand_text_alphanumeric(rand(32)+1)
 					pstr << '&' if pstr.length > 0
-					pstr << (encode_params ? set_encode_uri(rand_var) : rand_var)
+					pstr << (config['encode_params'] ? set_encode_uri(rand_var) : rand_var)
 					pstr << '='
-					pstr << (encode_params ? set_encode_uri(rand_val) : rand_val)
+					pstr << (config['encode_params'] ? set_encode_uri(rand_val) : rand_val)
 				end
 			end
 
 			vars_post.each_pair do |var,val|
 				pstr << '&' if pstr.length > 0
-				pstr << (encode_params ? set_encode_uri(var) : var)
+				pstr << (config['encode_params'] ? set_encode_uri(var) : var)
 				pstr << '='
-				pstr << (encode_params ? set_encode_uri(val) : val)
+				pstr << (config['encode_params'] ? set_encode_uri(val) : val)
 			end
 		else
 			uri_str = set_uri
-			if encode
+			if config['encode']
 				qstr = set_encode_uri(qstr)
 			end
 		end
@@ -120,7 +166,7 @@ class ClientRequest
 		req << set_method_uri_spacer()
 		req << set_uri_prepend()
 
-		if  encode
+		if config['encode']
 			req << set_encode_uri(uri_str)
 		else
 			req << uri_str

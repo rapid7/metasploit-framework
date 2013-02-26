@@ -8,6 +8,8 @@ require 'rex/proto/ntlm/constants'
 require 'rex/proto/ntlm/utils'
 require 'rex/proto/ntlm/exceptions'
 
+require 'rex/proto/http/client_request'
+
 module Rex
 module Proto
 module Http
@@ -21,7 +23,7 @@ module Http
 ###
 class Client
 
-	DefaultUserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)"
+	DefaultUserAgent = Rex::Proto::Http::ClientRequest::DefaultUserAgent
 
 	#
 	# Creates a new client instance
@@ -35,85 +37,14 @@ class Client
 		self.proxies  = proxies
 		self.username = username
 		self.password = password
+
 		self.config = {
 			'read_max_data'   => (1024*1024*1),
 			'vhost'           => self.hostname,
 			'version'         => '1.1',
 			'agent'           => DefaultUserAgent,
-			#
-			# Evasion options
-			#
-			'uri_encode_mode'        => 'hex-normal', # hex-all, hex-random, u-normal, u-random, u-all
-			'uri_encode_count'       => 1,       # integer
-			'uri_full_url'           => false,   # bool
-			'pad_method_uri_count'   => 1,       # integer
-			'pad_uri_version_count'  => 1,       # integer
-			'pad_method_uri_type'    => 'space', # space, tab, apache
-			'pad_uri_version_type'   => 'space', # space, tab, apache
-			'method_random_valid'    => false,   # bool
-			'method_random_invalid'  => false,   # bool
-			'method_random_case'     => false,   # bool
-			'version_random_valid'   => false,   # bool
-			'version_random_invalid' => false,   # bool
-			'version_random_case'    => false,   # bool
-			'uri_dir_self_reference' => false,   # bool
-			'uri_dir_fake_relative'  => false,   # bool
-			'uri_use_backslashes'    => false,   # bool
-			'pad_fake_headers'       => false,   # bool
-			'pad_fake_headers_count' => 16,      # integer
-			'pad_get_params'         => false,   # bool
-			'pad_get_params_count'   => 8,       # integer
-			'pad_post_params'        => false,   # bool
-			'pad_post_params_count'  => 8,       # integer
-			'uri_fake_end'           => false,   # bool
-			'uri_fake_params_start'  => false,   # bool
-			'header_folding'         => false,   # bool
-			'chunked_size'           => 0,        # integer
-			#
-			# NTLM Options
-			#
-			'usentlm2_session' => true,
-			'use_ntlmv2'       => true,
-			'send_lm'         => true,
-			'send_ntlm'       => true,
-			'SendSPN'  => true,
-			'UseLMKey' => false,
-			'domain' => 'WORKSTATION',
-			#
-			# Digest Options
-			#
-			'DigestAuthIIS' => true
-		}
+		}.merge(Http::ClientRequest::DefaultConfig)
 
-		# This is not used right now...
-		self.config_types = {
-			'uri_encode_mode'        => ['hex-normal', 'hex-all', 'hex-random', 'u-normal', 'u-random', 'u-all'],
-			'uri_encode_count'       => 'integer',
-			'uri_full_url'           => 'bool',
-			'pad_method_uri_count'   => 'integer',
-			'pad_uri_version_count'  => 'integer',
-			'pad_method_uri_type'    => ['space', 'tab', 'apache'],
-			'pad_uri_version_type'   => ['space', 'tab', 'apache'],
-			'method_random_valid'    => 'bool',
-			'method_random_invalid'  => 'bool',
-			'method_random_case'     => 'bool',
-			'version_random_valid'   => 'bool',
-			'version_random_invalid' => 'bool',
-			'version_random_case'    => 'bool',
-			'uri_dir_self_reference' => 'bool',
-			'uri_dir_fake_relative'  => 'bool',
-			'uri_use_backslashes'    => 'bool',
-			'pad_fake_headers'       => 'bool',
-			'pad_fake_headers_count' => 'integer',
-			'pad_get_params'         => 'bool',
-			'pad_get_params_count'   => 'integer',
-			'pad_post_params'        => 'bool',
-			'pad_post_params_count'  => 'integer',
-			'uri_fake_end'           => 'bool',
-			'uri_fake_params_start'  => 'bool',
-			'header_folding'         => 'bool',
-			'chunked_size'           => 'integer'
-		}
 	end
 
 	#

@@ -7,10 +7,8 @@ shared_context "with 'uri_dir_self_reference'" do
     client_request.config['uri_dir_self_reference'] = true
   end
 
-  describe "#set_uri" do
-    it "should return the unmodified uri" do
-      client_request.send(:set_uri).should == "/./"
-    end
+  it "should return the unmodified uri" do
+    client_request.send(:set_uri).should == "/./"
   end
 end
 
@@ -21,10 +19,8 @@ shared_context "with no evasions" do
     client_request.config['uri_full_url'] = false
   end
 
-  describe "#set_uri" do
-    it "should return the unmodified uri" do
-      client_request.send(:set_uri).should == "/"
-    end
+  it "should return the unmodified uri" do
+    client_request.send(:set_uri).should == "/"
   end
 end
 
@@ -166,17 +162,65 @@ describe Rex::Proto::Http::ClientRequest do
   context "with GET paramaters" do
     subject(:client_request) {
       options_with_params = default_options.merge({
-        'cgi' => true,
-        'vars_get' => {
-          'foo[]' => 'bar',
-        }
+        'client_config' => {
+          'uri_encode_mode' => encode_mode,
+          'encode_params' => encode_params,
+          'encode' => false,
+        },
+        'vars_get' => vars_get,
       })
       Rex::Proto::Http::ClientRequest.new(options_with_params)
     }
+    # default
+    let(:encode_mode) { 'hex-normal' }
 
-    it "should contain the params" do
-      client_request.to_s.should include("foo[]=bar")
+    let(:vars_get) do
+      {
+        'foo[]'      => 'bar',
+        'bar'        => 'baz',
+        'frobnicate' => 'the froozle?',
+      }
     end
+
+    context "without 'encode_params'" do
+      let(:encode_params) { false }
+      it "should contain the unaltered params" do
+        str = client_request.to_s
+        str.should include("foo[]=bar")
+        str.should include("bar=baz")
+        str.should include("frobnicate=the froozle?")
+      end
+    end
+
+    context "with 'encode_params'" do
+      let(:encode_params) { true }
+      context "with 'uri_encode_mode' = default (hex-normal)" do
+        it "should encode special chars" do
+          str = client_request.to_s
+          str.should include("foo%5b%5d=bar")
+          str.should include("bar=baz")
+          str.should include("frobnicate=the%20froozle%3f")
+        end
+      end
+
+      context "with 'uri_encode_mode' = hex-all" do
+        let(:encode_mode) { 'hex-all' }
+        it "should encode all chars" do
+          str = client_request.to_s
+          str.should include("%66%6f%6f%5b%5d=%62%61%72")
+          str.should include("%62%61%72=%62%61%7a")
+          str.should include("%66%72%6f%62%6e%69%63%61%74%65=%74%68%65%20%66%72%6f%6f%7a%6c%65%3f")
+        end
+      end
+
+      describe "#to_s" do
+        it "should produce same values if called multiple times with same options" do
+          client_request.to_s.should == client_request.to_s
+        end
+      end
+
+    end
+
   end
 
   describe "#set_uri" do
