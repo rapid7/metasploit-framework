@@ -167,7 +167,7 @@ class Client
 	# @option opts 'version'       [String] version of the protocol, default: 1.1
 	# @option opts 'vhost'         [String] Host header value
 	#
-	# @return [Request]
+	# @return [ClientRequest]
 	def request_raw(opts={})
 		opts['agent']   ||= config['agent']
 		opts['data']    ||= ''
@@ -206,7 +206,7 @@ class Client
 	# @option opts 'vars_get'      [Hash]   GET variables as a hash to be translated into a query string
 	# @option opts 'vars_post'     [Hash]   POST variables as a hash to be translated into POST data
 	#
-	# @return [Request]
+	# @return [ClientRequest]
 	def request_cgi(opts={})
 		opts['agent']     ||= config['agent']
 		opts['data']      ||= ''
@@ -322,7 +322,7 @@ class Client
 	#
 	# Send an HTTP request to the server
 	#
-	# @param req [Request,#to_s] The request to send
+	# @param req [Request,ClientRequest,#to_s] The request to send
 	# @param t (see #connect)
 	#
 	def send_request(req, t = -1)
@@ -333,6 +333,7 @@ class Client
 	# Resends an HTTP Request with the propper authentcation headers
 	# set. If we do not support the authentication type the server requires
 	# we return the original response object
+	#
 	# @param res [Response] the HTTP Response object
 	# @param opts [Hash] the options used to generate the original HTTP request
 	# @param t [Fixnum] the timeout for the request in seconds
