@@ -2653,7 +2653,9 @@ class Core
 	#
 	# Go_pro methods -- these are used to start and connect to
 	# Metasploit Community / Pro.
+	#
 
+	# Note that this presumes a default port.
 	def launch_metasploit_browser
 		cmd = "/usr/bin/xdg-open"
 		unless ::File.executable_real? cmd
@@ -2677,7 +2679,8 @@ class Core
 				print_good "If this is your first time connecting, you will be presented with"
 				print_good "a self-signed certificate warning. Accept it to create a new user."
 				select(nil,nil,nil,7)
-				system(cmd, "https://localhost:3790")
+				browser_pid = ::Process.spawn(cmd, "https://localhost:3790")
+				::Process.detach(browser_pid)
 			elsif timeout >= 200 # 200 * 3 seconds is 10 minutes and that is tons of time.
 				print_line
 				print_warning "For some reason, Community / Pro didn't start in a timely fashion."
