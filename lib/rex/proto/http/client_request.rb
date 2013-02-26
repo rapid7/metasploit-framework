@@ -36,6 +36,7 @@ class ClientRequest
 	attr_reader :opts
 
 	def initialize(opts={})
+		@cgi           = (opts['cgi'].nil? ? true : opts['cgi'])
 		@config        = opts['client_config'] || {}
 		@connection    = opts['connection']
 		@content_type  = opts['ctype']
@@ -54,8 +55,8 @@ class ClientRequest
 		@raw_headers   = opts['raw_headers'] || ""
 		@uri           = opts['uri']
 		@user_agent    = opts['agent']
-		@vars_get      = opts['vars_get']
-		@vars_post     = opts['vars_post']
+		@vars_get      = opts['vars_get']    || {}
+		@vars_post     = opts['vars_post']   || {}
 		@version       = opts['version']
 		@opts = opts
 
