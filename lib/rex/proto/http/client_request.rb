@@ -142,10 +142,7 @@ class ClientRequest
 			req << set_agent_header
 		end
 
-		if authorization
-			req << set_auth_header
-		end
-
+		req << set_auth_header
 		req << set_cookie_header
 		req << set_connection_header
 		req << set_extra_headers
@@ -158,10 +155,6 @@ class ClientRequest
 	end
 
 	protected
-
-	def set_auth_header
-		"Authorization: " + authorization
-	end
 
 	def set_uri
 		uri_str = uri.dup
@@ -347,23 +340,14 @@ class ClientRequest
 	end
 
 	#
-	# Return the HTTP Host header
+	# Return a formatted header string
 	#
-	def set_host_header
-		return "" if config['uri_full_url']
-		host ||= config['vhost']
-
-		# IPv6 addresses must be placed in brackets
-		if Rex::Socket.is_ipv6?(host)
-			host = "[#{host}]"
+	def set_formatted_header(var, val)
+		if (self.config['header_folding'])
+			"#{var}:\r\n\t#{val}\r\n"
+		else
+			"#{var}: #{val}\r\n"
 		end
-
-		# The port should be appended if non-standard
-		if not [80,443].include?(port)
-			host = host + ":#{port}"
-		end
-
-		set_formatted_header("Host", host)
 	end
 
 	#
@@ -373,15 +357,8 @@ class ClientRequest
 		user_agent ? set_formatted_header("User-Agent", user_agent) : ""
 	end
 
-	#
-	# Return a formatted header string
-	#
-	def set_formatted_header(var, val)
-		if (self.config['header_folding'])
-			"#{var}:\r\n\t#{val}\r\n"
-		else
-			"#{var}: #{val}\r\n"
-		end
+	def set_auth_header
+		authorization ? set_formatted_header("Authorization", authorization) : ""
 	end
 
 	#
@@ -410,6 +387,26 @@ class ClientRequest
 	def set_content_len_header(clen)
 		return "" if config['chunked_size'] > 0
 		set_formatted_header("Content-Length", clen)
+	end
+
+	#
+	# Return the HTTP Host header
+	#
+	def set_host_header
+		return "" if config['uri_full_url']
+		host ||= config['vhost']
+
+		# IPv6 addresses must be placed in brackets
+		if Rex::Socket.is_ipv6?(host)
+			host = "[#{host}]"
+		end
+
+		# The port should be appended if non-standard
+		if not [80,443].include?(port)
+			host = host + ":#{port}"
+		end
+
+		set_formatted_header("Host", host)
 	end
 
 	#
