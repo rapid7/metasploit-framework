@@ -38,11 +38,11 @@ class Result
 	end
 
 	def weak_ciphers
-		@ciphers.reject{|cipher| cipher[:weak] == false }
+		accepted.reject{|cipher| cipher[:weak] == false }
 	end
 
 	def strong_ciphers
-		@ciphers.reject{|cipher| cipher[:weak] }
+		accepted.reject{|cipher| cipher[:weak] }
 	end
 
 	# Returns all accepted ciphers matching the supplied version
