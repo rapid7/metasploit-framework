@@ -26,6 +26,7 @@ class ClientRequest
 	attr_accessor :protocol
 	attr_accessor :query
 	attr_accessor :raw_headers
+	attr_accessor :ssl
 	attr_accessor :uri
 	attr_accessor :user_agent
 	attr_accessor :vars_get
@@ -36,7 +37,7 @@ class ClientRequest
 
 	def initialize(opts={})
 		@cgi = opts['cgi']
-		@config = opts['client_config']
+		@config = opts['client_config'] || {}
 		@connection = opts['connection']
 		@content_type = opts['ctype']
 		@cookie = opts['cookie']
@@ -50,6 +51,7 @@ class ClientRequest
 		@port = opts['port']
 		@protocol = opts['proto']
 		@query = opts['query']
+		@ssl = opts['ssl'] || false
 		@raw_headers = opts['raw_headers']
 		@uri = opts['uri']
 		@user_agent = opts['agent']
@@ -160,7 +162,7 @@ class ClientRequest
 	end
 
 	def set_uri
-		uri_str = uri
+		uri_str = uri.dup
 		if (config['uri_dir_self_reference'])
 			uri_str.gsub!('/', '/./')
 		end
@@ -179,7 +181,7 @@ class ClientRequest
 		end
 
 		if (config['uri_full_url'])
-			url = self.ssl ? "https" : "http"
+			url = self.ssl ? "https://" : "http://"
 			url << self.config['vhost']
 			url << ((self.port == 80) ? "" : ":#{self.port}")
 			url << uri_str
@@ -190,7 +192,7 @@ class ClientRequest
 	end
 
 	def set_cgi
-		uri_str = uri
+		uri_str = uri.dup
 		if (config['uri_dir_self_reference'])
 			uri_str.gsub!('/', '/./')
 		end
@@ -221,7 +223,7 @@ class ClientRequest
 	end
 
 	def set_encode_uri(str)
-		a = str
+		a = str.dup
 		config['uri_encode_count'].times {
 			a = Rex::Text.uri_encode(a, config['uri_encode_mode'])
 		}
@@ -229,7 +231,7 @@ class ClientRequest
 	end
 
 	def set_method
-		ret = method
+		ret = method.dup
 
 		if (config['method_random_valid'])
 			ret = ['GET', 'POST', 'HEAD'][rand(3)]

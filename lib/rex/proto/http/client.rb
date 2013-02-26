@@ -222,6 +222,7 @@ class Client
 		opts['vars_get']  ||= {}
 		opts['vars_post'] ||= {}
 
+		opts['ssl']         = self.ssl
 		opts['cgi']         = true
 		opts['port']        = self.port
 		opts['basic_auth']  = opts['basic_auth'] || config['basic_auth'] || ''
