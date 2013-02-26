@@ -36,29 +36,31 @@ class ClientRequest
 	attr_reader :opts
 
 	def initialize(opts={})
-		@cgi           = (opts['cgi'].nil? ? true : false)
 		@config        = opts['client_config'] || {}
 		@connection    = opts['connection']
 		@content_type  = opts['ctype']
 		@cookie        = opts['cookie']
-		@data          = opts['data']
+		@data          = opts['data']        || ""
 		@encode        = opts['encode']
 		@encode_params = opts['encode_params']
-		@headers       = opts['headers']
+		@headers       = opts['headers']     || {}
 		@host          = opts['vhost']
-		@method        = opts['method']
+		@method        = opts['method']      || "GET"
 		@path          = opts['path_info']
-		@port          = opts['port']
-		@protocol      = opts['proto']
-		@query         = opts['query']
-		@ssl           = opts['ssl'] || false
-		@raw_headers   = opts['raw_headers']
+		@port          = opts['port']        || 80
+		@protocol      = opts['proto']       || "HTTP"
+		@query         = opts['query']       || ""
+		@ssl           = opts['ssl']         || false
+		@raw_headers   = opts['raw_headers'] || ""
 		@uri           = opts['uri']
 		@user_agent    = opts['agent']
 		@vars_get      = opts['vars_get']
 		@vars_post     = opts['vars_post']
 		@version       = opts['version']
 		@opts = opts
+
+		config['chunked_size'] ||= 0
+		config['pad_method_uri_count'] ||= 1
 	end
 
 	def to_s

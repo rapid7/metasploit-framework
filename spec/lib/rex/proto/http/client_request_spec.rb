@@ -176,8 +176,8 @@ describe Rex::Proto::Http::ClientRequest do
     }
 
     it "should contain the params" do
-      client_request.to_s.should contain("foo[]=bar")
-      client_request.to_s.should contain("foo[]=baz")
+      client_request.to_s.should include("foo[]=bar")
+      client_request.to_s.should include("foo[]=baz")
     end
   end
 
