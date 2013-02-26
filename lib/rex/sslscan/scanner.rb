@@ -15,9 +15,9 @@ class Scanner
 	# Initializes the scanner object
 	# @param host [String] IP address or hostname to scan
 	# @param port [Fixnum] Port number to scan, default: 443
-	# @param timeout [Fixnum] Timeout for connections, in seconds. default: 20
+	# @param timeout [Fixnum] Timeout for connections, in seconds. default: 2
 	# @raise [StandardError] Raised when the configuration is invalid
-	def initialize(host,port = 443,context = {},timeout=20)
+	def initialize(host,port = 443,context = {},timeout=2)
 		@host       = host
 		@port       = port
 		@timeout    = timeout
