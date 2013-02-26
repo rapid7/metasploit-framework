@@ -36,7 +36,7 @@ class ClientRequest
 	attr_reader :opts
 
 	def initialize(opts={})
-		@cgi           = opts['cgi']
+		@cgi           = (opts['cgi'].nil? ? true : false)
 		@config        = opts['client_config'] || {}
 		@connection    = opts['connection']
 		@content_type  = opts['ctype']
