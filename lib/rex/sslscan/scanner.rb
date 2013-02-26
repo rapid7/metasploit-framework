@@ -44,6 +44,13 @@ class Scanner
 	# @return [Result] object containing the details of the scan
 	def scan
 		scan_result = Rex::SSLScan::Result.new
+		
+		# If we can't get any SSL connection, then don't bother testing
+		# individual ciphers.
+		if test_ssl == :rejected and test_tls == :rejected
+			return scan_result
+		end
+
 		@supported_versions.each do |ssl_version|
 			sslctx = OpenSSL::SSL::SSLContext.new(ssl_version)
 			sslctx.ciphers.each do |cipher_name, ssl_ver, key_length, alg_length|
@@ -55,6 +62,38 @@ class Scanner
 			end
 		end
 		scan_result
+	end
+
+	def test_ssl
+		begin
+			scan_client = Rex::Socket::Tcp.create(
+				'Context'    => @context,
+				'PeerHost'   => @host,
+				'PeerPort'   => @port,
+				'SSL'        => true,
+				'SSLVersion' => :SSLv23,
+				'Timeout'    => @timeout
+			)
+		rescue ::Exception => e 
+			return :rejected
+		end
+		return :accepted
+	end
+
+	def test_tls
+		begin
+			scan_client = Rex::Socket::Tcp.create(
+				'Context'    => @context,
+				'PeerHost'   => @host,
+				'PeerPort'   => @port,
+				'SSL'        => true,
+				'SSLVersion' => :TLSv1,
+				'Timeout'    => @timeout
+			)
+		rescue ::Exception => e 
+			return :rejected
+		end
+		return :accepted
 	end
 
 	# Tests the specified SSL Version and Cipher against the configured target
