@@ -19,6 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 					API enabled. By interfacing with the API an attacker can cause
 					the wordpress site to port scan an external target and return
 					results. Refer to the wordpress_pingback_portscanner module.
+					This issue was fixed in wordpress 3.5.1
 				},
 			'Author' =>
 				[
