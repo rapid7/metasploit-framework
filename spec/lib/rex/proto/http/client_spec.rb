@@ -48,11 +48,11 @@ describe Rex::Proto::Http::Client do
 		cli.config.should be_a_kind_of Hash
 	end
 
-	it "should produce a raw HTTP request", :pending => "Waiting for PR #1500" do
+	it "should produce a raw HTTP request" do
 		cli.request_raw.should be_a_kind_of Rex::Proto::Http::ClientRequest
 	end
 
-	it "should produce a CGI HTTP request", :pending => "Waiting for PR #1500" do
+	it "should produce a CGI HTTP request" do
 		cli.request_cgi.should be_a_kind_of Rex::Proto::Http::ClientRequest
 	end
 
