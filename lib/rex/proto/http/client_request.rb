@@ -36,28 +36,28 @@ class ClientRequest
 	attr_reader :opts
 
 	def initialize(opts={})
-		@cgi = opts['cgi']
-		@config = opts['client_config'] || {}
-		@connection = opts['connection']
-		@content_type = opts['ctype']
-		@cookie = opts['cookie']
-		@data = opts['data']
-		@encode = opts['encode']
+		@cgi           = opts['cgi']
+		@config        = opts['client_config'] || {}
+		@connection    = opts['connection']
+		@content_type  = opts['ctype']
+		@cookie        = opts['cookie']
+		@data          = opts['data']
+		@encode        = opts['encode']
 		@encode_params = opts['encode_params']
-		@headers = opts['headers']
-		@host = opts['vhost']
-		@method = opts['method']
-		@path = opts['path_info']
-		@port = opts['port']
-		@protocol = opts['proto']
-		@query = opts['query']
-		@ssl = opts['ssl'] || false
-		@raw_headers = opts['raw_headers']
-		@uri = opts['uri']
-		@user_agent = opts['agent']
-		@vars_get = opts['vars_get']
-		@vars_post = opts['vars_post']
-		@version = opts['version']
+		@headers       = opts['headers']
+		@host          = opts['vhost']
+		@method        = opts['method']
+		@path          = opts['path_info']
+		@port          = opts['port']
+		@protocol      = opts['proto']
+		@query         = opts['query']
+		@ssl           = opts['ssl'] || false
+		@raw_headers   = opts['raw_headers']
+		@uri           = opts['uri']
+		@user_agent    = opts['agent']
+		@vars_get      = opts['vars_get']
+		@vars_post     = opts['vars_post']
+		@version       = opts['version']
 		@opts = opts
 	end
 
