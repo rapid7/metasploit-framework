@@ -116,7 +116,7 @@ class ClientRequest
 		qstr = query.dup
 
 		# Start POST data string
-		pstr = data
+		pstr = data.dup
 
 		if cgi
 			uri_str= set_cgi

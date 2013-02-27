@@ -45,6 +45,36 @@ class Client
 			'agent'           => DefaultUserAgent,
 		}.merge(Http::ClientRequest::DefaultConfig)
 
+		self.config_types = {
+			'uri_encode_mode'        => ['hex-normal', 'hex-all', 'hex-random', 'u-normal', 'u-random', 'u-all'],
+			'uri_encode_count'       => 'integer',
+			'uri_full_url'           => 'bool',
+			'pad_method_uri_count'   => 'integer',
+			'pad_uri_version_count'  => 'integer',
+			'pad_method_uri_type'    => ['space', 'tab', 'apache'],
+			'pad_uri_version_type'   => ['space', 'tab', 'apache'],
+			'method_random_valid'    => 'bool',
+			'method_random_invalid'  => 'bool',
+			'method_random_case'     => 'bool',
+			'version_random_valid'   => 'bool',
+			'version_random_invalid' => 'bool',
+			'version_random_case'    => 'bool',
+			'uri_dir_self_reference' => 'bool',
+			'uri_dir_fake_relative'  => 'bool',
+			'uri_use_backslashes'    => 'bool',
+			'pad_fake_headers'       => 'bool',
+			'pad_fake_headers_count' => 'integer',
+			'pad_get_params'         => 'bool',
+			'pad_get_params_count'   => 'integer',
+			'pad_post_params'        => 'bool',
+			'pad_post_params_count'  => 'integer',
+			'uri_fake_end'           => 'bool',
+			'uri_fake_params_start'  => 'bool',
+			'header_folding'         => 'bool',
+			'chunked_size'           => 'integer'
+		}
+
+
 	end
 
 	#
