@@ -23,6 +23,7 @@ module Http
 ###
 class Client
 
+	DefaultUserAgent = ClientRequest::DefaultUserAgent
 
 	#
 	# Creates a new client instance
