@@ -222,6 +222,7 @@ class Db
 					mode = :add
 				when '-d','--delete'
 					mode = :delete
+					search_term = /#{args.shift}/nmi
 				when '-c'
 					list = args.shift
 					if(!list)
