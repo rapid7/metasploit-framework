@@ -56,8 +56,6 @@ describe Rex::Proto::Http::Client do
 		req = cli.request_cgi
 		req.should be_a_kind_of Rex::Proto::Http::ClientRequest
 
-		req.port.should == 80
-		req.ssl.should be_false
 	end
 
 	it "should attempt to connect to a server" do

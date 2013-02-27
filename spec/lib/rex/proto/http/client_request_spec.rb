@@ -4,7 +4,7 @@ require 'rex/proto/http/client_request'
 
 shared_context "with 'uri_dir_self_reference'" do
   before(:all) do
-    client_request.config['uri_dir_self_reference'] = true
+    client_request.opts['uri_dir_self_reference'] = true
   end
 
   it "should return the unmodified uri" do
@@ -14,9 +14,9 @@ end
 
 shared_context "with no evasions" do
   before(:all) do
-    client_request.config['uri_dir_self_reference'] = false
-    client_request.config['uri_fake_params_start'] = false
-    client_request.config['uri_full_url'] = false
+    client_request.opts['uri_dir_self_reference'] = false
+    client_request.opts['uri_fake_params_start'] = false
+    client_request.opts['uri_full_url'] = false
   end
 
   it "should return the unmodified uri" do
@@ -27,11 +27,11 @@ end
 shared_context "with 'uri_full_url'" do
 
   before(:all) do
-    client_request.config['uri_full_url'] = true
+    client_request.opts['uri_full_url'] = true
   end
 
   before(:each) do
-    client_request.config['vhost'] = host
+    client_request.opts['vhost'] = host
   end
 
   context "with ipv4 host" do
@@ -43,7 +43,7 @@ shared_context "with 'uri_full_url'" do
   context "with ipv6 host" do
     let(:host) { '2001:DB8::1' }
     #before(:each) do
-    # client_request.config['vhost'] = "[#{host}]"
+    # client_request.opts['vhost'] = "[#{host}]"
     #end
 
     it_behaves_like "uri_full_url"
@@ -83,9 +83,7 @@ describe Rex::Proto::Http::ClientRequest do
     [ "with reasonable default options",
       default_options.merge({
         'agent' => "Mozilla/4.0 (compatible; Metasploit RSPEC)",
-        # Yes, vhost is in the config. There is no godly reason why this
-        # should be so.
-        'client_config' => { 'vhost' => 'www.example.com', },
+        'vhost' => 'www.example.com',
       }),
       {
         :set_cgi               => { :result => "/" },
@@ -106,7 +104,7 @@ describe Rex::Proto::Http::ClientRequest do
     [ "with header folding",
       default_options.merge({
         'agent' => "Mozilla/4.0 (compatible; Metasploit RSPEC)",
-        'client_config' => { 'header_folding' => true, }
+        'header_folding' => true,
       }),
       {
         :set_uri               => { :result => "/" },
@@ -124,7 +122,7 @@ describe Rex::Proto::Http::ClientRequest do
 
     [ "with ipv6 host",
       default_options.merge({
-        'client_config' => { 'vhost' => "2001:DB8::1" },
+        'vhost' => "2001:DB8::1",
       }),
       {
         :set_host_header       => { :result => "Host: [2001:DB8::1]\r\n" },
@@ -134,7 +132,7 @@ describe Rex::Proto::Http::ClientRequest do
     [ "with ipv6 host and non-default port",
       default_options.merge({
         'port' => 1234,
-        'client_config' => { 'vhost' => "2001:DB8::1" },
+        'vhost' => "2001:DB8::1",
       }),
       {
         :set_host_header       => { :result => "Host: [2001:DB8::1]:1234\r\n" },
@@ -162,11 +160,9 @@ describe Rex::Proto::Http::ClientRequest do
   context "with GET paramaters" do
     subject(:client_request) {
       options_with_params = default_options.merge({
-        'client_config' => {
-          'uri_encode_mode' => encode_mode,
-          'encode_params' => encode_params,
-          'encode' => false,
-        },
+        'uri_encode_mode' => encode_mode,
+        'encode_params' => encode_params,
+        'encode' => false,
         'vars_get' => vars_get,
       })
       Rex::Proto::Http::ClientRequest.new(options_with_params)

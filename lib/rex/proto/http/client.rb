@@ -23,7 +23,6 @@ module Http
 ###
 class Client
 
-	DefaultUserAgent = Rex::Proto::Http::ClientRequest::DefaultUserAgent
 
 	#
 	# Creates a new client instance
@@ -41,8 +40,6 @@ class Client
 		self.config = {
 			'read_max_data'   => (1024*1024*1),
 			'vhost'           => self.hostname,
-			'version'         => '1.1',
-			'agent'           => DefaultUserAgent,
 		}.merge(Http::ClientRequest::DefaultConfig)
 
 		self.config_types = {
