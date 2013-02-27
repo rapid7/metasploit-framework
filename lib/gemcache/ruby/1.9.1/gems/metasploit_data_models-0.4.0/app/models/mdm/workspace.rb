@@ -15,7 +15,6 @@ class Mdm::Workspace < ActiveRecord::Base
   # Relations
   #
 
-  has_many :cred_files, :dependent => :destroy, :class_name => 'Mdm::CredFile'
   has_many :creds, :through => :services, :class_name => 'Mdm::Cred'
   has_many :events, :class_name => 'Mdm::Event'
   has_many :hosts, :dependent => :destroy, :class_name => 'Mdm::Host'

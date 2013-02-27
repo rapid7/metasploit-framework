@@ -497,6 +497,14 @@ class DBManager
 
 			m.targets.each_index do |i|
 				bits << [ :target, { :index => i, :name => m.targets[i].name.to_s } ]
+				if m.targets[i].platform 
+					m.targets[i].platform.platforms.each do |name|
+						bits << [ :platform, { :name => name.to_s.split('::').last.downcase } ]	
+					end 
+				end 
+				if m.targets[i].arch
+					bits << [ :arch, { :name => m.targets[i].arch.to_s } ]
+				end 				
 			end
 
 			if (m.default_target)
@@ -525,7 +533,7 @@ class DBManager
 			res[:stance] = m.passive? ? "passive" : "aggressive"
 		end
 
-		res[:bits] = bits
+		res[:bits] = bits.uniq
 
 		res
 	end

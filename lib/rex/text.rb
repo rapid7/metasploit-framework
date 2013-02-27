@@ -4,14 +4,15 @@ require 'digest/sha1'
 require 'stringio'
 require 'cgi'
 
-begin
-	old_verbose = $VERBOSE
-	$VERBOSE = nil
-	require 'iconv'
-	require 'zlib'
-rescue ::LoadError
-ensure
-	$VERBOSE = old_verbose
+%W{ iconv zlib }.each do |libname|
+	begin
+		old_verbose = $VERBOSE
+		$VERBOSE = nil
+		require libname
+	rescue ::LoadError
+	ensure
+		$VERBOSE = old_verbose
+	end
 end
 
 module Rex
@@ -157,6 +158,12 @@ module Text
 	# Converts ISO-8859-1 to UTF-8
 	#
 	def self.to_utf8(str)
+		
+		if str.respond_to?(:encode)
+			# Skip over any bytes that fail to convert to UTF-8
+			return str.encode('utf-8', { :invalid => :replace, :undef => :replace, :replace => '' })
+		end
+
 		begin
 			Iconv.iconv("utf-8","iso-8859-1", str).join(" ")
 		rescue
