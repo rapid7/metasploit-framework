@@ -254,6 +254,7 @@ class Client
 	# If the request is a 401, and we have creds, it will attempt to complete
 	# authentication and return the final response
 	#
+	# @return (see #_send_recv)
 	def send_recv(req, t = -1, persist=false)
 		res = _send_recv(req,t,persist)
 		if res and res.code == 401 and res.headers['WWW-Authenticate']
@@ -271,7 +272,7 @@ class Client
 	# Call this directly instead of {#send_recv} if you don't want automatic
 	# authentication handling.
 	#
-	# @return [Response]
+	# @return (see #read_response)
 	def _send_recv(req, t = -1, persist=false)
 		@pipeline = persist
 		send_request(req, t)
@@ -286,6 +287,7 @@ class Client
 	# @param req [Request,ClientRequest,#to_s] The request to send
 	# @param t (see #connect)
 	#
+	# @return [void]
 	def send_request(req, t = -1)
 		connect(t)
 		conn.put(req.to_s)
@@ -299,6 +301,7 @@ class Client
 	# @param opts [Hash] the options used to generate the original HTTP request
 	# @param t [Fixnum] the timeout for the request in seconds
 	# @param persist [Boolean] whether or not to persist the TCP connection (pipelining)
+	#
 	# @return [Response] the last valid HTTP response object we received
 	def send_auth(res, opts, t, persist)
 		if opts['username'].nil? or opts['username'] == ''
@@ -352,15 +355,19 @@ class Client
 		return res
 	end
 
-	# Converts username and password into the HTTP Basic
-	# authorization string.
+	# Converts username and password into the HTTP Basic authorization
+	# string.
+	#
+	# @return [String] A value suitable for use as an Authorization header
 	def basic_auth_header(username,password)
 		auth_str = username.to_s + ":" + password.to_s
 		auth_str = "Basic " + Rex::Text.encode_base64(auth_str)
 	end
 
 	# Send a series of requests to complete Digest Authentication
+	#
 	# @param opts [Hash] the options used to build an HTTP request
+	#
 	# @return [Response] the last valid HTTP response we received
 	def digest_auth(opts={})
 		@nonce_count = 0
@@ -496,13 +503,13 @@ class Client
 	end
 
 	#
-	# Opts -
-	#   Inherits all the same options as send_request_cgi
-	#   provider - What Negotiate Provider to use (supports NTLM and Negotiate)
-	#
 	# Builds a series of requests to complete Negotiate Auth. Works essentially
 	# the same way as Digest auth. Same pipelining concerns exist.
 	#
+	# @option opts (see #send_request_cgi)
+	# @option opts provider ["Negotiate","NTLM"] What Negotiate provider to use
+	#
+	# @return [Response] the last valid HTTP response we received
 	def negotiate_auth(opts={})
 		ntlm_options = {
 			:signing          => false,
@@ -608,6 +615,7 @@ class Client
 	#
 	# Read a response from the server
 	#
+	# @return [Response]
 	def read_response(t = -1, opts = {})
 
 		resp = Response.new
