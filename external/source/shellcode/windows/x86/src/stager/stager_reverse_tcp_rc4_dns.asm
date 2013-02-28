@@ -1,10 +1,11 @@
 ;-----------------------------------------------------------------------------;
 ; Authors: Stephen Fewer (stephen_fewer[at]harmonysecurity[dot]com)
 ;          Michael Schierl (schierlm[at]gmx[dot]de)        [RC4 support]
+;	   Boris Lukashev (rageltman[at]sempervictus)	   [DNS support]
 ; Compatible: Windows 7, 2008, Vista, 2003, XP, 2000, NT4
 ; Version: 1.0 (31 December 2012)
 ; Size: 405 bytes
-; Build: >build.py stager_reverse_tcp_rc4
+; Build: >build.py stager_reverse_tcp_rc4_dns
 ;-----------------------------------------------------------------------------;
 
 [BITS 32]
