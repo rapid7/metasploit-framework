@@ -55,6 +55,55 @@ describe Rex::Proto::Http::Client do
 	it "should produce a CGI HTTP request" do
 		req = cli.request_cgi
 		req.should be_a_kind_of Rex::Proto::Http::ClientRequest
+	end
+
+	context "with authorization" do
+		subject(:cli) do
+			cli = Rex::Proto::Http::Client.new(ip)
+			cli.set_config({"authorization" => "Basic base64dstuffhere"})
+			cli
+		end
+		let(:user)   { "user" }
+		let(:pass)   { "pass" }
+		let(:base64) { ["user:pass"].pack('m').chomp }
+
+		context "and an Authorization header" do
+			before do
+				cli.set_config({"headers" => { "Authorization" => "Basic #{base64}" } })
+			end
+			it "should have one Authorization header" do
+				req = cli.request_cgi
+				match = req.to_s.match("Authorization: Basic")
+				match.should be
+				match.length.should == 1
+			end
+			it "should prefer the value in the header" do
+				req = cli.request_cgi
+				match = req.to_s.match(/Authorization: Basic (.*)$/)
+				match.should be
+				match.captures.length.should == 1
+				match.captures[0].chomp.should == base64
+			end
+		end
+
+		context "and basic_auth" do
+			before do
+				cli.set_config({"basic_auth" => "user:pass"})
+			end
+			it "should not have two Authorization headers" do
+				req = cli.request_cgi
+				match = req.to_s.match("Authorization: Basic")
+				match.should be
+				match.length.should == 1
+			end
+			it "should prefer basic_auth" do
+				req = cli.request_cgi
+				match = req.to_s.match(/Authorization: Basic (.*)$/)
+				match.should be
+				match.captures.length.should == 1
+				match.captures[0].chomp.should == base64
+			end
+		end
 
 	end
 

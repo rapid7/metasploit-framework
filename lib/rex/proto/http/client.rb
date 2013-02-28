@@ -38,11 +38,13 @@ class Client
 		self.username = username
 		self.password = password
 
-		self.config = {
+		# Take ClientRequest's defaults, but override with our own
+		self.config = Http::ClientRequest::DefaultConfig.merge({
 			'read_max_data'   => (1024*1024*1),
 			'vhost'           => self.hostname,
-		}.merge(Http::ClientRequest::DefaultConfig)
+		})
 
+		# XXX: This info should all be controlled by ClientRequest
 		self.config_types = {
 			'uri_encode_mode'        => ['hex-normal', 'hex-all', 'hex-random', 'u-normal', 'u-random', 'u-all'],
 			'uri_encode_count'       => 'integer',
@@ -104,7 +106,6 @@ class Client
 
 			self.config[var]=val
 		end
-
 	end
 
 	#
@@ -145,12 +146,6 @@ class Client
 		opts['raw_headers'] = opts['raw_headers'] || config['raw_headers'] || ''
 		opts['version']     = opts['version']     || config['version'] || '1.1'
 
-		opts['client_config'] = self.config
-
-		if opts['basic_auth'] and not opts['authorization']
-			opts['authorization'] = Rex::Text.encode_base64(opts['basic_auth'])
-		end
-
 		req = ClientRequest.new(opts)
 	end
 
@@ -167,37 +162,31 @@ class Client
 	#
 	# @return [ClientRequest]
 	def request_cgi(opts={})
-		opts['agent']     ||= config['agent']
-		opts['data']      ||= ''
-		opts['uri']       ||= '/'
-		opts['cookie']    ||= config['cookie']
-		opts['encode']    ||= false
-		opts['headers']   ||= config['headers'] || {}
-		opts['vhost']     ||= config['vhost']
-		opts['method']    ||= 'GET'
-		opts['proto']     ||= 'HTTP'
-		opts['query']     ||= ''
-		opts['ctype']     ||= 'application/x-www-form-urlencoded'
-		opts['vars_get']  ||= {}
-		opts['vars_post'] ||= {}
+		opts['agent']       ||= config['agent']
+		opts['basic_auth']  ||= config['basic_auth']  || ''
+		opts['cookie']      ||= config['cookie']
+		opts['ctype']       ||= 'application/x-www-form-urlencoded'
+		opts['data']        ||= ''
+		opts['encode']      ||= false
+		opts['headers']     ||= config['headers'] || {}
+		opts['method']      ||= 'GET'
+		opts['proto']       ||= 'HTTP'
+		opts['query']       ||= ''
+		opts['raw_headers'] ||= config['raw_headers'] || ''
+		opts['uri']         ||= '/'
+		opts['vars_get']    ||= {}
+		opts['vars_post']   ||= {}
+		opts['version']     ||= config['version']     || '1.1'
+		opts['vhost']       ||= config['vhost']
 
 		opts['ssl']         = self.ssl
 		opts['cgi']         = true
 		opts['port']        = self.port
-		opts['basic_auth']  = opts['basic_auth'] || config['basic_auth'] || ''
-		opts['raw_headers'] = opts['raw_headers'] || config['raw_headers'] || ''
-		opts['version']     = opts['version']     || config['version'] || '1.1'
-
-		opts['client_config'] = self.config
 
 		if opts['encode_params'] == true or opts['encode_params'].nil?
 			opts['encode_params'] = true
 		else
 			opts['encode_params'] = false
-		end
-
-		if opts['basic_auth'] and not opts['authorization']
-			opts['authorization'] = Rex::Text.encode_base64(opts['basic_auth'])
 		end
 
 		req = ClientRequest.new(opts)
@@ -321,11 +310,8 @@ class Client
 		return res if opts['username'].nil? or opts['username'] == ''
 		supported_auths = res.headers['WWW-Authenticate']
 		if supported_auths.include? 'Basic'
-			if opts['headers']
-				opts['headers']['Authorization'] = basic_auth_header(opts['username'],opts['password'] )
-			else
-				opts['headers'] = { 'Authorization' => basic_auth_header(opts['username'],opts['password'] )}
-			end
+			opts['headers'] ||= {}
+			opts['headers']['Authorization'] = basic_auth_header(opts['username'],opts['password'] )
 			req = request_cgi(opts)
 			res = _send_recv(req,t,persist)
 			return res

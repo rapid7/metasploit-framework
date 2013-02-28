@@ -22,7 +22,8 @@ shared_context "with 'uri_dir_self_reference'" do
   end
 
   it "should have a self reference" do
-    client_request.send(:set_uri).should == "/./"
+    client_request.send(:set_uri).should include("/./")
+    client_request.to_s.should include("/./")
   end
 end
 
@@ -34,6 +35,7 @@ shared_context "with 'uri_dir_fake_relative'" do
 
   it "should contain sequences of '../'" do
     client_request.send(:set_uri).should include("../")
+    client_request.to_s.should include("../")
   end
 
 end

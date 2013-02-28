@@ -86,6 +86,12 @@ class ClientRequest
 
 	def initialize(opts={})
 		@opts = DefaultConfig.merge(opts)
+
+		# Backwards compatibility for wonky basic authentication api from
+		# the dawn of time.
+		if opts['basic_auth'] and not opts['authorization']
+			@opts['authorization'] = "Basic #{Rex::Text.encode_base64(opts['basic_auth'])}"
+		end
 	end
 
 	def to_s
@@ -162,12 +168,18 @@ class ClientRequest
 		req << set_version
 		req << set_host_header
 
-		# If an explicit User-Agent header is set, then use that instead of the value of user_agent
+		# If an explicit User-Agent header is set, then use that instead of
+		# the default
 		unless opts['headers'].keys.map{|x| x.downcase }.include?('user-agent')
 			req << set_agent_header
 		end
 
-		req << set_auth_header
+		# Similar to user-agent, only add an automatic auth header if a
+		# manual one hasn't been provided
+		unless opts['headers'].keys.map{|x| x.downcase }.include?('authorization')
+			req << set_auth_header
+		end
+
 		req << set_cookie_header
 		req << set_connection_header
 		req << set_extra_headers
@@ -388,7 +400,7 @@ class ClientRequest
 	#
 	def set_host_header
 		return "" if opts['uri_full_url']
-		host ||= opts['vhost']
+		host = opts['vhost']
 
 		# IPv6 addresses must be placed in brackets
 		if Rex::Socket.is_ipv6?(host)
