@@ -26,26 +26,24 @@ class Metasploit4 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name' => 'SAP /sap/public/info RFC_SYSTEM_INFO Function Sensitive Information Gathering',
+			'Name' => 'SAP ICF /sap/public/info Service Sensitive Information Gathering',
 			'Description' => %q{
-				This module uses the RFC_SYSTEM_INFO function within SAP Internet Communication
+				This module uses the /sap/public/info service within SAP Internet Communication
 				Framework (ICF) to obtain the operating system version, SAP version, IP address
-				and other information through /sap/public/info
-
+				and other information.
 			},
 			'Author' =>
 				[
-					# original sap_soap_rfc_system_info module
-					'Agnivesh Sathasivam',
-					'nmonkee',
-					# repurposed for /sap/public/info (non-RFC)
-					'ChrisJohnRiley'
+					'Agnivesh Sathasivam', # original sap_soap_rfc_system_info module
+					'nmonkee', # original sap_soap_rfc_system_info module
+					'ChrisJohnRiley' # repurposed for /sap/public/info (non-RFC)
 				],
 			'License' => MSF_LICENSE
 			)
 		register_options(
 			[
-				OptString.new('PATH', [true, 'Path to SAP Application Server', '/'])
+				Opt::RPORT(8000),
+				OptString.new('TARGETURI', [true, 'Path to SAP Application Server', '/'])
 			], self.class)
 	end
 
@@ -59,23 +57,23 @@ class Metasploit4 < Msf::Auxiliary
 	def report_note_sap(type, data, value)
 		# create note
 		report_note(
-					:host => rhost,
-					:port => rport,
-					:proto => 'tcp',
-					:sname => 'sap',
-					:type => type,
-					:data => data + value
-					) if data
+			:host => rhost,
+			:port => rport,
+			:proto => 'tcp',
+			:sname => 'sap',
+			:type => type,
+			:data => data + value
+		) if data
 		# update saptbl for output
 		@saptbl << [ data, value ]
 	end
 
 	def run_host(ip)
 
-		print_status("[SAP] #{ip}:#{rport} - Sending RFC_SYSTEM_INFO request to SAP Application Server")
-		uri = normalize_uri(datastore['PATH'] + '/sap/public/info')
+		print_status("[SAP] #{ip}:#{rport} - Sending request to SAP Application Server")
+		uri = normalize_uri(target_uri.path, '/sap/public/info')
 		begin
-			res = send_request_raw({ 'uri' => uri }, 20)
+			res = send_request_cgi({ 'uri' => uri })
 			if res and res.code != 200
 				print_error("[SAP] #{ip}:#{rport} - Server did not respond as expected")
 				return
@@ -93,14 +91,12 @@ class Metasploit4 < Msf::Auxiliary
 		# create table for output
 		@saptbl = Msf::Ui::Console::Table.new(
 			Msf::Ui::Console::Table::Style::Default,
-				'Header' => "[SAP] ICF RFC_SYSTEM_INFO",
-				'Prefix' => "\n",
-				'Postfix' => "\n",
-				'Indent' => 1,
-				'Columns' =>[
-					"Key",
-					"Value"
-					])
+			'Header' => "[SAP] ICF SAP PUBLIC INFO",
+			'Prefix' => "\n",
+			'Postfix' => "\n",
+			'Indent' => 1,
+			'Columns' => [ "Key", "Value" ]
+		)
 
 		response = res.body
 
