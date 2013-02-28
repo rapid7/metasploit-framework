@@ -2,15 +2,6 @@ require 'spec_helper'
 
 require 'rex/proto/http/client_request'
 
-shared_context "with 'uri_dir_self_reference'" do
-  before(:all) do
-    client_request.opts['uri_dir_self_reference'] = true
-  end
-
-  it "should return the unmodified uri" do
-    client_request.send(:set_uri).should == "/./"
-  end
-end
 
 shared_context "with no evasions" do
   before(:all) do
@@ -23,6 +14,30 @@ shared_context "with no evasions" do
     client_request.send(:set_uri).should == "/"
   end
 end
+
+
+shared_context "with 'uri_dir_self_reference'" do
+  before(:all) do
+    client_request.opts['uri_dir_self_reference'] = true
+  end
+
+  it "should have a self reference" do
+    client_request.send(:set_uri).should == "/./"
+  end
+end
+
+
+shared_context "with 'uri_dir_fake_relative'" do
+  before(:all) do
+    client_request.opts['uri_dir_fake_relative'] = true
+  end
+
+  it "should contain sequences of '../'" do
+    client_request.send(:set_uri).should include("../")
+  end
+
+end
+
 
 shared_context "with 'uri_full_url'" do
 
@@ -42,9 +57,6 @@ shared_context "with 'uri_full_url'" do
 
   context "with ipv6 host" do
     let(:host) { '2001:DB8::1' }
-    #before(:each) do
-    # client_request.opts['vhost'] = "[#{host}]"
-    #end
 
     it_behaves_like "uri_full_url"
   end
@@ -59,7 +71,7 @@ end
 
 shared_examples "uri_full_url" do
 
-  it "should have the host in the URI" do
+  it "#set_uri should have the host in the URI" do
     client_request.send(:set_uri).should start_with("http://#{host}/")
   end
 
@@ -86,7 +98,6 @@ describe Rex::Proto::Http::ClientRequest do
         'vhost' => 'www.example.com',
       }),
       {
-        :set_cgi               => { :result => "/" },
         :set_uri               => { :result => "/" },
         :set_method            => { :result => "GET" },
         :set_version           => { :result => "HTTP/1.1\r\n" },
@@ -238,6 +249,7 @@ describe Rex::Proto::Http::ClientRequest do
   describe "#set_uri" do
     it_behaves_like "with 'uri_full_url'"
     it_behaves_like "with 'uri_dir_self_reference'"
+    it_behaves_like "with 'uri_dir_fake_relative'"
     it_behaves_like "with no evasions"
   end
 

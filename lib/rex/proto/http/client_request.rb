@@ -32,6 +32,7 @@ class ClientRequest
 		'vars_get'               => {},
 		'vars_post'              => {},
 		'version'                => '1.1',
+		'vhost'                  => nil,
 
 		#
 		# Evasion options
@@ -96,7 +97,7 @@ class ClientRequest
 		pstr = opts['data'] ? opts['data'].dup : ""
 
 		if opts['cgi']
-			uri_str= set_cgi
+			uri_str = set_uri
 
 			if (opts['pad_get_params'])
 				1.upto(opts['pad_get_params_count'].to_i) do |i|
@@ -132,10 +133,10 @@ class ClientRequest
 				pstr << (opts['encode_params'] ? set_encode_uri(val) : val)
 			end
 		else
-			uri_str = set_uri
 			if opts['encode']
 				qstr = set_encode_uri(qstr)
 			end
+			uri_str = set_uri
 		end
 
 		req = ''
@@ -188,7 +189,7 @@ class ClientRequest
 
 		if (opts['uri_dir_fake_relative'])
 			buf = ""
-			uri_str.split('/').each do |part|
+			uri_str.split('/',-1).each do |part|
 				cnt = rand(8)+2
 				1.upto(cnt) { |idx|
 					buf << "/" + Rex::Text.rand_text_alphanumeric(rand(32)+1)
@@ -208,37 +209,6 @@ class ClientRequest
 		else
 			uri_str
 		end
-	end
-
-	def set_cgi
-		uri_str = opts['uri'].dup
-		if (opts['uri_dir_self_reference'])
-			uri_str.gsub!('/', '/./')
-		end
-
-		if (opts['uri_dir_fake_relative'])
-			buf = ""
-			uri_str.split('/').each do |part|
-				cnt = rand(8)+2
-				1.upto(cnt) { |idx|
-					buf << "/" + Rex::Text.rand_text_alphanumeric(rand(32)+1)
-				}
-				buf << ("/.." * cnt)
-				buf << "/" + part
-			end
-			uri_str = buf
-		end
-
-		url = uri_str
-
-		if (opts['uri_full_url'])
-			url = opts['ssl'] ? "https" : "http"
-			url << opts['vhost']
-			url << (opts['port'] == 80) ? "" : ":#{opts['port']}"
-			url << uri_str
-		end
-
-		url
 	end
 
 	def set_encode_uri(str)
