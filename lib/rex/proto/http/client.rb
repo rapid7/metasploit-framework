@@ -8,6 +8,8 @@ require 'rex/proto/ntlm/constants'
 require 'rex/proto/ntlm/utils'
 require 'rex/proto/ntlm/exceptions'
 
+require 'rex/proto/http/client_request'
+
 module Rex
 module Proto
 module Http
@@ -21,7 +23,7 @@ module Http
 ###
 class Client
 
-	DefaultUserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)"
+	DefaultUserAgent = ClientRequest::DefaultUserAgent
 
 	#
 	# Creates a new client instance
@@ -35,57 +37,14 @@ class Client
 		self.proxies  = proxies
 		self.username = username
 		self.password = password
-		self.config = {
+
+		# Take ClientRequest's defaults, but override with our own
+		self.config = Http::ClientRequest::DefaultConfig.merge({
 			'read_max_data'   => (1024*1024*1),
 			'vhost'           => self.hostname,
-			'version'         => '1.1',
-			'agent'           => DefaultUserAgent,
-			#
-			# Evasion options
-			#
-			'uri_encode_mode'        => 'hex-normal', # hex-all, hex-random, u-normal, u-random, u-all
-			'uri_encode_count'       => 1,       # integer
-			'uri_full_url'           => false,   # bool
-			'pad_method_uri_count'   => 1,       # integer
-			'pad_uri_version_count'  => 1,       # integer
-			'pad_method_uri_type'    => 'space', # space, tab, apache
-			'pad_uri_version_type'   => 'space', # space, tab, apache
-			'method_random_valid'    => false,   # bool
-			'method_random_invalid'  => false,   # bool
-			'method_random_case'     => false,   # bool
-			'version_random_valid'   => false,   # bool
-			'version_random_invalid' => false,   # bool
-			'version_random_case'    => false,   # bool
-			'uri_dir_self_reference' => false,   # bool
-			'uri_dir_fake_relative'  => false,   # bool
-			'uri_use_backslashes'    => false,   # bool
-			'pad_fake_headers'       => false,   # bool
-			'pad_fake_headers_count' => 16,      # integer
-			'pad_get_params'         => false,   # bool
-			'pad_get_params_count'   => 8,       # integer
-			'pad_post_params'        => false,   # bool
-			'pad_post_params_count'  => 8,       # integer
-			'uri_fake_end'           => false,   # bool
-			'uri_fake_params_start'  => false,   # bool
-			'header_folding'         => false,   # bool
-			'chunked_size'           => 0,        # integer
-			#
-			# NTLM Options
-			#
-			'usentlm2_session' => true,
-			'use_ntlmv2'       => true,
-			'send_lm'         => true,
-			'send_ntlm'       => true,
-			'SendSPN'  => true,
-			'UseLMKey' => false,
-			'domain' => 'WORKSTATION',
-			#
-			# Digest Options
-			#
-			'DigestAuthIIS' => true
-		}
+		})
 
-		# This is not used right now...
+		# XXX: This info should all be controlled by ClientRequest
 		self.config_types = {
 			'uri_encode_mode'        => ['hex-normal', 'hex-all', 'hex-random', 'u-normal', 'u-random', 'u-all'],
 			'uri_encode_count'       => 'integer',
@@ -114,6 +73,8 @@ class Client
 			'header_folding'         => 'bool',
 			'chunked_size'           => 'integer'
 		}
+
+
 	end
 
 	#
@@ -145,7 +106,6 @@ class Client
 
 			self.config[var]=val
 		end
-
 	end
 
 	#
@@ -167,9 +127,9 @@ class Client
 	# @option opts 'version'       [String] version of the protocol, default: 1.1
 	# @option opts 'vhost'         [String] Host header value
 	#
-	# @return [Request]
+	# @return [ClientRequest]
 	def request_raw(opts={})
-		opts['agent']   ||= config['agent']		
+		opts['agent']   ||= config['agent']
 		opts['data']    ||= ''
 		opts['uri']     ||= '/'
 		opts['cookie']  ||= config['cookie']
@@ -180,18 +140,11 @@ class Client
 		opts['proto']   ||= 'HTTP'
 		opts['query']   ||= ''
 
-		opts['ssl']         = self.ssl
 		opts['cgi']         = false
 		opts['port']        = self.port
 		opts['basic_auth']  = opts['basic_auth'] || config['basic_auth'] || ''
 		opts['raw_headers'] = opts['raw_headers'] || config['raw_headers'] || ''
 		opts['version']     = opts['version']     || config['version'] || '1.1'
-
-		opts['client_config'] = self.config
-
-		if opts['basic_auth'] and not opts['authorization']
-			opts['authorization'] = Rex::Text.encode_base64(opts['basic_auth'])
-		end
 
 		req = ClientRequest.new(opts)
 	end
@@ -207,39 +160,33 @@ class Client
 	# @option opts 'vars_get'      [Hash]   GET variables as a hash to be translated into a query string
 	# @option opts 'vars_post'     [Hash]   POST variables as a hash to be translated into POST data
 	#
-	# @return [Request]
+	# @return [ClientRequest]
 	def request_cgi(opts={})
-		opts['agent']     ||= config['agent']
-		opts['data']      ||= ''
-		opts['uri']       ||= '/'
-		opts['cookie']    ||= config['cookie']
-		opts['encode']    ||= false
-		opts['headers']   ||= config['headers'] || {}
-		opts['vhost']     ||= config['vhost']
-		opts['method']    ||= 'GET'
-		opts['proto']     ||= 'HTTP'
-		opts['query']     ||= ''
-		opts['ctype']     ||= 'application/x-www-form-urlencoded'
-		opts['vars_get']  ||= {}
-		opts['vars_post'] ||= {}
-		
+		opts['agent']       ||= config['agent']
+		opts['basic_auth']  ||= config['basic_auth']  || ''
+		opts['cookie']      ||= config['cookie']
+		opts['ctype']       ||= 'application/x-www-form-urlencoded'
+		opts['data']        ||= ''
+		opts['encode']      ||= false
+		opts['headers']     ||= config['headers'] || {}
+		opts['method']      ||= 'GET'
+		opts['proto']       ||= 'HTTP'
+		opts['query']       ||= ''
+		opts['raw_headers'] ||= config['raw_headers'] || ''
+		opts['uri']         ||= '/'
+		opts['vars_get']    ||= {}
+		opts['vars_post']   ||= {}
+		opts['version']     ||= config['version']     || '1.1'
+		opts['vhost']       ||= config['vhost']
+
 		opts['ssl']         = self.ssl
 		opts['cgi']         = true
 		opts['port']        = self.port
-		opts['basic_auth']  = opts['basic_auth'] || config['basic_auth'] || ''
-		opts['raw_headers'] = opts['raw_headers'] || config['raw_headers'] || ''
-		opts['version']     = opts['version']     || config['version'] || '1.1'  
-
-		opts['client_config'] = self.config
 
 		if opts['encode_params'] == true or opts['encode_params'].nil?
 			opts['encode_params'] = true
 		else
 			opts['encode_params'] = false
-		end
-
-		if opts['basic_auth'] and not opts['authorization']
-			opts['authorization'] = Rex::Text.encode_base64(opts['basic_auth'])
 		end
 
 		req = ClientRequest.new(opts)
@@ -294,6 +241,7 @@ class Client
 	# If the request is a 401, and we have creds, it will attempt to complete
 	# authentication and return the final response
 	#
+	# @return (see #_send_recv)
 	def send_recv(req, t = -1, persist=false)
 		res = _send_recv(req,t,persist)
 		if res and res.code == 401 and res.headers['WWW-Authenticate']
@@ -311,7 +259,7 @@ class Client
 	# Call this directly instead of {#send_recv} if you don't want automatic
 	# authentication handling.
 	#
-	# @return [Response]
+	# @return (see #read_response)
 	def _send_recv(req, t = -1, persist=false)
 		@pipeline = persist
 		send_request(req, t)
@@ -323,9 +271,10 @@ class Client
 	#
 	# Send an HTTP request to the server
 	#
-	# @param req [Request,#to_s] The request to send
+	# @param req [Request,ClientRequest,#to_s] The request to send
 	# @param t (see #connect)
 	#
+	# @return [void]
 	def send_request(req, t = -1)
 		connect(t)
 		conn.put(req.to_s)
@@ -334,10 +283,12 @@ class Client
 	# Resends an HTTP Request with the propper authentcation headers
 	# set. If we do not support the authentication type the server requires
 	# we return the original response object
+	#
 	# @param res [Response] the HTTP Response object
 	# @param opts [Hash] the options used to generate the original HTTP request
 	# @param t [Fixnum] the timeout for the request in seconds
 	# @param persist [Boolean] whether or not to persist the TCP connection (pipelining)
+	#
 	# @return [Response] the last valid HTTP response object we received
 	def send_auth(res, opts, t, persist)
 		if opts['username'].nil? or opts['username'] == ''
@@ -359,11 +310,8 @@ class Client
 		return res if opts['username'].nil? or opts['username'] == ''
 		supported_auths = res.headers['WWW-Authenticate']
 		if supported_auths.include? 'Basic'
-			if opts['headers']
-				opts['headers']['Authorization'] = basic_auth_header(opts['username'],opts['password'] )
-			else
-				opts['headers'] = { 'Authorization' => basic_auth_header(opts['username'],opts['password'] )}
-			end
+			opts['headers'] ||= {}
+			opts['headers']['Authorization'] = basic_auth_header(opts['username'],opts['password'] )
 			req = request_cgi(opts)
 			res = _send_recv(req,t,persist)
 			return res
@@ -391,15 +339,19 @@ class Client
 		return res
 	end
 
-	# Converts username and password into the HTTP Basic
-	# authorization string.
+	# Converts username and password into the HTTP Basic authorization
+	# string.
+	#
+	# @return [String] A value suitable for use as an Authorization header
 	def basic_auth_header(username,password)
 		auth_str = username.to_s + ":" + password.to_s
 		auth_str = "Basic " + Rex::Text.encode_base64(auth_str)
 	end
 
 	# Send a series of requests to complete Digest Authentication
+	#
 	# @param opts [Hash] the options used to build an HTTP request
+	#
 	# @return [Response] the last valid HTTP response we received
 	def digest_auth(opts={})
 		@nonce_count = 0
@@ -535,13 +487,13 @@ class Client
 	end
 
 	#
-	# Opts -
-	#   Inherits all the same options as send_request_cgi
-	#   provider - What Negotiate Provider to use (supports NTLM and Negotiate)
-	#
 	# Builds a series of requests to complete Negotiate Auth. Works essentially
 	# the same way as Digest auth. Same pipelining concerns exist.
 	#
+	# @option opts (see #send_request_cgi)
+	# @option opts provider ["Negotiate","NTLM"] What Negotiate provider to use
+	#
+	# @return [Response] the last valid HTTP response we received
 	def negotiate_auth(opts={})
 		ntlm_options = {
 			:signing          => false,
@@ -647,6 +599,7 @@ class Client
 	#
 	# Read a response from the server
 	#
+	# @return [Response]
 	def read_response(t = -1, opts = {})
 
 		resp = Response.new

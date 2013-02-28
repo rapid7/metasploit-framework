@@ -116,10 +116,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	def do_login(user='admin', pass='admin')
 		vprint_status("#{target_url} - Trying username:'#{user}' with password:'#{pass}'")
-		
+
 		response  = do_http_login(user,pass)
 		result = determine_result(response)
-		
+
 		if result == :success
 			print_good("#{target_url} - Successful login '#{user}' : '#{pass}'")
 
