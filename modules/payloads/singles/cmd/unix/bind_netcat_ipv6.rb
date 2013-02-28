@@ -17,7 +17,7 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Unix Command Shell, Bind TCP IPv6',
+			'Name'          => 'Unix Command Shell, Bind TCP (via netcat) IPv6',
 			'Description'   => 'Listen for a connection and spawn a command shell via netcat',
 			'Author'        =>
 				[
