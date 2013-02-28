@@ -178,6 +178,22 @@ describe Rex::Proto::Http::ClientRequest do
       }
     end
 
+    context "with 'pad_get_params'" do
+      let(:encode_params) { true }
+      it "should ..." do
+        old = client_request.opts['pad_get_params']
+        client_request.opts['pad_get_params'] = true
+
+        client_request.opts['pad_get_params_count'] = 0
+        client_request.to_s.split("&").length.should == vars_get.length
+
+        client_request.opts['pad_get_params_count'] = 10
+        client_request.to_s.split("&").length.should == vars_get.length + 10
+
+        client_request.opts['pad_get_params'] = old
+      end
+    end
+
     context "without 'encode_params'" do
       let(:encode_params) { false }
       it "should contain the unaltered params" do
@@ -190,7 +206,7 @@ describe Rex::Proto::Http::ClientRequest do
 
     context "with 'encode_params'" do
       let(:encode_params) { true }
-      context "with 'uri_encode_mode' = default (hex-normal)" do
+      context "and 'uri_encode_mode' = default (hex-normal)" do
         it "should encode special chars" do
           str = client_request.to_s
           str.should include("foo%5b%5d=bar")
@@ -199,7 +215,7 @@ describe Rex::Proto::Http::ClientRequest do
         end
       end
 
-      context "with 'uri_encode_mode' = hex-all" do
+      context "and 'uri_encode_mode' = hex-all" do
         let(:encode_mode) { 'hex-all' }
         it "should encode all chars" do
           str = client_request.to_s
