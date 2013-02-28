@@ -64,13 +64,13 @@ class Metasploit4 < Msf::Auxiliary
 	def report_note_sap(type, data, value)
 		# create note
 		report_note(
-					:host => rhost,
-					:port => rport,
-					:proto => 'tcp',
-					:sname => 'sap',
-					:type => type,
-					:data => data + value
-					) if data
+			:host => rhost,
+			:port => rport,
+			:proto => 'tcp',
+			:sname => 'sap',
+			:type => type,
+			:data => data + value
+		) if data
 		# update saptbl for output
 		@saptbl << [ data, value ]
 	end
@@ -122,14 +122,12 @@ class Metasploit4 < Msf::Auxiliary
 		# create table for output
 		@saptbl = Msf::Ui::Console::Table.new(
 			Msf::Ui::Console::Table::Style::Default,
-				'Header' => "[SAP] SOAP RFC_SYSTEM_INFO",
-				'Prefix' => "\n",
-				'Postfix' => "\n",
-				'Indent' => 1,
-				'Columns' =>[
-					"Key",
-					"Value"
-					])
+			'Header' => "[SAP] SOAP RFC_SYSTEM_INFO",
+			'Prefix' => "\n",
+			'Postfix' => "\n",
+			'Indent' => 1,
+			'Columns' =>[ "Key", "Value" ]
+		)
 
 		response = res.body
 
