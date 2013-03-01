@@ -7,6 +7,7 @@ If you're an exploit developer, you might want to review our [[acceptance guidel
 - [[Setting Up a Metasploit Development Environment]] 
 - [[Using Metasploit]]
 - [[Using Git]]
+- [[Reporting a Bug]]
 
 # Contributing #
 
