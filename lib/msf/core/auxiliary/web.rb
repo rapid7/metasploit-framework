@@ -179,7 +179,7 @@ module Auxiliary::Web
 			:blame		=> details[:blame],
 			:category	=> details[:category],
 			:description => details[:description],
-			:confidence  => calculate_confidence( parent.vulns[mode][vhash] ),
+			:confidence  => details[:category] || opts[:confidence] || 100,
 			:owner	  => self
 		}
 
@@ -211,7 +211,7 @@ module Auxiliary::Web
 			:blame		 => details[:blame],
 			:category	 => details[:category],
 			:description => details[:description],
-			:confidence  => calculate_confidence( parent.vulns[mode][vhash] ),
+			:confidence  => details[:category] || opts[:confidence] || 100,
 			:owner		 => self
 		}
 
