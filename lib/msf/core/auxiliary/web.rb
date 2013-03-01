@@ -179,9 +179,10 @@ module Auxiliary::Web
 			:blame		=> details[:blame],
 			:category	=> details[:category],
 			:description => details[:description],
-			:confidence  => calculate_confidence( parent.vulns[mode][vhash] ),
 			:owner	  => self
 		}
+
+		info[:confidence]  = calculate_confidence( info )
 
 		report_web_vuln( info )
 
@@ -211,9 +212,10 @@ module Auxiliary::Web
 			:blame		 => details[:blame],
 			:category	 => details[:category],
 			:description => details[:description],
-			:confidence  => calculate_confidence( parent.vulns[mode][vhash] ),
 			:owner		 => self
 		}
+
+		info[:confidence]  = calculate_confidence( info )
 
 		report_web_vuln( info )
 
