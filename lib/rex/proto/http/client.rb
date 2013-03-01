@@ -113,7 +113,6 @@ class Client
 	#
 	# @param opts [Hash]
 	# @option opts 'agent'         [String] User-Agent header value
-	# @option opts 'basic_auth'    [String] Basic-Auth header value
 	# @option opts 'connection'    [String] Connection header value
 	# @option opts 'cookie'        [String] Cookie header value
 	# @option opts 'data'          [String] HTTP data (only useful with some methods, see rfc2616)

@@ -85,26 +85,6 @@ describe Rex::Proto::Http::Client do
 				match.captures[0].chomp.should == base64
 			end
 		end
-
-		context "and basic_auth" do
-			before do
-				cli.set_config({"basic_auth" => "user:pass"})
-			end
-			it "should not have two Authorization headers" do
-				req = cli.request_cgi
-				match = req.to_s.match("Authorization: Basic")
-				match.should be
-				match.length.should == 1
-			end
-			it "should prefer basic_auth" do
-				req = cli.request_cgi
-				match = req.to_s.match(/Authorization: Basic (.*)$/)
-				match.should be
-				match.captures.length.should == 1
-				match.captures[0].chomp.should == base64
-			end
-		end
-
 	end
 
 	it "should attempt to connect to a server" do

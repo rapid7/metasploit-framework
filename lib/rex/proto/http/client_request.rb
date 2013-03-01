@@ -87,12 +87,6 @@ class ClientRequest
 
 	def initialize(opts={})
 		@opts = DefaultConfig.merge(opts)
-
-		# Backwards compatibility for wonky basic authentication api from
-		# the dawn of time.
-		if opts['basic_auth'] and not opts['authorization']
-			@opts['authorization'] = "Basic #{Rex::Text.encode_base64(opts['basic_auth'])}"
-		end
 	end
 
 	def to_s
