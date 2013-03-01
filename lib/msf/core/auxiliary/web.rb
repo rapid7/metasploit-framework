@@ -179,9 +179,10 @@ module Auxiliary::Web
 			:blame		=> details[:blame],
 			:category	=> details[:category],
 			:description => details[:description],
-			:confidence  => details[:category] || opts[:confidence] || 100,
 			:owner	  => self
 		}
+
+		info[:confidence]  = calculate_confidence( info )
 
 		report_web_vuln( info )
 
@@ -211,9 +212,10 @@ module Auxiliary::Web
 			:blame		 => details[:blame],
 			:category	 => details[:category],
 			:description => details[:description],
-			:confidence  => details[:category] || opts[:confidence] || 100,
 			:owner		 => self
 		}
+
+		info[:confidence]  = calculate_confidence( info )
 
 		report_web_vuln( info )
 
@@ -278,7 +280,7 @@ module Auxiliary::Web
 		report_web_vuln( info )
 
 		print_good "	VULNERABLE(#{mode.to_s.upcase}) URL(#{target.to_url})" +
-					   " PARAMETER(#{element.altered}) VALUES(#{element.params})"
+						" PARAMETER(#{element.altered}) VALUES(#{element.params})"
 		print_good "		 PROOF(#{proof})"
 	end
 
