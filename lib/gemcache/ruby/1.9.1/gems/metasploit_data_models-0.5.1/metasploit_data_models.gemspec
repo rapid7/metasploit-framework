@@ -18,6 +18,10 @@ Gem::Specification.new do |s|
 
   # ---- Dependencies ----
   s.add_development_dependency 'rake'
+  # markdown formatting for yard
+  s.add_development_dependency 'redcarpet'
+  # documentation
+  s.add_development_dependency 'yard'
 
   s.add_runtime_dependency 'activerecord', '>= 3.2.10'
   s.add_runtime_dependency 'activesupport'
