@@ -27,6 +27,7 @@ class ClientRequest
 		'path_info'              => '',
 		'port'                   => 80,
 		'proto'                  => 'HTTP',
+		'query'                  => '',
 		'ssl'                    => false,
 		'uri'                    => '/',
 		'vars_get'               => {},
@@ -38,7 +39,7 @@ class ClientRequest
 		# Evasion options
 		#
 		'encode_params'          => true,
-		'encode'                 => true,
+		'encode'                 => false,
 		'uri_encode_mode'        => 'hex-normal', # hex-all, hex-random, u-normal, u-random, u-all
 		'uri_encode_count'       => 1,       # integer
 		'uri_full_url'           => false,   # bool

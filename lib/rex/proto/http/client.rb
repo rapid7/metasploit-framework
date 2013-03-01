@@ -129,23 +129,12 @@ class Client
 	#
 	# @return [ClientRequest]
 	def request_raw(opts={})
-		opts['agent']   ||= config['agent']
-		opts['data']    ||= ''
-		opts['uri']     ||= '/'
-		opts['cookie']  ||= config['cookie']
-		opts['encode']  ||= false
-		opts['headers'] ||= config['headers'] || {}
-		opts['vhost']   ||= config['vhost']
-		opts['method']  ||= 'GET'
-		opts['proto']   ||= 'HTTP'
-		opts['query']   ||= ''
-
+		opts = self.config.merge(opts)
+		
+		opts['ssl']         = self.ssl
 		opts['cgi']         = false
 		opts['port']        = self.port
-		opts['basic_auth']  = opts['basic_auth'] || config['basic_auth'] || ''
-		opts['raw_headers'] = opts['raw_headers'] || config['raw_headers'] || ''
-		opts['version']     = opts['version']     || config['version'] || '1.1'
-
+		
 		req = ClientRequest.new(opts)
 	end
 
@@ -162,32 +151,12 @@ class Client
 	#
 	# @return [ClientRequest]
 	def request_cgi(opts={})
-		opts['agent']       ||= config['agent']
-		opts['basic_auth']  ||= config['basic_auth']  || ''
-		opts['cookie']      ||= config['cookie']
+		opts = self.config.merge(opts)
+		
 		opts['ctype']       ||= 'application/x-www-form-urlencoded'
-		opts['data']        ||= ''
-		opts['encode']      ||= false
-		opts['headers']     ||= config['headers'] || {}
-		opts['method']      ||= 'GET'
-		opts['proto']       ||= 'HTTP'
-		opts['query']       ||= ''
-		opts['raw_headers'] ||= config['raw_headers'] || ''
-		opts['uri']         ||= '/'
-		opts['vars_get']    ||= {}
-		opts['vars_post']   ||= {}
-		opts['version']     ||= config['version']     || '1.1'
-		opts['vhost']       ||= config['vhost']
-
 		opts['ssl']         = self.ssl
 		opts['cgi']         = true
 		opts['port']        = self.port
-
-		if opts['encode_params'] == true or opts['encode_params'].nil?
-			opts['encode_params'] = true
-		else
-			opts['encode_params'] = false
-		end
 
 		req = ClientRequest.new(opts)
 	end
