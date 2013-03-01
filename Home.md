@@ -16,6 +16,7 @@ If you're an exploit developer, you might want to review our [[acceptance guidel
 - [[Common Metasploit Module Coding Mistakes]]
 - [[Style Tips]]
 - [[Committer Rights]]
+- [[Landing a Pull Request]]
 
 # Metasploit Resources #
 
