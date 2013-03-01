@@ -11,7 +11,7 @@ If you're an exploit developer, you might want to review our [[acceptance guidel
 
 # Contributing #
 
-- [[Acceptance Guidelines]]
+- [[Modules and Enhancements Acceptance Guidelines]]
 - [[Contributing to Metasploit]]
 - [[Common Metasploit Module Coding Mistakes]]
 - [[Style Tips]]
