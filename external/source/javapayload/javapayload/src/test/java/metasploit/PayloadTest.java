@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -119,7 +120,17 @@ public class PayloadTest extends TestCase {
 			public Object call() throws Exception {
 				return runPayload(metasploitDat, null);			
 			}});
-		Socket s = new Socket(InetAddress.getLocalHost(), port);
+		Socket s;
+		for(int retry = 0;; retry++) {
+			try {
+				s = new Socket(InetAddress.getLocalHost(), port);
+				break;
+			} catch (ConnectException ex) {
+				if (retry == 10)
+					throw ex;
+				Thread.sleep(500);
+			}
+		}
 		handleSocketCommunication(s);
 		ss.close();
 		Assert.assertNull(handle.get());
