@@ -46,6 +46,7 @@ module Metasploit3
 			#;0x80000000 |        ; INTERNET_FLAG_RELOAD
 			#;0x04000000 |        ; INTERNET_NO_CACHE_WRITE
 			#;0x00800000 |        ; INTERNET_FLAG_SECURE
+			#;0x00400000 |        ; INTERNET_FLAG_KEEP_CONNECTION
 			#;0x00200000 |        ; INTERNET_FLAG_NO_AUTO_REDIRECT
 			#;0x00001000 |        ; INTERNET_FLAG_IGNORE_CERT_CN_INVALID
 			#;0x00002000 |        ; INTERNET_FLAG_IGNORE_CERT_DATE_INVALID
@@ -89,7 +90,7 @@ module Metasploit3
 			if target_uri =~ /^http:/
 				proto = "http"
 				port_nr = 80
-				dwflags_asm = "push (0x80000000 | 0x04000000 | 0x00200000 |0x00001000 |0x00002000 |0x00000200) ; dwFlags\n"
+				dwflags_asm = "push (0x80000000 | 0x04000000 | 0x00400000 | 0x00200000 |0x00001000 |0x00002000 |0x00000200) ; dwFlags\n"
 			end
 
 			if target_uri =~ /^ftp:/
