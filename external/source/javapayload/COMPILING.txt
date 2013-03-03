@@ -8,7 +8,9 @@ to package all the files, or
 mvn -P deploy package
 
 to package all the files and copy them into the correct place for Metasploit
-(/data/java).
+(/data/java). If you get spurious compilation errors, make sure that there
+is an exclude rule in your antivirus for the Metasploit directory (or that
+your antivirus is disabled).
 
 In case you want to edit/debug JavaPayload for Metasploit or Java Meterpreter,
 Maven provides plugins to auto-generate project files for your favourite IDE
