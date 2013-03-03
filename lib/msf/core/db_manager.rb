@@ -80,17 +80,6 @@ class DBManager
 		initialize_database_support
 	end
 
-	def initialize_metasploit_data_models
-		# Provide access to ActiveRecord models shared w/ commercial versions
-		require "metasploit_data_models"
-
-		metasploit_data_model_migrations_pathname = MetasploitDataModels.root.join(
-				'db',
-				'migrate'
-		)
-		ActiveRecord::Migrator.migrations_paths << metasploit_data_model_migrations_pathname.to_s
-	end
-
 	#
 	# Do what is necessary to load our database support
 	#
@@ -164,6 +153,20 @@ class DBManager
 
 		# Database drivers can reset our KCODE, do not let them
 		$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
+	end
+
+	# Loads Metasploit Data Models and adds its migrations to migrations paths.
+	#
+	# @return [void]
+	def initialize_metasploit_data_models
+		# Provide access to ActiveRecord models shared w/ commercial versions
+		require "metasploit_data_models"
+
+		metasploit_data_model_migrations_pathname = MetasploitDataModels.root.join(
+				'db',
+				'migrate'
+		)
+		ActiveRecord::Migrator.migrations_paths << metasploit_data_model_migrations_pathname.to_s
 	end
 
 	#
