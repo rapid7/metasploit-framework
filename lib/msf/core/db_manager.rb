@@ -281,7 +281,7 @@ class DBManager
 	# Migrate database to latest schema version.
 	#
 	# @param verbose [Boolean] see ActiveRecord::Migration.verbose
-	# @return [Array<ActiveRecord::Migration>] List of migrations that ran.
+	# @return [Array<ActiveRecord::MigrationProxy] List of migrations that ran.
 	#
 	# @see ActiveRecord::Migrator.migrate
 	def migrate(verbose=false)
