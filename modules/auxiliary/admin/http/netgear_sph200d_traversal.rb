@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 		res = send_request_cgi({
 			'method'     => 'GET',
 			'uri'        => normalize_uri(traversal, file),
-			'basic_auth' => "#{user}:#{pass}"
+			'authorization' => basic_auth(user,pass)
 		})
 
 		if res and res.code == 200 and res.body !~ /404\ File\ Not\ Found/
@@ -95,7 +95,7 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_cgi({
 				'uri'        => '/',
 				'method'     => 'GET',
-				'basic_auth' => "#{user}:#{pass}"
+				'authorization' => basic_auth(user,pass)
 			})
 
 			return :abort if res.nil?

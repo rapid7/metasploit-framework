@@ -158,7 +158,7 @@ module Text
 	# Converts ISO-8859-1 to UTF-8
 	#
 	def self.to_utf8(str)
-		
+
 		if str.respond_to?(:encode)
 			# Skip over any bytes that fail to convert to UTF-8
 			return str.encode('utf-8', { :invalid => :replace, :undef => :replace, :replace => '' })
@@ -550,7 +550,7 @@ module Text
 		when 'u-half'
 			return str.gsub(all) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms-half'), '%u', 2) }
 		else
-			raise TypeError, 'invalid mode'
+			raise TypeError, "invalid mode #{mode.inspect}"
 		end
 	end
 

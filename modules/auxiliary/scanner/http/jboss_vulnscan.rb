@@ -129,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
 			'uri'       => app,
 			'method'    => 'GET',
 			'ctype'     => 'text/plain',
-			'basic_auth' => 'admin:admin'
+			'authorization' => basic_auth('admin','admin')
 		}, 20)
 		if (res and res.code == 200)
 			print_good("#{rhost}:#{rport} Authenticated using admin:admin")
