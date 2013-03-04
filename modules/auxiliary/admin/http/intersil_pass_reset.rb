@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
 		res = send_request_cgi({
 			'uri'=> uri,
 			'method'=>'GET',
-			'basic_auth' => "#{Rex::Text.rand_text_alpha(127)}:#{datastore['PASSWORD']}"
+			'authorization' => basic_auth(Rex::Text.rand_text_alpha(127),datastore['PASSWORD'])
 		})
 
 		if res.nil?
@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
 		res = send_request_cgi({
 			'uri'   => uri,
 			'method'=> 'GET',
-			'basic_auth' => "admin:#{datastore['PASSWORD']}"
+			'authorization' => basic_auth('admin', datastore['PASSWORD'])
 		})
 
 		if not res
