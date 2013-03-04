@@ -69,7 +69,7 @@ class DBManager
 
 		self.framework = framework
 		self.migrated  = false
-		self.migration_paths = [ ::File.join(Msf::Config.install_root, "data", "sql", "migrate") ]
+		self.migration_paths = []
 		self.modules_cached  = false
 		self.modules_caching = false
 
@@ -82,6 +82,10 @@ class DBManager
 		end
 
 		initialize_database_support
+
+		# have to set migration paths after initialize_database_support as it loads
+		# MetasploitDataModels.
+		self.migration_paths << MetasploitDataModels.root.join('db', 'migrate').to_s
 	end
 
 	#
@@ -497,6 +501,14 @@ class DBManager
 
 			m.targets.each_index do |i|
 				bits << [ :target, { :index => i, :name => m.targets[i].name.to_s } ]
+				if m.targets[i].platform 
+					m.targets[i].platform.platforms.each do |name|
+						bits << [ :platform, { :name => name.to_s.split('::').last.downcase } ]	
+					end 
+				end 
+				if m.targets[i].arch
+					bits << [ :arch, { :name => m.targets[i].arch.to_s } ]
+				end 				
 			end
 
 			if (m.default_target)
@@ -525,7 +537,7 @@ class DBManager
 			res[:stance] = m.passive? ? "passive" : "aggressive"
 		end
 
-		res[:bits] = bits
+		res[:bits] = bits.uniq
 
 		res
 	end

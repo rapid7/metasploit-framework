@@ -4,14 +4,15 @@ require 'digest/sha1'
 require 'stringio'
 require 'cgi'
 
-begin
-	old_verbose = $VERBOSE
-	$VERBOSE = nil
-	require 'iconv'
-	require 'zlib'
-rescue ::LoadError
-ensure
-	$VERBOSE = old_verbose
+%W{ iconv zlib }.each do |libname|
+	begin
+		old_verbose = $VERBOSE
+		$VERBOSE = nil
+		require libname
+	rescue ::LoadError
+	ensure
+		$VERBOSE = old_verbose
+	end
 end
 
 module Rex
@@ -39,8 +40,8 @@ module Text
 	UpperAlpha   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	LowerAlpha   = "abcdefghijklmnopqrstuvwxyz"
 	Numerals     = "0123456789"
-	Base32       = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
-	Alpha        = UpperAlpha + LowerAlpha
+	Base32	     = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
+	Alpha	     = UpperAlpha + LowerAlpha
 	AlphaNumeric = Alpha + Numerals
 	HighAscii    = [*(0x80 .. 0xff)].pack("C*")
 	LowAscii     = [*(0x00 .. 0x1f)].pack("C*")
@@ -157,6 +158,12 @@ module Text
 	# Converts ISO-8859-1 to UTF-8
 	#
 	def self.to_utf8(str)
+
+		if str.respond_to?(:encode)
+			# Skip over any bytes that fail to convert to UTF-8
+			return str.encode('utf-8', { :invalid => :replace, :undef => :replace, :replace => '' })
+		end
+
 		begin
 			Iconv.iconv("utf-8","iso-8859-1", str).join(" ")
 		rescue
@@ -307,16 +314,16 @@ module Text
 	#
 	# Supported unicode types include: utf-16le, utf16-be, utf32-le, utf32-be, utf-7, and utf-8
 	#
-	# Providing 'mode' provides hints to the actual encoder as to how it should encode the string.  Only UTF-7 and UTF-8 use "mode".
+	# Providing 'mode' provides hints to the actual encoder as to how it should encode the string.	Only UTF-7 and UTF-8 use "mode".
 	#
 	# utf-7 by default does not encode alphanumeric and a few other characters.  By specifying the mode of "all", then all of the characters are encoded, not just the non-alphanumeric set.
 	#	to_unicode(str, 'utf-7', 'all')
 	#
 	# utf-8 specifies that alphanumeric characters are used directly, eg "a" is just "a".  However, there exist 6 different overlong encodings of "a" that are technically not valid, but parse just fine in most utf-8 parsers.  (0xC1A1, 0xE081A1, 0xF08081A1, 0xF8808081A1, 0xFC80808081A1, 0xFE8080808081A1).  How many bytes to use for the overlong enocding is specified providing 'size'.
-	# 	to_unicode(str, 'utf-8', 'overlong', 2)
+	#	to_unicode(str, 'utf-8', 'overlong', 2)
 	#
-	# Many utf-8 parsers also allow invalid overlong encodings, where bits that are unused when encoding a single byte are modified.  Many parsers will ignore these bits, rendering simple string matching to be ineffective for dealing with UTF-8 strings.  There are many more invalid overlong encodings possible for "a".  For example, three encodings are available for an invalid 2 byte encoding of "a". (0xC1E1 0xC161 0xC121).  By specifying "invalid", a random invalid encoding is chosen for the given byte size.
-	# 	to_unicode(str, 'utf-8', 'invalid', 2)
+	# Many utf-8 parsers also allow invalid overlong encodings, where bits that are unused when encoding a single byte are modified.  Many parsers will ignore these bits, rendering simple string matching to be ineffective for dealing with UTF-8 strings.  There are many more invalid overlong encodings possible for "a".  For example, three encodings are available for an invalid 2 byte encoding of "a". (0xC1E1 0xC161 0xC121).	By specifying "invalid", a random invalid encoding is chosen for the given byte size.
+	#	to_unicode(str, 'utf-8', 'invalid', 2)
 	#
 	# utf-7 defaults to 'normal' utf-7 encoding
 	# utf-8 defaults to 2 byte 'normal' encoding
@@ -360,7 +367,7 @@ module Text
 				string = ''
 				str.each_byte { |a|
 					if (a < 21 || a > 0x7f) || mode != ''
-						# ugh.  turn a single byte into the binary representation of it, in array form
+						# ugh.	turn a single byte into the binary representation of it, in array form
 						bin = [a].pack('C').unpack('B8')[0].split(//)
 
 						# even more ugh.
@@ -543,7 +550,7 @@ module Text
 		when 'u-half'
 			return str.gsub(all) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms-half'), '%u', 2) }
 		else
-			raise TypeError, 'invalid mode'
+			raise TypeError, "invalid mode #{mode.inspect}"
 		end
 	end
 
@@ -659,6 +666,49 @@ module Text
 	end
 
 	#
+	# Converts a string a nicely formatted and addressed ex dump
+	#
+	def self.to_addr_hex_dump(str, start_addr=0, width=16)
+		buf = ''
+		idx = 0
+		cnt = 0
+		snl = false
+		lst = 0
+		addr = start_addr
+
+		while (idx < str.length)
+
+			buf << "%08x" % addr
+			buf << " " * 4
+			chunk = str[idx, width]
+			line  = chunk.unpack("H*")[0].scan(/../).join(" ")
+			buf << line
+
+			if (lst == 0)
+				lst = line.length
+				buf << " " * 4
+			else
+				buf << " " * ((lst - line.length) + 4).abs
+			end
+
+			chunk.unpack("C*").each do |c|
+				if (c > 0x1f and c < 0x7f)
+					buf << c.chr
+				else
+					buf << "."
+				end
+			end
+
+			buf << "\n"
+
+			idx += width
+			addr += width
+		end
+
+		buf << "\n"
+	end
+
+	#
 	# Converts a hex string to a raw string
 	#
 	def self.hex_to_raw(str)
@@ -691,20 +741,20 @@ module Text
 	# Converts a string to a hex version with wrapping support
 	#
 	def self.hexify(str, col = DefaultWrap, line_start = '', line_end = '', buf_start = '', buf_end = '')
-		output   = buf_start
-		cur      = 0
-		count    = 0
+		output	 = buf_start
+		cur	 = 0
+		count	 = 0
 		new_line = true
 
 		# Go through each byte in the string
 		str.each_byte { |byte|
 			count  += 1
-			append  = ''
+			append	= ''
 
 			# If this is a new line, prepend with the
 			# line start text
 			if (new_line == true)
-				append   << line_start
+				append	 << line_start
 				new_line  = false
 			end
 
@@ -716,7 +766,7 @@ module Text
 			# time to finish up this line
 			if ((cur + line_end.length >= col) or (cur + buf_end.length  >= col))
 				new_line  = true
-				cur       = 0
+				cur	  = 0
 
 				# If this is the last byte, use the buf_end instead of
 				# line_end
@@ -1277,7 +1327,7 @@ module Text
 		else
 			ret = str
 		end
-       		ret
+		ret
 	end
 
 	#
