@@ -98,8 +98,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		load "lib/rex/proto/http/client_request.rb"
-		
 		if ( datastore['REQUESTTYPE'] == "PUT" ) and (datastore['AUTH_URI'] == "")
 			print_error("You need need to set AUTH_URI when using PUT Method !")
 			return
