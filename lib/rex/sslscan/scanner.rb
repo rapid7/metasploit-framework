@@ -76,6 +76,10 @@ class Scanner
 			)
 		rescue ::Exception => e 
 			return :rejected
+		ensure
+			if scan_client
+				scan_client.close
+			end
 		end
 		return :accepted
 	end
@@ -92,6 +96,10 @@ class Scanner
 			)
 		rescue ::Exception => e 
 			return :rejected
+		ensure
+			if scan_client
+				scan_client.close
+			end
 		end
 		return :accepted
 	end
@@ -114,7 +122,12 @@ class Scanner
 			)
 		rescue ::Exception => e 
 			return :rejected
+		ensure
+			if scan_client
+				scan_client.close
+			end
 		end
+		
 		return :accepted
 	end
 
@@ -142,6 +155,10 @@ class Scanner
 			end
 		rescue ::Exception => e 
 			return nil
+		ensure
+			if scan_client
+				scan_client.close
+			end
 		end
 	end
 
