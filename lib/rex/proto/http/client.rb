@@ -262,15 +262,9 @@ class Client
 		if opts['username'].nil? or opts['username'] == ''
 			if self.username and not (self.username == '')
 				opts['username'] = self.username
-			else
-				opts['username'] = nil
-			end
-		end
-
-		if opts['password'].nil? or opts['password'] == ''
-			if self.password and not (self.password == '')
 				opts['password'] = self.password
 			else
+				opts['username'] = nil
 				opts['password'] = nil
 			end
 		end
