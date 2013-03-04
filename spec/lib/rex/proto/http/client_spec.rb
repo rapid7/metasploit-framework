@@ -87,6 +87,55 @@ describe Rex::Proto::Http::Client do
 		end
 	end
 
+	context "with credentials" do
+		subject(:cli) do
+			cli = Rex::Proto::Http::Client.new(ip)
+			cli
+		end
+		let(:first_response) {
+			"HTTP/1.1 401 Unauthorized\r\nContent-Length: 0\r\nWWW-Authenticate: Basic realm=\"foo\"\r\n\r\n"
+		}
+		let(:authed_response) {
+			"HTTP/1.1 200 Ok\r\nContent-Length: 0\r\n\r\n"
+		}
+		let(:user) { "user" }
+		let(:pass) { "pass" }
+
+		it "should not send creds on the first request in order to induce a 401" do
+			req = cli.request_cgi
+			req.to_s.should_not match("Authorization:")
+		end
+
+		it "should send creds after receiving a 401" do
+			conn = mock
+			conn.stub(:put)
+			conn.stub(:shutdown)
+			conn.stub(:close)
+
+			conn.should_receive(:get_once).and_return(first_response, authed_response)
+			conn.should_receive(:put) do |str_request|
+				str_request.should_not include("Authorization")
+				nil
+			end
+			conn.should_receive(:put) do |str_request|
+				str_request.should include("Authorization")
+				nil
+			end
+
+			cli.should_receive(:_send_recv).twice.and_call_original
+
+			Rex::Socket::Tcp.stub(:create).and_return(conn)
+
+			opts = { "username" => user, "password" => pass}
+			req = cli.request_cgi(opts)
+			cli.send_recv(req)
+
+			# Make sure it didn't modify the argument
+			opts.should == { "username" => user, "password" => pass}
+		end
+
+	end
+
 	it "should attempt to connect to a server" do
 		this_cli = Rex::Proto::Http::Client.new("127.0.0.1", 1)
 		expect { this_cli.connect(1) }.to raise_error ::Rex::ConnectionRefused
