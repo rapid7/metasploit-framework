@@ -69,7 +69,7 @@ class DBManager
 
 		self.framework = framework
 		self.migrated  = false
-		self.migration_paths = [ ::File.join(Msf::Config.install_root, "data", "sql", "migrate") ]
+		self.migration_paths = []
 		self.modules_cached  = false
 		self.modules_caching = false
 
@@ -82,6 +82,10 @@ class DBManager
 		end
 
 		initialize_database_support
+
+		# have to set migration paths after initialize_database_support as it loads
+		# MetasploitDataModels.
+		self.migration_paths << MetasploitDataModels.root.join('db', 'migrate').to_s
 	end
 
 	#
