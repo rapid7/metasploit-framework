@@ -1,6 +1,30 @@
 Armitage Changelog
 ==================
 
+6 Mar 13 (tested against msf ca43900a7)
+--------
+- Active console now gets higher priority when polling msf for output
+- Improved team server responsiveness in high latency situations by 
+  creating additional connections to server to balance messages over
+- Preferences are now shared among each Armitage connection.
+
+Cortana Updates (for scripters)
+--------
+- Added a &publish, &query, &subscribe API to allow inter-script 
+  communication across the team server.
+- Added &table_update to set the contents of a table tab without 
+  disturbing the highlighted rows.
+- Added an exec_error event. Fired when &m_exec or &m_exec_local fail
+  due to an error reported by meterpreter.
+- Fixed a bug that sometimes caused session_sync to fire twice (boo!)
+- Added a 60s timeout to &s_cmd commands. Cortana will give a shell
+  command 60s to execute. If it doesn't finish in that time, Cortana
+  will release the lock on the shell so the user can control it.
+  (ideally, this shouldn't happen... this is a safety mechanism)
+- Changed Meterpreter command timeout to 2m from 12s. This is because
+  https meterpreter might not checkin for up to 60s, if it's been
+  idle for a long time. This will make &m_cmd less likely to timeout
+
 12 Feb 13 (tested against msf 16438)
 ---------
 - Fixed a corner case preventing the display of removed host labels 
