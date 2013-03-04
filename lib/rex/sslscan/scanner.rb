@@ -11,6 +11,7 @@ class Scanner
 	attr_accessor :timeout
 	
 	attr_reader :supported_versions
+	attr_reader :sslv2
 
 	# Initializes the scanner object
 	# @param host [String] IP address or hostname to scan
@@ -22,7 +23,13 @@ class Scanner
 		@port       = port
 		@timeout    = timeout
 		@context    = context
-		@supported_versions = [:SSLv2, :SSLv3, :TLSv1]
+		if check_opensslv2
+			@supported_versions = [:SSLv2, :SSLv3, :TLSv1]
+			@sslv2 = true
+		else
+			@supported_versions = [:SSLv3, :TLSv1]
+			@sslv2 = false
+		end
 		raise StandardError, "The scanner configuration is invalid" unless valid?
 	end
 
@@ -44,7 +51,7 @@ class Scanner
 	# @return [Result] object containing the details of the scan
 	def scan
 		scan_result = Rex::SSLScan::Result.new
-		
+		scan_result.sslv2 = sslv2
 		# If we can't get any SSL connection, then don't bother testing
 		# individual ciphers.
 		if test_ssl == :rejected and test_tls == :rejected
@@ -179,6 +186,15 @@ class Scanner
 		unless OpenSSL::SSL::SSLContext.new(ssl_version).ciphers.flatten.include? cipher
 			raise StandardError, "Must be a valid SSL Cipher for #{version}!"
 		end
+	end
+
+	def check_opensslv2
+		begin 
+			OpenSSL::SSL::SSLContext.new(:SSLv2)
+		rescue
+			return false
+		end
+		return true
 	end
 
 end

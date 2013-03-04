@@ -456,4 +456,16 @@ describe Rex::SSLScan::Result do
 		end
 	end
 
+	context "when OpenSSL is compiled without SSLv2" do
+		before(:each) do
+			subject.add_cipher(:SSLv3, "AES256-SHA", 256, :accepted)
+			subject.add_cipher(:TLSv1, "AES256-SHA", 256, :accepted)
+			subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
+			subject.sslv2 = false
+		end
+		it "should warn the user" do
+			subject.to_s.should include "*** WARNING: Your OS hates freedom! Your OpenSSL libs are compiled without SSLv2 support!"
+		end
+	end
+
 end

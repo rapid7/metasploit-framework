@@ -5,6 +5,8 @@ require 'rex/ui/text/table'
 module Rex::SSLScan
 class Result
 
+	attr_accessor :sslv2
+
 	attr_reader :ciphers
 	attr_reader :supported_versions
 
@@ -197,6 +199,7 @@ class Result
 		if @cert
 			text <<" \n\n #{@cert.to_text}"
 		end
+		text << "\n\n *** WARNING: Your OS hates freedom! Your OpenSSL libs are compiled without SSLv2 support!"
 		text
 	end
 end
