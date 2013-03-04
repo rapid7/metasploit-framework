@@ -158,6 +158,7 @@ class Client
 		opts['port']        = self.port
 
 		req = ClientRequest.new(opts)
+		req
 	end
 
 	#
