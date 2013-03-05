@@ -157,7 +157,7 @@ class Result
 			raise ArgumentError, "Must supply a valid key length"
 		end
 		unless [:accepted, :rejected].include? status
-			raise ArgumentError, "status Must be either :accepted or :rejected"
+			raise ArgumentError, "Status must be either :accepted or :rejected"
 		end
 
 		strong_cipher_ctx = OpenSSL::SSL::SSLContext.new(version)

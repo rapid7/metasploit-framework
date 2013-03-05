@@ -135,13 +135,17 @@ describe Rex::SSLScan::Result do
 		end
 		context "that was accepted" do
 			it "should add an SSLv2 cipher result to the SSLv2 Accepted array" do
-				subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :accepted)
-				subject.accepted(:SSLv2).should include({
-					:version => :SSLv2, 
-					:cipher=>"DES-CBC3-MD5", 
-					:key_length=>168, 
-					:weak=> false, 
-					:status => :accepted}) 
+				begin
+					subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :accepted)
+					subject.accepted(:SSLv2).should include({
+						:version => :SSLv2, 
+						:cipher=>"DES-CBC3-MD5", 
+						:key_length=>168, 
+						:weak=> false, 
+						:status => :accepted}) 
+				rescue ArgumentError => e
+					e.message.should == "unknown SSL method `SSLv2'"
+				end
 			end
 
 			it "should add an SSLv3 cipher result to the SSLv3 Accepted array" do
