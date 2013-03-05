@@ -183,12 +183,12 @@ class Scanner
 		unless @supported_versions.include? ssl_version
 			raise StandardError, "SSL Version must be one of: #{@supported_versions.to_s}"
 		end
-		begin
+		if ssl_version == :SSLv2 and sslv2 == false
+			raise StandardError, "Your OS hates freedom! Your OpenSSL libs are compiled without SSLv2 support!"
+		else
 			unless OpenSSL::SSL::SSLContext.new(ssl_version).ciphers.flatten.include? cipher
 				raise StandardError, "Must be a valid SSL Cipher for #{version}!"
 			end
-		rescue
-			raise StandardError, "Your OS hates freedom! Your OpenSSL libs are compiled without SSLv2 support!"
 		end
 	end
 
