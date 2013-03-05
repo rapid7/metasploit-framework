@@ -1899,7 +1899,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 					resp = find_next(last_search_id, last_offset, last_filename)
 					search_next = 1 # Flip bit so response params will parse correctly
 				end
-			end until eos != 0 or last_offset == 0 
+			end until eos != 0 or last_offset == 0
 		rescue ::Exception
 			raise $!
 		end
