@@ -134,7 +134,7 @@ describe Rex::SSLScan::Result do
 			end
 		end
 		context "that was accepted" do
-			it "should add an SSLv2 cipher result to the SSLv2 Accepted array" do
+			it "should add an SSLv2 cipher result to the SSLv2 Accepted array or generate an SSLv2 exception" do
 				begin
 					subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :accepted)
 					subject.accepted(:SSLv2).should include({
@@ -144,7 +144,7 @@ describe Rex::SSLScan::Result do
 						:weak=> false, 
 						:status => :accepted}) 
 				rescue ArgumentError => e
-					e.message.should == "unknown SSL method `SSLv2'"
+					e.message.should == "unknown SSL method `SSLv2'."
 				end
 			end
 
@@ -192,14 +192,18 @@ describe Rex::SSLScan::Result do
 			end
 		end
 		context "that was rejected" do
-			it "should add an SSLv2 cipher result to the SSLv2 Rejected array" do
-				subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :rejected)
-				subject.rejected(:SSLv2).should include({
-					:version => :SSLv2, 
-					:cipher=>"DES-CBC3-MD5", 
-					:key_length=>168, 
-					:weak=> false, 
-					:status => :rejected}) 
+			it "should add an SSLv2 cipher result to the SSLv2 Rejected array or generate an SSLv2 exception" do
+				begin
+					subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :rejected)
+					subject.rejected(:SSLv2).should include({
+						:version => :SSLv2, 
+						:cipher=>"DES-CBC3-MD5", 
+						:key_length=>168, 
+						:weak=> false, 
+						:status => :rejected})
+				rescue ArgumentError => e
+					e.message.should == "unknown SSL method `SSLv2'."
+				end 
 			end
 
 			it "should add an SSLv3 cipher result to the SSLv3 Rejected array" do
@@ -249,7 +253,6 @@ describe Rex::SSLScan::Result do
 
 	context "enumerating all accepted ciphers" do
 		before(:each) do
-			subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :accepted)
 			subject.add_cipher(:SSLv3, "AES256-SHA", 256, :accepted)
 			subject.add_cipher(:TLSv1, "AES256-SHA", 256, :accepted)
 			subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
@@ -267,7 +270,7 @@ describe Rex::SSLScan::Result do
 				subject.each_accepted do |cipher_details|
 					count = count+1
 				end
-				count.should == 4
+				count.should == 3
 			end
 		end
 
@@ -281,8 +284,8 @@ describe Rex::SSLScan::Result do
 			end
 
 			it "should return only ciphers matching the version" do
-				subject.each_accepted(:SSLv2) do |cipher_details|
-					cipher_details[:version].should == :SSLv2
+				subject.each_accepted(:SSLv3) do |cipher_details|
+					cipher_details[:version].should == :SSLv3
 				end
 			end
 		end
@@ -293,7 +296,7 @@ describe Rex::SSLScan::Result do
 				subject.each_accepted([:TLSv3, :TLSv4]) do |cipher_details|
 					count = count+1
 				end
-				count.should == 4
+				count.should == 3
 			end
 
 			it "should return only the ciphers for the specified version" do
@@ -306,7 +309,6 @@ describe Rex::SSLScan::Result do
 
 	context "enumerating all rejected ciphers" do
 		before(:each) do
-			subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :rejected)
 			subject.add_cipher(:SSLv3, "AES256-SHA", 256, :rejected)
 			subject.add_cipher(:TLSv1, "AES256-SHA", 256, :rejected)
 			subject.add_cipher(:SSLv3, "AES128-SHA", 128, :rejected)
@@ -324,7 +326,7 @@ describe Rex::SSLScan::Result do
 				subject.each_rejected do |cipher_details|
 					count = count+1
 				end
-				count.should == 4
+				count.should == 3
 			end
 		end
 
@@ -338,8 +340,8 @@ describe Rex::SSLScan::Result do
 			end
 
 			it "should return only ciphers matching the version" do
-				subject.each_rejected(:SSLv2) do |cipher_details|
-					cipher_details[:version].should == :SSLv2
+				subject.each_rejected(:SSLv3) do |cipher_details|
+					cipher_details[:version].should == :SSLv3
 				end
 			end
 		end
@@ -350,7 +352,7 @@ describe Rex::SSLScan::Result do
 				subject.each_rejected([:TLSv3, :TLSv4]) do |cipher_details|
 					count = count+1
 				end
-				count.should == 4
+				count.should == 3
 			end
 
 			it "should return only the ciphers for the specified version" do
@@ -366,9 +368,13 @@ describe Rex::SSLScan::Result do
 			it "should return false if there are no accepted ciphers" do
 				subject.supports_sslv2?.should == false
 			end
-			it "should return true if there are accepted ciphers" do
-				subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :accepted)
-				subject.supports_sslv2?.should == true
+			it "should return true if there are accepted ciphers or raise an SSLv2 exception" do
+				begin
+					subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :accepted)
+					subject.supports_sslv2?.should == true
+				rescue ArgumentError => e
+					e.message.should == "unknown SSL method `SSLv2'."
+				end 
 			end
 		end
 		context "for SSLv3" do
@@ -403,8 +409,8 @@ describe Rex::SSLScan::Result do
 	context "checking for weak ciphers" do
 		context "when weak ciphers are supported" do
 			before(:each) do
-				subject.add_cipher(:SSLv2, "DES-CBC-MD5", 56, :accepted)
-				subject.add_cipher(:SSLv2, "EXP-RC2-CBC-MD5", 40, :accepted)
+				subject.add_cipher(:SSLv3, "EXP-RC4-MD5", 40, :accepted)
+				subject.add_cipher(:SSLv3, "DES-CBC-SHA", 56, :accepted)
 			end
 			it "should return an array of weak ciphers from #weak_ciphers" do
 				weak = subject.weak_ciphers
@@ -422,7 +428,6 @@ describe Rex::SSLScan::Result do
 
 		context "when no weak ciphers are supported" do
 			before(:each) do
-				subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :accepted)
 				subject.add_cipher(:SSLv3, "AES256-SHA", 256, :accepted)
 				subject.add_cipher(:TLSv1, "AES256-SHA", 256, :accepted)
 				subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
@@ -442,9 +447,13 @@ describe Rex::SSLScan::Result do
 			subject.standards_compliant?.should == true
 		end
 		
-		it "should return false if SSLv2 is supported" do
-			subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :accepted)
-			subject.standards_compliant?.should == false
+		it "should return false if SSLv2 is supported or raise an SSLv2 exception" do
+			begin
+				subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :accepted)
+				subject.standards_compliant?.should == false
+			rescue ArgumentError => e
+				e.message.should == "unknown SSL method `SSLv2'."
+			end 
 		end
 
 		it "should return false if weak ciphers are supported" do
