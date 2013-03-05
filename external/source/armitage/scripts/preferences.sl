@@ -68,7 +68,10 @@ sub loadPreferences {
 		else {
 			[$prefs load: resource("resources/armitage.prop")];
 		}
-		[$__frame__ setPreferences: $prefs];
+
+		if ($__frame__ !is $null) {
+			[$__frame__ setPreferences: $prefs];
+		}
 	}
 
 	# parse command line options here.
