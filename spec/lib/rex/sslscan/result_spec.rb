@@ -46,7 +46,7 @@ describe Rex::SSLScan::Result do
 		end
 
 		it "should return an empty array for #tlsv1" do
-			subject.sslv2.should == []
+			subject.tlsv1.should == []
 		end
 
 		it "should return an empty array for #weak_ciphers" do
@@ -469,16 +469,58 @@ describe Rex::SSLScan::Result do
 		end
 	end
 
-	context "when OpenSSL is compiled without SSLv2" do
-		before(:each) do
-			subject.add_cipher(:SSLv3, "AES256-SHA", 256, :accepted)
-			subject.add_cipher(:TLSv1, "AES256-SHA", 256, :accepted)
-			subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
-			subject.sslv2 = false
+	context "when printing the results" do
+		context "when OpenSSL is compiled without SSLv2" do
+			before(:each) do
+				subject.add_cipher(:SSLv3, "AES256-SHA", 256, :accepted)
+				subject.add_cipher(:TLSv1, "AES256-SHA", 256, :accepted)
+				subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
+				subject.openssl_sslv2 = false
+			end
+			it "should warn the user" do
+				subject.to_s.should include "*** WARNING: Your OS hates freedom! Your OpenSSL libs are compiled without SSLv2 support!"
+			end
 		end
-		it "should warn the user" do
-			subject.to_s.should include "*** WARNING: Your OS hates freedom! Your OpenSSL libs are compiled without SSLv2 support!"
+
+		context "when we have SSL results" do
+			before(:each) do
+				subject.add_cipher(:SSLv3, "AES256-SHA", 256, :accepted)
+				subject.add_cipher(:TLSv1, "AES256-SHA", 256, :accepted)
+				subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
+				subject.add_cipher(:SSLv3, "EXP-RC2-CBC-MD5", 40, :accepted)
+
+				cert = OpenSSL::X509::Certificate.new
+				key = OpenSSL::PKey::RSA.new 2048 
+				cert.version = 2 #
+				cert.serial = 1
+				cert.subject = OpenSSL::X509::Name.parse "/DC=org/DC=ruby-lang/CN=Ruby CA"
+				cert.issuer = cert.subject 
+				cert.public_key = key.public_key
+				cert.not_before = Time.now
+				cert.not_after = cert.not_before + 2 * 365 * 24 * 60 * 60 # 2 
+
+				subject.cert = cert
+			end
+
+			it "should contain the certificate" do
+				subject.to_s.should include "Issuer: DC=org, DC=ruby-lang, CN=Ruby CA"
+				subject.to_s.should include "Subject: DC=org, DC=ruby-lang, CN=Ruby CA"
+			end
+
+			it "should have a table with our SSL Cipher Results" do
+				subject.to_s.should include "Accepted  *     SSLv3        40          EXP-RC2-CBC-MD5"
+				subject.to_s.should include "Accepted        SSLv3        128         AES128-SHA"
+				subject.to_s.should include "Accepted        SSLv3        256         AES256-SHA"
+				subject.to_s.should include "Accepted        TLSv1        256         AES256-SHA"
+			end
 		end
+
+		it "should return an appropriate message when SSL is not supported" do
+			subject.stub(:supports_ssl?).and_return(false)
+			subject.to_s.should == "Server does not appear to support SSL on this port!"
+		end
+
+
 	end
 
 end

@@ -51,7 +51,7 @@ class Scanner
 	# @return [Result] object containing the details of the scan
 	def scan
 		scan_result = Rex::SSLScan::Result.new
-		scan_result.sslv2 = sslv2
+		scan_result.openssl_sslv2 = sslv2
 		# If we can't get any SSL connection, then don't bother testing
 		# individual ciphers.
 		if test_ssl == :rejected and test_tls == :rejected
