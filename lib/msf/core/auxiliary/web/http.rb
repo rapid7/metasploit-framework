@@ -107,6 +107,7 @@ class Auxiliary::Web::HTTP
 			{},
 			opts[:target].ssl,
 			'SSLv23',
+			nil,
 			username,
 			password
 		)
