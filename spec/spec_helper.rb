@@ -1,9 +1,7 @@
-require 'simplecov'
 require 'rubygems'
 require 'bundler'
 Bundler.setup(:default, :test)
 
-SimpleCov.start
 # add project lib directory to load path
 spec_pathname = Pathname.new(__FILE__).dirname
 root_pathname = spec_pathname.join('..').expand_path
