@@ -5163,11 +5163,11 @@ class DBManager
 	# There is no place the NBE actually stores the plugin name used to
 	# scan. You get "Security Note" or "Security Warning," and that's it.
 	def import_nessus_nbe(args={}, &block)
-		data = args[:data]
+		nbe_data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
-		nbe_copy = data.dup
+		nbe_copy = nbe_data.dup
 		# First pass, just to build the address map.
 		addr_map = {}
 
@@ -5183,7 +5183,7 @@ class DBManager
 			addr_map[hname] = addr
 		end
 
-		data.each_line do |line|
+		nbe_data.each_line do |line|
 			r = line.split('|')
 			next if r[0] != 'results'
 			hname = r[2]
