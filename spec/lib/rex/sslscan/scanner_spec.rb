@@ -85,6 +85,22 @@ describe Rex::SSLScan::Scanner do
 			result = subject.scan
 			result.class.should == Rex::SSLScan::Result
 		end
+
+		context "if SSLv2 is not available locally" do
+			before(:each) do
+				subject.stub(:check_opensslv2).and_return(false)
+				subject.send(:initialize, 'google.com', 443)
+			end
+			it "should mark SSLv2 as unsupported" do
+				subject.supported_versions.should_not include :SSLv2
+				subject.sslv2.should == false
+			end
+
+			it "should not test any SSLv2 ciphers" do
+				res = subject.scan
+				res.sslv2.should == []
+			end
+		end
 	end
 
 end

@@ -23,7 +23,7 @@ class Scanner
 		@port       = port
 		@timeout    = timeout
 		@context    = context
-		if check_opensslv2
+		if check_opensslv2 == true
 			@supported_versions = [:SSLv2, :SSLv3, :TLSv1]
 			@sslv2 = true
 		else
