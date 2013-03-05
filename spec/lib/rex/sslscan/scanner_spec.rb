@@ -55,7 +55,7 @@ describe Rex::SSLScan::Scanner do
 
 		context ":rejected should be returned if" do
 			it "scans a server that doesn't support the supplied SSL version" do
-				subject.test_cipher(:SSLv2, "DES-CBC3-MD5").should == :rejected
+				subject.test_cipher(:SSLv3, "DES-CBC-SHA").should == :rejected
 			end
 
 			it "scans a server that doesn't support the cipher" do
@@ -72,7 +72,7 @@ describe Rex::SSLScan::Scanner do
 
 	context "when retrieving the cert" do
 		it "should return nil if it can't connect" do
-			subject.get_cert(:SSLv2, "DES-CBC3-MD5").should == nil
+			subject.get_cert(:SSLv3, "DES-CBC-SHA").should == nil
 		end
 
 		it "should return an X509 cert if it can connect" do
