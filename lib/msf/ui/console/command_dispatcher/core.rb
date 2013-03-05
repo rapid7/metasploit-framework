@@ -2704,7 +2704,7 @@ class Core
 
 	def is_metasploit_service_running
 		cmd = "/usr/sbin/service"
-		system(cmd, "metasploit", "status") # Both running returns true, otherwise, false.
+		system("#{cmd} metasploit status >/dev/null") # Both running returns true, otherwise, false.
 	end
 
 	def is_metasploit_debian_package_installed
