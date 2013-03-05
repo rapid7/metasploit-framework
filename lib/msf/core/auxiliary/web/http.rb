@@ -107,7 +107,6 @@ class Auxiliary::Web::HTTP
 			{},
 			opts[:target].ssl,
 			'SSLv23',
-      nil,
 			username,
 			password
 		)
@@ -300,8 +299,10 @@ class Auxiliary::Web::HTTP
 		opts['data'] = body if body
 
 		c = connect
-		c.username = username
-		c.password = password
+		if opts['username'] and opts['username'] != ''
+			c.username = opts['username'].to_s
+			c.password = opts['password'].to_s
+		end
 		Response.from_rex_response c.send_recv( c.request_cgi( opts ), timeout )
 	rescue ::Timeout::Error
 		Response.timed_out
