@@ -9,15 +9,18 @@ class Metasploit4 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'		=> 'OpenSSL TLS 1.1 and 1.2 AES-NI DoS',
 			'Description'	=> %q{
-					The AES-NI implementation of OpenSSL 1.0.1c does not
-				properly compute the length of an encrypte message when used
-				with a TLS version 1.1 or above. This leads to an integer
-				underflow which can cause a DoS.
+					The AES-NI implementation of OpenSSL 1.0.1c does not properly compute the
+				length of an encrypted message when used with a TLS version 1.1 or above. This
+				leads to an integer underflow which can cause a DoS. The vulnerable function
+				aesni_cbc_hmac_sha1_cipher is only included in the 64 bits versions of OpenSSL.
+				This module has been tested successfully on Ubuntu 12.04 (64 bits) with the default
+				OpenSSL 1.0.1c package.
 			},
-			'Author'	=> [
-						'Wolfgang Ettlinger <wolfgang.ettlinger[at]gmail.com>'
-						],
-			'License'		=> BSD_LICENSE,
+			'Author'	=>
+				[
+					'Wolfgang Ettlinger <wolfgang.ettlinger[at]gmail.com>'
+				],
+			'License'		=> MSF_LICENSE,
 			'References'	=>
 				[
 					[ 'CVE', '2012-2686'],
@@ -138,7 +141,7 @@ class Metasploit4 < Msf::Auxiliary
 			connect
 
 			sock.put(p1)
-			resp = sock.recv(4096)
+			resp = sock.get_once
 
 			cs = get_cipher_suite(resp)
 
