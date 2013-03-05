@@ -187,7 +187,7 @@ class Scanner
 			raise StandardError, "Your OS hates freedom! Your OpenSSL libs are compiled without SSLv2 support!"
 		else
 			unless OpenSSL::SSL::SSLContext.new(ssl_version).ciphers.flatten.include? cipher
-				raise StandardError, "Must be a valid SSL Cipher for #{version}!"
+				raise StandardError, "Must be a valid SSL Cipher for #{ssl_version}!"
 			end
 		end
 	end

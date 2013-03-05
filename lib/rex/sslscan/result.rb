@@ -161,6 +161,8 @@ class Result
 		end
 
 		strong_cipher_ctx = OpenSSL::SSL::SSLContext.new(version)
+		# OpenSSL Directive For Strong Ciphers
+		# See: http://www.rapid7.com/vulndb/lookup/ssl-weak-ciphers
 		strong_cipher_ctx.ciphers = "ALL:!aNULL:!eNULL:!LOW:!EXP:RC4+RSA:+HIGH:+MEDIUM"
 		
 		if strong_cipher_ctx.ciphers.flatten.include? cipher
