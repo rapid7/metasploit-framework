@@ -2626,9 +2626,8 @@ class Core
 			return false
 		end
 		unless is_metasploit_debian_package_installed
-			print_warning "You need to install the 'metasploit' package first."
-			print_warning "Type 'apt-get install -y metasploit' to do this now, then exit"
-			print_warning "and restart msfconsole to try again."
+			print_warning "You need to install the Metasploit binaries first."
+			print_warning "Visit http://www.metasploit.com/download/ to do this now."
 			return false
 		end
 		# If I've gotten this far, I know that this is apt-installed, the
