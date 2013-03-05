@@ -2695,9 +2695,9 @@ class Core
 	end
 
 	def start_metasploit_service
-		cmd = "/usr/sbin/service"
+		cmd = File.expand_path(File.join(msfbase_dir, '..', '..', '..', 'scripts', 'start.sh'))
 		return unless ::File.executable_real? cmd
-		%x{#{cmd} metasploit start}.each_line do |line|
+		%x{#{cmd}}.each_line do |line|
 			print_status line.chomp
 		end
 	end
