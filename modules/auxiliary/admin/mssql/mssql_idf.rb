@@ -17,7 +17,7 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class Metasploit4 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::MSSQL
 
