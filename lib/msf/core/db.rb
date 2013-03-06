@@ -676,6 +676,13 @@ class DBManager
 			sess_data[:desc] = sess_data[:desc][0,255]
 		end
 
+		# In the case of multi handler we cannot yet determine the true
+		# exploit responsible. But we can at least show the parent versus
+		# just the generic handler:
+		if session and session.via_exploit == "exploit/multi/handler" and sess_data[:datastore]['ParentModule']
+			sess_data[:via_exploit] = sess_data[:datastore]['ParentModule']
+		end
+
 		s = ::Mdm::Session.new(sess_data)
 		s.save!
 
@@ -684,19 +691,26 @@ class DBManager
 		end
 
 		# If this is a live session, we know the host is vulnerable to something.
-		# If the exploit used was multi/handler, though, we don't know what
-		# it's vulnerable to, so it isn't really useful to save it.
-		if opts[:session] and session.via_exploit and session.via_exploit != "exploit/multi/handler"
+		if opts[:session] and session.via_exploit
 			return unless host
 
 			mod = framework.modules.create(session.via_exploit)
+
+			if session.via_exploit == "exploit/multi/handler" and sess_data[:datastore]['ParentModule']
+				mod_fullname = sess_data[:datastore]['ParentModule']
+				mod_name = ::Mdm::ModuleDetail.find_by_fullname(mod_fullname).name
+			else
+				mod_name = mod.name
+				mod_fullname = mod.fullname
+			end
+
 			vuln_info = {
 				:host => host.address,
-				:name => mod.name,
+				:name => mod_name,
 				:refs => mod.references,
 				:workspace => wspace,
 				:exploited_at => Time.now.utc,
-				:info => "Exploited by #{mod.fullname} to create Session #{s.id}"
+				:info => "Exploited by #{mod_fullname} to create Session #{s.id}"
 			}
 
 			port    = session.exploit_datastore["RPORT"]
@@ -705,11 +719,16 @@ class DBManager
 			vuln_info[:service] = service if service
 
 			vuln = framework.db.report_vuln(vuln_info)
-			
+
+			if session.via_exploit == "exploit/multi/handler" and sess_data[:datastore]['ParentModule']
+				via_exploit = sess_data[:datastore]['ParentModule']
+			else
+				via_exploit = session.via_exploit
+			end
 			attempt_info = {
 				:timestamp   => Time.now.utc,
 				:workspace   => wspace,
-				:module      => session.via_exploit,
+				:module      => via_exploit,
 				:username    => session.username,
 				:refs        => mod.references,
 				:session_id  => s.id,
@@ -719,7 +738,7 @@ class DBManager
 			}
 
 			framework.db.report_exploit_success(attempt_info)
-			
+
 		end
 
 		s
@@ -852,7 +871,7 @@ class DBManager
 					ref.to_s
 				end
 			})
-		
+
 			# Try find a matching vulnerability
 			vuln = find_vuln_by_refs(ref_objs, host, svc)
 		end
@@ -871,7 +890,7 @@ class DBManager
 			attempt_info[:loot_id]    = opts[:loot_id]    if opts[:loot_id]
 
 			vuln.vuln_attempts.create(attempt_info)
-	
+
 			# Correct the vuln's associated service if necessary
 			if svc and vuln.service_id.nil?
 				vuln.service = svc
@@ -890,12 +909,12 @@ class DBManager
 		attempt_info[:vuln_id]    = vuln.id           if vuln
 		attempt_info[:session_id] = opts[:session_id] if opts[:session_id]
 		attempt_info[:loot_id]    = opts[:loot_id]    if opts[:loot_id]
-		
+
 		if svc
 			attempt_info[:port]  = svc.port
 			attempt_info[:proto] = svc.proto
 		end
-		
+
 		if port and svc.nil?
 			attempt_info[:port]  = port
 			attempt_info[:proto] = prot || "tcp"
@@ -918,7 +937,7 @@ class DBManager
 
 		timestamp  = opts.delete(:timestamp)
 		freason    = opts.delete(:fail_reason)
-		fdetail    = opts.delete(:fail_detail)		
+		fdetail    = opts.delete(:fail_detail)
 		username   = opts.delete(:username)
 		mname      = opts.delete(:module)
 
@@ -949,7 +968,7 @@ class DBManager
 					ref.to_s
 				end
 			})
-		
+
 			# Try find a matching vulnerability
 			vuln = find_vuln_by_refs(ref_objs, host, svc)
 		end
@@ -984,7 +1003,7 @@ class DBManager
 			attempt_info[:port]  = svc.port
 			attempt_info[:proto] = svc.proto
 		end
-		
+
 		if port and svc.nil?
 			attempt_info[:port]  = port
 			attempt_info[:proto] = prot || "tcp"
@@ -999,7 +1018,7 @@ class DBManager
 	::ActiveRecord::Base.connection_pool.with_connection {
 		return if not vuln
 		info = {}
-		
+
 		# Opts can be keyed by strings or symbols
 		::Mdm::VulnAttempt.column_names.each do |kn|
 			k = kn.to_sym
@@ -1018,7 +1037,7 @@ class DBManager
 	::ActiveRecord::Base.connection_pool.with_connection {
 		return if not host
 		info = {}
-		
+
 		# Opts can be keyed by strings or symbols
 		::Mdm::VulnAttempt.column_names.each do |kn|
 			k = kn.to_sym
@@ -1604,7 +1623,7 @@ class DBManager
 			# If a match is found on a vulnerability with no associated service,
 			# update that vulnerability with our service information. This helps
 			# prevent dupes of the same vuln found by both local patch and
-			# service detection.		
+			# service detection.
 			if rids and rids.length > 0
 				vuln = find_vuln_by_refs(rids, host, service)
 				vuln.service = service if vuln
@@ -1632,7 +1651,7 @@ class DBManager
 			else
 				vuln = host.vulns.find_by_name(name)
 			end
-			
+
 			unless vuln
 
 				vinf = {
@@ -1641,7 +1660,7 @@ class DBManager
 					:info    => info
 				}
 
-				vinf[:service_id] = service.id if service 
+				vinf[:service_id] = service.id if service
 				vuln = Mdm::Vuln.create(vinf)
 			end
 		end
@@ -1662,7 +1681,7 @@ class DBManager
 
 		# Handle vuln_details parameters
 		report_vuln_details(vuln, details) if details
-		
+
 		vuln
 	}
 	end
@@ -2353,7 +2372,8 @@ class DBManager
 	# +:ssl+::   whether or not SSL is in use on this port
 	#
 	#
-	# Duplicate records for a given web_site, path, method, pname, and name combination will be overwritten
+	# Duplicate records for a given web_site, path, method, pname, and name
+	# combination will be overwritten
 	#
 
 	def report_web_vuln(opts)
@@ -4176,9 +4196,9 @@ class DBManager
 	# Takes an array of vuln hashes, as returned by the NeXpose rawxml stream
 	# parser, like:
 	#   [
-	#		{"id"=>"winreg-notes-protocol-handler", severity="8", "refs"=>[{"source"=>"BID", "value"=>"10600"}, ...]}
-	#		{"id"=>"windows-zotob-c", severity="8", "refs"=>[{"source"=>"BID", "value"=>"14513"}, ...]}
-	#	]
+	#     {"id"=>"winreg-notes-protocol-handler", severity="8", "refs"=>[{"source"=>"BID", "value"=>"10600"}, ...]}
+	#     {"id"=>"windows-zotob-c", severity="8", "refs"=>[{"source"=>"BID", "value"=>"14513"}, ...]}
+	#   ]
 	# and transforms it into a struct, containing :id, :refs, :title, and :severity
 	#
 	# Other attributes can be added later, as needed.
@@ -4543,6 +4563,9 @@ class DBManager
 			end
 
 			info = {
+				# XXX: There is a :request attr in the model, but report_web_vuln
+				# doesn't seem to know about it, so this gets ignored.
+				#:request  => vuln['request'],
 				:path     => uri.path,
 				:query    => uri.query,
 				:method   => method,
@@ -4846,6 +4869,7 @@ class DBManager
 	# If you have Nokogiri installed, you'll be shunted over to
 	# that. Otherwise, you'll hit the old NmapXMLStreamParser.
 	def import_nmap_xml(args={}, &block)
+		return nil if args[:data].nil? or args[:data].empty?
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
@@ -5071,7 +5095,7 @@ class DBManager
 	#
 	# This method normalizes an incoming service name to one of the
 	# the standard ones recognized by metasploit
-	# 
+	#
 	def service_name_map(proto)
 		return proto unless proto.kind_of? String
 		case proto.downcase
@@ -5139,11 +5163,11 @@ class DBManager
 	# There is no place the NBE actually stores the plugin name used to
 	# scan. You get "Security Note" or "Security Warning," and that's it.
 	def import_nessus_nbe(args={}, &block)
-		data = args[:data]
+		nbe_data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
-		nbe_copy = data.dup
+		nbe_copy = nbe_data.dup
 		# First pass, just to build the address map.
 		addr_map = {}
 
@@ -5159,7 +5183,7 @@ class DBManager
 			addr_map[hname] = addr
 		end
 
-		data.each_line do |line|
+		nbe_data.each_line do |line|
 			r = line.split('|')
 			next if r[0] != 'results'
 			hname = r[2]

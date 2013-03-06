@@ -1,6 +1,3 @@
-# $Id$
-##
-
 ##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
@@ -31,7 +28,6 @@ class Metasploit3 < Msf::Post
 					and QEMU/KVM.},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'solaris' ],
 				'SessionTypes'  => [ 'shell' ]
 			))

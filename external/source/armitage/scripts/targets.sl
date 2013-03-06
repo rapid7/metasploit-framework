@@ -21,6 +21,10 @@ sub getHostOS {
 	return iff($1 in %hosts, %hosts[$1]['os_name'], $null);
 }
 
+sub getHostLabel {
+	return iff($1 in %hosts, %hosts[$1]['label'], $null);
+}
+
 sub getSessions {
 	return iff($1 in %hosts && 'sessions' in %hosts[$1], %hosts[$1]['sessions']);
 }
@@ -122,7 +126,7 @@ on sessions {
 		}
 
 		if ($host['show'] eq "1") {
-			push(@nodes, @($id, describeHost($host), showHost($host), $tooltip));
+			push(@nodes, @($id, $host['label'] . "", describeHost($host), showHost($host), $tooltip));
 		}
 	}
 
@@ -130,14 +134,14 @@ on sessions {
 }
 
 sub refreshGraph {
-	local('$node $id $description $icons $tooltip $highlight');
+	local('$node $id $label $description $icons $tooltip $highlight');
 
 	# update everything...
 	[$graph start];
 		# do the hosts?
 		foreach $node (@nodes) {
-			($id, $description, $icons, $tooltip) = $node;
-			[$graph addNode: $id, $description, $icons, $tooltip];
+			($id, $label, $description, $icons, $tooltip) = $node;
+			[$graph addNode: $id, $label, $description, $icons, $tooltip];
 		}
 
 		# update the routes
@@ -189,6 +193,11 @@ on hosts {
 		$address = $host['address'];
 		if ($address in %hosts && size(%hosts[$address]) > 1) {
 			%newh[$address] = %hosts[$address];
+
+			# set the label to empty b/c team server won't add labels if there are no labels. This fixes
+			# a corner case where a user might clear all labels and find they won't go away
+			%newh[$address]['label'] = '';
+
 			putAll(%newh[$address], keys($host), values($host));
 
 			if ($host['os_name'] eq "") {
@@ -258,7 +267,7 @@ sub _importHosts {
 	}
 
 	$console = createDisplayTab("Import", $file => "import");
-	[$console addCommand: $null, "db_import " . strrep(join(" ", $files), "\\", "\\\\")];
+	[$console addCommand: 'x', "db_import " . strrep(join(" ", $files), "\\", "\\\\")];
 	[$console addListener: lambda({
 		elog("imported hosts from $success file" . iff($success != 1, "s"));
 	}, \$success)];
@@ -342,8 +351,10 @@ sub clearHostFunction {
 }
 
 sub clearDatabase {
-	elog("cleared the database");
-	call_async($mclient, "db.clear");
+	if (!askYesNo("This action will clear the database. You will lose all information\ncollected up to this point. You will not be able toget it back.\nWould you like to clear the database?", "Clear Database")) {
+		elog("cleared the database");
+		call_async($mclient, "db.clear");
+	}
 }
 
 # called when a target is clicked on...

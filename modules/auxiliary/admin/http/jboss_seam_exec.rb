@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		jbr = datastore['JBOSS_ROOT']
+		jbr = normalize_uri(datastore['JBOSS_ROOT'])
 		cmd_enc = ""
 		cmd_enc << Rex::Text.uri_encode(datastore["CMD"])
 

@@ -23,7 +23,6 @@ class Metasploit3 < Msf::Post
 				sensitive information.
 			},
 			'License'              => MSF_LICENSE,
-			'Version'              => '$Revision$',
 			'Platform'             => ['win'],
 			'SessionTypes'         => ['meterpreter'],
 			'Author'               =>

@@ -63,12 +63,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		# Make sure the URIPATH begins with '/'
-		if datastore['PATH'][0] != '/'
-			datastore['PATH'] = '/' + datastore['PATH']
-		end
+		datastore['PATH'] = normalize_uri(datastore['PATH'])
 
 		# Make sure the URIPATH ends with /
-		if datastore['PATH'][-1] != '/'
+		if datastore['PATH'][-1,1] != '/'
 			datastore['PATH'] = datastore['PATH'] + '/'
 		end
 

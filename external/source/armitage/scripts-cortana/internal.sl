@@ -9,7 +9,10 @@ import msf.*;
 
 # setg("varname", "value")
 sub setg {
-	call_async("core.setg", $1, $2);
+	if ($1 eq "LHOST") {
+		call_async("armitage.set_ip", $2);
+	}
+	cmd_safe("setg $1 $2");
 }
 
 sub readg {
@@ -243,14 +246,18 @@ sub session_exploit {
 # credentials API
 #
 
+sub _fix_pass {
+	return replace(strrep($1, '\\', '\\\\'), '(\p{Punct})', '\\\\$1');
+}
+
 # credential_add("host", "port", "user, "pass", "type")
 sub credential_add {
-	cmd_safe("creds -a $1 -p $2 -t $5 -u $3 -P $4");
+	cmd_safe("creds -a $1 -p $2 -t $5 -u $3 -P " . _fix_pass($4));
 }
 
 # credential_delete("host", port, "user", "pass");
 sub credential_delete {
-	cmd_safe("creds -a $1 -p $2 -u $3 -P $4 -d");
+	cmd_safe("creds -a $1 -p $2 -u $3 -P " . _fix_pass($4) . " -d");
 }
 
 sub credential_list {
@@ -331,14 +338,22 @@ sub multi_handler {
 }
 
 sub handler {
-	local('%o $3');
+	local('%o $3 $key $value');
+
+	# default options
+	%o['PAYLOAD'] = $1;
+	%o['LPORT']   = $2;
+	%o['DisablePayloadHandler'] = 'false';
+	%o['ExitOnSession']         = 'false';
+
+	# let the user override anything
 	if ($3) {
-		%o = copy($3);
+		foreach $key => $value ($3) {
+			%o[$key] = $value;
+		}
 	}
 
-	%o['PAYLOAD'] = "payload/ $+ $1";
-	%o['LPORT']   = $2;
-
+	# make sure LHOST is correct
 	if ('LHOST' !in %o) {
 		if ("*http*" iswm $1) {
 			%o['LHOST']   = lhost();
@@ -348,6 +363,7 @@ sub handler {
 		}
 	}
 
+	# let's do it...
 	return launch('exploit', 'multi/handler', %o);
 }
 

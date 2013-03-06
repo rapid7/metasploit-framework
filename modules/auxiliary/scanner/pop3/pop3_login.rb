@@ -1,7 +1,3 @@
-##
-# $Id$
-##
-
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -21,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	super(
 		'Name'        => 'POP3 Login Utility',
 		'Description' => 'This module attempts to authenticate to an POP3 service.',
-		'Version'     => '$Revision$',
 		'Author'      =>
 		[
 			'==[ Alligator Security Team ]==',

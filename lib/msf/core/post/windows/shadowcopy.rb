@@ -10,7 +10,7 @@ module Windows
 # http://pauldotcom.com/2011/11/safely-dumping-hashes-from-liv.html
 module ShadowCopy
 
-	include Msf::Post::Windows::WindowsServices
+	include Msf::Post::Windows::Services
 
 	#
 	# Get the device name for the shadow copy, which is used when accessing  

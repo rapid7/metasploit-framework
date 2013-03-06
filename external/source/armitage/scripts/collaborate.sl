@@ -23,6 +23,7 @@ sub createEventLogTab {
 		$client = [$cortana getEventLog: $console];
 		[$client setEcho: $null];
 		[$console updatePrompt: "> "];
+		[new EventLogTabCompletion: $console, $mclient];
 	}
 	else {
 		[$console updateProperties: $preferences];
@@ -63,6 +64,7 @@ sub c_client {
 	# run this thing in its own thread to avoid really stupid deadlock situations
 	local('$handle');
 	$handle = [[new SecureSocket: $1, int($2), &verify_server] client];
+	push(@CLOSEME, $handle);
 	return wait(fork({
 		local('$client');
 		$client = newInstance(^RpcConnection, lambda({
@@ -91,9 +93,11 @@ sub setup_collaboration {
 	%r = call($mclient, "armitage.validate", $1, $2, $nick, "armitage", 120326);
 	if (%r["error"] eq "1") {
 		showErrorAndQuit(%r["message"]);
+		return $null;
 	}
 
 	%r = call($client, "armitage.validate", $1, $2, $null, "armitage", 120326);
+	$DESCRIBE = "$nick $+ @ $+ $3";
 	return $mclient;
 }
 

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -37,7 +33,6 @@ class Metasploit3 < Msf::Auxiliary
 					the attack to pivot to another part of the network).
 			},
 			'Author'	       => ['willis'],
-			'Version'       => '$Revision$',
 			'References'	 =>
 				[
 							'URL','http://wiki.squid-cache.org/SquidFaq/SecurityPitfalls'

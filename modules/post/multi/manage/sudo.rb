@@ -1,6 +1,3 @@
-# $Id$
-##
-
 ##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
@@ -33,8 +30,11 @@ class Metasploit3 < Msf::Post
 					versions from 2008 and later which support -A.
 				},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'todb <todb[at]metasploit.com>'],
-				'Version'       => '$Revision$',
+				'Author'        =>
+					[
+						'todb <todb[at]metasploit.com>',
+						'Ryan Baxendale <rbaxendale[at]gmail.com>' #added password option
+					],
 				'Platform'      => [ 'linux','unix','osx','solaris','aix' ],
 				'References'    =>
 					[
@@ -43,6 +43,11 @@ class Metasploit3 < Msf::Post
 					],
 				'SessionTypes'  => [ 'shell' ] # Need to test 'meterpreter'
 			))
+
+			register_options(
+				[
+					OptString.new('PASSWORD', [false, 'The password to use when running sudo.'])
+				], self.class)
 	end
 
 	# Run Method for when run command is issued
@@ -61,7 +66,12 @@ class Metasploit3 < Msf::Post
 	end
 
 	def get_root
-		password = session.exploit_datastore['PASSWORD']
+		if datastore['PASSWORD']
+			password = datastore['PASSWORD']
+		else
+			password = session.exploit_datastore['PASSWORD']
+		end
+
 		if password.to_s.empty?
 			print_status "No password available, trying a passwordless sudo."
 		else

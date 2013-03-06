@@ -133,7 +133,7 @@ module Auxiliary::Web
 	# Override it if you need more complex processing, but remember to return
 	# the proof as a String.
 	#
-	# response - Net::HTTPResponse
+	# response - Auxiliary::Web::HTTP::Response
 	# element - the submitted element
 	#
 	def find_proof( response, element )
@@ -179,9 +179,10 @@ module Auxiliary::Web
 			:blame		=> details[:blame],
 			:category	=> details[:category],
 			:description => details[:description],
-			:confidence  => details[:category] || opts[:confidence] || 100,
 			:owner	  => self
 		}
+
+		info[:confidence]  = calculate_confidence( info )
 
 		report_web_vuln( info )
 
@@ -211,9 +212,10 @@ module Auxiliary::Web
 			:blame		 => details[:blame],
 			:category	 => details[:category],
 			:description => details[:description],
-			:confidence  => details[:category] || opts[:confidence] || 100,
 			:owner		 => self
 		}
+
+		info[:confidence]  = calculate_confidence( info )
 
 		report_web_vuln( info )
 
@@ -250,7 +252,9 @@ module Auxiliary::Web
 
 		if !(payload = opts[:payload])
 			if payloads
-				payload = payloads.select{ |p| element.altered_value.include?( p ) }.first
+				payload = payloads.select { |p|
+					element.altered_value.include?( p )
+				}.sort_by { |p| p.size }.last
 			end
 		end
 
@@ -276,7 +280,7 @@ module Auxiliary::Web
 		report_web_vuln( info )
 
 		print_good "	VULNERABLE(#{mode.to_s.upcase}) URL(#{target.to_url})" +
-					   " PARAMETER(#{element.altered}) VALUES(#{element.params})"
+						" PARAMETER(#{element.altered}) VALUES(#{element.params})"
 		print_good "		 PROOF(#{proof})"
 	end
 

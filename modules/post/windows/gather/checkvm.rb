@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -13,60 +9,75 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/registry'
 require 'msf/core/post/common'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
 	include Msf::Post::Windows::Registry
 	include Msf::Post::Common
+	include Msf::Auxiliary::Report
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Gather Virtual Environment Detection',
-				'Description'   => %q{
-					This module attempts to determine whether the system is running
-					inside of a virtual environment and if so, which one. This
-					module supports detectoin of Hyper-V, VMWare, Virtual PC,
-					VirtualBox, Xen, and QEMU.
-					},
-				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'win' ],
-				'SessionTypes'  => [ 'meterpreter' ]
-			))
+			'Name'          => 'Windows Gather Virtual Environment Detection',
+			'Description'   => %q{
+				This module attempts to determine whether the system is running
+				inside of a virtual environment and if so, which one. This
+				module supports detectoin of Hyper-V, VMWare, Virtual PC,
+				VirtualBox, Xen, and QEMU.
+			},
+			'License'       => MSF_LICENSE,
+			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
+			'Platform'      => [ 'win' ],
+			'SessionTypes'  => [ 'meterpreter' ]
+		))
 	end
 
 	# Method for detecting if it is a Hyper-V VM
 	def hypervchk(session)
-		begin
-			vm = false
-			key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft', KEY_READ)
-			sfmsvals = key.enum_key
-			if sfmsvals.include?("Hyper-V")
-				vm = true
-			elsif sfmsvals.include?("VirtualMachine")
-				vm = true
-			end
-			key.close
-		rescue
+		vm = false
+		sfmsvals = registry_enumkeys('HKLM\SOFTWARE\Microsoft')
+		if sfmsvals and sfmsvals.include?("Hyper-V")
+			vm = true
+		elsif sfmsvals and sfmsvals.include?("VirtualMachine")
+			vm = true
 		end
 		if not vm
-			begin
-				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SYSTEM\ControlSet001\Services', KEY_READ)
-				srvvals = key.enum_key
-				if srvvals.include?("vmicheartbeat")
-					vm = true
-				elsif srvvals.include?("vmicvss")
-					vm = true
-				elsif srvvals.include?("vmicshutdown")
-					vm = true
-				elsif srvvals.include?("vmicexchange")
-					vm = true
-				end
-			rescue
+			if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System','SystemBiosVersion') =~ /vrtual/i
+				vm = true
+			end
+		end
+		if not vm
+			srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\FADT')
+			if srvvals and srvvals.include?("VRTUAL")
+				vm = true
+			end
+		end
+		if not vm
+			srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\RSDT')
+			if srvvals and srvvals.include?("VRTUAL")
+				vm = true
+			end
+		end
+		if not vm
+			srvvals = registry_enumkeys('HKLM\SYSTEM\ControlSet001\Services')
+			if srvvals and srvvals.include?("vmicheartbeat")
+				vm = true
+			elsif srvvals and srvvals.include?("vmicvss")
+				vm = true
+			elsif srvvals and srvvals.include?("vmicshutdown")
+				vm = true
+			elsif srvvals and srvvals.include?("vmicexchange")
+				vm = true
 			end
 		end
 		if vm
+			report_note(
+				:host   => session,
+				:type   => 'host.hypervisor',
+				:data   => { :hypervisor => "MS Hyper-V" },
+				:update => :unique_data
+				)
 			print_status("This is a Hyper-V Virtual Machine")
 			return "MS Hyper-V"
 		end
@@ -75,30 +86,26 @@ class Metasploit3 < Msf::Post
 	# Method for checking if it is a VMware VM
 	def vmwarechk(session)
 		vm = false
-		begin
-			key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SYSTEM\ControlSet001\Services', KEY_READ)
-			srvvals = key.enum_key
-			if srvvals.include?("vmdebug")
-				vm = true
-			elsif srvvals.include?("vmmouse")
-				vm = true
-			elsif srvvals.include?("VMTools")
-				vm = true
-			elsif srvvals.include?("VMMEMCTL")
-				vm = true
-			end
-			key.close
-		rescue
+		srvvals = registry_enumkeys('HKLM\SYSTEM\ControlSet001\Services')
+		if srvvals and  srvvals.include?("vmdebug")
+			vm = true
+		elsif srvvals and srvvals.include?("vmmouse")
+			vm = true
+		elsif srvvals and srvvals.include?("VMTools")
+			vm = true
+		elsif srvvals and srvvals.include?("VMMEMCTL")
+			vm = true
 		end
 		if not vm
-			begin
-				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0')
-				if key.query_value('Identifier').data.downcase =~ /vmware/
-					vm = true
-				end
-			rescue
+			if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System\BIOS','SystemManufacturer') =~ /vmware/i
+				vm = true
 			end
-			key.close
+		end
+		if not vm
+			key_path = 'HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0'
+			if registry_getvaldata(key_path,'Identifier') =~ /vmware/i
+				vm = true
+			end
 		end
 		if not vm
 			vmwareprocs = [
@@ -113,7 +120,14 @@ class Metasploit3 < Msf::Post
 				end
 			end
 		end
+
 		if vm
+			report_note(
+				:host   => session,
+				:type   => 'host.hypervisor',
+				:data   => { :hypervisor => "VMware" },
+				:update => :unique_data
+				)
 			print_status("This is a VMware Virtual Machine")
 			return "VMWare"
 		end
@@ -134,22 +148,22 @@ class Metasploit3 < Msf::Post
 			end
 		end
 		if not vm
-			begin
-				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SYSTEM\ControlSet001\Services', KEY_READ)
-				srvvals = key.enum_key
-
-				if srvvals.include?("vpc-s3")
-					vm = true
-				elsif srvvals.include?("vpcuhub")
-					vm = true
-				elsif srvvals.include?("msvmmouf")
-					vm = true
-				end
-				key.close
-			rescue
+			srvvals = registry_enumkeys('HKLM\SYSTEM\ControlSet001\Services')
+			if srvvals and srvvals.include?("vpc-s3")
+				vm = true
+			elsif srvvals and srvvals.include?("vpcuhub")
+				vm = true
+			elsif srvvals and srvvals.include?("msvmmouf")
+				vm = true
 			end
 		end
 		if vm
+			report_note(
+				:host   => session,
+				:type   => 'host.hypervisor',
+				:data   => { :hypervisor => "VirtualPC" },
+				:update => :unique_data
+				)
 			print_status("This is a VirtualPC Virtual Machine")
 			return "VirtualPC"
 		end
@@ -170,71 +184,53 @@ class Metasploit3 < Msf::Post
 			end
 		end
 		if not vm
-			begin
-				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\ACPI\DSDT', KEY_READ)
-				srvvals = key.enum_key
-				if srvvals.include?("VBOX__")
-					vm = true
-				end
-			rescue
+			srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\DSDT')
+			if srvvals and srvvals.include?("VBOX__")
+				vm = true
 			end
 		end
 		if not vm
-			begin
-				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\ACPI\FADT', KEY_READ)
-				srvvals = key.enum_key
-				if srvvals.include?("VBOX__")
-					vm = true
-				end
-			rescue
+			srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\FADT')
+			if srvvals and srvvals.include?("VBOX__")
+				vm = true
 			end
 		end
 		if not vm
-			begin
-				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\ACPI\RSDT', KEY_READ)
-				srvvals = key.enum_key
-				if srvvals.include?("VBOX__")
-					vm = true
-				end
-			rescue
+			srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\RSDT')
+			if srvvals and srvvals.include?("VBOX__")
+				vm = true
 			end
 		end
 		if not vm
-			begin
-				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0')
-				if key.query_value('Identifier').data.downcase =~ /vbox/
-					vm = true
-				end
-			rescue
+			key_path = 'HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0'
+			if registry_getvaldata(key_path,'Identifier') =~ /vbox/i
+				vm = true
 			end
 		end
 		if not vm
-			begin
-				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\DESCRIPTION\System')
-				if key.query_value('SystemBiosVersion').data.downcase =~ /vbox/
-					vm = true
-				end
-			rescue
+			if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System','SystemBiosVersion') =~ /vbox/i
+				vm = true
 			end
 		end
 		if not vm
-			begin
-				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SYSTEM\ControlSet001\Services', KEY_READ)
-				srvvals = key.enum_key
-				if srvvals.include?("VBoxMouse")
-					vm = true
-				elsif srvvals.include?("VBoxGuest")
-					vm = true
-				elsif srvvals.include?("VBoxService")
-					vm = true
-				elsif srvvals.include?("VBoxSF")
-					vm = true
-				end
-				key.close
-			rescue
+			srvvals = registry_enumkeys('HKLM\SYSTEM\ControlSet001\Services')
+			if srvvals and srvvals.include?("VBoxMouse")
+				vm = true
+			elsif srvvals and srvvals.include?("VBoxGuest")
+				vm = true
+			elsif srvvals and srvvals.include?("VBoxService")
+				vm = true
+			elsif srvvals and srvvals.include?("VBoxSF")
+				vm = true
 			end
 		end
 		if vm
+			report_note(
+				:host   => session,
+				:type   => 'host.hypervisor',
+				:data   => { :hypervisor => "VirtualBox" },
+				:update => :unique_data
+				)
 			print_status("This is a Sun VirtualBox Virtual Machine")
 			return "VirtualBox"
 		end
@@ -254,55 +250,44 @@ class Metasploit3 < Msf::Post
 			end
 		end
 		if not vm
-			begin
-				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\ACPI\DSDT', KEY_READ)
-				srvvals = key.enum_key
-				if srvvals.include?("Xen")
-					vm = true
-				end
-			rescue
+			srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\DSDT')
+			if srvvals and srvvals.include?("Xen")
+				vm = true
 			end
 		end
 		if not vm
-			begin
-				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\ACPI\FADT', KEY_READ)
-				srvvals = key.enum_key
-				if srvvals.include?("Xen")
-					vm = true
-				end
-			rescue
+			srvvals = registry_enumkeys('HARDWARE\ACPI\FADT')
+			if srvvals and srvvals.include?("Xen")
+				vm = true
 			end
 		end
 		if not vm
-			begin
-				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\ACPI\RSDT', KEY_READ)
-				srvvals = key.enum_key
-				if srvvals.include?("Xen")
-					vm = true
-				end
-			rescue
+			srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\RSDT')
+			if srvvals and srvvals.include?("Xen")
+				vm = true
 			end
 		end
 		if not vm
-			begin
-				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SYSTEM\ControlSet001\Services', KEY_READ)
-				srvvals = key.enum_key
-				if srvvals.include?("xenevtchn")
-					vm = true
-				elsif srvvals.include?("xennet")
-					vm = true
-				elsif srvvals.include?("xennet6")
-					vm = true
-				elsif srvvals.include?("xensvc")
-					vm = true
-				elsif srvvals.include?("xenvdb")
-					vm = true
-				end
-				key.close
-			rescue
+			srvvals = registry_enumkeys('HKLM\SYSTEM\ControlSet001\Services')
+			if srvvals and srvvals.include?("xenevtchn")
+				vm = true
+			elsif srvvals and srvvals.include?("xennet")
+				vm = true
+			elsif srvvals and srvvals.include?("xennet6")
+				vm = true
+			elsif srvvals and srvvals.include?("xensvc")
+				vm = true
+			elsif srvvals and srvvals.include?("xenvdb")
+				vm = true
 			end
 		end
 		if vm
+			report_note(
+				:host   => session,
+				:type   => 'host.hypervisor',
+				:data   => { :hypervisor => "Xen" },
+				:update => :unique_data
+				)
 			print_status("This is a Xen Virtual Machine")
 			return "Xen"
 		end
@@ -311,27 +296,27 @@ class Metasploit3 < Msf::Post
 	def qemuchk(session)
 		vm = false
 		if not vm
-			begin
-				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0')
-				if key.query_value('Identifier').data.downcase =~ /qemu/
-					print_status("This is a QEMU/KVM Virtual Machine")
-					vm = true
-				end
-			rescue
+			key_path = 'HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0'
+			if registry_getvaldata(key_path,'Identifier') =~ /qemu/i
+				print_status("This is a QEMU/KVM Virtual Machine")
+				vm = true
 			end
 		end
 		if not vm
-			begin
-				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\DESCRIPTION\System\CentralProcessor\0')
-				if key.query_value('ProcessorNameString').data.downcase =~ /qemu/
-					print_status("This is a QEMU/KVM Virtual Machine")
-					vm = true
-				end
-			rescue
+			key_path = 'HKLM\HARDWARE\DESCRIPTION\System\CentralProcessor\0'
+			if registry_getvaldata(key_path,'ProcessorNameString') =~ /qemu/i
+				print_status("This is a QEMU/KVM Virtual Machine")
+				vm = true
 			end
 		end
 
 		if vm
+			report_note(
+				:host   => session,
+				:type   => 'host.hypervisor',
+				:data   => { :hypervisor => "Qemu/KVM" },
+				:update => :unique_data
+				)
 			return "Qemu/KVM"
 		end
 	end

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,7 +16,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'SAP Management Console List Logfiles',
-			'Version'      => '$Revision$',
 			'Description'  => %q{
 				This module simply attempts to output a list of available
 				logfiles and developer tracefiles through the SAP Management
@@ -39,7 +34,7 @@ class Metasploit4 < Msf::Auxiliary
 			[
 				Opt::RPORT(50013),
 				OptString.new('URI', [false, 'Path to the SAP Management Console ', '/']),
-				OptString.new('FILETYPE', [true, 'Specify LOGFILE or TRACEFILE', 'TRACEFILE']),
+				OptEnum.new('FILETYPE', [true, 'Specify LOGFILE or TRACEFILE', 'TRACEFILE', ['TRACEFILE','LOGFILE']])
 			], self.class)
 		register_autofilter_ports([ 50013 ])
 		deregister_options('RHOST')
@@ -51,12 +46,8 @@ class Metasploit4 < Msf::Auxiliary
 
 	def run_host(ip)
 		res = send_request_cgi({
-			'uri'      => "/#{datastore['URI']}",
-			'method'   => 'GET',
-			'headers'  =>
-				{
-					'User-Agent' => datastore['UserAgent']
-				}
+			'uri'      => normalize_uri(datastore['URI']),
+			'method'   => 'GET'
 		}, 25)
 
 		if not res
@@ -96,7 +87,7 @@ class Metasploit4 < Msf::Auxiliary
 
 		begin
 			res = send_request_raw({
-				'uri'      => "/#{datastore['URI']}",
+				'uri'      => normalize_uri(datastore['URI']),
 				'method'   => 'POST',
 				'data'     => data,
 				'headers'  =>

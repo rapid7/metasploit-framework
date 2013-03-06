@@ -1,7 +1,3 @@
-##
-# $Id$
-##
-
 
 ##
 # This file is part of the Metasploit Framework and may be subject to
@@ -29,7 +25,6 @@ class Metasploit3 < Msf::Post
 					},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'mubix' ],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 		))

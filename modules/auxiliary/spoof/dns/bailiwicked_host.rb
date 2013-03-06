@@ -1,7 +1,3 @@
-##
-# $Id$
-##
-
 require 'msf/core'
 require 'net/dns'
 require 'resolv'
@@ -26,7 +22,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'I)ruid', 'hdm' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2008-1447' ],

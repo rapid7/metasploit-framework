@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -30,7 +26,6 @@ class Metasploit3 < Msf::Auxiliary
 				protected folder requires either Basic, Digest or NTLM authentication.
 			},
 			'Author' 		=> [ 'et', 'patrick' ],
-			'Version'		=> '$Revision$',
 			'License'		=> MSF_LICENSE,
 			'References'   =>
 				[
@@ -50,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		tpath = datastore['PATH']
+		tpath = normalize_uri(datastore['PATH'])
 		if tpath[-1,1] != '/'
 			tpath += '/'
 		end
