@@ -290,7 +290,7 @@ sub createShellSessionTab {
 			return;
 		}
 
-		$thread = [new ConsoleClient: $console, $client, "session.shell_read", "session.shell_write", $null, $sid, 0];
+		$thread = [new ConsoleClient: $console, rand(@POOL), "session.shell_read", "session.shell_write", $null, $sid, 0];
 		[$frame addTab: "Shell $sid", $console, lambda({ 
 			call_async($mclient, "armitage.unlock", $sid);
 			[$thread kill];
