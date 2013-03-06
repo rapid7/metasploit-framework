@@ -49,11 +49,12 @@ httpopenrequest:
   pop ecx
   xor edx, edx           ; NULL
   push edx               ; dwContext (NULL)
-  push (0x80000000 | 0x04000000 | 0x00200000 | 0x00000200) ; dwFlags
+  push (0x80000000 | 0x04000000 | 0x00200000 | 0x00000200 | 0x00400000) ; dwFlags
     ;0x80000000 |        ; INTERNET_FLAG_RELOAD
     ;0x04000000 |        ; INTERNET_NO_CACHE_WRITE
 	;0x00200000 |        ; INTERNET_FLAG_NO_AUTO_REDIRECT
-    ;0x00000200          ; INTERNET_FLAG_NO_UI
+    ;0x00000200 |        ; INTERNET_FLAG_NO_UI
+    ;0x00400000          ; INTERNET_FLAG_KEEP_CONNECTION
   push edx               ; accept types
   push edx               ; referrer
   push edx               ; version

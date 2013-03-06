@@ -2642,7 +2642,7 @@ class Core
 			if is_metasploit_service_running
 				launch_metasploit_browser
 			else
-				print_error "Metasploit services aren't running. Type 'service start metasploit' and try again."
+				print_error "Metasploit services aren't running. Type 'service metasploit start' and try again."
 			end
 		end
 		return true
@@ -2695,16 +2695,16 @@ class Core
 	end
 
 	def start_metasploit_service
-		cmd = "/usr/sbin/service"
+		cmd = File.expand_path(File.join(msfbase_dir, '..', '..', '..', 'scripts', 'start.sh'))
 		return unless ::File.executable_real? cmd
-		%x{#{cmd} metasploit start}.each_line do |line|
+		%x{#{cmd}}.each_line do |line|
 			print_status line.chomp
 		end
 	end
 
 	def is_metasploit_service_running
 		cmd = "/usr/sbin/service"
-		system(cmd, "metasploit", "status") # Both running returns true, otherwise, false.
+		system("#{cmd} metasploit status >/dev/null") # Both running returns true, otherwise, false.
 	end
 
 	def is_metasploit_debian_package_installed

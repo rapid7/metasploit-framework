@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_cgi({
 				'uri'	 => uri,
 				'method'  => 'GET',
-				'basic_auth' => "#{user}:#{pass}"
+				'authorization' => basic_auth(user,pass)
 			})
 
 			unless (res.kind_of? Rex::Proto::Http::Response)
@@ -136,7 +136,7 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_cgi({
 				'uri'	=> uri,
 				'method' => 'POST',
-				'basic_auth' => "#{user}:#{pass}",
+				'authorization' => basic_auth(user,pass),
 				#'data' => data_cmd,
 
 				'vars_post' => {

@@ -16,11 +16,16 @@ namespace :yard do
       '-',
       'COPYING',
       'HACKING',
-      'THIRD-PARTY.md'
+      'LICENSE',
+      'CONTRIBUTING.md',
   ]
   yard_options = [
       # include documentation for protected methods for developers extending the code.
-      '--protected'
+      '--protected',
+      # Don't bother with files meant to be examples
+      '--exclude', 'samples/',
+      '--exclude', '\.ut\.rb/',
+      '--exclude', '\.ts\.rb/',
   ]
 
   YARD::Rake::YardocTask.new(:doc) do |t|
