@@ -5,10 +5,9 @@
 #   http://metasploit.com/
 ##
 
-
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class Metasploit4 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::SMB
