@@ -2,6 +2,8 @@
 ENV['RAILS_ENV'] = 'test'
 
 require File.expand_path('../dummy/config/environment.rb',  __FILE__)
+require 'rspec/rails'
+require 'rspec/autorun'
 
 require 'rubygems'
 require 'bundler'
@@ -22,5 +24,12 @@ Dir.glob(support_glob) do |path|
 end
 
 RSpec.configure do |config|
+  config.before(:each) do
+    # Rex is only available when testing with metasploit-framework or pro, so stub out the methods that require it
+    Mdm::Workspace.any_instance.stub(:valid_ip_or_range? => true)
+  end
+
   config.mock_with :rspec
+  config.use_transactional_fixtures = true
+  config.order = :random
 end
