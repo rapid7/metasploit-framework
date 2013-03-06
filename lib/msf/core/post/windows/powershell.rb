@@ -173,7 +173,7 @@ module Powershell
 		end
 
 		# Close log file
-		cmd_out.channel.close()
+		# cmd_out.channel.close()
 		fd.close() if fd
 
 		return results
@@ -249,7 +249,7 @@ module Powershell
 			end
 			# Execute the script, get the output, and kill the resulting PIDs
 			cmd_out, running_pids, open_channels = execute_script(script, greedy_kill)
-			ps_output = get_ps_output(cmd_out,eof)
+			ps_output = get_ps_output(cmd_out,eof,datastore['PS_TIMEOUT'])
 			# Kill off the resulting processes if needed
 			if ps_cleanup
 				vprint_good( "Cleaning up #{running_pids.join(', ')}" )
