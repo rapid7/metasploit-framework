@@ -1,7 +1,14 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+# http://metasploit.com/
+##
+
 require 'msf/core'
 require 'rex/proto/natpmp'
 
-class Metasploit3 < Msf::Auxiliary
+class Metasploit4 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
