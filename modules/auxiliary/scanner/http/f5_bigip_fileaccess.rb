@@ -38,7 +38,7 @@ class Metasploit4 < Msf::Auxiliary
 					'Thaddeus Bogner', # Metasploit module
 					'Will Caput', # Metasploit module
 				],
-			'DisclosureDate' => 'Jan 222 2013',
+			'DisclosureDate' => 'Jan 22 2013',
 			'License'      => MSF_LICENSE
 		)
 
