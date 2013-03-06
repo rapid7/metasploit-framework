@@ -224,7 +224,10 @@ if is_apt
 	else
 		$stdout.puts "[*] Updating to version #{pro_version || framework_version}"
 		system("apt-get", "install", "--assume-yes", *packages)
-		system("/etc/init.d/metasploit start") if packages.include?('metasploit')
+		if packages.include?('metasploit')
+			start_cmd = File.expand_path(File.join(@msfbase_dir, '..', '..', '..', 'scripts', 'start.sh'))
+			system(start_cmd) if ::File.executable_real? start_cmd
+		end
 	end
 end
 
