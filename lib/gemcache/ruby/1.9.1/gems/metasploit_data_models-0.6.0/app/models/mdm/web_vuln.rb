@@ -1,6 +1,6 @@
 # A Web Vulnerability found during a web scan or web audit.
 #
-# If you need to modify Mdm::WebVuln you can use ActiveSupport.on_load(:mdm_web_vuln) in side an initializer so that
+# If you need to modify Mdm::WebVuln you can use ActiveSupport.on_load(:mdm_web_vuln) inside an initializer so that
 # your patches are reloaded on each request in development mode for your Rails application.
 #
 # @example extending Mdm::WebVuln
@@ -18,6 +18,9 @@ class Mdm::WebVuln < ActiveRecord::Base
   # A percentage {#confidence} that the vulnerability is real and not a false positive.  0 is not allowed because there
   # shouldn't be an {Mdm::WebVuln} record if there is 0% {#confidence} in the the finding.
   CONFIDENCE_RANGE = 1 .. 100
+
+  # Default value for {#params}
+  DEFAULT_PARAMS = []
 
   # Allowed {#method methods}.
   METHODS = [
@@ -120,7 +123,6 @@ class Mdm::WebVuln < ActiveRecord::Base
             }
   validates :name, :presence => true
   validates :path, :presence => true
-  validates :params, :presence => true
   validates :pname, :presence => true
   validates :proof, :presence => true
   validates :risk,
@@ -136,8 +138,53 @@ class Mdm::WebVuln < ActiveRecord::Base
   # @!attribute [rw] params
   #   Parameters sent as part of request
   #
-  # @return [Array<Array<(String, String)>>] Array of parameter key value pairs
-  serialize :params, MetasploitDataModels::Base64Serializer.new
+  #   @return [Array<Array<(String, String)>>] Array of parameter key value pairs
+  serialize :params, MetasploitDataModels::Base64Serializer.new(:default => DEFAULT_PARAMS)
+
+  #
+  # Methods
+  #
+
+  # Parameters sent as part of request.
+  #
+  # @return [Array<Array<(String, String)>>]
+  def params
+    normalize_params(
+        read_attribute(:params)
+    )
+  end
+
+  # Set parameters sent as part of request.
+  #
+  # @param params [Array<Array<(String, String)>>, nil] Array of parameter key value pairs
+  # @return [void]
+  def params=(params)
+    write_attribute(
+        :params,
+        normalize_params(params)
+    )
+  end
+
+  private
+
+  # Creates a duplicate of {DEFAULT_PARAMS} that is safe to modify.
+  #
+  # @return [Array] an empty array
+  def default_params
+    DEFAULT_PARAMS.dup
+  end
+
+  # Returns either the given params or {DEFAULT_PARAMS} if params is `nil`
+  #
+  # @param [Array<Array<(String, String)>>, nil] params
+  # @return [Array<<Array<(String, String)>>] params if not `nil`
+  # @return [nil] if params is `nil`
+  def normalize_params(params)
+    params || default_params
+  end
+
+  # switch back to public for load hooks
+  public
 
   ActiveSupport.run_load_hooks(:mdm_web_vuln, self)
 end

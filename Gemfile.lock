@@ -1,9 +1,9 @@
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: 1e3e0c2effb8e1bb6cec9683b830e4244babf706
-  tag: 0.5.1
+  revision: 0285d6e199f125b33214100dcb0f4eeb12ee765f
+  tag: 0.6.0
   specs:
-    metasploit_data_models (0.5.1)
+    metasploit_data_models (0.6.0)
       activerecord (>= 3.2.10)
       activesupport
       pg
@@ -55,7 +55,7 @@ GEM
       simplecov-html (~> 0.5.3)
     simplecov-html (0.5.3)
     slop (3.4.3)
-    tzinfo (0.3.35)
+    tzinfo (0.3.36)
     yard (0.8.3)
 
 PLATFORMS

@@ -5,6 +5,10 @@ describe Mdm::WebVuln do
     1 .. 100
   end
 
+  let(:default_params) do
+    []
+  end
+
   let(:methods) do
     [
         'GET',
@@ -16,6 +20,10 @@ describe Mdm::WebVuln do
 
   let(:risk_range) do
     0 .. 5
+  end
+
+  subject(:web_vuln) do
+    described_class.new
   end
 
   context 'associations' do
@@ -74,7 +82,11 @@ describe Mdm::WebVuln do
     it { should ensure_inclusion_of(:method).in_array(methods) }
     it { should validate_presence_of :name }
     it { should validate_presence_of :path }
-    it { should validate_presence_of :params }
+
+    it 'should not validate presence of params because it default to [] and can never be nil' do
+      web_vuln.should_not validate_presence_of(:params)
+    end
+
     it { should validate_presence_of :pname }
     it { should validate_presence_of :proof }
     it { should ensure_inclusion_of(:risk).in_range(risk_range) }
@@ -83,5 +95,32 @@ describe Mdm::WebVuln do
 
   context 'serializations' do
     it { should serialize(:params).as_instance_of(MetasploitDataModels::Base64Serializer) }
+  end
+
+  context '#params' do
+    let(:default) do
+      []
+    end
+
+    let(:params) do
+      web_vuln.params
+    end
+
+    it 'should default to []' do
+      params.should == default
+    end
+
+    it 'should return default if set to nil' do
+      web_vuln.params = nil
+      web_vuln.params.should == default
+    end
+
+    it 'should return default if set to nil and saved' do
+      web_vuln = FactoryGirl.build(:mdm_web_vuln)
+      web_vuln.params = nil
+      web_vuln.save!
+
+      web_vuln.params.should == default
+    end
   end
 end
