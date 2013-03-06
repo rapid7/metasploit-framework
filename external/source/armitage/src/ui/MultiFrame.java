@@ -17,11 +17,20 @@ public class MultiFrame extends JFrame implements KeyEventDispatcher {
 	protected JPanel              content;
 	protected CardLayout          cards;
 	protected LinkedList          buttons;
+	protected Properties          prefs;
 
 	private static class ArmitageInstance {
 		public ArmitageApplication app;
 		public JToggleButton       button;
 		public RpcConnection       client;
+	}
+
+	public void setPreferences(Properties prefs) {
+		this.prefs = prefs;
+	}
+
+	public Properties getPreferences() {
+		return prefs;
 	}
 
 	public Map getClients() {
