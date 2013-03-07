@@ -137,13 +137,13 @@ class Plugin::Wmap < Msf::Plugin
 					else
 						print_error("Unable to create site")
 					end
-        when '-d'
-          del_idx = args.shift
-          if del_idx
-            delete_site(del_idx.to_i)
-          else
-            print_error("Provide index of site to delete")
-          end
+				when '-d'
+					del_idx = args.shift
+					if del_idx
+						delete_site(del_idx.to_i)
+					else
+						print_error("Provide index of site to delete")
+					end
 				when '-l'
 					view_sites
 					return
@@ -168,8 +168,8 @@ class Plugin::Wmap < Msf::Plugin
 						# Parameters are in url form
 						view_site_tree(u,l,s)
 					else
-					    # Parameters are digits
-					    if !self.lastsites or self.lastsites.length == 0
+							# Parameters are digits
+							if !self.lastsites or self.lastsites.length == 0
 							view_sites
 							print_status ("Web sites ids. referenced from previous table.")
 						end
@@ -204,7 +204,7 @@ class Plugin::Wmap < Msf::Plugin
 					print_status("Usage: wmap_sites [options]")
 					print_line("\t-h        Display this help text")
 					print_line("\t-a [url]  Add site (vhost,url)")
-          print_line("\t-d [id]   Delete site")
+					print_line("\t-d [id]   Delete site")
 					print_line("\t-l        List all available sites")
 					print_line("\t-s [id]   Display site structure (vhost,url|ids) (level)")
 
@@ -1233,23 +1233,23 @@ class Plugin::Wmap < Msf::Plugin
 			print_status tbl.to_s + "\n"
 		end
 
-    def delete_site(wmap_index)
-      print_status("Deleting site #{wmap_index}")
-      idx  = 0
-      self.framework.db.hosts.each do |bdhost|
-        bdhost.services.each do |serv|
-          serv.web_sites.each do |web|
-            if idx == wmap_index
-              web.delete
-              print_status("Deleted #{web.vhost} on #{bdhost.address} at index #{idx}")
-              return
-            else
-              idx += 1
-            end
-          end
-        end
-      end
-    end
+		def delete_site(wmap_index)
+			print_status("Deleting site #{wmap_index}")
+			idx  = 0
+			self.framework.db.hosts.each do |bdhost|
+				bdhost.services.each do |serv|
+					serv.web_sites.each do |web|
+						if idx == wmap_index
+							web.delete
+							print_status("Deleted #{web.vhost} on #{bdhost.address} at index #{idx}")
+							return
+						else
+							idx += 1
+						end
+					end
+				end
+			end
+		end
 
 
 		def view_sites
@@ -1541,7 +1541,7 @@ class Plugin::Wmap < Msf::Plugin
 					next
 				end
 
-        sites = serv.web_sites.where('vhost = ? and service_id = ?', vhost, serv.id)
+				sites = serv.web_sites.where('vhost = ? and service_id = ?', vhost, serv.id)
 
 				sites.each do |site|
 					t = load_tree(site)
@@ -1998,10 +1998,10 @@ class Plugin::Wmap < Msf::Plugin
 			color = self.opts["ConsoleDriver"].output.supports_color? rescue false
 
 			colors = [
-			           '%grn',
-					   '%blu',
-					   '%yel',
-					   '%whi'
+								 '%grn',
+						 '%blu',
+						 '%yel',
+						 '%whi'
 					 ]
 
 			#begin
