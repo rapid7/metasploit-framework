@@ -9,7 +9,7 @@ class Scanner
 	attr_accessor :host
 	attr_accessor :port
 	attr_accessor :timeout
-	
+
 	attr_reader :supported_versions
 	attr_reader :sslv2
 
@@ -81,7 +81,7 @@ class Scanner
 				'SSLVersion' => :SSLv23,
 				'Timeout'    => @timeout
 			)
-		rescue ::Exception => e 
+		rescue ::Exception => e
 			return :rejected
 		ensure
 			if scan_client
@@ -101,7 +101,7 @@ class Scanner
 				'SSLVersion' => :TLSv1,
 				'Timeout'    => @timeout
 			)
-		rescue ::Exception => e 
+		rescue ::Exception => e
 			return :rejected
 		ensure
 			if scan_client
@@ -127,14 +127,14 @@ class Scanner
 				'SSLCipher'  => cipher,
 				'Timeout'    => @timeout
 			)
-		rescue ::Exception => e 
+		rescue ::Exception => e
 			return :rejected
 		ensure
 			if scan_client
 				scan_client.close
 			end
 		end
-		
+
 		return :accepted
 	end
 
@@ -160,7 +160,7 @@ class Scanner
 			else
 				return nil
 			end
-		rescue ::Exception => e 
+		rescue ::Exception => e
 			return nil
 		ensure
 			if scan_client
@@ -172,7 +172,7 @@ class Scanner
 
 	protected
 
-	# Validates that the SSL Version and Cipher are valid both seperately and 
+	# Validates that the SSL Version and Cipher are valid both seperately and
 	# together as part of an SSL Context.
 	# @param ssl_version [Symbol] The SSL version to use (:SSLv2,  :SSLv3, :TLSv1)
 	# @param cipher [String] The SSL Cipher to use
@@ -193,7 +193,7 @@ class Scanner
 	end
 
 	def check_opensslv2
-		begin 
+		begin
 			OpenSSL::SSL::SSLContext.new(:SSLv2)
 		rescue
 			return false

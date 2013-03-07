@@ -52,7 +52,7 @@ class Result
 	# @raise [ArgumentError] if the version supplied is invalid
 	# @return [Array] An array of accepted cipher details matching the supplied versions
 	def accepted(version = :all)
-    enum_ciphers(:accepted, version)
+		enum_ciphers(:accepted, version)
 	end
 
 	# Returns all rejected ciphers matching the supplied version
@@ -60,7 +60,7 @@ class Result
 	# @raise [ArgumentError] if the version supplied is invalid
 	# @return [Array] An array of rejected cipher details matching the supplied versions
 	def rejected(version = :all)
-    enum_ciphers(:rejected, version)
+		enum_ciphers(:rejected, version)
 	end
 
 	def each_accepted(version = :all)
@@ -160,41 +160,41 @@ class Result
 		table.rows.sort_by!{|row| [row[0],row[2],row[3]]}
 		text = "#{table.to_s}"
 		if @cert
-			text <<" \n\n #{@cert.to_text}"
+			text << " \n\n #{@cert.to_text}"
 		end
 		if openssl_sslv2 == false
 			text << "\n\n *** WARNING: Your OS hates freedom! Your OpenSSL libs are compiled without SSLv2 support!"
 		end
 		text
-  end
+	end
 
-  protected
+	protected
 
-  # @param [Symbol] state Either :accepted or :rejected
-  # @param [Symbol, Array] version The SSL Version to filter on (:SSLv2:SSLv3,:TLSv1, :all)
-  # @return [Set] The Set of cipher results matching the filter criteria
-  def enum_ciphers(state, version = :all)
-    case version
-      when Symbol
-        case version
-          when :all
-            return @ciphers.select{|cipher| cipher[:status] == state}
-          when :SSLv2, :SSLv3, :TLSv1
-            return @ciphers.select{|cipher| cipher[:status] == state and cipher[:version] == version}
-          else
-            raise ArgumentError, "Invalid SSL Version Supplied: #{version}"
-        end
-      when Array
-        version = version.reject{|v| !(@supported_versions.include? v)}
-        if version.empty?
-          return @ciphers.select{|cipher| cipher[:status] == state}
-        else
-          return @ciphers.select{|cipher| cipher[:status] == state and version.include? cipher[:version]}
-        end
-      else
-        raise ArgumentError, "Was expecting Symbol or Array and got #{version.class}"
-    end
-  end
+	# @param [Symbol] state Either :accepted or :rejected
+	# @param [Symbol, Array] version The SSL Version to filter on (:SSLv2:SSLv3,:TLSv1, :all)
+	# @return [Set] The Set of cipher results matching the filter criteria
+	def enum_ciphers(state, version = :all)
+		case version
+		when Symbol
+			case version
+			when :all
+				return @ciphers.select{|cipher| cipher[:status] == state}
+			when :SSLv2, :SSLv3, :TLSv1
+				return @ciphers.select{|cipher| cipher[:status] == state and cipher[:version] == version}
+			else
+				raise ArgumentError, "Invalid SSL Version Supplied: #{version}"
+			end
+		when Array
+			version = version.reject{|v| !(@supported_versions.include? v)}
+			if version.empty?
+				return @ciphers.select{|cipher| cipher[:status] == state}
+			else
+				return @ciphers.select{|cipher| cipher[:status] == state and version.include? cipher[:version]}
+			end
+		else
+			raise ArgumentError, "Was expecting Symbol or Array and got #{version.class}"
+		end
+	end
 
 end
 end
