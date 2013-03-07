@@ -78,7 +78,7 @@ sub setupEventStyle {
 
 sub createDisplayTab {
 	local('$console $host $queue $file');
-	$queue = [new ConsoleQueue: $client];
+	$queue = [new ConsoleQueue: rand(@POOL)];
 	if ($1 eq "Log Keystrokes") {
 		$console = [new ActivityConsole: $preferences];
 	}
@@ -100,7 +100,7 @@ sub createConsolePanel {
 	setupConsoleStyle($console);
 
 	$result = call($client, "console.create");
-	$thread = [new ConsoleClient: $console, $aclient, "console.read", "console.write", "console.destroy", $result['id'], $1];
+	$thread = [new ConsoleClient: $console, rand(@POOL), "console.read", "console.write", "console.destroy", $result['id'], $1];
 	[$thread setMetasploitConsole];
 
 	[$thread setSessionListener: {
