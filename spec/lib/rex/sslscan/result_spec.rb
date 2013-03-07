@@ -1,7 +1,7 @@
 require 'rex/sslscan/result'
 
 describe Rex::SSLScan::Result do
-	
+
 	subject{Rex::SSLScan::Result.new}
 
       it { should respond_to :accepted }
@@ -104,7 +104,7 @@ describe Rex::SSLScan::Result do
 			it "given an invalid SSL version" do
 				expect{subject.add_cipher(:ssl3, 'AES256-SHA', 256, :accepted )}.to raise_error
 			end
-				
+
 			it "given SSL version as a string" do
 				expect{subject.add_cipher('sslv3', 'AES256-SHA', 256, :accepted )}.to raise_error
 			end
@@ -138,11 +138,11 @@ describe Rex::SSLScan::Result do
 				begin
 					subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :accepted)
 					subject.accepted(:SSLv2).should include({
-						:version => :SSLv2, 
-						:cipher=>"DES-CBC3-MD5", 
-						:key_length=>168, 
-						:weak=> false, 
-						:status => :accepted}) 
+						:version => :SSLv2,
+						:cipher=>"DES-CBC3-MD5",
+						:key_length=>168,
+						:weak=> false,
+						:status => :accepted})
 				rescue ArgumentError => e
 					e.message.should == "unknown SSL method `SSLv2'."
 				end
@@ -151,20 +151,20 @@ describe Rex::SSLScan::Result do
 			it "should add an SSLv3 cipher result to the SSLv3 Accepted array" do
 				subject.add_cipher(:SSLv3, "AES256-SHA", 256, :accepted)
 				subject.accepted(:SSLv3).should include({
-					:version => :SSLv3, 
-					:cipher=>"AES256-SHA", 
-					:key_length=>256, 
-					:weak=> false, 
+					:version => :SSLv3,
+					:cipher=>"AES256-SHA",
+					:key_length=>256,
+					:weak=> false,
 					:status => :accepted})
 			end
 
 			it "should add an TLSv1 cipher result to the TLSv1 Accepted array" do
 				subject.add_cipher(:TLSv1, "AES256-SHA", 256, :accepted)
 				subject.accepted(:TLSv1).should include({
-					:version => :TLSv1, 
-					:cipher=>"AES256-SHA", 
-					:key_length=>256, 
-					:weak=> false, 
+					:version => :TLSv1,
+					:cipher=>"AES256-SHA",
+					:key_length=>256,
+					:weak=> false,
 					:status => :accepted})
 			end
 
@@ -172,16 +172,16 @@ describe Rex::SSLScan::Result do
 				subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
 				subject.add_cipher(:SSLv3, "AES256-SHA", 256, :accepted)
 				subject.accepted(:SSLv3).should include({
-					:version => :SSLv3, 
-					:cipher=>"AES256-SHA", 
-					:key_length=>256, 
-					:weak=> false, 
+					:version => :SSLv3,
+					:cipher=>"AES256-SHA",
+					:key_length=>256,
+					:weak=> false,
 					:status => :accepted})
 				subject.accepted(:SSLv3).should include({
-					:version => :SSLv3, 
-					:cipher=>"AES256-SHA", 
-					:key_length=>256, 
-					:weak=> false, 
+					:version => :SSLv3,
+					:cipher=>"AES256-SHA",
+					:key_length=>256,
+					:weak=> false,
 					:status => :accepted})
 			end
 
@@ -196,33 +196,33 @@ describe Rex::SSLScan::Result do
 				begin
 					subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :rejected)
 					subject.rejected(:SSLv2).should include({
-						:version => :SSLv2, 
-						:cipher=>"DES-CBC3-MD5", 
-						:key_length=>168, 
-						:weak=> false, 
+						:version => :SSLv2,
+						:cipher=>"DES-CBC3-MD5",
+						:key_length=>168,
+						:weak=> false,
 						:status => :rejected})
 				rescue ArgumentError => e
 					e.message.should == "unknown SSL method `SSLv2'."
-				end 
+				end
 			end
 
 			it "should add an SSLv3 cipher result to the SSLv3 Rejected array" do
 				subject.add_cipher(:SSLv3, "AES256-SHA", 256, :rejected)
 				subject.rejected(:SSLv3).should include({
-					:version => :SSLv3, 
-					:cipher=>"AES256-SHA", 
-					:key_length=>256, 
-					:weak=> false, 
+					:version => :SSLv3,
+					:cipher=>"AES256-SHA",
+					:key_length=>256,
+					:weak=> false,
 					:status => :rejected})
 			end
 
 			it "should add an TLSv1 cipher result to the TLSv1 Rejected array" do
 				subject.add_cipher(:TLSv1, "AES256-SHA", 256, :rejected)
 				subject.rejected(:TLSv1).should include({
-					:version => :TLSv1, 
-					:cipher=>"AES256-SHA", 
-					:key_length=>256, 
-					:weak=> false, 
+					:version => :TLSv1,
+					:cipher=>"AES256-SHA",
+					:key_length=>256,
+					:weak=> false,
 					:status => :rejected})
 			end
 
@@ -230,16 +230,16 @@ describe Rex::SSLScan::Result do
 				subject.add_cipher(:SSLv3, "AES128-SHA", 128, :rejected)
 				subject.add_cipher(:SSLv3, "AES256-SHA", 256, :rejected)
 				subject.rejected(:SSLv3).should include({
-					:version => :SSLv3, 
-					:cipher=>"AES256-SHA", 
-					:key_length=>256, 
-					:weak=> false, 
+					:version => :SSLv3,
+					:cipher=>"AES256-SHA",
+					:key_length=>256,
+					:weak=> false,
 					:status => :rejected})
 				subject.rejected(:SSLv3).should include({
-					:version => :SSLv3, 
-					:cipher=>"AES128-SHA", 
-					:key_length=>128, 
-					:weak=> false, 
+					:version => :SSLv3,
+					:cipher=>"AES128-SHA",
+					:key_length=>128,
+					:weak=> false,
 					:status => :rejected})
 			end
 
@@ -374,7 +374,7 @@ describe Rex::SSLScan::Result do
 					subject.supports_sslv2?.should == true
 				rescue ArgumentError => e
 					e.message.should == "unknown SSL method `SSLv2'."
-				end 
+				end
 			end
 		end
 		context "for SSLv3" do
@@ -446,14 +446,14 @@ describe Rex::SSLScan::Result do
 		it "should return true if there is no SSL support" do
 			subject.standards_compliant?.should == true
 		end
-		
+
 		it "should return false if SSLv2 is supported or raise an SSLv2 exception" do
 			begin
 				subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :accepted)
 				subject.standards_compliant?.should == false
 			rescue ArgumentError => e
 				e.message.should == "unknown SSL method `SSLv2'."
-			end 
+			end
 		end
 
 		it "should return false if weak ciphers are supported" do
@@ -490,14 +490,14 @@ describe Rex::SSLScan::Result do
 				subject.add_cipher(:SSLv3, "EXP-RC2-CBC-MD5", 40, :accepted)
 
 				cert = OpenSSL::X509::Certificate.new
-				key = OpenSSL::PKey::RSA.new 2048 
+				key = OpenSSL::PKey::RSA.new 2048
 				cert.version = 2 #
 				cert.serial = 1
 				cert.subject = OpenSSL::X509::Name.parse "/DC=org/DC=ruby-lang/CN=Ruby CA"
-				cert.issuer = cert.subject 
+				cert.issuer = cert.subject
 				cert.public_key = key.public_key
 				cert.not_before = Time.now
-				cert.not_after = cert.not_before + 2 * 365 * 24 * 60 * 60 # 2 
+				cert.not_after = cert.not_before + 2 * 365 * 24 * 60 * 60 # 2
 
 				subject.cert = cert
 			end
