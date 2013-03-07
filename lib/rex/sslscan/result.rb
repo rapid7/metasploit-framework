@@ -22,7 +22,7 @@ class Result
 
 	def cert=(input)
 		unless input.kind_of? OpenSSL::X509::Certificate or input.nil?
-			raise ArgumentError, "Must be an X509 Cert!" 
+			raise ArgumentError, "Must be an X509 Cert!"
 		end
 		@cert = input
 	end
@@ -53,26 +53,7 @@ class Result
 	# @raise [ArgumentError] if the version supplied is invalid
 	# @return [Array] An array of accepted cipher details matching the supplied versions
 	def accepted(version = :all)
-    case version
-		when Symbol
-			case version
-			when :all
-				return @ciphers.reject{|cipher| cipher[:status] == :rejected}
-			when :SSLv2, :SSLv3, :TLSv1
-				return @ciphers.reject{|cipher| cipher[:status] == :rejected or cipher[:version] != version}
-			else
-				raise ArgumentError, "Invalid SSL Version Supplied: #{version}"
-			end
-		when Array
-			version = version.reject{|v| !(@supported_versions.include? v)}
-			if version.empty?
-				return @ciphers.reject{|cipher| cipher[:status] == :rejected}
-			else
-				return @ciphers.reject{|cipher| cipher[:status] == :rejected or !(version.include? cipher[:version])}
-			end
-		else
-			raise ArgumentError, "Was expecting Symbol or Array and got #{version.class}"
-		end
+    enum_ciphers(:accepted, version)
 	end
 
 	# Returns all rejected ciphers matching the supplied version
@@ -81,26 +62,7 @@ class Result
 	# @raise [ArgumentError] if the version supplied is invalid
 	# @return [Array] An array of rejected cipher details matching the supplied versions
 	def rejected(version = :all)
-    case version
-		when Symbol
-			case version
-			when :all
-				return @ciphers.reject{|cipher| cipher[:status] == :accepted}
-			when :SSLv2, :SSLv3, :TLSv1
-				return @ciphers.reject{|cipher| cipher[:status] == :accepted or cipher[:version] != version}
-			else
-				raise ArgumentError, "Invalid SSL Version Supplied: #{version}"
-			end
-		when Array
-			version = version.reject{|v| !(@supported_versions.include? v)}
-			if version.empty?
-				return @ciphers.reject{|cipher| cipher[:status] == :accepted}
-			else
-				return @ciphers.reject{|cipher| cipher[:status] == :accepted or !(version.include? cipher[:version])}
-			end
-		else
-			raise ArgumentError, "Was expecting Symbol or Array and got #{version.class}"
-		end
+    enum_ciphers(:rejected, version)
 	end
 
 	def each_accepted(version = :all)
@@ -166,7 +128,7 @@ class Result
 		# OpenSSL Directive For Strong Ciphers
 		# See: http://www.rapid7.com/vulndb/lookup/ssl-weak-ciphers
 		strong_cipher_ctx.ciphers = "ALL:!aNULL:!eNULL:!LOW:!EXP:RC4+RSA:+HIGH:+MEDIUM"
-		
+
 		if strong_cipher_ctx.ciphers.flatten.include? cipher
 			weak = false
 		else
@@ -178,7 +140,7 @@ class Result
 	end
 
 	def to_s
-		unless supports_ssl? 
+		unless supports_ssl?
 			return "Server does not appear to support SSL on this port!"
 		end
 		table = Rex::Ui::Text::Table.new(
@@ -206,6 +168,36 @@ class Result
 			text << "\n\n *** WARNING: Your OS hates freedom! Your OpenSSL libs are compiled without SSLv2 support!"
 		end
 		text
-	end
+  end
+
+  protected
+
+  # @param [Symbol] state Either :accepted or :rejected
+  # @param [Symbol] version The SSL Version to filter on (:SSLv2:SSLv3,:TLSv1)
+  # @param [Array] version An array of SSL Versions to filter on
+  # @return [Set] The Set of cipher results matching the filter criteria
+  def enum_ciphers(state, version = :all)
+    case version
+      when Symbol
+        case version
+          when :all
+            return @ciphers.select{|cipher| cipher[:status] == state}
+          when :SSLv2, :SSLv3, :TLSv1
+            return @ciphers.select{|cipher| cipher[:status] == state and cipher[:version] == version}
+          else
+            raise ArgumentError, "Invalid SSL Version Supplied: #{version}"
+        end
+      when Array
+        version = version.reject{|v| !(@supported_versions.include? v)}
+        if version.empty?
+          return @ciphers.select{|cipher| cipher[:status] == state}
+        else
+          return @ciphers.select{|cipher| cipher[:status] == state and version.include? cipher[:version]}
+        end
+      else
+        raise ArgumentError, "Was expecting Symbol or Array and got #{version.class}"
+    end
+  end
+
 end
 end
