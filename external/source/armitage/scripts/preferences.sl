@@ -57,12 +57,21 @@ sub parseYaml {
 sub loadPreferences {
 	local('$file $prefs');
 	$file = getFileProper(systemProperties()["user.home"], ".armitage.prop");
-	$prefs = [new Properties];
-	if (-exists $file) {
-		[$prefs load: [new java.io.FileInputStream: $file]];
+	if ($__frame__ !is $null && [$__frame__ getPreferences] !is $null) {
+		$prefs = [$__frame__ getPreferences];
 	}
 	else {
-		[$prefs load: resource("resources/armitage.prop")];
+		$prefs = [new Properties];
+		if (-exists $file) {
+			[$prefs load: [new java.io.FileInputStream: $file]];
+		}
+		else {
+			[$prefs load: resource("resources/armitage.prop")];
+		}
+
+		if ($__frame__ !is $null) {
+			[$__frame__ setPreferences: $prefs];
+		}
 	}
 
 	# parse command line options here.
