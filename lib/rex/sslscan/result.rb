@@ -48,8 +48,7 @@ class Result
 	end
 
 	# Returns all accepted ciphers matching the supplied version
-	# @param version [Symbol] The SSL Version to filter on
-	# @param version [Array] An array of SSL Versions to filter on
+	# @param version [Symbol, Array] The SSL Version to filter on
 	# @raise [ArgumentError] if the version supplied is invalid
 	# @return [Array] An array of accepted cipher details matching the supplied versions
 	def accepted(version = :all)
@@ -57,8 +56,7 @@ class Result
 	end
 
 	# Returns all rejected ciphers matching the supplied version
-	# @param version [Symbol] The SSL Version to filter on
-	# @param version [Array] An array of SSL Versions to filter on
+	# @param version [Symbol, Array] The SSL Version to filter on
 	# @raise [ArgumentError] if the version supplied is invalid
 	# @return [Array] An array of rejected cipher details matching the supplied versions
 	def rejected(version = :all)
@@ -173,8 +171,7 @@ class Result
   protected
 
   # @param [Symbol] state Either :accepted or :rejected
-  # @param [Symbol] version The SSL Version to filter on (:SSLv2:SSLv3,:TLSv1)
-  # @param [Array] version An array of SSL Versions to filter on
+  # @param [Symbol, Array] version The SSL Version to filter on (:SSLv2:SSLv3,:TLSv1, :all)
   # @return [Set] The Set of cipher results matching the filter criteria
   def enum_ciphers(state, version = :all)
     case version
