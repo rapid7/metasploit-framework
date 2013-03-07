@@ -170,8 +170,8 @@ class Result
 
 	protected
 
-	# @param [Symbol] state Either :accepted or :rejected
-	# @param [Symbol, Array] version The SSL Version to filter on (:SSLv2:SSLv3,:TLSv1, :all)
+	# @param state [Symbol] Either :accepted or :rejected
+	# @param version [Symbol, Array] The SSL Version to filter on (:SSLv2, :SSLv3, :TLSv1, :all)
 	# @return [Set] The Set of cipher results matching the filter criteria
 	def enum_ciphers(state, version = :all)
 		case version
