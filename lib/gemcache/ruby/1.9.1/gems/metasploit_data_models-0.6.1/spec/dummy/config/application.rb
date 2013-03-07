@@ -2,7 +2,7 @@ require File.expand_path('../boot', __FILE__)
 
 require 'rails/all'
 
-Bundler.require
+Bundler.require(*Rails.groups)
 # require the engine being tested.  In a non-dummy app this would be handled by the engine's gem being in the Gemfile
 # for real app and Bundler.require requiring the gem.
 require 'metasploit_data_models'
