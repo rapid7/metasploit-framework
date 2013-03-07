@@ -26,7 +26,7 @@ describe Rex::SSLScan::Result do
 		end
 
 		it "should return an empty set for ciphers" do
-			subject.ciphers.empty?.should == true
+			subject.ciphers.should be_empty
 		end
 
 		it "should return an empty array for accepted" do
