@@ -161,7 +161,6 @@ module Auxiliary::Web
 			map { |x| x.to_s }.join( '|' ).hash
 
 		return if parent.vulns.include?( vhash )
-		parent.vulns[vhash] = true
 
 		location = opts[:location] ?
 			page.url.merge( URI( opts[:location].to_s )) : page.url
@@ -183,6 +182,7 @@ module Auxiliary::Web
 		}
 
 		info[:confidence]  = calculate_confidence( info )
+		parent.vulns[vhash] = info
 
 		report_web_vuln( info )
 
@@ -196,7 +196,6 @@ module Auxiliary::Web
 			map { |x| x.to_s }.join( '|' ).hash
 
 		return if parent.vulns.include?( vhash )
-		parent.vulns[vhash] = true
 
 		location = URI( opts[:location].to_s )
 		info = {
@@ -216,6 +215,7 @@ module Auxiliary::Web
 		}
 
 		info[:confidence]  = calculate_confidence( info )
+		parent.vulns[vhash] = info
 
 		report_web_vuln( info )
 
