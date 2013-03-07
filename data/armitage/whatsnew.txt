@@ -8,6 +8,11 @@ Armitage Changelog
   creating additional connections to server to balance messages over
 - Preferences are now shared among each Armitage connection.
 
+6 Mar 13 (2000h)
+--------
+- Fixed issue with additional team server connections reporting wrong
+  application and receiving a summary rejection by the team server.
+
 Cortana Updates (for scripters)
 --------
 - Added a &publish, &query, &subscribe API to allow inter-script 
