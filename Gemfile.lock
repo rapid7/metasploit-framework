@@ -1,9 +1,9 @@
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: 0285d6e199f125b33214100dcb0f4eeb12ee765f
-  tag: 0.6.0
+  revision: 7f8e36d9b62a36bcbf43c8f1ab48a07bed0732d9
+  tag: 0.6.1
   specs:
-    metasploit_data_models (0.6.0)
+    metasploit_data_models (0.6.1)
       activerecord (>= 3.2.10)
       activesupport
       pg
