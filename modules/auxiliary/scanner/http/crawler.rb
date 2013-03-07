@@ -123,7 +123,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		# Report the web page to the database
-		report_web_page(info)
+		report_web_page(info) unless page.code == 404
 
 		# Only process interesting response codes
 		return if not [302, 301, 200, 500, 401, 403, 404].include?(page.code)
