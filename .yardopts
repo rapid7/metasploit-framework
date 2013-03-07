@@ -1,0 +1,4 @@
+--protected
+--files CONTRIBUTING.md,COPYING,HACKING,LICENSE
+lib/msf/**/*.rb
+lib/rex/**/*.rb
