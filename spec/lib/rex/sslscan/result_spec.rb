@@ -25,8 +25,8 @@ describe Rex::SSLScan::Result do
 			subject.cert.should == nil
 		end
 
-		it "should return an empty array for ciphers" do
-			subject.ciphers.should == []
+		it "should return an empty set for ciphers" do
+			subject.ciphers.empty?.should == true
 		end
 
 		it "should return an empty array for accepted" do

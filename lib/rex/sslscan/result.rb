@@ -12,7 +12,7 @@ class Result
 
 	def initialize()
 		@cert = nil
-		@ciphers = []
+		@ciphers = Set.new
 		@supported_versions = [:SSLv2, :SSLv3, :TLSv1]
 	end
 
@@ -53,7 +53,8 @@ class Result
 	# @raise [ArgumentError] if the version supplied is invalid
 	# @return [Array] An array of accepted cipher details matching the supplied versions
 	def accepted(version = :all)
-		if version.kind_of? Symbol
+    case version
+		when Symbol
 			case version
 			when :all
 				return @ciphers.reject{|cipher| cipher[:status] == :rejected}
@@ -62,8 +63,8 @@ class Result
 			else
 				raise ArgumentError, "Invalid SSL Version Supplied: #{version}"
 			end
-		elsif version.kind_of? Array 
-			version.reject!{|v| !(@supported_versions.include? v)}
+		when Array
+			version = version.reject{|v| !(@supported_versions.include? v)}
 			if version.empty?
 				return @ciphers.reject{|cipher| cipher[:status] == :rejected}
 			else
@@ -80,7 +81,8 @@ class Result
 	# @raise [ArgumentError] if the version supplied is invalid
 	# @return [Array] An array of rejected cipher details matching the supplied versions
 	def rejected(version = :all)
-		if version.kind_of? Symbol
+    case version
+		when Symbol
 			case version
 			when :all
 				return @ciphers.reject{|cipher| cipher[:status] == :accepted}
@@ -89,8 +91,8 @@ class Result
 			else
 				raise ArgumentError, "Invalid SSL Version Supplied: #{version}"
 			end
-		elsif version.kind_of? Array 
-			version.reject!{|v| !(@supported_versions.include? v)}
+		when Array
+			version = version.reject{|v| !(@supported_versions.include? v)}
 			if version.empty?
 				return @ciphers.reject{|cipher| cipher[:status] == :accepted}
 			else
@@ -173,7 +175,6 @@ class Result
 
 		cipher_details = {:version => version, :cipher => cipher, :key_length => key_length, :weak => weak, :status => status}
 		@ciphers << cipher_details
-		@ciphers.uniq!
 	end
 
 	def to_s
