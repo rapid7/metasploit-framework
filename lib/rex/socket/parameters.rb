@@ -140,8 +140,13 @@ class Rex::Socket::Parameters
 			self.ssl = false
 		end
 
-		if (hash['SSLVersion'] and hash['SSLVersion'].to_s =~ /^(SSL2|SSL3|TLS1)$/i)
+		supported_ssl_versions = ['SSL2', 'SSL23', 'TLS1', 'SSL3', :SSLv2, :SSLv3, :SSLv23, :TLSv1]
+		if (hash['SSLVersion'] and supported_ssl_versions.include? hash['SSLVersion'])
 			self.ssl_version = hash['SSLVersion']
+		end
+
+		if (hash['SSLCipher'])
+			self.ssl_cipher = hash['SSLCipher']
 		end
 
 		if (hash['SSLCert'] and ::File.file?(hash['SSLCert']))
@@ -337,6 +342,11 @@ class Rex::Socket::Parameters
 	# What version of SSL to use (SSL2, SSL3, TLS1)
 	#
 	attr_accessor :ssl_version
+	#
+	# What specific SSL Cipher(s) to use, may be a string containing the cipher name
+	# or an array of strings containing cipher names e.g. ["DHE-RSA-AES256-SHA", "DHE-DSS-AES256-SHA"]
+	#
+	attr_accessor :ssl_cipher
 	#
 	# The SSL certificate, in pem format, stored as a string.  See +SslTcpServer#make_ssl+
 	#
