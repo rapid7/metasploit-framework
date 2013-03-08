@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-##
-# $Id: bourne.rb
-##
 
 require 'rex/text'
 require 'rex/arch'
@@ -21,6 +18,8 @@ class CmdStagerBourne < CmdStagerBase
 
 	def generate(opts = {})
 		opts[:temp] = opts[:temp] || '/tmp/'
+		opts[:temp] = opts[:temp].gsub(/'/, "\\\\'")
+		opts[:temp] = opts[:temp].gsub(/ /, "\\ ")
 		super
 	end
 
@@ -67,18 +66,20 @@ class CmdStagerBourne < CmdStagerBase
 	# Generate the commands that will decode the file we just created
 	#
 	def generate_cmds_decoder(opts)
-		case opts[:decoder]
-		when 'base64'
-			decoder = "base64 --decode #{@tempdir}#{@var_encoded}.b64"
-		when 'openssl'
-			decoder = "openssl enc -d -A -base64 -in #{@tempdir}#{@var_encoded}.b64"
-		when 'python'
-			decoder = "python -c 'import sys; import base64; print base64.standard_b64decode(sys.stdin.read());' < #{@tempdir}#{@var_encoded}.b64"
-		when 'perl'
-			decoder = "perl -MIO -e 'use MIME::Base64; while (<>) { print decode_base64($_); }' < #{@tempdir}#{@var_encoded}.b64"
+		decoders = [
+			"base64 --decode #{@tempdir}#{@var_encoded}.b64",
+			"openssl enc -d -A -base64 -in #{@tempdir}#{@var_encoded}.b64",
+			"python -c 'import sys; import base64; print base64.standard_b64decode(sys.stdin.read());' < #{@tempdir}#{@var_encoded}.b64",
+			"perl -MIO -e 'use MIME::Base64; while (<>) { print decode_base64($_); }' < #{@tempdir}#{@var_encoded}.b64"
+		]
+		decoder_cmd = []
+		decoders.each do |cmd|
+			binary = cmd.split(' ')[0]
+			decoder_cmd << "(which #{binary} >&2 && #{cmd})"
 		end
-		decoder << " > #{@tempdir}#{@var_decoded}.bin"
-		[ decoder ]
+		decoder_cmd = decoder_cmd.join(" || ")
+		decoder_cmd = "(" << decoder_cmd << ") 2> /dev/null > #{@tempdir}#{@var_decoded}.bin"
+		[ decoder_cmd ]
 	end
 
 	def compress_commands(cmds, opts)
