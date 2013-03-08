@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Mdm::WebVuln do
   let(:confidence_range) do
-    1 .. 100
+    0 .. 100
   end
 
   let(:default_params) do

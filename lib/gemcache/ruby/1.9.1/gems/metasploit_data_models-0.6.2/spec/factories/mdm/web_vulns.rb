@@ -25,8 +25,8 @@ FactoryGirl.define do
   end
 
   sequence :mdm_web_vuln_confidence do |n|
-    # range is from 1 to 100 so do mod 99 (0 - 99 range) and add 1 to get correct range
-    (n % 99) + 1
+    # range is from 0 to 100
+    n % 101
   end
 
   method_count = Mdm::WebVuln::METHODS.length
