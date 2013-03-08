@@ -160,7 +160,8 @@ module Auxiliary::Web
 		vhash = [target.to_url, opts[:fingerprint], mode, opts[:location]].
 			map { |x| x.to_s }.join( '|' ).hash
 
-		return if parent.vulns.include?( vhash )
+		parent.vulns[mode] ||= {}
+		return if parent.vulns[mode].include?( vhash )
 
 		location = opts[:location] ?
 			page.url.merge( URI( opts[:location].to_s )) : page.url
@@ -182,7 +183,7 @@ module Auxiliary::Web
 		}
 
 		info[:confidence]  = calculate_confidence( info )
-		parent.vulns[vhash] = info
+		parent.vulns[mode][vhash] = info
 
 		report_web_vuln( info )
 
@@ -195,7 +196,8 @@ module Auxiliary::Web
 		vhash = [target.to_url, mode, opts[:location]].
 			map { |x| x.to_s }.join( '|' ).hash
 
-		return if parent.vulns.include?( vhash )
+		parent.vulns[mode] ||= {}
+		return if parent.vulns[mode].include?( vhash )
 
 		location = URI( opts[:location].to_s )
 		info = {
@@ -215,7 +217,7 @@ module Auxiliary::Web
 		}
 
 		info[:confidence]  = calculate_confidence( info )
-		parent.vulns[vhash] = info
+		parent.vulns[mode][vhash] = info
 
 		report_web_vuln( info )
 
