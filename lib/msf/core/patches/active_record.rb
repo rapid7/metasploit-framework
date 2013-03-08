@@ -7,7 +7,7 @@ class ConnectionPool
       # XXX: This fixes the logic around whether a connection allocated is "fresh"
       #      AR incorrectly assumed that if any connection was established, it should
       #      no longer free the allocated connection.
-      
+
       # Check to see if there is an active thread connection
       def active_thread_connection?(with_id = current_connection_id)
         @reserved_connections.has_key?(with_id)
@@ -77,12 +77,12 @@ class ConnectionPool
                 raise ConnectionTimeoutError, "could not obtain a database connection#{" within #{@timeout} seconds" if @timeout}. The max pool size is currently #{@size}; consider increasing it or the wait_timeout parameter"
               end
             end
-          end            
+          end
         end
-      end            
-      
-      
-      
+      end
+
+
+
 end
 end
 end
