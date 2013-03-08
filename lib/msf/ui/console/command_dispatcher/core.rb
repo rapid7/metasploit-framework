@@ -68,6 +68,9 @@ class Core
 	@@search_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner."                                   ])
 
+	@@go_pro_opts = Rex::Parser::Arguments.new(
+		"-h" => [ false, "Help banner."                                   ])
+
 	# The list of data store elements that cannot be set when in defanged
 	# mode.
 	DefangedProhibitedDataStoreElements = [ "MsfModulePaths" ]
@@ -82,6 +85,7 @@ class Core
 			"connect"  => "Communicate with a host",
 			"color"    => "Toggle color",
 			"exit"     => "Exit the console",
+			"go_pro"   => "Launch Metasploit web GUI",
 			"help"     => "Help menu",
 			"info"     => "Displays information about one or more module",
 			"irb"      => "Drop into irb scripting mode",
@@ -89,7 +93,7 @@ class Core
 			"kill"     => "Kill a job",
 			"load"     => "Load a framework plugin",
 			"loadpath" => "Searches for and loads modules from a path",
-			"popm"     => "Pops the latest module off of the module stack and makes it active",
+			"popm"     => "Pops the latest module off the stack and makes it active",
 			"pushm"    => "Pushes the active or list of modules onto the module stack",
 			"previous" => "Sets the previously loaded module as the current module",
 			"quit"     => "Exit the console",
@@ -131,6 +135,17 @@ class Core
 	#
 	def name
 		"Core"
+	end
+
+	# Indicates the base dir where Metasploit Framework is installed.
+	def msfbase_dir
+		base = __FILE__
+		while File.symlink?(base)
+			base = File.expand_path(File.readlink(base), File.dirname(base))
+		end
+		File.expand_path(
+			File.join(File.dirname(base), "..","..","..","..","..")
+		)
 	end
 
 	def cmd_color_help
@@ -340,6 +355,20 @@ class Core
 	#
 	def cmd_banner(*args)
 		banner  = "%cya" + Banner.to_s + "%clr\n\n"
+
+		if is_apt
+			content = [
+				"Large pentest? List, sort, group, tag and search your hosts and services\nin Metasploit Pro -- type 'go_pro' to launch it now.",
+				"Frustrated with proxy pivoting? Upgrade to layer-2 VPN pivoting with\nMetasploit Pro -- type 'go_pro' to launch it now.",
+				"Save your shells from AV! Upgrade to advanced AV evasion using dynamic\nexe templates with Metasploit Pro -- type 'go_pro' to launch it now.",
+				"Easy phishing: Set up email templates, landing pages and listeners\nin Metasploit Pro’s wizard -- type 'go_pro' to launch it now.",
+				"Using notepad to track pentests? Have Metasploit Pro report on hosts,\nservices, sessions and evidence -- type 'go_pro' to launch it now.",
+				"Tired of typing ‘set RHOSTS’? Click & pwn with Metasploit Pro\n-- type 'go_pro' to launch it now."
+			]
+			banner << content.sample # Ruby 1.9-ism!
+			banner << "\n\n"
+		end
+
 		banner << "       =[ %yelmetasploit v#{Msf::Framework::Version} [core:#{Msf::Framework::VersionCore} api:#{Msf::Framework::VersionAPI}]%clr\n"
 		banner << "+ -- --=[ "
 		banner << "#{framework.stats.num_exploits} exploits - #{framework.stats.num_auxiliary} auxiliary - #{framework.stats.num_post} post\n"
@@ -347,6 +376,7 @@ class Core
 
 		oldwarn = nil
 		avdwarn = nil
+
 		banner << "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops\n"
 		if ( ::Msf::Framework::RepoRevision.to_i > 0 and ::Msf::Framework::RepoUpdatedDate)
 			tstamp = ::Msf::Framework::RepoUpdatedDate.strftime("%Y.%m.%d")
@@ -2575,7 +2605,124 @@ class Core
 		return res
 	end
 
-protected
+	def cmd_go_pro_help
+		print_line "Usage: go_pro"
+		print_line
+		print_line "Launch the Metasploit web GUI"
+		print_line
+	end
+
+	def cmd_go_pro(*args)
+		@@go_pro_opts.parse(args) do |opt, idx, val|
+			case opt
+			when "-h"
+				cmd_go_pro_help
+				return false
+			end
+		end
+		unless is_apt
+			print_line " This command is only available on deb package installations,"
+			print_line " such as Kali Linux."
+			return false
+		end
+		unless is_metasploit_debian_package_installed
+			print_warning "You need to install the 'metasploit' package first."
+			print_warning "Type 'apt-get install -y metasploit' to do this now, then exit"
+			print_warning "and restart msfconsole to try again."
+			return false
+		end
+		# If I've gotten this far, I know that this is apt-installed, the
+		# metasploit package is here, and I'm ready to rock.
+		if is_metasploit_service_running
+			launch_metasploit_browser
+		else
+			print_status "Starting the Metasploit services. This can take a little time."
+			start_metasploit_service
+			select(nil,nil,nil,3)
+			if is_metasploit_service_running
+				launch_metasploit_browser
+			else
+				print_error "Metasploit services aren't running. Type 'service metasploit start' and try again."
+			end
+		end
+		return true
+	end
+
+	protected
+
+	#
+	# Go_pro methods -- these are used to start and connect to
+	# Metasploit Community / Pro.
+	#
+
+	# Note that this presumes a default port.
+	def launch_metasploit_browser
+		cmd = "/usr/bin/xdg-open"
+		unless ::File.executable_real? cmd
+			print_warning "Can't figure out your default browser, please visit https://localhost:3790"
+			print_warning "to start Metasploit Community / Pro."
+			return false
+		end
+		svc_log = File.expand_path(File.join(msfbase_dir, ".." , "engine", "prosvc_stdout.log"))
+		return unless ::File.readable_real? svc_log
+		really_started = false
+		# This method is a little lame but it's a short enough file that it
+		# shouldn't really matter that we open and close it a few times.
+		timeout = 0
+		until really_started
+			select(nil,nil,nil,3)
+			log_data = ::File.open(svc_log, "rb") {|f| f.read f.stat.size}
+			really_started = log_data =~ /^\[\*\] Ready/ # This is webserver ready
+			if really_started
+				print_line
+				print_good "Metasploit Community / Pro is up and running, connecting now."
+				print_good "If this is your first time connecting, you will be presented with"
+				print_good "a self-signed certificate warning. Accept it to create a new user."
+				select(nil,nil,nil,7)
+				browser_pid = ::Process.spawn(cmd, "https://localhost:3790")
+				::Process.detach(browser_pid)
+			elsif timeout >= 200 # 200 * 3 seconds is 10 minutes and that is tons of time.
+				print_line
+				print_warning "For some reason, Community / Pro didn't start in a timely fashion."
+				print_warning "You might want to restart the Metasploit services by typing"
+				print_warning "'service metasploit restart' . Sorry it didn't work out."
+				return false
+			else
+				print "."
+				timeout += 1
+			end
+		end
+	end
+
+	def start_metasploit_service
+		cmd = File.expand_path(File.join(msfbase_dir, '..', '..', '..', 'scripts', 'start.sh'))
+		return unless ::File.executable_real? cmd
+		%x{#{cmd}}.each_line do |line|
+			print_status line.chomp
+		end
+	end
+
+	def is_metasploit_service_running
+		cmd = "/usr/sbin/service"
+		system("#{cmd} metasploit status >/dev/null") # Both running returns true, otherwise, false.
+	end
+
+	def is_metasploit_debian_package_installed
+		cmd = "/usr/bin/dpkg"
+		return unless ::File.executable_real? cmd
+		installed_packages = %x{#{cmd} -l 'metasploit'}
+		installed_packages.each_line do |line|
+			if line =~ /^.i  metasploit / # Yes, trailing space
+				return true
+			end
+		end
+		return false
+	end
+
+	# Determines if this is an apt-based install
+	def is_apt
+		File.exists?(File.expand_path(File.join(msfbase_dir, '.apt')))
+	end
 
 	#
 	# Module list enumeration

@@ -20,11 +20,11 @@ CONST = Rex::Proto::SMB::Constants
 		}
 		return access
 	end
-	
+
 	# Creates a mode mask for use with the CLIENT.open() call based on a string
 	def self.open_mode_to_mode(str)
 		mode = 0
-		
+
 		str.each_byte { |c|
 			case [c].pack('C').downcase
 				when 'x' # Fail if the file already exists
@@ -32,7 +32,7 @@ CONST = Rex::Proto::SMB::Constants
 				when 't' # Truncate the file if it already exists
 					mode |= CONST::OPEN_MODE_TRUNC
 				when 'c' # Create the file if it does not exist
-					mode |= CONST::OPEN_MODE_CREAT	
+					mode |= CONST::OPEN_MODE_CREAT
 				when 'o' # Just open the file, clashes with x
 					mode |= CONST::OPEN_MODE_OPEN
 			end
@@ -40,7 +40,7 @@ CONST = Rex::Proto::SMB::Constants
 
 		return mode
 	end
-	
+
 	# Returns a disposition value for smb.create based on permission string
 	def self.create_mode_to_disposition(str)
 		str.each_byte { |c|
@@ -83,7 +83,7 @@ CONST = Rex::Proto::SMB::Constants
 		end
 		return encoded
 	end
-	
+
 	# Convert a name from its NetBIOS equivalent
 	def self.nbname_decode(str)
 		decoded = ''

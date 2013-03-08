@@ -57,7 +57,7 @@ if(RUBY_PLATFORM == 'java')
 	trap Signal::list['INT'] do
 		Thread.main.raise Interrupt.new
 	end
-	
+
 	s.close
 end
 

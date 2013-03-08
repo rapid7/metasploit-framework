@@ -188,7 +188,9 @@ module Anemone
 			context,
 			url.scheme == "https",
 			'SSLv23',
-			@opts[:proxies]
+			@opts[:proxies],
+                    @opts[:username],
+                    @opts[:password]
 		)
 
 		conn.set_config(

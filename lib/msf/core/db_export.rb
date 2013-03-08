@@ -376,17 +376,17 @@ class Export
 				d.attributes.each_pair do |k,v|
 					el = create_xml_element(k,v)
 					report_file.write("        #{el}\n")
-				end					
+				end
 			end
 			report_file.write("    </module_authors>\n")
-			
+
 			# Refs sub-elements
 			report_file.write("    <module_refs>\n")
 			m.refs.find(:all).each do |d|
 				d.attributes.each_pair do |k,v|
 					el = create_xml_element(k,v)
 					report_file.write("        #{el}\n")
-				end					
+				end
 			end
 			report_file.write("    </module_refs>\n")
 
@@ -397,7 +397,7 @@ class Export
 				d.attributes.each_pair do |k,v|
 					el = create_xml_element(k,v)
 					report_file.write("        #{el}\n")
-				end					
+				end
 			end
 			report_file.write("    </module_archs>\n")
 
@@ -408,7 +408,7 @@ class Export
 				d.attributes.each_pair do |k,v|
 					el = create_xml_element(k,v)
 					report_file.write("        #{el}\n")
-				end					
+				end
 			end
 			report_file.write("    </module_platforms>\n")
 
@@ -419,7 +419,7 @@ class Export
 				d.attributes.each_pair do |k,v|
 					el = create_xml_element(k,v)
 					report_file.write("        #{el}\n")
-				end					
+				end
 			end
 			report_file.write("    </module_targets>\n")
 
@@ -429,7 +429,7 @@ class Export
 				d.attributes.each_pair do |k,v|
 					el = create_xml_element(k,v)
 					report_file.write("        #{el}\n")
-				end					
+				end
 			end
 			report_file.write("    </module_actions>\n")
 
@@ -439,7 +439,7 @@ class Export
 				d.attributes.each_pair do |k,v|
 					el = create_xml_element(k,v)
 					report_file.write("        #{el}\n")
-				end					
+				end
 			end
 			report_file.write("    </module_mixins>\n")
 
@@ -468,7 +468,7 @@ class Export
 					el = create_xml_element(k,v)
 					report_file.write("            #{el}\n")
 				end
-				report_file.write("        </host_detail>\n")			
+				report_file.write("        </host_detail>\n")
 			end
 			report_file.write("    </host_details>\n")
 
@@ -479,7 +479,7 @@ class Export
 				d.attributes.each_pair do |k,v|
 					el = create_xml_element(k,v)
 					report_file.write("            #{el}\n")
-				end					
+				end
 				report_file.write("        </exploit_attempt>\n")
 			end
 			report_file.write("    </exploit_attempts>\n")
@@ -516,7 +516,7 @@ class Export
 					el = create_xml_element(k,v)
 					report_file.write("      #{el}\n")
 				end
-				
+
 				# References
 				report_file.write("        <refs>\n")
 				e.refs.each do |ref|
@@ -534,7 +534,7 @@ class Export
 						el = create_xml_element(k,v)
 						report_file.write("                    #{el}\n")
 					end
-					report_file.write("                </vuln_detail>\n")				
+					report_file.write("                </vuln_detail>\n")
 				end
 				report_file.write("            </vuln_details>\n")
 
@@ -547,7 +547,7 @@ class Export
 						el = create_xml_element(k,v)
 						report_file.write("                    #{el}\n")
 					end
-					report_file.write("                </vuln_attempt>\n")		
+					report_file.write("                </vuln_attempt>\n")
 				end
 				report_file.write("            </vuln_attempts>\n")
 

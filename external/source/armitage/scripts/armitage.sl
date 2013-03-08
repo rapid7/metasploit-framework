@@ -15,7 +15,7 @@ import graph.*;
 
 import java.awt.image.*;
 
-global('$frame $tabs $menubar $msfrpc_handle $REMOTE $cortana $MY_ADDRESS $DESCRIBE @CLOSEME');
+global('$frame $tabs $menubar $msfrpc_handle $REMOTE $cortana $MY_ADDRESS $DESCRIBE @CLOSEME @POOL');
 
 sub describeHost {
 	local('$desc');
@@ -164,19 +164,31 @@ sub _connectToMetasploit {
 				$client = [new MsgRpcImpl: $3, $4, $1, long($2), $null, $debug];
 				$aclient = [new RpcAsync: $client];
 				$mclient = $client;
+				push(@POOL, $aclient);
 				initConsolePool();
 				$DESCRIBE = "localhost";
 			}
 			# we have a team server... connect and authenticate to it.
 			else {
+				[$progress setNote: "Connected: logging in"];
 				$client = c_client($1, $2);
-				setField(^msf.MeterpreterSession, DEFAULT_WAIT => 20000L);
 				$mclient = setup_collaboration($3, $4, $1, $2);
 				$aclient = $mclient;
 
 				if ($mclient is $null) {
 					[$progress close];
 					return;
+				}
+				else {
+					[$progress setNote: "Connected: authenticated"];
+				}
+
+				# create six additional connections to team server... for balancing consoles.
+				local('$x $cc');
+				for ($x = 0; $x < 6; $x++) {
+					$cc = c_client($1, $2);
+					call($cc, "armitage.validate", $3, $4, $null, "armitage", 120326);
+					push(@POOL, $cc);
 				}
 			}
 			$flag = $null;

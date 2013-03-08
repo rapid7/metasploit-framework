@@ -147,7 +147,7 @@ class EncodedPayload
 						'core', LEV_1)
 					next
 				end
-				
+
 				# Import the datastore from payload (and likely exploit by proxy)
 				self.encoder.share_datastore(pinst.datastore)
 
@@ -276,7 +276,7 @@ class EncodedPayload
 			nops.each { |nopname, nopmod|
 				# Create an instance of the nop module
 				self.nop = nopmod.new
-				
+
 				# Propagate options from the payload and possibly exploit
 				self.nop.share_datastore(pinst.datastore)
 

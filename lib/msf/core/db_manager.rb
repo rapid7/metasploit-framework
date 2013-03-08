@@ -56,9 +56,6 @@ class DBManager
 	# Flag to indicate database migration has completed
 	attr_accessor :migrated
 
-	# Array of additional migration paths
-	attr_accessor :migration_paths
-
 	# Flag to indicate that modules are cached
 	attr_accessor :modules_cached
 
@@ -69,7 +66,6 @@ class DBManager
 
 		self.framework = framework
 		self.migrated  = false
-		self.migration_paths = [ ::File.join(Msf::Config.install_root, "data", "sql", "migrate") ]
 		self.modules_cached  = false
 		self.modules_caching = false
 
@@ -85,13 +81,6 @@ class DBManager
 	end
 
 	#
-	# Add additional migration paths
-	#
-	def add_migration_path(path)
-		self.migration_paths.push(path)
-	end
-
-	#
 	# Do what is necessary to load our database support
 	#
 	def initialize_database_support
@@ -101,8 +90,7 @@ class DBManager
 
 			require "active_record"
 
-			# Provide access to ActiveRecord models shared w/ commercial versions
-			require "metasploit_data_models"
+			initialize_metasploit_data_models
 
 			# Patches issues with ActiveRecord
 			require "msf/core/patches/active_record"
@@ -165,6 +153,20 @@ class DBManager
 
 		# Database drivers can reset our KCODE, do not let them
 		$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
+	end
+
+	# Loads Metasploit Data Models and adds its migrations to migrations paths.
+	#
+	# @return [void]
+	def initialize_metasploit_data_models
+		# Provide access to ActiveRecord models shared w/ commercial versions
+		require "metasploit_data_models"
+
+		metasploit_data_model_migrations_pathname = MetasploitDataModels.root.join(
+				'db',
+				'migrate'
+		)
+		ActiveRecord::Migrator.migrations_paths << metasploit_data_model_migrations_pathname.to_s
 	end
 
 	#
@@ -279,45 +281,31 @@ class DBManager
 		end
 	end
 
+	# Migrate database to latest schema version.
 	#
-	# Migrate database to latest schema version
+	# @param verbose [Boolean] see ActiveRecord::Migration.verbose
+	# @return [Array<ActiveRecord::MigrationProxy] List of migrations that ran.
 	#
+	# @see ActiveRecord::Migrator.migrate
 	def migrate(verbose=false)
+		ran = []
+		ActiveRecord::Migration.verbose = verbose
 
-		temp_dir = ::File.expand_path(::File.join( Msf::Config.config_directory, "schema", "#{Time.now.to_i}_#{$$}" ))
-		::FileUtils.rm_rf(temp_dir)
-		::FileUtils.mkdir_p(temp_dir)
-
-		self.migration_paths.each do |mpath|
-			dir = Dir.new(mpath) rescue nil
-			if not dir
-				elog("Could not access migration path #{mpath}")
-				next
-			end
-
-			dir.entries.each do |ent|
-				next unless ent =~ /^\d+.*\.rb$/
-				::FileUtils.cp( ::File.join(mpath, ent), ::File.join(temp_dir, ent) )
+		ActiveRecord::Base.connection_pool.with_connection do
+			begin
+				ran = ActiveRecord::Migrator.migrate(
+						ActiveRecord::Migrator.migrations_paths
+				)
+			# ActiveRecord::Migrator#migrate rescues all errors and re-raises them as
+			# StandardError
+			rescue StandardError => error
+				self.error = error
+				elog("DB.migrate threw an exception: #{error}")
+				dlog("Call stack:\n#{error.backtrace.join "\n"}")
 			end
 		end
 
-		success = true
-		begin
-
-			::ActiveRecord::Base.connection_pool.with_connection {
-				ActiveRecord::Migration.verbose = verbose
-				ActiveRecord::Migrator.migrate(temp_dir, nil)
-			}
-		rescue ::Exception => e
-			self.error = e
-			elog("DB.migrate threw an exception: #{e}")
-			dlog("Call stack:\n#{e.backtrace.join "\n"}")
-			success = false
-		end
-
-		::FileUtils.rm_rf(temp_dir)
-
-		return true
+		return ran
 	end
 
 	def workspace=(workspace)
@@ -497,6 +485,14 @@ class DBManager
 
 			m.targets.each_index do |i|
 				bits << [ :target, { :index => i, :name => m.targets[i].name.to_s } ]
+				if m.targets[i].platform
+					m.targets[i].platform.platforms.each do |name|
+						bits << [ :platform, { :name => name.to_s.split('::').last.downcase } ]
+					end
+				end
+				if m.targets[i].arch
+					bits << [ :arch, { :name => m.targets[i].arch.to_s } ]
+				end
 			end
 
 			if (m.default_target)
@@ -525,7 +521,7 @@ class DBManager
 			res[:stance] = m.passive? ? "passive" : "aggressive"
 		end
 
-		res[:bits] = bits
+		res[:bits] = bits.uniq
 
 		res
 	end

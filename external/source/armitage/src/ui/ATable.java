@@ -10,7 +10,47 @@ import table.*;
 import java.util.*;
 
 public class ATable extends JTable {
+	public static final String indicator = " \u271A";
+
 	protected boolean alternateBackground = false;
+
+	protected int[] selected = null;
+
+	/* call this function to store selections */
+	public void markSelections() {
+		selected = getSelectedRows();
+	}
+
+	public void fixSelection() {
+		if (selected.length == 0)
+			return;
+
+		getSelectionModel().setValueIsAdjusting(true);
+
+		int rowcount = getModel().getRowCount();
+
+		for (int x = 0; x < selected.length; x++) {
+			if (selected[x] < rowcount) {
+				getSelectionModel().addSelectionInterval(selected[x], selected[x]);
+			}
+		}
+
+		getSelectionModel().setValueIsAdjusting(false);
+	}
+
+	/* call this function to restore selections after a table update */
+	public void restoreSelections() {
+		if (!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					fixSelection();
+				}
+			});
+		}
+		else {
+			fixSelection();
+		}
+	}
 
 	public static TableCellRenderer getDefaultTableRenderer(final JTable table, final TableModel model) {
 		final Set specialitems = new HashSet();
@@ -39,7 +79,7 @@ public class ATable extends JTable {
 				String content = (value != null ? value : "") + "";
 
 				if (specialitems.contains(content) || content.indexOf("FILE")!= -1) {
-					content = content + " \u271A";
+					content = content + indicator;
 				}
 
 				JComponent c = (JComponent)render.getTableCellRendererComponent(table, content, isSelected, false, row, column);
@@ -104,6 +144,47 @@ public class ATable extends JTable {
 					if (size > 1024) {
 						size = size / 1024;
 						units = "gb";
+					}
+
+					((JLabel)c).setText(size + units);
+				}
+				catch (Exception ex) {
+
+				}
+
+				return c;
+			}
+		};
+	}
+
+	public static TableCellRenderer getTimeTableRenderer() {
+		return new TableCellRenderer() {
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)  {
+				TableCellRenderer render = table.getDefaultRenderer(String.class);
+
+				JComponent c = (JComponent)render.getTableCellRendererComponent(table, "", isSelected, false, row, column);
+
+				try {
+					long size = Long.parseLong(value + "");
+					String units = "ms";
+
+					if (size > 1000) {
+						size = size / 1000;
+						units = "s";
+					}
+					else {
+						((JLabel)c).setText(size + units);
+						return c;
+					}
+
+					if (size > 60) {
+						size = size / 60;
+						units = "m";
+					}
+
+					if (size > 60) {
+						size = size / 60;
+						units = "h";
 					}
 
 					((JLabel)c).setText(size + units);

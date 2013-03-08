@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -21,8 +17,7 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Unix Command Shell, Double reverse TCP SSL (telnet)',
-			'Version'       => '$Revision$',
+			'Name'          => 'Unix Command Shell, Double Reverse TCP SSL (telnet)',
 			'Description'   => 'Creates an interactive shell through two inbound connections, encrypts using SSL via "-z" option',
 			'Author'        => [
 				'hdm',	# Original module

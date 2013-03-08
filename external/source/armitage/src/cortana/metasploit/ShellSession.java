@@ -75,7 +75,8 @@ public class ShellSession implements Runnable {
 
 			/* loop forever waiting for response to come back. If session is dead
 			   then this loop will break with an exception */
-			while (true) {
+			long start = System.currentTimeMillis();
+			while ((System.currentTimeMillis() - start) < 60000) {
 				response = readResponse();
 				String data = (response.get("data") + "");
 
@@ -95,6 +96,7 @@ public class ShellSession implements Runnable {
 
 				Thread.sleep(100);
 			}
+			System.err.println(session + " -> " + c.text + " (took longer than anticipated, dropping: " + (System.currentTimeMillis() - start) + ")");
 		}
 		catch (Exception ex) {
 			System.err.println(session + " -> " + c.text + " ( " + response + ")");

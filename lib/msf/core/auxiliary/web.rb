@@ -161,7 +161,6 @@ module Auxiliary::Web
 			map { |x| x.to_s }.join( '|' ).hash
 
 		return if parent.vulns.include?( vhash )
-		parent.vulns[vhash] = true
 
 		location = opts[:location] ?
 			page.url.merge( URI( opts[:location].to_s )) : page.url
@@ -179,9 +178,11 @@ module Auxiliary::Web
 			:blame		=> details[:blame],
 			:category	=> details[:category],
 			:description => details[:description],
-			:confidence  => details[:category] || opts[:confidence] || 100,
 			:owner	  => self
 		}
+
+		info[:confidence]  = calculate_confidence( info )
+		parent.vulns[vhash] = info
 
 		report_web_vuln( info )
 
@@ -195,7 +196,6 @@ module Auxiliary::Web
 			map { |x| x.to_s }.join( '|' ).hash
 
 		return if parent.vulns.include?( vhash )
-		parent.vulns[vhash] = true
 
 		location = URI( opts[:location].to_s )
 		info = {
@@ -211,9 +211,11 @@ module Auxiliary::Web
 			:blame		 => details[:blame],
 			:category	 => details[:category],
 			:description => details[:description],
-			:confidence  => details[:category] || opts[:confidence] || 100,
 			:owner		 => self
 		}
+
+		info[:confidence]  = calculate_confidence( info )
+		parent.vulns[vhash] = info
 
 		report_web_vuln( info )
 
@@ -278,7 +280,7 @@ module Auxiliary::Web
 		report_web_vuln( info )
 
 		print_good "	VULNERABLE(#{mode.to_s.upcase}) URL(#{target.to_url})" +
-					   " PARAMETER(#{element.altered}) VALUES(#{element.params})"
+						" PARAMETER(#{element.altered}) VALUES(#{element.params})"
 		print_good "		 PROOF(#{proof})"
 	end
 
