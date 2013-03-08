@@ -34,7 +34,7 @@ module Banner
     base = File.expand_path(File.dirname(__FILE__))
     pathname = File.join(base, "logos", fname)
     fdata = "<< Missing banner: #{fname} >>"
-    begin 
+    begin
       raise ArgumentError unless File.readable?(pathname)
       raise ArgumentError unless File.stat(pathname).size < 4096
       fdata = File.open(pathname) {|f| f.read f.stat.size}

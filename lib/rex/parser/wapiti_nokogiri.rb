@@ -64,7 +64,7 @@ module Rex
 		def report_vuln(&block)
 			proto = @state[:url].split(":")[0]
 			path = '/' + (@state[:url].split("/")[3..(@state[:url].split("/").length - 1)].join('/'))
-		
+
 			web_vuln_info = {}
 			web_vuln_info[:web_site] = proto + "://" + @state[:host] + ":" + @state[:port]
 			web_vuln_info[:path] = path
@@ -85,7 +85,7 @@ module Rex
 				elsif param.index("alert")
 					web_vuln_info[:pname] = param.split('=')[0] #xss
 				end
-			end	
+			end
 
 			web_vuln_info[:host] = @state[:host]
 			web_vuln_info[:port] = @state[:port]

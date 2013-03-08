@@ -61,7 +61,7 @@ class Opty2
 					# Skip it if it's masked off or too large
 					next if ((e & mask) != 0)
 					next if (((e >> 8) & 0xff) > slen)
-					
+
 					byte = e & 0xff
 
 					# Skip it if it's a bad byte

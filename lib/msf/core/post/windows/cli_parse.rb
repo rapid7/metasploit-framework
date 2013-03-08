@@ -14,7 +14,7 @@ module CliParse
 	class ParseError < ArgumentError
 
 		#
-		# Create a new ParseError object. Expects a method name, an error 
+		# Create a new ParseError object. Expects a method name, an error
 		# message, an error code, and the command that caused the error.
 		#
 		def initialize(method, einfo='', ecode=nil, clicmd=nil)

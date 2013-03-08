@@ -77,7 +77,7 @@ module Auxiliary
 				Proc.new { |ctx_| self.job_cleanup_proc(ctx_) }
 			)
 			# Propagate this back to the caller for console mgmt
-			omod.job_id = mod.job_id			
+			omod.job_id = mod.job_id
 		else
 			self.job_run_proc(ctx)
 			self.job_cleanup_proc(ctx)

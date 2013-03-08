@@ -39,7 +39,7 @@ class ImageSource
 		end
 		return string
 	end
-		
+
 
 end
 

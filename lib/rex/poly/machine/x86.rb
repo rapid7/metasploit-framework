@@ -2,7 +2,7 @@
 module Rex
 
 	module Poly
-	
+
 		#
 		# A subclass to represent a Rex poly machine on the x86 architecture.
 		#
@@ -19,25 +19,25 @@ module Rex
 				@reg_available << Rex::Arch::X86::EDI
 				@reg_available << Rex::Arch::X86::EBP
 				@reg_available << Rex::Arch::X86::ESP
-				
-				# By default we consume the EBP register if badchars contains \x00. This helps speed 
-				# things up greatly as many instructions opperating on EBP introduce a NULL byte. For 
-				# example, a MOV instruction with EAX as the source operand is as follows: 
+
+				# By default we consume the EBP register if badchars contains \x00. This helps speed
+				# things up greatly as many instructions opperating on EBP introduce a NULL byte. For
+				# example, a MOV instruction with EAX as the source operand is as follows:
 				#     8B08    mov ecx, [eax]
-				# but the same instruction with EBP as the source operand is as follows:  
+				# but the same instruction with EBP as the source operand is as follows:
 				#     8B4D00  mov ecx, [ebp] ; This is assembled as 'mov ecx, [ebp+0]'
 				# we can see that EBP is encoded differently with an offset included. We can still
-				# try to generate a solution with EBP included and \x00 in the badchars list but 
+				# try to generate a solution with EBP included and \x00 in the badchars list but
 				# it can take considerably longer.
 				if( ( consume_base_pointer.nil? and not Rex::Text.badchar_index( "\x00", @badchars ).nil? ) or consume_base_pointer == true )
 					create_variable( 'base_pointer', 'ebp' )
 				end
-				
+
 				# By default we consume the ESP register to avoid munging the stack.
 				if( consume_stack_pointer )
 					create_variable( 'stack_pointer', 'esp' )
 				end
-				
+
 				# discover all the safe FPU instruction we can use.
 				@safe_fpu_instructions = ::Array.new
 				Rex::Arch::X86.fpu_instructions.each do | fpu |
@@ -46,17 +46,17 @@ module Rex
 					end
 				end
 			end
-			
+
 			#
 			# The general purpose registers are 32bit
 			#
 			def native_size
 				Rex::Poly::Machine::DWORD
 			end
-			
+
 			#
 			# Overload this method to intercept the 'set' primitive with the 'location' keyword
-			# and create the block with the '_set_variable_location'. We do this to keep a 
+			# and create the block with the '_set_variable_location'. We do this to keep a
 			# consistent style.
 			#
 			def create_block_primitive( block_name, primitive_name, *args )
@@ -66,10 +66,10 @@ module Rex
 					super
 				end
 			end
-			
+
 			#
-			# XXX: If we have a loop primitive, it is a decent speed bump to force the associated variable 
-			# of the first loop primitive to be assigned as ECX (for the x86 LOOP instruction), this is not 
+			# XXX: If we have a loop primitive, it is a decent speed bump to force the associated variable
+			# of the first loop primitive to be assigned as ECX (for the x86 LOOP instruction), this is not
 			# neccasary but can speed generation up significantly.
 			#
 			#def generate
@@ -83,7 +83,7 @@ module Rex
 			#	# ...go go go
 			#	super
 			#end
-			
+
 			protected
 
 			#
@@ -95,7 +95,7 @@ module Rex
 				if( size.nil? )
 					size = native_size()
 				end
-				
+
 				if( size == Rex::Poly::Machine::DWORD )
 					value = Rex::Arch::X86::REG_NAMES32[ regnum ]
 				elsif( size == Rex::Poly::Machine::WORD )
@@ -108,7 +108,7 @@ module Rex
 				end
 				return value
 			end
-				
+
 			#
 			# Create the x86 primitives.
 			#
@@ -118,7 +118,7 @@ module Rex
 				# Create the '_set_variable_location' primitive. The first param it the variable to place the current
 				# blocks location value in.
 				#
-				_create_primitive( '_set_variable_location', 
+				_create_primitive( '_set_variable_location',
 					::Proc.new do | block, machine, variable |
 						if( @safe_fpu_instructions.empty? )
 							raise UnallowedPermutation
@@ -182,12 +182,12 @@ module Rex
 						]
 					end
 				)
-				
+
 				#
-				# Create the 'loop' primitive. The first param it the counter variable which holds the number of 
+				# Create the 'loop' primitive. The first param it the counter variable which holds the number of
 				# times to perform the loop. The second param it the destination block to loop to.
 				#
-				_create_primitive( 'loop', 
+				_create_primitive( 'loop',
 					::Proc.new do | block, machine, counter, destination |
 						if( machine.variable_value( counter ) != Rex::Arch::X86::REG_NAMES32[ Rex::Arch::X86::ECX ] )
 							# we raise and UndefinedPermutation exception to indicate that untill a valid register (ECX) is
@@ -208,12 +208,12 @@ module Rex
 						]
 					end
 				)
-				
+
 				#
 				# Create the 'xor' primitive. The first param it the variable to xor with the second param value which
 				# can be either a variable, literal or block offset.
 				#
-				_create_primitive( 'xor', 
+				_create_primitive( 'xor',
 					::Proc.new do | block, machine, variable, value |
 						[
 							"xor #{machine.variable_value( variable )}, #{machine.resolve_value( value )}"
@@ -230,11 +230,11 @@ module Rex
 						]
 					end
 				)
-				
+
 				#
 				# Create the 'goto' primitive. The first param is a destination block to jump to.
 				#
-				_create_primitive( 'goto', 
+				_create_primitive( 'goto',
 					::Proc.new do | block, machine, destination |
 						offset = -( machine.block_offset( machine.block_next( block ) ) - machine.block_offset( destination ) )
 						if( ( offset > 0 and offset > 127 ) or ( offset < 0 and offset < -127 ) )
@@ -253,13 +253,13 @@ module Rex
 						]
 					end
 				)
-				
+
 				#
 				# Create the 'add' primitive. The first param it the variable which will be added to the second
-				# param, which may either be a literal number value, a variables assigned register or a block 
+				# param, which may either be a literal number value, a variables assigned register or a block
 				# name, in which case the block offset will be used.
 				#
-				_create_primitive( 'add', 
+				_create_primitive( 'add',
 					::Proc.new do | block, machine, variable, value |
 						if( machine.variable_exist?( value ) )
 							raise UnallowedPermutation
@@ -276,7 +276,7 @@ module Rex
 						]
 					end,
 					::Proc.new do | block, machine, variable, value |
-						[ 
+						[
 							"add #{machine.variable_value( variable )}, #{machine.resolve_value( value )}"
 						]
 					end,
@@ -284,7 +284,7 @@ module Rex
 						if( machine.variable_exist?( value ) )
 							raise UnallowedPermutation
 						end
-						[ 
+						[
 							"sub #{machine.variable_value( variable )}, #{ "0x%08X" % [ ~(machine.resolve_value( value ) - 1) & 0xFFFFFFFF ] }"
 						]
 					end
@@ -311,12 +311,12 @@ module Rex
 						# ]
 					# end,
 				)
-				
+
 				#
 				# Create the 'set' primitive. The first param it the variable which will be set. the second
 				# param is the value to set the variable to (a variable, block or literal).
 				#
-				_create_primitive( 'set', 
+				_create_primitive( 'set',
 					::Proc.new do | block, machine, variable, value |
 						if( machine.variable_exist?( value ) )
 							raise UnallowedPermutation
@@ -385,13 +385,13 @@ module Rex
 						]
 					end
 				)
-			
+
 				#
 				# Create the 'load' primitive. The first param it the variable which will be set. The second
 				# param is the value (either a variable or literal) to load from. the third param is the size
 				# of the load operation, either DWORD, WORD or BYTE.
 				#
-				_create_primitive( 'load', 
+				_create_primitive( 'load',
 					::Proc.new do | block, machine, variable, value, size |
 						result = nil
 						if( size == Rex::Poly::Machine::DWORD )
@@ -460,7 +460,7 @@ module Rex
 				#
 				# Create the 'store' primitive.
 				#
-				_create_primitive( 'store', 
+				_create_primitive( 'store',
 					::Proc.new do | block, machine, variable, value, size |
 						result = nil
 						if( size == Rex::Poly::Machine::DWORD )
@@ -483,12 +483,12 @@ module Rex
 					::Proc.new do | block, machine, variable, value, size |
 						result = nil
 						if( size == Rex::Poly::Machine::DWORD )
-							result = [ 
+							result = [
 								"push #{machine.resolve_value( value )}",
 								"pop [#{machine.variable_value( variable )}]"
 							]
 						elsif( size == Rex::Poly::Machine::WORD )
-							result = [ 
+							result = [
 								"push #{machine.resolve_value( value, WORD )}",
 								"pop word [#{machine.variable_value( variable )}]"
 							]
@@ -500,9 +500,9 @@ module Rex
 					end
 				)
 			end
-			
+
 		end
-		
+
 	end
-	
+
 end
