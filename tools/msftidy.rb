@@ -63,6 +63,21 @@ class Msftidy
 	#
 	##
 
+	def check_license_type
+	#Function variables
+		$msf_license == 'MSF_LICENSE'
+		$bsd_license == 'BSD_LICENSE'
+	#TO do fix if statment, but does work half correct not sure what im doing wrong
+	#First time doing ruby coding 
+	#Code to check license type
+		if @source =~ $msf_license
+			warn("Please make sure you have license terms at the top of your module, see another module for example")
+		elsif @source =~ $bsd_license
+			warn("You will be asked about your license when you do a pull request as you have gone for a BSD license")
+			else warn("You will be asked about your license when you do a pull request")
+	end
+end
+
 	def check_ref_identifiers
 		in_super = false
 		in_refs  = false
@@ -399,6 +414,7 @@ def run_checks(f_rel)
 	tidy.check_bad_terms
 	tidy.check_function_basics
 	tidy.check_lines
+	tidy.check_license_type
 end
 
 ##
