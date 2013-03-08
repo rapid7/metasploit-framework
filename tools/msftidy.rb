@@ -67,6 +67,8 @@ class Msftidy
 	#Function variables
 		$msf_license == 'MSF_LICENSE'
 		$bsd_license == 'BSD_LICENSE'
+	#TO do fix if statment, but does work half correct not sure what im doing wrong
+	#First time doing ruby coding 
 	#Code to check license type
 		if @source=~ $msf_license
 			warn("Please make sure you have license terms at the top of your module, see another module for example")
