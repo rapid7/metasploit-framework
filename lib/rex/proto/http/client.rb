@@ -129,11 +129,11 @@ class Client
 	# @return [ClientRequest]
 	def request_raw(opts={})
 		opts = self.config.merge(opts)
-		
+
 		opts['ssl']         = self.ssl
 		opts['cgi']         = false
 		opts['port']        = self.port
-		
+
 		req = ClientRequest.new(opts)
 	end
 
@@ -151,7 +151,7 @@ class Client
 	# @return [ClientRequest]
 	def request_cgi(opts={})
 		opts = self.config.merge(opts)
-		
+
 		opts['ctype']       ||= 'application/x-www-form-urlencoded'
 		opts['ssl']         = self.ssl
 		opts['cgi']         = true

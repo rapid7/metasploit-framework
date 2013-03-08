@@ -48,7 +48,7 @@ class Section
 		return nil if !_section_header
 		_section_header.v['Characteristics']
 	end
-	
+
 	def vma
 		# a section header is not required
 		return nil if !_section_header
@@ -59,8 +59,8 @@ class Section
 		# a section header is not required
 		return nil if !_section_header
 		_section_header.v['SizeOfRawData']
-	end		
-	
+	end
+
 	def _check_offset(offset, len = 1)
 		if offset < 0 || offset+len > size
 			raise BoundsError, "Offset #{offset} outside of section", caller
