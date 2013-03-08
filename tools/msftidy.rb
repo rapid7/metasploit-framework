@@ -64,9 +64,10 @@ class Msftidy
 	##
 
 	def check_license_type
+	#Function variables
 		$msf_license == 'MSF_LICENSE'
 		$bsd_license == 'BSD_LICENSE'
-
+	#Code to check license type
 		if @source=~ $msf_license
 			warn("Please make sure you have license terms at the top of your module, see another module for example")
 		elsif @source=~ $bsd_license
