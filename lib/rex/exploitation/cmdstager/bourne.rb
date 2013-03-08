@@ -67,10 +67,10 @@ class CmdStagerBourne < CmdStagerBase
 	#
 	def generate_cmds_decoder(opts)
 		decoders = [
-			"base64 --decode #{@tempdir}#{@var_encoded}.b64",
-			"openssl enc -d -A -base64 -in #{@tempdir}#{@var_encoded}.b64",
-			"python -c 'import sys; import base64; print base64.standard_b64decode(sys.stdin.read());' < #{@tempdir}#{@var_encoded}.b64",
-			"perl -MIO -e 'use MIME::Base64; while (<>) { print decode_base64($_); }' < #{@tempdir}#{@var_encoded}.b64"
+			"base64 --decode -",
+			"openssl enc -d -A -base64 -in /dev/stdin",
+			"python -c 'import sys, base64; print base64.standard_b64decode(sys.stdin.read());'",
+			"perl -MMIME::Base64 -ne 'print decode_base64($_)'"
 		]
 		decoder_cmd = []
 		decoders.each do |cmd|
@@ -78,7 +78,7 @@ class CmdStagerBourne < CmdStagerBase
 			decoder_cmd << "(which #{binary} >&2 && #{cmd})"
 		end
 		decoder_cmd = decoder_cmd.join(" || ")
-		decoder_cmd = "(" << decoder_cmd << ") 2> /dev/null > #{@tempdir}#{@var_decoded}.bin"
+		decoder_cmd = "(" << decoder_cmd << ") 2> /dev/null > #{@tempdir}#{@var_decoded}.bin < #{@tempdir}#{@var_encoded}.b64"
 		[ decoder_cmd ]
 	end
 
