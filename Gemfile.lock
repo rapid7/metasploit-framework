@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: 895fcec7b20aaebe240b30781a1fb2f336f77bbb
+  revision: 67d78f9ce59a74ad9d6e8d3f9e68760ff4d2ec55
   tag: 0.6.2
   specs:
     metasploit_data_models (0.6.2)
