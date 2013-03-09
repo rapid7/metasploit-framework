@@ -546,7 +546,7 @@ require 'digest/sha1'
 	def self.replace_msi_buffer(pe, opts)
 		#User cannot specify their own template due to calling to_win32pe
 		opts[:template].gsub!(/\.exe/, '.msi')
-		
+
 		msi = ''
 		File.open(opts[:template], "rb") { |fd|
 			msi = fd.read(fd.stat.size)
@@ -554,18 +554,18 @@ require 'digest/sha1'
 
 		section_size =	2**(msi[30..31].unpack('s')[0])
 		sector_allocation_table = msi[section_size..section_size*2].unpack('l*')
-		
+
 		buffer_chain = []
-		current_secid = 5	# This is closely coupled with the template provided and ideally 
-					# would be calculated from the dir stream? 
-		
+		current_secid = 5	# This is closely coupled with the template provided and ideally
+					# would be calculated from the dir stream?
+
 		until current_secid == -2
 			buffer_chain << current_secid
 			current_secid = sector_allocation_table[current_secid]
 		end
 
 		buffer_size = buffer_chain.length * section_size
-		
+
 		if pe.size > buffer_size
 			raise RuntimeError, "MSI Buffer is not large enough to hold the PE file"
 		end
@@ -581,8 +581,8 @@ require 'digest/sha1'
 			pe_block_start = pe_block_end + 1
 			pe_block_end += section_size
 		end
-		
-		return msi	
+
+		return msi
 	end
 
 	def self.to_osx_arm_macho(framework, code, opts={})
