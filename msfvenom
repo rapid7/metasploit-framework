@@ -423,7 +423,7 @@ end
 
 $stdout.binmode
 
-if opts[:format] !~/ruby|rb|perl|pl|bash|sh|c|js|dll|elf/i
+if opts[:format] !~/ruby|rb|perl|pl|bash|sh|c|js|dll|elf|msi/i
 	exe = Msf::Util::EXE.to_executable_fmt($framework, opts[:arch], opts[:platform], payload_raw, opts[:format], exeopts)
 end
 
@@ -496,6 +496,17 @@ when /dll/i
 	end
 
 	$stdout.write dll
+when /msi/i
+	msi = case opts[:arch]
+                when /x86/;        Msf::Util::EXE.to_win32pe_msi($framework, payload_raw)
+                when /x64|x86_64/; Msf::Util::EXE.to_win64pe_msi($framework, payload_raw)
+                end
+        if msi.nil?
+                print_error("This format does not support that architecture")
+                exit
+        end
+
+	$stdout.write msi
 when /exe/i
 	$stdout.write exe
 when /exe-small/i
