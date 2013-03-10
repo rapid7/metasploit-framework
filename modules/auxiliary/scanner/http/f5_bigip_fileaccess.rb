@@ -9,7 +9,7 @@ require 'msf/core'
 
 class Metasploit4 < Msf::Auxiliary
 
-  include Msf::Exploit::Remote::HttpClient
+	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 
@@ -19,8 +19,8 @@ class Metasploit4 < Msf::Auxiliary
 			'Description'  =>  %q{
 					This module attempts to read a remote file from the server using a
 				vulnerability in the way F5 BIG-IP handles XML files. The vulnerability
-				requires an authenticated cookie so you must have some access to the web 
-				interface. F5 BIG-IP versions from 10.0.0 to 11.2.1 are known to be vulnerabile, 
+				requires an authenticated cookie so you must have some access to the web
+				interface. F5 BIG-IP versions from 10.0.0 to 11.2.1 are known to be vulnerabile,
 				see F5 page for specific versions.
 			},
 			'References'   =>
