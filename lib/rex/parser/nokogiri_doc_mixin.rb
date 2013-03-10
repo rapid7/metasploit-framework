@@ -102,7 +102,7 @@ module Parser
 			return [] unless orig_refs
 			refs = []
 			orig_refs.each do |ref_hash|
-			
+
 				ref_hash_sym = Hash[ref_hash.map {|k, v| [k.to_sym, v] }]
 				ref_type = ref_hash_sym[:source].to_s.strip.upcase
 				ref_value = ref_hash_sym[:value].to_s.strip

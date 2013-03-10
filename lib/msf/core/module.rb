@@ -391,7 +391,7 @@ class Module
 
 		nil
 	end
-	
+
 	#
 	# Returns the current workspace
 	#
@@ -617,7 +617,7 @@ class Module
 	def debugging?
 		(datastore['DEBUG'] || '') =~ /^(1|t|y)/i
 	end
-	
+
 	#
 	# Indicates whether the module supports IPv6. This is true by default,
 	# but certain modules require additional work to be compatible or are

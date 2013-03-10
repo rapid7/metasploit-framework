@@ -10,6 +10,7 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.*;
 import org.w3c.dom.*;
+import armitage.ArmitageBuffer;
 
 /**
  * This is a modification of msfgui/RpcConnection.java by scriptjunkie. Taken from 
@@ -85,6 +86,22 @@ public abstract class RpcConnectionImpl implements RpcConnection, Async {
 
 	protected HashMap locks = new HashMap();
 	protected String  address = "";
+	protected HashMap buffers = new HashMap();
+
+	/* help implement our remote buffer API for PQS primitives */
+	public ArmitageBuffer getABuffer(String key) {
+		synchronized (buffers) {
+			ArmitageBuffer buffer;
+			if (buffers.containsKey(key)) {
+				buffer = (ArmitageBuffer)buffers.get(key);
+			}
+			else {
+				buffer = new ArmitageBuffer(16384);
+				buffers.put(key, buffer);
+			}
+			return buffer;
+		}
+	}
 
 	public String getLocalAddress() {
 		return address;
@@ -131,6 +148,23 @@ public abstract class RpcConnectionImpl implements RpcConnection, Async {
 		}
 		else if (methodName.equals("armitage.unlock")) {
 			locks.remove(params[0] + "");
+			return new HashMap();
+		}
+		else if (methodName.equals("armitage.publish")) {
+			ArmitageBuffer buffer = getABuffer(params[0] + "");
+			buffer.put(params[1] + "");
+			return new HashMap();
+		}
+		else if (methodName.equals("armitage.query")) {
+			ArmitageBuffer buffer = getABuffer(params[0] + "");
+			String data = (String)buffer.get(params[1] + "");
+			HashMap temp = new HashMap();
+			temp.put("data", data);
+			return temp;
+		}
+		else if (methodName.equals("armitage.reset")) {
+			ArmitageBuffer buffer = getABuffer(params[0] + "");
+			buffer.reset();
 			return new HashMap();
 		}
 		else if (hooks.containsKey(methodName)) {

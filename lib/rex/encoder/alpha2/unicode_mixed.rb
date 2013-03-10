@@ -8,12 +8,12 @@ module Encoder
 module Alpha2
 
 class UnicodeMixed < Generic
-	
+
 	def self.gen_second(block, base)
 		# unicode uses additive encoding
 		(block - base)
 	end
-	
+
 	def self.gen_decoder_prefix(reg, offset)
 		if (offset > 21)
 			 raise "Critical: Offset is greater than 21"
@@ -27,7 +27,7 @@ class UnicodeMixed < Generic
 			mod = 'AA' * (offset - 14)			# inc ecx
 			nop = 'CP' * (14 - mod.length)
 			mod += nop
-		end	
+		end
 		regprefix = {                       # nops ignored below
 			'EAX'   => 'PPYA' + mod,         # push eax, pop ecx
 			'ECX'   =>  mod + "4444",        # dec ecx
@@ -91,7 +91,7 @@ class UnicodeMixed < Generic
 			"1A" +              # add [ecx], dh NOP
 			"IA" +              # dec ecx, NOP
 			"J" +               # dec edx
-			"Q" +               # add [ecx], dl 
+			"Q" +               # add [ecx], dl
 			"YA" +              # pop ecx, NOP
 			"Z" +               # pop edx
 			"B" +               # add [edx], al
@@ -105,10 +105,10 @@ class UnicodeMixed < Generic
 			"B" +               # add [edx], al         |
 			"kM" +              # imul eax, [eax], 10 * |
 			"A" +               # add [edx], al         |
-			"G" +               # inc edi               | 
+			"G" +               # inc edi               |
 			"B" +               # add [edx], al         |
 			"9" +               # cmp [eax], eax        |
-			"u" +               # jnz ------------------      
+			"u" +               # jnz ------------------
 			"4JB"
 
 		return decoder

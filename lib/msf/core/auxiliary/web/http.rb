@@ -67,6 +67,7 @@ class Auxiliary::Web::HTTP
 	attr_reader :opts
 	attr_reader :headers
 	attr_reader :framework
+	attr_reader :parent
 
 	attr_accessor :redirect_limit
 	attr_accessor :username , :password
@@ -75,6 +76,7 @@ class Auxiliary::Web::HTTP
 		@opts = opts.dup
 
 		@framework = opts[:framework]
+		@parent    = opts[:parent]
 
 		@headers = {
 			'Accept' => '*/*',
@@ -130,8 +132,8 @@ class Auxiliary::Web::HTTP
 					begin
 						request.handle_response request( request.url, request.opts )
 					rescue => e
-						elog e.to_s
-						e.backtrace.each { |l| elog l }
+						print_error e.to_s
+						e.backtrace.each { |l| print_error l }
 					end
 				end
 			end
@@ -249,6 +251,11 @@ class Auxiliary::Web::HTTP
 	end
 
 	private
+
+	def print_error( message )
+		return if !@parent
+		@parent.print_error message
+	end
 
 	def call_after_run_blocks
 		while block = @after_run_blocks.pop

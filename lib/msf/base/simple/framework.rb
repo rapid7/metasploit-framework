@@ -167,7 +167,7 @@ module Framework
 		if (Msf::Config.module_directory)
 			self.modules.add_module_path(Msf::Config.module_directory)
 		end
-		
+
 		# Initialize the user module search path
 		if (Msf::Config.user_module_directory)
 			self.modules.add_module_path(Msf::Config.user_module_directory)

@@ -188,13 +188,24 @@ sub table_selected_single {
 
 # table_set($table, @rows)
 sub table_set {
-	local('$model $row');
-	$model = [$1 getModel];
-	[$model clear: size($2) * 2];
-	foreach $row ($2) {
-		[$model addEntry: $row];
-	}
-	[$model fireListeners];
+	later(lambda({
+		local('$model $row');
+		$model = [$a getModel];
+		[$model clear: size($b) * 2];
+		foreach $row ($b) {
+			[$model addEntry: $row];
+		}
+		[$model fireListeners];
+	}, $a => $1, $b => $2));
+}
+
+# table_set($table, @rows)
+sub table_update {
+	later(lambda({
+		[$a markSelections];
+		table_set($a, $b);
+		[$a restoreSelections];
+	}, $a => $1, $b => $2));
 }
 
 # table_sorter($table, index, &function);

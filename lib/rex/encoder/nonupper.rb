@@ -7,8 +7,8 @@ module Rex
 module Encoder
 
 class NonUpper
-	
-	
+
+
 	def NonUpper.gen_decoder()
 		decoder =
 			"\x66\xB9\xFF\xFF" +
@@ -26,14 +26,14 @@ class NonUpper
 			"\x28\x07"  +               # subb [edi], al
 			"\xEB\xF1"  +               # jmp BACK!
 			"\xEB"      + "B" +         # jmp [shellcode]
-			"\xE8\xE2\xFF\xFF\xFF"  
+			"\xE8\xE2\xFF\xFF\xFF"
 	end
 
 	def NonUpper.encode_byte(badchars, block, table, tablelen)
 		if (tablelen > 255) or (block == 0x40)
 			raise RuntimeError, "BadChar"
 		end
- 
+
 		if (block >= 0x41 and block <= 0x40) or (badchars =~ block)
 			# gen offset, return magic
 			offset = 0x40 - block;
