@@ -25,8 +25,7 @@ class Metasploit3 < Msf::Post
 			))
 		register_options(
 			[
-				OptAddress.new("ADDRESS" , [ false, "Single IP to resolve to hostname"]),
-				OptAddressRange.new("RANGE"  , [ false, "RangeWalker compatible range of IPs to resolve"]),
+				OptAddressRange.new("RANGE"  , [ false, "IP or range of IPs to resolve to hostnames"]),
 				OptPath.new("OUTFILE" , [false, "Optional file to write positive results to"])
 			], self.class)
 
@@ -46,10 +45,6 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		if datastore['ADDRESS']
-			resolve_ip(datastore['ADDRESS'])
-		end
-
 		if datastore['RANGE']
 			rexrange = Rex::Socket::RangeWalker.new(datastore['RANGE'])
 			rexrange.each do |ip|
