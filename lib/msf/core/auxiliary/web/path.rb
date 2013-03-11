@@ -118,7 +118,7 @@ class Path  < Fuzzable
 	end
 
 	def self.from_model( form )
-		e = new( :action => "#{form.path}?#{form.query}", :input => inputs[0][1] )
+		e = new( :action => "#{form.path}?#{form.query}", :input => form.inputs[0][1] )
 		e.model = form
 		e
 	end
