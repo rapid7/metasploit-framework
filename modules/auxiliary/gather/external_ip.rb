@@ -29,26 +29,19 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptEnum.new('RHOST', [true, 'The ifconfig.me server to use','49.212.202.172',['49.212.202.172','133.242.129.236']]),
-				OptString.new('VHOST', [true, "The VHOST to use", 'ifconfig.me' ]),
+				Opt::RHOST('ifconfig.me'),
 				OptBool.new('REPORT_HOST', [false, 'Add the found IP to the database', false])
 			], self.class)
 end
 
 	def run
-		begin
-			connect
-			res = send_request_raw({'uri' => '/ip', 'method' => 'GET' })
-			our_addr = res.body.strip
-			if Rex::Socket.is_ipv4?(our_addr) or Rex::Socket.is_ipv6?(our_addr)
-				print_good("Source ip to #{ip} is #{our_addr}")
-				report_host(our_addr) if datastore['REPORT_HOST']
-			end
-
-		end
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-		rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError, Errno::ECONNABORTED, Errno::ECONNREFUSED, Errno::EHOSTUNREACH => e
-			raise e
+		connect
+		res = send_request_raw({'uri' => '/ip', 'method' => 'GET' })
+		our_addr = res.body.strip
+		if Rex::Socket.is_ipv4?(our_addr) or Rex::Socket.is_ipv6?(our_addr)
+			print_good("Source ip to #{rhost} is #{our_addr}")
+			report_host(our_addr) if datastore['REPORT_HOST']
 		end
 	end
 
+end
