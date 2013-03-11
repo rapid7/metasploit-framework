@@ -25,8 +25,8 @@ class Metasploit3 < Msf::Post
 			))
 		register_options(
 			[
-				OptAddress.new("ADDRESS" , [ false, "Enumerate currently configured shares"]),
-				OptAddressRange.new("RANGE"  , [ false, "Enumerate Recently mapped shares"]),
+				OptAddress.new("ADDRESS" , [ false, "Single IP to resolve to hostname"]),
+				OptAddressRange.new("RANGE"  , [ false, "RangeWalker compatible range of IPs to resolve"]),
 				OptPath.new("OUTFILE" , [false, "Optional file to write positive results to"])
 			], self.class)
 
