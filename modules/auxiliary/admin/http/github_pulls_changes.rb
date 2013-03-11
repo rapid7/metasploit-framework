@@ -48,8 +48,9 @@ class Metasploit4 < Msf::Auxiliary
 		})
 
 		if res and res.code == 200
-			if res.headers['X-RateLimit-Remaining'] > 0
+			if res.headers['X-RateLimit-Remaining'].to_i == 0
 				print_error("Warning Rate Limit reached retrieving files for ##{id}")
+				print_error("Your rate limit is #{res.headers['X-RateLimit-Limit']}")
 			end
 			files = JSON.parse(res.body)
 			return files.map { |f| "#{f["filename"]} => #{f["status"]}" }
@@ -63,18 +64,30 @@ class Metasploit4 < Msf::Auxiliary
 		@owner = datastore["OWNER"]
 		@repo = datastore["REPO"]
 
-		res = send_request_cgi({
-			'uri'       => normalize_uri(target_uri.path, "repos", @owner, @repo, "pulls"),
-			'method'    => 'GET',
-			'authorization' => basic_auth(datastore['USERNAME'],datastore['PASSWORD'])
-		})
+		pulls = []
 
-		if res and res.code == 200 and res.headers['X-RateLimit-Remaining'] > 0
-			pulls = JSON.parse(res.body)
-		else
-			print_error("Error retrieving pulls requests")
-			return
-		end
+		page = 1
+
+		begin
+			res = send_request_cgi({
+				'uri'       => normalize_uri(target_uri.path, "repos", @owner, @repo, "pulls"),
+				'method'    => 'GET',
+				'authorization' => basic_auth(datastore['USERNAME'],datastore['PASSWORD']),
+				'vars_get'  => {
+					'page' => "#{page}"
+				}
+			})
+
+			if res and res.code == 200 and res.headers['X-RateLimit-Remaining'].to_i > 0
+				p_pulls = JSON.parse(res.body)
+				pulls << p_pulls
+				pulls.flatten!
+			else
+				print_error("Error retrieving pulls requests")
+				return
+			end
+			page = page + 1
+		end while (res and res.code == 200 and not p_pulls.empty?)
 
 		results_table = Rex::Ui::Text::Table.new(
 			'Header'  => 'GitHub Pull Requests Summary',
