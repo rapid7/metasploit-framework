@@ -92,7 +92,7 @@ class Metasploit4 < Msf::Auxiliary
 				#'ctype'    => 'text/xml; charset=UTF-8',
 				'cookie'  => "BIGIPAuthCookie=#{datastore['VALIDCOOKIE']}",
 				'data'     => data,
-				}, 60)
+				})
 
 		if res and res.code == 500
 			case res.body
