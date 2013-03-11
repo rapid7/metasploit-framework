@@ -140,7 +140,7 @@ class Plugin::Wmap < Msf::Plugin
 				when '-d'
 					del_idx = args
 					if del_idx
-						delete_sites(del_idx.map(&:to_i).uniq)
+						delete_sites(del_idx.select {|d| d =~ /^[0-9]*$/}.map(&:to_i).uniq)
 						return
 					else
 						print_error("Provide index of site to delete")
@@ -205,7 +205,7 @@ class Plugin::Wmap < Msf::Plugin
 					print_status("Usage: wmap_sites [options]")
 					print_line("\t-h        Display this help text")
 					print_line("\t-a [url]  Add site (vhost,url)")
-					print_line("\t-d [ids]  Delete sites (separate ids with \\s )")
+					print_line("\t-d [ids]  Delete sites (separate ids with space)")
 					print_line("\t-l        List all available sites")
 					print_line("\t-s [id]   Display site structure (vhost,url|ids) (level)")
 
