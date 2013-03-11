@@ -26,7 +26,8 @@ class Metasploit3 < Msf::Post
 		register_options(
 			[
 				OptAddress.new("ADDRESS" , [ false, "Enumerate currently configured shares"]),
-				OptAddressRange.new("RANGE"  , [ false, "Enumerate Recently mapped shares"])
+				OptAddressRange.new("RANGE"  , [ false, "Enumerate Recently mapped shares"]),
+				OptPath.new("OUTFILE" , [false, "Optional file to write positive results to"])
 			], self.class)
 
 	end
@@ -38,6 +39,7 @@ class Metasploit3 < Msf::Post
 			memtext = client.railgun.memread(ptr2dns['return'],255)
 			host_inmem = memtext.split(ip_ino)[1].split("\00")[0]
 			print_good("#{ip} resolves to #{host_inmem}")
+			File.open(datastore["OUTFILE"], 'a') {|f| f.write("#{ip} resolves to #{host_inmem}\n")}
 		rescue Rex::Post::Meterpreter::RequestError
 			print_error("Failed to resolve #{ip}")
 		end
