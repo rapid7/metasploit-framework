@@ -1,9 +1,7 @@
 # Dopewars DOS attack
 #
-# The Jet command is susceptible to a segfault.
-# This will crash the server but does not seem to be
-# exploitable any further. 
-# This has been fixed in the SVN version.
+# The jet command in Dopewars <= 1.5.12 is vulnerable to a segmentaion
+# fault due to a lack of input validation.
 #
 
 require 'msf/core'
@@ -17,8 +15,7 @@ class Metasploit4 < Msf::Auxiliary
 		super(update_info(info,	
 			'Name'           => 'Dopewars Denial of Service',
 			'Description'    => %q{
-				This module sends a specially-crafted packet to a Dopewars 
-				server, causing a SEGFAULT.
+                The jet command in Dopewars 1.5.12 is vulnerable to a segmentaion fault due to a lack of input validation.
 			},
 			'Author'         => [ 'Doug Prostko <dougtko[at]gmail.com>' ],
 			'License'        => MSF_LICENSE,
