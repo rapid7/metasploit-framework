@@ -138,9 +138,9 @@ class Plugin::Wmap < Msf::Plugin
 						print_error("Unable to create site")
 					end
 				when '-d'
-					del_idx = args.shift
+					del_idx = args
 					if del_idx
-						delete_site(del_idx.to_i)
+						delete_site(del_idx.split(/\s|,|\;/).map(&:to_i).uniq)
 					else
 						print_error("Provide index of site to delete")
 					end
@@ -204,7 +204,7 @@ class Plugin::Wmap < Msf::Plugin
 					print_status("Usage: wmap_sites [options]")
 					print_line("\t-h        Display this help text")
 					print_line("\t-a [url]  Add site (vhost,url)")
-					print_line("\t-d [id]   Delete site")
+					print_line("\t-d [ids]  Delete sites (separate ids by ',|\\s|;')")
 					print_line("\t-l        List all available sites")
 					print_line("\t-s [id]   Display site structure (vhost,url|ids) (level)")
 
@@ -1239,7 +1239,7 @@ class Plugin::Wmap < Msf::Plugin
 			self.framework.db.hosts.each do |bdhost|
 				bdhost.services.each do |serv|
 					serv.web_sites.each do |web|
-						if idx == wmap_index
+						if wmap_index.any? {|w| w == idx}
 							web.delete
 							print_status("Deleted #{web.vhost} on #{bdhost.address} at index #{idx}")
 							return
