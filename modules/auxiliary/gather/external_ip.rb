@@ -36,7 +36,7 @@ end
 
 	def run
 		connect
-		res = send_request_raw({'uri' => '/ip', 'method' => 'GET' })
+		res = send_request_cgi({'uri' => '/ip', 'method' => 'GET' })
 		our_addr = res.body.strip
 		if Rex::Socket.is_ipv4?(our_addr) or Rex::Socket.is_ipv6?(our_addr)
 			print_good("Source ip to #{rhost} is #{our_addr}")
