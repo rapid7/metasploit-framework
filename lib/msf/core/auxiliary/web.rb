@@ -156,7 +156,7 @@ module Auxiliary::Web
 	end
 
 	def log_fingerprint( opts = {} )
-		mode  = details[:category].to_sym
+		mode  = name
 		vhash = [target.to_url, opts[:fingerprint], mode, opts[:location]].
 			map { |x| x.to_s }.join( '|' ).hash
 
@@ -187,12 +187,12 @@ module Auxiliary::Web
 
 		report_web_vuln( info )
 
-		print_good "	FOUND(#{mode.to_s.upcase}) URL(#{location})"
+		print_good "	FOUND(#{mode.to_s}) URL(#{location})"
 		print_good "		 PROOF(#{opts[:fingerprint]})"
 	end
 
 	def log_resource( opts = {} )
-		mode  = details[:category].to_sym
+		mode  = name
 		vhash = [target.to_url, mode, opts[:location]].
 			map { |x| x.to_s }.join( '|' ).hash
 
@@ -221,12 +221,12 @@ module Auxiliary::Web
 
 		report_web_vuln( info )
 
-		print_good "	VULNERABLE(#{mode.to_s.upcase}) URL(#{target.to_url})"
+		print_good "	VULNERABLE(#{mode.to_s}) URL(#{target.to_url})"
 		print_good "		 PROOF(#{opts[:location]})"
 	end
 
 	def process_vulnerability( element, proof, opts = {} )
-		mode  = details[:category].to_sym
+		mode  = name
 		vhash = [target.to_url, mode, element.altered].
 			map{ |x| x.to_s }.join( '|' ).hash
 
@@ -281,7 +281,7 @@ module Auxiliary::Web
 
 		report_web_vuln( info )
 
-		print_good "	VULNERABLE(#{mode.to_s.upcase}) URL(#{target.to_url})" +
+		print_good "	VULNERABLE(#{mode.to_s}) URL(#{target.to_url})" +
 						" PARAMETER(#{element.altered}) VALUES(#{element.params})"
 		print_good "		 PROOF(#{proof})"
 	end
