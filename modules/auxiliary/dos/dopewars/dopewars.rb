@@ -20,7 +20,6 @@ class Metasploit4 < Msf::Auxiliary
 			},
 			'Author'		 => [ 'Doug Prostko <dougtko[at]gmail.com>' ],
 			'License'		 => MSF_LICENSE,
-			'Version'		 => '0.0.2',
 			'References'	 =>
 				[
 					[ 'BID', '36606' ],
