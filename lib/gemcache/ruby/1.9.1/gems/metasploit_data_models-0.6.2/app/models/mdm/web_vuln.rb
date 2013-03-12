@@ -15,9 +15,8 @@ class Mdm::WebVuln < ActiveRecord::Base
   # CONSTANTS
   #
 
-  # A percentage {#confidence} that the vulnerability is real and not a false positive.  0 is not allowed because there
-  # shouldn't be an {Mdm::WebVuln} record if there is 0% {#confidence} in the the finding.
-  CONFIDENCE_RANGE = 1 .. 100
+  # A percentage {#confidence} that the vulnerability is real and not a false positive.
+  CONFIDENCE_RANGE = 0 .. 100
 
   # Default value for {#params}
   DEFAULT_PARAMS = []
