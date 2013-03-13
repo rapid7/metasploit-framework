@@ -527,8 +527,8 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         lootsTable = new MsfTable(rpcConn,new String [] {"Host", "Service", "Ltype", "Ctype", "Data", "Created", "Updated", "Name", "Info"
         }, "loots", new String[]{"host", "service", "ltype", "ctype", "data", "created_at", "updated_at", "name", "info"});
         credsPane = new javax.swing.JScrollPane();
-        credsTable = new MsfTable(rpcConn, new String [] {"Host", "Time", "Port", "Proto", "Sname", "Type", "User", "Pass", "Active"
-        }, "creds", new String[]{"host", "time", "port", "proto", "sname", "type", "user", "pass", "active"});
+        credsTable = new MsfTable(rpcConn, new String [] {"Host", "Updated", "Port", "Proto", "Sname", "Type", "User", "Pass", "Active"
+        }, "creds", new String[]{"host", "updated_at", "port", "proto", "sname", "type", "user", "pass", "active"});
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         connectRpcMenuItem = new javax.swing.JMenuItem();
@@ -710,7 +710,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 530, Short.MAX_VALUE)
+            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 534, Short.MAX_VALUE)
         );
 
         menuBar.setName("menuBar"); // NOI18N
