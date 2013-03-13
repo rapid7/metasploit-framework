@@ -15,7 +15,7 @@
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="tabbedPane" alignment="1" pref="530" max="32767" attributes="0"/>
+              <Component id="tabbedPane" alignment="1" pref="534" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
       </Layout>
@@ -308,7 +308,7 @@
                     <Property name="name" type="java.lang.String" value="credsTable" noResource="true"/>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(rpcConn, new String [] {&quot;Host&quot;, &quot;Time&quot;, &quot;Port&quot;, &quot;Proto&quot;, &quot;Sname&quot;, &quot;Type&quot;, &quot;User&quot;, &quot;Pass&quot;, &quot;Active&quot;&#xa;            }, &quot;creds&quot;, new String[]{&quot;host&quot;, &quot;time&quot;, &quot;port&quot;, &quot;proto&quot;, &quot;sname&quot;, &quot;type&quot;, &quot;user&quot;, &quot;pass&quot;, &quot;active&quot;})"/>
+                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(rpcConn, new String [] {&quot;Host&quot;, &quot;Updated&quot;, &quot;Port&quot;, &quot;Proto&quot;, &quot;Sname&quot;, &quot;Type&quot;, &quot;User&quot;, &quot;Pass&quot;, &quot;Active&quot;&#xa;            }, &quot;creds&quot;, new String[]{&quot;host&quot;, &quot;updated_at&quot;, &quot;port&quot;, &quot;proto&quot;, &quot;sname&quot;, &quot;type&quot;, &quot;user&quot;, &quot;pass&quot;, &quot;active&quot;})"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
