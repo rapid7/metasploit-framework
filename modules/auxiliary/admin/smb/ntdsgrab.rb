@@ -262,6 +262,7 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			print_status("#{peer} - Cleanup was successful")
 		end
+		simple.disconnect("\\\\#{@ip}\\#{@smbshare}")
 	end
 
 end
