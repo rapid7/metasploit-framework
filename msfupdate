@@ -58,12 +58,15 @@ end
 
 def print_deprecation_warning
 	$stdout.puts ""
-	$stdout.puts "[*] Deprecation Note: After 2013-02-28 (February 28, 2013), Metasploit"
-	$stdout.puts "[*] source checkouts will NO LONGER update over SVN, but will be using"
-	$stdout.puts "[*] GitHub exclusively. You should either download a new Metasploit"
-	$stdout.puts "[*] installer, or use a git clone of Metasploit Framework before"
-	$stdout.puts "[*] then. You will also need outbound access to github.com:9418/TCP."
+	$stdout.puts "[-] Deprecation Note: Metasploit source checkouts NO LONGER update"
+	$stdout.puts "[-] over SVN. You will need to reinstall Metasploit using"
+	$stdout.puts "[-] binary installers (from http://www.metasploit.com/download ),"
+	$stdout.puts "[-] Debian packages (currently only supported on Kali Linux), or"
+	$stdout.puts "[-] a development source checkout from GitHub (see http://r-7.co/ZLhA8P )"
+	$stdout.puts "[-] "
+	$stdout.puts "[-] For more on msfupdate and migrating off of SVN, see http://r-7.co/MSF-UP"
 	$stdout.puts ""
+	maybe_wait_and_exit 0x11
 end
 
 def maybe_wait_and_exit(exit_code=0)
