@@ -975,12 +975,15 @@ class Db
 		end
 
 		def cmd_loot_help
-			print_line "Usage: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]"
+			print_line "Usage: loot <options>"
+			print_line " Info: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]"
+			print_line "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] [-t [type]"
+			print_line "  Del: loot -d [addr1 addr2 ...]"
 			print_line
-			print_line "  -a,--add          Add a loot to the list of addresses, instead of listing"
-			print_line "  -d,--delete       Delete *all* the loot associated with hosts, instead of searching"
-			print_line "  -f --file         File with contents of the loot to add"
-			print_line "  -i --info         Info of the loot to add"
+			print_line "  -a,--add          Add loot to the list of addresses, instead of listing"
+			print_line "  -d,--delete       Delete *all* loot matching host and type"
+			print_line "  -f,--file         File with contents of the loot to add"
+			print_line "  -i,--info         Info of the loot to add"
 			print_line "  -t <type1,type2>  Search for a list of types"
 			print_line "  -h,--help         Show this help information"
 			print_line "  -S,--search       Search string to filter by"
@@ -1059,7 +1062,7 @@ class Db
 				return
 			end
 			if types.nil? or types.size != 1
-				print_error("Exactly one note type is required")
+				print_error("Exactly one loot type is required")
 				return
 			end
 			type = types.first
