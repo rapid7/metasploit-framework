@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 ##
 # $Id$
 ##
@@ -40,7 +41,12 @@ module Payload
 	#   NoKeyError => No valid encoder key could be found
 	#   ArgumentParseError => Options were supplied improperly
 	#
-	def self.generate_simple(payload, opts)
+	def self.generate_simple(payload, opts, &block)
+
+		# Clone the module to prevent changes to the original instance
+		payload = payload.replicant
+		Msf::Simple::Framework.simplify_module(payload)
+		yield(payload) if block_given?
 
 		# Import any options we may need
 		payload._import_extra_options(opts)
@@ -69,6 +75,10 @@ module Payload
 		# Save off the original payload length
 		len = e.encoded.length
 
+
+		if arch.index(ARCH_JAVA) and fmt == 'war'
+			return e.encoded_war.pack
+		end
 
 		output = Msf::Util::EXE.to_executable_fmt(framework, arch, plat, e.encoded, fmt, exeopts)
 
@@ -126,8 +136,8 @@ module Payload
 	#
 	# Calls the class method.
 	#
-	def generate_simple(opts)
-		Msf::Simple::Payload.generate_simple(self, opts)
+	def generate_simple(opts, &block)
+		Msf::Simple::Payload.generate_simple(self, opts, &block)
 	end
 
 end

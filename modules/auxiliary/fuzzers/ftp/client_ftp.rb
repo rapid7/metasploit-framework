@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 #
 # Fuzzer written by corelanc0d3r - <peter.ve [at] corelan.be>
 # http://www.corelan.be:8800/index.php/2010/10/12/death-of-an-ftp-client/
@@ -28,7 +24,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'corelanc0d3r <peter.ve[at]corelan.be>' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => "$Revision$",
 			'References'     =>
 				[
 					[ 'URL', 'http://www.corelan.be:8800/index.php/2010/10/12/death-of-an-ftp-client/' ],
@@ -48,13 +43,13 @@ class Metasploit3 < Msf::Auxiliary
 			OptBool.new('EXTRALINE', [ true, "Add extra CRLF's in response to LIST",true])
 			], self.class)
 	end
-	
-	
+
+
 	# Not compatible today
 	def support_ipv6?
 		false
 	end
-	
+
 
 	#---------------------------------------------------------------------------------
 	def setup

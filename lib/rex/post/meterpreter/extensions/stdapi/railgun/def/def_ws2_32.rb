@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Rex
 module Post
 module Meterpreter
@@ -16,6 +17,12 @@ class Def_ws2_32
 			["PCHAR","pServiceName","in"],
 			["PDWORD","pHints","in"],
 			["PDWORD","ppResult","out"]
+			])
+
+		dll.add_function('gethostbyaddr', 'DWORD', [
+			['PCHAR', 'addr', 'in'],
+			['DWORD','len','in'],
+			['DWORD','type','in']
 			])
 
 		dll.add_function('WSAAccept', 'DWORD',[

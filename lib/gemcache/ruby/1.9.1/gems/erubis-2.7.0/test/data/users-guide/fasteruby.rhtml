@@ -1,0 +1,15 @@
+<html>
+  <body>
+    <h1><%== @title %></h1>
+    <table>
+<% i = 0 %>
+<% for item in @list %>
+<%   i += 1 %>
+      <tr>
+        <td><%= i %></td>
+        <td><%== item %></td>
+      </tr>
+<% end %>
+    </table>
+  </body>
+</html>

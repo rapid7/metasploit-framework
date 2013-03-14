@@ -1,0 +1,36 @@
+module Mail
+  grammar RFC2045
+
+    rule tspecials
+      "(" / ")" / "<" / ">" / "@" /
+      "," / ";" / ":" / '\\' / "<" / ">" /
+      "/" / "[" / "]" / "?" / "="
+    end
+    
+    rule ietf_token
+      "7bit" / "8bit" / "binary" /
+      "quoted-printable" / "base64"
+    end
+    
+    rule custom_x_token
+      [xX] "-" token+
+    end
+
+    rule iana_token
+      token+
+#     <A publicly-defined extension token. Tokens
+#     of this form must be registered with IANA
+#     as specified in RFC 2048.>
+    end
+    
+    rule token
+      [\x21-\x27] /       # any (US-ASCII) CHAR 
+      [\x2a-\x2b] /       # except SPACE, 
+      [\x2c-\x2e] /       # CTLs,
+      [\x30-\x39] /       # or tspecials
+      [\x41-\x5a] /
+      [\x5e-\x7e]
+    end
+    
+  end
+end

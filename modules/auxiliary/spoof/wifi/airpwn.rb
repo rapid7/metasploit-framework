@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -20,8 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'Airpwn TCP hijack',
-			'Version'     => '$Revision$',
+			'Name'        => 'Airpwn TCP Hijack',
 			'Description'    => %q{
 				TCP streams are 'protected' only in so much as the sequence
 			number is not guessable.

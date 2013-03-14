@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -27,12 +23,11 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'hdm'],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					['OSVDB', '66842'],
 					['URL', 'http://blog.metasploit.com/2010/08/vxworks-vulnerabilities.html'],
-					['URL', 'http://www.kb.cert.org/vuls/id/362332']
+					['US-CERT-VU', '362332']
 				],
 			'Actions'     =>
 				[
@@ -66,4 +61,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -14,14 +10,13 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Tcp
-	include Msf::Auxiliary::WMAPScanSSL
+	include Msf::Auxiliary::WmapScanSSL
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 
 	def initialize
 		super(
 			'Name'        => 'HTTP SSL Certificate Checker',
-			'Version'     => '$Revision$',
 			'Author'      => 'nebulus',
 			'License'     => MSF_LICENSE,
 			'Description' => %q{
@@ -46,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 	# Fingerprint a single host
 	def run_host(ip)
 
-		connect
+		connect(true, {"SSL" => true}) #Force SSL
 		cert  = OpenSSL::X509::Certificate.new(sock.peer_cert)
 		disconnect
 

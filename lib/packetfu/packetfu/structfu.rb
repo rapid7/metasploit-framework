@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 # StructFu, a nifty way to leverage Ruby's built in Struct class
 # to create meaningful binary data. 
 

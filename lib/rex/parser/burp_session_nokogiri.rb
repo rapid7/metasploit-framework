@@ -1,9 +1,10 @@
+# -*- coding: binary -*-
 require "rex/parser/nokogiri_doc_mixin"
 
 module Rex
 	module Parser
 
-		# If Nokogiri is available, define Burp Session document class. 
+		# If Nokogiri is available, define Burp Session document class.
 		#
 		# Burp Session XML files actually provide a lot, but since it also
 		# provides the originating url, we can pull most of the detail from
@@ -13,9 +14,9 @@ module Rex
 		include NokogiriDocMixin
 
 		# The resolver prefers your local /etc/hosts (or windows equiv), but will
-		# fall back to regular DNS. It retains a cache for the import to avoid 
+		# fall back to regular DNS. It retains a cache for the import to avoid
 		# spamming your network with DNS requests.
-		attr_reader :resolv_cache 
+		attr_reader :resolv_cache
 
 		# Since we try to resolve every time we hit a new web page, need to
 		# hang on to our misses. Presume that it's a permanent enough failure
@@ -51,7 +52,7 @@ module Rex
 		def end_element(name=nil)
 			block = @block
 			case name
-			when "item" # Wrap up this item, but keep resolved web sites 
+			when "item" # Wrap up this item, but keep resolved web sites
 				collect_uri
 				report_web_site(&block)
 				handle_parse_warnings(&block)
@@ -247,7 +248,7 @@ module Rex
 			return unless block
 			@parse_warnings.each_with_index do |pwarn,i|
 				unless @parse_warned.include? i
-					db.emit(:warning, pwarn, &block) 
+					db.emit(:warning, pwarn, &block)
 					@parse_warned << i
 				end
 			end
@@ -267,7 +268,7 @@ module Rex
 			return address
 		end
 
-		# Alias this 
+		# Alias this
 		def resolve_vhost_address(uri)
 			if uri.host
 				address = resolve_address(uri.host)

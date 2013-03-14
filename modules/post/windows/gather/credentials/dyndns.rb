@@ -1,15 +1,12 @@
 ##
-#$Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
@@ -30,7 +27,6 @@ class Metasploit3 < Msf::Post
 					'Shubham Dawra <shubham2dawra[at]gmail.com>', #SecurityXploded.com
 					'sinn3r',  #Lots of code rewrite
 				],
-			'Version'        => '$Revision$',
 			'Platform'       => [ 'win' ],
 			'SessionTypes'   => [ 'meterpreter' ]
 		))
@@ -74,7 +70,7 @@ class Metasploit3 < Msf::Post
 		until f.eof?
 			content << f.read
 		end
-		p = store_loot("dyndns.raw", "text/plain", session.tunnel_peer, "dyndns_raw_config.dyndns")
+		p = store_loot("dyndns.raw", "text/plain", session, "dyndns_raw_config.dyndns")
 		vprint_status("Raw config file saved: #{p.to_s}")
 		return content
 	end

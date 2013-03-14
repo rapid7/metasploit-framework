@@ -1,0 +1,16 @@
+video/x-dl @dl :base64
+video/x-dv @dv
+video/x-fli @fli :base64
+video/x-flv @flv :base64
+video/x-gl @gl :base64
+video/x-ivf @ivf
+video/x-matroska @mkv
+video/x-motion-jpeg @mjpg
+video/x-ms-asf @asf,asx
+video/x-ms-wm @wm
+video/x-ms-wmv @wmv
+video/x-ms-wmx @wmx
+video/x-ms-wvx @wvx
+video/x-msvideo @avi :base64
+video/x-sgi-movie @movie :base64
+

@@ -1,10 +1,11 @@
+# -*- coding: binary -*-
 require 'rex/ui'
 
 module Rex
 module Ui
 module Text
 
-begin 
+begin
 
 	###
 	#
@@ -13,21 +14,21 @@ begin
 	#
 	###
 	class Input::Readline < Rex::Ui::Text::Input
-		
+
 		#
 		# Initializes the readline-aware Input instance for text.
 		#
 		def initialize(tab_complete_proc = nil)
 			if(not Object.const_defined?('Readline'))
-				begin 
+				begin
 					require 'readline'
 				rescue ::LoadError
 					require 'readline_compatible'
 				end
 			end
-			
+
 			self.extend(::Readline)
-			
+
 			if (tab_complete_proc)
 				::Readline.basic_word_break_characters = "\x00"
 				::Readline.completion_proc = tab_complete_proc
@@ -42,14 +43,14 @@ begin
 			::Readline.basic_word_break_characters = "\x00"
 			::Readline.completion_proc = tab_complete_proc || @rl_saved_proc
 		end
-		
+
 		#
 		# Whether or not the input medium supports readline.
 		#
 		def supports_readline
 			true
 		end
-		
+
 		#
 		# Calls sysread on the standard input handle.
 		#
@@ -60,7 +61,7 @@ begin
 				retry
 			end
 		end
-		
+
 		#
 		# Read a line from stdin
 		#
@@ -78,10 +79,10 @@ begin
 		# background jobs, such as when the user is running Karmetasploit
 		#
 		def pgets()
-		
+
 			line = nil
 			orig = Thread.current.priority
-			
+
 			begin
 				Thread.current.priority = -20
 
@@ -91,7 +92,7 @@ begin
 			ensure
 				Thread.current.priority = orig || 0
 			end
-			
+
 			line
 		end
 
@@ -101,9 +102,9 @@ begin
 		def fd
 			$stdin
 		end
-		
+
 		#
-		# Indicates that this input medium as a shell builtin, no need 
+		# Indicates that this input medium as a shell builtin, no need
 		# to extend.
 		#
 		def intrinsic_shell?

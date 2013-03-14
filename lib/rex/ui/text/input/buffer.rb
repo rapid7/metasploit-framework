@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/ui'
 
 module Rex
@@ -14,7 +15,7 @@ require 'rex/io/stream_abstraction'
 class Input::Buffer < Rex::Ui::Text::Input
 
 	class BufferSock
-		include Rex::IO::StreamAbstraction	
+		include Rex::IO::StreamAbstraction
 		def write(buf, opts={})
 			syswrite(buf)
 		end
@@ -36,25 +37,25 @@ class Input::Buffer < Rex::Ui::Text::Input
 	def put(msg, opts={})
 		@sock.lsock.write(msg)
 	end
-	
+
 	#
 	# Wait for a line of input to be read from a socket.
 	#
 	def gets
 		# Initialize the line buffer
 		line = ''
-		
+
 		# Read data one byte at a time until we see a LF
 		while (true)
 			break if line.include?("\n")
-			
+
 			# Read another character of input
 			char = @sock.rsock.getc
-			
+
 			# Append this character to the string
 			line << char
 		end
-		
+
 		return line
 	end
 

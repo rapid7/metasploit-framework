@@ -1,16 +1,13 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
 require 'msf/core/post/windows/registry'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
@@ -28,14 +25,13 @@ class Metasploit3 < Msf::Post
 				particular category.
 			},
 			'License'        => MSF_LICENSE,
-			'Version'        => "$Revision$",
 			'Author'         =>
 				[
 					'sinn3r',  #Metasploit
 				],
 			'References'     =>
 				[
-					['URL', 'http://www.exploit-db.com/exploits/11331/'],
+					['EDB', '11331'],
 				],
 			'Platform'       => [ 'win' ],
 			'SessionTypes'   => [ 'meterpreter' ]
@@ -85,7 +81,7 @@ class Metasploit3 < Msf::Post
 			#Filter out '_aliases'
 			next if key =~ /_aliases/
 
-			print_status("Grabbing key: #{key}") if datastore['VERBOSE']
+			vprint_status("Grabbing key: #{key}")
 
 			domain    = $1 if key =~ /Ipswitch\\IMail\\domains\\(.+)\\Users/
 			mail_addr = registry_getvaldata(key, 'MailAddr')
@@ -141,7 +137,7 @@ class Metasploit3 < Msf::Post
 			password << char.chr
 		end
 
-		print_status("Password '#{enc_password}' = #{password}") if datastore['VERBOSE']
+		vprint_status("Password '#{enc_password}' = #{password}")
 
 		return password
 	end

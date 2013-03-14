@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'net/ssh/transport/openssl'
 require 'net/ssh/prompt'
 

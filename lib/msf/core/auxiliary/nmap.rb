@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/parser/nmap_nokogiri'
 require 'rex/parser/nmap_xml'
 require 'open3'
@@ -31,21 +32,6 @@ def initialize(info = {})
 	deregister_options("RPORT")
 	@nmap_args = []
 	@nmap_bin = nmap_binary_path
-end
-
-def vprint_status(msg='')
-	return if not datastore['VERBOSE']
-	print_status(msg)
-end
-
-def vprint_error(msg='')
-	return if not datastore['VERBOSE']
-	print_error(msg)
-end
-
-def vprint_good(msg='')
-	return if not datastore['VERBOSE']
-	print_good(msg)
 end
 
 def rports
@@ -238,7 +224,7 @@ def nmap_validate_arg(str)
 	disallowed_characters = /([\x00-\x19\x21\x23-\x26\x28\x29\x3b\x3e\x60\x7b\x7c\x7d\x7e-\xff])/n
 	badchar = str[disallowed_characters]
 	if badchar
-		print_error "Malformed nmap arguments (contains '#{c}'): #{str}"
+		print_error "Malformed nmap arguments (contains '#{badchar}'): #{str}"
 		return false
 	end
 	# Check for commas outside of quoted arguments
@@ -261,7 +247,7 @@ def nmap_hosts(&block)
 	nmap_data = fh.read(fh.stat.size)
 	# fh.unlink
 	if Rex::Parser.nokogiri_loaded
-		wspace = Msf::DBManager::Workspace.find_by_name(datastore['WORKSPACE'])
+		wspace = framework.db.find_workspace(datastore['WORKSPACE'])
 		wspace ||= framework.db.workspace
 		import_args = { :data => nmap_data, :wspace => wspace }
 		framework.db.import_nmap_noko_stream(import_args) { |type, data| yield type, data }

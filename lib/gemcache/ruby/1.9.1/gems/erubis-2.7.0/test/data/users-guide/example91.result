@@ -1,0 +1,5 @@
+$ erubis -x example9.eruby
+_buf = ''; for item in @list 
+ _buf << ' <b>'; _buf << ( item ).to_s; _buf << '</b>
+'; end 
+_buf.to_s

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Rex
 module Script
 class Base
@@ -8,6 +9,7 @@ class Base
 		def print_status(msg); end
 		def print_good(msg); end
 		def print_error(msg); end
+		def print_warning(msg); end
 	end
 
 	attr_accessor :client, :framework, :path, :error, :args

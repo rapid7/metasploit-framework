@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 #
 # $Id$
 # $Revision$
@@ -9,8 +10,9 @@ while File.symlink?(msfbase)
 	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 
-$:.unshift(File.join(File.dirname(msfbase), 'lib'))
+$:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
 require 'fastlib'
+require 'msfenv'
 
 
 
@@ -114,6 +116,8 @@ rest.each do |x|
 	k,v = x.split("=", 2)
 	options[k] = v.to_s
 end
+
+payload.datastore.merge! options
 
 if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w)/)
 	fmt = 'perl' if (cmd =~ /^p/)

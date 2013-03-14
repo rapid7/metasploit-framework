@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 # $Id$
 
@@ -195,7 +196,7 @@ class Pe < PeBase
 	# Read raw bytes from the specified offset in the underlying file
 	#
 	# NOTE: You should pass raw file offsets into this, not offsets from
-	# the beginning of the section. If you need to read from within a 
+	# the beginning of the section. If you need to read from within a
 	# section, add section.file_offset prior to passing the offset in.
 	#
 	def read(offset, len)

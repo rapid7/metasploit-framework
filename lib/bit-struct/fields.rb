@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 class BitStruct
   class << self
     # Define a char string field in the current subclass of BitStruct,

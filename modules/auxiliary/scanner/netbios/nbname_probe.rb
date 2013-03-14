@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -21,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'NetBIOS Information Discovery Prober',
-			'Version'     => '$Revision$',
 			'Description' => 'Discover host information using sequential NetBIOS Probes',
 			'Author'      => ['hdm', 'todb'],
 			'License'     => MSF_LICENSE
@@ -263,7 +258,7 @@ class Metasploit3 < Msf::Auxiliary
 					:host_name => (hname) ? hname.downcase : nil,
 					:port  => pkt[2],
 					:proto => 'udp',
-					:name  => 'NetBIOS',
+					:name  => 'netbios',
 					:info  => inf
 				)
 			end
@@ -304,4 +299,3 @@ class Metasploit3 < Msf::Auxiliary
 		return data
 	end
 end
-

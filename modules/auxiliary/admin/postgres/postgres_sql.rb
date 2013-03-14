@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -28,11 +24,19 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					[ 'URL', 'www.postgresql.org' ]
-				],
-			'Version'        => '$Revision$'
+				]
 		))
 
-		register_options( [ ], self.class) # None needed.
+		#register_options( [ ], self.class) # None needed.
+	end
+
+	def auxiliary_commands
+		{ "select" => "Run a select query (a LIMIT clause is probably a really good idea)" }
+	end
+
+	def cmd_select(*args)
+		datastore["SQL"] = "select #{args.join(" ")}"
+		run
 	end
 
 	def rhost
@@ -45,14 +49,13 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run
 		ret = postgres_query(datastore['SQL'],datastore['RETURN_ROWSET'])
-		verbose = datastore['VERBOSE']
 		case ret.keys[0]
 		when :conn_error
 			print_error "#{rhost}:#{rport} Postgres - Authentication failure, could not connect."
 		when :sql_error
 			print_error "#{rhost}:#{rport} Postgres - #{ret[:sql_error]}"
 		when :complete
-			print_good  "#{rhost}:#{rport} Postgres - Command complete." if verbose
+			vprint_good  "#{rhost}:#{rport} Postgres - Command complete."
 		end
 		postgres_logout if self.postgres_conn
 	end

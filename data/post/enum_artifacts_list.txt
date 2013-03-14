@@ -1,0 +1,36 @@
+# YAML:1.0
+# Configuration file for enum_artifacts.rb module
+# This file contains a YAML formated list of artifacts used by the
+# enum_artifacts post module. Artifacts should be listed using the following
+# format:
+#
+# ---
+# malware_name:
+#  files:
+#   - name: path\to\file
+#     csum: 00112233445566778899aabbccddeeff
+#   - name: path\to\another\file
+#     csum: 112233445566778899aabbccddeeff00
+#
+#  reg_entries:
+#   - key: registry_key
+#     val: registry_value
+#     data: data
+# 
+# Happy hunting
+---
+test_evidence:
+ files:
+  - name: c:\ntdetect.comx
+    csum: b2de3452de03674c6cec68b8c8ce7c78
+  - name: c:\boot.ini
+    csum: fa579938b0733b87066546afe951082c
+
+ reg_entries:
+  - key: HKEY_LOCAL_MACHINE\SYSTEM\Selectx
+    val: Current
+    data: 1
+  - key: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\ACPI
+    val: DisplayName
+    data: Microsoft ACPI Driver
+

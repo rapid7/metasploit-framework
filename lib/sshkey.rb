@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 class SSHKey
 end
 

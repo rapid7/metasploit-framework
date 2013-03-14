@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/post/meterpreter'
 
 module Rex
@@ -15,7 +16,7 @@ class Console::CommandDispatcher::Priv::Elevate
 	Klass = Console::CommandDispatcher::Priv::Elevate
 
 	include Console::CommandDispatcher
-	
+
 	ELEVATE_TECHNIQUE_NONE					= -1
 	ELEVATE_TECHNIQUE_ANY					= 0
 	ELEVATE_TECHNIQUE_SERVICE_NAMEDPIPE		= 1
@@ -23,7 +24,7 @@ class Console::CommandDispatcher::Priv::Elevate
 	ELEVATE_TECHNIQUE_SERVICE_TOKENDUP		= 3
 	ELEVATE_TECHNIQUE_VULN_KITRAP0D			= 4
 
-	ELEVATE_TECHNIQUE_DESCRIPTION = [ 	"All techniques available", 
+	ELEVATE_TECHNIQUE_DESCRIPTION = [ 	"All techniques available",
 										"Service - Named Pipe Impersonation (In Memory/Admin)",
 										"Service - Named Pipe Impersonation (Dropper/Admin)",
 										"Service - Token Duplication (In Memory/Admin)",
@@ -44,23 +45,23 @@ class Console::CommandDispatcher::Priv::Elevate
 	def name
 		"Priv: Elevate"
 	end
-	
+
 
 	#
 	# Attempt to elevate the meterpreter to that of local system.
 	#
 	def cmd_getsystem( *args )
-	
+
 		technique = ELEVATE_TECHNIQUE_ANY
-		
+
 		desc = ""
 		ELEVATE_TECHNIQUE_DESCRIPTION.each_index { |i| desc += "\n\t\t#{i} : #{ELEVATE_TECHNIQUE_DESCRIPTION[i]}" }
-		
+
 		getsystem_opts = Rex::Parser::Arguments.new(
 			"-h" => [ false, "Help Banner." ],
 			"-t" => [ true, "The technique to use. (Default to \'#{technique}\')." + desc ]
 		)
-		
+
 		getsystem_opts.parse(args) { | opt, idx, val |
 			case opt
 				when "-h"
@@ -77,16 +78,16 @@ class Console::CommandDispatcher::Priv::Elevate
 			print_error( "Technique '#{technique}' is out of range." );
 			return false;
 		end
-			
+
 		result = client.priv.getsystem( technique )
-		
+
 		# got system?
 		if result[0]
 			print_line( "...got system (via technique #{result[1]})." );
 		else
 			print_line( "...failed to get system." );
 		end
-		
+
 		return result
 	end
 

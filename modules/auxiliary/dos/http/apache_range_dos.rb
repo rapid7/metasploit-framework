@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -31,12 +27,11 @@ class Metasploit3 < Msf::Auxiliary
 					'Masashi Fujiwara' #metasploit module
 				],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'BID', '49303'],
 					[ 'CVE', '2011-3192'],
-					[ 'URL', 'http://www.exploit-db.com/exploits/17696/'],
+					[ 'EDB', '17696'],
 					[ 'OSVDB', '74721' ],
 				],
 			'DisclosureDate' => 'Aug 19 2011'))

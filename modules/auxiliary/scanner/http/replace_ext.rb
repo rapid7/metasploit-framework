@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'rex/proto/http'
@@ -18,7 +14,7 @@ require 'pathname'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanFile
+	include Msf::Auxiliary::WmapScanFile
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 
@@ -31,8 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			},
 			'Author' 		=> [ 'et [at] cyberspace.org' ],
-			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision$'))
+			'License'		=> BSD_LICENSE))
 
 		register_options(
 			[
@@ -64,13 +59,16 @@ class Metasploit3 < Msf::Auxiliary
 			'.tmp',
 			'.old',
 			'.htm',
+			'.ini',
+			'.cfg',
 			'.html',
 			'.php',
 			'.temp',
 			'.tmp',
 			'.java',
 			'.doc',
-			'.log'
+			'.log',
+			'.xml'
 		]
 
 
@@ -158,13 +156,20 @@ class Metasploit3 < Msf::Auxiliary
 					else
 						print_status("Found #{wmap_base_url}#{tpath}")
 
-						report_note(
+						report_web_vuln(
 							:host	=> ip,
-							:proto => 'tcp',
-							:sname	=> 'HTTP',
 							:port	=> rport,
-							:type	=> 'FILE',
-							:data	=> "#{tpath} Code: #{res.code}"
+							:vhost  => vhost,
+							:ssl    => ssl,
+							:path	=> tpath,
+							:method => 'GET',
+							:pname  => "",
+							:proof  => "Res code: #{res.code.to_s}",
+							:risk   => 0,
+							:confidence   => 100,
+							:category     => 'file',
+							:description  => 'File found.',
+							:name   => 'file'
 						)
 
 					end

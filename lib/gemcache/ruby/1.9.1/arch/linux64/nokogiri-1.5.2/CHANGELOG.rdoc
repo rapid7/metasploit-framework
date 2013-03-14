@@ -1,0 +1,581 @@
+== 1.5.2 / 2012-03-09
+
+Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, #632.
+
+== 1.5.1 / 2012-03-09
+
+* Features
+
+  * XML::Builder#comment allows creation of comment nodes.
+  * CSS searches now support namespaced attributes. #593
+  * Java integration feature is added. Now, XML::Document.wrap
+    and XML::Document#to_java methods are available.
+  * RelaxNG validator support in the `nokogiri` cli utility. #591 (thanks, Dan Radez!)
+
+* Bugfixes
+
+  * Fix many memory leaks and segfault opportunities. Thanks, Tim Elliott!
+  * extconf searches homebrew paths if homebrew is installed.
+  * Inconsistent behavior of Nokogiri 1.5.0 Java #620
+  * Inheriting from Nokogiri::XML::Node on JRuby (1.6.4/5) fails #560
+  * XML::Attr nodes are not allowed to be added as node children, so an
+    exception is raised. #558
+  * No longer defensively "pickle" adjacent text nodes on
+    Node#add_next_sibling and Node#add_previous_sibling calls. #595.
+  * Java version inconsistency: it returns nil for empty attributes #589
+  * to_xhtml incorrectly generates <p /></p> when tag is empty #557
+  * Document#add_child now accepts a Node, NodeSet, DocumentFragment,
+    or String. #546.
+  * Document#create_element now recognizes namespaces containing
+    non-word characters (like "SOAP-ENV"). This is mostly relevant to
+    users of Builder, which calls Document#create_element for nearly
+    everything. #531.
+  * File encoding broken in 1.5.0 / jruby / windows #529
+  * Java version does not return namespace defs as attrs for ::HTML #542
+  * Bad file descriptor with Nokogiri 1.5.0 #495
+  * remove_namespace! doesn't work in pure java version #492
+  * The Nokogiri Java native build throws a null pointer exception
+    when ActiveSupport's .blank? method is called directly on a parsed
+    object. #489
+  * 1.5.0 Not using correct character encoding #488
+  * Raw XML string in XML Builder broken on JRuby #486
+  * Nokogiri 1.5.0 XML generation broken on JRuby #484    
+  * Do not allow multiple root nodes. #550
+  * Fixes for custom XPath functions. #605, #606 (thanks, Juan Wajnerman!)
+  * Node#to_xml does not override :save_with if it is provided. #505
+  * Node#set is a private method [JRuby]. #564 (thanks, Nick Sieger!)
+  * C14n cleanup and Node#canonicalize (thanks, Ivan Pirlik!) #563
+
+
+== 1.5.0 / 2011-07-01
+
+* Notes
+
+  * See changelog from 1.4.7
+
+* Features
+
+  * extracted sets of Node::SaveOptions into Node::SaveOptions::DEFAULT_{X,H,XH}TML (refactor)
+
+* Bugfixes
+
+  * default output of XML on JRuby is no longer formatted due to
+    inconsistent whitespace handling. #415
+  * (JRuby) making empty NodeSets with null `nodes` member safe to operate on. #443
+  * Fix a bug in advanced encoding detection that leads to partially
+    duplicated document when parsing an HTML file with unknown
+    encoding.
+  * Add support for <meta charset="...">.
+
+== 1.5.0 beta3 / 2010/12/02
+
+* Notes
+
+  * JRuby performance tuning
+  * See changelog from 1.4.4
+
+* Bugfixes
+
+  * Node#inner_text no longer returns nil. (JRuby) #264
+
+== 1.5.0 beta2 / 2010/07/30
+
+* Notes
+
+  * See changelog from 1.4.3
+
+== 1.5.0 beta1 / 2010/05/22
+
+* Notes
+
+  * JRuby support is provided by a new pure-java backend.
+
+* Deprecations
+
+  * Ruby 1.8.6 is deprecated. Nokogiri will install, but official support is ended.
+  * LibXML 2.6.16 and earlier are deprecated. Nokogiri will refuse to install.
+  * FFI support is removed.
+
+=== 1.4.7 / 2011-07-01
+
+* Bugfixes
+
+  * Fix a bug in advanced encoding detection that leads to partially
+    duplicated document when parsing an HTML file with unknown
+    encoding. Thanks, Timothy Elliott (@ender672)! #478
+
+=== 1.4.6 / 2011-06-19
+
+* Notes
+
+  * This version is functionally identical to 1.4.5.
+  * Ruby 1.8.6 support has been restored.
+
+=== 1.4.5 / 2011-05-19
+
+* New Features
+
+  * Nokogiri::HTML::Document#title accessor gets and sets the document title.
+  * extracted sets of Node::SaveOptions into Node::SaveOptions::DEFAULT_{X,H,XH}TML (refactor)
+  * Raise an exception if a string is passed to Nokogiri::XML::Schema#validate. #406
+
+* Bugfixes
+
+  * Node#serialize-and-friends now accepts a SaveOption object as the, erm, save object.
+  * Nokogiri::CSS::Parser has-a Nokogiri::CSS::Tokenizer
+  * [JRUBY+FFI only] Weak references are now threadsafe. #355
+  * Make direct start_element() callback (currently used for
+    HTML::SAX::Parser) pass attributes in assoc array, just as
+    emulated start_element() callback does.  rel. #356
+  * HTML::SAX::Parser should call back a block given to parse*() if any, just as XML::SAX::Parser does.
+  * Add further encoding detection to HTML parser that libxml2 does not do.
+  * Document#remove_namespaces! now handles attributes with namespaces. #396
+  * XSLT::Stylesheet#transform no longer segfaults when handed a non-XML::Document. #452
+  * XML::Reader no longer segfaults when under GC pressure. #439
+
+=== 1.4.4 / 2010-11-15
+
+* New Features
+
+  * XML::Node#children= sets the node's inner html (much like #inner_html=), but returns the reparent node(s).
+  * XSLT supports function extensions. #336
+  * XPath bind parameter substitution. #329
+  * XML::Reader node type constants. #369
+  * SAX Parser context provides line and column information
+
+* Bugfixes
+
+  * XML::DTD#attributes returns an empty hash instead of nil when there are no attributes.
+  * XML::DTD#{keys,each} now work as expected. #324
+  * {XML,HTML}::DocumentFragment.{new,parse} no longer strip leading and trailing whitespace. #319
+  * XML::Node#{add_child,add_previous_sibling,add_next_sibling,replace} return a NodeSet when passed a string.
+  * Unclosed tags parsed more robustly in fragments. #315
+  * XML::Node#{replace,add_previous_sibling,add_next_sibling} edge cases fixed related to libxml's text node merging. #308
+  * Fixed a segfault when GC occurs during xpath handler argument marshalling. #345
+  * Added hack to Slop decorator to work with previously defined methods. #330
+  * Fix a memory leak when duplicating child nodes. #353
+  * Fixed off-by-one bug with nth-last-{child,of-type} CSS selectors when NOT using an+b notation. #354
+  * Fixed passing of non-namespace attributes to SAX::Document#start_element. #356
+  * Workaround for libxml2 in-context parsing bug. #362  
+  * Fixed NodeSet#wrap on nodes within a fragment. #331
+
+=== 1.4.3 / 2010/07/28
+
+* New Features
+
+  * XML::Reader#empty_element? returns true for empty elements. #262
+  * Node#remove_namespaces! now removes namespace *declarations* as well. #294
+  * NodeSet#at_xpath, NodeSet#at_css and NodeSet#> do what the corresponding
+    methods of Node do.
+
+* Bugfixes
+
+  * XML::NodeSet#{include?,delete,push} accept an XML::Namespace
+  * XML::Document#parse added for parsing in the context of a document
+  * XML::DocumentFragment#inner_html= works with contextual parsing! #298, #281
+  * lib/nokogiri/css/parser.y Combined CSS functions + pseudo selectors fixed
+  * Reparenting text nodes is safe, even when the operation frees adjacent merged nodes. #283
+  * Fixed libxml2 versionitis issue with xmlFirstElementChild et al. #303
+  * XML::Attr#add_namespace now works as expected. #252
+  * HTML::DocumentFragment uses the string's encoding. #305
+  * Fix the CSS3 selector translation rule for the general sibling combinator
+    (a.k.a. preceding selector) that incorrectly converted "E ~ F G" to
+    "//F//G[preceding-sibling::E]".
+
+=== 1.4.2 / 2010/05/22
+
+* New Features
+
+  * XML::Node#parse will parse XML or HTML fragments with respect to the
+    context node.
+  * XML::Node#namespaces returns all namespaces defined in the node and all
+    ancestor nodes
+    (previously did not return ancestors' namespace definitions).
+  * Added Enumerable to XML::Node
+  * Nokogiri::XML::Schema#validate now uses xmlSchemaValidateFile if a
+    filename is passed, which is faster and more memory-efficient. GH #219
+  * XML::Document#create_entity will create new EntityDecl objects. GH #174
+  * JRuby FFI implementation no longer uses ObjectSpace._id2ref,
+    instead using Charles Nutter's rocking Weakling gem.
+  * Nokogiri::XML::Node#first_element_child fetch the first child node that is
+    an ELEMENT node.
+  * Nokogiri::XML::Node#last_element_child fetch the last child node that is
+    an ELEMENT node.
+  * Nokogiri::XML::Node#elements fetch all children nodes that are ELEMENT
+    nodes.
+  * Nokogiri::XML::Node#add_child, #add_previous_sibling, #before,
+    #add_next_sibling, #after, #inner_html, #swap and #replace all now
+    accept a Node, DocumentFragment, NodeSet, or a string containing
+    markup.
+  * Node#fragment? indicates whether a node is a DocumentFragment.
+
+* Bugfixes
+
+  * XML::NodeSet is now always decorated (if the document has decorators).
+    GH #198
+  * XML::NodeSet#slice gracefully handles offset+length larger than the set
+    length. GH #200
+  * XML::Node#content= safely unlinks previous content. GH #203
+  * XML::Node#namespace= takes nil as a parameter
+  * XML::Node#xpath returns things other than NodeSet objects. GH #208
+  * XSLT::StyleSheet#transform accepts hashes for parameters. GH #223
+  * Psuedo selectors inside not() work. GH #205
+  * XML::Builder doesn't break when nodes are unlinked.
+    Thanks to vihai! GH #228
+  * Encoding can be forced on the SAX parser. Thanks Eugene Pimenov! GH #204
+  * XML::DocumentFragment uses XML::Node#parse to determine children.
+  * Fixed a memory leak in xml reader. Thanks sdor! GH #244
+  * Node#replace returns the new child node as claimed in the
+    RDoc. Previously returned +self+.
+
+* Notes
+
+  * The Windows gems now bundle DLLs for libxml 2.7.6 and libxslt
+    1.1.26. Prior to this release, libxml 2.7.3 and libxslt 1.1.24
+    were bundled.
+
+=== 1.4.1 / 2009/12/10
+
+* New Features
+
+  * Added Nokogiri::LIBXML_ICONV_ENABLED
+  * Alias Node#[] to Node#attr
+  * XML::Node#next_element added
+  * XML::Node#> added for searching a nodes immediate children
+  * XML::NodeSet#reverse added
+  * Added fragment support to Node#add_child, Node#add_next_sibling,
+    Node#add_previous_sibling, and Node#replace.
+  * XML::Node#previous_element implemented
+  * Rubinius support
+  * Ths CSS selector engine now supports :has()
+  * XML::NodeSet#filter() was added
+  * XML::Node.next= and .previous= are aliases for add_next_sibling and add_previous_sibling. GH #183
+
+* Bugfixes
+
+  * XML fragments with namespaces do not raise an exception (regression in 1.4.0)
+  * Node#matches? works in nodes contained by a DocumentFragment. GH #158
+  * Document should not define add_namespace() method. GH #169
+  * XPath queries returning namespace declarations do not segfault.
+  * Node#replace works with nodes from different documents. GH #162
+  * Adding XML::Document#collect_namespaces
+  * Fixed bugs in the SOAP4R adapter
+  * Fixed bug in XML::Node#next_element for certain edge cases
+  * Fixed load path issue with JRuby under Windows. GH #160.
+  * XSLT#apply_to will honor the "output method". Thanks richardlehane!
+  * Fragments containing leading text nodes with newlines now parse properly. GH #178.
+
+=== 1.4.0 / 2009/10/30
+
+* Happy Birthday!
+
+* New Features
+
+  * Node#at_xpath returns the first element of the NodeSet matching the XPath
+    expression.
+  * Node#at_css returns the first element of the NodeSet matching the CSS
+    selector.
+  * NodeSet#| for unions GH #119 (Thanks Serabe!)
+  * NodeSet#inspect makes prettier output
+  * Node#inspect implemented for more rubyish document inspecting
+  * Added XML::DTD#external_id
+  * Added XML::DTD#system_id
+  * Added XML::ElementContent for DTD Element content validity
+  * Better namespace declaration support in Nokogiri::XML::Builder
+  * Added XML::Node#external_subset
+  * Added XML::Node#create_external_subset
+  * Added XML::Node#create_internal_subset
+  * XML Builder can append raw strings (GH #141, patch from dudleyf)
+  * XML::SAX::ParserContext added
+  * XML::Document#remove_namespaces! for the namespace-impaired
+
+* Bugfixes
+
+  * returns nil when HTML documents do not declare a meta encoding tag. GH #115
+  * Uses RbConfig::CONFIG['host_os'] to adjust ENV['PATH'] GH #113
+  * NodeSet#search is more efficient GH #119 (Thanks Serabe!)
+  * NodeSet#xpath handles custom xpath functions
+  * Fixing a SEGV when XML::Reader gets attributes for current node
+  * Node#inner_html takes the same arguments as Node#to_html GH #117
+  * DocumentFragment#css delegates to it's child nodes GH #123
+  * NodeSet#[] works with slices larger than NodeSet#length GH #131
+  * Reparented nodes maintain their namespace. GH #134
+  * Fixed SEGV when adding an XML::Document to NodeSet
+  * XML::SyntaxError can be duplicated. GH #148
+
+* Deprecations
+
+  * Hpricot compatibility layer removed
+
+=== 1.3.3 / 2009/07/26
+
+* New Features
+
+  * NodeSet#children returns all children of all nodes
+
+* Bugfixes
+
+  * Override libxml-ruby's global error handler
+  * ParseOption#strict fixed
+  * Fixed a segfault when sending an empty string to Node#inner_html= GH #88
+  * String encoding is now set to UTF-8 in Ruby 1.9
+  * Fixed a segfault when moving root nodes between documents. GH #91
+  * Fixed an O(n) penalty on node creation. GH #101
+  * Allowing XML documents to be output as HTML documents
+
+* Deprecations
+
+  * Hpricot compatibility layer will be removed in 1.4.0
+
+=== 1.3.2 / 2009-06-22
+
+* New Features
+
+  * Nokogiri::XML::DTD#validate will validate your document
+
+* Bugfixes
+
+  * Nokogiri::XML::NodeSet#search will search top level nodes. GH #73
+  * Removed namespace related methods from Nokogiri::XML::Document
+  * Fixed a segfault when a namespace was added twice
+  * Made nokogiri work with Snow Leopard GH #79
+  * Mailing list has moved to: http://groups.google.com/group/nokogiri-talk
+  * HTML fragments now correctly handle comments and CDATA blocks. GH #78
+  * Nokogiri::XML::Document#clone is now an alias of dup
+
+* Deprecations
+
+  * Nokogiri::XML::SAX::Document#start_element_ns is deprecated, please switch
+    to Nokogiri::XML::SAX::Document#start_element_namespace
+  * Nokogiri::XML::SAX::Document#end_element_ns is deprecated, please switch
+    to Nokogiri::XML::SAX::Document#end_element_namespace
+
+=== 1.3.1 / 2009-06-07
+
+* Bugfixes
+
+  * extconf.rb checks for optional RelaxNG and Schema functions
+  * Namespace nodes are added to the Document node cache
+
+=== 1.3.0 / 2009-05-30
+
+* New Features
+
+  * Builder changes scope based on block arity
+  * Builder supports methods ending in underscore similar to tagz
+  * Nokogiri::XML::Node#<=> compares nodes based on Document position
+  * Nokogiri::XML::Node#matches? returns true if Node can be found with
+    given selector.
+  * Nokogiri::XML::Node#ancestors now returns an Nokogiri::XML::NodeSet
+  * Nokogiri::XML::Node#ancestors will match parents against optional selector
+  * Nokogiri::HTML::Document#meta_encoding for getting the meta encoding
+  * Nokogiri::HTML::Document#meta_encoding= for setting the meta encoding
+  * Nokogiri::XML::Document#encoding= to set the document encoding
+  * Nokogiri::XML::Schema for validating documents against XSD schema
+  * Nokogiri::XML::RelaxNG for validating documents against RelaxNG schema
+  * Nokogiri::HTML::ElementDescription for fetching HTML element descriptions
+  * Nokogiri::XML::Node#description to fetch the node description
+  * Nokogiri::XML::Node#accept implements Visitor pattern
+  * bin/nokogiri for easily examining documents (Thanks Yutaka HARA!)
+  * Nokogiri::XML::NodeSet now supports more Array and Enumerable operators:
+    index, delete, slice, - (difference), + (concatenation), & (intersection),
+    push, pop, shift, ==
+  * Nokogiri.XML, Nokogiri.HTML take blocks that receive
+    Nokogiri::XML::ParseOptions objects
+  * Nokogiri::XML::Node#namespace returns a Nokogiri::XML::Namespace
+  * Nokogiri::XML::Node#namespace= for setting a node's namespace
+  * Nokogiri::XML::DocumentFragment and Nokogiri::HTML::DocumentFragment
+    have a sensible API and a more robust implementation.
+  * JRuby 1.3.0 support via FFI.
+
+* Bugfixes
+
+  * Fixed a problem with nil passed to CDATA constructor
+  * Fragment method deals with regular expression characters
+    (Thanks Joel!) LH #73
+  * Fixing builder scope issues LH #61, LH #74, LH #70
+  * Fixed a problem when adding a child could remove the child namespace LH#78
+  * Fixed bug with unlinking a node then reparenting it. (GH#22)
+  * Fixed failure to catch errors during XSLT parsing (GH#32)
+  * Fixed a bug with attribute conditions in CSS selectors (GH#36)
+  * Fixed intolerance of HTML attributes without values in Node#before/after/inner_html=. (GH#35)
+
+=== 1.2.3 / 2009-03-22
+
+* Bugfixes
+
+  * Fixing bug where a node is passed in to Node#new
+  * Namespace should be assigned on DocumentFragment creation. LH #66
+  * Nokogiri::XML::NodeSet#dup works GH #10
+  * Nokogiri::HTML returns an empty Document when given a blank string GH#11
+  * Adding a child will remove duplicate namespace declarations LH #67
+  * Builder methods take a hash as a second argument
+
+=== 1.2.2 / 2009-03-14
+
+* New features
+
+  * Nokogiri may be used with soap4r. See XSD::XMLParser::Nokogiri
+  * Nokogiri::XML::Node#inner_html= to set the inner html for a node
+  * Nokogiri builder interface improvements
+  * Nokogiri::XML::Node#swap swaps html for current node (LH #50)
+
+* Bugfixes
+
+  * Fixed a tag nesting problem in the Builder API (LH #41)
+  * Nokogiri::HTML.fragment will properly handle text only nodes (LH #43)
+  * Nokogiri::XML::Node#before will prepend text nodes (LH #44)
+  * Nokogiri::XML::Node#after will append text nodes
+  * Nokogiri::XML::Node#search automatically registers root namepsaces (LH #42)
+  * Nokogiri::XML::NodeSet#search automatically registers namespaces
+  * Nokogiri::HTML::NamedCharacters delegates to libxml2
+  * Nokogiri::XML::Node#[] can take a symbol (LH #48)
+  * vasprintf for windows updated.  Thanks Geoffroy Couprie!
+  * Nokogiri::XML::Node#[]= should not encode entities (LH #55)
+  * Namespaces should be copied to reparented nodes (LH #56)
+  * Nokogiri uses encoding set on the string for default in Ruby 1.9
+  * Document#dup should create a new document of the same type (LH #59)
+  * Document should not have a parent method (LH #64)
+
+=== 1.2.1 / 2009-02-23
+
+* Bugfixes
+
+  * Fixed a CSS selector space bug
+  * Fixed Ruby 1.9 String Encoding (Thanks 角谷さん！)
+
+=== 1.2.0 / 2009-02-22
+
+* New features
+
+  * CSS search now supports CSS3 namespace queries
+  * Namespaces on the root node are automatically registered
+  * CSS queries use the default namespace
+  * Nokogiri::XML::Document#encoding get encoding used for this document
+  * Nokogiri::XML::Document#url get the document url
+  * Nokogiri::XML::Node#add_namespace add a namespace to the node LH#38
+  * Nokogiri::XML::Node#each iterate over attribute name, value pairs
+  * Nokogiri::XML::Node#keys get all attribute names
+  * Nokogiri::XML::Node#line get the line number for a node (Thanks Dirkjan Bussink!)
+  * Nokogiri::XML::Node#serialize now takes an optional encoding parameter
+  * Nokogiri::XML::Node#to_html, to_xml, and to_xhtml take an optional encoding
+  * Nokogiri::XML::Node#to_str
+  * Nokogiri::XML::Node#to_xhtml to produce XHTML documents
+  * Nokogiri::XML::Node#values get all attribute values
+  * Nokogiri::XML::Node#write_to writes the node to an IO object with optional encoding
+  * Nokogiri::XML::ProcessingInstrunction.new
+  * Nokogiri::XML::SAX::PushParser for all your push parsing needs.
+
+* Bugfixes
+
+  * Fixed Nokogiri::XML::Document#dup
+  * Fixed header detection. Thanks rubikitch!
+  * Fixed a problem where invalid CSS would cause the parser to hang
+
+* Deprecations
+
+  * Nokogiri::XML::Node.new_from_str will be deprecated in 1.3.0
+
+* API Changes
+
+  * Nokogiri::HTML.fragment now returns an XML::DocumentFragment (LH #32)
+
+=== 1.1.1
+
+* New features
+
+  * Added XML::Node#elem?
+  * Added XML::Node#attribute_nodes
+  * Added XML::Attr
+  * XML::Node#delete added.
+  * XML::NodeSet#inner_html added.
+
+* Bugfixes
+
+  * Not including an HTML entity for \r for HTML nodes.
+  * Removed CSS::SelectorHandler and XML::XPathHandler
+  * XML::Node#attributes returns an Attr node for the value.
+  * XML::NodeSet implements to_xml
+
+=== 1.1.0
+
+* New Features
+
+  * Custom XPath functions are now supported.  See Nokogiri::XML::Node#xpath
+  * Custom CSS pseudo classes are now supported.  See Nokogiri::XML::Node#css
+  * Nokogiri::XML::Node#<< will add a child to the current node
+
+* Bugfixes
+
+  * Mutex lock on CSS cache access
+  * Fixed build problems with GCC 3.3.5
+  * XML::Node#to_xml now takes an indentation argument
+  * XML::Node#dup takes an optional depth argument
+  * XML::Node#add_previous_sibling returns new sibling node.
+
+=== 1.0.7
+
+* Bugfixes
+
+  * Fixed memory leak when using Dike
+  * SAX parser now parses IO streams
+  * Comment nodes have their own class
+  * Nokogiri() should delegate to Nokogiri.parse()
+  * Prepending rather than appending to ENV['PATH'] on windows
+  * Fixed a bug in complex CSS negation selectors
+
+=== 1.0.6
+
+* 5 Bugfixes
+
+  * XPath Parser raises a SyntaxError on parse failure
+  * CSS Parser raises a SyntaxError on parse failure
+  * filter() and not() hpricot compatibility added
+  * CSS searches via Node#search are now always relative
+  * CSS to XPath conversion is now cached
+
+=== 1.0.5
+
+* Bugfixes
+
+  * Added mailing list and ticket tracking information to the README.txt
+  * Sets ENV['PATH'] on windows if it doesn't exist
+  * Caching results of NodeSet#[] on Document
+
+=== 1.0.4
+
+* Bugfixes
+
+  * Changed memory mangement from weak refs to document refs
+  * Plugged some memory leaks
+  * Builder blocks can call methods from surrounding contexts
+
+=== 1.0.3
+
+* 5 Bugfixes
+
+  * NodeSet now implements to_ary
+  * XML::Document should not implement parent
+  * More GC Bugs fixed.  (Mike is AWESOME!)
+  * Removed RARRAY_LEN for 1.8.5 compatibility.  Thanks Shane Hanna.
+  * inner_html fixed. (Thanks Yehuda!)
+
+=== 1.0.2
+
+* 1 Bugfix
+
+  * extconf.rb should not check for frex and racc
+
+=== 1.0.1
+
+* 1 Bugfix
+
+  * Made sure extconf.rb searched libdir and prefix so that ports libxml/ruby
+    will link properly.  Thanks lucsky!
+
+=== 1.0.0 / 2008-07-13
+
+* 1 major enhancement
+
+  * Birthday!
+

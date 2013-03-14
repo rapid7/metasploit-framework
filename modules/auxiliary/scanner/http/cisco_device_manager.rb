@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'rex/proto/http'
@@ -30,12 +26,11 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'Cisco Device HTTP Device Manager Access',
 			'Description'    => %q{
 					This module gathers data from a Cisco device (router or switch) with the device manager
-				web interface exposed. The BasicAuthUser and BasicAuthPass options can be used to specify
+				web interface exposed. The USERNAME and PASSWORD options can be used to specify
 				authentication.
 			},
 			'Author'		=> [ 'hdm' ],
 			'License'		=> MSF_LICENSE,
-			'Version'		=> '$Revision$',
 			'References'	=>
 				[
 					[ 'BID', '1846'],
@@ -66,15 +61,15 @@ class Metasploit3 < Msf::Auxiliary
 			print_good("#{rhost}:#{rport} Successfully authenticated to this device")
 
 			# Report a vulnerability only if no password was specified
-			if datastore['BasicAuthPass'].to_s.length == 0
+			if datastore['PASSWORD'].to_s.length == 0
 
 				report_vuln(
 					{
 						:host	=> rhost,
 						:port	=> rport,
 						:proto  => 'tcp',
-						:name	=> self.fullname,
-						:info	=> "http://#{rhost}:#{rport}/exec/show/version/CR",
+						:name	=> self.name,
+						:info	=> "Module #{self.fullname} successfully accessed http://#{rhost}:#{rport}/exec/show/version/CR",
 						:refs   => self.references,
 						:exploited_at => Time.now.utc
 					}
@@ -100,4 +95,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

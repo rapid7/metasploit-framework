@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'thread'
@@ -20,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Socks4a Proxy Server',
-			'Version'     => '$Revision$',
 			'Description' => 'This module provides a socks4a proxy server that uses the builtin Metasploit routing to relay connections.',
 			'Author'      => 'sf',
 			'License'     => MSF_LICENSE,

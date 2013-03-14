@@ -1,10 +1,11 @@
+# -*- coding: binary -*-
 module Rex
 module Proto
 module DCERPC
 module Exceptions
 
 class Error < ::RuntimeError
-	
+
 	@@errors = {
 		0x00000000 => "stub-defined",
 		0x00000001 => "nca_s_fault_other",
@@ -102,7 +103,7 @@ class Error < ::RuntimeError
 		0x1c010014 => "nca_server_too_busy",
 		0x1c010017 => "nca_unsupported_type"
 	}
-	
+
 	def initialize(*args)
 		super(*args)
 	end
@@ -135,7 +136,7 @@ class InvalidPacket < Error
 	def initialize(message = nil)
 		@message = message
 	end
-	
+
 	def to_s
 		str = 'Invalid packet.'
 		if (@message)

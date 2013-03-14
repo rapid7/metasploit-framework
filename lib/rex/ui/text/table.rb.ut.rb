@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..'))
 
@@ -9,7 +10,7 @@ class Rex::Ui::Text::Table::UnitTest < Test::Unit::TestCase
 
 	def new_table(opts = {})
 		if (opts['Columns'] == nil)
-			opts['Columns'] = 
+			opts['Columns'] =
 				[
 					'col1',
 					'col2',

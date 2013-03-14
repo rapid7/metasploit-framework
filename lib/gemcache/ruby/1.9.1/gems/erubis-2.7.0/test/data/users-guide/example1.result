@@ -1,0 +1,16 @@
+$ ruby example1.rb
+---------- script source ---
+_buf = ''; _buf << '<ul>
+';   for item in list 
+ _buf << '  <li>'; _buf << ( item ).to_s; _buf << '</li>
+';   end 
+
+ _buf << '</ul>
+';
+_buf.to_s
+---------- result ----------
+<ul>
+  <li>aaa</li>
+  <li>bbb</li>
+  <li>ccc</li>
+</ul>

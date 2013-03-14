@@ -1,5 +1,8 @@
 ##
-# $Id$
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -13,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 		'Name'        => 'IPv6 Link Local/Node Local Ping Discovery',
-		'Version'     => '$Revision$',
 		'Description' => %q{
 				Send a ICMPv6 ping request to all default multicast addresses, and wait to see who responds.
 		},
@@ -45,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 			next unless p.is_ipv6?
 			host_addr = p.ipv6_saddr
 			host_mac = p.eth_saddr
-			next if host_mac == smac
+			next if host_mac == @smac
 			unless hosts[host_addr] == host_mac
 				hosts[host_addr] = host_mac
 				print_status("   |*| #{host_addr} => #{host_mac}")
@@ -55,24 +57,44 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def smac
-		datastore['SMAC'].to_s.empty? ? ipv6_mac : datastore['SMAC']
+		smac  = datastore['SMAC']
+		smac ||= get_mac(@interface) if @netifaces
+		smac ||= ipv6_mac
+		smac
 	end
 
 	def run
 		# Start capture
 		open_pcap({'FILTER' => "icmp6"})
 
+		@netifaces = true
+		if not netifaces_implemented?
+			print_error("WARNING : Pcaprub is not uptodate, some functionality will not be available")
+			@netifaces = false
+		end
+
+		@interface = datastore['INTERFACE'] || Pcap.lookupdev
+
 		# Send ping
 		print_status("Sending multicast pings...")
 		dmac = "33:33:00:00:00:01"
-
+		@smac = smac
 		# Figure out our source address by the link-local interface
 		shost = ipv6_link_address
 
-		ping6("FF01::1", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})
-		ping6("FF01::2", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})
-		ping6("FF02::1", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})
-		ping6("FF02::2", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})
+		# m-1-k-3: added some more multicast addresses from wikipedia: https://en.wikipedia.org/wiki/Multicast_address#IPv6
+		ping6("FF01::1", {"DMAC" => dmac, "SHOST" => shost, "SMAC" =>  @smac, "WAIT" => false})    #node-local all nodes
+		ping6("FF01::2", {"DMAC" => dmac, "SHOST" => shost, "SMAC" =>  @smac, "WAIT" => false})    #node-local all routers
+		ping6("FF02::1", {"DMAC" => dmac, "SHOST" => shost, "SMAC" =>  @smac, "WAIT" => false})    #All nodes on the local network segment
+		ping6("FF02::2", {"DMAC" => dmac, "SHOST" => shost, "SMAC" =>  @smac, "WAIT" => false})    #All routers on the local network segment
+		ping6("FF02::5", {"DMAC" => dmac, "SHOST" => shost, "SMAC" =>  @smac, "WAIT" => false})    #OSPFv3 AllSPF routers
+		ping6("FF02::6", {"DMAC" => dmac, "SHOST" => shost, "SMAC" =>  @smac, "WAIT" => false})    #OSPFv3 AllDR routers
+		ping6("FF02::9", {"DMAC" => dmac, "SHOST" => shost, "SMAC" =>  @smac, "WAIT" => false})    #RIP routers
+		ping6("FF02::a", {"DMAC" => dmac, "SHOST" => shost, "SMAC" =>  @smac, "WAIT" => false})    #EIGRP routers
+		ping6("FF02::d", {"DMAC" => dmac, "SHOST" => shost, "SMAC" =>  @smac, "WAIT" => false})    #PIM routers
+		ping6("FF02::16", {"DMAC" => dmac, "SHOST" => shost, "SMAC" =>  @smac, "WAIT" => false})   #MLDv2 reports (defined in RFC 3810)
+		ping6("ff02::1:2", {"DMAC" => dmac, "SHOST" => shost, "SMAC" =>  @smac, "WAIT" => false})  #All DHCP servers and relay agents on the local network site (defined in RFC 3315)
+		ping6("ff05::1:3", {"DMAC" => dmac, "SHOST" => shost, "SMAC" =>  @smac, "WAIT" => false})  #All DHCP servers on the local network site (defined in RFC 3315)
 
 		# Listen for host advertisments
 		print_status("Listening for responses...")

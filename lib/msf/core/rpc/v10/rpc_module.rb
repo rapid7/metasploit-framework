@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 ##
 # $Id: module.rb 12624 2011-05-15 23:51:53Z hdm $
 ##
@@ -147,6 +148,11 @@ class RPC_Module < RPC_Base
 				_run_post(mod, opts)
 		end
 
+	end
+
+	def rpc_encode_formats
+		# Supported formats
+		Msf::Simple::Buffer.transform_formats + Msf::Util::EXE.to_executable_fmt_formats
 	end
 
 	def rpc_encode(data, encoder, options)

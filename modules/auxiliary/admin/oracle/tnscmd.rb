@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -25,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => ['MC'],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'DisclosureDate' => 'Feb 1 2009'
 		))
 
@@ -52,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 			select(nil,nil,nil,0.5)
 
 			print_status("reading")
-			res = sock.get_once(-1,5)
+			res = sock.get_once(-1,5) || ''
 			res = res.tr("[\200-\377]","[\000-\177]")
 			res = res.tr("[\000-\027\]",".")
 			res = res.tr("\177",".")

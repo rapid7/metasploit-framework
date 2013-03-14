@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/post/meterpreter'
 require 'rex/parser/arguments'
 
@@ -43,11 +44,9 @@ class Console::CommandDispatcher::Core
 			"close"      => "Closes a channel",
 			"channel"    => "Displays information about active channels",
 			"exit"       => "Terminate the meterpreter session",
-			"detach"     => "Detach the meterpreter session (for http/https)",
 			"help"       => "Help menu",
 			"interact"   => "Interacts with a channel",
 			"irb"        => "Drop into irb scripting mode",
-			"migrate"    => "Migrate the server to another process",
 			"use"        => "Deprecated alias for 'load'",
 			"load"       => "Load one or more meterpreter extensions",
 			"quit"       => "Terminate the meterpreter session",
@@ -61,6 +60,18 @@ class Console::CommandDispatcher::Core
 			"enable_unicode_encoding"  => "Enables encoding of unicode strings",
 			"disable_unicode_encoding" => "Disables encoding of unicode strings"
 		}
+
+		if client.passive_service
+			c["detach"] = "Detach the meterpreter session (for http/https)"
+		end
+		# The only meterp that implements this right now is native Windows and for
+		# whatever reason it is not adding core_migrate to its list of commands.
+		# Use a dumb platform til it gets sorted.
+		#if client.commands.include? "core_migrate"
+		if client.platform =~ /win/
+			c["migrate"] = "Migrate the server to another process"
+		end
+
 		if (msf_loaded?)
 			c["info"] = "Displays information about a Post module"
 		end
@@ -83,6 +94,7 @@ class Console::CommandDispatcher::Core
 	end
 
 	def cmd_background
+		print_status "Backgrounding session #{client.name}..."
 		client.interacting = false
 	end
 
@@ -91,6 +103,7 @@ class Console::CommandDispatcher::Core
 	#
 	@@channel_opts = Rex::Parser::Arguments.new(
 		"-c" => [ true,  "Close the given channel." ],
+		"-k" => [ true,  "Close the given channel." ],
 		"-i" => [ true,  "Interact with the given channel." ],
 		"-l" => [ false, "List active channels." ],
 		"-r" => [ true,  "Read from the given channel." ],
@@ -108,21 +121,20 @@ class Console::CommandDispatcher::Core
 	# Performs operations on the supplied channel.
 	#
 	def cmd_channel(*args)
-		if args.include?("-h") or args.include?("--help")
+		if args.empty? or args.include?("-h") or args.include?("--help")
 			cmd_channel_help
 			return
 		end
 
 		mode = nil
 		chan = nil
-		data = []
 
 		# Parse options
 		@@channel_opts.parse(args) { |opt, idx, val|
 			case opt
 			when "-l"
 				mode = :list
-			when "-c"
+			when "-c", "-k"
 				mode = :close
 				chan = val
 			when "-i"
@@ -179,14 +191,35 @@ class Console::CommandDispatcher::Core
 		end
 	end
 
+	def cmd_channel_tabs(str, words)
+		case words.length
+		when 1
+			@@channel_opts.fmt.keys
+		when 2
+			case words[1]
+			when "-k", "-c", "-i", "-r", "-w"
+				tab_complete_channels
+			else
+				[]
+			end
+		else
+			[]
+		end
+	end
+
+	def cmd_close_help
+		print_line "Usage: close <channel_id>"
+		print_line
+		print_line "Closes the supplied channel."
+		print_line
+	end
+
 	#
 	# Closes a supplied channel.
 	#
 	def cmd_close(*args)
 		if (args.length == 0)
-			print_line(
-				"Usage: close channel_id\n\n" +
-				"Closes the supplied channel.")
+			cmd_close_help
 			return true
 		end
 
@@ -203,6 +236,12 @@ class Console::CommandDispatcher::Core
 		end
 	end
 
+	def cmd_close_tabs(str, words)
+		return [] if words.length > 1
+
+		return tab_complete_channels
+	end
+
 	#
 	# Terminates the meterpreter session.
 	#
@@ -214,6 +253,17 @@ class Console::CommandDispatcher::Core
 	end
 
 	alias cmd_quit cmd_exit
+
+	def cmd_detach_help
+		print_line "Detach from the victim. Only possible for non-stream sessions (http/https)"
+		print_line
+		print_line "The victim will continue to attempt to call back to the handler until it"
+		print_line "successfully connects (which may happen immediately if you have a handler"
+		print_line "running in the background), or reaches its expiration."
+		print_line
+		print_line "This session may #{client.passive_service ? "" : "NOT"} be detached."
+		print_line
+	end
 
 	#
 	# Disconnects the session
@@ -227,14 +277,19 @@ class Console::CommandDispatcher::Core
 		shell.stop
 	end
 
+	def cmd_interact_help
+		print_line "Usage: interact <channel_id>"
+		print_line
+		print_line "Interacts with the supplied channel."
+		print_line
+	end
+
 	#
 	# Interacts with a channel.
 	#
 	def cmd_interact(*args)
 		if (args.length == 0)
-			print_line(
-				"Usage: interact channel_id\n\n" +
-				"Interacts with the supplied channel.")
+			cmd_info_help
 			return true
 		end
 
@@ -250,6 +305,8 @@ class Console::CommandDispatcher::Core
 		end
 	end
 
+	alias cmd_interact_tabs cmd_close_tabs
+
 	#
 	# Runs the IRB scripting shell
 	#
@@ -260,15 +317,22 @@ class Console::CommandDispatcher::Core
 		Rex::Ui::Text::IrbShell.new(binding).run
 	end
 
+	def cmd_migrate_help
+		print_line "Usage: migrate <pid>"
+		print_line
+		print_line "Migrates the server instance to another process."
+		print_line "NOTE: Any open channels or other dynamic state will be lost."
+		print_line
+	end
+
 	#
 	# Migrates the server to the supplied process identifier.
 	#
+	# @param args [Array<String>] Commandline arguments, only -h or a pid
+	# @return [void]
 	def cmd_migrate(*args)
-		if (args.length == 0)
-			print_line(
-				"Usage: migrate pid\n\n" +
-				"Migrates the server instance to another process.\n" +
-				"Note: Any open channels or other dynamic state will be lost.")
+		if ( args.length == 0 or args.include?("-h") )
+			cmd_migrate_help
 			return true
 		end
 
@@ -278,7 +342,15 @@ class Console::CommandDispatcher::Core
 			return
 		end
 
-		print_status("Migrating to #{pid}...")
+		begin
+			server = client.sys.process.open
+		rescue TimeoutError => e
+			elog(e.to_s)
+		rescue RequestError => e
+			elog(e.to_s)
+		end
+
+		server ? print_status("Migrating from #{server.pid} to #{pid}...") : print_status("Migrating to #{pid}")
 
 		# Do this thang.
 		client.core.migrate(pid)
@@ -300,8 +372,6 @@ class Console::CommandDispatcher::Core
 		if (args.length == 0)
 			args.unshift("-h")
 		end
-
-		modules = nil
 
 		@@load_opts.parse(args) { |opt, idx, val|
 			case opt
@@ -370,14 +440,19 @@ class Console::CommandDispatcher::Core
 	alias cmd_use_help cmd_load_help
 	alias cmd_use_tabs cmd_load_tabs
 
+	def cmd_read_help
+		print_line "Usage: read <channel_id> [length]"
+		print_line
+		print_line "Reads data from the supplied channel."
+		print_line
+	end
+
 	#
 	# Reads data from a channel.
 	#
 	def cmd_read(*args)
 		if (args.length == 0)
-			print_line(
-				"Usage: read channel_id [length]\n\n" +
-				"Reads data from the supplied channel.")
+			cmd_read_help
 			return true
 		end
 
@@ -400,6 +475,8 @@ class Console::CommandDispatcher::Core
 
 		return true
 	end
+
+	alias cmd_read_tabs cmd_close_tabs
 
 	def cmd_run_help
 		print_line "Usage: run <script> [arguments]"
@@ -426,14 +503,18 @@ class Console::CommandDispatcher::Core
 			# Framework instance.  If we don't, or if no such module exists,
 			# fall back to using the scripting interface.
 			if (msf_loaded? and mod = client.framework.modules.create(script_name))
-				omod = mod
-				mod = client.framework.modules.reload_module(mod)
-				if (not mod)
-					print_error("Failed to reload module: #{client.framework.modules.failed[omod.file_path]}")
+				original_mod = mod
+				reloaded_mod = client.framework.modules.reload_module(original_mod)
+
+				unless reloaded_mod
+					error = client.framework.modules.module_load_error_by_path[original_mod.file_path]
+					print_error("Failed to reload module: #{error}")
+
 					return
 				end
+
 				opts = (args + [ "SESSION=#{client.sid}" ]).join(',')
-				mod.run_simple(
+				reloaded_mod.run_simple(
 					#'RunAsJob' => true,
 					'LocalInput'  => shell.input,
 					'LocalOutput' => shell.output,
@@ -617,8 +698,7 @@ class Console::CommandDispatcher::Core
 		}
 
 		# Find the channel associated with this cid, assuming the cid is valid.
-		if ((!cid) or
-		    (!(channel = client.find_channel(cid))))
+		if ((!cid) or (!(channel = client.find_channel(cid))))
 			print_error("Invalid channel identifier specified.")
 			return true
 		end
@@ -668,17 +748,15 @@ class Console::CommandDispatcher::Core
 		return true
 	end
 
-	def cmd_resource_tabs(str, words)
-		return [] if words.length > 1
-
-		tab_complete_filenames(str, words)
+	def cmd_resource_help
+		print_line "Usage: resource <path1> [path2 ...]"
+		print_line
+		print_line "Run the commands stored in the supplied files."
+		print_line
 	end
 
 	def cmd_resource(*args)
 		if args.empty?
-			print(
-				"Usage: resource path1 path2" +
-				  "Run the commands stored in the supplied files.\n")
 			return false
 		end
 		args.each do |glob|
@@ -707,6 +785,12 @@ class Console::CommandDispatcher::Core
 				end
 			end
 		end
+	end
+
+	def cmd_resource_tabs(str, words)
+		return [] if words.length > 1
+
+		tab_complete_filenames(str, words)
 	end
 
 	def cmd_enable_unicode_encoding
@@ -782,12 +866,9 @@ protected
 	end
 
 	def tab_complete_postmods
-		# XXX This might get slow with a large number of post
-		# modules.  The proper solution is probably to implement a
-		# Module::Post#session_compatible?(session_object_or_int) method
 		tabs = client.framework.modules.post.map { |name,klass|
-			mod = klass.new
-			if mod.compatible_sessions.include?(client.sid)
+			mod = client.framework.modules.post.create(name)
+			if mod and mod.session_compatible?(client)
 				mod.fullname.dup
 			else
 				nil
@@ -796,6 +877,10 @@ protected
 
 		# nils confuse readline
 		tabs.compact
+	end
+
+	def tab_complete_channels
+		client.channels.keys.map { |k| k.to_s }
 	end
 
 end

@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -27,8 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 			should be flagged via an internal or external SMTP server.
 			},
 			'License'        => MSF_LICENSE,
-			'Author'         =>  ['willis'],
-			'Version'        => '$Revision$'
+			'Author'         =>  ['willis']
 		))
 			register_options(
 				[
@@ -53,4 +48,3 @@ class Metasploit3 < Msf::Auxiliary
 		resp = send_message(msg.to_s)
 	end
 end
-

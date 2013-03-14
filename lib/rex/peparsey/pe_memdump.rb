@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 # $Id$
 
@@ -23,11 +24,11 @@ class PeMemDump < Pe
 	end
 
 	def self.new_from_file(filename, disk_backed = false)
-	
+
 		if filename[-4, 4] != '.rng'
 			raise "Not a .rng file: #{filename}"
 		end
-		
+
 		if filename[-9, 9] == "index.rng"
 			raise SkipError
 		end
@@ -50,7 +51,7 @@ class PeMemDump < Pe
 		self.sections = [ self.header_section ]
 		self.image_base = 0
 	end
-	
+
 	def all_sections
 		self.sections
 	end

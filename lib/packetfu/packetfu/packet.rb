@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module PacketFu
 
 	# Packet is the parent class of EthPacket, IPPacket, UDPPacket, TCPPacket, and all

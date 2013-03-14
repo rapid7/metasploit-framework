@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 # Namespace for Metasploit branch.
 module Msf
 module Db

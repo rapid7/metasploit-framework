@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Msf
 
 ###
@@ -282,8 +283,8 @@ module Auxiliary::Cisco
 
 				when /^\s*username ([^\s]+) (secret|password) (\d+) ([^\s]+)/i
 					user  = $1
-					stype = $2.to_i
-					shash = $3
+					stype = $3.to_i
+					shash = $4
 
 					if stype == 5
 						print_good("#{thost}:#{tport} Username '#{user}' with MD5 Encrypted Password: #{shash}")

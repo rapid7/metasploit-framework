@@ -1,0 +1,17 @@
+en:
+  activerecord:
+    errors:
+      messages:
+        invalid_transition: "cannot transition"
+  activemodel:
+    errors:
+      messages:
+        invalid_transition: "cannot %{event}"
+  mongoid:
+    errors:
+      messages:
+        invalid_transition: "cannot transition"
+  mongo_mapper:
+    errors:
+      messages:
+        invalid_transition: "cannot transition"

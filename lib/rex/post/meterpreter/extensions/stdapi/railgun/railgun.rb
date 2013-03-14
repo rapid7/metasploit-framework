@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 # Copyright (c) 2010, patrickHVE@googlemail.com
 # All rights reserved.
 #
@@ -76,6 +77,7 @@ class Railgun
 		'netapi32',
 		'crypt32',
 		'wlanapi',
+		'wldap32'
 	].freeze
 
 	##

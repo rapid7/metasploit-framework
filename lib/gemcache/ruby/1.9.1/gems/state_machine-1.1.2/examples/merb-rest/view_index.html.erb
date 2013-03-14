@@ -1,0 +1,23 @@
+<h1>Listing Users</h1>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>State</th>
+    <th>Access State</th>
+  </tr>
+  
+<% @users.each do |user| %>
+  <tr>
+    <td><%=h user.name %></td>
+    <td><%=h user.human_state_name %></td>
+    <td><%=h user.human_access_state_name %></td>
+    <td><%= link_to 'Show', resource(user) %></td>
+    <td><%= link_to 'Edit', resource(user, :edit) %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New User', resource(:users, :new) %>

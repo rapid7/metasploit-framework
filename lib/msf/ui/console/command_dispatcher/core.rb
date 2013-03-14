@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'msf/ui/console/command_dispatcher/encoder'
 require 'msf/ui/console/command_dispatcher/exploit'
 require 'msf/ui/console/command_dispatcher/nop'
@@ -67,6 +68,9 @@ class Core
 	@@search_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner."                                   ])
 
+	@@go_pro_opts = Rex::Parser::Arguments.new(
+		"-h" => [ false, "Help banner."                                   ])
+
 	# The list of data store elements that cannot be set when in defanged
 	# mode.
 	DefangedProhibitedDataStoreElements = [ "MsfModulePaths" ]
@@ -81,6 +85,7 @@ class Core
 			"connect"  => "Communicate with a host",
 			"color"    => "Toggle color",
 			"exit"     => "Exit the console",
+			"go_pro"   => "Launch Metasploit web GUI",
 			"help"     => "Help menu",
 			"info"     => "Displays information about one or more module",
 			"irb"      => "Drop into irb scripting mode",
@@ -88,7 +93,7 @@ class Core
 			"kill"     => "Kill a job",
 			"load"     => "Load a framework plugin",
 			"loadpath" => "Searches for and loads modules from a path",
-			"popm"     => "Pops the latest module off of the module stack and makes it active",
+			"popm"     => "Pops the latest module off the stack and makes it active",
 			"pushm"    => "Pushes the active or list of modules onto the module stack",
 			"previous" => "Sets the previously loaded module as the current module",
 			"quit"     => "Exit the console",
@@ -130,6 +135,17 @@ class Core
 	#
 	def name
 		"Core"
+	end
+
+	# Indicates the base dir where Metasploit Framework is installed.
+	def msfbase_dir
+		base = __FILE__
+		while File.symlink?(base)
+			base = File.expand_path(File.readlink(base), File.dirname(base))
+		end
+		File.expand_path(
+			File.join(File.dirname(base), "..","..","..","..","..")
+		)
 	end
 
 	def cmd_color_help
@@ -231,7 +247,8 @@ class Core
 			begin
 				[
 					::Msf::Config.script_directory + File::SEPARATOR + "resource",
-					::Msf::Config.user_script_directory + File::SEPARATOR + "resource"
+					::Msf::Config.user_script_directory + File::SEPARATOR + "resource",
+					"."
 				].each do |dir|
 					next if not ::File.exist? dir
 					tabs += ::Dir.new(dir).find_all { |e|
@@ -338,6 +355,20 @@ class Core
 	#
 	def cmd_banner(*args)
 		banner  = "%cya" + Banner.to_s + "%clr\n\n"
+
+		if is_apt
+			content = [
+				"Large pentest? List, sort, group, tag and search your hosts and services\nin Metasploit Pro -- type 'go_pro' to launch it now.",
+				"Frustrated with proxy pivoting? Upgrade to layer-2 VPN pivoting with\nMetasploit Pro -- type 'go_pro' to launch it now.",
+				"Save your shells from AV! Upgrade to advanced AV evasion using dynamic\nexe templates with Metasploit Pro -- type 'go_pro' to launch it now.",
+				"Easy phishing: Set up email templates, landing pages and listeners\nin Metasploit Pro’s wizard -- type 'go_pro' to launch it now.",
+				"Using notepad to track pentests? Have Metasploit Pro report on hosts,\nservices, sessions and evidence -- type 'go_pro' to launch it now.",
+				"Tired of typing ‘set RHOSTS’? Click & pwn with Metasploit Pro\n-- type 'go_pro' to launch it now."
+			]
+			banner << content.sample # Ruby 1.9-ism!
+			banner << "\n\n"
+		end
+
 		banner << "       =[ %yelmetasploit v#{Msf::Framework::Version} [core:#{Msf::Framework::VersionCore} api:#{Msf::Framework::VersionAPI}]%clr\n"
 		banner << "+ -- --=[ "
 		banner << "#{framework.stats.num_exploits} exploits - #{framework.stats.num_auxiliary} auxiliary - #{framework.stats.num_post} post\n"
@@ -345,6 +376,7 @@ class Core
 
 		oldwarn = nil
 		avdwarn = nil
+
 		banner << "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops\n"
 		if ( ::Msf::Framework::RepoRevision.to_i > 0 and ::Msf::Framework::RepoUpdatedDate)
 			tstamp = ::Msf::Framework::RepoUpdatedDate.strftime("%Y.%m.%d")
@@ -940,7 +972,7 @@ class Core
 
 		# Parse any extra options that should be passed to the plugin
 		args.each { |opt|
-			k, v = opt.split(/=/)
+			k, v = opt.split(/\=/)
 
 			opts[k] = v if (k and v)
 		}
@@ -973,17 +1005,28 @@ class Core
 	# Tab completion for the load command
 	#
 	def cmd_load_tabs(str, words)
-		return [] if words.length > 1
+		tabs = []
 
-		begin
-			return Dir.new(Msf::Config.plugin_directory).find_all { |e|
-				path = Msf::Config.plugin_directory + File::SEPARATOR + e
-				File.file?(path) and File.readable?(path)
-			}.map { |e|
-				e.sub!(/\.rb$/, '')
-			}
-		rescue Exception
+		if (not words[1] or not words[1].match(/^\//))
+			# then let's start tab completion in the scripts/resource directories
+			begin
+				[
+					Msf::Config.user_plugin_directory,
+					Msf::Config.plugin_directory
+				].each do |dir|
+					next if not ::File.exist? dir
+					tabs += ::Dir.new(dir).find_all { |e|
+						path = dir + File::SEPARATOR + e
+						::File.file?(path) and File.readable?(path)
+					}
+				end
+			rescue Exception
+			end
+		else
+			tabs += tab_complete_filenames(str,words)
 		end
+		return tabs.map{|e| e.sub(/.rb/, '')}
+
 	end
 
 	def cmd_route_help
@@ -1220,7 +1263,7 @@ class Core
 				curr_path = path
 
 				# Load modules, but do not consult the cache
-				if (counts = framework.modules.add_module_path(path, false))
+				if (counts = framework.modules.add_module_path(path))
 					counts.each_pair { |type, count|
 						totals[type] = (totals[type]) ? (totals[type] + count) : count
 
@@ -1285,12 +1328,14 @@ class Core
 			"name"     => "Modules with a matching descriptive name",
 			"path"     => "Modules with a matching path or reference name",
 			"platform" => "Modules affecting this platform",
+			"port"     => "Modules with a matching remote port",
 			"type"     => "Modules of a specific type (exploit, auxiliary, or post)",
 			"app"      => "Modules that are client or server attacks",
 			"author"   => "Modules written by this author",
 			"cve"      => "Modules with a matching CVE ID",
 			"bid"      => "Modules with a matching Bugtraq ID",
-			"osvdb"    => "Modules with a matching OSVDB ID"
+			"osvdb"    => "Modules with a matching OSVDB ID",
+			"edb"      => "Modules with a matching Exploit-DB ID"
 		}.each_pair do |keyword, description|
 			print_line "  #{keyword.ljust 10}:  #{description}"
 		end
@@ -1319,15 +1364,43 @@ class Core
 			end
 		}
 
+		if framework.db and framework.db.migrated and framework.db.modules_cached
+			search_modules_sql(match)
+			return
+		end
+
+		print_warning("Database not connected or cache not built, using slow search")
+
 		tbl = generate_module_table("Matching Modules")
-		framework.modules.each do |m|
-			o = framework.modules.create(m[0])
-			if not o.search_filter(match)
-				tbl << [ o.fullname, o.disclosure_date.to_s, o.rank_to_s, o.name ]
+		[
+			framework.exploits,
+			framework.auxiliary,
+			framework.post,
+			framework.payloads,
+			framework.nops,
+			framework.encoders
+		].each do |mset|
+			mset.each do |m|
+				o = mset.create(m[0]) rescue nil
+
+				# Expected if modules are loaded without the right pre-requirements
+				next if not o
+
+				if not o.search_filter(match)
+					tbl << [ o.fullname, o.disclosure_date.to_s, o.rank_to_s, o.name ]
+				end
 			end
 		end
 		print_line(tbl.to_s)
 
+	end
+
+	def search_modules_sql(match)
+		tbl = generate_module_table("Matching Modules")
+		framework.db.search_modules(match).each do |o|
+			tbl << [ o.fullname, o.disclosure_date.to_s, RankingName[o.rank].to_s, o.name ]
+		end
+		print_line(tbl.to_s)
 	end
 
 	def cmd_search_tabs(str, words)
@@ -1484,7 +1557,7 @@ class Core
 					end
 					sessions.each do |s|
 						session = framework.sessions.get(s)
-						print_status("Running '#{cmd}' on #{session.type} session #{s} (#{session.tunnel_peer})")
+						print_status("Running '#{cmd}' on #{session.type} session #{s} (#{session.session_host})")
 
 						if (session.type == "meterpreter")
 							# If session.sys is nil, dont even try..
@@ -1586,7 +1659,7 @@ class Core
 				sessions.each do |s|
 					if ((session = framework.sessions.get(s)))
 						if (script_paths[session.type])
-							print_status("Session #{s} (#{session.tunnel_peer}):")
+							print_status("Session #{s} (#{session.session_host}):")
 							begin
 								session.execute_file(script_paths[session.type], extra)
 							rescue ::Exception => e
@@ -1689,6 +1762,14 @@ class Core
 			global = true
 		end
 
+		# Decide if this is an append operation
+		append = false
+
+		if (args[0] == '-a')
+			args.shift
+			append = true
+		end
+
 		# Determine which data store we're operating on
 		if (active_module and global == false)
 			datastore = active_module.datastore
@@ -1746,9 +1827,13 @@ class Core
 			return true
 		end
 
-		datastore[name] = value
+		if append
+			datastore[name] = datastore[name] + value
+		else
+			datastore[name] = value
+		end
 
-		print_line("#{name} => #{value}")
+		print_line("#{name} => #{datastore[name]}")
 	end
 
 	#
@@ -1804,7 +1889,7 @@ class Core
 		end
 
 		if (mod.exploit? and mod.datastore['PAYLOAD'])
-			p = framework.modules.create(mod.datastore['PAYLOAD'])
+			p = framework.payloads.create(mod.datastore['PAYLOAD'])
 			if (p)
 				p.options.sorted.each { |e|
 					name, opt = e
@@ -2264,10 +2349,14 @@ class Core
 	# Returns the revision of the framework and console library
 	#
 	def cmd_version(*args)
-		ver = "$Revision: 14065 $"
-
-		print_line("Framework: #{Msf::Framework::Version}.#{Msf::Framework::Revision.match(/ (.+?) \$/)[1]}")
-		print_line("Console  : #{Msf::Framework::Version}.#{ver.match(/ (.+?) \$/)[1]}")
+		svn_console_version = "$Revision: 15168 $"
+		svn_metasploit_version = Msf::Framework::Revision.match(/ (.+?) \$/)[1] rescue nil
+		if svn_metasploit_version
+			print_line("Framework: #{Msf::Framework::Version}.#{svn_metasploit_version}")
+		else
+			print_line("Framework: #{Msf::Framework::Version}")
+		end
+		print_line("Console  : #{Msf::Framework::Version}.#{svn_console_version.match(/ (.+?) \$/)[1]}")
 
 		return true
 	end
@@ -2306,6 +2395,7 @@ class Core
 			return option_values_payloads() if opt.upcase == 'PAYLOAD'
 			return option_values_targets()  if opt.upcase == 'TARGET'
 			return option_values_nops()     if opt.upcase == 'NOPS'
+			return option_values_encoders() if opt.upcase == 'StageEncoder'
 		end
 
 		# Well-known option names specific to auxiliaries
@@ -2319,7 +2409,7 @@ class Core
 		end
 
 		# Well-known option names specific to post-exploitation
-		if (mod.post?)
+		if (mod.post? or mod.exploit?)
 			return option_values_sessions() if opt.upcase == 'SESSION'
 		end
 
@@ -2330,7 +2420,7 @@ class Core
 
 		# How about the selected payload?
 		if (mod.exploit? and mod.datastore['PAYLOAD'])
-			p = framework.modules.create(mod.datastore['PAYLOAD'])
+			p = framework.payloads.create(mod.datastore['PAYLOAD'])
 			if (p and p.options.include?(opt))
 				res.concat(option_values_dispatch(p.options[opt], str, words))
 			end
@@ -2356,7 +2446,12 @@ class Core
 							res << addr
 						end
 					when 'LHOST'
-						res << Rex::Socket.source_address()
+						rh = self.active_module.datastore["RHOST"]
+						if rh and not rh.empty?
+							res << Rex::Socket.source_address(rh)
+						else
+							res << Rex::Socket.source_address()
+						end
 					else
 				end
 
@@ -2510,7 +2605,124 @@ class Core
 		return res
 	end
 
-protected
+	def cmd_go_pro_help
+		print_line "Usage: go_pro"
+		print_line
+		print_line "Launch the Metasploit web GUI"
+		print_line
+	end
+
+	def cmd_go_pro(*args)
+		@@go_pro_opts.parse(args) do |opt, idx, val|
+			case opt
+			when "-h"
+				cmd_go_pro_help
+				return false
+			end
+		end
+		unless is_apt
+			print_line " This command is only available on deb package installations,"
+			print_line " such as Kali Linux."
+			return false
+		end
+		unless is_metasploit_debian_package_installed
+			print_warning "You need to install the 'metasploit' package first."
+			print_warning "Type 'apt-get install -y metasploit' to do this now, then exit"
+			print_warning "and restart msfconsole to try again."
+			return false
+		end
+		# If I've gotten this far, I know that this is apt-installed, the
+		# metasploit package is here, and I'm ready to rock.
+		if is_metasploit_service_running
+			launch_metasploit_browser
+		else
+			print_status "Starting the Metasploit services. This can take a little time."
+			start_metasploit_service
+			select(nil,nil,nil,3)
+			if is_metasploit_service_running
+				launch_metasploit_browser
+			else
+				print_error "Metasploit services aren't running. Type 'service metasploit start' and try again."
+			end
+		end
+		return true
+	end
+
+	protected
+
+	#
+	# Go_pro methods -- these are used to start and connect to
+	# Metasploit Community / Pro.
+	#
+
+	# Note that this presumes a default port.
+	def launch_metasploit_browser
+		cmd = "/usr/bin/xdg-open"
+		unless ::File.executable_real? cmd
+			print_warning "Can't figure out your default browser, please visit https://localhost:3790"
+			print_warning "to start Metasploit Community / Pro."
+			return false
+		end
+		svc_log = File.expand_path(File.join(msfbase_dir, ".." , "engine", "prosvc_stdout.log"))
+		return unless ::File.readable_real? svc_log
+		really_started = false
+		# This method is a little lame but it's a short enough file that it
+		# shouldn't really matter that we open and close it a few times.
+		timeout = 0
+		until really_started
+			select(nil,nil,nil,3)
+			log_data = ::File.open(svc_log, "rb") {|f| f.read f.stat.size}
+			really_started = log_data =~ /^\[\*\] Ready/ # This is webserver ready
+			if really_started
+				print_line
+				print_good "Metasploit Community / Pro is up and running, connecting now."
+				print_good "If this is your first time connecting, you will be presented with"
+				print_good "a self-signed certificate warning. Accept it to create a new user."
+				select(nil,nil,nil,7)
+				browser_pid = ::Process.spawn(cmd, "https://localhost:3790")
+				::Process.detach(browser_pid)
+			elsif timeout >= 200 # 200 * 3 seconds is 10 minutes and that is tons of time.
+				print_line
+				print_warning "For some reason, Community / Pro didn't start in a timely fashion."
+				print_warning "You might want to restart the Metasploit services by typing"
+				print_warning "'service metasploit restart' . Sorry it didn't work out."
+				return false
+			else
+				print "."
+				timeout += 1
+			end
+		end
+	end
+
+	def start_metasploit_service
+		cmd = File.expand_path(File.join(msfbase_dir, '..', '..', '..', 'scripts', 'start.sh'))
+		return unless ::File.executable_real? cmd
+		%x{#{cmd}}.each_line do |line|
+			print_status line.chomp
+		end
+	end
+
+	def is_metasploit_service_running
+		cmd = "/usr/sbin/service"
+		system("#{cmd} metasploit status >/dev/null") # Both running returns true, otherwise, false.
+	end
+
+	def is_metasploit_debian_package_installed
+		cmd = "/usr/bin/dpkg"
+		return unless ::File.executable_real? cmd
+		installed_packages = %x{#{cmd} -l 'metasploit'}
+		installed_packages.each_line do |line|
+			if line =~ /^.i  metasploit / # Yes, trailing space
+				return true
+			end
+		end
+		return false
+	end
+
+	# Determines if this is an apt-based install
+	def is_apt
+		File.exists?(File.expand_path(File.join(msfbase_dir, '.apt')))
+	end
 
 	#
 	# Module list enumeration
@@ -2559,7 +2771,7 @@ protected
 		# If it's an exploit and a payload is defined, create it and
 		# display the payload's options
 		if (mod.exploit? and mod.datastore['PAYLOAD'])
-			p = framework.modules.create(mod.datastore['PAYLOAD'])
+			p = framework.payloads.create(mod.datastore['PAYLOAD'])
 
 			if (!p)
 				print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")
@@ -2624,7 +2836,7 @@ protected
 		# If it's an exploit and a payload is defined, create it and
 		# display the payload's options
 		if (mod.exploit? and mod.datastore['PAYLOAD'])
-			p = framework.modules.create(mod.datastore['PAYLOAD'])
+			p = framework.payloads.create(mod.datastore['PAYLOAD'])
 
 			if (!p)
 				print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")
@@ -2647,7 +2859,7 @@ protected
 		# If it's an exploit and a payload is defined, create it and
 		# display the payload's options
 		if (mod.exploit? and mod.datastore['PAYLOAD'])
-			p = framework.modules.create(mod.datastore['PAYLOAD'])
+			p = framework.payloads.create(mod.datastore['PAYLOAD'])
 
 			if (!p)
 				print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")
@@ -2733,4 +2945,3 @@ end
 
 
 end end end end
-

@@ -1,0 +1,8 @@
+TODO List:
+
+12Aug06: Noticed by Don Stocks. A TCP connect-request that results
+in a failed DNS resolution fires a fatal error back to user code.
+Uuuuuugly. We should probably cause an unbind event to get fired
+instead, and add some parameterization so the caller can detect
+the nature of the failure.
+

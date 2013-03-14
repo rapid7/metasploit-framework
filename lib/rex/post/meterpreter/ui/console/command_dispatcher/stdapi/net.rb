@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/post/meterpreter'
 require 'rex/service_manager'
 
@@ -54,11 +55,43 @@ class Console::CommandDispatcher::Stdapi::Net
 	# List of supported commands.
 	#
 	def commands
-		{
+		all = {
 			"ipconfig" => "Display interfaces",
+			"ifconfig" => "Display interfaces",
 			"route"    => "View and modify the routing table",
 			"portfwd"  => "Forward a local port to a remote service",
+			"arp"      => "Display the host ARP cache",
+			"netstat"  => "Display the network connections",
 		}
+		reqs = {
+			"ipconfig" => [ "stdapi_net_config_get_interfaces" ],
+			"ifconfig" => [ "stdapi_net_config_get_interfaces" ],
+			"route"    => [
+				# Also uses these, but we don't want to be unable to list them
+				# just because we can't alter them.
+				#"stdapi_net_config_add_route",
+				#"stdapi_net_config_remove_route",
+				"stdapi_net_config_get_routes"
+			],
+			# Only creates tcp channels, which is something whose availability
+			# we can't check directly at the moment.
+			"portfwd"  => [ ],
+			"arp"      => [ "stdapi_net_config_get_arp_table" ],
+			"netstat"  => [ "stdapi_net_config_get_netstat" ],
+		}
+
+		all.delete_if do |cmd, desc|
+			del = false
+			reqs[cmd].each do |req|
+				next if client.commands.include? req
+				del = true
+				break
+			end
+
+			del
+		end
+
+		all
 	end
 
 	#
@@ -67,6 +100,63 @@ class Console::CommandDispatcher::Stdapi::Net
 	def name
 		"Stdapi: Networking"
 	end
+	#
+	# Displays network connections of the remote machine.
+	#
+	def cmd_netstat(*args)
+		connection_table = client.net.config.netstat
+		tbl = Rex::Ui::Text::Table.new(
+		'Header'  => "Connection list",
+		'Indent'  => 4,
+		'Columns' =>
+			[
+				"Proto",
+				"Local address",
+				"Remote address",
+				"State",
+				"User",
+				"Inode",
+				"PID/Program name"
+			])
+
+		connection_table.each { |connection|
+			tbl << [ connection.protocol, connection.local_addr_str, connection.remote_addr_str,
+				connection.state, connection.uid, connection.inode, connection.pid_name]
+		}
+
+		if tbl.rows.length > 0
+			print("\n" + tbl.to_s + "\n")
+		else
+			print_line("Connection list is empty.")
+		end
+	end
+
+	#
+	# Displays ARP cache of the remote machine.
+	#
+	def cmd_arp(*args)
+		arp_table = client.net.config.arp_table
+		tbl = Rex::Ui::Text::Table.new(
+		'Header'  => "ARP cache",
+		'Indent'  => 4,
+		'Columns' =>
+			[
+				"IP address",
+				"MAC address",
+				"Interface"
+			])
+
+		arp_table.each { |arp|
+			tbl << [ arp.ip_addr, arp.mac_addr, arp.interface ]
+		}
+
+		if tbl.rows.length > 0
+			print("\n" + tbl.to_s + "\n")
+		else
+			print_line("ARP cache is empty.")
+		end
+	end
+
 
 	#
 	# Displays interfaces on the remote machine.
@@ -77,11 +167,13 @@ class Console::CommandDispatcher::Stdapi::Net
 		if (ifaces.length == 0)
 			print_line("No interfaces were found.")
 		else
-			client.net.config.each_interface { |iface|
+			ifaces.sort{|a,b| a.index <=> b.index}.each do |iface|
 				print("\n" + iface.pretty + "\n")
-			}
+			end
 		end
 	end
+
+	alias :cmd_ifconfig :cmd_ipconfig
 
 	#
 	# Displays or modifies the routing table on the remote machine.
@@ -114,25 +206,56 @@ class Console::CommandDispatcher::Stdapi::Net
 			when "list"
 				routes = client.net.config.routes
 
-				if (routes.length == 0)
-					print_line("No routes were found.")
-				else
-					tbl = Rex::Ui::Text::Table.new(
-						'Header'  => "Network routes",
-						'Indent'  => 4,
-						'Columns' =>
-							[
-								"Subnet",
-								"Netmask",
-								"Gateway"
-							])
+				# IPv4
+				tbl = Rex::Ui::Text::Table.new(
+					'Header'  => "IPv4 network routes",
+					'Indent'  => 4,
+					'Columns' =>
+						[
+							"Subnet",
+							"Netmask",
+							"Gateway",
+							"Metric",
+							"Interface"
+						])
 
-					routes.each { |route|
-						tbl << [ route.subnet, route.netmask, route.gateway ]
-					}
+				routes.select {|route|
+					Rex::Socket.is_ipv4?(route.netmask)
+				}.each { |route|
+					tbl << [ route.subnet, route.netmask, route.gateway, route.metric, route.interface ]
+				}
 
+				if tbl.rows.length > 0
 					print("\n" + tbl.to_s + "\n")
+				else
+					print_line("No IPv4 routes were found.")
 				end
+
+				# IPv6
+				tbl = Rex::Ui::Text::Table.new(
+					'Header'  => "IPv6 network routes",
+					'Indent'  => 4,
+					'Columns' =>
+						[
+							"Subnet",
+							"Netmask",
+							"Gateway",
+							"Metric",
+							"Interface"
+						])
+
+				routes.select {|route|
+					Rex::Socket.is_ipv6?(route.netmask)
+				}.each { |route|
+					tbl << [ route.subnet, route.netmask, route.gateway, route.metric, route.interface ]
+				}
+
+				if tbl.rows.length > 0
+					print("\n" + tbl.to_s + "\n")
+				else
+					print_line("No IPv6 routes were found.")
+				end
+
 			when "add"
                         	# Satisfy check to see that formatting is correct
                                 unless Rex::Socket::RangeWalker.new(args[0]).length == 1
@@ -144,7 +267,7 @@ class Console::CommandDispatcher::Stdapi::Net
                                         print_error "Invalid Subnet mask"
                                         return false
                                 end
-			
+
 				print_line("Creating route #{args[0]}/#{args[1]} -> #{args[2]}")
 
 				client.net.config.add_route(*args)
@@ -159,7 +282,7 @@ class Console::CommandDispatcher::Stdapi::Net
                                         print_error "Invalid Subnet mask"
                                         return false
                                 end
-			
+
 				print_line("Deleting route #{args[0]}/#{args[1]} -> #{args[2]}")
 
 				client.net.config.remove_route(*args)
@@ -274,7 +397,7 @@ class Console::CommandDispatcher::Stdapi::Net
 					else
 						print_error("Failed to stop TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
 						next
-					end 
+					end
 
 					counter += 1
 				end

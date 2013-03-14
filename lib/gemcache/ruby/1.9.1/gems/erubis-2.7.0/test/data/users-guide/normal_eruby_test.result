@@ -1,0 +1,11 @@
+$ erubis -x normal-eruby-test.eruby
+_buf = '';
+def list_items(items)
+
+ for item in items 
+ _buf << '<li>'; _buf << ( item ).to_s; _buf << '</li>
+'; end 
+
+end
+
+_buf.to_s

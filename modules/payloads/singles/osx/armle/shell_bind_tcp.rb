@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -22,8 +18,7 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'OSX Command Shell, Bind TCP Inline',
-			'Version'       => '$Revision$',
+			'Name'          => 'Apple iOS Command Shell, Bind TCP Inline',
 			'Description'   => 'Listen for a connection and spawn a command shell',
 			'Author'        => 'hdm',
 			'License'       => MSF_LICENSE,

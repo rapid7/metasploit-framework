@@ -188,7 +188,7 @@ opt.each do |opt,arg|
 				wait = arg.to_i
 			end
 		when	'--reportdelete'
-			if arg = ''
+			if arg == ''
 				deletereport=true
 			else
 				operation = "reportdelete"

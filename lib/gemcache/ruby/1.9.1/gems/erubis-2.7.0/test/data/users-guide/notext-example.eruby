@@ -1,0 +1,14 @@
+<h3>List</h3>
+<% if !@list || @list.empty? %>
+<p>not found.</p>
+<% else %>
+<table>
+  <tbody>
+    <% @list.each_with_index do |item, i| %>
+    <tr bgcolor="<%= i%2 == 0 ? '#FFCCCC' : '#CCCCFF' %>">
+      <td><%= item %></td>
+    </tr>
+    <% end %>
+  </tbody>
+</table>
+<% end %>

@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 require 'rex/post/meterpreter/object_aliases'
 require 'rex/post/meterpreter/extension'

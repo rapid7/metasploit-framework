@@ -1,0 +1,787 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Module: Erubis::Helpers::RailsFormHelper</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Module</strong></td>
+          <td class="class-name-in-header">Erubis::Helpers::RailsFormHelper</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../../files/erubis/helpers/rails_form_helper_rb.html">
+                erubis/helpers/rails_form_helper.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000095">_pp_check_box_checked?</a>&nbsp;&nbsp;
+      <a href="#M000085">_pp_error_tags</a>&nbsp;&nbsp;
+      <a href="#M000097">_pp_radio_button_checked?</a>&nbsp;&nbsp;
+      <a href="#M000086">_pp_remove_error_div</a>&nbsp;&nbsp;
+      <a href="#M000098">_pp_select</a>&nbsp;&nbsp;
+      <a href="#M000099">_pp_select_options</a>&nbsp;&nbsp;
+      <a href="#M000094">pp_check_box</a>&nbsp;&nbsp;
+      <a href="#M000101">pp_collection_select</a>&nbsp;&nbsp;
+      <a href="#M000102">pp_country_select</a>&nbsp;&nbsp;
+      <a href="#M000084">pp_error_on</a>&nbsp;&nbsp;
+      <a href="#M000092">pp_file_field</a>&nbsp;&nbsp;
+      <a href="#M000088">pp_form_tag</a>&nbsp;&nbsp;
+      <a href="#M000091">pp_hidden_field</a>&nbsp;&nbsp;
+      <a href="#M000105">pp_image_submit_tag</a>&nbsp;&nbsp;
+      <a href="#M000090">pp_password_field</a>&nbsp;&nbsp;
+      <a href="#M000096">pp_radio_button</a>&nbsp;&nbsp;
+      <a href="#M000083">pp_render_partial</a>&nbsp;&nbsp;
+      <a href="#M000100">pp_select</a>&nbsp;&nbsp;
+      <a href="#M000104">pp_submit_tag</a>&nbsp;&nbsp;
+      <a href="#M000087">pp_tag_helper</a>&nbsp;&nbsp;
+      <a href="#M000082">pp_template_filename</a>&nbsp;&nbsp;
+      <a href="#M000081">pp_template_filename</a>&nbsp;&nbsp;
+      <a href="#M000093">pp_text_area</a>&nbsp;&nbsp;
+      <a href="#M000089">pp_text_field</a>&nbsp;&nbsp;
+      <a href="#M000103">pp_time_zone_select</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000095" class="method-detail">
+        <a name="M000095"></a>
+
+        <div class="method-heading">
+          <a href="#M000095" class="method-signature">
+          <span class="method-name">_pp_check_box_checked?</span><span class="method-args">(value, checked_value)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000095-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000095-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 106</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">_pp_check_box_checked?</span>(<span class="ruby-identifier">value</span>, <span class="ruby-identifier">checked_value</span>)
+    <span class="ruby-keyword kw">return</span> <span class="ruby-constant">ActionView</span><span class="ruby-operator">::</span><span class="ruby-constant">Helpers</span><span class="ruby-operator">::</span><span class="ruby-constant">InstanceTag</span><span class="ruby-operator">::</span><span class="ruby-identifier">check_box_checked?</span>(<span class="ruby-identifier">value</span>, <span class="ruby-identifier">checked_value</span>)
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000085" class="method-detail">
+        <a name="M000085"></a>
+
+        <div class="method-heading">
+          <a href="#M000085" class="method-signature">
+          <span class="method-name">_pp_error_tags</span><span class="method-args">(value)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000085-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000085-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 46</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">_pp_error_tags</span>(<span class="ruby-identifier">value</span>)
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">value</span> <span class="ruby-operator">?</span> [<span class="ruby-value str">'&lt;div class=&quot;fieldWithErrors&quot;&gt;'</span>, <span class="ruby-value str">'&lt;/div&gt;'</span>] <span class="ruby-operator">:</span> [<span class="ruby-value str">''</span>, <span class="ruby-value str">''</span>]
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000097" class="method-detail">
+        <a name="M000097"></a>
+
+        <div class="method-heading">
+          <a href="#M000097" class="method-signature">
+          <span class="method-name">_pp_radio_button_checked?</span><span class="method-args">(value, tag_value)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000097-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000097-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 117</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">_pp_radio_button_checked?</span>(<span class="ruby-identifier">value</span>, <span class="ruby-identifier">tag_value</span>)
+    <span class="ruby-keyword kw">return</span> <span class="ruby-constant">ActionView</span><span class="ruby-operator">::</span><span class="ruby-constant">Helpers</span><span class="ruby-operator">::</span><span class="ruby-constant">InstanceTag</span><span class="ruby-operator">::</span><span class="ruby-identifier">radio_button_checked?</span>(<span class="ruby-identifier">value</span>, <span class="ruby-identifier">tag_value</span>)
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000086" class="method-detail">
+        <a name="M000086"></a>
+
+        <div class="method-heading">
+          <a href="#M000086" class="method-signature">
+          <span class="method-name">_pp_remove_error_div</span><span class="method-args">(s)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000086-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000086-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 50</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">_pp_remove_error_div</span>(<span class="ruby-identifier">s</span>)
+    <span class="ruby-identifier">s</span>.<span class="ruby-identifier">sub!</span>(<span class="ruby-regexp re">/\A&lt;div class=&quot;fieldWithErrors&quot;&gt;(.*)&lt;\/div&gt;\z/</span>, <span class="ruby-value str">'\1'</span>)
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">s</span>
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000098" class="method-detail">
+        <a name="M000098"></a>
+
+        <div class="method-heading">
+          <a href="#M000098" class="method-signature">
+          <span class="method-name">_pp_select</span><span class="method-args">(object, method, collection, priority_collection, options={}, html_options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000098-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000098-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 121</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">_pp_select</span>(<span class="ruby-identifier">object</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">collection</span>, <span class="ruby-identifier">priority_collection</span>, <span class="ruby-identifier">options</span>={}, <span class="ruby-identifier">html_options</span>={})
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">pp_error_on</span>(<span class="ruby-identifier">object</span>, <span class="ruby-identifier">method</span>) <span class="ruby-keyword kw">do</span>
+      <span class="ruby-identifier">s</span> = <span class="ruby-value str">&quot;&quot;</span>
+      <span class="ruby-comment cmt">## start tag</span>
+      <span class="ruby-identifier">s</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-node">&quot;&lt;select id=\&quot;#{object}_#{method}\&quot; name=\&quot;#{object}[#{method}]\&quot;&quot;</span>
+      <span class="ruby-keyword kw">for</span> <span class="ruby-identifier">key</span>, <span class="ruby-identifier">val</span> <span class="ruby-keyword kw">in</span> <span class="ruby-identifier">html_options</span><span class="ruby-operator">:</span>
+          <span class="ruby-identifier">s</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-node">&quot; #{key}=\&quot;#{val}\&quot;&quot;</span>
+      <span class="ruby-keyword kw">end</span>
+      <span class="ruby-identifier">s</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value str">&quot;&gt;\n&quot;</span>
+      <span class="ruby-comment cmt">## selected table</span>
+      <span class="ruby-identifier">key</span> = <span class="ruby-identifier">options</span>.<span class="ruby-identifier">key?</span>(<span class="ruby-identifier">:value</span>) <span class="ruby-operator">?</span> <span class="ruby-identifier">:value</span> <span class="ruby-operator">:</span> (<span class="ruby-identifier">options</span>.<span class="ruby-identifier">key?</span>(<span class="ruby-value str">'value'</span>) <span class="ruby-operator">?</span> <span class="ruby-value str">'value'</span> <span class="ruby-operator">:</span> <span class="ruby-keyword kw">nil</span>)
+      <span class="ruby-keyword kw">if</span>    <span class="ruby-identifier">key</span>.<span class="ruby-identifier">nil?</span>                ;  <span class="ruby-identifier">selected</span> = <span class="ruby-node">&quot;@#{object}.#{method}&quot;</span>
+      <span class="ruby-keyword kw">elsif</span> (<span class="ruby-identifier">val</span>=<span class="ruby-identifier">options</span>[<span class="ruby-identifier">key</span>]).<span class="ruby-identifier">nil?</span> ;  <span class="ruby-identifier">selected</span> = <span class="ruby-keyword kw">nil</span>
+      <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">val</span> <span class="ruby-operator">=~</span> <span class="ruby-regexp re">/\A&lt;%=(.*)%&gt;\z/</span>  ;  <span class="ruby-identifier">selected</span> = <span class="ruby-identifier">$1</span>
+      <span class="ruby-keyword kw">else</span>                          ;  <span class="ruby-identifier">selected</span> = <span class="ruby-identifier">val</span>.<span class="ruby-identifier">inspect</span>
+      <span class="ruby-keyword kw">end</span>
+      <span class="ruby-identifier">s</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-node">&quot;&lt;% _table = {#{selected}=&gt;' selected=\&quot;selected\&quot;'} %&gt;\n&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">selected</span>
+      <span class="ruby-comment cmt">## &lt;option&gt; tags</span>
+      <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:include_blank</span>] <span class="ruby-operator">||</span> <span class="ruby-identifier">options</span>[<span class="ruby-value str">'include_blank'</span>]
+        <span class="ruby-identifier">s</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value str">&quot;&lt;option value=\&quot;\&quot;&gt;&lt;/option&gt;\n&quot;</span>
+      <span class="ruby-keyword kw">end</span>
+      <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">priority_collection</span>.<span class="ruby-identifier">blank?</span>
+        <span class="ruby-identifier">_pp_select_options</span>(<span class="ruby-identifier">s</span>, <span class="ruby-identifier">priority_collection</span>, <span class="ruby-identifier">selected</span>, <span class="ruby-value str">'delete'</span>)
+        <span class="ruby-identifier">s</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value str">&quot;&lt;option value=\&quot;\&quot;&gt;-------------&lt;/option&gt;\n&quot;</span>
+      <span class="ruby-keyword kw">end</span>
+      <span class="ruby-identifier">_pp_select_options</span>(<span class="ruby-identifier">s</span>, <span class="ruby-identifier">collection</span>, <span class="ruby-identifier">selected</span>, <span class="ruby-value str">'[]'</span>)
+      <span class="ruby-comment cmt">## end tag</span>
+      <span class="ruby-identifier">s</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value str">&quot;&lt;/select&gt;&quot;</span>
+      <span class="ruby-identifier">s</span>
+    <span class="ruby-keyword kw">end</span>
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000099" class="method-detail">
+        <a name="M000099"></a>
+
+        <div class="method-heading">
+          <a href="#M000099" class="method-signature">
+          <span class="method-name">_pp_select_options</span><span class="method-args">(s, collection, selected, operator)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000099-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000099-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 153</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">_pp_select_options</span>(<span class="ruby-identifier">s</span>, <span class="ruby-identifier">collection</span>, <span class="ruby-identifier">selected</span>, <span class="ruby-identifier">operator</span>)
+    <span class="ruby-keyword kw">for</span> <span class="ruby-identifier">item</span> <span class="ruby-keyword kw">in</span> <span class="ruby-identifier">collection</span>
+      <span class="ruby-identifier">value</span>, <span class="ruby-identifier">text</span> = <span class="ruby-identifier">item</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Array</span>) <span class="ruby-operator">?</span> <span class="ruby-identifier">item</span> <span class="ruby-operator">:</span> [<span class="ruby-identifier">item</span>, <span class="ruby-identifier">item</span>]
+      <span class="ruby-keyword kw">if</span> <span class="ruby-operator">!</span><span class="ruby-identifier">selected</span>
+        <span class="ruby-identifier">t</span> = <span class="ruby-value str">''</span>
+      <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">operator</span> <span class="ruby-operator">==</span> <span class="ruby-value str">'delete'</span>
+        <span class="ruby-identifier">t</span> = <span class="ruby-node">&quot;&lt;%= _table.delete(#{value.inspect}) %&gt;&quot;</span>
+      <span class="ruby-keyword kw">else</span>
+        <span class="ruby-identifier">t</span> = <span class="ruby-node">&quot;&lt;%= _table[#{value.inspect}] %&gt;&quot;</span>
+      <span class="ruby-keyword kw">end</span>
+      <span class="ruby-identifier">s</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-node">&quot;&lt;option value=\&quot;#{h value}\&quot;#{t}&gt;#{h text}&lt;/option&gt;\n&quot;</span>
+    <span class="ruby-keyword kw">end</span>
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000094" class="method-detail">
+        <a name="M000094"></a>
+
+        <div class="method-heading">
+          <a href="#M000094" class="method-signature">
+          <span class="method-name">pp_check_box</span><span class="method-args">(object_name, method, options={}, checked_value=&quot;1&quot;, unchecked_value=&quot;0&quot;)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000094-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000094-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 99</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">pp_check_box</span>(<span class="ruby-identifier">object_name</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">options</span>={}, <span class="ruby-identifier">checked_value</span>=<span class="ruby-value str">&quot;1&quot;</span>, <span class="ruby-identifier">unchecked_value</span>=<span class="ruby-value str">&quot;0&quot;</span>)
+    <span class="ruby-identifier">s</span> = <span class="ruby-identifier">check_box</span>(<span class="ruby-identifier">object_name</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">options</span>, <span class="ruby-identifier">checked_value</span>, <span class="ruby-identifier">unchecked_value</span>)
+    <span class="ruby-identifier">s</span>.<span class="ruby-identifier">sub!</span>(<span class="ruby-regexp re">/\schecked=\&quot;checked\&quot;/</span>, <span class="ruby-value str">''</span>)
+    <span class="ruby-identifier">s</span>.<span class="ruby-identifier">sub!</span>(<span class="ruby-regexp re">/type=&quot;checkbox&quot;/</span>, <span class="ruby-node">&quot;\\&amp;&lt;%= _pp_check_box_checked?(@#{object_name}.#{method}, #{checked_value.inspect}) ? ' checked=\&quot;checked\&quot;' : '' %&gt;&quot;</span>)
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">pp_error_on</span>(<span class="ruby-identifier">object_name</span>, <span class="ruby-identifier">method</span>) { <span class="ruby-identifier">_pp_remove_error_div</span>(<span class="ruby-identifier">s</span>) }
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000101" class="method-detail">
+        <a name="M000101"></a>
+
+        <div class="method-heading">
+          <a href="#M000101" class="method-signature">
+          <span class="method-name">pp_collection_select</span><span class="method-args">(object, method, collection, value_method, text_method, options={}, html_options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000101-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000101-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 171</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">pp_collection_select</span>(<span class="ruby-identifier">object</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">collection</span>, <span class="ruby-identifier">value_method</span>, <span class="ruby-identifier">text_method</span>, <span class="ruby-identifier">options</span>={}, <span class="ruby-identifier">html_options</span>={})
+    <span class="ruby-identifier">collection2</span> = <span class="ruby-identifier">collection</span>.<span class="ruby-identifier">collect</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">e</span><span class="ruby-operator">|</span>
+      [<span class="ruby-identifier">e</span>.<span class="ruby-identifier">__send__</span>(<span class="ruby-identifier">value_method</span>), <span class="ruby-identifier">e</span>.<span class="ruby-identifier">__send__</span>(<span class="ruby-identifier">text_method</span>)]
+    }
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">_pp_select</span>(<span class="ruby-identifier">object</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">collection2</span>, <span class="ruby-keyword kw">nil</span>, <span class="ruby-identifier">options</span>, <span class="ruby-identifier">html_options</span>)
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000102" class="method-detail">
+        <a name="M000102"></a>
+
+        <div class="method-heading">
+          <a href="#M000102" class="method-signature">
+          <span class="method-name">pp_country_select</span><span class="method-args">(object, method, priority_countries=nil, options={}, html_options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000102-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000102-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 178</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">pp_country_select</span>(<span class="ruby-identifier">object</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">priority_countries</span>=<span class="ruby-keyword kw">nil</span>, <span class="ruby-identifier">options</span>={}, <span class="ruby-identifier">html_options</span>={})
+    <span class="ruby-identifier">collection</span> = <span class="ruby-constant">ActionView</span><span class="ruby-operator">::</span><span class="ruby-constant">Helpers</span><span class="ruby-operator">::</span><span class="ruby-constant">FormOptionsHelper</span><span class="ruby-operator">::</span><span class="ruby-constant">COUNTRIES</span>
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">_pp_select</span>(<span class="ruby-identifier">object</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">collection</span>, <span class="ruby-identifier">priority_countries</span>, <span class="ruby-identifier">options</span>, <span class="ruby-identifier">html_options</span>)
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000084" class="method-detail">
+        <a name="M000084"></a>
+
+        <div class="method-heading">
+          <a href="#M000084" class="method-signature">
+          <span class="method-name">pp_error_on</span><span class="method-args">(object_name, method) {|object_name, method| ...}</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000084-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000084-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 37</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">pp_error_on</span>(<span class="ruby-identifier">object_name</span>, <span class="ruby-identifier">method</span>)
+    <span class="ruby-identifier">s</span> = <span class="ruby-value str">''</span>
+    <span class="ruby-identifier">s</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-node">&quot;&lt;% _stag, _etag = _pp_error_tags(@#{object_name}.errors.on('#{method}')) %&gt;&quot;</span>
+    <span class="ruby-identifier">s</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value str">&quot;&lt;%= _stag %&gt;&quot;</span>
+    <span class="ruby-identifier">s</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-keyword kw">yield</span>(<span class="ruby-identifier">object_name</span>, <span class="ruby-identifier">method</span>)
+    <span class="ruby-identifier">s</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value str">&quot;&lt;%= _etag %&gt;&quot;</span>
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">s</span>
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000092" class="method-detail">
+        <a name="M000092"></a>
+
+        <div class="method-heading">
+          <a href="#M000092" class="method-signature">
+          <span class="method-name">pp_file_field</span><span class="method-args">(object_name, method, options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000092-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000092-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 91</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">pp_file_field</span>(<span class="ruby-identifier">object_name</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">options</span>={})
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">pp_tag_helper</span>(<span class="ruby-identifier">:file_field</span>, <span class="ruby-identifier">object_name</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">options</span>)
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000088" class="method-detail">
+        <a name="M000088"></a>
+
+        <div class="method-heading">
+          <a href="#M000088" class="method-signature">
+          <span class="method-name">pp_form_tag</span><span class="method-args">(url_for_options={}, options={}, *parameters_for_url, &amp;block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000088-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000088-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 69</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">pp_form_tag</span>(<span class="ruby-identifier">url_for_options</span>={}, <span class="ruby-identifier">options</span>={}, <span class="ruby-operator">*</span><span class="ruby-identifier">parameters_for_url</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">form_tag</span>(<span class="ruby-identifier">url_for_options</span>, <span class="ruby-identifier">options</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">parameters_for_url</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000091" class="method-detail">
+        <a name="M000091"></a>
+
+        <div class="method-heading">
+          <a href="#M000091" class="method-signature">
+          <span class="method-name">pp_hidden_field</span><span class="method-args">(object_name, method, options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000091-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000091-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 87</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">pp_hidden_field</span>(<span class="ruby-identifier">object_name</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">options</span>={})
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">pp_tag_helper</span>(<span class="ruby-identifier">:hidden_field</span>, <span class="ruby-identifier">object_name</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">options</span>)
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000105" class="method-detail">
+        <a name="M000105"></a>
+
+        <div class="method-heading">
+          <a href="#M000105" class="method-signature">
+          <span class="method-name">pp_image_submit_tag</span><span class="method-args">(source, options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000105-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000105-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 193</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">pp_image_submit_tag</span>(<span class="ruby-identifier">source</span>, <span class="ruby-identifier">options</span>={})
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">image_submit_tag</span>(<span class="ruby-identifier">source</span>, <span class="ruby-identifier">options</span>)
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000090" class="method-detail">
+        <a name="M000090"></a>
+
+        <div class="method-heading">
+          <a href="#M000090" class="method-signature">
+          <span class="method-name">pp_password_field</span><span class="method-args">(object_name, method, options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000090-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000090-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 83</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">pp_password_field</span>(<span class="ruby-identifier">object_name</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">options</span>={})
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">pp_tag_helper</span>(<span class="ruby-identifier">:password_field</span>, <span class="ruby-identifier">object_name</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">options</span>)
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000096" class="method-detail">
+        <a name="M000096"></a>
+
+        <div class="method-heading">
+          <a href="#M000096" class="method-signature">
+          <span class="method-name">pp_radio_button</span><span class="method-args">(object_name, method, tag_value, options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000096-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000096-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 110</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">pp_radio_button</span>(<span class="ruby-identifier">object_name</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">tag_value</span>, <span class="ruby-identifier">options</span>={})
+    <span class="ruby-identifier">s</span> = <span class="ruby-identifier">radio_button</span>(<span class="ruby-identifier">object_name</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">tag_value</span>, <span class="ruby-identifier">options</span>)
+    <span class="ruby-identifier">s</span>.<span class="ruby-identifier">sub!</span>(<span class="ruby-regexp re">/\schecked=\&quot;checked\&quot;/</span>, <span class="ruby-value str">''</span>)
+    <span class="ruby-identifier">s</span>.<span class="ruby-identifier">sub!</span>(<span class="ruby-regexp re">/type=&quot;radio&quot;/</span>, <span class="ruby-node">&quot;\\&amp;&lt;%= _pp_radio_button_checked?(@#{object_name}.#{method}, #{tag_value.inspect}) ? ' checked=\&quot;checked\&quot;' : '' %&gt;&quot;</span>)
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">pp_error_on</span>(<span class="ruby-identifier">object_name</span>, <span class="ruby-identifier">method</span>) { <span class="ruby-identifier">_pp_remove_error_div</span>(<span class="ruby-identifier">s</span>) }
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000083" class="method-detail">
+        <a name="M000083"></a>
+
+        <div class="method-heading">
+          <a href="#M000083" class="method-signature">
+          <span class="method-name">pp_render_partial</span><span class="method-args">(basename)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000083-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000083-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 30</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">pp_render_partial</span>(<span class="ruby-identifier">basename</span>)
+    <span class="ruby-identifier">basename</span> = <span class="ruby-node">&quot;_#{basename}&quot;</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">basename</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">==</span> <span class="ruby-value">?_</span>
+    <span class="ruby-identifier">filename</span> = <span class="ruby-identifier">pp_template_filename</span>(<span class="ruby-identifier">basename</span>)
+    <span class="ruby-identifier">preprocessor</span> = <span class="ruby-identifier">_create_preprocessor</span>(<span class="ruby-constant">File</span>.<span class="ruby-identifier">read</span>(<span class="ruby-identifier">filename</span>))
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">preprocessor</span>.<span class="ruby-identifier">evaluate</span>(<span class="ruby-identifier">_preprocessing_context_object</span>())
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000100" class="method-detail">
+        <a name="M000100"></a>
+
+        <div class="method-heading">
+          <a href="#M000100" class="method-signature">
+          <span class="method-name">pp_select</span><span class="method-args">(object, method, collection, options={}, html_options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000100-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000100-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 167</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">pp_select</span>(<span class="ruby-identifier">object</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">collection</span>, <span class="ruby-identifier">options</span>={}, <span class="ruby-identifier">html_options</span>={})
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">_pp_select</span>(<span class="ruby-identifier">object</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">collection</span>, <span class="ruby-keyword kw">nil</span>, <span class="ruby-identifier">options</span>, <span class="ruby-identifier">html_options</span>)
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000104" class="method-detail">
+        <a name="M000104"></a>
+
+        <div class="method-heading">
+          <a href="#M000104" class="method-signature">
+          <span class="method-name">pp_submit_tag</span><span class="method-args">(value=&quot;Save changes&quot;, options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000104-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000104-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 189</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">pp_submit_tag</span>(<span class="ruby-identifier">value</span>=<span class="ruby-value str">&quot;Save changes&quot;</span>, <span class="ruby-identifier">options</span>={})
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">submit_tag</span>(<span class="ruby-identifier">value</span>, <span class="ruby-identifier">options</span>)
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000087" class="method-detail">
+        <a name="M000087"></a>
+
+        <div class="method-heading">
+          <a href="#M000087" class="method-signature">
+          <span class="method-name">pp_tag_helper</span><span class="method-args">(helper, object_name, method, options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000087-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000087-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 55</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">pp_tag_helper</span>(<span class="ruby-identifier">helper</span>, <span class="ruby-identifier">object_name</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">options</span>={})
+    <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">object_name</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">ActionView</span><span class="ruby-operator">::</span><span class="ruby-constant">Helpers</span><span class="ruby-operator">::</span><span class="ruby-constant">FormHelper</span>)
+      <span class="ruby-identifier">object_name</span> = <span class="ruby-identifier">object_name</span>.<span class="ruby-identifier">object_name</span>
+    <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">options</span>.<span class="ruby-identifier">key?</span>(<span class="ruby-identifier">:value</span>) <span class="ruby-operator">||</span> <span class="ruby-identifier">options</span>.<span class="ruby-identifier">key?</span>(<span class="ruby-value str">'value'</span>)
+      <span class="ruby-identifier">options</span>[<span class="ruby-value str">'value'</span>] = <span class="ruby-identifier">_?</span>(<span class="ruby-node">&quot;h @#{object_name}.#{method}&quot;</span>)
+    <span class="ruby-keyword kw">end</span>
+    <span class="ruby-comment cmt">#$stderr.puts &quot;*** debug: pp_tag_helper(): options=#{options.inspect}&quot;</span>
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">pp_error_on</span>(<span class="ruby-identifier">object_name</span>, <span class="ruby-identifier">method</span>) {
+      <span class="ruby-identifier">s</span> = <span class="ruby-identifier">__send__</span>(<span class="ruby-identifier">helper</span>, <span class="ruby-identifier">object_name</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">options</span>)
+      <span class="ruby-identifier">_pp_remove_error_div</span>(<span class="ruby-identifier">s</span>)
+    }
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000082" class="method-detail">
+        <a name="M000082"></a>
+
+        <div class="method-heading">
+          <a href="#M000082" class="method-signature">
+          <span class="method-name">pp_template_filename</span><span class="method-args">(basename)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000082-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000082-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 23</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">pp_template_filename</span>(<span class="ruby-identifier">basename</span>)
+    <span class="ruby-identifier">fname</span> = <span class="ruby-node">&quot;#{RAILS_ROOT}/app/views/#{controller.controller_name}/#{basename}.html.erb&quot;</span>
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">fname</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">test</span>(<span class="ruby-value">?f</span>, <span class="ruby-identifier">fname</span>)
+    <span class="ruby-keyword kw">return</span>  <span class="ruby-node">&quot;#{RAILS_ROOT}/app/views/#{controller.controller_name}/#{basename}.rhtml&quot;</span>
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000081" class="method-detail">
+        <a name="M000081"></a>
+
+        <div class="method-heading">
+          <a href="#M000081" class="method-signature">
+          <span class="method-name">pp_template_filename</span><span class="method-args">(basename)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000081-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000081-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 19</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">pp_template_filename</span>(<span class="ruby-identifier">basename</span>)
+    <span class="ruby-keyword kw">return</span> <span class="ruby-node">&quot;#{RAILS_ROOT}/app/views/#{controller.controller_name}/#{basename}.rhtml&quot;</span>
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000093" class="method-detail">
+        <a name="M000093"></a>
+
+        <div class="method-heading">
+          <a href="#M000093" class="method-signature">
+          <span class="method-name">pp_text_area</span><span class="method-args">(object_name, method, options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000093-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000093-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 95</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">pp_text_area</span>(<span class="ruby-identifier">object_name</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">options</span>={})
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">pp_tag_helper</span>(<span class="ruby-identifier">:text_area</span>, <span class="ruby-identifier">object_name</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">options</span>)
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000089" class="method-detail">
+        <a name="M000089"></a>
+
+        <div class="method-heading">
+          <a href="#M000089" class="method-signature">
+          <span class="method-name">pp_text_field</span><span class="method-args">(object_name, method, options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000089-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000089-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 79</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">pp_text_field</span>(<span class="ruby-identifier">object_name</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">options</span>={})
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">pp_tag_helper</span>(<span class="ruby-identifier">:text_field</span>, <span class="ruby-identifier">object_name</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">options</span>)
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000103" class="method-detail">
+        <a name="M000103"></a>
+
+        <div class="method-heading">
+          <a href="#M000103" class="method-signature">
+          <span class="method-name">pp_time_zone_select</span><span class="method-args">(object, method, priority_zones=nil, options={}, html_options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000103-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000103-source">
+<pre>
+<span class="ruby-comment cmt"># File erubis/helpers/rails_form_helper.rb, line 183</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">pp_time_zone_select</span>(<span class="ruby-identifier">object</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">priority_zones</span>=<span class="ruby-keyword kw">nil</span>, <span class="ruby-identifier">options</span>={}, <span class="ruby-identifier">html_options</span>={})
+    <span class="ruby-identifier">model</span> = <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:model</span>] <span class="ruby-operator">||</span> <span class="ruby-identifier">options</span>[<span class="ruby-value str">'model'</span>] <span class="ruby-operator">||</span> <span class="ruby-constant">TimeZone</span>
+    <span class="ruby-identifier">collection</span> = <span class="ruby-identifier">model</span>.<span class="ruby-identifier">all</span>.<span class="ruby-identifier">collect</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">e</span><span class="ruby-operator">|</span> [<span class="ruby-identifier">e</span>.<span class="ruby-identifier">name</span>, <span class="ruby-identifier">e</span>.<span class="ruby-identifier">to_s</span>] }
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">_pp_select</span>(<span class="ruby-identifier">object</span>, <span class="ruby-identifier">method</span>, <span class="ruby-identifier">collection</span>, <span class="ruby-identifier">priority_zones</span>, <span class="ruby-identifier">options</span>, <span class="ruby-identifier">html_options</span>)
+  <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

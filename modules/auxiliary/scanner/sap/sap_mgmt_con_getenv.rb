@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -20,7 +16,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'SAP Management Console getEnvironment',
-			'Version'      => '$Revision$',
 			'Description'  => %q{
 				This module simply attempts to identify SAP Environment
 				settings through the SAP Management Console SOAP Interface.
@@ -49,12 +44,8 @@ class Metasploit4 < Msf::Auxiliary
 
 	def run_host(ip)
 		res = send_request_cgi({
-			'uri'      => "/#{datastore['URI']}",
-			'method'   => 'GET',
-			'headers'  =>
-				{
-					'User-Agent' => datastore['UserAgent']
-				}
+			'uri'      => normalize_uri(datastore['URI']),
+			'method'   => 'GET'
 		}, 25)
 
 		if not res
@@ -66,7 +57,6 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def getEnvironment(rhost)
-		verbose = datastore['VERBOSE']
 		print_status("#{rhost}:#{rport} [SAP] Connecting to SAP Management Console SOAP Interface ")
 		success = false
 
@@ -90,7 +80,7 @@ class Metasploit4 < Msf::Auxiliary
 
 		begin
 			res = send_request_raw({
-				'uri'      => "/#{datastore['URI']}",
+				'uri'      => normalize_uri(datastore['URI']),
 				'method'   => 'POST',
 				'data'     => data,
 				'headers'  =>
@@ -103,7 +93,7 @@ class Metasploit4 < Msf::Auxiliary
 
 			env = []
 
-			if res.code == 200
+			if res and res.code == 200
 				case res.body
 				when nil
 					# Nothing
@@ -113,7 +103,7 @@ class Metasploit4 < Msf::Auxiliary
 					env = body.scan(/<item>([^<]+)<\/item>/i)
 					success = true
 				end
-			elsif res.code == 500
+			elsif res and  res.code == 500
 				case res.body
 				when /<faultstring>(.*)<\/faultstring>/i
 					faultcode = $1.strip

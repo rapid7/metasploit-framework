@@ -1,0 +1,14 @@
+admin admin
+builtin builtin
+jedit jedit
+jmember jmember
+Admin2 Admin2
+tbrown tbrown
+jsmith jsmith
+vs vs
+EkExplorerUser EkExplorerUser
+Explorer Explorer
+member@example.com member@example.com
+north north
+supermember supermember
+west west

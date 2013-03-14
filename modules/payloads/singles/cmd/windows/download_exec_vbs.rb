@@ -1,10 +1,8 @@
-# $Id$
-
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -19,7 +17,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'        => 'Windows Executable Download and Execute (via .vbs)',
-			'Version'     => '$Revision$',
 			'Description' => 'Download an EXE from an HTTP(S) URL and execute it',
 			'Author'      => 'scriptjunkie',
 			'License'     => BSD_LICENSE,

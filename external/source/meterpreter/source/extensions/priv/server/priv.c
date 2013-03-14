@@ -13,7 +13,6 @@
 // this sets the delay load hook function, see DelayLoadMetSrv.h
 EnableDelayLoadMetSrv();
 
-//#include "../../../ReflectiveDLLInjection/ReflectiveLoader.c"
 Command customCommands[] =
 {
 

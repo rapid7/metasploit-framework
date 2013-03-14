@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/ui'
 
 module Rex
@@ -64,6 +65,10 @@ class Output < Rex::Ui::Output
 
 	def print_line(msg = '')
 		print(msg + "\n")
+	end
+
+	def print_warning(msg = '')
+		print_line("%bld%yel[!]%clr #{msg}")
 	end
 
 	def print(msg = '')

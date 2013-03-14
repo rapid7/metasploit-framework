@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 ##
 # $Id$
 ##
@@ -18,10 +19,10 @@ module Sessions
 ###
 class Meterpreter < Rex::Post::Meterpreter::Client
 
+	include Msf::Session
 	#
 	# The meterpreter session is interactive
 	#
-	include Msf::Session
 	include Msf::Session::Interactive
 	include Msf::Session::Comm
 
@@ -81,6 +82,11 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		self.class.type
 	end
 
+	##
+	# :category: Msf::Session::Provider::SingleCommandShell implementors
+	#
+	# Create a channelized shell process on the target
+	#
 	def shell_init
 		return true if @shell
 
@@ -91,13 +97,15 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
 	end
 
+	##
+	# :category: Msf::Session::Provider::SingleCommandShell implementors
 	#
 	# Read from the command shell.
 	#
 	def shell_read(length=nil, timeout=1)
 		shell_init
 
-		length = nil if length < 0
+		length = nil if length.nil? or length < 0
 		begin
 			rv = nil
 			# Meterpreter doesn't offer a way to timeout on the victim side, so
@@ -116,6 +124,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		end
 	end
 
+	##
+	# :category: Msf::Session::Provider::SingleCommandShell implementors
 	#
 	# Write to the command shell.
 	#
@@ -133,6 +143,11 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		len
 	end
 
+	##
+	# :category: Msf::Session::Provider::SingleCommandShell implementors
+	#
+	# Terminate the shell channel
+	#
 	def shell_close
 		@shell.close
 		@shell = nil
@@ -167,11 +182,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	end
 
 	##
-	#
-	# Msf::Session overrides
-	#
-	##
-
+	# :category: Msf::Session overrides
 	#
 	# Cleans up the meterpreter client session.
 	#
@@ -181,6 +192,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		super
 	end
 
+	##
+	# :category: Msf::Session overrides
 	#
 	# Returns the session description.
 	#
@@ -190,11 +203,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
 
 	##
-	#
-	# Msf::Session::Scriptable implementors
-	#
-	##
-
+	# :category: Msf::Session::Scriptable implementors
 	#
 	# Runs the meterpreter script in the context of a script container
 	#
@@ -205,11 +214,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
 
 	##
-	#
-	# Msf::Session::Interactive implementors
-	#
-	##
-
+	# :category: Msf::Session::Interactive implementors
 	#
 	# Initializes the console's I/O handles.
 	#
@@ -222,6 +227,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		super
 	end
 
+	##
+	# :category: Msf::Session::Interactive implementors
 	#
 	# Resets the console's I/O handles.
 	#
@@ -249,6 +256,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		console.queue_cmd(cmd)
 	end
 
+	##
+	# :category: Msf::Session::Interactive implementors
 	#
 	# Explicitly runs a command in the meterpreter console.
 	#
@@ -285,6 +294,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	def load_session_info()
 		begin
 			::Timeout.timeout(60) do
+				# Gather username/system information
 				username  = self.sys.config.getuid
 				sysinfo   = self.sys.config.sysinfo
 
@@ -296,26 +306,108 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 				safe_info.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n,"_")
 				self.info = safe_info
 
+				# Enumerate network interfaces to detect IP
+				ifaces   = self.net.config.get_interfaces().flatten rescue []
+				routes   = self.net.config.get_routes().flatten rescue []
+				shost    = self.session_host
+
+				# Try to match our visible IP to a real interface
+				# TODO: Deal with IPv6 addresses
+				found    = !!(ifaces.find {|i| i.addrs.find {|a| a == shost } })
+				nhost    = nil
+				hobj     = nil
+
+				if Rex::Socket.is_ipv4?(shost) and not found
+
+					# Try to find an interface with a default route
+					default_routes = routes.select{ |r| r.subnet == "0.0.0.0" || r.subnet == "::" }
+					default_routes.each do |r|
+						ifaces.each do |i|
+							bits = Rex::Socket.net2bitmask( i.netmask ) rescue 32
+							rang = Rex::Socket::RangeWalker.new( "#{i.ip}/#{bits}" ) rescue nil
+							if rang and rang.include?( r.gateway )
+								nhost = i.ip
+								break
+							end
+						end
+						break if nhost
+					end
+
+					# Find the first non-loopback address
+					if not nhost
+						iface = ifaces.select{|i| i.ip != "127.0.0.1" and i.ip != "::1" }
+						if iface.length > 0
+							nhost = iface.first.ip
+						end
+					end
+				end
+
+				# If we found a better IP address for this session, change it up
+				# only handle cases where the DB is not connected here
+				if  not (framework.db and framework.db.active)
+					self.session_host = nhost
+				end
+
+
 				# The rest of this requires a database, so bail if it's not
 				# there
 				return if not (framework.db and framework.db.active)
 
-				framework.db.report_note({
-					:type => "host.os.session_fingerprint",
-					:host => self,
-					:workspace => workspace,
-					:data => {
-						:name => sysinfo["Computer"],
-						:os => sysinfo["OS"],
-						:arch => sysinfo["Architecture"],
-					}
-				})
-				if self.db_record
-					self.db_record.desc = safe_info
-					self.db_record.save!
-				end
+				::ActiveRecord::Base.connection_pool.with_connection {
+					wspace = framework.db.find_workspace(workspace)
+
+					# Account for finding ourselves on a different host
+					if nhost and self.db_record
+						# Create or switch to a new host in the database
+						hobj = framework.db.report_host(:workspace => wspace, :host => nhost)
+						if hobj
+							self.session_host = nhost
+							self.db_record.host_id = hobj[:id]
+						end
+					end
+
+					framework.db.report_note({
+						:type => "host.os.session_fingerprint",
+						:host => self,
+						:workspace => wspace,
+						:data => {
+							:name => sysinfo["Computer"],
+							:os => sysinfo["OS"],
+							:arch => sysinfo["Architecture"],
+						}
+					})
+
+					if self.db_record
+						self.db_record.desc = safe_info
+						self.db_record.save!
+					end
+
+					framework.db.update_host_via_sysinfo(:host => self, :workspace => wspace, :info => sysinfo)
+
+					if nhost
+						framework.db.report_note({
+							:type      => "host.nat.server",
+							:host      => shost,
+							:workspace => wspace,
+							:data      => { :info   => "This device is acting as a NAT gateway for #{nhost}", :client => nhost },
+							:update    => :unique_data
+						})
+						framework.db.report_host(:host => shost, :purpose => 'firewall' )
+
+						framework.db.report_note({
+							:type      => "host.nat.client",
+							:host      => nhost,
+							:workspace => wspace,
+							:data      => { :info => "This device is traversing NAT gateway #{shost}", :server => shost },
+							:update    => :unique_data
+						})
+						framework.db.report_host(:host => nhost, :purpose => 'client' )
+					end
+				}
+
 			end
 		rescue ::Interrupt
+			dlog("Interrupt while loading sysinfo: #{e.class}: #{e}")
 			raise $!
 		rescue ::Exception => e
 			# Log the error but otherwise ignore it so we don't kill the
@@ -325,6 +417,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		end
 	end
 
+	##
+	# :category: Msf::Session::Interactive implementors
 	#
 	# Interacts with the meterpreter client at a user interface level.
 	#
@@ -343,11 +437,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
 
 	##
-	#
-	# Msf::Session::Comm implementors
-	#
-	##
-
+	# :category: Msf::Session::Comm implementors
 	#
 	# Creates a connection based on the supplied parameters and returns it to
 	# the caller.  The connection is created relative to the remote machine on

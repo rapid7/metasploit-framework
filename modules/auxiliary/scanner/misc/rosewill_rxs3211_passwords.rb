@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -21,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Rosewill RXS-3211 IP Camera Password Retriever',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module takes advantage of a protocol design issue with the Rosewill admin
 				executable in order to retrieve passwords, allowing remote attackers to take

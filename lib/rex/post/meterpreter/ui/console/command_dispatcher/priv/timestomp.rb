@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/post/meterpreter'
 
 module Rex
@@ -104,7 +105,7 @@ class Console::CommandDispatcher::Priv::Timestomp
 		# If any one of the four times were specified, change them.
 		if (modified or accessed or creation or emodified)
 			print_status("Setting specific MACE attributes on #{file_path}")
-			client.priv.fs.set_file_mace(file_path, modified, accessed, 
+			client.priv.fs.set_file_mace(file_path, modified, accessed,
 				creation, emodified)
 		end
 	end

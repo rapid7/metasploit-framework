@@ -8,6 +8,14 @@
 #ifdef _WIN32
 	#include <winsock2.h>
 	#include <windows.h>
+
+	typedef DWORD __u32;
+	typedef struct ___u128 {
+		__u32 a1;
+		__u32 a2;
+		__u32 a3;
+		__u32 a4;
+	}__u128;
 #endif
 #include "openssl/ssl.h"
 #ifdef _UNIX
@@ -15,6 +23,8 @@
 
 #include <fcntl.h>
 
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <sys/select.h>
 #include <sys/endian.h>
 #include <netinet/in.h>
@@ -28,10 +38,56 @@
 
 #include <sys/atomics.h>
 
+#define FLAGS_LEN 100
+
+typedef struct ___u128 {
+    __u32 a1;
+    __u32 a2;
+    __u32 a3;
+    __u32 a4;
+}__u128;
+
+struct iface_address {
+	int family;
+	union {
+		__u32  addr;
+		__u128 addr6;
+	} ip;
+	union {
+		__u32  netmask;
+		__u128 netmask6;
+	} nm;
+};
+
+struct iface_entry {
+	unsigned char name[IFNAMSIZ+1];
+	unsigned char hwaddr[6];
+	uint32_t mtu;
+	uint32_t index;
+	unsigned char flags[FLAGS_LEN+1];
+	int addr_count;
+	struct iface_address *addr_list;
+};
+
+struct ifaces_list {
+	int entries;
+	struct iface_entry ifaces[0];
+};
+
 struct ipv4_route_entry {
 	__u32 dest;
 	__u32 netmask;
 	__u32 nexthop;
+	unsigned char interface[IFNAMSIZ+1];
+	__u32 metric;
+};
+
+struct ipv6_route_entry {
+	__u128 dest6;
+	__u128 netmask6;
+	__u128 nexthop6;
+	unsigned char interface[IFNAMSIZ+1];
+	__u32 metric;
 };
 
 struct ipv4_routing_table {
@@ -39,7 +95,31 @@ struct ipv4_routing_table {
 	struct ipv4_route_entry routes[0];
 };
 
-int netlink_get_ipv4_routing_table(struct ipv4_routing_table **table);
+struct ipv6_routing_table {
+	int entries;
+	struct ipv6_route_entry routes[0];
+};
+
+struct routing_table {
+	struct ipv4_routing_table ** table_ipv4;
+	struct ipv6_routing_table ** table_ipv6;
+};
+
+struct arp_entry {
+	__u32  ipaddr;
+	unsigned char hwaddr[6];
+	unsigned char name[IFNAMSIZ+1];
+};
+
+struct arp_table {
+	int entries;
+	struct arp_entry table[0];
+};
+
+
+
+int netlink_get_routing_table(struct ipv4_routing_table **table_ipv4, struct ipv6_routing_table **table_ipv6);
+int netlink_get_interfaces(struct ifaces_list **iface_list);
 
 extern int debugging_enabled;
 
@@ -49,6 +129,30 @@ void real_dprintf(char *filename, int line, const char *function, char *format, 
 
 #endif
 
+struct connection_entry {
+	char type; // AF_INET / AF_INET6
+	union {
+		__u32  addr;
+		__u128 addr6;
+	} local_addr;
+	union {
+		__u32  addr;
+		__u128 addr6;
+	} remote_addr;
+	__u32 local_port;
+	__u32 remote_port;
+	unsigned char protocol[5]; // tcp/tcp6/udp/udp6
+	unsigned char state[15]; // established, syn_sent..
+	__u32 uid;
+	__u32 inode;
+	unsigned char program_name[30]; // pid/program_name or "-"
+};
+
+struct connection_table {
+	int entries;
+	int max_entries;
+	struct connection_entry table[0];
+};
 
 #include "linkage.h"
 
@@ -72,10 +176,11 @@ void real_dprintf(char *filename, int line, const char *function, char *format, 
 
 #ifdef _WIN32
 
+
 #include <wininet.h>
 
 // Enable debugging
-// #define DEBUGTRACE 1
+//#define DEBUGTRACE 1
 
 #ifdef DEBUGTRACE
 #define dprintf(...) real_dprintf(__VA_ARGS__)

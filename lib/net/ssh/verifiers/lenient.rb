@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'net/ssh/verifiers/strict'
 
 module Net; module SSH; module Verifiers

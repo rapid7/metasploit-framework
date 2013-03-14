@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Rex
 module Parser
 
@@ -16,7 +17,7 @@ class RetinaXMLStreamParser
 		@host  = { 'vulns' => [] }
 		reset_audit_state
 	end
-	
+
 	def reset_audit_state
 		@audit = { 'refs' => [] }
 	end
@@ -105,5 +106,5 @@ __END__
 			</audit>
 		</host>
 	</hosts>
-</scanJob>		
+</scanJob>
 

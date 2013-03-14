@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -17,10 +13,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'Pcap replay utility',
-			'Version'     => '$Revision$',
+			'Name'        => 'Pcap Replay Utility',
 			'Description' => %q{
-				replay a pcap capture file
+				Replay a pcap capture file
 			},
 			'Author'      => 'amaloteaux',
 			'License'     => MSF_LICENSE

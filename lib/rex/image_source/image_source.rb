@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 # $Id$
 
@@ -38,7 +39,7 @@ class ImageSource
 		end
 		return string
 	end
-		
+
 
 end
 

@@ -1,9 +1,10 @@
+# -*- coding: binary -*-
 require "rex/parser/nokogiri_doc_mixin"
 
 module Rex
 	module Parser
 
-		# If Nokogiri is available, define Nexpose document class. 
+		# If Nokogiri is available, define Nexpose document class.
 		load_nokogiri && class NexposeSimpleDocument < Nokogiri::XML::SAX::Document
 
 		include NokogiriDocMixin
@@ -81,7 +82,7 @@ module Rex
 		def report_vulns(host_object)
 			vuln_count = 0
 			block = @block
-			return unless host_object.kind_of? Msf::DBManager::Host
+			return unless host_object.kind_of? ::Mdm::Host
 			return unless @report_data[:vulns]
 			@report_data[:vulns].each do |vuln|
 				if vuln[:refs]
@@ -98,12 +99,12 @@ module Rex
 					:refs => vuln[:refs]
 				}
 				if vuln[:port] && vuln[:proto]
-					data[:port] = vuln[:port] 
+					data[:port] = vuln[:port]
 					data[:proto] = vuln[:proto]
 				end
 				db_report(:vuln,data)
 			end
-			
+
 		end
 
 		def collect_host_vuln_id
@@ -243,7 +244,7 @@ module Rex
 		end
 
 		def report_host_fingerprint(host_object)
-			return unless host_object.kind_of? ::Msf::DBManager::Host
+			return unless host_object.kind_of? ::Mdm::Host
 			return unless @report_data[:host_fingerprint].kind_of? Hash
 			@report_data[:host_fingerprint].reject! {|k,v| v.nil? || v.empty?}
 			return if @report_data[:host_fingerprint].empty?
@@ -312,7 +313,7 @@ module Rex
 		end
 
 		def report_services(host_object)
-			return unless host_object.kind_of? ::Msf::DBManager::Host
+			return unless host_object.kind_of? ::Mdm::Host
 			return unless @report_data[:ports]
 			return if @report_data[:ports].empty?
 			reported = []

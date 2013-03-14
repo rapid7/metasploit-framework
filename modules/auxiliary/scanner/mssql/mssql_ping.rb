@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -22,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'MSSQL Ping Utility',
-			'Version'        => '$Revision$',
 			'Description'    => 'This module simply queries the MSSQL instance for information.',
 			'Author'         => 'MC',
 			'License'        => MSF_LICENSE
@@ -40,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 
 		info = mssql_ping(2)
-		print_status info.inspect
+		#print_status info.inspect
 		if info and not info.empty?
 			info.each do |instance|
 				if (instance['ServerName'])

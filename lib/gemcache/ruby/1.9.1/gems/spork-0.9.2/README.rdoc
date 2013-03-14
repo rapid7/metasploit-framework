@@ -1,0 +1,134 @@
+= Spork
+
+* Repository: http://github.com/sporkrb/spork
+* Issues: http://github.com/sporkrb/spork/issues
+* Changes: http://github.com/sporkrb/spork/blob/master/History.txt
+* Mailing list: http://groups.google.com/group/sporkgem
+* Wiki: http://wiki.github.com/sporkrb/spork
+
+== SYNOPSIS:
+
+Spork is Tim Harper's implementation of test server (similar to the script/spec_server that used to be provided by rspec-rails), except rather than using the Rails constant unloading to reload your files, it forks a copy of the server each time you run your tests.  The result?  Spork runs more solid: it doesn't get corrupted over time, it can work with any ruby framework, and it properly handles modules and any voodoo meta programming you may have put in your app.
+
+Spork runs on POSIX systems using fork. It also runs on windows by pre-populating a pool of ready processes (referred to here as the "magazine" strategy).
+
+== Supported Testing Frameworks
+
+* Rspec
+* Cucumber
+* Test::Unit (via 'gem install spork-testunit')
+
+== Supported Application Frameworks
+
+Actually, Spork ~can~ work with any application framework.  But, it ships with hooks and helpers to make an "out of the box" experience.
+
+* Rails 3.0 (for Rails 2.{1,2,3}.x, please try spork 0.8.x)
+* Padrino
+
+== INSTALL:
+
+=== rubygems:
+
+  [sudo] gem install spork --version 0.9.0
+
+(Rails 2.x)
+
+  [sudo] gem install spork --version 0.8.4
+
+=== bundler:
+
+Add to your Gemfile:
+
+  gem 'spork', '~> 0.9.0'
+
+(Rails 2.x, use this)
+
+  gem 'spork', '~> 0.8'
+
+== Usage
+
+From a terminal, change to your project directory.
+
+Then, bootstrap your spec/spec_helper.rb file.
+
+  spork --bootstrap
+
+Next, edit spec/spec_helper.rb and follow the instructions that were put at the top.
+
+Finally, run spork.  A spec DRb server will be running!
+
+  spork
+
+== Diagnostic mode
+
+Initially, you may find that a few files don't reload automatically.  This is because they are being loaded during Spork startup.  To identify which project files are being pre-loaded, and why, run:
+
+  spork --diagnose | less
+  (or spork -d, for short)
+
+It will output a lot of stuff.  At the top you'll find a summary of all project files loaded.  Down below, the stack trace for each file (how it got loaded).  Spork hooks into Rails and does some magic (TM) to prevent ApplicationController observers, etc from pre-loading.  Similar hooks for other ruby frameworks may come as support demands.
+
+Some project changes will require a spork restart, and you shouldn't expect them to not (IE: modifying your project gem dependencies or core application config).  Any file that is loaded during Spork start-up will be cached until Spork is restarted.  You can restart spork by sending a USR2 signal to the server process.  This could be automated with a gem such as Kicker (https://github.com/alloy/kicker).  Since a native hook is required for each operating system to efficiently watch for filesystem changes, automatic restarting has not been built into Spork.
+
+You may find this wiki page useful for common ways to battle a variety of common pre-loading issues: http://github.com/sporkrb/spork/wiki/Spork.trap_method-Jujutsu
+
+== Running specs over Spork
+
+=== RSpec
+
+To get the TextMate RSpec bundle to use spork, go to config->advanced->shell variables, and add:
+
+  TM_RSPEC_OPTS=--drb.
+
+To run from the command line, use:
+
+  rspec --drb spec/lib/my_spec.rb
+
+Or, you could add the following flag to your +spec.opts+ (or +.rspec+ depending on your version of rspec) file.
+
+  --drb
+
+=== Cucumber
+
+Cucumber has DRb support (see http://wiki.github.com/cucumber/cucumber/spork-and---drb)
+
+  cucumber --drb features/my.feature
+
+Use this as a guideline when "Sporking" your features/support/env.rb file
+
+  http://gist.github.com/123370
+
+== Running the Spork test suite
+
+If you wish to hack on spork, you will want to run the automated test suite to make sure your changes don't break anything.  Spork uses bundler to manage and install dependencies.  To start:
+
+  bundle install
+
+Then, to run the specs:
+
+  bundle exec rspec spec/
+
+(or, alternatively...)
+
+  bundle exec rake
+
+=== running features ===
+
+Essentially:
+
+  bundle exec cucumber features
+
+== Some potential issues and ways to overcome them:
+
+See http://wiki.github.com/sporkrb/spork/troubleshooting
+
+== Kudos to
+
+* Ben Mabey - help with documentation, testing, suggestions, patches, and bringing Cucumber support.
+* David Chelimsky - for the fine RSpec testing framework, and the original rspec-rails spec_server implementation, which Spork has built upon.
+* LeadTune - just for being an awesome place to work.
+* Alan Aslak - for the fine Cucumber testing framework, and for much collaboration getting cucumber working with spork.
+* Roger Pack - JRuby support / Windows
+* Donald Parish - Windows support (Magazine strategy)
+
+Spork (c) 2011 Tim Harper, released under the MIT license

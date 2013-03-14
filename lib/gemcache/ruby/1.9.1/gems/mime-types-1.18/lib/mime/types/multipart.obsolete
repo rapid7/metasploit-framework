@@ -1,0 +1,7 @@
+multipart/x-gzip
+multipart/x-mixed-replace
+multipart/x-tar
+multipart/x-ustar
+multipart/x-www-form-urlencoded
+multipart/x-zip
+!multipart/x-parallel =use-instead:multipart/parallel

@@ -1,12 +1,8 @@
-###
-# $Id$
-###
-
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -16,7 +12,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'BNAT Router',
-			'Version'      => '$Revision$',
 			'Description'  => %q{
 					This module will properly route BNAT traffic and allow for connections to be
 				established to machines on ports which might not otherwise be accessible.},
@@ -153,4 +148,3 @@ class Metasploit3 < Msf::Auxiliary
 		return target_mac
 	end
 end
-

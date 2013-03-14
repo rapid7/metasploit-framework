@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/socket'
 require 'rex/io/stream'
 
@@ -10,7 +11,7 @@ module Rex::Socket::Tcp
 
 	include Rex::Socket
 	include Rex::IO::Stream
-	
+
 	##
 	#
 	# Factory
@@ -21,7 +22,7 @@ module Rex::Socket::Tcp
 	# Creates the client using the supplied hash.
 	#
 	def self.create(hash = {})
-		hash['Proto'] = 'tcp' 
+		hash['Proto'] = 'tcp'
 		self.create_param(Rex::Socket::Parameters.from_hash(hash))
 	end
 

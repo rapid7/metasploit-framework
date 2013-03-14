@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/priv/tlv'
 require 'rex/post/meterpreter/extensions/priv/passwd'

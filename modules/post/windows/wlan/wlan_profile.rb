@@ -1,16 +1,13 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
 require 'rex'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 	include Msf::Auxiliary::Report
@@ -25,9 +22,8 @@ class Metasploit3 < Msf::Post
 				Windows XP we will get the PBKDF2 derived key.
 			},
 			'License'       => MSF_LICENSE,
-			'Author'        => ['TheLightCosine <thelightcosine[at]gmail.com>'],
-			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Author'        => ['theLightCosine'],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 	end

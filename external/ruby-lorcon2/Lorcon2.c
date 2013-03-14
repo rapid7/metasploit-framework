@@ -127,11 +127,11 @@ static VALUE Lorcon_create(int argc, VALUE *argv, VALUE self) {
 
 	if (argc == 2) {
 		rb_scan_args(argc, argv, "2", &rbintf, &rbdriver);
-		intf = STR2CSTR(rbintf);
-		driver = STR2CSTR(rbdriver);
+		intf = StringValuePtr(rbintf);
+		driver = StringValuePtr(rbdriver);
 	} else {
 		rb_scan_args(argc, argv, "1", &rbintf);
-		intf = STR2CSTR(rbintf);
+		intf = StringValuePtr(rbintf);
 	}
 	
 	if (driver == NULL) {
@@ -151,7 +151,9 @@ static VALUE Lorcon_create(int argc, VALUE *argv, VALUE self) {
 	obj = Data_Make_Struct(cDevice, struct rldev, 0, Lorcon_free, rld);
 
 	rld->context = lorcon_create(intf, dri);
-	lorcon_set_timeout(rld->context, 100);
+	
+	// Obsolete: XXX
+	// lorcon_set_timeout(rld->context, 100);
 		
 	if (rld->context == NULL) {
 		rb_raise(rb_eRuntimeError,
@@ -348,10 +350,11 @@ static VALUE Lorcon_packet_get_data(VALUE self) {
 
 static VALUE Lorcon_packet_getdot3(VALUE self) {
 	struct rlpack *rlp;
-	Data_Get_Struct(self, struct rlpack, rlp);
 	u_char *pdata;
 	int len;
 	VALUE ret;
+	
+	Data_Get_Struct(self, struct rlpack, rlp);
 
 	if (rlp->packet->packet_data == NULL)
 		return Qnil;
@@ -506,6 +509,11 @@ static VALUE Lorcon_set_channel(VALUE self, VALUE channel) {
 	return INT2FIX(lorcon_set_channel(rld->context, NUM2INT(channel)));
 }
 
+static VALUE Lorcon_get_channel(VALUE self) {
+	struct rldev *rld;
+	Data_Get_Struct(self, struct rldev, rld);
+	return INT2FIX(lorcon_get_channel(rld->context));
+}
 
 static void rblorcon_pcap_handler(rblorconjob_t *job, struct pcap_pkthdr *hdr, u_char *pkt){
 	job->pkt = (unsigned char *)pkt;
@@ -631,6 +639,7 @@ void Init_Lorcon2() {
 
 	rb_define_method(cDevice, "filter=", Lorcon_set_filter, 1);
 	rb_define_method(cDevice, "channel=", Lorcon_set_channel, 1);
+	rb_define_method(cDevice, "channel", Lorcon_get_channel, 0);
 
 	rb_define_method(cDevice, "loop", Lorcon_capture_loop, -1);
 	rb_define_method(cDevice, "each", Lorcon_capture_loop, -1);

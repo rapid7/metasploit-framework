@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/ui'
 
 module Rex
@@ -42,6 +43,12 @@ class Output
 	# Prints an undecorated line of information.
 	#
 	def print_line(msg='')
+	end
+
+	#
+	# Prints a warning
+	#
+	def print_warning(msg='')
 	end
 
 	#

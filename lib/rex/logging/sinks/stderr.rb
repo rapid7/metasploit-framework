@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Rex
 module Logging
 module Sinks
@@ -32,7 +33,7 @@ class Stderr
 			end
 			$stderr.write("[#{get_current_timestamp}] [#{code}(#{level})] #{src}: #{msg}\n")
 		end
-			
+
 		$stderr.flush
 	end
 

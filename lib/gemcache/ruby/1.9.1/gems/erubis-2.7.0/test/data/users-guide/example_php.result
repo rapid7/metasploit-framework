@@ -1,0 +1,19 @@
+$ erubis -l php example.ephp
+<<?php ?>?xml version="1.0"?>
+<html>
+ <body>
+  <p>Hello <?php echo $user; ?>!</p>
+  <table>
+   <tbody>
+<?php     $i = 0; ?>
+<?php     foreach ($list as $item) { ?>
+<?php       $i++; ?>
+    <tr bgcolor="<?php echo $i % 2 == 0 ? '#FFCCCC' : '#CCCCFF'; ?>">
+     <td><?php echo $i; ?></td>
+     <td><?php echo htmlspecialchars($item); ?></td>
+    </tr>
+<?php     } ?>
+   </tbody>
+  </table>
+ </body>
+</html>

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'erb'
 include ERB::Util
 
@@ -54,10 +55,10 @@ class Handler::Erb < Handler
 
 			# Calculate the actual file path on disk.
 			file_path = root_path + resource
-		
+
 			# Serialize the contents of the file
 			data = ''
-			
+
 			File.open(file_path, 'rb') { |f|
 				data = f.read
 			}
@@ -88,11 +89,11 @@ class Handler::Erb < Handler
 				"<h1>Internal Server Error</h1>" +
 				"The server encountered an error:<br/><br/> <b>" + html_escape($!) + "</b><br/><br/>" +
 				"Stack trace:<br/><br/>" +
-				$@.map { |e| html_escape(e.to_s) }.join("<br/>") + 
+				$@.map { |e| html_escape(e.to_s) }.join("<br/>") +
 				"</body></html>"
 		end
 
-		# Send the response to the 
+		# Send the response to the
 		if (cli and resp)
 			cli.send_response(resp)
 		end

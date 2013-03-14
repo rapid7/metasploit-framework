@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module PacketFu
 
 	# UDPHeader is a complete UDP struct, used in UDPPacket. Many Internet-critical protocols

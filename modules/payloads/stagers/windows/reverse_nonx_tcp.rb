@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -27,7 +23,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Reverse TCP Stager (No NX or Win7)',
-			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to the attacker (No NX)',
 			'Author'        => 'vlad902',
 			'License'       => MSF_LICENSE,

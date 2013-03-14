@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -21,7 +17,6 @@ class Metasploit3 < Msf::Encoder::NonAlpha
 	def initialize
 		super(
 			'Name'             => "Non-Alpha Encoder",
-			'Version'          => '$Revision$',
 			'Description'      => %q{
 					Encodes payloads as non-alpha based bytes. This allows
 				payloads to bypass both toupper() and tolower() calls,

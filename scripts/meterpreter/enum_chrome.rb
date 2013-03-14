@@ -193,7 +193,7 @@ if @migrate
 	end
 end
 
-host = session.tunnel_peer.split(':')[0]
+host = session.session_host
 @log_dir = File.join(Msf::Config.log_directory, "scripts", "enum_chrome", Rex::FileUtils.clean_path(@host_info['Computer']), Time.now.strftime("%Y%m%d.%H%M"))
 ::FileUtils.mkdir_p(@log_dir)
 

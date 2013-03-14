@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -18,14 +14,13 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'   		=> 'Apache HTTPD mod_negotiation scanner',
+			'Name'   		=> 'Apache HTTPD mod_negotiation Scanner',
 			'Description'	=> %q{
 					This module scans the webserver of the given host(s) for the existence of mod_negotiate.
 				If the webserver has mod_negotiation enabled, the IP address will be displayed.
 			},
 			'Author' 		=> [ 'diablohorn [at] gmail.com' ],
-			'License'		=> MSF_LICENSE,
-			'Version'		=> '$Revision$'))
+			'License'		=> MSF_LICENSE))
 
 		register_options(
 			[
@@ -64,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			# Sheck for alternates header
 			if(res.code == 406)
-				print_status("#{ip}")
+				print_status(ip.to_s)
 			end
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

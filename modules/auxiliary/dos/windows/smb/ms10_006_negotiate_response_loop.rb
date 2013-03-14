@@ -1,13 +1,9 @@
 
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 class Metasploit3 < Msf::Auxiliary
@@ -34,8 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 					['URL', 'http://g-laurent.blogspot.com/2009/11/windows-7-server-2008r2-remote-kernel.html']
 				],
 			'Author'         => [ 'Laurent Gaffie <laurent.gaffie[at]gmail.com>', 'hdm' ],
-			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$'
+			'License'        => MSF_LICENSE
 		))
 
 		register_options([
@@ -67,4 +62,3 @@ class Metasploit3 < Msf::Auxiliary
 		client.close
 	end
 end
-

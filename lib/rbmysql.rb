@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 # Copyright (C) 2008-2009 TOMITA Masahiro
 # mailto:tommy@tmtm.org
 

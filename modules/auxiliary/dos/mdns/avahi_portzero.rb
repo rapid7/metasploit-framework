@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -25,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'      => 'kris katterjohn',
 			'License'     => MSF_LICENSE,
-			'Version'     => '$Revision$',
 			'References'  => [
 				[ 'CVE', '2008-5081' ],
 				[ 'OSVDB', '50929' ],
@@ -59,4 +54,3 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Avahi should be down now")
 	end
 end
-

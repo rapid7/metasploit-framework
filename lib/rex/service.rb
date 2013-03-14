@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex'
 require 'rex/proto'
 

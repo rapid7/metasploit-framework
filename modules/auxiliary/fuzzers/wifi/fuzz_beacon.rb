@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -26,8 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 
 			'Author'         => [ 'hdm' ],
-			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$'
+			'License'        => MSF_LICENSE
 		))
 		register_options(
 			[
@@ -100,7 +95,7 @@ class Metasploit3 < Msf::Auxiliary
 			"\x80" +                      # type/subtype
 			"\x00" +                      # flags
 			"\x00\x00" +                  # duration
-			"\xff\xff\xff\xff\xff\xff" +  # dst
+			eton(datastore['ADDR_DST']) + # dst
 			bssid +                       # src
 			bssid +                       # bssid
 			seq   +                       # seq

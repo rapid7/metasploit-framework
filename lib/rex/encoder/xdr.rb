@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Rex
 module Encoder
 
@@ -8,22 +9,22 @@ module Encoder
 ###
 module XDR
 	MAX_ARG = 0xffffffff
-	
+
 	# Also: unsigned int, bool, enum
 	def XDR.encode_int(int)
 		return [int].pack('N')
 	end
-	
+
 	def XDR.decode_int!(data)
 		  return data.slice!(0..3).unpack('N')[0] if data
       data = 0
 	end
-	
+
 	def XDR.encode_lchar(char)
 		char |= 0xffffff00 if char & 0x80 != 0
 		return encode_int(char)
 	end
-	
+
 	def XDR.decode_lchar!(data)
 		return (decode_int!(data) & 0xff).chr
 	end
@@ -53,11 +54,11 @@ module XDR
 		1.upto(decode_int!(data)) { buf.push(yield(data)) }
 		return buf
 	end
-	
+
 	# encode(0, [0, 1], "foo", ["bar", 4]) does:
-	#   encode_int(0) + 
+	#   encode_int(0) +
 	#   encode_varray([0, 1]) { |i| XDR.encode_int(i) } +
-	#   encode_string("foo") + 
+	#   encode_string("foo") +
 	#   encode_string("bar", 4)
 	def XDR.encode(*data)
 		data.collect do |var|

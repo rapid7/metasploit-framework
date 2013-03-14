@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/text'
 
 module Rex
@@ -6,7 +7,7 @@ module SMB
 class Crypt
 
 	@@loaded_openssl = false
-	
+
 	begin
 		require 'openssl'
 		@@loaded_openssl = true
@@ -18,7 +19,7 @@ class Crypt
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
 		seq = Rex::Text::pack_int64le(sequence_counter)
 		netbios_hdr = data.slice!(0,4)
-		data[14,8] = seq 
+		data[14,8] = seq
 		signature = OpenSSL::Digest::MD5.digest(mackey + data)[0,8]
 		data[14,8] = signature
 		netbios_hdr + data

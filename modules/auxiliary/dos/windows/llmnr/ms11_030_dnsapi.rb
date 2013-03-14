@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -33,14 +29,13 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'      => 'jduck',
 			'License'     => MSF_LICENSE,
-			'Version'     => '$Revision$',
 			'References'  =>
 				[
 					[ 'CVE', '2011-0657' ],
 					[ 'OSVDB', '71780' ],
 					[ 'MSB', 'MS11-030' ]
 				],
-			'DisclosureDate' => 'April 12 2011')
+			'DisclosureDate' => 'Apr 12 2011')
 
 		register_options(
 			[
@@ -110,4 +105,3 @@ class Metasploit3 < Msf::Auxiliary
 		disconnect_udp
 	end
 end
-

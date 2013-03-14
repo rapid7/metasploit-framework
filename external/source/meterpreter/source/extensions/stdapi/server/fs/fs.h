@@ -24,4 +24,33 @@ DWORD request_fs_sha1(Remote *remote, Packet *packet);
  */
 DWORD request_fs_file_channel_open(Remote *remote, Packet *packet);
 
+
+
+/*
+ * Stat structures on Windows and various Unixes are all slightly different.
+ * Use this as a means of standardization so the client has some hope of
+ * understanding what the stat'd file really is.
+ */
+struct meterp_stat {
+    unsigned int   st_dev;
+    unsigned short st_ino;
+    unsigned short st_mode;
+    unsigned short st_nlink;
+    unsigned short st_uid;
+    unsigned short st_gid;
+    unsigned short pad;
+    unsigned int   st_rdev;
+    unsigned int   st_size;
+    /*
+     * These are always 64-bits on Windows and usually 32-bits on Linux.  Force
+     * them to be the same size everywhere.
+     */
+    unsigned long long st_atime;
+    unsigned long long st_mtime;
+    unsigned long long st_ctime;
+};
+
+int fs_stat(LPCSTR filename, struct meterp_stat *buf);
+
+
 #endif

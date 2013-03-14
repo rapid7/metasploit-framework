@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module PacketFu
 
 	# The Capture class is used to construct PcapRub objects in order to collect

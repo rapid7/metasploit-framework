@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -24,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 					This module makes a request to the Oracle  Enterprise Manager Control Console
 				in an attempt to discover the SID.
 			},
-			'Version'     => '$Revision$',
 			'References'  =>
 				[
 					[ 'URL', 'http://dsecrg.com/files/pub/pdf/Different_ways_to_guess_Oracle_database_SID_(eng).pdf' ],
@@ -51,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 							:port	=> datastore['RPORT'],
 							:proto	=> 'tcp',
 							:type	=> 'oracle_sid',
-							:data	=> "#{sid}",
+							:data	=> sid,
 							:update => :unique_data
 					)
 					print_status("Discovered SID: '#{sid}' for host #{ip}")

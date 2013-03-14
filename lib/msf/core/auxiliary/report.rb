@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Msf
 
 ###
@@ -23,7 +24,7 @@ module Auxiliary::Report
 	end
 
 	def inside_workspace_boundary?(ip)
-		return if not framework.db.active
+		return true if not framework.db.active
 		allowed = myworkspace.allow_actions_on?(ip)
 		return allowed
 	end
@@ -200,7 +201,7 @@ module Auxiliary::Report
 			conf[:name] = filename if filename
 			conf[:info] = info if info
 
-			if service and service.kind_of?(Msf::DBManager::Service)
+			if service and service.kind_of?(::Mdm::Service)
 				conf[:service] = service if service
 			end
 

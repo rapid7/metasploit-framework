@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require "msf/core/rpc/service"
 require "msf/core/rpc/client"
 

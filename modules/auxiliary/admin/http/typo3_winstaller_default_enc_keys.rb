@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -19,7 +15,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'TYPO3 Winstaller default Encryption Keys',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module exploits known default encryption keys found in the TYPO3 Winstaller.
 				This flaw allows for file disclosure in the jumpUrl mechanism. This issue can be

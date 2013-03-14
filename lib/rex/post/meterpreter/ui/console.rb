@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/ui'
 require 'rex/post/meterpreter'
 require 'rex/logging'

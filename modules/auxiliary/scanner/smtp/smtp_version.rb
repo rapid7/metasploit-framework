@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -20,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMTP Banner Grabber',
-			'Version'     => '$Revision$',
 			'Description' => 'SMTP Banner Grabber',
 			'References'  =>
 				[
@@ -37,8 +32,6 @@ class Metasploit3 < Msf::Auxiliary
 		banner_sanitized = Rex::Text.to_hex_ascii(banner.to_s)
 		print_status("#{ip}:#{rport} SMTP #{banner_sanitized}")
 		report_service(:host => rhost, :port => rport, :name => "smtp", :info => banner)
-		print_error("#{rhost}:#{rport} #{e} #{e.backtrace}")
 	end
 
 end
-

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/ui'
 require 'rex/io/ring_buffer'
 

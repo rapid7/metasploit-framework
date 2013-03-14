@@ -1,4 +1,40 @@
+# -*- coding: binary -*-
 require 'msf/core/plugin'
+
+=begin
+require 'active_record'
+#
+# This monkeypatch can help to diagnose errors involving connection pool
+# exhaustion and other strange ActiveRecord including errors like:
+#
+#   DEPRECATION WARNING: Database connections will not be closed automatically, please close your
+#   database connection at the end of the thread by calling `close` on your
+#   connection.  For example: ActiveRecord::Base.connection.close
+#
+# and
+#
+#   ActiveRecord::StatementInvalid NoMethodError: undefined method `fields' for nil:NilClass: SELECT  "workspaces".* FROM "workspaces"  WHERE "workspaces"."id" = 24 LIMIT 1
+#
+#
+# Based on this code: https://gist.github.com/1364551 linked here:
+# http://bibwild.wordpress.com/2011/11/14/multi-threading-in-rails-activerecord-3-0-3-1/
+module ActiveRecord
+  class Base
+    class << self
+      def connection
+        unless connection_pool.active_connection?
+          $stdout.puts("AR::B.connection implicit checkout")
+          $stdout.puts(caller.join("\n"))
+          raise ImplicitConnectionForbiddenError.new("Implicit ActiveRecord checkout attempted!")
+        end
+        retrieve_connection
+      end
+    end
+  end
+  class ImplicitConnectionForbiddenError < ActiveRecord::ConnectionTimeoutError ; end
+end
+=end
+
 
 module Msf
 
@@ -66,6 +102,16 @@ class ThreadManager < Array
 					elog("thread exception: #{::Thread.current[:tm_name]}  critical=#{::Thread.current[:tm_crit]}  error:#{e.class} #{e} source:#{::Thread.current[:tm_call].inspect}")
 					elog("Call Stack\n#{e.backtrace.join("\n")}")
 					raise e
+				ensure
+					if framework.db and framework.db.active
+						# NOTE: despite the Deprecation Warning's advice, this should *NOT*
+						# be ActiveRecord::Base.connection.close which causes unrelated
+						# threads to raise ActiveRecord::StatementInvalid exceptions at
+						# some point in the future, presumably due to the pool manager
+						# believing that the connection is still usable and handing it out
+						# to another thread.
+						::ActiveRecord::Base.connection_pool.release_connection
+					end
 				end
 			end
 		else
@@ -74,6 +120,13 @@ class ThreadManager < Array
 				::Thread.current[:tm_crit] = argv.shift
 				::Thread.current[:tm_call] = argv.shift
 				::Thread.current[:tm_time] = Time.now
+				# Calling spawn without a block means we cannot force a database
+				# connection release when the thread completes, so doing so can
+				# potentially use up all database resources and starve all subsequent
+				# threads that make use of the database. Log a warning so we can track
+				# down this kind of usage.
+				dlog("Thread spawned without a block!")
+				dlog("Call stack: \n#{::Thread.current[:tm_call].join("\n")}")
 			end
 		end
 

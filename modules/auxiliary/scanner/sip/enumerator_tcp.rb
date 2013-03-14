@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -20,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SIP Username Enumerator (TCP)',
-			'Version'     => '$Revision$',
 			'Description' => 'Scan for numeric username/extensions using OPTIONS/REGISTER requests',
 			'Author'      => 'et',
 			'License'     => MSF_LICENSE
@@ -31,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			OptInt.new('MINEXT',   [true, 'Starting extension',0]),
 			OptInt.new('MAXEXT',   [true, 'Ending extension', 9999]),
 			OptInt.new('PADLEN',   [true, 'Cero padding maximum length', 4]),
-			OptString.new('METHOD', [true, 'Enumeration method to use OPTIONS/REGISTER','REGISTER']),
+			OptEnum.new('METHOD',  [true, 'Enumeration method', 'REGISTER', ['OPTIONS', 'REGISTER']]),
 			Opt::RPORT(5060)
 		], self.class)
 	end
@@ -56,9 +51,6 @@ class Metasploit3 < Msf::Auxiliary
 					data = create_probe(ip,testext,'REGISTER')
 				when 'OPTIONS'
 					data = create_probe(ip,testext,'OPTIONS')
-				else
-					print_error("Method not found.")
-					return
 				end
 
 				begin
@@ -146,4 +138,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

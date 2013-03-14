@@ -1,8 +1,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -12,6 +12,11 @@ require 'zlib'
 
 
 class Metasploit3 < Msf::Post
+
+	require 'msf/core/module/deprecated'
+	include Msf::Module::Deprecated
+	deprecated Date.new(2013,6,1), "exploit/windows/local/ms10_092_schelevator"
+
 	include Msf::Post::Common
 
 	def initialize(info={})
@@ -29,8 +34,7 @@ class Metasploit3 < Msf::Post
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'jduck' ],
-			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ],
 			'References'    =>
 				[
@@ -38,7 +42,7 @@ class Metasploit3 < Msf::Post
 					[ 'CVE', '2010-3338' ],
 					[ 'BID', '44357' ],
 					[ 'MSB', 'MS10-092' ],
-					[ 'URL', 'http://www.exploit-db.com/exploits/15589/' ]
+					[ 'EDB', '15589' ]
 				],
 			'DisclosureDate'=> 'Sep 13 2010'
 		))

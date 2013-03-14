@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -24,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Lotus Domino Brute Force Utility',
-			'Version'        => '$Revision$',
 			'Description'    => 'Lotus Domino Authentication Brute Force Utility',
 			'Author'         => 'Tiago Ferreira <tiago.ccna[at]gmail.com>',
 			'License'        =>  MSF_LICENSE
@@ -58,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 					report_auth_info(
 						:host   => rhost,
 						:port => rport,
-						:sname  => 'http',
+						:sname => (ssl ? "https" : "http"),
 						:user   => user,
 						:pass   => pass,
 						:proof  => "WEBAPP=\"Lotus Domino\", VHOST=#{vhost}, COOKIE=#{res.headers['Set-Cookie']}",
@@ -84,4 +79,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

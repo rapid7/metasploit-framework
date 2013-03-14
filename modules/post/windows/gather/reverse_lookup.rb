@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -22,10 +18,9 @@ class Metasploit3 < Msf::Post
 				to an IP.
 			},
 			'License'              => MSF_LICENSE,
-			'Version'              => '$Revision$',
-			'Platform'             => ['windows'],
+			'Platform'             => ['win'],
 			'SessionTypes'         => ['meterpreter'],
-			'Author'               => ['mubix']
+			'Author'               => [ 'mubix' ]
 			))
 		register_options(
 			[
@@ -52,12 +47,6 @@ class Metasploit3 < Msf::Post
 				return
 			end
 		end
-
-		#Initialize Railgun 'gethostbyaddr' call'
-		session.railgun.add_function('ws2_32', 'gethostbyaddr', 'DWORD', [
-				['PCHAR', 'addr', 'in'],
-				['DWORD','len','in'],
-				['DWORD','type','in']])
 
 		#Generates IP list based on RHOSTS - RangeWalker rocks....
 		iplist = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])

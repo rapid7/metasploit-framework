@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'msf/core'
 
 module Msf
@@ -105,6 +106,10 @@ class Encoder < Module
 		# tolower safe ascii UTF8-safe (<= 0x7f only)
 		#
 		NonUpperUtf8Safe = "non_upper_utf8_safe"
+		#
+		# tolower safe underscore safe for CVE-2012-2329 - PHP CGI apache_request_headers bof
+		#
+		NonUpperUnderscoreSafe = "non_upper_underscore"
 		#
 		# May result in the generation of any characters
 		#
@@ -303,7 +308,12 @@ class Encoder < Module
 			while (offset < state.buf.length)
 				block = state.buf[offset, decoder_block_size]
 
-				state.encoded += encode_block(state,
+				# Append here (String#<<) instead of creating a new string with
+				# String#+ because the allocations kill performance with large
+				# buffers. This isn't usually noticeable on most shellcode, but
+				# when doing stage encoding on meterpreter (~750k bytes) the
+				# difference is 2 orders of magnitude.
+				state.encoded << encode_block(state,
 						block + ("\x00" * (decoder_block_size - block.length)))
 
 				offset += decoder_block_size

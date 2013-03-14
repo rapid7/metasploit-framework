@@ -77,7 +77,7 @@ end
 
 # Dumps the memory for a given PID
 def dump_mem(pid,name, toggle)
-	host,port = @client.tunnel_peer.split(':')
+	host,port = @client.session_host, session.session_port
 	# Create Filename info to be appended to created files
 	filenameinfo = "_#{name}_#{pid}_" + ::Time.now.strftime("%Y%m%d.%M%S")
 	# Create a directory for the logs

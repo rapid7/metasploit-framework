@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module PacketFu
 
 	# The Inject class handles injecting arrays of binary data on the wire.

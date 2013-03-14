@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 # $Id$
 
@@ -127,23 +128,23 @@ class ElfBase
 		end
 
 		# The following methods are just pass-throughs for struct
-		
+
 		# Access a value
 		def v
 			struct.v
-			
+
 		end
-		
-		# Access a value by array 
+
+		# Access a value by array
 		def [](*args)
 			struct[*args]
 		end
-		
+
 		# Obtain an array of all fields
 		def keys
 			struct.keys
 		end
-		
+
 		def method_missing(meth, *args)
 			v[meth.to_s] || (raise NoMethodError.new, meth)
 		end

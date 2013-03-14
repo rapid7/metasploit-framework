@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Msf
 
 ##
@@ -46,28 +47,33 @@ class Export
 		report_file.write "#" * 40; report_file.write "\n"
 
 		count = count_credentials("smb_hash",creds)
+		scount = creds.has_key?("smb_hash") ? creds["smb_hash"].size : 0
 		yield(:status, "start", "LM/NTLM Hash dump") if block_given?
-		report_file.write "# LM/NTLM Hashes (%d services, %d hashes)\n" % [creds["smb_hash"].size, count]
+		report_file.write "# LM/NTLM Hashes (%d services, %d hashes)\n" % [scount, count]
 		write_credentials("smb_hash",creds,report_file)
 
 		count = count_credentials("smb_netv1_hash",creds)
+		scount = creds.has_key?("smb_netv1_hash") ? creds["smb_netv1_hash"].size : 0
 		yield(:status, "start", "NETLMv1/NETNTLMv1 Hash dump") if block_given?
-		report_file.write "# NETLMv1/NETNTLMv1 Hashes (%d services, %d hashes)\n" % [creds["smb_netv1_hash"].size, count]
+		report_file.write "# NETLMv1/NETNTLMv1 Hashes (%d services, %d hashes)\n" % [scount, count]
 		write_credentials("smb_netv1_hash",creds,report_file)
 
 		count = count_credentials("smb_netv2_hash",creds)
+		scount = creds.has_key?("smb_netv2_hash") ? creds["smb_netv2_hash"].size : 0
 		yield(:status, "start", "NETLMv2/NETNTLMv2 Hash dump") if block_given?
-		report_file.write "# NETLMv2/NETNTLMv2 Hashes (%d services, %d hashes)\n" % [creds["smb_netv2_hash"].size, count]
+		report_file.write "# NETLMv2/NETNTLMv2 Hashes (%d services, %d hashes)\n" % [scount, count]
 		write_credentials("smb_netv2_hash",creds,report_file)
 
 		count = count_credentials("ssh_key",creds)
+		scount = creds.has_key?("ssh_key") ? creds["ssh_key"].size : 0
 		yield(:status, "start", "SSH Key dump") if block_given?
-		report_file.write "# SSH Private Keys (%d services, %d keys)\n" % [creds["ssh_key"].size, count]
+		report_file.write "# SSH Private Keys (%d services, %d keys)\n" % [scount, count]
 		write_credentials("ssh_key",creds,report_file)
 
 		count = count_credentials("text",creds)
+		scount = creds.has_key?("text") ? creds["text"].size : 0
 		yield(:status, "start", "Plaintext Credential dump") if block_given?
-		report_file.write "# Plaintext Credentials (%d services, %d credentials)\n" % [creds["text"].size, count]
+		report_file.write "# Plaintext Credentials (%d services, %d credentials)\n" % [scount, count]
 		write_credentials("text",creds,report_file)
 
 		report_file.flush
@@ -250,6 +256,13 @@ class Export
 		extract_web_vuln_info(report_file)
 		report_file.write %Q|</web_vulns>\n|
 
+		yield(:status, "start", "module details") if block_given?
+		report_file.write %Q|<module_details>\n|
+		report_file.flush
+		extract_module_detail_info(report_file)
+		report_file.write %Q|</module_details>\n|
+
+
 		report_file.write %Q|</MetasploitV4>\n|
 		report_file.flush
 		report_file.close
@@ -345,6 +358,96 @@ class Export
 		return el
 	end
 
+
+	def extract_module_detail_info(report_file)
+		Mdm::ModuleDetail.all.each do |m|
+			report_file.write("<module_detail>\n")
+			m_id = m.attributes["id"]
+
+			# Module attributes
+			m.attributes.each_pair do |k,v|
+				el = create_xml_element(k,v)
+				report_file.write("    #{el}\n") # Not checking types
+			end
+
+			# Authors sub-elements
+			report_file.write("    <module_authors>\n")
+			m.authors.find(:all).each do |d|
+				d.attributes.each_pair do |k,v|
+					el = create_xml_element(k,v)
+					report_file.write("        #{el}\n")
+				end
+			end
+			report_file.write("    </module_authors>\n")
+
+			# Refs sub-elements
+			report_file.write("    <module_refs>\n")
+			m.refs.find(:all).each do |d|
+				d.attributes.each_pair do |k,v|
+					el = create_xml_element(k,v)
+					report_file.write("        #{el}\n")
+				end
+			end
+			report_file.write("    </module_refs>\n")
+
+
+			# Archs sub-elements
+			report_file.write("    <module_archs>\n")
+			m.archs.find(:all).each do |d|
+				d.attributes.each_pair do |k,v|
+					el = create_xml_element(k,v)
+					report_file.write("        #{el}\n")
+				end
+			end
+			report_file.write("    </module_archs>\n")
+
+
+			# Platforms sub-elements
+			report_file.write("    <module_platforms>\n")
+			m.platforms.find(:all).each do |d|
+				d.attributes.each_pair do |k,v|
+					el = create_xml_element(k,v)
+					report_file.write("        #{el}\n")
+				end
+			end
+			report_file.write("    </module_platforms>\n")
+
+
+			# Targets sub-elements
+			report_file.write("    <module_targets>\n")
+			m.targets.find(:all).each do |d|
+				d.attributes.each_pair do |k,v|
+					el = create_xml_element(k,v)
+					report_file.write("        #{el}\n")
+				end
+			end
+			report_file.write("    </module_targets>\n")
+
+			# Actions sub-elements
+			report_file.write("    <module_actions>\n")
+			m.actions.find(:all).each do |d|
+				d.attributes.each_pair do |k,v|
+					el = create_xml_element(k,v)
+					report_file.write("        #{el}\n")
+				end
+			end
+			report_file.write("    </module_actions>\n")
+
+			# Mixins sub-elements
+			report_file.write("    <module_mixins>\n")
+			m.mixins.find(:all).each do |d|
+				d.attributes.each_pair do |k,v|
+					el = create_xml_element(k,v)
+					report_file.write("        #{el}\n")
+				end
+			end
+			report_file.write("    </module_mixins>\n")
+
+			report_file.write("</module_detail>\n")
+		end
+		report_file.flush
+	end
+
 	# ActiveRecord's to_xml is easy and wrong. This isn't, on both counts.
 	def extract_host_info(report_file)
 		@hosts.each do |h|
@@ -356,6 +459,30 @@ class Export
 				el = create_xml_element(k,v)
 				report_file.write("    #{el}\n") # Not checking types
 			end
+
+			# Host details sub-elements
+			report_file.write("    <host_details>\n")
+			h.host_details.find(:all).each do |d|
+				report_file.write("        <host_detail>\n")
+				d.attributes.each_pair do |k,v|
+					el = create_xml_element(k,v)
+					report_file.write("            #{el}\n")
+				end
+				report_file.write("        </host_detail>\n")
+			end
+			report_file.write("    </host_details>\n")
+
+			# Host exploit attempts sub-elements
+			report_file.write("    <exploit_attempts>\n")
+			h.exploit_attempts.find(:all).each do |d|
+				report_file.write("        <exploit_attempt>\n")
+				d.attributes.each_pair do |k,v|
+					el = create_xml_element(k,v)
+					report_file.write("            #{el}\n")
+				end
+				report_file.write("        </exploit_attempt>\n")
+			end
+			report_file.write("    </exploit_attempts>\n")
 
 			# Service sub-elements
 			report_file.write("    <services>\n")
@@ -389,6 +516,41 @@ class Export
 					el = create_xml_element(k,v)
 					report_file.write("      #{el}\n")
 				end
+
+				# References
+				report_file.write("        <refs>\n")
+				e.refs.each do |ref|
+					el = create_xml_element("ref",ref.name)
+					report_file.write("          #{el}\n")
+				end
+				report_file.write("        </refs>\n")
+
+
+				# Vuln details sub-elements
+				report_file.write("            <vuln_details>\n")
+				e.vuln_details.find(:all).each do |d|
+					report_file.write("                <vuln_detail>\n")
+					d.attributes.each_pair do |k,v|
+						el = create_xml_element(k,v)
+						report_file.write("                    #{el}\n")
+					end
+					report_file.write("                </vuln_detail>\n")
+				end
+				report_file.write("            </vuln_details>\n")
+
+
+				# Vuln attempts sub-elements
+				report_file.write("            <vuln_attempts>\n")
+				e.vuln_attempts.find(:all).each do |d|
+					report_file.write("                <vuln_attempt>\n")
+					d.attributes.each_pair do |k,v|
+						el = create_xml_element(k,v)
+						report_file.write("                    #{el}\n")
+					end
+					report_file.write("                </vuln_attempt>\n")
+				end
+				report_file.write("            </vuln_attempts>\n")
+
 				report_file.write("      </vuln>\n")
 			end
 			report_file.write("    </vulns>\n")

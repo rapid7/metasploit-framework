@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/post/meterpreter/extensions/stdapi/railgun/railgun'
 
 module Msf
@@ -19,7 +20,7 @@ module Railgun
 			next
 		end
 
-		# evaling a String is faster than calling define_method 
+		# evaling a String is faster than calling define_method
 		eval "def #{api.to_s}; railgun.#{api.to_s}; end"
 	end
 
@@ -31,7 +32,7 @@ module Railgun
 	end
 
 	#
-	# Returns an array of windows error code names for a given windows error code matching +err_code+ 
+	# Returns an array of windows error code names for a given windows error code matching +err_code+
 	#
 	def lookup_error (err_code, filter_regex=nil)
 		select_const_names(err_code, /^ERROR_/).select do |name|
@@ -39,10 +40,16 @@ module Railgun
 		end
 	end
 
+	#
+	# Read +length+ bytes starting at +address+
+	#
 	def memread(address, length)
 		railgun.memread(address, length)
 	end
 
+	#
+	# Write +length+ bytes starting at +address+
+	#
 	def memwrite(address, length)
 		railgun.memwrite(address, length)
 	end
@@ -51,6 +58,9 @@ module Railgun
 		client.railgun
 	end
 
+	#
+	# Returns the pointer size of the remote system
+	#
 	def pointer_size
 		railgun.util.pointer_size
 	end

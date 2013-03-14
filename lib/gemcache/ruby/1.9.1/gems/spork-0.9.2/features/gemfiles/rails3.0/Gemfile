@@ -1,0 +1,14 @@
+source :gemcutter
+gem 'sqlite3-ruby', '1.2.5'
+gem 'cucumber', '~> 1.0.0'
+gem 'cucumber-rails', '~> 1.0.0'
+gem "rspec", "2.5.0"
+gem 'rspec-rails', "2.5.0"
+gem 'rails', '3.0.7'
+
+if RUBY_VERSION =~ /^1\.9/
+  gem 'ruby-debug19'
+else
+  gem 'ruby-debug', '>= 0.10.3'
+end
+gem 'spork', :path => File.expand_path("../../..", File.dirname(__FILE__))

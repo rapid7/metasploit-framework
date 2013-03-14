@@ -1,13 +1,15 @@
 ##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
 require 'msf/core/post/common'
+require 'msf/core/post/windows/registry'
 require 'msf/core/post/windows/priv'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
@@ -17,11 +19,11 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'           => 'Post Windows Gather Forensics Duqu Registry Check',
+			'Name'           => 'Windows Gather Forensics Duqu Registry Check',
 			'Description'    => %q{ This module searches for CVE-2011-3402 (Duqu) related registry artifacts.},
 			'License'        => MSF_LICENSE,
 			'Author'         => [ 'Marcus J. Carey <mjc[at]threatagent.com>'],
-			'Platform'       => [ 'windows' ],
+			'Platform'       => [ 'win' ],
 			'SessionTypes'   => [ 'meterpreter' ],
 			'References'     =>
 				[
@@ -54,12 +56,12 @@ class Metasploit3 < Msf::Post
 					print_good("#{sysinfo['Computer']}: #{path}\\#{query} found in registry.")
 					match += 1
 					report_vuln(
-						:host          => target_host,
-						:name          => self.fullname,
-						:info          => "#{path}\\#{query} possible CVE-2011-3402 exploitation [Duqu] artifact.",
+						:host          => session.session_host,
+						:name          => self.name,
+						:info          => "Module #{self.fullname} detected #{path}\\#{query} - possible CVE-2011-3402 exploitation [Duqu] artifact.",
 						:refs          => self.references,
 						:exploited_at  => Time.now.utc
-						)
+					)
 				end
 			end
 		rescue # Probably should do something here...

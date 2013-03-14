@@ -1,11 +1,7 @@
-##
-# $Id$
-##
-
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'rex/proto/http'
@@ -37,7 +33,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'Troy Rose <troy[at]osisecurity.com.au>', 'patrick' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'URL', 'http://www.osisecurity.com.au/advisories/' ],
@@ -46,7 +41,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				Opt::RPORT(80),
 				OptString.new('URI', [true, 'The path to users Squiz Matrix installation', '/']),
 				OptInt.new('ASSETBEGIN',  [ true, "Asset ID to start at", 1]),
 				OptInt.new('ASSETEND',  [ true, "Asset ID to stop at", 100]),
@@ -55,7 +49,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def target_url
-		"http://#{vhost}:#{rport}#{datastore['URI']}"
+		uri = normalize_uri(datastore['URI'])
+		"http://#{vhost}:#{rport}#{uri}"
 	end
 
 	def run_host(ip)
@@ -79,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
 			:host => rhost,
 			:port => rport,
 			:proto => 'tcp',
-			:sname  => 'HTTP',
+			:sname => (ssl ? 'https' : 'http'),
 			:type => 'users',
 			:vhost => vhost,
 			:data => {:users =>  @users_found.keys.join(", ")}
@@ -97,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
 			if (datastore['VERBOSE'])
 				if (res and res.code = 403 and res.body and res.body =~ /You do not have permission to access <i>(\w+)<\/i>/)
 					print_status("#{target_url}?a=#{asset} - Trying Asset: '#{asset}' title '#{$1}'")
-					else
+				else
 					print_status("#{target_url}?a=#{asset} - Trying Asset: '#{asset}'")
 				end
 			end
@@ -130,7 +125,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				report_auth_info(
 				:host => rhost,
-				:sname => 'http',
+				:sname => (ssl ? 'https' : 'http'),
 				:user => user,
 				:port => rport,
 				:proof => "WEBAPP=\"Squiz Matrix\", VHOST=#{vhost}")

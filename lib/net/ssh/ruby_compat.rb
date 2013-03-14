@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 class String
   if RUBY_VERSION < "1.9"
     def getbyte(index)

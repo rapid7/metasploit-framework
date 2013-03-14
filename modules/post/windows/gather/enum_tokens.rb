@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -29,8 +25,7 @@ class Metasploit3 < Msf::Post
 					privileges are available, the script will not continue.
 				},
 			'License'         => MSF_LICENSE,
-			'Version'         => '$Revision$',
-			'Platform'        => ['windows'],
+			'Platform'        => ['win'],
 			'SessionTypes'    => ['meterpreter'],
 			'Author'          => ['Joshua Abraham <jabra[at]rapid7.com>']
 		))
@@ -123,7 +118,7 @@ class Metasploit3 < Msf::Post
 			return
 		end
 
-		print_status("Scanning session #{session.sid} / #{session.tunnel_peer}")
+		print_status("Scanning session #{session.sid} / #{session.session_host}")
 
 		# get system, if requested.
 		get_system if (session.sys.config.getuid() !~ /SYSTEM/ and datastore['GETSYSTEM'])
@@ -145,7 +140,7 @@ class Metasploit3 < Msf::Post
 		session.core.use("incognito") if(! session.incognito)
 
 		if(! session.incognito)
-			print_error("Failed to load incognito on #{session.sid} / #{session.tunnel_peer}")
+			print_error("Failed to load incognito on #{session.sid} / #{session.session_host}")
 			return
 		end
 
@@ -173,7 +168,7 @@ class Metasploit3 < Msf::Post
 
 					if ndom == domain and da_user == nusr
 						sid = session.sid
-						peer = session.tunnel_peer
+						peer = session.session_host
 						print_good("Found token for session #{sid}: #{peer} - #{nusr} (Delegation Token)")
 					end
 				end
@@ -184,7 +179,7 @@ class Metasploit3 < Msf::Post
 			session.sys.process.get_processes().each do |proc|
 				if (proc['user'] == "#{domain}\\#{da_user}")
 					sid = session.sid
-					peer = session.tunnel_peer
+					peer = session.session_host
 					target_pid = proc['pid']
 					tbl_pids << [sid, peer, da_user, target_pid]
 					print_good("Found PID on session #{sid}: #{peer} - #{da_user} (PID: #{target_pid})")
@@ -194,7 +189,7 @@ class Metasploit3 < Msf::Post
 			#At the end of the loop, store and print results for this da_user
 			if not tbl_pids.rows.empty? and session.framework.db.active
 				report_note(
-					:host => session.tunnel_peer,
+					:host => session.session_host,
 					:type => "pid",
 					:data => tbl_pids.to_csv
 				)

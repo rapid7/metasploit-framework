@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module PacketFu
 
 	# EthOui is the Organizationally Unique Identifier portion of a MAC address, used in EthHeader.

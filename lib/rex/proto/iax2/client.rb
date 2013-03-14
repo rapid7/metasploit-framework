@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/proto/iax2/constants'
 require 'rex/proto/iax2/codecs'
 require 'rex/proto/iax2/call'
@@ -17,7 +18,7 @@ class Client
 	attr_accessor :sock, :monitor
 	attr_accessor :src_call_idx
 	attr_accessor :debugging
-	attr_accessor :calls	
+	attr_accessor :calls
 
 	def initialize(uopts={})
 		opts = {
@@ -26,31 +27,31 @@ class Client
 			:server_port   => IAX2_DEFAULT_PORT,
 			:context       => { }
 		}.merge(uopts)
-		
+
 		self.caller_name   = opts[:caller_name]
 		self.caller_number = opts[:caller_number]
 		self.server_host   = opts[:server_host]
 		self.server_port   = opts[:server_port]
 		self.username      = opts[:username]
 		self.password      = opts[:password]
-		
+
 		self.sock = Rex::Socket::Udp.create(
 			'PeerHost' => self.server_host,
 			'PeerPort' => self.server_port,
 			'Context'  => opts[:context]
 		)
-		
+
 		self.monitor   = ::Thread.new { monitor_socket }
 
 		self.src_call_idx = 0
 		self.calls = {}
-		
+
 	end
-	
+
 	def shutdown
 		self.monitor.kill rescue nil
 	end
-	
+
 	def create_call
 		cid  = allocate_call_id()
 		self.calls[ cid ] = IAX2::Call.new(self, cid)
@@ -65,11 +66,11 @@ class Client
 			begin
 				pkt, src = self.sock.recvfrom(65535)
 				next if not pkt
-				
-				# Find the matching call object 
-				mcall = matching_call(pkt)				
+
+				# Find the matching call object
+				mcall = matching_call(pkt)
 				next if not mcall
-	
+
 				if (pkt[0,1].unpack("C")[0] & 0x80) != 0
 					mcall.handle_control(pkt)
 				else
@@ -83,27 +84,27 @@ class Client
 		end
 		self.sock.close rescue nil
 	end
-	
+
 	def matching_call(pkt)
 		src_call = pkt[0,2].unpack('n')[0]
 		dst_call = nil
-		
+
 		if (src_call & 0x8000 != 0)
 			dst_call = pkt[2,2].unpack('n')[0]
 			dst_call ^= 0x8000 if (dst_call & 0x8000 != 0)
 		end
-		
+
 		src_call ^= 0x8000 if (src_call & 0x8000 != 0)
-		
+
 		# Find a matching call in our list
 		mcall = self.calls.values.select {|x| x.dcall == src_call or (dst_call and x.scall == dst_call) }.first
 		if not mcall
 			dprint("Packet received for non-existent call #{[src_call, dst_call].inspect}  vs #{self.calls.values.map{|x| [x.dcall, x.scall]}.inspect}")
 			return
 		end
-		mcall	
+		mcall
 	end
-	
+
 	def allocate_call_id
 		res = ( self.src_call_idx += 1 )
 		if ( res > 0x8000 )
@@ -130,7 +131,7 @@ class Client
 		data =	[ IAX_SUBTYPE_ACK ].pack('C')
 		send_data( call, create_pkt( call.scall, call.dcall, call.timestamp, call.oseq, call.iseq, IAX_TYPE_IAX, data ), false )
 	end
-	
+
 	def send_pong(call, stamp)
 		data =	[ IAX_SUBTYPE_PONG ].pack('C')
 		send_data( call, create_pkt( call.scall, call.dcall, stamp, call.oseq, call.iseq, IAX_TYPE_IAX, data ) )
@@ -146,18 +147,18 @@ class Client
 		data =	[ IAX_SUBTYPE_INVAL ].pack('C')
 		send_data( call, create_pkt( call.scall, call.dcall, call.timestamp, call.oseq, call.iseq, IAX_TYPE_IAX, data ) )
 	end
-	
+
 	def send_hangup(call)
 		data =	[ IAX_SUBTYPE_HANGUP ].pack('C')
 		send_data( call, create_pkt( call.scall, call.dcall, call.timestamp, call.oseq, call.iseq, IAX_TYPE_IAX, data ) )
 	end
-	
+
 	def send_new(call, number)
 		data = [ IAX_SUBTYPE_NEW ].pack('C')
-		
+
 		cid = call.caller_number || self.caller_number
 		cid = number if cid == 'SELF'
-		
+
 		data << create_ie(IAX_IE_CALLING_NUMBER, cid )
 		data << create_ie(IAX_IE_CALLING_NAME, call.caller_name || self.caller_name)
 		data << create_ie(IAX_IE_DESIRED_CODEC, [IAX_SUPPORTED_CODECS].pack("N") )

@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -30,7 +26,6 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'     => '$Revision $',
 			'Description' => 'Determine what domain users are logged into a remote system via a DCERPC to NetWkstaUserEnum.',
 			'Author'      => 'natron',
-			'Version'     => '$Revision$',
 			'References'  =>
 				[
 					[ 'URL', 'http://msdn.microsoft.com/en-us/library/aa370669%28VS.85%29.aspx' ]
@@ -160,4 +155,3 @@ class Metasploit3 < Msf::Auxiliary
 end
 
 end
-

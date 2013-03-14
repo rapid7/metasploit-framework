@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -16,22 +12,15 @@ require 'openssl'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Report
-	include Msf::Auxiliary::Scanner
+	include Msf::Auxiliary::UDPScanner
 
 	def initialize
 		super(
 			'Name'        => 'UDP Service Sweeper',
-			'Version'     => '$Revision$',
-			'Description' => 'Detect common UDP services',
+			'Description' => 'Detect interesting UDP services',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE
 		)
-
-		register_options(
-		[
-			Opt::CHOST,
-			OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
-		], self.class)
 
 		register_advanced_options(
 		[
@@ -52,7 +41,8 @@ class Metasploit3 < Msf::Auxiliary
 		@probes << 'probe_pkt_sentinel'
 		@probes << 'probe_pkt_db2disco'
 		@probes << 'probe_pkt_citrix'
-
+		@probes << 'probe_pkt_pca_st'
+		@probes << 'probe_pkt_pca_nq'
 	end
 
 	def setup
@@ -63,145 +53,151 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-
-	# Define our batch size
-	def run_batch_size
-		datastore['BATCHSIZE'].to_i
-	end
-
-	# Fingerprint a single host
-	def run_batch(batch)
-
+	def scanner_prescan(batch)
 		print_status("Sending #{@probes.length} probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
+		@results = {}
+	end
 
-		begin
-			udp_sock = nil
-			idx = 0
+	def scan_host(ip)
+		@probes.each do |probe|
+			data, port = self.send(probe, ip)
+			scanner_send(data, ip, port)
+		end
+	end
 
-		# Create an unbound UDP socket if no CHOST is specified, otherwise
-		# create a UDP socket bound to CHOST (in order to avail of pivoting)
-		udp_sock = Rex::Socket::Udp.create( { 'LocalHost' => datastore['CHOST'] || nil, 'Context' => {'Msf' => framework, 'MsfExploit' => self} })
-		add_socket(udp_sock)
+	def scanner_postscan(batch)
+		@results.each_key do |k|
+			next if not @results[k].respond_to?('keys')
+			data = @results[k]
 
-			# Send each probe to each host
-			@probes.each do |probe|
-				batch.each   do |ip|
-					begin
-						data, port = self.send(probe, ip)
-						udp_sock.sendto(data, ip, port, 0)
-					rescue ::Interrupt
-						raise $!
-					rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
-						nil
-					end
+			conf = {
+				:host  => data[:host],
+				:port  => data[:port],
+				:proto => 'udp',
+				:name  => data[:app],
+				:info  => data[:info]
+			}
 
-					if (idx % 30 == 0)
-						while (r = udp_sock.recvfrom(65535, 0.1) and r[1])
-							parse_reply(r)
-						end
-					end
-
-					idx += 1
-				end
+			if data[:hname]
+				conf[:host_name] = data[:hname].downcase
 			end
 
-			cnt = 0
-			del = 10
-			sts = Time.now.to_i
-			while (r = udp_sock.recvfrom(65535, del) and r[1])
-				parse_reply(r)
-
-				# Prevent an indefinite loop if the targets keep replying
-				cnt += 1
-				break if cnt > run_batch_size
-
-				# Escape after 15 seconds regardless of batch size
-				break if ((sts + 15) < Time.now.to_i)
-
-				del = 1.0
+			if data[:mac]
+				conf[:mac] = data[:mac].downcase
 			end
 
-		rescue ::Interrupt
-			raise $!
-		rescue ::Errno::ENOBUFS
-			print_status("Socket buffers are full, waiting for them to flush...")
-			while (r = udp_sock.recvfrom(65535, 0.1) and r[1])
-				parse_reply(r)
-			end
-			select(nil, nil, nil, 0.25)
-			retry
-		rescue ::Exception => e
-			print_error("Unknown error: #{e.class} #{e}")
+			report_service(conf)
+			print_status("Discovered #{data[:app]} on #{k} (#{data[:info]})")
 		end
 	end
 
 
-	#
-	# The response parsers
-	#
-	def parse_reply(pkt)
+	def scanner_process(data, shost, sport)
 
-		@results ||= {}
-
-		# Ignore "empty" packets
-		return if not pkt[1]
-
-		if(pkt[1] =~ /^::ffff:/)
-			pkt[1] = pkt[1].sub(/^::ffff:/, '')
-		end
-
-		# Ignore duplicates
-		hkey = "#{pkt[1]}:#{pkt[2]}"
-		return if @results[hkey]
-
-		app = 'unknown'
-		inf = ''
+		hkey  = "#{shost}:#{sport}"
+		app   = 'unknown'
+		inf   = ''
 		maddr = nil
 		hname = nil
 
-		case pkt[2]
+		# Work with protocols that return different data in different packets
+		# These are reported at the end of the scanning loop to build state
+		case sport
+			when 5632
+
+				@results[hkey] ||= {}
+				data = @results[hkey]
+				data[:app]  = "pcAnywhere_stat"
+				data[:port] = sport
+				data[:host] = shost
+
+				case data
+
+				when /^NR(........................)(........)/
+					name = $1.dup
+					caps = $2.dup
+					name = name.gsub(/_+$/, '').gsub("\x00", '').strip
+					caps = caps.gsub(/_+$/, '').gsub("\x00", '').strip
+					data[:name] = name
+					data[:caps] = caps
+
+				when /^ST(.+)/
+					buff = $1.dup
+					stat = 'Unknown'
+
+					if buff[2,1].unpack("C")[0] == 67
+						stat = "Available"
+					end
+
+					if buff[2,1].unpack("C")[0] == 11
+						stat = "Busy"
+					end
+
+					data[:stat] = stat
+				end
+
+				if data[:name]
+					inf << "Name: #{data[:name]} "
+				end
+
+				if data[:stat]
+					inf << "- #{data[:stat]} "
+				end
+
+				if data[:caps]
+					inf << "( #{data[:caps]} ) "
+				end
+				data[:info] = inf
+		end
+
+		# Ignore duplicates
+		return if @results[hkey]
+
+		case sport
 
 			when 53
 				app = 'DNS'
 				ver = nil
 
-				if (not ver and pkt[0] =~ /([6789]\.[\w\.\-_\:\(\)\[\]\/\=\+\|\{\}]+)/i)
+				if (not ver and data =~ /([6789]\.[\w\.\-_\:\(\)\[\]\/\=\+\|\{\}]+)/i)
 					ver = 'BIND ' + $1
 				end
 
-				ver = 'Microsoft DNS' if (not ver and pkt[0][2,4] == "\x81\x04\x00\x01")
-				ver = 'TinyDNS'       if (not ver and pkt[0][2,4] == "\x81\x81\x00\x01")
+				ver = 'Microsoft DNS' if (not ver and data[2,4] == "\x81\x04\x00\x01")
+				ver = 'TinyDNS'       if (not ver and data[2,4] == "\x81\x81\x00\x01")
 
-				ver = pkt[0].unpack('H*')[0] if not ver
+				ver = data.unpack('H*')[0] if not ver
 				inf = ver if ver
+
+				@results[hkey] = true
 
 			when 137
 				app = 'NetBIOS'
 
-				data = pkt[0]
+				buff = data.dup
 
-				head = data.slice!(0,12)
+				head = buff.slice!(0,12)
 
 				xid, flags, quests, answers, auths, adds = head.unpack('n6')
 				return if quests != 0
 				return if answers == 0
 
-				qname = data.slice!(0,34)
-				rtype,rclass,rttl,rlen = data.slice!(0,10).unpack('nnNn')
-				buff = data.slice!(0,rlen)
+				qname = buff.slice!(0,34)
+				rtype,rclass,rttl,rlen = buff.slice!(0,10).unpack('nnNn')
+				bits = buff.slice!(0,rlen)
 
 				names = []
 
 				case rtype
 				when 0x21
-					rcnt = buff.slice!(0,1).unpack("C")[0]
+					rcnt = bits.slice!(0,1).unpack("C")[0]
 					1.upto(rcnt) do
-						tname = buff.slice!(0,15).gsub(/\x00.*/, '').strip
-						ttype = buff.slice!(0,1).unpack("C")[0]
-						tflag = buff.slice!(0,2).unpack('n')[0]
+						tname = bits.slice!(0,15).gsub(/\x00.*/, '').strip
+						ttype = bits.slice!(0,1).unpack("C")[0]
+						tflag = bits.slice!(0,2).unpack('n')[0]
 						names << [ tname, ttype, tflag ]
 					end
-					maddr = buff.slice!(0,6).unpack("C*").map{|c| "%.2x" % c }.join(":")
+					maddr = bits.slice!(0,6).unpack("C*").map{|c| "%.2x" % c }.join(":")
 
 					names.each do |name|
 						inf << name[0]
@@ -219,9 +215,11 @@ class Metasploit3 < Msf::Auxiliary
 					end
 				end
 
+				@results[hkey] = true
+
 			when 111
 				app = 'Portmap'
-				buf = pkt[0]
+				buf = data
 				inf = ""
 				hed = buf.slice!(0,24)
 				svc = []
@@ -229,7 +227,7 @@ class Metasploit3 < Msf::Auxiliary
 					rec = buf.slice!(0,20).unpack("N5")
 					svc << "#{rec[1]} v#{rec[2]} #{rec[3] == 0x06 ? "TCP" : "UDP"}(#{rec[4]})"
 					report_service(
-						:host => pkt[1],
+						:host => shost,
 						:port => rec[4],
 						:proto => (rec[3] == 0x06 ? "tcp" : "udp"),
 						:name => "sunrpc",
@@ -239,25 +237,31 @@ class Metasploit3 < Msf::Auxiliary
 				end
 				inf = svc.join(", ")
 
+				@results[hkey] = true
+
 			when 123
 				app = 'NTP'
 				ver = nil
-				ver = pkt[0].unpack('H*')[0]
+				ver = data.unpack('H*')[0]
 				ver = 'NTP v3'                  if (ver =~ /^1c06|^1c05/)
 				ver = 'NTP v4'                  if (ver =~ /^240304/)
 				ver = 'NTP v4 (unsynchronized)' if (ver =~ /^e40/)
 				ver = 'Microsoft NTP'           if (ver =~ /^dc00|^dc0f/)
 				inf = ver if ver
 
+				@results[hkey] = true
+
 			when 1434
 				app = 'MSSQL'
-				mssql_ping_parse(pkt[0]).each_pair { |k,v|
+				mssql_ping_parse(data).each_pair { |k,v|
 					inf += k+'='+v+' '
 				}
 
+				@results[hkey] = true
+
 			when 161
 				app = 'SNMP'
-				asn = OpenSSL::ASN1.decode(pkt[0]) rescue nil
+				asn = OpenSSL::ASN1.decode(data) rescue nil
 				return if not asn
 
 				snmp_error = asn.value[0].value rescue nil
@@ -272,33 +276,36 @@ class Metasploit3 < Msf::Auxiliary
 				inf = snmp_info
 				com = snmp_comm
 
+				@results[hkey] = true
+
 			when 5093
 				app = 'Sentinel'
+				@results[hkey] = true
 
 			when 523
-
 				app = 'ibm-db2'
-				inf = db2disco_parse(pkt[0])
+				inf = db2disco_parse(data)
+				@results[hkey] = true
 
 			when 1604
 				app = 'citrix-ica'
-				return unless citrix_parse(pkt[0])
+				return unless citrix_parse(data)
+				@results[hkey] = true
 
 		end
 
 		report_service(
-			:host  => pkt[1],
+			:host  => shost,
 			:mac   => (maddr and maddr != '00:00:00:00:00:00') ? maddr : nil,
 			:host_name => (hname) ? hname.downcase : nil,
-			:port  => pkt[2],
+			:port  => sport,
 			:proto => 'udp',
 			:name  => app,
 			:info  => inf,
 			:state => "open"
 		)
 
-		print_status("Discovered #{app} on #{pkt[1]}:#{pkt[2]} (#{inf})")
-
+		print_status("Discovered #{app} on #{shost}:#{sport} (#{inf})")
 	end
 
 	#
@@ -448,6 +455,12 @@ class Metasploit3 < Msf::Auxiliary
 		return [data, 1604]
 	end
 
+	def probe_pkt_pca_st(ip)
+		return ["ST", 5632]
+	end
+
+	def probe_pkt_pca_nq(ip)
+		return ["NQ", 5632]
+	end
 
 end
-

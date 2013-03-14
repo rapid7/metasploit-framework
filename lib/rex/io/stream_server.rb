@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'thread'
 
 module Rex
@@ -155,7 +156,7 @@ protected
 
 				# Initialize the connection processing
 				on_client_connect(cli)
-				
+
 				# Notify the client monitor
 				self.client_waiter.push(cli)
 
@@ -177,7 +178,7 @@ protected
 	#
 	def monitor_clients
 		begin
-		
+
 			# Wait for a notify if our client list is empty
 			if (clients.length == 0)
 				self.client_waiter.pop

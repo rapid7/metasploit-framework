@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'xmlrpc/client'
 require 'msgpack'
 

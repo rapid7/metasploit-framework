@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'singleton'
 require 'thread'
 require 'rex/socket'

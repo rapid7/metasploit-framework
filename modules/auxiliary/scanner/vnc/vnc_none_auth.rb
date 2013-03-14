@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -21,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'VNC Authentication None Detection',
-			'Version'     => '$Revision$',
 			'Description' => 'Detect VNC servers that support the "None" authentication method.',
 			'References'  =>
 				[
@@ -53,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			ver = "#{vnc.majver}.#{vnc.minver}"
 			print_status("#{target_host}:#{rport}, VNC server protocol version : #{ver}")
-			report_service(
+			svc = report_service(
 				:host => rhost,
 				:port => rport,
 				:proto => 'tcp',
@@ -77,12 +72,11 @@ class Metasploit3 < Msf::Auxiliary
 				print_good("#{target_host}:#{rport}, VNC server security types includes None, free access!")
 				report_vuln(
 					{
-						:host => rhost,
-						:port => rport,
-						:proto => 'tcp',
-						:name	=> self.fullname,
-						:info => sec_type.join(","),
-						:refs => self.references,
+						:host         => rhost,
+						:service      => svc,
+						:name         => self.name,
+						:info         => "Module #{self.fullname} identified the VNC 'none' security type: #{sec_type.join(", ")}",
+						:refs         => self.references,
 						:exploited_at => Time.now.utc
 					})
 			end
@@ -97,4 +91,3 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 end
-

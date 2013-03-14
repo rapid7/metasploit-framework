@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 require 'rex/encoder/alpha2/generic'
 
@@ -8,7 +9,7 @@ module Alpha2
 
 class AlphaUpper < Generic
 	def self.default_accepted_chars ; ('B' .. 'Z').to_a + ('0' .. '9').to_a ; end
-	
+
 	def self.gen_decoder_prefix(reg, offset)
 		if (offset > 20)
 			raise "Critical: Offset is greater than 20"
@@ -49,12 +50,12 @@ class AlphaUpper < Generic
 			gen_decoder_prefix(reg, offset) +
 			"V" +           # push esi
 			"T" +           # push esp
-			"X" +           # pop eax 
+			"X" +           # pop eax
 			"30" +          # xor esi, [eax]
 			"V" +           # push esi
 			"X" +           # pop eax
 			"4A" +          # xor al, 41
-			"P" +           # push eax 
+			"P" +           # push eax
 			"0A3" +         # xor [ecx+33], al
 			"H" +           # dec eax
 			"H" +           # dec eax
@@ -63,7 +64,7 @@ class AlphaUpper < Generic
 			"A" +           # inc ecx   <---------------
 			"A" +           # inc ecx                   |
 			"B" +           # inc edx                   |
-			"TAAQ" +        # imul eax, [ecx+41], 10 *  | 
+			"TAAQ" +        # imul eax, [ecx+41], 10 *  |
 			"2AB" +         # xor al [ecx+42]           |
 			"2BB" +         # xor al, [edx+42]          |
 			"0BB" +         # xor [edx+42], al          |

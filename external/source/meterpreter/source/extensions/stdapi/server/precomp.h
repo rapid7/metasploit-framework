@@ -22,8 +22,6 @@
  #include <sys/wait.h>
  #include <termios.h>
 
- #include <pcap/pcap.h>
-
  #include <linux/if.h>
  #include <linux/netlink.h>
  #include <linux/elf.h>

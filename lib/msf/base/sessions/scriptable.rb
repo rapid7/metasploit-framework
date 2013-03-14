@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 
 module Msf::Session
 

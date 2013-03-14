@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 #
 # Author:: Michael Neumann
 # Copyright:: (c) 2005 by Michael Neumann

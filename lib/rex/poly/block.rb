@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Rex
 module Poly
 
@@ -51,7 +52,7 @@ end
 # of code that may have one or more functionally equivalent implementations.
 # A logical block should serve a very specific purpose, and any permutations
 # beyond the first should result in exactly the same functionality without any
-# adverse side effects to other blocks.  
+# adverse side effects to other blocks.
 #
 # Like blocks of code, LogicalBlock's can depend on one another in terms of
 # ordering and precedence.  By marking blocks as dependent on another, a
@@ -183,7 +184,7 @@ class LogicalBlock
 			p = @perms[(idx + off) % @perms.length]
 
 			if (p.kind_of?(Proc) or
-			    @state.badchars.nil? or 
+			    @state.badchars.nil? or
 			    Rex::Text.badchar_index(p, @state.badchars).nil?)
 				return Permutation.new(p, self)
 			end
@@ -249,7 +250,7 @@ class LogicalBlock
 		begin
 			buf = do_generate(save_registers, state, badchars)
 
-			if (buf and 
+			if (buf and
 			    (badchars.nil? or Rex::Text.badchar_index(buf, badchars).nil?))
 				break
 			end
@@ -260,15 +261,15 @@ class LogicalBlock
 
 		buf
 	end
-	
+
 	#
 	# Returns the offset of a block.  If the active state for this instance is
 	# operating in the first phase, then zero is always returned.  Otherwise,
 	# the correct offset for the supplied block is returned.
 	#
 	def offset_of(lblock)
-		if (@state.first_phase) 
-			0 
+		if (@state.first_phase)
+			0
 		else
 			if (lblock.kind_of?(SymbolicBlock::End))
 				@state.curr_offset
@@ -312,7 +313,7 @@ class LogicalBlock
 	attr_accessor :generated
 
 protected
-	
+
 	#
 	# Performs the actual polymorphic buffer generation.  Called from generate
 	#
@@ -342,11 +343,11 @@ protected
 
 		# Now that every block has been assigned an offset, generate the
 		# buffer block by block, assigning registers as necessary.
-		block_list.each { |b| 
+		block_list.each { |b|
 
 			# Generate the next permutation and append it to the buffer.
 			begin
-				state.buffer += b[1].to_s 
+				state.buffer += b[1].to_s
 			# If an invalid register exception is raised, try to consume a random
 			# register from the register's associated architecture register
 			# number set.
@@ -354,7 +355,7 @@ protected
 				e.reg.regnum = state.consume_regnum_from_set(e.reg.class.regnum_set)
 				retry
 			end
-	
+
 			# Remove any of the registers that have been clobbered by this block
 			# from the list of consumed register numbers so that they can be used
 			# in the future.
@@ -366,7 +367,7 @@ protected
 				rescue InvalidRegisterError
 				end
 			}
-				
+
 		}
 
 		# Finally, return the buffer that has been created.
@@ -386,11 +387,11 @@ protected
 		end
 
 		@depends.length.times { |cidx|
-		
+
 			pass = false
-		
+
 			while (not pass)
-			
+
 				if (@depends[cidx].generated)
 					break
 
@@ -417,7 +418,7 @@ protected
 					next
 				end
 			end
-				
+
 			next
 		}
 

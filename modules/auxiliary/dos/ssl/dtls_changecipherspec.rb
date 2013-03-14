@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -20,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'		=> 'OpenSSL < 0.9.8i DTLS ChangeCipherSpec Remote DoS Exploit',
+			'Name'		=> 'OpenSSL < 0.9.8i DTLS ChangeCipherSpec Remote DoS',
 			'Description'	=> %q{
 					This module performs a Denial of Service Attack against Datagram TLS in OpenSSL
 				version 0.9.8i and earlier. OpenSSL crashes under these versions when it recieves a
@@ -28,10 +24,9 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'	=> [
 						'Jon Oberheide <jon[at]oberheide.org>', #original code
-						'TheLightCosine <thelightcosine[at]gmail.com>' # metasploit module
+						'theLightCosine' # metasploit module
 						],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2009-1386' ],

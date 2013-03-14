@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 #
 ##
 
@@ -20,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'John the Ripper MS SQL Password Cracker (Fast Mode)',
-			'Version'        => "$Revision$",
 			'Description'    => %Q{
 					This module uses John the Ripper to identify weak passwords that have been
 				acquired from the mssql_hashdump module. Passwords that have been successfully
@@ -28,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         =>
 				[
-					'TheLightCosine <thelightcosine[at]gmail.com>',
+					'theLightCosine',
 					'hdm'
 				],
 			'License'        => MSF_LICENSE  # JtR itself is GPLv2, but this wrapper is MSF (BSD)
@@ -47,52 +42,14 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
-	def build_seed
 
-		seed = []
-		#Seed the wordlist with Database , Table, and Instance Names
-		schemas = myworkspace.notes.find(:all, :conditions => ['ntype like ?', '%.schema%'])
-		unless schemas.nil? or schemas.empty?
-			schemas.each do |anote|
-				anote.data.each do |key,value|
-					seed << key
-					value.each{|a| seed << a}
-				end
-			end
-		end
-
-		instances = myworkspace.notes.find(:all, :conditions => ['ntype=?', 'mssql.instancename'])
-		unless instances.nil? or instances.empty?
-			instances.each do |anote|
-				seed << anote.data['InstanceName']
-			end
-		end
-
-		# Seed the wordlist with usernames, passwords, and hostnames
-
-		myworkspace.hosts.find(:all).each {|o| seed << john_expand_word( o.name ) if o.name }
-		myworkspace.creds.each do |o|
-			seed << john_expand_word( o.user ) if o.user
-			seed << john_expand_word( o.pass ) if (o.pass and o.ptype !~ /hash/)
-		end
-
-		# Grab any known passwords out of the john.pot file
-		john_cracked_passwords.values {|v| seed << v }
-
-		#Grab the default John Wordlist
-		john = File.open(john_wordlist_path, "rb")
-		john.each_line{|line| seed << line.chomp}
-
-		return seed
-
-	end
 
 
 	def crack(format)
 
 		hashlist = Rex::Quickfile.new("jtrtmp")
 		ltype= "#{format}.hashes"
-		myloots = myworkspace.loots.find(:all, :conditions => ['ltype=?', ltype])
+		myloots = myworkspace.loots.where('ltype=?', ltype)
 		unless myloots.nil? or myloots.empty?
 			myloots.each do |myloot|
 				begin

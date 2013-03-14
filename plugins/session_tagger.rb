@@ -18,7 +18,7 @@ class Plugin::SessionTagger < Msf::Plugin
 	include Msf::SessionEvent
 
 	def on_session_open(session)
-		print_status("Hooked session #{session.sid} / #{session.tunnel_peer}")
+		print_status("Hooked session #{session.sid} / #{session.session_host}")
 
 		# XXX: Determine what type of session this is before writing to it
 

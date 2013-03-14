@@ -1,0 +1,26 @@
+<?scheme
+(let ((user "Erubis")
+      (items '("<aaa>" "b&b" "\"ccc\""))
+      (i 0))
+ ?>
+<p>Hello @!{user}@!</p>
+<table>
+  <tbody>
+<?scheme
+  (for-each
+   (lambda (item)
+     (set! i (+ i 1))
+ ?>
+    <tr bgcolor="@!{(if (= (modulo i 2) 0) "#FFCCCC" "#CCCCFF")}@">
+      <td>@!{i}@</td>
+      <td>@!{item}@</td>
+    </tr>
+<?scheme
+   ) ; lambda end
+   items) ; for-each end
+ ?>
+  </tbody>
+</table>
+<?scheme
+) ; let end
+?>

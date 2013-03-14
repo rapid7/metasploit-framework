@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -24,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SSH Login Check Scanner',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				This module will test ssh logins on a range of machines and
 				report successful logins.  If you have loaded a database plugin
@@ -47,7 +42,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_advanced_options(
 			[
-				OptBool.new('SSH_DEBUG', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false])
+				OptBool.new('SSH_DEBUG', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
+				OptInt.new('SSH_TIMEOUT', [ false, 'Specify the maximum time to negotiate a SSH session', 30])
 			]
 		)
 
@@ -68,20 +64,26 @@ class Metasploit3 < Msf::Auxiliary
 			:msfmodule     => self,
 			:port          => port,
 			:disable_agent => true,
-			:password      => pass
+			:password      => pass,
+			:config        => false,
+			:proxies       => datastore['Proxies']
 		}
 
 		opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
 
 		begin
-			self.ssh_socket = Net::SSH.start(
-				ip,
-				user,
-				opt_hash
-			)
+			::Timeout.timeout(datastore['SSH_TIMEOUT']) do
+				self.ssh_socket = Net::SSH.start(
+					ip,
+					user,
+					opt_hash
+				)
+			end
 		rescue Rex::ConnectionError, Rex::AddressInUse
 			return :connection_error
 		rescue Net::SSH::Disconnect, ::EOFError
+			return :connection_disconnect
+		rescue ::Timeout::Error
 			return :connection_disconnect
 		rescue Net::SSH::Exception
 			return [:fail,nil] # For whatever reason. Can't tell if passwords are on/off without timing responses.
@@ -91,9 +93,16 @@ class Metasploit3 < Msf::Auxiliary
 			proof = ''
 			begin
 				Timeout.timeout(5) do
-					proof = self.ssh_socket.exec!("id\nuname -a").to_s
-					if(proof !~ /id=/)
-						proof << self.ssh_socket.exec!("help\n?\n\n\n").to_s
+					proof = self.ssh_socket.exec!("id\n").to_s
+					if(proof =~ /id=/)
+						proof << self.ssh_socket.exec!("uname -a\n").to_s
+					else
+						# Cisco IOS
+						if proof =~ /Unknown command or computer name/
+							proof = self.ssh_socket.exec!("ver\n").to_s
+						else
+							proof << self.ssh_socket.exec!("help\n?\n\n\n").to_s
+						end
 					end
 				end
 			rescue ::Exception
@@ -128,6 +137,8 @@ class Metasploit3 < Msf::Auxiliary
 				s.platform = "aix"
 			when /Win32|Windows/
 				s.platform = "windows"
+			when /Unknown command or computer name/
+				s.platform = "cisco-ios"
 			end
 			return [:success, proof]
 		else
@@ -182,4 +193,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -25,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => ['joernchen <joernchen[at]phenoelit.de> (Phenoelit)'],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2011-1140'],
@@ -33,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'URL', 'http://www.wireshark.org/security/wnpa-sec-2011-04.html' ],
 					[ 'URL', 'https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5717' ],
 				],
-			'DisclosureDate' => '2011-03-01'))
+			'DisclosureDate' => 'Mar 1 2011'))
 
 		register_options([
 			OptInt.new('RPORT', [true, 'The destination port', 389]),

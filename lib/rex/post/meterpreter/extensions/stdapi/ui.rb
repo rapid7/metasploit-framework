@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 require 'rex/post/ui'
 
@@ -10,7 +11,7 @@ module Stdapi
 
 ###
 #
-# Allows for interacting with the user interface on the remote machine, 
+# Allows for interacting with the user interface on the remote machine,
 # such as by disabling the keyboard and mouse.
 #
 # WARNING:
@@ -46,7 +47,7 @@ class UI < Rex::Post::UI
 	# Disable keyboard input on the remote machine.
 	#
 	def disable_keyboard
-		return enable_keyboard(false)	
+		return enable_keyboard(false)
 	end
 
 	#
@@ -112,7 +113,7 @@ class UI < Rex::Post::UI
 		end
 		return desktopz
 	end
-	
+
 	#
 	# Get the current desktop meterpreter is using.
 	#
@@ -129,10 +130,10 @@ class UI < Rex::Post::UI
 		end
 		return desktop
 	end
-	
+
 	#
-	# Change the meterpreters current desktop. The switch param sets this 
-	# new desktop as the interactive one (The local users visible desktop 
+	# Change the meterpreters current desktop. The switch param sets this
+	# new desktop as the interactive one (The local users visible desktop
 	# with screen/keyboard/mouse control).
 	#
 	def set_desktop( session=-1, station='WinSta0', name='Default', switch=false )
@@ -147,12 +148,12 @@ class UI < Rex::Post::UI
 		end
 		return false
 	end
-	
+
 	#
 	# Grab a screenshot of the interactive desktop
 	#
 	def screenshot( quality=50 )
-		request = Packet.create_request( 'stdapi_ui_desktop_screenshot' ) 
+		request = Packet.create_request( 'stdapi_ui_desktop_screenshot' )
 		request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_QUALITY, quality )
 		# include the x64 screenshot dll if the host OS is x64
 		if( client.sys.config.sysinfo['Architecture'] =~ /^\S*x64\S*/ )
@@ -191,7 +192,7 @@ class UI < Rex::Post::UI
 		response = client.send_request(request)
 		return true
 	end
-			
+
 	#
 	# Start the keyboard sniffer
 	#
@@ -218,7 +219,7 @@ class UI < Rex::Post::UI
 		response = client.send_request(request)
 		return response.get_tlv_value(TLV_TYPE_KEYS_DUMP);
 	end
-	
+
 	#
 	# Extract the keystroke from the buffer data
 	#
@@ -228,11 +229,11 @@ class UI < Rex::Post::UI
 			fl = (inp & 0xff00) >> 8
 			vk = (inp & 0xff)
 			kc = VirtualKeyCodes[vk]
-			
+
 			f_shift = fl & (1<<1)
 			f_ctrl  = fl & (1<<2)
 			f_alt   = fl & (1<<3)
-	
+
 			if(kc)
 				name = ((f_shift != 0 and kc.length > 1) ? kc[1] : kc[0])
 				case name
@@ -250,7 +251,7 @@ class UI < Rex::Post::UI
 		end
 		return outp
 	end
-	
+
 protected
 	attr_accessor :client # :nodoc:
 

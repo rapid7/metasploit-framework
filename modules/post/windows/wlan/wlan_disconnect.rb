@@ -1,31 +1,27 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
 require 'rex'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 	include Msf::Auxiliary::Report
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows Disconnect Wireless Connection ',
+			'Name'          => 'Windows Disconnect Wireless Connection',
 			'Description'   => %q{
 				This module disconnects the current wireless network connection
 				on the specified interface.
 			},
 			'License'       => MSF_LICENSE,
-			'Author'        => ['TheLightCosine <thelightcosine[at]gmail.com>'],
-			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Author'        => ['theLightCosine'],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 

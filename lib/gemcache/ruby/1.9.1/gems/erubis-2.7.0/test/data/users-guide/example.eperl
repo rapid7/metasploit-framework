@@ -1,0 +1,18 @@
+<%
+   my $user = 'Erubis';
+   my @list = ('<aaa>', 'b&b', '"ccc"');
+%>
+<html>
+ <body>
+  <p>Hello <%= $user %>!</p>
+  <table>
+   <% $i = 0; %>
+   <% for $item (@list) { %>
+   <tr bgcolor=<%= ++$i % 2 == 0 ? '#FFCCCC' : '#CCCCFF' %>">
+    <td><%= $i %></td>
+    <td><%= $item %></td>
+   </tr>
+   <% } %>
+  </table>
+ </body>
+</html>

@@ -1,8 +1,8 @@
 ##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
 				},
 				'License'      => MSF_LICENSE,
 				'Author'       => [ 'Joshua Abraham <jabra[at]rapid7.com>'],
-				'Platform'     => [ 'windows'],
+				'Platform'     => [ 'win'],
 				'SessionTypes' => [ 'meterpreter' ]
 			))
 	end
@@ -123,7 +123,7 @@ class Metasploit3 < Msf::Post
 		print_line("\n" + results + "\n")
 
 		report_note(
-			:host => session.tunnel_peer,
+			:host => session,
 			:type => 'domain.hosts',
 			:data => tbl.to_csv
 		)

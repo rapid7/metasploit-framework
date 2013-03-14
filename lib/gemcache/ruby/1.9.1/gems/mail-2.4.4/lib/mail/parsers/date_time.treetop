@@ -1,0 +1,11 @@
+module Mail
+  grammar DateTime
+
+    include RFC2822
+
+    rule primary
+      ( day_of_week ",")? date FWS time CFWS?
+    end
+    
+  end
+end

@@ -1,0 +1,3 @@
+*!video/dl @dl :base64 =use-instead:video/x-dl
+*!video/gl @gl :base64 =use-instead:video/x-gl
+*!video/vnd.dlna.mpeg-tts 'IANA,[Heredia]

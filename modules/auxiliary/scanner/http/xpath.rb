@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'rex/proto/http'
@@ -16,7 +12,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanDir
+	include Msf::Auxiliary::WmapScanDir
 	include Msf::Auxiliary::Scanner
 
 	def initialize(info = {})
@@ -26,8 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module exploits blind XPATH 1.0 injections over HTTP GET requests.
 			},
 			'Author' 		=> [ 'et [at] metasploit . com' ],
-			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision$'))
+			'License'		=> BSD_LICENSE))
 
 		register_options(
 			[
@@ -65,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 		falsecond = "'%20and%20'#{rnum}'='#{rnum+1}"
 
 		hmeth = datastore['METHOD']
-		tpath = datastore['PATH']
+		tpath = normalize_uri(datastore['PATH'])
 		prequery = datastore['PRE_QUERY']
 		postquery = datastore['POST_QUERY']
 		emesg = datastore['ERROR_MSG']
@@ -260,5 +255,3 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Done.")
 	end
 end
-
-

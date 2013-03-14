@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'postgres_msf'
 require 'postgres/byteorder'
 

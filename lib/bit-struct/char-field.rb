@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 class BitStruct
   # Class for fixed length binary strings of characters.
   # Declared with BitStruct.char.

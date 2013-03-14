@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 require 'socket'
 
@@ -25,7 +26,7 @@ module DatagramAbstraction
 	attr_reader :lsock
 	# The right side of the stream (remote)
 	attr_reader :rsock
-	
+
 protected
 	attr_writer :lsock
 	attr_writer :rsock

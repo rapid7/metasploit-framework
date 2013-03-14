@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 #
 # This file includes everything needed to interact with the user interface
 # wrappers of the rex library.

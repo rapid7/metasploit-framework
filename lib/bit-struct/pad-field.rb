@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 class BitStruct
   # Class for fixed length padding.
   class PadField < Field

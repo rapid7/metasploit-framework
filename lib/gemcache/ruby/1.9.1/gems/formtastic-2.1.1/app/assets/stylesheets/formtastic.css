@@ -1,0 +1,288 @@
+/* -------------------------------------------------------------------------------------------------
+
+It's *strongly* suggested that you don't modify this file.  Instead, load a new stylesheet after
+this one in your layouts (eg formtastic_changes.css) and override the styles to suit your needs.
+This will allow you to update formtastic.css with new releases without clobbering your own changes.
+
+This stylesheet forms part of the Formtastic Rails Plugin
+(c) 2008-2011 Justin French
+
+--------------------------------------------------------------------------------------------------*/
+
+/* NORMALIZE AND RESET - obviously inspired by Yahoo's reset.css, but scoped to just .formtastic
+--------------------------------------------------------------------------------------------------*/
+.formtastic,
+.formtastic ul,
+.formtastic ol,
+.formtastic li,
+.formtastic fieldset,
+.formtastic legend,
+.formtastic input,
+.formtastic button,
+.formtastic textarea,
+.formtastic select,
+.formtastic p {
+  margin:0;
+  padding:0;
+}
+
+.formtastic fieldset {
+  border:0;
+}
+
+.formtastic em,
+.formtastic strong {
+  font-style:normal;
+  font-weight:normal;
+}
+
+.formtastic ol,
+.formtastic ul {
+  list-style:none;
+}
+
+.formtastic abbr,
+.formtastic acronym {
+  border:0;
+  font-variant:normal;
+}
+
+.formtastic input,
+.formtastic button,
+.formtastic textarea {
+  font-family:sans-serif;
+  font-size:inherit;
+  font-weight:inherit;
+}
+
+.formtastic input,
+.formtastic textarea,
+.formtastic select {
+  font-size:100%;
+}
+
+.formtastic legend {
+  white-space:normal;
+  color:#000;
+}
+
+
+/* SEMANTIC ERRORS
+--------------------------------------------------------------------------------------------------*/
+.formtastic .errors {
+  color:#cc0000;
+  margin:0.5em 0 1.5em 25%;
+  list-style:square;
+}
+
+.formtastic .errors li {
+  padding:0;
+  border:none;
+  display:list-item;
+}
+
+
+/* BUTTONS & ACTIONS
+--------------------------------------------------------------------------------------------------*/
+.formtastic .buttons, 
+.formtastic .actions {
+  overflow:hidden; /* clear containing floats */
+  padding-left:25%;
+}
+
+.formtastic .button, 
+.formtastic .action {
+  float:left;
+  padding-right:0.5em;
+}
+
+.formtastic .button_action button {
+  padding:3px 8px;
+}
+
+.formtastic .link_action a {
+  display:block;
+  padding:3px 0;
+}
+
+
+/* INPUTS
+--------------------------------------------------------------------------------------------------*/
+.formtastic .inputs {
+  overflow:hidden; /* clear containing floats */
+}
+
+.formtastic .input {
+  overflow:hidden; /* clear containing floats */
+  padding:0.5em 0; /* padding and negative margin juggling is for Firefox */
+  margin-top:-0.5em;
+  margin-bottom:1em;
+}
+
+
+/* LEFT ALIGNED LABELS
+--------------------------------------------------------------------------------------------------*/
+.formtastic .input .label {
+  display:block;
+  width:25%;
+  float:left;
+  padding-top:.2em;
+}
+
+.formtastic .fragments .label,
+.formtastic .choices .label {
+  position:absolute;
+  width:95%;
+  left:0px;
+}
+
+.formtastic .fragments .label label,
+.formtastic .choices .label label {
+  position:absolute;
+}
+
+/* NESTED FIELDSETS AND LEGENDS (radio, check boxes and date/time inputs use nested fieldsets)
+--------------------------------------------------------------------------------------------------*/
+.formtastic .choices {
+  position:relative;
+}
+
+.formtastic .choices-group {
+  float:left;
+  width:74%;
+  margin:0;
+  padding:0 0 0 25%;
+}
+
+.formtastic .choice {
+  padding:0;
+  border:0;
+}
+
+
+/* INLINE HINTS
+--------------------------------------------------------------------------------------------------*/
+.formtastic .input .inline-hints {
+  color:#666;
+  margin:0.5em 0 0 25%;
+}
+
+
+/* INLINE ERRORS
+--------------------------------------------------------------------------------------------------*/
+.formtastic .inline-errors {
+  color:#cc0000;
+  margin:0.5em 0 0 25%;
+}
+
+.formtastic .errors {
+  color:#cc0000;
+  margin:0.5em 0 0 25%;
+  list-style:square;
+}
+
+.formtastic .errors li {
+  padding:0;
+  border:none;
+  display:list-item;
+}
+
+
+/* STRING, NUMERIC, PASSWORD, EMAIL, URL, PHONE, SEARCH (ETC) OVERRIDES
+--------------------------------------------------------------------------------------------------*/
+.formtastic .stringish input {
+  width:72%;
+}
+
+.formtastic .stringish input[size] {
+  width:auto;
+  max-width:72%;
+}
+
+
+/* TEXTAREA OVERRIDES
+--------------------------------------------------------------------------------------------------*/
+.formtastic .text textarea {
+  width:72%;
+}
+
+.formtastic .text textarea[cols] {
+  width:auto;
+  max-width:72%;
+}
+
+
+/* HIDDEN OVERRIDES
+--------------------------------------------------------------------------------------------------*/
+.formtastic .hidden {
+  display:none;
+}
+
+
+/* BOOLEAN LABELS
+--------------------------------------------------------------------------------------------------*/
+.formtastic .boolean label {
+  padding-left:25%;
+  display:block;
+}
+
+
+/* CHOICE GROUPS
+--------------------------------------------------------------------------------------------------*/
+.formtastic .choices-group {
+  margin-bottom:-0.5em;
+}
+
+.formtastic .choice {
+  margin:0.1em 0 0.5em 0;
+}
+
+.formtastic .choice label {
+  float:none;
+  width:100%;
+  line-height:100%;
+  padding-top:0;
+  margin-bottom:0.6em;
+}
+
+
+/* ADJUSTMENTS FOR INPUTS INSIDE LABELS (boolean input, radio input, check_boxes input)
+--------------------------------------------------------------------------------------------------*/
+.formtastic .choice label input,
+.formtastic .boolean label input {
+  margin:0 0.3em 0 0.1em;
+  line-height:100%;
+}
+
+
+/* FRAGMENTED INPUTS (DATE/TIME/DATETIME)
+--------------------------------------------------------------------------------------------------*/
+.formtastic .fragments {
+  position:relative;
+}
+
+.formtastic .fragments-group {
+  float:left;
+  width:74%;
+  margin:0;
+  padding:0 0 0 25%;
+}
+
+.formtastic .fragment {
+  float:left;
+  width:auto;
+  margin:0 .3em 0 0;
+  padding:0;
+  border:0;
+}
+
+.formtastic .fragment label {
+  display:none;
+}
+
+.formtastic .fragment label input {
+  display:inline;
+  margin:0;
+  padding:0;
+}
+

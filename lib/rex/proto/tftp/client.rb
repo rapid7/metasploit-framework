@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/socket'
 require 'rex/proto/tftp'
 require 'tempfile'
@@ -52,7 +53,7 @@ class Client
 		self.local_port = params["LocalPort"] || (1025 + rand(0xffff-1025))
 		self.peer_host = params["PeerHost"] || (raise ArgumentError, "Need a peer host.")
 		self.peer_port = params["PeerPort"] || 69
-		self.context = params["Context"] || {}
+		self.context = params["Context"]
 		self.local_file = params["LocalFile"]
 		self.remote_file = params["RemoteFile"] || (::File.split(self.local_file).last if self.local_file)
 		self.mode = params["Mode"] || "octet"
@@ -63,7 +64,7 @@ class Client
 	#
 	# Methods for both upload and download
 	#
-	
+
 	def start_server_socket
 		self.server_sock = Rex::Socket::Udp.create(
 			'LocalHost' => local_host,
@@ -137,7 +138,7 @@ class Client
 	#
 	# Methods for download
 	#
-	
+
 	def rrq_packet
 		req = [OpRead, self.remote_file, self.mode]
 		packstr = "na#{self.remote_file.length+1}a#{self.mode.length+1}"
@@ -230,7 +231,7 @@ class Client
 	#
 	# Methods for upload
 	#
-	
+
 	def wrq_packet
 		req = [OpWrite, self.remote_file, self.mode]
 		packstr = "na#{self.remote_file.length+1}a#{self.mode.length+1}"

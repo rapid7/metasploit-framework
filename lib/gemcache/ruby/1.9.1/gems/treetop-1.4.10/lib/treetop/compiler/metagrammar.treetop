@@ -1,0 +1,448 @@
+module Treetop
+  module Compiler
+    grammar Metagrammar
+      rule treetop_file
+        requires:(space? require_statement)* prefix:space? module_or_grammar suffix:space? {
+          def compile
+            requires.text_value + prefix.text_value + module_or_grammar.compile + suffix.text_value
+          end
+        }
+      end
+
+      rule require_statement
+        prefix:space? "require" [ \t]+ [^\n\r]+ [\n\r]
+      end
+
+      rule module_or_grammar
+	module_declaration / grammar
+      end
+
+      rule module_declaration
+        prefix:('module' space name:([A-Z] alphanumeric_char* ('::' [A-Z] alphanumeric_char*)*) space) module_contents:(module_declaration / grammar) suffix:(space 'end') {
+          def compile
+            prefix.text_value + module_contents.compile + suffix.text_value
+          end
+
+	  def parser_name
+	    prefix.name.text_value+'::'+module_contents.parser_name
+	  end
+        }
+      end
+
+      rule grammar
+        'grammar' space grammar_name space ('do' space)? declaration_sequence space? 'end' <Grammar>
+      end
+
+      rule grammar_name
+        ([A-Z] alphanumeric_char*)
+      end
+
+      rule declaration_sequence
+        head:declaration tail:(space declaration)* <DeclarationSequence> {
+          def declarations
+            [head] + tail
+          end
+
+          def tail
+            super.elements.map { |elt| elt.declaration }
+          end
+        }
+        /
+        '' {
+          def compile(builder)
+          end
+        }
+      end
+
+      rule declaration
+        parsing_rule / include_declaration
+      end
+
+      rule include_declaration
+        'include' space [A-Z] (alphanumeric_char / '::')* {
+          def compile(builder)
+            builder << text_value
+          end
+        }
+      end
+
+      rule parsing_rule
+        'rule' space nonterminal space ('do' space)? parsing_expression space 'end' <ParsingRule>
+      end
+
+      rule parsing_expression
+        choice / sequence / primary
+      end
+
+      rule choice
+        head:alternative tail:(space? '/' space? alternative)+ <Choice> {
+          def alternatives
+            [head] + tail
+          end
+
+          def tail
+            super.elements.map {|elt| elt.alternative}
+          end
+
+          def inline_modules
+            (alternatives.map {|alt| alt.inline_modules }).flatten
+          end
+        }
+      end
+
+      rule sequence
+        head:labeled_sequence_primary tail:(space labeled_sequence_primary)+ node_class_declarations <Sequence> {
+          def sequence_elements
+            [head] + tail
+          end
+
+          def tail
+            super.elements.map {|elt| elt.labeled_sequence_primary }
+          end
+
+          def inline_modules
+            (sequence_elements.map {|elt| elt.inline_modules}).flatten +
+            [sequence_element_accessor_module] +
+            node_class_declarations.inline_modules
+          end
+
+          def inline_module_name
+            node_class_declarations.inline_module_name
+          end
+        }
+      end
+
+      rule alternative
+        sequence / primary
+      end
+
+      rule primary
+        prefix atomic {
+          def compile(address, builder, parent_expression=nil)
+            prefix.compile(address, builder, self)
+          end
+
+          def prefixed_expression
+            atomic
+          end
+
+          def inline_modules
+            atomic.inline_modules
+          end
+
+          def inline_module_name
+            nil
+          end
+        }
+        /
+	prefix space? predicate_block {
+          def compile(address, builder, parent_expression=nil)
+            prefix.compile(address, builder, self)
+          end
+          def prefixed_expression
+            predicate_block
+          end
+          def inline_modules
+            []
+          end
+        }
+        /
+        atomic suffix node_class_declarations {
+          def compile(address, builder, parent_expression=nil)
+            suffix.compile(address, builder, self)
+          end
+
+          def optional_expression
+            atomic
+          end
+
+          def node_class_name
+            node_class_declarations.node_class_name
+          end
+
+          def inline_modules
+            atomic.inline_modules + node_class_declarations.inline_modules
+          end
+
+          def inline_module_name
+            node_class_declarations.inline_module_name
+          end
+        }
+        /
+        atomic node_class_declarations {
+          def compile(address, builder, parent_expression=nil)
+            atomic.compile(address, builder, self)
+          end
+
+          def node_class_name
+            node_class_declarations.node_class_name
+          end
+
+          def inline_modules
+            atomic.inline_modules + node_class_declarations.inline_modules
+          end
+
+          def inline_module_name
+            node_class_declarations.inline_module_name
+          end
+        }
+      end
+
+      rule labeled_sequence_primary
+        label sequence_primary {
+          def compile(lexical_address, builder)
+            sequence_primary.compile(lexical_address, builder)
+          end
+
+          def inline_modules
+            sequence_primary.inline_modules
+          end
+
+          def label_name
+            if label.name
+              label.name
+            elsif sequence_primary.instance_of?(Nonterminal)
+              sequence_primary.text_value
+            else
+              nil
+            end
+          end
+        }
+      end
+
+      rule label
+        (alpha_char alphanumeric_char*) ':' {
+          def name
+            elements[0].text_value
+          end
+        }
+        /
+        '' {
+          def name
+            nil
+          end
+        }
+      end
+
+      rule sequence_primary
+        prefix atomic {
+          def compile(lexical_address, builder)
+            prefix.compile(lexical_address, builder, self)
+          end
+
+          def prefixed_expression
+            elements[1]
+          end
+
+          def inline_modules
+            atomic.inline_modules
+          end
+
+          def inline_module_name
+            nil
+          end
+        }
+        /
+        prefix space? predicate_block {
+          def compile(address, builder, parent_expression=nil)
+            prefix.compile(address, builder, self)
+          end
+          def prefixed_expression
+            predicate_block
+          end
+          def inline_modules
+            []
+          end
+        }
+        /
+        atomic suffix {
+          def compile(lexical_address, builder)
+            suffix.compile(lexical_address, builder, self)
+          end
+
+          def node_class_name
+            nil
+          end
+
+          def inline_modules
+            atomic.inline_modules
+          end
+
+          def inline_module_name
+            nil
+          end
+        }
+        /
+        atomic
+      end
+
+      rule suffix
+        repetition_suffix / optional_suffix
+      end
+
+      rule optional_suffix
+        '?' <Optional>
+      end
+
+      rule node_class_declarations
+        node_class_expression trailing_inline_module {
+          def node_class_name
+            node_class_expression.node_class_name
+          end
+
+          def inline_modules
+            trailing_inline_module.inline_modules
+          end
+
+          def inline_module
+            trailing_inline_module.inline_module
+          end
+
+          def inline_module_name
+            inline_module.module_name if inline_module
+          end
+        }
+      end
+
+      rule repetition_suffix
+        '+' <OneOrMore> / '*' <ZeroOrMore> / occurrence_range
+      end
+
+      rule occurrence_range
+	space? min:([0-9])* '..' max:([0-9])* <OccurrenceRange>
+      end
+
+      rule prefix
+        '&' <AndPredicate> / '!' <NotPredicate> / '~' <TransientPrefix>
+      end
+
+      rule atomic
+        terminal
+        /
+        nonterminal
+        /
+        parenthesized_expression
+      end
+
+      rule parenthesized_expression
+        '(' space? parsing_expression space? ')' <ParenthesizedExpression> {
+          def inline_modules
+            parsing_expression.inline_modules
+          end
+        }
+      end
+
+      rule nonterminal
+        !keyword_inside_grammar (alpha_char alphanumeric_char*) <Nonterminal>
+      end
+
+      rule terminal
+        quoted_string / character_class / anything_symbol
+      end
+
+      rule quoted_string
+        (single_quoted_string / double_quoted_string) {
+          def string
+            super.text_value
+          end
+        }
+      end
+
+      rule double_quoted_string
+        '"' string:(!'"' ("\\\\" / '\"' / .))* '"' <Terminal>
+      end
+
+      rule single_quoted_string
+        "'" string:(!"'" ("\\\\" / "\\'" / .))* "'" <Terminal>
+      end
+
+      rule character_class
+        '[' characters:(!']' ('\\' . /!'\\' .))+ ']' <CharacterClass> {
+          def characters
+            super.text_value
+          end
+        }
+      end
+
+      rule anything_symbol
+        '.' <AnythingSymbol>
+      end
+
+      rule node_class_expression
+        space '<' (!'>' .)+ '>' {
+          def node_class_name
+            elements[2].text_value
+          end
+        }
+        /
+        '' {
+          def node_class_name
+            nil
+          end
+        }
+      end
+
+      rule trailing_inline_module
+        space inline_module {
+          def inline_modules
+            [inline_module]
+          end
+
+          def inline_module_name
+            inline_module.module_name
+          end
+        }
+        /
+        '' {
+          def inline_modules
+            []
+          end
+
+          def inline_module
+            nil
+          end
+
+          def inline_module_name
+            nil
+          end
+        }
+      end
+
+      rule predicate_block
+        '' inline_module <PredicateBlock>
+      end
+
+      rule inline_module
+        '{' (inline_module / ![{}] .)* '}' <InlineModule>
+      end
+
+      rule keyword_inside_grammar
+        ('rule' / 'end') !non_space_char
+      end
+
+      rule non_space_char
+        !space .
+      end
+
+      rule alpha_char
+        [A-Za-z_]
+      end
+
+      rule alphanumeric_char
+        alpha_char / [0-9]
+      end
+
+      rule space
+        (white / comment_to_eol)+
+      end
+
+      rule comment_to_eol
+        '#' (!"\n" .)*
+      end
+
+      rule white
+        [ \t\n\r]
+      end
+    end
+  end
+end

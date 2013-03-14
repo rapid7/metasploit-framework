@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 ##
 # $Id: $
 ##
@@ -30,7 +31,7 @@ module RFB
 ##
 
 class Cipher
-	
+
 	def self.mangle_password(password)
 		key = ''
 		key = password.dup if password

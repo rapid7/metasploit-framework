@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -23,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Apache Tomcat User Enumeration',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 					Apache Tomcat user enumeration utility, for Apache Tomcat servers prior to version
 				6.0.20, 5.5.28, and 4.1.40.
@@ -48,14 +43,15 @@ class Metasploit3 < Msf::Auxiliary
 				Opt::RPORT(8080),
 				OptString.new('URI', [true, 'The path of the Apache Tomcat Administration page', '/admin/j_security_check']),
 				OptPath.new('USER_FILE',  [ true, "File containing users, one per line",
-					File.join(Msf::Config.install_root, "data", "wordlists", "unix_users.txt") ]),
+					File.join(Msf::Config.install_root, "data", "wordlists", "tomcat_mgr_default_users.txt") ]),
 			], self.class)
 
 		deregister_options('PASSWORD','PASS_FILE','USERPASS_FILE','STOP_ON_SUCCESS','BLANK_PASSWORDS','USERNAME')
 	end
 
 	def target_url
-		"http://#{vhost}:#{rport}#{datastore['URI']}"
+		uri = normalize_uri(datastore['URI'])
+		"http://#{vhost}:#{rport}#{uri}"
 	end
 
 	def run_host(ip)
@@ -85,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_cgi(
 				{
 					'method'  => 'POST',
-					'uri'     => datastore['URI'],
+					'uri'     => normalize_uri(datastore['URI']),
 					'data'    => post_data,
 				}, 20)
 

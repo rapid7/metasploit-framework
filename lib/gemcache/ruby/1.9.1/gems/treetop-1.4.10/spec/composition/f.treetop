@@ -1,0 +1,17 @@
+
+require "a"
+
+require	File.dirname(__FILE__) + "/b"
+require File.dirname(__FILE__) + "/subfolder/e_includes_c"
+
+module Test
+  grammar F
+    include A
+    include B
+    include E
+    
+    rule f
+      c e 'f'
+    end
+  end
+end

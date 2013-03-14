@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'timeout'
 require 'thread'
 require 'rex/socket/parameters'

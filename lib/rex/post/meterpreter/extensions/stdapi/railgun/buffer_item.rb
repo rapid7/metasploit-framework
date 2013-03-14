@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 # Copyright (c) 2010, patrickHVE@googlemail.com
 # All rights reserved.
 #

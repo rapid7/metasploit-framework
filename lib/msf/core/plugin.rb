@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/sync/ref'
 
 module Msf
@@ -138,6 +139,14 @@ class Plugin
 	def print_line(msg='')
 		output.print_line(msg) if (output)
 	end
+
+	#
+	# Prints a warning
+	#
+	def print_warning(msg='')
+		output.print_warning(msg) if (output)
+	end
+
 
 	#
 	# Prints a message with no decoration.

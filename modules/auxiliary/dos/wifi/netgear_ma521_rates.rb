@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -34,7 +30,6 @@ class Metasploit3 < Msf::Auxiliary
 				(external/ruby-lorcon/README) for more information.
 			},
 			'Author'         => [ 'Laurent Butti <0x9090 [at] gmail.com>' ], # initial discovery and metasploit module
-			'Version'        => '$Revision$',
 			'License'        => MSF_LICENSE,
 			'References'     =>
 				[

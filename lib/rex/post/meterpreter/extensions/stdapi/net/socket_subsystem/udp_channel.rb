@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'timeout'
 require 'rex/sync/thread_safe'
 require 'rex/socket/udp'

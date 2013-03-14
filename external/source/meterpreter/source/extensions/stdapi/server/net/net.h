@@ -49,6 +49,10 @@ DWORD request_net_config_remove_route(Remote *remote, Packet *packet);
 
 DWORD request_net_config_get_interfaces(Remote *remote, Packet *packet);
 
+DWORD request_net_config_get_arp_table(Remote *remote, Packet *packet);
+
+DWORD request_net_config_get_netstat(Remote *remote, Packet *packet);
+
 // Socket
 DWORD request_net_socket_tcp_shutdown(Remote *remote, Packet *packet);
 

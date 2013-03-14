@@ -1,0 +1,10 @@
+module Test
+  grammar D
+    include A
+    include B
+    
+    rule inherit
+      super 'works'
+    end
+  end
+end

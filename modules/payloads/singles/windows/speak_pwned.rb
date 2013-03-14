@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 =begin
@@ -52,7 +48,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'Windows Speech API - Say "You Got Pwned!"',
-			'Version'       => '$Revision$',
 			'Description'   => 'Causes the target to say "You Got Pwned" via the Windows Speech API',
 			'Author'        => [ 'Berend-Jan "SkyLined" Wever <berendjanwever[at]gmail.com>' ],
 			'License'       => BSD_LICENSE,

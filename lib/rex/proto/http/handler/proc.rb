@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'erb'
 
 module Rex
@@ -26,7 +27,7 @@ class Handler::Proc < Handler
 	# Returns true if the procedure is representing a virtual directory.
 	#
 	def relative_resource_required?
-		virt_dir	
+		virt_dir
 	end
 
 	#

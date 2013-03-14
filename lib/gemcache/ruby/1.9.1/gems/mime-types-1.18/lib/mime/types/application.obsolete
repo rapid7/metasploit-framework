@@ -1,0 +1,40 @@
+!application/smil @smi,smil :8bit 'IANA,RFC4536 =use-instead:application/smil+xml
+!application/vnd.arastra.swi 'IANA,[Fenner] =use-instead:application/vnd.aristanetworks.swi
+!application/vnd.gmx 'IANA,[Sciberras]
+!application/vnd.nokia.ncd+xml 'IANA,[Nokia] =use-instead:application/vnd.nokia.ncd
+!application/x-123 @wk =use-instead:application/vnd.lotus-1-2-3
+!application/x-access @mdf,mda,mdb,mde =use-instead:application/x-msaccess
+!application/x-compress @z,Z :base64 =use-instead:application/x-compressed
+!application/x-javascript @js :8bit =use-instead:application/javascript
+!application/x-lotus-123 @wks =use-instead:application/vnd.lotus-1-2-3
+!application/x-mathcad @mcd :base64 =use-instead:application/vnd.mcd
+!application/x-msword @doc,dot,wrd :base64 =use-instead:application/msword
+!application/x-rtf @rtf :base64 'LTSW =use-instead:application/rtf
+!application/x-troff @t,tr,roff 'LTSW =use-instead:text/troff
+!application/x-u-star 'LTSW =use-instead:application/x-ustar
+!application/x-word @doc,dot :base64 =use-instead:application/msword
+!application/x-wordperfect @wp =use-instead:application/vnd.wordperfect
+!application/x-wordperfectd @wpd =use-instead:application/vnd.wordperfect
+!application/xhtml-voice+xml 'IANA,{RFC-mccobb-xplusv-media-type-04.txt=https://datatracker.ietf.org/public/idindex.cgi?command=id_detail&filename=draft-mccobb-xplusv-media-type}
+*!application/VMSBACKUP @bck :base64 =use-instead:application/x-VMSBACKUP
+*!application/access @mdf,mda,mdb,mde =use-instead:application/x-msaccess
+*!application/bleeper @bleep :base64 =use-instead:application/x-bleeper
+*!application/cals1840 'LTSW =use-instead:application/cals-1840
+*!application/futuresplash @spl =use-instead:application/x-futuresplash
+*!application/ghostview =use-instead:application/x-ghostview
+*!application/hep @hep =use-instead:application/x-hep
+*!application/imagemap @imagemap,imap :8bit =use-instead:application/x-imagemap
+*!application/lotus-123 @wks =use-instead:application/vnd.lotus-1-2-3
+*!application/mac-compactpro @cpt =use-instead:application/x-mac-compactpro
+*!application/mathcad @mcd :base64 =use-instead:application/vnd.mcd
+*!application/mathematica-old =use-instead:application/x-mathematica-old
+*!application/news-message-id 'IANA,RFC1036,[Spencer]
+*!application/quicktimeplayer @qtl =use-instead:application/x-quicktimeplayer
+*!application/remote_printing 'LTSW =use-instead:application/remote-printing
+*!application/toolbook @tbk =use-instead:application/x-toolbook
+*!application/vnd.ms-word.document.macroEnabled.12 @docm
+*!application/vnd.ms-word.template.macroEnabled.12 @dotm
+*!application/wordperfect @wp =use-instead:application/vnd.wordperfect
+*!application/wordperfect6.1 @wp6 =use-instead:application/x-wordperfect6.1
+*!application/wordperfectd @wpd =use-instead:application/vnd.wordperfect
+*!application/x400.bp 'LTSW =use-instead:application/x400-bp

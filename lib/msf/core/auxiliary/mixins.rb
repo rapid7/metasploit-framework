@@ -1,6 +1,4 @@
-##
-# $Id$
-##
+# -*- coding: binary -*-
 
 #
 # Auxiliary mixins
@@ -10,8 +8,10 @@ require 'msf/core/auxiliary/dos'
 require 'msf/core/auxiliary/fuzzer'
 require 'msf/core/auxiliary/report'
 require 'msf/core/auxiliary/scanner'
+require 'msf/core/auxiliary/udp_scanner'
 require 'msf/core/auxiliary/timed'
 require 'msf/core/auxiliary/wmapmodule'
+require 'msf/core/auxiliary/web'
 require 'msf/core/auxiliary/crawler'
 
 require 'msf/core/auxiliary/commandshell'

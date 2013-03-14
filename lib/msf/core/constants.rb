@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 ###
 #
 # This file contains constants that are referenced by the core
@@ -64,6 +65,12 @@ module OperatingSystems
 	FREEBSD = "FreeBSD"
 	NETBSD  = "NetBSD"
 	OPENBSD = "OpenBSD"
+	VMWARE  = "VMware"
+
+	module VmwareVersions
+		ESX   = "ESX"
+		ESXI  = "ESXi"
+	end
 
 	module WindowsVersions
 		NT    = "NT"

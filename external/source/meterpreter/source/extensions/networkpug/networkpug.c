@@ -178,7 +178,7 @@ void free_networkpug(NetworkPug *np, int close_channel, int destroy_channel)
 	cont = __atomic_swap(0, &np->active);
 	
 	if(! cont) {
-		dprintf("Seems the pug at %p was already set free");
+		dprintf("Seems the pug at %p was already set free", &np);
 		return;
 	}
 

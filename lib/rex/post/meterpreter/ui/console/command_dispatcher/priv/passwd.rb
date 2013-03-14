@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/post/meterpreter'
 
 module Rex
@@ -39,7 +40,7 @@ class Console::CommandDispatcher::Priv::Passwd
 		client.priv.sam_hashes.each { |user|
 			print_line("#{user}")
 		}
-		
+
 		return true
 	end
 

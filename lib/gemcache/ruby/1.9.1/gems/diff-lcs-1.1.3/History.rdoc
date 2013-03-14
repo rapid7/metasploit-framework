@@ -1,0 +1,54 @@
+== 1.1.3 / 2011-08-27
+* Converted to 'hoe' for release.
+* Converted tests to RSpec 2.
+* Extracted the body of htmldiff into a class available from
+  diff/lcs/htmldiff.
+* Migrated development and issue tracking to GitHub.
+* Bugs fixed:
+  - Eliminated the explicit use of RubyGems in both bin/htmldiff and bin/ldiff.
+    Resolves issue 4 (https://github.com/halostatue/diff-lcs/issues/4).
+  - Eliminated Ruby warnings. Resolves issue 3
+    (https://github.com/halostatue/diff-lcs/issues/3).
+
+== 1.1.2 / 2004-10-20
+* Fixed a problem reported by Mauricio Fernandez in htmldiff.
+
+== 1.1.1 / 2004-09-25
+* Fixed bug #891:
+  http://rubyforge.org/tracker/?func=detail&atid=407&aid=891&group_id=84
+* Fixed a problem with callback initialisation code (it assumed that all
+  callbacks passed as classes can be initialised; now, it rescues
+  NoMethodError in the event of private :new being called).
+* Modified the non-initialisable callbacks to have a private #new method.
+* Moved ldiff core code to Diff::LCS::Ldiff (diff/lcs/ldiff.rb).
+
+== 1.1.0 / -
+* Eliminated the need for Diff::LCS::Event and removed it.
+* Added a contextual diff callback, Diff::LCS::ContextDiffCallback.
+* Implemented patching/unpatching for standard Diff callback output formats
+  with both #diff and #sdiff.
+* Extensive documentation changes.
+
+== 1.0.4 / -
+* Fixed a problem with bin/ldiff output, especially for unified format.
+  Newlines that should have been present weren't.
+* Changed the .tar.gz installer to generate Windows batch files if ones do not
+  exist already. Removed the existing batch files as they didn't work.
+
+== 1.0.3 / -
+* Fixed a problem with #traverse_sequences where the first difference from the
+  left sequence might not be appropriately captured.
+
+== 1.0.2 / -
+* Fixed an issue with ldiff not working because actions were changed from
+  symbols to strings.
+
+== 1.0.1 / -
+* Minor modifications to the gemspec, the README.
+* Renamed the diff program to ldiff (as well as the companion batch file) so as
+  to not collide with the standard diff program.
+* Fixed issues with RubyGems. Requires RubyGems > 0.6.1 or >= 0.6.1 with the
+  latest CVS version.
+
+== 1.0 / -
+* Initial release based mostly on Perl's Algorithm::Diff.

@@ -68,14 +68,14 @@ class Plugin::TokenAdduser < Msf::Plugin
 				session = framework.sessions[sid]
 				next unless session.type == "meterpreter"
 
-				print_status(">> Opening session #{session.sid} / #{session.tunnel_peer}")
+				print_status(">> Opening session #{session.sid} / #{session.session_host}")
 
 				unless session.incognito
 					session.core.use("incognito")
 				end
 
 				unless session.incognito
-					print_status("!! Failed to load incognito on #{session.sid} / #{session.tunnel_peer}")
+					print_status("!! Failed to load incognito on #{session.sid} / #{session.session_host}")
 					next
 				end
 				#print "DEBUG #{username} #{password}\n"

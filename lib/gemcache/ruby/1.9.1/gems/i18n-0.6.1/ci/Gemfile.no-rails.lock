@@ -1,0 +1,14 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    mocha (0.9.9)
+      rake
+    rake (0.8.7)
+    test_declarative (0.0.4)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  mocha
+  test_declarative

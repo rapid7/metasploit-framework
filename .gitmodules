@@ -1,3 +1,0 @@
-[submodule "lib/msf3"]
-	path = lib/msf3
-	url = git@framework.github.com:rapid7/metasploit-framework.git

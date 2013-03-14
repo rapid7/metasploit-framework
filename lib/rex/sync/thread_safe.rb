@@ -1,9 +1,10 @@
+# -*- coding: binary -*-
 require 'timeout'
 
 module Rex
 
 ###
-# 
+#
 # This module provides a set of methods for performing various blocking
 # operations in a manner that is compatible with ruby style threads.
 #
@@ -71,7 +72,7 @@ module ThreadSafe
 	# Simulates a sleep operation by selecting on nil until a timeout period
 	# expires.
 	#
-	def self.sleep(seconds)
+	def self.sleep(seconds=nil)
 		self.select(nil, nil, nil, seconds)
 
 		seconds

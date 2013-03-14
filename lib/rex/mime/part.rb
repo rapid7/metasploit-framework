@@ -1,9 +1,10 @@
+# -*- coding: binary -*-
 module Rex
 module MIME
 class Part
 
 	require 'rex/mime/header'
-	
+
 	attr_accessor :header, :content
 
 	def initialize

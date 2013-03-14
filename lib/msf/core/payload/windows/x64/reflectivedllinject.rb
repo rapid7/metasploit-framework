@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 
 require 'msf/core'
 require 'rex/peparsey'
@@ -18,11 +19,11 @@ module Payload::Windows::ReflectiveDllInject_x64
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'          => 'Reflective Dll Injection',
+			'Name'          => 'Reflective DLL Injection',
 			'Version'       => '$Revision$',
-			'Description'   => 'Inject a Dll via a reflective loader',
+			'Description'   => 'Inject a DLL via a reflective loader',
 			'Author'        => [ 'sf' ],
-			'References'    => [ [ 'URL', 'http://www.harmonysecurity.com/ReflectiveDllInjection.html' ] ],
+			'References'    => [ [ 'URL', 'https://github.com/stephenfewer/ReflectiveDLLInjection' ] ],
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86_64,
 			'PayloadCompat' =>

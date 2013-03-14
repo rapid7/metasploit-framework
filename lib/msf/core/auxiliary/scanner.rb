@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Msf
 
 ###
@@ -27,6 +28,7 @@ def initialize(info = {})
 		OptBool.new('ShowProgress', [true, 'Display progress messages during a scan', true]),
 		OptInt.new('ShowProgressPercent', [true, 'The interval in percent that progress should be shown', 10])
 	], Auxiliary::Scanner)
+
 end
 
 
@@ -39,7 +41,7 @@ def run
 	@show_percent  = datastore['ShowProgressPercent'].to_i
 
 	ar             = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
-	@range_count   = ar.length
+	@range_count   = ar.length || 0
 	@range_done    = 0
 	@range_percent = 0
 
@@ -223,6 +225,7 @@ def seppuko!
 end
 
 def scanner_progress
+	return 0 unless @range_done and @range_count
 	pct = (@range_done / @range_count.to_f) * 100
 end
 

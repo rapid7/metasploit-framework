@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -18,14 +14,13 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'		   => 'Http:BL lookup',
+			'Name'		   => 'Http:BL Lookup',
 			'Description'	=> %q{
 					This module can be used to enumerate information
 				about an IP addresses from Project HoneyPot's HTTP Block List.
 			},
-			'Author' 		=> [ 'Rob Fuller <mubix[at]rapid7.com>' ],
+			'Author' 		=> [ 'mubix' ],
 			'License'		=> MSF_LICENSE,
-			'Version'		=> '$Revision$',
 			'References' 	=>
 				[
 					['URL', 'http://www.projecthoneypot.org/httpbl_api.php'],
@@ -36,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				# OptAddressRange.new('RHOSTS', [false, "The target address, range, or CIDR identifier"]),
-				OptString.new('APIKEY', [ true, "Your HTTP:BL api key"])
+				OptString.new('HTTPBL_APIKEY', [ true, "Your HTTP:BL api key"])
 			], self.class)
 	end
 
@@ -44,10 +39,10 @@ class Metasploit3 < Msf::Auxiliary
 	def support_ipv6?
 		false
 	end
-	
+
 	def resolve(ip)
 		results = ''
-		apikey = datastore['apikey']
+		apikey = datastore['HTTPBL_APIKEY']
 		query = apikey + '.' + ip.split('.').reverse.join('.') + '.dnsbl.httpbl.org'
 		begin
 			results = Resolv::DNS.new.getaddress(query).to_s

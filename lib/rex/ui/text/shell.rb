@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/ui'
 
 module Rex
@@ -300,6 +301,16 @@ module Shell
 
 		self.on_print_proc.call(msg) if self.on_print_proc
 		log_output(output.print_line(msg))
+	end
+
+	#
+	# Prints a warning message to the output handle.
+	#
+	def print_warning(msg='')
+		return if (disable_output == true)
+
+		self.on_print_proc.call(msg) if self.on_print_proc
+		log_output(output.print_warning(msg))
 	end
 
 	#

@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -23,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 			'Description' => %q{
 				Enumerates the version of MySQL servers
 			},
-			'Version'     => '$Revision$',
 			'Author'      => 'kris katterjohn',
 			'License'     => MSF_LICENSE
 		)
@@ -37,9 +32,14 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		begin
 			s = connect(false)
-			data = s.get
+			data = s.get_once(-1,10)
 			disconnect(s)
+			if data.nil?
+				print_error "The connection to #{rhost}:#{rport} timed out"
+				return
+			end
 		rescue ::Rex::ConnectionError, ::EOFError
+			vprint_error("#{rhost}:#{rport} - Connection failed")
 			return
 		rescue ::Exception
 			print_error("Error: #{$!}")
@@ -82,4 +82,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

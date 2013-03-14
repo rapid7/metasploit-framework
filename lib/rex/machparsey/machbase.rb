@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 require 'rex/struct2'
 
@@ -18,17 +19,17 @@ class GenericStruct
 	def v
 		struct.v
 	end
-		
-	# Access a value by array 
+
+	# Access a value by array
 	def [](*args)
 		struct[*args]
 	end
-	
+
 	# Obtain an array of all fields
 	def keys
 		struct.keys
 	end
-	
+
 	def method_missing(meth, *args)
 		v[meth.to_s] || (raise NoMethodError.new, meth)
 	end
@@ -40,7 +41,7 @@ end
 BITS_32 	= 0
 BITS_64 	= 1
 ENDIAN_LSB 	= 0
-ENDIAN_MSB 	= 1		
+ENDIAN_MSB 	= 1
 
 class MachBase
 
@@ -51,7 +52,7 @@ class MachBase
 	MACH_HEADER_SIZE 	= 28
 	MACH_HEADER_SIZE_64 	= 32
 
-	
+
 	MACH_HEADER_LSB = Rex::Struct2::CStructTemplate.new(
 		['uint32v', 'magic',	 0],
 		['uint32v', 'cputype',   0],
@@ -72,7 +73,7 @@ class MachBase
 		['uint32n', 'flags',	 0]
 	)
 
-	
+
 	MACH_HEADER_64_LSB = Rex::Struct2::CStructTemplate.new(
 		['uint32v', 'magic',	 0],
 		['uint32v', 'cputype',   0],
@@ -103,8 +104,8 @@ class MachBase
 	CPU_TYPE_POWERPC64	= 0x01000012
 
 	CPU_SUBTYPE_LITTLE_ENDIAN 	= 0
-	CPU_SUBTYPE_BIG_ENDIAN		= 1      
-	
+	CPU_SUBTYPE_BIG_ENDIAN		= 1
+
 	LC_SEGMENT	= 0x1     #/* segment of this file to be mapped */
 	LC_SYMTAB	= 0x2     #/* link-edit stab symbol table info */
 	LC_SYMSEG	= 0x3     #/* link-edit gdb symbol table info (obsolete) */
@@ -125,7 +126,7 @@ class MachBase
 
 
 
-	  
+
 	class MachHeader < GenericHeader
 		attr_accessor :bits, :endian
 
@@ -154,7 +155,7 @@ class MachBase
 			else
 				raise MachHeaderError, "Couldn't find Mach Magic", caller
 			end
-			
+
 			if !mach_header.from_s(rawdata)
 				raise MachHeaderError, "Could't process Mach-O Header", caller
 			end
@@ -185,13 +186,13 @@ class MachBase
 			else
 				load_command = LOAD_COMMAND_LSB.make_struct
 			end
-	     
+
 			if !load_command.from_s(rawdata)
 				raise MachParseError, "Couldn't parse load command"
 			end
-	     
+
 			self.struct = load_command
-	
+
 		end
 	end
 
@@ -224,8 +225,8 @@ class MachBase
 		['uint32n', 'nsects', 0],
 		['uint32n', 'flags',  0]
 	)
-	
-	SEGMENT_COMMAND_SIZE_64 = 72	
+
+	SEGMENT_COMMAND_SIZE_64 = 72
 
 	SEGMENT_COMMAND_64_LSB = Rex::Struct2::CStructTemplate.new(
 		['uint32v', 'cmd',  0],
@@ -284,11 +285,11 @@ class MachBase
 		def Segname
 			v['segname']
 		end
-	
+
 		def Vmaddr
 			v['vmaddr']
 		end
-	
+
 		def Vmsize
 			v['vmsize']
 		end
@@ -296,7 +297,7 @@ class MachBase
 		def FileOff
 			v['fileoff']
 		end
-	
+
 		def FileSize
 			v['filesize']
 		end
@@ -346,7 +347,7 @@ class FatBase
 
 	class FatHeader < GenericHeader
 		attr_accessor :nfat_arch, :endian, :exists
-	
+
 		def initialize(rawdata)
 			fat_header = FAT_HEADER_LSB.make_struct
 			if !fat_header.from_s(rawdata)
@@ -355,9 +356,9 @@ class FatBase
 
 			magic = fat_header.v['magic']
 			if magic == FAT_MAGIC
-				endian = ENDIAN_LSB	
+				endian = ENDIAN_LSB
 			elsif magic == FAT_CIGAM
-				endian = ENDIAN_MSB	
+				endian = ENDIAN_MSB
 				fat_header = FAT_HEADER_MSB.make_struct
 				if !fat_header.from_s(rawdata)
 					raise FatHeaderError, "Could not parse FAT header"
@@ -375,14 +376,14 @@ class FatBase
 
 	class FatArch < GenericHeader
 		attr_accessor :cpu_type, :cpu_subtype, :offset, :size
-	
+
 		def initialize(rawdata, endian)
 			if endian == ENDIAN_LSB
 				fat_arch = FAT_ARCH_LSB.make_struct
-			else	
+			else
 				fat_arch = FAT_ARCH_MSB.make_struct
 			end
-	
+
 			if !fat_arch.from_s(rawdata)
 				raise FatHeaderError, "Could not parse arch from FAT header"
 			end

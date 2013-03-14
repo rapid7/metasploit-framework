@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 require 'rex/test'
 require 'rex/proto/smb/client.rb.ut.rb'

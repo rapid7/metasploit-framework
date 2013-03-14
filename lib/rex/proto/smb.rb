@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/proto/smb/constants'
 require 'rex/proto/smb/exceptions'
 require 'rex/proto/smb/evasions'

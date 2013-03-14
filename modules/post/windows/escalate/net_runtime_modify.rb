@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -15,7 +11,7 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 
-	include Msf::Post::Windows::WindowsServices
+	include Msf::Post::Windows::Services
 
 	def initialize(info={})
 		super( update_info( info,
@@ -28,13 +24,12 @@ class Metasploit3 < Msf::Post
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'bannedit' ],
-			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ],
 			'References'    =>
 				[
 					[ 'OSVDB', '71013' ],
-					[ 'URL', 'http://www.exploit-db.com/exploits/16940/' ]
+					[ 'EDB', '16940' ]
 				]
 		))
 
@@ -124,16 +119,10 @@ class Metasploit3 < Msf::Post
 
 	def init_railgun
 		begin
-		# load the dlls we need
-			if session.railgun.get_dll("advapi32").nil?
-				print_status("Loading advapi.dll...")
-				session.railgun.add_dll("advapi32", 'C:\\WINDOWS\\system32\\advapi32.dll')
-			end
-
-			if session.railgun.advapi32.functions['DeleteService'].nil?
-				session.railgun.add_function( 'advapi32', 'DeleteService','BOOL',[
-				[ "DWORD", "hService", "in" ]])
-			end
+		rg = session.railgun
+		if (!rg.get_dll('advapi32'))
+			rg.add_dll('advapi32')
+		end
 		rescue Exception => e
 			print_error("Could not initalize railgun")
 			print_error("Railgun Error: #{e}")

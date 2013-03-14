@@ -1,0 +1,54 @@
+text/1d-interleaved-parityfec 'IANA,RFC6015
+text/RED 'IANA,RFC4102
+text/calendar 'IANA,RFC5545
+text/css @css :8bit 'IANA,RFC2318
+text/csv @csv :8bit 'IANA,RFC4180
+text/dns 'IANA,RFC4027
+text/enriched 'IANA,RFC1896
+text/example 'IANA,RFC4735
+text/fwdred 'IANA,RFC6354
+text/html @html,htm,htmlx,shtml,htx :8bit 'IANA,RFC2854
+text/n3 'IANA,[Prud'hommeaux=Prudhommeaux],[W3C]
+text/parityfec 'IANA,RFC5109
+text/plain @txt,asc,c,cc,h,hh,cpp,hpp,dat,hlp 'IANA,RFC2046,RFC3676,RFC5147
+text/prs.fallenstein.rst @rst 'IANA,[Fallenstein]
+text/prs.lines.tag 'IANA,[Lines]
+text/rfc822-headers 'IANA,RFC3462
+text/richtext @rtx :8bit 'IANA,RFC2045,RFC2046
+text/rtf @rtf :8bit 'IANA,[Lindner]
+text/rtp-enc-aescm128 'IANA,[3GPP]
+text/rtx 'IANA,RFC4588
+text/sgml @sgml,sgm 'IANA,RFC1874
+text/t140 'IANA,RFC4103
+text/tab-separated-values @tsv 'IANA,[Lindner]
+text/troff @t,tr,roff,troff :8bit 'IANA,RFC4263
+text/turtle 'IANA,[Prud'hommeaux=Prudhommeaux],[W3C]
+text/ulpfec 'IANA,RFC5109
+text/uri-list 'IANA,RFC2483
+text/vcard 'IANA,RFC6350
+text/vnd.DMClientScript 'IANA,[Bradley]
+text/vnd.IPTC.NITF 'IANA,[IPTC]
+text/vnd.IPTC.NewsML 'IANA,[IPTC]
+text/vnd.abc 'IANA,[Allen]
+text/vnd.curl 'IANA,[Byrnes]
+text/vnd.dvb.subtitle 'IANA,[Siebert],[Lagally]
+text/vnd.esmertec.theme-descriptor 'IANA,[Eilemann]
+text/vnd.fly 'IANA,[Gurney]
+text/vnd.fmi.flexstor 'IANA,[Hurtta]
+text/vnd.graphviz 'IANA,[Ellson]
+text/vnd.in3d.3dml 'IANA,[Powers]
+text/vnd.in3d.spot 'IANA,[Powers]
+text/vnd.latex-z 'IANA,[Lubos]
+text/vnd.motorola.reflex 'IANA,[Patton]
+text/vnd.ms-mediapackage 'IANA,[Nelson]
+text/vnd.net2phone.commcenter.command @ccc 'IANA,[Xie]
+text/vnd.radisys.msml-basic-layout 'IANA,RFC5707
+text/vnd.si.uricatalogue 'IANA,[Parks Young=ParksYoung]
+text/vnd.sun.j2me.app-descriptor @jad :8bit 'IANA,[G.Adams]
+text/vnd.trolltech.linguist 'IANA,[D.Lambert]
+text/vnd.wap.si @si 'IANA,[WAP-Forum]
+text/vnd.wap.sl @sl 'IANA,[WAP-Forum]
+text/vnd.wap.wml @wml 'IANA,[Stark]
+text/vnd.wap.wmlscript @wmls 'IANA,[Stark]
+text/xml @xml,dtd :8bit 'IANA,RFC3023
+text/xml-external-parsed-entity 'IANA,RFC3023

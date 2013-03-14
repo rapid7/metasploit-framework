@@ -6,7 +6,6 @@
 $:.unshift(File.join(File.expand_path(File.dirname(__FILE__)), '..', 'lib', 'lab'))
 
 require 'yaml'
-require 'vm_controller'
 
 module Msf
 
@@ -19,6 +18,16 @@ class Plugin::Lab < Msf::Plugin
 		def initialize(driver)
 			super(driver)
 			@controller = nil
+			
+			#
+			# Require the lab gem, but fail nicely if it's not there. 
+			#
+			begin
+				require 'lab'
+			rescue LoadError
+				raise "WARNING: Lab gem not found, Please 'gem install lab'"
+			end
+			
 		end
 
 		#

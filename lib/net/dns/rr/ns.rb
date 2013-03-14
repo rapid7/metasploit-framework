@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 ##
 #
 # Net::DNS::RR::NS

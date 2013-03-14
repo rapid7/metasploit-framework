@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/post/meterpreter/extensions/stdapi/railgun/platform_util'
 
 module Rex
@@ -26,7 +27,7 @@ module PointerUtil
 
 		case platform
 		when PlatformUtil::X86_64
-			# XXX: Only works if attacker and victim are like-endianed 
+			# XXX: Only works if attacker and victim are like-endianed
 			[pointer].pack('Q')
 		when PlatformUtil::X86_32
 			[pointer].pack('V')
@@ -39,7 +40,7 @@ module PointerUtil
 	def self.unpack_pointer(packed_pointer, platform)
 		case platform
 		when PlatformUtil::X86_64
-			# XXX: Only works if attacker and victim are like-endianed 
+			# XXX: Only works if attacker and victim are like-endianed
 			packed_pointer.unpack('Q').first
 		when PlatformUtil::X86_32
 			packed_pointer.unpack('V').first
@@ -64,13 +65,13 @@ module PointerUtil
 		if pointer.kind_of?(String)
 			pointer = unpack_pointer(pointer, platform)
 		end
-		
+
 		return pointer.nil? || pointer == 0
 	end
 #
 #	def self.is_unpacked_pointer?(pointer, platform)
 #		# TODO also check that the integer size is appropriate for the platform
-#		unless pointer.kind_of?(Fixnum) and pointer > 0 # and pointer < 
+#		unless pointer.kind_of?(Fixnum) and pointer > 0 # and pointer <
 #			return false
 #		end
 #

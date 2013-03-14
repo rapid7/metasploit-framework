@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'openssl'
 
 module Net; module SSH; module Transport; module HMAC

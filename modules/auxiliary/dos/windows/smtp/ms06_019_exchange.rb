@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -28,7 +24,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'pusscat' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'BID', '17908'],
@@ -116,7 +111,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Sending message...")
 		sock.put(mail)
 		sock.put("QUIT\r\n")
-		print "<< " + sock.get_once
+		print "<< " + (sock.get_once || '')
 		disconnect
 	end
 

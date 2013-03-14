@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -20,10 +16,9 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Custom Payload',
-			'Version'       => '$Revision$',
 			'Description'   => 'Use custom string or file as payload. Set either PAYLOADFILE or
 								PAYLOADSTR.',
-			'Author'        => 'scriptjunkie <scriptjunkie  at  scriptjunkie  us>',
+			'Author'        => 'scriptjunkie <scriptjunkie[at]scriptjunkie.us>',
 			'License'       => MSF_LICENSE,
 			'Payload'	    =>
 				{
@@ -43,6 +38,10 @@ module Metasploit3
 	# Construct the payload
 	#
 	def generate
+		if datastore['ARCH']
+			self.arch = actual_arch
+		end
+
 		if datastore['PAYLOADFILE']
 			IO.read(datastore['PAYLOADFILE'])
 		elsif datastore['PAYLOADSTR']

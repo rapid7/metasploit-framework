@@ -1,9 +1,10 @@
+# -*- coding: binary -*-
 require "rex/parser/nokogiri_doc_mixin"
 
 module Rex
 	module Parser
 
-		# If Nokogiri is available, define Nmap document class. 
+		# If Nokogiri is available, define Nmap document class.
 		load_nokogiri && class NmapDocument < Nokogiri::XML::SAX::Document
 
 		include NokogiriDocMixin
@@ -49,7 +50,7 @@ module Rex
 			when "hostname"
 				record_hostname(attrs)
 			when "port"
-				record_port(attrs) 
+				record_port(attrs)
 			when "state"
 				record_port_state(attrs)
 			when "service"
@@ -73,16 +74,8 @@ module Rex
 				collect_os_data
 				@state[:os] = {}
 			when "port"
-				collect_port_data 
+				collect_port_data
 				@state[:port] = {}
-			when "script"
-				if in_tag("host")
-					if in_tag("port")
-						@state[:portscripts] = {}
-					else
-						@state[:hostscripts] = {}
-					end
-				end
 			when "host" # Roll everything up now
 				collect_host_data
 				host_object = report_host &block
@@ -126,6 +119,7 @@ module Rex
 			return unless in_tag("os")
 			temp_hash = attr_hash(attrs)
 			if temp_hash["accuracy"].to_i == 100
+				@state[:os] ||= {}
 				@state[:os]["osmatch"] = temp_hash["name"]
 			end
 		end
@@ -151,21 +145,21 @@ module Rex
 			return unless in_tag("host")
 			return if in_tag("port")
 			temp_hash = attr_hash(attrs)
-			@state[:hostscripts] ||= {}
-			@state[:hostscripts].merge! temp_hash
-			temp_hash[:addresses] = @state[:addresses]
-			db.emit(:host_script,temp_hash,&block) if block
+
+			if temp_hash["id"] and temp_hash["output"]
+				@state[:scripts] ||= []
+				@state[:scripts] << { temp_hash["id"] => temp_hash["output"] }
+			end
 		end
 
 		def record_port_script(attrs)
 			return unless in_tag("host")
 			return unless in_tag("port")
 			temp_hash = attr_hash(attrs)
-			@state[:portscripts] ||= {}
-			@state[:portscripts].merge! temp_hash
-			temp_hash[:addresses] = @state[:addresses]
-			temp_hash[:port] = @state[:port]
-			db.emit(:port_script,temp_hash,&block) if block
+			if temp_hash["id"] and temp_hash["output"]
+				@state[:port][:scripts] ||= []
+				@state[:port][:scripts] << { temp_hash["id"] => temp_hash["output"] }
+			end
 		end
 
 		def record_port_service(attrs)
@@ -196,7 +190,7 @@ module Rex
 			return unless in_tag("host")
 			attrs.each do |k,v|
 				next unless k == "state"
-				@state[:host_alive] = (v == "up") 
+				@state[:host_alive] = (v == "up")
 			end
 		end
 
@@ -234,12 +228,12 @@ module Rex
 		end
 
 		def collect_host_data
-			if @state[:host_alive] 
+			if @state[:host_alive]
 				@report_data[:state] = Msf::HostState::Alive
 			else
 				@report_data[:state] = Msf::HostState::Dead
 			end
-			if @state[:addresses] 
+			if @state[:addresses]
 				if @state[:addresses].has_key? "ipv4"
 					@report_data[:host] = @state[:addresses]["ipv4"]
 				elsif @state[:addresses].has_key? "ipv6"
@@ -257,6 +251,9 @@ module Rex
 			end
 			if @state[:trace] and @state[:trace].has_key?(:hops)
 				@report_data[:traceroute] = @state[:trace]
+			end
+			if @state[:scripts]
+				@report_data[:scripts] = @state[:scripts]
 			end
 		end
 
@@ -288,6 +285,8 @@ module Rex
 					extra[1] = v
 				when "extrainfo"
 					extra[2] = v
+				when :scripts
+					port_hash[:scripts] = v
 				end
 			end
 			port_hash[:info] = extra.compact.join(" ") unless extra.empty?
@@ -301,7 +300,7 @@ module Rex
 		end
 
 		def report_traceroute(host_object)
-			return unless host_object.kind_of? ::Msf::DBManager::Host
+			return unless host_object.kind_of? ::Mdm::Host
 			return unless @report_data[:traceroute]
 			tr_note = {
 				:workspace => host_object.workspace,
@@ -309,25 +308,25 @@ module Rex
 				:type => "host.nmap.traceroute",
 				:data => { 'port' => @report_data[:traceroute]["port"].to_i,
 					'proto' => @report_data[:traceroute]["proto"].to_s,
-					'hops' => @report_data[:traceroute][:hops] } 
+					'hops' => @report_data[:traceroute][:hops] }
 			}
 			db_report(:note, tr_note)
 		end
 
 		def report_uptime(host_object)
-			return unless host_object.kind_of? ::Msf::DBManager::Host
+			return unless host_object.kind_of? ::Mdm::Host
 			return unless @report_data[:last_boot]
 			up_note = {
 				:workspace => host_object.workspace,
 				:host => host_object,
 				:type => "host.last_boot",
-				:data => { :time => @report_data[:last_boot] } 
+				:data => { :time => @report_data[:last_boot] }
 			}
 			db_report(:note, up_note)
 		end
 
 		def report_fingerprint(host_object)
-			return unless host_object.kind_of? ::Msf::DBManager::Host
+			return unless host_object.kind_of? ::Mdm::Host
 			return unless @report_data[:os_fingerprint]
 			fp_note = @report_data[:os_fingerprint].merge(
 				{
@@ -339,20 +338,51 @@ module Rex
 
 		def report_host(&block)
 			if host_is_okay
-				host_object = db_report(:host, @report_data.merge(
-					:workspace => @args[:wspace] ) )
+				scripts = @report_data.delete(:scripts) || []
+				host_object = db_report(:host, @report_data.merge( :workspace => @args[:wspace] ) )
 				db.emit(:address,@report_data[:host],&block) if block
+
+				scripts.each do |script|
+					script.each_pair do |k,v|
+						ntype =
+						nse_note = {
+							:workspace => host_object.workspace,
+							:host => host_object,
+							:type => "nmap.nse.#{k}.host",
+							:data => { 'output' => v },
+							:update => :unique_data
+						}
+						db_report(:note, nse_note)
+					end
+				end
+
 				host_object
 			end
 		end
 
 		def report_services(host_object,&block)
-			return unless host_object.kind_of? ::Msf::DBManager::Host
+			return unless host_object.kind_of? ::Mdm::Host
 			return unless @report_data[:ports]
 			return if @report_data[:ports].empty?
 			reported = []
 			@report_data[:ports].each do |svc|
-				reported << db_report(:service, svc.merge(:host => host_object))
+				scripts = svc.delete(:scripts) || []
+				svc_obj = db_report(:service, svc.merge(:host => host_object))
+				scripts.each do |script|
+					script.each_pair do |k,v|
+						ntype =
+						nse_note = {
+							:workspace => host_object.workspace,
+							:host => host_object,
+							:service => svc_obj,
+							:type => "nmap.nse.#{k}." + (svc[:proto] || "tcp") +".#{svc[:port]}",
+							:data => { 'output' => v },
+							:update => :unique_data
+						}
+						db_report(:note, nse_note)
+					end
+				end
+				reported << svc_obj
 			end
 			reported
 		end

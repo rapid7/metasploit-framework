@@ -1,0 +1,410 @@
+module Mail
+  grammar RFC2822
+  
+    include RFC2822Obsolete
+
+    rule ALPHA
+      [a-zA-Z]
+    end
+    
+    rule DIGIT
+      [0-9]
+    end
+    
+    rule DQUOTE
+      '"'
+    end
+    
+    rule LF
+      "\n"
+    end
+    
+    rule CR
+      "\r"
+    end
+
+    rule CRLF
+      "\r\n"
+    end
+  
+    rule WSP
+      [\x09\x20]
+    end
+  
+    rule FWS    # Folding white space
+      (WSP* CRLF WSP+) / (CRLF WSP+) / obs_FWS
+    end
+
+    rule CFWS
+      (FWS* comment)* FWS?
+    end
+
+    rule NO_WS_CTL
+      [\x01-\x08]   /         # US-ASCII control characters
+      [\x0B-\x0C]   /         #  that do not include the
+      [\x0E-\x1F]   /         #  carriage return, line feed,
+      [\x7f]                  #  and white space characters
+    end
+
+    rule specials
+      "(" / ")" /     # Special characters used in
+      "<" / ">" /     #  other parts of the syntax
+      "[" / "]" /
+      ":" / ";" /
+      "@" / '\\' /
+      "," / "." /
+      DQUOTE
+    end
+
+    rule ctext
+      NO_WS_CTL   /    # Non white space controls
+      [\x21-\x27] /    # The rest of the US-ASCII
+      [\x2a-\x5b] /    #  characters not including "(",
+      [\x5d-\x7e]      #  ")", or "\"
+    end
+
+    rule ccontent
+      ctext / quoted_pair / comment
+    end
+
+    rule comment
+      "(" ( FWS? ccontent )* FWS? ")"
+    end
+  
+    rule atext
+      ALPHA / DIGIT / # Any character except controls,
+      "!" / "#" /     #  SP, and specials.
+      "$" / "%" /     #  Used for atoms
+      "&" / "'" /
+      "*" / "+" /
+      "-" / "/" /
+      "=" / "?" /
+      "^" / "_" /
+      "`" / "{" /
+      "|" / "}" /
+      "~"
+    end
+    
+    rule mtext
+      (atext / ".")+
+    end
+
+    rule atom
+      CFWS? atext+ CFWS?
+    end
+
+    rule dot_atom
+      CFWS? dot_atom_text CFWS?
+    end
+  
+    rule local_dot_atom
+      CFWS? local_dot_atom_text CFWS?
+    end
+    
+    rule message_id_text
+      mtext+
+    end
+    
+    rule dot_atom_text
+      (domain_text "."?)+
+    end
+    
+    rule local_dot_atom_text
+      ("."? domain_text)+
+    end
+    
+    rule domain_text
+      (DQUOTE (FWS? quoted_domain)+ FWS? DQUOTE) / atext+
+    end
+    
+    rule quoted_domain
+      qdcontent / "\\" text
+    end
+    
+    rule qdcontent
+      NO_WS_CTL /     # Non white space controls
+      [\x21] /        # The rest of the US-ASCII
+      [\x23-\x45] /   # characters not including "\"
+      [\x47-\x5b] /   # or the "." or the 
+      [\x5d-\x7e]     # double quote character
+    end
+
+    rule phrase
+      obs_phrase / word+
+    end
+    
+    rule word
+      atom / quoted_string
+    end
+    
+    rule phrase_list
+      first_phrase:phrase other_phrases:("," FWS* phrase_value:phrase)*
+    end
+
+    rule domain_literal
+      CFWS? "[" (FWS? dcontent)* FWS? "]" CFWS?
+    end
+
+    rule dcontent
+      dtext / quoted_pair
+    end
+
+    rule dtext
+      NO_WS_CTL    /  # Non white space controls
+      [\x21-\x5a]  /  # The rest of the US-ASCII characters
+      [\x5e-\x7e]     #  not including "[", "]", or "\"
+    end
+
+    rule angle_addr
+      CFWS? "<" addr_spec ">" CFWS? / obs_angle_addr
+    end
+
+    rule addr_spec
+      (local_part "@" domain) / local_part
+    end
+
+    rule local_part
+      local_dot_atom / quoted_string / obs_local_part
+    end
+  
+    rule domain
+      dot_atom / domain_literal / obs_domain
+    end
+  
+    rule group
+      group_name:display_name ":" group_list:(mailbox_list_group / CFWS)? ";" CFWS?
+    end
+
+    rule mailbox_list_group
+      mailbox_list {
+        def addresses
+          [first_addr] + other_addr.elements.map { |o| o.addr_value }
+        end
+      }
+    end
+
+    rule quoted_string
+      CFWS? DQUOTE quoted_content:(FWS? qcontent)+ FWS? DQUOTE CFWS?
+    end
+
+    rule qcontent
+      qtext / quoted_pair
+    end
+
+    rule quoted_pair
+      ("\\" text) / obs_qp
+    end
+  
+    rule qtext
+      NO_WS_CTL /     # Non white space controls
+      [\x21] /        # The rest of the US-ASCII
+      [\x23-\x5b] /   #  characters not including "\"
+      [\x5d-\x7e]     #  or the quote character
+    end
+
+    rule text
+      [\x01-\x09]     /       # Characters excluding CR and LF
+      [\x0b-\x0c]     /
+      [\x0e-\x7e]     / 
+      obs_text
+    end
+    
+    rule display_name
+      phrase
+    end
+    
+    rule name_addr
+      display_name angle_addr / angle_addr
+    end
+    
+    rule mailbox_list
+      (first_addr:mailbox other_addr:("," addr_value:mailbox)*) / obs_mbox_list
+    end
+  
+    rule mailbox
+      name_addr / addr_spec
+    end
+
+    rule address
+      group {
+    
+        def dig_comments(comments, elements)
+          elements.each { |elem|
+            if elem.respond_to?(:comment)
+              comments << elem.comment
+            end
+            dig_comments(comments, elem.elements) if elem.elements
+           }
+        end
+    
+        def comments
+          comments = []
+          dig_comments(comments, elements)
+          comments
+        end
+
+      } /
+      mailbox {
+
+      def dig_comments(comments, elements)
+        elements.each { |elem|
+          if elem.respond_to?(:comment)
+            comments << elem.comment
+          end
+          dig_comments(comments, elem.elements) if elem.elements
+         }
+      end
+
+      def comments
+        comments = []
+        dig_comments(comments, elements)
+        comments
+      end
+
+      }
+    end
+  
+    rule address_list
+      first_addr:address? other_addr:(FWS* "," FWS* addr_value:address?)*
+    end
+    
+    rule date_time
+      ( day_of_week ",")? date FWS time CFWS?
+    end
+
+    rule day_of_week
+      (FWS? day_name) / obs_day_of_week
+    end
+
+    rule day_name
+      "Mon" / "Tue" / "Wed" / "Thu" /
+      "Fri" / "Sat" / "Sun"
+    end
+
+    rule date
+      day month year
+    end
+    
+    rule year
+      DIGIT DIGIT DIGIT DIGIT / obs_year
+    end
+    
+    rule month
+      (FWS month_name FWS) / obs_month
+    end
+    
+    rule month_name
+      "Jan" / "Feb" / "Mar" / "Apr" /
+      "May" / "Jun" / "Jul" / "Aug" /
+      "Sep" / "Oct" / "Nov" / "Dec"
+    end
+    
+    rule day
+      (FWS? DIGIT DIGIT?) / obs_day
+    end
+    
+    rule time
+      time_of_day FWS zone
+    end
+    
+    rule time_of_day
+      hour ":" minute ( ":" second )?
+    end
+    
+    rule hour
+      DIGIT DIGIT / obs_hour
+    end
+    
+    rule minute
+      DIGIT DIGIT / obs_minute
+    end
+    
+    rule second
+      DIGIT DIGIT / obs_second
+    end
+    
+    rule zone
+      (( "+" / "-" ) DIGIT DIGIT DIGIT DIGIT) / obs_zone
+    end
+    
+    rule return
+      path CRLF
+    end
+    
+    rule path
+      ((CFWS)? "<" ((CFWS)? / addr_spec) ">" (CFWS)?) / obs_path
+    end
+    
+    rule received
+      name_val_list ";" date_time CRLF
+    end
+    
+    rule name_val_list
+      (CFWS)? (name_val_pair (CFWS name_val_pair)*)
+    end
+    
+    rule name_val_pair
+      item_name CFWS item_value
+    end
+    
+    rule item_name
+      ALPHA (("-")? (ALPHA / DIGIT))*
+    end
+    
+    rule item_value
+      (angle_addr)+ / addr_spec / atom / domain / msg_id
+    end
+
+    rule message_ids
+      first_msg_id:msg_id other_msg_ids:( CFWS msg_id_value:msg_id )*
+    end
+    
+    rule msg_id
+      (CFWS)? "<" msg_id_value ">" (CFWS)?
+    end
+    
+    rule msg_id_value
+      id_left "@" id_right
+    end
+    
+    rule id_left
+      message_id_text / no_fold_quote / obs_id_left
+    end
+    
+    rule id_right
+      msg_id_dot_atom_text / no_fold_literal / obs_id_right
+    end
+    
+    rule msg_id_dot_atom_text
+      (msg_id_domain_text "."?)+
+    end
+
+    rule msg_id_domain_text
+      (DQUOTE (FWS? quoted_domain)+ FWS? DQUOTE) / msg_id_atext+
+    end
+
+    rule msg_id_atext
+      ALPHA / DIGIT / # Any character except controls,
+      "!" / "#" /     #  SP, and specials.
+      "$" / "%" /     #  Used for atoms
+      "&" / "'" /
+      "*" / "+" /
+      "-" / "/" /
+      "=" / "?" /
+      "^" / "_" /
+      "`" / "{" /
+      "|" / "}" /
+      "~" / "@"
+    end
+
+    rule no_fold_quote
+      DQUOTE (qtext / quoted_pair)+ DQUOTE
+    end
+
+    rule no_fold_literal
+      "[" (dtext / quoted_pair)+ "]"
+    end
+    
+    
+  end
+end

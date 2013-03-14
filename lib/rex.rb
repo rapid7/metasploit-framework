@@ -74,8 +74,8 @@ require 'rex/io/stream_server'
 require 'rex/socket'
 
 # Protocols
-
 require 'rex/proto'
+require 'rex/mac_oui'
 
 # Parsers
 require 'rex/parser/arguments'
@@ -88,10 +88,14 @@ require 'rex/compat'
 # Platforms
 require 'rex/platforms'
 
+# SSLScan 
+require 'rex/sslscan/scanner'
+require 'rex/sslscan/result'
+
 
 # Overload the Kernel.sleep() function to be thread-safe
 Kernel.class_eval("
-	def sleep(seconds)
+	def sleep(seconds=nil)
 		Rex::ThreadSafe.sleep(seconds)
 	end
 ")

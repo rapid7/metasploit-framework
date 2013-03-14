@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Rex
 module MIME
 class Message
@@ -88,7 +89,9 @@ class Message
 			part.header.set("Content-Disposition", content_disposition)
 		end
 
-		part.header.set("Content-Type", content_type)
+		if (content_type)
+			part.header.set("Content-Type", content_type)
+		end
 
 		if (transfer_encoding)
 			part.header.set("Content-Transfer-Encoding", transfer_encoding)

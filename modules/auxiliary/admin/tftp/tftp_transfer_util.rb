@@ -1,8 +1,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -49,7 +49,6 @@ class Metasploit3 < Msf::Auxiliary
 			OptAddress.new('RHOST',    [true, "The remote TFTP server"]),
 			OptPort.new(   'LPORT',    [false, "The local port the TFTP client should listen on (default is random)" ]),
 			OptAddress.new('LHOST',    [false, "The local address the TFTP client should bind to"]),
-			OptBool.new(   'VERBOSE',  [false, "Display verbose details about the transfer", false]),
 			OptString.new( 'MODE',     [false, "The TFTP mode; usual choices are netascii and octet.", "octet"]),
 			Opt::RPORT(69)
 		], self.class)
@@ -134,6 +133,7 @@ class Metasploit3 < Msf::Auxiliary
 			"LocalFile"  => @local_file,
 			"RemoteFile" => @remote_file,
 			"Mode"       => mode,
+			"Context"    => {'Msf' => self.framework, 'MsfExploit' => self},
 			"Action"     => action.name.to_s.downcase.intern
 		)
 	end
@@ -223,4 +223,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

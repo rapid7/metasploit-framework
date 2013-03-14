@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Rex
 module Platforms
 module Windows
@@ -45,7 +46,7 @@ module Windows
 			HKEY_LOCAL_MACHINE
 		end
 	end
-	
+
 end
 end
 end

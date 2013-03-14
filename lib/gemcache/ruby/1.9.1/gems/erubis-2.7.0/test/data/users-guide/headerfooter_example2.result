@@ -1,0 +1,13 @@
+$ erubis -xE HeaderFooter headerfooter-example2.rhtml
+
+def page(list)
+
+_buf = ''; _buf << '<?xml version="1.0"?>
+<html>
+'; _buf << ' :
+'; _buf << '</html>
+';
+_buf.to_s
+
+end
+

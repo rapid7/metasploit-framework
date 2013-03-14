@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -21,12 +17,11 @@ class Metasploit3 < Msf::Encoder::Alphanum
 	def initialize
 		super(
 			'Name'             => "Alpha2 Alphanumeric Uppercase Encoder",
-			'Version'          => '$Revision$',
 			'Description'      => %q{
 				Encodes payloads as alphanumeric uppercase text.  This encoder uses
 				SkyLined's Alpha2 encoding suite.
 			},
-			'Author'           => [ 'pusscat' 'skylined' ],
+			'Author'           => [ 'pusscat', 'skylined' ],
 			'Arch'             => ARCH_X86,
 			'License'          => BSD_LICENSE,
 			'EncoderType'      => Msf::Encoder::Type::AlphanumUpper,
@@ -90,4 +85,3 @@ class Metasploit3 < Msf::Encoder::Alphanum
 		state.encoded += Rex::Encoder::Alpha2::AlphaUpper::add_terminator()
 	end
 end
-

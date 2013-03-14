@@ -1,24 +1,17 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'rex/proto/http'
 require 'msf/core'
 
-
-
-
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanUniqueQuery
+	include Msf::Auxiliary::WmapScanUniqueQuery
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 
@@ -31,14 +24,13 @@ class Metasploit3 < Msf::Auxiliary
 
 			},
 			'Author' 		=> [ 'et [at] cyberspace.org' ],
-			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision$'))
+			'License'		=> BSD_LICENSE))
 
 		register_options(
 			[
-				OptString.new('METHOD', [ true, "HTTP Method",'GET']),
+				OptEnum.new('METHOD', [true, 'HTTP Request Method', 'GET', ['GET', 'POST']]),
 				OptString.new('PATH', [ true,  "The path/file to test SQL injection", '/default.aspx']),
-				OptString.new('QUERY', [ false,  "HTTP URI Query", '']),
+				OptString.new('QUERY',[ false,  "HTTP URI Query", '']),
 				OptString.new('DATA', [ false,  "HTTP Body/Data Query", ''])
 			], self.class)
 
@@ -50,6 +42,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
+
+		http_method = datastore['METHOD'].upcase
 
 		qvars = nil
 
@@ -82,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 		# Dealing with empty query/data and making them hashes.
 		#
 
-		if  datastore['METHOD'] =='GET'
+		if  http_method =='GET'
 			if not datastore['QUERY'].empty?
 				qvars = queryparse(datastore['QUERY']) #Now its a Hash
 			else
@@ -102,20 +96,20 @@ class Metasploit3 < Msf::Auxiliary
 		#
 		#
 
-		if datastore['METHOD'] == 'POST'
+		if http_method == 'POST'
 			reqinfo = {
-				'uri'  		=> datastore['PATH'],
+				'uri'  		=> normalize_uri(datastore['PATH']),
 				'query' 	=> datastore['QUERY'],
 				'data' 		=> datastore['DATA'],
-				'method'   	=> datastore['METHOD'],
+				'method'   	=> http_method,
 				'ctype'		=> 'application/x-www-form-urlencoded',
 				'encode'	=> false
 			}
 		else
 			reqinfo = {
-				'uri'  		=> datastore['PATH'],
+				'uri'  		=> normalize_uri(datastore['PATH']),
 				'query' 	=> datastore['QUERY'],
-				'method'   	=> datastore['METHOD'],
+				'method'   	=> http_method,
 				'ctype'		=> 'application/x-www-form-urlencoded',
 				'encode'	=> false
 			}
@@ -152,13 +146,20 @@ class Metasploit3 < Msf::Auxiliary
 				print_error("[#{wmap_target_host}] Error string: '#{inje}'")
 				print_error("[#{wmap_target_host}] DB TYPE: #{dbt}, Error type '#{injt}'")
 
-				report_note(
+				report_web_vuln(
 					:host	=> ip,
-					:proto  => 'tcp',
-					:sname	=> 'HTTP',
 					:port	=> rport,
-					:type	=> 'DATABASE_ERROR',
-					:data	=> "#{datastore['PATH']} Error: #{inje} DB: #{dbt}"
+					:vhost  => vhost,
+					:ssl    => ssl,
+					:path	=> datastore['PATH'],
+					:method => datastore['METHOD'],
+					:pname  => "",
+					:proof  => "Error: #{inje}",
+					:risk   => 2,
+					:confidence   => 50,
+					:category     => 'Database error',
+					:description  => "Error string appears in the normal response #{inje} #{dbt}",
+					:name   => 'Database error'
 				)
 
 				return
@@ -182,7 +183,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 
 				qvars.each do |key,value|
-					if datastore['METHOD'] == 'POST'
+					if http_method == 'POST'
 						qvars = queryparse(datastore['DATA']) #Now its a Hash
 					else
 						qvars = queryparse(datastore['QUERY']) #Now its a Hash
@@ -198,20 +199,20 @@ class Metasploit3 < Msf::Auxiliary
 						fstr += var+"="+val+"&"
 					end
 
-					if datastore['METHOD'] == 'POST'
+					if http_method == 'POST'
 						reqinfo = {
-							'uri'  		=> datastore['PATH'],
+							'uri'  		=> normalize_uri(datastore['PATH']),
 							'query'		=> datastore['QUERY'],
 							'data' 		=> fstr,
-							'method'   	=> datastore['METHOD'],
+							'method'   	=> http_method,
 							'ctype'		=> 'application/x-www-form-urlencoded',
 							'encode'	=> false
 						}
 					else
 						reqinfo = {
-							'uri'  		=> datastore['PATH'],
+							'uri'  		=> normalize_uri(datastore['PATH']),
 							'query' 	=> fstr,
-							'method'   	=> datastore['METHOD'],
+							'method'   	=> http_method,
 							'ctype'		=> 'application/x-www-form-urlencoded',
 							'encode'	=> false
 						}
@@ -236,17 +237,24 @@ class Metasploit3 < Msf::Auxiliary
 						end
 
 						if found
-							print_status("[#{wmap_target_host}] SQL Injection found. (#{idesc}) (#{datastore['PATH']})")
-							print_status("[#{wmap_target_host}] Error string: '#{inje}' Test Value: #{qvars[key]}")
-							print_status("[#{wmap_target_host}] Vuln query parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
+							print_good("[#{wmap_target_host}] SQL Injection found. (#{idesc}) (#{datastore['PATH']})")
+							print_good("[#{wmap_target_host}] Error string: '#{inje}' Test Value: #{qvars[key]}")
+							print_good("[#{wmap_target_host}] Vuln query parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
 
-							report_note(
+							report_web_vuln(
 								:host	=> ip,
-								:proto  => 'tcp',
-								:sname	=> 'HTTP',
 								:port	=> rport,
-								:type	=> 'SQL_INJECTION',
-								:data	=> "#{datastore['PATH']} Location: QUERY Parameter: #{key} Value: #{istr} Error: #{inje} DB: #{dbt}"
+								:vhost  => vhost,
+								:ssl    => ssl,
+								:path	=> datastore['PATH'],
+								:method => datastore['METHOD'],
+								:pname  => key,
+								:proof  => istr,
+								:risk   => 2,
+								:confidence   => 50,
+								:category     => 'SQL injection',
+								:description  => "Error string appears in the normal response #{inje} #{dbt}",
+								:name   => 'SQL injection'
 							)
 
 							return
@@ -258,7 +266,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 
-			if datastore['METHOD'] == 'POST'
+			if http_method == 'POST'
 				qvars = queryparse(datastore['DATA']) #Now its a Hash
 			else
 				qvars = queryparse(datastore['QUERY']) #Now its a Hash

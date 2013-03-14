@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Rex
 
 ###
@@ -188,7 +189,7 @@ class JobContainer < Hash
 		end
 		list.each(&block)
 	end
-	
+
 protected
 
 	attr_accessor :job_id_pool # :nodoc:

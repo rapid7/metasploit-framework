@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 
 # :title: PacketFu Documentation
 # :main: README

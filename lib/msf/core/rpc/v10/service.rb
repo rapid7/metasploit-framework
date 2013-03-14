@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'msgpack'
 
 require 'rex'
@@ -198,6 +199,11 @@ class Service
 	def authenticate(token)
 		stale = []
 
+
+		if not (token and token.kind_of?(::String))
+			return false
+		end
+
 		# Force the encoding to ASCII-8BIT
 		token = token.unpack("C*").pack("C*")
 
@@ -213,7 +219,7 @@ class Service
 		if not self.tokens[token]
 
 			begin
-				if framework.db.active and Msf::DBManager::ApiKey.find_by_token(token)
+				if framework.db.active and ::Mdm::ApiKey.find_by_token(token)
 					return true
 				end
 			rescue ::Exception => e

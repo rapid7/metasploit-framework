@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex'
 require 'rex/ui/text/output/buffer'
 
@@ -10,17 +11,19 @@ class RPC_Session < RPC_Base
 		self.framework.sessions.each do |sess|
 			i,s = sess
 			res[s.sid] = {
-				'type'        => s.type.to_s,
-				'tunnel_local'=> s.tunnel_local.to_s,
-				'tunnel_peer' => s.tunnel_peer.to_s,
-				'via_exploit' => s.via_exploit.to_s,
-				'via_payload' => s.via_payload.to_s,
-				'desc'        => s.desc.to_s,
-				'info'        => s.info.to_s,
-				'workspace'   => s.workspace.to_s,
-				'target_host' => s.target_host.to_s,
-				'username'    => s.username.to_s,
-				'uuid'        => s.uuid.to_s,
+				'type'         => s.type.to_s,
+				'tunnel_local' => s.tunnel_local.to_s,
+				'tunnel_peer'  => s.tunnel_peer.to_s,
+				'via_exploit'  => s.via_exploit.to_s,
+				'via_payload'  => s.via_payload.to_s,
+				'desc'         => s.desc.to_s,
+				'info'         => s.info.to_s,
+				'workspace'    => s.workspace.to_s,
+				'session_host' => s.session_host.to_s,
+				'session_port' => s.session_port.to_i,
+				'target_host'  => s.target_host.to_s,
+				'username'     => s.username.to_s,
+				'uuid'         => s.uuid.to_s,
 				'exploit_uuid' => s.exploit_uuid.to_s,
 				'routes'       => s.routes.join(",")
 			}

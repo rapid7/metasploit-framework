@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -20,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Finger Service User Enumerator',
-			'Version'     => '$Revision$',
 			'Description' => 'Identify valid users through the finger service using a variety of tricks',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE
@@ -137,7 +132,7 @@ class Metasploit3 < Msf::Auxiliary
 	def finger_slurp_data
 		buff = ""
 		begin
-			while(res = sock.get_once(-1, 5))
+			while(res = sock.get_once(-1, 5) || '')
 				buff << res
 				break if buff.length > (1024*1024)
 			end

@@ -3,6 +3,22 @@ require 'ostruct'
 require 'webrick/cookie'
 
 module Anemone
+
+  # Path extractor container namespace.
+  module Extractors
+    class Base
+      attr_reader :page
+
+      def initialize( page )
+        @page = page
+      end
+
+      def doc
+        page.doc
+      end
+    end
+  end
+
   class Page
 
     # The URL of the page
@@ -31,7 +47,7 @@ module Anemone
     attr_accessor :response_time
     # Storage for the original HTTP request that generated this response
     attr_accessor :request
-    
+
     #
     # Create a new page
     #
@@ -53,51 +69,52 @@ module Anemone
       @fetched = !params[:code].nil?
     end
 
+    def self.extractors
+      return @extractors if @extractors
+
+      lib = File.dirname( __FILE__ ) + '/extractors/*.rb'
+      Dir.glob( lib ).each { |e| require e }
+
+      @extractors = Extractors.constants.map do |e|
+          next if e == :Base
+          Extractors.const_get( e )
+      end.compact
+    end
+
+    def run_extractors
+      return [] if !doc
+      self.class.extractors.map { |e| e.new( self ).run rescue next }.flatten.
+          compact.map do |p|
+              abs = to_absolute( URI( p ) ) rescue next
+              !in_domain?( abs ) ? nil : abs
+          end.compact.uniq
+    end
+
     #
     # Array of distinct A tag HREFs from the page
     #
- 	# MODIFIED: Dig URLs from elements other than "A" refs
- 	#
+     # MODIFIED: Dig URLs from elements other than "A" refs
+     #
     def links
-      return @links unless @links.nil?
+      return @links if @links
       @links = []
       return @links if !doc
-  
-      # First extract normal, direct links		
-      etypes = %W{a frame iframe}
-      doc.css(*etypes).each do |r|
-        u = r['src'] || r['href']
-        next if u.nil? or u.empty?
-        abs = to_absolute(URI(u)) rescue next
-        @links << abs if in_domain?(abs)
-      end
 
-      # Now create links from other content URLs
-      etypes = %W{img script link form}
-      doc.css(*etypes).each do |r|    
-        u = r['src'] || r['href'] || r['action']
-        next if u.nil? or u.empty?
-        
-        # Remove any query string
-        u,tmp = u.split('?',2)
-        
-        # Back off to the containing directory
-        u.gsub!(/(.*\/)[^\/]+$/, "\\1")
-        
-        abs = to_absolute(URI(u)) rescue next
-        @links << abs if in_domain?(abs)
-      end
-    
-      nlinks = []
-      @links.each do |u|
-      	bits = u.path.split('/')
-      	while(bits.length > 0)
+      @links = run_extractors
+
+      @links |= @links.map do |u|
+        # back-off to the parent dir
+          to_absolute( URI( u.path.gsub( /(.*\/)[^\/]+$/, "\\1" ) ) ) rescue next
+      end.uniq.compact
+
+      @links |= @links.map do |u|
+          bits = u.path.split( '/' )
+          while bits.length > 0
           bits.pop
-          nlinks << to_absolute(URI(bits.join('/'))) rescue next
-      	end
-      end
-      
-      @links.push(nlinks)
+          to_absolute( URI( bits.join( '/' ) ) ) rescue next
+          end
+      end.uniq.compact
+
       @links.flatten!
       @links.uniq!
       @links
@@ -206,7 +223,7 @@ module Anemone
        'headers' => Marshal.dump(@headers),
        'data' => Marshal.dump(@data),
        'body' => @body,
-       'links' => links.map(&:to_s), 
+       'links' => links.map(&:to_s),
        'code' => @code,
        'visited' => @visited,
        'depth' => @depth,
@@ -234,5 +251,10 @@ module Anemone
       end
       page
     end
+
+    def dup
+	  Marshal.load( Marshal.dump( self ) )
+    end
+
   end
 end

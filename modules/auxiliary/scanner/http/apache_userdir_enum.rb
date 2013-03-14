@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -23,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Apache "mod_userdir" User Enumeration',
-			'Version'        => '$Revision$',
 			'Description'    => %q{Apache with the UserDir directive enabled generates different error
 			codes when a username exists and there is no public_html directory and when the username
 			does not exist, which could allow remote attackers to determine valid usernames on the
@@ -44,7 +39,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				Opt::RPORT(80),
 				OptString.new('URI', [true, 'The path to users Home Page', '/']),
 				OptPath.new('USER_FILE',  [ true, "File containing users, one per line",
 					File.join(Msf::Config.install_root, "data", "wordlists", "unix_users.txt") ]),
@@ -61,7 +55,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def target_url
-		"http://#{vhost}:#{rport}#{datastore['URI']}"
+		uri = normalize_uri(datastore['URI'])
+		"http://#{vhost}:#{rport}#{uri}"
 	end
 
 	def run_host(ip)
@@ -79,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
 				:host => rhost,
 				:port => rport,
 				:proto => 'tcp',
-				:sname  => 'HTTP',
+				:sname => (ssl ? 'https' : 'http'),
 				:type => 'users',
 				:data => {:users =>  @users_found.keys.join(", ")}
 			)
@@ -89,7 +84,8 @@ class Metasploit3 < Msf::Auxiliary
 	def do_login(user)
 
 		vprint_status("#{target_url}~#{user} - Trying UserDir: '#{user}'")
-		payload = "#{datastore['URI']}~#{user}/"
+		uri = normalize_uri(datastore['URI'])
+		payload = "#{uri}~#{user}/"
 		begin
 			res = send_request_cgi(
 				{

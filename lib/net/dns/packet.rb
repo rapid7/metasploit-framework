@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'logger'
 require 'net/dns/names/names'
 require 'net/dns/dns'

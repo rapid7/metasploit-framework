@@ -8,8 +8,16 @@
 # $Revision$
 #
 
-$:.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
+msfbase = __FILE__
+while File.symlink?(msfbase)
+	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+end
 
+$:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', 'lib')))
+require 'fastlib'
+require 'msfenv'
+
+$:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 require 'rex'
 
 OutStatus = "[*] "

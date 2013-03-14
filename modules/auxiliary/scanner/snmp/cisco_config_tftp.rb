@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -21,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Cisco IOS SNMP Configuration Grabber (TFTP)',
-			'Version'        => '$Revision$',
 			'Description' => %q{
 					This module will download the startup or running configuration
 				from a Cisco IOS device using SNMP and TFTP. A read-write SNMP
@@ -32,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'      =>
 				[
-					'pello <fropert@packetfault.org>', 'hdm'
+					'pello <fropert[at]packetfault.org>', 'hdm'
 				],
 			'License'     => MSF_LICENSE
 		)
@@ -153,16 +148,15 @@ class Metasploit3 < Msf::Auxiliary
 			varbind = SNMP::VarBind.new("#{cccopyentryrowstatus}#{session}", SNMP::Integer.new(6))
 			value = snmp.set(varbind)
 
-			disconnect_snmp
-
 		# No need to make noise about timeouts
-		rescue ::SNMP::RequestTimeout, ::Rex::ConnectionRefused
+		rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::UnsupportedVersion
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
 			print_error("#{ip} Error: #{e.class} #{e} #{e.backtrace}")
+		ensure
+			disconnect_snmp
 		end
 	end
 
 end
-

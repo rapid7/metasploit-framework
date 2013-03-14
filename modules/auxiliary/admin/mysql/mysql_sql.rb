@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -25,14 +21,22 @@ class Metasploit3 < Msf::Auxiliary
 					against a MySQL instance given the appropriate credentials.
 			},
 			'Author'		=> [ 'Bernardo Damele A. G. <bernardo.damele[at]gmail.com>' ],
-			'License'		=> MSF_LICENSE,
-			'Version'		=> '$Revision$'
+			'License'		=> MSF_LICENSE
 		))
 
 		register_options(
 			[
 				OptString.new('SQL', [ true, 'The SQL to execute.',  'select version()'])
 			], self.class)
+	end
+
+	def auxiliary_commands
+		{ "select" => "Run a select query (a LIMIT clause is probably a really good idea)" }
+	end
+
+	def cmd_select(*args)
+		datastore["SQL"] = "select #{args.join(" ")}"
+		run
 	end
 
 	def run
@@ -45,4 +49,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

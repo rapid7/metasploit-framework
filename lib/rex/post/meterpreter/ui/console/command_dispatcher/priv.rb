@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/post/meterpreter'
 
 module Rex
@@ -18,7 +19,7 @@ class Console::CommandDispatcher::Priv
 
 	Klass = Console::CommandDispatcher::Priv
 
-	Dispatchers = 
+	Dispatchers =
 		[
 			Klass::Elevate,
 			Klass::Passwd,

@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -15,7 +11,11 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 
-	include ::Msf::Post::Windows::WindowsServices
+	require 'msf/core/module/deprecated'
+	include Msf::Module::Deprecated
+	deprecated Date.new(2013,1,10), "exploit/windows/local/service_permissions"
+
+	include ::Msf::Post::Windows::Services
 	def initialize(info={})
 		super( update_info( info,
 			'Name'          => 'Windows Escalate Service Permissions Local Privilege Escalation',
@@ -31,8 +31,7 @@ class Metasploit3 < Msf::Post
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'scriptjunkie' ],
-			'Version'       => '$Revision$',
-			'Platform'      => [ 'windows' ],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 
@@ -110,11 +109,6 @@ class Metasploit3 < Msf::Post
 		end
 
 		#attempt to make new service
-		client.railgun.kernel32.LoadLibraryA("advapi32.dll")
-		client.railgun.get_dll('advapi32')
-		client.railgun.add_function( 'advapi32', 'DeleteService','BOOL',[
-			[ "DWORD", "hService", "in" ]
-		])
 
 		#SERVICE_NO_CHANGE 0xffffffff for DWORDS or NULL for pointer values leaves the current config
 

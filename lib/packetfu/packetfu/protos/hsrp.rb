@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module PacketFu
 
 	# HSRPHeader is a complete HSRP struct, used in HSRPPacket. HSRP is typically used for

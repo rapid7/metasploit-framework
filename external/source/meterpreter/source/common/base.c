@@ -116,7 +116,7 @@ Command commands[] =
 };
 
 // Dynamically registered command extensions
-Command *extensionList = NULL;
+Command *extension_commands = NULL;
 
 /*
  * Dynamically register a custom command handler
@@ -125,7 +125,7 @@ DWORD command_register(Command *command)
 {
 	Command *newCommand;
 
-	dprintf("Registering a new command...");
+	dprintf("Registering a new command (%s)...", command->method);
 	if (!(newCommand = (Command *)malloc(sizeof(Command))))
 		return ERROR_NOT_ENOUGH_MEMORY;
 
@@ -133,13 +133,13 @@ DWORD command_register(Command *command)
 	memcpy(newCommand, command, sizeof(Command));
 
 	dprintf("Setting new command...");
-	if (extensionList)
-		extensionList->prev = newCommand;
+	if (extension_commands)
+		extension_commands->prev = newCommand;
 
 	dprintf("Fixing next/prev...");
-	newCommand->next    = extensionList;
+	newCommand->next    = extension_commands;
 	newCommand->prev    = NULL;
-	extensionList       = newCommand;
+	extension_commands       = newCommand;
 
 	dprintf("Done...");
 	return ERROR_SUCCESS;
@@ -154,7 +154,7 @@ DWORD command_deregister(Command *command)
 	DWORD res = ERROR_NOT_FOUND;
 	
 	// Search the extension list for the command
-	for (current = extensionList, prev = NULL;
+	for (current = extension_commands, prev = NULL;
 	     current;
 	     prev = current, current = current->next)
 	{
@@ -164,7 +164,7 @@ DWORD command_deregister(Command *command)
 		if (prev)
 			prev->next = current->next;
 		else
-			extensionList = current->next;
+			extension_commands = current->next;
 
 		if (current->next)
 			current->next->prev = prev;
@@ -212,6 +212,23 @@ VOID command_throtle( int maxthreads )
 }
 */
 
+#ifndef _WIN32
+/*
+ * Reap child zombie threads on linux 2.4 (before NPTL)
+ * each thread appears as a process and pthread_join don't necessarily reap it
+ * threads are created using the clone syscall, so use special __WCLONE flag in waitpid
+ */
+
+VOID reap_zombie_thread(void * param)
+{
+	while(1) {
+		waitpid(-1, NULL, __WCLONE);
+		// on 2.6 kernels, don't chew 100% CPU
+		usleep(500000);
+	}
+}
+#endif
+
 /*
  * Process a single command in a seperate thread of execution.
  */
@@ -243,6 +260,11 @@ DWORD THREADCALL command_process_thread( THREAD * thread )
 		commandThreadList = list_create();
 		if( commandThreadList == NULL )
 			return ERROR_INVALID_HANDLE;
+#ifndef _WIN32
+		pthread_t tid;
+		pthread_create(&tid, NULL, reap_zombie_thread, NULL);
+		dprintf("reap_zombie_thread created, thread_id : 0x%x",tid);
+#endif
 	}
 
 	list_add( commandThreadList, thread );
@@ -288,7 +310,7 @@ DWORD THREADCALL command_process_thread( THREAD * thread )
 			}
 
 			// Regardless of error code, try to see if someone has overriden a base handler
-			for( current = extensionList, result = ERROR_NOT_FOUND ; 
+			for( current = extension_commands, result = ERROR_NOT_FOUND ; 
 				  result == ERROR_NOT_FOUND && current && current->method ; current = current->next )
 			{
 				if( strcmp( current->method, method ) )
@@ -373,7 +395,7 @@ DWORD command_process_remote(Remote *remote, Packet *inPacket)
 
 		// Regardless of error code, try to see if someone has overriden
 		// a base handler
-		for (current = extensionList, res = ERROR_NOT_FOUND; 
+		for (current = extension_commands, res = ERROR_NOT_FOUND; 
 			  res == ERROR_NOT_FOUND && current && current->method; 
 			  current = current->next)
 		{

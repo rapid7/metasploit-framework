@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -38,7 +34,6 @@ class Metasploit3 < Msf::Auxiliary
 					'Cedric Blancher <sid[at]rstack.org>'
 				],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2008-1447' ],
@@ -144,7 +139,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if(reps < 30)
-			print_status("WARNING: This server did not reply to all of our requests")
+			print_warning("WARNING: This server did not reply to all of our requests")
 		end
 
 		if(random)

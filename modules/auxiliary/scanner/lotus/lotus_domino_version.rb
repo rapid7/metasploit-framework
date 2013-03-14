@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -20,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Lotus Domino Version',
-			'Version'     => '$Revision$',
 			'Description' => 'Several checks to determine Lotus Domino Server Version.',
 			'Author'       => ['CG'],
 			'License'     => MSF_LICENSE
@@ -33,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 
-		path = datastore['PATH']
+		path = normalize_uri(datastore['PATH'])
 		check1 = [
 			'iNotes/Forms5.nsf',
 			'iNotes/Forms6.nsf',
@@ -71,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 						report_note(
 							:host	=> ip,
 							:proto => 'tcp',
-							:sname => 'HTTP',
+							:sname => (ssl ? "https" : "http"),
 							:port	=> rport,
 							:type => 'lotusdomino.version.current',
 							:data => server1.strip
@@ -120,7 +115,7 @@ class Metasploit3 < Msf::Auxiliary
 						report_note(
 							:host	=> ip,
 							:proto => 'tcp',
-							:sname => 'HTTP',
+							:sname => (ssl ? "https" : "http"),
 							:port	=> rport,
 							:type => 'lotusdomino.version.releasenotes',
 							:data => server2.strip
@@ -155,7 +150,7 @@ class Metasploit3 < Msf::Auxiliary
 						report_note(
 							:host	=> ip,
 							:proto => 'tcp',
-							:sname => 'HTTP',
+							:sname => (ssl ? "https" : "http"),
 							:port	=> rport,
 							:type => 'lotusdomino.version.base',
 							:data => server3.strip

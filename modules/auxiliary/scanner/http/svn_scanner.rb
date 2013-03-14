@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -15,7 +11,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
@@ -23,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP Subversion Scanner',
-			'Version'     => '$Revision$',
 			'Description' => 'Detect subversion directories and files and analize its content. Only SVN Version > 7 supported',
 			'Author'       => ['et'],
 			'License'     => MSF_LICENSE
@@ -54,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 		ecode = nil
 		emesg = nil
 
-		tpath = datastore['PATH']
+		tpath = normalize_uri(datastore['PATH'])
 		if tpath[-1,1] != '/'
 			tpath += '/'
 		end
@@ -124,13 +119,20 @@ class Metasploit3 < Msf::Auxiliary
 			else
 				print_status("[#{target_host}] SVN Entries file found.")
 
-				report_note(
+				report_web_vuln(
 					:host	=> target_host,
-					:proto => 'tcp',
-					:sname	=> 'HTTP',
 					:port	=> rport,
-					:type	=> 'SVN_ENTRIES',
-					:data	=> "#{turl}"
+					:vhost  => vhost,
+					:ssl    => ssl,
+					:path	=> turl,
+					:method => 'GET',
+					:pname  => "",
+					:proof  => "Res code: #{res.code.to_s}",
+					:risk   => 0,
+					:confidence   => 100,
+					:category     => 'file',
+					:description  => 'SVN Entry found.',
+					:name   => 'file'
 				)
 
 				vers = res.body[0..1].chomp.to_i
@@ -166,10 +168,11 @@ class Metasploit3 < Msf::Auxiliary
 						report_note(
 							:host	=> target_host,
 							:proto => 'tcp',
-							:sname	=> 'HTTP',
+							:sname => (ssl ? 'https' : 'http'),
 							:port	=> rport,
 							:type	=> 'USERNAME',
-							:data	=> "#{slastauthor}"
+							:data	=> slastauthor,
+							:update => :unique_data
 						)
 
 					end
@@ -179,10 +182,11 @@ class Metasploit3 < Msf::Auxiliary
 							report_note(
 								:host	=> target_host,
 								:proto => 'tcp',
-								:sname	=> 'HTTP',
+								:sname => (ssl ? 'https' : 'http'),
 								:port	=> rport,
 								:type	=> 'DIRECTORY',
-								:data	=> "#{sname}"
+								:data	=> sname,
+								:update => :unique_data
 							)
 						end
 
@@ -190,10 +194,11 @@ class Metasploit3 < Msf::Auxiliary
 							report_note(
 								:host	=> target_host,
 								:proto => 'tcp',
-								:sname	=> 'HTTP',
+								:sname => (ssl ? 'https' : 'http'),
 								:port	=> rport,
 								:type	=> 'FILE',
-								:data	=> "#{sname}"
+								:data	=> sname,
+								:update => :unique_data
 							)
 
 							if datastore['GET_SOURCE']
@@ -211,16 +216,17 @@ class Metasploit3 < Msf::Auxiliary
 
 									if srcres and srcres.body.length > 0
 										if datastore['SHOW_SOURCE']
-											print_status("#{srcres.body}")
+											print_status(srcres.body)
 										end
 
 										report_note(
 											:host	=> target_host,
 											:proto => 'tcp',
-											:sname	=> 'HTTP',
+											:sname => (ssl ? 'https' : 'http'),
 											:port	=> rport,
 											:type	=> 'SOURCE_CODE',
-											:data	=> "#{sname} Code: #{srcres.body}"
+											:data	=> "#{sname} Code: #{srcres.body}",
+											:update => :unique_data
 										)
 									end
 								rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
@@ -239,4 +245,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

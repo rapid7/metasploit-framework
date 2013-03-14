@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 #
 # This is a helper to a easy way to specify support platforms.  It will take a

@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -27,8 +23,7 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'          => 'Windows Meterpreter (skape/jt injection)',
-			'Version'       => '$Revision$',
+			'Name'          => 'Windows Meterpreter (skape/jt Injection)',
 			'Description'   => 'Inject the meterpreter server DLL (staged)',
 			'Author'        => 'skape',
 			'License'       => MSF_LICENSE,

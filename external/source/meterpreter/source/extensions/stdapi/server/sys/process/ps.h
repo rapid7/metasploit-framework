@@ -2,6 +2,9 @@
 #ifndef _METERPRETER_SOURCE_EXTENSION_STDAPI_STDAPI_SERVER_PROCESS_PS_H
 #define _METERPRETER_SOURCE_EXTENSION_STDAPI_STDAPI_SERVER_PROCESS_PS_H
 //===============================================================================================//
+
+VOID ps_addresult( Packet * response, DWORD dwPid, DWORD dwParentPid, char * cpExeName, char * cpExePath, char * cpUserName, DWORD dwProcessArch );
+
 #ifdef _WIN32
 
 
@@ -77,7 +80,11 @@ DWORD ps_list_via_psapi( Packet * response );
 
 DWORD ps_list_via_brute( Packet * response );
 
+
+
 //===============================================================================================//
+#else // linux
+DWORD ps_list_linux( Packet * response );
 #endif // _WIN32
 #endif
 //===============================================================================================//

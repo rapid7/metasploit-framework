@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/proto/drda'
 
 module Rex
@@ -43,7 +44,7 @@ class Utils
 				info_hash.merge!(_info_secchkrm(ddm))
 			else
 				next
-			end 
+			end
 		end
 		return info_hash
 	end
@@ -62,7 +63,7 @@ class Utils
 				next
 			end
 		end
-	 return info_hash	
+		return info_hash
 	end
 
 	def self._info_accsecrd(ddm)
@@ -74,7 +75,7 @@ class Utils
 			when Constants::SECCHKCD
 				info_hash[:security_check_code] = param.payload.unpack("C").first
 				# A little spurious? This is always nonzero when there's no SECCHKRM DDM.
-				info_hash[:db_login_success] = false unless info_hash[:security_check_code].zero? 
+				info_hash[:db_login_success] = false unless info_hash[:security_check_code].zero?
 			else
 				next
 			end

@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -28,9 +24,8 @@ class Metasploit3 < Msf::Auxiliary
 				listed in the references section. To transfer an entire directory, specify a
 				path that includes a trailing backslash.
 			},
-			'Author'         => [ 'hdm', 'anonymous' ],
+			'Author'         => [ 'hdm', 'Unknown' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					['CVE', '2005-2611'],
@@ -282,4 +277,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

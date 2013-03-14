@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -17,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
@@ -25,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP Robots.txt Content Scanner',
-			'Version'     => '$Revision$',
 			'Description' => 'Detect robots.txt files and analize its content',
 			'Author'       => ['et'],
 			'License'     => MSF_LICENSE
@@ -41,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(target_host)
 
-		tpath = datastore['PATH']
+		tpath = normalize_uri(datastore['PATH'])
 		if tpath[-1,1] != '/'
 			tpath += '/'
 		end
@@ -82,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 					:proto => 'tcp',
 					:sname	=> (ssl ? 'https' : 'http'),
 					:type	=> 'ROBOTS_TXT',
-					:data	=> "#{u}",
+					:data	=> u,
 					:update => :unique_data
 				)
 			end
@@ -92,4 +87,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Rex
 module Ui
 
@@ -209,25 +210,25 @@ protected
 	# Interacts between a local stream and a remote ring buffer. This has to use
 	# a secondary thread to prevent the select on the local stream from blocking
 	#
-	def interact_ring(ring)	
+	def interact_ring(ring)
 		begin
-		
+
 		rdr = Rex::ThreadFactory.spawn("RingMonitor", false) do
 			seq = nil
 			while self.interacting
 
 				# Look for any pending data from the remote ring
 				nseq,data = ring.read_data(seq)
-			
+
 				# Update the sequence number if necessary
 				seq = nseq || seq
-			
+
 				# Write output to the local stream if successful
 				user_output.print(data) if data
-				
+
 				# Wait for new data to arrive on this session
 				ring.wait(seq)
-			end	
+			end
 		end
 
 		while self.interacting
@@ -235,18 +236,18 @@ protected
 			# Look for any pending input from the local stream
 			sd = Rex::ThreadSafe.select([ _local_fd ], nil, [_local_fd], 5.0)
 
-			# Write input to the ring's input mechanism			
+			# Write input to the ring's input mechanism
 			if sd
 				data = user_input.gets
 				ring.put(data)
 			end
 		end
-		
+
 		ensure
 			rdr.kill
 		end
 	end
-	
+
 
 	#
 	# Installs a signal handler to monitor suspend signal notifications.

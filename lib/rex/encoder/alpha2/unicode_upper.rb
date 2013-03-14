@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 require 'rex/encoder/alpha2/generic'
 
@@ -8,7 +9,7 @@ module Alpha2
 
 class UnicodeUpper < Generic
 	def self.default_accepted_chars ; ('B' .. 'Z').to_a + ('0' .. '9').to_a ; end
-	
+
 	def self.gen_second(block, base)
 		# unicode uses additive encoding
 		(block - base)
@@ -39,7 +40,7 @@ class UnicodeUpper < Generic
 			'ESI'   => 'VVYA' + mod,        # push esi, pop ecx
 			'EDI'   => 'WWYA' + mod,        # push edi, pop edi
 			'[ESP]' => 'YA' + mod + '44',   #
-			'[ESP+4]' => 'YUYA' + mod,      # 
+			'[ESP+4]' => 'YUYA' + mod,      #
 		}
 
 		return regprefix[reg]

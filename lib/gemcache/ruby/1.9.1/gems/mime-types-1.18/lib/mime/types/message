@@ -1,0 +1,19 @@
+message/CPIM 'IANA,RFC3862
+message/delivery-status 'IANA,RFC1894
+message/disposition-notification 'IANA,RFC3798
+message/example 'IANA,RFC4735
+message/external-body :8bit 'IANA,RFC2045,RFC2046
+message/feedback-report 'IANA,RFC5965
+message/global 'IANA,RFC5335
+message/global-delivery-status 'IANA,RFC5337
+message/global-disposition-notification 'IANA,RFC5337
+message/global-headers 'IANA,RFC5337
+message/http 'IANA,RFC2616
+message/imdn+xml 'IANA,RFC5438
+message/partial :8bit 'IANA,RFC2045,RFC2046
+message/rfc822 @eml :8bit 'IANA,RFC2045,RFC2046
+message/s-http 'IANA,RFC2660
+message/sip 'IANA,RFC3261
+message/sipfrag 'IANA,RFC3420
+message/tracking-status 'IANA,RFC3886
+message/vnd.si.simp 'IANA,[Parks Young=ParksYoung]

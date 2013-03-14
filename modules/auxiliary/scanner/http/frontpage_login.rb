@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -17,15 +13,14 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Exploit::Remote::Tcp
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 
 
 	def initialize
 		super(
-			'Name'        => 'FrontPage Server Extensions Login Utility',
-			'Version'     => '$Revision$',
+			'Name'        => 'FrontPage Server Extensions Anonymous Login Scanner',
 			'Description' => 'This module queries the FrontPage Server Extensions and determines whether anonymous access is allowed.',
 			'References'  =>
 				[
@@ -47,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 		if datastore['RPORT'].to_i == 80 or datastore['RPORT'].to_i == 443
 			port = ""
 		else
-			port = ":" + datastore['RPORT']
+			port = ":" + datastore['RPORT'].to_s
 		end
 
 		info = (datastore['SSL'] ? "https" : "http") + "://#{target_host}#{port}/"
@@ -58,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 				"Connection: Keep-Alive, TE\r\n" + "Host: #{target_host}\r\n" + "User-Agent: " +
 				datastore['UserAgent'] + "\r\n\r\n")
 
-		res = sock.get_once
+		res = sock.get_once || ''
 
 		disconnect
 
@@ -70,19 +65,20 @@ class Metasploit3 < Msf::Auxiliary
 			if (fpversion = res.match(/FPVersion="(.*)"/))
 				fpversion = $1
 				print_status("#{info} FrontPage Version: #{fpversion}")
-				report_service(:host => target_host, :port => port, :name => "http", :info => "#{server_version} FrontPage Version: #{fpversion}")
+
 				if (fpauthor = res.match(/FPAuthorScriptUrl="([^"]*)/))
 					fpauthor = $1
 					print_status("#{info} FrontPage Author: #{info}#{fpauthor}")
 					# Add Report
-					report_note(
-						:host	=> target_host,
+					opts = {
+						:host  => target_host,
 						:proto => 'tcp',
-						:sname	=> 'HTTP',
-						:port	=> port,
-						:type	=> 'FrontPage Author',
-						:data	=> "#{info}#{fpauthor}"
-					)
+						:sname => (ssl ? 'https' : 'http'),
+						:type  => 'FrontPage Author',
+						:data  => "#{info}#{fpauthor}"
+					}
+					opts[:port] = datastore['RPORT'] if not port.empty?
+					report_note(opts)
 				end
 				check_account(info, fpversion, target_host)
 			end
@@ -132,8 +128,8 @@ class Metasploit3 < Msf::Auxiliary
 							:host   => target_host,
 							:port	=> rport,
 							:proto	=> 'tcp',
-							:name	=> self.fullname,
-							:info   => "#{info} FrontPage ACCESS ALLOWED [#{retcode}]",
+							:name	=> self.name,
+							:info   => "Module #{self.fullname} confirmed access to #{info} [#{retcode}]",
 							:refs   => self.references,
 							:exploited_at => Time.now.utc
 						}

@@ -59,14 +59,18 @@ public class NotYetImplementedCommand implements Command {
 		typeNames.put(new Integer(TLVType.TLV_TYPE_STAT_BUF), "TLV_TYPE_STAT_BUF");
 		typeNames.put(new Integer(TLVType.TLV_TYPE_HOST_NAME), "TLV_TYPE_HOST_NAME");
 		typeNames.put(new Integer(TLVType.TLV_TYPE_PORT), "TLV_TYPE_PORT");
+		typeNames.put(new Integer(TLVType.TLV_TYPE_MTU), "TLV_TYPE_MTU");
+		typeNames.put(new Integer(TLVType.TLV_TYPE_INTERFACE_INDEX), "TLV_TYPE_INTERFACE_INDEX");
 		typeNames.put(new Integer(TLVType.TLV_TYPE_SUBNET), "TLV_TYPE_SUBNET");
 		typeNames.put(new Integer(TLVType.TLV_TYPE_NETMASK), "TLV_TYPE_NETMASK");
 		typeNames.put(new Integer(TLVType.TLV_TYPE_GATEWAY), "TLV_TYPE_GATEWAY");
 		typeNames.put(new Integer(TLVType.TLV_TYPE_NETWORK_ROUTE), "TLV_TYPE_NETWORK_ROUTE");
+		typeNames.put(new Integer(TLVType.TLV_TYPE_IP_PREFIX), "TLV_TYPE_IP_PREFIX");
 		typeNames.put(new Integer(TLVType.TLV_TYPE_IP), "TLV_TYPE_IP");
 		typeNames.put(new Integer(TLVType.TLV_TYPE_MAC_ADDRESS), "TLV_TYPE_MAC_ADDRESS");
 		typeNames.put(new Integer(TLVType.TLV_TYPE_MAC_NAME), "TLV_TYPE_MAC_NAME");
 		typeNames.put(new Integer(TLVType.TLV_TYPE_NETWORK_INTERFACE), "TLV_TYPE_NETWORK_INTERFACE");
+		typeNames.put(new Integer(TLVType.TLV_TYPE_IP6_SCOPE), "TLV_TYPE_IP6_SCOPE");
 		typeNames.put(new Integer(TLVType.TLV_TYPE_SUBNET_STRING), "TLV_TYPE_SUBNET_STRING");
 		typeNames.put(new Integer(TLVType.TLV_TYPE_NETMASK_STRING), "TLV_TYPE_NETMASK_STRING");
 		typeNames.put(new Integer(TLVType.TLV_TYPE_GATEWAY_STRING), "TLV_TYPE_GATEWAY_STRING");

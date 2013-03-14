@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 #
 # An NTLM Authentication Library for Ruby
 #
@@ -6,7 +7,7 @@
 # http://jp.rubyist.net/magazine/?0013-CodeReview
 # -------------------------------------------------------------
 # Copyright (c) 2005,2006 yrock
-# 
+#
 # This program is free software.
 # You can distribute/modify this program under the terms of the
 # Ruby License.
@@ -18,8 +19,8 @@
 # -------------------------------------------------------------
 #
 # All protocol information used to write this code stems from
-# "The NTLM Authentication Protocol" by Eric Glass. The author 
-# would thank to him for this tremendous work and making it 
+# "The NTLM Authentication Protocol" by Eric Glass. The author
+# would thank to him for this tremendous work and making it
 # available on the net.
 # http://davenport.sourceforge.net/ntlm.html
 # -------------------------------------------------------------
@@ -28,7 +29,7 @@
 # Permission to use, copy, modify, and distribute this document
 # for any purpose and without any fee is hereby granted,
 # provided that the above copyright notice and this list of
-# conditions appear in all copies. 
+# conditions appear in all copies.
 # -------------------------------------------------------------
 #
 # The author also looked Mozilla-Firefox-1.0.7 source code,
@@ -37,7 +38,7 @@
 # "http://x2a.org/websvn/filedetails.php?
 # repname=libntlm-ruby&path=%2Ftrunk%2Fntlm.rb&sc=1"
 # The latter has a minor bug in its separate_keys function.
-# The third key has to begin from the 14th character of the 
+# The third key has to begin from the 14th character of the
 # input string instead of 13th:)
 #--
 # $Id: ntlm.rb 11678 2011-01-30 19:26:35Z hdm $
@@ -212,13 +213,13 @@ CRYPT = Rex::Proto::NTLM::Crypt
 			if usr.nil? or pwd.nil?
 				raise ArgumentError, "user and password have to be supplied"
 			end
-  
+
 			if opt[:workstation]
 				ws = opt[:workstation]
 			else
 				ws = ""
 			end
-  
+
 			if opt[:client_challenge]
 				cc  = opt[:client_challenge]
 			else
@@ -245,9 +246,9 @@ CRYPT = Rex::Proto::NTLM::Crypt
 			ti = self.target_info
 
 			chal = self[:challenge].serialize
-  
+
 			if opt[:ntlmv2]
-				ar = {	:ntlmv2_hash => CRYPT::ntlmv2_hash(usr, pwd, tgt, opt), 
+				ar = {	:ntlmv2_hash => CRYPT::ntlmv2_hash(usr, pwd, tgt, opt),
 					:challenge => chal, :target_info => ti}
 				lm_res = CRYPT::lmv2_response(ar, opt)
 				ntlm_res = CRYPT::ntlmv2_response(ar, opt)
@@ -258,7 +259,7 @@ CRYPT = Rex::Proto::NTLM::Crypt
 				lm_res = CRYPT::lm_response(pwd, chal)
 				ntlm_res = CRYPT::ntlm_response(pwd, chal)
 			end
-  
+
 			Type3.create({
 				:lm_response => lm_res,
 				:ntlm_response => ntlm_res,
@@ -270,7 +271,7 @@ CRYPT = Rex::Proto::NTLM::Crypt
 		end
 	end
 
-    
+
 	Type3 = Message.define{
 		string          :sign,          {:size => 8, :value => CONST::SSP_SIGN}
 		int32LE         :type,          {:value => 3}
@@ -298,7 +299,7 @@ CRYPT = Rex::Proto::NTLM::Crypt
 			t.domain = arg[:domain]
 			t.user = arg[:user]
 			t.workstation = arg[:workstation]
-    
+
 			if arg[:session_key]
 				t.enable(:session_key)
 				t.session_key = arg[session_key]
@@ -387,7 +388,7 @@ CRYPT = Rex::Proto::NTLM::Crypt
 			host_len = decode[44,2].unpack("v").first
 			host_offset = decode[48,2].unpack("v").first
 			host = decode[host_offset, host_len]
-		
+
 			return domain, user, host, lm, nt
 		else
 			return "", "", "", "", ""
@@ -395,11 +396,11 @@ CRYPT = Rex::Proto::NTLM::Crypt
 	end
 
 
-	
-	#	 
+
+	#
 	# Process Type 1 NTLM Messages, return a Base64 Type 2 Message
 	#
-	def self.process_type1_message(message, nonce = "\x11\x22\x33\x44\x55\x66\x77\x88", win_domain = 'DOMAIN', 
+	def self.process_type1_message(message, nonce = "\x11\x22\x33\x44\x55\x66\x77\x88", win_domain = 'DOMAIN',
 					win_name = 'SERVER', dns_name = 'server', dns_domain = 'example.com', downgrade = true)
 
 		dns_name = Rex::Text.to_unicode(dns_name + "." + dns_domain)
@@ -425,14 +426,14 @@ CRYPT = Rex::Proto::NTLM::Crypt
 					end
 					if (reqflags & CONST::NEGOTIATE_ALWAYS_SIGN) == CONST::NEGOTIATE_ALWAYS_SIGN
 						reqflags = reqflags - CONST::NEGOTIATE_ALWAYS_SIGN
-					end				
+					end
 				end
 
-				flags = reqflags + CONST::TARGET_TYPE_DOMAIN + CONST::TARGET_TYPE_SERVER				
+				flags = reqflags + CONST::TARGET_TYPE_DOMAIN + CONST::TARGET_TYPE_SERVER
 				tid = true
 
 				tidoffset = 48 + win_domain.length
-				tidbuff = 
+				tidbuff =
 					[2].pack('v') +				# tid type, win domain
 					[win_domain.length].pack('v') +
 					win_domain +
@@ -460,9 +461,9 @@ CRYPT = Rex::Proto::NTLM::Crypt
 			end
 
 			type2msg +="\x30\x00\x00\x00" + #		Offset, 4 bytes
-				 [flags].pack('V') +	# flags, 4 bytes
-				 nonce +		# the nonce, 8 bytes
-			 	 "\x00" * 8		# Context (all 0s), 8 bytes
+					[flags].pack('V') +	# flags, 4 bytes
+					nonce +		# the nonce, 8 bytes
+					"\x00" * 8		# Context (all 0s), 8 bytes
 
 			if (tid)
 				type2msg +=		# Target information security buffer. Filled if REQUEST_TARGET
@@ -485,7 +486,7 @@ CRYPT = Rex::Proto::NTLM::Crypt
 
 		return type2msg
 	end
-	
+
 	#
 	# Downgrading Type messages to LMv1/NTLMv1 and removing signing
 	#
@@ -506,8 +507,8 @@ CRYPT = Rex::Proto::NTLM::Crypt
 			end
 			if (reqflags & CONST::NEGOTIATE_ALWAYS_SIGN) == CONST::NEGOTIATE_ALWAYS_SIGN
 				reqflags = reqflags - CONST::NEGOTIATE_ALWAYS_SIGN
-			end				
-			
+			end
+
 			# Return the flags back to the decode so we can base64 it again
 			flags = reqflags.to_s(16)
 			0.upto(8) do |idx|
@@ -525,12 +526,12 @@ CRYPT = Rex::Proto::NTLM::Crypt
 				end
 				idx += 2
 			end
-			
+
 		end
-		return Rex::Text.encode_base64(decode).delete("\n") # base64 encode and remove the returns 
+		return Rex::Text.encode_base64(decode).delete("\n") # base64 encode and remove the returns
 	end
-	
-end 
+
+end
 end
 end
 end

@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -22,20 +18,23 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'MYSQL Schema Dump',
-			'Version'        => '$Revision$',
 			'Description'    => %Q{
-					This module extracts the schema information from a 
+					This module extracts the schema information from a
 					MySQL DB server.
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Author'         => ['theLightCosine'],
 			'License'        => MSF_LICENSE
 		)
+
+		register_options([
+			OptBool.new('DISPLAY_RESULTS', [true, "Display the Results to the Screen", true])
+			])
+
 	end
 
 	def run_host(ip)
 
 		if (not mysql_login_datastore)
-			print_error("Invalid MySQL Server credentials")
 			return
 		end
 		mysql_schema = get_schema
@@ -57,8 +56,9 @@ class Metasploit3 < Msf::Auxiliary
 					:name => 'mysql',
 					:proto => 'tcp'
 					)
-		store_loot('mysql_schema', "text/plain", datastore['RHOST'], output, "#{datastore['RHOST']}_mysql_schema.txt", "MySQL Schema", this_service)
-		print_good output
+		p = store_loot('mysql_schema', "text/plain", datastore['RHOST'], output, "#{datastore['RHOST']}_mysql_schema.txt", "MySQL Schema", this_service)
+		print_status("Schema stored in: #{p}")
+		print_good output if datastore['DISPLAY_RESULTS']
 	end
 
 
@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
 						unless tmp_clmnames.nil? or tmp_clmnames.empty?
 							tmp_clmnames.each do |column|
 								tmp_column = {}
-								tmp_column['ColumnName'] = column[0] 
+								tmp_column['ColumnName'] = column[0]
 								tmp_column['ColumnType'] = column[1]
 								tmp_tbl['Columns'] << tmp_column
 							end

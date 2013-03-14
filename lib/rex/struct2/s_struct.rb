@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 # Rex::Struct2
 module Rex
@@ -49,7 +50,7 @@ class SStruct
 		elements.each do |e|
 			buff << e.to_s
 		end
-		
+
 		if restraint && restraint.max
 			return buff.slice(0, restraint.max)
 		else

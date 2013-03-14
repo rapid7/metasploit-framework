@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -34,8 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 					['BID', '37670'],
 					['OSVDB', '61538'],
 					['URL','http://praetorianprefect.com/archives/2010/01/junos-juniper-flaw-exposes-core-routers-to-kernal-crash/']
-				],
-			'Version'     => '$Revision$' # 02/02/2010
+				]
 		)
 
 		register_options([

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/post/meterpreter'
 
 module Rex
@@ -20,7 +21,7 @@ class Console::CommandDispatcher::Stdapi
 
 	Klass = Console::CommandDispatcher::Stdapi
 
-	Dispatchers = 
+	Dispatchers =
 		[
 			Klass::Fs,
 			Klass::Net,

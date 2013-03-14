@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 require 'socket'
 require 'openssl'
@@ -104,6 +105,7 @@ class Client
 		self.alive        = true
 		self.target_id    = opts[:target_id]
 		self.capabilities = opts[:capabilities] || {}
+		self.commands     = []
 
 
 		self.conn_id      = opts[:conn_id]
@@ -152,7 +154,7 @@ class Client
 		ssl = OpenSSL::SSL::SSLSocket.new(sock, ctx)
 
 		# Use non-blocking OpenSSL operations on Windows
-		if not ( ssl.respond_to?(:accept_nonblock) and Rex::Compat.is_windows )
+		if !( ssl.respond_to?(:accept_nonblock) and Rex::Compat.is_windows )
 			ssl.accept
 		else
 			begin
@@ -209,12 +211,19 @@ class Client
 		cert.version = 2
 		cert.serial  = rand(0xFFFFFFFF)
 
+		# Depending on how the socket was created, getsockname will
+		# return either a struct sockaddr as a String (the default ruby
+		# Socket behavior) or an Array (the extend'd Rex::Socket::Tcp
+		# behavior). Avoid the ambiguity by always picking a random
+		# hostname. See #7350.
+		subject_cn = Rex::Text.rand_hostname
+
 		subject = OpenSSL::X509::Name.new([
 				["C","US"],
 				['ST', Rex::Text.rand_state()],
 				["L", Rex::Text.rand_text_alpha(rand(20) + 10)],
 				["O", Rex::Text.rand_text_alpha(rand(20) + 10)],
-				["CN", self.sock.getsockname[1] || Rex::Text.rand_hostname],
+				["CN", subject_cn],
 			])
 		issuer = OpenSSL::X509::Name.new([
 				["C","US"],
@@ -281,6 +290,7 @@ class Client
 	# if a matching extension alias exists for the supplied symbol.
 	#
 	def method_missing(symbol, *args)
+		#$stdout.puts("method_missing: #{symbol}")
 		self.ext_aliases.aliases[symbol.to_s]
 	end
 
@@ -294,7 +304,9 @@ class Client
 	# Loads the client half of the supplied extension and initializes it as a
 	# registered extension that can be reached through client.ext.[extension].
 	#
-	def add_extension(name)
+	def add_extension(name, commands=[])
+		self.commands |= commands
+
 		# Check to see if this extension has already been loaded.
 		if ((klass = self.class.check_ext_hash(name.downcase)) == nil)
 			old = Rex::Post::Meterpreter::Extensions.constants
@@ -341,6 +353,18 @@ class Client
 	#
 	def register_extension_alias(name, ext)
 		self.ext_aliases.aliases[name] = ext
+		# Whee!  Syntactic sugar, where art thou?
+		#
+		# Create an instance method on this object called +name+ that returns
+		# +ext+.  We have to do it this way instead of simply
+		# self.class.class_eval so that other meterpreter sessions don't get
+		# extension methods when this one does
+		(class << self; self; end).class_eval do
+			define_method(name.to_sym) do
+				ext
+			end
+		end
+		ext
 	end
 
 	#
@@ -445,10 +469,15 @@ class Client
 	# Flag indicating whether to hex-encode UTF-8 file names and other strings
 	#
 	attr_accessor :encode_unicode
+	#
+	# A list of the commands
+	#
+	attr_reader :commands
 
 protected
 	attr_accessor :parser, :ext_aliases # :nodoc:
 	attr_writer   :ext, :sock # :nodoc:
+	attr_writer   :commands # :nodoc:
 end
 
 end; end; end

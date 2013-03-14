@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -23,7 +19,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'BSD Command Shell, Find Tag Inline',
-			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a shell on an established connection (proxy/nat safe)',
 			'Author'        => 'skape',
 			'License'       => MSF_LICENSE,

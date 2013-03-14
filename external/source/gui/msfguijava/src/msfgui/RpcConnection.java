@@ -84,7 +84,7 @@ public abstract class RpcConnection {
 		String message = "";
 		try {
 			connect();
-			Map results = exec("auth.login",new Object[]{username, this.password});
+			Map results = (Map)exec("auth.login",new Object[]{username, this.password});
 			rpcToken=results.get("token").toString();
 			haveRpcd=results.get("result").equals("success");
 		} catch (MsfException xre) {
@@ -114,7 +114,8 @@ public abstract class RpcConnection {
 	 * @throws IOException
 	 */
 	protected void disconnect() throws SocketException, IOException{
-		connection.close();
+		if(connection != null)
+			connection.close();
 	}
 
 	/**
@@ -211,11 +212,11 @@ public abstract class RpcConnection {
 	}
 
 	/** Method that handles synchronization and error handling for calls */
-	private Map exec (String methname, Object[] params) throws MsfException{
+	private Object exec (String methname, Object[] params) throws MsfException{
 		synchronized(lockObject){ //Only one method call at a time!
 			try{
 				writeCall(methname, params);
-				return (Map)readResp();
+				return readResp();
 			}catch(Exception ex){ //any weirdness gets wrapped in a MsfException
 				try{
 					if(ex instanceof java.net.SocketTimeoutException) 
@@ -259,7 +260,8 @@ public abstract class RpcConnection {
 				// Don't fork cause we'll check if it dies
 				String rpcType = "Basic";
 				java.util.List args = new java.util.ArrayList(java.util.Arrays.asList(new String[]{
-						"msfrpcd","-f","-P",defaultPass,"-t","Msg","-U",defaultUser,"-a","127.0.0.1"}));
+						"msfrpcd","-f","-P",defaultPass,"-t","Msg","-U",defaultUser,"-a","127.0.0.1",
+						"-p",Integer.toString(defaultPort)}));
 				if(!defaultSsl)
 					args.add("-S");
 				if(disableDb)

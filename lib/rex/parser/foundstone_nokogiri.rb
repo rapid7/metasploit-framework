@@ -1,9 +1,10 @@
+# -*- coding: binary -*-
 require "rex/parser/nokogiri_doc_mixin"
 
 module Rex
 	module Parser
 
-		# If Nokogiri is available, define Template document class. 
+		# If Nokogiri is available, define Template document class.
 		load_nokogiri && class FoundstoneDocument < Nokogiri::XML::SAX::Document
 
 		include NokogiriDocMixin
@@ -25,7 +26,7 @@ module Rex
 				check_for_correct_report_type(attrs,&block)
 			when "Host"
 				record_host(attrs)
-			when "Service" 
+			when "Service"
 				record_service(attrs)
 			when "Port", "Protocol", "Banner"
 				@state[:has_text] = true
@@ -54,7 +55,7 @@ module Rex
 				end
 				# Reset the state once we close a host
 				@state.delete_if {|k| k != :current_tag}
-			when "Port" 
+			when "Port"
 				@state[:has_text] = false
 				collect_port
 			when "Protocol"
@@ -77,10 +78,10 @@ module Rex
 			@state[:current_tag].delete name
 		end
 
-		# Nothing technically stopping us from parsing this as well, 
+		# Nothing technically stopping us from parsing this as well,
 		# but saving this for later
 		def check_for_correct_report_type(attrs,&block)
-			report_type = attr_hash(attrs)["ReportType"] 
+			report_type = attr_hash(attrs)["ReportType"]
 			if report_type == "Network Inventory"
 				@report_type_ok = true
 			else
@@ -139,7 +140,7 @@ module Rex
 			return unless in_tag("HostData")
 			return unless in_tag("Host")
 			@state[:vulns] ||= []
-			
+
 			@state[:vuln] = attr_hash(attrs) # id and VulnName
 		end
 
@@ -183,7 +184,7 @@ module Rex
 			return unless in_tag("ServicesFound")
 			return unless in_tag("Host")
 			return unless @state[:service][:port]
-			@report_data[:ports] ||= [] 
+			@report_data[:ports] ||= []
 			port_hash = {}
 		 	port_hash[:port] = @state[:service][:port]
 		 	port_hash[:proto] = @state[:service][:proto]
@@ -232,7 +233,7 @@ module Rex
 
 		def report_services(host_object)
 			return unless in_tag("HostData")
-			return unless host_object.kind_of? Msf::DBManager::Host
+			return unless host_object.kind_of? ::Mdm::Host
 			return unless @report_data[:ports]
 			return if @report_data[:ports].empty?
 			@report_data[:ports].each do |svc|
@@ -242,7 +243,7 @@ module Rex
 
 		def report_vulns(host_object)
 			return unless in_tag("HostData")
-			return unless host_object.kind_of? Msf::DBManager::Host
+			return unless host_object.kind_of? ::Mdm::Host
 			return unless @report_data[:vulns]
 			return if @report_data[:vulns].empty?
 			@report_data[:vulns].each do |vuln|
@@ -268,7 +269,7 @@ module Rex
 		# Services where we only care about the first
 		# line of the banner tag.
 		def first_line_only?(service)
-			svcs = %w{ 
+			svcs = %w{
 				vnc ftp ftps smtp oracle-tns nntp ssh ntp
 			}
 			9.times {|i| svcs << "vnc-#{i}"}
@@ -276,11 +277,11 @@ module Rex
 		end
 
 		# Services where we need to do more processing
-		# before handing the banner back. 
+		# before handing the banner back.
 		def needs_more_processing?(service)
-			svcs = %w{ 
+			svcs = %w{
 				microsoft-ds loc-srv http https sunrpc netbios-ns
-		 	}
+			}
 			svcs.include? service
 		end
 
@@ -288,7 +289,7 @@ module Rex
 			str.split("\n").first.to_s.strip
 		end
 
-		# XXX: Actually implement more of these 
+		# XXX: Actually implement more of these
 		def process_service(service,banner)
 			meth = "process_service_#{service.gsub("-","_")}"
 			if self.respond_to? meth
@@ -310,9 +311,9 @@ module Rex
 		def process_service_microsoft_ds(banner)
 			lm_regex = /Native LAN Manager/
 			lm_banner = nil
-			banner.each_line { |line| 
+			banner.each_line { |line|
 				if line[lm_regex]
-					lm_banner = line 
+					lm_banner = line
 					break
 				end
 			}

@@ -1,0 +1,141 @@
+= Developer Introduction
+
+So you want to write a generator, fix a bug, or otherwise work with RDoc.  This
+document provides an overview of how RDoc works from parsing options to
+generating output.  Most of the documentation can be found in the specific
+classes for each feature.
+
+== Bugs
+
+If you think you found a bug, file a ticket on the {issues
+tracker}[https://github.com/rdoc/rdoc/issues] on github.
+
+To get your bug fixed as fast as possible please include a sample file that
+illustrates the problem or link to a repository and include steps to reproduce
+the issue.  Here are some examples of good issues:
+
+* https://github.com/rdoc/rdoc/issues/55
+* https://github.com/rdoc/rdoc/issues/61
+
+== Plugins
+
+When 'rdoc/rdoc' is loaded RDoc looks for 'rdoc/discover' files in your
+installed gems.  This can be used to load parsers, alternate generators, or
+additional preprocessor directives.  An rdoc plugin layout should look
+something like this:
+
+  lib/rdoc/discover.rb
+  lib/my/rdoc/plugin.rb
+  # etc.
+
+In your rdoc/discover.rb file you will want to wrap the loading of your plugin
+in an RDoc version check like this:
+
+  begin
+    gem 'rdoc', '~> 3'
+    require 'my/rdoc/plugin'
+  rescue Gem::LoadError
+  end
+
+=== Plugin Types
+
+In RDoc you can change the following behaviors:
+
+* Add a parser for a new file format
+* Add a new output generator
+* Add a new markup directive
+* Add a new type of documentation markup
+* Add a new type of formatter
+
+All of these are described below
+
+== Option Parsing
+
+Option parsing is handled by RDoc::Options.  When you're writing a generator
+you can provide the user with extra options by providing a class method
++setup_options+.  The option parser will call this after your generator is
+loaded.  See RDoc::Generator for details.
+
+== File Parsing
+
+After options are parsed, RDoc parses files from the files and directories in
+ARGV.  RDoc compares the filename against what each parser claims it can parse
+via RDoc::Parser#parse_files_matching.  For example, RDoc::Parser::C can parse
+C files, C headers, C++ files, C++ headers and yacc grammars.
+
+Once a matching parser class is found it is instantiated and +scan+ is called.
+The parser needs to extract documentation from the file and add it to the RDoc
+document tree.  Usually this involves starting at the root and adding a class
+or a module (RDoc::TopLevel#add_class and RDoc::TopLevel#add_module) and
+proceeding to add classes, modules and methods to each nested item.
+
+When the parsers are finished the document tree is cleaned up to remove
+dangling references to aliases and includes that were not found (and may exist
+in a separate library) through RDoc::ClassModule#complete.
+
+To write your own parser for a new file format see RDoc::Parser.
+
+=== Documentation Tree
+
+The parsers build a documentation tree that is composed of RDoc::CodeObject and
+its subclasses.  There are various methods to walk the tree to extract
+information, see RDoc::Context and its subclasses.
+
+Within a class or module, attributes, methods and constants are divided into
+sections.  The section represents a functional grouping of parts of the class.
+TomDoc uses the sections "Public", "Internal" and "Deprecated".  The sections
+can be enumerated using RDoc::Context#each_section.
+
+== Output Generation
+
+An RDoc generator turns the documentation tree into some other kind of output.
+RDoc comes with an HTML generator (RDoc::Generator::Darkfish) and an RI
+database generator (RDoc::Generator::RI).  The output a generator creates does
+not have to be human-readable.
+
+To create your own generator see RDoc::Generator.
+
+=== Comments
+
+In RDoc 3.10 and newer the comment on an RDoc::CodeObject is now an
+RDoc::Comment object instead of a String.  This is to support various
+documentation markup formats like rdoc, TomDoc and rd.  The comments are
+normalized to remove comment markers and remove indentation then parsed lazily
+via RDoc::Comment#document to create a generic markup tree that can be
+processed by a formatter.
+
+To add your own markup format see RDoc::Markup@Other+directives
+
+==== Formatters
+
+To transform a comment into some form of output an RDoc::Markup::Formatter
+subclass is used like RDoc::Markup::ToHtml.  A formatter is a visitor that
+walks a parsed comment tree (an RDoc::Markup::Document) of any format.  To help
+write a formatter RDoc::Markup::FormatterTestCase exists for generic parsers,
+and RDoc::Markup::TextFormatterTestCase which contains extra test cases for
+text-type output (like +ri+ output).
+
+RDoc ships with formatters that will turn a comment into HTML, rdoc-markup-like
+text, ANSI or terminal backspace highlighted text, HTML, cross-referenced HTML,
+an HTML snippet free of most markup, an HTML label for use in id attributes, a
+table-of-contents page, and text with only code blocks.
+
+The output of the formatter does not need to be text or text-like.
+RDoc::Markup::ToLabel creates an HTML-safe label for use in an HTML id
+attribute.  A formatter could count the number of words and the average word
+length for a comment, for example.
+
+==== Directives
+
+For comments in markup you can add new directives (:nodoc: is a directive).
+Directives may replace text or store it off for later use.
+
+See RDoc::Markup::PreProcess::register for details.
+
+=== JSONIndex
+
+RDoc contains a special generator, RDoc::Generator::JSONIndex, which creates a
+JSON-based search index and includes a search engine for use with HTML output.
+This generator can be used to add searching to any HTML output and is designed
+to be called from inside an HTML generator.
+

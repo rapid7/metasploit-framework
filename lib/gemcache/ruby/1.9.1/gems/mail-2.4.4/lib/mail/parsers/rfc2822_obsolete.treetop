@@ -1,0 +1,241 @@
+module Mail
+  grammar RFC2822Obsolete
+  
+    rule obs_qp
+      "\\" [\x00-\x7F]
+    end
+
+    rule obs_text
+      LF* CR* (obs_char LF* CR*)*
+    end
+
+    rule obs_char
+      [\x00-\x09]      /       # %d0-127 except CR and
+      [\x0B-\x0C]      /       # LF
+      [\x0E-\x7F]
+    end
+
+    rule obs_utext
+      obs_text
+    end
+
+    rule obs_phrase
+      (word / "." / "@")+
+    end
+
+    rule obs_phrase_list
+      phrase / (phrase? CFWS? "," CFWS?)+ phrase?
+    end
+
+    rule obs_FWS
+      WSP+ (CRLF WSP+)*
+    end
+
+    rule obs_day_of_week
+      CFWS? day_name CFWS?
+    end
+
+    rule obs_year
+      CFWS? (DIGIT DIGIT) CFWS?
+    end
+
+    rule obs_month
+      CFWS month_name CFWS
+    end
+
+    rule obs_day
+      CFWS? (DIGIT / (DIGIT DIGIT))  CFWS?
+    end
+
+    rule obs_hour
+       CFWS? (DIGIT DIGIT) CFWS?
+    end
+
+    rule obs_minute
+      CFWS? (DIGIT DIGIT) CFWS?
+    end
+
+    rule obs_second
+      CFWS? (DIGIT DIGIT) CFWS?
+    end
+
+    rule obs_zone
+      "UT" / "GMT" /          # Universal Time
+                              # North American UT
+                              # offsets
+      "EST" / "EDT" /         # Eastern:  - 5/ - 4
+      "CST" / "CDT" /         # Central:  - 6/ - 5
+      "MST" / "MDT" /         # Mountain: - 7/ - 6
+      "PST" / "PDT" /         # Pacific:  - 8/ - 7
+                              #
+      [\x41-\x49] /           # Military zones - "A"
+      [\x4B-\x5A] /           # through "I" and "K"
+      [\x61-\x69] /           # through "Z", both
+      [\x6B-\x7A]             # upper and lower case
+    end
+
+    rule obs_angle_addr
+      CFWS? "<" obs_route? addr_spec ">" CFWS?
+    end
+    
+    rule obs_route
+      CFWS? obs_domain_list ":" CFWS?
+    end
+
+    rule obs_domain_list
+      "@" domain (("," )* CFWS? "@" domain)*
+    end
+    
+    rule obs_local_part
+      word ("." word)*
+    end
+
+    rule obs_domain
+      atom ("." atom)*
+    end
+
+    rule obs_mbox_list
+      (mailbox? CFWS? "," CFWS?)+ mailbox?
+    end
+
+    rule obs_addr_list
+      (address? CFWS? "," CFWS?)+ address?
+    end
+
+    rule obs_fields
+      (obs_return /
+       obs_received /
+       obs_orig_date /
+       obs_from /
+       obs_sender /
+       obs_reply_to /
+       obs_to /
+       obs_cc /
+       obs_bcc /
+       obs_message_id /
+       obs_in_reply_to /
+       obs_references /
+       obs_subject /
+       obs_comments /
+       obs_keywords /
+       obs_resent_date /
+       obs_resent_from /
+       obs_resent_send /
+       obs_resent_rply /
+       obs_resent_to /
+       obs_resent_cc /
+       obs_resent_bcc /
+       obs_resent_mid /
+       obs_optional)*
+    end
+
+    rule obs_orig_date
+      "Date" WSP* ":" date_time CRLF
+    end
+
+    rule obs_from
+      "From" WSP* ":" mailbox_list CRLF
+    end
+  
+    rule obs_sender
+      "Sender" WSP* ":" mailbox CRLF
+    end
+  
+    rule obs_reply_to
+      "Reply-To" WSP* ":" mailbox_list CRLF
+    end
+
+
+    rule obs_to
+      "To" WSP* ":" address_list CRLF
+    end
+
+    rule obs_cc
+      "Cc" WSP* ":" address_list CRLF
+    end
+
+    rule obs_bcc
+      "Bcc" WSP* ":" (address_list / CFWS?) CRLF
+    end
+
+    rule obs_message_id
+      "Message-ID" WSP* ":" msg_id CRLF
+    end
+
+    rule obs_in_reply_to
+      "In-Reply-To" WSP* ":" (phrase / msg_id)* CRLF
+    end
+
+    rule obs_references
+      "References" WSP* ":" (phrase / msg_id)* CRLF
+    end
+
+    rule obs_id_left
+      local_part
+    end
+
+    rule obs_id_right
+      domain
+    end
+
+    rule obs_subject
+      "Subject" WSP* ":" unstructured CRLF
+    end
+
+    rule obs_comments
+      "Comments" WSP* ":" unstructured CRLF
+    end
+
+    rule obs_keywords
+      "Keywords" WSP* ":" obs_phrase_list CRLF
+    end
+
+    rule obs_resent_from
+      "Resent-From" WSP* ":" mailbox_list CRLF
+    end
+
+    rule obs_resent_send
+      "Resent-Sender" WSP* ":" mailbox CRLF
+    end
+
+    rule obs_resent_date
+      "Resent-Date" WSP* ":" date_time CRLF
+    end
+
+    rule obs_resent_to
+      "Resent-To" WSP* ":" address_list CRLF
+    end
+
+    rule obs_resent_cc
+      "Resent-Cc" WSP* ":" address_list CRLF
+    end
+
+    rule obs_resent_bcc
+      "Resent-Bcc" WSP* ":" (address_list / CFWS?) CRLF
+    end
+
+    rule obs_resent_mid
+      "Resent-Message-ID" WSP* ":" msg_id CRLF
+    end
+
+    rule obs_resent_rply
+      "Resent-Reply-To" WSP* ":" address_list CRLF
+    end
+
+    rule obs_return
+      "Return-Path" WSP* ":" path CRLF
+    end
+
+    rule obs_received
+      "Received" WSP* ":" name_val_list CRLF
+    end
+
+    rule obs_path
+      obs_angle_addr
+    end
+
+    rule obs_optional
+      field_name WSP* ":" unstructured CRLF
+    end
+  end
+end

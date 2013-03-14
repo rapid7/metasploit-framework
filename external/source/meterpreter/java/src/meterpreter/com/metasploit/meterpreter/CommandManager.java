@@ -2,6 +2,7 @@ package com.metasploit.meterpreter;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import com.metasploit.meterpreter.command.Command;
 import com.metasploit.meterpreter.command.NotYetImplementedCommand;
@@ -16,6 +17,7 @@ public class CommandManager {
 
 	private final int javaVersion;
 	private Map/* <String,Command> */registeredCommands = new HashMap();
+	private Vector/* <String> */newCommands = new Vector();
 
 	protected CommandManager() throws Exception {
 		// get the API version, which might be different from the
@@ -97,6 +99,7 @@ public class CommandManager {
 		}
 		Command cmd = (Command) commandClass.newInstance();
 		registeredCommands.put(command, cmd);
+        newCommands.add(command);
 	}
 
 	/**
@@ -107,5 +110,19 @@ public class CommandManager {
 		if (cmd == null)
 			cmd = NotYetImplementedCommand.INSTANCE;
 		return cmd;
+	}
+
+	/**
+	 * Reset the list of commands loaded by the last core_loadlib call
+	 */
+	public void resetNewCommands() {
+		newCommands.clear();
+	}
+
+	/**
+	 * Retrieves the list of commands loaded by the last core_loadlib call
+	 */
+	public String[] getNewCommands() {
+		return (String[]) newCommands.toArray(new String[newCommands.size()]);
 	}
 }

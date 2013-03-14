@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 msfbase = __FILE__
 while File.symlink?(msfbase)

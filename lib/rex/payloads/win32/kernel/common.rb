@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Rex
 module Payloads
 module Win32
@@ -23,7 +24,7 @@ module Common
 	end
 
 	#
-	# Returns a stub that will find the base address of ntoskrnl and 
+	# Returns a stub that will find the base address of ntoskrnl and
 	# place it in eax.  This method uses a pointer found in KdVersionBlock.
 	#
 	def self.find_nt_kdversionblock
@@ -31,7 +32,7 @@ module Common
 	end
 
 	#
-	# Returns a stub that will find the base address of ntoskrnl and 
+	# Returns a stub that will find the base address of ntoskrnl and
 	# place it in eax.  This method uses a pointer found in the
 	# processor control region as a starting point.
 	#

@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -22,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'TFTP Brute Forcer',
 			'Description' => 'This module uses a dictionary to brute force valid TFTP image names from a TFTP server.',
 			'Author'      => 'antoine',
-			'Version'     => '$Revision$',
 			'License'     => BSD_LICENSE
 		)
 

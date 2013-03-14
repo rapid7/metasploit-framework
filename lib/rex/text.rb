@@ -1,10 +1,18 @@
+# -*- coding: binary -*-
 require 'digest/md5'
+require 'digest/sha1'
 require 'stringio'
+require 'cgi'
 
-begin
-	require 'iconv'
-	require 'zlib'
-rescue LoadError
+%W{ iconv zlib }.each do |libname|
+	begin
+		old_verbose = $VERBOSE
+		$VERBOSE = nil
+		require libname
+	rescue ::LoadError
+	ensure
+		$VERBOSE = old_verbose
+	end
 end
 
 module Rex
@@ -32,7 +40,8 @@ module Text
 	UpperAlpha   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	LowerAlpha   = "abcdefghijklmnopqrstuvwxyz"
 	Numerals     = "0123456789"
-	Alpha        = UpperAlpha + LowerAlpha
+	Base32	     = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
+	Alpha	     = UpperAlpha + LowerAlpha
 	AlphaNumeric = Alpha + Numerals
 	HighAscii    = [*(0x80 .. 0xff)].pack("C*")
 	LowAscii     = [*(0x00 .. 0x1f)].pack("C*")
@@ -149,6 +158,12 @@ module Text
 	# Converts ISO-8859-1 to UTF-8
 	#
 	def self.to_utf8(str)
+
+		if str.respond_to?(:encode)
+			# Skip over any bytes that fail to convert to UTF-8
+			return str.encode('utf-8', { :invalid => :replace, :undef => :replace, :replace => '' })
+		end
+
 		begin
 			Iconv.iconv("utf-8","iso-8859-1", str).join(" ")
 		rescue
@@ -213,6 +228,33 @@ module Text
 	end
 
 	#
+	# Returns the words in +str+ as an Array.
+	#
+	# strict - include *only* words, no boundary characters (like spaces, etc.)
+	#
+	def self.to_words( str, strict = false )
+		splits = str.split( /\b/ )
+		splits.reject! { |w| !(w =~ /\w/) } if strict
+		splits
+	end
+
+	#
+	# Removes noise from 2 Strings and return a refined String version.
+	#
+	def self.refine( str1, str2 )
+		return str1 if str1 == str2
+
+		# get the words of the first str in an array
+		s_words = to_words( str1 )
+
+		# get the words of the second str in an array
+		o_words = to_words( str2 )
+
+		# get what hasn't changed (the rdiff, so to speak) as a string
+		(s_words - (s_words - o_words)).join
+	end
+
+	#
 	# Returns a unicode escaped string for Javascript
 	#
 	def self.to_unescape(data, endian=ENDIAN_LITTLE)
@@ -232,6 +274,15 @@ module Text
 			end
 		end
 		return buff
+	end
+
+	def self.to_octal(str, prefix = "\\")
+		octal = ""
+		str.each_byte { |b|
+			octal << "#{prefix}#{b.to_s 8}"
+		}
+
+		return octal
 	end
 
 	#
@@ -263,16 +314,16 @@ module Text
 	#
 	# Supported unicode types include: utf-16le, utf16-be, utf32-le, utf32-be, utf-7, and utf-8
 	#
-	# Providing 'mode' provides hints to the actual encoder as to how it should encode the string.  Only UTF-7 and UTF-8 use "mode".
+	# Providing 'mode' provides hints to the actual encoder as to how it should encode the string.	Only UTF-7 and UTF-8 use "mode".
 	#
 	# utf-7 by default does not encode alphanumeric and a few other characters.  By specifying the mode of "all", then all of the characters are encoded, not just the non-alphanumeric set.
 	#	to_unicode(str, 'utf-7', 'all')
 	#
 	# utf-8 specifies that alphanumeric characters are used directly, eg "a" is just "a".  However, there exist 6 different overlong encodings of "a" that are technically not valid, but parse just fine in most utf-8 parsers.  (0xC1A1, 0xE081A1, 0xF08081A1, 0xF8808081A1, 0xFC80808081A1, 0xFE8080808081A1).  How many bytes to use for the overlong enocding is specified providing 'size'.
-	# 	to_unicode(str, 'utf-8', 'overlong', 2)
+	#	to_unicode(str, 'utf-8', 'overlong', 2)
 	#
-	# Many utf-8 parsers also allow invalid overlong encodings, where bits that are unused when encoding a single byte are modified.  Many parsers will ignore these bits, rendering simple string matching to be ineffective for dealing with UTF-8 strings.  There are many more invalid overlong encodings possible for "a".  For example, three encodings are available for an invalid 2 byte encoding of "a". (0xC1E1 0xC161 0xC121).  By specifying "invalid", a random invalid encoding is chosen for the given byte size.
-	# 	to_unicode(str, 'utf-8', 'invalid', 2)
+	# Many utf-8 parsers also allow invalid overlong encodings, where bits that are unused when encoding a single byte are modified.  Many parsers will ignore these bits, rendering simple string matching to be ineffective for dealing with UTF-8 strings.  There are many more invalid overlong encodings possible for "a".  For example, three encodings are available for an invalid 2 byte encoding of "a". (0xC1E1 0xC161 0xC121).	By specifying "invalid", a random invalid encoding is chosen for the given byte size.
+	#	to_unicode(str, 'utf-8', 'invalid', 2)
 	#
 	# utf-7 defaults to 'normal' utf-7 encoding
 	# utf-8 defaults to 2 byte 'normal' encoding
@@ -316,7 +367,7 @@ module Text
 				string = ''
 				str.each_byte { |a|
 					if (a < 21 || a > 0x7f) || mode != ''
-						# ugh.  turn a single byte into the binary representation of it, in array form
+						# ugh.	turn a single byte into the binary representation of it, in array form
 						bin = [a].pack('C').unpack('B8')[0].split(//)
 
 						# even more ugh.
@@ -474,32 +525,32 @@ module Text
 			return str.gsub(normal) { |s| Rex::Text.to_hex(s, '%') }
 		when 'hex-all'
 			return str.gsub(all) { |s| Rex::Text.to_hex(s, '%') }
-			when 'hex-random'
-				res = ''
-				str.each_byte do |c|
-					b = c.chr
-					res << ((rand(2) == 0) ?
-						b.gsub(all)   { |s| Rex::Text.to_hex(s, '%') } :
-						b.gsub(normal){ |s| Rex::Text.to_hex(s, '%') } )
-				end
-				return res
+		when 'hex-random'
+			res = ''
+			str.each_byte do |c|
+				b = c.chr
+				res << ((rand(2) == 0) ?
+					b.gsub(all)   { |s| Rex::Text.to_hex(s, '%') } :
+					b.gsub(normal){ |s| Rex::Text.to_hex(s, '%') } )
+			end
+			return res
 		when 'u-normal'
 			return str.gsub(normal) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
 		when 'u-all'
 			return str.gsub(all) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
-			when 'u-random'
-				res = ''
-				str.each_byte do |c|
-					b = c.chr
-					res << ((rand(2) == 0) ?
-						b.gsub(all)   { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) } :
-						b.gsub(normal){ |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) } )
-				end
-				return res
+		when 'u-random'
+			res = ''
+			str.each_byte do |c|
+				b = c.chr
+				res << ((rand(2) == 0) ?
+					b.gsub(all)   { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) } :
+					b.gsub(normal){ |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) } )
+			end
+			return res
 		when 'u-half'
 			return str.gsub(all) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms-half'), '%u', 2) }
 		else
-			raise TypeError, 'invalid mode'
+			raise TypeError, "invalid mode #{mode.inspect}"
 		end
 	end
 
@@ -517,6 +568,14 @@ module Text
 		else
 			raise TypeError, 'invalid mode'
 		end
+	end
+
+	#
+	# Decode a string that's html encoded
+	#
+	def self.html_decode(str)
+		decoded_str = CGI.unescapeHTML(str)
+		return decoded_str
 	end
 
 	#
@@ -607,6 +666,49 @@ module Text
 	end
 
 	#
+	# Converts a string a nicely formatted and addressed ex dump
+	#
+	def self.to_addr_hex_dump(str, start_addr=0, width=16)
+		buf = ''
+		idx = 0
+		cnt = 0
+		snl = false
+		lst = 0
+		addr = start_addr
+
+		while (idx < str.length)
+
+			buf << "%08x" % addr
+			buf << " " * 4
+			chunk = str[idx, width]
+			line  = chunk.unpack("H*")[0].scan(/../).join(" ")
+			buf << line
+
+			if (lst == 0)
+				lst = line.length
+				buf << " " * 4
+			else
+				buf << " " * ((lst - line.length) + 4).abs
+			end
+
+			chunk.unpack("C*").each do |c|
+				if (c > 0x1f and c < 0x7f)
+					buf << c.chr
+				else
+					buf << "."
+				end
+			end
+
+			buf << "\n"
+
+			idx += width
+			addr += width
+		end
+
+		buf << "\n"
+	end
+
+	#
 	# Converts a hex string to a raw string
 	#
 	def self.hex_to_raw(str)
@@ -639,20 +741,20 @@ module Text
 	# Converts a string to a hex version with wrapping support
 	#
 	def self.hexify(str, col = DefaultWrap, line_start = '', line_end = '', buf_start = '', buf_end = '')
-		output   = buf_start
-		cur      = 0
-		count    = 0
+		output	 = buf_start
+		cur	 = 0
+		count	 = 0
 		new_line = true
 
 		# Go through each byte in the string
 		str.each_byte { |byte|
 			count  += 1
-			append  = ''
+			append	= ''
 
 			# If this is a new line, prepend with the
 			# line start text
 			if (new_line == true)
-				append   << line_start
+				append	 << line_start
 				new_line  = false
 			end
 
@@ -664,7 +766,7 @@ module Text
 			# time to finish up this line
 			if ((cur + line_end.length >= col) or (cur + buf_end.length  >= col))
 				new_line  = true
-				cur       = 0
+				cur	  = 0
 
 				# If this is the last byte, use the buf_end instead of
 				# line_end
@@ -693,6 +795,83 @@ module Text
 	##
 
 	#
+	# Base32 code
+	#
+
+	# Based on --> https://github.com/stesla/base32
+
+	# Copyright (c) 2007-2011 Samuel Tesla
+
+	# Permission is hereby granted, free of charge, to any person obtaining a copy
+	# of this software and associated documentation files (the "Software"), to deal
+	# in the Software without restriction, including without limitation the rights
+	# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	# copies of the Software, and to permit persons to whom the Software is
+	# furnished to do so, subject to the following conditions:
+
+	# The above copyright notice and this permission notice shall be included in
+	# all copies or substantial portions of the Software.
+
+	# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+	# THE SOFTWARE.
+
+
+	#
+	# Base32 encoder
+	#
+	def self.b32encode(bytes_in)
+		n = (bytes_in.length * 8.0 / 5.0).ceil
+		p = n < 8 ? 5 - (bytes_in.length * 8) % 5 : 0
+		c = bytes_in.inject(0) {|m,o| (m << 8) + o} << p
+		[(0..n-1).to_a.reverse.collect {|i| Base32[(c >> i * 5) & 0x1f].chr},
+		("=" * (8-n))]
+	end
+
+	def self.encode_base32(str)
+		bytes = str.bytes
+		result = ''
+		size= 5
+		while bytes.any? do
+			bytes.each_slice(size) do |a|
+			bytes_out = b32encode(a).flatten.join
+			result << bytes_out
+			bytes = bytes.drop(size)
+			end
+		end
+		return result
+	end
+
+	#
+	# Base32 decoder
+	#
+	def self.b32decode(bytes_in)
+		bytes = bytes_in.take_while {|c| c != 61} # strip padding
+		n = (bytes.length * 5.0 / 8.0).floor
+		p = bytes.length < 8 ? 5 - (n * 8) % 5 : 0
+		c = bytes.inject(0) {|m,o| (m << 5) + Base32.index(o.chr)} >> p
+		(0..n-1).to_a.reverse.collect {|i| ((c >> i * 8) & 0xff).chr}
+	end
+
+	def self.decode_base32(str)
+		bytes = str.bytes
+		result = ''
+		size= 8
+		while bytes.any? do
+			bytes.each_slice(size) do |a|
+			bytes_out = b32decode(a).flatten.join
+			result << bytes_out
+			bytes = bytes.drop(size)
+			end
+		end
+		return result
+	end
+
+	#
 	# Base64 encoder
 	#
 	def self.encode_base64(str, delim='')
@@ -718,6 +897,20 @@ module Text
 	#
 	def self.md5(str)
 		Digest::MD5.hexdigest(str)
+	end
+
+	#
+	# Raw SHA1 digest of the supplied string
+	#
+	def self.sha1_raw(str)
+		Digest::SHA1.digest(str)
+	end
+
+	#
+	# Hexidecimal SHA1 digest of the supplied string
+	#
+	def self.sha1(str)
+		Digest::SHA1.hexdigest(str)
 	end
 
 	#
@@ -825,6 +1018,11 @@ module Text
 		foo = []
 		foo += (0x80 .. 0xff).map{ |c| c.chr }
 		rand_base(len, bad, *foo )
+	end
+
+	# Generate a random GUID, of the form {xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}
+	def self.rand_guid
+		"{#{[8,4,4,4,12].map {|a| rand_text_hex(a) }.join("-")}}"
 	end
 
 	#
@@ -1129,7 +1327,7 @@ module Text
 		else
 			ret = str
 		end
-       		ret
+		ret
 	end
 
 	#
@@ -1212,6 +1410,26 @@ protected
 			end
 		}
 		@@codepage_map_cache = map
+	end
+
+	def self.checksum8(str)
+		str.unpack("C*").inject(:+) % 0x100
+	end
+
+	def self.checksum16_le(str)
+		str.unpack("v*").inject(:+) % 0x10000
+	end
+
+	def self.checksum16_be(str)
+		str.unpack("n*").inject(:+) % 0x10000
+	end
+
+	def self.checksum32_le(str)
+		str.unpack("V*").inject(:+) % 0x100000000
+	end
+
+	def self.checksum32_be(str)
+		str.unpack("N*").inject(:+) % 0x100000000
 	end
 
 end

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Msf
 module Ui
 module Console
@@ -47,7 +48,7 @@ module FrameworkEventManager
 		# If logging had been enabled for this session, stop it now.
 		Msf::Logging::stop_session_log(session)
 
-		msg = "#{session.desc} session #{session.name} closed."
+		msg = "#{session.session_host} - #{session.desc} session #{session.name} closed."
 		if reason and reason.length > 0
 			msg << "  Reason: #{reason}"
 		end

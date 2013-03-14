@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -22,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Authentication Capture: POP3',
-			'Version'     => '$Revision$',
 			'Description'    => %q{
 				This module provides a fake POP3 service that
 			is designed to capture authentication credentials.
@@ -54,6 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		@myhost = datastore['SRVHOST']
 		@myport = datastore['SRVPORT']
+		print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
 		exploit()
 	end
 

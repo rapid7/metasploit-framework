@@ -8,6 +8,19 @@
 # To use th interface option under  Windows use the Index value displayed by this tool (ex: "SET INTERFACE 1")
 #
 #
+
+msfbase = __FILE__
+while File.symlink?(msfbase)
+	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+end
+
+$:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', 'lib')))
+require 'fastlib'
+require 'msfenv'
+
+$:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
+
+
 if RUBY_PLATFORM == "i386-mingw32"
 	begin
 		require 'pcaprub'

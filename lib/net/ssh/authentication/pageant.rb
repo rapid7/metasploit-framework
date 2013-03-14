@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'dl/import'
 require 'dl/struct'
 

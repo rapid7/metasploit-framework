@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/socket'
 require 'timeout'
 
@@ -73,6 +74,7 @@ module Net; module SSH; module Transport
           Rex::Socket::Tcp.create(
           	'PeerHost' => @host,
           	'PeerPort' => @port,
+            'Proxies' => options[:proxies],
           	'Context'  => {
           	  'Msf'          => options[:msframework],
           	  'MsfExploit'   => options[:msfmodule]

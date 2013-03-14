@@ -5,20 +5,15 @@ require 'nessus/nessus-xmlrpc'
 require 'rex/parser/nessus_xml'
 
 module Msf
-	#constants
-	NBVer = "1.1" # Nessus Plugin Version.  Increments each time we commit to msf
-	Xindex = "#{Msf::Config.get_config_root}/nessus_index" # location of the exploit index file used to speed up searching for valid exploits.
-	Nessus_yaml = "#{Msf::Config.get_config_root}/nessus.yaml" #location of the nessus.yml containing saved nessus creds
-
 	class Plugin::Nessus < Msf::Plugin
 
 		#creates the index of exploit details to make searching for exploits much faster.
 		def create_xindex
 			start = Time.now
-				print_status("Creating Exploit Search Index - (#{Xindex}) - this wont take long.")
+				print_status("Creating Exploit Search Index - (#{@xindex}) - this wont take long.")
 				count = 0
 				# use Msf::Config.get_config_root as the location.
-				File.open("#{Xindex}", "w+") do |f|
+				File.open("#{@xindex}", "w+") do |f|
 					#need to add version line.
 					f.puts(Msf::Framework::RepoRevision)
 					framework.exploits.sort.each { |refname, mod|
@@ -48,13 +43,13 @@ module Msf
 		end
 
 		def nessus_index
-			if File.exist?("#{Xindex}")
+			if File.exist?("#{@xindex}")
 				#check if it's version line matches current version.
-				File.open("#{Xindex}") {|f|
+				File.open("#{@xindex}") {|f|
 					line = f.readline
 					line.chomp!
 					if line.to_i == Msf::Framework::RepoRevision
-						print_good("Exploit Index - (#{Xindex}) -  is valid.")
+						print_good("Exploit Index - (#{@xindex}) -  is valid.")
 					else
 						create_xindex
 					end
@@ -66,49 +61,49 @@ module Msf
 
 		class ConsoleCommandDispatcher
 			include Msf::Ui::Console::CommandDispatcher
-			
+
 			def name
 				"Nessus"
 			end
 
 			def commands
 				{
-					"nessus_connect" => "Connect to a nessus server: nconnect username:password@hostname:port <ssl ok>",
-					"nessus_admin" => "Checks if user is an admin",
-					"nessus_help" => "Get help on all commands",
-					"nessus_logout" => "Terminate the session",
-					"nessus_server_status" => "Check the status of your Nessus Server",
-					"nessus_server_feed" => "Nessus Feed Type",
-					"nessus_server_prefs" => "Display Server Prefs",
-					"nessus_report_list" => "List all Nessus reports",
-					"nessus_report_get" => "Import a report from the nessus server in Nessus v2 format",
-					"nessus_report_del" => "Delete a report",
-					"nessus_report_hosts" => "Get list of hosts from a report",
-					"nessus_report_host_ports" => "Get list of open ports from a host from a report",
-					"nessus_report_host_detail" => "Detail from a report item on a host",
-					"nessus_scan_status" => "List all currently running Nessus scans",
-					"nessus_scan_new" => "Create new Nessus Scan",
-					"nessus_scan_pause" => "Pause a Nessus Scan",
-					"nessus_scan_pause_all" => "Pause all Nessus Scans",
-					"nessus_scan_stop" => "Stop a Nessus Scan",
-					"nessus_scan_stop_all" => "Stop all Nessus Scans",
-					"nessus_scan_resume" => "Resume a Nessus Scan",
-					"nessus_scan_resume_all" => "Resume all Nessus Scans",
-					"nessus_user_list" => "Show Nessus Users",
-					"nessus_user_add" => "Add a new Nessus User",
-					"nessus_user_del" => "Delete a Nessus User",
-					"nessus_user_passwd" => "Change Nessus Users Password",
-					"nessus_plugin_family" => "List plugins in a family",
-					"nessus_plugin_details" => "List details of a particular plugin",
-					"nessus_plugin_list" => "Displays each plugin family and the number of plugins",
-					"nessus_plugin_prefs" => "Display Plugin Prefs",
-					"nessus_policy_list" => "List all polciies",
-					"nessus_policy_del" => "Delete a policy",
+					"nessus_connect" => "Connect to a nessus server: nconnect username:password@hostname:port <ssl ok>.",
+					"nessus_admin" => "Checks if user is an admin.",
+					"nessus_help" => "Get help on all commands.",
+					"nessus_logout" => "Terminate the session.",
+					"nessus_server_status" => "Check the status of your Nessus Server.",
+					"nessus_server_feed" => "Nessus Feed Type.",
+					"nessus_server_prefs" => "Display Server Prefs.",
+					"nessus_report_list" => "List all Nessus reports.",
+					"nessus_report_get" => "Import a report from the nessus server in Nessus v2 format.",
+					"nessus_report_del" => "Delete a report.",
+					"nessus_report_vulns" => "Get list of vulns from a report.",
+					"nessus_report_hosts" => "Get list of hosts from a report.",
+					"nessus_report_host_ports" => "Get list of open ports from a host from a report.",
+					"nessus_report_host_detail" => "Detail from a report item on a host.",
+					"nessus_scan_status" => "List all currently running Nessus scans.",
+					"nessus_scan_new" => "Create new Nessus Scan.",
+					"nessus_scan_pause" => "Pause a Nessus Scan.",
+					"nessus_scan_pause_all" => "Pause all Nessus Scans.",
+					"nessus_scan_stop" => "Stop a Nessus Scan.",
+					"nessus_scan_stop_all" => "Stop all Nessus Scans.",
+					"nessus_scan_resume" => "Resume a Nessus Scan.",
+					"nessus_scan_resume_all" => "Resume all Nessus Scans.",
+					"nessus_user_list" => "Show Nessus Users.",
+					"nessus_user_add" => "Add a new Nessus User.",
+					"nessus_user_del" => "Delete a Nessus User.",
+					"nessus_user_passwd" => "Change Nessus Users Password.",
+					"nessus_plugin_family" => "List plugins in a family.",
+					"nessus_plugin_details" => "List details of a particular plugin.",
+					"nessus_plugin_list" => "Displays each plugin family and the number of plugins.",
+					"nessus_plugin_prefs" => "Display Plugin Prefs.",
+					"nessus_policy_list" => "List all polciies.",
+					"nessus_policy_del" => "Delete a policy.",
 					"nessus_index" => "Manually generates a search index for exploits.",
-					"nessus_template_list" => "List all the templates on the server",
-					"nessus_db_scan" => "Create a scan of all ips in db_hosts",
-					"nessus_save" => "Save username/passowrd/server/port details",
-					"nessus_report_exploits" => "Shows a summary of all the vulns in a scan that have a msf exploit."
+					"nessus_template_list" => "List all the templates on the server.",
+					"nessus_db_scan" => "Create a scan of all ips in db_hosts.",
+					"nessus_save" => "Save username/passowrd/server/port details."
 					}
 			end
 
@@ -118,6 +113,7 @@ module Msf
 
 			def cmd_nessus_save(*args)
 				#if we are logged in, save session details to nessus.yaml
+				@nessus_yaml = "#{Msf::Config.get_config_root}/nessus.yaml"
 				if args[0] == "-h"
 					print_status("Usage: ")
 					print_status("       nessus_save")
@@ -135,10 +131,10 @@ module Msf
 				if ((@user and @user.length > 0) and (@host and @host.length > 0) and (@port and @port.length > 0 and @port.to_i > 0) and (@pass and @pass.length > 0))
 					config = Hash.new
 					config = {"#{group}" => {'username' => @user, 'password' => @pass, 'server' => @host, 'port' => @port}}
-					File.open("#{Nessus_yaml}", "w+") do |f|
+					File.open("#{@nessus_yaml}", "w+") do |f|
 						f.puts YAML.dump(config)
 					end
-					print_good("#{Nessus_yaml} created.")
+					print_good("#{@nessus_yaml} created.")
 
 				else
 					print_error("Missing username/password/server/port - relogin and then try again.")
@@ -198,8 +194,8 @@ module Msf
 			def cmd_nessus_logout
 				@token = nil
 				print_status("Logged out")
-				system("rm #{Nessus_yaml}")
-				print_good("#{Nessus_yaml} removed.")
+				system("rm #{@nessus_yaml}")
+				print_good("#{@nessus_yaml} removed.")
 				return
 			end
 
@@ -226,6 +222,7 @@ module Msf
 				tbl << [ "-----------------", "-----------------"]
 				tbl << [ "nessus_report_list", "List all Nessus reports" ]
 				tbl << [ "nessus_report_get", "Import a report from the nessus server in Nessus v2 format" ]
+				tbl << [ "nessus_report_vulns", "Get list of vulns from a report" ]
 				tbl << [ "nessus_report_hosts", "Get list of hosts from a report" ]
 				tbl << [ "nessus_report_host_ports", "Get list of open ports from a host from a report" ]
 				tbl << [ "nessus_report_host_detail", "Detail from a report item on a host" ]
@@ -259,7 +256,7 @@ module Msf
 				tbl << [ "nessus_policy_list", "List all polciies" ]
 				tbl << [ "nessus_policy_del", "Delete a policy" ]
 				print_status ""
-				print_status tbl.to_s
+				print_line tbl.to_s
 				print_status ""
 			end
 
@@ -285,7 +282,7 @@ module Msf
 					tbl << [@feed, @version, @web_version]
 					print_good("Nessus Status")
 					print_good "\n"
-					print_good tbl.to_s + "\n"
+					print_line tbl.to_s
 				end
 			end
 
@@ -325,10 +322,11 @@ module Msf
 			end
 
 			def cmd_nessus_connect(*args)
-
+				# Check if config file exists and load it
+				@nessus_yaml = "#{Msf::Config.get_config_root}/nessus.yaml"
 				if ! args[0]
-					if File.exist?("#{Nessus_yaml}")
-						lconfig = YAML.load_file("#{Nessus_yaml}")
+					if File.exist?("#{@nessus_yaml}")
+						lconfig = YAML.load_file("#{@nessus_yaml}")
 						@user = lconfig['default']['username']
 						@pass = lconfig['default']['password']
 						@host = lconfig['default']['server']
@@ -483,7 +481,7 @@ module Msf
 				}
 				print_good("Nessus Report List")
 				print_good "\n"
-				print_good tbl.to_s + "\n"
+				print_line tbl.to_s + "\n"
 				print_status("You can:")
 				print_status("        Get a list of hosts from the report:          nessus_report_hosts <report id>")
 			end
@@ -609,7 +607,7 @@ module Msf
 				}
 				print_good("Running Scans")
 				print_good "\n"
-				print_good tbl.to_s + "\n"
+				print_line tbl.to_s
 				print_good "\n"
 				print_status("You can:")
 				print_good("		Import Nessus report to database : 	nessus_report_get <reportid>")
@@ -655,7 +653,7 @@ module Msf
 				}
 				print_good("Templates")
 				print_good "\n"
-				print_good tbl.to_s + "\n"
+				print_line tbl.to_s + "\n"
 				print_good "\n"
 				print_status("You can:")
 				print_good("		Import Nessus report to database : 	nessus_report_get <reportid>")
@@ -695,7 +693,7 @@ module Msf
 				}
 				print_good("Nessus users")
 				print_good "\n"
-				print_good tbl.to_s + "\n"
+				print_line tbl.to_s
 			end
 
 			def cmd_nessus_server_status(*args)
@@ -755,7 +753,7 @@ module Msf
 				plugins = total.sum
 				tbl << [users, policies, scans, reports, plugins]
 				print_good "\n"
-				print_good tbl.to_s + "\n"
+				print_line tbl.to_s
 			end
 
 			def cmd_nessus_plugin_list(*args)
@@ -789,7 +787,7 @@ module Msf
 				tbl << [ 'Total Plugins', plugins ]
 				print_good("Plugins By Family")
 				print_good "\n"
-				print_good tbl.to_s + "\n"
+				print_line tbl.to_s
 				print_status("List plugins for a family : nessus_plugin_family <family name>")
 			end
 
@@ -959,7 +957,66 @@ module Msf
 				}
 				print_good("Report Info")
 				print_good "\n"
-				print_good tbl.to_s + "\n"
+				print_line tbl.to_s
+				print_status("You can:")
+				print_status("        Get information from a particular host:          nessus_report_host_ports <hostname> <report id>")
+			end
+
+			def cmd_nessus_report_vulns(*args)
+
+				if args[0] == "-h"
+					print_status("Usage: ")
+					print_status("       nessus_report_vulns <report id>")
+					print_status(" Example:> nessus_report_vulns f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
+					print_status()
+					print_status("Returns all the vulns associated with a scan and details about hosts and their vulnerabilities")
+					print_status("use nessus_report_list to list all available scans")
+					return
+				end
+
+				if ! nessus_verify_token
+					return
+				end
+
+				case args.length
+				when 1
+					rid = args[0]
+				else
+					print_status("Usage: ")
+					print_status("       nessus_report_vulns <report id>")
+					print_status("       use nessus_report_vulns to list all available reports")
+					return
+				end
+
+				tbl = Rex::Ui::Text::Table.new(
+					'Columns' => [
+						'Hostname',
+						'Port',
+						'Proto',
+						'Sev',
+						'PluginID',
+						'Plugin Name'
+					])
+				print_status("Grabbing all vulns for report #{rid}")
+				hosts=@n.report_hosts(rid)
+				hosts.each do |host|
+					ports=@n.report_host_ports(rid, host['hostname'])
+					ports.each do |port|
+						details=@n.report_host_port_details(rid, host['hostname'], port['portnum'], port['protocol'])
+						details.each do |detail|
+							tbl << [host['hostname'],
+							port['portnum'],
+							port['protocol'],
+							detail['severity'],
+							detail['pluginID'],
+							detail['pluginName']
+							]
+						end
+					end
+				end
+				print_good("Report Info")
+				print_line
+				print_line tbl.to_s
 				print_status("You can:")
 				print_status("        Get information from a particular host:          nessus_report_host_ports <hostname> <report id>")
 			end
@@ -1007,7 +1064,7 @@ module Msf
 				}
 				print_good("Host Info")
 				print_good "\n"
-				print_good tbl.to_s + "\n"
+				print_line tbl.to_s
 				print_status("You can:")
 				print_status("        Get detailed scan infromation about a specfic port: nessus_report_host_detail <hostname> <port> <protocol> <report id>")
 			end
@@ -1069,7 +1126,7 @@ module Msf
 				}
 				print_good("Port Info")
 				print_good "\n"
-				print_good tbl.to_s + "\n"
+				print_line tbl.to_s
 			end
 
 			def cmd_nessus_scan_pause_all(*args)
@@ -1358,7 +1415,7 @@ module Msf
 				}
 				print_good("#{fam} Info")
 				print_good "\n"
-				print_good tbl.to_s + "\n"
+				print_line tbl.to_s
 			end
 
 			def cmd_nessus_policy_list(*args)
@@ -1388,7 +1445,7 @@ module Msf
 				}
 				print_good("Nessus Policy List")
 				print_good "\n"
-				print_good tbl.to_s + "\n"
+				print_line tbl.to_s
 			end
 
 			def cmd_nessus_policy_del(*args)
@@ -1422,7 +1479,7 @@ module Msf
 					return
 				end
 
-				if answer == "Yes" || answer == "Y" || answer == "y" || answer == "yes"
+
 					del = @n.policy_del(pid)
 					status = del.root.elements['status'].text
 					if status == "OK"
@@ -1430,10 +1487,8 @@ module Msf
 					else
 						print_error("Policy number #{pid} was not deleted")
 					end
-				else
-					print_error("wow that was close, damn we asked")
+
 				end
-			end
 
 			def cmd_nessus_plugin_details(*args)
 
@@ -1484,7 +1539,7 @@ module Msf
 				tbl << [ "Plugin Pub Date", entry['plugin_publication_date'] ]
 				tbl << [ "Plugin Modification Date", entry['plugin_modification_date'] ]
 				print_good "\n"
-				print_good tbl.to_s + "\n"
+				print_line tbl.to_s
 			end
 
 			def cmd_nessus_report_del(*args)
@@ -1518,7 +1573,7 @@ module Msf
 					return
 				end
 
-				if (answer == "Yes" || answer == "Y" || answer == "y" || answer == "yes")
+
 					del = @n.report_del(rid)
 					status = del.root.elements['status'].text
 					if status == "OK"
@@ -1526,12 +1581,7 @@ module Msf
 					else
 						print_error("Report #{rid} was not deleted")
 					end
-				else
-					print_error("wow that was close, damn we asked")
 				end
-
-
-			end
 
 			def cmd_nessus_server_prefs(*args)
 
@@ -1564,7 +1614,7 @@ module Msf
 				}
 				print_good("Nessus Server Pref List")
 				print_good "\n"
-				print_good tbl.to_s + "\n"
+				print_line tbl.to_s + "\n"
 
 			end
 
@@ -1600,17 +1650,20 @@ module Msf
 				}
 				print_good("Nessus Plugins Pref List")
 				print_good "\n"
-				print_good tbl.to_s + "\n"
+				print_line tbl.to_s
 			end
 		end
 
 		def initialize(framework, opts)
 			super
-			
+
 			add_console_dispatcher(ConsoleCommandDispatcher)
-			print_status("Nessus Bridge for Metasploit #{NBVer}")
+			@nbver = "1.1" # Nessus Plugin Version.  Increments each time we commit to msf
+			@xindex = "#{Msf::Config.get_config_root}/nessus_index" # location of the exploit index file used to speed up searching for valid exploits.
+			@nessus_yaml = "#{Msf::Config.get_config_root}/nessus.yaml" #location of the nessus.yml containing saved nessus creds
+			print_status("Nessus Bridge for Metasploit #{@nbver}")
 			print_good("Type %bldnessus_help%clr for a command listing")
-			nessus_index
+			#nessus_index
 		end
 
 		def cleanup
@@ -1622,7 +1675,7 @@ module Msf
 		end
 
 		def desc
-			"Nessus Bridge for Metasploit #{NBVer}"
+			"Nessus Bridge for Metasploit #{@nbver}"
 		end
 		protected
 	end

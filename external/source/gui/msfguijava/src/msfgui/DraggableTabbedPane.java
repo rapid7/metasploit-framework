@@ -13,6 +13,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.util.ArrayList;
@@ -49,7 +50,16 @@ public class DraggableTabbedPane extends JTabbedPane{
 	static{
 		//Set up placeholder window. (Shows when moving tabs)
 		window = new JWindow();
-		window.getContentPane().add(new JLabel("Moving", JLabel.CENTER), java.awt.BorderLayout.CENTER);
+		JLabel lab = new JLabel("Moving", JLabel.CENTER);
+		lab.addMouseMotionListener(new MouseMotionListener() {
+			public void mouseMoved(MouseEvent e) {
+				window.setVisible(false);
+			}
+			public void mouseDragged(MouseEvent e) {
+				window.setVisible(false);
+			}
+		});
+		window.getContentPane().add(lab, java.awt.BorderLayout.CENTER);
 		window.setSize(300, 300);
 	}
 
@@ -333,7 +343,7 @@ public class DraggableTabbedPane extends JTabbedPane{
 		//Set up dragging listener
 		addMouseMotionListener(new MouseMotionAdapter() {
 			public void mouseDragged(MouseEvent e) {
-				if (!dragging) {
+				if (!dragging && ((e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) != 0)) {
 					// Gets the tab index based on the mouse position
 					int tabNumber = getUI().tabForCoordinate(DraggableTabbedPane.this, e.getX(), e.getY());
 					if (tabNumber < 0)

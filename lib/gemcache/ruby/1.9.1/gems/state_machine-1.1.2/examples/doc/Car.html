@@ -1,0 +1,919 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Car
+  
+    &mdash; Documentation by YARD 0.7.5
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" media="screen" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  relpath = '';
+  if (relpath != '') relpath += '/';
+</script>
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+    
+    <div id="header">
+      <div id="menu">
+  
+    <a href="_index.html">Index (C)</a> &raquo; 
+    
+    
+    <span class="title">Car</span>
+  
+  
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a id="class_list_link" href="#">Class List</a>
+  
+    <a id="method_list_link" href="#">Method List</a>
+  
+    <a id="file_list_link" href="#">File List</a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+    
+    <iframe id="search_frame"></iframe>
+    
+    <div id="content"><h1>Class: Car
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="Vehicle.html" title="Vehicle (class)">Vehicle</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="Vehicle.html" title="Vehicle (class)">Vehicle</a></span></li>
+          
+            <li class="next">Car</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">car.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>State Machines</h2>
+
+This class contains 1 state machine(s).
+
+
+  <h3>state</h3>
+  <p></p>
+  
+  
+  <img alt="State machine diagram for state" src="Car_state.png" />
+  
+
+
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="Vehicle.html" title="Vehicle (class)">Vehicle</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Vehicle.html#state-instance_method" title="Vehicle#state (method)">#state</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#backing_up%3F-instance_method" title="#backing_up? (instance method)">- (Boolean) <strong>backing_up?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+Checks whether :backing_up is the current state.
+</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#can_reverse%3F-instance_method" title="#can_reverse? (instance method)">- (Boolean) <strong>can_reverse?</strong>(requirements = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+Checks whether :reverse can be fired.
+</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reverse-instance_method" title="#reverse (instance method)">- (Boolean) <strong>reverse</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+Fires the :reverse event.
+</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reverse%21-instance_method" title="#reverse! (instance method)">- (Boolean) <strong>reverse!</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+Fires the :reverse event, raising an exception if it fails.
+</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reverse_transition-instance_method" title="#reverse_transition (instance method)">- (StateMachine::Transition) <strong>reverse_transition</strong>(requirements = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+Gets the next transition that would be performed if :reverse were to be
+fired.
+</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="Vehicle.html" title="Vehicle (class)">Vehicle</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Vehicle.html#can_crash%3F-instance_method" title="Vehicle#can_crash? (method)">#can_crash?</a></span>, <span class='object_link'><a href="Vehicle.html#can_idle%3F-instance_method" title="Vehicle#can_idle? (method)">#can_idle?</a></span>, <span class='object_link'><a href="Vehicle.html#can_ignite%3F-instance_method" title="Vehicle#can_ignite? (method)">#can_ignite?</a></span>, <span class='object_link'><a href="Vehicle.html#can_park%3F-instance_method" title="Vehicle#can_park? (method)">#can_park?</a></span>, <span class='object_link'><a href="Vehicle.html#can_repair%3F-instance_method" title="Vehicle#can_repair? (method)">#can_repair?</a></span>, <span class='object_link'><a href="Vehicle.html#can_shift_down%3F-instance_method" title="Vehicle#can_shift_down? (method)">#can_shift_down?</a></span>, <span class='object_link'><a href="Vehicle.html#can_shift_up%3F-instance_method" title="Vehicle#can_shift_up? (method)">#can_shift_up?</a></span>, <span class='object_link'><a href="Vehicle.html#crash-instance_method" title="Vehicle#crash (method)">#crash</a></span>, <span class='object_link'><a href="Vehicle.html#crash%21-instance_method" title="Vehicle#crash! (method)">#crash!</a></span>, <span class='object_link'><a href="Vehicle.html#crash_transition-instance_method" title="Vehicle#crash_transition (method)">#crash_transition</a></span>, <span class='object_link'><a href="Vehicle.html#fire_state_event-instance_method" title="Vehicle#fire_state_event (method)">#fire_state_event</a></span>, <span class='object_link'><a href="Vehicle.html#first_gear%3F-instance_method" title="Vehicle#first_gear? (method)">#first_gear?</a></span>, <span class='object_link'><a href="Vehicle.html#human_state_event_name-class_method" title="Vehicle.human_state_event_name (method)">human_state_event_name</a></span>, <span class='object_link'><a href="Vehicle.html#human_state_name-class_method" title="Vehicle.human_state_name (method)">human_state_name</a></span>, <span class='object_link'><a href="Vehicle.html#human_state_name-instance_method" title="Vehicle#human_state_name (method)">#human_state_name</a></span>, <span class='object_link'><a href="Vehicle.html#idle-instance_method" title="Vehicle#idle (method)">#idle</a></span>, <span class='object_link'><a href="Vehicle.html#idle%21-instance_method" title="Vehicle#idle! (method)">#idle!</a></span>, <span class='object_link'><a href="Vehicle.html#idle_transition-instance_method" title="Vehicle#idle_transition (method)">#idle_transition</a></span>, <span class='object_link'><a href="Vehicle.html#idling%3F-instance_method" title="Vehicle#idling? (method)">#idling?</a></span>, <span class='object_link'><a href="Vehicle.html#ignite-instance_method" title="Vehicle#ignite (method)">#ignite</a></span>, <span class='object_link'><a href="Vehicle.html#ignite%21-instance_method" title="Vehicle#ignite! (method)">#ignite!</a></span>, <span class='object_link'><a href="Vehicle.html#ignite_transition-instance_method" title="Vehicle#ignite_transition (method)">#ignite_transition</a></span>, <span class='object_link'><a href="Vehicle.html#park-instance_method" title="Vehicle#park (method)">#park</a></span>, <span class='object_link'><a href="Vehicle.html#park%21-instance_method" title="Vehicle#park! (method)">#park!</a></span>, <span class='object_link'><a href="Vehicle.html#park_transition-instance_method" title="Vehicle#park_transition (method)">#park_transition</a></span>, <span class='object_link'><a href="Vehicle.html#parked%3F-instance_method" title="Vehicle#parked? (method)">#parked?</a></span>, <span class='object_link'><a href="Vehicle.html#repair-instance_method" title="Vehicle#repair (method)">#repair</a></span>, <span class='object_link'><a href="Vehicle.html#repair%21-instance_method" title="Vehicle#repair! (method)">#repair!</a></span>, <span class='object_link'><a href="Vehicle.html#repair_transition-instance_method" title="Vehicle#repair_transition (method)">#repair_transition</a></span>, <span class='object_link'><a href="Vehicle.html#second_gear%3F-instance_method" title="Vehicle#second_gear? (method)">#second_gear?</a></span>, <span class='object_link'><a href="Vehicle.html#shift_down-instance_method" title="Vehicle#shift_down (method)">#shift_down</a></span>, <span class='object_link'><a href="Vehicle.html#shift_down%21-instance_method" title="Vehicle#shift_down! (method)">#shift_down!</a></span>, <span class='object_link'><a href="Vehicle.html#shift_down_transition-instance_method" title="Vehicle#shift_down_transition (method)">#shift_down_transition</a></span>, <span class='object_link'><a href="Vehicle.html#shift_up-instance_method" title="Vehicle#shift_up (method)">#shift_up</a></span>, <span class='object_link'><a href="Vehicle.html#shift_up%21-instance_method" title="Vehicle#shift_up! (method)">#shift_up!</a></span>, <span class='object_link'><a href="Vehicle.html#shift_up_transition-instance_method" title="Vehicle#shift_up_transition (method)">#shift_up_transition</a></span>, <span class='object_link'><a href="Vehicle.html#stalled%3F-instance_method" title="Vehicle#stalled? (method)">#stalled?</a></span>, <span class='object_link'><a href="Vehicle.html#state%3F-instance_method" title="Vehicle#state? (method)">#state?</a></span>, <span class='object_link'><a href="Vehicle.html#state_events-instance_method" title="Vehicle#state_events (method)">#state_events</a></span>, <span class='object_link'><a href="Vehicle.html#state_name-instance_method" title="Vehicle#state_name (method)">#state_name</a></span>, <span class='object_link'><a href="Vehicle.html#state_paths-instance_method" title="Vehicle#state_paths (method)">#state_paths</a></span>, <span class='object_link'><a href="Vehicle.html#state_transitions-instance_method" title="Vehicle#state_transitions (method)">#state_transitions</a></span>, <span class='object_link'><a href="Vehicle.html#third_gear%3F-instance_method" title="Vehicle#third_gear? (method)">#third_gear?</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+    
+    
+      <div class="method_details first">
+  <p class="signature first" id="backing_up?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>backing_up?</strong> 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+Checks whether :backing_up is the current state.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<h3>Returns:</h3>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+<tt>true</tt> if this is the current state, otherwise <tt>false</tt>
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'car.rb', line 4</span>
+
+<span class='id identifier rubyid_state_machine'>state_machine</span> <span class='kw'>do</span>
+  <span class='id identifier rubyid_event'>event</span> <span class='symbol'>:reverse</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_transition'>transition</span> <span class='lbracket'>[</span><span class='symbol'>:parked</span><span class='comma'>,</span> <span class='symbol'>:idling</span><span class='comma'>,</span> <span class='symbol'>:first_gear</span><span class='rbracket'>]</span> <span class='op'>=&gt;</span> <span class='symbol'>:backing_up</span>
+  <span class='kw'>end</span>
+  
+  <span class='id identifier rubyid_event'>event</span> <span class='symbol'>:park</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_transition'>transition</span> <span class='symbol'>:backing_up</span> <span class='op'>=&gt;</span> <span class='symbol'>:parked</span>
+  <span class='kw'>end</span>
+  
+  <span class='id identifier rubyid_event'>event</span> <span class='symbol'>:idle</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_transition'>transition</span> <span class='symbol'>:backing_up</span> <span class='op'>=&gt;</span> <span class='symbol'>:idling</span>
+  <span class='kw'>end</span>
+  
+  <span class='id identifier rubyid_event'>event</span> <span class='symbol'>:shift_up</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_transition'>transition</span> <span class='symbol'>:backing_up</span> <span class='op'>=&gt;</span> <span class='symbol'>:first_gear</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <p class="signature " id="can_reverse?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>can_reverse?</strong>(requirements = {}) 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+Checks whether :reverse can be fired.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <h3>Parameters:</h3>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>requirements</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>
+The transition requirements to test against
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <h3>Options Hash (<tt>requirements</tt>):</h3>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:from</span>
+          <span class="type">(<tt>Symbol</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>the current state</tt>
+            
+          </span>
+          &mdash; <div class='inline'><p>
+One or more initial states
+</p>
+</div>
+        </li>
+      
+        <li>
+          <span class="name">:to</span>
+          <span class="type">(<tt>Symbol</tt>)</span>
+          <span class="default">
+            
+          </span>
+          &mdash; <div class='inline'><p>
+One or more target states
+</p>
+</div>
+        </li>
+      
+        <li>
+          <span class="name">:guard</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+          </span>
+          &mdash; <div class='inline'><p>
+Whether to guard transitions with conditionals
+</p>
+</div>
+        </li>
+      
+    </ul>
+  
+
+<h3>Returns:</h3>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+<tt>true</tt> if :reverse can be fired, otherwise <tt>false</tt>
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'car.rb', line 4</span>
+
+<span class='id identifier rubyid_state_machine'>state_machine</span> <span class='kw'>do</span>
+  <span class='id identifier rubyid_event'>event</span> <span class='symbol'>:reverse</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_transition'>transition</span> <span class='lbracket'>[</span><span class='symbol'>:parked</span><span class='comma'>,</span> <span class='symbol'>:idling</span><span class='comma'>,</span> <span class='symbol'>:first_gear</span><span class='rbracket'>]</span> <span class='op'>=&gt;</span> <span class='symbol'>:backing_up</span>
+  <span class='kw'>end</span>
+  
+  <span class='id identifier rubyid_event'>event</span> <span class='symbol'>:park</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_transition'>transition</span> <span class='symbol'>:backing_up</span> <span class='op'>=&gt;</span> <span class='symbol'>:parked</span>
+  <span class='kw'>end</span>
+  
+  <span class='id identifier rubyid_event'>event</span> <span class='symbol'>:idle</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_transition'>transition</span> <span class='symbol'>:backing_up</span> <span class='op'>=&gt;</span> <span class='symbol'>:idling</span>
+  <span class='kw'>end</span>
+  
+  <span class='id identifier rubyid_event'>event</span> <span class='symbol'>:shift_up</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_transition'>transition</span> <span class='symbol'>:backing_up</span> <span class='op'>=&gt;</span> <span class='symbol'>:first_gear</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <p class="signature " id="reverse-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>reverse</strong>(*args) 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+Fires the :reverse event.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <h3>Parameters:</h3>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>args</span>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+Optional arguments to include in transition callbacks
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<h3>Returns:</h3>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+<tt>true</tt> if the transition succeeds, otherwise <tt>false</tt>
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'car.rb', line 4</span>
+
+<span class='id identifier rubyid_state_machine'>state_machine</span> <span class='kw'>do</span>
+  <span class='id identifier rubyid_event'>event</span> <span class='symbol'>:reverse</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_transition'>transition</span> <span class='lbracket'>[</span><span class='symbol'>:parked</span><span class='comma'>,</span> <span class='symbol'>:idling</span><span class='comma'>,</span> <span class='symbol'>:first_gear</span><span class='rbracket'>]</span> <span class='op'>=&gt;</span> <span class='symbol'>:backing_up</span>
+  <span class='kw'>end</span>
+  
+  <span class='id identifier rubyid_event'>event</span> <span class='symbol'>:park</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_transition'>transition</span> <span class='symbol'>:backing_up</span> <span class='op'>=&gt;</span> <span class='symbol'>:parked</span>
+  <span class='kw'>end</span>
+  
+  <span class='id identifier rubyid_event'>event</span> <span class='symbol'>:idle</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_transition'>transition</span> <span class='symbol'>:backing_up</span> <span class='op'>=&gt;</span> <span class='symbol'>:idling</span>
+  <span class='kw'>end</span>
+  
+  <span class='id identifier rubyid_event'>event</span> <span class='symbol'>:shift_up</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_transition'>transition</span> <span class='symbol'>:backing_up</span> <span class='op'>=&gt;</span> <span class='symbol'>:first_gear</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <p class="signature " id="reverse!-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>reverse!</strong>(*args) 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+Fires the :reverse event, raising an exception if it fails.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <h3>Parameters:</h3>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>args</span>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+Optional arguments to include in transition callbacks
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<h3>Returns:</h3>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+<tt>true</tt> if the transition succeeds
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+<h3>Raises:</h3>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>StateMachine::InvalidTransition</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+If the transition fails
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'car.rb', line 4</span>
+
+<span class='id identifier rubyid_state_machine'>state_machine</span> <span class='kw'>do</span>
+  <span class='id identifier rubyid_event'>event</span> <span class='symbol'>:reverse</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_transition'>transition</span> <span class='lbracket'>[</span><span class='symbol'>:parked</span><span class='comma'>,</span> <span class='symbol'>:idling</span><span class='comma'>,</span> <span class='symbol'>:first_gear</span><span class='rbracket'>]</span> <span class='op'>=&gt;</span> <span class='symbol'>:backing_up</span>
+  <span class='kw'>end</span>
+  
+  <span class='id identifier rubyid_event'>event</span> <span class='symbol'>:park</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_transition'>transition</span> <span class='symbol'>:backing_up</span> <span class='op'>=&gt;</span> <span class='symbol'>:parked</span>
+  <span class='kw'>end</span>
+  
+  <span class='id identifier rubyid_event'>event</span> <span class='symbol'>:idle</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_transition'>transition</span> <span class='symbol'>:backing_up</span> <span class='op'>=&gt;</span> <span class='symbol'>:idling</span>
+  <span class='kw'>end</span>
+  
+  <span class='id identifier rubyid_event'>event</span> <span class='symbol'>:shift_up</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_transition'>transition</span> <span class='symbol'>:backing_up</span> <span class='op'>=&gt;</span> <span class='symbol'>:first_gear</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <p class="signature " id="reverse_transition-instance_method">
+  
+    - (<tt>StateMachine::Transition</tt>) <strong>reverse_transition</strong>(requirements = {}) 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+Gets the next transition that would be performed if :reverse were to be
+fired.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <h3>Parameters:</h3>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>requirements</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>
+The transition requirements to test against
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <h3>Options Hash (<tt>requirements</tt>):</h3>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:from</span>
+          <span class="type">(<tt>Symbol</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>the current state</tt>
+            
+          </span>
+          &mdash; <div class='inline'><p>
+One or more initial states
+</p>
+</div>
+        </li>
+      
+        <li>
+          <span class="name">:to</span>
+          <span class="type">(<tt>Symbol</tt>)</span>
+          <span class="default">
+            
+          </span>
+          &mdash; <div class='inline'><p>
+One or more target states
+</p>
+</div>
+        </li>
+      
+        <li>
+          <span class="name">:guard</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+          </span>
+          &mdash; <div class='inline'><p>
+Whether to guard transitions with conditionals
+</p>
+</div>
+        </li>
+      
+    </ul>
+  
+
+<h3>Returns:</h3>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>StateMachine::Transition</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+The transition that would be performed or <tt>nil</tt>
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'car.rb', line 4</span>
+
+<span class='id identifier rubyid_state_machine'>state_machine</span> <span class='kw'>do</span>
+  <span class='id identifier rubyid_event'>event</span> <span class='symbol'>:reverse</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_transition'>transition</span> <span class='lbracket'>[</span><span class='symbol'>:parked</span><span class='comma'>,</span> <span class='symbol'>:idling</span><span class='comma'>,</span> <span class='symbol'>:first_gear</span><span class='rbracket'>]</span> <span class='op'>=&gt;</span> <span class='symbol'>:backing_up</span>
+  <span class='kw'>end</span>
+  
+  <span class='id identifier rubyid_event'>event</span> <span class='symbol'>:park</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_transition'>transition</span> <span class='symbol'>:backing_up</span> <span class='op'>=&gt;</span> <span class='symbol'>:parked</span>
+  <span class='kw'>end</span>
+  
+  <span class='id identifier rubyid_event'>event</span> <span class='symbol'>:idle</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_transition'>transition</span> <span class='symbol'>:backing_up</span> <span class='op'>=&gt;</span> <span class='symbol'>:idling</span>
+  <span class='kw'>end</span>
+  
+  <span class='id identifier rubyid_event'>event</span> <span class='symbol'>:shift_up</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_transition'>transition</span> <span class='symbol'>:backing_up</span> <span class='op'>=&gt;</span> <span class='symbol'>:first_gear</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+    
+    <div id="footer">
+  Generated on Fri Feb 17 08:30:34 2012 by 
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.7.5 (ruby-1.9.2).
+</div>
+
+  </body>
+</html>

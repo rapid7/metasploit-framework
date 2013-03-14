@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 require 'rex/encoding/xor/exceptions'
 require 'rex/text'
@@ -18,7 +19,7 @@ class Generic
 
 	#
 	# Now for some internal check methods
-	#	
+	#
 
 	# hook stylies!
 	# return index of offending byte or nil
@@ -81,7 +82,7 @@ class Generic
 					if !badkeys[strip][kbyte] && !badchars[kbyte.chr]
 						throw :found_kbyte
 					end
-					
+
 					kbyte = (kbyte + 1) & 0xff
 				}
 

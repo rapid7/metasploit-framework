@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'rex/proto/http'
@@ -15,19 +11,18 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'   		=> 'HTTP Vuln scanner',
+			'Name'   		=> 'HTTP Vuln Scanner',
 			'Description'	=> %q{
 				This module identifies common vulnerable files or cgis.
 			},
 			'Author' 		=> [ 'et' ],
-			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision$'))
+			'License'		=> BSD_LICENSE))
 
 		register_options(
 			[
@@ -49,11 +44,16 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
+	# Modify to true if you have sqlmap installed.
+	def wmap_enabled
+		false
+	end
+
 	def run_host(ip)
 		conn = false
 		usecode = datastore['ForceCode']
 
-		tpath = datastore['PATH']
+		tpath = normalize_uri(datastore['PATH'])
 		if tpath[-1,1] != '/'
 			tpath += '/'
 		end
@@ -152,7 +152,7 @@ class Metasploit3 < Msf::Auxiliary
 								report_note(
 									:host	=> ip,
 									:proto => 'tcp',
-									:sname	=> 'HTTP',
+									:sname => (ssl ? 'https' : 'http'),
 									:port	=> rport,
 									:type	=> 'FILE',
 									:data	=> "#{tpath}#{testfvuln} Code: #{res.code}"
@@ -166,7 +166,7 @@ class Metasploit3 < Msf::Auxiliary
 							report_note(
 									:host	=> ip,
 									:proto => 'tcp',
-									:sname	=> 'HTTP',
+									:sname => (ssl ? 'https' : 'http'),
 									:port	=> rport,
 									:type	=> 'FILE',
 									:data	=> "#{tpath}#{testfvuln} Code: #{res.code}"
@@ -184,4 +184,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -30,9 +26,13 @@ class Metasploit3 < Msf::Auxiliary
 					a note for each DB found, and store a YAML formatted output
 					as loot for easy reading.
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Author'         => ['theLightCosine'],
 			'License'        => MSF_LICENSE
 		)
+
+		register_options([
+			OptBool.new('DISPLAY_RESULTS', [true, "Display the Results to the Screen", true])
+			])
 	end
 
 	def run_host(ip)
@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 					:proto => 'tcp'
 					)
 		store_loot('mssql_schema', "text/plain", datastore['RHOST'], output, "#{datastore['RHOST']}_mssql_schema.txt", "MS SQL Schema", this_service)
-		print_good output
+		print_good output if datastore['DISPLAY_RESULTS']
 	end
 
 	def get_mssql_schema
@@ -83,17 +83,17 @@ class Metasploit3 < Msf::Auxiliary
 				unless tmp_tblnames.nil?
 					tmp_db['DBName']= dbname[0]
 					tmp_db['Tables'] = []
-					tmp_tblnames.each do |tblname| 
+					tmp_tblnames.each do |tblname|
 						next if tblname[0].nil?
 						tmp_tbl = {}
-						tmp_tbl['TableName'] = tblname[0] 
+						tmp_tbl['TableName'] = tblname[0]
 						tmp_tbl['Columns'] = []
 						tmp_columns = get_columns(dbname[0], tblname[1])
 						unless tmp_columns.nil?
 							tmp_columns.each do |column|
-								next if column[0].nil? 
+								next if column[0].nil?
 								tmp_column = {}
-								tmp_column['ColumnName'] = column[0] 
+								tmp_column['ColumnName'] = column[0]
 								tmp_column['ColumnType'] = column[1]
 								tmp_column['ColumnLength'] = column[2]
 								tmp_tbl['Columns'] << tmp_column
@@ -121,6 +121,7 @@ class Metasploit3 < Msf::Auxiliary
 		return results
 	end
 
+	# TODO: This should be split up, I fear nil problems in these query/response parsings
 	def get_columns(db_name, table_id)
 		results = mssql_query("Select syscolumns.name,systypes.name,syscolumns.length from #{db_name}..syscolumns JOIN #{db_name}..systypes ON syscolumns.xtype=systypes.xtype WHERE syscolumns.id=#{table_id}")[:rows]
 		return results
@@ -128,4 +129,3 @@ class Metasploit3 < Msf::Auxiliary
 
 
 end
-

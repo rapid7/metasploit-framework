@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'uri'
 require 'rex/proto/http'
 
@@ -19,7 +20,7 @@ class Request < Packet
 	# Some individual request types.
 	#
 	##
-	
+
 	#
 	# HTTP GET request class wrapper.
 	#
@@ -102,7 +103,7 @@ class Request < Packet
 
 	# normalize out multiple slashes, directory traversal, and self referrential directories
 	def normalize!(str)
-		i = 0 
+		i = 0
 		while (str.gsub!(/(\/\.\/|\/\w+\/\.\.\/|\/\/)/,'/')); i += 1; end
 		i
 	end
@@ -110,7 +111,7 @@ class Request < Packet
 	# Puts a URI back together based on the URI parts
 	def uri
 		str = self.uri_parts['Resource'].dup || '/'
-		
+
 		# /././././
 		if self.junk_self_referring_directories
 			str.gsub!(/\//) {
@@ -125,7 +126,7 @@ class Request < Packet
 		end
 
 		# /RAND/../RAND../
-		if self.junk_directories 
+		if self.junk_directories
 			str.gsub!(/\//) {
 				dirs = ''
 				(rand(5)+5).times {
@@ -144,7 +145,7 @@ class Request < Packet
 			}
 			str.sub!(/^[\/]+/, '/') # only one beginning slash!
 		end
-		
+
 		# /%20HTTP/1.0%0d%0a/../../
 		# which decodes to "/ HTTP/1.0\r\n"
 		if self.junk_end_of_uri
@@ -158,7 +159,7 @@ class Request < Packet
 				str << '?' + param_string
 			end
 		end
-		str	
+		str
 	end
 
 	def param_string
@@ -175,11 +176,11 @@ class Request < Packet
     				params.push(Rex::Text.uri_encode(param, self.uri_encode_mode) + '=' + Rex::Text.uri_encode(subvalue, self.uri_encode_mode))
 				}
 			else
-    			if !value.nil?
-    				params.push(Rex::Text.uri_encode(param, self.uri_encode_mode) + '=' + Rex::Text.uri_encode(value, self.uri_encode_mode))
-    			else 
-    				params.push(Rex::Text.uri_encode(param, self.uri_encode_mode))
-    			end
+				if !value.nil?
+					params.push(Rex::Text.uri_encode(param, self.uri_encode_mode) + '=' + Rex::Text.uri_encode(value, self.uri_encode_mode))
+				else
+					params.push(Rex::Text.uri_encode(param, self.uri_encode_mode))
+				end
 			end
 		}
 
@@ -197,7 +198,7 @@ class Request < Packet
 		self.raw_uri = str
 		update_uri_parts
 	end
- 
+
 	# Returns a request packet
 	def to_s
 		str = ''
@@ -217,7 +218,7 @@ class Request < Packet
 		if str.length > 0
 			return str
 		end
-		
+
 		if PostRequests.include?(self.method)
 			return param_string
 		end
@@ -291,30 +292,27 @@ class Request < Packet
 
 	# add junk directories
 	attr_accessor :junk_directories
-	
-	# add junk slashes 
+
+	# add junk slashes
 	attr_accessor :junk_slashes
-   
+
 	# add junk self referring directories (aka  /././././)
 	attr_accessor :junk_self_referring_directories
 
 	# add junk params
 	attr_accessor :junk_params
-	
+
 	# add junk pipeline requests
 	attr_accessor :junk_pipeline
 
 	# add junk start of params
 	attr_accessor :junk_param_start
-	
+
 	# add junk end of URI
 	attr_accessor :junk_end_of_uri
-	
-	# encoding uri 
-	attr_accessor :uri_encode_mode
-		
 
-protected
+	# encoding uri
+	attr_accessor :uri_encode_mode
 
 	#
 	# Parses a CGI query string into the var/val combinations.
@@ -326,7 +324,7 @@ protected
 		str.split(/[;&]/).each { |vv|
 			var = vv
 			val = ''
-			
+
 			if (md = vv.match(/(.+?)=(.*)/))
 				var = md[1]
 				val = md[2]

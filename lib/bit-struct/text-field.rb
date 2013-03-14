@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 class BitStruct
   # Class for null-terminated printable text strings.
   # Declared with BitStruct.text.

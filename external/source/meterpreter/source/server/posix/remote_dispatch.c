@@ -1,6 +1,7 @@
 #include <dlfcn.h>
 #include "metsrv.h"
 
+extern Command *extension_commands;
 
 DWORD
 request_core_loadlib(Remote *remote, Packet *packet)
@@ -12,7 +13,9 @@ request_core_loadlib(Remote *remote, Packet *packet)
 	DWORD flags = 0;
 	PCHAR targetPath;
 	int local_error = 0;
-	
+	Command *command;
+	Command *first = extension_commands;
+
 	do
 	{
 		Tlv dataTlv;
@@ -44,10 +47,10 @@ request_core_loadlib(Remote *remote, Packet *packet)
 			break;
 		}
 
-		dprintf("[%s] targetPath: %s", __FUNCTION__, targetPath);
+		dprintf("targetPath: %s", targetPath);
 
 		library = dlopenbuf(targetPath, dataTlv.buffer, dataTlv.header.length );
-		dprintf("[%s] dlopenbuf(%s): %08x / %s", __FUNCTION__, targetPath, library, dlerror());
+		dprintf("dlopenbuf(%s): %08x / %s", targetPath, library, dlerror());
 		if(! library) {
 			res = ERROR_NOT_FOUND;
 			break;
@@ -61,8 +64,13 @@ request_core_loadlib(Remote *remote, Packet *packet)
 			init = dlsym(library, "InitServerExtension" );
 			// Call the init routine in the library
 			if( init ) {
-				dprintf("[%s] calling InitServerExtension", __FUNCTION__);
+				dprintf("calling InitServerExtension");
 				res = init(remote);
+			}
+			if (response) {
+				for (command = extension_commands; command != first; command = command->next) {
+					packet_add_tlv_string(response, TLV_TYPE_METHOD, command->method);
+				}
 			}
 		}
 		

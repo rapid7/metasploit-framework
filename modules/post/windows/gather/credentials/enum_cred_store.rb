@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -16,7 +12,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'            => "Windows Credential Store Enumeration and Decryption Module",
+			'Name'            => "Windows Gather Credential Store Enumeration and Decryption Module",
 			'Description'     => %q{
 					This module will enumerate the Microsoft Credential Store and decrypt the
 				credentials. This module can only access credentials created by the user the
@@ -24,8 +20,7 @@ class Metasploit3 < Msf::Post
 				display the username and location.
 			},
 			'License'         => MSF_LICENSE,
-			'Version'         => '$Revision$',
-			'Platform'        => ['windows'],
+			'Platform'        => ['win'],
 			'SessionTypes'    => ['meterpreter'],
 			'Author'          => ['Kx499']
 		))
@@ -160,13 +155,18 @@ class Metasploit3 < Msf::Post
 			ip_add= gethost(host)
 
 			unless ip_add.nil?
+				if session.db_record
+					source_id = session.db_record.id
+				else
+					source_id = nil
+				end
 				auth = {
 					:host => ip_add,
 					:port => port,
 					:user => cred["username"],
 					:pass => cred["password"],
 					:type => 'password',
-					:source_id => session.db_record.id,
+					:source_id => source_id,
 					:source_type => "exploit",
 					:active => true
 				}

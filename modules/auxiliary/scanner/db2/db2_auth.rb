@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -23,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'DB2 Authentication Brute Force Utility',
-			'Version'        => '$Revision$',
 			'Description'    => %q{This module attempts to authenticate against a DB2
 				instance using username and password combinations indicated by the
 				USER_FILE, PASS_FILE, and USERPASS_FILE options.},
@@ -53,7 +48,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def do_login(user=nil,pass=nil,db=nil)
-		verbose = datastore['VERBOSE']
 		datastore['USERNAME'] = user
 		datastore['PASSWORD'] = pass
 		vprint_status("#{rhost}:#{rport} - DB2 - Trying username:'#{user}' with password:'#{pass}'")

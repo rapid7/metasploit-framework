@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'msf/core'
 
 module Msf
@@ -77,14 +78,6 @@ class Module
 		# The path from which the module was loaded.
 		#
 		attr_accessor :file_path
-
-		#
-		# Override the default Class#inspect which is useless for the way
-		# modules get loaded
-		#
-		def inspect
-			"#<Class for #{refname}>"
-		end
 	end
 
 	#
@@ -215,6 +208,10 @@ class Module
 		super(print_prefix + msg)
 	end
 
+	def print_warning(msg='')
+		super(print_prefix + msg)
+	end
+
 
 	#
 	# Overwrite the Subscriber print_line to do custom prefixes
@@ -247,6 +244,10 @@ class Module
 	# Verbose version of #print_debug
 	def vprint_debug(msg)
 		print_debug(msg) if datastore['VERBOSE'] || framework.datastore['VERBOSE']
+	end
+	# Verbose version of #print_warning
+	def vprint_warning(msg)
+		print_warning(msg) if datastore['VERBOSE'] || framework.datastore['VERBOSE']
 	end
 
 	#
@@ -371,6 +372,21 @@ class Module
 
 		if(self.datastore['RHOST'])
 			return self.datastore['RHOST']
+		end
+
+		nil
+	end
+
+	#
+	# Returns the address of the last target port (rough estimate)
+	#
+	def target_port
+		if(self.respond_to?('rport'))
+			return rport()
+		end
+
+		if(self.datastore['RPORT'])
+			return self.datastore['RPORT']
 		end
 
 		nil
@@ -601,7 +617,7 @@ class Module
 	def debugging?
 		(datastore['DEBUG'] || '') =~ /^(1|t|y)/i
 	end
-	
+
 	#
 	# Indicates whether the module supports IPv6. This is true by default,
 	# but certain modules require additional work to be compatible or are
@@ -690,6 +706,8 @@ class Module
 							if not match and self.respond_to?(:targets) and self.targets
 								match = [t,w] if self.targets.map{|x| x.name}.any? { |t| t =~ r }
 							end
+						when 'port'
+							match = [t,w] if self.datastore['RPORT'].to_s =~ r
 						when 'type'
 							match = [t,w] if (w == "exploit" and is_exploit)
 							match = [t,w] if (w == "auxiliary" and is_auxiliary)
@@ -703,6 +721,8 @@ class Module
 							match = [t,w] if refs.any? { |ref| ref =~ /^bid\-/i and ref =~ r }
 						when 'osvdb'
 							match = [t,w] if refs.any? { |ref| ref =~ /^osvdb\-/i and ref =~ r }
+						when 'edb'
+							match = [t,w] if refs.any? { |ref| ref =~ /^edb\-/i and ref =~ r }
 					end
 					break if match
 				end
@@ -875,10 +895,10 @@ protected
 	# them into one single hash.  As it stands, modules can define
 	# compatibility in their supplied info hash through:
 	#
-	#   Compat        - direct compat definitions
-	#   PayloadCompat - payload compatibilities
-	#   EncoderCompat - encoder compatibilities
-	#   NopCompat     - nop compatibilities
+	# Compat::        direct compat definitions
+	# PayloadCompat:: payload compatibilities
+	# EncoderCompat:: encoder compatibilities
+	# NopCompat::     nop compatibilities
 	#
 	# In the end, the module specific compatibilities are merged as sub-hashes
 	# of the primary Compat hash key to make checks more uniform.

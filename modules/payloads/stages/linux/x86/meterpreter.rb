@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -20,7 +16,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'Linux Meterpreter',
-			'Version'       => '$Revision$',
 			'Description'   => 'Staged meterpreter server',
 			'Author'        => ['PKS', 'egypt'],
 			'Platform'      => 'linux',
@@ -130,4 +125,3 @@ module Metasploit3
 		return met
 	end
 end
-

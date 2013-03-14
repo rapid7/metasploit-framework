@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 require 'rex/io/stream_abstraction'
 require 'rex/post/meterpreter/channel'

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/ui'
 require 'rex/socket'
 
@@ -7,7 +8,7 @@ module Text
 
 ###
 #
-# Prints text in a tablized format.  Pretty lame at the moment, but 
+# Prints text in a tablized format.  Pretty lame at the moment, but
 # whatever.
 #
 ###
@@ -17,7 +18,7 @@ class Table
 	# Initializes a text table instance using the supplied properties.  The
 	# Table class supports the following hash attributes:
 	#
-	# Header 
+	# Header
 	#
 	#	The string to display as a heading above the table.  If none is
 	#	specified, no header will be displayed.
@@ -54,6 +55,10 @@ class Table
 	#
 	# 	The text to affix to the end of the table.
 	#
+	# Sortindex
+	#
+	#	The column to sort the table on, -1 disables sorting.
+	#
 	def initialize(opts = {})
 		self.header   = opts['Header']
 		self.headeri  = opts['HeaderIndent'] || 0
@@ -67,6 +72,8 @@ class Table
 		self.prefix   = opts['Prefix']  || ''
 		self.postfix  = opts['Postfix'] || ''
 		self.colprops = []
+
+		self.sort_index  = opts['SortIndex'] || 0
 
 		# Default column properties
 		self.columns.length.times { |idx|
@@ -93,14 +100,14 @@ class Table
 
 	#
 	# Converts table contents to a string.
-	# 
+	#
 	def to_s
 		str  = prefix.dup
 		str << header_to_s || ''
 		str << columns_to_s || ''
 		str << hr_to_s || ''
 
-		sort_rows(0)
+		sort_rows
 		rows.each { |row|
 			if (is_hr(row))
 				str << hr_to_s
@@ -113,7 +120,7 @@ class Table
 
 		return str
 	end
-	
+
 	#
 	# Converts table contents to a csv
 	#
@@ -122,7 +129,7 @@ class Table
 		str << ( columns.join(",") + "\n" )
 		rows.each { |row|
 			next if is_hr(row)
-			str << ( row.map{|x| 
+			str << ( row.map{|x|
 				x = x.to_s
 
 				x.gsub(/[\r\n]/, ' ').gsub(/\s+/, ' ').gsub('"', '""')
@@ -172,23 +179,26 @@ class Table
 			end
 		}
 
-		rows << fields	
+		rows << fields
 	end
 
 	#
 	# Sorts the rows based on the supplied index of sub-arrays
 	# If the supplied index is an IPv4 address, handle it differently, but
 	# avoid actually resolving domain names.
-	#	
-	def sort_rows(index=0)
+	#
+	def sort_rows(index=sort_index)
+		return if index == -1
 		return unless rows
-		rows.sort! do |a,b| 
-			if a[index].nil? 
+		rows.sort! do |a,b|
+			if a[index].nil?
 				-1
 			elsif b[index].nil?
-				1 
+				1
 			elsif Rex::Socket.dotted_ip?(a[index]) and Rex::Socket.dotted_ip?(b[index])
 				Rex::Socket::addr_atoi(a[index]) <=> Rex::Socket::addr_atoi(b[index])
+			elsif a[index] =~ /^[0-9]+$/ and b[index] =~ /^[0-9]+$/
+				a[index].to_i <=> b[index].to_i
 			else
 				a[index] <=> b[index] # assumes otherwise comparable.
 			end
@@ -208,6 +218,7 @@ class Table
 	attr_accessor :columns, :rows, :colprops # :nodoc:
 	attr_accessor :width, :indent, :cellpad # :nodoc:
 	attr_accessor :prefix, :postfix # :nodoc:
+	attr_accessor :sort_index # :nodoc:
 
 protected
 
@@ -246,7 +257,7 @@ protected
 			end
 			nameline << col
 			barline << ('-' * col.length)
-				
+
 			last_col = col
 			last_idx = idx
 		}
@@ -296,7 +307,7 @@ protected
 		return val
 	end
 
-	
+
 end
 
 end

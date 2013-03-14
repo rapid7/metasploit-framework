@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -24,8 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module sends a series of HTTP GET request with malicious URIs.
 			},
 			'Author'         => [ 'nullthreat' ],
-			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$'
+			'License'        => MSF_LICENSE
 		))
 		register_options([
 			Opt::RPORT(80),
@@ -90,4 +85,3 @@ class Metasploit3 < Msf::Auxiliary
 		datastore['URIBASE']
 	end
 end
-

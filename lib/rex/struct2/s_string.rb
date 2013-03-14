@@ -1,11 +1,12 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 # Rex::Struct2
 module Rex
 module Struct2
 
 class SString
-	
+
 	require 'rex/struct2/element'
 	require 'rex/struct2/constant'
 	include Rex::Struct2::Element

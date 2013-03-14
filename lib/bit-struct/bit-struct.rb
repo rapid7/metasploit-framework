@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 # Class for packed binary data, with defined bitfields and accessors for them.
 # See {intro.txt}[link:../doc/files/intro_txt.html] for an overview.
 #

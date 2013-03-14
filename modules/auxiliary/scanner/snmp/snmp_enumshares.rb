@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -20,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SNMP Windows SMB Share Enumeration',
-			'Version'     => '$Revision$',
 			'Description' => "This module will use LanManager OID values to enumerate SMB shares on a Windows system via SNMP",
 			'Author'      => ['tebo[at]attackresearch.com'],
 			'License'     => MSF_LICENSE
@@ -36,9 +31,9 @@ class Metasploit3 < Msf::Auxiliary
 						"1.3.6.1.4.1.77.1.2.27.1.2",
 						"1.3.6.1.4.1.77.1.2.27.1.3"]
 
+			@shares = []
 			if snmp.get_value('sysDescr.0') =~ /Windows/
 
-				@shares = []
 				snmp.walk(share_tbl) do |entry|
 					@shares << entry.collect{|x|x.value}
 				end
@@ -59,15 +54,15 @@ class Metasploit3 < Msf::Auxiliary
 				)
 			end
 
-		rescue ::SNMP::UnsupportedVersion
-		rescue ::SNMP::RequestTimeout
+		rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::UnsupportedVersion
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
-			print_error("Unknown error: #{e.class} #{e}")
+			print_error("#{ip} Unknown error: #{e.class} #{e}")
+		ensure
+			disconnect_snmp
 		end
 
 	end
 
 end
-

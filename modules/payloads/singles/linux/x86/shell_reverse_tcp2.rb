@@ -1,11 +1,8 @@
-# $Id$
-##
-
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'metasm'
@@ -28,8 +25,7 @@ module Metasploit3
 # We decoded skape's shellcode by using irb -r metasm-shell
 # and: puts shellcode.decode
 		super(merge_info(info,
-			'Name'          => 'Linux Command Shell, Reverse TCP Inline - Metasm demo',
-			'Version'       => '$Revision$',
+			'Name'          => 'Linux Command Shell, Reverse TCP Inline - Metasm Demo',
 			'Description'   => 'Connect back to attacker and spawn a command shell',
 			'Author'        => ['skape', 'Yoann Guillot', 'Julien Tinnes <julien[at]cr0.org>'],
 			'License'       => MSF_LICENSE,

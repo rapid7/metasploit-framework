@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'strscan'
 
 module Postgres::Conversion

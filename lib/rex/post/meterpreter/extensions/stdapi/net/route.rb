@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 require 'ipaddr'
 
@@ -25,17 +26,19 @@ class Route
 	#
 	# Initializes a route instance.
 	#
-	def initialize(subnet, netmask, gateway)
-		self.subnet  = IPAddr.ntop(subnet)
-		self.netmask = IPAddr.ntop(netmask)
-		self.gateway = IPAddr.ntop(gateway)
+	def initialize(subnet, netmask, gateway, interface='', metric=0)
+		self.subnet  = IPAddr.new_ntoh(subnet).to_s
+		self.netmask = IPAddr.new_ntoh(netmask).to_s
+		self.gateway = IPAddr.new_ntoh(gateway).to_s
+		self.interface = interface
+		self.metric = metric
 	end
 
 	#
 	# Provides a pretty version of the route.
 	#
 	def pretty
-		return sprintf("%16s %16s %16s", subnet, netmask, gateway)
+		return sprintf("%16s %16s %16s %d %16s", subnet, netmask, gateway, metric, interface)
 	end
 
 	#
@@ -50,6 +53,15 @@ class Route
 	# The gateway to take for the subnet route.
 	#
 	attr_accessor :gateway
+	#
+	# The interface to take for the subnet route.
+	#
+	attr_accessor :interface
+	#
+	# The metric of the route.
+	#
+	attr_accessor :metric
+
 
 end
 

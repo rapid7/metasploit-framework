@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -26,8 +22,7 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{ This module will enumerate USB Drive history on a target host.},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'nebulus'],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
+				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
 
@@ -44,7 +39,7 @@ class Metasploit3 < Msf::Post
 		out = "\n"
 
 		@drives.each do |u, v|
-			out << sprintf("%5s\t%75s\n", v, u)
+			out << sprintf("%5s\t%75s\n", v, u.gsub("\x00", ''))
 		end
 
 		print_status(out)

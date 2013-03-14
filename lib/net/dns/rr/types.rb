@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Net # :nodoc:
   module DNS
     

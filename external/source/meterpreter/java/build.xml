@@ -34,8 +34,34 @@
 			</manifest>
 		</jar>
 	</target>
+	
+	<target name="fix-timestamps" depends="jar">
+		<mkdir dir="extensions/tmp"/>
+		<unzip src="extensions/meterpreter.jar" dest="extensions/tmp"/>
+		<touch datetime="01/01/2000 00:00 AM">
+			<fileset dir="extensions/tmp" includes="**/*"/>
+		</touch>
+		<delete file="extensions/meterpreter.jar" />
+		<zip destfile="extensions/meterpreter.jar">
+			<fileset dir="extensions/tmp" includes="META-INF/**" />
+			<fileset dir="extensions/tmp" excludes="META-INF/**" />
+		</zip>
+		<delete dir="extensions/tmp"/>
 
-	<target name="deploy" depends="jar">
+		<mkdir dir="extensions/tmp"/>
+		<unzip src="extensions/ext_server_stdapi.jar" dest="extensions/tmp"/>
+		<touch datetime="01/01/2000 00:00 AM">
+			<fileset dir="extensions/tmp" includes="**/*"/>
+		</touch>
+		<delete file="extensions/ext_server_stdapi.jar" />
+		<zip destfile="extensions/ext_server_stdapi.jar">
+			<fileset dir="extensions/tmp" includes="META-INF/**" />
+			<fileset dir="extensions/tmp" excludes="META-INF/**" />
+		</zip>
+		<delete dir="extensions/tmp"/>
+	</target>
+
+	<target name="deploy" depends="fix-timestamps">
 		<copy todir="../../../../data/meterpreter">
 			<fileset dir="extensions">
 			</fileset>

@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 
 module Rex
 module Post
@@ -27,7 +28,7 @@ class Webcam
 		names
 	end
 
-	# Starts recording video from video source of index #{cam}
+	# Starts recording video from video source of index +cam+
 	def webcam_start(cam)
 		request = Packet.create_request('webcam_start')
 		request.add_tlv(TLV_TYPE_WEBCAM_INTERFACE_ID, cam)
@@ -47,7 +48,7 @@ class Webcam
 		true
 	end
 
-	# Record from default audio source for #{duration} seconds;
+	# Record from default audio source for +duration+ seconds;
 	# returns a low-quality wav file
 	def record_mic(duration)
 		request = Packet.create_request('webcam_audio_record')

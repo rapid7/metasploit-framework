@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'msf/core'
 
 module Msf
@@ -58,6 +59,7 @@ class EventDispatcher
 	def initialize(framework)
 		self.framework = framework
 		self.general_event_subscribers = []
+		self.custom_event_subscribers  = []
 		self.exploit_event_subscribers = []
 		self.session_event_subscribers = []
 		self.db_event_subscribers      = []
@@ -181,7 +183,7 @@ class EventDispatcher
 					sub.send(name, *args)
 				end
 			else
-				general_event_subscribers.each do |sub|
+				(general_event_subscribers + custom_event_subscribers).each do |sub|
 					next if not sub.respond_to?(name)
 					sub.send(name, *args)
 					found = true
@@ -198,9 +200,7 @@ class EventDispatcher
 				remove_event_subscriber(self.send(subscribers), *args)
 			end
 		end
-		if not found
-			elog("Event dispatcher received an unhandled event: #{name}")
-		end
+
 		return found
 	end
 
@@ -222,6 +222,7 @@ protected
 	end
 
 	attr_accessor :general_event_subscribers # :nodoc:
+	attr_accessor :custom_event_subscribers # :nodoc:
 	attr_accessor :exploit_event_subscribers # :nodoc:
 	attr_accessor :session_event_subscribers # :nodoc:
 	attr_accessor :db_event_subscribers # :nodoc:

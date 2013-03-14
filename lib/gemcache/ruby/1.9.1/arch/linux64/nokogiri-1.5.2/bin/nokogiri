@@ -1,0 +1,61 @@
+#!/usr/bin/env ruby
+require 'optparse'
+require 'open-uri'
+require 'irb'
+require 'uri'
+require 'rubygems'
+require 'nokogiri'
+
+parse_class = Nokogiri
+encoding = nil
+
+opts = OptionParser.new do |opts|
+  opts.banner = "Nokogiri: an HTML, XML, SAX, and Reader parser"
+  opts.define_head "Usage: nokogiri <uri|path> [options]"
+  opts.separator ""
+  opts.separator "Examples:"
+  opts.separator "  nokogiri http://www.ruby-lang.org/"
+  opts.separator "  nokogiri ./public/index.html"
+  opts.separator ""
+  opts.separator "Options:"
+
+  opts.on("--type [TYPE]", [:xml, :html]) do |v|
+    parse_class = {:xml => Nokogiri::XML, :html => Nokogiri::HTML}[v]
+  end
+
+  opts.on("-E", "--encoding encoding", "Read as encoding (default #{encoding})") do |v|
+    encoding = v
+  end
+
+  opts.on("--rng <uri|path>", "Validate using this rng file.") do |v|
+    @rng = open(v) {|f| Nokogiri::XML::RelaxNG(f)}
+  end
+
+  opts.on_tail("-?", "--help", "Show this message") do
+    puts opts
+    exit
+  end
+
+  opts.on_tail("-v", "--version", "Show version") do
+    puts Nokogiri::VersionInfo.instance.to_markdown
+    exit
+  end
+end
+opts.parse!
+
+uri = ARGV.shift
+
+if uri.to_s.strip.empty?
+  puts opts
+  exit 1
+end
+
+@doc = parse_class.parse(open(uri).read, nil, encoding)
+
+if @rng
+  puts @rng.validate(@doc)
+else
+  puts "Your document is stored in @doc..."
+  IRB.start
+end
+

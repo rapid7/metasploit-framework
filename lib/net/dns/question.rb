@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 #---
 # $Id: Question.rb,v 1.8 2006/07/28 19:00:03 bluemonk Exp $     
 #+++
