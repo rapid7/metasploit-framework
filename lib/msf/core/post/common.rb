@@ -80,6 +80,10 @@ module Common
 		return o
 	end
 
+	def vcmd_exec(cmd, args=nil, time_out=15)
+		vprint_status cmd_exec(cmd,args,time_out)
+	end
+
 	#
 	# Reports to the database that the host is a virtual machine and reports
 	# the type of virtual machine it is (e.g VirtualBox, VMware, Xen)
