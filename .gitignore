@@ -6,6 +6,8 @@
 .yardoc
 # Mac OS X files
 .DS_Store
+# database config for testing
+config/database.yml
 # simplecov coverage data
 coverage
 data/meterpreter/ext_server_pivot.dll
