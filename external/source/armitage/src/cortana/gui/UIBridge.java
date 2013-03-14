@@ -30,11 +30,16 @@ public class UIBridge implements Loadable, Function {
 		if (name.equals("&later")) {
 			final SleepClosure f = BridgeUtilities.getFunction(args, script);
 			final Stack argz = EventManager.shallowCopy(args);
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					SleepUtils.runCode(f, "laterz", null, argz);
-				}
-			});
+			if (SwingUtilities.isEventDispatchThread()) {
+				SleepUtils.runCode(f, "laterz", null, argz);
+			}
+			else {
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						SleepUtils.runCode(f, "laterz", null, argz);
+					}
+				});
+			}
 		}
 
 		return SleepUtils.getEmptyScalar();

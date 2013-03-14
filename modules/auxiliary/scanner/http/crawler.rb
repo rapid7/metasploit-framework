@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,12 +16,15 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Web Site Crawler',
-			'Version'     => '$Revision$',
 			'Description' => 'Crawl a web site and store information about what was found',
-			'Author'      => 'hdm',
+			'Author'      => %w(hdm tasos),
 			'License'     => MSF_LICENSE
 		)
 
+		register_advanced_options([
+			OptString.new('ExcludePathPatterns', [false, 'Newline-separated list of path patterns to ignore (\'*\' is a wildcard)']),
+		])
+		@for_each_page_blocks = []
 	end
 
 =begin
@@ -34,6 +33,31 @@ class Metasploit3 < Msf::Auxiliary
 		page.links
 	end
 =end
+
+	# Overrides Msf::Auxiliary::HttpCrawler#get_link_filter to add
+	# datastore['ExcludePathPatterns']
+	def get_link_filter
+		return super if datastore['ExcludePathPatterns'].to_s.empty?
+
+		patterns = opt_patterns_to_regexps( datastore['ExcludePathPatterns'].to_s )
+		patterns = patterns.map { |r| "(#{r.source})" }
+
+		Regexp.new( [["(#{super.source})"] | patterns].join( '|' ) )
+	end
+
+	def run
+		super
+
+		if form = form_from_url( @current_site, datastore['URI'] )
+			print_status((" " * 24) + "FORM: #{form[:method]} #{form[:path]}")
+			report_web_form( form )
+			self.form_count += 1
+		end
+	end
+
+	def for_each_page( &block )
+		@for_each_page_blocks << block if block_given?
+	end
 
 	#
 	# The main callback from the crawler, redefines crawler_process_page() as
@@ -111,49 +135,12 @@ class Metasploit3 < Msf::Auxiliary
 		# Apache multiview directories
 		return if page.url.query =~ /^C=[A-Z];O=/ # Apache
 
-		# Scrub out the jsessionid appends
-		page.url.path = page.url.path.sub(/;jsessionid=[a-zA-Z0-9]+/, '')
-
-		#
-		# Continue processing forms
-		#
 		forms = []
 		form_template = { :web_site => t[:site] }
-		form  = {}.merge(form_template)
 
-		# This page has a query parameter we can test with GET parameters
-		# ex: /test.php?a=b&c=d
-		if page.url.query and not page.url.query.empty?
-			form[:method] = 'GET'
-			form[:path]   = page.url.path
-			vars = page.url.query.split('&').map{|x| x.split("=", 2) }
-			form[:params] = vars
+		if form = form_from_url( t[:site], page.url )
+			forms << form
 		end
-
-		# This is a REST-ish application with numeric parameters
-		# ex: /customers/343
-		if not form[:path] and page.url.path.to_s =~ /(.*)\/(\d+)$/
-			path_base = $1
-			path_info = $2
-			form[:method] = 'PATH'
-			form[:path]   = path_base
-			form[:params] = [['PATH', path_info]]
-			form[:query]  = page.url.query.to_s
-		end
-
-		# This is an application that uses PATH_INFO for parameters:
-		# ex:  /index.php/Main_Page/Article01
-		if not form[:path] and page.url.path.to_s =~ /(.*\/[a-z0-9A-Z]{3,256}\.[a-z0-9A-Z]{2,8})(\/.*)/
-			path_base = $1
-			path_info = $2
-			form[:method] = 'PATH'
-			form[:path]   = path_base
-			form[:params] = [['PATH', path_info]]
-			form[:query]  = page.url.query.to_s
-		end
-
-		# Done processing URI-based forms
-		forms << form
 
 		if page.doc
 			page.doc.css("form").each do |f|
@@ -190,18 +177,34 @@ class Metasploit3 < Msf::Auxiliary
 					end
 				end
 
-				form = {}.merge!(form_template)
-				form[:method] = (f['method'] || 'GET').upcase
-				form[:query]  = target.query.to_s if form[:method] != "GET"
-				form[:path]   = target.path
-				form[:params] = []
-				f.css('input', 'textarea').each do |inp|
-					form[:params] << [inp['name'].to_s, inp['value'] || inp.content || '', { :type => inp['type'].to_s }]
+				# skip this form if it matches exclusion criteria
+				if !(target.to_s =~ get_link_filter)
+					form = {}.merge!(form_template)
+					form[:method] = (f['method'] || 'GET').upcase
+					form[:query]  = target.query.to_s if form[:method] != "GET"
+					form[:path]   = target.path
+					form[:params] = []
+					f.css('input', 'textarea').each do |inp|
+						form[:params] << [inp['name'].to_s, inp['value'] || inp.content || '', { :type => inp['type'].to_s }]
+					end
+
+					f.css( 'select' ).each do |s|
+						value = nil
+
+						# iterate over each option to find the default value (if there is a selected one)
+						s.children.each do |opt|
+							ov = opt['value'] || opt.content
+							value = ov if opt['selected']
+						end
+
+						# set the first one as the default value if we don't already have one
+						value ||= s.children.first['value'] || s.children.first.content rescue ''
+
+						form[:params] << [ s['name'].to_s, value.to_s, [ :type => 'select'] ]
+					end
+
+					forms << form
 				end
-
-				# XXX: handle SELECT elements
-
-				forms << form
 			end
 		end
 
@@ -212,5 +215,68 @@ class Metasploit3 < Msf::Auxiliary
 			report_web_form(form)
 			self.form_count += 1
 		end
+
+		@for_each_page_blocks.each { |p| p.call( page ) }
 	end
+
+	def form_from_url( website, url )
+		url = URI( url.to_s ) if !url.is_a?( URI )
+
+		begin
+			# Scrub out the jsessionid appends
+			url.path = url.path.sub(/;jsessionid=[a-zA-Z0-9]+/, '')
+		rescue URI::Error
+		end
+
+		#
+		# Continue processing forms
+		#
+		forms = []
+		form_template = { :web_site => website }
+		form  = {}.merge(form_template)
+
+		# This page has a query parameter we can test with GET parameters
+		# ex: /test.php?a=b&c=d
+		if url.query and not url.query.empty?
+			form[:method] = 'GET'
+			form[:path]   = url.path
+			vars = url.query.split('&').map{|x| x.split("=", 2) }
+			form[:params] = vars
+		end
+
+		# This is a REST-ish application with numeric parameters
+		# ex: /customers/343
+		if not form[:path] and url.path.to_s =~ /(.*)\/(\d+)$/
+			path_base = $1
+			path_info = $2
+			form[:method] = 'PATH'
+			form[:path]   = path_base
+			form[:params] = [['PATH', path_info]]
+			form[:query]  = url.query.to_s
+		end
+
+		# This is an application that uses PATH_INFO for parameters:
+		# ex:  /index.php/Main_Page/Article01
+		if not form[:path] and url.path.to_s =~ /(.*\/[a-z0-9A-Z]{3,256}\.[a-z0-9A-Z]{2,8})(\/.*)/
+			path_base = $1
+			path_info = $2
+			form[:method] = 'PATH'
+			form[:path]   = path_base
+			form[:params] = [['PATH', path_info]]
+			form[:query]  = url.query.to_s
+		end
+
+		form[:method] ? form : nil
+	end
+
+	private
+	def opt_patterns_to_regexps( patterns )
+		magic_wildcard_replacement = Rex::Text.rand_text_alphanumeric( 10 )
+		patterns.to_s.split( /[\r\n]+/).map do |p|
+			Regexp.new '^' + Regexp.escape( p.gsub( '*', magic_wildcard_replacement ) ).
+				gsub( magic_wildcard_replacement, '.*' ) + '$'
+		end
+	end
+
+
 end

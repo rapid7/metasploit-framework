@@ -124,7 +124,7 @@ module PacketFu
 		attr_accessor :eth_header, :ip_header, :icmp_header
 
 		def self.can_parse?(str)
-			return false unless str.size >= 54
+			return false unless str.size >= 38
 			return false unless EthPacket.can_parse? str
 			return false unless IPPacket.can_parse? str
 			return false unless str[23,1] == "\x01"

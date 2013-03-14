@@ -68,14 +68,19 @@ class Metasploit4 < Msf::Auxiliary
 		end
 
 		if password
-			print_good("#{rhost} - Telnet password found: #{password.to_s}")
-			report_auth_info({
-				:host         => rhost,
-				:port         => 9999,
-				:sname        => 'telnet',
-				:duplicate_ok => false,
-				:pass         => password,
-			})
+			if password == "\x00\x00\x00\x00"
+				print_status("#{rhost} - Password isn't used, or secure")
+			else
+				print_good("#{rhost} - Telnet password found: #{password.to_s}")
+
+				report_auth_info({
+					:host         => rhost,
+					:port         => 9999,
+					:sname        => 'telnet',
+					:duplicate_ok => false,
+					:pass         => password.to_s
+				})
+			end
 		end
 
 	end
@@ -84,7 +89,7 @@ class Metasploit4 < Msf::Auxiliary
 		setup_record = pkt[0]
 
 		# If response is a setup record, extract password bytes 13-16
-		if setup_record[3].ord == 0xF9
+		if setup_record[3] and setup_record[3].ord == 0xF9
 			return setup_record[12,4]
 		else
 			return nil

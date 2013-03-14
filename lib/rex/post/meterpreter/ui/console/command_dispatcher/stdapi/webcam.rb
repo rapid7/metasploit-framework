@@ -29,7 +29,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
 		reqs = {
 			"webcam_list"   => [ "webcam_list" ],
 			"webcam_snap"   => [ "webcam_start", "webcam_get_frame", "webcam_stop" ],
-			"record_mic"    => [ "webcam_record_audio" ],
+			"record_mic"    => [ "webcam_audio_record" ],
 		}
 
 		all.delete_if do |cmd, desc|

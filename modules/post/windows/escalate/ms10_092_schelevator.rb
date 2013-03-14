@@ -12,6 +12,11 @@ require 'zlib'
 
 
 class Metasploit3 < Msf::Post
+
+	require 'msf/core/module/deprecated'
+	include Msf::Module::Deprecated
+	deprecated Date.new(2013,6,1), "exploit/windows/local/ms10_092_schelevator"
+
 	include Msf::Post::Common
 
 	def initialize(info={})
@@ -29,7 +34,6 @@ class Metasploit3 < Msf::Post
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'jduck' ],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ],
 			'References'    =>

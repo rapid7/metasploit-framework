@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -29,7 +25,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'patrick' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     => [
 				[ 'BID', '35145' ],
 				#[ 'CVE', '' ], # no CVE?
@@ -55,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 		fmt = datastore['FORMAT'] + "XX"  # XX is 2 bytes used to mark end of memory garbage for regexp
 		begin
 			res = send_request_raw({
-				'uri' => datastore['URI'] + fmt,
+				'uri' => normalize_uri(datastore['URI']) + fmt,
 			})
 
 			if res and res.code == 200

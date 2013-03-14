@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name' => 'Dell iDRAC default Login',
-			'Version' => '$Revision$',
 			'Description' => %q{
 				This module attempts to login to a iDRAC webserver instance using
 				default username and password.  Tested against Dell Remote Access
@@ -53,14 +52,16 @@ class Metasploit3 < Msf::Auxiliary
 		if rport == 443 or ssl
 			proto = "https"
 		end
-		"#{proto}://#{vhost}:#{rport}#{datastore['URI']}"
+		uri = normalize_uri(datastore['URI'])
+		"#{proto}://#{vhost}:#{rport}#{uri}"
 	end
 
 	def do_login(user=nil, pass=nil)
 
+		uri = normalize_uri(target_uri.path)
 		auth = send_request_cgi({
 			'method' => 'POST',
-			'uri' => target_uri.path,
+			'uri' => uri,
 			'SSL' => true,
 			'vars_post' => {
 				'user' => user,
@@ -88,10 +89,11 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		print_status("Verifying that login page exists at #{ip}")
+		uri = normalize_uri(target_uri.path)
 		begin
 			res = send_request_raw({
 				'method' => 'GET',
-				'uri' => target_uri.path
+				'uri' => uri
 				})
 
 			if (res and res.code == 200 and res.body.to_s.match(/<authResult>1/) != nil)

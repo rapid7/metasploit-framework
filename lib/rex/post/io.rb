@@ -133,7 +133,7 @@ class IO
 	def readline(sep = $/)
 		raise NotImplementedError
 	end
-	
+
 	def readlines(sep = $/)
 		raise NotImplementedError
 	end
@@ -141,7 +141,7 @@ class IO
 	def rewind
 		raise NotImplementedError
 	end
-	
+
 	def seek(offset, whence = SEEK_SET)
 		raise NotImplementedError
 	end
@@ -165,12 +165,12 @@ class IO
 	def syswrite(buf)
 		raise NotImplementedError
 	end
-	
+
 	def tell
 		return pos
 	end
 
-	def ungetc(val)	
+	def ungetc(val)
 		raise NotImplementedError
 	end
 

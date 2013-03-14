@@ -33,10 +33,6 @@ public class KeyBindings implements KeyEventDispatcher {
 	}
 
 	public boolean dispatchKeyEvent(KeyEvent ev) {
-		if (ev.getID() != KeyEvent.KEY_PRESSED) {
-			return false;
-		}
-
 		StringBuffer description = new StringBuffer();
 		if (ev.getModifiers() != 0) {
 			description.append(getKeyModifiers(ev));
@@ -46,9 +42,14 @@ public class KeyBindings implements KeyEventDispatcher {
 
 		synchronized (this) {
 			if (bindings.containsKey(description.toString())) {
-				SwingUtilities.invokeLater(new ExecuteBinding(description.toString(), (KeyHandler)bindings.get(description.toString())));
 				ev.consume();
-				return true;
+				if (ev.getID() != KeyEvent.KEY_PRESSED) {
+					return false;
+				}
+				else {
+					SwingUtilities.invokeLater(new ExecuteBinding(description.toString(), (KeyHandler)bindings.get(description.toString())));
+					return true;
+				}
 			}
 		}
 

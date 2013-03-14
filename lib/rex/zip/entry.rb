@@ -6,7 +6,7 @@
 module Rex
 module Zip
 
-# 
+#
 # An Entry represents a logical file or directory to be stored in an Archive
 #
 class Entry

@@ -215,6 +215,7 @@ public class ConsoleClient implements Runnable, ActionListener {
 		Map read;
 		boolean shouldRead = go_read;
 		String command = null;
+		long last = 0;
 
 		try {
 			while (shouldRead) {
@@ -230,20 +231,22 @@ public class ConsoleClient implements Runnable, ActionListener {
 					lastRead = System.currentTimeMillis();
 				}
 
-				read = readResponse();
-
-				if (read == null || "failure".equals( read.get("result") + "" )) {
-					break;
-				}
-
-				processRead(read);
-
-				if ((System.currentTimeMillis() - lastRead) <= 500) {
-					Thread.sleep(10);
+				long now = System.currentTimeMillis();
+				if (this.window != null && !this.window.isShowing() && (now - last) < 1500) {
+					/* check if our window is not showing... if not, then we're going to switch to a very reduced
+					   read schedule. */
 				}
 				else {
-					Thread.sleep(500);
+					read = readResponse();
+					if (read == null || "failure".equals( read.get("result") + "" )) {
+						break;
+					}
+
+					processRead(read);
+					last = System.currentTimeMillis();
 				}
+
+				Thread.sleep(100);
 
 				synchronized (listeners) {
 					shouldRead = go_read;

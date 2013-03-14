@@ -3530,7 +3530,7 @@ class Def_kernel32
 
 		dll.add_function( 'WriteProcessMemory', 'BOOL',[
 			["HANDLE","hProcess","in"],
-			["PBLOB","lpBaseAddress","in"],
+			["LPVOID","lpBaseAddress","in"],
 			["PBLOB","lpBuffer","in"],
 			["DWORD","nSize","in"],
 			["PDWORD","lpNumberOfBytesWritten","out"],

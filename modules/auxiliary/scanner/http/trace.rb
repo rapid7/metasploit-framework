@@ -18,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP TRACE Detection',
-			'Version'     => '$Revision$',
 			'Description' => 'Test if TRACE is actually enabled.  405 (Apache) 501(IIS) if its disabled, 200 if it is',
 			'Author'       => ['CG'],
 			'License'     => MSF_LICENSE

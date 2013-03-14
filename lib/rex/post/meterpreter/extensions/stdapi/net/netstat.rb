@@ -38,7 +38,7 @@ class Netstat
 		self.uid          = opts[:uid] || 0
 		self.inode        = opts[:inode] || 0
 		self.pid_name     = opts[:pid_name]
-		
+
 		self.local_addr_str  = sprintf("%s:%d",self.local_addr, self.local_port)
 		if self.remote_port == 0
 			port = "*"
@@ -48,7 +48,7 @@ class Netstat
 		self.remote_addr_str = sprintf("%s:%s",self.remote_addr, port)
 	end
 
-	
+
 	#
 	# The local address of the connection
 	#

@@ -124,7 +124,7 @@ class Console::CommandDispatcher::Incognito
 					host = val
 			end
 		}
-				
+
 		if (args.length < 2)
 			print_line("Usage: add_user <username> <password> [options]\n")
 			print_line("Attempts to add a user to a host with all accessible tokens. Terminates when successful, an error that is not access denied occurs (e.g. password does not meet complexity requirements) or when all tokens are exhausted")
@@ -154,7 +154,7 @@ class Console::CommandDispatcher::Incognito
 					host = val
 			end
 		}
-				
+
 		if (args.length < 2)
 			print_line("Usage: add_localgroup_user <groupname> <username> [options]\n")
 			print_line("Attempts to add a user to a local group on a host with all accessible tokens. Terminates when successful, an error that is not access denied occurs (e.g. user not found) or when all tokens are exhausted")
@@ -184,7 +184,7 @@ class Console::CommandDispatcher::Incognito
 					host = val
 			end
 		}
-				
+
 		if (args.length < 2)
 			print_line("Usage: add_group_user <groupname> <username> [options]\n")
 			print_line("Attempts to add a user to a global group on a host with all accessible tokens. Terminates when successful, an error that is not access denied occurs (e.g. user not found) or when all tokens are exhausted")
@@ -216,7 +216,7 @@ class Console::CommandDispatcher::Incognito
 		print_line("[*] Snarfing token hashes...")
 		client.incognito.incognito_snarf_hashes(args[0])
 		print_line("[*] Done. Check sniffer logs")
-		
+
 		return true
 	end
 

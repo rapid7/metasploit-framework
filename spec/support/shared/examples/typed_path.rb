@@ -1,4 +1,5 @@
-shared_examples_for 'typed_path' do |map={}|
+shared_examples_for 'typed_path' do |map|
+	map ||= {}
 	if map.length < 1
 		raise ArgumentError,
 		      "type_path shared example requires a hash mapping the type constant name to the directory name: " \

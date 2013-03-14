@@ -1,6 +1,10 @@
-#!/usr/bin/env ruby
-#
-# $Id$
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
 #
 # Web Crawler.
 #
@@ -24,7 +28,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'			=> 'Metasploit Web Crawler',
-			'Version'           => '$Revision$',
 			'Description'       => 'This auxiliary module is a modular web crawler, to be used in conjuntion with wmap (someday) or standalone.',
 			'Author'			=> 'et',
 			'License'			=> MSF_LICENSE

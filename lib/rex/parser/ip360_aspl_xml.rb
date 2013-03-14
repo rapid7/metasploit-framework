@@ -7,7 +7,7 @@ module Parser
 
 
 class IP360ASPLXMLStreamParser
-	
+
 	@vulnid = nil
 	@appid = nil
 	@location = nil
@@ -49,7 +49,7 @@ class IP360ASPLXMLStreamParser
 			@osid = attributes['id'].strip
 		end
 	end
-	
+
 	def text(str)
 		case @state
 		when :is_name

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -28,13 +24,21 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMB Local User Enumeration (LookupSid)',
-			'Version'     => '$Revision$',
-			'Description' => 'Determine what local users exist via brute force SID lookups',
+			'Description' => 'Determine what users exist via brute force SID lookups.
+				This module can enumerate both local and domain accounts by setting
+				ACTION to either LOCAL or DOMAIN',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,
-			'DefaultOptions' => {
-				'DCERPC::fake_bind_multi' => false
-			}
+			'DefaultOptions' =>
+				{
+					'DCERPC::fake_bind_multi' => false
+				},
+			'Actions'     =>
+				[
+					['LOCAL', { 'Description' => 'Enumerate local accounts' } ],
+					['DOMAIN', { 'Description' => 'Enumerate domain accounts' } ]
+				],
+			'DefaultAction' => 'LOCAL'
 		)
 
 		register_options(
@@ -211,6 +215,8 @@ class Metasploit3 < Msf::Auxiliary
 				:groups  => {}
 			}
 
+			target_sid = host_sid if action.name =~ /LOCAL/i
+			target_sid = domain_sid if action.name =~ /DOMAIN/i
 			# Brute force through a common RID range
 			500.upto(datastore['MaxRID'].to_i) do |rid|
 
@@ -221,7 +227,7 @@ class Metasploit3 < Msf::Auxiliary
 					NDR.long(1) +
 					NDR.long(rand(0x10000000)) +
 					NDR.long(5) +
-					smb_pack_sid(host_sid) +
+					smb_pack_sid(target_sid) +
 					NDR.long(rid) +
 					NDR.long(0) +
 					NDR.long(0) +

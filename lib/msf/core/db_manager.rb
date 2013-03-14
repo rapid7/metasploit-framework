@@ -56,9 +56,6 @@ class DBManager
 	# Flag to indicate database migration has completed
 	attr_accessor :migrated
 
-	# Array of additional migration paths
-	attr_accessor :migration_paths
-
 	# Flag to indicate that modules are cached
 	attr_accessor :modules_cached
 
@@ -69,7 +66,6 @@ class DBManager
 
 		self.framework = framework
 		self.migrated  = false
-		self.migration_paths = [ ::File.join(Msf::Config.install_root, "data", "sql", "migrate") ]
 		self.modules_cached  = false
 		self.modules_caching = false
 
@@ -85,13 +81,6 @@ class DBManager
 	end
 
 	#
-	# Add additional migration paths
-	#
-	def add_migration_path(path)
-		self.migration_paths.push(path)
-	end
-
-	#
 	# Do what is necessary to load our database support
 	#
 	def initialize_database_support
@@ -101,8 +90,7 @@ class DBManager
 
 			require "active_record"
 
-			# Provide access to ActiveRecord models shared w/ commercial versions
-			require "metasploit_data_models"
+			initialize_metasploit_data_models
 
 			# Patches issues with ActiveRecord
 			require "msf/core/patches/active_record"
@@ -167,6 +155,20 @@ class DBManager
 		$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
 	end
 
+	# Loads Metasploit Data Models and adds its migrations to migrations paths.
+	#
+	# @return [void]
+	def initialize_metasploit_data_models
+		# Provide access to ActiveRecord models shared w/ commercial versions
+		require "metasploit_data_models"
+
+		metasploit_data_model_migrations_pathname = MetasploitDataModels.root.join(
+				'db',
+				'migrate'
+		)
+		ActiveRecord::Migrator.migrations_paths << metasploit_data_model_migrations_pathname.to_s
+	end
+
 	#
 	# Create a new database sink and initialize it
 	#
@@ -196,7 +198,7 @@ class DBManager
 
 		# Prefer the config file's pool setting
 		nopts['pool'] ||= 75
-		
+
 		# Prefer the config file's wait_timeout setting too
 		nopts['wait_timeout'] ||= 300
 
@@ -268,6 +270,8 @@ class DBManager
 	def disconnect
 		begin
 			ActiveRecord::Base.remove_connection
+			self.migrated = false
+			self.modules_cached = false
 		rescue ::Exception => e
 			self.error = e
 			elog("DB.disconnect threw an exception: #{e}")
@@ -277,45 +281,31 @@ class DBManager
 		end
 	end
 
+	# Migrate database to latest schema version.
 	#
-	# Migrate database to latest schema version
+	# @param verbose [Boolean] see ActiveRecord::Migration.verbose
+	# @return [Array<ActiveRecord::MigrationProxy] List of migrations that ran.
 	#
+	# @see ActiveRecord::Migrator.migrate
 	def migrate(verbose=false)
+		ran = []
+		ActiveRecord::Migration.verbose = verbose
 
-		temp_dir = ::File.expand_path(::File.join( Msf::Config.config_directory, "schema", "#{Time.now.to_i}_#{$$}" ))
-		::FileUtils.rm_rf(temp_dir)
-		::FileUtils.mkdir_p(temp_dir)
-
-		self.migration_paths.each do |mpath|
-			dir = Dir.new(mpath) rescue nil
-			if not dir
-				elog("Could not access migration path #{mpath}")
-				next
-			end
-
-			dir.entries.each do |ent|
-				next unless ent =~ /^\d+.*\.rb$/
-				::FileUtils.cp( ::File.join(mpath, ent), ::File.join(temp_dir, ent) )
+		ActiveRecord::Base.connection_pool.with_connection do
+			begin
+				ran = ActiveRecord::Migrator.migrate(
+						ActiveRecord::Migrator.migrations_paths
+				)
+			# ActiveRecord::Migrator#migrate rescues all errors and re-raises them as
+			# StandardError
+			rescue StandardError => error
+				self.error = error
+				elog("DB.migrate threw an exception: #{error}")
+				dlog("Call stack:\n#{error.backtrace.join "\n"}")
 			end
 		end
 
-		success = true
-		begin
-
-			::ActiveRecord::Base.connection_pool.with_connection {
-				ActiveRecord::Migration.verbose = verbose
-				ActiveRecord::Migrator.migrate(temp_dir, nil)
-			}
-		rescue ::Exception => e
-			self.error = e
-			elog("DB.migrate threw an exception: #{e}")
-			dlog("Call stack:\n#{e.backtrace.join "\n"}")
-			success = false
-		end
-
-		::FileUtils.rm_rf(temp_dir)
-
-		return true
+		return ran
 	end
 
 	def workspace=(workspace)
@@ -342,11 +332,13 @@ class DBManager
 		return if not self.migrated
 		return if self.modules_caching
 
+		self.framework.cache_thread = Thread.current
+
 		self.modules_cached  = false
 		self.modules_caching = true
 
 		::ActiveRecord::Base.connection_pool.with_connection {
-		
+
 		refresh = []
 		skipped = []
 
@@ -373,7 +365,6 @@ class DBManager
 		refresh.each  {|md| md.destroy }
 		refresh = nil
 
-		stime = Time.now.to_f
 		[
 			[ 'exploit',   framework.exploits  ],
 			[ 'auxiliary', framework.auxiliary ],
@@ -393,6 +384,9 @@ class DBManager
 				end
 			end
 		end
+
+		self.framework.cache_initialized = true
+		self.framework.cache_thread = nil
 
 		self.modules_cached  = true
 		self.modules_caching = false
@@ -460,16 +454,16 @@ class DBManager
 
 		res[:description] = m.description.to_s.strip
 
-		m.arch.map{ |x| 
-			bits << [ :arch, { :name => x.to_s } ] 
+		m.arch.map{ |x|
+			bits << [ :arch, { :name => x.to_s } ]
 		}
 
-		m.platform.platforms.map{ |x| 
-			bits << [ :platform, { :name => x.to_s.split('::').last.downcase } ] 
+		m.platform.platforms.map{ |x|
+			bits << [ :platform, { :name => x.to_s.split('::').last.downcase } ]
 		}
 
-		m.author.map{|x| 
-			bits << [ :author, { :name => x.to_s } ] 
+		m.author.map{|x|
+			bits << [ :author, { :name => x.to_s } ]
 		}
 
 		m.references.map do |r|
@@ -491,6 +485,14 @@ class DBManager
 
 			m.targets.each_index do |i|
 				bits << [ :target, { :index => i, :name => m.targets[i].name.to_s } ]
+				if m.targets[i].platform
+					m.targets[i].platform.platforms.each do |name|
+						bits << [ :platform, { :name => name.to_s.split('::').last.downcase } ]
+					end
+				end
+				if m.targets[i].arch
+					bits << [ :arch, { :name => m.targets[i].arch.to_s } ]
+				end
 			end
 
 			if (m.default_target)
@@ -500,14 +502,14 @@ class DBManager
 			# Some modules are a combination, which means they are actually aggressive
 			res[:stance] = m.stance.to_s.index("aggressive") ? "aggressive" : "passive"
 
-			
+
 			m.class.mixins.each do |x|
 			 	bits << [ :mixin, { :name => x.to_s } ]
 			end
 		end
 
 		if(m.type == "auxiliary")
-	
+
 			m.actions.each_index do |i|
 				bits << [ :action, { :name => m.actions[i].name.to_s } ]
 			end
@@ -519,13 +521,13 @@ class DBManager
 			res[:stance] = m.passive? ? "passive" : "aggressive"
 		end
 
-		res[:bits] = bits
+		res[:bits] = bits.uniq
 
 		res
 	end
-	
-	
-	
+
+
+
 	#
 	# This provides a standard set of search filters for every module.
 	# The search terms are in the form of:
@@ -562,7 +564,7 @@ class DBManager
 		end
 
 		::ActiveRecord::Base.connection_pool.with_connection {
-	
+
 		where_q = []
 		where_v = []
 
@@ -572,12 +574,12 @@ class DBManager
 				case kt
 				when 'text'
 					xv = "%#{kv}%"
-					where_q << ' ( ' + 
+					where_q << ' ( ' +
 						'module_details.fullname ILIKE ? OR module_details.name ILIKE ? OR module_details.description ILIKE ? OR ' +
 						'module_authors.name ILIKE ? OR module_actions.name ILIKE ? OR module_archs.name ILIKE ? OR ' +
-						'module_targets.name ILIKE ? OR module_platforms.name ILIKE ? ' +
+						'module_targets.name ILIKE ? OR module_platforms.name ILIKE ? OR module_refs.name ILIKE ?' +
 						') '
-					where_v << [ xv, xv, xv, xv, xv, xv, xv, xv ]
+					where_v << [ xv, xv, xv, xv, xv, xv, xv, xv, xv ]
 				when 'name'
 					xv = "%#{kv}%"
 					where_q << ' ( module_details.fullname ILIKE ? OR module_details.name ILIKE ? ) '
@@ -594,7 +596,7 @@ class DBManager
 					# TODO
 				when 'type'
 					where_q << ' ( module_details.mtype = ? ) '
-					where_v << [ kv ]				
+					where_v << [ kv ]
 				when 'app'
 					where_q << ' ( module_details.stance = ? )'
 					where_v << [ ( kv == "client") ? "passive" : "active"  ]
@@ -604,11 +606,11 @@ class DBManager
 				when 'cve','bid','osvdb','edb'
 					where_q << ' ( module_refs.name = ? )'
 					where_v << [ kt.upcase + '-' + kv ]
-	
+
 				end
 			end
 		end
-		
+
 		qry = Mdm::ModuleDetail.select("DISTINCT(module_details.*)").
 			joins(
 				"LEFT OUTER JOIN module_authors   ON module_details.id = module_authors.module_detail_id " +
@@ -629,4 +631,3 @@ class DBManager
 
 end
 end
-

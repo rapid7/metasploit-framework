@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -23,7 +19,6 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 	def initialize
 		super(
 			'Name'             => 'Polymorphic XOR Additive Feedback Encoder',
-			'Version'          => '$Revision$',
 			'Description'      => %q{
 				This encoder implements a polymorphic XOR additive feedback encoder.
 				The decoder stub is generated based on dynamic instruction
@@ -116,10 +111,10 @@ protected
 
 		# Clear the counter register
 		clear_register = Rex::Poly::LogicalBlock.new('clear_register',
-			"\x31\xc9",
-			"\x29\xc9",
-			"\x33\xc9",
-			"\x2b\xc9")
+			"\x31\xc9",  # xor ecx,ecx
+			"\x29\xc9",  # sub ecx,ecx
+			"\x33\xc9",  # xor ecx,ecx
+			"\x2b\xc9")  # sub ecx,ecx
 
 		# Initialize the counter after zeroing it
 		init_counter = Rex::Poly::LogicalBlock.new('init_counter')
@@ -131,8 +126,10 @@ protected
 
 		if (length <= 255)
 			init_counter.add_perm("\xb1" + [ length ].pack('C'))
-		else
+		elsif (length <= 65536)
 			init_counter.add_perm("\x66\xb9" + [ length ].pack('v'))
+		else
+			init_counter.add_perm("\xb9" + [ length ].pack('V'))
 		end
 
 		# Key initialization block

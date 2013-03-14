@@ -217,7 +217,7 @@ class RopCollect < RopBase
 
 				# get raw bytes
 				buf = @disassembler.read_raw_data(addr, x + xtra)
-				
+
 
 				# make sure disassembling forward leads to our instruction
 				next if not ends_with_addr(buf, addr, ea)

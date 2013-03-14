@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -19,7 +15,6 @@ class Metasploit3 < Msf::Post
 	def initialize
 		super(
 			'Name'        => 'Windows Manage Proxy Setting Cloner',
-			'Version'     => '$Revision$',
 			'Description'    => %q{
 				This module copies the proxy settings from the current user to the
 				targeted user SID, supports remote hosts as well if remote registry
