@@ -3852,7 +3852,8 @@ class DBManager
 				cred_data = {}
 				cred_data[:workspace] = wspace
 				cred_data[:host] = hobj
-				%W{port ptype sname proto proof active user pass}.each {|datum|
+				cred_data[:type] = nils_for_nulls(cred.elements['ptype'].text.to_s.strip)
+				%W{port sname proto proof active user pass}.each {|datum|
 					if cred.elements[datum].respond_to? :text
 						cred_data[datum.intern] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
 					end
