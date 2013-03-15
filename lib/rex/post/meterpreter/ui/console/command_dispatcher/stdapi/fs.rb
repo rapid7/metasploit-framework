@@ -307,7 +307,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 		end
 
 		# Get a temporary file path
-		meterp_te-mp = Tempfile.new('meterp')
+		meterp_temp = Tempfile.new('meterp')
 		meterp_temp.binmode
 		temp_path = meterp_temp.path
 
