@@ -30,6 +30,13 @@ class Console::CommandDispatcher::Stdapi::Fs
 	@@upload_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner." ],
 		"-r" => [ false, "Upload recursively." ])
+	#
+	# Options for the ls command
+	#
+	@@ls_opts = Rex::Parser::Arguments.new(
+		"-h" => [ false, "Help banner." ],
+		"-S" => [ true, "Search string." ])
+
 
 	#
 	# List of supported commands.
@@ -300,7 +307,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 		end
 
 		# Get a temporary file path
-		meterp_temp = Tempfile.new('meterp')
+		meterp_te-mp = Tempfile.new('meterp')
 		meterp_temp.binmode
 		temp_path = meterp_temp.path
 
@@ -343,7 +350,26 @@ class Console::CommandDispatcher::Stdapi::Fs
 	# TODO: make this more useful
 	#
 	def cmd_ls(*args)
-		path = args[0] || client.fs.dir.getwd
+		search_term = nil
+		path = client.fs.dir.getwd
+		@@ls_opts.parse(args) { |opt, idx, val|
+			case opt
+			when '-S'
+				search_term = val
+				if search_term.nil?
+								print_error("Enter a search term")
+								return true
+				else
+								search_term = /#{search_term}/nmi
+				end
+			when "-h"
+				cmd_ls_help
+				return 0
+			when nil
+				path = val
+			end
+		}
+
 		tbl  = Rex::Ui::Text::Table.new(
 			'Header'  => "Listing: #{path}",
 			'SortIndex' => 4,
@@ -354,7 +380,8 @@ class Console::CommandDispatcher::Stdapi::Fs
 					'Type',
 					'Last modified',
 					'Name',
-				])
+				],
+			'SearchTerm' => search_term)
 
 		items = 0
 		stat = client.fs.file.stat(path)

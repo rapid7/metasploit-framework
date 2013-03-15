@@ -219,7 +219,7 @@ class Table
 	attr_accessor :columns, :rows, :colprops # :nodoc:
 	attr_accessor :width, :indent, :cellpad # :nodoc:
 	attr_accessor :prefix, :postfix # :nodoc:
-	attr_accessor :sort_index # :nodoc:
+	attr_accessor :sort_index, :scterm # :nodoc:
 
 protected
 
