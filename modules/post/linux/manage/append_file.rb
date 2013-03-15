@@ -30,11 +30,12 @@ class Metasploit3 < Msf::Post
 					[
 						'Joshua D. Abraham <jabra[at]praetorian.com>',
 					],
-				'Platform'      => [ 'linux' ],
+				'Platform'  => [ 'linux' ],
 				'SessionTypes'  => [ 'shell' ]
 			))
 			register_options(
 			[
+				OptBool.new('CREATE', [true, 'Create if the file doesnt exists.',true]),
 				OptString.new('LOCALFILE', [true, 'Local file to append.']),
 				OptString.new('REMOTEFILE', [true, 'Remote file location to write.']),
 			], self.class)
@@ -42,22 +43,29 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		if file?(datastore['REMOTEFILE'])
-			data = ""
-			file = File.new(datastore['LOCALFILE'],'r')
-			while (line = file.gets)
-				data << line.to_s
-			end
-			file.close
+		data = ""
+		file = File.new(datastore['LOCALFILE'],'r')
+		while (line = file.gets)
+			data << line.to_s
+		end
+		file.close
 
+		if file?(datastore['REMOTEFILE'])
 			if append_file(datastore['REMOTEFILE'],data)
 				print_good("File appended!")
 			else
 				print_error("Error appending to the file")
 			end
 		else
-			print_error("Error file doesnt exist")
+			if datastore['CREATE']
+				if write_file(datastore['REMOTEFILE'],data)
+					print_good("File uploaded!")
+				else
+					print_error("Error with file upload")
+				end
+			else
+				print_error("Error file doesnt exist")
+			end
 		end
-
 	end
 end
