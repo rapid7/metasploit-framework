@@ -35,7 +35,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 	#
 	@@ls_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner." ],
-		"-S" => [ true, "Search string." ])
+		"-S" => [ true, "Row search string to be used as a regex" ])
 
 
 	#
@@ -357,10 +357,8 @@ class Console::CommandDispatcher::Stdapi::Fs
 			when '-S'
 				search_term = val
 				if search_term.nil?
-								print_error("Enter a search term")
-								return true
-				else
-								search_term = /#{search_term}/nmi
+					print_error("Enter a search term")
+					return true
 				end
 			when "-h"
 				cmd_ls_help
