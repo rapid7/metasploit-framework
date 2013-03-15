@@ -16,6 +16,7 @@ class Metasploit3 < Msf::Post
 
 	include Msf::Post::Common
 	include Msf::Post::File
+	include Msf::Post::Linux::Priv
 	include Msf::Post::Linux::System
 
 
@@ -23,7 +24,7 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 				'Name'          => 'Linux Shutdown',
 				'Description'   => %q{
-					This module shutdowns the system.
+					This module shutdowns the system. Requires root permissions.
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        =>
@@ -36,6 +37,11 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		vcmd_exec("shutdown -h now")
+		if is_root?
+			vcmd_exec("shutdown -h now")
+		else 
+			print_error("This module require root permissions.")
+			return
+		end
 	end
 end
