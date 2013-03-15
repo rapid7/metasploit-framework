@@ -107,6 +107,14 @@ class Console::CommandDispatcher::Stdapi::Net
 	def name
 		"Stdapi: Networking"
 	end
+
+  def cmd_netstat_help
+	  print_line "Usage: netstat [options]"
+	  print_line
+	  print_line "Lists curent network connections"
+	  print_line @@netstat_opts.usage
+  end
+
 	#
 	# Displays network connections of the remote machine.
 	#

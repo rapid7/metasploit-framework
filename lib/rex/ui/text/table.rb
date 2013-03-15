@@ -72,7 +72,7 @@ class Table
 		self.prefix   = opts['Prefix']  || ''
 		self.postfix  = opts['Postfix'] || ''
 		self.colprops = []
-    self.scterm  = opts['SearchTerm'] ? /#{opts['SearchTerm'].strip}/i : /./
+    self.scterm  = opts['SearchTerm'] ? /#{opts['SearchTerm'].strip}/nmi : /./
 
 		self.sort_index  = opts['SortIndex'] || 0
 
