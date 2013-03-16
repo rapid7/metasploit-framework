@@ -732,7 +732,7 @@ class Db
 				when "-R"
 					set_rhosts = true
 				when '-S', '--search'
-					search_term = /#{args.shift}/nmi
+					search_term = args.shift
 				when "-u","--user"
 					user = args.shift
 					if (!user)
@@ -786,6 +786,7 @@ class Db
 			tbl = Rex::Ui::Text::Table.new({
 					'Header'  => "Credentials",
 					'Columns' => [ 'host', 'port', 'user', 'pass', 'type', 'active?' ],
+					'SearchTerm' => search_term
 				})
 
 			creds_returned = 0
