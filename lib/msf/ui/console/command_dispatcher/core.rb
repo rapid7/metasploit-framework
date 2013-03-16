@@ -34,7 +34,8 @@ class Core
 		"-K" => [ false, "Terminate all sessions"                         ],
 		"-s" => [ true,  "Run a script on the session given with -i, or all"  ],
 		"-r" => [ false, "Reset the ring buffer for the session given with -i, or all"],
-		"-u" => [ true,  "Upgrade a win32 shell to a meterpreter session" ])
+		"-u" => [ true,  "Upgrade a win32 shell to a meterpreter session" ],
+		"-S" => [ true, "Row search filter."                             ])
 
 	@@jobs_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner."                                   ],
@@ -42,7 +43,8 @@ class Core
 		"-K" => [ false, "Terminate all running jobs."                    ],
 		"-i" => [ true, "Lists detailed information about a running job." ],
 		"-l" => [ false, "List all running jobs."                         ],
-		"-v" => [ false, "Print more detailed info.  Use with -i and -l"  ])
+		"-v" => [ false, "Print more detailed info.  Use with -i and -l"  ],
+		"-S" => [ true, "Row search filter."                             ])
 
 	@@threads_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner."                                   ],
@@ -50,7 +52,8 @@ class Core
 		"-K" => [ false, "Terminate all non-critical threads."            ],
 		"-i" => [ true, "Lists detailed information about a thread."      ],
 		"-l" => [ false, "List all background threads."                   ],
-		"-v" => [ false, "Print more detailed info.  Use with -i and -l"  ])
+		"-v" => [ false, "Print more detailed info.  Use with -i and -l"  ],
+		"-S" => [ true, "Row search filter."                             ])
 
 	@@connect_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner."                                   ],
@@ -66,7 +69,8 @@ class Core
 		"-z" => [ false, "Just try to connect, then return."              ])
 
 	@@search_opts = Rex::Parser::Arguments.new(
-		"-h" => [ false, "Help banner."                                   ])
+		"-h" => [ false, "Help banner."                                   ],
+		"-S" => [ true, "Row search filter."				  ],)
 
 	@@go_pro_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner."                                   ])
@@ -724,6 +728,7 @@ class Core
 		dump_list = false
 		dump_info = false
 		job_id = nil
+		search_term = nil
 
 		# Parse the command options
 		@@jobs_opts.parse(args) { |opt, idx, val|
@@ -751,6 +756,9 @@ class Core
 					# so we can check for the verbose flag.
 					dump_info = true
 					job_id = val
+				when "-S"
+					search_term = val
+					dump_list = true
 				when "-h"
 					cmd_jobs_help
 					return false
@@ -758,7 +766,7 @@ class Core
 		}
 
 		if (dump_list)
-			print("\n" + Serializer::ReadableText.dump_jobs(framework, verbose) + "\n")
+			print("\n" + Serializer::ReadableText.dump_jobs(framework, verbose, nil, nil, search_term) + "\n")
 		end
 		if (dump_info)
 			if (job_id and framework.jobs[job_id.to_s])
@@ -836,6 +844,7 @@ class Core
 		dump_list = false
 		dump_info = false
 		thread_id = nil
+		search_term = nil
 
 		# Parse the command options
 		@@threads_opts.parse(args) { |opt, idx, val|
@@ -867,6 +876,9 @@ class Core
 					# so we can check for the verbose flag.
 					dump_info = true
 					thread_id = val.to_i
+				when "-S"
+					search_term = val
+					dump_list = true
 				when "-h"
 					cmd_threads_help
 					return false
@@ -886,7 +898,8 @@ class Core
 						'Critical',
 						'Name',
 						'Started'
-					]
+					],
+				'SearchTerm' => search_term
 			)
 
 			framework.threads.each_index do |i|
@@ -1349,6 +1362,7 @@ class Core
 	# Searches modules for specific keywords
 	#
 	def cmd_search(*args)
+		search_string = nil
 		match   = ''
 		@@search_opts.parse(args) { |opt, idx, val|
 			case opt
@@ -1356,6 +1370,8 @@ class Core
 				print_error("Deprecated option.  Use type:#{val} instead")
 				cmd_search_help
 				return
+			when "-S"
+				search_term = args.shift
 			when "-h"
 				cmd_search_help
 				return
@@ -1371,7 +1387,7 @@ class Core
 
 		print_warning("Database not connected or cache not built, using slow search")
 
-		tbl = generate_module_table("Matching Modules")
+		tbl = generate_module_table("Matching Modules", search_term)
 		[
 			framework.exploits,
 			framework.auxiliary,
@@ -1461,6 +1477,7 @@ class Core
 		cmds    = []
 		script  = nil
 		reset_ring = false
+		search_term = nil
 
 		# any arguments that don't correspond to an option or option arg will
 		# be put in here
@@ -1522,7 +1539,8 @@ class Core
 				when "-r"
 					reset_ring = true
 					method = 'reset_ring'
-
+				when "-S"
+					search_term = val
 				# Display help banner
 				when "-h"
 					cmd_sessions_help
@@ -1697,7 +1715,10 @@ class Core
 
 			when 'list',nil
 				print_line
-				print(Serializer::ReadableText.dump_sessions(framework, :verbose => verbose))
+				print(Serializer::ReadableText.dump_sessions(
+					framework,
+					{:verbose => verbose,:search_term => search_term}
+				))
 				print_line
 		end
 
@@ -2932,13 +2953,14 @@ class Core
 		print(tbl.to_s)
 	end
 
-	def generate_module_table(type) # :nodoc:
+	def generate_module_table(type,search_term = nil) # :nodoc:
 		Table.new(
 			Table::Style::Default,
 			'Header'  => type,
 			'Prefix'  => "\n",
 			'Postfix' => "\n",
-			'Columns' => [ 'Name', 'Disclosure Date', 'Rank', 'Description' ]
+			'Columns' => [ 'Name', 'Disclosure Date', 'Rank', 'Description' ],
+			'SearchTerm' => search_term
 			)
 	end
 end
