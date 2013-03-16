@@ -1381,7 +1381,7 @@ class Core
 		}
 
 		if framework.db and framework.db.migrated and framework.db.modules_cached
-			search_modules_sql(match)
+			search_modules_sql(match, search_term)
 			return
 		end
 
@@ -1411,8 +1411,8 @@ class Core
 
 	end
 
-	def search_modules_sql(match)
-		tbl = generate_module_table("Matching Modules")
+	def search_modules_sql(match, search_term = nil)
+		tbl = generate_module_table("Matching Modules", search_term)
 		framework.db.search_modules(match).each do |o|
 			tbl << [ o.fullname, o.disclosure_date.to_s, RankingName[o.rank].to_s, o.name ]
 		end
