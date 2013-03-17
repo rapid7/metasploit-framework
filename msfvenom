@@ -497,9 +497,10 @@ when /dll/i
 
 	$stdout.write dll
 when /msi/i
+	exe = Msf::Util::EXE.to_executable_fmt($framework, opts[:arch], opts[:platform], payload_raw, 'exe', exeopts)
 	msi = case opts[:arch]
-                when /x86/;        Msf::Util::EXE.to_win32pe_msi($framework, payload_raw)
-                when /x64|x86_64/; Msf::Util::EXE.to_win64pe_msi($framework, payload_raw)
+                when /x86/;        Msf::Util::EXE.to_win32pe_msi($framework, exe)
+                when /x64|x86_64/; Msf::Util::EXE.to_win64pe_msi($framework, exe)
                 end
         if msi.nil?
                 print_error("This format does not support that architecture")

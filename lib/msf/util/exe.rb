@@ -533,22 +533,27 @@ require 'digest/sha1'
 		return pe
 	end
 
-	def self.to_win32pe_msi(framework, code, opts={})
-		pe = to_win32pe(framework, code, opts)
+	def self.to_win32pe_msi(framework, pe, opts={})
+		opts[:msi_template] ||= "template_x86_windows.msi"
 		return replace_msi_buffer(pe, opts)
 	end
 
-	def self.to_win64pe_msi(framework, code, opts={})
-		pe = to_win64pe(framework, code, opts)
+	def self.to_win64pe_msi(framework, pe, opts={})
+		opts[:msi_template] ||= "template_x64_windows.msi"
 		return replace_msi_buffer(pe, opts)
 	end
 
 	def self.replace_msi_buffer(pe, opts)
-		#User cannot specify their own template due to calling to_win32pe
-		opts[:template].gsub!(/\.exe/, '.msi')
+		opts[:msi_template_path] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates")
+
+		if opts[:msi_template].include?(File::SEPARATOR)
+			template = opts[:msi_template]
+		else
+			template = File.join(opts[:msi_template_path], opts[:msi_template])
+		end
 
 		msi = ''
-		File.open(opts[:template], "rb") { |fd|
+		File.open(template, "rb") { |fd|
 			msi = fd.read(fd.stat.size)
 		}
 
@@ -1950,11 +1955,13 @@ End Sub
 
 		when 'msi'
 			if (not arch or (arch.index(ARCH_X86)))
-				output = Msf::Util::EXE.to_win32pe_msi(framework, code, exeopts)
+				exe = Msf::Util::EXE.to_win32pe(framework, code, exeopts)
+				output = Msf::Util::EXE.to_win32pe_msi(framework, exe, exeopts)
 			end
 
 			if(arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
-				output = Msf::Util::EXE.to_win64pe_msi(framework, code, exeopts)
+				exe =  Msf::Util::EXE.to_win64pe(framework, code, exeopts)
+				output = Msf::Util::EXE.to_win64pe_msi(framework, exe, exeopts)
 			end
 
 		when 'elf'
