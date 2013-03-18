@@ -52,6 +52,7 @@ module Rex::Socket::SslTcpServer
 		super
 	end
 
+	# (see TcpServer#accept)
 	def accept(opts = {})
 		sock = super()
 		return if not sock
@@ -103,6 +104,7 @@ module Rex::Socket::SslTcpServer
 	# Create a new ssl context.  If +ssl_cert+ is not given, generates a new
 	# key and a leaf certificate with random values.
 	#
+	# @return [::OpenSSL::SSL::SSLContext]
 	def makessl(ssl_cert=nil)
 
 		if ssl_cert
