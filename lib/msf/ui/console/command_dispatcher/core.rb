@@ -20,7 +20,6 @@ module CommandDispatcher
 class Core
 
 	include Msf::Ui::Console::CommandDispatcher
-	require 'msf/core/set_rhosts'
 
 	# Session command options
 	@@sessions_opts = Rex::Parser::Arguments.new(
@@ -75,8 +74,7 @@ class Core
 		"-B" => [ true, "Show arg lines of output Before a match."        ],
 		"-s" => [ true, "Skip arg lines of output before attempting match."],
 		"-k" => [ true, "Keep (include) arg lines at start of output."    ],
-		"-c" => [ false, "Only print a count of matching lines."          ],
-		"-R" => [ false, "Set RHOSTS with the results, can only be used when command output has 'addresses' as the first column" ])
+		"-c" => [ false, "Only print a count of matching lines."          ])
 
 	@@search_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner."                                   ])
@@ -2518,11 +2516,6 @@ class Core
 					# skip arg number of lines at the top of the output, useful for avoiding undesirable matches
 					output_mods[:skip] = val.to_i
 					args.shift(2)
-				when "-R"
-					output_mods[:set_rhosts] = true
-					args.shift
-					output_mods[:keep] = 6 unless output_mods[:keep].to_i > 6 # we need the column headers
-					rhosts = []
 			end
 		end
 		# after deleting parsed options, the only args left should be the pattern, the cmd to run, and cmd args
@@ -2592,25 +2585,7 @@ class Core
 
 		# now control output based on remaining output_mods such as :count
 		return print_status(count.to_s) if output_mods[:count]
-
-		if output_mods[:set_rhosts]
-			# we don't use the db to confirm these hosts because we want to keep grep independent of db status so we
-			# require the first column to be the addresses otherwise there's no good way to parse the table.to_s output
-			col_names_row_index = nil
-			our_lines.each_with_index do |line,idx|
-				if line =~ /^address/ # this is assumed to be the line w/the column names
-					col_names_row_index = idx
-					break
-				end
-			end
-			rhosts_row_start = col_names_row_index + 1
-			rhosts_row_start += 1 if our_lines[rhosts_row_start] =~ /^-+/ # skip the "-----" separator if present
-			row_of_interest = our_lines.slice(rhosts_row_start..-1)
-			rhosts = row_of_interest.map {|row| row.split(/\s/).first}
-			set_rhosts_from_addrs(rhosts)
-		else
-			our_lines.each {|line| print line}
-		end
+		our_lines.each {|line| print line}
 	end
 
 	#
