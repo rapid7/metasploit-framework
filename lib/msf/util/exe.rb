@@ -360,7 +360,7 @@ require 'digest/sha1'
 
 		sections_header = []
 		pe._file_header.v['NumberOfSections'].times { |i| sections_header << [(i*0x28)+pe.rva_to_file_offset(pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+0x18+0x24),exe[(i*0x28)+pe.rva_to_file_offset(pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+0x18),0x28]] }
-		
+
 
 		#look for section with entry point
 		sections_header.each do |sec|
@@ -368,11 +368,11 @@ require 'digest/sha1'
 			sizeOfRawData = sec[1][0x10,0x4].unpack('L')[0]
 			characteristics = sec[1][0x24,0x4].unpack('L')[0]
 			if pe.hdr.opt.AddressOfEntryPoint >= virtualAddress && pe.hdr.opt.AddressOfEntryPoint < virtualAddress+sizeOfRawData
-			 	#put this section writable
-			 	characteristics|=0x80000000
-			 	newcharacteristics = [characteristics].pack('L')
-			 	exe[sec[0],newcharacteristics.length]=newcharacteristics
-			 end
+				#put this section writable
+				characteristics|=0x80000000
+				newcharacteristics = [characteristics].pack('L')
+				exe[sec[0],newcharacteristics.length]=newcharacteristics
+			end
 		end
 
 		#put the shellcode at the entry point, overwriting template
