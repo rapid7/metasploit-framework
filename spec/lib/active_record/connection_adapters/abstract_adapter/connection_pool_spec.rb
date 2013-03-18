@@ -1,7 +1,5 @@
 require 'spec_helper'
 
-# include patch under test
-require 'msf/core/patches/active_record'
 # helps with environment configuration to use for connection to database
 require 'metasploit/framework'
 
@@ -33,9 +31,9 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
 		ActiveRecord::Base.clear_all_connections!
 	end
 
-	context '#active_thread_connection?' do
-		subject(:active_thread_connection?) do
-			connection_pool.active_thread_connection?
+	context '#active_connection?' do
+		subject(:active_connection?) do
+			connection_pool.active_connection?
 		end
 
 		# Let! so that Thread is captured before creating and entering new Threads
@@ -47,48 +45,20 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
 			ActiveRecord::Base.connection_pool.connection
 		end
 
-		context 'with connection id' do
-			subject(:active_thread_connection?) do
-				connection_pool.active_thread_connection?(connection_id)
-			end
-
-			context 'with connection id from other thread that has connection' do
-				let(:connection_id) do
-					main_thread.object_id
-				end
-
-				it 'should be true' do
-					thread = Thread.new do
-						Thread.current.should_not == main_thread
-
-						expect(active_thread_connection?).to be_true
-					end
-
-					thread.join
-				end
-			end
+		context 'in thread with connection' do
+			it { should be_true }
 		end
 
-		context 'without connection id' do
-			context 'in thread with connection' do
-				it { should be_true }
-			end
-
-			context 'in thread without connection' do
-				it 'should be false' do
-					thread = Thread.new do
-						Thread.current.should_not == main_thread
-						expect(active_thread_connection?).to be_false
-					end
-
-					thread.join
+		context 'in thread without connection' do
+			it 'should be false' do
+				thread = Thread.new do
+					Thread.current.should_not == main_thread
+					expect(active_connection?).to be_false
 				end
+
+				thread.join
 			end
 		end
-	end
-
-	context 'checkout' do
-
 	end
 
 	context '#with_connection' do
@@ -105,19 +75,6 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
 					:current_connection_id
 			).at_least(
 					:once
-			).and_call_original
-
-			connection_pool.with_connection { }
-		end
-
-		it 'should call #active_thread_connection? with #current_connection_id' do
-			current_connection_id = mock('Connection ID')
-			connection_pool.stub(:current_connection_id => current_connection_id)
-
-			connection_pool.should_receive(
-					:active_thread_connection?
-			).with(
-					current_connection_id
 			).and_call_original
 
 			connection_pool.with_connection { }
@@ -141,8 +98,8 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
 				connection_pool.checkin connection
 			end
 
-			it 'should return true from #active_thread_connection?' do
-				expect(connection_pool.active_thread_connection?).to be_true
+			it 'should return true from #active_connection?' do
+				expect(connection_pool.active_connection?).to be_true
 			end
 
 			context 'with error' do
@@ -173,8 +130,8 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
 		end
 
 		context 'without active thread connection' do
-			it 'should return false from #active_thread_connection?' do
-				expect(connection_pool.active_thread_connection?).to be_false
+			it 'should return false from #active_connection?' do
+				expect(connection_pool.active_connection?).to be_false
 			end
 
 			context 'with error' do
