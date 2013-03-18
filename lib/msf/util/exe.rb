@@ -66,7 +66,7 @@ require 'digest/sha1'
 		if (arch.index(ARCH_X86))
 
 			if (plat.index(Msf::Module::Platform::Windows))
-				return to_win32pe_only(framework, code, opts)
+				return to_win32pe(framework, code, opts)
 			end
 
 			if (plat.index(Msf::Module::Platform::Linux))
@@ -928,7 +928,7 @@ End Sub
 	end
 
 	def self.to_win32pe_vba(framework, code, opts={})
-		to_exe_vba(to_win32pe_only(framework, code, opts))
+		to_exe_vba(to_win32pe(framework, code, opts))
 	end
 
 	def self.to_exe_vbs(exes = '', opts={})
@@ -1196,15 +1196,15 @@ End Sub
 	end
 
 	def self.to_win32pe_vbs(framework, code, opts={})
-		to_exe_vbs(to_win32pe_only(framework, code, opts), opts)
+		to_exe_vbs(to_win32pe(framework, code, opts), opts)
 	end
 
 	def self.to_win32pe_asp(framework, code, opts={})
-		to_exe_asp(to_win32pe_only(framework, code, opts), opts)
+		to_exe_asp(to_win32pe(framework, code, opts), opts)
 	end
 
 	def self.to_win32pe_aspx(framework, code, opts={})
-		to_exe_aspx(to_win32pe_only(framework, code, opts), opts)
+		to_exe_aspx(to_win32pe(framework, code, opts), opts)
 	end
 
 	# Creates a jar file that drops the provided +exe+ into a random file name
@@ -1932,7 +1932,7 @@ End Sub
 			output = Msf::Util::EXE.to_vba(framework, code, exeopts)
 
 		when 'vba-exe'
-			exe = Msf::Util::EXE.to_win32pe_only(framework, code, exeopts)
+			exe = Msf::Util::EXE.to_win32pe(framework, code, exeopts)
 			output = Msf::Util::EXE.to_exe_vba(exe)
 
 		when 'vbs'
