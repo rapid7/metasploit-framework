@@ -1,21 +1,13 @@
 # -*- coding: binary -*-
-##
-# $Id$
-##
 
-###
-#
-# framework-util-exe
-# --------------
+module Msf
+module Util
+
 #
 # The class provides methods for creating and encoding executable file
 # formats for various platforms. It is a replacement for the previous
 # code in Rex::Text
 #
-###
-
-module Msf
-module Util
 class EXE
 
 require 'rex'
