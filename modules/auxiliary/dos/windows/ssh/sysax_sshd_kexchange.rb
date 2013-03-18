@@ -74,7 +74,12 @@ class Metasploit3 < Msf::Auxiliary
 		banner = sock.get_once(-1, 10) || ''
 		print_status("Banner: #{banner.strip}")
 		sock.put(datastore['CLIENTVERSION'] + "\r\n" + get_packet())
-		print "<< " + (sock.get_once(-1, 10) || '')
+
+		# Sometimes the socket closes faster than it can read, sometimes it doesn't, so catch the error just in case.
+		begin
+			print "<< " + (sock.get_once(-1, 10) || '')
+		rescue Errno::ECONNRESET
+		end
 
 		disconnect
 	end
