@@ -1527,7 +1527,7 @@ class Db
 				print_error("The database is not connected")
 				return
 			end
-
+					
 			print_status("Purging and rebuilding the module cache in the background...")
 			framework.threads.spawn("ModuleCacheRebuild", true) do
 				framework.db.purge_all_module_details
