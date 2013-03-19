@@ -2,6 +2,18 @@ require 'bundler/setup'
 
 require 'metasploit_data_models'
 
+#
+# load rake files like a rails engine
+#
+
+pathname = Pathname.new(__FILE__)
+root = pathname.parent
+rakefile_glob = root.join('lib', 'tasks', '**', '*.rake').to_path
+
+Dir.glob(rakefile_glob) do |rakefile|
+  load rakefile
+end
+
 print_without = false
 
 begin
@@ -12,7 +24,7 @@ rescue LoadError
 
 	print_without = true
 else
-	RSpec::Core::RakeTask.new(:spec)
+	RSpec::Core::RakeTask.new(:spec => 'db:test:prepare')
 
 	task :default => :spec
 end
