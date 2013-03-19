@@ -760,7 +760,7 @@ class Metasploit3 < Msf::Auxiliary
 				# if the client is using the browser associated with this set of
 				# exploits.
 				if s[:javascript]
-					if (browser == "generic" || client_info.nil? || [nil, s[:ua_name]].include?(client_info[:ua_name]))
+					if (browser == "generic" || client_info.nil? || [nil, browser].include?(client_info[:ua_name]))
 						if s[:vuln_test].nil? or s[:vuln_test].empty?
 							test = "is_vuln = true"
 						else
