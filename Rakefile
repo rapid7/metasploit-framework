@@ -2,12 +2,19 @@ require 'bundler/setup'
 
 require 'metasploit_data_models'
 
+pathname = Pathname.new(__FILE__)
+root = pathname.parent
+
+# add metasploit-framework/lib to load paths so rake files can just require
+# files normally without having to use __FILE__ and recalculating root and the
+# path to lib
+lib_pathname = root.join('lib')
+$LOAD_PATH.unshift(lib_pathname.to_s)
+
 #
 # load rake files like a rails engine
 #
 
-pathname = Pathname.new(__FILE__)
-root = pathname.parent
 rakefile_glob = root.join('lib', 'tasks', '**', '*.rake').to_path
 
 Dir.glob(rakefile_glob) do |rakefile|

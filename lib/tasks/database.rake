@@ -1,28 +1,6 @@
 load 'active_record/railties/databases.rake'
 
-module Metasploit
-	module Framework
-		def self.env
-			unless instance_variable_defined? :@env
-				name = ENV['METASPLOIT_FRAMEWORK_ENV']
-				name ||= 'development'
-				@env = ActiveSupport::StringInquirer.new(name)
-		  end
-
-			@env
-		end
-
-		def self.root
-			unless instance_variable_defined? :@root
-				pathname = Pathname.new(__FILE__)
-				@root = pathname.parent.parent.parent
-			end
-
-			@root
-		end
-	end
-end
-
+require 'metasploit/framework'
 
 # A modification to remove dependency on Rails.env
 #
