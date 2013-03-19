@@ -252,11 +252,6 @@ class Auxiliary::Web::HTTP
 
 	private
 
-	def print_error( message )
-		return if !@parent
-		@parent.print_error message
-	end
-
 	def call_after_run_blocks
 		while block = @after_run_blocks.pop
 			block.call
@@ -318,9 +313,14 @@ class Auxiliary::Web::HTTP
 	# This is bad but we can't anticipate the gazilion different types of network
 	# i/o errors between Rex and Errno.
 	rescue => e
-		elog e.to_s
-		e.backtrace.each { |l| elog l }
+		print_error e.to_s
+		e.backtrace.each { |l| print_error l }
 		Response.empty
+	end
+
+	def print_error( message )
+		return if !@parent
+		@parent.print_error message
 	end
 
 end
