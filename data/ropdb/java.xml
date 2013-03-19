@@ -26,7 +26,7 @@
 		<gadget offset="0x000015a2">JMP [EAX]</gadget>
 		<gadget offset="0x00004edc">POP EAX # RETN</gadget>
 		<gadget offset="0x0003a151">ptr to VirtualProtect()</gadget>
-		<gadget offset="0x00038c81">,PUSHAD # ADD AL,0EF # RETN</gadget>
+		<gadget offset="0x00038c81">PUSHAD # ADD AL,0EF # RETN</gadget>
 		<gadget offset="0x00005c30">ptr to 'push esp # ret</gadget>
 	</gadgets>
 </rop>
