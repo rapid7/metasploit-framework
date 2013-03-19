@@ -751,7 +751,7 @@ class Metasploit3 < Msf::Auxiliary
 		
 		@all_tests.each { |rank, sploits|
 			sploits.each { |s|
-				browser = s[:ua_name]
+				browser = s[:ua_name] || "generic"
 				next unless client_matches_browser(client_info, browser)
 				
 				# Send all the generics regardless of what the client is. If the
@@ -760,7 +760,7 @@ class Metasploit3 < Msf::Auxiliary
 				# if the client is using the browser associated with this set of
 				# exploits.
 				if s[:javascript]
-					if (browser == "generic" || client_info.nil? || [nil, browser].include?(client_info[:ua_name]))
+					if (browser == "generic" || client_info.nil? || [nil, s[:ua_name]].include?(client_info[:ua_name]))
 						if s[:vuln_test].nil? or s[:vuln_test].empty?
 							test = "is_vuln = true"
 						else
