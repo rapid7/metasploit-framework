@@ -92,9 +92,6 @@ class DBManager
 
 			initialize_metasploit_data_models
 
-			# Patches issues with ActiveRecord
-			require "msf/core/patches/active_record"
-
 			@usable = true
 
 		rescue ::Exception => e
