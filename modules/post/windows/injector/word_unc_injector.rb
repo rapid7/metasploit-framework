@@ -152,8 +152,6 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		zipfile = ""
-		backup_filename = ""
 
 		#sadly OptPath does not work, so we check manually if it exists
 		if !file_exist?(datastore['FILE'])
