@@ -382,7 +382,7 @@ require 'digest/sha1'
 	end
 
 
-	def self.to_win32pe_old(framework, code, opts={})x
+	def self.to_win32pe_old(framework, code, opts={})
 
 		# Allow the user to specify their own EXE template
 		set_template_default(opts, "template_x86_windows_old.exe")
