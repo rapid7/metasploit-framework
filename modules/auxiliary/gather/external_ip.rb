@@ -23,8 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 				route to the RHOST by querying the public web application at ifconfig.me.
 				It should be noted this module will register activity on ifconfig.me,
 				which is not affiliated with Metasploit.
-			}
-			,
+			},
 			'Author'        => ['RageLtMan'],
 			'License'	=> MSF_LICENSE,
 			'References'	=>
