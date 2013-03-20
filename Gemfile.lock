@@ -1,10 +1,10 @@
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: 67d78f9ce59a74ad9d6e8d3f9e68760ff4d2ec55
-  tag: 0.6.2
+  revision: bf26ddf71e7ba2f66d3ba528fc67029f5c6a6135
+  tag: 0.6.3
   specs:
-    metasploit_data_models (0.6.2)
-      activerecord (>= 3.2.10)
+    metasploit_data_models (0.6.3)
+      activerecord (>= 3.2.13)
       activesupport
       pg
       pry
@@ -12,22 +12,22 @@ GIT
 GEM
   remote: http://rubygems.org/
   specs:
-    activemodel (3.2.12)
-      activesupport (= 3.2.12)
+    activemodel (3.2.13)
+      activesupport (= 3.2.13)
       builder (~> 3.0.0)
-    activerecord (3.2.12)
-      activemodel (= 3.2.12)
-      activesupport (= 3.2.12)
+    activerecord (3.2.13)
+      activemodel (= 3.2.13)
+      activesupport (= 3.2.13)
       arel (~> 3.0.2)
       tzinfo (~> 0.3.29)
-    activesupport (3.2.12)
-      i18n (~> 0.6)
+    activesupport (3.2.13)
+      i18n (= 0.6.1)
       multi_json (~> 1.0)
     arel (3.0.2)
     builder (3.0.4)
     coderay (1.0.9)
     diff-lcs (1.1.3)
-    i18n (0.6.4)
+    i18n (0.6.1)
     json (1.7.7)
     method_source (0.8.1)
     msgpack (0.5.2)
@@ -54,8 +54,8 @@ GEM
       multi_json (~> 1.0.3)
       simplecov-html (~> 0.5.3)
     simplecov-html (0.5.3)
-    slop (3.4.3)
-    tzinfo (0.3.36)
+    slop (3.4.4)
+    tzinfo (0.3.37)
     yard (0.8.3)
 
 PLATFORMS
