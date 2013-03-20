@@ -17,8 +17,14 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        	=> 'External IP',
-			'Description'	=> 'This module checks for the public source IP address of the current route to the RHOST',
+			'Name'        	=> 'Discover External IP via Ifconfig.me',
+			'Description'	=> %q{
+				This module checks for the public source IP address of the current
+				route to the RHOST by querying the public web application at ifconfig.me.
+				It should be noted this module will register activity on ifconfig.me,
+				which is not affiliated with Metasploit.
+			}
+			,
 			'Author'        => ['RageLtMan'],
 			'License'	=> MSF_LICENSE,
 			'References'	=>
