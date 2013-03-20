@@ -43,10 +43,19 @@ class Metasploit3 < Msf::Post
 
 	def run
 		if is_root?
-			vcmd_exec("deluser #{datastore['USER']}")
+			cmd_exec_vprint("deluser #{datastore['USER']}")
 		else
 			print_error("This module require root permissions")
 			return
 		end		
+	end
+
+	def cmd_exec_vprint(cmd)
+		vprint_status("Executing: #{cmd}")
+		output = cmd_exec(cmd)
+		if output.length > 0
+			vprint_status("#{output}")
+		end
+		return
 	end
 end
