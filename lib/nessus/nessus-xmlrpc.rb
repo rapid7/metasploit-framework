@@ -4,19 +4,19 @@
 # Author:: Vlatko Kosturjak
 #
 # (C) Vlatko Kosturjak, Kost. Distributed under GPL and BSD license (dual).
-# 
-# == What is this library? 
-# 
-# This library is used for communication with Nessus over XML RPC interface. 
-# You can start, stop, pause and resume scan. Watch progress and status of scan, 
+#
+# == What is this library?
+#
+# This library is used for communication with Nessus over XML RPC interface.
+# You can start, stop, pause and resume scan. Watch progress and status of scan,
 # download report, etc.
 #
 # == Requirements
-# 
-# Required libraries are standard Ruby libraries: uri, net/https and rexml/document. 
+#
+# Required libraries are standard Ruby libraries: uri, net/https and rexml/document.
 #
 # == Usage:
-# 
+#
 #  require 'nessus-xmlrpc'
 #  n=NessusXMLRPC::NessusXMLRPC.new('https://localhost:8834','user','pass');
 #  if n.logged_in
@@ -36,9 +36,9 @@ require 'net/https'
 require 'rexml/document'
 
 # NessusXMLRPC module
-# 
+#
 # Usage:
-# 
+#
 #  require 'nessus-xmlrpc'
 #  n=NessusXMLRPC::NessusXMLRPC.new('https://localhost:8834','user','pass');
 #  if n.logged_in
@@ -47,10 +47,10 @@ require 'rexml/document'
 #	puts "status: " + n.scan_status(uid)
 #  end
 #
-# Check NessusXMLRPCrexml for description of methods implemented 
+# Check NessusXMLRPCrexml for description of methods implemented
 # (for both NessusXMLRPCnokogiri and NessusXMLRPCrexml).
 
-module NessusXMLRPC 
+module NessusXMLRPC
 
 	# Class which uses standard REXML to parse nessus XML RPC replies.
 	class NessusXMLRPC
@@ -136,7 +136,7 @@ module NessusXMLRPC
 			# puts response.body
 			return response.body
 		end
-	
+
 		# login with user & password and sets object-wide @token, @name and @admin
 		def login(user, password)
 			post = { "login" => user, "password" => password }
@@ -150,9 +150,9 @@ module NessusXMLRPC
 				# puts "Got token:" + @token
 				return @token
 			end
-			
+
 		end
-	
+
 		#checks to see if the user is an admin
 		def is_admin
 			if @admin == "TRUE"
@@ -160,7 +160,7 @@ module NessusXMLRPC
 			end
 			return false
 		end
-	
+
 		# initiate new scan with policy id, descriptive name and list of targets
 		#
 		# returns: uuid of scan
@@ -223,7 +223,7 @@ module NessusXMLRPC
 			}
 			return scans
 		end
-		
+
 		def template_list_hash
 			post= { "token" => @token }
 			docxml = nessus_request('scan/list', post)
@@ -239,7 +239,7 @@ module NessusXMLRPC
 			}
 			return templates
 		end
-	
+
 		# get hash of policies
 		#
 		# returns: array of hash of policies
@@ -260,7 +260,7 @@ module NessusXMLRPC
 			}
 			return policies
 		end
-	
+
 		# get hash of reportss
 		#
 		# returns: array of hash of templates
@@ -343,7 +343,7 @@ module NessusXMLRPC
 			end
 			return docxml
 		end
-	
+
 		# stop all active scans
 		#
 		# Usage:
@@ -359,7 +359,7 @@ module NessusXMLRPC
 			}
 			return b
 		end
-	
+
 		# pause scan identified by scan_uuid
 		def scan_pause(uuid)
 			post= { "token" => @token, "scan_uuid" => uuid }
@@ -370,7 +370,7 @@ module NessusXMLRPC
 			end
 			return docxml
 		end
-	
+
 		# pause all active scans
 		#
 		# Usage:
@@ -386,7 +386,7 @@ module NessusXMLRPC
 			}
 			return b
 		end
-	
+
 		# remove scan identified by uuid
 		def scan_resume(uuid)
 			post= { "token" => @token, "scan_uuid" => uuid }
@@ -438,7 +438,7 @@ module NessusXMLRPC
 				return false
 			end
 		end
-	
+
 		# get report by reportID and return XML file
 		#
 		# returns: XML file of report (nessus v2 format)
@@ -457,12 +457,23 @@ module NessusXMLRPC
 		# returns: XML file of report (nessus v1 format)
 		def report_file1_download(report)
 			post= { "token" => @token, "report" => report, "v1" => "true" }
-			
+
 			file=nessus_http_request('file/report/download', post)
-			
+
 			return file
 		end
-	
+
+		# get report by reportID and return CSV file
+		#
+		# returns CSV file of report
+		def report_csv_download(report)
+			post= { "token" => @token, "report" => report, "CSV" => "true" }
+
+			file=nessus_http_request('file/report/download', post)
+
+			return file
+		end
+
 		# delete report by report ID
 		def report_delete(id)
 			post= { "token" => @token, "report" => id }
@@ -529,7 +540,7 @@ module NessusXMLRPC
 			end
 			return hosts
 		end
-	
+
 		def report_host_ports(report_id,host)
 			post= { "token" => @token, "report" => report_id, "hostname" => host }
 			docxml = nil
@@ -556,7 +567,7 @@ module NessusXMLRPC
 			end
 			return ports
 		end
-	
+
 		def report_host_port_details(report_id,host,port,protocol)
 			post= { "token" => @token, "report" => report_id, "hostname" => host, "port" => port, "protocol" => protocol }
 			docxml = nil
@@ -619,7 +630,7 @@ module NessusXMLRPC
 				end
 			end
 		end
-	
+
 		# gets a list of each plugin family and the number of plugins for that family.
 		def plugins_list
 			post= { "token" => @token }
@@ -637,7 +648,7 @@ module NessusXMLRPC
 			}
 			return plugins
 		end
-	
+
 		#returns a list of users, if they are an admin and their last login time.
 		def users_list
 			post= { "token" => @token }
@@ -656,7 +667,7 @@ module NessusXMLRPC
 			}
 			return users
 		end
-	
+
 		# returns basic data about the feed type and versions.
 		def feed
 			post = { "token" => @token }
@@ -670,7 +681,7 @@ module NessusXMLRPC
 			web_version = docxml.root.elements['contents'].elements['web_server_version'].text
 			return feed, version, web_version
 		end
-	
+
 		def user_add(user,pass)
 			post= { "token" => @token, "login" => user, "password" => pass }
 			docxml = nil
@@ -680,7 +691,7 @@ module NessusXMLRPC
 			end
 			return docxml
 		end
-	
+
 		def user_del(user)
 			post= { "token" => @token, "login" => user }
 			docxml = nil
@@ -690,7 +701,7 @@ module NessusXMLRPC
 			end
 			return docxml
 		end
-	
+
 		def user_pass(user,pass)
 			post= { "token" => @token, "login" => user, "password" => pass }
 			docxml = nil
@@ -700,7 +711,7 @@ module NessusXMLRPC
 			end
 			return docxml
 		end
-	
+
 		def plugin_family(fam)
 			post = { "token" => @token, "family" => fam }
 			docxml = nil
@@ -718,7 +729,7 @@ module NessusXMLRPC
 			}
 			return family
 		end
-	
+
 		def policy_del(pid)
 			post= { "token" => @token, "policy_id" => pid }
 			docxml = nil
@@ -728,7 +739,7 @@ module NessusXMLRPC
 			end
 			return docxml
 		end
-	
+
 		def report_del(rid)
 			post= { "token" => @token, "report" => rid }
 			docxml = nil
@@ -738,7 +749,7 @@ module NessusXMLRPC
 			end
 			return docxml
 		end
-	
+
 		def plugin_detail(pname)
 			post = { "token" => @token, "fname" => pname }
 			docxml = nil
@@ -768,7 +779,7 @@ module NessusXMLRPC
 			}
 			return entry
 		end
-	
+
 		def server_prefs
 			post= { "token" => @token }
 			docxml = nil
@@ -785,7 +796,7 @@ module NessusXMLRPC
 			}
 			return prefs
 		end
-	
+
 		def plugin_prefs
 			post= { "token" => @token }
 			docxml = nil
@@ -808,4 +819,3 @@ module NessusXMLRPC
 	end # end of NessusXMLRPC::Class
 
 end # of Module
-
