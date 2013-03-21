@@ -30,7 +30,6 @@ found in the PATH is used to execute the file.
 			'Author'        => [ 'Joshua D. Abraham
 				<jabra[at]praetorian.com>', ], 'Platform'      => [ 'linux' ],
 				'SessionTypes'  => [ 'shell' ]))
-
 		register_options(
 		[
 			OptString.new('URL', [true, 'Full URL of file to download.'])
