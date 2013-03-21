@@ -25,8 +25,8 @@ class Metasploit3 < Msf::Post
 			'Description'   => %q{
 				This module downloads and runs a file with bash. It first
 tries to uses curl as its HTTP client and then wget if it's not found. Bash
-found in the PATH is used to execute the file.
-			.  }, 'License'       => MSF_LICENSE,
+found in the PATH is used to execute the file.},
+			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Joshua D. Abraham
 				<jabra[at]praetorian.com>', ], 'Platform'      => [ 'linux' ],
 				'SessionTypes'  => [ 'shell' ]))
