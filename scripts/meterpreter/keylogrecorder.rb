@@ -54,10 +54,6 @@ end
 #Function to Migrate in to Explorer process to be able to interact with desktop
 def explrmigrate(session,captype,lock,kill)
 	#begin
-	
-	server = client.sys.process.open
-	original_pid = server.pid
-	
 	if captype.to_i == 0
 		process2mig = "explorer.exe"
 	elsif captype.to_i == 1
@@ -81,9 +77,13 @@ def explrmigrate(session,captype,lock,kill)
 			print_status("Migration Successful!!")
 			
 			if (kill)
-				print_status("Killing old process")
-				client.sys.process.kill(original_pid)
-				print_status("Old process killed.") 
+				begin
+					print_status("Killing old process")
+					client.sys.process.kill(mypid)
+					print_status("Old process killed.")
+				rescue
+					print_status("Failed to kill old process.")
+				end
 			end
 		end
 	end
