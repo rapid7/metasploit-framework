@@ -27,7 +27,6 @@ class Metasploit3 < Msf::Auxiliary
 				first test.
 
 				Hint: To get a remote shell you could upload a netcat binary and exec it.
-				Have phun
 			},
 			'Author'          => [ 'm-1-k-3' ],
 			'License'         => MSF_LICENSE,
@@ -40,7 +39,6 @@ class Metasploit3 < Msf::Auxiliary
 						[ 'OSVDB', '90221' ],
 						[ 'BID', '57958' ]
 				],
-			'DefaultTarget'  => 0,
 			'DisclosureDate' => 'Feb 12 2013'))
 
 		register_options(
@@ -66,7 +64,6 @@ class Metasploit3 < Msf::Auxiliary
 				{
 					'uri'    => uri,
 					'method' => 'POST',
-					#'data'  => data_cmd,
 					'encode_params' => false,
 					'vars_post' => {
 						"month" => "#{rand(12)}",
