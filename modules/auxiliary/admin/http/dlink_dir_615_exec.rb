@@ -38,7 +38,6 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'BID', '57882' ],
 					[ 'OSVDB', '90174' ]
 				],
-			'DefaultTarget'  => 0,
 			'DisclosureDate' => 'Jan 07 2013'))
 
 		register_options(
