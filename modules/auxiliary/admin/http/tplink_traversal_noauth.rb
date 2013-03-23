@@ -15,7 +15,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'TP-Link Wireless Lite N Access Point - Directory Traversal Vulnerability',
-			'Version'     => '$$',
 			'Description' => %q{
 				This module tests whether a directory traversal vulnerablity is present
 				in versions of TP-Link Access Point 3.12.16 Build 120228 Rel.37317n
@@ -124,6 +123,8 @@ class Metasploit3 < Msf::Auxiliary
 					'method'  => 'GET',
 					'uri'	 => '/',
 				})
+
+			return if (res.headers['Server'].nil? or res.headers['Server'] !~ /TP-LINK Router/)
 
 		rescue ::Rex::ConnectionError
 			vprint_error("#{rhost}:#{rport} - Failed to connect to the web server")
