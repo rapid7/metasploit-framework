@@ -51,6 +51,10 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('WINPATH', [true, 'The name of the remote Windows directory', 'WINDOWS']),
 		], self.class)
 
+		register_advanced_options([
+			OptString.new('FILEPREFIX', [false, 'Add a custom prefix to the temporary files','']),
+		], self.class)
+
 		deregister_options('RHOST')
 	end
 
@@ -60,8 +64,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	# This is the main controle method
 	def run_host(ip)
-		text = "\\#{datastore['WINPATH']}\\Temp\\#{Rex::Text.rand_text_alpha(16)}.txt"
-		bat  = "\\#{datastore['WINPATH']}\\Temp\\#{Rex::Text.rand_text_alpha(16)}.bat"
+		text = "\\#{datastore['WINPATH']}\\Temp\\#{datastore['FILEPREFIX']}#{Rex::Text.rand_text_alpha(16)}.txt"
+		bat  = "\\#{datastore['WINPATH']}\\Temp\\#{datastore['FILEPREFIX']}#{Rex::Text.rand_text_alpha(16)}.bat"
 		@smbshare = datastore['SMBSHARE']
 		@ip = ip
 
