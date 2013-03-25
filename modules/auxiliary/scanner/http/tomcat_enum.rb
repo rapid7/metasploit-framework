@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 		each_user_pass { |user,pass|
 			do_login(user)
 		}
-	
+
 		if(@users_found.empty?)
 			print_status("#{target_url} - No users found.")
 		else
