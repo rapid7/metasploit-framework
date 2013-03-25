@@ -56,18 +56,12 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		@users_found = {}
-		results = ""
 
 		each_user_pass { |user,pass|
-			results = do_login(user)
-			if results == "NetworkError"
-				break
-			end
+			do_login(user)
 		}
-
-		if results == "NetworkError"
-			print_error("#{target_url} - UNREACHABLE")		
-		elsif(@users_found.empty?)
+	
+		if(@users_found.empty?)
 			print_status("#{target_url} - No users found.")
 		else
 			print_good("#{target_url} - Users found: #{@users_found.keys.sort.join(", ")}")
@@ -105,10 +99,9 @@ class Metasploit3 < Msf::Auxiliary
 				return :abort
 			end
 
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			return "NetworkError"
-		rescue ::Timeout::Error, ::Errno::EPIPE
-			return "NetworkError"
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE
+			print_error("#{target_url} - UNREACHABLE")
+			return :abort
 		end
 	end
 
