@@ -31,7 +31,6 @@ class Metasploit3 < Msf::Auxiliary
 		)
 		register_options(
 			[
-				Opt::RPORT(80),
 				OptPath.new('FILELIST',  [ true, "File containing sensitive files, one per line",
 					File.join(Msf::Config.install_root, "data", "wordlists", "sensitive_files.txt") ]),
 				OptString.new('USERNAME',[ true, 'User to login with', 'admin']),
