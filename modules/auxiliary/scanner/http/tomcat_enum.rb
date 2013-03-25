@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 					File.join(Msf::Config.install_root, "data", "wordlists", "tomcat_mgr_default_users.txt") ]),
 			], self.class)
 
-		deregister_options('PASSWORD','PASS_FILE','USERPASS_FILE','STOP_ON_SUCCESS','BLANK_PASSWORDS','USERNAME')
+		deregister_options('PASSWORD','PASS_FILE','USERPASS_FILE','USER_AS_PASS','STOP_ON_SUCCESS','BLANK_PASSWORDS','USERNAME')
 	end
 
 	def target_url
@@ -56,12 +56,18 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		@users_found = {}
+		results = ""
 
 		each_user_pass { |user,pass|
-			do_login(user)
+			results = do_login(user)
+			if results == "NetworkError"
+				break
+			end
 		}
 
-		if(@users_found.empty?)
+		if results == "NetworkError"
+			print_error("#{target_url} - UNREACHABLE")		
+		elsif(@users_found.empty?)
 			print_status("#{target_url} - No users found.")
 		else
 			print_good("#{target_url} - Users found: #{@users_found.keys.sort.join(", ")}")
@@ -100,7 +106,9 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			return "NetworkError"
 		rescue ::Timeout::Error, ::Errno::EPIPE
+			return "NetworkError"
 		end
 	end
 
