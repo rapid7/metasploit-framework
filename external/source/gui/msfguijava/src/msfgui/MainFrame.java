@@ -366,14 +366,19 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 					currentMenu.add(men);
 					currentMenu = (JMenu) men;
 				} else {
-					JMenuItem men = new JMenuItem(names[i]);
-					if(recentlyAdded)
-						men.setFont(men.getFont().deriveFont(men.getFont().getStyle() | java.awt.Font.BOLD));
-					men.setName(names[i]);
-					currentMenu.add(men);
-					ActionListener actor = factory.getActor(fullName.toString(),type,rpcConn);
-					men.addActionListener(actor);
-					searchWin.modules.add(new Object[]{type, fullName.toString(),actor});
+					try{
+						JMenuItem men = new JMenuItem(names[i]);
+						if(recentlyAdded)
+							men.setFont(men.getFont().deriveFont(men.getFont().getStyle() | java.awt.Font.BOLD));
+						men.setName(names[i]);
+						currentMenu.add(men);
+						ActionListener actor = factory.getActor(fullName.toString(),type,rpcConn);
+						men.addActionListener(actor);
+						searchWin.modules.add(new Object[]{type, fullName.toString(),actor});
+					}catch(ClassCastException cce){
+						System.err.println(names[i]);
+						cce.printStackTrace();
+					}
 				}
 			}//end for each subname
 		}//end for each module
