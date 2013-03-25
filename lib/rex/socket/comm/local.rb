@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'singleton'
 require 'rex/socket'
 require 'rex/socket/tcp'
@@ -365,20 +366,31 @@ class Rex::Socket::Comm::Local
 			
 			routes = {shost => sport.to_s, host => port.to_s}
 			
-			ni_packet = packet_type << [0].pack('c*') << [route_info_version].pack('c*') << [ni_version].pack('c*') << [num_of_entries].pack('c*') << [talk_mode].pack('c*') << [0].pack('c*') << [0].pack('c*') << [num_rest_nodes].pack('c*')
+			ni_packet = [
+				packet_type,
+				0,
+				route_info_version,
+				ni_version,
+				num_of_entries,
+				talk_mode,
+				0,
+				0,
+				num_rest_nodes
+			].pack("A8c7")
 
 			first = false
 
-			routes.each do|host,port|
-  			  route_item = host + [0].pack("C") + port + [0, 0].pack("c*")
-  			  if first
-    		    route_data = route_data << [route_item.length].pack('N') << route_item
-    		    first = true
-  			  else
-    		    route_data << route_item
-  			  end
-		    end
+			routes.each do |host,port|
+				route_item = [host, 0, port, 0, 0].pack("A*CA*CC")
+				if first
+					route_data = [route_data, route_item.length, route_item].pack("A*NA*")
+					first = true
+				else
+					route_data << route_item
+				end
+			end
 
+			# TODO: This is really hard to follow
 			ni_packet << [route_data.length - 4].pack('N') 
 			ni_packet << route_data
 			ni_packet = [ni_packet.length].pack('N') << ni_packet
@@ -390,9 +402,9 @@ class Rex::Socket::Comm::Local
 			end
 
 			begin
-			    ret_len = sock.recv(4).unpack('H*')[0]
-			    if ret_len !=0
-  				  ret = sock.recv(ret_len.to_i)
+				ret_len = sock.recv(4).unpack('H*')[0]
+				if ret_len !=0
+					ret = sock.recv(ret_len.to_i)
 				end
 			rescue IOError
 				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to receive a response from the proxy"), caller
@@ -415,10 +427,10 @@ class Rex::Socket::Comm::Local
 				end
 			elsif ret =~ /NI_PONG/
 				# would like to print this "[*] remote native connection to #{host}:#{port} established\n"
-  			else
-    		    raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} failed - #{ret}\n\n#{ni_packet}")
+			else
+				raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} failed - #{ret}\n\n#{ni_packet}")
 			end
-			
+
 		when 'http'
 			setup = "CONNECT #{host}:#{port} HTTP/1.0\r\n\r\n"
 			size = sock.put(setup)
