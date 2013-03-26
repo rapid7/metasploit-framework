@@ -3,7 +3,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import javax.swing.JFileChooser;
@@ -119,6 +122,19 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 						+ " Is msfrpcd running on the right port?");
 		} catch (NullPointerException nex) {//generated when attributes dont exist.
 		} catch (Exception ex) { //for weird msg exceptions
+		}
+		//Try service token on default 3790
+		BufferedReader fin = null;
+		try{
+			try{
+				fin = new BufferedReader(new FileReader(MsfguiApp.getMsfRoot().getParent()+"/apps/pro/engine/tmp/servicekey.txt"));
+			}catch(Exception iox2){
+				fin = new BufferedReader(new FileReader("/opt/metasploit/apps/pro/engine/tmp/servicekey.txt"));
+			}
+			RpcConnection rpc = RpcConnection.getConn("", fin.readLine().toCharArray(), "localhost", 3790, true);
+			if(javax.swing.JOptionPane.showConfirmDialog(null, "Connect to local rpcd?") == javax.swing.JOptionPane.YES_OPTION)
+				return rpc;
+		}catch(Exception iox){//file not found/unreadable/bad creds/etc. - ignore
 		}
 		//Darn. open the gui anyway
 		OpenConnectionDialog diag = new OpenConnectionDialog(true, mainframe);
