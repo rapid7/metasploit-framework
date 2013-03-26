@@ -12,6 +12,8 @@ License: BSD-3-clause
 #
 # This license does not apply to third-party components detailed below.
 #
+# Last updated: 2013-Mar-25
+#
 
 Files: data/john/*
 Copyright: 1996-2011 Solar Designer.

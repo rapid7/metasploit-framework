@@ -295,6 +295,9 @@ public class DbConnectDialog extends OptionsDialog {
 	}
 	/** Tries to connect to the database with given credentials */
 	private boolean tryConnect() throws MsfException{
+		Map status = (Map) rpcConn.execute("db.status");
+		if(status.containsKey("db"))
+			return true; // already connected
 		HashMap opts = new HashMap();
 		addNonempty("host", hostField, opts);
 		addNonempty("port", portField, opts);

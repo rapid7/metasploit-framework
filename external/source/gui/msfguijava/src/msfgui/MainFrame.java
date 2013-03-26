@@ -171,7 +171,7 @@ public class MainFrame extends FrameView {
 			MsfguiApp.shuttingDown = true;
 			if(choice == JOptionPane.YES_OPTION)
 				rpcConn.execute("core.stop");
-			else if(choice == JOptionPane.NO_OPTION)
+			else if(choice == JOptionPane.NO_OPTION && rpcConn.username.length() > 0)
 				rpcConn.execute("auth.logout");
 		} catch (Exception ex) {
 		}
