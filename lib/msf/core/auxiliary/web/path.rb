@@ -22,9 +22,6 @@ class Path  < Fuzzable
 	# URL String to which to submit the params
 	attr_accessor :action
 
-	# Injected value as a String
-	attr_accessor :input
-
 	# Mdm::WebForm model if available
 	attr_accessor :model
 
@@ -48,7 +45,14 @@ class Path  < Fuzzable
 	def input=( value )
 		@inputs = value.to_s.dup
 	end
+	def input
+		@inputs
+	end
 	alias :param :input
+
+	def method
+		'GET'
+	end
 
 	#
 	# Examples
@@ -104,7 +108,7 @@ class Path  < Fuzzable
 	#
 	def permutations
 		return [] if empty?
-		seeds_for( value ).map { |seed| permutation_for( nil, seed ) }.uniq
+		fuzzer.seeds_for( altered_value ).map { |seed| permutation_for( nil, seed ) }.uniq
 	end
 
 	def permutation_for( field_name, field_value )
@@ -118,7 +122,7 @@ class Path  < Fuzzable
 	end
 
 	def self.from_model( form )
-		e = new( :action => "#{form.path}?#{form.query}", :input => form.inputs[0][1] )
+		e = new( :action => "#{form.path}?#{form.query}", :input => form.params[0][1] )
 		e.model = form
 		e
 	end
