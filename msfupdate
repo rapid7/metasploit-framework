@@ -66,9 +66,10 @@ def print_deprecation_warning
 	$stdout.puts "[-] "
 	$stdout.puts "[-] For more on msfupdate and migrating off of SVN, see http://r-7.co/MSF-UP"
 	$stdout.puts ""
-	maybe_wait_and_exit 0x11
 end
 
+# This only exits if you actually pass a wait option, otherwise
+# just returns nil. This is likely unexpected, revisit this.
 def maybe_wait_and_exit(exit_code=0)
 	if @actually_wait
 		$stdout.puts ""
@@ -132,7 +133,13 @@ end
 
 ####### Since we're SVN, do it all this way #######
 if is_svn
+	# We're fully deprecated now, so just exit.
+	# Leaving in the commented code in case someone wants to
+	# get a last-chance at msfupdate before the SVN server goes
+	# off line, which will be ANY DAY NOW. Seriously.
 	print_deprecation_warning
+	$stdin.readline if @actually_wait
+	exit(0x11) # Comment this to get old functionality back.
 	@args.push("--config-dir=#{@configdir}")
 	@args.push("--non-interactive")
 
