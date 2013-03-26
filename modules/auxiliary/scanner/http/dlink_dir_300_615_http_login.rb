@@ -125,8 +125,8 @@ i		proto = "http"
 				'method' => 'POST',
 				'vars_post' => {
 					"ACTION_POST" => "LOGIN",
-					"LOGIN_USER" => "#{user}",
-					"LOGIN_PASSWD" => "#{pass}",
+					"LOGIN_USER" => user,
+					"LOGIN_PASSWD" => pass,
 					"login" => "+Log+In+"
 				}
 			})
