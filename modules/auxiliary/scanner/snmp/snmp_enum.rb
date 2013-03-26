@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'SNMP Enumeration Module',
-			'Version'     => '$Revision$',
 			'Description' => 'This module allows enumeration of any devices with SNMP
 				protocol support. It supports hardware, software, and network information.
 				The default community used is "public".',
@@ -951,20 +946,22 @@ class Metasploit3 < Msf::Auxiliary
 
 			print_line('')
 
-			disconnect_snmp
+
 
 		rescue SNMP::RequestTimeout
-			vprint_status("#{ip}, SNMP request timeout.")
-		rescue Errno::ECONNREFUSED
-			print_status("#{ip}, Connection refused.")
+			vprint_status("#{ip} SNMP request timeout.")
+		rescue Rex::ConnectionError
+			print_status("#{ip} Connection refused.")
 		rescue SNMP::InvalidIpAddress
-			print_status("#{ip}, Invalid Ip Address. Check it with 'snmpwalk tool'.")
+			print_status("#{ip} Invalid IP Address. Check it with 'snmpwalk tool'.")
 		rescue SNMP::UnsupportedVersion
-			print_status("Unsupported SNMP version specified. Select from '1' or '2c'.")
+			print_status("#{ip} Unsupported SNMP version specified. Select from '1' or '2c'.")
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
 			print_status("Unknown error: #{e.class} #{e}")
+		ensure
+			disconnect_snmp
 		end
 	end
 

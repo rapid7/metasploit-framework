@@ -84,9 +84,15 @@ public abstract class RpcConnection {
 		String message = "";
 		try {
 			connect();
-			Map results = (Map)exec("auth.login",new Object[]{username, this.password});
-			rpcToken=results.get("token").toString();
-			haveRpcd=results.get("result").equals("success");
+			if(username == null || username.equals("")){
+				rpcToken = this.password;
+				execute("core.version"); //throws error if unsuccessful
+				haveRpcd = true;
+			}else{
+				Map results = (Map)exec("auth.login",new Object[]{username, this.password});
+				rpcToken=results.get("token").toString();
+				haveRpcd=results.get("result").equals("success");
+			}
 		} catch (MsfException xre) {
 			message = xre.getLocalizedMessage();
 		} catch (IOException io){
@@ -260,7 +266,8 @@ public abstract class RpcConnection {
 				// Don't fork cause we'll check if it dies
 				String rpcType = "Basic";
 				java.util.List args = new java.util.ArrayList(java.util.Arrays.asList(new String[]{
-						"msfrpcd","-f","-P",defaultPass,"-t","Msg","-U",defaultUser,"-a","127.0.0.1"}));
+						"msfrpcd","-f","-P",defaultPass,"-t","Msg","-U",defaultUser,"-a","127.0.0.1",
+						"-p",Integer.toString(defaultPort)}));
 				if(!defaultSsl)
 					args.add("-S");
 				if(disableDb)

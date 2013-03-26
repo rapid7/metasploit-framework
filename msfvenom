@@ -369,7 +369,7 @@ if opts[:encode]
 		next if not enc
 		begin
 			break if done
-			#enc.datastore.import_options_from_s(datastore, '_|_')
+			enc.datastore.import_options_from_hash(datastore)
 			skip = false
 			raw = nil
 

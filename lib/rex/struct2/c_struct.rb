@@ -163,12 +163,12 @@ class CStruct < SStruct
 			return super(index, *other)
 		end
 	end
-	
+
 	# Produce a list of field names
 	def keys
 		@name_table
 	end
-	
+
 	# Iterate through all fields and values
 	def each_pair(&block)
 		@name_table.each do |k|

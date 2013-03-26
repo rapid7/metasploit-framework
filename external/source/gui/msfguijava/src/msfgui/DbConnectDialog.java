@@ -244,7 +244,11 @@ public class DbConnectDialog extends OptionsDialog {
 			try{
 				s = new Scanner(new File(System.getenv("BASE")+"config/database.yml"));
 			} catch (FileNotFoundException fnfox){
-				s = new Scanner(new File(MsfguiApp.getMsfRoot()+"/../config/database.yml"));
+				try{
+					s = new Scanner(new File(MsfguiApp.getMsfRoot()+"/../config/database.yml"));
+				} catch (FileNotFoundException fnfx){
+					s = new Scanner(new File("/opt/metasploit/apps/pro/ui/config/database.yml"));
+				}
 			}
 			String token = s.next();
 			while(!token.equals("production:"))
@@ -291,6 +295,9 @@ public class DbConnectDialog extends OptionsDialog {
 	}
 	/** Tries to connect to the database with given credentials */
 	private boolean tryConnect() throws MsfException{
+		Map status = (Map) rpcConn.execute("db.status");
+		if(status.containsKey("db"))
+			return true; // already connected
 		HashMap opts = new HashMap();
 		addNonempty("host", hostField, opts);
 		addNonempty("port", portField, opts);

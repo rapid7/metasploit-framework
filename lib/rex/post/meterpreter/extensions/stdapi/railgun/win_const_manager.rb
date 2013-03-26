@@ -74,14 +74,14 @@ class WinConstManager
 	#
 	# Returns an array of constant names that have a value matching "winconst"
 	# and (optionally) a name that matches "filter_regex"
-	# 
+	#
 	def select_const_names(winconst, filter_regex=nil)
 		matches = []
 
 		consts.each_pair do |name, value|
 			matches << name if value == winconst
 		end
-		
+
 		# Filter matches by name if a filter has been provided
 		unless filter_regex.nil?
 			matches.reject! do |name|

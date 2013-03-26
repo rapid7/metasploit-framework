@@ -1,5 +1,8 @@
 ##
-# $Id: ipv6_multicast_ping.rb 13962 2011-10-17 02:42:01Z todb $
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -13,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 		'Name'        => 'IPv6 Link Local/Node Local Ping Discovery',
-		'Version'     => '$Revision$',
 		'Description' => %q{
 				Send a ICMPv6 ping request to all default multicast addresses, and wait to see who responds.
 		},

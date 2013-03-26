@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -28,7 +24,6 @@ class Metasploit3 < Msf::Encoder
 	def initialize
 		super(
 			'Name'             => 'Avoid underscore/tolower',
-			'Version'          => '$Revision$',
 			'Description'      => %q{
 					Underscore/tolower Safe Encoder used to exploit CVE-2012-2329. It is a
 				modified version of the 'Avoid UTF8/tolower' encoder by skape. Please check

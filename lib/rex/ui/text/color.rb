@@ -90,9 +90,9 @@ module Color
 	#
 	# Colorize if this shell supports it
 	#
-	def do_colorize(*color) 
+	def do_colorize(*color)
 		supports_color?() ? ansi(*color) : ''
 	end
-end 
+end
 
 end end end

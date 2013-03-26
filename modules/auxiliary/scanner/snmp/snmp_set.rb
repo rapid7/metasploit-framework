@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'SNMP Set Module',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module, similar to snmpset tool, uses the SNMP SET request
 					to set information on a network entity. A OID (numeric notation)
@@ -84,11 +79,9 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("#{ip} - OID not writable or does not provide WRITE access with community '#{comm}'")
 			end
 
-			disconnect_snmp
-
 		rescue ::SNMP::RequestTimeout
 			print_error("#{ip} - SNMP request timeout with community '#{comm}'.")
-		rescue ::Rex::ConnectionRefused
+		rescue ::Rex::ConnectionError
 			print_error("#{ip} - 'Connection Refused'")
 		rescue SNMP::UnsupportedVersion
 			print_error("#{ip} - Unsupported SNMP version specified. Select from '1' or '2c'.")
@@ -96,6 +89,8 @@ class Metasploit3 < Msf::Auxiliary
 			raise $!
 		rescue ::Exception => e
 			print_error("#{ip} Error: #{e.class} #{e} #{e.backtrace}")
+		ensure
+			disconnect_snmp
 		end
 	end
 

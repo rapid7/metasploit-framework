@@ -130,6 +130,10 @@ public class Sessions extends ManagedData {
 			}
 		}
 
+		/* calculate the differences and fire some events based on them */
+		Set newSessions = DataUtils.difference(after, before);
+		fireSessionEvents("session_open", newSessions.iterator(), dataz);
+
 		/* calculate sync events and fix the nonsync set */
 		Set newsync = DataUtils.intersection(syncz, nonsync);
 		fireSessionEvents("session_sync", newsync.iterator(), dataz);
@@ -137,11 +141,9 @@ public class Sessions extends ManagedData {
 		/* update our list of non-synced sessions */
 		nonsync.removeAll(syncz);
 
-		/* calculate the differences and fire some events based on them */
-		Set newSessions = DataUtils.difference(after, before);
-		fireSessionEvents("session_open", newSessions.iterator(), dataz);
-
-		newSessions.retainAll(syncz);
+		/* these are sessions that are new and sync'd -- fire events for them... */
+		newSessions.removeAll(newsync); /* we already fired events for these */
+		newSessions.retainAll(syncz);   /* keep anything that is synced */
 		fireSessionEvents("session_sync", newSessions.iterator(), dataz);
 
 		Set droppedSessions = DataUtils.difference(before, after);

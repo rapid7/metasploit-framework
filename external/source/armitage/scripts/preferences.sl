@@ -57,12 +57,21 @@ sub parseYaml {
 sub loadPreferences {
 	local('$file $prefs');
 	$file = getFileProper(systemProperties()["user.home"], ".armitage.prop");
-	$prefs = [new Properties];
-	if (-exists $file) {
-		[$prefs load: [new java.io.FileInputStream: $file]];
+	if ($__frame__ !is $null && [$__frame__ getPreferences] !is $null) {
+		$prefs = [$__frame__ getPreferences];
 	}
 	else {
-		[$prefs load: resource("resources/armitage.prop")];
+		$prefs = [new Properties];
+		if (-exists $file) {
+			[$prefs load: [new java.io.FileInputStream: $file]];
+		}
+		else {
+			[$prefs load: resource("resources/armitage.prop")];
+		}
+
+		if ($__frame__ !is $null) {
+			[$__frame__ setPreferences: $prefs];
+		}
 	}
 
 	# parse command line options here.
@@ -114,7 +123,12 @@ sub loadPreferences {
 
 sub loadDatabasePreferences {
 	if ($yaml_file eq "" || !-exists $yaml_file) {
-		$yaml_file = getFileProper($BASE_DIRECTORY, "config", "database.yml");
+		if (thisIsTheirCommercialStuff()) {
+			$yaml_file = getFileProper($BASE_DIRECTORY, "ui", "config", "database.yml");
+		}
+		else {
+			$yaml_file = getFileProper($BASE_DIRECTORY, "config", "database.yml");
+		}
 	}
 
 	if (!-exists $yaml_file) {
@@ -340,6 +354,7 @@ sub createPreferencesTab {
 sub setupBaseDirectory {
 	local('%o');
 	%o = call($client, "module.options", "post", "multi/gather/dns_bruteforce");
+
 	if ("NAMELIST" in %o && "default" in %o["NAMELIST"]) {
 		$BASE_DIRECTORY = getFileParent(getFileParent(getFileParent(getFileParent(%o["NAMELIST"]["default"]))));
 		$DATA_DIRECTORY = getFileParent(getFileParent(%o["NAMELIST"]["default"]));
@@ -384,4 +399,9 @@ sub dataDirectory {
 	}
 
 	return $f;
+}
+
+sub thisIsTheirCommercialStuff {
+	# check if we're living in a Metasploit 4.5+ installer environment.
+	return iff("*app*pro*" iswm $BASE_DIRECTORY);
 }

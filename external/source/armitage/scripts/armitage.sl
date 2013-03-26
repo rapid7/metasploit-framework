@@ -15,7 +15,7 @@ import graph.*;
 
 import java.awt.image.*;
 
-global('$frame $tabs $menubar $msfrpc_handle $REMOTE $cortana $MY_ADDRESS');
+global('$frame $tabs $menubar $msfrpc_handle $REMOTE $cortana $MY_ADDRESS $DESCRIBE @CLOSEME @POOL');
 
 sub describeHost {
 	local('$desc');
@@ -58,6 +58,9 @@ sub showHost {
 		}
 		else if ("*XP*" iswm $match || "*2003*" iswm $match || "*.NET*" iswm $match) {
 			push(@overlay, 'resources/windowsxp.png');
+		}
+		else if ("*8*" iswm $match && "*2008*" !iswm $match) {
+			push(@overlay, 'resources/windows8.png');
 		}
 		else {
 			push(@overlay, 'resources/windows7.png');
@@ -136,7 +139,7 @@ sub _connectToMetasploit {
 	$progress = [new ProgressMonitor: $null, "Connecting to $1 $+ : $+ $2", "first try... wish me luck.", 0, 100];
 
 	# keep track of whether we're connected to a local or remote Metasploit instance. This will affect what we expose.
-	$REMOTE = iff($1 eq "127.0.0.1", $null, 1);
+	$REMOTE = iff($1 eq "127.0.0.1" || $1 eq "::1" || $1 eq "localhost", $null, 1);
 
 	$flag = 10;
 	while ($flag) {
@@ -157,18 +160,36 @@ sub _connectToMetasploit {
 			}
 
 			# connecting locally? go to Metasploit directly...
-			if ($1 eq "127.0.0.1" || $1 eq "::1" || $1 eq "localhost") {
+			if ($REMOTE is $null) {
 				$client = [new MsgRpcImpl: $3, $4, $1, long($2), $null, $debug];
 				$aclient = [new RpcAsync: $client];
 				$mclient = $client;
+				push(@POOL, $aclient);
 				initConsolePool();
+				$DESCRIBE = "localhost";
 			}
 			# we have a team server... connect and authenticate to it.
 			else {
+				[$progress setNote: "Connected: logging in"];
 				$client = c_client($1, $2);
-				setField(^msf.MeterpreterSession, DEFAULT_WAIT => 20000L);
 				$mclient = setup_collaboration($3, $4, $1, $2);
 				$aclient = $mclient;
+
+				if ($mclient is $null) {
+					[$progress close];
+					return;
+				}
+				else {
+					[$progress setNote: "Connected: authenticated"];
+				}
+
+				# create six additional connections to team server... for balancing consoles.
+				local('$x $cc');
+				for ($x = 0; $x < 6; $x++) {
+					$cc = c_client($1, $2);
+					call($cc, "armitage.validate", $3, $4, $null, "armitage", 120326);
+					push(@POOL, $cc);
+				}
 			}
 			$flag = $null;
 		}
@@ -235,10 +256,6 @@ sub _connectToMetasploit {
 		getBindAddress();
 		[$progress setNote: "Connected: ..."];
 		[$progress setProgress: 60];
-
-		if (!$REMOTE && %MSF_GLOBAL['ARMITAGE_TEAM'] eq '1') {
-			showErrorAndQuit("Do not connect to 127.0.0.1 when\nrunning a team server.");
-		}
 
 		dispatchEvent(&postSetup);
 	}, \$progress));
@@ -320,28 +337,23 @@ sub postSetup {
 }
 
 sub main {
-        local('$console $panel $dir');
+        local('$console $panel $dir $app');
 
-	$frame = [new ArmitageApplication];
+	$frame = [new ArmitageApplication: $__frame__, $DESCRIBE, $mclient];
 	[$frame setTitle: $TITLE];
-        [$frame setSize: 800, 600];
-
+	[$frame setIconImage: [ImageIO read: resource("resources/armitage-icon.gif")]];
 	init_menus($frame);
 	initLogSystem();
-
-	[$frame setIconImage: [ImageIO read: resource("resources/armitage-icon.gif")]];
-        [$frame show];
-	[$frame setExtendedState: [JFrame MAXIMIZED_BOTH]];
 
 	# this window listener is dead-lock waiting to happen. That's why we're adding it in a
 	# separate thread (Sleep threads don't share data/locks).
 	fork({
-		[$frame addWindowListener: {
+		[$__frame__ addWindowListener: {
 			if ($0 eq "windowClosing" && $msfrpc_handle !is $null) {
 				closef($msfrpc_handle);
 			}
 		}];
-	}, \$msfrpc_handle, \$frame);
+	}, \$msfrpc_handle, \$__frame__);
 
 	dispatchEvent({
 		if ($client !is $mclient) {
@@ -372,7 +384,6 @@ sub checkDir {
 	}
 }
 
-setLookAndFeel();
 checkDir();
 
 if ($CLIENT_CONFIG !is $null && -exists $CLIENT_CONFIG) {

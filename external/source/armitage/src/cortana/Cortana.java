@@ -428,13 +428,6 @@ public class Cortana implements Loadable, RuntimeWarningWatcher {
 
 			/* start the timer thread */
 			new cortana.support.Heartbeat(events).start();
-
-			/* regularly communicate with Metasploit or else our connection will drop */
-			new ArmitageTimer(client, "core.version", 200 * 1000L, new ArmitageTimerClient() {
-				public boolean result(String command, Object[] arguments, Map results) {
-					return true;
-				}
-			}, false);
 		}
 		started = true;
 	}

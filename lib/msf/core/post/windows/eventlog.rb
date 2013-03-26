@@ -20,7 +20,7 @@ module Eventlog
 	end
 
 	#
-	# Clears a given eventlog or all eventlogs if none is given. Returns an array of eventlogs 
+	# Clears a given eventlog or all eventlogs if none is given. Returns an array of eventlogs
 	# that where cleared.
 	#
 	def eventlog_clear(evt = "")

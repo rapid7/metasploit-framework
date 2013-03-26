@@ -131,8 +131,8 @@ module Powershell
 
 
 	#
-	# Powershell scripts that are longer than 8000 bytes are split into 8000 
-	# 8000 byte chunks and stored as environment variables. A new powershell 
+	# Powershell scripts that are longer than 8000 bytes are split into 8000
+	# 8000 byte chunks and stored as environment variables. A new powershell
 	# script is built that will reassemble the chunks and execute the script.
 	# Returns the reassembly script.
 	#

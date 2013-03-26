@@ -12,7 +12,7 @@ module Struct2
 # sized arrays), and probably not a ton more.
 
 class Constant
-	
+
 	require 'rex/struct2/element'
 	include Rex::Struct2::Element
 

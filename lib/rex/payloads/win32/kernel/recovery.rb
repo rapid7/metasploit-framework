@@ -23,7 +23,7 @@ module Recovery
 	# Infinite 'hlt' loop.
 	#
 	def self.spin(opts = {})
-		"\xf4\xeb\xfd" 
+		"\xf4\xeb\xfd"
 	end
 
 	#

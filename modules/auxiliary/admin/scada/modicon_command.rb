@@ -1,3 +1,10 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
@@ -27,7 +34,6 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					[ 'URL', 'http://www.digitalbond.com/tools/basecamp/metasploit-modules/' ]
 				],
-			'Version'        => '$Revision$',
 			'DisclosureDate' => 'Apr 5 2012'
 			))
 		register_options(

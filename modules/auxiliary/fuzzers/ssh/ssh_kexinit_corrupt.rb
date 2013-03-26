@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -24,8 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module sends a series of SSH requests with a corrupted initial key exchange payload.
 			},
 			'Author'         => [ 'hdm' ],
-			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$'
+			'License'        => MSF_LICENSE
 		))
 		register_options([
 			Opt::RPORT(22),
@@ -87,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			if(not @banner)
-				print_status("The service may have crashed (no banner): iteration:#{cnt-1} method=#{last_inp} string=#{last_str.unpack("H*")[0]} ")
+				print_status("The service may have crashed (no banner): iteration:#{cnt-1} method=#{last_inp} string=#{last_str.to_s.unpack("H*")[0]} ")
 				return
 			end
 

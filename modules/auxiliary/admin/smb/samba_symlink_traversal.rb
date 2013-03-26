@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -28,7 +24,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Samba Symlink Directory Traversal',
-			'Version'     => '$Revision$',
 			'Description' => %Q{
 				This module exploits a directory traversal flaw in the Samba
 			CIFS server. To exploit this flaw, a writeable share must be specified.

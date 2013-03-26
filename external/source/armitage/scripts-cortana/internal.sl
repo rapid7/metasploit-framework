@@ -9,7 +9,10 @@ import msf.*;
 
 # setg("varname", "value")
 sub setg {
-	call_async("core.setg", $1, $2);
+	if ($1 eq "LHOST") {
+		call_async("armitage.set_ip", $2);
+	}
+	cmd_safe("setg $1 $2");
 }
 
 sub readg {
@@ -243,14 +246,18 @@ sub session_exploit {
 # credentials API
 #
 
+sub _fix_pass {
+	return replace(strrep($1, '\\', '\\\\'), '(\p{Punct})', '\\\\$1');
+}
+
 # credential_add("host", "port", "user, "pass", "type")
 sub credential_add {
-	cmd_safe("creds -a $1 -p $2 -t $5 -u $3 -P $4");
+	cmd_safe("creds -a $1 -p $2 -t $5 -u $3 -P " . _fix_pass($4));
 }
 
 # credential_delete("host", port, "user", "pass");
 sub credential_delete {
-	cmd_safe("creds -a $1 -p $2 -u $3 -P $4 -d");
+	cmd_safe("creds -a $1 -p $2 -u $3 -P " . _fix_pass($4) . " -d");
 }
 
 sub credential_list {
@@ -331,14 +338,22 @@ sub multi_handler {
 }
 
 sub handler {
-	local('%o $3');
+	local('%o $3 $key $value');
+
+	# default options
+	%o['PAYLOAD'] = $1;
+	%o['LPORT']   = $2;
+	%o['DisablePayloadHandler'] = 'false';
+	%o['ExitOnSession']         = 'false';
+
+	# let the user override anything
 	if ($3) {
-		%o = copy($3);
+		foreach $key => $value ($3) {
+			%o[$key] = $value;
+		}
 	}
 
-	%o['PAYLOAD'] = "payload/ $+ $1";
-	%o['LPORT']   = $2;
-
+	# make sure LHOST is correct
 	if ('LHOST' !in %o) {
 		if ("*http*" iswm $1) {
 			%o['LHOST']   = lhost();
@@ -348,6 +363,7 @@ sub handler {
 		}
 	}
 
+	# let's do it...
 	return launch('exploit', 'multi/handler', %o);
 }
 
@@ -550,6 +566,11 @@ sub data_delete {
 	call("db.key_clear", $1);
 }
 
+# data_clear('key') -- clears all data associated with the specified key
+sub data_clear {
+	data_delete($1);
+}
+
 # data_add('key', $object) -- appends value into the database... 
 sub data_add {
 	local('$buffer $data');
@@ -560,6 +581,39 @@ sub data_add {
 	$data = [msf.Base64 encode: cast(readb($buffer, -1), 'b')];
 	closef($data);
 	call("db.key_add", $1, $data);
+}
+
+#
+# a publish/query/subscribe API
+#
+
+# publish("key", $object)
+sub publish {
+	local('$data');
+	$data = [msf.Base64 encode: cast(pack("o", $2, 1), 'b')];
+	call_async("armitage.publish", $1, "$data $+ \n");
+}
+
+# query("key", "index")
+sub query {
+	local('$r @r $result');
+	$r = call("armitage.query", $1, $2)['data'];
+	if ($r ne "") {
+		foreach $result (split("\n", $r)) {
+			push(@r, unpack("o", [msf.Base64 decode: $result])[0]);
+		}
+	}
+	return @r;
+}
+
+# subscribe("key", "index", "1s/5s/10s/15s/30s/1m/5m/10m/15m/20m/30m/60m")
+sub subscribe {
+	on("heartbeat_ $+ $3", lambda({
+		local('$result');
+		foreach $result (query($key, $index)) {
+			fire_event_local($key, $result, $index);
+		}
+	}, $key => $1, $index => $2));
 }
 
 #
@@ -813,7 +867,7 @@ sub m_exec {
 			}, \$command, \$channel, \$buffer));
 		}
 		else {
-			# this is probably ok...
+			fire_event_local("exec_error", $1, $command, ["$3" trim]);
 		}
 	}, \$command));
 }
@@ -860,7 +914,7 @@ sub file_content {
 	}
 	else {
 		local('%r');
-		%r = call("armitage.download", $1);
+		%r = call("armitage.download_nodelete", $1);
 		return %r['data'];
 	}
 }

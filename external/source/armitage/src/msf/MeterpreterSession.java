@@ -14,7 +14,7 @@ public class MeterpreterSession implements Runnable {
 	protected String        session;
 	protected boolean       teammode;
 
-	public static long DEFAULT_WAIT = 12000;
+	public static long DEFAULT_WAIT = 120000;
 
 	private static class Command {
 		public Object   token;
@@ -161,6 +161,21 @@ public class MeterpreterSession implements Runnable {
 				return;
 			}
 			else if (c.text.startsWith("impersonate_token") && !teammode) {
+				readUntilSuccessful(c, false);
+				return;
+			}
+			else if (c.text.startsWith("add_user") && !teammode) {
+				/* when -h [host] is specified, attempts to add a user on another
+				   host. In this case, output is split into multiple chunks.
+				   This applies to add_localgroup_user and add_group_user too. */
+				readUntilSuccessful(c, false);
+				return;
+			}
+			else if (c.text.startsWith("add_localgroup_user") && !teammode) {
+				readUntilSuccessful(c, false);
+				return;
+			}
+			else if (c.text.startsWith("add_group_user") && !teammode) {
 				readUntilSuccessful(c, false);
 				return;
 			}

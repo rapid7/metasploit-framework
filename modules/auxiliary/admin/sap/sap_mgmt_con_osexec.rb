@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,7 +16,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'SAP Management Console OSExecute',
-			'Version'      => '$Revision$',
 			'Description'  => %q{
 				This module allows execution of operating system commands through the SAP
 				Management Console SOAP Interface. A valid username and password must be
@@ -76,7 +71,7 @@ class Metasploit4 < Msf::Auxiliary
 
 		begin
 			res = send_request_raw({
-				'uri'     => "/#{datastore['URI']}",
+				'uri'     => normalize_uri(datastore['URI']),
 				'method'  => 'POST',
 				'data'    => data,
 				'headers' =>
@@ -141,7 +136,7 @@ class Metasploit4 < Msf::Auxiliary
 
 		begin
 			res = send_request_raw({
-				'uri'     => "/#{datastore['URI']}",
+				'uri'     => normalize_uri(datastore['URI']),
 				'method'  => 'POST',
 				'data'    => data,
 				'headers' =>

@@ -1,3 +1,10 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/common'
@@ -42,10 +49,10 @@ class Metasploit3 < Msf::Post
 	def run
 
 		# Set verbosity level
-		verbose = datastore['verbose'].to_s.downcase
+		verbose = datastore['VERBOSE'].to_s.downcase
 
 		# Set instance name (if specified)
-		instance = datastore['instance'].to_s.upcase
+		instance = datastore['INSTANCE'].to_s.upcase
 
 		# Display target
 		print_status("Running module against #{sysinfo['Computer']}")
