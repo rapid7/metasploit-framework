@@ -120,6 +120,13 @@ require 'digest/sha1'
 			end
 			# XXX: Add PPC OS X and Linux here
 		end
+
+		if(arch.index(ARCH_MIPSLE))
+			if(plat.index(Msf::Module::Platform::Linux))
+				return to_linux_mipsle_elf(framework, code)
+			end
+			# XXX: Add remaining MIPSLE systems here
+		end
 		nil
 	end
 
@@ -707,6 +714,11 @@ require 'digest/sha1'
 
 	def self.to_linux_armle_elf(framework, code, opts={})
 		elf = to_exe_elf(framework, opts, "template_armle_linux.bin", code)
+		return elf
+	end
+
+	def self.to_linux_mipsle_elf(framework, code, opts={})
+		elf = to_exe_elf(framework, opts, "template_mipsle_linux.bin", code)
 		return elf
 	end
 
