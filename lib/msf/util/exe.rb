@@ -127,6 +127,13 @@ require 'digest/sha1'
 			end
 			# XXX: Add remaining MIPSLE systems here
 		end
+
+		if(arch.index(ARCH_MIPSBE))
+			if(plat.index(Msf::Module::Platform::Linux))
+				return to_linux_mipsbe_elf(framework, code)
+			end
+			# XXX: Add remaining MIPSLE systems here
+		end
 		nil
 	end
 
@@ -615,7 +622,7 @@ require 'digest/sha1'
 	# segments as writable and overwrites the entrypoint (usually _start) with
 	# the payload.
 	#
-	def self.to_exe_elf(framework, opts, template, code)
+	def self.to_exe_elf(framework, opts, template, code, big_endian=false)
 
 		# Allow the user to specify their own template
 		set_template_default(opts, template)
@@ -640,11 +647,21 @@ require 'digest/sha1'
 		# Use the proper offsets and pack size
 		case elf[4]
 		when 1, "\x01" # ELFCLASS32 - 32 bit (ruby 1.8 and 1.9)
-			elf[0x44,4] = [elf.length].pack('V')  #p_filesz
-			elf[0x48,4] = [elf.length + code.length].pack('V')  #p_memsz
+			if big_endian
+				elf[0x44,4] = [elf.length].pack('N') #p_filesz
+				elf[0x48,4] = [elf.length + code.length].pack('N') #p_memsz
+			else # little endian
+				elf[0x44,4] = [elf.length].pack('V') #p_filesz
+				elf[0x48,4] = [elf.length + code.length].pack('V') #p_memsz
+			end
 		when 2, "\x02" # ELFCLASS64 - 64 bit (ruby 1.8 and 1.9)
-			elf[0x60,8] = [elf.length].pack('Q')  #p_filesz
-			elf[0x68,8] = [elf.length + code.length].pack('Q')  #p_memsz
+			if big_endian
+				elf[0x60,8] = [elf.length].pack('Q>') #p_filesz
+				elf[0x68,8] = [elf.length + code.length].pack('Q>') #p_memsz
+			else # little endian
+				elf[0x60,8] = [elf.length].pack('Q') #p_filesz
+				elf[0x68,8] = [elf.length + code.length].pack('Q') #p_memsz
+			end
 		else
 			raise RuntimeError, "Invalid ELF template: EI_CLASS value not supported"
 		end
@@ -719,6 +736,11 @@ require 'digest/sha1'
 
 	def self.to_linux_mipsle_elf(framework, code, opts={})
 		elf = to_exe_elf(framework, opts, "template_mipsle_linux.bin", code)
+		return elf
+	end
+
+	def self.to_linux_mipsbe_elf(framework, code, opts={})
+		elf = to_exe_elf(framework, opts, "template_mipsbe_linux.bin", code, true)
 		return elf
 	end
 
