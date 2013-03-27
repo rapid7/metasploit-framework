@@ -72,7 +72,7 @@ module Metasploit3
   #
   # Generate the first stage
   #
-  def generate
+  def payload
     p = super
 
     i = p.index("/12345\x00")
