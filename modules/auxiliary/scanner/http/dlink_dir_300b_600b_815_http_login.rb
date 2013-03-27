@@ -20,8 +20,13 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'           => 'DLink DIR 300B / DIR 600B / DIR 815 HTTP Login Utility',
-			'Description'    => 'This module attempts to authenticate to different DLink HTTP management services.',
+			'Name'           => 'DLink DIR-300B / DIR-600B / DIR-815 HTTP Login Utility',
+			'Description'    => %q{
+					This module attempts to authenticate to different DLink HTTP management services.
+					Tested devices: D-Link DIR-300 Hardware revision B, D-Link DIR-600 Hardware revision B
+					and D-Link DIR-815 Hardware revision A. It is possible that this module also works with
+					other models.
+					},
 			'Author'         => [
 					'hdm',	#http_login module
 					'Michael Messner <devnull@s3cur1ty.de>'	#dlink login included
@@ -35,10 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
-					File.join(Msf::Config.install_root, "data", "wordlists", "http_default_userpass.txt") ]),
-				OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
-					File.join(Msf::Config.install_root, "data", "wordlists", "http_default_users.txt") ]),
+				OptString.new('USERNAME',  [ false, "Username for authentication (default: admin)","admin" ]),
 				OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
 					File.join(Msf::Config.install_root, "data", "wordlists", "http_default_pass.txt") ]),
 			], self.class)
