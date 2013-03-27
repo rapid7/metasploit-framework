@@ -20,12 +20,12 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'           => 'DLink DIR-300B / DIR-600B / DIR-815 HTTP Login Utility',
+			'Name'           => 'DLink DIR-300B / DIR-600B / DIR-815 / DIR-645 HTTP Login Utility',
 			'Description'    => %q{
 					This module attempts to authenticate to different DLink HTTP management services.
-					Tested devices: D-Link DIR-300 Hardware revision B, D-Link DIR-600 Hardware revision B
-					and D-Link DIR-815 Hardware revision A. It is possible that this module also works with
-					other models.
+					Tested devices: D-Link DIR-300 Hardware revision B, D-Link DIR-600 Hardware revision B,
+					D-Link DIR-815 Hardware revision A and DIR-645 Hardware revision A. 
+					It is possible that this module also works with	other models.
 					},
 			'Author'         => [
 					'hdm',	#http_login module
