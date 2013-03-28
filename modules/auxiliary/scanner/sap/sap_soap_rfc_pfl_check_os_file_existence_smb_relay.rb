@@ -79,9 +79,9 @@ class Metasploit4 < Msf::Auxiliary
 					'Content-Type' => 'text/xml; charset=UTF-8',}
 					}, 45)
 			if res
-				vprint_status("[SAP] #{rhost}:#{rport} - Error code: " + res.code.to_s)
-				vprint_status("[SAP] #{rhost}:#{rport} - Error title: " + res.message.to_s)
-				vprint_status("[SAP] #{rhost}:#{rport} - Error message: " + res.body.to_s)
+				vprint_error("[SAP] #{rhost}:#{rport} - Error code: " + res.code.to_s)
+				vprint_error("[SAP] #{rhost}:#{rport} - Error title: " + res.message.to_s)
+				vprint_error("[SAP] #{rhost}:#{rport} - Error message: " + res.body.to_s)
 			end
 			rescue ::Rex::ConnectionError
 				print_error("#{rhost}:#{rport} - Unable to connect")
