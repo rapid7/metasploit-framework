@@ -89,7 +89,7 @@ class Metasploit4 < Msf::Auxiliary
 		res = send_request_cgi({
 				'uri'      => uri,
 				'method'   => 'POST',
-				#'ctype'    => 'text/xml; charset=UTF-8',
+				'ctype'    => 'text/xml; charset=UTF-8',
 				'cookie'  => "BIGIPAuthCookie=#{datastore['VALIDCOOKIE']}",
 				'data'     => data,
 				})
