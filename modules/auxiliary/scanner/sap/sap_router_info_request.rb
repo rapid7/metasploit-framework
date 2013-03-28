@@ -2,7 +2,24 @@
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# http://metasploit.com/framework/
+##
+
+##
+# This module is based on, inspired by, or is a port of a plugin available in
+# the Onapsis Bizploit Opensource ERP Penetration Testing framework -
+# http://www.onapsis.com/research-free-solutions.php.
+# Mariano Nunez (the author of the Bizploit framework) helped me in my efforts
+# in producing the Metasploit modules and was happy to share his knowledge and
+# experience - a very cool guy.
+#
+# The following guys from ERP-SCAN deserve credit for their contributions -
+# Alexandr Polyakov, Alexey Sintsov, Alexey Tyurin, Dmitry Chastukhin and
+# Dmitry Evdokimov.
+#
+# I'd also like to thank Chris John Riley, Ian de Villiers and Joris van de Vis
+# who have Beta tested the modules and provided excellent feedback. Some people
+# just seem to enjoy hacking SAP :)
 ##
 
 require 'msf/core'
@@ -24,13 +41,7 @@ class Metasploit4 < Msf::Auxiliary
 					[ 'URL', 'http://help.sap.com/saphelp_nw70ehp3/helpdata/en/48/6c68b01d5a350ce10000000a42189d/content.htm'],
 					[ 'URL', 'http://www.onapsis.com/research-free-solutions.php' ] # Bizsploit Opensource ERP Pentesting Framework
 				],
-			'Author' => [
-				'nomnkee',
-				'Mariano Nunez',    # Wrote Bizploit, helped on this module, very cool guy
-				'Chris John Riley', # Testing
-				'Ian de Villiers',  # Testing
-				'Joris van de Vis'  # Testing
-			],
+			'Author' => ['nomnkee'],
 			'License' => BSD_LICENSE
 			)
 		register_options(
@@ -103,25 +114,30 @@ class Metasploit4 < Msf::Auxiliary
 				case count
 				when 1
 					if packet_len > 150
-						sock.recv(150)
-						packet_len -= 150
-						source, packet_len = get_data(46,packet_len)
-						destination, packet_len = get_data(46,packet_len)
-						service, packet_len = get_data(30,packet_len)
-						sock.recv(2)
-						packet_len -= 2
-						saptbl << [source, destination, service]
-						while packet_len > 0
-							sock.recv(13)
-							packet_len -= 13
+						if sock.recv(150)  =~ /access denied/
+							print_error("#{host_port} - Access denied")
+							sock.recv(packet_len)
+							packet_len = sock.recv(4).unpack('H*')[0].to_i 16
+						else
+							packet_len -= 150
 							source, packet_len = get_data(46,packet_len)
 							destination, packet_len = get_data(46,packet_len)
 							service, packet_len = get_data(30,packet_len)
-							term = sock.recv(2)
+							sock.recv(2)
 							packet_len -= 2
 							saptbl << [source, destination, service]
+							while packet_len > 0
+								sock.recv(13)
+								packet_len -= 13
+								source, packet_len = get_data(46,packet_len)
+								destination, packet_len = get_data(46,packet_len)
+								service, packet_len = get_data(30,packet_len)
+								term = sock.recv(2)
+								packet_len -= 2
+								saptbl << [source, destination, service]
+							end
+							packet_len = sock.recv(4).unpack('H*')[0].to_i 16
 						end
-						packet_len = sock.recv(4).unpack('H*')[0].to_i 16
 					else
 						print_error("#{host_port} - No connected clients")
 						sock.recv(packet_len)
@@ -150,6 +166,7 @@ class Metasploit4 < Msf::Auxiliary
 					break
 				end
 			end
+			puts sock.recv(200)
 			disconnect
 		# TODO: This data should be saved somewhere. A note on the host would be nice.
 		print(saptbl.to_s)
