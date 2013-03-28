@@ -166,7 +166,6 @@ class Metasploit4 < Msf::Auxiliary
 					break
 				end
 			end
-			puts sock.recv(200)
 			disconnect
 		# TODO: This data should be saved somewhere. A note on the host would be nice.
 		print(saptbl.to_s)
