@@ -108,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
 				:sname => (ssl ? 'https' : 'http'),
 				:user   => user,
 				:pass   => pass,
-				:proof  => "WEBAPP=\"Generic\", PROOF=#{response.to_s}",
+				:proof  => "WEBAPP=\"Dlink Management Interface\", PROOF=#{response.to_s}",
 				:active => true
 			)
 
