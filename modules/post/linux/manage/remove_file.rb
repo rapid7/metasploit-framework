@@ -41,6 +41,15 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		vcmd_exec("rm -Rfv #{datastore['REMOTEFILE']}")
+		cmd_exec_vprint("rm -Rfv #{datastore['REMOTEFILE']}")
+	end
+
+	def cmd_exec_vprint(cmd)
+		vprint_status("Executing: #{cmd}")
+		output = cmd_exec(cmd)
+		if output.length > 0
+			vprint_status("#{output}")
+		end
+		return
 	end
 end
