@@ -29,8 +29,6 @@ module Metasploit3
 			'Arch'          => ARCH_MIPSLE,
 			'Handler'       => Msf::Handler::ReverseTcp,
 			'Session'       => Msf::Sessions::CommandShellUnix,
-			'PayloadType'   => 'mipsle',
-			'RequiredCmd'   => 'shell_reverse_tcp',
 			'Payload'       =>
 				{
 					'Offsets' => { },
