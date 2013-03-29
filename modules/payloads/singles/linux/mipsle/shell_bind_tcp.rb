@@ -26,6 +26,8 @@ module Metasploit3
 			'Arch'          => ARCH_MIPSLE,
 			'Handler'       => Msf::Handler::BindTcp,
 			'Session'       => Msf::Sessions::CommandShellUnix,
+			'PayloadType'   => 'mipsle',
+			'RequiredCmd' 	=> 'shell_bind_tcp',
 			'Payload'       =>
 				{
 					'Offsets' => {} ,
