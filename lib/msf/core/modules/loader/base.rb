@@ -58,7 +58,8 @@ class Msf::Modules::Loader::Base
   MODULE_EXTENSION = '.rb'
   # String used to separate module names in a qualified module name.
   MODULE_SEPARATOR = '::'
-  # The base namespace name under which {#namespace_module #namespace_modules} are created.
+  # The base namespace name under which {#create_namespace_module
+  # namespace modules are created}.
   NAMESPACE_MODULE_NAMES = ['Msf', 'Modules']
   # Regex that can distinguish regular ruby source from unit test source.
   UNIT_TEST_REGEX = /rb\.(ut|ts)\.rb$/
@@ -340,7 +341,7 @@ class Msf::Modules::Loader::Base
   # module's classes.  The wrapper module must be named so that active_support's autoloading code doesn't break when
   # searching constants from inside the Metasploit(1|2|3) class.
   #
-  # @param [String] namespace_module_names (see #{namespace_module_names})
+  # @param [Array<String>] {NAMESPACE_MODULE_NAMES} + <derived-constant-safe names>
   # @return [Module] module that can wrap the module content from {#read_module_content} using
   #   module_eval_with_lexical_scope.
   #
@@ -375,7 +376,7 @@ class Msf::Modules::Loader::Base
     namespace_module
   end
 
-  # Returns the module with {#module_names} if it exists.
+  # Returns the module with `module_names` if it exists.
   #
   # @param [Array<String>] module_names a list of module names to resolve from Object downward.
   # @return [Module] module that wraps the previously loaded content from {#read_module_content}.
