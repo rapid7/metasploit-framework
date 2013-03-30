@@ -160,15 +160,19 @@ CONST = Rex::Proto::NTLM::Constants
 	class FieldSet
 		class << FieldSet
 		def define(&block)
-			c = Class.new(self)
-			def c.inherited(subclass)
-				proto = @proto
-				subclass.instance_eval {
-					@proto = proto
-					}
+			klass = Class.new(self) do
+				def self.inherited(subclass)
+					proto = @proto
+
+					subclass.instance_eval do
+						@proto = proto
+					end
+				end
 			end
-			c.module_eval(&block)
-			c
+
+			klass.module_eval(&block)
+
+			klass
 		end
 
 		def string(name, opts)
