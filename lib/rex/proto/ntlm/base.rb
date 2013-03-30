@@ -40,17 +40,13 @@
 # The latter has a minor bug in its separate_keys function.
 # The third key has to begin from the 14th character of the
 # input string instead of 13th:)
-#--
-# $Id: ntlm.rb 11678 2011-01-30 19:26:35Z hdm $
-#++
-
-#this class defines the base type needed for other modules like message and crypt
 
 require 'rex/proto/ntlm/constants'
 
 module Rex
 module Proto
 module NTLM
+# The base type needed for other modules like message and crypt
 class Base
 
 CONST = Rex::Proto::NTLM::Constants
