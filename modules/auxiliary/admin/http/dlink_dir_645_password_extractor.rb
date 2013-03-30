@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'Author'      =>
 				[
-					'Roberto Paleari <roberto@greyhats.it>', # Vulnerability discovery
+					'Roberto Paleari <roberto[at]greyhats.it>', # Vulnerability discovery
 					'Michael Messner <devnull[at]s3cur1ty.de>'	 # Metasploit module
 				],
 			'License'     => MSF_LICENSE

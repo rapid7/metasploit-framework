@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'URL', 'http://www.tp-link.com/en/support/download/?model=TL-WA701ND&version=V1' ],
 					[ 'URL', 'http://www.s3cur1ty.de/m1adv2013-011' ]
 				],
-			'Author'      => [ 'Michael Messner <devnulli[at]s3cur1ty.de>' ],
+			'Author'      => [ 'Michael Messner <devnull[at]s3cur1ty.de>' ],
 			'License'     => MSF_LICENSE
 		)
 
