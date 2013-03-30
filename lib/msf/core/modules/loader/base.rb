@@ -341,7 +341,8 @@ class Msf::Modules::Loader::Base
   # module's classes.  The wrapper module must be named so that active_support's autoloading code doesn't break when
   # searching constants from inside the Metasploit(1|2|3) class.
   #
-  # @param [Array<String>] {NAMESPACE_MODULE_NAMES} + <derived-constant-safe names>
+  # @param namespace_module_names [Array<String>]
+  #   {NAMESPACE_MODULE_NAMES} + <derived-constant-safe names>
   # @return [Module] module that can wrap the module content from {#read_module_content} using
   #   module_eval_with_lexical_scope.
   #
@@ -485,13 +486,14 @@ class Msf::Modules::Loader::Base
   # Returns the fully-qualified name to the {#create_namespace_module} that wraps the module with the given module
   # reference name.
   #
-  # @param [String] module_reference_name The canonical name for referring to the module.
+  # @param [String] module_full_name The canonical name for referring to the
+  #   module.
   # @return [String] name of module.
   #
   # @see MODULE_SEPARATOR
   # @see #namespace_module_names
-  def namespace_module_name(uniq_module_reference_name)
-    namespace_module_names = self.namespace_module_names(uniq_module_reference_name)
+  def namespace_module_name(module_full_name)
+    namespace_module_names = self.namespace_module_names(module_full_name)
     namespace_module_name = namespace_module_names.join(MODULE_SEPARATOR)
 
     namespace_module_name
@@ -503,20 +505,20 @@ class Msf::Modules::Loader::Base
   # escaped by using 'H*' unpacking and prefixing each code with X so
   # the code remains a valid module name when it starts with a digit.
   #
-  # @param [String] uniq_module_reference_name The unique canonical name
+  # @param [String] module_full_name The unique canonical name
   #   for the module including type.
   # @return [Array<String>] {NAMESPACE_MODULE_NAMES} + <derived-constant-safe names>
   #
   # @see namespace_module
-  def namespace_module_names(uniq_module_reference_name)
-    NAMESPACE_MODULE_NAMES + [ "Mod" + uniq_module_reference_name.unpack("H*").first.downcase ]
+  def namespace_module_names(module_full_name)
+    NAMESPACE_MODULE_NAMES + [ "Mod" + module_full_name.unpack("H*").first.downcase ]
   end
 
-  def namespace_module_transaction(uniq_module_reference_name, options={}, &block)
+  def namespace_module_transaction(module_full_name, options={}, &block)
     options.assert_valid_keys(:reload)
 
     reload = options[:reload] || false
-    namespace_module_names = self.namespace_module_names(uniq_module_reference_name)
+    namespace_module_names = self.namespace_module_names(module_full_name)
 
     previous_namespace_module = current_module(namespace_module_names)
 
