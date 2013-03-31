@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'OSVDB', '89911' ],
 					[ 'EDB', '24475' ]
 				],
-			'Author'      => [ 'm-1-k-3' ],
+			'Author'      => [ 'Michael Messner <devnull[at]s3cur1ty.de>' ],
 			'License'     => MSF_LICENSE
 		)
 
