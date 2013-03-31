@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'URL', 'http://support.netgear.com/product/SPH200D' ],
 					[ 'URL', 'http://www.s3cur1ty.de/m1adv2013-002' ]
 				],
-			'Author'      => [ 'm-1-k-3' ],
+			'Author'      => [ 'Michael Messner <devnull[at]s3cur1ty.de>' ],
 			'License'     => MSF_LICENSE
 		)
 		register_options(
