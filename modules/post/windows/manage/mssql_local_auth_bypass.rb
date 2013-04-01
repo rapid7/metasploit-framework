@@ -185,6 +185,7 @@ class Metasploit3 < Msf::Post
 		if services_array1.join =~ /(SQL Server Command Line Tool)|(usage: osql)/
 			print_good("OSQL client was found")
 			return "osql"
+		end
 
 		# Get Data - sqlcmd
 		running_services = run_cmd("sqlcmd -?")
