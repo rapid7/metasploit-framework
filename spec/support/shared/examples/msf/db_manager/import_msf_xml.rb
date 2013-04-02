@@ -967,7 +967,7 @@ shared_examples_for 'Msf::DBManager::ImportMsfXml' do
 			end
 
 			let(:source) do
-				xml.web_page do
+				xml.web_vuln do
 					xml.category(
 							web_vuln_attributes.fetch(:category)
 					)
