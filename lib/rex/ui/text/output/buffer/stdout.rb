@@ -1,10 +1,11 @@
-# make sure the class is define before opening it to define submodule
+# make sure the classes are defined before opening it to define submodule
+require 'rex/ui/text/output'
 require 'rex/ui/text/output/buffer'
 
 module Rex
 	module Ui
 		module Text
-			module Output
+			class Output
 				class Buffer
 					# Adds {#write} method to {Rex::Ui::Text::Output::Buffer} so it can
 					# function as a stand-in for `$stdout`
