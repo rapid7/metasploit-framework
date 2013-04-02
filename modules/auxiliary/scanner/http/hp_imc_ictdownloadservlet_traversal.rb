@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 					This module exploits a lack of authentication and a directory traversal in HP
 				Intelligent Management, specifically in the IctDownloadServlet, in order to
 				retrieve arbitrary files with SYSTEM privileges. This module has been tested
-				successfully on HP Intelligent Management  Center 5.1 E0202 over Windows 2003 SP2.
+				successfully on HP Intelligent Management Center 5.1 E0202 over Windows 2003 SP2.
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         =>
