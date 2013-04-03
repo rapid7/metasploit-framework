@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
-##
 # $Id$
-##
 
 require 'rex/exploitation/cmdstager/base'
 require 'rex/exploitation/cmdstager/vbs'
