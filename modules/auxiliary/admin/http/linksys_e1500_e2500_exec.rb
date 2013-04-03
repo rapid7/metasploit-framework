@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 				executed command. A ping command against a controlled system for can be used for
 				testing purposes.
 			},
-			'Author'          => [ 'm-1-k-3' ],
+			'Author'          => [ 'Michael Messner <devnull[at]s3cur1ty.de>' ],
 			'License'         => MSF_LICENSE,
 			'References'      =>
 				[
