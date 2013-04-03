@@ -1197,7 +1197,6 @@ End Sub
 		var_size = Rex::Text.rand_text_alpha(rand(3)+2)
 		var_rwx = Rex::Text.rand_text_alpha(rand(3)+2)
 		var_iter = Rex::Text.rand_text_alpha(rand(3)+2)
-		code = code.unpack("C*")
 
 		# Add wrapper script
 		psh = "$#{var_code} = @\"\r\n"
