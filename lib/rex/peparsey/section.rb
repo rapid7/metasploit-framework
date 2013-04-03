@@ -100,12 +100,6 @@ class Section
 	def file_offset_to_rva(foffset)
 		return offset_to_rva(foffset - file_offset)
 	end
-#		if offset < 0 || offset < file_offset || offset >= file_offset+size
-#			raise BoundsError, "File offset #{offset} outside of section", caller
-#		end
-#
-#		return (offset - file_offset) + base_rva
-#	end
 
 	def rva_to_offset(rva)
 		offset = rva - base_rva

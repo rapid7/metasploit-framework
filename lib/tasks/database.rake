@@ -1,6 +1,7 @@
 load 'active_record/railties/databases.rake'
 
 require 'metasploit/framework'
+require 'metasploit/framework/database'
 
 # A modification to remove dependency on Rails.env
 #
@@ -21,19 +22,10 @@ def configs_for_environment
 	valid_environment_configurations
 end
 
-# This would normally use Rails.application.config.database_configuration
-def database_configurations
-	YAML.load_file(database_configurations_pathname)
-end
-
-def database_configurations_pathname
-	Metasploit::Framework.root.join('config', 'database.yml')
-end
-
 # emulate initializer "active_record.initialize_database" from active_record/railtie
 ActiveSupport.on_load(:active_record) do
-	self.configurations = database_configurations
-	puts "Connecting to database specified by #{database_configurations_pathname}"
+	self.configurations = Metasploit::Framework::Database.configurations
+	puts "Connecting to database specified by #{Metasploit::Framework::Database.configurations_pathname}"
 
 	spec = configurations[Metasploit::Framework.env]
 	establish_connection(spec)
@@ -58,7 +50,7 @@ Rake::Task['db:seed'].clear
 
 db_namespace = namespace :db do
 	task :load_config do
-		ActiveRecord::Base.configurations = database_configurations
+		ActiveRecord::Base.configurations = Metasploit::Framework::Database.configurations
 
 		ActiveRecord::Migrator.migrations_paths = [
 				# rails isn't in Gemfile, so can't use the more appropriate
