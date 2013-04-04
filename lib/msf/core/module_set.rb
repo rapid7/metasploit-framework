@@ -37,6 +37,7 @@ class Msf::ModuleSet < Hash
   # @return [Msf::Module,nil] Instance of the named module or nil if it
   #   could not be created.
   def create(name)
+    name = name.encode(''.encoding.name)
     klass = fetch(name, nil)
     instance = nil
 
