@@ -206,7 +206,7 @@ Rarely are pull requests landed without modification.
 
 ## When the changes are complex
 
-*Give an example of comments on the PR that cause the contributor to make changes.
+*Give an example of comments on the PR that cause the contributor to make changes.*
 
 ## Refreshing PRs that have had changes
 
