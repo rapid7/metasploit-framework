@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 
-		print_status("#{target_url} - Attempting to login") 
+		print_status("#{target_url} - Attempting to login")
 
 		each_user_pass { |user, pass|
 			do_login(user, pass)
@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def is_dlink?
-		#the tested DIR-615 has no nice Server banner, gconfig.htm gives us interesting 
+		#the tested DIR-615 has no nice Server banner, gconfig.htm gives us interesting
 		#input to detect this device. Not sure if this works on other devices! Tested on v8.04.
 		begin
 			response = send_request_cgi({
