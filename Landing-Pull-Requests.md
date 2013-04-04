@@ -196,7 +196,7 @@ Wow, glad this is fixed!
 
 However, things are rarely that straightforward. The next few examples will detail when things need fixing along the way. Since this doc is being writing against live, real examples, we'll need to wait a sec for these examples to come up.
 
-# When you want to change the contributor's code.
+# When you want to make changes
 
 Rarely are pull requests landed without modification.
 
@@ -204,7 +204,11 @@ Rarely are pull requests landed without modification.
 
 *Give an example of just editing in landing-XXXX and then merging from there. Not complicated.*
 
-## When the changes are hard
+## When the changes are complex
+
+*Give an example of comments on the PR that cause the contributor to make changes.
+
+## Refreshing PRs that have had changes
 
 *Give an example of sending a pull request back to the contributor*
 
