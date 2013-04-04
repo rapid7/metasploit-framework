@@ -57,19 +57,21 @@ class Metasploit3 < Msf::Auxiliary
 
 		@uri = "/login.htm"
 
+		if is_dlink?
+			vprint_good("#{target_url} - DLink device detected")
+		else
+			vprint_error("#{target_url} - Dlink device doesn't detected")
+			return
+		end
 
-		#doing a first fingerprint
-		fp = fingerprint(ip)
-		return :abort if fp == false
-
-		print_status("Attempting to login to #{target_url}")
+		print_status("#{target_url} - Attempting to login") 
 
 		each_user_pass { |user, pass|
 			do_login(user, pass)
 		}
 	end
 
-	def fingerprint(ip)
+	def is_dlink?
 		#the tested DIR-615 has no nice Server banner, gconfig.htm gives us interesting 
 		#input to detect this device. Not sure if this works on other devices! Tested on v8.04.
 		begin
@@ -78,13 +80,14 @@ class Metasploit3 < Msf::Auxiliary
 				'method' => 'GET',
 				}
 			)
-			return if response.nil?
-			return if (response.code == 404)
+			return false if response.nil?
+			return false if (response.code == 404)
 
 			#fingerprinting tested on firmware version 8.04
 			if response.body !~ /var\ systemName\=\'DLINK\-DIR615/
-				vprint_error("#{target_url} - Could not detect a DIR-615 router")
 				return false
+			else
+				return true
 			end
 		rescue ::Rex::ConnectionError
 			vprint_error("#{target_url} - Failed to connect to the web server")
@@ -145,6 +148,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def determine_result(response)
+		return :abort if response.nil?
 		return :abort unless response.kind_of? Rex::Proto::Http::Response
 		return :abort unless response.code
 		if response.body =~ /\<script\ langauge\=\"javascript\"\>showMainTabs\(\"setup\"\)\;\<\/script\>/
