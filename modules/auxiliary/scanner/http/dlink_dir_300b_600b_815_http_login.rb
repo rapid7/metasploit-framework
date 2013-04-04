@@ -54,11 +54,31 @@ class Metasploit3 < Msf::Auxiliary
 		"#{proto}://#{rhost}:#{rport}#{@uri.to_s}"
 	end
 
+	def is_dlink?
+		response = send_request_cgi({
+			'uri' => @uri,
+			'method' => 'GET'
+			})
+
+		if response and response.headers['Server'] and response.headers['Server'] =~ /Linux,\ HTTP\/1.1,\ DIR-.*Ver\ .*/
+			return true
+		else
+			return false
+		end
+	end 
+
 	def run_host(ip)
 
 		@uri = "/session.cgi"
 
-		print_status("Attempting to login to #{target_url}")
+		if is_dlink?
+			vprint_good("#{target_url} - DLink device detected")
+		else
+			vprint_error("#{target_url} - Dlink device doesn't detected")
+			return
+		end
+
+		print_status("#{target_url} - Attempting to login") 
 
 		each_user_pass { |user, pass|
 			do_login(user, pass)
@@ -106,7 +126,6 @@ class Metasploit3 < Msf::Auxiliary
 				}
 			})
 			return if response.nil?
-			return if (response.headers['Server'].nil? or response.headers['Server'] !~ /Linux,\ HTTP\/1.1,\ DIR-.*Ver\ .*/)
 			return if (response.code == 404)
 
 			return response
@@ -117,6 +136,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def determine_result(response)
+		return :abort if response.nil?
 		return :abort unless response.kind_of? Rex::Proto::Http::Response
 		return :abort unless response.code
 		if response.body =~ /\<RESULT\>SUCCESS\<\/RESULT\>/
