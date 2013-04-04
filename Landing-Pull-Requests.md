@@ -5,7 +5,7 @@ Metasploit is built incrementally by the community through GitHub's [Pull Reques
 # The short story
 
  - Add the `fetch = +refs/pull/*/head:refs/remotes/origin/pr/*` line to your .git/config
- - Always, always `merge --no-ff` so you can reference the PR number. Otherwise, it's lost in the commits!
+ - Always, always `merge --no-ff` so you can reference the PR number.
  - Merge to a landing branch, then merge *that* to master, so you can isolate your work.
  - Often you need to make changes. Examples coming soon!
 
