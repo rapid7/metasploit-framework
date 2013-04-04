@@ -150,7 +150,15 @@ Author: HD Moore <hd_moore@rapid7.com>
 Date:   Thu Apr 4 10:19:47 2013 -0500
 
     Add scanner module for the new PostgreSQL flaw
+
+commit e4d901d12cfabe49ff7df209b101558bc39ec86f
+Author: Tod Beardsley <todb@metasploit.com>
+Date:   Wed Apr 3 09:20:01 2013 -0500
+
+    Space at EOL (msftidy)
 ````
+
+Note the line, `Merge: e4d901d1 fe2b598`. This tells you that the merge commit starts just after e4d901d1, and ends at fe2b598.
 
 If we want to make any final changes to the merge commit, now's the time:
 
