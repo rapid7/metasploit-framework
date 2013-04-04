@@ -184,7 +184,7 @@ $
 
 # That's it?
 
-When things are easy, yes, that's it. The procedure above was written against a particularly safe, low-risk PR, #1702, and you can see the results there.
+When things are easy, yes, that's it. The procedure above was written against a particularly safe, low-risk PR, [#1702](https://github.com/rapid7/metasploit-framework/pull/1702), and you can see the results there.
 
 If we had a [Redmine bug](https://dev.metasploit.com/redmine/projects/framework/issues?query_id=420) we were working against, we'd mention it in the final commit message as well, and we'd get a cross-reference over in Redmine:
 
