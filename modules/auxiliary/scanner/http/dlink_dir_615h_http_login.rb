@@ -7,8 +7,6 @@
 
 
 require 'msf/core'
-require 'rex/proto/ntlm/message'
-
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -22,10 +20,10 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'           => 'DLink DIR-615H HTTP Login Utility',
 			'Description' => %q{
-					This module attempts to authenticate to different DLink HTTP management services.
-					Tested devices: D-Link DIR-615 Hardware revision H.
-					It is possible that this module also works with other models.
-					},
+					This module attempts to authenticate to different DLink HTTP management
+				services. It has been tested successfully on D-Link DIR-615 Hardware revision H
+				devices. It is possible that this module also works with other models.
+			},
 			'Author'         => [
 					'hdm',	#http_login module
 					'Michael Messner <devnull@s3cur1ty.de>'	#dlink login included
