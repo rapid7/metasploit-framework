@@ -76,7 +76,7 @@ Merge made by the 'recursive' strategy.
 $ 
 ````
 
-What this does is get your local checkout up to date (`pull -r`), create a new branch off of master (`git checkout -b landing-pr1702'), and merge the PR with no fast-forward. Note the two useful features of this strategy. First, we merge the PR without needing to set up any extra remotes. Second, we force `-no-ff`, which is "no fast forward," ensuring we get a merge commit. We can now merge commit with a meaningful message:
+What this does is get your local checkout up to date (`pull -r`), create a new branch off of master (`git checkout -b landing-pr1702`), and merge the PR with no fast-forward. Note the two useful features of this strategy. First, we merge the PR without needing to set up any extra remotes. Second, we force `-no-ff`, which is "no fast forward," ensuring we get a merge commit message (often, small changes will *not* create merge commits by default). We can now merge commit with a meaningful message:
 
 ````
 Landing #1702, hdmoore's postgres scanner
