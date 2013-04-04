@@ -158,8 +158,6 @@ Date:   Wed Apr 3 09:20:01 2013 -0500
     Space at EOL (msftidy)
 ````
 
-Note the line, `Merge: e4d901d1 fe2b598`. This tells you that the merge commit starts just after e4d901d1, and ends at fe2b598.
-
 If we want to make any final changes to the merge commit, now's the time:
 
 ````
