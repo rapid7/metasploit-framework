@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			return false
 		end
-	end 
+	end
 
 	def run_host(ip)
 
@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 
-		print_status("#{target_url} - Attempting to login") 
+		print_status("#{target_url} - Attempting to login")
 
 		each_user_pass { |user, pass|
 			do_login(user, pass)
