@@ -88,7 +88,7 @@ Landing #1702, hdmoore's postgres scanner
 # the commit.
 ````
 
-When viewing this commit in GitHub, we get a nice syntax highlight back to the original Pull Request, so we can see whatever discussion happened around this new feature or bugfix. Also, we can edit it later when we're ready to merge it for real.
+When viewing [this commit](https://github.com/rapid7/metasploit-framework/commit/cb874390488ed03464e717d121f620ce6c97d71b) in GitHub, we get a nice syntax highlight back to the original Pull Request (click it, and see!). This way, we don't lose whatever discussion happened around this new feature or bugfix. In addition, we can edit this commit message it later when we're ready to merge it for real.
 
 # Test and make any suggestions.
 
@@ -154,7 +154,9 @@ Date:   Thu Apr 4 10:19:47 2013 -0500
 
 If we want to make any final changes to the merge commit, now's the time:
 
+````
 $ git commit --amend
+````
 
 ````
 Landing #1702, hdmoore's postgres scanner
@@ -163,6 +165,8 @@ Code looks good to me, screenshot provided on PR #1702.
 
 [Closes #1702]
 ````
+
+You never want to amend a commit once you've pushed it up to the remote -- doing so will change history and cause conflicts for anyone who's gotten a hold of your original commit. Before you push, though, feel free.
 
 Finally, push it up:
 
