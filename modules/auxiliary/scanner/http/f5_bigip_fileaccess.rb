@@ -112,7 +112,7 @@ class Metasploit4 < Msf::Auxiliary
 				datastore['RFILE'])
 				print_status("#{rhost}:#{rport} F5 BIG-IP - #{datastore['RFILE']} saved in #{path}")
 				return
-			end
+			#end
 		end
 		print_error("#{rhost}:#{rport} Failed to retrieve file from #{rhost}:#{rport}")
 	end
