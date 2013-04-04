@@ -204,18 +204,18 @@ Rarely are pull requests landed without modification.
 
 *Give an example of just editing in landing-XXXX and then merging from there. Not complicated.*
 
-## When the changes are complex
+## When you have feedback
 
 *Give an example of comments on the PR that cause the contributor to make changes.*
 
-## Refreshing PRs that have had changes
+## When the changes are complex
 
-*Give an example of sending a pull request back to the contributor*
+*Give an example of issuing a pull request back to the contributor*
 
-# When you hit a merge conflict
+## When you hit a merge conflict
 
 *Give an example of untangling a merge conflict*
 
-# More examples?
+## More examples?
 
 *Other cases?*
