@@ -55,6 +55,8 @@ From github-r7:rapid7/metasploit-framework
  * [new ref]         refs/pull/1702/head -> origin/pr/1702
 ````
 
+Note the three PRs referenced at the top -- these are PRs that have changed since the last time you fetched from origin. Pretty handy.
+
 # Pre-merge testing
 
 Since we don't just merge blindly, create a local branch for testing, and merge there. Something like so:
