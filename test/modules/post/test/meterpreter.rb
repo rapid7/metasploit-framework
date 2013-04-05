@@ -11,7 +11,7 @@ class Metasploit4 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Testing meterpreter stuff',
+				'Name'          => 'Testing Meterpreter Stuff',
 				'Description'   => %q{ This module will test meterpreter API methods },
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'egypt'],
