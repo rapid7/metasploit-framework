@@ -1,6 +1,0 @@
-$ ruby main_program1.rb
-item = foo
-item = bar
-item = baz
-** debug: local variables=["eruby", "items", "x", "_buf"]
-** debug: x="baz"

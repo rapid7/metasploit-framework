@@ -193,6 +193,12 @@ if is_git
 	system("git", "checkout", branch)
 	system("git", "fetch", remote)
 	system("git", "merge", "#{remote}/#{branch}")
+
+	$stdout.puts "[*] Updating gems..."
+	require 'bundler'
+	Bundler.with_clean_env do
+		system("bundle", "install")
+	end
 end
 
 if is_installed
