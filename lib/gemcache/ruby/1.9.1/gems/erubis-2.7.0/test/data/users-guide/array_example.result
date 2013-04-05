@@ -1,9 +1,0 @@
-$ erubis -xE Array example.eruby
-_buf = []; _buf << '<div>
-'; for item in list 
- _buf << '  <p>'; _buf << ( item ).to_s; _buf << '</p>
-  <p>'; _buf << Erubis::XmlHelper.escape_xml( item ); _buf << '</p>
-'; end 
- _buf << '</div>
-';
-_buf

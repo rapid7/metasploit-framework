@@ -1,5 +1,0 @@
-source "http://www.rubygems.org"
-
-gem 'yard'
-gem 'state_machine'
-gem 'ruby-graphviz'
