@@ -1,2 +1,0 @@
-This note details the usage of EventMachine's built-in support for SMTP. EM supports both client and server connections, which will be described in separate sections.
-
