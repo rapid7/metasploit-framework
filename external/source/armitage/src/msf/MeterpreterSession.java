@@ -14,7 +14,7 @@ public class MeterpreterSession implements Runnable {
 	protected String        session;
 	protected boolean       teammode;
 
-	public static long DEFAULT_WAIT = 12000;
+	public static long DEFAULT_WAIT = 120000;
 
 	private static class Command {
 		public Object   token;

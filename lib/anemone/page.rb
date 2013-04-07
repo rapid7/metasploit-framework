@@ -96,28 +96,7 @@ module Anemone
      # MODIFIED: Dig URLs from elements other than "A" refs
      #
     def links
-      return @links if @links
-      @links = []
-      return @links if !doc
-
-      @links = run_extractors
-
-      @links |= @links.map do |u|
-        # back-off to the parent dir
-          to_absolute( URI( u.path.gsub( /(.*\/)[^\/]+$/, "\\1" ) ) ) rescue next
-      end.uniq.compact
-
-      @links |= @links.map do |u|
-          bits = u.path.split( '/' )
-          while bits.length > 0
-          bits.pop
-          to_absolute( URI( bits.join( '/' ) ) ) rescue next
-          end
-      end.uniq.compact
-
-      @links.flatten!
-      @links.uniq!
-      @links
+      @links ||= run_extractors
     end
 
     #

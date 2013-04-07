@@ -1,35 +1,61 @@
 # -*- coding: binary -*-
+
+#
+# Standard Library
+#
+
+require 'csv'
+require 'tmpdir'
+require 'uri'
+require 'zip'
+
+#
+#
+# Included Libraries
+#
+#
+
+#
+# PacketFu
+#
+
+require 'packetfu'
+
+#
+# Rex
+#
+
+
+require 'rex/socket'
+
 # Check Rex::Parser.nokogiri_loaded for status of the Nokogiri parsers
-require 'rex/parser/nmap_nokogiri'
-require 'rex/parser/nexpose_simple_nokogiri'
-require 'rex/parser/nexpose_raw_nokogiri'
-require 'rex/parser/foundstone_nokogiri'
-require 'rex/parser/mbsa_nokogiri'
 require 'rex/parser/acunetix_nokogiri'
 require 'rex/parser/appscan_nokogiri'
 require 'rex/parser/burp_session_nokogiri'
 require 'rex/parser/ci_nokogiri'
-require 'rex/parser/wapiti_nokogiri'
-require 'rex/parser/openvas_nokogiri'
+require 'rex/parser/foundstone_nokogiri'
 require 'rex/parser/fusionvm_nokogiri'
+require 'rex/parser/mbsa_nokogiri'
+require 'rex/parser/nexpose_raw_nokogiri'
+require 'rex/parser/nexpose_simple_nokogiri'
+require 'rex/parser/nmap_nokogiri'
+require 'rex/parser/openvas_nokogiri'
+require 'rex/parser/wapiti_nokogiri'
 
 # Legacy XML parsers -- these will be converted some day
-
-require 'rex/parser/nmap_xml'
-require 'rex/parser/nexpose_xml'
-require 'rex/parser/retina_xml'
-require 'rex/parser/netsparker_xml'
-require 'rex/parser/nessus_xml'
-require 'rex/parser/ip360_xml'
 require 'rex/parser/ip360_aspl_xml'
+require 'rex/parser/ip360_xml'
+require 'rex/parser/nessus_xml'
+require 'rex/parser/netsparker_xml'
+require 'rex/parser/nexpose_xml'
+require 'rex/parser/nmap_xml'
+require 'rex/parser/retina_xml'
 
-require 'rex/socket'
-require 'zip'
-require 'packetfu'
-require 'uri'
-require 'tmpdir'
-require 'csv'
+#
+# Project
+#
 
+require 'msf/core/db_manager/import_msf_xml'
 
 module Msf
 
@@ -129,6 +155,7 @@ end
 #
 ###
 class DBManager
+	include Msf::DBManager::ImportMsfXml
 
 	def rfc3330_reserved(ip)
 		case ip.class.to_s
@@ -699,7 +726,7 @@ class DBManager
 			if session.via_exploit == "exploit/multi/handler" and sess_data[:datastore]['ParentModule']
 				mod_fullname = sess_data[:datastore]['ParentModule']
 				mod_name = ::Mdm::ModuleDetail.find_by_fullname(mod_fullname).name
-			else 
+			else
 				mod_name = mod.name
 				mod_fullname = mod.fullname
 			end
@@ -719,7 +746,7 @@ class DBManager
 			vuln_info[:service] = service if service
 
 			vuln = framework.db.report_vuln(vuln_info)
-			
+
 			if session.via_exploit == "exploit/multi/handler" and sess_data[:datastore]['ParentModule']
 				via_exploit = sess_data[:datastore]['ParentModule']
 			else
@@ -738,7 +765,7 @@ class DBManager
 			}
 
 			framework.db.report_exploit_success(attempt_info)
-			
+
 		end
 
 		s
@@ -871,7 +898,7 @@ class DBManager
 					ref.to_s
 				end
 			})
-		
+
 			# Try find a matching vulnerability
 			vuln = find_vuln_by_refs(ref_objs, host, svc)
 		end
@@ -890,7 +917,7 @@ class DBManager
 			attempt_info[:loot_id]    = opts[:loot_id]    if opts[:loot_id]
 
 			vuln.vuln_attempts.create(attempt_info)
-	
+
 			# Correct the vuln's associated service if necessary
 			if svc and vuln.service_id.nil?
 				vuln.service = svc
@@ -909,12 +936,12 @@ class DBManager
 		attempt_info[:vuln_id]    = vuln.id           if vuln
 		attempt_info[:session_id] = opts[:session_id] if opts[:session_id]
 		attempt_info[:loot_id]    = opts[:loot_id]    if opts[:loot_id]
-		
+
 		if svc
 			attempt_info[:port]  = svc.port
 			attempt_info[:proto] = svc.proto
 		end
-		
+
 		if port and svc.nil?
 			attempt_info[:port]  = port
 			attempt_info[:proto] = prot || "tcp"
@@ -937,7 +964,7 @@ class DBManager
 
 		timestamp  = opts.delete(:timestamp)
 		freason    = opts.delete(:fail_reason)
-		fdetail    = opts.delete(:fail_detail)		
+		fdetail    = opts.delete(:fail_detail)
 		username   = opts.delete(:username)
 		mname      = opts.delete(:module)
 
@@ -968,7 +995,7 @@ class DBManager
 					ref.to_s
 				end
 			})
-		
+
 			# Try find a matching vulnerability
 			vuln = find_vuln_by_refs(ref_objs, host, svc)
 		end
@@ -1003,7 +1030,7 @@ class DBManager
 			attempt_info[:port]  = svc.port
 			attempt_info[:proto] = svc.proto
 		end
-		
+
 		if port and svc.nil?
 			attempt_info[:port]  = port
 			attempt_info[:proto] = prot || "tcp"
@@ -1018,7 +1045,7 @@ class DBManager
 	::ActiveRecord::Base.connection_pool.with_connection {
 		return if not vuln
 		info = {}
-		
+
 		# Opts can be keyed by strings or symbols
 		::Mdm::VulnAttempt.column_names.each do |kn|
 			k = kn.to_sym
@@ -1037,7 +1064,7 @@ class DBManager
 	::ActiveRecord::Base.connection_pool.with_connection {
 		return if not host
 		info = {}
-		
+
 		# Opts can be keyed by strings or symbols
 		::Mdm::VulnAttempt.column_names.each do |kn|
 			k = kn.to_sym
@@ -1623,7 +1650,7 @@ class DBManager
 			# If a match is found on a vulnerability with no associated service,
 			# update that vulnerability with our service information. This helps
 			# prevent dupes of the same vuln found by both local patch and
-			# service detection.		
+			# service detection.
 			if rids and rids.length > 0
 				vuln = find_vuln_by_refs(rids, host, service)
 				vuln.service = service if vuln
@@ -1651,7 +1678,7 @@ class DBManager
 			else
 				vuln = host.vulns.find_by_name(name)
 			end
-			
+
 			unless vuln
 
 				vinf = {
@@ -1660,7 +1687,7 @@ class DBManager
 					:info    => info
 				}
 
-				vinf[:service_id] = service.id if service 
+				vinf[:service_id] = service.id if service
 				vuln = Mdm::Vuln.create(vinf)
 			end
 		end
@@ -1681,7 +1708,7 @@ class DBManager
 
 		# Handle vuln_details parameters
 		report_vuln_details(vuln, details) if details
-		
+
 		vuln
 	}
 	end
@@ -3669,334 +3696,6 @@ class DBManager
 
 	end
 
-	# For each host, step through services, notes, and vulns, and import
-	# them.
-	# TODO: loot, tasks, and reports
-	def import_msf_xml(args={}, &block)
-		data = args[:data]
-		wspace = args[:wspace] || workspace
-		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-
-		allow_yaml = false
-		btag       = nil
-
-		doc = rexmlify(data)
-		if doc.elements["MetasploitExpressV1"]
-			m_ver = 1
-			allow_yaml = true
-			btag = "MetasploitExpressV1"
-		elsif doc.elements["MetasploitExpressV2"]
-			m_ver = 2
-			allow_yaml = true
-			btag = "MetasploitExpressV2"
-		elsif doc.elements["MetasploitExpressV3"]
-			m_ver = 3
-			btag = "MetasploitExpressV3"
-		elsif doc.elements["MetasploitExpressV4"]
-			m_ver = 4
-			btag = "MetasploitExpressV4"
-		elsif doc.elements["MetasploitV4"]
-			m_ver = 4
-			btag = "MetasploitV4"
-		else
-			m_ver = nil
-		end
-		unless m_ver and btag
-			raise DBImportError.new("Unsupported Metasploit XML document format")
-		end
-
-		doc.elements.each("/#{btag}/hosts/host") do |host|
-			host_data = {}
-			host_data[:workspace] = wspace
-			host_data[:host] = nils_for_nulls(host.elements["address"].text.to_s.strip)
-			if bl.include? host_data[:host]
-				next
-			else
-				yield(:address,host_data[:host]) if block
-			end
-			host_data[:mac] = nils_for_nulls(host.elements["mac"].text.to_s.strip)
-			if host.elements["comm"].text
-				host_data[:comm] = nils_for_nulls(host.elements["comm"].text.to_s.strip)
-			end
-			%W{created-at updated-at name state os-flavor os-lang os-name os-sp purpose}.each { |datum|
-				if host.elements[datum].text
-					host_data[datum.gsub('-','_')] = nils_for_nulls(host.elements[datum].text.to_s.strip)
-				end
-			}
-			host_address = host_data[:host].dup # Preserve after report_host() deletes
-			hobj = report_host(host_data)
-
-			host.elements.each("host_details/host_detail") do |hdet|
-				hdet_data = {}
-				hdet.elements.each do |det|
-					next if ["id", "host-id"].include?(det.name)
-					if det.text
-						hdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
-					end
-				end
-				report_host_details(hobj, hdet_data)
-			end
-
-			host.elements.each("exploit_attempts/exploit_attempt") do |hdet|
-				hdet_data = {}
-				hdet.elements.each do |det|
-					next if ["id", "host-id", "session-id", "vuln-id", "service-id", "loot-id"].include?(det.name)
-					if det.text
-						hdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
-					end
-				end
-				report_exploit_attempt(hobj, hdet_data)
-			end
-
-			host.elements.each('services/service') do |service|
-				service_data = {}
-				service_data[:workspace] = wspace
-				service_data[:host] = hobj
-				service_data[:port] = nils_for_nulls(service.elements["port"].text.to_s.strip).to_i
-				service_data[:proto] = nils_for_nulls(service.elements["proto"].text.to_s.strip)
-				%W{created-at updated-at name state info}.each { |datum|
-					if service.elements[datum].text
-						if datum == "info"
-							service_data["info"] = nils_for_nulls(unserialize_object(service.elements[datum], false))
-						else
-							service_data[datum.gsub("-","_")] = nils_for_nulls(service.elements[datum].text.to_s.strip)
-						end
-					end
-				}
-				report_service(service_data)
-			end
-
-			host.elements.each('notes/note') do |note|
-				note_data = {}
-				note_data[:workspace] = wspace
-				note_data[:host] = hobj
-				note_data[:type] = nils_for_nulls(note.elements["ntype"].text.to_s.strip)
-				note_data[:data] = nils_for_nulls(unserialize_object(note.elements["data"], allow_yaml))
-
-				if note.elements["critical"].text
-					note_data[:critical] = true unless note.elements["critical"].text.to_s.strip == "NULL"
-				end
-				if note.elements["seen"].text
-					note_data[:seen] = true unless note.elements["critical"].text.to_s.strip == "NULL"
-				end
-				%W{created-at updated-at}.each { |datum|
-					if note.elements[datum].text
-						note_data[datum.gsub("-","_")] = nils_for_nulls(note.elements[datum].text.to_s.strip)
-					end
-				}
-				report_note(note_data)
-			end
-
-			host.elements.each('tags/tag') do |tag|
-				tag_data = {}
-				tag_data[:addr] = host_address
-				tag_data[:wspace] = wspace
-				tag_data[:name] = tag.elements["name"].text.to_s.strip
-				tag_data[:desc] = tag.elements["desc"].text.to_s.strip
-				if tag.elements["report-summary"].text
-					tag_data[:summary] = tag.elements["report-summary"].text.to_s.strip
-				end
-				if tag.elements["report-detail"].text
-					tag_data[:detail] = tag.elements["report-detail"].text.to_s.strip
-				end
-				if tag.elements["critical"].text
-					tag_data[:crit] = true unless tag.elements["critical"].text.to_s.strip == "NULL"
-				end
-				report_host_tag(tag_data)
-			end
-
-			host.elements.each('vulns/vuln') do |vuln|
-				vuln_data = {}
-				vuln_data[:workspace] = wspace
-				vuln_data[:host] = hobj
-				vuln_data[:info] = nils_for_nulls(unserialize_object(vuln.elements["info"], allow_yaml))
-				vuln_data[:name] = nils_for_nulls(vuln.elements["name"].text.to_s.strip)
-				%W{created-at updated-at exploited-at}.each { |datum|
-					if vuln.elements[datum] and vuln.elements[datum].text
-						vuln_data[datum.gsub("-","_")] = nils_for_nulls(vuln.elements[datum].text.to_s.strip)
-					end
-				}
-				if vuln.elements["refs"]
-					vuln_data[:refs] = []
-					vuln.elements.each("refs/ref") do |ref|
-						vuln_data[:refs] << nils_for_nulls(ref.text.to_s.strip)
-					end
-				end
-
-				vobj = report_vuln(vuln_data)
-
-				vuln.elements.each("vuln_details/vuln_detail") do |vdet|
-					vdet_data = {}
-					vdet.elements.each do |det|
-						next if ["id", "vuln-id"].include?(det.name)
-						if det.text
-							vdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
-						end
-					end
-					report_vuln_details(vobj, vdet_data)
-				end
-
-				vuln.elements.each("vuln_attempts/vuln_attempt") do |vdet|
-					vdet_data = {}
-					vdet.elements.each do |det|
-						next if ["id", "vuln-id", "loot-id", "session-id"].include?(det.name)
-						if det.text
-							vdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
-						end
-					end
-					report_vuln_attempt(vobj, vdet_data)
-				end
-			end
-
-			host.elements.each('creds/cred') do |cred|
-				cred_data = {}
-				cred_data[:workspace] = wspace
-				cred_data[:host] = hobj
-				%W{port ptype sname proto proof active user pass}.each {|datum|
-					if cred.elements[datum].respond_to? :text
-						cred_data[datum.intern] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
-					end
-				}
-				%W{created-at updated-at}.each { |datum|
-					if cred.elements[datum].respond_to? :text
-						cred_data[datum.gsub("-","_")] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
-					end
-				}
-				%W{source-type source-id}.each { |datum|
-					if cred.elements[datum].respond_to? :text
-						cred_data[datum.gsub("-","_").intern] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
-					end
-				}
-				if cred_data[:pass] == "<masked>"
-					cred_data[:pass] = ""
-					cred_data[:active] = false
-				elsif cred_data[:pass] == "*BLANK PASSWORD*"
-					cred_data[:pass] = ""
-				end
-				report_cred(cred_data)
-			end
-
-			host.elements.each('sessions/session') do |sess|
-				sess_id = nils_for_nulls(sess.elements["id"].text.to_s.strip.to_i)
-				sess_data = {}
-				sess_data[:host] = hobj
-				%W{desc platform port stype}.each {|datum|
-					if sess.elements[datum].respond_to? :text
-						sess_data[datum.intern] = nils_for_nulls(sess.elements[datum].text.to_s.strip)
-					end
-				}
-				%W{opened-at close-reason closed-at via-exploit via-payload}.each {|datum|
-					if sess.elements[datum].respond_to? :text
-						sess_data[datum.gsub("-","_").intern] = nils_for_nulls(sess.elements[datum].text.to_s.strip)
-					end
-				}
-				sess_data[:datastore] = nils_for_nulls(unserialize_object(sess.elements["datastore"], allow_yaml))
-				if sess.elements["routes"]
-					sess_data[:routes] = nils_for_nulls(unserialize_object(sess.elements["routes"], allow_yaml)) || []
-				end
-				if not sess_data[:closed_at] # Fake a close if we don't already have one
-					sess_data[:closed_at] = Time.now.utc
-					sess_data[:close_reason] = "Imported at #{Time.now.utc}"
-				end
-
-				existing_session = get_session(
-					:workspace => sess_data[:host].workspace,
-					:addr => sess_data[:host].address,
-					:time => sess_data[:opened_at]
-				)
-				this_session = existing_session || report_session(sess_data)
-				next if existing_session
-				sess.elements.each('events/event') do |sess_event|
-					sess_event_data = {}
-					sess_event_data[:session] = this_session
-					%W{created-at etype local-path remote-path}.each {|datum|
-						if sess_event.elements[datum].respond_to? :text
-							sess_event_data[datum.gsub("-","_").intern] = nils_for_nulls(sess_event.elements[datum].text.to_s.strip)
-						end
-					}
-					%W{command output}.each {|datum|
-						if sess_event.elements[datum].respond_to? :text
-							sess_event_data[datum.gsub("-","_").intern] = nils_for_nulls(unserialize_object(sess_event.elements[datum], allow_yaml))
-						end
-					}
-					report_session_event(sess_event_data)
-				end
-			end
-		end
-
-		# Import web sites
-		doc.elements.each("/#{btag}/web_sites/web_site") do |web|
-			info = {}
-			info[:workspace] = wspace
-
-			%W{host port vhost ssl comments}.each do |datum|
-				if web.elements[datum].respond_to? :text
-					info[datum.intern] = nils_for_nulls(web.elements[datum].text.to_s.strip)
-				end
-			end
-
-			info[:options]   = nils_for_nulls(unserialize_object(web.elements["options"], allow_yaml)) if web.elements["options"].respond_to?(:text)
-			info[:ssl]       = (info[:ssl] and info[:ssl].to_s.strip.downcase == "true") ? true : false
-
-			%W{created-at updated-at}.each { |datum|
-				if web.elements[datum].text
-					info[datum.gsub("-","_")] = nils_for_nulls(web.elements[datum].text.to_s.strip)
-				end
-			}
-
-			report_web_site(info)
-			yield(:web_site, "#{info[:host]}:#{info[:port]} (#{info[:vhost]})") if block
-		end
-
-		%W{page form vuln}.each do |wtype|
-			doc.elements.each("/#{btag}/web_#{wtype}s/web_#{wtype}") do |web|
-				info = {}
-				info[:workspace] = wspace
-				info[:host]      = nils_for_nulls(web.elements["host"].text.to_s.strip)  if web.elements["host"].respond_to?(:text)
-				info[:port]      = nils_for_nulls(web.elements["port"].text.to_s.strip)  if web.elements["port"].respond_to?(:text)
-				info[:ssl]       = nils_for_nulls(web.elements["ssl"].text.to_s.strip)   if web.elements["ssl"].respond_to?(:text)
-				info[:vhost]     = nils_for_nulls(web.elements["vhost"].text.to_s.strip) if web.elements["vhost"].respond_to?(:text)
-
-				info[:ssl] = (info[:ssl] and info[:ssl].to_s.strip.downcase == "true") ? true : false
-
-				case wtype
-				when "page"
-					%W{path code body query cookie auth ctype mtime location}.each do |datum|
-						if web.elements[datum].respond_to? :text
-							info[datum.intern] = nils_for_nulls(web.elements[datum].text.to_s.strip)
-						end
-					end
-					info[:headers] = nils_for_nulls(unserialize_object(web.elements["headers"], allow_yaml))
-				when "form"
-					%W{path query method}.each do |datum|
-						if web.elements[datum].respond_to? :text
-							info[datum.intern] = nils_for_nulls(web.elements[datum].text.to_s.strip)
-						end
-					end
-					info[:params] = nils_for_nulls(unserialize_object(web.elements["params"], allow_yaml))
-				when "vuln"
-					%W{path query method pname proof risk name blame description category confidence}.each do |datum|
-						if web.elements[datum].respond_to? :text
-							info[datum.intern] = nils_for_nulls(web.elements[datum].text.to_s.strip)
-						end
-					end
-					info[:params] = nils_for_nulls(unserialize_object(web.elements["params"], allow_yaml))
-					info[:risk]   = info[:risk].to_i
-					info[:confidence] = info[:confidence].to_i
-				end
-
-				%W{created-at updated-at}.each { |datum|
-					if web.elements[datum].text
-						info[datum.gsub("-","_")] = nils_for_nulls(web.elements[datum].text.to_s.strip)
-					end
-				}
-				self.send("report_web_#{wtype}", info)
-
-				yield("web_#{wtype}".intern, info[:path]) if block
-			end
-		end
-	end
-
 	# Convert the string "NULL" to actual nil
 	def nils_for_nulls(str)
 		str == "NULL" ? nil : str
@@ -4196,9 +3895,9 @@ class DBManager
 	# Takes an array of vuln hashes, as returned by the NeXpose rawxml stream
 	# parser, like:
 	#   [
-	#		{"id"=>"winreg-notes-protocol-handler", severity="8", "refs"=>[{"source"=>"BID", "value"=>"10600"}, ...]}
-	#		{"id"=>"windows-zotob-c", severity="8", "refs"=>[{"source"=>"BID", "value"=>"14513"}, ...]}
-	#	]
+	#     {"id"=>"winreg-notes-protocol-handler", severity="8", "refs"=>[{"source"=>"BID", "value"=>"10600"}, ...]}
+	#     {"id"=>"windows-zotob-c", severity="8", "refs"=>[{"source"=>"BID", "value"=>"14513"}, ...]}
+	#   ]
 	# and transforms it into a struct, containing :id, :refs, :title, and :severity
 	#
 	# Other attributes can be added later, as needed.
@@ -5095,7 +4794,7 @@ class DBManager
 	#
 	# This method normalizes an incoming service name to one of the
 	# the standard ones recognized by metasploit
-	# 
+	#
 	def service_name_map(proto)
 		return proto unless proto.kind_of? String
 		case proto.downcase
@@ -5163,11 +4862,11 @@ class DBManager
 	# There is no place the NBE actually stores the plugin name used to
 	# scan. You get "Security Note" or "Security Warning," and that's it.
 	def import_nessus_nbe(args={}, &block)
-		data = args[:data]
+		nbe_data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
-		nbe_copy = data.dup
+		nbe_copy = nbe_data.dup
 		# First pass, just to build the address map.
 		addr_map = {}
 
@@ -5183,7 +4882,7 @@ class DBManager
 			addr_map[hname] = addr
 		end
 
-		data.each_line do |line|
+		nbe_data.each_line do |line|
 			r = line.split('|')
 			next if r[0] != 'results'
 			hname = r[2]

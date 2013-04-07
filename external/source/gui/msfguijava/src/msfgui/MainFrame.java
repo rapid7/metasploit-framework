@@ -171,7 +171,7 @@ public class MainFrame extends FrameView {
 			MsfguiApp.shuttingDown = true;
 			if(choice == JOptionPane.YES_OPTION)
 				rpcConn.execute("core.stop");
-			else if(choice == JOptionPane.NO_OPTION)
+			else if(choice == JOptionPane.NO_OPTION && rpcConn.username.length() > 0)
 				rpcConn.execute("auth.logout");
 		} catch (Exception ex) {
 		}
@@ -366,14 +366,19 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 					currentMenu.add(men);
 					currentMenu = (JMenu) men;
 				} else {
-					JMenuItem men = new JMenuItem(names[i]);
-					if(recentlyAdded)
-						men.setFont(men.getFont().deriveFont(men.getFont().getStyle() | java.awt.Font.BOLD));
-					men.setName(names[i]);
-					currentMenu.add(men);
-					ActionListener actor = factory.getActor(fullName.toString(),type,rpcConn);
-					men.addActionListener(actor);
-					searchWin.modules.add(new Object[]{type, fullName.toString(),actor});
+					try{
+						JMenuItem men = new JMenuItem(names[i]);
+						if(recentlyAdded)
+							men.setFont(men.getFont().deriveFont(men.getFont().getStyle() | java.awt.Font.BOLD));
+						men.setName(names[i]);
+						currentMenu.add(men);
+						ActionListener actor = factory.getActor(fullName.toString(),type,rpcConn);
+						men.addActionListener(actor);
+						searchWin.modules.add(new Object[]{type, fullName.toString(),actor});
+					}catch(ClassCastException cce){
+						System.err.println(names[i]);
+						cce.printStackTrace();
+					}
 				}
 			}//end for each subname
 		}//end for each module
@@ -527,8 +532,8 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         lootsTable = new MsfTable(rpcConn,new String [] {"Host", "Service", "Ltype", "Ctype", "Data", "Created", "Updated", "Name", "Info"
         }, "loots", new String[]{"host", "service", "ltype", "ctype", "data", "created_at", "updated_at", "name", "info"});
         credsPane = new javax.swing.JScrollPane();
-        credsTable = new MsfTable(rpcConn, new String [] {"Host", "Time", "Port", "Proto", "Sname", "Type", "User", "Pass", "Active"
-        }, "creds", new String[]{"host", "time", "port", "proto", "sname", "type", "user", "pass", "active"});
+        credsTable = new MsfTable(rpcConn, new String [] {"Host", "Updated", "Port", "Proto", "Sname", "Type", "User", "Pass", "Active"
+        }, "creds", new String[]{"host", "updated_at", "port", "proto", "sname", "type", "user", "pass", "active"});
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         connectRpcMenuItem = new javax.swing.JMenuItem();
@@ -710,7 +715,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 530, Short.MAX_VALUE)
+            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 534, Short.MAX_VALUE)
         );
 
         menuBar.setName("menuBar"); // NOI18N

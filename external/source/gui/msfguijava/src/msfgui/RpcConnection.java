@@ -84,9 +84,15 @@ public abstract class RpcConnection {
 		String message = "";
 		try {
 			connect();
-			Map results = (Map)exec("auth.login",new Object[]{username, this.password});
-			rpcToken=results.get("token").toString();
-			haveRpcd=results.get("result").equals("success");
+			if(username == null || username.equals("")){
+				rpcToken = this.password;
+				execute("core.version"); //throws error if unsuccessful
+				haveRpcd = true;
+			}else{
+				Map results = (Map)exec("auth.login",new Object[]{username, this.password});
+				rpcToken=results.get("token").toString();
+				haveRpcd=results.get("result").equals("success");
+			}
 		} catch (MsfException xre) {
 			message = xre.getLocalizedMessage();
 		} catch (IOException io){

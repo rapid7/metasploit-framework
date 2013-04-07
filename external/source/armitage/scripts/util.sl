@@ -78,7 +78,7 @@ sub setupEventStyle {
 
 sub createDisplayTab {
 	local('$console $host $queue $file');
-	$queue = [new ConsoleQueue: $client];
+	$queue = [new ConsoleQueue: rand(@POOL)];
 	if ($1 eq "Log Keystrokes") {
 		$console = [new ActivityConsole: $preferences];
 	}
@@ -100,7 +100,7 @@ sub createConsolePanel {
 	setupConsoleStyle($console);
 
 	$result = call($client, "console.create");
-	$thread = [new ConsoleClient: $console, $aclient, "console.read", "console.write", "console.destroy", $result['id'], $1];
+	$thread = [new ConsoleClient: $console, rand(@POOL), "console.read", "console.write", "console.destroy", $result['id'], $1];
 	[$thread setMetasploitConsole];
 
 	[$thread setSessionListener: {
@@ -151,6 +151,11 @@ sub createConsoleTab {
 }
 
 sub setg {
+	# update team server's understanding of LHOST
+	if ($1 eq "LHOST") {
+		call_async($client, "armitage.set_ip", $2);
+	}
+
 	%MSF_GLOBAL[$1] = $2;
 	local('$c');
 	$c = createConsole($client);
@@ -381,7 +386,7 @@ sub connectDialog {
 		$msfrpc_handle = $null;
 	}
 
-	local('$dialog $host $port $ssl $user $pass $button $cancel $start $center $help $helper');
+	local('$dialog $host $port $ssl $user $pass $button $start $center $help $helper');
 	$dialog = window("Connect...", 0, 0);
 	
 	# setup our nifty form fields..
@@ -397,8 +402,6 @@ sub connectDialog {
 
 	$help   = [new JButton: "Help"];
 	[$help setToolTipText: "<html>Use this button to view the Getting Started Guide on the Armitage homepage</html>"];
-
-	$cancel = [new JButton: "Exit"];
 
 	# lay them out
 
@@ -422,9 +425,14 @@ sub connectDialog {
 		($h, $p, $u, $s) = @o;
 
 		[$dialog setVisible: 0];
-		connectToMetasploit($h, $p, $u, $s);
 
 		if ($h eq "127.0.0.1" || $h eq "::1" || $h eq "localhost") {
+			if ($__frame__ && [$__frame__ checkLocal]) {
+				showError("You can't connect to localhost twice");
+				[$dialog setVisible: 1];
+				return;
+			}
+
 			try {
 				closef(connect("127.0.0.1", $p, 1000));
 			}
@@ -434,35 +442,31 @@ sub connectDialog {
 				}
 			}
 		}
+
+		connectToMetasploit($h, $p, $u, $s);
 	}, \$dialog, \$host, \$port, \$user, \$pass)];
 
 	[$help addActionListener: gotoURL("http://www.fastandeasyhacking.com/start")];
-
-	[$cancel addActionListener: {
-		[System exit: 0];
-	}];
 
 	[$dialog pack];
 	[$dialog setLocationRelativeTo: $null];
 	[$dialog setVisible: 1];
 }
 
-sub _elog {
+sub elog {
+	local('$2');
 	if ($client !is $mclient) {
+		# $2 can be NULL here. team server will populate it...
 		call_async($mclient, "armitage.log", $1, $2);
 	}
 	else {
+		# since we're not on a team server, no one else will have
+		# overwritten LHOST, so we can trust $MY_ADDRESS to be current
+		if ($2 is $null) {
+			$2 = $MY_ADDRESS;
+		}
 		call_async($client, "db.log_event", "$2 $+ //", $1);
 	}
-}
-
-sub elog {
-	local('$2');
-	if ($2 is $null) {
-		$2 = $MY_ADDRESS;
-	}
-
-	_elog($1, $2);
 }
 
 sub module_execute {

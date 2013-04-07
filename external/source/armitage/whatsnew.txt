@@ -1,6 +1,58 @@
 Armitage Changelog
 ==================
 
+6 Mar 13 (tested against msf ca43900a7)
+--------
+- Active console now gets higher priority when polling msf for output
+- Improved team server responsiveness in high latency situations by 
+  creating additional connections to server to balance messages over
+- Preferences are now shared among each Armitage connection.
+
+6 Mar 13 (2000h)
+--------
+- Fixed issue with additional team server connections reporting wrong
+  application and receiving a summary rejection by the team server.
+
+Cortana Updates (for scripters)
+--------
+- Added a &publish, &query, &subscribe API to allow inter-script 
+  communication across the team server.
+- Added &table_update to set the contents of a table tab without 
+  disturbing the highlighted rows.
+- Added an exec_error event. Fired when &m_exec or &m_exec_local fail
+  due to an error reported by meterpreter.
+- Fixed a bug that sometimes caused session_sync to fire twice (boo!)
+- Added a 60s timeout to &s_cmd commands. Cortana will give a shell
+  command 60s to execute. If it doesn't finish in that time, Cortana
+  will release the lock on the shell so the user can control it.
+  (ideally, this shouldn't happen... this is a safety mechanism)
+- Changed Meterpreter command timeout to 2m from 12s. This is because
+  https meterpreter might not checkin for up to 60s, if it's been
+  idle for a long time. This will make &m_cmd less likely to timeout
+
+12 Feb 13 (tested against msf 16438)
+---------
+- Fixed a corner case preventing the display of removed host labels 
+  when connected to a team server.
+- Fixed RPC call cache corruption in team server mode. This bug could 
+  lead to some exploits defaulting to a shell payload when meterpreter 
+  was a possibility.
+- Slight optimization to some DB queries. I no longer pull unused
+  fields making the query marginally faster. Team server is more
+  efficient too as changes to unused fields won't force data (re)sync.
+- Hosts -> Clear Database now clears host labels too.
+- Added the ability to manage multiple team server instances through
+  Armitage. Go to Armitage -> New Connection to connect to another
+  server. A button bar will appear that allows you to switch active
+  Armitage connections.
+	- Credentials available across instances are pooled when using
+ 	  the [host] -> Login menu and the credential helper.
+- Rewrote the event log management code in the team server
+- Added nickname tab completion to event log. I feel like I'm writing
+  an IRC client again.
+- Hosts -> Clear Database now asks you to confirm the action.
+- Hosts -> Import Hosts announces successful import to event log again.
+
 23 Jan 13 (tested against msf 16351)
 ---------
 - Added helpers to set EXE::Custom and EXE::Template options.

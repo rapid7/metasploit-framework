@@ -171,7 +171,9 @@ class Driver < Msf::Ui::Driver
 
 			# Append any migration paths necessary to bring the database online
 			if opts['DatabaseMigrationPaths']
-				opts['DatabaseMigrationPaths'].each {|m| framework.db.add_migration_path(m) }
+				opts['DatabaseMigrationPaths'].each do |migrations_path|
+					ActiveRecord::Migrator.migrations_paths << migrations_path
+				end
 			end
 
 			# Look for our database configuration in the following places, in order:

