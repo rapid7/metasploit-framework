@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(22),
-				OptString.new('CLIENTVERSION', [ true, 'The SSH client version to report.', 'SSH-2.0-OpenSSH_5.1p1 Debian-5ubuntu1'])
+				OptString.new('CLIENTVERSION', [ true, 'The SSH client version to report.', 'Debian-5ubuntu1'])
 			], self.class)
 
 	end
@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		banner = sock.get_once(-1, 10) || ''
 		print_status("Banner: #{banner.strip}")
-		sock.put(datastore['CLIENTVERSION'] + "\r\n" + get_packet())
+		sock.put("SSH-2.0-OpenSSH_5.1p1 " + datastore['CLIENTVERSION'] + "\r\n" + get_packet())
 
 		# Sometimes the socket closes faster than it can read, sometimes it doesn't, so catch the error just in case.
 		begin
