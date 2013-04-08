@@ -57,7 +57,7 @@ Next, load the RVM scripts by either opening a new terminal window, or just run:
 ````bash
 $ source ~/.rvm/scripts/rvm
 ````
-If you must be root (eg, on BackTrack or Kali, by default), then you will need to also explicitly add this line to the end of your ~/.bashrc, instead:
+If you must be root (eg, on BackTrack or Kali), then you will need to explicitly add this (slightly different) line to the end of /root/.bashrc, instead:
 
 ````
 source /usr/local/rvm/scripts/rvm
