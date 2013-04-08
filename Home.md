@@ -16,7 +16,7 @@ If you're an exploit developer, you might want to review our [[Guidelines for Ac
 - [[Common Metasploit Module Coding Mistakes]]
 - [[Style Tips]]
 - [[Committer Rights]]
-- [[Landing a Pull Request]]
+- [[Landing Pull Requests]]
 
 # Metasploit Resources #
 
