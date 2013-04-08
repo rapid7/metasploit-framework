@@ -20,7 +20,8 @@ class Metasploit3 < Msf::Post
 		register_options(
 			[
 				OptString.new('FILES',[false,'ID or extensions of the files to recover in a comma separated way.',""]),
-				OptString.new('DRIVE',[true,'Drive you want to recover files from',"C:"]),
+				OptString.new('DRIVE',[true,'Drive you want to recover files from.',"C:"]),
+				OptInt.new('TIMEOUT', [true,'Search timeout. If 0 the module will go through the entire $MFT.', 3600])
 			], self.class)
 	end
 
@@ -53,7 +54,14 @@ class Metasploit3 < Msf::Post
 				if handle != nil
 					data_runs = mft_data_runs(handle)
 					print_status("It seems that MFT is fragmented (#{data_runs.size-1} data runs)") if (data_runs.count > 2)
-					deleted_files(data_runs[1..-1], handle,files)
+					to = (datastore['TIMEOUT'].zero?) ? nil : datastore['TIMEOUT']
+					begin
+						::Timeout.timeout(to) do
+							deleted_files(data_runs[1..-1], handle,files)
+						end
+					rescue ::Timeout::Error
+						print_error("Server timed out after #{to} seconds. Skipping...")
+					end
 				end
 			end
 		else
