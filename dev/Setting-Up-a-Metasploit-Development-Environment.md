@@ -36,12 +36,12 @@ Many standard distributions of Ruby are lacking in one regard or another. Lucky 
 $ \curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=1.9.3
 ````
 
-Note the *lack* of sudo; you will nearly always want to install this as a regular user, and not as root. 
+Note the *lack* of sudo; you will nearly always want to install this as a regular user, and not as root.
 
 Sometimes, depending on your particular platform, this incantation may not be reliable. This is nearly identical, but more typing:
 
 ````bash
-$ \curl -o rvm.sh -L get.rvm.io && cat rvm.sh | bash -s stable
+$ \curl -o rvm.sh -L get.rvm.io && cat rvm.sh | bash -s stable --autolibs=enabled --ruby=1.9.3
 ````
 
 Also, if you're sketchy about piping a web site directly to bash, you can perform each step individually, without the &&:
@@ -49,7 +49,7 @@ Also, if you're sketchy about piping a web site directly to bash, you can perfor
 ````bash
 $ \curl -o rvm.sh -L get.rvm.io 
 $ less rvm.sh
-$ cat rvm.sh | bash -s stable
+$ cat rvm.sh | bash -s stable --autolibs=enabled --ruby=1.9.3
 ````
 
 Next, load the RVM scripts by either opening a new terminal window, or just run: 
@@ -57,8 +57,13 @@ Next, load the RVM scripts by either opening a new terminal window, or just run:
 ````bash
 $ source ~/.rvm/scripts/rvm
 ````
+If you must be root (eg, on BackTrack or Kali, by default), then you will need to also explicitly add this line to the end of your ~/.bashrc, instead:
 
-RVM by default installs a sensible 1.9.3 patchlevel for Ruby these days. No more installing Ruby 1.8 to bootstrap to 1.9. However, you will need to tick the `Run command as login shell` on the default profile of gnome-terminal (assuming stock Ubuntu), or else you will get the error message that [RVM is not a function](http://stackoverflow.com/questions/9336596/rvm-installation-not-working-rvm-is-not-a-function).
+````
+source /usr/local/rvm/scripts/rvm
+````
+
+Finally, you will usually need to tick the `Run command as login shell` on the default profile of gnome-terminal (assuming stock Ubuntu), or else you will get the error message that [RVM is not a function](http://stackoverflow.com/questions/9336596/rvm-installation-not-working-rvm-is-not-a-function).
 
 Assuming all goes as planned, you should end up with something like this in your shell:
 
