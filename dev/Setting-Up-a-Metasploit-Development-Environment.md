@@ -231,7 +231,7 @@ where the master bit changes depending on what branch you're in.
 The first time you download Metasploit, you will need to get your Ruby gems lined up. It's as simple as `gem install bundle && bundle install` from your metasploit-framework checkout. It'll look like this:
 
 ````
-$ ./msfconsole -L
+(master) fakey@mazikeen:~/git/metasploit-framework$ ./msfconsole -L
 [*] Metasploit requires the Bundler gem to be installed
     $ gem install bundler
 (master) fakey@mazikeen:~/git/metasploit-framework$ gem install bundler
@@ -279,6 +279,11 @@ Your bundle is complete!
 Use `bundle show [gemname]` to see where a bundled gem is installed.
 (master) fakey@mazikeen:~/git/metasploit-framework$
 ````
+
+From that point on, you'll want to occasionally run `bundle install` whenever the `Gemfile` changes (`msfupdate` does this automatically).
+
+You do *not* want to run `bundle update` by itself, ever, unless you are very serious about updating every Gem in your gemset to some unknown bleeding-edge version.
+
 ## Start Metasploit
 
 Now that you have a source checkout of Metasploit and you have all your prerequisite components from apt, rvm, and bundler, you should be able to run it straight from your git clone with `./msfconsole -L`:
