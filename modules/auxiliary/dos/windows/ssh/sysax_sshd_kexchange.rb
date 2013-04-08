@@ -25,9 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 			'License'        => MSF_LICENSE,
 			'References'     =>
 				[
-					# [ 'BID', '17908'],
-					# [ 'CVE', '2006-0027'],
-					# [ 'MSB', 'MS06-019'],
+					[ 'URL', 'http://www.mattandreko.com/2013/04/sysax-multi-server-610-ssh-dos.html'],
 
 				],
 			'DisclosureDate' => 'Mar 17 2013'))
@@ -77,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		# Sometimes the socket closes faster than it can read, sometimes it doesn't, so catch the error just in case.
 		begin
-			print "<< " + (sock.get_once(-1, 10) || '')
+			sock.get_once(-1, 10)
 		rescue Errno::ECONNRESET
 		end
 
