@@ -226,9 +226,62 @@ In the end, you'll have a prompt that looks like:
 
 where the master bit changes depending on what branch you're in.
 
+## Bundle install
+
+The first time you download Metasploit, you will need to get your Ruby gems lined up. It's as simple as `gem install bundle && bundle install` from your metasploit-framework checkout. It'll look like this:
+
+````
+$ ./msfconsole -L
+[*] Metasploit requires the Bundler gem to be installed
+    $ gem install bundler
+(master) fakey@mazikeen:~/git/metasploit-framework$ gem install bundler
+Successfully installed bundler-1.3.5
+1 gem installed
+Installing ri documentation for bundler-1.3.5...
+Installing RDoc documentation for bundler-1.3.5...
+(master) todb@mazikeen:~/git/rapid7/metasploit-framework
+$ ./msfconsole -L
+Could not find rake-10.0.4 in any of the sources
+Run `bundle install` to install missing gems.
+(master) fakey@mazikeen:~/git/metasploit-framework$ bundle install
+Fetching gem metadata from http://rubygems.org/.........
+Fetching gem metadata from http://rubygems.org/..
+Updating git://github.com/rapid7/metasploit_data_models.git
+Installing rake (10.0.4) 
+Installing i18n (0.6.1) 
+Installing multi_json (1.0.4) 
+Installing activesupport (3.2.13) 
+Installing builder (3.0.4) 
+Installing activemodel (3.2.13) 
+Installing arel (3.0.2) 
+Installing tzinfo (0.3.37) 
+Installing activerecord (3.2.13) 
+Installing database_cleaner (0.9.1) 
+Installing diff-lcs (1.2.2) 
+Installing factory_girl (4.2.0) 
+Installing json (1.7.7) 
+Installing pg (0.15.0) 
+Using metasploit_data_models (0.6.4) from git://github.com/rapid7/metasploit_data_models.git (at 0.6.4) 
+Installing msgpack (0.5.4) 
+Installing nokogiri (1.5.9) 
+Installing pcaprub (0.11.3) 
+Installing redcarpet (2.2.2) 
+Installing robots (0.10.1) 
+Installing rspec-core (2.13.1) 
+Installing rspec-expectations (2.13.0) 
+Installing rspec-mocks (2.13.0) 
+Installing rspec (2.13.0) 
+Installing simplecov-html (0.5.3) 
+Installing simplecov (0.5.4) 
+Installing yard (0.8.5.2) 
+Using bundler (1.3.5) 
+Your bundle is complete!
+Use `bundle show [gemname]` to see where a bundled gem is installed.
+(master) fakey@mazikeen:~/git/metasploit-framework$
+````
 ## Start Metasploit
 
-Now that you have a source checkout of Metasploit, and you have all your prerequisite components from apt and rvm, you should be able to run it straight from your git clone with `./msfconsole -L`:
+Now that you have a source checkout of Metasploit and you have all your prerequisite components from apt, rvm, and bundler, you should be able to run it straight from your git clone with `./msfconsole -L`:
 
 [[/screens/fork06.png]]
 
