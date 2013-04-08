@@ -8,6 +8,7 @@
 * [Using Git](#git)
 * [Forking Metasploit](#fork)
 * [Setting your Prompt](#prompt)
+* [The Ruby Gems Bundle](#bundle)
 * [Keeping in Sync](#sync)
 * [Pull Requests](#pull)
 * [Rspec Tests](#rspec)
