@@ -33,7 +33,7 @@ Note that this does **not** include an appropriate text editor or IDE, nor does 
 Many standard distributions of Ruby are lacking in one regard or another. Lucky for all of us, Wayne Seguin's RVM has become quite excellent at providing several proven Ruby interpreters. Visit [https://rvm.io/](https://rvm.io/) to read up on it or just trust that it'll all work out with a simple:
 
 ````bash
-$ \curl -L https://get.rvm.io | bash -s stable --ruby
+$ \curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=1.9.3
 ````
 
 Note the *lack* of sudo; you will nearly always want to install this as a regular user, and not as root. 
