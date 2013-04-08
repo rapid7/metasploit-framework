@@ -42,6 +42,11 @@ class Metasploit3 < Msf::Post
 		end
 		wlan_iflist = enum_interfaces(wlan_handle)
 
+		if wlan_iflist.empty?
+			print_status("No wireless interfaces")
+			return
+		end
+
 		#Take each enumerated interface and gets the profile information available on each one
 		wlan_iflist.each do |interface|
 			wlan_profiles = enum_profiles(wlan_handle, interface['guid'])
@@ -85,6 +90,7 @@ class Metasploit3 < Msf::Post
 		numifs = @host_process.memory.read(pointer,4)
 		numifs = numifs.unpack("V")[0]
 		interfaces = []
+		return [] if numifs.nil?
 
 		#Set the pointer ahead to the first element in the array
 		pointer = (pointer + 8)
