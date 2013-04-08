@@ -67,6 +67,8 @@ class Metasploit3 < Msf::Auxiliary
 				:info	=> "Vulnerable: " + proof,
 				:refs   => self.references
 			})
+    elsif resp.to_s =~ /pg_hba.conf/
+      print_error("#{rhost}:#{rport} does not allow connections from us")
 		else
 			print_status("#{rhost}:#{rport} does not appear to be vulnerable to CVE-2013-1899")
 		end
