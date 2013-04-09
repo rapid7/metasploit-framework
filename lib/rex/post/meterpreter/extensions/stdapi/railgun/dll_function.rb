@@ -48,19 +48,29 @@ class DLLFunction
 		"PBLOB"  => ["in", "out", "inout"],
 	}.freeze
 
+	@@allowed_convs = ["stdcall", "cdecl"]
+
 	@@directions = ["in", "out", "inout", "return"].freeze
 
-	attr_reader :return_type,  :params, :windows_name
+	attr_reader :return_type,  :params, :windows_name, :calling_conv
 
-	def initialize(return_type, params, windows_name)
+	def initialize(return_type, params, windows_name, calling_conv="stdcall")
 		check_return_type(return_type) # we do error checking as early as possible so the library is easier to use
 		check_params(params)
+		check_calling_conv(calling_conv)
 		@return_type = return_type
 		@params = params
 		@windows_name = windows_name
+		@calling_conv = calling_conv
 	end
 
 	private
+
+	def check_calling_conv(conv)
+		if not @@allowed_convs.include?(conv)
+			raise ArgumentError, "Calling convention unknown: #{conv}."
+		end
+	end
 
 	def check_type_exists (type)
 		if not @@allowed_datatypes.has_key?(type)
