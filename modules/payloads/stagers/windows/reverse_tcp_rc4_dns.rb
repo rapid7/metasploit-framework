@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
@@ -32,7 +33,14 @@ module Metasploit3
 			'Stager'        =>
 				{
 					'RequiresMidstager' => false,
-					'Offsets' => { 'HostName' => [ 248, '' ], 'LPORT' => [ 212, 'n' ], 'ReverseConnectRetries' => [ 207, 'C'], 'XORKey' => [ 329, '' ], 'RC4Key' => [ 393, '' ]  },
+					'Offsets' =>
+						{
+							'HostName' => [ 248, '' ],
+							'LPORT' => [ 212, 'n' ],
+							'ReverseConnectRetries' => [ 207, 'C'],
+							'XORKey' => [ 329, '' ],
+							'RC4Key' => [ 393, '' ]
+						},
 					'Payload' =>
 						# Name: stager_reverse_tcp_rc4_dns
 						# Length: 480 bytes

