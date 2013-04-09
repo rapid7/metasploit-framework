@@ -19,7 +19,7 @@ init:
   inc al                 ; increase byte to write (EDI is increased automatically)
   jnz init               ; loop until we wrap around
   sub edi, 0x100         ; restore EDI
-  
+
   ; permute S-box according to key
   xor ebx, ebx           ; Clear EBX (EAX is already cleared)
 permute:
@@ -32,8 +32,8 @@ permute:
   mov [edi+eax], dl
   inc al                 ; AL += 1 until we wrap around
   jnz permute
-  
-  
+
+
   ; decryption loop
   xor ebx, ebx           ; Clear EBX (EAX is already cleared)
 decrypt:

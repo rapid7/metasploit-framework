@@ -8,7 +8,7 @@
 ; c1.encrypt
 ; c1.key="Hello, my world!"
 ; c1.update("This is some magic data you may want to have encoded and decoded again").unpack("H*")
-; 
+;
 ; => "882353c5de0f5e6b10bf0d25c432c5d16424dc797e895f37f261c893b31d577e7e69f77e07aa576d58c7f757164e7d74988feb10f972b28dcfa1e3a2b1cc0b0fa1a8b116294b"
 ;
 ; c1 = OpenSSL::Cipher::Cipher.new('RC4')
