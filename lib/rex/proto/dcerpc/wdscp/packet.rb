@@ -20,12 +20,21 @@ class Packet
 	def add_var(name, type_mod=0, value_length=nil, array_size=0, value)
 		padding = 0
 		value_type = WDS_CONST::BASE_TYPE[WDS_CONST::VAR_TYPE_LOOKUP[name]]
-		name = name.encode('UTF-16LE').unpack('H*')[0]
+		name = Rex::Text.to_unicode(name).unpack('H*')[0]
 
 		value_length ||= value.length
 
-		len = 16 * (1 + (value_length/16)) # Variable block total size should be evenly divisible by 16.
-		@variables << [name, padding, value_type, type_mod, value_length, array_size, value].pack('H132vvvVVa%i' % len)
+		# Variable block total size should be evenly divisible by 16.
+		len = 16 * (1 + (value_length/16))
+		@variables << 
+			[	name,
+				padding,
+				value_type,
+				type_mod,
+				value_length,
+				array_size,
+				value
+			].pack('H132vvvVVa%i' % len)
 	end
 
 	def create
@@ -37,11 +46,12 @@ class Packet
 			packet_size += var.length
 		end
 
-		packet_size += 16 # variables + operation
+		# variables + operation
+		packet_size += 16
 
 		# These bytes are not part of the spec but are not part of DCERPC according to Wireshark
 		# Perhaps something from MSRPC specific? Basically length of the WDSCP packet twice...
-		packet << [packet_size+40].pack('Q')*2
+		packet << Rex::Text.pack_int64le(packet_size+40)*2
 		packet << create_endpoint_header(packet_size)
 		packet << create_operation_header(packet_size, var_count, @packet_type, @opcode)
 		packet.concat(@variables)
@@ -50,21 +60,21 @@ class Packet
 	end
 
 	def create_operation_header(packet_size, var_count, packet_type=:REQUEST, opcode)
-		return 	[	packet_size,				# PacketSize
-				256, 					# Version
-				packet_type,				# Packet_Type
-				0, 					# Padding
-				opcode,				 	# Opcode
-				var_count,				# Variable Count
+		return 	[	packet_size, # PacketSize
+				256,         # Version
+				packet_type, # Packet_Type
+				0,           # Padding
+				opcode,      # Opcode
+				var_count,   # Variable Count
 			].pack('VvCCVV')
 	end
 
 	def create_endpoint_header(packet_size)
-		return [	40,				# Header_Size
-				256,				# Version
-				packet_size,			# Packet_Size - This doesn't differ from operation header despite the spec...
-				WDS_CONST::OS_DEPLOYMENT_GUID, 	# GUID
-				"\x00"*16,			# Reserved
+		return [	40,                            # Header_Size
+				256,                           # Version
+				packet_size,                   # Packet_Size - This doesn't differ from operation header despite the spec...
+				WDS_CONST::OS_DEPLOYMENT_GUID, # GUID
+				"\x00"*16,                     # Reserved
 			].pack('vvVa16a16')
 	end
 end

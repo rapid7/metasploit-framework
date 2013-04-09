@@ -66,16 +66,16 @@ class Metasploit3 < Msf::Auxiliary
 	def query_host(rhost)
 		# Create a handler with our UUID and Transfer Syntax
 		self.handle = Rex::Proto::DCERPC::Handle.new(
-								[
-									WDS_CONST::WDSCP_RPC_UUID,
-									'1.0',
-									'71710533-beba-4937-8319-b5dbef9ccc36',
-									1
-								],
-								'ncacn_ip_tcp',
-								rhost,
-								[datastore['RPORT']]
-							)
+			[
+				WDS_CONST::WDSCP_RPC_UUID,
+				'1.0',
+				'71710533-beba-4937-8319-b5dbef9ccc36',
+				1
+			],
+			'ncacn_ip_tcp',
+			rhost,
+			[datastore['RPORT']]
+		)
 
 		print_status("Binding to #{handle} ...")
 
