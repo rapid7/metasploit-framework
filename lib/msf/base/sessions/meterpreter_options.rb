@@ -16,7 +16,7 @@ module MeterpreterOptions
 				OptString.new('AutoRunScript', [false, "A script to run automatically on session creation.", '']),
 				OptBool.new('AutoSystemInfo', [true, "Automatically capture system information on initialization.", true]),
 				OptBool.new('EnableUnicodeEncoding', [true, "Automatically encode UTF-8 strings as hexadecimal", true]),
-				OptEnum.new('TransportSSLVersion', [false, "Use SSLv3 or TLSv1 for meterpreter session", 'TLSv1', %w(TLSv1 SSLv3)])
+				OptEnum.new('TransportSSLVersion', [false, "Use SSLv3 or TLSv1 for meterpreter session", 'SSLv3', %w(TLSv1 SSLv3)])
 			], self.class)
 	end
 
