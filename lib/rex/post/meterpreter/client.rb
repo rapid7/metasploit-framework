@@ -119,6 +119,7 @@ class Client
 		self.send_keepalives  = true
 		# self.encode_unicode   = opts.has_key?(:encode_unicode) ? opts[:encode_unicode] : true
 		self.encode_unicode = false
+		self.transport_ssl_version    = (opts[:transport_ssl_version] || :SSLv3).intern
 
 		if opts[:passive_dispatcher]
 			initialize_passive_dispatcher
@@ -200,66 +201,67 @@ class Client
 		self.sock.extend(::Rex::Socket::Tcp)
 	end
 
-	def generate_ssl_context
+	def generate_ssl_context(key_length=1024)
 		@@ssl_mutex.synchronize do
 		if not @@ssl_ctx
 
-		wlog("Generating SSL certificate for Meterpreter sessions")
+			wlog("Generating SSL certificate for Meterpreter sessions")
 
-		key  = OpenSSL::PKey::RSA.new(1024){ }
-		cert = OpenSSL::X509::Certificate.new
-		cert.version = 2
-		cert.serial  = rand(0xFFFFFFFF)
+			key  = OpenSSL::PKey::RSA.new(key_length)
+			cert = OpenSSL::X509::Certificate.new
+			cert.version = 2
+			cert.serial  = rand(0xFFFFFFFF)
 
-		# Depending on how the socket was created, getsockname will
-		# return either a struct sockaddr as a String (the default ruby
-		# Socket behavior) or an Array (the extend'd Rex::Socket::Tcp
-		# behavior). Avoid the ambiguity by always picking a random
-		# hostname. See #7350.
-		subject_cn = Rex::Text.rand_hostname
+			# Depending on how the socket was created, getsockname will
+			# return either a struct sockaddr as a String (the default ruby
+			# Socket behavior) or an Array (the extend'd Rex::Socket::Tcp
+			# behavior). Avoid the ambiguity by always picking a random
+			# hostname. See #7350.
+			subject_cn = Rex::Text.rand_hostname
 
-		subject = OpenSSL::X509::Name.new([
-				["C","US"],
-				['ST', Rex::Text.rand_state()],
-				["L", Rex::Text.rand_text_alpha(rand(20) + 10)],
-				["O", Rex::Text.rand_text_alpha(rand(20) + 10)],
-				["CN", subject_cn],
-			])
-		issuer = OpenSSL::X509::Name.new([
-				["C","US"],
-				['ST', Rex::Text.rand_state()],
-				["L", Rex::Text.rand_text_alpha(rand(20) + 10)],
-				["O", Rex::Text.rand_text_alpha(rand(20) + 10)],
-				["CN", Rex::Text.rand_text_alpha(rand(20) + 10)],
-			])
+			subject = OpenSSL::X509::Name.new([
+					["C","US"],
+					['ST', Rex::Text.rand_state()],
+					["L", Rex::Text.rand_text_alpha(rand(20) + 10)],
+					["O", Rex::Text.rand_text_alpha(rand(20) + 10)],
+					["CN", subject_cn],
+				])
+			issuer = OpenSSL::X509::Name.new([
+					["C","US"],
+					['ST', Rex::Text.rand_state()],
+					["L", Rex::Text.rand_text_alpha(rand(20) + 10)],
+					["O", Rex::Text.rand_text_alpha(rand(20) + 10)],
+					["CN", Rex::Text.rand_text_alpha(rand(20) + 10)],
+				])
 
-		cert.subject = subject
-		cert.issuer = issuer
-		cert.not_before = Time.now - (3600 * 365) + rand(3600 * 14)
-		cert.not_after = Time.now + (3600 * 365) + rand(3600 * 14)
-		cert.public_key = key.public_key
-		ef = OpenSSL::X509::ExtensionFactory.new(nil,cert)
-		cert.extensions = [
-			ef.create_extension("basicConstraints","CA:FALSE"),
-			ef.create_extension("subjectKeyIdentifier","hash"),
-			ef.create_extension("extendedKeyUsage","serverAuth"),
-			ef.create_extension("keyUsage","keyEncipherment,dataEncipherment,digitalSignature")
-		]
-		ef.issuer_certificate = cert
-		cert.add_extension ef.create_extension("authorityKeyIdentifier", "keyid:always,issuer:always")
-		cert.sign(key, OpenSSL::Digest::SHA1.new)
+			cert.subject = subject
+			cert.issuer = issuer
+			cert.not_before = Time.now - (3600 * 365) + rand(3600 * 14)
+			cert.not_after = Time.now + (3600 * 365) + rand(3600 * 14)
+			cert.public_key = key.public_key
+			ef = OpenSSL::X509::ExtensionFactory.new(nil,cert)
+			cert.extensions = [
+				ef.create_extension("basicConstraints","CA:FALSE"),
+				ef.create_extension("subjectKeyIdentifier","hash"),
+				ef.create_extension("extendedKeyUsage","serverAuth"),
+				ef.create_extension("keyUsage","keyEncipherment,dataEncipherment,digitalSignature")
+			]
+			ef.issuer_certificate = cert
+			cert.add_extension ef.create_extension("authorityKeyIdentifier", "keyid:always,issuer:always")
+			cert.sign(key, OpenSSL::Digest::SHA1.new)
+			session_id_context = Rex::Text.rand_text(16)
+			ctx = OpenSSL::SSL::SSLContext.new(self.transport_ssl_version.intern)
+			ctx.key = key
+			ctx.cert = cert
 
-		ctx = OpenSSL::SSL::SSLContext.new(:SSLv3)
-		ctx.key = key
-		ctx.cert = cert
+			ctx.session_id_context = Rex::Text.rand_text(16)
 
-		ctx.session_id_context = Rex::Text.rand_text(16)
+			wlog("Generated SSL certificate for Meterpreter sessions")
 
-		wlog("Generated SSL certificate for Meterpreter sessions")
-
-		@@ssl_ctx = ctx
-
-		end # End of if not @ssl_ctx
+			@@ssl_ctx = ctx
+		else
+			@@ssl_ctx.ssl_version = self.transport_ssl_version.intern
+		end # End of ssl_ctx conditional
 		end # End of mutex.synchronize
 
 		@@ssl_ctx
@@ -469,6 +471,10 @@ class Client
 	# Flag indicating whether to hex-encode UTF-8 file names and other strings
 	#
 	attr_accessor :encode_unicode
+	#
+	# SSL version to use
+	#
+	attr_accessor :transport_ssl_version
 	#
 	# A list of the commands
 	#

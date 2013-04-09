@@ -185,6 +185,11 @@ module Msf::Payload::Stager
 	# @param (see Handler#create_session)
 	# @return (see Handler#create_session)
 	def handle_connection_stage(conn, opts={})
+		# Allow passing session transport information down from user level
+		# At present only used with standard meterpreters to switch between TLS and SSL
+		if datastore['TransportSSLVersion'] and not opts.has_key?(:transport_ssl_version)
+			opts.merge!({:transport_ssl_version => datastore['TransportSSLVersion'].intern})
+		end
 		create_session(conn, opts)
 	end
 
