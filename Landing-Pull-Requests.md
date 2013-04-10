@@ -244,7 +244,7 @@ This last alias just spits out the format I need to create a custom pull request
 
 https://github.com/todb-r7/metasploit-framework/pull/new/schierlm:javapayload-maven...pr1217-fix-gitignore-conflict
 
-I opened that in a browser, and ended up with https://github.com/schierlm/metasploit-framework/pull/1 . Once @schierlm landed it on his branch, all I had to do was `git fetch` to get the change reflected in origin/pr/1217, and I could then resume working on a local branch.
+I opened that in a browser, and ended up with https://github.com/schierlm/metasploit-framework/pull/1 . Once @schierlm landed it on his branch, all I had to do was `git fetch` to get the change reflected in origin/pr/1217, and I could then resume working.
 
 ## Pre-merge testing: Landing straight-away
 
