@@ -5,9 +5,9 @@ Metasploit is built incrementally by the community through GitHub's [Pull Reques
 # The short story
 
  - Add the `fetch = +refs/pull/*/head:refs/remotes/origin/pr/*` line to your .git/config
- - Always, always `merge --no-ff` so you can reference the PR number.
+ - Always, always `merge --no-ff` along the way so you can reference the PR number in a meaningful merge commit message.
  - Merge to a landing branch, then merge *that* to master, so you can isolate your work.
- - Often you need to make changes. Examples coming soon!
+ - Often you need to make changes. More examples coming soon!
 
 # Prep your local clone.
 
@@ -57,7 +57,7 @@ From github-r7:rapid7/metasploit-framework
 
 Note the three PRs referenced at the top -- these are PRs that have changed since the last time you fetched from origin. Pretty handy.
 
-# Pre-merge testing
+# Pre-merge testing: Branching from master
 
 Since we don't just merge blindly, create a local branch for testing, and merge there. Something like so:
 
@@ -114,7 +114,7 @@ $ tools/msftidy.rb modules/auxiliary/scanner/postgres/postgres_dbname_flag_injec
 
 Then, review the code, make sure everything's great.
 
-# Merge to master
+# Merge back to master
 
 ````
 (landing-pr1702) todb@mazikeen:~/git/rapid7/metasploit-framework
@@ -202,15 +202,70 @@ Wow, glad this is fixed!
 [FixRM #1234]
 ````
 
-However, things are rarely that straightforward. The next few examples will detail when things need fixing along the way. Since this doc is being writing against live, real examples, we'll need to wait a sec for these examples to come up.
+However, things are rarely that straightforward. The next few examples will detail when things need fixing along the way. Since this doc is being writing against live, real examples, you'll need to wait a sec for these examples to come up.
 
-# When you want to make changes
+# Pre-merge testing: Branching from the PR
 
-Rarely are pull requests landed without modification.
+A (probably cleaner) strategy is to start your pre-merge testing on the pull request in isolation. In this case, you will want to stick to something like the procedure like the one above, except you will **start** with the pull request. For example, something like:
 
-## When the changes are simple
+````
+$ git checkout origin/pr/1217
+Note: checking out 'origin/pr/1217'.
 
-*Give an example of just editing in landing-XXXX and then merging from there. Not complicated.*
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by performing another checkout.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -b with the checkout command again. Example:
+
+  git checkout -b new_branch_name
+
+HEAD is now at 9e499e5... Make BindTCP test more robust
+((no branch)) todb@mazikeen:~/git/rapid7/metasploit-framework
+$ git checkout -b landing-1217
+````
+
+Now, you're on a branch identical to the original pull request, and can move on from there. You can make our changes, isolated from master, and then either send them back to the contributor (this requires looking up the original contributor's GitHub username and branch name on GitHub), or just land them directly if the changes are minor. In this case, I wanted to send some changes back to the contributor.
+
+````
+$ gvim .gitignore
+[... make some changes and some commits ...]
+(landing-1217) todb@mazikeen:~/git/rapid7/metasploit-framework
+$ git checkout -b pr1217-fix-gitignore-conflict
+Switched to a new branch 'pr1217-fix-gitignore-conflict'
+(pr1217-fix-gitignore-conflict) todb@mazikeen:~/git/rapid7/metasploit-framework
+$ git push todb-r7 
+(landing-1217) todb@mazikeen:~/git/rapid7/metasploit-framework
+$ git pr-url 
+https://github.com/YOURNAME/metasploit-framework/pull/new/HISNAME:HISBRANCH...YOURBRANCH
+````
+This last alias just spits out the format I need to create a custom pull request using GitHub's API. I fill in the blanks to get:
+
+https://github.com/todb-r7/metasploit-framework/pull/new/schierlm:javapayload-maven...pr1217-fix-gitignore-conflict
+
+I opened that in a browser, and ended up with https://github.com/schierlm/metasploit-framework/pull/1 . Once @schierlm landed it on his branch, all I had to do was `git fetch` to get the change reflected in origin/pr/1217, and I could then resume working on a local branch.
+
+## Pre-merge testing: Landing straight-away
+
+Most of the time, it's going to be something like this (currently, not a real example I can point at):
+
+````
+$ git fetch
+$ git checkout origin/pr/1234
+$ git checkout -b landing-1234
+$ gvim foo.rb bar.rb baz.rb
+$ git commit -a -m "Changes and stuff" --edit
+$ git checkout master
+$ git pull -r
+$ git merge --no-ff landing-1234
+````
+Then the merge commit message can be set to "Merging #1234, @whomever's fix to whatever"
+
+````
+$ git push origin master
+````
+Ta-da.
 
 ## When you have feedback
 
