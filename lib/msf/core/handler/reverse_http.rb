@@ -327,7 +327,7 @@ protected
 				end
 				print_status("Patched Communication Timeout at offset #{i}...")
 
-				resp.body = blob
+				resp.body = encode_stage(blob)
 
 				# Short-circuit the payload's handle_connection processing for create_session
 				create_session(cli, {
