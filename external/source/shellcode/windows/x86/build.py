@@ -75,6 +75,8 @@ def xmit( name, dump_ruby=True ):
   xmit_offset( data, "EggTag1", pack( "<L", 0xDEADDEAD ) )  # Egg tag 1
   xmit_offset( data, "EggTag2", pack( "<L", 0xC0DEC0DE ) )  # Egg tag 2
   xmit_offset( data, "EggTagSize", pack( ">H", 0x1122 ) )   # Egg tag size
+  xmit_offset( data, "RC4Key", "RC4KeyMetasploit")          # RC4 key
+  xmit_offset( data, "XORKey", "XORK")                      # XOR key
   if( name.find( "egghunter" ) >= 0 ):
 	  null_count = data.count( "\x00" )
 	  if( null_count > 0 ):
