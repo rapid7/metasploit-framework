@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
-##
 # $Id$
-##
 
 require 'msf/base/sessions/command_shell_options'
 

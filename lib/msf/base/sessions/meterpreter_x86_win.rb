@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
-##
 # $Id$
-##
 
 require 'msf/base/sessions/meterpreter'
 require 'msf/windows_error'

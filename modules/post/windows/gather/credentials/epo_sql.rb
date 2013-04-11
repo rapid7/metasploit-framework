@@ -133,7 +133,7 @@ class Metasploit3 < Msf::Post
 			print_good("Domain: #{user_domain}");
 			full_user = "#{user_domain}\\#{user_name}"
 		end
-		print_good("User: #{user_name}")
+		print_good("User: #{full_user}")
 		print_good("Password: #{plaintext_passwd}")
 
 		if (db_ip)

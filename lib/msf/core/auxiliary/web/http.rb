@@ -313,8 +313,8 @@ class Auxiliary::Web::HTTP
 	# This is bad but we can't anticipate the gazilion different types of network
 	# i/o errors between Rex and Errno.
 	rescue => e
-		print_error e.to_s
-		e.backtrace.each { |l| print_error l }
+		elog e.to_s
+		e.backtrace.each { |l| elog l }
 		Response.empty
 	end
 

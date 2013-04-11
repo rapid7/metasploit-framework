@@ -1,4 +1,0 @@
-$ erubis -c '{var: "AAA\n"}' tailnewline.rhtml
-<div>
-AAA
-</div>

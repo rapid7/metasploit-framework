@@ -1,4 +1,15 @@
 # -*- coding: binary -*-
+
+#
+# Rex
+#
+
+require 'rex/ui/text/output/buffer/stdout'
+
+#
+# Project
+#
+
 require 'msf/ui/console/command_dispatcher/encoder'
 require 'msf/ui/console/command_dispatcher/exploit'
 require 'msf/ui/console/command_dispatcher/nop'
@@ -2532,11 +2543,12 @@ class Core
 		# redirect output after saving the old ones and getting a new output buffer to use for redirect
 		orig_driver_output = orig_driver.output
 		orig_driver_input = orig_driver.input
-		# we use a rex buffer but add a write method to the instance, which is required in order to be valid $stdout
+
+		# we use a rex buffer but add a write method to the instance, which is
+		# required in order to be valid $stdout
 		temp_output = Rex::Ui::Text::Output::Buffer.new
-		def temp_output.write(msg = '')
-			self.print_raw(msg)
-		end
+		temp_output.extend Rex::Ui::Text::Output::Buffer::Stdout
+
 		orig_driver.init_ui(orig_driver_input,temp_output)
 		# run the desired command to be grepped
 		orig_driver.run_single(cmd)

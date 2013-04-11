@@ -110,7 +110,15 @@ Non-scanner aux modules use run().
 Submitting Your Code
 ====================
 
-The process for submitting new modules via GitHub is documented here:
+To get started with a Metasploit Framework source clone, simply:
+
+  - Fork rapid7/metasploit-framework to your GitHub account
+  - git clone git://github.com/YourName/metasploit-framework.git
+  - gem install bundler
+  - bundle install
+
+More detailed documentation regarding the process for submitting new
+modules via GitHub is documented here:
 
 https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment
 

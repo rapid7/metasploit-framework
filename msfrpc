@@ -30,7 +30,6 @@ arguments = Rex::Parser::Arguments.new(
 	"-p" => [ true,  "Connect to the specified port instead of 55553"       ],
 	"-U" => [ true,  "Specify the username to access msfrpcd"               ],
 	"-P" => [ true,  "Specify the password to access msfrpcd"               ],
-	"-t" => [ true,  "Type of RPC daemon, [XML|Msg]"                        ],
 	"-S" => [ false, "Disable SSL on the RPC socket"                        ],
 	"-h" => [ false, "Help banner"                                          ]
 )

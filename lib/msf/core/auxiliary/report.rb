@@ -271,7 +271,7 @@ module Auxiliary::Report
 		File.open(full_path, "wb") { |fd| fd.write(data) }
 
 		# This will probably evolve into a new database table
-		framework.db.report_note(
+		report_note(
 			:data => full_path.dup,
 			:type => "#{ltype}.localpath"
 		)

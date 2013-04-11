@@ -25,5 +25,22 @@ end
 
 RSpec.configure do |config|
   config.mock_with :rspec
+
+  # Can't use factory_girl_rails since not using rails, so emulate
+  # factory_girl.set_factory_paths initializer and after_initialize for
+  # FactoryGirl::Railtie
+  config.before(:suite) do
+	  # Need to load Mdm models first so factories can use them
+	  MetasploitDataModels.require_models
+
+		FactoryGirl.definition_file_paths = [
+				MetasploitDataModels.root.join('spec', 'factories'),
+				# Have metasploit-framework's definition file path last so it can
+				# modify gem factories.
+		    Metasploit::Framework.root.join('spec', 'factories')
+		]
+
+		FactoryGirl.find_definitions
+	end
 end
 

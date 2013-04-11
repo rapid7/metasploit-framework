@@ -11,11 +11,10 @@ class Metasploit4 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Testing meterpreter stuff',
+				'Name'          => 'Testing Meterpreter Stuff',
 				'Description'   => %q{ This module will test meterpreter API methods },
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'egypt'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows', 'linux', 'java' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
@@ -241,6 +240,30 @@ class Metasploit4 < Msf::Post
 			session.fs.file.rm(remote)
 			res
 		end
+		if session.commands.include?("stdapi_fs_file_move")
+			it "should move files" do
+				res = true
+
+				# Make sure we don't have leftovers from a previous run
+				session.fs.file.rm("meterpreter-test") rescue nil
+				session.fs.file.rm("meterpreter-test-moved") rescue nil
+
+				# touch a new file
+				fd = session.fs.file.open("meterpreter-test", "wb")
+				fd.close
+
+				session.fs.file.mv("meterpreter-test", "meterpreter-test-moved")
+				entries = session.fs.dir.entries
+				res &&= entries.include?("meterpreter-test-moved")
+				res &&= !entries.include?("meterpreter-test")
+
+				# clean up
+				session.fs.file.rm("meterpreter-test") rescue nil
+				session.fs.file.rm("meterpreter-test-moved") rescue nil
+
+				res
+			end
+		end
 
 		it "should do md5 and sha1 of files" do
 			res = true
@@ -270,6 +293,12 @@ class Metasploit4 < Msf::Post
 
 	end
 
+=begin
+	# Sniffer currently crashes on any OS that requires driver signing,
+	# i.e. everything vista and newer
+	#
+	# Disable loading it for now to make it through the rest of the tests.
+	#
 	def test_sniffer
 		begin
 			session.core.use "sniffer"
@@ -285,6 +314,7 @@ class Metasploit4 < Msf::Post
 
 		# XXX: how do we test this more thoroughly in a generic way?
 	end
+=end
 
 	def cleanup
 		vprint_status("Cleanup: changing working directory back to #{@old_pwd}")

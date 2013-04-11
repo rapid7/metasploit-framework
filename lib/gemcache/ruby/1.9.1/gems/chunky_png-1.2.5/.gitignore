@@ -1,9 +1,0 @@
-.DS_Store
-spec/resources/_*.png
-/pkg
-/tmp
-/doc
-/.yardoc
-/.bundle
-Gemfile.lock
-*.rbc

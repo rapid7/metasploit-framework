@@ -107,11 +107,11 @@ class DLL
 	# When the new function is called it will return a list containing the
 	# return value and all inout params.  See #call_function.
 	#
-	def add_function(name, return_type, params, windows_name=nil)
+	def add_function(name, return_type, params, windows_name=nil, calling_conv="stdcall")
 		if windows_name == nil
 			windows_name = name
 		end
-		@functions[name] = DLLFunction.new(return_type, params, windows_name)
+		@functions[name] = DLLFunction.new(return_type, params, windows_name, calling_conv)
 	end
 
 	private
@@ -257,6 +257,7 @@ class DLL
 
 		request.add_tlv(TLV_TYPE_RAILGUN_DLLNAME, @dll_path )
 		request.add_tlv(TLV_TYPE_RAILGUN_FUNCNAME, function.windows_name)
+		request.add_tlv(TLV_TYPE_RAILGUN_CALLCONV, function.calling_conv)
 
 		response = client.send_request(request)
 

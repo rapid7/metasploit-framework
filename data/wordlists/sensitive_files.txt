@@ -1,4 +1,5 @@
 /etc/passwd
+/etc/shadow
 /etc/groups
 /etc/mysql.conf
 /etc/mysql/my.cnf
@@ -11,3 +12,4 @@
 /etc/fstab
 /etc/inetd.conf
 /etc/xinetd.conf
+/proc/version

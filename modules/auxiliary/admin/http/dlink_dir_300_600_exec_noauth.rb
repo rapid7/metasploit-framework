@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 				In order to get a remote shell the telnetd could be started without any
 				authentication.
 			},
-			'Author'          => [ 'm-1-k-3' ],
+			'Author'          => [ 'Michael Messner <devnull[at]s3cur1ty.de>' ],
 			'License'         => MSF_LICENSE,
 			'References'      =>
 				[

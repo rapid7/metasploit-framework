@@ -1,5 +1,0 @@
-User-agent: *
-Disallow: /softwaremap/ # This is an infinite virtual URL space
-Disallow: /statcvs/ # This is an infinite virtual URL space
-Disallow: /usage/ # This is an infinite virtual URL space
-Disallow: /wiki/ # This is an infinite virtual URL space

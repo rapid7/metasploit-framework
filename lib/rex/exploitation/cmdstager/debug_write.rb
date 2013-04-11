@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-##
-# $Id: debug_write.rb 12595 2011-05-12 18:33:49Z jduck $
-##
 
 require 'rex/text'
 require 'rex/arch'

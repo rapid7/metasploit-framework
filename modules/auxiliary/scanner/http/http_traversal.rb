@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         =>
 				[
 					'Ewerson Guimaraes(Crash) <crash[at]dclabs.com.br>',
-					'm-1-k-3 <michael.messner[at]integralis.com>',
+					'Michael Messner <devnull[at]s3cur1ty.de>',
 					'et <et[at]cyberspace.org>',
 					'sinn3r'
 				],

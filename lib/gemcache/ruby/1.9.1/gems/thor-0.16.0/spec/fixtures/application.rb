@@ -1,2 +1,0 @@
-class Application < Base
-end

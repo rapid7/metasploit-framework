@@ -51,11 +51,6 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		unless session.platform == "x64/win64"
-			print_error("Does not work in x86 meterpreter (use x64 instead) see: http://dev.metasploit.com/redmine/issues/7639");
-			return
-		end
-
 		print_status("Connecting to default LDAP server")
 		session_handle = bind_default_ldap_server
 

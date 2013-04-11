@@ -1,9 +1,0 @@
-en:
-  errors:
-    messages:
-      carrierwave_processing_error: failed to be processed
-      carrierwave_integrity_error: is not of an allowed file type
-      extension_white_list_error: "You are not allowed to upload %{extension} files, allowed types: %{allowed_types}"
-      rmagick_processing_error: "Failed to manipulate with rmagick, maybe it is not an image? Original Error: %{e}"
-      mime_types_processing_error: "Failed to process file with MIME::Types, maybe not valid content-type? Original Error: %{e}"
-      mini_magick_processing_error: "Failed to manipulate with MiniMagick, maybe it is not an image? Original Error: %{e}"
