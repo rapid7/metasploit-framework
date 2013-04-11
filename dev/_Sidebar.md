@@ -9,6 +9,7 @@
 * [Forking Metasploit](#fork)
 * [Setting your Prompt](#prompt)
 * [The Ruby Gems Bundle](#bundle)
+* [The Database](#database)
 * [Keeping in Sync](#sync)
 * [Pull Requests](#pull)
 * [Rspec Tests](#rspec)

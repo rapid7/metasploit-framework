@@ -289,6 +289,12 @@ From that point on, you'll want to occasionally run `bundle install` whenever th
 
 You do *not* want to run `bundle update` by itself, ever, unless you are very serious about updating every Gem in your gemset to some unknown bleeding-edge version.
 
+<h2 id="database">Configure your database</h2>
+
+While it's possible to run Metasploit without a database, it's growing increasingly uncommon to do so. The fine folks over at the Fedora Project Wiki have a snappy guide to get your database configured for the first time, here: https://fedoraproject.org/wiki/Metasploit_Postgres_Setup
+
+Once that's complete, rename your [database.yml.example](https://github.com/rapid7/metasploit-framework/blob/master/config/database.yml.example) file to 'database.yml' and be sure to fill in at least the "development" and "test" sections.
+
 ## Start Metasploit
 
 Now that you have a source checkout of Metasploit and you have all your prerequisite components from apt, rvm, and bundler, you should be able to run it straight from your git clone with `./msfconsole -L`:
@@ -298,6 +304,10 @@ Now that you have a source checkout of Metasploit and you have all your prerequi
 Note that if you need resources that only root has access to, you'll want to run `rvmsudo ./msfconsole -L` instead.
 
 <h2 id="sync">Keeping in sync</h2>
+
+To start off connected to a database, you will want to run something like `./msfconsole -L -y config/database.yml -e development`
+
+[[/screens/database01.png]]
 
 One of the main reasons to use Git and GitHub is this whole idea of branching in order to keep all the code changes straight. In other source control management systems, branching quickly becomes a nightmare, but in Git, branching happens all the time.
 
