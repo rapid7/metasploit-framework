@@ -72,7 +72,7 @@ begin
 		self.sslctx  = OpenSSL::SSL::SSLContext.new(version)
 
 		# Configure the SSL context
-		# TODO: Allow the user to specify the verify mode and callback
+		# TODO: Allow the user to specify the verify mode callback
 		# Valid modes:
 		#  VERIFY_CLIENT_ONCE
 		#  VERIFY_FAIL_IF_NO_PEER_CERT

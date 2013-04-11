@@ -68,6 +68,14 @@ class Rex::Socket::Parameters
 	#
 	# 	A file containing an SSL certificate (for server sockets)
 	#
+	# [SSLCipher]
+	#
+	#   Specify SSL cipher to use for context
+	#
+	# [SSLVerifyMode]
+	#
+	# 	Specify SSL cerificate verification mechanism
+	#
 	# [Proxies]
 	#
 	#	List of proxies to use.
@@ -355,7 +363,11 @@ class Rex::Socket::Parameters
 	#
 	# The SSL certificate, in pem format, stored as a string.  See +SslTcpServer#make_ssl+
 	#
-	attr_accessor :ssl_cert
+	attr_accessor :ssl_certa
+	#
+	# The SSL context verification mechanism
+	#
+	attr_accessor :ssl_verify_mode
 	#
 	# Whether we should use IPv6
 	#
