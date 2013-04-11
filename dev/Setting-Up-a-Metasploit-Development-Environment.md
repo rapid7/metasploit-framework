@@ -440,7 +440,7 @@ $ gem bundle install
 $ rake spec # Do this in the top-level Metasploit root
 ````
 
-For more on rpsec (which is the de-facto testing standard for Ruby projects), see http://rspec.info/ . To add tests, drop them someplace sensible in the `spec` directory, and name your tests `whatever_spec.rb`. 
+For more on rspec (which is the de-facto testing standard for Ruby projects), see http://rspec.info/ . To add tests, drop them someplace sensible in the `spec` directory, and name your tests `whatever_spec.rb`. 
 
 Adding rspec tests with your functional changes significantly increases your chances of getting your pull request landed in a timely manner.
 
