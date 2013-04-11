@@ -363,7 +363,7 @@ class Rex::Socket::Parameters
 	#
 	# The SSL certificate, in pem format, stored as a string.  See +SslTcpServer#make_ssl+
 	#
-	attr_accessor :ssl_certa
+	attr_accessor :ssl_cert
 	#
 	# The SSL context verification mechanism
 	#
