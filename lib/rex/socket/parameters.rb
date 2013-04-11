@@ -145,6 +145,11 @@ class Rex::Socket::Parameters
 			self.ssl_version = hash['SSLVersion']
 		end
 
+		supported_ssl_verifiers = %W{CLIENT_ONCE FAIL_IF_NO_PEER_CERT NONE PEER}
+		if (hash['SSLVerifyMode'] and supported_ssl_verifiers.include? hash['SSLVerifyMode'])
+			self.ssl_verify_mode = hash['SSLVerifyMode']
+		end
+
 		if (hash['SSLCipher'])
 			self.ssl_cipher = hash['SSLCipher']
 		end
