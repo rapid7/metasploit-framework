@@ -1,0 +1,1 @@
+You probably are looking for [this page](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment)
