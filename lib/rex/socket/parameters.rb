@@ -68,6 +68,14 @@ class Rex::Socket::Parameters
 	#
 	# 	A file containing an SSL certificate (for server sockets)
 	#
+	# [SSLCipher]
+	#
+	#   Specify SSL cipher to use for context
+	#
+	# [SSLVerifyMode]
+	#
+	# 	Specify SSL cerificate verification mechanism
+	#
 	# [Proxies]
 	#
 	#	List of proxies to use.
@@ -143,6 +151,11 @@ class Rex::Socket::Parameters
 		supported_ssl_versions = ['SSL2', 'SSL23', 'TLS1', 'SSL3', :SSLv2, :SSLv3, :SSLv23, :TLSv1]
 		if (hash['SSLVersion'] and supported_ssl_versions.include? hash['SSLVersion'])
 			self.ssl_version = hash['SSLVersion']
+		end
+
+		supported_ssl_verifiers = %W{CLIENT_ONCE FAIL_IF_NO_PEER_CERT NONE PEER}
+		if (hash['SSLVerifyMode'] and supported_ssl_verifiers.include? hash['SSLVerifyMode'])
+			self.ssl_verify_mode = hash['SSLVerifyMode']
 		end
 
 		if (hash['SSLCipher'])
@@ -351,6 +364,10 @@ class Rex::Socket::Parameters
 	# The SSL certificate, in pem format, stored as a string.  See +SslTcpServer#make_ssl+
 	#
 	attr_accessor :ssl_cert
+	#
+	# The SSL context verification mechanism
+	#
+	attr_accessor :ssl_verify_mode
 	#
 	# Whether we should use IPv6
 	#

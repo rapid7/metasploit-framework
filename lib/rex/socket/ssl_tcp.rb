@@ -72,13 +72,18 @@ begin
 		self.sslctx  = OpenSSL::SSL::SSLContext.new(version)
 
 		# Configure the SSL context
-		# TODO: Allow the user to specify the verify mode and callback
+		# TODO: Allow the user to specify the verify mode callback
 		# Valid modes:
 		#  VERIFY_CLIENT_ONCE
 		#  VERIFY_FAIL_IF_NO_PEER_CERT
 		#  VERIFY_NONE
 		#  VERIFY_PEER
-		self.sslctx.verify_mode = OpenSSL::SSL::VERIFY_PEER
+		if params.ssl_verify_mode
+			self.sslctx.verify_mode = OpenSSL::SSL.const_get("VERIFY_#{params.ssl_verify_mode}".intern)
+		else
+			# Could also do this as graceful faildown in case a passed verify_mode is not supported
+			self.sslctx.verify_mode = OpenSSL::SSL::VERIFY_PEER
+		end
 		self.sslctx.options = OpenSSL::SSL::OP_ALL
 		if params.ssl_cipher
 			self.sslctx.ciphers = params.ssl_cipher
