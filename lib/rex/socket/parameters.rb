@@ -313,7 +313,7 @@ class Rex::Socket::Parameters
 	attr_accessor :ssl
 
 	# What version of SSL to use (SSL2, SSL3, SSL23, TLS1)
-	# @return [Htring,Symbol]
+	# @return [String,Symbol]
 	attr_accessor :ssl_version
 
 	# What specific SSL Cipher(s) to use, may be a string containing the cipher
