@@ -37,9 +37,12 @@ public class CommandManager {
 			apiVersion = ExtensionLoader.V1_6;
 		} catch (Throwable t) {
 		}
-		int vmVersion = System.getProperty("java.version").charAt(2) - '2' + ExtensionLoader.V1_2;
-		if (vmVersion >= ExtensionLoader.V1_2 && vmVersion < apiVersion)
-			apiVersion = vmVersion;
+		String javaversion = System.getProperty("java.version");
+		if (javaversion != null && javaversion.length() > 2) {
+			int vmVersion = javaversion.charAt(2) - '2' + ExtensionLoader.V1_2;
+			if (vmVersion >= ExtensionLoader.V1_2 && vmVersion < apiVersion)
+				apiVersion = vmVersion;
+		}
 		this.javaVersion = apiVersion;
 
 		// load core commands

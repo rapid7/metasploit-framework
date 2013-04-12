@@ -46,6 +46,8 @@
 		<module>javapayload</module>
 		<module>meterpreter</module>
 		<module>version-compatibility-check</module>
+        <module>androidpayload/app</module>
+        <module>androidpayload/library</module>
 	</modules>
 	<prerequisites>
 		<maven>3.0</maven>
