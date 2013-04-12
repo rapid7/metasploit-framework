@@ -145,7 +145,7 @@ class Msftidy
 		end
 	end
 
-	def check_verbose_option	
+	def check_verbose_option
 		if @source =~ /Opt(Bool|String).new\([[:space:]]*('|")VERBOSE('|")[[:space:]]*,[[:space:]]*\[[[:space:]]*/
 			warn("VERBOSE Option is already part of advanced settings, no need to add it manually.")
 		end
