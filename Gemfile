@@ -7,7 +7,7 @@ gem 'activerecord'
 # Needed for some admin modules (scrutinizer_add_user.rb)
 gem 'json'
 # Database models shared between framework and Pro.
-gem 'metasploit_data_models', :git => 'git://github.com/rapid7/metasploit_data_models.git', :tag => '0.6.4'
+gem 'metasploit_data_models', '~> 0.6.14'
 # Needed by msfgui and other rpc components
 gem 'msgpack'
 # Needed by anemone crawler
