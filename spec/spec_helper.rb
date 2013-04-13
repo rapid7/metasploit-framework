@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'bundler'
-Bundler.require(:default, :test)
+Bundler.require(:default, :test, :db)
 
 # add project lib directory to load path
 spec_pathname = Pathname.new(__FILE__).dirname
