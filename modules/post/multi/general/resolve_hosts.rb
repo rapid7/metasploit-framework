@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Post
 				Resolves hostnames.
 			},
 			'License'       => MSF_LICENSE,
-			'Author'        => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk' ],
+			'Author'        => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
 			'Platform'      => [ 'win', 'linux' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
