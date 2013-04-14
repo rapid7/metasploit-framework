@@ -42,7 +42,7 @@ class Resolve
 		type = response.get_tlv_value(TLV_TYPE_ADDR_TYPE)
 		raw = response.get_tlv_value(TLV_TYPE_IP)
 
-		return raw_to_host_ip_pair(host, raw, type)
+		return raw_to_host_ip_pair(hostname, raw, type)
 	end
 
 	def resolve_hosts(hostnames)
@@ -72,7 +72,7 @@ class Resolve
 			type = types[i]
 			host = hostnames[i]
 
-			hosts << raw_to_host_ip_pair(host, raw, type)
+			hosts << raw_to_host_ip_pair(host, raw.value, type.value)
 		end
 
 		return hosts
@@ -83,13 +83,13 @@ class Resolve
 			return nil
 		end
 
-		if raw.value.empty?
+		if raw.empty?
 			ip = ""
 		else
 			if type == 2
-				ip = Rex::Socket.addr_ntoa(raw.value[0..3])
+				ip = Rex::Socket.addr_ntoa(raw[0..3])
 			else
-				ip = Rex::Socket.addr_ntoa(raw.value[0..16])
+				ip = Rex::Socket.addr_ntoa(raw[0..16])
 			end
 		end
 
