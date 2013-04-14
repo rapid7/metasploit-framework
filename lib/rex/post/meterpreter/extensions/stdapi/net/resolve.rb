@@ -96,7 +96,7 @@ class Resolve
 			if type == 2
 				ip = Rex::Socket.addr_ntoa(raw.value[0..3])
 			else
-				ip = Rex::Socket.addr_ntoa(raw.value[0..1])
+				ip = Rex::Socket.addr_ntoa(raw.value[0..16])
 			end
 		end
 
