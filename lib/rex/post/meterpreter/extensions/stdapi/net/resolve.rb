@@ -40,7 +40,6 @@ class Resolve
 		response = client.send_request(request)
 
 		type = response.get_tlv_value(TLV_TYPE_ADDR_TYPE)
-		length = response.get_tlv_value(TLV_TYPE_ADDR_LENGTH)
 		raw = response.get_tlv_value(TLV_TYPE_IP)
 
 		return raw_to_host_ip_pair(host, raw, type)
@@ -58,7 +57,6 @@ class Resolve
 		hosts = []
 		raws = []
 		types = []
-		lengths = []
 
 		# This is probably neater creating a TLV_GROUP?
 		response.each(TLV_TYPE_IP) do |raw|
@@ -69,14 +67,9 @@ class Resolve
 			types << type
 		end
 
-		response.each(TLV_TYPE_ADDR_LENGTH) do |length|
-			lengths << length
-		end
-
 		0.upto(hostnames.length - 1) do |i|
 			raw = raws[i]
 			type = types[i]
-			length = lengths[i]
 			host = hostnames[i]
 
 			hosts << raw_to_host_ip_pair(host, raw, type)
