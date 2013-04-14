@@ -32,29 +32,29 @@ class Resolve
 	def initialize(client)
 		self.client = client
 	end
-	
-	def resolve_host(hostname)
-                request = Packet.create_request('stdapi_net_resolve_host')
-                request.add_tlv(TLV_TYPE_HOST_NAME, hostname)
 
-                response = client.send_request(request)
+	def resolve_host(hostname)
+		request = Packet.create_request('stdapi_net_resolve_host')
+		request.add_tlv(TLV_TYPE_HOST_NAME, hostname)
+
+		response = client.send_request(request)
 
 		type = response.get_tlv_value(TLV_TYPE_ADDR_TYPE)
 		length = response.get_tlv_value(TLV_TYPE_ADDR_LENGTH)
 		raw = response.get_tlv_value(TLV_TYPE_IP)
-		
-                return raw_to_host_ip_pair(host, raw, type)
+
+		return raw_to_host_ip_pair(host, raw, type)
 	end
 
 	def resolve_hosts(hostnames)
-                request = Packet.create_request('stdapi_net_resolve_hosts')
-		
+		request = Packet.create_request('stdapi_net_resolve_hosts')
+
 		hostnames.each do |hostname|
-                	request.add_tlv(TLV_TYPE_HOST_NAME, hostname)
+			request.add_tlv(TLV_TYPE_HOST_NAME, hostname)
 		end
-	
-                response = client.send_request(request)
-	
+
+		response = client.send_request(request)
+
 		hosts = []
 		raws = []
 		types = []
@@ -78,10 +78,10 @@ class Resolve
 			type = types[i]
 			length = lengths[i]
 			host = hostnames[i]
-		
+
 			hosts << raw_to_host_ip_pair(host, raw, type)
-		end		
-		
+		end
+
 		return hosts
 	end
 
@@ -89,22 +89,22 @@ class Resolve
 		if raw.nil? or host.nil?
 			return nil
 		end
-		
+
 		if raw.value.empty?
 			ip = ""
 		else
-                	if type == 2
-                        	ip = Rex::Socket.addr_ntoa(raw.value[0..3])
-                	else
-                        	ip = Rex::Socket.addr_ntoa(raw.value[0..15])
-                	end
+			if type == 2
+				ip = Rex::Socket.addr_ntoa(raw.value[0..3])
+			else
+				ip = Rex::Socket.addr_ntoa(raw.value[0..1])
+			end
 		end
 
 		result = { :hostname => host, :ip => ip }
 
 		return result
 	end
-		
+
 protected
 
 	attr_accessor :client # :nodoc:
