@@ -43,13 +43,7 @@ class Resolve
 		length = response.get_tlv_value(TLV_TYPE_ADDR_LENGTH)
 		raw = response.get_tlv_value(TLV_TYPE_IP)
 		
-		if type == 2
-			ip = Rex::Socket.addr_ntoa(raw[0..3])
-		else
-			ip = Rex::Socket.addr_ntoa(raw[0..15])
-		end
-
-                return {:hostname => hostname, :ip => ip }
+                return raw_to_host_ip_pair(host, raw, type)
 	end
 
 	def resolve_hosts(hostnames)
@@ -62,49 +56,55 @@ class Resolve
                 response = client.send_request(request)
 	
 		hosts = []
-		count = 0
+		raws = []
+		types = []
+		lengths = []
+
+		# This is probably neater creating a TLV_GROUP?
 		response.each(TLV_TYPE_IP) do |raw|
-			if raw.value.empty?
-				ip = ""
-			else
-				ip = Rex:: Socket.addr_ntoa(raw.value[0..3])
-			end
-	
-			host = { 
-					:hostname => hostnames[count],
-					:ip => ip
-				}
-			hosts << host
-			count += 1
+			raws << raw
 		end
+
+		response.each(TLV_TYPE_ADDR_TYPE) do |type|
+			types << type
+		end
+
+		response.each(TLV_TYPE_ADDR_LENGTH) do |length|
+			lengths << length
+		end
+
+		0.upto(hostnames.length - 1) do |i|
+			raw = raws[i]
+			type = types[i]
+			length = lengths[i]
+			host = hostnames[i]
+		
+			hosts << raw_to_host_ip_pair(host, raw, type)
+		end		
 		
 		return hosts
 	end
-		
 
-	def hostname_to_ipv4(hostname)
-		request = Packet.create_request('stdapi_net_resolve_host_ipv4')
-		request.add_tlv(TLV_TYPE_HOST_NAME, hostname)
-		
-		response = client.send_request(request)
-		
-
-		return response
-	end
-
-	def hostnames_to_ipv4(hostnames)
-		request = Packet.create_request('stdapi_net_resolve_hosts_ipv4')
-		tlvs = []
-		hostnames.each do |hostname|
-			tlvs << Tlv(TLV_TYPE_HOST_NAME, hostname)
+	def raw_to_host_ip_pair(host, raw, type)
+		if raw.nil? or host.nil?
+			return nil
 		end
-		request.add_tlvs(tlvs)
+		
+		if raw.value.empty?
+			ip = ""
+		else
+                	if type == 2
+                        	ip = Rex::Socket.addr_ntoa(raw.value[0..3])
+                	else
+                        	ip = Rex::Socket.addr_ntoa(raw.value[0..15])
+                	end
+		end
 
-		response = client.send_request(request)
+		result = { :hostname => host, :ip => ip }
 
-		return response
+		return result
 	end
-
+		
 protected
 
 	attr_accessor :client # :nodoc:
