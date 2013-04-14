@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
 
 	def run
 		hosts = datastore['HOSTNAMES'].split(',')
-		
+
 		# Clear whitespace
 		hosts.collect{|x| x.strip!}
 
@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Post
 		response.each do |result|
 			table << [result[:hostname], result[:ip]]
 		end
-		
+
 		table.print
 	end
 end
