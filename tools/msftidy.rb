@@ -145,6 +145,12 @@ class Msftidy
 		end
 	end
 
+	def check_verbose_option
+		if @source =~ /Opt(Bool|String).new\([[:space:]]*('|")VERBOSE('|")[[:space:]]*,[[:space:]]*\[[[:space:]]*/
+			warn("VERBOSE Option is already part of advanced settings, no need to add it manually.")
+		end
+	end
+
 	def check_badchars
 		badchars = %Q|&<=>|
 
@@ -390,6 +396,7 @@ def run_checks(f_rel)
 	tidy = Msftidy.new(f_rel)
 	tidy.check_ref_identifiers
 	tidy.check_old_keywords
+	tidy.check_verbose_option
 	tidy.check_badchars
 	tidy.check_extname
 	tidy.test_old_rubies(f_rel)
