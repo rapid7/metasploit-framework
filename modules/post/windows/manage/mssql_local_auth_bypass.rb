@@ -41,8 +41,7 @@ class Metasploit3 < Msf::Post
 				OptString.new('DB_USERNAME',  [true, 'New sysadmin login', '']),
 				OptString.new('DB_PASSWORD',  [true, 'Password for new sysadmin login', '']),
 				OptString.new('INSTANCE',  [false, 'Name of target SQL Server instance', '']),
-				OptBool.new('REMOVE_LOGIN',  [false, 'Remove DB_USERNAME login from database', 'false']),
-				OptBool.new('VERBOSE',  [false, 'Set how verbose the output should be', 'false']),
+				OptBool.new('REMOVE_LOGIN',  [false, 'Remove DB_USERNAME login from database', 'false'])
 			], self.class)
 	end
 

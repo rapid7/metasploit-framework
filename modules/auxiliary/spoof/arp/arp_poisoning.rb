@@ -37,7 +37,6 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('INTERFACE', 	[false, 'The name of the interface']),
 			OptBool.new(  'BIDIRECTIONAL',	[true, 'Spoof also the source with the dest',false]),
 			OptBool.new(  'AUTO_ADD',	[true, 'Auto add new host when discovered by the listener',false]),
-			#OptBool.new(  'VERBOSE',	[true, 'Display more output on screen',false]),
 			OptBool.new(  'LISTENER',    	[true, 'Use an additionnal thread that will listen to arp request and try to relply as fast as possible', true])
 		], self.class)
 
