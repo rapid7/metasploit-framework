@@ -1,3 +1,5 @@
+require 'metasploit/framework/database'
+
 shared_context 'DatabaseCleaner' do
 	def with_established_connection
 		begin

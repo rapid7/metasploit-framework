@@ -46,13 +46,19 @@ module Msf::ModuleManager::Cache
     loaded
   end
 
-  # Rebuild the cache for the module set
+  # @overload refresh_cache_from_module_files
+  #   Rebuilds database and in-memory cache for all modules.
   #
-  # @return [void]
-  def refresh_cache_from_module_files(mod = nil)
+  #   @return [void]
+  # @overload refresh_cache_from_module_files(module_class_or_instance)
+  #   Rebuilds database and in-memory cache for given module_class_or_instance.
+  #
+  #   @param (see Msf::DBManager#update_module_details)
+  #   @return [void]
+  def refresh_cache_from_module_files(module_class_or_instance = nil)
     if framework_migrated?
-      if mod
-        framework.db.update_module_details(mod)
+      if module_class_or_instance
+        framework.db.update_module_details(module_class_or_instance)
       else
         framework.db.update_all_module_details
       end
@@ -61,7 +67,7 @@ module Msf::ModuleManager::Cache
     end
   end
 
-  # Reset the module cache
+  # Refreshes the in-memory cache from the database cache.
   #
   # @return [void]
   def refresh_cache_from_database
@@ -97,32 +103,38 @@ module Msf::ModuleManager::Cache
     self.module_info_by_path = {}
 
     if framework_migrated?
-      # TODO record module parent_path in {Mdm::ModuleDetail} so it does not need to be derived from file.
-      ::Mdm::ModuleDetail.find(:all).each do |module_detail|
-        path = module_detail.file
-        type = module_detail.mtype
-        reference_name = module_detail.refname
+	    ActiveRecord::Base.connection_pool.with_connection do
+		    # TODO record module parent_path in {Mdm::ModuleDetail} so it does not need to be derived from file.
+		    # Use find_each so Mdm::ModuleDetails are returned in batches, which will
+		    # handle the growing number of modules better than all.each.
+		    Mdm::ModuleDetail.find_each do |module_detail|
+			    path = module_detail.file
+			    type = module_detail.mtype
+			    reference_name = module_detail.refname
 
-        typed_path = Msf::Modules::Loader::Base.typed_path(type, reference_name)
-        escaped_typed_path = Regexp.escape(typed_path)
-        parent_path = path.gsub(/#{escaped_typed_path}$/, '')
+			    typed_path = Msf::Modules::Loader::Base.typed_path(type, reference_name)
+			    # join to '' so that typed_path_prefix starts with file separator
+			    typed_path_suffix = File.join('', typed_path)
+			    escaped_typed_path = Regexp.escape(typed_path_suffix)
+			    parent_path = path.gsub(/#{escaped_typed_path}$/, '')
 
-        module_info_by_path[path] = {
-            :reference_name => reference_name,
-            :type => type,
-            :parent_path => parent_path,
-            :modification_time => module_detail.mtime
-        }
+			    module_info_by_path[path] = {
+					    :reference_name => reference_name,
+					    :type => type,
+					    :parent_path => parent_path,
+					    :modification_time => module_detail.mtime
+			    }
 
-        typed_module_set = module_set(type)
+			    typed_module_set = module_set(type)
 
-        # Don't want to trigger as {Msf::ModuleSet#create} so check for
-        # key instead of using ||= which would call {Msf::ModuleSet#[]}
-        # which would potentially call {Msf::ModuleSet#create}.
-        unless typed_module_set.has_key? reference_name
-          typed_module_set[reference_name] = Msf::SymbolicModule
-        end
-      end
+			    # Don't want to trigger as {Msf::ModuleSet#create} so check for
+			    # key instead of using ||= which would call {Msf::ModuleSet#[]}
+			    # which would potentially call {Msf::ModuleSet#create}.
+			    unless typed_module_set.has_key? reference_name
+				    typed_module_set[reference_name] = Msf::SymbolicModule
+			    end
+		    end
+	    end
     end
 
     self.module_info_by_path

@@ -16,6 +16,8 @@ require 'tmpdir'
 require 'msf/core'
 
 describe Msf::ModuleManager do
+	include_context 'Msf::Simple::Framework'
+
   let(:archive_basename) do
     [basename_prefix, archive_extension]
   end
@@ -28,14 +30,11 @@ describe Msf::ModuleManager do
     'rspec'
   end
 
-  let(:framework) do
-    Msf::Framework.new
-  end
-
   subject(:module_manager) do
-    described_class.new(framework)
+    framework.modules
   end
 
+  it_should_behave_like 'Msf::ModuleManager::Cache'
   it_should_behave_like 'Msf::ModuleManager::Loading'
   it_should_behave_like 'Msf::ModuleManager::ModulePaths'
 end
