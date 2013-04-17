@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 require 'msf/base/simple/framework'
 require 'metasploit/framework'
 

@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 require 'spec_helper'
 require 'msf/core'
 require 'msf/core/modules/loader/directory'

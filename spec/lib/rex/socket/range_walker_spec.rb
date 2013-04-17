@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 require 'rex/socket/range_walker'
 
 describe Rex::Socket::RangeWalker do

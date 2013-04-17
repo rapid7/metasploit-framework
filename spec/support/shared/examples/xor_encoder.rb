@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 shared_examples_for 'an xor encoder' do |keysize|
 
 	it "should encode one block" do

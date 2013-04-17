@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 require 'rex/post/meterpreter/packet'
 require 'rex/post/meterpreter/packet_parser'
 
