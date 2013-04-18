@@ -15,7 +15,7 @@ public class MainActivity extends Activity
 {
     // avoid re-ordering the strings in classes.dex - append XXXX
     private static final String LHOST = "XXXX127.0.0.1                       ";
-    private static final String LPORT = "XXXX4444                            ";
+    private static final String LPORT = "YYYY4444                            ";
 	
     @Override
     public void onCreate(Bundle savedInstanceState)

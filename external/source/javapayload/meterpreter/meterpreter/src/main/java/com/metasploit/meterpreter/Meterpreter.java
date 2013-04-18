@@ -86,6 +86,9 @@ public class Meterpreter {
 			errBuffer = null;
 			err = System.err;
 		}
+		if (beginExecution) {
+			startExecuting();
+		}
 	}
 	
 	public void startExecuting() throws Exception {
