@@ -153,8 +153,8 @@ class Db
 
 				workspace = framework.db.find_workspace(old)
 
-				old_is_active = true if framework.db.workspace == workspace
-				recreate_default = true if workspace.default?
+				old_is_active = (framework.db.workspace == workspace)
+				recreate_default = workspace.default?
 
 				if workspace.nil?
 					print_error("Workspace not found: #{name}")
