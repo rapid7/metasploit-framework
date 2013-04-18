@@ -54,15 +54,14 @@ From https://github.com/todb-r7/metasploit-framework
  * [new ref]         refs/pull/2/head -> origin/pr/2
 ````
 
-Now, when you type git fetch, you'll get refs pointing at all (open and closed) Pull Requests, much like this:
-
+For upstream:
 ````
 $ git fetch
 remote: Counting objects: 91, done.
 remote: Compressing objects: 100% (29/29), done.
 remote: Total 59 (delta 47), reused 42 (delta 30)
 Unpacking objects: 100% (59/59), done.
-From github-r7:rapid7/metasploit-framework
+From https://github.com/rapid7/metasploit-framework
  [... bunches of tags and PRs ...]
  * [new ref]         refs/pull/1701/head -> origin/pr/1701
  * [new ref]         refs/pull/1702/head -> origin/pr/1702
