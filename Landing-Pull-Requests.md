@@ -52,7 +52,6 @@ Unpacking objects: 100% (7/7), done.
 From https://github.com/todb-r7/metasploit-framework
  * [new ref]         refs/pull/1/head -> origin/pr/1
  * [new ref]         refs/pull/2/head -> origin/pr/2
-$ git fetch upstream
 ````
 
 Now, when you type git fetch, you'll get refs pointing at all (open and closed) Pull Requests, much like this:
