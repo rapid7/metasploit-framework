@@ -4,12 +4,12 @@ Metasploit is built incrementally by the community through GitHub's [Pull Reques
 
 # The short story
 
- - Configure your git environment as described [here](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment#keeping-in-sync)
- - Add the `fetch = +refs/pull/*/head:refs/remotes/upstream/pr/*` line to your .git/config
+ - Configure your git environment as described [here](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment#keeping-in-sync).
+ - Add the `fetch = +refs/pull/*/head:refs/remotes/upstream/pr/*` line to your `.git/config`.
  - When merging code from a pull request, always, always `merge --no-ff`, and write a meaningful commit message that references the original PR as `#1234` (not PR1234, not PR#1234, not 1234).
- - If you're making changes (often the case), merge to a landing branch, then merge *that* to master.
+ - If you're making changes (often the case), merge --no-ff to a landing branch, then merge **that** branch to upstream/master (assuming you don't need to collaborate on changes).
 
-# Set up your fork and your clone.
+# Fork and clone
 
 First, fork and clone the `rapid7/metasploit-framework` repo, [following these instructions](https://help.github.com/articles/fork-a-repo). I like using ssh with .ssh/config aliases [as described here](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment#wiki-ssh), but the https method will work, too.
 
@@ -53,8 +53,11 @@ From https://github.com/todb-r7/metasploit-framework
  * [new ref]         refs/pull/1/head -> origin/pr/1
  * [new ref]         refs/pull/2/head -> origin/pr/2
 $ git fetch upstream
-Now, when you type git fetch, you'll get refs pointing at all (open and closed) Pull Requests. Just this moment, I see something like this:
+````
 
+Now, when you type git fetch, you'll get refs pointing at all (open and closed) Pull Requests, much like this:
+
+````
 $ git fetch
 remote: Counting objects: 91, done.
 remote: Compressing objects: 100% (29/29), done.
@@ -68,7 +71,7 @@ From github-r7:rapid7/metasploit-framework
 
 You can `git fetch` a remote any time, and you'll get access to the latest changes to all branches and pull requests.
 
-# Branching from the PR
+# Branching from PRs
 
 A manageable strategy for dealing with outstanding PRs is to start pre-merge testing on the pull request in isolation. For example, to work on PR #1217, we would:
 ````
@@ -93,6 +96,8 @@ Now, we're on a local branch identical to the original pull request, and can mov
 
 In this particular case with PR #1217, I did want to send some changes back to the contributor.
 
+# Making changes
+
 ````
 $ gvim .gitignore
 [... make some changes and some commits ...]
@@ -114,6 +119,14 @@ https://github.com/todb-r7/metasploit-framework/pull/new/schierlm:javapayload-ma
 
 I opened that in a browser, and ended up with https://github.com/schierlm/metasploit-framework/pull/1 . Once @schierlm landed it on his branch, all I (or anyone) had to do was `git fetch` to get the change reflected in origin/pr/1217, and then the integration of the PR could continue.
 
+# Collaboration between contributors
+
+Note the important bit here: **you do not need commit rights to Rapid7 to fork pull requests**. If Alice knows the solution to some problem Bob's pull request that Juan pointed out, it is **easy** for Alice to provide that solution by following the procedure above. `git blame` will still work correctly, commit histories will all be accurate, everyone on the pull request will be notified of Alice's changes, and Juan doesn't have to wait around for Bob to figure out how to use `send_request_cgi()' or whatever the problem was.
+
+# Landing to upstream
+
+Back to PR #1217. Turns out, my change was enough to land the original chunk of work. So, someone else (@jlee-r7) was able to to do something like this:
+
 ````
 $ git fetch upstream
 remote: Counting objects: 12, done.
@@ -124,14 +137,14 @@ From https://github.com/rapid7/metasploit-framework
    9e499e5..263e967  refs/pull/1651/head -> origin/pr/1651
 ````
 
-This all looks good, so if I wanted to land it to Rapid7's repo, I'd do something like this:
+This all looked good, so he could Rapid7's repo, with something like this:
 
 ````
 $ git checkout -b upstream/master --track upstream-master
 $ git merge --no-ff --edit landing-1217
 ````
 
-The `--edit` is optional if you have your editor configured correctly in your `$HOME/.gitconfig`, but the point here is that you want to change the (often useless) default merge commit message. For #1217, this was changed to:
+The `--edit` is optional if we have our editor configured correctly in `$HOME/.gitconfig`. The point here is that we *always* want a merge commit, and we *never* want to use the (often useless) default merge commit message. For #1217, this was changed to:
 
 ````commit
 Land #1217, java payload build system refactor
@@ -146,6 +159,10 @@ Landing #1234 Fixing that thing
 
 [FixRM #5678]
 ````
+
+So, mentioning #1234 will create a link between this commit and the PR (you can see [PR #1217](https://github.com/rapid7/metasploit-framework/pull/1217) if you don't believe me), and mentioning `FixRM #5678` or `SeeRM #5678` will update the Redmine bug automatically.
+
+A special phrase of "Closes #1234" will cause PR #1234 to close even if the commit doesn't actually merge everything in PR #1234 (so don't do that unless you mean it).
 
 ## Merge conflicts
 
