@@ -148,8 +148,6 @@ class Db
 					return
 				end
 				old, new = names
-				recreate_default = false
-				old_is_active = false
 
 				workspace = framework.db.find_workspace(old)
 
