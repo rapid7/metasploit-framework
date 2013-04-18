@@ -142,6 +142,7 @@ This all looked good, so he could Rapid7's repo, with something like this:
 ````
 $ git checkout -b upstream/master --track upstream-master
 $ git merge --no-ff --edit landing-1217
+$ git push origin upstream-master:master
 ````
 
 The `--edit` is optional if we have our editor configured correctly in `$HOME/.gitconfig`. The point here is that we *always* want a merge commit, and we *never* want to use the (often useless) default merge commit message. For #1217, this was changed to:
