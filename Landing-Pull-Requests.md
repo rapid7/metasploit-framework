@@ -52,16 +52,18 @@ Unpacking objects: 100% (7/7), done.
 From https://github.com/todb-r7/metasploit-framework
  * [new ref]         refs/pull/1/head -> origin/pr/1
  * [new ref]         refs/pull/2/head -> origin/pr/2
+$ git fetch upstream
 ````
 
-For upstream:
+Now, when you type git fetch, you'll get refs pointing at all (open and closed) Pull Requests, much like this:
+
 ````
 $ git fetch
 remote: Counting objects: 91, done.
 remote: Compressing objects: 100% (29/29), done.
 remote: Total 59 (delta 47), reused 42 (delta 30)
 Unpacking objects: 100% (59/59), done.
-From https://github.com/rapid7/metasploit-framework
+From github-r7:rapid7/metasploit-framework
  [... bunches of tags and PRs ...]
  * [new ref]         refs/pull/1701/head -> origin/pr/1701
  * [new ref]         refs/pull/1702/head -> origin/pr/1702
@@ -109,7 +111,7 @@ $ git pr-url
 https://github.com/YOURNAME/metasploit-framework/pull/new/HISNAME:HISBRANCH...YOURBRANCH
 ````
 
-This sequence does a few things after editing the .gitconfig. It creates another copy of landing-1217 (which is itself a copy of upstream/pr/1217)). Next, I push those changes to my branch (todb-r7, aka "origin"), then spits out a copy-pastable alias to create a pull request to the original contributor's branch. Filling in the blanks (provided by the original PR's information from GitHub) gets me:
+This sequence does a few things after editing the .gitconfig. It creates another copy of landing-1217 (which is itself a copy of upstream/pr/1217)). Next, I push those changes to my branch (todb-r7, aka "origin"), then spits out a copy-pastable alias to create a pull request to the original contributor's branch. Filling in the blanks (provided by the original PR's information from the GitHub website gets me:
 
 ````
 https://github.com/todb-r7/metasploit-framework/pull/new/schierlm:javapayload-maven...pr1217-fix-gitignore-conflict
@@ -119,7 +121,7 @@ I opened that in a browser, and ended up with https://github.com/schierlm/metasp
 
 # Collaboration between contributors
 
-Note the important bit here: **you do not need commit rights to Rapid7 to fork pull requests**. If Alice knows a solution to Bob's pull request that Juan pointed out, it is **easy** for Alice to provide that solution by following the procedure above. `git blame` will still work correctly, commit histories will all be accurate, everyone on the pull request will be notified of Alice's changes, and Juan doesn't have to wait around for Bob to figure out how to use `send_request_cgi()` or whatever the problem was.
+Note the important bit here: **you do not need commit rights to Rapid7 to fork pull requests**. If Alice knows the solution to some problem Bob's pull request that Juan pointed out, it is **easy** for Alice to provide that solution by following the procedure above. `git blame` will still work correctly, commit histories will all be accurate, everyone on the pull request will be notified of Alice's changes, and Juan doesn't have to wait around for Bob to figure out how to use `send_request_cgi()' or whatever the problem was.
 
 # Landing to upstream
 
@@ -135,12 +137,11 @@ From https://github.com/rapid7/metasploit-framework
    9e499e5..263e967  refs/pull/1651/head -> origin/pr/1651
 ````
 
-This all looked good, so he could land this to Rapid7's repo with:
+This all looked good, so he could Rapid7's repo, with something like this:
 
 ````
-$ git checkout -b upstream-master ---track upstream/master
+$ git checkout -b upstream/master --track upstream-master
 $ git merge --no-ff --edit landing-1217
-$ git push upstream upstream-master:master
 ````
 
 The `--edit` is optional if we have our editor configured correctly in `$HOME/.gitconfig`. The point here is that we *always* want a merge commit, and we *never* want to use the (often useless) default merge commit message. For #1217, this was changed to:
@@ -150,8 +151,6 @@ Land #1217, java payload build system refactor
     
 [Closes #1217]
 ````
-
-# Cross-linking PRs, Bugs, and Commits
 
 If we had a [Redmine bug](https://dev.metasploit.com/redmine/projects/framework/issues?query_id=420) we were working against, we'd mention it in this commit message as well, and we'd get a cross-reference over in Redmine. There's a special syntax for Redmine bugs, which looks like this:
 
@@ -165,7 +164,7 @@ So, mentioning #1234 will create a link between this commit and the PR (you can 
 
 A special phrase of "Closes #1234" will cause PR #1234 to close even if the commit doesn't actually merge everything in PR #1234 (so don't do that unless you mean it).
 
-# Merge conflicts
+## Merge conflicts
 
 The nice thing about this strategy is that you can test for merge conflicts straight away. You'd use a sequence like:
 
@@ -178,7 +177,3 @@ git merge landing-1234 master-temp
 ````
 
 If that works, great, you know you don't have any merge conflicts right now.
-
-# Questions and Corrections
-
-Bug @todb-r7, either on Freenode on the #metasploit channel (he's todb there), or by e-mailing the [metasploit-hackers](https://lists.sourceforge.net/lists/listinfo/metasploit-hackers) mailing list.
