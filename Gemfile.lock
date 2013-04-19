@@ -52,6 +52,7 @@ GEM
       multi_json (~> 1.0.3)
       simplecov-html (~> 0.5.3)
     simplecov-html (0.5.3)
+    timecop (0.6.1)
     tzinfo (0.3.37)
     yard (0.8.5.2)
 
@@ -75,4 +76,5 @@ DEPENDENCIES
   rspec (>= 2.12)
   shoulda-matchers
   simplecov (= 0.5.4)
+  timecop
   yard

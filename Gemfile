@@ -48,4 +48,6 @@ group :test do
   # code coverage for tests
   # any version newer than 0.5.4 gives an Encoding error when trying to read the source files.
   gem 'simplecov', '0.5.4', :require => false
+	# Manipulate Time.now in specs
+	gem 'timecop'
 end
