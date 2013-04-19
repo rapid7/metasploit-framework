@@ -44,7 +44,7 @@ Some people like to copy these over into remotes named "rapid7" and "yourusernam
 Now, you can git fetch the remote PRs. This will take a little bit, since we have a couple dozen MBs of pull request data. Storage is cheap, though, right?
 
 ````
-$ git fetch
+$ git fetch --all
 remote: Counting objects: 13, done.
 remote: Compressing objects: 100% (1/1), done.
 remote: Total 7 (delta 6), reused 7 (delta 6)
@@ -52,11 +52,7 @@ Unpacking objects: 100% (7/7), done.
 From https://github.com/todb-r7/metasploit-framework
  * [new ref]         refs/pull/1/head -> origin/pr/1
  * [new ref]         refs/pull/2/head -> origin/pr/2
-````
-
-For upstream:
-````
-$ git fetch upstream
+Fetching upstream
 remote: Counting objects: 91, done.
 remote: Compressing objects: 100% (29/29), done.
 remote: Total 59 (delta 47), reused 42 (delta 30)
