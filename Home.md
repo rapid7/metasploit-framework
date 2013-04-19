@@ -1,4 +1,4 @@
-Are you anxious to get your [[Setting Up a Metasploit development environment]] set up and start [[Landing Pull Requests]], or are you simply interested in getting started [[using Metasploit]]? Either way, you've come to the right place.
+Are you anxious to get your [Metasploit Development Environment](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment) set up and start [[Landing Pull Requests]], or are you simply interested in getting started [[using Metasploit]]? Either way, you've come to the right place.
 
 If you're an exploit developer, you will want to review our [[Guidelines for Accepting Modules and Enhancements]] to find out what all we expect when we see pull requests for new Metasploit modules. No idea what you should start working on? Check out the guidelines for [[contributing to Metasploit]].
 
@@ -33,7 +33,6 @@ If you're an exploit developer, you will want to review our [[Guidelines for Acc
 - [[Git Cheatsheet]]
 - [[Git Gotchas]]
 - [[Git Reference Sites]]
-
 
 
 
