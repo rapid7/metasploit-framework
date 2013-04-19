@@ -287,7 +287,7 @@ describe Msf::DBManager do
 
 								its(:host) { should == Mdm::Host.last }
 								its(:refs) { should == [] }
-								its(:exploited_at) { should == Time.now.utc }
+								its(:exploited_at) { should be_within(1.second).of(Time.now.utc) }
 
 								context "with session.via_exploit 'exploit/multi/handler'" do
 									context "with session.exploit_datastore['ParentModule']" do
@@ -374,7 +374,7 @@ describe Msf::DBManager do
 									Mdm::ExploitAttempt.last
 								end
 
-								its(:attempted_at) { should == Time.now.utc }
+								its(:attempted_at) { should be_within(1.second).of(Time.now.utc) }
 								# @todo https://www.pivotaltracker.com/story/show/48362615
 								its(:session_id) { should == Mdm::Session.last.id }
 								its(:exploited) { should == true }
@@ -442,9 +442,9 @@ describe Msf::DBManager do
 							its(:datastore) { should == session.exploit_datastore.to_h }
 							its(:desc) { should == session.info }
 							its(:host_id) { should == Mdm::Host.last.id }
-							its(:last_seen) { should == Time.now.utc }
+							its(:last_seen) { should be_within(1.second).of(Time.now.utc) }
 							its(:local_id) { should == session.sid }
-							its(:opened_at) { should == Time.now.utc }
+							its(:opened_at) { should be_within(1.second).of(Time.now.utc) }
 							its(:platform) { should == session.platform }
 							its(:routes) { should == [] }
 							its(:stype) { should == session.type }

@@ -303,6 +303,10 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 					)
 				end
 
+				let(:pathname_modification_time) do
+					pathname.mtime
+				end
+
 				let(:type) do
           'exploit'
 				end
@@ -345,7 +349,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 						module_info_by_path_from_database!
 					end
 
-					its([:modification_time]) { should == pathname.mtime }
+					its([:modification_time]) { should be_within(1.second).of(pathname_modification_time) }
 					its([:parent_path]) { should == parent_path }
 					its([:reference_name]) { should == reference_name }
 					its([:type]) { should == type }
