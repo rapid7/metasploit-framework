@@ -109,7 +109,7 @@ $ git pr-url
 https://github.com/YOURNAME/metasploit-framework/pull/new/HISNAME:HISBRANCH...YOURBRANCH
 ````
 
-This sequence does a few things after editing the .gitconfig. It creates another copy of landing-1217 (which is itself a copy of upstream/pr/1217)). Next, I push those changes to my branch (todb-r7, aka "origin"). Finally I have a mighty .gitconfig alias to spit out a copy-pastable alias to create a pull request to the original contributor's branch:
+This sequence does a few things after editing the .gitconfig. It creates another copy of landing-1217 (which is itself a copy of upstream/pr/1217)). Next, I push those changes to my branch (todb-r7, aka "origin"). Finally, I have a mighty .gitconfig alias to spit out a copy-pastable alias to create a pull request to the original contributor's branch:
 
 ````
 pr-url = !"echo https://github.com/YOURNAME/metasploit-framework/pull/new/HISNAME:HISBRANCH...YOURBRANCH"
