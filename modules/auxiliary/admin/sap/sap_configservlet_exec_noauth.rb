@@ -1,7 +1,6 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
-	Rank = ExcellentRanking
 	include Msf::Exploit::Remote::HttpClient
 
 	def initialize(info = {})
