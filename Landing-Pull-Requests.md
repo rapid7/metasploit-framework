@@ -56,7 +56,7 @@ From https://github.com/todb-r7/metasploit-framework
 
 For upstream:
 ````
-$ git fetch
+$ git fetch upstream
 remote: Counting objects: 91, done.
 remote: Compressing objects: 100% (29/29), done.
 remote: Total 59 (delta 47), reused 42 (delta 30)
