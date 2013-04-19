@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			print_status("#{rhost}:#{rport} - Sending remote command: " + datastore['CMD'])
 			uri = normalize_uri(target_uri.path, 'ConfigServlet')
-			
+
 			res = send_request_cgi(
 				{
 					'uri' => uri,
