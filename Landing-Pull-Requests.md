@@ -11,7 +11,7 @@ Metasploit is built incrementally by the community through GitHub's [Pull Reques
 
 # Fork and clone
 
-First, fork and clone the `rapid7/metasploit-framework` repo, [following these instructions](https://help.github.com/articles/fork-a-repo). I like using ssh with .ssh/config aliases [as described here](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment#wiki-ssh), but the https method will work, too.
+First, fork and clone the `rapid7/metasploit-framework` repo, [following these instructions](https://help.github.com/articles/fork-a-repo). I like using ssh with `~/.ssh/config` aliases [as described here](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment#wiki-ssh), but the https method will work, too.
 
 Once this is done, you will have a remote repository called "origin," which points to your forked repository on GitHub. You will be doing most of your work in your own fork of Metasploit, even if you have commit rights to Rapid7's fork. Now, we're going to add an "upstream" repository to talk to the Rapid7 repository.
 
