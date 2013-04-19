@@ -22,7 +22,8 @@ class Metasploit4 < Msf::Auxiliary
 				expand external entities with the SYSTEM identifier. In order to work MediaWiki must
 				be configured to accept upload of SVG files. If anonymous uploads are allowed the
 				username and password aren't required, otherwise they are. This module has been
-				tested successfully on MediaWiki 1.19.4 and Ubuntu 10.04.
+				tested successfully on MediaWiki 1.19.4, 1.20.3 on Ubuntu 10.04 and Ubuntu 12.10.
+				Older versions were also tested but do not seem to be vulnerable to this vulnerability.
 				The following MediaWiki requirements must be met: File upload must be enabled,
 				$wgFileExtensions[] must include 'svg', $wgSVGConverter must be set to something
 				other than 'false'.
