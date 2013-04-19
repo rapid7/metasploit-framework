@@ -208,7 +208,7 @@ class Metasploit4 < Msf::Auxiliary
 			if res and res.body
 				error = res.body.scan(/<div class="error">(.*?)<\/div>/m)[0]
 				if error and error.size == 1
-					print_error(error[0])
+					vprint_error(error[0])
 				end
 			end
 			return nil
