@@ -45,6 +45,7 @@ Now, you can git fetch the remote PRs. This will take a little bit, since we hav
 
 ````
 $ git fetch --all
+Fetching todb-r7
 remote: Counting objects: 13, done.
 remote: Compressing objects: 100% (1/1), done.
 remote: Total 7 (delta 6), reused 7 (delta 6)
