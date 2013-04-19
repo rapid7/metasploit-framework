@@ -28,8 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				Opt::RPORT(50000),
 				OptString.new('CMD', [ true, 'The command to execute', 'whoami']),
-				OptString.new('TARGETURI', [ true, 'Path to ConfigServlet', '/ctc/servlet']),
-				OptBool.new('SSL', [true, 'Use SSL', false])
+				OptString.new('TARGETURI', [ true, 'Path to ConfigServlet', '/ctc/servlet'])
 			], self.class)
 	end
 
