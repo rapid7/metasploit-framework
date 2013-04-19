@@ -23,7 +23,7 @@ So, open up `metasploit-framework/.git/config` with your favorite editor, add an
 [remote "origin"]
   fetch = +refs/heads/*:refs/remotes/origin/*
   fetch = +refs/pull/*/head:refs/remotes/origin/pr/*
-  url = https://github.com/todb-r7/metasploit-framework
+  url = https://github.com/YOURNAME/metasploit-framework
 ````
 
 And now it looks like this:
@@ -36,7 +36,7 @@ And now it looks like this:
 [remote "origin"]
   fetch = +refs/heads/*:refs/remotes/origin/*
   fetch = +refs/pull/*/head:refs/remotes/origin/pr/*
-  url = https://github.com/todb-r7/metasploit-framework
+  url = https://github.com/YOURNAME/metasploit-framework
 ````
 
 Some people like to copy these over into remotes named "rapid7" and "yourusername" just so they don't have to remember about "origin" and "upstream," but for this doc, we'll just assume you have "origin" and "upstream" defined like this.
