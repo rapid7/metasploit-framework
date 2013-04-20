@@ -2,6 +2,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/mimikatz/tlv'
+require 'csv'
 
 module Rex
 module Post
@@ -11,13 +12,13 @@ module Mimikatz
 
 ###
 #
-# This meterpreter extensions a privilege escalation interface that is capable
-# of doing things like dumping password hashes and performing local
-# exploitation.
+# Mimikatz extension - grabs credentials from windows memory.
 #
+# Benjamin DELPY `gentilkiwi`
+# http://blog.gentilkiwi.com/mimikatz
+#
+# extension converted by Ben Campbell (Meatballs)
 ###
-
-require 'csv'
 
 class Mimikatz < Extension
 

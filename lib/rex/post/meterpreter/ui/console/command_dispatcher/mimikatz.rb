@@ -8,8 +8,12 @@ module Ui
 
 ###
 #
-# Privilege escalation extension user interface.
+# Mimikatz extension - grabs credentials from windows memory.
 #
+# Benjamin DELPY `gentilkiwi`
+# http://blog.gentilkiwi.com/mimikatz
+#
+# extension converted by Ben Campbell (Meatballs)
 ###
 class Console::CommandDispatcher::Mimikatz
 
