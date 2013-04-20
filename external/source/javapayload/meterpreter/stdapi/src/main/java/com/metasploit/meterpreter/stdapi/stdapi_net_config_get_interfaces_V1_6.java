@@ -24,6 +24,16 @@ public class stdapi_net_config_get_interfaces_V1_6 extends stdapi_net_config_get
 			if (ip == null)
 				continue;
 			int prefixLength = addr.getNetworkPrefixLength();
+			if (prefixLength == -1 && ip.length == 4) {
+				// guess netmask by network class...
+				if ((ip[0] & 0xff) < 0x80) {
+					prefixLength = 8;
+				} else if ((ip[0] & 0xff) < 0xc0) {
+					prefixLength = 16;
+				} else {
+					prefixLength = 24;
+				}
+			}
 			byte[] scopeId = null;
 			if (addr.getAddress() instanceof Inet6Address) {
 				ByteBuffer bb = ByteBuffer.allocate(4);
