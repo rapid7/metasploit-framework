@@ -12,34 +12,21 @@ require 'metasploit/framework/database'
 require 'msf/core'
 
 describe Msf::DBManager do
-	include_context 'Msf::Simple::Framework'
+	include_context 'Msf::DBManager'
 
-	subject(:db_manager) do
-		framework.db
+	subject do
+		db_manager
 	end
 
 	it_should_behave_like 'Msf::DBManager::ImportMsfXml'
 
 	context '#report_session' do
-		include_context 'DatabaseCleaner'
-
 		let(:options) do
 			{}
 		end
 
 		subject(:report_session) do
 			db_manager.report_session(options)
-		end
-
-		before(:each) do
-			configurations = Metasploit::Framework::Database.configurations
-			spec = configurations[Metasploit::Framework.env]
-
-			# Need to connect or ActiveRecord::Base.connection_pool will raise an
-			# error.
-			db_manager.connect(spec)
-
-			db_manager.stub(:active => active)
 		end
 
 		context 'with active' do
