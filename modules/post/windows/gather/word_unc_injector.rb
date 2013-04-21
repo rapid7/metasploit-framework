@@ -181,7 +181,7 @@ class Metasploit3 < Msf::Post
 				"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 				rhost,
 				org_file_data,
-				datastore['FILE'],
+				datastore['FILE']
 			)
 			print_status("Local backup kept at #{@org_file}")
 			#Store information in note database so its obvious what we changed, were we stored the backup file..
