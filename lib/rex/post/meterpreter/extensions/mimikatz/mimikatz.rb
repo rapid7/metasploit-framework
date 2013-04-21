@@ -41,21 +41,21 @@ class Mimikatz < Extension
 	end
 
 	def parse_mimikatz_result(result)
-                details = CSV.parse(result)
-                accounts  =  []
-                details.each do |acc|
-                        account = {
-                                :authid => acc[0],
-                                :package => acc[1],
-                                :user => acc[2],
-                                :domain => acc[3],
-                                :password => acc[4]
-                        }
-                        accounts << account
-                end
-                return accounts
+		details = CSV.parse(result)
+		accounts  =  []
+		details.each do |acc|
+			account = {
+				:authid => acc[0],
+				:package => acc[1],
+				:user => acc[2],
+				:domain => acc[3],
+				:password => acc[4]
+			}
+			accounts << account
+		end
+		return accounts
 	end
-	
+
 	def parse_mimikatz_ssp_result(result)
 		details = CSV.parse(result)
 		accounts = []
@@ -76,7 +76,6 @@ class Mimikatz < Extension
 				accounts << account
 			end
 		end
-		p accounts
 		return accounts
 	end
 
@@ -87,27 +86,27 @@ class Mimikatz < Extension
 
 	def msv
 		result = mimikatz_send_request('mimikatz_msv1_0')
-                return parse_mimikatz_result(result)
+		return parse_mimikatz_result(result)
 	end
 
 	def livessp
 		result = mimikatz_send_request('mimikatz_livessp')
-                return parse_mimikatz_result(result)
+		return parse_mimikatz_result(result)
 	end
 
 	def ssp
 		result = mimikatz_send_request('mimikatz_ssp')
-                return parse_mimikatz_ssp_result(result)
+		return parse_mimikatz_ssp_result(result)
 	end
 
 	def tspkg
 		result = mimikatz_send_request('mimikatz_tspkg')
-                return parse_mimikatz_result(result)
+		return parse_mimikatz_result(result)
 	end
 
 	def kerberos
 		result = mimikatz_send_request('mimikatz_kerberos')
-                return parse_mimikatz_result(result)
+		return parse_mimikatz_result(result)
 	end
 end
 
