@@ -181,11 +181,9 @@ class Metasploit3 < Msf::Post
 		services_array1 = running_services1.split("\n")
 
 		# Check for osql
-		services_array1.each do |service1|
-			if service1 =~ /SQL Server Command Line Tool/ then
-				print_good("OSQL client was found")
-				return "osql"
-			end
+		if services_array1.join =~ /(SQL Server Command Line Tool)|(usage: osql)/
+			print_good("OSQL client was found")
+			return "osql"
 		end
 
 		# Get Data - sqlcmd
@@ -251,11 +249,11 @@ class Metasploit3 < Msf::Post
 		end
 
 		# check for success/fail
-		if add_login_result == ""
+		if add_login_result.empty? or add_login_result =~ /New login created./
 			print_good("Successfully added login \"#{dbuser}\" with password \"#{dbpass}\"")
 			return 1
 		else
-			print_error("Unabled to add login #{dbuser}")
+			print_error("Unable to add login #{dbuser}")
 			print_error("Database Error:\n #{add_login_result}")
 			return 0
 		end
