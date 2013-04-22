@@ -18,7 +18,8 @@ class Metasploit3 < Msf::Auxiliary
 			'License'         => MSF_LICENSE,
 			'References'      =>
 				[
-					[ 'URL', 'http://erpscan.com/wp-content/uploads/2012/11/Breaking-SAP-Portal-HackerHalted-2012.pdf']
+					[ 'URL', 'http://erpscan.com/wp-content/uploads/2012/11/Breaking-SAP-Portal-HackerHalted-2012.pdf'],
+					[ 'EDB', '24963' ]
 				],
 			'DisclosureDate' => 'Nov 01 2012' # Based on the reference presentation
 			))
