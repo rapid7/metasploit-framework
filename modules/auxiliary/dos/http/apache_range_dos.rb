@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 					['DOS'],
 					['CHECK']
 				],
-			'DefaultAction'  => 'PUT',
+			'DefaultAction'  => 'DOS',
 			'References'     =>
 				[
 					[ 'BID', '49303'],
