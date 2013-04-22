@@ -102,11 +102,11 @@ Switched to a new branch 'pr1217-fix-gitignore-conflict'
 (pr1217-fix-gitignore-conflict) todb@mazikeen:~/git/rapid7/metasploit-framework
 $ git push origin pr1271-fix-gitignore-conflict
 (pr1217-fix-gitignore-conflict) todb@mazikeen:~/git/rapid7/metasploit-framework
-$ git pr-url 
-https://github.com/YOURNAME/metasploit-framework/pull/new/HISNAME:HISBRANCH...YOURBRANCH
+$ git pr-url schierlm javapayload-maven
+Created new window in existing browser session.
 ````
 
-This sequence does a few things after editing the .gitconfig. It creates another copy of landing-1217 (which is itself a copy of upstream/pr/1217)). Next, I push those changes to my branch (todb-r7, aka "origin"). Finally, I have a mighty .gitconfig alias to spit out a copy-pastable alias to create a pull request to the original contributor's branch:
+This sequence does a few things after editing the .gitconfig. It creates another copy of landing-1217 (which is itself a copy of upstream/pr/1217)). Next, I push those changes to my branch (todb-r7, aka "origin"). Finally, I have a mighty [.gitconfig alias here](https://gist.github.com/todb-r7/5438391) to open a browser window to send a pull request to the original contributor's branch (you will want to edit yours to reflect your real GitHub username, of course).
 
 ````
 pr-url = !"echo https://github.com/YOURNAME/metasploit-framework/pull/new/HISNAME:HISBRANCH...YOURBRANCH"
