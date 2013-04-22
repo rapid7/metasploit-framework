@@ -122,7 +122,7 @@ I opened that in a browser, and ended up with https://github.com/schierlm/metasp
 
 # Collaboration between contributors
 
-Note the important bit here: **you do not need commit rights to Rapid7 to branch pull requests**. If Alice knows a solution to Bob's pull request that Juan pointed out, it is **easy** for Alice to provide that solution by following the procedure above. `git blame` will still work correctly, commit histories will all be accurate, everyone on the pull request will be notified of Alice's changes, and Juan doesn't have to wait around for Bob to figure out how to use `send_request_cgi()` or whatever the problem was.
+Note the important bit here: **you do not need commit rights to Rapid7 to branch pull requests**. If Alice knows a solution to Bob's pull request that Juan pointed out, it is **easy** for Alice to provide that solution by following the procedure above. `git blame` will still work correctly, commit histories will all be accurate, everyone on the pull request will be notified of Alice's changes, and Juan doesn't have to wait around for Bob to figure out how to use `send_request_cgi()` or whatever the problem was. The hardest part is remembering how to construct the pull request to Bob -- lucky for you, [this .git/config alias](https://gist.github.com/todb-r7/5438391) makes that part pretty push-button.
 
 # Landing to upstream
 
