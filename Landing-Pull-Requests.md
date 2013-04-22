@@ -30,8 +30,8 @@ And now it looks like this:
 
 ````config
 [remote "upstream"]
-  fetch = +refs/heads/*:refs/remotes/rapid7/*
-  fetch = +refs/pull/*/head:refs/remotes/rapid7/pr/*
+  fetch = +refs/heads/*:refs/remotes/upstream/*
+  fetch = +refs/pull/*/head:refs/remotes/upstream/pr/*
   url = https://github.com/rapid7/metasploit-framework
 [remote "origin"]
   fetch = +refs/heads/*:refs/remotes/origin/*
