@@ -160,7 +160,11 @@ class Console::CommandDispatcher::SessionDump
 				if s.key?('error')
 					print_error "#{@errors[s['error']]}"
 				else
-					output = "#{s['domain']}\\#{s['user']} : #{s['pwd']}"
+					if s['pwd'].size() == 0
+						output = "#{s['domain']}\\#{s['user']} : <PASSWORD_EMPTY>"
+					else
+						output = "#{s['domain']}\\#{s['user']} : #{s['pwd']}"
+					end
 					print_line output
 					if not pwd_file.nil?
 						pwd_file.write("#{output}\n")
