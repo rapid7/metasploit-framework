@@ -1,14 +1,22 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class Metasploit4 < Msf::Auxiliary
+
 	include Msf::Exploit::Remote::HttpClient
 
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'            => 'SAP ConfigServlet OS Command Execution',
 			'Description'     => %q{
-				This module allows execution of operating system commands through
-				the SAP ConfigServlet without any authentication.
+					This module allows execution of operating system commands through the SAP
+				ConfigServlet without any authentication.
 			},
 			'Author'          =>
 				[
@@ -22,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'EDB', '24963' ]
 				],
 			'DisclosureDate' => 'Nov 01 2012' # Based on the reference presentation
-			))
+		))
 
 		register_options(
 			[
