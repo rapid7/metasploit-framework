@@ -446,7 +446,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			# Now that we've got all of our exploit tests put together,
-			# organize them into an all tests (JS and no-JS), organized by rank, 
+			# organize them into an all tests (JS and no-JS), organized by rank,
 			# and doesnt-require-scripting (no-JS), organized by browser name.
 			if apo[:javascript] && apo[:ua_name]
 				@all_tests[apo[:rank]] ||= []
@@ -507,7 +507,7 @@ class Metasploit3 < Msf::Auxiliary
 		# Sort the tests by reliability, descending.
 		# I don't like doing this directly (wihout a !), but any other sort wasn't sticking - NE
 		@all_tests = @all_tests.sort.reverse
-	
+
 		# This matters a lot less for noscript exploits since they basically
 		# get thrown into a big pile of iframes that the browser will load
 		# semi-concurrently.  Still, might as well.
@@ -748,12 +748,12 @@ class Metasploit3 < Msf::Auxiliary
 		# if we have no client_info, this will add all tests. Otherwise tries
 		# to only send tests for exploits that target the client's detected
 		# browser.
-		
+
 		@all_tests.each { |rank, sploits|
 			sploits.each { |s|
 				browser = s[:ua_name] || "generic"
 				next unless client_matches_browser(client_info, browser)
-				
+
 				# Send all the generics regardless of what the client is. If the
 				# client is nil, then we don't know what it really is, so just err
 				# on the side of shells and send everything. Otherwise, send only
@@ -769,7 +769,7 @@ class Metasploit3 < Msf::Auxiliary
 						end
 						# shouldn't be any in the resource, but just in case...
 						res = exploit_resource(s[:name]).gsub("\n",'').gsub("'", "\\\\'")
-	
+
 						# Skip exploits that don't match the client's OS.
 						if (host_info and host_info[:os_name] and s[:os_name])
 							# Reject exploits whose OS doesn't match that of the
