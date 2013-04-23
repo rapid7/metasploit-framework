@@ -1259,6 +1259,8 @@ module Zip
       @cdirOffset                           = ZipEntry::read_zip_long(buf)
       commentLength                         = ZipEntry::read_zip_short(buf)
       @comment                              = buf.read(commentLength)
+			# remove trailing \n or \f or \r symbol
+			buf.gsub!(/\s/,'')
       raise ZipError, "Zip consistency problem while reading eocd structure" unless buf.size == 0
     end
     
@@ -1284,26 +1286,12 @@ module Zip
 	io.seek(-MAX_END_OF_CENTRAL_DIRECTORY_STRUCTURE_SIZE, IO::SEEK_END)
       rescue Errno::EINVAL
 	io.seek(0, IO::SEEK_SET)
-      rescue Errno::EFBIG # FreeBSD 4.9 raise Errno::EFBIG instead of Errno::EINVAL
-	io.seek(0, IO::SEEK_SET)
-      end
-      
-      # 'buf = io.read' substituted with lump of code to work around FreeBSD 4.5 issue
-      retried = false
-      buf = nil
-      begin
-        buf = io.read
-      rescue Errno::EFBIG # FreeBSD 4.5 may raise Errno::EFBIG
-        raise if (retried)
-        retried = true
-	
-        io.seek(0, IO::SEEK_SET)
-        retry
       end
 
+			buf = io.read
       sigIndex = buf.rindex([END_OF_CENTRAL_DIRECTORY_SIGNATURE].pack('V'))
       raise ZipError, "Zip end of central directory signature not found" unless sigIndex
-      buf=buf.slice!((sigIndex+4)...(buf.size))
+      buf=buf.slice!((sigIndex+4)..(buf.size))
       def buf.read(count)
 	slice!(0, count)
       end
