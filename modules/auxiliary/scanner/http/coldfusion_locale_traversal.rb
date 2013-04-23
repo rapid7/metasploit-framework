@@ -30,9 +30,9 @@ class Metasploit3 < Msf::Auxiliary
 				work against ColdFusion 9.  Adobe did not release patches for ColdFusion 6.1 or
 				ColdFusion 7.
 
-				It is not recommended to set FILE when doing scans across a group of servers where the OS 
+				It is not recommended to set FILE when doing scans across a group of servers where the OS
 				may vary; otherwise, the file requested may not make sense for the OS
-				
+
 			},
 			'Author'      => [ 'CG', 'nebulus' ],
 			'License'     => MSF_LICENSE,
@@ -121,7 +121,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			if (res.code.to_i == 200)
 				out = fingerprint(res)
-				print_status("#{ip} #{out}") if out 
+				print_status("#{ip} #{out}") if out
 				return if (datastore['FINGERPRINT'])
 
 				if(out =~ /Windows/ and out =~ /MX6/)
