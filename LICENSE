@@ -443,7 +443,7 @@ Copyright: 2011 James Miller
 License: MIT
 
 Files: lib/windows_console_color_support.rb
-Copyright: 2011 Michael 'migi' Schierl
+Copyright: 2011 Michael 'mihi' Schierl
 License: BSD-3-clause
 
 Files: lib/zip.rb lib/zip/*
