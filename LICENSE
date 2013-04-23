@@ -32,16 +32,8 @@ Files: external/ruby-lorcon/*
 Copyright: 2005, dragorn and Joshua Wright
 License: LGPL-2.1
 
-Files: external/source/armitage/* data/armitage/*
-Copyright: 2010-2012 Raphael Mudge
-License: BSD-3-clause
-
 Files: external/source/byakugan/*
 Copyright: Lurene Grenier, 2009
-License: BSD-3-clause
-
-Files: external/source/gui/msfguijava/* data/gui/*
-Copyright: 2010 scriptjunkie
 License: BSD-3-clause
 
 Files: external/source/ipwn/*
