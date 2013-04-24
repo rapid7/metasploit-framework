@@ -1,0 +1,27 @@
+﻿Build started 1/4/2012 6:05:50 AM.
+Project "C:\Users\tester\documents\visual studio 2010\Projects\RickKeyStroke\RickKeyStroke\RickKeyStroke.vcxproj" on node 2 (build target(s)).
+InitializeBuildStatus:
+  Creating "Release\RickKeyStroke.unsuccessfulbuild" because "AlwaysCreate" was specified.
+ClCompile:
+  All outputs are up-to-date.
+  C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yc"StdAfx.h" /Fp"Release\RickKeyStroke.pch" /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt stdafx.cpp
+  stdafx.cpp
+  C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Release\RickKeyStroke.pch" /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt RickKeyStroke.cpp
+  RickKeyStroke.cpp
+RickKeyStroke.cpp(109): warning C4018: '<' : signed/unsigned mismatch
+Link:
+  C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\tester\documents\visual studio 2010\Projects\RickKeyStroke\Release\RickKeyStroke.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Release\RickKeyStroke.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\tester\documents\visual studio 2010\Projects\RickKeyStroke\Release\RickKeyStroke.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\tester\documents\visual studio 2010\Projects\RickKeyStroke\Release\RickKeyStroke.lib" /MACHINE:X86 Release\RickKeyStroke.obj
+  Release\stdafx.obj
+  Generating code
+  Finished generating code
+  RickKeyStroke.vcxproj -> C:\Users\tester\documents\visual studio 2010\Projects\RickKeyStroke\Release\RickKeyStroke.exe
+Manifest:
+  C:\Program Files\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\Users\tester\documents\visual studio 2010\Projects\RickKeyStroke\Release\RickKeyStroke.exe;#1" /manifest Release\RickKeyStroke.exe.intermediate.manifest
+FinalizeBuildStatus:
+  Deleting file "Release\RickKeyStroke.unsuccessfulbuild".
+  Touching "Release\RickKeyStroke.lastbuildstate".
+Done Building Project "C:\Users\tester\documents\visual studio 2010\Projects\RickKeyStroke\RickKeyStroke\RickKeyStroke.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:05.93
