@@ -44,7 +44,7 @@ FactoryGirl.define do
 	end
 
 	sequence :mdm_module_detail_rank do |n|
-		(100 * n)
+		100 * (n % 7)
 	end
 
 	stances = ['active', 'passive']

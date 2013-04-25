@@ -1455,9 +1455,13 @@ class Core
 
 	end
 
-	def search_modules_sql(match)
+  # Prints table of modules matching the search_string.
+  #
+  # @param (see Msf::DBManager#search_modules)
+  # @return [void]
+	def search_modules_sql(search_string)
 		tbl = generate_module_table("Matching Modules")
-		framework.db.search_modules(match).each do |o|
+		framework.db.search_modules(search_string).each do |o|
 			tbl << [ o.fullname, o.disclosure_date.to_s, RankingName[o.rank].to_s, o.name ]
 		end
 		print_line(tbl.to_s)
