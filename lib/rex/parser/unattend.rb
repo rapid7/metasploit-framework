@@ -11,6 +11,8 @@ module Parser
 #      http://technet.microsoft.com/en-us/library/cc749415(v=ws.10).aspx
 # Samples: http://technet.microsoft.com/en-us/library/cc732280%28v=ws.10%29.aspx
 class Unattend
+	
+	require 'rex/text'
 
 	def self.parse(xml)
 		return [] if xml.nil?
