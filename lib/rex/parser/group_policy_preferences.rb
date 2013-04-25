@@ -15,6 +15,11 @@ class GPP
 	def self.parse(data)
 		xml = REXML::Document.new(data).root
 		results = []
+
+		unless xml and xml.elements and xml.elements.to_a("//Properties")
+			return []
+		end
+
 		xml.elements.to_a("//Properties").each do |node|
 			epassword = node.attributes['cpassword']
 			next if epassword.to_s.empty?
@@ -60,12 +65,12 @@ class GPP
 			result.merge!({ :TASK => app_name }) unless app_name.blank?
 			result.merge!({ :SERVICE => service }) unless service.blank?
 
-			attributes = {}
+			attributes = []
 			node.elements.each('//Attributes//Attribute') do |dsn_attribute|
-				attributes.merge! ({
+				attributes << {
 					:A_NAME => dsn_attribute.attributes['name'],
 					:A_VALUE => dsn_attribute.attributes['value']
-				})
+				}
 			end
 
 			result.merge!({ :ATTRIBUTES => attributes }) unless attributes.empty?
@@ -74,6 +79,47 @@ class GPP
 		end
 
 		return results
+	end
+
+	def self.create_tables(results, filetype, domain=nil, dc=nil)
+		tables = []
+		results.each do |result|
+			table = Rex::Ui::Text::Table.new(
+				'Header'     => 'Group Policy Credential Info',
+				'Indent'     => 1,
+				'SortIndex'  => -1,
+				'Columns'    =>
+				[
+					'Name',
+					'Value',
+				]
+			)
+
+			table << ["TYPE", filetype]
+			table << ["USERNAME", result[:USER]]
+			table << ["PASSWORD", result[:PASS]]
+			table << ["DOMAIN CONTROLLER", dc] unless dc.blank?
+			table << ["DOMAIN", domain] unless domain.blank?
+			table << ["CHANGED", result[:CHANGED]]
+			table << ["EXPIRES", result[:EXPIRES]] unless result[:EXPIRES].blank?
+			table << ["NEVER_EXPIRES?", result[:NEVER_EXPIRE]] unless result[:NEVER_EXPIRE].blank?
+			table << ["DISABLED", result[:DISABLED]] unless result[:DISABLED].blank?
+			table << ["PATH", result[:PATH]] unless result[:PATH].blank?
+			table << ["DATASOURCE", result[:DSN]] unless result[:DSN].blank?
+			table << ["DRIVER", result[:DRIVER]] unless result[:DRIVER].blank?
+			table << ["TASK", result[:TASK]] unless result[:TASK].blank?
+			table << ["SERVICE", result[:SERVICE]] unless result[:SERVICE].blank?
+
+			unless result[:ATTRIBUTES].blank? or result[:ATTRIBUTES].empty?
+				result[:ATTRIBUTES].each do |dsn_attribute|
+					table << ["ATTRIBUTE", "#{dsn_attribute[:A_NAME]} - #{dsn_attribute[:A_VALUE]}"]
+				end
+			end
+
+			tables << table
+		end
+
+		return tables
 	end
 
 	# Decrypts passwords using Microsoft's published key:

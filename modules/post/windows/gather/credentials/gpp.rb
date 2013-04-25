@@ -215,46 +215,16 @@ class Metasploit3 < Msf::Post
 	def parse_xml(xmlfile)
 		mxml = xmlfile[:xml]
 		print_status "Parsing file: #{xmlfile[:path]} ..."
-		filetype = xmlfile[:path].split('\\').last()
-
+		filetype = File.basename(xmlfile[:path].gsub("\\","/"))
 		results = Rex::Parser::GPP.parse(mxml)
-		p results
+
+		tables = Rex::Parser::GPP.create_tables(results, filetype, xmlfile[:domain], xmlfile[:dc])
+
+		tables.each do |table|
+			table.print
+		end
+
 		results.each do |result|
-
-			table = Rex::Ui::Text::Table.new(
-				'Header'     => 'Group Policy Credential Info',
-				'Indent'     => 1,
-				'SortIndex'  => -1,
-				'Columns'    =>
-				[
-					'Name',
-					'Value',
-				]
-			)
-
-			table << ["TYPE", filetype]
-			table << ["USERNAME", result[:USER]]
-			table << ["PASSWORD", result[:PASS]]
-			table << ["DOMAIN CONTROLLER", xmlfile[:dc]]
-			table << ["DOMAIN", xmlfile[:domain]]
-			table << ["CHANGED", result[:CHANGED]]
-			table << ["EXPIRES", result[:EXPIRES]] unless result[:EXPIRES].blank?
-			table << ["NEVER_EXPIRES?", result[:NEVER_EXPIRE]] unless result[:NEVER_EXPIRE].blank?
-			table << ["DISABLED", result[:DISABLED]] unless result[:DISABLED].blank?
-			table << ["PATH", result[:PATH]] unless result[:PATH].blank?
-			table << ["DATASOURCE", result[:DSN]] unless result[:DSN].blank?
-			table << ["DRIVER", result[:DRIVER]] unless result[:DRIVER].blank?
-			table << ["TASK", result[:TASK]] unless result[:TASK].blank?
-			table << ["SERVICE", result[:SERVICE]] unless result[:SERVICE].blank?
-
-			unless result[:ATTRIBUTES].blank? or result[:ATTRIBUTES].empty?
-				result[:ATTRIBUTES].each do |dsn_attribute|
-					table << ["ATTRIBUTE", "#{dsn_attribute[:A_NAME]} - #{dsn_attribute[:A_VALUE]}"]
-				end
-			end
-
-			print_good table.to_s
-
 			if datastore['STORE']
 				stored_path = store_loot('windows.gpp.xml', 'text/plain', session, xmlfile[:xml], filetype, xmlfile[:path])
 				print_status("XML file saved to: #{stored_path}")
