@@ -198,7 +198,7 @@ class Metasploit3 < Msf::Post
 			retobj = {
 				:dc     => spath[2],
 				:path   => path,
-				:xml    => REXML::Document.new(data).root
+				:xml    => data
 			}
 			if spath[4] == "sysvol"
 				retobj[:domain] = spath[5]
@@ -218,7 +218,7 @@ class Metasploit3 < Msf::Post
 		filetype = xmlfile[:path].split('\\').last()
 
 		results = Rex::Parser::GPP.parse(mxml)
-
+		p results
 		results.each do |result|
 
 			table = Rex::Ui::Text::Table.new(
@@ -247,7 +247,7 @@ class Metasploit3 < Msf::Post
 			table << ["TASK", result[:TASK]] unless result[:TASK].blank?
 			table << ["SERVICE", result[:SERVICE]] unless result[:SERVICE].blank?
 
-			unless result[:ATTRIBUTES].empty?
+			unless result[:ATTRIBUTES].blank? or result[:ATTRIBUTES].empty?
 				result[:ATTRIBUTES].each do |dsn_attribute|
 					table << ["ATTRIBUTE", "#{dsn_attribute[:A_NAME]} - #{dsn_attribute[:A_VALUE]}"]
 				end
@@ -260,7 +260,7 @@ class Metasploit3 < Msf::Post
 				print_status("XML file saved to: #{stored_path}")
 			end
 
-			report_creds(user,pass) unless disabled and disabled == '1'
+			report_creds(result[:USER],result[:PASS]) unless result[:DISABLED] and result[:DISABLED] == '1'
 		end
 	end
 
