@@ -2,6 +2,10 @@ shared_context 'Msf::DBManager' do
 	include_context 'DatabaseCleaner'
 	include_context 'Msf::Simple::Framework'
 
+	let(:active) do
+		true
+	end
+
 	let(:db_manager) do
 		framework.db
 	end

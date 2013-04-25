@@ -20,6 +20,81 @@ describe Msf::DBManager do
 
 	it_should_behave_like 'Msf::DBManager::ImportMsfXml'
 
+	context '#purge_all_module_details' do
+		def purge_all_module_details
+			db_manager.purge_all_module_details
+		end
+
+		let(:migrated) do
+			false
+		end
+
+		let(:module_detail_count) do
+			2
+		end
+
+		let!(:module_details) do
+			FactoryGirl.create_list(
+					:mdm_module_detail,
+			    module_detail_count
+			)
+		end
+
+		before(:each) do
+			db_manager.stub(:migrated => migrated)
+		end
+
+		context 'with migrated' do
+			let(:migrated) do
+				true
+			end
+
+			let(:modules_caching) do
+				false
+			end
+
+			before(:each) do
+				db_manager.stub(:modules_caching => modules_caching)
+			end
+
+			context 'with modules_caching' do
+				let(:modules_caching) do
+					true
+				end
+
+				it 'should not destroy Mdm::ModuleDetails' do
+					expect {
+						purge_all_module_details
+					}.to_not change(Mdm::ModuleDetail, :count)
+				end
+			end
+
+			context 'without modules_caching' do
+				it 'should create a connection' do
+					# in purge_all_module_details
+					# in after(:each)
+					ActiveRecord::Base.connection_pool.should_receive(:with_connection).twice.and_call_original
+
+					purge_all_module_details
+				end
+
+				it 'should destroy all Mdm::ModuleDetails' do
+					expect {
+						purge_all_module_details
+					}.to change(Mdm::ModuleDetail, :count).by(-module_detail_count)
+				end
+			end
+		end
+
+		context 'without migrated' do
+			it 'should not destroy Mdm::ModuleDetails' do
+				expect {
+					purge_all_module_details
+				}.to_not change(Mdm::ModuleDetail, :count)
+			end
+		end
+	end
+
 	context '#report_session' do
 		let(:options) do
 			{}
@@ -664,6 +739,1022 @@ describe Msf::DBManager do
 				ActiveRecord::Base.connection_pool.should_receive(:with_connection).once
 
 				report_session
+			end
+		end
+	end
+
+	context '#remove_module_details' do
+		def remove_module_details
+			db_manager.remove_module_details(mtype, refname)
+		end
+
+		let(:migrated) do
+			false
+		end
+
+		let(:mtype) do
+			FactoryGirl.generate :mdm_module_detail_mtype
+		end
+
+		let(:refname) do
+			FactoryGirl.generate :mdm_module_detail_refname
+		end
+
+		let!(:module_detail) do
+			FactoryGirl.create(
+					:mdm_module_detail
+			)
+		end
+
+		before(:each) do
+			db_manager.stub(:migrated => migrated)
+		end
+
+		context 'with migrated' do
+			let(:migrated) do
+				true
+			end
+
+			let!(:module_detail) do
+				FactoryGirl.create(:mdm_module_detail)
+			end
+
+			context 'with matching Mdm::ModuleDetail' do
+				let(:mtype) do
+					module_detail.mtype
+				end
+
+				let(:refname) do
+					module_detail.refname
+				end
+
+				it 'should destroy Mdm::ModuleDetail' do
+					expect {
+						remove_module_details
+					}.to change(Mdm::ModuleDetail, :count).by(-1)
+				end
+			end
+
+			context 'without matching Mdm::ModuleDetail' do
+				it 'should not destroy Mdm::ModuleDetail' do
+					expect {
+						remove_module_details
+					}.to_not change(Mdm::ModuleDetail, :count)
+				end
+			end
+		end
+
+		context 'without migrated' do
+			it 'should not destroy Mdm::ModuleDetail' do
+				expect {
+					remove_module_details
+				}.to_not change(Mdm::ModuleDetail, :count)
+			end
+		end
+	end
+
+	context '#search_modules' do
+		subject(:module_details) do
+			db_manager.search_modules(search_string)
+		end
+
+		context 'with app keyword' do
+			let(:search_string) do
+				"app:#{app}"
+			end
+
+			before(:each) do
+				['active', 'passive'].each do |stance|
+					FactoryGirl.create(:mdm_module_detail, :stance => stance)
+				end
+			end
+
+			context 'with client' do
+				let(:app) do
+					'client'
+				end
+
+				it "should match Mdm::ModuleDetail#stance 'passive'" do
+					module_details.count.should > 0
+
+					module_details.all? { |module_detail|
+						module_detail.stance == 'passive'
+					}.should be_true
+				end
+			end
+
+			context 'with server' do
+				let(:app) do
+					'server'
+				end
+
+				it "should match Mdm::ModuleDetail#stance 'active'" do
+					module_details.count.should > 0
+
+					module_details.all? { |module_detail|
+						module_detail.stance == 'active'
+					}.should be_true
+				end
+			end
+		end
+
+		context 'with author keyword' do
+			let(:search_string) do
+        # us inspect so strings with spaces are quoted correctly
+				"author:#{author}"
+			end
+
+			let!(:module_authors) do
+				FactoryGirl.create_list(:mdm_module_author, 2)
+			end
+
+			let(:target_module_author) do
+				module_authors.first
+			end
+
+			context 'with Mdm::ModuleAuthor#email' do
+				let(:author) do
+					target_module_author.email
+				end
+
+				it 'should match Mdm::ModuleAuthor#email' do
+					module_details.count.should > 0
+
+					module_details.all? { |module_detail|
+						module_detail.authors.any? { |module_author|
+							module_author.email == target_module_author.email
+						}
+					}.should be_true
+				end
+			end
+
+			context 'with Mdm::ModuleAuthor#name' do
+        let(:author) do
+          # use inspect to quote space in name
+          target_module_author.name.inspect
+        end
+
+				it 'should match Mdm::ModuleAuthor#name' do
+					module_details.count.should > 0
+
+					module_details.all? { |module_detail|
+						module_detail.authors.any? { |module_author|
+							module_author.name == target_module_author.name
+						}
+					}.should be_true
+				end
+			end
+		end
+
+		it_should_behave_like 'Msf::DBManager#search_modules Mdm::ModuleRef#name keyword', :bid
+		it_should_behave_like 'Msf::DBManager#search_modules Mdm::ModuleRef#name keyword', :cve
+		it_should_behave_like 'Msf::DBManager#search_modules Mdm::ModuleRef#name keyword', :edb
+
+		context 'with name keyword' do
+			let(:search_string) do
+				"name:#{name}"
+			end
+
+			let!(:existing_module_details) do
+				FactoryGirl.create_list(:mdm_module_detail, 2)
+			end
+
+			let(:target_module_detail) do
+				existing_module_details.first
+			end
+
+			context 'with Mdm::ModuleDetail#fullname' do
+				let(:name) do
+					target_module_detail.fullname
+				end
+
+				it 'should match Mdm::ModuleDetail#fullname' do
+					module_details.count.should > 0
+
+					module_details.all? { |module_detail|
+						module_detail.fullname == target_module_detail.fullname
+					}.should be_true
+				end
+			end
+
+			context 'with Mdm::moduleDetail#name' do
+				let(:name) do
+					target_module_detail.name
+				end
+
+				it 'should match Mdm::ModuleDetail#name' do
+					module_details.count.should > 0
+
+					module_details.all? { |module_detail|
+						module_detail.name == target_module_detail.name
+					}.should be_true
+				end
+			end
+		end
+
+		it_should_behave_like 'Msf::DBManager#search_modules Mdm::ModulePlatform#name or Mdm::ModuleTarget#name keyword', :os
+
+		it_should_behave_like 'Msf::DBManager#search_modules Mdm::ModuleRef#name keyword', :osvdb
+
+		it_should_behave_like 'Msf::DBManager#search_modules Mdm::ModulePlatform#name or Mdm::ModuleTarget#name keyword', :platform
+
+		context 'with ref keyword' do
+			let(:ref) do
+				FactoryGirl.generate :mdm_module_ref_name
+			end
+
+			let(:search_string) do
+				"ref:#{ref}"
+			end
+
+			let!(:module_ref) do
+				FactoryGirl.create(:mdm_module_ref)
+			end
+
+			context 'with Mdm::ModuleRef#name' do
+				let(:ref) do
+					module_ref.name
+				end
+
+				it 'should match Mdm::ModuleRef#name' do
+					module_details.count.should > 0
+
+					module_details.all? { |module_detail|
+						module_detail.refs.any? { |module_ref|
+							module_ref.name == ref
+						}
+					}.should be_true
+				end
+			end
+
+			context 'without Mdm::moduleRef#name' do
+				it 'should not match Mdm::ModuleRef#name' do
+					module_details.count.should == 0
+				end
+			end
+		end
+
+		context 'with type keyword' do
+			let(:type) do
+				FactoryGirl.generate :mdm_module_detail_mtype
+			end
+
+			let(:search_string) do
+				"type:#{type}"
+			end
+
+			let(:target_module_detail) do
+				all_module_details.first
+			end
+
+			let!(:all_module_details) do
+				FactoryGirl.create_list(:mdm_module_detail, 2)
+			end
+
+			context 'with Mdm::ModuleRef#name' do
+				let(:type) do
+					target_module_detail.mtype
+				end
+
+				it 'should match Mdm::ModuleDetail#mtype' do
+					module_details.count.should > 0
+
+					module_details.all? { |module_detail|
+						module_detail.mtype == type
+					}.should be_true
+				end
+			end
+
+			context 'without Mdm::ModuleDetail#mtype' do
+				it 'should not match Mdm::ModuleDetail#mtype' do
+					module_details.count.should == 0
+				end
+			end
+		end
+
+		context 'without keyword' do
+			context 'with Mdm::ModuleAction#name' do
+				let(:search_string) do
+					module_action.name
+				end
+
+				let!(:module_action) do
+					FactoryGirl.create(:mdm_module_action)
+				end
+
+				it 'should match Mdm::ModuleAction#name' do
+					module_details.count.should > 0
+
+					module_details.all? { |module_detail|
+						module_detail.actions.any? { |module_action|
+							module_action.name == search_string
+						}
+					}.should be_true
+				end
+			end
+
+			context 'with Mdm::ModuleArch#name' do
+				let(:search_string) do
+					module_arch.name
+				end
+
+				let!(:module_arch) do
+					FactoryGirl.create(:mdm_module_arch)
+				end
+
+				it 'should match Mdm::ModuleArch#name' do
+					module_details.count.should > 0
+
+					module_details.all? { |module_detail|
+						module_detail.archs.any? { |module_arch|
+							module_arch.name == search_string
+						}
+					}.should be_true
+				end
+			end
+
+			context 'with Mdm::ModuleAuthor#name' do
+				let(:search_string) do
+					module_author.name
+				end
+
+				let!(:module_author) do
+					FactoryGirl.create(:mdm_module_author)
+				end
+
+				it 'should match Mdm::ModuleAuthor#name' do
+					module_details.count.should > 0
+
+					module_details.all? { |module_detail|
+						module_detail.authors.any? { |module_author|
+							module_author.name == search_string
+						}
+					}.should be_true
+				end
+			end
+
+			context 'with Mdm::ModuleDetail' do
+				let(:target_module_detail) do
+					all_module_details.first
+				end
+
+				let!(:all_module_details) do
+					FactoryGirl.create_list(:mdm_module_detail, 3)
+				end
+
+				context 'with #description' do
+					let(:search_string) do
+						target_module_detail.description
+					end
+
+					it 'should match Mdm::ModuleDetail#description' do
+						module_details.count.should == 1
+
+						module_details.all? { |module_detail|
+							module_detail.description == search_string
+						}.should be_true
+					end
+				end
+
+				context 'with #fullname' do
+					let(:search_string) do
+						target_module_detail.fullname
+					end
+
+					it 'should match Mdm::ModuleDetail#fullname' do
+						module_details.count.should == 1
+
+						module_details.all? { |module_detail|
+							module_detail.fullname == search_string
+						}.should be_true
+					end
+				end
+
+				context 'with #name' do
+					let(:search_string) do
+						target_module_detail.name
+					end
+
+					it 'should match Mdm::ModuleDetail#name' do
+						module_details.count.should == 1
+
+						module_details.all? { |module_detail|
+							module_detail.name == search_string
+						}.should be_true
+					end
+				end
+			end
+
+			context 'with Mdm::ModulePlatform#name' do
+				let(:search_string) do
+					module_platform.name
+				end
+
+				let!(:module_platform) do
+					FactoryGirl.create(:mdm_module_platform)
+				end
+
+				it 'should match Mdm::ModulePlatform#name' do
+					module_details.count.should > 0
+
+					module_details.all? { |module_detail|
+						module_detail.platforms.any? { |module_platform|
+							module_platform.name == search_string
+						}
+					}.should be_true
+				end
+			end
+
+			context 'with Mdm::ModuleRef#name' do
+				let(:search_string) do
+					module_ref.name
+				end
+
+				let!(:module_ref) do
+					FactoryGirl.create(:mdm_module_ref)
+				end
+
+				it 'should match Mdm::ModuleRef#name' do
+					module_details.count.should > 0
+
+					module_details.all? { |module_detail|
+						module_detail.refs.any? { |module_ref|
+							module_ref.name == search_string
+						}
+					}.should be_true
+				end
+			end
+
+			context 'with Mdm::ModuleTarget#name' do
+				let(:search_string) do
+					module_target.name
+				end
+
+				let!(:module_target) do
+					FactoryGirl.create(:mdm_module_target)
+				end
+
+				it 'should match Mdm::ModuleTarget#name' do
+					module_details.count.should > 0
+
+					module_details.all? { |module_detail|
+						module_detail.targets.any? { |module_target|
+							module_target.name == search_string
+						}
+					}.should be_true
+				end
+			end
+		end
+	end
+
+	context '#update_all_module_details' do
+		def update_all_module_details
+			db_manager.update_all_module_details
+		end
+
+		let(:migrated) do
+			false
+		end
+
+		before(:each) do
+			db_manager.stub(:migrated => migrated)
+		end
+
+		context 'with migrated' do
+			let(:migrated) do
+				true
+			end
+
+			let(:modules_caching) do
+				true
+			end
+
+			before(:each) do
+				db_manager.stub(:modules_caching => modules_caching)
+			end
+
+			context 'with modules_caching' do
+				it 'should not update module details' do
+					db_manager.should_not_receive(:update_module_details)
+
+					update_all_module_details
+				end
+			end
+
+			context 'without modules_caching' do
+				let(:modules_caching) do
+					false
+				end
+
+				it 'should create a connection' do
+					ActiveRecord::Base.connection_pool.should_receive(:with_connection).twice.and_call_original
+
+					update_all_module_details
+				end
+
+				it 'should set framework.cache_thread to current thread and then nil around connection' do
+					framework.should_receive(:cache_thread=).with(Thread.current).ordered
+					ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered
+					framework.should_receive(:cache_thread=).with(nil).ordered
+
+					update_all_module_details
+
+					ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered.and_call_original
+				end
+
+				it 'should set modules_cached to false and then true around connection' do
+					db_manager.should_receive(:modules_cached=).with(false).ordered
+					ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered
+					db_manager.should_receive(:modules_cached=).with(true).ordered
+
+					update_all_module_details
+
+					ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered.and_call_original
+				end
+
+				it 'should set modules_caching to true and then false around connection' do
+					db_manager.should_receive(:modules_caching=).with(true).ordered
+					ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered
+					db_manager.should_receive(:modules_caching=).with(false).ordered
+
+					update_all_module_details
+
+					ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered.and_call_original
+				end
+
+				context 'with Mdm::ModuleDetails' do
+					let(:module_pathname) do
+						parent_pathname.join(
+								'exploits',
+						    "#{reference_name}.rb"
+						)
+					end
+
+					let(:modification_time) do
+						module_pathname.mtime
+					end
+
+					let(:parent_pathname) do
+						Metasploit::Framework.root.join('modules')
+					end
+
+					let(:reference_name) do
+						'windows/smb/ms08_067_netapi'
+					end
+
+					let(:type) do
+						'exploit'
+					end
+
+					let!(:module_detail) do
+						# needs to reference a real module so that it can be loaded
+						FactoryGirl.create(
+								:mdm_module_detail,
+								:file => module_pathname.to_path,
+								:mtime => modification_time,
+								:mtype => type,
+						    :ready => ready,
+						    :refname => reference_name
+						)
+					end
+
+					context '#ready' do
+						context 'false' do
+							let(:ready) do
+								false
+							end
+
+							it_should_behave_like 'Msf::DBManager#update_all_module_details refresh'
+						end
+
+						context 'true' do
+							let(:ready) do
+								true
+							end
+
+							context 'with existing Mdm::ModuleDetail#file' do
+								context 'with same Mdm::ModuleDetail#mtime and File.mtime' do
+									it 'should not update module details' do
+										db_manager.should_not_receive(:update_module_details)
+
+										update_all_module_details
+									end
+								end
+
+								context 'without same Mdm::ModuleDetail#mtime and File.mtime' do
+									let(:modification_time) do
+										# +1 as rand can return 0 and the time must be different for
+										# this context.
+										super() - (rand(1.day) + 1)
+									end
+
+									it_should_behave_like 'Msf::DBManager#update_all_module_details refresh'
+								end
+							end
+
+							# Emulates a module being removed or renamed
+							context 'without existing Mdm::ModuleDetail#file' do
+								# have to compute modification manually since the
+								# `module_pathname` refers to a non-existent file and
+								# `module_pathname.mtime` would error.
+								let(:modification_time) do
+									Time.now.utc - 1.day
+								end
+
+								let(:module_pathname) do
+									parent_pathname.join('exploits', 'deleted.rb')
+								end
+
+								it 'should not update module details' do
+									db_manager.should_not_receive(:update_module_details)
+
+									update_all_module_details
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+
+		context 'without migrated' do
+			it 'should not update module details' do
+				db_manager.should_not_receive(:update_module_details)
+
+				update_all_module_details
+			end
+		end
+	end
+
+	context '#update_module_details' do
+		def update_module_details
+			db_manager.update_module_details(module_instance)
+		end
+
+		let(:loader) do
+			loader = framework.modules.send(:loaders).find { |loader|
+				loader.loadable?(parent_path)
+			}
+
+			# Override load_error so that rspec will print it instead of going to framework log
+			def loader.load_error(module_path, error)
+				raise error
+			end
+
+			loader
+		end
+
+		let(:migrated) do
+			false
+		end
+
+		let(:module_instance) do
+			# make sure the module is loaded into the module_set
+			loaded = loader.load_module(parent_path, module_type, module_reference_name)
+
+			unless loaded
+				module_path = loader.module_path(parent_path, type, module_reference_name)
+
+				fail "#{description} failed to load: #{module_path}"
+			end
+
+			module_set.create(module_reference_name)
+		end
+
+		let(:module_set) do
+			framework.exploits
+		end
+
+		let(:module_type) do
+			'exploit'
+		end
+
+		let(:module_reference_name) do
+			'windows/smb/ms08_067_netapi'
+		end
+
+		let(:parent_path) do
+			parent_pathname.to_path
+		end
+
+		let(:parent_pathname) do
+			Metasploit::Framework.root.join('modules')
+		end
+
+		let(:type_directory) do
+			'exploits'
+		end
+
+		before(:each) do
+			db_manager.stub(:migrated => migrated)
+		end
+
+		context 'with migrated' do
+			let(:migrated) do
+				true
+			end
+
+			it 'should create connection' do
+				ActiveRecord::Base.connection_pool.should_receive(:with_connection)
+				ActiveRecord::Base.connection_pool.should_receive(:with_connection).and_call_original
+
+				update_module_details
+			end
+
+			it 'should call module_to_details_hash to get Mdm::ModuleDetail attributs and association attributes' do
+				db_manager.should_receive(:module_to_details_hash).and_return({})
+
+				update_module_details
+			end
+
+			it 'should create an Mdm::ModuleDetail' do
+				expect {
+					update_module_details
+				}.to change(Mdm::ModuleDetail, :count).by(1)
+			end
+
+
+			context 'module_to_details_hash' do
+				let(:module_to_details_hash) do
+					{
+							:refname => module_reference_name
+					}
+				end
+
+				before(:each) do
+					db_manager.stub(
+							:module_to_details_hash
+					).with(
+							module_instance
+					).and_return(
+							module_to_details_hash
+					)
+				end
+
+				context 'Mdm::ModuleDetail' do
+					subject(:module_detail) do
+						Mdm::ModuleDetail.last
+					end
+
+					before(:each) do
+						update_module_details
+					end
+
+					its(:ready) { should == true }
+					its(:refname) { should == module_reference_name }
+				end
+
+				context 'with :bits' do
+					let(:bits) do
+						[]
+					end
+
+					before(:each) do
+						module_to_details_hash[:bits] = bits
+					end
+
+					context 'with :action' do
+						let(:name) do
+							FactoryGirl.generate :mdm_module_action_name
+						end
+
+						let(:bits) do
+							super() << [
+									:action,
+							    {
+									    :name => name
+							    }
+							]
+						end
+
+						it 'should create an Mdm::ModuleAction' do
+							expect {
+								update_module_details
+							}.to change(Mdm::ModuleAction, :count).by(1)
+						end
+
+						context 'Mdm::ModuleAction' do
+							subject(:module_action) do
+								module_detail.actions.last
+							end
+
+							let(:module_detail) do
+								Mdm::ModuleDetail.last
+							end
+
+							before(:each) do
+								update_module_details
+							end
+
+							its(:name) { should == name }
+						end
+					end
+
+					context 'with :arch' do
+						let(:name) do
+							FactoryGirl.generate :mdm_module_arch_name
+						end
+
+						let(:bits) do
+							super() << [
+									:arch,
+							    {
+									    :name => name
+							    }
+							]
+						end
+
+						it 'should create an Mdm::ModuleArch' do
+							expect {
+								update_module_details
+							}.to change(Mdm::ModuleArch, :count).by(1)
+						end
+
+						context 'Mdm::ModuleArch' do
+							subject(:module_arch) do
+								module_detail.archs.last
+							end
+
+							let(:module_detail) do
+								Mdm::ModuleDetail.last
+							end
+
+							before(:each) do
+								update_module_details
+							end
+
+							its(:name) { should == name }
+						end
+					end
+
+					context 'with :author' do
+						let(:email) do
+							FactoryGirl.generate :mdm_module_author_email
+						end
+
+						let(:name) do
+							FactoryGirl.generate :mdm_module_author_name
+						end
+
+						let(:bits) do
+							super() << [
+									:author,
+							    {
+									    :email => email,
+							        :name => name
+							    }
+							]
+						end
+
+						it 'should create an Mdm::ModuleAuthor' do
+							expect {
+								update_module_details
+							}.to change(Mdm::ModuleAuthor, :count).by(1)
+						end
+
+						context 'Mdm::ModuleAuthor' do
+							subject(:module_author) do
+								module_detail.authors.last
+							end
+
+							let(:module_detail) do
+								Mdm::ModuleDetail.last
+							end
+
+							before(:each) do
+								update_module_details
+							end
+
+							its(:name) { should == name }
+							its(:email) { should == email }
+						end
+					end
+
+					context 'with :platform' do
+						let(:bits) do
+							super() << [
+									:platform,
+							    {
+									    :name => name
+							    }
+							]
+						end
+
+						let(:name) do
+							FactoryGirl.generate :mdm_module_platform_name
+						end
+
+						it 'should create an Mdm::ModulePlatform' do
+							expect {
+								update_module_details
+							}.to change(Mdm::ModulePlatform, :count).by(1)
+						end
+
+						context 'Mdm::ModulePlatform' do
+							subject(:module_platform) do
+								module_detail.platforms.last
+							end
+
+							let(:module_detail) do
+								Mdm::ModuleDetail.last
+							end
+
+							before(:each) do
+								update_module_details
+							end
+
+							its(:name) { should == name }
+						end
+					end
+
+					context 'with :ref' do
+						let(:bits) do
+							super() << [
+									:ref,
+							    {
+									    :name => name
+							    }
+							]
+						end
+
+						let(:name) do
+							FactoryGirl.generate :mdm_module_ref_name
+						end
+
+						it 'should create an Mdm::ModuleRef' do
+							expect {
+								update_module_details
+							}.to change(Mdm::ModuleRef, :count).by(1)
+						end
+
+						context 'Mdm::ModuleRef' do
+							subject(:module_ref) do
+								module_detail.refs.last
+							end
+
+							let(:module_detail) do
+								Mdm::ModuleDetail.last
+							end
+
+							before(:each) do
+								update_module_details
+							end
+
+							its(:name) { should == name }
+						end
+					end
+
+					context 'with :target' do
+						let(:bits) do
+							super() << [
+									:target,
+									{
+											:index => index,
+											:name => name
+									}
+							]
+						end
+
+						let(:index) do
+							FactoryGirl.generate :mdm_module_target_index
+						end
+
+						let(:name) do
+							FactoryGirl.generate :mdm_module_target_name
+						end
+
+						it 'should create an Mdm::ModuleTarget' do
+							expect {
+								update_module_details
+							}.to change(Mdm::ModuleTarget, :count).by(1)
+						end
+
+						context 'Mdm::ModuleTarget' do
+							subject(:module_target) do
+								module_detail.targets.last
+							end
+
+							let(:module_detail) do
+								Mdm::ModuleDetail.last
+							end
+
+							before(:each) do
+								update_module_details
+							end
+
+							its(:index) { should == index }
+							its(:name) { should == name }
+						end
+					end
+				end
+			end
+		end
+
+		context 'without migrated' do
+			it 'should not create an Mdm::ModuleDetail' do
+				expect {
+					update_module_details
+				}.to_not change(Mdm::ModuleDetail, :count)
 			end
 		end
 	end

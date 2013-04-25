@@ -314,6 +314,12 @@ class DBManager
 	end
 
 
+	# @note Does nothing unless {#migrated} is +true+ and {#modules_caching} is
+	#   +false+.
+	#
+	# Destroys all Mdm::ModuleDetails in the database.
+	#
+	# @return [void]
 	def purge_all_module_details
 		return if not self.migrated
 		return if self.modules_caching
@@ -321,10 +327,15 @@ class DBManager
 		::ActiveRecord::Base.connection_pool.with_connection do
 			Mdm::ModuleDetail.destroy_all
 		end
-
-		true
 	end
 
+	# Destroys the old Mdm::ModuleDetail and creates a new Mdm::ModuleDetail for
+	# any module with an Mdm::ModuleDetail where the modification time of the
+	# Mdm::ModuleDetail#file differs from the Mdm::ModuleDetail#mtime.  If the
+	# Mdm::ModuleDetail#file no only exists on disk, then the Mdm::ModuleDetail
+	# is just destroyed without a new one being created.
+	#
+	# @return [void]
 	def update_all_module_details
 		return if not self.migrated
 		return if self.modules_caching
@@ -334,106 +345,110 @@ class DBManager
 		self.modules_cached  = false
 		self.modules_caching = true
 
-		::ActiveRecord::Base.connection_pool.with_connection {
+		ActiveRecord::Base.connection_pool.with_connection do
 
-		refresh = []
-		skipped = []
+			refresh = []
+			skipped = []
 
-		Mdm::ModuleDetail.find_each do |md|
+			Mdm::ModuleDetail.find_each do |md|
 
-			unless md.ready
-				refresh << md
-				next
+				unless md.ready
+					refresh << md
+					next
+				end
+
+				unless md.file and ::File.exists?(md.file)
+					refresh << md
+					next
+				end
+
+				if ::File.mtime(md.file).to_i != md.mtime.to_i
+					refresh << md
+					next
+				end
+
+				skipped << [md.mtype, md.refname]
 			end
 
-			unless md.file and ::File.exists?(md.file)
-				refresh << md
-				next
-			end
+			refresh.each { |md| md.destroy }
 
-			if ::File.mtime(md.file).to_i != md.mtime.to_i
-				refresh << md
-				next
-			end
-
-			skipped << [md.mtype, md.refname]
-		end
-
-		refresh.each  {|md| md.destroy }
-		refresh = nil
-
-		[
-			[ 'exploit',   framework.exploits  ],
-			[ 'auxiliary', framework.auxiliary ],
-			[ 'post',      framework.post      ],
-			[ 'payload',   framework.payloads  ],
-			[ 'encoder',   framework.encoders  ],
-			[ 'nop',       framework.nops      ]
-		].each do |mt|
-			mt[1].keys.sort.each do |mn|
-				next if skipped.include?( [ mt[0], mn ] )
-				obj   = mt[1].create(mn)
-				next if not obj
-				begin
-					update_module_details(obj)
-				rescue ::Exception
-					elog("Error updating module details for #{obj.fullname}: #{$!.class} #{$!}")
+			[
+					['exploit', framework.exploits],
+					['auxiliary', framework.auxiliary],
+					['post', framework.post],
+					['payload', framework.payloads],
+					['encoder', framework.encoders],
+					['nop', framework.nops]
+			].each do |mt|
+				mt[1].keys.sort.each do |mn|
+					next if skipped.include?([mt[0], mn])
+					obj = mt[1].create(mn)
+					next if not obj
+					begin
+						update_module_details(obj)
+					rescue ::Exception
+						elog("Error updating module details for #{obj.fullname}: #{$!.class} #{$!}")
+					end
 				end
 			end
+
+			self.framework.cache_initialized = true
 		end
 
-		self.framework.cache_initialized = true
-		self.framework.cache_thread = nil
-
-		self.modules_cached  = true
+		# in reverse order of section before with_connection block
 		self.modules_caching = false
-
-		nil
-
-		}
+		self.modules_cached  = true
+		self.framework.cache_thread = nil
 	end
 
-	def update_module_details(obj)
+	# Creates an Mdm::ModuleDetail from a module instance.
+	#
+	# @param module_instance [Msf::Module] a metasploit module instance.
+	# @return [void]
+	def update_module_details(module_instance)
 		return if not self.migrated
 
-		::ActiveRecord::Base.connection_pool.with_connection {
-		info = module_to_details_hash(obj)
-		bits = info.delete(:bits) || []
+		ActiveRecord::Base.connection_pool.with_connection do
+			info = module_to_details_hash(module_instance)
+			bits = info.delete(:bits) || []
+			module_detail = Mdm::ModuleDetail.create(info)
 
-		md = Mdm::ModuleDetail.create(info)
-		bits.each do |args|
-			otype, vals = args
-			case otype
-			when :author
-				md.add_author(vals[:name], vals[:email])
-			when :action
-				md.add_action(vals[:name])
-			when :arch
-				md.add_arch(vals[:name])
-			when :platform
-				md.add_platform(vals[:name])
-			when :target
-				md.add_target(vals[:index], vals[:name])
-			when :ref
-				md.add_ref(vals[:name])
-			when :mixin
-				# md.add_mixin(vals[:name])
+			bits.each do |args|
+				otype, vals = args
+
+				case otype
+					when :action
+						module_detail.add_action(vals[:name])
+					when :arch
+						module_detail.add_arch(vals[:name])
+					when :author
+						module_detail.add_author(vals[:name], vals[:email])
+					when :platform
+						module_detail.add_platform(vals[:name])
+					when :ref
+						module_detail.add_ref(vals[:name])
+					when :target
+						module_detail.add_target(vals[:index], vals[:name])
+				end
 			end
+
+			module_detail.ready = true
+			module_detail.save
 		end
-
-		md.ready = true
-		md.save
-		md.id
-
-		}
 	end
 
+	# Destroys Mdm::ModuleDetail if one exists for the given
+	# Mdm::ModuleDetail#mtype and Mdm::ModuleDetail#refname.
+	#
+	# @param mtype [String] module type.
+	# @param refname [String] module reference name.
+	# @return [void]
 	def remove_module_details(mtype, refname)
 		return if not self.migrated
-		::ActiveRecord::Base.connection_pool.with_connection {
-		md = Mdm::ModuleDetail.find(:conditions => [ 'mtype = ? and refname = ?', mtype, refname])
-		md.destroy if md
-		}
+
+		ActiveRecord::Base.connection_pool.with_connection do
+			Mdm::ModuleDetail.where(:mtype => mtype, :refname => refname).destroy_all
+		end
 	end
 
 	def module_to_details_hash(m)
@@ -525,17 +540,31 @@ class DBManager
 
 
 
-	#
 	# This provides a standard set of search filters for every module.
-	# The search terms are in the form of:
-	#   {
-	#     "text" => [  [ "include_term1", "include_term2", ...], [ "exclude_term1", "exclude_term2"], ... ],
-	#     "cve" => [  [ "include_term1", "include_term2", ...], [ "exclude_term1", "exclude_term2"], ... ]
-	#   }
 	#
-	# Returns true on no match, false on match
+	# Supported keywords with the format <keyword>:<search_value>:
+	# +app+:: If +client+ then matches +'passive'+ stance modules, otherwise matches +'active' stance modules.
+	# +author+:: Matches modules with the given author email or name.
+	# +bid+:: Matches modules with the given Bugtraq ID.
+	# +cve+:: Matches modules with the given CVE ID.
+	# +edb+:: Matches modules with the given Exploit-DB ID.
+	# +name+:: Matches modules with the given full name or name.
+	# +os+, +platform+:: Matches modules with the given platform or target name.
+	# +osvdb+:: Matches modules with the given OSVDB ID.
+	# +ref+:: Matches modules with the given reference ID.
+	# +type+:: Matches modules with the given type.
 	#
-	def search_modules(search_string, inclusive=false)
+	# Any text not associated with a keyword is matched against the description,
+	# the full name, and the name of the module; the name of the module actions;
+	# the name of the module archs; the name of the module authors; the name of
+	# module platform; the module refs; or the module target.
+	#
+	# @param search_string [String] a string of space separated keyword pairs or
+	#   free form text.
+	# @return [false] if search_string is +nil+
+	# @return [Array<Mdm::ModuleDetail>] module details that matched
+	#   +search_string+
+	def search_modules(search_string)
 		return false if not search_string
 
 		search_string += " "
@@ -589,8 +618,6 @@ class DBManager
 					xv = "%#{kv}%"
 					where_q << ' (  module_platforms.name ILIKE ? OR module_targets.name ILIKE ? ) '
 					where_v << [ xv, xv ]
-				when 'port'
-					# TODO
 				when 'type'
 					where_q << ' ( module_details.mtype = ? ) '
 					where_v << [ kv ]
@@ -617,7 +644,7 @@ class DBManager
 				"LEFT OUTER JOIN module_targets   ON module_details.id = module_targets.module_detail_id " +
 				"LEFT OUTER JOIN module_platforms ON module_details.id = module_platforms.module_detail_id "
 			).
-			where(where_q.join(inclusive ? " OR " : " AND "), *(where_v.flatten)).
+			where(where_q.join(" AND "), *(where_v.flatten)).
 			# Compatibility for Postgres installations prior to 9.1 - doesn't have support for wildcard group by clauses
 			group("module_details.id, module_details.mtime, module_details.file, module_details.mtype, module_details.refname, module_details.fullname, module_details.name, module_details.rank, module_details.description, module_details.license, module_details.privileged, module_details.disclosure_date, module_details.default_target, module_details.default_action, module_details.stance, module_details.ready")
 

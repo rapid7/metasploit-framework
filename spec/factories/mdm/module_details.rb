@@ -46,6 +46,9 @@ FactoryGirl.define do
 	sequence :mdm_module_detail_rank do |n|
 		(100 * n)
 	end
+
+	stances = ['active', 'passive']
+	sequence :mdm_module_detail_stance, stances.cycle
 end
 
 modules_pathname = Metasploit::Framework.root.join('modules')
@@ -70,6 +73,7 @@ FactoryGirl.modify do
 	  rank { generate :mdm_module_detail_rank }
 	  refname { generate :mdm_module_detail_refname }
 	  fullname { "#{mtype}/#{refname}" }
+	  stance { generate :mdm_module_detail_stance }
 
 	  file {
 		  type_directory = type_directory_by_type[mtype]

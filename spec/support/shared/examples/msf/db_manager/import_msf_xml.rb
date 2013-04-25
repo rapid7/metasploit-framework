@@ -21,10 +21,6 @@ shared_examples_for 'Msf::DBManager::ImportMsfXml' do
 		subject
 	end
 
-	let(:active) do
-		true
-	end
-
 	let(:allow_yaml) do
 		false
 	end
