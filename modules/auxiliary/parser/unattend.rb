@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 		))
 
 		register_options([
-			OptPath.new('PATH', [true, 'Directory to parse.']),
+			OptPath.new('PATH', [true, 'Directory or file to parse.']),
 			OptBool.new('RECURSIVE', [true, 'Recursively check for files', false]),
 		])
 	end
@@ -42,7 +42,12 @@ class Metasploit3 < Msf::Auxiliary
 			ext = "/*.xml"
 		end
 
-		filepath = File.join(datastore['PATH'], ext)
+		if datastore['PATH'].ends_with('.xml')
+			filepath = datastore['PATH']
+		else
+			filepath = File.join(datastore['PATH'], ext)
+		end
+
 		Dir.glob(filepath) do |item|
 			print_status "Processing #{item}"
 			file = File.read(item)
