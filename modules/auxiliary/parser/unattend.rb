@@ -55,11 +55,9 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			results = Rex::Parser::Unattend.parse(xml)
-			tables = Rex::Parser::Unattend.create_tables(results)
-			tables.each do |table|
-				table.print
-				print_line
-			end
+			table = Rex::Parser::Unattend.create_table(results)
+			table.print unless table.nil?
+			print_line
 		end
 	end
 end

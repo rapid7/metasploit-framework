@@ -79,12 +79,11 @@ class Metasploit3 < Msf::Post
 	#
 	# Save Rex tables separately
 	#
-	def save_cred_tables(cred_tables)
-		cred_tables.each do |t|
-			vprint_line("\n#{t.to_s}\n")
-			p = store_loot('windows.unattended.creds', 'text/csv', session, t.to_csv, t.header, t.header)
-			print_status("#{t.header} saved as: #{p}")
-		end
+	def save_cred_tables(cred_table)
+		t = cred_table
+		vprint_line("\n#{t.to_s}\n")
+		p = store_loot('windows.unattended.creds', 'text/csv', session, t.to_csv, t.header, t.header)
+		print_status("#{t.header} saved as: #{p}")
 	end
 
 
@@ -165,14 +164,12 @@ class Metasploit3 < Msf::Post
 			return if not xml
 
 			results = Rex::Parser::Unattend.parse(xml)
-			tables = Rex::Parser::Unattend.create_tables(results)
-			tables.each do |table|
-				table.print
-				print_line
-			end
+			table = Rex::Parser::Unattend.create_table(results)
+			table.print unless table.nil?
+			print_line
 
 			# Save the data
-			save_cred_tables(tables.flatten) if not tables.empty?
+			save_cred_tables(table) if not table.nil?
 
 			return if not datastore['GETALL']
 		end
