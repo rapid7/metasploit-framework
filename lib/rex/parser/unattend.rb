@@ -13,7 +13,7 @@ module Parser
 class Unattend
 
 	def self.parse(xml)
-		return [] if xml.nil? 
+		return [] if xml.nil?
 		results = []
 		unattend = xml.elements['unattend']
 		return [] if unattend.nil?
@@ -55,12 +55,12 @@ class Unattend
 	#
 	def self.extract_domain_join(credentials)
 		return [] if credentials.nil?
-                domain    = credentials.elements['Domain'].get_text.value rescue ''
-                username  = credentials.elements['Username'].get_text.value rescue ''
-                password  = credentials.elements['Password'].get_text.value rescue ''
+		domain	  = credentials.elements['Domain'].get_text.value rescue ''
+		username  = credentials.elements['Username'].get_text.value rescue ''
+		password  = credentials.elements['Password'].get_text.value rescue ''
 
-                return {'type' => 'domain_join', 'domain' => domain, 'username' => username, 'password' => password }
-	end		
+		return {'type' => 'domain_join', 'domain' => domain, 'username' => username, 'password' => password }
+	end
 
 	#
 	# Extract sensitive data from AutoLogon
@@ -152,14 +152,13 @@ class Unattend
 		})
 
 		results.each do |result|
-		       case result['type']
+			case result['type']
 				when 'wds', 'auto', 'domain_join'
 					table << [result['type'], result['domain'], result['username'], result['password'], ""]
 				when 'admin', 'local'
 					table << [result['type'], "", result['username'], result['password'], ""]
 				when 'domain'
 					table << [result['type'], "", result['username'], "", result['group']]
-					
 			end
 		end
 
