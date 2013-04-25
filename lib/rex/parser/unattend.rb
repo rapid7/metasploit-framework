@@ -12,6 +12,7 @@ module Parser
 class Unattend
 
 	def self.parse(xml)
+		return [] if xml.nil? or xml.elements['unattend'].nil?
 		results = []
 		unattend = xml.elements['unattend']
 		return if unattend.nil?
@@ -34,7 +35,7 @@ class Unattend
 	#
 	def self.extract_deployment(deployment)
 		return [] if deployment.nil?
-		domain    = deployment.elements['Login/Credentials/Domain'].get_text.value rescue ''
+		domain	  = deployment.elements['Login/Credentials/Domain'].get_text.value rescue ''
 		username  = deployment.elements['Login/Credentials/Username'].get_text.value rescue ''
 		password  = deployment.elements['Login/Credentials/Password'].get_text.value rescue ''
 		plaintext = deployment.elements['Login/Credentials/Password/PlainText'].get_text.value rescue 'true'
@@ -53,7 +54,7 @@ class Unattend
 	def self.extract_autologon(auto_logon)
 		return [] if auto_logon.nil?
 
-		domain    = auto_logon.elements['Domain'].get_text.value rescue ''
+		domain	  = auto_logon.elements['Domain'].get_text.value rescue ''
 		username  = auto_logon.elements['Username'].get_text.value rescue ''
 		password  = auto_logon.elements['Password/Value'].get_text.value rescue ''
 		plaintext = auto_logon.elements['Password/PlainText'].get_text.value rescue 'true'
@@ -128,6 +129,60 @@ class Unattend
 		return results
 	end
 
+	def self.create_tables(results)
+		return [] if results.nil? or results.empty?
+		tables = []
+		wds_table = Rex::Ui::Text::Table.new({
+			'Header' => 'WindowsDeploymentServices',
+			'Indent' => 1,
+			'Columns' => ['Domain', 'Username', 'Password']
+		})
+
+		autologin_table = Rex::Ui::Text::Table.new({
+			'Header' => 'AutoLogon',
+			'Indent' => 1,
+			'Columns' => ['Domain', 'Username', 'Password']
+		})
+
+		admin_table = Rex::Ui::Text::Table.new({
+						'Header'  => 'AdministratorPasswords',
+						'Indent'  => 1,
+						'Columns' => ['Username', 'Password']
+				})
+
+		domain_table = Rex::Ui::Text::Table.new({
+					'Header'  => 'DomainAccounts',
+					'Indent'  => 1,
+					'Columns' => ['Username', 'Group']
+				})
+
+		local_table = Rex::Ui::Text::Table.new({
+					'Header'  => 'LocalAccounts',
+					'Indent'  => 1,
+					'Columns' => ['Username', 'Password']
+				})
+		results.each do |result|
+		       case result['type']
+				when 'wds'
+					wds_table << [result['domain'], result['username'], result['password']]
+				when 'auto'
+					autologin_table << [result['domain'], result['username'], result['password']]
+				when 'admin'
+					admin_table << [result['username'], result['password']]
+				when 'domain'
+					domain_table << [result['username'], result['group']]
+				when 'local'
+					local_table << [result['username'], result['password']]
+			end
+		end
+
+		tables << autologin_table
+		tables << admin_table
+		tables << domain_table
+		tables << local_table
+
+		return tables
+	end
 end
 end
 end

@@ -7,30 +7,25 @@
 
 require 'msf/core'
 require 'rex/parser/unattend'
-require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Auxiliary::Report
-
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Auxilliary Parser Windows Group Policy Preference Passwords',
-			'Description'   => %q{
-				This module parses Group Policy Preference files in the target directory.
+			'Name'		=> 'Auxilliary Parser Windows Unattend Passwords',
+			'Description'	=> %q{
+				This module parses Unattend files in the target directory.
 
-				See also: post/windows/gather/credentials/gpp
+				See also: post/windows/gather/enum_unattend
 			},
-			'License'       => MSF_LICENSE,
-			'Author'        =>[
+			'License'	=> MSF_LICENSE,
+			'Author'	=>[
 				'Ben Campbell <eat_meatballs[at]hotmail.co.uk>',
 				],
-			'References'    =>
+			'References'	=>
 				[
-					['URL', 'http://esec-pentest.sogeti.com/exploiting-windows-2008-group-policy-preferences'],
-					['URL', 'http://msdn.microsoft.com/en-us/library/cc232604(v=prot.13)'],
-					['URL', 'http://rewtdance.blogspot.com/2012/06/exploiting-windows-2008-group-policy.html'],
-					['URL', 'http://blogs.technet.com/grouppolicy/archive/2009/04/22/passwords-in-group-policy-preferences-updated.aspx']
+					['URL', 'http://technet.microsoft.com/en-us/library/ff715801'],
+					['URL', 'http://technet.microsoft.com/en-us/library/cc749415(v=ws.10).aspx']
 				],
 		))
 
@@ -50,15 +45,22 @@ class Metasploit3 < Msf::Auxiliary
 		filepath = File.join(datastore['PATH'], ext)
 		Dir.glob(filepath) do |item|
 			print_status "Processing #{item}"
-			xml = File.read(item)
-			filetype = File.basename(item.gsub("\\","/"))
-			results = Rex::Parser::GPP.parse(xml)
-			tables = Rex::Parser::GPP.create_tables(results, filetype)
+			file = File.read(item)
+			begin
+				xml = REXML::Document.new(file)
+			rescue REXML::ParseException => e
+				print_error("#{item} invalid xml format.")
+				vprint_line(e.message)
+				next
+			end
+
+			results = Rex::Parser::Unattend.parse(xml)
+			tables = Rex::Parser::Unattend.create_tables(results)
 			tables.each do |table|
 				table.print
+				print_line
 			end
 		end
-
 	end
 end
 
