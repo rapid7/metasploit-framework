@@ -7,11 +7,8 @@
 
 require 'msf/core'
 require 'rex/parser/group_policy_preferences'
-require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Auxiliary
-
-	include Msf::Auxiliary::Report
 
 	def initialize(info={})
 		super( update_info( info,
