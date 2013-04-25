@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows Gather Group Policy Preference Saved Passwords',
+			'Name'          => 'Auxilliary Parser Windows Group Policy Preference Passwords',
 			'Description'   => %q{
 				This module parses Group Policy Preference files in the target directory.
 
