@@ -9,10 +9,14 @@ module Parser
 # and uses REXML (as opposed to Nokogiri) for its XML parsing.
 # See: http://msdn.microsoft.com/en-gb/library/cc232587.aspx
 class GPP
-
+	require 'rex'
 	require 'rexml/document'
 
 	def self.parse(data)
+		if data.nil?
+			return []
+		end
+
 		xml = REXML::Document.new(data).root
 		results = []
 
@@ -29,7 +33,7 @@ class GPP
 			user = node.attributes['accountName'] if node.attributes['accountName']
 			user = node.attributes['username'] if node.attributes['username']
 			user = node.attributes['userName'] if node.attributes['userName']
-			user = node.attributes['newName'] unless node.attributes['newName'].blank?
+			user = node.attributes['newName'] unless node.attributes['newName'].nil? or node.attributes['newName'].empty?
 			changed = node.parent.attributes['changed']
 
 			# Printers and Shares
@@ -56,14 +60,14 @@ class GPP
 				:CHANGED => changed
 			}
 
-			result.merge!({ :EXPIRES => expires }) unless expires.blank?
-			result.merge!({ :NEVER_EXPIRE => never_expires }) unless never_expires.blank?
-			result.merge!({ :DISABLED => disabled }) unless disabled.blank?
-			result.merge!({	:PATH => path }) unless path.blank?
-			result.merge!({ :DATASOURCE => dsn }) unless dsn.blank?
-			result.merge!({ :DRIVER => driver }) unless driver.blank?
-			result.merge!({ :TASK => app_name }) unless app_name.blank?
-			result.merge!({ :SERVICE => service }) unless service.blank?
+			result.merge!({ :EXPIRES => expires }) unless expires.nil? or expires.empty?
+			result.merge!({ :NEVER_EXPIRE => never_expires }) unless never_expires.nil? or never_expires.empty?
+			result.merge!({ :DISABLED => disabled }) unless disabled.nil? or disabled.empty?
+			result.merge!({	:PATH => path }) unless path.nil? or path.empty?
+			result.merge!({ :DATASOURCE => dsn }) unless dsn.nil? or dsn.empty?
+			result.merge!({ :DRIVER => driver }) unless driver.nil? or driver.empty?
+			result.merge!({ :TASK => app_name }) unless app_name.nil? or app_name.empty?
+			result.merge!({ :SERVICE => service }) unless service.nil? or service.empty?
 
 			attributes = []
 			node.elements.each('//Attributes//Attribute') do |dsn_attribute|
@@ -98,19 +102,19 @@ class GPP
 			table << ["TYPE", filetype]
 			table << ["USERNAME", result[:USER]]
 			table << ["PASSWORD", result[:PASS]]
-			table << ["DOMAIN CONTROLLER", dc] unless dc.blank?
-			table << ["DOMAIN", domain] unless domain.blank?
+			table << ["DOMAIN CONTROLLER", dc] unless dc.nil? or dc.empty?
+			table << ["DOMAIN", domain] unless domain.nil? or domain.empty?
 			table << ["CHANGED", result[:CHANGED]]
-			table << ["EXPIRES", result[:EXPIRES]] unless result[:EXPIRES].blank?
-			table << ["NEVER_EXPIRES?", result[:NEVER_EXPIRE]] unless result[:NEVER_EXPIRE].blank?
-			table << ["DISABLED", result[:DISABLED]] unless result[:DISABLED].blank?
-			table << ["PATH", result[:PATH]] unless result[:PATH].blank?
-			table << ["DATASOURCE", result[:DSN]] unless result[:DSN].blank?
-			table << ["DRIVER", result[:DRIVER]] unless result[:DRIVER].blank?
-			table << ["TASK", result[:TASK]] unless result[:TASK].blank?
-			table << ["SERVICE", result[:SERVICE]] unless result[:SERVICE].blank?
+			table << ["EXPIRES", result[:EXPIRES]] unless result[:EXPIRES].nil? or result[:EXPIRES].empty?
+			table << ["NEVER_EXPIRES?", result[:NEVER_EXPIRE]] unless result[:NEVER_EXPIRE].nil? or result[:NEVER_EXPIRE].empty?
+			table << ["DISABLED", result[:DISABLED]] unless result[:DISABLED].nil? or result[:DISABLED].empty?
+			table << ["PATH", result[:PATH]] unless result[:PATH].nil? or result[:PATH].empty?
+			table << ["DATASOURCE", result[:DSN]] unless result[:DSN].nil? or result[:DSN].empty?
+			table << ["DRIVER", result[:DRIVER]] unless result[:DRIVER].nil? or result[:DRIVER].empty?
+			table << ["TASK", result[:TASK]] unless result[:TASK].nil? or result[:TASK].empty?
+			table << ["SERVICE", result[:SERVICE]] unless result[:SERVICE].nil? or result[:SERVICE].empty?
 
-			unless result[:ATTRIBUTES].blank? or result[:ATTRIBUTES].empty?
+			unless result[:ATTRIBUTES].nil? or result[:ATTRIBUTES].empty?
 				result[:ATTRIBUTES].each do |dsn_attribute|
 					table << ["ATTRIBUTE", "#{dsn_attribute[:A_NAME]} - #{dsn_attribute[:A_VALUE]}"]
 				end
@@ -125,6 +129,10 @@ class GPP
 	# Decrypts passwords using Microsoft's published key:
 	# http://msdn.microsoft.com/en-us/library/cc422924.aspx
 	def self.decrypt(encrypted_data)
+		unless encrypted_data
+			return ""
+		end
+		
 		pass = ""
 		padding = "=" * (4 - (encrypted_data.length % 4))
 		epassword = "#{encrypted_data}#{padding}"
