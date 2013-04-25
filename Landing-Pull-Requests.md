@@ -146,6 +146,15 @@ $ git merge --no-ff --edit landing-1217
 $ git push upstream upstream-master:master
 ````
 
+Or, if he already have upstream-master checked out:
+
+````
+$ git checkout upstream-master
+$ git rebase upstream/master
+$ git merge --no-ff --edit landing-1217
+$ git push upstream upstream-master:master
+````
+
 The `--edit` is optional if we have our editor configured correctly in `$HOME/.gitconfig`. The point here is that we *always* want a merge commit, and we *never* want to use the (often useless) default merge commit message. For #1217, this was changed to:
 
 ````commit
@@ -153,6 +162,8 @@ Land #1217, java payload build system refactor
     
 [Closes #1217]
 ````
+
+Note that you should rebase *before* landing -- otherwise, your merge commit will be lost in the rebase.
 
 # Cross-linking PRs, Bugs, and Commits
 
