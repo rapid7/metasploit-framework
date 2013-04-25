@@ -44,9 +44,8 @@ module Metasploit3
 		file = File.join(Msf::Config.data_directory, "android", "meterpreter.jar")
 		met = File.open(file, "rb") {|f| f.read(f.stat.size) }
 
-		# All of the dendencies to create a dalvik loader, followed by the length of the classname to load,
-		# followed by the classname, followed by the length of the jar and the jar itself.
-		[clazz.length].pack("N") + clazz + [metstage.length].pack("N") + metstage + [met.length].pack("N") + met
+		# Name of the class to load from the stage, the actual jar to load
+		# it from, and then finally the meterpreter stage
+		java_string(clazz) + java_string(metstage) + java_string(met)
 	end
-
 end
