@@ -251,7 +251,6 @@ class Metasploit3 < Msf::Auxiliary
 		scripts = scripts_to_poison[url_idx] || []
 		xml_dicts = scripts.map do |script|
 			script_body = inject_js_keylogger(script[:body])
-			puts
 			%Q|
 			<dict>
 				<key>WebResourceData</key>
