@@ -59,6 +59,21 @@ class Response < Packet
 	end
 
 	#
+	# Returns a cookie value
+	#
+	def get_cookie(cookie)
+		unless self.headers.include? 'Set-Cookie'
+			return nil
+		end
+		value = $1 if self.headers['Set-Cookie'] =~ /#{cookie}=(.*?); /i
+		if value
+			return "#{cookie}=#{value};"
+		else
+			return nil
+		end
+	end
+
+	#
 	# Updates the various parts of the HTTP response command string.
 	#
 	def update_cmd_parts(str)
