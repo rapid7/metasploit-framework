@@ -265,7 +265,7 @@ function core_channel_write($req, &$pkt) {
 }
 
 #
-# This is called when the client wants to close a channel explicitly.  Not to be confused with 
+# This is called when the client wants to close a channel explicitly.  Not to be confused with
 #
 function core_channel_close($req, &$pkt) {
     global $channel_process_map;
@@ -297,7 +297,7 @@ function core_channel_close($req, &$pkt) {
     return ERROR_FAILURE;
 }
 
-# 
+#
 # Destroy a channel and all associated handles.
 #
 function channel_close_handles($cid) {
@@ -578,7 +578,7 @@ function handle_dead_resource_channel($resource) {
 
         # Make sure the provided resource gets closed regardless of it's status
         # as a channel
-        remove_reader($resource); 
+        remove_reader($resource);
         close($resource);
     } else {
         my_print("Handling dead resource: {$resource}, for channel: {$cid}");
@@ -822,7 +822,7 @@ function eof($resource) {
         #
         # See http://us2.php.net/manual/en/function.feof.php , specifically this:
         #   If a connection opened by fsockopen() wasn't closed by the server,
-        #   feof() will hang. To workaround this, see below example: 
+        #   feof() will hang. To workaround this, see below example:
         #     <?php
         #     function safe_feof($fp, &$start = NULL) {
         #     ...
@@ -862,7 +862,7 @@ function read($resource, $len=null) {
     #my_print(sprintf("Reading from $resource which is a %s", get_rtype($resource)));
     $buff = '';
     switch (get_rtype($resource)) {
-    case 'socket': 
+    case 'socket':
         if (array_key_exists((int)$resource, $udp_host_map)) {
             my_print("Reading UDP socket");
             list($host,$port) = $udp_host_map[(int)$resource];
@@ -915,13 +915,13 @@ function read($resource, $len=null) {
                     break;
                 }
             }
-            
+
             if ($resource != $msgsock) { my_print("buff: '$buff'"); }
             $r = Array($resource);
         }
         my_print(sprintf("Done with the big read loop on $resource, got %d bytes", strlen($buff)));
         break;
-    default: 
+    default:
         # then this is possibly a closed channel resource, see if we have any
         # data from previous reads
         $cid = get_channel_id_from_resource($resource);
@@ -948,7 +948,7 @@ function write($resource, $buff, $len=0) {
     #my_print(sprintf("Writing $len bytes to $resource which is a %s", get_rtype($resource)));
     $count = false;
     switch (get_rtype($resource)) {
-    case 'socket': 
+    case 'socket':
         if (array_key_exists((int)$resource, $udp_host_map)) {
             my_print("Writing UDP socket");
             list($host,$port) = $udp_host_map[(int)$resource];
@@ -957,7 +957,7 @@ function write($resource, $buff, $len=0) {
             $count = socket_write($resource, $buff, $len);
         }
         break;
-    case 'stream': 
+    case 'stream':
         $count = fwrite($resource, $buff, $len);
         fflush($resource);
         break;
@@ -1107,7 +1107,7 @@ if (!isset($GLOBALS['msgsock'])) {
     case 'socket':
         register_socket($msgsock);
         break;
-    case 'stream': 
+    case 'stream':
         # fall through
     default:
         register_stream($msgsock);
@@ -1156,7 +1156,7 @@ while (false !== ($cnt = select($r, $w=null, $e=null, 1))) {
                 if ($request) {
                     write($msgsock, $request);
                 }
-            } 
+            }
         }
     }
     # $r is modified by select, so reset it
