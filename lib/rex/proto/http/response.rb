@@ -59,7 +59,7 @@ class Response < Packet
 	end
 
 	#
-	# Returns a cookie value
+	# Returns a cookie value from the Set-Cookie header
 	#
 	def get_cookie(cookie)
 		unless self.headers.include? 'Set-Cookie'
