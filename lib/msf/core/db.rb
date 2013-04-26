@@ -780,7 +780,7 @@ class DBManager
 
 			if session.via_exploit == "exploit/multi/handler" and sess_data[:datastore]['ParentModule']
 				mod_fullname = sess_data[:datastore]['ParentModule']
-				mod_name = ::Mdm::ModuleDetail.find_by_fullname(mod_fullname).name
+				mod_name = ::Mdm::Module::Detail.find_by_fullname(mod_fullname).name
 			else
 				mod_name = mod.name
 				mod_fullname = mod.fullname

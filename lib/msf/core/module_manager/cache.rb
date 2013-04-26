@@ -92,22 +92,22 @@ module Msf::ModuleManager::Cache
   #   @return (see #module_info_by_path_from_database!)
   attr_accessor :module_info_by_path
 
-  # Return a module info from Mdm::ModuleDetails in database.
+  # Return a module info from Mdm::Module::Details in database.
   #
   # @note Also sets module_set(module_type)[module_reference_name] to Msf::SymbolicModule if it is not already set.
   #
-  # @return [Hash{String => Hash{Symbol => Object}}] Maps path (Mdm::ModuleDetail#file) to module information.  Module
-  #   information is a Hash derived from Mdm::ModuleDetail.  It includes :modification_time, :parent_path, :type,
+  # @return [Hash{String => Hash{Symbol => Object}}] Maps path (Mdm::Module::Detail#file) to module information.  Module
+  #   information is a Hash derived from Mdm::Module::Detail.  It includes :modification_time, :parent_path, :type,
   #   :reference_name.
   def module_info_by_path_from_database!
     self.module_info_by_path = {}
 
     if framework_migrated?
 	    ActiveRecord::Base.connection_pool.with_connection do
-		    # TODO record module parent_path in {Mdm::ModuleDetail} so it does not need to be derived from file.
-		    # Use find_each so Mdm::ModuleDetails are returned in batches, which will
+		    # TODO record module parent_path in Mdm::Module::Detail so it does not need to be derived from file.
+		    # Use find_each so Mdm::Module::Details are returned in batches, which will
 		    # handle the growing number of modules better than all.each.
-		    Mdm::ModuleDetail.find_each do |module_detail|
+		    Mdm::Module::Detail.find_each do |module_detail|
 			    path = module_detail.file
 			    type = module_detail.mtype
 			    reference_name = module_detail.refname

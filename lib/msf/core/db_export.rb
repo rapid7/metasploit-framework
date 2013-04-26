@@ -363,14 +363,14 @@ class Export
 	#   directly, it is the caller's responsibility to add an opening and closing
 	#   tag to report_file around the call to {#extract_module_detail_info}.
 	#
-  # Writes a module_detail element to the report_file for each
-  # Mdm::ModuleDetail.
+	# Writes a module_detail element to the report_file for each
+	# Mdm::Module::Detail.
 	#
 	# @param report_file [#write, #flush] IO stream to which to write the
 	#   module_detail elements.
 	# @return [void]
 	def extract_module_detail_info(report_file)
-		Mdm::ModuleDetail.all.each do |m|
+      Mdm:Module::Detail.all.each do |m|
 			report_file.write("<module_detail>\n")
 			m_id = m.attributes["id"]
 

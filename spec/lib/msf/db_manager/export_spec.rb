@@ -28,7 +28,7 @@ describe Msf::DBManager::Export do
 			export.extract_module_detail_info(report_file)
 		end
 
-		context 'with Mdm::ModuleDetails' do
+		context 'with Mdm::Module::Details' do
 			let(:document) do
 				Nokogiri::XML(report_file.string)
 			end
@@ -54,7 +54,7 @@ describe Msf::DBManager::Export do
 				report_file.write("</root>")
 			end
 
-			it 'should have module_detail tag for each Mdm::ModuleDetail' do
+			it 'should have module_detail tag for each Mdm::Module::Detail' do
 				nodes = root.xpath('module_detail')
 
 				nodes.length.should == module_detail_count
@@ -72,11 +72,11 @@ describe Msf::DBManager::Export do
 				it_should_behave_like 'Msf::DBManager::Export#extract_module_detail_info module_detail child', 'description'
 
 				context '/disclosure-date' do
-					it 'should have Mdm::ModuleDetail#disclosure_date present' do
+					it 'should have Mdm::Module::Detail#disclosure_date present' do
 						module_detail.disclosure_date.should be_present
 					end
 
-					it 'should have Mdm::ModuleDetail#disclosure_date from disclosure-date content' do
+					it 'should have Mdm::Module::Detail#disclosure_date from disclosure-date content' do
 						node = module_detail_node.at_xpath('disclosure-date')
 
 						Date.parse(node.content).should == module_detail.disclosure_date
@@ -97,7 +97,7 @@ describe Msf::DBManager::Export do
 			end
 		end
 
-		context 'without Mdm::ModuleDetails' do
+		context 'without Mdm::Module::Details' do
 			it 'should not write anything to report_file' do
 				extract_module_detail_info
 

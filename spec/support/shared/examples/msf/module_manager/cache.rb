@@ -277,8 +277,8 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 				module_info_by_path_from_database!
 			end
 
-      it 'should use ActiveRecord::Batches#find_each to enumerate Mdm::ModuleDetails in batches' do
-	      Mdm::ModuleDetail.should_receive(:find_each)
+      it 'should use ActiveRecord::Batches#find_each to enumerate Mdm::Module::Details in batches' do
+	      Mdm::Module::Detail.should_receive(:find_each)
 
 	      module_info_by_path_from_database!
       end

@@ -62,10 +62,10 @@ describe Msf::DBManager do
 					true
 				end
 
-				it 'should not destroy Mdm::ModuleDetails' do
+				it 'should not destroy Mdm::Module::Details' do
 					expect {
 						purge_all_module_details
-					}.to_not change(Mdm::ModuleDetail, :count)
+					}.to_not change(Mdm::Module::Detail, :count)
 				end
 			end
 
@@ -78,19 +78,19 @@ describe Msf::DBManager do
 					purge_all_module_details
 				end
 
-				it 'should destroy all Mdm::ModuleDetails' do
+				it 'should destroy all Mdm::Module::Details' do
 					expect {
 						purge_all_module_details
-					}.to change(Mdm::ModuleDetail, :count).by(-module_detail_count)
+					}.to change(Mdm::Module::Detail, :count).by(-module_detail_count)
 				end
 			end
 		end
 
 		context 'without migrated' do
-			it 'should not destroy Mdm::ModuleDetails' do
+			it 'should not destroy Mdm::Module::Details' do
 				expect {
 					purge_all_module_details
-				}.to_not change(Mdm::ModuleDetail, :count)
+				}.to_not change(Mdm::Module::Detail, :count)
 			end
 		end
 	end
@@ -779,7 +779,7 @@ describe Msf::DBManager do
 				FactoryGirl.create(:mdm_module_detail)
 			end
 
-			context 'with matching Mdm::ModuleDetail' do
+			context 'with matching Mdm::Module::Detail' do
 				let(:mtype) do
 					module_detail.mtype
 				end
@@ -788,34 +788,38 @@ describe Msf::DBManager do
 					module_detail.refname
 				end
 
-				it 'should destroy Mdm::ModuleDetail' do
+				it 'should destroy Mdm::Module::Detail' do
 					expect {
 						remove_module_details
-					}.to change(Mdm::ModuleDetail, :count).by(-1)
+					}.to change(Mdm::Module::Detail, :count).by(-1)
 				end
 			end
 
-			context 'without matching Mdm::ModuleDetail' do
-				it 'should not destroy Mdm::ModuleDetail' do
+			context 'without matching Mdm::Module::Detail' do
+				it 'should not destroy Mdm::Module::Detail' do
 					expect {
 						remove_module_details
-					}.to_not change(Mdm::ModuleDetail, :count)
+					}.to_not change(Mdm::Module::Detail, :count)
 				end
 			end
 		end
 
 		context 'without migrated' do
-			it 'should not destroy Mdm::ModuleDetail' do
+			it 'should not destroy Mdm::Module::Detail' do
 				expect {
 					remove_module_details
-				}.to_not change(Mdm::ModuleDetail, :count)
+				}.to_not change(Mdm::Module::Detail, :count)
 			end
 		end
 	end
 
 	context '#search_modules' do
-		subject(:module_details) do
-			db_manager.search_modules(search_string)
+    subject(:search_modules) do
+      db_manager.search_modules(search_string)
+    end
+
+		let(:module_details) do
+			search_modules.to_a
 		end
 
 		context 'with app keyword' do
@@ -834,7 +838,7 @@ describe Msf::DBManager do
 					'client'
 				end
 
-				it "should match Mdm::ModuleDetail#stance 'passive'" do
+				it "should match Mdm::Module::Detail#stance 'passive'" do
 					module_details.count.should > 0
 
 					module_details.all? { |module_detail|
@@ -848,7 +852,7 @@ describe Msf::DBManager do
 					'server'
 				end
 
-				it "should match Mdm::ModuleDetail#stance 'active'" do
+				it "should match Mdm::Module::Detail#stance 'active'" do
 					module_details.count.should > 0
 
 					module_details.all? { |module_detail|
@@ -872,12 +876,12 @@ describe Msf::DBManager do
 				module_authors.first
 			end
 
-			context 'with Mdm::ModuleAuthor#email' do
+			context 'with Mdm::Module::Author#email' do
 				let(:author) do
 					target_module_author.email
 				end
 
-				it 'should match Mdm::ModuleAuthor#email' do
+				it 'should match Mdm::Module::Author#email' do
 					module_details.count.should > 0
 
 					module_details.all? { |module_detail|
@@ -888,13 +892,13 @@ describe Msf::DBManager do
 				end
 			end
 
-			context 'with Mdm::ModuleAuthor#name' do
+			context 'with Mdm::Module::Author#name' do
         let(:author) do
           # use inspect to quote space in name
           target_module_author.name.inspect
         end
 
-				it 'should match Mdm::ModuleAuthor#name' do
+				it 'should match Mdm::Module::Author#name' do
 					module_details.count.should > 0
 
 					module_details.all? { |module_detail|
@@ -906,9 +910,9 @@ describe Msf::DBManager do
 			end
 		end
 
-		it_should_behave_like 'Msf::DBManager#search_modules Mdm::ModuleRef#name keyword', :bid
-		it_should_behave_like 'Msf::DBManager#search_modules Mdm::ModuleRef#name keyword', :cve
-		it_should_behave_like 'Msf::DBManager#search_modules Mdm::ModuleRef#name keyword', :edb
+		it_should_behave_like 'Msf::DBManager#search_modules Mdm::Module::Ref#name keyword', :bid
+		it_should_behave_like 'Msf::DBManager#search_modules Mdm::Module::Ref#name keyword', :cve
+		it_should_behave_like 'Msf::DBManager#search_modules Mdm::Module::Ref#name keyword', :edb
 
 		context 'with name keyword' do
 			let(:search_string) do
@@ -923,12 +927,12 @@ describe Msf::DBManager do
 				existing_module_details.first
 			end
 
-			context 'with Mdm::ModuleDetail#fullname' do
+			context 'with Mdm::Module::Detail#fullname' do
 				let(:name) do
 					target_module_detail.fullname
 				end
 
-				it 'should match Mdm::ModuleDetail#fullname' do
+				it 'should match Mdm::Module::Detail#fullname' do
 					module_details.count.should > 0
 
 					module_details.all? { |module_detail|
@@ -937,12 +941,13 @@ describe Msf::DBManager do
 				end
 			end
 
-			context 'with Mdm::moduleDetail#name' do
+			context 'with Mdm::Module::Detail#name' do
 				let(:name) do
-					target_module_detail.name
+          # use inspect so spaces are inside quotes
+					target_module_detail.name.inspect
 				end
 
-				it 'should match Mdm::ModuleDetail#name' do
+				it 'should match Mdm::Module::Detail#name' do
 					module_details.count.should > 0
 
 					module_details.all? { |module_detail|
@@ -952,11 +957,11 @@ describe Msf::DBManager do
 			end
 		end
 
-		it_should_behave_like 'Msf::DBManager#search_modules Mdm::ModulePlatform#name or Mdm::ModuleTarget#name keyword', :os
+		it_should_behave_like 'Msf::DBManager#search_modules Mdm::Module::Platform#name or Mdm::Module::Target#name keyword', :os
 
-		it_should_behave_like 'Msf::DBManager#search_modules Mdm::ModuleRef#name keyword', :osvdb
+		it_should_behave_like 'Msf::DBManager#search_modules Mdm::Module::Ref#name keyword', :osvdb
 
-		it_should_behave_like 'Msf::DBManager#search_modules Mdm::ModulePlatform#name or Mdm::ModuleTarget#name keyword', :platform
+		it_should_behave_like 'Msf::DBManager#search_modules Mdm::Module::Platform#name or Mdm::Module::Target#name keyword', :platform
 
 		context 'with ref keyword' do
 			let(:ref) do
@@ -964,19 +969,20 @@ describe Msf::DBManager do
 			end
 
 			let(:search_string) do
-				"ref:#{ref}"
+        # use inspect to quote spaces in string
+				"ref:#{ref.inspect}"
 			end
 
 			let!(:module_ref) do
 				FactoryGirl.create(:mdm_module_ref)
 			end
 
-			context 'with Mdm::ModuleRef#name' do
+			context 'with Mdm::Module::Ref#name' do
 				let(:ref) do
 					module_ref.name
 				end
 
-				it 'should match Mdm::ModuleRef#name' do
+				it 'should match Mdm::Module::Ref#name' do
 					module_details.count.should > 0
 
 					module_details.all? { |module_detail|
@@ -987,8 +993,8 @@ describe Msf::DBManager do
 				end
 			end
 
-			context 'without Mdm::moduleRef#name' do
-				it 'should not match Mdm::ModuleRef#name' do
+			context 'without Mdm::Module::Ref#name' do
+				it 'should not match Mdm::Module::Ref#name' do
 					module_details.count.should == 0
 				end
 			end
@@ -1011,12 +1017,12 @@ describe Msf::DBManager do
 				FactoryGirl.create_list(:mdm_module_detail, 2)
 			end
 
-			context 'with Mdm::ModuleRef#name' do
+			context 'with Mdm::Module::Ref#name' do
 				let(:type) do
 					target_module_detail.mtype
 				end
 
-				it 'should match Mdm::ModuleDetail#mtype' do
+				it 'should match Mdm::Module::Detail#mtype' do
 					module_details.count.should > 0
 
 					module_details.all? { |module_detail|
@@ -1025,15 +1031,15 @@ describe Msf::DBManager do
 				end
 			end
 
-			context 'without Mdm::ModuleDetail#mtype' do
-				it 'should not match Mdm::ModuleDetail#mtype' do
+			context 'without Mdm::Module::Detail#mtype' do
+				it 'should not match Mdm::Module::Detail#mtype' do
 					module_details.count.should == 0
 				end
 			end
 		end
 
 		context 'without keyword' do
-			context 'with Mdm::ModuleAction#name' do
+			context 'with Mdm::Module::Action#name' do
 				let(:search_string) do
 					module_action.name
 				end
@@ -1042,7 +1048,7 @@ describe Msf::DBManager do
 					FactoryGirl.create(:mdm_module_action)
 				end
 
-				it 'should match Mdm::ModuleAction#name' do
+				it 'should match Mdm::Module::Action#name' do
 					module_details.count.should > 0
 
 					module_details.all? { |module_detail|
@@ -1053,7 +1059,7 @@ describe Msf::DBManager do
 				end
 			end
 
-			context 'with Mdm::ModuleArch#name' do
+			context 'with Mdm::Module::Arch#name' do
 				let(:search_string) do
 					module_arch.name
 				end
@@ -1062,7 +1068,7 @@ describe Msf::DBManager do
 					FactoryGirl.create(:mdm_module_arch)
 				end
 
-				it 'should match Mdm::ModuleArch#name' do
+				it 'should match Mdm::Module::Arch#name' do
 					module_details.count.should > 0
 
 					module_details.all? { |module_detail|
@@ -1073,7 +1079,7 @@ describe Msf::DBManager do
 				end
 			end
 
-			context 'with Mdm::ModuleAuthor#name' do
+			context 'with Mdm::Module::Author#name' do
 				let(:search_string) do
 					module_author.name
 				end
@@ -1082,7 +1088,7 @@ describe Msf::DBManager do
 					FactoryGirl.create(:mdm_module_author)
 				end
 
-				it 'should match Mdm::ModuleAuthor#name' do
+				it 'should match Mdm::Module::Author#name' do
 					module_details.count.should > 0
 
 					module_details.all? { |module_detail|
@@ -1093,7 +1099,7 @@ describe Msf::DBManager do
 				end
 			end
 
-			context 'with Mdm::ModuleDetail' do
+			context 'with Mdm::Module::Detail' do
 				let(:target_module_detail) do
 					all_module_details.first
 				end
@@ -1104,14 +1110,15 @@ describe Msf::DBManager do
 
 				context 'with #description' do
 					let(:search_string) do
-						target_module_detail.description
+            # use inspect to quote spaces in string
+						target_module_detail.description.inspect
 					end
 
-					it 'should match Mdm::ModuleDetail#description' do
+					it 'should match Mdm::Module::Detail#description' do
 						module_details.count.should == 1
 
 						module_details.all? { |module_detail|
-							module_detail.description == search_string
+							module_detail.description == target_module_detail.description
 						}.should be_true
 					end
 				end
@@ -1121,7 +1128,7 @@ describe Msf::DBManager do
 						target_module_detail.fullname
 					end
 
-					it 'should match Mdm::ModuleDetail#fullname' do
+					it 'should match Mdm::Module::Detail#fullname' do
 						module_details.count.should == 1
 
 						module_details.all? { |module_detail|
@@ -1132,20 +1139,21 @@ describe Msf::DBManager do
 
 				context 'with #name' do
 					let(:search_string) do
-						target_module_detail.name
+            # use inspect to quote spaces in string
+						target_module_detail.name.inspect
 					end
 
-					it 'should match Mdm::ModuleDetail#name' do
+					it 'should match Mdm::Module::Detail#name' do
 						module_details.count.should == 1
 
 						module_details.all? { |module_detail|
-							module_detail.name == search_string
+							module_detail.name == target_module_detail.name
 						}.should be_true
 					end
 				end
 			end
 
-			context 'with Mdm::ModulePlatform#name' do
+			context 'with Mdm::Module::Platform#name' do
 				let(:search_string) do
 					module_platform.name
 				end
@@ -1154,7 +1162,7 @@ describe Msf::DBManager do
 					FactoryGirl.create(:mdm_module_platform)
 				end
 
-				it 'should match Mdm::ModulePlatform#name' do
+				it 'should match Mdm::Module::Platform#name' do
 					module_details.count.should > 0
 
 					module_details.all? { |module_detail|
@@ -1165,7 +1173,7 @@ describe Msf::DBManager do
 				end
 			end
 
-			context 'with Mdm::ModuleRef#name' do
+			context 'with Mdm::Module::Ref#name' do
 				let(:search_string) do
 					module_ref.name
 				end
@@ -1174,7 +1182,7 @@ describe Msf::DBManager do
 					FactoryGirl.create(:mdm_module_ref)
 				end
 
-				it 'should match Mdm::ModuleRef#name' do
+				it 'should match Mdm::Module::Ref#name' do
 					module_details.count.should > 0
 
 					module_details.all? { |module_detail|
@@ -1185,7 +1193,7 @@ describe Msf::DBManager do
 				end
 			end
 
-			context 'with Mdm::ModuleTarget#name' do
+			context 'with Mdm::Module::Target#name' do
 				let(:search_string) do
 					module_target.name
 				end
@@ -1194,7 +1202,7 @@ describe Msf::DBManager do
 					FactoryGirl.create(:mdm_module_target)
 				end
 
-				it 'should match Mdm::ModuleTarget#name' do
+				it 'should match Mdm::Module::Target#name' do
 					module_details.count.should > 0
 
 					module_details.all? { |module_detail|
@@ -1282,7 +1290,7 @@ describe Msf::DBManager do
 					ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered.and_call_original
 				end
 
-				context 'with Mdm::ModuleDetails' do
+				context 'with Mdm::Module::Details' do
 					let(:module_pathname) do
 						parent_pathname.join(
 								'exploits',
@@ -1332,8 +1340,8 @@ describe Msf::DBManager do
 								true
 							end
 
-							context 'with existing Mdm::ModuleDetail#file' do
-								context 'with same Mdm::ModuleDetail#mtime and File.mtime' do
+							context 'with existing Mdm::Module::Detail#file' do
+								context 'with same Mdm::Module::Detail#mtime and File.mtime' do
 									it 'should not update module details' do
 										db_manager.should_not_receive(:update_module_details)
 
@@ -1341,7 +1349,7 @@ describe Msf::DBManager do
 									end
 								end
 
-								context 'without same Mdm::ModuleDetail#mtime and File.mtime' do
+								context 'without same Mdm::Module::Detail#mtime and File.mtime' do
 									let(:modification_time) do
 										# +1 as rand can return 0 and the time must be different for
 										# this context.
@@ -1353,7 +1361,7 @@ describe Msf::DBManager do
 							end
 
 							# Emulates a module being removed or renamed
-							context 'without existing Mdm::ModuleDetail#file' do
+							context 'without existing Mdm::Module::Detail#file' do
 								# have to compute modification manually since the
 								# `module_pathname` refers to a non-existent file and
 								# `module_pathname.mtime` would error.
@@ -1461,16 +1469,16 @@ describe Msf::DBManager do
 				update_module_details
 			end
 
-			it 'should call module_to_details_hash to get Mdm::ModuleDetail attributs and association attributes' do
+			it 'should call module_to_details_hash to get Mdm::Module::Detail attributs and association attributes' do
 				db_manager.should_receive(:module_to_details_hash).and_return({})
 
 				update_module_details
 			end
 
-			it 'should create an Mdm::ModuleDetail' do
+			it 'should create an Mdm::Module::Detail' do
 				expect {
 					update_module_details
-				}.to change(Mdm::ModuleDetail, :count).by(1)
+				}.to change(Mdm::Module::Detail, :count).by(1)
 			end
 
 
@@ -1491,9 +1499,9 @@ describe Msf::DBManager do
 					)
 				end
 
-				context 'Mdm::ModuleDetail' do
+				context 'Mdm::Module::Detail' do
 					subject(:module_detail) do
-						Mdm::ModuleDetail.last
+						Mdm::Module::Detail.last
 					end
 
 					before(:each) do
@@ -1527,19 +1535,19 @@ describe Msf::DBManager do
 							]
 						end
 
-						it 'should create an Mdm::ModuleAction' do
+						it 'should create an Mdm::Module::Action' do
 							expect {
 								update_module_details
-							}.to change(Mdm::ModuleAction, :count).by(1)
+							}.to change(Mdm::Module::Action, :count).by(1)
 						end
 
-						context 'Mdm::ModuleAction' do
+						context 'Mdm::Module::Action' do
 							subject(:module_action) do
 								module_detail.actions.last
 							end
 
 							let(:module_detail) do
-								Mdm::ModuleDetail.last
+								Mdm::Module::Detail.last
 							end
 
 							before(:each) do
@@ -1564,19 +1572,19 @@ describe Msf::DBManager do
 							]
 						end
 
-						it 'should create an Mdm::ModuleArch' do
+						it 'should create an Mdm::Module::Arch' do
 							expect {
 								update_module_details
-							}.to change(Mdm::ModuleArch, :count).by(1)
+							}.to change(Mdm::Module::Arch, :count).by(1)
 						end
 
-						context 'Mdm::ModuleArch' do
+						context 'Mdm::Module::Arch' do
 							subject(:module_arch) do
 								module_detail.archs.last
 							end
 
 							let(:module_detail) do
-								Mdm::ModuleDetail.last
+								Mdm::Module::Detail.last
 							end
 
 							before(:each) do
@@ -1606,19 +1614,19 @@ describe Msf::DBManager do
 							]
 						end
 
-						it 'should create an Mdm::ModuleAuthor' do
+						it 'should create an Mdm::Module::Author' do
 							expect {
 								update_module_details
-							}.to change(Mdm::ModuleAuthor, :count).by(1)
+							}.to change(Mdm::Module::Author, :count).by(1)
 						end
 
-						context 'Mdm::ModuleAuthor' do
+						context 'Mdm::Module::Author' do
 							subject(:module_author) do
 								module_detail.authors.last
 							end
 
 							let(:module_detail) do
-								Mdm::ModuleDetail.last
+								Mdm::Module::Detail.last
 							end
 
 							before(:each) do
@@ -1644,19 +1652,19 @@ describe Msf::DBManager do
 							FactoryGirl.generate :mdm_module_platform_name
 						end
 
-						it 'should create an Mdm::ModulePlatform' do
+						it 'should create an Mdm::Module::Platform' do
 							expect {
 								update_module_details
-							}.to change(Mdm::ModulePlatform, :count).by(1)
+							}.to change(Mdm::Module::Platform, :count).by(1)
 						end
 
-						context 'Mdm::ModulePlatform' do
+						context 'Mdm::Module::Platform' do
 							subject(:module_platform) do
 								module_detail.platforms.last
 							end
 
 							let(:module_detail) do
-								Mdm::ModuleDetail.last
+								Mdm::Module::Detail.last
 							end
 
 							before(:each) do
@@ -1681,19 +1689,19 @@ describe Msf::DBManager do
 							FactoryGirl.generate :mdm_module_ref_name
 						end
 
-						it 'should create an Mdm::ModuleRef' do
+						it 'should create an Mdm::Module::Ref' do
 							expect {
 								update_module_details
-							}.to change(Mdm::ModuleRef, :count).by(1)
+							}.to change(Mdm::Module::Ref, :count).by(1)
 						end
 
-						context 'Mdm::ModuleRef' do
+						context 'Mdm::Module::Ref' do
 							subject(:module_ref) do
 								module_detail.refs.last
 							end
 
 							let(:module_detail) do
-								Mdm::ModuleDetail.last
+								Mdm::Module::Detail.last
 							end
 
 							before(:each) do
@@ -1723,19 +1731,19 @@ describe Msf::DBManager do
 							FactoryGirl.generate :mdm_module_target_name
 						end
 
-						it 'should create an Mdm::ModuleTarget' do
+						it 'should create an Mdm::Module::Target' do
 							expect {
 								update_module_details
-							}.to change(Mdm::ModuleTarget, :count).by(1)
+							}.to change(Mdm::Module::Target, :count).by(1)
 						end
 
-						context 'Mdm::ModuleTarget' do
+						context 'Mdm::Module::Target' do
 							subject(:module_target) do
 								module_detail.targets.last
 							end
 
 							let(:module_detail) do
-								Mdm::ModuleDetail.last
+								Mdm::Module::Detail.last
 							end
 
 							before(:each) do
@@ -1751,10 +1759,10 @@ describe Msf::DBManager do
 		end
 
 		context 'without migrated' do
-			it 'should not create an Mdm::ModuleDetail' do
+			it 'should not create an Mdm::Module::Detail' do
 				expect {
 					update_module_details
-				}.to_not change(Mdm::ModuleDetail, :count)
+				}.to_not change(Mdm::Module::Detail, :count)
 			end
 		end
 	end

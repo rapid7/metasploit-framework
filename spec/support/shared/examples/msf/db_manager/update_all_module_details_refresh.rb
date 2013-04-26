@@ -1,9 +1,9 @@
 shared_examples_for 'Msf::DBManager#update_all_module_details refresh' do
 
-	it 'should destroy Mdm::ModuleDetail' do
+	it 'should destroy Mdm::Module::Detail' do
 		expect {
 			update_all_module_details
-		}.to change(Mdm::ModuleDetail, :count).by(-1)
+		}.to change(Mdm::Module::Detail, :count).by(-1)
 	end
 
 	context 'with cached module in Msf::ModuleSet' do
@@ -21,13 +21,13 @@ shared_examples_for 'Msf::DBManager#update_all_module_details refresh' do
 			}
 		end
 
-		it 'should create instance of module corresponding to Mdm::ModuleDetail' do
+		it 'should create instance of module corresponding to Mdm::Module::Detail' do
 			module_set.should_receive(:create).with(module_detail.refname)
 
 			update_all_module_details
 		end
 
-		it 'should call update_module_details to create a new Mdm::ModuleDetail from the module instance returned by create' do
+		it 'should call update_module_details to create a new Mdm::Module::Detail from the module instance returned by create' do
 			db_manager.should_receive(:update_module_details) do |module_instance|
 				module_instance.should be_a Msf::Module
 				module_instance.type.should == module_detail.mtype

@@ -42,7 +42,7 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
       search_modules_sql
     end
 
-    context 'with matching Mdm::ModuleDetails' do
+    context 'with matching Mdm::Module::Details' do
       let(:match) do
         module_detail.fullname
       end

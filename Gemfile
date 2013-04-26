@@ -7,12 +7,12 @@ gem 'activerecord'
 # Needed for some admin modules (scrutinizer_add_user.rb)
 gem 'json'
 # Database models shared between framework and Pro.
-gem 'metasploit_data_models', '~> 0.6.14'
+gem 'metasploit_data_models', '~> 0.7.1'
 # Needed by msfgui and other rpc components
 gem 'msgpack'
 # Needed by anemone crawler
 gem 'nokogiri'
-# Needed for module caching in Mdm::ModuleDetails
+# Needed for module caching in Mdm::Module::Details
 gem 'pg', '>= 0.11'
 # Needed by anemone crawler
 gem 'robots'
