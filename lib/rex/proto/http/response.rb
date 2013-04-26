@@ -64,8 +64,8 @@ class Response < Packet
 	#
 	def get_cookies
 		cookies = ""
-                if (self.headers.include?('Set-Cookie'))
-                	set_cookies = self.headers['Set-Cookie']
+		if (self.headers.include?('Set-Cookie'))
+			set_cookies = self.headers['Set-Cookie']
 			key_vals = set_cookies.scan(/\s?([^, ;]+?)=(.*?);/)
 			key_vals.each do |k, v|
 				next if k == 'path'
@@ -74,7 +74,7 @@ class Response < Packet
 			end
 		end
 
-                return cookies.strip
+		return cookies.strip
 	end
 
 	#
