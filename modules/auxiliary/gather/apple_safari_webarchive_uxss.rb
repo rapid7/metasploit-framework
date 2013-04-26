@@ -764,9 +764,14 @@ class Metasploit3 < Msf::Auxiliary
 
 	# @return [String] the path to send data back to
 	def collect_data_uri
-		path = datastore["URI_PATH"]
-		path = if not path or path.empty? then '/grab' end
-		if path.starts_with '/' then path else "/#{path}" end
+		path = datastore["URIPATH"]
+		if path.nil? or path.empty?
+			'/grab'
+		elsif path =~ /^\//
+			path
+		else
+			"/#{path}"
+		end
 	end
 
 	# @return [String] formatted http/https URL of the listener
