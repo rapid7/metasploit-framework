@@ -59,18 +59,22 @@ class Response < Packet
 	end
 
 	#
-	# Returns a cookie value from the Set-Cookie header
+	# Gets cookies from the Set-Cookie header in a format to be used
+	# in the 'cookie' send_request field
 	#
-	def get_cookie(cookie)
-		unless self.headers.include? 'Set-Cookie'
-			return nil
+	def get_cookies
+		cookies = ""
+                if (self.headers.include?('Set-Cookie'))
+                	set_cookies = self.headers['Set-Cookie']
+			key_vals = set_cookies.scan(/\s?([^, ;]+?)=(.*?);/)
+			key_vals.each do |k, v|
+				next if k == 'path'
+				next if k == 'expires'
+				cookies << "#{k}=#{v}; "
+			end
 		end
-		value = $1 if self.headers['Set-Cookie'] =~ /#{cookie}=(.*?); /i
-		if value
-			return "#{cookie}=#{value};"
-		else
-			return nil
-		end
+
+                return cookies.strip
 	end
 
 	#
