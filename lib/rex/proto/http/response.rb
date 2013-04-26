@@ -68,8 +68,11 @@ class Response < Packet
 			set_cookies = self.headers['Set-Cookie']
 			key_vals = set_cookies.scan(/\s?([^, ;]+?)=(.*?);/)
 			key_vals.each do |k, v|
-				next if k == 'path'
-				next if k == 'expires'
+				# Dont downcase actual cookie name as may be case sensitive
+				name = k.downcase
+				next if name == 'path'
+				next if name == 'expires'
+				next if name == 'domain'
 				cookies << "#{k}=#{v}; "
 			end
 		end
