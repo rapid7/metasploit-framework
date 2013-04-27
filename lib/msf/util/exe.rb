@@ -414,7 +414,7 @@ require 'digest/sha1'
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win32 PE EXE subst template: missing \"PAYLOAD:\" tag" if not bo
-		pe[bo, 8192] = [code].pack("a8192")
+		pe[bo, code.length] = [code].pack("a*")
 
 		return pe
 	end
@@ -451,7 +451,7 @@ require 'digest/sha1'
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win32 PE Service EXE template: missing \"PAYLOAD:\" tag" if not bo
-		pe[bo, 8192] = [code].pack("a8192")
+		pe[bo, code.length] = [code].pack("a*")
 
 		if name
 			bo = pe.index('SERVICENAME')
@@ -480,7 +480,7 @@ require 'digest/sha1'
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win64 PE Service EXE template: missing \"PAYLOAD:\" tag" if not bo
-		pe[bo, 8192] = [code].pack("a8192")
+		pe[bo, code.length] = [code].pack("a*")
 
 		if name
 			bo = pe.index('SERVICENAME')
@@ -507,7 +507,7 @@ require 'digest/sha1'
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win32 PE DLL template: missing \"PAYLOAD:\" tag" if not bo
-		pe[bo, 8192] = [code].pack("a8192")
+		pe[bo, code.length] = [code].pack("a*")
 
 		# optional mutex
 		mt = pe.index('MUTEX!!!')
@@ -528,7 +528,7 @@ require 'digest/sha1'
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win64 PE DLL template: missing \"PAYLOAD:\" tag" if not bo
-		pe[bo, 8192] = [code].pack("a8192")
+		pe[bo, code.length] = [code].pack("a*")
 
 		# optional mutex
 		mt = pe.index('MUTEX!!!')
