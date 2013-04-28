@@ -1,6 +1,11 @@
 ##
-# $Id$
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+#   http://metasploit.com/framework/
 ##
+
+require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -18,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 				all http traffic to a specific host and port such as an upstream
 				analysis proxy or a server within an isolated network.
 			},
-			'Author'      => 'RageLtMan',
+			'Author'      => 'RageLtMan	<rageltman[at]sempervictus>',
 			'License'     => MSF_LICENSE
 		)
 
@@ -39,8 +44,8 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run
-    print_status("HTTP connect proxy server started")
-    exploit
+		print_status("HTTP connect proxy server started")
+		exploit
 	end
 
 	def on_request_uri(cli, req)
@@ -57,8 +62,8 @@ class Metasploit3 < Msf::Auxiliary
 		headers['Vhost'] = req.headers['Host']
 		print_error headers.to_s
 
-		# Get response 
-		begin 
+		# Get response
+		begin
 			res = send_request_raw(headers)
 		rescue ::Rex::ConnectionError
 			print_error "No response"
