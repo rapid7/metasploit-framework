@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 			results = Rex::Parser::GPP.parse(xml)
 			tables = Rex::Parser::GPP.create_tables(results, filetype)
 			tables.each do |table|
-				print_status table.to_s
+				print_line table.to_s
 			end
 		end
 
