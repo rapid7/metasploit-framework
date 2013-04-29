@@ -106,7 +106,7 @@ class Console::CommandDispatcher::Mimikatz
 			table << [acc[:authid], acc[:package], acc[:domain], acc[:user],  acc[:password]]
 		end
 
-		table.print
+		print_status table.to_s
 
 		return true
 	end
