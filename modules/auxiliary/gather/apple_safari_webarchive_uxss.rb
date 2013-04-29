@@ -145,7 +145,7 @@ class Metasploit3 < Msf::Auxiliary
 		}.update(opts['Uri'] || {})
 
 		proto = (datastore["SSL"] ? "https" : "http")
-		print_status("Using URL: #{proto}://#{opts['ServerHost']}:#{opts['ServerPort']}#{uopts['Path']}")
+		print_status("Data capture URL: #{proto}://#{opts['ServerHost']}:#{opts['ServerPort']}#{uopts['Path']}")
 
 		if (opts['ServerHost'] == '0.0.0.0')
 			print_status(" Local IP: #{proto}://#{Rex::Socket.source_address('1.2.3.4')}:#{opts['ServerPort']}#{uopts['Path']}")
@@ -167,7 +167,7 @@ class Metasploit3 < Msf::Auxiliary
 		}.update(opts['Uri'] || {})
 		@http_service.add_resource(webarchive_download_url, uopts)
 
-		print_status("Using URL: #{proto}://#{opts['ServerHost']}:#{opts['ServerPort']}#{webarchive_download_url}")
+		print_status("Download URL: #{proto}://#{opts['ServerHost']}:#{opts['ServerPort']}#{webarchive_download_url}")
 
 		# As long as we have the http_service object, we will keep the ftp server alive
 		while @http_service
