@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         => 'joev',
 			'References'     =>
 				[
-					# none yet
+					['URL', 'https://community.rapid7.com/community/metasploit/blog/2013/04/25/abusing-safaris-webarchive-file-format']
 				],
 			'DisclosureDate' => 'Feb 22 2013',
 			'Actions'     =>
