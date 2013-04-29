@@ -515,7 +515,10 @@ protected
 			return x.dup
 		end
 
-		cache_key   = refname + suffix
+		# single payloads generate new assembly each time with the options 
+		# substituted in already. It's not appropriate to just use the module
+		# as the cache key.
+		cache_key   = refname + suffix + asm.hash.to_s
 		cache_entry = framework.payloads.check_blob_cache(cache_key)
 
 		off.each_pair { |option, val|
