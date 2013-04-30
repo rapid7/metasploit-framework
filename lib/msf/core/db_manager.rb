@@ -596,7 +596,7 @@ class DBManager
 					where_v << [ kv ]
 				when 'app'
 					where_q << ' ( module_details.stance = ? )'
-					where_v << [ ( kv == "client") ? "passive" : "active"  ]
+					where_v << [ ( kv == "client") ? "passive" : "aggressive"  ]
 				when 'ref'
 					where_q << ' ( module_refs.name ILIKE ? )'
 					where_v << [ '%' + kv + '%' ]
