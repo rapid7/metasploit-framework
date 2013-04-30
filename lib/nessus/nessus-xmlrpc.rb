@@ -474,73 +474,85 @@ module NessusXMLRPC
 		def report_csv_download(report)
 			post= { "token" => @token, "report" => report, "xslt" => 'csv.xsl' }
 
-      # Get CSV report location and build post params
+			# Get CSV report location and build post params
 			filename=nessus_http_request('file/xslt', post).scan(/fileName=(.*csv)/).flatten.first
-      post= {"token" => @token, 'fileName' => filename, 'step' => 2}
+			post= {"token" => @token, 'fileName' => filename, 'step' => 2}
 
-      # Get CSV report
-      file=nessus_http_request('file/xslt/download',post)
+			# Allow for generation time
+			Rex::ThreadSafe.sleep(0.5)
+
+			# Get CSV report
+			file=nessus_http_request('file/xslt/download',post)
 
 			return file
 		end
 
-    # get report by reportID and return nbe file
-    #
-    # returns nbe file of report
-    def report_nbe_download(report)
-      post= { "token" => @token, "report" => report, "xslt" => 'nbe.xsl' }
+		# get report by reportID and return nbe file
+		#
+		# returns nbe file of report
+		def report_nbe_download(report)
+			post= { "token" => @token, "report" => report, "xslt" => 'nbe.xsl' }
 
-      # Get nbe report location and build post params
-      filename=nessus_http_request('file/xslt', post).scan(/fileName=(.*nbe)/).flatten.first
-      post= {"token" => @token, 'fileName' => filename, 'step' => 2}
+			# Get nbe report location and build post params
+			filename=nessus_http_request('file/xslt', post).scan(/fileName=(.*nbe)/).flatten.first
+			post= {"token" => @token, 'fileName' => filename, 'step' => 2}
 
-      # Get nbe report
-      file=nessus_http_request('file/xslt/download',post)
+			# Allow for generation time
+			Rex::ThreadSafe.sleep(0.5)
 
-      return file
-    end
+			# Get nbe report
+			file=nessus_http_request('file/xslt/download',post)
 
-    # get report chapters by reportID
-    #
-    # returns array of chapter names
-    def report_get_chapters(report)
-      post = {'token' => @token, 'report' => report}
-      chapters = nessus_http_request('chapter/list',post)
-      return Nokogiri::XML.parse(chapters).xpath('//chapter').children.map(&:text)
-      return chapters
-    end
+			return file
+		end
 
-    # get report by reportID, chapters by name, and return PDF file
-    #
-    # returns PDF file of report
-    def report_pdf_download(report,chapters=nil)
-      chapters ||= report_get_chapters(report)
-      chapters = [chapters] if chapters.is_a?(String)
-      post= { "token" => @token, "report" => report, 'format' => 'pdf', 'chapters' => chapters.join(';') }
-      filename=nessus_http_request('chapter', post).scan(/fileName=(.*pdf)/).flatten.first
-      post= {"token" => @token, 'fileName' => filename, 'step' => 2}
+		# get report chapters by reportID
+		#
+		# returns array of chapter names
+		def report_get_chapters(report)
+			post = {'token' => @token, 'report' => report}
+			chapters = nessus_http_request('chapter/list',post)
+			return Nokogiri::XML.parse(chapters).xpath('//chapter').children.map(&:text)
+			return chapters
+		end
 
-      # Get nbe report
-      file=nessus_http_request('file/xslt/download',post)
+		# get report by reportID, chapters by name, and return PDF file
+		#
+		# returns PDF file of report
+		def report_pdf_download(report,chapters=nil)
+			chapters ||= report_get_chapters(report)
+			chapters = [chapters] if chapters.is_a?(String)
+			post= { "token" => @token, "report" => report, 'format' => 'pdf', 'chapters' => chapters.join(';') }
+			filename=nessus_http_request('chapter', post).scan(/fileName=(.*pdf)/).flatten.first
+			post= {"token" => @token, 'fileName' => filename, 'step' => 2}
 
-      return file
-    end
+			# Allow for generation time
+			Rex::ThreadSafe.sleep(0.5)
 
-    # get report by reportID, chapters by name, and return HTML file
-    #
-    # returns HTML file of report
-    def report_html_download(report,chapters=nil)
-      chapters ||= report_get_chapters(report)
-      chapters = [chapters] if chapters.is_a?(String)
-      post= { "token" => @token, "report" => report, 'format' => 'html', 'chapters' => chapters.join(';') }
-      filename=nessus_http_request('chapter', post).scan(/fileName=(.*html)/).flatten.first
-      post= {"token" => @token, 'fileName' => filename, 'step' => 2}
+			# Get nbe report
+			file=nessus_http_request('file/xslt/download',post)
 
-      # Get nbe report
-      file=nessus_http_request('file/xslt/download',post)
+			return file
+		end
 
-      return file
-    end
+		# get report by reportID, chapters by name, and return HTML file
+		#
+		# returns HTML file of report
+		def report_html_download(report,chapters=nil)
+			chapters ||= report_get_chapters(report)
+			chapters = [chapters] if chapters.is_a?(String)
+			post= { "token" => @token, "report" => report, 'format' => 'html', 'chapters' => chapters.join(';') }
+			filename=nessus_http_request('chapter', post).scan(/fileName=(.*html)/).flatten.first
+			post= {"token" => @token, 'fileName' => filename, 'step' => 2}
+
+			# Allow for generation time
+			Rex::ThreadSafe.sleep(0.5)
+
+			# Get nbe report
+			file=nessus_http_request('file/xslt/download',post)
+
+			return file
+		end
 
 		# delete report by report ID
 		def report_delete(id)
