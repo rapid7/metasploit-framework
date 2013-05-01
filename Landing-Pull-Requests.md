@@ -6,7 +6,7 @@ Metasploit is built incrementally by the community through GitHub's [Pull Reques
 
  - Configure your git environment as described [here](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment#keeping-in-sync).
  - Add the `fetch = +refs/pull/*/head:refs/remotes/upstream/pr/*` line to your `.git/config`.
- - When merging code from a pull request, always, always `merge --no-ff`, and write a meaningful commit message that references the original PR as `#1234` (not PR1234, not PR#1234, not 1234).
+ - When merging code from a pull request, always, always `merge --no-ff`, and write a meaningful commit message that references the original PR as `#1234` (not PR1234, not PR#1234, not 1234). This goes for PRs that fix your PR, too.
  - If you're making changes (often the case), merge --no-ff to a landing branch, then merge **that** branch to upstream/master (assuming you don't need to collaborate on changes).
 
 # Fork and clone
@@ -118,7 +118,7 @@ Filling in the blanks (provided by the original PR's information from GitHub) ge
 https://github.com/todb-r7/metasploit-framework/pull/new/schierlm:javapayload-maven...pr1217-fix-gitignore-conflict
 ````
 
-I opened that in a browser, and ended up with https://github.com/schierlm/metasploit-framework/pull/1 . Once @schierlm landed it on his branch, all I (or anyone) had to do was `git fetch` to get the change reflected in origin/pr/1217, and then the integration of the PR could continue.
+I opened that in a browser, and ended up with https://github.com/schierlm/metasploit-framework/pull/1 . Once @schierlm landed it on his branch (again, using `git merge --no-ff` and a short, informational merge commit message), all I (or anyone) had to do was `git fetch` to get the change reflected in origin/pr/1217, and then the integration of the PR could continue.
 
 # Collaboration between contributors
 
