@@ -6,7 +6,7 @@ Metasploit is built incrementally by the community through GitHub's [Pull Reques
 
  - Configure your git environment as described [here](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment#keeping-in-sync).
  - Add the `fetch = +refs/pull/*/head:refs/remotes/upstream/pr/*` line to your `.git/config`.
- - When merging code from a pull request, always, always `merge --no-ff`, and write a meaningful commit message that references the original PR as `#1234` (not PR1234, not PR#1234, not 1234). This goes for PRs that fix your PR, too.
+ - When merging code from a pull request, always, always `merge --no-ff`, and write a meaningful commit message that references the original PR as `#1234` (not PR1234, not PR#1234, not 1234). This `--no-ff` flag is goes for PRs that go back to a contributor's branch as well as PRs that land in rapid7's master branch. Hooray for consistency!
  - If you're making changes (often the case), merge --no-ff to a landing branch, then merge **that** branch to upstream/master (assuming you don't need to collaborate on changes).
 
 # Fork and clone
