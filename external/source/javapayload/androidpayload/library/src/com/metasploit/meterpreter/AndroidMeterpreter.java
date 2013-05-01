@@ -28,7 +28,7 @@ import com.metasploit.meterpreter.stdapi.stdapi_fs_search;
 import com.metasploit.meterpreter.stdapi.stdapi_fs_separator;
 import com.metasploit.meterpreter.stdapi.stdapi_fs_sha1;
 import com.metasploit.meterpreter.stdapi.stdapi_fs_stat;
-import com.metasploit.meterpreter.stdapi.stdapi_net_config_get_interfaces_V1_6;
+import com.metasploit.meterpreter.stdapi.stdapi_net_config_get_interfaces_V1_4;
 import com.metasploit.meterpreter.stdapi.stdapi_net_config_get_routes_V1_4;
 import com.metasploit.meterpreter.stdapi.stdapi_net_socket_tcp_shutdown_V1_3;
 import com.metasploit.meterpreter.stdapi.stdapi_sys_config_getuid;
@@ -70,7 +70,7 @@ public class AndroidMeterpreter extends Meterpreter {
         mgr.registerCommand("stdapi_fs_separator", stdapi_fs_separator.class);
         mgr.registerCommand("stdapi_fs_stat", stdapi_fs_stat.class);
         mgr.registerCommand("stdapi_fs_sha1", stdapi_fs_sha1.class);
-        mgr.registerCommand("stdapi_net_config_get_interfaces", stdapi_net_config_get_interfaces_V1_6.class);
+        mgr.registerCommand("stdapi_net_config_get_interfaces", stdapi_net_config_get_interfaces_V1_4.class);
         mgr.registerCommand("stdapi_net_config_get_routes", stdapi_net_config_get_routes_V1_4.class);
         mgr.registerCommand("stdapi_net_socket_tcp_shutdown", stdapi_net_socket_tcp_shutdown_V1_3.class);
         mgr.registerCommand("stdapi_sys_config_getuid", stdapi_sys_config_getuid.class);
