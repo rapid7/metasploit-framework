@@ -115,8 +115,8 @@ class Metasploit4 < Msf::Auxiliary
 				}
 			end
 		rescue ::Rex::ConnectionError
-				vprint_error("#{rhost}:#{rport} - Unable to connect")
-				return
+			vprint_error("#{rhost}:#{rport} - Unable to connect")
+			return
 		end
 	end
 end
