@@ -123,6 +123,7 @@
 											<arg value="${project.basedir}/target/dx/meterpreter" />
 											<arg value="${com.metasploit:Metasploit-Java-Meterpreter:jar}" />
 											<arg value="${com.metasploit:Metasploit-Java-Meterpreter-stdapi:jar}" />
+											<arg value="${com.metasploit:Metasploit-JavaPayload:jar}" />
 										</exec>
 									</target>
 								</configuration>
