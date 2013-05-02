@@ -343,8 +343,11 @@ class PayloadSet < ModuleSet
 	# it must be removed (if one exists)
 	#
 	def on_module_reload(mod)
-		@blob_cache.delete(mod.refname + "-stg0")
-		@blob_cache.delete(mod.refname + "-stg1")
+		@blob_cache.each_key do |key|
+			if key.start_with? mod.refname
+				@blob_cache.delete(key)
+			end
+		end
 	end
 
 	#
