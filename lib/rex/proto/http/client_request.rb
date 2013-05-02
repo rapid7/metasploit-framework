@@ -111,6 +111,9 @@ class ClientRequest
 			end
 
 			opts['vars_get'].each_pair do |var,val|
+				var = var.to_s
+				val = val.to_s
+
 				qstr << '&' if qstr.length > 0
 				qstr << (opts['encode_params'] ? set_encode_uri(var) : var)
 				qstr << '='
@@ -129,6 +132,9 @@ class ClientRequest
 			end
 
 			opts['vars_post'].each_pair do |var,val|
+				var = var.to_s
+				val = val.to_s
+
 				pstr << '&' if pstr.length > 0
 				pstr << (opts['encode_params'] ? set_encode_uri(var) : var)
 				pstr << '='
@@ -220,7 +226,7 @@ class ClientRequest
 	end
 
 	def set_encode_uri(str)
-		a = str.dup
+		a = str.to_s.dup
 		opts['uri_encode_count'].times {
 			a = Rex::Text.uri_encode(a, opts['uri_encode_mode'])
 		}
