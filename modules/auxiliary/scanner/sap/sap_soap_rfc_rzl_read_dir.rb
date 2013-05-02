@@ -23,6 +23,7 @@
 ##
 
 require 'msf/core'
+require 'rexml/document'
 
 class Metasploit4 < Msf::Auxiliary
 	include Msf::Exploit::Remote::HttpClient
@@ -60,14 +61,18 @@ class Metasploit4 < Msf::Auxiliary
 
 	def parse_xml(xml_data)
 		files = []
-		xml_doc  = Nokogiri::XML(xml_data)
-		xml_doc.css('item').each {|item|
-			name = item.css('NAME')
-			size = item.css('SIZE')
-			if not name.empty? and not size.empty?
-				files << { "name" => name.text, "size" => size.text }
+		xml_doc = REXML::Document.new(xml_data)
+		xml_doc.root.each_element('//item') do |item|
+			name = size = nil
+			item.each_element do |elem|
+				name = elem.text if elem.name == "NAME"
+				size = elem.text if elem.name == "SIZE"
+				break if name and size
 			end
-		}
+			if (name and size) and not (name.empty? or size.empty?)
+				files << { "name" => name, "size" => size }
+			end
+		end
 		return files
 	end
 
