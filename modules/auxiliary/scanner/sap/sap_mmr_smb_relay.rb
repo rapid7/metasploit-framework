@@ -55,7 +55,7 @@ class Metasploit4 < Msf::Auxiliary
 				vprint_status("[SAP] #{ip}:#{rport} - Sending unauthenticated request for #{datastore['PATH']}")
 				res = send_request_cgi({
 					'uri' => '/mmr/MMR',
-					'method' => 'HEAD',
+					'method' => 'GET',
 					'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
 					'ctype' => 'text/xml; charset=UTF-8',
 					'vars_get' => {
