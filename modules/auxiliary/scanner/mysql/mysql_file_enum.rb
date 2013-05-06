@@ -109,6 +109,7 @@ class Metasploit3 < Msf::Auxiliary
 				:proto => 'tcp',
 				:update => :unique_data
 			)
+		end
 		return
 	end
 
