@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130228214900) do
+ActiveRecord::Schema.define(:version => 20130423211152) do
 
   create_table "api_keys", :force => true do |t|
     t.text     "token"
@@ -157,6 +157,7 @@ ActiveRecord::Schema.define(:version => 20130228214900) do
     t.integer  "service_count",                          :default => 0
     t.integer  "host_detail_count",                      :default => 0
     t.integer  "exploit_attempt_count",                  :default => 0
+    t.integer  "cred_count",                             :default => 0
   end
 
   add_index "hosts", ["address"], :name => "index_hosts_on_address"
