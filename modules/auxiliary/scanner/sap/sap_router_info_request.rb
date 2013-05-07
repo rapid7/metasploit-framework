@@ -45,7 +45,7 @@ class Metasploit4 < Msf::Auxiliary
 			'Author' =>
 				[
 					'Mariano Nunez', # Disclosure about SAPRouter abuses
-					'nomnkee' # Metasploit module
+					'nmonkee' # Metasploit module
 				],
 			'License' => BSD_LICENSE
 			)
