@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References' => [
 				[ 'URL', 'http://sourceforge.net/projects/smbexec' ],
 				[ 'URL', 'http://www.accuvant.com/blog/2012/11/13/owning-computers-without-shell-access' ]
-			],
+			]
 		))
 
 		register_options([

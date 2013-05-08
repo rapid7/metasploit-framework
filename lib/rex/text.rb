@@ -276,6 +276,15 @@ module Text
 		return buff
 	end
 
+	#
+	# Returns the escaped octal version of the supplied string
+	#
+	# @example
+	#   Rex::Text.to_octal("asdf") # => "\\141\\163\\144\\146"
+	#
+	# @param str [String] The string to be converted
+	# @param prefix [String]
+	# @return [String] The escaped octal version of +str+
 	def self.to_octal(str, prefix = "\\")
 		octal = ""
 		str.each_byte { |b|
@@ -286,8 +295,15 @@ module Text
 	end
 
 	#
-	# Returns the hex version of the supplied string
+	# Returns the escaped hex version of the supplied string
 	#
+	# @example
+	#   Rex::Text.to_hex("asdf") # => "\\x61\\x73\\x64\\x66"
+	#
+	# @param str (see to_octal)
+	# @param prefix (see to_octal)
+	# @param count [Fixnum] Number of bytes to put in each escape chunk
+	# @return [String] The escaped hex version of +str+
 	def self.to_hex(str, prefix = "\\x", count = 1)
 		raise ::RuntimeError, "unable to chunk into #{count} byte chunks" if ((str.length % count) > 0)
 
@@ -299,9 +315,18 @@ module Text
 	end
 
 	#
-	# Returns the string with nonprintable hex characters sanitized to ascii. Similiar to to_hex,
-	# but regular ASCII is not translated if count is 1.
+	# Returns the string with nonprintable hex characters sanitized to ascii.
+	# Similiar to {.to_hex}, but regular ASCII is not translated if +count+ is 1.
 	#
+	# @example
+	#   Rex::Text.to_hex_ascii("\x7fABC\0") # => "\\x7fABC\\x00"
+	#
+	# @param str (see to_hex)
+	# @param prefix (see to_hex)
+	# @param count (see to_hex)
+	# @param suffix [String,nil] A string to append to the converted bytes
+	# @return [String] The original string with non-printables converted to
+	#   their escaped hex representation
 	def self.to_hex_ascii(str, prefix = "\\x", count = 1, suffix=nil)
 		raise ::RuntimeError, "unable to chunk into #{count} byte chunks" if ((str.length % count) > 0)
 		return str.unpack('H*')[0].gsub(Regexp.new(".{#{count * 2}}", nil, 'n')) { |s|
@@ -557,6 +582,10 @@ module Text
 	#
 	# Encode a string in a manner useful for HTTP URIs and URI Parameters.
 	#
+	# @param str [String] The string to be encoded
+	# @param mode ["hex","int","int-wide"]
+	# @return [String]
+	# @raise [TypeError] if +mode+ is not one of the three available modes
 	def self.html_encode(str, mode = 'hex')
 		case mode
 		when 'hex'
@@ -595,6 +624,13 @@ module Text
 	#
 	# Converts a string to random case
 	#
+	# @example
+	#   Rex::Text.to_rand_case("asdf") # => "asDf"
+	#
+	# @param str [String] The string to randomize
+	# @return [String]
+	# @see permute_case
+	# @see to_mixed_case_array
 	def self.to_rand_case(str)
 		buf = str.dup
 		0.upto(str.length) do |i|
@@ -606,11 +642,13 @@ module Text
 	#
 	# Takes a string, and returns an array of all mixed case versions.
 	#
-	# Example:
+	# @example
+	#   >> Rex::Text.to_mixed_case_array "abc1"
+	#   => ["abc1", "abC1", "aBc1", "aBC1", "Abc1", "AbC1", "ABc1", "ABC1"]
 	#
-	#    >> Rex::Text.to_mixed_case_array "abc1"
-	#    => ["abc1", "abC1", "aBc1", "aBC1", "Abc1", "AbC1", "ABc1", "ABC1"]
-	#
+	# @param str [String] The string to randomize
+	# @return [Array<String>]
+	# @see permute_case
 	def self.to_mixed_case_array(str)
 		letters = []
 		str.scan(/./).each { |l| letters << [l.downcase, l.upcase] }
@@ -627,8 +665,10 @@ module Text
 	end
 
 	#
-	# Converts a string a nicely formatted hex dump
+	# Converts a string to a nicely formatted hex dump
 	#
+	# @param str [String] The string to convert
+	# @param width [Fixnum] Number of bytes to convert before adding a newline
 	def self.to_hex_dump(str, width=16)
 		buf = ''
 		idx = 0
@@ -711,6 +751,9 @@ module Text
 	#
 	# Converts a hex string to a raw string
 	#
+	# @example
+	#   Rex::Text.hex_to_raw("\\x41\\x7f\\x42") # => "A\x7fB"
+	#
 	def self.hex_to_raw(str)
 		[ str.downcase.gsub(/'/,'').gsub(/\\?x([a-f0-9][a-f0-9])/, '\1') ].pack("H*")
 	end
@@ -720,6 +763,9 @@ module Text
 	#
 	# If +whitespace+ is true, converts whitespace (0x20, 0x09, etc) to hex as
 	# well.
+	#
+	# @see hexify
+	# @see to_hex Converts all the chars
 	#
 	def self.ascii_safe_hex(str, whitespace=false)
 		if whitespace
@@ -915,8 +961,12 @@ module Text
 
 	#
 	# Convert hex-encoded characters to literals.
-	# Example: "AA\\x42CC" becomes "AABCC"
 	#
+	# @example
+	#   Rex::Text.dehex("AA\\x42CC") # => "AABCC"
+	#
+	# @see hex_to_raw
+	# @param str [String]
 	def self.dehex(str)
 		return str unless str.respond_to? :match
 		return str unless str.respond_to? :gsub
@@ -931,6 +981,7 @@ module Text
 	#
 	# Convert and replace hex-encoded characters to literals.
 	#
+	# @param (see dehex)
 	def self.dehex!(str)
 		return str unless str.respond_to? :match
 		return str unless str.respond_to? :gsub
@@ -1020,7 +1071,12 @@ module Text
 		rand_base(len, bad, *foo )
 	end
 
-	# Generate a random GUID, of the form xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.
+	# Generate a random GUID
+	#
+	# @example
+	#   Rex::Text.rand_guid # => "{ca776ced-4ab8-2ed6-6510-aa71e5e2508e}"
+	#
+	# @return [String]
 	def self.rand_guid
 		"{#{[8,4,4,4,12].map {|a| rand_text_hex(a) }.join("-")}}"
 	end
@@ -1031,9 +1087,15 @@ module Text
 	# supplied number of identifiable characters (slots).  The supplied sets
 	# should not contain any duplicate characters or the logic will fail.
 	#
+	# @param length [Fixnum]
+	# @param sets [Array<(String,String,String)>] The character sets to choose
+	#   from. Should have 3 elements, each of which must be a string containing
+	#   no characters contained in the other sets.
+	# @return [String] A pattern of +length+ bytes, in which any 4-byte chunk is
+	#   unique
+	# @see pattern_offset
 	def self.pattern_create(length, sets = nil)
 		buf = ''
-		idx = 0
 		offsets = []
 
 		# Make sure there's something in sets even if we were given an explicit nil
@@ -1084,6 +1146,12 @@ module Text
 	#
 	# Calculate the offset to a pattern
 	#
+	# @param pattern [String] The pattern to search. Usually the return value
+	#   from {.pattern_create}
+	# @param value [String,Fixnum,Bignum]
+	# @return [Fixnum] Index of the given +value+ within +pattern+, if it exists
+	# @return [nil] if +pattern+ does not contain +value+
+	# @see pattern_create
 	def self.pattern_offset(pattern, value, start=0)
 		if (value.kind_of?(String))
 			pattern.index(value, start)
@@ -1098,6 +1166,9 @@ module Text
 	# Compresses a string, eliminating all superfluous whitespace before and
 	# after lines and eliminating all lines.
 	#
+	# @param str [String] The string in which to crunch whitespace
+	# @return [String] Just like +str+, but with repeated whitespace characters
+	#   trimmed down to a single space
 	def self.compress(str)
 		str.gsub(/\n/m, ' ').gsub(/\s+/, ' ').gsub(/^\s+/, '').gsub(/\s+$/, '')
 	end
@@ -1136,6 +1207,9 @@ module Text
 	#
 	# Compresses a string using zlib
 	#
+	# @param str [String] The string to be compressed
+	# @param level [Fixnum] One of the Zlib compression level constants
+	# @return [String] The compressed version of +str+
 	def self.zlib_deflate(str, level = Zlib::BEST_COMPRESSION)
 		if self.zlib_present?
 			z = Zlib::Deflate.new(level)
@@ -1150,6 +1224,8 @@ module Text
 	#
 	# Uncompresses a string using zlib
 	#
+	# @param str [String] Compressed string to inflate
+	# @return [String] The uncompressed version of +str+
 	def self.zlib_inflate(str)
 		if(self.zlib_present?)
 			zstream = Zlib::Inflate.new
@@ -1165,6 +1241,9 @@ module Text
 	#
 	# Compresses a string using gzip
 	#
+	# @param str (see zlib_deflate)
+	# @param level [Fixnum] Compression level, 1 (fast) to 9 (best)
+	# @return (see zlib_deflate)
 	def self.gzip(str, level = 9)
 		raise RuntimeError, "Gzip support is not present." if (!zlib_present?)
 		raise RuntimeError, "Invalid gzip compression level" if (level < 1 or level > 9)
@@ -1180,6 +1259,8 @@ module Text
 	#
 	# Uncompresses a string using gzip
 	#
+	# @param str (see zlib_inflate)
+	# @return (see zlib_inflate)
 	def self.ungzip(str)
 		raise RuntimeError, "Gzip support is not present." if (!zlib_present?)
 
@@ -1192,9 +1273,13 @@ module Text
 	end
 
 	#
-	# Return the index of the first badchar in data, otherwise return
+	# Return the index of the first badchar in +data+, otherwise return
 	# nil if there wasn't any badchar occurences.
 	#
+	# @param data [String] The string to check for bad characters
+	# @param badchars [String] A list of characters considered to be bad
+	# @return [Fixnum] Index of the first bad character if any exist in +data+
+	# @return [nil] If +data+ contains no bad characters
 	def self.badchar_index(data, badchars = '')
 		badchars.unpack("C*").each { |badchar|
 			pos = data.index(badchar.chr)
@@ -1204,22 +1289,31 @@ module Text
 	end
 
 	#
-	# This method removes bad characters from a string.
+	# Removes bad characters from a string.
 	#
+	# Modifies +data+ in place
+	#
+	# @param data [#delete]
+	# @param badchars [String] A list of characters considered to be bad
 	def self.remove_badchars(data, badchars = '')
 		data.delete(badchars)
 	end
 
 	#
-	# This method returns all chars but the supplied set
+	# Returns all chars that are not in the supplied set
 	#
+	# @param keepers [String]
+	# @return [String] All characters not contained in +keepers+
 	def self.charset_exclude(keepers)
 		[*(0..255)].pack('C*').delete(keepers)
 	end
 
 	#
-	#  Shuffles a byte stream
+	# Shuffles a byte stream
 	#
+	# @param str [String]
+	# @return [String] The shuffled result
+	# @see shuffle_a
 	def self.shuffle_s(str)
 		shuffle_a(str.unpack("C*")).pack("C*")
 	end
@@ -1227,6 +1321,10 @@ module Text
 	#
 	# Performs a Fisher-Yates shuffle on an array
 	#
+	# Modifies +arr+ in place
+	#
+	# @param arr [Array] The array to be shuffled
+	# @return [Array]
 	def self.shuffle_a(arr)
 		len = arr.length
 		max = len - 1
@@ -1268,6 +1366,8 @@ module Text
 	end
 
 	# Generate a random hostname
+	#
+	# @return [String] A random string conforming to the rules of FQDNs
 	def self.rand_hostname
 		host = []
 		(rand(5) + 1).times {
@@ -1287,6 +1387,7 @@ module Text
 	#
 	# Calculate the ROR13 hash of a given string
 	#
+	# @return [Fixnum]
 	def self.ror13_hash(name)
 		hash = 0
 		name.unpack("C*").each {|c| hash = ror(hash, 13); hash += c }
@@ -1294,8 +1395,10 @@ module Text
 	end
 
 	#
-	# Rotate a 32-bit value to the right by cnt bits
+	# Rotate a 32-bit value to the right by +cnt+ bits
 	#
+	# @param val [Fixnum] The value to rotate
+	# @param cnt [Fixnum] Number of bits to rotate by
 	def self.ror(val, cnt)
 		bits = [val].pack("N").unpack("B32")[0].split(//)
 		1.upto(cnt) do |c|
@@ -1305,8 +1408,11 @@ module Text
 	end
 
 	#
-	# Rotate a 32-bit value to the left by cnt bits
+	# Rotate a 32-bit value to the left by +cnt+ bits
 	#
+	# @param val (see ror)
+	# @param cnt (see ror)
+	# @return (see ror)
 	def self.rol(val, cnt)
 		bits = [val].pack("N").unpack("B32")[0].split(//)
 		1.upto(cnt) do |c|
@@ -1316,7 +1422,7 @@ module Text
 	end
 
 	#
-	# Split a string by n charachter into an array
+	# Split a string by n character into an array
 	#
 	def self.split_to_a(str, n)
 		if n > 0
@@ -1331,7 +1437,7 @@ module Text
 	end
 
 	#
-	#Pack a value as 64 bit litle endian; does not exist for Array.pack
+	# Pack a value as 64 bit litle endian; does not exist for Array.pack
 	#
 	def self.pack_int64le(val)
 		[val & 0x00000000ffffffff, val >> 32].pack("V2")

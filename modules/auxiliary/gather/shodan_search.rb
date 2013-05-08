@@ -7,6 +7,7 @@
 
 require 'msf/core'
 require 'rex'
+require 'net/dns'
 
 class Metasploit4 < Msf::Auxiliary
 
