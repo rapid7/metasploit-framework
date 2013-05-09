@@ -90,7 +90,7 @@ class Metasploit4 < Msf::Auxiliary
 			})
 			if res and res.code == 200 and res.body =~ /EPS_GET_DIRECTORY_LISTING\.Response/ and res.body =~ /<FILE_COUNTER>(\d*)<\/FILE_COUNTER>/
 				file_count = $1
-				print_good("#{rport}:#{rhost} - #{file_count} files under #{datastore["DIR"]}")
+				print_good("#{rhost}:#{rport} - #{file_count} files under #{datastore["DIR"]}")
 			else
 				vprint_error("#{rhost}:#{rport} - Error code: " + res.code.to_s) if res
 				vprint_error("#{rhost}:#{rport} - Error message: " + res.message.to_s) if res
