@@ -9,11 +9,15 @@ shared_examples_for 'Msf::DBManager::Export#extract_module_detail_info module_de
 		module_detail.send(attribute_name)
 	end
 
-	it "should have Mdm::Module::Detail##{attribute_name} present" do
-	  attribute.should be_present
+	it "should not have Mdm::Module::Detail##{attribute_name} nil" do
+	  attribute.should_not be_nil
 	end
 
 	it "should have Mdm::Module::Detail##{attribute_name} for #{child_node_name} content" do
-		child_node.content.should == attribute.to_s
+		if attribute == false
+			child_node.content.should be_blank
+		else
+			child_node.content.should == attribute.to_s
+		end
 	end
 end

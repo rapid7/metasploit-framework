@@ -265,7 +265,7 @@ describe Msf::DBManager do
 
 						context 'with session responds to arch' do
 							let(:arch) do
-								'Arch'
+								FactoryGirl.generate :mdm_host_arch
 							end
 
 							before(:each) do
@@ -828,7 +828,7 @@ describe Msf::DBManager do
 			end
 
 			before(:each) do
-				['active', 'passive'].each do |stance|
+				Mdm::Module::Detail::STANCES.each do |stance|
 					FactoryGirl.create(:mdm_module_detail, :stance => stance)
 				end
 			end
@@ -852,11 +852,11 @@ describe Msf::DBManager do
 					'server'
 				end
 
-				it "should match Mdm::Module::Detail#stance 'active'" do
+				it "should match Mdm::Module::Detail#stance 'aggressive'" do
 					module_details.count.should > 0
 
 					module_details.all? { |module_detail|
-						module_detail.stance == 'active'
+						module_detail.stance == 'aggressive'
 					}.should be_true
 				end
 			end
@@ -1469,8 +1469,8 @@ describe Msf::DBManager do
 				update_module_details
 			end
 
-			it 'should call module_to_details_hash to get Mdm::Module::Detail attributs and association attributes' do
-				db_manager.should_receive(:module_to_details_hash).and_return({})
+			it 'should call module_to_details_hash to get Mdm::Module::Detail attributes and association attributes' do
+				db_manager.should_receive(:module_to_details_hash).and_call_original
 
 				update_module_details
 			end
@@ -1485,8 +1485,24 @@ describe Msf::DBManager do
 			context 'module_to_details_hash' do
 				let(:module_to_details_hash) do
 					{
-							:refname => module_reference_name
+							:mtype => module_type,
+							:privileged => privileged,
+							:rank => rank,
+							:refname => module_reference_name,
+							:stance => stance
 					}
+				end
+
+				let(:privileged) do
+					FactoryGirl.generate :mdm_module_detail_privileged
+				end
+
+				let(:rank) do
+					FactoryGirl.generate :mdm_module_detail_rank
+				end
+
+				let(:stance) do
+					FactoryGirl.generate :mdm_module_detail_stance
 				end
 
 				before(:each) do
@@ -1508,8 +1524,12 @@ describe Msf::DBManager do
 						update_module_details
 					end
 
+					its(:mtype) { should == module_type }
+					its(:privileged) { should == privileged }
+					its(:rank) { should == rank }
 					its(:ready) { should == true }
 					its(:refname) { should == module_reference_name }
+					its(:stance) { should == stance }
 				end
 
 				context 'with :bits' do

@@ -404,6 +404,8 @@ class DBManager
 	# Creates an Mdm::Module::Detail from a module instance.
 	#
 	# @param module_instance [Msf::Module] a metasploit module instance.
+	# @raise [ActiveRecord::RecordInvalid] if Hash from {#module_to_details_hash} is invalid attributes for
+	#   Mdm::Module::Detail.
 	# @return [void]
 	def update_module_details(module_instance)
 		return if not self.migrated
@@ -411,7 +413,7 @@ class DBManager
 		ActiveRecord::Base.connection_pool.with_connection do
 			info = module_to_details_hash(module_instance)
 			bits = info.delete(:bits) || []
-			module_detail = Mdm::Module::Detail.create(info)
+			module_detail = Mdm::Module::Detail.create!(info)
 
 			bits.each do |args|
 				otype, vals = args
@@ -433,7 +435,7 @@ class DBManager
 			end
 
 			module_detail.ready = true
-			module_detail.save
+			module_detail.save!
 		end
 	end
 
@@ -665,7 +667,7 @@ class DBManager
             union_conditions << Mdm::Module::Detail.arel_table[:mtype].matches_any(formatted_values)
           when 'app'
             formatted_values = value_set.collect { |value|
-              formatted_value = 'active'
+              formatted_value = 'aggressive'
 
               if value == 'client'
                 formatted_value = 'passive'

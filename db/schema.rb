@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130412175040) do
+ActiveRecord::Schema.define(:version => 20130430162145) do
 
   create_table "api_keys", :force => true do |t|
     t.text     "token"
@@ -135,7 +135,7 @@ ActiveRecord::Schema.define(:version => 20130412175040) do
 
   create_table "hosts", :force => true do |t|
     t.datetime "created_at"
-    t.string   "address",               :limit => nil
+    t.string   "address",               :limit => nil,                  :null => false
     t.string   "mac"
     t.string   "comm"
     t.string   "name"
@@ -145,7 +145,7 @@ ActiveRecord::Schema.define(:version => 20130412175040) do
     t.string   "os_sp"
     t.string   "os_lang"
     t.string   "arch"
-    t.integer  "workspace_id"
+    t.integer  "workspace_id",                                          :null => false
     t.datetime "updated_at"
     t.text     "purpose"
     t.string   "info",                  :limit => 65536
@@ -157,14 +157,15 @@ ActiveRecord::Schema.define(:version => 20130412175040) do
     t.integer  "service_count",                          :default => 0
     t.integer  "host_detail_count",                      :default => 0
     t.integer  "exploit_attempt_count",                  :default => 0
+    t.integer  "cred_count",                             :default => 0
   end
 
-  add_index "hosts", ["address"], :name => "index_hosts_on_address"
   add_index "hosts", ["name"], :name => "index_hosts_on_name"
   add_index "hosts", ["os_flavor"], :name => "index_hosts_on_os_flavor"
   add_index "hosts", ["os_name"], :name => "index_hosts_on_os_name"
   add_index "hosts", ["purpose"], :name => "index_hosts_on_purpose"
   add_index "hosts", ["state"], :name => "index_hosts_on_state"
+  add_index "hosts", ["workspace_id", "address"], :name => "index_hosts_on_workspace_id_and_address", :unique => true
 
   create_table "hosts_tags", :id => false, :force => true do |t|
     t.integer "host_id"
