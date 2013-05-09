@@ -65,7 +65,7 @@ class Metasploit4 < Msf::Auxiliary
 				'method' => 'POST',
 				'data' => data,
 				'headers' =>{
-					'Content-Length' => data.size.to_s,
+					#'Content-Length' => data.size.to_s,
 					'Cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
 					'Authorization' => 'Basic ' + user_pass,
 					'Content-Type' => 'text/xml; charset=UTF-8',}
