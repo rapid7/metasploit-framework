@@ -2797,6 +2797,9 @@ class DBManager
 		::File.open(filename, 'rb') do |f|
 			data = f.read(4)
 		end
+		if data.nil?
+			raise DBImportError.new("Zero-length file")
+		end
 
 		case data[0,4]
 		when "PK\x03\x04"
