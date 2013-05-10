@@ -121,7 +121,8 @@ module Auxiliary::Web
 
 	# Matches fingerprint pattern against the current page's body and logs matches
 	def match_and_log_fingerprint( fingerprint )
-		page.body.to_s.match( fingerprint ) && log_fingerprint( :fingerprint => fingerprint )
+		return if (match = page.body.to_s.match( fingerprint ).to_s).empty?
+		log_fingerprint( :fingerprint => match )
 	end
 
 	#
