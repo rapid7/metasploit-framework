@@ -47,9 +47,7 @@ class Metasploit3 < Msf::Post
 	def extension_mailvelope(username, extname)
 		chrome_path = @profiles_path + "\\" + username + @data_path
 		maildb_path = chrome_path + "/Local Storage/chrome-extension_#{extname}_0.localstorage"
-		begin
-			x = session.fs.file.stat(maildb_path)
-		rescue
+		if file_exist?(maildb_path) == false
 			print_error("==> Mailvelope database not found")
 			return
 		end
@@ -195,9 +193,7 @@ class Metasploit3 < Msf::Post
 			remote_path = chrome_path + '\\' + f
 
 			#Verify the path before downloading the file
-			begin
-				x = session.fs.file.stat(remote_path)
-			rescue
+			if file_exist?(remote_path) == false
 				print_error("#{f} not found")
 				next
 			end
