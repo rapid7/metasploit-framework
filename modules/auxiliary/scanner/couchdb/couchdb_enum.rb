@@ -41,6 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		if res.nil?
 			print_error("No response for #{target_host}")
+			return nil
 		end
 
 		temp = JSON.parse(res.body)
