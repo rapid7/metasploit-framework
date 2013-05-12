@@ -33,7 +33,8 @@ class Metasploit3 < Msf::Post
 			print_error("This module is only available in a windows meterpreter session.")
 			return
 		end
-			print_status("Running module against #{sysinfo['Computer']}")
+
+		print_status("Running module against #{sysinfo['Computer']}")
 
 		if (client.platform =~ /x86/) and (client.sys.config.sysinfo['Architecture'] =~ /x64/)
 			print_error("x64 platform requires x64 meterpreter and mimikatz extension")
