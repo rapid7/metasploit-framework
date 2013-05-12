@@ -22,9 +22,9 @@ class Metasploit3 < Msf::Post
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Borja Merino <bmerinofe[at]gmail.com>'],
 			'References'    =>
-						[
-							['URL', 'http://www.youtube.com/watch?v=vdppEZjMPCM&hd=1']
-						],
+								[
+									['URL', 'http://www.youtube.com/watch?v=vdppEZjMPCM&hd=1']
+								],
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Post
 
 	def disable_network_wizard
 		if not is_admin?
-			print_error("You don't have enough privileges to change the registry. Network Wizard will no be disable")
+			print_error("You don't have enough privileges to change the registry. Network Wizard will not be disable")
 			return
 		end
 
@@ -85,7 +85,7 @@ class Metasploit3 < Msf::Post
 		conf_conn += "MEDIA=rastapi\r\n"
 		conf_conn += "Port=VPN4-0\r\n"
 		conf_conn += "DEVICE=vpn\r\n"
-		conf_conn += "IpPrioritizeRemote=0\r\n" if mim == false
+		conf_conn += "IpPrioritizeRemote=0\r\n" unless mim
 
 		if write_file(pbk_file,conf_conn)
 			print_good ("PhoneBook configuration written to #{pbk_file}")
