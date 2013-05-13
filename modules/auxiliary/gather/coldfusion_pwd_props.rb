@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 					['ColdFusion10'],
 					['ColdFusion9']
 				],
-			'DefaultAction' => 'ColdFusion 10',
+			'DefaultAction' => 'ColdFusion10',
 			'DisclosureDate' => "May 7 2013"  #The day we saw the subzero poc
 		))
 
