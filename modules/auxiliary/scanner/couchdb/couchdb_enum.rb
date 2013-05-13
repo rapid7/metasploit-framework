@@ -1,3 +1,10 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
@@ -29,14 +36,14 @@ class Metasploit3 < Msf::Auxiliary
 		username = datastore['USERNAME']
 		password = datastore['PASSWORD']
 
-		uri = normalize_uri(datastore['TARGETURI'])
-			res = send_request_cgi({
-				'uri'      => uri,
-				'method'   => datastore['HTTP_METHOD'],
-				'authorization' => basic_auth(username, password),
-				'headers'  => {
-					'Cookie'   => 'Whatever?'
-				}
+		uri = normalize_uri(target_uri.path)
+		res = send_request_cgi({
+			'uri'      => uri,
+			'method'   => datastore['HTTP_METHOD'],
+			'authorization' => basic_auth(username, password),
+			'headers'  => {
+				'Cookie'   => 'Whatever?'
+			}
 		})
 
 		if res.nil?
@@ -44,7 +51,13 @@ class Metasploit3 < Msf::Auxiliary
 			return nil
 		end
 
-		temp = JSON.parse(res.body)
+		begin
+			temp = JSON.parse(res.body)
+		rescue JSON::ParserError
+			print_error("Unable to parse JSON")
+			return
+		end
+
 		results = JSON.pretty_generate(temp)
 
 		if (res.code == 200)
@@ -58,8 +71,8 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("Received #{res.code} - Not Found to #{target_host}:#{rport}")
 			print_error("Response from server:\n\n #{results}\n")
 		else
-			print_status("#{res.code}")
-			print_status("#{results}")
+			print_status("Received #{res.code}")
+			print_line("#{results}")
 		end
 
 		if res and res.code == 200 and res.headers['Content-Type'] and res.body.length > 0
@@ -68,9 +81,5 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			print_error("Failed to save the result")
 		end
-
-	rescue ::Exception => e
-		print_error("Error: #{e.to_s}")
-		return nil
 	end
 end
