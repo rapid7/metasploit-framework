@@ -1386,17 +1386,16 @@ class Core
 		print_line
 		print_line "Keywords:"
 		{
-			"name"     => "Modules with a matching descriptive name",
-			"path"     => "Modules with a matching path or reference name",
-			"platform" => "Modules affecting this platform",
-			"port"     => "Modules with a matching remote port",
-			"type"     => "Modules of a specific type (exploit, auxiliary, or post)",
-			"app"      => "Modules that are client or server attacks",
-			"author"   => "Modules written by this author",
-			"cve"      => "Modules with a matching CVE ID",
-			"bid"      => "Modules with a matching Bugtraq ID",
-			"osvdb"    => "Modules with a matching OSVDB ID",
-			"edb"      => "Modules with a matching Exploit-DB ID"
+			'app'      => 'Modules that are client or server attacks',
+			'author'   => 'Modules written by this author',
+			'bid'      => 'Modules with a matching Bugtraq ID',
+			'cve'      => 'Modules with a matching CVE ID',
+			'edb'      => 'Modules with a matching Exploit-DB ID',
+			'name'     => 'Modules with a matching descriptive name',
+			'osvdb'    => 'Modules with a matching OSVDB ID',
+			'platform' => 'Modules affecting this platform',
+			'ref'      => 'Modules with a matching ref',
+			'type'     => 'Modules of a specific type (exploit, auxiliary, or post)',
 		}.each_pair do |keyword, description|
 			print_line "  #{keyword.ljust 10}:  #{description}"
 		end
@@ -1456,9 +1455,13 @@ class Core
 
 	end
 
-	def search_modules_sql(match)
+  # Prints table of modules matching the search_string.
+  #
+  # @param (see Msf::DBManager#search_modules)
+  # @return [void]
+	def search_modules_sql(search_string)
 		tbl = generate_module_table("Matching Modules")
-		framework.db.search_modules(match).each do |o|
+		framework.db.search_modules(search_string).each do |o|
 			tbl << [ o.fullname, o.disclosure_date.to_s, RankingName[o.rank].to_s, o.name ]
 		end
 		print_line(tbl.to_s)
