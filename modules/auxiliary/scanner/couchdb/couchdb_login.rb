@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(5984),
-				OptString.new('TARGETURI', [true, "TARGETURI for CouchDB. Default here is /_users/_all_docs", "/_users/_all_docs"]),
+				OptString.new('TARGETURI', [false, "TARGETURI for CouchDB. Default here is /_users/_all_docs", "/"]),
 				OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
 					File.join(Msf::Config.install_root, "data", "wordlists", "http_default_userpass.txt") ]),
 				OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
@@ -40,8 +40,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		vprint_status("#{rhost}:#{rport} - Trying to login with '#{user}' : '#{pass}'")
 
+			uri = target_uri.path
 			res = send_request_cgi({
-				'uri'    => normalize_uri(datastore['TARGETURI']),
+				'uri'    => normalize_uri(uri, '_users/_all_docs'),
 				'method' => 'GET',
 				'authorization' => basic_auth(user, pass)
 			})
@@ -66,9 +67,10 @@ class Metasploit3 < Msf::Auxiliary
 	def do_login(user, pass)
 		vprint_status("Trying username:'#{user}' with password:'#{pass}'")
 		begin
+			uri = target_uri.path
 			res = send_request_cgi(
 			{
-				'uri'       => normalize_uri(datastore['TARGETURI']),
+				'uri'       => normalize_uri(uri, '_users/_all_docs'),
 				'method'    => 'GET',
 				'ctype'     => 'text/plain',
 				'authorization' => basic_auth(user, pass)
