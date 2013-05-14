@@ -22,8 +22,8 @@ module Buffer
 	def self.transform(buf, fmt = "ruby")
 		case fmt
 			when 'raw'
-            when 'python', 'py'
-                buf = Rex::Text.to_python(buf)
+			when 'python', 'py'
+				buf = Rex::Text.to_python(buf)
 			when 'ruby', 'rb'
 				buf = Rex::Text.to_ruby(buf)
 			when 'perl', 'pl'

@@ -129,7 +129,7 @@ if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w|n)/)
 	fmt = 'js_le' if (cmd =~ /^j/ and ! fmt)
 	fmt = 'java'  if (cmd =~ /^b/)
 	fmt = 'raw' if (cmd =~ /^w/)
-    fmt = 'python' if (cmd =~ /^n/)
+	fmt = 'python' if (cmd =~ /^n/)
 	enc = options['ENCODER']
 
 	begin
