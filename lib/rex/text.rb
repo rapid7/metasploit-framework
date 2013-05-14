@@ -104,6 +104,13 @@ module Text
 	end
 
 	#
+	# Converts a raw string into a python buffer
+	#
+	def self.to_python(str, wrap = DefaultWrap, name = "buf")
+		return hexify(str, wrap, "#{name} += \"", '"', "#{name} =  \"\"\n", '"')
+	end
+
+	#
 	# Converts a raw string into a Bash buffer
 	#
 	def self.to_bash(str, wrap = DefaultWrap, name = "buf")
