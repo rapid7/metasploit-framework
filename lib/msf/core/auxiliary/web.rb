@@ -120,8 +120,9 @@ module Auxiliary::Web
 	end
 
 	# Matches fingerprint pattern against the current page's body and logs matches
-	def match_and_log_fingerprint( fingerprint )
-		page.body.to_s.match( fingerprint ) && log_fingerprint( :fingerprint => fingerprint )
+	def match_and_log_fingerprint( fingerprint, options = {} )
+		return if (match = page.body.to_s.match( fingerprint ).to_s).empty?
+		log_fingerprint( options.merge( :fingerprint => match ) )
 	end
 
 	#
@@ -187,8 +188,10 @@ module Auxiliary::Web
 
 		report_web_vuln( info )
 
+		opts[:print_fingerprint] = true if !opts.include?( :print_fingerprint )
+
 		print_good "	FOUND(#{mode.to_s}) URL(#{location})"
-		print_good "		 PROOF(#{opts[:fingerprint]})"
+		print_good "		 PROOF(#{opts[:fingerprint]})" if opts[:print_fingerprint]
 	end
 
 	def log_resource( opts = {} )
