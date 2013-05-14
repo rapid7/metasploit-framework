@@ -91,6 +91,11 @@ Now, we're on a local branch identical to the original pull request, and can mov
 
 In this particular case with PR #1217, I did want to send some changes back to the contributor.
 
+## Checking out branches from a remote forked repo in your forked repo
+After your .git/config is set up per the above, and you successfully run `git fetch --all`, you are two steps away from being able to check out a branch from a contributor's forked repo.
+
+You need to add their fork once as a remote: `git remote add OTHER_USER git://github.com/OTHER_USER/metasploit-framework.git`. Now pull down the latest from them: `git fetch OTHER_USER`. Now you can check out branches from OTHER_USER per usual, e.g. `git checkout bug/foo`.
+
 # Making changes
 
 ````
