@@ -40,7 +40,6 @@ group :development, :test do
 	# running documentation generation tasks and rspec tasks
 	gem 'rake'
 end
-
 group :test do
 	# Removes records from database created during tests.  Can't use rspec-rails'
 	# transactional fixtures because multiple connections are in use so
