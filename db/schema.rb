@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130430162145) do
+ActiveRecord::Schema.define(:version => 20130515172727) do
 
   create_table "api_keys", :force => true do |t|
     t.text     "token"
@@ -581,7 +581,7 @@ ActiveRecord::Schema.define(:version => 20130430162145) do
     t.string   "name",        :limit => 1024, :null => false
     t.text     "query"
     t.text     "category",                    :null => false
-    t.text     "confidence",                  :null => false
+    t.integer  "confidence",                  :null => false
     t.text     "description"
     t.text     "blame"
     t.binary   "request"
