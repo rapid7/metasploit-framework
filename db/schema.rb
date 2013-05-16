@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130515172727) do
+ActiveRecord::Schema.define(:version => 20130516204810) do
 
   create_table "api_keys", :force => true do |t|
     t.text     "token"
@@ -511,7 +511,7 @@ ActiveRecord::Schema.define(:version => 20130515172727) do
 
   add_index "vulns", ["name"], :name => "index_vulns_on_name"
 
-  create_table "vulns_refs", :id => false, :force => true do |t|
+  create_table "vulns_refs", :force => true do |t|
     t.integer "ref_id"
     t.integer "vuln_id"
   end
