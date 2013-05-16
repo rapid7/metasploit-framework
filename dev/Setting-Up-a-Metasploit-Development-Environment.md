@@ -1,10 +1,8 @@
 # Metasploit Development Environment
 
-The Metasploit Framework is a pretty complex hunk of software, at least according to [Ohloh](http://www.ohloh.net/p/metasploit). So, getting started with development can be daunting even for veteran exploit developers. This page attempts to demystify the process of setting up your Metasploit development environment to submitting a "pull request" to get your exploit into the standard distribution.
+We assume that you're on some recent version of Ubuntu Linux. If not, then you're going to be on your own on how to get all your dependencies lined up . If you've successfully set up a development environment on something non-Ubuntu, and you'd like to share, let us know and we'll link to your tutorial from here.
 
-This documentation assumes you're on some recent version of Ubuntu Linux. If not, then you're going to be on your own on how to get all your dependencies lined up . If you've successfully set up a development environment on something non-Ubuntu, and you'd like to share, let us know and we'll link to your tutorial from here.
-
-Note that Backtrack Linux is not very suitable as a development environment, and you will run into missing upstream packages. It's a great place to use Metasploit, but not so great for hacking on it directly.
+Please note that Backtrack Linux is not very suitable as a development environment, and you will run into missing upstream packages. It's a great place to use Metasploit, but not so great for hacking on it directly.
 
 Throughout this documentation, we'll be using the example user of "Fakey McFakepants," who has the e-mail address of "mcfakepants@packetfu.com" and a login username of "fakey."
 
