@@ -376,7 +376,6 @@ if opts[:encode]
 			if not opts[:iterations]
 				opts[:iterations] = 1
 			end
-			#puts opts[:badchars].inspect
 
 			1.upto(opts[:iterations].to_i) do |iteration|
 					begin
@@ -400,7 +399,7 @@ if opts[:encode]
 					end
 			end
 			next if skip
-			exe = Msf::Util::EXE.to_executable_fmt($framework, opts[:arch], opts[:platform], payload_raw, opts[:format], exeopts)
+
 		rescue ::Errno::ENOENT, ::Errno::EINVAL
 			print_error("#{enc.refname} failed: #{$!}")
 			break
