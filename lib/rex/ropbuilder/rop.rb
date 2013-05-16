@@ -197,14 +197,13 @@ class RopCollect < RopBase
 	def process_gadgets(rets, num)
 		ret = {}
 		gadgets = []
-		tmp = []
 		rets.each do |ea|
 			insn = @disassembler.disassemble_instruction(ea)
 			next if not insn
 
 			xtra = insn.bin_length
 
-			1.upto(num) do |x|
+			num.step(0, -1) do |x|
 				addr = ea - x
 
 				# get the disassembled instruction at this address
@@ -229,11 +228,6 @@ class RopCollect < RopBase
 					addr = addr + di.bin_length
 				end
 
-				if not tmp.include?(ea)
-					tmp << ea
-				else
-					next
-				end
 				# otherwise, we create a new tailchunk and add it to the list
 				ret = {:file => @file, :address => ("0x%08x" % (ea - x)), :raw => buf, :disasm => dasm}
 				gadgets << ret
