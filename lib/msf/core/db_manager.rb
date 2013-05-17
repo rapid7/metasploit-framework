@@ -163,7 +163,16 @@ class DBManager
 				'db',
 				'migrate'
 		)
-		ActiveRecord::Migrator.migrations_paths << metasploit_data_model_migrations_pathname.to_s
+		metasploit_data_model_migrations_path = metasploit_data_model_migrations_pathname.to_s
+
+		# Since ActiveRecord::Migrator.migrations_paths can persist between
+		# instances of Msf::DBManager, such as in specs,
+		# metasploit_data_models_migrations_path may already be part of
+		# migrations_paths, in which case it should not be added or multiple
+		# migrations with the same version number errors will occur.
+		unless ActiveRecord::Migrator.migrations_paths.include? metasploit_data_model_migrations_path
+			ActiveRecord::Migrator.migrations_paths << metasploit_data_model_migrations_path
+		end
 	end
 
 	#
