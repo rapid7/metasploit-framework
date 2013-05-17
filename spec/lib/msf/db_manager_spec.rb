@@ -1430,7 +1430,7 @@ describe Msf::DBManager do
 		end
 
 		let(:module_set) do
-			framework.exploits
+			framework.modules.module_set(module_type)
 		end
 
 		let(:module_type) do
@@ -1776,6 +1776,28 @@ describe Msf::DBManager do
 					end
 				end
 			end
+
+			it_should_behave_like 'Msf::DBManager#update_module_details with module',
+														:reference_name => 'admin/2wire/xslt_password_reset',
+														:type => 'auxiliary'
+
+			it_should_behave_like 'Msf::DBManager#update_module_details with module',
+														:reference_name => 'generic/none',
+														:type => 'encoder'
+
+			it_should_behave_like 'Msf::DBManager#update_module_details with module',
+														:reference_name => 'windows/smb/ms08_067_netapi',
+														:type => 'exploit'
+
+			it_should_behave_like 'Msf::DBManager#update_module_details with module',
+														:reference_name => 'x64/simple',
+														:type => 'nop'
+
+			# @todo determine how to load a single payload to test payload type outside of msfconsole
+
+ 			it_should_behave_like 'Msf::DBManager#update_module_details with module',
+														:reference_name => 'windows/escalate/screen_unlock',
+														:type => 'post'
 		end
 
 		context 'without migrated' do
