@@ -91,9 +91,9 @@ class Metasploit3 < Msf::Post
 		unique_results = res.index_by { |r| "#{r[:authid]}#{r[:user]}#{r[:password]}" }.values
 
 		unique_results.each do |result|
-			pass = result[:password].gsub("\n","")
-			table << [result[:authid], result[:package], result[:domain], result[:user], pass]
-			report_creds(result[:domain], result[:user], pass)
+			next if is_system_user? result[:user]
+			table << [result[:authid], result[:package], result[:domain], result[:user], result[:password]]
+			report_creds(result[:domain], result[:user], result[:password])
 		end
 
 		print_line table.to_s
@@ -120,4 +120,23 @@ class Metasploit3 < Msf::Post
 		)
 	end
 
+	def is_system_user?(user)
+		system_users = [
+			/^$/,
+			/^DWM-\d$/,
+			/^ASPNET$/,
+			/^ASP\.NET V2\.0 Integrated$/,
+			/^ANONYMOUS LOGON$/, /^IUSR.*/,
+			/^IWAM.*/,
+			/^IIS_WPG$/,
+			/.*\$$/,
+			/^LOCAL SERVICE$/,
+			/^NETWORK SERVICE$/,
+			/^LOCAL SYSTEM$/
+		]
+
+		return system_users.find{|r| user.match(r)}
+	end
+
 end
+
