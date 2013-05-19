@@ -1,6 +1,7 @@
 ;-----------------------------------------------------------------------------;
 ; Author: Stephen Fewer (stephen_fewer[at]harmonysecurity[dot]com)
-; Compatible: Windows 7, 2003
+; Rewrited to x64 by agix
+; Compatible: Windows 7
 ; Architecture: x64
 ;-----------------------------------------------------------------------------;
 [BITS 64]
