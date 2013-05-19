@@ -370,8 +370,6 @@ require 'digest/sha1'
 
 		set_template_default(opts, "template_"+arch+"_windows.exe")
 
-		puts opts
-
 		pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
 
 		exe = ''
