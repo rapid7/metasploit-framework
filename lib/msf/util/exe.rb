@@ -509,7 +509,7 @@ require 'digest/sha1'
 
 
 		# Allow the user to specify their own EXE template
-		set_template_default(opts, "template_x86_windows_old.exe")
+		set_template_default(opts, "template_x86_windows.exe")
 
 		pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
 
