@@ -76,4 +76,90 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
 			end
 		end
 	end
+
+	context '#on_module_load' do
+	  def on_module_load
+			module_manager.on_module_load(klass, type, reference_name, options)
+		end
+
+		let(:annotated_class) do
+			# stub out include? so calls in auto_subscribe_module work.
+			mock('Annotated Class', :include? => false)
+		end
+
+		let(:klass) do
+			Class.new(Msf::Auxiliary)
+		end
+
+		let(:module_set) do
+			module_manager.module_set(type)
+		end
+
+		let(:options) do
+			{
+					'files' => [
+							path
+					],
+					'paths' => [
+							reference_name
+					],
+					'type' => type
+			}
+		end
+
+		let(:path) do
+			type_directory = Mdm::Module::Detail::DIRECTORY_BY_TYPE[type]
+
+			Metasploit::Framework.root.join(
+					'modules',
+					type_directory,
+					"#{reference_name}.rb"
+			).to_path
+		end
+
+		let(:reference_name) do
+			FactoryGirl.generate :mdm_module_detail_refname
+		end
+
+		let(:type) do
+			klass.type
+		end
+
+		it "should add module to type's module_set" do
+			module_set.should_receive(:add_module).with(
+					klass,
+					reference_name,
+					options
+			).and_return(annotated_class)
+
+			on_module_load
+		end
+
+		context 'annotated class' do
+			before(:each) do
+				module_set.stub(:add_module).and_return(annotated_class)
+			end
+
+			it 'should return annotated class from Msf::ModuleSet#add_module' do
+				on_module_load.should == annotated_class
+			end
+
+			it 'should pass annotated class to Msf::ModuleManager#auto_subscribe_module' do
+				module_manager.should_receive(:auto_subscribe_module).with(annotated_class)
+
+				on_module_load
+			end
+
+			it 'should fire on_module_load event' do
+				framework.events.should_receive(:on_module_load).with(
+						reference_name,
+						annotated_class
+				)
+
+				on_module_load
+			end
+		end
+
+
+	end
 end
