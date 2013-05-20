@@ -27,6 +27,12 @@ shared_examples_for 'Msf::DBManager::Migration' do
 			migrate.should == migrations
 		end
 
+		it 'should reset the column information' do
+			db_manager.should_receive(:reset_column_information)
+
+			migrate
+		end
+
 		context 'with StandardError from ActiveRecord::Migration.migrate' do
 			let(:error) do
 				StandardError.new(message)
@@ -105,5 +111,33 @@ shared_examples_for 'Msf::DBManager::Migration' do
 	context '#migrated' do
 		it { should respond_to :migrated }
 		it { should respond_to :migrated= }
+	end
+
+	context '#reset_column_information' do
+		def reset_column_information
+			db_manager.send(:reset_column_information)
+		end
+
+		it 'should use ActiveRecord::Base.descendants to find both direct and indirect subclasses' do
+			ActiveRecord::Base.should_receive(:descendants).and_return([])
+
+			reset_column_information
+		end
+
+		it 'should reset column information on each descendant of ActiveRecord::Base' do
+			descendants = []
+
+			1.upto(2) do |i|
+				descendants << mock("Descendant #{i}")
+			end
+
+			ActiveRecord::Base.stub(:descendants => descendants)
+
+			descendants.each do |descendant|
+				descendant.should_receive(:reset_column_information)
+			end
+
+			reset_column_information
+		end
 	end
 end

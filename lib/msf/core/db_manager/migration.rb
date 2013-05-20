@@ -26,6 +26,13 @@ module Msf
 					end
 				end
 
+				# Since the connections that existed before the migrations ran could
+				# have outdated column information, reset column information for all
+				# ActiveRecord::Base descendents to prevent missing method errors for
+				# column methods for columns created in migrations after the column
+				# information was cached.
+				reset_column_information
+
 				return ran
 			end
 
@@ -33,6 +40,19 @@ module Msf
 			#
 			# @return [Boolean]
 			attr_accessor :migrated
+
+			private
+
+			# Resets the column information for all descendants of ActiveRecord::Base
+			# since some of the migrations may have cached column information that
+			# has been updated by later migrations.
+			#
+			# @return [void]
+			def reset_column_information
+				ActiveRecord::Base.descendants.each do |descendant|
+					descendant.reset_column_information
+				end
+			end
 		end
 	end
 end
