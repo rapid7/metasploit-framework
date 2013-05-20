@@ -3,6 +3,7 @@
 require 'msf/base/config'
 require 'msf/core'
 require 'msf/core/db'
+require 'msf/core/db_manager/migration'
 require 'msf/core/task_manager'
 require 'fileutils'
 require 'shellwords'
@@ -17,6 +18,9 @@ module Msf
 ###
 
 class DBManager
+	# Provides :framework and other accessors
+	include Msf::DBManager::Migration
+	include Msf::Framework::Offspring
 
 	# Mainly, it's Ruby 1.9.1 that cause a lot of problems now, along with Ruby 1.8.6.
 	# Ruby 1.8.7 actually seems okay, but why tempt fate? Let's say 1.9.3 and beyond.
@@ -27,9 +31,6 @@ class DBManager
 			$stderr.puts "**************************************************************************************"
 		end
 	end
-
-	# Provides :framework and other accessors
-	include Framework::Offspring
 
 	# Returns true if we are ready to load/store data
 	def active
@@ -52,9 +53,6 @@ class DBManager
 
 	# Stores a TaskManager for serializing database events
 	attr_accessor :sink
-
-	# Flag to indicate database migration has completed
-	attr_accessor :migrated
 
 	# Flag to indicate that modules are cached
 	attr_accessor :modules_cached
@@ -285,33 +283,6 @@ class DBManager
 			# Database drivers can reset our KCODE, do not let them
 			$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
 		end
-	end
-
-	# Migrate database to latest schema version.
-	#
-	# @param verbose [Boolean] see ActiveRecord::Migration.verbose
-	# @return [Array<ActiveRecord::MigrationProxy] List of migrations that ran.
-	#
-	# @see ActiveRecord::Migrator.migrate
-	def migrate(verbose=false)
-		ran = []
-		ActiveRecord::Migration.verbose = verbose
-
-		ActiveRecord::Base.connection_pool.with_connection do
-			begin
-				ran = ActiveRecord::Migrator.migrate(
-						ActiveRecord::Migrator.migrations_paths
-				)
-			# ActiveRecord::Migrator#migrate rescues all errors and re-raises them as
-			# StandardError
-			rescue StandardError => error
-				self.error = error
-				elog("DB.migrate threw an exception: #{error}")
-				dlog("Call stack:\n#{error.backtrace.join "\n"}")
-			end
-		end
-
-		return ran
 	end
 
 	def workspace=(workspace)
