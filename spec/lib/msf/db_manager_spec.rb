@@ -18,7 +18,26 @@ describe Msf::DBManager do
 		db_manager
 	end
 
+	it_should_behave_like 'Msf::DBManager::Migration'
 	it_should_behave_like 'Msf::DBManager::ImportMsfXml'
+
+	context '#initialize_metasploit_data_models' do
+		def initialize_metasploit_data_models
+			db_manager.initialize_metasploit_data_models
+		end
+
+		it 'should not add duplicate paths to ActiveRecord::Migrator.migrations_paths' do
+			initialize_metasploit_data_models
+
+			expect {
+				initialize_metasploit_data_models
+			}.to_not change {
+				ActiveRecord::Migrator.migrations_paths.length
+			}
+
+			ActiveRecord::Migrator.migrations_paths.uniq.should == ActiveRecord::Migrator.migrations_paths
+		end
+	end
 
 	context '#purge_all_module_details' do
 		def purge_all_module_details
