@@ -149,7 +149,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("#{target_url} - Random passwords are not allowed.")
 			end
 
-      unless user == "anyuser" and pass == "anypass"
+      unless (user == "anyuser" and pass == "anypass")
         report_auth_info(
           :host   => rhost,
           :port   => rport,
