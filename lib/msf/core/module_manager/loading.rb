@@ -53,20 +53,29 @@ module Msf::ModuleManager::Loading
 
   attr_accessor :module_load_error_by_path
 
-  # Called when a module is initially loaded such that it can be
-  # categorized accordingly.
+  # Called when a module is initially loaded such that it can be categorized
+  # accordingly.
   #
-  def on_module_load(mod, type, name, modinfo)
-    dup = module_set_by_type[type].add_module(mod, name, modinfo)
+  # @param klass (see Msf::ModuleSet#add_module)
+  # @param type [String] The module type.
+  # @param reference_name (see Msf::ModuleSet#add_module)
+  # @param info [Hash{String => Array}] additional information about the module
+  # @option info [Array<String>] 'files' List of paths to the ruby source files
+  #   where +klass+ is defined.
+  # @option info [Array<String>] 'paths' List of module reference names.
+  # @option info [String] 'type' The module type, should match positional
+  #   +type+ argument.
+  # @return [void]
+  def on_module_load(klass, type, reference_name, info={})
+    module_set = module_set_by_type[type]
+    annotated_klass = module_set.add_module(klass, reference_name, info)
 
     # Automatically subscribe a wrapper around this module to the necessary
     # event providers based on whatever events it wishes to receive.
-    auto_subscribe_module(dup)
+    auto_subscribe_module(annotated_klass)
 
     # Notify the framework that a module was loaded
-    framework.events.on_module_load(name, dup)
-
-    dup
+    framework.events.on_module_load(reference_name, annotated_klass)
   end
 
   protected

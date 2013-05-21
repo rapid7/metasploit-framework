@@ -140,10 +140,6 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
 				module_set.stub(:add_module).and_return(annotated_class)
 			end
 
-			it 'should return annotated class from Msf::ModuleSet#add_module' do
-				on_module_load.should == annotated_class
-			end
-
 			it 'should pass annotated class to Msf::ModuleManager#auto_subscribe_module' do
 				module_manager.should_receive(:auto_subscribe_module).with(annotated_class)
 
