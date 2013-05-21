@@ -453,7 +453,7 @@ protected
 			# self.ssl_version,
 			self.proxies
 			# TODO: Add user/pass for HTTP auth
-		) unless cli.session and cli.session.conn?
+		) unless cli.session and cli.session.conn? and cli.session.send(:hostname).strip == opts['Vhost'].strip
 
 		# Configure the session
 		cli.session.set_config(
@@ -462,7 +462,8 @@ protected
 			'transfer_chunked'  => opts['Transfer-Encoding'],
 			'read_max_data'     => (1024*1024*1)
 		)
-
+		# Dont send confusing IPs to reverse proxies at the edge
+		opts['Host'] = opts['Vhost'] if opts['Vhost'] and !opts['Vhost'].strip.empty?
 		# Send request to the server, get response
 		# Persist request if keep-alive
 		# Send 404 if we fail

@@ -91,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
 			:code     => res.code,
 			:body     => res.body,
 			:headers  => res.headers,
-			:cookie   => cli.request.headers['Cookie']
+			:cookie   => cli.request.headers['cookie']
 		}
 
 		if res.headers['content-type']
