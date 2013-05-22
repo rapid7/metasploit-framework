@@ -1305,7 +1305,7 @@ module Zip
 
       sigIndex = buf.rindex([END_OF_CENTRAL_DIRECTORY_SIGNATURE].pack('V'))
       raise ZipError, "Zip end of central directory signature not found" unless sigIndex
-      buf=buf.slice!((sigIndex+4)..(buf.size))
+      buf=buf.slice!((sigIndex+4)...(buf.size))
       def buf.read(count)
 	slice!(0, count)
       end
