@@ -211,13 +211,10 @@ protected
 		arch = nil
 
 		if explicit_arch.nil? == false
-			$stderr.puts "explicit"
 			arch = explicit_arch
 		elsif datastore['ARCH']
-			$stderr.puts "datastore"
 			arch = datastore['ARCH']
 		elsif assoc_exploit
-			$stderr.puts "assoc_exploit"
 			arch = assoc_exploit.target_arch || ARCH_X86
 		end
 
@@ -236,8 +233,6 @@ protected
 
 		# Look for one based on the exploit's compatible set
 		if(assoc_exploit)
-			$stderr.puts "assoc_exploit #{assoc_exploit.name}"
-			$stderr.puts "#{actual_arch} #{actual_platform.inspect}"
 			self.actual_payload = framework.payloads.find_payload_from_set(
 				assoc_exploit.compatible_payloads,
 				actual_platform,
