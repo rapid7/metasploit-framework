@@ -1,10 +1,5 @@
 #!/usr/bin/env ruby
 # -*- coding: binary -*-
-#
-# $Revision$
-#
-# $Id$
-#
 
 require 'rex/compat'
 require 'rex/proto/tftp'
