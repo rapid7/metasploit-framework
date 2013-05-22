@@ -376,6 +376,13 @@ class DBManager
 			host.save!
 		end
 
+    if opts[:task]
+      Mdm::TaskHost.new(
+          :task => opts[:task],
+          :host => host
+      )
+    end
+
 		host
 	}
 	end
@@ -592,7 +599,15 @@ class DBManager
 		if (service and service.changed?)
 			msf_import_timestamps(opts,service)
 			service.save!
-		end
+    end
+
+    if opts[:task]
+      Mdm::TaskService.new(
+          :task => opts[:task],
+          :service => service
+      )
+    end
+
 		ret[:service] = service
 	}
 	end
@@ -1588,7 +1603,16 @@ class DBManager
 		unless opts[:updated_at] || opts["updated_at"]
 			cred.updated_at = Time.now.utc
 			cred.save!
-		end
+    end
+
+    if opts[:task]
+      require 'pry'
+      binding.pry
+      Mdm::TaskCred.new(
+          :task => opts[:task],
+          :cred => cred
+      )
+    end
 
 		ret[:cred] = cred
 	end
