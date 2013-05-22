@@ -1,4 +1,35 @@
 shared_examples_for 'Msf::ModuleManager::Cache' do
+	let(:parent_path) do
+		parent_pathname.to_path
+	end
+
+	let(:parent_pathname) do
+		Metasploit::Framework.root.join('modules')
+	end
+
+	let(:reference_name) do
+		'windows/smb/ms08_067_netapi'
+	end
+
+	let(:type) do
+		'exploit'
+	end
+
+	let(:path) do
+		pathname.to_path
+	end
+
+	let(:pathname) do
+		parent_pathname.join(
+				'exploits',
+				"#{reference_name}.rb"
+		)
+	end
+
+	let(:pathname_modification_time) do
+		pathname.mtime
+	end
+
 	context '#cache_empty?' do
 		subject(:cache_empty?) do
 			module_manager.cache_empty?
@@ -27,19 +58,73 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 		end
 	end
 
+	context '#cache_in_memory' do
+		def cache_in_memory
+			module_manager.cache_in_memory(klass)
+		end
+
+		def module_info_by_path
+			module_manager.send(:module_info_by_path)
+		end
+
+		let(:klass) do
+			mock(
+					'Class<Msf::Module>',
+					:file_path => path,
+					:parent => namespace_module,
+					:refname => reference_name,
+					:type => type
+			)
+		end
+
+		let(:namespace_module) do
+			mock('Msf::Modules::Namespace', :parent_path => parent_path)
+		end
+
+		it 'should update module_info_by_path' do
+			expect {
+				cache_in_memory
+			}.to change { module_info_by_path }
+		end
+
+		context 'module_info_by_path' do
+			subject(:module_info_by_path) do
+				module_manager.send(:module_info_by_path)
+			end
+
+			before(:each) do
+				cache_in_memory
+			end
+
+			it 'should have entry for file_path' do
+				module_info_by_path[klass.file_path].should be_a Hash
+			end
+
+			context 'value' do
+				subject(:value) do
+					module_info_by_path[klass.file_path]
+				end
+
+				it 'should have modification time of file_path for :modification_time' do
+					value[:modification_time].should == pathname_modification_time
+				end
+
+				it 'should have parent path from namespace module for :parent_path' do
+					value[:parent_path].should == namespace_module.parent_path
+				end
+
+				it 'should have refname for :reference_name' do
+					value[:reference_name].should == klass.refname
+				end
+
+				it 'should have type for :type' do
+					value[:type].should == klass.type
+				end
+			end
+		end
+	end
+
 	context '#load_cached_module' do
-		let(:parent_path) do
-			Metasploit::Framework.root.join('modules').to_path
-		end
-
-		let(:reference_name) do
-			'windows/smb/ms08_067_netapi'
-		end
-
-		let(:type) do
-			'exploit'
-		end
-
 		subject(:load_cached_module) do
 			module_manager.load_cached_module(type, reference_name)
 		end
@@ -284,39 +369,8 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
       end
 
 			context 'with database cache' do
-				let(:parent_path) do
-					parent_pathname.to_path
-				end
-
-				let(:parent_pathname) do
-						Metasploit::Framework.root.join('modules')
-				end
-
-				let(:path) do
-					pathname.to_path
-				end
-
-				let(:pathname) do
-					parent_pathname.join(
-							'exploits',
-							"#{reference_name}.rb"
-					)
-				end
-
-				let(:pathname_modification_time) do
-					pathname.mtime
-				end
-
-				let(:type) do
-          'exploit'
-				end
-
-				let(:reference_name) do
-					'windows/smb/ms08_067_netapi'
-				end
-
 				#
-			  # Let!s (let + before(:each))
+				# Let!s (let + before(:each))
 				#
 
 				let!(:mdm_module_detail) do

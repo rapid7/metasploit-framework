@@ -15,6 +15,23 @@ module Msf::ModuleManager::Cache
     module_info_by_path.empty?
   end
 
+	# Updates the in-memory cache so that {#file_changed?} will report +false+ if
+	# the module is loaded again.
+	#
+	# @param klass [Class<Msf::Module>] a module class
+	# @return [void]
+	def cache_in_memory(klass)
+		modification_time = File.mtime(klass.file_path)
+		parent_path = klass.parent.parent_path
+
+		module_info_by_path[klass.file_path] = {
+				:modification_time => modification_time,
+				:parent_path => parent_path,
+				:reference_name => klass.refname,
+				:type => klass.type
+		}
+	end
+
   # Forces loading of the module with the given type and module reference name from the cache.
   #
   # @param [String] type the type of the module.

@@ -70,6 +70,8 @@ module Msf::ModuleManager::Loading
     module_set = module_set_by_type[type]
     annotated_klass = module_set.add_module(klass, reference_name, info)
 
+    cache_in_memory(annotated_klass)
+
     # Automatically subscribe a wrapper around this module to the necessary
     # event providers based on whatever events it wishes to receive.
     auto_subscribe_module(annotated_klass)

@@ -56,6 +56,16 @@ describe Msf::Modules::Loader::Directory do
 
 					created_module.name.should == 'Microsoft Server Service Relative Path Stack Corruption'
 				end
+
+				context 'with module previously loaded' do
+					before(:each) do
+						subject.load_module(parent_path, type, module_reference_name)
+					end
+
+					it 'should not load the module' do
+						subject.load_module(parent_path, type, module_reference_name).should be_false
+					end
+				end
 			end
 
 			context 'without existent module_path' do
