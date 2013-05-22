@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-# $Id$
 
 require 'rex/text'
 require 'rex/arch'
