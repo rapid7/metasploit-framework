@@ -377,7 +377,7 @@ class DBManager
 		end
 
     if opts[:task]
-      Mdm::TaskHost.new(
+      Mdm::TaskHost.create(
           :task => opts[:task],
           :host => host
       )
@@ -602,7 +602,7 @@ class DBManager
     end
 
     if opts[:task]
-      Mdm::TaskService.new(
+      Mdm::TaskService.create(
           :task => opts[:task],
           :service => service
       )
@@ -1605,10 +1605,9 @@ class DBManager
 			cred.save!
     end
 
+
     if opts[:task]
-      require 'pry'
-      binding.pry
-      Mdm::TaskCred.new(
+      Mdm::TaskCred.create(
           :task => opts[:task],
           :cred => cred
       )
