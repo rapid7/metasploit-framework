@@ -15,20 +15,39 @@ module Msf::ModuleManager::Cache
     module_info_by_path.empty?
   end
 
+	# @note path, reference_name, and type must be passed as options because when +class_or_module+ is a payload Module,
+	#   those attributes will either not be set or not exist on the module.
+	#
 	# Updates the in-memory cache so that {#file_changed?} will report +false+ if
 	# the module is loaded again.
 	#
-	# @param klass [Class<Msf::Module>] a module class
+	# @param class_or_module [Class<Msf::Module>, ::Module] either a module Class
+	#   or a payload Module.
+	# @param options [Hash{Symbol => String}]
+	# @option options [String] :path the path to the file from which
+	#   +class_or_module+ was loaded.
+	# @option options [String] :reference_name the reference name for
+	#   +class_or_module+.
+	# @option options [String] :type the module type
 	# @return [void]
-	def cache_in_memory(klass)
-		modification_time = File.mtime(klass.file_path)
-		parent_path = klass.parent.parent_path
+	# @raise [KeyError] unless +:path+ is given.
+	# @raise [KeyError] unless +:reference_name+ is given.
+	# @raise [KeyError] unless +:type+ is given.
+	def cache_in_memory(class_or_module, options={})
+		options.assert_valid_keys(:path, :reference_name, :type)
 
-		module_info_by_path[klass.file_path] = {
+		path = options.fetch(:path)
+		modification_time = File.mtime(path)
+
+		parent_path = class_or_module.parent.parent_path
+		reference_name = options.fetch(:reference_name)
+		type = options.fetch(:type)
+
+		module_info_by_path[path] = {
 				:modification_time => modification_time,
 				:parent_path => parent_path,
-				:reference_name => klass.refname,
-				:type => klass.type
+				:reference_name => reference_name,
+				:type => type
 		}
 	end
 

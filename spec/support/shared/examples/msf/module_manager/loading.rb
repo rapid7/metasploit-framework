@@ -78,24 +78,8 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
 	end
 
 	context '#on_module_load' do
-		def module_info_by_path
-			module_manager.send(:module_info_by_path)
-		end
-
-	  def on_module_load
+		def on_module_load
 			module_manager.on_module_load(klass, type, reference_name, options)
-		end
-
-		let(:annotated_class) do
-			# stub out include? so calls in auto_subscribe_module work.
-			mock(
-					'Annotated Class',
-					:file_path => path,
-					:include? => false,
-					:parent => namespace_module,
-					:refname => reference_name,
-					:type => type
-			)
 		end
 
 		let(:klass) do
@@ -149,7 +133,7 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
 					klass,
 					reference_name,
 					options
-			).and_return(annotated_class)
+			)
 
 			on_module_load
 		end
@@ -160,25 +144,19 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
 			on_module_load
 		end
 
-		context 'annotated class' do
-			before(:each) do
-				module_set.stub(:add_module).and_return(annotated_class)
-			end
+		it 'should pass class to #auto_subscribe_module' do
+			module_manager.should_receive(:auto_subscribe_module).with(klass)
 
-			it 'should pass annotated class to Msf::ModuleManager#auto_subscribe_module' do
-				module_manager.should_receive(:auto_subscribe_module).with(annotated_class)
+			on_module_load
+		end
 
-				on_module_load
-			end
+		it 'should fire on_module_load event with class' do
+			framework.events.should_receive(:on_module_load).with(
+					reference_name,
+					klass
+			)
 
-			it 'should fire on_module_load event' do
-				framework.events.should_receive(:on_module_load).with(
-						reference_name,
-						annotated_class
-				)
-
-				on_module_load
-			end
+			on_module_load
 		end
 	end
 end

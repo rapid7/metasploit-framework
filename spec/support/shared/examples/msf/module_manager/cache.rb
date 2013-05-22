@@ -60,21 +60,20 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 
 	context '#cache_in_memory' do
 		def cache_in_memory
-			module_manager.cache_in_memory(klass)
+			module_manager.cache_in_memory(
+					class_or_module,
+					:path => path,
+					:reference_name => reference_name,
+					:type => type
+			)
 		end
 
 		def module_info_by_path
 			module_manager.send(:module_info_by_path)
 		end
 
-		let(:klass) do
-			mock(
-					'Class<Msf::Module>',
-					:file_path => path,
-					:parent => namespace_module,
-					:refname => reference_name,
-					:type => type
-			)
+		let(:class_or_module) do
+			mock('Class<Msf::Module> or Module', :parent => namespace_module)
 		end
 
 		let(:namespace_module) do
@@ -96,16 +95,16 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 				cache_in_memory
 			end
 
-			it 'should have entry for file_path' do
-				module_info_by_path[klass.file_path].should be_a Hash
+			it 'should have entry for path' do
+				module_info_by_path[path].should be_a Hash
 			end
 
 			context 'value' do
 				subject(:value) do
-					module_info_by_path[klass.file_path]
+					module_info_by_path[path]
 				end
 
-				it 'should have modification time of file_path for :modification_time' do
+				it 'should have modification time of :path option for :modification_time' do
 					value[:modification_time].should == pathname_modification_time
 				end
 
@@ -113,12 +112,12 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 					value[:parent_path].should == namespace_module.parent_path
 				end
 
-				it 'should have refname for :reference_name' do
-					value[:reference_name].should == klass.refname
+				it 'should use :reference_name option' do
+					value[:reference_name].should == reference_name
 				end
 
-				it 'should have type for :type' do
-					value[:type].should == klass.type
+				it 'should use :type option' do
+					value[:type].should == type
 				end
 			end
 		end
