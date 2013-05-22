@@ -1,8 +1,4 @@
 # -*- coding: binary -*-
-##
-# $Id$
-# Version: $Revision$
-##
 
 ##
 # Rex::OLE - an OLE implementation

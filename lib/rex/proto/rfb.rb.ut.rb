@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 # -*- coding: binary -*-
 #
-# $Id: $
-#
 # RFB protocol support
 #
 # @author Joshua J. Drake <jduck>

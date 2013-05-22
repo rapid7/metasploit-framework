@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-# $Id$
 
 require 'msf/base'
 require 'msf/base/sessions/scriptable'
