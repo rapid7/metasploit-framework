@@ -356,6 +356,16 @@ class Module
 	end
 
 	#
+	# Checks to see if the target is vulnerable, returning unsupported if it's
+	# not supported.
+	#
+	# This method is designed to be overriden by exploit modules.
+	#
+	def check
+		Msf::Exploit::CheckCode::Unsupported
+	end
+
+	#
 	# Returns the hash that describes this module's compatibilities.
 	#
 	def compat
