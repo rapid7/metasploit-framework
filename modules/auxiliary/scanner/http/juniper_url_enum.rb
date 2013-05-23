@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Juniper URL Brute',
-			'Version'     => '$Revision:$',
 			'Description' => 'Brute Juniper URLS 0-100 /dana-na/auth/url_X/welcome.cgi. Correct URL should give a 200, wrong will 302 to url_default.',
 			'Author'       => ['CG'],
 			'License'     => MSF_LICENSE
