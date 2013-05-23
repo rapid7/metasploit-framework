@@ -45,6 +45,16 @@ class Auxiliary < Msf::Module
 	end
 
 	#
+	# Checks to see if the target is vulnerable, returning unsupported if it's
+	# not supported.
+	#
+	# This method is designed to be overriden by exploit modules.
+	#
+	def check
+		Msf::Exploit::CheckCode::Unsupported
+	end
+
+	#
 	# Creates a singleton instance of this auxiliary class
 	#
 	def self.create(info = {})

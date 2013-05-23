@@ -27,6 +27,7 @@ class Auxiliary
 	#
 	def commands
 		super.update({
+			"check"    => "Check to see if a target is vulnerable",
 			"run"   => "Launches the auxiliary module",
 			"rerun" => "Reloads and launches the auxiliary module",
 			"exploit" => "This is an alias for the run command",
@@ -56,6 +57,45 @@ class Auxiliary
 	def name
 		"Auxiliary"
 	end
+
+	#
+	# Checks to see if a target is vulnerable.
+	#
+	def cmd_check(*args)
+		defanged?
+
+		begin
+
+			code = mod.check_simple(
+				'LocalInput'  => driver.input,
+				'LocalOutput' => driver.output)
+
+			if (code and code.kind_of?(Array) and code.length > 1)
+
+				if (code == Msf::Exploit::CheckCode::Vulnerable)
+					print_good(code[1])
+				else
+					print_status(code[1])
+				end
+
+			else
+				print_error("Check failed: The state could not be determined.")
+			end
+
+		rescue ::Interrupt
+			raise $!
+		rescue ::Exception => e
+			print_error("Module check failed: #{e.class} #{e}")
+			if(e.class.to_s != 'Msf::OptionValidateError')
+				print_error("Call stack:")
+				e.backtrace.each do |line|
+					break if line =~ /lib.msf.base.simple/
+					print_error("  #{line}")
+				end
+			end
+		end
+	end
+
 
 	#
 	# Reloads an auxiliary module and executes it

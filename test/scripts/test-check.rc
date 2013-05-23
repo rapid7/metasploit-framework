@@ -1,0 +1,7 @@
+# Usage:
+# msfconsole -qLm test/modules -r test/scripts/test-check.rc
+
+use auxiliary/test/check
+set rhost www.metasploit.com
+check
+exit
