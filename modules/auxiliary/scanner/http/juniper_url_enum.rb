@@ -22,7 +22,11 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'Juniper URL Brute',
 			'Description' => 'Brute Juniper URLS 0-100 /dana-na/auth/url_X/welcome.cgi. Correct URL should give a 200, wrong will 302 to url_default.',
 			'Author'       => ['CG'],
-			'License'     => MSF_LICENSE
+			'License'     => MSF_LICENSE,
+			'References' =>
+				[
+				[ 'URL', 'http://carnal0wnage.attackresearch.com/2013/05/funky-juniper-urls.html' ],
+				],
 		)
 		register_options(
 			[
@@ -45,7 +49,7 @@ end
 			}, 15)
 
 			if (res.nil?)
-				print_error("no response for #{ip}:#{rport} #{url}")
+				print_error("no response for #{ip}:#{rport} #{uri}")
 			elsif (res.code == 200)
 				print_good("#{target_host}:#{rport} Received a HTTP 200 with #{res.headers['Content-Length']} bytes for /dana-na/auth/url_#{brute}/welcome.cgi \n")
 					report_note(
