@@ -4,4 +4,7 @@
 use auxiliary/test/check
 set rhost www.metasploit.com
 check
-exit
+
+use exploit/test/check
+set rhost www.metasploit.com
+check
