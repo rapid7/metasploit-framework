@@ -18,6 +18,7 @@ describe Msf::DBManager do
 		db_manager
 	end
 
+	it_should_behave_like 'Msf::DBManager::Migration'
 	it_should_behave_like 'Msf::DBManager::ImportMsfXml'
 
 	context '#initialize_metasploit_data_models' do
