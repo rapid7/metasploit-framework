@@ -1,6 +1,9 @@
 .bundle
 # Rubymine project directory
 .idea
+# Portable ruby version files for rvm
+.ruby-gemset
+.ruby-version
 # RVM control file
 .rvmrc
 # YARD cache directory

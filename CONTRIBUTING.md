@@ -12,7 +12,7 @@ If your bug is new and you'd like to report it you will need to
 first](https://dev.metasploit.com/redmine/account/register). Don't
 worry, it's easy and fun and takes about 30 seconds.
 
-When you file a bug report, please inclue your **steps to reproduce**,
+When you file a bug report, please include your **steps to reproduce**,
 full copy-pastes of Ruby stack traces, and any relevant details about
 your environment. Without repro steps, your bug will likely be closed.
 With repro steps, your bugs will likely be fixed.

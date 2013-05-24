@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130228214900) do
+ActiveRecord::Schema.define(:version => 20130516204810) do
 
   create_table "api_keys", :force => true do |t|
     t.text     "token"
@@ -135,7 +135,7 @@ ActiveRecord::Schema.define(:version => 20130228214900) do
 
   create_table "hosts", :force => true do |t|
     t.datetime "created_at"
-    t.string   "address",               :limit => nil
+    t.string   "address",               :limit => nil,                  :null => false
     t.string   "mac"
     t.string   "comm"
     t.string   "name"
@@ -145,7 +145,7 @@ ActiveRecord::Schema.define(:version => 20130228214900) do
     t.string   "os_sp"
     t.string   "os_lang"
     t.string   "arch"
-    t.integer  "workspace_id"
+    t.integer  "workspace_id",                                          :null => false
     t.datetime "updated_at"
     t.text     "purpose"
     t.string   "info",                  :limit => 65536
@@ -157,14 +157,15 @@ ActiveRecord::Schema.define(:version => 20130228214900) do
     t.integer  "service_count",                          :default => 0
     t.integer  "host_detail_count",                      :default => 0
     t.integer  "exploit_attempt_count",                  :default => 0
+    t.integer  "cred_count",                             :default => 0
   end
 
-  add_index "hosts", ["address"], :name => "index_hosts_on_address"
   add_index "hosts", ["name"], :name => "index_hosts_on_name"
   add_index "hosts", ["os_flavor"], :name => "index_hosts_on_os_flavor"
   add_index "hosts", ["os_name"], :name => "index_hosts_on_os_name"
   add_index "hosts", ["purpose"], :name => "index_hosts_on_purpose"
   add_index "hosts", ["state"], :name => "index_hosts_on_state"
+  add_index "hosts", ["workspace_id", "address"], :name => "index_hosts_on_workspace_id_and_address", :unique => true
 
   create_table "hosts_tags", :id => false, :force => true do |t|
     t.integer "host_id"
@@ -223,26 +224,26 @@ ActiveRecord::Schema.define(:version => 20130228214900) do
   end
 
   create_table "module_actions", :force => true do |t|
-    t.integer "module_detail_id"
+    t.integer "detail_id"
     t.text    "name"
   end
 
-  add_index "module_actions", ["module_detail_id"], :name => "index_module_actions_on_module_detail_id"
+  add_index "module_actions", ["detail_id"], :name => "index_module_actions_on_module_detail_id"
 
   create_table "module_archs", :force => true do |t|
-    t.integer "module_detail_id"
+    t.integer "detail_id"
     t.text    "name"
   end
 
-  add_index "module_archs", ["module_detail_id"], :name => "index_module_archs_on_module_detail_id"
+  add_index "module_archs", ["detail_id"], :name => "index_module_archs_on_module_detail_id"
 
   create_table "module_authors", :force => true do |t|
-    t.integer "module_detail_id"
+    t.integer "detail_id"
     t.text    "name"
     t.text    "email"
   end
 
-  add_index "module_authors", ["module_detail_id"], :name => "index_module_authors_on_module_detail_id"
+  add_index "module_authors", ["detail_id"], :name => "index_module_authors_on_module_detail_id"
 
   create_table "module_details", :force => true do |t|
     t.datetime "mtime"
@@ -268,34 +269,34 @@ ActiveRecord::Schema.define(:version => 20130228214900) do
   add_index "module_details", ["refname"], :name => "index_module_details_on_refname"
 
   create_table "module_mixins", :force => true do |t|
-    t.integer "module_detail_id"
+    t.integer "detail_id"
     t.text    "name"
   end
 
-  add_index "module_mixins", ["module_detail_id"], :name => "index_module_mixins_on_module_detail_id"
+  add_index "module_mixins", ["detail_id"], :name => "index_module_mixins_on_module_detail_id"
 
   create_table "module_platforms", :force => true do |t|
-    t.integer "module_detail_id"
+    t.integer "detail_id"
     t.text    "name"
   end
 
-  add_index "module_platforms", ["module_detail_id"], :name => "index_module_platforms_on_module_detail_id"
+  add_index "module_platforms", ["detail_id"], :name => "index_module_platforms_on_module_detail_id"
 
   create_table "module_refs", :force => true do |t|
-    t.integer "module_detail_id"
+    t.integer "detail_id"
     t.text    "name"
   end
 
-  add_index "module_refs", ["module_detail_id"], :name => "index_module_refs_on_module_detail_id"
+  add_index "module_refs", ["detail_id"], :name => "index_module_refs_on_module_detail_id"
   add_index "module_refs", ["name"], :name => "index_module_refs_on_name"
 
   create_table "module_targets", :force => true do |t|
-    t.integer "module_detail_id"
+    t.integer "detail_id"
     t.integer "index"
     t.text    "name"
   end
 
-  add_index "module_targets", ["module_detail_id"], :name => "index_module_targets_on_module_detail_id"
+  add_index "module_targets", ["detail_id"], :name => "index_module_targets_on_module_detail_id"
 
   create_table "nexpose_consoles", :force => true do |t|
     t.datetime "created_at",                     :null => false
@@ -510,7 +511,7 @@ ActiveRecord::Schema.define(:version => 20130228214900) do
 
   add_index "vulns", ["name"], :name => "index_vulns_on_name"
 
-  create_table "vulns_refs", :id => false, :force => true do |t|
+  create_table "vulns_refs", :force => true do |t|
     t.integer "ref_id"
     t.integer "vuln_id"
   end
@@ -580,7 +581,7 @@ ActiveRecord::Schema.define(:version => 20130228214900) do
     t.string   "name",        :limit => 1024, :null => false
     t.text     "query"
     t.text     "category",                    :null => false
-    t.text     "confidence",                  :null => false
+    t.integer  "confidence",                  :null => false
     t.text     "description"
     t.text     "blame"
     t.binary   "request"

@@ -939,7 +939,7 @@ class Db
 			end
 			if search_term
 				note_list.delete_if do |n|
-					!!n.attribute_names.any? { |a| n[a.intern].to_s.match(search_term) }
+					!n.attribute_names.any? { |a| n[a.intern].to_s.match(search_term) }
 				end
 			end
 			# Now display them

@@ -645,12 +645,69 @@ class DBManager
 	}
 	end
 
-	# Record a new session in the database
+	# @note The Mdm::Session#desc will be truncated to 255 characters.
+  # @todo https://www.pivotaltracker.com/story/show/48249739
 	#
-	# opts MUST contain either
-	# +:session+:: the Msf::Session object we are reporting
-	# +:host+::    the Host object we are reporting a session on.
+	# @overload report_session(opts)
+	#   Creates an Mdm::Session from Msf::Session. If +via_exploit+ is set on the
+	#   +session+, then an Mdm::Vuln and Mdm::ExploitAttempt is created for the
+	#   session's host.  The Mdm::Host for the +session_host+ is created using
+	#   The session.session_host, +session.arch+ (if +session+ responds to arch),
+	#   and the workspace derived from opts or the +session+.  The Mdm::Session is
+	#   assumed to be +last_seen+ and +opened_at+ at the time report_session is
+	#   called.  +session.exploit_datastore['ParentModule']+ is used for the
+	#   Mdm::Session#via_exploit if +session.via_exploit+ is
+	#   'exploit/multi/handler'.
 	#
+	#   @param opts [Hash{Symbol => Object}] options
+	#   @option opt [Msf::Session, #datastore, #platform, #type, #via_exploit, #via_payload] :session
+	#     The in-memory session to persist to the database.
+	#   @option opts [Mdm::Workspace] :workspace The workspace for in which the
+	#     :session host is contained.  Also used as the workspace for the
+	#     Mdm::ExploitAttempt and Mdm::Vuln.  Defaults to Mdm::Worksapce with
+	#     Mdm::Workspace#name equal to +session.workspace+.
+	#   @return [nil] if {Msf::DBManager#active} is +false+.
+	#   @return [Mdm::Session] if session is saved
+	#   @raise [ArgumentError] if :session is not an {Msf::Session}.
+	#   @raise [ActiveRecord::RecordInvalid] if session is invalid and cannot be
+	#     saved, in which case, the Mdm::ExploitAttempt and Mdm::Vuln will not be
+	#     created, but the Mdm::Host will have been.   (There is no transaction
+	#       to rollback the Mdm::Host creation.)
+	#   @see #find_or_create_host
+	#   @see #normalize_host
+	#   @see #report_exploit_success
+	#   @see #report_vuln
+	#
+	# @overload report_session(opts)
+	#   Creates an Mdm::Session from Mdm::Host.
+	#
+	#   @param opts [Hash{Symbol => Object}] options
+	#   @option opts [DateTime, Time] :closed_at The date and time the sesion was
+	#     closed.
+	#   @option opts [String] :close_reason Reason the session was closed.
+	#   @option opts [Hash] :datastore {Msf::DataStore#to_h}.
+	#   @option opts [String] :desc Session description.  Will be truncated to 255
+	#     characters.
+	#   @option opts [Mdm::Host] :host The host on which the session was opened.
+	#   @option opts [DateTime, Time] :last_seen The last date and time the
+	#     session was seen to be open.  Defaults to :closed_at's value.
+	#   @option opts [DateTime, Time] :opened_at The date and time that the
+	#     session was opened.
+	#   @option opts [String] :platform The platform of the host.
+	#   @option opts [Array] :routes ([]) The routes through the session for
+	#     pivoting.
+	#   @option opts [String] :stype Session type.
+	#   @option opts [String] :via_exploit The {Msf::Module#fullname} of the
+	#     exploit that was used to open the session.
+	#   @option option [String] :via_payload the {MSf::Module#fullname} of the
+	#     payload sent to the host when the exploit was successful.
+	#   @return [nil] if {Msf::DBManager#active} is +false+.
+	#   @return [Mdm::Session] if session is saved.
+	#   @raise [ArgumentError] if :host is not an Mdm::Host.
+	#   @raise [ActiveRecord::RecordInvalid] if session is invalid and cannot be
+	#     saved.
+	#
+	# @raise ArgumentError if :host and :session is +nil+
 	def report_session(opts)
 		return if not active
 	::ActiveRecord::Base.connection_pool.with_connection {
@@ -719,13 +776,11 @@ class DBManager
 
 		# If this is a live session, we know the host is vulnerable to something.
 		if opts[:session] and session.via_exploit
-			return unless host
-
 			mod = framework.modules.create(session.via_exploit)
 
 			if session.via_exploit == "exploit/multi/handler" and sess_data[:datastore]['ParentModule']
 				mod_fullname = sess_data[:datastore]['ParentModule']
-				mod_name = ::Mdm::ModuleDetail.find_by_fullname(mod_fullname).name
+				mod_name = ::Mdm::Module::Detail.find_by_fullname(mod_fullname).name
 			else
 				mod_name = mod.name
 				mod_fullname = mod.fullname
@@ -2796,6 +2851,9 @@ class DBManager
 		data = ""
 		::File.open(filename, 'rb') do |f|
 			data = f.read(4)
+		end
+		if data.nil?
+			raise DBImportError.new("Zero-length file")
 		end
 
 		case data[0,4]
