@@ -92,6 +92,39 @@ module Auxiliary
 		Msf::Simple::Auxiliary.run_simple(self, opts, &block)
 	end
 
+	#
+	# Initiates a check, setting up the exploit to be used.  The following
+	# options can be specified:
+	#
+	# LocalInput
+	#
+	# 	The local input handle that data can be read in from.
+	#
+	# LocalOutput
+	#
+	# 	The local output through which data can be displayed.
+	#
+	def self.check_simple(mod, opts)
+		if opts['LocalInput']
+			mod.init_ui(opts['LocalInput'], opts['LocalOutput'])
+		end
+
+		# Validate the option container state so that options will
+		# be normalized
+		mod.validate
+
+		# Run check
+		mod.check
+	end
+
+	#
+	# Calls the class method.
+	#
+	def check_simple(opts)
+		Msf::Simple::Auxiliary.check_simple(self, opts)
+	end
+
+
 protected
 
 	#
