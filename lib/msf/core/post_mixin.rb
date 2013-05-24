@@ -25,9 +25,10 @@ module PostMixin
 	end
 
 	#
-	# Grabs a session object from the framework or raises OptionValidateError
+	# Grabs a session object from the framework or raises {OptionValidateError}
 	# if one doesn't exist.  Initializes user input and output on the session.
 	#
+	# @raise [OptionValidateError] if {#session} returns nil
 	def setup
 		if not session
 			raise Msf::OptionValidateError.new(["SESSION"])
@@ -66,6 +67,9 @@ module PostMixin
 	#
 	# Return the associated session or nil if there isn't one
 	#
+	# @return [Msf::Session]
+	# @return [nil] if the id provided in the datastore does not
+	#   correspond to a session
 	def session
 		# Try the cached one
 		return @session if @session and not session_changed?
@@ -84,6 +88,7 @@ module PostMixin
 	#
 	# Cached sysinfo, returns nil for non-meterpreter sessions
 	#
+	# @return [Hash,nil]
 	def sysinfo
 		begin
 			@sysinfo ||= session.sys.config.sysinfo
@@ -100,6 +105,7 @@ module PostMixin
 		{}
 	end
 
+	# Whether this module's {Msf::Exploit::Stance} is {Msf::Exploit::Stance::Passive passive}
 	def passive?
 		self.passive
 	end
@@ -107,6 +113,7 @@ module PostMixin
 	#
 	# Return a (possibly empty) list of all compatible sessions
 	#
+	# @return [Array]
 	def compatible_sessions
 		sessions = []
 		framework.sessions.each do |sid, s|
@@ -120,13 +127,18 @@ module PostMixin
 	# Return false if the given session is not compatible with this module
 	#
 	# Checks the session's type against this module's
-	# +module_info["SessionTypes"]+ as well as examining platform
-	# compatibility.  +sess_or_sid+ can be a Session object, Fixnum, or String.
-	# In the latter cases it sould be a key in in +framework.sessions+.
+	# <tt>module_info["SessionTypes"]</tt> as well as examining platform
+	# compatibility.  +sess_or_sid+ can be a Session object, Fixnum, or
+	# String.  In the latter cases it sould be a key in
+	# +framework.sessions+.
 	#
-	# NOTE: because it errs on the side of compatibility, a true return value
-	# from this method does not guarantee the module will work with the
-	# session.
+	# @note Because it errs on the side of compatibility, a true return
+	#   value from this method does not guarantee the module will work
+	#   with the session.
+	#
+	# @param sess_or_sid [Msf::Session,Fixnum,String]
+	#   A session or session ID to compare against this module for
+	#   compatibility.
 	#
 	def session_compatible?(sess_or_sid)
 		# Normalize the argument to an actual Session
@@ -186,6 +198,8 @@ module PostMixin
 	#
 	# True when this module is passive, false when active
 	#
+	# @return [Boolean]
+	# @see passive?
 	attr_reader :passive
 
 protected
