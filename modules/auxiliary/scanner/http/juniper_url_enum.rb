@@ -32,6 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(443),
+				OptInt.new('URL_NUM',        [true, 'How many url number to brute', 100])
 			], self.class)
 end
 
@@ -39,7 +40,7 @@ end
 
 		begin
 
-		(0..100).each do |brute|
+		(0..datastore['URL_NUM']).each do |brute|
 			res = send_request_raw({
 				'version'	=> '1.0',
 				'uri'		=>  '/dana-na/auth/url_'+brute.to_s+'/welcome.cgi',
