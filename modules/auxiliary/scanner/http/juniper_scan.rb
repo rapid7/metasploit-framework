@@ -30,6 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 				[ 'URL', 'http://carnal0wnage.attackresearch.com/2013/05/funky-juniper-urls.html' ],
 				[ 'URL', 'http://www.netprotect.ch/tools.html' ],
+				[ 'URL', 'http://packetstormsecurity.com/files/95620/Juniper-SSL-VPN-Bypass-Cross-Site-Scripting.html' ],
 				],
 		)
 		register_options(
