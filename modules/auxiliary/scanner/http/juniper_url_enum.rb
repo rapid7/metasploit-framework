@@ -23,6 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description' => 'Brute Juniper URLS 0-100 /dana-na/auth/url_X/welcome.cgi. Correct URL should give a 200, wrong will 302 to url_default.',
 			'Author'       => ['CG'],
 			'License'     => MSF_LICENSE,
+			'DefaultOptions' => {"SSL" => TRUE},
 			'References' =>
 				[
 				[ 'URL', 'http://carnal0wnage.attackresearch.com/2013/05/funky-juniper-urls.html' ],
