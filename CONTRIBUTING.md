@@ -36,3 +36,9 @@ Pull requests tend to be very collaborative for Metasploit -- do not be
 surprised if your pull request to rapid7/metasploit-framework triggers a
 pull request back to your own fork. In this way, we can isolate working
 changes before landing your PR to the Metasploit master branch.
+
+To save yourself the embarrassment of committing common errors, you will
+want to symlink the `msftidy.rb` utility to your pre-commit hooks by
+running `ln -s ../../tools/dev/pre-commit-hook.rb .git/hooks/pre-commit`
+from the top-level directory of your metasploit-framework clone. This
+will prevent you from committing modules that raise WARNINGS or ERRORS.
