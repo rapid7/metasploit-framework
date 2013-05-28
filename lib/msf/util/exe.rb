@@ -364,10 +364,11 @@ require 'digest/sha1'
 		exe
 	end
 
-	def self.to_win32pe_only(framework, code, opts={})
+	def self.to_winpe_only(framework, code, opts={}, arch="x86")
 
 		# Allow the user to specify their own EXE template
-		set_template_default(opts, "template_x86_windows_old.exe")
+
+		set_template_default(opts, "template_"+arch+"_windows.exe")
 
 		pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
 
@@ -1968,7 +1969,11 @@ End Sub
 
 		when 'exe-only'
 			if(not arch or (arch.index(ARCH_X86)))
-				output = Msf::Util::EXE.to_win32pe_only(framework, code, exeopts)
+				output = Msf::Util::EXE.to_winpe_only(framework, code, exeopts)
+			end
+
+			if(arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
+				output = Msf::Util::EXE.to_winpe_only(framework, code, exeopts, "x64")
 			end
 
 		when 'elf'
