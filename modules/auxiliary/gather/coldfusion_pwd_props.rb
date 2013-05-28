@@ -85,6 +85,9 @@ class Metasploit3 < Msf::Auxiliary
 			out = "Adobe ColdFusion MX7 (Not Vulnerable)"
 		elsif(response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995-2006 Adobe/)
 			out = "Adobe ColdFusion 8 (Not Vulnerable)"
+		elsif(response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995\-2010 Adobe/ and
+			response.body =~ /1997\-2012 Adobe Systems Incorporated and its licensors/)
+			out = "Adobe ColdFusion 10"
 		elsif(response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995-2010 Adobe/ or
 			response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995\-2009 Adobe Systems\, Inc\. All rights reserved/)
 			out = "Adobe ColdFusion 9"
