@@ -17,8 +17,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'        => 'ColdFusion Version Scanner',
 			'Description' => %q{
-				This module attempts identify various flavors of ColdFusion such as version 9
-				and 10, as well as the underlying OS.
+				This module attempts identify various flavors of ColdFusion up to version 10
+				as well as the underlying OS.
 			},
 			'Author'      =>
 				[
