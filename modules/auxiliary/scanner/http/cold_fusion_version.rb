@@ -29,28 +29,6 @@ class Metasploit3 < Msf::Auxiliary
 		)
 	end
 
-
-	#
-	# Checks loginbackground.jpg for Cold Fusion 10.  This is a patch to be able to detect
-	# Cold Fusion 10 correctly.  We haven't been able to replace fingerprint(), because we
-	# don't have all the MD5s for loginbackground.jpg, not to mention some versions don't
-	# actually have it.
-	#
-	def cf10?
-		res = send_request_cgi({
-			'uri'    => '/CFIDE/administrator/images/loginbackground.jpg',
-			'method' => 'GET'
-		})
-
-		# Not the response we want at all, then let's assume it's not cf10
-		return false if not res or res.code.to_i != 200
-
-		jpg_md5 = Rex::Text.md5(res.body)
-		return true if jpg_md5 == 'a4c81b7a6289b2fc9b36848fa0cae83c'
-
-		false
-	end
-
 	def fingerprint(response)
 
 		if(response.headers.has_key?('Server') )
@@ -75,7 +53,6 @@ class Metasploit3 < Msf::Auxiliary
 		out = nil
 
 
-
 		if(response.body =~ />\s*Version:\s*(.*)<\/strong\><br\s\//)
 			v = $1
 			out = (v =~ /^6/) ? "Adobe ColdFusion MX6 #{v}" : "Adobe ColdFusion MX7 #{v}"
@@ -83,8 +60,8 @@ class Metasploit3 < Msf::Auxiliary
 			out = "Adobe ColdFusion MX7"
 		elsif(response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995\-2006 Adobe/)
 			out = "Adobe ColdFusion 8"
-		elsif cf10?
-			# Must check for Cold Fusion 10 before 9 to avoid FP
+		elsif(response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995\-2010 Adobe/ and
+			response.body =~ /1997\-2012 Adobe Systems Incorporated and its licensors/)
 			out = "Adobe ColdFusion 10"
 		elsif(response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995\-2010 Adobe/ or
 			response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995\-2009 Adobe Systems\, Inc\. All rights reserved/)
