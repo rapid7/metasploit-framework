@@ -54,5 +54,7 @@
 		<module>java14</module>
 		<module>java13</module>
 		<module>java12</module>
+		<module>android-api3-scents</module>
+		<module>android-api3</module>
 	</modules>
 </project>
