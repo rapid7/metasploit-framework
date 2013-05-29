@@ -123,19 +123,6 @@ To check that it works, just `ssh -T github`, and your result should look like t
 
 [[/screens/ssh10.png]]
 
-### Minimal Git config
-
-Finally, you're ready to set up your local git config file, if you haven't already:
-
-````bash
-git config --global user.name "Fakey McFakepants"
-git config --global user.email "mcfakepants@packetfu.com"
-````
-
-Cat your ~/.gitconfig to ensure you have that set (and remember, your e-mail address needs to match the address you set back when you ssh-keygen'ed):
-
-[[/screens/ssh11.png]]
-
 <h1 id="git">Working with Git</h2>
 
 The rest of this document will walk through the usual use case of working with Git and GitHub to get a local source checkout, commit something new, and get it submitted to be part of the Metasploit Framework distribution. 
