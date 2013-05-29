@@ -17,7 +17,7 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'Linux dup2 Command Shell',
 			'Description'   => 'dup2 socket in r12, then execve',
-			'Author'        => 'nemo',
+			'Author'        => 'nemo <nemo[at]felinemenace.org>',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'linux',
 			'Arch'          => ARCH_ARMLE,
