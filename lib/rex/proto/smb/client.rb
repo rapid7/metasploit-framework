@@ -148,6 +148,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		packet.v['TreeID'] = self.last_tree_id.to_i
 		packet.v['UserID'] = self.auth_user_id.to_i
 		packet.v['ProcessID'] = self.process_id.to_i
+		self.multiplex_id = (self.multiplex_id + 16) % 65536
 	end
 
 
@@ -1291,6 +1292,38 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		return ack
 	end
 
+        def write_raw(file_id, flags1, flags2, wordcount, andx_command, andx_offset, offset, write_mode, remaining, data_len_high, data_len_low, data_offset, high_offset, byte_count, data, do_recv)
+
+		pkt = CONST::SMB_WRITE_PKT.make_struct
+		self.smb_defaults(pkt['Payload']['SMB'])
+
+		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_WRITE_ANDX
+		pkt['Payload']['SMB'].v['Flags1'] = flags1
+		pkt['Payload']['SMB'].v['Flags2'] = flags2
+
+		pkt['Payload']['SMB'].v['WordCount'] = wordcount
+
+		pkt['Payload'].v['AndX'] = andx_command
+		pkt['Payload'].v['AndXOffset'] = andx_offset
+		pkt['Payload'].v['FileID'] = file_id
+		pkt['Payload'].v['Offset'] = offset
+		pkt['Payload'].v['Reserved2'] = -1
+		pkt['Payload'].v['WriteMode'] = write_mode
+		pkt['Payload'].v['Remaining'] = remaining
+		pkt['Payload'].v['DataLenHigh'] = data_len_high
+		pkt['Payload'].v['DataLenLow'] = data_len_low
+		pkt['Payload'].v['DataOffset'] = data_offset
+		pkt['Payload'].v['HighOffset'] = high_offset
+		pkt['Payload'].v['ByteCount'] = byte_count
+
+		pkt['Payload'].v['Payload'] = data
+
+		ret = self.smb_send(pkt.to_s)
+		return ret if not do_recv
+
+		ack = self.smb_recv_parse(CONST::SMB_COM_WRITE_ANDX)
+		return ack
+	end
 
 	# Reads data from an open file handle
 	def read(file_id = self.last_file_id, offset = 0, data_length = 64000, do_recv = true)
