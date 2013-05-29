@@ -102,6 +102,8 @@ Finally, I have a very small set of defaults, here: https://gist.github.com/4658
 
 The entire Metasploit code base is hosted here on GitHub. If you have an old Redmine account over at https://dev.metasploit.com, that's not going to provide authentication and identification on GitHub (but we still take bugs over on Redmine).
 
+[[https://help.github.com/assets/help/set-up-git-27bd5975b24e994bc994ec1cf5c82ff9.gif]]
+
 Setting yourself up on GitHub is [well-documented here](https://help.github.com/articles/set-up-git#platform-all), as is [generating an SSH key](https://help.github.com/articles/generating-ssh-keys).
 
 ### Alias GitHub in .ssh/config
