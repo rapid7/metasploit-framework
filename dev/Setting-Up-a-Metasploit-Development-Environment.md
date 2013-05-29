@@ -100,64 +100,9 @@ Finally, I have a very small set of defaults, here: https://gist.github.com/4658
 
 <h2 id="github">Using GitHub</h2>
 
-The entire Metasploit code base is hosted here on GitHub. If you have an old Redmine account over at dev.metasploit.com, that's not going to do much for you since the switch-over -- you're going to need a GitHub account. That process is pretty simple.
+The entire Metasploit code base is hosted here on GitHub. If you have an old Redmine account over at https://dev.metasploit.com, that's not going to provide authentication and identification on GitHub (but we still take bugs over on Redmine).
 
-### Find the Signup button
-
-[[/screens/new01.png]]
-
-### Create a free user account
-
-[[/screens/new02.png]]
-
-### Come up with a decent username and password
-
-[[/screens/new04.png]]
-
-None of this is exactly rocket science.
-
-<h2 id="ssh">SSH for GitHub</h2>
-
-After that's done, you need to set up an SSH key to associate with your new GitHub identity (this step is **not** optional, so good on GitHub for forcing this minimal level of security).
-
-### Create a new key
-
-We recommend you set up a new SSH key pair to associate with GitHub, rather than reuse that same old key you have in 50 other authorized_keys files around the world. Why not just start fresh? It's easy and fun:
-
-````bash
-# mkdir ~/.ssh # If you don't already have one
-$ ssh-keygen -t rsa -C "mcfakepants@packetfu.com"
-````
-Just follow the prompts, pick a name for your key pair (I use "id_rsa.github"), set a password, and you should end up with something like:
-
-[[/screens/ssh01.png]]
-
-### Add your key
-
-Next, go to [https://github.com/settings/ssh](https://github.com/settings/ssh) (which can be navigated to via _Account Settings > SSH Keys_), and click "Add SSH key":
-
-[[/screens/ssh02.png]]
-
-You'll be presented with a screen to copy-paste your public SSH key (not the private one!). The easiest thing to do is to cat your newly created key, select, and copy-paste it:
-
-[[/screens/ssh03.png]]
-
-[[/screens/ssh04.png]]
-
-### Confirm your key
-
-After that's done, you'll have a key associated, and you'll get e-mail about it. Eyeball the fingerprint and make sure it matches up. 
-
-[[/screens/ssh05.png]]
-
-The real moment of truth is when you test your SSH key. If you named it something funny like I did, don't forget the -i flag, use -T to avoid allocating a terminal (you won't get one anyway). Also note that you are going to literally use "git@github.com" as the username (not your name or anything like that).
-
-````bash
-$ ssh -i ~/.ssh/id_rsa.github -T git@github.com
-````
-Your console should look like this:
-
-[[/screens/ssh07.png]]
+Setting yourself up on GitHub is [well-documented here](https://help.github.com/articles/set-up-git#platform-all), as is [generating an SSH key](https://help.github.com/articles/generating-ssh-keys).
 
 ### Alias GitHub in .ssh/config
 
