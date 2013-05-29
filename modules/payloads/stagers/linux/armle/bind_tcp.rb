@@ -26,7 +26,7 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'Bind TCP Stager',
 			'Description'   => 'Listen for a connection',
-			'Author'        => 'nemo@felinemenace.org',
+			'Author'        => 'nemo <nemo[at]felinemenace.org>',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'linux',
 			'Arch'          => ARCH_ARMLE,

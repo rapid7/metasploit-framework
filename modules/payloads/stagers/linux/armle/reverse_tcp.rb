@@ -26,7 +26,7 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'Reverse TCP Stager',
 			'Description'   => 'Connect back to the attacker',
-			'Author'        => 'nemo',
+			'Author'        => 'nemo <nemo[at]felinemenace.org>',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'linux',
 			'Arch'          => ARCH_ARMLE,
