@@ -4,6 +4,7 @@
 * [Getting Ruby](#rvm)
 * [Your Editor](#editor)
 * [Using GitHub](#github)
+* [SSH for GitHub](#ssh)
 * [Using Git](#git)
 * [Forking Metasploit](#fork)
 * [Setting your Prompt](#prompt)
