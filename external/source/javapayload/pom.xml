@@ -47,6 +47,21 @@
 		<module>meterpreter</module>
 		<module>version-compatibility-check</module>
 	</modules>
+	<profiles>
+		<profile>
+			<activation>
+				<property>
+					<name>android.sdk.path</name>
+				</property>
+			</activation>
+			<!-- deploy built files to Metasploit data directory -->
+			<id>android</id>
+			<modules>
+				<module>androidpayload/app</module>
+				<module>androidpayload/library</module>
+			</modules>
+		</profile>
+	</profiles>
 	<prerequisites>
 		<maven>3.0</maven>
 	</prerequisites>

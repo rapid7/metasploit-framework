@@ -666,11 +666,11 @@ class DBManager
             formatted_values = value_set.collect { |value|
               prefix = keyword.upcase
 
-              "#{prefix}-#{value}"
+              "#{prefix}-%#{value}%"
             }
 
             query = query.includes(:refs)
-            union_conditions << Mdm::Module::Ref.arel_table[:name].eq_any(formatted_values)
+            union_conditions << Mdm::Module::Ref.arel_table[:name].matches_any(formatted_values)
         end
       end
 
