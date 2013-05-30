@@ -84,13 +84,13 @@ class Metasploit3 < Msf::Auxiliary
 					when /reacheable/
 						print_error("#{ip}:#{port} - unreachable")
 					else
-						vprint_error("#{ip}:#{port} - unknown error message")
+						print_error("#{ip}:#{port} - unknown error message")
 				end
 			when /NI_PONG/
 				print_good("#{ip}:#{port} - TCP OPEN")
 				report << [ip, port, 'open']
 			else
-				vprint_error("#{ip}:#{port} - unknown response")
+				print_error("#{ip}:#{port} - unknown response")
 		end
 		report
 
