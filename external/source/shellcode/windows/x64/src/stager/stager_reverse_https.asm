@@ -1,6 +1,6 @@
 ;-----------------------------------------------------------------------------;
 ; Author: Stephen Fewer (stephen_fewer[at]harmonysecurity[dot]com)
-; Rewrited to x64 by agix
+; Rewritten for x64 by agix
 ; Compatible: Windows 7
 ; Architecture: x64
 ; Size: 570 bytes

@@ -19,7 +19,10 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'Windows x64 Reverse HTTPS Stager',
 			'Description'   => 'Tunnel communication over HTTP using SSL (Windows x64)',
-			'Author'        => 'hdm (x64 rewrite by agix)',
+			'Author'        => [
+				'hdm', # original 32-bit implementation
+				'agix' # x64 rewrite
+			],
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86_64,
