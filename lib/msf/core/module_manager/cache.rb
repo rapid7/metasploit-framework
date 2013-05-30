@@ -37,18 +37,31 @@ module Msf::ModuleManager::Cache
 		options.assert_valid_keys(:path, :reference_name, :type)
 
 		path = options.fetch(:path)
-		modification_time = File.mtime(path)
 
-		parent_path = class_or_module.parent.parent_path
-		reference_name = options.fetch(:reference_name)
-		type = options.fetch(:type)
+		begin
+			modification_time = File.mtime(path)
+		rescue Errno::ENOENT => error
+			log_lines = []
+			log_lines << "Could not find the modification of time of #{path}:"
+			log_lines << error.class.to_s
+			log_lines << error.to_s
+			log_lines << "Call stack:"
+			log_lines += error.backtrace
 
-		module_info_by_path[path] = {
-				:modification_time => modification_time,
-				:parent_path => parent_path,
-				:reference_name => reference_name,
-				:type => type
-		}
+			log_message = log_lines.join("\n")
+			elog(log_message)
+		else
+			parent_path = class_or_module.parent.parent_path
+			reference_name = options.fetch(:reference_name)
+			type = options.fetch(:type)
+
+			module_info_by_path[path] = {
+					:modification_time => modification_time,
+					:parent_path => parent_path,
+					:reference_name => reference_name,
+					:type => type
+			}
+		end
 	end
 
   # Forces loading of the module with the given type and module reference name from the cache.
