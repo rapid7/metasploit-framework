@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Encoder
 					Encodes payload with add or sub instructions. This idea came
 					from (offensive-security) muts' hp nnm 7.5.1 exploit.
 			},
-			'Author'           => 'Melih Sarica (ms@sevure.com)',
+			'Author'           => 'Melih Sarica <ms[at]sevure.com>',
 			'Arch'             => ARCH_X86,
 			'License'          => MSF_LICENSE,
 			'Decoder'          =>
@@ -131,7 +131,7 @@ class Metasploit3 < Msf::Encoder
 		decoder = @data
 		return decoder
 	end
-	
+
 	def encode_block(state, block)
 		#encoding shellcode
 		@data = ""
