@@ -203,7 +203,7 @@ class RopCollect < RopBase
 
 			xtra = insn.bin_length
 
-			num.step(0, -1) do |x|
+			num.downto(0) do |x|
 				addr = ea - x
 
 				# get the disassembled instruction at this address
