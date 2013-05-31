@@ -62,8 +62,6 @@ class Metasploit3 < Msf::Auxiliary
 
 			if [200, 301, 302].include?(res.code)
 				vprint_good("#{rhost}:#{rport} - Successful login with '#{user}' : '#{pass}'")
-			else
-				vprint_error("#{rhost}:#{rport} - Failed login with '#{user}' : '#{pass}'")
 			end
 
 		rescue ::Rex::ConnectionError
@@ -84,7 +82,6 @@ class Metasploit3 < Msf::Auxiliary
 			})
 
 			if res and res.code != 200
-				vprint_error("#{rhost}:#{rport} - Failed login with. '#{user}' : '#{pass}' with code #{res.code}")
 				return :skip_pass
 			else
 				vprint_good("#{rhost}:#{rport} - Successful login with. '#{user}' : '#{pass}'")
