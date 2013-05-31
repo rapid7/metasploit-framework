@@ -10,7 +10,9 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 				'Name' => 'SAPRouter Port Scanner',
-				'Description' => 'This module allows for mapping ACLs and identify open/closed ports accessible on hosts through a saprouter',
+				'Description' => %q{
+					This module allows for mapping ACLs and identify open/closed ports
+					accessible on hosts through a saprouter},
 				'Author' => ['Bruno Morisson <bm[at]integrity.pt>', # metasploit module
 							'nmonkee'], # saprouter packet building code from sapcat.rb
 				'References' =>
@@ -65,34 +67,32 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def parse_response_packet(response, ip, port)
-		report=[]
 
 		vprint_error("#{ip}:#{port} - response packet: #{response}")
 
 		case response
-			when /NI_RTERR/
-				case response
-					when /timed out/
-						print_error ("#{ip}:#{port} - connection timed out")
-					when /refused/
-						print_error("#{ip}:#{port} - TCP closed")
-						report << [ip, port, 'closed']
-					when /denied/
-						print_error("#{ip}:#{port} - blocked by ACL")
-					when /invalid/
-						print_error("#{ip}:#{port} - invalid route")
-					when /reacheable/
-						print_error("#{ip}:#{port} - unreachable")
-					else
-						print_error("#{ip}:#{port} - unknown error message")
-				end
-			when /NI_PONG/
-				print_good("#{ip}:#{port} - TCP OPEN")
-				report << [ip, port, 'open']
+		when /NI_RTERR/
+			case response
+			when /timed out/
+				print_error ("#{ip}:#{port} - connection timed out")
+			when /refused/
+				print_error("#{ip}:#{port} - TCP closed")
+				report_service(:host => ip, :port => port, :state => 'closed')
+			when /denied/
+				print_error("#{ip}:#{port} - blocked by ACL")
+			when /invalid/
+				print_error("#{ip}:#{port} - invalid route")
+			when /reacheable/
+				print_error("#{ip}:#{port} - unreachable")
 			else
-				print_error("#{ip}:#{port} - unknown response")
+				print_error("#{ip}:#{port} - unknown error message")
+			end
+		when /NI_PONG/
+			print_good("#{ip}:#{port} - TCP OPEN")
+			report_service(:host => ip, :port => port, :state => 'open')
+		else
+			print_error("#{ip}:#{port} - unknown response")
 		end
-		report
 
 	end
 
@@ -110,57 +110,51 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		print_status("Scanning #{ip}")
+		thread = []
+		ports.each do |port|
 
-		while (ports.length > 0)
-			thread = []
-			report = []
-			begin
-				1.upto(datastore['CONCURRENCY']) do
-					this_port = ports.shift
-					break if not this_port
-					thread << framework.threads.spawn("Module(#{self.refname})-#{ip}:#{this_port}", false, this_port) do |port|
 
-						begin
-							s = connect(false,
-							{
-								'RPORT' => sap_port,
-								'RHOST' => sap_host,
-								'ConnectTimeout' => (timeout / 1000.0)
-								}
-							)
-
-							# create ni_packet to send to saprouter
-							routes = {sap_host => sap_port, ip => port}
-							ni_packet = build_ni_packet(routes)
-
-							s.write(ni_packet, ni_packet.length)
-							response = s.get()
-
-							report = parse_response_packet(response, ip, port)
-
-						rescue ::Rex::ConnectionRefused
-							print_error("#{ip}:#{port} - Unable to connect to SAPRouter #{sap_host}:#{sap_port} - Connection Refused")
-
-						rescue ::Rex::ConnectionError, ::IOError, ::Timeout::Error
-						rescue ::Rex::Post::Meterpreter::RequestError
-						rescue ::Interrupt
-							raise $!
-						rescue ::Exception => e
-							print_error("#{ip}:#{port} exception #{e.class} #{e} #{e.backtrace}")
-						ensure
-							disconnect(s) rescue nil
-						end
-					end
-				end
-				thread.each { |x| x.join }
-
-			rescue ::Timeout::Error
-			ensure
-				thread.each { |x| x.kill rescue nil }
+			if thread.length >= datastore['CONCURRENCY']
+				# Assume the first thread will be among the earliest to finish
+				thread.first.join
 			end
+			thread << framework.threads.spawn("Module(#{self.refname})-#{ip}:#{port}", false) do
 
-			report.each { |res| report_service(:host => res[0], :port => res[1], :state => res[2]) }
+				begin
+					s = connect(false,
+						{
+						'RPORT' => sap_port,
+						'RHOST' => sap_host,
+						'ConnectTimeout' => (timeout / 1000.0)
+						}
+					)
+
+					# create ni_packet to send to saprouter
+					routes = {sap_host => sap_port, ip => port}
+					ni_packet = build_ni_packet(routes)
+
+					s.write(ni_packet, ni_packet.length)
+					response = s.get()
+
+					parse_response_packet(response, ip, port)
+
+				rescue ::Rex::ConnectionRefused
+					print_error("#{ip}:#{port} - Unable to connect to SAPRouter #{sap_host}:#{sap_port} - Connection Refused")
+
+				rescue ::Rex::ConnectionError, ::IOError, ::Timeout::Error
+				rescue ::Rex::Post::Meterpreter::RequestError
+				rescue ::Interrupt
+					raise $!
+				ensure
+					disconnect(s) rescue nil
+				end
+			end
 		end
+		thread.each { |x| x.join }
+
+	rescue ::Timeout::Error
+	ensure
+		thread.each { |x| x.kill rescue nil }
 	end
 
 end
