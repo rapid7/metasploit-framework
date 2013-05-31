@@ -195,8 +195,9 @@ class RopCollect < RopBase
 	end
 
 	def process_gadgets(rets, num)
-		ret = {}
+		ret     = {}
 		gadgets = []
+		tmp     = []
 		rets.each do |ea|
 			insn = @disassembler.disassemble_instruction(ea)
 			next if not insn
@@ -226,6 +227,12 @@ class RopCollect < RopBase
 					di = @disassembler.disassemble_instruction(addr)
 					dasm << ("0x%08x:\t" % addr) + di.instruction.to_s + "\n"
 					addr = addr + di.bin_length
+				end
+
+				if not tmp.include?(ea)
+					tmp << ea
+				else
+					next
 				end
 
 				# otherwise, we create a new tailchunk and add it to the list
