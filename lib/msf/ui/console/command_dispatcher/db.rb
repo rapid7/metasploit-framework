@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
-
+#
 require 'rexml/document'
 require 'rex/parser/nmap_xml'
 require 'msf/core/db_export'
@@ -205,6 +205,7 @@ class Db
 			mode = :search
 			delete_count = 0
 
+			rhosts = []
 			host_ranges = []
 			search_term = nil
 
@@ -241,7 +242,6 @@ class Db
 					output = args.shift
 				when '-R','--rhosts'
 					set_rhosts = true
-					rhosts = []
 				when '-S', '--search'
 					search_term = /#{args.shift}/nmi
 
@@ -280,11 +280,6 @@ class Db
 					range.each do |address|
 						host = framework.db.find_or_create_host(:host => address)
 						print_status("Time: #{host.created_at} Host: host=#{host.address}")
-						if set_rhosts
-							# only unique addresses
-							addr = (host.scope ? host.address + '%' + host.scope : host.address )
-							rhosts << addr unless rhosts.include?(addr)
-						end
 					end
 				end
 				return
@@ -323,7 +318,7 @@ class Db
 					tbl << columns
 					if set_rhosts
 						addr = (host.scope ? host.address + '%' + host.scope : host.address )
-						rhosts << addr unless rhosts.include?(addr)
+						rhosts << addr
 					end
 					if mode == :delete
 						host.destroy
@@ -344,9 +339,11 @@ class Db
 
 			# Finally, handle the case where the user wants the resulting list
 			# of hosts to go into RHOSTS.
-			set_rhosts_from_addrs(rhosts) if set_rhosts
+			set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
 			print_status("Deleted #{delete_count} hosts") if delete_count > 0
 		}
+##
+##
 		end
 
 		def cmd_services_help
@@ -366,10 +363,11 @@ class Db
 			default_columns = ::Mdm::Service.column_names.sort
 			default_columns.delete_if {|v| (v[-2,2] == "id")}
 
-			host_ranges = []
-			port_ranges = []
+			host_ranges  = []
+			port_ranges  = []
+			rhosts       = []
 			delete_count = 0
-			search_term = nil
+			search_term  = nil
 
 			# option parsing
 			while (arg = args.shift)
@@ -420,7 +418,6 @@ class Db
 					output_file = ::File.expand_path(output_file)
 				when '-R','--rhosts'
 					set_rhosts = true
-					rhosts = []
 				when '-S', '--search'
 					search_term = /#{args.shift}/nmi
 
@@ -508,7 +505,7 @@ class Db
 					tbl << columns
 					if set_rhosts
 						addr = (host.scope ? host.address + '%' + host.scope : host.address )
-						rhosts << addr unless rhosts.include?(addr)
+						rhosts << addr
 					end
 
 					if (mode == :delete)
@@ -529,7 +526,7 @@ class Db
 
 			# Finally, handle the case where the user wants the resulting list
 			# of hosts to go into RHOSTS.
-			set_rhosts_from_addrs(rhosts) if set_rhosts
+			set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
 			print_status("Deleted #{delete_count} services") if delete_count > 0
 
 		}
@@ -680,6 +677,7 @@ class Db
 
 			host_ranges = []
 			port_ranges = []
+			rhosts      = []
 			svcs        = []
 			search_term = nil
 
@@ -733,7 +731,6 @@ class Db
 					end
 				when "-R"
 					set_rhosts = true
-					rhosts = []
 				when '-S', '--search'
 					search_term = /#{args.shift}/nmi
 				when "-u","--user"
@@ -828,7 +825,7 @@ class Db
 				end
 				if set_rhosts
 					addr = (cred.service.host.scope ? cred.service.host.address + '%' + cred.service.host.scope : cred.service.host.address )
-					rhosts << addr unless rhosts.include?(addr)
+					rhosts << addr
 				end
 				creds_returned += 1
 			end
@@ -842,7 +839,7 @@ class Db
 				print_status("Wrote services to #{output_file}")
 			end
 
-			set_rhosts_from_addrs(rhosts) if set_rhosts
+			set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
 			print_status "Found #{creds_returned} credential#{creds_returned == 1 ? "" : "s"}."
 		}
 		end
@@ -873,6 +870,7 @@ class Db
 			set_rhosts = false
 
 			host_ranges = []
+			rhosts      = []
 			search_term = nil
 
 			while (arg = args.shift)
@@ -896,7 +894,6 @@ class Db
 					types = typelist.strip().split(",")
 				when '-R','--rhosts'
 					set_rhosts = true
-					rhosts = []
 				when '-S', '--search'
 					search_term = /#{args.shift}/nmi
 				when '-h','--help'
@@ -942,7 +939,7 @@ class Db
 			end
 			if search_term
 				note_list.delete_if do |n|
-					!!n.attribute_names.any? { |a| n[a.intern].to_s.match(search_term) }
+					!n.attribute_names.any? { |a| n[a.intern].to_s.match(search_term) }
 				end
 			end
 			# Now display them
@@ -954,7 +951,7 @@ class Db
 					msg << " host=#{note.host.address}"
 					if set_rhosts
 						addr = (host.scope ? host.address + '%' + host.scope : host.address )
-						rhosts << addr unless rhosts.include?(addr)
+						rhosts << addr
 					end
 				end
 				if (note.service)
@@ -971,15 +968,22 @@ class Db
 
 			# Finally, handle the case where the user wants the resulting list
 			# of hosts to go into RHOSTS.
-			set_rhosts_from_addrs(rhosts) if set_rhosts
+			set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
 
 			print_status("Deleted #{delete_count} note#{delete_count == 1 ? "" : "s"}") if delete_count > 0
 		}
 		end
 
 		def cmd_loot_help
-			print_line "Usage: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]"
+			print_line "Usage: loot <options>"
+			print_line " Info: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]"
+			print_line "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] [-t [type]"
+			print_line "  Del: loot -d [addr1 addr2 ...]"
 			print_line
+			print_line "  -a,--add          Add loot to the list of addresses, instead of listing"
+			print_line "  -d,--delete       Delete *all* loot matching host and type"
+			print_line "  -f,--file         File with contents of the loot to add"
+			print_line "  -i,--info         Info of the loot to add"
 			print_line "  -t <type1,type2>  Search for a list of types"
 			print_line "  -h,--help         Show this help information"
 			print_line "  -S,--search       Search string to filter by"
@@ -994,31 +998,52 @@ class Db
 			types = nil
 			delete_count = 0
 			search_term = nil
+			file = nil
+			name = nil
+			info = nil
 
 			while (arg = args.shift)
 				case arg
-				when '-d','--delete'
-					mode = :delete
-				when '-t'
-					typelist = args.shift
-					if(!typelist)
-						print_status("Invalid type list")
+					when '-a','--add'
+						mode = :add
+					when '-d','--delete'
+						mode = :delete
+					when '-f','--file'
+						filename = args.shift
+						if(!filename)
+							print_error("Can't make loot with no filename")
+							return
+						end
+						if (!File.exists?(filename) or !File.readable?(filename))
+							print_error("Can't read file")
+							return
+						end
+					when '-i','--info'
+						info = args.shift
+						if(!info)
+							print_error("Can't make loot with no info")
 						return
 					end
-					types = typelist.strip().split(",")
-				when '-S', '--search'
-					search_term = /#{args.shift}/nmi
-				when '-h','--help'
-					cmd_loot_help
-					return
-				else
-					# Anything that wasn't an option is a host to search for
-					unless (arg_host_range(arg, host_ranges))
+					when '-t'
+						typelist = args.shift
+						if(!typelist)
+							print_error("Invalid type list")
+							return
+						end
+						types = typelist.strip().split(",")
+					when '-S', '--search'
+						search_term = /#{args.shift}/nmi
+					when '-h','--help'
+						cmd_loot_help
+						return
+					else
+						# Anything that wasn't an option is a host to search for
+						unless (arg_host_range(arg, host_ranges))
 						return
 					end
 				end
-
 			end
+
 			tbl = Rex::Ui::Text::Table.new({
 					'Header'  => "Loot",
 					'Columns' => [ 'host', 'service', 'type', 'name', 'content', 'info', 'path' ],
@@ -1026,6 +1051,32 @@ class Db
 
 			# Sentinal value meaning all
 			host_ranges.push(nil) if host_ranges.empty?
+
+		if mode == :add
+			if info.nil?
+				print_error("Info required")
+				return
+			end
+			if filename.nil?
+				print_error("Loot file required")
+				return
+			end
+			if types.nil? or types.size != 1
+				print_error("Exactly one loot type is required")
+				return
+			end
+			type = types.first
+			name = File.basename(filename)
+			host_ranges.each do |range|
+				range.each do |host|
+					file = File.open(filename, "rb")
+					contents = file.read
+					lootfile = framework.db.find_or_create_loot(:type => type, :host => host,:info => info, :data => contents,:path => filename,:name => name)
+					print_status "Added loot #{host}"
+				end
+			end
+			return
+		end
 
 			each_host_range_chunk(host_ranges) do |host_search|
 				framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
@@ -1707,4 +1758,3 @@ end
 end
 end
 end
-

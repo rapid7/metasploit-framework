@@ -31,33 +31,26 @@ class Msf::ModuleSet < Hash
     super
   end
 
-  # Create an instance of the supplied module by its name
+  # Create an instance of the supplied module by its reference name
   #
-  # @param [String] name the module reference name.
-  # @return [Msf::Module] instance of the named module.
-  def create(name)
-    klass = fetch(name, nil)
+  # @param reference_name [String] The module reference name.
+  # @return [Msf::Module,nil] Instance of the named module or nil if it
+  #   could not be created.
+  def create(reference_name)
+    klass = fetch(reference_name, nil)
     instance = nil
 
     # If there is no module associated with this class, then try to demand
     # load it.
     if klass.nil? or klass == Msf::SymbolicModule
-      # If we are the root module set, then we need to try each module
-      # type's demand loading until we find one that works for us.
-      if module_type.nil?
-        Msf::MODULE_TYPES.each { |type|
-          framework.modules.load_cached_module(type, name)
-        }
-      else
-        framework.modules.load_cached_module(module_type, name)
-      end
+      framework.modules.load_cached_module(module_type, reference_name)
 
       recalculate
 
-      klass = fetch(name, nil)
+      klass = fetch(reference_name, nil)
     end
 
-    # If the klass is valid for this name, try to create it
+    # If the klass is valid for this reference_name, try to create it
     unless klass.nil? or klass == Msf::SymbolicModule
       instance = klass.new
     end
@@ -74,7 +67,7 @@ class Msf::ModuleSet < Hash
   # "can't add a new key into hash during iteration"
   #
   # @yield [module_reference_name, module]
-  # @yieldparam [String] module_reference_name the name of the module.
+  # @yieldparam [String] module_reference_name the reference_name of the module.
   # @yieldparam [Class] module The module class: a subclass of Msf::Module.
   # @return [void]
   def each(&block)
@@ -168,83 +161,73 @@ class Msf::ModuleSet < Hash
   def on_module_reload(mod)
   end
 
-  # @!attribute [rw] postpone_recalc
-  #   Whether or not recalculations should be postponed.  This is used
-  #   from the context of the {#each_module_list} handler in order to
-  #   prevent the demand loader from calling recalc for each module if
-  #   it's possible that more than one module may be loaded.  This field
-  #   is not initialized until used.
-  #
-  #   @return [true] if {#recalculate} should not be called immediately
-  #   @return [false] if {#recalculate} should be called immediately
-  attr_accessor :postpone_recalculate
-
   # Dummy placeholder to recalculate aliases and other fun things.
   #
   # @return [void]
   def recalculate
   end
 
-  # Checks to see if the supplied module name is valid.
+  # Checks to see if the supplied module reference name is valid.
   #
+  # @param reference_name [String] The module reference name.
   # @return [true] if the module can be {#create created} and cached.
   # @return [false] otherwise
-  def valid?(name)
-    create(name)
-    (self[name]) ? true : false
+  def valid?(reference_name)
+    create(reference_name)
+    (self[reference_name]) ? true : false
+  end
+
+  # Adds a module with a the supplied reference_name.
+  #
+  # @param [Class<Msf::Module>] klass The module class.
+  # @param [String] reference_name The module reference name.
+  # @param [Hash{String => Object}] info optional module information.
+  # @option info [Array<String>] 'files' List of paths to files that defined
+  #   +klass+.
+  # @return [Class] The klass parameter modified to have
+  #   {Msf::Module#framework}, {Msf::Module#refname}, {Msf::Module#file_path},
+  #   and {Msf::Module#orig_cls} set.
+  def add_module(klass, reference_name, info = {})
+    # Set the module's reference_name so that it can be referenced when
+    # instances are created.
+    klass.framework = framework
+    klass.refname   = reference_name
+    klass.file_path = ((info and info['files']) ? info['files'][0] : nil)
+    klass.orig_cls  = klass
+
+    # don't want to trigger a create, so use fetch
+    cached_module = self.fetch(reference_name, nil)
+
+    if (cached_module and cached_module != Msf::SymbolicModule)
+      ambiguous_module_reference_name_set.add(reference_name)
+
+      # TODO this isn't terribly helpful since the refnames will always match, that's why they are ambiguous.
+      wlog("The module #{klass.refname} is ambiguous with #{self[reference_name].refname}.")
+    end
+
+    self[reference_name] = klass
+
+    klass
   end
 
   protected
-
-  # Adds a module with a the supplied name.
-  #
-  # @param [Class] mod The module class: a subclass of Msf::Module.
-  # @param [String] name The module reference name
-  # @param [Hash{String => Object}] modinfo optional module information
-  # @return [Class] The mod parameter modified to have {Msf::Module#framework}, {Msf::Module#refname},
-  #   {Msf::Module#file_path}, and {Msf::Module#orig_cls} set.
-  def add_module(mod, name, modinfo = nil)
-    # Set the module's name so that it can be referenced when
-    # instances are created.
-    mod.framework = framework
-    mod.refname   = name
-    mod.file_path = ((modinfo and modinfo['files']) ? modinfo['files'][0] : nil)
-    mod.orig_cls  = mod
-
-    # don't want to trigger a create, so use fetch
-    cached_module = self.fetch(name, nil)
-
-    if (cached_module and cached_module != Msf::SymbolicModule)
-      ambiguous_module_reference_name_set.add(name)
-
-      # TODO this isn't terribly helpful since the refnames will always match, that's why they are ambiguous.
-      wlog("The module #{mod.refname} is ambiguous with #{self[name].refname}.")
-    end
-
-    self[name] = mod
-
-    mod
-  end
 
   # Load all modules that are marked as being symbolic.
   #
   # @return [void]
   def demand_load_modules
+    found_symbolics = false
     # Pre-scan the module list for any symbolic modules
     self.each_pair { |name, mod|
       if (mod == Msf::SymbolicModule)
-        self.postpone_recalculate = true
-
+        found_symbolics = true
         mod = create(name)
-
         next if (mod.nil?)
       end
     }
 
     # If we found any symbolic modules, then recalculate.
-    if (self.postpone_recalculate)
-      self.postpone_recalculate = false
-
+    if (found_symbolics)
       recalculate
     end
   end
@@ -326,7 +309,6 @@ class Msf::ModuleSet < Hash
   #
   #   @return [String] type of modules
   attr_writer   :module_type
-  attr_accessor :module_history
 
   # Ranks modules based on their constant rank value, if they have one.  Modules without a Rank are treated as if they
   # had {Msf::NormalRanking} for Rank.

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -18,11 +14,10 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(
 			'Name'        => 'Forge Cisco DTP Packets',
-			'Version'     => '$Revision$',
 			'Description'	=> %q{
 				This module forges DTP packets to initialize a trunk port.
 			},
-			'Author'		=> [ 'Spencer McIntyre <zerosteiner [at] gmail.com>' ],
+			'Author'		=> [ 'Spencer McIntyre' ],
 			'License'		=> MSF_LICENSE,
 			'Actions'     =>
 				[
@@ -59,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def smac
 		@spoof_mac ||= datastore['SMAC']
-		@spoof_mac ||= get_mac(interface) if netifaces_implemented?
+		@spoof_mac ||= get_mac(datastore['INTERFACE']) if netifaces_implemented?
 		return @spoof_mac
 	end
 
@@ -67,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 		unless smac()
 			print_error 'Source MAC (SMAC) should be defined'
 		else
-			unless is_mac? smac()
+			unless is_mac? smac
 				print_error "Source MAC (SMAC) `#{smac}' is badly formatted."
 			else
 				print_status "Starting DTP spoofing service..."

@@ -35,7 +35,6 @@ class Metasploit3 < Msf::Post
 						'sinn3r', # Testing and modification of original enum_linux
 						'ohdae <bindshell[at]live.com>', # Combined separate mods, modifications and testing
 					],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'linux' ],
 				'SessionTypes'  => [ 'shell' ]
 			))

@@ -1,12 +1,8 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
-# http://metasploit.com/Framework/
+#   http://metasploit.com/Framework/
 ##
 
 require 'msf/core'
@@ -21,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Oracle isqlplus SID Check',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				This module attempts to bruteforce the SID on the Oracle application server iSQL*Plus
 				login pages.  It does this by testing Oracle error responses returned in the HTTP response.

@@ -20,10 +20,14 @@ module Analysis::Taint
 	# opts - Options Hash (default: {})
 	#
 	def taint_analysis( opts = {} )
-	return if fuzzed? :type => :taint
-	fuzzed :type => :taint
+		return if fuzzed? :type => :taint
+		fuzzed :type => :taint
 
-	fuzz_async do |response, permutation|
+		# if we get a result without injecting anything then bail out to avoid
+		# an FP
+		return if fuzzer.find_proof( submit, self )
+
+		fuzz_async do |response, permutation|
 			next if !response || !(proof = fuzzer.find_proof( response, permutation ))
 			fuzzer.process_vulnerability( permutation, proof )
 		end

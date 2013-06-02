@@ -53,26 +53,39 @@ module Msf::ModuleManager::Loading
 
   attr_accessor :module_load_error_by_path
 
-  # Called when a module is initially loaded such that it can be
-  # categorized accordingly.
-  #
-  def on_module_load(mod, type, name, modinfo)
-    # Payload modules require custom loading as the individual files
-    # may not directly contain a logical payload that a user would
-    # reference, such as would be the case with a payload stager or
-    # stage.  As such, when payload modules are loaded they are handed
-    # off to a special payload set.  The payload set, in turn, will
-    # automatically create all the permutations after all the payload
-    # modules have been loaded.
+	# Called when a module is initially loaded such that it can be categorized
+	# accordingly.
+	#
+	# @param class_or_module [Class<Msf::Module>, ::Module] either a module Class
+	#   or a payload Module.
+	# @param type [String] The module type.
+	# @param reference_name The module reference name.
+	# @param info [Hash{String => Array}] additional information about the module
+	# @option info [Array<String>] 'files' List of paths to the ruby source files
+	#   where +class_or_module+ is defined.
+	# @option info [Array<String>] 'paths' List of module reference names.
+	# @option info [String] 'type' The module type, should match positional
+	#   +type+ argument.
+	# @return [void]
+	def on_module_load(class_or_module, type, reference_name, info={})
+		module_set = module_set_by_type[type]
+		module_set.add_module(class_or_module, reference_name, info)
 
-    if (type != Msf::MODULE_PAYLOAD)
-      # Add the module class to the list of modules and add it to the
-      # type separated set of module classes
-      add_module(mod, name, modinfo)
-    end
+		path = info['files'].first
+		cache_in_memory(
+				class_or_module,
+				:path => path,
+				:reference_name => reference_name,
+				:type => type
+		)
 
-    module_set_by_type[type].add_module(mod, name, modinfo)
-  end
+		# Automatically subscribe a wrapper around this module to the necessary
+		# event providers based on whatever events it wishes to receive.
+		auto_subscribe_module(class_or_module)
+
+		# Notify the framework that a module was loaded
+		framework.events.on_module_load(reference_name, class_or_module)
+	end
 
   protected
 

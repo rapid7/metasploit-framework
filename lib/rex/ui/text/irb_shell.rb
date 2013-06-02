@@ -41,7 +41,11 @@ class IrbShell
 
 		# Trap interrupt
 		old_sigint = trap("SIGINT") do
-			irb.signal_handle
+			begin
+				irb.signal_handle
+			rescue RubyLex::TerminateLineInput
+				irb.eval_input
+			end
 		end
 
 		# Keep processing input until the cows come home...

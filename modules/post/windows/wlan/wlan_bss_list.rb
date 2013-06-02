@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -25,7 +21,6 @@ class Metasploit3 < Msf::Post
 				},
 			'License'       => MSF_LICENSE,
 			'Author'        => ['theLightCosine'],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
@@ -102,8 +97,6 @@ class Metasploit3 < Msf::Post
 		networks = []
 
 		bss_list = @wlanapi.WlanGetNetworkBssList(wlan_handle,guid,nil,3,true,nil,4)
-		print_status(bss_list.inspect)
-
 		pointer = bss_list['ppWlanBssList']
 		totalsize = @host_process.memory.read(pointer,4)
 		totalsize = totalsize.unpack("V")[0]

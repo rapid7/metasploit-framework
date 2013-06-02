@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def has_auth
-		uri = target_uri.path
+		uri = normalize_uri(target_uri.path)
 		uri << '/' if uri[-1, 1] != '/'
 
 		res = send_request_cgi({
@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def try_auth
-		uri = target_uri.path
+		uri = normalize_uri(target_uri.path)
 		uri << '/' if uri[-1, 1] != '/'
 		uri << Rex::Text.rand_text_alpha(rand(10)+5) + ".#{Rex::Text.rand_text_alpha(3)}"
 
@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 		res = send_request_cgi({
 			'uri' => dir,
 			'method' => 'GET',
-			'basic_auth' => "#{user}:#{pass}"
+			'authorization' => basic_auth(user,pass)
 		})
 		vprint_status(res.body) if res
 

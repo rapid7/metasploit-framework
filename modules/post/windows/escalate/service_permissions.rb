@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -12,11 +8,14 @@
 require 'msf/core'
 require 'msf/core/post/windows/services'
 require 'rex'
-require 'msf/core//post/windows/services'
 
 class Metasploit3 < Msf::Post
 
-	include ::Msf::Post::Windows::WindowsServices
+	require 'msf/core/module/deprecated'
+	include Msf::Module::Deprecated
+	deprecated Date.new(2013,1,10), "exploit/windows/local/service_permissions"
+
+	include ::Msf::Post::Windows::Services
 	def initialize(info={})
 		super( update_info( info,
 			'Name'          => 'Windows Escalate Service Permissions Local Privilege Escalation',
@@ -32,7 +31,6 @@ class Metasploit3 < Msf::Post
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'scriptjunkie' ],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
@@ -47,12 +45,6 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		print_error("*********************************************************")
-		print_error("*                                                       *")
-		print_error("*       Module will be depricated on Jan 10 2013        *")
-		print_error("* Please use exploits/windows/local/service_permissions *")
-		print_error("*                                                       *")
-		print_error("*********************************************************")
 		print_status("running")
 
 		lhost = datastore["LHOST"] || Rex::Socket.source_address

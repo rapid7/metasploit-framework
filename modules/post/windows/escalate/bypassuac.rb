@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -14,6 +10,10 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 
+	require 'msf/core/module/deprecated'
+	include Msf::Module::Deprecated
+	deprecated Date.new(2013,1,4), "exploit/windows/local/bypassuac"
+
 	def initialize(info={})
 		super( update_info( info,
 			'Name'          => 'Windows Escalate UAC Protection Bypass',
@@ -24,7 +24,6 @@ class Metasploit3 < Msf::Post
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'David Kennedy "ReL1K" <kennedyd013[at]gmail.com>', 'mitnick' ],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ],
 			'References'    => [
@@ -41,22 +40,10 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		print_error("***********************************************")
-		print_error("*                                             *")
-		print_error("* Module will be depricated on Jan 4 2013     *")
-		print_error("* Please use exploits/windows/local/bypassuac *")
-		print_error("*                                             *")
-		print_error("***********************************************")
 		vuln = false
 		sysinfo = session.sys.config.sysinfo
 		winver = sysinfo["OS"]
-		affected = [ 'Windows Vista', 'Windows 7', 'Windows 2008', 'Windows 8' ]
-		affected.each { |v|
-			if winver.include? v
-				vuln = true
-			end
-		}
-		if not vuln
+		if winver !~ /Windows Vista|Windows 2008|Windows [78]/
 			print_error("#{winver} is not vulnerable.")
 			return
 		end

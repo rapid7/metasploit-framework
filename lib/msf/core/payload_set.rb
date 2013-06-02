@@ -20,11 +20,8 @@ class PayloadSet < ModuleSet
 	# Creates an instance of a payload set which is just a specialized module
 	# set class that has custom handling for payloads.
 	#
-	def initialize(manager)
+	def initialize
 		super(MODULE_PAYLOAD)
-
-		# A reference to the ModuleManager instance
-		self.manager = manager
 
 		# A hash of each of the payload types that holds an array
 		# for all of the associated modules
@@ -74,60 +71,36 @@ class PayloadSet < ModuleSet
 	# of singles, stagers, and stages.
 	#
 	def recalculate
-		# Reset the current hash associations for all non-symbolic modules
-		self.each_pair { |key, v|
-			manager.delete(key) if (v != SymbolicModule)
-		}
+		old_keys = self.keys
+		new_keys = []
 
-		self.delete_if { |k, v|
-			v != SymbolicModule
-		}
-
-		# Initialize a temporary hash
-		_temp = {}
-
-		# Populate the temporary hash
-		_singles.each_pair { |name, op|
-			_temp[name] = op
-		}
 		# Recalculate single payloads
-		_temp.each_pair { |name, op|
+		_singles.each_pair { |name, op|
 			mod, handler = op
 
 			# Build the payload dupe using the determined handler
 			# and module
 			p = build_payload(handler, mod)
 
-			# Sets the modules derived name
-			p.refname = name
-
 			# Add it to the set
 			add_single(p, name, op[5])
+			new_keys.push name
 
 			# Cache the payload's size
 			begin
 				sizes[name] = p.new.size
-
 			# Don't cache generic payload sizes.
 			rescue NoCompatiblePayloadError
 			end
 		}
 
-		# Initialize a temporary hash
-		_temp = {}
-
-		# Populate the temporary hash
-		_stagers.each_pair { |stager_name, op|
-			_temp[stager_name] = op
-		}
 		# Recalculate staged payloads
-		_temp.each_pair { |stager_name, op|
-			mod, handler = op
+		_stagers.each_pair { |stager_name, op|
 			stager_mod, handler, stager_platform, stager_arch, stager_inst = op
 
 			# Walk the array of stages
 			_stages.each_pair { |stage_name, ip|
-				stage_mod, junk, stage_platform, stage_arch, stage_inst = ip
+				stage_mod, _, stage_platform, stage_arch, stage_inst = ip
 
 				# No intersection between platforms on the payloads?
 				if ((stager_platform) and
@@ -179,38 +152,55 @@ class PayloadSet < ModuleSet
 					'files' => op[5]['files'] + ip[5]['files'],
 					'paths' => op[5]['paths'] + ip[5]['paths'],
 					'type'  => op[5]['type']})
+				new_keys.push combined
 
 				# Cache the payload's size
 				sizes[combined] = p.new.size
 			}
 		}
 
+		# Blow away anything that was cached but didn't exist during the
+		# recalculation
+		self.delete_if do |k, v|
+			next if v == SymbolicModule
+			!!(old_keys.include?(k) and not new_keys.include?(k))
+		end
+
 		flush_blob_cache
 	end
 
-	#
 	# This method is called when a new payload module class is loaded up.  For
 	# the payload set we simply create an instance of the class and do some
 	# magic to figure out if it's a single, stager, or stage.  Depending on
 	# which it is, we add it to the appropriate list.
 	#
-	def add_module(pmodule, name, modinfo = nil)
+	# @param payload_module [::Module] The module name.
+	# @param reference_name [String] The module reference name.
+	# @param modinfo [Hash{String => Array}] additional information about the
+	#   module.
+	# @option modinfo [Array<String>] 'files' List of paths to the ruby source
+	#   files where +class_or_module+ is defined.
+	# @option modinfo [Array<String>] 'paths' List of module reference names.
+	# @option modinfo [String] 'type' The module type, should match positional
+	#   +type+ argument.
+	# @return [void]
+	def add_module(payload_module, reference_name, modinfo={})
 
-		if (md = name.match(/^(singles|stagers|stages)#{File::SEPARATOR}(.*)$/))
+		if (md = reference_name.match(/^(singles|stagers|stages)#{File::SEPARATOR}(.*)$/))
 			ptype = md[1]
-			name  = md[2]
+			reference_name  = md[2]
 		end
 
 		# Duplicate the Payload base class and extend it with the module
 		# class that is passed in.  This allows us to inspect the actual
 		# module to see what type it is, and to grab other information for
 		# our own evil purposes.
-		instance = build_payload(pmodule).new
+		instance = build_payload(payload_module).new
 
 		# Create an array of information about this payload module
 		pinfo =
 			[
-				pmodule,
+				payload_module,
 				instance.handler_klass,
 				instance.platform,
 				instance.arch,
@@ -219,26 +209,12 @@ class PayloadSet < ModuleSet
 			]
 
 		# Use the module's preferred alias if it has one
-		name = instance.alias if (instance.alias)
+		reference_name = instance.alias if (instance.alias)
 
 		# Store the module and alias name for this payload.  We
 		# also convey other information about the module, such as
 		# the platforms and architectures it supports
-		payload_type_modules[instance.payload_type][name] = pinfo
-
-		#
-		# Disable sending singles over stagers for now
-		#
-=begin
-		# If the payload happens to be a single, but has no defined
-		# connection, then it can also be staged.  Insert it into
-		# the staged list.
-		if ((instance.payload_type == Payload::Type::Single) and
-		    ((instance.handler_klass == Msf::Handler::None) or
-		     (instance.handler_klass == nil)))
-			payload_type_modules[Payload::Type::Stage][name] = pinfo
-		end
-=end
+		payload_type_modules[instance.payload_type][reference_name] = pinfo
 	end
 
 	#
@@ -276,8 +252,7 @@ class PayloadSet < ModuleSet
 	# returns an instance of that payload.
 	#
 	def find_payload_from_set(set, platform, arch, handler, session, payload_type)
-		set.each do |m|
-			name,mod = m
+		set.each do |name, mod|
 			p = mod.new
 
 			# We can't substitute one generic with another one.
@@ -303,15 +278,14 @@ class PayloadSet < ModuleSet
 	#
 	def add_single(p, name, modinfo)
 		p.framework = framework
+		p.refname = name
+		p.file_path = modinfo['files'][0]
 
 		# Associate this class with the single payload's name
 		self[name] = p
 
 		# Add the singles hash
 		singles[name] = p
-
-		# Add it to the global module set
-		manager.add_module(p, name, modinfo)
 
 		dlog("Built single payload #{name}.", 'core', LEV_2)
 	end
@@ -322,12 +296,11 @@ class PayloadSet < ModuleSet
 	#
 	def add_stage(p, full_name, stage_name, handler_type, modinfo)
 		p.framework = framework
+		p.refname = full_name
+		p.file_path = modinfo['files'][0]
 
 		# Associate this stage's full name with the payload class in the set
 		self[full_name] = p
-
-		# Add the full name association in the global module set
-		manager.add_module(p, full_name, modinfo)
 
 		# Create the hash entry for this stage and then create
 		# the associated entry for the handler type
@@ -365,8 +338,11 @@ class PayloadSet < ModuleSet
 	# it must be removed (if one exists)
 	#
 	def on_module_reload(mod)
-		@blob_cache.delete(mod.refname + "-stg0")
-		@blob_cache.delete(mod.refname + "-stg1")
+		@blob_cache.each_key do |key|
+			if key.start_with? mod.refname
+				@blob_cache.delete(key)
+			end
+		end
 	end
 
 	#
@@ -445,7 +421,7 @@ protected
 		return klass
 	end
 
-	attr_accessor :manager, :payload_type_modules # :nodoc:
+	attr_accessor :payload_type_modules # :nodoc:
 	attr_writer   :stages, :singles, :sizes # :nodoc:
 	attr_accessor :_instances # :nodoc:
 

@@ -1,6 +1,4 @@
-##
-# $Id: drda.rb 14774 2012-02-21 01:42:17Z rapid7 $
-##
+# -*- coding: binary -*-
 
 ##
 # This file is part of the Metasploit Framework and may be subject to
@@ -38,7 +36,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Authentication Capture: DRDA (DB2, Informix, Derby)',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module provides a fake DRDA (DB2, Informix, Derby) server
 			that is designed to capture authentication credentials.

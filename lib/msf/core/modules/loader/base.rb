@@ -58,20 +58,23 @@ class Msf::Modules::Loader::Base
   MODULE_EXTENSION = '.rb'
   # String used to separate module names in a qualified module name.
   MODULE_SEPARATOR = '::'
-  # The base namespace name under which {#namespace_module #namespace_modules} are created.
+  # The base namespace name under which {#create_namespace_module
+  # namespace modules are created}.
   NAMESPACE_MODULE_NAMES = ['Msf', 'Modules']
   # Regex that can distinguish regular ruby source from unit test source.
   UNIT_TEST_REGEX = /rb\.(ut|ts)\.rb$/
 
-  # @param [Msf::ModuleManager] module_manager The module manager that caches the loaded modules.
+  # @param [Msf::ModuleManager] module_manager The module manager that
+  #   caches the loaded modules.
   def initialize(module_manager)
     @module_manager = module_manager
   end
 
   # Returns whether the path can be loaded this module loader.
   #
-  # @abstract Override and determine from properties of the path or the file to which the path points whether it is
-  #   loadable using {#load_modules} for the subclass.
+  # @abstract Override and determine from properties of the path or the
+  #   file to which the path points whether it is loadable using
+  #   {#load_modules} for the subclass.
   #
   # @param path (see #load_modules)
   # @return [Boolean]
@@ -81,22 +84,33 @@ class Msf::Modules::Loader::Base
 
   # Loads a module from the supplied path and module_reference_name.
   #
-  # @param [String] parent_path The path under which the module exists.  This is not necessarily the same path as passed
-  #   to {#load_modules}: it may just be derived from that path.
+  # @param [String] parent_path The path under which the module exists.
+  #   This is not necessarily the same path as passed to
+  #   {#load_modules}: it may just be derived from that path.
   # @param [String] type The type of module.
-  # @param [String] module_reference_name The canonical name for referring to the module.
-  # @param [Hash] options Options used to force loading and track statistics
-  # @option options [Hash{String => Integer}] :count_by_type Maps the module type to the number of module loaded
-  # @option options [Boolean] :force (false) whether to force loading of the module even if the module has not changed.
-  # @option options [Hash{String => Boolean}] :recalculate_by_type Maps type to whether its
-  #   {Msf::ModuleManager::ModuleSets#module_set} needs to be recalculated.
+  # @param [String] module_reference_name The canonical name for
+  #   referring to the module.
+  # @param [Hash] options Options used to force loading and track
+  #   statistics
+  # @option options [Hash{String => Integer}] :count_by_type Maps the
+  #   module type to the number of module loaded
+  # @option options [Boolean] :force (false) whether to force loading of
+  #   the module even if the module has not changed.
+  # @option options [Hash{String => Boolean}] :recalculate_by_type Maps
+  #   type to whether its {Msf::ModuleManager::ModuleSets#module_set}
+  #   needs to be recalculated.
   # @option options [Boolean] :reload (false) whether this is a reload.
+  #
   # @return [false] if :force is false and parent_path has not changed.
-  # @return [false] if exception encountered while parsing module content
-  # @return [false] if the module is incompatible with the Core or API version.
-  # @return [false] if the module does not implement a Metasploit(\d+) class.
+  # @return [false] if exception encountered while parsing module
+  #   content
+  # @return [false] if the module is incompatible with the Core or API
+  #   version.
+  # @return [false] if the module does not implement a Metasploit(\d+)
+  #   class.
   # @return [false] if the module's is_usable method returns false.
-  # @return [true] if all those condition pass and the module is successfully loaded.
+  # @return [true] if all those condition pass and the module is
+  #   successfully loaded.
   #
   # @see #read_module_content
   # @see Msf::ModuleManager::Loading#file_changed?
@@ -121,8 +135,8 @@ class Msf::Modules::Loader::Base
     module_content = read_module_content(parent_path, type, module_reference_name)
 
     if module_content.empty?
-	    # read_module_content is responsible for calling {#load_error}, so just return here.
-	    return false
+      # read_module_content is responsible for calling {#load_error}, so just return here.
+      return false
     end
 
     try_eval_module = lambda { |namespace_module|
@@ -139,9 +153,9 @@ class Msf::Modules::Loader::Base
         begin
           namespace_module.version_compatible!(module_path, module_reference_name)
         rescue Msf::Modules::VersionCompatibilityError => version_compatibility_error
-	        load_error(module_path, version_compatibility_error)
+          load_error(module_path, version_compatibility_error)
         else
-	        load_error(module_path, error)
+          load_error(module_path, error)
         end
 
         return false
@@ -150,17 +164,17 @@ class Msf::Modules::Loader::Base
       begin
         namespace_module.version_compatible!(module_path, module_reference_name)
       rescue Msf::Modules::VersionCompatibilityError => version_compatibility_error
-	      load_error(module_path, version_compatibility_error)
+        load_error(module_path, version_compatibility_error)
 
         return false
       end
 
       begin
-	      metasploit_class = namespace_module.metasploit_class!(module_path, module_reference_name)
+        metasploit_class = namespace_module.metasploit_class!(module_path, module_reference_name)
       rescue Msf::Modules::MetasploitClassCompatibilityError => error
-	      load_error(module_path, error)
+        load_error(module_path, error)
 
-	      return false
+        return false
       end
 
       unless usable?(metasploit_class)
@@ -227,12 +241,15 @@ class Msf::Modules::Loader::Base
 
   # Loads all of the modules from the supplied path.
   #
-  # @note Only paths where {#loadable?} returns true should be passed to this method.
+  # @note Only paths where {#loadable?} returns true should be passed to
+  #   this method.
   #
   # @param [String] path Path under which there are modules
   # @param [Hash] options
-  # @option options [Boolean] force (false) whether to force loading of the module even if the module has not changed.
-  # @return [Hash{String => Integer}] Maps module type to number of modules loaded
+  # @option options [Boolean] force (false) Whether to force loading of
+  #   the module even if the module has not changed.
+  # @return [Hash{String => Integer}] Maps module type to number of
+  #   modules loaded
   def load_modules(path, options={})
     options.assert_valid_keys(:force)
 
@@ -324,7 +341,8 @@ class Msf::Modules::Loader::Base
   # module's classes.  The wrapper module must be named so that active_support's autoloading code doesn't break when
   # searching constants from inside the Metasploit(1|2|3) class.
   #
-  # @param [String] namespace_module_names (see #{namespace_module_names})
+  # @param namespace_module_names [Array<String>]
+  #   {NAMESPACE_MODULE_NAMES} + <derived-constant-safe names>
   # @return [Module] module that can wrap the module content from {#read_module_content} using
   #   module_eval_with_lexical_scope.
   #
@@ -359,7 +377,7 @@ class Msf::Modules::Loader::Base
     namespace_module
   end
 
-  # Returns the module with {#module_names} if it exists.
+  # Returns the module with `module_names` if it exists.
   #
   # @param [Array<String>] module_names a list of module names to resolve from Object downward.
   # @return [Module] module that wraps the previously loaded content from {#read_module_content}.
@@ -396,28 +414,28 @@ class Msf::Modules::Loader::Base
     raise ::NotImplementedError
   end
 
-	# Records the load error to {Msf::ModuleManager::Loading#module_load_error_by_path} and the log.
-	#
-	# @param [String] module_path Path to the module as returned by {#module_path}.
-	# @param [Exception, #class, #to_s, #backtrace] error the error that cause the module not to load.
-	# @return [void]
-	#
-	# @see #module_path
-	def load_error(module_path, error)
-		# module_load_error_by_path does not get the backtrace because the value is echoed to the msfconsole where
-		# backtraces should not appear.
-	  module_manager.module_load_error_by_path[module_path] = "#{error.class} #{error}"
+  # Records the load error to {Msf::ModuleManager::Loading#module_load_error_by_path} and the log.
+  #
+  # @param [String] module_path Path to the module as returned by {#module_path}.
+  # @param [Exception, #class, #to_s, #backtrace] error the error that cause the module not to load.
+  # @return [void]
+  #
+  # @see #module_path
+  def load_error(module_path, error)
+    # module_load_error_by_path does not get the backtrace because the value is echoed to the msfconsole where
+    # backtraces should not appear.
+    module_manager.module_load_error_by_path[module_path] = "#{error.class} #{error}"
 
-		log_lines = []
-	  log_lines << "#{module_path} failed to load due to the following error:"
-		log_lines << error.class.to_s
-		log_lines << error.to_s
-		log_lines << "Call stack:"
-		log_lines += error.backtrace
+    log_lines = []
+    log_lines << "#{module_path} failed to load due to the following error:"
+    log_lines << error.class.to_s
+    log_lines << error.to_s
+    log_lines << "Call stack:"
+    log_lines += error.backtrace
 
-		log_message = log_lines.join("\n")
-		elog(log_message)
-	end
+    log_message = log_lines.join("\n")
+    elog(log_message)
+  end
 
   # @return [Msf::ModuleManager] The module manager for which this loader is loading modules.
   attr_reader :module_manager
@@ -468,35 +486,39 @@ class Msf::Modules::Loader::Base
   # Returns the fully-qualified name to the {#create_namespace_module} that wraps the module with the given module
   # reference name.
   #
-  # @param [String] module_reference_name The canonical name for referring to the module.
+  # @param [String] module_full_name The canonical name for referring to the
+  #   module.
   # @return [String] name of module.
   #
   # @see MODULE_SEPARATOR
   # @see #namespace_module_names
-  def namespace_module_name(uniq_module_reference_name)
-    namespace_module_names = self.namespace_module_names(uniq_module_reference_name)
+  def namespace_module_name(module_full_name)
+    namespace_module_names = self.namespace_module_names(module_full_name)
     namespace_module_name = namespace_module_names.join(MODULE_SEPARATOR)
 
     namespace_module_name
   end
 
-  # Returns an Array of names to make a fully qualified module name to wrap the Metasploit(1|2|3) class so that it
-  # doesn't overwrite other (metasploit) module's classes.  Invalid module name characters are escaped by using 'H*'
-  # unpacking and prefixing each code with X so the code remains a valid module name when it starts with a digit.
+  # Returns an Array of names to make a fully qualified module name to
+  # wrap the Metasploit(1|2|3) class so that it doesn't overwrite other
+  # (metasploit) module's classes.  Invalid module name characters are
+  # escaped by using 'H*' unpacking and prefixing each code with X so
+  # the code remains a valid module name when it starts with a digit.
   #
-  # @param [String] uniq_module_reference_name The unique canonical name for the module including type.
+  # @param [String] module_full_name The unique canonical name
+  #   for the module including type.
   # @return [Array<String>] {NAMESPACE_MODULE_NAMES} + <derived-constant-safe names>
   #
   # @see namespace_module
-  def namespace_module_names(uniq_module_reference_name)
-    NAMESPACE_MODULE_NAMES + [ "Mod" + uniq_module_reference_name.unpack("H*").first.downcase ]
+  def namespace_module_names(module_full_name)
+    NAMESPACE_MODULE_NAMES + [ "Mod" + module_full_name.unpack("H*").first.downcase ]
   end
 
-  def namespace_module_transaction(uniq_module_reference_name, options={}, &block)
+  def namespace_module_transaction(module_full_name, options={}, &block)
     options.assert_valid_keys(:reload)
 
     reload = options[:reload] || false
-    namespace_module_names = self.namespace_module_names(uniq_module_reference_name)
+    namespace_module_names = self.namespace_module_names(module_full_name)
 
     previous_namespace_module = current_module(namespace_module_names)
 
@@ -513,8 +535,9 @@ class Msf::Modules::Loader::Base
     end
 
     namespace_module = create_namespace_module(namespace_module_names)
-    # Get the parent module from the created module so that restore_namespace_module can remove namespace_module's
-    # constant if needed.
+    # Get the parent module from the created module so that
+    # restore_namespace_module can remove namespace_module's constant if
+    # needed.
     parent_module = namespace_module.parent
 
     begin
@@ -557,21 +580,21 @@ class Msf::Modules::Loader::Base
     if parent_module
       # If there is a current module with relative_name
       if parent_module.const_defined?(relative_name)
-	      # if the current value isn't the value to be restored.
-	      if parent_module.const_get(relative_name) != namespace_module
-		      # remove_const is private, so use send to bypass
-		      parent_module.send(:remove_const, relative_name)
+        # if the current value isn't the value to be restored.
+        if parent_module.const_get(relative_name) != namespace_module
+          # remove_const is private, so use send to bypass
+          parent_module.send(:remove_const, relative_name)
 
-		      # if there was a previous module, not set it to the name
-		      if namespace_module
-			      parent_module.const_set(relative_name, namespace_module)
-		      end
-	      end
+          # if there was a previous module, not set it to the name
+          if namespace_module
+            parent_module.const_set(relative_name, namespace_module)
+          end
+        end
       else
-	      # if there was a previous module, but there isn't a current module, then restore the previous module
-	      if namespace_module
-		      parent_module.const_set(relative_name, namespace_module)
-	      end
+        # if there was a previous module, but there isn't a current module, then restore the previous module
+        if namespace_module
+          parent_module.const_set(relative_name, namespace_module)
+        end
       end
     end
   end

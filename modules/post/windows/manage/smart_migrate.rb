@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -24,7 +20,6 @@ class Metasploit3 < Msf::Post
 				and try any other explorer.exe processes it finds},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'thelightcosine'],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
@@ -66,7 +61,7 @@ class Metasploit3 < Msf::Post
 			return true
 		rescue ::Exception => e
 			print_error("Could not migrate in to process.")
-			print_error(e)
+			print_error(e.to_s)
 			return false
 		end
 	end

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -24,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'VMWare Web Login Scanner',
-			'Version'        => '$Revision$',
 			'Description'    => 'This module attempts to authenticate to the VMWare HTTP service
 				for VmWare Server, ESX, and ESXI',
 			'Author'         => ['theLightCosine'],
@@ -81,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			res = send_request_cgi({
-				'uri'     => datastore['URI'],
+				'uri'     => normalize_uri(datastore['URI']),
 				'method'  => 'POST',
 				'agent'   => 'VMware VI Client',
 				'data'    => soap_data

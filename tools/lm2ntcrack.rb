@@ -37,6 +37,27 @@ def usage
 	exit
 end
 
+def permute_pw(pw)
+	# fast permutation from http://stackoverflow.com/a/1398900
+	perms = [""]
+	if pw.nil?
+		return perms
+	end
+	tail = pw.downcase
+	while tail.length > 0 do
+		head, tail, psize = tail[0..0], tail[1..-1], perms.size
+		hu = head.upcase
+		for i in (0...psize)
+			tp = perms[i]
+			perms[i] = tp + hu
+			if hu != head
+				perms.push(tp + head)
+			end
+		end
+	end
+	return perms
+end
+
 type = hash = pass = srvchal = clichal = calculatedhash = list = user = domain = nil
 
 $args = Rex::Parser::Arguments.new(
@@ -128,8 +149,6 @@ when "HALFLM"
 			$stderr.puts "[*] HALFLM HASH must be exactly 16 bytes of hexadecimal"
 			exit
 		end
-		found = false
-		match_password = nil
 		File.open(list,"rb") do |password_list|
 			password_list.each_line do |line|
 				password = line.gsub("\r\n",'').gsub("\n",'')
@@ -137,20 +156,14 @@ when "HALFLM"
 					puts password
 					calculatedhash = CRYPT::lm_hash(password,true).unpack("H*")[0].upcase
 					if calculatedhash == hash.upcase
-						found = true
-						match_password = password
-						break
+						puts "[*] Correct password found : #{password.upcase}"
+						exit
 					end
 				end
 			end
 		end
-		if found
-			puts "[*] Correct password found : #{match_password.upcase}"
-			exit
-		else
-			puts "[*] No password found"
-			exit
-		end
+		puts "[*] No password found"
+		exit
 	when HASH_MODE
 		if not pass =~ /^.{0,7}$/
 			$stderr.puts "[*] LM password can not be bigger then 7 characters"
@@ -185,8 +198,6 @@ when "LM"
 			$stderr.puts "[*] LM HASH must be exactly 32 bytes of hexadecimal"
 			exit
 		end
-		found = false
-		match_password = nil
 		File.open(list,"rb") do |password_list|
 			password_list.each_line do |line|
 				password = line.gsub("\r\n",'').gsub("\n",'')
@@ -194,20 +205,14 @@ when "LM"
 					puts password
 					calculatedhash = CRYPT::lm_hash(password.upcase).unpack("H*")[0].upcase
 					if calculatedhash == hash.upcase
-						found = true
-						match_password = password
-						break
+						puts "[*] Correct password found : #{password.upcase}"
+						exit
 					end
 				end
 			end
 		end
-		if found
-			puts "[*] Correct password found : #{match_password.upcase}"
-			exit
-		else
-			puts "[*] No password found"
-			exit
-		end
+		puts "[*] No password found"
+		exit
 	when HASH_MODE
 		if not pass =~ /^.{0,14}$/
 			$stderr.puts "[*] LM password can not be bigger then 14 characters"
@@ -242,27 +247,21 @@ when "NTLM"
 			$stderr.puts "[*] NTLM HASH must be exactly 32 bytes of hexadecimal"
 			exit
 		end
-		found = false
-		match_password = nil
 		File.open(list,"rb") do |password_list|
 			password_list.each_line do |line|
 				password = line.gsub("\r\n",'').gsub("\n",'')
-				puts password
-				calculatedhash = CRYPT::ntlm_hash(password).unpack("H*")[0].upcase
-				if calculatedhash == hash.upcase
-					found = true
-					match_password = password
-					break
+				for permutedpw in permute_pw(password)
+					puts permutedpw
+					calculatedhash = CRYPT::ntlm_hash(permutedpw).unpack("H*")[0].upcase
+					if calculatedhash == hash.upcase
+						puts "[*] Correct password found : #{permutedpw}"
+						exit
+					end
 				end
 			end
 		end
-		if found
-			puts "[*] Correct password found : #{match_password}"
-			exit
-		else
-			puts "[*] No password found"
-			exit
-		end
+		puts "[*] No password found"
+		exit
 	when HASH_MODE
 		calculatedhash = CRYPT::ntlm_hash(pass).unpack("H*")[0].upcase
 		puts "[*] The NTLM hash for #{pass} is  : #{calculatedhash}"
@@ -272,14 +271,14 @@ when "NTLM"
 			$stderr.puts "[*] NTLM HASH must be exactly 32 bytes of hexadecimal"
 			exit
 		end
-		calculatedhash = CRYPT::ntlm_hash(pass).unpack("H*")[0].upcase
-		if hash.upcase == calculatedhash
-			puts "[*] Correct password provided : #{pass}"
-			exit
-		else
-			puts "[*] Incorrect password provided : #{pass}"
-			exit
+		for permutedpw in permute_pw(pass)
+			calculatedhash = CRYPT::ntlm_hash(permutedpw).unpack("H*")[0].upcase
+			if hash.upcase == calculatedhash
+				puts "[*] Correct password provided : #{permutedpw}"
+				exit
+			end
 		end
+		puts "[*] Incorrect password provided : #{pass}"
 	end
 when  "HALFNETLMv1"
 	case mode
@@ -296,8 +295,6 @@ when  "HALFNETLMv1"
 			$stderr.puts "[*] Server challenge must be exactly 16 bytes of hexadecimal"
 			exit
 		end
-		found = false
-		match_password = nil
 		File.open(list,"rb") do |password_list|
 			password_list.each_line do |line|
 				password = line.gsub("\r\n",'').gsub("\n",'')
@@ -308,20 +305,14 @@ when  "HALFNETLMv1"
 							:challenge => [ srvchal ].pack("H*") }
 					calculatedhash = CRYPT::lm_response(arglm,true).unpack("H*")[0].upcase
 					if calculatedhash == hash.upcase
-						found = true
-						match_password = password
-						break
+						puts "[*] Correct password found : #{password.upcase}"
+						exit
 					end
 				end
 			end
 		end
-		if found
-			puts "[*] Correct password found : #{match_password.upcase}"
-			exit
-		else
-			puts "[*] No password found"
-			exit
-		end
+		puts "[*] No password found"
+		exit
 	when HASH_MODE
 		if not pass =~ /^.{0,7}$/
 			$stderr.puts "[*] HALFNETLMv1 password can not be bigger then 7 characters"
@@ -386,8 +377,6 @@ when  "NETLMv1"
 			$stderr.puts "[*] Server challenge must be exactly 16 bytes of hexadecimal"
 			exit
 		end
-		found = false
-		match_password = nil
 		File.open(list,"rb") do |password_list|
 			password_list.each_line do |line|
 				password = line.gsub("\r\n",'').gsub("\n",'')
@@ -397,20 +386,14 @@ when  "NETLMv1"
 							:challenge => [ srvchal ].pack("H*") }
 					calculatedhash = CRYPT::lm_response(arglm).unpack("H*")[0].upcase
 					if calculatedhash == hash.upcase
-						found = true
-						match_password = password
-						break
+						puts "[*] Correct password found : #{password.upcase}"
+						exit
 					end
 				end
 			end
 		end
-		if found
-			puts "[*] Correct password found : #{match_password.upcase}"
-			exit
-		else
-			puts "[*] No password found"
-			exit
-		end
+		puts "[*] No password found"
+		exit
 	when HASH_MODE
 		if not pass =~ /^.{1,14}$/
 			$stderr.puts "[*] NETLMv1 password can not be bigger then 14 characters"
@@ -474,29 +457,23 @@ when "NETNTLMv1"
 			$stderr.puts "[*] Server challenge must be exactly 16 bytes of hexadecimal"
 			exit
 		end
-		found = false
-		match_password = nil
 		File.open(list,"rb") do |password_list|
 			password_list.each_line do |line|
 			password = line.gsub("\r\n",'').gsub("\n",'')
-			puts password
-			argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(password),
-					:challenge => [ srvchal ].pack("H*") }
-			calculatedhash = CRYPT::ntlm_response(argntlm).unpack("H*")[0].upcase
-				if calculatedhash == hash.upcase
-					found = true
-					match_password = password
-					break
+			for permutedpw in permute_pw(password)
+				puts permutedpw
+				argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(permutedpw),
+						:challenge => [ srvchal ].pack("H*") }
+				calculatedhash = CRYPT::ntlm_response(argntlm).unpack("H*")[0].upcase
+					if calculatedhash == hash.upcase
+						puts "[*] Correct password found : #{permutedpw}"
+						exit
+					end
 				end
 			end
 		end
-		if found
-			puts "[*] Correct password found : #{match_password}"
-			exit
-		else
-			puts "[*] No password found"
-			exit
-		end
+		puts "[*] No password found"
+		exit
 	when HASH_MODE
 		if not srvchal
 			$stderr.puts "[*] Server challenge must be provided with this type"
@@ -524,17 +501,18 @@ when "NETNTLMv1"
 			$stderr.puts "[*] Server challenge must be exactly 16 bytes of hexadecimal"
 			exit
 		end
-		argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(pass),
-				:challenge => [ srvchal ].pack("H*") }
+		for permutedpw in permute_pw(pass)
+			argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(permutedpw),
+					:challenge => [ srvchal ].pack("H*") }
 
-		calculatedhash = CRYPT::ntlm_response(argntlm).unpack("H*")[0].upcase
-		if hash.upcase == calculatedhash
-			puts "[*] Correct password provided : #{pass}"
-			exit
-		else
-			puts "[*] Incorrect password provided : #{pass}"
-			exit
+			calculatedhash = CRYPT::ntlm_response(argntlm).unpack("H*")[0].upcase
+			if hash.upcase == calculatedhash
+				puts "[*] Correct password provided : #{permutedpw}"
+				exit
+			end
 		end
+		puts "[*] Incorrect password provided : #{pass}"
+		exit
 	end
 when  "NETNTLM2_SESSION"
 	case mode
@@ -560,32 +538,26 @@ when  "NETNTLM2_SESSION"
 			exit
 		end
 
-		found = false
-		match_password = nil
 		File.open(list,"rb") do |password_list|
 			password_list.each_line do |line|
 				password = line.gsub("\r\n",'').gsub("\n",'')
-				puts password
-				argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(password),
-						:challenge => [ srvchal ].pack("H*") }
-				optntlm = {	:client_challenge => [ clichal ].pack("H*")}
+				for permutedpw in permute_pw(password)
+					puts permutedpw
+					argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(permutedpw),
+							:challenge => [ srvchal ].pack("H*") }
+					optntlm = {	:client_challenge => [ clichal ].pack("H*")}
 
-				calculatedhash = CRYPT::ntlm2_session(argntlm,optntlm).join[24,24].unpack("H*")[0].upcase
+					calculatedhash = CRYPT::ntlm2_session(argntlm,optntlm).join[24,24].unpack("H*")[0].upcase
 
-				if calculatedhash == hash.upcase
-					found = true
-					match_password = password
-					break
+					if calculatedhash == hash.upcase
+						puts "[*] Correct password found : #{permutedpw}"
+						exit
+					end
 				end
 			end
 		end
-		if found
-			puts "[*] Correct password found : #{match_password}"
-			exit
-		else
-			puts "[*] No password found"
-			exit
-		end
+		puts "[*] No password found"
+		exit
 	when HASH_MODE
 		if not srvchal
 			$stderr.puts "[*] Server challenge must be provided with this type"
@@ -631,19 +603,20 @@ when  "NETNTLM2_SESSION"
 			$stderr.puts "[*] Client challenge must be exactly 16 bytes of hexadecimal"
 			exit
 		end
-		argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(pass),
-				:challenge => [ srvchal ].pack("H*") }
-		optntlm = {	:client_challenge => [ clichal ].pack("H*")}
+		for permutedpw in permute_pw(pass)
+			argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(permutedpw),
+					:challenge => [ srvchal ].pack("H*") }
+			optntlm = {	:client_challenge => [ clichal ].pack("H*")}
 
-		calculatedhash = CRYPT::ntlm2_session(argntlm,optntlm).join[24,24].unpack("H*")[0].upcase
+			calculatedhash = CRYPT::ntlm2_session(argntlm,optntlm).join[24,24].unpack("H*")[0].upcase
 
-		if hash.upcase == calculatedhash
-			puts "[*] Correct password provided : #{pass}"
-			exit
-		else
-			puts "[*] Incorrect password provided : #{pass}"
-			exit
+			if hash.upcase == calculatedhash
+				puts "[*] Correct password provided : #{permutedpw}"
+				exit
+			end
 		end
+		puts "[*] Incorrect password provided : #{pass}"
+		exit
 	end
 when  "NETLMv2"
 	case mode
@@ -677,8 +650,6 @@ when  "NETLMv2"
 			exit
 		end
 
-		found = false
-		match_password = nil
 		File.open(list,"rb") do |password_list|
 			password_list.each_line do |line|
 				password = line.gsub("\r\n",'').gsub("\n",'')
@@ -688,19 +659,13 @@ when  "NETLMv2"
 				optlm = {	:client_challenge => [ clichal ].pack("H*")}
 				calculatedhash = CRYPT::lmv2_response(arglm, optlm).unpack("H*")[0].upcase
 				if calculatedhash.slice(0,32) == hash.upcase
-					found = true
-					match_password = password
-					break
+					puts "[*] Correct password found : #{password}"
+					exit
 				end
 			end
 		end
-		if found
-			puts "[*] Correct password found : #{match_password}"
-			exit
-		else
-			puts "[*] No password found"
-			exit
-		end
+		puts "[*] No password found"
+		exit
 	when HASH_MODE
 		if not srvchal
 			$stderr.puts "[*] Server challenge must be provided with this type"
@@ -808,31 +773,25 @@ when "NETNTLMv2"
 			exit
 		end
 
-		found = false
-		match_password = nil
 		File.open(list,"rb") do |password_list|
 			password_list.each_line do |line|
 				password = line.gsub("\r\n",'').gsub("\n",'')
-				puts password
-				argntlm = { 	:ntlmv2_hash =>  CRYPT::ntlmv2_hash(user, password, domain),
-						:challenge => [ srvchal ].pack("H*") }
-				optntlm = { 	:nt_client_challenge => [ clichal ].pack("H*")}
-				calculatedhash = CRYPT::ntlmv2_response(argntlm,optntlm).unpack("H*")[0].upcase
+				for permutedpw in permute_pw(password)
+					puts permutedpw
+					argntlm = { 	:ntlmv2_hash =>  CRYPT::ntlmv2_hash(user, permutedpw, domain),
+							:challenge => [ srvchal ].pack("H*") }
+					optntlm = { 	:nt_client_challenge => [ clichal ].pack("H*")}
+					calculatedhash = CRYPT::ntlmv2_response(argntlm,optntlm).unpack("H*")[0].upcase
 
-				if calculatedhash.slice(0,32) == hash.upcase
-					found = true
-					match_password = password
-					break
+					if calculatedhash.slice(0,32) == hash.upcase
+						puts "[*] Correct password found : #{password}"
+						exit
+					end
 				end
 			end
 		end
-		if found
-			puts "[*] Correct password found : #{match_password}"
-			exit
-		else
-			puts "[*] No password found"
-			exit
-		end
+		puts "[*] No password found"
+		exit
 	when HASH_MODE
 		if not srvchal
 			$stderr.puts "[*] Server challenge must be provided with this type"
@@ -896,18 +855,19 @@ when "NETNTLMv2"
 			exit
 		end
 
-		argntlm = { 	:ntlmv2_hash =>  CRYPT::ntlmv2_hash(user, pass, domain),
-				:challenge => [ srvchal ].pack("H*") }
-		optntlm = { 	:nt_client_challenge => [ clichal ].pack("H*")}
-		calculatedhash = CRYPT::ntlmv2_response(argntlm,optntlm).unpack("H*")[0].upcase
+		for permutedpw in permute_pw(password)
+			argntlm = { 	:ntlmv2_hash =>  CRYPT::ntlmv2_hash(user, permutedpw, domain),
+					:challenge => [ srvchal ].pack("H*") }
+			optntlm = { 	:nt_client_challenge => [ clichal ].pack("H*")}
+			calculatedhash = CRYPT::ntlmv2_response(argntlm,optntlm).unpack("H*")[0].upcase
 
-		if hash.upcase == calculatedhash.slice(0,32)
-			puts "[*] Correct password provided : #{pass}"
-			exit
-		else
-			puts "[*] Incorrect password provided : #{pass}"
-			exit
+			if hash.upcase == calculatedhash.slice(0,32)
+				puts "[*] Correct password provided : #{permutedpw}"
+				exit
+			end
 		end
+		puts "[*] Incorrect password provided : #{pass}"
+		exit
 	end
 else
 	$stderr.puts "type must be of type : HALFLM/LM/NTLM/HALFNETLMv1/NETLMv1/NETNTLMv1/NETNTLM2_SESSION/NETLMv2/NETNTLMv2"

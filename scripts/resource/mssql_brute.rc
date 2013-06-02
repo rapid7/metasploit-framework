@@ -1,5 +1,10 @@
 <ruby>
 
+#
+# Reference:
+# http://carnal0wnage.attackresearch.com/2013/01/mssql-brute-forcing-with-resource.html
+#
+
 hosts = []
 
 begin

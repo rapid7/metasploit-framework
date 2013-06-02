@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -25,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 				This module scans for commonly found SAP Internet Communication Manager URLs
 				and outputs return codes for the user.
 			},
-			'Version'         => '$Revision$',
 			'Author'          => [ 'Chris John Riley' ],
 			'References'      =>
 				[
@@ -131,7 +126,7 @@ class Metasploit3 < Msf::Auxiliary
 			when res.code == 301, res.code == 302
 				print_good("#{rhost}:#{rport} #{url} - redirected (#{res.code}) to #{res.headers['Location']} (not following)")
 			else
-				print_status("#{rhost}:#{rport} - unhandle response code #{res.code}")
+				vprint_status("#{rhost}:#{rport} - unhandle response code #{res.code}")
 			end
 
 		else

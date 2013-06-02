@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-##
-# $Id$
-##
 
 require 'msf/base'
 
@@ -24,6 +21,8 @@ module Buffer
 	def self.transform(buf, fmt = "ruby")
 		case fmt
 			when 'raw'
+			when 'python', 'py'
+				buf = Rex::Text.to_python(buf)
 			when 'ruby', 'rb'
 				buf = Rex::Text.to_ruby(buf)
 			when 'perl', 'pl'
@@ -52,7 +51,7 @@ module Buffer
 	def self.comment(buf, fmt = "ruby")
 		case fmt
 			when 'raw'
-			when 'ruby', 'rb'
+			when 'ruby', 'rb', 'python', 'py'
 				buf = Rex::Text.to_ruby_comment(buf)
 			when 'perl', 'pl'
 				buf = Rex::Text.to_perl_comment(buf)
@@ -75,7 +74,7 @@ module Buffer
 	# Returns the list of supported formats
 	#
 	def self.transform_formats
-		['raw','ruby','rb','perl','pl','bash','sh','c','js_be','js_le','java']
+		['raw','ruby','rb','perl','pl','bash','sh','c','js_be','js_le','java','python','py']
 	end
 
 end
