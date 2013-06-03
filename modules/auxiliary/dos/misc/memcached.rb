@@ -21,11 +21,11 @@ class Metasploit3 < Msf::Auxiliary
 				This module sends a specially-crafted packet to cause a
 				segmentation fault in memcached v1.4.15 or earlier versions.
 			},
-
 			'References' =>
 				[
 					[ 'URL', 'https://code.google.com/p/memcached/issues/detail?id=192' ],
 					[ 'CVE', '2011-4971' ],
+					[ 'OSVDB', '92867' ]
 				],
 			'Author'       => [ 'Gregory Man <man.gregory[at]gmail.com>' ],
 			'License'      => MSF_LICENSE
