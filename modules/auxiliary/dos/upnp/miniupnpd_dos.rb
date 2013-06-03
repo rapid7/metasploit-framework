@@ -14,12 +14,11 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'						=>	'MiniUPnPd < 1,4 denial of service (DoS) exploit',
+			'Name'						=>	'MiniUPnPd 1.4 Denial of Service (DoS) Exploit',
 			'Description'		 =>
 				%q{
 					This module allows remote attackers to cause a denial of service in MiniUPnP 1.0
-					server via specifically crafted UDP request. This vulnerability was identified
-					as CVE-2013-0229.
+					server via specifically crafted UDP request.
 				},
 			'Author'					=> [ 'Dejan Lukan' ],
 			'License'				 => MSF_LICENSE,
@@ -28,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 				[ 'CVE', '2013-0229' ],
 				[ 'OSVDB', '89625' ],
 			],
-			'DisclosureData'	 => 'Mar 27 2013',
+			'DisclosureDate'	 => 'Mar 27 2013',
 		))
 
 		register_options(
