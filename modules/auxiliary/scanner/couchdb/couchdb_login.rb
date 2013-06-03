@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'CouchDB Login Utility',
 			'Description'    => %{
-				This module will test CouchDB logins on a range of
+				This module tests CouchDB logins on a range of
 				machines and report successful logins.
 			},
 			'Author'         =>

@@ -18,8 +18,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'          => 'Memcached Remote Denial of Service',
 			'Description'   => %q{
-				This module send specially-crafted packet causing a
-				segmentation fault in memcached  v1.4.15 or earlier versions.
+				This module sends a specially-crafted packet to cause a
+				segmentation fault in memcached v1.4.15 or earlier versions.
 			},
 
 			'References' =>
