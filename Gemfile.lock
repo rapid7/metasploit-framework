@@ -23,7 +23,7 @@ GEM
     i18n (0.6.1)
     json (1.7.7)
     metaclass (0.0.1)
-    metasploit_data_models (0.15.2)
+    metasploit_data_models (0.16.0)
       activerecord (>= 3.2.13)
       activesupport
       pg
