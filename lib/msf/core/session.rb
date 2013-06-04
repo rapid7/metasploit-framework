@@ -270,6 +270,9 @@ module Session
 		self.user_output = m.user_output if m.user_output
 		self.exploit_uuid = m.uuid
 		self.exploit = m
+    if m[:task]
+      self.exploit_task = m[:task]
+    end
 	end
 
 	#
@@ -365,6 +368,10 @@ module Session
 	# The datastore of the exploit that created this session
 	#
 	attr_accessor :exploit_datastore
+  #
+  # The task that ran the exploit that got the session (that swallowed the fly)
+  #
+  attr_accessor :exploit_task
 	#
 	# The specific identified session info
 	#

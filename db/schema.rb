@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130531144949) do
+ActiveRecord::Schema.define(:version => 20130604145732) do
 
   create_table "api_keys", :force => true do |t|
     t.text     "token"
@@ -436,6 +436,13 @@ ActiveRecord::Schema.define(:version => 20130531144949) do
   create_table "task_services", :force => true do |t|
     t.integer  "task_id",    :null => false
     t.integer  "service_id", :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  create_table "task_sessions", :force => true do |t|
+    t.integer  "task_id",    :null => false
+    t.integer  "session_id", :null => false
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
