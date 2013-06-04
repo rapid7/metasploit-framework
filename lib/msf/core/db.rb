@@ -786,7 +786,7 @@ class DBManager
 		s = ::Mdm::Session.new(sess_data)
 		s.save!
 
-    if session.exploit_task and session.exploit_task.record
+    if session and session.exploit_task and session.exploit_task.record
       session_task =  session.exploit_task.record
       if session_task.class == Mdm::Task
         Mdm::TaskSession.create(:task => session_task, :session => s )
