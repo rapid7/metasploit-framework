@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Auxiliary
 				},
 			'Author'					=> [ 'Dejan Lukan' ],
 			'License'				 => MSF_LICENSE,
-			'Version'				 => '$Revision: 9999 $',
 			'References'			=> [
 				[ 'CVE', '2013-0229' ],
 				[ 'OSVDB', '89625' ],
@@ -60,26 +59,3 @@ class Metasploit3 < Msf::Auxiliary
 		disconnect_udp
 	end
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
