@@ -38,10 +38,10 @@ class Metasploit3 < Msf::Post
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         =>
-						[
-											'bannedit',
-											'xard4s' # added decryption support
-						],
+				[
+						'bannedit',
+						'xard4s' # added decryption support
+				],
 			'Platform'       => ['win', 'linux', 'bsd', 'unix', 'osx'],
 			'SessionTypes'   => ['meterpreter', 'shell' ]
 		))
