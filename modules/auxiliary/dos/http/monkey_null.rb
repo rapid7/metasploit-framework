@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 			'License'        => MSF_LICENSE,
 			'References'     =>
 				[
-					['CVE' => '2013-3724'],
+					['CVE', '2013-3724'],
 				],
 			'DisclosureDate' => 'May 25 2013'))
 
