@@ -27,7 +27,9 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'References' =>
 				[
-					['CVE', '2013-1081']
+					['CVE', '2013-1081'],
+					['OSVDB', '91119'],
+					['URL', 'http://www.novell.com/support/kb/doc.php?id=7011895']
 				],
 			'License' => MSF_LICENSE
 		)
