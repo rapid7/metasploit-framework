@@ -48,11 +48,12 @@ class Metasploit3 < Msf::Auxiliary
 				raise ::Rex::ConnectionTimeout
 			end
 		rescue ::Rex::ConnectionTimeout
+			res = ''
 			print_good("Monkey server is down!")
 		ensure
 			disconnect
 		end
-		return res
+		res
 	end
 
 	def run
