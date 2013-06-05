@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					['CVE' => '2013-3724'],
 				],
-			'DisclosureDate' => 'May 25, 2013'))
+			'DisclosureDate' => 'May 25 2013'))
 
 		register_options(
 			[
