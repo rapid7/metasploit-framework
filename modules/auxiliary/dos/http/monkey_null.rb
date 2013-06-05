@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %q{
 				Sending a request containing null bytes causes a
 			thread to crash.  If you crash all of the threads,
-			the server becomes useless.  Affects version 1.1.1.
+			the server becomes useless.  Affects versions <= 1.2.0.
 			},
 			'Author'         =>
 				[
