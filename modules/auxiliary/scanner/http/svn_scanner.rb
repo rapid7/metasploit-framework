@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("[#{target_host}] NOT Found. #{tpath} #{res.code}")
 				end
 			else
-				print_status("[#{target_host}] SVN Entries file found.")
+				print_good("[#{target_host}:#{rport}] SVN Entries file found.")
 
 				report_web_vuln(
 					:host	=> target_host,
