@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name' => 'Novell Zenworks Mobile Device Managment Admin Credentials ',
+			'Name' => 'Novell Zenworks Mobile Device Managment Admin Credentials',
 			'Description' => %q{
 				This module attempts to pull the administrator credentials from
 				a vulnerable Novell Zenworks MDM server.
