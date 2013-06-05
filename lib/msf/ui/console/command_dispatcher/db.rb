@@ -954,7 +954,7 @@ class Db
 					orderlist = []
 					sort_terms.each do |term|
 						term = "ntype" if term == "type"
-						term = "created_at" if term == "time"
+						term = "created_at" if term == "Time"
 						if term == nil
 							orderlist << ""
 						elsif term == "service"
