@@ -27,8 +27,8 @@ opts.parse(args) { |opt, idx, val|
 	when "-h"
 		print_line("")
 		print_line("USAGE:")
-		print_line("EXAMPLE: run process_dump putty.exe")
-		print_line("EXAMPLE: run process_dump -p 1234")
+		print_line("EXAMPLE: run process_memdump putty.exe")
+		print_line("EXAMPLE: run process_memdump -p 1234")
 		print_line(opts.usage)
 		raise Rex::Script::Completed
 	when "-p"
