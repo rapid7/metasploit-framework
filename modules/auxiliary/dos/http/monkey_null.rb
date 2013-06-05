@@ -79,6 +79,7 @@ class Metasploit3 < Msf::Auxiliary
 			rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 				print_status("Couldn't connect to #{rhost}:#{rport}.")
 			rescue ::Timeout::Error, ::Errno::EPIPE
+				print_status("Timeout error connecting to #{rhost}:#{rport}.")
 			end
 		end
 	end
