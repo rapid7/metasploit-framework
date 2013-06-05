@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 			'License'        => MSF_LICENSE,
 			'References'     =>
 				[
-					['URL' => 'http://monkey-project.com'],
+					['CVE' => '2013-3724'],
 				],
 			'DisclosureDate' => 'May 25, 2013'))
 
