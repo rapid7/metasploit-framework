@@ -1,8 +1,4 @@
 ##
-# $Id: smtp_enum.rb 14774 2012-02-21 01:42:17Z rapid7 $
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -21,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMTP User Enumeration Utility',
-			'Version'     => '$Revision: 14774 $',
 			'Description' => %q{
 				The SMTP service has two internal commands that allow the enumeration
 				of users: VRFY (confirming the names of valid users) and EXPN (which
@@ -58,10 +53,6 @@ class Metasploit3 < Msf::Auxiliary
 		deregister_options('MAILTO','MAILFROM')
 	end
 
-	def target
-		"#{rhost}:#{rport}"
-	end
-
 	def smtp_send(data=nil)
 		begin
 			result=''
@@ -74,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 		rescue Rex::ConnectionError, Errno::ECONNRESET, ::EOFError
 			return result, code
 		rescue ::Exception => e
-			print_error("#{target} Error smtp_send: '#{e.class}' '#{e}' '#{e.backtrace}'")
+			print_error("#{rhost}:#{rport} Error smtp_send: '#{e.class}' '#{e}'")
 			return nil, 0
 		end
 	end
@@ -92,16 +83,16 @@ class Metasploit3 < Msf::Auxiliary
 		connect
 		result, code = smtp_send(cmd)
 
-		if(not result or result == nil)
-			print_error("#{target} Connection but no data...skipping")
+		if(not result)
+			print_error("#{rhost}:#{rport} Connection but no data...skipping")
 			return
 		end
 		banner.chomp! if (banner)
 		if(banner =~ /microsoft/i and datastore['UNIXONLY'])
-			print_status("#{target} Skipping microsoft (#{banner})")
+			print_status("#{rhost}:#{rport} Skipping microsoft (#{banner})")
 			return
 		elsif(banner)
-			print_status("#{target} Banner: #{banner}")
+			print_status("#{rhost}:#{rport} Banner: #{banner}")
 		end
 			
 		domain = result.split()[1]
@@ -111,13 +102,13 @@ class Metasploit3 < Msf::Auxiliary
 		vprint_status("#{ip}:#{rport} Domain Name: #{domain}")
 
 		result, code = smtp_send("VRFY root\r\n")
-		vrfy = false						if (code != 250)
+		vrfy = (code == 250)
 		users_found = do_enum('VRFY', usernames)		if (vrfy)
 
 		if(users_found.empty?)
 		# VRFY failed, lets try EXPN
 			result, code = smtp_send("EXPN root\r\n")
-			expn = false					if (code != 250)
+			expn = (code == 250)
 			users_found = do_enum('EXPN', usernames)	if(expn)
 		end
 
@@ -128,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
 				user = Rex::Text.rand_text_alpha(8)
 				result, code = smtp_send("RCPT TO: #{user}\@#{domain}\r\n")
 				if(code >= 250 and code <= 259)
-					vprint_status("#{target} RCPT TO: Allowed for random user (#{user})...not reliable? #{code} '#{result}'")
+					vprint_status("#{rhost}:#{rport} RCPT TO: Allowed for random user (#{user})...not reliable? #{code} '#{result}'")
 					rcpt = false
 				else
 					smtp_send("RSET\r\n")
@@ -140,7 +131,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if(not vrfy and not expn and not rcpt)
-			print_status("#{target} could not be enumerated (no EXPN, no VRFY, invalid RCPT)")
+			print_status("#{rhost}:#{rport} could not be enumerated (no EXPN, no VRFY, invalid RCPT)")
 			return
 		end
 		finish_host(users_found)
@@ -148,16 +139,15 @@ class Metasploit3 < Msf::Auxiliary
 
 		rescue Rex::ConnectionError, Errno::ECONNRESET, Rex::ConnectionTimeout, EOFError, Errno::ENOPROTOOPT
 		rescue ::Exception => e
-			print_error( (e.to_str == 'execution expired') ? "Error: #{target} Execution expired" : "Error: #{target} '#{e.class}' '#{e}' '#{e.backtrace}'")
+			print_error("Error: #{rhost}:#{rport} '#{e.class}' '#{e}'")
 	end
 
 	def finish_host(users_found)
-		ip, port = target.split(':')
 		if users_found and not users_found.empty?
-			print_good("#{target} Users found: #{users_found.sort.join(", ")}")
+			print_good("#{rhost}:#{rport} Users found: #{users_found.sort.join(", ")}")
 			report_note(
-				:host => ip,
-				:port => port,
+				:host => rhost,
+				:port => rport,
 				:type => 'smtp.users',
 				:data => {:users =>  users_found.join(", ")}
 			)
@@ -165,14 +155,14 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def kiss_and_make_up(cmd)
-		vprint_status("#{target} SMTP server annoyed...reconnecting and saying HELO again...")
+		vprint_status("#{rhost}:#{rport} SMTP server annoyed...reconnecting and saying HELO again...")
 		disconnect
 		connect
 		smtp_send("HELO localhost\r\n")
 		result, code = smtp_send("#{cmd}")
 		result.chomp!
 		cmd.chomp!
-		vprint_status("#{target} - SMTP - Re-trying #{cmd} received #{code} '#{result}'")
+		vprint_status("#{rhost}:#{rport} - SMTP - Re-trying #{cmd} received #{code} '#{result}'")
 		return result,code
 	end
 
@@ -182,10 +172,10 @@ class Metasploit3 < Msf::Auxiliary
 		usernames.each {|user|
 			next if user.downcase == 'root'
 			result, code = smtp_send("#{cmd} #{user}\r\n")
-			vprint_status("#{target} - SMTP - Trying #{cmd} #{user} received #{code} '#{result}'")
+			vprint_status("#{rhost}:#{rport} - SMTP - Trying #{cmd} #{user} received #{code} '#{result}'")
 			result, code = kiss_and_make_up("#{cmd} #{user}\r\n") if(code == 0 and result.to_s == '')
 			if(code == 250)
-				vprint_status("#{target} - Found user: #{user}")
+				vprint_status("#{rhost}:#{rport} - Found user: #{user}")
 				users.push(user)
 			end
 		}
@@ -196,7 +186,7 @@ class Metasploit3 < Msf::Auxiliary
 		users = []
 		usernames.each {|user|
 			next if user.downcase == 'root'
-			vprint_status("#{target} - SMTP - Trying MAIL FROM: root\@#{domain} / RCPT TO: #{user}...")
+			vprint_status("#{rhost}:#{rport} - SMTP - Trying MAIL FROM: root\@#{domain} / RCPT TO: #{user}...")
 			result, code = smtp_send("MAIL FROM: root\@#{domain}\r\n")
 			result, code = kiss_and_make_up("MAIL FROM: root\@#{domain}\r\n") if(code == 0 and result.to_s == '')
 
@@ -208,11 +198,11 @@ class Metasploit3 < Msf::Auxiliary
 				end
 
 				if(code == 250)
-					vprint_status("#{target} - Found user: #{user}")
+					vprint_status("#{rhost}:#{rport} - Found user: #{user}")
 					users.push(user)
 				end
 			else
-				vprint_status("#{target} MAIL FROM: #{user} NOT allowed during brute...aborting ( '#{code}' '#{result}')")
+				vprint_status("#{rhost}:#{rport} MAIL FROM: #{user} NOT allowed during brute...aborting ( '#{code}' '#{result}')")
 				break
 			end
 			smtp_send("RSET\r\n")
