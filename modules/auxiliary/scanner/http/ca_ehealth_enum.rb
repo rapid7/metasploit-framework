@@ -17,10 +17,11 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Scanner
 
 	#
-  	# CONSTANTS
-  	#
+	# CONSTANTS
 	# Used in to check if remote is eHealth
-  	EHEALTH_REGEXP = /Welcome to the CA <i>e<\/i>Health<sup><font size=4>&reg/
+	#
+
+	EHEALTH_REGEXP = /Welcome to the CA <i>e<\/i>Health<sup><font size=4>&reg/
 
 	def initialize(info={})
 		super(update_info(info,
