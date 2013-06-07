@@ -9,25 +9,24 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::Exploit::Remote::HttpClient
-  include Msf::Auxiliary::Report
+	include Msf::Exploit::Remote::HttpClient
+	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::AuthBrute
 	include Msf::Auxiliary::Scanner
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'           => 'RFCode Reader Web interface Login Utility',
+			'Name'           => 'RFCode Reader Web Interface Login Utility',
 			'Description'    => %{
 				This module simply attempts to login to a RFCode Reader web interface. Please note that
-				by default there is no authentication. In such a case, password brute force will not be performed. 
-				If there is authentication configured, the module will attempt to find valid login credentials and 
-        			capture device information.
+				by default there is no authentication. In such a case, password brute force will not be performed.
+				If there is authentication configured, the module will attempt to find valid login credentials and
+				capture device information.
 			},
 			'Author'         =>
 				[
 					'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
 				],
-			'Version'	 => '1.0',
 			'License'	 => MSF_LICENSE
 
 		))
@@ -45,7 +44,6 @@ class Metasploit3 < Msf::Auxiliary
 	# Identify logged in user: /rfcode_reader/api/whoami.json?_dc=1369680704481
 	# Capture list of users: /rfcode_reader/api/userlist.json?_dc=1370353972710
 	# Interface configuration: /rfcode_reader/api/interfacestatus.json?_dc=1369678668067
-	# Network configuration: /rfcode_reader/api/netconfigstatus.json?_dc=1369678669208
 	#
 
 	def run_host(ip)
@@ -146,25 +144,28 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 
 			res = send_request_cgi(
-                        {
-                                'uri'       => '/rfcode_reader/api/version.json?_dc=1370460180056',
-                                'method'    => 'GET',
-                                'authorization' => basic_auth(user,pass)
-                        })
+			{
+				'uri'       => '/rfcode_reader/api/version.json?_dc=1370460180056',
+				'method'    => 'GET',
+				'authorization' => basic_auth(user,pass)
+			})
 
-                        print_good("Collecting device platform info...")
-                        print_good(res.body)
+			release_ver = JSON.parse(res.body)["release"]
+			product_name = JSON.parse(res.body)["product"]
+
+			vprint_status("Collecting device platform info...")
+			print_good("Release version: '#{release_ver}', Product Name: '#{product_name}'")
 
 			res = send_request_cgi(
-                        {
-                                'uri'       => '/rfcode_reader/api/userlist.json?_dc=1370353972710',
-                                'method'    => 'GET',
-                                'authorization' => basic_auth(user,pass)
-                        })
+			{
+				'uri'       => '/rfcode_reader/api/userlist.json?_dc=1370353972710',
+				'method'    => 'GET',
+				'authorization' => basic_auth(user,pass)
+			})
 
-                        print_good("Collecting user list...")
-                        print_good(res.body)
-
+			userlist = JSON.parse(res.body)
+			vprint_status("Collecting user list...")
+			print_good("User list & role: #{userlist}")
 
 			res = send_request_cgi(
 			{
@@ -173,19 +174,9 @@ class Metasploit3 < Msf::Auxiliary
 				'authorization' => basic_auth(user,pass)
 			})
 
-			print_good("Collecting interface info…")
-			print_good(res.body)
-
-			res = send_request_cgi(
-                        {
-                                'uri'       => '/rfcode_reader/api/netconfigstatus.json?_dc=1369678669208',
-                                'method'    => 'GET',
-                                'authorization' => basic_auth(user,pass)
-                        })
-
-                        print_good("Collecting network configuration…")
-                        print_good(res.body)
-
+			eth0_info = JSON.parse(res.body)["eth0"]
+			vprint_status("Collecting interface info...")
+			print_good("Interface eth0 info: #{eth0_info}")
 
 			return
 		end
