@@ -11,31 +11,35 @@ require 'nokogiri'
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::Exploit::Remote::HttpClient
-  include Msf::Auxiliary::Report
+	include Msf::Exploit::Remote::HttpClient
+	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::AuthBrute
 	include Msf::Auxiliary::Scanner
 
+	#
+  	# CONSTANTS
+  	#
+	# Used in to check if remote is eHealth
+  	EHEALTH_REGEXP = /Welcome to the CA <i>e<\/i>Health<sup><font size=4>&reg/
+
 	def initialize(info={})
 		super(update_info(info,
-			'Name'           => 'CA eHealth Performance Manager application version enumeration and brute force login Utility',
+			'Name'           => 'CA eHealth Performance Manager Application Brute Force Login Utility',
 			'Description'    => %{
 				This module attempts to scan for CA eHealth Performance Manager web application, finds its version
 			and performs login brute force to identify valid credentials.
 			},
 			'Author'         =>
 				[
-					'Karn Ganeshen', 'KarnGaneshen[at]gmail.com',
+					'Karn Ganeshen <KarnGaneshen[at]gmail.com>',
 				],
-			'Version'	 => '1.0',
 			'License'        => MSF_LICENSE
 		))
 
 		register_options(
 			[
 				Opt::RPORT(80),
-				OptString.new('URI', [true, "URI for CA eHealth Web login. Default is /web/frames/", "/web/
-frames/"]))
+				OptString.new('URI', [true, "URI for Web login. Default: /web/frames/", "/web/frames/"]))
 			], self.class)
 	end
 
@@ -60,16 +64,14 @@ frames/"]))
 	def is_app_ehealth?
 
 			res = send_request_cgi(
-                        {
-                                'uri'       => '/bin/welcome.sh',
-                                'method'    => 'GET'
-                        })
+			{
+				'uri'       => '/bin/welcome.sh',
+				'method'    => 'GET'
+			})
 
-			check_key = "Welcome to the CA <i>e</i>Health<sup><font size=4>&reg"
-
-			if (res and res.code.to_i == 200 and res.body.match(check_key) != nil)
-				doc = Nokogiri::HTML( res.body )
-				verKey = doc.at_css("title").text
+			if (res and res.code.to_i == 200 and res.body.include?(EHEALTH_REGEXP) != nil)
+				version_key = /<title>(.+)<\/title>/
+				version = res.body.scan(version_key).flatten
 				print_good("Application version is #{verKey}")
 				success = true
 			end
@@ -124,7 +126,7 @@ frames/"]))
 			end
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-		      	res = false
+			res = false
 			print_error("HTTP Connection Failed, Aborting")
 			return :abort
 		end
