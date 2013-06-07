@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 
 shared_examples_for "an option" do |valid_values, invalid_values|
   subject do

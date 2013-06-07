@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 shared_examples_for 'Msf::DBManager::ImportMsfXml#check_msf_xml_version! with root tag' do |root_tag, options={}|
 	options.assert_valid_keys(:allow_yaml)
 	allow_yaml = options.fetch(:allow_yaml)

@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 require 'spec_helper'
 
 require 'msf/core/modules/metasploit_class_compatibility_error'
