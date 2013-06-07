@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 
 require 'rex/encoding/xor/byte'
 require 'spec_helper'

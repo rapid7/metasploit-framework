@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 
 require 'rex/encoding/xor/dword'
 require 'spec_helper'

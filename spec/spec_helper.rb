@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 require 'rubygems'
 require 'bundler'
 Bundler.require(:default, :test, :db)
