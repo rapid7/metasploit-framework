@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 require 'rex/post/meterpreter/packet'
 
 describe Rex::Post::Meterpreter::Tlv do

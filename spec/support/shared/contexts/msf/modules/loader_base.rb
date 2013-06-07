@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 shared_context "Msf::Modules::Loader::Base" do
 	let(:parent_path) do
 		parent_pathname.to_s

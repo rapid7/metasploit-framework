@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 require 'rex/sslscan/scanner'
 require 'rex/thread_factory'
 require 'rex/text'

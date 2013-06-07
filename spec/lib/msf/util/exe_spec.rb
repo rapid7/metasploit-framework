@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 
 require 'msf/core'
 require 'msf/base/simple'
@@ -97,6 +98,6 @@ describe Msf::Util::EXE do
     end
 
   end
-  
+
 end
 

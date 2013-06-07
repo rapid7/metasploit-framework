@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 require 'spec_helper'
 
 describe Msf::Modules::Error do
