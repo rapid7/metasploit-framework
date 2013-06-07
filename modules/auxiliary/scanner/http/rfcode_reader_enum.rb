@@ -21,14 +21,14 @@ class Metasploit3 < Msf::Auxiliary
 				This module simply attempts to login to a RFCode Reader web interface. Please note that
 				by default there is no authentication. In such a case, password brute force will not be performed. 
 				If there is authentication configured, the module will attempt to find valid login credentials and 
-        capture device information.
+        			capture device information.
 			},
 			'Author'         =>
 				[
 					'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
 				],
 			'Version'	 => '1.0',
-			'License'  => MSF_LICENSE
+			'License'	 => MSF_LICENSE
 
 		))
 
@@ -49,13 +49,13 @@ class Metasploit3 < Msf::Auxiliary
 	#
 
 	def run_host(ip)
-		if not is_app_rfreader?
+		unless is_app_rfreader?
 			print_error("Application does not appear to be RFCode Reader. Module will not continue.")
 			return
 		end
 
 		print_status("Checking if authentication is required...")
-		if not is_auth_required?
+		unless is_auth_required?
 			print_warning("Application does not require authentication.")
 			user = ''
 			pass = ''
@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Auxiliary
 	#
 	def do_login(user, pass)
 
-		vprint_status("Trying username:'#{user}' with password:'#{pass}'")
+		vprint_status("Trying username:'#{user.inspect}' with password:'#{pass.inspect}'")
 		begin
 			res = send_request_cgi(
 			{
@@ -112,10 +112,10 @@ class Metasploit3 < Msf::Auxiliary
 			})
 
 			if not res or res.code == 401
-				vprint_error("FAILED LOGIN. '#{user}' : '#{pass}' with code #{res.code}")
+				vprint_error("FAILED LOGIN. '#{user.inspect}' : '#{pass.inspect}' with code #{res.code}")
 				return :skip_pass
 			else
-				print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
+				print_good("SUCCESSFUL LOGIN. '#{user.inspect}' : '#{pass.inspect}'")
 
 				collect_info(user, pass)
 
@@ -131,7 +131,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_auth_info(report_hash)
 				return :next_user
 			end
-		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
 			print_error("HTTP Connection Failed, Aborting")
 			return :abort
 		end
@@ -142,7 +142,7 @@ class Metasploit3 < Msf::Auxiliary
 	#
 	def collect_info(user, pass)
 
-		vprint_status("Collecting information from app as '#{user}':'#{pass}'...")
+		vprint_status("Collecting information from app as '#{user.inspect}':'#{pass.inspect}'...")
 		begin
 
 			res = send_request_cgi(
