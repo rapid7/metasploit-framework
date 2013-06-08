@@ -15,6 +15,55 @@ module Msf::ModuleManager::Cache
     module_info_by_path.empty?
   end
 
+	# @note path, reference_name, and type must be passed as options because when +class_or_module+ is a payload Module,
+	#   those attributes will either not be set or not exist on the module.
+	#
+	# Updates the in-memory cache so that {#file_changed?} will report +false+ if
+	# the module is loaded again.
+	#
+	# @param class_or_module [Class<Msf::Module>, ::Module] either a module Class
+	#   or a payload Module.
+	# @param options [Hash{Symbol => String}]
+	# @option options [String] :path the path to the file from which
+	#   +class_or_module+ was loaded.
+	# @option options [String] :reference_name the reference name for
+	#   +class_or_module+.
+	# @option options [String] :type the module type
+	# @return [void]
+	# @raise [KeyError] unless +:path+ is given.
+	# @raise [KeyError] unless +:reference_name+ is given.
+	# @raise [KeyError] unless +:type+ is given.
+	def cache_in_memory(class_or_module, options={})
+		options.assert_valid_keys(:path, :reference_name, :type)
+
+		path = options.fetch(:path)
+
+		begin
+			modification_time = File.mtime(path)
+		rescue Errno::ENOENT => error
+			log_lines = []
+			log_lines << "Could not find the modification of time of #{path}:"
+			log_lines << error.class.to_s
+			log_lines << error.to_s
+			log_lines << "Call stack:"
+			log_lines += error.backtrace
+
+			log_message = log_lines.join("\n")
+			elog(log_message)
+		else
+			parent_path = class_or_module.parent.parent_path
+			reference_name = options.fetch(:reference_name)
+			type = options.fetch(:type)
+
+			module_info_by_path[path] = {
+					:modification_time => modification_time,
+					:parent_path => parent_path,
+					:reference_name => reference_name,
+					:type => type
+			}
+		end
+	end
+
   # Forces loading of the module with the given type and module reference name from the cache.
   #
   # @param [String] type the type of the module.
