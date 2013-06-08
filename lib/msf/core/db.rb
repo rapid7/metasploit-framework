@@ -736,17 +736,18 @@ class DBManager
 			h_opts[:workspace] = wspace
 			host = find_or_create_host(h_opts)
 			sess_data = {
-				:host_id => host.id,
-				:stype => session.type,
-				:desc => session.info,
-				:platform => session.platform,
-				:via_payload => session.via_payload,
-				:via_exploit => session.via_exploit,
-				:routes => [],
-				:datastore => session.exploit_datastore.to_h,
-				:opened_at => Time.now.utc,
-				:last_seen => Time.now.utc,
-				:local_id => session.sid
+          :host_id     => host.id,
+          :stype       => session.type,
+          :desc        => session.info,
+          :platform    => session.platform,
+          :via_payload => session.via_payload,
+          :via_exploit => session.via_exploit,
+          :routes      => [],
+          :datastore   => session.exploit_datastore.to_h,
+          :port        => session.session_port,
+          :opened_at   => Time.now.utc,
+          :last_seen   => Time.now.utc,
+          :local_id    => session.sid
 			}
 		elsif opts[:host]
 			raise ArgumentError.new("Invalid :host, expected Host object") unless opts[:host].kind_of? ::Mdm::Host
@@ -784,6 +785,14 @@ class DBManager
 
 		s = ::Mdm::Session.new(sess_data)
 		s.save!
+
+    if session and session.exploit_task and session.exploit_task.record
+      session_task =  session.exploit_task.record
+      if session_task.class == Mdm::Task
+        Mdm::TaskSession.create(:task => session_task, :session => s )
+      end
+    end
+
 
 		if opts[:session]
 			session.db_record = s

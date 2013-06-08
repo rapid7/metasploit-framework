@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130522041110) do
+ActiveRecord::Schema.define(:version => 20130604145732) do
 
   create_table "api_keys", :force => true do |t|
     t.text     "token"
@@ -46,11 +46,10 @@ ActiveRecord::Schema.define(:version => 20130522041110) do
   create_table "clients", :force => true do |t|
     t.integer  "host_id"
     t.datetime "created_at"
-    t.string   "ua_string",   :limit => 1024, :null => false
-    t.string   "ua_name",     :limit => 64
-    t.string   "ua_ver",      :limit => 32
+    t.string   "ua_string",  :limit => 1024, :null => false
+    t.string   "ua_name",    :limit => 64
+    t.string   "ua_ver",     :limit => 32
     t.datetime "updated_at"
-    t.integer  "campaign_id"
   end
 
   create_table "creds", :force => true do |t|
@@ -167,16 +166,9 @@ ActiveRecord::Schema.define(:version => 20130522041110) do
   add_index "hosts", ["state"], :name => "index_hosts_on_state"
   add_index "hosts", ["workspace_id", "address"], :name => "index_hosts_on_workspace_id_and_address", :unique => true
 
-  create_table "hosts_tags", :id => false, :force => true do |t|
+  create_table "hosts_tags", :force => true do |t|
     t.integer "host_id"
     t.integer "tag_id"
-  end
-
-  create_table "imported_creds", :force => true do |t|
-    t.integer "workspace_id",                :default => 1,          :null => false
-    t.string  "user",         :limit => 512
-    t.string  "pass",         :limit => 512
-    t.string  "ptype",        :limit => 16,  :default => "password"
   end
 
   create_table "listeners", :force => true do |t|
@@ -444,6 +436,13 @@ ActiveRecord::Schema.define(:version => 20130522041110) do
   create_table "task_services", :force => true do |t|
     t.integer  "task_id",    :null => false
     t.integer  "service_id", :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  create_table "task_sessions", :force => true do |t|
+    t.integer  "task_id",    :null => false
+    t.integer  "session_id", :null => false
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
