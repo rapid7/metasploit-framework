@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 shared_examples_for 'Msf::Modules::VersionCompatibilityError' do
 	let(:error) do
 		begin

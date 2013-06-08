@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 require 'rex/proto/http/client'
 
 # Note: Some of these tests require a failed
