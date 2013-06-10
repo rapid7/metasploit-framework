@@ -195,7 +195,8 @@ module Anemone
 
 		conn.set_config(
 			'vhost'      => virtual_host(url),
-			'agent'      => user_agent
+			'agent'      => user_agent,
+      'domain'     => @opts[:domain]
 		)
 
 		conn

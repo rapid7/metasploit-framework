@@ -18,7 +18,7 @@ module Metasploit4
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Unix Command Shell, Bind TCP (via AWK)',
-			'Description'   => 'Listen for a connection and spawn a command shell via AWK',
+			'Description'   => 'Listen for a connection and spawn a command shell via GNU AWK',
 			'Author'        =>
 				[
 					'espreto <robertoespreto[at]gmail.com>',

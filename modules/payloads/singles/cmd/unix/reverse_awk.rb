@@ -18,7 +18,7 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Unix Command Shell, Reverse TCP (via AWK)',
-			'Description'   => 'Creates an interactive shell via AWK',
+			'Description'   => 'Creates an interactive shell via GNU AWK',
 			'Author'        =>
 				[
 					'espreto <robertoespreto[at]gmail.com>',
