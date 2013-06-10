@@ -32,6 +32,7 @@ GEM
     msgpack (0.5.4)
     multi_json (1.0.4)
     nokogiri (1.5.9)
+    packetfu (1.1.8)
     pcaprub (0.11.3)
     pg (0.15.1)
     rake (10.0.4)
@@ -68,6 +69,7 @@ DEPENDENCIES
   metasploit_data_models (~> 0.16.1)
   msgpack
   nokogiri
+  packetfu (= 1.1.8)
   pcaprub
   pg (>= 0.11)
   rake

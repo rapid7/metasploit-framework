@@ -10,6 +10,8 @@ gem 'msgpack'
 gem 'nokogiri'
 # Needed by anemone crawler
 gem 'robots'
+# Needed by db.rb and Msf::Exploit::Capture
+gem 'packetfu', '1.1.8'
 
 group :db do
 	# Needed for Msf::DbManager
