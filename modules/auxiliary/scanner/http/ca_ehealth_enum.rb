@@ -7,7 +7,6 @@
 
 require 'rex/proto/http'
 require 'msf/core'
-require 'nokogiri'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -21,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 	# Used in to check if remote is eHealth
 	#
 
-	EHEALTH_REGEXP = /Welcome to the CA <i>e<\/i>Health<sup><font size=4>&reg/
+	EHEALTH_FINGERPRINT = 'Welcome to the CA <i>e<\/i>Health<sup><font size=4>&reg'
 
 	def initialize(info={})
 		super(update_info(info,
@@ -40,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(80),
-				OptString.new('URI', [true, "URI for Web login. Default: /web/frames/", "/web/frames/"]))
+				OptString.new('URI', [true, "URI for Web login. Default: /web/frames/", "/web/frames/"])
 			], self.class)
 	end
 
@@ -70,11 +69,13 @@ class Metasploit3 < Msf::Auxiliary
 				'method'    => 'GET'
 			})
 
-			if (res and res.code.to_i == 200 and res.body.include?(EHEALTH_REGEXP) != nil)
+			if (res and res.code == 200 and res.body.include?(EHEALTH_FINGERPRINT) != nil)
 				version_key = /<title>(.+)<\/title>/
 				version = res.body.scan(version_key).flatten
-				print_good("Application version is #{verKey}")
-				success = true
+				print_good("Application version is #{version}")
+				return true
+			else
+				return false
 			end
 	end
 
@@ -104,10 +105,9 @@ class Metasploit3 < Msf::Auxiliary
 					}
 			})
 
-			doc = Nokogiri::HTML( res.body )
-			key = doc.at_css("title").text
+			get_title = res.match(/<title>(.*)<\/title>/mi).captures.first
 
-			if (not doc or key != "eHealth [#{user}]")
+			if (not res or get_title != "eHealth [#{user}]")
 				vprint_error("FAILED LOGIN. '#{user.inspect}' : '#{pass.inspect}' with code #{res.code}")
 				return :skip_pass
 			else
