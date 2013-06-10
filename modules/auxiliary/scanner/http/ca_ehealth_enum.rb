@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(80),
-				OptString.new('URI', [true, "URI for Web login. Default: /web/frames/", "/web/frames/"])
+				OptString.new('TARGETURI', [true, "URI for Web login. Default: /web/frames/", "/web/frames/"])
 			], self.class)
 	end
 
@@ -96,7 +96,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			res = send_request_cgi(
 			{
-				'uri'       => datastore['URI'],
+				'uri'       => target_uri.to_s,
 				'method'    => 'GET',
 				'vars_post' =>
 					{
@@ -127,7 +127,6 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-			res = false
 			print_error("HTTP Connection Failed, Aborting")
 			return :abort
 		end
