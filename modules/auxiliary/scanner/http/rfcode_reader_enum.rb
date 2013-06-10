@@ -41,9 +41,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	#
 	# Info-Only
-	# Identify logged in user: /rfcode_reader/api/whoami.json?_dc=1369680704481
-	# Capture list of users: /rfcode_reader/api/userlist.json?_dc=1370353972710
-	# Interface configuration: /rfcode_reader/api/interfacestatus.json?_dc=1369678668067
+	# Identify logged in user: /rfcode_reader/api/whoami.json
+	# Capture list of users: /rfcode_reader/api/userlist.json
+	# Interface configuration: /rfcode_reader/api/interfacestatus.json
+	# Device platform details: /rfcode_reader/api/version.json
 	#
 
 	def run_host(ip)
@@ -73,7 +74,14 @@ class Metasploit3 < Msf::Auxiliary
 	# What's the point of running this module if the app actually isn't RFCode Reader?
 	#
 	def is_app_rfreader?
-		res = send_request_raw({'uri' => '/rfcode_reader/api/whoami.json?_dc=1369680704481'})
+		res = send_request_cgi(
+			{
+				'uri' => '/rfcode_reader/api/whoami.json',
+				'vars_get' =>
+					{
+						'_dc' => '1369680704481'
+					}
+			})
 		return (res and res.code != 404)
 	end
 
@@ -87,9 +95,13 @@ class Metasploit3 < Msf::Auxiliary
 
 		res = send_request_cgi(
 			{
-				'uri'       => '/rfcode_reader/api/whoami.json?_dc=1369680704481',
+				'uri'       => '/rfcode_reader/api/whoami.json',
 				'method'    => 'GET',
-				'authorization' => basic_auth(user,pass)
+				'authorization' => basic_auth(user,pass),
+				'vars_get'	=>
+					{
+						'_dc' => '1369680704481'
+					}
 			})
 
 		return (res and res.body =~ /{  }/) ? false : true
@@ -104,9 +116,13 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			res = send_request_cgi(
 			{
-				'uri'       => '/rfcode_reader/api/whoami.json?_dc=1369680704481',
+				'uri'       => '/rfcode_reader/api/whoami.json',
 				'method'    => 'GET',
-				'authorization' => basic_auth(user,pass)
+				'authorization' => basic_auth(user,pass),
+				'vars_get'	=>
+					{
+						'_dc' => '1369680704481'
+					}
 			})
 
 			if not res or res.code == 401
@@ -145,9 +161,13 @@ class Metasploit3 < Msf::Auxiliary
 
 			res = send_request_cgi(
 			{
-				'uri'       => '/rfcode_reader/api/version.json?_dc=1370460180056',
+				'uri'       => '/rfcode_reader/api/version.json',
 				'method'    => 'GET',
-				'authorization' => basic_auth(user,pass)
+				'authorization' => basic_auth(user,pass),
+				'vars_get'      =>
+					{
+						'_dc' => '1370460180056'
+					}
 			})
 
 			release_ver = JSON.parse(res.body)["release"]
@@ -158,9 +178,13 @@ class Metasploit3 < Msf::Auxiliary
 
 			res = send_request_cgi(
 			{
-				'uri'       => '/rfcode_reader/api/userlist.json?_dc=1370353972710',
+				'uri'       => '/rfcode_reader/api/userlist.json',
 				'method'    => 'GET',
-				'authorization' => basic_auth(user,pass)
+				'authorization' => basic_auth(user,pass),
+				'vars_get'      =>
+					{
+						'_dc' => '1370353972710'
+					}
 			})
 
 			userlist = JSON.parse(res.body)
@@ -169,9 +193,13 @@ class Metasploit3 < Msf::Auxiliary
 
 			res = send_request_cgi(
 			{
-				'uri'       => '/rfcode_reader/api/interfacestatus.json?_dc=1369678668067',
+				'uri'       => '/rfcode_reader/api/interfacestatus.json',
 				'method'    => 'GET',
-				'authorization' => basic_auth(user,pass)
+				'authorization' => basic_auth(user,pass),
+				'vars_get'      =>
+					{
+						'_dc' => '1369678668067'
+					}
 			})
 
 			eth0_info = JSON.parse(res.body)["eth0"]
