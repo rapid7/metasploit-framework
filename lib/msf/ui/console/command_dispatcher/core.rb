@@ -1503,14 +1503,24 @@ class Core
 			return
 		end
 
+		color = driver.output.config[:color]
+
 		if args[0] == "off"
 			driver.init_ui(driver.input, Rex::Ui::Text::Output::Stdio.new)
-			print_status("Spooling is now disabled")
-			return
+			msg = "Spooling is now disabled"
+		else
+			driver.init_ui(driver.input, Rex::Ui::Text::Output::Tee.new(args[0]))
+			msg = "Spooling to file #{args[0]}..."
 		end
 
-		driver.init_ui(driver.input, Rex::Ui::Text::Output::Tee.new(args[0]))
-		print_status("Spooling to file #{args[0]}...")
+		# Restore color and prompt
+		driver.output.config[:color] = color
+		prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
+		prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
+		driver.update_prompt("#{prompt} #{active_module.type}(%bld%red#{active_module.shortname}%clr) ", prompt_char, true)
+
+		print_status(msg)
+		return
 	end
 
 	def cmd_sessions_help
