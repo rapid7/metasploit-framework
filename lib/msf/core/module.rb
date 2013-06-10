@@ -179,7 +179,7 @@ class Module
 	#
 
 	def print_prefix
-		if(
+		if framework && (
 			datastore['TimestampOutput'] =~ /^(t|y|1)/i or
 			framework.datastore['TimestampOutput'] =~ /^(t|y|1)/i
 		)
@@ -192,8 +192,9 @@ class Module
 			end
 
 			return prefix
+		else
+			return ''
 		end
-		''
 	end
 
 	def print_status(msg='')
