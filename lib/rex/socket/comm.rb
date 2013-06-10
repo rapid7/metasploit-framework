@@ -16,7 +16,7 @@ module Socket
 module Comm
 
 	###
-	# 
+	#
 	# This mixin provides stubs for event notification handlers that can be
 	# registered with a Comm factory to be called when various events occur,
 	# such as socket instantiation.

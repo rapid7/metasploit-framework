@@ -145,6 +145,12 @@ class Msftidy
 		end
 	end
 
+	def check_verbose_option
+		if @source =~ /Opt(Bool|String).new\([[:space:]]*('|")VERBOSE('|")[[:space:]]*,[[:space:]]*\[[[:space:]]*/
+			warn("VERBOSE Option is already part of advanced settings, no need to add it manually.")
+		end
+	end
+
 	def check_badchars
 		badchars = %Q|&<=>|
 
@@ -277,7 +283,7 @@ class Msftidy
 		if @source =~ /'Name'[[:space:]]*=>[[:space:]]*['"](.+)['"],*$/
 			words = $1.split
 			words.each do |word|
-				if %w{and or the for to in of as with a an on at}.include?(word)
+				if %w{and or the for to in of as with a an on at via}.include?(word)
 					next
 				elsif %w{pbot}.include?(word)
 				elsif word =~ /^[a-z]+$/
@@ -390,6 +396,7 @@ def run_checks(f_rel)
 	tidy = Msftidy.new(f_rel)
 	tidy.check_ref_identifiers
 	tidy.check_old_keywords
+	tidy.check_verbose_option
 	tidy.check_badchars
 	tidy.check_extname
 	tidy.test_old_rubies(f_rel)

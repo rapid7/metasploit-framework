@@ -30,7 +30,7 @@ $args = Rex::Parser::Arguments.new(
 #
 def usage
 	$stderr.puts("\n" +
-		"    Usage: #{$0} [<options>] <payload> [var=val] <[S]ummary|C|[P]erl|Rub[y]|[R]aw|[J]s|e[X]e|[D]ll|[V]BA|[W]ar>\n" +
+		"    Usage: #{$0} [<options>] <payload> [var=val] <[S]ummary|C|[P]erl|Rub[y]|[R]aw|[J]s|e[X]e|[D]ll|[V]BA|[W]ar|Pytho[N]>\n" +
 		$args.usage)
 	exit
 end
@@ -119,7 +119,7 @@ end
 
 payload.datastore.merge! options
 
-if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w)/)
+if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w|n)/)
 	fmt = 'perl' if (cmd =~ /^p/)
 	fmt = 'ruby' if (cmd =~ /^y/)
 	fmt = 'raw' if (cmd =~ /^(r|x|d)/)
@@ -129,6 +129,7 @@ if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w)/)
 	fmt = 'js_le' if (cmd =~ /^j/ and ! fmt)
 	fmt = 'java'  if (cmd =~ /^b/)
 	fmt = 'raw' if (cmd =~ /^w/)
+	fmt = 'python' if (cmd =~ /^n/)
 	enc = options['ENCODER']
 
 	begin

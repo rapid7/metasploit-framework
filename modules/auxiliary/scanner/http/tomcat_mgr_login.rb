@@ -75,7 +75,8 @@ class Metasploit3 < Msf::Auxiliary
 			uri = normalize_uri(datastore['URI'])
 			res = send_request_cgi({
 				'uri'     => uri,
-				'method'  => 'GET'
+				'method'  => 'GET',
+				'username' => Rex::Text.rand_text_alpha(8)
 				}, 25)
 			http_fingerprint({ :response => res })
 		rescue ::Rex::ConnectionError => e
@@ -101,16 +102,13 @@ class Metasploit3 < Msf::Auxiliary
 		vprint_status("#{rhost}:#{rport} - Trying username:'#{user}' with password:'#{pass}'")
 		success = false
 		srvhdr = '?'
-		user_pass = Rex::Text.encode_base64(user + ":" + pass)
 		uri = normalize_uri(datastore['URI'])
 		begin
 			res = send_request_cgi({
 				'uri'     => uri,
 				'method'  => 'GET',
-				'headers' =>
-					{
-						'Authorization' => "Basic #{user_pass}",
-					}
+				'username' => user,
+				'password' => pass
 				}, 25)
 			unless (res.kind_of? Rex::Proto::Http::Response)
 				vprint_error("http://#{rhost}:#{rport}#{uri} not responding")

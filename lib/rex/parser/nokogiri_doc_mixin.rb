@@ -102,7 +102,7 @@ module Parser
 			return [] unless orig_refs
 			refs = []
 			orig_refs.each do |ref_hash|
-			
+
 				ref_hash_sym = Hash[ref_hash.map {|k, v| [k.to_sym, v] }]
 				ref_type = ref_hash_sym[:source].to_s.strip.upcase
 				ref_value = ref_hash_sym[:value].to_s.strip
@@ -147,8 +147,10 @@ module Parser
 				just_the_facts = nonempty_data
 			else
 				just_the_facts = nonempty_data.select {|k,v| valid_attrs.include? k.to_s.to_sym}
-			end
-			just_the_facts.empty? ? return : db.send("report_#{table}", just_the_facts)
+      end
+      return nil if just_the_facts.empty?
+      just_the_facts[:task] = @args[:task]
+			db.send("report_#{table}", just_the_facts)
 		end
 
 		# XXX: It would be better to either have a single registry of acceptable

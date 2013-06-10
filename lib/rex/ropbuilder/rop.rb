@@ -195,16 +195,16 @@ class RopCollect < RopBase
 	end
 
 	def process_gadgets(rets, num)
-		ret = {}
+		ret     = {}
 		gadgets = []
-		tmp = []
+		tmp     = []
 		rets.each do |ea|
 			insn = @disassembler.disassemble_instruction(ea)
 			next if not insn
 
 			xtra = insn.bin_length
 
-			1.upto(num) do |x|
+			num.downto(0) do |x|
 				addr = ea - x
 
 				# get the disassembled instruction at this address
@@ -217,7 +217,7 @@ class RopCollect < RopBase
 
 				# get raw bytes
 				buf = @disassembler.read_raw_data(addr, x + xtra)
-				
+
 
 				# make sure disassembling forward leads to our instruction
 				next if not ends_with_addr(buf, addr, ea)
@@ -234,6 +234,7 @@ class RopCollect < RopBase
 				else
 					next
 				end
+
 				# otherwise, we create a new tailchunk and add it to the list
 				ret = {:file => @file, :address => ("0x%08x" % (ea - x)), :raw => buf, :disasm => dasm}
 				gadgets << ret

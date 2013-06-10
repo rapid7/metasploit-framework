@@ -356,6 +356,16 @@ class Module
 	end
 
 	#
+	# Checks to see if the target is vulnerable, returning unsupported if it's
+	# not supported.
+	#
+	# This method is designed to be overriden by exploit modules.
+	#
+	def check
+		Msf::Exploit::CheckCode::Unsupported
+	end
+
+	#
 	# Returns the hash that describes this module's compatibilities.
 	#
 	def compat
@@ -391,7 +401,7 @@ class Module
 
 		nil
 	end
-	
+
 	#
 	# Returns the current workspace
 	#
@@ -617,7 +627,7 @@ class Module
 	def debugging?
 		(datastore['DEBUG'] || '') =~ /^(1|t|y)/i
 	end
-	
+
 	#
 	# Indicates whether the module supports IPv6. This is true by default,
 	# but certain modules require additional work to be compatible or are

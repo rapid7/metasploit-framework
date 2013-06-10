@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-# $Id$
 require 'rex/socket'
 require 'rex/proto/tftp'
 
@@ -173,7 +172,7 @@ class Server
 	attr_accessor :listen_host, :listen_port, :context
 	attr_accessor :sock, :files, :transfers, :uploaded
 	attr_accessor :thread
-	
+
 	attr_accessor :incoming_file_hook
 
 protected
@@ -189,9 +188,9 @@ protected
 
 	def save_output(tr)
 		self.uploaded << tr[:file]
-		
+
 		return incoming_file_hook.call(tr) if incoming_file_hook
-		
+
 		if @output_dir
 			fn = tr[:file][:name].split(File::SEPARATOR)[-1]
 			if fn

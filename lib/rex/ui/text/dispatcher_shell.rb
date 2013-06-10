@@ -333,13 +333,13 @@ module DispatcherShell
 			str = Regexp.escape(str)
 		end
 
-		# XXX - This still doesn't fix some Regexp warnings:
+		# @todo - This still doesn't fix some Regexp warnings:
 		# ./lib/rex/ui/text/dispatcher_shell.rb:171: warning: regexp has `]' without escape
 
 		# Match based on the partial word
 		items.find_all { |e|
 			e =~ /^#{str}/
-		# Prepend the rest of the command (or it gets replaced!)
+		# Prepend the rest of the command (or it all gets replaced!)
 		}.map { |e|
 			tab_words.dup.push(e).join(' ')
 		}

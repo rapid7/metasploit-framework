@@ -1,4 +1,9 @@
-#!/usr/bin/env ruby
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
 
 require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
@@ -164,8 +169,10 @@ class Metasploit3 < Msf::Auxiliary
 					print_good("#{peer} - #{user}")
 					report_user(user.chomp)
 				else
-					if username = query_session(smbshare, ip, cmd, text, bat)
-						user = dnsdomain.split(" ")[2].split(".")[0].to_s + "\\" + username.to_s
+					username = query_session(smbshare, ip, cmd, text, bat)
+					if username
+						hostname = (dnsdomain.split(" ")[2] || "").split(".")[0] || "."
+						user = "#{hostname}\\#{username}"
 						print_good("#{peer} - #{user}")
 						report_user(user.chomp)
 					else
@@ -175,7 +182,7 @@ class Metasploit3 < Msf::Auxiliary
 			else
 				print_status("#{peer} - Could not determine logged in users")
 			end
-		rescue StandardError => check_error
+		rescue Rex::Proto::SMB::Exceptions::Error => check_error
 			print_error("#{peer} - Error checking reg key. #{check_error.class}. #{check_error}")
 			return check_error
 		end

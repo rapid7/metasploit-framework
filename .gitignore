@@ -1,11 +1,17 @@
+.bundle
 # Rubymine project directory
 .idea
+# Portable ruby version files for rvm
+.ruby-gemset
+.ruby-version
 # RVM control file
 .rvmrc
 # YARD cache directory
 .yardoc
 # Mac OS X files
 .DS_Store
+# database config for testing
+config/database.yml
 # simplecov coverage data
 coverage
 data/meterpreter/ext_server_pivot.dll
@@ -16,6 +22,17 @@ external/source/meterpreter/java/build
 external/source/meterpreter/java/extensions
 external/source/javapayload/bin
 external/source/javapayload/build
+# Java binary ignores. Replace the 5 above with this once we're merged.
+external/source/javapayload/*/.classpath
+external/source/javapayload/*/.project
+external/source/javapayload/*/.settings
+external/source/javapayload/*/bin
+external/source/javapayload/*/target
+external/source/javapayload/*/*/.classpath
+external/source/javapayload/*/*/.project
+external/source/javapayload/*/*/.settings
+external/source/javapayload/*/*/bin
+external/source/javapayload/*/*/target
 # Packaging directory
 pkg
 tags

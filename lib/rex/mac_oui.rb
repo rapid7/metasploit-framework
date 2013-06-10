@@ -12,7 +12,7 @@ module Oui
 			return fullname
 		else
 			return 'UNKNOWN'
-		end 
+		end
 	end
 
 	def self.lookup_oui_company_name(mac)
@@ -25,7 +25,7 @@ module Oui
 			return fullname
 		else
 			return 'UNKNOWN'
-		end 
+		end
 	end
 
 	def self.check_mac(mac)

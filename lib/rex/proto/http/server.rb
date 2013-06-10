@@ -288,7 +288,7 @@ protected
 				when Packet::ParseCode::Completed
 					dispatch_request(cli, cli.request)
 					cli.reset_cli
-					
+
 				when Packet::ParseCode::Partial
 					# Return and wait for the on_client_data handler to be called again
 					# The Request object tracks the state of the request for us

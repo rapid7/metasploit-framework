@@ -13,7 +13,7 @@ module ShadowCopy
 	include Msf::Post::Windows::Services
 
 	#
-	# Get the device name for the shadow copy, which is used when accessing  
+	# Get the device name for the shadow copy, which is used when accessing
 	# files on the volume.
 	#
 	def get_vss_device(id)
@@ -44,7 +44,7 @@ module ShadowCopy
 
 	#
 	# Get volume shadow storage parameters.
-	# 
+	#
 	def vss_get_storage
 		storage={}
 		storage['AllocatedSpace'] = vss_get_storage_param('AllocatedSpace')
@@ -84,7 +84,7 @@ module ShadowCopy
 	end
 
 	#
-	# Return the value of the +param_name+ for the volume shadow copy 
+	# Return the value of the +param_name+ for the volume shadow copy
 	# specified by +id+
 	#
 	def get_sc_param(id,param_name)
@@ -94,7 +94,7 @@ module ShadowCopy
 	end
 
 	#
-	# Return the value of the shadowstorage parameter specified by 
+	# Return the value of the shadowstorage parameter specified by
 	# +param_name+
 	#
 	def vss_get_storage_param(param_name)

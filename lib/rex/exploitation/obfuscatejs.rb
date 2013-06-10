@@ -18,12 +18,12 @@ class ObfuscateJS
 	#
 	# The 'Symbols' argument should have the following format:
 	#
-	# {
-	#    'Variables'  => [ 'var1', ... ],
-	#    'Methods'    => [ 'method1', ... ],
-	#    'Namespaces' => [ 'n', ... ],
-	#    'Classes'    => [ { 'Namespace' => 'n', 'Class' => 'y'}, ... ]
-	# }
+	#   {
+	#      'Variables'  => [ 'var1', ... ],
+	#      'Methods'    => [ 'method1', ... ],
+	#      'Namespaces' => [ 'n', ... ],
+	#      'Classes'    => [ { 'Namespace' => 'n', 'Class' => 'y'}, ... ]
+	#   }
 	#
 	# Make sure you order your methods, classes, and namespaces by most
 	# specific to least specific to prevent partial substitution.  For
@@ -138,14 +138,14 @@ class ObfuscateJS
 			#	while (buf.length < len)
 			#		buf << set[rand(set.length)].chr
 			#	end
-			#	
+			#
 			#	buf
 			#}
 		end
 
 		# Remove our comments
 		remove_comments
-		
+
 		# Globally replace symbols
 		replace_symbols(@opts['Symbols']) if @opts['Symbols']
 
@@ -191,9 +191,9 @@ protected
 			next if symbols[symtype].nil?
 			symbols[symtype].each { |sym|
 				dyn = Rex::Text.rand_text_alpha(rand(32)+1) until dyn and not taken.key?(dyn)
-	
+
 				taken[dyn] = true
-			
+
 				if symtype == 'Classes'
 					full_sym = sym['Namespace'] + "." + sym['Class']
 					@dynsym[full_sym] = dyn

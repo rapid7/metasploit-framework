@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 # -*- coding: binary -*-
 
-# $Id$
-
 require 'rex/peparsey/exceptions'
 require 'rex/struct2'
 
@@ -12,34 +10,31 @@ class PeBase
 
 
 	# #define IMAGE_DOS_SIGNATURE                 0x5A4D      // MZ
-
 	IMAGE_DOS_SIGNATURE = 0x5a4d
 
-	#
-	# typedef struct _IMAGE_DOS_HEADER {      // DOS .EXE header
-	#     WORD   e_magic;                     // Magic number
-	#     WORD   e_cblp;                      // Bytes on last page of file
-	#     WORD   e_cp;                        // Pages in file
-	#     WORD   e_crlc;                      // Relocations
-	#     WORD   e_cparhdr;                   // Size of header in paragraphs
-	#     WORD   e_minalloc;                  // Minimum extra paragraphs needed
-	#     WORD   e_maxalloc;                  // Maximum extra paragraphs needed
-	#     WORD   e_ss;                        // Initial (relative) SS value
-	#     WORD   e_sp;                        // Initial SP value
-	#     WORD   e_csum;                      // Checksum
-	#     WORD   e_ip;                        // Initial IP value
-	#     WORD   e_cs;                        // Initial (relative) CS value
-	#     WORD   e_lfarlc;                    // File address of relocation table
-	#     WORD   e_ovno;                      // Overlay number
-	#     WORD   e_res[4];                    // Reserved words
-	#     WORD   e_oemid;                     // OEM identifier (for e_oeminfo)
-	#     WORD   e_oeminfo;                   // OEM information; e_oemid specific
-	#     WORD   e_res2[10];                  // Reserved words
-	#     LONG   e_lfanew;                    // File address of new exe header
-	#   } IMAGE_DOS_HEADER, *PIMAGE_DOS_HEADER;
-	#
-
 	IMAGE_DOS_HEADER_SIZE = 64
+	# Struct
+	#   typedef struct _IMAGE_DOS_HEADER {      // DOS .EXE header
+	#       WORD   e_magic;                     // Magic number
+	#       WORD   e_cblp;                      // Bytes on last page of file
+	#       WORD   e_cp;                        // Pages in file
+	#       WORD   e_crlc;                      // Relocations
+	#       WORD   e_cparhdr;                   // Size of header in paragraphs
+	#       WORD   e_minalloc;                  // Minimum extra paragraphs needed
+	#       WORD   e_maxalloc;                  // Maximum extra paragraphs needed
+	#       WORD   e_ss;                        // Initial (relative) SS value
+	#       WORD   e_sp;                        // Initial SP value
+	#       WORD   e_csum;                      // Checksum
+	#       WORD   e_ip;                        // Initial IP value
+	#       WORD   e_cs;                        // Initial (relative) CS value
+	#       WORD   e_lfarlc;                    // File address of relocation table
+	#       WORD   e_ovno;                      // Overlay number
+	#       WORD   e_res[4];                    // Reserved words
+	#       WORD   e_oemid;                     // OEM identifier (for e_oeminfo)
+	#       WORD   e_oeminfo;                   // OEM information; e_oemid specific
+	#       WORD   e_res2[10];                  // Reserved words
+	#       LONG   e_lfanew;                    // File address of new exe header
+	#   } IMAGE_DOS_HEADER, *PIMAGE_DOS_HEADER;
 	IMAGE_DOS_HEADER = Rex::Struct2::CStructTemplate.new(
 	  [ 'uint16v', 'e_magic',     IMAGE_DOS_SIGNATURE ],
 	  [ 'uint16v', 'e_cblp',      0 ],
@@ -142,31 +137,29 @@ class PeBase
 		return DosHeader.new(rawdata)
 	end
 
-	#
-	# typedef struct _IMAGE_FILE_HEADER {
-	#     WORD    Machine;
-	#     WORD    NumberOfSections;
-	#     DWORD   TimeDateStamp;
-	#     DWORD   PointerToSymbolTable;
-	#     DWORD   NumberOfSymbols;
-	#     WORD    SizeOfOptionalHeader;
-	#     WORD    Characteristics;
-	# } IMAGE_FILE_HEADER, *PIMAGE_FILE_HEADER;
-	#
 	# #define IMAGE_NT_SIGNATURE                  0x00004550  // PE00
-	# #define IMAGE_FILE_MACHINE_I386              0x014c  // Intel 386.
-	# #define IMAGE_FILE_MACHINE_IA64              0x0200  // Intel 64
-	# #define IMAGE_FILE_MACHINE_ALPHA64           0x0284  // ALPHA64
-	# #define IMAGE_FILE_MACHINE_AMD64             0x8664  // AMD64 (K8)
-	# #define IMAGE_SIZEOF_FILE_HEADER             20
-	#
-
 	IMAGE_NT_SIGNATURE       = 0x00004550
+	# #define IMAGE_FILE_MACHINE_I386              0x014c  // Intel 386.
 	IMAGE_FILE_MACHINE_I386  = 0x014c
+	# #define IMAGE_FILE_MACHINE_IA64              0x0200  // Intel 64
 	IMAGE_FILE_MACHINE_IA64  = 0x0200
+	# #define IMAGE_FILE_MACHINE_ALPHA64           0x0284  // ALPHA64
 	IMAGE_FILE_MACHINE_ALPHA64 = 0x0284
+	# #define IMAGE_FILE_MACHINE_AMD64             0x8664  // AMD64 (K8)
 	IMAGE_FILE_MACHINE_AMD64 = 0x8664
+	# #define IMAGE_SIZEOF_FILE_HEADER             20
 	IMAGE_FILE_HEADER_SIZE   = 20+4  # because we include the signature
+
+	# C struct defining the PE file header
+	#   typedef struct _IMAGE_FILE_HEADER {
+	#       WORD    Machine;
+	#       WORD    NumberOfSections;
+	#       DWORD   TimeDateStamp;
+	#       DWORD   PointerToSymbolTable;
+	#       DWORD   NumberOfSymbols;
+	#       WORD    SizeOfOptionalHeader;
+	#       WORD    Characteristics;
+	#   } IMAGE_FILE_HEADER, *PIMAGE_FILE_HEADER;
 	IMAGE_FILE_HEADER = Rex::Struct2::CStructTemplate.new(
 	  # not really in the header, but easier for us this way
 	  [ 'uint32v', 'NtSignature',           0 ],
@@ -222,24 +215,23 @@ class PeBase
 		return FileHeader.new(rawdata)
 	end
 
-	#
-	# typedef struct _IMAGE_IMPORT_DESCRIPTOR {
-	#     union {
-	#         DWORD   Characteristics;            // 0 for terminating null import descriptor
-	#         DWORD   OriginalFirstThunk;         // RVA to original unbound IAT (PIMAGE_THUNK_DATA)
-	#     };
-	#     DWORD   TimeDateStamp;                  // 0 if not bound,
-	#                                             // -1 if bound, and real date\time stamp
-	#                                             //     in IMAGE_DIRECTORY_ENTRY_BOUND_IMPORT (new BIND)
-	#                                             // O.W. date/time stamp of DLL bound to (Old BIND)
-	#
-	#     DWORD   ForwarderChain;                 // -1 if no forwarders
-	#     DWORD   Name;
-	#     DWORD   FirstThunk;                     // RVA to IAT (if bound this IAT has actual addresses)
-	# } IMAGE_IMPORT_DESCRIPTOR;
-	#
 	IMAGE_ORDINAL_FLAG32         = 0x80000000
 	IMAGE_IMPORT_DESCRIPTOR_SIZE = 20
+	# Struct
+	#   typedef struct _IMAGE_IMPORT_DESCRIPTOR {
+	#       union {
+	#           DWORD   Characteristics;            // 0 for terminating null import descriptor
+	#           DWORD   OriginalFirstThunk;         // RVA to original unbound IAT (PIMAGE_THUNK_DATA)
+	#       };
+	#       DWORD   TimeDateStamp;                  // 0 if not bound,
+	#                                               // -1 if bound, and real date\time stamp
+	#                                               //     in IMAGE_DIRECTORY_ENTRY_BOUND_IMPORT (new BIND)
+	#                                               // O.W. date/time stamp of DLL bound to (Old BIND)
+	#
+	#       DWORD   ForwarderChain;                 // -1 if no forwarders
+	#       DWORD   Name;
+	#       DWORD   FirstThunk;                     // RVA to IAT (if bound this IAT has actual addresses)
+	#   } IMAGE_IMPORT_DESCRIPTOR;
 	IMAGE_IMPORT_DESCRIPTOR = Rex::Struct2::CStructTemplate.new(
 	  [ 'uint32v', 'OriginalFirstThunk',           0 ],
 	  [ 'uint32v', 'TimeDateStamp',                0 ],
@@ -248,11 +240,10 @@ class PeBase
 	  [ 'uint32v', 'FirstThunk',                   0 ]
 	)
 
-	#
-	# typedef struct _IMAGE_IMPORT_BY_NAME {
-	#     WORD    Hint;
-	#     BYTE    Name[1];
-	# } IMAGE_IMPORT_BY_NAME, *PIMAGE_IMPORT_BY_NAME;
+	#   typedef struct _IMAGE_IMPORT_BY_NAME {
+	#       WORD    Hint;
+	#       BYTE    Name[1];
+	#   } IMAGE_IMPORT_BY_NAME, *PIMAGE_IMPORT_BY_NAME;
 	#
 
 	class ImportDescriptor
@@ -271,22 +262,22 @@ class PeBase
 		end
 	end
 
-	#
-	# typedef struct _IMAGE_EXPORT_DIRECTORY {
-	#     DWORD   Characteristics;
-	#     DWORD   TimeDateStamp;
-	#     WORD    MajorVersion;
-	#     WORD    MinorVersion;
-	#     DWORD   Name;
-	#     DWORD   Base;
-	#     DWORD   NumberOfFunctions;
-	#     DWORD   NumberOfNames;
-	#     DWORD   AddressOfFunctions;     // RVA from base of image
-	#     DWORD   AddressOfNames;         // RVA from base of image
-	#     DWORD   AddressOfNameOrdinals;  // RVA from base of image
-	# } IMAGE_EXPORT_DIRECTORY, *PIMAGE_EXPORT_DIRECTORY;
-	#
+	# sizeof(struct _IMAGE_EXPORT_DESCRIPTOR)
 	IMAGE_EXPORT_DESCRIPTOR_SIZE = 40
+	# Struct defining the export table
+	#   typedef struct _IMAGE_EXPORT_DIRECTORY {
+	#       DWORD   Characteristics;
+	#       DWORD   TimeDateStamp;
+	#       WORD    MajorVersion;
+	#       WORD    MinorVersion;
+	#       DWORD   Name;
+	#       DWORD   Base;
+	#       DWORD   NumberOfFunctions;
+	#       DWORD   NumberOfNames;
+	#       DWORD   AddressOfFunctions;     // RVA from base of image
+	#       DWORD   AddressOfNames;         // RVA from base of image
+	#       DWORD   AddressOfNameOrdinals;  // RVA from base of image
+	#   } IMAGE_EXPORT_DIRECTORY, *PIMAGE_EXPORT_DIRECTORY;
 	IMAGE_EXPORT_DESCRIPTOR = Rex::Struct2::CStructTemplate.new(
 	  [ 'uint32v', 'Characteristics',              0 ],
 	  [ 'uint32v', 'TimeDateStamp',                0 ],
@@ -320,12 +311,6 @@ class PeBase
 		end
 	end
 
-	#
-	# typedef struct _IMAGE_DATA_DIRECTORY {
-	#     DWORD   VirtualAddress;
-	#     DWORD   Size;
-	# } IMAGE_DATA_DIRECTORY, *PIMAGE_DATA_DIRECTORY;
-	#
 	IMAGE_NUMBEROF_DIRECTORY_ENTRIES = 16
 	IMAGE_DATA_DIRECTORY_SIZE        = 8
 	IMAGE_DIRECTORY_ENTRY_EXPORT         = 0
@@ -344,57 +329,62 @@ class PeBase
 	IMAGE_DIRECTORY_ENTRY_IAT            = 12
 	IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT   = 13
 	IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR = 14
+	# Struct
+	#   typedef struct _IMAGE_DATA_DIRECTORY {
+	#       DWORD   VirtualAddress;
+	#       DWORD   Size;
+	#   } IMAGE_DATA_DIRECTORY, *PIMAGE_DATA_DIRECTORY;
 	IMAGE_DATA_DIRECTORY = Rex::Struct2::CStructTemplate.new(
 	  [ 'uint32v', 'VirtualAddress',               0 ],
 	  [ 'uint32v', 'Size',                         0 ]
 	)
 
+	# Struct
+	#   typedef struct _IMAGE_OPTIONAL_HEADER {
+	#       //
+	#       // Standard fields.
+	#       //
 	#
-	# typedef struct _IMAGE_OPTIONAL_HEADER {
-	#     //
-	#     // Standard fields.
-	#     //
+	#       WORD    Magic;
+	#       BYTE    MajorLinkerVersion;
+	#       BYTE    MinorLinkerVersion;
+	#       DWORD   SizeOfCode;
+	#       DWORD   SizeOfInitializedData;
+	#       DWORD   SizeOfUninitializedData;
+	#       DWORD   AddressOfEntryPoint;
+	#       DWORD   BaseOfCode;
+	#       DWORD   BaseOfData;
 	#
-	#     WORD    Magic;
-	#     BYTE    MajorLinkerVersion;
-	#     BYTE    MinorLinkerVersion;
-	#     DWORD   SizeOfCode;
-	#     DWORD   SizeOfInitializedData;
-	#     DWORD   SizeOfUninitializedData;
-	#     DWORD   AddressOfEntryPoint;
-	#     DWORD   BaseOfCode;
-	#     DWORD   BaseOfData;
+	#       //
+	#       // NT additional fields.
+	#       //
 	#
-	#     //
-	#     // NT additional fields.
-	#     //
+	#       DWORD   ImageBase;
+	#       DWORD   SectionAlignment;
+	#       DWORD   FileAlignment;
+	#       WORD    MajorOperatingSystemVersion;
+	#       WORD    MinorOperatingSystemVersion;
+	#       WORD    MajorImageVersion;
+	#       WORD    MinorImageVersion;
+	#       WORD    MajorSubsystemVersion;
+	#       WORD    MinorSubsystemVersion;
+	#       DWORD   Win32VersionValue;
+	#       DWORD   SizeOfImage;
+	#       DWORD   SizeOfHeaders;
+	#       DWORD   CheckSum;
+	#       WORD    Subsystem;
+	#       WORD    DllCharacteristics;
+	#       DWORD   SizeOfStackReserve;
+	#       DWORD   SizeOfStackCommit;
+	#       DWORD   SizeOfHeapReserve;
+	#       DWORD   SizeOfHeapCommit;
+	#       DWORD   LoaderFlags;
+	#       DWORD   NumberOfRvaAndSizes;
+	#       IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
+	#   } IMAGE_OPTIONAL_HEADER32, *PIMAGE_OPTIONAL_HEADER32;
 	#
-	#     DWORD   ImageBase;
-	#     DWORD   SectionAlignment;
-	#     DWORD   FileAlignment;
-	#     WORD    MajorOperatingSystemVersion;
-	#     WORD    MinorOperatingSystemVersion;
-	#     WORD    MajorImageVersion;
-	#     WORD    MinorImageVersion;
-	#     WORD    MajorSubsystemVersion;
-	#     WORD    MinorSubsystemVersion;
-	#     DWORD   Win32VersionValue;
-	#     DWORD   SizeOfImage;
-	#     DWORD   SizeOfHeaders;
-	#     DWORD   CheckSum;
-	#     WORD    Subsystem;
-	#     WORD    DllCharacteristics;
-	#     DWORD   SizeOfStackReserve;
-	#     DWORD   SizeOfStackCommit;
-	#     DWORD   SizeOfHeapReserve;
-	#     DWORD   SizeOfHeapCommit;
-	#     DWORD   LoaderFlags;
-	#     DWORD   NumberOfRvaAndSizes;
-	#     IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
-	# } IMAGE_OPTIONAL_HEADER32, *PIMAGE_OPTIONAL_HEADER32;
-	#
-	# #define IMAGE_NT_OPTIONAL_HDR32_MAGIC      0x10b
-	# #define IMAGE_SIZEOF_NT_OPTIONAL32_HEADER    224
+	#   #define IMAGE_NT_OPTIONAL_HDR32_MAGIC      0x10b
+	#   #define IMAGE_SIZEOF_NT_OPTIONAL32_HEADER    224
 	#
 
 	IMAGE_NT_OPTIONAL_HDR32_MAGIC     = 0x10b
@@ -450,46 +440,44 @@ class PeBase
 	  )]
 	)
 
-	#
-	# typedef struct _IMAGE_OPTIONAL_HEADER64 {
-	# 	 USHORT      Magic;
-	# 	 UCHAR       MajorLinkerVersion;
-	# 	 UCHAR       MinorLinkerVersion;
-	# 	 ULONG       SizeOfCode;
-	# 	 ULONG       SizeOfInitializedData;
-	# 	 ULONG       SizeOfUninitializedData;
-	# 	 ULONG       AddressOfEntryPoint;
-	# 	 ULONG       BaseOfCode;
-	# 	 ULONGLONG   ImageBase;
-	# 	 ULONG       SectionAlignment;
-	# 	 ULONG       FileAlignment;
-	# 	 USHORT      MajorOperatingSystemVersion;
-	# 	 USHORT      MinorOperatingSystemVersion;
-	# 	 USHORT      MajorImageVersion;
-	# 	 USHORT      MinorImageVersion;
-	# 	 USHORT      MajorSubsystemVersion;
-	# 	 USHORT      MinorSubsystemVersion;
-	# 	 ULONG       Win32VersionValue;
-	# 	 ULONG       SizeOfImage;
-	# 	 ULONG       SizeOfHeaders;
-	# 	 ULONG       CheckSum;
-	# 	 USHORT      Subsystem;
-	# 	 USHORT      DllCharacteristics;
-	# 	 ULONGLONG   SizeOfStackReserve;
-	# 	 ULONGLONG   SizeOfStackCommit;
-	# 	 ULONGLONG   SizeOfHeapReserve;
-	# 	 ULONGLONG   SizeOfHeapCommit;
-	# 	 ULONG       LoaderFlags;
-	# 	 ULONG       NumberOfRvaAndSizes;
-	# 	 IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
-	# } IMAGE_OPTIONAL_HEADER64, *PIMAGE_OPTIONAL_HEADER64;
-	#
-	# #define IMAGE_NT_OPTIONAL_HDR64_MAGIC      0x20b
 	# #define IMAGE_SIZEOF_NT_OPTIONAL64_HEADER    240
-	#
-
 	IMAGE_NT_OPTIONAL_HDR64_MAGIC     = 0x20b
+	# #define IMAGE_NT_OPTIONAL_HDR64_MAGIC      0x20b
 	IMAGE_SIZEOF_NT_OPTIONAL64_HEADER = 240
+
+	# Struct
+	#   typedef struct _IMAGE_OPTIONAL_HEADER64 {
+	#      USHORT      Magic;
+	#      UCHAR       MajorLinkerVersion;
+	#      UCHAR       MinorLinkerVersion;
+	#      ULONG       SizeOfCode;
+	#      ULONG       SizeOfInitializedData;
+	#      ULONG       SizeOfUninitializedData;
+	#      ULONG       AddressOfEntryPoint;
+	#      ULONG       BaseOfCode;
+	#      ULONGLONG   ImageBase;
+	#      ULONG       SectionAlignment;
+	#      ULONG       FileAlignment;
+	#      USHORT      MajorOperatingSystemVersion;
+	#      USHORT      MinorOperatingSystemVersion;
+	#      USHORT      MajorImageVersion;
+	#      USHORT      MinorImageVersion;
+	#      USHORT      MajorSubsystemVersion;
+	#      USHORT      MinorSubsystemVersion;
+	#      ULONG       Win32VersionValue;
+	#      ULONG       SizeOfImage;
+	#      ULONG       SizeOfHeaders;
+	#      ULONG       CheckSum;
+	#      USHORT      Subsystem;
+	#      USHORT      DllCharacteristics;
+	#      ULONGLONG   SizeOfStackReserve;
+	#      ULONGLONG   SizeOfStackCommit;
+	#      ULONGLONG   SizeOfHeapReserve;
+	#      ULONGLONG   SizeOfHeapCommit;
+	#      ULONG       LoaderFlags;
+	#      ULONG       NumberOfRvaAndSizes;
+	#      IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
+	#   } IMAGE_OPTIONAL_HEADER64, *PIMAGE_OPTIONAL_HEADER64;
 	IMAGE_OPTIONAL_HEADER64 = Rex::Struct2::CStructTemplate.new(
 	  [ 'uint16v', 'Magic',                        0 ],
 	  [ 'uint8',   'MajorLinkerVersion',           0 ],
@@ -601,27 +589,24 @@ class PeBase
 
 	end
 
-	#
-	# typedef struct _IMAGE_SECTION_HEADER {
-	#     BYTE    Name[IMAGE_SIZEOF_SHORT_NAME];
-	#     union {
-	#             DWORD   PhysicalAddress;
-	#             DWORD   VirtualSize;
-	#     } Misc;
-	#     DWORD   VirtualAddress;
-	#     DWORD   SizeOfRawData;
-	#     DWORD   PointerToRawData;
-	#     DWORD   PointerToRelocations;
-	#     DWORD   PointerToLinenumbers;
-	#     WORD    NumberOfRelocations;
-	#     WORD    NumberOfLinenumbers;
-	#     DWORD   Characteristics;
-	# } IMAGE_SECTION_HEADER, *PIMAGE_SECTION_HEADER;
-	#
 	# #define IMAGE_SIZEOF_SECTION_HEADER          40
-	#
-
 	IMAGE_SIZEOF_SECTION_HEADER = 40
+	# Struct
+	#   typedef struct _IMAGE_SECTION_HEADER {
+	#       BYTE    Name[IMAGE_SIZEOF_SHORT_NAME];
+	#       union {
+	#               DWORD   PhysicalAddress;
+	#               DWORD   VirtualSize;
+	#       } Misc;
+	#       DWORD   VirtualAddress;
+	#       DWORD   SizeOfRawData;
+	#       DWORD   PointerToRawData;
+	#       DWORD   PointerToRelocations;
+	#       DWORD   PointerToLinenumbers;
+	#       WORD    NumberOfRelocations;
+	#       WORD    NumberOfLinenumbers;
+	#       DWORD   Characteristics;
+	#   } IMAGE_SECTION_HEADER, *PIMAGE_SECTION_HEADER;
 	IMAGE_SECTION_HEADER = Rex::Struct2::CStructTemplate.new(
 	  [ 'string',  'Name', 8,               '' ],
 	  [ 'uint32v', 'Misc',                   0 ],
@@ -669,17 +654,16 @@ class PeBase
 		return section_headers
 	end
 
-	#
-	# typedef struct _IMAGE_BASE_RELOCATION {
-	#     DWORD   VirtualAddress;
-	#     DWORD   SizeOfBlock;
-	# //  WORD    TypeOffset[1];
-	# } IMAGE_BASE_RELOCATION;
-	# typedef IMAGE_BASE_RELOCATION UNALIGNED * PIMAGE_BASE_RELOCATION;
-	#
 	# #define IMAGE_SIZEOF_BASE_RELOCATION         8
-	#
 	IMAGE_SIZEOF_BASE_RELOCATION = 8
+
+	# Struct
+	#   typedef struct _IMAGE_BASE_RELOCATION {
+	#       DWORD   VirtualAddress;
+	#       DWORD   SizeOfBlock;
+	#   //  WORD    TypeOffset[1];
+	#   } IMAGE_BASE_RELOCATION;
+	#   typedef IMAGE_BASE_RELOCATION UNALIGNED * PIMAGE_BASE_RELOCATION;
 	IMAGE_BASE_RELOCATION = Rex::Struct2::CStructTemplate.new(
 	  [ 'uint32v', 'VirtualAddress',         0 ],
 	  [ 'uint32v', 'SizeOfBlock',            0 ]
@@ -739,29 +723,29 @@ class PeBase
 		end
 	end
 
-	#
-	# typedef struct {
-	#     DWORD   Size;
-	#     DWORD   TimeDateStamp;
-	#     WORD    MajorVersion;
-	#     WORD    MinorVersion;
-	#     DWORD   GlobalFlagsClear;
-	#     DWORD   GlobalFlagsSet;
-	#     DWORD   CriticalSectionDefaultTimeout;
-	#     DWORD   DeCommitFreeBlockThreshold;
-	#     DWORD   DeCommitTotalFreeThreshold;
-	#     DWORD   LockPrefixTable;            // VA
-	#     DWORD   MaximumAllocationSize;
-	#     DWORD   VirtualMemoryThreshold;
-	#     DWORD   ProcessHeapFlags;
-	#     DWORD   ProcessAffinityMask;
-	#     WORD    CSDVersion;
-	#     WORD    Reserved1;
-	#     DWORD   EditList;                   // VA
-	#     DWORD   SecurityCookie;             // VA
-	#     DWORD   SEHandlerTable;             // VA
-	#     DWORD   SEHandlerCount;
-	# } IMAGE_LOAD_CONFIG_DIRECTORY32, *PIMAGE_LOAD_CONFIG_DIRECTORY32;
+	# Struct
+	#   typedef struct {
+	#       DWORD   Size;
+	#       DWORD   TimeDateStamp;
+	#       WORD    MajorVersion;
+	#       WORD    MinorVersion;
+	#       DWORD   GlobalFlagsClear;
+	#       DWORD   GlobalFlagsSet;
+	#       DWORD   CriticalSectionDefaultTimeout;
+	#       DWORD   DeCommitFreeBlockThreshold;
+	#       DWORD   DeCommitTotalFreeThreshold;
+	#       DWORD   LockPrefixTable;            // VA
+	#       DWORD   MaximumAllocationSize;
+	#       DWORD   VirtualMemoryThreshold;
+	#       DWORD   ProcessHeapFlags;
+	#       DWORD   ProcessAffinityMask;
+	#       WORD    CSDVersion;
+	#       WORD    Reserved1;
+	#       DWORD   EditList;                   // VA
+	#       DWORD   SecurityCookie;             // VA
+	#       DWORD   SEHandlerTable;             // VA
+	#       DWORD   SEHandlerCount;
+	#   } IMAGE_LOAD_CONFIG_DIRECTORY32, *PIMAGE_LOAD_CONFIG_DIRECTORY32;
 	#
 	IMAGE_LOAD_CONFIG_DIRECTORY32 = Rex::Struct2::CStructTemplate.new(
 	  [ 'uint32v', 'Size',                          0 ],
@@ -786,30 +770,29 @@ class PeBase
 	  [ 'uint32v', 'SEHandlerCount',                0 ]
 	)
 
-	#
-	# typedef struct {
-	# 	 ULONG      Size;
-	# 	 ULONG      TimeDateStamp;
-	# 	 USHORT     MajorVersion;
-	# 	 USHORT     MinorVersion;
-	# 	 ULONG      GlobalFlagsClear;
-	# 	 ULONG      GlobalFlagsSet;
-	# 	 ULONG      CriticalSectionDefaultTimeout;
-	# 	 ULONGLONG  DeCommitFreeBlockThreshold;
-	# 	 ULONGLONG  DeCommitTotalFreeThreshold;
-	# 	 ULONGLONG  LockPrefixTable;         // VA
-	# 	 ULONGLONG  MaximumAllocationSize;
-	# 	 ULONGLONG  VirtualMemoryThreshold;
-	# 	 ULONGLONG  ProcessAffinityMask;
-	# 	 ULONG      ProcessHeapFlags;
-	# 	 USHORT     CSDVersion;
-	# 	 USHORT     Reserved1;
-	# 	 ULONGLONG  EditList;                // VA
-	# 	 ULONGLONG  SecurityCookie;          // VA
-	# 	 ULONGLONG  SEHandlerTable;          // VA
-	# 	 ULONGLONG  SEHandlerCount;
-	# } IMAGE_LOAD_CONFIG_DIRECTORY64, *PIMAGE_LOAD_CONFIG_DIRECTORY64;
-	#
+	# Struct
+	#   typedef struct {
+	#       ULONG      Size;
+	#       ULONG      TimeDateStamp;
+	#       USHORT     MajorVersion;
+	#       USHORT     MinorVersion;
+	#       ULONG      GlobalFlagsClear;
+	#       ULONG      GlobalFlagsSet;
+	#       ULONG      CriticalSectionDefaultTimeout;
+	#       ULONGLONG  DeCommitFreeBlockThreshold;
+	#       ULONGLONG  DeCommitTotalFreeThreshold;
+	#       ULONGLONG  LockPrefixTable;         // VA
+	#       ULONGLONG  MaximumAllocationSize;
+	#       ULONGLONG  VirtualMemoryThreshold;
+	#       ULONGLONG  ProcessAffinityMask;
+	#       ULONG      ProcessHeapFlags;
+	#       USHORT     CSDVersion;
+	#       USHORT     Reserved1;
+	#       ULONGLONG  EditList;                // VA
+	#       ULONGLONG  SecurityCookie;          // VA
+	#       ULONGLONG  SEHandlerTable;          // VA
+	#       ULONGLONG  SEHandlerCount;
+	#   } IMAGE_LOAD_CONFIG_DIRECTORY64, *PIMAGE_LOAD_CONFIG_DIRECTORY64;
 	IMAGE_LOAD_CONFIG_DIRECTORY64 = Rex::Struct2::CStructTemplate.new(
 	  [ 'uint32v', 'Size',                          0 ],
 	  [ 'uint32v', 'TimeDateStamp',                 0 ],
@@ -838,12 +821,14 @@ class PeBase
 
 	end
 
+	#--
 	# doesn't seem to be used -- not compatible with 64-bit
 	#def self._parse_config_header(rawdata)
 	#	header = IMAGE_LOAD_CONFIG_DIRECTORY32.make_struct
 	#	header.from_s(rawdata)
 	#	ConfigHeader.new(header)
 	#end
+	#++
 
 	def _parse_config_header
 
@@ -879,30 +864,29 @@ class PeBase
 	# TLS Directory
 	#
 
-	#
-	# typedef struct {
-	#     DWORD   Size;
-	#     DWORD   TimeDateStamp;
-	#     WORD    MajorVersion;
-	#     WORD    MinorVersion;
-	#     DWORD   GlobalFlagsClear;
-	#     DWORD   GlobalFlagsSet;
-	#     DWORD   CriticalSectionDefaultTimeout;
-	#     DWORD   DeCommitFreeBlockThreshold;
-	#     DWORD   DeCommitTotalFreeThreshold;
-	#     DWORD   LockPrefixTable;            // VA
-	#     DWORD   MaximumAllocationSize;
-	#     DWORD   VirtualMemoryThreshold;
-	#     DWORD   ProcessHeapFlags;
-	#     DWORD   ProcessAffinityMask;
-	#     WORD    CSDVersion;
-	#     WORD    Reserved1;
-	#     DWORD   EditList;                   // VA
-	#     DWORD   SecurityCookie;             // VA
-	#     DWORD   SEHandlerTable;             // VA
-	#     DWORD   SEHandlerCount;
-	# } IMAGE_LOAD_CONFIG_DIRECTORY32, *PIMAGE_LOAD_CONFIG_DIRECTORY32;
-	#
+	# Struct
+	#   typedef struct {
+	#       DWORD   Size;
+	#       DWORD   TimeDateStamp;
+	#       WORD    MajorVersion;
+	#       WORD    MinorVersion;
+	#       DWORD   GlobalFlagsClear;
+	#       DWORD   GlobalFlagsSet;
+	#       DWORD   CriticalSectionDefaultTimeout;
+	#       DWORD   DeCommitFreeBlockThreshold;
+	#       DWORD   DeCommitTotalFreeThreshold;
+	#       DWORD   LockPrefixTable;            // VA
+	#       DWORD   MaximumAllocationSize;
+	#       DWORD   VirtualMemoryThreshold;
+	#       DWORD   ProcessHeapFlags;
+	#       DWORD   ProcessAffinityMask;
+	#       WORD    CSDVersion;
+	#       WORD    Reserved1;
+	#       DWORD   EditList;                   // VA
+	#       DWORD   SecurityCookie;             // VA
+	#       DWORD   SEHandlerTable;             // VA
+	#       DWORD   SEHandlerCount;
+	#   } IMAGE_LOAD_CONFIG_DIRECTORY32, *PIMAGE_LOAD_CONFIG_DIRECTORY32;
 	IMAGE_LOAD_TLS_DIRECTORY32 = Rex::Struct2::CStructTemplate.new(
 	  [ 'uint32v', 'Size',                          0 ],
 	  [ 'uint32v', 'TimeDateStamp',                 0 ],
@@ -926,30 +910,29 @@ class PeBase
 	  [ 'uint32v', 'SEHandlerCount',                0 ]
 	)
 
-	#
-	# typedef struct {
-	# 	 ULONG      Size;
-	# 	 ULONG      TimeDateStamp;
-	# 	 USHORT     MajorVersion;
-	# 	 USHORT     MinorVersion;
-	# 	 ULONG      GlobalFlagsClear;
-	# 	 ULONG      GlobalFlagsSet;
-	# 	 ULONG      CriticalSectionDefaultTimeout;
-	# 	 ULONGLONG  DeCommitFreeBlockThreshold;
-	# 	 ULONGLONG  DeCommitTotalFreeThreshold;
-	# 	 ULONGLONG  LockPrefixTable;         // VA
-	# 	 ULONGLONG  MaximumAllocationSize;
-	# 	 ULONGLONG  VirtualMemoryThreshold;
-	# 	 ULONGLONG  ProcessAffinityMask;
-	# 	 ULONG      ProcessHeapFlags;
-	# 	 USHORT     CSDVersion;
-	# 	 USHORT     Reserved1;
-	# 	 ULONGLONG  EditList;                // VA
-	# 	 ULONGLONG  SecurityCookie;          // VA
-	# 	 ULONGLONG  SEHandlerTable;          // VA
-	# 	 ULONGLONG  SEHandlerCount;
-	# } IMAGE_LOAD_CONFIG_DIRECTORY64, *PIMAGE_LOAD_CONFIG_DIRECTORY64;
-	#
+	# Struct
+	#   typedef struct {
+	#       ULONG      Size;
+	#       ULONG      TimeDateStamp;
+	#       USHORT     MajorVersion;
+	#       USHORT     MinorVersion;
+	#       ULONG      GlobalFlagsClear;
+	#       ULONG      GlobalFlagsSet;
+	#       ULONG      CriticalSectionDefaultTimeout;
+	#       ULONGLONG  DeCommitFreeBlockThreshold;
+	#       ULONGLONG  DeCommitTotalFreeThreshold;
+	#       ULONGLONG  LockPrefixTable;         // VA
+	#       ULONGLONG  MaximumAllocationSize;
+	#       ULONGLONG  VirtualMemoryThreshold;
+	#       ULONGLONG  ProcessAffinityMask;
+	#       ULONG      ProcessHeapFlags;
+	#       USHORT     CSDVersion;
+	#       USHORT     Reserved1;
+	#       ULONGLONG  EditList;                // VA
+	#       ULONGLONG  SecurityCookie;          // VA
+	#       ULONGLONG  SEHandlerTable;          // VA
+	#       ULONGLONG  SEHandlerCount;
+	#   } IMAGE_LOAD_CONFIG_DIRECTORY64, *PIMAGE_LOAD_CONFIG_DIRECTORY64;
 	IMAGE_LOAD_TLS_DIRECTORY64 = Rex::Struct2::CStructTemplate.new(
 	  [ 'uint32v', 'Size',                          0 ],
 	  [ 'uint32v', 'TimeDateStamp',                 0 ],
@@ -1014,14 +997,13 @@ class PeBase
 	#
 	##
 
-	#
-	# typedef struct _IMAGE_RUNTIME_FUNCTION_ENTRY {
-	#     DWORD BeginAddress;
-	#     DWORD EndAddress;
-	#     DWORD UnwindInfoAddress;
-	# } _IMAGE_RUNTIME_FUNCTION_ENTRY, *_PIMAGE_RUNTIME_FUNCTION_ENTRY;
-	#
 	IMAGE_RUNTIME_FUNCTION_ENTRY_SZ = 12
+	# Struct
+	#   typedef struct _IMAGE_RUNTIME_FUNCTION_ENTRY {
+	#       DWORD BeginAddress;
+	#       DWORD EndAddress;
+	#       DWORD UnwindInfoAddress;
+	#   } _IMAGE_RUNTIME_FUNCTION_ENTRY, *_PIMAGE_RUNTIME_FUNCTION_ENTRY;
 	IMAGE_RUNTIME_FUNCTION_ENTRY = Rex::Struct2::CStructTemplate.new(
 	  [ 'uint32v', 'BeginAddress',                  0 ],
 	  [ 'uint32v', 'EndAddress',                    0 ],
@@ -1069,7 +1051,7 @@ class PeBase
 	class UnwindInfo
 		def initialize(pe, unwind_rva)
 			data = pe.read_rva(unwind_rva, UNWIND_INFO_HEADER_SZ)
-		
+
 			unwind  = UNWIND_INFO_HEADER.make_struct
 			unwind.from_s(data)
 
@@ -1115,26 +1097,26 @@ class PeBase
 
 	def _load_exception_directory
 		@exception   = []
-		
+
 		exception_entry = _optional_header['DataDirectory'][IMAGE_DIRECTORY_ENTRY_EXCEPTION]
 		rva             = exception_entry.v['VirtualAddress']
 		size            = exception_entry.v['Size']
-		
+
 		return if (rva == 0)
-		
+
 		data = _isource.read(rva_to_file_offset(rva), size)
-		
+
 		case hdr.file.Machine
 			when IMAGE_FILE_MACHINE_AMD64
 				count = data.length / IMAGE_RUNTIME_FUNCTION_ENTRY_SZ
-				
+
 				count.times { |current|
 					@exception << RuntimeFunctionEntry.new(self,
 						data.slice!(0, IMAGE_RUNTIME_FUNCTION_ENTRY_SZ))
 				}
 			else
 		end
-		
+
 		return @exception
 	end
 
@@ -1651,7 +1633,7 @@ class PeBase
 
 		rname.to_s
 	end
-	
+
 	def update_checksum
 		off = _dos_header.e_lfanew + IMAGE_FILE_HEADER_SIZE + 0x40
 		_isource.rawdata[off, 4] = [0].pack('V')
