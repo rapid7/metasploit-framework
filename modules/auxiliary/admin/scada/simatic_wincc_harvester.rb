@@ -151,17 +151,10 @@ class Metasploit3 < Msf::Auxiliary
 			print_table %w|ID NAME Password(hex) Password(text) GRPID|, prj[db]["users"], "WinCC users"
 			print_table %w|VARNAME VARTYP COMMENTS|, prj[db]["tags"], "WinCC tags"
 			print_table %w|CONNECTIONNAME PARAMETER|, prj[db]["plcs"], "WinCC PLCs"
-<<<<<<< HEAD
 
 			prj[db]["admins"].map do |usr|
 				report_auth_info(
 					:host => "1.2.3.4",
-=======
-			
-			prj[db]["admins"].map do |usr|
-				report_auth_info(
-					:host => datastore['RHOST'],
->>>>>>> 5b2269a5e6176bc0633e5f00f09a23b3814c9541
 					:port => datastore['RPORT'],
 					:sname => 'HMI User',
 					:user => usr[0].strip,
@@ -170,17 +163,10 @@ class Metasploit3 < Msf::Auxiliary
 					:active => true
 				)
 			end
-<<<<<<< HEAD
 
 			prj[db]["users"].map do |usr|
 				report_auth_info(
 					:host => "1.2.3.4",
-=======
-			
-			prj[db]["users"].map do |usr|
-				report_auth_info(
-					:host => datastore['RHOST'],
->>>>>>> 5b2269a5e6176bc0633e5f00f09a23b3814c9541
 					:port => datastore['RPORT'],
 					:sname => 'HMI User',
 					:user => usr[1].strip,
@@ -189,14 +175,9 @@ class Metasploit3 < Msf::Auxiliary
 					:active => true
 				)
 			end
-<<<<<<< HEAD
 
 		end
 	end
-=======
-    	end
-    end
->>>>>>> 5b2269a5e6176bc0633e5f00f09a23b3814c9541
 
 end
 
