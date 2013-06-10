@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 		[
 			Opt::RPORT(80),
 			OptString.new('USERNAME', [false, 'A specific username to authenticate as', 'admin']),
-			OptString.new('PASSWORD', [false, 'A specific password to authenticate with', 'SevOne'])		
+			OptString.new('PASSWORD', [false, 'A specific password to authenticate with', 'SevOne'])
 		], self.class)
 	end
 
