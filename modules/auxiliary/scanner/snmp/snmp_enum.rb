@@ -84,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			systemDate = snmp.get_value('1.3.6.1.2.1.25.1.2.0')
 			str = systemDate.to_s
-			if (str.empty? or str =~ /Null/)
+			if (str.empty? or str =~ /Null/ or str =~ /^noSuch/)
 				output_data["System date"] = '-'
 			else
 
@@ -653,7 +653,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			hrFSRemoteMountPoint = snmp.get_value('1.3.6.1.2.1.25.3.8.1.3.1')
-			if hrFSRemoteMountPoint.to_s !~ /Null/
+			if hrFSRemoteMountPoint.to_s !~ /Null/ and hrFSRemoteMountPoint.to_s !~ /^noSuch/
 				if hrFSRemoteMountPoint.empty?
 					hrFSRemoteMountPoint = '-'
 				end
