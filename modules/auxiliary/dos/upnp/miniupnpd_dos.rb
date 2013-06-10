@@ -16,8 +16,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'MiniUPnPd 1.4 Denial of Service (DoS) Exploit',
 			'Description'    => %q{
-					This module allows remote attackers to cause a denial of service in MiniUPnP 1.0
-				server via specifically crafted UDP request.
+					This module allows remote attackers to cause a denial of service (DoS)
+					in MiniUPnP 1.0 server via a specifically crafted UDP request.
 			},
 			'Author'         =>
 				[
