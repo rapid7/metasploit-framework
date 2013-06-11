@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	#
 	# CONSTANTS
-	# Used in to check if remote is eHealth
+	# Used to check if remote app is eHealth
 	#
 
 	EHEALTH_FINGERPRINT = 'Welcome to the CA <i>e<\/i>Health<sup><font size=4>&reg'
@@ -45,14 +45,14 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		unless is_app_ehealth?
-			print_error("Application does not appear to be CA eHealth. Module will not continue.")
+			print_error("#{rhost}:#{rport} -> Application does not appear to be CA eHealth. Module will not continue.")
 			return
 		end
 
 		status = try_default_credential
 		return if status == :abort
 
-		print_status("Brute-forcing...")
+		print_status("#{rhost}:#{rport} -> Brute-forcing...")
 		each_user_pass do |user, pass|
 			do_login(user, pass)
 		end
@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 			if (res and res.code == 200 and res.body.include?(EHEALTH_FINGERPRINT) != nil)
 				version_key = /<title>(.+)<\/title>/
 				version = res.body.scan(version_key).flatten
-				print_good("Application version is #{version}")
+				print_good("#{rhost}:#{rport} -> Application version is #{version}")
 				return true
 			else
 				return false
@@ -92,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
 	# Brute-force the login page
 	#
 	def do_login(user, pass)
-		vprint_status("Trying username:'#{user.inspect}' with password:'#{pass.inspect}'")
+		vprint_status("#{rhost}:#{rport} -> Trying username:'#{user.inspect}' with password:'#{pass.inspect}'")
 		begin
 			res = send_request_cgi(
 			{
@@ -108,14 +108,14 @@ class Metasploit3 < Msf::Auxiliary
 			get_title = res.match(/<title>(.*)<\/title>/mi).captures.first
 
 			if (not res or get_title != "eHealth [#{user}]")
-				vprint_error("FAILED LOGIN. '#{user.inspect}' : '#{pass.inspect}' with code #{res.code}")
+				vprint_error("#{rhost}:#{rport} -> FAILED LOGIN - '#{user.inspect}' : '#{pass.inspect}' with code #{res.code}")
 				return :skip_pass
 			else
-				print_good("SUCCESSFUL LOGIN. '#{user.inspect}' : '#{pass.inspect}'")
+				print_good("#{rhost}:#{rport} -> SUCCESSFUL LOGIN - '#{user.inspect}' : '#{pass.inspect}'")
 
 				report_hash = {
-					:host   => datastore['RHOST'],
-					:port   => datastore['RPORT'],
+					:host   => rhost,
+					:port   => rport,
 					:sname  => 'eHealth',
 					:user   => user,
 					:pass   => pass,
@@ -127,7 +127,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-			print_error("HTTP Connection Failed, Aborting")
+			print_error("#{rhost}:#{rport} -> HTTP Connection Failed, Aborting")
 			return :abort
 		end
 	end
