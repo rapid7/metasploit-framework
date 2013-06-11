@@ -1,7 +1,0 @@
-This directory must be populated with the libs and includes for the commercial
-Packet SDK in order for the sniffer extension to build. This SDK is not
-publicly available at this time.
-
-The 32-bit lib should be copied to win32/pssdk.lib
-The 64-bit lib should be copied to win64/pssdk.lib
-
