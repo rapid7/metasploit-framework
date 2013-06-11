@@ -37,6 +37,33 @@ typedef DWORD (WINAPI * NTOPENTHREAD)( PHANDLE, ACCESS_MASK, _POBJECT_ATTRIBUTES
 
 #else
 #include "pthread.h"
+
+/*
+ *  are we running on a linux 2.4 kernel ?
+ * if this is the case, as we're using pthread, a "few" things might not work
+ * pthread_join will return immediately (sys_futex3 returns immediately as there's no support for futex in 2.4 kernels)
+ * terminated threads end up as zombies in the system, we need to reap them
+ * ...
+ * empiric way observed during testing : if getpid() == getppid(), we're on a 2.4 kernel (didn't happen during testing on a 2.6/3.x kernel)
+ */
+
+extern int is_kernel_24;
+extern pthread_t reaper_tid;
+
+typedef struct pthread_internal_t
+{
+    struct pthread_internal_t*  next;
+    struct pthread_internal_t** pref;
+    pthread_attr_t              attr;
+    pid_t                       kernel_id;
+    pthread_cond_t              join_cond;
+    int                         join_count;
+    void*                       return_value;
+    int                         intern;
+    __pthread_cleanup_t*        cleanup_stack;
+    void**                      tls;         /* thread-local storage area */
+} pthread_internal_t;
+
 #endif // _WIN32
 
 typedef struct _LOCK

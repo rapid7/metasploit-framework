@@ -174,7 +174,10 @@ struct connection_table {
 #define METERPRETER_TRANSPORT_HTTP 1
 #define METERPRETER_TRANSPORT_HTTPS 2
 
-#ifdef _WIN32
+#ifndef _WIN32
+extern LIST * commandThreadListPID;
+
+#else // if _WIN32
 
 
 #include <wininet.h>

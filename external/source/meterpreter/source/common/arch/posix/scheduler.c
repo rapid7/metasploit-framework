@@ -19,6 +19,8 @@ LIST_HEAD(_WaitableEntryHead, _WaitableEntry) WEHead;
 
 THREAD *scheduler_thread;
 
+int stop_reaper = 0;
+
 /*
  * If there are no waitables in the queue, we wait
  * for a conditional broadcast to start it.
@@ -49,6 +51,9 @@ DWORD scheduler_destroy( VOID )
 		// free up memory
 		thread_destroy(scheduler_thread);
 		scheduler_thread = NULL;
+
+		dprintf("stopping zombie reaper");
+		stop_zombie_reaper();
 
 		dprintf("thread joined .. going for polltable");
 
@@ -81,6 +86,68 @@ DWORD scheduler_destroy( VOID )
 	return ERROR_SUCCESS;
 }
 
+
+/*
+ * Reap child zombie threads on linux 2.4 (before NPTL)
+ * each thread appears as a process and pthread_join don't necessarily reap it
+ * threads are created using the clone syscall, so use special __WCLONE flag in waitpid
+ */
+
+VOID reap_zombie_thread(void * param)
+{
+	pid_t pid;
+	BOOL success;
+	pthread_internal_t * ptr = (pthread_internal_t *)reaper_tid; 
+ //       dprintf("reap_zombie_thread : getpid : %d , getppid : %d, gettid : %d, kernel_id : %d, is_kernel_24 : %d", getpid(), getppid(), gettid(), ptr->kernel_id, is_kernel_24);
+	// when tested, this means we are on a 2.4 kernel
+	if (getpid() == getppid())
+		is_kernel_24 = 1;
+	else
+		is_kernel_24 = 0;
+
+	/*
+	 * on a 2.4 kernel, we need the reaper
+	 */
+	if (is_kernel_24 == 1) {
+		/* reap until asked to exit
+		 * at this point, will reap any remaining zombie before exiting
+		 */
+		while( stop_reaper == 0 || (stop_reaper == 1 && list_count(commandThreadListPID) > 0)) {
+			pid = waitpid(-1, NULL, __WCLONE);
+			if (pid > 0) {
+				success = list_remove(commandThreadListPID, pid);
+//				dprintf("tried to remove pid : %d , success : %d",pid, success);
+			}
+	        }
+	}
+	pthread_exit(0);
+}
+
+/* 
+ * ask the zombie reaper to stop
+ * before stopping, the reaper will reap all remaining threads created, including the scheduler
+ */
+
+VOID stop_zombie_reaper( VOID )
+{
+	pid_t pid;
+	pthread_internal_t * ptr;
+	// 2.6/3.x kernel don't have zombie reaper
+	if (is_kernel_24 == 0)
+		return;
+	// stop zombie reaper
+        stop_reaper = 1;
+	ptr = (pthread_internal_t *)reaper_tid;
+	// reap reaper thread itself
+	pid = waitpid(ptr->kernel_id, NULL, __WCLONE);
+	dprintf("zombie_reaper kernel_id : %d, ret pid : %d (should be equal)",ptr->kernel_id, pid);
+	// all zombies have been reaped, including scheduler one (it was inserted into commandThreadListPID)
+	list_destroy(commandThreadListPID);
+	commandThreadListPID = NULL;
+	return;
+
+}
+
 DWORD scheduler_initialize( Remote * remote )
 {
 	if(scheduler_thread) {
@@ -90,6 +157,16 @@ DWORD scheduler_initialize( Remote * remote )
 
 	pthread_mutex_init(&scheduler_mutex, NULL);
 	pthread_cond_init(&scheduler_cond, NULL);
+
+	// create zombie thread reaper for pre-NPTL (in 2.4 kernels) threads
+	pthread_attr_t tattr;
+	pthread_attr_init(&tattr);
+	pthread_attr_setdetachstate(&tattr,PTHREAD_CREATE_DETACHED);
+	pthread_create(&reaper_tid, &tattr, reap_zombie_thread, NULL);
+
+	while (is_kernel_24 == -1) usleep(10000);
+	// here, we know if we're on a 2.4 kernel or not
+	
 
 	scheduler_thread = thread_create(scheduler_run, remote, NULL);
 	if(! scheduler_thread) {

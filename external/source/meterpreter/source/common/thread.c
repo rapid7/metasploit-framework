@@ -6,6 +6,24 @@
 int __futex_wait(volatile void *ftx, int val, const struct timespec *timeout);
 int __futex_wake(volatile void *ftx, int count);
 
+/*
+ *  are we running on a linux 2.4 kernel ?
+ * if this is the case, as we're using pthread, a "few" things might not work
+ * pthread_join will return immediately (sys_futex3 returns immediately as there's no support for futex in 2.4 kernels)
+ * terminated threads end up as zombies in the system, we need to reap them
+ * ...
+ * empiric way observed during testing : if getpid() == getppid(), we're on a 2.4 kernel (didn't happen during testing on a 2.6/3.x kernel)
+ */
+
+int is_kernel_24 = -1;
+pthread_t reaper_tid = 0;
+/*
+ * A list of all command threads PID currenlty executing.
+ */
+LIST * commandThreadListPID = NULL;
+
+
+
 #include <time.h>
 #include <signal.h>
 
@@ -316,6 +334,7 @@ void *__paused_thread(void *req)
 
 	return funk(thread);	
 }
+
 #endif
 
 /*
@@ -390,6 +409,18 @@ THREAD * thread_create( THREADFUNK funk, LPVOID param1, LPVOID param2 )
 			return NULL;
 		}
 		// __paused_thread free's the allocated memory.
+		if (is_kernel_24 == 1) {
+			if( commandThreadListPID == NULL )
+			{
+				commandThreadListPID = list_create();
+				if( commandThreadListPID == NULL )
+					return NULL;
+			}
+			pthread_internal_t * ptr = (pthread_internal_t *)(thread->pid);
+//			dprintf("list_add ptr->kernel_id : %d",ptr->kernel_id);
+			list_add( commandThreadListPID, ptr->kernel_id );
+		}
+
 
 	} while(0);
 #endif
