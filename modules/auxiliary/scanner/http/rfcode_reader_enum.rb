@@ -132,8 +132,8 @@ class Metasploit3 < Msf::Auxiliary
 				collect_info(user, pass)
 
 				report_hash = {
-					:host   => datastore['RHOST'],
-					:port   => datastore['RPORT'],
+					:host   => rhost,
+					:port   => rport,
 					:sname  => 'RFCode Reader',
 					:user   => user,
 					:pass   => pass,
@@ -172,12 +172,13 @@ class Metasploit3 < Msf::Auxiliary
 			product_name = JSON.parse(res.body)["product"]
 
 			vprint_status("Collecting device platform info...")
-			print_good("Release version: '#{release_ver}', Product Name: '#{product_name}'")
+			print_good("#{rhost}:#{rport} -> Release version: '#{release_ver}', Product Name: '#{product_name}'")
 
 			report_note(
-				:host   => datastore['RHOST'],
+				:host   => rhost,
 				:proto  => 'tcp',
-				:port   => datastore['RPORT'],
+				:port   => rport,
+				:sname  => "RFCode Reader",
 				:data   => 'Release Version: #{release_ver}, Product: #{product_name}'
 			)
 
@@ -194,12 +195,13 @@ class Metasploit3 < Msf::Auxiliary
 
 			userlist = JSON.parse(res.body)
 			vprint_status("Collecting user list...")
-			print_good("User list & role: #{userlist}")
+			print_good("#{rhost}:#{rport} -> User list & role: #{userlist}")
 
 			report_note(
-				:host   => datastore['RHOST'],
+				:host   => rhost,
 				:proto  => 'tcp',
-				:port   => datastore['RPORT'],
+				:port   => rport,
+				:sname	=> "RFCode Reader",
 				:data   => 'User List & Roles: #{userlist}'
 			)
 
@@ -220,10 +222,11 @@ class Metasploit3 < Msf::Auxiliary
 			print_good("Interface eth0 info: #{eth0_info}")
 
 			report_note(
-				:host	=> datastore['RHOST'],
+				:host	=> rhost,
 				:proto	=> 'tcp',
-				:port	=> datastore['RPORT'],
-				:data	=> 'Interface eth0: #{eth0_info}'
+				:port	=> rport,
+				:sname	=> "RFCode Reader",
+				:data	=> '#{rhost}:#{rport} -> Interface eth0: #{eth0_info}'
 			)
 
 			return
