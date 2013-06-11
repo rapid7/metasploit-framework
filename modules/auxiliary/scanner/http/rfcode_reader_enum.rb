@@ -18,10 +18,9 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'RFCode Reader Web Interface Login Utility',
 			'Description'    => %{
-				This module simply attempts to login to a RFCode Reader web interface. Please note that
-				by default there is no authentication. In such a case, password brute force will not be performed.
-				If there is authentication configured, the module will attempt to find valid login credentials and
-				capture device information.
+				This module simply attempts to login to a RFCode Reader web interface.
+				Please note that by default there is no authentication. In such a case, password brute force will not be performed.
+				If there is authentication configured, the module will attempt to find valid login credentials and capture device information.
 			},
 			'Author'         =>
 				[
@@ -33,7 +32,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				Opt::RPORT(80),
 				OptString.new('STOP_ON_SUCCESS', [true, 'Stop guessing when a credential works for a host', true])
 			], self.class)
 
@@ -176,6 +174,13 @@ class Metasploit3 < Msf::Auxiliary
 			vprint_status("Collecting device platform info...")
 			print_good("Release version: '#{release_ver}', Product Name: '#{product_name}'")
 
+			report_note(
+				:host   => datastore['RHOST'],
+				:proto  => 'tcp',
+				:port   => datastore['RPORT'],
+				:data   => 'Release Version: #{release_ver}, Product: #{product_name}'
+			)
+
 			res = send_request_cgi(
 			{
 				'uri'       => '/rfcode_reader/api/userlist.json',
@@ -191,6 +196,14 @@ class Metasploit3 < Msf::Auxiliary
 			vprint_status("Collecting user list...")
 			print_good("User list & role: #{userlist}")
 
+			report_note(
+				:host   => datastore['RHOST'],
+				:proto  => 'tcp',
+				:port   => datastore['RPORT'],
+				:data   => 'User List & Roles: #{userlist}'
+			)
+
+
 			res = send_request_cgi(
 			{
 				'uri'       => '/rfcode_reader/api/interfacestatus.json',
@@ -205,6 +218,13 @@ class Metasploit3 < Msf::Auxiliary
 			eth0_info = JSON.parse(res.body)["eth0"]
 			vprint_status("Collecting interface info...")
 			print_good("Interface eth0 info: #{eth0_info}")
+
+			report_note(
+				:host	=> datastore['RHOST'],
+				:proto	=> 'tcp',
+				:port	=> datastore['RPORT'],
+				:data	=> 'Interface eth0: #{eth0_info}'
+			)
 
 			return
 		end
