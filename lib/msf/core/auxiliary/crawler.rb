@@ -20,7 +20,6 @@ module Auxiliary::HttpCrawler
 				OptString.new('VHOST', [ false, "HTTP server virtual host" ]),
 				OptString.new('URI',   [ true, "The starting page to crawl", "/"]),
 				Opt::Proxies,
-				OptBool.new('RUN_DIRBUSTER', [ false, 'The maximum number of pages to crawl per URL', true]),
 				OptInt.new('MAX_PAGES', [ true, 'The maximum number of pages to crawl per URL', 500]),
 				OptInt.new('MAX_MINUTES', [ true, 'The maximum number of minutes to spend on each URL', 5]),
 				OptInt.new('MAX_THREADS', [ true, 'The maximum number of concurrent requests', 4]),
@@ -33,6 +32,7 @@ module Auxiliary::HttpCrawler
 
 		register_advanced_options(
 			[
+				OptBool.new('RUN_DIRBUSTER', [ false, 'The maximum number of pages to crawl per URL', true]),
 				OptInt.new('RequestTimeout', [false, 'The maximum number of seconds to wait for a reply', 15]),
 				OptInt.new('RedirectLimit', [false, 'The maximum number of redirects for a single request', 5]),
 				OptInt.new('RetryLimit', [false, 'The maximum number of attempts for a single request', 5]),
