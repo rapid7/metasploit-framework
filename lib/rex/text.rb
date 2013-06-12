@@ -82,6 +82,17 @@ module Text
 		return hexify(str, wrap, '"', '"', "unsigned char #{name}[] = \n", '";')
 	end
 
+	def self.to_csharp(str, wrap = DefaultWrap, name = "buf")
+		ret = "byte[] #{name} = new byte[#{str.length}] {"
+		i = -1;
+		while (i += 1) < str.length
+			ret << "\n" if i%(wrap/4) == 0
+			ret << "0x" << str[i].unpack("H*")[0] << ","
+		end
+		ret = ret[0..ret.length-2] #cut off last comma
+		ret << " };\n"
+	end
+
 	#
 	# Creates a c-style comment
 	#
