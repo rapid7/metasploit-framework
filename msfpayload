@@ -30,7 +30,7 @@ $args = Rex::Parser::Arguments.new(
 #
 def usage
 	$stderr.puts("\n" +
-		"    Usage: #{$0} [<options>] <payload> [var=val] <[S]ummary|C|[P]erl|Rub[y]|[R]aw|[J]s|e[X]e|[D]ll|[V]BA|[W]ar|Pytho[N]>\n" +
+		"    Usage: #{$0} [<options>] <payload> [var=val] <[S]ummary|C|Cs[H]arp|[P]erl|Rub[Y]|[R]aw|[J]s|e[X]e|[D]ll|[V]BA|[W]ar|Pytho[N]>\n" +
 		$args.usage)
 	exit
 end
@@ -119,13 +119,13 @@ end
 
 payload.datastore.merge! options
 
-if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w|n)/)
+if (cmd =~ /^(p|y|r|d|c|h|j|x|b|v|w|n)/)
 	fmt = 'perl' if (cmd =~ /^p/)
 	fmt = 'ruby' if (cmd =~ /^y/)
 	fmt = 'raw' if (cmd =~ /^(r|x|d)/)
 	fmt = 'raw' if (cmd =~ /^v/)
 	fmt = 'c' if (cmd == 'c')
-	fmt = 'csharp' if (cmd == 'csharp')
+	fmt = 'csharp' if (cmd == 'h')
 	fmt = 'js_be' if (cmd =~ /^j/ and Rex::Arch.endian(payload.arch) == ENDIAN_BIG)
 	fmt = 'js_le' if (cmd =~ /^j/ and ! fmt)
 	fmt = 'java'  if (cmd =~ /^b/)
