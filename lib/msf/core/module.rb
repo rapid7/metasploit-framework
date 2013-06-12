@@ -179,9 +179,8 @@ class Module
 	#
 
 	def print_prefix
-		if framework && (
-			datastore['TimestampOutput'] =~ /^(t|y|1)/i or
-			framework.datastore['TimestampOutput'] =~ /^(t|y|1)/i
+		if (datastore['TimestampOutput'] =~ /^(t|y|1)/i) || (
+			framework && framework.datastore['TimestampOutput'] =~ /^(t|y|1)/i
 		)
 			prefix = "[#{Time.now.strftime("%Y.%m.%d-%H:%M:%S")}] "
 
