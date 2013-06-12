@@ -20,6 +20,7 @@ module Auxiliary::HttpCrawler
 				OptString.new('VHOST', [ false, "HTTP server virtual host" ]),
 				OptString.new('URI',   [ true, "The starting page to crawl", "/"]),
 				Opt::Proxies,
+				OptBool.new('RUN_DIRBUSTER', [ false, 'The maximum number of pages to crawl per URL', true]),
 				OptInt.new('MAX_PAGES', [ true, 'The maximum number of pages to crawl per URL', 500]),
 				OptInt.new('MAX_MINUTES', [ true, 'The maximum number of minutes to spend on each URL', 5]),
 				OptInt.new('MAX_THREADS', [ true, 'The maximum number of concurrent requests', 4]),
@@ -173,6 +174,10 @@ module Auxiliary::HttpCrawler
 		datastore['MAX_THREADS']
 	end
 
+	def dirbust?
+		datastore['RUN_DIRBUSTER']
+	end
+
 	# Scrub links that end in these extensions. If more or less is
 	# desired by a particular module, this should get redefined.
 	def get_link_filter
@@ -275,6 +280,7 @@ module Auxiliary::HttpCrawler
 		opts[:framework]           = framework
 		opts[:module]              = self
 		opts[:timeout]             = get_connection_timeout
+		opts[:dirbust]             = dirbust?
 
 		if (t[:headers] and t[:headers].length > 0)
 			opts[:inject_headers] = t[:headers]
