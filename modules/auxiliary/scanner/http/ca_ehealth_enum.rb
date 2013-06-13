@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 				'method'    => 'GET'
 			})
 
-			if (res and res.code == 200 and res.body.include?(EHEALTH_FINGERPRINT) != nil)
+			if (res and res.code == 200 and res.body.include?(EHEALTH_FINGERPRINT))
 				version_key = /<title>(.+)<\/title>/
 				version = res.body.scan(version_key).flatten
 				print_good("#{rhost}:#{rport} -> Application version is #{version}")
@@ -92,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
 	# Brute-force the login page
 	#
 	def do_login(user, pass)
-		vprint_status("#{rhost}:#{rport} -> Trying username:'#{user.inspect}' with password:'#{pass.inspect}'")
+		vprint_status("#{rhost}:#{rport} -> Trying username:#{user.inspect} with password:#{pass.inspect}")
 		begin
 			res = send_request_cgi(
 			{
@@ -108,10 +108,10 @@ class Metasploit3 < Msf::Auxiliary
 			get_title = res.match(/<title>(.*)<\/title>/mi).captures.first
 
 			if (not res or get_title != "eHealth [#{user}]")
-				vprint_error("#{rhost}:#{rport} -> FAILED LOGIN - '#{user.inspect}' : '#{pass.inspect}' with code #{res.code}")
+				vprint_error("#{rhost}:#{rport} -> FAILED LOGIN - #{user.inspect}:#{pass.inspect} with code #{res.code}")
 				return :skip_pass
 			else
-				print_good("#{rhost}:#{rport} -> SUCCESSFUL LOGIN - '#{user.inspect}' : '#{pass.inspect}'")
+				print_good("#{rhost}:#{rport} -> SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
 
 				report_hash = {
 					:host   => rhost,
