@@ -347,16 +347,13 @@ class Rex::Socket::Comm::Local
 
 	def self.proxy(sock, type, host, port)
 		case type.downcase
-		when 'ni'
+		when 'sapni'
 			packet_type = 'NI_ROUTE'
 			route_info_version = 2
 			ni_version = 39
 			num_of_entries = 2 
 			talk_mode = 1 # ref: http://help.sap.com/saphelp_dimp50/helpdata/En/f8/bb960899d743378ccb8372215bb767/content.htm
 			num_rest_nodes = 1
-			route_length = 0
-			current_position = 0
-			routes = {}
 			route_data = ''
 			
 			array = sock.peerinfo.split(":")
@@ -376,15 +373,15 @@ class Rex::Socket::Comm::Local
 				0,
 				0,
 				num_rest_nodes
-			].pack("A8c7")
+			].pack("A8c8")
 
-			first = false
+			first = true
 
 			routes.each do |host,port|
-				route_item = [host, 0, port, 0, 0].pack("A*CA*CC")
+				route_item = [host, 0, port, 0, 0].pack("A*CA*cc")
 				if first
-					route_data = [route_data, route_item.length, route_item].pack("A*NA*")
-					first = true
+					route_data = [route_item.length, route_item].pack("NA*")
+					first = false
 				else
 					route_data << route_item
 				end
@@ -402,9 +399,9 @@ class Rex::Socket::Comm::Local
 			end
 
 			begin
-				ret_len = sock.recv(4).unpack('H*')[0]
-				if ret_len !=0
-					ret = sock.recv(ret_len.to_i)
+				ret_len = sock.get_once(4, 30).unpack('L>')[0]
+				if ret_len and ret_len != 0
+					ret = sock.get_once(ret_len, 30)
 				end
 			rescue IOError
 				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to receive a response from the proxy"), caller
@@ -423,12 +420,13 @@ class Rex::Socket::Comm::Local
 				when /denied/
 					raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} blocked by ACL")
 				else
-					raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} failed - #{ret}\n\n#{ni_packet}")
+					raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} failed (Unknown fail)")
 				end
 			elsif ret =~ /NI_PONG/
+				# success case
 				# would like to print this "[*] remote native connection to #{host}:#{port} established\n"
 			else
-				raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} failed - #{ret}\n\n#{ni_packet}")
+				raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} failed (Unknown fail)")
 			end
 
 		when 'http'
