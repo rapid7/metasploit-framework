@@ -39,7 +39,6 @@ Committers introduced in this way will have commit rights to the following repos
 
  * https://github.com/rapid7/metasploit-framework
  * https://github.com/rapid7/meterpreter
- * https://github.com/rapid7/meterpreter-java
 
 ## How to Lose Commit Rights
 
