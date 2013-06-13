@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'Monkey HTTPD Header Parsing Denial-of-Service',
 			'Description'    => %q{
-				This module causes improper header parsing that leads to a segmentation fault
+					This module causes improper header parsing that leads to a segmentation fault
 				due to a specially crafted HTTP request. Affects version <= 1.2.0.
 			},
 			'Author'         =>
@@ -27,6 +27,8 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					['CVE', '2013-3843'],
+					['OSVDB', '93853'],
+					['BID', '60333'],
 					['URL', 'http://bugs.monkey-project.com/ticket/182']
 				],
 			'DisclosureDate' => 'May 30 2013'))
@@ -64,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 		dos
 
 		print_status("#{rhost}:#{rport} - Checking server status...")
-		Rex.sleep(1)
+		select(nil, nil, nil, 1)
 
 		if is_alive?
 			print_error("#{rhost}:#{rport} - Server is still alive")
