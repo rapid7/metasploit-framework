@@ -31,6 +31,8 @@ module Buffer
 				buf = Rex::Text.to_bash(buf)
 			when 'c'
 				buf = Rex::Text.to_c(buf)
+			when 'csharp'
+				buf = Rex::Text.to_csharp(buf)
 			when 'js_be'
 				buf = Rex::Text.to_unescape(buf, ENDIAN_BIG)
 			when 'js_le'
@@ -59,6 +61,8 @@ module Buffer
 				buf = Rex::Text.to_bash_comment(buf)
 			when 'c'
 				buf = Rex::Text.to_c_comment(buf)
+			when 'csharp'
+				buf = Rex::Text.to_c_comment(buf)
 			when 'js_be', 'js_le'
 				buf = Rex::Text.to_js_comment(buf)
 			when 'java'
@@ -74,7 +78,7 @@ module Buffer
 	# Returns the list of supported formats
 	#
 	def self.transform_formats
-		['raw','ruby','rb','perl','pl','bash','sh','c','js_be','js_le','java','python','py']
+		['raw','ruby','rb','perl','pl','bash','sh','c','csharp','js_be','js_le','java','python','py']
 	end
 
 end
