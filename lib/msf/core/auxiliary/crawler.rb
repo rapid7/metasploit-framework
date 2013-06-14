@@ -32,7 +32,7 @@ module Auxiliary::HttpCrawler
 
 		register_advanced_options(
 			[
-				OptBool.new('RUN_DIRBUSTER', [ false, 'The maximum number of pages to crawl per URL', true]),
+				OptBool.new('DirBust', [ false, 'Bruteforce common URL paths', true]),
 				OptInt.new('RequestTimeout', [false, 'The maximum number of seconds to wait for a reply', 15]),
 				OptInt.new('RedirectLimit', [false, 'The maximum number of redirects for a single request', 5]),
 				OptInt.new('RetryLimit', [false, 'The maximum number of attempts for a single request', 5]),
@@ -175,7 +175,7 @@ module Auxiliary::HttpCrawler
 	end
 
 	def dirbust?
-		datastore['RUN_DIRBUSTER']
+		datastore['DirBust']
 	end
 
 	# Scrub links that end in these extensions. If more or less is
