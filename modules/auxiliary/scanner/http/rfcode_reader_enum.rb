@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('STOP_ON_SUCCESS', [true, 'Stop guessing when a credential works for a host', true])
+				OptBool.new('STOP_ON_SUCCESS', [ true, "Stop guessing when a credential works for a host", true])
 			], self.class)
 
 	end
@@ -125,7 +125,6 @@ class Metasploit3 < Msf::Auxiliary
 
 			if not res or res.code == 401
 				vprint_error("#{rhost}:#{rport} - FAILED LOGIN - #{user.inspect}:#{pass.inspect} with code #{res.code}")
-				return :skip_pass
 			else
 				print_good("#{rhost}:#{rport} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
 
@@ -168,20 +167,22 @@ class Metasploit3 < Msf::Auxiliary
 					}
 			})
 
-			release_ver = JSON.parse(res.body)["release"]
-			product_name = JSON.parse(res.body)["product"]
+			if res and res.body
+				release_ver = JSON.parse(res.body)["release"]
+				product_name = JSON.parse(res.body)["product"]
 
-			vprint_status("#{rhost}:#{rport} - Collecting device platform info...")
-			print_good("#{rhost}:#{rport} - Release version: '#{release_ver}', Product Name: '#{product_name}'")
+				vprint_status("#{rhost}:#{rport} - Collecting device platform info...")
+				vprint_good("#{rhost}:#{rport} - Release version: '#{release_ver}', Product Name: '#{product_name}'")
 
-			report_note(
-				:host   => rhost,
-				:proto  => 'tcp',
-				:port   => rport,
-				:sname  => "RFCode Reader",
-				:data   => 'Release Version: #{release_ver}, Product: #{product_name}',
-				:type	=> 'Info'
-			)
+				report_note(
+					:host   => rhost,
+					:proto  => 'tcp',
+					:port   => rport,
+					:sname  => "RFCode Reader",
+					:data   => "Release Version: #{release_ver}, Product: #{product_name}",
+					:type	=> 'Info'
+				)
+			end
 
 			res = send_request_cgi(
 			{
@@ -194,19 +195,20 @@ class Metasploit3 < Msf::Auxiliary
 					}
 			})
 
-			userlist = JSON.parse(res.body)
-			vprint_status("#{rhost}:#{rport} - Collecting user list...")
-			print_good("#{rhost}:#{rport} - User list & role: #{userlist}")
+			if res and res.body
+				userlist = JSON.parse(res.body)
+				vprint_status("#{rhost}:#{rport} - Collecting user list...")
+				vprint_good("#{rhost}:#{rport} - User list & role: #{userlist}")
 
-			report_note(
-				:host   => rhost,
-				:proto  => 'tcp',
-				:port   => rport,
-				:sname	=> "RFCode Reader",
-				:data   => 'User List & Roles: #{userlist}',
-				:type	=> 'Info'
-			)
-
+				report_note(
+					:host   => rhost,
+					:proto  => 'tcp',
+					:port   => rport,
+					:sname	=> "RFCode Reader",
+					:data   => "User List & Roles: #{userlist}",
+					:type	=> 'Info'
+				)
+			end
 
 			res = send_request_cgi(
 			{
@@ -219,19 +221,27 @@ class Metasploit3 < Msf::Auxiliary
 					}
 			})
 
-			eth0_info = JSON.parse(res.body)["eth0"]
-			vprint_status("#{rhost}:#{rport} - Collecting interface info...")
-			print_good("#{rhost}:#{rport} - Interface eth0 info: #{eth0_info}")
+			if res and res.body
+				eth0_info = JSON.parse(res.body)["eth0"]
+				vprint_status("#{rhost}:#{rport} - Collecting interface info...")
+				vprint_good("#{rhost}:#{rport} - Interface eth0 info: #{eth0_info}")
 
-			report_note(
-				:host	=> rhost,
-				:proto	=> 'tcp',
-				:port	=> rport,
-				:sname	=> "RFCode Reader",
-				:data	=> 'Interface eth0: #{eth0_info}',
-				:type	=> 'Info'
-			)
+				report_note(
+					:host	=> rhost,
+					:proto	=> 'tcp',
+					:port	=> rport,
+					:sname	=> "RFCode Reader",
+					:data	=> "Interface eth0: #{eth0_info}",
+					:type	=> 'Info'
+				)
+			end
 
+			return
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
+			vprint_error("#{rhost}:#{rport} - HTTP Connection Failed while collecting info")
+			return
+		rescue JSON::ParserError
+			vprint_error("#{rhost}:#{rport} - Unable to parse JSON response while collecting info")
 			return
 		end
 	end
