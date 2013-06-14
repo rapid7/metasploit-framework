@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
-#
+
 require 'rexml/document'
 require 'rex/parser/nmap_xml'
 require 'msf/core/db_export'
@@ -287,7 +287,6 @@ class Db
 		end
 
 		# If we got here, we're searching.  Delete implies search
-
 		tbl = Rex::Ui::Text::Table.new(
 			{
 				'Header'  => "Hosts",
@@ -475,7 +474,6 @@ class Db
 		end
 
 		# If we got here, we're searching.  Delete implies search
-
 		col_names = default_columns
 		if col_search
 			col_names = col_search
@@ -771,7 +769,6 @@ class Db
 		end
 
 		# If we get here, we're searching.  Delete implies search
-
 		if user
 			user_regex = Regexp.compile(user)
 		end
@@ -930,9 +927,11 @@ class Db
 
 		note_list = []
 		delete_count = 0
-		if host_ranges.empty? # No host specified - collect all notes
+		# No host specified - collect all notes
+		if host_ranges.empty?
 			note_list = framework.db.notes.dup
-		else # Collect notes of specified hosts
+		# Collect notes of specified hosts
+		else
 			each_host_range_chunk(host_ranges) do |host_search|
 				framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
 					note_list.concat(host.notes)
@@ -1216,6 +1215,7 @@ class Db
 	# :category: Deprecated Commands
 	def cmd_db_autopwn(*args); deprecated_cmd; end
 
+	#
 	# :category: Deprecated Commands
 	#
 	# This one deserves a little more explanation than standard deprecation
@@ -1478,7 +1478,9 @@ class Db
 	}
 	end
 
+	#
 	# Store some locally-generated data as a file, similiar to store_loot.
+	#
 	def report_store_local(ltype=nil, ctype=nil, data=nil, filename=nil)
 		store_local(ltype,ctype,data,filename)
 	end
@@ -1486,7 +1488,6 @@ class Db
 	#
 	# Database management
 	#
-
 	def db_check_driver
 		if(not framework.db.driver)
 			print_error("No database driver installed. Try 'gem install pg'")
@@ -1720,9 +1721,9 @@ class Db
 		res
 	end
 
-	##
+	#
 	# Miscellaneous option helpers
-	##
+	#
 
 	#
 	# Parse +arg+ into a RangeWalker and append the result into +host_ranges+
