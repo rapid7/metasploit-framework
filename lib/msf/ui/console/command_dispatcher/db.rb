@@ -531,7 +531,6 @@ class Db
 	}
 	end
 
-
 	def cmd_vulns_help
 		print_line "Print all vulnerabilities in the database"
 		print_line
@@ -548,7 +547,6 @@ class Db
 		print_line "  vulns -p 1-65536 -s http  # identified as http on any port"
 		print_line
 	end
-
 
 	def cmd_vulns(*args)
 		return unless active?
@@ -632,7 +630,6 @@ class Db
 		end
 	}
 	end
-
 
 	def cmd_creds_help
 		print_line "Usage: creds [addr range]"
@@ -1481,12 +1478,10 @@ class Db
 	}
 	end
 
-
 	# Store some locally-generated data as a file, similiar to store_loot.
 	def report_store_local(ltype=nil, ctype=nil, data=nil, filename=nil)
 		store_local(ltype,ctype,data,filename)
 	end
-
 
 	#
 	# Database management
@@ -1579,7 +1574,6 @@ class Db
 		end
 	end
 
-
 	def cmd_db_rebuild_cache
 		unless framework.db.active
 			print_error("The database is not connected")
@@ -1636,7 +1630,6 @@ class Db
 		print_line "RHOSTS => #{mydatastore['RHOSTS']}"
 		print_line
 	end
-
 
 	def db_find_tools(tools)
 		found   = true
@@ -1726,7 +1719,6 @@ class Db
 		res[:name] = name || 'metasploit3'
 		res
 	end
-
 
 	##
 	# Miscellaneous option helpers
