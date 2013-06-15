@@ -340,6 +340,7 @@ class Db
 		# Finally, handle the case where the user wants the resulting list
 		# of hosts to go into RHOSTS.
 		set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
+
 		print_status("Deleted #{delete_count} hosts") if delete_count > 0
 	}
 	end
@@ -524,6 +525,7 @@ class Db
 		# Finally, handle the case where the user wants the resulting list
 		# of hosts to go into RHOSTS.
 		set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
+
 		print_status("Deleted #{delete_count} services") if delete_count > 0
 
 	}
@@ -835,6 +837,7 @@ class Db
 		end
 
 		set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
+
 		print_status("Deleted #{delete_count} credentials") if delete_count > 0
 	}
 	end
