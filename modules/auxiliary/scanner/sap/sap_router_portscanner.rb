@@ -1,3 +1,10 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
@@ -6,35 +13,38 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 
-
 	def initialize
 		super(
-				'Name' => 'SAPRouter Port Scanner',
-				'Description' => %q{
-					This module allows for mapping ACLs and identify open/closed ports
-					accessible on hosts through a saprouter},
-				'Author' => ['Bruno Morisson <bm[at]integrity.pt>', # metasploit module
-							'nmonkee'], # saprouter packet building code from sapcat.rb
-				'References' =>
-						[
-								# General
-								['URL', 'http://help.sap.com/saphelp_nw70/helpdata/EN/4f/992dfe446d11d189700000e8322d00/frameset.htm'],
-								['URL', 'http://help.sap.com/saphelp_dimp50/helpdata/En/f8/bb960899d743378ccb8372215bb767/content.htm'],
-								['URL', 'http://labs.mwrinfosecurity.com/blog/2012/09/13/sap-smashing-internet-windows/'],
-								['URL', 'http://scn.sap.com/docs/DOC-17124'] # SAP default ports
-						],
-				'License' => MSF_LICENSE
+			'Name' => 'SAPRouter Port Scanner',
+			'Description' => %q{
+					This module allows for mapping ACLs and identify open/closed ports accessible
+				on hosts through a saprouter.
+			},
+			'Author' => [
+				'Bruno Morisson <bm[at]integrity.pt>', # metasploit module
+				'nmonkee' # saprouter packet building code from sapcat.rb
+			],
+			'References' =>
+				[
+					# General
+					['URL', 'http://help.sap.com/saphelp_nw70/helpdata/EN/4f/992dfe446d11d189700000e8322d00/frameset.htm'],
+					['URL', 'http://help.sap.com/saphelp_dimp50/helpdata/En/f8/bb960899d743378ccb8372215bb767/content.htm'],
+					['URL', 'http://labs.mwrinfosecurity.com/blog/2012/09/13/sap-smashing-internet-windows/'],
+					['URL', 'http://conference.hitb.org/hitbsecconf2010ams/materials/D2T2%20-%20Mariano%20Nunez%20Di%20Croce%20-%20SAProuter%20.pdf'],
+					['URL', 'http://scn.sap.com/docs/DOC-17124'] # SAP default ports
+				],
+			'License' => MSF_LICENSE
 		)
 
 		register_options(
-				[
-						OptAddress.new('SAPROUTER_HOST', [true, 'SAPRouter address', '']),
-						OptPort.new('SAPROUTER_PORT', [true, 'SAPRouter TCP port', '3299']),
-						OptEnum.new('MODE', [true, 'Connection Mode: 0 for NI_MSG_IO (SAP), 1 for NI_RAW_IO (TCP), 2 for NI_ROUT_IO (ROUTER) ', 0, [0, 1, 2]]),
-						OptString.new('PORTS', [true, 'Ports to scan (e.g. 22-25,80,110-900)', '3200-3299']),
-						OptInt.new('TIMEOUT', [true, 'The socket connect timeout in milliseconds', 1000]),
-						OptInt.new('CONCURRENCY', [true, 'The number of concurrent ports to check per host', 10]),
-				], self.class)
+			[
+				OptAddress.new('SAPROUTER_HOST', [true, 'SAPRouter address', '']),
+				OptPort.new('SAPROUTER_PORT', [true, 'SAPRouter TCP port', '3299']),
+				OptEnum.new('MODE', [true, 'Connection Mode: 0 for NI_MSG_IO (SAP), 1 for NI_RAW_IO (TCP), 2 for NI_ROUT_IO (ROUTER) ', 0, [0, 1, 2]]),
+				OptString.new('PORTS', [true, 'Ports to scan (e.g. 22-25,80,110-900)', '3200-3299']),
+				OptInt.new('TIMEOUT', [true, 'The socket connect timeout in milliseconds', 1000]),
+				OptInt.new('CONCURRENCY', [true, 'The number of concurrent ports to check per host', 10]),
+			], self.class)
 
 		deregister_options('RPORT')
 
@@ -43,19 +53,25 @@ class Metasploit3 < Msf::Auxiliary
 	def build_ni_packet(routes)
 
 		mode = datastore['MODE'].to_i
-
 		route_data=''
-
-		ni_packet = 'NI_ROUTE' + [0, 2, 39, 2, mode, 0, 0, 1].pack('c*') # create ni_packet header
+		ni_packet = [
+			'NI_ROUTE',
+			0,
+			2,
+			39,
+			2,
+			mode,
+			0,
+			0,
+			1
+		].pack("A8c8")
 
 		first = false
 
 		routes.each do |host, port| # create routes
-
-			route_item = host.to_s.dup << [0].pack('c*') << port.to_s.dup << [0].pack('c*') << [0].pack('c*')
-
+			route_item = [host, 0, port.to_s, 0, 0].pack("A*CA*cc")
 			if !first
-				route_data = route_data << [route_item.length].pack('N') << route_item
+				route_data = [route_data, route_item.length, route_item].pack("A*NA*")
 				first = true
 			else
 				route_data = route_data << route_item
@@ -68,32 +84,33 @@ class Metasploit3 < Msf::Auxiliary
 
 	def parse_response_packet(response, ip, port)
 
-		vprint_error("#{ip}:#{port} - response packet: #{response}")
+		#vprint_error("#{ip}:#{port} - response packet: #{response}")
 
 		case response
 		when /NI_RTERR/
 			case response
 			when /timed out/
-				print_error ("#{ip}:#{port} - connection timed out")
+				vprint_error ("#{ip}:#{port} - connection timed out")
 			when /refused/
-				print_error("#{ip}:#{port} - TCP closed")
-				report_service(:host => ip, :port => port, :state => 'closed')
+				vprint_error("#{ip}:#{port} - TCP closed")
+				return [ip, port, "closed"]
 			when /denied/
-				print_error("#{ip}:#{port} - blocked by ACL")
+				vprint_error("#{ip}:#{port} - blocked by ACL")
 			when /invalid/
-				print_error("#{ip}:#{port} - invalid route")
+				vprint_error("#{ip}:#{port} - invalid route")
 			when /reacheable/
-				print_error("#{ip}:#{port} - unreachable")
+				vprint_error("#{ip}:#{port} - unreachable")
 			else
-				print_error("#{ip}:#{port} - unknown error message")
+				vprint_error("#{ip}:#{port} - unknown error message")
 			end
 		when /NI_PONG/
 			print_good("#{ip}:#{port} - TCP OPEN")
-			report_service(:host => ip, :port => port, :state => 'open')
+			return [ip, port, "open"]
 		else
-			print_error("#{ip}:#{port} - unknown response")
+			vprint_error("#{ip}:#{port} - unknown response")
 		end
 
+		return nil
 	end
 
 	def run_host(ip)
@@ -111,8 +128,10 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status("Scanning #{ip}")
 		thread = []
-		ports.each do |port|
+		r = []
 
+		begin
+		ports.each do |port|
 
 			if thread.length >= datastore['CONCURRENCY']
 				# Assume the first thread will be among the earliest to finish
@@ -121,6 +140,10 @@ class Metasploit3 < Msf::Auxiliary
 			thread << framework.threads.spawn("Module(#{self.refname})-#{ip}:#{port}", false) do
 
 				begin
+					# create ni_packet to send to saprouter
+					routes = {sap_host => sap_port, ip => port}
+					ni_packet = build_ni_packet(routes)
+
 					s = connect(false,
 						{
 						'RPORT' => sap_port,
@@ -129,14 +152,13 @@ class Metasploit3 < Msf::Auxiliary
 						}
 					)
 
-					# create ni_packet to send to saprouter
-					routes = {sap_host => sap_port, ip => port}
-					ni_packet = build_ni_packet(routes)
-
 					s.write(ni_packet, ni_packet.length)
 					response = s.get()
 
-					parse_response_packet(response, ip, port)
+					res = parse_response_packet(response, ip, port)
+					if res
+						r << res
+					end
 
 				rescue ::Rex::ConnectionRefused
 					print_error("#{ip}:#{port} - Unable to connect to SAPRouter #{sap_host}:#{sap_port} - Connection Refused")
@@ -152,9 +174,15 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		thread.each { |x| x.join }
 
-	rescue ::Timeout::Error
-	ensure
-		thread.each { |x| x.kill rescue nil }
+		rescue ::Timeout::Error
+		ensure
+			thread.each { |x| x.kill rescue nil }
+		end
+
+		r.each do |res|
+			report_service(:host => res[0], :port => res[1], :state => res[2])
+		end
+
 	end
 
 end
