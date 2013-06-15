@@ -40,9 +40,8 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptAddress.new('SAPROUTER_HOST', [true, 'SAPRouter address', '']),
 				OptPort.new('SAPROUTER_PORT', [true, 'SAPRouter TCP port', '3299']),
-				OptEnum.new('MODE', [true, 'Connection Mode: 0 for NI_MSG_IO (SAP), 1 for NI_RAW_IO (TCP), 2 for NI_ROUT_IO (ROUTER) ', 0, [0, 1, 2]]),
+				OptEnum.new('MODE', [true, 'Connection Mode: SAP_PROTO or TCP ', 'SAP_PROTO', ['SAP_PROTO', 'TCP']]),
 				OptString.new('PORTS', [true, 'Ports to scan (e.g. 22-25,80,110-900)', '3200-3299']),
-				OptInt.new('TIMEOUT', [true, 'The socket connect timeout in milliseconds', 1000]),
 				OptInt.new('CONCURRENCY', [true, 'The number of concurrent ports to check per host', 10]),
 			], self.class)
 
@@ -52,7 +51,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	def build_ni_packet(routes)
 
-		mode = datastore['MODE'].to_i
+		mode = {'SAP_PROTO'=>0,'TCP'=>1}[datastore['MODE']]
+
 		route_data=''
 		ni_packet = [
 			'NI_ROUTE',
@@ -115,7 +115,6 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 
-		timeout = datastore['TIMEOUT'].to_i
 		ports = Rex::Socket.portspec_crack(datastore['PORTS'])
 
 		sap_host = datastore['SAPROUTER_HOST']
@@ -147,8 +146,7 @@ class Metasploit3 < Msf::Auxiliary
 					s = connect(false,
 						{
 						'RPORT' => sap_port,
-						'RHOST' => sap_host,
-						'ConnectTimeout' => (timeout / 1000.0)
+						'RHOST' => sap_host
 						}
 					)
 
