@@ -159,11 +159,7 @@ class Console::CommandDispatcher::Mimikatz
 	end
 
 	def system_check
-		# Recreate is_system? as it is an MSF method not available to Rex
-		# This adds some foreign language support
-		local_sys = resolve_sid("S-1-5-18")
-		
-		unless (client.sys.config.getuid == "#{local_sys[:domain]}\\#{local_sys[:name]}")
+		unless (client.sys.config.getuid == "NT AUTHORITY\\SYSTEM")
 			print_warning("Not currently running as SYSTEM")
 			return false
 		end
