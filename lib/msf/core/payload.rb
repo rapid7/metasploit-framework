@@ -28,6 +28,7 @@ class Payload < Msf::Module
 	require 'msf/core/payload/windows'
 	require 'msf/core/payload/netware'
 	require 'msf/core/payload/java'
+	require 'msf/core/payload/dalvik'
 
 	##
 	#
@@ -503,19 +504,22 @@ protected
 
 	#
 	# If the payload has assembly that needs to be compiled, do so now.
-	# This method takes the raw payload (p), the assembly text (asm), and the
-	# offsets hash for variables that need to be substituted (off).  The suffix
-	# is used to localize the way the generated payload is cached (whether the
-	# blob is part of a single, stager, or stage, for example).
 	#
-	def build(x, asm, off, suffix = '')
-		# If there is no assembly to be compiled, then we return a duplicated
-		# copy of the raw payload blob
+	# Blobs will be cached in the framework's PayloadSet
+	#
+	# @see PayloadSet#check_blob_cache
+	# @param asm [String] Assembly code to be assembled into a raw payload
+	# @return [String] The final, assembled payload
+	# @raise ArgumentError if +asm+ is blank
+	def build(asm, off={})
 		if(asm.nil? or asm.empty?)
-			return x.dup
+			raise ArgumentError, "Assembly must not be empty"
 		end
 
-		cache_key   = refname + suffix
+		# Use the refname so blobs can be flushed when the module gets
+		# reloaded and use the hash value to ensure that we're actually
+		# getting the right blob for the given assembly.
+		cache_key   = refname + asm.hash.to_s
 		cache_entry = framework.payloads.check_blob_cache(cache_key)
 
 		off.each_pair { |option, val|
@@ -573,7 +577,11 @@ protected
 	def internal_generate
 		# Build the payload, either by using the raw payload blob defined in the
 		# module or by actually assembling it
-		raw = build(payload, assembly, offsets, '-stg0')
+		if assembly and !assembly.empty?
+			raw = build(assembly, offsets)
+		else
+			raw = payload.dup
+		end
 
 		# If the payload is generated and there are offsets to substitute,
 		# do that now.

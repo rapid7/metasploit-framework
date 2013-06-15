@@ -118,7 +118,7 @@ class Config
                 netstat  = []
 
 		response = client.send_request(request)
-		
+
 		# Build out the array of netstat
 		response.each(TLV_TYPE_NETSTAT_ENTRY) { |connection|
 			netstat << Netstat.new(

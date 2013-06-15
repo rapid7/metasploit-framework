@@ -120,8 +120,9 @@ module Auxiliary::Web
 	end
 
 	# Matches fingerprint pattern against the current page's body and logs matches
-	def match_and_log_fingerprint( fingerprint )
-		page.body.to_s.match( fingerprint ) && log_fingerprint( :fingerprint => fingerprint )
+	def match_and_log_fingerprint( fingerprint, options = {} )
+		return if (match = page.body.to_s.match( fingerprint ).to_s).empty?
+		log_fingerprint( options.merge( :fingerprint => match ) )
 	end
 
 	#
@@ -156,12 +157,12 @@ module Auxiliary::Web
 	end
 
 	def log_fingerprint( opts = {} )
-		mode  = details[:category].to_sym
+		mode  = name
 		vhash = [target.to_url, opts[:fingerprint], mode, opts[:location]].
 			map { |x| x.to_s }.join( '|' ).hash
 
-		return if parent.vulns.include?( vhash )
-		parent.vulns[vhash] = true
+		parent.vulns[mode] ||= {}
+		return if parent.vulns[mode].include?( vhash )
 
 		location = opts[:location] ?
 			page.url.merge( URI( opts[:location].to_s )) : page.url
@@ -183,20 +184,23 @@ module Auxiliary::Web
 		}
 
 		info[:confidence]  = calculate_confidence( info )
+		parent.vulns[mode][vhash] = info
 
 		report_web_vuln( info )
 
-		print_good "	FOUND(#{mode.to_s.upcase}) URL(#{location})"
-		print_good "		 PROOF(#{opts[:fingerprint]})"
+		opts[:print_fingerprint] = true if !opts.include?( :print_fingerprint )
+
+		print_good "	FOUND(#{mode.to_s}) URL(#{location})"
+		print_good "		 PROOF(#{opts[:fingerprint]})" if opts[:print_fingerprint]
 	end
 
 	def log_resource( opts = {} )
-		mode  = details[:category].to_sym
+		mode  = name
 		vhash = [target.to_url, mode, opts[:location]].
 			map { |x| x.to_s }.join( '|' ).hash
 
-		return if parent.vulns.include?( vhash )
-		parent.vulns[vhash] = true
+		parent.vulns[mode] ||= {}
+		return if parent.vulns[mode].include?( vhash )
 
 		location = URI( opts[:location].to_s )
 		info = {
@@ -216,15 +220,16 @@ module Auxiliary::Web
 		}
 
 		info[:confidence]  = calculate_confidence( info )
+		parent.vulns[mode][vhash] = info
 
 		report_web_vuln( info )
 
-		print_good "	VULNERABLE(#{mode.to_s.upcase}) URL(#{target.to_url})"
+		print_good "	VULNERABLE(#{mode.to_s}) URL(#{target.to_url})"
 		print_good "		 PROOF(#{opts[:location]})"
 	end
 
 	def process_vulnerability( element, proof, opts = {} )
-		mode  = details[:category].to_sym
+		mode  = name
 		vhash = [target.to_url, mode, element.altered].
 			map{ |x| x.to_s }.join( '|' ).hash
 
@@ -237,7 +242,7 @@ module Auxiliary::Web
 			:params		 => element.params.to_a,
 			:mode		 => mode,
 			:pname		 => element.altered,
-			:proof		 => proof,
+			:proof		 => proof.to_s,
 			:form		 => element.model,
 			:risk		 => details[:risk],
 			:name		 => details[:name],
@@ -266,7 +271,7 @@ module Auxiliary::Web
 			:method		 => element.method.to_s.upcase,
 			:params		 => element.params.to_a,
 			:pname		 => element.altered,
-			:proof		 => proof,
+			:proof		 => proof.to_s,
 			:risk		 => details[:risk],
 			:name		 => details[:name],
 			:blame		 => details[:blame],
@@ -279,7 +284,7 @@ module Auxiliary::Web
 
 		report_web_vuln( info )
 
-		print_good "	VULNERABLE(#{mode.to_s.upcase}) URL(#{target.to_url})" +
+		print_good "	VULNERABLE(#{mode.to_s}) URL(#{target.to_url})" +
 						" PARAMETER(#{element.altered}) VALUES(#{element.params})"
 		print_good "		 PROOF(#{proof})"
 	end

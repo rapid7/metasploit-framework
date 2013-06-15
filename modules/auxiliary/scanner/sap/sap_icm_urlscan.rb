@@ -126,7 +126,7 @@ class Metasploit3 < Msf::Auxiliary
 			when res.code == 301, res.code == 302
 				print_good("#{rhost}:#{rport} #{url} - redirected (#{res.code}) to #{res.headers['Location']} (not following)")
 			else
-				print_status("#{rhost}:#{rport} - unhandle response code #{res.code}")
+				vprint_status("#{rhost}:#{rport} - unhandle response code #{res.code}")
 			end
 
 		else

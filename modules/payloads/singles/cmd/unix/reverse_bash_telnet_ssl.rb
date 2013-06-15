@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -22,11 +18,10 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Unix Command Shell, Reverse TCP SSL (telnet)',
-			'Version'       => '$Revision$',
 			'Description'   => %q{
 				Creates an interactive shell via mknod and telnet.
 				This method works on Debian and other systems compiled
-				without /dev/tcp support. This module uses the '-z' 
+				without /dev/tcp support. This module uses the '-z'
 				option included on some systems to encrypt using SSL.
 				},
 			'Author'        => 'RageLtMan',

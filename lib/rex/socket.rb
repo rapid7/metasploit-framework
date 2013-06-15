@@ -461,14 +461,14 @@ module Socket
 	def self.eth_aton(mac)
 		mac.split(":").map{|c| c.to_i(16) }.pack("C*")
 	end
-	
+
 	#
 	# Converts a 6-byte binary string into a colon-delimited MAC address
 	#
 	def self.eth_ntoa(bin)
 		bin.unpack("C6").map{|x| "%.2x" % x }.join(":").upcase
 	end
-	
+
 	#
 	# Converts a CIDR subnet into an array (base, bcast)
 	#

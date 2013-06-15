@@ -2,7 +2,7 @@
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+#   http://metasploit.com/framework/
 ##
 
 ##
@@ -118,19 +118,19 @@ class Metasploit4 < Msf::Auxiliary
 		data << '</n1:RFC_PING>'
 		data << '</env:Body>'
 		data << '</env:Envelope>'
-		user_pass = Rex::Text.encode_base64(username+ ":" + password)
 		begin
-			res = send_request_raw({
+			res = send_request_cgi({
 				'uri' => '/sap/bc/soap/rfc?sap-client=' + client + '&sap-language=EN',
 				'method' => 'POST',
 				'data' => data,
-				'headers' =>{
-					'Content-Length' => data.size.to_s,
-					'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
-					'Cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + client,
-					'Authorization' => 'Basic ' + user_pass,
-					'Content-Type' => 'text/xml; charset=UTF-8'}
-					}, 45)
+				'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + client,
+				'ctype' => 'text/xml; charset=UTF-8',
+				'authorization' => basic_auth(username, password),
+				'headers' =>
+					{
+						'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
+					}
+			})
 			if res and res.code == 200
 				report_auth_info(
 					:host => rhost,

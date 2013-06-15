@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
-
+#
 require 'rexml/document'
 require 'rex/parser/nmap_xml'
 require 'msf/core/db_export'
@@ -847,17 +847,19 @@ class Db
 		def cmd_notes_help
 			print_line "Usage: notes [-h] [-t <type1,type2>] [-n <data string>] [-a] [addr range]"
 			print_line
-			print_line "  -a,--add          Add a note to the list of addresses, instead of listing"
-			print_line "  -d,--delete       Delete the hosts instead of searching"
-			print_line "  -n,--note <data>  Set the data for a new note (only with -a)"
-			print_line "  -t <type1,type2>  Search for a list of types"
-			print_line "  -h,--help         Show this help information"
-			print_line "  -R,--rhosts       Set RHOSTS from the results of the search"
-			print_line "  -S,--search       Search string to filter by"
+			print_line "  -a,--add                  Add a note to the list of addresses, instead of listing"
+			print_line "  -d,--delete               Delete the hosts instead of searching"
+			print_line "  -n,--note <data>          Set the data for a new note (only with -a)"
+			print_line "  -t <type1,type2>          Search for a list of types"
+			print_line "  -h,--help                 Show this help information"
+			print_line "  -R,--rhosts               Set RHOSTS from the results of the search"
+			print_line "  -S,--search               Regular expression to match for search"
+			print_line "  --sort <field1,field2>    Fields to sort by (case sensitive)"
 			print_line
 			print_line "Examples:"
 			print_line "  notes --add -t apps -n 'winzip' 10.1.1.34 10.1.20.41"
 			print_line "  notes -t smb.fingerprint 10.1.1.34 10.1.20.41"
+			print_line "  notes -S 'nmap.nse.(http|rtsp)' --sort type,output"
 			print_line
 		end
 
@@ -892,10 +894,12 @@ class Db
 						return
 					end
 					types = typelist.strip().split(",")
-				when '-R','--rhosts'
+				when '-R', '--rhosts'
 					set_rhosts = true
 				when '-S', '--search'
 					search_term = /#{args.shift}/nmi
+				when '--sort'
+					sort_term = args.shift
 				when '-h','--help'
 					cmd_notes_help
 					return
@@ -939,9 +943,46 @@ class Db
 			end
 			if search_term
 				note_list.delete_if do |n|
-					!!n.attribute_names.any? { |a| n[a.intern].to_s.match(search_term) }
+					!n.attribute_names.any? { |a| n[a.intern].to_s.match(search_term) }
 				end
 			end
+
+			# Sort the notes based on the sort_term provided
+			if sort_term != nil
+				sort_terms = sort_term.split(",")
+				note_list.sort_by! do |note|
+					orderlist = []
+					sort_terms.each do |term|
+						term = "ntype" if term == "type"
+						term = "created_at" if term == "Time"
+						if term == nil
+							orderlist << ""
+						elsif term == "service"
+							if note.service != nil
+								orderlist << make_sortable(note.service.name)
+							end
+						elsif term == "port"
+							if note.service != nil
+								orderlist << make_sortable(note.service.port)
+							end
+						elsif term == "output"
+							orderlist << make_sortable(note.data["output"])
+						elsif note.respond_to?(term)
+							orderlist << make_sortable(note.send(term))
+						elsif note.respond_to?(term.to_sym)
+							orderlist << make_sortable(note.send(term.to_sym))
+						elsif note.respond_to?("data") && note.send("data").respond_to?(term)
+							orderlist << make_sortable(note.send("data").send(term))
+						elsif note.respond_to?("data") && note.send("data").respond_to?(term.to_sym)
+							orderlist << make_sortable(note.send("data").send(term.to_sym))
+						else
+							orderlist << ""
+						end
+					end
+					orderlist
+				end
+			end
+
 			# Now display them
 			note_list.each do |note|
 				next if(types and types.index(note.ntype).nil?)
@@ -974,9 +1015,32 @@ class Db
 		}
 		end
 
+		def make_sortable(input)
+			case input.class
+			when String
+				input = input.downcase
+			when Fixnum
+				input = "%016" % input
+			when Time
+				input = input.strftime("%Y%m%d%H%M%S%L")
+			when NilClass
+				input = ""
+			else
+				input = input.inspect.downcase
+			end
+			input
+		end
+
 		def cmd_loot_help
-			print_line "Usage: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]"
+			print_line "Usage: loot <options>"
+			print_line " Info: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]"
+			print_line "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] [-t [type]"
+			print_line "  Del: loot -d [addr1 addr2 ...]"
 			print_line
+			print_line "  -a,--add          Add loot to the list of addresses, instead of listing"
+			print_line "  -d,--delete       Delete *all* loot matching host and type"
+			print_line "  -f,--file         File with contents of the loot to add"
+			print_line "  -i,--info         Info of the loot to add"
 			print_line "  -t <type1,type2>  Search for a list of types"
 			print_line "  -h,--help         Show this help information"
 			print_line "  -S,--search       Search string to filter by"
@@ -991,31 +1055,52 @@ class Db
 			types = nil
 			delete_count = 0
 			search_term = nil
+			file = nil
+			name = nil
+			info = nil
 
 			while (arg = args.shift)
 				case arg
-				when '-d','--delete'
-					mode = :delete
-				when '-t'
-					typelist = args.shift
-					if(!typelist)
-						print_status("Invalid type list")
+					when '-a','--add'
+						mode = :add
+					when '-d','--delete'
+						mode = :delete
+					when '-f','--file'
+						filename = args.shift
+						if(!filename)
+							print_error("Can't make loot with no filename")
+							return
+						end
+						if (!File.exists?(filename) or !File.readable?(filename))
+							print_error("Can't read file")
+							return
+						end
+					when '-i','--info'
+						info = args.shift
+						if(!info)
+							print_error("Can't make loot with no info")
 						return
 					end
-					types = typelist.strip().split(",")
-				when '-S', '--search'
-					search_term = /#{args.shift}/nmi
-				when '-h','--help'
-					cmd_loot_help
-					return
-				else
-					# Anything that wasn't an option is a host to search for
-					unless (arg_host_range(arg, host_ranges))
+					when '-t'
+						typelist = args.shift
+						if(!typelist)
+							print_error("Invalid type list")
+							return
+						end
+						types = typelist.strip().split(",")
+					when '-S', '--search'
+						search_term = /#{args.shift}/nmi
+					when '-h','--help'
+						cmd_loot_help
+						return
+					else
+						# Anything that wasn't an option is a host to search for
+						unless (arg_host_range(arg, host_ranges))
 						return
 					end
 				end
-
 			end
+
 			tbl = Rex::Ui::Text::Table.new({
 					'Header'  => "Loot",
 					'Columns' => [ 'host', 'service', 'type', 'name', 'content', 'info', 'path' ],
@@ -1023,6 +1108,32 @@ class Db
 
 			# Sentinal value meaning all
 			host_ranges.push(nil) if host_ranges.empty?
+
+		if mode == :add
+			if info.nil?
+				print_error("Info required")
+				return
+			end
+			if filename.nil?
+				print_error("Loot file required")
+				return
+			end
+			if types.nil? or types.size != 1
+				print_error("Exactly one loot type is required")
+				return
+			end
+			type = types.first
+			name = File.basename(filename)
+			host_ranges.each do |range|
+				range.each do |host|
+					file = File.open(filename, "rb")
+					contents = file.read
+					lootfile = framework.db.find_or_create_loot(:type => type, :host => host,:info => info, :data => contents,:path => filename,:name => name)
+					print_status "Added loot #{host}"
+				end
+			end
+			return
+		end
 
 			each_host_range_chunk(host_ranges) do |host_search|
 				framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
@@ -1473,7 +1584,7 @@ class Db
 				print_error("The database is not connected")
 				return
 			end
-
+					
 			print_status("Purging and rebuilding the module cache in the background...")
 			framework.threads.spawn("ModuleCacheRebuild", true) do
 				framework.db.purge_all_module_details

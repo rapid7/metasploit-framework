@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 # -*- coding: binary -*-
 
-# $Id$
-
 module Rex
 module ImageSource
 class ImageSource
@@ -39,7 +37,7 @@ class ImageSource
 		end
 		return string
 	end
-		
+
 
 end
 

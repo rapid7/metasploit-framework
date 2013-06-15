@@ -32,7 +32,7 @@ module Scanner
 					if(param['disasm'])
 						#puts [msg].pack('H*').inspect
 						insns = []
-				
+
 						msg.gsub!("; ", "\n")
 						if msg.include?("retn")
 							msg.gsub!("retn", "ret")

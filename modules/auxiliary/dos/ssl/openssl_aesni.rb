@@ -1,3 +1,10 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
 # auxilary/dos/ssl/openssl_aesni
 require 'msf/core'
 
@@ -12,8 +19,8 @@ class Metasploit4 < Msf::Auxiliary
 					The AES-NI implementation of OpenSSL 1.0.1c does not properly compute the
 				length of an encrypted message when used with a TLS version 1.1 or above. This
 				leads to an integer underflow which can cause a DoS. The vulnerable function
-				aesni_cbc_hmac_sha1_cipher is only included in the 64 bits versions of OpenSSL.
-				This module has been tested successfully on Ubuntu 12.04 (64 bits) with the default
+				aesni_cbc_hmac_sha1_cipher is only included in the 64-bit versions of OpenSSL.
+				This module has been tested successfully on Ubuntu 12.04 (64-bit) with the default
 				OpenSSL 1.0.1c package.
 			},
 			'Author'	=>

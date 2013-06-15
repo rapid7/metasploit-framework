@@ -40,17 +40,13 @@
 # The latter has a minor bug in its separate_keys function.
 # The third key has to begin from the 14th character of the
 # input string instead of 13th:)
-#--
-# $Id: ntlm.rb 11678 2011-01-30 19:26:35Z hdm $
-#++
-
-#this class defines the base type needed for other modules like message and crypt
 
 require 'rex/proto/ntlm/constants'
 
 module Rex
 module Proto
 module NTLM
+# The base type needed for other modules like message and crypt
 class Base
 
 CONST = Rex::Proto::NTLM::Constants
@@ -164,15 +160,19 @@ CONST = Rex::Proto::NTLM::Constants
 	class FieldSet
 		class << FieldSet
 		def define(&block)
-			c = Class.new(self)
-			def c.inherited(subclass)
-				proto = @proto
-				subclass.instance_eval {
-					@proto = proto
-					}
+			klass = Class.new(self) do
+				def self.inherited(subclass)
+					proto = @proto
+
+					subclass.instance_eval do
+						@proto = proto
+					end
+				end
 			end
-			c.module_eval(&block)
-			c
+
+			klass.module_eval(&block)
+
+			klass
 		end
 
 		def string(name, opts)

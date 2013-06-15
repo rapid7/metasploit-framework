@@ -67,14 +67,16 @@ class Auxiliary::Web::HTTP
 	attr_reader :opts
 	attr_reader :headers
 	attr_reader :framework
+	attr_reader :parent
 
 	attr_accessor :redirect_limit
-	attr_accessor :username , :password
+	attr_accessor :username , :password, :domain
 
 	def initialize( opts = {} )
 		@opts = opts.dup
 
 		@framework = opts[:framework]
+		@parent    = opts[:parent]
 
 		@headers = {
 			'Accept' => '*/*',
@@ -87,6 +89,7 @@ class Auxiliary::Web::HTTP
 		if opts[:auth].is_a? Hash
 			@username = opts[:auth][:user].to_s
 			@password = opts[:auth][:password].to_s
+      @domain   = opts[:auth][:domain].to_s
 		end
 
 		self.redirect_limit = opts[:redirect_limit] || 20
@@ -115,6 +118,7 @@ class Auxiliary::Web::HTTP
 		c.set_config({
 			'vhost' => opts[:target].vhost,
 			'agent' => opts[:user_agent] || 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)',
+      'domain' => domain
 		})
 		c
 	end
@@ -130,8 +134,8 @@ class Auxiliary::Web::HTTP
 					begin
 						request.handle_response request( request.url, request.opts )
 					rescue => e
-						elog e.to_s
-						e.backtrace.each { |l| elog l }
+						print_error e.to_s
+						e.backtrace.each { |l| print_error l }
 					end
 				end
 			end
@@ -314,6 +318,11 @@ class Auxiliary::Web::HTTP
 		elog e.to_s
 		e.backtrace.each { |l| elog l }
 		Response.empty
+	end
+
+	def print_error( message )
+		return if !@parent
+		@parent.print_error message
 	end
 
 end

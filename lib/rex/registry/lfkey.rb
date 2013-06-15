@@ -24,7 +24,7 @@ class LFBlock
 		hash_offset = offset + 0x04
 
 		1.upto(@number_of_keys) do |h|
-			
+
 			hash = LFHashRecord.new(hive_blob, hash_offset)
 
 			@hash_records << hash
@@ -39,7 +39,7 @@ end
 class LFHashRecord
 
 	attr_accessor :nodekey_offset, :nodekey_name_verification
-		
+
 	def initialize(hive_blob, offset)
 		@nodekey_offset = hive_blob[offset, 4].unpack('l').first
 		@nodekey_name_verification = hive_blob[offset+0x04, 4].to_s

@@ -1,3 +1,10 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
 #
 # Thanks to:
 # ipax, neriberto, flambaz, bperry, egypt, and sinn3r for help
@@ -33,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         =>
 				[
 					'Ewerson Guimaraes(Crash) <crash[at]dclabs.com.br>',
-					'm-1-k-3 <michael.messner[at]integralis.com>',
+					'Michael Messner <devnull[at]s3cur1ty.de>',
 					'et <et[at]cyberspace.org>',
 					'sinn3r'
 				],
