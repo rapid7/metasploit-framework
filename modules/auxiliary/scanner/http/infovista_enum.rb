@@ -56,21 +56,20 @@ class Metasploit3 < Msf::Auxiliary
 	# What's the point of running this module if the app actually isn't InfoVista?
 	#
 	def is_app_infovista?
+		res = send_request_cgi(
+		{
+			'uri'       => '/VPortal/',
+			'method'    => 'GET'
+		})
 
-			res = send_request_cgi(
-			{
-				'uri'       => '/VPortal/',
-				'method'    => 'GET'
-			})
-
-			if (res and res.code == 200 and res.body =~ /InfoVista.*VistaPortal/)
-				version_key = /PORTAL_VERSION = (.+)./
-				version = res.body.scan(version_key).flatten[0].gsub('"','')
-				print_good("#{rhost}:#{rport} - Application version is #{version}")
-				return true
-			else
-				return false
-			end
+		if (res and res.code == 200 and res.body =~ /InfoVista.*VistaPortal/)
+			version_key = /PORTAL_VERSION = (.+)./
+			version = res.body.scan(version_key).flatten[0].gsub('"','')
+			print_good("#{rhost}:#{rport} - Application version is #{version}")
+			return true
+		else
+			return false
+		end
 	end
 
 	#
