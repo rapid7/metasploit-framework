@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Post
 
 	def disable_network_wizard
 		if not is_admin?
-			print_error("You don't have enough privileges to change the registry. Network Wizard will not be disable")
+			print_error("You don't have enough privileges to change the registry. Network Wizard will not be disabled")
 			return
 		end
 
