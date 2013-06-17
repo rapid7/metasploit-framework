@@ -26,10 +26,10 @@ class Metasploit3 < Msf::Auxiliary
 				'Matt "hostess" Andreko <mandreko[at]accuvant.com>'
 			],
 			'References'     => [
-				[ 'OSVDB', '' ],
+				[ 'CVE', '2013-4615' ],
 				[ 'URL', 'http://www.mattandreko.com/2013/06/canon-y-u-no-security.html']
 			],
-			'DisclosureDate' => 'June 15 2013'))
+			'DisclosureDate' => 'June 18 2013'))
 		register_options([
 			Opt::RPORT(80),
 		])
