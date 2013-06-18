@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Monkey HTTPD Header Parsing Denial-of-Service',
+			'Name'           => 'Monkey HTTPD Header Parsing Denial of Service (DoS)',
 			'Description'    => %q{
 					This module causes improper header parsing that leads to a segmentation fault
 				due to a specially crafted HTTP request. Affects version <= 1.2.0.

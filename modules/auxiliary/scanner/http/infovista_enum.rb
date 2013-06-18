@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'           => 'InfoVista VistaPortal Application Brute Force Login Utility',
+			'Name'           => 'InfoVista VistaPortal Application Bruteforce Login Utility',
 			'Description'    => %{
 				This module attempts to scan for InfoVista VistaPortal Web Application, finds its
 			version and performs login brute force to identify valid credentials.

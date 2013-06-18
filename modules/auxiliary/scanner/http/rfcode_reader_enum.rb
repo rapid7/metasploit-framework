@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'           => 'RFCode Reader Web Interface Login Utility',
+			'Name'           => 'RFCode Reader Web Interface Login / Bruteforce Utility',
 			'Description'    => %{
 				This module simply attempts to login to a RFCode Reader web interface.
 				Please note that by default there is no authentication. In such a case, password brute force will not be performed.
