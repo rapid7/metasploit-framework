@@ -29,10 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 				[ 'CVE', '2013-4615' ],
 				[ 'URL', 'http://www.mattandreko.com/2013/06/canon-y-u-no-security.html']
 			],
-			'DisclosureDate' => 'June 18 2013'))
-		register_options([
-			Opt::RPORT(80),
-		])
+			'DisclosureDate' => 'Jun 18 2013'))
 	end
 
 	def run
