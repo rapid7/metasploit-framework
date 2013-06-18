@@ -32,6 +32,7 @@ module Auxiliary::HttpCrawler
 
 		register_advanced_options(
 			[
+				OptBool.new('DirBust', [ false, 'Bruteforce common URL paths', true]),
 				OptInt.new('RequestTimeout', [false, 'The maximum number of seconds to wait for a reply', 15]),
 				OptInt.new('RedirectLimit', [false, 'The maximum number of redirects for a single request', 5]),
 				OptInt.new('RetryLimit', [false, 'The maximum number of attempts for a single request', 5]),
@@ -173,6 +174,10 @@ module Auxiliary::HttpCrawler
 		datastore['MAX_THREADS']
 	end
 
+	def dirbust?
+		datastore['DirBust']
+	end
+
 	# Scrub links that end in these extensions. If more or less is
 	# desired by a particular module, this should get redefined.
 	def get_link_filter
@@ -275,6 +280,7 @@ module Auxiliary::HttpCrawler
 		opts[:framework]           = framework
 		opts[:module]              = self
 		opts[:timeout]             = get_connection_timeout
+		opts[:dirbust]             = dirbust?
 
 		if (t[:headers] and t[:headers].length > 0)
 			opts[:inject_headers] = t[:headers]

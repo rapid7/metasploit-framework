@@ -73,6 +73,7 @@ class Response < Packet
 				next if name == 'path'
 				next if name == 'expires'
 				next if name == 'domain'
+				next if name == 'max-age'
 				cookies << "#{k}=#{v}; "
 			end
 		end
