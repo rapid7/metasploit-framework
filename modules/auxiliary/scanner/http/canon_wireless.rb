@@ -23,11 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 				[ 'CVE', '2013-4614' ],
 				[ 'URL', 'http://www.mattandreko.com/2013/06/canon-y-u-no-security.html']
 			],
-			'DisclosureDate' => 'June 18 2013'))
-		register_options(
-			[
-				Opt::RPORT(80),
-			], self.class)
+			'DisclosureDate' => 'Jun 18 2013'))
 	end
 
 	def get_network_settings
@@ -131,6 +127,13 @@ class Metasploit3 < Msf::Auxiliary
 			wireless_key = get_wireless_key
 			good_string += "\tSSID: #{ns[1]}\tEncryption Type: #{wireless_key[0]}\tKey: #{wireless_key[1]}"
 		end
+
+		report_note({
+			:data => good_string,
+			:type => 'canon.wireless',
+			:host => ip,
+			:port => rport
+		})
 
 		print_good good_string
 
