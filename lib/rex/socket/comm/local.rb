@@ -399,7 +399,7 @@ class Rex::Socket::Comm::Local
 			end
 
 			begin
-				ret_len = sock.get_once(4, 30).unpack('L>')[0]
+				ret_len = sock.get_once(4, 30).unpack('N')[0]
 				if ret_len and ret_len != 0
 					ret = sock.get_once(ret_len, 30)
 				end
