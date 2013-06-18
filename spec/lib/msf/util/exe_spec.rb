@@ -14,7 +14,14 @@ describe Msf::Util::EXE do
     'DisableDatabase' => true
   )
 
-  context '.to_executable_fmt' do
+  describe '.win32_rwx_exec' do
+    it "should contain the shellcode" do
+      bin = subject.win32_rwx_exec("asdfjklASDFJKL")
+      bin.should include("asdfjklASDFJKL")
+    end
+  end
+
+  describe '.to_executable_fmt' do
     it "should output nil when given a bogus format" do
       bin = subject.to_executable_fmt($framework, "", "", "", "does not exist", {})
 
@@ -28,14 +35,17 @@ describe Msf::Util::EXE do
         { :format => "exe",       :arch => "x86", :file_fp => /PE32 /  },
         { :format => "exe",       :arch => "x64", :file_fp => /PE32\+/ },
         { :format => "exe-small", :arch => "x86", :file_fp => /PE32 /  },
+        { :format => "exe-only",  :arch => "x86", :file_fp => /PE32 /  },
         # No template for 64-bit exe-small. That's fine, we probably
         # don't need one.
         #{ :format => "exe-small", :arch => "x64", :file_fp => /PE32\+/ },
       ],
       "linux" => [
-        { :format => "elf", :arch => "x86",  :file_fp => /ELF 32.*SYSV/ },
-        { :format => "elf", :arch => "x64",  :file_fp => /ELF 64.*SYSV/ },
-        { :format => "elf", :arch => "armle",:file_fp => /ELF 32.*ARM/, :pending => true },
+        { :format => "elf", :arch => "x86",    :file_fp => /ELF 32.*SYSV/ },
+        { :format => "elf", :arch => "x64",    :file_fp => /ELF 64.*SYSV/ },
+        { :format => "elf", :arch => "armle",  :file_fp => /ELF 32.*ARM/ },
+        { :format => "elf", :arch => "mipsbe", :file_fp => /ELF 32-bit MSB executable, MIPS/ },
+        { :format => "elf", :arch => "mipsle", :file_fp => /ELF 32-bit LSB executable, MIPS/ },
       ],
       "bsd" => [
         { :format => "elf", :arch => "x86", :file_fp => /ELF 32.*BSD/ },
