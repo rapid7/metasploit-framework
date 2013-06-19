@@ -35,10 +35,11 @@ describe Msf::Util::EXE do
         { :format => "exe",       :arch => "x86", :file_fp => /PE32 /  },
         { :format => "exe",       :arch => "x64", :file_fp => /PE32\+/ },
         { :format => "exe-small", :arch => "x86", :file_fp => /PE32 /  },
-        { :format => "exe-only",  :arch => "x86", :file_fp => /PE32 /  },
         # No template for 64-bit exe-small. That's fine, we probably
         # don't need one.
         #{ :format => "exe-small", :arch => "x64", :file_fp => /PE32\+/ },
+        { :format => "exe-only",  :arch => "x86", :file_fp => /PE32 /  },
+        { :format => "exe-only",  :arch => "x64", :file_fp => /PE32\+ /  },
       ],
       "linux" => [
         { :format => "elf", :arch => "x86",    :file_fp => /ELF 32.*SYSV/ },
@@ -75,6 +76,11 @@ describe Msf::Util::EXE do
           bin = subject.to_executable_fmt($framework, "asdf", platform, "\xcc", formats.first[:format], {})
           bin.should == nil
         end
+        [ ARCH_X86, ARCH_X64, ARCH_X86_64, ARCH_PPC, ARCH_MIPSLE, ARCH_MIPSBE, ARCH_ARMLE ].each do |arch|
+          it "returns nil when given bogus format for arch=#{arch}" do
+            bin = subject.to_executable_fmt($framework, arch, platform, "\xcc", "asdf", {})
+          end
+        end
 
         formats.each do |format_hash|
           fmt   = format_hash[:format]
@@ -95,11 +101,6 @@ describe Msf::Util::EXE do
             fp = f.read
             f.close
             fp.should =~ format_hash[:file_fp] if format_hash[:file_fp]
-          end
-
-          it "returns nil when given bogus format for arch=#{arch}" do
-            bin = subject.to_executable_fmt($framework, arch, platform, "\xcc", "asdf", {})
-            bin.should == nil
           end
 
         end
