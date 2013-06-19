@@ -1,3 +1,10 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
 require 'msf/core'
 require 'nokogiri'
 
@@ -12,7 +19,8 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'Canon Printer Wireless Configuration Disclosure',
 			'Description'    => %q{
 					This module enumerates wireless credentials from Canon printers with a web interface.
-					It has been tested on Canon models: MG3100, MG5300, MG6100, MP495, MX340, MX870, MX890, MX920.
+					It has been tested on Canon models: MG3100, MG5300, MG6100, MP495, MX340, MX870,
+					MX890, MX920.
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         =>
