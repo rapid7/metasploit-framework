@@ -42,6 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptAddress.new('TARGETHOST', [ false, "The address that all names should resolve to", nil ]),
 				OptString.new('TARGETDOMAIN', [ true, "The list of target domain names we want to fully resolve (BYPASS) or fake resolve (FAKE)", 'www.google.com']),
 				OptEnum.new('TARGETACTION', [ true, "Action for TARGETDOMAIN", "BYPASS", %w{FAKE BYPASS}]),
+				OptString.new('TARGETPAIRS', [ false, "The list of pairs we want to resolve (host:ip,host:ip,..)", nil ]),
 			], self.class)
 
 		register_advanced_options(
@@ -60,6 +61,35 @@ class Metasploit3 < Msf::Auxiliary
 
 		if(@targ)
 			@targ = ::Rex::Socket.resolv_to_dotted(@targ)
+		end
+
+		@targ_pairs = datastore['TARGETPAIRS']
+
+		if (@targ_pairs and @targ_pairs.strip.length == 0)
+			@targ_pairs = nil
+		end
+
+		if(@targ_pairs)
+			t = @targ_pairs
+			@targ_pairs = {}
+			t.split(/,/).each do |pair| 
+				(host, ip) = pair.split(/:/)
+				if (!host or !ip)
+					print_error("DNS problem in dividing the targetpairs in two: \"#{pair}\"")
+					return
+				end
+				begin
+					@targ_pairs[host] = ::Rex::Socket.resolv_to_dotted(ip) 
+				rescue SocketError => e
+					print_error("DNS problem converting \"#{ip}\" to dotted quad.")
+					return
+				end
+			end
+		end
+
+		if (@targ.nil? and @targ_pairs.nil?)
+			print_error("Neither TARGETHOST or TARGETPAIRS is set, exiting.")
+			return
 		end
 
 		@port = datastore['SRVPORT'].to_i
@@ -132,7 +162,18 @@ class Metasploit3 < Msf::Auxiliary
 					# <hostname> SOA -> windows XP self hostname lookup
 					#
 
-					answer = Resolv::DNS::Resource::IN::A.new( @targ || ::Rex::Socket.source_address(addr[3].to_s) )
+					#If the hostname is in TARGETPAIRS, respond with its corresponding IP
+					#else if TARGETHOST is set, respond with that IP
+					#else resolve the hostname externally
+					if (@targ_pairs and @targ_pairs.include?(name.to_s))
+						print_status("DNS target pair found #{name} -> #{@targ_pairs[name.to_s]}")
+						answer = Resolv::DNS::Resource::IN::A.new( @targ_pairs[name.to_s] || ::Rex::Socket.source_address(addr[3].to_s) )
+					elsif (@targ)
+						answer = Resolv::DNS::Resource::IN::A.new( @targ || ::Rex::Socket.source_address(addr[3].to_s) )
+					else
+						ip = Resolv::DNS.new().getaddress(name).to_s
+						answer = Resolv::DNS::Resource::IN::A.new( ip )
+					end
 
 					# Identify potential domain exceptions
 					@match_target = false
