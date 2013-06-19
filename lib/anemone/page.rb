@@ -55,6 +55,7 @@ module Anemone
       @url = url
       @data = OpenStruct.new
 
+      @dirbust = params[:dirbust]
       @code = params[:code]
       @headers = params[:headers] || {}
       @headers['content-type'] ||= ['']
@@ -83,7 +84,10 @@ module Anemone
 
     def run_extractors
       return [] if !doc
-      self.class.extractors.map { |e| e.new( self ).run rescue next }.flatten.
+      self.class.extractors.map do |e|
+	      next if e == Extractors::Dirbuster && !dirbust?
+	      e.new( self ).run rescue next
+      end.flatten.
           compact.map do |p|
               abs = to_absolute( URI( p ) ) rescue next
               !in_domain?( abs ) ? nil : abs
@@ -179,6 +183,10 @@ module Anemone
       absolute.path = '/' if absolute.path.empty?
 
       return absolute
+    end
+
+    def dirbust?
+	    @dirbust
     end
 
     #
