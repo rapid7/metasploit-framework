@@ -23,7 +23,7 @@ module Metasploit3
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'unix',
 			'Arch'          => ARCH_CMD,
-			'Handler'       => Msf::Handler::ReverseTcpDoubleSSL,
+			'Handler'       => Msf::Handler::ReverseTcpDoubleSsl,
 			'Session'       => Msf::Sessions::CommandShell,
 			'PayloadType'   => 'cmd',
 			'RequiredCmd'   => 'openssl',
