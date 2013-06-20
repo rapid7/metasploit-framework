@@ -18,7 +18,9 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'        => 'Unix Command Shell, Reverse TCP (via Zsh)',
-			'Description' => 'Connect back and create a command shell via Zsh',
+			'Description' => %q{
+                Connect back and create a command shell via Zsh.
+                Note: Although Zsh is often available, please be aware it isn't usually installed by default.},
 			'Author'      => 'Doug Prostko <dougtko[at]gmail.com>',
 			'License'     => MSF_LICENSE,
 			'Platform'    => 'unix',
