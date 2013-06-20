@@ -19,8 +19,9 @@ module Metasploit4
 		super(merge_info(info,
 			'Name'          => 'Unix Command Shell, Bind TCP (via Zsh)',
 			'Description'   => %q{
-                Listen for a connection and spawn a command shell via Zsh.
-                Note: Although Zsh is often available, please be aware it isn't usually installed by default.},
+				Listen for a connection and spawn a command shell via Zsh.
+			Note: Although Zsh is often available,
+			please be aware it isn't usually installed by default.},
 			'Author'        =>
 				[
 					'Doug Prostko <dougtko[at]gmail.com>'
