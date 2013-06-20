@@ -146,7 +146,7 @@ class Metasploit4 < Msf::Auxiliary
 			end
 		end
 
-		print_error("#{rhost}#{rport} Failed to retrieve file from #{rhost}:#{rport}")
+		print_error("#{rhost}:#{rport} Failed to retrieve file from #{rhost}:#{rport}")
 	end
 
 end
