@@ -101,3 +101,7 @@ class Metasploit3 < Msf::Auxiliary
 		}
 	end
 end
+
+=begin
+Tested: v6.3.1.24 upto v7.2.1.3
+=end
