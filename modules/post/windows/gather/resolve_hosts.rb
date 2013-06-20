@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Post
 	def run
 		hosts = datastore['HOSTNAMES'].split(',')
 
-		if datastore['FAMILY'] == 'IPv4'
+		if datastore['AI_FAMILY'] == 'IPv4'
 			family = AF_INET
 		else
 			family = AF_INET6
