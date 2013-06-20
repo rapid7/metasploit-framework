@@ -1,9 +1,6 @@
 #!/usr/bin/env ruby
 # -*- coding: binary -*-
-#
-# $Id: msfvenom 14909 2012-03-10 06:50:03Z rapid7 $
-# $Revision: 14909 $
-#
+
 msfbase = __FILE__
 while File.symlink?(msfbase)
 	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
@@ -426,107 +423,54 @@ end
 
 $stdout.binmode
 
-if opts[:format] !~/^(ruby|rb|perl|pl|bash|sh|c|csharp|js|dll|elf)$/i
-	exe = Msf::Util::EXE.to_executable_fmt($framework, opts[:arch], opts[:platform], payload_raw, opts[:format], exeopts)
-end
+case opts[:format].downcase
+# Special-case this to check endianness
+when "js_be"
 
-case opts[:format]
-when /^(ruby|rb|perl|pl|bash|sh|c|csharp|js_le|raw|py)$/i
-	$stdout.write Msf::Simple::Buffer.transform(payload_raw, opts[:format])
-when /^asp$/
-	asp = Msf::Util::EXE.to_win32pe_asp($framework, payload_raw, exeopts)
-	$stdout.puts asp
-when /^aspx$/
-	aspx = Msf::Util::EXE.to_win32pe_aspx($framework, payload_raw, exeopts)
-	$stdout.puts aspx
-when /^js_be$/i
 	if Rex::Arch.endian(payload.arch) != ENDIAN_BIG
 		print_error("Big endian format selected for a non big endian payload")
 		exit
 	end
-	$stdout.puts Msf::Simple::Buffer.transform(payload_raw, opts[:format])
-when /^java$/i
-	if(!exe and payload.platform.platforms.index(Msf::Module::Platform::Java))
-		exe = payload.generate_jar.pack
-	end
+	$stdout.write Msf::Simple::Buffer.transform(payload_raw, opts[:format])
 
-	if exe
-		$stdout.write exe
-	else
-		print_error("Could not generate payload format")
-	end
-when /^elf$/i
-	if (opts[:platform].index(Msf::Module::Platform::Linux))
-		elf = case opts[:arch]
-			when /^x64$/; Msf::Util::EXE.to_linux_x64_elf($framework, payload_raw, exeopts)
-			when /^x86$/; Msf::Util::EXE.to_linux_x86_elf($framework, payload_raw, exeopts)
-			when /^arm$/; Msf::Util::EXE.to_linux_armle_elf($framework, payload_raw, exeopts)
-			end
-	elsif(opts[:platform].index(Msf::Module::Platform::BSD))
-		elf = case opts[:arch]
-			when /^x86$/; Msf::Util::EXE.to_bsd_x86_elf($framework, payload_raw, exeopts)
-			end
-	elsif(opts[:platform].index(Msf::Module::Platform::Solaris))
-		elf = case opts[:arch]
-			when /^x86$/; Msf::Util::EXE.to_solaris_x86_elf($framework, payload_raw, exeopts)
-			end
-	end
-	if elf.nil?
-		print_error("This format does not support that architecture")
-		exit
-	end
-	$stdout.write elf
-when /^macho$/i
-	bin = case opts[:arch]
-		when /^x64$/; Msf::Util::EXE.to_osx_x64_macho($framework, payload_raw, exeopts)
-		when /^x86$/; Msf::Util::EXE.to_osx_x86_macho($framework, payload_raw, exeopts)
-		when /^arm$/; Msf::Util::EXE.to_osx_arm_macho($framework, payload_raw, exeopts)
-		when /^ppc$/; Msf::Util::EXE.to_osx_ppc_macho($framework, payload_raw, exeopts)
-		end
-	if bin.nil?
-		print_error("This format does not support that architecture")
-		exit
-	end
-	$stdout.write bin
-when /^dll$/i
-	dll = case opts[:arch]
-		when /^x86$/;        Msf::Util::EXE.to_win32pe_dll($framework, payload_raw)
-		when /^(x64|x86_64)$/; Msf::Util::EXE.to_win64pe_dll($framework, payload_raw)
-		end
-	if dll.nil?
-		print_error("This format does not support that architecture")
-		exit
-	end
-
-	$stdout.write dll
-when /^exe$/i
-	$stdout.write exe
-when /^exe-small$/i
-when /^vba$/i
-	vba = Msf::Util::EXE.to_vba($framework, payload_raw)
-	$stdout.puts vba
-when /^vba-exe$/i
-	exe = Msf::Util::EXE.to_win32pe($framework, payload_raw)
-	vba = Msf::Util::EXE.to_exe_vba(exe)
-	$stdout.puts vba
-when /^vbs$/i
-	exe = Msf::Util::EXE.to_win32pe($framework, payload_raw)
-	vbs = Msf::Util::EXE.to_exe_vbs(exe)
-	$stdout.puts vbs
-when /^war$/i
+# Special-case this so we can build a war directly from the payload if
+# possible
+when "war"
+	exe = Msf::Util::EXE.to_executable_fmt($framework, opts[:arch], opts[:platform], payload_raw, opts[:format], exeopts)
 	if (!exe and payload.platform.platforms.index(Msf::Module::Platform::Java))
 		exe = payload.generate_war.pack
 	else
 		exe = Msf::Util::EXE.to_jsp_war(exe)
 	end
 	$stdout.write exe
-when /^psh$/i
-	psh = Msf::Util::EXE.to_win32pe_psh($framework, payload_raw, exeopts)
-	$stdout.write psh
-when /^psh-net$/i
-	psh = Msf::Util::EXE.to_win32pe_psh_net($framework, payload_raw, exeopts)
-	$stdout.write psh
+
+# Same as war, special-case this so we can build a jar directly from the
+# payload if possible
+when "java"
+	exe = Msf::Util::EXE.to_executable_fmt($framework, opts[:arch], opts[:platform], payload_raw, opts[:format], exeopts)
+	if(!exe and payload.platform.platforms.index(Msf::Module::Platform::Java))
+		exe = payload.generate_jar.pack
+	end
+	if exe
+		$stdout.write exe
+	else
+		print_error("Could not generate payload format")
+	end
+
+when *Msf::Simple::Buffer.transform_formats
+	$stdout.write Msf::Simple::Buffer.transform(payload_raw, opts[:format])
+
+when *Msf::Util::EXE.to_executable_fmt_formats
+	exe = Msf::Util::EXE.to_executable_fmt($framework, opts[:arch], opts[:platform], payload_raw, opts[:format], exeopts)
+	if exe.nil?
+		print_error("This format does not support that platform/architecture")
+		exit
+	end
+	$stdout.write exe
+
 else
 	print_error("Unsupported format")
 	exit
 end
+
+
