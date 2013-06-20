@@ -145,6 +145,12 @@ class Msftidy
 		end
 	end
 
+	def check_verbose_option
+		if @source =~ /Opt(Bool|String).new\([[:space:]]*('|")VERBOSE('|")[[:space:]]*,[[:space:]]*\[[[:space:]]*/
+			warn("VERBOSE Option is already part of advanced settings, no need to add it manually.")
+		end
+	end
+
 	def check_badchars
 		badchars = %Q|&<=>|
 
@@ -204,7 +210,7 @@ class Msftidy
 				end
 
 				if author_name =~ /^@.+$/
-					error("No Twitter handle, please. Try leaving it in a comment instead.")
+					error("No Twitter handles, please. Try leaving it in a comment instead.")
 				end
 
 				if not author_name.ascii_only?
@@ -226,9 +232,7 @@ class Msftidy
 		puts "Checking syntax for #{f_rel}."
 		rubies ||= RVM.list_strings
 		res = %x{rvm all do ruby -c #{f_rel}}.split("\n").select {|msg| msg =~ /Syntax OK/}
-		rubies.size == res.size
-
-		error("Fails alternate Ruby version check") if rubies.size
+		error("Fails alternate Ruby version check") if rubies.size != res.size
 	end
 
 	def check_ranking
@@ -279,8 +283,9 @@ class Msftidy
 		if @source =~ /'Name'[[:space:]]*=>[[:space:]]*['"](.+)['"],*$/
 			words = $1.split
 			words.each do |word|
-				if %w{and or the for to in of as with a an on at}.include?(word)
+				if %w{and or the for to in of as with a an on at via}.include?(word)
 					next
+				elsif %w{pbot}.include?(word)
 				elsif word =~ /^[a-z]+$/
 					warn("Improper capitalization in module title: '#{word}'")
 				end
@@ -391,6 +396,7 @@ def run_checks(f_rel)
 	tidy = Msftidy.new(f_rel)
 	tidy.check_ref_identifiers
 	tidy.check_old_keywords
+	tidy.check_verbose_option
 	tidy.check_badchars
 	tidy.check_extname
 	tidy.test_old_rubies(f_rel)

@@ -323,7 +323,7 @@ protected
 	end
 
 	#
-	# Enumerate the type and data stored in the registry value +valname+ in 
+	# Enumerate the type and data stored in the registry value +valname+ in
 	# +key+
 	#
 	def shell_registry_getvalinfo(key, valname)

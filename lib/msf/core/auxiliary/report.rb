@@ -21,7 +21,17 @@ module Auxiliary::Report
 
 	def myworkspace
 		@myworkspace = framework.db.find_workspace(self.workspace)
-	end
+  end
+
+  def mytask
+    if self[:task]
+      return self[:task].record
+    elsif @task && @task.class == Mdm::Task
+      return @task
+    else
+      return nil
+    end
+  end
 
 	def inside_workspace_boundary?(ip)
 		return true if not framework.db.active
@@ -41,7 +51,10 @@ module Auxiliary::Report
 	#
 	def report_host(opts)
 		return if not db
-		opts = {:workspace => myworkspace}.merge(opts)
+		opts = {
+      :workspace => myworkspace,
+      :task => mytask
+    }.merge(opts)
 		framework.db.report_host(opts)
 	end
 
@@ -63,7 +76,10 @@ module Auxiliary::Report
 	#
 	def report_client(opts={})
 		return if not db
-		opts = {:workspace => myworkspace}.merge(opts)
+    opts = {
+        :workspace => myworkspace,
+        :task => mytask
+    }.merge(opts)
 		framework.db.report_client(opts)
 	end
 
@@ -78,25 +94,37 @@ module Auxiliary::Report
 	#
 	def report_service(opts={})
 		return if not db
-		opts = {:workspace => myworkspace}.merge(opts)
+    opts = {
+        :workspace => myworkspace,
+        :task => mytask
+    }.merge(opts)
 		framework.db.report_service(opts)
 	end
 
 	def report_note(opts={})
 		return if not db
-		opts = {:workspace => myworkspace}.merge(opts)
+    opts = {
+        :workspace => myworkspace,
+        :task => mytask
+    }.merge(opts)
 		framework.db.report_note(opts)
 	end
 
 	def report_auth_info(opts={})
 		return if not db
-		opts = {:workspace => myworkspace}.merge(opts)
+    opts = {
+        :workspace => myworkspace,
+        :task => mytask
+    }.merge(opts)
 		framework.db.report_auth_info(opts)
 	end
 
 	def report_vuln(opts={})
 		return if not db
-		opts = {:workspace => myworkspace}.merge(opts)
+    opts = {
+        :workspace => myworkspace,
+        :task => mytask
+    }.merge(opts)
 		framework.db.report_vuln(opts)
 	end
 
@@ -104,37 +132,55 @@ module Auxiliary::Report
 	# is no longer implemented.
 	def report_exploit(opts={})
 		return if not db
-		opts = {:workspace => myworkspace}.merge(opts)
+    opts = {
+        :workspace => myworkspace,
+        :task => mytask
+    }.merge(opts)
 		framework.db.report_exploit(opts)
 	end
 
 	def report_loot(opts={})
 		return if not db
-		opts = {:workspace => myworkspace}.merge(opts)
+    opts = {
+        :workspace => myworkspace,
+        :task => mytask
+    }.merge(opts)
 		framework.db.report_loot(opts)
 	end
 
 	def report_web_site(opts={})
 		return if not db
-		opts = {:workspace => myworkspace}.merge(opts)
+    opts = {
+        :workspace => myworkspace,
+        :task => mytask
+    }.merge(opts)
 		framework.db.report_web_site(opts)
 	end
 
 	def report_web_page(opts={})
 		return if not db
-		opts = {:workspace => myworkspace}.merge(opts)
+    opts = {
+        :workspace => myworkspace,
+        :task => mytask
+    }.merge(opts)
 		framework.db.report_web_page(opts)
 	end
 
 	def report_web_form(opts={})
 		return if not db
-		opts = {:workspace => myworkspace}.merge(opts)
+    opts = {
+        :workspace => myworkspace,
+        :task => mytask
+    }.merge(opts)
 		framework.db.report_web_form(opts)
 	end
 
 	def report_web_vuln(opts={})
 		return if not db
-		opts = {:workspace => myworkspace}.merge(opts)
+    opts = {
+        :workspace => myworkspace,
+        :task => mytask
+    }.merge(opts)
 		framework.db.report_web_vuln(opts)
 	end
 
@@ -271,7 +317,7 @@ module Auxiliary::Report
 		File.open(full_path, "wb") { |fd| fd.write(data) }
 
 		# This will probably evolve into a new database table
-		framework.db.report_note(
+		report_note(
 			:data => full_path.dup,
 			:type => "#{ltype}.localpath"
 		)

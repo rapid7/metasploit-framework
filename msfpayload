@@ -30,7 +30,7 @@ $args = Rex::Parser::Arguments.new(
 #
 def usage
 	$stderr.puts("\n" +
-		"    Usage: #{$0} [<options>] <payload> [var=val] <[S]ummary|C|[P]erl|Rub[y]|[R]aw|[J]s|e[X]e|[D]ll|[V]BA|[W]ar>\n" +
+		"    Usage: #{$0} [<options>] <payload> [var=val] <[S]ummary|C|Cs[H]arp|[P]erl|Rub[Y]|[R]aw|[J]s|e[X]e|[D]ll|[V]BA|[W]ar|Pytho[N]>\n" +
 		$args.usage)
 	exit
 end
@@ -119,16 +119,18 @@ end
 
 payload.datastore.merge! options
 
-if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w)/)
-	fmt = 'perl' if (cmd =~ /^p/)
-	fmt = 'ruby' if (cmd =~ /^y/)
-	fmt = 'raw' if (cmd =~ /^(r|x|d)/)
-	fmt = 'raw' if (cmd =~ /^v/)
-	fmt = 'c' if (cmd == 'c')
-	fmt = 'js_be' if (cmd =~ /^j/ and Rex::Arch.endian(payload.arch) == ENDIAN_BIG)
-	fmt = 'js_le' if (cmd =~ /^j/ and ! fmt)
-	fmt = 'java'  if (cmd =~ /^b/)
-	fmt = 'raw' if (cmd =~ /^w/)
+if (cmd =~ /^(p|y|r|d|c|h|j|x|b|v|w|n)$/)
+	fmt = 'perl' if (cmd =~ /^p$/)
+	fmt = 'ruby' if (cmd =~ /^y$/)
+	fmt = 'raw' if (cmd =~ /^(r|x|d)$/)
+	fmt = 'raw' if (cmd =~ /^v$/)
+	fmt = 'c' if (cmd =~ /^c$/)
+	fmt = 'csharp' if (cmd =~ /^h$/)
+	fmt = 'js_be' if (cmd =~ /^j$/ and Rex::Arch.endian(payload.arch) == ENDIAN_BIG)
+	fmt = 'js_le' if (cmd =~ /^j$/ and ! fmt)
+	fmt = 'java'  if (cmd =~ /^b$/)
+	fmt = 'raw' if (cmd =~ /^w$/)
+	fmt = 'python' if (cmd =~ /^n$/)
 	enc = options['ENCODER']
 
 	begin
@@ -143,7 +145,7 @@ if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w)/)
 
 	$stdout.binmode
 
-	if (cmd =~ /^x/)
+	if (cmd =~ /^x$/)
 		note =
 			"Created by msfpayload (http://www.metasploit.com).\n" +
 			"Payload: " + payload.refname + "\n" +
@@ -169,7 +171,7 @@ if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w)/)
 		exit(-1)
 	end
 
-	if(cmd =~ /^v/)
+	if(cmd =~ /^v$/)
 		exe = Msf::Util::EXE.to_win32pe($framework, buf)
 		note =
 			"'Created by msfpayload (http://www.metasploit.com).\r\n" +
@@ -182,7 +184,7 @@ if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w)/)
 		exit(0)
 	end
 
-	if(cmd =~ /^d/)
+	if(cmd =~ /^d$/)
 		dll = Msf::Util::EXE.to_win32pe_dll($framework, buf)
 		note =
 			"Created by msfpayload (http://www.metasploit.com).\r\n" +
@@ -200,7 +202,7 @@ if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w)/)
 		exit(-1)
 	end
 
-	if(cmd =~ /^w/)
+	if(cmd =~ /^w$/)
 		note =
 			"Created by msfpayload (http://www.metasploit.com).\n" +
 			"Payload: " + payload.refname + "\n" +
@@ -230,7 +232,7 @@ if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w)/)
 
 	$stdout.write(buf)
 
-elsif (cmd =~ /^(s|o)/)
+elsif (cmd =~ /^(s|o)$/)
 	payload.datastore.import_options_from_s(rest.join('_|_'), '_|_')
 	puts Msf::Serializer::ReadableText.dump_module(payload)
 

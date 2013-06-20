@@ -88,6 +88,10 @@ require 'rex/compat'
 # Platforms
 require 'rex/platforms'
 
+# SSLScan 
+require 'rex/sslscan/scanner'
+require 'rex/sslscan/result'
+
 
 # Overload the Kernel.sleep() function to be thread-safe
 Kernel.class_eval("

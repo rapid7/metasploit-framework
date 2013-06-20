@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 require 'spec_helper'
 
 require 'msf/core'
@@ -1168,11 +1169,11 @@ describe Msf::Modules::Loader::Base do
 			it 'should do nothing if parent_module is nil' do
 				parent_module = nil
 
-				allow_message_expectations_on_nil
-				parent_module.should_not_receive(:remove_const)
-				parent_module.should_not_receive(:const_set)
-
-				subject.send(:restore_namespace_module, parent_module, relative_name, @original_namespace_module)
+				# can check that NoMethodError is not raised because *const* methods are
+				# not defined on `nil`.
+				expect {
+					subject.send(:restore_namespace_module, parent_module, relative_name, @original_namespace_module)
+				}.to_not raise_error(NoMethodError)
 			end
 
 			context 'with namespace_module nil' do

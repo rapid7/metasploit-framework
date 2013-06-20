@@ -113,6 +113,14 @@ class Server
 		self.server_name = DefaultServer
 	end
 
+	# More readable inspect that only shows the url and resources
+	# @return [String]
+	def inspect
+		resources_str = resources.keys.map{|r| r.inspect }.join ", "
+
+		"#<#{self.class} http#{ssl ? "s" : ""}://#{listen_host}:#{listen_port} [ #{resources_str} ]>"
+	end
+
 	#
 	# Returns the hardcore alias for the HTTP service
 	#
@@ -288,7 +296,7 @@ protected
 				when Packet::ParseCode::Completed
 					dispatch_request(cli, cli.request)
 					cli.reset_cli
-					
+
 				when Packet::ParseCode::Partial
 					# Return and wait for the on_client_data handler to be called again
 					# The Request object tracks the state of the request for us

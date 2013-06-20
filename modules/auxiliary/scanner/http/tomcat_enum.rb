@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 					File.join(Msf::Config.install_root, "data", "wordlists", "tomcat_mgr_default_users.txt") ]),
 			], self.class)
 
-		deregister_options('PASSWORD','PASS_FILE','USERPASS_FILE','STOP_ON_SUCCESS','BLANK_PASSWORDS','USERNAME')
+		deregister_options('PASSWORD','PASS_FILE','USERPASS_FILE','USER_AS_PASS','STOP_ON_SUCCESS','BLANK_PASSWORDS','USERNAME')
 	end
 
 	def target_url
@@ -99,8 +99,9 @@ class Metasploit3 < Msf::Auxiliary
 				return :abort
 			end
 
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-		rescue ::Timeout::Error, ::Errno::EPIPE
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE
+			print_error("#{target_url} - UNREACHABLE")
+			return :abort
 		end
 	end
 

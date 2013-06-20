@@ -1,9 +1,0 @@
-development:
-  adapter: postgresql
-  database: msf3_dev
-  host: localhost
-  port: 5432
-  username: msf3
-  password: pass123
-  pool: 5
-  timeout: 5

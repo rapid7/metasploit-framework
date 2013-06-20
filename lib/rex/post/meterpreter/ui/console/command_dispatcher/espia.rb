@@ -73,14 +73,14 @@ class Console::CommandDispatcher::Espia
 			print_line("Grab a screenshot of the current interactive desktop.\n")
 			return true
 		end
-		
+
 		show = true
 		show = false if (args[1] and args[1] =~ /^(f|n|0)/i)
-		
+
 		path = args[0] || Rex::Text.rand_text_alpha(8) + ".jpeg"
-		
+
 		data = client.espia.espia_image_get_dev_screen
-		
+
 		if( data )
 			::File.open( path, 'wb' ) do |fd|
 				fd.write( data )
@@ -89,7 +89,7 @@ class Console::CommandDispatcher::Espia
 			print_line( "Screenshot saved to: #{path}" )
 			Rex::Compat.open_file( path ) if show
 		end
-		
+
 		return true
 	end
 

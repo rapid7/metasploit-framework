@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-##
-# $Id$
-##
 
 module Msf
 module Sessions

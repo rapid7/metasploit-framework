@@ -267,7 +267,7 @@ class Console::CommandDispatcher::Stdapi::Net
                                         print_error "Invalid Subnet mask"
                                         return false
                                 end
-			
+
 				print_line("Creating route #{args[0]}/#{args[1]} -> #{args[2]}")
 
 				client.net.config.add_route(*args)
@@ -282,7 +282,7 @@ class Console::CommandDispatcher::Stdapi::Net
                                         print_error "Invalid Subnet mask"
                                         return false
                                 end
-			
+
 				print_line("Deleting route #{args[0]}/#{args[1]} -> #{args[2]}")
 
 				client.net.config.remove_route(*args)
@@ -397,7 +397,7 @@ class Console::CommandDispatcher::Stdapi::Net
 					else
 						print_error("Failed to stop TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
 						next
-					end 
+					end
 
 					counter += 1
 				end

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 shared_examples_for 'an xor encoder' do |keysize|
 
 	it "should encode one block" do
@@ -13,8 +14,24 @@ shared_examples_for 'an xor encoder' do |keysize|
 	end
 
 	it "should encode multiple blocks" do
-		encoded, key = described_class.encode("\xf7"*keysize*40, "\x7f"*keysize)
-		encoded.should eql("\x88"*keysize*40)
+		2.upto 50 do |count|
+			encoded, key = described_class.encode("\xf7"*keysize*count, "\x7f"*keysize)
+			encoded.should eql("\x88"*keysize*count)
+		end
+	end
+
+	if keysize > 1
+		it "should deal with input lengths that aren't a multiple of keysize" do
+			lambda {
+				encoded, key = described_class.encode("A"*(keysize+1), "A"*keysize)
+				encoded.should eql("\x00"*(keysize+1))
+			}.should_not raise_error
+
+			lambda {
+				encoded, key = described_class.encode("A"*(keysize-1), "A"*keysize)
+				encoded.should eql("\x00"*(keysize-1))
+			}.should_not raise_error
+		end
 	end
 
 end

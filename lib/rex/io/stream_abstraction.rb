@@ -74,14 +74,14 @@ module StreamAbstraction
 	def syswrite(buffer)
 		lsock.syswrite(buffer)
 	end
-	
+
 	#
 	# Low-level read from the local side.
 	#
 	def sysread(length)
 		lsock.sysread(length)
 	end
-	
+
 	#
 	# Shuts down the local side of the stream abstraction.
 	#
@@ -164,7 +164,7 @@ protected
 					while( total_sent < total_length )
 						begin
 							data = buf[total_sent, buf.length]
-							
+
 							# Note that this must be write() NOT syswrite() or put() or anything like it.
 							# Using syswrite() breaks SSL streams.
 							sent = self.write( data )

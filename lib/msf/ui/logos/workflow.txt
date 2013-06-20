@@ -1,0 +1,21 @@
+  %whi+-------------------------------------------------------+
+  %whi|  METASPLOIT by Rapid7                                 |
+  %whi+---------------------------+---------------------------+
+  %whi|      %blu__________________   %whi|                           |
+  %whi|  %yel==c%blu(______(%yelo%blu(______(_%yel()  %whi| %grn|""""""""""""|======[%red***  %whi|
+  %whi|             %blu)%yel=%blu\           %whi| %grn|  %whiEXPLOIT   %grn\            %whi|
+  %whi|            %blu// \\          %whi| %grn|_____________\_______    %whi|
+  %whi|           %blu//   \\         %whi| %grn|==[%whimsf >%grn]============\   %whi|
+  %whi|          %blu//     \\        %whi| %grn|______________________\  %whi|
+  %whi|         %blu// %whiRECON %blu\\       %whi| %grn\(@)(@)(@)(@)(@)(@)(@)/   %whi|
+  %whi|        %blu//         \\      %whi|  %grn*********************    %whi|
+  %whi+---------------------------+---------------------------+
+  %whi|      o O o                |        %yel\'\/\/\/'/         %whi|
+  %whi|              o O          |         %yel)%whi======%yel(          %whi|
+  %whi|                 o         |       %yel.'  %whiLOOT  %yel'.        %whi|
+  %whi| %red|^^^^^^^^^^^^^^|l%red___      %whi|      %yel/    %grn_||__   %yel\       %whi|
+  %whi| %red|    %whiPAYLOAD     %red|%whi""\%red___, %whi|     %yel/    %grn(_||_     %yel\      %whi|
+  %whi| %red|________________|__|)__| %whi|    %yel|     %grn__||_)     %yel|     %whi|
+  %whi| %red|(@)(@)"""**|(@)(@)**|(@) %whi|    %yel"       %grn||       %yel"     %whi|
+  %whi|  %yel= = = = = = = = = = = =  %whi|     %yel'--------------'      %whi|
+  %whi+---------------------------+---------------------------+%clr
