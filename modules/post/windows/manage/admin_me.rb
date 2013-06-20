@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
 				'Author'        => 'salcho <salchoman[at]gmail.com>',
 				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ],
-				'References'	=> [ 'http://urlhere' ]
+				'References'	=> [ 'http://xangosec.blogspot.com/2013/06/trojanizing-windows.html' ]
 			))
 			register_options(
 			[
