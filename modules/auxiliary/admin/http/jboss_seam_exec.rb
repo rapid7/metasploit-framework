@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(8080),
-				OptString.new('TARGETURI', [ true 'Target URI', '/seam-booking/home.seam']),
+				OptString.new('TARGETURI', [ true, 'Target URI', '/seam-booking/home.seam']),
 				OptString.new('CMD', [ true, "The command to execute."])
 			], self.class)
 	end
