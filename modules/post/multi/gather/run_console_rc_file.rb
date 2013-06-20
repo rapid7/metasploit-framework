@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Post
 				next if cmd[0,1] == "#"
 				begin
 					print_status "Running command #{cmd.chomp}"
-					session.console.run_single(cmd.chomp)
+					session.console.run_multiple(cmd.chomp)
 				rescue ::Exception => e
 					print_status("Error Running Command #{cmd.chomp}: #{e.class} #{e}")
 				end

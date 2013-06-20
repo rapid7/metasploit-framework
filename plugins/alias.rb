@@ -179,7 +179,7 @@ class Plugin::Alias < Msf::Plugin
 				# define a class instance method that will respond for the alias
 				define_method "cmd_#{name}" do |*args|
 					# just replace the alias w/the alias' value and run that
-					driver.run_single("#{value} #{args.join(' ')}")
+					driver.run_multiple("#{value} #{args.join(' ')}")
 				end
 				# define a class instance method that will tab complete the aliased command
 				# we just proxy to the top-level tab complete function and let them handle it
