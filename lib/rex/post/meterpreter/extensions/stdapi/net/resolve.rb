@@ -33,9 +33,10 @@ class Resolve
 		self.client = client
 	end
 
-	def resolve_host(hostname)
+	def resolve_host(hostname, family=AF_INET)
 		request = Packet.create_request('stdapi_net_resolve_host')
 		request.add_tlv(TLV_TYPE_HOST_NAME, hostname)
+		request.add_tlv(TLV_TYPE_ADDR_TYPE, family)
 
 		response = client.send_request(request)
 
@@ -45,9 +46,10 @@ class Resolve
 		return raw_to_host_ip_pair(hostname, raw, type)
 	end
 
-	def resolve_hosts(hostnames)
+	def resolve_hosts(hostnames, family=AF_INET)
 		request = Packet.create_request('stdapi_net_resolve_hosts')
-
+		request.add_tlv(TLV_TYPE_ADDR_TYPE, family)
+		
 		hostnames.each do |hostname|
 			request.add_tlv(TLV_TYPE_HOST_NAME, hostname)
 		end
@@ -58,7 +60,6 @@ class Resolve
 		raws = []
 		types = []
 
-		# This is probably neater creating a TLV_GROUP?
 		response.each(TLV_TYPE_IP) do |raw|
 			raws << raw
 		end
@@ -86,7 +87,7 @@ class Resolve
 		if raw.empty?
 			ip = ""
 		else
-			if type == 2
+			if type == AF_INET
 				ip = Rex::Socket.addr_ntoa(raw[0..3])
 			else
 				ip = Rex::Socket.addr_ntoa(raw[0..16])

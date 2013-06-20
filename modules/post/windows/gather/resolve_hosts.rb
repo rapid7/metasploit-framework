@@ -12,9 +12,9 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Multi General Resolve Hosts',
+			'Name'          => 'Windows Resolve Hosts',
 			'Description'   => %q{
-				Resolves hostnames.
+				Resolves hostnames to either IPv4 or IPv6 addresses.
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
@@ -23,19 +23,26 @@ class Metasploit3 < Msf::Post
 		))
 
 			register_options([
-				OptString.new('HOSTNAMES', [true, 'Comma seperated list of hostnames to resolve.'])
+				OptString.new('HOSTNAMES', [true, 'Comma seperated list of hostnames to resolve.']),
+				OptEnum.new('AI_FAMILY', [true, 'Address Family', 'IPv4', ['IPv4', 'IPv6'] ])
 			], self.class)
 	end
 
 	def run
 		hosts = datastore['HOSTNAMES'].split(',')
 
+		if datastore['FAMILY'] == 'IPv4'
+			family = AF_INET
+		else
+			family = AF_INET6
+		end
+
 		# Clear whitespace
 		hosts.collect{|x| x.strip!}
 
 		print_status("Attempting to resolve '#{hosts.join(', ')}' on #{sysinfo['Computer']}") if not sysinfo.nil?
 
-		response = client.net.resolve.resolve_hosts(hosts)
+		response = client.net.resolve.resolve_hosts(hosts, family)
 
 		table = Rex::Ui::Text::Table.new(
 			'Indent' => 0,
