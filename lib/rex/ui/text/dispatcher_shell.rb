@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'rex/ui'
 require 'pp'
+require 'csv'
 
 module Rex
 module Ui
@@ -366,8 +367,59 @@ module DispatcherShell
 	end
 
 	#
-	# Run a single command line.
+	# Run multiple commands from one input line of the format cmd1;cmd2;"cmd3 = funky;da;ta;"
+	#  the line is parsed w/the ruby CSV engine using the ';' as the separator instead of ','
+	#  See the builtin ruby CSV parser for more information.
 	#
+	# @param line [String] The data to be parsed
+	# @param separator [String] The separator used to delimit the data, defaults to ;
+	# @param quote_char [String] The quoting escape character(1 char only) used to escape +separator+, defaults to "
+	# @return [Boolean] Returns true if all commands succeeded, otherwise false
+	def run_multiple(line, separator = ';', quote_char = '"')
+		lines = []
+		# handle a multi-command line (lines with cmd;other_cmd)
+		opts = {:col_sep => separator, :quote_char => quote_char}
+		lines = parse_multi_line(line, opts)
+		all_commands_found = true
+		if lines.empty?
+			print_error "No parsable commands were found."
+			return false
+		end
+		lines.each do |l|
+			# run each single command
+			all_commands_found = false if not run_single(l)
+		end
+		return all_commands_found
+	end
+
+	def parse_multi_line(line, parse_opts = {})
+		line.gsub!(/(\r|\n)/, '') # the CSV parser can handle these, but there's no point
+		parse_defaults = {
+							# @todo, make these values definable via advanced options
+							:col_sep          => ';',
+							:quote_char       => '"',
+							:skip_blanks      => true,
+							:field_size_limit => 1024, # this effectively sets quoted command size limit
+							# after field_size_limit, if a matching quote_char isn't found then
+							# a CSV::MalformedCSVError is raised
+						}
+		# supply default parse options for those that have not been defined
+		parse_opts = parse_defaults.merge(parse_opts)
+		begin
+			return CSV.parse(line, parse_opts).first
+		rescue CSV::MalformedCSVError => e
+			print_error "Illegal quoting.  Use 2 consecutive instances of the quote char to escape it."
+			return []
+		end
+		# CSV.parse will return an Array of Rows (which are Arrays when no headers are used), and since
+		# we removed new lines, we always have an Array of 1 Array, so we send :first method above
+	end
+
+	#
+	# Run a single command provided in +line+
+	#
+	# @param line [String] The command line containing only one command
+	# @return [Boolean] Returns true if the command succeeds, otherwise false
 	def run_single(line)
 		arguments = parse_line(line)
 		method    = arguments.shift
