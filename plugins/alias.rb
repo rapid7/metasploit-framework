@@ -171,15 +171,15 @@ class Plugin::Alias < Msf::Plugin
 		# do everything needed to add an alias of +name+ having the value +value+
 		#
 		def register_alias(name, value)
-			#TODO:  begin rescue?
-			#TODO:  security concerns since we are using eval
+			#@todo:  is there a begin rescue needed here in case a method can't be defined for some reason?
+			#@todo:  security concerns since we are using eval?  I mean, they are probably root anyways but...
 
 			# define some class instance methods
 			self.class_eval do
 				# define a class instance method that will respond for the alias
 				define_method "cmd_#{name}" do |*args|
 					# just replace the alias w/the alias' value and run that
-					driver.run_single("#{value} #{args.join(' ')}")
+					driver.run_multiple("#{value} #{args.join(' ')}")
 				end
 				# define a class instance method that will tab complete the aliased command
 				# we just proxy to the top-level tab complete function and let them handle it
@@ -187,21 +187,26 @@ class Plugin::Alias < Msf::Plugin
 					# we need to repair the tab complete string/words and pass back
 					# replace alias name with the root alias value
 					value_words = value.split(/[\s\t\n]+/) # in case value is e.g. 'sessions -l'
-					# valwords is now [sessions,-l]
-					words[0] = value_words[0]
-					# words[0] is now 'sessions' (was 'sue')
-					value_words.shift # valwords is now ['-l']
+					# value_words is now [sessions,-l]
+					words[0] = value_words.shift
 					# insert any remaining parts of value and rebuild the line
 					line = words.join(" ") + " " + value_words.join(" ") + " " + str
 
-					#print_good "passing (#{line.strip}) back to tab_complete"
 					# clear current tab_words
 					driver.tab_words = []
 					driver.tab_complete(line.strip)
 				end
 				# add a cmd_#{name}_help method
 				define_method "cmd_#{name}_help" do |*args|
-					driver.run_single("help #{value}")
+					# handle some weird cases where the alias can't have help or help will probably be wrong
+					print_status "#{name} is an alias so it's help may not be accurate."
+					lines = driver.parse_multi_line(value)
+					if lines.length == 1
+						driver.run_single("help #{lines.first}")
+					else
+						print_status "The alias contains multiple commands (#{lines.join(';')}).  Try checking the " +
+									"help for each command separately."
+					end
 				end
 			end
 			# add the alias to the list
