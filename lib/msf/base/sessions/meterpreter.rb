@@ -259,7 +259,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	# Explicitly runs a command in the meterpreter console.
 	#
 	def run_cmd(cmd)
-		console.run_single(cmd)
+		console.run_multiple(cmd)
 	end
 
 	#

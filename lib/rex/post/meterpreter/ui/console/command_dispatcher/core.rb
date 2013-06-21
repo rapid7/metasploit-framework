@@ -776,7 +776,7 @@ class Console::CommandDispatcher::Core
 						next if line[0,1] == "#"
 						begin
 							print_status("Running #{line}")
-							client.console.run_single(line)
+							client.console.run_multiple(line)
 						rescue ::Exception => e
 							print_error("Error Running Command #{line}: #{e.class} #{e}")
 						end
