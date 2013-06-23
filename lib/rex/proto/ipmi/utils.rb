@@ -80,7 +80,11 @@ class Utils
 		[ username.length ].pack("C") +
 		username
 	end
-	
+
+	def self.verify_rakp_hmac_sha1(salt, hash, password)
+		OpenSSL::HMAC.digest('sha1', password, salt) == hash
+	end
+
 end
 end
 end
