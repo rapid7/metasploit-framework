@@ -23,7 +23,8 @@ module Auxiliary::AuthBrute
 			OptBool.new('BLANK_PASSWORDS', [ false, "Try blank passwords for all users", true]),
 			OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", true]),
 			OptBool.new('DB_USERPASS', [false,"Try each user/password couple stored in the current database",true]),
-			OptBool.new('DB_ADD_ALL', [false,"Add all user and passwords in the current database to the lists (This will try every user with every password)",false]),
+			OptBool.new('DB_ALL_USERS', [false,"Add all users in the current database to the list",false]),
+			OptBool.new('DB_ALL_PASS', [false,"Add all passwords in the current database to the list",false]),
 			OptBool.new('STOP_ON_SUCCESS', [ true, "Stop guessing when a credential works for a host", false]),
 		], Auxiliary::AuthBrute)
 
@@ -180,9 +181,13 @@ module Auxiliary::AuthBrute
 		users = load_user_vars(credentials)
 		passwords = load_password_vars(credentials)
 
-		if datastore['DB_ADD_ALL']
+		if datastore['DB_ALL_USERS']
 			myworkspace.creds.each do |o|
 				users << o.user
+			end
+		end
+		if datastore['DB_ALL_PASS']
+			myworkspace.creds.each do |o|
 				passwords << o.pass unless o.ptype =~ /hash/
 			end
 		end
