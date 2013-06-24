@@ -164,7 +164,7 @@ class Metasploit3 < Msf::Auxiliary
 				username
 			)
 
-			found = "#{rhost} Hash #{username}:#{hmac_buffer.unpack("H*")[0]}:#{rakp.hmac_sha1.unpack("H*")[0]}"
+			found = "#{rhost} #{username}:#{hmac_buffer.unpack("H*")[0]}:#{rakp.hmac_sha1.unpack("H*")[0]}"
 			print_good(found)
 
 			# Write the rakp hash to the output file 
