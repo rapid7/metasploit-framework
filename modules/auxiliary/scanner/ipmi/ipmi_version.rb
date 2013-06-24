@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def scan_host(ip)
-		scanner_send(Rex::Proto::IPMI::Utils.create_ipmi_probe, ip, datastore['RPORT'])
+		scanner_send(Rex::Proto::IPMI::Utils.create_ipmi_getchannel_probe, ip, datastore['RPORT'])
 	end
 
 	def scanner_process(data, shost, sport)
