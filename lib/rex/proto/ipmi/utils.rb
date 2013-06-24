@@ -51,6 +51,35 @@ class Utils
 		head + [data.length].pack('v') + data 
 	end
 
+
+	# open rmcpplus_request with cipherzero
+	def self.create_ipmi_session_open_cipher_zero_request(console_session_id)
+		head = [
+			0x06, 0x00, 0xff, 0x07,   # RMCP Header
+			0x06,                     # RMCP+ Authentication Type
+			PAYLOAD_RMCPPLUSOPEN_REQ, # Payload Type
+			0x00, 0x00, 0x00, 0x00,   # Session ID
+			0x00, 0x00, 0x00, 0x00    # Sequence Number
+		].pack("C*")
+
+		data =
+		[   # Maximum access
+			0x00, 0x00,
+			# Reserved
+			0x00, 0x00
+		].pack("C*") + 
+		console_session_id +
+		[
+			# SHA1 Integrity
+			0x00, 0x00, 0x00, 0x08, 0x01, 0x00, 0x00, 0x00,
+			0x01, 0x00, 0x00, 0x08, 0x01, 0x00, 0x00, 0x00, 
+			# AES Encryption
+			0x02, 0x00, 0x00, 0x08, 0x01, 0x00, 0x00, 0x00
+		].pack("C*")
+
+		head + [data.length].pack('v') + data 
+	end
+
 	def self.create_ipmi_rakp_1(bmc_session_id, console_random_id, username)
 		[
 			0x06, 0x00, 0xff, 0x07,  # RMCP Header
