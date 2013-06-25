@@ -18,13 +18,17 @@ class Metasploit3 < Msf::Auxiliary
 					JBoss Seam 2 (jboss-seam2), as used in JBoss Enterprise Application Platform
 				4.3.0 for Red Hat Linux, does not properly sanitize inputs for JBoss Expression
 				Language (EL) expressions, which allows remote attackers to execute arbitrary code
-				via a crafted URL. This modules is already successfully tested againt IBM WebSphere
-				6.1 running on iSeries.
+				via a crafted URL. This modules also has been tested successfully against IBM
+				WebSphere 6.1 running on iSeries.
 
 				NOTE: this is only a vulnerability when the Java Security Manager is not properly
 				configured.
 			},
-			'Author'          => [ 'guerrino di massa', 'Cristiano Maruti <cmaruti[at]gmail.com>' ],
+			'Author'          =>
+				[
+					'guerrino di massa', # Metasploit module
+					'Cristiano Maruti <cmaruti[at]gmail.com>' # Support for IBM Websphere 6.1
+				],
 			'License'         => MSF_LICENSE,
 			'References'      =>
 				[
