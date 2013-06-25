@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'           => 'Razer Synapse Password Extraction',
+			'Name'           => 'Windows Gather Razer Synapse Password Extraction',
 			'Description'    => %q{
 					This module will enumerate passwords stored by the Razer Synapse
 					client. The encryption key and iv is publicly known. This module
