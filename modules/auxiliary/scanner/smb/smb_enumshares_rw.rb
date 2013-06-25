@@ -1,8 +1,4 @@
 ##
-# $Id: smb_enumshares.rb 8813 2010-03-14 03:44:50Z hdm $
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -26,9 +22,8 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMB Share Enumeration',
-			'Version'     => '$Revision: 8813 $',
 			'Description' => 'Determine what shares are provided by the SMB service and which ones are readable/writable',
-			'Author'      => 
+			'Author'      =>
 				[
 					'hdm',
 					'nebulus'
@@ -39,11 +34,6 @@ class Metasploit3 < Msf::Auxiliary
 				'DCERPC::fake_bind_multi' => false
 			}
 		)
-		register_options(
-				[
-					OptBool.new('VERBOSE', [ false, 'Show discovered files', false])
-				], self.class)
-
 		deregister_options('RPORT', 'RHOST')
 	end
 
@@ -123,10 +113,10 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		return read,write,msg,nil if(skip)
- 
+
 		rfd = self.simple.client.find_first("\\")
 		read = true if rfd != nil
-		filename = Rex::Text.rand_text_alpha(rand(8)) 
+		filename = Rex::Text.rand_text_alpha(rand(8))
 		wfd = simple.open("\\#{filename}", 'rwct')
 		wfd << Rex::Text.rand_text_alpha(rand(1024))
 		wfd.close
@@ -135,7 +125,7 @@ class Metasploit3 < Msf::Auxiliary
 		write = true # Operating under assumption STATUS_ACCESS_DENIED or the like will get thrown before write=true
 
 		return read,write,msg,rfd
-	
+
 		rescue ::Rex::Proto::SMB::Exceptions::NoReply,::Rex::Proto::SMB::Exceptions::InvalidType,
 			::Rex::Proto::SMB::Exceptions::ReadPacket,::Rex::Proto::SMB::Exceptions::ErrorCode
 			return read,false,msg,rfd
@@ -190,7 +180,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			if not shares.empty?
-				read = false 
+				read = false
 				write = false
 				found = true
 				os = smb_fingerprint
@@ -246,21 +236,21 @@ class Metasploit3 < Msf::Auxiliary
 									sz = info[12] + info[13]
 
 									case fa
-										when 1 
+										when 1
 											fa = "RO"
-										when 2 
+										when 2
 											fa = "HIDDEN"
-										when 4 
+										when 4
 											fa = "SYS"
-										when 8 
+										when 8
 											fa = "VOL"
-										when 16 
+										when 16
 											fa = "DIR"
-										when 32 
+										when 32
 											fa = "ARC"
-										when 64 
+										when 64
 											fa = "DEV"
-										when 128 
+										when 128
 											fa = "FILE"
 									end
 									if first
@@ -270,32 +260,32 @@ class Metasploit3 < Msf::Auxiliary
 										first = false
 									end
 
-									out << sprintf("%-6s %-25s ", fa, file[0]) 
+									out << sprintf("%-6s %-25s ", fa, file[0])
 									out << sprintf("%-21s %-21s %-21s %-21s ", tcr,tac,twr,tch)
 									out << "#{sz}\n"
 								end
 							end
 						end
-						print_good(out) 
-					end	
+						print_good(out)
+					end
 				end
 			end # if shares not empty
 			break if found and rport == 139
 			rescue ::Interrupt
 				raise $!
-			rescue 
+			rescue
 				next if not found and rport == 139
 			rescue ::Rex::ConnectionError,Errno::ECONNRESET,
 				::Rex::Proto::SMB::Exceptions::InvalidType,::Rex::Proto::SMB::Exceptions::ReadPacket,
 				::Rex::Proto::SMB::Exceptions::LoginError,::Rex::Proto::SMB::Exceptions::InvalidCommand,
 				::Rex::Proto::SMB::Exceptions::ErrorCode,::Rex::Proto::SMB::Exceptions::InvalidWordCount,
- 				::Rex::Proto::SMB::Exceptions::NoReply => e
+				::Rex::Proto::SMB::Exceptions::NoReply => e
 				next if not found and rport == 139		# no results, try again
 			rescue Errno::ENOPROTOOPT
 				sleep 5
 				retry
 			rescue ::Exception => e
-				next if(e.to_s =~ /execution expired/) 
+				next if(e.to_s =~ /execution expired/)
 				print_error("Error: '#{ip}' '#{e.class}' '#{e}'")
 
 		end # begin
