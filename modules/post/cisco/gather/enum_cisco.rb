@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Post
 	include Msf::Auxiliary::Cisco
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Gather Cisco Device General Information',
+			'Name'          => 'Cisco Gather Device General Information',
 			'Description'   => %q{
 				This module collects a Cisco IOS or NXOS device information and configuration.
 				},
