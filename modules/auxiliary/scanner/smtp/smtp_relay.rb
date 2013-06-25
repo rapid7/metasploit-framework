@@ -33,7 +33,8 @@ class Metasploit3 < Msf::Auxiliary
 		do_test_relay()
 	end	
 
-	def do_test_relay()
+	def do_test_relay
+		raw_send_recv("EHLO X\r\n")
 		raw_send_recv("MAIL FROM: #{datastore['MAILFROM']}\r\n") 
 		raw_send_recv("RCPT TO: #{datastore['MAILTO']}\r\n") 
 		raw_send_recv("DATA\r\n") 
