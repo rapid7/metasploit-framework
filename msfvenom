@@ -48,7 +48,7 @@ def parse_args
 		opts[:nopsled] = n.to_i
 	end
 
-	opt.on('-f', '--format     [format]', String, "Output format (use --help-formats for a list)") do |f|
+	opt.on('-f', '--format     [format]', String, 'Output format (use --help-formats for a list)') do |f|
 		opts[:format] = f
 	end
 
@@ -69,19 +69,19 @@ def parse_args
 		opts[:space] = s
 	end
 
-	opt.on('-b', '--bad-chars  [list] ', String, 'The list of characters to avoid example: \'\x00\xff\'') do |b|
+	opt.on('-b', '--bad-chars  [list]', String, 'The list of characters to avoid example: \'\x00\xff\'') do |b|
 		opts[:badchars] = b
 	end
 
-	opt.on('-i', '--iterations [count] ', Integer, 'The number of times to encode the payload') do |i|
+	opt.on('-i', '--iterations [count]', Integer, 'The number of times to encode the payload') do |i|
 		opts[:iterations] = i
 	end
 
-	opt.on('-c', '--add-code   [path] ', String, 'Specify an additional win32 shellcode file to include') do |x|
+	opt.on('-c', '--add-code   [path]', String, 'Specify an additional win32 shellcode file to include') do |x|
 		opts[:addshellcode] = x
 	end
 
-	opt.on('-x', '--template   [path] ', String, 'Specify a custom executable file to use as a template') do |x|
+	opt.on('-x', '--template   [path]', String, 'Specify a custom executable file to use as a template') do |x|
 		opts[:template] = x
 		unless File.exist?(x)
 			$stderr.puts "Template file (#{x}) does not exist"
@@ -93,7 +93,7 @@ def parse_args
 		opts[:inject] = true
 	end
 
-	opt.on('-o', '--options', "List the payload's standard options") do
+	opt.on('-o', '--options', 'List the payload\'s standard options') do
 		opts[:list_options] = true
 	end
 
@@ -102,7 +102,7 @@ def parse_args
 		exit(1)
 	end
 
-	opt.on_tail('--help-formats', String, "List available formats") do
+	opt.on_tail('--help-formats', String, 'List available formats') do
 		require 'rex'
 		require 'msf/ui'
 		require 'msf/base'
