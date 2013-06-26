@@ -53,7 +53,7 @@ class Channel_Auth_Reply < BitStruct
 
 	def to_banner
 		info   = self
-		banner = "Addr:#{info.ipmi_src_address} LUN:#{info.ipmi_src_lun} CH:#{info.ipmi_command} #{(info.ipmi_compat_20 == 1) ? "IPMI-2.0" : "IPMI-1.5"} "
+		banner = "#{(info.ipmi_compat_20 == 1) ? "IPMI-2.0" : "IPMI-1.5"} "
 
 		pass_info = []
 		pass_info << "oem_auth" if info.ipmi_compat_oem_auth == 1

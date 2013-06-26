@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
 
-require 'rex/proto/ipmi/constants'
-
 module Rex
 module Proto
 module IPMI
