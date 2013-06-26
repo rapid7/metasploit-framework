@@ -295,11 +295,6 @@ if opts[:payload]
 			print_error("Invalid payload: #{opts[:payload]}")
 			exit
 		end
-		if opts[:list_options]
-			print_status("Options for #{payload.fullname}\n\n" +
-				::Msf::Serializer::ReadableText.dump_options(payload,'    '))
-			exit
-		end
 		payload.datastore.merge! datastore
 	end
 end
@@ -339,9 +334,15 @@ else
 	encoders = get_encoders(opts[:arch], opts[:encoder])
 end
 
+if opts[:list_options]
+    print_status("Options for #{payload.fullname}\n\n" +
+        ::Msf::Serializer::ReadableText.dump_options(payload,'    '))
+    exit
+end
+
 if payload_raw.nil? or payload_raw.empty?
 	begin
-        payload_raw = payload.generate_simple(
+		payload_raw = payload.generate_simple(
 				'Format'        => fmt,
 				'Options'       => datastore,
 				'Encoder'       => nil)
