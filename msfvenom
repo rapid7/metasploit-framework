@@ -340,10 +340,15 @@ else
 end
 
 if payload_raw.nil? or payload_raw.empty?
-	payload_raw = payload.generate_simple(
+	begin
+        payload_raw = payload.generate_simple(
 				'Format'        => fmt,
 				'Options'       => datastore,
 				'Encoder'       => nil)
+	rescue
+		$stderr.puts "Error generating payload: #{$!}"
+		exit
+	end
 end
 
 if opts[:template]
