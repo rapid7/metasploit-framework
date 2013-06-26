@@ -128,7 +128,7 @@ def parse_args
 	if args
 		args.each do |x|
 			k,v = x.split('=', 2)
-			datastore[k] = v.to_s
+			datastore[k.upcase] = v.to_s
 		end
 	end
 
@@ -298,7 +298,6 @@ if opts[:payload]
 		payload.datastore.merge! datastore
 	end
 end
-
 
 # Normalize the options
 opts[:platform] = Msf::Module::PlatformList.transform(opts[:platform]) if opts[:platform]
