@@ -45,20 +45,20 @@ class Metasploit3 < Msf::Auxiliary
 
   def rvl_lookup(hop)
     if datastore['DNSRVL']
-      begin
+      if @res.nil?
          @res = Net::DNS::Resolver.new()
         # The following line requires rex_dns.rb so checking for poxies
-        if @res.methods.include?(:proxies)
-                @res.proxies=datastore['Proxies'] if datastore['Proxies']
+        if @res.responds_to?(:proxies)
+          @res.proxies=datastore['Proxies'] if datastore['Proxies']
         end
         # Prevent us from using system DNS by default - net/dns pulls OS settings
         @res.nameservers = datastore['NS'].split(/\s|,/) if datastore['NS']
         # If querying over TCP
         if datastore['TCP_DNS']
-                vprint_status("Using DNS/TCP")
-                @res.use_tcp = true
+          vprint_status("Using DNS/TCP")
+          @res.use_tcp = true
         end
-      end unless @res
+      end
       query = @res.query(hop)
       resp = []
       query.each_ptr {|p| resp << p}
@@ -72,7 +72,6 @@ class Metasploit3 < Msf::Auxiliary
 
     port = datastore['RPORT']
     ttl = 1
-    max_hops = datastore['MAX_HOPS']
     last_addr = nil
     curr_name = Rex::Socket.source_address(ip)
     route_map = Rex::Ui::Text::Table.new({
@@ -81,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
       'Columns' => ['TTL', 'IP Address', 'Hostname']
     })
 
-    while ttl < max_hops
+    while ttl < datastore['MAX_HOPS']
       icmp = Socket.new(Socket::AF_INET, Socket::SOCK_RAW, Socket::IPPROTO_ICMP)
       icmp.extend(Rex::Socket::Ip) # Doesnt work for pivoting yet
       icmp.bind(Socket.pack_sockaddr_in(port, ''))
@@ -94,6 +93,7 @@ class Metasploit3 < Msf::Auxiliary
       curr_addr = nil
 
       begin
+        # https://en.wikipedia.org/wiki/Time_to_live
         Timeout.timeout(ttl) do
           data, curr_addr = icmp.recvfrom(512)
         end
@@ -111,7 +111,7 @@ class Metasploit3 < Msf::Auxiliary
         udp.close
       end
 
-      ttl = ttl + 1
+      ttl =+ 1
     end
 
     if last_addr == ip
