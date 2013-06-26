@@ -335,8 +335,7 @@ else
 end
 
 if opts[:list_options]
-    print_status("Options for #{payload.fullname}\n\n" +
-        ::Msf::Serializer::ReadableText.dump_options(payload,'    '))
+    puts Msf::Serializer::ReadableText.dump_module(payload)
     exit
 end
 
