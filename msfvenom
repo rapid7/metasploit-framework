@@ -48,7 +48,7 @@ def parse_args
 		opts[:nopsled] = n.to_i
 	end
 
-	opt.on('-f', '--format     [format]', String, "Output format (use --help-formats for a list)") do |f|
+	opt.on('-f', '--format     [format]', String, 'Output format (use --help-formats for a list)') do |f|
 		opts[:format] = f
 	end
 
@@ -69,19 +69,19 @@ def parse_args
 		opts[:space] = s
 	end
 
-	opt.on('-b', '--bad-chars  [list] ', String, 'The list of characters to avoid example: \'\x00\xff\'') do |b|
+	opt.on('-b', '--bad-chars  [list]', String, 'The list of characters to avoid example: \'\x00\xff\'') do |b|
 		opts[:badchars] = b
 	end
 
-	opt.on('-i', '--iterations [count] ', Integer, 'The number of times to encode the payload') do |i|
+	opt.on('-i', '--iterations [count]', Integer, 'The number of times to encode the payload') do |i|
 		opts[:iterations] = i
 	end
 
-	opt.on('-c', '--add-code   [path] ', String, 'Specify an additional win32 shellcode file to include') do |x|
+	opt.on('-c', '--add-code   [path]', String, 'Specify an additional win32 shellcode file to include') do |x|
 		opts[:addshellcode] = x
 	end
 
-	opt.on('-x', '--template   [path] ', String, 'Specify a custom executable file to use as a template') do |x|
+	opt.on('-x', '--template   [path]', String, 'Specify a custom executable file to use as a template') do |x|
 		opts[:template] = x
 		unless File.exist?(x)
 			$stderr.puts "Template file (#{x}) does not exist"
@@ -93,7 +93,7 @@ def parse_args
 		opts[:inject] = true
 	end
 
-	opt.on('-o', '--options', "List the payload's standard options") do
+	opt.on('-o', '--options', 'List the payload\'s standard options') do
 		opts[:list_options] = true
 	end
 
@@ -102,7 +102,7 @@ def parse_args
 		exit(1)
 	end
 
-	opt.on_tail('--help-formats', String, "List available formats") do
+	opt.on_tail('--help-formats', String, 'List available formats') do
 		require 'rex'
 		require 'msf/ui'
 		require 'msf/base'
@@ -128,7 +128,7 @@ def parse_args
 	if args
 		args.each do |x|
 			k,v = x.split('=', 2)
-			datastore[k] = v.to_s
+			datastore[k.upcase] = v.to_s
 		end
 	end
 
@@ -295,15 +295,9 @@ if opts[:payload]
 			print_error("Invalid payload: #{opts[:payload]}")
 			exit
 		end
-		if opts[:list_options]
-			print_status("Options for #{payload.fullname}\n\n" +
-				::Msf::Serializer::ReadableText.dump_options(payload,'    '))
-			exit
-		end
 		payload.datastore.merge! datastore
 	end
 end
-
 
 # Normalize the options
 opts[:platform] = Msf::Module::PlatformList.transform(opts[:platform]) if opts[:platform]
@@ -339,11 +333,21 @@ else
 	encoders = get_encoders(opts[:arch], opts[:encoder])
 end
 
+if opts[:list_options]
+    puts Msf::Serializer::ReadableText.dump_module(payload)
+    exit
+end
+
 if payload_raw.nil? or payload_raw.empty?
-	payload_raw = payload.generate_simple(
+	begin
+		payload_raw = payload.generate_simple(
 				'Format'        => fmt,
 				'Options'       => datastore,
 				'Encoder'       => nil)
+	rescue
+		$stderr.puts "Error generating payload: #{$!}"
+		exit
+	end
 end
 
 if opts[:template]
