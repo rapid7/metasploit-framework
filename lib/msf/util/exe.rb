@@ -514,19 +514,29 @@ require 'digest/sha1'
 		pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
 
 		exe = ''
-			File.open(opts[:template], 'rb') { |fd|
-				exe = fd.read(fd.stat.size)
-			}
+		File.open(opts[:template], 'rb') { |fd|
+			exe = fd.read(fd.stat.size)
+		}
+
+		pe_header_size=0x18
+		secions_table_offset = pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+pe_header_size
+		section_size=0x28
+		characteristics_offset=0x24
+		virtualAddress_offset=0xc
+		sizeOfRawData_offset=0x10
 
 		sections_header = []
-		pe._file_header.v['NumberOfSections'].times { |i| sections_header << [(i*0x28)+pe.rva_to_file_offset(pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+0x18+0x24),exe[(i*0x28)+pe.rva_to_file_offset(pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+0x18),0x28]] }
+		pe._file_header.v['NumberOfSections'].times { |i|
+			sections_header << [(i*section_size)+pe.rva_to_file_offset(secions_table_offset+characteristics_offset),exe[(i*section_size)+pe.rva_to_file_offset(secions_table_offset),section_size]]
+		}
+
 
 
 		#look for section with entry point
 		sections_header.each do |sec|
-			virtualAddress = sec[1][0xc,0x4].unpack('L')[0]
-			sizeOfRawData = sec[1][0x10,0x4].unpack('L')[0]
-			characteristics = sec[1][0x24,0x4].unpack('L')[0]
+			virtualAddress = sec[1][virtualAddress_offset,0x4].unpack('L')[0]
+			sizeOfRawData = sec[1][sizeOfRawData_offset,0x4].unpack('L')[0]
+			characteristics = sec[1][characteristics_offset,0x4].unpack('L')[0]
 			if pe.hdr.opt.AddressOfEntryPoint >= virtualAddress && pe.hdr.opt.AddressOfEntryPoint < virtualAddress+sizeOfRawData
 				#put this section writable
 				characteristics|=0x80000000
