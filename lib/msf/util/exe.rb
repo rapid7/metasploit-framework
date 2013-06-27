@@ -519,15 +519,18 @@ require 'digest/sha1'
 		}
 
 		pe_header_size=0x18
-		secions_table_offset = pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+pe_header_size
 		section_size=0x28
 		characteristics_offset=0x24
 		virtualAddress_offset=0xc
 		sizeOfRawData_offset=0x10
 
+		sections_table_rva = pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+pe_header_size
+		sections_table_offset = pe.rva_to_file_offset(sections_table_rva)
+		sections_table_characteristics_offset = pe.rva_to_file_offset(sections_table_rva+characteristics_offset)
+
 		sections_header = []
 		pe._file_header.v['NumberOfSections'].times { |i|
-			sections_header << [(i*section_size)+pe.rva_to_file_offset(secions_table_offset+characteristics_offset),exe[(i*section_size)+pe.rva_to_file_offset(secions_table_offset),section_size]]
+			sections_header << [sections_table_characteristics_offset+(i*section_size),exe[sections_table_offset+(i*section_size),section_size]]
 		}
 
 
