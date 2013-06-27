@@ -12,7 +12,7 @@ module RPC
 
 class Client
 
-	attr_accessor :sock, :token, :info
+	attr_accessor :token, :info
 
 
 	def initialize(info={})
