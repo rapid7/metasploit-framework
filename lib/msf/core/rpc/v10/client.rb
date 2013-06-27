@@ -83,8 +83,10 @@ class Client
 	end
 
 	def close
-		@cli.close
-		@cli = nil
+    if @cli and @cli.conn?
+      @cli.close
+      @cli = nil
+    end
 	end
 
 end
