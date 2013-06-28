@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 			if @res.nil?
 				@res = Net::DNS::Resolver.new()
 				# The following line requires rex_dns.rb so checking for poxies
-				if @res.responds_to?(:proxies)
+				if @res.respond_to?(:proxies)
 					@res.proxies=datastore['Proxies'] if datastore['Proxies']
 				end
 				# Prevent us from using system DNS by default - net/dns pulls OS settings
