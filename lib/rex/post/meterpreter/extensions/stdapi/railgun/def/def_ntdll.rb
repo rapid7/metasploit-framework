@@ -12,6 +12,23 @@ class Def_ntdll
 	def self.create_dll(dll_path = 'ntdll')
 		dll = DLL.new(dll_path, ApiConstants.manager)
 
+		dll.add_function('NtAllocateVirtualMemory', 'DWORD',
+			[
+				["DWORD", "ProcessHandle", "in"],
+				["PBLOB", "BaseAddress", "inout"],
+				["PDWORD", "ZeroBits", "in"],
+				["PBLOB", "RegionSize", "inout"],
+				["DWORD", "AllocationType", "in"],
+				["DWORD", "Protect", "in"]
+			])
+
+		dll.add_function('NtQueryIntervalProfile', 'DWORD',
+			[
+				[ "DWORD", "ProfileSource", "in" ],
+				[ "PDWORD", "Interval", "out" ]
+			])
+
+
 		dll.add_function('NtClose', 'DWORD',[
 			["DWORD","Handle","in"],
 			])
