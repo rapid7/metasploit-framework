@@ -7,14 +7,14 @@ module Windows
 module Process
 
 	##
-	# execute_shellcode(shellcode, shell_addr)
+	# execute_shellcode(shellcode, shell_addr, pid)
 	#
 	# Summary:
-	#   Injects shellcode to the a process, and executes it
+	#   Injects shellcode to a process, and executes it
 	#
 	# Parameters:
 	#   shellcode - The shellcode to execute
-	#   base_addr - Tha base address to allocate
+	#   base_addr - Tha base address to allocate memory
 	#   pid       - The process ID to inject to
 	#
 	# Returns:
