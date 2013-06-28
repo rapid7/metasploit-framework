@@ -15,7 +15,6 @@ module Process
 	#
 	# @return [Boolean] True if successful, otherwise false
 	#
-	##
 	def execute_shellcode(shellcode, base_addr, pid=nil)
 		pid ||= session.sys.process.getpid
 		host  = session.sys.process.open(pid.to_i, PROCESS_ALL_ACCESS)
