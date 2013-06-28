@@ -9,6 +9,19 @@ module Process
 
 	include Msf::Post::Windows::Memory
 
+	##
+	# execute_shellcode(shellcode, shell_addr)
+	#
+	# Summary:
+	#   Injects shellcode to the current process, and executes it
+	#
+	# Parameters:
+	#   shellcode  - The shellcode to execute
+	#   shell_addr - Tha address to inject the shellcode to
+	#
+	# Returns:
+	#   true if successful, otherwise false
+	##
 	def execute_shellcode(shellcode, shell_addr)
 		inj = inject_shellcode(shellcode, shell_addr)
 		if not inj
@@ -34,6 +47,20 @@ module Process
 		return true
 	end
 
+
+	##
+	# inject_shellcode(shellcode, shell_addr)
+	#
+	# Summary:
+	#   Injects shellcode to the current process
+	#
+	# Parameters:
+	#   shellcode  - The shellcode to inject with
+	#   shell_addr - The memory address to write to
+	#
+	# Returns:
+	#   true if successful, otherwise false
+	##
 	def inject_shellcode(shellcode, shell_addr)
 		proc = session.sys.process.open
 		addr = allocate_memory(proc, shell_addr, 0x1000)

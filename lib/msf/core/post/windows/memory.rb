@@ -5,6 +5,21 @@ module Windows
 
 module Memory
 
+	##
+	# allocate_memory(proc, base_address, length)
+	#
+	# Summary:
+	#   Allocates a memory to a given process
+	#
+	# Parameters:
+	#   proc         - The process to allocate the memory to
+	#   base_address - The memory address to write to in the process
+	#   length       - Region size
+	#
+	# Returns:
+	#   A Fixnum value of the memory address. nil if the alloc failed.
+	#   
+	##
 	def allocate_memory(proc, base_address, length)
 		result = session.railgun.ntdll.NtAllocateVirtualMemory(
 			-1,                                      # Process Handle
