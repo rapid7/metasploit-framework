@@ -13,7 +13,7 @@ Throughout this documentation, we'll be using the example user of "Fakey McFakep
 The bare minimum for working on Metasploit effectively is:
 
 ````bash
-$ sudo apt-get -y install \
+sudo apt-get -y install \
   build-essential zlib1g zlib1g-dev \
   libxml2 libxml2-dev libxslt-dev locate \
   libreadline6-dev libcurl4-openssl-dev git-core \
@@ -31,7 +31,7 @@ Note that this does **not** include an appropriate text editor or IDE, nor does 
 Many standard distributions of Ruby are lacking in one regard or another. Lucky for all of us, Wayne Seguin's RVM has become quite excellent at providing several proven Ruby interpreters. Visit [https://rvm.io/](https://rvm.io/) to read up on it or just trust that it'll all work out with a simple:
 
 ````bash
-$ \curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=1.9.3
+\curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=1.9.3
 ````
 
 Note the *lack* of sudo; you will nearly always want to install this as a regular user, and not as root.
@@ -39,21 +39,21 @@ Note the *lack* of sudo; you will nearly always want to install this as a regula
 Sometimes, depending on your particular platform, this incantation may not be reliable. This is nearly identical, but more typing:
 
 ````bash
-$ \curl -o rvm.sh -L get.rvm.io && cat rvm.sh | bash -s stable --autolibs=enabled --ruby=1.9.3
+\curl -o rvm.sh -L get.rvm.io && cat rvm.sh | bash -s stable --autolibs=enabled --ruby=1.9.3
 ````
 
 Also, if you're sketchy about piping a web site directly to bash, you can perform each step individually, without the &&:
 
 ````bash
-$ \curl -o rvm.sh -L get.rvm.io 
-$ less rvm.sh
-$ cat rvm.sh | bash -s stable --autolibs=enabled --ruby=1.9.3
+\curl -o rvm.sh -L get.rvm.io 
+less rvm.sh
+cat rvm.sh | bash -s stable --autolibs=enabled --ruby=1.9.3
 ````
 
 Next, load the RVM scripts by either opening a new terminal window, or just run: 
 
 ````bash
-$ source ~/.rvm/scripts/rvm
+source ~/.rvm/scripts/rvm
 ````
 If you must be root (eg, on BackTrack or Kali), then you will need to explicitly add this (slightly different) line to the end of /root/.bashrc, instead:
 
@@ -71,7 +71,7 @@ Assuming all goes as planned, you should end up with something like this in your
 Once that's finished, it would behoove you to set your default ruby and gemset, as described [in this gist](https://gist.github.com/2625441) by [@claudijd](https://github.com/claudijd) . What I use is:
 
 ````bash
-$ rvm use --create --default 1.9.3-p385@msf
+rvm use --create --default 1.9.3-p385@msf
 ````
 
 This will set a default gemset to "msf" which you will be populating a little bit later.
@@ -83,13 +83,13 @@ Once that's done, you can set up your preferred editor. Far be it from us to tel
 First, get vim, your usual way. Vim-gnome is a pretty safe bet.
 
 ````bash
-$ sudo apt-get install vim-gnome -y
+sudo apt-get install vim-gnome -y
 ````
 
 Next, get Janus. Janus is a set of super-useful plugins and conveniences for Vim. You can read up on it here: https://github.com/carlhuda/janus . Or, again, just trust that Things Will Be Fine, and:
 
 ````bash
-$ curl -Lo- https://bit.ly/janus-bootstrap | bash
+curl -Lo- https://bit.ly/janus-bootstrap | bash
 ````
 
 This will checkout a version of Janus (using Git) to your ~/.vim directory. Yep, you now have a git repo in one of your more important dot-directories.
@@ -142,9 +142,9 @@ Hang out for a few seconds, and behold the animated "Hardcore Forking Action":
 After that's done, switch back over to your terminal, make a sub-directory for your git clones, and use your previously defined .ssh/config alias to clone up a copy of Metasploit. Note that usernames on GitHub are case-sensitive; McFakePants is different from mcfakepants.
 
 ````bash
-$ mkdir git
-$ cd git
-$ git clone https://github.com/mcfakepants/metasploit-framework.git
+mkdir git
+cd git
+git clone https://github.com/mcfakepants/metasploit-framework.git
 ````
 
 You should end up with a complete copy of Metasploit in the metasploit-framework sub-directory:
