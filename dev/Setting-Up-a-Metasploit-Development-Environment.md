@@ -250,15 +250,15 @@ You start off with your first branch, "master," which you pretty much never work
 This is pretty straightforward. From your local branch on the command line, you can:
 
 ````bash
-$ git remote add upstream git://github.com/rapid7/metasploit-framework.git
-$ git fetch upstream
-$ git checkout upstream/master
+git remote add upstream git://github.com/rapid7/metasploit-framework.git
+git fetch upstream
+git checkout upstream/master
 ````
 
 This lets you peek in on upstream, after giving a warning about being in the "detatched HEAD" state (don't worry about that now). From here you can do things like read the change log:
 
 ````bash
-$ git log --pretty=oneline --name-only -3
+git log --pretty=oneline --name-only -3
 ````
 
 It should all look like this in your command window:
@@ -268,20 +268,20 @@ It should all look like this in your command window:
 It's pretty handy to have this checkout be persistent so you can reference it later. So, type this:
 
 ````bash
-$ git checkout -b upstream-master
+git checkout -b upstream-master
 ````
 
 And this will create a new local branch called "upstream-master." Now, switch back to your master branch and fetch anything new from there:
 
 ````bash
-$ git checkout master
-$ git fetch
+git checkout master
+git fetch
 ````
 
 And finally, rebase against your local checkout of the upstream master branch:
 
 ````bash
-$ git rebase upstream-master
+git rebase upstream-master
 ```` 
 
 Rebasing is the easiest way to make sure that your master branch is identical to the upstream master branch. If you have any local changes, those are "rewound," all the remote changes get laid down, and then your changes get reapplied. It should all look like this:
@@ -305,7 +305,7 @@ All right, moving on.
 Any time you rebase from upstream (like just now), you're likely to bring in new changes because we're committing stuff all the time. This means that when you rebase, your local branch will be ahead of your remote branch. To get your remote fork up to speed:
 
 ````bash
-$ git push origin master
+git push origin master
 ````
 
 It should all look something like this:
@@ -365,8 +365,8 @@ The upshot is, what's committed to Metasploit is rarely exactly what you initial
 Now that everything's committed and you're rebased, if you'd like to clean out your development branches, you can just do the following:
 
 ````bash
-$ git branch -D module-ms12-020
-$ git push origin :module-ms12-020
+git branch -D module-ms12-020
+git push origin :module-ms12-020
 ````
 
 Note that Git branches are cheap (nearly free, in terms of disk space), so this shouldn't happen too terribly often.
@@ -378,9 +378,9 @@ Note that Git branches are cheap (nearly free, in terms of disk space), so this 
 We are slowly lurching toward a normal testing environment, and will soon be requiring spec tests to validate changes to the framework. To get in the habit now, run the standard set of tests against your local Metasploit branch. First, make sure you have all the gems installed, then run the `rake spec` task.
 
 ````
-$ gem install bundler # Only need to do this once
+gem install bundler # Only need to do this once
 $ bundle install
-$ rake spec # Do this in the top-level Metasploit root
+rake spec # Do this in the top-level Metasploit root
 ````
 
 For more on rspec (which is the de-facto testing standard for Ruby projects), see http://rspec.info/ . To add tests, drop them someplace sensible in the `spec` directory, and name your tests `whatever_spec.rb`. 
