@@ -6,19 +6,15 @@ module Windows
 
 module Process
 
-	##
-	# execute_shellcode(shellcode, shell_addr, pid)
 	#
-	# Summary:
-	#   Injects shellcode to a process, and executes it
+	# Injects shellcode to a process, and executes it.
 	#
-	# Parameters:
-	#   shellcode - The shellcode to execute
-	#   base_addr - Tha base address to allocate memory
-	#   pid       - The process ID to inject to
+	# @param shellcode [String] The shellcode to execute
+	# @param base_addr [Fixnum] The base address to allocate memory
+	# @param pid       [Fixnum] The process ID to inject to
 	#
-	# Returns:
-	#   true if successful, otherwise false
+	# @return [Boolean] True if successful, otherwise false
+	#
 	##
 	def execute_shellcode(shellcode, base_addr, pid=nil)
 		pid ||= session.sys.process.getpid
