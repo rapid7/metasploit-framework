@@ -116,8 +116,8 @@ class Metasploit3 < Msf::Post
 			if idx != nil
 				print_status("Match found!")
 				print_line
-				data = mem['Data'][idx, 512], mem['Address']+idx
-				print_line(Rex::Text.to_hex_dump(data[0]))
+				data = mem['Data'][idx, 512]
+				print_line(Rex::Text.to_hex_dump(data))
 			end
 		end
 
@@ -127,8 +127,8 @@ class Metasploit3 < Msf::Post
 			if idx != nil
 				print_status("Match found")
 				print_line
-				data = mem['Data'][idx, 512], mem['Address']+idx
-				print_line(Rex::Text.to_hex_dump(data[0]))
+				data = mem['Data'][idx, 512]
+				print_line(Rex::Text.to_hex_dump(data))
 			end
 		end
 	end
