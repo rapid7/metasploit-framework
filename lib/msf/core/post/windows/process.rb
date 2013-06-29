@@ -15,10 +15,14 @@ module Process
 	#
 	# @return [Boolean] True if successful, otherwise false
 	#
-	def execute_shellcode(shellcode, base_addr, pid=nil)
+	def execute_shellcode(shellcode, base_addr=nil, pid=nil)
 		pid ||= session.sys.process.getpid
 		host  = session.sys.process.open(pid.to_i, PROCESS_ALL_ACCESS)
-		shell_addr = host.memory.allocate(shellcode.length, nil, base_addr)
+		if base_addr.nil?
+			shell_addr = host.memory.allocate(shellcode.length)
+		else
+			shell_addr = host.memory.allocate(shellcode.length, nil, base_addr)
+		end
 		if host.memory.write(shell_addr, shellcode) < shellcode.length
 			vprint_error("Failed to write shellcode")
 			return false
