@@ -526,6 +526,9 @@ when /^psh$/i
 when /^psh-net$/i
 	psh = Msf::Util::EXE.to_win32pe_psh_net($framework, payload_raw, exeopts)
 	$stdout.write psh
+when /^psh-reflection$/i
+	psh = Msf::Util::EXE.to_win32pe_psh_reflection($framework, payload_raw, exeopts)
+	$stdout.write psh
 else
 	print_error("Unsupported format")
 	exit
