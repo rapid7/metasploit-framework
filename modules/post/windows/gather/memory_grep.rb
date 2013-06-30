@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Post
 		regex = Regexp.new(datastore['REGEX'])
 		target_pid = client.sys.process[name]
 
-		if not target_pid
+		unless target_pid
 			print_error("Could not access the target process")
 			return
 		end
