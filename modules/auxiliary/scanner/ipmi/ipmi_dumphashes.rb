@@ -171,7 +171,7 @@ class Metasploit3 < Msf::Auxiliary
 			sha1_salt = hmac_buffer.unpack("H*")[0]
 			sha1_hash = rakp.hmac_sha1.unpack("H*")[0]
 
-			if sha1_hash == "\x00" * 20
+			if sha1_hash == "0000000000000000000000000000000000000000"
 				vprint_error("#{rhost} Returned a bogus SHA1 hash for username #{username}")
 				next
 			end
