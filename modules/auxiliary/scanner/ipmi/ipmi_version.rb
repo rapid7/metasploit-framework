@@ -66,9 +66,10 @@ class Metasploit3 < Msf::Auxiliary
 			:info  => banner
 		)
 
-		# Report a vulnerablity if info.ipmi_user_anonymous has been set
-		# Report a vulnerability if ipmi 2.0 and kg is set to default
-		# Report a vulnerability if info.ipmi_user_null has been set (null username)
+		# Potential improvements:
+		# - Report a vulnerablity if info.ipmi_user_anonymous has been set
+		# - Report a vulnerability if ipmi 2.0 and kg is set to default (almost always the case)
+		# - Report a vulnerability if info.ipmi_user_null has been set (null username)
 
 	end
 
