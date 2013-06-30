@@ -4,7 +4,10 @@
 #
 # This script cracks HMAC SHA1 hashes. It is strangely necessary as existing tools 
 # have issues with binary salt values and extremely large salt values. The primary
-# goal of this tool is to handle IPMI 2.0 HMAC SHA1 hashes
+# goal of this tool is to handle IPMI 2.0 HMAC SHA1 hashes.
+#
+# Support for this format is being added to both hashcat and jtr, hopefully
+# making this code obsolete.
 #
 
 msfbase = __FILE__
@@ -63,11 +66,12 @@ count = 0
 cracked = 0
 
 word_fd.each_line do |line|
-	line = line.unpack("C*").pack("C*").strip
+	line = line.unpack("C*").pack("C*").sub(/\r?\n?$/, '')
+
 	next unless line.length > 0
 	hashes.each do |hinfo|
 		if OpenSSL::HMAC.digest('sha1', line, hinfo[1]) == hinfo[2]
-			$stdout.puts "[+] CRACKED " + hinfo[0]+":"+line
+			$stdout.puts [ hinfo[0], hinfo[1].unpack("H*").first, hinfo[2].unpack("H*").first, line ].join(":")
 			$stdout.flush
 			hinfo[3] = true
 			cracked += 1
@@ -77,7 +81,7 @@ word_fd.each_line do |line|
 		if count % 2500000 == 0
 			$stderr.puts "[*] Found #{cracked} passwords with #{hashes.length} left (#{(count / (Time.now.to_f - stime)).to_i}/s)"
 		end		
-	end 
+	end
 	hashes.delete_if {|e| e[3] }
 	break if hashes.length == 0
 
