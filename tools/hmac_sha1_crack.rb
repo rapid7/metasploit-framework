@@ -66,12 +66,11 @@ count = 0
 cracked = 0
 
 word_fd.each_line do |line|
+	# Preferable to strip so we can test passwords made of whitespace (or null)
 	line = line.unpack("C*").pack("C*").sub(/\r?\n?$/, '')
-
-	next unless line.length > 0
 	hashes.each do |hinfo|
-		if OpenSSL::HMAC.digest('sha1', line, hinfo[1]) == hinfo[2]
-			$stdout.puts [ hinfo[0], hinfo[1].unpack("H*").first, hinfo[2].unpack("H*").first, line ].join(":")
+		if OpenSSL::HMAC.digest('sha1', line.to_s, hinfo[1]) == hinfo[2]
+			$stdout.puts [ hinfo[0], hinfo[1].unpack("H*").first, hinfo[2].unpack("H*").first, line.to_s ].join(":")
 			$stdout.flush
 			hinfo[3] = true
 			cracked += 1
