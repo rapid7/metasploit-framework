@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description' => 'Discover host information through IPMI Channel Auth probes',
 			'Author'      => [ 'Dan Farmer <zen[at]fish2.com>', 'hdm' ],
 			'License'     => MSF_LICENSE,
-			'References'  => 
+			'References'  =>
 				[
 					['URL', 'http://fish2.com/ipmi/']
 				]
@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def scanner_process(data, shost, sport)
 		info = Rex::Proto::IPMI::Channel_Auth_Reply.new(data) rescue nil
-		
+
 		# Ignore invalid responses
 		return if not info
 		return if not info.ipmi_command == 56
