@@ -63,10 +63,15 @@ db_namespace = namespace :db do
 	desc 'Load the seed data from db/seeds.rb'
 	task :seed do
 		db_namespace['abort_if_pending_migrations'].invoke
-		seeds_pathname = Metasploit::Framework.root.join('db', 'seeds.rb')
+		seeds_pathnames = []
 
-		if seeds_pathname.exist?
-			load(seeds_pathname)
+		seeds_pathnames << MetasploitDataModels.root.join('db', 'seeds.rb')
+		seeds_pathnames << Metasploit::Framework.root.join('db', 'seeds.rb')
+
+		seeds_pathnames.each do |seeds_pathname|
+			if seeds_pathname.exist?
+				load(seeds_pathname)
+			end
 		end
 	end
 end
