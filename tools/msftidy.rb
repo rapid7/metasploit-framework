@@ -287,7 +287,7 @@ class Msftidy
 					next
 				elsif %w{pbot}.include?(word)
 				elsif word =~ /^[a-z]+$/
-					warn("Improper capitalization in module title: '#{word}'")
+					warn("Suspect capitalization in module title: '#{word}'")
 				end
 			end
 		end
