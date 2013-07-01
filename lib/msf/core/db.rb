@@ -5974,7 +5974,9 @@ class DBManager
 				# If it's an IPv6 addr, drop the scope
 				address, scope = host.split('%', 2)
 				norm_host = address
-			else
+      else
+        # If we somehow get a CIDR notation, strip it off and try to do our best
+        host.gsub!(/\/\d{1,2}$/,'')
 				norm_host = Rex::Socket.getaddress(host, true)
 			end
 		elsif host.kind_of? ::Mdm::Session
