@@ -17,8 +17,9 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'Canon Wireless Printer Denial Of Service',
 			'Description'    => %q{
 				The HTTP management interface on several models of Canon Wireless printers
-				allows for a Denial of Service condition via a crafted HTTP request. This
-				requires the device to be turned off and back on again to restore use.
+				allows for a Denial of Service (DoS) condition via a crafted HTTP request. Note:
+				if this module is successful, the device can only be recovered with a physical
+				power cycle.
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         =>
