@@ -9,7 +9,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows Manage - Trojanize Support Account',
+			'Name'          => 'Windows Manage Trojanize Support Account',
 			'Description'   => %q{
 				This module enables alternative access to servers and workstations
 				by modifying the support account's properties. It will enable
