@@ -80,45 +80,65 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 			mock('Msf::Modules::Namespace', :parent_path => parent_path)
 		end
 
-		it 'should update module_info_by_path' do
-			expect {
-				cache_in_memory
-			}.to change { module_info_by_path }
+		context 'with existing :path' do
+			it 'should update module_info_by_path' do
+				expect {
+					cache_in_memory
+				}.to change { module_info_by_path }
+			end
+
+			context 'module_info_by_path' do
+				subject(:module_info_by_path) do
+					module_manager.send(:module_info_by_path)
+				end
+
+				before(:each) do
+					cache_in_memory
+				end
+
+				it 'should have entry for path' do
+					module_info_by_path[path].should be_a Hash
+				end
+
+				context 'value' do
+					subject(:value) do
+						module_info_by_path[path]
+					end
+
+					it 'should have modification time of :path option for :modification_time' do
+						value[:modification_time].should == pathname_modification_time
+					end
+
+					it 'should have parent path from namespace module for :parent_path' do
+						value[:parent_path].should == namespace_module.parent_path
+					end
+
+					it 'should use :reference_name option' do
+						value[:reference_name].should == reference_name
+					end
+
+					it 'should use :type option' do
+						value[:type].should == type
+					end
+				end
+			end
 		end
 
-		context 'module_info_by_path' do
-			subject(:module_info_by_path) do
-				module_manager.send(:module_info_by_path)
+		context 'without existing :path' do
+			let(:path) do
+				'non/existent/path'
 			end
 
-			before(:each) do
-				cache_in_memory
+			it 'should not raise error' do
+				expect {
+					cache_in_memory
+				}.to_not raise_error
 			end
 
-			it 'should have entry for path' do
-				module_info_by_path[path].should be_a Hash
-			end
-
-			context 'value' do
-				subject(:value) do
-					module_info_by_path[path]
-				end
-
-				it 'should have modification time of :path option for :modification_time' do
-					value[:modification_time].should == pathname_modification_time
-				end
-
-				it 'should have parent path from namespace module for :parent_path' do
-					value[:parent_path].should == namespace_module.parent_path
-				end
-
-				it 'should use :reference_name option' do
-					value[:reference_name].should == reference_name
-				end
-
-				it 'should use :type option' do
-					value[:type].should == type
-				end
+			it 'should not update module_info_by_path' do
+				expect {
+					cache_in_memory
+				}.to_not change { module_info_by_path }
 			end
 		end
 	end

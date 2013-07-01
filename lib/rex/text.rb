@@ -52,8 +52,55 @@ module Text
 	DefaultPatternSets = [ Rex::Text::UpperAlpha, Rex::Text::LowerAlpha, Rex::Text::Numerals ]
 
 	# In case Iconv isn't loaded
-	Iconv_EBCDIC = ["\x00", "\x01", "\x02", "\x03", "7", "-", ".", "/", "\x16", "\x05", "%", "\v", "\f", "\r", "\x0E", "\x0F", "\x10", "\x11", "\x12", "\x13", "<", "=", "2", "&", "\x18", "\x19", "?", "'", "\x1C", "\x1D", "\x1E", "\x1F", "@", "Z", "\x7F", "{", "[", "l", "P", "}", "M", "]", "\\", "N", "k", "`", "K", "a", "\xF0", "\xF1", "\xF2", "\xF3", "\xF4", "\xF5", "\xF6", "\xF7", "\xF8", "\xF9", "z", "^", "L", "~", "n", "o", "|", "\xC1", "\xC2", "\xC3", "\xC4", "\xC5", "\xC6", "\xC7", "\xC8", "\xC9", "\xD1", "\xD2", "\xD3", "\xD4", "\xD5", "\xD6", "\xD7", "\xD8", "\xD9", "\xE2", "\xE3", "\xE4", "\xE5", "\xE6", "\xE7", "\xE8", "\xE9", nil, "\xE0", nil, nil, "m", "y", "\x81", "\x82", "\x83", "\x84", "\x85", "\x86", "\x87", "\x88", "\x89", "\x91", "\x92", "\x93", "\x94", "\x95", "\x96", "\x97", "\x98", "\x99", "\xA2", "\xA3", "\xA4", "\xA5", "\xA6", "\xA7", "\xA8", "\xA9", "\xC0", "O", "\xD0", "\xA1", "\a", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
-	Iconv_ASCII  = ["\x00", "\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\a", "\b", "\t", "\n", "\v", "\f", "\r", "\x0E", "\x0F", "\x10", "\x11", "\x12", "\x13", "\x14", "\x15", "\x16", "\x17", "\x18", "\x19", "\x1A", "\e", "\x1C", "\x1D", "\x1E", "\x1F", " ", "!", "\"", "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?", "@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", nil, "\\", nil, nil, "_", "`", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", "\x7F", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
+	Iconv_EBCDIC = [
+		"\x00", "\x01", "\x02", "\x03", "7", "-", ".", "/", "\x16", "\x05",
+		"%", "\v", "\f", "\r", "\x0E", "\x0F", "\x10", "\x11", "\x12", "\x13",
+		"<", "=", "2", "&", "\x18", "\x19", "?", "'", "\x1C", "\x1D", "\x1E",
+		"\x1F", "@", "Z", "\x7F", "{", "[", "l", "P", "}", "M", "]", "\\",
+		"N", "k", "`", "K", "a", "\xF0", "\xF1", "\xF2", "\xF3", "\xF4",
+		"\xF5", "\xF6", "\xF7", "\xF8", "\xF9", "z", "^", "L", "~", "n", "o",
+		"|", "\xC1", "\xC2", "\xC3", "\xC4", "\xC5", "\xC6", "\xC7", "\xC8",
+		"\xC9", "\xD1", "\xD2", "\xD3", "\xD4", "\xD5", "\xD6", "\xD7",
+		"\xD8", "\xD9", "\xE2", "\xE3", "\xE4", "\xE5", "\xE6", "\xE7",
+		"\xE8", "\xE9", nil, "\xE0", nil, nil, "m", "y", "\x81", "\x82",
+		"\x83", "\x84", "\x85", "\x86", "\x87", "\x88", "\x89", "\x91",
+		"\x92", "\x93", "\x94", "\x95", "\x96", "\x97", "\x98", "\x99",
+		"\xA2", "\xA3", "\xA4", "\xA5", "\xA6", "\xA7", "\xA8", "\xA9",
+		"\xC0", "O", "\xD0", "\xA1", "\a", nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil
+	]
+
+	Iconv_ASCII  = [
+		"\x00", "\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\a", "\b",
+		"\t", "\n", "\v", "\f", "\r", "\x0E", "\x0F", "\x10", "\x11", "\x12",
+		"\x13", "\x14", "\x15", "\x16", "\x17", "\x18", "\x19", "\x1A", "\e",
+		"\x1C", "\x1D", "\x1E", "\x1F", " ", "!", "\"", "#", "$", "%", "&",
+		"'", "(", ")", "*", "+", ",", "-", ".", "/", "0", "1", "2", "3", "4",
+		"5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?", "@", "A", "B",
+		"C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
+		"Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", nil, "\\", nil,
+		nil, "_", "`", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k",
+		"l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y",
+		"z", "{", "|", "}", "~", "\x7F", nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil
+	]
 
 	##
 	#
@@ -80,6 +127,17 @@ module Text
 	#
 	def self.to_c(str, wrap = DefaultWrap, name = "buf")
 		return hexify(str, wrap, '"', '"', "unsigned char #{name}[] = \n", '";')
+	end
+
+	def self.to_csharp(str, wrap = DefaultWrap, name = "buf")
+		ret = "byte[] #{name} = new byte[#{str.length}] {"
+		i = -1;
+		while (i += 1) < str.length
+			ret << "\n" if i%(wrap/4) == 0
+			ret << "0x" << str[i].unpack("H*")[0] << ","
+		end
+		ret = ret[0..ret.length-2] #cut off last comma
+		ret << " };\n"
 	end
 
 	#
@@ -344,22 +402,40 @@ module Text
 	#
 	# Converts standard ASCII text to a unicode string.
 	#
-	# Supported unicode types include: utf-16le, utf16-be, utf32-le, utf32-be, utf-7, and utf-8
+	# Supported unicode types include: utf-16le, utf16-be, utf32-le,
+	# utf32-be, utf-7, and utf-8
 	#
-	# Providing 'mode' provides hints to the actual encoder as to how it should encode the string.	Only UTF-7 and UTF-8 use "mode".
+	# Providing 'mode' provides hints to the actual encoder as to how it
+	# should encode the string.
 	#
-	# utf-7 by default does not encode alphanumeric and a few other characters.  By specifying the mode of "all", then all of the characters are encoded, not just the non-alphanumeric set.
-	#	to_unicode(str, 'utf-7', 'all')
+	# Only UTF-7 and UTF-8 use "mode".
 	#
-	# utf-8 specifies that alphanumeric characters are used directly, eg "a" is just "a".  However, there exist 6 different overlong encodings of "a" that are technically not valid, but parse just fine in most utf-8 parsers.  (0xC1A1, 0xE081A1, 0xF08081A1, 0xF8808081A1, 0xFC80808081A1, 0xFE8080808081A1).  How many bytes to use for the overlong enocding is specified providing 'size'.
-	#	to_unicode(str, 'utf-8', 'overlong', 2)
+	# utf-7 by default does not encode alphanumeric and a few other
+	# characters.  By specifying the mode of "all", then all of the
+	# characters are encoded, not just the non-alphanumeric set.
+	# to_unicode(str, 'utf-7', 'all')
 	#
-	# Many utf-8 parsers also allow invalid overlong encodings, where bits that are unused when encoding a single byte are modified.  Many parsers will ignore these bits, rendering simple string matching to be ineffective for dealing with UTF-8 strings.  There are many more invalid overlong encodings possible for "a".  For example, three encodings are available for an invalid 2 byte encoding of "a". (0xC1E1 0xC161 0xC121).	By specifying "invalid", a random invalid encoding is chosen for the given byte size.
-	#	to_unicode(str, 'utf-8', 'invalid', 2)
+	# utf-8 specifies that alphanumeric characters are used directly, eg
+	# "a" is just "a".  However, there exist 6 different overlong
+	# encodings of "a" that are technically not valid, but parse just fine
+	# in most utf-8 parsers.  (0xC1A1, 0xE081A1, 0xF08081A1, 0xF8808081A1,
+	# 0xFC80808081A1, 0xFE8080808081A1).  How many bytes to use for the
+	# overlong enocding is specified providing 'size'.  to_unicode(str,
+	# 'utf-8', 'overlong', 2)
 	#
-	# utf-7 defaults to 'normal' utf-7 encoding
-	# utf-8 defaults to 2 byte 'normal' encoding
+	# Many utf-8 parsers also allow invalid overlong encodings, where bits
+	# that are unused when encoding a single byte are modified.  Many
+	# parsers will ignore these bits, rendering simple string matching to
+	# be ineffective for dealing with UTF-8 strings.  There are many more
+	# invalid overlong encodings possible for "a".  For example, three
+	# encodings are available for an invalid 2 byte encoding of "a".
+	# (0xC1E1 0xC161 0xC121).
 	#
+	# By specifying "invalid", a random invalid encoding is chosen for the
+	# given byte size.  to_unicode(str, 'utf-8', 'invalid', 2)
+	#
+	# utf-7 defaults to 'normal' utf-7 encoding utf-8 defaults to 2 byte
+	# 'normal' encoding
 	def self.to_unicode(str='', type = 'utf-16le', mode = '', size = '')
 		return '' if not str
 		case type

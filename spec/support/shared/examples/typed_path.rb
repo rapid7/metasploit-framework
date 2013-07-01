@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 shared_examples_for 'typed_path' do |map|
 	map ||= {}
 	if map.length < 1

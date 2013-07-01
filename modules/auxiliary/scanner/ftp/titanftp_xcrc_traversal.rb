@@ -54,7 +54,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 
-		connect_login
+		c = connect_login
+		return if not c
 
 		path = datastore['TRAVERSAL'] + datastore['PATH']
 

@@ -113,6 +113,14 @@ class Server
 		self.server_name = DefaultServer
 	end
 
+	# More readable inspect that only shows the url and resources
+	# @return [String]
+	def inspect
+		resources_str = resources.keys.map{|r| r.inspect }.join ", "
+
+		"#<#{self.class} http#{ssl ? "s" : ""}://#{listen_host}:#{listen_port} [ #{resources_str} ]>"
+	end
+
 	#
 	# Returns the hardcore alias for the HTTP service
 	#

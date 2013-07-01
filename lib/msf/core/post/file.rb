@@ -378,10 +378,18 @@ protected
 		# Ordered by descending likeliness to work
 		[
 			# POSIX standard requires %b which expands octal (but not hex)
-			# escapes in the argument. However, some versions truncate input on
-			# nulls, so "printf %b '\0\101'" produces a 0-length string. The
-			# standalone version seems to be more likely to work than the buitin
-			# version, so try it first
+			# escapes in the argument. However, some versions (notably
+			# FreeBSD) truncate input on nulls, so "printf %b '\0\101'"
+			# produces a 0-length string. Some also allow octal escapes
+			# without a format string, and do not truncate, so start with
+			# that and try %b if it doesn't work. The standalone version seems
+			# to be more likely to work than the buitin version, so try it
+			# first.
+			#
+			# Both of these work for sure on Linux and FreeBSD
+			{ :cmd => %q^/usr/bin/printf 'CONTENTS'^ , :enc => :octal, :name => "printf" },
+			{ :cmd => %q^printf 'CONTENTS'^ , :enc => :octal, :name => "printf" },
+			# Works on Solaris
 			{ :cmd => %q^/usr/bin/printf %b 'CONTENTS'^ , :enc => :octal, :name => "printf" },
 			{ :cmd => %q^printf %b 'CONTENTS'^ , :enc => :octal, :name => "printf" },
 			# Perl supports both octal and hex escapes, but octal is usually
