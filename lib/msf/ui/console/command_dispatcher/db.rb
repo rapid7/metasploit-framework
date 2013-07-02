@@ -151,6 +151,10 @@ class Db
 			old, new = names
 
 			workspace = framework.db.find_workspace(old)
+
+			old_is_active = (framework.db.workspace == workspace)
+			recreate_default = workspace.default?
+
 			if workspace.nil?
 				print_error("Workspace not found: #{name}")
 				return
@@ -163,6 +167,18 @@ class Db
 
 			workspace.name = new
 			workspace.save!
+
+			# Recreate the default workspace to avoid errors
+			if recreate_default
+				framework.db.add_workspace(old)
+				print_status("Recreated default workspace after rename")
+			end
+
+			# Switch to new workspace if old name was active
+			if old_is_active
+				framework.db.workspace = workspace
+				print_status("Switched workspace: #{framework.db.workspace.name}")
+			end
 		elsif names
 			name = names.last
 			# Switch workspace
