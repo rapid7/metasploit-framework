@@ -33,21 +33,29 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
+	def rport
+		datastore['RPORT']
+	end
+
 	def scanner_prescan(batch)
 		print_status("Sending IPMI requests to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
 		@res = {}
 	end
 
 	def scan_host(ip)
-		scanner_send(Rex::Proto::IPMI::Utils.create_ipmi_getchannel_probe, ip, datastore['RPORT'])
+		vprint_status "#{ip}:#{rport} - IPMI - Probe sent"
+		scanner_send(Rex::Proto::IPMI::Utils.create_ipmi_getchannel_probe, ip, rport)
 	end
 
 	def scanner_process(data, shost, sport)
 		info = Rex::Proto::IPMI::Channel_Auth_Reply.new(data) rescue nil
 
 		# Ignore invalid responses
-		return if not info
-		return if not info.ipmi_command == 56
+		return unless info
+		unless info.ipmi_command == 56
+			vprint_error "#{shost}:#{rport} - IPMI - Invalid response"
+			return
+		end
 
 		# Ignore duplicate replies
 		return if @res[shost]
@@ -56,11 +64,11 @@ class Metasploit3 < Msf::Auxiliary
 
 		banner = info.to_banner
 
-		print_status("#{shost}:#{datastore['RPORT']} #{banner}")
+		print_good("#{shost}:#{rport} - IPMI - #{banner}")
 
 		report_service(
 			:host  => shost,
-			:port  => datastore['RPORT'],
+			:port  => rport,
 			:proto => 'udp',
 			:name  => 'ipmi',
 			:info  => banner
