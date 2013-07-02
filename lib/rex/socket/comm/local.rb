@@ -346,9 +346,76 @@ class Rex::Socket::Comm::Local
 	end
 
 	def self.proxy(sock, type, host, port)
-
-		#$stdout.print("PROXY\n")
 		case type.downcase
+		when 'sapni'
+			packet_type = 'NI_ROUTE'
+			route_info_version = 2
+			ni_version = 39
+			num_of_entries = 2
+			talk_mode = 1 # ref: http://help.sap.com/saphelp_dimp50/helpdata/En/f8/bb960899d743378ccb8372215bb767/content.htm
+			num_rest_nodes = 1
+
+			shost, sport = sock.peerinfo.split(":")
+			first_route_item = [shost, 0, sport, 0, 0].pack("A*CA*cc")
+			route_data = [first_route_item.length, first_route_item].pack("NA*")
+			route_data << [host, 0, port.to_s, 0, 0].pack("A*CA*cc")
+
+			ni_packet = [
+				packet_type,
+				0,
+				route_info_version,
+				ni_version,
+				num_of_entries,
+				talk_mode,
+				0,
+				0,
+				num_rest_nodes
+			].pack("A8c8")
+			# Add the data block, according to sap documentation:
+			# A 4-byte header precedes each data block. These 4 bytes give the
+			# length of the data block (length without leading 4 bytes)
+			# The data block (the route data)
+			ni_packet << [route_data.length - 4].pack('N') + route_data
+			# Now that we've built the whole packet, prepend its length before writing it to the wire
+			ni_packet = [ni_packet.length].pack('N') + ni_packet
+			
+			size = sock.put(ni_packet)
+			
+			if size != ni_packet.length
+				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to send the entire request to the proxy"), caller
+			end
+
+			begin
+				ret_len = sock.get_once(4, 30).unpack('N')[0]
+				if ret_len and ret_len != 0
+					ret = sock.get_once(ret_len, 30)
+				end
+			rescue IOError
+				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to receive a response from the proxy"), caller
+			end
+
+			if ret and ret.length < 4
+				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to receive a complete response from the proxy"), caller
+			end
+
+			if ret =~ /NI_RTERR/
+				case ret
+				when /timed out/
+					raise Rex::ConnectionProxyError.new(host, port, type, "Connection to remote host #{host} timed out")
+				when /refused/
+					raise Rex::ConnectionProxyError.new(host, port, type, "Connection to remote port #{port} closed")
+				when /denied/
+					raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} blocked by ACL")
+				else
+					raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} failed (Unknown fail)")
+				end
+			elsif ret =~ /NI_PONG/
+				# success case
+				# would like to print this "[*] remote native connection to #{host}:#{port} established\n"
+			else
+				raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} failed (Unknown fail)")
+			end
+
 		when 'http'
 			setup = "CONNECT #{host}:#{port} HTTP/1.0\r\n\r\n"
 			size = sock.put(setup)
