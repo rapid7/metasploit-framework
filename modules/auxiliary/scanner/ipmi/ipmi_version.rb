@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		banner = info.to_banner
 
-		print_status("#{shost}:#{rport} #{banner}")
+		print_good("#{shost}:#{rport} - IPMI - #{banner}")
 
 		report_service(
 			:host  => shost,

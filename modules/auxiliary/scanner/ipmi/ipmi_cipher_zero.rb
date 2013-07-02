@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 		@res[shost] ||= info
 
 		if info.error_code == 0
-			print_good("#{shost}:#{sport} VULNERABLE: Accepted a session open request for cipher zero")
+			print_good("#{shost}:#{sport} - IPMI - VULNERABLE: Accepted a session open request for cipher zero")
 			report_vuln(
 				:host  => shost,
 				:port  => datastore['RPORT'].to_i,
@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 				:refs  => self.references
 			)
 		else
-			vprint_status("#{shost}:#{sport} NOT VULNERABLE: Rejected cipher zero with error code #{info.error_code}")
+			vprint_status("#{shost}:#{sport} - IPMI - NOT VULNERABLE: Rejected cipher zero with error code #{info.error_code}")
 		end
 	end
 end
