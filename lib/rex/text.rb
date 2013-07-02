@@ -752,18 +752,21 @@ module Text
 	#
 	# @param str [String] The string to convert
 	# @param width [Fixnum] Number of bytes to convert before adding a newline
-	def self.to_hex_dump(str, width=16)
+	# @param base [Fixnum] The base address of the dump
+	def self.to_hex_dump(str, width=16, base=nil)
 		buf = ''
 		idx = 0
 		cnt = 0
 		snl = false
 		lst = 0
+		lft_col_len = (base.to_i+str.length).to_s(16).length
+		lft_col_len = 8 if lft_col_len < 8
 
 		while (idx < str.length)
-
 			chunk = str[idx, width]
+			addr = base ? "%0#{lft_col_len}x  " %(base.to_i + idx) : ''
 			line  = chunk.unpack("H*")[0].scan(/../).join(" ")
-			buf << line
+			buf << addr + line
 
 			if (lst == 0)
 				lst = line.length
@@ -771,6 +774,8 @@ module Text
 			else
 				buf << " " * ((lst - line.length) + 4).abs
 			end
+
+			buf << "|"
 
 			chunk.unpack("C*").each do |c|
 				if (c >	0x1f and c < 0x7f)
@@ -780,7 +785,7 @@ module Text
 				end
 			end
 
-			buf << "\n"
+			buf << "|\n"
 
 			idx += width
 		end
