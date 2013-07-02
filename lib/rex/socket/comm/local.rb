@@ -346,9 +346,89 @@ class Rex::Socket::Comm::Local
 	end
 
 	def self.proxy(sock, type, host, port)
-
-		#$stdout.print("PROXY\n")
 		case type.downcase
+		when 'sapni'
+			packet_type = 'NI_ROUTE'
+			route_info_version = 2
+			ni_version = 39
+			num_of_entries = 2 
+			talk_mode = 1 # ref: http://help.sap.com/saphelp_dimp50/helpdata/En/f8/bb960899d743378ccb8372215bb767/content.htm
+			num_rest_nodes = 1
+			route_data = ''
+			
+			array = sock.peerinfo.split(":")
+			
+			shost = array[0]
+			sport = array[1]
+			
+			routes = {shost => sport.to_s, host => port.to_s}
+			
+			ni_packet = [
+				packet_type,
+				0,
+				route_info_version,
+				ni_version,
+				num_of_entries,
+				talk_mode,
+				0,
+				0,
+				num_rest_nodes
+			].pack("A8c8")
+
+			first = true
+
+			routes.each do |host,port|
+				route_item = [host, 0, port, 0, 0].pack("A*CA*cc")
+				if first
+					route_data = [route_item.length, route_item].pack("NA*")
+					first = false
+				else
+					route_data << route_item
+				end
+			end
+
+			# TODO: This is really hard to follow
+			ni_packet << [route_data.length - 4].pack('N') 
+			ni_packet << route_data
+			ni_packet = [ni_packet.length].pack('N') << ni_packet
+			
+			size = sock.put(ni_packet)
+			
+			if size != ni_packet.length
+				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to send the entire request to the proxy"), caller
+			end
+
+			begin
+				ret_len = sock.get_once(4, 30).unpack('N')[0]
+				if ret_len and ret_len != 0
+					ret = sock.get_once(ret_len, 30)
+				end
+			rescue IOError
+				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to receive a response from the proxy"), caller
+			end
+
+			if ret and ret.length < 4
+				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to receive a complete response from the proxy"), caller
+			end
+
+			if ret =~ /NI_RTERR/
+				case ret
+				when /timed out/
+					raise Rex::ConnectionProxyError.new(host, port, type, "Connection to remote host #{host} timed out")
+				when /refused/
+					raise Rex::ConnectionProxyError.new(host, port, type, "Connection to remote port #{port} closed")
+				when /denied/
+					raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} blocked by ACL")
+				else
+					raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} failed (Unknown fail)")
+				end
+			elsif ret =~ /NI_PONG/
+				# success case
+				# would like to print this "[*] remote native connection to #{host}:#{port} established\n"
+			else
+				raise Rex::ConnectionProxyError.new(host, port, type, "Connection to #{host}:#{port} failed (Unknown fail)")
+			end
+
 		when 'http'
 			setup = "CONNECT #{host}:#{port} HTTP/1.0\r\n\r\n"
 			size = sock.put(setup)
