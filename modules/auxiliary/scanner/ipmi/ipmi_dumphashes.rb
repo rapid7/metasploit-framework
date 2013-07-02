@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 
-		vprint_status("Sending IPMI probes to #{ip}")
+		vprint_status("#{ip}:#{rport} - IPMI - Sending IPMI probes")
 
 		usernames = []
 		passwords = []
@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 			console_session_id = Rex::Text.rand_text(4)
 			console_random_id  = Rex::Text.rand_text(16)
 
-			vprint_status("#{rhost} Trying username '#{username}'...")
+			vprint_status("#{rhost}:#{rport} - IPMI - Trying username '#{username}'...")
 
 			rakp = nil
 			sess = nil
@@ -99,14 +99,14 @@ class Metasploit3 < Msf::Auxiliary
 				end
 
 				unless r
-					vprint_status("#{rhost} No response to IPMI open session request")
+					vprint_status("#{rhost}:#{rport} - IPMI - No response to IPMI open session request")
 					rakp = nil
 					break
 				end
 
 				sess = process_opensession_reply(*r)
 				unless sess
-					vprint_status("#{rhost} Could not understand the response to the open session request")
+					vprint_status("#{rhost}:#{rport} - IPMI - Could not understand the response to the open session request")
 					rakp = nil
 					break
 				end
@@ -119,33 +119,33 @@ class Metasploit3 < Msf::Auxiliary
 				end
 
 				unless r
-					vprint_status("#{rhost} No response to RAKP1 message")
+					vprint_status("#{rhost}:#{rport} - IPMI - No response to RAKP1 message")
 					next
 				end
 
 				rakp = process_rakp1_reply(*r)
 				unless rakp
-					vprint_status("#{rhost} Could not understand the response to the RAKP1 request")
+					vprint_status("#{rhost}:#{rport} - IPMI - Could not understand the response to the RAKP1 request")
 					rakp = nil
 					break
 				end
 
 				# Sleep and retry on session ID errors
 				if rakp.error_code == 2
-					vprint_error("#{rhost} Returned a Session ID error for username #{username} on attempt #{attempt}")
+					vprint_error("#{rhost}:#{rport} - IPMI - Returned a Session ID error for username #{username} on attempt #{attempt}")
 					Rex.sleep(1)
 					next
 				end
 
 				if rakp.error_code != 0
-					vprint_error("#{rhost} Returned error code #{rakp.error_code} for username #{username}: #{Rex::Proto::IPMI::RMCP_ERRORS[rakp.error_code].to_s}")
+					vprint_error("#{rhost}:#{rport} - IPMI - Returned error code #{rakp.error_code} for username #{username}: #{Rex::Proto::IPMI::RMCP_ERRORS[rakp.error_code].to_s}")
 					rakp = nil
 					break
 				end
 
 				# TODO: Finish documenting this error field
 				if rakp.ignored1 != 0
-					vprint_error("#{rhost} Returned error code #{rakp.ignored1} for username #{username}")
+					vprint_error("#{rhost}:#{rport} - IPMI - Returned error code #{rakp.ignored1} for username #{username}")
 					rakp = nil
 					break
 				end
@@ -172,7 +172,7 @@ class Metasploit3 < Msf::Auxiliary
 			sha1_hash = rakp.hmac_sha1.unpack("H*")[0]
 
 			if sha1_hash == "0000000000000000000000000000000000000000"
-				vprint_error("#{rhost} Returned a bogus SHA1 hash for username #{username}")
+				vprint_error("#{rhost}:#{rport} - IPMI - Returned a bogus SHA1 hash for username #{username}")
 				next
 			end
 
@@ -215,7 +215,7 @@ class Metasploit3 < Msf::Auxiliary
 				pass = pass.strip
 				next unless pass.length > 0
 				next unless Rex::Proto::IPMI::Utils.verify_rakp_hmac_sha1(hmac_buffer, rakp.hmac_sha1, pass)
-				print_good("#{rhost} Hash for user '#{username}' matches password '#{pass}'")
+				print_good("#{rhost}:#{rport} - IPMI - Hash for user '#{username}' matches password '#{pass}'")
 
 				# Report the clear-text credential to the database
 				report_auth_info(
