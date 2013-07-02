@@ -351,18 +351,15 @@ class Rex::Socket::Comm::Local
 			packet_type = 'NI_ROUTE'
 			route_info_version = 2
 			ni_version = 39
-			num_of_entries = 2 
+			num_of_entries = 2
 			talk_mode = 1 # ref: http://help.sap.com/saphelp_dimp50/helpdata/En/f8/bb960899d743378ccb8372215bb767/content.htm
 			num_rest_nodes = 1
-			route_data = ''
-			
-			array = sock.peerinfo.split(":")
-			
-			shost = array[0]
-			sport = array[1]
-			
-			routes = {shost => sport.to_s, host => port.to_s}
-			
+
+			shost, sport = sock.peerinfo.split(":")
+			first_route_item = [shost, 0, sport, 0, 0].pack("A*CA*cc")
+			route_data = [first_route_item.length, first_route_item].pack("NA*")
+			route_data << [host, 0, port.to_s, 0, 0].pack("A*CA*cc")
+
 			ni_packet = [
 				packet_type,
 				0,
@@ -374,23 +371,13 @@ class Rex::Socket::Comm::Local
 				0,
 				num_rest_nodes
 			].pack("A8c8")
-
-			first = true
-
-			routes.each do |host,port|
-				route_item = [host, 0, port, 0, 0].pack("A*CA*cc")
-				if first
-					route_data = [route_item.length, route_item].pack("NA*")
-					first = false
-				else
-					route_data << route_item
-				end
-			end
-
-			# TODO: This is really hard to follow
-			ni_packet << [route_data.length - 4].pack('N') 
-			ni_packet << route_data
-			ni_packet = [ni_packet.length].pack('N') << ni_packet
+			# Add the data block, according to sap documentation:
+			# A 4-byte header precedes each data block. These 4 bytes give the
+			# length of the data block (length without leading 4 bytes)
+			# The data block (the route data)
+			ni_packet << [route_data.length - 4].pack('N') + route_data
+			# Now that we've built the whole packet, prepend its length before writing it to the wire
+			ni_packet = [ni_packet.length].pack('N') + ni_packet
 			
 			size = sock.put(ni_packet)
 			
