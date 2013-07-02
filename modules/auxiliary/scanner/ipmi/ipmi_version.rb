@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def scan_host(ip)
 		vprint_status "#{ip}:#{rport} - IPMI - Probe sent"
-		scanner_send(Rex::Proto::IPMI::Utils.create_ipmi_getchannel_probe, ip, datastore['RPORT'])
+		scanner_send(Rex::Proto::IPMI::Utils.create_ipmi_getchannel_probe, ip, rport)
 	end
 
 	def scanner_process(data, shost, sport)
@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 		# Ignore invalid responses
 		return unless info
 		unless info.ipmi_command == 56
-			vprint_error "#{ip}:#{rport} - IPMI - Invalid response"
+			vprint_error "#{shost}:#{rport} - IPMI - Invalid response"
 			return
 		end
 
@@ -64,11 +64,11 @@ class Metasploit3 < Msf::Auxiliary
 
 		banner = info.to_banner
 
-		print_status("#{shost}:#{datastore['RPORT']} #{banner}")
+		print_status("#{shost}:#{rport} #{banner}")
 
 		report_service(
 			:host  => shost,
-			:port  => datastore['RPORT'],
+			:port  => rport,
 			:proto => 'udp',
 			:name  => 'ipmi',
 			:info  => banner
