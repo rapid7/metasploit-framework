@@ -33,12 +33,17 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
+	def rport
+		datastore['RPORT']
+	end
+
 	def scanner_prescan(batch)
 		print_status("Sending IPMI requests to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
 		@res = {}
 	end
 
 	def scan_host(ip)
+		vprint_status "#{ip}:#{rport} - IPMI - Probe sent"
 		scanner_send(Rex::Proto::IPMI::Utils.create_ipmi_getchannel_probe, ip, datastore['RPORT'])
 	end
 
@@ -46,8 +51,11 @@ class Metasploit3 < Msf::Auxiliary
 		info = Rex::Proto::IPMI::Channel_Auth_Reply.new(data) rescue nil
 
 		# Ignore invalid responses
-		return if not info
-		return if not info.ipmi_command == 56
+		return unless info
+		unless info.ipmi_command == 56
+			vprint_error "#{ip}:#{rport} - IPMI - Invalid response"
+			return
+		end
 
 		# Ignore duplicate replies
 		return if @res[shost]
