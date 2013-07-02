@@ -20,18 +20,33 @@ class MsfVenom
   class MsfVenomError < StandardError; end
   class UsageError < MsfVenomError; end
   class NoTemplateError < MsfVenomError; end
+  class IncompatibleError < MsfVenomError; end
 
   Status = "[*] "
   Error = "[-] "
 
   require 'optparse'
 
+  def initialize(in_stream=$stdin, out_stream=$stdout, err_stream=$stderr, framework=nil)
+    @in = in_stream
+    @out = out_stream
+    @err = err_stream
+    @framework = framework
+  end
+
   def init_framework(create_opts={})
-    return @framework if @framework
     create_opts[:module_types] ||= [
       ::Msf::MODULE_PAYLOAD, ::Msf::MODULE_ENCODER, ::Msf::MODULE_NOP
     ]
     @framework = ::Msf::Simple::Framework.create(create_opts.merge('DisableDatabase' => true))
+  end
+
+  def framework
+    return @framework if @framework
+
+    init_framework
+
+    @framework
   end
 
   def parse_args(args)
@@ -42,7 +57,7 @@ class MsfVenom
     opt.separator('')
     opt.separator('Options:')
 
-    opt.on('-p', '--payload    [payload]', String, 'Payload to use. Specify a \'-\' or stdin to use custom payloads') do |p|
+    opt.on('-p', '--payload    <payload>', String, 'Payload to use. Specify a \'-\' or stdin to use custom payloads') do |p|
       if p == '-'
         @opts[:payload] = 'stdin'
       else
@@ -57,11 +72,11 @@ class MsfVenom
       @opts[:list] = l
     end
 
-    opt.on('-n', '--nopsled    [length]', Integer, 'Prepend a nopsled of [length] size on to the payload') do |n|
+    opt.on('-n', '--nopsled    <length>', Integer, 'Prepend a nopsled of [length] size on to the payload') do |n|
       @opts[:nopsled] = n.to_i
     end
 
-    opt.on('-f', '--format     [format]', String, "Output format (use --help-formats for a list)") do |f|
+    opt.on('-f', '--format     <format>', String, "Output format (use --help-formats for a list)") do |f|
       @opts[:format] = f
     end
 
@@ -70,31 +85,31 @@ class MsfVenom
       @opts[:encoder] = e
     end
 
-    opt.on('-a', '--arch       [architecture]', String, 'The architecture to use') do |a|
+    opt.on('-a', '--arch       <architecture>', String, 'The architecture to use') do |a|
       @opts[:arch] = a
     end
 
-    opt.on('--platform   [platform]', String, 'The platform of the payload') do |l|
+    opt.on('--platform   <platform>', String, 'The platform of the payload') do |l|
       @opts[:platform] = l
     end
 
-    opt.on('-s', '--space      [length]', Integer, 'The maximum size of the resulting payload') do |s|
+    opt.on('-s', '--space      <length>', Integer, 'The maximum size of the resulting payload') do |s|
       @opts[:space] = s
     end
 
-    opt.on('-b', '--bad-chars  [list] ', String, 'The list of characters to avoid example: \'\x00\xff\'') do |b|
+    opt.on('-b', '--bad-chars  <list>', String, 'The list of characters to avoid example: \'\x00\xff\'') do |b|
       @opts[:badchars] = b
     end
 
-    opt.on('-i', '--iterations [count] ', Integer, 'The number of times to encode the payload') do |i|
+    opt.on('-i', '--iterations <count>', Integer, 'The number of times to encode the payload') do |i|
       @opts[:iterations] = i
     end
 
-    opt.on('-c', '--add-code   [path] ', String, 'Specify an additional win32 shellcode file to include') do |x|
+    opt.on('-c', '--add-code   <path>', String, 'Specify an additional win32 shellcode file to include') do |x|
       @opts[:addshellcode] = x
     end
 
-    opt.on('-x', '--template   [path] ', String, 'Specify a custom executable file to use as a template') do |x|
+    opt.on('-x', '--template   <path>', String, 'Specify a custom executable file to use as a template') do |x|
       @opts[:template] = x
     end
 
@@ -120,12 +135,11 @@ class MsfVenom
     end
 
     begin
-      opt.parse!
+      opt.parse!(args)
     rescue OptionParser::InvalidOption => e
-      p e
       raise UsageError, "Invalid option\n#{opt}"
     rescue OptionParser::MissingArgument => e
-      p e
+      raise UsageError, "Missing required argument for option\n#{opt}"
     end
 
     if @opts.empty?
@@ -145,20 +159,20 @@ class MsfVenom
   end
 
   def print_status(msg)
-    $stderr.puts(Status + msg)
+    @err.puts(Status + msg)
   end
 
   def print_error(msg)
-    $stderr.puts(Error + msg)
+    @err.puts(Error + msg)
   end
 
   def get_encoders(arch, encoder)
     encoders = []
 
     if (encoder)
-      encoders << @framework.encoders.create(encoder)
+      encoders << framework.encoders.create(encoder)
     else
-      @framework.encoders.each_module_ranked(
+      framework.encoders.each_module_ranked(
           'Arch' => arch ? arch.split(',') : nil) { |name, mod|
         encoders << mod.new
       }
@@ -168,8 +182,8 @@ class MsfVenom
   end
 
   def payload_stdin
-    $stdin.binmode
-    payload = $stdin.read
+    @in.binmode
+    payload = @in.read
     payload
   end
 
@@ -178,14 +192,14 @@ class MsfVenom
     nop_jpts['SaveRegisters'] ||= [ 'esp', 'ebp', 'esi', 'edi' ]
 
     if nop_mod
-      nop = @framework.nops.create(nop_mod)
+      nop = framework.nops.create(nop_mod)
       raw = nop.generate_sled(len, nop_opts)
       return raw if raw
     end
 
-    @framework.nops.each_module_ranked('Arch' => arch) do |name, mod|
+    framework.nops.each_module_ranked('Arch' => arch) do |name, mod|
       begin
-        nop = @framework.nops.create(name)
+        nop = framework.nops.create(name)
         raw = nop.generate_sled(len, nop_opts)
         return raw if raw
       rescue
@@ -198,14 +212,14 @@ class MsfVenom
     init_framework(:module_types => [ ::Msf::MODULE_PAYLOAD ])
     tbl = Rex::Ui::Text::Table.new(
         'Indent'  => 4,
-        'Header'  => "Framework Payloads (#{@framework.stats.num_payloads} total)",
+        'Header'  => "Framework Payloads (#{framework.stats.num_payloads} total)",
         'Columns' =>
             [
                 "Name",
                 "Description"
             ])
 
-    @framework.payloads.each_module { |name, mod|
+    framework.payloads.each_module { |name, mod|
       tbl << [ name, mod.new.description ]
     }
 
@@ -225,7 +239,7 @@ class MsfVenom
             ])
     cnt = 0
 
-    @framework.encoders.each_module(
+    framework.encoders.each_module(
         'Arch' => arch ? arch.split(',') : nil) { |name, mod|
       tbl << [ name, mod.rank_to_s, mod.new.name ]
 
@@ -239,14 +253,14 @@ class MsfVenom
     init_framework(:module_types => [ ::Msf::MODULE_NOP ])
     tbl = Rex::Ui::Text::Table.new(
         'Indent'  => 4,
-        'Header'  => "Framework NOPs (#{@framework.stats.num_nops} total)",
+        'Header'  => "Framework NOPs (#{framework.stats.num_nops} total)",
         'Columns' =>
             [
                 "Name",
                 "Description"
             ])
 
-    @framework.nops.each_module { |name, mod|
+    framework.nops.each_module { |name, mod|
       tbl << [ name, mod.new.description ]
     }
 
@@ -270,15 +284,14 @@ class MsfVenom
         @opts[:platform] = ::Msf::Module::PlatformList.transform("Windows")
       end
     else
-      payload = @framework.payloads.create(@opts[:payload])
+      payload = framework.payloads.create(@opts[:payload])
       if payload.nil?
-        print_error("Invalid payload: #{@opts[:payload]}")
-        exit
+        raise UsageError, "Invalid payload: #{@opts[:payload]}"
       end
       if @opts[:list_options]
         print_status("Options for #{payload.fullname}\n\n" +
            ::Msf::Serializer::ReadableText.dump_module(payload,'    '))
-        exit
+        return
       end
       @opts[:arch]     ||= payload.arch[0]
       # If it's not stdin, we'll already have a PlatformList
@@ -299,23 +312,23 @@ class MsfVenom
       @opts[:list].each do |mod|
         case mod.downcase
         when "payloads"
-          $stderr.puts dump_payloads
+          @err.puts dump_payloads
         when "encoders"
-          $stderr.puts dump_encoders(@opts[:arch])
+          @err.puts dump_encoders(@opts[:arch])
         when "nops"
-          $stderr.puts dump_nops
+          @err.puts dump_nops
         when "all"
           # Init here so #dump_payloads doesn't create a framework with
           # only payloads, etc.
           init_framework
-          $stderr.puts dump_payloads
-          $stderr.puts dump_encoders
-          $stderr.puts dump_nops
+          @err.puts dump_payloads
+          @err.puts dump_encoders
+          @err.puts dump_nops
         else
           print_error("Invalid module type")
         end
       end
-      exit
+      return
     end
 
     # Normalize the options
@@ -326,7 +339,6 @@ class MsfVenom
     @opts[:encode]   ||= !(@opts[:badchars].nil? or @opts[:badchars].empty?)
 
 
-    init_framework
     payload_raw = generate_raw_payload
 
     if @opts[:template]
@@ -391,69 +403,66 @@ class MsfVenom
         rescue => e
           print_error("#{enc.refname} failed: #{e.class} #{e}")
           e.backtrace.each { |el|
-            $stderr.puts(el.to_s)
+            @err.puts(el.to_s)
           }
         end
       end
     end
 
     if @opts[:nopsled]
-      #puts @opts[:arch].class
       nopts = { 'BadChars' => @opts[:badchars] }
       nops = generate_nops([@opts[:arch]], @opts[:nopsled], nil, nopts)
       payload_raw = nops + payload_raw
     end
 
-    $stdout.binmode
+    @out.binmode
 
     case @opts[:format].downcase
     # Special-case this to check endianness
     when "js_be"
 
       if Rex::Arch.endian(payload.arch) != ENDIAN_BIG
-          print_error("Big endian format selected for a non big endian payload")
-          exit
+          raise IncompatibleError, "Big endian format selected for a non big endian payload"
       end
-      $stdout.write ::Msf::Simple::Buffer.transform(payload_raw, @opts[:format])
+      @out.write ::Msf::Simple::Buffer.transform(payload_raw, @opts[:format])
 
     # Special-case this so we can build a war directly from the payload if
     # possible
     when "war"
-      exe = ::Msf::Util::EXE.to_executable_fmt(@framework, @opts[:arch], @opts[:platform], payload_raw, @opts[:format], exeopts)
+      exe = ::Msf::Util::EXE.to_executable_fmt(framework, @opts[:arch], @opts[:platform], payload_raw, @opts[:format], exeopts)
       if (!exe and payload.platform.platforms.index(::Msf::Module::Platform::Java))
         exe = payload.generate_war.pack
       else
         exe = ::Msf::Util::EXE.to_jsp_war(exe)
       end
-      $stdout.write exe
+      @out.write exe
 
     # Same as war, special-case this so we can build a jar directly from the
     # payload if possible
     when "java"
-      exe = ::Msf::Util::EXE.to_executable_fmt(@framework, @opts[:arch], @opts[:platform], payload_raw, @opts[:format], exeopts)
+      exe = ::Msf::Util::EXE.to_executable_fmt(framework, @opts[:arch], @opts[:platform], payload_raw, @opts[:format], exeopts)
       if(!exe and payload.platform.platforms.index(::Msf::Module::Platform::Java))
         exe = payload.generate_jar.pack
       end
       if exe
-        $stdout.write exe
+        @out.write exe
       else
         print_error("Could not generate payload format")
       end
 
     when *::Msf::Simple::Buffer.transform_formats
-      $stdout.write ::Msf::Simple::Buffer.transform(payload_raw, @opts[:format])
+      @out.write ::Msf::Simple::Buffer.transform(payload_raw, @opts[:format])
 
     when *::Msf::Util::EXE.to_executable_fmt_formats
-      exe = ::Msf::Util::EXE.to_executable_fmt(@framework, @opts[:arch], @opts[:platform], payload_raw, @opts[:format], exeopts)
+      exe = ::Msf::Util::EXE.to_executable_fmt(framework, @opts[:arch], @opts[:platform], payload_raw, @opts[:format], exeopts)
       if exe.nil?
-        print_error("This format does not support that platform/architecture")
-        exit
+        raise IncompatibleError, "This format does not support that platform/architecture"
       end
-      $stdout.write exe
+      @out.write exe
 
     else
-      print_error("Unsupported format")
-      exit
+      raise IncompatibleError, "Unsupported format"
+      return
     end
   end
 end
