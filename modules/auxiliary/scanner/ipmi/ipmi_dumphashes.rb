@@ -176,7 +176,7 @@ class Metasploit3 < Msf::Auxiliary
 				next
 			end
 
-			found = "#{rhost} #{username}:#{sha1_salt}:#{sha1_hash}"
+			found = "#{rhost}:#{rport} - IPMI - Hash found: #{username}:#{sha1_salt}:#{sha1_hash}"
 			print_good(found)
 
 			write_output_files(rhost, username, sha1_salt, sha1_hash)
