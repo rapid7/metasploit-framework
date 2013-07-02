@@ -5964,12 +5964,7 @@ class DBManager
 		if (host.kind_of? String)
 
 			if Rex::Socket.is_ipv4?(host)
-				# If it's an IPv4 addr with a port on the end, strip the port
-				if host =~ /((\d{1,3}\.){3}\d{1,3}):\d+/
-					norm_host = $1
-				else
-					norm_host = host
-				end
+			  norm_host = host
 			elsif Rex::Socket.is_ipv6?(host)
 				# If it's an IPv6 addr, drop the scope
 				address, scope = host.split('%', 2)
@@ -5977,6 +5972,12 @@ class DBManager
       else
         # If we somehow get a CIDR notation, strip it off and try to do our best
         host.gsub!(/\/\d{1,2}$/,'')
+
+        # If it's an IPv4 addr with a port on the end, strip the port
+        if host =~ /((\d{1,3}\.){3}\d{1,3}):\d+/
+          host = $1
+        end
+
 				norm_host = Rex::Socket.getaddress(host, true)
 			end
 		elsif host.kind_of? ::Mdm::Session
