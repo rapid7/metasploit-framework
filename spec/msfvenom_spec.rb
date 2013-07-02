@@ -42,7 +42,19 @@ describe MsfVenom do
 				generic/none
 				x86/shikata_ga_nai
 				x64/xor
-				php/base64
+			!.each do |name|
+				dump.should include(name)
+			end
+		end
+	end
+
+	describe "#dump_nops" do
+		it "should list known nops" do
+			dump = venom.dump_nops
+
+			%w!
+				x86/opty2
+				armle/simple
 			!.each do |name|
 				dump.should include(name)
 			end
@@ -52,7 +64,7 @@ describe MsfVenom do
 	describe "#dump_payloads" do
 		it "should list known payloads" do
 			dump = venom.dump_payloads
-
+			# Just a representative sample of some of the important ones.
 			%w!
 				cmd/unix/reverse
 				java/meterpreter/reverse_tcp
