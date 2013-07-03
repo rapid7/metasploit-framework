@@ -109,4 +109,29 @@ class Metasploit3 < Msf::Post
 		end
 	end
 
+	def got_root?
+		case @platform
+		when :windows
+			if session.sys.config.getuid =~ /SYSTEM/
+				return true
+			else
+				return false
+			end
+		else # unix, bsd, linux, osx
+			ret = whoami
+			if ret =~ /root/
+				return true
+			else
+				return false
+			end
+		end
+	end
+	
+	def whoami
+		if @platform == :windows
+			return session.fs.file.expand_path("%USERNAME%")
+		else
+			return session.shell_command("whoami").chomp
+		end
+	end
 end
