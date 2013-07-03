@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Post
 		paths = paths.select { |d| directory?(d) }
 
 		if paths.nil? or paths.empty?
-			print_error("No sutiable ssh directories found to loot")
+			print_error("No suitable .ssh directories found to loot")
 			return
 		end
 
