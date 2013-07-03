@@ -137,26 +137,30 @@ describe MsfVenom do
 
 		end
 
-		context "building an elf with linux/x86/shell_bind_tcp" do
-			let(:args) { %w! -f elf -p linux/x86/shell_bind_tcp ! }
-			# We're not encoding, so should be testable here
-			it "should contain /bin/sh" do
-				output = venom.generate_raw_payload
-				# usually push'd, so it's not all strung together
-				output.should include("/sh")
-				output.should include("/bin")
-			end
-		end
+		[
+			{ :format => "elf", :arch => "x86" },
+			{ :format => "raw", :arch => "x86" },
+			{ :format => "elf", :arch => "armle" },
+			{ :format => "raw", :arch => "armle" },
+			{ :format => "elf", :arch => "ppc" },
+			{ :format => "raw", :arch => "ppc" },
+			{ :format => "elf", :arch => "mipsle" },
+			{ :format => "raw", :arch => "mipsle" },
+		].each do |format_hash|
+			format = format_hash[:format]
+			arch = format_hash[:arch]
 
-		context "with a raw linux/x86/shell_bind_tcp" do
-			let(:args) { %w! -f raw -p linux/x86/shell_bind_tcp ! }
-			# We're not encoding, so should be testable here
-			it "should contain /bin/sh" do
-				output = venom.generate_raw_payload
-				# usually push'd, so it's not all strung together
-				output.should include("/sh")
-				output.should include("/bin")
+			context "building #{format} with linux/#{arch}/shell_bind_tcp" do
+				let(:args) { %W! -f #{format} -p linux/#{arch}/shell_bind_tcp ! }
+				# We're not encoding, so should be testable here
+				it "should contain /bin/sh" do
+					output = venom.generate_raw_payload
+					# usually push'd, so it's not all strung together
+					output.should include("/sh")
+					output.should include("/bin")
+				end
 			end
+
 		end
 
 	end
@@ -175,7 +179,7 @@ describe MsfVenom do
 
 		context "without required datastore option" do
 			# Requires LHOST
-			let(:args) { %w!-f exe -p windows/shell_reverse_tcp ! }
+			let(:args) { %w!-f exe -p windows/shell_reverse_tcp! }
 			it "should fail validation" do
 				expect { venom.generate }.to raise_error(Msf::OptionValidateError)
 			end
@@ -183,13 +187,15 @@ describe MsfVenom do
 
 		@platform_format_map.each do |plat, formats|
 			formats.each do |format_hash|
+				format = format_hash[:format]
+				arch = format_hash[:arch]
 				# Need a new context for each so the let() will work correctly
-				context "with format=#{format_hash[:format]} platform=#{plat} arch=#{format_hash[:arch]}" do
+				context "with format=#{format} platform=#{plat} arch=#{arch}" do
 					# This will build executables with no payload. They won't work
 					# of course, but at least we can see that it is producing the
 					# correct file format for the given arch and platform.
-					let(:args) { %W! -p - -f #{format_hash[:format]} -a #{format_hash[:arch]} --platform #{plat} ! }
-					it "should print a #{format_hash[:format]} to stdout" do
+					let(:args) { %W! -p - -f #{format} -a #{arch} --platform #{plat} ! }
+					it "should print a #{format} to stdout" do
 						venom.generate
 						output = stdout.string
 						verify_bin_fingerprint(format_hash, output)
