@@ -9,7 +9,6 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/priv'
 require 'msf/core/post/windows/registry'
-require 'base64'
 require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
@@ -141,7 +140,7 @@ class Metasploit3 < Msf::Post
 			line.chomp
 			line_num += 1
 			if line_num == 8
-				enc_password = Base64.decode64(line)
+				enc_password = Rex::Text.decode_base64(line)
 				password = decrypt_password(enc_password)
 			elsif line_num == 12
 				if line.match(/<(.*)>.(.*)/)
