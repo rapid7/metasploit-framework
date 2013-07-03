@@ -55,6 +55,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
+	# Converts a instance specification like "4,21-23,33" into a sorted,
+	# unique array of valid port numbers like [4,21,22,23,33]
 	def sap_instance_to_list(instance)
 		instances = []
 
@@ -74,7 +76,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		# Sort, and remove dups and invalid instances
 		instances.sort.uniq.delete_if { |p| p < 0 or p > 99 }
-
 	end
 
 	def build_sap_ports(ports)
@@ -90,6 +91,7 @@ class Metasploit3 < Msf::Auxiliary
 			ports = Rex::Socket.portspec_crack(ports)
 		end
 
+		return ports
 	end
 
 	def build_ni_packet(routes)
@@ -354,9 +356,10 @@ class Metasploit3 < Msf::Auxiliary
 
 		r.each do |res|
 			tbl << [res[0], res[1], res[2], res[3]]
-			report_service(:host => res[0], :port => res[1], :state => res[2], :info => res[3])
+			report_service(:host => res[0], :port => res[1], :state => res[2])
 		end
 
+		print_warning("Warning: Service info could be innacurated")
 		print(tbl.to_s)
 
 	end
