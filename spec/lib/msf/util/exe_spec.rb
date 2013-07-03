@@ -2,6 +2,7 @@
 
 require 'msf/core'
 require 'msf/base/simple'
+require 'spec_helper'
 
 describe Msf::Util::EXE do
 
@@ -28,41 +29,9 @@ describe Msf::Util::EXE do
       bin.should == nil
     end
 
-    platform_format_map = {
-      "windows" => [
-        { :format => "dll",       :arch => "x86", :file_fp => /PE32 .*DLL/  },
-        { :format => "dll",       :arch => "x64", :file_fp => /PE32\+.*DLL/ },
-        { :format => "exe",       :arch => "x86", :file_fp => /PE32 /  },
-        { :format => "exe",       :arch => "x64", :file_fp => /PE32\+/ },
-        { :format => "exe-small", :arch => "x86", :file_fp => /PE32 /  },
-        # No template for 64-bit exe-small. That's fine, we probably
-        # don't need one.
-        #{ :format => "exe-small", :arch => "x64", :file_fp => /PE32\+/ },
-        { :format => "exe-only",  :arch => "x86", :file_fp => /PE32 /  },
-        { :format => "exe-only",  :arch => "x64", :file_fp => /PE32\+ /  },
-      ],
-      "linux" => [
-        { :format => "elf", :arch => "x86",    :file_fp => /ELF 32.*SYSV/ },
-        { :format => "elf", :arch => "x64",    :file_fp => /ELF 64.*SYSV/ },
-        { :format => "elf", :arch => "armle",  :file_fp => /ELF 32.*ARM/ },
-        { :format => "elf", :arch => "mipsbe", :file_fp => /ELF 32-bit MSB executable, MIPS/ },
-        { :format => "elf", :arch => "mipsle", :file_fp => /ELF 32-bit LSB executable, MIPS/ },
-      ],
-      "bsd" => [
-        { :format => "elf", :arch => "x86", :file_fp => /ELF 32.*BSD/ },
-      ],
-      "solaris" => [
-        { :format => "elf", :arch => "x86", :file_fp => /ELF 32/ },
-      ],
-      "osx" => [
-        { :format => "macho", :arch => "x86",   :file_fp => /Mach-O.*i386/  },
-        { :format => "macho", :arch => "x64",   :file_fp => /Mach-O 64/     },
-        { :format => "macho", :arch => "armle", :file_fp => /Mach-O.*acorn/, :pending => true },
-        { :format => "macho", :arch => "ppc",   :file_fp => /Mach-O.*ppc/,   :pending => true },
-      ]
-    }
+    include_context 'Msf::Util::Exe'
 
-    platform_format_map.each do |plat, formats|
+    @platform_format_map.each do |plat, formats|
       context "with platform=#{plat}" do
         let(:platform) do
           Msf::Module::PlatformList.transform(plat)
@@ -95,12 +64,7 @@ describe Msf::Util::EXE do
             bin = subject.to_executable_fmt($framework, arch, platform, "\xcc", fmt, {})
             bin.should be_a String
 
-            f = IO.popen("file -","w+")
-            f.write(bin)
-            f.close_write
-            fp = f.read
-            f.close
-            fp.should =~ format_hash[:file_fp] if format_hash[:file_fp]
+            verify_bin_fingerprint(format_hash, bin)
           end
 
         end

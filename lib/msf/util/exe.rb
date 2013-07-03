@@ -1993,12 +1993,12 @@ End Sub
 		when 'elf'
 			if (not plat or (plat.index(Msf::Module::Platform::Linux)))
 				output = case arch
-					when ARCH_X86,nil then Msf::Util::EXE.to_linux_x86_elf(framework, code, exeopts)
-					when ARCH_X86_64  then Msf::Util::EXE.to_linux_x64_elf(framework, code, exeopts)
-					when ARCH_X64     then Msf::Util::EXE.to_linux_x64_elf(framework, code, exeopts)
-					when ARCH_ARMLE   then Msf::Util::EXE.to_linux_armle_elf(framework, code, exeopts)
-					when ARCH_MIPSBE  then Msf::Util::EXE.to_linux_mipsbe_elf(framework, code, exeopts)
-					when ARCH_MIPSLE  then Msf::Util::EXE.to_linux_mipsle_elf(framework, code, exeopts)
+					when ARCH_X86,nil then to_linux_x86_elf(framework, code, exeopts)
+					when ARCH_X86_64  then to_linux_x64_elf(framework, code, exeopts)
+					when ARCH_X64     then to_linux_x64_elf(framework, code, exeopts)
+					when ARCH_ARMLE   then to_linux_armle_elf(framework, code, exeopts)
+					when ARCH_MIPSBE  then to_linux_mipsbe_elf(framework, code, exeopts)
+					when ARCH_MIPSLE  then to_linux_mipsle_elf(framework, code, exeopts)
 					end
 			elsif(plat and (plat.index(Msf::Module::Platform::BSD)))
 				output = case arch
@@ -2006,17 +2006,22 @@ End Sub
 					end
 			elsif(plat and (plat.index(Msf::Module::Platform::Solaris)))
 				output = case arch
-					when ARCH_X86,nil then Msf::Util::EXE.to_solaris_x86_elf(framework, code, exeopts)
+					when ARCH_X86,nil then to_solaris_x86_elf(framework, code, exeopts)
 					end
 			end
 
+		# this should really be 'jar'
+		when 'java'
+
+
+
 		when 'macho'
 			output = case arch
-				when ARCH_X86,nil then Msf::Util::EXE.to_osx_x86_macho(framework, code, exeopts)
-				when ARCH_X86_64  then Msf::Util::EXE.to_osx_x64_macho(framework, code, exeopts)
-				when ARCH_X64     then Msf::Util::EXE.to_osx_x64_macho(framework, code, exeopts)
-				when ARCH_ARMLE   then Msf::Util::EXE.to_osx_arm_macho(framework, code, exeopts)
-				when ARCH_PPC     then Msf::Util::EXE.to_osx_ppc_macho(framework, code, exeopts)
+				when ARCH_X86,nil then to_osx_x86_macho(framework, code, exeopts)
+				when ARCH_X86_64  then to_osx_x64_macho(framework, code, exeopts)
+				when ARCH_X64     then to_osx_x64_macho(framework, code, exeopts)
+				when ARCH_ARMLE   then to_osx_arm_macho(framework, code, exeopts)
+				when ARCH_PPC     then to_osx_ppc_macho(framework, code, exeopts)
 				end
 
 		when 'vba'

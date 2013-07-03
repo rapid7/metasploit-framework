@@ -33,7 +33,6 @@ describe MsfVenom do
 	end
 
 	let(:framework) { @framework }
-
 	describe "#dump_encoders" do
 		it "should list known encoders" do
 			dump = venom.dump_encoders
@@ -140,6 +139,8 @@ describe MsfVenom do
 	end
 
 	describe "#generate" do
+		include_context 'Msf::Util::Exe'
+
 		before { venom.parse_args(args) }
 
 		context "with 'exe' format" do
@@ -162,6 +163,22 @@ describe MsfVenom do
 			let(:args) { %w!-f exe -p windows/shell_reverse_tcp ! }
 			it "should fail validation" do
 				expect { venom.generate }.to raise_error(Msf::OptionValidateError)
+			end
+		end
+
+		@platform_format_map.each do |plat, formats|
+			formats.each do |format_hash|
+				context "with format=#{format_hash[:format]} platform=#{plat} arch=#{format_hash[:arch]}" do
+					# This will build executables with no payload. They won't work
+					# of course, but at least we can see that it is producing the
+					# correct file format for the given arch and platform.
+					let(:args) { %W! -p - -f #{format_hash[:format]} -a #{format_hash[:arch]} --platform #{plat} ! }
+					it "should print a #{format_hash[:format]} to stdout" do
+						venom.generate
+						output = stdout.string
+						verify_bin_fingerprint(format_hash, output)
+					end
+				end
 			end
 		end
 
