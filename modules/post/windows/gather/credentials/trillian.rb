@@ -8,7 +8,6 @@
 require 'msf/core'
 require 'rex'
 require 'rex/parser/ini'
-require 'base64'
 require 'msf/core/post/windows/user_profiles'
 require 'msf/core/post/windows/registry'
 require 'msf/core/auxiliary/report'
@@ -103,7 +102,7 @@ class Metasploit3 < Msf::Post
 		114, 101, 115, 111, 108, 118, 101, 32, 72, 84, 84, 80, 32, 112, 114, 111,
 		120, 0]
 
-		decpass = Base64.decode64(epass)
+		decpass = Rex::Text.decode_base64(epass)
 		plaintext = [decpass].pack("H*").unpack("C*")
 
 		for i in 0 .. plaintext.length-2 do
