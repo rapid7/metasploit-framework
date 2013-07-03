@@ -307,10 +307,10 @@ class Metasploit3 < Msf::Auxiliary
 						ni_packet = build_ni_packet(routes)
 
 						s = connect(false,
-						            {
-							            'RPORT' => sap_port,
-							            'RHOST' => sap_host
-						            }
+							{
+								'RPORT' => sap_port,
+								'RHOST' => sap_host
+							}
 						)
 
 						s.write(ni_packet, ni_packet.length)
