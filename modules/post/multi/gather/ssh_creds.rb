@@ -72,7 +72,11 @@ class Metasploit3 < Msf::Post
 			end
       path_array = path.split(sep)
       path_array.pop
-      user = path_array.pop
+      if path == "/etc/ssh"
+        user = "host key"
+      else
+        user = cmd_exec("grep #{path} /etc/passwd | cut -d: -f 1")
+      end
 			files.each do |file|
 				next if [".", ".."].include?(file)
 				data = read_file("#{path}#{sep}#{file}")
