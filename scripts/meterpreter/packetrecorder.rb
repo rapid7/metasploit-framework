@@ -197,7 +197,7 @@ wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
 
 if !int_id.nil? or !list_int.nil?
 	if not is_uac_enabled? or is_admin?
-		if !list_int.nil
+		if !list_int.nil?
 			int_list
 		else
 			pcap_file = log_file(log_dest)
