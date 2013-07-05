@@ -155,7 +155,8 @@ describe MsfVenom do
 				# We're not encoding, so should be testable here
 				it "should contain /bin/sh" do
 					output = venom.generate_raw_payload
-					# usually push'd, so it's not all strung together
+					# Usually push'd in two instructions, so the whole string
+					# isn't all together. Check for the two pieces seperately
 					output.should include("/sh")
 					output.should include("/bin")
 				end
