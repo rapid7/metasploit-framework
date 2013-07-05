@@ -474,7 +474,7 @@ if __FILE__ == $0
     venom = MsfVenom.new
     venom.parse_args(ARGV)
     venom.generate
-  rescue MsfVenom::MsfVenomError => e
+  rescue MsfVenom::MsfVenomError, Msf::OptionValidateError => e
     $stderr.puts e.message
     exit(-1)
   end
