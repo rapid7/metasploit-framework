@@ -20,7 +20,7 @@ Modules are sorted by (somewhat arbitrary) categories. These can be anything you
 mkdir -p $HOME/.msf4/modules/exploits/windows/fileformat
 ````
 
-if you are developing a file format exploit for Windows.
+... if you are developing a file format exploit for Windows.
 
 ## Create the module
 
@@ -31,8 +31,8 @@ Once you have a directory to place it in, feel free to download or start writing
 If you already have msfconsole running, use a `reload_all` command to pick up your new modules. If not, just start msfconsole and they'll be picked up automatically. If you'd like to test with something generic, I have a module posted up as a gist, here: https://gist.github.com/todb-r7/5935519 , so let's give it a shot:
 
 ````bash
-mkdir -p $HOME/.msf4/modules/exploits/windows/fileformat
-curl -Lo ~/.msf4/modules/exploits/windows/fileformat/test_module.rb https://gist.github.com/todb-r7/5935519/raw/17f7e40ab9054051c1f7e0655c6f8c8a1787d4f5/test_module.rb
+mkdir -p $HOME/.msf4/modules/exploits/test
+curl -Lo ~/.msf4/modules/exploits/test/test_module.rb https://gist.github.com/todb-r7/5935519/raw/17f7e40ab9054051c1f7e0655c6f8c8a1787d4f5/test_module.rb
 todb@ubuntu:~$ mkdir -p $HOME/.msf4/modules/exploits/test
 todb@ubuntu:~$ curl -Lo ~/.msf4/modules/exploits/test/test_module.rb https://gist.github.com/todb-r7/5935519/raw/6e5d2da61c82b0aa8cec36825363118e9dd5f86b/test_module.rb 
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
