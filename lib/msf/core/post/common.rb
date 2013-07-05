@@ -9,7 +9,7 @@ module Common
 
 
 	#
-	# Checks if the remote machine has the process ID we want
+	# Checks if the remote system has a process with ID +pid+
 	#
 	def has_pid?(pid)
 		pid_list = []
