@@ -314,15 +314,15 @@ class MsfVenom
       if payload.nil?
         raise UsageError, "Invalid payload: #{@opts[:payload]}"
       end
+      @opts[:arch]     ||= payload.arch[0]
+      # If it's not stdin, we'll already have a PlatformList
+      @opts[:platform] ||= payload.platform
+      payload.datastore.merge! @datastore
       if @opts[:list_options]
         print_status("Options for #{payload.fullname}\n\n" +
            ::Msf::Serializer::ReadableText.dump_module(payload,'    '))
         return
       end
-      @opts[:arch]     ||= payload.arch[0]
-      # If it's not stdin, we'll already have a PlatformList
-      @opts[:platform] ||= payload.platform
-      payload.datastore.merge! @datastore
       payload_raw = payload.generate_simple(
         'Format'   => 'raw',
         'Options'  => @datastore,
