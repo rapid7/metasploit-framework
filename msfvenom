@@ -318,6 +318,7 @@ class MsfVenom
       # If it's not stdin, we'll already have a PlatformList
       @opts[:platform] ||= payload.platform
       payload.datastore.merge! @datastore
+
       if @opts[:list_options]
         print_status("Options for #{payload.fullname}\n\n" +
            ::Msf::Serializer::ReadableText.dump_module(payload,'    '))

@@ -143,6 +143,23 @@ describe MsfVenom do
 					output.should include("LHOST")
 					output.should include("LPORT")
 				end
+				context "and some datastore options" do
+					it "should print options" do
+						venom.parse_args %w! -o -p windows/meterpreter/reverse_tcp LPORT=1234!
+						expect { venom.generate_raw_payload }.to_not raise_error
+						output = stderr.string
+						output.should include("LHOST")
+						output.should match(/LPORT\s+1234/)
+					end
+
+					it "should print options case-insensitively" do
+						venom.parse_args %w! -o -p windows/meterpreter/reverse_tcp lPoRt=1234!
+						expect { venom.generate_raw_payload }.to_not raise_error
+						output = stderr.string
+						output.should include("LHOST")
+						output.should match(/LPORT\s+1234/)
+					end
+				end
 			end
 
 			context "and an invalid payload" do
