@@ -292,7 +292,7 @@ module Services
       # Now to grab a handle to the service.
       # Thank you, Wine project for defining the DELETE constant since it,
       # and all its friends, are missing from the MSDN docs.
-      # #define DELETE                     0x00010000
+      # #define DELETE 0x00010000
       handle = adv.OpenServiceA(manager, name, 0x10000)
       if (handle["return"] == 0)
         raise RuntimeError.new("Could not open service. OpenServiceA error: #{handle["GetLastError"]}")
@@ -312,7 +312,7 @@ module Services
   #
   # @param (see #service_start)
   #
-        # @return {} representing lpServiceStatus
+  # @return {} representing lpServiceStatus
   #
   # @raise (see #service_start)
   #
