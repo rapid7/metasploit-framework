@@ -52,7 +52,11 @@ class Metasploit3 < Msf::Post
 			print_status("Already Checked SYSTEMROOT")
 		when ".\\wcx_ftp.ini"
 			hklminstpath = registry_getvaldata(commander_key, 'InstallDir') || ''
-			check_other(hklminstpath +'\\wcx_ftp.ini')
+			if hklminstpath.empty?
+				print_error("Unable to find InstallDir in registry, skipping wcx_ftp.ini")
+			else
+				check_other(hklminstpath +'\\wcx_ftp.ini')
+			end
 		when /APPDATA/
 			print_status("Already Checked AppData")
 		when /USERPROFILE/
@@ -75,7 +79,11 @@ class Metasploit3 < Msf::Post
 				print_status("Already Checked SYSTEMROOT")
 			when ".\\wcx_ftp.ini"
 				hklminstpath = registry_getvaldata(profile_commander_key, 'InstallDir') || ''
-				check_other(hklminstpath +'\\wcx_ftp.ini')
+				if hklminstpath.empty?
+					print_error("Unable to find InstallDir in registry, skipping wcx_ftp.ini")
+				else
+					check_other(hklminstpath +'\\wcx_ftp.ini')
+				end
 			when /APPDATA/
 				print_status("Already Checked AppData")
 
