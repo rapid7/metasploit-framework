@@ -4,10 +4,8 @@ require 'msf/core'
 # doesn't end in .rb or .so, so have to load instead of require
 load File.join(Msf::Config.install_root, 'msfvenom')
 
-shared_examples_for "nop dumper" do |block|
+shared_examples_for "nop dumper" do
 	it "should list known nops" do
-		dump = block.call
-
 		%w!
 			x86/opty2
 			armle/simple
@@ -15,7 +13,41 @@ shared_examples_for "nop dumper" do |block|
 			dump.should include(name)
 		end
 	end
+end
 
+shared_examples_for "encoder dumper" do
+	it "should list known encoders" do
+		%w!
+			generic/none
+			x86/shikata_ga_nai
+			x64/xor
+		!.each do |name|
+			dump.should include(name)
+		end
+	end
+end
+
+shared_examples_for "payload dumper" do
+	it "should list known payloads" do
+		# Just a representative sample of some of the important ones.
+		%w!
+			cmd/unix/reverse
+			java/meterpreter/reverse_tcp
+			java/meterpreter/reverse_https
+			linux/x86/shell/reverse_tcp
+			linux/x86/shell_reverse_tcp
+			linux/x64/shell/reverse_tcp
+			linux/x64/shell_reverse_tcp
+			linux/armle/shell/reverse_tcp
+			linux/armle/shell_reverse_tcp
+			linux/mipsbe/shell_reverse_tcp
+			php/meterpreter/reverse_tcp
+			windows/meterpreter/reverse_tcp
+			windows/meterpreter/reverse_https
+		!.each do |name|
+			dump.should include(name)
+		end
+	end
 end
 
 describe MsfVenom do
@@ -48,46 +80,20 @@ describe MsfVenom do
 
 	let(:framework) { @framework }
 	describe "#dump_encoders" do
-		it "should list known encoders" do
-			dump = venom.dump_encoders
-
-			%w!
-				generic/none
-				x86/shikata_ga_nai
-				x64/xor
-			!.each do |name|
-				dump.should include(name)
-			end
+		it_behaves_like "encoder dumper" do
+			let(:dump) { venom.dump_encoders }
 		end
 	end
 
 	describe "#dump_nops" do
 		it_behaves_like "nop dumper" do
-			let(:nops) { venom.dump_nops }
+			let(:dump) { venom.dump_nops }
 		end
 	end
 
 	describe "#dump_payloads" do
-		it "should list known payloads" do
-			dump = venom.dump_payloads
-			# Just a representative sample of some of the important ones.
-			%w!
-				cmd/unix/reverse
-				java/meterpreter/reverse_tcp
-				java/meterpreter/reverse_https
-				linux/x86/shell/reverse_tcp
-				linux/x86/shell_reverse_tcp
-				linux/x64/shell/reverse_tcp
-				linux/x64/shell_reverse_tcp
-				linux/armle/shell/reverse_tcp
-				linux/armle/shell_reverse_tcp
-				linux/mipsbe/shell_reverse_tcp
-				php/meterpreter/reverse_tcp
-				windows/meterpreter/reverse_tcp
-				windows/meterpreter/reverse_https
-			!.each do |name|
-				dump.should include(name)
-			end
+		it_behaves_like "payload dumper" do
+			let(:dump) { venom.dump_payloads }
 		end
 	end
 
@@ -148,25 +154,6 @@ describe MsfVenom do
 
 		end
 
-		context "with --list" do
-			context "with invalid module type" do
-				let(:args) { %w!--list asdf! }
-				it "should raise UsageError" do
-					expect { venom.generate_raw_payload }.to raise_error(MsfVenom::UsageError)
-				end
-			end
-			context "with nops" do
-				let(:args) { %w!--list nops! }
-				it_behaves_like "nop dumper" do
-					let(:nops) do
-						venom.generate_raw_payload
-						@err.string
-					end
-				end
-			end
-
-		end
-
 		[
 			{ :format => "elf", :arch => "x86" },
 			{ :format => "raw", :arch => "x86" },
@@ -200,6 +187,29 @@ describe MsfVenom do
 		include_context 'Msf::Util::Exe'
 
 		before { venom.parse_args(args) }
+
+		context "with --list" do
+
+			context "with invalid module type" do
+				let(:args) { %w!--list asdf! }
+				it "should raise UsageError" do
+					expect { venom.generate_raw_payload }.to raise_error(MsfVenom::UsageError)
+				end
+			end
+
+			[ "nop", "encoder", "payload" ].each do |type|
+				context "#{type}s" do
+					let(:args) { %W!--list #{type}s! }
+					it_behaves_like "#{type} dumper" do
+						let(:dump) do
+							venom.generate
+							stderr.string
+						end
+					end
+				end
+			end
+
+		end
 
 		context "with invalid datastore option" do
 			let(:args) { %w!-f exe -p windows/shell_reverse_tcp LPORT=asdf! }
