@@ -293,28 +293,6 @@ class MsfVenom
   # @return [String] A raw shellcode blob
   # @return [nil] When commandline options conspire to produce no output
   def generate_raw_payload
-    if @opts[:list]
-      @opts[:list].each do |mod|
-        case mod.downcase
-        when "payloads"
-          @err.puts dump_payloads
-        when "encoders"
-          @err.puts dump_encoders(@opts[:arch])
-        when "nops"
-          @err.puts dump_nops
-        when "all"
-          # Init here so #dump_payloads doesn't create a framework with
-          # only payloads, etc.
-          init_framework
-          @err.puts dump_payloads
-          @err.puts dump_encoders
-          @err.puts dump_nops
-        else
-          raise UsageError, "Invalid module type"
-        end
-      end
-      return
-    end
 
     if @opts[:payload] == 'stdin'
       payload_raw = payload_stdin
@@ -357,6 +335,28 @@ class MsfVenom
 
   # Main dispatch method to do the right thing with the given options.
   def generate
+    if @opts[:list]
+      @opts[:list].each do |mod|
+        case mod.downcase
+        when "payloads"
+          @err.puts dump_payloads
+        when "encoders"
+          @err.puts dump_encoders(@opts[:arch])
+        when "nops"
+          @err.puts dump_nops
+        when "all"
+          # Init here so #dump_payloads doesn't create a framework with
+          # only payloads, etc.
+          init_framework
+          @err.puts dump_payloads
+          @err.puts dump_encoders
+          @err.puts dump_nops
+        else
+          raise UsageError, "Invalid module type"
+        end
+      end
+      return
+    end
 
     # Normalize the options
     @opts[:platform] = ::Msf::Module::PlatformList.transform(@opts[:platform]) if @opts[:platform]
