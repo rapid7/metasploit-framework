@@ -94,18 +94,22 @@ describe MsfVenom do
 			end
 		end
 
-		context "with unexpected options" do
-			it "should raise" do
+		context "with bad arguments" do
+
+			it "should raise UsageError with empty arguments" do
+				expect { venom.parse_args([]) }.to raise_error(MsfVenom::UsageError)
+			end
+
+			it "should raise with unexpected options" do
 				expect { venom.parse_args(%w! --non-existent-option !) }.to raise_error(MsfVenom::UsageError)
 			end
-		end
 
-		context "with missing required arg" do
 			%w! --platform -a -b -c -f -p -n -s -i -x !.each do |required_arg|
-				it "#{required_arg} should raise" do
+				it "should raise UsageError with no arg for option #{required_arg}" do
 					expect { venom.parse_args([required_arg]) }.to raise_error(MsfVenom::UsageError)
 				end
 			end
+
 		end
 
 	end
