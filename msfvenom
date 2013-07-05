@@ -340,6 +340,7 @@ class MsfVenom
 
 
     payload_raw = generate_raw_payload
+    return unless payload_raw
 
     if @opts[:template]
       unless File.exist?(@opts[:template])
