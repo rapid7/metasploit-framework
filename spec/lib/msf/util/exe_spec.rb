@@ -4,6 +4,8 @@ require 'msf/core'
 require 'msf/base/simple'
 require 'spec_helper'
 
+require 'support/shared/contexts/msf/util/exe'
+
 describe Msf::Util::EXE do
 
   subject do
