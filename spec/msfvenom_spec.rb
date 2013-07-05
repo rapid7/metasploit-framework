@@ -193,7 +193,7 @@ describe MsfVenom do
 			context "with invalid module type" do
 				let(:args) { %w!--list asdf! }
 				it "should raise UsageError" do
-					expect { venom.generate_raw_payload }.to raise_error(MsfVenom::UsageError)
+					expect { venom.generate }.to raise_error(MsfVenom::UsageError)
 				end
 			end
 
