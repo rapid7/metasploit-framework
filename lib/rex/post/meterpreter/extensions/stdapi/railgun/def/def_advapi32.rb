@@ -27,6 +27,10 @@ class Def_advapi32
   def self.create_dll(dll_path = 'advapi32')
     dll = DLL.new(dll_path, ApiConstants.manager)
 
+    dll.add_function('QueryServiceStatus', 'DWORD', [
+        ['LPVOID', 'hService', 'in'],
+        ['BLOB', 'lpServiceStatus', 'out'])
+
     dll.add_function('CredEnumerateA', 'BOOL', [
         ['PCHAR', 'Filter', 'in'],
         ['DWORD', 'Flags', 'in'],
@@ -2089,10 +2093,8 @@ class Def_advapi32
       ["PBLOB","pvContext","in"],
       ])
 
-
     return dll
   end
-
 end
 
 end; end; end; end; end; end; end
