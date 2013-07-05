@@ -121,7 +121,7 @@ class Metasploit3 < Msf::Post
 	end
 
 	def check_systemroot
-		winpath = client.fs.file.expand_path("%SYSTEMROOT%")+'\\wcx_ftp.ini'
+		winpath = expand_path("%SYSTEMROOT%")+'\\wcx_ftp.ini'
 		if file?(winpath)
 			print_status("Found File at #{winpath}")
 			get_ini(winpath)
