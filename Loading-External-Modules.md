@@ -105,7 +105,7 @@ That's really all there is to it. The most common problems that people (includin
 * Attempting to create a module in `$HOME/.msf4/modules/auxiliary/`. This won't work because you need at least one level of categorization. It can be new, like `auxiliary/0day/`, or existing, like `auxiliary/scanner/scada/`.
 * Attempting to create a module in `$HOME/.msf4/exploit/` or `$HOME/.msf4/posts/`. Note the pluralization of the directory names; they're different for different things. Exploits, payloads, encoders, and nops are plural, while auxiliary and post are singular.
 
-### Metasploit Community and Pro Editions
+### Metasploit Community and Pro editions
 
 Note that the `$HOME` directory for Metasploit Community Edition is going to be `root` and not your own user directory, so if you are expecting modules to show up in the Metasploit CE (or Express, or Pro) web UIs, you will want to stash your external modules in `/root/.msf4/modules`. Of course, this means you need root access to the machine in question, but hey, you're a l33t Metasploit user, so that shouldn't be too hard.
 
@@ -119,6 +119,6 @@ Any module that requires on changes to core library functions, such as new proto
 
 In this case, it would be better to work with modules like that using a proper GitHub checkout with a development branch -- see the [dev environment setup docs](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment) for tons more on that.
 
-## A Final Warning
+## A final warning
 
 If you are loading new and exciting Metasploit modules, know that these things will tend to have access to anything you have access to; doubly so if you're dropping them in root. Metasploit modules are plain text Ruby, so you can read them -- but please be careful, and only add external modules from trusted sources; don't just go grabbing any old thing you see on the Internet, because you may find yourself backdoored (or worse) in short order.
