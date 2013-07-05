@@ -16,6 +16,13 @@ require 'rex'
 require 'msf/ui'
 require 'msf/base'
 
+# Mad payload generation
+#
+# @example
+#   venom = MsfVenom.new
+#   # ARGV will be parsed destructively!
+#   venom.parse_args(ARGV)
+#   $stdout.puts venom.generate
 class MsfVenom
   class MsfVenomError < StandardError; end
   class UsageError < MsfVenomError; end
@@ -34,6 +41,11 @@ class MsfVenom
     @framework = framework
   end
 
+  # Creates a new framework object.
+  #
+  # @note Ignores any previously cached value
+  # @param (see ::Msf::Simple::Framework.create)
+  # @return [Msf::Framework]
   def init_framework(create_opts={})
     create_opts[:module_types] ||= [
       ::Msf::MODULE_PAYLOAD, ::Msf::MODULE_ENCODER, ::Msf::MODULE_NOP
@@ -41,6 +53,9 @@ class MsfVenom
     @framework = ::Msf::Simple::Framework.create(create_opts.merge('DisableDatabase' => true))
   end
 
+  # Cached framework object
+  #
+  # @return [Msf::Framework]
   def framework
     return @framework if @framework
 
@@ -49,6 +64,10 @@ class MsfVenom
     @framework
   end
 
+  # Initialize the options for this run from ARGV
+  # @param args [Array] Usually ARGV. Parsed destructively.
+  # @return [void]
+  # @raise [UsageError] When given invalid options
   def parse_args(args)
     @opts = {}
     @datastore = {}
@@ -181,6 +200,10 @@ class MsfVenom
     encoders
   end
 
+  # Read a raw payload from stdin (or whatever IO object we're currently
+  # using as stdin, see {#initialize})
+  #
+  # @return [String]
   def payload_stdin
     @in.binmode
     payload = @in.read
@@ -189,7 +212,7 @@ class MsfVenom
 
   def generate_nops(arch, len, nop_mod=nil, nop_opts={})
     nop_opts['BadChars'] ||= ''
-    nop_jpts['SaveRegisters'] ||= [ 'esp', 'ebp', 'esi', 'edi' ]
+    nop_opts['SaveRegisters'] ||= [ 'esp', 'ebp', 'esi', 'edi' ]
 
     if nop_mod
       nop = framework.nops.create(nop_mod)
@@ -267,7 +290,32 @@ class MsfVenom
     "\n" + tbl.to_s + "\n"
   end
 
+  # @return [String] A raw shellcode blob
+  # @return [nil] When commandline options conspire to produce no output
   def generate_raw_payload
+    if @opts[:list]
+      @opts[:list].each do |mod|
+        case mod.downcase
+        when "payloads"
+          @err.puts dump_payloads
+        when "encoders"
+          @err.puts dump_encoders(@opts[:arch])
+        when "nops"
+          @err.puts dump_nops
+        when "all"
+          # Init here so #dump_payloads doesn't create a framework with
+          # only payloads, etc.
+          init_framework
+          @err.puts dump_payloads
+          @err.puts dump_encoders
+          @err.puts dump_nops
+        else
+          raise UsageError, "Invalid module type"
+        end
+      end
+      return
+    end
+
     if @opts[:payload] == 'stdin'
       payload_raw = payload_stdin
       if @opts[:encode] and (@opts[:arch].nil? or @opts[:platform].nil?)
@@ -307,29 +355,8 @@ class MsfVenom
   end
 
 
+  # Main dispatch method to do the right thing with the given options.
   def generate
-    if @opts[:list]
-      @opts[:list].each do |mod|
-        case mod.downcase
-        when "payloads"
-          @err.puts dump_payloads
-        when "encoders"
-          @err.puts dump_encoders(@opts[:arch])
-        when "nops"
-          @err.puts dump_nops
-        when "all"
-          # Init here so #dump_payloads doesn't create a framework with
-          # only payloads, etc.
-          init_framework
-          @err.puts dump_payloads
-          @err.puts dump_encoders
-          @err.puts dump_nops
-        else
-          print_error("Invalid module type")
-        end
-      end
-      return
-    end
 
     # Normalize the options
     @opts[:platform] = ::Msf::Module::PlatformList.transform(@opts[:platform]) if @opts[:platform]

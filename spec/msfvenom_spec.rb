@@ -4,6 +4,20 @@ require 'msf/core'
 # doesn't end in .rb or .so, so have to load instead of require
 load File.join(Msf::Config.install_root, 'msfvenom')
 
+shared_examples_for "nop dumper" do |block|
+	it "should list known nops" do
+		dump = block.call
+
+		%w!
+			x86/opty2
+			armle/simple
+		!.each do |name|
+			dump.should include(name)
+		end
+	end
+
+end
+
 describe MsfVenom do
 
 	let(:stdin)  { StringIO.new("", "rb") }
@@ -48,15 +62,8 @@ describe MsfVenom do
 	end
 
 	describe "#dump_nops" do
-		it "should list known nops" do
-			dump = venom.dump_nops
-
-			%w!
-				x86/opty2
-				armle/simple
-			!.each do |name|
-				dump.should include(name)
-			end
+		it_behaves_like "nop dumper" do
+			let(:nops) { venom.dump_nops }
 		end
 	end
 
@@ -136,6 +143,25 @@ describe MsfVenom do
 				let(:args) { %w! -o -p asdf! }
 				it "should raise" do
 					expect { venom.generate_raw_payload }.to raise_error(MsfVenom::UsageError)
+				end
+			end
+
+		end
+
+		context "with --list" do
+			context "with invalid module type" do
+				let(:args) { %w!--list asdf! }
+				it "should raise UsageError" do
+					expect { venom.generate_raw_payload }.to raise_error(MsfVenom::UsageError)
+				end
+			end
+			context "with nops" do
+				let(:args) { %w!--list nops! }
+				it_behaves_like "nop dumper" do
+					let(:nops) do
+						venom.generate_raw_payload
+						@err.string
+					end
 				end
 			end
 
