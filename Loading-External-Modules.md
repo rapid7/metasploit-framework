@@ -1,5 +1,3 @@
-# Loading External Modules
-
 If you're in the business of writing or collecting Metasploit modules that aren't part of the standard distribution, then you need a convenient way to load those modules in Metasploit. Never fear, it's pretty easy, using Metasploit's default local module search path, `$HOME/.msf4/modules`, and there are just a couple caveats:
 
 ## Mirror the "real" Metasploit module paths
