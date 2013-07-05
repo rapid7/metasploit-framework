@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Post
 
 		# Load artifacts from yaml file. Artifacts are organized by what they
 		# are evidence of.
-		yaml = YAML::load_file(filename)
+		yaml = YAML::load_file(datastore['ARTIFACTS'])
 		yaml.each_key do |key|
 			print_status("Searching for artifacts of #{key}")
 			files = yaml[key]['files']
