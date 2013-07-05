@@ -306,6 +306,50 @@ module Services
       handle["GetLastError"]
     end
   end
+
+  #
+  # Query Service Status
+  #
+  # @param (see #service_start)
+  #
+        # @return {} representing lpServiceStatus
+  #
+  # @raise (see #service_start)
+  #
+  #
+  def service_status(name, server=nil)
+    adv = session.railgun.advapi32
+    ret = nil
+    
+    # 0x80000000 GENERIC_READ 
+    open_sc_manager(:host => server, :access => 0x80000000) do |manager|
+      # Now to grab a handle to the service.
+      handle = adv.OpenServiceA(manager, name, 0x80000000)
+      if (handle["return"] == 0)
+        raise RuntimeError.new("Could not open service. OpenServiceA error: #{handle["GetLastError"]}")
+      end
+
+      status = adv.QueryServiceStatus(handle["return"],28)
+      if (status["return"] == 0)
+        raise RuntimeError.new("Could not query service. QueryServiceStatus error: #{handle["GetLastError"]}")
+      end
+
+      vals = status['lpServiceStatus'].unpack('L*')
+      adv.CloseServiceHandle(handle["return"])
+
+      ret = {
+        :type              => vals[0],
+        :state             => vals[1],
+        :controls_accepted => vals[2],
+        :win32_exit_code   => vals[3],
+        :service_exit_code => vals[4],
+        :check_point       => vals[5],
+        :wait_hint         => vals[6]
+      }
+    end
+  
+    return ret
+  end
 end
 
 end
