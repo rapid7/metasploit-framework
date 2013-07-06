@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Post
 
 
 	def check_userdir(path)
-		filename = "#{path}wcx_ftp.ini"
+		filename = "#{path}\\wcx_ftp.ini"
 		check_other(filename)
 	end
 
@@ -148,14 +148,14 @@ class Metasploit3 < Msf::Post
 				source_id = nil
 			end
 			report_auth_info(
-						:host  => host,
-						:port => port,
-						:sname => 'ftp',
-						:source_id => source_id,
-						:source_type => "exploit",
-						:user => username,
-						:pass => passwd
-					)
+				:host  => host,
+				:port => port,
+				:sname => 'ftp',
+				:source_id => source_id,
+				:source_type => "exploit",
+				:user => username,
+				:pass => passwd
+			)
 		end
 	end
 
