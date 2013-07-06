@@ -1959,22 +1959,17 @@ End Sub
 			output = Msf::Util::EXE.to_win32pe_aspx(framework, code, exeopts)
 
 		when 'dll'
-			if (not arch or (arch.index(ARCH_X86)))
-				output = Msf::Util::EXE.to_win32pe_dll(framework, code, exeopts)
-			end
-
-			if(arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
-				output = Msf::Util::EXE.to_win64pe_dll(framework, code, exeopts)
-			end
-
+			output = case arch
+				when ARCH_X86,nil then to_win32pe_dll(framework, code, exeopts)
+				when ARCH_X86_64  then to_win64pe_dll(framework, code, exeopts)
+				when ARCH_64      then to_win64pe_dll(framework, code, exeopts)
+				end
 		when 'exe'
-			if (not arch or (arch.index(ARCH_X86)))
-				output = Msf::Util::EXE.to_win32pe(framework, code, exeopts)
-			end
-
-			if(arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
-				output = Msf::Util::EXE.to_win64pe(framework, code, exeopts)
-			end
+			output = case arch
+				when ARCH_X86,nil then to_win32pe(framework, code, exeopts)
+				when ARCH_X86_64  then to_win64pe(framework, code, exeopts)
+				when ARCH_64      then to_win64pe(framework, code, exeopts)
+				end
 
 		when 'exe-small'
 			if(not arch or (arch.index(ARCH_X86)))
@@ -2009,11 +2004,6 @@ End Sub
 					when ARCH_X86,nil then to_solaris_x86_elf(framework, code, exeopts)
 					end
 			end
-
-		# this should really be 'jar'
-		when 'java'
-
-
 
 		when 'macho'
 			output = case arch
