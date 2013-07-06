@@ -365,8 +365,11 @@ require 'digest/sha1'
 
 	def self.to_winpe_only(framework, code, opts={}, arch="x86")
 
-		# Allow the user to specify their own EXE template
+		if arch == ARCH_X86_64
+			arch = ARCH_X64
+		end
 
+		# Allow the user to specify their own EXE template
 		set_template_default(opts, "template_"+arch+"_windows.exe")
 
 		pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
@@ -1962,28 +1965,26 @@ End Sub
 			output = case arch
 				when ARCH_X86,nil then to_win32pe_dll(framework, code, exeopts)
 				when ARCH_X86_64  then to_win64pe_dll(framework, code, exeopts)
-				when ARCH_64      then to_win64pe_dll(framework, code, exeopts)
+				when ARCH_X64     then to_win64pe_dll(framework, code, exeopts)
 				end
 		when 'exe'
 			output = case arch
 				when ARCH_X86,nil then to_win32pe(framework, code, exeopts)
 				when ARCH_X86_64  then to_win64pe(framework, code, exeopts)
-				when ARCH_64      then to_win64pe(framework, code, exeopts)
+				when ARCH_X64     then to_win64pe(framework, code, exeopts)
 				end
 
 		when 'exe-small'
-			if(not arch or (arch.index(ARCH_X86)))
-				output = Msf::Util::EXE.to_win32pe_old(framework, code, exeopts)
-			end
+			output = case arch
+				when ARCH_X86,nil then to_win32pe_old(framework, code, exeopts)
+				end
 
 		when 'exe-only'
-			if(not arch or (arch.index(ARCH_X86)))
-				output = Msf::Util::EXE.to_winpe_only(framework, code, exeopts)
-			end
-
-			if(arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
-				output = Msf::Util::EXE.to_winpe_only(framework, code, exeopts, "x64")
-			end
+			output = case arch
+				when ARCH_X86,nil then to_winpe_only(framework, code, exeopts, arch)
+				when ARCH_X86_64  then to_winpe_only(framework, code, exeopts, arch)
+				when ARCH_X64     then to_winpe_only(framework, code, exeopts, arch)
+				end
 
 		when 'elf'
 			if (not plat or (plat.index(Msf::Module::Platform::Linux)))
