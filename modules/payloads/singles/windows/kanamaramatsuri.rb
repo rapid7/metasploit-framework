@@ -3,7 +3,7 @@ require 'msf/core'
 module Metasploit3
 
 	include Msf::Payload::Windows
-   include Msf::Payload::Single
+	include Msf::Payload::Single
 
 	def initialize(info = {})
 		super(merge_info(info,
@@ -50,7 +50,7 @@ module Metasploit3
 
 	def kanamaraloop
 		if datastore['ANIMATED']
-         kanamara_length = datastore['LENGTH'].to_i
+			kanamara_length = datastore['LENGTH'].to_i
 
 			if kanamara_length < 6
 				kanamara_length = 6

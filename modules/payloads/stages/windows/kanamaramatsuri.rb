@@ -16,15 +16,15 @@ module Metasploit3
 			'Version'       => "8D", # just some random hex. I don't know what to put here!
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
-         'ForceBlocking' => false,
-         'PayloadCompat' =>
-            {
-               'Convention' => 'sockedi -passivex -http -https'
-            },
-         'Stage'         =>
-            {
-               'Payload' => ""
-            }
+			'ForceBlocking' => false,
+			'PayloadCompat' =>
+				{
+					'Convention' => 'sockedi -passivex -http -https'
+				},
+			'Stage'			=>
+				{
+					'Payload' => ""
+				}
 		))
 
 		# customize the kanamara festival!
@@ -58,7 +58,7 @@ module Metasploit3
 
 	def kanamaraloop
 		if datastore['ANIMATED']
-         kanamara_length = datastore['LENGTH'].to_i
+			kanamara_length = datastore['LENGTH'].to_i
 
 			if kanamara_length < 6
 				kanamara_length = 6
@@ -671,9 +671,9 @@ EOS
 		payload = Metasm::Shellcode.assemble(Metasm::Ia32.new, payload_data).encode_string
 	end
 
-   def wait_for_session(delay)
-      Rex::ThreadSafe.sleep(3)
-      print_status('The Kanamara Matsuri has begun.')
-      nil
-   end
+	def wait_for_session(delay)
+		Rex::ThreadSafe.sleep(3)
+		print_status('The Kanamara Matsuri has begun.')
+		nil
+	end
 end
