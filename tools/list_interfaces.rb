@@ -29,17 +29,19 @@ if RUBY_PLATFORM == "i386-mingw32"
 		exit
   end
 
-	unless (Pcap.respond_to?(:lookupaddrs) and
-			Pcap.respond_to?(:interfaces) and
-			Pcap.respond_to?(:addresses))
-		$stderr.puts "Error: Looks like you are not running the latest version of pcaprub"
+	unless (
+		NetworkInterface.respond_to?(:interfaces) and
+		NetworkInterface.respond_to?(:addresses)  and
+		NetworkInterface.respond_to?(:interface_info)
+	)
+		$stderr.puts "Error: Looks like you are not running the latest version of NetworkInterface"
 		exit
 	end
 	found = false
-	Pcap.interfaces.each_with_index do |iface, i|
+	NetworkInterface.interfaces.each_with_index do |iface, i|
 		found = true
-		detail = Pcap.interface_info(iface)
-		addr = Pcap.addresses(iface)
+		detail = NetworkInterface.interface_info(iface)
+		addr = NetworkInterface.addresses(iface)
 		puts "#" * 70
 		puts ""
 		puts "INDEX        :  " + (i + 1).to_s
