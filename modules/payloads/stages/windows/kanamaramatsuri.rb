@@ -56,7 +56,7 @@ module Metasploit3
 	end
 
 	def kanamaraloop
-      kanamara_length = datastore['LENGTH'].to_i
+		kanamara_length = datastore['LENGTH'].to_i
 
 		if datastore['ANIMATED']
 			if kanamara_length < 6
