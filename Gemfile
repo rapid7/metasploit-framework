@@ -23,7 +23,7 @@ group :db do
 end
 
 group :pcap do
-  gem 'network_interface', :git => 'https://github.com/lsanchez-r7/network_interface.git'
+  gem 'network_interface'
 	# For sniffer and raw socket modules
 	gem 'pcaprub'
 end
