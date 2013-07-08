@@ -14,7 +14,6 @@ module Metasploit3
 					'frank2 <frank2 [turning] dc949 [japanese] org>'
 				],
 			'License'       => MSF_LICENSE,
-			'Version'       => "8D", # just some random hex. I don't know what to put here!
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
 		))
@@ -49,9 +48,9 @@ module Metasploit3
 	end
 
 	def kanamaraloop
-		if datastore['ANIMATED']
-			kanamara_length = datastore['LENGTH'].to_i
+      kanamara_length = datastore['LENGTH'].to_i
 
+		if datastore['ANIMATED']
 			if kanamara_length < 6
 				kanamara_length = 6
 			end
@@ -109,18 +108,18 @@ kanamaraLoop:
 		jmp kanamaraLoop
 EOS
 		else
-			if datastore['LENGTH'] < 2
-				datastore['LENGTH'] = 2
+			if kanamara_length < 2
+				kanamara_length = 2
 			end
 
-			matsuri = '8%sD' % [ '=' * datastore['LENGTH'] ]
+			matsuri = '8%sD' % [ '=' * kanamara_length ]
 
 			if datastore['STREAMERS']
 				matsuri << '~~~~'
 			end
 
 			if datastore['ROUTE'] == 'front'
-				if datastore['LENGTH'] <= 4
+				if kanamara_length <= 4
 					matsuri << ' ;. ;'
 				else
 					matsuri << ' ^O ^'
