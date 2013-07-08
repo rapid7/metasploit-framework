@@ -22,6 +22,7 @@ If you're an exploit developer, you will want to review our [[Guidelines for Acc
 
 - [[Downloads by Version]]
 - [[Evading Anti Virus]]
+- [[Loading External Modules]]
 - [[Exploit Ranking]]
 - [[How Payloads Work]]
 - [[How to Send an HTTP Request Using HTTPClient]]
@@ -33,6 +34,5 @@ If you're an exploit developer, you will want to review our [[Guidelines for Acc
 - [[Git Cheatsheet]]
 - [[Git Gotchas]]
 - [[Git Reference Sites]]
-
 
 
