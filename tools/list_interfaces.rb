@@ -49,14 +49,14 @@ if RUBY_PLATFORM == "i386-mingw32"
 		puts "DESCRIPTION  :  " + detail["description"]
 		puts "GUID         :  " + detail["guid"]
 		if addr[NetworkInterface::AF_LINK][0]['addr']
-			puts "MAC ADDRESSE :  #{addr[NetworkInterface::AF_LINK][0]['addr']}"
+			puts "MAC ADDRESS  :  #{addr[NetworkInterface::AF_LINK][0]['addr']}"
 		else
-			puts "MAC ADDRESSE :  NONE"
+			puts "MAC ADDRESS  :  NONE"
 		end
 		if addr[NetworkInterface::AF_INET][0]['addr'] and addr[NetworkInterface::AF_INET][0]['netmask']
-			puts "IP ADDRESSE  :  #{addr[NetworkInterface::AF_INET][0]['addr']}/#{addr[NetworkInterface::AF_INET][0]['netmask']}"
+			puts "IP ADDRESS   :  #{addr[NetworkInterface::AF_INET][0]['addr']}/#{addr[NetworkInterface::AF_INET][0]['netmask']}"
 		else
-			puts "IP ADDRESSE  :  NONE"
+			puts "IP ADDRESS   :  NONE"
 		end
 		puts ""
 	end
@@ -66,6 +66,6 @@ if RUBY_PLATFORM == "i386-mingw32"
 		$stderr.puts "Error, no network interfaces have been detected"
 	end
 else
-	$stderr.puts "Error: This script is usefull only on Windows, under other OS just use the built-in commands (ifconfig, ip link show, ...)"
+	$stderr.puts "Error: This script is useful only on Windows, under other OS just use the built-in commands (ifconfig, ip link show, ...)"
 	exit
 end
