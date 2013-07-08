@@ -46,21 +46,11 @@ your day-to-day workflow with Git.
     `git checkout -b new_branch_name`
 
 
-## Merging, Rebasing, and Stashing
+## Merging and Stashing
 
-* Merge my working branch into master (from master):
+* Merge my working branch into current branch:
     
     `git merge working_branch_name`
-
-* Merge a large set of commits on a dev branch into master as one
-  commit ("squash" commit):
-
-    `git merge working_branch_name --squash`
-
-* Get the changes that have happened to master branch since I made my
-  working branch:
-
-    `git rebase master`
 
 * Temporarily clear my stage so I can switch to another branch
   ("stashing"):
@@ -105,7 +95,7 @@ your day-to-day workflow with Git.
 
     `git mergetool`
 
-* Revert a commit:
+* Revert a commit (be careful with merges!):
 
     `git revert <commit hash>`
 
