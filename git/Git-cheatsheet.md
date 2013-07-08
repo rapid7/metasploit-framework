@@ -67,9 +67,13 @@ your day-to-day workflow with Git.
 
     `git stash`
 
-* Get my stashed stuff back:
+* Get my stashed stuff back, leaving it in the list of stashes:
 
     `git stash apply`
+
+* Get my stashed stuff back, removing it from the list:
+
+    `git stash pop`
 
 ## History, Conflicts, and Fixing Mistakes
 
