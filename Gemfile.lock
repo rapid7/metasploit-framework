@@ -1,3 +1,9 @@
+GIT
+  remote: https://github.com/lsanchez-r7/network_interface.git
+  revision: 20953fc3945408d071116d8841ca7ae1aa92272b
+  specs:
+    network_interface (0.0.1)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -68,6 +74,7 @@ DEPENDENCIES
   json
   metasploit_data_models (~> 0.16.1)
   msgpack
+  network_interface!
   nokogiri
   packetfu (= 1.1.8)
   pcaprub
