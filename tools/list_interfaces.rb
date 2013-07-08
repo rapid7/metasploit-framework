@@ -23,11 +23,11 @@ $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 if RUBY_PLATFORM == "i386-mingw32"
 	begin
-		require 'pcaprub'
+		require 'network_interface'
 	rescue ::Exception => e
-		$stderr.puts "Error: pcaprub is not installed..."
+		$stderr.puts "Error: NetworkInterface is not installed..."
 		exit
-  end
+	end
 
 	unless (
 		NetworkInterface.respond_to?(:interfaces) and
@@ -48,13 +48,13 @@ if RUBY_PLATFORM == "i386-mingw32"
 		puts "NAME         :  " + detail["name"]
 		puts "DESCRIPTION  :  " + detail["description"]
 		puts "GUID         :  " + detail["guid"]
-		if addr[Pcap::AF_LINK][0]['addr']
-			puts "MAC ADDRESSE :  #{addr[Pcap::AF_LINK][0]['addr']}"
+		if addr[NetworkInterface::AF_LINK][0]['addr']
+			puts "MAC ADDRESSE :  #{addr[NetworkInterface::AF_LINK][0]['addr']}"
 		else
 			puts "MAC ADDRESSE :  NONE"
 		end
-		if addr[Pcap::AF_INET][0]['addr'] and addr[Pcap::AF_INET][0]['netmask']
-			puts "IP ADDRESSE  :  #{addr[Pcap::AF_INET][0]['addr']}/#{addr[Pcap::AF_INET][0]['netmask']}"
+		if addr[NetworkInterface::AF_INET][0]['addr'] and addr[NetworkInterface::AF_INET][0]['netmask']
+			puts "IP ADDRESSE  :  #{addr[NetworkInterface::AF_INET][0]['addr']}/#{addr[NetworkInterface::AF_INET][0]['netmask']}"
 		else
 			puts "IP ADDRESSE  :  NONE"
 		end
@@ -69,5 +69,3 @@ else
 	$stderr.puts "Error: This script is usefull only on Windows, under other OS just use the built-in commands (ifconfig, ip link show, ...)"
 	exit
 end
-
-
