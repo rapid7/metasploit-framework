@@ -27,7 +27,8 @@ if RUBY_PLATFORM == "i386-mingw32"
 	rescue ::Exception => e
 		$stderr.puts "Error: pcaprub is not installed..."
 		exit
-	end
+  end
+
 	unless (Pcap.respond_to?(:lookupaddrs) and
 			Pcap.respond_to?(:interfaces) and
 			Pcap.respond_to?(:addresses))
