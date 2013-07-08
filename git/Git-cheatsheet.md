@@ -23,7 +23,7 @@ your day-to-day workflow with Git.
 
     `git pull`
 
-* Push commits to to the origin/master (like an SVN commit):
+* Push commits to the origin/master (like an SVN commit):
 
     `git push origin master`
 
