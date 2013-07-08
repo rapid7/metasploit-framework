@@ -17,9 +17,9 @@ class Metasploit4 < Msf::Nop
 
 	def initialize
 		super(
-			'Name'        => 'Sample NOP generator',
-			'Version'     => '$Revision$',
+			'Name'        => 'Sample NOP Generator',
 			'Description' => 'Sample single-byte NOP generator',
+			'License'     => MSF_LICENSE,
 			'Author'      => 'skape',
 			'Arch'        => ARCH_X86)
 	end
