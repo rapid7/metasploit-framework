@@ -31,6 +31,7 @@ class Rex::RandomIdentifierGenerator
 		:min_length => 3,
 		# This should be pretty universal for identifier rules
 		:char_set => Rex::Text::AlphaNumeric+"_",
+		:first_char_set => Rex::Text::LowerAlpha
 	}
 
 	# @param opts [Hash] Options, see {DefaultOpts} for default values
@@ -46,8 +47,8 @@ class Rex::RandomIdentifierGenerator
 			raise ArgumentError, "Invalid length options"
 		end
 
-		# This is really just the maximum number of shortest names. Since
-		# this will still be a pretty big number most of the time, don't
+		# This is really just the maximum number of shortest names. This
+		# will still be a pretty big number most of the time, so don't
 		# bother calculating the real one, which will potentially be
 		# expensive, since we're talking about a 36-digit decimal number to
 		# represent the total possibilities for the range of 10- to
@@ -108,9 +109,17 @@ class Rex::RandomIdentifierGenerator
 	end
 
 	# Create a random string that satisfies most languages' requirements
-	# for identifiers.
+	# for identifiers. In particular, with a default configuration, the
+	# first character will always be lowercase alpha (unless modified by a
+	# block), and the whole thing will contain only a-zA-Z0-9_ characters.
 	#
-	# Note that the first character will always be lowercase alpha.
+	# If called with a block, the block will be given the identifier before
+	# uniqueness checks. The block's return value will be the new
+	# identifier. Note that the block may be called multiple times if it
+	# returns a non-unique value.
+	#
+	# @note Calling this method with a block that returns only values that
+	#   this generator already contains will result in an infinite loop.
 	#
 	# @example
 	#   rig = Rex::RandomIdentifierGenerator.new
@@ -139,7 +148,7 @@ class Rex::RandomIdentifierGenerator
 		# fact that you'd have to call generate at least 26*62 times (in the
 		# case of 2-character names) to hit it with the default :char_set.
 		loop do
-			ident  = Rex::Text.rand_text_alpha_lower(1)
+			ident  = Rex::Text.rand_base(1, "", @opts[:first_char_set])
 			ident << Rex::Text.rand_base(len-1, "", @opts[:char_set])
 			if block_given?
 				ident = yield ident
