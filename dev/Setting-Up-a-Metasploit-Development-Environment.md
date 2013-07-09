@@ -97,6 +97,7 @@ This will checkout a version of Janus (using Git) to your ~/.vim directory. Yep,
 Finally, I have a very small set of defaults, here: https://gist.github.com/4658778 . Drop this in your `~/.vimrc.after` file. Note, the important bit is our slightly wacky use of hard tabs, as prescribed in the [HACKING](https://github.com/rapid7/metasploit-framework/blob/master/HACKING) guide.
 
 *TODO: Add Rubymine docs, add screenshots for this*
+*TODO: Could reference the Sublime Text 2 plugin TidyOnExit for anyone using Sublime
 
 <h2 id="github">Using GitHub</h2>
 
