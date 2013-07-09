@@ -1909,14 +1909,13 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 	# Supplements find_first if file/dir count exceeds max search count
 	def find_next(sid, resume_key, last_filename)
-
 		parm = [
 			sid, # Search ID
 			20, # Maximum search count (Size of 20 keeps response to 1 packet)
 			260, # Level of interest
 			resume_key,   # Resume key from previous (Last name offset)
 			6,   # Close search if end of search
-		].pack('vvvVv') + last_filename + "\x00" # Last filename returned from find_first or find_next
+		].pack('vvvVv') + "#{last_filename}" + "\x00" # Last filename returned from find_first or find_next
 		resp = trans2(CONST::TRANS2_FIND_NEXT2, parm, '')
 		return resp # Returns the FIND_NEXT2 response packet for parsing by the find_first function
 	end
