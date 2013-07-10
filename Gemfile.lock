@@ -69,7 +69,7 @@ DEPENDENCIES
   json
   metasploit_data_models (~> 0.16.1)
   msgpack
-  network_interface
+  network_interface (~> 0.0.1)
   nokogiri
   packetfu (= 1.1.8)
   pcaprub
