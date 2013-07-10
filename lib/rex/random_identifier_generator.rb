@@ -40,7 +40,10 @@ class Rex::RandomIdentifierGenerator
 	# @option opts :char_set [String]
 	def initialize(opts={})
 		# Holds all identifiers.
-		@identifiers = {}
+		@value_by_name = {}
+		# Inverse of value_by_name so we can ensure uniqueness without
+		# having to search through the whole list of values
+		@name_by_value = {}
 
 		@opts = DefaultOpts.merge(opts)
 		if @opts[:min_length] < 1 || @opts[:max_length] < 1 || @opts[:max_length] < @opts[:min_length]
@@ -71,11 +74,12 @@ class Rex::RandomIdentifierGenerator
 	#   you weren't generating it.
 	# @return [String]
 	def get(name)
-		return @identifiers[name] if @identifiers[name]
+		return @value_by_name[name] if @value_by_name[name]
 
-		@identifiers[name] = generate
+		@value_by_name[name] = generate
+		@name_by_value[@value_by_name[name]] = name
 
-		@identifiers[name]
+		@value_by_name[name]
 	end
 	alias [] get
 
@@ -93,13 +97,14 @@ class Rex::RandomIdentifierGenerator
 	# @return [void]
 	def store(name, value)
 
-		case @identifiers.key(value)
+		case @name_by_value[value]
 		when name
 			# we already have this value and it is associated with this name
 			# nothing to do here
 		when nil
 			# don't have this value yet, so go ahead and just insert
-			@identifiers[name] = value
+			@value_by_name[name] = value
+			@name_by_value[value] = name
 		else
 			# then the caller is trying to insert a duplicate
 			raise RuntimeError, "Value is not unique!"
@@ -137,16 +142,15 @@ class Rex::RandomIdentifierGenerator
 	#   you to modify the value and still avoid collisions.
 	def generate(len=nil)
 		raise ArgumentError, "len must be positive integer" if len && len < 1
-		raise ExhaustedSpaceError if @identifiers.length >= @max_permutations
+		raise ExhaustedSpaceError if @value_by_name.length >= @max_permutations
 
 		# pick a random length within the limits
 		len ||= rand(@opts[:min_length] .. (@opts[:max_length]))
 
 		ident = ""
 
-		# XXX: infinite loop if we've exhausted the space. Mitigated by the
-		# fact that you'd have to call generate at least 26*62 times (in the
-		# case of 2-character names) to hit it with the default :char_set.
+		# XXX: Infinite loop if block returns only values we've already
+		# generated.
 		loop do
 			ident  = Rex::Text.rand_base(1, "", @opts[:first_char_set])
 			ident << Rex::Text.rand_base(len-1, "", @opts[:char_set])
@@ -155,7 +159,7 @@ class Rex::RandomIdentifierGenerator
 			end
 			# Try to make another one if it collides with a previously
 			# generated one.
-			break unless @identifiers.value?(ident)
+			break unless @name_by_value.key?(ident)
 		end
 
 		ident
