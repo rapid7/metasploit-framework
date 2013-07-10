@@ -23,6 +23,7 @@ group :db do
 end
 
 group :pcap do
+  gem 'network_interface'
 	# For sniffer and raw socket modules
 	gem 'pcaprub'
 end
