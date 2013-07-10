@@ -794,49 +794,6 @@ module Text
 	end
 
 	#
-	# Converts a string a nicely formatted and addressed ex dump
-	#
-	def self.to_addr_hex_dump(str, start_addr=0, width=16)
-		buf = ''
-		idx = 0
-		cnt = 0
-		snl = false
-		lst = 0
-		addr = start_addr
-
-		while (idx < str.length)
-
-			buf << "%08x" % addr
-			buf << " " * 4
-			chunk = str[idx, width]
-			line  = chunk.unpack("H*")[0].scan(/../).join(" ")
-			buf << line
-
-			if (lst == 0)
-				lst = line.length
-				buf << " " * 4
-			else
-				buf << " " * ((lst - line.length) + 4).abs
-			end
-
-			chunk.unpack("C*").each do |c|
-				if (c > 0x1f and c < 0x7f)
-					buf << c.chr
-				else
-					buf << "."
-				end
-			end
-
-			buf << "\n"
-
-			idx += width
-			addr += width
-		end
-
-		buf << "\n"
-	end
-
-	#
 	# Converts a hex string to a raw string
 	#
 	# @example

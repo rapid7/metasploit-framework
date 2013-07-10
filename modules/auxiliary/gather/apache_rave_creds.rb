@@ -184,7 +184,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			print_status("#{rhost}:#{rport} - Recovering Hashes...")
 			json_info["result"]["resultSet"].each { |result|
-				vprint_good("#{rhost}:#{rport} - Found cred: #{result["username"]}:#{result["password"]}")
+				print_good("#{rhost}:#{rport} - Found cred: #{result["username"]}:#{result["password"]}")
 				report_auth_info(
 					:host => rhost,
 					:port => rport,

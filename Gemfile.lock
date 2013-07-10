@@ -31,6 +31,7 @@ GEM
       metaclass (~> 0.0.1)
     msgpack (0.5.4)
     multi_json (1.0.4)
+    network_interface (0.0.1)
     nokogiri (1.5.9)
     packetfu (1.1.8)
     pcaprub (0.11.3)
@@ -68,6 +69,7 @@ DEPENDENCIES
   json
   metasploit_data_models (~> 0.16.1)
   msgpack
+  network_interface (~> 0.0.1)
   nokogiri
   packetfu (= 1.1.8)
   pcaprub
