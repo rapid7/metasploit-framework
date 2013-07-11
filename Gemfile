@@ -6,7 +6,11 @@ gem 'activesupport', '>= 3.0.0'
 gem 'json'
 # Used for Metasploit::Framework::* ActiveModels that mirror Mdm::* ActiveRecord
 # models when the database is not active.
-gem 'metasploit-model', '~> 0.1.0'
+# @note the version requirement should match the version requirement for
+#   metasploit_data_model's dependency on metasploit-model so that the version
+#   of metasploit-model is the same without or without the db group installed.
+# @todo change to `gem 'metasploit-model', '~> X.Y.Z'`` when version X.Y.Z is released to rubygems
+gem 'metasploit-model', :git => 'git://github.com/rapid7/metasploit-model', :tag => 'v0.1.0.module-caching'
 # Needed by msfgui and other rpc components
 gem 'msgpack'
 # Needed by anemone crawler
@@ -20,7 +24,8 @@ group :db do
 	# Needed for Msf::DbManager
 	gem 'activerecord'
 	# Database models shared between framework and Pro.
-	gem 'metasploit_data_models', '~> 0.21.0'
+	# @todo change to `gem 'metasploit_data_models', '~> X.Y.Z' when version X.Y.Z is released to rubygems`
+	gem 'metasploit_data_models', :git => 'git://github.com/rapid7/metaspoit-model', :tag => 'v0.21.2.module-caching'
 	# Needed for module caching in Mdm::ModuleDetails
 	gem 'pg', '>= 0.11'
 end
