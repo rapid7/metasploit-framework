@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptBool.new('SHOW_SHARE',      [true, 'Show all the folders and files', false ]),
+				OptBool.new('DIR_SHARE',      [true, 'Show all the folders and files', false ]),
 				OptBool.new('USE_SRVSVC_ONLY', [true, 'List shares only with SRVSVC', false ])
 			], self.class)
 
@@ -181,6 +181,8 @@ class Metasploit3 < Msf::Auxiliary
 				))
 		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
 			if e.error_code == 0xC00000BB
+				vprint_error("Got 0xC00000BB while enumerating shares, switching to srvsvc...")
+				datastore['USE_SRVSVC_ONLY'] = true # Make sure the module is aware of this state
 				return srvsvc_netshareenum(ip)
 			end
 		end
@@ -327,14 +329,16 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def cleanup
-		datastore['RPORT']     = @rport
-		datastore['SMBDirect'] = @smb_redirect
+		datastore['RPORT']           = @rport
+		datastore['SMBDirect']       = @smb_redirect
+		datastore['USE_SRVSVC_ONLY'] = @srvsvc
 	end
 
 
 	def run_host(ip)
 		@rport        = datastore['RPORT']
 		@smb_redirect = datastore['SMBDirect']
+		@srvsvc       = datastore['USE_SRVSVC_ONLY']
 		shares        = []
 
 		[[139, false], [445, true]].each do |info|
@@ -366,7 +370,7 @@ class Metasploit3 < Msf::Auxiliary
 						:update => :unique_data
 					)
 
-					if datastore['SHOW_SHARE'] and not datastore['USE_SRVSVC_ONLY']
+					if datastore['DIR_SHARE'] and not datastore['USE_SRVSVC_ONLY']
 						get_files_info(ip, rport, shares, info)
 					end
 
