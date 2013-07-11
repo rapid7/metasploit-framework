@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 				directories, files, time stamps, etc.
 
 				By default, a netshareenum request is done in order to retrieve share information,
-				but it this fails, you may also fall back to SRVSVC.  When SRVSVC is used, please
+				but if this fails, you may also fall back to SRVSVC.  When SRVSVC is used, please
 				note the module will not attempt to enumerate more info like netshareenum.
 			},
 			'Author'         =>
