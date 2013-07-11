@@ -2942,7 +2942,7 @@ class Core
 		until really_started
 			select(nil,nil,nil,3)
 			log_data = ::File.open(svc_log, "rb") {|f| f.read f.stat.size}
-			really_started = log_data =~ /.*Ready/ # This is webserver ready
+			really_started = log_data =~ /Ready/ # This is webserver ready
 			if really_started
 				print_line
 				print_good "Metasploit Community / Pro is up and running, connecting now."
