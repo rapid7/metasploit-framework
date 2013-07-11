@@ -2889,8 +2889,7 @@ class Core
 			end
 		end
 		unless is_apt
-			print_line " This command is only available on deb package installations,"
-			print_line " such as Kali Linux."
+			print_warning "This command is only available on deb package installations, such as Kali Linux."
 			return false
 		end
 		unless is_metasploit_debian_package_installed
@@ -2932,7 +2931,10 @@ class Core
 			return false
 		end
 		svc_log = File.expand_path(File.join(msfbase_dir, ".." , "engine", "prosvc_stdout.log"))
-		return unless ::File.readable_real? svc_log
+		unless ::File.readable_real? svc_log
+			print_error "Unable to access log file: #{svc_log}"
+			return false
+		end
 		really_started = false
 		# This method is a little lame but it's a short enough file that it
 		# shouldn't really matter that we open and close it a few times.
@@ -2940,7 +2942,7 @@ class Core
 		until really_started
 			select(nil,nil,nil,3)
 			log_data = ::File.open(svc_log, "rb") {|f| f.read f.stat.size}
-			really_started = log_data =~ /^\[\*\] Ready/ # This is webserver ready
+			really_started = log_data =~ /.*Ready/ # This is webserver ready
 			if really_started
 				print_line
 				print_good "Metasploit Community / Pro is up and running, connecting now."
