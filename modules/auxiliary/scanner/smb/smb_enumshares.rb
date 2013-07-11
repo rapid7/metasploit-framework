@@ -401,7 +401,7 @@ class Metasploit3 < Msf::Auxiliary
 			rescue ::Exception => e
 				next if e.to_s =~ /execution expired/
 				next if not shares.empty? and rport == 139
-				print_error("#{ip}:#{rport} - Error: '#{ip}' '#{e.class}' '#{e.to_s}'")
+				vprint_error("#{ip}:#{rport} - Error: '#{ip}' '#{e.class}' '#{e.to_s}'")
 			ensure
 				disconnect
 			end
