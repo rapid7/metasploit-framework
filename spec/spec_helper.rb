@@ -14,14 +14,27 @@ $LOAD_PATH.unshift(lib_pathname.to_s)
 require 'simplecov'
 
 # now that simplecov is loaded, load everything else
+require 'metasploit/framework'
 require 'rspec/core'
 
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories.
-support_glob = root_pathname.join('spec', 'support', '**', '*.rb')
 
-Dir.glob(support_glob) do |path|
-  require path
+# In order that allows later paths to modify early path's factories
+rooteds = [
+		Metasploit::Model,
+		MetasploitDataModels,
+		Metasploit::Framework
+]
+
+support_globs = rooteds.collect { |rooted|
+	rooted.root.join('spec', 'support', '**', '*.rb')
+}
+
+support_globs.each do |support_glob|
+	Dir.glob(support_glob) do |path|
+		require path
+	end
 end
 
 RSpec.configure do |config|
@@ -34,14 +47,19 @@ RSpec.configure do |config|
 	  # Need to load Mdm models first so factories can use them
 	  MetasploitDataModels.require_models
 
-		FactoryGirl.definition_file_paths = [
-				MetasploitDataModels.root.join('spec', 'factories'),
-				# Have metasploit-framework's definition file path last so it can
-				# modify gem factories.
-		    Metasploit::Framework.root.join('spec', 'factories')
-		]
+		Metasploit::Model::Spec.temporary_pathname = Metasploit::Framework.root.join('spec', 'tmp')
+		# Clean up any left over files from a previously aborted suite
+		Metasploit::Model::Spec.remove_temporary_pathname
+
+		FactoryGirl.definition_file_paths = rooteds.collect { |rooted|
+			rooted.root.join('spec', 'factories')
+		}
 
 		FactoryGirl.find_definitions
+	end
+
+	config.after(:each) do
+		Metasploit::Model::Spec.remove_temporary_pathname
 	end
 end
 

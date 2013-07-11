@@ -39,6 +39,8 @@ class DBManager
 		(ActiveRecord::Base.connected? && ActiveRecord::Base.connection_pool.connected? && migrated)# rescue false
 	end
 
+	alias_method :active?, :active
+
 	# Returns true if the prerequisites have been installed
 	attr_accessor :usable
 
