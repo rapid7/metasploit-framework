@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
 			device_type = self.simple.client.queryfs_fs_device['device_type']
 
 			unless device_type
-				print_error("\\\\#{ip}\\#{share}: Error querying filesystem device type")
+				vprint_error("\\\\#{ip}\\#{share}: Error querying filesystem device type")
 				return false,false,nil,nil
 			end
 
@@ -106,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
 				# 0x0006002 = bad network name, 0x0030001 Directory not found
 				return false,false,nil,nil
 			else
-				print_error("\\\\#{ip}\\#{share}: Error querying filesystem device type")
+				vprint_error("\\\\#{ip}\\#{share}: Error querying filesystem device type")
 				return false,false,nil,nil
 			end
 		end
@@ -218,7 +218,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			dcerpc_bind(handle)
 		rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
-			print_error("#{ip} : #{e.message}")
+			vprint_error("#{ip} : #{e.message}")
 			return []
 		end
 
@@ -392,7 +392,7 @@ class Metasploit3 < Msf::Auxiliary
 				::Rex::Proto::SMB::Exceptions::InvalidCommand,
 				::Rex::Proto::SMB::Exceptions::InvalidWordCount,
 				::Rex::Proto::SMB::Exceptions::NoReply => e
-				print_error(e.message)
+				vprint_error(e.message)
 				next if not shares.empty? and rport == 139 # no results, try again
 			rescue Errno::ENOPROTOOPT
 				print_status("Wait 5 seconds before retrying...")
