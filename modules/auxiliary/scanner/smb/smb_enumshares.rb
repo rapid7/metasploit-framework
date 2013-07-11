@@ -181,7 +181,7 @@ class Metasploit3 < Msf::Auxiliary
 				))
 		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
 			if e.error_code == 0xC00000BB
-				vprint_error("Got 0xC00000BB while enumerating shares, switching to srvsvc...")
+				vprint_error("#{ip}:#{rport} - Got 0xC00000BB while enumerating shares, switching to srvsvc...")
 				datastore['USE_SRVSVC_ONLY'] = true # Make sure the module is aware of this state
 				return srvsvc_netshareenum(ip)
 			end
@@ -384,7 +384,7 @@ class Metasploit3 < Msf::Auxiliary
 				raise $!
 			rescue ::Rex::Proto::SMB::Exceptions::LoginError,
 				::Rex::Proto::SMB::Exceptions::ErrorCode => e
-				print_error(e.message)
+				print_error("#{ip}:#{rport} - #{e.message}")
 				return if e.message =~ /STATUS_ACCESS_DENIED/
 			rescue Errno::ECONNRESET,
 				::Rex::Proto::SMB::Exceptions::InvalidType,
@@ -392,7 +392,7 @@ class Metasploit3 < Msf::Auxiliary
 				::Rex::Proto::SMB::Exceptions::InvalidCommand,
 				::Rex::Proto::SMB::Exceptions::InvalidWordCount,
 				::Rex::Proto::SMB::Exceptions::NoReply => e
-				vprint_error(e.message)
+				vprint_error("#{ip}:#{rport} - #{e.message}")
 				next if not shares.empty? and rport == 139 # no results, try again
 			rescue Errno::ENOPROTOOPT
 				print_status("Wait 5 seconds before retrying...")
@@ -401,7 +401,7 @@ class Metasploit3 < Msf::Auxiliary
 			rescue ::Exception => e
 				next if e.to_s =~ /execution expired/
 				next if not shares.empty? and rport == 139
-				print_error("Error: '#{ip}' '#{e.class}' '#{e.to_s}'")
+				print_error("#{ip}:#{rport} - Error: '#{ip}' '#{e.class}' '#{e.to_s}'")
 			ensure
 				disconnect
 			end
