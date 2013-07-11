@@ -34,7 +34,7 @@ class Core
 
 	# Session command options
 	@@sessions_opts = Rex::Parser::Arguments.new(
-		"-c" => [ true,  "Run a command on the session given with -i, or all" ],
+		"-c" => [ true,  "Run a command on the session given with -i, or all"],
 		"-h" => [ false, "Help banner"                                    ],
 		"-i" => [ true,  "Interact with the supplied session ID"          ],
 		"-l" => [ false, "List all active sessions"                       ],
@@ -43,7 +43,7 @@ class Core
 		"-d" => [ true,  "Detach an interactive session"                  ],
 		"-k" => [ true,  "Terminate session"                              ],
 		"-K" => [ false, "Terminate all sessions"                         ],
-		"-s" => [ true,  "Run a script on the session given with -i, or all"  ],
+		"-s" => [ true,  "Run a script on the session given with -i, or all"],
 		"-r" => [ false, "Reset the ring buffer for the session given with -i, or all"],
 		"-u" => [ true,  "Upgrade a win32 shell to a meterpreter session" ])
 
@@ -51,7 +51,7 @@ class Core
 		"-h" => [ false, "Help banner."                                   ],
 		"-k" => [ true,  "Terminate the specified job name."              ],
 		"-K" => [ false, "Terminate all running jobs."                    ],
-		"-i" => [ true, "Lists detailed information about a running job." ],
+		"-i" => [ true,  "Lists detailed information about a running job."],
 		"-l" => [ false, "List all running jobs."                         ],
 		"-v" => [ false, "Print more detailed info.  Use with -i and -l"  ])
 
@@ -59,7 +59,7 @@ class Core
 		"-h" => [ false, "Help banner."                                   ],
 		"-k" => [ true,  "Terminate the specified thread ID."             ],
 		"-K" => [ false, "Terminate all non-critical threads."            ],
-		"-i" => [ true, "Lists detailed information about a thread."      ],
+		"-i" => [ true,  "Lists detailed information about a thread."     ],
 		"-l" => [ false, "List all background threads."                   ],
 		"-v" => [ false, "Print more detailed info.  Use with -i and -l"  ])
 
@@ -81,10 +81,10 @@ class Core
 		"-i" => [ false, "Ignore case."                                   ],
 		"-m" => [ true,  "Stop after arg matches."                        ],
 		"-v" => [ false, "Invert match."                                  ],
-		"-A" => [ true, "Show arg lines of output After a match."         ],
-		"-B" => [ true, "Show arg lines of output Before a match."        ],
-		"-s" => [ true, "Skip arg lines of output before attempting match."],
-		"-k" => [ true, "Keep (include) arg lines at start of output."    ],
+		"-A" => [ true,  "Show arg lines of output After a match."        ],
+		"-B" => [ true,  "Show arg lines of output Before a match."       ],
+		"-s" => [ true,  "Skip arg lines of output before attempting match."],
+		"-k" => [ true,  "Keep (include) arg lines at start of output."   ],
 		"-c" => [ false, "Only print a count of matching lines."          ])
 
 	@@search_opts = Rex::Parser::Arguments.new(
@@ -388,9 +388,9 @@ class Core
 				"Large pentest? List, sort, group, tag and search your hosts and services\nin Metasploit Pro -- type 'go_pro' to launch it now.",
 				"Frustrated with proxy pivoting? Upgrade to layer-2 VPN pivoting with\nMetasploit Pro -- type 'go_pro' to launch it now.",
 				"Save your shells from AV! Upgrade to advanced AV evasion using dynamic\nexe templates with Metasploit Pro -- type 'go_pro' to launch it now.",
-				"Easy phishing: Set up email templates, landing pages and listeners\nin Metasploit Pro’s wizard -- type 'go_pro' to launch it now.",
+				"Easy phishing: Set up email templates, landing pages and listeners\nin Metasploit Pro's wizard -- type 'go_pro' to launch it now.",
 				"Using notepad to track pentests? Have Metasploit Pro report on hosts,\nservices, sessions and evidence -- type 'go_pro' to launch it now.",
-				"Tired of typing ‘set RHOSTS’? Click & pwn with Metasploit Pro\n-- type 'go_pro' to launch it now."
+				"Tired of typing 'set RHOSTS'? Click & pwn with Metasploit Pro\n-- type 'go_pro' to launch it now."
 			]
 			banner << content.sample # Ruby 1.9-ism!
 			banner << "\n\n"
@@ -1455,10 +1455,10 @@ class Core
 
 	end
 
-  # Prints table of modules matching the search_string.
-  #
-  # @param (see Msf::DBManager#search_modules)
-  # @return [void]
+	# Prints table of modules matching the search_string.
+	#
+	# @param (see Msf::DBManager#search_modules)
+	# @return [void]
 	def search_modules_sql(search_string)
 		tbl = generate_module_table("Matching Modules")
 		framework.db.search_modules(search_string).each do |o|
@@ -2955,7 +2955,7 @@ class Core
 				print_line
 				print_warning "For some reason, Community / Pro didn't start in a timely fashion."
 				print_warning "You might want to restart the Metasploit services by typing"
-				print_warning "'service metasploit restart' . Sorry it didn't work out."
+				print_warning "'service metasploit restart'. Sorry it didn't work out."
 				return false
 			else
 				print "."
