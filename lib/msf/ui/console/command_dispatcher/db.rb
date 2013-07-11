@@ -662,7 +662,7 @@ class Db
 		print_line "  -P,--password         Add a cred with this password (only with -a). Default: blank"
 		print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
 		print_line "  -S,--search           Search string to filter by"
-		print_line "  -c,--search           Columns of interest"
+		print_line "  -c,--columns          Columns of interest"
 
 		print_line
 		print_line "Examples:"
