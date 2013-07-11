@@ -794,11 +794,18 @@ class Db
 		# normalize
 		ports = port_ranges.flatten.uniq
 		svcs.flatten!
+		tbl_opts = {
+			'Header'  => "Credentials",
+			'Columns' => [ 'host', 'port', 'user', 'pass', 'type', 'proof', 'active?' ]
+		}
 
-		tbl = Rex::Ui::Text::Table.new({
-				'Header'  => "Credentials",
-				'Columns' => [ 'host', 'port', 'user', 'pass', 'type', 'active?' ],
-			})
+		tbl_opts.merge!(
+			'ColProps' => {
+				'pass'  => { 'MaxChar' => 64 },
+				'proof' => { 'MaxChar' => 64 }
+			}
+		) if search_term.nil?
+		tbl = Rex::Ui::Text::Table.new(tbl_opts)
 
 		creds_returned = 0
 		# Now do the actual search
@@ -828,8 +835,8 @@ class Db
 			end
 			row = [
 					cred.service.host.address, cred.service.port,
-					cred.user, cred.pass, cred.ptype,
-					(cred.active ? "true" : "false")
+					cred.user, cred.pass, cred.ptype, cred.proof,
+					cred.active.to_s
 				]
 			tbl << row
 			if mode == :delete
