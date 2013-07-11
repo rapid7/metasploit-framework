@@ -46,6 +46,7 @@ def usage (str = nil, extra = nil)
 	tbl << ['(AC)tions', 'Show available actions for this auxiliary module']
 	tbl << ['(C)heck', 'Run the check routine of the selected module']
 	tbl << ['(E)xecute', 'Execute the selected module']
+	tbl << ['(J)ob', 'Execute the selected module as a background job']
 
 	$stdout.puts "Error: #{str}\n\n" if str
 	$stdout.puts tbl.to_s + "\n"
@@ -230,7 +231,7 @@ case mode.downcase
 		else
 			$stdout.puts("\nError: This type of module does not support the check feature")
 		end
-	when "e"
+	when "e", "j"
 			con = Msf::Ui::Console::Driver.new(
 				Msf::Ui::Console::Driver::DefaultPrompt,
 				Msf::Ui::Console::Driver::DefaultPromptChar,
@@ -245,7 +246,8 @@ case mode.downcase
 				con.run_single("set #{k} #{v}")
 			end
 
-			con.run_single("exploit")
+			mode.downcase == 'j' ? con.run_single("exploit -j") :\
+				con.run_single("exploit")
 
 			# If we have sessions or jobs, keep running
 			if $framework.sessions.length > 0 or $framework.jobs.length > 0
@@ -253,7 +255,6 @@ case mode.downcase
 			else
 				con.run_single("quit")
 			end
-
 	else
 		usage("Invalid mode #{mode}")
 end
