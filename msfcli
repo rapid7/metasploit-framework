@@ -180,19 +180,19 @@ case mode.downcase
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_module(nop, Indent)) if nop
 	when "o"
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_options(exploit, Indent))
-		$stdout.puts("\nPAYLOAD\n" + Msf::Serializer::ReadableText.dump_options(payload, Indent)) if payload
-		$stdout.puts("\nENCODER\n" + Msf::Serializer::ReadableText.dump_options(encoder, Indent)) if encoder
-		$stdout.puts("\nNOP\n" + Msf::Serializer::ReadableText.dump_options(nop, Indent)) if nop
+		$stdout.puts("\nPayload:\n\n" + Msf::Serializer::ReadableText.dump_options(payload, Indent)) if payload
+		$stdout.puts("\nEncoder:\n\n" + Msf::Serializer::ReadableText.dump_options(encoder, Indent)) if encoder
+		$stdout.puts("\nNOP\n\n" + Msf::Serializer::ReadableText.dump_options(nop, Indent)) if nop
 	when "a"
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_advanced_options(exploit, Indent))
-		$stdout.puts("\nPAYLOAD\n" + Msf::Serializer::ReadableText.dump_advanced_options(payload, Indent)) if payload
-		$stdout.puts("\nENCODER\n" + Msf::Serializer::ReadableText.dump_advanced_options(encoder, Indent)) if encoder
-		$stdout.puts("\nNOP\n" + Msf::Serializer::ReadableText.dump_advanced_options(nop, Indent)) if nop
+		$stdout.puts("\nPayload:\n\n" + Msf::Serializer::ReadableText.dump_advanced_options(payload, Indent)) if payload
+		$stdout.puts("\nEncoder:\n\n" + Msf::Serializer::ReadableText.dump_advanced_options(encoder, Indent)) if encoder
+		$stdout.puts("\nNOP:\n\n" + Msf::Serializer::ReadableText.dump_advanced_options(nop, Indent)) if nop
 	when "i"
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_evasion_options(exploit, Indent))
-		$stdout.puts("\nPAYLOAD\n" + Msf::Serializer::ReadableText.dump_evasion_options(payload, Indent)) if payload
-		$stdout.puts("\nENCODER\n" + Msf::Serializer::ReadableText.dump_evasion_options(encoder, Indent)) if encoder
-		$stdout.puts("\nNOP\n" + Msf::Serializer::ReadableText.dump_evasion_options(nop, Indent)) if nop
+		$stdout.puts("\nPayload:\n\n" + Msf::Serializer::ReadableText.dump_evasion_options(payload, Indent)) if payload
+		$stdout.puts("\nEncoder:\n\n" + Msf::Serializer::ReadableText.dump_evasion_options(encoder, Indent)) if encoder
+		$stdout.puts("\nNOP:\n\n" + Msf::Serializer::ReadableText.dump_evasion_options(nop, Indent)) if nop
 	when "p"
 		if (module_class == 'exploit')
 			$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_compatible_payloads(exploit, Indent, "Compatible payloads"))
