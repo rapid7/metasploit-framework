@@ -143,8 +143,8 @@ mode = ARGV.pop || 'h'
 # Import options
 begin
 	exploit.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
-rescue => e
-	print "[!] Error: #{e}\n\n"
+rescue Rex::ArgumentParseError => e
+	puts "[!] Error: #{e.message}\n\n"
 	exit
 end
 
