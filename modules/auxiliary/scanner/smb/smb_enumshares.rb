@@ -359,10 +359,10 @@ class Metasploit3 < Msf::Auxiliary
 				os_info     = get_os_info(ip, rport)
 				print_status("#{ip}:#{rport} - #{os_info}") if os_info
 
-				shares_info = shares.map{|x| "#{x[0]} - #{x[2]} (#{x[1]})" }.join(", ")
 				if shares.empty?
 					print_status("#{ip}:#{rport} - No shares collected")
 				else
+					shares_info = shares.map{|x| "#{x[0]} - #{x[2]} (#{x[1]})" }.join(", ")
 					print_status("#{ip}:#{rport} - #{shares_info}")
 					report_note(
 						:host   => ip,
