@@ -170,14 +170,20 @@ class Metasploit3 < Msf::Auxiliary
 	def lanman_netshareenum(ip, rport, info)
 		shares = []
 
-		res = self.simple.client.trans(
-			"\\PIPE\\LANMAN",
-			(
-				[0x00].pack('v') +
-				"WrLeh\x00"   +
-				"B13BWz\x00"  +
-				[0x01, 65406].pack("vv")
-			))
+		begin
+			res = self.simple.client.trans(
+				"\\PIPE\\LANMAN",
+				(
+					[0x00].pack('v') +
+					"WrLeh\x00"   +
+					"B13BWz\x00"  +
+					[0x01, 65406].pack("vv")
+				))
+		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
+			if e.error_code == 0xC00000BB
+				return srvsvc_netshareenum(ip)
+			end
+		end
 
 		lerror, lconv, lentries, lcount = res['Payload'].to_s[
 			res['Payload'].v['ParamOffset'],
@@ -325,13 +331,13 @@ class Metasploit3 < Msf::Auxiliary
 		datastore['SMBDirect'] = @smb_redirect
 	end
 
+
 	def run_host(ip)
 		@rport        = datastore['RPORT']
 		@smb_redirect = datastore['SMBDirect']
 		shares        = []
 
 		[[139, false], [445, true]].each do |info|
-			print_warning("Options modified: RPORT=#{info[0]}, SMBDirect=#{info[1]}")
 			datastore['RPORT']     = info[0]
 			datastore['SMBDirect'] = info[1]
 
