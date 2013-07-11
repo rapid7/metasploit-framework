@@ -23,6 +23,8 @@ module Metasploit
 							raise Metasploit::Framework::ModelInvalid.new(path)
 						end
 
+						path.path_set = self
+
 						name_collision = nil
 						real_path_collision = path_by_real_path[path.real_path]
 

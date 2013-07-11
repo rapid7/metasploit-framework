@@ -40,6 +40,13 @@ module Metasploit
 				#   @return [String]
 				attr_reader :name
 
+				# @!attribute [rw] path_set
+				#   The {Metasploit::Framework::Module::PathSet} to which this path
+				#   belongs.  The path set is used to calculate {#name_collision} and
+				#   {#real_path_collision}.  The path_set is also updated when this
+				#   path is {#save! saved}.
+				attr_reader :path_set
+
 				# @!attribute [rw] real_path
 				#   @note Non-real paths will be converted to real paths in a before
 				#   validation callback, so take care to either pass real paths or pay
@@ -97,6 +104,21 @@ module Metasploit
 					end
 
 					@name = name
+				end
+
+				# Sets {#path_set}.
+				#
+				# @param path_set [Metasploit::Framework::Module::PathSet::Memory] the
+				#   path_set to which this path belongs.
+				# @return [Metasploit::Framework::Module::PathSet::Memory] `path_set`
+				# @raise [Metasploit::Framework::Module::Path::Error]
+				def path_set=(path_set)
+					unless self.path_set.nil? || self.path_set == path_set
+						raise Metasploit::Framework::Module::Path::Error,
+									'already associated with another Metasploit::Framework::Module::PathSet::Memory'
+					end
+
+					@path_set = path_set
 				end
 
 				# Updates {#real_path} value and marks {#real_path} as changed if

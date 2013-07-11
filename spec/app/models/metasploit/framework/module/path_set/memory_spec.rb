@@ -32,6 +32,16 @@ describe Metasploit::Framework::Module::PathSet::Memory do
 			}.to raise_error Metasploit::Framework::ModelInvalid
 		end
 
+		it 'should set path_set after validating' do
+			path = FactoryGirl.build(:unnamed_metasploit_framework_module_path)
+			Metasploit::Framework::Module::Path.stub(:new => path)
+
+			path.should_receive(:valid?).ordered.and_return(true)
+			path.should_receive(:path_set=).with(path_set).ordered
+
+			add
+		end
+
 		context 'with valid' do
 			context 'with (gem, name) and real_path collision' do
 				context 'with 1 other Metasploit::Framework::Module::Path' do

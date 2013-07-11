@@ -47,6 +47,40 @@ describe Metasploit::Framework::Module::Path do
 		end
 	end
 
+	context '#path_set=' do
+		subject(:path) do
+			FactoryGirl.build(:metasploit_framework_module_path)
+		end
+
+		let(:new_path_set) do
+			Metasploit::Framework::Module::PathSet::Memory.new(:framework => nil)
+		end
+
+		context 'with undefined' do
+			it 'should set #path_set' do
+				expect {
+					path.path_set = new_path_set
+				}.to change(path, :path_set).to(new_path_set)
+			end
+		end
+
+		context 'without undefined' do
+			let(:original_path_set) do
+				Metasploit::Framework::Module::PathSet::Memory.new(:framework => nil)
+			end
+
+			before(:each) do
+				path.path_set = original_path_set
+			end
+
+			it 'should raise Metasploit::Framework::Module::Path::Error' do
+				expect {
+					path.path_set = new_path_set
+				}.to raise_error Metasploit::Framework::Module::Path::Error
+			end
+		end
+	end
+
 	context '#update_module_ancestor_real_paths' do
 		let(:path) do
 			FactoryGirl.build(:metasploit_framework_module_path)
