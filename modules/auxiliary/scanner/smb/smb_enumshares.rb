@@ -187,6 +187,8 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 
+		return [] if res.nil?
+
 		lerror, lconv, lentries, lcount = res['Payload'].to_s[
 			res['Payload'].v['ParamOffset'],
 			res['Payload'].v['ParamCount']
@@ -358,10 +360,11 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("#{ip}:#{rport} - #{os_info}") if os_info
 
 				shares_info = shares.map{|x| "#{x[0]} - #{x[2]} (#{x[1]})" }.join(", ")
-				print_status("#{ip}:#{rport} - #{shares_info}")
-
-				unless shares.empty?
-						report_note(
+				if shares.empty?
+					print_status("#{ip}:#{rport} - No shares collected")
+				else
+					print_status("#{ip}:#{rport} - #{shares_info}")
+					report_note(
 						:host   => ip,
 						:proto  => 'tcp',
 						:port   => rport,
