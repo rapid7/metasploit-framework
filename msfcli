@@ -246,8 +246,7 @@ case mode.downcase
 				con.run_single("set #{k} #{v}")
 			end
 
-			mode.downcase == 'j' ? con.run_single("exploit -j") :\
-				con.run_single("exploit")
+			con.run_single("exploit #{mode.downcase == 'j' ? "-j" : ""}")
 
 			# If we have sessions or jobs, keep running
 			if $framework.sessions.length > 0 or $framework.jobs.length > 0
