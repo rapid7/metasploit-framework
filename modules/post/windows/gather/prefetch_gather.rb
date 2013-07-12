@@ -15,10 +15,10 @@ class Metasploit3 < Msf::Post
 	
         def initialize(info={})
                 super(update_info(info,
-                        'Name'          =>      'Windows Gather Prefetch File Information',
+                        'Name'          =>      'Prefetch Tool',
                         'Description'   =>       %q{ Gathers information from Windows Prefetch files.},
                         'License'       =>      MSF_LICENSE,
-                        'Author'        =>      ['jiuweigui <fraktaali[at]gmail.com>'],
+                        'Author'        =>      ['Timo Glad <fraktaali[at]gmail.com>'],
                         'Platform'      =>      ['win'],
                         'SessionType'   =>      ['meterpreter']
                 ))
@@ -68,14 +68,14 @@ class Metasploit3 < Msf::Post
                                 return nil
                         else
 
-				handle = h['return']
+				                        handle = h['return']
 
-				# Looks for the FILENAME offset
+				                        # Looks for the FILENAME offset
 
-				client.railgun.kernel32.SetFilePointer(handle, name_offset, 0, nil)
+				                        client.railgun.kernel32.SetFilePointer(handle, name_offset, 0, nil)
                                 name = client.railgun.kernel32.ReadFile(handle, 60, 60, 4, nil)
                                 x = name['lpBuffer']
-				pname = x.slice(0..x.index("\x00\x00"))
+				                        pname = x.slice(0..x.index("\x00\x00"))
 
                                 # Finds the run count from the prefetch file    
 
@@ -84,19 +84,19 @@ class Metasploit3 < Msf::Post
                                 prun = count['lpBuffer'].unpack('L*')
 
 
-				# Looks for the FILETIME offset / WORKS, sort of at least..
-				# Need to find a way to convert FILETIME to LOCAL TIME etc...
-				client.railgun.kernel32.SetFilePointer(handle, lastrun_offset, 0, 0)
+				                        # Looks for the FILETIME offset / WORKS, sort of at least..
+				                        # Need to find a way to convert FILETIME to LOCAL TIME etc...
+				                        client.railgun.kernel32.SetFilePointer(handle, lastrun_offset, 0, 0)
                                 tm1 = client.railgun.kernel32.ReadFile(handle, 8, 8, 4, nil)
                                 time1 = tm1['lpBuffer']
-				time = time1.unpack('h*')[0].reverse.to_i(16)
+				                        time = time1.unpack('h*')[0].reverse.to_i(16)
 				
 
-				# Finding the HASH      
+				                        # Finding the HASH      
                                 client.railgun.kernel32.SetFilePointer(handle, hash_offset, 0, 0)
                                 hh = client.railgun.kernel32.ReadFile(handle, 4, 4, 4, nil)
                                 y = hh['lpBuffer']
-				hash = y.unpack('h*')[0].reverse
+				                        hash = y.unpack('h*')[0].reverse
 
 
 				print_line("%20s\t %8s\t %08s\t %-60s\t\t %s" % [time,prun[0], hash, pname, filename[20..-1]])
@@ -117,6 +117,7 @@ class Metasploit3 < Msf::Post
 		if not is_admin?
 			
 			print_error("You don't have enough privileges. Try getsystem.")
+      return nil
 		end
 
 
@@ -136,9 +137,19 @@ class Metasploit3 < Msf::Post
 			hash_offset = 0x4C # Offset for hash in XP / 2003
 			lastrun_offset = 0x78 # Offset for LastRun in XP / 2003
 			runcount_offset = 0x90 # Offset for RunCount in XP / 2003
+
+
+    elsif sysnfo =~/(Windows 7)/ # Offsets for Win7, should work on Vista too but couldn't test it.
+
+        print_status("Detected Windows 7")
+
+        name_offset = 0x10
+        hash_offset = 0x4C
+        lastrun_offset = 0x80
+        runcount_offset = 0x98
 		else
 			print_error("No offsets for the target Windows version.")
-
+        return nil
 		end
 
 
@@ -162,6 +173,7 @@ class Metasploit3 < Msf::Post
                         if file.empty? or file.nil?
 
 				print_error("No files or not enough privileges.")
+        return nil
 			else
 				filename = File.join(file['path'], file['name'])
 				
