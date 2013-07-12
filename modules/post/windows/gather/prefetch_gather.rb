@@ -15,10 +15,10 @@ class Metasploit3 < Msf::Post
 	
         def initialize(info={})
                 super(update_info(info,
-                        'Name'          =>      'Prefetch Tool',
+                        'Name'          =>      'Windows Gather Prefetch File Information',
                         'Description'   =>       %q{ Gathers information from Windows Prefetch files.},
                         'License'       =>      MSF_LICENSE,
-                        'Author'        =>      ['Timo Glad <fraktaali[at]gmail.com>'],
+                        'Author'        =>      ['jiuweigui <fraktaali[at]gmail.com>'],
                         'Platform'      =>      ['win'],
                         'SessionType'   =>      ['meterpreter']
                 ))
