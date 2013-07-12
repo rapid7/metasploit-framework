@@ -15,9 +15,10 @@ module Metasploit
 					#   metasploit-framework itself, this would be `'metasploit-framework'`,
 					#   while for Metasploit Pro this would be `'metasploit-pro'`.  The
 					#   name used for `gem` does not have to be a gem on rubygems, it just
-					#   functions as a namespace for {#name} so that projects using
+					#   functions as a namespace for :name so that projects using
 					#   metasploit-framework do not need to worry about collisions on
-					#   {#name} which could disrupt the cache behavior.
+					#   :name which could disrupt the cache behavior.
+					# @option options [String] :name The name scoped to :gem of path.
 					# @raise [NotImplementedError]
 					def add(path, options={})
 						raise NotImplementedError,

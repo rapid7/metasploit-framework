@@ -70,7 +70,7 @@ module Metasploit
 					# {Metasploit::Framework::Module::Path paths}.
 					# {Metasploit::Framework::Module::Path Paths} without a
 					# {Metasploit::Framework::Module::Path#gem gem} are only stored in
-					# {#paths_by_real_path}.
+					# {#path_by_real_path}.
 					#
 					# @return [Hash{String => Metasploit::Framework::Module::Path}]
 					def path_by_name_by_gem
@@ -86,7 +86,7 @@ module Metasploit
 					# {Metasploit::Framework::Module::Path#gem}.
 					# {Metasploit::Framework::Module::Path} with a
 					# {Metasploit::Framework::Module::Path#gem} is favored over a
-					# {Metasploit::Framework::Module:Path} without a
+					# {Metasploit::Framework::Module::Path} without a
 					# {Metasploit::Framework::Module::Path#gem}.
 					#
 					# @return [Hash{String => Measploit::Framework::Module::Path}]

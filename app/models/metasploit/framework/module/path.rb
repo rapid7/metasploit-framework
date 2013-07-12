@@ -114,14 +114,14 @@ module Metasploit
 				end
 
 				# @note This path should be validated before calling
-				#   {#name_collision} so that {#} is normalized.
+				#   {#name_collision} so that {#gem} and {#name} is normalized.
 				#
 				# Returns path in {#path_set} with the same {#gem} and {#name}.
 				#
 				# @return [Metasploit::Framework::Module::Path] if there is a
 				#   {Metasploit::Framework::Module::Path} with the same {#gem} and
 				#   {#name} as this path.
-				# @return [nil] if {#named?} is `false`.
+				# @return [nil] if #named? is `false`.
 				# @return [nil] if there is not match.
 				# @raise (see #path_set)
 				def name_collision

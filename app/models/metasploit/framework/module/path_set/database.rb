@@ -2,7 +2,7 @@ module Metasploit
 	module Framework
 		module Module
 			module PathSet
-				# Set of {Mdm::Module::Path database module paths}.
+				# Set of database module paths.
 				class Database < Metasploit::Framework::Module::PathSet::Base
 					# Error raised by {Metasploit::Framework::Module::PathSet::Database}.
 					class Error < Metasploit::Framework::Module::PathSet::Error

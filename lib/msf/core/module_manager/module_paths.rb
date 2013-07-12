@@ -11,15 +11,15 @@ module Msf::ModuleManager::ModulePaths
 
 	# Adds a path to be searched for new modules.
 	#
-	# @param real_path [String] a path.
+	# @param path [String] a path.
 	# @param options [Hash{Symbol => String}]
 	# @option options [String] :gem The name of the gem that is adding this module
 	#   path to metasploit-framework.  For paths normally added by
 	#   metasploit-framework itself, this would be `'metasploit-framework'`, while
 	#   for Metasploit Pro this would be `'metasploit-pro'`.  The name used for
 	#   `gem` does not have to be a gem on rubygems, it just functions as a
-	#   namespace for {#name} so that projects using metasploit-framework do not
-	#   need to worry about collisions on {#name} which could disrupt the cache
+	#   namespace for :name so that projects using metasploit-framework do not
+	#   need to worry about collisions on :name which could disrupt the cache
 	#   behavior.
 	# @option options [String] :name The name of the module path scoped to :gem.
 	#   :gem and :name uniquely identify this path so that if
@@ -98,7 +98,7 @@ module Msf::ModuleManager::ModulePaths
 
 	# Returns Class for {#module_path_set}.
 	#
-	# @return [Class] {Metasploit::Framework::Module::PathSet::DataBase} if the
+	# @return [Class] {Metasploit::Framework::Module::PathSet::Database} if the
 	#   database is active.  {Metasploit::Framework::Module::PathSet::Memory} if
 	#   the database is not active.
 	def module_path_set_class
