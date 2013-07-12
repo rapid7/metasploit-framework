@@ -3,8 +3,14 @@ module Metasploit
 		module Module
 			# In-memory equivalent of `Mdm::Module::Path`
 			class Path
+				extend ActiveModel::Callbacks
 				include ActiveModel::Dirty
 				include Metasploit::Model::Module::Path
+
+				# Error raise by {Metasploit::Framework::Module::Path}.
+				class Error < Metasploit::Framework::Error
+
+				end
 
 				#
 				# Attributes Methods - used to track changed attributes
@@ -40,13 +46,6 @@ module Metasploit
 				#   @return [String]
 				attr_reader :name
 
-				# @!attribute [rw] path_set
-				#   The {Metasploit::Framework::Module::PathSet} to which this path
-				#   belongs.  The path set is used to calculate {#name_collision} and
-				#   {#real_path_collision}.  The path_set is also updated when this
-				#   path is {#save! saved}.
-				attr_reader :path_set
-
 				# @!attribute [rw] real_path
 				#   @note Non-real paths will be converted to real paths in a before
 				#   validation callback, so take care to either pass real paths or pay
@@ -57,6 +56,14 @@ module Metasploit
 				#
 				#   @return [String]
 				attr_reader :real_path
+
+				#
+				# Callbacks
+				#
+
+				define_model_callbacks :save
+
+				after_save :update_module_ancestor_real_paths
 
 				#
 				# Methods
@@ -106,19 +113,59 @@ module Metasploit
 					@name = name
 				end
 
+				# @note This path should be validated before calling
+				#   {#name_collision} so that {#} is normalized.
+				#
+				# Returns path in {#path_set} with the same {#gem} and {#name}.
+				#
+				# @return [Metasploit::Framework::Module::Path] if there is a
+				#   {Metasploit::Framework::Module::Path} with the same {#gem} and
+				#   {#name} as this path.
+				# @return [nil] if {#named?} is `false`.
+				# @return [nil] if there is not match.
+				# @raise (see #path_set)
+				def name_collision
+					collision = nil
+
+					# Don't check path_by_name_by_gem if gem and name are nil since
+					# path_by_name_by_gem doesn't support nils.
+					if named?
+						path_by_name = path_set.path_by_name_by_gem[gem]
+						collision = path_by_name[name]
+					end
+
+					collision
+				end
+
 				# Sets {#path_set}.
 				#
 				# @param path_set [Metasploit::Framework::Module::PathSet::Memory] the
 				#   path_set to which this path belongs.
 				# @return [Metasploit::Framework::Module::PathSet::Memory] `path_set`
-				# @raise [Metasploit::Framework::Module::Path::Error]
+				# @raise [Metasploit::Framework::Module::Path::Error] if path_set has
+				#   not already been set.
 				def path_set=(path_set)
-					unless self.path_set.nil? || self.path_set == path_set
+					if instance_variable_defined? :@path_set
 						raise Metasploit::Framework::Module::Path::Error,
 									'already associated with another Metasploit::Framework::Module::PathSet::Memory'
 					end
 
 					@path_set = path_set
+				end
+
+				# The set of path to which this path
+				# belongs.  The path set is used to calculate {#name_collision} and
+				# {#real_path_collision}.  The path_set is also updated when this
+				# path is {#save! saved}.
+				#
+				# @return [Metasploit::Framework::Module::PathSet::Memory]
+				def path_set
+					unless instance_variable_defined? :@path_set
+						raise Metasploit::Framework::Module::Path::Error,
+									'path_set not set prior to use'
+					end
+
+					@path_set
 				end
 
 				# Updates {#real_path} value and marks {#real_path} as changed if
@@ -134,11 +181,53 @@ module Metasploit
 					@real_path = real_path
 				end
 
-				# Resets #changes and stores old changes in #previous_changes.  Call in
-				# place of `save` after any changed? checks are performed.
+				# @note This path should be validated before calling
+				#   {#real_path_collision} so that {#real_path} is normalized.
+				#
+				# Returns path in {#path_set} with the same {#real_path}.
+				#
+				# @return [Metasploit::Framework::Module::Path] if there is a
+				#   {Metasploit::Framework::Module::Path} with the same {#real_path} as
+				#   this path.
+				# @return [nil] if there is not match.
+				# @raise (see #path_set)
+				def real_path_collision
+					path_set.path_by_real_path[real_path]
+				end
+
+				# Saves this path to {#path_set}.
 				#
 				# @return [void]
-				def reset_changes
+				# @raise [Metasploit::Framework::ModuleInvalid] if this path is invalid.
+				def save!
+					unless valid?
+						raise Metasploit::Framework::ModelInvalid.new(self)
+					end
+
+					run_callbacks :save do
+						if gem_changed? or name_changed?
+							if was_named?
+								path_by_name = path_set.path_by_name_by_gem[gem_was]
+								path_by_name.delete(name_was)
+							end
+
+							if named?
+								path_by_name = path_set.path_by_name_by_gem[gem]
+								path_by_name[name] = self
+							end
+						end
+
+						if real_path_changed?
+							unless real_path_was.nil?
+								path_set.path_by_real_path.delete(real_path_was)
+							end
+
+							path_set.path_by_real_path[real_path] = self
+						end
+					end
+
+					# reset changes after running callbacks so they can use
+					# <attribute>_changed?
 					@previously_changed = changes
 					@changed_attributes.clear
 				end

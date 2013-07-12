@@ -37,7 +37,9 @@ describe Metasploit::Framework::Module::PathSet::Memory do
 			Metasploit::Framework::Module::Path.stub(:new => path)
 
 			path.should_receive(:valid?).ordered.and_return(true)
-			path.should_receive(:path_set=).with(path_set).ordered
+			path.should_receive(:path_set=).with(path_set).ordered.and_call_original
+			# stub save to prevent save!'s call to valid? from counting for this test
+			path.stub(:save!)
 
 			add
 		end
@@ -62,9 +64,9 @@ describe Metasploit::Framework::Module::PathSet::Memory do
 					end
 
 					before(:each) do
-						path_set.send(:path_by_real_path)[collision.real_path] = collision
+						path_set.path_by_real_path[collision.real_path] = collision
 
-						path_by_name = path_set.send(:path_by_name_by_gem)[collision.gem]
+						path_by_name = path_set.path_by_name_by_gem[collision.gem]
 						path_by_name[collision.name] = collision
 					end
 
@@ -95,9 +97,9 @@ describe Metasploit::Framework::Module::PathSet::Memory do
 					end
 
 					before(:each) do
-						path_set.send(:path_by_real_path)[real_path_collision.real_path] = real_path_collision
+						path_set.path_by_real_path[real_path_collision.real_path] = real_path_collision
 
-						path_by_name = path_set.send(:path_by_name_by_gem)[name_collision.gem]
+						path_by_name = path_set.path_by_name_by_gem[name_collision.gem]
 						path_by_name[name_collision.name] = name_collision
 					end
 
@@ -127,10 +129,15 @@ describe Metasploit::Framework::Module::PathSet::Memory do
 				end
 
 				before(:each) do
-					path_set.send(:path_by_real_path)[name_collision.real_path] = name_collision
+					name_collision.path_set = path_set
 
-					path_by_name = path_set.send(:path_by_name_by_gem)[name_collision.gem]
+					path_set.path_by_real_path[name_collision.real_path] = name_collision
+
+					path_by_name = path_set.path_by_name_by_gem[name_collision.gem]
 					path_by_name[name_collision.name] = name_collision
+
+					# clear changes so change? logic in save! works correctly
+					name_collision.instance_variable_get(:@changed_attributes).clear
 				end
 
 				it 'should remove old real_path' do
@@ -138,7 +145,7 @@ describe Metasploit::Framework::Module::PathSet::Memory do
 
 					add
 
-					path_set.send(:path_by_real_path).should_not have_key(old_real_path)
+					path_set.path_by_real_path.should_not have_key(old_real_path)
 				end
 
 				it 'should update real_path on collision' do
@@ -150,7 +157,7 @@ describe Metasploit::Framework::Module::PathSet::Memory do
 				it 'should add new real_path' do
 					add
 
-					path_set.send(:path_by_real_path).should have_key(real_path)
+					path_set.path_by_real_path.should have_key(real_path)
 				end
 
 				it 'should update #module_ancestors real_paths' do
@@ -170,12 +177,17 @@ describe Metasploit::Framework::Module::PathSet::Memory do
 				end
 
 				before(:each) do
-					path_set.send(:path_by_real_path)[real_path_collision.real_path] = real_path_collision
+					real_path_collision.path_set = path_set
+
+					path_set.path_by_real_path[real_path_collision.real_path] = real_path_collision
 
 					if real_path_collision.named?
-						path_by_name = path_set.send(:path_by_name_by_gem)[real_path_collision.gem]
+						path_by_name = path_set.path_by_name_by_gem[real_path_collision.gem]
 						path_by_name[real_path_collision.name] = real_path_collision
 					end
+
+					# clear changes so that change? logic in save! works correctly
+					real_path_collision.instance_variable_get(:@changed_attributes).clear
 				end
 
 				context 'with named collision' do
@@ -198,7 +210,7 @@ describe Metasploit::Framework::Module::PathSet::Memory do
 
 							add
 
-							path_by_name = path_set.send(:path_by_name_by_gem)[old_gem]
+							path_by_name = path_set.path_by_name_by_gem[old_gem]
 							path_by_name.should_not have_key(old_name)
 						end
 
@@ -221,7 +233,7 @@ describe Metasploit::Framework::Module::PathSet::Memory do
 						it 'should add new name entry' do
 							add
 
-							path_by_name = path_set.send(:path_by_name_by_gem)[gem]
+							path_by_name = path_set.path_by_name_by_gem[gem]
 							path_by_name[name].should == real_path_collision
 						end
 
@@ -237,7 +249,7 @@ describe Metasploit::Framework::Module::PathSet::Memory do
 
 							add
 
-							path_by_name = path_set.send(:path_by_name_by_gem)[old_gem]
+							path_by_name = path_set.path_by_name_by_gem[old_gem]
 							path_by_name.should have_key(old_name)
 						end
 
@@ -291,7 +303,7 @@ describe Metasploit::Framework::Module::PathSet::Memory do
 						it 'should add new name entry' do
 							add
 
-							path_by_name = path_set.send(:path_by_name_by_gem)[gem]
+							path_by_name = path_set.path_by_name_by_gem[gem]
 							path_by_name[name].should == real_path_collision
 						end
 
@@ -325,14 +337,14 @@ describe Metasploit::Framework::Module::PathSet::Memory do
 					it 'should add name entry' do
 						add
 
-						path_by_name = path_set.send(:path_by_name_by_gem)[gem]
+						path_by_name = path_set.path_by_name_by_gem[gem]
 						path_by_name[name].should be_a Metasploit::Framework::Module::Path
 					end
 
 					it 'should add real_path entry' do
 						add
 
-						path_set.send(:path_by_real_path)[real_path].should be_a Metasploit::Framework::Module::Path
+						path_set.path_by_real_path[real_path].should be_a Metasploit::Framework::Module::Path
 					end
 
 					it 'should return new path' do
@@ -344,7 +356,7 @@ describe Metasploit::Framework::Module::PathSet::Memory do
 					it 'should add real_path entry' do
 						add
 
-						path_set.send(:path_by_real_path)[real_path].should be_a Metasploit::Framework::Module::Path
+						path_set.path_by_real_path[real_path].should be_a Metasploit::Framework::Module::Path
 					end
 
 					it 'should return new path' do

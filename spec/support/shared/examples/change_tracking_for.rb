@@ -24,16 +24,16 @@ shared_examples_for 'change tracking for' do |attribute|
 
 		context 'without same value' do
 			let(:new_value) do
-				"changed #{old_value}"
+				"#{old_value}_changed"
 			end
 
 			it 'should be changed' do
 				changed?.should be_true
 			end
 
-			context 'after reset_changes' do
+			context 'after save!' do
 				before(:each) do
-					subject.reset_changes
+					subject.save!
 				end
 
 				it 'should not be changed' do
