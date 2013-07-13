@@ -83,13 +83,21 @@ module ReverseHttp
 	# addresses.
 	#
 	def full_uri
-		lhost = datastore['LHOST']
+		if datastore['HIDDENHOST']
+			lhost = datastore['HIDDENHOST']
+		else
+			lhost = datastore['LHOST']
+		end
 		if lhost.empty? or lhost == "0.0.0.0" or lhost == "::"
 			lhost = Rex::Socket.source_address
 		end
 		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
 		scheme = (ssl?) ? "https" : "http"
-		uri = "#{scheme}://#{lhost}:#{datastore["LPORT"]}/"
+		if datastore['HIDDENPORT']
+			uri = "#{scheme}://#{lhost}:#{datastore["HIDDENPORT"]}/"
+		else
+			uri = "#{scheme}://#{lhost}:#{datastore["LPORT"]}/"
+		end
 
 		uri
 	end
@@ -307,6 +315,11 @@ protected
 							proxyinfo = proxyhost + ":" + proxyport
 							if proxyport == "80"
 								proxyinfo = proxyhost
+							end
+							if datastore['PROXY_TYPE'].to_s == 'HTTP'
+								proxyinfo = 'http://' + proxyinfo
+							else #socks
+								proxyinfo = 'socks=' + proxyinfo
 							end
 							proxyinfo << "\x00"
 							blob[i, proxyinfo.length] = proxyinfo
