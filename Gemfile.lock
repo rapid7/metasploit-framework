@@ -8,10 +8,10 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: bb52e272d1a3f4940e512e23d078802c2988676f
-  tag: v0.21.3.module-caching
+  revision: c4b59931304e3b27805732ad7a097d836fe2131b
+  tag: v0.21.4.module-caching
   specs:
-    metasploit_data_models (0.21.3)
+    metasploit_data_models (0.21.4)
       activerecord (>= 3.2.13)
       activesupport
       metasploit-model (~> 0.1.1)

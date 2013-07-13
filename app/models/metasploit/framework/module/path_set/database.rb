@@ -26,20 +26,8 @@ class Metasploit::Framework::Module::PathSet::Database < Metasploit::Framework::
 					raise ActiveRecord::RecordInvalid.new(path)
 				end
 
-				name_collision = nil
-				real_path_collision = Mdm::Module::Path.where(
-						:real_path => path.real_path
-				).first
-
-				# Don't query for gem IS NULL and path IS NULL as it will return
-				# all unnamed paths which only need to be checked for real_path
-				# collisions, which is already handled above.
-				if path.named?
-					name_collision = Mdm::Module::Path.where(
-							:gem => path.gem,
-							:name => path.name
-					).first
-				end
+				name_collision = path.name_collision
+				real_path_collision = path.real_path_collision
 
 				if name_collision and real_path_collision
 					if name_collision != real_path_collision
