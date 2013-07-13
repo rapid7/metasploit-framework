@@ -10,6 +10,7 @@ require 'rex'
 require 'msf/core/post/windows/registry'
 require 'time'
 
+
 class Metasploit3 < Msf::Post
         include Msf::Post::Windows::Priv
 	
@@ -32,28 +33,23 @@ class Metasploit3 < Msf::Post
 	def prefetch_key_value()
 
 		reg_key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\Session\ Manager\\Memory\ Management\\PrefetchParameters", KEY_READ)
-                key_value = reg_key.query_value("EnablePrefetcher").data
+    key_value = reg_key.query_value("EnablePrefetcher").data
 
-		
-		 print_status("EnablePrefetcher Value: #{key_value}")
 
                         if key_value == 0
-                                print_error("(0) = Disabled (Non-Default).")
+                                print_error("EnablePrefetcher Value: (0) = Disabled (Non-Default).")
                         elsif key_value == 1
-                                print_good("(1) = Application launch prefetching enabled (Non-Default).")
+                                print_good("EnablePrefetcher Value: (1) = Application launch prefetching enabled (Non-Default).")
                         elsif key_value == 2
-                                print_good("(2) = Boot prefetching enabled (Non-Default).")
+                                print_good("EnablePrefetcher Value: (2) = Boot prefetching enabled (Non-Default).")
                         elsif key_value == 3
-                                print_good("(3) = Applaunch and boot enabled (Default Value).")
+                                print_good("EnablePrefetcher Value: (3) = Applaunch and boot enabled (Default Value).")
                         else
                                 print_error("No proper value set so information should be taken with a grain of salt.")
 
                         end
-
+      reg_key.close
 	end
-
-
-
 
 	
 	def gather_info(name_offset, hash_offset, lastrun_offset, runcount_offset, filename)
@@ -83,11 +79,18 @@ class Metasploit3 < Msf::Post
 
 
 				                        # Finds the FILETIME offset and converts it.
+                                # The time conversion is currently a bit confusing.
+                                # ATM You have to add/substract your timezone from the
+                                # time it prints out. That time is the one from the pf
+                                # file and represents the time on your timezone
+                                # i.e. if timestamp is 2013-07-13 21:00:13 and i'm on +2
+                                # then the correct time is 2013-07-13 19:00:13
 				                        client.railgun.kernel32.SetFilePointer(handle, lastrun_offset, 0, 0)
                                 tm = client.railgun.kernel32.ReadFile(handle, 8, 8, 4, nil)
-                                time1 = tm['lpBuffer'].unpack('h*')[0].reverse.to_i(16)
-                                time2 = ((time1.to_i - 116444556000000000) / 10000000)
-                                ptime = Time.at(time2).to_datetime
+                                filetime = tm['lpBuffer'].unpack('h*')[0].reverse.to_i(16)
+                                xtime = ((filetime.to_i - 116444556000000000) / 10000000)
+                                ptime = Time.at(xtime).utc.to_s
+
 
                                 # Finds the hash.
                                 client.railgun.kernel32.SetFilePointer(handle, hash_offset, 0, 0)
@@ -95,7 +98,7 @@ class Metasploit3 < Msf::Post
                                 phash = hh['lpBuffer'].unpack('h*')[0].reverse
 
 
-				      print_line("%s\t %s\t\t %08s\t %-29s" % [ptime, prun[0], phash, pname])
+				      print_line("%s\t\t %s\t\t %08s\t %-29s" % [ptime[0..-4], prun[0], phash, pname])
 
 
 		    client.railgun.kernel32.CloseHandle(handle)
@@ -108,7 +111,7 @@ class Metasploit3 < Msf::Post
 
 	def run
 
-		print_status("Searching for Prefetch Hive Value.")
+		print_status("Prefetch Gathering started.")
 
 		if not is_admin?
 			
@@ -118,7 +121,6 @@ class Metasploit3 < Msf::Post
 
 
 	begin
-
 
 		sysnfo = client.sys.config.sysinfo['OS']
 
@@ -130,7 +132,7 @@ class Metasploit3 < Msf::Post
 
 		if sysnfo =~/(Windows XP)/ # Offsets for WinXP
 
-			  print_status("Detected Windows XP")
+			  print_good("Detected Windows XP")
 			  name_offset = 0x10
 			  hash_offset = 0x4C
 			  lastrun_offset = 0x78
@@ -138,7 +140,7 @@ class Metasploit3 < Msf::Post
 
     elsif sysnfo =~/(Windows 7)/ # Offsets for Win7
 
-        print_status("Detected Windows 7")
+        print_good("Detected Windows 7")
         name_offset = 0x10
         hash_offset = 0x4C
         lastrun_offset = 0x80
@@ -150,11 +152,10 @@ class Metasploit3 < Msf::Post
 
         return nil
 		end
-
-
+    
+    print_status("Searching for Prefetch Hive Value.")
 		prefetch_key_value
-		
-		
+
 		sysroot = client.fs.file.expand_path("%SYSTEMROOT%")
 		full_path = sysroot + "\\Prefetch\\"
 		file_type = "*.pf"
