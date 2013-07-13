@@ -58,66 +58,61 @@ class Metasploit3 < Msf::Post
 
 		h = client.railgun.kernel32.CreateFileA(filename, "GENERIC_READ", "FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE", nil, "OPEN_EXISTING", "FILE_ATTRIBUTE_NORMAL", 0)
 
-	                    	if h['GetLastError'] != 0
+    if h['GetLastError'] != 0
 
-                                print_error("Error opening a file handle.")
-                                return nil
-                        else
+      print_error("Error opening a file handle.")
+      return nil
+    else
 
-				                        handle = h['return']
+      handle = h['return']
 
-				                        # Finds the filename from the prefetch file.
-				                        client.railgun.kernel32.SetFilePointer(handle, name_offset, 0, nil)
-                                name = client.railgun.kernel32.ReadFile(handle, 60, 60, 4, nil)
-                                x = name['lpBuffer']
-				                        pname = x.slice(0..x.index("\x00\x00"))
+      # Finds the filename from the prefetch file
+      client.railgun.kernel32.SetFilePointer(handle, name_offset, 0, nil)
+      name = client.railgun.kernel32.ReadFile(handle, 60, 60, 4, nil)
+      x = name['lpBuffer']
+      pname = x.slice(0..x.index("\x00\x00"))
 
-                                # Finds the run count from the prefetch file 
-                                client.railgun.kernel32.SetFilePointer(handle, runcount_offset, 0, nil)
-                                count = client.railgun.kernel32.ReadFile(handle, 4, 4, 4, nil)
-                                prun = count['lpBuffer'].unpack('L*')
+      # Finds the run count from the prefetch file 
+      client.railgun.kernel32.SetFilePointer(handle, runcount_offset, 0, nil)
+      count = client.railgun.kernel32.ReadFile(handle, 4, 4, 4, nil)
+      prun = count['lpBuffer'].unpack('L*')
 
+      # FIXME: Finds the FILETIME offset and converts it.
+      # The time conversion is currently a bit confusing.
+      # ATM You have to add/substract your timezone from the
+      # time it prints out. That time is the one from the pf
+      # file and represents the time on your timezone
+      # i.e. if timestamp is 2013-07-13 21:00:13 and i'm on +2
+      # then the correct time is 2013-07-13 19:00:13
+      client.railgun.kernel32.SetFilePointer(handle, lastrun_offset, 0, 0)
+      tm = client.railgun.kernel32.ReadFile(handle, 8, 8, 4, nil)
+      filetime = tm['lpBuffer'].unpack('h*')[0].reverse.to_i(16)
+      xtime = ((filetime.to_i - 116444556000000000) / 10000000)
+      ptime = Time.at(xtime).utc.to_s
 
-				                        # Finds the FILETIME offset and converts it.
-                                # The time conversion is currently a bit confusing.
-                                # ATM You have to add/substract your timezone from the
-                                # time it prints out. That time is the one from the pf
-                                # file and represents the time on your timezone
-                                # i.e. if timestamp is 2013-07-13 21:00:13 and i'm on +2
-                                # then the correct time is 2013-07-13 19:00:13
-				                        client.railgun.kernel32.SetFilePointer(handle, lastrun_offset, 0, 0)
-                                tm = client.railgun.kernel32.ReadFile(handle, 8, 8, 4, nil)
-                                filetime = tm['lpBuffer'].unpack('h*')[0].reverse.to_i(16)
-                                xtime = ((filetime.to_i - 116444556000000000) / 10000000)
-                                ptime = Time.at(xtime).utc.to_s
-
-
-                                # Finds the hash.
-                                client.railgun.kernel32.SetFilePointer(handle, hash_offset, 0, 0)
-                                hh = client.railgun.kernel32.ReadFile(handle, 4, 4, 4, nil)
-                                phash = hh['lpBuffer'].unpack('h*')[0].reverse
+      # Finds the hash.
+      client.railgun.kernel32.SetFilePointer(handle, hash_offset, 0, 0)
+      hh = client.railgun.kernel32.ReadFile(handle, 4, 4, 4, nil)
+      phash = hh['lpBuffer'].unpack('h*')[0].reverse
 
 
-				      print_line("%s\t\t %s\t\t %08s\t %-29s" % [ptime[0..-4], prun[0], phash, pname])
-
-
-		    client.railgun.kernel32.CloseHandle(handle)
-		
+      print_line("%s\t\t %s\t\t %08s\t %-29s" % [ptime[0..-4], prun[0], phash, pname])
+      client.railgun.kernel32.CloseHandle(handle)
 		end
 
 	end
 
-	
 
 	def run
 
-		print_status("Prefetch Gathering started.")
+    print_status("Prefetch Gathering started.")
 
-		if not is_admin?
-			
-			print_error("You don't have enough privileges. Try getsystem.")
+    if not is_admin?
+
+      print_error("You don't have enough privileges. Try getsystem.")
+
       return nil
-		end
+    end
 
 
 	begin
@@ -152,7 +147,7 @@ class Metasploit3 < Msf::Post
 
         return nil
 		end
-    
+
     print_status("Searching for Prefetch Hive Value.")
 		prefetch_key_value
 
