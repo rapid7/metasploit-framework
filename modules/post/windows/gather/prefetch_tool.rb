@@ -27,10 +27,8 @@ class Metasploit3 < Msf::Post
         end
 
 
-	# Checks if Prefetch registry key exists and what value it has.
-
-	
-	def prefetch_key_value()
+  def prefetch_key_value()
+    # Checks if Prefetch registry key exists and what value it has.
     reg_key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\Session\ Manager\\Memory\ Management\\PrefetchParameters", KEY_READ)
     key_value = reg_key.query_value("EnablePrefetcher").data
 
@@ -65,18 +63,16 @@ class Metasploit3 < Msf::Post
       end
       reg_key.close
   end
-	
-	def gather_prefetch_info(name_offset, hash_offset, lastrun_offset, runcount_offset, filename)
 
+
+  def gather_prefetch_info(name_offset, hash_offset, lastrun_offset, runcount_offset, filename)
     # This function seeks and gathers information from specific offsets.
-
     h = client.railgun.kernel32.CreateFileA(filename, "GENERIC_READ", "FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE", nil, "OPEN_EXISTING", "FILE_ATTRIBUTE_NORMAL", 0)
 
     if h['GetLastError'] != 0
       print_error("Error opening a file handle.")
       return nil
     else
-
       handle = h['return']
 
       # Finds the filename from the prefetch file
@@ -120,7 +116,7 @@ class Metasploit3 < Msf::Post
 
     begin
 
-		sysnfo = client.sys.config.sysinfo['OS']
+      sysnfo = client.sys.config.sysinfo['OS']
 
     # Check to see what Windows Version is running.
     # Needed for offsets.
