@@ -1,7 +1,13 @@
+# @abstract Implement {#add} following its abstract guidelines.
+#
 # A set of {Metasploit::Framework::Module::Path
 # Metasploit::Framework::Module::Paths} or Mdm::Module::Paths (depending
 # on if the database is active.)
 class Metasploit::Framework::Module::PathSet::Base
+	# @abstract Instantiate a subclass specific path class and validate it before
+	#   calling {#add_path} with the path instance.  If the path instance is
+	#   invalid, raise a validation error.
+	#
 	# Adds path to this set.
 	#
 	# @param path [String] path with modules
@@ -34,5 +40,57 @@ class Metasploit::Framework::Module::PathSet::Base
 		attributes.assert_valid_keys(:framework)
 
 		@framework = attributes.fetch(:framework)
+	end
+
+	protected
+
+	# Adds path object to this set.
+	#
+	# @param path [Metasploit::Model::Module::Path] instance of path class that
+	#   has Metasploit::Model::Module::Path included.
+	# @return [Metasploit::Model::Module::Path] path that was added or updated in
+	#   this set.  It may not be the same as `path` if `path` has a name
+	#   or real_path collision, in which case the returned path will be the
+	#   collision with updated attributes from `path`.
+	def add_path(path)
+		name_collision = path.name_collision
+		real_path_collision = path.real_path_collision
+
+		if name_collision and real_path_collision
+			if name_collision != real_path_collision
+				raise Metasploit::Framework::Module::PathSet::Error,
+							"Collision against two pre-existing " \
+							"#{path.class.name.pluralize}: (1) on gem " \
+							"(#{name_collision.gem}) and name " \
+							"(#{name_collision.name}) and (2) on real_path " \
+							"(#{real_path_collision.real_path})."
+			end
+
+			# collision is already path
+			added = name_collision
+		elsif name_collision
+			# Update (real_path) as newer path is preferred.
+			name_collision.real_path = path.real_path
+			name_collision.save!
+
+			added = name_collision
+		elsif real_path_collision
+			# prevent a named real_path_collision being replaced by an unnamed
+			# new path as it is better for a real_path to have a (gem, name).
+			if path.named?
+				real_path_collision.gem = path.gem
+				real_path_collision.name = path.name
+				real_path_collision.save!
+			end
+
+			added = real_path_collision
+			# New (gem, name) and real_path
+		else
+			path.save!
+
+			added = path
+		end
+
+		added
 	end
 end

@@ -103,10 +103,10 @@ describe Metasploit::Framework::Module::PathSet::Memory do
 						path_by_name[name_collision.name] = name_collision
 					end
 
-					it 'should raise Metasploit::Framework::Module::PathSet::Memory::Error' do
+					it 'should raise Metasploit::Framework::Module::PathSet::Error' do
 						expect {
 							add
-						}.to raise_error Metasploit::Framework::Module::PathSet::Memory::Error
+						}.to raise_error Metasploit::Framework::Module::PathSet::Error
 					end
 				end
 			end

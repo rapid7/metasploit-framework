@@ -177,10 +177,10 @@ describe Metasploit::Framework::Module::PathSet::Database do
 					)
 				end
 
-				it 'should raise Metasploit::Framework::Module::PathSet::Database::Error' do
+				it 'should raise Metasploit::Framework::Module::PathSet::Error' do
 					expect {
 						add
-					}.to raise_error(Metasploit::Framework::Module::PathSet::Database::Error)
+					}.to raise_error(Metasploit::Framework::Module::PathSet::Error)
 				end
 			end
 		end
