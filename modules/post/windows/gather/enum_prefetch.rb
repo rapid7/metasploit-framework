@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Post
       if key_value.empty? or key_value.nil?
         print_line("Couldn't find key/value for timezone from registry.")
       else
-        print_good("Remote timezone: %s" % key_value.to_s)
+        print_good("Remote: Timezone is %s" % key_value.to_s)
       end
 
     elsif sysnfo =~/(Windows XP)/
@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Post
       if key_value.empty? or key_value.nil?
         print_line("Couldn't find key/value for timezone from registry.")
       else
-        print_good("Remote timezone: %s" % key_value.to_s)
+        print_good("Remote: Timezone is %s" % key_value.to_s)
       end
     else
       print_error("Unknown system. Can't find timezone value from registry.")
@@ -71,9 +71,28 @@ class Metasploit3 < Msf::Post
   end
 
 
+    def timezone_bias()
+      # Looks for the timezone difference in minutes from registry
+      reg_key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation", KEY_READ)
+      key_value = reg_key.query_value("Bias").data
+      if key_value.nil?
+        print_error("Couldn't find bias from registry")
+      else
+        if key_value < 0xfff
+          bias = key_value
+          print_good("Remote: localtime bias to UTC: -%s minutes." % bias)
+        else
+          offset = 0xffffffff
+          bias = offset - key_value
+          print_good("Remote: localtime bias to UTC: +%s minutes." % bias)
+        end
+      end
+      reg_key.close
+    end
+
+
   def gather_prefetch_info(name_offset, hash_offset, lastrun_offset, runcount_offset, filename)
     # This function seeks and gathers information from specific offsets.
-    # It also updates the last access time of the file.
     h = client.railgun.kernel32.CreateFileA(filename, "GENERIC_READ", "FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE", nil, "OPEN_EXISTING", "FILE_ATTRIBUTE_NORMAL", 0)
 
     if h['GetLastError'] != 0
@@ -100,16 +119,18 @@ class Metasploit3 < Msf::Post
 
       # Finds the LastModified timestamp (MACE)
       lm  = client.priv.fs.get_file_mace(filename)
-      lmod = lm['Modified'].utc.to_s[0..-4] # Not really UTC but localtime
+      lmod = lm['Modified'].utc.to_s
 
       # Finds the Creation timestamp (MACE)
       cr = client.priv.fs.get_file_mace(filename)
-      creat = cr['Created'].utc.to_s[0..-4] # Not really UTC but localtime
+      creat = cr['Created'].utc.to_s
 
-      print_line("%s\t%s\t%s\t\t%s\t%-30s" % [creat, lmod, prun, phash, pname])
+      # Prints the results and closes the file handle
+      print_line("%s\t\t%s\t\t%s\t%s\t%-30s" % [creat, lmod, prun, phash, pname])
       client.railgun.kernel32.CloseHandle(handle)
     end
   end
+
 
 
   def run
@@ -121,24 +142,27 @@ class Metasploit3 < Msf::Post
       return nil
     end
 
+
     begin
 
-      sysnfo = client.sys.config.sysinfo['OS']
 
     # Check to see what Windows Version is running.
     # Needed for offsets.
     # Tested on WinXP and Win7 systems. Should work on WinVista & Win2k3..
     # http://www.forensicswiki.org/wiki/Prefetch
-    # http://www.forensicswiki.org/wiki/Windows_Prefetch_File_Format
+    # http://www.forensicswiki.org/wiki/Windows_Prefetch_File_Format'
+
+    sysnfo = client.sys.config.sysinfo['OS']
+
     if sysnfo =~/(Windows XP)/ # Offsets for WinXP
-      print_good("Detected Windows XP")
+      print_good("Detected Windows XP (max 128 entries)")
       name_offset = 0x10
       hash_offset = 0x4C
       lastrun_offset = 0x78
       runcount_offset = 0x90
 
     elsif sysnfo =~/(Windows 7)/ # Offsets for Win7
-      print_good("Detected Windows 7")
+      print_good("Detected Windows 7 (max 128 entries)")
       name_offset = 0x10
       hash_offset = 0x4C
       lastrun_offset = 0x80
@@ -149,21 +173,24 @@ class Metasploit3 < Msf::Post
     end
 
     print_status("Searching for Prefetch Registry Value.")
+
     prefetch_key_value
+
     print_status("Searching for TimeZone Registry Value.")
+
     timezone_key_value(sysnfo)
+    timezone_bias
+
+    print_good("Current UTC Time: %s" % Time.now.utc)
 
     sysroot = client.fs.file.expand_path("%SYSTEMROOT%")
     full_path = sysroot + "\\Prefetch\\"
     file_type = "*.pf"
 
-    print_line("\nCreated (MACE)\t\tModified (MACE)\t\tRun Count\tHash\t\tFilename")
-    # Conversion between different timezones is hard because of X amount of factors
-    # so the representation of time is more relative than absolute. Years and months
-    # and most of the time days will match but the exact time is more vague.
+    print_line("\nCreated (MACE)\t\t\tModified (MACE)\t\tRun Count\tHash\t\tFilename\n")
 
-    print_line("(Because of time conversion issues these times are more relative than absolute.)\n")
-
+    # Goes through the files in Prefetch directory, creates file paths for the
+    # gather_prefetch_info function that enumerates all the pf info
     getfile_prefetch_filenames = client.fs.file.search(full_path,file_type,recurse=false,timeout=-1)
     getfile_prefetch_filenames.each do |file|
       if file.empty? or file.nil?
@@ -176,6 +203,7 @@ class Metasploit3 < Msf::Post
       end
     end
     end
+    print_line("\n")
     print_good("Finished gathering information from prefetch files.")	
   end
 end
