@@ -10,7 +10,6 @@ require 'rex'
 require 'msf/core/post/windows/registry'
 require 'time'
 
-
 class Metasploit3 < Msf::Post
         include Msf::Post::Windows::Priv
 	
@@ -47,26 +46,35 @@ class Metasploit3 < Msf::Post
 
 	end
 
-  def timezone_key_value()
+  def timezone_key_value(sysnfo)
 
-    reg_key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation", KEY_READ)
-    key_value = reg_key.query_value("TimeZoneKeyName").data
-
+    if sysnfo =~/(Windows 7)/
+      reg_key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation", KEY_READ)
+      key_value = reg_key.query_value("TimeZoneKeyName").data
       if key_value.empty? or key_value.nil?
-
-        print_line("Couldn't find key/value from registry.")
-
+        print_line("Couldn't find key/value for timezone from registry.")
       else
-
-        print_good("Remote timezone: %s" % key_value)
-
+        print_good("Remote timezone: %s" % key_value.to_s)
       end
-      reg_key.close
+
+    elsif sysnfo =~/(Windows XP)/
+      reg_key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation", KEY_READ)
+      key_value = reg_key.query_value("StandardName").data
+      if key_value.empty? or key_value.nil?
+        print_line("Couldn't find key/value for timezone from registry.")
+      else
+        print_good("Remote timezone: %s" % key_value.to_s)
+      end
+    else
+      print_error("Unknown system. Can't find timezone value from registry.")
+    end
+    reg_key.close
   end
 
 
   def gather_prefetch_info(name_offset, hash_offset, lastrun_offset, runcount_offset, filename)
     # This function seeks and gathers information from specific offsets.
+    # It also updates the last access time of the file.
     h = client.railgun.kernel32.CreateFileA(filename, "GENERIC_READ", "FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE", nil, "OPEN_EXISTING", "FILE_ATTRIBUTE_NORMAL", 0)
 
     if h['GetLastError'] != 0
@@ -144,14 +152,18 @@ class Metasploit3 < Msf::Post
     print_status("Searching for Prefetch Registry Value.")
     prefetch_key_value
     print_status("Searching for TimeZone Registry Value.")
-    timezone_key_value
+    timezone_key_value(sysnfo)
 
     sysroot = client.fs.file.expand_path("%SYSTEMROOT%")
     full_path = sysroot + "\\Prefetch\\"
     file_type = "*.pf"
 
     print_line("\nCreated (MACE)\t\tModified (MACE)\t\tRun Count\tHash\t\tFilename")
-    print_line("(localtime)\t\t(localtime)\n")
+    # Conversion between different timezones is hard because of X amount of factors
+    # so the representation of time is more relative than absolute. Years and months
+    # and most of the time days will match but the exact time is more vague.
+
+    print_line("(Because of time conversion issues these times are more relative than absolute.)\n")
 
     getfile_prefetch_filenames = client.fs.file.search(full_path,file_type,recurse=false,timeout=-1)
     getfile_prefetch_filenames.each do |file|
