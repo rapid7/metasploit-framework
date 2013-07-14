@@ -150,7 +150,7 @@ class Metasploit3 < Msf::Post
     # Needed for offsets.
     # Tested on WinXP and Win7 systems. Should work on WinVista & Win2k3..
     # http://www.forensicswiki.org/wiki/Prefetch
-    # http://www.forensicswiki.org/wiki/Windows_Prefetch_File_Format'
+    # http://www.forensicswiki.org/wiki/Windows_Prefetch_File_Format
 
     sysnfo = client.sys.config.sysinfo['OS']
 
@@ -168,7 +168,7 @@ class Metasploit3 < Msf::Post
       lastrun_offset = 0x80
       runcount_offset = 0x98
     else
-      print_error("No offsets for the target Windows version.")
+      print_error("No offsets for the target Windows version. Currently works on WinXP and Win7.")
       return nil
     end
 
@@ -176,7 +176,7 @@ class Metasploit3 < Msf::Post
 
     prefetch_key_value
 
-    print_status("Searching for TimeZone Registry Value.")
+    print_status("Searching for TimeZone Registry Values.")
 
     timezone_key_value(sysnfo)
     timezone_bias
