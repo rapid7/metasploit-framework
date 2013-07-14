@@ -82,15 +82,20 @@ class Proxy
 	# Initializes an HTTP proxy as listening on the provided port and
 	# hostname.
 	#
-	def initialize(port = 80, listen_host = '0.0.0.0', ssl = false, context = {}, comm = nil, ssl_cert = nil, proxies = nil, rewrite_proxy_headers = true)
+	def initialize(listen_port = 80, listen_host = '0.0.0.0', ssl = false, context = {},
+		comm = nil, ssl_cert = nil, proxies = nil, rewrite_proxy_headers = true,
+		connect_host = nil, connect_port = nil
+	)
 		self.listen_host            = listen_host
-		self.listen_port            = port
+		self.listen_port            = listen_port
 		self.ssl                    = ssl
 		self.context                = context
 		self.comm                   = comm
 		self.ssl_cert               = ssl_cert
 		self.proxies                = proxies
 		self.rewrite_proxy_headers  = rewrite_proxy_headers
+		self.connect_host			= connect_host
+		self.connect_port			= connect_port
 
 		self.clients                = []
 		self.listener               = nil
@@ -272,6 +277,7 @@ class Proxy
 	attr_accessor :listen_port, :listen_host, :context, :ssl, :comm, :ssl_cert
 	attr_accessor :listener, :proxies, :clients, :req_handler, :res_handler
 	attr_accessor :redirect_limit, :rewrite_proxy_headers, :request_timeout
+	attr_accessor :connect_host, :connect_port
 
 protected
 
@@ -431,6 +437,8 @@ protected
 		timeout ||= self.request_timeout
 		opts = request.headers
 		host,port = opts['Host'].split(':')
+		host = self.connect_host if self.connect_host
+		port = self.connect_port if self.connect_port
 		if port.nil? or port == 0
 			port = (opts['SSL'] || self.ssl) ? 443 : 80
 		end
