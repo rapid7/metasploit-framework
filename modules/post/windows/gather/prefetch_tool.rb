@@ -43,8 +43,7 @@ class Metasploit3 < Msf::Post
       print_error("No value or unknown value. Results might vary.")
     end
       reg_key.close
-
-	end
+  end
 
   def timezone_key_value(sysnfo)
 
