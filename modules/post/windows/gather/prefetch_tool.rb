@@ -31,8 +31,7 @@ class Metasploit3 < Msf::Post
 
 	
 	def prefetch_key_value()
-
-		reg_key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\Session\ Manager\\Memory\ Management\\PrefetchParameters", KEY_READ)
+    reg_key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\Session\ Manager\\Memory\ Management\\PrefetchParameters", KEY_READ)
     key_value = reg_key.query_value("EnablePrefetcher").data
 
     if key_value == 0
@@ -64,16 +63,16 @@ class Metasploit3 < Msf::Post
         print_good("Remote timezone: %s" % key_value)
 
       end
+      reg_key.close
   end
 	
 	def gather_prefetch_info(name_offset, hash_offset, lastrun_offset, runcount_offset, filename)
 
-		# This function seeks and gathers information from specific offsets.
+    # This function seeks and gathers information from specific offsets.
 
-		h = client.railgun.kernel32.CreateFileA(filename, "GENERIC_READ", "FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE", nil, "OPEN_EXISTING", "FILE_ATTRIBUTE_NORMAL", 0)
+    h = client.railgun.kernel32.CreateFileA(filename, "GENERIC_READ", "FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE", nil, "OPEN_EXISTING", "FILE_ATTRIBUTE_NORMAL", 0)
 
     if h['GetLastError'] != 0
-
       print_error("Error opening a file handle.")
       return nil
     else
@@ -91,12 +90,6 @@ class Metasploit3 < Msf::Post
       count = client.railgun.kernel32.ReadFile(handle, 4, 4, 4, nil)
       prun = count['lpBuffer'].unpack('L*')[0]
 
-      # FIXME: Finds the FILETIME offset and converts it.
-      #client.railgun.kernel32.SetFilePointer(handle, lastrun_offset, 0, 0)
-      #tm = client.railgun.kernel32.ReadFile(handle, 8, 8, 4, nil)
-      #ptime = tm['lpBuffer'].unpack('h*')[0].reverse.to_i(16).to_s
-
-
       # Finds the hash.
       client.railgun.kernel32.SetFilePointer(handle, hash_offset, 0, 0)
       hh = client.railgun.kernel32.ReadFile(handle, 4, 4, 4, nil)
@@ -110,28 +103,22 @@ class Metasploit3 < Msf::Post
       cr = client.priv.fs.get_file_mace(filename)
       creat = cr['Created'].utc.to_s[0..-4] # Not really UTC but localtime
 
-
-      print_line("%s\t%s\t%s\t\t%8s\t%-30s" % [creat, lmod, prun, phash, pname])
+      print_line("%s\t%s\t%s\t\t%s\t%-30s" % [creat, lmod, prun, phash, pname])
       client.railgun.kernel32.CloseHandle(handle)
-
-		end
-
-	end
+    end
+  end
 
 
-	def run
+  def run
 
     print_status("Prefetch Gathering started.")
 
     if not is_admin?
-
       print_error("You don't have enough privileges. Try getsystem.")
-
       return nil
     end
 
-
-	begin
+    begin
 
 		sysnfo = client.sys.config.sysinfo['OS']
 
@@ -140,64 +127,48 @@ class Metasploit3 < Msf::Post
     # Tested on WinXP and Win7 systems. Should work on WinVista & Win2k3..
     # http://www.forensicswiki.org/wiki/Prefetch
     # http://www.forensicswiki.org/wiki/Windows_Prefetch_File_Format
-
-		if sysnfo =~/(Windows XP)/ # Offsets for WinXP
-
-			  print_good("Detected Windows XP")
-			  name_offset = 0x10
-			  hash_offset = 0x4C
-			  lastrun_offset = 0x78
-			  runcount_offset = 0x90
+    if sysnfo =~/(Windows XP)/ # Offsets for WinXP
+      print_good("Detected Windows XP")
+      name_offset = 0x10
+      hash_offset = 0x4C
+      lastrun_offset = 0x78
+      runcount_offset = 0x90
 
     elsif sysnfo =~/(Windows 7)/ # Offsets for Win7
-
-        print_good("Detected Windows 7")
-        name_offset = 0x10
-        hash_offset = 0x4C
-        lastrun_offset = 0x80
-        runcount_offset = 0x98
-
-		else
-
-			print_error("No offsets for the target Windows version.")
-
-        return nil
-		end
+      print_good("Detected Windows 7")
+      name_offset = 0x10
+      hash_offset = 0x4C
+      lastrun_offset = 0x80
+      runcount_offset = 0x98
+    else
+      print_error("No offsets for the target Windows version.")
+      return nil
+    end
 
     print_status("Searching for Prefetch Registry Value.")
-		prefetch_key_value
+    prefetch_key_value
     print_status("Searching for TimeZone Registry Value.")
     timezone_key_value
-		sysroot = client.fs.file.expand_path("%SYSTEMROOT%")
-		full_path = sysroot + "\\Prefetch\\"
-		file_type = "*.pf"
-		
-		print_line("\nCreated (MACE)\t\tModified (MACE)\t\tRun Count\tHash\t\tFilename")
+
+    sysroot = client.fs.file.expand_path("%SYSTEMROOT%")
+    full_path = sysroot + "\\Prefetch\\"
+    file_type = "*.pf"
+
+    print_line("\nCreated (MACE)\t\tModified (MACE)\t\tRun Count\tHash\t\tFilename")
     print_line("(localtime)\t\t(localtime)\n")
-				
-		getfile_prefetch_filenames = client.fs.file.search(full_path,file_type,recurse=false,timeout=-1)
-                getfile_prefetch_filenames.each do |file|
-                        if file.empty? or file.nil?
 
-				print_error("No files or not enough privileges.")
-
+    getfile_prefetch_filenames = client.fs.file.search(full_path,file_type,recurse=false,timeout=-1)
+    getfile_prefetch_filenames.each do |file|
+      if file.empty? or file.nil?
+        print_error("No files or not enough privileges.")
         return nil
 
-			else
-
-				filename = File.join(file['path'], file['name'])
-				
-				gather_prefetch_info(name_offset, hash_offset, lastrun_offset, runcount_offset, filename)
-
-			end
-
-		end
-
-	end
-
-
-		print_good("Finished gathering information from prefetch files.")	
-
-
-	end
+      else
+        filename = File.join(file['path'], file['name'])
+        gather_prefetch_info(name_offset, hash_offset, lastrun_offset, runcount_offset, filename)
+      end
+    end
+    end
+    print_good("Finished gathering information from prefetch files.")	
+  end
 end
