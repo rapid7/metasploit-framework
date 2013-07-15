@@ -8,7 +8,6 @@
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/registry'
-require 'time'
 
 class Metasploit3 < Msf::Post
         include Msf::Post::Windows::Priv
@@ -106,7 +105,7 @@ class Metasploit3 < Msf::Post
       client.railgun.kernel32.SetFilePointer(handle, name_offset, 0, nil)
       name = client.railgun.kernel32.ReadFile(handle, 60, 60, 4, nil)
       x = name['lpBuffer']
-      pname = x.slice(0..x.index("\x00\x00"))
+      pname = Rex::Text.to_ascii(x.slice(0..x.index("\x00\x00")))
 
       # Finds the run count from the prefetch file 
       client.railgun.kernel32.SetFilePointer(handle, runcount_offset, 0, nil)
@@ -130,10 +129,8 @@ class Metasploit3 < Msf::Post
       if name.nil? or count.nil? or hh.nil? or lm.nil? or cr.nil?
         print_error("Could not access file: %s." % filename)
       else
-        #print_line("%s\t\t%s\t\t%s\t%s\t%-30s" % [creat, lmod, prun, phash, pname])
         table << [lmod,creat,prun,phash,pname]
       end
-      #print_line("%s\t\t%s\t\t%s\t%s\t%-30s" % [creat, lmod, prun, phash, pname])
       client.railgun.kernel32.CloseHandle(handle)
     end
   end
@@ -174,14 +171,13 @@ class Metasploit3 < Msf::Post
       lastrun_offset = 0x80
       runcount_offset = 0x98
     else
-      print_error("No offsets for the target Windows version. Currently works on WinXP and Win7.")
+      print_error("No offsets for the target Windows version. Currently works only on WinXP and Win7.")
       return nil
     end
 
     table = Rex::Ui::Text::Table.new(
       'Header'  => "Prefetch Information",
       'Indent'  => 1,
-      'Width'   => 110,
       'Columns' =>
       [
         "Modified (mace)",
