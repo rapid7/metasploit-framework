@@ -73,41 +73,44 @@ class Metasploit3 < Msf::Post
     h = client.railgun.kernel32.CreateFileA(filename, "GENERIC_READ", "FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE", nil, "OPEN_EXISTING", "FILE_ATTRIBUTE_READONLY", nil)
 
     if h['GetLastError'] != 0
-      print_error("Error opening a file handle.")
-      return nil
+      print_error("Error opening a file handle on %s." % filename)
     else
       handle = h['return']
 
       # Finds the filename from the prefetch file
       client.railgun.kernel32.SetFilePointer(handle, name_offset, 0, nil)
       name = client.railgun.kernel32.ReadFile(handle, 60, 60, 4, nil)
-      x = name['lpBuffer']
-      pname = Rex::Text.to_ascii(x.slice(0..x.index("\x00\x00")))
 
-      # Finds the run count from the prefetch file 
+      # Finds the run count from the prefetch file
       client.railgun.kernel32.SetFilePointer(handle, runcount_offset, 0, nil)
       count = client.railgun.kernel32.ReadFile(handle, 4, 4, 4, nil)
-      prun = count['lpBuffer'].unpack('L*')[0]
 
-      # Finds the hash.
+      # Finds the file path hash from the prefetch file
       client.railgun.kernel32.SetFilePointer(handle, hash_offset, 0, nil)
-      hh = client.railgun.kernel32.ReadFile(handle, 4, 4, 4, nil)
-      phash = hh['lpBuffer'].unpack('h*')[0].reverse
+      hash = client.railgun.kernel32.ReadFile(handle, 4, 4, 4, nil)
 
       # Finds the LastModified timestamp (MACE)
-      lm  = client.priv.fs.get_file_mace(filename)
-      lmod = lm['Modified'].utc
+      lm = client.priv.fs.get_file_mace(filename)
 
       # Finds the Creation timestamp (MACE)
-      cr = client.priv.fs.get_file_mace(filename)
-      creat = cr['Created'].utc
+      ct = client.priv.fs.get_file_mace(filename)
 
-      # Saves the results to the table and closes the file handle
-      if name.nil? or count.nil? or hh.nil? or lm.nil? or cr.nil?
-        print_error("Could not access file: %s." % filename)
+      # Next we check everything was read successfully and prepare the results
+      if name.nil? or name.empty? or count.nil? or hash.nil? or lm.nil? or ct.nil?
+
+        print_error("Read failed on file: %s" % filename)
       else
-        table << [lmod,creat,prun,phash,pname]
+        # Preparing the values
+        x = name['lpBuffer']
+        pname = Rex::Text.to_ascii(x.slice(0..x.index("\x00\x00")))
+        #x = Rex::Text.to_ascii(name['lpBuffer'])
+        #pname = x.slice(0..x.index(".EXE"))
+        prun = count['lpBuffer'].unpack('L*')[0]
+        phash = hash['lpBuffer'].unpack('h*')[0].reverse
+        lmod = lm['Modified'].utc
+        creat = ct['Created'].utc
       end
+      table << [lmod,creat,prun,phash,pname]
       client.railgun.kernel32.CloseHandle(handle)
     end
   end
@@ -188,7 +191,7 @@ class Metasploit3 < Msf::Post
     # Goes through the files in Prefetch directory, creates file paths for the
     # gather_prefetch_info function that enumerates all the pf info
 
-    getfile_prefetch_filenames = client.fs.file.search(full_path,file_type,recurse=false,timeout=-1)
+    getfile_prefetch_filenames = client.fs.file.search(full_path,file_type,recurse=false,timeout=10)
     if getfile_prefetch_filenames.empty? or getfile_prefetch_filenames.nil?
       print_error("Could not find/access any .pf files. Can't continue.")
       return nil
