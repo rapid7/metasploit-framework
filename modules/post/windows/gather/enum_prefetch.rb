@@ -44,49 +44,29 @@ class Metasploit3 < Msf::Post
       reg_key.close
   end
 
-  def timezone_key_value(sysnfo)
-
-    if sysnfo =~/(Windows 7)/
-      reg_key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation", KEY_READ)
-      key_value = reg_key.query_value("TimeZoneKeyName").data
-      if key_value.empty? or key_value.nil?
+  def timezone_key_values(key_value)
+      # Looks for timezone from registry
+      timezone_key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation", KEY_READ)
+      if timezone_key.nil?
         print_line("Couldn't find key/value for timezone from registry.")
       else
-        print_good("Remote: Timezone is %s" % key_value)
+        timezone = timezone_key.query_value(key_value).data
+        tzbias = timezone_key.query_value("Bias").data
+        if timezone.nil? or tzbias.nil?
+          print_error("Couldn't find timezone information from registry.")
+        else
+          print_good("Remote: Timezone is %s." % timezone)
+          if tzbias < 0xfff
+            bias = tzbias
+            print_good("Remote: Localtime bias to UTC: -%s minutes." % bias)
+          else
+            offset = 0xffffffff
+            bias = offset - tzbias
+            print_good("Remote: Localtime bias to UTC: +%s minutes." % bias)
+          end
+        end
       end
-
-    elsif sysnfo =~/(Windows XP)/
-      reg_key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation", KEY_READ)
-      key_value = reg_key.query_value("StandardName").data
-      if key_value.empty? or key_value.nil?
-        print_line("Couldn't find key/value for timezone from registry.")
-      else
-        print_good("Remote: Timezone is %s" % key_value)
-      end
-    else
-      print_error("Unknown system. Can't find timezone value from registry.")
-    end
-    reg_key.close
-  end
-
-
-  def timezone_bias()
-    # Looks for the timezone difference in minutes from registry
-    reg_key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation", KEY_READ)
-    key_value = reg_key.query_value("Bias").data
-    if key_value.nil?
-      print_error("Couldn't find bias from registry")
-    else
-      if key_value < 0xfff
-        bias = key_value
-        print_good("Remote: localtime bias to UTC: -%s minutes." % bias)
-      else
-        offset = 0xffffffff
-        bias = offset - key_value
-        print_good("Remote: localtime bias to UTC: +%s minutes." % bias)
-      end
-    end
-    reg_key.close
+      timezone_key.close
   end
 
 
@@ -113,19 +93,19 @@ class Metasploit3 < Msf::Post
       prun = count['lpBuffer'].unpack('L*')[0]
 
       # Finds the hash.
-      client.railgun.kernel32.SetFilePointer(handle, hash_offset, 0, 0)
+      client.railgun.kernel32.SetFilePointer(handle, hash_offset, 0, nil)
       hh = client.railgun.kernel32.ReadFile(handle, 4, 4, 4, nil)
       phash = hh['lpBuffer'].unpack('h*')[0].reverse
 
       # Finds the LastModified timestamp (MACE)
       lm  = client.priv.fs.get_file_mace(filename)
-      lmod = lm['Modified'].utc.to_s
+      lmod = lm['Modified'].utc
 
       # Finds the Creation timestamp (MACE)
       cr = client.priv.fs.get_file_mace(filename)
-      creat = cr['Created'].utc.to_s
+      creat = cr['Created'].utc
 
-      # Prints the results and closes the file handle
+      # Saves the results to the table and closes the file handle
       if name.nil? or count.nil? or hh.nil? or lm.nil? or cr.nil?
         print_error("Could not access file: %s." % filename)
       else
@@ -134,7 +114,6 @@ class Metasploit3 < Msf::Post
       client.railgun.kernel32.CloseHandle(handle)
     end
   end
-
 
 
   def run
@@ -157,19 +136,26 @@ class Metasploit3 < Msf::Post
 
     sysnfo = client.sys.config.sysinfo['OS']
 
-    if sysnfo =~/(Windows XP)/ # Offsets for WinXP
+    if sysnfo =~/(Windows XP)/
+      # Offsets for WinXP
       print_good("Detected Windows XP (max 128 entries)")
       name_offset = 0x10
       hash_offset = 0x4C
       lastrun_offset = 0x78
       runcount_offset = 0x90
+      # Registry key for timezone
+      key_value = "StandardName"
 
-    elsif sysnfo =~/(Windows 7)/ # Offsets for Win7
+    elsif sysnfo =~/(Windows 7)/
+      # Offsets for Win7
       print_good("Detected Windows 7 (max 128 entries)")
       name_offset = 0x10
       hash_offset = 0x4C
       lastrun_offset = 0x80
       runcount_offset = 0x98
+      # Registry key for timezone
+      key_value = "TimeZoneKeyName"
+
     else
       print_error("No offsets for the target Windows version. Currently works only on WinXP and Win7.")
       return nil
@@ -191,10 +177,9 @@ class Metasploit3 < Msf::Post
 
     prefetch_key_value
 
-    print_status("Searching for TimeZone Registry Values.")
+    print_status("\nSearching for TimeZone Registry Values.")
 
-    timezone_key_value(sysnfo)
-    timezone_bias
+    timezone_key_values(key_value)
 
     print_good("Current UTC Time: %s" % Time.now.utc)
 
@@ -216,6 +201,7 @@ class Metasploit3 < Msf::Post
     end
     end
 
+    # Stores and prints out results
     results = table.to_s
     loot = store_loot("prefetch_info", "text/plain", session, results, nil, "Prefetch Information")
     print_line("\n" + results + "\n")
