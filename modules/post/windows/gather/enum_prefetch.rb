@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Post
       if key_value.empty? or key_value.nil?
         print_line("Couldn't find key/value for timezone from registry.")
       else
-        print_good("Remote: Timezone is %s" % key_value.to_s)
+        print_good("Remote: Timezone is %s" % key_value)
       end
 
     elsif sysnfo =~/(Windows XP)/
@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Post
       if key_value.empty? or key_value.nil?
         print_line("Couldn't find key/value for timezone from registry.")
       else
-        print_good("Remote: Timezone is %s" % key_value.to_s)
+        print_good("Remote: Timezone is %s" % key_value)
       end
     else
       print_error("Unknown system. Can't find timezone value from registry.")
@@ -71,24 +71,24 @@ class Metasploit3 < Msf::Post
   end
 
 
-    def timezone_bias()
-      # Looks for the timezone difference in minutes from registry
-      reg_key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation", KEY_READ)
-      key_value = reg_key.query_value("Bias").data
-      if key_value.nil?
-        print_error("Couldn't find bias from registry")
+  def timezone_bias()
+    # Looks for the timezone difference in minutes from registry
+    reg_key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation", KEY_READ)
+    key_value = reg_key.query_value("Bias").data
+    if key_value.nil?
+      print_error("Couldn't find bias from registry")
+    else
+      if key_value < 0xfff
+        bias = key_value
+        print_good("Remote: localtime bias to UTC: -%s minutes." % bias)
       else
-        if key_value < 0xfff
-          bias = key_value
-          print_good("Remote: localtime bias to UTC: -%s minutes." % bias)
-        else
-          offset = 0xffffffff
-          bias = offset - key_value
-          print_good("Remote: localtime bias to UTC: +%s minutes." % bias)
-        end
+        offset = 0xffffffff
+        bias = offset - key_value
+        print_good("Remote: localtime bias to UTC: +%s minutes." % bias)
       end
-      reg_key.close
     end
+    reg_key.close
+  end
 
 
   def gather_prefetch_info(name_offset, hash_offset, lastrun_offset, runcount_offset, filename)
