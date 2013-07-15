@@ -83,7 +83,7 @@ module ReverseHttp
 	# addresses.
 	#
 	def full_uri
-		if datastore['HIDDENHOST']
+		unless datastore['HIDDENHOST'].nil? or datastore['HIDDENHOST'].empty?
 			lhost = datastore['HIDDENHOST']
 		else
 			lhost = datastore['LHOST']
@@ -93,7 +93,7 @@ module ReverseHttp
 		end
 		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
 		scheme = (ssl?) ? "https" : "http"
-		if datastore['HIDDENPORT']
+		unless datastore['HIDDENPORT'].nil? or datastore['HIDDENPORT'] == 0
 			uri = "#{scheme}://#{lhost}:#{datastore["HIDDENPORT"]}/"
 		else
 			uri = "#{scheme}://#{lhost}:#{datastore["LPORT"]}/"
@@ -306,7 +306,7 @@ protected
 				end
 
 				# Activate a custom proxy
-				i = blob.index("METERPRETER_PROXY")
+				i = blob.index("METERPRETER_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
 				if i
 					if datastore['PROXYHOST']
 						if datastore['PROXYHOST'].to_s != ""
@@ -324,6 +324,19 @@ protected
 							proxyinfo << "\x00"
 							blob[i, proxyinfo.length] = proxyinfo
 							print_status("Activated custom proxy #{proxyinfo}, patch at offset #{i}...")
+							#Optional authentification
+							unless 	(datastore['PROXY_USERNAME'].nil? or datastore['PROXY_USERNAME'].empty?) or
+								(datastore['PROXY_PASSWORD'].nil? or datastore['PROXY_PASSWORD'].empty?) or
+								datastore['PROXY_TYPE'] == 'SOCKS'
+								
+								proxy_username_loc = blob.index("METERPRETER_USERNAME_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+								proxy_username = datastore['PROXY_USERNAME'] << "\x00"
+								blob[proxy_username_loc, proxy_username.length] = proxy_username
+
+								proxy_password_loc = blob.index("METERPRETER_PASSWORD_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+								proxy_password = datastore['PROXY_PASSWORD'] << "\x00"
+								blob[proxy_password_loc, proxy_password.length] = proxy_password
+							end
 						end
 					end
 				end
