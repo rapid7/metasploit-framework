@@ -9,26 +9,6 @@
 module Msf
 
 #
-# Module types
-#
-MODULE_ANY     = '_any_'
-MODULE_ENCODER = 'encoder'
-MODULE_EXPLOIT = 'exploit'
-MODULE_NOP     = 'nop'
-MODULE_AUX     = 'auxiliary'
-MODULE_PAYLOAD = 'payload'
-MODULE_POST    = 'post'
-MODULE_TYPES   =
-	[
-		MODULE_ENCODER,
-		MODULE_PAYLOAD,
-		MODULE_EXPLOIT,
-		MODULE_NOP,
-		MODULE_POST,
-		MODULE_AUX
-	]
-
-#
 # Module rankings
 #
 ManualRanking       = 0

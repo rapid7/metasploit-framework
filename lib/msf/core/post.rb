@@ -13,12 +13,8 @@ class Post < Msf::Module
 
 	def setup; end
 
-	def type
-		MODULE_POST
-	end
-
 	def self.type
-		MODULE_POST
+		Metasploit::Model::Module::Type::POST
 	end
 
 	#

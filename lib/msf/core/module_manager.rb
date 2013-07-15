@@ -43,7 +43,7 @@ module Msf
     #
 
     # Maps module type directory to its module type.
-    TYPE_BY_DIRECTORY = Msf::Modules::Loader::Base::DIRECTORY_BY_TYPE.invert
+    TYPE_BY_DIRECTORY = Metasploit::Model::Module::Ancestor::DIRECTORY_BY_MODULE_TYPE.invert
 
     def [](key)
       names = key.split("/")
@@ -70,7 +70,7 @@ module Msf
       potential_type_or_directory = names.first
 
       # if first name is a type
-      if Msf::Modules::Loader::Base::DIRECTORY_BY_TYPE.has_key? potential_type_or_directory
+      if Metasploit::Model::Module::Ancestor::DIRECTORY_BY_MODULE_TYPE.has_key? potential_type_or_directory
         type = potential_type_or_directory
       # if first name is a type directory
       else
@@ -111,9 +111,11 @@ module Msf
     end
 
 
-    # @param [Msf::Framework] framework The framework for which this instance is managing the modules.
-    # @param [Array<String>] types List of module types to load.  Defaults to all module types in {Msf::MODULE_TYPES}.
-    def initialize(framework, types=Msf::MODULE_TYPES)
+    # @param [Msf::Framework] framework The framework for which this instance is
+		#   managing the modules.
+    # @param [Array<String>] types List of module types to load.  Defaults to
+		#   all module types in `Metasploit::Model::Module::Type::ALL`.
+    def initialize(framework, types=Metasploit::Model::Module::Type::ALL)
       #
       # defaults
       #

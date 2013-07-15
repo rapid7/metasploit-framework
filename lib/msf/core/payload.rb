@@ -101,14 +101,7 @@ class Payload < Msf::Module
 	# Returns MODULE_PAYLOAD to indicate that this is a payload module.
 	#
 	def self.type
-		return MODULE_PAYLOAD
-	end
-
-	#
-	# Returns MODULE_PAYLOAD to indicate that this is a payload module.
-	#
-	def type
-		return MODULE_PAYLOAD
+		Metasploit::Model::Module::Type::PAYLOAD
 	end
 
 	#

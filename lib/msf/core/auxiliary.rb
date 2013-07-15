@@ -21,14 +21,7 @@ class Auxiliary < Msf::Module
 	# Returns MODULE_AUX to indicate that this is an auxiliary module.
 	#
 	def self.type
-		MODULE_AUX
-	end
-
-	#
-	# Returns MODULE_AUX to indicate that this is an auxiliary module.
-	#
-	def type
-		MODULE_AUX
+		Metasploit::Model::Module::Type::AUX
 	end
 
 	#

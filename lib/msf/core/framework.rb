@@ -76,7 +76,7 @@ class Framework
 	def initialize(opts={})
 
 		# Allow specific module types to be loaded
-		types = opts[:module_types] || MODULE_TYPES
+		types = opts[:module_types] || Metasploit::Model::Module::Type::ALL
 
 		self.threads   = ThreadManager.new(self)
 		self.events    = EventDispatcher.new(self)

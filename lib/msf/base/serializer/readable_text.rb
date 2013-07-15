@@ -20,17 +20,17 @@ class ReadableText
 	#
 	def self.dump_module(mod, indent = "  ")
 		case mod.type
-			when MODULE_PAYLOAD
+			when Metasploit::Model::Module::Type::PAYLOAD
 				return dump_payload_module(mod, indent)
-			when MODULE_NOP
+			when Metasploit::Model::Module::Type::NOP
 				return dump_basic_module(mod, indent)
-			when MODULE_ENCODER
+			when Metasploit::Model::Module::Type::ENCODER
 				return dump_basic_module(mod, indent)
-			when MODULE_EXPLOIT
+			when Metasploit::Model::Module::Type::EXPLOIT
 				return dump_exploit_module(mod, indent)
-			when MODULE_AUX
+			when Metasploit::Model::Module::Type::AUX
 				return dump_auxiliary_module(mod, indent)
-			when MODULE_POST
+			when Metasploit::Model::Module::Type::POST
 				return dump_basic_module(mod, indent)
 			else
 				return dump_generic_module(mod, indent)

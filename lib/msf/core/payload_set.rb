@@ -21,7 +21,7 @@ class PayloadSet < ModuleSet
 	# set class that has custom handling for payloads.
 	#
 	def initialize
-		super(MODULE_PAYLOAD)
+		super(Metasploit::Model::Module::Type::PAYLOAD)
 
 		# A hash of each of the payload types that holds an array
 		# for all of the associated modules

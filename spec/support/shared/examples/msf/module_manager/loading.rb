@@ -22,7 +22,7 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
 						# :modification_time must match so that it is the :type that is causing the `true` and not the
 						# :modification_time causing the `true`.
 						:modification_time => modification_time,
-						:type => Msf::MODULE_PAYLOAD
+						:type => Metasploit::Model::Module::Type::PAYLOAD
 				}
 
 				subject.file_changed?(module_path).should be_true

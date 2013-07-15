@@ -26,7 +26,9 @@ Indent = '    '
 
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create(
-	:module_types => [ Msf::MODULE_PAYLOAD ],
+	:module_types => [
+			Metasploit::Model::Module::Type::PAYLOAD
+	],
 	'DisableDatabase' => true
 )
 

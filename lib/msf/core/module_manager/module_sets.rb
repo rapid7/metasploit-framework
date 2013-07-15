@@ -18,27 +18,27 @@ module Msf::ModuleManager::ModuleSets
   # Returns the set of loaded auxiliary module classes.
   #
   def auxiliary
-    module_set(Msf::MODULE_AUX)
+    module_set(Metasploit::Model::Module::Type::AUX)
   end
 
   #
   # Returns the set of loaded encoder module classes.
   #
   def encoders
-    module_set(Msf::MODULE_ENCODER)
+    module_set(Metasploit::Model::Module::Type::ENCODER)
   end
 
   #
   # Returns the set of loaded exploit module classes.
   #
   def exploits
-    module_set(Msf::MODULE_EXPLOIT)
+    module_set(Metasploit::Model::Module::Type::EXPLOIT)
   end
 
   def init_module_set(type)
     self.enablement_by_type[type] = true
     case type
-      when Msf::MODULE_PAYLOAD
+      when Metasploit::Model::Module::Type::PAYLOAD
         instance = Msf::PayloadSet.new
       else
         instance = Msf::ModuleSet.new(type)
@@ -75,21 +75,21 @@ module Msf::ModuleManager::ModuleSets
   # Returns the set of loaded nop module classes.
   #
   def nops
-    module_set(Msf::MODULE_NOP)
+    module_set(Metasploit::Model::Module::Type::NOP)
   end
 
   #
   # Returns the set of loaded payload module classes.
   #
   def payloads
-    module_set(Msf::MODULE_PAYLOAD)
+    module_set(Metasploit::Model::Module::Type::PAYLOAD)
   end
 
   #
   # Returns the set of loaded auxiliary module classes.
   #
   def post
-    module_set(Msf::MODULE_POST)
+    module_set(Metasploit::Model::Module::Type::POST)
   end
 
   def type_enabled?(type)

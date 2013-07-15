@@ -10,8 +10,10 @@ describe Msf::Util::EXE do
   end
 
   $framework = Msf::Simple::Framework.create(
-    :module_types => [ Msf::MODULE_NOP ],
-    'DisableDatabase' => true
+			:module_types => [
+					Metasploit::Model::Module::Type::NOP
+			],
+			'DisableDatabase' => true
   )
 
   context '.to_executable_fmt' do

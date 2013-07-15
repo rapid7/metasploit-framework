@@ -15,15 +15,6 @@ class Msf::Modules::Loader::Base
   # CONSTANTS
   #
 
-  # Not all types are pluralized when a directory name, so here's the mapping that currently exists
-  DIRECTORY_BY_TYPE = {
-    Msf::MODULE_AUX => 'auxiliary',
-    Msf::MODULE_ENCODER => 'encoders',
-    Msf::MODULE_EXPLOIT => 'exploits',
-    Msf::MODULE_NOP => 'nops',
-    Msf::MODULE_PAYLOAD => 'payloads',
-    Msf::MODULE_POST => 'post'
-  }
   # This must calculate the first line of the NAMESPACE_MODULE_CONTENT string so that errors are reported correctly
   NAMESPACE_MODULE_LINE = __LINE__ + 4
   # By calling module_eval from inside the module definition, the lexical scope is captured and available to the code in
@@ -605,10 +596,10 @@ class Msf::Modules::Loader::Base
   # @param [String] module_reference_name The canonical name for the module.
   # @return [String] path to the module starting with the type directory.
   #
-  # @see DIRECTORY_BY_TYPE
+  # @see Metasploit::Model::Module::Ancesotr::DIRECTORY_BY_MODULE_TYPE
   def self.typed_path(type, module_reference_name)
     file_name = module_reference_name + MODULE_EXTENSION
-    type_directory = DIRECTORY_BY_TYPE[type]
+    type_directory = Metasploit::Model::Module::Ancestor::DIRECTORY_BY_MODULE_TYPE[type]
     typed_path = File.join(type_directory, file_name)
 
     typed_path

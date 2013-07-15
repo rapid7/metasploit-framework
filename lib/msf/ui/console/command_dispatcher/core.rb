@@ -2309,17 +2309,17 @@ class Core
 		dispatcher = nil
 
 		case mod.type
-			when MODULE_ENCODER
+			when Metasploit::Model::Module::Type::ENCODER
 				dispatcher = Msf::Ui::Console::CommandDispatcher::Encoder
-			when MODULE_EXPLOIT
+			when Metasploit::Model::Module::Type::EXPLOIT
 				dispatcher = Msf::Ui::Console::CommandDispatcher::Exploit
-			when MODULE_NOP
+			when Metasploit::Model::Module::Type::NOP
 				dispatcher = Msf::Ui::Console::CommandDispatcher::Nop
-			when MODULE_PAYLOAD
+			when Metasploit::Model::Module::Type::PAYLOAD
 				dispatcher = Msf::Ui::Console::CommandDispatcher::Payload
-			when MODULE_AUX
+			when Metasploit::Model::Module::Type::AUX
 				dispatcher = Msf::Ui::Console::CommandDispatcher::Auxiliary
-			when MODULE_POST
+			when Metasploit::Model::Module::Type::POST
 				dispatcher = Msf::Ui::Console::CommandDispatcher::Post
 			else
 				print_error("Unsupported module type: #{mod.type}")

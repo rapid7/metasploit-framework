@@ -14,14 +14,7 @@ class Nop < Msf::Module
 	# Returns MODULE_NOP to indicate that this is a NOP module.
 	#
 	def self.type
-		return MODULE_NOP
-	end
-
-	#
-	# Returns MODULE_NOP to indicate that this is a NOP module.
-	#
-	def type
-		return MODULE_NOP
+		Metasploit::Model::Module::Type::NOP
 	end
 
 	#

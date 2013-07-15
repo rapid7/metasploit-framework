@@ -258,7 +258,11 @@ require 'msf/ui'
 require 'msf/base'
 
 $framework ||= Msf::Simple::Framework.create(
-	:module_types => [Msf::MODULE_PAYLOAD, Msf::MODULE_ENCODER, Msf::MODULE_NOP],
+	:module_types => [
+			Metasploit::Model::Module::Type::PAYLOAD,
+			Metasploit::Model::Module::Type::ENCODER,
+			Metasploit::Model::Module::Type::NOP
+	],
 	'DisableDatabase' => true
 )
 

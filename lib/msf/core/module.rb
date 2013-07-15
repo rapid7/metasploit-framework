@@ -453,11 +453,11 @@ class Module
 		return true if (mod == nil)
 
 		# Determine which hash to used based on the supplied module type
-		if (mod.type == MODULE_ENCODER)
+		if (mod.type == Metasploit::Model::Module::Type::ENCODER)
 			ch = self.compat['Encoder']
-		elsif (mod.type == MODULE_NOP)
+		elsif (mod.type == Metasploit::Model::Module::Type::NOP)
 			ch = self.compat['Nop']
-		elsif (mod.type == MODULE_PAYLOAD)
+		elsif (mod.type == Metasploit::Model::Module::Type::PAYLOAD)
 			ch = self.compat['Payload']
 		else
 			return true
@@ -516,7 +516,7 @@ class Module
 	# Return the module's abstract type.
 	#
 	def type
-		raise NotImplementedError
+		self.class.type
 	end
 
 	#
@@ -760,42 +760,42 @@ class Module
 	# Returns true if this module is an exploit module.
 	#
 	def exploit?
-		return (type == MODULE_EXPLOIT)
+		return (type == Metasploit::Model::Module::Type::EXPLOIT)
 	end
 
 	#
 	# Returns true if this module is a payload module.
 	#
 	def payload?
-		return (type == MODULE_PAYLOAD)
+		return (type == Metasploit::Model::Module::Type::PAYLOAD)
 	end
 
 	#
 	# Returns true if this module is an encoder module.
 	#
 	def encoder?
-		return (type == MODULE_ENCODER)
+		return (type == Metasploit::Model::Module::Type::ENCODER)
 	end
 
 	#
 	# Returns true if this module is a nop module.
 	#
 	def nop?
-		return (type == MODULE_NOP)
+		return (type == Metasploit::Model::Module::Type::NOP)
 	end
 
 	#
 	# Returns true if this module is an auxiliary module.
 	#
 	def auxiliary?
-		return (type == MODULE_AUX)
+		return (type == Metasploit::Model::Module::Type::AUX)
 	end
 
 	#
 	# Returns true if this module is an post-exploitation module.
 	#
 	def post?
-		return (type == MODULE_POST)
+		return (type == Metasploit::Model::Module::Type::POST)
 	end
 
 	#

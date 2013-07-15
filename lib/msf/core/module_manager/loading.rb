@@ -30,7 +30,8 @@ module Msf::ModuleManager::Loading
 
     # if uncached then it counts as changed
     # Payloads can't be cached due to stage/stager matching
-    if module_info.nil? or module_info[:type] == Msf::MODULE_PAYLOAD
+    if module_info.nil? or
+			 module_info[:type] == Metasploit::Model::Module::Type::PAYLOAD
       changed = true
     else
       begin

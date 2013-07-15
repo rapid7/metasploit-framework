@@ -211,7 +211,10 @@ exeopts = {
 
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create(
-	:module_types => [ Msf::MODULE_ENCODER, Msf::MODULE_NOP ],
+	:module_types => [
+			Metasploit::Model::Module::Type::ENCODER,
+			Metasploit::Model::Module::Type::NOP
+	],
 	'DisableDatabase' => true
 )
 

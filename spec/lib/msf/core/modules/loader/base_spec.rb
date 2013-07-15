@@ -41,45 +41,10 @@ describe Msf::Modules::Loader::Base do
 	end
 
 	let(:type) do
-		Msf::MODULE_AUX
+		Metasploit::Model::Module::Type::AUX
 	end
 
 	context 'CONSTANTS' do
-
-		context 'DIRECTORY_BY_TYPE' do
-			let(:directory_by_type) do
-				described_class::DIRECTORY_BY_TYPE
-			end
-
-			it 'should be defined' do
-				described_class.const_defined?(:DIRECTORY_BY_TYPE).should be_true
-			end
-
-			it 'should map Msf::MODULE_AUX to auxiliary' do
-				directory_by_type[Msf::MODULE_AUX].should == 'auxiliary'
-			end
-
-			it 'should map Msf::MODULE_ENCODER to encoders' do
-				directory_by_type[Msf::MODULE_ENCODER].should == 'encoders'
-			end
-
-			it 'should map Msf::MODULE_EXPLOIT to exploits' do
-				directory_by_type[Msf::MODULE_EXPLOIT].should == 'exploits'
-			end
-
-			it 'should map Msf::MODULE_NOP to nops' do
-				directory_by_type[Msf::MODULE_NOP].should == 'nops'
-			end
-
-			it 'should map Msf::MODULE_PAYLOAD to payloads' do
-				directory_by_type[Msf::MODULE_PAYLOAD].should == 'payloads'
-			end
-
-			it 'should map Msf::MODULE_POST to post' do
-				directory_by_type[Msf::MODULE_POST].should == 'post'
-			end
-		end
-
 		context 'NAMESPACE_MODULE_LINE' do
 			it 'should be line number for first line of NAMESPACE_MODULE_CONTENT' do
 				file_lines = []
@@ -204,18 +169,18 @@ describe Msf::Modules::Loader::Base do
 	context 'class methods' do
 		context 'typed_path' do
 			it 'should have MODULE_EXTENSION for the extension name' do
-				typed_path = described_class.typed_path(Msf::MODULE_AUX, module_reference_name)
+				typed_path = described_class.typed_path(Metasploit::Model::Module::Type::AUX, module_reference_name)
 
 				File.extname(typed_path).should == described_class::MODULE_EXTENSION
 			end
 
 			# Don't iterate over a Hash here as that would too closely mirror the actual implementation and not test anything
-			it_should_behave_like 'typed_path', 'Msf::MODULE_AUX' => 'auxiliary'
-			it_should_behave_like 'typed_path', 'Msf::MODULE_ENCODER' => 'encoders'
-			it_should_behave_like 'typed_path', 'Msf::MODULE_EXPLOIT' => 'exploits'
-			it_should_behave_like 'typed_path', 'Msf::MODULE_NOP' => 'nops'
-			it_should_behave_like 'typed_path', 'Msf::MODULE_PAYLOAD' => 'payloads'
-			it_should_behave_like 'typed_path', 'Msf::MODULE_POST' => 'post'
+			it_should_behave_like 'typed_path', 'Metasploit::Model::Module::Type::AUX' => 'auxiliary'
+			it_should_behave_like 'typed_path', 'Metasploit::Model::Module::Type::ENCODER' => 'encoders'
+			it_should_behave_like 'typed_path', 'Metasploit::Model::Module::Type::EXPLOIT' => 'exploits'
+			it_should_behave_like 'typed_path', 'Metasploit::Model::Module::Type::NOP' => 'nops'
+			it_should_behave_like 'typed_path', 'Metasploit::Model::Module::Type::PAYLOAD' => 'payloads'
+			it_should_behave_like 'typed_path', 'Metasploit::Model::Module::Type::POST' => 'post'
 		end
 	end
 
@@ -249,7 +214,7 @@ describe Msf::Modules::Loader::Base do
 			end
 
 			let(:type) do
-				Msf::MODULE_AUX
+				Metasploit::Model::Module::Type::AUX
 			end
 
 			before(:each) do
@@ -829,7 +794,12 @@ describe Msf::Modules::Loader::Base do
 		context '#module_path' do
 			it 'should be abstract' do
 				expect {
-					subject.send(:module_path, parent_path, Msf::MODULE_AUX, module_reference_name)
+					subject.send(
+							:module_path,
+							parent_path,
+							Metasploit::Model::Module::Type::AUX,
+							module_reference_name
+					)
 				}.to raise_error(NotImplementedError)
 			end
 		end
@@ -1149,7 +1119,7 @@ describe Msf::Modules::Loader::Base do
 
 		context '#read_module_content' do
 			it 'should be abstract' do
-				type = Msf::MODULE_AUX
+				type = Metasploit::Model::Module::Type::AUX
 
 				expect {
 					subject.send(:read_module_content, parent_pathname.to_s, type, module_reference_name)
@@ -1282,7 +1252,7 @@ describe Msf::Modules::Loader::Base do
 
 		context '#typed_path' do
       it 'should delegate to the class method' do
-				type = Msf::MODULE_EXPLOIT
+				type = Metasploit::Model::Module::Type::EXPLOIT
 
 				described_class.should_receive(:typed_path).with(type, module_reference_name)
 				subject.send(:typed_path, type, module_reference_name)
