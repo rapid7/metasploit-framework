@@ -4,25 +4,22 @@
 # web site for more information on licensing and terms of use.
 #   http://metasploit.com/
 ##
-
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/registry'
-
 class Metasploit3 < Msf::Post
-        include Msf::Post::Windows::Priv
-	
-        def initialize(info={})
-                super(update_info(info,
-                        'Name'          =>      'Windows Gather Prefetch File Information',
-                        'Description'   =>       %q{This module gathers prefetch file information from WinXP & Win7 systems.},
-                        'License'       =>      MSF_LICENSE,
-                        'Author'        =>      ['TJ Glad <fraktaali[at]gmail.com>'],
-                        'Platform'      =>      ['win'],
-                        'SessionType'   =>      ['meterpreter']
-                ))
+  include Msf::Post::Windows::Priv
 
-        end
+  def initialize(info={})
+    super(update_info(info,
+                      'Name'          =>      'Windows Gather Prefetch File Information',
+                      'Description'   =>       %q{This module gathers prefetch file information from WinXP & Win7 systems.},
+                      'License'       =>      MSF_LICENSE,
+                      'Author'        =>      ['TJ Glad <fraktaali[at]gmail.com>'],
+                      'Platform'      =>      ['win'],
+                      'SessionType'   =>      ['meterpreter']
+                     ))
+  end
 
 
   def prefetch_key_value()
@@ -73,7 +70,7 @@ class Metasploit3 < Msf::Post
   def gather_prefetch_info(name_offset, hash_offset, lastrun_offset, runcount_offset, filename, table)
 
     # This function seeks and gathers information from specific offsets.
-    h = client.railgun.kernel32.CreateFileA(filename, "GENERIC_READ", "FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE", nil, "OPEN_EXISTING", "FILE_ATTRIBUTE_NORMAL", 0)
+    h = client.railgun.kernel32.CreateFileA(filename, "GENERIC_READ", "FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE", nil, "OPEN_EXISTING", "FILE_ATTRIBUTE_READONLY", nil)
 
     if h['GetLastError'] != 0
       print_error("Error opening a file handle.")
@@ -190,11 +187,14 @@ class Metasploit3 < Msf::Post
 
     # Goes through the files in Prefetch directory, creates file paths for the
     # gather_prefetch_info function that enumerates all the pf info
+
     getfile_prefetch_filenames = client.fs.file.search(full_path,file_type,recurse=false,timeout=-1)
     getfile_prefetch_filenames.each do |file|
       if file.empty? or file.nil?
         print_error("Could not open file: %s." % file['name'])
+
       else
+
         filename = File.join(file['path'], file['name'])
         gather_prefetch_info(name_offset, hash_offset, lastrun_offset, runcount_offset, filename, table)
       end
@@ -207,5 +207,6 @@ class Metasploit3 < Msf::Post
     print_line("\n" + results + "\n")
     print_status("Finished gathering information from prefetch files.")
     print_status("Results stored in: #{loot}")
+
   end
 end
