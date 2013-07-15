@@ -91,7 +91,8 @@ class Metasploit3 < Msf::Post
   end
 
 
-  def gather_prefetch_info(name_offset, hash_offset, lastrun_offset, runcount_offset, filename)
+  def gather_prefetch_info(name_offset, hash_offset, lastrun_offset, runcount_offset, filename, table)
+
     # This function seeks and gathers information from specific offsets.
     h = client.railgun.kernel32.CreateFileA(filename, "GENERIC_READ", "FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE", nil, "OPEN_EXISTING", "FILE_ATTRIBUTE_NORMAL", 0)
 
@@ -105,7 +106,7 @@ class Metasploit3 < Msf::Post
       client.railgun.kernel32.SetFilePointer(handle, name_offset, 0, nil)
       name = client.railgun.kernel32.ReadFile(handle, 60, 60, 4, nil)
       x = name['lpBuffer']
-      pname = x.slice(0..x.index("\x00\x00")).to_s
+      pname = x.slice(0..x.index("\x00\x00"))
 
       # Finds the run count from the prefetch file 
       client.railgun.kernel32.SetFilePointer(handle, runcount_offset, 0, nil)
@@ -115,7 +116,7 @@ class Metasploit3 < Msf::Post
       # Finds the hash.
       client.railgun.kernel32.SetFilePointer(handle, hash_offset, 0, 0)
       hh = client.railgun.kernel32.ReadFile(handle, 4, 4, 4, nil)
-      phash = hh['lpBuffer'].unpack('h*')[0].reverse.to_s
+      phash = hh['lpBuffer'].unpack('h*')[0].reverse
 
       # Finds the LastModified timestamp (MACE)
       lm  = client.priv.fs.get_file_mace(filename)
@@ -126,7 +127,13 @@ class Metasploit3 < Msf::Post
       creat = cr['Created'].utc.to_s
 
       # Prints the results and closes the file handle
-      print_line("%s\t\t%s\t\t%s\t%s\t%-30s" % [creat, lmod, prun, phash, pname])
+      if name.nil? or count.nil? or hh.nil? or lm.nil? or cr.nil?
+        print_error("Could not access file: %s." % filename)
+      else
+        #print_line("%s\t\t%s\t\t%s\t%s\t%-30s" % [creat, lmod, prun, phash, pname])
+        table << [lmod,creat,prun,phash,pname]
+      end
+      #print_line("%s\t\t%s\t\t%s\t%s\t%-30s" % [creat, lmod, prun, phash, pname])
       client.railgun.kernel32.CloseHandle(handle)
     end
   end
@@ -144,7 +151,6 @@ class Metasploit3 < Msf::Post
 
 
     begin
-
 
     # Check to see what Windows Version is running.
     # Needed for offsets.
@@ -172,6 +178,19 @@ class Metasploit3 < Msf::Post
       return nil
     end
 
+    table = Rex::Ui::Text::Table.new(
+      'Header'  => "Prefetch Information",
+      'Indent'  => 1,
+      'Width'   => 110,
+      'Columns' =>
+      [
+        "Modified (mace)",
+        "Created (mace)",
+        "Run Count",
+        "Hash",
+        "Filename"
+      ])
+
     print_status("Searching for Prefetch Registry Value.")
 
     prefetch_key_value
@@ -186,24 +205,25 @@ class Metasploit3 < Msf::Post
     sysroot = client.fs.file.expand_path("%SYSTEMROOT%")
     full_path = sysroot + "\\Prefetch\\"
     file_type = "*.pf"
-
-    print_line("\nCreated (MACE)\t\t\tModified (MACE)\t\tRun Count\tHash\t\tFilename\n")
+    print_status("Gathering information from remote system. This will take awhile..")
 
     # Goes through the files in Prefetch directory, creates file paths for the
     # gather_prefetch_info function that enumerates all the pf info
     getfile_prefetch_filenames = client.fs.file.search(full_path,file_type,recurse=false,timeout=-1)
     getfile_prefetch_filenames.each do |file|
       if file.empty? or file.nil?
-        print_error("No files or not enough privileges.")
-        return nil
-
+        print_error("Could not open file: %s." % file['name'])
       else
         filename = File.join(file['path'], file['name'])
-        gather_prefetch_info(name_offset, hash_offset, lastrun_offset, runcount_offset, filename)
+        gather_prefetch_info(name_offset, hash_offset, lastrun_offset, runcount_offset, filename, table)
       end
     end
     end
-    print_line("\n")
-    print_good("Finished gathering information from prefetch files.")	
+
+    results = table.to_s
+    loot = store_loot("prefetch_info", "text/plain", session, results, nil, "Prefetch Information")
+    print_line("\n" + results + "\n")
+    print_status("Finished gathering information from prefetch files.")
+    print_status("Results stored in: #{loot}")
   end
 end
