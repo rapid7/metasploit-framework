@@ -176,8 +176,8 @@ class Metasploit3 < Msf::Post
     print_status("Searching for Prefetch Registry Value.")
 
     prefetch_key_value
-
-    print_status("\nSearching for TimeZone Registry Values.")
+    print_line("")
+    print_status("Searching for TimeZone Registry Values.")
 
     timezone_key_values(key_value)
 
