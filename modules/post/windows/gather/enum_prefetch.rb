@@ -107,9 +107,8 @@ class Metasploit3 < Msf::Post
         phash = hash['lpBuffer'].unpack('h*')[0].reverse
         lmod = lm['Modified'].utc
         creat = ct['Created'].utc
+        table << [lmod, creat,prun,phash,pname]
       end
-
-      table << [lmod,creat,prun,phash,pname]
       client.railgun.kernel32.CloseHandle(handle)
     end
   end
