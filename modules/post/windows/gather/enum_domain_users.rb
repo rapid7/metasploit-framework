@@ -8,7 +8,6 @@ class Metasploit3 < Msf::Post
 
     include Msf::Post::Common
     include Msf::Post::File
-
     include Msf::Post::Windows::Registry
 
     def initialize(info={})
@@ -27,42 +26,36 @@ class Metasploit3 < Msf::Post
             ))
         register_options(
                 [
-                    OptString.new('USER',    [true, 'Target User for NetSessionEnum', 'nil']),
-                    OptString.new('HOST',    [false, 'Target a specific host', '']),
-                    OptString.new('VERBOSE',    [false, 'Display failed logins/missing hosts', 'false']),
+                    OptString.new('USER',    [true, 'Target User for NetSessionEnum', nil]),
+                    OptString.new('HOST',    [false, 'Target a specific host', nil]),
                 ], self.class)
     end
 
     def run
         @sessions = 0
-        @verbose = false
         @retrieved = ''
 
-        if datastore['HOST'] != ''
-            if datastore['USER'] == 'nil'
+        if datastore['HOST'] != nil
+            if datastore['USER'] == nil
                 print_status("Attempting to get all logged in users...")
                 getSessions(datastore['HOST'],nil)
             else
                 getSessions(datastore['HOST'],datastore['USER'])
             end        
         elsif datastore['USER']
-            if datastore['USER'] == 'nil'
+            if datastore['USER'] == nil
                 @user = nil
             else
                 @user = datastore['USER']
             end
             domain = getdomain()
             
-            if datastore['VERBOSE'] == 'true'
-                print_status ("Verbose output enabled")
-                @verbose = true
-            end
-
+            vprint_status("Verbose output enabled")
+            
             if not domain.empty?
                 print_status ("Using domain: #{domain}")
                 print_status ("Getting list of domain hosts")
                 hostname_list = get_domain_hosts()
-                
                 count = 1
 
                 if hostname_list != nil
@@ -116,39 +109,29 @@ class Metasploit3 < Msf::Post
 
         buffersize = 500
         result = client.railgun.netapi32.NetSessionEnum(hostname,nil,username,10,4,buffersize,4,4,nil)
-        if result['return'] == 5
-            if @verbose == true
-                print_error("Access Denied when trying to access host: #{hostname}")
-            end
+        case result['return']
+        when 5
+            vprint_error("Access denied...")
             return nil
-        elsif result['return'] == 53
-            if @verbose  == true
-                print_error("Host not found or did not respond: #{hostname}")
-            end
+        when 53
+            vprint_error("Host not found or did not respond: #{hostname}")
             return nil
-        elsif result['return'] == 123
-            if @verbose == true
-                print_error("Invalid host: #{hostname}")
-            end
+        when 123
+            vprint_error("Invalid host: #{hostname}")
             return nil
-        elsif result['return'] == 0
-            if @verbose == true
-                print_status("#{hostname} Session identified")
-            end
-        elsif result['return'] == 2221 #username not found
+        when 0
+            vprint_status("#{hostname} Session identified")
+        when 2221 #username not found
             return nil
         else
             if result['return'] != 234
-                if @verbose == true
-                    print_status("Unaccounted for error code: #{result['return']}")
-                end
+                vprint_error("Unaccounted for error code: #{result['return']}")
                 return nil
             end
         end
 
         while result['return'] == 234
             buffersize = buffersize + 500
-            print_status("Buff me")
             result = client.railgun.netapi32.NetSessionEnum(hostname,nil,username,10,4,buffersize,4,4,nil)
         end
 
@@ -160,8 +143,7 @@ class Metasploit3 < Msf::Post
                     @sessions = @sessions + 1
                 else
                     print_good("#{x[:username]} logged in at #{hostname} and has been idle for #{x[:idletime]} seconds")
-                end
-                
+                end                
             end
         end
     end
@@ -186,38 +168,27 @@ class Metasploit3 < Msf::Post
         #NetServerEnum(servername,level,bufptr,prefmaxlen,entriesread,totalentries,servertype,domain,resume_handle)
         result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,servertype,nil,nil)
         
-        if result['return'] == 5
-            if @verbose == true
-                print_error("Access Denied when trying to enum hosts.")
-            end
+        case result['return']
+        when 5
+            vprint_error("Access Denied when trying to enum hosts.")
             return nil
-        elsif result['return'] == 6118
-            if @verbose == true
-                print_error("No Browser servers found.")
-            end
+        when 6118
+            vprint_error("No Browser servers found.")
             return nil
-        elsif result['return'] == 50
-            if @verbose  == true
-                print_error("Request not supported.")
-            end
+        when 50
+            vprint_error("Request not supported.")
             return nil
-        elsif result['return'] == 2184
-            if @verbose == true
-                print_error("Service not installed.")
-            end
+        when 2184
+            vprint_error("Service not installed.")
             return nil
-        elsif result['return'] == 0
-            if @verbose == true
-                print_status("Great success")
-            end
-        elsif result['return'] == 87 #username not found
-            print_error ("invalid parameter")
+        when 0
+            vprint_status("Great success")
+        when 87 
+            vprint_error ("invalid parameter")
             return nil
         else
             if result['return'] != 234
-                if @verbose == true
-                    print_status("Unaccounted for error code: #{result['return']}")
-                end
+                vprint_status("Unaccounted for error code: #{result['return']}")
                 return nil
             end
         end
