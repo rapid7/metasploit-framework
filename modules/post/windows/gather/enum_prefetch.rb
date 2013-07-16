@@ -8,6 +8,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/registry'
 class Metasploit3 < Msf::Post
+
   include Msf::Post::Windows::Priv
 
   def initialize(info={})
@@ -200,7 +201,6 @@ class Metasploit3 < Msf::Post
         else
           filename = File.join(file['path'], file['name'])
           gather_prefetch_info(name_offset, hash_offset, lastrun_offset, runcount_offset, filename, table)
-
         end
       end
     end
