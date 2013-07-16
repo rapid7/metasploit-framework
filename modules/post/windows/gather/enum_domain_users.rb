@@ -7,7 +7,6 @@ require 'msf/core/post/windows/registry'
 class Metasploit3 < Msf::Post
 
     include Msf::Post::Common
-    include Msf::Post::File
     include Msf::Post::Windows::Registry
 
     def initialize(info={})
@@ -149,18 +148,6 @@ class Metasploit3 < Msf::Post
     end
 
     def get_domain_hosts()
-
-        client.railgun.add_function('netapi32', 'NetServerEnum', 'DWORD',[
-        ['PWCHAR','servername','in'],
-        ['DWORD','level','in'],
-        ['PDWORD','bufptr','out'],
-        ['DWORD','prefmaxlen','in'],
-        ['PDWORD','entriesread','out'],
-        ['PDWORD','totalentries','out'],
-        ['DWORD','servertype','in'],
-        ['PWCHAR','domain','in'],
-        ['PDWORD','resume_handle','inout']
-        ])
 
         buffersize = 500
         servertype = 3 #workstations and servers
