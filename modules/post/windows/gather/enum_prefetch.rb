@@ -25,8 +25,8 @@ class Metasploit3 < Msf::Post
 
   def prefetch_key_value()
     # Checks if Prefetch registry key exists and what value it has.
-    reg_key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\Session\ Manager\\Memory\ Management\\PrefetchParameters", KEY_READ)
-    key_value = reg_key.query_value("EnablePrefetcher").data
+    prefetch_key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\Session\ Manager\\Memory\ Management\\PrefetchParameters", KEY_READ)
+    key_value = prefetch_key.query_value("EnablePrefetcher").data
 
     if key_value == 0
       print_error("EnablePrefetcher Value: (0) = Disabled (Non-Default).")
@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Post
     else
       print_error("No value or unknown value. Results might vary.")
     end
-      reg_key.close
+      prefetch_key.close
   end
 
   def timezone_key_values(key_value)
@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Post
       client.railgun.kernel32.SetFilePointer(handle, runcount_offset, 0, nil)
       count = client.railgun.kernel32.ReadFile(handle, 4, 4, 4, nil)
 
-      # Finds the file path hash from the prefetch file
+      # Finds the file path hash from the prefetch file.
       client.railgun.kernel32.SetFilePointer(handle, hash_offset, 0, nil)
       hash = client.railgun.kernel32.ReadFile(handle, 4, 4, 4, nil)
 
@@ -177,7 +177,6 @@ class Metasploit3 < Msf::Post
     print_status("Searching for Prefetch Registry Value.")
 
     prefetch_key_value
-    print_line("")
     print_status("Searching for TimeZone Registry Values.")
 
     timezone_key_values(key_value)
