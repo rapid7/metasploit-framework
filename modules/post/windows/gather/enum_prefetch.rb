@@ -92,7 +92,7 @@ class Metasploit3 < Msf::Post
       client.railgun.kernel32.SetFilePointer(handle, hash_offset, 0, nil)
       hash = client.railgun.kernel32.ReadFile(handle, 4, 4, 4, nil)
 
-      # Finds the LastModified timestamp (MACE)
+      # Finds the LastModified/Created timestamp (MACE)
       lm = client.priv.fs.get_file_mace(filename)
 
       # Finds the Creation timestamp (MACE)
@@ -119,12 +119,6 @@ class Metasploit3 < Msf::Post
 
     print_status("Prefetch Gathering started.")
 
-    if not is_admin?
-      print_error("You don't have enough privileges. Try getsystem.")
-      return nil
-    end
-
-
     begin
 
     # Check to see what Windows Version is running.
@@ -136,6 +130,10 @@ class Metasploit3 < Msf::Post
     sysnfo = client.sys.config.sysinfo['OS']
 
     if sysnfo =~/(Windows XP)/
+      if not is_system?
+        print_error("You don't have enough privileges. Try getsystem.")
+        return nil
+      end
       # Offsets for WinXP
       print_good("Detected Windows XP (max 128 entries)")
       name_offset = 0x10
@@ -146,6 +144,10 @@ class Metasploit3 < Msf::Post
       key_value = "StandardName"
 
     elsif sysnfo =~/(Windows 7)/
+      if not is_admin?
+        print_error("You don't have enough privileges. Try getsystem.")
+        return nil
+      end
       # Offsets for Win7
       print_good("Detected Windows 7 (max 128 entries)")
       name_offset = 0x10
