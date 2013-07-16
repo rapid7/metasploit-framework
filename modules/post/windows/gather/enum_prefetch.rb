@@ -79,7 +79,9 @@ class Metasploit3 < Msf::Post
 
       # Finds the filename from the prefetch file
       client.railgun.kernel32.SetFilePointer(handle, name_offset, 0, nil)
-      name = client.railgun.kernel32.ReadFile(handle, 60, 60, 4, nil)
+      fname = client.railgun.kernel32.ReadFile(handle, 60, 60, 4, nil)
+      name = fname['lpBuffer']
+      idx = name.index("\x00\x00")
 
       # Finds the run count from the prefetch file
       client.railgun.kernel32.SetFilePointer(handle, runcount_offset, 0, nil)
@@ -95,21 +97,17 @@ class Metasploit3 < Msf::Post
       # Finds the Creation timestamp (MACE)
       ct = client.priv.fs.get_file_mace(filename)
 
-      # Next we check everything was read successfully and prepare the results
-      if name.nil? or name.empty? or count.nil? or hash.nil? or lm.nil? or ct.nil?
-
-        print_error("Read failed on file: %s" % filename)
+      # Checking and moving the values
+      if idx.nil? or count.nil? or hash.nil? or lm.nil? or ct.nil?
+        print_error("Error reading file (might be temporary): %s" % filename)
       else
-        # Preparing the values
-        x = name['lpBuffer']
-        pname = Rex::Text.to_ascii(x.slice(0..x.index("\x00\x00")))
-        #x = Rex::Text.to_ascii(name['lpBuffer'])
-        #pname = x.slice(0..x.index(".EXE"))
+        pname = Rex::Text.to_ascii(name.slice(0..idx))
         prun = count['lpBuffer'].unpack('L*')[0]
         phash = hash['lpBuffer'].unpack('h*')[0].reverse
         lmod = lm['Modified'].utc
         creat = ct['Created'].utc
       end
+
       table << [lmod,creat,prun,phash,pname]
       client.railgun.kernel32.CloseHandle(handle)
     end
@@ -191,7 +189,7 @@ class Metasploit3 < Msf::Post
     # Goes through the files in Prefetch directory, creates file paths for the
     # gather_prefetch_info function that enumerates all the pf info
 
-    getfile_prefetch_filenames = client.fs.file.search(full_path,file_type,recurse=false,timeout=10)
+    getfile_prefetch_filenames = client.fs.file.search(full_path,file_type,timeout=-1)
     if getfile_prefetch_filenames.empty? or getfile_prefetch_filenames.nil?
       print_error("Could not find/access any .pf files. Can't continue.")
       return nil
