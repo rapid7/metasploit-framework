@@ -119,8 +119,6 @@ class Metasploit3 < Msf::Post
 
     print_status("Prefetch Gathering started.")
 
-    begin
-
     # Check to see what Windows Version is running.
     # Needed for offsets.
     # Tested on WinXP and Win7 systems. Should work on WinVista & Win2k3..
@@ -204,7 +202,6 @@ class Metasploit3 < Msf::Post
           gather_prefetch_info(name_offset, hash_offset, lastrun_offset, runcount_offset, filename, table)
         end
       end
-    end
     end
 
     # Stores and prints out results
