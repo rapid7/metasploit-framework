@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Microsoft Windows Authenticated Command Execution',
+			'Name'           => 'Microsoft Windows Authenticated Administration Utility',
 			'Description'    => %q{
 					This module uses a valid administrator username and password to execute an
 				arbitrary command on one or more hosts, using a similar technique than the "psexec"
