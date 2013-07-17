@@ -367,14 +367,31 @@ module DispatcherShell
 	end
 
 	#
-	# Run multiple commands from one input line of the format cmd1;cmd2;"cmd3 = funky;da;ta;"
-	#  the line is parsed w/the ruby CSV engine using the ';' as the separator instead of ','
-	#  See the builtin ruby CSV parser for more information.
+	# Run multiple commands from one input line
 	#
+	# @see CSV#new Line is parsed with native Ruby CSV parser using ';' as the separator
+	# @note The CSV parser essentially escapes an entire field when it is surrounded by the quote char
+	#   It's very similar to quoting an entire file path if it contains a space vs only escaping the
+	#   space in the file path using a single escape character.  Addtionally Ruby itself requires
+	#   one to escape an unmatched single or double quote and shell requires one to escape commands
+	#   containing spaces which can lead to complex cases depending on the command sep and quoting
+	#   char used, therefore pre-processed +line+ examples are worth providing
+	# 	Msfconsole example, simple case, multiple commands and no escaping required
+	#     set RHOST 1.1.1.1;set LHOST 1.1.1.2
+	#   Msfconsole example, scaping (quoting) one or more instances of the command separator
+	#     "set SMBUser f;oo;bar";"set SMBPass fu;bar";set LPORT 443
+	#   Msfconsole example, escaping (quoting) command sep while Ruby escaping unmatched single quote
+	#     "set SMBPass foo\';bar";set LPORT 443
+	#   Msfconsole example, escaping (quoting) the command separator and the quoting character
+	#     "set SMBPass foo\"";bar";set LPORT 443
+	# 	Shell example, escaping multiline command when one cmd contains the cmd separator
+	#     msfconsole -x 'set SMBUser admin;"set SMBPass foo;bar"'
+	# @see https://gist.github.com/kernelsmith/5822064 for full examples and elaboration
 	# @param line [String] The data to be parsed
-	# @param separator [String] The separator used to delimit the data, defaults to ;
-	# @param quote_char [String] The quoting escape character(1 char only) used to escape +separator+, defaults to "
-	# @return [Boolean] Returns true if all commands succeeded, otherwise false
+	# @param separator [String] The separator used to delimit the data
+	# @param quote_char [String] The quoting escape character (1 char only) used to escape +separator+
+	# @return [true] if all commands succeeded
+	# @return [false] otherwise
 	def run_multiple(line, separator = ';', quote_char = '"')
 		lines = []
 		# handle a multi-command line (lines with cmd;other_cmd)
