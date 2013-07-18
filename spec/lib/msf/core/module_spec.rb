@@ -170,9 +170,5 @@ describe Msf::Module do
         it_should_behave_like 'search_filter', :accept => accept, :reject => reject
       end
     end
-
-    #
-    # Still missing 'cve:', 'bid:', 'osvdb:', and 'edb:' test cases...
-    #
   end
 end
