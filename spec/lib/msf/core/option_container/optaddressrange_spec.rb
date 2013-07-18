@@ -70,6 +70,18 @@ describe Msf::OptAddressRange do
       optional_rhosts.valid?(nil).should == true
     end
 
+    it 'should return false for a range missing octets' do
+      subject.valid?('192.168/24').should == false
+    end
+
+    it 'should return false for a range with too many octets' do
+      subject.valid?('192.168.1.2.0/24').should == false
+    end
+
+    it 'should return true for a CIDR range' do
+      subject.valid?('192.168.1.0/24').should == true
+    end
+
   end
 
 
