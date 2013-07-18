@@ -330,10 +330,17 @@ class OptAddress < OptBase
 
 	def valid?(value)
 		return false if empty_required_value?(value)
+    return false unless value.kind_of?(String)
 
 		if (value != nil and value.empty? == false)
 			begin
-				::Rex::Socket.getaddress(value, true)
+				getaddr_result = ::Rex::Socket.getaddress(value, true)
+        # Covers a wierdcase where an incomplete ipv4 address will have it's
+        # missing octets filled in  with 0's. (e.g 192.168 become 192.0.0.168)
+        # which does not feel like a legit behaviour
+        if value =~ /^(\d{1,3}\.*){1,3}$/ and getaddr_result.gsub('.0','') == value
+          return false
+        end
 			rescue
 				return false
 			end
