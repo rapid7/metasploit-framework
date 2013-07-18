@@ -110,9 +110,7 @@ class Module
 	# hash.
 	#
 	def initialize(info = {})
-
 		@module_info_copy = info.dup
-
 
 		self.module_info = info
 		generate_uuid
@@ -133,6 +131,7 @@ class Module
 
 		# Create and initialize the option container for this module
 		self.options = OptionContainer.new
+
 		self.options.add_options(info['Options'], self.class)
 		self.options.add_advanced_options(info['AdvancedOptions'], self.class)
 		self.options.add_evasion_options(info['EvasionOptions'], self.class)
@@ -680,9 +679,6 @@ class Module
 		k = res
 
 		refs = self.references.map{|x| [x.ctx_id, x.ctx_val].join("-") }
-		is_exploit   = (self.type == "exploit")
-		is_auxiliary = (self.type == "auxiliary")
-		is_post      = (self.type == "post")
 		is_server    = (self.respond_to?(:stance) and self.stance == "aggressive")
 		is_client    = (self.respond_to?(:stance) and self.stance == "passive")
 
@@ -719,9 +715,7 @@ class Module
 						when 'port'
 							match = [t,w] if self.datastore['RPORT'].to_s =~ r
 						when 'type'
-							match = [t,w] if (w == "exploit" and is_exploit)
-							match = [t,w] if (w == "auxiliary" and is_auxiliary)
-							match = [t,w] if (w == "post" and is_post)
+							match = [t,w] if Msf::MODULE_TYPES.any? { |modt| w == modt and self.type == modt }
 						when 'app'
 							match = [t,w] if (w == "server" and is_server)
 							match = [t,w] if (w == "client" and is_client)
@@ -741,7 +735,7 @@ class Module
 					return true
 				end
 			end
-			# Filter this module if we matched an exlusion keyword (-value)
+			# Filter this module if we matched an exclusion keyword (-value)
 			if mode == 1 and match
 				return true
 			end
