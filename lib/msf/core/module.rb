@@ -131,7 +131,6 @@ class Module
 
 		# Create and initialize the option container for this module
 		self.options = OptionContainer.new
-
 		self.options.add_options(info['Options'], self.class)
 		self.options.add_advanced_options(info['AdvancedOptions'], self.class)
 		self.options.add_evasion_options(info['EvasionOptions'], self.class)
