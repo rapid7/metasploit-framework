@@ -330,7 +330,7 @@ class OptAddress < OptBase
 
 	def valid?(value)
 		return false if empty_required_value?(value)
-    return false unless value.kind_of?(String)
+    return false unless value.kind_of?(String) or value.kind_of?(NilClass)
 
 		if (value != nil and value.empty? == false)
 			begin
@@ -381,7 +381,7 @@ class OptAddressRange < OptBase
 
 	def valid?(value)
 		return false if empty_required_value?(value)
-    return false unless value.kind_of?(String)
+    return false unless value.kind_of?(String) or value.kind_of?(NilClass)
 
 		if (value != nil and value.empty? == false)
 			walker = Rex::Socket::RangeWalker.new(normalize(value))

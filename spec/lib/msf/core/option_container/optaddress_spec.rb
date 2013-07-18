@@ -24,12 +24,17 @@ describe Msf::OptAddress do
       subject.valid?('2607:f0d0:1002:51::4').should == true
     end
 
-    it 'should return false for nil' do
+    it 'should return false for nil when required is true' do
       subject.valid?(nil).should == false
     end
 
-    it 'should return false for an empty string' do
+    it 'should return false for an empty string when required is true' do
       subject.valid?('').should == false
+    end
+
+    it 'should reutrn true for nil when required is false' do
+      opt_rhost = Msf::OptAddress.new('RHOST', [false, 'The target address', ''])
+      opt_rhost.valid?(nil).should == true
     end
 
     it 'should return false for an incomplete ip4 address' do

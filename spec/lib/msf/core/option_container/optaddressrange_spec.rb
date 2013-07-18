@@ -57,6 +57,19 @@ describe Msf::OptAddressRange do
       subject.valid?({:foo => 'bar'}) == false
     end
 
+    it 'should return false for an empty string when required is true' do
+      subject.valid?('').should == false
+    end
+
+    it 'should return false for nil when required is true' do
+      subject.valid?(nil).should == false
+    end
+
+    it 'should return true for nil when required is false' do
+      optional_rhosts = Msf::OptAddressRange.new('RHOSTS', [false, 'The target addresses', ''])
+      optional_rhosts.valid?(nil).should == true
+    end
+
   end
 
 
