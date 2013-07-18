@@ -26,7 +26,7 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'OS X Execute Command',
 			'Description'   => 'Execute an arbitrary command',
-			'Author'        => [ 'snagg <snagg[at]openssl.it>', 
+			'Author'        => [ 'snagg <snagg[at]openssl.it>',
 			                     'argp <argp[at]census-labs.com>',
 			                     'joev <jvennix[at]rapid7.com>' ],
 			'License'       => BSD_LICENSE,
