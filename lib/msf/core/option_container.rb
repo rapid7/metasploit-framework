@@ -361,6 +361,7 @@ class OptAddressRange < OptBase
 	end
 
 	def normalize(value)
+    return nil unless value.kind_of?(String)
 		if (value =~ /^file:(.*)/)
 			path = $1
 			return false if not File.exists?(path) or File.directory?(path)
@@ -380,6 +381,7 @@ class OptAddressRange < OptBase
 
 	def valid?(value)
 		return false if empty_required_value?(value)
+    return false unless value.kind_of?(String)
 
 		if (value != nil and value.empty? == false)
 			walker = Rex::Socket::RangeWalker.new(normalize(value))

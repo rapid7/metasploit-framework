@@ -3,6 +3,8 @@ require 'rubygems'
 require 'bundler'
 Bundler.require(:default, :test, :db)
 
+FILE_FIXTURES_PATH = File.expand_path(File.dirname(__FILE__)) + "/file_fixtures/"
+
 # add project lib directory to load path
 spec_pathname = Pathname.new(__FILE__).dirname
 root_pathname = spec_pathname.join('..').expand_path

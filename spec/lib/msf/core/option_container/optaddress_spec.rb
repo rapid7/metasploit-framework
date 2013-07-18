@@ -36,6 +36,10 @@ describe Msf::OptAddress do
       subject.valid?('192.168.1').should == false
     end
 
+    it 'should return false for an ipv4 address with too many octets' do
+      subject.valid?('192.168.1.2.3').should == false
+    end
+
     it 'should return false for a non-string value' do
       subject.valid?(true).should     == false
       subject.valid?(50).should       == false
