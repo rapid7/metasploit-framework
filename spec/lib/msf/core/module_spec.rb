@@ -35,12 +35,13 @@ shared_examples "search_filter" do |opts|
 end
 
 
+REF_TYPES = %w(CVE BID OSVDB EDB)
+
 describe Msf::Module do
   describe '#search_filter' do
-    before { subject.stub(:type => 'server') }
     let(:opts) { Hash.new }
+    before { subject.stub(:fullname => '/module') }
     subject { Msf::Module.new(opts) }
-
     accept = []
     reject = []
 
@@ -82,40 +83,40 @@ describe Msf::Module do
 
     context 'on a module that supports the osx platform' do
       let(:opts) { ({ 'Platform' => %w(osx) }) }
-      accept = %w(platform:osx)
-      reject = %w(platform:bsd platform:windows platform:unix)
+      accept = %w(platform:osx os:osx)
+      reject = %w(platform:bsd platform:windows platform:unix os:bsd os:windows os:unix)
 
       it_should_behave_like 'search_filter', :accept => accept, :reject => reject
     end
 
     context 'on a module that supports the linux platform' do
       let(:opts) { ({ 'Platform' => %w(linux) }) }
-      accept = %w(platform:linux)
-      reject = %w(platform:bsd platform:windows platform:unix)
+      accept = %w(platform:linux os:linux)
+      reject = %w(platform:bsd platform:windows platform:unix os:bsd os:windows os:unix)
 
       it_should_behave_like 'search_filter', :accept => accept, :reject => reject
     end
 
     context 'on a module that supports the windows platform' do
       let(:opts) { ({ 'Platform' => %w(windows) }) }
-      accept = %w(platform:windows)
-      reject = %w(platform:bsd platform:osx platform:unix)
+      accept = %w(platform:windows os:windows)
+      reject = %w(platform:bsd platform:osx platform:unix os:bsd os:osx os:unix)
 
       it_should_behave_like 'search_filter', :accept => accept, :reject => reject
     end
 
     context 'on a module that supports the osx and linux platforms' do
       let(:opts) { ({ 'Platform' => %w(osx linux) }) }
-      accept = %w(platform:osx platform:linux)
-      reject = %w(platform:bsd platform:windows platform:unix)
+      accept = %w(platform:osx platform:linux os:osx os:linux)
+      reject = %w(platform:bsd platform:windows platform:unix os:bsd os:windows os:unix)
 
       it_should_behave_like 'search_filter', :accept => accept, :reject => reject
     end
 
     context 'on a module that supports the windows and irix platforms' do
       let(:opts) { ({ 'Platform' => %w(windows irix) }) }
-      accept = %w(platform:windows platform:irix)
-      reject = %w(platform:bsd platform:osx platform:linux)
+      accept = %w(platform:windows platform:irix os:windows os:irix)
+      reject = %w(platform:bsd platform:osx platform:linux os:bsd os:osx os:linux)
 
       it_should_behave_like 'search_filter', :accept => accept, :reject => reject
     end
@@ -129,19 +130,19 @@ describe Msf::Module do
     end
 
     context 'on a module with a #name of "blah"' do
-      before { subject.stub(:name => 'blah') }
+      let(:opts) { ({ 'Name' => 'blah' }) }
       it_should_behave_like 'search_filter', :accept => %w(text:blah), :reject => %w(text:foo)
       it_should_behave_like 'search_filter', :accept => %w(name:blah), :reject => %w(name:foo)
     end
 
     context 'on a module with a #fullname of "blah"' do
-      before { subject.stub(:fullname => 'blah/blah') }
+      before { subject.stub(:fullname => '/c/d/e/blah') }
       it_should_behave_like 'search_filter', :accept => %w(text:blah), :reject => %w(text:foo)
       it_should_behave_like 'search_filter', :accept => %w(path:blah), :reject => %w(path:foo)
     end
 
     context 'on a module with a #description of "blah"' do
-      before { subject.stub(:description => 'blah') }
+      let(:opts) { ({ 'Description' => 'blah' }) }
       it_should_behave_like 'search_filter', :accept => %w(text:blah), :reject => %w(text:foo)
     end
 
@@ -156,6 +157,17 @@ describe Msf::Module do
 
           it_should_behave_like 'search_filter', :accept => accept, :reject => reject
         end
+      end
+    end
+
+    REF_TYPES.each do |ref_type|
+      ref_num = '1234-1111'
+      context 'on a module with reference #{ref_type}-#{ref_num}' do
+        let(:opts) { ({ 'References' => [[ref_type, ref_num]] }) }
+        accept = ["#{ref_type.downcase}:#{ref_num}"]
+        reject = %w(1235-1111 1234-1112 bad).map { |n| "#{ref_type.downcase}:#{n}" }
+
+        it_should_behave_like 'search_filter', :accept => accept, :reject => reject
       end
     end
 
