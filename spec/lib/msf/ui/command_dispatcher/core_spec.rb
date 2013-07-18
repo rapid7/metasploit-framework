@@ -6,16 +6,7 @@ require 'msf/ui/console/command_dispatcher/core'
 
 describe Msf::Ui::Console::CommandDispatcher::Core do
   include_context 'Msf::DBManager'
-
-  let(:driver) do
-    mock(
-        'Driver',
-        :framework => framework
-    ).tap { |driver|
-      driver.stub(:on_command_proc=).with(kind_of(Proc))
-      driver.stub(:print_line).with(kind_of(String))
-    }
-  end
+  include_context 'Msf::UIDriver'
 
   subject(:core) do
     described_class.new(driver)
