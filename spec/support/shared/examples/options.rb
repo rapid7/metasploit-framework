@@ -5,6 +5,21 @@ shared_examples_for "an option" do |valid_values, invalid_values|
     described_class.new("name")
   end
 
+  let(:required) { described_class.new('name', [true, 'A description here'])}
+  let(:optional) { described_class.new('name', [false, 'A description here'])}
+
+  context 'when required' do
+    it 'should not be valid for nil' do
+      required.valid?(nil).should == false
+    end
+  end
+
+  context 'when not required' do
+    it 'it should be valid for nil' do
+      optional.valid?(nil).should == true
+    end
+  end
+
   context "with valid values" do
     valid_values.each do |vhash|
 			valid_value = vhash[:value]

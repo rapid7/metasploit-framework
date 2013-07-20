@@ -13,10 +13,23 @@ describe Msf::OptAddress do
 		# Too many dots
 		{ :value => "192.0.2.0.0" },
 		# Not enough
-    { :pending => "Redmine #7537", :value => "192.0.2" }
+    { :value => "192.0.2" },
+    # Non-string values
+    { :value => true},
+    { :value => 5 },
+    { :value => []},
+    { :value => [1,2]},
+    { :value => {}},
 	]
 
 	it_behaves_like "an option", valid_values, invalid_values
+
+  let(:required_opt) {  Msf::OptAddress.new('RHOST', [true, 'The target address', '']) }
+
+  it 'should return a type of address' do
+    required_opt.type.should == 'address'
+  end
+
 end
 
 
