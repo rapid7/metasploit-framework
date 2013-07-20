@@ -38,13 +38,9 @@ describe Msf::OptAddressRange do
     { :value => {}},
 	]
 
-	it_behaves_like "an option", valid_values, invalid_values
+	it_behaves_like "an option", valid_values, invalid_values, 'addressrange'
 
   let(:required_opt) {  Msf::OptAddressRange.new('RHOSTS', [true, 'The target addresses', '']) }
-
-  it 'should return a type of addressrange' do
-    required_opt.type.should == 'addressrange'
-  end
 
   context 'the normalizer' do
     it 'should handle a call for random IPs' do

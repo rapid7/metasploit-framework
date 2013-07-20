@@ -16,6 +16,7 @@ GEM
     bourne (1.4.0)
       mocha (~> 0.13.2)
     builder (3.0.4)
+    coderay (1.0.9)
     database_cleaner (0.9.1)
     diff-lcs (1.2.2)
     factory_girl (4.2.0)
@@ -27,6 +28,7 @@ GEM
       activerecord (>= 3.2.13)
       activesupport
       pg
+    method_source (0.8.1)
     mocha (0.13.3)
       metaclass (~> 0.0.1)
     msgpack (0.5.4)
@@ -36,6 +38,10 @@ GEM
     packetfu (1.1.8)
     pcaprub (0.11.3)
     pg (0.15.1)
+    pry (0.9.12.2)
+      coderay (~> 1.0.5)
+      method_source (~> 0.8)
+      slop (~> 3.4)
     rake (10.0.4)
     redcarpet (2.2.2)
     robots (0.10.1)
@@ -54,6 +60,7 @@ GEM
       multi_json (~> 1.0.3)
       simplecov-html (~> 0.5.3)
     simplecov-html (0.5.3)
+    slop (3.4.5)
     timecop (0.6.1)
     tzinfo (0.3.37)
     yard (0.8.5.2)
@@ -74,6 +81,7 @@ DEPENDENCIES
   packetfu (= 1.1.8)
   pcaprub
   pg (>= 0.11)
+  pry
   rake
   redcarpet
   robots

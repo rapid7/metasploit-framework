@@ -22,13 +22,9 @@ describe Msf::OptAddress do
     { :value => {}},
 	]
 
-	it_behaves_like "an option", valid_values, invalid_values
+	it_behaves_like "an option", valid_values, invalid_values, 'address'
 
-  let(:required_opt) {  Msf::OptAddress.new('RHOST', [true, 'The target address', '']) }
 
-  it 'should return a type of address' do
-    required_opt.type.should == 'address'
-  end
 
 end
 

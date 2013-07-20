@@ -1,12 +1,16 @@
 # -*- coding:binary -*-
 
-shared_examples_for "an option" do |valid_values, invalid_values|
+shared_examples_for "an option" do |valid_values, invalid_values, type|
   subject do
     described_class.new("name")
   end
 
   let(:required) { described_class.new('name', [true, 'A description here'])}
   let(:optional) { described_class.new('name', [false, 'A description here'])}
+
+  it "should return a type of #{type}"  do
+    subject.type.should == type
+  end
 
   context 'when required' do
     it 'should not be valid for nil' do
