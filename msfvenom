@@ -97,6 +97,10 @@ def parse_args
 		opts[:list_options] = true
 	end
 
+	opt.on('-d', '--advanced', 'List the payload\'s advanced options') do
+		opts[:list_advanced] = true
+	end
+
 	opt.on_tail('-h', '--help', 'Show this message') do
 		$stderr.puts opt
 		exit(1)
@@ -335,6 +339,11 @@ end
 
 if opts[:list_options]
     puts Msf::Serializer::ReadableText.dump_module(payload)
+    exit
+end
+
+if opts[:list_advanced]
+    puts Msf::Serializer::ReadableText.dump_advanced_options(payload)
     exit
 end
 

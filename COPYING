@@ -11,7 +11,7 @@ are permitted provided that the following conditions are met:
 	  this list of conditions and the following disclaimer in the documentation
 	  and/or other materials provided with the distribution.
 
-    * Neither the name of Rapid7 LLC nor the names of its contributors
+    * Neither the name of Rapid7, Inc. nor the names of its contributors
 	  may be used to endorse or promote products derived from this software
 	  without specific prior written permission.
 
@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 The Metasploit Framework is provided under the 3-clause BSD license above.
 
-The copyright on this package is held by Rapid7 LLC.
+The copyright on this package is held by Rapid7, Inc.
 
 This license does not apply to several components within the Metasploit
 Framework source tree.  For more details see the LICENSE file.
