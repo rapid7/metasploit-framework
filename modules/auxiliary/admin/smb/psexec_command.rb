@@ -126,6 +126,9 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 
+		log_dir = ::File.join(Msf::Config.log_directory,'scripts', 'psexec_command')
+		::FileUtils.mkdir_p(log_dir)
+
 		# Define log filename
 		timestamp  = ::Time.now.strftime('%Y%m%d:%H%M%S')
 		filename  = "#{datastore['RHOSTS']}_#{timestamp}"
