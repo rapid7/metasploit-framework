@@ -487,7 +487,7 @@ class OptRegexp < OptBase
 			Regexp.compile(value)
 
 			return true
-		rescue RegexpError
+		rescue RegexpError, TypeError
 			return false
 		end
 	end
