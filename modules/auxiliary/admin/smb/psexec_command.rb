@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('FILEPREFIX', [false, 'Add a custom prefix to the temporary files','']),
 			OptInt.new('DELAY', [true, 'Wait this many seconds before reading output and cleaning up', 1]),
 			OptInt.new('RETRY', [true, 'Retry this many times to check if the process is complete', 10]),
-			OptPath.new('LOGDIR', [false, 'File to log output', '']),
+			OptPath.new('LOGDIR', [false, 'File to log output', nil]),
 		], self.class)
 
 		deregister_options('RHOST')
