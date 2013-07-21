@@ -36,6 +36,7 @@ $out_handle = New-Object Microsoft.Win32.SafeHandles.SafeFileHandle $handle_out,
 $fso = New-Object IO.FileStream $out_handle, ReadWrite
 $sw = New-Object IO.StreamWriter $fso
 $sw.AutoFlush=1
+$sw.Write("Hit Enter, Write Command then Enter again...");
 $sw.Write("PS> ")
 
 while (1) {
