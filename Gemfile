@@ -33,7 +33,6 @@ group :development do
 	gem 'redcarpet'
 	# generating documentation
 	gem 'yard'
-  gem 'pry'
 end
 
 group :development, :test do
