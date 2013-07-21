@@ -440,7 +440,7 @@ if opts[:format] !~/^(ruby|rb|perl|pl|bash|sh|c|csharp|js|dll|elf)$/i
 end
 
 case opts[:format]
-when /^(ruby|rb|perl|pl|bash|sh|c|csharp|js_le|raw|py)$/i
+when /^(ruby|rb|perl|pl|bash|sh|c|csharp|js_le|raw|python|py)$/i
 	$stdout.write Msf::Simple::Buffer.transform(payload_raw, opts[:format])
 when /^asp$/
 	asp = Msf::Util::EXE.to_win32pe_asp($framework, payload_raw, exeopts)
