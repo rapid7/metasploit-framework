@@ -158,8 +158,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 	def cmd_powershell()
 		dir = client.fs.file.expand_path("%temp%")
 		dest = File.join(dir, Rex::Text::rand_text_alpha(8)+".ps1")
-
-		cmd_args = "-NoProfile -ExecutionPolicy bypass -WindowStyle hidden -Command \"#{dest}\""
+		cmd_args = "-NoProfile -InputFormat none -ExecutionPolicy bypass -Command #{dest}"
 		p = client.sys.process.execute("powershell.exe", cmd_args,
 			'Channelized' => true,
 			'Desktop'     => false,

