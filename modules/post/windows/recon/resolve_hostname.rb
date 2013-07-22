@@ -13,7 +13,14 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Windows Recon Resolve Hostname',
-				'Description'   => %q{ This module resolves a hostname to IP address via the victim, similiar to the Unix dig command},
+				'Description'   => %q{
+						This module resolves a hostname to IP address via the victim,
+						similar to the Unix 'dig' command. Since resolution happens over
+						an established session from the perspective of the remote host,
+						this module can be used to determine differences between external
+						and internal resolution, especially for potentially high-value
+						internal addresses of devices named 'mail' or 'www.'
+					},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'mubix' ],
 				'Platform'      => [ 'win' ],
