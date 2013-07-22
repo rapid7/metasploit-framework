@@ -23,7 +23,8 @@ class Metasploit3 < Msf::Post
 		register_options(
 			[
 				OptString.new('HOSTNAME', [false, 'Hostname to lookup', nil]),
-				OptPath.new('HOSTFILE', [false, 'Line separated file with hostnames to resolve', nil])
+				OptPath.new('HOSTFILE', [false, 'Line separated file with hostnames to resolve', nil]),
+				OptBool.new('SAVEHOSTS', [true, 'Save Discovered Hosts to the Database', true])
 			], self.class)
 	end
 
@@ -51,10 +52,12 @@ class Metasploit3 < Msf::Post
 			hostip = Rex::Socket.addr_itoa(ip)
 			print_status("#{hostname} resolves to #{hostip}")
 
-			report_host({
-				:host => hostip,
-				:name => hostname
-			})
+			if datastore['SAVEHOSTS']
+				report_host({
+					:host => hostip,
+					:name => hostname
+				})
+			end
 
 		rescue Rex::Post::Meterpreter::RequestError
 			print_status('Windows 2000 and prior does not support getaddrinfo')
