@@ -141,8 +141,12 @@ exploit.init_ui(
 mode = ARGV.pop || 'h'
 
 # Import options
-exploit.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
-
+begin
+	exploit.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
+rescue Rex::ArgumentParseError => e
+	puts "[!] Error: #{e.message}\n\n"
+	exit
+end
 
 # Initialize associated modules
 payload = nil
@@ -152,21 +156,21 @@ nop     = nil
 if (exploit.datastore['PAYLOAD'])
 	payload = $framework.payloads.create(exploit.datastore['PAYLOAD'])
 	if (payload != nil)
-	payload.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
+		payload.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
 	end
 end
 
 if (exploit.datastore['ENCODER'])
 	encoder = $framework.encoders.create(exploit.datastore['ENCODER'])
 	if (encoder != nil)
-	encoder.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
+		encoder.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
 	end
 end
 
 if (exploit.datastore['NOP'])
 	nop = $framework.nops.create(exploit.datastore['NOP'])
 	if (nop != nil)
-	nop.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
+		nop.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
 	end
 end
 
@@ -178,22 +182,21 @@ case mode.downcase
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_module(payload, Indent)) if payload
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_module(encoder, Indent)) if encoder
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_module(nop, Indent)) if nop
-
 	when "o"
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_options(exploit, Indent))
-		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_options(payload, Indent)) if payload
-		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_options(encoder, Indent)) if encoder
-		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_options(nop, Indent)) if nop
+		$stdout.puts("\nPayload:\n\n" + Msf::Serializer::ReadableText.dump_options(payload, Indent)) if payload
+		$stdout.puts("\nEncoder:\n\n" + Msf::Serializer::ReadableText.dump_options(encoder, Indent)) if encoder
+		$stdout.puts("\nNOP\n\n" + Msf::Serializer::ReadableText.dump_options(nop, Indent)) if nop
 	when "a"
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_advanced_options(exploit, Indent))
-		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_advanced_options(payload, Indent)) if payload
-		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_advanced_options(encoder, Indent)) if encoder
-		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_advanced_options(nop, Indent)) if nop
+		$stdout.puts("\nPayload:\n\n" + Msf::Serializer::ReadableText.dump_advanced_options(payload, Indent)) if payload
+		$stdout.puts("\nEncoder:\n\n" + Msf::Serializer::ReadableText.dump_advanced_options(encoder, Indent)) if encoder
+		$stdout.puts("\nNOP:\n\n" + Msf::Serializer::ReadableText.dump_advanced_options(nop, Indent)) if nop
 	when "i"
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_evasion_options(exploit, Indent))
-		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_evasion_options(payload, Indent)) if payload
-		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_evasion_options(encoder, Indent)) if encoder
-		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_evasion_options(nop, Indent)) if nop
+		$stdout.puts("\nPayload:\n\n" + Msf::Serializer::ReadableText.dump_evasion_options(payload, Indent)) if payload
+		$stdout.puts("\nEncoder:\n\n" + Msf::Serializer::ReadableText.dump_evasion_options(encoder, Indent)) if encoder
+		$stdout.puts("\nNOP:\n\n" + Msf::Serializer::ReadableText.dump_evasion_options(nop, Indent)) if nop
 	when "p"
 		if (module_class == 'exploit')
 			$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_compatible_payloads(exploit, Indent, "Compatible payloads"))
