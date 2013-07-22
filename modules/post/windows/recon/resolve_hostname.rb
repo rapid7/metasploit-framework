@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
 			[
 				OptString.new('HOSTNAME', [false, 'Hostname to lookup', nil]),
 				OptPath.new('HOSTFILE', [false, 'Line separated file with hostnames to resolve', nil]),
-				OptBool.new('SAVEHOSTS', [true, 'Save Discovered Hosts to the Database', true])
+				OptBool.new('SAVEHOSTS', [true, 'Save resolved hosts to the database', true])
 			], self.class)
 	end
 
