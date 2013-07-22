@@ -71,11 +71,10 @@ through the SAP HostControl service
 				                       'uri' => "/",
 				                       'method' => 'POST',
 				                       'data' => data,
-				                       'headers' =>
-					                       {
-						                       'Content-Length' => data.length,
-						                       'Content-Type' => 'text/xml; charset=UTF-8',
-					                       }
+				                       'headers' => {
+					                       'Content-Length' => data.length,
+					                       'Content-Type' => 'text/xml; charset=UTF-8',
+				                       }
 			                       }, 15)
 
 			if res and res.code == 200
@@ -127,15 +126,16 @@ through the SAP HostControl service
 					'Postfix' => "\n",
 					'Indent' => 1,
 					'Columns' =>
-						["Name",
-						 "PID",
-						 "Username",
-						 "Priority",
-						 "Size",
-						 "Pages",
-						 "CPU",
-						 "CPU Time",
-						 "Command"
+						[
+							"Name",
+							"PID",
+							"Username",
+							"Priority",
+							"Size",
+							"Pages",
+							"CPU",
+							"CPU Time",
+							"Command"
 						])
 
 				saptbl[3] = Msf::Ui::Console::Table.new(
@@ -145,10 +145,11 @@ through the SAP HostControl service
 					'Postfix' => "\n",
 					'Indent' => 1,
 					'Columns' =>
-						["Name",
-						 "Size",
-						 "Available",
-						 "Remote"
+						[
+							"Name",
+							"Size",
+							"Available",
+							"Remote"
 						])
 
 				saptbl[4] = Msf::Ui::Console::Table.new(
@@ -158,12 +159,13 @@ through the SAP HostControl service
 					'Postfix' => "\n",
 					'Indent' => 1,
 					'Columns' =>
-						["ID",
-						 "PacketsIn",
-						 "PacketsOut",
-						 "ErrorsIn",
-						 "ErrorsOut",
-						 "Collisions"
+						[
+							"ID",
+							"PacketsIn",
+							"PacketsOut",
+							"ErrorsIn",
+							"ErrorsOut",
+							"Collisions"
 						])
 
 				mxml = REXML::Document.new(res.body)
