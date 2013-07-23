@@ -264,7 +264,7 @@ class Msf::Modules::Loader::Base
     each_module_reference_name(path, modules) do |parent_path, type, module_reference_name|
       next if loaded_items.include?(module_reference_name)
       loaded_items << module_reference_name
-      puts "Loading: #{module_reference_name}"
+      #puts "Loading: #{module_reference_name}"
       load_module(
           parent_path,
           type,

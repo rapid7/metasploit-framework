@@ -118,7 +118,7 @@ ARGV.each { |args|
 	modules << interpret_payload_name(val) if var =~ /payload/
 }
 
-puts "Module list: #{modules.inspect}"
+#puts "Module list: #{modules.inspect}"
 #exit
 $framework = Msf::Simple::Framework.create({'DeferModuleLoads'=>true})
 $framework.init_module_paths(modules)
@@ -198,7 +198,7 @@ if (exploit.datastore['NOP'])
 	end
 end
 
-puts exploit.inspect
+#puts exploit.inspect
 
 case mode.downcase
 	when 'h'
