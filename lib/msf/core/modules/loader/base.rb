@@ -251,13 +251,20 @@ class Msf::Modules::Loader::Base
   # @return [Hash{String => Integer}] Maps module type to number of
   #   modules loaded
   def load_modules(path, options={})
-    options.assert_valid_keys(:force)
+    options.assert_valid_keys(:force, :modules)
 
     force = options[:force]
+    modules = options[:modules]
     count_by_type = {}
     recalculate_by_type = {}
 
-    each_module_reference_name(path) do |parent_path, type, module_reference_name|
+    # This is used to avoid loading the same thing twice
+    loaded_items = []
+
+    each_module_reference_name(path, modules) do |parent_path, type, module_reference_name|
+      next if loaded_items.include?(module_reference_name)
+      loaded_items << module_reference_name
+      puts "Loading: #{module_reference_name}"
       load_module(
           parent_path,
           type,

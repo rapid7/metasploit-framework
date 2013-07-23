@@ -23,7 +23,7 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
   # @yieldparam [String] type The type correlated with the directory under path.
   # @yieldparam module_reference_name (see Msf::Modules::Loader::Base#each_module_reference_name)
   # @return (see Msf::Modules::Loader::Base#each_module_reference_name)
-  def each_module_reference_name(path)
+  def each_module_reference_name(path, modules=[])
     ::Dir.foreach(path) do |entry|
       if entry.downcase == '.svn'
         next
@@ -49,7 +49,23 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
           # The module_reference_name doesn't have a file extension
           module_reference_name = module_reference_name_from_path(relative_entry_descendant_path)
 
-          yield path, type, module_reference_name
+          if modules and not modules.empty?
+            #puts "#{modules.inspect} : #{module_reference_name}"
+            modules.each do |m|
+              if module_reference_name =~ m
+                yield path, type, module_reference_name
+              else
+                next
+              end
+            end
+          else
+            yield path, type, module_reference_name
+          end
+
+
+
+
+
         end
       end
     end

@@ -108,7 +108,7 @@ module Msf::ModuleManager::Loading
   #   loaded.
   # @return [Hash{String => Integer}] Maps module type to number of modules loaded
   def load_modules(path, options={})
-    options.assert_valid_keys(:force)
+    options.assert_valid_keys(:force, :modules)
 
     count_by_type = {}
 

@@ -31,6 +31,7 @@ class Msf::Modules::Loader::Archive < Msf::Modules::Loader::Base
   # @yieldparam (see Msf::Modules::Loader::Base#each_module_reference_name)
   # @return (see Msf::Modules::Loader::Base#each_module_reference_name)
   def each_module_reference_name(path)
+    puts "We are in archive.rb"
     entries = ::FastLib.list(path)
 
     entries.each do |entry|
