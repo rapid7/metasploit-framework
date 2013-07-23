@@ -23,7 +23,7 @@ describe Rex::FileUtils do
 				described_class.normalize_win_path('C:\\\\').should eq("C:\\")
 			end
 
-			it "should parse UNC path format as an array" do
+			it "should parse UNC path format as an array or a string" do
 				described_class.normalize_win_path('\\\\127.0.0.1', 'C$').should eq("\\\\127.0.0.1\\C$")
 				described_class.normalize_win_path('\\\\127.0.0.1\\C$').should eq("\\\\127.0.0.1\\C$")
 			end
