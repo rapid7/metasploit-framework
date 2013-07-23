@@ -145,9 +145,6 @@ def self.open_browser(url='http://metasploit.com/')
 				end
 			end
 		end
-
-		# If nothing else worked, default to firefox
-		system("firefox #{url} &")
 	end
 end
 
