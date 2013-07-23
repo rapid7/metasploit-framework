@@ -14,9 +14,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'DLink DSL 320B Password Extractor',
+			'Name'        => 'D-Link DSL 320B Password Extractor',
 			'Description' => %q{
-					This module exploits an authentication bypass vulnerability in DLink DSL 320B
+					This module exploits an authentication bypass vulnerability in D-Link DSL 320B
 				<=v1.23. This vulnerability allows to extract the credentials for the remote
 				management interface.
 			},
