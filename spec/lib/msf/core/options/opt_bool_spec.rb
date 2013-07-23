@@ -17,6 +17,7 @@ describe Msf::OptBool do
     { :value => "012"     },
     { :value => "123"     },
   ]
-  it_behaves_like "an option", valid_values, invalid_values
+  it_behaves_like "an option", valid_values, invalid_values, 'bool'
+
 end
 
