@@ -16,15 +16,7 @@ while File.symlink?(msfbase)
 end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
-require 'fastlib'
-require 'msfenv'
-
-
-$:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
-
 require 'rex'
-require 'msf/ui'
-require 'msf/base'
 
 Indent = '   '
 
@@ -61,6 +53,12 @@ module_class = "exploit"
 
 if(exploit_name == "-h")
 	usage()
+else
+	$:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
+	require 'fastlib'
+	require 'msfenv'
+	require 'msf/ui'
+	require 'msf/base'
 end
 
 # Initialize the simplified framework instance.
