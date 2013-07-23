@@ -41,7 +41,7 @@ describe Rex::FileUtils do
 				described_class.normalize_unix_path('/etc', '/passwd').should eq("/etc/passwd")
 			end
 
-			it "should convert an absolute path as a string into Windows format" do
+			it "should convert an absolute path as a string into Unix format" do
 				described_class.normalize_unix_path('/etc/passwd').should eq('/etc/passwd')
 			end
 
