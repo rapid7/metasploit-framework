@@ -131,8 +131,10 @@ def self.open_browser(url='http://metasploit.com/')
 		# Search through the PATH variable (if it exists) and chose a browser
 		# We are making an assumption about the nature of "PATH" so tread lightly
 		if defined? ENV['PATH']
-			# "sensible-browser" opens the "default" browser in Ubuntu and others, so try that first
-			#  but also provide fallbacks
+			# "xdg-open" is more general than "sensible-browser" and can be useful for lots of
+			# file types -- text files, pcaps, or URLs. It's nearly always
+			# going to use the application the user is expecting. If we're not
+			# on something Debian-based, fall back to likely browsers.
 			['xdg-open', 'sensible-browser', 'firefox', 'firefox-bin', 'opera', 'konqueror', 'chromium-browser'].each do |browser|
 				ENV['PATH'].split(':').each do |path|
 					# Does the browser exists?
