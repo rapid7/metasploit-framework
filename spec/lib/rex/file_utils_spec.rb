@@ -15,6 +15,7 @@ describe Rex::FileUtils do
 			it "should convert a relative path" do
 				described_class.normalize_win_path('/', 'test', 'me').should eq("\\test\\me")
 				described_class.normalize_win_path('\\temp').should eq("\\temp")
+				described_class.normalize_win_path('temp').should eq("temp")
 			end
 
 			it "should keep the trailing slash if exists" do
