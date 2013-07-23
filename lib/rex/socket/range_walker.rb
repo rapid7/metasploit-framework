@@ -100,7 +100,7 @@ class RangeWalker
         end
 				begin
 					Rex::Socket.getaddress(ip_part) # This allows for "www.metasploit.com/24" which is fun.
-				rescue Resolv::ResolvError, ::SocketError
+				rescue Resolv::ResolvError, ::SocketError, Errno::ENOENT
 					return false # Can't resolve the ip_part, so bail.
 				end
 
