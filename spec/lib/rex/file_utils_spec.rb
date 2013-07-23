@@ -12,6 +12,11 @@ describe Rex::FileUtils do
 				described_class.normalize_win_path('C:\\hello\\world').should eq("C:\\hello\\world")
 			end
 
+			it "should convert a relative path" do
+				described_class.normalize_win_path('/', 'test', 'me').should eq("\\test\\me")
+				described_class.normalize_win_path('\\temp').should eq("\\temp")
+			end
+
 			it "should convert a path without reserved characters" do
 				described_class.normalize_win_path('C:\\', 'Windows:').should eq("C:\\Windows")
 				described_class.normalize_win_path('C:\\Windows???\\test').should eq("C:\\Windows\\test")
@@ -21,16 +26,6 @@ describe Rex::FileUtils do
 				described_class.normalize_win_path('C:\\\\\\', 'Windows').should eq("C:\\Windows")
 				described_class.normalize_win_path('C:\\\\\\Hello World\\\\whatever.txt').should eq("C:\\Hello World\\whatever.txt")
 				described_class.normalize_win_path('C:\\\\').should eq("C:\\")
-			end
-
-			it "should parse UNC path format as an array or a string" do
-				described_class.normalize_win_path('\\\\127.0.0.1', 'C$').should eq("\\\\127.0.0.1\\C$")
-				described_class.normalize_win_path('\\\\127.0.0.1\\C$').should eq("\\\\127.0.0.1\\C$")
-			end
-
-			it "should parse a relative path in Windows format" do
-				described_class.normalize_win_path('\\\\127.0.0.1', 'C$').should eq("\\\\127.0.0.1\\C$")
-				described_class.normalize_win_path('\\\\127.0.0.1\\C$').should eq("\\\\127.0.0.1\\C$")
 			end
 		end
 

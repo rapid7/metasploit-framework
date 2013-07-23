@@ -40,9 +40,7 @@ module FileUtils
 
 		# Parse the path prefix
 		prefix = (s[0] || '').gsub(/[\*<>\?\/]/, '')
-		if prefix.empty?
-			prefix = '\\'
-		elsif prefix =~ /^\w:$/ and s.length == 1
+		if prefix =~ /^\w:$/ and s.length == 1
 			prefix += '\\'
 		end
 
