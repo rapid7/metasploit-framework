@@ -35,14 +35,14 @@ module FileUtils
 		# Filter out double slashes
 		s = s.gsub(/\\\\/, '\\') while s.index('\\\\')
 
+		# Keep the trailing slash if exists
+		trailing_s = ('\\' if s =~ /\\$/) || ''
+
 		# Check the items (fie/dir) individually
 		s = s.split(/\\/)
 
 		# Parse the path prefix
 		prefix = (s[0] || '').gsub(/[\*<>\?\/]/, '')
-		if prefix =~ /^\w:$/ and s.length == 1
-			prefix += '\\'
-		end
 
 		# Delete the original prefix. We want the new one later.
 		s.delete_at(0)
@@ -55,6 +55,9 @@ module FileUtils
 
 		# And then safely join the items
 		s *= '\\'
+
+		# Add the trailing slash back if exists
+		s << trailing_s
 	end
 
 	#

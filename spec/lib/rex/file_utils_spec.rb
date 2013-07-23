@@ -17,6 +17,11 @@ describe Rex::FileUtils do
 				described_class.normalize_win_path('\\temp').should eq("\\temp")
 			end
 
+			it "should keep the trailing slash if exists" do
+				described_class.normalize_win_path('/', 'test', 'me\\').should eq("\\test\\me\\")
+				described_class.normalize_win_path('\\temp\\').should eq("\\temp\\")
+			end
+
 			it "should convert a path without reserved characters" do
 				described_class.normalize_win_path('C:\\', 'Windows:').should eq("C:\\Windows")
 				described_class.normalize_win_path('C:\\Windows???\\test').should eq("C:\\Windows\\test")
@@ -26,6 +31,7 @@ describe Rex::FileUtils do
 				described_class.normalize_win_path('C:\\\\\\', 'Windows').should eq("C:\\Windows")
 				described_class.normalize_win_path('C:\\\\\\Hello World\\\\whatever.txt').should eq("C:\\Hello World\\whatever.txt")
 				described_class.normalize_win_path('C:\\\\').should eq("C:\\")
+				described_class.normalize_win_path('\\test\\\\test\\\\').should eq("\\test\\test\\")
 			end
 		end
 
