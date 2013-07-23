@@ -45,6 +45,10 @@ describe Rex::FileUtils do
 				described_class.normalize_unix_path('/etc/passwd').should eq('/etc/passwd')
 			end
 
+			it "should still give me a trailing slash if I have it" do
+				described_class.normalize_unix_path('/etc/folder/').should eq("/etc/folder/")
+			end
+
 			it "should convert a path without double slashes" do
 				described_class.normalize_unix_path('//etc////passwd').should eq("/etc/passwd")
 				described_class.normalize_unix_path('/etc////', 'passwd').should eq('/etc/passwd')
