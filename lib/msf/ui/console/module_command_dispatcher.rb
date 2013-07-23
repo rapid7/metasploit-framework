@@ -77,11 +77,13 @@ module ModuleCommandDispatcher
 	end
 
 	def cmd_pry(*args)
-		begin
-			require 'pry'
-		rescue LoadError
-			print_error("Failed to load pry, try 'gem install pry'")
-			return
+		unless mod.respond_to? :pry
+			begin
+				require 'pry'
+			rescue LoadError
+				print_error("Failed to load pry, try 'gem install pry'")
+				return
+			end
 		end
 		mod.pry
 	end
