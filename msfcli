@@ -20,6 +20,76 @@ require 'rex'
 
 Indent = '   '
 
+# Payload naming style is kind of inconsistent, so instead of
+# finding the exact path name, we provide the most educated guess based
+# on platform/stage type/session type/payload name suffix/etc.
+def guess_payload_name(p)
+	matches       = []
+	payload       = p.split('/')
+	platform      = payload[0]
+	suffix        = payload[-1]
+	stage_types   = ['singles', 'stagers', 'stages']
+	session_types = ['meterpreter', 'shell']
+	arch          = ''
+
+	# Rule out some possibilities
+	if p =~ /meterpreter/
+		session_types.delete('shell')
+		stage_types.delete('singles')
+	end
+	if p =~ /shell\/.+$/
+		session_types.delete('meterpreter')
+		stage_types.delete('singles')
+	end
+
+	if p =~ /x64/
+		arch = 'x64'
+	elsif p =~ /x86/
+		arch = 'x86'
+	end
+
+	# Determine if the payload is staged. If it is, then
+	# we need to load that staged module too.
+	if session_types.include?('shell') and stage_types.include?('stages')
+		if arch == 'x64'
+			matches << /stages\/#{platform}\/x64\/shell/
+		elsif arch == 'x86'
+			matches << /stages\/#{platform}\/x86\/shell/
+		else
+			matches << /stages\/#{platform}\/shell/
+		end
+	elsif session_types.include?('meterpreter') and stage_types.include?('stages')
+		if arch == 'x64'
+			matches << /stages\/#{platform}\/x64\/meterpreter/
+		elsif arch == 'x86'
+			matches << /stages\/#{platform}\/x86\/meterpreter/
+		else
+			matches << /stages\/#{platform}\/meterpreter/
+		end
+	end
+
+	# Guess the second possible match
+	stage_types   *= "|"
+	session_types *= "|"
+
+	if arch == 'x64'
+		matches << /payloads\/(#{stage_types})\/#{platform}\/x64\/.*(#{suffix})\.rb$/
+	elsif arch == 'x86'
+		matches << /payloads\/(#{stage_types})\/#{platform}\/x86\/.*(#{suffix})\.rb$/
+	else
+		matches << /payloads\/(#{stage_types})\/#{platform}\/.*(#{suffix})\.rb$/
+	end
+
+	matches
+end
+
+def guess_encoder_name(e)
+	[/#{e}/]
+end
+
+def guess_nop_name(n)
+	[/#{n}/]
+end
 
 def usage (str = nil, extra = nil)
 	tbl = Rex::Ui::Text::Table.new(
@@ -59,21 +129,13 @@ else
 	require 'msfenv'
 	require 'msf/ui'
 	require 'msf/base'
-end
-
-# Initialize the simplified framework instance.
-$stderr.puts "[*] Please wait while we load the module tree..."
-$framework = Msf::Simple::Framework.create
-
-if ($framework.modules.module_load_error_by_path.length > 0)
-	print("Warning: The following modules could not be loaded!\n\n")
-
-	$framework.modules.module_load_error_by_path.each do |path, error|
-		print("\t#{path}: #{error}\n\n")
-	end
-end
 
 if (not exploit_name)
+	# This is what happens if the user doesn't specify a module name:
+	# msfcli will end up loading EVERYTHING to memory to show you a help
+	# menu plus a list of modules available. Really expensive if you ask me.
+	$stderr.puts "[*] Please wait while we load the module tree..."
+	$framework = Msf::Simple::Framework.create
 	ext = ''
 
 	tbl = Rex::Ui::Text::Table.new(
@@ -104,6 +166,31 @@ end
 # Process special var/val pairs...
 Msf::Ui::Common.process_cli_arguments($framework, ARGV)
 
+# Add modules like exploit/aux, encoders, nops we want to load to the list
+modules = []
+modules << /#{exploit_name}/     # Add exploit
+modules << /x86\/single_byte/    # Add default NOP module
+modules << /x86\/shikata_ga_nai/ # Add default encoder
+modules << /generic\/none/       # Add another default encoder
+ARGV.each { |args|
+	var, val = args.split('=', 2)
+	next if var.nil? or val.nil?
+	modules.concat(guess_payload_name(val)) if var =~ /payload/
+	modules.concat(guess_encoder_name(val)) if var =~ /encoder/
+	modules.concat(guess_nops_name(val))    if var =~ /nops/
+}
+
+$stderr.puts "[*] Initializing modules..."
+$framework = Msf::Simple::Framework.create({'DeferModuleLoads'=>true})
+$framework.init_module_paths(modules)
+if ($framework.modules.module_load_error_by_path.length > 0)
+	print("Warning: The following modules could not be loaded!\n\n")
+
+	$framework.modules.module_load_error_by_path.each do |path, error|
+		print("\t#{path}: #{error}\n\n")
+	end
+end
+
 # Determine what type of module it is
 case exploit_name
 when /exploit\/(.*)/
@@ -123,7 +210,6 @@ else
 	end
 
 end
-
 
 
 if (exploit == nil)
@@ -171,6 +257,8 @@ if (exploit.datastore['NOP'])
 		nop.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
 	end
 end
+
+
 
 case mode.downcase
 	when 'h'
@@ -236,7 +324,10 @@ case mode.downcase
 				Msf::Ui::Console::Driver::DefaultPrompt,
 				Msf::Ui::Console::Driver::DefaultPromptChar,
 				{
-					'Framework' => $framework
+					'Framework' => $framework,
+					# When I use msfcli, chances are I want speed, so ASCII art fanciness
+					# probably isn't much of a big deal for me.
+					'DisableBanner' => true
 				}
 			)
 			con.run_single("use #{module_class}/#{exploit.refname}")
