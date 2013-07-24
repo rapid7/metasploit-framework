@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptBool.new('DIR_SHARE',      [true, 'Show all the folders and files', false ]),
-				OptBool.new('USE_SRVSVC_ONLY', [true, 'List shares with SRVSVC', false ])
+				OptBool.new('USE_SRVSVC_ONLY', [true, 'List shares only with SRVSVC', false ])
 			], self.class)
 
 		deregister_options('RPORT', 'RHOST')
