@@ -36,10 +36,13 @@ def guess_payload_name(p)
 	if p =~ /meterpreter/
 		session_types.delete('shell')
 		stage_types.delete('singles')
-	elsif p =~ /shell\/.+$/
+	end
+	if p =~ /shell\/.+$/
 		session_types.delete('meterpreter')
 		stage_types.delete('singles')
-	elsif p =~ /x64/
+	end
+
+	if p =~ /x64/
 		arch = 'x64'
 	elsif p =~ /x86/
 		arch = 'x86'
@@ -50,12 +53,16 @@ def guess_payload_name(p)
 	if session_types.include?('shell') and stage_types.include?('stages')
 		if arch == 'x64'
 			matches << /stages\/#{platform}\/x64\/shell/
+		elsif arch == 'x86'
+			matches << /stages\/#{platform}\/x86\/shell/
 		else
 			matches << /stages\/#{platform}\/shell/
 		end
 	elsif session_types.include?('meterpreter') and stage_types.include?('stages')
 		if arch == 'x64'
 			matches << /stages\/#{platform}\/x64\/meterpreter/
+		elsif arch == 'x86'
+			matches << /stages\/#{platform}\/x86\/meterpreter/
 		else
 			matches << /stages\/#{platform}\/meterpreter/
 		end

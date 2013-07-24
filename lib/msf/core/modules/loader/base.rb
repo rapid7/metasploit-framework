@@ -268,7 +268,7 @@ class Msf::Modules::Loader::Base
 
       # Keep track of loaded modules
       loaded_items << module_reference_name
-
+      puts "Loaded: #{module_reference_name}"
       load_module(
           parent_path,
           type,
