@@ -28,8 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 				directories, files, time stamps, etc.
 
 				By default, a netshareenum request is done in order to retrieve share information,
-				but if this fails, you may also fall back to SRVSVC.  When SRVSVC is used, please
-				note the module will not attempt to enumerate more info like netshareenum.
+				but if this fails, you may also fall back to SRVSVC.
 			},
 			'Author'         =>
 				[
@@ -47,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptBool.new('DIR_SHARE',      [true, 'Show all the folders and files', false ]),
-				OptBool.new('USE_SRVSVC_ONLY', [true, 'List shares only with SRVSVC', false ])
+				OptBool.new('USE_SRVSVC_ONLY', [true, 'List shares with SRVSVC', false ])
 			], self.class)
 
 		deregister_options('RPORT', 'RHOST')
@@ -79,13 +78,18 @@ class Metasploit3 < Msf::Auxiliary
 
 	def eval_host(ip, share)
 		read = write = false
+
+		# srvsvc adds a null byte that needs to be removed
+		if datastore['USE_SRVSVC_ONLY']
+			share = share[0..-2]
+		end
+
 		return false,false,nil,nil if share == 'IPC$'
 
 		self.simple.connect("\\\\#{ip}\\#{share}")
 
 		begin
 			device_type = self.simple.client.queryfs_fs_device['device_type']
-
 			unless device_type
 				vprint_error("\\\\#{ip}\\#{share}: Error querying filesystem device type")
 				return false,false,nil,nil
@@ -373,7 +377,7 @@ class Metasploit3 < Msf::Auxiliary
 						:update => :unique_data
 					)
 
-					if datastore['DIR_SHARE'] and not datastore['USE_SRVSVC_ONLY']
+					if datastore['DIR_SHARE']
 						get_files_info(ip, rport, shares, info)
 					end
 
