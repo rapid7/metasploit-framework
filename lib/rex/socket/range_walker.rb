@@ -95,9 +95,12 @@ class RangeWalker
 				return false if ip_part.nil? or ip_part.empty? or mask_part.nil? or mask_part.empty?
 				return false if mask_part !~ /^[0-9]{1,2}$/ # Illegal mask -- numerals only
 				return false if mask_part.to_i > 32 # This too -- between 0 and 32.
+        if ip_part =~ /^\d{1,3}(\.\d{1,3}){1,3}$/
+          return false unless ip_part =~ Rex::Socket::MATCH_IPV4
+        end
 				begin
-					Rex::Socket.addr_atoi(ip_part) # This allows for "www.metasploit.com/24" which is fun.
-				rescue Resolv::ResolvError
+					Rex::Socket.getaddress(ip_part) # This allows for "www.metasploit.com/24" which is fun.
+				rescue Resolv::ResolvError, ::SocketError, Errno::ENOENT
 					return false # Can't resolve the ip_part, so bail.
 				end
 
