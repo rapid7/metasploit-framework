@@ -259,7 +259,7 @@ if (exploit.datastore['NOP'])
 	end
 end
 
-#puts exploit.inspect
+
 
 case mode.downcase
 	when 'h'
