@@ -80,9 +80,7 @@ class Metasploit3 < Msf::Auxiliary
 		read = write = false
 
 		# srvsvc adds a null byte that needs to be removed
-		if datastore['USE_SRVSVC_ONLY']
-			share = share[0..-2]
-		end
+		share = share.chomp("\x00")
 
 		return false,false,nil,nil if share == 'IPC$'
 
