@@ -49,23 +49,24 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
           # The module_reference_name doesn't have a file extension
           module_reference_name = module_reference_name_from_path(relative_entry_descendant_path)
 
+          # If the modules argument is set, this means we only want to load specific ones instead
+          # of loading everything to memory - see msfcli.
           if modules and not modules.empty?
-            #puts "#{modules.inspect} : #{module_reference_name}"
             modules.each do |m|
-              if module_reference_name =~ m
+              # We have to use entry_descendant_path to see if this is the module we want, because
+              # this is easier to identify the module type just by looking at the file path.
+              # For example, if module_reference_name is used (or a parsed relative path), you can't
+              # really tell if php/generic is a NOP module, a payload, or an encoder.
+              if entry_descendant_path =~ m
                 yield path, type, module_reference_name
               else
                 next
               end
             end
           else
+            # Load every module we see, which is the default behavior.
             yield path, type, module_reference_name
           end
-
-
-
-
-
         end
       end
     end

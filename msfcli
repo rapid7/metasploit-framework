@@ -23,12 +23,32 @@ Indent = '   '
 # Payload naming style is kind of inconsistent, so instead of
 # finding the exact path name, we provide the most educated guess :-(
 def interpret_payload_name(p)
-	payload     = p.split('/')
-	platform    = payload[0]
-	purpose     = payload[-1]
-	meterpreter = ('meterpreter' if p =~ /meterpreter/) || ''
+	payload      = p.split('/')
+	platform     = payload[0]
+	arch         = ''
+	stage_types  = ['singles', 'stagers', 'stages']
 
-	/(singles|stagers|stages)\/#{platform}.+(#{purpose}|#{meterpreter})/
+	if p =~ /meterpreter/
+		stage_types.delete('singles')
+	elsif p =~ /shell\/.+$/
+		stage_types.delete('singles')
+	elsif p =~ /x64/
+		arch = 'x64'
+	elsif p =~ /x86/
+		arch = 'x86'
+	end
+
+	stage_types  *= "|"
+
+	/payloads\/(#{stage_types})\/#{platform}\/#{arch}.+\.rb$/
+end
+
+def interpret_encoder_name(e)
+	/#{e}/
+end
+
+def interpret_nop_name(n)
+	/#{n}/
 end
 
 def usage (str = nil, extra = nil)
@@ -71,10 +91,11 @@ else
 	require 'msf/base'
 end
 
-# Initialize the simplified framework instance.
-$stderr.puts "[*] Please wait while we load the module tree..."
-
 if (not exploit_name)
+	# This is what happens if the user doesn't specify a module name:
+	# msfcli will end up loading EVERYTHING to memory to show you a help
+	# menu plus a list of modules available. Really expensive if you ask me.
+	$stderr.puts "[*] Please wait while we load the module tree..."
 	$framework = Msf::Simple::Framework.create
 	ext = ''
 
@@ -106,20 +127,22 @@ end
 # Process special var/val pairs...
 Msf::Ui::Common.process_cli_arguments($framework, ARGV)
 
-
+# Add modules we want to load to the list
 modules = []
-modules << /#{exploit_name}/    # Add exploit
-modules << /^\w+\/[a-z0-9_]+$/  # Add encoders & NOP modules
-
+modules << /#{exploit_name}/ # Add exploit
+modules << /x86\/single_byte/
+modules << /x86\/shikata_ga_nai/
 ARGV.each { |args|
 	var, val = args.split('=', 2)
 	next if var.nil? or val.nil?
-	# Add payloads
 	modules << interpret_payload_name(val) if var =~ /payload/
+	modules << interpret_encoder_name(val) if var =~ /encoder/
+	modules << interpret_nops_name(val)    if var =~ /nops/
 }
 
-#puts "Module list: #{modules.inspect}"
 #exit
+
+$stderr.puts "[*] Initializing modules..."
 $framework = Msf::Simple::Framework.create({'DeferModuleLoads'=>true})
 $framework.init_module_paths(modules)
 if ($framework.modules.module_load_error_by_path.length > 0)
@@ -149,7 +172,6 @@ else
 	end
 
 end
-
 
 
 if (exploit == nil)
@@ -265,6 +287,8 @@ case mode.downcase
 				Msf::Ui::Console::Driver::DefaultPromptChar,
 				{
 					'Framework' => $framework,
+					# When I use msfcli, chances are I want speed, so ASCII art fanciness
+					# probably isn't much of a big deal for me.
 					'DisableBanner' => true
 				}
 			)
@@ -275,7 +299,8 @@ case mode.downcase
 				con.run_single("set #{k} #{v}")
 			end
 
-			con.run_single("exploit")
+			con.run_single("exploit -j")
+			con.run_single('exit')
 
 			# If we have sessions or jobs, keep running
 			if $framework.sessions.length > 0 or $framework.jobs.length > 0

@@ -262,9 +262,13 @@ class Msf::Modules::Loader::Base
     loaded_items = []
 
     each_module_reference_name(path, modules) do |parent_path, type, module_reference_name|
+      # If a module is already loaded, avoid loading it again
       next if loaded_items.include?(module_reference_name)
+
+      # Keep track of loaded modules
       loaded_items << module_reference_name
-      #puts "Loading: #{module_reference_name}"
+      #puts "Loaded: #{module_reference_name}"
+
       load_module(
           parent_path,
           type,
