@@ -21,16 +21,23 @@ require 'rex'
 Indent = '   '
 
 # Payload naming style is kind of inconsistent, so instead of
-# finding the exact path name, we provide the most educated guess :-(
-def interpret_payload_name(p)
-	payload      = p.split('/')
-	platform     = payload[0]
-	arch         = ''
-	stage_types  = ['singles', 'stagers', 'stages']
+# finding the exact path name, we provide the most educated guess based
+# on platform/stage type/session type/payload name suffix/etc.
+def guess_payload_name(p)
+	matches       = []
+	payload       = p.split('/')
+	platform      = payload[0]
+	suffix        = payload[-1]
+	stage_types   = ['singles', 'stagers', 'stages']
+	session_types = ['meterpreter', 'shell']
+	arch          = ''
 
+	# Rule out some possibilities
 	if p =~ /meterpreter/
+		session_types.delete('shell')
 		stage_types.delete('singles')
 	elsif p =~ /shell\/.+$/
+		session_types.delete('meterpreter')
 		stage_types.delete('singles')
 	elsif p =~ /x64/
 		arch = 'x64'
@@ -38,9 +45,29 @@ def interpret_payload_name(p)
 		arch = 'x86'
 	end
 
-	stage_types  *= "|"
+	# Determine if the payload is staged. If it is, then
+	# we need to load that staged module too.
+	if session_types.include?('shell') and stage_types.include?('stages')
+		if arch == 'x64'
+			matches << /stages\/#{platform}\/x64\/shell/
+		else
+			matches << /stages\/#{platform}\/shell/
+		end
+	elsif session_types.include?('meterpreter') and stage_types.include?('stages')
+		if arch == 'x64'
+			matches << /stages\/#{platform}\/x64\/meterpreter/
+		else
+			matches << /stages\/#{platform}\/meterpreter/
+		end
+	end
 
-	/payloads\/(#{stage_types})\/#{platform}\/#{arch}.+\.rb$/
+	# Guess the second possible match
+	stage_types   *= "|"
+	session_types *= "|"
+
+	matches << /payloads\/(#{stage_types})\/#{platform}\/(#{arch})*.*(#{suffix})\.rb$/
+
+	matches
 end
 
 def interpret_encoder_name(e)
@@ -135,11 +162,12 @@ modules << /x86\/shikata_ga_nai/
 ARGV.each { |args|
 	var, val = args.split('=', 2)
 	next if var.nil? or val.nil?
-	modules << interpret_payload_name(val) if var =~ /payload/
-	modules << interpret_encoder_name(val) if var =~ /encoder/
-	modules << interpret_nops_name(val)    if var =~ /nops/
+	modules.concat(guess_payload_name(val)) if var =~ /payload/
+	modules.concat(guess_encoder_name(val)) if var =~ /encoder/
+	modules.concat(guess_nops_name(val))    if var =~ /nops/
 }
 
+#puts modules.inspect
 #exit
 
 $stderr.puts "[*] Initializing modules..."
@@ -299,8 +327,8 @@ case mode.downcase
 				con.run_single("set #{k} #{v}")
 			end
 
-			con.run_single("exploit -j")
-			con.run_single('exit')
+			con.run_single("exploit")
+	#		con.run_single('exit')
 
 			# If we have sessions or jobs, keep running
 			if $framework.sessions.length > 0 or $framework.jobs.length > 0
