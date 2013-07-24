@@ -19,7 +19,7 @@ class Metasploit4 < Msf::Auxiliary
 			'Name' => 'SAP Host Agent Information Disclosure',
 			'Description' => %q{
 				This module attempts to retrieve Computer and OS info from Host Agent
-through the SAP HostControl service
+				through the SAP HostControl service
 				},
 			'References' =>
 				[
@@ -43,7 +43,6 @@ through the SAP HostControl service
 		register_autofilter_ports([1128])
 		deregister_options('RHOST')
 		deregister_options('VHOST')
-		deregister_options('URI')
 
 	end
 
@@ -67,15 +66,16 @@ through the SAP HostControl service
 
 		begin
 
-			res = send_request_raw({
-				                       'uri' => "/",
-				                       'method' => 'POST',
-				                       'data' => data,
-				                       'headers' => {
-					                       'Content-Length' => data.length,
-					                       'Content-Type' => 'text/xml; charset=UTF-8',
-				                       }
-			                       }, 15)
+			res = send_request_raw(
+				{
+					'uri' => "/",
+					'method' => 'POST',
+					'data' => data,
+					'headers' => {
+						'Content-Length' => data.length,
+						'Content-Type' => 'text/xml; charset=UTF-8',
+					}
+				}, 15)
 
 			if res and res.code == 200
 
