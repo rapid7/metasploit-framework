@@ -70,11 +70,11 @@ def guess_payload_name(p)
 	matches
 end
 
-def interpret_encoder_name(e)
+def guess_encoder_name(e)
 	/#{e}/
 end
 
-def interpret_nop_name(n)
+def guess_nop_name(n)
 	/#{n}/
 end
 
