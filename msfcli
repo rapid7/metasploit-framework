@@ -168,22 +168,22 @@ end
 Msf::Ui::Common.process_cli_arguments($framework, ARGV)
 
 # Add modules like exploit/aux, encoders, nops we want to load to the list
-modules = []
-modules << /#{exploit_name}/     # Add exploit
-modules << /x86\/single_byte/    # Add default NOP module
-modules << /x86\/shikata_ga_nai/ # Add default encoder
-modules << /generic\/none/       # Add another default encoder
+whitelist = []
+whitelist << /#{exploit_name}/     # Add exploit
+whitelist << /x86\/single_byte/    # Add default NOP module
+whitelist << /x86\/shikata_ga_nai/ # Add default encoder
+whitelist << /generic\/none/       # Add another default encoder
 ARGV.each { |args|
 	var, val = args.split('=', 2)
 	next if var.nil? or val.nil?
-	modules.concat(guess_payload_name(val)) if var =~ /payload/
-	modules.concat(guess_encoder_name(val)) if var =~ /encoder/
-	modules.concat(guess_nops_name(val))    if var =~ /nops/
+	whitelist.concat(guess_payload_name(val)) if var =~ /payload/
+	whitelist.concat(guess_encoder_name(val)) if var =~ /encoder/
+	whitelist.concat(guess_nops_name(val))    if var =~ /nops/
 }
 
 $stderr.puts "[*] Initializing modules..."
 $framework = Msf::Simple::Framework.create({'DeferModuleLoads'=>true})
-$framework.init_module_paths(modules)
+$framework.init_module_paths({:whitelist=>whitelist})
 if ($framework.modules.module_load_error_by_path.length > 0)
 	print("Warning: The following modules could not be loaded!\n\n")
 
@@ -338,7 +338,8 @@ case mode.downcase
 				con.run_single("set #{k} #{v}")
 			end
 
-			con.run_single("exploit")
+			con.run_single("exploit -j")
+			con.run_single("exit")
 
 			# If we have sessions or jobs, keep running
 			if $framework.sessions.length > 0 or $framework.jobs.length > 0

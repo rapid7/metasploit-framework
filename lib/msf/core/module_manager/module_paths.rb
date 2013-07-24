@@ -12,9 +12,9 @@ module Msf::ModuleManager::ModulePaths
   # Adds a path to be searched for new modules.
   #
   # @param [String] path
-  # @param [Array] modules
+  # @param [Hash] opts
   # @return (see Msf::Modules::Loader::Base#load_modules)
-  def add_module_path(path, modules=[])
+  def add_module_path(path, opts={})
     nested_paths = []
 
     # remove trailing file separator
@@ -52,7 +52,7 @@ module Msf::ModuleManager::ModulePaths
     # Load all of the modules from the nested paths
     count_by_type = {}
     nested_paths.each { |path|
-      path_count_by_type = load_modules(path, {:force => false, :modules=>modules})
+      path_count_by_type = load_modules(path, opts.merge({:force => false}))
 
       # merge hashes
       path_count_by_type.each do |type, path_count|
