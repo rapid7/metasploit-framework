@@ -541,11 +541,11 @@ require 'digest/sha1'
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win64 PE Service EXE template: missing \"PAYLOAD:\" tag" if not bo
 
-				if (code.length <= 8192)
-						pe[bo, code.length] = [code].pack("a*")
-				else
-						raise RuntimeError, "The EXE generator now has a max size of 8192 bytes, please fix the calling module"
-				end
+		if (code.length <= 8192)
+			pe[bo, code.length] = [code].pack("a*")
+		else
+			raise RuntimeError, "The EXE generator now has a max size of 8192 bytes, please fix the calling module"
+		end
 
 		if name
 			bo = pe.index('SERVICENAME')
@@ -573,11 +573,11 @@ require 'digest/sha1'
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win32 PE DLL template: missing \"PAYLOAD:\" tag" if not bo
 
-				if (code.length <= 2048)
-						pe[bo, code.length] = [code].pack("a*")
-				else
-						raise RuntimeError, "The EXE generator now has a max size of 2048 bytes, please fix the calling module"
-				end
+		if (code.length <= 2048)
+			pe[bo, code.length] = [code].pack("a*")
+		else
+			raise RuntimeError, "The EXE generator now has a max size of 2048 bytes, please fix the calling module"
+		end
 
 		# optional mutex
 		mt = pe.index('MUTEX!!!')
@@ -599,11 +599,11 @@ require 'digest/sha1'
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win64 PE DLL template: missing \"PAYLOAD:\" tag" if not bo
 
-				if (code.length <= 2048)
-						pe[bo, code.length] = [code].pack("a*")
-				else
-						raise RuntimeError, "The EXE generator now has a max size of 2048 bytes, please fix the calling module"
-				end
+		if (code.length <= 2048)
+			pe[bo, code.length] = [code].pack("a*")
+		else
+			raise RuntimeError, "The EXE generator now has a max size of 2048 bytes, please fix the calling module"
+		end
 
 		# optional mutex
 		mt = pe.index('MUTEX!!!')
