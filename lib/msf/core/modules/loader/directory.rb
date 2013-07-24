@@ -25,7 +25,7 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
   # @yieldparam module_reference_name (see Msf::Modules::Loader::Base#each_module_reference_name)
   # @return (see Msf::Modules::Loader::Base#each_module_reference_name)
   def each_module_reference_name(path, opts={})
-    whitelist = opts[:whitelist]
+    whitelist = opts[:whitelist] || []
     ::Dir.foreach(path) do |entry|
       if entry.downcase == '.svn'
         next
@@ -53,8 +53,11 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
 
           # If the modules argument is set, this means we only want to load specific ones instead
           # of loading everything to memory - see msfcli.
-          if whitelist and not whitelist.empty?
-            whitelist.each do |pattern|
+          if whitelist.empty?
+            # Load every module we see, which is the default behavior.
+            yield path, type, module_reference_name
+          else
+              whitelist.each do |pattern|
               # We have to use entry_descendant_path to see if this is the module we want, because
               # this is easier to identify the module type just by looking at the file path.
               # For example, if module_reference_name is used (or a parsed relative path), you can't
@@ -65,9 +68,6 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
                 next
               end
             end
-          else
-            # Load every module we see, which is the default behavior.
-            yield path, type, module_reference_name
           end
         end
       end

@@ -338,8 +338,7 @@ case mode.downcase
 				con.run_single("set #{k} #{v}")
 			end
 
-			con.run_single("exploit -j")
-			con.run_single("exit")
+			con.run_single("exploit")
 
 			# If we have sessions or jobs, keep running
 			if $framework.sessions.length > 0 or $framework.jobs.length > 0
