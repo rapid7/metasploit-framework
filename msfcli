@@ -129,7 +129,6 @@ else
 	require 'msfenv'
 	require 'msf/ui'
 	require 'msf/base'
-end
 
 if (not exploit_name)
 	# This is what happens if the user doesn't specify a module name:
