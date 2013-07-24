@@ -18,7 +18,7 @@ Modules should be able to function as expected with minimal configuration. Defau
 
 Please don't use the alphanum encoder as a way to avoid BadChar analysis. Modules which set the `EncoderType` field in the payload as a way to avoid doing real BadChar analysis will be rejected. These modules are nearly always unreliable in the real world.
 
-Exploit ranking definitions can be found at: http://dev.metasploit.com/redmine/projects/framework/wiki/Exploit_Ranking
+Exploit ranking definitions can be found at https://github.com/rapid7/metasploit-framework/wiki/Exploit-Ranking
 
 Exploit modules should implement a `check()` function when this is trivial to do so. Versions exposed through banners or network protocols should always result in a `check()` routine when a patch is available that changes this version.
 
