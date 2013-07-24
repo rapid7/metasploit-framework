@@ -12,6 +12,7 @@ module Msf::ModuleManager::ModulePaths
   # Adds a path to be searched for new modules.
   #
   # @param [String] path
+  # @param [Array] modules
   # @return (see Msf::Modules::Loader::Base#load_modules)
   def add_module_path(path, modules=[])
     nested_paths = []

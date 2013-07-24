@@ -154,11 +154,11 @@ end
 # Process special var/val pairs...
 Msf::Ui::Common.process_cli_arguments($framework, ARGV)
 
-# Add modules we want to load to the list
+# Add modules like exploit/aux, encoders, nops we want to load to the list
 modules = []
-modules << /#{exploit_name}/ # Add exploit
-modules << /x86\/single_byte/
-modules << /x86\/shikata_ga_nai/
+modules << /#{exploit_name}/     # Add exploit
+modules << /x86\/single_byte/    # Add default NOP module
+modules << /x86\/shikata_ga_nai/ # Add default encoder
 ARGV.each { |args|
 	var, val = args.split('=', 2)
 	next if var.nil? or val.nil?
@@ -166,9 +166,6 @@ ARGV.each { |args|
 	modules.concat(guess_encoder_name(val)) if var =~ /encoder/
 	modules.concat(guess_nops_name(val))    if var =~ /nops/
 }
-
-#puts modules.inspect
-#exit
 
 $stderr.puts "[*] Initializing modules..."
 $framework = Msf::Simple::Framework.create({'DeferModuleLoads'=>true})
@@ -328,7 +325,6 @@ case mode.downcase
 			end
 
 			con.run_single("exploit")
-	#		con.run_single('exit')
 
 			# If we have sessions or jobs, keep running
 			if $framework.sessions.length > 0 or $framework.jobs.length > 0

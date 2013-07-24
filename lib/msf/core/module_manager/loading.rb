@@ -106,6 +106,7 @@ module Msf::ModuleManager::Loading
   # @param [Hash] options
   # @option options [Boolean] :force Whether the force loading the modules even if they are unchanged and already
   #   loaded.
+  # @option options [Array] :modules An array of regex patterns to search for specific modules
   # @return [Hash{String => Integer}] Maps module type to number of modules loaded
   def load_modules(path, options={})
     options.assert_valid_keys(:force, :modules)
