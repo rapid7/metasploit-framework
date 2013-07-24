@@ -72,7 +72,13 @@ def guess_payload_name(p)
 	stage_types   *= "|"
 	session_types *= "|"
 
-	matches << /payloads\/(#{stage_types})\/#{platform}\/(#{arch})*.*(#{suffix})\.rb$/
+	if arch == 'x64'
+		matches << /payloads\/(#{stage_types})\/#{platform}\/x64\/.*(#{suffix})\.rb$/
+	elsif arch == 'x86'
+		matches << /payloads\/(#{stage_types})\/#{platform}\/x86\/.*(#{suffix})\.rb$/
+	else
+		matches << /payloads\/(#{stage_types})\/#{platform}\/.*(#{suffix})\.rb$/
+	end
 
 	matches
 end
