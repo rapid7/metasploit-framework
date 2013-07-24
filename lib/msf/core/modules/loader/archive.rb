@@ -30,7 +30,8 @@ class Msf::Modules::Loader::Archive < Msf::Modules::Loader::Base
   # @yield (see Msf::Modules::Loader::Base#each_module_reference_name)
   # @yieldparam (see Msf::Modules::Loader::Base#each_module_reference_name)
   # @return (see Msf::Modules::Loader::Base#each_module_reference_name)
-  def each_module_reference_name(path)
+  def each_module_reference_name(path, opts={})
+    whitelist = opts[:whitelist] || []
     entries = ::FastLib.list(path)
 
     entries.each do |entry|
@@ -45,11 +46,22 @@ class Msf::Modules::Loader::Archive < Msf::Modules::Loader::Base
         next
       end
 
-      if module_path?(entry)
-        # The module_reference_name doesn't have a file extension
-        module_reference_name = module_reference_name_from_path(entry)
+      if whitelist.empty?
 
-        yield path, type, module_reference_name
+        if module_path?(entry)
+          # The module_reference_name doesn't have a file extension
+          module_reference_name = module_reference_name_from_path(entry)
+
+          yield path, type, module_reference_name
+        end
+      else
+        whitelist.each do |pattern|
+          if entry =~ pattern
+            yield path, type, module_reference_name
+          else
+            next
+          end
+        end
       end
     end
   end
