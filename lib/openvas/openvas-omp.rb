@@ -604,32 +604,35 @@ module OpenVASOMP
 			if not report
 				raise OMPError.new("Invalid report id.")
 			end
+
 			format = @formats[format_id.to_i]
 			if not format
 				raise OMPError.new("Invalid format id.")
 			end
-			req = xml_attrs("get_reports", {"report_id"=>report["id"], "format_id"=>format["id"]})
 
+			req = xml_attrs("get_reports", {"report_id"=>report["id"], "format_id"=>format["id"]})
 			begin
 				status, status_text, resp = omp_request_xml(req)
-				if status == "404"
-					raise OMPError.new(status_text)
-				end
-				content_type = resp.elements["report"].attributes["content_type"]
-				report = resp.elements["report"].text
-
-				if report == nil
-					raise OMPError.new("The report is empty.")
-				end
-
-				# XML reports are in XML format, everything else is base64 encoded.
-				if content_type == "text/xml"
-					return resp.elements["report"].text
-				else
-					return Base64.decode64(resp.elements["report"].text)
-				end
 			rescue
 				raise OMPResponseError
+			end
+
+			if status == "404"
+				raise OMPError.new(status_text)
+			end
+
+			content_type = resp.elements["report"].attributes["content_type"]
+			report = resp.elements["report"].to_s
+
+			if report == nil
+				raise OMPError.new("The report is empty.")
+			end
+
+			# XML reports are in XML format, everything else is base64 encoded.
+			if content_type == "text/xml"
+				return report
+			else
+				return Base64.decode64(report)
 			end
 		end
 
