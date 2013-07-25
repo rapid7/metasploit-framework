@@ -13,6 +13,7 @@ module Msf::ModuleManager::ModulePaths
   #
   # @param [String] path
   # @param [Hash] opts
+  # @option opts [Array] whitelist An array of regex patterns to search for specific modules
   # @return (see Msf::Modules::Loader::Base#load_modules)
   def add_module_path(path, opts={})
     nested_paths = []
