@@ -82,7 +82,7 @@ class Driver < Msf::Ui::Driver
 		self.framework = opts['Framework'] || Msf::Simple::Framework.create(opts)
 
 		if self.framework.datastore['Prompt']
-			prompt = self.framework.datastore['Prompt']
+			prompt = self.framework.datastore['Prompt'] || DefaultPrompt
 			prompt_char = self.framework.datastore['PromptChar'] || DefaultPromptChar
 		end
 
@@ -569,7 +569,7 @@ class Driver < Msf::Ui::Driver
 			when "prompt"
 				update_prompt(val, framework.datastore['PromptChar'] || DefaultPromptChar, true)
 			when "promptchar"
-				update_prompt(framework.datastore['Prompt'], val, true)
+				update_prompt(framework.datastore['Prompt'] || DefaultPrompt, val, true)
 		end
 	end
 
