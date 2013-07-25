@@ -27,6 +27,7 @@ class Msf::Modules::Loader::Archive < Msf::Modules::Loader::Base
   # Yields the module_reference_name for each module file in the Fastlib archive at path.
   #
   # @param path [String] The path to the Fastlib archive file.
+  # @param opts [Hash] Additional options
   # @yield (see Msf::Modules::Loader::Base#each_module_reference_name)
   # @yieldparam (see Msf::Modules::Loader::Base#each_module_reference_name)
   # @return (see Msf::Modules::Loader::Base#each_module_reference_name)
