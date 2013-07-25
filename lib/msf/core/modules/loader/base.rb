@@ -248,7 +248,7 @@ class Msf::Modules::Loader::Base
   # @param [Hash] options
   # @option options [Boolean] force (false) Whether to force loading of
   #   the module even if the module has not changed.
-  # @option options [Array] modules An array of regex patterns to search for specific modules
+  # @option options [Array] whitelist An array of regex patterns to search for specific modules
   # @return [Hash{String => Integer}] Maps module type to number of
   #   modules loaded
   def load_modules(path, options={})
