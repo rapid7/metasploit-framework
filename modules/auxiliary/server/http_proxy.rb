@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 	# Do stuff with responses
 	def proxy_action_response(cli,res)
 		if datastore['HTTP::proxy::MITM::response']
-			res = make_subs(res) if datastore['SUBSTITUTIONS']
+			make_subs(res) if datastore['SUBSTITUTIONS']
 		end
 		if datastore['HTTP::proxy::report'] and ([200,401,403] + (500..599).to_a).include?(res.code)
 			log_response(cli,res)
@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 		# Fix up referer if running as normal HTTP proxy
 		# set_referer(cli,request)
 		if datastore['HTTP::proxy::MITM::request']
-			req = make_subs(req) if datastore['SUBSTITUTIONS']
+			make_subs(req) if datastore['SUBSTITUTIONS']
 		end
 	end
 
@@ -119,21 +119,22 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Run substitution sets through response
 	def make_subs(resp)
-
-		@substitutions.each do |set|
-			resp.body.gsub!(set[0],set[1])
-
-			resp.headers.each do |key, val|
-				val.gsub!(set[0],set[1])
-			end if datastore['HTTP::proxy::MITM::headers']
+		@substitutions.each do |sub_set|
+			resp.body.gsub!(sub_set[0],sub_set[1])
+			if datastore['HTTP::proxy::MITM::headers']
+				# In-place alteration of hashes during iteration can be bad
+				hdr_dup = resp.headers.dup
+				hdr_dup.each do |key, val|
+					# .to_s, headers can hold other data types
+					resp.headers[key] = val.to_s.gsub(sub_set[0],sub_set[1])
+				end 
+			end
 		end
-
-		return resp
 	end
 
 	# Convert substitution definition strings to gsub compatible format
 	def process_subs(subs = nil)
-		return if subs.nil? or subs.empty?
+		return [] if subs.nil? or subs.empty?
 		new_subs = []
 		subs.split(';').each do |substitutions|
 			new_subs << substitutions.split(',', 2).map do |sub|

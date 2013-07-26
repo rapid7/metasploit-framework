@@ -414,8 +414,8 @@ protected
 		end
 
 		# Do something with the response before returning it
-		if res_handler
-			res_handler.call(cli,response)
+		if self.res_handler
+			self.res_handler.call(cli,response)
 			return if cli.closed?
 		end
 
