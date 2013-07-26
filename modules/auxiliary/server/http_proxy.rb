@@ -126,7 +126,7 @@ class Metasploit3 < Msf::Auxiliary
 				hdr_dup = resp.headers.dup
 				hdr_dup.each do |key, val|
 					# .to_s, headers can hold other data types
-					resp.headers[key] = val.to_s.gsub(sub_set[0],sub_set[1])
+					resp.headers[key] = val.to_s.gsub(sub_set[0],sub_set[1]) if val
 				end 
 			end
 		end
