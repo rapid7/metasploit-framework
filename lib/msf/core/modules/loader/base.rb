@@ -263,7 +263,7 @@ class Msf::Modules::Loader::Base
 
     each_module_reference_name(path, options) do |parent_path, type, module_reference_name|
       # In msfcli mode, if a module is already loaded, avoid loading it again
-      next if loaded_items.include?(module_reference_name) and modules
+      next if loaded_items.include?(module_reference_name) and options[:whitelist]
 
       # Keep track of loaded modules in msfcli mode
       loaded_items << module_reference_name if options[:whitelist]
