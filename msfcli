@@ -24,6 +24,11 @@ class Msfcli
 		@args[:module_name] = args.shift      # First argument should be the module name
 		@args[:mode]        = args.pop || 'h' # Last argument should be the mode
 		@args[:params]      = args            # Whatever is in the middle should be the params
+
+		if @args[:module_name] =~ /^exploit(s)*\//i
+			@args[:module_name] = @args[:module_name].split('/')
+			@args[:module_name] = @args[:module_name][1, @args[:module_name].length] * "/"
+		end
 	end
 
 	#
