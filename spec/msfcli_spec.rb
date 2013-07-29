@@ -8,20 +8,21 @@ require 'msf/ui'
 require 'msf/base'
 
 
-# Get stdout:
-# http://stackoverflow.com/questions/11349270/test-output-to-command-line-with-rspec
-def get_stdout(&block)
-	out = $stdout
-	$stdout = fake = StringIO.new
-	begin
-		yield
-	ensure
-		$stdout = out
-	end
-	fake.string
-end
-
 describe Msfcli do
+
+	# Get stdout:
+	# http://stackoverflow.com/questions/11349270/test-output-to-command-line-with-rspec
+	def get_stdout(&block)
+		out = $stdout
+		$stdout = fake = StringIO.new
+		begin
+			yield
+		ensure
+			$stdout = out
+		end
+		fake.string
+	end
+
 	context "Class methods" do
 
 		context ".usage" do
