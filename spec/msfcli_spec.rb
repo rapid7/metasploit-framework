@@ -1,12 +1,6 @@
-msfbase = __FILE__
-while File.symlink?(msfbase)
-	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
-end
+require 'spec_helper'
 
-$:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', '..')))
-
-# No .rb file extension, use load statement
-load 'msfcli'
+load Metasploit::Framework.root.join('msfcli').to_path
 
 require 'fastlib'
 require 'msfenv'
