@@ -484,13 +484,13 @@ class Msfcli
 				show_payloads(modules)
 			end
 		when "t"
-			if ref_name =~ /^auxiliary/
+			if @args[:module_name] =~ /^auxiliary/i
 				$stdout.puts("\nError: This type of module does not support targets")
 			else
 				show_targets(modules)
 			end
 		when "ac"
-			if ref_name =~ /auxiliary/
+			if @args[:module_name] =~ /^auxiliary/i
 				show_actions(modules)
 			else
 				$stdout.puts("\nError: This type of module does not support actions")
