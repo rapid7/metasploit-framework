@@ -19,11 +19,11 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info(info,
-			'Name'           => 'Gather eCryptfs metadata',
+			'Name'           => 'Gather eCryptfs Metadata',
 			'Description'    => %q{
-          This module will grab the contents of user's .ecrypts directory on
-          the targeted machine. Grabbed "wrapped-passphrase" files can be
-          cracked with JtR to get "mount passphrases".
+				This module will grab the contents of user's .ecrypts directory on
+				the targeted machine. Grabbed "wrapped-passphrase" files can be
+				cracked with JtR to get "mount passphrases".
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         => ['Dhiru Kholia <dhiru[at]openwall.com>'],
