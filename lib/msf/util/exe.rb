@@ -364,10 +364,11 @@ require 'digest/sha1'
 		exe
 	end
 
-	def self.to_win32pe_only(framework, code, opts={})
+	def self.to_winpe_only(framework, code, opts={}, arch="x86")
 
 		# Allow the user to specify their own EXE template
-		set_template_default(opts, "template_x86_windows_old.exe")
+
+		set_template_default(opts, "template_"+arch+"_windows.exe")
 
 		pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
 
@@ -402,6 +403,7 @@ require 'digest/sha1'
 
 	def self.to_win32pe_old(framework, code, opts={})
 
+		payload = code.dup
 		# Allow the user to specify their own EXE template
 		set_template_default(opts, "template_x86_windows_old.exe")
 
@@ -410,17 +412,15 @@ require 'digest/sha1'
 			pe = fd.read(fd.stat.size)
 		}
 
-		if(code.length < 2048)
-			code << Rex::Text.rand_text(2048-code.length)
-		end
-
-		if(code.length > 2048)
+		if(payload.length <= 2048)
+			payload << Rex::Text.rand_text(2048-payload.length)
+		else
 			raise RuntimeError, "The EXE generator now has a max size of 2048 bytes, please fix the calling module"
 		end
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win32 PE OLD EXE template: missing \"PAYLOAD:\" tag" if not bo
-		pe[bo, code.length] = code
+		pe[bo, payload.length] = payload
 
 		pe[136, 4] = [rand(0x100000000)].pack('V')
 
@@ -459,7 +459,12 @@ require 'digest/sha1'
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win32 PE EXE subst template: missing \"PAYLOAD:\" tag" if not bo
-		pe[bo, 8192] = [code].pack("a8192")
+
+		if (code.length <= 4096)
+			pe[bo, code.length] = [code].pack("a*")
+		else
+			raise RuntimeError, "The EXE generator now has a max size of 4096 bytes, please fix the calling module"
+		end
 
 		return pe
 	end
@@ -477,7 +482,12 @@ require 'digest/sha1'
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win64 PE EXE template: missing \"PAYLOAD:\" tag" if not bo
-		pe[bo, code.length] = code
+
+		if (code.length <= 4096)
+			pe[bo, code.length] = [code].pack("a*")
+		else
+			raise RuntimeError, "The EXE generator now has a max size of 4096 bytes, please fix the calling module"
+		end
 
 		return pe
 	end
@@ -496,7 +506,12 @@ require 'digest/sha1'
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win32 PE Service EXE template: missing \"PAYLOAD:\" tag" if not bo
-		pe[bo, 8192] = [code].pack("a8192")
+
+		if (code.length <= 8192)
+			pe[bo, code.length] = [code].pack("a*")
+		else
+			raise RuntimeError, "The EXE generator now has a max size of 8192 bytes, please fix the calling module"
+		end
 
 		if name
 			bo = pe.index('SERVICENAME')
@@ -525,7 +540,12 @@ require 'digest/sha1'
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win64 PE Service EXE template: missing \"PAYLOAD:\" tag" if not bo
-		pe[bo, 8192] = [code].pack("a8192")
+
+		if (code.length <= 8192)
+			pe[bo, code.length] = [code].pack("a*")
+		else
+			raise RuntimeError, "The EXE generator now has a max size of 8192 bytes, please fix the calling module"
+		end
 
 		if name
 			bo = pe.index('SERVICENAME')
@@ -552,7 +572,12 @@ require 'digest/sha1'
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win32 PE DLL template: missing \"PAYLOAD:\" tag" if not bo
-		pe[bo, 8192] = [code].pack("a8192")
+
+		if (code.length <= 2048)
+			pe[bo, code.length] = [code].pack("a*")
+		else
+			raise RuntimeError, "The EXE generator now has a max size of 2048 bytes, please fix the calling module"
+		end
 
 		# optional mutex
 		mt = pe.index('MUTEX!!!')
@@ -573,7 +598,12 @@ require 'digest/sha1'
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win64 PE DLL template: missing \"PAYLOAD:\" tag" if not bo
-		pe[bo, 8192] = [code].pack("a8192")
+
+		if (code.length <= 2048)
+			pe[bo, code.length] = [code].pack("a*")
+		else
+			raise RuntimeError, "The EXE generator now has a max size of 2048 bytes, please fix the calling module"
+		end
 
 		# optional mutex
 		mt = pe.index('MUTEX!!!')
@@ -1967,7 +1997,11 @@ End Sub
 
 		when 'exe-only'
 			if(not arch or (arch.index(ARCH_X86)))
-				output = Msf::Util::EXE.to_win32pe_only(framework, code, exeopts)
+				output = Msf::Util::EXE.to_winpe_only(framework, code, exeopts)
+			end
+
+			if(arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
+				output = Msf::Util::EXE.to_winpe_only(framework, code, exeopts, "x64")
 			end
 
 		when 'elf'

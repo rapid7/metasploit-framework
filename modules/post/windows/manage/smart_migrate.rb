@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Post
 			return true
 		rescue ::Exception => e
 			print_error("Could not migrate in to process.")
-			print_error(e)
+			print_error(e.to_s)
 			return false
 		end
 	end

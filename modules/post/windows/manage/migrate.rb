@@ -7,8 +7,11 @@
 
 require 'msf/core'
 require 'rex'
+require 'msf/core/post/common'
 
 class Metasploit3 < Msf::Post
+
+	include Msf::Post::Common
 
 	def initialize(info={})
 		super( update_info( info,
@@ -34,6 +37,7 @@ class Metasploit3 < Msf::Post
 	# Run Method for when run command is issued
 	def run
 		print_status("Running module against #{sysinfo['Computer']}")
+
 		server = session.sys.process.open
 		original_pid = server.pid
 		print_status("Current server process: #{server.name} (#{server.pid})")
@@ -49,7 +53,7 @@ class Metasploit3 < Msf::Post
 			target_pid = session.sys.process[datastore['NAME']]
 		end
 
-		if not target_pid
+		if not target_pid or not has_pid?(target_pid)
 			print_error("Process or PID not found")
 			return
 		end

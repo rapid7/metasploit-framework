@@ -147,8 +147,10 @@ module Parser
 				just_the_facts = nonempty_data
 			else
 				just_the_facts = nonempty_data.select {|k,v| valid_attrs.include? k.to_s.to_sym}
-			end
-			just_the_facts.empty? ? return : db.send("report_#{table}", just_the_facts)
+      end
+      return nil if just_the_facts.empty?
+      just_the_facts[:task] = @args[:task]
+			db.send("report_#{table}", just_the_facts)
 		end
 
 		# XXX: It would be better to either have a single registry of acceptable
@@ -219,7 +221,7 @@ module Parser
 			return unless @report_type_ok
 			unless @state[:current_tag].empty?
 				missing_ends = @state[:current_tag].keys.map {|x| "'#{x}'"}.join(", ")
-	l			msg = "Warning, the provided file is incomplete, and there may be missing\n"
+				msg = "Warning, the provided file is incomplete, and there may be missing\n"
 				msg << "data. The following tags were not closed: #{missing_ends}."
 				db.emit(:warning,msg,&block) if block
 			end

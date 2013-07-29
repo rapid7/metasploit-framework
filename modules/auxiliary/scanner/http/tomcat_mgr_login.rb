@@ -75,7 +75,8 @@ class Metasploit3 < Msf::Auxiliary
 			uri = normalize_uri(datastore['URI'])
 			res = send_request_cgi({
 				'uri'     => uri,
-				'method'  => 'GET'
+				'method'  => 'GET',
+				'username' => Rex::Text.rand_text_alpha(8)
 				}, 25)
 			http_fingerprint({ :response => res })
 		rescue ::Rex::ConnectionError => e

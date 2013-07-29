@@ -17,7 +17,8 @@ module ModuleCommandDispatcher
 	def commands
 		{
 			"pry"    => "Open a Pry session on the current module",
-			"reload" => "Reload the current module from disk"
+			"reload" => "Reload the current module from disk",
+			"check"  => "Check to see if a target is vulnerable"
 		}
 	end
 
@@ -33,6 +34,38 @@ module ModuleCommandDispatcher
 	#
 	def mod=(m)
 		self.driver.active_module = m
+	end
+
+	#
+	# Checks to see if a target is vulnerable.
+	#
+	def cmd_check(*args)
+		defanged?
+		begin
+			code = mod.check_simple(
+				'LocalInput'  => driver.input,
+				'LocalOutput' => driver.output)
+			if (code and code.kind_of?(Array) and code.length > 1)
+				if (code == Msf::Exploit::CheckCode::Vulnerable)
+					print_good(code[1])
+				else
+					print_status(code[1])
+				end
+			else
+				print_error("Check failed: The state could not be determined.")
+			end
+		rescue ::Interrupt
+			raise $!
+		rescue ::Exception => e
+			print_error("Exploit check failed: #{e.class} #{e}")
+			if(e.class.to_s != 'Msf::OptionValidateError')
+				print_error("Call stack:")
+				e.backtrace.each do |line|
+					break if line =~ /lib.msf.base.simple/
+					print_error("  #{line}")
+				end
+			end
+		end
 	end
 
 	def cmd_pry_help
