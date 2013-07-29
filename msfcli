@@ -464,8 +464,6 @@ class Msfcli
 	# Selects a mode chosen by the user and run it
 	#
 	def engage_mode(modules)
-		ref_name = modules[:module].refname
-
 		case @args[:mode].downcase
 		when 'h'
 			usage
@@ -478,19 +476,20 @@ class Msfcli
 		when "i"
 			show_ids_evasion(modules)
 		when "p"
-			if ref_name =~ /^auxiliary/
+			if modules[:module].file_path =~ /auxiliary\//i
 				$stdout.puts("\nError: This type of module does not support payloads")
 			else
 				show_payloads(modules)
 			end
 		when "t"
-			if @args[:module_name] =~ /^auxiliary/i
+			puts 
+			if modules[:module].file_path =~ /auxiliary\//i
 				$stdout.puts("\nError: This type of module does not support targets")
 			else
 				show_targets(modules)
 			end
 		when "ac"
-			if @args[:module_name] =~ /^auxiliary/i
+			if modules[:module].file_path =~ /auxiliary\//i
 				show_actions(modules)
 			else
 				$stdout.puts("\nError: This type of module does not support actions")
