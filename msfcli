@@ -389,7 +389,7 @@ class Msfcli
 
 	def show_ids_evasion(m)
 		readable = Msf::Serializer::ReadableText
-		$stdout.puts("\n" + readable.dump_evasion_options(m[:module], Indent))
+		$stdout.puts("\n" + readable.dump_evasion_options(m[:module], @indent))
 		$stdout.puts("\nPayload:\n\n" + readable.dump_evasion_options(m[:payload], @indent)) if m[:payload]
 		$stdout.puts("\nEncoder:\n\n" + readable.dump_evasion_options(m[:encoder], @indent)) if m[:encoder]
 		$stdout.puts("\nNOP:\n\n" + readable.dump_evasion_options(m[:nop], @indent))         if m[:nop]
