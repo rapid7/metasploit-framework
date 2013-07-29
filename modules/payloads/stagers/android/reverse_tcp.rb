@@ -26,6 +26,7 @@ module Metasploit3
 			'Handler'		=> Msf::Handler::ReverseTcp,
 			'Stager'		=> {'Payload' => ""}
 		))
+		
 	end
 
 	def string_sub(data, placeholder, input)
@@ -80,5 +81,4 @@ module Metasploit3
 
 		jar
 	end
-
 end

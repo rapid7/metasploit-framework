@@ -30,12 +30,15 @@ GEM
     mocha (0.13.3)
       metaclass (~> 0.0.1)
     msgpack (0.5.4)
+    msgpack (0.5.4-x86-mingw32)
     multi_json (1.0.4)
     network_interface (0.0.1)
     nokogiri (1.5.9)
+    nokogiri (1.5.9-x86-mingw32)
     packetfu (1.1.8)
     pcaprub (0.11.3)
     pg (0.15.1)
+    pg (0.15.1-x86-mingw32)
     rake (10.0.4)
     redcarpet (2.2.2)
     robots (0.10.1)
@@ -60,6 +63,7 @@ GEM
 
 PLATFORMS
   ruby
+  x86-mingw32
 
 DEPENDENCIES
   activerecord

