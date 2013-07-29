@@ -62,7 +62,7 @@ class Msfcli
 		# This is what happens if the user doesn't specify a module name:
 		# msfcli will end up loading EVERYTHING to memory to show you a help
 		# menu plus a list of modules available. Really expensive if you ask me.
-		$stderr.puts "[*] Please wait while we load the module tree..."
+		$stdout.puts "[*] Please wait while we load the module tree..."
 		framework = Msf::Simple::Framework.create
 		ext = ''
 
@@ -267,6 +267,9 @@ class Msfcli
 	# Initializes exploit/payload/encoder/nop modules.
 	#
 	def init_modules
+		@framework = Msf::Simple::Framework.create({'DeferModuleLoads'=>true})
+		$stdout.puts "[*] Initializing modules..."
+
 		module_name = @args[:module_name]
 		modules = {
 			:module  => nil,  # aux or exploit instance
@@ -514,9 +517,6 @@ class Msfcli
 			usage(nil, ext)
 			exit
 		end
-
-		@framework = Msf::Simple::Framework.create({'DeferModuleLoads'=>true})
-		$stderr.puts "[*] Initializing modules..."
 
 		begin
 			modules = init_modules
