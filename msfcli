@@ -241,6 +241,11 @@ class Msfcli
 		# Cleanup empty args
 		junk_args.each { |args| @args[:params].delete(args) }
 
+		# If it's an exploit and no payload set, load them all.
+		if @args[:module_name] !~ /auxiliary\// and payload_param.empty?
+			whitelist << /payloads\/.+/
+		end
+
 		# Add post modules list if not set
 		if post_val.nil?
 			whitelist << /post\/.+/
