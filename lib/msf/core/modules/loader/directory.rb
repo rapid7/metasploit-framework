@@ -18,12 +18,14 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
   # Yields the module_reference_name for each module file found under the directory path.
   #
   # @param [String] path The path to the directory.
+  # @param [Array] modules An array of regex patterns to search for specific modules
   # @yield (see Msf::Modules::Loader::Base#each_module_reference_name)
   # @yieldparam [String] path The path to the directory.
   # @yieldparam [String] type The type correlated with the directory under path.
   # @yieldparam module_reference_name (see Msf::Modules::Loader::Base#each_module_reference_name)
   # @return (see Msf::Modules::Loader::Base#each_module_reference_name)
-  def each_module_reference_name(path)
+  def each_module_reference_name(path, opts={})
+    whitelist = opts[:whitelist] || []
     ::Dir.foreach(path) do |entry|
       if entry.downcase == '.svn'
         next
@@ -49,7 +51,24 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
           # The module_reference_name doesn't have a file extension
           module_reference_name = module_reference_name_from_path(relative_entry_descendant_path)
 
-          yield path, type, module_reference_name
+          # If the modules argument is set, this means we only want to load specific ones instead
+          # of loading everything to memory - see msfcli.
+          if whitelist.empty?
+            # Load every module we see, which is the default behavior.
+            yield path, type, module_reference_name
+          else
+              whitelist.each do |pattern|
+              # We have to use entry_descendant_path to see if this is the module we want, because
+              # this is easier to identify the module type just by looking at the file path.
+              # For example, if module_reference_name is used (or a parsed relative path), you can't
+              # really tell if php/generic is a NOP module, a payload, or an encoder.
+              if entry_descendant_path =~ pattern
+                yield path, type, module_reference_name
+              else
+                next
+              end
+            end
+          end
         end
       end
     end
@@ -76,16 +95,16 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
     module_content = ''
 
     begin
-	    # force to read in binary mode so Pro modules won't be truncated on Windows
-	    File.open(full_path, 'rb') do |f|
-		    # Pass the size of the file as it leads to faster reads due to fewer buffer resizes. Greatest effect on Windows.
-		    # @see http://www.ruby-forum.com/topic/209005
-		    # @see https://github.com/ruby/ruby/blob/ruby_1_8_7/io.c#L1205
-		    # @see https://github.com/ruby/ruby/blob/ruby_1_9_3/io.c#L2038
-		    module_content = f.read(f.stat.size)
-	    end
+      # force to read in binary mode so Pro modules won't be truncated on Windows
+      File.open(full_path, 'rb') do |f|
+        # Pass the size of the file as it leads to faster reads due to fewer buffer resizes. Greatest effect on Windows.
+        # @see http://www.ruby-forum.com/topic/209005
+        # @see https://github.com/ruby/ruby/blob/ruby_1_8_7/io.c#L1205
+        # @see https://github.com/ruby/ruby/blob/ruby_1_9_3/io.c#L2038
+        module_content = f.read(f.stat.size)
+      end
     rescue Errno::ENOENT => error
-	    load_error(full_path, error)
+      load_error(full_path, error)
     end
 
     module_content
