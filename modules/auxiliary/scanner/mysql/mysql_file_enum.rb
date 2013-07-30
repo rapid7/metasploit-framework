@@ -109,7 +109,26 @@ class Metasploit3 < Msf::Auxiliary
 				:proto => 'tcp',
 				:update => :unique_data
 			)
+		rescue ::RbMysql::ServerError
+			vprint_warning("#{peer} - #{dir} does not exist")
+		rescue ::RbMysql::Error => e
+			vprint_error("#{peer} - MySQL Error: #{e.class} #{e.to_s}")
+			return
+		rescue Rex::ConnectionTimeout => e
+			vprint_error("#{peer} - Timeout: #{e.message}")
+			return
+		else
+			print_good("#{peer} - #{dir} is a file and exists")
+			report_note(
+				:host  => rhost,
+				:type  => "filesystem.file",
+				:data  => "#{dir} is a file and exists",
+				:port  => rport,
+				:proto => 'tcp',
+				:update => :unique_data
+			)
 		end
+
 		return
 	end
 
