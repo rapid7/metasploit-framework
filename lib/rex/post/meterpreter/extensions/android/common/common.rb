@@ -93,6 +93,13 @@ class Common
 		return log
 	end
 
+  def check_root
+		request = Packet.create_request('check_root')
+		response = client.send_request(request)
+		isRooted = response.get_tlv(TLV_TYPE_CHECK_ROOT_BOOL).value
+		return isRooted
+	end
+  
   attr_accessor :client
 end
 

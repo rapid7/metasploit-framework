@@ -20,16 +20,18 @@ class Console::CommandDispatcher::Android::Common
 	def commands 
 		all = {
 			"dump_sms" 			=> "Get sms messages",
-			"dump_contacts" 	=> "Get contacts list",
+			"dump_contacts" => "Get contacts list",
 			"geolocate" 		=> "Get current lat-long using geolocation",
-			"dump_calllog" 		=> "Get call log"
+			"dump_calllog" 	=> "Get call log",
+      "check_root"    => "Check if device is rooted"
 		}
 
 		reqs = {
 			"dump_sms"   		=> [ "dump_sms" ],
-			"dump_contacts"   	=> [ "dump_contacts"],
-			"geolocate"   		=> [ "geolocate"],
-			"dump_calllog"   	=> [ "dump_calllog"]
+			"dump_contacts" => [ "dump_contacts"],
+			"geolocate"   	=> [ "geolocate"],
+			"dump_calllog"  => [ "dump_calllog"],
+      "check_root"    => [ "check_root"],
 		}
 
 		all.delete_if do |cmd, desc|
@@ -330,6 +332,32 @@ class Console::CommandDispatcher::Android::Common
 		end
 	end		
 
+  
+  def cmd_check_root(*args)
+
+		check_root_opts = Rex::Parser::Arguments.new(
+			"-h" => [ false, "Help Banner" ]
+			)
+
+		check_root_opts.parse( args ) { | opt, idx, val |
+			case opt
+				when "-h"
+					print_line( "Usage: check_root [options]\n" )
+					print_line( "Check if device is rooted." )
+					print_line( check_root_opts.usage )
+					return
+			end
+		}
+
+		isRooted = client.common.check_root
+
+    if isRooted == true
+      print_line("[*] Device is rooted")
+    elsif
+      print_line("[*] Device is not rooted")
+    end
+	end		
+  
 	def name
 		"Android: Common"
 	end
