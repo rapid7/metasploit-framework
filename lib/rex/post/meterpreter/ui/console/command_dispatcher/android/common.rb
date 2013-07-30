@@ -7,9 +7,9 @@ module Post
 module Meterpreter
 module Ui
 
-class Console::CommandDispatcher::Android
+class Console::CommandDispatcher::Android::Common
 
-	Klass = Console::CommandDispatcher::Android
+	Klass = Console::CommandDispatcher::Android::Common
 	include Console::CommandDispatcher
 	include Msf::Auxiliary::Report
 
@@ -70,7 +70,7 @@ class Console::CommandDispatcher::Android
 		}
 
 		smsList = Array.new
-		smsList = client.android.dump_sms
+		smsList = client.common.dump_sms
 
 		if smsList.count > 0
 			print_line( "[*] Fetching #{smsList.count} sms #{smsList.count == 1? 'message': 'messages'}" )
@@ -167,7 +167,7 @@ class Console::CommandDispatcher::Android
 		}
 
 		contactList = Array.new
-		contactList = client.android.dump_contacts
+		contactList = client.common.dump_contacts
 
 		if contactList.count > 0
 			print_line( "[*] Fetching #{contactList.count} #{contactList.count == 1? 'contact': 'contacts'} into list" )
@@ -245,7 +245,7 @@ class Console::CommandDispatcher::Android
 		}
 
 		geoArray = Array.new
-		geoArray = client.android.geolocate
+		geoArray = client.common.geolocate
 
 		print_line("[*] Current Location:\n")
 		print_line("\tLatitude  : #{geoArray[0]['lat']}")
@@ -284,7 +284,7 @@ class Console::CommandDispatcher::Android
 		}
 
 		log = Array.new
-		log = client.android.dump_calllog
+		log = client.common.dump_calllog
 
 		if log.count > 0
 			print_line( "[*] Fetching #{log.count} #{log.count == 1? 'entry': 'entries'}" )
@@ -331,7 +331,7 @@ class Console::CommandDispatcher::Android
 	end		
 
 	def name
-		"Android"
+		"Android: Common"
 	end
 
 end

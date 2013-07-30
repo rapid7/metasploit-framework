@@ -11,19 +11,13 @@ module Post
 module Meterpreter
 module Extensions
 module Android
+module Common
 
-class Android < Extension
+
+class Common
 
 	def initialize(client)
-		super(client, 'android')
-
-		client.register_extension_aliases(
-			[
-				{
-					'name' => 'android',
-					'ext'  => self
-				},
-			])
+		@client = client
 	end
 
 	def dump_sms
@@ -99,6 +93,7 @@ class Android < Extension
 		return log
 	end
 
+  attr_accessor :client
 end
 
 end; 
@@ -107,3 +102,4 @@ end;
 end; 
 end; 
 
+end;
