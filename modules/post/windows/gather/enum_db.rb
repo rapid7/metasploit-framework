@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Post
 	# method for Checking if database instances are installed on host - mssql
 	def check_mssql
 		key = "HKLM\\SOFTWARE\\Microsoft"
-		if (registry_enumkeys(key) || '').include?("Microsoft SQL Server")
+		if registry_enumkeys(key).include?("Microsoft SQL Server")
 			print_status("\tMicrosoft SQL Server found.")
 			return true
 		end
@@ -101,13 +101,13 @@ class Metasploit3 < Msf::Post
 	# method for Checking if database instances are installed on host - oracle
 	def check_oracle
 		key = "HKLM\\SOFTWARE\\Oracle"
-		if (registry_enumkeys(key) || '').include?("ALL_HOMES")
+		if registry_enumkeys(key).include?("ALL_HOMES")
 			print_status("\tOracle Server found.")
 			return true
-		elsif (registry_enumkeys(key) || '').include?("SYSMAN")
+		elsif registry_enumkeys(key).include?("SYSMAN")
 			print_status("\tOracle Server found.")
 			return true
-		elsif (registry_enumkeys(key) || '').include?("KEY_XE")
+		elsif registry_enumkeys(key).include?("KEY_XE")
 			print_status("\tOracle Server found.")
 			return true
 		end
@@ -119,7 +119,7 @@ class Metasploit3 < Msf::Post
 	# method for Checking if database instances are installed on host - db2
 	def check_db2
 		key = "HKLM\\SOFTWARE\\IBM\\DB2"
-		if (registry_enumkeys(key) || '').include?("GLOBAL_PROFILE")
+		if registry_enumkeys(key).include?("GLOBAL_PROFILE")
 			print_status("\tDB2 Server found.")
 			return true
 		end
@@ -131,7 +131,7 @@ class Metasploit3 < Msf::Post
 	# method for Checking if database instances are installed on host - mysql
 	def check_mysql
 		key = "HKLM\\SOFTWARE"
-		if (registry_enumkeys(key) || '').include?("MySQL AB")
+		if registry_enumkeys(key).include?("MySQL AB")
 			print_status("\tMySQL Server found.")
 			return true
 		end
@@ -143,10 +143,10 @@ class Metasploit3 < Msf::Post
 	# method for Checking if database instances are installed on host - sybase
 	def check_sybase
 		key = "HKLM\\SOFTWARE\\Sybase"
-		if (registry_enumkeys(key) || '').include?("SQLServer")
+		if registry_enumkeys(key).include?("SQLServer")
 			print_status("\tSybase Server found.")
 			return true
-		elsif (registry_enumkeys(key) || '').include?("Server")
+		elsif registry_enumkeys(key).include?("Server")
 			print_status("\tSybase Server found.")
 			return true
 		end
@@ -165,7 +165,7 @@ class Metasploit3 < Msf::Post
 		if not instances.nil? and not instances.empty?
 			instances.each do |i|
 				tcpkey = "HKLM\\SOFTWARE\\Microsoft\\Microsoft SQL Server\\#{registry_getvaldata(key,i)}\\MSSQLServer\\SuperSocketNetLib\\Tcp\\IPAll"
-				tcpport = registry_getvaldata(tcpkey,"TcpPort") || ''
+				tcpport = registry_getvaldata(tcpkey,"TcpPort")
 				print_good("\t\t+ #{registry_getvaldata(key,i)} (Port:#{tcpport})")
 				results << ["mssql","instance:#{registry_getvaldata(key,i)} port:#{tcpport}","Microsoft SQL Server",tcpport]
 			end
@@ -204,7 +204,7 @@ class Metasploit3 < Msf::Post
 					next
 				end
 
-				data_TNSNAMES = read_file(val_ORACLE_HOME + "\\NETWORK\\ADMIN\\tnsnames.ora") || ''
+				data_TNSNAMES = read_file(val_ORACLE_HOME + "\\NETWORK\\ADMIN\\tnsnames.ora")
 				if data_TNSNAMES =~ /PORT\ \=\ (\d+)/
 					port = $1
 					print_good("\t\t+ #{val_ORACLE_SID} (Port:#{port})")
@@ -233,7 +233,7 @@ class Metasploit3 < Msf::Post
 		end
 		instances.each do |i|
 			key = "#{basekey}\\#{i}"
-			val_location = registry_getvaldata(key,"Location") || ''
+			val_location = registry_getvaldata(key,"Location")
 
 			data = find_mysql_conf(val_location)
 
@@ -254,8 +254,8 @@ class Metasploit3 < Msf::Post
 	# method to identify sybase instances
 	def enumerate_sybase
 		basekey = "HKLM\\SOFTWARE\\Sybase\\SQLServer"
-		instance = registry_getvaldata(basekey,"DSLISTEN") || ''
-		location = registry_getvaldata(basekey,"RootDir") || ''
+		instance = registry_getvaldata(basekey,"DSLISTEN")
+		location = registry_getvaldata(basekey,"RootDir")
 		results = []
 
 		if not exist?(location + "\\ini\\sql.ini")
