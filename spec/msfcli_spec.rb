@@ -155,6 +155,23 @@ describe Msfcli do
 		end
 
 		context ".generate_whitelist" do
+			it "should generate a whitelist for linux/x86/shell/reverse_tcp with encoder x86/fnstenv_mov" do
+				args = "multi/handler payload=linux/x86/shell/reverse_tcp lhost=127.0.0.1 encoder=x86/fnstenv_mov E"
+				cli = Msfcli.new(args.split(' '))
+				list = cli.generate_whitelist.map { |e| e.to_s }
+				answer = [
+					/multi\/handler/,
+					/stages\/linux\/x86\/shell/,
+					/payloads\/(stagers|stages)\/linux\/x86\/.*(reverse_tcp)\.rb$/,
+					/encoders\/x86\/fnstenv_mov/,
+					/post\/.+/,
+					/encoders\/generic\/*/,
+					/nops\/.+/
+				].map { |e| e.to_s }
+
+				list.should eq(answer)
+			end
+
 			it "should generate a whitelist for windows/meterpreter/reverse_tcp with default options" do
 				args = 'multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E'
 				cli = Msfcli.new(args.split(' '))
@@ -273,6 +290,17 @@ describe Msfcli do
 				stdout.should =~ /The target address range or CIDR identifier/
 			end
 
+			it "should me the advanced options of module auxiliary/scanner/http/http_version" do
+				args = 'auxiliary/scanner/http/http_version A'
+				stdout = get_stdout {
+					cli = Msfcli.new(args.split(' '))
+					m = cli.init_modules
+					cli.engage_mode(m)
+				}
+
+				stdout.should =~ /UserAgent/
+			end
+
 			it "should show me the IDS options of module auxiliary/scanner/http/http_version" do
 				args = 'auxiliary/scanner/http/http_version I'
 				stdout = get_stdout {
@@ -291,6 +319,16 @@ describe Msfcli do
 					cli.engage_mode(m)
 				}
 				stdout.should =~ /IE 8 on Windows 7/
+			end
+
+			it "should show me the payloads available for module windows/browser/ie_cbutton_uaf" do
+				args = "windows/browser/ie_cbutton_uaf P"
+				stdout = get_stdout {
+					cli = Msfcli.new(args.split(' '))
+					m = cli.init_modules
+					cli.engage_mode(m)
+				}
+				stdout.should =~ /windows\/meterpreter\/reverse_tcp/
 			end
 
 			it "should try to run the check function of an exploit" do
@@ -332,6 +370,17 @@ describe Msfcli do
 				}
 				stdout.should =~ /This type of module does not support actions/
 			end
+
+			it "should show actions available for module auxiliary/scanner/http/http_put" do
+				args = "auxiliary/scanner/http/http_put ac"
+				stdout = get_stdout {
+					cli = Msfcli.new(args.split(' '))
+					m = cli.init_modules
+					cli.engage_mode(m)
+				}
+				stdout.should =~ /DELETE/
+			end
+
 		end
 
 	end
