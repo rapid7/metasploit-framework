@@ -2980,10 +2980,10 @@ class DBManager
 		elsif (firstline.index("<scanJob>"))
 			@import_filedata[:type] = "Retina XML"
 			return :retina_xml
-		elsif (firstline.index("<get_reports_response status=\"200\" status_text=\"OK\">"))
+		elsif (firstline.index(/<get_reports_response status=['"]200['"] status_text=['"]OK['"]>/))
 			@import_filedata[:type] = "OpenVAS XML"
 			return :openvas_new_xml
-		elsif (firstline.index("<report id=\""))
+		elsif (firstline.index(/<report id=['"]/))
 			@import_filedata[:type] = "OpenVAS XML"
 			return :openvas_new_xml
 		elsif (firstline.index("<NessusClientData>"))

