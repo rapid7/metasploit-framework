@@ -16,10 +16,6 @@ class Metasploit3 < Msf::Post
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
-
-		register_options(
-			[
-			], self.class)
 	end
 
 	def run
@@ -44,9 +40,10 @@ class Metasploit3 < Msf::Post
 		while (address != 0 ) do
 			struct_pointer = client.railgun.memread(address,10)
 			# Get the pointer to the DNS record name
-			domain_pointer = struct_pointer[4,8].unpack('V').first
-			dns_type = struct_pointer[8,10].unpack('h*')[0].reverse
-			domain_name = client.railgun.memread(domain_pointer,50).split("\x00\x00").first
+			domain_pointer = struct_pointer[4,4].unpack('V').first
+			dns_type = struct_pointer[8,2].unpack('h*')[0].reverse
+			# According to the restrictions on valid host names, we read a maximum of 255 characters for each entry
+			domain_name = client.railgun.memread(domain_pointer,255).split("\x00\x00").first
 			rtable << [dns_type, domain_name]
 			# Get the next _DNS_CACHE_ENTRY struct pointer
 			address = struct_pointer[0,4].unpack('V').first
