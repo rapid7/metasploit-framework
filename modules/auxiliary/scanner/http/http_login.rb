@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
 			return path
 		end
 
-		return path
+		return nil
 	end
 
 	def target_url
