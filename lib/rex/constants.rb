@@ -84,6 +84,7 @@ ARCH_ARMBE  = 'armbe'
 ARCH_JAVA   = 'java'
 ARCH_RUBY   = 'ruby'
 ARCH_DALVIK = 'dalvik'
+ARCH_PYTHON = 'python'
 ARCH_TYPES  =
 	[
 		ARCH_X86,
@@ -103,7 +104,8 @@ ARCH_TYPES  =
 		ARCH_TTY,
 		ARCH_JAVA,
 		ARCH_RUBY,
-		ARCH_DALVIK
+		ARCH_DALVIK,
+		ARCH_PYTHON
 	]
 
 ARCH_ALL = ARCH_TYPES
