@@ -1952,7 +1952,16 @@ End Sub
 	# @return [nil] If the format is unrecognized or the arch and plat don't
 	#   make sense together.
 	def self.to_executable_fmt(framework, arch, plat, code, fmt, exeopts)
-		output = nil
+		# For backwards compatibility with the way this gets called when
+		# generating from Msf::Simple::Payload.generate_simple
+		if arch.kind_of? Array
+			output = nil
+			arch.each do |a|
+				output = to_executable_fmt(framework, a, plat, code, fmt, exeopts)
+				break if output
+			end
+			return output
+		end
 
 		case fmt
 		when 'asp'
