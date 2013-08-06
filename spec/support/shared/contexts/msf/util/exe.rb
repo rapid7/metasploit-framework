@@ -32,7 +32,7 @@ shared_context 'Msf::Util::Exe' do
     "osx" => [
       { :format => "macho", :arch => "x86",   :file_fp => /Mach-O.*i386/  },
       { :format => "macho", :arch => "x64",   :file_fp => /Mach-O 64/     },
-      { :format => "macho", :arch => "armle", :file_fp => /Mach-O.*acorn/ },
+      { :format => "macho", :arch => "armle", :file_fp => /Mach-O.*(acorn|arm)/ },
       { :format => "macho", :arch => "ppc",   :file_fp => /Mach-O.*ppc/   },
     ],
   }
