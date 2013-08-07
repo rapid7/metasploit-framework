@@ -21,14 +21,14 @@ Note that once msftidy.rb lands, we will no longer be enforcing any particular t
 
 ### By August 28, 2013
  - Write a procedure for offering retabbing to outstanding pull requests.
- - Retab modules directory as [@tabassassin](https://github.com/tabasssassin) using `retab.rb`
- - Retab libraries as [@tabassassin](https://github.com/tabasssassin) using `retab.rb`.
- - Offer retabbing to outstanding pull requests in the form of outbound PRs from [@tabassassin](https://github.com/tabasssassin).
+ - Retab modules directory as [@tabassassin](https://github.com/tabassassin) using `retab.rb`
+ - Retab libraries as [@tabassassin](https://github.com/tabassassin) using `retab.rb`.
+ - Offer retabbing to outstanding pull requests in the form of outbound PRs from [@tabassassin](https://github.com/tabassassin).
 
 ### By September 18, 2013
- - Periodically retab as [@tabassassin](https://github.com/tabasssassin) to catch stragglers that snuck in.
- - Periodically offer retabbing services as [@tabassassin](https://github.com/tabasssassin) as above.
- - Write a procedure for retabbing incoming pull requests upon landing, per committer (don't bother with blocking on [@tabassassin](https://github.com/tabasssassin) doing the work).
+ - Periodically retab as [@tabassassin](https://github.com/tabassassin) to catch stragglers that snuck in.
+ - Periodically offer retabbing services as [@tabassassin](https://github.com/tabassassin) as above.
+ - Write a procedure for retabbing incoming pull requests upon landing, per committer (don't bother with blocking on [@tabassassin](https://github.com/tabassassin) doing the work).
 
 ### By October 8
  - Convert msftidy.rb to enforce spaces only, warn about hard tabs.
