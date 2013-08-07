@@ -14,6 +14,10 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
 			nil
 		end
 
+		let(:options) do
+			{}
+		end
+
 		before(:each) do
 			# create the framework first so that it's initialization's call
 			# to init_module_paths doesn't get captured.
@@ -38,7 +42,8 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
 
 					it 'should add Msf::Config.module_directory to module paths' do
 						framework.modules.should_receive(:add_module_path).with(
-								module_directory
+								module_directory,
+								options
 						)
 
 						init_module_paths
@@ -54,7 +59,8 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
 
 					it 'should add Msf::Config.user_module_directory to module paths' do
 						framework.modules.should_receive(:add_module_path).with(
-								user_module_directory
+								user_module_directory,
+								options
 						)
 
 						init_module_paths
@@ -82,7 +88,7 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
 
 				it 'should add each module path' do
 					module_paths.each do |module_path|
-						framework.modules.should_receive(:add_module_path).with(module_path)
+						framework.modules.should_receive(:add_module_path).with(module_path, options)
 					end
 
 					init_module_paths

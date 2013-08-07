@@ -18,9 +18,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'           => 'DLink DIR-615H HTTP Login Utility',
+			'Name'           => 'D-Link DIR-615H HTTP Login Utility',
 			'Description' => %q{
-					This module attempts to authenticate to different DLink HTTP management
+					This module attempts to authenticate to different D-Link HTTP management
 				services. It has been tested successfully on D-Link DIR-615 Hardware revision H
 				devices. It is possible that this module also works with other models.
 			},
@@ -56,9 +56,9 @@ class Metasploit3 < Msf::Auxiliary
 		@uri = "/login.htm"
 
 		if is_dlink?
-			vprint_good("#{target_url} - DLink device detected")
+			vprint_good("#{target_url} - D-Link device detected")
 		else
-			vprint_error("#{target_url} - Dlink device doesn't detected")
+			vprint_error("#{target_url} - D-Link device doesn't detected")
 			return
 		end
 
@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Auxiliary
 				:sname => (ssl ? 'https' : 'http'),
 				:user   => user,
 				:pass   => pass,
-				:proof  => "WEBAPP=\"Dlink Management Interface\", PROOF=#{response.to_s}",
+				:proof  => "WEBAPP=\"D-Link Management Interface\", PROOF=#{response.to_s}",
 				:active => true
 			)
 
