@@ -1,4 +1,4 @@
-Using **two-space soft tabs**, and not hard tabs, is literally the ~~first~~ second precept* of the [Ruby Style Guide](https://github.com/bbatsov/ruby-style-guide#source-code-layout). This convention is widely adopted by nearly all Ruby projects, with Metasploit as of August of 2013 being the only exception that we can think of.
+Using **two-space soft tabs**, and not hard tabs, is the second precept<sup>*</sup> of the [Ruby Style Guide](https://github.com/bbatsov/ruby-style-guide#source-code-layout). This convention is widely adopted by nearly all Ruby projects, with Metasploit as of August of 2013 being the only exception that we can think of.
 
 We are looking to change this.
 
@@ -6,4 +6,4 @@ More details on the timeline and practical effects of switching over to spaces i
 
 IOW, please pardon our dust as we renovate Metasploit for your convenience.
 
-* The first precept is UTF-8 encoding for source files, but we're going to keep ignoring that one for now. :)
+ <sup>*The first precept is UTF-8 encoding for source files, but we're going to keep ignoring that one for now. :)</sup>
