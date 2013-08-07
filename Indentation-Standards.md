@@ -18,7 +18,7 @@ While we expect a fair amount of code conflict during the transition, we will ha
  - Ask CoreLan (sinn3r) to update mona.py templates to use spaces, not tabs.
  - Verify mona.py's update.
 
-Note that once msftidy.rb lands, we will no longer be enforcing any particular tab/space indentation format.
+Note that once [PR #2197](https://github.com/rapid7/metasploit-framework/pull/2197) lands, we will no longer be enforcing any particular tab/space indentation format until about October 8, when we switch for real to soft tabs.
 
 ### By August 28, 2013
  - Write a procedure for offering retabbing to outstanding pull requests.
