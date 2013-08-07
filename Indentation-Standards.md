@@ -8,7 +8,7 @@ IOW, please pardon our dust as we renovate Metasploit for your convenience.
 
  <sup>*The first precept is UTF-8 encoding for source files, but we're going to keep ignoring that one for now since it monkeys with regexing over binary strings, which we do a lot. :)</sup>
 
-## Change Timeline
+## Implementation Timeline
 
 ### By August 15, 2013
  - Add a retabbing utility
