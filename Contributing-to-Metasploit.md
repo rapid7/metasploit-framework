@@ -19,7 +19,7 @@ Server exploits are always in demand; why bother with complicated social enginee
 Client exploits generally run as an "evil service" that a remote client will connect to. They nearly always require some kind of user interaction to trigger, such a viewing a web page, downloading a file, or otherwise connecting to the service controlled by the attacker.
 
  * [Client Vulns](http://osvdb.org/search/search?search%5Bvuln_title%5D=client&search%5Btext_type%5D=titles&search%5Bs_date%5D=&search%5Be_date%5D=&search%5Brefid%5D=&search%5Breferencetypes%5D=&search%5Bvendors%5D=&search%5Bcvss_score_from%5D=&search%5Bcvss_score_to%5D=&search%5Bcvss_av%5D=*&search%5Bcvss_ac%5D=*&search%5Bcvss_a%5D=*&search%5Bcvss_ci%5D=*&search%5Bcvss_ii%5D=*&search%5Bcvss_ai%5D=*&kthx=search) from OSVDB
- * [Browser Vulns](site:securityfocus.com (("Firefox" OR "Internet Explorer" OR "Chrome" OR "Safari" OR "Opera") -"Retired")) from SecurityFocus via Google search terms
+ * [Browser Vulns](site:securityfocus.com "Firefox" OR "Internet Explorer" OR "Chrome" OR "Safari" OR "Opera" -"Retired") from SecurityFocus via Google search terms
 
 
 ## Local and Privilege Escalation Exploits
