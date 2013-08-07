@@ -9,11 +9,11 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::Auxiliary::Report
-  include Msf::Exploit::Remote::HttpClient
+	include Msf::Auxiliary::Report
+	include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
+		super(update_info(info,
 	    'Name'           => "Check Test",
 	  	'Description'    => %q{
 		   This module ensures that 'check' actually functions for Auxiilary modules.
