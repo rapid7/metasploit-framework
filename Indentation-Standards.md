@@ -17,15 +17,17 @@ IOW, please pardon our dust as we renovate Metasploit for your convenience.
  - Ask CoreLan to update mona.py templating to use spaces, not tabs.
  - Verify mona.py's update.
 
+Note that once msftidy.rb lands, we will no longer be enforcing any particular tab/space indentation format.
+
 ### By August 28, 2013
  - Write a procedure for offering retabbing to outstanding pull requests.
- - Retab modules directory with @tabassassin using `retab.rb`
- - Retab libraries with @tabassassin using `retab.rb`.
- - Offer retabbing to outstanding pull requests in the form of outbound PRs.
+ - Retab modules directory as @tabassassin using `retab.rb`
+ - Retab libraries as @tabassassin using `retab.rb`.
+ - Offer retabbing to outstanding pull requests in the form of outbound PRs from @tabasssassin.
 
 ### By September 18, 2013
- - Periodically retab to catch stragglers
- - Periodically offer retabbing services as above.
+ - Periodically retab as @tabassassin to catch stragglers that snuck in.
+ - Periodically offer retabbing services as @tabassassin as above.
  - Write a procedure for retabbing incoming pull requests upon landing, per committer (don't bother with blocking on @tabassassin doing the work).
 
 ### By October 8
