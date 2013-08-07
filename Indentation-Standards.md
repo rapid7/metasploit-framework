@@ -2,9 +2,9 @@ Using **two-space soft tabs**, and not hard tabs, is the second precept<sup>*</s
 
 We are looking to change this.
 
-More details on the timeline and practical effects of switching over to spaces instead of tabs will be coming soon on this wiki page. The short story is, while we expect a fair amount of code conflict during the transition, we will have in place tools and procedures to quickly unconflict new submissions that prefer the current (old) style of hard tabs. By the end of 2013, the Metasploit Framework (and related projects) should be consistent with the rest of the Ruby world.
+While we expect a fair amount of code conflict during the transition, we will have in place tools and procedures to quickly unconflict new submissions that prefer the current (old) style of hard tabs -- for the timeline to implementation, see below. By the end of 2013, the Metasploit Framework (and related projects) should be consistent with the rest of the Ruby world.
 
-IOW, please pardon our dust as we renovate Metasploit for your convenience.
+**TL;dr**: Please pardon our dust as we renovate Metasploit for your convenience.
 
  <sup>*The first precept is UTF-8 encoding for source files, but we're going to keep ignoring that one for now since it monkeys with regexing over binary strings, which we do a lot. :)</sup>
 
