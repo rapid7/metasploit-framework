@@ -10,28 +10,34 @@ This page will attempt to keep a set of links for straightforward, fresh vulns, 
 
 Server exploits are always in demand; why bother with complicated social engineering campaigns when you can go straight to the pain point of a vulnerable network. Here are some search queries to get you started:
 
-**TBD**
+ * [Remote exploits](http://www.exploit-db.com/remote/) from Exploit-DB
+ * [Remote exploits](http://osvdb.org/search/search?search%5Bvuln_title%5D=&search%5Btext_type%5D=titles&search%5Bs_date%5D=&search%5Be_date%5D=&search%5Brefid%5D=&search%5Breferencetypes%5D=&search%5Bvendors%5D=&search%5Bcvss_score_from%5D=&search%5Bcvss_score_to%5D=&search%5Bcvss_av%5D=N&search%5Bcvss_ac%5D=*&search%5Bcvss_a%5D=*&search%5Bcvss_ci%5D=*&search%5Bcvss_ii%5D=*&search%5Bcvss_ai%5D=*&location_remote=1&kthx=search) from OSVDB
 
 
 ## Client Exploits
 
 Client exploits generally run as an "evil service" that a remote client will connect to. They nearly always require some kind of user interaction to trigger, such a viewing a web page, downloading a file, or otherwise connecting to the service controlled by the attacker.
 
-**TBD**
+ * [Client Vulns](http://osvdb.org/search/search?search%5Bvuln_title%5D=client&search%5Btext_type%5D=titles&search%5Bs_date%5D=&search%5Be_date%5D=&search%5Brefid%5D=&search%5Breferencetypes%5D=&search%5Bvendors%5D=&search%5Bcvss_score_from%5D=&search%5Bcvss_score_to%5D=&search%5Bcvss_av%5D=*&search%5Bcvss_ac%5D=*&search%5Bcvss_a%5D=*&search%5Bcvss_ci%5D=*&search%5Bcvss_ii%5D=*&search%5Bcvss_ai%5D=*&kthx=search) from OSVDB
+ * [Browser Vulns](site:securityfocus.com (("Firefox" OR "Internet Explorer" OR "Chrome" OR "Safari" OR "Opera") -"Retired")) from SecurityFocus via Google search terms
 
-## Privilege Escalation Exploits
+
+## Local and Privilege Escalation Exploits
 
 Privilege escalation exploits tend to require the attacker already have an account on a target computer. They are nearly always going to be implemented as Metasploit exploit modules under the `local` tree.
 
-**TBD**
+ * [Local Vulns](http://www.exploit-db.com/local/) from Exploit-DB
+ * [Local VUlns](http://osvdb.org/search/search?search%5Bvuln_title%5D=&search%5Btext_type%5D=titles&search%5Bs_date%5D=&search%5Be_date%5D=&search%5Brefid%5D=&search%5Breferencetypes%5D=&search%5Bvendors%5D=&search%5Bcvss_score_from%5D=&search%5Bcvss_score_to%5D=&search%5Bcvss_av%5D=*&search%5Bcvss_ac%5D=*&search%5Bcvss_a%5D=*&search%5Bcvss_ci%5D=*&search%5Bcvss_ii%5D=*&search%5Bcvss_ai%5D=*&location_local=1&kthx=search) from OSVDB
 
 ## Framework bugs and features
 
 If exploit dev isn't your thing, but more straightforward Ruby development is, then here are some good places to get started:
 
-**TBD**
+ * [Recent Bugs](https://dev.metasploit.com/redmine/projects/framework/issues?utf8=%E2%9C%93&set_filter=1&f%5B%5D=tracker_id&op%5Btracker_id%5D=%3D&v%5Btracker_id%5D%5B%5D=1&f%5B%5D=created_on&op%5Bcreated_on%5D=%3Et-&v%5Bcreated_on%5D%5B%5D=30&f%5B%5D=status_id&op%5Bstatus_id%5D=%21&v%5Bstatus_id%5D%5B%5D=7&v%5Bstatus_id%5D%5B%5D=3&v%5Bstatus_id%5D%5B%5D=5&v%5Bstatus_id%5D%5B%5D=6&f%5B%5D=&c%5B%5D=tracker&c%5B%5D=status&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=updated_on&c%5B%5D=category&c%5B%5D=assigned_to&group_by=), which tend to be either very easy or very hard to fix (not a lot of middle ground).
+ * [Somewhat recent feature requests](https://dev.metasploit.com/redmine/projects/framework/issues?utf8=%E2%9C%93&set_filter=1&f%5B%5D=tracker_id&op%5Btracker_id%5D=%3D&v%5Btracker_id%5D%5B%5D=2&f%5B%5D=created_on&op%5Bcreated_on%5D=%3Et-&v%5Bcreated_on%5D%5B%5D=90&f%5B%5D=status_id&op%5Bstatus_id%5D=%21&v%5Bstatus_id%5D%5B%5D=7&v%5Bstatus_id%5D%5B%5D=3&v%5Bstatus_id%5D%5B%5D=5&v%5Bstatus_id%5D%5B%5D=6&f%5B%5D=&c%5B%5D=tracker&c%5B%5D=status&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=updated_on&c%5B%5D=category&c%5B%5D=assigned_to&group_by=), which is often in the same boat.
+ * [Next version bugs](https://dev.metasploit.com/redmine/projects/framework/issues?query_id=606), which are targeted specifically for turnaround before the next version of Metasploit.
 
-Along these same lines is a perennial need for better automated testing, down in the [spec](https://github.com/rapid7/metasploit-framework/tree/master/spec) directory. If you have a talent for exploring strange and wonderful code bases, pick out a chunk of the Metasploit core code and define out what you expect for working behavior. Rex is an ideal place to start.
+Along these same lines is a perennial need for better automated testing, down in the [spec](https://github.com/rapid7/metasploit-framework/tree/master/spec) directory. If you have a talent for exploring strange and wonderful code bases, pick out a chunk of the Metasploit core code and define out what you expect for working behavior. [This search](https://dev.metasploit.com/redmine/projects/framework/issues?query_id=684) is an ideal place to start; describe the bug as a pending Rspec test, reference the bug, and then we'll have a test that works once it gets fixed.
 
 ## Non-code
 
