@@ -33,3 +33,7 @@ Note that once msftidy.rb lands, we will no longer be enforcing any particular t
 ### By October 8
  - Convert msftidy.rb to enforce spaces only, warn about hard tabs.
  - Prepare for the onslaught of new code from experienced Ruby software devs who are no longer offended by our hard tabs.
+
+## Changes or comments
+
+Please bug @todb-r7 if you have questions, or especially if you notice gaps in this plan. For example, I see right now there's no specific callout for rspec verification of spaces vs tabs, and that should run on at least a sample of modules and libraries as part of the retabbing exercise.
