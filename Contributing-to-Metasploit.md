@@ -24,7 +24,7 @@ Client exploits generally run as an "evil service" that a remote client will con
 
 ## Local and Privilege Escalation Exploits
 
-Privilege escalation exploits tend to require the attacker already have an account on a target computer. They are nearly always going to be implemented as Metasploit exploit modules under the `local` tree.
+Privilege escalation exploits tend to require the attacker already have an account on a target computer. They are nearly always going to be implemented as Metasploit exploit modules under one of the [local](https://github.com/rapid7/metasploit-framework/tree/master/modules/exploits/windows/local) trees (platform dependent), but sometimes they're better off as [post modules](https://github.com/rapid7/metasploit-framework/tree/master/modules/post). This is especially true for privilege escalation bugs.
 
  * [Local Vulns](http://www.exploit-db.com/local/) from Exploit-DB
  * [Local VUlns](http://osvdb.org/search/search?search%5Bvuln_title%5D=&search%5Btext_type%5D=titles&search%5Bs_date%5D=&search%5Be_date%5D=&search%5Brefid%5D=&search%5Breferencetypes%5D=&search%5Bvendors%5D=&search%5Bcvss_score_from%5D=&search%5Bcvss_score_to%5D=&search%5Bcvss_av%5D=*&search%5Bcvss_ac%5D=*&search%5Bcvss_a%5D=*&search%5Bcvss_ci%5D=*&search%5Bcvss_ii%5D=*&search%5Bcvss_ai%5D=*&location_local=1&kthx=search) from OSVDB
