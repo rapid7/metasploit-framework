@@ -21,14 +21,14 @@ Note that once msftidy.rb lands, we will no longer be enforcing any particular t
 
 ### By August 28, 2013
  - Write a procedure for offering retabbing to outstanding pull requests.
- - Retab modules directory as @tabassassin using `retab.rb`
- - Retab libraries as @tabassassin using `retab.rb`.
- - Offer retabbing to outstanding pull requests in the form of outbound PRs from @tabasssassin.
+ - Retab modules directory as [@tabassassin](https://github.com/tabasssassin) using `retab.rb`
+ - Retab libraries as [@tabassassin](https://github.com/tabasssassin) using `retab.rb`.
+ - Offer retabbing to outstanding pull requests in the form of outbound PRs from [@tabassassin](https://github.com/tabasssassin).
 
 ### By September 18, 2013
- - Periodically retab as @tabassassin to catch stragglers that snuck in.
- - Periodically offer retabbing services as @tabassassin as above.
- - Write a procedure for retabbing incoming pull requests upon landing, per committer (don't bother with blocking on @tabassassin doing the work).
+ - Periodically retab as [@tabassassin](https://github.com/tabasssassin) to catch stragglers that snuck in.
+ - Periodically offer retabbing services as [@tabassassin](https://github.com/tabasssassin) as above.
+ - Write a procedure for retabbing incoming pull requests upon landing, per committer (don't bother with blocking on [@tabassassin](https://github.com/tabasssassin) doing the work).
 
 ### By October 8
  - Convert msftidy.rb to enforce spaces only, warn about hard tabs.
@@ -36,4 +36,4 @@ Note that once msftidy.rb lands, we will no longer be enforcing any particular t
 
 ## Changes or comments
 
-Please bug @todb-r7 if you have questions, or especially if you notice gaps in this plan. For example, I see right now there's no specific callout for rspec verification of spaces vs tabs, and that should run on at least a sample of modules and libraries as part of the retabbing exercise.
+Please bug [@todb-r7](https://github.com/todb-r7) if you have questions, or especially if you notice gaps in this plan. For example, I see right now there's no specific callout for rspec verification of spaces vs tabs, and that should run on at least a sample of modules and libraries as part of the retabbing exercise.
