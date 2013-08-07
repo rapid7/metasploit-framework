@@ -6,4 +6,4 @@ More details on the timeline and practical effects of switching over to spaces i
 
 IOW, please pardon our dust as we renovate Metasploit for your convenience.
 
- <sup>*The first precept is UTF-8 encoding for source files, but we're going to keep ignoring that one for now. :)</sup>
+ <sup>*The first precept is UTF-8 encoding for source files, but we're going to keep ignoring that one for now since it monkeys with regexing over binary strings, which we do a lot of. :)</sup>
