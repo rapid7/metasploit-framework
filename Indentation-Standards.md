@@ -14,7 +14,8 @@ IOW, please pardon our dust as we renovate Metasploit for your convenience.
  - Add a retabbing utility
  - Update msftidy.rb to respect spaces or tabs, but not mixed.
  - Add a test case
- - Ask CoreLan to update mona.py templating to use spaces, not tabs.
+ - Land [PR #2197](https://github.com/rapid7/metasploit-framework/pull/2197) which provides the above.
+ - Ask CoreLan (sinn3r) to update mona.py templates to use spaces, not tabs.
  - Verify mona.py's update.
 
 Note that once msftidy.rb lands, we will no longer be enforcing any particular tab/space indentation format.
