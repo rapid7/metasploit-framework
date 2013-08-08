@@ -67,6 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('SMBPass', [ false, "SMB Password" ]),
 				OptString.new('SMBUser', [ false, "SMB Username" ]),
 				OptString.new('SMBDomain', [ false, "SMB Domain", '']),
+				OptBool.new('CHECK_ADMIN', [ false, "Check for Admin rights", false]),
 				OptBool.new('PRESERVE_DOMAINS', [ false, "Respect a username that contains a domain name.", true]),
 				OptBool.new('RECORD_GUEST', [ false, "Record guest-privileged random logins to the database", false])
 			], self.class)
@@ -101,7 +102,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def check_login_rights(domain, user, pass)
 		connect()
-		status_code = "STATUS_SUCCESS"
+		status_code = "NOT_ADMIN"
 		begin
 			simple.login(	datastore['SMBName'],
 								user,
@@ -152,8 +153,12 @@ class Metasploit3 < Msf::Auxiliary
 
 			# Windows SMB will return an error code during Session Setup, but nix Samba requires a Tree Connect:
 			simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
-			
-			status_code = check_login_rights(domain, user, pass)
+			status_code = "STATUS_SUCCESS"
+
+			if datastore['CHECK_ADMIN']
+				status_code = check_login_rights(domain, user, pass)
+			end
+
 		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
 			status_code = e.get_error(e.error_code)
 		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
@@ -259,6 +264,20 @@ class Metasploit3 < Msf::Auxiliary
 			return :next_user
 
 		when 'ADMIN_ACCESS'
+			# Auth user indicates if the login was as a guest or not
+			if(simple.client.auth_user)
+				print_good(output_message % "SUCCESSFUL LOGIN")
+				validuser_case_sensitive?(domain, user, pass)
+				report_creds(domain,user,pass,true)
+			else
+				if datastore['RECORD_GUEST']
+					print_status(output_message % "GUEST LOGIN")
+					report_creds(domain,user,pass,true)
+				elsif datastore['VERBOSE']
+						print_status(output_message % "GUEST LOGIN")
+				end
+			end
+		when 'NOT_ADMIN'
 			# Auth user indicates if the login was as a guest or not
 			if(simple.client.auth_user)
 				print_good(output_message % "SUCCESSFUL LOGIN")
