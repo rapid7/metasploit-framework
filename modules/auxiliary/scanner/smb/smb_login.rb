@@ -120,19 +120,19 @@ class Metasploit3 < Msf::Auxiliary
 				{:use_spn => datastore['NTLM::SendSPN'], :name =>  self.rhost}
 			)
 
-			# Windows SMB will return an error code during Session Setup, but nix Samba requires a Tree Connect:
-			simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
-			status_code = "STATUS_SUCCESS"
+		# Windows SMB will return an error code during Session Setup, but nix Samba requires a Tree Connect:
+		simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
+		status_code = "STATUS_SUCCESS"
 
-            if datastore['CHECK_ADMIN']
-                status_code = "NOT_ADMIN"
-                begin
-                    simple.connect("\\\\#{datastore['RHOST']}\\admin$")
-                    status_code = 'ADMIN_ACCESS'
-                rescue
-                    status_code = "NOT_ADMIN"
-                end
-            end
+		if datastore['CHECK_ADMIN']
+			status_code = "NOT_ADMIN"
+			begin
+				simple.connect("\\\\#{datastore['RHOST']}\\admin$")
+				status_code = 'ADMIN_ACCESS'
+			rescue
+				status_code = "NOT_ADMIN"
+			end
+		end
 
 		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
 			status_code = e.get_error(e.error_code)
