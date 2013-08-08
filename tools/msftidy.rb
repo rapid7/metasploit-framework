@@ -353,8 +353,10 @@ class Msftidy
 				warn("Spaces at EOL", idx)
 			end
 
-			if (ln.length > 1) and (ln =~ /^([\t ]*)/) and ($1.include?(' '))
-				warn("Bad indent: #{ln.inspect}", idx)
+			# Allow tabs or spaces as indent characters, but not both.
+			# This should check for spaces only on October 8, 2013
+			if (ln.length > 1) and (ln =~ /^([\t ]*)/) and ($1.match(/\x20\x09|\x09\x20/))
+				warn("Space-Tab mixed indent: #{ln.inspect}", idx)
 			end
 
 			if ln =~ /\r$/
