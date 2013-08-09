@@ -77,7 +77,8 @@ class Railgun
 		'netapi32',
 		'crypt32',
 		'wlanapi',
-		'wldap32'
+		'wldap32',
+		'version'
 	].freeze
 
 	##
