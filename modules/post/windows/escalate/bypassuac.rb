@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Post
 
 		# decide, x86 or x64
 		bpexe = nil
-		if payload =~ /x64/ or sysinfo["Architecture"] =~ /wow64/i
+		if sysinfo["Architecture"] =~ /x64/i
 			bpexe = ::File.join(path, "bypassuac-x64.exe")
 		else
 			bpexe = ::File.join(path, "bypassuac-x86.exe")
