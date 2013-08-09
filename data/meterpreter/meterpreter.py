@@ -3,11 +3,14 @@ import os
 import sys
 import code
 import random
+import ctypes
 import select
 import socket
 import struct
 import threading
 import subprocess
+
+has_windll = hasattr(ctypes, 'windll')
 
 #
 # Constants
@@ -182,6 +185,10 @@ class PythonMeterpreter(object):
 
 	def register_function(self, func):
 		self.extension_functions[func.__name__] = func
+
+	def register_function_windll(self, func):
+		if has_windll:
+			self.register_function(func)
 
 	def run(self):
 		while self.running:
