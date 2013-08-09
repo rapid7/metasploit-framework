@@ -167,6 +167,8 @@ class STDProcessBuffer(threading.Thread):
 class STDProcess(subprocess.Popen):
 	def __init__(self, *args, **kwargs):
 		subprocess.Popen.__init__(self, *args, **kwargs)
+
+	def start(self):
 		self.stdout_reader = STDProcessBuffer(self.stdout, lambda: self.poll() == None)
 		self.stdout_reader.start()
 		self.stderr_reader = STDProcessBuffer(self.stderr, lambda: self.poll() == None)
