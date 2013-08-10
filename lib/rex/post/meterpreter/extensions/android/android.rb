@@ -4,6 +4,7 @@
 require 'rex/post/meterpreter/object_aliases'
 require 'rex/post/meterpreter/extension'
 require 'rex/post/meterpreter/extensions/android/common/common'
+require 'rex/post/meterpreter/extensions/android/root/root'
 require 'rex/post/meterpreter/extensions/android/tlv'
 
 
@@ -28,6 +29,10 @@ class Android < Extension
 				{
 					'name' => 'common',
 					'ext'  => Rex::Post::Meterpreter::Extensions::Android::Common::Common.new(client)
+				},
+        {
+					'name' => 'root',
+					'ext'  => Rex::Post::Meterpreter::Extensions::Android::Root::Root.new(client)
 				}
 			])
 	end

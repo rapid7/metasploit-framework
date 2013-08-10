@@ -14,6 +14,7 @@ module Ui
 class Console::CommandDispatcher::Android
 
 	require 'rex/post/meterpreter/ui/console/command_dispatcher/android/common'
+  require 'rex/post/meterpreter/ui/console/command_dispatcher/android/root'
 
 
 	Klass = Console::CommandDispatcher::Android
@@ -21,6 +22,7 @@ class Console::CommandDispatcher::Android
 	Dispatchers =
 		[
 			Klass::Common,
+      #Klass::Root,
 
 		]
 
@@ -32,6 +34,12 @@ class Console::CommandDispatcher::Android
 		Dispatchers.each { |d|
 			shell.enstack_dispatcher(d)
 		}
+    
+    #shell.enstack_dispatcher(Klass::Common)
+
+    if client.common.check_root == true
+      shell.enstack_dispatcher(Klass::Root)
+    end
 	end
 
 	#

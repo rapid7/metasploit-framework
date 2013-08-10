@@ -15,9 +15,10 @@ module Common
 
 
 class Common
-
+  
 	def initialize(client)
 		@client = client
+
 	end
 
 	def dump_sms
