@@ -10,14 +10,16 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Prompt the MAC-OSX user for password credentials.',
-				'Description'   => %q{ },
+				'Name'          => 'Prompt the Mac OSX user for password credentials.',
+				'Description'   => %q{
+					This module "spoofs" the OSX password prompt dialog, forcing a
+					logged-in user to type in a password and click Enter.
+				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Joff Thyer <jsthyer at gmail.com>',
 				                     'joev <jvennix[at]rapid7.com>' ],
-				'Version'       => '',
 				'Platform'      => [ 'osx' ],
-				'SessionTypes'  => [ "shell" ]
+				'SessionTypes'  => [ "shell", "meterpreter" ]
 			))
 
 		register_options( [
