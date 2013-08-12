@@ -315,7 +315,6 @@ class Plugin::Wmap < Msf::Plugin
 				if self.killwhenstop
 					rpc_kill_node('ALL','ALL')
 				end
-				return
 			}
 
 			# Max numbers of concurrent jobs per node
