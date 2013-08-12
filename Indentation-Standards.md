@@ -10,11 +10,13 @@ While we expect a fair amount of code conflict during the transition, we will ha
 
 ## Implementation Timeline
 
+Items struck out are complete.
+
 ### By August 15, 2013
- - Add a retabbing utility
- - Update msftidy.rb to respect spaces or tabs, but not mixed.
- - Add a test case
- - Land [PR #2197](https://github.com/rapid7/metasploit-framework/pull/2197) which provides the above.
+ - ~~Add a retabbing utility~~
+ - ~~Update msftidy.rb to respect spaces or tabs, but not mixed.~~
+ - ~~Add a test case~~
+ - ~~Land [PR #2197](https://github.com/rapid7/metasploit-framework/pull/2197) which provides the above.~~
  - Ask CoreLan (sinn3r) to update mona.py templates to use spaces, not tabs.
  - Verify mona.py's update.
 
