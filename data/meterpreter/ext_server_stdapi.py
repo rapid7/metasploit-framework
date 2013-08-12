@@ -450,6 +450,25 @@ def stdapi_sys_process_get_processes_via_proc(request, response):
 		response += tlv_pack(TLV_TYPE_PROCESS_GROUP, pgroup)
 	return ERROR_SUCCESS, response
 
+def stdapi_sys_process_get_processes_via_ps(request, response):
+	ps_args = ['ps', 'ax', '-w', '-o', 'pid,ppid,user,command']
+	proc_h = subprocess.Popen(ps_args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	ps_output = proc_h.stdout.read()
+	ps_output = ps_output.split('\n')
+	ps_output.pop(0)
+	for process in ps_output:
+		process = process.split()
+		if len(process) < 4:
+			break
+		pgroup = ''
+		pgroup += tlv_pack(TLV_TYPE_PID, int(process[0]))
+		pgroup += tlv_pack(TLV_TYPE_PARENT_PID, int(process[1]))
+		pgroup += tlv_pack(TLV_TYPE_USER_NAME, process[2])
+		pgroup += tlv_pack(TLV_TYPE_PROCESS_NAME, os.path.basename(process[3]))
+		pgroup += tlv_pack(TLV_TYPE_PROCESS_PATH, ' '.join(process[3:]))
+		response += tlv_pack(TLV_TYPE_PROCESS_GROUP, pgroup)
+	return ERROR_SUCCESS, response
+
 def stdapi_sys_process_get_processes_via_windll(request, response):
 	TH32CS_SNAPPROCESS = 2
 	PROCESS_QUERY_INFORMATION = 0x0400
@@ -530,6 +549,8 @@ def stdapi_sys_process_get_processes(request, response):
 		return stdapi_sys_process_get_processes_via_proc(request, response)
 	elif has_windll:
 		return stdapi_sys_process_get_processes_via_windll(request, response)
+	else:
+		return stdapi_sys_process_get_processes_via_ps(request, response)
 	return ERROR_FAILURE, response
 
 @meterpreter.register_function
