@@ -45,9 +45,12 @@ class Metasploit3 < Msf::Post
 			winlogon_procs << proc if proc['name'] == "winlogon.exe"
 		end
 
-		winlogon_procs.each { |proc| return if attempt_migration(proc['pid']) }
+    print_status "Attempting to move into explorer.exe for current user..."
 		uid_explorer_procs.each { |proc| return if attempt_migration(proc['pid']) }
+    print_status "Attempting to move into explorer.exe for other users..."
 		explorer_procs.each { |proc| return if attempt_migration(proc['pid']) }
+    print_status "Attempting to move into winlogon.exe"
+    winlogon_procs.each { |proc| return if attempt_migration(proc['pid']) }
 
 		print_error "Was unable to sucessfully migrate into any of our likely candidates"
 	end
