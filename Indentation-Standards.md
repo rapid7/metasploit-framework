@@ -24,10 +24,10 @@ Note that once [PR #2197](https://github.com/rapid7/metasploit-framework/pull/21
 
 ### By August 28, 2013
  - Write a procedure for offering retabbing to outstanding pull requests.
-    * A prototype procedure is outlined on [This pull request](https://github.com/dmaloney-r7/metasploit-framework/pull/8)
  - Retab modules directory as [@tabassassin](https://github.com/tabassassin) using `retab.rb`
  - Retab libraries as [@tabassassin](https://github.com/tabassassin) using `retab.rb`.
  - Offer retabbing to outstanding pull requests in the form of outbound PRs from [@tabassassin](https://github.com/tabassassin).
+    * [This pull request](https://github.com/dmaloney-r7/metasploit-framework/pull/8) is an example of a one-off retab PR.
 
 ### By September 18, 2013
  - Periodically retab as [@tabassassin](https://github.com/tabassassin) to catch stragglers that snuck in.
