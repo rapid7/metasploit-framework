@@ -306,8 +306,7 @@ def channel_create_stdapi_fs_file(request, response):
 	else:
 		fmode = 'rb'
 	file_h = open(fpath, fmode)
-	channel_id = len(meterpreter.channels)
-	meterpreter.channels[channel_id] = file_h
+	channel_id = meterpreter.add_channel(file_h)
 	response += tlv_pack(TLV_TYPE_CHANNEL_ID, channel_id)
 	return ERROR_SUCCESS, response
 
@@ -331,8 +330,7 @@ def channel_create_stdapi_net_tcp_client(request, response):
 			pass
 	if not connected:
 		return ERROR_CONNECTION_ERROR, response
-	channel_id = len(meterpreter.channels)
-	meterpreter.channels[channel_id] = sock
+	channel_id = meterpreter.add_channel(sock)
 	response += tlv_pack(TLV_TYPE_CHANNEL_ID, channel_id)
 	return ERROR_SUCCESS, response
 
@@ -366,8 +364,6 @@ def stdapi_sys_process_close(request, response):
 	if not proc_h_id:
 		return ERROR_SUCCESS, response
 	proc_h_id = proc_h_id['value']
-	if not proc_h_id in meterpreter.processes:
-		print("[-] trying to close non-existent channel: " + str(proc_h_id))
 	proc_h = meterpreter.channels[proc_h_id]
 	proc_h.kill()
 	return ERROR_SUCCESS, response
@@ -404,13 +400,11 @@ def stdapi_sys_process_execute(request, response):
 		proc_h.start()
 	else:
 		proc_h = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	proc_h_id = len(meterpreter.processes)
-	meterpreter.processes[proc_h_id] = proc_h
+	proc_h_id = meterpreter.add_process(proc_h)
 	response += tlv_pack(TLV_TYPE_PID, proc_h.pid)
 	response += tlv_pack(TLV_TYPE_PROCESS_HANDLE, proc_h_id)
 	if (flags & PROCESS_EXECUTE_FLAG_CHANNELIZED):
-		channel_id = len(meterpreter.channels)
-		meterpreter.channels[channel_id] = proc_h
+		channel_id = meterpreter.add_channel(proc_h)
 		response += tlv_pack(TLV_TYPE_CHANNEL_ID, channel_id)
 	return ERROR_SUCCESS, response
 

