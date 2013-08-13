@@ -104,6 +104,12 @@ module ReverseHttp
 		# the INIT and CONN request types, based on a checksum
 		uri_strip, uri_conn = uri_match.split('_', 2)
 		uri_strip.sub!(/^\//, '')
+
+		# checksum8 fails if uri_strip is ""
+		if uri_strip == ""
+			return uri_match
+		end
+
 		uri_check = Rex::Text.checksum8(uri_strip)
 
 		# Match specific checksums and map them to static URIs
