@@ -40,3 +40,5 @@ tags
 *.orig
 *.rej
 *~
+# Ignore backups of retabbed files
+*.notab
