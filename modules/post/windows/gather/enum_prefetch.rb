@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Post
   def initialize(info={})
     super(update_info(info,
                       'Name'          =>      'Windows Gather Prefetch File Information',
-                      'Description'   =>       %q{This module gathers prefetch file information from WinXP & Win7 systems.},
+                      'Description'   =>       %q{This module gathers prefetch file information from WinXP, Win2k3 and Win7 systems.},
                       'License'       =>      MSF_LICENSE,
                       'Author'        =>      ['TJ Glad <fraktaali[at]gmail.com>'],
                       'Platform'      =>      ['win'],
@@ -33,9 +33,9 @@ class Metasploit3 < Msf::Post
     elsif key_value == 1
       print_good("EnablePrefetcher Value: (1) = Application launch prefetching enabled (Non-Default).")
     elsif key_value == 2
-      print_good("EnablePrefetcher Value: (2) = Boot prefetching enabled (Non-Default).")
+      print_good("EnablePrefetcher Value: (2) = Boot prefetching enabled (Non-Default, excl. Win2k3).")
     elsif key_value == 3
-      print_good("EnablePrefetcher Value: (3) = Applaunch and boot enabled (Default Value).")
+      print_good("EnablePrefetcher Value: (3) = Applaunch and boot enabled (Default Value, excl. Win2k3).")
     else
       print_error("No value or unknown value. Results might vary.")
     end
@@ -120,15 +120,16 @@ class Metasploit3 < Msf::Post
 
     # Check to see what Windows Version is running.
     # Needed for offsets.
-    # Tested on WinXP and Win7 systems. Should work on WinVista & Win2k3..
+    # Tested on WinXP, Win2k3 and Win7 systems.
     # http://www.forensicswiki.org/wiki/Prefetch
     # http://www.forensicswiki.org/wiki/Windows_Prefetch_File_Format
 
-    sysnfo = client.sys.config.sysinfo['OS']
+		sysnfo = client.sys.config.sysinfo['OS']
+		error_msg = "You don't have enough privileges. Try getsystem."
 
     if sysnfo =~/(Windows XP)/
       if not is_system?
-        print_error("You don't have enough privileges. Try getsystem.")
+        print_error(error_msg)
         return nil
       end
       # Offsets for WinXP
@@ -140,9 +141,23 @@ class Metasploit3 < Msf::Post
       # Registry key for timezone
       key_value = "StandardName"
 
+		elsif sysnfo =~/(Windows .NET Server)/
+			if not is_system?
+				print_error(error_msg)
+				return nil
+			end
+			# Offsets for Win2k3
+			print_good("Detected Windows 2k3 (max 128 entries)")
+			name_offset = 0x10
+			hash_offset = 0x4C
+			lastrun_offset = 0x78
+			runcount_offset = 0x90
+			# Registry key for timezone
+			key_value = "StandardName"
+
     elsif sysnfo =~/(Windows 7)/
       if not is_admin?
-        print_error("You don't have enough privileges. Try getsystem.")
+        print_error(error_msg)
         return nil
       end
       # Offsets for Win7
@@ -155,7 +170,7 @@ class Metasploit3 < Msf::Post
       key_value = "TimeZoneKeyName"
 
     else
-      print_error("No offsets for the target Windows version. Currently works only on WinXP and Win7.")
+      print_error("No offsets for the target Windows version. Currently works only on WinXP, Win2k3 and Win7.")
       return nil
     end
 
@@ -171,10 +186,7 @@ class Metasploit3 < Msf::Post
         "Filename"
       ])
 
-    print_status("Searching for Prefetch Registry Value.")
-
     prefetch_key_value
-    print_status("Searching for TimeZone Registry Values.")
 
     timezone_key_values(key_value)
 
