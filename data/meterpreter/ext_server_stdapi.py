@@ -1,14 +1,14 @@
-import os
-import sys
-import shlex
 import ctypes
-import socket
-import struct
-import shutil
 import fnmatch
 import getpass
+import os
 import platform
+import shlex
+import shutil
+import socket
+import struct
 import subprocess
+import sys
 
 has_windll = hasattr(ctypes, 'windll')
 
