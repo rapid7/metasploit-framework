@@ -338,15 +338,6 @@ class Module
 	end
 
 	#
-	# Return the module's legacy version information.
-	#
-	def version
-		module_info['Version'].split(/,/).map { |ver|
-			ver.gsub(/\$Rev.s.on:\s+|\s+\$$/, '')
-		}.join(',')
-	end
-
-	#
 	# Returns the disclosure date, if known.
 	#
 	def disclosure_date
