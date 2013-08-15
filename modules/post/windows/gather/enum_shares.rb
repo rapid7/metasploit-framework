@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Post
 		recent_mounts = []
 		partial_path = base_key + "\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer"
 		full_path = "#{partial_path}\\Map Network Drive MRU"
-		explorer_keys = registry_enumkeys(partial_path)
+		explorer_keys = registry_enumkeys(partial_path) || ''
 		if explorer_keys.include?("Map Network Drive MRU")
 			vals_found = registry_enumvals(full_path)
 			if vals_found
