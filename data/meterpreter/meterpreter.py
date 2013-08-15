@@ -1,14 +1,14 @@
 #!/usr/bin/python
-import os
-import sys
 import code
-import random
 import ctypes
+import os
+import random
 import select
 import socket
 import struct
-import threading
 import subprocess
+import sys
+import threading
 
 has_windll = hasattr(ctypes, 'windll')
 
