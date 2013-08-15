@@ -244,19 +244,18 @@ class Console::CommandDispatcher::Android::Common
 			end
 		}
 
-		geoArray = Array.new
-		geoArray = client.common.geolocate
+		geo = client.common.geolocate
 
 		print_status("Current Location:\n")
-		print_line("\tLatitude  : #{geoArray[0]['lat']}")
-		print_line("\tLongitude : #{geoArray[0]['long']}\n")
+		print_line("\tLatitude  : #{geo[0]['lat']}")
+		print_line("\tLongitude : #{geo[0]['long']}\n")
 
 
 		if generate_map
-			link = "https://maps.google.com/maps?q=#{geoArray[0]['lat']},#{geoArray[0]['long']}"
+			link = "https://maps.google.com/maps?q=#{geo[0]['lat']},#{geo[0]['long']}"
 			print_status("Generated map on google-maps:")
 			print_status("#{link}")
-			Rex::Compat.open_file(link)
+			Rex::Compat.open_browser(link)
 		end
 
 	end
