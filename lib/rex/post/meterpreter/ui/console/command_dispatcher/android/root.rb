@@ -17,7 +17,7 @@ class Console::CommandDispatcher::Android::Root
 		super
 	end
 
-	def commands 
+	def commands
 		all = {
 			"device_shutdown"   => "Shutdown device",
 		}
@@ -43,34 +43,34 @@ class Console::CommandDispatcher::Android::Root
 
 	def cmd_device_shutdown(*args)
 
-    nSeconds = 0
+		seconds = 0
 		device_shutdown_opts = Rex::Parser::Arguments.new(
 			"-h" => [ false, "Help Banner" ],
-			"-t" => [ false, "Shutdown after n seconds"]		
-			)
+			"-t" => [ false, "Shutdown after n seconds"]
+		)
 
 		device_shutdown_opts.parse( args ) { | opt, idx, val |
 			case opt
-				when "-h"
-					print_line( "Usage: device_shutdown [options]\n" )
-					print_line( "Shutdown device." )
-					print_line( device_shutdown_opts.usage )
-					return
-				when "-t"
-					nSeconds = val
+			when "-h"
+				print_line( "Usage: device_shutdown [options]\n" )
+				print_line( "Shutdown device." )
+				print_line( device_shutdown_opts.usage )
+				return
+			when "-t"
+				seconds = val
 			end
 		}
 
-		res = client.root.device_shutdown(nSeconds)
-    
-    if res == true
-      print_line("[*] Device will shutdown #{nSeconds > 0 ?("after " + nSeconds + "seconds"):"now"}")
-    else
-      print_line("[x] Device will shutdown failed")
-		end
-  end
+		res = client.root.device_shutdown(seconds)
 
-  def name
+		if res == true
+			print_status("Device will shutdown #{seconds > 0 ?("after " + seconds + "seconds"):"now"}")
+		else
+			print_error("Device shutdown failed")
+		end
+	end
+
+	def name
 		"Android: Rooted"
 	end
 
