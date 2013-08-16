@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'Cisco Ironport Bruteforce Login Utility',
 			'Description'    => %{
 				This module scans for Cisco Ironport SMA, WSA and ESA web login portals, finds AsyncOS
-			version and performs login brute force to identify valid credentials.
+				version and performs login brute force to identify valid credentials.
 			},
 			'Author'         =>
 				[
@@ -36,9 +36,6 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('USERNAME', [true, "A specific username to authenticate as", "admin"]),
 				OptString.new('PASSWORD', [true, "A specific password to authenticate with", "ironport"])
 			], self.class)
-
-		deregister_options('TARGETURI')
-
 	end
 
 	def run_host(ip)
@@ -72,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	#
-	# What's the point of running this module if the app actually isn't Cisco Ironport?
+	# What's the point of running this module if the app actually isn't Cisco IronPort
 	#
 
 	def is_app_ironport?
