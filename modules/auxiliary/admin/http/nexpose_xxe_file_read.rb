@@ -25,8 +25,8 @@ class Metasploit4 < Msf::Auxiliary
       'Author' =>
         [
           'Brandon Perry <bperry.volatile[at]gmail.com>', # Initial discovery and Metasploit module
-          'Drazen Popovic <drazen.popvic[at]infigo.hr>'   # Independent discovery, alternate vector
-          'Bojan Zdrnja <bojan.zdrnja[at]infigo.hr>',     # Independently reported
+          'Drazen Popovic <drazen.popvic[at]infigo.hr>',  # Independent discovery, alternate vector
+          'Bojan Zdrnja <bojan.zdrnja[at]infigo.hr>'      # Independently reported
         ],
       'License' => MSF_LICENSE,
       'References'  =>
