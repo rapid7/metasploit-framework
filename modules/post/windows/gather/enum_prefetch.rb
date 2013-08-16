@@ -14,7 +14,9 @@ class Metasploit3 < Msf::Post
   def initialize(info={})
     super(update_info(info,
                       'Name'          =>      'Windows Gather Prefetch File Information',
-                      'Description'   =>       %q{This module gathers prefetch file information from WinXP, Win2k3 and Win7 systems.},
+                      'Description'   =>       %q{This module gathers prefetch file information from WinXP, Win2k3 and Win7 systems.
+																									File offset reads for run count, hash and filename are collected from each prefetch file
+																									using WinAPI through Railgun while Last Modified and Create times are file MACE values.},
                       'License'       =>      MSF_LICENSE,
                       'Author'        =>      ['TJ Glad <fraktaali[at]gmail.com>'],
                       'Platform'      =>      ['win'],
@@ -127,13 +129,13 @@ class Metasploit3 < Msf::Post
 		sysnfo = client.sys.config.sysinfo['OS']
 		error_msg = "You don't have enough privileges. Try getsystem."
 
-    if sysnfo =~/(Windows XP)/
+    if sysnfo =~/(Windows XP|2003|.NET)/
       if not is_system?
         print_error(error_msg)
         return nil
       end
-      # Offsets for WinXP
-      print_good("Detected Windows XP (max 128 entries)")
+      # Offsets for WinXP & Win2k3
+      print_good("Detected #{sysnfo} (max 128 entries)")
       name_offset = 0x10
       hash_offset = 0x4C
       lastrun_offset = 0x78
@@ -141,27 +143,13 @@ class Metasploit3 < Msf::Post
       # Registry key for timezone
       key_value = "StandardName"
 
-		elsif sysnfo =~/(Windows .NET Server)/
-			if not is_system?
-				print_error(error_msg)
-				return nil
-			end
-			# Offsets for Win2k3
-			print_good("Detected Windows 2k3 (max 128 entries)")
-			name_offset = 0x10
-			hash_offset = 0x4C
-			lastrun_offset = 0x78
-			runcount_offset = 0x90
-			# Registry key for timezone
-			key_value = "StandardName"
-
     elsif sysnfo =~/(Windows 7)/
       if not is_admin?
         print_error(error_msg)
         return nil
       end
       # Offsets for Win7
-      print_good("Detected Windows 7 (max 128 entries)")
+      print_good("Detected #{sysnfo} (max 128 entries)")
       name_offset = 0x10
       hash_offset = 0x4C
       lastrun_offset = 0x80
