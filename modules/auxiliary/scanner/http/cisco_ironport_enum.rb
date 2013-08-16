@@ -128,7 +128,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			res = send_request_cgi(
 			{
-				'uri'       => '/login?CSRFKey=5PADuD3Z-10v3-b33R-5h0t-0n4h3R0cK555',
+				'uri'       => '/login',
 				'method'    => 'POST',
 				'vars_post' =>
 					{
