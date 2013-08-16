@@ -232,7 +232,7 @@ class Metasploit4 < Msf::Auxiliary
 				end
 
 			elsif res.code != 200
-				vprint_error("#{rhost}:#{rport} - Error in response from ")
+				vprint_error("#{rhost}:#{rport} - Error in response")
 			end
 
 			vprint_good("#{rhost}:#{rport} - Connected. Retrieving info")
