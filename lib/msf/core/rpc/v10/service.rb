@@ -122,7 +122,7 @@ class Service
 				raise ArgumentError, "Invalid Message Format"
 			end
 
-			msg.map { |a| a.respond_to?("force_encoding")?a.force_encoding(self.str_encoding):a }
+			msg.map { |a| a.respond_to?(:force_encoding) ? a.force_encoding(self.str_encoding) : a }
 
 			group, funct = msg.shift.split(".", 2)
 
