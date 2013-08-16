@@ -249,6 +249,7 @@ class Console::CommandDispatcher::Android::Common
 		print_status("Current Location:\n")
 		print_line("\tLatitude  : #{geo[0]['lat']}")
 		print_line("\tLongitude : #{geo[0]['long']}\n")
+    print_line("To get the address: https://maps.googleapis.com/maps/api/geocode/json?latlng=#{geo[0]['lat']},#{geo[0]['long']}&sensor=true\n")
 
 
 		if generate_map
