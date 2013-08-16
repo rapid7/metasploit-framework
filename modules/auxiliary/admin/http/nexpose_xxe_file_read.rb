@@ -17,9 +17,10 @@ class Metasploit4 < Msf::Auxiliary
 		super(update_info(info,
 			'Name' => 'Nexpose XXE Arbitrary File Read',
 			'Description' => %q{
-				Nexpose v5.7.2 and prior was vulnerable to a XML External Entity attack via a few vectors.
-				This allowed an attacker to craft special XML that read arbitrary files from the filesystem.
-				This module exploits the vulnerability via the XML API.
+				Nexpose v5.7.2 and prior is vulnerable to a XML External Entity attack via a number
+				of vectors. This vulnerability can allow an attacker to a craft special XML that
+				could read arbitrary files from the filesystem. This module exploits the
+				vulnerability via the XML API.
 			},
 			'Author' =>
 				[
