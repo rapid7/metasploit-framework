@@ -41,16 +41,164 @@ class Metasploit4 < Msf::Auxiliary
 			], self.class)
 
 		register_autofilter_ports([1128])
-		deregister_options('RHOST')
-		deregister_options('VHOST')
 
+	end
+
+
+	def parse_computer_info(computer_info)
+
+		item_list = []
+		success = false
+
+		computer_table = Msf::Ui::Console::Table.new(
+			Msf::Ui::Console::Table::Style::Default,
+			'Header' => "Remote Computer Listing",
+			'Prefix' => "\n",
+			'Postfix' => "\n",
+			'Indent' => 1,
+			'Columns' =>
+				[
+					"Names",
+					"Hostnames",
+					"IPAddresses"
+				])
+
+		computer_info.each { |item|
+			temp_table =[]
+			body = "#{item}"
+			item_list = body.scan(/<item><mName>(.+?)<\/mName><mType>(.+?)<\/mType><mValue>(.+?)<\/mValue><\/item>/ix)
+
+			if item_list
+
+				if "#{item_list}" =~ /ITSAMComputerSystem/
+
+					item_list.each do |m|
+						temp_table << "#{m[2]}" unless ("#{m}" =~ /ITSAM/)
+					end
+
+					computer_table << [temp_table[0], temp_table[1], temp_table[2]]
+					success = true # we have at least one response
+				end
+
+			end
+		}
+		return computer_table, success
+
+	end
+
+	def parse_os_info(os_table, os_info)
+
+		if os_table == nil
+
+			os_table = Msf::Ui::Console::Table.new(
+				Msf::Ui::Console::Table::Style::Default,
+				'Header' => "Remote OS Listing",
+				'Prefix' => "\n",
+				'Postfix' => "\n",
+				'Indent' => 1,
+				'Columns' =>
+					[
+						"Name",
+						"Type",
+						"Version",
+						"TotalMemSize",
+						"Load Avg 1m",
+						"Load Avg 5m",
+						"Load Avg 15m",
+						"CPUs",
+						"CPU User",
+						"CPU Sys",
+						"CPU Idle"
+					])
+		end
+
+		os_table << [os_info[0], os_info[1], os_info[2], os_info[8], os_info[11], os_info[12], os_info[13],
+		             os_info[17], os_info[18]+'%', os_info[19]+'%', os_info[20]+'%']
+		return os_table
+
+	end
+
+	def parse_process_info(process_table, process_info)
+
+		if process_table == nil
+
+			process_table = Msf::Ui::Console::Table.new(
+				Msf::Ui::Console::Table::Style::Default,
+				'Header' => "Remote Process Listing",
+				'Prefix' => "\n",
+				'Postfix' => "\n",
+				'Indent' => 1,
+				'Columns' =>
+					[
+						"Name",
+						"PID",
+						"Username",
+						"Priority",
+						"Size",
+						"Pages",
+						"CPU",
+						"CPU Time",
+						"Command"
+					])
+		end
+		process_table << [process_info[0], process_info[1], process_info[2], process_info[3], process_info[4],
+		                  process_info[5], process_info[6]+'%', process_info[7], process_info[8]]
+		return process_table
+	end
+
+	def parse_fs_info(fs_table, fs_info)
+
+		if fs_table == nil
+
+			fs_table = Msf::Ui::Console::Table.new(
+				Msf::Ui::Console::Table::Style::Default,
+				'Header' => "Remote Filesystem Listing",
+				'Prefix' => "\n",
+				'Postfix' => "\n",
+				'Indent' => 1,
+				'Columns' =>
+					[
+						"Name",
+						"Size",
+						"Available",
+						"Remote"
+					])
+		end
+
+		fs_table << [fs_info[0], fs_info[2], fs_info[3], fs_info[4]]
+		return fs_table
+	end
+
+	def parse_net_info(net_table, net_info)
+
+		if net_table == nil
+
+			net_table = Msf::Ui::Console::Table.new(
+				Msf::Ui::Console::Table::Style::Default,
+				'Header' => "Network Port Listing",
+				'Prefix' => "\n",
+				'Postfix' => "\n",
+				'Indent' => 1,
+				'Columns' =>
+					[
+						"ID",
+						"PacketsIn",
+						"PacketsOut",
+						"ErrorsIn",
+						"ErrorsOut",
+						"Collisions"
+					])
+		end
+
+		net_table << [net_info[0], net_info[1], net_info[2], net_info[3], net_info[4], net_info[5]]
+		return net_table
 	end
 
 	def run_host(rhost)
 
 		rport = datastore['RPORT']
 
-		print_status("Connecting to SAP Host Control service on #{rhost}:#{rport}")
+		vprint_status("#{rhost}:#{rport} - Connecting to SAP Host Control service")
 
 		success = false
 		fault = false
@@ -72,187 +220,86 @@ class Metasploit4 < Msf::Auxiliary
 					'method' => 'POST',
 					'data' => data,
 					'headers' => {
-						'Content-Length' => data.length,
 						'Content-Type' => 'text/xml; charset=UTF-8',
 					}
-				}, 15)
-
-			if res and res.code == 200
-
-				print_good("Got response from server, parsing...")
-
-				env = []
-				saptbl =[]
-				totalitems=0
-
-				saptbl[0] = Msf::Ui::Console::Table.new(
-					Msf::Ui::Console::Table::Style::Default,
-					'Header' => "Remote Computer Listing",
-					'Prefix' => "\n",
-					'Postfix' => "\n",
-					'Indent' => 1,
-					'Columns' =>
-						[
-							"Names",
-							"Hostnames",
-							"IPAddresses"
-						])
-
-				saptbl[1] = Msf::Ui::Console::Table.new(
-					Msf::Ui::Console::Table::Style::Default,
-					'Header' => "Remote OS Listing",
-					'Prefix' => "\n",
-					'Postfix' => "\n",
-					'Indent' => 1,
-					'Columns' =>
-						[
-							"Name",
-							"Type",
-							"Version",
-							"TotalMemSize",
-							"Load Avg 1m",
-							"Load Avg 5m",
-							"Load Avg 15m",
-							"CPUs",
-							"CPU User",
-							"CPU Sys",
-							"CPU Idle"
-						])
-
-				saptbl[2] = Msf::Ui::Console::Table.new(
-					Msf::Ui::Console::Table::Style::Default,
-					'Header' => "Remote Process Listing",
-					'Prefix' => "\n",
-					'Postfix' => "\n",
-					'Indent' => 1,
-					'Columns' =>
-						[
-							"Name",
-							"PID",
-							"Username",
-							"Priority",
-							"Size",
-							"Pages",
-							"CPU",
-							"CPU Time",
-							"Command"
-						])
-
-				saptbl[3] = Msf::Ui::Console::Table.new(
-					Msf::Ui::Console::Table::Style::Default,
-					'Header' => "Remote Filesystem Listing",
-					'Prefix' => "\n",
-					'Postfix' => "\n",
-					'Indent' => 1,
-					'Columns' =>
-						[
-							"Name",
-							"Size",
-							"Available",
-							"Remote"
-						])
-
-				saptbl[4] = Msf::Ui::Console::Table.new(
-					Msf::Ui::Console::Table::Style::Default,
-					'Header' => "Network Port Listing",
-					'Prefix' => "\n",
-					'Postfix' => "\n",
-					'Indent' => 1,
-					'Columns' =>
-						[
-							"ID",
-							"PacketsIn",
-							"PacketsOut",
-							"ErrorsIn",
-							"ErrorsOut",
-							"Collisions"
-						])
-
-				mxml = REXML::Document.new(res.body)
-
-				itsamcs = mxml.elements.to_a("//mProperties/") # OS info
-
-				itsam = mxml.elements.to_a("//item/mProperties/") # all other info
+				})
 
 
-				itsamcs.each { |name|
-					tbl =[]
-					body = "#{name}"
-					env = body.scan(/<item><mName>(.+?)<\/mName><mType>(.+?)<\/mType><mValue>(.+?)<\/mValue><\/item>/ix)
-
-					if env
-
-						totalitems +=1
-
-						if ("#{env}" =~ /ITSAMComputerSystem/)
-
-							env.each do |m|
-								tbl << "#{m[2]}" unless ("#{m}" =~ /ITSAM/)
-							end
-
-							saptbl[0] << [tbl[0], tbl[1], tbl[2]]
-							success = true # we have at least one response
-						end
-
-					end
-				}
-
-
-				itsam.each { |name|
-					tbl =[]
-					# some items have no <mValue>, so we put a dummy with nil
-					body = "#{name}".gsub(/\/mType><\/item/, "\/mType><mValue>(nil)<\/mValue><\/item")
-					env = body.scan(/<item><mName>(.+?)<\/mName><mType>(.+?)<\/mType><mValue>(.+?)<\/mValue><\/item>/ix)
-
-					if env
-
-						totalitems +=1
-
-						env.each do |m|
-							tbl << "#{m[2]}" unless ("#{m}" =~ /ITSAM/)
-						end
-
-						case "#{env}"
-						when /ITSAMOperatingSystem/
-							saptbl[1] << [tbl[0], tbl[1], tbl[2], tbl[8], tbl[11], tbl[12], tbl[13], tbl[17], tbl[18]+'%', tbl[19]+'%', tbl[20]+'%']
-							success = true # we have at least one response
-
-						when /ITSAMOSProcess/
-							saptbl[2] << [tbl[0], tbl[1], tbl[2], tbl[3], tbl[4], tbl[5], tbl[6]+'%', tbl[7], tbl[8]]
-							success = true # we have at least one response
-
-						when /ITSAMFileSystem/
-							saptbl[3] << [tbl[0], tbl[2], tbl[3], tbl[4]]
-							success = true # we have at least one response
-
-						when /ITSAMNetworkPort/
-							saptbl[4] << [tbl[0], tbl[1], tbl[2], tbl[3], tbl[4], tbl[5]]
-							success = true # we have at least one response
-						end
-
-					end
-				}
-
-			elsif res and res.code == 500
-				if (res.body =~ /<faultstring>(.*)<\/faultstring>/i)
+			if res and res.code == 500
+				if res.body =~ /<faultstring>(.*)<\/faultstring>/i
 					faultcode = $1.strip
 					fault = true
 				end
+
+			elsif res.code != 200
+				vprint_error("#{rhost}:#{rport} - Error in response from ")
 			end
 
+			vprint_good("#{rhost}:#{rport} - Connected. Retrieving info")
+
+			sap_tables =[]
+
+			response_xml = REXML::Document.new(res.body)
+
+			computer_info = response_xml.elements.to_a("//mProperties/") # Computer info
+
+			detailed_info = response_xml.elements.to_a("//item/mProperties/") # all other info
+
+
+			sap_tables[0], success = parse_computer_info(computer_info)
+
+			detailed_info.each { |item|
+				temp_table =[]
+				item_list = []
+				# some items have no <mValue>, so we put a dummy with nil
+				body = "#{item}".gsub(/\/mType><\/item/, "\/mType><mValue>(nil)<\/mValue><\/item")
+				item_list = body.scan(/<item><mName>(.+?)<\/mName><mType>(.+?)<\/mType><mValue>(.+?)
+<\/mValue><\/item>/ix)
+
+				if item_list
+
+					item_list.each do |m|
+						temp_table << "#{m[2]}" unless ("#{m}" =~ /ITSAM/)
+					end
+
+					case "#{item_list}"
+					when /ITSAMOperatingSystem/
+						sap_tables[1] = parse_os_info(sap_tables[1], temp_table)
+						success = true # we have at least one response
+
+					when /ITSAMOSProcess/
+						sap_tables[2] = parse_process_info(sap_tables[2], temp_table)
+						success = true # we have at least one response
+
+					when /ITSAMFileSystem/
+						sap_tables[3] = parse_fs_info(sap_tables[3], temp_table)
+						success = true # we have at least one response
+
+					when /ITSAMNetworkPort/
+						sap_tables[4] = parse_net_info(sap_tables[4], temp_table)
+						success = true # we have at least one response
+					end
+
+				end
+			}
+
 		rescue ::Rex::ConnectionError
-			print_error("Unable to connect to #{rhost}:#{rport}")
+			vprint_error("#{rhost}:#{rport} - Unable to connect to service")
 			return
 		end
 
 		if success
-			vprint_good("#{totalitems} items listed")
+			print_good("#{rhost}:#{rport} - Information retrieved successfully")
 
-			saptbl.each do |t|
-				print(t.to_s)
+			sap_tables_clean = ''
+
+			sap_tables.each do |t|
+				sap_tables_clean << t.to_s
 			end
 
-			p = store_loot(
+			vprint_good("#{rhost}:#{rport} - Information retrieved:\n"+sap_tables_clean)
+
+			xml_raw = store_loot(
 				"sap.getcomputersystem",
 				"text/xml",
 				rhost,
@@ -260,12 +307,22 @@ class Metasploit4 < Msf::Auxiliary
 				"sap_getcomputersystem.xml",
 				"SAP GetComputerSystem XML"
 			)
-			print_status("Response stored in: #{p}")
+
+			xml_parsed = store_loot(
+				"sap.getcomputersystem",
+				"text/plain",
+				rhost,
+				sap_tables_clean,
+				"sap_getcomputersystem.txt",
+				"SAP GetComputerSystem XML"
+			)
+
+			vprint_status("#{rhost}:#{rport} - Response stored in #{xml_raw} (XML) and #{xml_parsed} (TXT)")
 
 		elsif fault
-			print_error("#{rhost}:#{rport} - Error code: #{faultcode}")
+			vprint_error("#{rhost}:#{rport} - Error code: #{faultcode}")
 		else
-			print_error("#{rhost}:#{rport} - Failed to parse list")
+			vprint_error("#{rhost}:#{rport} - Failed to parse list")
 		end
 	end
 end
