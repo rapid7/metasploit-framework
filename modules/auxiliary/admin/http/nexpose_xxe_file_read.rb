@@ -23,10 +23,18 @@ class Metasploit4 < Msf::Auxiliary
 			},
 			'Author' =>
 				[
-					'bperry', #Discovery/Metasploit Module
-					'bojanz'  #Independent discovery
+					'Brandon Perry <bperry.volatile[at]gmail.com>', # Initial discovery and Metasploit module
+					'Drazen Popovic <drazen.popvic[at]infigo.hr>'   # Independent discovery, alternate vector
+					'Bojan Zdrnja <bojan.zdrnja[at]infigo.hr>',     # Independently reported
 				],
-			'License' => MSF_LICENSE
+			'License' => MSF_LICENSE,
+			'References'  =>
+				[
+					[ 'URL', 'https://community.rapid7.com/community/nexpose/blog/2013/08/16/r7-vuln-2013-07-24' ],
+					# Fill this in with the direct advisory URL from Infigo
+					[ 'URL', 'http://www.infigo.hr/in_focus/advisories/' ]
+
+				]
 		))
 
 		register_options(
