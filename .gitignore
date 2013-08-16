@@ -1,6 +1,8 @@
 .bundle
 # Rubymine project directory
 .idea
+# Sublime Text project directory (not created by ST by default)
+.sublime-project
 # Portable ruby version files for rvm
 .ruby-gemset
 .ruby-version
