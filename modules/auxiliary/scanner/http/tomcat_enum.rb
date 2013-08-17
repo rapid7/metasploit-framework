@@ -58,10 +58,10 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def has_j_security_check?
-		print_status("#{target_url} - Checking j_security_check...")
+		vprint_status("#{target_url} - Checking j_security_check...")
 		res = send_request_raw({'uri' => normalize_uri(datastore['URI'])})
 		if res
-			print_status("#{target_url} - Server returned: #{res.code.to_s}")
+			vprint_status("#{target_url} - Server returned: #{res.code.to_s}")
 			return true if res.code == 200 or res.code == 302
 		end
 
@@ -106,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			if res and res.code == 200 and res.headers['Set-Cookie']
 				vprint_error("#{target_url} - Apache Tomcat #{user} not found ")
-			elsif res and res.body =~ /invalid username/i
+			elsif res and res.code == 200 and res.body =~ /invalid username/i
 				vprint_error("#{target_url} - Apache Tomcat #{user} not found ")
 			elsif res and res.code == 500
 				# Based on: http://archives.neohapsis.com/archives/bugtraq/2009-06/0047.html
