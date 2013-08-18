@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Post
 				OptInt.new('SYNCWAIT', 
 					[ true, 'The time between transferring log chunks.', 10 ]
 				),
-				OptInt.new('LOGPORT', 
+				OptPort.new('LOGPORT', 
 					[ false, 'Local port opened for momentarily for log transfer', 22899 ]
 				)
 			]
@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Post
 			print_status "Ruby process executing with pid #{rpid.to_i}"
 			rpid.to_i
 		else
-			raise "Ruby keylogger command failed with error #{rpid}"
+			fail_with(Exploit::Failure::Unknown, "Ruby keylogger command failed with error #{rpid}")
 		end
 	end
 
@@ -81,6 +81,11 @@ class Metasploit3 < Msf::Post
 	def run
 		if session.nil?
 			print_error "Invalid SESSION id."
+			return
+		end
+
+		if datastore['DURATION'].to_i < 1
+			print_error 'Invalid DURATION value.'
 			return
 		end
 
