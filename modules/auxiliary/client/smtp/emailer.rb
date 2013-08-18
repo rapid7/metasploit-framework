@@ -75,6 +75,8 @@ class Metasploit3 < Msf::Auxiliary
 		msf_change_ext  = yamlconf['msf_change_ext']
 		msf_payload_ext = yamlconf['msf_payload_ext']
 
+		fileconf.close
+
 
 		tmp = Dir.tmpdir
 

@@ -240,19 +240,23 @@ class Metasploit3 < Msf::Auxiliary
 
 	def parse(fh)
 		print_status("Parsing file")
-		f = File.open(fh.path, 'rb')
-		used = f.read(4)
-		if used != "USED"
-			print_error "Invalid Configuration File!"
-			return
-		end
-		f.seek(0x38)
-		start = makefptr(f.read(4))
-		userptr = findentry(f, "B014USER", start)
-		if userptr != nil
-			parseusers(f, userptr)
-		else
-			print_error "Error finding the user table in the configuration."
+		begin
+			f = File.open(fh.path, 'rb')
+			used = f.read(4)
+			if used != "USED"
+				print_error "Invalid Configuration File!"
+				return
+			end
+			f.seek(0x38)
+			start = makefptr(f.read(4))
+			userptr = findentry(f, "B014USER", start)
+			if userptr != nil
+				parseusers(f, userptr)
+			else
+				print_error "Error finding the user table in the configuration."
+			end
+		ensure
+			f.close
 		end
 	end
 

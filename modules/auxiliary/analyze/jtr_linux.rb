@@ -58,6 +58,8 @@ class Metasploit3 < Msf::Auxiliary
 					row.gsub!(/\n/, ":#{myloot.host.address}\n")
 					hashlist.write(row)
 				end
+
+				usf.close
 			end
 			hashlist.close
 
