@@ -84,10 +84,17 @@ class Metasploit3 < Msf::Post
 
 
 	def parse_prefs(username, filepath)
-		f = File.open(filepath, 'rb')
-		until f.eof
-			prefs = f.read
+		prefs = ''
+
+		begin
+			f = File.open(filepath, 'rb')
+			until f.eof
+				prefs = f.read
+			end
+		ensure
+			f.close
 		end
+
 		results = ActiveSupport::JSON.decode(prefs)
 		print_status("Extensions installed: ")
 		results['extensions']['settings'].each do |name,values|
