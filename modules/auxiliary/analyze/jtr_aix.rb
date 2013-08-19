@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		hashlist = Rex::Quickfile.new("jtrtmp")
-		hashlist.write(row)
+		hashlist.write(loot_data)
 		hashlist.close
 
 		print_status("HashList: #{hashlist.path}")
