@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'Cisco Ironport Bruteforce Login Utility',
 			'Description'    => %{
 				This module scans for Cisco Ironport SMA, WSA and ESA web login portals, finds AsyncOS
-				version and performs login brute force to identify valid credentials.
+				versions, and performs login brute force to identify valid credentials.
 			},
 			'Author'         =>
 				[
