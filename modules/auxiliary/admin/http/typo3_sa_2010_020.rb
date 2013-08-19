@@ -53,9 +53,9 @@ class Metasploit4 < Msf::Auxiliary
 	case datastore['RFILE']
 	when nil
 		# Nothing
-	when /localconf.php$/i
+	when /localconf\.php$/i
 		jumpurl = "#{datastore['RFILE']}%00/."
-	when /^..(\/|\\)/i
+	when /^\.\.(\/|\\)/i
 		print_error("Directory traversal detected... you might want to start that with a /.. or \\..")
 	else
 		jumpurl = "#{datastore['RFILE']}"
