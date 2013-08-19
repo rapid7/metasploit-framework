@@ -173,7 +173,7 @@ class Metasploit4 < Msf::Auxiliary
 			end
 			disconnect
 		# TODO: This data should be saved somewhere. A note on the host would be nice.
-		print_line(saptbl.to_s) # Should be print_line
+		print_line(saptbl.to_s)
 		end
 	end
 end
