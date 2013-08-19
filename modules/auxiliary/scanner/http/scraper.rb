@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The test path to the page to analize", '/']),
-				OptString.new('REGEX', [ true,  "The regex to use (default regex is a sample to grab page title)", '\<title\>(.*)\<\/title\>']),
+				OptRegexp.new('REGEX', [ true,  "The regex to use (default regex is a sample to grab page title)", '\<title\>(.*)\<\/title\>'])
 
 			], self.class)
 
@@ -56,8 +56,6 @@ class Metasploit3 < Msf::Auxiliary
 				print_error("[#{target_host}] #{tpath} - No response")
 				return
 			end
-
-			aregex = Regexp.new(datastore['REGEX'].to_s,Regexp::IGNORECASE)
 
 			result = res.body.scan(aregex).flatten.map{ |s| s.strip }.uniq
 
