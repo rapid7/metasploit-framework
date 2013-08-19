@@ -31,9 +31,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
+		wordlist = Rex::Quickfile.new("jtrtmp")
 		begin
-			wordlist = Rex::Quickfile.new("jtrtmp")
-
 			wordlist.write( build_seed().join("\n") + "\n" )
 		ensure
 			wordlist.close
