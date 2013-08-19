@@ -139,7 +139,7 @@ class Metasploit4 < Msf::Auxiliary
 				saptbl << [ output[0], output[1], output[3], output[4], output[5] ]
 				end
 
-			print(saptbl.to_s)
+			print_line(saptbl.to_s) # This needs to be print_line
 			return
 		elsif fault
 			print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")

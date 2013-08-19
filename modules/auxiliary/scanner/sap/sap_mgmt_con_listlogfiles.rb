@@ -146,12 +146,13 @@ class Metasploit4 < Msf::Auxiliary
 					"sap_listlogfiles.xml",
 					"SAP #{datastore['FILETYPE'].downcase}"
 			)
+			# Report to the user where this is stored
 
 			env.each do |output|
 				saptbl << [ output[0], output[1], output[2] ]
 			end
 
-			print(saptbl.to_s)
+			print_line(saptbl.to_s)  # Needs to be print_line
 			return
 
 		elsif fault
