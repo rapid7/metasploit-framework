@@ -1278,21 +1278,24 @@ class Plugin::Wmap < Msf::Plugin
 					])
 
 			idx  = 0
-			self.framework.db.hosts.each do |bdhost|
-				bdhost.services.each do |serv|
-					serv.web_sites.each do |web|
-						c = web.web_pages.count
-						f = web.web_forms.count
-						tbl << [ idx.to_s, bdhost.address, web.vhost, serv.port, serv.name, c.to_s, f.to_s ]
-						idx += 1
+			if self.framework.db.active
+				self.framework.db.hosts.each do |bdhost|
+					bdhost.services.each do |serv|
+						serv.web_sites.each do |web|
+							c = web.web_pages.count
+							f = web.web_forms.count
+							tbl << [ idx.to_s, bdhost.address, web.vhost, serv.port, serv.name, c.to_s, f.to_s ]
+							idx += 1
 
-						turl = web.vhost + "," + serv.name + "://" +bdhost.address.to_s + ":" + serv.port.to_s + "/"
-						self.lastsites << turl
+							turl = web.vhost + "," + serv.name + "://" +bdhost.address.to_s + ":" + serv.port.to_s + "/"
+							self.lastsites << turl
+						end
 					end
 				end
+				print_status tbl.to_s + "\n"
+			else
+				print_status "No active database. Please connect a database and try again"
 			end
-
-			print_status tbl.to_s + "\n"
 
 		end
 
