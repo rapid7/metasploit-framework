@@ -49,8 +49,11 @@ class Metasploit3 < Msf::Auxiliary
 		myloots = myworkspace.loots.where('ltype=?', 'linux.hashes')
 		unless myloots.nil? or myloots.empty?
 			myloots.each do |myloot|
+				usf = ''
 				begin
-					usf = File.open(myloot.path, "rb")
+					File.open(myloot.path, "rb") do |f|
+						usf = f.read
+					end
 				rescue Exception => e
 					print_error("Unable to read #{myloot.path} \n #{e}")
 				end

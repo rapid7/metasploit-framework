@@ -31,18 +31,24 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		wordlist = Rex::Quickfile.new("jtrtmp")
+		begin
+			wordlist = Rex::Quickfile.new("jtrtmp")
 
-		wordlist.write( build_seed().join("\n") + "\n" )
-		wordlist.close
+			wordlist.write( build_seed().join("\n") + "\n" )
+		ensure
+			wordlist.close
+		end
 
 		hashlist = Rex::Quickfile.new("jtrtmp")
 
 		myloots = myworkspace.loots.find(:all, :conditions => ['ltype=?', 'aix.hashes'])
 		unless myloots.nil? or myloots.empty?
 			myloots.each do |myloot|
+				usf = ''
 				begin
-					usf = File.open(myloot.path, "rb")
+					File.open(myloot.path, "rb") do |f|
+						usf = f.read
+					end
 				rescue Exception => e
 					print_error("Unable to read #{myloot.path} \n #{e}")
 					next
