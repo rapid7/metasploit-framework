@@ -32,13 +32,14 @@ class Metasploit3 < Msf::Auxiliary
 	register_options(
 		[
 			Opt::RPORT(110),
+			# Should be OptPath
 			OptString.new('USER_FILE',
 				[
 					false,
 					'The file that contains a list of probable users accounts.',
 					File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_users.txt')
 				]),
-			OptString.new('PASS_FILE',
+			OptPath.new('PASS_FILE',
 				[
 					false,
 					'The file that contains a list of probable passwords.',
