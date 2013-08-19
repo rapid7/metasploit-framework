@@ -44,84 +44,83 @@ class Metasploit3 < Msf::Auxiliary
 		wordlist.write( build_seed().join("\n") + "\n" )
 		wordlist.close
 
-		hashlist = Rex::Quickfile.new("jtrtmp")
-
 		myloots = myworkspace.loots.where('ltype=?', 'linux.hashes')
-		unless myloots.nil? or myloots.empty?
-			myloots.each do |myloot|
-				usf = ''
-				begin
-					File.open(myloot.path, "rb") do |f|
-						usf = f.read
-					end
-				rescue Exception => e
-					print_error("Unable to read #{myloot.path} \n #{e}")
+		return if myloots.nil? or myloots.empty?
+
+		loot_data = ''
+
+		myloots.each do |myloot|
+			usf = ''
+			begin
+				File.open(myloot.path, "rb") do |f|
+					usf = f.read
 				end
-				usf.each_line do |row|
-					row.gsub!(/\n/, ":#{myloot.host.address}\n")
-					hashlist.write(row)
-				end
+			rescue Exception => e
+				print_error("Unable to read #{myloot.path} \n #{e}")
 			end
-			hashlist.close
-
-			print_status("HashList: #{hashlist.path}")
-
-			print_status("Trying Format:md5 Wordlist: #{wordlist.path}")
-			john_crack(hashlist.path, :wordlist => wordlist.path, :rules => 'single', :format => 'md5')
-			print_status("Trying Format:md5 Rule: All4...")
-			john_crack(hashlist.path, :incremental => "All4", :format => 'md5')
-			print_status("Trying Format:md5 Rule: Digits5...")
-			john_crack(hashlist.path, :incremental => "Digits5", :format => 'md5')
-
-
-			print_status("Trying Format:des Wordlist: #{wordlist.path}")
-			john_crack(hashlist.path, :wordlist => wordlist.path, :rules => 'single', :format => 'des')
-			print_status("Trying Format:des Rule: All4...")
-			john_crack(hashlist.path, :incremental => "All4", :format => 'des')
-			print_status("Trying Format:des Rule: Digits5...")
-			john_crack(hashlist.path, :incremental => "Digits5", :format => 'des')
-
-			print_status("Trying Format:bsdi Wordlist: #{wordlist.path}")
-			john_crack(hashlist.path, :wordlist => wordlist.path, :rules => 'single', :format => 'bsdi')
-			print_status("Trying Format:bsdi Rule: All4...")
-			john_crack(hashlist.path, :incremental => "All4", :format => 'bsdi')
-			print_status("Trying Format:bsdi Rule: Digits5...")
-			john_crack(hashlist.path, :incremental => "Digits5", :format => 'bsdi')
-
-			if datastore['Crypt']
-				print_status("Trying Format:crypt Wordlist: #{wordlist.path}")
-				john_crack(hashlist.path, :wordlist => wordlist.path, :rules => 'single', :format => 'crypt')
-				print_status("Trying Rule: All4...")
-				john_crack(hashlist.path, :incremental => "All4", :format => 'crypt')
-				print_status("Trying Rule: Digits5...")
-				john_crack(hashlist.path, :incremental => "Digits5", :format => 'crypt')
-			end
-
-
-			cracked = john_show_passwords(hashlist.path)
-
-
-			print_status("#{cracked[:cracked]} hashes were cracked!")
-
-			cracked[:users].each_pair do |k,v|
-				if v[0] == "NO PASSWORD"
-					passwd=""
-				else
-					passwd=v[0]
-				end
-				print_good("Host: #{v.last}  User: #{k} Pass: #{passwd}")
-				report_auth_info(
-					:host  => v.last,
-					:port => 22,
-					:sname => 'ssh',
-					:user => k,
-					:pass => passwd
-				)
+			usf.each_line do |row|
+				row.gsub!(/\n/, ":#{myloot.host.address}\n")
+				loot_data << row
 			end
 		end
 
+		hashlist = Rex::Quickfile.new("jtrtmp")
+		hashlist.write(loot_data)
+		hashlist.close
+
+		print_status("HashList: #{hashlist.path}")
+
+		print_status("Trying Format:md5 Wordlist: #{wordlist.path}")
+		john_crack(hashlist.path, :wordlist => wordlist.path, :rules => 'single', :format => 'md5')
+		print_status("Trying Format:md5 Rule: All4...")
+		john_crack(hashlist.path, :incremental => "All4", :format => 'md5')
+		print_status("Trying Format:md5 Rule: Digits5...")
+		john_crack(hashlist.path, :incremental => "Digits5", :format => 'md5')
+
+
+		print_status("Trying Format:des Wordlist: #{wordlist.path}")
+		john_crack(hashlist.path, :wordlist => wordlist.path, :rules => 'single', :format => 'des')
+		print_status("Trying Format:des Rule: All4...")
+		john_crack(hashlist.path, :incremental => "All4", :format => 'des')
+		print_status("Trying Format:des Rule: Digits5...")
+		john_crack(hashlist.path, :incremental => "Digits5", :format => 'des')
+
+		print_status("Trying Format:bsdi Wordlist: #{wordlist.path}")
+		john_crack(hashlist.path, :wordlist => wordlist.path, :rules => 'single', :format => 'bsdi')
+		print_status("Trying Format:bsdi Rule: All4...")
+		john_crack(hashlist.path, :incremental => "All4", :format => 'bsdi')
+		print_status("Trying Format:bsdi Rule: Digits5...")
+		john_crack(hashlist.path, :incremental => "Digits5", :format => 'bsdi')
+
+		if datastore['Crypt']
+			print_status("Trying Format:crypt Wordlist: #{wordlist.path}")
+			john_crack(hashlist.path, :wordlist => wordlist.path, :rules => 'single', :format => 'crypt')
+			print_status("Trying Rule: All4...")
+			john_crack(hashlist.path, :incremental => "All4", :format => 'crypt')
+			print_status("Trying Rule: Digits5...")
+			john_crack(hashlist.path, :incremental => "Digits5", :format => 'crypt')
+		end
+
+
+		cracked = john_show_passwords(hashlist.path)
+
+
+		print_status("#{cracked[:cracked]} hashes were cracked!")
+
+		cracked[:users].each_pair do |k,v|
+			if v[0] == "NO PASSWORD"
+				passwd=""
+			else
+				passwd=v[0]
+			end
+			print_good("Host: #{v.last}  User: #{k} Pass: #{passwd}")
+			report_auth_info(
+				:host  => v.last,
+				:port => 22,
+				:sname => 'ssh',
+				:user => k,
+				:pass => passwd
+			)
+		end
 	end
-
-
-
 end
