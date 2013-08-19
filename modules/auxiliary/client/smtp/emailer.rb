@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 		opts = {}
 
 		File.open(datastore['YAML_CONFIG'], "rb") do |f|
-			yamlconf = YAML::load(fileconf)
+			yamlconf = YAML::load(f)
 
 			opts['to']                   = yamlconf['to']
 			opts['from']                 = yamlconf['from']
