@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 				return
 			end
 
-			result = res.body.scan(aregex).flatten.map{ |s| s.strip }.uniq
+			result = res.body.scan(datastore['REGEX']).flatten.map{ |s| s.strip }.uniq
 
 			result.each do |u|
 				print_status("[#{target_host}] #{tpath} [#{u}]")
