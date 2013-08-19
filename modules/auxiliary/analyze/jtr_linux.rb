@@ -41,8 +41,11 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		wordlist = Rex::Quickfile.new("jtrtmp")
 
-		wordlist.write( build_seed().join("\n") + "\n" )
-		wordlist.close
+		begin
+			wordlist.write( build_seed().join("\n") + "\n" )
+		ensure
+			wordlist.close
+		end
 
 		myloots = myworkspace.loots.where('ltype=?', 'linux.hashes')
 		return if myloots.nil? or myloots.empty?
