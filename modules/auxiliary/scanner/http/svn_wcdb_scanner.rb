@@ -41,7 +41,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		if datastore['BASE_PATH']
-			get_wcdb(datastore['BASE_PATH'] + '/.svn/wc.db')
+
+			get_wcdb(Rex::FileUtils.normalize_unix_path(datastore['BASE_PATH'] + '/.svn/wc.db'))
 		else
 			get_wcdb('/.svn/wc.db')
 		end
