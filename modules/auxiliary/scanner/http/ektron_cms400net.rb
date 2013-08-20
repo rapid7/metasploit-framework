@@ -29,8 +29,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				#Set to false to prevent account lockouts - it will!
-				OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false]),
 				OptString.new('URI', [true, "Path to the CMS400.NET login page", '/WorkArea/login.aspx']),
 				OptPath.new(
 					'USERPASS_FILE',
@@ -40,7 +38,9 @@ class Metasploit3 < Msf::Auxiliary
 						File.join(Msf::Config.install_root, "data", "wordlists", "cms400net_default_userpass.txt")
 					])
 			], self.class)
-		end
+
+		deregister_options('BLANK_PASSWORDS')
+	end
 
 	def target_url
 		#Function to display correct protocol and host/vhost info
@@ -58,7 +58,16 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
+	def cleanup
+		datastore['BLANK_PASSWORDS'] = @blank_pass
+	end
+
 	def run_host(ip)
+		# "Set to false to prevent account lockouts - it will!"
+		# Therefore we shouldn't present BLANK_PASSWORDS as an option
+		@blank_pass = datastore['BLANK_PASSWORDS']
+		datastore['BLANK_PASSWORDS'] = false
+
 		begin
 			res = send_request_cgi(
 			{
@@ -96,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 		rescue
-			print_error ("Ektron CMS400.NET login page not found at #{target_url}  [HTTP #{res.code}]")
+			print_error ("Ektron CMS400.NET login page not found at #{target_url}  [HTTP #{res.code rescue '= No response'}]")
 			return
 		end
 	end
