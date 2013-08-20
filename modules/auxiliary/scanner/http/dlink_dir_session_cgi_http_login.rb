@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         =>
 				[
 					'hdm',	#http_login module
-					'Michael Messner <devnull@s3cur1ty.de>'	#dlink login included
+					'Michael Messner <devnull[at]s3cur1ty.de>'	#dlink login included
 				],
 			'References'     =>
 				[

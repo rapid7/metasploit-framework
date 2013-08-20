@@ -22,8 +22,8 @@ class Metasploit3 < Msf::Post
 		super( update_info(info,
 			'Name'          => 'Multi Gather pgpass Credentials',
 			'Description'   => %q{
-					This module will collect the contents of user's .pgpass or pgpass.conf and
-				parse them for credentials.
+					This module will collect the contents of all users' .pgpass or pgpass.conf
+					file and parse them for credentials.
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => ['Zach Grace <zgrace[at]403labs.com>'],

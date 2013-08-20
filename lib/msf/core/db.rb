@@ -1283,13 +1283,13 @@ class DBManager
 	# Report a Note to the database.  Notes can be tied to a ::Mdm::Workspace, Host, or Service.
 	#
 	# opts MUST contain
-	# +:data+::  whatever it is you're making a note of
 	# +:type+::  The type of note, e.g. smb_peer_os
 	#
 	# opts can contain
 	# +:workspace+::  the workspace to associate with this Note
 	# +:host+::       an IP address or a Host object to associate with this Note
 	# +:service+::    a Service object to associate with this Note
+	# +:data+::       whatever it is you're making a note of
 	# +:port+::       along with +:host+ and +:proto+, a service to associate with this Note
 	# +:proto+::      along with +:host+ and +:port+, a service to associate with this Note
 	# +:update+::     what to do in case a similar Note exists, see below
@@ -1369,7 +1369,7 @@ class DBManager
 		end
 =end
 		ntype  = opts.delete(:type) || opts.delete(:ntype) || (raise RuntimeError, "A note :type or :ntype is required")
-		data   = opts[:data] || (raise RuntimeError, "Note :data is required")
+		data   = opts[:data]
 		method = nil
 		args   = []
 		note   = nil

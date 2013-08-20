@@ -61,6 +61,8 @@ class Rex::Socket::Parameters
 	# @option hash [String] 'SSLCert' A file containing an SSL certificate (for
 	#   server sockets)
 	# @option hash [String] 'SSLCipher' see {#ssl_cipher}
+	# @option hash [String] 'SSLVerifyMode' SSL certificate verification
+	#   mechanism. One of 'NONE' (default), 'CLIENT_ONCE', 'FAIL_IF_NO_PEER_CERT ', 'PEER'
 	# @option hash [String] 'Proxies' List of proxies to use.
 	# @option hash [String] 'Proto' The underlying protocol to use.
 	# @option hash [String] 'IPv6' Force the use of IPv6.
@@ -117,6 +119,11 @@ class Rex::Socket::Parameters
 		supported_ssl_versions = ['SSL2', 'SSL23', 'TLS1', 'SSL3', :SSLv2, :SSLv3, :SSLv23, :TLSv1]
 		if (hash['SSLVersion'] and supported_ssl_versions.include? hash['SSLVersion'])
 			self.ssl_version = hash['SSLVersion']
+		end
+
+		supported_ssl_verifiers = %W{CLIENT_ONCE FAIL_IF_NO_PEER_CERT NONE PEER}
+		if (hash['SSLVerifyMode'] and supported_ssl_verifiers.include? hash['SSLVerifyMode'])
+			self.ssl_verify_mode = hash['SSLVerifyMode']
 		end
 
 		if (hash['SSLCipher'])
@@ -327,6 +334,12 @@ class Rex::Socket::Parameters
 	# @return [String]
 	attr_accessor :ssl_cert
 
+	#
+	# The SSL context verification mechanism
+	#
+	attr_accessor :ssl_verify_mode
+
+	#
 	# Whether we should use IPv6
 	# @return [Bool]
 	attr_accessor :v6

@@ -18,7 +18,7 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Reverse HTTPS Stager with Support for Custom Proxy',
-			'Description'   => 'Tunnel communication over HTTP using SSL, supports custom proxy',
+			'Description'   => 'Tunnel communication over HTTP using SSL with custom proxy support',
 			'Author'        => ['hdm','corelanc0d3r <peter.ve[at]corelan.be>', 'amaloteaux'],
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'win',

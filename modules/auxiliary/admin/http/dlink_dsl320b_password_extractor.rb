@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'URL', 'http://www.dlink.com/de/de/home-solutions/connect/modems-and-gateways/dsl-320b-adsl-2-ethernet-modem' ],
 				],
 			'Author'      => [
-				'Michael Messner <devnull@s3cur1ty.de>',
+				'Michael Messner <devnull[at]s3cur1ty.de>'
 			],
 			'License'     => MSF_LICENSE
 		)

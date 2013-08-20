@@ -46,42 +46,82 @@ class Metasploit3 < Msf::Auxiliary
 		deregister_options('SUBJECT')
 	end
 
+	def load_yaml_conf
+		opts = {}
+
+		File.open(datastore['YAML_CONFIG'], "rb") do |f|
+			yamlconf = YAML::load(f)
+
+			opts['to']                   = yamlconf['to']
+			opts['from']                 = yamlconf['from']
+			opts['subject']              = yamlconf['subject']
+			opts['type']                 = yamlconf['type']
+			opts['msg_file']             = yamlconf['msg_file']
+			opts['wait']                 = yamlconf['wait']
+			opts['add_name']             = yamlconf['add_name']
+			opts['sig']                  = yamlconf['sig']
+			opts['sig_file']             = yamlconf['sig_file']
+			opts['attachment']           = yamlconf['attachment']
+			opts['attachment_file']      = yamlconf['attachment_file']
+			opts['attachment_file_type'] = yamlconf['attachment_file_type']
+			opts['attachment_file_name'] = yamlconf['attachment_file_name']
+
+			### payload options ###
+			opts['make_payload']         = yamlconf['make_payload']
+			opts['zip_payload']          = yamlconf['zip_payload']
+			opts['msf_port']             = yamlconf['msf_port']
+			opts['msf_ip']               = yamlconf['msf_ip']
+			opts['msf_payload']          = yamlconf['msf_payload']
+			opts['msf_filename']         = yamlconf['msf_filename']
+			opts['msf_change_ext']       = yamlconf['msf_change_ext']
+			opts['msf_payload_ext']      = yamlconf['msf_payload_ext']
+		end
+
+		opts
+	end
+
+	def load_file(fname)
+		buf = ''
+		File.open(fname, 'rb') do |f|
+			buf = f.read
+		end
+
+		buf
+	end
+
 	def run
 
-		fileconf = File.open(datastore['YAML_CONFIG'], "rb")
-		yamlconf = YAML::load(fileconf)
+		yamlconf = load_yaml_conf
 
-		fileto = yamlconf['to']
-		from = yamlconf['from']
-		subject = yamlconf['subject']
-		type = yamlconf['type']
-		msg_file = yamlconf['msg_file']
-		wait = yamlconf['wait']
-		add_name = yamlconf['add_name']
-		sig = yamlconf['sig']
-		sig_file = yamlconf['sig_file']
-		attachment = yamlconf['attachment']
-		attachment_file = yamlconf['attachment_file']
+		fileto               = yamlconf['to']
+		from                 = yamlconf['from']
+		subject              = yamlconf['subject']
+		type                 = yamlconf['type']
+		msg_file             = yamlconf['msg_file']
+		wait                 = yamlconf['wait']
+		add_name             = yamlconf['add_name']
+		sig                  = yamlconf['sig']
+		sig_file             = yamlconf['sig_file']
+		attachment           = yamlconf['attachment']
+		attachment_file      = yamlconf['attachment_file']
 		attachment_file_type = yamlconf['attachment_file_type']
 		attachment_file_name = yamlconf['attachment_file_name']
 
-		### payload options ###
-		make_payload    = yamlconf['make_payload']
-		zip_payload     = yamlconf['zip_payload']
-		msf_port        = yamlconf['msf_port']
-		msf_ip          = yamlconf['msf_ip']
-		msf_payload     = yamlconf['msf_payload']
-		msf_filename    = yamlconf['msf_filename']
-		msf_change_ext  = yamlconf['msf_change_ext']
-		msf_payload_ext = yamlconf['msf_payload_ext']
-
+		make_payload         = yamlconf['make_payload']
+		zip_payload          = yamlconf['zip_payload']
+		msf_port             = yamlconf['msf_port']
+		msf_ip               = yamlconf['msf_ip']
+		msf_payload          = yamlconf['msf_payload']
+		msf_filename         = yamlconf['msf_filename']
+		msf_change_ext       = yamlconf['msf_change_ext']
+		msf_payload_ext      = yamlconf['msf_payload_ext']
 
 		tmp = Dir.tmpdir
 
 		datastore['MAILFROM'] = from
 
-		msg = File.open(msg_file, 'rb').read
-		email_sig = File.open(sig_file, 'rb').read
+		msg       = load_file(msg_file)
+		email_sig = load_file(sig_file)
 
 		if (type !~ /text/i and type !~ /text\/html/i)
 			print_error("YAML config: #{type}")
@@ -154,7 +194,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			if sig
-				data_sig = File.open(sig_file, 'rb').read
+				data_sig = load_file(sig_file)
 				email_msg_body = "#{email_msg_body}\n#{data_sig}"
 			end
 
@@ -172,7 +212,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			if attachment
 				if attachment_file_name
-					data_attachment = File.open(attachment_file, 'rb').read
+					data_attachment = load_file(attachment_file)
 					mime_msg.add_part(Rex::Text.encode_base64(data_attachment, "\r\n"), attachment_file_type, "base64", "attachment; filename=\"#{attachment_file_name}\"")
 				end
 			end
