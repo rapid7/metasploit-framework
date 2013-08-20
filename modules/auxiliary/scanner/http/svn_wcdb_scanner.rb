@@ -35,17 +35,13 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_advanced_options(
 			[
-				OptString.new('BASE_PATH', [false, 'Path to the directory with the .svn folder.', nil])
+				OptString.new('TARGETURI', [false, 'Base path to the .svn directory', '/.svn/'])
 			], self.class)
 	end
 
 	def run_host(ip)
-		if datastore['BASE_PATH']
-
-			get_wcdb(Rex::FileUtils.normalize_unix_path(datastore['BASE_PATH'] + '/.svn/wc.db'))
-		else
-			get_wcdb('/.svn/wc.db')
-		end
+		base_path = target_uri.path
+		get_wcdb(normalize_uri(base_path, 'wc.db'))
 	end
 
 	def get_wcdb(path)
