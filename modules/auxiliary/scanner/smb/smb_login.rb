@@ -238,21 +238,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			return :next_user
 
-		when 'ADMIN_ACCESS'
-			# Auth user indicates if the login was as a guest or not
-			if(simple.client.auth_user)
-				print_good(output_message % "SUCCESSFUL LOGIN")
-				validuser_case_sensitive?(domain, user, pass)
-				report_creds(domain,user,pass,true)
-			else
-				if datastore['RECORD_GUEST']
-					print_status(output_message % "GUEST LOGIN")
-					report_creds(domain,user,pass,true)
-				elsif datastore['VERBOSE']
-						print_status(output_message % "GUEST LOGIN")
-				end
-			end
-		when 'NOT_ADMIN'
+		when 'ADMIN_ACCESS', 'NOT_ADMIN'
 			# Auth user indicates if the login was as a guest or not
 			if(simple.client.auth_user)
 				print_good(output_message % "SUCCESSFUL LOGIN")
