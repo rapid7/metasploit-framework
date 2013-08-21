@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('CW_ID', [ true, "The CorpWatch ID of the company", ""]),
-				OptString.new('YEAR', [ false, "Year to look up", ""]),
+				OptInt.new('YEAR', [ false, "Year to look up"]),
 				OptBool.new('GET_LOCATIONS', [ false, "Get locations for company", true]),
 				OptBool.new('GET_NAMES', [ false, "Get all registered names ofr the company", true]),
 				OptBool.new('GET_FILINGS', [ false, "Get all filings", false ]),
