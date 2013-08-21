@@ -49,12 +49,13 @@ class Metasploit3 < Msf::Auxiliary
 
 		usernames = []
 		if datastore['ENUMERATE_USERNAMES']
+			vprint_status("#{target_uri} - WordPress Enumeration - Running User Enumeration")
 			usernames = enum_usernames
 		end
 
 		if datastore['VALIDATE_USERS']
 			@users_found = {}
-			vprint_status("#{target_uri} - WordPress Enumeration - Running User Enumeration")
+			vprint_status("#{target_uri} - WordPress Enumeration - Running User validation")
 			each_user_pass { |user, pass|
 				do_enum(user)
 			}
@@ -144,32 +145,10 @@ class Metasploit3 < Msf::Auxiliary
 	def enum_usernames
 		usernames = []
 		for i in datastore['RANGE_START']..datastore['RANGE_END']
-			uri = "#{target_uri}?author=#{i}"
-			print_status "#{target_uri} - Requesting #{uri}"
-			res = send_request_cgi({
-				'method' => 'GET',
-				'uri' => uri
-			})
-
-			if (res and res.code == 301)
-				uri = URI(res.headers['Location'])
-				uri = "#{uri.path}?#{uri.query}"
-				res = send_request_cgi({
-					'method' => 'GET',
-					'uri' => uri
-				})
-			end
-
-			if res.nil?
-				print_error("#{target_uri} - Error getting response.")
-			elsif res.code == 200 and res.body =~ /href="http[s]*:\/\/.*\/\?*author.+title="([[:print:]]+)" /i
-				username = $1
+			username = wp_userid_exists?(i)
+			if username
 				print_good "#{target_uri} - Found user '#{username}' with id #{i.to_s}"
 				usernames << username
-			elsif res.code == 404
-				print_status "#{target_uri} - No user with id #{i.to_s} found"
-			else
-				print_error "#{target_uri} - Unknown error. HTTP #{res.code.to_s}"
 			end
 		end
 
