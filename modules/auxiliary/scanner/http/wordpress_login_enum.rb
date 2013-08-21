@@ -111,10 +111,15 @@ class Metasploit3 < Msf::Auxiliary
 				'data'    => post_data,
 			}, 20)
 
+			if res.nil?
+				print_error("Connection timed out")
+				return :abort
+			end
+
 
 			valid_user = false
 
-			if (res and res.code == 200 )
+			if res.code == 200
 				if (res.body.to_s =~ /Incorrect password/ )
 					valid_user = true
 
@@ -150,7 +155,9 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			return :abort
 		rescue ::Timeout::Error, ::Errno::EPIPE
+			return :abort
 		end
 	end
 
