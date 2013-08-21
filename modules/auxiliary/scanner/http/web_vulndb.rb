@@ -140,8 +140,7 @@ class Metasploit3 < Msf::Auxiliary
 					if testmesg.empty? or usecode
 						if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
 							if dm == false
-								print_status("NOT Found #{wmap_base_url}#{tpath}#{testfvuln}  #{res.code.to_i}")
-								#blah
+								print_status("NOT Found #{wmap_base_url}#{tpath}#{testfvuln}  #{res.code.to_i rescue ''}")
 							end
 						else
 							if res.code.to_i == 400  and ecode != 400
@@ -173,8 +172,7 @@ class Metasploit3 < Msf::Auxiliary
 							)
 						else
 							if dm == false
-								print_status("NOT Found #{wmap_base_url}#{tpath}#{testfvuln}  #{res.code.to_i}")
-								#blah
+								print_status("NOT Found #{wmap_base_url}#{tpath}#{testfvuln}  #{res.code.to_i rescue ''}")
 							end
 						end
 					end
