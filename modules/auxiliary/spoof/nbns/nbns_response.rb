@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 
 					This module must be run as root and will bind to tcp/137 on all interfaces.
 			},
-			'Author'     => [ 'Tim Medin <tim[at]securitywhole.com>' ],
+			'Author'     => [ 'Tim Medin <tim[at]securitywhole.com>', 'Royce Davis <rdavis[at]accuvant.com>', 'Mark Baseggio <mbaseggio[at]accuvant.com>' ],
 			'License'    => MSF_LICENSE,
 			'References' =>
 				[
