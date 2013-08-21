@@ -59,9 +59,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		@sock = ::UDPSocket.new()
 		@sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_REUSEADDR, 1)
-    broadcast = ""
-    datastore['SPOOFIP'].split(".")[0,3].each { |oct| broadcast << oct + "." }
-    broadcast << "255"
+		broadcast = ""
+		datastore['SPOOFIP'].split(".")[0,3].each { |oct| broadcast << oct + "." }
+		broadcast << "255"
 		@sock.bind(broadcast, 137) # couldn't specify srv host because it missed broadcasts
 
 		@run = true
