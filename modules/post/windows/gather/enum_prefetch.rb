@@ -97,11 +97,8 @@ class Metasploit3 < Msf::Post
       # Finds the LastModified/Created timestamp (MACE)
       mtimes = client.priv.fs.get_file_mace(filename)
 
-      # Finds the Creation timestamp (MACE)
-      #ct = client.priv.fs.get_file_mace(filename)
-
       # Checking and moving the values
-      if idx.nil? or count.nil? or hash.nil? or mtimes.nil? #or ct.nil?
+      if idx.nil? or count.nil? or hash.nil? or mtimes.nil?
         print_error("Error reading file (might be temporary): %s" % filename)
       else
         pname = Rex::Text.to_ascii(name.slice(0..idx))
