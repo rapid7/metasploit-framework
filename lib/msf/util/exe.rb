@@ -839,9 +839,11 @@ require 'digest/sha1'
 		hash_sub[:func_name2] = var_base + (var_base_idx+=1).to_s
 
 		# The wrapper makes it easier to integrate it into other macros
-		templateFile = File.open(File.join("data", "templates", "scripts", "to_exe_vba.vb.template") , "rb")
-		template = templateFile.read
-		templateFile.close
+		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_exe_vba.vb.template") 
+		
+		template_pathname.open("rb") do |f|		
+			template = f.read
+		end
 
 		hash_sub[:data] = ""
 
@@ -890,10 +892,12 @@ require 'digest/sha1'
 			hash_sub[:bytes] << "," if idx < codebytes.length - 1
 			hash_sub[:bytes] << " _\r\n" if (idx > 1 and (idx % maxbytes) == 0)
 		end
-
-		templateFile = File.open(File.join("data", "templates", "scripts", "to_vba.vb.template") , "rb")
-		template = templateFile.read
-		templateFile.close
+		
+		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_vba.vb.template") 
+		
+		template_pathname.open("rb") do |f|		
+			template = f.read
+		end
 
 		return template % hash_sub
 	end
@@ -934,15 +938,21 @@ require 'digest/sha1'
 		hash_sub[:var_shellcode] = lines.join("")
 
 		hash_sub[:init] = ""
-
-		hash_sub[:init] << "Do\r\n" if persist
-		hash_sub[:init] << "#{hash_sub[:var_func]}\r\n"
-		hash_sub[:init] << "WScript.Sleep #{delay * 1000}\r\n" if persist
-		hash_sub[:init] << "Loop\r\n" if persist
 		
-		templateFile = File.open(File.join("data", "templates", "scripts", "to_exe_vbs.vb.template") , "rb")
-		template = templateFile.read
-		templateFile.close
+		if(persist)
+			hash_sub[:init] << "Do\r\n"
+			hash_sub[:init] << "#{hash_sub[:var_func]}\r\n"
+			hash_sub[:init] << "WScript.Sleep #{delay * 1000}\r\n" 
+			hash_sub[:init] << "Loop\r\n"
+		else
+			hash_sub[:init] << "#{hash_sub[:var_func]}\r\n"
+		end
+		
+		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_exe_vbs.vb.template") 
+		
+		template_pathname.open("rb") do |f|		
+			template = f.read
+		end
 
 		return template % hash_sub
 	end
@@ -974,10 +984,12 @@ require 'digest/sha1'
 		
 		hash_sub[:var_shellcode] = lines.join("")
 		
-		templateFile = File.open(File.join("data", "templates", "scripts", "to_exe_asp.asp.template") , "rb")
-		template = templateFile.read
-		templateFile.close
-
+		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_exe_asp.asp.template") 
+		
+		template_pathname.open("rb") do |f|		
+			template = f.read
+		end
+		
 		return template % hash_sub
 	end
 
@@ -1002,10 +1014,11 @@ require 'digest/sha1'
 				hash_sub[:shellcode] << "\\x#{exe[byte].to_s(16)}"
 		end
 
+		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_exe_aspx.aspx.template") 
 		
-		templateFile = File.open(File.join("data", "templates", "scripts", "to_exe_aspx.aspx.template") , "rb")
-		template = templateFile.read
-		templateFile.close
+		template_pathname.open("rb") do |f|		
+			template = f.read
+		end
 
 		return template % hash_sub
 	end
@@ -1033,9 +1046,11 @@ require 'digest/sha1'
 		end
 		hash_sub[:shellcode] = lines.join("") + "\r\n\r\n"
 
-		templateFile = File.open(File.join("data", "templates", "scripts", "to_win32pe_psh_net.ps1.template") , "rb")
-		template = templateFile.read
-		templateFile.close
+		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_win32pe_psh_net.ps1.template") 
+		
+		template_pathname.open("rb") do |f|		
+			template = f.read
+		end
 
 		return template % hash_sub
 	end
@@ -1063,10 +1078,12 @@ require 'digest/sha1'
 		end
 
 		hash_sub[:shellcode] = lines.join("") + "\r\n\r\n"
-
-		templateFile = File.open(File.join("data", "templates", "scripts", "to_win32pe_psh_net.ps1.template") , "rb")
-		template = templateFile.read
-		templateFile.close
+		
+		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_win32pe_psh_net.ps1.template") 
+		
+		template_pathname.open("rb") do |f|		
+			template = f.read
+		end
 
 		return template % hash_sub
 	end
@@ -1209,9 +1226,12 @@ require 'digest/sha1'
 					]
 			})
 
-		templateFile = File.open(File.join("data", "templates", "scripts", "to_jsp_war.war.template") , "rb")
-		template = templateFile.read
-		templateFile.close
+		
+		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_jsp_war.war.template") 
+		
+		template_pathname.open("rb") do |f|		
+			template = f.read
+		end
 		
 		return self.to_war(template % hash_sub, opts)
 	end
