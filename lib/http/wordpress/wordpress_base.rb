@@ -1,22 +1,19 @@
 # -*- coding: binary -*-
-module Msf
 
 ###
 #
 # This module provides a way of interacting with wordpress installations
 #
 ###
-	module Exploit::Remote::Wordpress
-		include Exploit::Remote::HttpClient
 
-		def initialize(info = {})
-			super
+module HTTP
+	class Wordpress
 
-			register_options(
-					[
-							OptString.new('TARGETURI', [true, 'The base path to the wordpress application', '/']),
-					], Exploit::Remote::Wordpress
-			)
+		# initializes a new Wordpress instance
+		#
+		# @param client The Metasploit module instance
+		def initialize(client)
+			@client = client
 		end
 
 		# Checks if the site is online and running wordpress
@@ -24,9 +21,9 @@ module Msf
 		# @return [Boolean] Returns true if the site is online and running wordpress
 		def wordpress_and_online?
 			begin
-				res = send_request_cgi({
+				res = @client.send_request_cgi({
 						'method' => 'GET',
-						'uri' => normalize_uri(target_uri)
+						'uri' => @client.normalize_uri(@client.target_uri)
 				}, 20)
 				if res and res.code == 200
 					if res.body =~ /["'][^"']*\/wp-content\/[^"']*["']/i or
@@ -39,7 +36,7 @@ module Msf
 				end
 			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 			rescue ::Timeout::Error, ::Errno::EPIPE
-				print_error("Error connecting to #{target_uri}")
+				print_error("Error connecting to #{@client.target_uri}")
 				return false
 			end
 
@@ -50,7 +47,7 @@ module Msf
 		#
 		# @return [String] Wordpress Login URL
 		def wordpress_uri_login
-			normalize_uri(target_uri.path, 'wp-login.php')
+			@client.normalize_uri(@client.target_uri.path, 'wp-login.php')
 		end
 
 		# Returns the Wordpress Post URL
@@ -58,7 +55,7 @@ module Msf
 		# @param post_id Post ID
 		# @return [String] Wordpress Post URL
 		def wordpress_url_post(post_id)
-			normalize_uri(target_uri.path) + "/?p=#{post_id}"
+			@client.normalize_uri(@client.target_uri.path) + "/?p=#{post_id}"
 		end
 
 		# Returns the Wordpress Author URL
@@ -66,7 +63,7 @@ module Msf
 		# @param author_id Author ID
 		# @return [String] Wordpress Author URL
 		def wordpress_url_author(author_id)
-			normalize_uri(target_uri.path) + "/?author=#{author_id}"
+			@client.normalize_uri(@client.target_uri.path) + "/?author=#{author_id}"
 		end
 
 		# performs a wordpress login
@@ -75,8 +72,8 @@ module Msf
 		# @param pass Password
 		# @return [String] the session cookie on successful login, nil otherwise
 		def wordpress_login(user, pass)
-			redirect = "#{target_uri}#{Rex::Text.rand_text_alpha(8)}"
-			res = send_request_cgi({
+			redirect = "#{@client.target_uri}#{Rex::Text.rand_text_alpha(8)}"
+			res = @client.send_request_cgi({
 					'method' => 'POST',
 					'uri' => wordpress_uri_login,
 					'data' => wordpress_helper_login_post_data(user, pass, redirect),
@@ -97,7 +94,7 @@ module Msf
 		# @param user Username
 		# @return [Boolean] true if the user exists
 		def wordpress_user_exists?(user)
-			res = send_request_cgi({
+			res = @client.send_request_cgi({
 					'method' => 'POST',
 					'uri' => wordpress_uri_login,
 					'data' => wordpress_helper_login_post_data(user, 'x'),
@@ -121,7 +118,7 @@ module Msf
 		# @return [String] the Username if it exists, nil otherwise
 		def wordpress_userid_exists?(user_id)
 			url = wordpress_url_author(user_id)
-			res = send_request_cgi({
+			res = @client.send_request_cgi({
 					'method' => 'GET',
 					'uri' => url
 			})
@@ -133,14 +130,14 @@ module Msf
 					return $1
 				end
 				uri = "#{uri.path}?#{uri.query}"
-				res = send_request_cgi({
+				res = @client.send_request_cgi({
 						'method' => 'GET',
 						'uri' => uri
 				})
 			end
 
 			if res.nil?
-				print_error("#{target_uri} - Error getting response.")
+				print_error("#{@client.target_uri} - Error getting response.")
 			elsif res.code == 200 and
 					(res.body =~ /href="http[s]*:\/\/.*\/\?*author.+title="([[:print:]]+)" /i or
 					res.body =~ /<body class="archive author author-(?:[^\s]+) author-(?:\d+)/i)
@@ -235,12 +232,12 @@ module Msf
 			}) unless login_cookie
 
 			options = {
-					'uri' => normalize_uri(target_uri.path, 'wp-comments-post.php'),
+					'uri' => @client.normalize_uri(@client.target_uri.path, 'wp-comments-post.php'),
 					'method' => 'POST'
 			}
 			options.merge!({'vars_post' => vars_post})
 			options.merge!({'cookie' => login_cookie}) if login_cookie
-			res = send_request_cgi(options)
+			res = @client.send_request_cgi(options)
 			if res and res.code == 302
 				location = URI(res.headers['Location'])
 				return location
@@ -276,7 +273,7 @@ module Msf
 					'uri' => uri
 			}
 			options.merge!({'cookie' => login_cookie}) if login_cookie
-			res = send_request_cgi(options)
+			res = @client.send_request_cgi(options)
 			# post exists
 			if res and res.code == 200
 				# also check if comments are enabled

