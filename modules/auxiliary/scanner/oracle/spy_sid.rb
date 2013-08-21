@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 				'version' => '1.1',
 			}, 5)
 
-			if ( res.body =~ /SERVICE_NAME=/ )
+			if res and res.body =~ /SERVICE_NAME=/
 				select(nil,nil,nil,2)
 				sid = res.body.scan(/SERVICE_NAME=([^\)]+)/)
 					report_note(
