@@ -90,7 +90,8 @@ class Metasploit3 < Msf::Auxiliary
 					'method' => 'GET',
 				}, 20)
 
-			if (res.headers['Location'] =~ %r(pwned=java.lang.UNIXProcess))
+
+			if (res and res.headers['Location'] =~ %r(pwned=java.lang.UNIXProcess))
 				print_status("Exploited successfully")
 			else
 				print_status("Exploit failed.")
