@@ -92,6 +92,11 @@ class Metasploit3 < Msf::Auxiliary
 			return :abort
 		end
 
+		if res.nil?
+			print_error("Connection timed out")
+			return :abort
+		end
+
 		location = res.headers['Location']
 		if res and res.headers and (location = res.headers['Location']) and location =~ /admin\//
 			print_good("#{@peer} - Successful login: \"#{user}:#{pass}\"")
