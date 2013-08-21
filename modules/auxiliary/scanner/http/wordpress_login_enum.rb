@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 
-		unless wp_wordpress_and_online?
+		unless wordpress_and_online?
 			fail_with(Failure::NoTarget, "#{target_uri} does not seeem to be Wordpress site")
 		end
 
@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Auxiliary
 	def do_enum(user=nil)
 		print_status("#{target_uri} - WordPress Enumeration - Checking Username:'#{user}'")
 
-		exists = wp_user_exists?(user)
+		exists = wordpress_user_exists?(user)
 		if exists
 			print_good("#{target_uri} - WordPress Enumeration- Username: '#{user}' - is VALID")
 			report_auth_info(
@@ -125,7 +125,7 @@ class Metasploit3 < Msf::Auxiliary
 	def do_login(user=nil, pass=nil)
 		vprint_status("#{target_uri} - WordPress Brute Force - Trying username:'#{user}' with password:'#{pass}'")
 
-		cookie = wp_login(user, pass)
+		cookie = wordpress_login(user, pass)
 
 		if cookie
 			print_good("#{target_uri} - WordPress Brute Force - SUCCESSFUL login for '#{user}' : '#{pass}'")
@@ -148,7 +148,7 @@ class Metasploit3 < Msf::Auxiliary
 	def enum_usernames
 		usernames = []
 		for i in datastore['RANGE_START']..datastore['RANGE_END']
-			username = wp_userid_exists?(i)
+			username = wordpress_userid_exists?(i)
 			if username
 				print_good "#{target_uri} - Found user '#{username}' with id #{i.to_s}"
 				usernames << username
