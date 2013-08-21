@@ -95,20 +95,20 @@ class Metasploit3 < Msf::Post
       hash = client.railgun.kernel32.ReadFile(handle, 4, 4, 4, nil)
 
       # Finds the LastModified/Created timestamp (MACE)
-      lm = client.priv.fs.get_file_mace(filename)
+      mtimes = client.priv.fs.get_file_mace(filename)
 
       # Finds the Creation timestamp (MACE)
-      ct = client.priv.fs.get_file_mace(filename)
+      #ct = client.priv.fs.get_file_mace(filename)
 
       # Checking and moving the values
-      if idx.nil? or count.nil? or hash.nil? or lm.nil? or ct.nil?
+      if idx.nil? or count.nil? or hash.nil? or mtimes.nil? #or ct.nil?
         print_error("Error reading file (might be temporary): %s" % filename)
       else
         pname = Rex::Text.to_ascii(name.slice(0..idx))
         prun = count['lpBuffer'].unpack('L*')[0]
         phash = hash['lpBuffer'].unpack('h*')[0].reverse
-        lmod = lm['Modified'].utc
-        creat = ct['Created'].utc
+        lmod = mtimes['Modified'].utc
+        creat = mtimes['Created'].utc
         table << [lmod, creat,prun,phash,pname]
       end
       client.railgun.kernel32.CloseHandle(handle)
