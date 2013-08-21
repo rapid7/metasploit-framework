@@ -37,7 +37,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('TARGETURI', [true, 'The base path to the wordpress application', '/']),
 				OptBool.new('VALIDATE_USERS', [ true, 'Validate usernames', true ]),
 				OptBool.new('BRUTEFORCE', [ true, 'Perform brute force authentication', true ]),
 				OptBool.new('ENUMERATE_USERNAMES', [ true, 'Enumerate usernames', true ]),
