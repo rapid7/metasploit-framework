@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 
-		path = normalize_uri(datastore['PATH'])
+		path = datastore['PATH']
 		check1 = [
 			'iNotes/Forms5.nsf',
 			'iNotes/Forms6.nsf',
@@ -53,8 +53,8 @@ class Metasploit3 < Msf::Auxiliary
 			check1.each do | check |
 
 				res = send_request_raw({
-					'uri'          =>  path+check,
-					'method'       => 'GET',
+					'uri'          =>  normalize_uri(path, check),
+					'method'       => 'GET'
 					}, 10)
 
 				if (res.nil?)
@@ -101,8 +101,8 @@ class Metasploit3 < Msf::Auxiliary
 			check2.each do | check |
 
 				res = send_request_raw({
-					'uri'          =>  path+check,
-					'method'       => 'GET',
+					'uri'          =>  normalize_uri(path, check),
+					'method'       => 'GET'
 					}, 10)
 
 				if (res.nil?)
@@ -137,8 +137,8 @@ class Metasploit3 < Msf::Auxiliary
 			check3.each do | check |
 
 				res = send_request_raw({
-					'uri'          =>  path+check,
-					'method'       => 'GET',
+					'uri'          =>  normalize_uri(path, check),
+					'method'       => 'GET'
 					}, 10)
 
 				if (res.nil?)

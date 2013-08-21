@@ -84,8 +84,8 @@ class Metasploit3 < Msf::Post
 
 
 	def parse_prefs(username, filepath)
-		f = File.open(filepath, 'rb')
-		until f.eof
+		prefs = ''
+		File.open(filepath, 'rb') do |f|
 			prefs = f.read
 		end
 		results = ActiveSupport::JSON.decode(prefs)
