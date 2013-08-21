@@ -45,7 +45,10 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		return unless wp_wordpress_and_online?
+
+		unless wp_wordpress_and_online?
+			fail_with(Failure::NoTarget, "#{target_uri} does not seeem to be Wordpress site")
+		end
 
 		usernames = []
 		if datastore['ENUMERATE_USERNAMES']
