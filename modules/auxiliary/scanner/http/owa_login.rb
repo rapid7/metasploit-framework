@@ -96,7 +96,7 @@ class Metasploit3 < Msf::Auxiliary
 		domain = nil
 
 		begin
-			urls.each { |url|
+			urls.each do |url|
 				res = send_request_cgi({
 					'encode'   => true,
 					'uri'      => "/#{url}",
@@ -104,13 +104,18 @@ class Metasploit3 < Msf::Auxiliary
 					'headers'  =>  {"Authorization" => "NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw=="}
 				}, 25)
 
-				if res.code == 401 and res['WWW-Authenticate'].match(/^NTLM/i)
+				if not res
+					print_error("#{msg} HTTP Connection Error, Aborting")
+					return :abort
+				end
+
+				if res and res.code == 401 and res['WWW-Authenticate'].match(/^NTLM/i)
 					hash = res['WWW-Authenticate'].split('NTLM ')[1]
 					domain = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_name].value().gsub(/\0/,'')
 					print_good("Found target domain: " + domain)
 					break
 				end
-			}
+			end
 
 		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
 			print_error("#{msg} HTTP Connection Failed, Aborting")
