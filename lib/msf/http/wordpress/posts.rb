@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
-module HTTP::Wordpress::Posts
+module Msf::HTTP::Wordpress::Posts
 
 	# Posts a comment as an authenticated user
 	#

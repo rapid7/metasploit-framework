@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
-module HTTP::Wordpress::Users
+module Msf::HTTP::Wordpress::Users
 
 	# Checks if the given user exists
 	#

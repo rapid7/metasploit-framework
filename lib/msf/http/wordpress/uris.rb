@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
-module HTTP::Wordpress::URIs
+module Msf::HTTP::Wordpress::URIs
 
 	# Returns the Wordpress Login URL
 	#

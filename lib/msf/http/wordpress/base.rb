@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 
-module HTTP::Wordpress::Base
+module Msf::HTTP::Wordpress::Base
 
 	# Checks if the site is online and running wordpress
 	#

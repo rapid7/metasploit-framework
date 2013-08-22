@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
-module HTTP::Wordpress::Login
+module Msf::HTTP::Wordpress::Login
 
 	# performs a wordpress login
 	#

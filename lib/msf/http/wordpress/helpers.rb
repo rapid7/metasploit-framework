@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
-module HTTP::Wordpress::Helpers
+module Msf::HTTP::Wordpress::Helpers
 
 	# Returns the POST data for a Wordpress login request
 	#

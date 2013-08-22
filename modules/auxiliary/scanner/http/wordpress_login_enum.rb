@@ -5,10 +5,8 @@
 #   http://metasploit.com/
 ##
 
-require 'http/wordpress'
-
 class Metasploit3 < Msf::Auxiliary
-	include HTTP::Wordpress
+	include Msf::HTTP::Wordpress
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::AuthBrute
 	include Msf::Auxiliary::Report
