@@ -18,7 +18,7 @@ Items struck out are complete.
  - ~~Add a test case~~
  - ~~Land [PR #2197](https://github.com/rapid7/metasploit-framework/pull/2197) which provides the above.~~
  - ~~Ask CoreLan (sinn3r) to update mona.py templates to use spaces, not tabs.~~
- - Verify [mona.py](http://redmine.corelan.be/projects/mona) is updated.
+ - ~~Verify [mona.py](http://redmine.corelan.be/projects/mona) is updated.~~
 
 Note that once [PR #2197](https://github.com/rapid7/metasploit-framework/pull/2197) lands, we will no longer be enforcing any particular tab/space indentation format until about October 8, when we switch for real to soft tabs.
 
