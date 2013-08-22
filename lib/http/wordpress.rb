@@ -1,13 +1,14 @@
 # -*- coding: binary -*-
 module HTTP
 	module Wordpress
-		require 'http/wordpress/wordpress_base'
-		require 'http/wordpress/wordpress_helpers'
-		require 'http/wordpress/wordpress_login'
-		require 'http/wordpress/wordpress_posts'
-		require 'http/wordpress/wordpress_uris'
-		require 'http/wordpress/wordpress_users'
+		require 'http/wordpress/base'
+		require 'http/wordpress/helpers'
+		require 'http/wordpress/login'
+		require 'http/wordpress/posts'
+		require 'http/wordpress/uris'
+		require 'http/wordpress/users'
 
+		include Msf::Exploit::Remote::HttpClient
 		include HTTP::Wordpress::Base
 		include HTTP::Wordpress::Helpers
 		include HTTP::Wordpress::Login
