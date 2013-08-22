@@ -115,9 +115,9 @@ class Metasploit3 < Msf::Auxiliary
 		auth_path   = action.opts['AuthPath']
 		inbox_path  = action.opts['InboxPath']
 		login_check = action.opts['InboxCheck']
-	
+
 		domain = nil
-		
+
 		if datastore['AD_DOMAIN'].nil? or datastore['AD_DOMAIN'] == ''
 			if datastore['ENUM_DOMAIN']
 				domain = get_ad_domain
@@ -143,10 +143,10 @@ class Metasploit3 < Msf::Auxiliary
 		inbox_path = opts["inbox_path"]
 		login_check = opts["login_check"]
 		vhost = opts["vhost"]
-		domain = opts["domain"] 
-		
+		domain = opts["domain"]
+
 		user = domain + '\\' + user if domain
-		
+
 		headers = {
 			'Cookie' => 'PBack=0'
 		}
