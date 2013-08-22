@@ -19,11 +19,11 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Mac OS 10.8-10.8.3 Sudo Password Bypass',
+			'Name'          => 'Mac OS 10.8-10.8.2 Sudo Password Bypass',
 			'Description'   => %q{
 				Executes a command with root permissions on versions of OSX with
-				sudo binary vulnerable to CVE-2013-1775 (between). Works on Mac OS
-				10.8.*, and possibly lower versions.
+				sudo binary vulnerable to CVE-2013-1775. Works on Mac OS 10.8-10.8.2,
+				and possibly lower versions.
 
 				If your session belongs to a user with Administrative Privileges
 				(the user is in the sudoers file) and the user has ever run the
