@@ -1,11 +1,5 @@
 # -*- coding: binary -*-
 
-###
-#
-# This module provides a way of interacting with wordpress installations
-#
-###
-
 module HTTP::Wordpress::Base
 
 	# Checks if the site is online and running wordpress

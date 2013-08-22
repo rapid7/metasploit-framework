@@ -1,4 +1,6 @@
 # -*- coding: binary -*-
+
+# This module provides a way of interacting with wordpress installations
 module HTTP
 	module Wordpress
 		require 'http/wordpress/base'
