@@ -951,6 +951,7 @@ def self.to_vba(framework,code,opts={})
 	def self.to_exe_asp(exes = '', opts={})
 		exe = exes.unpack('C*')
 
+		hash_sub = {}
 		hash_sub[:var_bytes]   = Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
 		hash_sub[:var_fname]   = Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_func]    = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -981,6 +982,7 @@ def self.to_vba(framework,code,opts={})
 	def self.to_exe_aspx(exes = '', opts={})
 		exe = exes.unpack('C*')
 
+		hash_sub = {}
 		hash_sub[:var_file] 	= Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_tempdir] 	= Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_basedir]	= Rex::Text.rand_text_alpha(rand(8)+8)
@@ -1003,6 +1005,7 @@ def self.to_vba(framework,code,opts={})
 	end
 
 	def self.to_win32pe_psh_net(framework, code, opts={})
+		hash_sub = {}
 		hash_sub[:var_code] 		= Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_kernel32] 	= Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_baseaddr] 	= Rex::Text.rand_text_alpha(rand(8)+8)
@@ -1029,7 +1032,7 @@ def self.to_vba(framework,code,opts={})
 	end
 
 	def self.to_win32pe_psh(framework, code, opts={})
-
+		hash_sub = {}
 		hash_sub[:var_code] 		= Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_win32_func]	= Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_payload] 		= Rex::Text.rand_text_alpha(rand(8)+8)
