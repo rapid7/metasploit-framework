@@ -23,6 +23,9 @@ Items struck out are complete.
 Note that once [PR #2197](https://github.com/rapid7/metasploit-framework/pull/2197) lands, we will no longer be enforcing any particular tab/space indentation format until about October 8, when we switch for real to soft tabs.
 
 ### By August 28, 2013
+
+By now, we should have a pretty good idea of how to deal with conflicts and how to ensure everyone has a pretty painless path to fix up their own branches with the new retabbing. In fact, [PacketFu's PR #33](https://github.com/todb/packetfu/pull/33) is an example of this in action.
+
  - Write a procedure for offering retabbing to outstanding pull requests.
  - Retab modules directory as [@tabassassin](https://github.com/tabassassin) using `retab.rb`
  - Retab libraries as [@tabassassin](https://github.com/tabassassin) using `retab.rb`.
