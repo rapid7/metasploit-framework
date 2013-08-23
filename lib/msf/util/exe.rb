@@ -892,10 +892,6 @@ def self.to_vba(framework,code,opts={})
 		return read_replace_script_template("to_mem.vba.template", hash_sub)
 	end
 
-	def self.to_win32pe_vba(framework, code, opts={})
-		to_exe_vba(to_executable(framework, code, opts))
-	end
-
 	def self.to_exe_vbs(exes = '', opts={})
 		delay   = opts[:delay]   || 5
 		persist = opts[:persist] || false
@@ -994,14 +990,6 @@ def self.to_vba(framework,code,opts={})
 
 	def self.to_win32pe_vbs(framework, code, opts={})
 		to_exe_vbs(to_win32pe(framework, code, opts), opts)
-	end
-
-	def self.to_win32pe_asp(framework, code, opts={})
-		to_exe_asp(to_win32pe(framework, code, opts), opts)
-	end
-
-	def self.to_win32pe_aspx(framework, code, opts={})
-		to_exe_aspx(to_win32pe(framework, code, opts), opts)
 	end
 
 	# Creates a jar file that drops the provided +exe+ into a random file name
