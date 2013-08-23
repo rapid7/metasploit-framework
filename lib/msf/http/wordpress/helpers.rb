@@ -1,6 +1,9 @@
 # -*- coding: binary -*-
 module Msf::HTTP::Wordpress::Helpers
 
+	# Helper methods are private and should not be called by modules
+	private
+
 	# Returns the POST data for a Wordpress login request
 	#
 	# @param user [String] Username
@@ -123,4 +126,5 @@ module Msf::HTTP::Wordpress::Helpers
 			return nil
 		end
 	end
+
 end

@@ -9,7 +9,7 @@ module Msf::HTTP::Wordpress::Users
 		res = send_request_cgi({
 				'method' => 'POST',
 				'uri' => wordpress_uri_login,
-				'vars_post' => wordpress_helper_login_post_data(user, rand_text_alpha(6))
+				'vars_post' => wordpress_helper_login_post_data(user, Rex::Text.rand_text_alpha(6))
 		})
 
 		return true if res and res.code == 200 and
