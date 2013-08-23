@@ -56,9 +56,10 @@ require 'digest/sha1'
 	end
 
 	def self.read_replace_script_template(filename, hash_sub)
-		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", filename)
+		template_pathname = File.join(Msf::Config.install_root, "data", "templates", "scripts", filename)
 
-		template_pathname.open("rb") do |f|
+		template = ''
+		File.open(template_pathname, "rb") do |f|
 			template = f.read
 		end
 
@@ -861,7 +862,7 @@ require 'digest/sha1'
 			end
 		end
 
-		return self.read_replace_script_template("to_exe_vba.vb.template", hash_sub)
+		return read_replace_script_template("to_exe_vba.vb.template", hash_sub)
 	end
 
 def self.to_vba(framework,code,opts={})
@@ -895,7 +896,7 @@ def self.to_vba(framework,code,opts={})
 			hash_sub[:bytes] << " _\r\n" if (idx > 1 and (idx % maxbytes) == 0)
 		end
 
-		return self.read_replace_script_template("to_vba.vb.template", hash_sub)
+		return read_replace_script_template("to_vba.vb.template", hash_sub)
 	end
 
 	def self.to_win32pe_vba(framework, code, opts={})
@@ -920,18 +921,18 @@ def self.to_vba(framework,code,opts={})
 		hash_sub[:var_tempexe] = Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_basedir] = Rex::Text.rand_text_alpha(rand(8)+8)
 
-		lines = []
+		lines = "Chr(#{exe[0]})"
 		1.upto(exe.length-1) do |byte|
 			if(byte % 100 == 0)
-				lines.push "\r\n#{hash_sub[:var_bytes]}=#{hash_sub[:var_bytes]}"
+				lines << "\r\n\t#{hash_sub[:var_bytes]}=#{hash_sub[:var_bytes]}"
 			end
 			# exe is an Array of bytes, not a String, thanks to the unpack
 			# above, so the following line is not subject to the different
 			# treatments of String#[] between ruby 1.8 and 1.9
-			lines.push "&Chr(#{exe[byte]})"
+			lines << "&Chr(#{exe[byte]})"
 		end
 
-		hash_sub[:var_shellcode] = lines.join("")
+		hash_sub[:var_shellcode] = lines
 
 		hash_sub[:init] = ""
 
@@ -944,7 +945,7 @@ def self.to_vba(framework,code,opts={})
 			hash_sub[:init] << "#{hash_sub[:var_func]}\r\n"
 		end
 
-		return self.read_replace_script_template("to_exe_vbs.vb.template", hash_sub)
+		return read_replace_script_template("to_exe_vbs.vb.template", hash_sub)
 	end
 
 	def self.to_exe_asp(exes = '', opts={})
@@ -974,7 +975,7 @@ def self.to_vba(framework,code,opts={})
 
 		hash_sub[:var_shellcode] = lines.join("")
 
-		return self.read_replace_script_template("to_exe_asp.asp.template", hash_sub)
+		return read_replace_script_template("to_exe_asp.asp.template", hash_sub)
 	end
 
 	def self.to_exe_aspx(exes = '', opts={})
@@ -998,7 +999,7 @@ def self.to_vba(framework,code,opts={})
 				hash_sub[:shellcode] << "\\x#{exe[byte].to_s(16)}"
 		end
 
-		return self.read_replace_script_template("to_exe_aspx.aspx.template", hash_sub)
+		return read_replace_script_template("to_exe_aspx.aspx.template", hash_sub)
 	end
 
 	def self.to_win32pe_psh_net(framework, code, opts={})
@@ -1024,7 +1025,7 @@ def self.to_vba(framework,code,opts={})
 		end
 		hash_sub[:shellcode] = lines.join("") + "\r\n\r\n"
 
-		return self.read_replace_script_template("to_win32pe_psh_net.ps1.template", hash_sub)
+		return read_replace_script_template("to_win32pe_psh_net.ps1.template", hash_sub)
 	end
 
 	def self.to_win32pe_psh(framework, code, opts={})
@@ -1051,7 +1052,7 @@ def self.to_vba(framework,code,opts={})
 
 		hash_sub[:shellcode] = lines.join("") + "\r\n\r\n"
 
-		return self.read_replace_script_template("to_win32pe_psh_net.ps1.template", hash_sub)
+		return read_replace_script_template("to_win32pe_psh_net.ps1.template", hash_sub)
 	end
 
 	def self.to_win32pe_vbs(framework, code, opts={})
@@ -1193,7 +1194,7 @@ def self.to_vba(framework,code,opts={})
 			})
 
 
-		template = self.read_replace_script_template("to_jsp_war.war.template", hash_sub)
+		template = read_replace_script_template("to_jsp_war.war.template", hash_sub)
 
 		return self.to_war(template, opts)
 	end
