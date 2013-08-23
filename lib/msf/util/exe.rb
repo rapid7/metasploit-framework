@@ -887,14 +887,7 @@ def self.to_vba(framework,code,opts={})
 		hash_sub[:var_Length]		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
 
 		# put the shellcode bytes into an array
-		hash_sub[:bytes] = ''
-		maxbytes = 20
-		codebytes = code.unpack('C*')
-		1.upto(codebytes.length) do |idx|
-			hash_sub[:bytes] << codebytes[idx].to_s
-			hash_sub[:bytes] << "," if idx < codebytes.length - 1
-			hash_sub[:bytes] << " _\r\n" if (idx > 1 and (idx % maxbytes) == 0)
-		end
+		hash_sub[:bytes] = Rex::Text.to_vbapplication(code, hash_sub[:var_myArray])
 
 		return read_replace_script_template("to_vba.vb.template", hash_sub)
 	end

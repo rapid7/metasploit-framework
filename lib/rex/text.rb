@@ -235,6 +235,25 @@ module Text
 	end
 
 	#
+	# Converts a raw string into a vba buffer
+	#
+	def self.to_vbapplication(str, name = "buf")
+		code  = str.unpack('C*')
+		buff = "#{name} = Array("
+		maxbytes = 20
+
+		1.upto(code.length) do |idx|
+			buff << code[idx].to_s
+			buff << "," if idx < code.length - 1
+			buff << " _\r\n" if (idx > 1 and (idx % maxbytes) == 0)
+		end
+
+		buff << ")\r\n"
+
+		return buff
+	end
+
+	#
 	# Creates a perl-style comment
 	#
 	def self.to_perl_comment(str, wrap = DefaultWrap)
