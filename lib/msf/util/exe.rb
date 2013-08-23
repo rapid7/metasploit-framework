@@ -1016,17 +1016,7 @@ def self.to_vba(framework,code,opts={})
 		hash_sub[:var_compileParams] 	= Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_syscode] 		= Rex::Text.rand_text_alpha(rand(8)+8)
 
-		code = code.unpack('C*')
-
-		lines = "0x#{code[0].to_s(16)}"
-		1.upto(code.length-1) do |byte|
-			if(byte % 10 == 0)
-				lines << "\r\n$#{hash_sub[:var_code]} += 0x#{code[byte].to_s(16)}"
-			else
-				lines << ",0x#{code[byte].to_s(16)}"
-			end
-		end
-		hash_sub[:shellcode] = lines
+		hash_sub[:shellcode] = Rex::Text.to_powershell(code, hash_sub[:var_code])
 
 		return read_replace_script_template("to_win32pe_psh_net.ps1.template", hash_sub)
 	end
@@ -1039,23 +1029,11 @@ def self.to_vba(framework,code,opts={})
 		hash_sub[:var_size] 		= Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_rwx] 		= Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_iter] 		= Rex::Text.rand_text_alpha(rand(8)+8)
+		hash_sub[:var_syscode] 		= Rex::Text.rand_text_alpha(rand(8)+8)
 
-		code = code.unpack("C*")
+		hash_sub[:shellcode] = Rex::Text.to_powershell(code, hash_sub[:var_code])
 
-		# Add wrapper script
-
-		lines = []
-		1.upto(code.length-1) do |byte|
-			if(byte % 10 == 0)
-				lines.push "\r\n$#{hash_sub[:var_payload]} += 0x#{code[byte].to_s(16)}"
-			else
-				lines.push ",0x#{code[byte].to_s(16)}"
-			end
-		end
-
-		hash_sub[:shellcode] = lines.join("") + "\r\n\r\n"
-
-		return read_replace_script_template("to_win32pe_psh_net.ps1.template", hash_sub)
+		return read_replace_script_template("to_win32pe_psh.ps1.template", hash_sub)
 	end
 
 	def self.to_win32pe_vbs(framework, code, opts={})
