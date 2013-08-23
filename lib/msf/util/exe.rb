@@ -893,7 +893,7 @@ def self.to_vba(framework,code,opts={})
 	end
 
 	def self.to_win32pe_vba(framework, code, opts={})
-		to_exe_vba(to_win32pe(framework, code, opts))
+		to_exe_vba(to_executable(framework, code, opts))
 	end
 
 	def self.to_exe_vbs(exes = '', opts={})
@@ -1674,10 +1674,12 @@ def self.to_vba(framework,code,opts={})
 
 		case fmt
 		when 'asp'
-			output = Msf::Util::EXE.to_win32pe_asp(framework, code, exeopts)
+			exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+			output = Msf::Util::EXE.to_exe_asp(exe, exeopts)
 
 		when 'aspx'
-			output = Msf::Util::EXE.to_win32pe_aspx(framework, code, exeopts)
+			exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+			output = Msf::Util::EXE.to_exe_aspx(exe, exeopts)
 
 		when 'dll'
 			output = case arch
@@ -1737,14 +1739,16 @@ def self.to_vba(framework,code,opts={})
 			output = Msf::Util::EXE.to_vba(framework, code, exeopts)
 
 		when 'vba-exe'
-			exe = Msf::Util::EXE.to_win32pe(framework, code, exeopts)
+			exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
 			output = Msf::Util::EXE.to_exe_vba(exe)
 
 		when 'vbs'
-			output = Msf::Util::EXE.to_win32pe_vbs(framework, code, exeopts.merge({ :persist => false }))
+			exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+			output = Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ :persist => false }))
 
 		when 'loop-vbs'
-			output = Msf::Util::EXE.to_win32pe_vbs(framework, code, exeopts.merge({ :persist => true }))
+			exe = exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+			output = Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ :persist => true }))
 
 		when 'war'
 			arch ||= [ ARCH_X86 ]
