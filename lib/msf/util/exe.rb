@@ -55,6 +55,15 @@ require 'digest/sha1'
 		end
 	end
 
+	def self.read_replace_script_template(filename, hash_sub)
+		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", filename)
+
+		template_pathname.open("rb") do |f|
+			template = f.read
+		end
+
+		return template % hash_sub
+	end
 
 	##
 	#
@@ -838,13 +847,6 @@ require 'digest/sha1'
 		# Function 2 executes the binary
 		hash_sub[:func_name2] = var_base + (var_base_idx+=1).to_s
 
-		# The wrapper makes it easier to integrate it into other macros
-		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_exe_vba.vb.template") 
-		
-		template_pathname.open("rb") do |f|		
-			template = f.read
-		end
-
 		hash_sub[:data] = ""
 
 		# Writing the bytes of the exe to the file
@@ -859,10 +861,10 @@ require 'digest/sha1'
 			end
 		end
 
-		return template % hash_sub
+		return self.read_replace_script_template("to_exe_vba.vb.template", hash_sub)
 	end
 
-	def self.to_vba(framework,code,opts={})
+def self.to_vba(framework,code,opts={})
 		hash_sub = {}
 		hash_sub[:var_myByte]		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
 		hash_sub[:var_myArray]		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
@@ -892,14 +894,8 @@ require 'digest/sha1'
 			hash_sub[:bytes] << "," if idx < codebytes.length - 1
 			hash_sub[:bytes] << " _\r\n" if (idx > 1 and (idx % maxbytes) == 0)
 		end
-		
-		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_vba.vb.template") 
-		
-		template_pathname.open("rb") do |f|		
-			template = f.read
-		end
 
-		return template % hash_sub
+		return self.read_replace_script_template("to_vba.vb.template", hash_sub)
 	end
 
 	def self.to_win32pe_vba(framework, code, opts={})
@@ -938,28 +934,22 @@ require 'digest/sha1'
 		hash_sub[:var_shellcode] = lines.join("")
 
 		hash_sub[:init] = ""
-		
+
 		if(persist)
 			hash_sub[:init] << "Do\r\n"
 			hash_sub[:init] << "#{hash_sub[:var_func]}\r\n"
-			hash_sub[:init] << "WScript.Sleep #{delay * 1000}\r\n" 
+			hash_sub[:init] << "WScript.Sleep #{delay * 1000}\r\n"
 			hash_sub[:init] << "Loop\r\n"
 		else
 			hash_sub[:init] << "#{hash_sub[:var_func]}\r\n"
 		end
-		
-		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_exe_vbs.vb.template") 
-		
-		template_pathname.open("rb") do |f|		
-			template = f.read
-		end
 
-		return template % hash_sub
+		return self.read_replace_script_template("to_exe_vbs.vb.template", hash_sub)
 	end
 
 	def self.to_exe_asp(exes = '', opts={})
 		exe = exes.unpack('C*')
-		
+
 		hash_sub[:var_bytes]   = Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
 		hash_sub[:var_fname]   = Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_func]    = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -969,9 +959,9 @@ require 'digest/sha1'
 		hash_sub[:var_tempdir] = Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_tempexe] = Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_basedir] = Rex::Text.rand_text_alpha(rand(8)+8)
-		
+
 		lines = []
-		
+
 		1.upto(exe.length-1) do |byte|
 			if(byte % 100 == 0)
 				lines.push "\r\n%{var_bytes}=%{var_bytes}"
@@ -981,16 +971,10 @@ require 'digest/sha1'
 			# treatments of String#[] between ruby 1.8 and 1.9
 			lines.push "&Chr(%{exe[byte]})"
 		end
-		
+
 		hash_sub[:var_shellcode] = lines.join("")
-		
-		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_exe_asp.asp.template") 
-		
-		template_pathname.open("rb") do |f|		
-			template = f.read
-		end
-		
-		return template % hash_sub
+
+		return self.read_replace_script_template("to_exe_asp.asp.template", hash_sub)
 	end
 
 	def self.to_exe_aspx(exes = '', opts={})
@@ -1014,13 +998,7 @@ require 'digest/sha1'
 				hash_sub[:shellcode] << "\\x#{exe[byte].to_s(16)}"
 		end
 
-		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_exe_aspx.aspx.template") 
-		
-		template_pathname.open("rb") do |f|		
-			template = f.read
-		end
-
-		return template % hash_sub
+		return self.read_replace_script_template("to_exe_aspx.aspx.template", hash_sub)
 	end
 
 	def self.to_win32pe_psh_net(framework, code, opts={})
@@ -1035,7 +1013,7 @@ require 'digest/sha1'
 		hash_sub[:var_syscode] 		= Rex::Text.rand_text_alpha(rand(8)+8)
 
 		code = code.unpack('C*')
-			
+
 		lines = []
 		1.upto(code.length-1) do |byte|
 			if(byte % 10 == 0)
@@ -1046,13 +1024,7 @@ require 'digest/sha1'
 		end
 		hash_sub[:shellcode] = lines.join("") + "\r\n\r\n"
 
-		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_win32pe_psh_net.ps1.template") 
-		
-		template_pathname.open("rb") do |f|		
-			template = f.read
-		end
-
-		return template % hash_sub
+		return self.read_replace_script_template("to_win32pe_psh_net.ps1.template", hash_sub)
 	end
 
 	def self.to_win32pe_psh(framework, code, opts={})
@@ -1063,11 +1035,11 @@ require 'digest/sha1'
 		hash_sub[:var_size] 		= Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_rwx] 		= Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_iter] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-		
+
 		code = code.unpack("C*")
 
 		# Add wrapper script
-		
+
 		lines = []
 		1.upto(code.length-1) do |byte|
 			if(byte % 10 == 0)
@@ -1078,14 +1050,8 @@ require 'digest/sha1'
 		end
 
 		hash_sub[:shellcode] = lines.join("") + "\r\n\r\n"
-		
-		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_win32pe_psh_net.ps1.template") 
-		
-		template_pathname.open("rb") do |f|		
-			template = f.read
-		end
 
-		return template % hash_sub
+		return self.read_replace_script_template("to_win32pe_psh_net.ps1.template", hash_sub)
 	end
 
 	def self.to_win32pe_vbs(framework, code, opts={})
@@ -1226,14 +1192,10 @@ require 'digest/sha1'
 					]
 			})
 
-		
-		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_jsp_war.war.template") 
-		
-		template_pathname.open("rb") do |f|		
-			template = f.read
-		end
-		
-		return self.to_war(template % hash_sub, opts)
+
+		template = self.read_replace_script_template("to_jsp_war.war.template", hash_sub)
+
+		return self.to_war(template, opts)
 	end
 
 	# Creates a .NET DLL which loads data into memory
