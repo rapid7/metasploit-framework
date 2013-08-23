@@ -936,8 +936,6 @@ def self.to_vba(framework,code,opts={})
 	end
 
 	def self.to_exe_asp(exes = '', opts={})
-		exe = exes.unpack('C*')
-
 		hash_sub = {}
 		hash_sub[:var_bytes]   = Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
 		hash_sub[:var_fname]   = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -949,19 +947,7 @@ def self.to_vba(framework,code,opts={})
 		hash_sub[:var_tempexe] = Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_basedir] = Rex::Text.rand_text_alpha(rand(8)+8)
 
-		lines = []
-
-		1.upto(exe.length-1) do |byte|
-			if(byte % 100 == 0)
-				lines.push "\r\n%{var_bytes}=%{var_bytes}"
-			end
-			# exe is an Array of bytes, not a String, thanks to the unpack
-			# above, so the following line is not subject to the different
-			# treatments of String#[] between ruby 1.8 and 1.9
-			lines.push "&Chr(%{exe[byte]})"
-		end
-
-		hash_sub[:var_shellcode] = lines.join("")
+		hash_sub[:var_shellcode] = Rex::Text.to_vbscript(exes, hash_sub[:var_bytes])
 
 		return read_replace_script_template("to_exe_asp.asp.template", hash_sub)
 	end

