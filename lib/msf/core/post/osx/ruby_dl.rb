@@ -1,4 +1,7 @@
-module OSXRubyDLHelpers
+module Msf
+class Post
+module OSX
+module RubyDL
   def osx_ruby_dl_header
     <<-EOS
   require 'dl'
@@ -372,4 +375,8 @@ EOS
     end
     capture_code
   end
+end
+
+end
+end
 end

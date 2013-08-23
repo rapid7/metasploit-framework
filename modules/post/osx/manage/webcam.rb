@@ -7,14 +7,15 @@
 
 require 'msf/core'
 require 'shellwords'
-require File.join(Msf::Config.install_root, "lib", "osx_ruby_ld_helpers")
-
+require 'msf/core/post/osx/ruby_dl'
 
 class Metasploit3 < Msf::Post
-	include ::Msf::Post::Common
-	include ::Msf::Post::File
+	include Msf::Post::Common
+	include Msf::Post::File
 	include Msf::Auxiliary::Report
-	include OSXRubyDLHelpers
+	include Msf::Post::OSX::RubyDL
+
+	POLL_TIMEOUT = 120
 
 	def initialize(info={})
 		super(update_info(info,
@@ -59,10 +60,6 @@ class Metasploit3 < Msf::Post
 			], self.class)
 	end
 
-	def fail_with(msg)
-		raise msg
-	end
-
 	def run
 		fail_with("Invalid session ID selected.") if client.nil?
 		fail_with("Invalid action") if action.nil?
@@ -97,7 +94,7 @@ class Metasploit3 < Msf::Post
 				Rex.sleep(datastore['SYNC_WAIT'])
 				# start reading for file
 				begin
-					::Timeout.timeout(120) do
+					::Timeout.timeout(poll_timeout) do
 						while true
 							if File.exist?(tmp_file)
 								# read file
@@ -148,5 +145,9 @@ class Metasploit3 < Msf::Post
 			cmd_exec("/bin/kill -9 #{@pid}")
 		end
 	end
-end
 
+	private
+
+	def poll_timeout; POLL_TIMEOUT; end
+	def fail_with(msg); raise msg; end
+end
