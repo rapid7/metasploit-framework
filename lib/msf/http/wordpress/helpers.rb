@@ -6,12 +6,14 @@ module Msf::HTTP::Wordpress::Helpers
 	# @param user [String] Username
 	# @param pass [String] Password
 	# @param redirect URL [String] to redirect after successful login
-	# @return [String] The post data
+	# @return [Hash] The post data for vars_post Parameter
 	def wordpress_helper_login_post_data(user, pass, redirect=nil)
-		post_data = "log=#{Rex::Text.uri_encode(user.to_s)}"
-		post_data << "&pwd=#{Rex::Text.uri_encode(pass.to_s)}"
-		post_data << "&redirect_to=#{Rex::Text.uri_encode(redirect.to_s)}"
-		post_data << '&wp-submit=Login'
+		post_data = {
+				'log' => user.to_s,
+				'pwd' => pass.to_s,
+				'redirect_to' => redirect.to_s,
+				'wp-submit' => 'Login'
+		}
 		post_data
 	end
 

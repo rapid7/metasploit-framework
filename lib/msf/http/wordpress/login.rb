@@ -11,15 +11,13 @@ module Msf::HTTP::Wordpress::Login
 		res = send_request_cgi({
 				'method' => 'POST',
 				'uri' => wordpress_uri_login,
-				'data' => wordpress_helper_login_post_data(user, pass, redirect),
+				'vars_post' => wordpress_helper_login_post_data(user, pass, redirect)
 		})
 
-		if res and res.code == 302 and res.headers['Location'] == redirect
+		if res and (res.code == 301 or res.code == 302) and res.headers['Location'] == redirect
 			match = res.get_cookies.match(/(wordpress(?:_sec)?_logged_in_[^=]+=[^;]+);/i)
-			if match
-				# return wordpress login cookie
-				return match[0]
-			end
+			# return wordpress login cookie
+			return match[0] if match
 		end
 		return nil
 	end

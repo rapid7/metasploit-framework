@@ -9,19 +9,14 @@ module Msf::HTTP::Wordpress::Users
 		res = send_request_cgi({
 				'method' => 'POST',
 				'uri' => wordpress_uri_login,
-				'data' => wordpress_helper_login_post_data(user, 'x'),
+				'vars_post' => wordpress_helper_login_post_data(user, rand_text_alpha(6))
 		})
 
-		exists = false
-		if res and res.code == 200
-			if res.body.to_s =~ /Incorrect password/ or
-					res.body.to_s =~ /document\.getElementById\('user_pass'\)/
-				exists = true
-			else
-				exists = false
-			end
-		end
-		return exists
+		return true if res and res.code == 200 and
+				(res.body.to_s =~ /Incorrect password/ or
+						res.body.to_s =~ /document\.getElementById\('user_pass'\)/)
+
+		return false
 	end
 
 	# Checks if the given userid exists
@@ -36,7 +31,8 @@ module Msf::HTTP::Wordpress::Users
 		})
 
 		if res and res.code == 301
-			uri = URI(res.headers['Location'])
+			uri = wordpress_helper_parse_location_header(res)
+			return nil unless uri
 			# try to extract username from location
 			if uri.to_s =~ /\/author\/([^\/\b]+)\/?/i
 				return $1
@@ -50,12 +46,12 @@ module Msf::HTTP::Wordpress::Users
 
 		if res.nil?
 			print_error("#{target_uri} - Error getting response.")
+			return nil
 		elsif res.code == 200 and
 				(res.body =~ /href="http[s]*:\/\/.*\/\?*author.+title="([[:print:]]+)" /i or
 						res.body =~ /<body class="archive author author-(?:[^\s]+) author-(?:\d+)/i)
 			return $1
 		end
-		return nil
 	end
 
 end
