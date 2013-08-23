@@ -370,7 +370,6 @@ EOS
         puts cpid
 |
     end
-    File.write('/Users/joe/Desktop/fl.rb', capture_code)
     capture_code
   end
 end
