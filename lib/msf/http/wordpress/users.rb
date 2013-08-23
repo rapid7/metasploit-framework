@@ -3,14 +3,14 @@ module Msf::HTTP::Wordpress::Users
 
 	# Checks if the given user exists
 	#
-	# @param user Username
+	# @param user [String] Username
 	# @return [Boolean] true if the user exists
 	def wordpress_user_exists?(user)
 		res = send_request_cgi({
 				'method' => 'POST',
 				'uri' => wordpress_uri_login,
 				'data' => wordpress_helper_login_post_data(user, 'x'),
-		}, 20)
+		})
 
 		exists = false
 		if res and res.code == 200
@@ -26,7 +26,7 @@ module Msf::HTTP::Wordpress::Users
 
 	# Checks if the given userid exists
 	#
-	# @param user_id user_id
+	# @param user_id [Integer] user_id
 	# @return [String] the Username if it exists, nil otherwise
 	def wordpress_userid_exists?(user_id)
 		url = wordpress_url_author(user_id)

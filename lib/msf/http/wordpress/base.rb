@@ -11,22 +11,17 @@ module Msf::HTTP::Wordpress::Base
 					'method' => 'GET',
 					'uri' => normalize_uri(target_uri)
 			}, 20)
-			if res and res.code == 200
-				if res.body =~ /["'][^"']*\/wp-content\/[^"']*["']/i or
+			return true if res and
+					res.code == 200 and
+					(
+						res.body =~ /["'][^"']*\/wp-content\/[^"']*["']/i or
 						res.body =~ /<link rel=["']wlwmanifest["'].*href=["'].*\/wp-includes\/wlwmanifest\.xml["'] \/>/i or
 						res.body =~ /<link rel=["']pingback["'].*href=["'].*\/xmlrpc\.php["'] \/>/i
-					return true
-				else
-					return false
-				end
-			end
+					)
+			return false
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-		rescue ::Timeout::Error, ::Errno::EPIPE
 			print_error("Error connecting to #{target_uri}")
 			return false
 		end
-
-		return false
 	end
-
 end

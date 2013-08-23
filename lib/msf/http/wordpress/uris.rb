@@ -10,7 +10,7 @@ module Msf::HTTP::Wordpress::URIs
 
 	# Returns the Wordpress Post URL
 	#
-	# @param post_id Post ID
+	# @param post_id [Integer] Post ID
 	# @return [String] Wordpress Post URL
 	def wordpress_url_post(post_id)
 		normalize_uri(target_uri.path) + "/?p=#{post_id}"
@@ -18,7 +18,7 @@ module Msf::HTTP::Wordpress::URIs
 
 	# Returns the Wordpress Author URL
 	#
-	# @param author_id Author ID
+	# @param author_id [Integer] Author ID
 	# @return [String] Wordpress Author URL
 	def wordpress_url_author(author_id)
 		normalize_uri(target_uri.path) + "/?author=#{author_id}"
