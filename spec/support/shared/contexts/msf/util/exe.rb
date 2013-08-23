@@ -69,12 +69,12 @@ shared_context 'Msf::Util::Exe' do
   def verify_bin_fingerprint(format_hash, bin)
     bin.should be_a(String)
     fp = IO.popen("file -","w+") do |io|
-	  begin
-        io.write(bin)
-	  rescue
-	  end
-      io.close_write
-      io.read
+       begin
+         io.write(bin)
+       rescue
+       end
+       io.close_write
+       io.read
     end
     if format_hash[:file_fp]
       fp.should =~ format_hash[:file_fp]
