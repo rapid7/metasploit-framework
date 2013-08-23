@@ -962,18 +962,7 @@ def self.to_vba(framework,code,opts={})
 		hash_sub[:var_iterator] = Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_proc]	= Rex::Text.rand_text_alpha(rand(8)+8)
 
-		exe = exes.unpack('C*')
-		hash_sub[:shellcode] = "#{hash_sub[:var_file]}.Append(\"\\x#{exe[0].to_s(16)}"
-
-		1.upto(exe.length-1) do |byte|
-				# Apparently .net 1.0 has a limit of 2046 chars per line
-				if(byte % 100 == 0)
-						hash_sub[:shellcode] << "\");\r\n\t\t#{hash_sub[:var_file]}.Append(\""
-				end
-				hash_sub[:shellcode] << "\\x#{exe[byte].to_s(16)}"
-		end
-
-		hash_sub[:shellcode] << "\");\r\n"
+		hash_sub[:shellcode] = Rex::Text.to_csharp(exes,100,hash_sub[:var_file])
 
 		return read_replace_script_template("to_exe_aspx.aspx.template", hash_sub)
 	end
