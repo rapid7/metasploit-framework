@@ -13,7 +13,7 @@ module OSXRubyDLHelpers
   end
 
   def malloc(size)
-    if ruby_1_9_or_higher?
+    if defined?(DL::CPtr)
       DL::CPtr.malloc(size)
     else
       DL::malloc(size)
