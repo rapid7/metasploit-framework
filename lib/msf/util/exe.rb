@@ -862,7 +862,7 @@ require 'digest/sha1'
 			end
 		end
 
-		return read_replace_script_template("to_exe_vba.vb.template", hash_sub)
+		return read_replace_script_template("to_exe.vba.template", hash_sub)
 	end
 
 def self.to_vba(framework,code,opts={})
@@ -889,7 +889,7 @@ def self.to_vba(framework,code,opts={})
 		# put the shellcode bytes into an array
 		hash_sub[:bytes] = Rex::Text.to_vbapplication(code, hash_sub[:var_myArray])
 
-		return read_replace_script_template("to_vba.vb.template", hash_sub)
+		return read_replace_script_template("to_mem.vba.template", hash_sub)
 	end
 
 	def self.to_win32pe_vba(framework, code, opts={})
@@ -925,7 +925,7 @@ def self.to_vba(framework,code,opts={})
 			hash_sub[:init] << "#{hash_sub[:var_func]}\r\n"
 		end
 
-		return read_replace_script_template("to_exe_vbs.vb.template", hash_sub)
+		return read_replace_script_template("to_exe.vbs.template", hash_sub)
 	end
 
 	def self.to_exe_asp(exes = '', opts={})
@@ -942,7 +942,7 @@ def self.to_vba(framework,code,opts={})
 
 		hash_sub[:var_shellcode] = Rex::Text.to_vbscript(exes, hash_sub[:var_bytes])
 
-		return read_replace_script_template("to_exe_asp.asp.template", hash_sub)
+		return read_replace_script_template("to_exe.asp.template", hash_sub)
 	end
 
 	def self.to_exe_aspx(exes = '', opts={})
@@ -957,7 +957,7 @@ def self.to_vba(framework,code,opts={})
 
 		hash_sub[:shellcode] = Rex::Text.to_csharp(exes,100,hash_sub[:var_file])
 
-		return read_replace_script_template("to_exe_aspx.aspx.template", hash_sub)
+		return read_replace_script_template("to_exe.aspx.template", hash_sub)
 	end
 
 	def self.to_win32pe_psh_net(framework, code, opts={})
@@ -974,7 +974,7 @@ def self.to_vba(framework,code,opts={})
 
 		hash_sub[:shellcode] = Rex::Text.to_powershell(code, hash_sub[:var_code])
 
-		return read_replace_script_template("to_win32pe_psh_net.ps1.template", hash_sub)
+		return read_replace_script_template("to_mem_dotnet.ps1.template", hash_sub)
 	end
 
 	def self.to_win32pe_psh(framework, code, opts={})
@@ -989,7 +989,7 @@ def self.to_vba(framework,code,opts={})
 
 		hash_sub[:shellcode] = Rex::Text.to_powershell(code, hash_sub[:var_code])
 
-		return read_replace_script_template("to_win32pe_psh.ps1.template", hash_sub)
+		return read_replace_script_template("to_mem_old.ps1.template", hash_sub)
 	end
 
 	def self.to_win32pe_vbs(framework, code, opts={})
@@ -1131,7 +1131,7 @@ def self.to_vba(framework,code,opts={})
 			})
 
 
-		template = read_replace_script_template("to_jsp_war.war.template", hash_sub)
+		template = read_replace_script_template("to_jsp.war.template", hash_sub)
 
 		return self.to_war(template, opts)
 	end
