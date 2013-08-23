@@ -133,7 +133,7 @@ describe Msf::Modules::Loader::Base do
 					it 'should capture the lexical scope' do
 						expect {
 							namespace_module.module_eval_with_lexical_scope(module_content, module_path)
-						}.to_not raise_error(NameError)
+						}.to_not raise_error
 					end
 
 					context 'with malformed module content' do
@@ -1173,7 +1173,7 @@ describe Msf::Modules::Loader::Base do
 				# not defined on `nil`.
 				expect {
 					subject.send(:restore_namespace_module, parent_module, relative_name, @original_namespace_module)
-				}.to_not raise_error(NoMethodError)
+				}.to_not raise_error
 			end
 
 			context 'with namespace_module nil' do
