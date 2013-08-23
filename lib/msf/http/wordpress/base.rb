@@ -9,7 +9,7 @@ module Msf::HTTP::Wordpress::Base
 		begin
 			res = send_request_cgi({
 					'method' => 'GET',
-					'uri' => normalize_uri(target_uri)
+					'uri' => normalize_uri(target_uri.path)
 			}, 20)
 			return true if res and
 					res.code == 200 and
