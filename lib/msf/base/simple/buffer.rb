@@ -41,6 +41,8 @@ module Buffer
 				buf = Rex::Text.to_java(buf)
 			when 'powershell', 'ps1'
 				buf = Rex::Text.to_powershell(buf)
+			when 'vbscript'
+				buf = Rex::Text.to_vbscript(buf)
 			else
 				raise ArgumentError, "Unsupported buffer format: #{fmt}", caller
 		end
@@ -80,7 +82,18 @@ module Buffer
 	# Returns the list of supported formats
 	#
 	def self.transform_formats
-		['raw','ruby','rb','perl','pl','bash','sh','c','csharp','js_be','js_le','java','python','py', 'powershell', 'ps1']
+		['raw',
+		 'ruby','rb',
+		 'perl','pl',
+		 'bash','sh',
+		 'c',
+		 'csharp',
+		 'js_be',
+		 'js_le',
+		 'java',
+		 'python','py',
+		 'powershell','ps1',
+		 'vbscript']
 	end
 
 end

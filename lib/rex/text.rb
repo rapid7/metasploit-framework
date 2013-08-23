@@ -216,6 +216,25 @@ module Text
 	end
 
 	#
+	# Converts a raw string to a vbscript byte array
+	#
+	def self.to_vbscript(str, name = "buf")
+		code = str.unpack('C*')
+		buff = "#{name}=Chr(#{code[0]})"
+		1.upto(code.length-1) do |byte|
+			if(byte % 100 == 0)
+				buff << "\r\n#{name}=#{name}"
+			end
+			# exe is an Array of bytes, not a String, thanks to the unpack
+			# above, so the following line is not subject to the different
+			# treatments of String#[] between ruby 1.8 and 1.9
+			buff << "&Chr(#{code[byte]})"
+		end
+
+		return buff
+	end
+
+	#
 	# Creates a perl-style comment
 	#
 	def self.to_perl_comment(str, wrap = DefaultWrap)
