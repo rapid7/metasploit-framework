@@ -70,7 +70,6 @@ class Metasploit3 < Msf::Post
 			:record_file => tmp_file,
 			:snap_file => tmp_file
 		)
-		File.write('/Users/joe/Desktop/r.rb', ['ruby', '-e', ruby_cmd].shelljoin)
 
 		output = cmd_exec(['ruby', '-e', ruby_cmd].shelljoin)
 		if action.name =~ /list/i
