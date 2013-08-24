@@ -379,170 +379,92 @@ require 'msf/core/exe/segment_injector'
 		pe << Rex::Text.rand_text(rand(64)+4)
 
 		return pe
-	end
+  end
+
+  def self.exe_sub_method(code,opts ={})
+
+    pe = ''
+    File.open(opts[:template], "rb") { |fd|
+      pe = fd.read(fd.stat.size)
+    }
+
+    case opts[:exe_type]
+      when :service_exe
+        max_length = 8192
+        name = opts[:servicename]
+
+        if name
+          bo = pe.index('SERVICENAME')
+          raise RuntimeError, "Invalid PE Service EXE template: missing \"SERVICENAME\" tag" if not bo
+          pe[bo, 11] = [name].pack('a11')
+        end
+
+        if not opts[:sub_method]
+          pe[136, 4] = [rand(0x100000000)].pack('V')
+        end
+      when :dll
+        max_length = 2048
+      when :exe_sub
+        max_length = 4096
+    end
+
+    bo = pe.index('PAYLOAD:')
+    raise RuntimeError, "Invalid PE EXE subst template: missing \"PAYLOAD:\" tag" if not bo
+
+    if (code.length <= max_length)
+      pe[bo, code.length] = [code].pack("a*")
+    else
+      raise RuntimeError, "The EXE generator now has a max size of #{max_length} bytes, please fix the calling module"
+    end
+
+    if opts[:exe_type] == :dll
+      mt = pe.index('MUTEX!!!')
+      pe[mt,8] = Rex::Text.rand_text_alpha(8) if mt
+    end
+
+    return pe
+  end
 
 	def self.to_win32pe_exe_sub(framework, code, opts={})
-
 		# Allow the user to specify their own DLL template
 		set_template_default(opts, "template_x86_windows.exe")
-
-		pe = ''
-		File.open(opts[:template], "rb") { |fd|
-			pe = fd.read(fd.stat.size)
-		}
-
-		bo = pe.index('PAYLOAD:')
-		raise RuntimeError, "Invalid Win32 PE EXE subst template: missing \"PAYLOAD:\" tag" if not bo
-
-		if (code.length <= 4096)
-			pe[bo, code.length] = [code].pack("a*")
-		else
-			raise RuntimeError, "The EXE generator now has a max size of 4096 bytes, please fix the calling module"
-		end
-
-		return pe
+    opts[:exe_type] = :exe_sub
+		exe_sub_method(code,opts)
 	end
 
 	def self.to_win64pe(framework, code, opts={})
-
 		# Allow the user to specify their own EXE template
 		set_template_default(opts, "template_x64_windows.exe")
-
-		pe = ''
-		File.open(opts[:template], "rb") { |fd|
-			pe = fd.read(fd.stat.size)
-		}
-
-		bo = pe.index('PAYLOAD:')
-		raise RuntimeError, "Invalid Win64 PE EXE template: missing \"PAYLOAD:\" tag" if not bo
-
-		if (code.length <= 4096)
-			pe[bo, code.length] = [code].pack("a*")
-		else
-			raise RuntimeError, "The EXE generator now has a max size of 4096 bytes, please fix the calling module"
-		end
-
-		return pe
+    opts[:exe_type] = :exe_sub
+    exe_sub_method(code,opts)
 	end
 
 	def self.to_win32pe_service(framework, code, opts={})
-
-		name = opts[:servicename]
-
 		# Allow the user to specify their own service EXE template
 		set_template_default(opts, "template_x86_windows_svc.exe")
-
-		pe = ''
-		File.open(opts[:template], 'rb') { |fd|
-			pe = fd.read(fd.stat.size)
-		}
-
-		bo = pe.index('PAYLOAD:')
-		raise RuntimeError, "Invalid Win32 PE Service EXE template: missing \"PAYLOAD:\" tag" if not bo
-
-		if (code.length <= 8192)
-			pe[bo, code.length] = [code].pack("a*")
-		else
-			raise RuntimeError, "The EXE generator now has a max size of 8192 bytes, please fix the calling module"
-		end
-
-		if name
-			bo = pe.index('SERVICENAME')
-			raise RuntimeError, "Invalid Win32 PE Service EXE template: missing \"SERVICENAME\" tag" if not bo
-			pe[bo, 11] = [name].pack('a11')
-		end
-
-		if not opts[:sub_method]
-			pe[136, 4] = [rand(0x100000000)].pack('V')
-		end
-
-		return pe
+    opts[:exe_type] = :service_exe
+    exe_sub_method(code,opts)
 	end
 
 	def self.to_win64pe_service(framework, code, opts={})
-
-		name = opts[:servicename]
-
 		# Allow the user to specify their own service EXE template
 		set_template_default(opts, "template_x64_windows_svc.exe")
-
-		pe = ''
-		File.open(opts[:template], "rb") { |fd|
-			pe = fd.read(fd.stat.size)
-		}
-
-		bo = pe.index('PAYLOAD:')
-		raise RuntimeError, "Invalid Win64 PE Service EXE template: missing \"PAYLOAD:\" tag" if not bo
-
-		if (code.length <= 8192)
-			pe[bo, code.length] = [code].pack("a*")
-		else
-			raise RuntimeError, "The EXE generator now has a max size of 8192 bytes, please fix the calling module"
-		end
-
-		if name
-			bo = pe.index('SERVICENAME')
-			raise RuntimeError, "Invalid Win64 PE Service EXE template: missing \"SERVICENAME\" tag" if not bo
-			pe[bo, 11] = [name].pack('a11')
-		end
-
-		if not opts[:sub_method]
-			pe[136, 4] = [rand(0x100000000)].pack('V')
-		end
-
-		return pe
+    opts[:exe_type] = :service_exe
+    exe_sub_method(code,opts)
 	end
 
 	def self.to_win32pe_dll(framework, code, opts={})
-
 		# Allow the user to specify their own DLL template
 		set_template_default(opts, "template_x86_windows.dll")
-
-		pe = ''
-		File.open(opts[:template], "rb") { |fd|
-			pe = fd.read(fd.stat.size)
-		}
-
-		bo = pe.index('PAYLOAD:')
-		raise RuntimeError, "Invalid Win32 PE DLL template: missing \"PAYLOAD:\" tag" if not bo
-
-		if (code.length <= 2048)
-			pe[bo, code.length] = [code].pack("a*")
-		else
-			raise RuntimeError, "The EXE generator now has a max size of 2048 bytes, please fix the calling module"
-		end
-
-		# optional mutex
-		mt = pe.index('MUTEX!!!')
-		pe[mt,8] = Rex::Text.rand_text_alpha(8) if mt
-
-		return pe
+    opts[:exe_type] = :dll
+    exe_sub_method(code,opts)
 	end
 
 	def self.to_win64pe_dll(framework, code, opts={})
-
 		# Allow the user to specify their own DLL template
 		set_template_default(opts, "template_x64_windows.dll")
-
-		pe = ''
-		File.open(opts[:template], "rb") { |fd|
-			pe = fd.read(fd.stat.size)
-		}
-
-		bo = pe.index('PAYLOAD:')
-		raise RuntimeError, "Invalid Win64 PE DLL template: missing \"PAYLOAD:\" tag" if not bo
-
-		if (code.length <= 2048)
-			pe[bo, code.length] = [code].pack("a*")
-		else
-			raise RuntimeError, "The EXE generator now has a max size of 2048 bytes, please fix the calling module"
-		end
-
-		# optional mutex
-		mt = pe.index('MUTEX!!!')
-		pe[mt,8] = Rex::Text.rand_text_alpha(8) if mt
-
-		return pe
+    opts[:exe_type] = :dll
+    exe_sub_method(code,opts)
 	end
 
 	def self.to_osx_arm_macho(framework, code, opts={})
