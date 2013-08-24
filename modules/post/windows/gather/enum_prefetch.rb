@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
 			'Description'   => %q{
 								This module gathers prefetch file information from WinXP, Win2k3 and Win7 systems.
 								File offset reads for run count, hash and filename are collected from each prefetch file
-								using WinAPI through Railgun while Last Modified and Create times are file MACE values.
+								while Last Modified and Create times are file MACE values.
 													},
 			'License'       =>      MSF_LICENSE,
 			'Author'        =>      ['TJ Glad <fraktaali[at]gmail.com>'],
