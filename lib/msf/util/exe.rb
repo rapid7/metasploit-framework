@@ -2011,7 +2011,7 @@ End Sub
 				when ARCH_X64     then to_win64pe(framework, code, exeopts)
 				end
 
-		when 'exe'
+		when 'exe-service'
 			output = case arch
 				when ARCH_X86,nil then to_win32pe_service(framework, code, exeopts)
 				when ARCH_X86_64  then to_win64pe_service(framework, code, exeopts)
@@ -2092,7 +2092,7 @@ End Sub
 
 	def self.to_executable_fmt_formats
 		[
-			'dll','exe','exe-small','exe-only','elf','macho','vba','vba-exe',
+			'dll','exe','exe-service','exe-small','exe-only','elf','macho','vba','vba-exe',
 			'vbs','loop-vbs','asp','aspx','war','psh','psh-net'
 		]
 	end
