@@ -202,6 +202,8 @@ module Text
 	# Converts a raw string to a powershell byte array
 	#
 	def self.to_powershell(str, name = "buf")
+		return "[Byte[]]$#{name} = ''" if str.nil? or str.empty?
+
 		code = str.unpack('C*')
 		buff = "[Byte[]]$#{name} = 0x#{code[0].to_s(16)}"
 		1.upto(code.length-1) do |byte|
@@ -219,6 +221,8 @@ module Text
 	# Converts a raw string to a vbscript byte array
 	#
 	def self.to_vbscript(str, name = "buf")
+		return "#{name}" if str.nil? or str.empty?
+
 		code = str.unpack('C*')
 		buff = "#{name}=Chr(#{code[0]})"
 		1.upto(code.length-1) do |byte|
@@ -238,6 +242,8 @@ module Text
 	# Converts a raw string into a vba buffer
 	#
 	def self.to_vbapplication(str, name = "buf")
+		return "#{name} = Array()" if str.nil? or str.empty?
+
 		code  = str.unpack('C*')
 		buff = "#{name} = Array("
 		maxbytes = 20
