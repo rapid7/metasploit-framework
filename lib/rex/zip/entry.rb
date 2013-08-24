@@ -12,8 +12,8 @@ class Entry
 	attr_reader :data
 
 	def initialize(fname, data, compmeth, timestamp=nil, attrs=nil, xtra=nil, comment=nil)
-		@name = fname.unpack("C*").pack("C*") if fname
-		@data = data.unpack("C*").pack("C*") if data
+		@name = fname.unpack("C*").pack("C*")
+		@data = data.unpack("C*").pack("C*")
 		@xtra = xtra
 		@xtra ||= ''
 		@comment = comment
