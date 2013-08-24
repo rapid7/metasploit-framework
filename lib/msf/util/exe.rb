@@ -55,6 +55,16 @@ require 'digest/sha1'
 		end
 	end
 
+	def self.read_replace_script_template(filename, hash_sub)
+		template_pathname = File.join(Msf::Config.install_root, "data", "templates", "scripts", filename)
+
+		template = ''
+		File.open(template_pathname, "rb") do |f|
+			template = f.read
+		end
+
+		return template % hash_sub
+	end
 
 	##
 	#
@@ -838,13 +848,6 @@ require 'digest/sha1'
 		# Function 2 executes the binary
 		hash_sub[:func_name2] = var_base + (var_base_idx+=1).to_s
 
-		# The wrapper makes it easier to integrate it into other macros
-		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_exe_vba.vb.template") 
-		
-		template_pathname.open("rb") do |f|		
-			template = f.read
-		end
-
 		hash_sub[:data] = ""
 
 		# Writing the bytes of the exe to the file
@@ -859,10 +862,10 @@ require 'digest/sha1'
 			end
 		end
 
-		return template % hash_sub
+		return read_replace_script_template("to_exe.vba.template", hash_sub)
 	end
 
-	def self.to_vba(framework,code,opts={})
+def self.to_vba(framework,code,opts={})
 		hash_sub = {}
 		hash_sub[:var_myByte]		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
 		hash_sub[:var_myArray]		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
@@ -884,33 +887,14 @@ require 'digest/sha1'
 		hash_sub[:var_Length]		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
 
 		# put the shellcode bytes into an array
-		hash_sub[:bytes] = ''
-		maxbytes = 20
-		codebytes = code.unpack('C*')
-		1.upto(codebytes.length) do |idx|
-			hash_sub[:bytes] << codebytes[idx].to_s
-			hash_sub[:bytes] << "," if idx < codebytes.length - 1
-			hash_sub[:bytes] << " _\r\n" if (idx > 1 and (idx % maxbytes) == 0)
-		end
-		
-		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_vba.vb.template") 
-		
-		template_pathname.open("rb") do |f|		
-			template = f.read
-		end
+		hash_sub[:bytes] = Rex::Text.to_vbapplication(code, hash_sub[:var_myArray])
 
-		return template % hash_sub
-	end
-
-	def self.to_win32pe_vba(framework, code, opts={})
-		to_exe_vba(to_win32pe(framework, code, opts))
+		return read_replace_script_template("to_mem.vba.template", hash_sub)
 	end
 
 	def self.to_exe_vbs(exes = '', opts={})
 		delay   = opts[:delay]   || 5
 		persist = opts[:persist] || false
-
-		exe = exes.unpack('C*')
 
 		hash_sub = {}
 		hash_sub[:var_shellcode] = ""
@@ -924,42 +908,24 @@ require 'digest/sha1'
 		hash_sub[:var_tempexe] = Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_basedir] = Rex::Text.rand_text_alpha(rand(8)+8)
 
-		lines = []
-		1.upto(exe.length-1) do |byte|
-			if(byte % 100 == 0)
-				lines.push "\r\n#{hash_sub[:var_bytes]}=#{hash_sub[:var_bytes]}"
-			end
-			# exe is an Array of bytes, not a String, thanks to the unpack
-			# above, so the following line is not subject to the different
-			# treatments of String#[] between ruby 1.8 and 1.9
-			lines.push "&Chr(#{exe[byte]})"
-		end
-
-		hash_sub[:var_shellcode] = lines.join("")
+		hash_sub[:var_shellcode] = Rex::Text.to_vbscript(exes, hash_sub[:var_bytes])
 
 		hash_sub[:init] = ""
-		
+
 		if(persist)
 			hash_sub[:init] << "Do\r\n"
 			hash_sub[:init] << "#{hash_sub[:var_func]}\r\n"
-			hash_sub[:init] << "WScript.Sleep #{delay * 1000}\r\n" 
+			hash_sub[:init] << "WScript.Sleep #{delay * 1000}\r\n"
 			hash_sub[:init] << "Loop\r\n"
 		else
 			hash_sub[:init] << "#{hash_sub[:var_func]}\r\n"
 		end
-		
-		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_exe_vbs.vb.template") 
-		
-		template_pathname.open("rb") do |f|		
-			template = f.read
-		end
 
-		return template % hash_sub
+		return read_replace_script_template("to_exe.vbs.template", hash_sub)
 	end
 
 	def self.to_exe_asp(exes = '', opts={})
-		exe = exes.unpack('C*')
-		
+		hash_sub = {}
 		hash_sub[:var_bytes]   = Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
 		hash_sub[:var_fname]   = Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_func]    = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -969,33 +935,14 @@ require 'digest/sha1'
 		hash_sub[:var_tempdir] = Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_tempexe] = Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_basedir] = Rex::Text.rand_text_alpha(rand(8)+8)
-		
-		lines = []
-		
-		1.upto(exe.length-1) do |byte|
-			if(byte % 100 == 0)
-				lines.push "\r\n%{var_bytes}=%{var_bytes}"
-			end
-			# exe is an Array of bytes, not a String, thanks to the unpack
-			# above, so the following line is not subject to the different
-			# treatments of String#[] between ruby 1.8 and 1.9
-			lines.push "&Chr(%{exe[byte]})"
-		end
-		
-		hash_sub[:var_shellcode] = lines.join("")
-		
-		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_exe_asp.asp.template") 
-		
-		template_pathname.open("rb") do |f|		
-			template = f.read
-		end
-		
-		return template % hash_sub
+
+		hash_sub[:var_shellcode] = Rex::Text.to_vbscript(exes, hash_sub[:var_bytes])
+
+		return read_replace_script_template("to_exe.asp.template", hash_sub)
 	end
 
 	def self.to_exe_aspx(exes = '', opts={})
-		exe = exes.unpack('C*')
-
+		hash_sub = {}
 		hash_sub[:var_file] 	= Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_tempdir] 	= Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_basedir]	= Rex::Text.rand_text_alpha(rand(8)+8)
@@ -1004,26 +951,13 @@ require 'digest/sha1'
 		hash_sub[:var_iterator] = Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_proc]	= Rex::Text.rand_text_alpha(rand(8)+8)
 
-		hash_sub[:shellcode] = ""
+		hash_sub[:shellcode] = Rex::Text.to_csharp(exes,100,hash_sub[:var_file])
 
-		1.upto(exe.length-1) do |byte|
-				# Apparently .net 1.0 has a limit of 2046 chars per line
-				if(byte % 100 == 0)
-						hash_sub[:shellcode] << "\");\r\n\t\t#{hash_sub[:var_file]}.Append(\""
-				end
-				hash_sub[:shellcode] << "\\x#{exe[byte].to_s(16)}"
-		end
-
-		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_exe_aspx.aspx.template") 
-		
-		template_pathname.open("rb") do |f|		
-			template = f.read
-		end
-
-		return template % hash_sub
+		return read_replace_script_template("to_exe.aspx.template", hash_sub)
 	end
 
 	def self.to_win32pe_psh_net(framework, code, opts={})
+		hash_sub = {}
 		hash_sub[:var_code] 		= Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_kernel32] 	= Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_baseaddr] 	= Rex::Text.rand_text_alpha(rand(8)+8)
@@ -1034,70 +968,28 @@ require 'digest/sha1'
 		hash_sub[:var_compileParams] 	= Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_syscode] 		= Rex::Text.rand_text_alpha(rand(8)+8)
 
-		code = code.unpack('C*')
-			
-		lines = []
-		1.upto(code.length-1) do |byte|
-			if(byte % 10 == 0)
-				lines.push "\r\n$#{hash_sub[:var_code]} += 0x#{code[byte].to_s(16)}"
-			else
-				lines.push ",0x#{code[byte].to_s(16)}"
-			end
-		end
-		hash_sub[:shellcode] = lines.join("") + "\r\n\r\n"
+		hash_sub[:shellcode] = Rex::Text.to_powershell(code, hash_sub[:var_code])
 
-		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_win32pe_psh_net.ps1.template") 
-		
-		template_pathname.open("rb") do |f|		
-			template = f.read
-		end
-
-		return template % hash_sub
+		return read_replace_script_template("to_mem_dotnet.ps1.template", hash_sub)
 	end
 
 	def self.to_win32pe_psh(framework, code, opts={})
-
+		hash_sub = {}
 		hash_sub[:var_code] 		= Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_win32_func]	= Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_payload] 		= Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_size] 		= Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_rwx] 		= Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_iter] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-		
-		code = code.unpack("C*")
+		hash_sub[:var_syscode] 		= Rex::Text.rand_text_alpha(rand(8)+8)
 
-		# Add wrapper script
-		
-		lines = []
-		1.upto(code.length-1) do |byte|
-			if(byte % 10 == 0)
-				lines.push "\r\n$#{hash_sub[:var_payload]} += 0x#{code[byte].to_s(16)}"
-			else
-				lines.push ",0x#{code[byte].to_s(16)}"
-			end
-		end
+		hash_sub[:shellcode] = Rex::Text.to_powershell(code, hash_sub[:var_code])
 
-		hash_sub[:shellcode] = lines.join("") + "\r\n\r\n"
-		
-		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_win32pe_psh_net.ps1.template") 
-		
-		template_pathname.open("rb") do |f|		
-			template = f.read
-		end
-
-		return template % hash_sub
+		return read_replace_script_template("to_mem_old.ps1.template", hash_sub)
 	end
 
 	def self.to_win32pe_vbs(framework, code, opts={})
 		to_exe_vbs(to_win32pe(framework, code, opts), opts)
-	end
-
-	def self.to_win32pe_asp(framework, code, opts={})
-		to_exe_asp(to_win32pe(framework, code, opts), opts)
-	end
-
-	def self.to_win32pe_aspx(framework, code, opts={})
-		to_exe_aspx(to_win32pe(framework, code, opts), opts)
 	end
 
 	# Creates a jar file that drops the provided +exe+ into a random file name
@@ -1198,6 +1090,7 @@ require 'digest/sha1'
 	def self.to_jsp_war(exe, opts={})
 
 		# begin <payload>.jsp
+		hash_sub = {}
 		hash_sub[:var_hexpath]       = Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_exepath]       = Rex::Text.rand_text_alpha(rand(8)+8)
 		hash_sub[:var_data]          = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -1222,18 +1115,13 @@ require 'digest/sha1'
 			{
 				:extra_files =>
 					[
-						[ "#{var_hexfile}.txt", payload_hex ]
+						[ "#{hash_sub[:var_hexfile]}.txt", payload_hex ]
 					]
 			})
 
-		
-		template_pathname = Metasploit::Framework.root.join("data", "templates", "scripts", "to_jsp_war.war.template") 
-		
-		template_pathname.open("rb") do |f|		
-			template = f.read
-		end
-		
-		return self.to_war(template % hash_sub, opts)
+		template = read_replace_script_template("to_exe_jsp.war.template", hash_sub)
+
+		return self.to_war(template, opts)
 	end
 
 	# Creates a .NET DLL which loads data into memory
@@ -1774,10 +1662,12 @@ require 'digest/sha1'
 
 		case fmt
 		when 'asp'
-			output = Msf::Util::EXE.to_win32pe_asp(framework, code, exeopts)
+			exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+			output = Msf::Util::EXE.to_exe_asp(exe, exeopts)
 
 		when 'aspx'
-			output = Msf::Util::EXE.to_win32pe_aspx(framework, code, exeopts)
+			exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+			output = Msf::Util::EXE.to_exe_aspx(exe, exeopts)
 
 		when 'dll'
 			output = case arch
@@ -1837,14 +1727,16 @@ require 'digest/sha1'
 			output = Msf::Util::EXE.to_vba(framework, code, exeopts)
 
 		when 'vba-exe'
-			exe = Msf::Util::EXE.to_win32pe(framework, code, exeopts)
+			exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
 			output = Msf::Util::EXE.to_exe_vba(exe)
 
 		when 'vbs'
-			output = Msf::Util::EXE.to_win32pe_vbs(framework, code, exeopts.merge({ :persist => false }))
+			exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+			output = Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ :persist => false }))
 
 		when 'loop-vbs'
-			output = Msf::Util::EXE.to_win32pe_vbs(framework, code, exeopts.merge({ :persist => true }))
+			exe = exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+			output = Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ :persist => true }))
 
 		when 'war'
 			arch ||= [ ARCH_X86 ]

