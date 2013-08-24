@@ -37,6 +37,9 @@ class Archive
 			if (st.directory?)
 				attrs = EFA_ISDIR
 				fdata = ''
+				unless fdata[-1] == '/'
+					fdata << '/'
+				end
 			else
 				f = File.open(fname, 'rb')
 				fdata = f.read(f.stat.size)
