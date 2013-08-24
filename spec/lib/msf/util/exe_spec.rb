@@ -2,6 +2,9 @@
 
 require 'msf/core'
 require 'msf/base/simple'
+require 'spec_helper'
+
+require 'support/shared/contexts/msf/util/exe'
 
 describe Msf::Util::EXE do
 
@@ -14,46 +17,23 @@ describe Msf::Util::EXE do
     'DisableDatabase' => true
   )
 
-  context '.to_executable_fmt' do
+  describe '.win32_rwx_exec' do
+    it "should contain the shellcode" do
+      bin = subject.win32_rwx_exec("asdfjklASDFJKL")
+      bin.should include("asdfjklASDFJKL")
+    end
+  end
+
+  describe '.to_executable_fmt' do
     it "should output nil when given a bogus format" do
       bin = subject.to_executable_fmt($framework, "", "", "", "does not exist", {})
 
       bin.should == nil
     end
 
-    platform_format_map = {
-      "windows" => [
-        { :format => "dll",       :arch => "x86", :file_fp => /PE32 .*DLL/  },
-        { :format => "dll",       :arch => "x64", :file_fp => /PE32\+.*DLL/ },
-        { :format => "exe",       :arch => "x86", :file_fp => /PE32 /  },
-        { :format => "exe",       :arch => "x64", :file_fp => /PE32\+/ },
-        { :format => "exe-service",       :arch => "x86", :file_fp => /PE32 /  },
-        { :format => "exe-service",       :arch => "x64", :file_fp => /PE32\+/ },
-        { :format => "exe-small", :arch => "x86", :file_fp => /PE32 /  },
-        # No template for 64-bit exe-small. That's fine, we probably
-        # don't need one.
-        #{ :format => "exe-small", :arch => "x64", :file_fp => /PE32\+/ },
-      ],
-      "linux" => [
-        { :format => "elf", :arch => "x86",  :file_fp => /ELF 32.*SYSV/ },
-        { :format => "elf", :arch => "x64",  :file_fp => /ELF 64.*SYSV/ },
-        { :format => "elf", :arch => "armle",:file_fp => /ELF 32.*ARM/, :pending => true },
-      ],
-      "bsd" => [
-        { :format => "elf", :arch => "x86", :file_fp => /ELF 32.*BSD/ },
-      ],
-      "solaris" => [
-        { :format => "elf", :arch => "x86", :file_fp => /ELF 32/ },
-      ],
-      "osx" => [
-        { :format => "macho", :arch => "x86",   :file_fp => /Mach-O.*i386/  },
-        { :format => "macho", :arch => "x64",   :file_fp => /Mach-O 64/     },
-        { :format => "macho", :arch => "armle", :file_fp => /Mach-O.*acorn/, :pending => true },
-        { :format => "macho", :arch => "ppc",   :file_fp => /Mach-O.*ppc/,   :pending => true },
-      ]
-    }
+    include_context 'Msf::Util::Exe'
 
-    platform_format_map.each do |plat, formats|
+    @platform_format_map.each do |plat, formats|
       context "with platform=#{plat}" do
         let(:platform) do
           Msf::Module::PlatformList.transform(plat)
@@ -66,6 +46,11 @@ describe Msf::Util::EXE do
         it "should output nil when given bogus arch" do
           bin = subject.to_executable_fmt($framework, "asdf", platform, "\xcc", formats.first[:format], {})
           bin.should == nil
+        end
+        [ ARCH_X86, ARCH_X64, ARCH_X86_64, ARCH_PPC, ARCH_MIPSLE, ARCH_MIPSBE, ARCH_ARMLE ].each do |arch|
+          it "returns nil when given bogus format for arch=#{arch}" do
+            bin = subject.to_executable_fmt($framework, arch, platform, "\xcc", "asdf", {})
+          end
         end
 
         formats.each do |format_hash|
@@ -81,17 +66,7 @@ describe Msf::Util::EXE do
             bin = subject.to_executable_fmt($framework, arch, platform, "\xcc", fmt, {})
             bin.should be_a String
 
-            f = IO.popen("file -","w+")
-            f.write(bin)
-            f.close_write
-            fp = f.read
-            f.close
-            fp.should =~ format_hash[:file_fp] if format_hash[:file_fp]
-          end
-
-          it "returns nil when given bogus format for arch=#{arch}" do
-            bin = subject.to_executable_fmt($framework, arch, platform, "\xcc", "asdf", {})
-            bin.should == nil
+            verify_bin_fingerprint(format_hash, bin)
           end
 
         end

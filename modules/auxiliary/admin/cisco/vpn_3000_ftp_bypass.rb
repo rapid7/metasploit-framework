@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("\tAttempting to delete directory: RMD #{test}")
 					sock.put("RMD #{test}\r\n")
 					res = sock.get(-1,5)
-					if (res =~ /250 RMD command successful./)
+					if (res =~ /250 RMD command successful\./)
 						print_status("\tDirectory #{test} reportedly deleted. Verifying with SIZE #{test}")
 						sock.put("SIZE #{test}\r\n")
 						res = sock.get(-1,5)

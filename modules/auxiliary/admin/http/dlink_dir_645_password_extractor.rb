@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 				})
 
 			return if res.nil?
-			return if (res.headers['Server'].nil? or res.headers['Server'] !~ /DIR-645 Ver 1.0/)
+			return if (res.headers['Server'].nil? or res.headers['Server'] !~ /DIR-645 Ver 1\.0/)
 			return if (res.code == 404)
 
 			if res.body =~ /<password>(.*)<\/password>/

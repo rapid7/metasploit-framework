@@ -173,7 +173,6 @@ class OptString < OptBase
 
 	def valid?(value=self.value)
 		value = normalize(value)
-    return false unless value.kind_of?(String) or value.kind_of?(NilClass)
 		return false if empty_required_value?(value)
 		return super
 	end

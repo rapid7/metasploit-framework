@@ -428,10 +428,10 @@ class Msfcli
 
 				$stdout.puts("#{stat} #{code[1]}")
 			else
-				$stderr.puts("Check failed: The state could not be determined.")
+				$stdout.puts("Check failed: The state could not be determined.")
 			end
 		rescue
-			$stderr.puts("Check failed: #{$!}")
+			$stdout.puts("Check failed: #{$!}")
 		end
 	end
 

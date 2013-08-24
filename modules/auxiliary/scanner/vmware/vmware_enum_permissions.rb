@@ -81,7 +81,9 @@ class Metasploit3 < Msf::Auxiliary
 					tmp_perms << [perm['principal'], perm['group'], role_name , role_summary]
 				end
 				print_good tmp_perms.to_s
-				store_loot('host.vmware.permissions', "text/plain", datastore['RHOST'], tmp_perms.to_csv , "#{datastore['RHOST']}_esx_permissions.txt", "VMWare ESX Permissions")
+
+				f = store_loot('host.vmware.permissions', "text/plain", datastore['RHOST'], tmp_perms.to_csv , "#{datastore['RHOST']}_esx_permissions.txt", "VMWare ESX Permissions")
+				vprint_status("Permission info stored in: #{f}")
 			end
 		else
 			print_error "Login Failure on #{ip}"
