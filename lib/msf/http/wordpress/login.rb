@@ -5,12 +5,12 @@ module Msf::HTTP::Wordpress::Login
 	#
 	# @param user [String] Username
 	# @param pass [String] Password
-	# @return [String] the session cookie on successful login, nil otherwise
+	# @return [String,nil] the session cookie on successful login, nil otherwise
 	def wordpress_login(user, pass)
 		redirect = "#{target_uri}#{Rex::Text.rand_text_alpha(8)}"
 		res = send_request_cgi({
 				'method' => 'POST',
-				'uri' => wordpress_uri_login,
+				'uri' => wordpress_url_login,
 				'vars_post' => wordpress_helper_login_post_data(user, pass, redirect)
 		})
 

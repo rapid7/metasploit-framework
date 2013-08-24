@@ -8,6 +8,7 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
+	include Msf::HTTP::Wordpress
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Scanner
 
@@ -84,9 +85,6 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 			vprint_error("#{ip} - Unable to connect")
 			return nil
-		rescue ::Timeout::Error, ::Errno::EPIPE
-			vprint_error("#{ip} - Unable to connect")
-			return nil
 		end
 	end
 
@@ -105,75 +103,21 @@ class Metasploit3 < Msf::Auxiliary
 
 	def get_blog_posts(xml_rpc, ip)
 		# find all blog posts within IP and determine if pingback is enabled
-		vprint_status("#{ip} - Enumerating Blog posts on...")
-		blog_posts = nil
-
-		uri = target_uri.path
-		uri << '/' if uri[-1,1] != '/'
-
-		# make http request to feed url
-		begin
-			vprint_status("#{ip} - Resolving #{uri}?feed=rss2 to locate wordpress feed...")
-			res = send_request_cgi({
-				'uri'    => "#{uri}?feed=rss2",
-				'method' => 'GET'
-				})
-
-			count = datastore['NUM_REDIRECTS']
-
-			# Follow redirects
-			while (res.code == 301 || res.code == 302) and res.headers['Location'] and count != 0
-				vprint_status("#{ip} - Web server returned a #{res.code}...following to #{res.headers['Location']}")
-
-				uri = res.headers['Location'].sub(/(http|https):\/\/.*?\//, "/")
-				res = send_request_cgi({
-					'uri'    => "#{uri}",
-					'method' => 'GET'
-					})
-
-				if res.code == 200
-					vprint_status("#{ip} - Feed located at #{uri}")
-				else
-					vprint_status("#{ip} - Returned a #{res.code}...")
-				end
-				count = count - 1
-			end
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			vprint_error("#{ip} - Unable to connect")
-			return nil
-		rescue ::Timeout::Error, ::Errno::EPIPE
-			vprint_error("#{ip} - Unable to connect")
-			return nil
-		end
-
-		if res.nil? or res.code != 200
-			vprint_status("#{ip} - Did not recieve HTTP response from #{ip}")
-			return blog_posts
-		end
-
-		# parse out links and place in array
-		links = res.body.scan(/<link>([^<]+)<\/link>/i)
-
-		if links.nil? or links.empty?
-			vprint_status("#{ip} - Feed at #{ip} did not have any links present")
-			return blog_posts
-		end
-
-		links.each do |link|
-			blog_post = link[0]
+		blog_posts = wordpress_get_blog_posts
+		blog_posts.each do |blog_post|
 			pingback_response = get_pingback_request(xml_rpc, 'http://127.0.0.1', blog_post)
 			if pingback_response
 				pingback_disabled_match = pingback_response.body.match(/<value><int>33<\/int><\/value>/i)
 				if pingback_response.code == 200 and pingback_disabled_match.nil?
-					print_good("#{ip} - Pingback enabled: #{link.join}")
-					blog_posts = link.join
-					return blog_posts
+					print_good("#{ip} - Pingback enabled: #{blog_post}")
+					return blog_post
 				else
-					vprint_status("#{ip} - Pingback disabled: #{link.join}")
+					vprint_status("#{ip} - Pingback disabled: #{blog_post}")
 				end
 			end
 		end
-		return blog_posts
+
+		return nil
 	end
 
 	# method to send xml-rpc requests
@@ -190,9 +134,6 @@ class Metasploit3 < Msf::Auxiliary
 				'data'	 => "#{pingback_xml}"
 				})
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			vprint_error("Unable to connect to #{uri}")
-			return nil
-		rescue ::Timeout::Error, ::Errno::EPIPE
 			vprint_error("Unable to connect to #{uri}")
 			return nil
 		end
@@ -213,19 +154,24 @@ class Metasploit3 < Msf::Auxiliary
 
 	# main control method
 	def run_host(ip)
+		unless wordpress_and_online?
+			print_error("#{ip} does not seeem to be Wordpress site")
+			return
+		end
+
 		# call method to get xmlrpc url
 		xmlrpc = get_xml_rpc_url(ip)
 
 		# once xmlrpc url is found, get_blog_posts
 		if xmlrpc.nil?
-			vprint_error("#{ip} - It doesn't appear to be vulnerable")
+			print_error("#{ip} - It doesn't appear to be vulnerable")
 		else
 			hash = get_blog_posts(xmlrpc, ip)
 
 			if hash
 				store_vuln(ip, hash) if @db_active
 			else
-				vprint_status("#{ip} - X-Pingback enabled but no vulnerable blogs found")
+				print_status("#{ip} - X-Pingback enabled but no vulnerable blogs found")
 			end
 		end
 	end

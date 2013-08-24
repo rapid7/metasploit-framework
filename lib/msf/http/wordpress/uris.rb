@@ -4,7 +4,7 @@ module Msf::HTTP::Wordpress::URIs
 	# Returns the Wordpress Login URL
 	#
 	# @return [String] Wordpress Login URL
-	def wordpress_uri_login
+	def wordpress_url_login
 		normalize_uri(target_uri.path, 'wp-login.php')
 	end
 
@@ -22,6 +22,13 @@ module Msf::HTTP::Wordpress::URIs
 	# @return [String] Wordpress Author URL
 	def wordpress_url_author(author_id)
 		normalize_uri(target_uri.path, "?author=#{author_id}")
+	end
+
+	# Returns the Wordpress RSS feed URL
+	#
+	# @return [String] Wordpress RSS URL
+	def wordpress_url_rss
+		normalize_uri(target_uri.path, '?feed=rss2')
 	end
 
 end

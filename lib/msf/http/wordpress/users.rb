@@ -8,7 +8,7 @@ module Msf::HTTP::Wordpress::Users
 	def wordpress_user_exists?(user)
 		res = send_request_cgi({
 				'method' => 'POST',
-				'uri' => wordpress_uri_login,
+				'uri' => wordpress_url_login,
 				'vars_post' => wordpress_helper_login_post_data(user, Rex::Text.rand_text_alpha(6))
 		})
 
@@ -22,7 +22,7 @@ module Msf::HTTP::Wordpress::Users
 	# Checks if the given userid exists
 	#
 	# @param user_id [Integer] user_id
-	# @return [String] the Username if it exists, nil otherwise
+	# @return [String,nil] the Username if it exists, nil otherwise
 	def wordpress_userid_exists?(user_id)
 		url = wordpress_url_author(user_id)
 		res = send_request_cgi({
@@ -45,7 +45,7 @@ module Msf::HTTP::Wordpress::Users
 		end
 
 		if res.nil?
-			print_error("#{target_uri} - Error getting response.")
+			print_error("#{peer} - Error getting response.")
 			return nil
 		elsif res.code == 200 and
 				(res.body =~ /href="http[s]*:\/\/.*\/\?*author.+title="([[:print:]]+)" /i or

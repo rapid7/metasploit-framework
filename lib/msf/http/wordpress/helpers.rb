@@ -28,7 +28,7 @@ module Msf::HTTP::Wordpress::Helpers
 	# @param author [String] The author name
 	# @param email [String] The author email
 	# @param url [String] The author url
-	# @return [String] The location of the new comment/post, nil on error
+	# @return [String,nil] The location of the new comment/post, nil on error
 	def wordpress_helper_post_comment(comment, comment_post_id, login_cookie, author, email, url)
 		vars_post = {
 				'comment' => comment,
@@ -52,7 +52,7 @@ module Msf::HTTP::Wordpress::Helpers
 		if res and (res.code == 301 or res.code == 302) and res.headers['Location']
 			return wordpress_helper_parse_location_header(res)
 		else
-			message = 'Post comment failed.'
+			message = "#{peer} - Post comment failed."
 			message << " Status Code: #{res.code}" if res
 			print_error(message)
 			return nil
@@ -64,10 +64,10 @@ module Msf::HTTP::Wordpress::Helpers
 	# @param range [Range] The Range of post_ids to bruteforce
 	# @param comments_enabled [Boolean] If true try to find a post id with comments enabled, otherwise return the first found
 	# @param login_cookie [String] A valid login cookie to perform the bruteforce as an authenticated user
-	# @return [Integer] The post id, nil when nothing found
+	# @return [Integer,nil] The post id, nil when nothing found
 	def wordpress_helper_get_valid_post_id(range, comments_enabled=false, login_cookie=nil)
 		range.each { |id|
-			vprint_status("#{rhost}:#{rport} - Checking POST ID #{id}...") if (id % 100) == 0
+			vprint_status("#{peer} - Checking POST ID #{id}...") if (id % 100) == 0
 			body = wordpress_helper_check_post_id(wordpress_url_post(id), comments_enabled, login_cookie)
 			return id if body
 		}
@@ -80,7 +80,7 @@ module Msf::HTTP::Wordpress::Helpers
 	# @param uri [String] the Post URI Path
 	# @param comments_enabled [Boolean] Check if comments are enabled on this post
 	# @param login_cookie [String] A valid login cookie to perform the check as an authenticated user
-	# @return [String] the HTTP response body of the post, nil otherwise
+	# @return [String,nil] the HTTP response body of the post, nil otherwise
 	def wordpress_helper_check_post_id(uri, comments_enabled=false, login_cookie=nil)
 		options = {
 				'method' => 'GET',
@@ -111,7 +111,7 @@ module Msf::HTTP::Wordpress::Helpers
 	# Helper method parse a Location header and returns only the path and query. Returns nil on error
 	#
 	# @param res [Rex::Proto::Http::Response] The HTTP response
-	# @return [String] the path and query, nil on error
+	# @return [String,nil] the path and query, nil on error
 	def wordpress_helper_parse_location_header(res)
 		return nil unless res and (res.code == 301 or res.code == 302) and res.headers['Location']
 
@@ -122,7 +122,7 @@ module Msf::HTTP::Wordpress::Helpers
 			uri << "?#{temp.query}" unless temp.query.nil? or temp.query.empty?
 			return uri
 		rescue URI::Error
-			print_error("Invalid Location Header returned (not an URI): #{location}")
+			print_error("#{peer} - Invalid Location Header returned (not an URI): #{location}")
 			return nil
 		end
 	end

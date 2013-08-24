@@ -4,7 +4,7 @@ module Msf::HTTP::Wordpress::Base
 
 	# Checks if the site is online and running wordpress
 	#
-	# @return [Rex::Proto::Http::Response] Returns the HTTP response if the site is online and running wordpress, nil otherwise
+	# @return [Rex::Proto::Http::Response,nil] Returns the HTTP response if the site is online and running wordpress, nil otherwise
 	def wordpress_and_online?
 		begin
 			res = send_request_cgi({
@@ -20,7 +20,7 @@ module Msf::HTTP::Wordpress::Base
 					)
 			return nil
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			print_error("Error connecting to #{target_uri}")
+			print_error("#{peer} - Error connecting to #{target_uri}")
 			return nil
 		end
 	end
