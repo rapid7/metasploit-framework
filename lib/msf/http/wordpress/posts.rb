@@ -59,7 +59,7 @@ module Msf::HTTP::Wordpress::Posts
 	# Tries to get some Blog Posts via the RSS feed
 	#
 	# @return [Array<String>,nil] String Array with valid blog posts, nil on error
-	def wordpress_get_blog_posts
+	def wordpress_get_all_blog_posts_via_feed
 		vprint_status("#{peer} - Enumerating Blog posts...")
 		blog_posts = []
 
