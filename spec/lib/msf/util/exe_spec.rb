@@ -27,6 +27,8 @@ describe Msf::Util::EXE do
         { :format => "dll",       :arch => "x64", :file_fp => /PE32\+.*DLL/ },
         { :format => "exe",       :arch => "x86", :file_fp => /PE32 /  },
         { :format => "exe",       :arch => "x64", :file_fp => /PE32\+/ },
+        { :format => "exe-service",       :arch => "x86", :file_fp => /PE32 /  },
+        { :format => "exe-service",       :arch => "x64", :file_fp => /PE32\+/ },
         { :format => "exe-small", :arch => "x86", :file_fp => /PE32 /  },
         # No template for 64-bit exe-small. That's fine, we probably
         # don't need one.

@@ -1990,6 +1990,15 @@ End Sub
 				output = Msf::Util::EXE.to_win64pe(framework, code, exeopts)
 			end
 
+		when 'exe-service'
+			if (not arch or (arch.index(ARCH_X86)))
+				output = Msf::Util::EXE.to_win32pe_service(framework, code, exeopts)
+			end
+
+			if(arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
+				output = Msf::Util::EXE.to_win64pe_service(framework, code, exeopts)
+			end
+
 		when 'exe-small'
 			if(not arch or (arch.index(ARCH_X86)))
 				output = Msf::Util::EXE.to_win32pe_old(framework, code, exeopts)
@@ -2068,7 +2077,7 @@ End Sub
 	end
 
 	def self.to_executable_fmt_formats
-		['dll','exe','exe-small','exe-only','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','aspx','war','psh','psh-net']
+		['dll','exe','exe-service','exe-small','exe-only','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','aspx','war','psh','psh-net']
 	end
 
 	#
