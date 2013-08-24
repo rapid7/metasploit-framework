@@ -29,10 +29,10 @@ module Msf::HTTP::Wordpress::Posts
 	# @param max_post_id [Integer] The last post_id to bruteforce
 	# @param login_cookie [String] If set perform the bruteforce as an authenticated user
 	# @return [Integer,nil] The post id, nil when nothing found
-	def wordpress_get_valid_post_id(min_post_id, max_post_id, login_cookie=nil)
+	def wordpress_bruteforce_valid_post_id(min_post_id, max_post_id, login_cookie=nil)
 		return nil if min_post_id > max_post_id
 		range = Range.new(min_post_id, max_post_id)
-		wordpress_helper_get_valid_post_id(range, false, login_cookie)
+		wordpress_helper_bruteforce_valid_post_id(range, false, login_cookie)
 	end
 
 	# Tries to bruteforce a valid post_id with comments enabled
@@ -41,10 +41,10 @@ module Msf::HTTP::Wordpress::Posts
 	# @param max_post_id [Integer] The last post_id to bruteforce
 	# @param login_cookie [String] If set perform the bruteforce as an authenticated user
 	# @return [Integer,nil] The post id, nil when nothing found
-	def wordpress_get_valid_post_id_with_comments_enabled(min_post_id, max_post_id, login_cookie=nil)
+	def wordpress_bruteforce_valid_post_id_with_comments_enabled(min_post_id, max_post_id, login_cookie=nil)
 		return nil if min_post_id > max_post_id
 		range = Range.new(min_post_id, max_post_id)
-		wordpress_helper_get_valid_post_id(range, true, login_cookie)
+		wordpress_helper_bruteforce_valid_post_id(range, true, login_cookie)
 	end
 
 	# Checks if the provided post has comments enabled

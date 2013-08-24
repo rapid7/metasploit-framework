@@ -65,7 +65,7 @@ module Msf::HTTP::Wordpress::Helpers
 	# @param comments_enabled [Boolean] If true try to find a post id with comments enabled, otherwise return the first found
 	# @param login_cookie [String] A valid login cookie to perform the bruteforce as an authenticated user
 	# @return [Integer,nil] The post id, nil when nothing found
-	def wordpress_helper_get_valid_post_id(range, comments_enabled=false, login_cookie=nil)
+	def wordpress_helper_bruteforce_valid_post_id(range, comments_enabled=false, login_cookie=nil)
 		range.each { |id|
 			vprint_status("#{peer} - Checking POST ID #{id}...") if (id % 100) == 0
 			body = wordpress_helper_check_post_id(wordpress_url_post(id), comments_enabled, login_cookie)
