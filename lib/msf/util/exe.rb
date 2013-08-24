@@ -91,7 +91,7 @@ require 'msf/core/exe/segment_injector'
 
 		if( arch.index(ARCH_X86_64) or arch.index( ARCH_X64 ) )
 			if (plat.index(Msf::Module::Platform::Windows))
-				return to_win64pe(code, opts)
+				return to_win64pe(framework, code, opts)
 			end
 
 			if (plat.index(Msf::Module::Platform::Linux))
@@ -147,7 +147,7 @@ require 'msf/core/exe/segment_injector'
 			end
 
 			# use
-			return self.to_win32pe_exe_sub(code, opts)
+			return self.to_win32pe_exe_sub(framework, code, opts)
 		end
 
 		# Allow the user to specify their own EXE template
@@ -425,42 +425,42 @@ require 'msf/core/exe/segment_injector'
     return pe
   end
 
-	def self.to_win32pe_exe_sub(code, opts={})
+	def self.to_win32pe_exe_sub(framework, code, opts={})
 		# Allow the user to specify their own DLL template
 		set_template_default(opts, "template_x86_windows.exe")
     opts[:exe_type] = :exe_sub
 		exe_sub_method(code,opts)
 	end
 
-	def self.to_win64pe(code, opts={})
+	def self.to_win64pe(framework, code, opts={})
 		# Allow the user to specify their own EXE template
 		set_template_default(opts, "template_x64_windows.exe")
     opts[:exe_type] = :exe_sub
     exe_sub_method(code,opts)
 	end
 
-	def self.to_win32pe_service(code, opts={})
+	def self.to_win32pe_service(framework, code, opts={})
 		# Allow the user to specify their own service EXE template
 		set_template_default(opts, "template_x86_windows_svc.exe")
     opts[:exe_type] = :service_exe
     exe_sub_method(code,opts)
 	end
 
-	def self.to_win64pe_service(code, opts={})
+	def self.to_win64pe_service(framework, code, opts={})
 		# Allow the user to specify their own service EXE template
 		set_template_default(opts, "template_x64_windows_svc.exe")
     opts[:exe_type] = :service_exe
     exe_sub_method(code,opts)
 	end
 
-	def self.to_win32pe_dll(code, opts={})
+	def self.to_win32pe_dll(framework, code, opts={})
 		# Allow the user to specify their own DLL template
 		set_template_default(opts, "template_x86_windows.dll")
     opts[:exe_type] = :dll
     exe_sub_method(code,opts)
 	end
 
-	def self.to_win64pe_dll(code, opts={})
+	def self.to_win64pe_dll(framework, code, opts={})
 		# Allow the user to specify their own DLL template
 		set_template_default(opts, "template_x64_windows.dll")
     opts[:exe_type] = :dll
@@ -1855,15 +1855,15 @@ End Sub
 
 		when 'dll'
 			output = case arch
-				when ARCH_X86,nil then to_win32pe_dll(code, exeopts)
-				when ARCH_X86_64  then to_win64pe_dll(code, exeopts)
-				when ARCH_X64     then to_win64pe_dll(code, exeopts)
+				when ARCH_X86,nil then to_win32pe_dll(framework, code, exeopts)
+				when ARCH_X86_64  then to_win64pe_dll(framework, code, exeopts)
+				when ARCH_X64     then to_win64pe_dll(framework, code, exeopts)
 				end
 		when 'exe'
 			output = case arch
 				when ARCH_X86,nil then to_win32pe(framework, code, exeopts)
-				when ARCH_X86_64  then to_win64pe(code, exeopts)
-				when ARCH_X64     then to_win64pe(code, exeopts)
+				when ARCH_X86_64  then to_win64pe(framework, code, exeopts)
+				when ARCH_X64     then to_win64pe(framework, code, exeopts)
 				end
 
 		when 'exe-small'
