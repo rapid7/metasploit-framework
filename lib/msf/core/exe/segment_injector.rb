@@ -87,7 +87,7 @@ module Exe
       s.characteristics = %w[MEM_READ MEM_WRITE MEM_EXECUTE]
 
       # Tell our section where the original entrypoint was
-      s.encoded.fixup!('entrypoint' => pe.optheader.image_base + pe.optheader.entrypoint)	# tell the original entrypoint address to our hook
+      s.encoded.fixup!('entrypoint' => pe.optheader.image_base + pe.optheader.entrypoint)
       pe.sections << s
       pe.invalidate_header
 
