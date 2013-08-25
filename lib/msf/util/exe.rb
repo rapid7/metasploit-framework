@@ -1061,7 +1061,7 @@ def self.to_vba(framework,code,opts={})
 		web_xml.gsub!(/PAYLOAD/, jsp_name)
 
 		zip = Rex::Zip::Archive.new
-		zip.add_file('META-INF/', nil, meta_inf)
+		zip.add_file('META-INF/', '', meta_inf)
 		zip.add_file('META-INF/MANIFEST.MF', manifest)
 		zip.add_file('WEB-INF/', '')
 		zip.add_file('WEB-INF/web.xml', web_xml)
