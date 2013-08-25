@@ -18,15 +18,15 @@ module Exe
 
     def processor
       case @arch
-        when :x86
-          return Metasm::Ia32.new
-        when :x64
-          return Metasm::X86_64.new
+      when :x86
+        return Metasm::Ia32.new
+      when :x64
+        return Metasm::X86_64.new
       end
     end
 
     def create_thread_stub
-      <<EOS
+      <<-EOS
         hook_entrypoint:
         pushad
         push hook_libname
@@ -52,7 +52,7 @@ module Exe
 
         thread_hook:
 
-EOS
+      EOS
     end
 
     def payload_as_asm
