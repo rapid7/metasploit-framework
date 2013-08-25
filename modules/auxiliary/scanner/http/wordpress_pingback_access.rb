@@ -103,7 +103,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def get_blog_posts(xml_rpc, ip)
 		# find all blog posts within IP and determine if pingback is enabled
-		blog_posts = wordpress_get_all_blog_posts_via_feed
+		blog_posts = wordpress_get_all_blog_posts_via_feed(datastore['NUM_REDIRECTS'])
 		blog_posts.each do |blog_post|
 			pingback_response = get_pingback_request(xml_rpc, 'http://127.0.0.1', blog_post)
 			if pingback_response

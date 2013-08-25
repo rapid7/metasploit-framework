@@ -116,15 +116,7 @@ module Msf::HTTP::Wordpress::Helpers
 		return nil unless res and (res.code == 301 or res.code == 302) and res.headers['Location']
 
 		location = res.headers['Location']
-		begin
-			temp = URI(res.headers['Location'])
-			uri = temp.path
-			uri << "?#{temp.query}" unless temp.query.nil? or temp.query.empty?
-			return uri
-		rescue URI::Error
-			print_error("#{peer} - Invalid Location Header returned (not an URI): #{location}")
-			return nil
-		end
+		path_from_uri(location)
 	end
 
 end

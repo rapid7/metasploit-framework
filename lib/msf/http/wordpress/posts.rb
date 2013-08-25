@@ -52,14 +52,33 @@ module Msf::HTTP::Wordpress::Posts
 	# @param post_id [Integer] The post ID to check
 	# @param login_cookie [String] If set perform the check as an authenticated user
 	# @return [String,nil] the HTTP response body of the post, nil otherwise
-	def wordpress_post_comments_enabled?(post_id, login_cookie=nil)
+	def wordpress_post_id_comments_enabled?(post_id, login_cookie=nil)
 		wordpress_helper_check_post_id(wordpress_url_post(post_id), true, login_cookie)
+	end
+
+	# Checks if the provided post has comments enabled
+	#
+	# @param url [String] The post url
+	# @param login_cookie [String] If set perform the check as an authenticated user
+	# @return [String,nil] the HTTP response body of the post, nil otherwise
+	def wordpress_post_comments_enabled?(url, login_cookie=nil)
+		wordpress_helper_check_post_id(url, true, login_cookie)
+	end
+
+	# Gets the post_id from a post body
+	#
+	# @param body [String] The body of a post
+	# @return [String,nil] The post_id, nil when nothing found
+	def get_post_id_from_body(body)
+		return nil unless body
+		body.match(/<body class="[^=]*postid-(\d+)[^=]*">/i)[1]
 	end
 
 	# Tries to get some Blog Posts via the RSS feed
 	#
+	# @param max_redirects [Integer] maximum redirects to follow
 	# @return [Array<String>,nil] String Array with valid blog posts, nil on error
-	def wordpress_get_all_blog_posts_via_feed
+	def wordpress_get_all_blog_posts_via_feed(max_redirects = 10)
 		vprint_status("#{peer} - Enumerating Blog posts...")
 		blog_posts = []
 
@@ -70,7 +89,7 @@ module Msf::HTTP::Wordpress::Posts
 																 'method' => 'GET'
 														 })
 
-			count = datastore['NUM_REDIRECTS']
+			count = max_redirects
 
 			# Follow redirects
 			while (res.code == 301 || res.code == 302) and res.headers['Location'] and count != 0
@@ -109,7 +128,8 @@ module Msf::HTTP::Wordpress::Posts
 		end
 
 		links.each do |link|
-			blog_posts << link[0]
+			path = path_from_uri(link[0])
+			blog_posts << path if path
 		end
 		return blog_posts
 	end
