@@ -43,14 +43,14 @@ Sub %{func_name1}()
 			%{var_index} = 1
 			While (%{var_index} < Len(%{var_stemp}))
 				%{var_btemp} = Mid(%{var_stemp},%{var_index},4)
-				#Put %{var_fhand}, , %{var_btemp}
+				Put #%{var_fhand}, , %{var_btemp}
 				%{var_index} = %{var_index} + 4
 			Wend
 		ElseIf (InStr(1,%{var_stemp},%{var_magic}) > 0 And Len(%{var_stemp}) > 0) Then
 			%{var_gotmagic} = True
 		End If
 	Next
-	Close %{var_fhand}
+	Close #%{var_fhand}
 	%{func_name2}(%{var_fname})
 End Sub
 
@@ -77,4 +77,5 @@ End Sub
 '*
 '**************************************************************
 
-%{var_magic}%{data}
+%{var_magic}
+%{data}
