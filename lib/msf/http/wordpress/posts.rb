@@ -23,6 +23,26 @@ module Msf::HTTP::Wordpress::Posts
 		wordpress_helper_post_comment(comment, comment_post_id, nil, author, email, url)
 	end
 
+	# Wordpress shows moderated comments to the unauthenticated Posting user
+	# Users are identified by their cookie
+	#
+	# @param author [String] The author name used to post the anonymous comment
+	# @param email [String] The author email used to post the anonymous comment
+	# @param url [String] The author url used to post the anonymous comment
+	# @return [String] The cookie string that can be used to see moderated comments
+	def wordpress_get_unauth_comment_cookies(author, email, url)
+		scheme = ssl ? 'https' : 'http'
+		port = (rport == 80 or rport == 443) ? '' : rport
+		# siteurl does not contain last slash
+		path = target_uri.to_s.sub(/\/$/, '')
+		siteurl = "#{scheme}://#{rhost}#{port}#{path}"
+		site_hash = Rex::Text.md5(siteurl)
+		cookie = "comment_author_#{site_hash}=#{author}; "
+		cookie << "comment_author_email_#{site_hash}=#{email}; "
+		cookie << "comment_author_url_#{site_hash}=#{url};"
+		cookie
+	end
+
 	# Tries to bruteforce a valid post_id
 	#
 	# @param min_post_id [Integer] The first post_id to bruteforce
