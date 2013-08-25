@@ -970,7 +970,7 @@ def self.to_vba(framework,code,opts={})
 
 		hash_sub[:shellcode] = Rex::Text.to_powershell(code, hash_sub[:var_code])
 
-		return read_replace_script_template("to_mem_dotnet.ps1.template", hash_sub)
+		return read_replace_script_template("to_mem_dotnet.ps1.template", hash_sub).gsub(/(?<!\r)\n/, "\r\n")
 	end
 
 	def self.to_win32pe_psh(framework, code, opts={})
@@ -985,7 +985,7 @@ def self.to_vba(framework,code,opts={})
 
 		hash_sub[:shellcode] = Rex::Text.to_powershell(code, hash_sub[:var_code])
 
-		return read_replace_script_template("to_mem_old.ps1.template", hash_sub)
+		return read_replace_script_template("to_mem_old.ps1.template", hash_sub).gsub(/(?<!\r)\n/, "\r\n")
 	end
 
 	def self.to_win32pe_vbs(framework, code, opts={})
