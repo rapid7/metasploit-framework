@@ -612,15 +612,12 @@ require 'digest/sha1'
 		return pe
 	end
 
-	def self.to_win32pe_msi(framework, code, opts={})
-		opts[:msi_template] ||= "template_x86_windows.msi"
-		exe = to_win32pe(framework, code, opts)
-		return replace_msi_buffer(exe, opts)
-	end
-
-	def self.to_win64pe_msi(framework, code, opts={})
-		opts[:msi_template] ||= "template_x64_windows.msi"
-		exe = to_win64pe(framework, code, opts)
+	#
+	#   Wraps an executable inside a Windows
+	#    .msi file for auto execution when run
+	#
+	def self.to_exe_msi(framework, exe, opts={})
+		opts[:msi_template] ||= "template_windows.msi"
 		return replace_msi_buffer(exe, opts)
 	end
 
@@ -2090,11 +2087,13 @@ End Sub
 				end
 
 		when 'msi'
-			output = case arch
-				         when ARCH_X86,nil then Msf::Util::EXE.to_win32pe_msi(framework, code, exeopts)
-				         when ARCH_X86_64  then Msf::Util::EXE.to_win64pe_msi(framework, code, exeopts)
-				         when ARCH_X64     then Msf::Util::EXE.to_win64pe_msi(framework, code, exeopts)
-			         end
+			case arch
+				when ARCH_X86,nil
+					exe = to_win32pe(framework, code, exeopts)
+				when ARCH_X86_64,ARCH_X64
+					exe = to_win64pe(framework, code, exeopts)
+			end
+			output = Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
 
 		when 'elf'
 			if (not plat or (plat.index(Msf::Module::Platform::Linux)))
