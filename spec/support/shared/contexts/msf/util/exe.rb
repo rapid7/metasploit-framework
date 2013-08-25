@@ -15,6 +15,9 @@ shared_context 'Msf::Util::Exe' do
       { :format => "exe-only",  :arch => "x86", :file_fp => /PE32 /  },
       { :format => "exe-only",  :arch => "x64", :file_fp => /PE32\+ /  },
       { :format => "exe-only",  :arch => "x86_64", :file_fp => /PE32\+ /  },
+      { :format => "exe-service",  :arch => "x86", :file_fp => /PE32 /  },
+      { :format => "exe-service",  :arch => "x64", :file_fp => /PE32\+ /  },
+      { :format => "exe-service",  :arch => "x86_64", :file_fp => /PE32\+ /  },
     ],
     "linux" => [
       { :format => "elf", :arch => "x86",    :file_fp => /ELF 32.*SYSV/ },
