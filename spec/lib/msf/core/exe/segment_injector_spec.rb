@@ -33,6 +33,35 @@ describe Msf::Exe::SegmentInjector do
     it 'should return a string' do
       injector.generate_pe.kind_of?(String).should == true
     end
+
+    it 'should produce a valid PE exe' do
+      expect {Metasm::PE.decode(injector.generate_pe) }.to_not raise_exception
+    end
+
+    context 'the generated exe' do
+      let(:exe) { Metasm::PE.decode(injector.generate_pe) }
+      it 'should be the propper arch' do
+        exe.bitsize.should == 32
+      end
+
+      it 'should have 5 sections' do
+        exe.sections.count.should == 5
+      end
+
+      it 'should have all the right section names' do
+        s_names = []
+        exe.sections.collect {|s| s_names << s.name}
+        s_names.should == [".text", ".rdata", ".data", ".rsrc", ".text"]
+      end
+
+      it 'should have the last section set to RWX' do
+        exe.sections.last.characteristics.should == ["CONTAINS_CODE", "MEM_EXECUTE", "MEM_READ", "MEM_WRITE"]
+      end
+
+      it 'should have an entrypoint that points to the last section' do
+        exe.optheader.entrypoint.should == exe.sections.last.virtaddr
+      end
+    end
   end
 end
 
