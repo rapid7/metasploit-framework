@@ -37,8 +37,8 @@ class Archive
 			if (st.directory?)
 				attrs = EFA_ISDIR
 				fdata = ''
-				unless fname[-1] == '/'
-					fname << '/'
+				unless fname[-1,1] == '/'
+					fname += '/'
 				end
 			else
 				f = File.open(fname, 'rb')
