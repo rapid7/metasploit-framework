@@ -1826,5 +1826,48 @@ describe Msf::DBManager do
 				}.to_not change(Mdm::Module::Detail, :count)
 			end
 		end
-	end
+  end
+
+  context '#normalize_host' do
+    context 'when passed a string' do
+      context'of an ipv4 address' do
+        let(:ipv4_addr) { '192.168.1.1'}
+        it 'should return the same string if it is a normal valid ipv4 address' do
+          db_manager.normalize_host(ipv4_addr).should == ipv4_addr
+        end
+
+        it 'should strip off trailing port numbers' do
+          db_manager.normalize_host("#{ipv4_addr}:80").should == ipv4_addr
+        end
+
+        it 'should strip off trailing CIDR ranges' do
+          db_manager.normalize_host("#{ipv4_addr}/24").should == ipv4_addr
+        end
+      end
+
+      context 'of an ipv6 address' do
+        it 'should just return a valid ipv6 address with padding' do
+          ipv6_addr = '2607:f0d0:1002:51::4'
+          db_manager.normalize_host(ipv6_addr).should == ipv6_addr
+        end
+
+        it 'should just return a valid ipv6 address without padding' do
+          ipv6_addr = '2607:f0d0:1002:0051:0000:0000:0000:0004'
+          db_manager.normalize_host(ipv6_addr).should == ipv6_addr
+        end
+
+        it 'should drop the scope off the end' do
+          ipv6_addr =  '2607:f0d0:1002:51::4'
+          db_manager.normalize_host("#{ipv6_addr}%16").should == ipv6_addr
+        end
+      end
+    end
+
+    context 'when passed an Mdm::Session' do
+      it 'should return the host from the session' do
+        session = FactoryGirl.create(:mdm_session)
+        db_manager.normalize_host(session).should == session.host
+      end
+    end
+  end
 end
