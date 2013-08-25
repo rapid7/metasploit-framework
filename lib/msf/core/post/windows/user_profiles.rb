@@ -11,8 +11,8 @@ module UserProfiles
 	include Msf::Post::Windows::Accounts
 
 	#
-	# Load the registry hive for each user on the machine and parse out the 
-	# user profile information. Next, unload the hives we loaded and return 
+	# Load the registry hive for each user on the machine and parse out the
+	# user profile information. Next, unload the hives we loaded and return
 	# the user profiles.
 	#
 	def grab_user_profiles
@@ -89,7 +89,7 @@ module UserProfiles
 	end
 
 	#
-	# Read HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList to 
+	# Read HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList to
 	# get a list of user profiles on the machine.
 	#
 	def read_profile_list

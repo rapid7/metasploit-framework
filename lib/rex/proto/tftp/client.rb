@@ -64,7 +64,7 @@ class Client
 	#
 	# Methods for both upload and download
 	#
-	
+
 	def start_server_socket
 		self.server_sock = Rex::Socket::Udp.create(
 			'LocalHost' => local_host,
@@ -138,7 +138,7 @@ class Client
 	#
 	# Methods for download
 	#
-	
+
 	def rrq_packet
 		req = [OpRead, self.remote_file, self.mode]
 		packstr = "na#{self.remote_file.length+1}a#{self.mode.length+1}"
@@ -231,7 +231,7 @@ class Client
 	#
 	# Methods for upload
 	#
-	
+
 	def wrq_packet
 		req = [OpWrite, self.remote_file, self.mode]
 		packstr = "na#{self.remote_file.length+1}a#{self.mode.length+1}"

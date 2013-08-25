@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 
 		serverIP = datastore['RHOST']
-		if (datastore['RPORT'].o_i != 80)
+		if (datastore['RPORT'].to_i != 80)
 			serverIP += ":" + datastore['RPORT'].to_s
 		end
 		isapiURI = datastore['ISAPI']

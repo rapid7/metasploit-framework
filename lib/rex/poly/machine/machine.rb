@@ -2,29 +2,29 @@
 module Rex
 
 	module Poly
-	
+
 		#
 		# A machine capable of creating a small blob of code in a metamorphic kind of way.
 		# Note: this is designed to perform an exhaustive search for a solution and can be
-		# slow. If you need a speedier option, the origional Rex::Polly::Block stuff is a 
+		# slow. If you need a speedier option, the origional Rex::Polly::Block stuff is a
 		# better choice.
 		#
 		class Machine
-			
+
 			QWORD = 8
 			DWORD = 4
 			WORD  = 2
 			BYTE  = 1
-			
+
 			#
 			# A Permutation!
 			#
 			class Permutation
-			
+
 				attr_accessor :active, :offset
-			
+
 				attr_reader :name, :primitive, :length, :args
-				
+
 				#
 				# Create a new permutation object.
 				#
@@ -40,14 +40,14 @@ module Rex
 					@offset    = 0
 					@children  = ::Array.new
 				end
-				
+
 				#
 				# Add in a child permutation to this one. Used to build the permutation tree.
 				#
 				def add_child( child )
 					@children << child
 				end
-				
+
 				#
 				# Does this permutation have children?
 				#
@@ -62,7 +62,7 @@ module Rex
 				def remove_children
 					@children.clear
 				end
-				
+
 				#
 				# Actully render this permutation into a raw buffer.
 				#
@@ -107,12 +107,12 @@ module Rex
 					end
 					# Update the length to reflect the new raw buffer
 					@length = raw.to_s.length
-					# As the temp variable is only assigned for the duration of a single permutation we 
+					# As the temp variable is only assigned for the duration of a single permutation we
 					# can now release it if it was used in this permutation.
 					@machine.release_temp_variable
 					return raw.to_s
 				end
-				
+
 				#
 				# Test if this permutation raw buffer is valid in this machine (e.g. against the badchar list).
 				#
@@ -132,10 +132,10 @@ module Rex
 							# Should a temporary variable have been assigned we can release it here.
 							@machine.release_temp_variable
 						end
-					end				
+					end
 					return result
 				end
-				
+
 				#
 				# Try to find a solution within the solution space by performing a depth first search
 				# into the permutation tree and backtracking when needed.
@@ -172,9 +172,9 @@ module Rex
 					# No children can be made form part of the solution, return failure for this path in the tree.
 					return false
 				end
-				
+
 			end
-			
+
 			#
 			# A symbolic permutation to mark locations like the begining and end of a group of blocks.
 			# Used to calculate usefull offsets.
@@ -189,7 +189,7 @@ module Rex
 					# A symbolic block is allways active!
 					@active = true
 				end
-				
+
 				#
 				# We block all attempts to set the active state of this permutation so as
 				# it is always true. This lets us always address the offset.
@@ -197,76 +197,76 @@ module Rex
 				def active=( value )
 				end
 			end
-			
+
 			#
 			# A primitive is a machine defined permutation which accepts some arguments when it is called.
 			#
 			class Primitive
-			
+
 				#
 				# Initialize this primitive with its target source procedure and the machine it belongs to.
 				#
 				def initialize( source )
 					@source = source
 				end
-				
+
 				#
 				# Call the primitives source procedure, passing in the arguments.
 				#
 				def call( name, machine, *args )
 					return @source.call( name, machine, *args )
 				end
-				
+
 			end
-			
+
 			#
 			#
 			#
 			class Block
-				
+
 				#attr_accessor :next, :previous
 				attr_reader :name
-				
+
 				def initialize( name )
 					@name         = name
 					@next         = nil
 					@previous     = nil
 					@permutations = ::Array.new
 				end
-				
+
 				def shuffle
 					@permutations = @permutations.shuffle
 				end
-				
+
 				def solve
 					@permutations.first.solve
 				end
-				
+
 				def << ( permutation )
 					@permutations << permutation
 				end
-				
+
 				def each
 					@permutations.each do | permutation |
 						yield permutation
 					end
 				end
-				
+
 			end
-			
+
 			#
 			# A class to hold a solution for a Rex::Poly::Machine problem.
 			#
 			class Solution
-			
+
 				attr_reader :offset
-				
+
 				def initialize
 					@permutations = ::Array.new
 					@reg_state    = ::Array.new
 					@offset       = 0
 				end
-				
+
 				#
 				# Reset this solution to an empty state.
 				#
@@ -279,7 +279,7 @@ module Rex
 					@permutations.clear
 					@reg_state.clear
 				end
-				
+
 				#
 				# Push a new permutation onto this solutions permutations list and save the associated register/variables state
 				#
@@ -290,7 +290,7 @@ module Rex
 					@permutations.push( permutation )
 					@reg_state.push( [ [].concat(reg_available), [].concat(reg_consumed), {}.merge(variables) ] )
 				end
-				
+
 				#
 				# Pop off the last permutaion and register/variables state from this solution.
 				#
@@ -342,45 +342,45 @@ module Rex
 					end
 					return raw
 				end
-				
+
 			end
-			
+
 			#
 			# Create a new machine instance.
 			#
 			def initialize( badchars, cpu )
 				@badchars      = badchars
 				@cpu           = cpu
-				
+
 				@reg_available = ::Array.new
 				@reg_consumed  = ::Array.new
 				@variables     = ::Hash.new
 				@blocks        = ::Hash.new
 				@primitives    = ::Hash.new
 				@solution      = Solution.new
-				
+
 				_create_primitives
-				
+
 				@blocks['begin'] = Block.new( 'begin' )
 				@blocks['begin'] << SymbolicPermutation.new( 'begin', self )
-				
+
 				_create_variable( 'temp' )
 			end
-			
+
 			#
 			# Overloaded by a subclass to return the maximum native general register size supported.
 			#
 			def native_size
 				nil
 			end
-			
+
 			#
 			# Use METASM to assemble a line of asm using this machines current cpu.
 			#
 			def assemble( asm )
 				return Metasm::Shellcode.assemble( @cpu, asm ).encode_string
 			end
-			
+
 			#
 			# Check if a data blob is valid against the badchar list (or perform any other validation here)
 			#
@@ -390,7 +390,7 @@ module Rex
 				end
 				return Rex::Text.badchar_index( data, @badchars ).nil?
 			end
-			
+
 			#
 			# Generate a 64 bit number whoes bytes are valid in this machine.
 			#
@@ -418,7 +418,7 @@ module Rex
 			def make_safe_byte( number=nil )
 				return _make_safe_number( BYTE, number ) & 0xFF
 			end
-			
+
 			#
 			# Create a variable by name which will be assigned a register during generation. We can
 			# optionally assign a static register value to a variable if needed.
@@ -430,7 +430,7 @@ module Rex
 				end
 				return _create_variable( name, reg )
 			end
-			
+
 			#
 			# If the temp variable was assigned we release it.
 			#
@@ -448,7 +448,7 @@ module Rex
 				end
 				return false
 			end
-			
+
 			#
 			# Resolve a variable name into its currently assigned register value.
 			#
@@ -472,14 +472,14 @@ module Rex
 				# resolve the register number int a string representation (e.g. 0 in x86 is EAX if size is 32)
 				return _register_value( regnum, size )
 			end
-				
+
 			#
 			# Check this solution is still currently valid (as offsets change it may not be).
 			#
 			def solution_is_valid?
 				return self.is_valid?( @solution.buffer )
 			end
-			
+
 			#
 			# As the solution advances we save state for each permutation step in the solution. This lets
 			# use rewind at a later stage if the solving algorithm wishes to perform some backtracking.
@@ -487,7 +487,7 @@ module Rex
 			def solution_push( permutation )
 				@solution.push( permutation, @reg_available, @reg_consumed, @variables  )
 			end
-			
+
 			#
 			# Backtrack one step in the solution and restore the register/variable state.
 			#
@@ -496,7 +496,7 @@ module Rex
 
 				@reg_available.push( @reg_available.shift )
 			end
-			
+
 			#
 			# Create a block by name and add in its list of permutations.
 			#
@@ -531,7 +531,7 @@ module Rex
 				end
 				return _create_block_primitive( block_name, primitive_name, *args )
 			end
-			
+
 			#
 			# Get the offset for a blocks active permutation. This is easy for backward references as
 			# they will already have been rendered and their sizes known. For forward references we
@@ -558,16 +558,16 @@ module Rex
 			def block_exist?( name )
 				return @blocks.include?( name )
 			end
-			
+
 			#
 			# Does a given block exist?
 			#
 			def variable_exist?( name )
 				return @variables.include?( name )
 			end
-			
+
 			# XXX: ambiguity between variable names and block name may introduce confusion!!! make them be unique.
-	
+
 			#
 			# Resolve a given value into either a number literal, a block offset or
 			# a variables assigned register.
@@ -580,7 +580,7 @@ module Rex
 				end
 				return value.to_i
 			end
-			
+
 			#
 			# Get the block previous to the target block.
 			#
@@ -606,7 +606,7 @@ module Rex
 				end
 				return nil
 			end
-			
+
 			#
 			# Try to generate a solution.
 			#
@@ -615,7 +615,7 @@ module Rex
 				if( @blocks.has_key?( 'end' ) )
 					@blocks.delete( 'end' )
 				end
-				
+
 				@blocks['end'] = Block.new( 'end' )
 				@blocks['end'] << SymbolicPermutation.new( 'end', self, 1 )
 
@@ -635,31 +635,31 @@ module Rex
 					end
 					previous = current
 				end
-				
+
 				# Shuffle the order of the available registers
 				@reg_available = @reg_available.shuffle
-				
-				# We must try every permutation of the register orders, so if we fail to 
-				# generate a solution we rotate the available registers to try again with 
+
+				# We must try every permutation of the register orders, so if we fail to
+				# generate a solution we rotate the available registers to try again with
 				# a different order. This ensures we perform and exhaustive search.
 				0.upto( @reg_available.length - 1 ) do
 
 					@solution.reset
 
-					# Start from the root node in the solution space and generate a 
+					# Start from the root node in the solution space and generate a
 					# solution by traversing the solution space's tree structure.
 					if( @blocks['begin'].solve )
 						# Return the solutions buffer (perform a last pass to fixup all offsets)...
 						return @solution.buffer
 					end
-					
+
 					@reg_available.push( @reg_available.shift )
 				end
-				
+
 				# :(
 				nil
 			end
-			
+
 			#
 			# An UndefinedPermutation exception is raised when a permutation can't render yet
 			# as the conditions required are not yet satisfied.
@@ -669,7 +669,7 @@ module Rex
 					super
 				end
 			end
-			
+
 			#
 			# An UnallowedPermutation exception is raised when a permutation can't ever render
 			# as the conditions supplied are impossible to satisfy.
@@ -679,7 +679,7 @@ module Rex
 					super
 				end
 			end
-			
+
 			#
 			# An InvalidPermutation exception is raised when a permutation receives a invalid
 			# argument and cannot continue to render. This is a fatal exception.
@@ -689,19 +689,19 @@ module Rex
 					super
 				end
 			end
-			
+
 			protected
-			
+
 			#
 			# Overloaded by a subclass to resolve a register number into a suitable register
 			# name for the target architecture. E.g on x64 the register number 0 with size 64
-			# would resolve to RCX. Size is nil by default to indicate we want the default 
+			# would resolve to RCX. Size is nil by default to indicate we want the default
 			# machine size, e.g. 32bit DWORD on x86 or 64bit QWORD on x64.
 			#
 			def _register_value( regnum, size=nil )
 				nil
 			end
-			
+
 			#
 			# Perform the actual variable creation.
 			#
@@ -735,7 +735,7 @@ module Rex
 				@variables[name] = regnum
 				return name
 			end
-			
+
 			#
 			# Create a block which is based on a primitive defined by this machine.
 			#
@@ -750,14 +750,14 @@ module Rex
 				end
 				return block_name
 			end
-			
+
 			#
 			# Overloaded by a subclass to create any primitives available in this machine.
 			#
 			def _create_primitives
 				nil
 			end
-			
+
 			#
 			# Rex::Poly::Machine::Primitive
 			#
@@ -771,9 +771,9 @@ module Rex
 					@primitives[name] << Primitive.new( permutation )
 				end
 			end
-			
+
 			#
-			# Helper function to generate a number whoes byte representation is valid in this 
+			# Helper function to generate a number whoes byte representation is valid in this
 			# machine (does not contain any badchars for example). Optionally we can supply a
 			# number and the resulting addition/subtraction of this number against the newly
 			# generated value is also tested for validity. This helps in the assembly primitives
@@ -792,38 +792,38 @@ module Rex
 				else
 					raise RuntimeError, "Invalid size '#{bytes}' used in _make_safe_number."
 				end
-				
+
 				goodchars = (0..255).to_a
-				
+
 				@badchars.unpack( 'C*' ).each do | b |
 					goodchars.delete( b.chr )
 				end
 
 				while( true ) do
 					value = 0
-					
+
 					0.upto( bytes-1 ) do | i |
 						value |= ( (goodchars[ rand(goodchars.length) ] << i*8) & (0xFF << i*8) )
 					end
-					
+
 					if( not is_valid?( [ value ].pack(format) ) or not is_valid?( [ ~value ].pack(format) ) )
 						redo
 					end
-					
+
 					if( not number.nil? )
 						if(	not is_valid?( [ value + number ].pack(format) ) or not is_valid?( [ value - number ].pack(format) ) )
 							redo
 						end
 					end
-					
+
 					break
 				end
-				
+
 				return value
 			end
-				
+
 		end
-		
+
 	end
-	
+
 end

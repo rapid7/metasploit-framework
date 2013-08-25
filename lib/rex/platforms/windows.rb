@@ -46,7 +46,7 @@ module Windows
 			HKEY_LOCAL_MACHINE
 		end
 	end
-	
+
 end
 end
 end

@@ -48,7 +48,7 @@ class SubnetWalker
 		end
 
 		self.curr_ip_idx += 1
-	
+
 		self.curr_ip.join('.')
 	end
 

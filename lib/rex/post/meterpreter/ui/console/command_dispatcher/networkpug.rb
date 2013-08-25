@@ -58,7 +58,7 @@ class Console::CommandDispatcher::NetworkPug
 			rescue Errno::EBUSY
 				next
 			end
-			
+
 			ifreq = [ name ].pack("a32")
 
 			tapdev.ioctl(0x8927, ifreq)
@@ -69,7 +69,7 @@ class Console::CommandDispatcher::NetworkPug
 
 			return tapdev, name, mac
 		}
-		
+
 		tapdev.close()
 		return nil, nil, nil
 	end
@@ -86,7 +86,7 @@ class Console::CommandDispatcher::NetworkPug
 					len = len.unpack('n')[0]
 
 					#print_line("Got #{len} bytes from remote host's network")
-					
+
 					if(len > 1514 or len == 0)
 						@tapdev.close()
 						print_line("length is invalid .. #{len} ?, de-synchronized ? ")
@@ -187,13 +187,13 @@ class Console::CommandDispatcher::NetworkPug
 
 		return true
 	end
-	
+
 	def cmd_networkpug_stop(*args)
 		interface = args[0]
 		if (interface == nil)
 			print_error("Usage: networkpug_stop [interface]")
 			return
-		end		
+		end
 
 		client.networkpug.networkpug_stop(interface)
 
@@ -208,7 +208,7 @@ class Console::CommandDispatcher::NetworkPug
 			# meterpreter dies if i try to join.. not sure why.
 
 			@thread_stuff = nil
-			
+
 			#print_line("closing tapdev")
 			@tapdev.close
 
@@ -219,7 +219,7 @@ class Console::CommandDispatcher::NetworkPug
 		print_status("Packet slinging stopped on #{interface}")
 		return true
 	end
-	
+
 	def name
 		"NetworkPug"
 	end

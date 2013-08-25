@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 				Hint: To get a remote shell you could upload a netcat binary and exec it.
 				WARNING: this module will overwrite network and DHCP configuration.
 			},
-			'Author'          => [ 'm-1-k-3' ],
+			'Author'          => [ 'Michael Messner <devnull[at]s3cur1ty.de>' ],
 			'License'         => MSF_LICENSE,
 			'References'      =>
 				[

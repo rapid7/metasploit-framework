@@ -2,7 +2,7 @@
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
-# http://metasploit.com/
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Microsoft Windows Authenticated Command Execution',
+			'Name'           => 'Microsoft Windows Authenticated Administration Utility',
 			'Description'    => %q{
 					This module uses a valid administrator username and password to execute an
 				arbitrary command on one or more hosts, using a similar technique than the "psexec"
@@ -51,6 +51,10 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('WINPATH', [true, 'The name of the remote Windows directory', 'WINDOWS']),
 		], self.class)
 
+		register_advanced_options([
+			OptString.new('FILEPREFIX', [false, 'Add a custom prefix to the temporary files','']),
+		], self.class)
+
 		deregister_options('RHOST')
 	end
 
@@ -60,8 +64,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	# This is the main controle method
 	def run_host(ip)
-		text = "\\#{datastore['WINPATH']}\\Temp\\#{Rex::Text.rand_text_alpha(16)}.txt"
-		bat  = "\\#{datastore['WINPATH']}\\Temp\\#{Rex::Text.rand_text_alpha(16)}.bat"
+		text = "\\#{datastore['WINPATH']}\\Temp\\#{datastore['FILEPREFIX']}#{Rex::Text.rand_text_alpha(16)}.txt"
+		bat  = "\\#{datastore['WINPATH']}\\Temp\\#{datastore['FILEPREFIX']}#{Rex::Text.rand_text_alpha(16)}.bat"
 		@smbshare = datastore['SMBSHARE']
 		@ip = ip
 

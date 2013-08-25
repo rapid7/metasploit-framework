@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-##
-# $Id: module.rb 12624 2011-05-15 23:51:53Z hdm $
-##
 
 module Msf
 module RPC
@@ -39,7 +36,6 @@ class RPC_Module < RPC_Base
 		res['description'] = m.description
 		res['license'] = m.license
 		res['filepath'] = m.file_path
-		res['version'] = m.version
 		res['rank'] = m.rank.to_i
 
 		res['references'] = []

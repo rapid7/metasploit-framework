@@ -14,7 +14,54 @@ module Rex
 module FileUtils
 
 	#
-	# This methods cleans the supplied path of directory traversal sequences
+	# This method joins the paths together in Unix format.
+	#
+	def self.normalize_unix_path(*strs)
+		new_str = strs * '/'
+		new_str = new_str.gsub!("//", "/") while new_str.index("//")
+
+		new_str
+	end
+
+	#
+	# This method joins the paths together in Windows format.
+	# All reserved characters will be filtered out, including:
+	#  " * : < > ? \ / |
+	#
+	def self.normalize_win_path(*strs)
+		# Convert to the same format so the parsing is easier
+		s = strs * '\\'
+
+		# Filter out double slashes
+		s = s.gsub(/\\\\/, '\\') while s.index('\\\\')
+
+		# Keep the trailing slash if exists
+		trailing_s = ('\\' if s =~ /\\$/) || ''
+
+		# Check the items (fie/dir) individually
+		s = s.split(/\\/)
+
+		# Parse the path prefix
+		prefix = (s[0] || '').gsub(/[\*<>\?\/]/, '')
+
+		# Delete the original prefix. We want the new one later.
+		s.delete_at(0)
+
+		# Filter out all the reserved characters
+		s.map! {|e| e.gsub(/["\*:<>\?\\\/|]/, '') }
+
+		# Put the modified prefix back
+		s.insert(0, prefix)
+
+		# And then safely join the items
+		s *= '\\'
+
+		# Add the trailing slash back if exists
+		s << trailing_s
+	end
+
+	#
+	# This method cleans the supplied path of directory traversal sequences
 	# It must accept path/with/..a/folder../starting/or/ending/in/two/dots
 	# but clean ../something as well as path/with/..\traversal
 	#

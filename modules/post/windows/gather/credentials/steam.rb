@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info(info,
-			'Name'           => 'Steam client session Collector.',
+			'Name'           => 'Windows Gather Steam Client Session Collector.',
 			'Description'    => %q{ This module will collect Steam session information from an
 				account set to autologin. },
 			'License'        => MSF_LICENSE,

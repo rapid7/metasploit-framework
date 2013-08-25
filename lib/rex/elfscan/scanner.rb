@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
 
-# $Id$
-
 module Rex
 module ElfScan
 module Scanner

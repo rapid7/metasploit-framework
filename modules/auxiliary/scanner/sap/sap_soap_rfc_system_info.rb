@@ -2,7 +2,7 @@
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+#   http://metasploit.com/framework/
 ##
 
 ##
@@ -88,22 +88,19 @@ class Metasploit4 < Msf::Auxiliary
 		data << '</n1:RFC_SYSTEM_INFO>'
 		data << '</env:Body>'
 		data << '</env:Envelope>'
-		user_pass = Rex::Text.encode_base64(datastore['USERNAME'] + ":" + datastore['PASSWORD'])
 		print_status("[SAP] #{ip}:#{rport} - sending SOAP RFC_SYSTEM_INFO request")
 		begin
-			res = send_request_raw({
-				'uri' => '/sap/bc/soap/rfc?sap-client=' + client + '&sap-language=EN',
+			res = send_request_cgi({
+				'uri' => '/sap/bc/soap/rfc?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
 				'method' => 'POST',
 				'data' => data,
-				'headers' =>
-					{
-						'Content-Length' => data.size.to_s,
-						'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
-						'Cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + client,
-						'Authorization' => 'Basic ' + user_pass,
-						'Content-Type' => 'text/xml; charset=UTF-8'
-					}
-				}, 45)
+				'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
+				'ctype' => 'text/xml; charset=UTF-8',
+				'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+				'headers' =>{
+					'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
+				}
+			})
 			if res and res.code != 500 and res.code != 200
 				# to do - implement error handlers for each status code, 404, 301, etc.
 				print_error("[SAP] #{ip}:#{rport} - something went wrong!")

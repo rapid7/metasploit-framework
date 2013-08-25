@@ -382,7 +382,7 @@ class Metasploit3 < Msf::Auxiliary
 			save_loot="yes"
 			column_data.each { |row|
 				0.upto(7) { |col|
-					row[col] = row[col].strip.to_
+					row[col] = row[col].strip.to_s
 					}
 			}
 			print_line(" ")

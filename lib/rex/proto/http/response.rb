@@ -59,6 +59,29 @@ class Response < Packet
 	end
 
 	#
+	# Gets cookies from the Set-Cookie header in a format to be used
+	# in the 'cookie' send_request field
+	#
+	def get_cookies
+		cookies = ""
+		if (self.headers.include?('Set-Cookie'))
+			set_cookies = self.headers['Set-Cookie']
+			key_vals = set_cookies.scan(/\s?([^, ;]+?)=(.*?);/)
+			key_vals.each do |k, v|
+				# Dont downcase actual cookie name as may be case sensitive
+				name = k.downcase
+				next if name == 'path'
+				next if name == 'expires'
+				next if name == 'domain'
+				next if name == 'max-age'
+				cookies << "#{k}=#{v}; "
+			end
+		end
+
+		return cookies.strip
+	end
+
+	#
 	# Updates the various parts of the HTTP response command string.
 	#
 	def update_cmd_parts(str)

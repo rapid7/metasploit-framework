@@ -101,10 +101,17 @@ module Auxiliary::JohnTheRipper
 	def john_show_passwords(hfile, format=nil)
 		res = {:cracked => 0, :uncracked => 0, :users => {} }
 
+		john_command = john_binary_path
+
+		if john_command.nil?
+			print_error("John the Ripper executable not found")
+			return res
+		end
+
 		pot  = john_pot_file
 		conf = ::File.join(john_base_path, "confs", "john.conf")
 
-		cmd = [ john_binary_path,  "--show", "--conf=#{conf}", "--pot=#{pot}", hfile]
+		cmd = [ john_command,  "--show", "--conf=#{conf}", "--pot=#{pot}", hfile]
 
 		if format
 			cmd << "--format=" + format
@@ -140,6 +147,13 @@ module Auxiliary::JohnTheRipper
 
 		retval=""
 
+		john_command = john_binary_path
+
+		if john_command.nil?
+			print_error("John the Ripper executable not found")
+			return nil
+		end
+
 		if File.exists?(passwd_file)
 			unless File.readable?(passwd_file)
 				print_error("We do not have permission to read #{passwd_file}")
@@ -161,7 +175,7 @@ module Auxiliary::JohnTheRipper
 		end
 
 
-		cmd = [ john_binary_path.gsub(/john$/, "unshadow"), passwd_file , shadow_file ]
+		cmd = [ john_command.gsub(/john$/, "unshadow"), passwd_file , shadow_file ]
 
 		if RUBY_VERSION =~ /^1\.8\./
 			cmd = cmd.join(" ")
@@ -237,9 +251,16 @@ module Auxiliary::JohnTheRipper
 
 		res = {:cracked => 0, :uncracked => 0, :users => {} }
 
+		john_command = john_binary_path
+
+		if john_command.nil?
+			print_error("John the Ripper executable not found")
+			return nil
+		end
+
 		# Don't bother making a log file, we'd just have to rm it when we're
 		# done anyway.
-		cmd = [ john_binary_path,  "--session=" + john_session_id, "--nolog"]
+		cmd = [ john_command,  "--session=" + john_session_id, "--nolog"]
 
 		if opts[:conf]
 			cmd << ( "--conf=" + opts[:conf] )

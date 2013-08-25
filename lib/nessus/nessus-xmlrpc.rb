@@ -253,9 +253,9 @@ module NessusXMLRPC
 			policies=Array.new
 			docxml.elements.each('/reply/contents/policies/policies/policy') { |policy|
 				entry=Hash.new
-				entry['id']=policy.elements['policyID'].text
-				entry['name']=policy.elements['policyName'].text
-				entry['comment']=policy.elements['policyComments'].text
+				entry['id']=policy.elements['policyID'].text if policy.elements['policyID']
+				entry['name']=policy.elements['policyName'].text if policy.elements['policyName']
+				entry['comment']=policy.elements['policyComments'].text if policy.elements['policyComments']
 				policies.push(entry)
 			}
 			return policies

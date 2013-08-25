@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
 			return path
 		end
 
-		return path
+		return nil
 	end
 
 	def target_url
@@ -149,16 +149,18 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("#{target_url} - Random passwords are not allowed.")
 			end
 
-			report_auth_info(
-				:host   => rhost,
-				:port   => rport,
-				:sname => (ssl ? 'https' : 'http'),
-				:user   => user,
-				:pass   => pass,
-				:proof  => "WEBAPP=\"Generic\", PROOF=#{response.to_s}",
-				:source_type => "user_supplied",
-				:active => true
-			)
+			unless (user == "anyuser" and pass == "anypass")
+				report_auth_info(
+					:host   => rhost,
+					:port   => rport,
+					:sname => (ssl ? 'https' : 'http'),
+					:user   => user,
+					:pass   => pass,
+					:proof  => "WEBAPP=\"Generic\", PROOF=#{response.to_s}",
+					:source_type => "user_supplied",
+					:active => true
+				)
+			end
 
 			return :abort if ([any_user,any_pass].include? :success)
 			return :next_user

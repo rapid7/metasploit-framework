@@ -299,13 +299,18 @@ module Msf::Post::File
 	end
 
 	#
-	# Rename a remote file.  This is a stopgap until a proper API version is added:
-	# http://dev.metasploit.com/redmine/issues/7288
+	# Rename a remote file.
 	#
-	def rename_file(new_file, old_file)
-		#TODO:  this is not ideal as the file contents are sent to meterp server and back to the client
-		write_file(new_file, read_file(old_file))
-		rm_f(old_file)
+	def rename_file(old_file, new_file)
+		if session.respond_to? :commands and session.commands.include?("stdapi_fs_file_move")
+			session.fs.file.mv(old_file, new_file)
+		else
+				if session.platform =~ /win/
+					cmd_exec(%Q|move /y "#{old_file}" "#{new_file}"|)
+				else
+					cmd_exec(%Q|mv -f "#{old_file}" "#{new_file}"|)
+				end
+		end
 	end
 	alias :move_file :rename_file
 	alias :mv_file :rename_file
@@ -373,10 +378,18 @@ protected
 		# Ordered by descending likeliness to work
 		[
 			# POSIX standard requires %b which expands octal (but not hex)
-			# escapes in the argument. However, some versions truncate input on
-			# nulls, so "printf %b '\0\101'" produces a 0-length string. The
-			# standalone version seems to be more likely to work than the buitin
-			# version, so try it first
+			# escapes in the argument. However, some versions (notably
+			# FreeBSD) truncate input on nulls, so "printf %b '\0\101'"
+			# produces a 0-length string. Some also allow octal escapes
+			# without a format string, and do not truncate, so start with
+			# that and try %b if it doesn't work. The standalone version seems
+			# to be more likely to work than the buitin version, so try it
+			# first.
+			#
+			# Both of these work for sure on Linux and FreeBSD
+			{ :cmd => %q^/usr/bin/printf 'CONTENTS'^ , :enc => :octal, :name => "printf" },
+			{ :cmd => %q^printf 'CONTENTS'^ , :enc => :octal, :name => "printf" },
+			# Works on Solaris
 			{ :cmd => %q^/usr/bin/printf %b 'CONTENTS'^ , :enc => :octal, :name => "printf" },
 			{ :cmd => %q^printf %b 'CONTENTS'^ , :enc => :octal, :name => "printf" },
 			# Perl supports both octal and hex escapes, but octal is usually

@@ -107,13 +107,19 @@ module Msf::Payload::Stager
 	#
 	# @return [String] The generated payload stage, as a string.
 	def generate_stage
+		# XXX: This is nearly identical to Payload#internal_generate
+
 		# Compile the stage as necessary
-		p = build(stage_payload, stage_assembly, stage_offsets, '-stg1')
+		if stage_assembly and !stage_assembly.empty?
+			raw = build(stage_assembly, stage_offsets)
+		else
+			raw = stage_payload.dup
+		end
 
 		# Substitute variables in the stage
-		substitute_vars(p, stage_offsets) if (stage_offsets)
+		substitute_vars(raw, stage_offsets) if (stage_offsets)
 
-		return p
+		return raw
 	end
 
 	#

@@ -32,7 +32,7 @@ class NonAlpha
 		if (tablelen > 255) or (block == 0x7B)
 			raise RuntimeError, "BadChar"
 		end
- 
+
 		if (block >= 0x41 and block <= 0x5A) or (block >= 0x61 and block <= 0x7A)
 			# gen offset, return magic
 			offset = 0x7b - block;

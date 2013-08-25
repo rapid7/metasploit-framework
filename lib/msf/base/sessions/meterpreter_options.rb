@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-##
-# $Id$
-##
 
 require 'shellwords'
 

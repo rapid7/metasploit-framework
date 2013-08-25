@@ -24,12 +24,15 @@ module Auxiliary::HttpCrawler
 				OptInt.new('MAX_MINUTES', [ true, 'The maximum number of minutes to spend on each URL', 5]),
 				OptInt.new('MAX_THREADS', [ true, 'The maximum number of concurrent requests', 4]),
 				OptString.new('USERNAME', [false, 'The HTTP username to specify for authentication']),
-				OptString.new('PASSWORD', [false, 'The HTTP password to specify for authentication'])
+				OptString.new('PASSWORD', [false, 'The HTTP password to specify for authentication']),
+        OptString.new('DOMAIN', [ true, 'The domain to use for windows authentication', 'WORKSTATION'])
+
 			], self.class
 		)
 
 		register_advanced_options(
 			[
+				OptBool.new('DirBust', [ false, 'Bruteforce common URL paths', true]),
 				OptInt.new('RequestTimeout', [false, 'The maximum number of seconds to wait for a reply', 15]),
 				OptInt.new('RedirectLimit', [false, 'The maximum number of redirects for a single request', 5]),
 				OptInt.new('RetryLimit', [false, 'The maximum number of attempts for a single request', 5]),
@@ -123,6 +126,7 @@ module Auxiliary::HttpCrawler
 		if datastore['USERNAME'] and datastore['USERNAME'] != ''
 			t[:username] = datastore['USERNAME'].to_s
 			t[:password] = datastore['PASSWORD'].to_s
+      t[:domain]   = datastore['DOMAIN'].to_s
 		end
 
 		if datastore['HTTPCookie']
@@ -168,6 +172,10 @@ module Auxiliary::HttpCrawler
 
 	def max_crawl_threads
 		datastore['MAX_THREADS']
+	end
+
+	def dirbust?
+		datastore['DirBust']
 	end
 
 	# Scrub links that end in these extensions. If more or less is
@@ -272,6 +280,7 @@ module Auxiliary::HttpCrawler
 		opts[:framework]           = framework
 		opts[:module]              = self
 		opts[:timeout]             = get_connection_timeout
+		opts[:dirbust]             = dirbust?
 
 		if (t[:headers] and t[:headers].length > 0)
 			opts[:inject_headers] = t[:headers]
@@ -282,7 +291,8 @@ module Auxiliary::HttpCrawler
 		end
 
 		opts[:username] = t[:username] || ''
-		opts[:password] =t[:password] || ''
+		opts[:password] = t[:password] || ''
+    opts[:domain]   = t[:domain]   || 'WORKSTATION'
 
 		opts
 	end

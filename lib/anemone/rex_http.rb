@@ -46,7 +46,9 @@ module Anemone
                                       :referer => referer,
                                       :depth => depth,
                                       :redirect_to => redirect_to,
-                                      :response_time => response_time)
+                                      :response_time => response_time,
+                                      :dirbust => @opts[:dirbust]
+          )
           # Store the associated raw HTTP request
           page.request = response.request
 		  pages << page
@@ -195,7 +197,8 @@ module Anemone
 
 		conn.set_config(
 			'vhost'      => virtual_host(url),
-			'agent'      => user_agent
+			'agent'      => user_agent,
+      'domain'     => @opts[:domain]
 		)
 
 		conn

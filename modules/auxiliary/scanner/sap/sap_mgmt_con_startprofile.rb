@@ -127,7 +127,7 @@ class Metasploit4 < Msf::Auxiliary
 
 		if success
 			print_good("#{rhost}:#{rport} [SAP] Startup Profile Extracted: #{name}")
-			store_loot(
+			f = store_loot(
 				"sap.profile",
 				"text/xml",
 				rhost,
@@ -135,6 +135,7 @@ class Metasploit4 < Msf::Auxiliary
 				"sap_profile.xml",
 				"SAP Profile XML"
 			)
+			vprint_status("Response stored in: #{f}")
 
 			env.each do |output|
 				print_status("#{output[0]}")

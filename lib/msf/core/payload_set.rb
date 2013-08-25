@@ -169,29 +169,38 @@ class PayloadSet < ModuleSet
 		flush_blob_cache
 	end
 
-	#
 	# This method is called when a new payload module class is loaded up.  For
 	# the payload set we simply create an instance of the class and do some
 	# magic to figure out if it's a single, stager, or stage.  Depending on
 	# which it is, we add it to the appropriate list.
 	#
-	def add_module(pmodule, name, modinfo = nil)
+	# @param payload_module [::Module] The module name.
+	# @param reference_name [String] The module reference name.
+	# @param modinfo [Hash{String => Array}] additional information about the
+	#   module.
+	# @option modinfo [Array<String>] 'files' List of paths to the ruby source
+	#   files where +class_or_module+ is defined.
+	# @option modinfo [Array<String>] 'paths' List of module reference names.
+	# @option modinfo [String] 'type' The module type, should match positional
+	#   +type+ argument.
+	# @return [void]
+	def add_module(payload_module, reference_name, modinfo={})
 
-		if (md = name.match(/^(singles|stagers|stages)#{File::SEPARATOR}(.*)$/))
+		if (md = reference_name.match(/^(singles|stagers|stages)#{File::SEPARATOR}(.*)$/))
 			ptype = md[1]
-			name  = md[2]
+			reference_name  = md[2]
 		end
 
 		# Duplicate the Payload base class and extend it with the module
 		# class that is passed in.  This allows us to inspect the actual
 		# module to see what type it is, and to grab other information for
 		# our own evil purposes.
-		instance = build_payload(pmodule).new
+		instance = build_payload(payload_module).new
 
 		# Create an array of information about this payload module
 		pinfo =
 			[
-				pmodule,
+				payload_module,
 				instance.handler_klass,
 				instance.platform,
 				instance.arch,
@@ -200,26 +209,12 @@ class PayloadSet < ModuleSet
 			]
 
 		# Use the module's preferred alias if it has one
-		name = instance.alias if (instance.alias)
+		reference_name = instance.alias if (instance.alias)
 
 		# Store the module and alias name for this payload.  We
 		# also convey other information about the module, such as
 		# the platforms and architectures it supports
-		payload_type_modules[instance.payload_type][name] = pinfo
-
-		#
-		# Disable sending singles over stagers for now
-		#
-=begin
-		# If the payload happens to be a single, but has no defined
-		# connection, then it can also be staged.  Insert it into
-		# the staged list.
-		if ((instance.payload_type == Payload::Type::Single) and
-		    ((instance.handler_klass == Msf::Handler::None) or
-		     (instance.handler_klass == nil)))
-			payload_type_modules[Payload::Type::Stage][name] = pinfo
-		end
-=end
+		payload_type_modules[instance.payload_type][reference_name] = pinfo
 	end
 
 	#
@@ -343,8 +338,11 @@ class PayloadSet < ModuleSet
 	# it must be removed (if one exists)
 	#
 	def on_module_reload(mod)
-		@blob_cache.delete(mod.refname + "-stg0")
-		@blob_cache.delete(mod.refname + "-stg1")
+		@blob_cache.each_key do |key|
+			if key.start_with? mod.refname
+				@blob_cache.delete(key)
+			end
+		end
 	end
 
 	#

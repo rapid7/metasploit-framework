@@ -49,6 +49,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 			"mkdir"    => "Make directory",
 			"pwd"      => "Print working directory",
 			"rm"       => "Delete the specified file",
+			"mv"	   => "Move source to destination",
 			"rmdir"    => "Remove directory",
 			"search"   => "Search for files",
 			"upload"   => "Upload a file or directory",
@@ -69,6 +70,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 			"pwd"      => [ "stdapi_fs_getwd" ],
 			"rmdir"    => [ "stdapi_fs_delete_dir" ],
 			"rm"       => [ "stdapi_fs_delete_file" ],
+			"mv"       => [ "stdapi_fs_file_move" ],
 			"search"   => [ "stdapi_fs_search" ],
 			"upload"   => [ ],
 		}
@@ -220,6 +222,24 @@ class Console::CommandDispatcher::Stdapi::Fs
 	end
 
 	alias :cmd_del :cmd_rm
+
+        #   
+        # Move source to destination
+        #   
+        def cmd_mv(*args)
+                if (args.length < 2)
+                        print_line("Usage: mv oldfile newfile")
+                        return true
+                end 
+
+                client.fs.file.mv(args[0],args[1])
+
+                return true
+        end 
+
+        alias :cmd_move :cmd_mv
+	alias :cmd_rename :cmd_mv
+
 
 	def cmd_download_help
 		print_line "Usage: download [options] src1 src2 src3 ... destination"

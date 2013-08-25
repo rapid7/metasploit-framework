@@ -332,6 +332,14 @@ class Msf::Module::Platform
 	end
 
 	#
+	# Android
+	#
+	class Android < Msf::Module::Platform
+		Rank = 100
+		Alias = "android"
+	end
+
+	#
 	# Java
 	#
 	class Java < Msf::Module::Platform

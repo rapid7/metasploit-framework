@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 # -*- coding: binary -*-
 
-# $Id$
-
 require 'rex/peparsey/exceptions'
 require 'rex/struct2'
 

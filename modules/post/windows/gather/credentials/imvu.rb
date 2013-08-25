@@ -1,6 +1,4 @@
-##
-# $Id: enum_imvu.rb 14100 2011-10-28 18:00:10Z theLightCosine $
-##
+# -*- coding: binary -*-
 
 ##
 # This file is part of the Metasploit Framework and may be subject to

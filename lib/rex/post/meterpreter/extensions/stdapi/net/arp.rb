@@ -39,10 +39,10 @@ class Arp
 		mac_addr.each_byte { |o| macocts << o }
 		macocts += [0] * (6 - macocts.size) if macocts.size < 6
 		return sprintf("%02x:%02x:%02x:%02x:%02x:%02x",
-			macocts[0], macocts[1], macocts[2], 
+			macocts[0], macocts[1], macocts[2],
 			macocts[3], macocts[4], macocts[5])
 	end
-	
+
 	#
 	# The ip address corresponding to the arp address.
 	#

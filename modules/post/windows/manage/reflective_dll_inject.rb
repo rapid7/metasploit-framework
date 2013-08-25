@@ -7,8 +7,11 @@
 
 require 'msf/core'
 require 'rex'
+require 'msf/core/post/common'
 
 class Metasploit3 < Msf::Post
+
+	include Msf::Post::Common
 
 	def initialize(info={})
 		super( update_info( info,
@@ -73,7 +76,7 @@ class Metasploit3 < Msf::Post
 			return
 		end
 
-		if pid.nil? or pid == 0
+		if pid.nil? or not has_pid?(pid)
 			print_error("Invalid PID.")
 			return
 		end

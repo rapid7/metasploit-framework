@@ -23,7 +23,7 @@ class Service
 
 	attr_accessor :service, :srvhost, :srvport, :uri, :options
 	attr_accessor :handlers, :default_handler, :tokens, :users, :framework
-	attr_accessor :dispatcher_timeout, :token_timeout, :debug
+	attr_accessor :dispatcher_timeout, :token_timeout, :debug, :str_encoding
 
 	def initialize(framework, options={})
 		self.framework = framework
@@ -36,6 +36,7 @@ class Service
 			:port => 3790
 		}.merge(options)
 
+		self.str_encoding = ''.encoding.name
 		self.srvhost = self.options[:host]
 		self.srvport = self.options[:port]
 		self.uri     = self.options[:uri]
@@ -121,6 +122,8 @@ class Service
 				raise ArgumentError, "Invalid Message Format"
 			end
 
+			msg.map { |a| a.respond_to?(:force_encoding) ? a.force_encoding(self.str_encoding) : a }
+
 			group, funct = msg.shift.split(".", 2)
 
 			if not self.handlers[group]
@@ -199,7 +202,7 @@ class Service
 	def authenticate(token)
 		stale = []
 
-		 
+
 		if not (token and token.kind_of?(::String))
 			return false
 		end

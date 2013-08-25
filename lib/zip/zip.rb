@@ -1259,6 +1259,8 @@ module Zip
       @cdirOffset                           = ZipEntry::read_zip_long(buf)
       commentLength                         = ZipEntry::read_zip_short(buf)
       @comment                              = buf.read(commentLength)
+			# remove trailing \n symbol
+			buf.chomp!
       raise ZipError, "Zip consistency problem while reading eocd structure" unless buf.size == 0
     end
     

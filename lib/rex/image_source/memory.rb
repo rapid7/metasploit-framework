@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 # -*- coding: binary -*-
 
-# $Id$
-
 require 'rex/image_source/image_source'
 require 'rex/struct2'
 

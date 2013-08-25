@@ -44,7 +44,6 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('URI', [true, 'The path to users Squiz Matrix installation', '/']),
 				OptInt.new('ASSETBEGIN',  [ true, "Asset ID to start at", 1]),
 				OptInt.new('ASSETEND',  [ true, "Asset ID to stop at", 100]),
-				OptBool.new('VERBOSE', [ true, "Display all attempts", true ]),
 			], self.class)
 	end
 

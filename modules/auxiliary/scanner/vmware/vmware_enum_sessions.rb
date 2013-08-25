@@ -67,7 +67,8 @@ class Metasploit3 < Msf::Auxiliary
 					output << tmp_line
 				end
 				unless output.empty?
-					store_loot("host.vmware.sessions", "text/plain", datastore['RHOST'], output, "vmware_sessions.txt", "Login Sessions for VMware")
+					f = store_loot("host.vmware.sessions", "text/plain", datastore['RHOST'], output, "vmware_sessions.txt", "Login Sessions for VMware")
+					vprint_status("Login sessions stored in: #{f}")
 				end
 			end
 		else

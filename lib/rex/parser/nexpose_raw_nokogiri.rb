@@ -13,7 +13,7 @@ module Rex
 		attr_reader :tests
 
 		NEXPOSE_HOST_DETAIL_FIELDS = %W{ nx_device_id nx_site_name nx_site_importance nx_scan_template nx_risk_score }
-		NEXPOSE_VULN_DETAIL_FIELDS = %W{ 
+		NEXPOSE_VULN_DETAIL_FIELDS = %W{
 			nx_scan_id
 			nx_vulnerable_since
 			nx_pci_compliance_status
@@ -115,7 +115,7 @@ module Rex
 			when "solution"
 				@state[:has_text] = false
 				collect_vuln_solution
-				@text = nil	
+				@text = nil
 			when "tag"
 				@state[:has_text] = false
 				collect_tag
@@ -217,20 +217,20 @@ module Rex
 			# Mass update vulnerability details across the database based on conditions
 			vdet_info = { :title => @report_data[:vuln]["title"] }
 			vdet_info[:description]     = @report_data[:vuln_description]      unless @report_data[:vuln_description].to_s.empty?
-			vdet_info[:solution]        = @report_data[:vuln_solution]         unless @report_data[:vuln_solution].to_s.empty? 
+			vdet_info[:solution]        = @report_data[:vuln_solution]         unless @report_data[:vuln_solution].to_s.empty?
 			vdet_info[:nx_tags]         = @report_data[:vuln_tags].sort.uniq.join(", ") if ( @report_data[:vuln_tags].kind_of?(::Array) and @report_data[:vuln_tags].length > 0 )
 			vdet_info[:nx_severity]     = @report_data[:vuln]["severity"].to_f          if @report_data[:vuln]["severity"]
 			vdet_info[:nx_pci_severity] = @report_data[:vuln]["pciSeverity"].to_f       if @report_data[:vuln]["pciSeverity"]
 			vdet_info[:cvss_score]      = @report_data[:vuln]["cvssScore"].to_f         if @report_data[:vuln]["cvssScore"]
 			vdet_info[:cvss_vector]     = @report_data[:vuln]["cvssVector"]             if @report_data[:vuln]["cvssVector"]
-			
+
 			%W{ published added modified }.each do |tf|
 				next if not @report_data[:vuln][tf]
 				ts = DateTime.parse(@report_data[:vuln][tf]) rescue nil
 				next if not ts
 				vdet_info[ "nx_#{tf}".to_sym ] = ts
 			end
-			
+
 			::Mdm::VulnDetail.where(:id => vdet_ids).update_all(vdet_info)
 
 			@report_data[:vuln] = nil
@@ -263,7 +263,7 @@ module Rex
 		end
 
 
-		def record_formatted_content(name, eattrs)		
+		def record_formatted_content(name, eattrs)
 			attrs  = attr_hash(eattrs)
 			stack  = nil
 
@@ -293,7 +293,7 @@ module Rex
 			when 'URLLink'
 				@report_data[:formatted_link] = attrs["LinkURL"]
 			else
-				
+
 				if @report_data[:formatted_indent] > 1
 					data = (" " * (@report_data[:formatted_indent])) + data
 				end
@@ -305,10 +305,10 @@ module Rex
 
 			if data.length > 0
 				stack << data
-			end	
+			end
 		end
 
-		def collect_formatted_content(name)	
+		def collect_formatted_content(name)
 			stack  = nil
 			prefix = ""
 
@@ -325,7 +325,7 @@ module Rex
 			end
 
 			return if not stack
-			
+
 			data = @text.to_s.strip.split(/\n+/).map{|t| t.strip}.join(" ")
 			@text = ""
 
@@ -385,7 +385,7 @@ module Rex
 			# This hash defines the matching criteria to overwrite an existing entry
 			vkey = { :src => 'nexpose', :nx_vuln_id => @state[:test][:id] }
 
-			if @state[:nx_device_id]	
+			if @state[:nx_device_id]
 				vdet[:nx_device_id] = @state[:nx_device_id]
 				vkey[:nx_device_id] = @state[:nx_device_id]
 			end
@@ -405,12 +405,12 @@ module Rex
 				ts = ::DateTime.parse(@state[:test][:nx_vulnerable_since]) rescue nil
 				vdet[:nx_vulnerable_since] = ts if ts
 			end
-			
+
 			proof = clean_formatted_text(@report_data[:vuln_proof_stack].join.strip)
 			@report_data[:vuln_proof_stack] = []
 
 			vuln_info[:info] = proof
-			vdet[:proof]     = proof 
+			vdet[:proof]     = proof
 
 			# Configure the find key for vuln_details
 			vdet[:key] = vkey
@@ -423,7 +423,7 @@ module Rex
 
 			# Report the vulnerability
 			vuln = db.report_vuln(vuln_info)
-			
+
 			if vuln
 				# Report the vulnerability details
 				detail = db.report_vuln_details(vuln, vdet)
@@ -652,12 +652,12 @@ module Rex
 				if host_object
 					db.report_import_note(host_object.workspace, host_object)
 					if device_id
-						detail = { 
-							:key => { :src => 'nexpose' }, 
+						detail = {
+							:key => { :src => 'nexpose' },
 							:src => 'nexpose',
-							:nx_device_id => device_id 
+							:nx_device_id => device_id
 						}
-						detail[:nx_console_id] = @nx_console_id if @nx_console_id 
+						detail[:nx_console_id] = @nx_console_id if @nx_console_id
 
 						NEXPOSE_HOST_DETAIL_FIELDS.each do |f|
 							v = @report_data.delete(f.to_sym)

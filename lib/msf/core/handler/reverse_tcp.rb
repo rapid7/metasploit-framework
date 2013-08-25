@@ -171,20 +171,20 @@ module ReverseTcp
 		}
 
 	end
-	
+
 	def wrap_aes_socket(sock)
 		if datastore["PAYLOAD"] !~ /java\// or (datastore["AESPassword"] || "") == ""
 			return sock
 		end
-		
+
 		socks = Rex::Socket::tcp_socket_pair()
 		socks[0].extend(Rex::Socket::Tcp)
 		socks[1].extend(Rex::Socket::Tcp)
-		
+
 		m = OpenSSL::Digest::Digest.new('md5')
 		m.reset
 		key = m.digest(datastore["AESPassword"] || "")
-		
+
 		Rex::ThreadFactory.spawn('AESEncryption', false) {
 			c1 = OpenSSL::Cipher::Cipher.new('aes-128-cfb8')
 			c1.encrypt

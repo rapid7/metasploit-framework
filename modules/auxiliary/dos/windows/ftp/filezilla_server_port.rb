@@ -35,7 +35,17 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		connect_login
+		begin
+			c = connect_login
+		rescue Rex::ConnectionRefused
+			print_error("Connection refused.")
+			return
+		rescue Rex::ConnectionTimeout
+			print_error("Connection timed out")
+			return
+		end
+
+		return if not c
 
 		send_cmd(['PASV', 'A*'], true) # Assigns PASV port
 		send_cmd(['PORT', 'A*'], true) # Rejected but seems to assign NULL to pointer

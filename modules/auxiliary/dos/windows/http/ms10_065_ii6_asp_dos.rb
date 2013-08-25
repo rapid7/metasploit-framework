@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run
-		uri = normalize_uri(datastore['URI'])
+		uri = datastore['URI']
 		print_status("Attacking http://#{datastore['VHOST'] || rhost}:#{rport}#{uri}")
 
 		begin

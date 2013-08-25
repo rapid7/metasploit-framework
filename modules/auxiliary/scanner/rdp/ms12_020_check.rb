@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 		res = sock.get_once(-1, 5)
 
 		# return true if this matches our vulnerable response
-		( res and res == "\x03\x00\x00\x0b\x06\xd0\x00\x00\x12\x34\x00" )
+		( res and res.match("\x03\x00\x00\x0b\x06\xd0\x00\x00\x12\x34\x00") )
 	end
 
 	def report_goods
@@ -121,16 +121,9 @@ class Metasploit3 < Msf::Auxiliary
 		"\x28"               # PER encoded PDU contents
 	end
 
-	def channel_request_one
+	def channel_request
 		"\x03\x00\x00\x0c" +
-		"\x02\xf0\x80\x38" +
-		"\x00\x01\x03\xeb"
-	end
-
-	def channel_request_two
-		"\x03\x00\x00\x0c" +
-		"\x02\xf0\x80\x38" +
-		"\x00\x02\x03\xeb"
+		"\x02\xf0\x80\x38"
 	end
 
 	def peer
@@ -143,6 +136,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		# check if rdp is open
 		if not check_rdp
+			vprint_status "#{peer} Could not connect to RDP."
 			disconnect
 			return
 		end
@@ -153,18 +147,23 @@ class Metasploit3 < Msf::Auxiliary
 		# send userRequest
 		sock.put(user_request)
 		res = sock.get_once(-1, 5)
+		user1 = res[9,2].unpack("n").first
+		chan1 = user1 + 1001
 
 		# send 2nd userRequest
 		sock.put(user_request)
 		res = sock.get_once(-1, 5)
 
+		user2 = res[9,2].unpack("n").first
+		chan2 = user2 + 1001
+
 		# send channel request one
-		sock.put(channel_request_one)
+		sock.put(channel_request << [user1, chan2].pack("nn"))
 		res = sock.get_once(-1, 5)
 
-		if res and res[8,2] == "\x3e\x00"
+		if res and res[7,2] == "\x3e\x00"
 			# send ChannelRequestTwo - prevent BSoD
-			sock.put(channel_request_two)
+			sock.put(channel_request << [user2, chan2].pack("nn"))
 
 			print_good("#{peer} Vulnerable to MS12-020")
 			report_goods

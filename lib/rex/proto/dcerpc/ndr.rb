@@ -20,7 +20,7 @@ class NDR
 		warn 'should be using Rex::Encoder::NDR'
 		return [string].pack('V')
 	end
-	
+
 	# Encode a 2 byte short
 	# use to encode:
 	#       short element_1;
@@ -28,7 +28,7 @@ class NDR
 		warn 'should be using Rex::Encoder::NDR'
 		return [string].pack('v')
 	end
-	
+
 	# Encode a single byte
 	# use to encode:
 	#       byte element_1;
@@ -53,7 +53,7 @@ class NDR
 		string += "\x00" # null pad
 		return long(string.length) + long(0) + long(string.length) + Rex::Text.to_unicode(string) + align(Rex::Text.to_unicode(string))
 	end
-	
+
 	# Encode a string that is already unicode encoded
 	# use to encode:
 	#       w_char *element_1;

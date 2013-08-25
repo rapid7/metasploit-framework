@@ -40,9 +40,6 @@
 # The latter has a minor bug in its separate_keys function.
 # The third key has to begin from the 14th character of the
 # input string instead of 13th:)
-#--
-# $Id: ntlm.rb 11678 2011-01-30 19:26:35Z hdm $
-#++
 
 #this module defines the message class , useful for easily handling type 1/2/3 ntlm messages
 

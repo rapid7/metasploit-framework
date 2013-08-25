@@ -32,7 +32,7 @@ class FileStat
 		self.stathash = {}
 		update(buf) if (buf and not buf.empty?)
 	end
-	
+
 	def dev
 		self.stathash['st_dev']
 	end
@@ -77,7 +77,7 @@ class FileStat
 
 		# XXX: This needs to understand more than just 'stat' structures
 		# Windows can also return _stat32, _stat32i64, _stat64i32, and _stat64 structures
-		
+
 		skeys = %W{st_dev st_ino st_mode st_wtf st_nlink st_uid st_gid st_rdev st_size st_ctime st_atime st_mtime}
 		svals = buf.unpack("VvvvvvvVVVVV")
 		skeys.each_index do |i|

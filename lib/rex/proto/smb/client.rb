@@ -1881,10 +1881,10 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 						'C'+	# Short File Name Length
 						'C' 	# Reserved
 					)
-					name = resp_data[didx + 70 + 24, info[15]].sub!(/\x00+$/, '')
+					name = resp_data[didx + 70 + 24, info[15]].sub(/\x00+$/, '')
 					files[name] =
 					{
-						'type' => (info[14] & 0x10) ? 'D' : 'F',
+						'type' => ((info[14] & 0x10)==0x10) ? 'D' : 'F',
 						'attr' => info[14],
 						'info' => info
 					}
@@ -1916,7 +1916,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 			260, # Level of interest
 			resume_key,   # Resume key from previous (Last name offset)
 			6,   # Close search if end of search
-		].pack('vvvVv') + last_filename + "\x00" # Last filename returned from find_first or find_next
+		].pack('vvvVv') + last_filename.to_s + "\x00" # Last filename returned from find_first or find_next
 		resp = trans2(CONST::TRANS2_FIND_NEXT2, parm, '')
 		return resp # Returns the FIND_NEXT2 response packet for parsing by the find_first function
 	end

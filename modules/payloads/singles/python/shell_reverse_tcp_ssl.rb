@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -22,7 +18,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Unix Command Shell, Reverse TCP SSL (via python)',
-			'Version'       => '$Revision$',
 			'Description'   => 'Creates an interactive shell via python, uses SSL, encodes with base64 by design.',
 			'Author'        => 'RageLtMan',
 			'License'       => BSD_LICENSE,
