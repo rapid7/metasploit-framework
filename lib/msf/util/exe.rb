@@ -435,6 +435,16 @@ require 'msf/core/exe/segment_injector'
 	def self.to_win64pe(framework, code, opts={})
 		# Allow the user to specify their own EXE template
 		set_template_default(opts, "template_x64_windows.exe")
+    #try to inject code into executable by adding a section without affecting executable behavior
+    if(opts[:inject])
+      injector = Msf::Exe::SegmentInjector.new({
+         :payload  => code,
+         :template => opts[:template],
+         :arch     => :x64
+      })
+      exe = injector.generate_pe
+      return exe
+    end
     opts[:exe_type] = :exe_sub
     exe_sub_method(code,opts)
 	end
