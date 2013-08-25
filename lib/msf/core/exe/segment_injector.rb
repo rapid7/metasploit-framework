@@ -51,7 +51,8 @@ module Exe
         hook_funcname db 'CreateThread', 0
 
         thread_hook:
-
+        lea edx, [thread_hook]
+        add edx, 9
       EOS
     end
 
