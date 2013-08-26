@@ -8,12 +8,13 @@ module Exe
     attr_accessor :payload
     attr_accessor :template
     attr_accessor :arch
+    attr_accessor :buffer_register
 
     def initialize(opts = {})
       @payload = opts[:payload]
       @template = opts[:template]
-      @arch  = opts[:arch]
-
+      @arch  = opts[:arch] || :x86
+      @buffer_register = opts[:buffer_register] || 'edx'
     end
 
     def processor
@@ -51,8 +52,8 @@ module Exe
         hook_funcname db 'CreateThread', 0
 
         thread_hook:
-        lea edx, [thread_hook]
-        add edx, 9
+        lea #{buffer_register}, [thread_hook]
+        add #{buffer_register}, 9
       EOS
     end
 

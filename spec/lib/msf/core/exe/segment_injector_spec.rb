@@ -16,6 +16,7 @@ describe Msf::Exe::SegmentInjector do
   it { should respond_to :template }
   it { should respond_to :arch }
   it { should respond_to :processor }
+  it { should respond_to :buffer_register }
 
   it 'should return the correct processor for the arch' do
     injector.processor.class.should == Metasm::Ia32
@@ -26,6 +27,16 @@ describe Msf::Exe::SegmentInjector do
   context '#payload_as_asm' do
     it 'should return the payload as declare byte instructions' do
       injector.payload_as_asm.should == "db 0xd9\ndb 0xeb\ndb 0x9b\ndb 0xd9\ndb 0x74\ndb 0x24\n"
+    end
+  end
+
+  context '#create_thread_stub' do
+    it 'should use edx as a default buffer register' do
+      injector.buffer_register.should == 'edx'
+    end
+
+    it 'should set a buffer register for the payload' do
+      injector.create_thread_stub.should include('lea edx, [thread_hook]')
     end
   end
 
