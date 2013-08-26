@@ -67,10 +67,10 @@ class Metasploit3 < Msf::Auxiliary
 					'method' => 'GET',
 				}, 20)
 
-			if (res.headers['Location'] =~ %r(java.lang.Runtime.exec\%28java.lang.String\%29))
+			if (res and res.headers['Location'] =~ %r(java.lang.Runtime.exec\%28java.lang.String\%29))
 				flag_found_one = index
 				print_status("Found right index at [" + index.to_s + "] - exec")
-			elsif (res.headers['Location'] =~ %r(java.lang.Runtime\+java.lang.Runtime.getRuntime))
+			elsif (res and res.headers['Location'] =~ %r(java.lang.Runtime\+java.lang.Runtime.getRuntime))
 				print_status("Found right index at [" + index.to_s + "] - getRuntime")
 				flag_found_two = index
 			else
