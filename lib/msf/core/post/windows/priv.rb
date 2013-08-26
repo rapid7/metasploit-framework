@@ -10,6 +10,22 @@ module Priv
 
 	include ::Msf::Post::Windows::Accounts
 
+	LowIntegrityLevel = 'S-1-16-4096'
+	MediumIntegrityLevel =  'S-1-16-8192'
+	HighIntegrityLevel = 'S-1-16-12288'
+	SystemIntegrityLevel = 'S-1-16-16384'
+
+	Administrators = 'S-1-5-32-544'
+
+	# http://technet.microsoft.com/en-us/library/dd835564(v=ws.10).aspx
+	# ConsentPromptBehaviorAdmin
+	UACNoPrompt = 0
+	UACPromptCredsIfSecureDesktop = 1
+	UACPromptConsentIfSecureDesktop = 2
+	UACPromptCreds = 3
+	UACPromptConsent = 4
+	UACDefault = 5
+
 	#
 	# Returns true if user is admin and false if not.
 	#
@@ -25,6 +41,22 @@ module Priv
 			else
 				return true
 			end
+		end
+	end
+
+	#
+	# Returns true if in the administrator group
+	#
+	def is_in_admin_group?
+		whoami = get_whoami
+
+		if whoami.nil?
+			print_error("Unable to identify admin group membership")
+			return nil
+		elsif whoami.include? Administrators
+			return true
+		else
+			return false
 		end
 	end
 
@@ -60,8 +92,8 @@ module Priv
 		uac = false
 		winversion = session.sys.config.sysinfo['OS']
 
-		if winversion =~ /Windows (Vista|7|2008)/
-			if session.sys.config.getuid != "NT AUTHORITY\\SYSTEM"
+		if winversion =~ /Windows (Vista|7|8|2008)/
+			unless is_system?
 				begin
 					key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',KEY_READ)
 
@@ -76,6 +108,61 @@ module Priv
 			end
 		end
 		return uac
+	end
+
+	#
+	# Returns the UAC Level
+	#
+	# 2 - Always Notify, 5 - Default, 0 - Disabled
+	#
+	def get_uac_level
+		begin
+			open_key = session.sys.registry.open_key(
+					HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+					KEY_READ
+			)
+			uac_level = open_key.query_value('ConsentPromptBehaviorAdmin')
+		rescue Exception => e
+			print_error("Error Checking UAC: #{e.class} #{e}")
+		end
+		return uac_level.data
+	end
+
+	#
+	# Returns the Integrity Level
+	#
+	def get_integrity_level
+		whoami = get_whoami
+
+		if whoami.nil?
+			print_error("Unable to identify integrity level")
+			return nil
+		elsif whoami.include? LowIntegrityLevel
+			return LowIntegrityLevel
+		elsif whoami.include? MediumIntegrityLevel
+			return MediumIntegrityLevel
+		elsif whoami.include? HighIntegrityLevel
+			return HighIntegrityLevel
+		elsif whoami.include? SystemIntegrityLevel
+			return SystemIntegrityLevel
+		end
+	end
+
+	#
+	# Returns the output of whoami /groups
+	#
+	# Returns nil if Windows whoami is not available
+	#
+	def get_whoami
+		whoami = cmd_exec('cmd /c whoami /groups')
+
+		if whoami.nil? or whoami.empty?
+			return nil
+		elsif whoami =~ /is not recognized/ or whoami =~ /extra operand/ or whoami =~ /Access is denied/
+			return nil
+		else
+			return whoami
+		end
 	end
 
 	#
