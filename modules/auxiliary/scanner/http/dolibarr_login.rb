@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 	def get_sid_token
 		res = send_request_raw({
 			'method' => 'GET',
-			'uri'    => @uri.path
+			'uri'    => normalize_uri(@uri.path)
 		})
 
 		return [nil, nil] if not (res and res.headers['Set-Cookie'])
@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			res = send_request_cgi({
 				'method'   => 'POST',
-				'uri'      => "#{@uri.path}index.php",
+				'uri'      => normalize_uri("#{@uri.path}index.php"),
 				'cookie'   => sid,
 				'vars_post' => {
 					'token'         => token,
@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		@uri = normalize_uri(target_uri.path)
+		@uri = target_uri.path
 		@uri.path << "/" if @uri.path[-1, 1] != "/"
 		@peer = "#{rhost}:#{rport}"
 
