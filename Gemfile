@@ -41,7 +41,7 @@ group :development, :test do
 	# 'FactoryGirl.' in factory definitions syntax.
 	gem 'factory_girl', '>= 4.1.0'
 	# running documentation generation tasks and rspec tasks
-	gem 'rake'
+	gem 'rake', '>= 10.0.0'
 end
 
 group :test do

@@ -70,7 +70,7 @@ DEPENDENCIES
   packetfu (= 1.1.8)
   pcaprub
   pg (>= 0.11)
-  rake
+  rake (>= 10.0.0)
   redcarpet
   robots
   rspec (>= 2.12)
