@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 		datastore['RPORT'] = 80
 
 		uri = "/"
-		uri << (datastore['YEAR'] + "/") if datastore['YEAR'] != ""
+		uri << (datastore['YEAR'].to_s + "/") if datastore['YEAR'].to_s != ""
 		uri << "companies.xml"
 
 		res = send_request_cgi(

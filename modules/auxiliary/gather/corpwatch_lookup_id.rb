@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		loot = ""
 		uri = "/"
-		uri << (datastore['YEAR']) if datastore['YEAR'] != ""
+		uri << (datastore['YEAR']).to_s if datastore['YEAR'].to_s != ""
 		uri << ("/companies/" + datastore['CW_ID'])
 
 		res = send_request_cgi({
