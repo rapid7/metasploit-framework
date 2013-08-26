@@ -29,18 +29,13 @@ class Metasploit3 < Msf::Post
 				OptAddress.new('CADDRESS', [ true, 'IPv4/IPv6 address to which to connect.']),
 				OptInt.new(    'CPORT',    [ true, 'Port number to which to connect.']),
 				OptInt.new(    'LPORT',    [ true, 'Port number to which to listen.']),
-				OptString.new( 'TYPE',     [ true, 'Type of forwarding. Valid values: v4tov4, v6tov6, v6tov4, v4tov6.',"v4tov4"])
+				OptEnum.new(   'TYPE',     [ true, 'Type of forwarding', 'v4tov4', ['v4tov4','v6tov6','v6tov4','v4tov6']])
 			], self.class)
 		end
 
 	def run
 		if not is_admin?
 			print_error("You don't have enough privileges. Try getsystem.")
-			return
-		end
-
-		if not ['v4tov4', 'v6tov6', 'v6tov4','v4tov6'].include? datastore['TYPE']
-			print_error("TYPE value incorrect. Valid values: v4tov4, v6tov6, v6tov4, v4tov6.")
 			return
 		end
 
