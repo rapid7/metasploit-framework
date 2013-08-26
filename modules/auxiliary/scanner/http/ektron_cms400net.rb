@@ -29,8 +29,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				#Set to false to prevent account lockouts - it will!
-				OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false]),
 				OptString.new('URI', [true, "Path to the CMS400.NET login page", '/WorkArea/login.aspx']),
 				OptPath.new(
 					'USERPASS_FILE',
@@ -40,7 +38,10 @@ class Metasploit3 < Msf::Auxiliary
 						File.join(Msf::Config.install_root, "data", "wordlists", "cms400net_default_userpass.txt")
 					])
 			], self.class)
-		end
+
+		# "Set to false to prevent account lockouts - it will!"
+		deregister_options('BLANK_PASSWORDS')
+	end
 
 	def target_url
 		#Function to display correct protocol and host/vhost info
@@ -58,6 +59,10 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
+    def gen_blank_passwords(users, credentials)
+    	return credentials
+    end
+
 	def run_host(ip)
 		begin
 			res = send_request_cgi(
@@ -65,6 +70,11 @@ class Metasploit3 < Msf::Auxiliary
 				'method'  => 'GET',
 				'uri'     => normalize_uri(datastore['URI'])
 			}, 20)
+
+			if res.nil?
+				print_error("Connection timed out")
+				return
+			end
 
 			#Check for HTTP 200 response.
 			#Numerous versions and configs make if difficult to further fingerprint.
