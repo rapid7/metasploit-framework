@@ -105,9 +105,9 @@ module Msf::HTTP::Wordpress::Posts
 		begin
 			vprint_status("#{peer} - Locating wordpress feed...")
 			res = send_request_cgi({
-																 'uri'    => wordpress_url_rss,
-																 'method' => 'GET'
-														 })
+					'uri'    => wordpress_url_rss,
+					'method' => 'GET'
+			})
 
 			count = max_redirects
 
@@ -118,9 +118,9 @@ module Msf::HTTP::Wordpress::Posts
 
 				vprint_status("#{peer} - Web server returned a #{res.code}...following to #{path}")
 				res = send_request_cgi({
-																	 'uri'    => path,
-																	 'method' => 'GET'
-															 })
+						'uri'    => path,
+						'method' => 'GET'
+				})
 
 				if res.code == 200
 					vprint_status("#{peer} - Feed located at #{path}")
