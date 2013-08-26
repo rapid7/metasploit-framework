@@ -39,6 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 					])
 			], self.class)
 
+		# "Set to false to prevent account lockouts - it will!"
 		deregister_options('BLANK_PASSWORDS')
 	end
 
@@ -58,22 +59,22 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-	def cleanup
-		datastore['BLANK_PASSWORDS'] = @blank_pass
-	end
+    def gen_blank_passwords(users, credentials)
+    	return credentials
+    end
 
 	def run_host(ip)
-		# "Set to false to prevent account lockouts - it will!"
-		# Therefore we shouldn't present BLANK_PASSWORDS as an option
-		@blank_pass = datastore['BLANK_PASSWORDS']
-		datastore['BLANK_PASSWORDS'] = false
-
 		begin
 			res = send_request_cgi(
 			{
 				'method'  => 'GET',
 				'uri'     => normalize_uri(datastore['URI'])
 			}, 20)
+
+			if res.nil?
+				print_error("Connection timed out")
+				return
+			end
 
 			#Check for HTTP 200 response.
 			#Numerous versions and configs make if difficult to further fingerprint.
@@ -105,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 		rescue
-			print_error ("Ektron CMS400.NET login page not found at #{target_url}  [HTTP #{res.code rescue '= No response'}]")
+			print_error ("Ektron CMS400.NET login page not found at #{target_url}  [HTTP #{res.code}]")
 			return
 		end
 	end
