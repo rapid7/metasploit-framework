@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Auxiliary
 			}, 20)
 
 			if res.nil?
-				print_error("Connection timed out")
+				print_error("#{target_url} - Connection timed out")
 				return :abort
 			end
 

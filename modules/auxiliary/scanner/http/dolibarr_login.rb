@@ -93,7 +93,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if res.nil?
-			print_error("Connection timed out")
+			print_error("#{@peer} - Connection timed out")
 			return :abort
 		end
 

@@ -85,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("#{target_url} - Apache Axis - Dumping administrative credentials")
 
 			if res.nil?
-				print_error("Connection timed out")
+				print_error("#{target_url} - Connection timed out")
 				return
 			end
 

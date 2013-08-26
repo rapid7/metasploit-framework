@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
 			})
 
 		if res.nil?
-			print_error("Connection timed out")
+			print_error("#{rhost}:#{rport} - Connection timed out")
 			return :abort
 		end
 

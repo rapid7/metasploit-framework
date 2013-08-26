@@ -43,11 +43,6 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 	end
 
-	def target_url
-		uri = normalize_uri(datastore['URI'])
-		"http://#{vhost}:#{rport}#{datastore['URI']}"
-	end
-
 	def run_host(ip)
 		trav_strings = [
 			'../',
@@ -72,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 					}, 25)
 
 				if res.nil?
-					print_error("Connection timed out")
+					print_error("#{rhost}:#{rport} Connection timed out")
 					return
 				end
 
