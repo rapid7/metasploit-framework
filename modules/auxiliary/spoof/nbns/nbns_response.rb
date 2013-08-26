@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 					capture/server/http_ntlm it is a highly effective means of collecting crackable hashes on
 					common networks.
 
-					This module must be run as root and will bind to tcp/137 on all interfaces.
+					This module must be run as root and will bind to udp/137 on all interfaces.
 			},
 			'Author'     => [ 'Tim Medin <tim[at]securitywhole.com>' ],
 			'License'    => MSF_LICENSE,
