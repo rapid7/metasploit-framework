@@ -1512,6 +1512,7 @@ class DBManager
 			raise ArgumentError.new("Invalid address or object for :host (#{opts[:host].inspect})")
 		end
 
+	::ActiveRecord::Base.connection_pool.with_connection {
 		host = opts.delete(:host)
 		ptype = opts.delete(:type) || "password"
 		token = [opts.delete(:user), opts.delete(:pass)]
@@ -1623,6 +1624,7 @@ class DBManager
     end
 
 		ret[:cred] = cred
+	}
 	end
 
 	alias :report_cred :report_auth_info
@@ -1922,8 +1924,10 @@ class DBManager
 	# Note that this *can* update data across workspaces
 	#
 	def update_vuln_details(details)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		criteria = details.delete(:key) || {}
 		::Mdm::VulnDetail.update(key, details)
+	}
 	end
 
 	#
