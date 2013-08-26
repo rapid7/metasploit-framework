@@ -136,11 +136,15 @@ class Metasploit3 < Msf::Auxiliary
 						'ctype'		=> 'text/plain'
 					}, 20)
 
+					if res.nil?
+						print_error("Connection timed out")
+						return
+					end
 
 					if testmesg.empty? or usecode
-						if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
+						if (res.code.to_i == ecode) or (emesg and res.body.index(emesg))
 							if dm == false
-								print_status("NOT Found #{wmap_base_url}#{tpath}#{testfvuln}  #{res.code.to_i rescue ''}")
+								print_status("NOT Found #{wmap_base_url}#{tpath}#{testfvuln}  #{res.code.to_i}")
 							end
 						else
 							if res.code.to_i == 400  and ecode != 400
@@ -172,7 +176,7 @@ class Metasploit3 < Msf::Auxiliary
 							)
 						else
 							if dm == false
-								print_status("NOT Found #{wmap_base_url}#{tpath}#{testfvuln}  #{res.code.to_i rescue ''}")
+								print_status("NOT Found #{wmap_base_url}#{tpath}#{testfvuln}  #{res.code.to_i}")
 							end
 						end
 					end
