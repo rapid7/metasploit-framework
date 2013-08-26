@@ -148,6 +148,11 @@ class Metasploit3 < Msf::Auxiliary
 				}
 		}, 25)
 
+		if res.nil?
+			print_error("Did not get a response from server")
+			return
+		end
+
 		raw_data = res.body.scan(/#{action.opts['PATTERN']}/).flatten[0]
 		print_line("\n" + Rex::Text.decode_base64(raw_data))
 

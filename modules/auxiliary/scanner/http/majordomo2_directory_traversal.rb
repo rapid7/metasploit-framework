@@ -71,6 +71,11 @@ class Metasploit3 < Msf::Auxiliary
 						'uri'     => uri + payload,
 					}, 25)
 
+				if res.nil?
+					print_error("Connection timed out")
+					return
+				end
+
 				print_status("#{rhost}:#{rport} Trying URL " + payload )
 
 				if (res and res.code == 200 and res.body)
@@ -93,6 +98,7 @@ class Metasploit3 < Msf::Auxiliary
 						print_error("#{rhost}:#{rport} No HTML was returned")
 					end
 				else
+					# if res is nil, we hit this
 					print_error("#{rhost}:#{rport} Unrecognized #{res.code} response")
 				end
 				i += 1;

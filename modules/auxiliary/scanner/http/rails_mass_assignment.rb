@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
 				'data'      => datastore['METHOD'] == 'POST' ? query.to_query : datastore['DATA']
 			}, 20)
 
-			if resp.code == 500
+			if resp and resp.code == 500
 				print_good("#{ip} - Possible attributes mass assignment in attribute #{param}[...] at #{datastore['PATH']}")
 				report_web_vuln(
 					:host   => rhost,
