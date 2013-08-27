@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Post
 			'Actions'       => [
 				[ 'LIST',     { 'Description' => 'Show a list of webcams' } ],
 				[ 'SNAPSHOT', { 'Description' => 'Take a snapshot with the webcam' } ],
-				[ 'RECORD', { 'Description' => 'Take a snapshot with the webcam' } ]
+				[ 'RECORD', { 'Description' => 'Record with the webcam' } ]
 			],
 			'DefaultAction' => 'LIST'
 		))
