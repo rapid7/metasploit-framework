@@ -45,6 +45,11 @@ class Metasploit3 < Msf::Auxiliary
 					'uri'     => "#{$uri}\/$defaultview?Readviewentries",
 				}, 25)
 
+				if res.nil?
+					print_error("Connection timed out")
+					return
+				end
+
 				if (res and res.body.to_s =~ /\<viewentries/)
 					print_good("http://#{vhost}:#{rport} - Lotus Domino - OK names.nsf accessible without credentials")
 					cookie = ''
@@ -84,6 +89,11 @@ class Metasploit3 < Msf::Auxiliary
 				'uri'     => '/names.nsf?Login',
 				'data'    => post_data,
 			}, 20)
+
+			if res.nil?
+				print_error("http://#{vhost}:#{rport} - Connection timed out")
+				return
+			end
 
 			if (res and res.code == 302 )
 				if res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/DomAuthSessId=(.*);(.*)/i)

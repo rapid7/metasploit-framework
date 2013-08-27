@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 				'method' => 'POST',
 			}, 5)
 
-			if (res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/PHPSESSID=(.*);(.*)/i))
+			if (res and res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/PHPSESSID=(.*);(.*)/i))
 
 				sessionid = res.headers['Set-Cookie'].split(';')[0]
 
