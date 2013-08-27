@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'          => 'OSX Userspace Keylogger',
+			'Name'          => 'OSX Capture Userspace Keylogger',
 			'Description'   => %q{
 				Logs all keyboard events except cmd-keys and GUI password input.
 
