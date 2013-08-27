@@ -91,6 +91,11 @@ class Metasploit4 < Msf::Auxiliary
 					}
 			}, 15)
 
+			if res.nil?
+				print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+				return
+			end
+
 			if res.code == 200
 				body = res.body
 				if body.match(/<property>CentralServices<\/property><propertytype>Attribute<\/propertytype><value>([^<]+)<\/value>/)
