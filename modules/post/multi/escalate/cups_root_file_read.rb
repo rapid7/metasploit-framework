@@ -99,6 +99,11 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
+		if session.nil?
+			print_error "Invalid session."
+			return
+		end
+
 		if check_exploitability == Msf::Exploit::CheckCode::Safe
 			print_error "Target machine not vulnerable, bailing."
 			return
