@@ -112,21 +112,17 @@ class Metasploit3 < Msf::Post
 
 	def fw_enable_ports
 		print_status ("Setting port #{datastore['LOCAL_PORT']} in Windows Firewall ...")
-		begin
-			if sysinfo["OS"] =~ /Windows 7|Vista|2008|2012/
-				cmd_exec("netsh","advfirewall firewall add rule name=\"Windows Service\" dir=in protocol=TCP action=allow localport=\"#{datastore['LOCAL_PORT']}\"")
-			else
-				cmd_exec("netsh","firewall set portopening protocol=TCP port=\"#{datastore['LOCAL_PORT']}\"")
-			end
-			output = cmd_exec("netsh","firewall show state")
+		if sysinfo["OS"] =~ /Windows 7|Vista|2008|2012/
+			cmd_exec("netsh","advfirewall firewall add rule name=\"Windows Service\" dir=in protocol=TCP action=allow localport=\"#{datastore['LOCAL_PORT']}\"")
+		else
+			cmd_exec("netsh","firewall set portopening protocol=TCP port=\"#{datastore['LOCAL_PORT']}\"")
+		end
+		output = cmd_exec("netsh","firewall show state")
 
-			if  output =~ /^#{datastore['LOCAL_PORT']} /
-				print_good("Port opened in Windows Firewall.")
-			else
-				print_error("There was an error enabling the port.")
-			end
-		rescue ::Exception => e
-			print_status("The following Error was encountered: #{e.class} #{e}")
+		if output =~ /^#{datastore['LOCAL_PORT']} /
+			print_good("Port opened in Windows Firewall.")
+		else
+			print_error("There was an error enabling the port.")
 		end
 	end
 end
