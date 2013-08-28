@@ -12,10 +12,11 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows Manage PortProxy Interface',
+			'Name'          => 'Windows Manage Set Port Forwarding With PortProxy',
 			'Description'   => %q{
-					This module uses the PortProxy interface from netsh to set up port forwarding
-				persistently (even after reboot). PortProxy supports TCP IPv4 and IPv6 connections.
+				This module uses the PortProxy interface from netsh to set up
+				port forwarding persistently (even after reboot). PortProxy
+				supports TCP IPv4 and IPv6 connections.
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Borja Merino <bmerinofe[at]gmail.com>'],
