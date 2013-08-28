@@ -74,6 +74,13 @@ module Auxiliary::AuthBrute
 			initialize_class_variables(this_service,credentials)
 		end
 
+		# Save original datastore values because they are going to be
+		# modified while the credentials.each loop
+		original_values = {
+			'USERNAME' => datastore['USERNAME'],
+			'PASSWORD' => datastore['PASSWORD']
+		}
+
 		credentials.each do |u, p|
 			# Explicitly be able to set a blank (zero-byte) username by setting the
 			# username to <BLANK>. It's up to the caller to handle this if it's not
@@ -137,6 +144,12 @@ module Auxiliary::AuthBrute
 			end
 
 		end
+
+		# Restore the datastore
+		original_values.each do |k, v|
+			datastore[k] = v unless datastore[k] == v
+		end
+
 	end
 
 	def counters_expired?(this_service,credentials)
