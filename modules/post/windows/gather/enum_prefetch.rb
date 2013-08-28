@@ -44,23 +44,23 @@ class Metasploit3 < Msf::Post
 		end
 	end
 
-	def timezone_key_values(key_value)
+	def print_timezone_key_values(key_value)
 		# Looks for timezone from registry
 		timezone = registry_getvaldata("HKLM\\SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation", key_value)
 		tz_bias = registry_getvaldata("HKLM\\SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation", "Bias")
 		if timezone.nil? or tz_bias.nil?
 			print_line("Couldn't find key/value for timezone from registry.")
 		else
-				print_good("Remote: Timezone is %s." % timezone)
-				if tz_bias < 0xfff
-					print_good("Remote: Localtime bias to UTC: -%s minutes." % tz_bias)
-				else
-					offset = 0xffffffff
-					bias = offset - tz_bias
-					print_good("Remote: Localtime bias to UTC: +%s minutes." % bias)
-				end
+			print_good("Remote: Timezone is %s." % timezone)
+			if tz_bias < 0xfff
+				print_good("Remote: Localtime bias to UTC: -%s minutes." % tz_bias)
+			else
+				offset = 0xffffffff
+				bias = offset - tz_bias
+				print_good("Remote: Localtime bias to UTC: +%s minutes." % bias)
 			end
 		end
+	end
 
 	def gather_pf_info(name_offset, hash_offset, runcount_offset, filename, table)
 		# We'll load the file and parse information from the offsets
@@ -146,7 +146,7 @@ class Metasploit3 < Msf::Post
 				"Filename"
 			])
 		print_prefetch_key_value
-		timezone_key_values(key_value)
+		print_timezone_key_values(key_value)
 		print_good("Current UTC Time: %s" % Time.now.utc)
 		sys_root = expand_path("%SYSTEMROOT%")
 		full_path = sys_root + "\\Prefetch\\"
