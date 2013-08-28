@@ -34,7 +34,8 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         =>
 				[
 					'tebo <tebo [at] attackresearch [dot] com>', # Original
-					'Ben Campbell <eat_meatballs [at] hotmail.co.uk>' # Refactoring
+					'Ben Campbell <eat_meatballs [at] hotmail.co.uk>', # Refactoring
+					'Brandon McCann "zeknox" <bmccann [at] accuvant.com>'
 				],
 			'References'     =>
 				[
@@ -66,6 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('SMBPass', [ false, "SMB Password" ]),
 				OptString.new('SMBUser', [ false, "SMB Username" ]),
 				OptString.new('SMBDomain', [ false, "SMB Domain", '']),
+				OptBool.new('CHECK_ADMIN', [ false, "Check for Admin rights", false]),
 				OptBool.new('PRESERVE_DOMAINS', [ false, "Respect a username that contains a domain name.", true]),
 				OptBool.new('RECORD_GUEST', [ false, "Record guest-privileged random logins to the database", false])
 			], self.class)
@@ -118,9 +120,20 @@ class Metasploit3 < Msf::Auxiliary
 				{:use_spn => datastore['NTLM::SendSPN'], :name =>  self.rhost}
 			)
 
-			# Windows SMB will return an error code during Session Setup, but nix Samba requires a Tree Connect:
-			simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
-			status_code = 'STATUS_SUCCESS'
+		# Windows SMB will return an error code during Session Setup, but nix Samba requires a Tree Connect:
+		simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
+		status_code = "STATUS_SUCCESS"
+
+		if datastore['CHECK_ADMIN']
+			status_code = "NOT_ADMIN"
+			begin
+				simple.connect("\\\\#{datastore['RHOST']}\\admin$")
+				status_code = 'ADMIN_ACCESS'
+			rescue
+				status_code = "NOT_ADMIN"
+			end
+		end
+
 		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
 			status_code = e.get_error(e.error_code)
 		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
@@ -225,6 +238,20 @@ class Metasploit3 < Msf::Auxiliary
 
 			return :next_user
 
+		when 'ADMIN_ACCESS', 'NOT_ADMIN'
+			# Auth user indicates if the login was as a guest or not
+			if(simple.client.auth_user)
+				print_good(output_message % "SUCCESSFUL LOGIN")
+				validuser_case_sensitive?(domain, user, pass)
+				report_creds(domain,user,pass,true)
+			else
+				if datastore['RECORD_GUEST']
+					print_status(output_message % "GUEST LOGIN")
+					report_creds(domain,user,pass,true)
+				elsif datastore['VERBOSE']
+						print_status(output_message % "GUEST LOGIN")
+				end
+			end
 		when *@correct_credentials_status_codes
 			print_status(output_message % "FAILED LOGIN, VALID CREDENTIALS" )
 			report_creds(domain,user,pass,false)
