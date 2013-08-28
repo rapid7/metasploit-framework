@@ -92,7 +92,7 @@ class Metasploit3 < Msf::Post
 	end
 
 	def check_ipv6
-		if ipv6_installed()
+		if ipv6_installed
 			print_status("IPv6 is already installed.")
 			return true
 		elsif not datastore['IPV6_XP']
