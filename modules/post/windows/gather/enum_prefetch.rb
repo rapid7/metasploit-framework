@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Post
 			'SessionType'   =>      ['meterpreter']))
 	end
 
-	def prefetch_key_value()
+	def print_prefetch_key_value()
 		# Checks if Prefetch registry key exists and what value it has.
 		prefetch_key_value = registry_getvaldata("HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management\\PrefetchParameters", "EnablePrefetcher")
 		if prefetch_key_value == 0
@@ -145,7 +145,7 @@ class Metasploit3 < Msf::Post
 				"Hash",
 				"Filename"
 			])
-		prefetch_key_value
+		print_prefetch_key_value
 		timezone_key_values(key_value)
 		print_good("Current UTC Time: %s" % Time.now.utc)
 		sys_root = expand_path("%SYSTEMROOT%")
