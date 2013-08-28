@@ -62,11 +62,12 @@ class Metasploit3 < Msf::Post
 		end
 	end
 
-	def gather_pf_info(name_offset, hash_offset, runcount_offset, filename, table)
+	def gather_pf_info(name_offset, hash_offset, runcount_offset, filename)
 		# We'll load the file and parse information from the offsets
 		prefetch_file = read_file(filename)
 		if prefetch_file.empty? or prefetch_file.nil?
 			print_error("Couldn't read file: #{filename}")
+			return nil
 		else
 			# First we'll get the filename
 			pf_filename = prefetch_file[name_offset..name_offset+60]
@@ -85,7 +86,7 @@ class Metasploit3 < Msf::Post
 				last_modified = mtimes['Modified'].utc.to_s
 				created = mtimes['Created'].utc.to_s
 			end
-			table << [last_modified, created, run_count, path_hash, name]
+			return [last_modified, created, run_count, path_hash, name]
 		end
 	end
 
@@ -166,7 +167,10 @@ class Metasploit3 < Msf::Post
 					next
 				else
 					filename = File.join(file['path'], file['name'])
-					gather_pf_info(name_offset, hash_offset, runcount_offset, filename, table)
+					pf_entry = gather_pf_info(name_offset, hash_offset, runcount_offset, filename)
+					if not pf_entry.nil?
+						table << pf_entry
+					end
 				end
 			end
 		end
