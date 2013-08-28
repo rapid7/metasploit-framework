@@ -26,12 +26,12 @@ class Metasploit3 < Msf::Post
 
 		register_options(
 			[
-				OptAddress.new('LOCAL_ADDRESS', [ true, 'IPv4/IPv6 address to which to listen.']),
+				OptAddress.new('LOCAL_ADDRESS',   [ true, 'IPv4/IPv6 address to which to listen.']),
 				OptAddress.new('CONNECT_ADDRESS', [ true, 'IPv4/IPv6 address to which to connect.']),
-				OptInt.new(    'CONNECT_PORT',    [ true, 'Port number to which to connect.']),
-				OptInt.new(    'LOCAL_PORT',    [ true, 'Port number to which to listen.']),
-				OptBool.new(   'IPV6_XP',  [ true, 'Install IPv6 on Windows XP (needed for v4tov4).', true]),
-				OptEnum.new(   'TYPE',     [ true, 'Type of forwarding', 'v4tov4', ['v4tov4','v6tov6','v6tov4','v4tov6']])
+				OptPort.new(   'CONNECT_PORT',    [ true, 'Port number to which to connect.']),
+				OptPort.new(   'LOCAL_PORT',      [ true, 'Port number to which to listen.']),
+				OptBool.new(   'IPV6_XP',         [ true, 'Install IPv6 on Windows XP (needed for v4tov4).', true]),
+				OptEnum.new(   'TYPE',            [ true, 'Type of forwarding', 'v4tov4', ['v4tov4','v6tov6','v6tov4','v4tov6']])
 			], self.class)
 		end
 
