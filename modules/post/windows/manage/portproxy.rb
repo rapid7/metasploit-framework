@@ -29,6 +29,7 @@ class Metasploit3 < Msf::Post
 				OptAddress.new('CADDRESS', [ true, 'IPv4/IPv6 address to which to connect.']),
 				OptInt.new(    'CPORT',    [ true, 'Port number to which to connect.']),
 				OptInt.new(    'LPORT',    [ true, 'Port number to which to listen.']),
+				OptBool.new(   'IPV6_XP',  [ true, 'Install IPv6 on Windows XP (needed for v4tov4).', true]),
 				OptEnum.new(   'TYPE',     [ true, 'Type of forwarding', 'v4tov4', ['v4tov4','v6tov6','v6tov4','v4tov6']])
 			], self.class)
 		end
@@ -42,19 +43,26 @@ class Metasploit3 < Msf::Post
 		type = datastore['TYPE']
 		lport = datastore['LPORT']
 		cport = datastore['CPORT']
+		ipv6_xp = datastore['IPV6_XP']
 		laddress = datastore['LADDRESS']
 		caddress = datastore['CADDRESS']
 
-		return if not enable_portproxy(lport,cport,laddress,caddress,type)
+		return if not enable_portproxy(lport,cport,laddress,caddress,type,ipv6_xp)
 		fw_enable_ports(lport)
 
 	end
 
-	def enable_portproxy(lport,cport,laddress,caddress,type)
-		# Due to a bug in Windows XP you need to install ipv6
+	def enable_portproxy(lport,cport,laddress,caddress,type,ipv6_xp)
+		rtable = Rex::Ui::Text::Table.new(
+			'Header' => 'Port Forwarding Table',
+			'Indent' =>  3,
+			'Columns' => ['LOCAL IP', 'LOCAL PORT', 'REMOTE IP', 'REMOTE PORT']
+		)
+
+		# Due to a bug in Windows XP you need to install IPv6
 		# http://support.microsoft.com/kb/555744/en-us
 		if sysinfo["OS"] =~ /XP/
-			return false if not enable_ipv6()
+			return false if not check_ipv6(ipv6_xp)
 		end
 
 		print_status("Setting PortProxy ...")
@@ -67,23 +75,40 @@ class Metasploit3 < Msf::Post
 		end
 
 		output = cmd_exec("netsh","interface portproxy show all")
-		print_status("Local IP\tLocal Port\tRemote IP\tRemote Port")
 		output.each_line do |l|
-			print_status("#{l.chomp}") if l.strip =~ /^[0-9]|\*/
+			rtable << l.split(" ") if l.strip =~ /^[0-9]|\*/
 		end
+		print_status(rtable.to_s)
 		return true
 	end
 
-	def enable_ipv6()
-		print_status("Checking IPv6. This could take a while ...")
-		cmd_exec("netsh","interface ipv6 install",120)
-		output = cmd_exec("netsh","interface ipv6 show global")
-		if output =~ /-----/
-			print_good("IPV6 installed.")
+	def ipv6_installed()
+		output = cmd_exec("netsh","interface ipv6 show interface")
+		if output.lines.count > 2
 			return true
 		else
-			print_error("IPv6 was not successfully installed. Run it again.")
 			return false
+		end
+	end
+
+	def check_ipv6(ipv6_xp)
+		if ipv6_installed()
+			print_status("IPv6 is already installed.")
+			return true
+		else
+			if not ipv6_xp
+				print_error("IPv6 is not installed. You need IPv6 to use portproxy.")
+				return false
+			else
+				print_status("Installing IPv6 ...")
+				cmd_exec("netsh","interface ipv6 install",120)
+				if not ipv6_installed
+					print_error("IPv6 was not successfully installed. Run it again.")
+					return false
+				end
+				print_good("IPv6 was successfully installed.")
+				return true
+			end
 		end
 	end
 
@@ -102,7 +127,7 @@ class Metasploit3 < Msf::Post
 			else
 				print_error("There was an error enabling the port.")
 			end
-		rescue::Exception => e
+		rescue ::Exception => e
 			print_status("The following Error was encountered: #{e.class} #{e}")
 		end
 	end
