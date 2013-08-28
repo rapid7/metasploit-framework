@@ -95,20 +95,18 @@ class Metasploit3 < Msf::Post
 		if ipv6_installed()
 			print_status("IPv6 is already installed.")
 			return true
+		elsif not datastore['IPV6_XP']
+			print_error("IPv6 is not installed. You need IPv6 to use portproxy.")
+			return false
 		else
-			if not datastore['IPV6_XP']
-				print_error("IPv6 is not installed. You need IPv6 to use portproxy.")
+			print_status("Installing IPv6 ...")
+			cmd_exec("netsh","interface ipv6 install",120)
+			if not ipv6_installed
+				print_error("IPv6 was not successfully installed. Run it again.")
 				return false
-			else
-				print_status("Installing IPv6 ...")
-				cmd_exec("netsh","interface ipv6 install",120)
-				if not ipv6_installed
-					print_error("IPv6 was not successfully installed. Run it again.")
-					return false
-				end
-				print_good("IPv6 was successfully installed.")
-				return true
 			end
+			print_good("IPv6 was successfully installed.")
+			return true
 		end
 	end
 
