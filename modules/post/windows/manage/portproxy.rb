@@ -41,6 +41,12 @@ class Metasploit3 < Msf::Post
 			return
 		end
 
+		# Due to a bug in Windows XP you need to install IPv6
+		# http://support.microsoft.com/kb/555744/en-us
+		if sysinfo["OS"] =~ /XP/
+			return unless check_ipv6
+		end
+
 		return unless enable_portproxy
 		fw_enable_ports
 
@@ -52,12 +58,6 @@ class Metasploit3 < Msf::Post
 			'Indent' =>  3,
 			'Columns' => ['LOCAL IP', 'LOCAL PORT', 'REMOTE IP', 'REMOTE PORT']
 		)
-
-		# Due to a bug in Windows XP you need to install IPv6
-		# http://support.microsoft.com/kb/555744/en-us
-		if sysinfo["OS"] =~ /XP/
-			return false if not check_ipv6
-		end
 
 		print_status("Setting PortProxy ...")
 		netsh_args = "interface portproxy "
