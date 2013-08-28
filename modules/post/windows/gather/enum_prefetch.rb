@@ -167,7 +167,7 @@ class Metasploit3 < Msf::Post
 				if file.empty? or file.nil?
 					next
 				else
-					filename = File.join(file['path'], file['name'])
+					filename = ::File.join(file['path'], file['name'])
 					pf_entry = gather_pf_info(name_offset, hash_offset, runcount_offset, filename)
 					if not pf_entry.nil?
 						table << pf_entry
