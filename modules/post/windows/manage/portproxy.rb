@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Post
 		laddress = datastore['LADDRESS']
 		caddress = datastore['CADDRESS']
 
-		return if not enable_portproxy(lport,cport,laddress,caddress,type,ipv6_xp)
+		return unless enable_portproxy(lport,cport,laddress,caddress,type,ipv6_xp)
 		fw_enable_ports(lport)
 
 	end
