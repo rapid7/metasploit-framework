@@ -18,14 +18,15 @@ class Metasploit3 < Msf::Post
 		super(update_info(info,
 			'Name'          => 'Windows Gather Prefetch File Information',
 			'Description'   => %q{
-								This module gathers prefetch file information from WinXP, Win2k3 and Win7 systems.
-								File offset reads for run count, hash and filename are collected from each prefetch file
-								while Last Modified and Create times are file MACE values.
-													},
-			'License'       =>      MSF_LICENSE,
-			'Author'        =>      ['TJ Glad <fraktaali[at]gmail.com>'],
-			'Platform'      =>      ['win'],
-			'SessionType'   =>      ['meterpreter']))
+				This module gathers prefetch file information from WinXP, Win2k3 and Win7 systems.
+				Run count, hash and filename information is collected from each prefetch file while
+				Last Modified and Create times are file MACE values.
+			},
+			'License'       => MSF_LICENSE,
+			'Author'        => ['TJ Glad <fraktaali[at]gmail.com>'],
+			'Platform'      => ['win'],
+			'SessionType'   => ['meterpreter']
+		))
 	end
 
 	def print_prefetch_key_value()
