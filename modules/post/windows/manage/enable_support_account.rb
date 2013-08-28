@@ -1,6 +1,10 @@
 require 'msf/core'
 require 'rex'
 
+require 'msf/core/post/windows/registry'
+require 'msf/core/post/windows/priv'
+require 'msf/core/post/common'
+
 class Metasploit3 < Msf::Post
 
 	include Msf::Post::Windows::Registry
@@ -9,7 +13,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows Manage - Trojanize Support Account',
+			'Name'          => 'Windows Manage Trojanize Support Account',
 			'Description'   => %q{
 				This module enables alternative access to servers and workstations
 				by modifying the support account's properties. It will enable

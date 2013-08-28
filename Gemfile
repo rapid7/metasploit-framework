@@ -31,6 +31,7 @@ group :db do
 end
 
 group :pcap do
+  gem 'network_interface', '~> 0.0.1'
 	# For sniffer and raw socket modules
 	gem 'pcaprub'
 end

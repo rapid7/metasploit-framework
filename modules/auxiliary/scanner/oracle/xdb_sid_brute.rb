@@ -242,7 +242,7 @@ class Metasploit3 < Msf::Auxiliary
 				}
 			}, -1)
 
-			if (res.code == 200)
+			if res and res.code == 200
 				if (not res.body.length > 0)
 				# sometimes weird bug where body doesn't have value yet
 					res.body = res.bufq
@@ -294,7 +294,7 @@ class Metasploit3 < Msf::Auxiliary
 				}
 			}, -1)
 
-			if (res.code == 200)
+			if res and res.code == 200
 				if (not res.body.length > 0)
 				# sometimes weird bug where body doesn't have value yet
 					res.body = res.bufq

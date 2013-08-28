@@ -221,7 +221,7 @@ module Parser
 			return unless @report_type_ok
 			unless @state[:current_tag].empty?
 				missing_ends = @state[:current_tag].keys.map {|x| "'#{x}'"}.join(", ")
-	l			msg = "Warning, the provided file is incomplete, and there may be missing\n"
+				msg = "Warning, the provided file is incomplete, and there may be missing\n"
 				msg << "data. The following tags were not closed: #{missing_ends}."
 				db.emit(:warning,msg,&block) if block
 			end

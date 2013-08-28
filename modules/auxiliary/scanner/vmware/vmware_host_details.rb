@@ -46,7 +46,9 @@ class Metasploit3 < Msf::Auxiliary
 			host_summary = vim_get_all_host_summary(datastore['HW_DETAILS'])
 			output << YAML.dump(host_summary)
 			print_good output
-			store_loot('vmware_host_details', "text/plain", datastore['RHOST'], output, "#{datastore['RHOST']}_vmware_host.txt", "VMWare Host Details")
+
+			f = store_loot('vmware_host_details', "text/plain", datastore['RHOST'], output, "#{datastore['RHOST']}_vmware_host.txt", "VMWare Host Details")
+			vprint_status("Host details stored in: #{f}")
 		else
 			print_error "Login Failure on #{ip}"
 			return

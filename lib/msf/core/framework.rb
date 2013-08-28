@@ -17,7 +17,7 @@ class Framework
 	#
 
 	Major    = 4
-	Minor    = 7
+	Minor    = 8
 	Point    = 0
 	Release  = "-dev"
 

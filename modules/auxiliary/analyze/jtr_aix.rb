@@ -32,59 +32,66 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run
 		wordlist = Rex::Quickfile.new("jtrtmp")
-
-		wordlist.write( build_seed().join("\n") + "\n" )
-		wordlist.close
-
-		hashlist = Rex::Quickfile.new("jtrtmp")
+		begin
+			wordlist.write( build_seed().join("\n") + "\n" )
+		ensure
+			wordlist.close
+		end
 
 		myloots = myworkspace.loots.find(:all, :conditions => ['ltype=?', 'aix.hashes'])
-		unless myloots.nil? or myloots.empty?
-			myloots.each do |myloot|
-				begin
-					usf = File.open(myloot.path, "rb")
-				rescue Exception => e
-					print_error("Unable to read #{myloot.path} \n #{e}")
-					next
+		return if myloots.nil? or myloots.empty?
+
+		loot_data = ''
+
+		myloots.each do |myloot|
+			usf = ''
+			begin
+				File.open(myloot.path, "rb") do |f|
+					usf = f.read
 				end
-				usf.each_line do |row|
-					row.gsub!(/\n/, ":#{myloot.host.address}\n")
-					hashlist.write(row)
-				end
+			rescue Exception => e
+				print_error("Unable to read #{myloot.path} \n #{e}")
+				next
 			end
-			hashlist.close
-
-			print_status("HashList: #{hashlist.path}")
-
-			print_status("Trying Format:des Wordlist: #{wordlist.path}")
-			john_crack(hashlist.path, :wordlist => wordlist.path, :rules => 'single', :format => 'des')
-			print_status("Trying Format:des Rule: All4...")
-			john_crack(hashlist.path, :incremental => "All4", :format => 'des')
-			print_status("Trying Format:des Rule: Digits5...")
-			john_crack(hashlist.path, :incremental => "Digits5", :format => 'des')
-
-			cracked = john_show_passwords(hashlist.path)
-
-
-			print_status("#{cracked[:cracked]} hashes were cracked!")
-
-			cracked[:users].each_pair do |k,v|
-				if v[0] == "NO PASSWORD"
-					passwd=""
-				else
-					passwd=v[0]
-				end
-				print_good("Host: #{v.last}  User: #{k} Pass: #{passwd}")
-				report_auth_info(
-					:host  => v.last,
-					:port => 22,
-					:sname => 'ssh',
-					:user => k,
-					:pass => passwd
-				)
+			usf.each_line do |row|
+				row.gsub!(/\n/, ":#{myloot.host.address}\n")
+				loot_data << row
 			end
 		end
 
+		hashlist = Rex::Quickfile.new("jtrtmp")
+		hashlist.write(loot_data)
+		hashlist.close
+
+		print_status("HashList: #{hashlist.path}")
+
+		print_status("Trying Format:des Wordlist: #{wordlist.path}")
+		john_crack(hashlist.path, :wordlist => wordlist.path, :rules => 'single', :format => 'des')
+		print_status("Trying Format:des Rule: All4...")
+		john_crack(hashlist.path, :incremental => "All4", :format => 'des')
+		print_status("Trying Format:des Rule: Digits5...")
+		john_crack(hashlist.path, :incremental => "Digits5", :format => 'des')
+
+		cracked = john_show_passwords(hashlist.path)
+
+
+		print_status("#{cracked[:cracked]} hashes were cracked!")
+
+		cracked[:users].each_pair do |k,v|
+			if v[0] == "NO PASSWORD"
+				passwd=""
+			else
+				passwd=v[0]
+			end
+			print_good("Host: #{v.last}  User: #{k} Pass: #{passwd}")
+			report_auth_info(
+				:host  => v.last,
+				:port => 22,
+				:sname => 'ssh',
+				:user => k,
+				:pass => passwd
+			)
+		end
 	end
 
 end

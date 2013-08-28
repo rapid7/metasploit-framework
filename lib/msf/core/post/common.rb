@@ -7,6 +7,30 @@ class Post
 
 module Common
 
+
+	#
+	# Checks if the remote system has a process with ID +pid+
+	#
+	def has_pid?(pid)
+		pid_list = []
+		case client.type
+		when /meterpreter/
+			pid_list = client.sys.process.processes.collect {|e| e['pid']}
+		when /shell/
+			if client.platform =~ /win/
+				o = cmd_exec('tasklist /FO LIST')
+				pid_list = o.scan(/^PID:\s+(\d+)/).flatten
+			else
+				o = cmd_exec('ps ax')
+				pid_list = o.scan(/^\s*(\d+)/).flatten
+			end
+
+			pid_list = pid_list.collect {|e| e.to_i}
+		end
+
+		pid_list.include?(pid)
+	end
+
 	#
 	# Executes +cmd+ on the remote system
 	#

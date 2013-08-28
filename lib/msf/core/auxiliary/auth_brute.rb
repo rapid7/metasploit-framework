@@ -22,6 +22,9 @@ module Auxiliary::AuthBrute
 			OptBool.new('VERBOSE', [ true, "Whether to print output for all attempts", true]),
 			OptBool.new('BLANK_PASSWORDS', [ false, "Try blank passwords for all users", true]),
 			OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", true]),
+			OptBool.new('DB_ALL_CREDS', [false,"Try each user/password couple stored in the current database",true]),
+			OptBool.new('DB_ALL_USERS', [false,"Add all users in the current database to the list",false]),
+			OptBool.new('DB_ALL_PASS', [false,"Add all passwords in the current database to the list",false]),
 			OptBool.new('STOP_ON_SUCCESS', [ true, "Stop guessing when a credential works for a host", false]),
 		], Auxiliary::AuthBrute)
 
@@ -183,6 +186,23 @@ module Auxiliary::AuthBrute
 		end
 		if datastore['BLANK_PASSWORDS']
 			credentials = gen_blank_passwords(users, credentials)
+		end
+		if framework.db.active
+			if datastore['DB_ALL_CREDS']
+				myworkspace.creds.each do |o|
+					credentials << [o.user, o.pass] if o.ptype =~ /password/
+				end
+			end
+			if datastore['DB_ALL_USERS']
+				myworkspace.creds.each do |o|
+					users << o.user
+				end
+			end
+			if datastore['DB_ALL_PASS']
+				myworkspace.creds.each do |o|
+					passwords << o.pass if o.ptype =~ /password/
+				end
+			end
 		end
 		credentials.concat(combine_users_and_passwords(users, passwords))
 		credentials.uniq!

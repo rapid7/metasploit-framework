@@ -11,6 +11,8 @@ class Def_kernel32
 
 	def self.create_dll(dll_path = 'kernel32')
 		dll = DLL.new(dll_path, ApiConstants.manager)
+		
+		dll.add_function( 'GetConsoleWindow', 'LPVOID',[])
 
 		dll.add_function( 'ActivateActCtx', 'BOOL',[
 			["HANDLE","hActCtx","inout"],

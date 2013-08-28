@@ -74,7 +74,8 @@ class Metasploit3 < Msf::Post
 					if qpath and ! srv_conf['Command'].downcase.include? qpath.downcase
 						isgood = false
 					end
-					if qtype and ! srv_conf['Startup'].downcase.include? qtype.downcase
+					# There may not be a 'Startup', need to check nil
+					if qtype and ! (srv_conf['Startup'] || '').downcase.include? qtype.downcase
 						isgood = false
 					end
 

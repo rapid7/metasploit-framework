@@ -26,10 +26,6 @@ class Metasploit3 < Msf::Auxiliary
 		deregister_options('RPORT', 'RHOST')
 	end
 
-	def rport
-		datastore['RPORT']
-	end
-
 	def run_host(ip)
 
 		begin
