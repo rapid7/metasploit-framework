@@ -71,7 +71,7 @@ shared_context 'Msf::Util::Exe' do
     fp = IO.popen("file -","w+") do |io|
        begin
          io.write(bin)
-       rescue
+       rescue Errno::EPIPE
        end
        io.close_write
        io.read
