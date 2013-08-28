@@ -156,14 +156,14 @@ class Metasploit3 < Msf::Post
 		# Goes through the files in Prefetch directory, creates file paths for the
 		# gather_pf_info function that enumerates all the pf info
 
-		getfile_prefetch_filenames = client.fs.file.search(full_path,file_type)
+		getfile_prefetch_filenames = client.fs.file.search(full_path, file_type)
 		if getfile_prefetch_filenames.empty? or getfile_prefetch_filenames.nil?
 			print_error("Could not find/access any .pf files. Can't continue. (Might be temporary error..)")
 			return nil
 		else
 			getfile_prefetch_filenames.each do |file|
 				if file.empty? or file.nil?
-					print_error("Could not open file: %s" % file)
+					next
 				else
 					filename = File.join(file['path'], file['name'])
 					gather_pf_info(name_offset, hash_offset, runcount_offset, filename, table)
