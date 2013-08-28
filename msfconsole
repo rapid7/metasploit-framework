@@ -123,8 +123,7 @@ class OptsConsole
 			end
 
 			opts.on("-x", "-x <command>", "Execute the specified string as console commands (use ; for multiples)") do |s|
-				options['XCommands'] ||= []
-				options['XCommands'] += s.split(/\s*;\s*/)
+				options['XCommands'] = s
 			end
 
 			opts.separator ""

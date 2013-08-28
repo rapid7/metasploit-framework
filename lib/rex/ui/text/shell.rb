@@ -189,7 +189,7 @@ module Shell
 				if (block)
 					break if (line == nil or block.call(line))
 				elsif(input.eof? or line == nil)
-				# If you have sessions active, this will give you a shot to exit gravefully
+				# If you have sessions active, this will give you a shot to exit gracefully
 				# If you really are ambitious, 2 eofs will kick this out
 					self.stop_count += 1
 					next if(self.stop_count > 1)
@@ -197,7 +197,7 @@ module Shell
 				else
 				# Otherwise, call what should be an overriden instance method to
 				# process the line.
-					ret = run_single(line)
+					ret = run_multiple(line)
 					# don't bother saving lines that couldn't be found as a
 					# command, create the file if it doesn't exist
 					if ret and self.histfile
@@ -245,7 +245,7 @@ module Shell
 			end
 
 			if mode
-			  new_prompt = prompt + (new_prompt_char || prompt_char) + ' '
+				new_prompt = prompt + (new_prompt_char || prompt_char) + ' '
 			end
 
 			# Save the prompt before any substitutions

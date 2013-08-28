@@ -251,11 +251,7 @@ class Driver < Msf::Ui::Driver
 		end
 
 		# Process any additional startup commands
-		if opts['XCommands'] and opts['XCommands'].kind_of? Array
-			opts['XCommands'].each { |c|
-				run_single(c)
-			}
-		end
+		run_multiple(opts['XCommands']) if opts['XCommands']
 	end
 
 	#
@@ -474,7 +470,7 @@ class Driver < Msf::Ui::Driver
 				end
 			else
 				print_line("resource (#{path})> #{line}")
-				run_single(line)
+				run_multiple(line)
 			end
 		end
 

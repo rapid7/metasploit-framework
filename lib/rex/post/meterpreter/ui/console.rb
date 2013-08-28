@@ -58,14 +58,14 @@ class Console
 
 		# Run queued commands
 		commands.delete_if { |ent|
-			run_single(ent)
+			run_multiple(ent)
 			true
 		}
 
 		# Run the interactive loop
 		run { |line|
 			# Run the command
-			run_single(line)
+			run_multiple(line)
 
 			# If a block was supplied, call it, otherwise return false
 			if (block)
