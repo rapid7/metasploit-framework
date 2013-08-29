@@ -147,7 +147,7 @@ describe Msf::Module do
     end
 
     context 'when filtering by module #type' do
-      all_module_types = Msf::MODULE_TYPES
+      all_module_types = Metasploit::Model::Module::Type::ALL
       all_module_types.each do |mtype|
         context "on a #{mtype} module" do
           before(:each) { subject.stub(:type => mtype) }
