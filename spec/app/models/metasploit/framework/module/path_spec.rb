@@ -7,6 +7,10 @@ describe Metasploit::Framework::Module::Path do
 		let(:path_class) do
 			described_class
 		end
+
+		let(:path_factory) do
+			:metasploit_framework_module_path
+		end
 	end
 
 	context 'attribute methods' do
@@ -671,7 +675,7 @@ describe Metasploit::Framework::Module::Path do
 			FactoryGirl.generate :metasploit_framework_module_path_real_path
 		end
 
-		context 'with #module_ancestors' do
+		context 'with #module_ancestors', :pending => 'https://www.pivotaltracker.com/story/show/56004816' do
 			let!(:ancestors) do
 				FactoryGirl.build_list(:metasploit_framework_module_ancestor, 2, :parent_path => path)
 			end

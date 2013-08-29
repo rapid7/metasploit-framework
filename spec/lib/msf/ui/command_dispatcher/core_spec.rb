@@ -12,7 +12,7 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
 		described_class.new(driver)
 	end
 
-	context '#search_modules_sql' do
+	context '#search_modules_sql', :pending => 'https://www.pivotaltracker.com/story/show/56005824' do
 		def search_modules_sql
 			core.search_modules_sql(match)
 		end

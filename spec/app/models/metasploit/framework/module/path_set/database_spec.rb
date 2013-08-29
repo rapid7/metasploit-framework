@@ -41,15 +41,15 @@ describe Metasploit::Framework::Module::PathSet::Database do
 				end
 
 				let(:gem) do
-					FactoryGirl.generate :mdm_module_path_gem
+					FactoryGirl.generate :metasploit_model_module_path_gem
 				end
 
 				let(:name) do
-					FactoryGirl.generate :mdm_module_path_name
+					FactoryGirl.generate :metasploit_model_module_path_name
 				end
 
 				let(:real_path) do
-					FactoryGirl.generate :mdm_module_path_real_path
+					FactoryGirl.generate :metasploit_model_module_path_real_path
 				end
 
         it 'should create a new Mdm::Module::Path' do
@@ -74,7 +74,7 @@ describe Metasploit::Framework::Module::PathSet::Database do
 					end
 
 					let(:real_path) do
-						FactoryGirl.generate :mdm_module_path_real_path
+						FactoryGirl.generate :metasploit_model_module_path_real_path
 					end
 
 					it 'should update real_path for collision' do
@@ -93,11 +93,11 @@ describe Metasploit::Framework::Module::PathSet::Database do
 
 				context 'with real_path collision' do
 					let(:gem) do
-						FactoryGirl.generate :mdm_module_path_gem
+						FactoryGirl.generate :metasploit_model_module_path_gem
 					end
 
 					let(:name) do
-						FactoryGirl.generate :mdm_module_path_name
+						FactoryGirl.generate :metasploit_model_module_path_name
 					end
 
 					let(:real_path) do

@@ -70,7 +70,9 @@ describe MsfVenom do
 		conf_dir.mkpath
 		create_opts = {
 			:module_types => [
-				::Msf::MODULE_PAYLOAD, ::Msf::MODULE_ENCODER, ::Msf::MODULE_NOP
+					Metasploit::Model::Module::Type::ENCODER,
+					Metasploit::Model::Module::Type::NOP,
+					Metasploit::Model::Module::Type::PAYLOAD
 			],
 			'ConfigDirectory' => conf_dir.to_s,
 			'DisableDatabase' => true

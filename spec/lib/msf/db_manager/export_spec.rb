@@ -19,7 +19,7 @@ describe Msf::DBManager::Export do
 		)
 	end
 
-	context '#extract_module_detail_info' do
+	context '#extract_module_detail_info', :pending => 'https://www.pivotaltracker.com/s/projects/537881/stories/56082496' do
 		let(:report_file) do
 			StringIO.new
 		end

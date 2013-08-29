@@ -38,7 +38,7 @@ end
 REF_TYPES = %w(CVE BID OSVDB EDB)
 
 describe Msf::Module do
-  describe '#search_filter' do
+  describe '#search_filter', :pending => 'https://www.pivotaltracker.com/story/show/56004816' do
     let(:opts) { Hash.new }
     before { subject.stub(:fullname => '/module') }
     subject { Msf::Module.new(opts) }
