@@ -381,6 +381,11 @@ class Msftidy
 				no_stdio = false
 				error("Writes to stdout", idx)
 			end
+
+			# do not change datastore in code
+			if ln =~ /datastore\[["']\w+["']\]\s*=(?![=~>])/
+				error("datastore is modified in code: #{ln.inspect}", idx)
+			end
 		}
 	end
 
