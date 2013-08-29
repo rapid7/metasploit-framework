@@ -7,12 +7,9 @@
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/windows/priv'
-require 'msf/core/post/common'
 
 class Metasploit3 < Msf::Post
 
-	include Msf::Post::Common
 	include Msf::Post::Windows::Priv
 
 	def initialize(info={})

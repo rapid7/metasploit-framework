@@ -1,11 +1,6 @@
 # -*- coding: binary -*-
-require 'msf/core/post/common'
-require 'msf/core/post/file'
 
-module Msf
-class Post
-module OSX
-module System
+module Msf::Post::OSX::System
 	include ::Msf::Post::Common
 	include ::Msf::Post::File
 
@@ -108,7 +103,4 @@ module System
 		end
 		return groups
 	end
-end # System
-end # OSX
-end # Post
-end # Msf
+end

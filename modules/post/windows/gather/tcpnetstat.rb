@@ -7,15 +7,11 @@
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/common'
 require 'msf/core/auxiliary/report'
-
 
 class Metasploit3 < Msf::Post
 
-	include Msf::Post::Common
 	include Msf::Auxiliary::Report
-
 
 	def initialize(info={})
 		super( update_info( info,

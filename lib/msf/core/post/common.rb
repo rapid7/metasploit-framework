@@ -1,12 +1,6 @@
 # -*- coding: binary -*-
 
-require 'msf/core/post/file'
-
-module Msf
-class Post
-
-module Common
-
+module Msf::Post::Common
 
 	#
 	# Checks if the remote system has a process with ID +pid+
@@ -120,6 +114,4 @@ module Common
 		report_host(vm_data)
 	end
 
-end
-end
 end

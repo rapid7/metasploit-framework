@@ -2,16 +2,15 @@
 require 'msf/core'
 require 'msf/core/module'
 
-module Msf
-
 #
 # A mixin used for providing Modules with post-exploitation options and helper methods
 #
-module PostMixin
+module Msf::PostMixin
 
 	include Msf::Auxiliary::Report
 
 	include Msf::Module::HasActions
+	include Msf::Post::Common
 
 	def initialize(info={})
 		super
@@ -216,6 +215,4 @@ protected
 			return false
 		end
 	end
-end
-
 end

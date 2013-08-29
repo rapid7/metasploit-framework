@@ -19,7 +19,6 @@ require 'msf/core/post/osx/system'
 
 class Metasploit3 < Msf::Post
 
-	include Msf::Post::Common
 	include Msf::Post::File
 	include Msf::Post::Windows::UserProfiles
 

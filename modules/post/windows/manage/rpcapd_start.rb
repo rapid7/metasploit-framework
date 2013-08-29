@@ -6,19 +6,13 @@
 ##
 
 require 'msf/core'
-require 'msf/core/post/file'
-require 'msf/core/post/common'
-require 'msf/core/post/windows/priv'
-require 'msf/core/post/windows/registry'
-require 'msf/core/post/windows/services'
 
 class Metasploit3 < Msf::Post
 
+	include Msf::Post::File
 	include Msf::Post::Windows::Registry
 	include Msf::Post::Windows::WindowsServices
 	include Msf::Post::Windows::Priv
-	include Msf::Post::Common
-	include Msf::Post::File
 
 	def initialize(info={})
 		super( update_info( info,

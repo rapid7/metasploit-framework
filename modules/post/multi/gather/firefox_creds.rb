@@ -17,7 +17,6 @@ require 'msf/core/post/windows/user_profiles'
 class Metasploit3 < Msf::Post
 
 	include Msf::Post::File
-	include Msf::Post::Common
 	include Msf::Auxiliary::Report
 	include Msf::Post::Windows::UserProfiles
 

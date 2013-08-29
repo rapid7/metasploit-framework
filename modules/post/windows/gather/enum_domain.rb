@@ -6,12 +6,9 @@
 ##
 
 require 'msf/core'
-require 'msf/core/post/windows/priv'
-require 'msf/core/post/common'
 
 class Metasploit3 < Msf::Post
 	include Msf::Post::Windows::Priv
-	include Msf::Post::Common
 
 	def initialize(info={})
 		super(update_info(info,

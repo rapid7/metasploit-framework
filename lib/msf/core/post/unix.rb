@@ -1,8 +1,6 @@
 # -*- coding: binary -*-
 
-module Msf
-class Post
-module Unix
+module Msf::Post::Unix
 
 	#
 	# Returns an array of hashes each representing a user
@@ -83,6 +81,3 @@ module Unix
 	end
 
 end
-end
-end
-

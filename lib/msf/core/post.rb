@@ -1,15 +1,22 @@
 # -*- coding: binary -*-
 
-require 'msf/core/post_mixin'
-
-module Msf
-
 #
 # A Post-exploitation module
 #
-#
-class Post < Msf::Module
-	include PostMixin
+class Msf::Post < Msf::Module
+
+	require 'msf/core/post/common'
+	require 'msf/core/post_mixin'
+
+	require 'msf/core/post/file'
+
+	require 'msf/core/post/linux'
+	require 'msf/core/post/osx'
+	require 'msf/core/post/solaris'
+	require 'msf/core/post/unix'
+	require 'msf/core/post/windows'
+
+	include Msf::PostMixin
 
 	def setup; end
 
@@ -39,6 +46,3 @@ class Post < Msf::Module
 		mod
 	end
 end
-
-end
-
