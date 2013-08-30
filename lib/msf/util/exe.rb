@@ -1688,7 +1688,7 @@ def self.to_vba(framework,code,opts={})
 			exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
 			output = Msf::Util::EXE.to_exe_aspx(exe, exeopts)
 
-		when 'aspx-mem'
+		when 'aspx'
 			output = Msf::Util::EXE.to_mem_aspx(framework, code, exeopts)
 
 		when 'dll'
