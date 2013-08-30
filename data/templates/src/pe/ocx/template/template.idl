@@ -1,0 +1,49 @@
+// template.idl : type library source for ActiveX Control project.
+
+// This file will be processed by the MIDL compiler tool to
+// produce the type library (template.tlb) that will become a resource in
+// template.ocx.
+
+#include <olectl.h>
+#include <idispids.h>
+
+[ uuid(F8F555A6-C743-4334-8BE9-CC4CCC57CD75), version(1.0),
+  control ]
+library templateLib
+{
+	importlib(STDOLE_TLB);
+
+	//  Primary dispatch interface for CtemplateCtrl
+	[ 
+		uuid(3B0404BF-D58D-46D0-B301-86A1BAD0D9CE)	
+	]
+	dispinterface _Dtemplate
+	{
+		properties:
+		methods:
+	};
+
+	//  Event dispatch interface for CtemplateCtrl
+
+	[ 
+		uuid(06DAD5F2-4719-4FF1-AA60-4C2E8F6D59D7)	
+	]
+	dispinterface _DtemplateEvents
+	{
+		properties:
+			//  Event interface has no properties
+
+		methods:
+	};
+
+	//  Class information for CtemplateCtrl
+	[
+		uuid(56C04F88-9E36-434B-82A3-D552B81A8CB9)
+	]
+	coclass template
+	{
+		[default] dispinterface _Dtemplate;
+		[default, source] dispinterface _DtemplateEvents;
+	};
+
+};
