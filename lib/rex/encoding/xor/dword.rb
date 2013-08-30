@@ -15,8 +15,8 @@ module Xor
 
 class Dword < Generic
 
-	def Dword.keysize
-		4
-	end
+  def Dword.keysize
+    4
+  end
 
 end end end end # Dword/Xor/Encoding/Rex
