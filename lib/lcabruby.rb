@@ -1,7 +1,9 @@
 #!/usr/bin/env ruby
 # LCABruby version 0.1
-# LCABruby is a small ruby script that creates an uncompressed MS Cabinet File (.cab) from a set of input files. LCABruby is a ruby port of LCABperl.
-# LCABruby is based on software from LCAB. LCAB is a small program for linux that creates an uncompressed MS Cabinet File from a set of input files. LCAB was formerly known as cablinux.
+# LCABruby is a small ruby script that creates an uncompressed MS Cabinet File (.cab) from a set of input files.
+# LCABruby is a ruby port of LCABperl.
+# LCABruby is based on software from LCAB. LCAB is a small program for linux that creates an uncompressed
+# MS Cabinet File from a set of input files. LCAB was formerly known as cablinux.
 #		                                                                                                                                                                                                                                                                                                                        For more information about LCAB please visit: http://lcab.move-to-cork.com/ (seems down)
 # New (temporary) LCAB maintainer: http://ohnobinki.u.ohnopublishing.net/~ohnobinki/lcab/
 #
@@ -24,7 +26,7 @@
 ##    along with lcabperl; if not, write to the Free Software
 ##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-# Modified to accept files programatically rather than from the FileSystem.
+# Modified by Meatballsto accept strings as file data rather than having to use the filesystem
 
 require 'logger'
 
