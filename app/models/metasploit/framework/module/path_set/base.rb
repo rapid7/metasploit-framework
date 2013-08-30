@@ -3,7 +3,7 @@
 # A set of {Metasploit::Framework::Module::Path
 # Metasploit::Framework::Module::Paths} or Mdm::Module::Paths (depending
 # on if the database is active.)
-class Metasploit::Framework::Module::PathSet::Base
+class Metasploit::Framework::Module::PathSet::Base < Metasploit::Model::Base
 	# @abstract Instantiate a subclass specific path class and validate it before
 	#   calling {#add_path} with the path instance.  If the path instance is
 	#   invalid, raise a validation error.
@@ -25,21 +25,6 @@ class Metasploit::Framework::Module::PathSet::Base
 	def add(path, options={})
 		raise NotImplementedError,
 					"#{self.class.name}##{__method__} is not implemented"
-	end
-
-	# @!attribute [r] framework
-	#   The framework that is loading the modules on the paths in this set.
-	#
-	#   @return [Msf::Simple::Frameo]
-	attr_reader :framework
-
-	# @param attributes [Hash{Symbol => Object}]
-	# @option attributes [Msf::Simple::Framework] :framework framework using
-	#   these module paths.
-	def initialize(attributes={})
-		attributes.assert_valid_keys(:framework)
-
-		@framework = attributes.fetch(:framework)
 	end
 
 	protected

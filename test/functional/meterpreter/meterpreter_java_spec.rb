@@ -61,7 +61,7 @@ describe "JavaMeterpreter" do
 		@framework    = Msf::Simple::Framework.create
 		
 		test_modules_path = File.join(File.dirname(__FILE__), '..', '..', 'modules')
-		@framework.modules.add_module_path(test_modules_path)
+		@framework.modules.add_path(test_modules_path)
 		
 		@exploit_name = 'test/java_tester'
 		@payload_name = 'java/meterpreter/bind_tcp'

@@ -1,3 +1,5 @@
+require 'metasploit/model'
+
 # Top-level namespace that is shared between {Metasploit::Framework
 # metasploit-framework} and pro, which uses Metasploit::Pro.
 module Metasploit

@@ -226,7 +226,7 @@ class Driver < Msf::Ui::Driver
 		unless opts['Framework']
 			# Configure the framework module paths
 			self.framework.init_module_paths
-			self.framework.modules.add_module_path(opts['ModulePath']) if opts['ModulePath']
+			self.framework.modules.add_path(opts['ModulePath']) if opts['ModulePath']
 
 			# Rebuild the module cache in a background thread
 			self.framework.threads.spawn("ModuleCacheRebuild", true) do

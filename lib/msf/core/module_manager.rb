@@ -8,6 +8,7 @@ require 'pathname'
 # Project
 #
 require 'fastlib'
+require 'metasploit/framework'
 require 'msf/core'
 require 'msf/core/module_set'
 

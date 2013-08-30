@@ -3,11 +3,11 @@ shared_examples_for 'Msf::ModuleManager::ModulePaths' do
 		module_manager.send(:module_paths)
 	end
 
-	context '#add_module_path' do
+	context '#add_path' do
 		it 'should strip trailing File::SEPARATOR from the path' do
 			Dir.mktmpdir do |path|
 				path_with_trailing_separator = path + File::SEPARATOR
-				module_manager.add_module_path(path_with_trailing_separator)
+				module_manager.add_path(path_with_trailing_separator)
 
 				module_paths.should_not include(path_with_trailing_separator)
 				module_paths.should include(path)
@@ -24,7 +24,7 @@ shared_examples_for 'Msf::ModuleManager::ModulePaths' do
 				File.exist?(path).should be_false
 
 				expect {
-					module_manager.add_module_path(path)
+					module_manager.add_path(path)
 				}.to raise_error(ArgumentError, "The path supplied does not exist")
 			end
 
@@ -34,7 +34,7 @@ shared_examples_for 'Msf::ModuleManager::ModulePaths' do
 
 					File.exist?(path).should be_true
 
-					module_manager.add_module_path(path)
+					module_manager.add_path(path)
 
 					module_paths.should include(path)
 				end
@@ -44,7 +44,7 @@ shared_examples_for 'Msf::ModuleManager::ModulePaths' do
 		context 'with directory' do
 			it 'should add path to #module_paths' do
 				Dir.mktmpdir do |path|
-					module_manager.add_module_path(path)
+					module_manager.add_path(path)
 
 					module_paths.should include(path)
 				end
@@ -54,7 +54,7 @@ shared_examples_for 'Msf::ModuleManager::ModulePaths' do
 				it 'should add each Fastlib archive to #module_paths' do
 					Dir.mktmpdir do |directory|
 						Tempfile.open(archive_basename, directory) do |file|
-							module_manager.add_module_path(directory)
+							module_manager.add_path(directory)
 
 							module_paths.should include(directory)
 							module_paths.should include(file.path)
@@ -68,7 +68,7 @@ shared_examples_for 'Msf::ModuleManager::ModulePaths' do
 			it 'should raise ArgumentError' do
 				Tempfile.open(basename_prefix) do |file|
 					expect {
-						subject.add_module_path(file.path)
+						subject.add_path(file.path)
 					}.to raise_error(ArgumentError, 'The path supplied is not a valid directory.')
 				end
 			end

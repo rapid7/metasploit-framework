@@ -144,7 +144,7 @@ $args.parse(ARGV) { |opt, idx, val|
 				exit
 			end
 		when "-m"
-			$framework.modules.add_module_path(val)
+			$framework.modules.add_path(val)
 		when "-l"
 			cmd = "list"
 		when "-n"

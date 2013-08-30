@@ -11,12 +11,13 @@ module Msf::ModuleManager::ModulePaths
 
   # Adds a path to be searched for new modules.
   #
-  # @param [String] path
-  # @param [Hash] opts
-  # @option opts [Array] whitelist An array of regex patterns to search for specific modules
+  # @param path [String] a module path, archive path, or a directory that
+	#   contains archives.
+	# @param options (see Metasploit::Framework::PathSet::Base#add)
+	# @option (see Metasploit::Framework::PathSet::Base#add)
   # @return (see Msf::Modules::Loader::Base#load_modules)
-  def add_module_path(path, opts={})
-    nested_paths = []
+  def add_path(path, options={})
+		module_paths = []
 
     # remove trailing file separator
     path_without_trailing_file_separator = path.sub(/#{File::SEPARATOR}$/, '')
@@ -30,40 +31,43 @@ module Msf::ModuleManager::ModulePaths
         raise ArgumentError, "The path supplied does not exist", caller
       end
 
-      nested_paths << pathname.to_s
+			module_paths << path_set.add(pathname.to_path, options)
     else
       # Make sure the path is a valid directory
       unless pathname.directory?
         raise ArgumentError, "The path supplied is not a valid directory.", caller
       end
 
-      nested_paths << pathname.to_s
+			module_paths << path_set.add(pathname.to_path, options)
 
       # Identify any fastlib archives inside of this path
       fastlib_glob = pathname.join('**', "*#{Msf::Modules::Loader::Archive::ARCHIVE_EXTENSION}")
 
-      Dir.glob(fastlib_glob).each do |fastlib_path|
-        nested_paths << fastlib_path
+      Dir.glob(fastlib_glob) do |fastlib_path|
+			  # no support for symbolic (gem, name) for fastlibs since they can be
+				# under multiple directories and encoding all those directories in the
+				# :name option will defeat the purpose of symbolic names allowing moves.
+				module_paths << path_set.add(fastlib_path)
       end
     end
 
-    # Update the module paths appropriately
-    self.module_paths = (module_paths + nested_paths).flatten.uniq
-
     # Load all of the modules from the nested paths
     count_by_type = {}
-    nested_paths.each { |path|
-      path_count_by_type = load_modules(path, opts.merge({:force => false}))
+    module_paths.each do |module_path|
+			path_count_by_type = load_modules(
+					module_path.real_path,
+					force: false
+			)
 
-      # merge hashes
-      path_count_by_type.each do |type, path_count|
-        accumulated_count = count_by_type.fetch(type, 0)
-        count_by_type[type] = accumulated_count + path_count
-      end
-    }
+			# merge hashes
+			path_count_by_type.each do |type, path_count|
+				accumulated_count = count_by_type.fetch(type, 0)
+				count_by_type[type] = accumulated_count + path_count
+			end
+		end
 
     return count_by_type
-  end
+	end
 
   #
   # Removes a path from which to search for modules.
@@ -71,9 +75,13 @@ module Msf::ModuleManager::ModulePaths
   def remove_module_path(path)
     module_paths.delete(path)
     module_paths.delete(::File.expand_path(path))
-  end
+	end
 
   protected
 
   attr_accessor :module_paths # :nodoc:
+
+	def path_set
+		@path_set = Metasploit::Framework::Module::PathSet::Database.new
+	end
 end

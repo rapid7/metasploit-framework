@@ -41,7 +41,7 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
 					end
 
 					it 'should add Msf::Config.module_directory to module paths' do
-						framework.modules.should_receive(:add_module_path).with(
+						framework.modules.should_receive(:add_path).with(
 								module_directory,
 								options
 						)
@@ -58,7 +58,7 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
 					end
 
 					it 'should add Msf::Config.user_module_directory to module paths' do
-						framework.modules.should_receive(:add_module_path).with(
+						framework.modules.should_receive(:add_path).with(
 								user_module_directory,
 								options
 						)
@@ -88,7 +88,7 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
 
 				it 'should add each module path' do
 					module_paths.each do |module_path|
-						framework.modules.should_receive(:add_module_path).with(module_path, options)
+						framework.modules.should_receive(:add_path).with(module_path, options)
 					end
 
 					init_module_paths

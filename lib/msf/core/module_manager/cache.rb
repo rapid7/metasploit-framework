@@ -153,28 +153,11 @@ module Msf::ModuleManager::Cache
 
     if framework_migrated?
 	    ActiveRecord::Base.connection_pool.with_connection do
-		    # TODO record module parent_path in Mdm::Module::Detail so it does not need to be derived from file.
-		    # Use find_each so Mdm::Module::Details are returned in batches, which will
-		    # handle the growing number of modules better than all.each.
-		    Mdm::Module::Detail.find_each do |module_detail|
-			    path = module_detail.file
-			    type = module_detail.mtype
-			    reference_name = module_detail.refname
-
-			    typed_path = Msf::Modules::Loader::Base.typed_path(type, reference_name)
-			    # join to '' so that typed_path_prefix starts with file separator
-			    typed_path_suffix = File.join('', typed_path)
-			    escaped_typed_path = Regexp.escape(typed_path_suffix)
-			    parent_path = path.gsub(/#{escaped_typed_path}$/, '')
-
-			    module_info_by_path[path] = {
-					    :reference_name => reference_name,
-					    :type => type,
-					    :parent_path => parent_path,
-					    :modification_time => module_detail.mtime
-			    }
-
-			    typed_module_set = module_set(type)
+		    # Use find_each so Mdm::Module::Classess are returned in batches, which
+				# will handle the growing number of modules better than all.each.
+		    Mdm::Module::Class.select([:module_type, :reference_name]).find_each do |module_class|
+			    typed_module_set = module_set(module_class.module_type)
+					reference_name = module_class.reference_name
 
 			    # Don't want to trigger as {Msf::ModuleSet#create} so check for
 			    # key instead of using ||= which would call {Msf::ModuleSet#[]}

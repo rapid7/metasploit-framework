@@ -20,7 +20,7 @@ class Common
 				# Add an additional module search path
 				when "modulepath"
 					# Don't affect the module cache by us loading these modules
-					framework.modules.add_module_path(val)
+					framework.modules.add_path(val)
 					true
 				else
 					false
