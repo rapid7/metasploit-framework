@@ -78,6 +78,9 @@ void ExecutePayload(void) {
 		CloseHandle(pi.hThread);
 		CloseHandle(pi.hProcess);
 	}
+
+	// If we run as admin we may be able to clean up after ourselves.
+	DllUnregisterServer();
 }
 
 

@@ -44,7 +44,6 @@ int CtemplateApp::ExitInstance()
 
 
 // DllRegisterServer - Adds entries to the system registry
-
 STDAPI DllRegisterServer(void)
 {
 	AFX_MANAGE_STATE(_afxModuleAddrThis);

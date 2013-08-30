@@ -158,8 +158,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <ModuleDefinitionFile>.\template.def</ModuleDefinitionFile>
-      <OutputFile>$(OutDir)$(ProjectName).ocx</OutputFile>
-      <RegisterOutput>true</RegisterOutput>
+      <OutputFile>$(OutDir)$(ProjectName)_x86_windows.ocx</OutputFile>
+      <RegisterOutput>false</RegisterOutput>
+      <PerUserRedirection>true</PerUserRedirection>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -191,8 +192,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <ModuleDefinitionFile>.\template.def</ModuleDefinitionFile>
-      <OutputFile>$(OutDir)$(ProjectName).ocx</OutputFile>
-      <RegisterOutput>true</RegisterOutput>
+      <OutputFile>$(OutDir)$(ProjectName)_x64_windows.ocx</OutputFile>
+      <RegisterOutput>false</RegisterOutput>
+      <PerUserRedirection>true</PerUserRedirection>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>

@@ -55,6 +55,7 @@
     <None Include="template.def">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="setup.inf" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="template.rc">
