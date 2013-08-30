@@ -21,11 +21,11 @@ class Msf::Post < Msf::Module
 	def setup; end
 
 	def type
-		MODULE_POST
+		Msf::MODULE_POST
 	end
 
 	def self.type
-		MODULE_POST
+		Msf::MODULE_POST
 	end
 
 	#
