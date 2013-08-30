@@ -6,6 +6,8 @@ While we expect a fair amount of code conflict during the transition, we will ha
 
 **TL;dr**: Please pardon our dust as we renovate Metasploit for your convenience.
 
+This page can be found by the shortlink http://r-7.co/MSF-TABS
+
  <sup>*The first precept is UTF-8 encoding for source files, but we're going to keep ignoring that one for now since it monkeys with regexing over binary strings, which we do a lot. :)</sup>
 
 ## Implementation Timeline
