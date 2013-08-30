@@ -34,6 +34,8 @@ shared_context 'Msf::Util::Exe' do
       { :format => "psh",  :arch => "x86_64", :file_fp => /ASCII/  },
       { :format => "psh-net",  :arch => "x86", :file_fp => /ASCII/  },
       { :format => "psh-net",  :arch => "x86_64", :file_fp => /ASCII/  },
+      { :format => "activex",  :arch => "x86", :file_fp => /Microsoft Cabinet/  },
+      { :format => "activex",  :arch => "x86_64", :file_fp => /Microsoft Cabinet/  },
       { :format => "war",  :arch => "x86", :file_fp => /Zip/  },
       { :format => "war",  :arch => "x86_64", :file_fp => /Zip/  },
     ],
