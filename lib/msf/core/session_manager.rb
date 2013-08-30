@@ -107,13 +107,17 @@ class SessionManager < Hash
 					# processing time for large session lists from skewing our update interval.
 
 					last_seen_timer = Time.now.utc
-					values.each do |s|
-						# Update the database entry on a regular basis, marking alive threads
-						# as recently seen.  This notifies other framework instances that this
-						# session is being maintained.
-						if framework.db.active and s.db_record
-							s.db_record.last_seen = Time.now.utc
-							s.db_record.save
+					if framework.db.active
+						::ActiveRecord::Base.connection_pool.with_connection do
+							values.each do |s|
+								# Update the database entry on a regular basis, marking alive threads
+								# as recently seen.  This notifies other framework instances that this
+								# session is being maintained.
+								if s.db_record
+									s.db_record.last_seen = Time.now.utc
+									s.db_record.save
+								end
+							end
 						end
 					end
 				end

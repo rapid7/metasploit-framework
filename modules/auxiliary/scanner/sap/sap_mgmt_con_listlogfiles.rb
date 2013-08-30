@@ -138,7 +138,7 @@ class Metasploit4 < Msf::Auxiliary
 				"Timestamp"
 			])
 
-			store_loot(
+			f = store_loot(
 				"sap.#{datastore['FILETYPE'].downcase}file",
 				"text/xml",
 					rhost,
@@ -146,12 +146,13 @@ class Metasploit4 < Msf::Auxiliary
 					"sap_listlogfiles.xml",
 					"SAP #{datastore['FILETYPE'].downcase}"
 			)
+			vprint_status("sap_listlogfiles.xml stored in: #{f}")
 
 			env.each do |output|
 				saptbl << [ output[0], output[1], output[2] ]
 			end
 
-			print(saptbl.to_s)
+			print_line(saptbl.to_s)
 			return
 
 		elsif fault

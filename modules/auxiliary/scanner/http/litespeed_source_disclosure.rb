@@ -62,7 +62,12 @@ class Metasploit3 < Msf::Auxiliary
 				'uri'     => "#{uri}#{nullbytetxt}",
 			}, 25)
 
-			version = res.headers['Server'] if res
+			if res.nil?
+				print_error("#{target_url} - Connection timed out")
+				return
+			end
+
+			version = res.headers['Server']
 
 			if vuln_versions.include?(version)
 				print_good("#{target_url} - LiteSpeed - Vulnerable version: #{version}")

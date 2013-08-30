@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The path to detect mod_negotiation", '/']),
-				OptString.new('FILEPATH',[true, "path to file with file names",
+				OptPath.new('FILEPATH',[true, "path to file with file names",
 					File.join(Msf::Config.install_root, "data", "wmap", "wmap_files.txt")])
 			], self.class)
 	end

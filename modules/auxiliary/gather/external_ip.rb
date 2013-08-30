@@ -42,6 +42,12 @@ end
 	def run
 		connect
 		res = send_request_cgi({'uri' => '/ip', 'method' => 'GET' })
+
+		if res.nil?
+			print_error("Connection timed out")
+			return
+		end
+
 		our_addr = res.body.strip
 		if Rex::Socket.is_ipv4?(our_addr) or Rex::Socket.is_ipv6?(our_addr)
 			print_good("Source ip to #{rhost} is #{our_addr}")

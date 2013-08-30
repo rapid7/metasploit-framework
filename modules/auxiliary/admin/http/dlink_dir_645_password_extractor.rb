@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'DLink DIR 645 Password Extractor',
+			'Name'        => 'D-Link DIR 645 Password Extractor',
 			'Description' => %q{
 					This module exploits an authentication bypass vulnerability in DIR 645 < v1.03.
 				With this vulnerability you are able to extract the password for the remote
@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 				})
 
 			return if res.nil?
-			return if (res.headers['Server'].nil? or res.headers['Server'] !~ /DIR-645 Ver 1.0/)
+			return if (res.headers['Server'].nil? or res.headers['Server'] !~ /DIR-645 Ver 1\.0/)
 			return if (res.code == 404)
 
 			if res.body =~ /<password>(.*)<\/password>/

@@ -14,12 +14,12 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Apache Rave Users Information Disclosure',
+			'Name'           => 'Apache Rave User Information Disclosure',
 			'Description'    => %q{
 				This module exploits an information disclosure in Apache Rave 0.20 and prior. The
 				vulnerability exists in the RPC API, which allows any authenticated user to
 				disclose information about all the users, including their password hashes. In order
-				to authenticate the user can provide his own credentials. Also the default ones
+				to authenticate, the user can provide his own credentials. Also the default users
 				installed with Apache Rave 0.20 will be tried automatically. This module has been
 				successfully tested on Apache Rave 0.20.
 			},

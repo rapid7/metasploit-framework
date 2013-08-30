@@ -86,6 +86,11 @@ class Metasploit3 < Msf::Auxiliary
 				}
 			})
 
+		if res.nil?
+			print_error("#{rhost}:#{rport} - Connection timed out")
+			return :abort
+		end
+
 		check_key = "The user has logged in successfully."
 
 		key = JSON.parse(res.body)["statusString"]

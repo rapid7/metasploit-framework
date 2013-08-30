@@ -63,7 +63,12 @@ class Metasploit3 < Msf::Auxiliary
 				'uri'     => uri + payload,
 			}, 25)
 
-		if (res and res.code == 200 and res.body)
+		if res.nil?
+			print_error("#{target_url} - Connection timed out")
+			return
+		end
+
+		if (res.code == 200 and res.body)
 			if res.body.match(/\<html\>(.*)\<\/html\>/im)
 				html = $1
 

@@ -199,6 +199,67 @@ module Text
 	end
 
 	#
+	# Converts a raw string to a powershell byte array
+	#
+	def self.to_powershell(str, name = "buf")
+		return "[Byte[]]$#{name} = ''" if str.nil? or str.empty?
+
+		code = str.unpack('C*')
+		buff = "[Byte[]]$#{name} = 0x#{code[0].to_s(16)}"
+		1.upto(code.length-1) do |byte|
+			if(byte % 10 == 0)
+				buff << "\r\n$#{name} += 0x#{code[byte].to_s(16)}"
+			else
+				buff << ",0x#{code[byte].to_s(16)}"
+			end
+		end
+
+		return buff
+	end
+
+	#
+	# Converts a raw string to a vbscript byte array
+	#
+	def self.to_vbscript(str, name = "buf")
+		return "#{name}" if str.nil? or str.empty?
+
+		code = str.unpack('C*')
+		buff = "#{name}=Chr(#{code[0]})"
+		1.upto(code.length-1) do |byte|
+			if(byte % 100 == 0)
+				buff << "\r\n#{name}=#{name}"
+			end
+			# exe is an Array of bytes, not a String, thanks to the unpack
+			# above, so the following line is not subject to the different
+			# treatments of String#[] between ruby 1.8 and 1.9
+			buff << "&Chr(#{code[byte]})"
+		end
+
+		return buff
+	end
+
+	#
+	# Converts a raw string into a vba buffer
+	#
+	def self.to_vbapplication(str, name = "buf")
+		return "#{name} = Array()" if str.nil? or str.empty?
+
+		code  = str.unpack('C*')
+		buff = "#{name} = Array("
+		maxbytes = 20
+
+		1.upto(code.length) do |idx|
+			buff << code[idx].to_s
+			buff << "," if idx < code.length - 1
+			buff << " _\r\n" if (idx > 1 and (idx % maxbytes) == 0)
+		end
+
+		buff << ")\r\n"
+
+		return buff
+	end
+
+	#
 	# Creates a perl-style comment
 	#
 	def self.to_perl_comment(str, wrap = DefaultWrap)
@@ -1563,24 +1624,34 @@ protected
 		@@codepage_map_cache = map
 	end
 
+	# @param str [String] Data to checksum
+	# @return [Fixnum] 8-bit checksum
 	def self.checksum8(str)
-		str.unpack("C*").inject(:+) % 0x100
+		(str.unpack("C*").inject(:+) || 0) % 0x100
 	end
 
+	# @param str [String] Little-endian data to checksum
+	# @return [Fixnum] 16-bit checksum
 	def self.checksum16_le(str)
-		str.unpack("v*").inject(:+) % 0x10000
+		(str.unpack("v*").inject(:+) || 0) % 0x10000
 	end
 
+	# @param str [String] Big-endian data to checksum
+	# @return [Fixnum] 16-bit checksum
 	def self.checksum16_be(str)
-		str.unpack("n*").inject(:+) % 0x10000
+		(str.unpack("n*").inject(:+) || 0) % 0x10000
 	end
 
+	# @param str [String] Little-endian data to checksum
+	# @return [Fixnum] 32-bit checksum
 	def self.checksum32_le(str)
-		str.unpack("V*").inject(:+) % 0x100000000
+		(str.unpack("V*").inject(:+) || 0) % 0x100000000
 	end
 
+	# @param str [String] Big-endian data to checksum
+	# @return [Fixnum] 32-bit checksum
 	def self.checksum32_be(str)
-		str.unpack("N*").inject(:+) % 0x100000000
+		(str.unpack("N*").inject(:+) || 0) % 0x100000000
 	end
 
 end

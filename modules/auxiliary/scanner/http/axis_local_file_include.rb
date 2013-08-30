@@ -84,7 +84,12 @@ class Metasploit3 < Msf::Auxiliary
 
 			print_status("#{target_url} - Apache Axis - Dumping administrative credentials")
 
-			if (res and res.code == 200)
+			if res.nil?
+				print_error("#{target_url} - Connection timed out")
+				return
+			end
+
+			if (res.code == 200)
 				if res.body.to_s.match(/axisconfig/)
 
 					res.body.scan(/parameter\sname=\"userName\">([^\s]+)</)
