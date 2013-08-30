@@ -52,9 +52,14 @@ class Metasploit3 < Msf::Auxiliary
 				'uri'          => trav+file,
 				'version'      => '1.1',
 				'method'       => 'GET'
-						}, 25)
+			}, 25)
 
-			if (res and res.code == 200)
+			if res.nil?
+				print_error("Connection timed out")
+				return
+			end
+
+			if res.code == 200
 				#print_status("Output Of Requested File:\n#{res.body}")
 				print_status("#{target_host}:#{rport} appears vulnerable to VMWare Directory Traversal Vulnerability")
 				report_vuln(

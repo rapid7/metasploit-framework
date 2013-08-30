@@ -72,7 +72,10 @@ class Metasploit3 < Msf::Auxiliary
 					'uri'     => "#{uri}#{get_source}",
 				}, 25)
 
-			if res
+			if res.nil?
+				print_error("#{target_url} - nginx - Connection timed out")
+				return
+			else
 				version = res.headers['Server']
 				http_fingerprint({ :response => res })
 			end

