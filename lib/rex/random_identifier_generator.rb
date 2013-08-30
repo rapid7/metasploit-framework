@@ -66,6 +66,13 @@ class Rex::RandomIdentifierGenerator
 		#}
 	end
 
+	# Returns the @value_by_name hash
+	#
+	# @return [hash]
+	def get_hash
+		return @value_by_name
+	end
+
 	# Return a unique random identifier for +name+, generating a new one
 	# if necessary.
 	#

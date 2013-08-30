@@ -13,6 +13,7 @@ class EXE
 require 'rex'
 require 'rex/peparsey'
 require 'rex/pescan'
+require 'rex/random_identifier_generator'
 require 'rex/zip'
 require 'metasm'
 require 'digest/sha1'
@@ -53,6 +54,10 @@ require 'digest/sha1'
 				opts[:template] = default_template
 			end
 		end
+	end
+
+	def self.rig_read_replace_script_template(filename, rig)
+		read_replace_script_template(filename, rig.get_hash)
 	end
 
 	def self.read_replace_script_template(filename, hash_sub)
@@ -957,16 +962,17 @@ def self.to_vba(framework,code,opts={})
 	end
 
 	def self.to_mem_aspx(framework, code, exeopts={})
-		hash_sub = {}
-		hash_sub[:var_funcAddr]	= Rex::Text.rand_text_alpha(rand(8)+8)
-		hash_sub[:var_hThread] = Rex::Text.rand_text_alpha(rand(8)+8)
-		hash_sub[:var_pInfo] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-		hash_sub[:var_threadId] = Rex::Text.rand_text_alpha(rand(8)+8)
-		hash_sub[:var_bytearray]	= Rex::Text.rand_text_alpha(rand(8)+8)
+		# Intialize rig and value names
+		rig = Rex::RandomIdentifierGenerator.new()
+		rig[:var_funcAddr]
+		rig[:var_hThread]
+		rig[:var_pInfo]
+		rig[:var_threadId]
+		rig[:var_bytearray]
 
-		hash_sub[:shellcode] = Rex::Text.to_csharp(code,100,hash_sub[:var_bytearray])
+		rig.store(:shellcode, Rex::Text.to_csharp(code, 100, rig[:var_bytearray]))
 
-		return read_replace_script_template("to_mem.aspx.template", hash_sub)
+		return rig_read_replace_script_template("to_mem.aspx.template", rig)
 	end
 
 	def self.to_win32pe_psh_net(framework, code, opts={})
