@@ -1743,15 +1743,17 @@ def self.to_vba(framework,code,opts={})
 				when ARCH_X86,nil then to_win32pe_dll(framework, code, exeopts)
 				when ARCH_X86_64  then to_win64pe_dll(framework, code, exeopts)
 				when ARCH_X64     then to_win64pe_dll(framework, code, exeopts)
-			         end
+				end
+
 		when 'activex'
 			ocx = case arch
-				         when ARCH_X86,nil then to_win32pe_ocx(framework, code, exeopts)
-				         when ARCH_X86_64  then to_win64pe_ocx(framework, code, exeopts)
-				         when ARCH_X64     then to_win64pe_ocx(framework, code, exeopts)
-			         end
+				when ARCH_X86,nil then to_win32pe_ocx(framework, code, exeopts)
+				when ARCH_X86_64  then to_win64pe_ocx(framework, code, exeopts)
+				when ARCH_X64     then to_win64pe_ocx(framework, code, exeopts)
+				end
 
 			output, discarded = to_activex_cab(ocx)
+
 		when 'exe'
 			output = case arch
 				when ARCH_X86,nil then to_win32pe(framework, code, exeopts)
