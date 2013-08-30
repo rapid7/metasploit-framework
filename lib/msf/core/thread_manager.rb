@@ -98,10 +98,30 @@ class ThreadManager < Array
 
 				begin
 					argv.shift.call(*argv)
-				rescue ::Exception => e
-					elog("thread exception: #{::Thread.current[:tm_name]}  critical=#{::Thread.current[:tm_crit]}  error:#{e.class} #{e} source:#{::Thread.current[:tm_call].inspect}")
-					elog("Call Stack\n#{e.backtrace.join("\n")}")
-					raise e
+				rescue ::Exception => error
+					# thread
+					thread_hash = {}
+					# binary encoding flags on all the files in metasploit-framework means
+					# to_yaml will escape the string with !binary if not converted.
+					thread_hash[:name] = ::Thread.current[:tm_name].encode('utf-8')
+					thread_hash[:critical] = ::Thread.current[:tm_crit]
+					thread_hash[:source] = ::Thread.current[:tm_call]
+
+					error_hash = {}
+					# need to use Class#name so that to_yaml doesn't do !ruby/class
+					error_hash[:class] = error.class.name
+					error_hash[:message] = error.to_s
+					error_hash[:backtrace] = error.backtrace
+					thread_hash[:error] = error_hash
+
+					message_hash = {
+							thread: thread_hash
+					}
+
+					message = message_hash.to_yaml
+					# insert new line so YAML start sequence of --- is on new line
+					elog("\n#{message}")
+					raise error
 				ensure
 					if framework.db and framework.db.active
 						# NOTE: despite the Deprecation Warning's advice, this should *NOT*
