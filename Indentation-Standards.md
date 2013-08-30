@@ -10,6 +10,10 @@ This page can be found by the shortlink http://r-7.co/MSF-TABS
 
  <sup>*The first precept is UTF-8 encoding for source files, but we're going to keep ignoring that one for now since it monkeys with regexing over binary strings, which we do a lot. :)</sup>
 
+## Retabbing outstanding pull requests.
+
+Once metasploit-framework/master is retabbed, it's quite likely that several outstanding branches will be conflicted. The easiest way to solve these conflicts is for branch owners to reformat their own changed files with soft tabs (which should immediately unconflict). In order to ease the pain, the [@tabassassin](https://github.com/tabassassin) account will fire off a boiler plate PR back to outstanding branch maintainers who are affected with instructions on how to retab as well as actual retab commits they can land.
+
 ## Implementation Timeline
 
 Items struck out are complete.
@@ -24,11 +28,11 @@ Items struck out are complete.
 
 Note that once [PR #2197](https://github.com/rapid7/metasploit-framework/pull/2197) lands, we will no longer be enforcing any particular tab/space indentation format until about October 8, when we switch for real to soft tabs.
 
-### By August 28, 2013
+### By ~~August 28, 2013~~ September 3, 2013
 
 By now, we should have a pretty good idea of how to deal with conflicts and how to ensure everyone has a pretty painless path to fix up their own branches with the new retabbing. In fact, [PacketFu's PR #33](https://github.com/todb/packetfu/pull/33) is an example of this in action.
 
- - Write a procedure for offering retabbing to outstanding pull requests.
+ - ~~Write a procedure for offering retabbing to outstanding pull requests.~~
  - Retab modules directory as [@tabassassin](https://github.com/tabassassin) using `retab.rb`
  - Retab libraries as [@tabassassin](https://github.com/tabassassin) using `retab.rb`.
  - Offer retabbing to outstanding pull requests in the form of outbound PRs from [@tabassassin](https://github.com/tabassassin).
