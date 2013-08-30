@@ -383,7 +383,7 @@ class Msftidy
 			end
 
 			# do not change datastore in code
-			if ln =~ /(?<!\.)datastore\[["']\w+["']\]\s*=(?![=~>])/
+			if ln =~ /(?<!\.)datastore\[["'][^"']+["']\]\s*=(?![=~>])/
 				error("datastore is modified in code: #{ln.inspect}", idx)
 			end
 		}
