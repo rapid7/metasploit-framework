@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'           => 'Windows NetLM Downgrade Attack',
+			'Name'           => 'Windows Manage NetLM Downgrade Attack',
 			'Description'    => %q{ This module will change a registry value to enable
 				the sending of LM challenge hashes and then initiate a SMB connection to
 				the SMBHOST datastore. If an SMB server is listening, it will receive the
