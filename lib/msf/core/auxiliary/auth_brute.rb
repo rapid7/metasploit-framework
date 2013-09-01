@@ -147,7 +147,7 @@ module Auxiliary::AuthBrute
 
 		# Restore the datastore
 		original_values.each do |k, v|
-			datastore[k] = v unless datastore[k] == v
+			datastore[k] = v
 		end
 
 	end
