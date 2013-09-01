@@ -264,7 +264,7 @@ class Metasploit3 < Msf::Auxiliary
 		vprint_status("#{rhost}:#{rport} Prompt: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}")
 
 		# Not successful yet, maybe we got a password prompt.
-		if password_prompt?
+		if password_prompt?(user)
 			send_pass(pass)
 
 			# Allow for slow echos
