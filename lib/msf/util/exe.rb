@@ -1788,7 +1788,7 @@ def self.to_vba(framework,code,opts={})
 	def self.to_executable_fmt_formats
 		[
 			'dll','exe','exe-service','exe-small','exe-only','elf','macho','vba','vba-exe',
-			'vbs','loop-vbs','asp','aspx-exe','aspx-mem','war','psh','psh-net'
+			'vbs','loop-vbs','asp','aspx','aspx-exe','war','psh','psh-net'
 		]
 	end
 
