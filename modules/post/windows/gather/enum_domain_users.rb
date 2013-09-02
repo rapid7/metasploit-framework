@@ -14,10 +14,10 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 			'Name'	       => 'Windows Gather Enumerate Active Domain Users',
 			'Description'  => %q{
-				This module will enumerate computers included in the primary Domain and attempt
-				to list all locations the targeted user has sessions on. If a the HOST option is specified
-				the module will target only that host. If the HOST is specified and USER is set to nil, all users
-				logged into that host will be returned.'
+					This module will enumerate computers included in the primary Domain and attempt
+					to list all locations the targeted user has sessions on. If a the HOST option is specified
+					the module will target only that host. If the HOST is specified and USER is set to nil, all users
+					logged into that host will be returned.'
 				},
 				'License'      => MSF_LICENSE,
 				'Author'       => [ 'Etienne Stalmans <etienne[at]sensepost.com>'],
@@ -32,50 +32,50 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-	sessions = []
-	user = datastore['USER']
-	host = datastore['HOST']
+		sessions = []
+		user = datastore['USER']
+		host = datastore['HOST']
 
-	if host
-		if user
-			print_status("Attempting to identify #{user} on #{host}...")
-		else
-			print_status("Attempting to get all logged in users on #{host}...")
-		end
-		sessions = getSessions(host, user)
+		if host
+			if user
+				print_status("Attempting to identify #{user} on #{host}...")
+			else
+				print_status("Attempting to get all logged in users on #{host}...")
+			end
+			sessions = net_session_enum(host, user)
+		elsif user
+			domain = getdomain
 
-	elsif user
-		domain = getdomain
+			unless domain.empty?
+				print_status ("Using domain: #{domain}")
+				print_status ("Getting list of domain hosts...")
+			end
 
-		unless domain.empty?
-		print_status ("Using domain: #{domain}")
-		print_status ("Getting list of domain hosts...")
-		hosts = net_server_enum(SV_TYPE_ALL, domain)
+			hosts = net_server_enum(SV_TYPE_ALL, domain)
 
-		if hosts
-			len = hosts.count
-			print_status("#{len} host(s) found")
+			if hosts
+				len = hosts.count
+				print_status("#{len} host(s) found")
 
-					hosts.each do |host|
-						sessions << getSessions(host[:name], user)
-					end
-
-					sessions.flatten!
+				hosts.each do |host|
+					sessions << net_session_enum(host[:name], user)
 				end
 			end
+
+			sessions.flatten!
 		else
-				print_error("Invalid options, either HOST or USER must be specified.")
-				return
+			print_error("Invalid options, either HOST or USER must be specified.")
+			return
 		end
 
-		if sessions.count == 0
+		if sessions.nil? or sessions.count == 0
 			print_error("No sessions found")
 			return
 		else
 			print_status("#{sessions.count} session(s) identified")
 		end
 
-			if sessions and sessions.count > 0
+		if sessions and sessions.count > 0
 			sessions.each do |s|
 				if s
 					print_good("#{s[:username]} logged in at #{s[:hostname]} and has been idle for #{s[:idletime]} seconds")

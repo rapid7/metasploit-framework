@@ -11,6 +11,17 @@ module NetAPI
 	SV_TYPE_DOMAIN_BAKCTRL = 10
 	SV_TYPE_DOMAIN_CTRL = 4
 
+	ERROR_ACCESS_DENIED = 5
+	ERROR_NOT_ENOUGH_MEMORY = 8
+	ERROR_INVALID_PARAMETER = 87
+	ERROR_INVALID_LEVEL = 124
+	ERROR_MORE_DATA = 234
+	ERROR_NO_BROWSER_SERVERS_FOUND = 6118
+
+	NERR_ClientNameNotFound = 2312
+	NERR_InvalidComputer = 2351
+	NERR_UserNotFound = 2221
+
 	def UnicodeByteStringToAscii(str)
 		length = (str.index "\0\0\0") + 1
 		Rex::Text.to_ascii(str[0..length])
@@ -23,6 +34,8 @@ module NetAPI
 	end
 
 	def net_server_enum(server_type=SV_TYPE_ALL, domain=nil)
+		hosts = []
+
 		result = client.railgun.netapi32.NetServerEnum(
 				nil,    # servername
 				100,    # level (100/101)
@@ -36,38 +49,22 @@ module NetAPI
 		)
 
 		case result['return']
-			when 5
-				vprint_error("Access Denied when trying to enum hosts.")
-				return nil
-			when 6118
-				vprint_error("No Browser servers found.")
-				return nil
-			when 50
-				vprint_error("Request not supported.")
-				return nil
-			when 2184
-				vprint_error("Service not installed.")
-				return nil
 			when 0
-				vprint_status("Success.")
-			when 87
-				vprint_error ("Invalid parameter.")
+				hosts = read_server_structs(result['bufptr'], result['totalentries'])
+			when ERROR_NO_BROWSER_SERVERS_FOUND
+				print_error("ERROR_NO_BROWSER_SERVERS_FOUND")
 				return nil
-			else
-				if result['return'] != 234
-					vprint_status("Unaccounted for error code: #{result['return']}")
-					return nil
-				end
+			when ERROR_MORE_DATA
+				vprint_error("ERROR_MORE_DATA")
+				return nil
 		end
-
-		hosts = read_server_structs(result['bufptr'], result['totalentries'])
 
 		netapi_buffer_free(result['bufptr'])
 
 		return hosts
 	end
 
-	def read_server_structs(start_ptr, count)
+	def read_server_structs(start_ptr, count, domain, server_type)
 		base = 0
 		struct_size = 8
 		hosts = []
@@ -85,21 +82,26 @@ module NetAPI
 		return hosts
 	end
 
-	def getSessions(hostname, username)
+	def net_session_enum(hostname, username)
+		sessions = []
+
 		result = client.railgun.netapi32.NetSessionEnum(
-				hostname,
-				nil,
-				username,
-				10,
-				4,
-				MAX_PREFERRED_LENGTH,
-				4,
-				4,
-				nil
+				hostname,   # servername
+				nil,        # UncClientName
+				username,   # username
+				10,         # level
+				4,          # bufptr
+				MAX_PREFERRED_LENGTH, # prefmaxlen
+				4,          # entriesread
+				4,          # totalentries
+				nil         # resume_handle
 		)
 
 		case result['return']
-			when 5
+			when 0
+				vprint_error("#{hostname} Session identified")
+				sessions = read_session_structs(result['bufptr'], result['totalentries'], hostname)
+			when ERROR_ACCESS_DENIED
 				vprint_error("#{hostname} Access denied...")
 				return nil
 			when 53
@@ -108,18 +110,14 @@ module NetAPI
 			when 123
 				vprint_error("Invalid host: #{hostname}")
 				return nil
-			when 0
-				vprint_status("#{hostname} Session identified")
-			when 2221 #username not found
+			when NERR_UserNotFound
 				return nil
+			when ERROR_MORE_DATA
+				vprint_error("#{hostname} ERROR_MORE_DATA")
 			else
-				if result['return'] != 234
-					vprint_error("Unaccounted for error code: #{result['return']}")
-					return nil
-				end
+				vprint_error("Unaccounted for error code: #{result['return']}")
+				return nil
 		end
-
-		sessions = read_session_structs(result['bufptr'], result['totalentries'], hostname)
 
 		netapi_buffer_free(result['bufptr'])
 
