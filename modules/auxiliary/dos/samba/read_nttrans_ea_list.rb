@@ -12,6 +12,7 @@ require 'rex/proto/smb'
 class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::DCERPC
 	include Msf::Exploit::Remote::SMB
+	include Exploit::Remote::SMB::Authenticated
 
 	UTILS = Rex::Proto::SMB::Utils
 
