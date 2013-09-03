@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info(info,
-			'Name'         => 'Winlogon Lockout Credential Keylogger',
+			'Name'         => 'Windows Capture Winlogon Lockout Credential Keylogger',
 			'Description'  => %q{
 					This module migrates and logs Microsoft Windows user's passwords via
 					Winlogon.exe. Using idle time and natural system changes to give a
