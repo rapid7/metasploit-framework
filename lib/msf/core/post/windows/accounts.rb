@@ -219,13 +219,15 @@ module Accounts
 		f = adv.GetFileSecurityA(dir, si, buffer_size, buffer_size, 4)
 		if (f['return'] and f["lpnLengthNeeded"] <= buffer_size)
 			sd = f["pSecurityDescriptor"]
+		elsif (f['GetLastError'] == 122) # ERROR_INSUFFICIENT_BUFFER
+			f = adv.GetFileSecurityA(dir, si, f["lpnLengthNeeded"], f["lpnLengthNeeded"], 4)
 		elsif (f['GetLastError'] == 2)
 			vprint_error("The system cannot find the file specified: #{dir}")
 			return nil
 		else
-			f = adv.GetFileSecurityA(dir, si, f["lpnLengthNeeded"], f["lpnLengthNeeded"], 4)
+			vprint_error("Unknown error - GetLastError #{f['GetLastError']}: #{dir}")
+			return nil
 		end
-
 
 		#check for write access, called once to get buffer size
 		a = adv.AccessCheck(sd, token, "ACCESS_READ | ACCESS_WRITE", gen_map, 0, 0, 4, 8)
