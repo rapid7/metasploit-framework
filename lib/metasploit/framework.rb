@@ -62,9 +62,6 @@ module Metasploit
 	end
 end
 
-# needed by models on Metasploit::Framework's autoload_paths.
-Metasploit::Model.autoload_validators
-
 Metasploit::Framework.autoload_paths.each do |autoload_path|
 	unless ActiveSupport::Dependencies.autoload_paths.include? autoload_path
 		ActiveSupport::Dependencies.autoload_paths << autoload_path
