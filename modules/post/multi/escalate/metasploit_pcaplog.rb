@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info, {
-				'Name'	  => 'Metasploit pcap_log Local Privilege Escalation',
+				'Name'	  => 'Multi Escalate Metasploit pcap_log Local Privilege Escalation',
 				'Description'   => %q{
 					Metasploit < 4.4 contains a vulnerable 'pcap_log' plugin which, when used with the default settings,
 					creates pcap files in /tmp with predictable file names. This exploits this by hard-linking these
