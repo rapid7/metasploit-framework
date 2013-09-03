@@ -2180,7 +2180,7 @@ end
 		attr_reader :connection
 		# Report Template ID strong e.g. full-audit
 		attr_reader :template_id
-		# pdf|html|xml|text|csv|raw-xml
+		# pdf|html|xml|text|csv|raw-xml-v2
 		attr_reader :format
 		# Array of (ReportFilter)*
 		attr_reader :filters
@@ -2189,7 +2189,7 @@ end
 		attr_reader :report_decoded
 
 
-		def initialize(connection, template_id = 'full-audit', format = 'raw-xml')
+		def initialize(connection, template_id = 'full-audit', format = 'raw-xml-v2')
 
 			@error = false
 			@connection = connection
@@ -2263,7 +2263,7 @@ class ReportConfig
 	attr_reader :name
 	# The template ID used for this report definition
 	attr_reader :template_id
-	# html, db, txt, xml, raw-xml, csv, pdf
+	# html, db, txt, xml, raw-xml-v2, csv, pdf
 	attr_reader :format
 	# XXX new
 	attr_reader :timezone

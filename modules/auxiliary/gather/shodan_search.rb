@@ -7,6 +7,7 @@
 
 require 'msf/core'
 require 'rex'
+require 'net/dns'
 
 class Metasploit4 < Msf::Auxiliary
 
@@ -38,10 +39,10 @@ class Metasploit4 < Msf::Auxiliary
 		))
 
 		# disabling all the unnecessary options that someone might set to break our query
-		deregister_options('RPORT','RHOST', 'BasicAuthPass', 'BasicAuthUser', 'DOMAIN',
+		deregister_options('RPORT','RHOST', 'DOMAIN',
 			'DigestAuthIIS', 'SSLVersion', 'NTLM::SendLM', 'NTLM::SendNTLM',
 			'NTLM::SendSPN', 'NTLM::UseLMKey', 'NTLM::UseNTLM2_session',
-			'NTLM::UseNTLMv2', 'DigestAuthPassword', 'DigestAuthUser', 'SSL')
+			'NTLM::UseNTLMv2','SSL')
 
 		register_options(
 			[

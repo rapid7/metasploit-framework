@@ -20,10 +20,10 @@ module Proto
 		ERRORS          = %W{ no_response unknown success authenticaton_failed unit_has_address invalid_value invalid_data unsupported_command }
 		WLAN_ENC_MODES  = %W{ unknown none wep40 wep128 }
 		WLAN_AUTH_MODES = %W{ unknown open shared_key open_shared_key }
-		HWTYPES         = %W{ 
-			unknown ps3_desk8 ps3_desk16 ps3_desk32 ps3_rack16 ps2_desk16 ps2_rack16 
+		HWTYPES         = %W{
+			unknown ps3_desk8 ps3_desk16 ps3_desk32 ps3_rack16 ps2_desk16 ps2_rack16
 			lets_desk1 lets_desk2 lets_desk4 dorpia_dinrail1 nubox01 nubox02 nubox04
-			digione_sp digione_ia digione_em 
+			digione_sp digione_ia digione_em
 		}
 
 		CMD_CONF_REQ             = 1
@@ -35,7 +35,7 @@ module Proto
 		CMD_SET_DHCP_REQ         = 7
 		CMD_SET_DHCP_REP         = 8
 		CMD_SET_WL_REQ           = 9
-		CMD_SET_WL_REP           = 10	
+		CMD_SET_WL_REP           = 10
 		CMD_SET_WL_COUNTRIES_REQ = 11
 		CMD_SET_WL_COUNTRIES_REP = 12
 		CMD_EDP                  = 13
@@ -61,11 +61,11 @@ module Proto
 
 		def self.request_static_ip(magic, dmac, ip, mask, gw, pwd="dbps")
 			mac = (dmac.length == 6) ? dmac : Rex::Socket.eth_aton(dmac)
-			buf = 
+			buf =
 				Rex::Socket.addr_aton(ip) +
 				Rex::Socket.addr_aton(mask) +
 				Rex::Socket.addr_aton(gw) +
-				mac + 
+				mac +
 				self.encode_password(pwd)
 
 			req = magic + [CMD_SET_ADDR_REQ, buf.length].pack("nn") + buf
@@ -74,9 +74,9 @@ module Proto
 
 		def self.request_dhcp(magic, dmac, enabled, pwd="dbps")
 			mac = (dmac.length == 6) ? dmac : Rex::Socket.eth_aton(dmac)
-			buf = 
+			buf =
 				[ enabled ? 1 : 0 ].pack("C") +
-				mac + 
+				mac +
 				self.encode_password(pwd)
 
 			req = magic + [CMD_SET_DHCP_REQ, buf.length].pack("nn") + buf
@@ -86,11 +86,11 @@ module Proto
 		def self.request_reboot(magic, dmac, pwd="dbps")
 			mac = (dmac.length == 6) ? dmac : Rex::Socket.eth_aton(dmac)
 			buf =
-				mac + 
+				mac +
 				self.encode_password(pwd)
 
 			req = magic + [CMD_REBOOT_REQ, buf.length].pack("nn") + buf
-			return req		
+			return req
 		end
 
 		def self.decode_reply(data)
@@ -185,7 +185,7 @@ module Proto
 					# Store unknown responses
 					res["unknown_0x#{"%.2x" % i_type}".to_sym] = i_data
 				end
-			
+
 				bidx = bidx + 2 + i_len
 			end
 			return res
@@ -194,8 +194,8 @@ module Proto
 		def self.reply_to_string(res)
 			str = ""
 
-			fields = [ 
-				:hwname, :hwtype, :hwrev, :fwrev, 
+			fields = [
+				:hwname, :hwtype, :hwrev, :fwrev,
 				:mac, :ip, :mask, :gw, :hostname, :domain, :dns, :dhcp,
 				:msg, :result, :error,
 				:advisory, :ports, :realport, :realport_enc,

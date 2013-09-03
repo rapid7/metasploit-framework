@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -23,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Apache "mod_userdir" User Enumeration',
-			'Version'        => '$Revision$',
 			'Description'    => %q{Apache with the UserDir directive enabled generates different error
 			codes when a username exists and there is no public_html directory and when the username
 			does not exist, which could allow remote attackers to determine valid usernames on the
@@ -60,7 +55,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def target_url
-		"http://#{vhost}:#{rport}#{datastore['URI']}"
+		uri = normalize_uri(datastore['URI'])
+		"http://#{vhost}:#{rport}#{uri}"
 	end
 
 	def run_host(ip)
@@ -88,7 +84,8 @@ class Metasploit3 < Msf::Auxiliary
 	def do_login(user)
 
 		vprint_status("#{target_url}~#{user} - Trying UserDir: '#{user}'")
-		payload = "#{datastore['URI']}~#{user}/"
+		uri = normalize_uri(datastore['URI'])
+		payload = "#{uri}~#{user}/"
 		begin
 			res = send_request_cgi(
 				{

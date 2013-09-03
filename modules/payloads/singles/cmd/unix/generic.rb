@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -22,7 +18,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Unix Command, Generic Command Execution',
-			'Version'       => '$Revision$',
 			'Description'   => 'Executes the supplied command',
 			'Author'        => 'hdm',
 			'License'       => MSF_LICENSE,

@@ -144,7 +144,7 @@ module Session
 	#
 	def tunnel_peer
 	end
-	
+
 	#
 	# Returns the host associated with the session
 	#
@@ -152,7 +152,7 @@ module Session
 		# Prefer the overridden session host or target_host
 		host = @session_host || self.target_host
 		return host if host
-		
+
 		# Fallback to the tunnel_peer (contains port)
 		peer = self.tunnel_peer
 		return if not peer
@@ -162,14 +162,14 @@ module Session
 		bits.pop
 		bits.join(':')
 	end
-	
+
 	#
 	# Override the host associated with this session
 	#
 	def session_host=(v)
 		@session_host = v
 	end
-	
+
 	#
 	# Returns the port associated with the session
 	#
@@ -185,14 +185,14 @@ module Session
 		port = bits.pop
 		port.to_i
 	end
-	
+
 	#
 	# Override the host associated with this session
 	#
 	def session_port=(v)
 		@session_port = v
 	end
-	
+
 	#
 	# Returns a pretty representation of the tunnel.
 	#
@@ -270,6 +270,9 @@ module Session
 		self.user_output = m.user_output if m.user_output
 		self.exploit_uuid = m.uuid
 		self.exploit = m
+    if m[:task]
+      self.exploit_task = m[:task]
+    end
 	end
 
 	#
@@ -365,6 +368,10 @@ module Session
 	# The datastore of the exploit that created this session
 	#
 	attr_accessor :exploit_datastore
+  #
+  # The task that ran the exploit that got the session (that swallowed the fly)
+  #
+  attr_accessor :exploit_task
 	#
 	# The specific identified session info
 	#

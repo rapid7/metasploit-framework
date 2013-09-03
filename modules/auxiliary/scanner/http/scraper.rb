@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -25,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP Page Scraper',
-			'Version'     => '$Revision$',
 			'Description' => 'Scrap defined data from a specific web page based on a regular expresion',
 			'Author'       => ['et'],
 			'License'     => MSF_LICENSE
@@ -34,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The test path to the page to analize", '/']),
-				OptString.new('REGEX', [ true,  "The regex to use (default regex is a sample to grab page title)", '\<title\>(.*)\<\/title\>']),
+				OptRegexp.new('PATTERN', [ true,  "The regex to use (default regex is a sample to grab page title)", %r{<title>(.*)</title>}i])
 
 			], self.class)
 
@@ -42,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(target_host)
 
-		tpath = datastore['PATH']
+		tpath = normalize_uri(datastore['PATH'])
 		if tpath[-1,1] != '/'
 			tpath += '/'
 		end
@@ -62,9 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 				return
 			end
 
-			aregex = Regexp.new(datastore['REGEX'].to_s,Regexp::IGNORECASE)
-
-			result = res.body.scan(aregex).flatten.map{ |s| s.strip }.uniq
+			result = res.body.scan(datastore['PATTERN']).flatten.map{ |s| s.strip }.uniq
 
 			result.each do |u|
 				print_status("[#{target_host}] #{tpath} [#{u}]")

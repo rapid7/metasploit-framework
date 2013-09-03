@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -30,13 +26,12 @@ class Metasploit3 < Msf::Auxiliary
 				files found will be displayed.
 			},
 			'Author' 		=> [ 'diablohorn [at] gmail.com' ],
-			'License'		=> MSF_LICENSE,
-			'Version'		=> '$Revision$'))
+			'License'		=> MSF_LICENSE))
 
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The path to detect mod_negotiation", '/']),
-				OptString.new('FILEPATH',[true, "path to file with file names",
+				OptPath.new('FILEPATH',[true, "path to file with file names",
 					File.join(Msf::Config.install_root, "data", "wmap", "wmap_files.txt")])
 			], self.class)
 	end
@@ -45,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 		ecode = nil
 		emesg = nil
 
-		tpath = datastore['PATH']
+		tpath = normalize_uri(datastore['PATH'])
 		tfile = datastore['FILEPATH']
 
 		if tpath[-1,1] != '/'

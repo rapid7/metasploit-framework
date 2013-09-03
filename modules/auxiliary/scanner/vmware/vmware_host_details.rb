@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -23,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'VMWare Enumerate Host Details',
-			'Version'        => '$Revision$',
 			'Description'    => %Q{
 				This module attempts to enumerate information about the host systems through the VMWare web API.
 				This can include information about the hardware installed on the host machine.
@@ -51,7 +46,9 @@ class Metasploit3 < Msf::Auxiliary
 			host_summary = vim_get_all_host_summary(datastore['HW_DETAILS'])
 			output << YAML.dump(host_summary)
 			print_good output
-			store_loot('vmware_host_details', "text/plain", datastore['RHOST'], output, "#{datastore['RHOST']}_vmware_host.txt", "VMWare Host Details")
+
+			f = store_loot('vmware_host_details', "text/plain", datastore['RHOST'], output, "#{datastore['RHOST']}_vmware_host.txt", "VMWare Host Details")
+			vprint_status("Host details stored in: #{f}")
 		else
 			print_error "Login Failure on #{ip}"
 			return

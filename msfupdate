@@ -23,13 +23,20 @@ $stderr.puts "[*] Attempting to update the Metasploit Framework..."
 $stderr.puts "[*]"
 $stderr.puts ""
 
+# Bail right away, no waiting around for consoles.
 if not (Process.uid == 0 or File.stat(msfbase).owned?)
-	$stderr.puts "[-] ERROR: User running msfupdate does not own the metasploit install"
-	$stderr.puts "Please run msfupdate as the same user who installed metasploit."
+	$stderr.puts "[-] ERROR: User running msfupdate does not own the Metasploit installation"
+	$stderr.puts "[-] Please run msfupdate as the same user who installed Metasploit."
+	exit 0x10
 end
 
-def is_pro
-	File.exists?(File.expand_path(File.join(@msfbase_dir, "..", "engine", "update.rb")))
+def is_apt
+	File.exists?(File.expand_path(File.join(@msfbase_dir, '.apt')))
+end
+
+# Are you an installer, or did you get here via a source checkout?
+def is_installed
+	File.exists?(File.expand_path(File.join(@msfbase_dir, "..", "engine", "update.rb"))) && !is_apt
 end
 
 def is_git
@@ -50,10 +57,45 @@ def add_git_upstream
 end
 
 def print_deprecation_warning
-	$stdout.puts "[*] Deprecation Note: The next version of Metasploit will"
-	$stdout.puts "[*] update over the git protocol, which requires outbound"
-	$stdout.puts "[*] access to github.com:9418/TCP."
-	$stdout.puts "[*] Please adjust your egress firewall rules accordingly."
+	$stdout.puts ""
+	$stdout.puts "[-] Deprecation Note: Metasploit source checkouts NO LONGER update"
+	$stdout.puts "[-] over SVN. You will need to reinstall Metasploit using"
+	$stdout.puts "[-] binary installers (from http://www.metasploit.com/download ),"
+	$stdout.puts "[-] Debian packages (currently only supported on Kali Linux), or"
+	$stdout.puts "[-] a development source checkout from GitHub (see http://r-7.co/ZLhA8P )"
+	$stdout.puts "[-] "
+	$stdout.puts "[-] For more on msfupdate and migrating off of SVN, see http://r-7.co/MSF-UP"
+	$stdout.puts ""
+end
+
+# This only exits if you actually pass a wait option, otherwise
+# just returns nil. This is likely unexpected, revisit this.
+def maybe_wait_and_exit(exit_code=0)
+	if @actually_wait
+		$stdout.puts ""
+		$stdout.puts "[*] Please hit enter to exit"
+		$stdout.puts ""
+		$stdin.readline
+		exit exit_code
+	end
+end
+
+def apt_upgrade_available(package)
+	require 'open3'
+	installed = nil
+	upgrade = nil
+	::Open3.popen3({'LANG'=>'en_US.UTF-8'}, "apt-cache", "policy", package) do |stdin, stdout, stderr|
+		stdout.each do |line|
+			installed = $1 if line =~ /Installed: ([\w\-+.:~]+)$/
+			upgrade = $1 if line =~ /Candidate: ([\w\-+.:~]+)$/
+			break if installed && upgrade
+		end
+	end
+	if installed && installed != upgrade
+		upgrade
+	else
+		nil
+	end
 end
 
 # Some of these args are meaningful for SVN, some for Git,
@@ -91,7 +133,13 @@ end
 
 ####### Since we're SVN, do it all this way #######
 if is_svn
+	# We're fully deprecated now, so just exit.
+	# Leaving in the commented code in case someone wants to
+	# get a last-chance at msfupdate before the SVN server goes
+	# off line, which will be ANY DAY NOW. Seriously.
 	print_deprecation_warning
+	$stdin.readline if @actually_wait
+	exit(0x11) # Comment this to get old functionality back.
 	@args.push("--config-dir=#{@configdir}")
 	@args.push("--non-interactive")
 
@@ -102,7 +150,7 @@ if is_svn
 		$stderr.puts "[-] If you used a binary installer, make sure you run the symlink in"
 		$stderr.puts "[-] /usr/local/bin instead of running this file directly (e.g.: ./msfupdate)"
 		$stderr.puts "[-] to ensure a proper environment."
-		exit 1
+		maybe_wait_and_exit 1
 	else
 		# Cleanup worked, go ahead and update
 		system("svn", "update", *@args)
@@ -134,7 +182,7 @@ if is_git
 		$stderr.puts "[-] If you used a binary installer, make sure you run the symlink in"
 		$stderr.puts "[-] /usr/local/bin instead of running this file directly (e.g.: ./msfupdate)"
 		$stderr.puts "[-] to ensure a proper environment."
-		exit 1
+		maybe_wait_and_exit 1
 	elsif not committed
 		system("git", "stash")
 		$stdout.puts "[*] Stashed local changes to avoid merge conflicts."
@@ -145,20 +193,63 @@ if is_git
 	system("git", "checkout", branch)
 	system("git", "fetch", remote)
 	system("git", "merge", "#{remote}/#{branch}")
+
+	$stdout.puts "[*] Updating gems..."
+	require 'bundler'
+	Bundler.with_clean_env do
+		system("bundle", "install")
+	end
 end
 
-if is_pro
+if is_installed
 	update_script = File.expand_path(File.join(@msfbase_dir, "..", "engine", "update.rb"))
-	system("ruby", update_script)
+	product_key =   File.expand_path(File.join(@msfbase_dir, "..", "engine", "license", "product.key"))
+	if File.exists? product_key
+		if File.readable? product_key
+			system("ruby", update_script)
+		else
+			$stdout.puts "[-] ERROR: Failed to update Metasploit installation"
+			$stdout.puts ""
+			$stdout.puts "[-] You must be able to read the product key for the"
+		  $stdout.puts "[-]	Metasploit installation in order to run msfupdate."
+			$stdout.puts "[-] Usually, this means you must be root (EUID 0)."
+			maybe_wait_and_exit 10
+		end
+	else
+		$stdout.puts "[-] ERROR: Failed to update Metasploit installation"
+		$stdout.puts ""
+		$stdout.puts "[-] In order to update your Metasploit installation,"
+		$stdout.puts "[-] you must first register it through the UI, here:"
+		$stderr.puts "[-] https://localhost:3790 (note, Metasploit Community"
+		$stderr.puts "[-] Edition is totally free and takes just a few seconds"
+		$stderr.puts "[-] to register!)"
+		maybe_wait_and_exit 11
+	end
 end
 
-unless is_svn || is_git || is_pro
+if is_apt
+	$stdout.puts "[*] Checking for updates"
+	system("apt-get", "-qq", "update")
+
+	packages = []
+	packages << 'metasploit-framework' if framework_version = apt_upgrade_available('metasploit-framework')
+	packages << 'metasploit' if pro_version = apt_upgrade_available('metasploit')
+
+	if packages.empty?
+		$stdout.puts "[*] No updates available"
+	else
+		$stdout.puts "[*] Updating to version #{pro_version || framework_version}"
+		system("apt-get", "install", "--assume-yes", *packages)
+		if packages.include?('metasploit')
+			start_cmd = File.expand_path(File.join(@msfbase_dir, '..', '..', '..', 'scripts', 'start.sh'))
+			system(start_cmd) if ::File.executable_real? start_cmd
+		end
+	end
+end
+
+unless is_svn || is_git || is_installed || is_apt
 	raise RuntimeError, "Cannot determine checkout type: `#{@msfbase_dir}'"
 end
 
-if @actually_wait
-	$stderr.puts ""
-	$stderr.puts "[*] Please hit enter to exit"
-	$stderr.puts ""
-	$stdin.readline
-end
+maybe_wait_and_exit(0)
+

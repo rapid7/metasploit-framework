@@ -37,7 +37,7 @@ module Msf::Payload::Single
 			# Otherwise, just use the default method to generate the single
 			# payload
 			else
-				internal_generate
+				super
 			end
 		end
 	end

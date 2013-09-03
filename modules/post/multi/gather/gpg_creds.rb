@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -25,8 +21,8 @@ class Metasploit3 < Msf::Post
 		super( update_info(info,
 			'Name'           => 'Multi Gather GnuPG Credentials Collection',
 			'Description'    => %q{
-					This module will collect the contents of user's .gnupg directory on the targeted
-				machine. Password protected secret keyrings can be cracked with JtR.
+					This module will collect the contents of all users' .gnupg directories on the targeted
+				machine. Password protected secret keyrings can be cracked with John the Ripper (JtR).
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         => ['Dhiru Kholia <dhiru[at]openwall.com>'],

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,11 +16,15 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'ColdFusion Version Scanner',
-			'Version'     => '$Revision$',
 			'Description' => %q{
-					This module attempts identify various flavors of ColdFusion as well as the underlying OS
+				This module attempts identify various flavors of ColdFusion up to version 10
+				as well as the underlying OS.
 			},
-			'Author'      => [ 'nebulus' ],
+			'Author'      =>
+				[
+					'nebulus',  # Original
+					'sinn3r'    # Fingerprint() patch for Cold Fusion 10
+				],
 			'License'     => MSF_LICENSE
 		)
 	end
@@ -35,31 +35,37 @@ class Metasploit3 < Msf::Auxiliary
 			if(response.headers['Server'] =~ /IIS/ or response.headers['Server'] =~ /\(Windows/)
 				os = "Windows (#{response.headers['Server']})"
 			elsif(response.headers['Server'] =~ /Apache\//)
-					os = "Unix (#{response.headers['Server']})"
+				os = "Unix (#{response.headers['Server']})"
 			else
 				os = response.headers['Server']
 			end
 		end
 
-		len = (response.body.length > 2500) ?  2500 : response.body.length
 		return nil if response.body.length < 100
 
 		title = "Not Found"
-		if(response.body =~ /<title.*\/?>(.+)<\/title\/?>/i)
+		if(response.body =~ /<title.*\/?>(.+)<\/title\/?>/im)
 			title = $1
 			title.gsub!(/\s/, '')
 		end
-		return nil  if( title == 'Not Found' or not title =~ /ColdFusionAdministrator/)
+
+		return nil if( title == 'Not Found' or not title =~ /ColdFusionAdministrator/)
 
 		out = nil
 
 		if(response.body =~ />\s*Version:\s*(.*)<\/strong\><br\s\//)
 			v = $1
 			out = (v =~ /^6/) ? "Adobe ColdFusion MX6 #{v}" : "Adobe ColdFusion MX7 #{v}"
-		elsif(response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995-2006 Adobe/)
+		elsif(response.body =~ /<meta name=\"Author\" content=\"Copyright 1995\-2012 Adobe/ and response.body =~ /Administrator requires a browser that supports frames/ )
+			out = "Adobe ColdFusion MX7"
+		elsif(response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995\-2006 Adobe/)
 			out = "Adobe ColdFusion 8"
-		elsif(response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995-2010 Adobe/ or
-			response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995\-2009 Adobe Systems\, Inc\. All rights reserved/)
+		elsif(response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995\-2010 Adobe/ and
+			response.body =~ /1997\-2012 Adobe Systems Incorporated and its licensors/)
+			out = "Adobe ColdFusion 10"
+		elsif(response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995\-2010 Adobe/ or
+			response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995\-2009 Adobe Systems\, Inc\. All rights reserved/ or
+			response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1997\-2012 Adobe Systems\, Inc\. All rights reserved/)
 			out = "Adobe ColdFusion 9"
 		elsif(response.body =~ /<meta name=\"Keywords\" content=\"(.*)\">\s+<meta name/)
 			out = $1.split(/,/)[0]
@@ -80,9 +86,9 @@ class Metasploit3 < Msf::Auxiliary
 		url = '/CFIDE/administrator/index.cfm'
 
 		res = send_request_cgi({
-				'uri' => url,
-				'method' => 'GET',
-				}, 5)
+			'uri' => url,
+			'method' => 'GET',
+		})
 
 		return if not res or not res.body or not res.code
 		res.body.gsub!(/[\r|\n]/, ' ')

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -21,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'MYSQL Password Hashdump',
-			'Version'        => '$Revision$',
 			'Description'    => %Q{
 					This module extracts the usernames and encrypted password
 				hashes from a MySQL server and stores them for later cracking.
@@ -34,7 +29,6 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 
 		if (not mysql_login_datastore)
-			print_error("Invalid MySQL Server credentials")
 			return
 		end
 

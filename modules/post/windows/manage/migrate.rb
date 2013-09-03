@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -11,8 +7,11 @@
 
 require 'msf/core'
 require 'rex'
+require 'msf/core/post/common'
 
 class Metasploit3 < Msf::Post
+
+	include Msf::Post::Common
 
 	def initialize(info={})
 		super( update_info( info,
@@ -22,7 +21,6 @@ class Metasploit3 < Msf::Post
 				migrate to that newly spawned process.},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
@@ -39,12 +37,13 @@ class Metasploit3 < Msf::Post
 	# Run Method for when run command is issued
 	def run
 		print_status("Running module against #{sysinfo['Computer']}")
+
 		server = session.sys.process.open
 		original_pid = server.pid
 		print_status("Current server process: #{server.name} (#{server.pid})")
 
 		target_pid = nil
-		
+
 		if datastore['SPAWN']
 			print_status("Spawning notepad.exe process to migrate to")
 			target_pid = create_temp_proc
@@ -54,7 +53,7 @@ class Metasploit3 < Msf::Post
 			target_pid = session.sys.process[datastore['NAME']]
 		end
 
-		if not target_pid
+		if not target_pid or not has_pid?(target_pid)
 			print_error("Process or PID not found")
 			return
 		end

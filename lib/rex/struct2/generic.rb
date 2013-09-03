@@ -6,7 +6,7 @@ module Rex
 module Struct2
 
 class Generic
-	
+
 	require 'rex/struct2/element'
 	include Rex::Struct2::Element
 
@@ -40,7 +40,7 @@ class Generic
 		# example if it is nil.  That should only happen for a user
 		# error so that's what I want it to do...
 		string = [ @value ].pack(@packspec)
-		
+
 		if restraint && restraint.max
 			return string.slice(0, restraint.max)
 		else

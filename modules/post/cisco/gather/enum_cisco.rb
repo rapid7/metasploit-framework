@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -17,13 +13,12 @@ class Metasploit3 < Msf::Post
 	include Msf::Auxiliary::Cisco
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Gather Cisco Device General Information',
+			'Name'          => 'Cisco Gather Device General Information',
 			'Description'   => %q{
 				This module collects a Cisco IOS or NXOS device information and configuration.
 				},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'cisco'],
 			'SessionTypes'  => [ 'shell' ]
 		))

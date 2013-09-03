@@ -2,7 +2,7 @@
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+#   http://metasploit.com/framework/
 ##
 
 ##
@@ -40,7 +40,8 @@ class Metasploit4 < Msf::Auxiliary
 			'Author' =>
 				[
 					'Agnivesh Sathasivam',
-					'nmonkee'
+					'nmonkee',
+					'ChrisJohnRiley' # module cleanup / streamlining
 				],
 			'License' => MSF_LICENSE
 			)
@@ -51,6 +52,27 @@ class Metasploit4 < Msf::Auxiliary
 				OptString.new('USERNAME', [true, 'Username', 'SAP*']),
 				OptString.new('PASSWORD', [true, 'Password', '06071992']),
 			], self.class)
+	end
+
+	def extract_field(data, elem)
+		if data =~ /<#{elem}>([^<]+)<\/#{elem}>/i
+			return $1
+		end
+		nil
+	end
+
+	def report_note_sap(type, data, value)
+		# create note
+		report_note(
+			:host => rhost,
+			:port => rport,
+			:proto => 'tcp',
+			:sname => 'sap',
+			:type => type,
+			:data => data + value
+		) if data
+		# update saptbl for output
+		@saptbl << [ data, value ]
 	end
 
 	def run_host(ip)
@@ -66,246 +88,96 @@ class Metasploit4 < Msf::Auxiliary
 		data << '</n1:RFC_SYSTEM_INFO>'
 		data << '</env:Body>'
 		data << '</env:Envelope>'
-		user_pass = Rex::Text.encode_base64(datastore['USERNAME'] + ":" + datastore['PASSWORD'])
 		print_status("[SAP] #{ip}:#{rport} - sending SOAP RFC_SYSTEM_INFO request")
 		begin
-			res = send_request_raw({
-				'uri' => '/sap/bc/soap/rfc?sap-client=' + client + '&sap-language=EN',
+			res = send_request_cgi({
+				'uri' => '/sap/bc/soap/rfc?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
 				'method' => 'POST',
 				'data' => data,
-				'headers' =>
-					{
-						'Content-Length' => data.size.to_s,
-						'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
-						'Cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + client,
-						'Authorization' => 'Basic ' + user_pass,
-						'Content-Type' => 'text/xml; charset=UTF-8'
-					}
-				}, 45)
+				'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
+				'ctype' => 'text/xml; charset=UTF-8',
+				'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+				'headers' =>{
+					'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
+				}
+			})
 			if res and res.code != 500 and res.code != 200
 				# to do - implement error handlers for each status code, 404, 301, etc.
 				print_error("[SAP] #{ip}:#{rport} - something went wrong!")
+				return
+			elsif not res
+				print_error("[SAP] #{ip}:#{rport} - Server did not respond")
 				return
 			end
 		rescue ::Rex::ConnectionError
 			print_error("[SAP] #{ip}:#{rport} - Unable to connect")
 			return
 		end
-		print_status("[SAP] #{ip}:#{rport} - got response")
-		saptbl = Msf::Ui::Console::Table.new(
+
+		print_status("[SAP] #{ip}:#{rport} - Response received")
+
+		# create table for output
+		@saptbl = Msf::Ui::Console::Table.new(
 			Msf::Ui::Console::Table::Style::Default,
-				'Header' => "[SAP] System Info",
-				'Prefix' => "\n",
-				'Postfix' => "\n",
-				'Indent' => 1,
-				'Columns' =>[
-					"Info",
-					"Value"
-					])
+			'Header' => "[SAP] SOAP RFC_SYSTEM_INFO",
+			'Prefix' => "\n",
+			'Postfix' => "\n",
+			'Indent' => 1,
+			'Columns' =>[ "Key", "Value" ]
+		)
+
 		response = res.body
-		rfcproto = $1 if response =~ /<RFCPROTO>(.*)<\/RFCPROTO>/i
-		rfcchartyp = $1 if response =~ /<RFCCHARTYP>(.*)<\/RFCCHARTYP>/i
-		rfcinttyp = $1 if response =~ /<RFCINTTYP>(.*)<\/RFCINTTYP>/i
-		rfcflotyp = $1 if response =~ /<RFCFLOTYP>(.*)<\/RFCFLOTYP>/i
-		rfcdest =  $1 if response =~ /<RFCDEST>(.*)<\/RFCDEST>/i
-		rfchost =  $1 if response =~ /<RFCHOST>(.*)<\/RFCHOST>/i
-		rfcsysid = $1 if response =~ /<RFCSYSID>(.*)<\/RFCSYSID>/i
-		rfcdbhost = $1 if response =~ /<RFCDBHOST>(.*)<\/RFCDBHOST>/i
-		rfcdbsys = $1 if response =~ /<RFCDBSYS>(.*)<\/RFCDBSYS>/i
-		rfcsaprl =  $1 if response =~ /<RFCSAPRL>(.*)<\/RFCSAPRL>/i
-		rfcmach =  $1 if response =~ /<RFCMACH>(.*)<\/RFCMACH>/i
-		rfcopsys = $1 if response =~ /<RFCOPSYS>(.*)<\/RFCOPSYS>/i
-		rfctzone = $1 if response =~ /<RFCTZONE>(.*)<\/RFCTZONE>/i
-		rfcdayst = $1 if response =~ /<RFCDAYST>(.*)<\/RFCDAYST>/i
-		rfcipaddr = $1 if response =~ /<RFCIPADDR>(.*)<\/RFCIPADDR>/i
-		rfckernrl = $1 if response =~ /<RFCKERNRL>(.*)<\/RFCKERNRL>/i
-		rfcipv6addr = $1 if response =~ /<RFCIPV6ADDR>(.*)<\/RFCIPV6ADDR>/i
-		saptbl << [ "Release Status of SAP System", rfcsaprl ]
-		saptbl << [ "RFC Log Version", rfcproto ]
-		saptbl << [ "Kernel Release", rfckernrl ]
-		saptbl << [ "Operating System", rfcopsys ]
-		saptbl << [ "Database Host", rfcdbhost]
-		saptbl << [ "Central Database System", rfcdbsys ]
-		if rfcinttyp  == 'LIT'
-			saptbl << [ "Integer Format", "Little Endian" ]
-		else
-			saptbl << [ "Integer Format", "Big Endian" ]
+
+		# extract data from response body
+		rfcproto = extract_field(response, 'rfcproto')
+		rfcchartyp = extract_field(response, 'rfcchartyp')
+		rfcinttyp = extract_field(response, 'rfcinttyp')
+		rfcflotyp = extract_field(response, 'rfcflotyp')
+		rfcdest = extract_field(response, 'rfcdest')
+		rfchost = extract_field(response, 'rfchost')
+		rfcsysid = extract_field(response, 'rfcsysid')
+		rfcdbhost = extract_field(response, 'rfcdbhost')
+		rfcdbsys = extract_field(response, 'rfcdbsys')
+		rfcsaprl = extract_field(response, 'rfcsaprl')
+		rfcmach = extract_field(response, 'rfcmach')
+		rfcopsys = extract_field(response, 'rfcopsys')
+		rfctzone = extract_field(response, 'rfctzone')
+		rfcdayst = extract_field(response, 'rfcdayst')
+		rfcipaddr = extract_field(response, 'rfcipaddr')
+		rfckernrl = extract_field(response, 'rfckernrl')
+		rfcipv6addr = extract_field(response, 'rfcipv6addr')
+
+		# report notes / create saptbl output
+		report_note_sap('sap.version.release','Release Status of SAP System: ',rfcsaprl) if rfcsaprl
+		report_note_sap('sap.version.rfc_log','RFC Log Version: ',rfcproto) if rfcproto
+		report_note_sap('sap.version.kernel','Kernel Release: ',rfckernrl) if rfckernrl
+		report_note_sap('system.os','Operating System: ',rfcopsys) if rfcopsys
+		report_note_sap('sap.db.hostname','Database Host: ',rfcdbhost) if rfcdbhost
+		report_note_sap('sap.db_system','Central Database System: ',rfcdbsys) if rfcdbsys
+		report_note_sap('system.hostname','Hostname: ',rfchost) if rfchost
+		report_note_sap('system.ip.v4','IPv4 Address: ',rfcipaddr) if rfcipaddr
+		report_note_sap('system.ip.v6','IPv6 Address: ',rfcipv6addr) if rfcipv6addr
+		report_note_sap('sap.instance','System ID: ',rfcsysid) if rfcsysid
+		report_note_sap('sap.rfc.destination','RFC Destination: ',rfcdest) if rfcdest
+		report_note_sap('system.timezone','Timezone (diff from UTC in seconds): ',rfctzone.gsub(/\s+/, "")) if rfctzone
+		report_note_sap('system.charset','Character Set: ',rfcchartyp) if rfcchartyp
+		report_note_sap('sap.daylight_saving_time','Daylight Saving Time: ',rfcdayst) if rfcdayst
+		report_note_sap('sap.machine_id','Machine ID: ',rfcmach.gsub(/\s+/,"")) if rfcmach
+
+		if rfcinttyp == 'LIT'
+			report_note_sap('system.endianness','Integer Format: ', 'Little Endian')
+		elsif rfcinttyp
+			report_note_sap('system.endianness','Integer Format: ', 'Big Endian')
 		end
-			saptbl << [ "Hostname", rfchost ]
-		if rfcflotyp == 'IE3'
-			saptbl << [ "Float Type Format", "IEEE" ]
-		else
-			saptbl << [ "Float Type Format", "IBM/370" ]
-		end
-		saptbl << [ "IPv4 Address", rfcipaddr ]
-		saptbl << [ "IPv6 Address", rfcipv6addr ]
-		saptbl << [ "System ID", rfcsysid ]
-		saptbl << [ "RFC Destination", rfcdest ]
-		saptbl << [ "Timezone", "#{rfctzone.gsub(/\s+/, "")} (diff from UTC in seconds)" ]
-		saptbl << [ "Character Set", rfcchartyp ]
-		saptbl << [ "Daylight Saving Time", rfcdayst ]
-		saptbl << [ "Machine ID", rfcmach.gsub(/\s+/, "")]
-		print(saptbl.to_s)
-
-		report_note(
-			:host => ip,
-			:proto => 'tcp',
-			:port => rport,
-			:sname => 'sap',
-			:type => 'sap.version.release',
-			:data => "Release Status of SAP System: #{rfcsaprl}"
-		)
-
-		report_note(
-			:host => ip,
-			:proto => 'tcp',
-			:port => rport,
-			:sname => 'sap',
-			:type => 'sap.version.rfc_log',
-			:data => "RFC Log Version: #{rfcproto}"
-		)
-
-		report_note(
-			:host => ip,
-			:proto => 'tcp',
-			:port => rport,
-			:sname => 'sap',
-			:type => 'sap.version.kernel',
-			:data => "Kernel Release: #{rfckernrl}"
-		)
-
-		report_note(
-			:host => ip,
-			:proto => 'tcp',
-			:port => rport,
-			:sname => 'sap',
-			:type => 'system.os',
-			:data => "Operating System: #{rfcopsys}"
-		)
-
-		report_note(
-			:host => ip,
-			:proto => 'tcp',
-			:port => rport,
-			:type => 'sap.db.hostname',
-			:data => "Database Host: #{rfcdbhost}"
-		)
-
-		report_note(
-			:host => ip,
-			:proto => 'tcp',
-			:port => rport,
-			:type => 'sap.db_system',
-			:data => "Central Database System: #{rfcdbsys}"
-		)
-
-		if rfcinttyp  == 'LIT'
-			report_note(
-				:host => ip,
-				:proto => 'tcp',
-				:port => rport,
-				:type => 'system.endianness',
-				:data => "Integer Format: Little Endian"
-			)
-		else
-			report_note(
-				:host => ip,
-				:proto => 'tcp',
-				:port => rport,
-				:type => 'system.endianness',
-				:data => "Integer Format: Big Endian"
-			)
-		end
-
-		report_note(
-			:host => ip,
-			:proto => 'tcp',
-			:port => rport,
-			:type => 'system.hostname',
-			:data => "Hostname: #{rfchost}"
-		)
 
 		if rfcflotyp == 'IE3'
-			report_note(
-				:host => ip,
-				:proto => 'tcp',
-				:port => rport,
-				:type => 'system.float_type',
-				:data => "Float Type Format: IEEE"
-			)
-		else
-			report_note(
-				:host => ip,
-				:proto => 'tcp',
-				:port => rport,
-				:type => 'system.float_type',
-				:data => "Float Type Format: IBM/370"
-			)
+			report_note_sap('system.float_type','Float Type Format: ', 'IEEE')
+		elsif rfcflotyp
+			report_note_sap('system.float_type','Float Type Format: ', 'IBM/370')
 		end
 
-		report_note(
-			:host => ip,
-			:proto => 'tcp',
-			:port => rport,
-			:type => 'system.ip.v4',
-			:data => "IPv4 Address: #{rfcipaddr}"
-		)
+		# output table
+		print(@saptbl.to_s)
 
-		report_note(
-			:host => ip,
-			:proto => 'tcp',
-			:port => rport,
-			:type => 'system.ip.v6',
-			:data => "IPv6 Address: #{rfcipv6addr}"
-		)
-
-		report_note(
-			:host => ip,
-			:proto => 'tcp',
-			:port => rport,
-			:type => 'sap.instance',
-			:data => "System ID: #{rfcsysid}"
-		)
-
-		report_note(
-			:host => ip,
-			:proto => 'tcp',
-			:port => rport,
-			:type => 'sap.rfc.destination',
-			:data => "RFC Destination: #{rfcdest}"
-		)
-
-		report_note(
-			:host => ip,
-			:proto => 'tcp',
-			:port => rport,
-			:type => 'system.timezone',
-			:data => "Timezone: #{rfctzone.gsub(/\s+/, "")} (diff from UTC in seconds)"
-		)
-
-		report_note(
-			:host => ip,
-			:proto => 'tcp',
-			:port => rport,
-			:type => 'system.charset',
-			:data => "Character Set: #{rfcchartyp}"
-		)
-
-		report_note(
-			:host => ip,
-			:proto => 'tcp',
-			:port => rport,
-			:type => 'sap.daylight_saving_time',
-			:data => "Daylight Saving Time: #{rfcdayst}"
-		)
-
-
-		report_note(
-			:host => ip,
-			:proto => 'tcp',
-			:port => rport,
-			:type => 'sap.machine_id',
-			:data => "Machine ID: #{rfcmach.gsub(/\s+/, "")}"
-		)
 	end
 end

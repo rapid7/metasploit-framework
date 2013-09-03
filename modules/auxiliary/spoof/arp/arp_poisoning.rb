@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -19,7 +15,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'ARP Spoof',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				Spoof ARP replies and poison remote ARP caches to conduct IP address spoofing or a denial of service.
 			},
@@ -42,7 +37,6 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('INTERFACE', 	[false, 'The name of the interface']),
 			OptBool.new(  'BIDIRECTIONAL',	[true, 'Spoof also the source with the dest',false]),
 			OptBool.new(  'AUTO_ADD',	[true, 'Auto add new host when discovered by the listener',false]),
-			#OptBool.new(  'VERBOSE',	[true, 'Display more output on screen',false]),
 			OptBool.new(  'LISTENER',    	[true, 'Use an additionnal thread that will listen to arp request and try to relply as fast as possible', true])
 		], self.class)
 

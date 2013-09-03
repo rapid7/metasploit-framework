@@ -1,4 +1,10 @@
-# $Id$
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
 #
 # Forensic byte-for-byte imaging of remote disks and volumes
 #
@@ -17,7 +23,6 @@ class Metasploit3 < Msf::Post
 			'Name'          => 'Windows Gather Forensic Imaging',
 			'Description'   => %q{This module will perform byte-for-byte imaging of remote disks and volumes},
 			'License'       => MSF_LICENSE,
-			'Version'       => '$Revision$',
 			'Platform'      => ['win'],
 			'SessionTypes'  => ['meterpreter'],
 			'Author'        => ['Wesley McGrew <wesley[at]mcgrewsecurity.com>']

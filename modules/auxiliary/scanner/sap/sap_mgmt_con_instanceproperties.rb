@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,7 +16,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'SAP Management Console Instance Properties',
-			'Version'      => '$Revision$',
 			'Description'  => %q{
 				This module simply attempts to identify the instance properties
 				through the SAP Management Console SOAP Interface.
@@ -95,6 +90,11 @@ class Metasploit4 < Msf::Auxiliary
 						'Content-Type'   => 'text/xml; charset=UTF-8',
 					}
 			}, 15)
+
+			if res.nil?
+				print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+				return
+			end
 
 			if res.code == 200
 				body = res.body

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -19,7 +15,6 @@ class Metasploit3 < Msf::Nop
 		super(
 			'Name'        => 'Simple',
 			'Alias'       => 'x64_simple',
-			'Version'     => '$Revision$',
 			'Description' => 'An x64 single/multi byte NOP instruction generator.',
 			'Author'      => [ 'sf' ],
 			'License'     => MSF_LICENSE,

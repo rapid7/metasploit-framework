@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -25,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => ["Sil3nt_Dre4m"],
 			'License'        => MSF_LICENSE,
-			'Version'        => "$Revision$",
 			'References'     =>
 				[
 					[ 'URL', 'http://kaillerahacks.blogspot.com/2011/07/kaillera-server-086-dos-vulnerability.html' ]

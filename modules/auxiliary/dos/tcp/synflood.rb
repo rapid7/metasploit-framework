@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -21,8 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'TCP SYN Flooder',
 			'Description' => 'A simple TCP SYN flooder',
 			'Author'      => 'kris katterjohn',
-			'License'     => MSF_LICENSE,
-			'Version'     => '$Revision$' # 03/13/2009
+			'License'     => MSF_LICENSE
 		)
 
 		register_options([

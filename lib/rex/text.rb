@@ -2,15 +2,17 @@
 require 'digest/md5'
 require 'digest/sha1'
 require 'stringio'
+require 'cgi'
 
-begin
-	old_verbose = $VERBOSE
-	$VERBOSE = nil
-	require 'iconv'
-	require 'zlib'
-rescue ::LoadError
-ensure
-	$VERBOSE = old_verbose
+%W{ iconv zlib }.each do |libname|
+	begin
+		old_verbose = $VERBOSE
+		$VERBOSE = nil
+		require libname
+	rescue ::LoadError
+	ensure
+		$VERBOSE = old_verbose
+	end
 end
 
 module Rex
@@ -38,8 +40,8 @@ module Text
 	UpperAlpha   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	LowerAlpha   = "abcdefghijklmnopqrstuvwxyz"
 	Numerals     = "0123456789"
-	Base32       = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
-	Alpha        = UpperAlpha + LowerAlpha
+	Base32	     = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
+	Alpha	     = UpperAlpha + LowerAlpha
 	AlphaNumeric = Alpha + Numerals
 	HighAscii    = [*(0x80 .. 0xff)].pack("C*")
 	LowAscii     = [*(0x00 .. 0x1f)].pack("C*")
@@ -50,8 +52,55 @@ module Text
 	DefaultPatternSets = [ Rex::Text::UpperAlpha, Rex::Text::LowerAlpha, Rex::Text::Numerals ]
 
 	# In case Iconv isn't loaded
-	Iconv_EBCDIC = ["\x00", "\x01", "\x02", "\x03", "7", "-", ".", "/", "\x16", "\x05", "%", "\v", "\f", "\r", "\x0E", "\x0F", "\x10", "\x11", "\x12", "\x13", "<", "=", "2", "&", "\x18", "\x19", "?", "'", "\x1C", "\x1D", "\x1E", "\x1F", "@", "Z", "\x7F", "{", "[", "l", "P", "}", "M", "]", "\\", "N", "k", "`", "K", "a", "\xF0", "\xF1", "\xF2", "\xF3", "\xF4", "\xF5", "\xF6", "\xF7", "\xF8", "\xF9", "z", "^", "L", "~", "n", "o", "|", "\xC1", "\xC2", "\xC3", "\xC4", "\xC5", "\xC6", "\xC7", "\xC8", "\xC9", "\xD1", "\xD2", "\xD3", "\xD4", "\xD5", "\xD6", "\xD7", "\xD8", "\xD9", "\xE2", "\xE3", "\xE4", "\xE5", "\xE6", "\xE7", "\xE8", "\xE9", nil, "\xE0", nil, nil, "m", "y", "\x81", "\x82", "\x83", "\x84", "\x85", "\x86", "\x87", "\x88", "\x89", "\x91", "\x92", "\x93", "\x94", "\x95", "\x96", "\x97", "\x98", "\x99", "\xA2", "\xA3", "\xA4", "\xA5", "\xA6", "\xA7", "\xA8", "\xA9", "\xC0", "O", "\xD0", "\xA1", "\a", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
-	Iconv_ASCII  = ["\x00", "\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\a", "\b", "\t", "\n", "\v", "\f", "\r", "\x0E", "\x0F", "\x10", "\x11", "\x12", "\x13", "\x14", "\x15", "\x16", "\x17", "\x18", "\x19", "\x1A", "\e", "\x1C", "\x1D", "\x1E", "\x1F", " ", "!", "\"", "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?", "@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", nil, "\\", nil, nil, "_", "`", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", "\x7F", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
+	Iconv_EBCDIC = [
+		"\x00", "\x01", "\x02", "\x03", "7", "-", ".", "/", "\x16", "\x05",
+		"%", "\v", "\f", "\r", "\x0E", "\x0F", "\x10", "\x11", "\x12", "\x13",
+		"<", "=", "2", "&", "\x18", "\x19", "?", "'", "\x1C", "\x1D", "\x1E",
+		"\x1F", "@", "Z", "\x7F", "{", "[", "l", "P", "}", "M", "]", "\\",
+		"N", "k", "`", "K", "a", "\xF0", "\xF1", "\xF2", "\xF3", "\xF4",
+		"\xF5", "\xF6", "\xF7", "\xF8", "\xF9", "z", "^", "L", "~", "n", "o",
+		"|", "\xC1", "\xC2", "\xC3", "\xC4", "\xC5", "\xC6", "\xC7", "\xC8",
+		"\xC9", "\xD1", "\xD2", "\xD3", "\xD4", "\xD5", "\xD6", "\xD7",
+		"\xD8", "\xD9", "\xE2", "\xE3", "\xE4", "\xE5", "\xE6", "\xE7",
+		"\xE8", "\xE9", nil, "\xE0", nil, nil, "m", "y", "\x81", "\x82",
+		"\x83", "\x84", "\x85", "\x86", "\x87", "\x88", "\x89", "\x91",
+		"\x92", "\x93", "\x94", "\x95", "\x96", "\x97", "\x98", "\x99",
+		"\xA2", "\xA3", "\xA4", "\xA5", "\xA6", "\xA7", "\xA8", "\xA9",
+		"\xC0", "O", "\xD0", "\xA1", "\a", nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil
+	]
+
+	Iconv_ASCII  = [
+		"\x00", "\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\a", "\b",
+		"\t", "\n", "\v", "\f", "\r", "\x0E", "\x0F", "\x10", "\x11", "\x12",
+		"\x13", "\x14", "\x15", "\x16", "\x17", "\x18", "\x19", "\x1A", "\e",
+		"\x1C", "\x1D", "\x1E", "\x1F", " ", "!", "\"", "#", "$", "%", "&",
+		"'", "(", ")", "*", "+", ",", "-", ".", "/", "0", "1", "2", "3", "4",
+		"5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?", "@", "A", "B",
+		"C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
+		"Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", nil, "\\", nil,
+		nil, "_", "`", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k",
+		"l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y",
+		"z", "{", "|", "}", "~", "\x7F", nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil
+	]
 
 	##
 	#
@@ -80,6 +129,17 @@ module Text
 		return hexify(str, wrap, '"', '"', "unsigned char #{name}[] = \n", '";')
 	end
 
+	def self.to_csharp(str, wrap = DefaultWrap, name = "buf")
+		ret = "byte[] #{name} = new byte[#{str.length}] {"
+		i = -1;
+		while (i += 1) < str.length
+			ret << "\n" if i%(wrap/4) == 0
+			ret << "0x" << str[i].unpack("H*")[0] << ","
+		end
+		ret = ret[0..ret.length-2] #cut off last comma
+		ret << " };\n"
+	end
+
 	#
 	# Creates a c-style comment
 	#
@@ -99,6 +159,13 @@ module Text
 	#
 	def self.to_perl(str, wrap = DefaultWrap, name = "buf")
 		return hexify(str, wrap, '"', '" .', "my $#{name} = \n", '";')
+	end
+
+	#
+	# Converts a raw string into a python buffer
+	#
+	def self.to_python(str, wrap = DefaultWrap, name = "buf")
+		return hexify(str, wrap, "#{name} += \"", '"', "#{name} =  \"\"\n", '"')
 	end
 
 	#
@@ -132,6 +199,67 @@ module Text
 	end
 
 	#
+	# Converts a raw string to a powershell byte array
+	#
+	def self.to_powershell(str, name = "buf")
+		return "[Byte[]]$#{name} = ''" if str.nil? or str.empty?
+
+		code = str.unpack('C*')
+		buff = "[Byte[]]$#{name} = 0x#{code[0].to_s(16)}"
+		1.upto(code.length-1) do |byte|
+			if(byte % 10 == 0)
+				buff << "\r\n$#{name} += 0x#{code[byte].to_s(16)}"
+			else
+				buff << ",0x#{code[byte].to_s(16)}"
+			end
+		end
+
+		return buff
+	end
+
+	#
+	# Converts a raw string to a vbscript byte array
+	#
+	def self.to_vbscript(str, name = "buf")
+		return "#{name}" if str.nil? or str.empty?
+
+		code = str.unpack('C*')
+		buff = "#{name}=Chr(#{code[0]})"
+		1.upto(code.length-1) do |byte|
+			if(byte % 100 == 0)
+				buff << "\r\n#{name}=#{name}"
+			end
+			# exe is an Array of bytes, not a String, thanks to the unpack
+			# above, so the following line is not subject to the different
+			# treatments of String#[] between ruby 1.8 and 1.9
+			buff << "&Chr(#{code[byte]})"
+		end
+
+		return buff
+	end
+
+	#
+	# Converts a raw string into a vba buffer
+	#
+	def self.to_vbapplication(str, name = "buf")
+		return "#{name} = Array()" if str.nil? or str.empty?
+
+		code  = str.unpack('C*')
+		buff = "#{name} = Array("
+		maxbytes = 20
+
+		1.upto(code.length) do |idx|
+			buff << code[idx].to_s
+			buff << "," if idx < code.length - 1
+			buff << " _\r\n" if (idx > 1 and (idx % maxbytes) == 0)
+		end
+
+		buff << ")\r\n"
+
+		return buff
+	end
+
+	#
 	# Creates a perl-style comment
 	#
 	def self.to_perl_comment(str, wrap = DefaultWrap)
@@ -156,6 +284,12 @@ module Text
 	# Converts ISO-8859-1 to UTF-8
 	#
 	def self.to_utf8(str)
+
+		if str.respond_to?(:encode)
+			# Skip over any bytes that fail to convert to UTF-8
+			return str.encode('utf-8', { :invalid => :replace, :undef => :replace, :replace => '' })
+		end
+
 		begin
 			Iconv.iconv("utf-8","iso-8859-1", str).join(" ")
 		rescue
@@ -268,6 +402,15 @@ module Text
 		return buff
 	end
 
+	#
+	# Returns the escaped octal version of the supplied string
+	#
+	# @example
+	#   Rex::Text.to_octal("asdf") # => "\\141\\163\\144\\146"
+	#
+	# @param str [String] The string to be converted
+	# @param prefix [String]
+	# @return [String] The escaped octal version of +str+
 	def self.to_octal(str, prefix = "\\")
 		octal = ""
 		str.each_byte { |b|
@@ -278,8 +421,15 @@ module Text
 	end
 
 	#
-	# Returns the hex version of the supplied string
+	# Returns the escaped hex version of the supplied string
 	#
+	# @example
+	#   Rex::Text.to_hex("asdf") # => "\\x61\\x73\\x64\\x66"
+	#
+	# @param str (see to_octal)
+	# @param prefix (see to_octal)
+	# @param count [Fixnum] Number of bytes to put in each escape chunk
+	# @return [String] The escaped hex version of +str+
 	def self.to_hex(str, prefix = "\\x", count = 1)
 		raise ::RuntimeError, "unable to chunk into #{count} byte chunks" if ((str.length % count) > 0)
 
@@ -291,9 +441,18 @@ module Text
 	end
 
 	#
-	# Returns the string with nonprintable hex characters sanitized to ascii. Similiar to to_hex,
-	# but regular ASCII is not translated if count is 1.
+	# Returns the string with nonprintable hex characters sanitized to ascii.
+	# Similiar to {.to_hex}, but regular ASCII is not translated if +count+ is 1.
 	#
+	# @example
+	#   Rex::Text.to_hex_ascii("\x7fABC\0") # => "\\x7fABC\\x00"
+	#
+	# @param str (see to_hex)
+	# @param prefix (see to_hex)
+	# @param count (see to_hex)
+	# @param suffix [String,nil] A string to append to the converted bytes
+	# @return [String] The original string with non-printables converted to
+	#   their escaped hex representation
 	def self.to_hex_ascii(str, prefix = "\\x", count = 1, suffix=nil)
 		raise ::RuntimeError, "unable to chunk into #{count} byte chunks" if ((str.length % count) > 0)
 		return str.unpack('H*')[0].gsub(Regexp.new(".{#{count * 2}}", nil, 'n')) { |s|
@@ -304,22 +463,40 @@ module Text
 	#
 	# Converts standard ASCII text to a unicode string.
 	#
-	# Supported unicode types include: utf-16le, utf16-be, utf32-le, utf32-be, utf-7, and utf-8
+	# Supported unicode types include: utf-16le, utf16-be, utf32-le,
+	# utf32-be, utf-7, and utf-8
 	#
-	# Providing 'mode' provides hints to the actual encoder as to how it should encode the string.  Only UTF-7 and UTF-8 use "mode".
+	# Providing 'mode' provides hints to the actual encoder as to how it
+	# should encode the string.
 	#
-	# utf-7 by default does not encode alphanumeric and a few other characters.  By specifying the mode of "all", then all of the characters are encoded, not just the non-alphanumeric set.
-	#	to_unicode(str, 'utf-7', 'all')
+	# Only UTF-7 and UTF-8 use "mode".
 	#
-	# utf-8 specifies that alphanumeric characters are used directly, eg "a" is just "a".  However, there exist 6 different overlong encodings of "a" that are technically not valid, but parse just fine in most utf-8 parsers.  (0xC1A1, 0xE081A1, 0xF08081A1, 0xF8808081A1, 0xFC80808081A1, 0xFE8080808081A1).  How many bytes to use for the overlong enocding is specified providing 'size'.
-	# 	to_unicode(str, 'utf-8', 'overlong', 2)
+	# utf-7 by default does not encode alphanumeric and a few other
+	# characters.  By specifying the mode of "all", then all of the
+	# characters are encoded, not just the non-alphanumeric set.
+	# to_unicode(str, 'utf-7', 'all')
 	#
-	# Many utf-8 parsers also allow invalid overlong encodings, where bits that are unused when encoding a single byte are modified.  Many parsers will ignore these bits, rendering simple string matching to be ineffective for dealing with UTF-8 strings.  There are many more invalid overlong encodings possible for "a".  For example, three encodings are available for an invalid 2 byte encoding of "a". (0xC1E1 0xC161 0xC121).  By specifying "invalid", a random invalid encoding is chosen for the given byte size.
-	# 	to_unicode(str, 'utf-8', 'invalid', 2)
+	# utf-8 specifies that alphanumeric characters are used directly, eg
+	# "a" is just "a".  However, there exist 6 different overlong
+	# encodings of "a" that are technically not valid, but parse just fine
+	# in most utf-8 parsers.  (0xC1A1, 0xE081A1, 0xF08081A1, 0xF8808081A1,
+	# 0xFC80808081A1, 0xFE8080808081A1).  How many bytes to use for the
+	# overlong enocding is specified providing 'size'.  to_unicode(str,
+	# 'utf-8', 'overlong', 2)
 	#
-	# utf-7 defaults to 'normal' utf-7 encoding
-	# utf-8 defaults to 2 byte 'normal' encoding
+	# Many utf-8 parsers also allow invalid overlong encodings, where bits
+	# that are unused when encoding a single byte are modified.  Many
+	# parsers will ignore these bits, rendering simple string matching to
+	# be ineffective for dealing with UTF-8 strings.  There are many more
+	# invalid overlong encodings possible for "a".  For example, three
+	# encodings are available for an invalid 2 byte encoding of "a".
+	# (0xC1E1 0xC161 0xC121).
 	#
+	# By specifying "invalid", a random invalid encoding is chosen for the
+	# given byte size.  to_unicode(str, 'utf-8', 'invalid', 2)
+	#
+	# utf-7 defaults to 'normal' utf-7 encoding utf-8 defaults to 2 byte
+	# 'normal' encoding
 	def self.to_unicode(str='', type = 'utf-16le', mode = '', size = '')
 		return '' if not str
 		case type
@@ -359,7 +536,7 @@ module Text
 				string = ''
 				str.each_byte { |a|
 					if (a < 21 || a > 0x7f) || mode != ''
-						# ugh.  turn a single byte into the binary representation of it, in array form
+						# ugh.	turn a single byte into the binary representation of it, in array form
 						bin = [a].pack('C').unpack('B8')[0].split(//)
 
 						# even more ugh.
@@ -542,13 +719,17 @@ module Text
 		when 'u-half'
 			return str.gsub(all) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms-half'), '%u', 2) }
 		else
-			raise TypeError, 'invalid mode'
+			raise TypeError, "invalid mode #{mode.inspect}"
 		end
 	end
 
 	#
 	# Encode a string in a manner useful for HTTP URIs and URI Parameters.
 	#
+	# @param str [String] The string to be encoded
+	# @param mode ["hex","int","int-wide"]
+	# @return [String]
+	# @raise [TypeError] if +mode+ is not one of the three available modes
 	def self.html_encode(str, mode = 'hex')
 		case mode
 		when 'hex'
@@ -560,6 +741,14 @@ module Text
 		else
 			raise TypeError, 'invalid mode'
 		end
+	end
+
+	#
+	# Decode a string that's html encoded
+	#
+	def self.html_decode(str)
+		decoded_str = CGI.unescapeHTML(str)
+		return decoded_str
 	end
 
 	#
@@ -579,6 +768,13 @@ module Text
 	#
 	# Converts a string to random case
 	#
+	# @example
+	#   Rex::Text.to_rand_case("asdf") # => "asDf"
+	#
+	# @param str [String] The string to randomize
+	# @return [String]
+	# @see permute_case
+	# @see to_mixed_case_array
 	def self.to_rand_case(str)
 		buf = str.dup
 		0.upto(str.length) do |i|
@@ -590,11 +786,13 @@ module Text
 	#
 	# Takes a string, and returns an array of all mixed case versions.
 	#
-	# Example:
+	# @example
+	#   >> Rex::Text.to_mixed_case_array "abc1"
+	#   => ["abc1", "abC1", "aBc1", "aBC1", "Abc1", "AbC1", "ABc1", "ABC1"]
 	#
-	#    >> Rex::Text.to_mixed_case_array "abc1"
-	#    => ["abc1", "abC1", "aBc1", "aBC1", "Abc1", "AbC1", "ABc1", "ABC1"]
-	#
+	# @param str [String] The string to randomize
+	# @return [Array<String>]
+	# @see permute_case
 	def self.to_mixed_case_array(str)
 		letters = []
 		str.scan(/./).each { |l| letters << [l.downcase, l.upcase] }
@@ -611,20 +809,25 @@ module Text
 	end
 
 	#
-	# Converts a string a nicely formatted hex dump
+	# Converts a string to a nicely formatted hex dump
 	#
-	def self.to_hex_dump(str, width=16)
+	# @param str [String] The string to convert
+	# @param width [Fixnum] Number of bytes to convert before adding a newline
+	# @param base [Fixnum] The base address of the dump
+	def self.to_hex_dump(str, width=16, base=nil)
 		buf = ''
 		idx = 0
 		cnt = 0
 		snl = false
 		lst = 0
+		lft_col_len = (base.to_i+str.length).to_s(16).length
+		lft_col_len = 8 if lft_col_len < 8
 
 		while (idx < str.length)
-
 			chunk = str[idx, width]
+			addr = base ? "%0#{lft_col_len}x  " %(base.to_i + idx) : ''
 			line  = chunk.unpack("H*")[0].scan(/../).join(" ")
-			buf << line
+			buf << addr + line
 
 			if (lst == 0)
 				lst = line.length
@@ -632,6 +835,8 @@ module Text
 			else
 				buf << " " * ((lst - line.length) + 4).abs
 			end
+
+			buf << "|"
 
 			chunk.unpack("C*").each do |c|
 				if (c >	0x1f and c < 0x7f)
@@ -641,7 +846,7 @@ module Text
 				end
 			end
 
-			buf << "\n"
+			buf << "|\n"
 
 			idx += width
 		end
@@ -652,6 +857,9 @@ module Text
 	#
 	# Converts a hex string to a raw string
 	#
+	# @example
+	#   Rex::Text.hex_to_raw("\\x41\\x7f\\x42") # => "A\x7fB"
+	#
 	def self.hex_to_raw(str)
 		[ str.downcase.gsub(/'/,'').gsub(/\\?x([a-f0-9][a-f0-9])/, '\1') ].pack("H*")
 	end
@@ -661,6 +869,9 @@ module Text
 	#
 	# If +whitespace+ is true, converts whitespace (0x20, 0x09, etc) to hex as
 	# well.
+	#
+	# @see hexify
+	# @see to_hex Converts all the chars
 	#
 	def self.ascii_safe_hex(str, whitespace=false)
 		if whitespace
@@ -682,20 +893,20 @@ module Text
 	# Converts a string to a hex version with wrapping support
 	#
 	def self.hexify(str, col = DefaultWrap, line_start = '', line_end = '', buf_start = '', buf_end = '')
-		output   = buf_start
-		cur      = 0
-		count    = 0
+		output	 = buf_start
+		cur	 = 0
+		count	 = 0
 		new_line = true
 
 		# Go through each byte in the string
 		str.each_byte { |byte|
 			count  += 1
-			append  = ''
+			append	= ''
 
 			# If this is a new line, prepend with the
 			# line start text
 			if (new_line == true)
-				append   << line_start
+				append	 << line_start
 				new_line  = false
 			end
 
@@ -707,7 +918,7 @@ module Text
 			# time to finish up this line
 			if ((cur + line_end.length >= col) or (cur + buf_end.length  >= col))
 				new_line  = true
-				cur       = 0
+				cur	  = 0
 
 				# If this is the last byte, use the buf_end instead of
 				# line_end
@@ -856,8 +1067,12 @@ module Text
 
 	#
 	# Convert hex-encoded characters to literals.
-	# Example: "AA\\x42CC" becomes "AABCC"
 	#
+	# @example
+	#   Rex::Text.dehex("AA\\x42CC") # => "AABCC"
+	#
+	# @see hex_to_raw
+	# @param str [String]
 	def self.dehex(str)
 		return str unless str.respond_to? :match
 		return str unless str.respond_to? :gsub
@@ -872,6 +1087,7 @@ module Text
 	#
 	# Convert and replace hex-encoded characters to literals.
 	#
+	# @param (see dehex)
 	def self.dehex!(str)
 		return str unless str.respond_to? :match
 		return str unless str.respond_to? :gsub
@@ -961,7 +1177,12 @@ module Text
 		rand_base(len, bad, *foo )
 	end
 
-	# Generate a random GUID, of the form {xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}
+	# Generate a random GUID
+	#
+	# @example
+	#   Rex::Text.rand_guid # => "{ca776ced-4ab8-2ed6-6510-aa71e5e2508e}"
+	#
+	# @return [String]
 	def self.rand_guid
 		"{#{[8,4,4,4,12].map {|a| rand_text_hex(a) }.join("-")}}"
 	end
@@ -972,9 +1193,15 @@ module Text
 	# supplied number of identifiable characters (slots).  The supplied sets
 	# should not contain any duplicate characters or the logic will fail.
 	#
+	# @param length [Fixnum]
+	# @param sets [Array<(String,String,String)>] The character sets to choose
+	#   from. Should have 3 elements, each of which must be a string containing
+	#   no characters contained in the other sets.
+	# @return [String] A pattern of +length+ bytes, in which any 4-byte chunk is
+	#   unique
+	# @see pattern_offset
 	def self.pattern_create(length, sets = nil)
 		buf = ''
-		idx = 0
 		offsets = []
 
 		# Make sure there's something in sets even if we were given an explicit nil
@@ -1025,6 +1252,12 @@ module Text
 	#
 	# Calculate the offset to a pattern
 	#
+	# @param pattern [String] The pattern to search. Usually the return value
+	#   from {.pattern_create}
+	# @param value [String,Fixnum,Bignum]
+	# @return [Fixnum] Index of the given +value+ within +pattern+, if it exists
+	# @return [nil] if +pattern+ does not contain +value+
+	# @see pattern_create
 	def self.pattern_offset(pattern, value, start=0)
 		if (value.kind_of?(String))
 			pattern.index(value, start)
@@ -1039,6 +1272,9 @@ module Text
 	# Compresses a string, eliminating all superfluous whitespace before and
 	# after lines and eliminating all lines.
 	#
+	# @param str [String] The string in which to crunch whitespace
+	# @return [String] Just like +str+, but with repeated whitespace characters
+	#   trimmed down to a single space
 	def self.compress(str)
 		str.gsub(/\n/m, ' ').gsub(/\s+/, ' ').gsub(/^\s+/, '').gsub(/\s+$/, '')
 	end
@@ -1077,6 +1313,9 @@ module Text
 	#
 	# Compresses a string using zlib
 	#
+	# @param str [String] The string to be compressed
+	# @param level [Fixnum] One of the Zlib compression level constants
+	# @return [String] The compressed version of +str+
 	def self.zlib_deflate(str, level = Zlib::BEST_COMPRESSION)
 		if self.zlib_present?
 			z = Zlib::Deflate.new(level)
@@ -1091,6 +1330,8 @@ module Text
 	#
 	# Uncompresses a string using zlib
 	#
+	# @param str [String] Compressed string to inflate
+	# @return [String] The uncompressed version of +str+
 	def self.zlib_inflate(str)
 		if(self.zlib_present?)
 			zstream = Zlib::Inflate.new
@@ -1106,6 +1347,9 @@ module Text
 	#
 	# Compresses a string using gzip
 	#
+	# @param str (see zlib_deflate)
+	# @param level [Fixnum] Compression level, 1 (fast) to 9 (best)
+	# @return (see zlib_deflate)
 	def self.gzip(str, level = 9)
 		raise RuntimeError, "Gzip support is not present." if (!zlib_present?)
 		raise RuntimeError, "Invalid gzip compression level" if (level < 1 or level > 9)
@@ -1121,6 +1365,8 @@ module Text
 	#
 	# Uncompresses a string using gzip
 	#
+	# @param str (see zlib_inflate)
+	# @return (see zlib_inflate)
 	def self.ungzip(str)
 		raise RuntimeError, "Gzip support is not present." if (!zlib_present?)
 
@@ -1133,9 +1379,13 @@ module Text
 	end
 
 	#
-	# Return the index of the first badchar in data, otherwise return
+	# Return the index of the first badchar in +data+, otherwise return
 	# nil if there wasn't any badchar occurences.
 	#
+	# @param data [String] The string to check for bad characters
+	# @param badchars [String] A list of characters considered to be bad
+	# @return [Fixnum] Index of the first bad character if any exist in +data+
+	# @return [nil] If +data+ contains no bad characters
 	def self.badchar_index(data, badchars = '')
 		badchars.unpack("C*").each { |badchar|
 			pos = data.index(badchar.chr)
@@ -1145,22 +1395,31 @@ module Text
 	end
 
 	#
-	# This method removes bad characters from a string.
+	# Removes bad characters from a string.
 	#
+	# Modifies +data+ in place
+	#
+	# @param data [#delete]
+	# @param badchars [String] A list of characters considered to be bad
 	def self.remove_badchars(data, badchars = '')
 		data.delete(badchars)
 	end
 
 	#
-	# This method returns all chars but the supplied set
+	# Returns all chars that are not in the supplied set
 	#
+	# @param keepers [String]
+	# @return [String] All characters not contained in +keepers+
 	def self.charset_exclude(keepers)
 		[*(0..255)].pack('C*').delete(keepers)
 	end
 
 	#
-	#  Shuffles a byte stream
+	# Shuffles a byte stream
 	#
+	# @param str [String]
+	# @return [String] The shuffled result
+	# @see shuffle_a
 	def self.shuffle_s(str)
 		shuffle_a(str.unpack("C*")).pack("C*")
 	end
@@ -1168,6 +1427,10 @@ module Text
 	#
 	# Performs a Fisher-Yates shuffle on an array
 	#
+	# Modifies +arr+ in place
+	#
+	# @param arr [Array] The array to be shuffled
+	# @return [Array]
 	def self.shuffle_a(arr)
 		len = arr.length
 		max = len - 1
@@ -1209,6 +1472,8 @@ module Text
 	end
 
 	# Generate a random hostname
+	#
+	# @return [String] A random string conforming to the rules of FQDNs
 	def self.rand_hostname
 		host = []
 		(rand(5) + 1).times {
@@ -1228,6 +1493,7 @@ module Text
 	#
 	# Calculate the ROR13 hash of a given string
 	#
+	# @return [Fixnum]
 	def self.ror13_hash(name)
 		hash = 0
 		name.unpack("C*").each {|c| hash = ror(hash, 13); hash += c }
@@ -1235,8 +1501,10 @@ module Text
 	end
 
 	#
-	# Rotate a 32-bit value to the right by cnt bits
+	# Rotate a 32-bit value to the right by +cnt+ bits
 	#
+	# @param val [Fixnum] The value to rotate
+	# @param cnt [Fixnum] Number of bits to rotate by
 	def self.ror(val, cnt)
 		bits = [val].pack("N").unpack("B32")[0].split(//)
 		1.upto(cnt) do |c|
@@ -1246,8 +1514,11 @@ module Text
 	end
 
 	#
-	# Rotate a 32-bit value to the left by cnt bits
+	# Rotate a 32-bit value to the left by +cnt+ bits
 	#
+	# @param val (see ror)
+	# @param cnt (see ror)
+	# @return (see ror)
 	def self.rol(val, cnt)
 		bits = [val].pack("N").unpack("B32")[0].split(//)
 		1.upto(cnt) do |c|
@@ -1257,7 +1528,7 @@ module Text
 	end
 
 	#
-	# Split a string by n charachter into an array
+	# Split a string by n character into an array
 	#
 	def self.split_to_a(str, n)
 		if n > 0
@@ -1268,11 +1539,11 @@ module Text
 		else
 			ret = str
 		end
-       		ret
+		ret
 	end
 
 	#
-	#Pack a value as 64 bit litle endian; does not exist for Array.pack
+	# Pack a value as 64 bit litle endian; does not exist for Array.pack
 	#
 	def self.pack_int64le(val)
 		[val & 0x00000000ffffffff, val >> 32].pack("V2")
@@ -1353,24 +1624,34 @@ protected
 		@@codepage_map_cache = map
 	end
 
+	# @param str [String] Data to checksum
+	# @return [Fixnum] 8-bit checksum
 	def self.checksum8(str)
-		str.unpack("C*").inject(:+) % 0x100
+		(str.unpack("C*").inject(:+) || 0) % 0x100
 	end
 
+	# @param str [String] Little-endian data to checksum
+	# @return [Fixnum] 16-bit checksum
 	def self.checksum16_le(str)
-		str.unpack("v*").inject(:+) % 0x10000
+		(str.unpack("v*").inject(:+) || 0) % 0x10000
 	end
 
+	# @param str [String] Big-endian data to checksum
+	# @return [Fixnum] 16-bit checksum
 	def self.checksum16_be(str)
-		str.unpack("n*").inject(:+) % 0x10000
+		(str.unpack("n*").inject(:+) || 0) % 0x10000
 	end
 
+	# @param str [String] Little-endian data to checksum
+	# @return [Fixnum] 32-bit checksum
 	def self.checksum32_le(str)
-		str.unpack("V*").inject(:+) % 0x100000000
+		(str.unpack("V*").inject(:+) || 0) % 0x100000000
 	end
 
+	# @param str [String] Big-endian data to checksum
+	# @return [Fixnum] 32-bit checksum
 	def self.checksum32_be(str)
-		str.unpack("N*").inject(:+) % 0x100000000
+		(str.unpack("N*").inject(:+) || 0) % 0x100000000
 	end
 
 end

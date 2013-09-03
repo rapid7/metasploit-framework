@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -28,8 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 				hidden methods.
 			},
 			'Author'      => [ 'patrick' ],
-			'License'     => MSF_LICENSE,
-			'Version'     => '$Revision$'))
+			'License'     => MSF_LICENSE))
 
 		register_options(
 			[
@@ -151,10 +146,11 @@ class Metasploit3 < Msf::Auxiliary
 					data_parts << nil
 					data = data_parts.join("\r\n")
 
-					vprint_status("Sending request #{datastore['PATH']}/#{v}#{n} to #{wmap_target_host}:#{datastore['RPORT']}")
+					uri = normalize_uri(datastore['PATH'])
+					vprint_status("Sending request #{uri}/#{v}#{n} to #{wmap_target_host}:#{datastore['RPORT']}")
 
 					res = send_request_raw({
-						'uri'     => datastore['PATH'] + '/' + v + n,
+						'uri'     => uri + '/' + v + n,
 						'method'  => 'POST',
 						'vhost'   => vhost,
 						'data'	  => data,

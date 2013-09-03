@@ -46,16 +46,9 @@ class Metasploit3 < Msf::Post
 		# Store any found artifacts so they can be written to loot
 		evidence = {}
 
-		# Check artifacts file path
-		filename = datastore['ARTIFACTS']
-		if not ::File.exists?(filename)
-			print_error("Artifacts file does not exist!")
-			return
-		end
-
 		# Load artifacts from yaml file. Artifacts are organized by what they
 		# are evidence of.
-		yaml = YAML::load_file(filename)
+		yaml = YAML::load_file(datastore['ARTIFACTS'])
 		yaml.each_key do |key|
 			print_status("Searching for artifacts of #{key}")
 			files = yaml[key]['files']

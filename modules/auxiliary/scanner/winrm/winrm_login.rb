@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -24,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'WinRM Login Utility',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module attempts to authenticate to a WinRM service. It currently
 				works only if the remote end allows Negotiate(NTLM) authentication.
@@ -44,12 +39,8 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
-		unless accepts_ntlm_auth
-			print_error "The Remote WinRM  server  (#{ip} does not appear to allow Negotiate(NTLM) auth"
-			return
-		end
 		each_user_pass do |user, pass|
-			resp,c = send_request_ntlm(test_request)
+			resp = send_winrm_request(test_request)
 			if resp.nil?
 				print_error "#{ip}:#{rport}:  Got no reply from the server, connection may have timed out"
 				return

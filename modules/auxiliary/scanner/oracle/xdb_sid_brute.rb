@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -24,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 					This module attempts to retrieve the sid from the Oracle XML DB httpd server,
 					utilizing Pete Finnigan's default oracle password list.
 			},
-			'Version'     => '$Revision$',
 			'References'  =>
 				[
 					[ 'URL', 'http://dsecrg.com/files/pub/pdf/Different_ways_to_guess_Oracle_database_SID_(eng).pdf' ],
@@ -247,7 +242,7 @@ class Metasploit3 < Msf::Auxiliary
 				}
 			}, -1)
 
-			if (res.code == 200)
+			if res and res.code == 200
 				if (not res.body.length > 0)
 				# sometimes weird bug where body doesn't have value yet
 					res.body = res.bufq
@@ -299,7 +294,7 @@ class Metasploit3 < Msf::Auxiliary
 				}
 			}, -1)
 
-			if (res.code == 200)
+			if res and res.code == 200
 				if (not res.body.length > 0)
 				# sometimes weird bug where body doesn't have value yet
 					res.body = res.bufq

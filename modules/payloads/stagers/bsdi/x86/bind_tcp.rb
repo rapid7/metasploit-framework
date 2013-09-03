@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -29,7 +25,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Bind TCP Stager',
-			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection',
 			'Author'        => 'skape',
 			'License'       => MSF_LICENSE,

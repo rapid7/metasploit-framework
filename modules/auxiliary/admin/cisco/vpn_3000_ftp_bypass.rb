@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -30,7 +26,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'		=> [ 'patrick' ],
 			'License'		=> MSF_LICENSE,
-			'Version'		=> '$Revision$',
 			'References'	=>
 				[
 					[ 'BID', '19680' ],
@@ -68,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("\tAttempting to delete directory: RMD #{test}")
 					sock.put("RMD #{test}\r\n")
 					res = sock.get(-1,5)
-					if (res =~ /250 RMD command successful./)
+					if (res =~ /250 RMD command successful\./)
 						print_status("\tDirectory #{test} reportedly deleted. Verifying with SIZE #{test}")
 						sock.put("SIZE #{test}\r\n")
 						res = sock.get(-1,5)

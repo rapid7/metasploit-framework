@@ -71,7 +71,7 @@ module Auxiliary::WmapModule
 		else
 			res << datastore['VHOST']
 		end
-		res << ":" + wmap_target_port
+		res << ":" + wmap_target_port.to_s
 		res
 	end
 

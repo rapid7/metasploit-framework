@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -23,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'VMWare Enumerate User Accounts',
-			'Version'        => '$Revision$',
 			'Description'    => %Q{
 				This module will log into the Web API of VMWare and try to enumerate
 				all the user accounts. If the VMware instance is connected to one or
@@ -124,9 +119,12 @@ class Metasploit3 < Msf::Auxiliary
 							end
 						end
 						print_good tmp_dgroups.to_s
-						store_loot('domain.groups', "text/plain", datastore['RHOST'], tmp_dgroups.to_csv , "#{domain}_esx_groups.txt", "VMWare ESX #{domain} Domain User Groups")
+
+						f = store_loot('domain.groups', "text/plain", datastore['RHOST'], tmp_dgroups.to_csv , "#{domain}_esx_groups.txt", "VMWare ESX #{domain} Domain User Groups")
+						vprint_status("VMWare domain user groups stored in: #{f}")
 						print_good tmp_dusers.to_s
-						store_loot('domain.users', "text/plain", datastore['RHOST'], tmp_dgroups.to_csv , "#{domain}_esx_users.txt", "VMWare ESX #{domain} Domain Users")
+						f = store_loot('domain.users', "text/plain", datastore['RHOST'], tmp_dgroups.to_csv , "#{domain}_esx_users.txt", "VMWare ESX #{domain} Domain Users")
+						vprint_status("VMWare users stored in: #{f}")
 					end
 				end
 			end

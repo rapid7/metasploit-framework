@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -23,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP Subversion Scanner',
-			'Version'     => '$Revision$',
 			'Description' => 'Detect subversion directories and files and analize its content. Only SVN Version > 7 supported',
 			'Author'       => ['et'],
 			'License'     => MSF_LICENSE
@@ -54,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 		ecode = nil
 		emesg = nil
 
-		tpath = datastore['PATH']
+		tpath = normalize_uri(datastore['PATH'])
 		if tpath[-1,1] != '/'
 			tpath += '/'
 		end
@@ -122,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("[#{target_host}] NOT Found. #{tpath} #{res.code}")
 				end
 			else
-				print_status("[#{target_host}] SVN Entries file found.")
+				print_good("[#{target_host}:#{rport}] SVN Entries file found.")
 
 				report_web_vuln(
 					:host	=> target_host,

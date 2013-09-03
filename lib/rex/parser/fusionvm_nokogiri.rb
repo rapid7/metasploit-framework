@@ -8,7 +8,7 @@ module Parser
 	load_nokogiri && class FusionVMDocument < Nokogiri::XML::SAX::Document
 
 
-	include NokogiriDocMixin	
+	include NokogiriDocMixin
 
 	def start_element(name=nil,attrs=[])
 		return nil if in_tag("JobOrder")
@@ -26,7 +26,7 @@ module Parser
 			}
 			thost[:host] = attrs["IPAddress"]
 			thost[:name] = attrs["HostName"]
-			@host = db_report(:host, thost) 
+			@host = db_report(:host, thost)
 		when "OS"
 			@state[:has_text] = true
 		when "Port"
@@ -47,7 +47,7 @@ module Parser
 		when "Title"
 			@state[:has_text] = true
 		when "Description"
-			@state[:has_text] = true	
+			@state[:has_text] = true
 		when "CVE"
 			@state[:has_text] = true
 		when "References"
@@ -86,13 +86,13 @@ module Parser
 			when "CVE"
 				@vuln[:refs] << "CVE-#{@text.strip}"
 			when "References"
-				unless @text.blank? 
+				unless @text.blank?
 					@text.split(' ').each do |ref|
 						next unless ref.start_with? "http"
 						if ref =~ /MS\d{2}-\d{3}/
 							@vuln[:refs] << "MSB-#{$&}"
-						else 
-							@vuln[:refs] << "URL-#{ref.strip}" 
+						else
+							@vuln[:refs] << "URL-#{ref.strip}"
 						end
 					end
 				end

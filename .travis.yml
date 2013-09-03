@@ -1,8 +1,18 @@
 language: ruby
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq libpcap-dev
+before_script:
+  - cp config/database.yml.travis config/database.yml
+  - rake db:create
+  - rake db:migrate
+
 rvm:
-  - '1.8.7'
+  #- '1.8.7'
   - '1.9.3'
 
 notifications:
   irc: "irc.freenode.org#msfnotify"
 
+git:
+  depth: 1

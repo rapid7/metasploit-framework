@@ -358,9 +358,19 @@ class Export
 		return el
 	end
 
-
+	# @note there is no single root element output by
+	#   {#extract_module_detail_info}, so if calling {#extract_module_detail_info}
+	#   directly, it is the caller's responsibility to add an opening and closing
+	#   tag to report_file around the call to {#extract_module_detail_info}.
+	#
+	# Writes a module_detail element to the report_file for each
+	# Mdm::Module::Detail.
+	#
+	# @param report_file [#write, #flush] IO stream to which to write the
+	#   module_detail elements.
+	# @return [void]
 	def extract_module_detail_info(report_file)
-		Mdm::ModuleDetail.all.each do |m|
+      Mdm::Module::Detail.all.each do |m|
 			report_file.write("<module_detail>\n")
 			m_id = m.attributes["id"]
 
@@ -371,75 +381,82 @@ class Export
 			end
 
 			# Authors sub-elements
+			# @todo https://www.pivotaltracker.com/story/show/48451001
 			report_file.write("    <module_authors>\n")
 			m.authors.find(:all).each do |d|
 				d.attributes.each_pair do |k,v|
 					el = create_xml_element(k,v)
 					report_file.write("        #{el}\n")
-				end					
+				end
 			end
 			report_file.write("    </module_authors>\n")
-			
+
 			# Refs sub-elements
+			# @todo https://www.pivotaltracker.com/story/show/48451001
 			report_file.write("    <module_refs>\n")
 			m.refs.find(:all).each do |d|
 				d.attributes.each_pair do |k,v|
 					el = create_xml_element(k,v)
 					report_file.write("        #{el}\n")
-				end					
+				end
 			end
 			report_file.write("    </module_refs>\n")
 
 
 			# Archs sub-elements
+			# @todo https://www.pivotaltracker.com/story/show/48451001
 			report_file.write("    <module_archs>\n")
 			m.archs.find(:all).each do |d|
 				d.attributes.each_pair do |k,v|
 					el = create_xml_element(k,v)
 					report_file.write("        #{el}\n")
-				end					
+				end
 			end
 			report_file.write("    </module_archs>\n")
 
 
 			# Platforms sub-elements
+			# @todo https://www.pivotaltracker.com/story/show/48451001
 			report_file.write("    <module_platforms>\n")
 			m.platforms.find(:all).each do |d|
 				d.attributes.each_pair do |k,v|
 					el = create_xml_element(k,v)
 					report_file.write("        #{el}\n")
-				end					
+				end
 			end
 			report_file.write("    </module_platforms>\n")
 
 
 			# Targets sub-elements
+			# @todo https://www.pivotaltracker.com/story/show/48451001
 			report_file.write("    <module_targets>\n")
 			m.targets.find(:all).each do |d|
 				d.attributes.each_pair do |k,v|
 					el = create_xml_element(k,v)
 					report_file.write("        #{el}\n")
-				end					
+				end
 			end
 			report_file.write("    </module_targets>\n")
 
 			# Actions sub-elements
+			# @todo https://www.pivotaltracker.com/story/show/48451001
 			report_file.write("    <module_actions>\n")
 			m.actions.find(:all).each do |d|
 				d.attributes.each_pair do |k,v|
 					el = create_xml_element(k,v)
 					report_file.write("        #{el}\n")
-				end					
+				end
 			end
 			report_file.write("    </module_actions>\n")
 
 			# Mixins sub-elements
+			# @todo https://www.pivotaltracker.com/story/show/48451001
 			report_file.write("    <module_mixins>\n")
 			m.mixins.find(:all).each do |d|
 				d.attributes.each_pair do |k,v|
 					el = create_xml_element(k,v)
 					report_file.write("        #{el}\n")
-				end					
+				end
 			end
 			report_file.write("    </module_mixins>\n")
 
@@ -468,7 +485,7 @@ class Export
 					el = create_xml_element(k,v)
 					report_file.write("            #{el}\n")
 				end
-				report_file.write("        </host_detail>\n")			
+				report_file.write("        </host_detail>\n")
 			end
 			report_file.write("    </host_details>\n")
 
@@ -479,7 +496,7 @@ class Export
 				d.attributes.each_pair do |k,v|
 					el = create_xml_element(k,v)
 					report_file.write("            #{el}\n")
-				end					
+				end
 				report_file.write("        </exploit_attempt>\n")
 			end
 			report_file.write("    </exploit_attempts>\n")
@@ -516,7 +533,7 @@ class Export
 					el = create_xml_element(k,v)
 					report_file.write("      #{el}\n")
 				end
-				
+
 				# References
 				report_file.write("        <refs>\n")
 				e.refs.each do |ref|
@@ -534,7 +551,7 @@ class Export
 						el = create_xml_element(k,v)
 						report_file.write("                    #{el}\n")
 					end
-					report_file.write("                </vuln_detail>\n")				
+					report_file.write("                </vuln_detail>\n")
 				end
 				report_file.write("            </vuln_details>\n")
 
@@ -547,7 +564,7 @@ class Export
 						el = create_xml_element(k,v)
 						report_file.write("                    #{el}\n")
 					end
-					report_file.write("                </vuln_attempt>\n")		
+					report_file.write("                </vuln_attempt>\n")
 				end
 				report_file.write("            </vuln_attempts>\n")
 

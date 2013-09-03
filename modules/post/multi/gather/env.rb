@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -23,7 +19,6 @@ class Metasploit3 < Msf::Post
 			'Description'   => %q{ This module prints out the operating system environment variables },
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>', 'egypt' ],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'linux', 'win' ],
 			'SessionTypes'  => [ 'shell', 'meterpreter' ]
 		))

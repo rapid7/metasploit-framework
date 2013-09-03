@@ -22,12 +22,17 @@ module Auxiliary::HttpCrawler
 				Opt::Proxies,
 				OptInt.new('MAX_PAGES', [ true, 'The maximum number of pages to crawl per URL', 500]),
 				OptInt.new('MAX_MINUTES', [ true, 'The maximum number of minutes to spend on each URL', 5]),
-				OptInt.new('MAX_THREADS', [ true, 'The maximum number of concurrent requests', 4])
+				OptInt.new('MAX_THREADS', [ true, 'The maximum number of concurrent requests', 4]),
+				OptString.new('USERNAME', [false, 'The HTTP username to specify for authentication']),
+				OptString.new('PASSWORD', [false, 'The HTTP password to specify for authentication']),
+        OptString.new('DOMAIN', [ true, 'The domain to use for windows authentication', 'WORKSTATION'])
+
 			], self.class
 		)
 
 		register_advanced_options(
 			[
+				OptBool.new('DirBust', [ false, 'Bruteforce common URL paths', true]),
 				OptInt.new('RequestTimeout', [false, 'The maximum number of seconds to wait for a reply', 15]),
 				OptInt.new('RedirectLimit', [false, 'The maximum number of redirects for a single request', 5]),
 				OptInt.new('RetryLimit', [false, 'The maximum number of attempts for a single request', 5]),
@@ -118,8 +123,10 @@ module Auxiliary::HttpCrawler
 			:info     => ""
 		})
 
-		if datastore['BasicAuthUser']
-			t[:http_basic_auth] = [ "#{datastore['BasicAuthUser']}:#{datastore['BasicAuthPass']}" ].pack("m*").gsub(/\s+/, '')
+		if datastore['USERNAME'] and datastore['USERNAME'] != ''
+			t[:username] = datastore['USERNAME'].to_s
+			t[:password] = datastore['PASSWORD'].to_s
+      t[:domain]   = datastore['DOMAIN'].to_s
 		end
 
 		if datastore['HTTPCookie']
@@ -165,6 +172,10 @@ module Auxiliary::HttpCrawler
 
 	def max_crawl_threads
 		datastore['MAX_THREADS']
+	end
+
+	def dirbust?
+		datastore['DirBust']
 	end
 
 	# Scrub links that end in these extensions. If more or less is
@@ -216,7 +227,13 @@ module Auxiliary::HttpCrawler
 			# Bubble this up to the top-level handler
 			raise $!
 		rescue ::Exception => e
-			print_error("Crawler Exception: #{url} #{e} #{e.backtrace}")
+			# Ridiculous f'ing anonymous timeout exception which I've no idea
+			# how it comes into existence.
+			if e.to_s =~ /execution expired/
+				raise ::Timeout::Error
+			else
+				print_error("Crawler Exception: #{url} #{e} #{e.backtrace}")
+			end
 		ensure
 			@crawler.shutdown rescue nil
 			@crawler = nil
@@ -263,6 +280,7 @@ module Auxiliary::HttpCrawler
 		opts[:framework]           = framework
 		opts[:module]              = self
 		opts[:timeout]             = get_connection_timeout
+		opts[:dirbust]             = dirbust?
 
 		if (t[:headers] and t[:headers].length > 0)
 			opts[:inject_headers] = t[:headers]
@@ -272,9 +290,9 @@ module Auxiliary::HttpCrawler
 			opts[:cookies] = t[:cookies]
 		end
 
-		if t[:http_basic_auth]
-			opts[:http_basic_auth] = t[:http_basic_auth]
-		end
+		opts[:username] = t[:username] || ''
+		opts[:password] = t[:password] || ''
+    opts[:domain]   = t[:domain]   || 'WORKSTATION'
 
 		opts
 	end

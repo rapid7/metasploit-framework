@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -25,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'WinRM WQL Query Runner',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module runs WQL queries against remote WinRM Services.
 				Authentication is required. Currently only works with NTLM auth.
@@ -47,12 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
-		unless accepts_ntlm_auth
-			print_error "The Remote WinRM  server  (#{ip} does not appear to allow Negotiate(NTLM) auth"
-			return
-		end
-
-		resp,c = send_request_ntlm(winrm_wql_msg(datastore['WQL']))
+		resp = send_winrm_request(winrm_wql_msg(datastore['WQL']))
 		if resp.nil?
 			print_error "Got no reply from the server"
 			return

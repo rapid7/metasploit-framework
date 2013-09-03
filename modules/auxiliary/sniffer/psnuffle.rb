@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -30,7 +26,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'				=> 'pSnuffle Packet Sniffer',
-			'Version'           => '$Revision$',
 			'Description'       => 'This module sniffs passwords like dsniff did in the past',
 			'Author'			=> 'Max Moser  <mmo@remote-exploit.org>',
 			'License'			=> MSF_LICENSE,

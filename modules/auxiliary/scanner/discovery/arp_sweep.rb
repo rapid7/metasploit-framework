@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -22,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'ARP Sweep Local Network Discovery',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				Enumerate alive Hosts in local network using ARP requests.
 			},
@@ -49,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		@netifaces = true
 		if not netifaces_implemented?
-			print_error("WARNING : Pcaprub is not uptodate, some functionality will not be available")
+			print_error("WARNING : NetworkInterface is not up-to-date, some functionality will not be available")
 			@netifaces = false
 		end
 

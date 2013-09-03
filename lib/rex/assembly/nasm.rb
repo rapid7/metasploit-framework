@@ -44,7 +44,7 @@ class Nasm
 		# Open the temporary file
 		tmp = Tempfile.new('nasmXXXX')
 		tmp.binmode
-		
+
 		tpath = tmp.path
 		opath = tmp.path + '.out'
 
@@ -76,7 +76,7 @@ class Nasm
 
 		tmp = Tempfile.new('nasmout')
 		tmp.binmode
-		
+
 		tfd = File.open(tmp.path, "wb")
 
 		tfd.write(raw)

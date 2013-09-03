@@ -3,6 +3,7 @@
 require 'msf/base/config'
 require 'msf/core'
 require 'msf/core/db'
+require 'msf/core/db_manager/migration'
 require 'msf/core/task_manager'
 require 'fileutils'
 require 'shellwords'
@@ -17,6 +18,9 @@ module Msf
 ###
 
 class DBManager
+	# Provides :framework and other accessors
+	include Msf::DBManager::Migration
+	include Msf::Framework::Offspring
 
 	# Mainly, it's Ruby 1.9.1 that cause a lot of problems now, along with Ruby 1.8.6.
 	# Ruby 1.8.7 actually seems okay, but why tempt fate? Let's say 1.9.3 and beyond.
@@ -27,9 +31,6 @@ class DBManager
 			$stderr.puts "**************************************************************************************"
 		end
 	end
-
-	# Provides :framework and other accessors
-	include Framework::Offspring
 
 	# Returns true if we are ready to load/store data
 	def active
@@ -53,12 +54,6 @@ class DBManager
 	# Stores a TaskManager for serializing database events
 	attr_accessor :sink
 
-	# Flag to indicate database migration has completed
-	attr_accessor :migrated
-
-	# Array of additional migration paths
-	attr_accessor :migration_paths
-
 	# Flag to indicate that modules are cached
 	attr_accessor :modules_cached
 
@@ -69,7 +64,6 @@ class DBManager
 
 		self.framework = framework
 		self.migrated  = false
-		self.migration_paths = [ ::File.join(Msf::Config.install_root, "data", "sql", "migrate") ]
 		self.modules_cached  = false
 		self.modules_caching = false
 
@@ -85,13 +79,6 @@ class DBManager
 	end
 
 	#
-	# Add additional migration paths
-	#
-	def add_migration_path(path)
-		self.migration_paths.push(path)
-	end
-
-	#
 	# Do what is necessary to load our database support
 	#
 	def initialize_database_support
@@ -101,11 +88,7 @@ class DBManager
 
 			require "active_record"
 
-			# Provide access to ActiveRecord models shared w/ commercial versions
-			require "metasploit_data_models"
-
-			# Patches issues with ActiveRecord
-			require "msf/core/patches/active_record"
+			initialize_metasploit_data_models
 
 			@usable = true
 
@@ -165,6 +148,29 @@ class DBManager
 
 		# Database drivers can reset our KCODE, do not let them
 		$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
+	end
+
+	# Loads Metasploit Data Models and adds its migrations to migrations paths.
+	#
+	# @return [void]
+	def initialize_metasploit_data_models
+		# Provide access to ActiveRecord models shared w/ commercial versions
+		require "metasploit_data_models"
+
+		metasploit_data_model_migrations_pathname = MetasploitDataModels.root.join(
+				'db',
+				'migrate'
+		)
+		metasploit_data_model_migrations_path = metasploit_data_model_migrations_pathname.to_s
+
+		# Since ActiveRecord::Migrator.migrations_paths can persist between
+		# instances of Msf::DBManager, such as in specs,
+		# metasploit_data_models_migrations_path may already be part of
+		# migrations_paths, in which case it should not be added or multiple
+		# migrations with the same version number errors will occur.
+		unless ActiveRecord::Migrator.migrations_paths.include? metasploit_data_model_migrations_path
+			ActiveRecord::Migrator.migrations_paths << metasploit_data_model_migrations_path
+		end
 	end
 
 	#
@@ -268,6 +274,8 @@ class DBManager
 	def disconnect
 		begin
 			ActiveRecord::Base.remove_connection
+			self.migrated = false
+			self.modules_cached = false
 		rescue ::Exception => e
 			self.error = e
 			elog("DB.disconnect threw an exception: #{e}")
@@ -275,47 +283,6 @@ class DBManager
 			# Database drivers can reset our KCODE, do not let them
 			$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
 		end
-	end
-
-	#
-	# Migrate database to latest schema version
-	#
-	def migrate(verbose=false)
-
-		temp_dir = ::File.expand_path(::File.join( Msf::Config.config_directory, "schema", "#{Time.now.to_i}_#{$$}" ))
-		::FileUtils.rm_rf(temp_dir)
-		::FileUtils.mkdir_p(temp_dir)
-
-		self.migration_paths.each do |mpath|
-			dir = Dir.new(mpath) rescue nil
-			if not dir
-				elog("Could not access migration path #{mpath}")
-				next
-			end
-
-			dir.entries.each do |ent|
-				next unless ent =~ /^\d+.*\.rb$/
-				::FileUtils.cp( ::File.join(mpath, ent), ::File.join(temp_dir, ent) )
-			end
-		end
-
-		success = true
-		begin
-
-			::ActiveRecord::Base.connection_pool.with_connection {
-				ActiveRecord::Migration.verbose = verbose
-				ActiveRecord::Migrator.migrate(temp_dir, nil)
-			}
-		rescue ::Exception => e
-			self.error = e
-			elog("DB.migrate threw an exception: #{e}")
-			dlog("Call stack:\n#{e.backtrace.join "\n"}")
-			success = false
-		end
-
-		::FileUtils.rm_rf(temp_dir)
-
-		return true
 	end
 
 	def workspace=(workspace)
@@ -327,17 +294,28 @@ class DBManager
 	end
 
 
+	# @note Does nothing unless {#migrated} is +true+ and {#modules_caching} is
+	#   +false+.
+	#
+	# Destroys all Mdm::Module::Details in the database.
+	#
+	# @return [void]
 	def purge_all_module_details
 		return if not self.migrated
 		return if self.modules_caching
 
 		::ActiveRecord::Base.connection_pool.with_connection do
-			Mdm::ModuleDetail.destroy_all
+			Mdm::Module::Detail.destroy_all
 		end
-
-		true
 	end
 
+	# Destroys the old Mdm::Module::Detail and creates a new Mdm::Module::Detail for
+	# any module with an Mdm::Module::Detail where the modification time of the
+	# Mdm::Module::Detail#file differs from the Mdm::Module::Detail#mtime.  If the
+	# Mdm::Module::Detail#file no only exists on disk, then the Mdm::Module::Detail
+	# is just destroyed without a new one being created.
+	#
+	# @return [void]
 	def update_all_module_details
 		return if not self.migrated
 		return if self.modules_caching
@@ -347,106 +325,112 @@ class DBManager
 		self.modules_cached  = false
 		self.modules_caching = true
 
-		::ActiveRecord::Base.connection_pool.with_connection {
+		ActiveRecord::Base.connection_pool.with_connection do
 
-		refresh = []
-		skipped = []
+			refresh = []
+			skipped = []
 
-		Mdm::ModuleDetail.find_each do |md|
+			Mdm::Module::Detail.find_each do |md|
 
-			unless md.ready
-				refresh << md
-				next
+				unless md.ready
+					refresh << md
+					next
+				end
+
+				unless md.file and ::File.exists?(md.file)
+					refresh << md
+					next
+				end
+
+				if ::File.mtime(md.file).to_i != md.mtime.to_i
+					refresh << md
+					next
+				end
+
+				skipped << [md.mtype, md.refname]
 			end
 
-			unless md.file and ::File.exists?(md.file)
-				refresh << md
-				next
-			end
+			refresh.each { |md| md.destroy }
 
-			if ::File.mtime(md.file).to_i != md.mtime.to_i
-				refresh << md
-				next
-			end
-
-			skipped << [md.mtype, md.refname]
-		end
-
-		refresh.each  {|md| md.destroy }
-		refresh = nil
-
-		[
-			[ 'exploit',   framework.exploits  ],
-			[ 'auxiliary', framework.auxiliary ],
-			[ 'post',      framework.post      ],
-			[ 'payload',   framework.payloads  ],
-			[ 'encoder',   framework.encoders  ],
-			[ 'nop',       framework.nops      ]
-		].each do |mt|
-			mt[1].keys.sort.each do |mn|
-				next if skipped.include?( [ mt[0], mn ] )
-				obj   = mt[1].create(mn)
-				next if not obj
-				begin
-					update_module_details(obj)
-				rescue ::Exception
-					elog("Error updating module details for #{obj.fullname}: #{$!.class} #{$!}")
+			[
+					['exploit', framework.exploits],
+					['auxiliary', framework.auxiliary],
+					['post', framework.post],
+					['payload', framework.payloads],
+					['encoder', framework.encoders],
+					['nop', framework.nops]
+			].each do |mt|
+				mt[1].keys.sort.each do |mn|
+					next if skipped.include?([mt[0], mn])
+					obj = mt[1].create(mn)
+					next if not obj
+					begin
+						update_module_details(obj)
+					rescue ::Exception
+						elog("Error updating module details for #{obj.fullname}: #{$!.class} #{$!}")
+					end
 				end
 			end
+
+			self.framework.cache_initialized = true
 		end
 
-		self.framework.cache_initialized = true
-		self.framework.cache_thread = nil
-
-		self.modules_cached  = true
+		# in reverse order of section before with_connection block
 		self.modules_caching = false
-
-		nil
-
-		}
+		self.modules_cached  = true
+		self.framework.cache_thread = nil
 	end
 
-	def update_module_details(obj)
+	# Creates an Mdm::Module::Detail from a module instance.
+	#
+	# @param module_instance [Msf::Module] a metasploit module instance.
+	# @raise [ActiveRecord::RecordInvalid] if Hash from {#module_to_details_hash} is invalid attributes for
+	#   Mdm::Module::Detail.
+	# @return [void]
+	def update_module_details(module_instance)
 		return if not self.migrated
 
-		::ActiveRecord::Base.connection_pool.with_connection {
-		info = module_to_details_hash(obj)
-		bits = info.delete(:bits) || []
+		ActiveRecord::Base.connection_pool.with_connection do
+			info = module_to_details_hash(module_instance)
+			bits = info.delete(:bits) || []
+			module_detail = Mdm::Module::Detail.create!(info)
 
-		md = Mdm::ModuleDetail.create(info)
-		bits.each do |args|
-			otype, vals = args
-			case otype
-			when :author
-				md.add_author(vals[:name], vals[:email])
-			when :action
-				md.add_action(vals[:name])
-			when :arch
-				md.add_arch(vals[:name])
-			when :platform
-				md.add_platform(vals[:name])
-			when :target
-				md.add_target(vals[:index], vals[:name])
-			when :ref
-				md.add_ref(vals[:name])
-			when :mixin
-				# md.add_mixin(vals[:name])
+			bits.each do |args|
+				otype, vals = args
+
+				case otype
+					when :action
+						module_detail.add_action(vals[:name])
+					when :arch
+						module_detail.add_arch(vals[:name])
+					when :author
+						module_detail.add_author(vals[:name], vals[:email])
+					when :platform
+						module_detail.add_platform(vals[:name])
+					when :ref
+						module_detail.add_ref(vals[:name])
+					when :target
+						module_detail.add_target(vals[:index], vals[:name])
+				end
 			end
+
+			module_detail.ready = true
+			module_detail.save!
 		end
-
-		md.ready = true
-		md.save
-		md.id
-
-		}
 	end
 
+	# Destroys Mdm::Module::Detail if one exists for the given
+	# Mdm::Module::Detail#mtype and Mdm::Module::Detail#refname.
+	#
+	# @param mtype [String] module type.
+	# @param refname [String] module reference name.
+	# @return [void]
 	def remove_module_details(mtype, refname)
 		return if not self.migrated
-		::ActiveRecord::Base.connection_pool.with_connection {
-		md = Mdm::ModuleDetail.find(:conditions => [ 'mtype = ? and refname = ?', mtype, refname])
-		md.destroy if md
-		}
+
+		ActiveRecord::Base.connection_pool.with_connection do
+			Mdm::Module::Detail.where(:mtype => mtype, :refname => refname).destroy_all
+		end
 	end
 
 	def module_to_details_hash(m)
@@ -495,6 +479,14 @@ class DBManager
 
 			m.targets.each_index do |i|
 				bits << [ :target, { :index => i, :name => m.targets[i].name.to_s } ]
+				if m.targets[i].platform
+					m.targets[i].platform.platforms.each do |name|
+						bits << [ :platform, { :name => name.to_s.split('::').last.downcase } ]
+					end
+				end
+				if m.targets[i].arch
+					bits << [ :arch, { :name => m.targets[i].arch.to_s } ]
+				end
 			end
 
 			if (m.default_target)
@@ -523,113 +515,174 @@ class DBManager
 			res[:stance] = m.passive? ? "passive" : "aggressive"
 		end
 
-		res[:bits] = bits
+		res[:bits] = bits.uniq
 
 		res
 	end
 
+  # Wraps values in +'%'+ for Arel::Prediciation#matches_any and other match* methods that map to SQL +'LIKE'+ or
+  # +'ILIKE'+
+  #
+  # @param values [Set<String>, #each] a list of strings.
+  # @return [Arrray<String>] strings wrapped like %<string>%
+  def match_values(values)
+    wrapped_values = values.collect { |value|
+      "%#{value}%"
+    }
 
+    wrapped_values
+  end
 
-	#
 	# This provides a standard set of search filters for every module.
-	# The search terms are in the form of:
-	#   {
-	#     "text" => [  [ "include_term1", "include_term2", ...], [ "exclude_term1", "exclude_term2"], ... ],
-	#     "cve" => [  [ "include_term1", "include_term2", ...], [ "exclude_term1", "exclude_term2"], ... ]
-	#   }
 	#
-	# Returns true on no match, false on match
+	# Supported keywords with the format <keyword>:<search_value>:
+	# +app+:: If +client+ then matches +'passive'+ stance modules, otherwise matches +'active' stance modules.
+	# +author+:: Matches modules with the given author email or name.
+	# +bid+:: Matches modules with the given Bugtraq ID.
+	# +cve+:: Matches modules with the given CVE ID.
+	# +edb+:: Matches modules with the given Exploit-DB ID.
+	# +name+:: Matches modules with the given full name or name.
+	# +os+, +platform+:: Matches modules with the given platform or target name.
+	# +osvdb+:: Matches modules with the given OSVDB ID.
+	# +ref+:: Matches modules with the given reference ID.
+	# +type+:: Matches modules with the given type.
 	#
-	def search_modules(search_string, inclusive=false)
-		return false if not search_string
+	# Any text not associated with a keyword is matched against the description,
+	# the full name, and the name of the module; the name of the module actions;
+	# the name of the module archs; the name of the module authors; the name of
+	# module platform; the module refs; or the module target.
+	#
+	# @param search_string [String] a string of space separated keyword pairs or
+	#   free form text.
+	# @return [[]] if search_string is +nil+
+	# @return [ActiveRecord::Relation] module details that matched
+	#   +search_string+
+	def search_modules(search_string)
+    search_string ||= ''
+    search_string += " "
 
-		search_string += " "
+    # Split search terms by space, but allow quoted strings
+    terms = Shellwords.shellwords(search_string)
+    terms.delete('')
 
-		# Split search terms by space, but allow quoted strings
-		terms = Shellwords.shellwords(search_string)
-		terms.delete('')
+    # All terms are either included or excluded
+    value_set_by_keyword = Hash.new { |hash, keyword|
+      hash[keyword] = Set.new
+    }
 
-		# All terms are either included or excluded
-		res = {}
+    terms.each do |term|
+      keyword, value = term.split(':', 2)
 
-		terms.each do |t|
-			f,v = t.split(":", 2)
-			if not v
-				v = f
-				f = 'text'
-			end
-			next if v.length == 0
-			f.downcase!
-			v.downcase!
-			res[f] ||= [  ]
-			res[f]  << v
-		end
+      unless value
+        value = keyword
+        keyword = 'text'
+      end
 
-		::ActiveRecord::Base.connection_pool.with_connection {
+      unless value.empty?
+        keyword.downcase!
 
-		where_q = []
-		where_v = []
+        value_set = value_set_by_keyword[keyword]
+        value_set.add value
+      end
+    end
 
-		res.keys.each do |kt|
-			res[kt].each do |kv|
-				kv = kv.downcase
-				case kt
-				when 'text'
-					xv = "%#{kv}%"
-					where_q << ' ( ' +
-						'module_details.fullname ILIKE ? OR module_details.name ILIKE ? OR module_details.description ILIKE ? OR ' +
-						'module_authors.name ILIKE ? OR module_actions.name ILIKE ? OR module_archs.name ILIKE ? OR ' +
-						'module_targets.name ILIKE ? OR module_platforms.name ILIKE ? OR module_refs.name ILIKE ?' +
-						') '
-					where_v << [ xv, xv, xv, xv, xv, xv, xv, xv, xv ]
-				when 'name'
-					xv = "%#{kv}%"
-					where_q << ' ( module_details.fullname ILIKE ? OR module_details.name ILIKE ? ) '
-					where_v << [ xv, xv ]
-				when 'author'
-					xv = "%#{kv}%"
-					where_q << ' ( module_authors.name ILIKE ? OR module_authors.email ILIKE ? ) '
-					where_v << [ xv, xv ]
-				when 'os','platform'
-					xv = "%#{kv}%"
-					where_q << ' (  module_platforms.name ILIKE ? OR module_targets.name ILIKE ? ) '
-					where_v << [ xv, xv ]
-				when 'port'
-					# TODO
-				when 'type'
-					where_q << ' ( module_details.mtype = ? ) '
-					where_v << [ kv ]
-				when 'app'
-					where_q << ' ( module_details.stance = ? )'
-					where_v << [ ( kv == "client") ? "passive" : "active"  ]
-				when 'ref'
-					where_q << ' ( module_refs.name ILIKE ? )'
-					where_v << [ '%' + kv + '%' ]
-				when 'cve','bid','osvdb','edb'
-					where_q << ' ( module_refs.name = ? )'
-					where_v << [ kt.upcase + '-' + kv ]
+    query = Mdm::Module::Detail.scoped
 
-				end
-			end
-		end
+    ActiveRecord::Base.connection_pool.with_connection do
+      # Although AREL supports taking the union or two queries, the ActiveRecord where syntax only supports
+      # intersection, so creating the where clause has to be delayed until all conditions can be or'd together and
+      # passed to one call ot where.
+      union_conditions = []
 
-		qry = Mdm::ModuleDetail.select("DISTINCT(module_details.*)").
-			joins(
-				"LEFT OUTER JOIN module_authors   ON module_details.id = module_authors.module_detail_id " +
-				"LEFT OUTER JOIN module_actions   ON module_details.id = module_actions.module_detail_id " +
-				"LEFT OUTER JOIN module_archs     ON module_details.id = module_archs.module_detail_id " +
-				"LEFT OUTER JOIN module_refs      ON module_details.id = module_refs.module_detail_id " +
-				"LEFT OUTER JOIN module_targets   ON module_details.id = module_targets.module_detail_id " +
-				"LEFT OUTER JOIN module_platforms ON module_details.id = module_platforms.module_detail_id "
-			).
-			where(where_q.join(inclusive ? " OR " : " AND "), *(where_v.flatten)).
-			# Compatibility for Postgres installations prior to 9.1 - doesn't have support for wildcard group by clauses
-			group("module_details.id, module_details.mtime, module_details.file, module_details.mtype, module_details.refname, module_details.fullname, module_details.name, module_details.rank, module_details.description, module_details.license, module_details.privileged, module_details.disclosure_date, module_details.default_target, module_details.default_action, module_details.stance, module_details.ready")
+      value_set_by_keyword.each do |keyword, value_set|
+        case keyword
+          when 'author'
+            formatted_values = match_values(value_set)
 
-		res = qry.all
+            query = query.includes(:authors)
+            module_authors = Mdm::Module::Author.arel_table
+            union_conditions << module_authors[:email].matches_any(formatted_values)
+            union_conditions << module_authors[:name].matches_any(formatted_values)
+          when 'name'
+            formatted_values = match_values(value_set)
 
-		}
-	end
+            module_details = Mdm::Module::Detail.arel_table
+            union_conditions << module_details[:fullname].matches_any(formatted_values)
+            union_conditions << module_details[:name].matches_any(formatted_values)
+          when 'os', 'platform'
+            formatted_values = match_values(value_set)
+
+            query = query.includes(:platforms)
+            union_conditions << Mdm::Module::Platform.arel_table[:name].matches_any(formatted_values)
+
+            query = query.includes(:targets)
+            union_conditions << Mdm::Module::Target.arel_table[:name].matches_any(formatted_values)
+          when 'text'
+            formatted_values = match_values(value_set)
+
+            module_details = Mdm::Module::Detail.arel_table
+            union_conditions << module_details[:description].matches_any(formatted_values)
+            union_conditions << module_details[:fullname].matches_any(formatted_values)
+            union_conditions << module_details[:name].matches_any(formatted_values)
+
+            query = query.includes(:actions)
+            union_conditions << Mdm::Module::Action.arel_table[:name].matches_any(formatted_values)
+
+            query = query.includes(:archs)
+            union_conditions << Mdm::Module::Arch.arel_table[:name].matches_any(formatted_values)
+
+            query = query.includes(:authors)
+            union_conditions << Mdm::Module::Author.arel_table[:name].matches_any(formatted_values)
+
+            query = query.includes(:platforms)
+            union_conditions << Mdm::Module::Platform.arel_table[:name].matches_any(formatted_values)
+
+            query = query.includes(:refs)
+            union_conditions << Mdm::Module::Ref.arel_table[:name].matches_any(formatted_values)
+
+            query = query.includes(:targets)
+            union_conditions << Mdm::Module::Target.arel_table[:name].matches_any(formatted_values)
+          when 'type'
+            formatted_values = match_values(value_set)
+            union_conditions << Mdm::Module::Detail.arel_table[:mtype].matches_any(formatted_values)
+          when 'app'
+            formatted_values = value_set.collect { |value|
+              formatted_value = 'aggressive'
+
+              if value == 'client'
+                formatted_value = 'passive'
+              end
+
+              formatted_value
+            }
+
+            union_conditions << Mdm::Module::Detail.arel_table[:stance].eq_any(formatted_values)
+          when 'ref'
+            formatted_values = match_values(value_set)
+
+            query = query.includes(:refs)
+            union_conditions << Mdm::Module::Ref.arel_table[:name].matches_any(formatted_values)
+          when 'cve', 'bid', 'osvdb', 'edb'
+            formatted_values = value_set.collect { |value|
+              prefix = keyword.upcase
+
+              "#{prefix}-%#{value}%"
+            }
+
+            query = query.includes(:refs)
+            union_conditions << Mdm::Module::Ref.arel_table[:name].matches_any(formatted_values)
+        end
+      end
+
+      unioned_conditions = union_conditions.inject { |union, condition|
+        union.or(condition)
+      }
+
+      query = query.where(unioned_conditions).uniq
+    end
+
+    query
+  end
 
 end
 end

@@ -41,7 +41,7 @@ require 'msf/core/session'
 require 'msf/core/session_manager'
 
 
-	
+
 # Wrappers
 require 'msf/core/encoded_payload'
 

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -24,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 					This module makes a request to the Oracle Application Server
 				in an attempt to discover the SID.
 			},
-			'Version'     => '$Revision$',
 			'References'  =>
 				[
 					[ 'URL', 'http://dsecrg.com/files/pub/pdf/Different_ways_to_guess_Oracle_database_SID_(eng).pdf' ],
@@ -47,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 				'version' => '1.1',
 			}, 5)
 
-			if ( res.body =~ /SERVICE_NAME=/ )
+			if res and res.body =~ /SERVICE_NAME=/
 				select(nil,nil,nil,2)
 				sid = res.body.scan(/SERVICE_NAME=([^\)]+)/)
 					report_note(

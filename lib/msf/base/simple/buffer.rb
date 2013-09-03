@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-##
-# $Id$
-##
 
 require 'msf/base'
 
@@ -19,11 +16,13 @@ module Buffer
 
 	#
 	# Serializes a buffer to a provided format.  The formats supported are raw,
-	# ruby, perl, bash, c, js_be, js_le and java
+	# ruby, perl, bash, c, js_be, js_le, java and psh
 	#
 	def self.transform(buf, fmt = "ruby")
 		case fmt
 			when 'raw'
+			when 'python', 'py'
+				buf = Rex::Text.to_python(buf)
 			when 'ruby', 'rb'
 				buf = Rex::Text.to_ruby(buf)
 			when 'perl', 'pl'
@@ -32,12 +31,20 @@ module Buffer
 				buf = Rex::Text.to_bash(buf)
 			when 'c'
 				buf = Rex::Text.to_c(buf)
+			when 'csharp'
+				buf = Rex::Text.to_csharp(buf)
 			when 'js_be'
 				buf = Rex::Text.to_unescape(buf, ENDIAN_BIG)
 			when 'js_le'
 				buf = Rex::Text.to_unescape(buf, ENDIAN_LITTLE)
 			when 'java'
 				buf = Rex::Text.to_java(buf)
+			when 'powershell', 'ps1'
+				buf = Rex::Text.to_powershell(buf)
+			when 'vbscript'
+				buf = Rex::Text.to_vbscript(buf)
+			when 'vbapplication'
+				buf = Rex::Text.to_vbapplication(buf)
 			else
 				raise ArgumentError, "Unsupported buffer format: #{fmt}", caller
 		end
@@ -52,13 +59,15 @@ module Buffer
 	def self.comment(buf, fmt = "ruby")
 		case fmt
 			when 'raw'
-			when 'ruby', 'rb'
+			when 'ruby', 'rb', 'python', 'py'
 				buf = Rex::Text.to_ruby_comment(buf)
 			when 'perl', 'pl'
 				buf = Rex::Text.to_perl_comment(buf)
 			when 'bash', 'sh'
 				buf = Rex::Text.to_bash_comment(buf)
 			when 'c'
+				buf = Rex::Text.to_c_comment(buf)
+			when 'csharp'
 				buf = Rex::Text.to_c_comment(buf)
 			when 'js_be', 'js_le'
 				buf = Rex::Text.to_js_comment(buf)
@@ -75,7 +84,20 @@ module Buffer
 	# Returns the list of supported formats
 	#
 	def self.transform_formats
-		['raw','ruby','rb','perl','pl','bash','sh','c','js_be','js_le','java']
+		['raw',
+		'ruby','rb',
+		'perl','pl',
+		'bash','sh',
+		'c',
+		'csharp',
+		'js_be',
+		'js_le',
+		'java',
+		'python','py',
+		'powershell','ps1',
+		'vbscript',
+		'vbapplication'
+		]
 	end
 
 end

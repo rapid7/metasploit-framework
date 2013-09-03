@@ -1,3 +1,10 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/common'
@@ -34,8 +41,7 @@ class Metasploit3 < Msf::Post
 				OptString.new('DB_USERNAME',  [true, 'New sysadmin login', '']),
 				OptString.new('DB_PASSWORD',  [true, 'Password for new sysadmin login', '']),
 				OptString.new('INSTANCE',  [false, 'Name of target SQL Server instance', '']),
-				OptBool.new('REMOVE_LOGIN',  [false, 'Remove DB_USERNAME login from database', 'false']),
-				OptBool.new('VERBOSE',  [false, 'Set how verbose the output should be', 'false']),
+				OptBool.new('REMOVE_LOGIN',  [false, 'Remove DB_USERNAME login from database', 'false'])
 			], self.class)
 	end
 
@@ -175,11 +181,9 @@ class Metasploit3 < Msf::Post
 		services_array1 = running_services1.split("\n")
 
 		# Check for osql
-		services_array1.each do |service1|
-			if service1 =~ /SQL Server Command Line Tool/ then
-				print_good("OSQL client was found")
-				return "osql"
-			end
+		if services_array1.join =~ /(SQL Server Command Line Tool)|(usage: osql)/
+			print_good("OSQL client was found")
+			return "osql"
 		end
 
 		# Get Data - sqlcmd
@@ -245,11 +249,11 @@ class Metasploit3 < Msf::Post
 		end
 
 		# check for success/fail
-		if add_login_result == ""
+		if add_login_result.empty? or add_login_result =~ /New login created./
 			print_good("Successfully added login \"#{dbuser}\" with password \"#{dbpass}\"")
 			return 1
 		else
-			print_error("Unabled to add login #{dbuser}")
+			print_error("Unable to add login #{dbuser}")
 			print_error("Database Error:\n #{add_login_result}")
 			return 0
 		end

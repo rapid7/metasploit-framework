@@ -1,4 +1,4 @@
-# $Id: outlook.rb 14835 2012-03-01 22:15:05Z rapid7 $
+# -*- coding: binary -*-
 
 ##
 # This file is part of the Metasploit Framework and may be subject to
@@ -32,7 +32,6 @@ class Metasploit3 < Msf::Post
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Justin Cacak'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))

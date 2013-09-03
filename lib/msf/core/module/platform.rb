@@ -332,11 +332,27 @@ class Msf::Module::Platform
 	end
 
 	#
+	# Android
+	#
+	class Android < Msf::Module::Platform
+		Rank = 100
+		Alias = "android"
+	end
+
+	#
 	# Java
 	#
 	class Java < Msf::Module::Platform
 		Rank = 100
 		Alias = "java"
+	end
+
+	#
+	# Ruby
+	#
+	class Ruby < Msf::Module::Platform
+		Rank = 100
+		Alias = "ruby"
 	end
 
 	#
@@ -471,4 +487,20 @@ class Msf::Module::Platform
 		Rank = 100
 		Alias = "php"
 	end
+
+        #
+        # JavaScript
+        #
+        class JavaScript < Msf::Module::Platform
+                Rank = 100
+                Alias = "js"
+        end
+
+        #
+        # Python
+        #
+        class Python < Msf::Module::Platform
+                Rank = 100
+                Alias = "python"
+        end
 end

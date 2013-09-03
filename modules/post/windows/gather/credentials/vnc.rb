@@ -1,7 +1,3 @@
-##
-# $Id$
-##
-
 # post/windows/gather/enum_vnc_pw.rb
 
 ##
@@ -35,7 +31,6 @@ class Metasploit3 < Msf::Post
 					'Kurt Grutzmacher <grutz[at]jingojango.net>',
 					'mubix'
 				],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'win' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))

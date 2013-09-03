@@ -1,35 +1,61 @@
 # -*- coding: binary -*-
+
+#
+# Standard Library
+#
+
+require 'csv'
+require 'tmpdir'
+require 'uri'
+require 'zip'
+
+#
+#
+# Gems
+#
+#
+
+#
+# PacketFu
+#
+
+require 'packetfu'
+
+#
+# Rex
+#
+
+
+require 'rex/socket'
+
 # Check Rex::Parser.nokogiri_loaded for status of the Nokogiri parsers
-require 'rex/parser/nmap_nokogiri'
-require 'rex/parser/nexpose_simple_nokogiri'
-require 'rex/parser/nexpose_raw_nokogiri'
-require 'rex/parser/foundstone_nokogiri'
-require 'rex/parser/mbsa_nokogiri'
 require 'rex/parser/acunetix_nokogiri'
 require 'rex/parser/appscan_nokogiri'
 require 'rex/parser/burp_session_nokogiri'
 require 'rex/parser/ci_nokogiri'
-require 'rex/parser/wapiti_nokogiri'
-require 'rex/parser/openvas_nokogiri'
+require 'rex/parser/foundstone_nokogiri'
 require 'rex/parser/fusionvm_nokogiri'
+require 'rex/parser/mbsa_nokogiri'
+require 'rex/parser/nexpose_raw_nokogiri'
+require 'rex/parser/nexpose_simple_nokogiri'
+require 'rex/parser/nmap_nokogiri'
+require 'rex/parser/openvas_nokogiri'
+require 'rex/parser/wapiti_nokogiri'
 
 # Legacy XML parsers -- these will be converted some day
-
-require 'rex/parser/nmap_xml'
-require 'rex/parser/nexpose_xml'
-require 'rex/parser/retina_xml'
-require 'rex/parser/netsparker_xml'
-require 'rex/parser/nessus_xml'
-require 'rex/parser/ip360_xml'
 require 'rex/parser/ip360_aspl_xml'
+require 'rex/parser/ip360_xml'
+require 'rex/parser/nessus_xml'
+require 'rex/parser/netsparker_xml'
+require 'rex/parser/nexpose_xml'
+require 'rex/parser/nmap_xml'
+require 'rex/parser/retina_xml'
 
-require 'rex/socket'
-require 'zip'
-require 'packetfu'
-require 'uri'
-require 'tmpdir'
-require 'csv'
+#
+# Project
+#
 
+require 'msf/core/db_manager/import_msf_xml'
 
 module Msf
 
@@ -129,6 +155,7 @@ end
 #
 ###
 class DBManager
+	include Msf::DBManager::ImportMsfXml
 
 	def rfc3330_reserved(ip)
 		case ip.class.to_s
@@ -349,6 +376,13 @@ class DBManager
 			host.save!
 		end
 
+    if opts[:task]
+      Mdm::TaskHost.create(
+          :task => opts[:task],
+          :host => host
+      )
+    end
+
 		host
 	}
 	end
@@ -565,7 +599,15 @@ class DBManager
 		if (service and service.changed?)
 			msf_import_timestamps(opts,service)
 			service.save!
-		end
+    end
+
+    if opts[:task]
+      Mdm::TaskService.create(
+          :task => opts[:task],
+          :service => service
+      )
+    end
+
 		ret[:service] = service
 	}
 	end
@@ -618,12 +660,69 @@ class DBManager
 	}
 	end
 
-	# Record a new session in the database
+	# @note The Mdm::Session#desc will be truncated to 255 characters.
+  # @todo https://www.pivotaltracker.com/story/show/48249739
 	#
-	# opts MUST contain either
-	# +:session+:: the Msf::Session object we are reporting
-	# +:host+::    the Host object we are reporting a session on.
+	# @overload report_session(opts)
+	#   Creates an Mdm::Session from Msf::Session. If +via_exploit+ is set on the
+	#   +session+, then an Mdm::Vuln and Mdm::ExploitAttempt is created for the
+	#   session's host.  The Mdm::Host for the +session_host+ is created using
+	#   The session.session_host, +session.arch+ (if +session+ responds to arch),
+	#   and the workspace derived from opts or the +session+.  The Mdm::Session is
+	#   assumed to be +last_seen+ and +opened_at+ at the time report_session is
+	#   called.  +session.exploit_datastore['ParentModule']+ is used for the
+	#   Mdm::Session#via_exploit if +session.via_exploit+ is
+	#   'exploit/multi/handler'.
 	#
+	#   @param opts [Hash{Symbol => Object}] options
+	#   @option opt [Msf::Session, #datastore, #platform, #type, #via_exploit, #via_payload] :session
+	#     The in-memory session to persist to the database.
+	#   @option opts [Mdm::Workspace] :workspace The workspace for in which the
+	#     :session host is contained.  Also used as the workspace for the
+	#     Mdm::ExploitAttempt and Mdm::Vuln.  Defaults to Mdm::Worksapce with
+	#     Mdm::Workspace#name equal to +session.workspace+.
+	#   @return [nil] if {Msf::DBManager#active} is +false+.
+	#   @return [Mdm::Session] if session is saved
+	#   @raise [ArgumentError] if :session is not an {Msf::Session}.
+	#   @raise [ActiveRecord::RecordInvalid] if session is invalid and cannot be
+	#     saved, in which case, the Mdm::ExploitAttempt and Mdm::Vuln will not be
+	#     created, but the Mdm::Host will have been.   (There is no transaction
+	#       to rollback the Mdm::Host creation.)
+	#   @see #find_or_create_host
+	#   @see #normalize_host
+	#   @see #report_exploit_success
+	#   @see #report_vuln
+	#
+	# @overload report_session(opts)
+	#   Creates an Mdm::Session from Mdm::Host.
+	#
+	#   @param opts [Hash{Symbol => Object}] options
+	#   @option opts [DateTime, Time] :closed_at The date and time the sesion was
+	#     closed.
+	#   @option opts [String] :close_reason Reason the session was closed.
+	#   @option opts [Hash] :datastore {Msf::DataStore#to_h}.
+	#   @option opts [String] :desc Session description.  Will be truncated to 255
+	#     characters.
+	#   @option opts [Mdm::Host] :host The host on which the session was opened.
+	#   @option opts [DateTime, Time] :last_seen The last date and time the
+	#     session was seen to be open.  Defaults to :closed_at's value.
+	#   @option opts [DateTime, Time] :opened_at The date and time that the
+	#     session was opened.
+	#   @option opts [String] :platform The platform of the host.
+	#   @option opts [Array] :routes ([]) The routes through the session for
+	#     pivoting.
+	#   @option opts [String] :stype Session type.
+	#   @option opts [String] :via_exploit The {Msf::Module#fullname} of the
+	#     exploit that was used to open the session.
+	#   @option option [String] :via_payload the {MSf::Module#fullname} of the
+	#     payload sent to the host when the exploit was successful.
+	#   @return [nil] if {Msf::DBManager#active} is +false+.
+	#   @return [Mdm::Session] if session is saved.
+	#   @raise [ArgumentError] if :host is not an Mdm::Host.
+	#   @raise [ActiveRecord::RecordInvalid] if session is invalid and cannot be
+	#     saved.
+	#
+	# @raise ArgumentError if :host and :session is +nil+
 	def report_session(opts)
 		return if not active
 	::ActiveRecord::Base.connection_pool.with_connection {
@@ -637,17 +736,18 @@ class DBManager
 			h_opts[:workspace] = wspace
 			host = find_or_create_host(h_opts)
 			sess_data = {
-				:host_id => host.id,
-				:stype => session.type,
-				:desc => session.info,
-				:platform => session.platform,
-				:via_payload => session.via_payload,
-				:via_exploit => session.via_exploit,
-				:routes => [],
-				:datastore => session.exploit_datastore.to_h,
-				:opened_at => Time.now.utc,
-				:last_seen => Time.now.utc,
-				:local_id => session.sid
+          :host_id     => host.id,
+          :stype       => session.type,
+          :desc        => session.info,
+          :platform    => session.platform,
+          :via_payload => session.via_payload,
+          :via_exploit => session.via_exploit,
+          :routes      => [],
+          :datastore   => session.exploit_datastore.to_h,
+          :port        => session.session_port,
+          :opened_at   => Time.now.utc,
+          :last_seen   => Time.now.utc,
+          :local_id    => session.sid
 			}
 		elsif opts[:host]
 			raise ArgumentError.new("Invalid :host, expected Host object") unless opts[:host].kind_of? ::Mdm::Host
@@ -676,27 +776,47 @@ class DBManager
 			sess_data[:desc] = sess_data[:desc][0,255]
 		end
 
+		# In the case of multi handler we cannot yet determine the true
+		# exploit responsible. But we can at least show the parent versus
+		# just the generic handler:
+		if session and session.via_exploit == "exploit/multi/handler" and sess_data[:datastore]['ParentModule']
+			sess_data[:via_exploit] = sess_data[:datastore]['ParentModule']
+		end
+
 		s = ::Mdm::Session.new(sess_data)
 		s.save!
+
+    if session and session.exploit_task and session.exploit_task.record
+      session_task =  session.exploit_task.record
+      if session_task.class == Mdm::Task
+        Mdm::TaskSession.create(:task => session_task, :session => s )
+      end
+    end
+
 
 		if opts[:session]
 			session.db_record = s
 		end
 
 		# If this is a live session, we know the host is vulnerable to something.
-		# If the exploit used was multi/handler, though, we don't know what
-		# it's vulnerable to, so it isn't really useful to save it.
-		if opts[:session] and session.via_exploit and session.via_exploit != "exploit/multi/handler"
-			return unless host
-
+		if opts[:session] and session.via_exploit
 			mod = framework.modules.create(session.via_exploit)
+
+			if session.via_exploit == "exploit/multi/handler" and sess_data[:datastore]['ParentModule']
+				mod_fullname = sess_data[:datastore]['ParentModule']
+				mod_name = ::Mdm::Module::Detail.find_by_fullname(mod_fullname).name
+			else
+				mod_name = mod.name
+				mod_fullname = mod.fullname
+			end
+
 			vuln_info = {
 				:host => host.address,
-				:name => mod.name,
+				:name => mod_name,
 				:refs => mod.references,
 				:workspace => wspace,
 				:exploited_at => Time.now.utc,
-				:info => "Exploited by #{mod.fullname} to create Session #{s.id}"
+				:info => "Exploited by #{mod_fullname} to create Session #{s.id}"
 			}
 
 			port    = session.exploit_datastore["RPORT"]
@@ -705,11 +825,16 @@ class DBManager
 			vuln_info[:service] = service if service
 
 			vuln = framework.db.report_vuln(vuln_info)
-			
+
+			if session.via_exploit == "exploit/multi/handler" and sess_data[:datastore]['ParentModule']
+				via_exploit = sess_data[:datastore]['ParentModule']
+			else
+				via_exploit = session.via_exploit
+			end
 			attempt_info = {
 				:timestamp   => Time.now.utc,
 				:workspace   => wspace,
-				:module      => session.via_exploit,
+				:module      => via_exploit,
 				:username    => session.username,
 				:refs        => mod.references,
 				:session_id  => s.id,
@@ -719,7 +844,7 @@ class DBManager
 			}
 
 			framework.db.report_exploit_success(attempt_info)
-			
+
 		end
 
 		s
@@ -852,7 +977,7 @@ class DBManager
 					ref.to_s
 				end
 			})
-		
+
 			# Try find a matching vulnerability
 			vuln = find_vuln_by_refs(ref_objs, host, svc)
 		end
@@ -871,7 +996,7 @@ class DBManager
 			attempt_info[:loot_id]    = opts[:loot_id]    if opts[:loot_id]
 
 			vuln.vuln_attempts.create(attempt_info)
-	
+
 			# Correct the vuln's associated service if necessary
 			if svc and vuln.service_id.nil?
 				vuln.service = svc
@@ -890,12 +1015,12 @@ class DBManager
 		attempt_info[:vuln_id]    = vuln.id           if vuln
 		attempt_info[:session_id] = opts[:session_id] if opts[:session_id]
 		attempt_info[:loot_id]    = opts[:loot_id]    if opts[:loot_id]
-		
+
 		if svc
 			attempt_info[:port]  = svc.port
 			attempt_info[:proto] = svc.proto
 		end
-		
+
 		if port and svc.nil?
 			attempt_info[:port]  = port
 			attempt_info[:proto] = prot || "tcp"
@@ -918,7 +1043,7 @@ class DBManager
 
 		timestamp  = opts.delete(:timestamp)
 		freason    = opts.delete(:fail_reason)
-		fdetail    = opts.delete(:fail_detail)		
+		fdetail    = opts.delete(:fail_detail)
 		username   = opts.delete(:username)
 		mname      = opts.delete(:module)
 
@@ -949,7 +1074,7 @@ class DBManager
 					ref.to_s
 				end
 			})
-		
+
 			# Try find a matching vulnerability
 			vuln = find_vuln_by_refs(ref_objs, host, svc)
 		end
@@ -984,7 +1109,7 @@ class DBManager
 			attempt_info[:port]  = svc.port
 			attempt_info[:proto] = svc.proto
 		end
-		
+
 		if port and svc.nil?
 			attempt_info[:port]  = port
 			attempt_info[:proto] = prot || "tcp"
@@ -999,7 +1124,7 @@ class DBManager
 	::ActiveRecord::Base.connection_pool.with_connection {
 		return if not vuln
 		info = {}
-		
+
 		# Opts can be keyed by strings or symbols
 		::Mdm::VulnAttempt.column_names.each do |kn|
 			k = kn.to_sym
@@ -1018,7 +1143,7 @@ class DBManager
 	::ActiveRecord::Base.connection_pool.with_connection {
 		return if not host
 		info = {}
-		
+
 		# Opts can be keyed by strings or symbols
 		::Mdm::VulnAttempt.column_names.each do |kn|
 			k = kn.to_sym
@@ -1158,13 +1283,13 @@ class DBManager
 	# Report a Note to the database.  Notes can be tied to a ::Mdm::Workspace, Host, or Service.
 	#
 	# opts MUST contain
-	# +:data+::  whatever it is you're making a note of
 	# +:type+::  The type of note, e.g. smb_peer_os
 	#
 	# opts can contain
 	# +:workspace+::  the workspace to associate with this Note
 	# +:host+::       an IP address or a Host object to associate with this Note
 	# +:service+::    a Service object to associate with this Note
+	# +:data+::       whatever it is you're making a note of
 	# +:port+::       along with +:host+ and +:proto+, a service to associate with this Note
 	# +:proto+::      along with +:host+ and +:port+, a service to associate with this Note
 	# +:update+::     what to do in case a similar Note exists, see below
@@ -1244,7 +1369,7 @@ class DBManager
 		end
 =end
 		ntype  = opts.delete(:type) || opts.delete(:ntype) || (raise RuntimeError, "A note :type or :ntype is required")
-		data   = opts[:data] || (raise RuntimeError, "Note :data is required")
+		data   = opts[:data]
 		method = nil
 		args   = []
 		note   = nil
@@ -1387,6 +1512,7 @@ class DBManager
 			raise ArgumentError.new("Invalid address or object for :host (#{opts[:host].inspect})")
 		end
 
+	::ActiveRecord::Base.connection_pool.with_connection {
 		host = opts.delete(:host)
 		ptype = opts.delete(:type) || "password"
 		token = [opts.delete(:user), opts.delete(:pass)]
@@ -1407,8 +1533,16 @@ class DBManager
 		service = opts.delete(:service) || report_service(:host => host, :port => port, :proto => proto, :name => sname, :workspace => wspace)
 
 		# Non-US-ASCII usernames are tripping up the database at the moment, this is a temporary fix until we update the tables
-		( token[0] = token[0].gsub(/[\x00-\x1f\x7f-\xff]/){|m| "\\x%.2x" % m.unpack("C")[0] } ) if token[0]
-		( token[1] = token[1].gsub(/[\x00-\x1f\x7f-\xff]/){|m| "\\x%.2x" % m.unpack("C")[0] } ) if token[1]
+		if (token[0])
+			# convert the token to US-ASCII from UTF-8 to prevent an error
+			token[0] = token[0].unpack("C*").pack("C*")
+			token[0] = token[0].gsub(/[\x00-\x1f\x7f-\xff]/){|m| "\\x%.2x" % m.unpack("C")[0] }
+		end
+
+		if (token[1])
+			token[1] = token[1].unpack("C*").pack("C*")
+			token[1] = token[1].gsub(/[\x00-\x1f\x7f-\xff]/){|m| "\\x%.2x" % m.unpack("C")[0] }
+		end
 
 		ret = {}
 
@@ -1479,9 +1613,18 @@ class DBManager
 		unless opts[:updated_at] || opts["updated_at"]
 			cred.updated_at = Time.now.utc
 			cred.save!
-		end
+    end
+
+
+    if opts[:task]
+      Mdm::TaskCred.create(
+          :task => opts[:task],
+          :cred => cred
+      )
+    end
 
 		ret[:cred] = cred
+	}
 	end
 
 	alias :report_cred :report_auth_info
@@ -1604,7 +1747,7 @@ class DBManager
 			# If a match is found on a vulnerability with no associated service,
 			# update that vulnerability with our service information. This helps
 			# prevent dupes of the same vuln found by both local patch and
-			# service detection.		
+			# service detection.
 			if rids and rids.length > 0
 				vuln = find_vuln_by_refs(rids, host, service)
 				vuln.service = service if vuln
@@ -1632,7 +1775,7 @@ class DBManager
 			else
 				vuln = host.vulns.find_by_name(name)
 			end
-			
+
 			unless vuln
 
 				vinf = {
@@ -1641,7 +1784,7 @@ class DBManager
 					:info    => info
 				}
 
-				vinf[:service_id] = service.id if service 
+				vinf[:service_id] = service.id if service
 				vuln = Mdm::Vuln.create(vinf)
 			end
 		end
@@ -1662,7 +1805,7 @@ class DBManager
 
 		# Handle vuln_details parameters
 		report_vuln_details(vuln, details) if details
-		
+
 		vuln
 	}
 	end
@@ -1781,8 +1924,10 @@ class DBManager
 	# Note that this *can* update data across workspaces
 	#
 	def update_vuln_details(details)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		criteria = details.delete(:key) || {}
 		::Mdm::VulnDetail.update(key, details)
+	}
 	end
 
 	#
@@ -2353,7 +2498,8 @@ class DBManager
 	# +:ssl+::   whether or not SSL is in use on this port
 	#
 	#
-	# Duplicate records for a given web_site, path, method, pname, and name combination will be overwritten
+	# Duplicate records for a given web_site, path, method, pname, and name
+	# combination will be overwritten
 	#
 
 	def report_web_vuln(opts)
@@ -2742,6 +2888,9 @@ class DBManager
 		::File.open(filename, 'rb') do |f|
 			data = f.read(4)
 		end
+		if data.nil?
+			raise DBImportError.new("Zero-length file")
+		end
 
 		case data[0,4]
 		when "PK\x03\x04"
@@ -2835,10 +2984,10 @@ class DBManager
 		elsif (firstline.index("<scanJob>"))
 			@import_filedata[:type] = "Retina XML"
 			return :retina_xml
-		elsif (firstline.index("<get_reports_response status=\"200\" status_text=\"OK\">"))
+		elsif (firstline.index(/<get_reports_response status=['"]200['"] status_text=['"]OK['"]>/))
 			@import_filedata[:type] = "OpenVAS XML"
 			return :openvas_new_xml
-		elsif (firstline.index("<report id=\""))
+		elsif (firstline.index(/<report id=['"]/))
 			@import_filedata[:type] = "OpenVAS XML"
 			return :openvas_new_xml
 		elsif (firstline.index("<NessusClientData>"))
@@ -2983,14 +3132,15 @@ class DBManager
 						desc_text = item.elements['description'].text
 						next if desc_text.nil? or desc_text.empty?
 						desc_data = {
-							:workspace => wspace,
-							:host => addr,
-							:type => "service.nikto.scan.description",
-							:data => desc_text,
-							:proto => "tcp",
-							:port => port.to_i,
-							:sname => uri.scheme,
-							:update => :unique_data
+                :workspace => wspace,
+                :host      => addr,
+                :type      => "service.nikto.scan.description",
+                :data      => desc_text,
+                :proto     => "tcp",
+                :port      => port.to_i,
+                :sname     => uri.scheme,
+                :update    => :unique_data,
+                :task      => args[:task]
 						}
 						# Always report it as a note.
 						report_note(desc_data)
@@ -3095,13 +3245,27 @@ class DBManager
 			next if (bl | [saddr,daddr]).size == bl.size # Both hosts are blacklisted, skip everything.
 			unless( bl.include?(saddr) || rfc3330_reserved(saddr))
 				yield(:address,saddr) if block and !seen_hosts.keys.include?(saddr)
-				report_host(:workspace => wspace, :host => saddr, :state => Msf::HostState::Alive) unless seen_hosts[saddr]
+        unless seen_hosts[saddr]
+          report_host(
+              :workspace => wspace,
+              :host      => saddr,
+              :state     => Msf::HostState::Alive,
+              :task      => args[:task]
+          )
+        end
 				seen_hosts[saddr] ||= []
 
 			end
 			unless( bl.include?(daddr) || rfc3330_reserved(daddr))
 				yield(:address,daddr) if block and !seen_hosts.keys.include?(daddr)
-				report_host(:workspace => wspace, :host => daddr, :state => Msf::HostState::Alive) unless seen_hosts[daddr]
+        unless seen_hosts[daddr]
+          report_host(
+              :workspace => wspace,
+              :host      => daddr,
+              :state     => Msf::HostState::Alive,
+              :task      => args[:task]
+          )
+        end
 				seen_hosts[daddr] ||= []
 			end
 
@@ -3111,9 +3275,10 @@ class DBManager
 					if seen_hosts[saddr]
 						unless seen_hosts[saddr].include? [pkt.tcp_src,"tcp"]
 							report_service(
-								:workspace => wspace, :host => saddr,
-								:proto => "tcp", :port => pkt.tcp_src,
-								:state => Msf::ServiceState::Open
+                  :workspace => wspace, :host => saddr,
+                  :proto     => "tcp", :port => pkt.tcp_src,
+                  :state     => Msf::ServiceState::Open,
+                  :task      => args[:task]
 							)
 							seen_hosts[saddr] << [pkt.tcp_src,"tcp"]
 							yield(:service,"%s:%d/%s" % [saddr,pkt.tcp_src,"tcp"])
@@ -3126,9 +3291,10 @@ class DBManager
 						if seen_hosts[xaddr]
 							unless seen_hosts[xaddr].include? [pkt.udp_src,"udp"]
 								report_service(
-									:workspace => wspace, :host => xaddr,
-									:proto => "udp", :port => pkt.udp_src,
-									:state => Msf::ServiceState::Open
+                    :workspace => wspace, :host => xaddr,
+                    :proto     => "udp", :port => pkt.udp_src,
+                    :state     => Msf::ServiceState::Open,
+                    :task      => args[:task]
 								)
 								seen_hosts[xaddr] << [pkt.udp_src,"udp"]
 								yield(:service,"%s:%d/%s" % [xaddr,pkt.udp_src,"udp"])
@@ -3139,9 +3305,10 @@ class DBManager
 					if seen_hosts[saddr]
 						unless seen_hosts[saddr].include? [pkt.udp_src,"udp"]
 							report_service(
-								:workspace => wspace, :host => saddr,
-								:proto => "udp", :port => pkt.udp_src,
-								:state => Msf::ServiceState::Open
+                  :workspace => wspace, :host => saddr,
+                  :proto     => "udp", :port => pkt.udp_src,
+                  :state     => Msf::ServiceState::Open,
+                  :task      => args[:task]
 							)
 							seen_hosts[saddr] << [pkt.udp_src,"udp"]
 							yield(:service,"%s:%d/%s" % [saddr,pkt.udp_src,"udp"])
@@ -3150,7 +3317,7 @@ class DBManager
 				end
 			end # tcp or udp
 
-			inspect_single_packet(pkt,wspace)
+			inspect_single_packet(pkt,wspace,args[:task])
 
 		end # data.body.map
 
@@ -3163,29 +3330,30 @@ class DBManager
 	# Do all the single packet analysis we can while churning through the pcap
 	# the first time. Multiple packet inspection will come later, where we can
 	# do stream analysis, compare requests and responses, etc.
-	def inspect_single_packet(pkt,wspace)
+	def inspect_single_packet(pkt,wspace,task=nil)
 		if pkt.is_tcp? or pkt.is_udp?
-			inspect_single_packet_http(pkt,wspace)
+			inspect_single_packet_http(pkt,wspace,task)
 		end
 	end
 
 	# Checks for packets that are headed towards port 80, are tcp, contain an HTTP/1.0
 	# line, contains an Authorization line, contains a b64-encoded credential, and
 	# extracts it. Reports this credential and solidifies the service as HTTP.
-	def inspect_single_packet_http(pkt,wspace)
+	def inspect_single_packet_http(pkt,wspace,task=nil)
 		# First, check the server side (data from port 80).
 		if pkt.is_tcp? and pkt.tcp_src == 80 and !pkt.payload.nil? and !pkt.payload.empty?
 			if pkt.payload =~ /^HTTP\x2f1\x2e[01]/
 				http_server_match = pkt.payload.match(/\nServer:\s+([^\r\n]+)[\r\n]/)
 				if http_server_match.kind_of?(MatchData) and http_server_match[1]
 					report_service(
-						:workspace => wspace,
-						:host => pkt.ip_saddr,
-						:port => pkt.tcp_src,
-						:proto => "tcp",
-						:name => "http",
-						:info => http_server_match[1],
-						:state => Msf::ServiceState::Open
+              :workspace => wspace,
+              :host      => pkt.ip_saddr,
+              :port      => pkt.tcp_src,
+              :proto     => "tcp",
+              :name      => "http",
+              :info      => http_server_match[1],
+              :state     => Msf::ServiceState::Open,
+              :task      => task
 					)
 					# That's all we want to know from this service.
 					return :something_significant
@@ -3208,21 +3376,23 @@ class DBManager
 				# to come later.
 				user,pass = b64_cred.unpack("m*").first.split(/:/,2)
 				report_service(
-					:workspace => wspace,
-					:host => pkt.ip_daddr,
-					:port => pkt.tcp_dst,
-					:proto => "tcp",
-					:name => "http"
+            :workspace => wspace,
+            :host      => pkt.ip_daddr,
+            :port      => pkt.tcp_dst,
+            :proto     => "tcp",
+            :name      => "http",
+            :task      => task
 				)
 				report_auth_info(
-					:workspace => wspace,
-					:host => pkt.ip_daddr,
-					:port => pkt.tcp_dst,
-					:proto => "tcp",
-					:type => "password",
-					:active => true, # Once we can build a stream, determine if the auth was successful. For now, assume it is.
-					:user => user,
-					:pass => pass
+            :workspace => wspace,
+            :host      => pkt.ip_daddr,
+            :port      => pkt.tcp_dst,
+            :proto     => "tcp",
+            :type      => "password",
+            :active    => true, # Once we can build a stream, determine if the auth was successful. For now, assume it is.
+            :user      => user,
+            :pass      => pass,
+            :task      => task
 				)
 				# That's all we want to know from this service.
 				return :something_significant
@@ -3251,7 +3421,8 @@ class DBManager
 			conf = {
 			:workspace => wspace,
 			:host      => ip,
-			:name      => name
+			:name      => name,
+      :task      => args[:task]
 			}
 
 			conf[:os_name] = os if os
@@ -3340,12 +3511,13 @@ class DBManager
 			end
 
 			cred_info = {
-				:host => addr,
-				:port => port,
-				:user => user,
-				:pass => pass,
-				:type => ptype,
-				:workspace => wspace
+				:host      => addr,
+				:port      => port,
+				:user      => user,
+				:pass      => pass,
+				:type      => ptype,
+				:workspace => wspace,
+        :task      => args[:task]
 			}
 			cred_info[:proto] = proto if proto
 			cred_info[:sname] = sname if sname
@@ -3515,17 +3687,18 @@ class DBManager
 		# Import Loot
 		doc.elements.each("/#{btag}/loots/loot") do |loot|
 			next if bl.include? host_info[loot.elements["host-id"].text.to_s.strip]
-			loot_info = {}
-			loot_info[:host] = host_info[loot.elements["host-id"].text.to_s.strip]
-			loot_info[:workspace] = args[:wspace]
-			loot_info[:ctype] = nils_for_nulls(loot.elements["content-type"].text.to_s.strip)
-			loot_info[:info] = nils_for_nulls(unserialize_object(loot.elements["info"], allow_yaml))
-			loot_info[:ltype] = nils_for_nulls(loot.elements["ltype"].text.to_s.strip)
-			loot_info[:name] = nils_for_nulls(loot.elements["name"].text.to_s.strip)
-			loot_info[:created_at] = nils_for_nulls(loot.elements["created-at"].text.to_s.strip)
-			loot_info[:updated_at] = nils_for_nulls(loot.elements["updated-at"].text.to_s.strip)
-			loot_info[:name] = nils_for_nulls(loot.elements["name"].text.to_s.strip)
-			loot_info[:orig_path] = nils_for_nulls(loot.elements["path"].text.to_s.strip)
+      loot_info              = {}
+      loot_info[:host]       = host_info[loot.elements["host-id"].text.to_s.strip]
+      loot_info[:workspace]  = args[:wspace]
+      loot_info[:ctype]      = nils_for_nulls(loot.elements["content-type"].text.to_s.strip)
+      loot_info[:info]       = nils_for_nulls(unserialize_object(loot.elements["info"], allow_yaml))
+      loot_info[:ltype]      = nils_for_nulls(loot.elements["ltype"].text.to_s.strip)
+      loot_info[:name]       = nils_for_nulls(loot.elements["name"].text.to_s.strip)
+      loot_info[:created_at] = nils_for_nulls(loot.elements["created-at"].text.to_s.strip)
+      loot_info[:updated_at] = nils_for_nulls(loot.elements["updated-at"].text.to_s.strip)
+      loot_info[:name]       = nils_for_nulls(loot.elements["name"].text.to_s.strip)
+      loot_info[:orig_path]  = nils_for_nulls(loot.elements["path"].text.to_s.strip)
+      loot_info[:task]       = args[:task]
 			tmp = args[:ifd][:zip_tmp]
 			loot_info[:orig_path].gsub!(/^\./,tmp) if loot_info[:orig_path]
 			if !loot.elements["service-id"].text.to_s.strip.empty?
@@ -3610,18 +3783,18 @@ class DBManager
 
 		# Import Reports
 		doc.elements.each("/#{btag}/reports/report") do |report|
-			report_info = {}
-			report_info[:workspace] = args[:wspace]
-			# Should user be imported (original) or declared (the importing user)?
-			report_info[:user] = nils_for_nulls(report.elements["created-by"].text.to_s.strip)
-			report_info[:options] = nils_for_nulls(report.elements["options"].text.to_s.strip)
-			report_info[:rtype] = nils_for_nulls(report.elements["rtype"].text.to_s.strip)
-			report_info[:created_at] = nils_for_nulls(report.elements["created-at"].text.to_s.strip)
-			report_info[:updated_at] = nils_for_nulls(report.elements["updated-at"].text.to_s.strip)
-
-			report_info[:orig_path] = nils_for_nulls(report.elements["path"].text.to_s.strip)
-			tmp = args[:ifd][:zip_tmp]
-			report_info[:orig_path].gsub!(/^\./,tmp) if report_info[:orig_path]
+      tmp = args[:ifd][:zip_tmp]
+      report_info              = {}
+      report_info[:workspace]  = args[:wspace]
+      # Should user be imported (original) or declared (the importing user)?
+      report_info[:user]       = nils_for_nulls(report.elements["created-by"].text.to_s.strip)
+      report_info[:options]    = nils_for_nulls(report.elements["options"].text.to_s.strip)
+      report_info[:rtype]      = nils_for_nulls(report.elements["rtype"].text.to_s.strip)
+      report_info[:created_at] = nils_for_nulls(report.elements["created-at"].text.to_s.strip)
+      report_info[:updated_at] = nils_for_nulls(report.elements["updated-at"].text.to_s.strip)
+      report_info[:orig_path]  = nils_for_nulls(report.elements["path"].text.to_s.strip)
+      report_info[:task]       = args[:task]
+      report_info[:orig_path].gsub!(/^\./, tmp) if report_info[:orig_path]
 
 			# Only report a report if we actually have it.
 			# TODO: Copypasta. Seperate this out.
@@ -3647,334 +3820,6 @@ class DBManager
 			end
 		end
 
-	end
-
-	# For each host, step through services, notes, and vulns, and import
-	# them.
-	# TODO: loot, tasks, and reports
-	def import_msf_xml(args={}, &block)
-		data = args[:data]
-		wspace = args[:wspace] || workspace
-		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-
-		allow_yaml = false
-		btag       = nil
-
-		doc = rexmlify(data)
-		if doc.elements["MetasploitExpressV1"]
-			m_ver = 1
-			allow_yaml = true
-			btag = "MetasploitExpressV1"
-		elsif doc.elements["MetasploitExpressV2"]
-			m_ver = 2
-			allow_yaml = true
-			btag = "MetasploitExpressV2"
-		elsif doc.elements["MetasploitExpressV3"]
-			m_ver = 3
-			btag = "MetasploitExpressV3"
-		elsif doc.elements["MetasploitExpressV4"]
-			m_ver = 4
-			btag = "MetasploitExpressV4"
-		elsif doc.elements["MetasploitV4"]
-			m_ver = 4
-			btag = "MetasploitV4"
-		else
-			m_ver = nil
-		end
-		unless m_ver and btag
-			raise DBImportError.new("Unsupported Metasploit XML document format")
-		end
-
-		doc.elements.each("/#{btag}/hosts/host") do |host|
-			host_data = {}
-			host_data[:workspace] = wspace
-			host_data[:host] = nils_for_nulls(host.elements["address"].text.to_s.strip)
-			if bl.include? host_data[:host]
-				next
-			else
-				yield(:address,host_data[:host]) if block
-			end
-			host_data[:mac] = nils_for_nulls(host.elements["mac"].text.to_s.strip)
-			if host.elements["comm"].text
-				host_data[:comm] = nils_for_nulls(host.elements["comm"].text.to_s.strip)
-			end
-			%W{created-at updated-at name state os-flavor os-lang os-name os-sp purpose}.each { |datum|
-				if host.elements[datum].text
-					host_data[datum.gsub('-','_')] = nils_for_nulls(host.elements[datum].text.to_s.strip)
-				end
-			}
-			host_address = host_data[:host].dup # Preserve after report_host() deletes
-			hobj = report_host(host_data)
-
-			host.elements.each("host_details/host_detail") do |hdet|
-				hdet_data = {}
-				hdet.elements.each do |det|
-					next if ["id", "host-id"].include?(det.name)
-					if det.text
-						hdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
-					end
-				end
-				report_host_details(hobj, hdet_data)
-			end
-
-			host.elements.each("exploit_attempts/exploit_attempt") do |hdet|
-				hdet_data = {}
-				hdet.elements.each do |det|
-					next if ["id", "host-id", "session-id", "vuln-id", "service-id", "loot-id"].include?(det.name)
-					if det.text
-						hdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
-					end
-				end
-				report_exploit_attempt(hobj, hdet_data)
-			end
-
-			host.elements.each('services/service') do |service|
-				service_data = {}
-				service_data[:workspace] = wspace
-				service_data[:host] = hobj
-				service_data[:port] = nils_for_nulls(service.elements["port"].text.to_s.strip).to_i
-				service_data[:proto] = nils_for_nulls(service.elements["proto"].text.to_s.strip)
-				%W{created-at updated-at name state info}.each { |datum|
-					if service.elements[datum].text
-						if datum == "info"
-							service_data["info"] = nils_for_nulls(unserialize_object(service.elements[datum], false))
-						else
-							service_data[datum.gsub("-","_")] = nils_for_nulls(service.elements[datum].text.to_s.strip)
-						end
-					end
-				}
-				report_service(service_data)
-			end
-
-			host.elements.each('notes/note') do |note|
-				note_data = {}
-				note_data[:workspace] = wspace
-				note_data[:host] = hobj
-				note_data[:type] = nils_for_nulls(note.elements["ntype"].text.to_s.strip)
-				note_data[:data] = nils_for_nulls(unserialize_object(note.elements["data"], allow_yaml))
-
-				if note.elements["critical"].text
-					note_data[:critical] = true unless note.elements["critical"].text.to_s.strip == "NULL"
-				end
-				if note.elements["seen"].text
-					note_data[:seen] = true unless note.elements["critical"].text.to_s.strip == "NULL"
-				end
-				%W{created-at updated-at}.each { |datum|
-					if note.elements[datum].text
-						note_data[datum.gsub("-","_")] = nils_for_nulls(note.elements[datum].text.to_s.strip)
-					end
-				}
-				report_note(note_data)
-			end
-
-			host.elements.each('tags/tag') do |tag|
-				tag_data = {}
-				tag_data[:addr] = host_address
-				tag_data[:wspace] = wspace
-				tag_data[:name] = tag.elements["name"].text.to_s.strip
-				tag_data[:desc] = tag.elements["desc"].text.to_s.strip
-				if tag.elements["report-summary"].text
-					tag_data[:summary] = tag.elements["report-summary"].text.to_s.strip
-				end
-				if tag.elements["report-detail"].text
-					tag_data[:detail] = tag.elements["report-detail"].text.to_s.strip
-				end
-				if tag.elements["critical"].text
-					tag_data[:crit] = true unless tag.elements["critical"].text.to_s.strip == "NULL"
-				end
-				report_host_tag(tag_data)
-			end
-
-			host.elements.each('vulns/vuln') do |vuln|
-				vuln_data = {}
-				vuln_data[:workspace] = wspace
-				vuln_data[:host] = hobj
-				vuln_data[:info] = nils_for_nulls(unserialize_object(vuln.elements["info"], allow_yaml))
-				vuln_data[:name] = nils_for_nulls(vuln.elements["name"].text.to_s.strip)
-				%W{created-at updated-at exploited-at}.each { |datum|
-					if vuln.elements[datum] and vuln.elements[datum].text
-						vuln_data[datum.gsub("-","_")] = nils_for_nulls(vuln.elements[datum].text.to_s.strip)
-					end
-				}
-				if vuln.elements["refs"]
-					vuln_data[:refs] = []
-					vuln.elements.each("refs/ref") do |ref|
-						vuln_data[:refs] << nils_for_nulls(ref.text.to_s.strip)
-					end
-				end
-
-				vobj = report_vuln(vuln_data)
-
-				vuln.elements.each("vuln_details/vuln_detail") do |vdet|
-					vdet_data = {}
-					vdet.elements.each do |det|
-						next if ["id", "vuln-id"].include?(det.name)
-						if det.text
-							vdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
-						end
-					end
-					report_vuln_details(vobj, vdet_data)
-				end
-
-				vuln.elements.each("vuln_attempts/vuln_attempt") do |vdet|
-					vdet_data = {}
-					vdet.elements.each do |det|
-						next if ["id", "vuln-id", "loot-id", "session-id"].include?(det.name)
-						if det.text
-							vdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
-						end
-					end
-					report_vuln_attempt(vobj, vdet_data)
-				end
-			end
-
-			host.elements.each('creds/cred') do |cred|
-				cred_data = {}
-				cred_data[:workspace] = wspace
-				cred_data[:host] = hobj
-				%W{port ptype sname proto proof active user pass}.each {|datum|
-					if cred.elements[datum].respond_to? :text
-						cred_data[datum.intern] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
-					end
-				}
-				%W{created-at updated-at}.each { |datum|
-					if cred.elements[datum].respond_to? :text
-						cred_data[datum.gsub("-","_")] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
-					end
-				}
-				%W{source-type source-id}.each { |datum|
-					if cred.elements[datum].respond_to? :text
-						cred_data[datum.gsub("-","_").intern] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
-					end
-				}
-				if cred_data[:pass] == "<masked>"
-					cred_data[:pass] = ""
-					cred_data[:active] = false
-				elsif cred_data[:pass] == "*BLANK PASSWORD*"
-					cred_data[:pass] = ""
-				end
-				report_cred(cred_data)
-			end
-
-			host.elements.each('sessions/session') do |sess|
-				sess_id = nils_for_nulls(sess.elements["id"].text.to_s.strip.to_i)
-				sess_data = {}
-				sess_data[:host] = hobj
-				%W{desc platform port stype}.each {|datum|
-					if sess.elements[datum].respond_to? :text
-						sess_data[datum.intern] = nils_for_nulls(sess.elements[datum].text.to_s.strip)
-					end
-				}
-				%W{opened-at close-reason closed-at via-exploit via-payload}.each {|datum|
-					if sess.elements[datum].respond_to? :text
-						sess_data[datum.gsub("-","_").intern] = nils_for_nulls(sess.elements[datum].text.to_s.strip)
-					end
-				}
-				sess_data[:datastore] = nils_for_nulls(unserialize_object(sess.elements["datastore"], allow_yaml))
-				if sess.elements["routes"]
-					sess_data[:routes] = nils_for_nulls(unserialize_object(sess.elements["routes"], allow_yaml)) || []
-				end
-				if not sess_data[:closed_at] # Fake a close if we don't already have one
-					sess_data[:closed_at] = Time.now.utc
-					sess_data[:close_reason] = "Imported at #{Time.now.utc}"
-				end
-
-				existing_session = get_session(
-					:workspace => sess_data[:host].workspace,
-					:addr => sess_data[:host].address,
-					:time => sess_data[:opened_at]
-				)
-				this_session = existing_session || report_session(sess_data)
-				next if existing_session
-				sess.elements.each('events/event') do |sess_event|
-					sess_event_data = {}
-					sess_event_data[:session] = this_session
-					%W{created-at etype local-path remote-path}.each {|datum|
-						if sess_event.elements[datum].respond_to? :text
-							sess_event_data[datum.gsub("-","_").intern] = nils_for_nulls(sess_event.elements[datum].text.to_s.strip)
-						end
-					}
-					%W{command output}.each {|datum|
-						if sess_event.elements[datum].respond_to? :text
-							sess_event_data[datum.gsub("-","_").intern] = nils_for_nulls(unserialize_object(sess_event.elements[datum], allow_yaml))
-						end
-					}
-					report_session_event(sess_event_data)
-				end
-			end
-		end
-
-		# Import web sites
-		doc.elements.each("/#{btag}/web_sites/web_site") do |web|
-			info = {}
-			info[:workspace] = wspace
-
-			%W{host port vhost ssl comments}.each do |datum|
-				if web.elements[datum].respond_to? :text
-					info[datum.intern] = nils_for_nulls(web.elements[datum].text.to_s.strip)
-				end
-			end
-
-			info[:options]   = nils_for_nulls(unserialize_object(web.elements["options"], allow_yaml)) if web.elements["options"].respond_to?(:text)
-			info[:ssl]       = (info[:ssl] and info[:ssl].to_s.strip.downcase == "true") ? true : false
-
-			%W{created-at updated-at}.each { |datum|
-				if web.elements[datum].text
-					info[datum.gsub("-","_")] = nils_for_nulls(web.elements[datum].text.to_s.strip)
-				end
-			}
-
-			report_web_site(info)
-			yield(:web_site, "#{info[:host]}:#{info[:port]} (#{info[:vhost]})") if block
-		end
-
-		%W{page form vuln}.each do |wtype|
-			doc.elements.each("/#{btag}/web_#{wtype}s/web_#{wtype}") do |web|
-				info = {}
-				info[:workspace] = wspace
-				info[:host]      = nils_for_nulls(web.elements["host"].text.to_s.strip)  if web.elements["host"].respond_to?(:text)
-				info[:port]      = nils_for_nulls(web.elements["port"].text.to_s.strip)  if web.elements["port"].respond_to?(:text)
-				info[:ssl]       = nils_for_nulls(web.elements["ssl"].text.to_s.strip)   if web.elements["ssl"].respond_to?(:text)
-				info[:vhost]     = nils_for_nulls(web.elements["vhost"].text.to_s.strip) if web.elements["vhost"].respond_to?(:text)
-
-				info[:ssl] = (info[:ssl] and info[:ssl].to_s.strip.downcase == "true") ? true : false
-
-				case wtype
-				when "page"
-					%W{path code body query cookie auth ctype mtime location}.each do |datum|
-						if web.elements[datum].respond_to? :text
-							info[datum.intern] = nils_for_nulls(web.elements[datum].text.to_s.strip)
-						end
-					end
-					info[:headers] = nils_for_nulls(unserialize_object(web.elements["headers"], allow_yaml))
-				when "form"
-					%W{path query method}.each do |datum|
-						if web.elements[datum].respond_to? :text
-							info[datum.intern] = nils_for_nulls(web.elements[datum].text.to_s.strip)
-						end
-					end
-					info[:params] = nils_for_nulls(unserialize_object(web.elements["params"], allow_yaml))
-				when "vuln"
-					%W{path query method pname proof risk name blame description category confidence}.each do |datum|
-						if web.elements[datum].respond_to? :text
-							info[datum.intern] = nils_for_nulls(web.elements[datum].text.to_s.strip)
-						end
-					end
-					info[:params] = nils_for_nulls(unserialize_object(web.elements["params"], allow_yaml))
-					info[:risk]   = info[:risk].to_i
-					info[:confidence] = info[:confidence].to_i
-				end
-
-				%W{created-at updated-at}.each { |datum|
-					if web.elements[datum].text
-						info[datum.gsub("-","_")] = nils_for_nulls(web.elements[datum].text.to_s.strip)
-					end
-				}
-				self.send("report_web_#{wtype}", info)
-
-				yield("web_#{wtype}".intern, info[:path]) if block
-			end
-		end
 	end
 
 	# Convert the string "NULL" to actual nil
@@ -4033,7 +3878,8 @@ class DBManager
 			conf = {
 				:workspace => wspace,
 				:host      => addr,
-				:state     => Msf::HostState::Alive
+				:state     => Msf::HostState::Alive,
+        :task      => args[:task]
 			}
 
 			host = report_host(conf)
@@ -4043,7 +3889,8 @@ class DBManager
 				:workspace => wspace,
 				:host      => host,
 				:type      => 'host.os.nexpose_fingerprint',
-				:data      => fprint
+				:data      => fprint,
+        :task      => args[:task]
 			)
 
 			# Load vulnerabilities not associated with a service
@@ -4056,7 +3903,8 @@ class DBManager
 					:host      => host,
 					:name      => 'NEXPOSE-' + vid,
 					:info      => vid,
-					:refs      => refs
+					:refs      => refs,
+          :task      => args[:task]
 				)
 			end
 
@@ -4075,9 +3923,24 @@ class DBManager
 				end
 
 				if(sname.downcase != '<unknown>')
-					report_service(:workspace => wspace, :host => host, :proto => sprot, :port => sport, :name => name, :info => info)
+					report_service(
+              :workspace => wspace,
+              :host      => host,
+              :proto     => sprot,
+              :port      => sport,
+              :name      => name,
+              :info      => info,
+              :task      => args[:task]
+          )
 				else
-					report_service(:workspace => wspace, :host => host, :proto => sprot, :port => sport, :info => info)
+					report_service(
+              :workspace => wspace,
+              :host      => host,
+              :proto     => sprot,
+              :port      => sport,
+              :info      => info,
+              :task      => args[:task]
+          )
 				end
 
 				# Load vulnerabilities associated with this service
@@ -4086,13 +3949,14 @@ class DBManager
 					refs = process_nexpose_data_sxml_refs(vuln)
 					next if not refs
 					report_vuln(
-						:workspace => wspace,
-						:host => host,
-						:port => sport,
-						:proto => sprot,
-						:name => 'NEXPOSE-' + vid,
-						:info => vid,
-						:refs => refs
+              :workspace => wspace,
+              :host      => host,
+              :port      => sport,
+              :proto     => sprot,
+              :name      => 'NEXPOSE-' + vid,
+              :info      => vid,
+              :refs      => refs,
+              :task      => args[:task]
 					)
 				end
 			end
@@ -4176,9 +4040,9 @@ class DBManager
 	# Takes an array of vuln hashes, as returned by the NeXpose rawxml stream
 	# parser, like:
 	#   [
-	#		{"id"=>"winreg-notes-protocol-handler", severity="8", "refs"=>[{"source"=>"BID", "value"=>"10600"}, ...]}
-	#		{"id"=>"windows-zotob-c", severity="8", "refs"=>[{"source"=>"BID", "value"=>"14513"}, ...]}
-	#	]
+	#     {"id"=>"winreg-notes-protocol-handler", severity="8", "refs"=>[{"source"=>"BID", "value"=>"10600"}, ...]}
+	#     {"id"=>"windows-zotob-c", severity="8", "refs"=>[{"source"=>"BID", "value"=>"14513"}, ...]}
+	#   ]
 	# and transforms it into a struct, containing :id, :refs, :title, and :severity
 	#
 	# Other attributes can be added later, as needed.
@@ -4210,7 +4074,7 @@ class DBManager
 
 	# Takes a Host object, an array of vuln structs (generated by nexpose_refs_to_struct()),
 	# and a workspace, and reports the vulns on that host.
-	def nexpose_host_from_rawxml(h, vstructs, wspace)
+	def nexpose_host_from_rawxml(h, vstructs, wspace,task=nil)
 		hobj = nil
 		data = {:workspace => wspace}
 		if h["addr"]
@@ -4239,11 +4103,12 @@ class DBManager
 
 		if h["notes"]
 			note = {
-				:workspace => wspace,
-				:host => (hobj || addr),
-				:type => "host.vuln.nexpose_keys",
-				:data => {},
-				:mode => :unique_data
+          :workspace => wspace,
+          :host      => (hobj || addr),
+          :type      => "host.vuln.nexpose_keys",
+          :data      => {},
+          :mode      => :unique_data,
+          :task      => task
 			}
 			h["notes"].each do |v,k|
 				note[:data][v] ||= []
@@ -4255,13 +4120,14 @@ class DBManager
 
 		if h["os_family"]
 			note = {
-				:workspace => wspace,
-				:host => hobj || addr,
-				:type => 'host.os.nexpose_fingerprint',
-				:data => {
-					:family    => h["os_family"],
-					:certainty => h["os_certainty"]
-				}
+          :workspace => wspace,
+          :host      => hobj || addr,
+          :type      => 'host.os.nexpose_fingerprint',
+          :task      => task,
+          :data      => {
+              :family    => h["os_family"],
+              :certainty => h["os_certainty"]
+          }
 			}
 			note[:data][:vendor]  = h["os_vendor"]  if h["os_vendor"]
 			note[:data][:product] = h["os_product"] if h["os_product"]
@@ -4282,13 +4148,14 @@ class DBManager
 			# XXX This should probably be handled in a more standard way
 			# extra << "(" + p["certainty"] + " certainty) " if p["certainty"]
 
-			data = {}
-			data[:workspace] = wspace
-			data[:proto] = p["protocol"].downcase
-			data[:port]  = p["port"].to_i
-			data[:state] = p["status"]
-			data[:host]  = hobj || addr
-			data[:info]  = extra if not extra.empty?
+      data             = {}
+      data[:workspace] = wspace
+      data[:proto]     = p["protocol"].downcase
+      data[:port]      = p["port"].to_i
+      data[:state]     = p["status"]
+      data[:host]      = hobj || addr
+      data[:info]      = extra if not extra.empty?
+      data[:task]      = task
 			if p["name"] != "<unknown>"
 				data[:name] = p["name"]
 			end
@@ -4300,14 +4167,15 @@ class DBManager
 			next if v["status"] !~ /^vulnerable/
 			vstruct = vstructs.select {|vs| vs.id.to_s.downcase == v["id"].to_s.downcase}.first
 			next unless vstruct
-			data = {}
-			data[:workspace] = wspace
-			data[:host] = hobj || addr
-			data[:proto] = v["protocol"].downcase if v["protocol"]
-			data[:port] = v["port"].to_i if v["port"]
-			data[:name] = "NEXPOSE-" + v["id"]
-			data[:info] = vstruct.title
-			data[:refs] = vstruct.refs
+      data             = {}
+      data[:workspace] = wspace
+      data[:host]      = hobj || addr
+      data[:proto]     = v["protocol"].downcase if v["protocol"]
+      data[:port]      = v["port"].to_i if v["port"]
+      data[:name]      = "NEXPOSE-" + v["id"]
+      data[:info]      = vstruct.title
+      data[:refs]      = vstruct.refs
+      data[:task]      = task
 			report_vuln(data)
 		}
 	end
@@ -4374,12 +4242,13 @@ class DBManager
 			# Import OS fingerprint
 			if host["os"]
 				note = {
-					:workspace => wspace,
-					:host => addr,
-					:type => 'host.os.retina_fingerprint',
-					:data => {
-						:os => host["os"]
-					}
+            :workspace => wspace,
+            :host      => addr,
+            :type      => 'host.os.retina_fingerprint',
+            :task      => args[:task],
+            :data      => {
+                :os => host["os"]
+            }
 				}
 				report_note(note)
 			end
@@ -4390,11 +4259,12 @@ class DBManager
 				refs << "RETINA-#{vuln['rthid']}" if vuln['rthid']
 
 				vuln_info = {
-					:workspace => wspace,
-					:host => addr,
-					:name => vuln['name'],
-					:info => vuln['description'],
-					:refs => refs
+            :workspace => wspace,
+            :host      => addr,
+            :name      => vuln['name'],
+            :info      => vuln['description'],
+            :refs      => refs,
+            :task      => args[:task]
 				}
 
 				report_vuln(vuln_info)
@@ -4486,7 +4356,8 @@ class DBManager
 						:query    => uri.query,
 						:code     => code,
 						:body     => body,
-						:headers  => headers
+						:headers  => headers,
+            :task     => args[:task]
 					}
 					info.merge!(data)
 
@@ -4543,18 +4414,22 @@ class DBManager
 			end
 
 			info = {
-				:path     => uri.path,
-				:query    => uri.query,
-				:method   => method,
-				:params   => params,
-				:pname    => pname.to_s,
-				:proof    => proof,
-				:risk     => details[:risk],
-				:name     => details[:name],
-				:blame    => details[:blame],
-				:category => details[:category],
-				:description => details[:description],
-				:confidence  => details[:confidence],
+				# XXX: There is a :request attr in the model, but report_web_vuln
+				# doesn't seem to know about it, so this gets ignored.
+				#:request  => vuln['request'],
+        :path        => uri.path,
+        :query       => uri.query,
+        :method      => method,
+        :params      => params,
+        :pname       => pname.to_s,
+        :proof       => proof,
+        :risk        => details[:risk],
+        :name        => details[:name],
+        :blame       => details[:blame],
+        :category    => details[:category],
+        :description => details[:description],
+        :confidence  => details[:confidence],
+        :task        => args[:task]
 			}
 			info.merge!(data)
 
@@ -4846,6 +4721,7 @@ class DBManager
 	# If you have Nokogiri installed, you'll be shunted over to
 	# that. Otherwise, you'll hit the old NmapXMLStreamParser.
 	def import_nmap_xml(args={}, &block)
+		return nil if args[:data].nil? or args[:data].empty?
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
@@ -4891,6 +4767,7 @@ class DBManager
 				data[:mac] = h["addrs"]["mac"]
 			end
 			data[:state] = (h["status"] == "up") ? Msf::HostState::Alive : Msf::HostState::Dead
+      data[:task] = args[:task]
 
 			if ( h["reverse_dns"] )
 				data[:name] = h["reverse_dns"]
@@ -4914,6 +4791,7 @@ class DBManager
 					:workspace => wspace,
 					:host => hobj || addr,
 					:type => 'host.os.nmap_fingerprint',
+          :task => args[:task],
 					:data => {
 						:os_vendor   => h["os_vendor"],
 						:os_family   => h["os_family"],
@@ -4934,6 +4812,7 @@ class DBManager
 					:workspace => wspace,
 					:host => hobj || addr,
 					:type => 'host.last_boot',
+          :task => args[:task],
 					:data => {
 						:time => h["last_boot"]
 					}
@@ -4954,6 +4833,7 @@ class DBManager
 					:workspace => wspace,
 					:host => hobj || addr,
 					:type => 'host.nmap.traceroute',
+          :task => args[:task],
 					:data => {
 						'port'  => h["trace"]["port"].to_i,
 						'proto' => h["trace"]["proto"].to_s,
@@ -4989,6 +4869,7 @@ class DBManager
 				data[:state] = p["state"]
 				data[:host]  = hobj || addr
 				data[:info]  = extra if not extra.empty?
+        data[:task]  = args[:task]
 				if p["name"] != "unknown"
 					data[:name] = p["name"]
 				end
@@ -5001,6 +4882,7 @@ class DBManager
 						if val =~ /MS08-067: VULNERABLE/
 							vuln_info = {
 								:workspace => wspace,
+                :task => args[:task],
 								:host =>  hobj || addr,
 								:port => 445,
 								:proto => 'tcp',
@@ -5019,6 +4901,7 @@ class DBManager
 						if val =~ /MS06-025: VULNERABLE/
 							vuln_info = {
 								:workspace => wspace,
+                :task => args[:task],
 								:host =>  hobj || addr,
 								:port => 445,
 								:proto => 'tcp',
@@ -5041,6 +4924,7 @@ class DBManager
 						if val =~ /MS07-029: VULNERABLE/
 							vuln_info = {
 								:workspace => wspace,
+                :task => args[:task],
 								:host =>  hobj || addr,
 								:port => 445,
 								:proto => 'tcp',
@@ -5071,7 +4955,7 @@ class DBManager
 	#
 	# This method normalizes an incoming service name to one of the
 	# the standard ones recognized by metasploit
-	# 
+	#
 	def service_name_map(proto)
 		return proto unless proto.kind_of? String
 		case proto.downcase
@@ -5139,11 +5023,11 @@ class DBManager
 	# There is no place the NBE actually stores the plugin name used to
 	# scan. You get "Security Note" or "Security Warning," and that's it.
 	def import_nessus_nbe(args={}, &block)
-		data = args[:data]
+		nbe_data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
-		nbe_copy = data.dup
+		nbe_copy = nbe_data.dup
 		# First pass, just to build the address map.
 		addr_map = {}
 
@@ -5159,7 +5043,7 @@ class DBManager
 			addr_map[hname] = addr
 		end
 
-		data.each_line do |line|
+		nbe_data.each_line do |line|
 			r = line.split('|')
 			next if r[0] != 'results'
 			hname = r[2]
@@ -5182,7 +5066,7 @@ class DBManager
 				yield(:address,addr) if block
 			end
 
-			hobj_map[ addr ] ||= report_host(:host => addr, :workspace => wspace)
+			hobj_map[ addr ] ||= report_host(:host => addr, :workspace => wspace, :task => args[:task])
 
 			# Match the NBE types with the XML severity ratings
 			case type
@@ -5200,6 +5084,7 @@ class DBManager
 				os = data.match(/The remote host is running (.*)\\n/)[1]
 				report_note(
 					:workspace => wspace,
+          :task => args[:task],
 					:host => hobj_map[ addr ],
 					:type => 'host.os.nessus_fingerprint',
 					:data => {
@@ -5288,7 +5173,8 @@ class DBManager
 
 			hinfo = {
 				:workspace => wspace,
-				:host => addr
+				:host => addr,
+        :task => args[:task]
 			}
 
 			# Record the hostname
@@ -5301,6 +5187,7 @@ class DBManager
 			if os
 				report_note(
 					:workspace => wspace,
+          :task => args[:task],
 					:host => hobj,
 					:type => 'host.os.nessus_fingerprint',
 					:data => {
@@ -5316,7 +5203,7 @@ class DBManager
 				data = item.elements['data'].text
 				severity = item.elements['severity'].text
 
-				handle_nessus(wspace, hobj, port, nasl, plugin_name, severity, data)
+				handle_nessus(wspace, hobj, port, nasl, plugin_name, severity, data, args[:task])
 			end
 		end
 	end
@@ -5364,6 +5251,7 @@ class DBManager
 			host_info = {
 				:workspace => wspace,
 				:host => addr,
+        :task => args[:task]
 			}
 			host_info[:name] = hname.to_s.strip if hname
 			# Short mac, protect against Nessus's habit of saving multiple macs
@@ -5378,6 +5266,7 @@ class DBManager
 			if os
 				report_note(
 					:workspace => wspace,
+          :task => args[:task],
 					:host => hobj,
 					:type => 'host.os.nessus_fingerprint',
 					:data => {
@@ -5403,7 +5292,7 @@ class DBManager
 
 				yield(:port,port) if block
 
-				handle_nessus_v2(wspace, hobj, port, proto, sname, nasl, nasl_name, severity, description, cve, bid, xref, msf)
+				handle_nessus_v2(wspace, hobj, port, proto, sname, nasl, nasl_name, severity, description, cve, bid, xref, msf, args[:task])
 
 			end
 			yield(:end,hname) if block
@@ -5672,6 +5561,7 @@ class DBManager
 			host_hash = {
 				:workspace => wspace,
 				:host => addr,
+        :task => args[:task]
 			}
 			host_hash[:name] = hname.to_s.strip if hname
 			host_hash[:mac]  = mac.to_s.strip.upcase if mac
@@ -5682,6 +5572,7 @@ class DBManager
 			if os
 				report_note(
 					:workspace => wspace,
+          :task => args[:task],
 					:host => hobj,
 					:type => 'host.os.ip360_fingerprint',
 					:data => {
@@ -5694,7 +5585,7 @@ class DBManager
 				port = item['port'].to_s
 				proto = item['proto'].to_s
 
-				handle_ip360_v3_svc(wspace, hobj, port, proto, hname)
+				handle_ip360_v3_svc(wspace, hobj, port, proto, hname, args[:task])
 			end
 
 
@@ -5708,7 +5599,7 @@ class DBManager
 
 				yield(:port, port) if block
 
-				handle_ip360_v3_vuln(wspace, hobj, port, proto, hname, vulnid, vulnname, cves, bids)
+				handle_ip360_v3_vuln(wspace, hobj, port, proto, hname, vulnid, vulnname, cves, bids, args[:task])
 
 			end
 
@@ -5741,7 +5632,7 @@ class DBManager
 			next unless vi.elements["QID"]
 			vi.elements.each("QID") do |qid|
 				next if vuln_refs[qid.text].nil? || vuln_refs[qid.text].empty?
-				handle_qualys(wspace, hobj, nil, nil, qid.text, nil, vuln_refs[qid.text], nil)
+				handle_qualys(wspace, hobj, nil, nil, qid.text, nil, vuln_refs[qid.text], nil,nil, args[:task])
 			end
 		end
 	end
@@ -5761,7 +5652,7 @@ class DBManager
 				else
 					name = match[2].strip
 				end
-				handle_qualys(wspace, hobj, match[0].to_s, proto, 0, nil, nil, name)
+				handle_qualys(wspace, hobj, match[0].to_s, proto, 0, nil, nil, name, nil, args[:task])
 			end
 		end
 	end
@@ -5790,13 +5681,14 @@ class DBManager
 				(host.elements["NETBIOS"].text if host.elements["NETBIOS"]) ||
 			 	(host.elements["DNS"].text if host.elements["DNS"]) ||
 			 	"" )
-			hobj = report_host(:workspace => wspace, :host => addr, :name => hname, :state => Msf::HostState::Alive)
+			hobj = report_host(:workspace => wspace, :host => addr, :name => hname, :state => Msf::HostState::Alive, :task => args[:task])
 			report_import_note(wspace,hobj)
 
 			if host.elements["OPERATING_SYSTEM"]
 				hos = host.elements["OPERATING_SYSTEM"].text
 				report_note(
 					:workspace => wspace,
+          :task => args[:task],
 					:host => hobj,
 					:type => 'host.os.qualys_fingerprint',
 					:data => { :os => hos }
@@ -5845,13 +5737,14 @@ class DBManager
 			end
 			hname = host.attributes['name'] || ''
 
-			hobj = report_host(:workspace => wspace, :host => addr, :name => hname, :state => Msf::HostState::Alive)
+			hobj = report_host(:workspace => wspace, :host => addr, :name => hname, :state => Msf::HostState::Alive, :task => args[:task])
 			report_import_note(wspace,hobj)
 
 			if host.elements["OS"]
 				hos = host.elements["OS"].text
 				report_note(
 					:workspace => wspace,
+          :task => args[:task],
 					:host => hobj,
 					:type => 'host.os.qualys_fingerprint',
 					:data => {
@@ -5869,7 +5762,7 @@ class DBManager
 					else
 						name = match[2].strip
 					end
-					handle_qualys(wspace, hobj, match[0].to_s, 'tcp', 0, nil, nil, name)
+					handle_qualys(wspace, hobj, match[0].to_s, 'tcp', 0, nil, nil, name, nil, args[:task])
 				end
 			end
 			# Open UDP Services List (Qualys ID 82004)
@@ -5881,7 +5774,7 @@ class DBManager
 					else
 						name = match[2].strip
 					end
-					handle_qualys(wspace, hobj, match[0].to_s, 'udp', 0, nil, nil, name)
+					handle_qualys(wspace, hobj, match[0].to_s, 'udp', 0, nil, nil, name, nil, args[:task])
 				end
 			end
 
@@ -5904,7 +5797,7 @@ class DBManager
 						refs.push('BID-' + ref.elements['ID'].text.to_s)
 					end
 
-					handle_qualys(wspace, hobj, port, protocol, qid, severity, refs, nil,title)
+					handle_qualys(wspace, hobj, port, protocol, qid, severity, refs, nil,title, args[:task])
 				end
 			end
 		end
@@ -5933,7 +5826,7 @@ class DBManager
 			else
 				yield(:address,ip) if block
 			end
-			host = find_or_create_host(:workspace => wspace, :host=> ip, :state => Msf::HostState::Alive)
+			host = find_or_create_host(:workspace => wspace, :host=> ip, :state => Msf::HostState::Alive, :task => args[:task])
 		end
 	end
 
@@ -5968,11 +5861,12 @@ class DBManager
 			port   = $2.to_i
 			proto  = $3.downcase
 			name   = $4
-			host = find_or_create_host(:workspace => wspace, :host => addr, :state => Msf::HostState::Alive)
+			host = find_or_create_host(:workspace => wspace, :host => addr, :state => Msf::HostState::Alive, :task => args[:task])
 			next if not host
 			yield(:address,addr) if block
 			info = {
 				:workspace => wspace,
+        :task => args[:task],
 				:host => host,
 				:proto => proto,
 				:port => port
@@ -6002,11 +5896,12 @@ class DBManager
 			name   = r[5]
 			next if status != "open"
 
-			host = find_or_create_host(:workspace => wspace, :host => addr, :state => Msf::HostState::Alive)
+			host = find_or_create_host(:workspace => wspace, :host => addr, :state => Msf::HostState::Alive, :task => args[:task])
 			next if not host
 			yield(:address,addr) if block
 			info = {
 				:workspace => wspace,
+        :task => args[:task],
 				:host => host,
 				:proto => proto,
 				:port => port
@@ -6127,7 +6022,7 @@ protected
 	# This holds all of the shared parsing/handling used by the
 	# Nessus NBE and NESSUS v1 methods
 	#
-	def handle_nessus(wspace, hobj, port, nasl, plugin_name, severity, data)
+	def handle_nessus(wspace, hobj, port, nasl, plugin_name, severity, data,task=nil)
 		addr = hobj.address
 		# The port section looks like:
 		#   http (80/tcp)
@@ -6140,7 +6035,7 @@ protected
 		port = p[2].to_i
 		proto = p[3].downcase
 
-		info = { :workspace => wspace, :host => hobj, :port => port, :proto => proto }
+		info = { :workspace => wspace, :host => hobj, :port => port, :proto => proto, :task => task }
 		if name != "unknown" and name[-1,1] != "?"
 			info[:name] = name
 		end
@@ -6189,7 +6084,8 @@ protected
 			:proto => proto,
 			:name => vuln_name,
 			:info => data,
-			:refs => refs
+			:refs => refs,
+      :task => task,
 		}
 		report_vuln(vuln_info)
 	end
@@ -6198,10 +6094,10 @@ protected
 	# NESSUS v2 file format has a dramatically different layout
 	# for ReportItem data
 	#
-	def handle_nessus_v2(wspace,hobj,port,proto,name,nasl,nasl_name,severity,description,cve,bid,xref,msf)
+	def handle_nessus_v2(wspace,hobj,port,proto,name,nasl,nasl_name,severity,description,cve,bid,xref,msf,task=nil)
 		addr = hobj.address
 
-		info = { :workspace => wspace, :host => hobj, :port => port, :proto => proto }
+		info = { :workspace => wspace, :host => hobj, :port => port, :proto => proto, :task => task }
 
 		unless name =~ /^unknown$|\?$/
 			info[:name] = name
@@ -6248,7 +6144,8 @@ protected
 			:host => hobj,
 			:name => vuln_name,
 			:info => description ? description : "",
-			:refs => refs
+			:refs => refs,
+      :task => task,
 		}
 
 		if port.to_i != 0
@@ -6262,11 +6159,11 @@ protected
 	#
 	# IP360 v3 vuln
 	#
-	def handle_ip360_v3_svc(wspace,hobj,port,proto,hname)
+	def handle_ip360_v3_svc(wspace,hobj,port,proto,hname,task=nil)
 		addr = hobj.address
-		report_host(:workspace => wspace, :host => hobj, :state => Msf::HostState::Alive)
+		report_host(:workspace => wspace, :host => hobj, :state => Msf::HostState::Alive, :task => task)
 
-		info = { :workspace => wspace, :host => hobj, :port => port, :proto => proto }
+		info = { :workspace => wspace, :host => hobj, :port => port, :proto => proto, :task => task }
 		if hname != "unknown" and hname[-1,1] != "?"
 			info[:name] = hname
 		end
@@ -6279,8 +6176,8 @@ protected
 	#
 	# IP360 v3 vuln
 	#
-	def handle_ip360_v3_vuln(wspace,hobj,port,proto,hname,vulnid,vulnname,cves,bids)
-		info = { :workspace => wspace, :host => hobj, :port => port, :proto => proto }
+	def handle_ip360_v3_vuln(wspace,hobj,port,proto,hname,vulnid,vulnname,cves,bids,task=nil)
+		info = { :workspace => wspace, :host => hobj, :port => port, :proto => proto, :task => task }
 		if hname != "unknown" and hname[-1,1] != "?"
 			info[:name] = hname
 		end
@@ -6305,7 +6202,8 @@ protected
 			:host => hobj,
 			:name => vulnname,
 			:info => description ? description : "",
-			:refs => refs
+			:refs => refs,
+      :task => task
 		}
 
 		if port.to_i != 0
@@ -6319,11 +6217,11 @@ protected
 	#
 	# Qualys report parsing/handling
 	#
-	def handle_qualys(wspace, hobj, port, protocol, qid, severity, refs, name=nil, title=nil)
+	def handle_qualys(wspace, hobj, port, protocol, qid, severity, refs, name=nil, title=nil, task=nil)
 		addr = hobj.address
 		port = port.to_i if port
 
-		info = { :workspace => wspace, :host => hobj, :port => port, :proto => protocol }
+		info = { :workspace => wspace, :host => hobj, :port => port, :proto => protocol, :task => task }
 		if name and name != 'unknown' and name != 'No registered hostname'
 			info[:name] = name
 		end
@@ -6349,6 +6247,7 @@ protected
 		if addr
 			report_vuln(
 				:workspace => wspace,
+        :task => task,
 				:host => hobj,
 				:port => port,
 				:proto => protocol,

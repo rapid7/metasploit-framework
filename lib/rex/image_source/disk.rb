@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 # -*- coding: binary -*-
 
-# $Id$
-
 require 'rex/image_source/image_source'
 require 'rex/struct2'
 
@@ -31,7 +29,7 @@ class Disk < ImageSource
 		file.seek(file_offset + offset)
 		file.read(len)
 	end
-	
+
 	def index(search, offset = 0)
 		# do a sliding window search across the disk
 		while offset < size

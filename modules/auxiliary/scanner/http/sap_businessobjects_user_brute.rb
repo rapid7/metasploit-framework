@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -23,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'		   => 'SAP BusinessObjects User Bruteforcer',
-			'Version'		=> '$Revision$',
 			'Description'	=> 'This module attempts to bruteforce SAP BusinessObjects users.
 				The dswsbobje interface is only used to verify valid credentials for CmcApp.
 				Therefore, any valid credentials that have been identified can be leveraged by
@@ -75,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			res = send_request_raw({
-				'uri'     => normalize_uri(datastore['URI']) + "/services/Session",
+				'uri'     => normalize_uri(datastore['URI'], "/services/Session"),
 				'method'  => 'POST',
 				'data'	  => data,
 				'headers' =>

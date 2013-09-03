@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-##
-# $Id$
-##
 
 module Rex
 module Zip
@@ -24,6 +21,10 @@ class Archive
 	#
 	# Create a new Entry and add it to the archive.
 	#
+	# If fdata is set, the file is populated with that data
+	# from the calling method. If fdata is nil, then the
+	# fs is checked for the file.
+	#
 	def add_file(fname, fdata=nil, xtra=nil, comment=nil)
 		if (not fdata)
 			begin
@@ -35,7 +36,10 @@ class Archive
 			ts = st.mtime
 			if (st.directory?)
 				attrs = EFA_ISDIR
-				fname += '/'
+				fdata = ''
+				unless fname[-1,1] == '/'
+					fname += '/'
+				end
 			else
 				f = File.open(fname, 'rb')
 				fdata = f.read(f.stat.size)

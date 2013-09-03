@@ -22,8 +22,11 @@ module X86
 	ESI = DH = SI =      6
 	EDI = BH = DI =      7
 
-	REG_NAMES32 = [ 'eax', 'ecx', 'edx', 'ebx',
-	                'esp', 'ebp', 'esi', 'edi' ] # :nodoc:
+	REG_NAMES32 = [ 'eax', 'ecx', 'edx', 'ebx', 'esp', 'ebp', 'esi', 'edi' ]
+
+	REG_NAMES16 = [ 'ax', 'cx', 'dx', 'bx', 'sp', 'bp', 'si', 'di' ]
+
+	REG_NAMES8L = [ 'al', 'cl', 'dl', 'bl', nil, nil, nil, nil ]
 
 	# Jump tp a specific register
 	def self.jmp_reg(str)
@@ -32,6 +35,14 @@ module X86
 		"\xFF" + [224 + reg].pack('C')
 	end
 
+	#
+	# Generate a LOOP instruction (Decrement ECX and jump short if ECX == 0)
+	#
+	def self.loop(offset)
+		"\xE2" + pack_lsb(rel_number(offset, -2))
+	end
+
+	#
 	# This method returns the opcodes that compose a jump instruction to the
 	# supplied relative offset.
 	def self.jmp(addr)

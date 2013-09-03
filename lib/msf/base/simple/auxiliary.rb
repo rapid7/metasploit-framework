@@ -77,7 +77,7 @@ module Auxiliary
 				Proc.new { |ctx_| self.job_cleanup_proc(ctx_) }
 			)
 			# Propagate this back to the caller for console mgmt
-			omod.job_id = mod.job_id			
+			omod.job_id = mod.job_id
 		else
 			self.job_run_proc(ctx)
 			self.job_cleanup_proc(ctx)
@@ -91,6 +91,39 @@ module Auxiliary
 	def run_simple(opts = {}, &block)
 		Msf::Simple::Auxiliary.run_simple(self, opts, &block)
 	end
+
+	#
+	# Initiates a check, setting up the exploit to be used.  The following
+	# options can be specified:
+	#
+	# LocalInput
+	#
+	# 	The local input handle that data can be read in from.
+	#
+	# LocalOutput
+	#
+	# 	The local output through which data can be displayed.
+	#
+	def self.check_simple(mod, opts)
+		if opts['LocalInput']
+			mod.init_ui(opts['LocalInput'], opts['LocalOutput'])
+		end
+
+		# Validate the option container state so that options will
+		# be normalized
+		mod.validate
+
+		# Run check
+		mod.check
+	end
+
+	#
+	# Calls the class method.
+	#
+	def check_simple(opts)
+		Msf::Simple::Auxiliary.check_simple(self, opts)
+	end
+
 
 protected
 

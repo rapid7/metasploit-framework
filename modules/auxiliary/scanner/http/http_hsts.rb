@@ -35,18 +35,22 @@ class Metasploit3 < Msf::Auxiliary
 				'method' => 'GET',
 				}, 25)
 
-			hsts = res.headers['Strict-Transport-Security']
+			if res
+				hsts = res.headers['Strict-Transport-Security']
 
-			if res and hsts
-				print_good("#{ip}:#{rport} - Strict-Transport-Security:#{hsts}")
-				report_note({
-					:data => hsts,
-					:type => "hsts.data",
-					:host => ip,
-					:port => rport
-				})
+				if hsts
+					print_good("#{ip}:#{rport} - Strict-Transport-Security:#{hsts}")
+					report_note({
+						:data => hsts,
+						:type => "hsts.data",
+						:host => ip,
+						:port => rport
+					})
+				else
+					print_error("#{ip}:#{rport} No HSTS found.")
+				end
 			else
-				print_error("#{ip}:#{rport} No HSTS found.")
+				print_error("#{ip}:#{rport} No headers were returned.")
 			end
 
 		rescue ::Timeout::Error, ::Errno::EPIPE

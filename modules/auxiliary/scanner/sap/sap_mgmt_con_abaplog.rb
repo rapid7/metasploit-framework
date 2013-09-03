@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -19,8 +15,7 @@ class Metasploit4 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'         => 'SAP Management Console ABAP syslog',
-			'Version'      => '$Revision$',
+			'Name'         => 'SAP Management Console ABAP Syslog Disclosure',
 			'Description'  => %q{ This module simply attempts to extract the ABAP syslog through the SAP Management Console SOAP Interface. },
 			'References'   =>
 				[
@@ -111,7 +106,7 @@ class Metasploit4 < Msf::Auxiliary
 		if success
 			print_status("#{rhost}:#{rport} [SAP] ABAP syslog downloading")
 			print_status("#{rhost}:#{rport} [SAP] Storing looted SAP ABAP syslog XML file")
-			store_loot(
+			path = store_loot(
 				"sap.abap.syslog",
 				"text/xml",
 				rhost,
@@ -119,7 +114,7 @@ class Metasploit4 < Msf::Auxiliary
 				"sap_abap_syslog.xml",
 				"SAP ABAP syslog"
 			)
-
+			print_good("#{rhost}:#{rport} [SAP] SAP ABAP syslog XML file stored at #{path}")
 		elsif fault
 			print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
 			return

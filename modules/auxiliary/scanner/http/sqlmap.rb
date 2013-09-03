@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -36,7 +32,6 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'	    => [ 'Bernardo Damele A. G. <bernardo.damele[at]gmail.com>' ],
 			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision$',
 			'References'	=>
 				[
 					['URL', 'http://sqlmap.sourceforge.net'],

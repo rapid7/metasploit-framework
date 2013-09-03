@@ -17,7 +17,7 @@ class Framework
 	#
 
 	Major    = 4
-	Minor    = 6
+	Minor    = 8
 	Point    = 0
 	Release  = "-dev"
 
@@ -301,7 +301,7 @@ class FrameworkEventSubscriber
 	#
 	def session_event(name, session, opts={})
 		address = session.session_host
-		
+
 		if not (address and address.length > 0)
 			elog("Session with no session_host/target_host/tunnel_peer")
 			dlog("#{session.inspect}", LEV_3)

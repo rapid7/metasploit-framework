@@ -11,6 +11,10 @@ require 'msf/core'
 ###
 module Msf::Payload::Windows
 
+	require 'msf/core/payload/windows/prepend_migrate'
+	# Provides the #prepends method
+	include Msf::Payload::Windows::PrependMigrate
+
 	#
 	# ROR hash associations for some of the exit technique routines.
 	#
@@ -22,11 +26,16 @@ module Msf::Payload::Windows
 			'none'    => 0x5DE2C5AA, # GetLastError
 		}
 
+
+	def generate
+		return prepends(super)
+	end
+
 	#
 	# This mixin is chained within payloads that target the Windows platform.
 	# It provides special variable substitution for things like EXITFUNC and
 	# automatically adds it as a required option for exploits that use windows
-	# payloads.
+	# payloads. It also provides the migrate prepend.
 	#
 	def initialize(info = {})
 		ret = super( info )
@@ -53,7 +62,6 @@ module Msf::Payload::Windows
 			[
 				Msf::OptRaw.new('EXITFUNC', [ true, "Exit technique: #{@@exit_types.keys.join(", ")}", 'process' ])
 			], Msf::Payload::Windows )
-
 		ret
 	end
 

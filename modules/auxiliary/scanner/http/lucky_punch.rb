@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -30,8 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 				XSS attack to redirect user browser to a attacker controller website.
 			},
 			'Author'         => [ 'et' ],
-			'License'        => BSD_LICENSE,
-			'Version'        => '$Revision$'))
+			'License'        => BSD_LICENSE))
 
 		register_options(
 			[
@@ -86,7 +81,7 @@ EOF
 
 	begin
 		normalres = send_request_cgi({
-			'uri'          =>  datastore['URI'],
+			'uri'          =>  normalize_uri(datastore['URI']),
 			'vars_get'     =>  gvars,
 			'method'       => 'GET',
 			'ctype'        => 'text/plain'

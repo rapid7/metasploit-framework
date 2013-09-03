@@ -19,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Koyo DirectLogic PLC Password Brute Force Utility',
-			'Version'        => '$Revision$',
 			'Description'    => %q{
 					This module attempts to authenticate to a locked Koyo DirectLogic PLC.
 				The PLC uses a restrictive passcode, which can be A0000000 through A9999999.

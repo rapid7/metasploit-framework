@@ -1,4 +1,10 @@
-# $Id$
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
 #
 # List physical drives and logical volumes on the remote system
 #
@@ -14,7 +20,6 @@ class Metasploit3 < Msf::Post
 			'Name'          => 'Windows Gather Physical Drives and Logical Volumes',
 			'Description'   => %q{This module will list physical drives and logical volumes},
 			'License'       => MSF_LICENSE,
-			'Version'       => '$Revision$',
 			'Platform'      => ['win'],
 			'SessionTypes'  => ['meterpreter'],
 			'Author'        => ['Wesley McGrew <wesley[at]mcgrewsecurity.com>']

@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-##
-# $Id$
-##
 
 require 'msf/base/sessions/meterpreter'
 

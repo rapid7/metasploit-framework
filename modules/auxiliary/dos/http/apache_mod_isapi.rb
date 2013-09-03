@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -43,7 +39,6 @@ class Metasploit3 < Msf::Auxiliary
 					'Brett Gervasoni',  # original discovery
 					'jduck'
 				],
-			'Version'        => '$Revision$',
 			'License'        => MSF_LICENSE,
 			'References'     =>
 				[
@@ -66,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 
 		serverIP = datastore['RHOST']
-		if (datastore['RPORT'].o_i != 80)
+		if (datastore['RPORT'].to_i != 80)
 			serverIP += ":" + datastore['RPORT'].to_s
 		end
 		isapiURI = datastore['ISAPI']

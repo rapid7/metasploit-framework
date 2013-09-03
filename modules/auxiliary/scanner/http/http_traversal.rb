@@ -1,3 +1,10 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
 #
 # Thanks to:
 # ipax, neriberto, flambaz, bperry, egypt, and sinn3r for help
@@ -28,13 +35,12 @@ class Metasploit3 < Msf::Auxiliary
 				source against PHP applications.  The 'WRITABLE' action can be used to determine
 				if the trigger can be used to write files outside the www directory.
 
-					To use the 'COOKIE' option, set your value like so: "name=value".  To use
-				the 'BASICAUTH' option, set it like this: "username:password".
+					To use the 'COOKIE' option, set your value like so: "name=value".
 			},
 			'Author'         =>
 				[
 					'Ewerson Guimaraes(Crash) <crash[at]dclabs.com.br>',
-					'm-1-k-3 <michael.messner[at]integralis.com>',
+					'Michael Messner <devnull[at]s3cur1ty.de>',
 					'et <et[at]cyberspace.org>',
 					'sinn3r'
 				],
@@ -70,8 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 				# We favor automatic
 				OptString.new('TRIGGER',   [false,'Trigger string. Ex: ../', '']),
 				OptString.new('FILE',      [false, 'Default file to read for the fuzzing stage', '']),
-				OptString.new('COOKIE',    [false, 'Cookie value to use when sending the requests', '']),
-				OptString.new('BASICAUTH', [false, 'Credential to use for basic auth (Ex: admin:admin)', ''])
+				OptString.new('COOKIE',    [false, 'Cookie value to use when sending the requests', ''])
 			], self.class)
 
 		deregister_options('RHOST')
@@ -155,7 +160,7 @@ class Metasploit3 < Msf::Auxiliary
 		req['uri']        = this_path
 		req['headers']    = {'Cookie'=>datastore['COOKIE']} if not datastore['COOKIE'].empty?
 		req['data']       = datastore['DATA'] if not datastore['DATA'].empty?
-		req['basic_auth'] = datastore['BASICAUTH'] if not datastore['BASICAUTH'].empty?
+		req['authorization'] = basic_auth(datastore['USERNAME'], datastore['PASSWORD'])
 
 		return req
 	end

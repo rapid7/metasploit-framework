@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -26,8 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module identifies common vulnerable files or cgis.
 			},
 			'Author' 		=> [ 'et' ],
-			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision$'))
+			'License'		=> BSD_LICENSE))
 
 		register_options(
 			[
@@ -58,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 		conn = false
 		usecode = datastore['ForceCode']
 
-		tpath = datastore['PATH']
+		tpath = normalize_uri(datastore['PATH'])
 		if tpath[-1,1] != '/'
 			tpath += '/'
 		end
@@ -141,12 +136,15 @@ class Metasploit3 < Msf::Auxiliary
 						'ctype'		=> 'text/plain'
 					}, 20)
 
+					if res.nil?
+						print_error("Connection timed out")
+						return
+					end
 
 					if testmesg.empty? or usecode
-						if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
+						if (res.code.to_i == ecode) or (emesg and res.body.index(emesg))
 							if dm == false
 								print_status("NOT Found #{wmap_base_url}#{tpath}#{testfvuln}  #{res.code.to_i}")
-								#blah
 							end
 						else
 							if res.code.to_i == 400  and ecode != 400
@@ -179,7 +177,6 @@ class Metasploit3 < Msf::Auxiliary
 						else
 							if dm == false
 								print_status("NOT Found #{wmap_base_url}#{tpath}#{testfvuln}  #{res.code.to_i}")
-								#blah
 							end
 						end
 					end

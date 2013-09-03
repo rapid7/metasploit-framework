@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -35,7 +31,6 @@ class Metasploit3 < Msf::Auxiliary
 				'Paulino Calderon <calderon[at]websec.mx>' #Added cookie handling
 				],
 			'License'       => MSF_LICENSE,
-			'Version'       => '$Revision$',
 			'References'    =>
 				[
 					['URL','http://www.corelan.be:8800/index.php/2010/11/12/metasploit-module-http-form-field-fuzzer'],
@@ -484,7 +479,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Grabbing webpage #{datastore['URL']} from #{datastore['RHOST']}")
 		response = send_request_raw(
 		{
-			'uri' => datastore['URL'],
+			'uri' => normalize_uri(datastore['URL']),
 			'version' => '1.1',
 			'method' => 'GET',
 			'headers' => @get_data_headers
@@ -502,7 +497,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			response = send_request_raw(
 			{
-				'uri' => datastore['URL'],
+				'uri' => normalize_uri(datastore['URL']),
 				'version' => '1.1',
 				'method' => 'GET',
 				'headers' => @get_data_headers

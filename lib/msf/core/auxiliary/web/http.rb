@@ -67,13 +67,16 @@ class Auxiliary::Web::HTTP
 	attr_reader :opts
 	attr_reader :headers
 	attr_reader :framework
+	attr_reader :parent
 
 	attr_accessor :redirect_limit
+	attr_accessor :username , :password, :domain
 
 	def initialize( opts = {} )
 		@opts = opts.dup
 
 		@framework = opts[:framework]
+		@parent    = opts[:parent]
 
 		@headers = {
 			'Accept' => '*/*',
@@ -84,8 +87,9 @@ class Auxiliary::Web::HTTP
 
 		@request_opts = {}
 		if opts[:auth].is_a? Hash
-			@request_opts['basic_auth'] = [ opts[:auth][:user].to_s + ':' +
-								opts[:auth][:password] ]. pack( 'm*' ).gsub( /\s+/, '' )
+			@username = opts[:auth][:user].to_s
+			@password = opts[:auth][:password].to_s
+      @domain   = opts[:auth][:domain].to_s
 		end
 
 		self.redirect_limit = opts[:redirect_limit] || 20
@@ -105,12 +109,16 @@ class Auxiliary::Web::HTTP
 			opts[:target].port,
 			{},
 			opts[:target].ssl,
-			'SSLv23'
+			'SSLv23',
+			nil,
+			username,
+			password
 		)
 
 		c.set_config({
 			'vhost' => opts[:target].vhost,
 			'agent' => opts[:user_agent] || 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)',
+      'domain' => domain
 		})
 		c
 	end
@@ -120,10 +128,15 @@ class Auxiliary::Web::HTTP
 
 		tl = []
 		loop do
-			# Spawn threads for each host
 			while tl.size <= (opts[:max_threads] || 5) && !@queue.empty? && (req = @queue.pop)
 				tl << framework.threads.spawn( "#{self.class.name} - #{req})", false, req ) do |request|
-					request.handle_response request( request.url, request.opts )
+					# Keep callback failures isolated.
+					begin
+						request.handle_response request( request.url, request.opts )
+					rescue => e
+						print_error e.to_s
+						e.backtrace.each { |l| print_error l }
+					end
 				end
 			end
 
@@ -261,10 +274,12 @@ class Auxiliary::Web::HTTP
 	end
 
 	def _request( url, opts = {} )
-		body		= opts[:body]
+		body    = opts[:body]
 		timeout = opts[:timeout] || 10
-		method	= opts[:method].to_s.upcase || 'GET'
-		url		 = url.is_a?( URI ) ? url : URI( url.to_s )
+		method  = opts[:method].to_s.upcase || 'GET'
+		url	    = url.is_a?( URI ) ? url : URI( url.to_s )
+
+		rex_overrides = opts.delete( :rex ) || {}
 
 		param_opts = {}
 
@@ -280,19 +295,34 @@ class Auxiliary::Web::HTTP
 		end
 
 		opts = @request_opts.merge( param_opts ).merge(
-			'uri'		 => url.path || '/',
-			'method'	=> method,
+			'uri'     => url.path || '/',
+			'method'  => method,
 			'headers' => headers.merge( opts[:headers] || {} )
-		)
+		# Allow for direct rex overrides
+		).merge( rex_overrides )
 
 		opts['data'] = body if body
 
 		c = connect
+		if opts['username'] and opts['username'] != ''
+			c.username = opts['username'].to_s
+			c.password = opts['password'].to_s
+		end
 		Response.from_rex_response c.send_recv( c.request_cgi( opts ), timeout )
 	rescue ::Timeout::Error
 		Response.timed_out
-	rescue ::Errno::EPIPE, Rex::ConnectionTimeout
+	#rescue ::Errno::EPIPE, ::Errno::ECONNRESET, Rex::ConnectionTimeout
+	# This is bad but we can't anticipate the gazilion different types of network
+	# i/o errors between Rex and Errno.
+	rescue => e
+		elog e.to_s
+		e.backtrace.each { |l| elog l }
 		Response.empty
+	end
+
+	def print_error( message )
+		return if !@parent
+		@parent.print_error message
 	end
 
 end

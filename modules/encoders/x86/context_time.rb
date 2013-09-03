@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -22,7 +18,6 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 	def initialize
 		super(
 			'Name'             => 'time(2)-based Context Keyed Payload Encoder',
-			'Version'          => '$Revision$',
 			'Description'      => %q{
 				This is a Context-Keyed Payload Encoder based on time(2)
 				and Shikata Ga Nai.

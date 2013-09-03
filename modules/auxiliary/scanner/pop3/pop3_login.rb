@@ -1,7 +1,3 @@
-##
-# $Id$
-##
-
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -21,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	super(
 		'Name'        => 'POP3 Login Utility',
 		'Description' => 'This module attempts to authenticate to an POP3 service.',
-		'Version'     => '$Revision$',
 		'Author'      =>
 		[
 			'==[ Alligator Security Team ]==',
@@ -37,13 +32,13 @@ class Metasploit3 < Msf::Auxiliary
 	register_options(
 		[
 			Opt::RPORT(110),
-			OptString.new('USER_FILE',
+			OptPath.new('USER_FILE',
 				[
 					false,
 					'The file that contains a list of probable users accounts.',
 					File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_users.txt')
 				]),
-			OptString.new('PASS_FILE',
+			OptPath.new('PASS_FILE',
 				[
 					false,
 					'The file that contains a list of probable passwords.',

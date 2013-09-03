@@ -128,7 +128,6 @@ class Console::CommandDispatcher::Core
 
 		mode = nil
 		chan = nil
-		data = []
 
 		# Parse options
 		@@channel_opts.parse(args) { |opt, idx, val|
@@ -329,8 +328,10 @@ class Console::CommandDispatcher::Core
 	#
 	# Migrates the server to the supplied process identifier.
 	#
+	# @param args [Array<String>] Commandline arguments, only -h or a pid
+	# @return [void]
 	def cmd_migrate(*args)
-		if (args.length == 0)
+		if ( args.length == 0 or args.include?("-h") )
 			cmd_migrate_help
 			return true
 		end
@@ -341,7 +342,15 @@ class Console::CommandDispatcher::Core
 			return
 		end
 
-		print_status("Migrating to #{pid}...")
+		begin
+			server = client.sys.process.open
+		rescue TimeoutError => e
+			elog(e.to_s)
+		rescue RequestError => e
+			elog(e.to_s)
+		end
+
+		server ? print_status("Migrating from #{server.pid} to #{pid}...") : print_status("Migrating to #{pid}")
 
 		# Do this thang.
 		client.core.migrate(pid)
@@ -363,8 +372,6 @@ class Console::CommandDispatcher::Core
 		if (args.length == 0)
 			args.unshift("-h")
 		end
-
-		modules = nil
 
 		@@load_opts.parse(args) { |opt, idx, val|
 			case opt
@@ -500,11 +507,11 @@ class Console::CommandDispatcher::Core
 				reloaded_mod = client.framework.modules.reload_module(original_mod)
 
 				unless reloaded_mod
-          error = client.framework.modules.module_load_error_by_path[original_mod.file_path]
+					error = client.framework.modules.module_load_error_by_path[original_mod.file_path]
 					print_error("Failed to reload module: #{error}")
 
 					return
-        end
+				end
 
 				opts = (args + [ "SESSION=#{client.sid}" ]).join(',')
 				reloaded_mod.run_simple(
@@ -691,8 +698,7 @@ class Console::CommandDispatcher::Core
 		}
 
 		# Find the channel associated with this cid, assuming the cid is valid.
-		if ((!cid) or
-		    (!(channel = client.find_channel(cid))))
+		if ((!cid) or (!(channel = client.find_channel(cid))))
 			print_error("Invalid channel identifier specified.")
 			return true
 		end

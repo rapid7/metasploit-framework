@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -20,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Lotus Domino Version',
-			'Version'     => '$Revision$',
 			'Description' => 'Several checks to determine Lotus Domino Server Version.',
 			'Author'       => ['CG'],
 			'License'     => MSF_LICENSE
@@ -58,8 +53,8 @@ class Metasploit3 < Msf::Auxiliary
 			check1.each do | check |
 
 				res = send_request_raw({
-					'uri'          =>  path+check,
-					'method'       => 'GET',
+					'uri'          =>  normalize_uri(path, check),
+					'method'       => 'GET'
 					}, 10)
 
 				if (res.nil?)
@@ -106,8 +101,8 @@ class Metasploit3 < Msf::Auxiliary
 			check2.each do | check |
 
 				res = send_request_raw({
-					'uri'          =>  path+check,
-					'method'       => 'GET',
+					'uri'          =>  normalize_uri(path, check),
+					'method'       => 'GET'
 					}, 10)
 
 				if (res.nil?)
@@ -142,8 +137,8 @@ class Metasploit3 < Msf::Auxiliary
 			check3.each do | check |
 
 				res = send_request_raw({
-					'uri'          =>  path+check,
-					'method'       => 'GET',
+					'uri'          =>  normalize_uri(path, check),
+					'method'       => 'GET'
 					}, 10)
 
 				if (res.nil?)

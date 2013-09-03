@@ -4,7 +4,7 @@ require 'timeout'
 module Rex
 
 ###
-# 
+#
 # This module provides a set of methods for performing various blocking
 # operations in a manner that is compatible with ruby style threads.
 #

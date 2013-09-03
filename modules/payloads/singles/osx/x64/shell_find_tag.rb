@@ -19,7 +19,6 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'OSX Command Shell, Find Tag Inline',
-			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a shell on an established connection (proxy/nat safe)',
 			'Author'        => 'nemo <nemo[at]felinemenace.org>',
 			'License'       => MSF_LICENSE,

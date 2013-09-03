@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Printjob Capture Service',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				This module is designed to listen for PJL or PostScript print
 				jobs. Once a print job is detected it is saved to loot. The

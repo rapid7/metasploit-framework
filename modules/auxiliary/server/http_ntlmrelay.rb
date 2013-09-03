@@ -1,12 +1,8 @@
 ##
-# $Id:$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+#   http://metasploit.com/framework/
 ##
 
 require 'msf/core'
@@ -35,7 +31,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'HTTP Client MS Credential Relayer',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module relays negotiated NTLM Credentials from an HTTP server to multiple
 					protocols. Currently, this module supports relaying to SMB and HTTP.
@@ -85,8 +80,7 @@ class Metasploit3 < Msf::Auxiliary
 							'IPC$,ADMIN$,C$,D$,CCMLOGS$,ccmsetup$,share,netlogon,sysvol'])
 		], self.class)
 
-		deregister_options('BasicAuthPass', 'BasicAuthUser', 'DOMAIN', 'DigestAuthPassword',
-			'DigestAuthUser', 'NTLM::SendLM', 'NTLM::SendSPN', 'NTLM::SendNTLM', 'NTLM::UseLMKey',
+		deregister_options('DOMAIN', 'NTLM::SendLM', 'NTLM::SendSPN', 'NTLM::SendNTLM', 'NTLM::UseLMKey',
 			'NTLM::UseNTLM2_session', 'NTLM::UseNTLMv2')
 	end
 
@@ -299,7 +293,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		opts = {
-		'uri'     => datastore['RURIPATH'],
+		'uri'     => normalize_uri(datastore['RURIPATH']),
 		'method'  => method,
 		'version' => '1.1',
 		}

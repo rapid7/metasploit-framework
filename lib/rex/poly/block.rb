@@ -124,6 +124,7 @@ class LogicalBlock
 	#
 	# Increments the number of blocks that depend on this block.
 	#
+	# @see #deref
 	def ref
 		@references += 1
 	end
@@ -131,8 +132,9 @@ class LogicalBlock
 	#
 	# Increments the number of blocks that have completed their dependency
 	# pass on this block.  This number should never become higher than the
-	# @references attribute.
+	# `@references` attribute.
 	#
+	# @see #ref
 	def deref
 		@used_references += 1
 	end

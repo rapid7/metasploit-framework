@@ -9,7 +9,7 @@ class Constants
 	LM_MAGIC = "KGS!@\#$%"
 	TIME_OFFSET = 11644473600
 	MAX64 = 0xffffffffffffffff
-    
+
 	FLAGS = {
 	:UNICODE              => 0x00000001,
 	:OEM                  => 0x00000002,
@@ -32,7 +32,7 @@ class Constants
 	:KEY128               => 0x20000000,
 	:KEY56                => 0x80000000
 	}
-    
+
 	FLAG_KEYS = FLAGS.keys.sort{|a, b| FLAGS[a] <=> FLAGS[b] }
 
 	DEFAULT_FLAGS = {

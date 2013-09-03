@@ -1,4 +1,15 @@
 # -*- coding: binary -*-
+
+#
+# Rex
+#
+
+require 'rex/ui/text/output/buffer/stdout'
+
+#
+# Project
+#
+
 require 'msf/ui/console/command_dispatcher/encoder'
 require 'msf/ui/console/command_dispatcher/exploit'
 require 'msf/ui/console/command_dispatcher/nop'
@@ -23,7 +34,7 @@ class Core
 
 	# Session command options
 	@@sessions_opts = Rex::Parser::Arguments.new(
-		"-c" => [ true,  "Run a command on the session given with -i, or all" ],
+		"-c" => [ true,  "Run a command on the session given with -i, or all"],
 		"-h" => [ false, "Help banner"                                    ],
 		"-i" => [ true,  "Interact with the supplied session ID"          ],
 		"-l" => [ false, "List all active sessions"                       ],
@@ -32,7 +43,7 @@ class Core
 		"-d" => [ true,  "Detach an interactive session"                  ],
 		"-k" => [ true,  "Terminate session"                              ],
 		"-K" => [ false, "Terminate all sessions"                         ],
-		"-s" => [ true,  "Run a script on the session given with -i, or all"  ],
+		"-s" => [ true,  "Run a script on the session given with -i, or all"],
 		"-r" => [ false, "Reset the ring buffer for the session given with -i, or all"],
 		"-u" => [ true,  "Upgrade a win32 shell to a meterpreter session" ])
 
@@ -40,7 +51,7 @@ class Core
 		"-h" => [ false, "Help banner."                                   ],
 		"-k" => [ true,  "Terminate the specified job name."              ],
 		"-K" => [ false, "Terminate all running jobs."                    ],
-		"-i" => [ true, "Lists detailed information about a running job." ],
+		"-i" => [ true,  "Lists detailed information about a running job."],
 		"-l" => [ false, "List all running jobs."                         ],
 		"-v" => [ false, "Print more detailed info.  Use with -i and -l"  ])
 
@@ -48,7 +59,7 @@ class Core
 		"-h" => [ false, "Help banner."                                   ],
 		"-k" => [ true,  "Terminate the specified thread ID."             ],
 		"-K" => [ false, "Terminate all non-critical threads."            ],
-		"-i" => [ true, "Lists detailed information about a thread."      ],
+		"-i" => [ true,  "Lists detailed information about a thread."     ],
 		"-l" => [ false, "List all background threads."                   ],
 		"-v" => [ false, "Print more detailed info.  Use with -i and -l"  ])
 
@@ -65,7 +76,21 @@ class Core
 		"-w" => [ true,  "Specify connect timeout."                       ],
 		"-z" => [ false, "Just try to connect, then return."              ])
 
+	@@grep_opts = Rex::Parser::Arguments.new(
+		"-h" => [ false, "Help banner."                                   ],
+		"-i" => [ false, "Ignore case."                                   ],
+		"-m" => [ true,  "Stop after arg matches."                        ],
+		"-v" => [ false, "Invert match."                                  ],
+		"-A" => [ true,  "Show arg lines of output After a match."        ],
+		"-B" => [ true,  "Show arg lines of output Before a match."       ],
+		"-s" => [ true,  "Skip arg lines of output before attempting match."],
+		"-k" => [ true,  "Keep (include) arg lines at start of output."   ],
+		"-c" => [ false, "Only print a count of matching lines."          ])
+
 	@@search_opts = Rex::Parser::Arguments.new(
+		"-h" => [ false, "Help banner."                                   ])
+
+	@@go_pro_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner."                                   ])
 
 	# The list of data store elements that cannot be set when in defanged
@@ -82,6 +107,8 @@ class Core
 			"connect"  => "Communicate with a host",
 			"color"    => "Toggle color",
 			"exit"     => "Exit the console",
+			"go_pro"   => "Launch Metasploit web GUI",
+			"grep"     => "Grep the output of another command",
 			"help"     => "Help menu",
 			"info"     => "Displays information about one or more module",
 			"irb"      => "Drop into irb scripting mode",
@@ -89,7 +116,7 @@ class Core
 			"kill"     => "Kill a job",
 			"load"     => "Load a framework plugin",
 			"loadpath" => "Searches for and loads modules from a path",
-			"popm"     => "Pops the latest module off of the module stack and makes it active",
+			"popm"     => "Pops the latest module off the stack and makes it active",
 			"pushm"    => "Pushes the active or list of modules onto the module stack",
 			"previous" => "Sets the previously loaded module as the current module",
 			"quit"     => "Exit the console",
@@ -131,6 +158,17 @@ class Core
 	#
 	def name
 		"Core"
+	end
+
+	# Indicates the base dir where Metasploit Framework is installed.
+	def msfbase_dir
+		base = __FILE__
+		while File.symlink?(base)
+			base = File.expand_path(File.readlink(base), File.dirname(base))
+		end
+		File.expand_path(
+			File.join(File.dirname(base), "..","..","..","..","..")
+		)
 	end
 
 	def cmd_color_help
@@ -221,6 +259,10 @@ class Core
 	#
 	# Tab completion for the resource command
 	#
+	# @param str [String] the string currently being typed before tab was hit
+	# @param words [Array<String>] the previously completed words on the command line.  words is always
+	# at least 1 when tab completion has reached this stage since the command itself has been completed
+
 	def cmd_resource_tabs(str, words)
 		tabs = []
 		#return tabs if words.length > 1
@@ -299,8 +341,8 @@ class Core
 			driver.destack_dispatcher
 
 			# Restore the prompt
-			prompt = framework.datastore['Prompt'] || "%undmsf%clr "
-			prompt_char = framework.datastore['PromptChar'] || ">"
+			prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
+			prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
 			driver.update_prompt("#{prompt}", prompt_char, true)
 		end
 	end
@@ -340,6 +382,20 @@ class Core
 	#
 	def cmd_banner(*args)
 		banner  = "%cya" + Banner.to_s + "%clr\n\n"
+
+		if is_apt
+			content = [
+				"Large pentest? List, sort, group, tag and search your hosts and services\nin Metasploit Pro -- type 'go_pro' to launch it now.",
+				"Frustrated with proxy pivoting? Upgrade to layer-2 VPN pivoting with\nMetasploit Pro -- type 'go_pro' to launch it now.",
+				"Save your shells from AV! Upgrade to advanced AV evasion using dynamic\nexe templates with Metasploit Pro -- type 'go_pro' to launch it now.",
+				"Easy phishing: Set up email templates, landing pages and listeners\nin Metasploit Pro's wizard -- type 'go_pro' to launch it now.",
+				"Using notepad to track pentests? Have Metasploit Pro report on hosts,\nservices, sessions and evidence -- type 'go_pro' to launch it now.",
+				"Tired of typing 'set RHOSTS'? Click & pwn with Metasploit Pro\n-- type 'go_pro' to launch it now."
+			]
+			banner << content.sample # Ruby 1.9-ism!
+			banner << "\n\n"
+		end
+
 		banner << "       =[ %yelmetasploit v#{Msf::Framework::Version} [core:#{Msf::Framework::VersionCore} api:#{Msf::Framework::VersionAPI}]%clr\n"
 		banner << "+ -- --=[ "
 		banner << "#{framework.stats.num_exploits} exploits - #{framework.stats.num_auxiliary} auxiliary - #{framework.stats.num_post} post\n"
@@ -347,6 +403,7 @@ class Core
 
 		oldwarn = nil
 		avdwarn = nil
+
 		banner << "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops\n"
 		if ( ::Msf::Framework::RepoRevision.to_i > 0 and ::Msf::Framework::RepoUpdatedDate)
 			tstamp = ::Msf::Framework::RepoUpdatedDate.strftime("%Y.%m.%d")
@@ -641,6 +698,10 @@ class Core
 	#
 	# Tab completion for the info command (same as use)
 	#
+	# @param str [String] the string currently being typed before tab was hit
+	# @param words [Array<String>] the previously completed words on the command line.  words is always
+	# at least 1 when tab completion has reached this stage since the command itself has been completed
+
 	def cmd_info_tabs(str, words)
 		cmd_use_tabs(str, words)
 	end
@@ -757,6 +818,10 @@ class Core
 	#
 	# Tab completion for the jobs command
 	#
+	# @param str [String] the string currently being typed before tab was hit
+	# @param words [Array<String>] the previously completed words on the command line.  words is always
+	# at least 1 when tab completion has reached this stage since the command itself has been completed
+
 	def cmd_jobs_tabs(str, words)
 		if words.length == 1
 			return @@jobs_opts.fmt.keys
@@ -779,6 +844,13 @@ class Core
 	def cmd_kill(*args)
 		cmd_jobs("-k", *args)
 	end
+
+	#
+	# Tab completion for the kill command
+	#
+	# @param str [String] the string currently being typed before tab was hit
+	# @param words [Array<String>] the previously completed words on the command line.  words is always
+	# at least 1 when tab completion has reached this stage since the command itself has been completed
 
 	def cmd_kill_tabs(str, words)
 		return [] if words.length > 1
@@ -898,6 +970,10 @@ class Core
 	#
 	# Tab completion for the threads command
 	#
+	# @param str [String] the string currently being typed before tab was hit
+	# @param words [Array<String>] the previously completed words on the command line.  words is always
+	# at least 1 when tab completion has reached this stage since the command itself has been completed
+
 	def cmd_threads_tabs(str, words)
 		if words.length == 1
 			return @@threads_opts.fmt.keys
@@ -974,6 +1050,10 @@ class Core
 	#
 	# Tab completion for the load command
 	#
+	# @param str [String] the string currently being typed before tab was hit
+	# @param words [Array<String>] the previously completed words on the command line.  words is always
+	# at least 1 when tab completion has reached this stage since the command itself has been completed
+
 	def cmd_load_tabs(str, words)
 		tabs = []
 
@@ -1133,6 +1213,10 @@ class Core
 	#
 	# Tab completion for the route command
 	#
+	# @param str [String] the string currently being typed before tab was hit
+	# @param words [Array<String>] the previously completed words on the command line.  words is always
+	# at least 1 when tab completion has reached this stage since the command itself has been completed
+
 	def cmd_route_tabs(str, words)
 		if words.length == 1
 			return %w{add remove get flush print}
@@ -1255,6 +1339,13 @@ class Core
 		print(added)
 	end
 
+	#
+	# Tab completion for the loadpath command
+	#
+	# @param str [String] the string currently being typed before tab was hit
+	# @param words [Array<String>] the previously completed words on the command line.  words is always
+	# at least 1 when tab completion has reached this stage since the command itself has been completed
+
 	def cmd_loadpath_tabs(str, words)
 		return [] if words.length > 1
 
@@ -1295,17 +1386,16 @@ class Core
 		print_line
 		print_line "Keywords:"
 		{
-			"name"     => "Modules with a matching descriptive name",
-			"path"     => "Modules with a matching path or reference name",
-			"platform" => "Modules affecting this platform",
-			"port"     => "Modules with a matching remote port",
-			"type"     => "Modules of a specific type (exploit, auxiliary, or post)",
-			"app"      => "Modules that are client or server attacks",
-			"author"   => "Modules written by this author",
-			"cve"      => "Modules with a matching CVE ID",
-			"bid"      => "Modules with a matching Bugtraq ID",
-			"osvdb"    => "Modules with a matching OSVDB ID",
-			"edb"      => "Modules with a matching Exploit-DB ID"
+			'app'      => 'Modules that are client or server attacks',
+			'author'   => 'Modules written by this author',
+			'bid'      => 'Modules with a matching Bugtraq ID',
+			'cve'      => 'Modules with a matching CVE ID',
+			'edb'      => 'Modules with a matching Exploit-DB ID',
+			'name'     => 'Modules with a matching descriptive name',
+			'osvdb'    => 'Modules with a matching OSVDB ID',
+			'platform' => 'Modules affecting this platform',
+			'ref'      => 'Modules with a matching ref',
+			'type'     => 'Modules of a specific type (exploit, auxiliary, or post)',
 		}.each_pair do |keyword, description|
 			print_line "  #{keyword.ljust 10}:  #{description}"
 		end
@@ -1365,13 +1455,24 @@ class Core
 
 	end
 
-	def search_modules_sql(match)
+	# Prints table of modules matching the search_string.
+	#
+	# @param (see Msf::DBManager#search_modules)
+	# @return [void]
+	def search_modules_sql(search_string)
 		tbl = generate_module_table("Matching Modules")
-		framework.db.search_modules(match).each do |o|
+		framework.db.search_modules(search_string).each do |o|
 			tbl << [ o.fullname, o.disclosure_date.to_s, RankingName[o.rank].to_s, o.name ]
 		end
 		print_line(tbl.to_s)
 	end
+
+	#
+	# Tab completion for the search command
+	#
+	# @param str [String] the string currently being typed before tab was hit
+	# @param words [Array<String>] the previously completed words on the command line.  words is always
+	# at least 1 when tab completion has reached this stage since the command itself has been completed
 
 	def cmd_search_tabs(str, words)
 		if words.length == 1
@@ -1402,14 +1503,29 @@ class Core
 			return
 		end
 
+		color = driver.output.config[:color]
+
 		if args[0] == "off"
 			driver.init_ui(driver.input, Rex::Ui::Text::Output::Stdio.new)
-			print_status("Spooling is now disabled")
-			return
+			msg = "Spooling is now disabled"
+		else
+			driver.init_ui(driver.input, Rex::Ui::Text::Output::Tee.new(args[0]))
+			msg = "Spooling to file #{args[0]}..."
 		end
 
-		driver.init_ui(driver.input, Rex::Ui::Text::Output::Tee.new(args[0]))
-		print_status("Spooling to file #{args[0]}...")
+		# Restore color and prompt
+		driver.output.config[:color] = color
+		prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
+		if active_module
+			# intentionally += and not << because we don't want to modify
+			# datastore or the constant DefaultPrompt
+			prompt += " #{active_module.type}(%bld%red#{active_module.shortname}%clr)"
+		end
+		prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
+		driver.update_prompt("#{prompt} ", prompt_char, true)
+
+		print_status(msg)
+		return
 	end
 
 	def cmd_sessions_help
@@ -1688,6 +1804,10 @@ class Core
 	#
 	# Tab completion for the sessions command
 	#
+	# @param str [String] the string currently being typed before tab was hit
+	# @param words [Array<String>] the previously completed words on the command line.  words is always
+	# at least 1 when tab completion has reached this stage since the command itself has been completed
+
 	def cmd_sessions_tabs(str, words)
 		if words.length == 1
 			return @@sessions_opts.fmt.keys
@@ -1809,6 +1929,10 @@ class Core
 	#
 	# Tab completion for the set command
 	#
+	# @param str [String] the string currently being typed before tab was hit
+	# @param words [Array<String>] the previously completed words on the command line.  words is always
+	# at least 1 when tab completion has reached this stage since the command itself has been completed
+
 	def cmd_set_tabs(str, words)
 
 		# A value has already been specified
@@ -1890,6 +2014,10 @@ class Core
 	#
 	# Tab completion for the setg command
 	#
+	# @param str [String] the string currently being typed before tab was hit
+	# @param words [Array<String>] the previously completed words on the command line.  words is always
+	# at least 1 when tab completion has reached this stage since the command itself has been completed
+
 	def cmd_setg_tabs(str, words)
 		cmd_set_tabs(str, words)
 	end
@@ -1986,6 +2114,10 @@ class Core
 	#
 	# Tab completion for the show command
 	#
+	# @param str [String] the string currently being typed before tab was hit
+	# @param words [Array<String>] the previously completed words on the command line.  words is always
+	# at least 1 when tab completion has reached this stage since the command itself has been completed
+
 	def cmd_show_tabs(str, words)
 		return [] if words.length > 1
 
@@ -2031,6 +2163,10 @@ class Core
 	#
 	# Tab completion for the unload command
 	#
+	# @param str [String] the string currently being typed before tab was hit
+	# @param words [Array<String>] the previously completed words on the command line.  words is always
+	# at least 1 when tab completion has reached this stage since the command itself has been completed
+
 	def cmd_unload_tabs(str, words)
 		return [] if words.length > 1
 
@@ -2104,6 +2240,10 @@ class Core
 	#
 	# Tab completion for the unset command
 	#
+	# @param str [String] the string currently being typed before tab was hit
+	# @param words [Array<String>] the previously completed words on the command line.  words is always
+	# at least 1 when tab completion has reached this stage since the command itself has been completed
+
 	def cmd_unset_tabs(str, words)
 		datastore = active_module ? active_module.datastore : self.framework.datastore
 		datastore.keys
@@ -2128,6 +2268,10 @@ class Core
 	#
 	# Tab completion for the unsetg command
 	#
+	# @param str [String] the string currently being typed before tab was hit
+	# @param words [Array<String>] the previously completed words on the command line.  words is always
+	# at least 1 when tab completion has reached this stage since the command itself has been completed
+
 	def cmd_unsetg_tabs(str, words)
 		self.framework.datastore.keys
 	end
@@ -2209,8 +2353,8 @@ class Core
 		mod.init_ui(driver.input, driver.output)
 
 		# Update the command prompt
-		prompt = framework.datastore['Prompt'] || "%undmsf%clr "
-		prompt_char = framework.datastore['PromptChar'] || ">"
+		prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
+		prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
 		driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr) ", prompt_char, true)
 	end
 
@@ -2255,6 +2399,13 @@ class Core
 			end
 		end
 	end
+
+	#
+	# Tab completion for the pushm command
+	#
+	# @param str [String] the string currently being typed before tab was hit
+	# @param words [Array<String>] the previously completed words on the command line.  words is always
+	# at least 1 when tab completion has reached this stage since the command itself has been completed
 
 	def cmd_pushm_tabs(str, words)
 		tab_complete_module(str, words)
@@ -2309,6 +2460,10 @@ class Core
 	#
 	# Tab completion for the use command
 	#
+	# @param str [String] the string currently being typed before tab was hit
+	# @param words [Array<String>] the previously completed words on the command line.  words is always
+	# at least 1 when tab completion has reached this stage since the command itself has been completd
+
 	def cmd_use_tabs(str, words)
 		return [] if words.length > 1
 
@@ -2329,6 +2484,154 @@ class Core
 		print_line("Console  : #{Msf::Framework::Version}.#{svn_console_version.match(/ (.+?) \$/)[1]}")
 
 		return true
+	end
+
+	def cmd_grep_help
+		print_line "Usage: grep [options] pattern cmd"
+		print_line
+		print_line "Grep the results of a console command (similar to Linux grep command)"
+		print(@@grep_opts.usage())
+	end
+
+	#
+	# Greps the output of another console command, usage is similar the shell grep command
+	# grep [options] pattern other_cmd [other command's args], similar to the shell's grep [options] pattern file
+	# however it also includes -k to keep lines and -s to skip lines.  grep -k 5 is useful for keeping table headers
+	#
+	# @param args [Array<String>] Args to the grep command minimally including a pattern & a command to search
+	# @return [String,nil] Results matching the regular expression given
+
+	def cmd_grep(*args)
+		return cmd_grep_help if args.length < 2
+		match_mods = {:insensitive => false}
+		output_mods = {:count => false, :invert => false}
+		@@grep_opts.parse(args.dup) do |opt, idx, val|
+			case opt
+				when "-h"
+					return cmd_grep_help
+				when "-m"
+					# limit to arg matches
+					match_mods[:max] = val.to_i
+					# delete opt and val from args list
+					args.shift(2)
+				when "-A"
+					# also return arg lines after a match
+					output_mods[:after] = val.to_i
+					# delete opt and val from args list
+					args.shift(2)
+				when "-B"
+					# also return arg lines before a match
+					output_mods[:before] = val.to_i
+					# delete opt and val from args list
+					args.shift(2)
+				when "-v"
+					# invert match
+					match_mods[:invert] = true
+					# delete opt from args list
+					args.shift
+				when "-i"
+					# case insensitive
+					match_mods[:insensitive] = true
+					args.shift
+				when "-c"
+					# just count matches
+					output_mods[:count] = true
+					args.shift
+				when "-k"
+					# keep arg number of lines at the top of the output, useful for commands with table headers in output
+					output_mods[:keep] = val.to_i
+					args.shift(2)
+				when "-s"
+					# skip arg number of lines at the top of the output, useful for avoiding undesirable matches
+					output_mods[:skip] = val.to_i
+					args.shift(2)
+			end
+		end
+		# after deleting parsed options, the only args left should be the pattern, the cmd to run, and cmd args
+		pattern = args.shift
+		if match_mods[:insensitive]
+			rx = Regexp.new(pattern, true)
+		else
+			rx = Regexp.new(pattern)
+		end
+		cmd = args.join(" ")
+
+		# get a ref to the current console driver
+		orig_driver = self.driver
+		# redirect output after saving the old ones and getting a new output buffer to use for redirect
+		orig_driver_output = orig_driver.output
+		orig_driver_input = orig_driver.input
+
+		# we use a rex buffer but add a write method to the instance, which is
+		# required in order to be valid $stdout
+		temp_output = Rex::Ui::Text::Output::Buffer.new
+		temp_output.extend Rex::Ui::Text::Output::Buffer::Stdout
+
+		orig_driver.init_ui(orig_driver_input,temp_output)
+		# run the desired command to be grepped
+		orig_driver.run_single(cmd)
+		# restore original output
+		orig_driver.init_ui(orig_driver_input,orig_driver_output)
+		# restore the prompt so we don't get "msf >  >".
+		prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
+		prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
+		mod = active_module
+		if mod # if there is an active module, give them the fanciness they have come to expect
+			driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr) ", prompt_char, true)
+		else
+			driver.update_prompt("#{prompt}", prompt_char, true)
+		end
+
+		# dump the command's output so we can grep it
+		cmd_output = temp_output.dump_buffer
+
+		# Bail if the command failed
+		if cmd_output =~ /Unknown command:/
+			print_error("Unknown command: #{args[0]}.")
+			return false
+		end
+		# put lines into an array so we can access them more easily and split('\n') doesn't work on the output obj.
+		all_lines = cmd_output.lines.select {|line| line}
+		# control matching based on remaining match_mods (:insensitive was already handled)
+		if match_mods[:invert]
+			statement = 'not line =~ rx'
+		else
+			statement = 'line =~ rx'
+		end
+
+		our_lines = []
+		count = 0
+		all_lines.each_with_index do |line, line_num|
+			next if (output_mods[:skip] and line_num < output_mods[:skip])
+			our_lines << line if (output_mods[:keep] and line_num < output_mods[:keep])
+			# we don't wan't to keep processing if we have a :max and we've reached it already (not counting skips/keeps)
+			break if match_mods[:max] and count >= match_mods[:max]
+			if eval statement
+				count += 1
+				# we might get a -A/after and a -B/before at the same time
+				our_lines += retrieve_grep_lines(all_lines,line_num,output_mods[:before], output_mods[:after])
+			end
+		end
+
+		# now control output based on remaining output_mods such as :count
+		return print_status(count.to_s) if output_mods[:count]
+		our_lines.each {|line| print line}
+	end
+
+	#
+	# Tab completion for the grep command
+	#
+	# @param str [String] the string currently being typed before tab was hit
+	# @param words [Array<String>] the previously completed words on the command line.  words is always
+	# at least 1 when tab completion has reached this stage since the command itself has been completed
+
+	def cmd_grep_tabs(str, words)
+		tabs = @@grep_opts.fmt.keys || [] # default to use grep's options
+		# if not an opt, use normal tab comp.
+		# @todo uncomment out next line when tab_completion normalization is complete RM7649 or
+		# replace with new code that permits "nested" tab completion
+		# tabs = driver.get_all_commands if (str and str =~ /\w/)
+		tabs
 	end
 
 	#
@@ -2365,6 +2668,7 @@ class Core
 			return option_values_payloads() if opt.upcase == 'PAYLOAD'
 			return option_values_targets()  if opt.upcase == 'TARGET'
 			return option_values_nops()     if opt.upcase == 'NOPS'
+			return option_values_encoders() if opt.upcase == 'StageEncoder'
 		end
 
 		# Well-known option names specific to auxiliaries
@@ -2574,7 +2878,126 @@ class Core
 		return res
 	end
 
-protected
+	def cmd_go_pro_help
+		print_line "Usage: go_pro"
+		print_line
+		print_line "Launch the Metasploit web GUI"
+		print_line
+	end
+
+	def cmd_go_pro(*args)
+		@@go_pro_opts.parse(args) do |opt, idx, val|
+			case opt
+			when "-h"
+				cmd_go_pro_help
+				return false
+			end
+		end
+		unless is_apt
+			print_warning "This command is only available on deb package installations, such as Kali Linux."
+			return false
+		end
+		unless is_metasploit_debian_package_installed
+			print_warning "You need to install the 'metasploit' package first."
+			print_warning "Type 'apt-get install -y metasploit' to do this now, then exit"
+			print_warning "and restart msfconsole to try again."
+			return false
+		end
+		# If I've gotten this far, I know that this is apt-installed, the
+		# metasploit package is here, and I'm ready to rock.
+		if is_metasploit_service_running
+			launch_metasploit_browser
+		else
+			print_status "Starting the Metasploit services. This can take a little time."
+			start_metasploit_service
+			select(nil,nil,nil,3)
+			if is_metasploit_service_running
+				launch_metasploit_browser
+			else
+				print_error "Metasploit services aren't running. Type 'service metasploit start' and try again."
+			end
+		end
+		return true
+	end
+
+	protected
+
+	#
+	# Go_pro methods -- these are used to start and connect to
+	# Metasploit Community / Pro.
+	#
+
+	# Note that this presumes a default port.
+	def launch_metasploit_browser
+		cmd = "/usr/bin/xdg-open"
+		unless ::File.executable_real? cmd
+			print_warning "Can't figure out your default browser, please visit https://localhost:3790"
+			print_warning "to start Metasploit Community / Pro."
+			return false
+		end
+		svc_log = File.expand_path(File.join(msfbase_dir, ".." , "engine", "prosvc_stdout.log"))
+		unless ::File.readable_real? svc_log
+			print_error "Unable to access log file: #{svc_log}"
+			return false
+		end
+		really_started = false
+		# This method is a little lame but it's a short enough file that it
+		# shouldn't really matter that we open and close it a few times.
+		timeout = 0
+		until really_started
+			select(nil,nil,nil,3)
+			log_data = ::File.open(svc_log, "rb") {|f| f.read f.stat.size}
+			really_started = log_data =~ /Ready/ # This is webserver ready
+			if really_started
+				print_line
+				print_good "Metasploit Community / Pro is up and running, connecting now."
+				print_good "If this is your first time connecting, you will be presented with"
+				print_good "a self-signed certificate warning. Accept it to create a new user."
+				select(nil,nil,nil,7)
+				browser_pid = ::Process.spawn(cmd, "https://localhost:3790")
+				::Process.detach(browser_pid)
+			elsif timeout >= 200 # 200 * 3 seconds is 10 minutes and that is tons of time.
+				print_line
+				print_warning "For some reason, Community / Pro didn't start in a timely fashion."
+				print_warning "You might want to restart the Metasploit services by typing"
+				print_warning "'service metasploit restart'. Sorry it didn't work out."
+				return false
+			else
+				print "."
+				timeout += 1
+			end
+		end
+	end
+
+	def start_metasploit_service
+		cmd = File.expand_path(File.join(msfbase_dir, '..', '..', '..', 'scripts', 'start.sh'))
+		return unless ::File.executable_real? cmd
+		%x{#{cmd}}.each_line do |line|
+			print_status line.chomp
+		end
+	end
+
+	def is_metasploit_service_running
+		cmd = "/usr/sbin/service"
+		system("#{cmd} metasploit status >/dev/null") # Both running returns true, otherwise, false.
+	end
+
+	def is_metasploit_debian_package_installed
+		cmd = "/usr/bin/dpkg"
+		return unless ::File.executable_real? cmd
+		installed_packages = %x{#{cmd} -l 'metasploit'}
+		installed_packages.each_line do |line|
+			if line =~ /^.i  metasploit / # Yes, trailing space
+				return true
+			end
+		end
+		return false
+	end
+
+	# Determines if this is an apt-based install
+	def is_apt
+		File.exists?(File.expand_path(File.join(msfbase_dir, '.apt')))
+	end
 
 	#
 	# Module list enumeration
@@ -2663,8 +3086,8 @@ protected
 			[ 'MinimumRank', framework.datastore['MinimumRank'] || '', 'The minimum rank of exploits that will run without explicit confirmation' ],
 			[ 'SessionLogging', framework.datastore['SessionLogging'] || '', 'Log all input and output for sessions' ],
 			[ 'TimestampOutput', framework.datastore['TimestampOutput'] || '', 'Prefix all console output with a timestamp' ],
-			[ 'Prompt', framework.datastore['Prompt'] || '', 'The prompt string, defaults to "%undmsf%clr"' ],
-			[ 'PromptChar', framework.datastore['PromptChar'] || '', 'The prompt character, defaults to ">"' ],
+			[ 'Prompt', framework.datastore['Prompt'] || '', "The prompt string, defaults to \"#{Msf::Ui::Console::Driver::DefaultPrompt}\"" ],
+			[ 'PromptChar', framework.datastore['PromptChar'] || '', "The prompt character, defaults to \"#{Msf::Ui::Console::Driver::DefaultPromptChar}\"" ],
 			[ 'PromptTimeFormat', framework.datastore['PromptTimeFormat'] || '', 'A format for timestamp escapes in the prompt, see ruby\'s strftime docs' ],
 		].each { |r| tbl << r }
 
@@ -2792,6 +3215,24 @@ protected
 			'Postfix' => "\n",
 			'Columns' => [ 'Name', 'Disclosure Date', 'Rank', 'Description' ]
 			)
+	end
+	#
+	# Returns an array of lines at the provided line number plus any before and/or after lines requested
+	# from all_lines by supplying the +before+ and/or +after+ parameters which are always positive
+	#
+	# @param all_lines [Array<String>] An array of all lines being considered for matching
+	# @param line_num [Integer] The line number in all_lines which has satisifed the match
+	# @param after [Integer] The number of lines after the match line to include (should always be positive)
+	# @param before [Integer] The number of lines before the match line to include (should always be positive)
+	# @return [Array<String>] Array of lines including the line at line_num and any +before+ and/or +after+
+
+	def retrieve_grep_lines(all_lines,line_num, before = nil, after = nil)
+		after = after.to_i.abs
+		before = before.to_i.abs
+		start = line_num - before
+		start = 0 if start < 0
+		finish = line_num + after
+		return all_lines.slice(start..finish)
 	end
 end
 

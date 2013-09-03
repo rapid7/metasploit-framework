@@ -14,7 +14,7 @@ class Ini < Hash
 	# Factories
 	#
 	##
-	
+
 	#
 	# Creates a new class instance and reads in the contents of the supplied
 	# file path.
@@ -52,7 +52,7 @@ class Ini < Hash
 	#
 	# Enumerates the groups hash keys.
 	#
-	def each_group(&block) 
+	def each_group(&block)
 		self.keys.each { |k|
 			yield
 		}
@@ -87,7 +87,7 @@ class Ini < Hash
 	#
 	def from_file(fpath = nil)
 		fpath = path if (!fpath)
-	
+
 		read_groups(fpath)
 	end
 
@@ -167,7 +167,7 @@ protected
 
 			# Is it a group [bob]?
 			if (md = line.match(/^\[(.+?)\]/))
-				active_group = md[1]	
+				active_group = md[1]
 				self[md[1]]  = {}
 			# Is it a VAR=VAL?
 			elsif (md = line.match(/^(.+?)=(.*)$/))

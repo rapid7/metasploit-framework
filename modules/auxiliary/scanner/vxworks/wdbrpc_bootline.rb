@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -22,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'VxWorks WDB Agent Boot Parameter Scanner',
-			'Version'     => '$Revision$',
 			'Description' => 'Scan for exposed VxWorks wdbrpc daemons and dump the boot parameters from memory',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,
