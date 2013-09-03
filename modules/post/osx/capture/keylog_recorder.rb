@@ -29,12 +29,12 @@ class Metasploit3 < Msf::Post
 		super(update_info(info,
 			'Name'          => 'OSX Capture Userspace Keylogger',
 			'Description'   => %q{
-				Logs all keyboard events except cmd-keys and GUI password input.
+				This module logs all keyboard events except cmd-keys and GUI password input.
 
 				Keylogs are transferred between client/server in chunks
 				every SYNCWAIT seconds for reliability.
 
-				Works by calling the Carbon GetKeys() hook using the DL lib
+				It works by calling the Carbon GetKeys() hook using the DL lib
 				in OSX's system Ruby. The Ruby code is executed in a shell
 				command using -e, so the payload never hits the disk.
 			},

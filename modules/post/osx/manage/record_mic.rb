@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
 		super(update_info(info,
 			'Name'          => 'OSX Manage Record Microphone',
 			'Description'   => %q{
-					This module will allow you to detect (with the LIST action) and
+					This module will allow the user to detect (with the LIST action) and
 					capture (with the RECORD action) audio inputs on a remote OSX machine.
 			},
 			'License'       => MSF_LICENSE,
