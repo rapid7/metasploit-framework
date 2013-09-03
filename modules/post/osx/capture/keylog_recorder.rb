@@ -46,13 +46,13 @@ class Metasploit3 < Msf::Post
 
 		register_options(
 			[
-				OptInt.new('DURATION', 
+				OptInt.new('DURATION',
 					[ true, 'The duration in seconds.', 600 ]
 				),
-				OptInt.new('SYNCWAIT', 
+				OptInt.new('SYNCWAIT',
 					[ true, 'The time between transferring log chunks.', 10 ]
 				),
-				OptPort.new('LOGPORT', 
+				OptPort.new('LOGPORT',
 					[ false, 'Local port opened for momentarily for log transfer', 22899 ]
 				)
 			]

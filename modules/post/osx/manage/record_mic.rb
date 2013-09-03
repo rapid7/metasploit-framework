@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Post
 		register_options(
 			[
 				OptInt.new('MIC_INDEX', [true, 'The index of the mic to use. `set ACTION LIST` to get a list.', 0]),
-				OptString.new('TMP_FILE', 
+				OptString.new('TMP_FILE',
 					[true, 'The tmp file to use on the remote machine', '/tmp/.<random>/<random>']
 				),
 				OptString.new('AUDIO_COMPRESSION',
@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Post
 								tmp_file = File.join(File.dirname(tmp_file), base+num+'.'+ext)
 								# store contents in file
 								title = "OSX Mic Recording "+i.to_s
-								f = store_loot(title, "audio/quicktime", session, contents, 
+								f = store_loot(title, "audio/quicktime", session, contents,
 									"osx_mic_rec#{i}.qt", title)
 								print_good "Record file captured and saved to #{f}"
 								print_status "Rolling record file. "
