@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Post
 				next if d =~ /^(\.|\.\.)$/
 				realpath = dpath + '\\' + d
 				if session.fs.file.stat(realpath).directory?
-					perm = check_dir(realpath, token)
+					perm = check_dir_perms(realpath, token)
 					if perm_filter and perm and perm.include?(perm_filter)
 						print_status(perm + "\t" + realpath)
 					end
@@ -91,7 +91,7 @@ class Metasploit3 < Msf::Post
 			t = get_imperstoken()
 		rescue ::Exception => e
 			# Failure due to timeout, access denied, etc.
-			t = 0
+			t = nil
 			vprint_error("Error #{e.message} while using get_imperstoken()")
 			vprint_error(e.backtrace)
 		end
@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Post
 
 			print_status("Checking directory permissions from: #{path}")
 
-			perm = check_dir(path, token)
+			perm = check_dir_perms(path, token)
 			if not perm.nil?
 				# Show the permission of the parent directory
 				if perm_filter and perm.include?(perm_filter)
@@ -135,7 +135,7 @@ class Metasploit3 < Msf::Post
 
 		t = get_token
 
-		if t == 0
+		unless t
 			print_error("Getting impersonation token failed")
 		else
 			print_status("Got token: #{t.to_s}...")

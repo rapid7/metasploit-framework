@@ -180,7 +180,7 @@ module Accounts
 
 	# Gets an impersonation token from the primary token.
 	#
-	# @return [Fixnum] the impersonate token handle identifier if success, 0 if
+	# @return [Fixnum] the impersonate token handle identifier if success, nil if
 	#	fails
 	def get_imperstoken
 		adv =  session.railgun.advapi32
@@ -195,7 +195,7 @@ module Accounts
 		if it["return"] #if it fails return 0 for error handling
 			return it["DuplicateTokenHandle"]
 		else
-			return 0
+			return nil
 		end
 	end
 
@@ -213,11 +213,19 @@ module Accounts
 		#define generic mapping structure
 		gen_map = [0,0,0,0]
 		gen_map = gen_map.pack("L")
+		buffer_size = 500
 
 		#get Security Descriptor for the directory
-		f = adv.GetFileSecurityA(dir, si, 20, 20, 4)
-		f = adv.GetFileSecurityA(dir, si, f["lpnLengthNeeded"], f["lpnLengthNeeded"], 4)
-		sd = f["pSecurityDescriptor"]
+		f = adv.GetFileSecurityA(dir, si, buffer_size, buffer_size, 4)
+		if (f['return'] and f["lpnLengthNeeded"] <= buffer_size)
+			sd = f["pSecurityDescriptor"]
+		elsif (f['GetLastError'] == 2)
+			vprint_error("The system cannot find the file specified: #{dir}")
+			return nil
+		else
+			f = adv.GetFileSecurityA(dir, si, f["lpnLengthNeeded"], f["lpnLengthNeeded"], 4)
+		end
+
 
 		#check for write access, called once to get buffer size
 		a = adv.AccessCheck(sd, token, "ACCESS_READ | ACCESS_WRITE", gen_map, 0, 0, 4, 8)
