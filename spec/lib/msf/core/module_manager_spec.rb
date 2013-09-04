@@ -19,14 +19,6 @@ require 'msf/core'
 describe Msf::ModuleManager do
 	include_context 'Msf::Simple::Framework'
 
-  let(:archive_basename) do
-    [basename_prefix, archive_extension]
-  end
-
-  let(:archive_extension) do
-    '.fastlib'
-  end
-
   let(:basename_prefix) do
     'rspec'
   end

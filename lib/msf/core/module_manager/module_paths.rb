@@ -9,50 +9,17 @@ require 'active_support/core_ext/module'
 module Msf::ModuleManager::ModulePaths
   extend ActiveSupport::Concern
 
-  # Adds a path to be searched for new modules.
+  # Adds a path to {#cache} and then searches the path for modules.
   #
-  # @param path [String] a module path, archive path, or a directory that
-	#   contains archives.
+  # @param path [String] a `Metasploit::Model::Module::Path#real_path`.
 	# @param options (see Metasploit::Framework::PathSet::Base#add)
 	# @option (see Metasploit::Framework::PathSet::Base#add)
   # @return (see Msf::Modules::Loader::Base#load_modules)
   def add_path(path, options={})
-		module_paths = []
-
-    # remove trailing file separator
-    path_without_trailing_file_separator = path.sub(/#{File::SEPARATOR}$/, '')
-
-    # Make the path completely canonical
-    pathname = Pathname.new(path_without_trailing_file_separator).expand_path
-    extension = pathname.extname
-
-    if extension == Metasploit::Model::Module::Path::ARCHIVE_EXTENSION
-      unless pathname.exist?
-        raise ArgumentError, "The path supplied does not exist", caller
-      end
-
-			module_paths << cache.path_set.add(pathname.to_path, options)
-    else
-      # Make sure the path is a valid directory
-      unless pathname.directory?
-        raise ArgumentError, "The path supplied is not a valid directory.", caller
-      end
-
-			module_paths << cache.path_set.add(pathname.to_path, options)
-
-      # Identify any fastlib archives inside of this path
-      fastlib_glob = pathname.join('**', "*#{Metasploit::Model::Module::Path::ARCHIVE_EXTENSION}")
-
-      Dir.glob(fastlib_glob) do |fastlib_path|
-			  # no support for symbolic (gem, name) for fastlibs since they can be
-				# under multiple directories and encoding all those directories in the
-				# :name option will defeat the purpose of symbolic names allowing moves.
-				module_paths << cache.path_set.add(fastlib_path)
-      end
-    end
+		module_path = cache.path_set.add(path, options)
 
     # Load all of the modules from the nested paths
-		count_by_type = cache.prefetch(only: module_paths)
+		count_by_type = cache.prefetch(only: module_path)
 
     count_by_type
 	end

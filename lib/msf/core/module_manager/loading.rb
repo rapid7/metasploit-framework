@@ -78,9 +78,9 @@ module Msf::ModuleManager::Loading
 
   protected
 
-  # Load all of the modules from the supplied directory or archive
+  # Load all of the modules from the supplied directory
   #
-  # @param [String] path Path to a directory or Fastlib archive
+  # @param [String] path Path to a directory
   # @param [Hash] options
   # @option options [Boolean] :force Whether the force loading the modules even if they are unchanged and already
   #   loaded.

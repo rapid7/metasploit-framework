@@ -162,10 +162,6 @@ Files: lib/bit-struct.rb lib/bit-struct/*
 Copyright: 2005-2009, Joel VanderWerf
 License: Ruby
 
-Files: lib/fastlib.rb
-Copyright: 2011, Rapid7 Inc.
-License: Ruby
-
 Files: lib/gemcache/ruby/1.9.1/arch/*/eventmachine-*/*
 Copyright: 2006-2007, Francis Cianfrocca
 License: Ruby

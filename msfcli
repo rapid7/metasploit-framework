@@ -520,7 +520,6 @@ class Msfcli
 		end
 
 		$:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
-		require 'fastlib'
 		require 'msfenv'
 		require 'msf/ui'
 		require 'msf/base'

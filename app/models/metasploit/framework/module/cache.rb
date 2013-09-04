@@ -6,7 +6,6 @@ class Metasploit::Framework::Module::Cache < Metasploit::Model::Base
 
 	# `Class#name` for classes in {path_loader_classes} by default.
 	PATH_LOADER_CLASS_NAMES = [
-			'Metasploit::Framework::Module::Path::Loader::Archive',
 			'Metasploit::Framework::Module::Path::Loader::Directory'
 	]
 
@@ -83,7 +82,7 @@ class Metasploit::Framework::Module::Cache < Metasploit::Model::Base
 	# {#path_set} for updates to `Metasploit::Model::Module::Ancestors`.
 	#
 	# @param options [Hash]
-	# @option options [Array<Metasploit::Model::Module::Path>] :only only prefetch
+	# @option options [nil, Metasploit::Model::Module::Path, Array<Metasploit::Model::Module::Path>] :only only prefetch
 	#   the given module paths.  If :only is not given, then all module paths in
 	#   {#path_set} will be prefetched.
 	# @return [void]
@@ -91,7 +90,7 @@ class Metasploit::Framework::Module::Cache < Metasploit::Model::Base
 	def prefetch(options={})
 		options.assert_valid_keys(:only)
 
-		module_paths = options[:only]
+		module_paths = Array.wrap(options[:only])
 
 		if module_paths.blank?
 			module_paths = path_set.all

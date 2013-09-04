@@ -39,7 +39,6 @@ SimpleCov.configure do
 	# Other library groups
 	#
 
-	add_group 'Fastlib', 'lib/fastlib'
 	add_group 'Metasm', 'lib/metasm'
 	add_group 'PacketFu', 'lib/packetfu'
 	add_group 'Rex', 'lib/rex'
