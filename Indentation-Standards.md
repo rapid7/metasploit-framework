@@ -14,6 +14,47 @@ This page can be found by the shortlink http://r-7.co/MSF-TABS
 
 Once metasploit-framework/master is retabbed, it's quite likely that several outstanding branches will be conflicted. The easiest way to solve these conflicts is for branch owners to reformat their own changed files with soft tabs (which should immediately unconflict). In order to ease the pain, the [@tabassassin](https://github.com/tabassassin) account will fire off a boiler plate PR back to outstanding branch maintainers who are affected with instructions on how to retab as well as actual retab commits they can land.
 
+### Retabbing on your own
+
+Retabbing your own feature branch to un-conflict your changes is pretty easy. Follow this procedure, which assumes that you have Rapid7's repo named "upstream" (as recommended in the [MSF developer guide](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment#check-out-the-upstream-master-branch).
+
+
+````
+git merge upstream/master -m "Merge for retab" -s recursive -X ours
+````
+
+This will merge in the upstream/master branch into your branch, preferring YOUR changes to all conflicting files. This will ensure that your changes are preserved.
+
+````
+git log --oneline -1
+````
+This will give you the commit hash of the merge you just performed. Note this down. Let's say it's `deadbeef`
+
+````
+./tools/dev/retab.rb lib/
+./tools/dev/retab.rb modules/
+````
+
+This will apply the new space intendation to your changes in `lib/` and `modules/`. If you only have changes in one of these directories, just pick that one.
+
+````
+git diff -w deadbeef
+`````
+
+This diffs your local branch with the state just prior to retabbing, ignoring whitespace changes. It should return nothing, indicating that there has been no change. This is good.
+
+````
+git commit -a -m "Retab changes for PR #1234"
+````
+
+This commits the retabbing changes. Substitute `#1234` for your own PR number, of course.
+
+````
+git push origin your-branch-name
+````
+
+This will push the results up to your remote branch (substitute `your-branch-name` of course). This will automatically update your pull request with two new commits, the merge and the retab.
+
 ## Implementation Timeline
 
 Items struck out are complete.
