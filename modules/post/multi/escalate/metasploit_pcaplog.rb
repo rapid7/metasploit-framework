@@ -22,14 +22,14 @@ class Metasploit3 < Msf::Post
   include Msf::Exploit::Local::Linux
   include Msf::Exploit::Local::Unix
 
-  def initialize(info={})
-    super( update_info( info, {
-        'Name'	  => 'Metasploit pcap_log Local Privilege Escalation',
-        'Description'   => %q{
-          Metasploit < 4.4 contains a vulnerable 'pcap_log' plugin which, when used with the default settings,
-          creates pcap files in /tmp with predictable file names. This exploits this by hard-linking these
-          filenames to /etc/passwd, then sending a packet with a priviliged user entry contained within.
-          This, and all the other packets, are appended to /etc/passwd.
+	def initialize(info={})
+		super( update_info( info, {
+				'Name'	  => 'Multi Escalate Metasploit pcap_log Local Privilege Escalation',
+				'Description'   => %q{
+					Metasploit < 4.4 contains a vulnerable 'pcap_log' plugin which, when used with the default settings,
+					creates pcap files in /tmp with predictable file names. This exploits this by hard-linking these
+					filenames to /etc/passwd, then sending a packet with a priviliged user entry contained within.
+					This, and all the other packets, are appended to /etc/passwd.
 
           Successful exploitation results in the creation of a new superuser account.
 
