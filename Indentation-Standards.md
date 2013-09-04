@@ -39,6 +39,10 @@ By now, we should have a pretty good idea of how to deal with conflicts and how 
  - Offer retabbing to outstanding pull requests in the form of outbound PRs from [@tabassassin](https://github.com/tabassassin).
     * [This pull request](https://github.com/dmaloney-r7/metasploit-framework/pull/8) is an example of a one-off retab PR.
 
+### By September 6, 2013
+  - Announce the coming retabbing rumpus on the Metasploit blog.
+  - Land the [retabbed branch]((https://github.com/tabassassin/metasploit-framework/compare/rapid7:master...retab;rumpus?expand=1)
+
 ### By September 18, 2013
  - Periodically retab as [@tabassassin](https://github.com/tabassassin) to catch stragglers that snuck in.
  - Periodically offer retabbing services as [@tabassassin](https://github.com/tabassassin) as above.
