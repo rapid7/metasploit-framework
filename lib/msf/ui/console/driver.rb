@@ -230,7 +230,7 @@ class Driver < Msf::Ui::Driver
 
 			# Rebuild the module cache in a background thread
 			self.framework.threads.spawn("ModuleCacheRebuild", true) do
-				self.framework.modules.refresh_cache_from_module_files
+				self.framework.modules.cache.prefetch
 			end
 		end
 

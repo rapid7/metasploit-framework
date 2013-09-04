@@ -26,47 +26,35 @@ module Msf::ModuleManager::ModulePaths
     pathname = Pathname.new(path_without_trailing_file_separator).expand_path
     extension = pathname.extname
 
-    if extension == Msf::Modules::Loader::Archive::ARCHIVE_EXTENSION
+    if extension == Metasploit::Model::Module::Path::ARCHIVE_EXTENSION
       unless pathname.exist?
         raise ArgumentError, "The path supplied does not exist", caller
       end
 
-			module_paths << path_set.add(pathname.to_path, options)
+			module_paths << cache.path_set.add(pathname.to_path, options)
     else
       # Make sure the path is a valid directory
       unless pathname.directory?
         raise ArgumentError, "The path supplied is not a valid directory.", caller
       end
 
-			module_paths << path_set.add(pathname.to_path, options)
+			module_paths << cache.path_set.add(pathname.to_path, options)
 
       # Identify any fastlib archives inside of this path
-      fastlib_glob = pathname.join('**', "*#{Msf::Modules::Loader::Archive::ARCHIVE_EXTENSION}")
+      fastlib_glob = pathname.join('**', "*#{Metasploit::Model::Module::Path::ARCHIVE_EXTENSION}")
 
       Dir.glob(fastlib_glob) do |fastlib_path|
 			  # no support for symbolic (gem, name) for fastlibs since they can be
 				# under multiple directories and encoding all those directories in the
 				# :name option will defeat the purpose of symbolic names allowing moves.
-				module_paths << path_set.add(fastlib_path)
+				module_paths << cache.path_set.add(fastlib_path)
       end
     end
 
     # Load all of the modules from the nested paths
-    count_by_type = {}
-    module_paths.each do |module_path|
-			path_count_by_type = load_modules(
-					module_path.real_path,
-					force: false
-			)
+		count_by_type = cache.prefetch(only: module_paths)
 
-			# merge hashes
-			path_count_by_type.each do |type, path_count|
-				accumulated_count = count_by_type.fetch(type, 0)
-				count_by_type[type] = accumulated_count + path_count
-			end
-		end
-
-    return count_by_type
+    count_by_type
 	end
 
   #
@@ -81,7 +69,4 @@ module Msf::ModuleManager::ModulePaths
 
   attr_accessor :module_paths # :nodoc:
 
-	def path_set
-		@path_set = Metasploit::Framework::Module::PathSet::Database.new
-	end
 end

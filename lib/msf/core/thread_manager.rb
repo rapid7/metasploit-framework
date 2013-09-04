@@ -105,13 +105,17 @@ class ThreadManager < Array
 					# to_yaml will escape the string with !binary if not converted.
 					thread_hash[:name] = ::Thread.current[:tm_name].encode('utf-8')
 					thread_hash[:critical] = ::Thread.current[:tm_crit]
-					thread_hash[:source] = ::Thread.current[:tm_call]
+					thread_hash[:source] = ::Thread.current[:tm_call].collect { |string|
+						string.encode('utf-8')
+					}
 
 					error_hash = {}
 					# need to use Class#name so that to_yaml doesn't do !ruby/class
 					error_hash[:class] = error.class.name
-					error_hash[:message] = error.to_s
-					error_hash[:backtrace] = error.backtrace
+					error_hash[:message] = error.to_s.encode('utf-8')
+					error_hash[:backtrace] = error.backtrace.collect { |string|
+						string.encode('utf-8')
+					}
 					thread_hash[:error] = error_hash
 
 					message_hash = {

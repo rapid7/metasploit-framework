@@ -19,12 +19,20 @@ describe Metasploit::Framework::Module::Path do
 			FactoryGirl.build(:named_metasploit_framework_module_path)
 		end
 
+		let(:cache) do
+			double('Metasploit::Framework::Module::Cache')
+		end
+
+		let(:path_set) do
+			Metasploit::Framework::Module::PathSet::Memory.new(:cache => cache)
+		end
+
 		before(:each) do
 			# reset changes from FactoryGirl
 			path.instance_variable_get(:@changed_attributes).clear
 
 			# assign to a path_set so that save! won't error out
-			path.path_set = Metasploit::Framework::Module::PathSet::Memory.new(:framework => nil)
+			path.path_set = path_set
 		end
 
 		it_should_behave_like 'change tracking for', :gem
@@ -75,6 +83,10 @@ describe Metasploit::Framework::Module::Path do
 		end
 
 		context 'with path_set' do
+			let(:cache) do
+				double('Metasploit::Framework::Module::Cache')
+			end
+
 			let(:original_path) do
 				FactoryGirl.build(
 						:metasploit_framework_module_path,
@@ -84,7 +96,7 @@ describe Metasploit::Framework::Module::Path do
 			end
 
 			let(:path_set) do
-				Metasploit::Framework::Module::PathSet::Memory.new(:framework => nil)
+				Metasploit::Framework::Module::PathSet::Memory.new(cache: cache)
 			end
 
 			before(:each) do
@@ -187,8 +199,12 @@ describe Metasploit::Framework::Module::Path do
 		end
 
 		context 'with value' do
+			let(:cache) do
+				double('Metasploit::Framework::Module::Cache')
+			end
+
 			let(:value) do
-				Metasploit::Framework::Module::PathSet::Memory.new(:framework => nil)
+				Metasploit::Framework::Module::PathSet::Memory.new(cache: cache)
 			end
 
 			before(:each) do
@@ -215,7 +231,7 @@ describe Metasploit::Framework::Module::Path do
 		end
 
 		let(:new_path_set) do
-			Metasploit::Framework::Module::PathSet::Memory.new(:framework => nil)
+			Metasploit::Framework::Module::PathSet::Memory.new
 		end
 
 		context 'with undefined' do
@@ -230,7 +246,7 @@ describe Metasploit::Framework::Module::Path do
 
 		context 'without undefined' do
 			let(:original_path_set) do
-				Metasploit::Framework::Module::PathSet::Memory.new(:framework => nil)
+				Metasploit::Framework::Module::PathSet::Memory.new
 			end
 
 			before(:each) do
@@ -256,7 +272,7 @@ describe Metasploit::Framework::Module::Path do
 
 		context 'with path_set' do
 			let(:path_set) do
-				Metasploit::Framework::Module::PathSet::Memory.new(:framework => nil)
+				Metasploit::Framework::Module::PathSet::Memory.new
 			end
 
 			before(:each) do
@@ -306,7 +322,7 @@ describe Metasploit::Framework::Module::Path do
 			end
 
 			let(:path_set) do
-				Metasploit::Framework::Module::PathSet::Memory.new(:framework => nil)
+				Metasploit::Framework::Module::PathSet::Memory.new
 			end
 
 			it 'should run save callbacks after validation' do

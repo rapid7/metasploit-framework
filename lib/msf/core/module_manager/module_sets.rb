@@ -36,7 +36,7 @@ module Msf::ModuleManager::ModuleSets
   end
 
   def init_module_set(type)
-    self.enablement_by_type[type] = true
+    self.enablement_by_module_type[type] = true
     case type
       when Metasploit::Model::Module::Type::PAYLOAD
         instance = Msf::PayloadSet.new
@@ -44,7 +44,7 @@ module Msf::ModuleManager::ModuleSets
         instance = Msf::ModuleSet.new(type)
     end
 
-    self.module_set_by_type[type] = instance
+    self.module_set_by_module_type[type] = instance
 
     # Set the module set's framework reference
     instance.framework = self.framework
@@ -54,21 +54,21 @@ module Msf::ModuleManager::ModuleSets
   # Provide a list of module names of a specific type
   #
   def module_names(set)
-    module_set_by_type[set] ? module_set_by_type[set].keys.dup : []
+    module_set_by_module_type[set] ? module_set_by_module_type[set].keys.dup : []
   end
 
   #
   # Returns all of the modules of the specified type
   #
   def module_set(type)
-    module_set_by_type[type]
+    module_set_by_module_type[type]
   end
 
+  # Provide a list of the types of modules being managed by the module manager.
   #
-  # Provide a list of the types of modules in the set
-  #
+	# @return [Array<String>]
   def module_types
-    module_set_by_type.keys.dup
+    module_set_by_module_type.keys.dup
   end
 
   #
@@ -92,12 +92,18 @@ module Msf::ModuleManager::ModuleSets
     module_set(Metasploit::Model::Module::Type::POST)
   end
 
-  def type_enabled?(type)
-    enablement_by_type[type] || false
+	# Whether the given `module_type` is enabled and being managed by this module
+	# manager.
+	#
+	# @param module_type [String] a module type
+	# @return [Boolean]
+	# @see Metasploit::Model::Module::Type
+  def module_type_enabled?(module_type)
+    enablement_by_module_type[module_type] || false
   end
 
   protected
 
-  attr_accessor :enablement_by_type # :nodoc:
-  attr_accessor :module_set_by_type # :nodoc:
+  attr_accessor :enablement_by_module_type # :nodoc:
+  attr_accessor :module_set_by_module_type # :nodoc:
 end

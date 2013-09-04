@@ -3,12 +3,6 @@
 #
 require 'active_support/concern'
 
-#
-# Project
-#
-require 'msf/core/modules/loader/archive'
-require 'msf/core/modules/loader/directory'
-
 # Deals with loading modules for the {Msf::ModuleManager}
 module Msf::ModuleManager::Loading
   extend ActiveSupport::Concern
@@ -16,12 +10,6 @@ module Msf::ModuleManager::Loading
   #
   # CONSTANTS
   #
-
-  # Classes that can be used to load modules.
-  LOADER_CLASSES = [
-      Msf::Modules::Loader::Archive,
-      Msf::Modules::Loader::Directory
-  ]
 
   def file_changed?(path)
     changed = false
@@ -69,7 +57,7 @@ module Msf::ModuleManager::Loading
   #   +type+ argument.
   # @return [void]
   def on_module_load(class_or_module, type, reference_name, info={})
-    module_set = module_set_by_type[type]
+    module_set = module_set_by_module_type[type]
     module_set.add_module(class_or_module, reference_name, info)
 
     path = info['files'].first
@@ -89,17 +77,6 @@ module Msf::ModuleManager::Loading
   end
 
   protected
-
-  # Return list of {LOADER_CLASSES} instances that load modules into this module manager
-  def loaders
-    unless instance_variable_defined? :@loaders
-      @loaders = LOADER_CLASSES.collect { |klass|
-        klass.new(self)
-      }
-    end
-
-    @loaders
-  end
 
   # Load all of the modules from the supplied directory or archive
   #

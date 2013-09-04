@@ -3,8 +3,12 @@ require 'spec_helper'
 describe Metasploit::Framework::Module::PathSet::Memory do
 	subject(:path_set) do
 		described_class.new(
-				:framework => nil
+				:cache => cache
 		)
+	end
+
+	let(:cache) do
+		double('Metasploit::Framework::Module:Cache')
 	end
 
 	context '#add' do

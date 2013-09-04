@@ -7,6 +7,18 @@ require 'active_support/concern'
 module Msf::ModuleManager::Cache
   extend ActiveSupport::Concern
 
+	# @return [Metasploit::Framework::Module::Cache]
+	def cache
+		unless instance_variable_defined? :@cache
+			cache = Metasploit::Framework::Module::Cache.new(module_manager: self)
+			cache.valid!
+
+			@cache = cache
+		end
+
+		@cache
+	end
+
   # Returns whether the cache is empty
   #
   # @return [true] if the cache has no entries.
@@ -93,27 +105,6 @@ module Msf::ModuleManager::Cache
     end
 
     loaded
-  end
-
-  # @overload refresh_cache_from_module_files
-  #   Rebuilds database and in-memory cache for all modules.
-  #
-  #   @return [void]
-  # @overload refresh_cache_from_module_files(module_class_or_instance)
-  #   Rebuilds database and in-memory cache for given module_class_or_instance.
-  #
-  #   @param (see Msf::DBManager#update_module_details)
-  #   @return [void]
-  def refresh_cache_from_module_files(module_class_or_instance = nil)
-    if framework_migrated?
-      if module_class_or_instance
-        framework.db.update_module_details(module_class_or_instance)
-      else
-        framework.db.update_all_module_details
-      end
-
-      refresh_cache_from_database
-    end
   end
 
   # Refreshes the in-memory cache from the database cache.

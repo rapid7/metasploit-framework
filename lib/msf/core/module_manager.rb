@@ -50,7 +50,7 @@ module Msf
       names = key.split("/")
       type = names.shift
 
-      module_set = module_set_by_type[type]
+      module_set = module_set_by_module_type[type]
 
       module_reference_name = names.join("/")
       module_set[module_reference_name]
@@ -71,16 +71,17 @@ module Msf
       potential_type_or_directory = names.first
 
       # if first name is a type
-      if Metasploit::Model::Module::Ancestor::DIRECTORY_BY_MODULE_TYPE.has_key? potential_type_or_directory
+      if Metasploit::Model::Module::Type::ALL.include? potential_type_or_directory
         type = potential_type_or_directory
       # if first name is a type directory
-      else
-        type = TYPE_BY_DIRECTORY[potential_type_or_directory]
+			else
+				directory = potential_type_or_directory
+        type = Metasploit::Framework::Module::Ancestor::MODULE_TYPE_BY_DIRECTORY[directory]
       end
 
       module_instance = nil
       if type
-        module_set = module_set_by_type[type]
+        module_set = module_set_by_module_type[type]
 
         # First element in names is the type, so skip it
         module_reference_name = names[1 .. -1].join("/")
@@ -88,7 +89,7 @@ module Msf
       else
         # Then we don't have a type, so we have to step through each set
         # to see if we can create this module.
-        module_set_by_type.each do |_, set|
+        module_set_by_module_type.each do |_, set|
           module_reference_name = names.join("/")
           module_instance = set.create(module_reference_name)
           break if module_instance
@@ -104,7 +105,7 @@ module Msf
     # @yieldparam name [String] The module's reference name
     # @yieldparam mod_class [Msf::Module] A module class
     def each
-      module_set_by_type.each do |type, set|
+      module_set_by_module_type.each do |type, set|
         set.each do |name, mod_class|
           yield name, mod_class
         end
@@ -122,9 +123,9 @@ module Msf
       #
 
       self.module_info_by_path = {}
-      self.enablement_by_type = {}
+      self.enablement_by_module_type = {}
       self.module_load_error_by_path = {}
-      self.module_set_by_type = {}
+      self.module_set_by_module_type = {}
 
       #
       # from arguments

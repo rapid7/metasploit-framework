@@ -4,6 +4,27 @@
 # Metasploit::Framework::Module::Paths} or Mdm::Module::Paths (depending
 # on if the database is active.)
 class Metasploit::Framework::Module::PathSet::Base < Metasploit::Model::Base
+	#
+	# Attributes
+	#
+
+	# @!attribute [rw] cache
+	#   The cache that contains this path set.
+	#
+	#   @return [Metasploit::Framework::Module::Cache]
+	attr_accessor :cache
+
+	#
+	# Validations
+	#
+
+	validates :cache,
+						:presence => true
+
+	#
+	# Methods
+	#
+
 	# @abstract Instantiate a subclass specific path class and validate it before
 	#   calling {#add_path} with the path instance.  If the path instance is
 	#   invalid, raise a validation error.
@@ -23,6 +44,26 @@ class Metasploit::Framework::Module::PathSet::Base < Metasploit::Model::Base
 	# @option options [String] :name The name scoped to :gem of path.
 	# @raise [NotImplementedError]
 	def add(path, options={})
+		raise NotImplementedError,
+					"#{self.class.name}##{__method__} is not implemented"
+	end
+
+	# All paths.
+	#
+	# @return [Array<Metasploit::Model::Module::Path>] paths
+	def all
+		raise NotImplementedErrror,
+					"#{self.class.name}##{__method__} is not implemented"
+	end
+
+	# Verifies that this set is a superset of the given paths.
+	#
+	# @param module_paths [Enumerable<Metasploit::Model::Module::Path>] module
+	#   paths that need to be checked if they are in this path set.
+	# @return [void]
+	# @raise [Metasploit::Framework::Module::PathSet::SupersetError] if there are
+	#   module paths in `module_paths` that are not in this path set.
+	def superset!(module_paths)
 		raise NotImplementedError,
 					"#{self.class.name}##{__method__} is not implemented"
 	end

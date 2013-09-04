@@ -15,6 +15,10 @@ shared_context 'DatabaseCleaner' do
 			ActiveRecord::Base.establish_connection(spec)
 
 			retry
+		ensure
+			# remove the established connection so that it doesn't leak into another
+			# example
+			ActiveRecord::Base.remove_connection
 		end
 	end
 
