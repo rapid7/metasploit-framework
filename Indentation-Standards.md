@@ -41,7 +41,7 @@ This will apply the new space intendation to your changes in `lib/` and `modules
 git diff -w deadbeef
 `````
 
-This diffs your local branch with the state just prior to retabbing, ignoring whitespace changes. It should return nothing, indicating that there has been no change. This is good.
+This diffs your local branch with the state just prior to retabbing, ignoring whitespace changes. It should return nothing, indicating that there has been no content change. This is good.
 
 ````
 git commit -a -m "Retab changes for PR #1234"
