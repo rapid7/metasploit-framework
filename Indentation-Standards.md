@@ -83,7 +83,8 @@ By now, we should have a pretty good idea of how to deal with conflicts and how 
 
 ### By September 6, 2013
   - Announce the coming retabbing rumpus on the Metasploit blog.
-  - Land the [retabbed branch]((https://github.com/tabassassin/metasploit-framework/compare/rapid7:master...retab;rumpus?expand=1)
+  - ~~Land the [retabbed branch]((https://github.com/tabassassin/metasploit-framework/compare/rapid7:master...retab;rumpus?expand=1)~~
+    * Landed as [PR #2330](https://github.com/rapid7/metasploit-framework/pull/2330)
 
 ### By September 18, 2013
  - Periodically retab as [@tabassassin](https://github.com/tabassassin) to catch stragglers that snuck in.
