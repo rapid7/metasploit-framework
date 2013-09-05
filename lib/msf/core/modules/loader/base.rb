@@ -58,7 +58,8 @@ class Msf::Modules::Loader::Base
   MODULE_EXTENSION = '.rb'
   # String used to separate module names in a qualified module name.
   MODULE_SEPARATOR = '::'
-  # The base namespace name under which {#namespace_module #namespace_modules} are created.
+  # The base namespace name under which {#create_namespace_module
+  # namespace modules are created}.
   NAMESPACE_MODULE_NAMES = ['Msf', 'Modules']
   # Regex that can distinguish regular ruby source from unit test source.
   UNIT_TEST_REGEX = /rb\.(ut|ts)\.rb$/
@@ -247,16 +248,25 @@ class Msf::Modules::Loader::Base
   # @param [Hash] options
   # @option options [Boolean] force (false) Whether to force loading of
   #   the module even if the module has not changed.
+  # @option options [Array] whitelist An array of regex patterns to search for specific modules
   # @return [Hash{String => Integer}] Maps module type to number of
   #   modules loaded
   def load_modules(path, options={})
-    options.assert_valid_keys(:force)
+    options.assert_valid_keys(:force, :whitelist)
 
     force = options[:force]
     count_by_type = {}
     recalculate_by_type = {}
 
-    each_module_reference_name(path) do |parent_path, type, module_reference_name|
+    # This is used to avoid loading the same thing twice
+    loaded_items = []
+
+    each_module_reference_name(path, options) do |parent_path, type, module_reference_name|
+      # In msfcli mode, if a module is already loaded, avoid loading it again
+      next if loaded_items.include?(module_reference_name) and options[:whitelist]
+
+      # Keep track of loaded modules in msfcli mode
+      loaded_items << module_reference_name if options[:whitelist]
       load_module(
           parent_path,
           type,
@@ -340,7 +350,8 @@ class Msf::Modules::Loader::Base
   # module's classes.  The wrapper module must be named so that active_support's autoloading code doesn't break when
   # searching constants from inside the Metasploit(1|2|3) class.
   #
-  # @param [String] namespace_module_names (see #{namespace_module_names})
+  # @param namespace_module_names [Array<String>]
+  #   {NAMESPACE_MODULE_NAMES} + <derived-constant-safe names>
   # @return [Module] module that can wrap the module content from {#read_module_content} using
   #   module_eval_with_lexical_scope.
   #
@@ -375,7 +386,7 @@ class Msf::Modules::Loader::Base
     namespace_module
   end
 
-  # Returns the module with {#module_names} if it exists.
+  # Returns the module with `module_names` if it exists.
   #
   # @param [Array<String>] module_names a list of module names to resolve from Object downward.
   # @return [Module] module that wraps the previously loaded content from {#read_module_content}.
@@ -484,13 +495,14 @@ class Msf::Modules::Loader::Base
   # Returns the fully-qualified name to the {#create_namespace_module} that wraps the module with the given module
   # reference name.
   #
-  # @param [String] module_reference_name The canonical name for referring to the module.
+  # @param [String] module_full_name The canonical name for referring to the
+  #   module.
   # @return [String] name of module.
   #
   # @see MODULE_SEPARATOR
   # @see #namespace_module_names
-  def namespace_module_name(uniq_module_reference_name)
-    namespace_module_names = self.namespace_module_names(uniq_module_reference_name)
+  def namespace_module_name(module_full_name)
+    namespace_module_names = self.namespace_module_names(module_full_name)
     namespace_module_name = namespace_module_names.join(MODULE_SEPARATOR)
 
     namespace_module_name
@@ -502,20 +514,20 @@ class Msf::Modules::Loader::Base
   # escaped by using 'H*' unpacking and prefixing each code with X so
   # the code remains a valid module name when it starts with a digit.
   #
-  # @param [String] uniq_module_reference_name The unique canonical name
+  # @param [String] module_full_name The unique canonical name
   #   for the module including type.
   # @return [Array<String>] {NAMESPACE_MODULE_NAMES} + <derived-constant-safe names>
   #
   # @see namespace_module
-  def namespace_module_names(uniq_module_reference_name)
-    NAMESPACE_MODULE_NAMES + [ "Mod" + uniq_module_reference_name.unpack("H*").first.downcase ]
+  def namespace_module_names(module_full_name)
+    NAMESPACE_MODULE_NAMES + [ "Mod" + module_full_name.unpack("H*").first.downcase ]
   end
 
-  def namespace_module_transaction(uniq_module_reference_name, options={}, &block)
+  def namespace_module_transaction(module_full_name, options={}, &block)
     options.assert_valid_keys(:reload)
 
     reload = options[:reload] || false
-    namespace_module_names = self.namespace_module_names(uniq_module_reference_name)
+    namespace_module_names = self.namespace_module_names(module_full_name)
 
     previous_namespace_module = current_module(namespace_module_names)
 
@@ -646,4 +658,3 @@ class Msf::Modules::Loader::Base
     usable
   end
 end
-

@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 require 'rex/socket/range_walker'
 
 describe Rex::Socket::RangeWalker do
@@ -25,6 +26,16 @@ describe Rex::Socket::RangeWalker do
     walker.should be_valid
     walker.length.should == 8
     walker.should include("10.1.3.5")
+  end
+
+  it 'should reject CIDR ranges with missing octets' do
+    walker = Rex::Socket::RangeWalker.new('192.168/24')
+    walker.should_not be_valid
+  end
+
+  it 'should reject a CIDR range with too many octets' do
+    walker = Rex::Socket::RangeWalker.new('192.168.1.2.0/24')
+    walker.should_not be_valid
   end
 
   it "should default the lower bound of a range to 0" do

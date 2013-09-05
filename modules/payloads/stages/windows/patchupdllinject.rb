@@ -15,6 +15,6 @@ require 'msf/core/payload/windows/dllinject'
 ###
 module Metasploit3
 
-	include Msf::Payload::Windows::DllInject
+  include Msf::Payload::Windows::DllInject
 
 end

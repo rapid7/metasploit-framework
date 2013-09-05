@@ -25,13 +25,13 @@ class ZipEntryTest < Test::Unit::TestCase
 
   def test_constructorAndGetters
     entry = ZipEntry.new(TEST_ZIPFILE,
-			 TEST_NAME,
-			 TEST_COMMENT,
-			 TEST_EXTRA,
-			 TEST_COMPRESSED_SIZE,
-			 TEST_CRC,
-			 TEST_COMPRESSIONMETHOD,
-			 TEST_SIZE)
+       TEST_NAME,
+       TEST_COMMENT,
+       TEST_EXTRA,
+       TEST_COMPRESSED_SIZE,
+       TEST_CRC,
+       TEST_COMPRESSIONMETHOD,
+       TEST_SIZE)
 
     assert_equal(TEST_COMMENT, entry.comment)
     assert_equal(TEST_COMPRESSED_SIZE, entry.compressed_size)
@@ -59,29 +59,29 @@ class ZipEntryTest < Test::Unit::TestCase
 
   def test_equality
     entry1 = ZipEntry.new("file.zip", "name",  "isNotCompared", 
-			  "something extra", 123, 1234, 
-			  ZipEntry::DEFLATED, 10000)  
+        "something extra", 123, 1234, 
+        ZipEntry::DEFLATED, 10000)  
     entry2 = ZipEntry.new("file.zip", "name",  "isNotComparedXXX", 
-			  "something extra", 123, 1234, 
-			  ZipEntry::DEFLATED, 10000)  
+        "something extra", 123, 1234, 
+        ZipEntry::DEFLATED, 10000)  
     entry3 = ZipEntry.new("file.zip", "name2", "isNotComparedXXX", 
-			  "something extra", 123, 1234, 
-			  ZipEntry::DEFLATED, 10000)  
+        "something extra", 123, 1234, 
+        ZipEntry::DEFLATED, 10000)  
     entry4 = ZipEntry.new("file.zip", "name2", "isNotComparedXXX", 
-			  "something extraXX", 123, 1234, 
-			  ZipEntry::DEFLATED, 10000)  
+        "something extraXX", 123, 1234, 
+        ZipEntry::DEFLATED, 10000)  
     entry5 = ZipEntry.new("file.zip", "name2", "isNotComparedXXX", 
-			  "something extraXX", 12,  1234, 
-			  ZipEntry::DEFLATED, 10000)  
+        "something extraXX", 12,  1234, 
+        ZipEntry::DEFLATED, 10000)  
     entry6 = ZipEntry.new("file.zip", "name2", "isNotComparedXXX", 
-			  "something extraXX", 12,  123, 
-			  ZipEntry::DEFLATED, 10000)  
+        "something extraXX", 12,  123, 
+        ZipEntry::DEFLATED, 10000)  
     entry7 = ZipEntry.new("file.zip", "name2", "isNotComparedXXX", 
-			  "something extraXX", 12,  123,  
-			  ZipEntry::STORED,   10000)  
+        "something extraXX", 12,  123,  
+        ZipEntry::STORED,   10000)  
     entry8 = ZipEntry.new("file.zip", "name2", "isNotComparedXXX", 
-			  "something extraXX", 12,  123,  
-			  ZipEntry::STORED,   100000)  
+        "something extraXX", 12,  123,  
+        ZipEntry::STORED,   100000)  
 
     assert_equal(entry1, entry1)
     assert_equal(entry1, entry2)
@@ -224,8 +224,8 @@ class ZipLocalEntryTest < Test::Unit::TestCase
 
   def test_writeEntry
     entry = ZipEntry.new("file.zip", "entryName", "my little comment", 
-			 "thisIsSomeExtraInformation", 100, 987654, 
-			 ZipEntry::DEFLATED, 400)
+       "thisIsSomeExtraInformation", 100, 987654, 
+       ZipEntry::DEFLATED, 400)
     write_to_file("localEntryHeader.bin", "centralEntryHeader.bin",  entry)
     entryReadLocal, entryReadCentral = read_from_file("localEntryHeader.bin", "centralEntryHeader.bin")
     compare_local_entry_headers(entry, entryReadLocal)
@@ -345,13 +345,13 @@ module AssertEntry
       expected = file.read
       actual   = zis.read
       if (expected != actual)
-	if ((expected && actual) && (expected.length > 400 || actual.length > 400))
-	  zipEntryFilename=entryName+".zipEntry"
-	  File.open(zipEntryFilename, "wb") { |f| f << actual }
-	  fail("File '#{filename}' is different from '#{zipEntryFilename}'")
-	else
-	  assert_equal(expected, actual)
-	end
+  if ((expected && actual) && (expected.length > 400 || actual.length > 400))
+    zipEntryFilename=entryName+".zipEntry"
+    File.open(zipEntryFilename, "wb") { |f| f << actual }
+    fail("File '#{filename}' is different from '#{zipEntryFilename}'")
+  else
+    assert_equal(expected, actual)
+  end
       end
     }
   end
@@ -361,11 +361,11 @@ module AssertEntry
     File.open(filename, "rb") { |f| fileContents = f.read }
     if (fileContents != aString)
       if (fileContents.length > 400 || aString.length > 400)
-	stringFile = filename + ".other"
-	File.open(stringFile, "wb") { |f| f << aString }
-	fail("File '#{filename}' is different from contents of string stored in '#{stringFile}'")
+  stringFile = filename + ".other"
+  File.open(stringFile, "wb") { |f| f << aString }
+  fail("File '#{filename}' is different from contents of string stored in '#{stringFile}'")
       else
-	assert_equal(fileContents, aString)
+  assert_equal(fileContents, aString)
       end
     end
   end
@@ -626,9 +626,9 @@ class ZipOutputStreamTest < Test::Unit::TestCase
       zos = ZipOutputStream.open(name)
     rescue Exception
       assert($!.kind_of?(Errno::EISDIR) || # Linux 
-	     $!.kind_of?(Errno::EEXIST) || # Windows/cygwin
-	     $!.kind_of?(Errno::EACCES),   # Windows
-	      "Expected Errno::EISDIR (or on win/cygwin: Errno::EEXIST), but was: #{$!.class}")
+       $!.kind_of?(Errno::EEXIST) || # Windows/cygwin
+       $!.kind_of?(Errno::EACCES),   # Windows
+        "Expected Errno::EISDIR (or on win/cygwin: Errno::EEXIST), but was: #{$!.class}")
     end
   end
 
@@ -642,10 +642,10 @@ class ZipOutputStreamTest < Test::Unit::TestCase
       zos << stored_text
     end
 
-	fdata = File.read(TEST_ZIP.zip_name)
-	if fdata.respond_to? :force_encoding
-		fdata.force_encoding("binary")
-	end
+  fdata = File.read(TEST_ZIP.zip_name)
+  if fdata.respond_to? :force_encoding
+    fdata.force_encoding("binary")
+  end
     assert(fdata.split("\n").grep(stored_text))
     ZipFile.open(TEST_ZIP.zip_name) do
       |zf|
@@ -891,9 +891,9 @@ class ZipCentralDirectoryTest < Test::Unit::TestCase
       cdir = ZipCentralDirectory.read_from_stream(zipFile)
       assert_equal(TestZipFile::TEST_ZIP2.entry_names.size, cdir.size)
       cdir.entries.sort.compare_enumerables(TestZipFile::TEST_ZIP2.entry_names.sort) { 
-		      |cdirEntry, testEntryName|
-		      assert(cdirEntry.name == testEntryName)
-		    }
+          |cdirEntry, testEntryName|
+          assert(cdirEntry.name == testEntryName)
+        }
       assert_equal(TestZipFile::TEST_ZIP2.comment, cdir.comment)
     }
   end
@@ -933,24 +933,24 @@ class ZipCentralDirectoryTest < Test::Unit::TestCase
 
   def test_equality
     cdir1 = ZipCentralDirectory.new([ ZipEntry.new("file.zip", "flimse", nil, 
-						   "somethingExtra"),
-				     ZipEntry.new("file.zip", "secondEntryName"),
-				     ZipEntry.new("file.zip", "lastEntry.txt") ], 
-				   "my zip comment")
+               "somethingExtra"),
+             ZipEntry.new("file.zip", "secondEntryName"),
+             ZipEntry.new("file.zip", "lastEntry.txt") ], 
+           "my zip comment")
     cdir2 = ZipCentralDirectory.new([ ZipEntry.new("file.zip", "flimse", nil, 
-						   "somethingExtra"),
-				     ZipEntry.new("file.zip", "secondEntryName"),
-				     ZipEntry.new("file.zip", "lastEntry.txt") ], 
-				   "my zip comment")
+               "somethingExtra"),
+             ZipEntry.new("file.zip", "secondEntryName"),
+             ZipEntry.new("file.zip", "lastEntry.txt") ], 
+           "my zip comment")
     cdir3 = ZipCentralDirectory.new([ ZipEntry.new("file.zip", "flimse", nil, 
-						   "somethingExtra"),
-				     ZipEntry.new("file.zip", "secondEntryName"),
-				     ZipEntry.new("file.zip", "lastEntry.txt") ], 
-				   "comment?")
+               "somethingExtra"),
+             ZipEntry.new("file.zip", "secondEntryName"),
+             ZipEntry.new("file.zip", "lastEntry.txt") ], 
+           "comment?")
     cdir4 = ZipCentralDirectory.new([ ZipEntry.new("file.zip", "flimse", nil, 
-						   "somethingExtra"),
-				     ZipEntry.new("file.zip", "lastEntry.txt") ], 
-				   "comment?")
+               "somethingExtra"),
+             ZipEntry.new("file.zip", "lastEntry.txt") ], 
+           "comment?")
     assert_equal(cdir1, cdir1)
     assert_equal(cdir1, cdir2)
 
@@ -974,7 +974,7 @@ class BasicZipFileTest < Test::Unit::TestCase
 
   def test_entries
     assert_equal(TestZipFile::TEST_ZIP2.entry_names.sort, 
-		  @zipFile.entries.entries.sort.map {|e| e.name} )
+      @zipFile.entries.entries.sort.map {|e| e.name} )
   end
 
   def test_each
@@ -1021,8 +1021,8 @@ class BasicZipFileTest < Test::Unit::TestCase
     @zipFile.get_input_stream(fileAndEntryName) {
       |zis|
       assert_entryContentsForStream(fileAndEntryName, 
-				   zis, 
-				   fileAndEntryName)
+           zis, 
+           fileAndEntryName)
     }
   end
 end
@@ -1078,8 +1078,8 @@ class ZipFileTest < Test::Unit::TestCase
       assert_equal("Putting stuff in data/generated/empty.txt", zf.read("data/generated/empty.txt")) 
 
       zf.get_output_stream('entry.bin') {
-	|os|
-	os.write(File.open('data/generated/5entry.zip', 'rb').read)
+  |os|
+  os.write(File.open('data/generated/5entry.zip', 'rb').read)
       }
     }
     
@@ -1105,14 +1105,14 @@ class ZipFileTest < Test::Unit::TestCase
     assert_equal(1, zfRead.entries.length)
     assert_equal(entryName, zfRead.entries.first.name)
     AssertEntry.assert_contents(srcFile, 
-			       zfRead.get_input_stream(entryName) { |zis| zis.read })
+             zfRead.get_input_stream(entryName) { |zis| zis.read })
   end
 
   def test_addExistingEntryName
     assert_raise(ZipEntryExistsError) {
       ZipFile.open(TEST_ZIP.zip_name) {
-	|zf|
-	zf.add(zf.entries.first.name, "data/file2.txt")
+  |zf|
+  zf.add(zf.entries.first.name, "data/file2.txt")
       }
     }
   end
@@ -1191,8 +1191,8 @@ class ZipFileTest < Test::Unit::TestCase
 
     assert_raise(ZipEntryExistsError) {
       ZipFile.open(TEST_ZIP.zip_name) {
-	|zf|
-	zf.rename(zf.entries[0], zf.entries[1].name)
+  |zf|
+  zf.rename(zf.entries[0], zf.entries[1].name)
       }
     }
 
@@ -1219,7 +1219,7 @@ class ZipFileTest < Test::Unit::TestCase
     ZipFile.open(TEST_ZIP.zip_name) { 
       |zf| 
       assert_equal(oldEntries.sort.map{ |e| e.name }, 
-		    zf.entries.sort.map{ |e| e.name })
+        zf.entries.sort.map{ |e| e.name })
     }
   end
 
@@ -1256,13 +1256,13 @@ class ZipFileTest < Test::Unit::TestCase
     zf.close
     zfRead = ZipFile.new(TEST_ZIP.zip_name)
     AssertEntry::assert_contents(newEntrySrcFilename, 
-				zfRead.get_input_stream(entryToReplace) { |is| is.read })
+        zfRead.get_input_stream(entryToReplace) { |is| is.read })
     AssertEntry::assert_contents(TEST_ZIP.entry_names[0], 
-				zfRead.get_input_stream(TEST_ZIP.entry_names[0]) { |is| is.read })
+        zfRead.get_input_stream(TEST_ZIP.entry_names[0]) { |is| is.read })
     AssertEntry::assert_contents(TEST_ZIP.entry_names[1], 
-				zfRead.get_input_stream(TEST_ZIP.entry_names[1]) { |is| is.read })
+        zfRead.get_input_stream(TEST_ZIP.entry_names[1]) { |is| is.read })
     AssertEntry::assert_contents(TEST_ZIP.entry_names[3], 
-				zfRead.get_input_stream(TEST_ZIP.entry_names[3]) { |is| is.read })
+        zfRead.get_input_stream(TEST_ZIP.entry_names[3]) { |is| is.read })
     zfRead.close    
   end
 
@@ -1271,7 +1271,7 @@ class ZipFileTest < Test::Unit::TestCase
     ZipFile.open(TEST_ZIP.zip_name) {
       |zf|
       assert_raise(Errno::ENOENT) {
-	zf.replace(entryToReplace, "data/file2.txt")
+  zf.replace(entryToReplace, "data/file2.txt")
       }
     }
   end
@@ -1321,16 +1321,16 @@ class ZipFileTest < Test::Unit::TestCase
 
       assert_not_contains(zf, TestFiles::RANDOM_ASCII_FILE1)
       zf.add(TestFiles::RANDOM_ASCII_FILE1, 
-	     TestFiles::RANDOM_ASCII_FILE1)
+       TestFiles::RANDOM_ASCII_FILE1)
       assert_contains(zf, TestFiles::RANDOM_ASCII_FILE1)
 
       zf.rename(zf.entries[0], renamedName)
       assert_contains(zf, renamedName)
 
       TestFiles::BINARY_TEST_FILES.each {
-	|filename|
-	zf.add(filename, filename)
-	assert_contains(zf, filename)
+  |filename|
+  zf.add(filename, filename)
+  assert_contains(zf, filename)
       }
 
       assert_contains(zf, originalEntries.last.to_s)
@@ -1345,8 +1345,8 @@ class ZipFileTest < Test::Unit::TestCase
       assert_contains(zfRead, TestFiles::RANDOM_ASCII_FILE1)
       assert_contains(zfRead, renamedName)
       TestFiles::BINARY_TEST_FILES.each {
-	|filename|
-	assert_contains(zfRead, filename)
+  |filename|
+  assert_contains(zfRead, filename)
       }
       assert_not_contains(zfRead, originalEntries.last.to_s)
     ensure
@@ -1360,16 +1360,16 @@ class ZipFileTest < Test::Unit::TestCase
       originalEntries = zf.entries.dup
       
       originalEntries.each {
-	|entry|
-	zf.remove(entry)
-	assert_not_contains(zf, entry)
+  |entry|
+  zf.remove(entry)
+  assert_not_contains(zf, entry)
       }
       assert(zf.entries.empty?)
       
       TestFiles::ASCII_TEST_FILES.each {
-	|filename|
-	zf.add(filename, filename)
-	assert_contains(zf, filename)
+  |filename|
+  zf.add(filename, filename)
+  assert_contains(zf, filename)
       }
       assert_equal(zf.entries.sort.map { |e| e.name }, TestFiles::ASCII_TEST_FILES)
       
@@ -1384,8 +1384,8 @@ class ZipFileTest < Test::Unit::TestCase
       asciiTestFiles = TestFiles::ASCII_TEST_FILES.dup
       asciiTestFiles.shift
       asciiTestFiles.each {
-	|filename|
-	assert_contains(zf, filename)
+  |filename|
+  assert_contains(zf, filename)
       }
 
       assert_contains(zf, "newName")
@@ -1422,7 +1422,7 @@ class ZipFileExtractTest < Test::Unit::TestCase
       
       assert(File.exists?(EXTRACTED_FILENAME))
       AssertEntry::assert_contents(EXTRACTED_FILENAME, 
-				  zf.get_input_stream(ENTRY_TO_EXTRACT) { |is| is.read })
+          zf.get_input_stream(ENTRY_TO_EXTRACT) { |is| is.read })
 
 
       File::unlink(EXTRACTED_FILENAME)
@@ -1432,7 +1432,7 @@ class ZipFileExtractTest < Test::Unit::TestCase
 
       assert(File.exists?(EXTRACTED_FILENAME))
       AssertEntry::assert_contents(EXTRACTED_FILENAME, 
-				  entry.get_input_stream() { |is| is.read })
+          entry.get_input_stream() { |is| is.read })
 
     }
   end
@@ -1443,8 +1443,8 @@ class ZipFileExtractTest < Test::Unit::TestCase
 
     assert_raise(ZipDestinationFileExistsError) {
       ZipFile.open(TEST_ZIP.zip_name) { 
-	|zf| 
-	zf.extract(zf.entries.first, EXTRACTED_FILENAME) 
+  |zf| 
+  zf.extract(zf.entries.first, EXTRACTED_FILENAME) 
       }
     }
     File.open(EXTRACTED_FILENAME, "r") {
