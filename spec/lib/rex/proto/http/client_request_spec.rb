@@ -1,10 +1,11 @@
+# -*- coding:binary -*-
 require 'spec_helper'
 
 require 'rex/proto/http/client_request'
 
 
 shared_context "with no evasions" do
-  before(:all) do
+  before(:each) do
     client_request.opts['uri_dir_self_reference'] = false
     client_request.opts['uri_fake_params_start'] = false
     client_request.opts['uri_full_url'] = false
@@ -17,7 +18,7 @@ end
 
 
 shared_context "with 'uri_dir_self_reference'" do
-  before(:all) do
+  before(:each) do
     client_request.opts['uri_dir_self_reference'] = true
   end
 
@@ -29,7 +30,7 @@ end
 
 
 shared_context "with 'uri_dir_fake_relative'" do
-  before(:all) do
+  before(:each) do
     client_request.opts['uri_dir_fake_relative'] = true
   end
 
@@ -43,7 +44,7 @@ end
 
 shared_context "with 'uri_full_url'" do
 
-  before(:all) do
+  before(:each) do
     client_request.opts['uri_full_url'] = true
   end
 
