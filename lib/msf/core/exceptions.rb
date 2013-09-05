@@ -11,7 +11,7 @@ module Msf
 #
 ###
 module Exception
-	include Rex::Exception
+  include Rex::Exception
 end
 
 ###
@@ -22,17 +22,17 @@ end
 #
 ###
 class OptionValidateError < ArgumentError
-	include Exception
+  include Exception
 
-	def initialize(options = [])
-		@options = options
-	end
+  def initialize(options = [])
+    @options = options
+  end
 
-	def to_s
-		"The following options failed to validate: #{options.join(', ')}."
-	end
+  def to_s
+    "The following options failed to validate: #{options.join(', ')}."
+  end
 
-	attr_reader :options
+  attr_reader :options
 end
 
 ###
@@ -41,11 +41,11 @@ end
 #
 ###
 class ValidationError < ArgumentError
-	include Exception
+  include Exception
 
-	def to_s
-		"One or more requirements could not be validated."
-	end
+  def to_s
+    "One or more requirements could not be validated."
+  end
 end
 
 ###
@@ -70,11 +70,11 @@ end
 #
 ###
 class EncodingError < RuntimeError
-	include Exception
+  include Exception
 
-	def to_s
-		"An encoding exception occurred."
-	end
+  def to_s
+    "An encoding exception occurred."
+  end
 end
 
 ###
@@ -83,9 +83,9 @@ end
 #
 ###
 class NoKeyError < EncodingError
-	def to_s
-		"A valid encoding key could not be found."
-	end
+  def to_s
+    "A valid encoding key could not be found."
+  end
 end
 
 ###
@@ -94,29 +94,29 @@ end
 #
 ###
 class BadcharError < EncodingError
-	def initialize(buf = nil, index = nil, stub_size = nil, char = nil)
-		@buf       = buf
-		@index     = index
-		@stub_size = stub_size
-		@char      = char
-	end
+  def initialize(buf = nil, index = nil, stub_size = nil, char = nil)
+    @buf       = buf
+    @index     = index
+    @stub_size = stub_size
+    @char      = char
+  end
 
-	def to_s
-		# Deal with elements of a String being an instance of String instead of
-		# Integer in ruby 1.9.
-		if (char.respond_to? :ord)
-			c = char.ord
-		else
-			c = char
-		end
-		if (c)
-			return "Encoding failed due to a bad character (index=#{index}, char=#{sprintf("0x%.2x", c)})"
-		else
-			return "Encoding failed due to a nil character"
-		end
-	end
+  def to_s
+    # Deal with elements of a String being an instance of String instead of
+    # Integer in ruby 1.9.
+    if (char.respond_to? :ord)
+      c = char.ord
+    else
+      c = char
+    end
+    if (c)
+      return "Encoding failed due to a bad character (index=#{index}, char=#{sprintf("0x%.2x", c)})"
+    else
+      return "Encoding failed due to a nil character"
+    end
+  end
 
-	attr_reader :buf, :index, :stub_size, :char
+  attr_reader :buf, :index, :stub_size, :char
 end
 
 ###
@@ -126,9 +126,9 @@ end
 ###
 class NoEncodersSucceededError < EncodingError
 
-	def to_s
-		"No encoders encoded the buffer successfully."
-	end
+  def to_s
+    "No encoders encoded the buffer successfully."
+  end
 end
 
 ###
@@ -137,9 +137,9 @@ end
 #
 ###
 class BadGenerateError < EncodingError
-	def to_s
-		"A valid opcode permutation could not be found."
-	end
+  def to_s
+    "A valid opcode permutation could not be found."
+  end
 end
 
 ##
@@ -154,11 +154,11 @@ end
 #
 ###
 module ExploitError
-	include Exception
+  include Exception
 
-	def to_s
-		"An exploitation error occurred."
-	end
+  def to_s
+    "An exploitation error occurred."
+  end
 end
 
 ###
@@ -167,11 +167,11 @@ end
 #
 ###
 module AuxiliaryError
-	include Exception
+  include Exception
 
-	def to_s
-		"An auxiliary error occurred."
-	end
+  def to_s
+    "An auxiliary error occurred."
+  end
 end
 
 ###
@@ -181,11 +181,11 @@ end
 #
 ###
 class MissingTargetError < ArgumentError
-	include ExploitError
+  include ExploitError
 
-	def to_s
-		"A target has not been selected."
-	end
+  def to_s
+    "A target has not been selected."
+  end
 end
 
 ###
@@ -195,11 +195,11 @@ end
 #
 ###
 class MissingPayloadError < ArgumentError
-	include ExploitError
+  include ExploitError
 
-	def to_s
-		"A payload has not been selected."
-	end
+  def to_s
+    "A payload has not been selected."
+  end
 end
 
 ###
@@ -209,11 +209,11 @@ end
 #
 ###
 class MissingActionError < ArgumentError
-	include AuxiliaryError
+  include AuxiliaryError
 
-	def to_s
-		"A valid action has not been selected."
-	end
+  def to_s
+    "A valid action has not been selected."
+  end
 end
 
 ###
@@ -223,24 +223,24 @@ end
 #
 ###
 class IncompatiblePayloadError < ArgumentError
-	include ExploitError
+  include ExploitError
 
-	def initialize(pname = nil)
-		@pname = pname
-	end
+  def initialize(pname = nil)
+    @pname = pname
+  end
 
-	def to_s
-		"#{pname} is not a compatible payload."
-	end
+  def to_s
+    "#{pname} is not a compatible payload."
+  end
 
-	#
-	# The name of the payload that was used.
-	#
-	attr_reader :pname
+  #
+  # The name of the payload that was used.
+  #
+  attr_reader :pname
 end
 
 class NoCompatiblePayloadError < ArgumentError
-	include Exception
+  include Exception
 end
 
 ##
@@ -255,11 +255,11 @@ end
 #
 ###
 module NopError
-	include Exception
+  include Exception
 
-	def to_s
-		"A NOP generator error occurred."
-	end
+  def to_s
+    "A NOP generator error occurred."
+  end
 end
 
 ###
@@ -269,11 +269,11 @@ end
 #
 ###
 class NoNopsSucceededError < RuntimeError
-	include NopError
+  include NopError
 
-	def to_s
-		"No NOP generators succeeded."
-	end
+  def to_s
+    "No NOP generators succeeded."
+  end
 end
 
 ##
@@ -283,17 +283,17 @@ end
 ##
 
 class PluginLoadError < RuntimeError
-	include Exception
-	attr_accessor :reason
+  include Exception
+  attr_accessor :reason
 
-	def initialize(reason='')
-		self.reason = reason
-		super
-	end
+  def initialize(reason='')
+    self.reason = reason
+    super
+  end
 
-	def to_s
-		"This plugin failed to load:  #{reason}"
-	end
+  def to_s
+    "This plugin failed to load:  #{reason}"
+  end
 end
 
 end

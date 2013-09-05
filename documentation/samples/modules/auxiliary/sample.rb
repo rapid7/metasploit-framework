@@ -15,19 +15,18 @@ require 'msf/core'
 ###
 class Metasploit4 < Msf::Auxiliary
 
-	def initialize
-		super(
+	def initialize(info={})
+		super(update_info(info,
 			'Name'        => 'Sample Auxiliary Module',
-			'Version'     => '$Revision: 4419 $',
 			'Description' => 'Sample Auxiliary Module',
-			'Author'      => 'hdm',
+			'Author'      => ['hdm'],
 			'License'     => MSF_LICENSE,
 			'Actions'     =>
 				[
 					['Default Action'],
 					['Another Action']
 				]
-		)
+		))
 
 	end
 

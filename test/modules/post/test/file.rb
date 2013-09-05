@@ -13,11 +13,10 @@ class Metasploit4 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Testing remote file manipulation',
+				'Name'          => 'Testing Remote File Manipulation',
 				'Description'   => %q{ This module will test Post::File API methods },
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'egypt'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows', 'linux', 'java' ],
 				'SessionTypes'  => [ 'meterpreter', 'shell' ]
 			))
@@ -100,6 +99,23 @@ class Metasploit4 < Msf::Post
 			file_rm("pwned")
 
 			not file_exist?("pwned")
+		end
+
+		it "should move files" do
+				# Make sure we don't have leftovers from a previous run
+				file_rm("meterpreter-test") rescue nil
+				file_rm("meterpreter-test-moved") rescue nil
+
+				# touch a new file
+				write_file("meterpreter-test", "")
+
+				rename_file("meterpreter-test", "meterpreter-test-moved")
+				res &&= exist?("meterpreter-test-moved")
+				res &&= !exist?("meterpreter-test")
+
+				# clean up
+				file_rm("meterpreter-test") rescue nil
+				file_rm("meterpreter-test-moved") rescue nil
 		end
 
 	end
