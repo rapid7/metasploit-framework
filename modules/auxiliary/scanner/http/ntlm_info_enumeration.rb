@@ -38,17 +38,18 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		File.open(datastore['TARGETURIS'], 'rb').each_line do |line|
-			target_uri = line.chomp
-			result = check_url(target_uri)
+			test_uri = line.chomp
+			tpath = normalize_uri(test_uri)
+			result = check_url(tpath)
 			if result
-				print_good("Enumerated info on #{peer} - (name:#{result[:nbname]}) (domain:#{result[:nbdomain]}) (domain_fqdn:#{result[:dnsdomain]}) (server_fqdn:#{result[:dnsserver]})")
+				print_good("Enumerated info on #{peer}#{tpath} - (name:#{result[:nbname]}) (domain:#{result[:nbdomain]}) (domain_fqdn:#{result[:dnsdomain]}) (server_fqdn:#{result[:dnsserver]})")
 				report_note(
 						:host  => ip,
 						:port  => rport,
 						:proto => 'tcp',
 						:sname => (ssl ? 'https' : 'http'),
 						:ntype => 'ntlm.enumeration.info',
-						:data  => {:uri=>target_uri,:SMBName=>result[:nbname], :SMBDomain=>result[:nbdomain],:FQDNDomain=>result[:dnsdomain],:FQDNName=>result[:dnsserver]},
+						:data  => {:uri=>tpath,:SMBName=>result[:nbname], :SMBDomain=>result[:nbdomain],:FQDNDomain=>result[:dnsdomain],:FQDNName=>result[:dnsserver]},
 						:update => :unique_data
 				)
 				return
@@ -58,12 +59,11 @@ class Metasploit3 < Msf::Auxiliary
 
 	def check_url(test_uri)
 		begin
-			tpath = normalize_uri(test_uri)
 
-			vprint_status("Checking #{peer} URL #{tpath}")
+			vprint_status("Checking #{peer} URL #{test_uri}")
 			res = send_request_cgi({
 				'encode'   => true,
-				'uri'      => "#{tpath}",
+				'uri'      => "#{test_uri}",
 				'method'   => 'GET',
 				'headers'  =>  { "Authorization" => "NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw=="}
 			}, 20)
