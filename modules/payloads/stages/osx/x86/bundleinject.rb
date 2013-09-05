@@ -15,6 +15,6 @@ require 'msf/core/payload/osx/bundleinject'
 ###
 module Metasploit3
 
-	include Msf::Payload::Osx::BundleInject
+  include Msf::Payload::Osx::BundleInject
 
 end
