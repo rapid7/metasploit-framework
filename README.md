@@ -47,7 +47,7 @@ pull request. For slightly more info, see
 [Contributing](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md).
 
 
-[wiki-devenv]: https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment "Metasploit Development Environment Setup"
+[wiki-devenv]: https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment "Metasploit Development Environment Setup"
 [wiki-start]: https://github.com/rapid7/metasploit-framework/wiki/ "Metasploit Wiki"
 [wiki-usage]: https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit "Using Metasploit"
 [unleashed]: http://www.offensive-security.com/metasploit-unleashed/ "Metasploit Unleashed"

@@ -1,4 +1,0 @@
-$ erubis -x -b example9.eruby
- for item in @list 
- _buf << ' <b>'; _buf << ( item ).to_s; _buf << '</b>
-'; end 

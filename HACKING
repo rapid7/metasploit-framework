@@ -37,9 +37,10 @@ need user input, you can either register an option or expose an
 interactive session type specific for the type of exploit.
 
 3. Don't use "sleep". It has been known to cause issues with
-multi-threaded programs on various platforms. Instead, we use
-"select(nil, nil, nil, <time>)" throughout the framework. We have
-found this works around the underlying issue.
+multi-threaded programs on various platforms running an older version of
+Ruby such as 1.8. Instead, we use "select(nil, nil, nil, <time>)" or
+Rex.sleep() throughout the framework. We have found this works around
+the underlying issue.
 
 4. Always use Rex sockets, not ruby sockets.  This includes
 third-party libraries such as Net::Http.  There are several very good
@@ -110,7 +111,15 @@ Non-scanner aux modules use run().
 Submitting Your Code
 ====================
 
-The process for submitting new modules via GitHub is documented here:
+To get started with a Metasploit Framework source clone, simply:
+
+  - Fork rapid7/metasploit-framework to your GitHub account
+  - git clone git://github.com/YourName/metasploit-framework.git
+  - gem install bundler
+  - bundle install
+
+More detailed documentation regarding the process for submitting new
+modules via GitHub is documented here:
 
 https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment
 
