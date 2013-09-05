@@ -21,21 +21,21 @@ require 'rex/nop/opty2'
 ###
 class Metasploit3 < Msf::Nop
 
-	def initialize
-		super(
-			'Name'        => 'Opty2',
-			'Description' => 'Opty2 multi-byte NOP generator',
-			'Author'      => [ 'spoonm', 'optyx' ],
-			'License'     => MSF_LICENSE,
-			'Arch'        => ARCH_X86)
-	end
+  def initialize
+    super(
+      'Name'        => 'Opty2',
+      'Description' => 'Opty2 multi-byte NOP generator',
+      'Author'      => [ 'spoonm', 'optyx' ],
+      'License'     => MSF_LICENSE,
+      'Arch'        => ARCH_X86)
+  end
 
-	def generate_sled(length, opts = {})
-		opty = Rex::Nop::Opty2.new(
-			opts['BadChars'] || '',
-			opts['SaveRegisters'])
+  def generate_sled(length, opts = {})
+    opty = Rex::Nop::Opty2.new(
+      opts['BadChars'] || '',
+      opts['SaveRegisters'])
 
-		opty.generate_sled(length)
-	end
+    opty.generate_sled(length)
+  end
 
 end

@@ -1,62 +1,62 @@
-GIT
-  remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: 0285d6e199f125b33214100dcb0f4eeb12ee765f
-  tag: 0.6.0
-  specs:
-    metasploit_data_models (0.6.0)
-      activerecord (>= 3.2.10)
-      activesupport
-      pg
-      pry
-
 GEM
   remote: http://rubygems.org/
   specs:
-    activemodel (3.2.12)
-      activesupport (= 3.2.12)
+    activemodel (3.2.13)
+      activesupport (= 3.2.13)
       builder (~> 3.0.0)
-    activerecord (3.2.12)
-      activemodel (= 3.2.12)
-      activesupport (= 3.2.12)
+    activerecord (3.2.13)
+      activemodel (= 3.2.13)
+      activesupport (= 3.2.13)
       arel (~> 3.0.2)
       tzinfo (~> 0.3.29)
-    activesupport (3.2.12)
-      i18n (~> 0.6)
+    activesupport (3.2.13)
+      i18n (= 0.6.1)
       multi_json (~> 1.0)
     arel (3.0.2)
+    bourne (1.4.0)
+      mocha (~> 0.13.2)
     builder (3.0.4)
-    coderay (1.0.9)
-    diff-lcs (1.1.3)
-    i18n (0.6.4)
+    database_cleaner (0.9.1)
+    diff-lcs (1.2.2)
+    factory_girl (4.2.0)
+      activesupport (>= 3.0.0)
+    i18n (0.6.1)
     json (1.7.7)
-    method_source (0.8.1)
-    msgpack (0.5.2)
+    metaclass (0.0.1)
+    metasploit_data_models (0.16.6)
+      activerecord (>= 3.2.13)
+      activesupport
+      pg
+    mocha (0.13.3)
+      metaclass (~> 0.0.1)
+    msgpack (0.5.4)
     multi_json (1.0.4)
-    nokogiri (1.5.6)
+    network_interface (0.0.1)
+    nokogiri (1.5.9)
+    packetfu (1.1.8)
     pcaprub (0.11.3)
-    pg (0.14.1)
-    pry (0.9.12)
-      coderay (~> 1.0.5)
-      method_source (~> 0.8)
-      slop (~> 3.4)
-    rake (10.0.2)
+    pg (0.15.1)
+    rake (10.0.4)
     redcarpet (2.2.2)
     robots (0.10.1)
-    rspec (2.12.0)
-      rspec-core (~> 2.12.0)
-      rspec-expectations (~> 2.12.0)
-      rspec-mocks (~> 2.12.0)
-    rspec-core (2.12.1)
-    rspec-expectations (2.12.0)
-      diff-lcs (~> 1.1.3)
-    rspec-mocks (2.12.0)
+    rspec (2.13.0)
+      rspec-core (~> 2.13.0)
+      rspec-expectations (~> 2.13.0)
+      rspec-mocks (~> 2.13.0)
+    rspec-core (2.13.1)
+    rspec-expectations (2.13.0)
+      diff-lcs (>= 1.1.3, < 2.0)
+    rspec-mocks (2.13.0)
+    shoulda-matchers (1.5.2)
+      activesupport (>= 3.0.0)
+      bourne (~> 1.3)
     simplecov (0.5.4)
       multi_json (~> 1.0.3)
       simplecov-html (~> 0.5.3)
     simplecov-html (0.5.3)
-    slop (3.4.3)
-    tzinfo (0.3.36)
-    yard (0.8.3)
+    timecop (0.6.1)
+    tzinfo (0.3.37)
+    yard (0.8.5.2)
 
 PLATFORMS
   ruby
@@ -64,15 +64,21 @@ PLATFORMS
 DEPENDENCIES
   activerecord
   activesupport (>= 3.0.0)
+  database_cleaner
+  factory_girl (>= 4.1.0)
   json
-  metasploit_data_models!
+  metasploit_data_models (~> 0.16.6)
   msgpack
+  network_interface (~> 0.0.1)
   nokogiri
+  packetfu (= 1.1.8)
   pcaprub
   pg (>= 0.11)
   rake
   redcarpet
   robots
   rspec (>= 2.12)
+  shoulda-matchers
   simplecov (= 0.5.4)
+  timecop
   yard
