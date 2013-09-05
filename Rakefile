@@ -1,7 +1,5 @@
 require 'bundler/setup'
 
-require 'metasploit_data_models'
-
 pathname = Pathname.new(__FILE__)
 root = pathname.parent
 
@@ -18,6 +16,8 @@ $LOAD_PATH.unshift(lib_pathname.to_s)
 rakefile_glob = root.join('lib', 'tasks', '**', '*.rake').to_path
 
 Dir.glob(rakefile_glob) do |rakefile|
+  # Skip database tasks, will load them later if MDM is present
+  next if rakefile =~ /database\.rake$/
   load rakefile
 end
 
@@ -36,6 +36,8 @@ else
 	task :default => :spec
 end
 
+# Require yard before loading metasploit_data_models rake tasks as the yard tasks won't be defined if
+# YARD is not defined when yard.rake is loaded.
 begin
   require 'yard'
 rescue LoadError
@@ -45,18 +47,29 @@ rescue LoadError
 	print_without = true
 end
 
-metasploit_data_models_task_glob = MetasploitDataModels.root.join(
-		'lib',
-		'tasks',
-		'**',
-		'*.rake'
-).to_s
+begin
+	require 'metasploit_data_models'
+rescue LoadError
+	puts "metasploit_data_models not in bundle, so can't set up db tasks.  " \
+	     "To run database tasks, ensure to install the db bundler group."
 
-# include tasks from metasplioit_data_models, such as `rake yard`.
-# metasploit-framework specific yard options are in .yardopts
-Dir.glob(metasploit_data_models_task_glob) do |path|
-	load path
+	print_without = true
+else
+	load 'lib/tasks/database.rake'
+	metasploit_data_models_task_glob = MetasploitDataModels.root.join(
+			'lib',
+			'tasks',
+			'**',
+			'*.rake'
+	).to_s
+	# include tasks from metasplioit_data_models, such as `rake yard`.
+	# metasploit-framework specific yard options are in .yardopts
+	Dir.glob(metasploit_data_models_task_glob) do |path|
+		load path
+	end
 end
+
+
 
 if print_without
 	puts "Bundle currently installed " \

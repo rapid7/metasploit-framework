@@ -481,9 +481,9 @@ class Client
 	attr_reader :commands
 
 protected
-	attr_accessor :parser, :ext_aliases # :nodoc:
-	attr_writer   :ext, :sock # :nodoc:
-	attr_writer   :commands # :nodoc:
+  attr_accessor :parser, :ext_aliases # :nodoc:
+  attr_writer   :ext, :sock # :nodoc:
+  attr_writer   :commands # :nodoc:
 end
 
 end; end; end
