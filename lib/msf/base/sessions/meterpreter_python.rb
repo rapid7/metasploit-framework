@@ -11,17 +11,17 @@ module Sessions
 #
 ###
 class Meterpreter_Python_Python < Msf::Sessions::Meterpreter
-	def supports_ssl?
-		false
-	end
-	def supports_zlib?
-		false
-	end
-	def initialize(rstream, opts={})
-		super
-		self.platform      = 'python/python'
-		self.binary_suffix = 'py'
-	end
+  def supports_ssl?
+    false
+  end
+  def supports_zlib?
+    false
+  end
+  def initialize(rstream, opts={})
+    super
+    self.platform      = 'python/python'
+    self.binary_suffix = 'py'
+  end
 end
 
 end
