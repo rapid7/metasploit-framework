@@ -27,8 +27,8 @@ If you'd rather these settings only apply to ruby files, you can use an autogrou
     if !exists("au_loaded")
         let au_loaded = 1
         augroup rb
-            au FileType ruby set shiftwidth=4 tabstop=4 softtabstop=4 textwidth=78
-            au FileType ruby set noexpandtab
+            au FileType ruby set shiftwidth=2 tabstop=2 softtabstop=2 textwidth=78
+            au FileType ruby set expandtab
             au FileType ruby hi BogusWhitespace ctermbg=darkgreen guibg=darkgreen
             au FileType ruby match BogusWhitespace /\s\+$\|^\t\+ \+\|^ \+\t*/
         augroup END
