@@ -20,36 +20,36 @@ module ProcessSubsystem
 ###
 class IO
 
-	##
-	#
-	# Constructor
-	#
-	##
+  ##
+  #
+  # Constructor
+  #
+  ##
 
-	#
-	# Initializes the IO instance.
-	#
-	def initialize(process)
-		self.process = process
-	end
+  #
+  # Initializes the IO instance.
+  #
+  def initialize(process)
+    self.process = process
+  end
 
-	#
-	# Writes the supplied buffer to the standard input handle of the
-	# executed process.
-	#
-	def write(buf)
-		return process.channel.write(buf)
-	end
+  #
+  # Writes the supplied buffer to the standard input handle of the
+  # executed process.
+  #
+  def write(buf)
+    return process.channel.write(buf)
+  end
 
-	#
-	# Reads data from the standard output handle of the executed process.
-	#
-	def read(length = nil)
-		return process.channel.read(length)
-	end
+  #
+  # Reads data from the standard output handle of the executed process.
+  #
+  def read(length = nil)
+    return process.channel.read(length)
+  end
 
 protected
-	attr_accessor :process # :nodoc:
+  attr_accessor :process # :nodoc:
 
 end
 

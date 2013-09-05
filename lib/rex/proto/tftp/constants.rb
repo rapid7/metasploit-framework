@@ -14,15 +14,15 @@ OpError = 5
 OpOptAck = 6
 
 ERRCODES = [
-	"Undefined",
-	"File not found",
-	"Access violation",
-	"Disk full or allocation exceeded",
-	"Illegal TFTP operation",
-	"Unknown transfer ID",
-	"File already exists",
-	"No such user",
-	"Failed option negotiation"
+  "Undefined",
+  "File not found",
+  "Access violation",
+  "Disk full or allocation exceeded",
+  "Illegal TFTP operation",
+  "Unknown transfer ID",
+  "File already exists",
+  "No such user",
+  "Failed option negotiation"
 ]
 
 ErrFileNotFound = 1
