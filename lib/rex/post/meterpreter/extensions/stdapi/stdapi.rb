@@ -35,11 +35,11 @@ module Stdapi
 ###
 class Stdapi < Extension
 
-	#
-	# Initializes an instance of the standard API extension.
-	#
-	def initialize(client)
-		super(client, 'stdapi')
+  #
+  # Initializes an instance of the standard API extension.
+  #
+  def initialize(client)
+    super(client, 'stdapi')
 
 		# Alias the following things on the client object so that they
 		# can be directly referenced
@@ -87,66 +87,66 @@ class Stdapi < Extension
 					'ext'  => UI.new(client)
 				}
 
-			])
-	end
+      ])
+  end
 
-	#
-	# Sets the client instance on a duplicated copy of the supplied class.
-	#
-	def brand(klass)
-		klass = klass.dup
-		klass.client = self.client
-		return klass
-	end
+  #
+  # Sets the client instance on a duplicated copy of the supplied class.
+  #
+  def brand(klass)
+    klass = klass.dup
+    klass.client = self.client
+    return klass
+  end
 
-	#
-	# Returns a copy of the Dir class.
-	#
-	def dir
-		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Fs::Dir)
-	end
+  #
+  # Returns a copy of the Dir class.
+  #
+  def dir
+    brand(Rex::Post::Meterpreter::Extensions::Stdapi::Fs::Dir)
+  end
 
-	#
-	# Returns a copy of the File class.
-	#
-	def file
-		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File)
-	end
+  #
+  # Returns a copy of the File class.
+  #
+  def file
+    brand(Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File)
+  end
 
-	#
-	# Returns a copy of the FileStat class.
-	#
-	def filestat
-		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Fs::FileStat)
-	end
+  #
+  # Returns a copy of the FileStat class.
+  #
+  def filestat
+    brand(Rex::Post::Meterpreter::Extensions::Stdapi::Fs::FileStat)
+  end
 
-	#
-	# Returns a copy of the Process class.
-	#
-	def process
-		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Process)
-	end
+  #
+  # Returns a copy of the Process class.
+  #
+  def process
+    brand(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Process)
+  end
 
-	#
-	# Returns a copy of the Registry class.
-	#
-	def registry
-		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry)
-	end
+  #
+  # Returns a copy of the Registry class.
+  #
+  def registry
+    brand(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry)
+  end
 
-	#
-	# Returns a copy of the EventLog class.
-	#
-	def eventlog
-		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::EventLog)
-	end
+  #
+  # Returns a copy of the EventLog class.
+  #
+  def eventlog
+    brand(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::EventLog)
+  end
 
-	#
-	# Returns a copy of the Power class.
-	#
-	def power
-		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Power)
-	end
+  #
+  # Returns a copy of the Power class.
+  #
+  def power
+    brand(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Power)
+  end
 end
 
 end; end; end; end; end
