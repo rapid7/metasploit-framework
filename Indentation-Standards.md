@@ -69,7 +69,7 @@ Note that `pr-url` is a custom alias in my .git/config:
 
 ````
 [alias]
-  pr-url =!"xdg-open https://github.com/tabassassin/metasploit-framework/pull/new/$1:$2...$(git branch-current) #"
+  pr-url =!"xdg-open https://github.com/YOURUSERNAME/metasploit-framework/pull/new/$1:$2...$(git branch-current) #"
 ````
 
 It's hella useful.
