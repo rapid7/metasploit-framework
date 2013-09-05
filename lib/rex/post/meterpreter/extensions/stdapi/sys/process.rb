@@ -350,26 +350,26 @@ class Process < Rex::Post::Process
 
 	attr_reader   :client, :handle, :channel, :pid # :nodoc:
 protected
-	attr_writer   :client, :handle, :channel, :pid # :nodoc:
+  attr_writer   :client, :handle, :channel, :pid # :nodoc:
 
-	#
-	# Gathers information about the process and returns a hash.
-	#
-	def get_info
-		request = Packet.create_request('stdapi_sys_process_get_info')
-		info    = {}
+  #
+  # Gathers information about the process and returns a hash.
+  #
+  def get_info
+    request = Packet.create_request('stdapi_sys_process_get_info')
+    info    = {}
 
-		request.add_tlv(TLV_TYPE_HANDLE, handle)
+    request.add_tlv(TLV_TYPE_HANDLE, handle)
 
-		# Send the request
-		response = client.send_request(request)
+    # Send the request
+    response = client.send_request(request)
 
-		# Populate the hash
-		info['name'] = client.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_PROCESS_NAME) )
-		info['path'] = client.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_PROCESS_PATH) )
+    # Populate the hash
+    info['name'] = client.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_PROCESS_NAME) )
+    info['path'] = client.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_PROCESS_PATH) )
 
-		return info
-	end
+    return info
+  end
 
 end
 
@@ -378,37 +378,37 @@ end
 #
 class ProcessList < Array
 
-	#
-	# Create a Rex::Ui::Text::Table out of the processes stored in this list
-	#
-	# +opts+ is passed on to Rex::Ui::Text::Table.new, mostly unmolested
-	#
-	# Note that this output is affected by Rex::Post::Meterpreter::Client#unicode_filter_encode
-	#
-	def to_table(opts={})
-		if empty?
-			return Rex::Ui::Text::Table.new(opts)
-		end
+  #
+  # Create a Rex::Ui::Text::Table out of the processes stored in this list
+  #
+  # +opts+ is passed on to Rex::Ui::Text::Table.new, mostly unmolested
+  #
+  # Note that this output is affected by Rex::Post::Meterpreter::Client#unicode_filter_encode
+  #
+  def to_table(opts={})
+    if empty?
+      return Rex::Ui::Text::Table.new(opts)
+    end
 
-		cols = [ "PID", "PPID", "Name", "Arch", "Session", "User", "Path" ]
-		# Arch and Session are specific to native Windows, PHP and Java can't do
-		# ppid.  Cut columns from the list if they aren't there.  It is conceivable
-		# that processes might have different columns, but for now assume that the
-		# first one is representative.
-		cols.delete_if { |c| !( first.has_key?(c.downcase) ) or first[c.downcase].nil? }
+    cols = [ "PID", "PPID", "Name", "Arch", "Session", "User", "Path" ]
+    # Arch and Session are specific to native Windows, PHP and Java can't do
+    # ppid.  Cut columns from the list if they aren't there.  It is conceivable
+    # that processes might have different columns, but for now assume that the
+    # first one is representative.
+    cols.delete_if { |c| !( first.has_key?(c.downcase) ) or first[c.downcase].nil? }
 
-		opts = {
-			"Header"  => "Process List",
-			"Columns" => cols
-		}.merge(opts)
+    opts = {
+      "Header"  => "Process List",
+      "Columns" => cols
+    }.merge(opts)
 
-		tbl = Rex::Ui::Text::Table.new(opts)
-		each { |process|
-			tbl << cols.map {|c| process[c.downcase] }.compact
-		}
+    tbl = Rex::Ui::Text::Table.new(opts)
+    each { |process|
+      tbl << cols.map {|c| process[c.downcase] }.compact
+    }
 
-		tbl
-	end
+    tbl
+  end
 end
 
 end; end; end; end; end; end
