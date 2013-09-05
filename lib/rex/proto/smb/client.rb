@@ -1673,296 +1673,296 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
   # Perform a nttransaction request using the specified subcommand, parameters, and data
   def nttrans_secondary(param = '', body = '', do_recv = true)
 
-		data = param + body
+    data = param + body
 
-		pkt = CONST::SMB_NTTRANS_SECONDARY_PKT.make_struct
-		self.smb_defaults(pkt['Payload']['SMB'])
+    pkt = CONST::SMB_NTTRANS_SECONDARY_PKT.make_struct
+    self.smb_defaults(pkt['Payload']['SMB'])
 
-		base_offset = pkt.to_s.length - 4
-		param_offset = base_offset
-		data_offset = param_offset + param.length
+    base_offset = pkt.to_s.length - 4
+    param_offset = base_offset
+    data_offset = param_offset + param.length
 
-		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_NT_TRANSACT_SECONDARY
-		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		if self.require_signing
-			#ascii
-			pkt['Payload']['SMB'].v['Flags2'] = 0x2807
-		else
-			#ascii
-			pkt['Payload']['SMB'].v['Flags2'] =  0x2801
-		end
+    pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_NT_TRANSACT_SECONDARY
+    pkt['Payload']['SMB'].v['Flags1'] = 0x18
+    if self.require_signing
+      #ascii
+      pkt['Payload']['SMB'].v['Flags2'] = 0x2807
+    else
+      #ascii
+      pkt['Payload']['SMB'].v['Flags2'] =  0x2801
+    end
 
-		pkt['Payload']['SMB'].v['WordCount'] = 18
+    pkt['Payload']['SMB'].v['WordCount'] = 18
 
-		pkt['Payload'].v['ParamCountTotal'] = param.length
-		pkt['Payload'].v['DataCountTotal'] = body.length
-		pkt['Payload'].v['ParamCount'] = param.length
-		pkt['Payload'].v['ParamOffset'] = param_offset
-		pkt['Payload'].v['DataCount'] = body.length
-		pkt['Payload'].v['DataOffset'] = data_offset
+    pkt['Payload'].v['ParamCountTotal'] = param.length
+    pkt['Payload'].v['DataCountTotal'] = body.length
+    pkt['Payload'].v['ParamCount'] = param.length
+    pkt['Payload'].v['ParamOffset'] = param_offset
+    pkt['Payload'].v['DataCount'] = body.length
+    pkt['Payload'].v['DataOffset'] = data_offset
 
-		pkt['Payload'].v['Payload'] = data
+    pkt['Payload'].v['Payload'] = data
 
-		ret = self.smb_send(pkt.to_s)
-		return ret if not do_recv
+    ret = self.smb_send(pkt.to_s)
+    return ret if not do_recv
 
-		ack = self.smb_recv_parse(CONST::SMB_COM_NT_TRANSACT_SECONDARY)
-		return ack
-	end
+    ack = self.smb_recv_parse(CONST::SMB_COM_NT_TRANSACT_SECONDARY)
+    return ack
+  end
 
-	def queryfs(level)
-		parm = [level].pack('v')
+  def queryfs(level)
+    parm = [level].pack('v')
 
-		begin
-			resp = trans2(CONST::TRANS2_QUERY_FS_INFO, parm, '')
+    begin
+      resp = trans2(CONST::TRANS2_QUERY_FS_INFO, parm, '')
 
-			pcnt = resp['Payload'].v['ParamCount']
-			dcnt = resp['Payload'].v['DataCount']
-			poff = resp['Payload'].v['ParamOffset']
-			doff = resp['Payload'].v['DataOffset']
+      pcnt = resp['Payload'].v['ParamCount']
+      dcnt = resp['Payload'].v['DataCount']
+      poff = resp['Payload'].v['ParamOffset']
+      doff = resp['Payload'].v['DataOffset']
 
-			# Get the raw packet bytes
-			resp_rpkt = resp.to_s
+      # Get the raw packet bytes
+      resp_rpkt = resp.to_s
 
-			# Remove the NetBIOS header
-			resp_rpkt.slice!(0, 4)
+      # Remove the NetBIOS header
+      resp_rpkt.slice!(0, 4)
 
-			resp_parm = resp_rpkt[poff, pcnt]
-			resp_data = resp_rpkt[doff, dcnt]
-			return resp_data
+      resp_parm = resp_rpkt[poff, pcnt]
+      resp_data = resp_rpkt[doff, dcnt]
+      return resp_data
 
-		rescue ::Exception
-			raise $!
-		end
-	end
+    rescue ::Exception
+      raise $!
+    end
+  end
 
-	def symlink(src,dst)
-		parm = [513, 0x00000000].pack('vV') + src + "\x00"
+  def symlink(src,dst)
+    parm = [513, 0x00000000].pack('vV') + src + "\x00"
 
-		begin
-			resp = trans2(CONST::TRANS2_SET_PATH_INFO, parm, dst + "\x00")
+    begin
+      resp = trans2(CONST::TRANS2_SET_PATH_INFO, parm, dst + "\x00")
 
-			pcnt = resp['Payload'].v['ParamCount']
-			dcnt = resp['Payload'].v['DataCount']
-			poff = resp['Payload'].v['ParamOffset']
-			doff = resp['Payload'].v['DataOffset']
+      pcnt = resp['Payload'].v['ParamCount']
+      dcnt = resp['Payload'].v['DataCount']
+      poff = resp['Payload'].v['ParamOffset']
+      doff = resp['Payload'].v['DataOffset']
 
-			# Get the raw packet bytes
-			resp_rpkt = resp.to_s
+      # Get the raw packet bytes
+      resp_rpkt = resp.to_s
 
-			# Remove the NetBIOS header
-			resp_rpkt.slice!(0, 4)
+      # Remove the NetBIOS header
+      resp_rpkt.slice!(0, 4)
 
-			resp_parm = resp_rpkt[poff, pcnt]
-			resp_data = resp_rpkt[doff, dcnt]
-			return resp_data
+      resp_parm = resp_rpkt[poff, pcnt]
+      resp_data = resp_rpkt[doff, dcnt]
+      return resp_data
 
-		rescue ::Exception
-			raise $!
-		end
-	end
+    rescue ::Exception
+      raise $!
+    end
+  end
 
-	# Obtains allocation information on the mounted tree
-	def queryfs_info_allocation
-		data = queryfs(CONST::SMB_INFO_ALLOCATION)
-		head = %w{fs_id sectors_per_unit unit_total units_available bytes_per_sector}
-		vals = data.unpack('VVVVv')
-		info = { }
-		head.each_index {|i| info[head[i]]=vals[i]}
-		return info
-	end
+  # Obtains allocation information on the mounted tree
+  def queryfs_info_allocation
+    data = queryfs(CONST::SMB_INFO_ALLOCATION)
+    head = %w{fs_id sectors_per_unit unit_total units_available bytes_per_sector}
+    vals = data.unpack('VVVVv')
+    info = { }
+    head.each_index {|i| info[head[i]]=vals[i]}
+    return info
+  end
 
-	# Obtains volume information on the mounted tree
-	def queryfs_info_volume
-		data = queryfs(CONST::SMB_INFO_VOLUME)
-		vals = data.unpack('VCA*')
-		return {
-			'serial' => vals[0],
-			'label'  => vals[2][0,vals[1]].gsub("\x00", '')
-		}
-	end
+  # Obtains volume information on the mounted tree
+  def queryfs_info_volume
+    data = queryfs(CONST::SMB_INFO_VOLUME)
+    vals = data.unpack('VCA*')
+    return {
+      'serial' => vals[0],
+      'label'  => vals[2][0,vals[1]].gsub("\x00", '')
+    }
+  end
 
-	# Obtains file system volume information on the mounted tree
-	def queryfs_fs_volume
-		data = queryfs(CONST::SMB_QUERY_FS_VOLUME_INFO)
-		vals = data.unpack('VVVVCCA*')
-		return {
-			'create_time' => (vals[1] << 32) + vals[0],
-			'serial'      => vals[2],
-			'label'       => vals[6][0,vals[3]].gsub("\x00", '')
-		}
-	end
+  # Obtains file system volume information on the mounted tree
+  def queryfs_fs_volume
+    data = queryfs(CONST::SMB_QUERY_FS_VOLUME_INFO)
+    vals = data.unpack('VVVVCCA*')
+    return {
+      'create_time' => (vals[1] << 32) + vals[0],
+      'serial'      => vals[2],
+      'label'       => vals[6][0,vals[3]].gsub("\x00", '')
+    }
+  end
 
-	# Obtains file system size information on the mounted tree
-	def queryfs_fs_size
-		data = queryfs(CONST::SMB_QUERY_FS_SIZE_INFO)
-		vals = data.unpack('VVVVVV')
-		return {
-			'total_alloc_units' => (vals[1] << 32) + vals[0],
-			'total_free_units'  => (vals[3] << 32) + vals[2],
-			'sectors_per_unit'  => vals[4],
-			'bytes_per_sector'  => vals[5]
-		}
-	end
+  # Obtains file system size information on the mounted tree
+  def queryfs_fs_size
+    data = queryfs(CONST::SMB_QUERY_FS_SIZE_INFO)
+    vals = data.unpack('VVVVVV')
+    return {
+      'total_alloc_units' => (vals[1] << 32) + vals[0],
+      'total_free_units'  => (vals[3] << 32) + vals[2],
+      'sectors_per_unit'  => vals[4],
+      'bytes_per_sector'  => vals[5]
+    }
+  end
 
-	# Obtains file system device information on the mounted tree
-	def queryfs_fs_device
-		data = queryfs(CONST::SMB_QUERY_FS_DEVICE_INFO)
-		vals = data.unpack('VV')
-		return {
-			'device_type'   => vals[0],
-			'device_chars'  => vals[1],
-		}
-	end
+  # Obtains file system device information on the mounted tree
+  def queryfs_fs_device
+    data = queryfs(CONST::SMB_QUERY_FS_DEVICE_INFO)
+    vals = data.unpack('VV')
+    return {
+      'device_type'   => vals[0],
+      'device_chars'  => vals[1],
+    }
+  end
 
-	# Obtains file system attribute information on the mounted tree
-	def queryfs_fs_attribute
-		data = queryfs(CONST::SMB_QUERY_FS_ATTRIBUTE_INFO)
-		vals = data.unpack('VVVA*')
-		return {
-			'fs_attributes' => vals[0],
-			'max_file_name' => vals[1],
-			'fs_name'       => vals[3][0, vals[2]].gsub("\x00", '')
-		}
-	end
+  # Obtains file system attribute information on the mounted tree
+  def queryfs_fs_attribute
+    data = queryfs(CONST::SMB_QUERY_FS_ATTRIBUTE_INFO)
+    vals = data.unpack('VVVA*')
+    return {
+      'fs_attributes' => vals[0],
+      'max_file_name' => vals[1],
+      'fs_name'       => vals[3][0, vals[2]].gsub("\x00", '')
+    }
+  end
 
-	# Enumerates a specific path on the mounted tree
-	def find_first(path)
-		files = { }
-		parm = [
-			26,  # Search for ALL files
-			20,  # Maximum search count
-			6,   # Resume and Close on End of Search
-			260, # Level of interest
-			0,   # Storage type is zero
-		].pack('vvvvV') + path + "\x00"
+  # Enumerates a specific path on the mounted tree
+  def find_first(path)
+    files = { }
+    parm = [
+      26,  # Search for ALL files
+      20,  # Maximum search count
+      6,   # Resume and Close on End of Search
+      260, # Level of interest
+      0,   # Storage type is zero
+    ].pack('vvvvV') + path + "\x00"
 
-		begin
-			resp = trans2(CONST::TRANS2_FIND_FIRST2, parm, '')
-			search_next = 0
-			begin
-				pcnt = resp['Payload'].v['ParamCount']
-				dcnt = resp['Payload'].v['DataCount']
-				poff = resp['Payload'].v['ParamOffset']
-				doff = resp['Payload'].v['DataOffset']
+    begin
+      resp = trans2(CONST::TRANS2_FIND_FIRST2, parm, '')
+      search_next = 0
+      begin
+        pcnt = resp['Payload'].v['ParamCount']
+        dcnt = resp['Payload'].v['DataCount']
+        poff = resp['Payload'].v['ParamOffset']
+        doff = resp['Payload'].v['DataOffset']
 
-				# Get the raw packet bytes
-				resp_rpkt = resp.to_s
+        # Get the raw packet bytes
+        resp_rpkt = resp.to_s
 
-				# Remove the NetBIOS header
-				resp_rpkt.slice!(0, 4)
+        # Remove the NetBIOS header
+        resp_rpkt.slice!(0, 4)
 
-				resp_parm = resp_rpkt[poff, pcnt]
-				resp_data = resp_rpkt[doff, dcnt]
+        resp_parm = resp_rpkt[poff, pcnt]
+        resp_data = resp_rpkt[doff, dcnt]
 
-				if search_next == 0
-					# search id, search count, end of search, error offset, last name offset
-					sid, scnt, eos, eoff, loff = resp_parm.unpack('v5')
-				else
-					# FINX_NEXT doesn't return a SID
-					scnt, eos, eoff, loff = resp_parm.unpack('v4')
-				end
-				didx = 0
-				while (didx < resp_data.length)
-					info_buff = resp_data[didx, 70]
-					break if info_buff.length != 70
-					info = info_buff.unpack(
-						'V'+	# Next Entry Offset
-						'V'+	# File Index
-						'VV'+	# Time Create
-						'VV'+	# Time Last Access
-						'VV'+	# Time Last Write
-						'VV'+	# Time Change
-						'VV'+	# End of File
-						'VV'+	# Allocation Size
-						'V'+	# File Attributes
-						'V'+	# File Name Length
-						'V'+	# Extended Attr List Length
-						'C'+	# Short File Name Length
-						'C' 	# Reserved
-					)
-					name = resp_data[didx + 70 + 24, info[15]].sub!(/\x00+$/, '')
-					files[name] =
-					{
-						'type' => (info[14] & 0x10) ? 'D' : 'F',
-						'attr' => info[14],
-						'info' => info
-					}
+        if search_next == 0
+          # search id, search count, end of search, error offset, last name offset
+          sid, scnt, eos, eoff, loff = resp_parm.unpack('v5')
+        else
+          # FINX_NEXT doesn't return a SID
+          scnt, eos, eoff, loff = resp_parm.unpack('v4')
+        end
+        didx = 0
+        while (didx < resp_data.length)
+          info_buff = resp_data[didx, 70]
+          break if info_buff.length != 70
+          info = info_buff.unpack(
+            'V'+	# Next Entry Offset
+            'V'+	# File Index
+            'VV'+	# Time Create
+            'VV'+	# Time Last Access
+            'VV'+	# Time Last Write
+            'VV'+	# Time Change
+            'VV'+	# End of File
+            'VV'+	# Allocation Size
+            'V'+	# File Attributes
+            'V'+	# File Name Length
+            'V'+	# Extended Attr List Length
+            'C'+	# Short File Name Length
+            'C' 	# Reserved
+          )
+          name = resp_data[didx + 70 + 24, info[15]].sub!(/\x00+$/, '')
+          files[name] =
+          {
+            'type' => (info[14] & 0x10) ? 'D' : 'F',
+            'attr' => info[14],
+            'info' => info
+          }
 
-					break if info[0] == 0
-					didx += info[0]
-				end
-				last_search_id = sid
-				last_offset = loff
-				last_filename = name
-				if eos == 0 and last_offset != 0 #If we aren't at the end of the search, run find_next
-					resp = find_next(last_search_id, last_offset, last_filename)
-					search_next = 1 # Flip bit so response params will parse correctly
-				end
-			end until eos != 0 or last_offset == 0
-		rescue ::Exception
-			raise $!
-		end
+          break if info[0] == 0
+          didx += info[0]
+        end
+        last_search_id = sid
+        last_offset = loff
+        last_filename = name
+        if eos == 0 and last_offset != 0 #If we aren't at the end of the search, run find_next
+          resp = find_next(last_search_id, last_offset, last_filename)
+          search_next = 1 # Flip bit so response params will parse correctly
+        end
+      end until eos != 0 or last_offset == 0
+    rescue ::Exception
+      raise $!
+    end
 
-		return files
-	end
+    return files
+  end
 
-	# Supplements find_first if file/dir count exceeds max search count
-	def find_next(sid, resume_key, last_filename)
+  # Supplements find_first if file/dir count exceeds max search count
+  def find_next(sid, resume_key, last_filename)
 
-		parm = [
-			sid, # Search ID
-			20, # Maximum search count (Size of 20 keeps response to 1 packet)
-			260, # Level of interest
-			resume_key,   # Resume key from previous (Last name offset)
-			6,   # Close search if end of search
-		].pack('vvvVv') + last_filename + "\x00" # Last filename returned from find_first or find_next
-		resp = trans2(CONST::TRANS2_FIND_NEXT2, parm, '')
-		return resp # Returns the FIND_NEXT2 response packet for parsing by the find_first function
-	end
+    parm = [
+      sid, # Search ID
+      20, # Maximum search count (Size of 20 keeps response to 1 packet)
+      260, # Level of interest
+      resume_key,   # Resume key from previous (Last name offset)
+      6,   # Close search if end of search
+    ].pack('vvvVv') + last_filename + "\x00" # Last filename returned from find_first or find_next
+    resp = trans2(CONST::TRANS2_FIND_NEXT2, parm, '')
+    return resp # Returns the FIND_NEXT2 response packet for parsing by the find_first function
+  end
 
-	# Recursively search through directories, to a max depth, searching for filenames
-	# that matches regex and returns path to matching files.
-	def file_search(current_path, regex, depth)
-		depth -= 1
-		if depth < 0
-			return
-		end
+  # Recursively search through directories, to a max depth, searching for filenames
+  # that matches regex and returns path to matching files.
+  def file_search(current_path, regex, depth)
+    depth -= 1
+    if depth < 0
+      return
+    end
 
-		results = find_first("#{current_path}*")
-		files = []
+    results = find_first("#{current_path}*")
+    files = []
 
-		results.each do |result|
-			if result[0] =~ /^(\.){1,2}$/  # Ignore . ..
-				next
-			end
+    results.each do |result|
+      if result[0] =~ /^(\.){1,2}$/  # Ignore . ..
+        next
+      end
 
-			if result[1]['attr'] & CONST::SMB_EXT_FILE_ATTR_DIRECTORY > 0
-				search_path = "#{current_path}#{result[0]}\\"
-				begin
-					files << file_search(search_path, regex, depth).flatten.compact
-				rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
-					# Ignore permission errors
-					unless e.get_error(e.error_code) == 'STATUS_ACCESS_DENIED'
-						raise e
-					end
-				end
-			else
-				if result[0] =~ regex
-					files << "#{current_path}#{result[0]}"
-				end
-			end
-		end
+      if result[1]['attr'] & CONST::SMB_EXT_FILE_ATTR_DIRECTORY > 0
+        search_path = "#{current_path}#{result[0]}\\"
+        begin
+          files << file_search(search_path, regex, depth).flatten.compact
+        rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
+          # Ignore permission errors
+          unless e.get_error(e.error_code) == 'STATUS_ACCESS_DENIED'
+            raise e
+          end
+        end
+      else
+        if result[0] =~ regex
+          files << "#{current_path}#{result[0]}"
+        end
+      end
+    end
 
-		return files.flatten.compact
-	end
+    return files.flatten.compact
+  end
 
-	# Creates a new directory on the mounted tree
-	def create_directory(name)
-		files = { }
-		parm = [0].pack('V') + name + "\x00"
-		resp = trans2(CONST::TRANS2_CREATE_DIRECTORY, parm, '')
-	end
+  # Creates a new directory on the mounted tree
+  def create_directory(name)
+    files = { }
+    parm = [0].pack('V') + name + "\x00"
+    resp = trans2(CONST::TRANS2_CREATE_DIRECTORY, parm, '')
+  end
 
 # public read/write methods
   attr_accessor	:native_os, :native_lm, :encrypt_passwords, :extended_security, :read_timeout, :evasion_opts
