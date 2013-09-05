@@ -36,13 +36,14 @@ end
 
 def print_deprecation_warning
 	$stdout.puts ""
-	$stdout.puts "[*] Deprecation Note: After 2013-03-15 (March 15, 2013), Metasploit"
-	$stdout.puts "[*] source checkouts will NO LONGER update over SVN, but will be using"
-	$stdout.puts "[*] GitHub exclusively. You should either download a new Metasploit"
-	$stdout.puts "[*] installer, or use a git clone of Metasploit Framework before"
-	$stdout.puts "[*] then. You will also need outbound access to github.com on"
-	$stdout.puts "[*] TCP port 9418 (git), 22 (ssh) or 443 (https), depending on the"
-	$stdout.puts "[*] protocol used to clone Metasploit Framework (usually, git protocol)."
+	$stdout.puts "[-] Deprecation Note: Metasploit source checkouts NO LONGER update"
+	$stdout.puts "[-] over SVN. You will need to reinstall Metasploit using"
+	$stdout.puts "[-] binary installers (from http://www.metasploit.com/download ),"
+	$stdout.puts "[-] Debian packages (currently only supported on Kali Linux), or"
+	$stdout.puts "[-] a development source checkout from GitHub (see http://r-7.co/ZLhA8P )"
+	$stdout.puts "[-] "
+	$stdout.puts "[-] For more on msfupdate and migrating off of SVN, see http://r-7.co/MSF-UP"
+	$stdout.puts ""
 end
 
 if is_svn
@@ -99,7 +100,7 @@ class OptsConsole
 				options['DatabaseMigrationPaths'] ||= []
 				options['DatabaseMigrationPaths'] << m
 			end
-			
+
 			opts.on("-e", "--environment <production|development>", "Specify the database environment to load from the YAML") do |m|
 				options['DatabaseEnv'] = m
 			end
