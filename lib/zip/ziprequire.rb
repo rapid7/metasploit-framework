@@ -38,11 +38,11 @@ class ZipList #:nodoc:all
     @zipFileList.each {
       |zfName|
       Zip::ZipFile.open(zfName) {
-	|zf|
-	begin
-	  return zf.get_input_stream(entry, &aProc) 
-	rescue Errno::ENOENT
-	end
+  |zf|
+  begin
+    return zf.get_input_stream(entry, &aProc) 
+  rescue Errno::ENOENT
+  end
       }
     }
     raise Errno::ENOENT,

@@ -14,20 +14,20 @@ module Meterpreter
 ###
 class Extension
 
-	#
-	# Initializes the client and name attributes.
-	#
-	def initialize(client, name)
-		self.client = client
-		self.name   = name
-	end
+  #
+  # Initializes the client and name attributes.
+  #
+  def initialize(client, name)
+    self.client = client
+    self.name   = name
+  end
 
-	#
-	# The name of the extension.
-	#
-	attr_accessor :name
+  #
+  # The name of the extension.
+  #
+  attr_accessor :name
 protected
-	attr_accessor :client # :nodoc:
+  attr_accessor :client # :nodoc:
 end
 
 end; end; end
