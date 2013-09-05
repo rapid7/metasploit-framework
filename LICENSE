@@ -32,16 +32,8 @@ Files: external/ruby-lorcon/*
 Copyright: 2005, dragorn and Joshua Wright
 License: LGPL-2.1
 
-Files: external/source/armitage/* data/armitage/*
-Copyright: 2010-2012 Raphael Mudge
-License: BSD-3-clause
-
 Files: external/source/byakugan/*
 Copyright: Lurene Grenier, 2009
-License: BSD-3-clause
-
-Files: external/source/gui/msfguijava/* data/gui/*
-Copyright: 2010 scriptjunkie
 License: BSD-3-clause
 
 Files: external/source/ipwn/*
@@ -451,7 +443,7 @@ Copyright: 2011 James Miller
 License: MIT
 
 Files: lib/windows_console_color_support.rb
-Copyright: 2011 Michael 'migi' Schierl
+Copyright: 2011 Michael 'mihi' Schierl
 License: BSD-3-clause
 
 Files: lib/zip.rb lib/zip/*

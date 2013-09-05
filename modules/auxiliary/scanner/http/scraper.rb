@@ -11,79 +11,77 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	# Exploit mixins should be called first
-	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WmapScanServer
-	# Scanner mixin should be near last
-	include Msf::Auxiliary::Scanner
-	include Msf::Auxiliary::Report
+  # Exploit mixins should be called first
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::WmapScanServer
+  # Scanner mixin should be near last
+  include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
 
-	def initialize
-		super(
-			'Name'        => 'HTTP Page Scraper',
-			'Description' => 'Scrap defined data from a specific web page based on a regular expresion',
-			'Author'       => ['et'],
-			'License'     => MSF_LICENSE
-		)
+  def initialize
+    super(
+      'Name'        => 'HTTP Page Scraper',
+      'Description' => 'Scrap defined data from a specific web page based on a regular expresion',
+      'Author'       => ['et'],
+      'License'     => MSF_LICENSE
+    )
 
-		register_options(
-			[
-				OptString.new('PATH', [ true,  "The test path to the page to analize", '/']),
-				OptString.new('REGEX', [ true,  "The regex to use (default regex is a sample to grab page title)", '\<title\>(.*)\<\/title\>']),
+    register_options(
+      [
+        OptString.new('PATH', [ true,  "The test path to the page to analize", '/']),
+        OptRegexp.new('PATTERN', [ true,  "The regex to use (default regex is a sample to grab page title)", %r{<title>(.*)</title>}i])
 
-			], self.class)
+      ], self.class)
 
-	end
+  end
 
-	def run_host(target_host)
+  def run_host(target_host)
 
-		tpath = normalize_uri(datastore['PATH'])
-		if tpath[-1,1] != '/'
-			tpath += '/'
-		end
+    tpath = normalize_uri(datastore['PATH'])
+    if tpath[-1,1] != '/'
+      tpath += '/'
+    end
 
-		begin
-
-
-			res = send_request_raw({
-				'uri'     => tpath,
-				'method'  => 'GET',
-				'version' => '1.0',
-			}, 10)
+    begin
 
 
-			if not res
-				print_error("[#{target_host}] #{tpath} - No response")
-				return
-			end
+      res = send_request_raw({
+        'uri'     => tpath,
+        'method'  => 'GET',
+        'version' => '1.0',
+      }, 10)
 
-			aregex = Regexp.new(datastore['REGEX'].to_s,Regexp::IGNORECASE)
 
-			result = res.body.scan(aregex).flatten.map{ |s| s.strip }.uniq
+      if not res
+        print_error("[#{target_host}] #{tpath} - No response")
+        return
+      end
 
-			result.each do |u|
-				print_status("[#{target_host}] #{tpath} [#{u}]")
+      result = res.body.scan(datastore['PATTERN']).flatten.map{ |s| s.strip }.uniq
 
-				report_web_vuln(
-					:host	=> target_host,
-					:port	=> rport,
-					:vhost  => vhost,
-					:ssl    => ssl,
-					:path	=> tpath,
-					:method => 'GET',
-					:pname  => "",
-					:proof  => u,
-					:risk   => 0,
-					:confidence   => 100,
-					:category     => 'scraper',
-					:description  => 'Scraper',
-					:name   => 'scraper'
-				)
+      result.each do |u|
+        print_status("[#{target_host}] #{tpath} [#{u}]")
 
-			end
+        report_web_vuln(
+          :host	=> target_host,
+          :port	=> rport,
+          :vhost  => vhost,
+          :ssl    => ssl,
+          :path	=> tpath,
+          :method => 'GET',
+          :pname  => "",
+          :proof  => u,
+          :risk   => 0,
+          :confidence   => 100,
+          :category     => 'scraper',
+          :description  => 'Scraper',
+          :name   => 'scraper'
+        )
 
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-		rescue ::Timeout::Error, ::Errno::EPIPE
-		end
-	end
+      end
+
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+    rescue ::Timeout::Error, ::Errno::EPIPE
+    end
+  end
 end
