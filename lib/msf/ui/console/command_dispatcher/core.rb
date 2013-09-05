@@ -1,4 +1,15 @@
 # -*- coding: binary -*-
+
+#
+# Rex
+#
+
+require 'rex/ui/text/output/buffer/stdout'
+
+#
+# Project
+#
+
 require 'msf/ui/console/command_dispatcher/encoder'
 require 'msf/ui/console/command_dispatcher/exploit'
 require 'msf/ui/console/command_dispatcher/nop'

@@ -15,6 +15,6 @@ require 'msf/core/payload/windows/loadlibrary'
 ###
 module Metasploit3
 
-	include Msf::Payload::Windows::LoadLibrary
+  include Msf::Payload::Windows::LoadLibrary
 
 end
