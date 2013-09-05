@@ -41,51 +41,51 @@ class Stdapi < Extension
   def initialize(client)
     super(client, 'stdapi')
 
-		# Alias the following things on the client object so that they
-		# can be directly referenced
-		client.register_extension_aliases(
-			[
-				{
-					'name' => 'fs',
-					'ext'  => ObjectAliases.new(
-						{
-							'dir'      => self.dir,
-							'file'     => self.file,
-							'filestat' => self.filestat
-						})
-				},
-				{
-					'name' => 'sys',
-					'ext'  => ObjectAliases.new(
-						{
-							'config'   => Sys::Config.new(client),
-							'process'  => self.process,
-							'registry' => self.registry,
-							'eventlog' => self.eventlog,
-							'power'    => self.power
-						})
-				},
-				{
-					'name' => 'net',
-					'ext'  => ObjectAliases.new(
-						{
-							'config'   => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config.new(client),
-							'socket'   => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Socket.new(client),
-							'resolve'  => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Resolve.new(client)
-						})
-				},
-				{
-					'name' => 'railgun',
-					'ext'  => Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Railgun.new(client)
-				},
-				{
-					'name' => 'webcam',
-					'ext'  => Rex::Post::Meterpreter::Extensions::Stdapi::Webcam::Webcam.new(client)
-				},
-				{
-					'name' => 'ui',
-					'ext'  => UI.new(client)
-				}
+    # Alias the following things on the client object so that they
+    # can be directly referenced
+    client.register_extension_aliases(
+      [
+        {
+          'name' => 'fs',
+          'ext'  => ObjectAliases.new(
+            {
+              'dir'      => self.dir,
+              'file'     => self.file,
+              'filestat' => self.filestat
+            })
+        },
+        {
+          'name' => 'sys',
+          'ext'  => ObjectAliases.new(
+            {
+              'config'   => Sys::Config.new(client),
+              'process'  => self.process,
+              'registry' => self.registry,
+              'eventlog' => self.eventlog,
+              'power'    => self.power
+            })
+        },
+        {
+          'name' => 'net',
+          'ext'  => ObjectAliases.new(
+            {
+              'config'   => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config.new(client),
+              'socket'   => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Socket.new(client),
+              'resolve'  => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Resolve.new(client)
+            })
+        },
+        {
+          'name' => 'railgun',
+          'ext'  => Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Railgun.new(client)
+        },
+        {
+          'name' => 'webcam',
+          'ext'  => Rex::Post::Meterpreter::Extensions::Stdapi::Webcam::Webcam.new(client)
+        },
+        {
+          'name' => 'ui',
+          'ext'  => UI.new(client)
+        }
 
       ])
   end
