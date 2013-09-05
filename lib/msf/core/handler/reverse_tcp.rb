@@ -243,10 +243,10 @@ module ReverseTcp
 
 protected
 
-	attr_accessor :listener_sock # :nodoc:
-	attr_accessor :listener_thread # :nodoc:
-	attr_accessor :handler_thread # :nodoc:
-	attr_accessor :handler_queue # :nodoc:
+  attr_accessor :listener_sock # :nodoc:
+  attr_accessor :listener_thread # :nodoc:
+  attr_accessor :handler_thread # :nodoc:
+  attr_accessor :handler_queue # :nodoc:
 end
 
 end
