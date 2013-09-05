@@ -15,16 +15,16 @@ module Msf
 class Plugin::Wmap < Msf::Plugin
 	class WmapCommandDispatcher
 
-		attr_accessor :wmapmodules  # Enabled Wmap modules 
+		attr_accessor :wmapmodules  # Enabled Wmap modules
 		attr_accessor :targets      # Targets
-		attr_accessor :lastsites    # Temp location of previously obtained sites 
+		attr_accessor :lastsites    # Temp location of previously obtained sites
 		attr_accessor :rpcarr       # Array or rpc connections
-		attr_accessor :njobs        # Max number of jobs 
+		attr_accessor :njobs        # Max number of jobs
 		attr_accessor :nmaxdisplay  # Flag to stop displaying the same mesg
 		attr_accessor :runlocal		# Flag to run local modules only
 		attr_accessor :masstop		# Flag to stop everything
 		attr_accessor :killwhenstop # Kill process when exiting
-		
+
 		include Msf::Ui::Console::CommandDispatcher
 
 		def name
@@ -44,7 +44,7 @@ class Plugin::Wmap < Msf::Plugin
 				"wmap_vulns"  => "Display web vulns",
 			}
 		end
-		
+
 		def cmd_wmap_vulns(*args)
 			args.push("-h") if args.length == 0
 
@@ -67,7 +67,7 @@ class Plugin::Wmap < Msf::Plugin
 			end
 		end
 
-		
+
 		def cmd_wmap_modules(*args)
 			args.push("-h") if args.length == 0
 
@@ -100,7 +100,7 @@ class Plugin::Wmap < Msf::Plugin
 			while (arg = args.shift)
 				case arg
 				when '-c'
-					self.targets = Hash.new() 
+					self.targets = Hash.new()
 				when '-l'
 					view_targets
 					return
@@ -112,7 +112,7 @@ class Plugin::Wmap < Msf::Plugin
 					print_status("Usage: wmap_targets [options]")
 					print_line("\t-h 		Display this help text")
 					print_line("\t-t [urls]	Define target sites (vhost1,url[space]vhost2,url) ")
-					print_line("\t-d [ids]	Define target sites (id1, id2, id3 ...)") 
+					print_line("\t-d [ids]	Define target sites (id1, id2, id3 ...)")
 					print_line("\t-c 		Clean target sites list")
 					print_line("\t-l  		List all target sites")
 
@@ -137,6 +137,14 @@ class Plugin::Wmap < Msf::Plugin
 					else
 						print_error("Unable to create site")
 					end
+				when '-d'
+					del_idx = args
+					if del_idx
+						delete_sites(del_idx.select {|d| d =~ /^[0-9]*$/}.map(&:to_i).uniq)
+						return
+					else
+						print_error("Provide index of site to delete")
+					end
 				when '-l'
 					view_sites
 					return
@@ -148,7 +156,7 @@ class Plugin::Wmap < Msf::Plugin
 					if not u
 						return
 					end
-					
+
 					if l == nil or l.empty?
 						l = 200
 						s = true
@@ -156,25 +164,25 @@ class Plugin::Wmap < Msf::Plugin
 						l = l.to_i
 						s = false
 					end
-					
+
 					if u.include? 'http'
 						# Parameters are in url form
 						view_site_tree(u,l,s)
 					else
-					    # Parameters are digits
-					    if !self.lastsites or self.lastsites.length == 0 
+							# Parameters are digits
+							if !self.lastsites or self.lastsites.length == 0
 							view_sites
 							print_status ("Web sites ids. referenced from previous table.")
 						end
-		
+
 						target_whitelist = []
 						ids = u.to_s.split(/,/)
 
 						ids.each do |id|
 							next if id.to_s.strip.empty?
-				
+
 							if id.to_i > self.lastsites.length
-								print_error("Skipping id #{id}...") 
+								print_error("Skipping id #{id}...")
 							else
 								target_whitelist << self.lastsites[id.to_i]
 								#print_status("Loading #{self.lastsites[id.to_i]}.")
@@ -185,18 +193,19 @@ class Plugin::Wmap < Msf::Plugin
 						return if target_whitelist.length == 0
 
 						if not self.targets
-							self.targets = Hash.new() 
+							self.targets = Hash.new()
 						end
 
 						target_whitelist.each do |ent|
 							view_site_tree(ent,l,s)
-						end		
+						end
 					end
 					return
 				when '-h'
 					print_status("Usage: wmap_sites [options]")
 					print_line("\t-h        Display this help text")
 					print_line("\t-a [url]  Add site (vhost,url)")
+					print_line("\t-d [ids]  Delete sites (separate ids with space)")
 					print_line("\t-l        List all available sites")
 					print_line("\t-s [id]   Display site structure (vhost,url|ids) (level)")
 
@@ -210,11 +219,11 @@ class Plugin::Wmap < Msf::Plugin
 		end
 
 		def cmd_wmap_nodes(*args)
-		
+
 			if not self.rpcarr
-				self.rpcarr=Hash.new() 
+				self.rpcarr=Hash.new()
 			end
-		
+
 			args.push("-h") if args.length == 0
 
 			while (arg = args.shift)
@@ -225,7 +234,7 @@ class Plugin::Wmap < Msf::Plugin
 					s = args.shift
 					u = args.shift
 					p = args.shift
-				
+
 					res = rpc_add_node(h,r,s,u,p,false)
 					if res
 						print_status("Node created.")
@@ -234,20 +243,20 @@ class Plugin::Wmap < Msf::Plugin
 					end
 				when '-c'
 					idref = args.shift
-					
+
 					if not idref
 						print_error("No id defined")
 						return
 					end
 					if idref.upcase == 'ALL'
 						print_status("All nodes removed")
-						self.rpcarr = Hash.new() 
+						self.rpcarr = Hash.new()
 					else
 						idx=0
 						self.rpcarr.each do |k,v|
 							if idx == idref.to_i
 								self.rpcarr.delete(k)
-								print_status("Node deleted #{k}") 
+								print_status("Node deleted #{k}")
 							end
 							idx += 1
 						end
@@ -258,24 +267,24 @@ class Plugin::Wmap < Msf::Plugin
 					user = args.shift
 					pass = args.shift
 					dbname = args.shift
-				
+
 					res = rpc_db_nodes(host,port,user,pass,dbname)
 					if res
 						print_status("OK.")
 					else
 						print_error("Error")
-					end			
+					end
 				when '-l'
 					rpc_list_nodes
 					return
 				when '-j'
 					rpc_view_jobs
-					return	
+					return
 				when '-k'
 					node = args.shift
 					jid = args.shift
 					rpc_kill_node(node,jid)
-					return		
+					return
 				when '-h'
 					print_status("Usage: wmap_nodes [options]")
 					print_line("\t-h                            Display this help text")
@@ -285,7 +294,7 @@ class Plugin::Wmap < Msf::Plugin
 					print_line("\t-j                            View detailed jobs")
 					print_line("\t-k ALL|id ALL|job_id          Kill jobs on node")
 					print_line("\t-l                            List all current nodes")
-					
+
 					print_line("")
 					return
 				else
@@ -299,21 +308,20 @@ class Plugin::Wmap < Msf::Plugin
 			# Stop everything
 			self.masstop = false
 			self.killwhenstop  = true
-		
-			trap("INT") { 
+
+			trap("INT") {
 				print_error("Stopping execution...")
 				self.masstop = true
 				if self.killwhenstop
 					rpc_kill_node('ALL','ALL')
 				end
-				return
 			}
-					
+
 			# Max numbers of concurrent jobs per node
 			self.njobs = 25
 			self.nmaxdisplay = false
 			self.runlocal = false
-			
+
 			# Formating
 			sizeline = 60
 
@@ -334,11 +342,11 @@ class Plugin::Wmap < Msf::Plugin
 			moduleverbose = false
 
 			showprogress = false
-			
+
 			if not self.rpcarr
-				self.rpcarr = Hash.new() 
+				self.rpcarr = Hash.new()
 			end
-			
+
 			if not run_wmap_ssl
 				print_status("Loading of wmap ssl modules disabled.")
 			end
@@ -365,7 +373,7 @@ class Plugin::Wmap < Msf::Plugin
 			using_p = false
 			using_m = false
 			usinginipath = false
-			
+
 			mname = ''
 			inipathname = '/'
 
@@ -418,7 +426,7 @@ class Plugin::Wmap < Msf::Plugin
 					if inipathname
 						print_status("Using initial path #{inipathname}.")
 					end
-					usinginipath = true	
+					usinginipath = true
 
 				when '-h'
 					print_status("Usage: wmap_run [options]")
@@ -431,16 +439,16 @@ class Plugin::Wmap < Msf::Plugin
 					print_line("")
 					return
 				else
-					print_error("Unknown flag")	
+					print_error("Unknown flag")
 					return
 				end
 			end
-			
+
 			if (self.rpcarr.length == 0) and (mode & wmap_show == 0)
 				print_error("NO WMAP NODES DEFINED. Executing local modules")
 				self.runlocal = true
 			end
-	
+
 			if self.targets == nil
 				print_error("Targets have not been selected.")
 				return
@@ -450,14 +458,14 @@ class Plugin::Wmap < Msf::Plugin
 				print_error("Targets have not been selected.")
 				return
 			end
-			
+
 			execmod = true
 			if (mode & wmap_show != 0)
 				execmod = false
 			end
 
 			self.targets.each_with_index do |t, idx|
-								
+
 				selected_host = t[1][:host]
 				selected_port = t[1][:port]
 				selected_ssl  = t[1][:ssl]
@@ -475,27 +483,27 @@ class Plugin::Wmap < Msf::Plugin
 				end
 
 				# wmap_dir, wmap_file
-				matches = Hash.new() 
+				matches = Hash.new()
 
 				# wmap_server
-				matches1 = Hash.new() 
+				matches1 = Hash.new()
 
 				# wmap_query
-				matches2 = Hash.new() 
+				matches2 = Hash.new()
 
 				# wmap_ssl
-				matches3 = Hash.new() 
+				matches3 = Hash.new()
 
 				# wmap_unique_query
-				matches5 = Hash.new() 
+				matches5 = Hash.new()
 
 				# wmap_generic
-				matches10 = Hash.new() 
+				matches10 = Hash.new()
 
 				# OPTIONS
 				opt_str = nil
 				jobify  = false
-				
+
 				# This will be clean later
 				load_wmap_modules(false)
 
@@ -523,7 +531,7 @@ class Plugin::Wmap < Msf::Plugin
 						end
 					when :wmap_ssl
 						if run_wmap_ssl
-							matches3[w]=true	
+							matches3[w]=true
 						end
 					else
 						# Black Hole
@@ -537,7 +545,7 @@ class Plugin::Wmap < Msf::Plugin
 				matches3 = sort_by_orderid(matches3)
 				matches5 = sort_by_orderid(matches5)
 				matches10 = sort_by_orderid(matches10)
-					
+
 				#
 				# Handle modules that need to be run before all tests IF SERVER is SSL, once usually again the SSL web server.
 				# :wmap_ssl
@@ -556,20 +564,20 @@ class Plugin::Wmap < Msf::Plugin
 						print_error("STOPPED.")
 						return
 					end
-					
-					# Module not part of profile or not match 
-					if ( using_p and eprofile.include? xref[0].split('/').last ) or (using_m and xref[0].to_s.match(mname)) or (not using_m and not using_p) 	
+
+					# Module not part of profile or not match
+					if ( using_p and eprofile.include? xref[0].split('/').last ) or (using_m and xref[0].to_s.match(mname)) or (not using_m and not using_p)
 						idx += 1
 
 						begin
 							# Module options hash
-							modopts = Hash.new() 
-						
+							modopts = Hash.new()
+
 							#
 							# The code is just a proof-of-concept and will be expanded in the future
 							#
 							print_status "Module #{xref[0]}"
-							
+
 							if (mode & wmap_expl != 0)
 
 								#
@@ -591,14 +599,14 @@ class Plugin::Wmap < Msf::Plugin
 								modopts['VERBOSE'] = moduleverbose
 								modopts['ShowProgress'] = showprogress
 								modopts['RunAsJob'] = jobify
-								
+
 								begin
 									if execmod
 										rpcnode = rpc_round_exec(xref[0],xref[1], modopts, self.njobs)
 									end
 								rescue ::Exception
 									print_status(" >> Exception during launch from #{xref[0]}: #{$!}")
-								end			
+								end
 							end
 
 						rescue ::Exception
@@ -616,26 +624,26 @@ class Plugin::Wmap < Msf::Plugin
 
 				idx = 0
 				matches1.each_key do |xref|
-										
+
 					if self.masstop
 						print_error("STOPPED.")
 						return
 					end
-					
-					# Module not part of profile or not match 
-					if ( using_p and eprofile.include? xref[0].split('/').last ) or (using_m and xref[0].to_s.match(mname)) or (not using_m and not using_p)	
+
+					# Module not part of profile or not match
+					if ( using_p and eprofile.include? xref[0].split('/').last ) or (using_m and xref[0].to_s.match(mname)) or (not using_m and not using_p)
 						idx += 1
-					
+
 						begin
 							# Module options hash
-							modopts = Hash.new() 
+							modopts = Hash.new()
 
 							#
 							# The code is just a proof-of-concept and will be expanded in the future
 							#
-															
+
 							print_status "Module #{xref[0]}"
-							
+
 							if (mode & wmap_expl != 0)
 
 								#
@@ -657,20 +665,20 @@ class Plugin::Wmap < Msf::Plugin
 								modopts['VERBOSE'] = moduleverbose
 								modopts['ShowProgress'] = showprogress
 								modopts['RunAsJob'] = jobify
-									
+
 								begin
 									if execmod
 										rpcnode = rpc_round_exec(xref[0],xref[1], modopts, self.njobs)
 									end
 								rescue ::Exception
 									print_status(" >> Exception during launch from #{xref[0]}: #{$!}")
-								end		
+								end
 							end
 
 						rescue ::Exception
 							print_status(" >> Exception from #{xref[0]}: #{$!}")
 						end
-					end	
+					end
 				end
 
 				#
@@ -682,26 +690,26 @@ class Plugin::Wmap < Msf::Plugin
 
 				idx = 0
 				matches.each_key do |xref|
-					
+
 					if self.masstop
 						print_error("STOPPED.")
 						return
 					end
-					
-					# Module not part of profile or not match 
-					if ( using_p and eprofile.include? xref[0].split('/').last ) or (using_m and xref[0].to_s.match(mname)) or (not using_m and not using_p)	
+
+					# Module not part of profile or not match
+					if ( using_p and eprofile.include? xref[0].split('/').last ) or (using_m and xref[0].to_s.match(mname)) or (not using_m and not using_p)
 						idx+=1
 
 						begin
 							# Module options hash
-							modopts = Hash.new() 
+							modopts = Hash.new()
 
 							#
 							# The code is just a proof-of-concept and will be expanded in the future
 							#
-															
+
 							print_status "Module #{xref[0]}"
-							
+
 							if (mode & wmap_expl != 0)
 								#
 								# For modules to have access to the global datastore
@@ -722,7 +730,7 @@ class Plugin::Wmap < Msf::Plugin
 								modopts['VERBOSE'] = moduleverbose
 								modopts['ShowProgress'] = showprogress
 								modopts['RunAsJob'] = jobify
-								
+
 								#
 								# Run the plugins that only need to be
 								# launched once.
@@ -741,7 +749,7 @@ class Plugin::Wmap < Msf::Plugin
 										print_error("STOPPED.")
 										return
 									end
-								
+
 									p = node.current_path
 									testpath = Pathname.new(p)
 									strpath = testpath.cleanpath(false).to_s
@@ -785,7 +793,7 @@ class Plugin::Wmap < Msf::Plugin
 											end
 
 											if not strpath.match(excludefilestr)
-												if (not usinginipath) or (usinginipath and strpath.match(inipathname)) 
+												if (not usinginipath) or (usinginipath and strpath.match(inipathname))
 													modopts['PATH'] = strpath
 													print_status("Path: #{strpath}")
 
@@ -795,14 +803,14 @@ class Plugin::Wmap < Msf::Plugin
 														end
 													rescue ::Exception
 														print_status(" >> Exception during launch from #{xref[0]}: #{$!}")
-													end	
+													end
 												end
 											end
 										end
 									when :wmap_dir
 										if (node.is_leaf? and not strpath.include? ".") or node.is_root? or not node.is_leaf?
-											if (not usinginipath) or (usinginipath and strpath.match(inipathname)) 		
-										
+											if (not usinginipath) or (usinginipath and strpath.match(inipathname))
+
 												modopts['PATH'] = strpath
 												print_status("Path: #{strpath}")
 
@@ -821,7 +829,7 @@ class Plugin::Wmap < Msf::Plugin
 						rescue ::Exception
 							print_status(" >> Exception from #{xref[0]}: #{$!}")
 						end
-					end	
+					end
 				end
 
 				#
@@ -833,26 +841,26 @@ class Plugin::Wmap < Msf::Plugin
 
 				idx = 0
 				matches5.each_key do |xref|
-					
+
 					if self.masstop
 						print_error("STOPPED.")
 						return
 					end
-					
-					# Module not part of profile or not match 
-					if ( using_p and eprofile.include? xref[0].split('/').last ) or (using_m and xref[0].to_s.match(mname)) or (not using_m and not using_p)	
+
+					# Module not part of profile or not match
+					if ( using_p and eprofile.include? xref[0].split('/').last ) or (using_m and xref[0].to_s.match(mname)) or (not using_m and not using_p)
 						idx += 1
 
 						begin
 							# Module options hash
-							modopts = Hash.new() 
+							modopts = Hash.new()
 
 							#
 							# The code is just a proof-of-concept and will be expanded in the future
 							#
-															
+
 							print_status "Module #{xref[0]}"
-							
+
 							if (mode & wmap_expl != 0)
 								#
 								# For modules to have access to the global datastore
@@ -874,25 +882,25 @@ class Plugin::Wmap < Msf::Plugin
 								modopts['VERBOSE'] = moduleverbose
 								modopts['ShowProgress'] = showprogress
 								modopts['RunAsJob'] = jobify
-								
+
 								#
 								# Run the plugins for each request that have a distinct
 								# GET/POST  URI QUERY string.
 								#
 
-								utest_query = Hash.new() 
+								utest_query = Hash.new()
 
 								h = self.framework.db.workspace.hosts.find_by_address(selected_host)
 								s = h.services.find_by_port(selected_port)
 								w = s.web_sites.find_by_vhost(selected_vhost)
 
 								w.web_forms.each do |form|
-									
+
 									if self.masstop
 										print_error("STOPPED.")
 										return
 									end
-								
+
 									#
 									# Only test unique query strings by comparing signature to previous tested signatures 'path,p1,p2,pn'
 									#
@@ -909,18 +917,18 @@ class Plugin::Wmap < Msf::Plugin
 									form.params.each do |p|
 										pn, pv, pt = p
 										if pn
-											if not pn.empty? 
+											if not pn.empty?
 												if not pv or pv.empty?
 													#TODO add value based on param name
 													pv = "aaa"
 												end
-												
+
 												#temparr << pn.to_s + "=" + Rex::Text.uri_encode(pv.to_s)
 												temparr << pn.to_s + "=" + pv.to_s
 											end
 										else
-											print_error("Blank parameter name. Form #{form.path}")	
-										end	
+											print_error("Blank parameter name. Form #{form.path}")
+										end
 									end
 
 									datastr = temparr.join("&")	if (temparr and not temparr.empty?)
@@ -935,15 +943,15 @@ class Plugin::Wmap < Msf::Plugin
 											modopts['DATA'] = ""
 										end
 										if form.method.upcase == 'POST'
-											modopts['DATA'] = datastr 
+											modopts['DATA'] = datastr
 										end
 										modopts['TYPES'] = typestr
 
 										#
 										# TODO: Add headers, etc.
 										#
-										if (not usinginipath) or (usinginipath and form.path.match(inipathname)) 
-										
+										if (not usinginipath) or (usinginipath and form.path.match(inipathname))
+
 											print_status "Path #{form.path}"
 											#print_status("Unique PATH #{modopts['PATH']}")
 											#print_status("Unique GET #{modopts['QUERY']}")
@@ -953,7 +961,7 @@ class Plugin::Wmap < Msf::Plugin
 											begin
 												if execmod
 													rpcnode = rpc_round_exec(xref[0],xref[1], modopts, self.njobs)
-												end	
+												end
 												utest_query[signature(form.path,datastr)]=1
 											rescue ::Exception
 												print_status(" >> Exception during launch from #{xref[0]}: #{$!}")
@@ -982,26 +990,26 @@ class Plugin::Wmap < Msf::Plugin
 
 				idx = 0
 				matches2.each_key do |xref|
-					
+
 					if self.masstop
 						print_error("STOPPED.")
 						return
 					end
-					
-					# Module not part of profile or not match 
-					if not ( using_p and eprofile.include? xref[0].split('/').last ) or (using_m and xref[0].to_s.match(mname)) or (not using_m and not using_p)	
+
+					# Module not part of profile or not match
+					if not ( using_p and eprofile.include? xref[0].split('/').last ) or (using_m and xref[0].to_s.match(mname)) or (not using_m and not using_p)
 						idx += 1
 
 						begin
 							# Module options hash
-							modopts = Hash.new() 
+							modopts = Hash.new()
 
 							#
 							# The code is just a proof-of-concept and will be expanded in the future
 							#
-															
+
 							print_status "Module #{xref[0]}"
-							
+
 							if (mode & wmap_expl != 0)
 
 								#
@@ -1015,7 +1023,7 @@ class Plugin::Wmap < Msf::Plugin
 								#
 								# Parameters passed in hash xref
 								#
-								
+
 								modopts['RHOST'] = selected_host
 								modopts['RHOSTS'] = selected_host
 								modopts['RPORT'] = selected_port.to_s
@@ -1024,7 +1032,7 @@ class Plugin::Wmap < Msf::Plugin
 								modopts['VERBOSE'] = moduleverbose
 								modopts['ShowProgress'] = showprogress
 								modopts['RunAsJob'] = jobify
-								
+
 								#
 								# Run the plugins for each request that have a distinct
 								# GET/POST  URI QUERY string.
@@ -1035,7 +1043,7 @@ class Plugin::Wmap < Msf::Plugin
 								w = s.web_sites.find_by_vhost(selected_vhost)
 
 								w.web_forms.each do |req|
-								
+
 									if self.masstop
 										print_error("STOPPED.")
 										return
@@ -1049,7 +1057,7 @@ class Plugin::Wmap < Msf::Plugin
 									req.params.each do |p|
 										pn, pv, pt = p
 										if pn
-											if not pn.empty? 
+											if not pn.empty?
 												if not pv or pv.empty?
 													#TODO add value based on param name
 													pv = "aaa"
@@ -1058,8 +1066,8 @@ class Plugin::Wmap < Msf::Plugin
 												temparr << pn.to_s + "=" + pv.to_s
 											end
 										else
-											print_error("Blank parameter name. Form #{req.path}")	
-										end	
+											print_error("Blank parameter name. Form #{req.path}")
+										end
 									end
 
 									datastr = temparr.join("&")	if (temparr and not temparr.empty?)
@@ -1076,8 +1084,8 @@ class Plugin::Wmap < Msf::Plugin
 									#
 									# TODO: Add method, headers, etc.
 									#
-									if (not usinginipath) or (usinginipath and req.path.match(inipathname)) 
-									
+									if (not usinginipath) or (usinginipath and req.path.match(inipathname))
+
 										print_status "Path #{req.path}"
 										#print_status("Query PATH #{modopts['PATH']}")
 										#print_status("Query GET #{modopts['QUERY']}")
@@ -1091,14 +1099,14 @@ class Plugin::Wmap < Msf::Plugin
 										rescue ::Exception
 											print_status(" >> Exception during launch from #{xref[0]}: #{$!}")
 										end
-									end	
+									end
 								end
 							end
 
 						rescue ::Exception
 							print_status(" >> Exception from #{xref[0]}: #{$!}")
 						end
-					end	
+					end
 				end
 
 				#
@@ -1112,27 +1120,27 @@ class Plugin::Wmap < Msf::Plugin
 
 				idx = 0
 				matches10.each_key do |xref|
-					
+
 					if self.masstop
 						print_error("STOPPED.")
 						return
 					end
-					
-					# Module not part of profile or not match 
-					if not ( using_p and eprofile.include? xref[0].split('/').last ) or (using_m and xref[0].to_s.match(mname)) or (not using_m and not using_p)	
+
+					# Module not part of profile or not match
+					if not ( using_p and eprofile.include? xref[0].split('/').last ) or (using_m and xref[0].to_s.match(mname)) or (not using_m and not using_p)
 						idx += 1
 
 
 						begin
 							# Module options hash
-							modopts = Hash.new() 
+							modopts = Hash.new()
 
 							#
 							# The code is just a proof-of-concept and will be expanded in the future
 							#
-															
+
 							print_status "Module #{xref[0]}"
-							
+
 							if (mode & wmap_expl != 0)
 
 								#
@@ -1146,7 +1154,7 @@ class Plugin::Wmap < Msf::Plugin
 								#
 								# Parameters passed in hash xref
 								#
-								
+
 								modopts['RHOST'] = selected_host
 								modopts['RHOSTS'] = selected_host
 								modopts['RPORT'] = selected_port.to_s
@@ -1155,7 +1163,7 @@ class Plugin::Wmap < Msf::Plugin
 								modopts['VERBOSE'] = moduleverbose
 								modopts['ShowProgress'] = showprogress
 								modopts['RunAsJob'] = jobify
-								
+
 								#
 								# Run the plugins that only need to be
 								# launched once.
@@ -1167,30 +1175,30 @@ class Plugin::Wmap < Msf::Plugin
 									end
 								rescue ::Exception
 									print_status(" >> Exception during launch from #{xref[0]}: #{$!}")
-								end	
+								end
 							end
 
 						rescue ::Exception
 							print_status(" >> Exception from #{xref[0]}: #{$!}")
 						end
-					end	
+					end
 				end
 
-				
+
 				if (mode & wmap_expl != 0)
 					print_line "+" * sizeline
-					
-					if not self.runlocal 
+
+					if not self.runlocal
 						if execmod
 							rpc_list_nodes()
 							print_status("Note: Use wmap_nodes -l to list node status for completion")
 						end
 					end
-			
+
 					print_line("Launch completed in #{(Time.now.to_f - stamp)} seconds.")
 					print_line "+" * sizeline
 				end
-				
+
 				print_status("Done.")
 			end
 
@@ -1225,10 +1233,34 @@ class Plugin::Wmap < Msf::Plugin
 			print_status tbl.to_s + "\n"
 		end
 
+		def delete_sites(wmap_index)
+			idx  = 0
+			to_del = {}
+			# Rebuild the index from wmap_sites -l
+			self.framework.db.hosts.each do |bdhost|
+				bdhost.services.each do |serv|
+					serv.web_sites.each do |web|
+						# If the index of this site matches any deletion index,
+						# add to our hash, saving the index for later output
+						to_del[idx] = web if wmap_index.any? {|w| w.to_i == idx}
+						idx += 1
+					end
+				end
+			end
+			to_del.each do |widx,wsite|
+				if wsite.delete
+					print_status("Deleted #{wsite.vhost} on #{wsite.service.host.address} at index #{widx}")
+				else
+					print_error("Could note delete {wsite.vhost} on #{wsite.service.host.address} at index #{widx}")
+				end
+			end
+		end
+
+
 		def view_sites
 			# Clean temporary sites list
 			self.lastsites = []
-		
+
 			indent = '     '
 
 			tbl = Rex::Ui::Text::Table.new(
@@ -1253,13 +1285,13 @@ class Plugin::Wmap < Msf::Plugin
 						f = web.web_forms.count
 						tbl << [ idx.to_s, bdhost.address, web.vhost, serv.port, serv.name, c.to_s, f.to_s ]
 						idx += 1
-						
+
 						turl = web.vhost + "," + serv.name + "://" +bdhost.address.to_s + ":" + serv.port.to_s + "/"
-						self.lastsites << turl 
+						self.lastsites << turl
 					end
 				end
 			end
-			
+
 			print_status tbl.to_s + "\n"
 
 		end
@@ -1317,9 +1349,9 @@ class Plugin::Wmap < Msf::Plugin
 		def process_urls(urlstr)
 
 			target_whitelist = []
-			
+
 			urls = urlstr.to_s.split(/\s+/)
-			
+
 
 			urls.each do |url|
 				next if url.to_s.strip.empty?
@@ -1361,8 +1393,8 @@ class Plugin::Wmap < Msf::Plugin
 
 			if not self.targets
 				# First time targets are defined
-				self.targets = Hash.new() 
-			end	
+				self.targets = Hash.new()
+			end
 
 			target_whitelist.each do |ent|
 				vhost,target = ent
@@ -1387,12 +1419,12 @@ class Plugin::Wmap < Msf::Plugin
 					# Initial defaul path
 					inipath = target.path
 					if target.path.empty?
-						inipath = '/'	
+						inipath = '/'
 					end
-				
+
 					#site.web_forms.find_all_by_path(target.path).each do |form|
 						ckey = [ site.vhost, host.address, serv.port, inipath].join("|")
-						
+
 						if not self.targets[ckey]
 							self.targets[ckey] = WebTarget.new
 							self.targets[ckey].merge!({
@@ -1404,7 +1436,7 @@ class Plugin::Wmap < Msf::Plugin
 							})
 							#self.targets[ckey][inipath] = []
 						else
-							print_status("Target already set in targets list.")	
+							print_status("Target already set in targets list.")
 						end
 
 						# Store the form object in the hash for this path
@@ -1415,23 +1447,23 @@ class Plugin::Wmap < Msf::Plugin
 		end
 
 		# Code by hdm. Modified two lines by et
-		# lastsites contains a temporary array with vhost,url strings so the id can be 
-		# referenced in the array and prevent new sites added in the db to corrupt previous id list.  
+		# lastsites contains a temporary array with vhost,url strings so the id can be
+		# referenced in the array and prevent new sites added in the db to corrupt previous id list.
 		def process_ids(idsstr)
 
-			if !self.lastsites or self.lastsites.length == 0 
+			if !self.lastsites or self.lastsites.length == 0
 				view_sites
 				print_status ("Web sites ids. referenced from previous table.")
 			end
-		
+
 			target_whitelist = []
 			ids = idsstr.to_s.split(/,/)
 
 			ids.each do |id|
 				next if id.to_s.strip.empty?
-				
+
 				if id.to_i > self.lastsites.length
-					print_error("Skipping id #{id}...") 
+					print_error("Skipping id #{id}...")
 				else
 					target_whitelist << self.lastsites[id.to_i]
 					print_status("Loading #{self.lastsites[id.to_i]}.")
@@ -1442,21 +1474,21 @@ class Plugin::Wmap < Msf::Plugin
 			return if target_whitelist.length == 0
 
 			if not self.targets
-				self.targets = Hash.new() 
+				self.targets = Hash.new()
 			end
 
 			target_whitelist.each do |ent|
 				process_urls(ent)
-			end		
+			end
 		end
-		
+
 		def view_site_tree(urlstr, md, ld)
-			if not urlstr 
+			if not urlstr
 				return
 			end
 
 			site_whitelist = []
-			
+
 			urls = urlstr.to_s.split(/\s+/)
 
 			urls.each do |url|
@@ -1498,7 +1530,7 @@ class Plugin::Wmap < Msf::Plugin
 			# Skip the DB entirely if no matches
 			return if site_whitelist.length == 0
 
-			vsites = Hash.new() 
+			vsites = Hash.new()
 
 			site_whitelist.each do |ent|
 				vhost,target = ent
@@ -1514,7 +1546,7 @@ class Plugin::Wmap < Msf::Plugin
 					next
 				end
 
-        sites = serv.web_sites.where('vhost = ? and service_id = ?', vhost, serv.id)
+				sites = serv.web_sites.where('vhost = ? and service_id = ?', vhost, serv.id)
 
 				sites.each do |site|
 					t = load_tree(site)
@@ -1588,10 +1620,10 @@ class Plugin::Wmap < Msf::Plugin
 				tree.children.each_pair do |name,child|
 					print_tree(child,ip,maxlevel,limitlevel)
 				end
- 
+
 			end
 		end
-		
+
 		def signature(fpath,fquery)
 			hsig = Hash.new()
 
@@ -1617,13 +1649,13 @@ class Plugin::Wmap < Msf::Plugin
 			end
 			params
 		end
-			
+
 		def rpc_add_node(host,port,ssl,user,pass,bypass_exist)
 
 			if not self.rpcarr
-				self.rpcarr = Hash.new() 
+				self.rpcarr = Hash.new()
 			end
-			
+
 			begin
 				istr = "#{host}|#{port}|#{ssl}|#{user}|#{pass}"
 				if self.rpcarr.has_key?(istr) and not bypass_exist and self.rpcarr[istr] != nil
@@ -1639,37 +1671,37 @@ class Plugin::Wmap < Msf::Plugin
 						print_error "Unable to connect"
 						#raise ConnectionError
 						return
-					end	
-			
+					end
+
 					res = temprpc.login( user , pass)
-			
-					if not res  
+
+					if not res
 						print_error("Unable to authenticate to #{host}:#{port}.")
 						return
 					else
 						res = temprpc.call('core.version')
 					end
-			
-					print_status("Connected to #{host}:#{port} [#{res['version']}].") 
+
+					print_status("Connected to #{host}:#{port} [#{res['version']}].")
 					self.rpcarr[istr] = temprpc
 				end
 			rescue
 				print_error("Unable to connect")
 			end
 		end
-		
+
 		def local_module_exec(mod,mtype, opts, nmaxjobs)
 			jobify = false
-			
+
 			modinst = framework.modules.create(mod)
 
 			if(not modinst)
 				print_error("Unknown module")
 				return
 			end
-			
+
 			sess = nil
-			
+
 			case mtype
 				when 'auxiliary'
 					Msf::Simple::Auxiliary.run_simple(modinst, {
@@ -1693,42 +1725,42 @@ class Plugin::Wmap < Msf::Plugin
 				else
 					print_error("Wrong mtype.")
 			end
-			
+
 			if sess
 				if (jobify == false and sess.interactive?)
 					print_line
 					driver.run_single("sessions -q -i #{sess.sid}")
-				else														
+				else
 					print_status("Session #{sess.sid} created in the background.")
 				end
 			end
 		end
-		
+
 		def rpc_round_exec(mod,mtype, opts, nmaxjobs)
-			
+
 			res = nil
 			idx = 0
-			
-			if active_rpc_nodes == 0 
+
+			if active_rpc_nodes == 0
 				if not self.runlocal
-					print_error("All active nodes not working or removed")	
-					return		
+					print_error("All active nodes not working or removed")
+					return
 				end
 				res = true
 			else
 				rpc_reconnect_nodes()
 			end
-			
+
 			if self.masstop
 				return
 			end
-			
+
 			while not res
 				if active_rpc_nodes == 0
 					print_error("All active nodes not working or removed")
-					return		
+					return
 				end
-			
+
 				#find the node with less jobs load.
 				minjobs = nmaxjobs
 				minconn = nil
@@ -1736,15 +1768,15 @@ class Plugin::Wmap < Msf::Plugin
 				self.rpcarr.each do |k,rpccon|
 					if not rpccon
 						print_error("Skipping inactive node #{nid} #{k}")
-					else					
+					else
 						begin
 							currentjobs = rpccon.call('job.list').length
-						
+
 							if currentjobs < minjobs
 								minconn = rpccon
 								minjobs = currentjobs
 							end
-						
+
 							if currentjobs == nmaxjobs
 								if self.nmaxdisplay == false
 									print_error("Node #{nid} reached max number of jobs #{nmaxjobs}")
@@ -1756,57 +1788,57 @@ class Plugin::Wmap < Msf::Plugin
 						rescue
 							print_error("Unable to connect. Node #{tarr[0]}:#{tarr[1]}")
 							self.rpcarr[k]=nil
-						
-							if active_rpc_nodes == 0 
+
+							if active_rpc_nodes == 0
 								print_error("All active nodes ,not working or removed")
 								return
 							else
-								print_error("Sending job to next node")		
+								print_error("Sending job to next node")
 								next
-							end						
+							end
 						end
 					end
-					nid += 1					
+					nid += 1
 				end
 
 				if minjobs < nmaxjobs
 					res=minconn.call('module.execute', mtype, mod, opts)
 					self.nmaxdisplay = false
 					#print_status(">>>#{res} #{mod}")
-							
+
 					if res
 						if res.has_key?("job_id")
 							return
 						else
-							print_error("Unable to execute module in node #{k} #{res}") 
+							print_error("Unable to execute module in node #{k} #{res}")
 						end
 					end
 				else
-					#print_status("Max number of jobs #{nmaxjobs} reached in node #{k}") 
+					#print_status("Max number of jobs #{nmaxjobs} reached in node #{k}")
 				end
-				
+
 				idx += 1
 			end
-			
-			if self.runlocal and not self.masstop 
+
+			if self.runlocal and not self.masstop
 				local_module_exec(mod,mtype, opts, nmaxjobs)
 			end
 		end
-		
+
 		def rpc_db_nodes(host,port,user,pass,name)
-			rpc_reconnect_nodes()	
-			
+			rpc_reconnect_nodes()
+
 			if active_rpc_nodes == 0
 				print_error("No active nodes at this time")
 				return
 			end
-			
-			self.rpcarr.each do |k,v|	
+
+			self.rpcarr.each do |k,v|
 				if v
 					res = v.call('db.driver',{:driver => 'postgresql'})
 					res = v.call('db.connect',{:database => name, :host => host, :port => port, :username => user, :password => pass})
 					res = v.call('db.status')
-				
+
 					if res['db'] == name
 						print_status("db_connect #{res} #{host}:#{port} OK")
 					else
@@ -1814,14 +1846,14 @@ class Plugin::Wmap < Msf::Plugin
 					end
 				else
 					print_error("No connection to node #{k}")
-				end		
+				end
 			end
 		end
-		
+
 		def rpc_reconnect_nodes()
 			begin
 				# Sucky 5 mins token timeout.
-				
+
 				idx = nil
 				self.rpcarr.each do |k,rpccon|
 					if rpccon
@@ -1830,11 +1862,11 @@ class Plugin::Wmap < Msf::Plugin
 							currentjobs = rpccon.call('job.list').length
 						rescue
 							tarr = k.split("|")
-							rflag = false						
-					 
+							rflag = false
+
 							res = rpccon.login(tarr[3],tarr[4])
-							
-							if res 
+
+							if res
 								rflag = true
 								print_error("Reauth to node #{tarr[0]}:#{tarr[1]}")
 								break
@@ -1842,7 +1874,7 @@ class Plugin::Wmap < Msf::Plugin
 								raise ConnectionError
 							end
 						end
-					end	
+					end
 				end
 			rescue
 				print_error("ERROR CONNECTING TO NODE.  Disabling #{idx} use wmap_nodes -a to reconnect")
@@ -1853,31 +1885,31 @@ class Plugin::Wmap < Msf::Plugin
 				else
 					#blah
 				end
-			end	
+			end
 		end
-		
+
 		def rpc_kill_node(i,j)
-			
+
 			if not i
 				print_error("Nodes not defined")
 				return
 			end
-			
+
 			if not j
 				print_error("Node jobs defined")
 				return
 			end
-			
+
 			rpc_reconnect_nodes()
-			
+
 			if active_rpc_nodes == 0
 				print_error("No active nodes at this time")
 				return
 			end
-			
+
 			idx=0
 			self.rpcarr.each do |k,rpccon|
-				if idx == i.to_i or i.upcase == 'ALL' 
+				if idx == i.to_i or i.upcase == 'ALL'
 					#begin
 						if not rpccon
 							print_error("No connection to node #{idx}")
@@ -1887,39 +1919,39 @@ class Plugin::Wmap < Msf::Plugin
 								if j==id.to_s or j.upcase == 'ALL'
 									rpccon.call('job.stop',id)
 									print_status("Node #{idx} Killed job id #{id} #{name}")
-								end	
+								end
 							end
-						end	
+						end
 					#rescue
 					#	print_error("No connection")
 					#end
 				end
-				idx += 1	
+				idx += 1
 			end
 		end
-		
+
 		def rpc_view_jobs()
 			indent = '     '
-		
+
 			rpc_reconnect_nodes()
-			
+
 			if active_rpc_nodes == 0
 				print_error("No active nodes at this time")
 				return
 			end
-			
+
 			idx=0
-			self.rpcarr.each do |k,rpccon|	
+			self.rpcarr.each do |k,rpccon|
 				if not rpccon
 					print_status("[Node ##{idx}: #{k} DISABLED/NO CONNECTION]")
 				else
-				
-					arrk = k.split('|')				
+
+					arrk = k.split('|')
 					print_status("[Node ##{idx}: #{arrk[0]} Port:#{arrk[1]} SSL:#{arrk[2]} User:#{arrk[3]}]")
-				
+
 					begin
 						n = rpccon.call('job.list')
-					
+
 						tbl = Rex::Ui::Text::Table.new(
 							'Indent'  => indent.length,
 							'Header'  => 'Jobs',
@@ -1930,71 +1962,71 @@ class Plugin::Wmap < Msf::Plugin
 									'Target',
 									'PATH',
 								])
-					
+
 						n.each do |id,name|
-							jinfo = rpccon.call('job.info',id) 
+							jinfo = rpccon.call('job.info',id)
 							dstore = jinfo['datastore']
 							tbl << [ id.to_s, name,dstore['VHOST']+":"+dstore['RPORT'],dstore['PATH']]
 						end
-					
+
 						print_status tbl.to_s + "\n"
-					
+
 					rescue
 						print_status("[Node ##{idx} #{k} DISABLED/NO CONNECTION]")
 					end
-				end	
-				idx += 1		
-			end		
+				end
+				idx += 1
+			end
 		end
-		
-		
+
+
 		# Modified from http://stackoverflow.com/questions/946738/detect-key-press-non-blocking-w-o-getc-gets-in-ruby
-		def quit?   
-			begin     
-				while c = driver.input.read_nonblock(1) 
-					print_status("Quited")	
-					return true if c == 'Q'    
-				end          
-				false   
-			rescue Errno::EINTR     
-				false   
-			rescue Errno::EAGAIN     
-				false   
-			rescue EOFError     
-				true   
-			end 
-		end 
-		
+		def quit?
+			begin
+				while c = driver.input.read_nonblock(1)
+					print_status("Quited")
+					return true if c == 'Q'
+				end
+				false
+			rescue Errno::EINTR
+				false
+			rescue Errno::EAGAIN
+				false
+			rescue EOFError
+				true
+			end
+		end
+
 		def rpc_mon_nodes()
 			# Pretty monitor
-			
+
 			color = self.opts["ConsoleDriver"].output.supports_color? rescue false
-			
-			colors = [ 
-			           '%grn', 
-					   '%blu', 
-					   '%yel',
-					   '%whi'
-					 ]  
-			
+
+			colors = [
+								 '%grn',
+						 '%blu',
+						 '%yel',
+						 '%whi'
+					 ]
+
 			#begin
 				loop do
 					rpc_reconnect_nodes()
-			
+
 					idx = 0
-					self.rpcarr.each do |k,rpccon|	
-					
+					self.rpcarr.each do |k,rpccon|
+
 						arrk = k.split('|')
-				
+
 						v = "NOCONN"
 						n = 1
 						c = '%red'
-						
-						if not rpccon 
+
+						if not rpccon
 							v = "NOCONN"
 							n = 1
 							c = '%red'
-						else	
+						else
 							begin
 								v = ""
 								c = '%blu'
@@ -2002,7 +2034,7 @@ class Plugin::Wmap < Msf::Plugin
 								v = "ERROR"
 								c = '%red'
 							end
-				
+
 							begin
 								n = rpccon.call('job.list').length
 								c = '%blu'
@@ -2011,8 +2043,8 @@ class Plugin::Wmap < Msf::Plugin
 								v = "NOCONN"
 								c = '%red'
 							end
-						end	
-					
+						end
+
 						#begin
 							if not @stdio
 								@stdio = Rex::Ui::Text::Output::Stdio.new
@@ -2025,7 +2057,7 @@ class Plugin::Wmap < Msf::Plugin
 							end
 							msg = "[#{idx}] #{"%bld#{c}||%clr"*n} #{n} #{v}\n"
 							@stdio.print_raw(@stdio.substitute_colors(msg))
-					
+
 						#rescue
 							#blah
 						#end
@@ -2036,8 +2068,8 @@ class Plugin::Wmap < Msf::Plugin
 			#rescue
 			#	print_status("End.")
 			#end
-		end	
-		
+		end
+
 		def rpc_list_nodes()
 			indent = '     '
 
@@ -2055,56 +2087,56 @@ class Plugin::Wmap < Msf::Plugin
 						'Status',
 						'#jobs',
 					])
-		
+
 			idx=0
-			
+
 			rpc_reconnect_nodes()
-			
-			self.rpcarr.each do |k,rpccon|	
-				
+
+			self.rpcarr.each do |k,rpccon|
+
 				arrk = k.split('|')
-				
+
 				if not rpccon
 					v = "NOCONN"
 					n = ""
-				else	
+				else
 					begin
 						v = rpccon.call('core.version')['version']
 					rescue
 						v = "ERROR"
 					end
-				
+
 					begin
 						n = rpccon.call('job.list').length
 					rescue
 						n = ""
 					end
-				end	
-				
+				end
+
 				tbl << [ idx.to_s, arrk[0], arrk[1], arrk[2], arrk[3], arrk[4], v, n]
 				idx += 1
 			end
-			
+
 			print_status tbl.to_s + "\n"
 		end
-		
+
 		def active_rpc_nodes
-			if self.rpcarr.length == 0 
+			if self.rpcarr.length == 0
 				return 0
 			else
-				idx = 0 
+				idx = 0
 				self.rpcarr.each do |k,conn|
 					if conn
-						idx += 1	
+						idx += 1
 					end
 				end
 				return idx
-			end	
+			end
 		end
-		
+
 		def view_modules
 			indent = '     '
-			
+
 			wmaptype = [:wmap_ssl,
 						:wmap_server,
 						:wmap_dir,
@@ -2113,11 +2145,11 @@ class Plugin::Wmap < Msf::Plugin
 						:wmap_query,
 						:wmap_generic
 						]
-		
+
 			if not self.wmapmodules
 				load_wmap_modules(true)
 			end
-		
+
 			wmaptype.each do |modt|
 
 				tbl = Rex::Ui::Text::Table.new(
@@ -2128,53 +2160,53 @@ class Plugin::Wmap < Msf::Plugin
 							'Name',
 							'OrderID',
 						])
-						
-				idx = 0	
+
+				idx = 0
 				self.wmapmodules.each do |w|
 					oid = w[3]
 					if w[3] == 0xFFFFFF
 						oid = ":last"
 					end
-					
-					if w[2] == modt 
+
+					if w[2] == modt
 						tbl << [w[0],oid]
 						idx += 1
 					end
-				end					
-			
+				end
+
 				print_status tbl.to_s + "\n"
 			end
 		end
-		
+
 		# Yes sorting hashes dont make sense but actually it does when you are enumerating one. And
 		# sort_by of a hash returns an array so this is the reason for this ugly piece of code
 		def sort_by_orderid(m)
-			temphash=Hash.new() 
+			temphash=Hash.new()
 			temparr=[]
-			
-			temparr = m.sort_by do |xref,v| 
-					xref[3] 
+
+			temparr = m.sort_by do |xref,v|
+					xref[3]
 			end
-			
+
 			temparr.each do |b|
-				temphash[b[0]] = b[1] 
+				temphash[b[0]] = b[1]
 			end
 			temphash
 		end
-		
+
 		# Load all wmap modules
 		def load_wmap_modules(reload)
 			if reload or not self.wmapmodules
 				print_status("Loading wmap modules...")
-				
+
 				self.wmapmodules=[]
-				
+
 				idx = 0
 				[ [ framework.auxiliary, 'auxiliary' ], [framework.exploits, 'exploit' ] ].each do |mtype|
 					# Scan all exploit modules for matching references
 					mtype[0].each_module do |n,m|
 						e = m.new
-						
+
 						# Only include wmap_enabled plugins
 						if e.respond_to?("wmap_enabled")
 							penabled = e.wmap_enabled
@@ -2187,19 +2219,19 @@ class Plugin::Wmap < Msf::Plugin
 					end
 				end
 				print_status("#{idx} wmap enabled modules loaded.")
-			end	
+			end
 		end
-		
+
 		def view_vulns
 			framework.db.hosts.each do |host|
-				host.services.each do |serv|	
+				host.services.each do |serv|
 					serv.web_sites.each do |site|
 						site.web_vulns.each do |wv|
 							print_status("+ [#{host.address}] (#{site.vhost}): #{wv.category} #{wv.path}")
 							print_status("\t#{wv.name} #{wv.description}")
 							print_status("\t#{wv.method} #{wv.proof}")
 						end
-					end	
+					end
 				end
 			end
 		end
@@ -2211,20 +2243,20 @@ class Plugin::Wmap < Msf::Plugin
 			"#{proto}://#{self[:host]}:#{self[:port]}#{self[:path]}"
 		end
 	end
-	
+
 
 	def initialize(framework, opts)
 		super
 
 		color = self.opts["ConsoleDriver"].output.supports_color? rescue false
-		
+
 		wmapversion = '1.5.1'
-		
+
 		wmapbanner =  "%red\n.-.-.-..-.-.-..---..---.%clr\n"
 		wmapbanner += "%red| | | || | | || | || |-'%clr\n"
-		wmapbanner += "%red`-----'`-'-'-'`-^-'`-'%clr\n" 
+		wmapbanner += "%red`-----'`-'-'-'`-^-'`-'%clr\n"
 		wmapbanner += "[WMAP #{wmapversion}] ===  et [  ] metasploit.com 2012\n"
-		
+
 		if not @stdio
 			@stdio = Rex::Ui::Text::Output::Stdio.new
 		end
@@ -2234,7 +2266,7 @@ class Plugin::Wmap < Msf::Plugin
 		else
 			@stdio.disable_color
 		end
-		
+
 		@stdio.print_raw(@stdio.substitute_colors(wmapbanner))
 
 		add_console_dispatcher(WmapCommandDispatcher)

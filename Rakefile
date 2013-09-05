@@ -1,47 +1,81 @@
 require 'bundler/setup'
 
-require 'rspec/core/rake_task'
-require 'yard'
+pathname = Pathname.new(__FILE__)
+root = pathname.parent
 
-RSpec::Core::RakeTask.new(:spec)
+# add metasploit-framework/lib to load paths so rake files can just require
+# files normally without having to use __FILE__ and recalculating root and the
+# path to lib
+lib_pathname = root.join('lib')
+$LOAD_PATH.unshift(lib_pathname.to_s)
 
-task :default => :spec
+#
+# load rake files like a rails engine
+#
 
-namespace :yard do
-  yard_files = [
-      # Ruby source files first
-      'lib/msf/**/*.rb',
-      'lib/rex/**/*.rb',
-      # Anything after '-' is a normal documentation, not source
-      '-',
-      'COPYING',
-      'HACKING',
-      'THIRD-PARTY.md'
-  ]
-  yard_options = [
-      # include documentation for protected methods for developers extending the code.
-      '--protected'
-  ]
+rakefile_glob = root.join('lib', 'tasks', '**', '*.rake').to_path
 
-  YARD::Rake::YardocTask.new(:doc) do |t|
-    t.files = yard_files
-    # --no-stats here as 'stats' task called after will print fuller stats
-    t.options = yard_options + ['--no-stats']
-
-    t.after = Proc.new {
-      Rake::Task['yard:stats'].execute
-    }
-  end
-
-  desc "Shows stats for YARD Documentation including listing undocumented modules, classes, constants, and methods"
-  task :stats => :environment do
-    stats = YARD::CLI::Stats.new
-    yard_arguments = yard_options + ['--compact', '--list-undoc'] + yard_files
-    stats.run(*yard_arguments)
-  end
+Dir.glob(rakefile_glob) do |rakefile|
+  # Skip database tasks, will load them later if MDM is present
+  next if rakefile =~ /database\.rake$/
+  load rakefile
 end
 
-# @todo Figure out how to just clone description from yard:doc
-desc "Generate YARD documentation"
-# allow calling namespace to as a task that goes to default task for namespace
-task :yard => ['yard:doc']
+print_without = false
+
+begin
+	require 'rspec/core/rake_task'
+rescue LoadError
+	puts "rspec not in bundle, so can't set up spec tasks.  " \
+	     "To run specs ensure to install the development and test groups."
+
+	print_without = true
+else
+	RSpec::Core::RakeTask.new(:spec => 'db:test:prepare')
+
+	task :default => :spec
+end
+
+# Require yard before loading metasploit_data_models rake tasks as the yard tasks won't be defined if
+# YARD is not defined when yard.rake is loaded.
+begin
+  require 'yard'
+rescue LoadError
+	puts "yard not in bundle, so can't set up yard tasks.  " \
+	     "To generate documentation ensure to install the development group."
+
+	print_without = true
+end
+
+begin
+	require 'metasploit_data_models'
+rescue LoadError
+	puts "metasploit_data_models not in bundle, so can't set up db tasks.  " \
+	     "To run database tasks, ensure to install the db bundler group."
+
+	print_without = true
+else
+	load 'lib/tasks/database.rake'
+	metasploit_data_models_task_glob = MetasploitDataModels.root.join(
+			'lib',
+			'tasks',
+			'**',
+			'*.rake'
+	).to_s
+	# include tasks from metasplioit_data_models, such as `rake yard`.
+	# metasploit-framework specific yard options are in .yardopts
+	Dir.glob(metasploit_data_models_task_glob) do |path|
+		load path
+	end
+end
+
+
+
+if print_without
+	puts "Bundle currently installed " \
+	     "'--without #{Bundler.settings.without.join(' ')}'."
+	puts "To clear the without option do `bundle install --without ''` " \
+	     "(the --without flag with an empty string) or " \
+	     "`rm -rf .bundle` to remove the .bundle/config manually and " \
+	     "then `bundle install`"
+end

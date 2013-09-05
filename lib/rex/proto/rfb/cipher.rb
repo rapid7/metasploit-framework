@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-##
-# $Id: $
-##
 
 ##
 #
@@ -31,52 +28,52 @@ module RFB
 ##
 
 class Cipher
-	
-	def self.mangle_password(password)
-		key = ''
-		key = password.dup if password
-		key.slice!(8,key.length) if key.length > 8
-		key << "\x00" * (8 - key.length) if key.length < 8
 
-		# We have to mangle the key so the LSB are kept vs the MSB
-		[key.unpack('B*').first.scan(/.{8}/).map! { |e| e.reverse }.join].pack('B*')
-	end
+  def self.mangle_password(password)
+    key = ''
+    key = password.dup if password
+    key.slice!(8,key.length) if key.length > 8
+    key << "\x00" * (8 - key.length) if key.length < 8
 
-	def self.encrypt(plain, password)
-		key = self.mangle_password(password)
+    # We have to mangle the key so the LSB are kept vs the MSB
+    [key.unpack('B*').first.scan(/.{8}/).map! { |e| e.reverse }.join].pack('B*')
+  end
 
-		# pad the plain to 16 chars
-		plain << ("\x00" * (16 - plain.length)) if plain.length < 16
+  def self.encrypt(plain, password)
+    key = self.mangle_password(password)
 
-		# VNC auth does two 8-byte blocks individually instead supporting some block mode
-		cipher = ''
-		2.times { |x|
-			c = OpenSSL::Cipher::Cipher.new('des')
-			c.encrypt
-			c.key = key
-			cipher << c.update(plain[x*8, 8])
-		}
+    # pad the plain to 16 chars
+    plain << ("\x00" * (16 - plain.length)) if plain.length < 16
 
-		cipher
-	end
+    # VNC auth does two 8-byte blocks individually instead supporting some block mode
+    cipher = ''
+    2.times { |x|
+      c = OpenSSL::Cipher::Cipher.new('des')
+      c.encrypt
+      c.key = key
+      cipher << c.update(plain[x*8, 8])
+    }
 
-	#
-	# NOTE: The default password is that of winvnc/etc which is used for
-	# encrypting the password(s) on disk/in registry.
-	#
-	def self.decrypt(cipher, password = "\x17\x52\x6b\x06\x23\x4e\x58\x07")
-		key = self.mangle_password(password)
+    cipher
+  end
 
-		# pad the cipher text to 9 bytes
-		cipher << ("\x00" * (9 - cipher.length)) if cipher.length < 9
+  #
+  # NOTE: The default password is that of winvnc/etc which is used for
+  # encrypting the password(s) on disk/in registry.
+  #
+  def self.decrypt(cipher, password = "\x17\x52\x6b\x06\x23\x4e\x58\x07")
+    key = self.mangle_password(password)
 
-		# NOTE: This only does one 8 byte block
-		plain = ''
-		c = OpenSSL::Cipher::Cipher.new('des')
-		c.decrypt
-		c.key = key
-		c.update(cipher)
-	end
+    # pad the cipher text to 9 bytes
+    cipher << ("\x00" * (9 - cipher.length)) if cipher.length < 9
+
+    # NOTE: This only does one 8 byte block
+    plain = ''
+    c = OpenSSL::Cipher::Cipher.new('des')
+    c.decrypt
+    c.key = key
+    c.update(cipher)
+  end
 
 end
 
