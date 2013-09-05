@@ -52,67 +52,67 @@ require 'rexml/document'
 
 module NessusXMLRPC
 
-	# Class which uses standard REXML to parse nessus XML RPC replies.
-	class NessusXMLRPC
-		# initialize object: try to connect to Nessus Scanner using URL, user and password
-		#
-		# Usage:
-		#
-		#  n=NessusXMLRPC::NessusXMLRPC.new('https://localhost:8834','user','pass');
-		def initialize(url,user,password)
-			if url == ''
-				@nurl="https://localhost:8834/"
-			else
-				if url =~ /\/$/
-					@nurl=url
-				else
-					@nurl=url + "/"
-				end
-			end
-			@token=''
-			#login(user,password)
-		end
+  # Class which uses standard REXML to parse nessus XML RPC replies.
+  class NessusXMLRPC
+    # initialize object: try to connect to Nessus Scanner using URL, user and password
+    #
+    # Usage:
+    #
+    #  n=NessusXMLRPC::NessusXMLRPC.new('https://localhost:8834','user','pass');
+    def initialize(url,user,password)
+      if url == ''
+        @nurl="https://localhost:8834/"
+      else
+        if url =~ /\/$/
+          @nurl=url
+        else
+          @nurl=url + "/"
+        end
+      end
+      @token=''
+      #login(user,password)
+    end
 
-		# checks if we're logged in correctly
-		#
-		# returns: true if logged in, false if not
-		#
-		# Usage:
-		#
-		#  n=NessusXMLRPC::NessusXMLRPC.new('https://localhost:8834','user','pass');
-		#  if n.logged_in
-		#	puts "Logged in"
-		#  else
-		#	puts "Error"
-		#  end
+    # checks if we're logged in correctly
+    #
+    # returns: true if logged in, false if not
+    #
+    # Usage:
+    #
+    #  n=NessusXMLRPC::NessusXMLRPC.new('https://localhost:8834','user','pass');
+    #  if n.logged_in
+    #	puts "Logged in"
+    #  else
+    #	puts "Error"
+    #  end
 
-		def logged_in
-			if @token == ''
-				return false
-			else
-				return true
-			end
-		end
+    def logged_in
+      if @token == ''
+        return false
+      else
+        return true
+      end
+    end
 
-		# send standard Nessus XML request and check
-		#
-		# returns: rexml/document root
-		def nessus_request(uri, post_data)
-			body=nessus_http_request(uri, post_data)
-			# puts response.body
-			docxml = REXML::Document.new(body)
-			begin
-				status = docxml.root.elements['status'].text
-			rescue
-				puts("Error connecting/logging to the server!")
-				return
-			end
-			if status == "OK"
-				return docxml
-			else
-				return ''
-			end
-		end
+    # send standard Nessus XML request and check
+    #
+    # returns: rexml/document root
+    def nessus_request(uri, post_data)
+      body=nessus_http_request(uri, post_data)
+      # puts response.body
+      docxml = REXML::Document.new(body)
+      begin
+        status = docxml.root.elements['status'].text
+      rescue
+        puts("Error connecting/logging to the server!")
+        return
+      end
+      if status == "OK"
+        return docxml
+      else
+        return ''
+      end
+    end
 
 		# send standard Nessus HTTP request and check
 		#
@@ -184,20 +184,20 @@ module NessusXMLRPC
 			end
 		end
 
-		# get uids of scans
-		#
-		# returns: array of uids of active scans
-		def scan_list_uids
-			post= { "token" => @token }
-			docxml = nil
-			docxml=nessus_request('scan/list', post)
-			if docxml.nil?
-				return
-			end
-			uuids=Array.new
-			docxml.root.elements['contents'].elements['scans'].elements['scanList'].each_element('//scan') {|scan| uuids.push(scan.elements['uuid'].text) }
-			return uuids
-		end
+    # get uids of scans
+    #
+    # returns: array of uids of active scans
+    def scan_list_uids
+      post= { "token" => @token }
+      docxml = nil
+      docxml=nessus_request('scan/list', post)
+      if docxml.nil?
+        return
+      end
+      uuids=Array.new
+      docxml.root.elements['contents'].elements['scans'].elements['scanList'].each_element('//scan') {|scan| uuids.push(scan.elements['uuid'].text) }
+      return uuids
+    end
 
 		# get hash of active scan data
 		#
@@ -284,54 +284,54 @@ module NessusXMLRPC
 			return reports
 		end
 
-		# get policy by textname and return policyID
-		#
-		# returns: policyID
-		def policy_get_id(textname)
-			post= { "token" => @token }
-			docxml = nil
-			docxml=nessus_request('policy/list', post)
-			if docxml.nil?
-				return
-			end
-			docxml.root.elements['contents'].elements['policies'].each_element('//policy') {|policy|
-				if policy.elements['policyName'].text == textname
-					return policy.elements['policyID'].text
-				end
-			}
-			return ''
-		end
+    # get policy by textname and return policyID
+    #
+    # returns: policyID
+    def policy_get_id(textname)
+      post= { "token" => @token }
+      docxml = nil
+      docxml=nessus_request('policy/list', post)
+      if docxml.nil?
+        return
+      end
+      docxml.root.elements['contents'].elements['policies'].each_element('//policy') {|policy|
+        if policy.elements['policyName'].text == textname
+          return policy.elements['policyID'].text
+        end
+      }
+      return ''
+    end
 
-		# get first policy from server and returns: policyID, policyName
-		#
-		# returns: policyID, policyName
-		def policy_get_first
-			post= { "token" => @token }
-			docxml = nil
-			docxml=nessus_request('policy/list', post)
-			if docxml.nil?
-				return
-			end
-			docxml.root.elements['contents'].elements['policies'].each_element('//policy') {|policy|
-				return policy.elements['policyID'].text, policy.elements['policyName'].text
-			}
-		end
+    # get first policy from server and returns: policyID, policyName
+    #
+    # returns: policyID, policyName
+    def policy_get_first
+      post= { "token" => @token }
+      docxml = nil
+      docxml=nessus_request('policy/list', post)
+      if docxml.nil?
+        return
+      end
+      docxml.root.elements['contents'].elements['policies'].each_element('//policy') {|policy|
+        return policy.elements['policyID'].text, policy.elements['policyName'].text
+      }
+    end
 
-		# get list of policy IDs
-		#
-		# returns: array of all policy uids
-		def policy_list_uids
-			post= { "token" => @token }
-			docxml = nil
-			docxml=nessus_request('policy/list', post)
-			if docxml.nil?
-				return
-			end
-			pids=Array.new
-			docxml.root.elements['contents'].elements['policies'].each_element('//policy') { |policy|
-				pids.push(policy.elements['policyID'].text) }
-			return pids
-		end
+    # get list of policy IDs
+    #
+    # returns: array of all policy uids
+    def policy_list_uids
+      post= { "token" => @token }
+      docxml = nil
+      docxml=nessus_request('policy/list', post)
+      if docxml.nil?
+        return
+      end
+      pids=Array.new
+      docxml.root.elements['contents'].elements['policies'].each_element('//policy') { |policy|
+        pids.push(policy.elements['policyID'].text) }
+      return pids
+    end
 
 		# stop scan identified by scan_uuid
 		def scan_stop(uuid)
@@ -413,21 +413,21 @@ module NessusXMLRPC
 			return b
 		end
 
-		# check status of scan identified by uuid
-		def scan_status(uuid)
-			post= { "token" => @token, "report" => uuid }
-			docxml = nil
-			docxml=nessus_request('report/list', post)
-			if docxml.nil?
-				return
-			end
-			docxml.root.elements['contents'].elements['reports'].each_element('//report') { |report|
-				if report.elements['name'].text == uuid
-					return (report.elements['status'].text)
-				end
-			}
-			return ''
-		end
+    # check status of scan identified by uuid
+    def scan_status(uuid)
+      post= { "token" => @token, "report" => uuid }
+      docxml = nil
+      docxml=nessus_request('report/list', post)
+      if docxml.nil?
+        return
+      end
+      docxml.root.elements['contents'].elements['reports'].each_element('//report') { |report|
+        if report.elements['name'].text == uuid
+          return (report.elements['status'].text)
+        end
+      }
+      return ''
+    end
 
 		# check if scan is finished (completed to be exact) identified by uuid
 		def scan_finished(uuid)
@@ -565,22 +565,22 @@ module NessusXMLRPC
 			return docxml
 		end
 
-		# get list of names of policies
-		#
-		# returns: array of names
-		def policy_list_names
-			post= { "token" => @token }
-			docxml = nil
-			docxml=nessus_request('policy/list', post)
-			if docxml.nil?
-				return
-			end
-			list = Array.new
-			docxml.root.elements['contents'].elements['policies'].each_element('//policy') {|policy|
-				list.push policy.elements['policyName'].text
-			}
-			return list
-		end
+    # get list of names of policies
+    #
+    # returns: array of names
+    def policy_list_names
+      post= { "token" => @token }
+      docxml = nil
+      docxml=nessus_request('policy/list', post)
+      if docxml.nil?
+        return
+      end
+      list = Array.new
+      docxml.root.elements['contents'].elements['policies'].each_element('//policy') {|policy|
+        list.push policy.elements['policyName'].text
+      }
+      return list
+    end
 
 		# get data for each host for a particular report
 		#
