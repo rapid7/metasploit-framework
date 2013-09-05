@@ -21,41 +21,41 @@ module Pools
 ###
 class File < Rex::Post::Meterpreter::Channels::Pool
 
-	##
-	#
-	# Factory
-	#
-	##
+  ##
+  #
+  # Factory
+  #
+  ##
 
-	#
-	# This method returns an instance of a file pool channel that can be read
-	# from, written to, seeked on, and other interacted with.
-	#
-	def File.open(client, name, mode = "r", perm = 0)
-		return Channel.create(client, 'stdapi_fs_file',
-				self, CHANNEL_FLAG_SYNCHRONOUS,
-				[
-					{
-						'type'  => Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_PATH,
-						'value' => client.unicode_filter_decode( name )
-					},
-					{
-						'type'  => Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_MODE,
-						'value' => mode + "b"
-					},
-				])
-	end
+  #
+  # This method returns an instance of a file pool channel that can be read
+  # from, written to, seeked on, and other interacted with.
+  #
+  def File.open(client, name, mode = "r", perm = 0)
+    return Channel.create(client, 'stdapi_fs_file',
+        self, CHANNEL_FLAG_SYNCHRONOUS,
+        [
+          {
+            'type'  => Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_PATH,
+            'value' => client.unicode_filter_decode( name )
+          },
+          {
+            'type'  => Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_MODE,
+            'value' => mode + "b"
+          },
+        ])
+  end
 
-	##
-	#
-	# Constructor
-	#
-	##
+  ##
+  #
+  # Constructor
+  #
+  ##
 
-	# Initializes the file channel instance
-	def initialize(client, cid, type, flags)
-		super(client, cid, type, flags)
-	end
+  # Initializes the file channel instance
+  def initialize(client, cid, type, flags)
+    super(client, cid, type, flags)
+  end
 
 end
 

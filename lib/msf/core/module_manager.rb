@@ -144,9 +144,9 @@ module Msf
     # aux modules may wish to run such that they can collect more
     # information about the host that was detected.
     #
-    # @param mod [Class] A subclass of Msf::Module
+    # @param klass [Class<Msf::Module>] The module class
     # @return [void]
-    def auto_subscribe_module(mod)
+    def auto_subscribe_module(klass)
       # If auto-subscribe has been disabled
       if (framework.datastore['DisableAutoSubscribe'] and
           framework.datastore['DisableAutoSubscribe'] =~ /^(y|1|t)/)
@@ -160,15 +160,15 @@ module Msf
       #
       # Exploit event subscriber check
       #
-      if (mod.include?(Msf::ExploitEvent) == true)
-        framework.events.add_exploit_subscriber((inst) ? inst : (inst = mod.new))
+      if (klass.include?(Msf::ExploitEvent) == true)
+        framework.events.add_exploit_subscriber((inst) ? inst : (inst = klass.new))
       end
 
       #
       # Session event subscriber check
       #
-      if (mod.include?(Msf::SessionEvent) == true)
-        framework.events.add_session_subscriber((inst) ? inst : (inst = mod.new))
+      if (klass.include?(Msf::SessionEvent) == true)
+        framework.events.add_session_subscriber((inst) ? inst : (inst = klass.new))
       end
     end
 
