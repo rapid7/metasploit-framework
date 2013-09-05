@@ -1,11 +1,11 @@
 class Metasploit::Framework::Module::Ancestor < Metasploit::Model::Base
-	include Metasploit::Model::Module::Ancestor
+  include Metasploit::Model::Module::Ancestor
 
-	#
-	# CONSTANTS
-	#
+  #
+  # CONSTANTS
+  #
 
-	MODULE_TYPE_BY_DIRECTORY = DIRECTORY_BY_MODULE_TYPE.invert
+  MODULE_TYPE_BY_DIRECTORY = DIRECTORY_BY_MODULE_TYPE.invert
 end
 
 # Explicitly require modules under class so lexical scopes won't resolve

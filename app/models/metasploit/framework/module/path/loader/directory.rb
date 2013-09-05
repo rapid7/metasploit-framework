@@ -6,40 +6,40 @@ class Metasploit::Framework::Module::Path::Loader::Directory < Metasploit::Frame
   # @return [true] if `module_path` is a directory.
   # @return [false] otherwise
   def loadable?(module_path)
-		module_path.directory?
+    module_path.directory?
   end
 
   protected
 
   # Yields each `Metasploit::Model::Ancestor` in the module path that has
-	# changed or all `Metasploit::Model::Ancestor` if `:force => true`.
+  # changed or all `Metasploit::Model::Ancestor` if `:force => true`.
   #
   # @param (see Metasploit::Framework::Module::Path::Loader::Base#each_module_ancestor)
-	# @option (see Metasploit::Framework::Module::Path::Loader::Base#each_module_ancestor)
+  # @option (see Metasploit::Framework::Module::Path::Loader::Base#each_module_ancestor)
   # @yield (see Msf::Modules::Loader::Base#each_module_ancestor)
-	# @yieldparam (see Msf::Modules::Loader::Base#each_module_ancestor)
-	# @yieldreturn (see Msf::Modules::Loader::Base#each_module_ancestor)
+  # @yieldparam (see Msf::Modules::Loader::Base#each_module_ancestor)
+  # @yieldreturn (see Msf::Modules::Loader::Base#each_module_ancestor)
   # @return (see Msf::Modules::Loader::Base#each_module_ancestor)
   def each_module_ancestor(module_path, options={})
     real_pathname = Pathname.new(module_path.real_path)
 
-		real_pathname.each_child do |child_real_pathname|
-			if child_real_pathname.directory?
-				module_type_directory = child_real_pathname.basename
-				module_type = Metasploit::Framework::Module::Ancestor::MODULE_TYPE_BY_DIRECTORY[module_type_directory]
+    real_pathname.each_child do |child_real_pathname|
+      if child_real_pathname.directory?
+        module_type_directory = child_real_pathname.basename
+        module_type = Metasploit::Framework::Module::Ancestor::MODULE_TYPE_BY_DIRECTORY[module_type_directory]
 
-				if module_type_enabled? module_type
-					child_real_path = child_real_pathname.to_path
+        if module_type_enabled? module_type
+          child_real_path = child_real_pathname.to_path
 
-					Rex::Find.find(child_real_path) do |descendant_path|
-						ancestor = module_path.module_ancestor_from_path(descendant_path, options)
+          Rex::Find.find(child_real_path) do |descendant_path|
+            ancestor = module_path.module_ancestor_from_path(descendant_path, options)
 
-						if ancestor
-							yield ancestor
-						end
-					end
-				end
-			end
+            if ancestor
+              yield ancestor
+            end
+          end
+        end
+      end
     end
   end
 

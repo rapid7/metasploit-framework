@@ -45,41 +45,41 @@ class Metasploit::Framework::Module::Path::Loader::Base < Metasploit::Model::Bas
   # namespace modules are created}.
   NAMESPACE_MODULE_NAMES = ['Msf', 'Modules']
 
-	#
-	# Attributes
-	#
+  #
+  # Attributes
+  #
 
-	# @!attribute [rw] cache
-	#   The module cache that is using this path loader to load
-	#   `Metasploit::Model::Module::Ancestors` from
-	#   `Metasploit::Model::Module::Paths` in the cache's
-	#   {Metasploit::Framework::Module::Cache#path_set path_set}.
-	#
-	#   @return [Metasploit::Framework::Module::Cache]
-	attr_accessor :cache
+  # @!attribute [rw] cache
+  #   The module cache that is using this path loader to load
+  #   `Metasploit::Model::Module::Ancestors` from
+  #   `Metasploit::Model::Module::Paths` in the cache's
+  #   {Metasploit::Framework::Module::Cache#path_set path_set}.
+  #
+  #   @return [Metasploit::Framework::Module::Cache]
+  attr_accessor :cache
 
-	#
-	# Validations
-	#
+  #
+  # Validations
+  #
 
-	validates :cache,
-						:presence => true
+  validates :cache,
+            :presence => true
 
-	#
-	# Methods
-	#
+  #
+  # Methods
+  #
 
   # Returns whether the module path can be loaded this module path loader.
   #
   # @abstract Override and determine from properties of the module path whether
-	#   it is loadable using {#load} for the subclass.
+  #   it is loadable using {#load} for the subclass.
   #
   # @param module_path (see #load)
   # @return [Boolean]
   def loadable?(module_path)
-		raise NotImplementedError,
-					"#{self.class.name}##{__method__} is not implemented"
-	end
+    raise NotImplementedError,
+          "#{self.class.name}##{__method__} is not implemented"
+  end
 
   # Loads a module from the supplied path and module_reference_name.
   #
@@ -144,7 +144,7 @@ class Metasploit::Framework::Module::Path::Loader::Base < Metasploit::Model::Bas
 
       begin
         namespace_module.module_eval_with_lexical_scope(module_content, module_path)
-      # handle interrupts as pass-throughs unlike other Exceptions so users can bail with Ctrl+C
+          # handle interrupts as pass-throughs unlike other Exceptions so users can bail with Ctrl+C
       rescue ::Interrupt
         raise
       rescue ::Exception => error
@@ -239,38 +239,38 @@ class Metasploit::Framework::Module::Path::Loader::Base < Metasploit::Model::Bas
   end
 
   # Loads all of the `Metasploit::Model::Module::Ancestors` from the supplied
-	# module path.
+  # module path.
   #
   # @note Only paths where {#loadable?} returns true should be passed to
   #   this method.
   #
   # @param module_path [Metasploit::Model::Module::Path] module_path Path under
-	#   which there are module ancestors
+  #   which there are module ancestors
   # @param [Hash{Symbol => Object}] options
   # @option options [Boolean] :force (false) Whether to force loading of
   #   the module ancestor even if the module ancestor has not changed.
-	# @return [Metasploit::Framework::Module::Path::Loader::Statistics]
+  # @return [Metasploit::Framework::Module::Path::Loader::Statistics]
   def load_module_path(module_path, options={})
     options.assert_valid_keys(:force)
 
-		aggregate = Metasploit::Framework::Module::Path::Loader::Statistics.new(
-				loader: self,
-				module_path: module_path
-		)
+    aggregate = Metasploit::Framework::Module::Path::Loader::Statistics.new(
+        loader: self,
+        module_path: module_path
+    )
 
-		each_module_ancestor(module_path, options) do |module_ancestor|
-			statistics = load_module_ancestor(
-					module_ancestor
-			)
-			aggregate = aggregate.merge(statistics)
-		end
+    each_module_ancestor(module_path, options) do |module_ancestor|
+      statistics = load_module_ancestor(
+          module_ancestor
+      )
+      aggregate = aggregate.merge(statistics)
+    end
 
-		aggregate.types.each do |type|
-			module_set = module_manager.module_set(type)
-			module_set.recalculate
-		end
+    aggregate.types.each do |type|
+      module_set = module_manager.module_set(type)
+      module_set.recalculate
+    end
 
-		aggregate
+    aggregate
   end
 
   # Reloads the specified module.
@@ -394,25 +394,25 @@ class Metasploit::Framework::Module::Path::Loader::Base < Metasploit::Model::Bas
     named_module
   end
 
-	# Yields each `Metasploit::Model::Module::Ancestor` under the `module_path`
-	# that has changed.
-	#
-	# @param module_path [Metasploit::Model::Module::Path] path under which to
-	#   search for `Metasploit::Model::Module::Ancestor` instances.
-	# @param options [Hash{Symbol => Object}]
-	# @option options [Boolean] :changed (false) whether to assume that
-	#   `Metasploit::Model::Module::Ancestor#real_path_modified_at` and
-	#   `Metasploit::Model::Module::Ancestor#real_path_sha1_hex_digest` are
-	#   changed and to return the `Metasploit::Model::Module::Ancestor`.
-	# @yield [module_ancestor]
-	# @yieldparam module_ancestor [Metasploit::Model::Module::Ancestor] module
-	#   ancestor that has been changed.
-	# @yieldreturn [void]
-	# @return [void]
-	def each_module_ancestor(module_path, options={})
-		raise NotImplementedError,
-					"#{self.class.name}##{__method__} is not implemented"
-	end
+  # Yields each `Metasploit::Model::Module::Ancestor` under the `module_path`
+  # that has changed.
+  #
+  # @param module_path [Metasploit::Model::Module::Path] path under which to
+  #   search for `Metasploit::Model::Module::Ancestor` instances.
+  # @param options [Hash{Symbol => Object}]
+  # @option options [Boolean] :changed (false) whether to assume that
+  #   `Metasploit::Model::Module::Ancestor#real_path_modified_at` and
+  #   `Metasploit::Model::Module::Ancestor#real_path_sha1_hex_digest` are
+  #   changed and to return the `Metasploit::Model::Module::Ancestor`.
+  # @yield [module_ancestor]
+  # @yieldparam module_ancestor [Metasploit::Model::Module::Ancestor] module
+  #   ancestor that has been changed.
+  # @yieldreturn [void]
+  # @return [void]
+  def each_module_ancestor(module_path, options={})
+    raise NotImplementedError,
+          "#{self.class.name}##{__method__} is not implemented"
+  end
 
   # Records the load error to {Msf::ModuleManager::Loading#module_load_error_by_path} and the log.
   #
@@ -448,9 +448,9 @@ class Metasploit::Framework::Module::Path::Loader::Base < Metasploit::Model::Bas
   # @return [String] The path to module.
   def module_path(parent_path, type, module_reference_name)
     raise ::NotImplementedError
-	end
+  end
 
-	delegate :module_type_enabled?, to: :cache
+  delegate :module_type_enabled?, to: :cache
 
   # Returns whether the path could refer to a module.  The path would still need to be loaded in order to check if it
   # actually is a valid module.
@@ -465,8 +465,8 @@ class Metasploit::Framework::Module::Path::Loader::Base < Metasploit::Model::Bas
 
     extension = File.extname(path)
 
-    unless (path[0,1] == "." or
-            extension != MODULE_EXTENSION)
+    unless (path[0, 1] == "." or
+        extension != MODULE_EXTENSION)
       module_path = true
     end
 
@@ -509,7 +509,7 @@ class Metasploit::Framework::Module::Path::Loader::Base < Metasploit::Model::Bas
   #
   # @see namespace_module
   def namespace_module_names(module_full_name)
-    NAMESPACE_MODULE_NAMES + [ "Mod" + module_full_name.unpack("H*").first.downcase ]
+    NAMESPACE_MODULE_NAMES + ["Mod" + module_full_name.unpack("H*").first.downcase]
   end
 
   def namespace_module_transaction(module_full_name, options={}, &block)
