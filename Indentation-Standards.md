@@ -51,7 +51,7 @@ git push origin your-branch-name
 
 This will push the results up to your remote branch (substitute `your-branch-name` of course). This will automatically update your pull request with two new commits, the merge and the retab.
 
-### TL;DR:
+### TL;DR on retabbing:
 
 If you're feeling charitable, you can do this to someone else's PR as well.
 
@@ -64,6 +64,15 @@ git commit -a -m "Retab changes for PR #XXXX"
 git push origin
 git pr-url contributor-username contributor-branch
 ````
+
+Note that `pr-url` is a custom alias in my .git/config:
+
+````
+[alias]
+  pr-url =!"xdg-open https://github.com/tabassassin/metasploit-framework/pull/new/$1:$2...$(git branch-current) #"
+````
+
+It's hella useful.
 
 ## Implementation Timeline
 
