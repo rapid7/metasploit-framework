@@ -11,9 +11,7 @@ module Msf
 class Post < Msf::Module
   include PostMixin
 
-  def setup
-    super
-  end
+  def setup; end
 
   def type
     MODULE_POST
