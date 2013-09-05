@@ -51,6 +51,20 @@ git push origin your-branch-name
 
 This will push the results up to your remote branch (substitute `your-branch-name` of course). This will automatically update your pull request with two new commits, the merge and the retab.
 
+### TL;DR:
+
+If you're feeling charitable, you can do this to someone else's PR as well.
+
+````
+git checkout -b retab/pr/XXXX --track upstream/pr/XXXX
+git merge master -m "Merge for retab" -s recursive -X ours
+tools/dev/retab.rb lib/ && tools/dev/retab.rb modules/
+git diff -w HEAD # Ensure all is copacetic.
+git commit -a -m "Retab changes for PR #XXXX"
+git push origin
+git pr-url contributor-username contributor-branch
+````
+
 ## Implementation Timeline
 
 Items struck out are complete.
