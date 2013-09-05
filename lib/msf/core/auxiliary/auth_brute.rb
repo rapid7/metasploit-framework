@@ -93,8 +93,6 @@ module Auxiliary::AuthBrute
       next if @@credentials_skipped[fq_user]
       next if @@credentials_tried[fq_user] == p
 
-      datastore['USERNAME'] = u.to_s
-      datastore['PASSWORD'] = p.to_s
       ret = block.call(u, p)
 
       case ret
