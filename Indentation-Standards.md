@@ -27,11 +27,6 @@ git merge upstream/master -m "Merge for retab" -s recursive -X ours
 This will merge in the upstream/master branch into your branch, preferring YOUR changes to all conflicting files. This will ensure that your changes are preserved.
 
 ````
-git log --oneline -1
-````
-This will give you the commit hash of the merge you just performed. Note this down. Let's say it's `deadbeef`.
-
-````
 ./tools/dev/retab.rb lib/
 ./tools/dev/retab.rb modules/
 ````
@@ -39,7 +34,7 @@ This will give you the commit hash of the merge you just performed. Note this do
 This will apply the new space intendation to your changes in `lib/` and `modules/`. If you only have changes in one of these directories, just pick that one. (Just so you know, we're not retabbing `data` or the top-level scripts quite yet, since we want to get through the hardest bit first).
 
 ````
-git diff -w deadbeef
+git diff -w HEAD
 `````
 
 This diffs your local branch with the state just prior to retabbing, ignoring whitespace changes. It should return nothing, indicating that there has been no content change. This is good.
