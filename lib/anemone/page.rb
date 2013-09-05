@@ -55,6 +55,7 @@ module Anemone
       @url = url
       @data = OpenStruct.new
 
+      @dirbust = params[:dirbust]
       @code = params[:code]
       @headers = params[:headers] || {}
       @headers['content-type'] ||= ['']
@@ -83,7 +84,10 @@ module Anemone
 
     def run_extractors
       return [] if !doc
-      self.class.extractors.map { |e| e.new( self ).run rescue next }.flatten.
+      self.class.extractors.map do |e|
+        next if e == Extractors::Dirbuster && !dirbust?
+        e.new( self ).run rescue next
+      end.flatten.
           compact.map do |p|
               abs = to_absolute( URI( p ) ) rescue next
               !in_domain?( abs ) ? nil : abs
@@ -96,32 +100,7 @@ module Anemone
      # MODIFIED: Dig URLs from elements other than "A" refs
      #
     def links
-      return @links if @links
-      @links = []
-      return @links if !doc
-
-      @links = run_extractors
-
-      @links |= @links.map do |u|
-          # back-off to the parent dir
-          to_absolute( URI( u.path.gsub( /(.*\/)[^\/]+$/, "\\1" ) ) ) rescue next
-      end.uniq.compact
-
-      nlinks = []
-      @links.each do |u|
-	      bits = u.path.split('/')
-	      while(bits.length > 0)
-		      bits.pop
-		      j = bits.join('/')
-		      j = '/' if j.empty?
-		      nlinks << to_absolute(URI(j)) rescue next
-	      end
-      end
-      @links |= nlinks
-
-      @links.flatten!
-      @links.uniq!
-      @links
+      @links ||= run_extractors
     end
 
     #
@@ -206,6 +185,10 @@ module Anemone
       return absolute
     end
 
+    def dirbust?
+      @dirbust
+    end
+
     #
     # Returns +true+ if *uri* is in the same domain as the page, returns
     # +false+ otherwise
@@ -257,7 +240,7 @@ module Anemone
     end
 
     def dup
-	  Marshal.load( Marshal.dump( self ) )
+    Marshal.load( Marshal.dump( self ) )
     end
 
   end

