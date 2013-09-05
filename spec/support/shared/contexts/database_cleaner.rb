@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 require 'metasploit/framework/database'
 
 shared_context 'DatabaseCleaner' do
