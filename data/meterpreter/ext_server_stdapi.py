@@ -303,6 +303,7 @@ def channel_create_stdapi_fs_file(request, response):
 	fmode = packet_get_tlv(request, TLV_TYPE_FILE_MODE)
 	if fmode:
 		fmode = fmode['value']
+		fmode = fmode.replace('bb', 'b')
 	else:
 		fmode = 'rb'
 	file_h = open(fpath, fmode)
@@ -320,6 +321,7 @@ def channel_create_stdapi_net_tcp_client(request, response):
 	connected = False
 	for i in range(retries + 1):
 		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		sock.settimeout(3.0)
 		if local_host.get('value') and local_port.get('value'):
 			sock.bind((local_host['value'], local_port['value']))
 		try:
@@ -380,7 +382,7 @@ def stdapi_sys_process_execute(request, response):
 	if len(cmd) == 0:
 		return ERROR_FAILURE, response
 	if os.path.isfile('/bin/sh'):
-		args = ['/bin/sh', '-c', cmd, raw_args]
+		args = ['/bin/sh', '-c', cmd + ' ' + raw_args]
 	else:
 		args = [cmd]
 		args.extend(shlex.split(raw_args))

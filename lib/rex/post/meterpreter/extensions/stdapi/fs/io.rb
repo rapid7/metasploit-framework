@@ -19,30 +19,30 @@ module Fs
 ##
 class IO < Rex::Post::IO
 
-	#
-	# Read the specified number of bytes from the channel.
-	#
-	def sysread(length = nil)
-		self.filed.read(length)
-	end
+  #
+  # Read the specified number of bytes from the channel.
+  #
+  def sysread(length = nil)
+    self.filed.read(length)
+  end
 
-	alias read sysread
+  alias read sysread
 
-	#
-	# Writes the supplied buffer to the channel.
-	#
-	def syswrite(buf)
-		self.filed.write(buf)
-	end
+  #
+  # Writes the supplied buffer to the channel.
+  #
+  def syswrite(buf)
+    self.filed.write(buf)
+  end
 
-	alias write syswrite
+  alias write syswrite
 
-	#
-	# Closes the channel.
-	#
-	def close
-		self.filed.close
-	end
+  #
+  # Closes the channel.
+  #
+  def close
+    self.filed.close
+  end
 
 end
 
