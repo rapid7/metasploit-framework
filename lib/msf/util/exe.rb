@@ -18,302 +18,302 @@ require 'metasm'
 require 'digest/sha1'
 require 'msf/core/exe/segment_injector'
 
-	##
-	#
-	# Helper functions common to multiple generators
-	#
-	##
+  ##
+  #
+  # Helper functions common to multiple generators
+  #
+  ##
 
-	def self.set_template_default(opts, exe = nil, path = nil)
-		# If no path specified, use the default one.
-		path ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates")
+  def self.set_template_default(opts, exe = nil, path = nil)
+    # If no path specified, use the default one.
+    path ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates")
 
-		# If there's no default name, we must blow it up.
-		if not exe
-			raise RuntimeError, 'Ack! Msf::Util::EXE.set_template_default called w/o default exe name!'
-		end
+    # If there's no default name, we must blow it up.
+    if not exe
+      raise RuntimeError, 'Ack! Msf::Util::EXE.set_template_default called w/o default exe name!'
+    end
 
-		# Use defaults only if nothing is specified
-		opts[:template_path] ||= path
-		opts[:template] ||= exe
+    # Use defaults only if nothing is specified
+    opts[:template_path] ||= path
+    opts[:template] ||= exe
 
-		# Only use the path when the filename contains no separators.
-		if not opts[:template].include?(File::SEPARATOR)
-			opts[:template] = File.join(opts[:template_path], opts[:template])
-		end
+    # Only use the path when the filename contains no separators.
+    if not opts[:template].include?(File::SEPARATOR)
+      opts[:template] = File.join(opts[:template_path], opts[:template])
+    end
 
-		# Check if it exists now
-		return if File.file?(opts[:template])
+    # Check if it exists now
+    return if File.file?(opts[:template])
 
-		# If it failed, try the default...
-		if opts[:fallback]
-			default_template = File.join(path, exe)
-			if File.file?(default_template)
-				# Perhaps we should warn about falling back to the default?
-				opts.merge!({ :fellback => default_template })
-				opts[:template] = default_template
-			end
-		end
-	end
+    # If it failed, try the default...
+    if opts[:fallback]
+      default_template = File.join(path, exe)
+      if File.file?(default_template)
+        # Perhaps we should warn about falling back to the default?
+        opts.merge!({ :fellback => default_template })
+        opts[:template] = default_template
+      end
+    end
+  end
 
 
-	##
-	#
-	# Executable generators
-	#
-	##
+  ##
+  #
+  # Executable generators
+  #
+  ##
 
-	def self.to_executable(framework, arch, plat, code='', opts={})
-		if (arch.index(ARCH_X86))
+  def self.to_executable(framework, arch, plat, code='', opts={})
+    if (arch.index(ARCH_X86))
 
-			if (plat.index(Msf::Module::Platform::Windows))
-				return to_win32pe(framework, code, opts)
-			end
+      if (plat.index(Msf::Module::Platform::Windows))
+        return to_win32pe(framework, code, opts)
+      end
 
-			if (plat.index(Msf::Module::Platform::Linux))
-				return to_linux_x86_elf(framework, code)
-			end
+      if (plat.index(Msf::Module::Platform::Linux))
+        return to_linux_x86_elf(framework, code)
+      end
 
-			if(plat.index(Msf::Module::Platform::OSX))
-				return to_osx_x86_macho(framework, code)
-			end
+      if(plat.index(Msf::Module::Platform::OSX))
+        return to_osx_x86_macho(framework, code)
+      end
 
-			if(plat.index(Msf::Module::Platform::BSD))
-				return to_bsd_x86_elf(framework, code)
-			end
+      if(plat.index(Msf::Module::Platform::BSD))
+        return to_bsd_x86_elf(framework, code)
+      end
 
-			if(plat.index(Msf::Module::Platform::Solaris))
-				return to_solaris_x86_elf(framework, code)
-			end
+      if(plat.index(Msf::Module::Platform::Solaris))
+        return to_solaris_x86_elf(framework, code)
+      end
 
-			# XXX: Add remaining x86 systems here
-		end
+      # XXX: Add remaining x86 systems here
+    end
 
-		if( arch.index(ARCH_X86_64) or arch.index( ARCH_X64 ) )
-			if (plat.index(Msf::Module::Platform::Windows))
-				return to_win64pe(framework, code, opts)
-			end
+    if( arch.index(ARCH_X86_64) or arch.index( ARCH_X64 ) )
+      if (plat.index(Msf::Module::Platform::Windows))
+        return to_win64pe(framework, code, opts)
+      end
 
-			if (plat.index(Msf::Module::Platform::Linux))
-				return to_linux_x64_elf(framework, code, opts)
-			end
+      if (plat.index(Msf::Module::Platform::Linux))
+        return to_linux_x64_elf(framework, code, opts)
+      end
 
-			if (plat.index(Msf::Module::Platform::OSX))
-				return to_osx_x64_macho(framework, code)
-			end
-		end
+      if (plat.index(Msf::Module::Platform::OSX))
+        return to_osx_x64_macho(framework, code)
+      end
+    end
 
-		if(arch.index(ARCH_ARMLE))
-			if(plat.index(Msf::Module::Platform::OSX))
-				return to_osx_arm_macho(framework, code)
-			end
+    if(arch.index(ARCH_ARMLE))
+      if(plat.index(Msf::Module::Platform::OSX))
+        return to_osx_arm_macho(framework, code)
+      end
 
-			if(plat.index(Msf::Module::Platform::Linux))
-				return to_linux_armle_elf(framework, code)
-			end
+      if(plat.index(Msf::Module::Platform::Linux))
+        return to_linux_armle_elf(framework, code)
+      end
 
-			# XXX: Add remaining ARMLE systems here
-		end
+      # XXX: Add remaining ARMLE systems here
+    end
 
-		if(arch.index(ARCH_PPC))
-			if(plat.index(Msf::Module::Platform::OSX))
-				return to_osx_ppc_macho(framework, code)
-			end
-			# XXX: Add PPC OS X and Linux here
-		end
+    if(arch.index(ARCH_PPC))
+      if(plat.index(Msf::Module::Platform::OSX))
+        return to_osx_ppc_macho(framework, code)
+      end
+      # XXX: Add PPC OS X and Linux here
+    end
 
-		if(arch.index(ARCH_MIPSLE))
-			if(plat.index(Msf::Module::Platform::Linux))
-				return to_linux_mipsle_elf(framework, code)
-			end
-			# XXX: Add remaining MIPSLE systems here
-		end
+    if(arch.index(ARCH_MIPSLE))
+      if(plat.index(Msf::Module::Platform::Linux))
+        return to_linux_mipsle_elf(framework, code)
+      end
+      # XXX: Add remaining MIPSLE systems here
+    end
 
-		if(arch.index(ARCH_MIPSBE))
-			if(plat.index(Msf::Module::Platform::Linux))
-				return to_linux_mipsbe_elf(framework, code)
-			end
-			# XXX: Add remaining MIPSLE systems here
-		end
-		nil
-	end
+    if(arch.index(ARCH_MIPSBE))
+      if(plat.index(Msf::Module::Platform::Linux))
+        return to_linux_mipsbe_elf(framework, code)
+      end
+      # XXX: Add remaining MIPSLE systems here
+    end
+    nil
+  end
 
-	def self.to_win32pe(framework, code, opts={})
+  def self.to_win32pe(framework, code, opts={})
 
-		# For backward compatability, this is roughly equivalent to 'exe-small' fmt
-		if opts[:sub_method]
-			if opts[:inject]
-				raise RuntimeError, 'NOTE: using the substitution method means no inject support'
-			end
+    # For backward compatability, this is roughly equivalent to 'exe-small' fmt
+    if opts[:sub_method]
+      if opts[:inject]
+        raise RuntimeError, 'NOTE: using the substitution method means no inject support'
+      end
 
-			# use
-			return self.to_win32pe_exe_sub(framework, code, opts)
-		end
+      # use
+      return self.to_win32pe_exe_sub(framework, code, opts)
+    end
 
-		# Allow the user to specify their own EXE template
-		set_template_default(opts, "template_x86_windows.exe")
+    # Allow the user to specify their own EXE template
+    set_template_default(opts, "template_x86_windows.exe")
 
-		# Copy the code to a new RWX segment to allow for self-modifying encoders
-		payload = win32_rwx_exec(code)
+    # Copy the code to a new RWX segment to allow for self-modifying encoders
+    payload = win32_rwx_exec(code)
 
-		# Create a new PE object and run through sanity checks
-		endjunk = true
-		fsize = File.size(opts[:template])
-		pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
-		text = nil
-		sections_end = 0
-		pe.sections.each do |sec|
-			text = sec if sec.name == ".text"
-			sections_end = sec.size + sec.file_offset if sec.file_offset >= sections_end
-			endjunk = false if sec.contains_file_offset?(fsize-1)
-		end
-		#also check to see if there is a certificate
-		cert_entry = pe.hdr.opt['DataDirectory'][4]
-		#if the cert is the only thing past the sections, we can handle.
-		if cert_entry.v['VirtualAddress'] + cert_entry.v['Size'] >= fsize and sections_end >= cert_entry.v['VirtualAddress']
-			endjunk = false
-		end
+    # Create a new PE object and run through sanity checks
+    endjunk = true
+    fsize = File.size(opts[:template])
+    pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
+    text = nil
+    sections_end = 0
+    pe.sections.each do |sec|
+      text = sec if sec.name == ".text"
+      sections_end = sec.size + sec.file_offset if sec.file_offset >= sections_end
+      endjunk = false if sec.contains_file_offset?(fsize-1)
+    end
+    #also check to see if there is a certificate
+    cert_entry = pe.hdr.opt['DataDirectory'][4]
+    #if the cert is the only thing past the sections, we can handle.
+    if cert_entry.v['VirtualAddress'] + cert_entry.v['Size'] >= fsize and sections_end >= cert_entry.v['VirtualAddress']
+      endjunk = false
+    end
 
-		#try to inject code into executable by adding a section without affecting executable behavior
-		if(opts[:inject])
+    #try to inject code into executable by adding a section without affecting executable behavior
+    if(opts[:inject])
       injector = Msf::Exe::SegmentInjector.new({
           :payload  => code,
           :template => opts[:template],
           :arch     => :x86
       })
       exe = injector.generate_pe
-			return exe
-		end
+      return exe
+    end
 
-		if(not text)
-			raise RuntimeError, "No .text section found in the template"
-		end
+    if(not text)
+      raise RuntimeError, "No .text section found in the template"
+    end
 
-		if ! text.contains_rva?(pe.hdr.opt.AddressOfEntryPoint)
-			raise RuntimeError, "The .text section does not contain an entry point"
-		end
+    if ! text.contains_rva?(pe.hdr.opt.AddressOfEntryPoint)
+      raise RuntimeError, "The .text section does not contain an entry point"
+    end
 
-		p_length = payload.length + 256
-		if(text.size < p_length)
-			fname = ::File.basename(opts[:template])
-			msg  = "The .text section for '#{fname}' is too small. "
-			msg << "Minimum is #{p_length.to_s} bytes, your .text section is #{text.size.to_s} bytes"
-			raise RuntimeError, msg
-		end
+    p_length = payload.length + 256
+    if(text.size < p_length)
+      fname = ::File.basename(opts[:template])
+      msg  = "The .text section for '#{fname}' is too small. "
+      msg << "Minimum is #{p_length.to_s} bytes, your .text section is #{text.size.to_s} bytes"
+      raise RuntimeError, msg
+    end
 
-		# Store some useful offsets
-		off_ent = pe.rva_to_file_offset(pe.hdr.opt.AddressOfEntryPoint)
-		off_beg = pe.rva_to_file_offset(text.base_rva)
+    # Store some useful offsets
+    off_ent = pe.rva_to_file_offset(pe.hdr.opt.AddressOfEntryPoint)
+    off_beg = pe.rva_to_file_offset(text.base_rva)
 
-		# We need to make sure our injected code doesn't conflict with the
-		# the data directories stored in .text (import, export, etc)
-		mines = []
-		pe.hdr.opt['DataDirectory'].each do |dir|
-			next if dir.v['Size'] == 0
-			next if not text.contains_rva?( dir.v['VirtualAddress'] )
-			mines << [ pe.rva_to_file_offset(dir.v['VirtualAddress']) - off_beg, dir.v['Size'] ]
-		end
+    # We need to make sure our injected code doesn't conflict with the
+    # the data directories stored in .text (import, export, etc)
+    mines = []
+    pe.hdr.opt['DataDirectory'].each do |dir|
+      next if dir.v['Size'] == 0
+      next if not text.contains_rva?( dir.v['VirtualAddress'] )
+      mines << [ pe.rva_to_file_offset(dir.v['VirtualAddress']) - off_beg, dir.v['Size'] ]
+    end
 
-		# Break the text segment into contiguous blocks
-		blocks = []
-		bidx   = 0
-		mines.sort{|a,b| a[0] <=> b[0]}.each do |mine|
-			bbeg = bidx
-			bend = mine[0]
-			if(bbeg != bend)
-				blocks << [bidx, bend-bidx]
-			end
-			bidx = mine[0] + mine[1]
-		end
+    # Break the text segment into contiguous blocks
+    blocks = []
+    bidx   = 0
+    mines.sort{|a,b| a[0] <=> b[0]}.each do |mine|
+      bbeg = bidx
+      bend = mine[0]
+      if(bbeg != bend)
+        blocks << [bidx, bend-bidx]
+      end
+      bidx = mine[0] + mine[1]
+    end
 
-		# Add the ending block
-		if(bidx < text.size - 1)
-			blocks << [bidx, text.size - bidx]
-		end
+    # Add the ending block
+    if(bidx < text.size - 1)
+      blocks << [bidx, text.size - bidx]
+    end
 
-		# Find the largest contiguous block
-		blocks.sort!{|a,b| b[1]<=>a[1]}
-		block = blocks[0]
+    # Find the largest contiguous block
+    blocks.sort!{|a,b| b[1]<=>a[1]}
+    block = blocks[0]
 
-		# TODO: Allow the entry point in a different block
-		if(payload.length + 256 > block[1])
-			raise RuntimeError, "The largest block in .text does not have enough contiguous space (need:#{payload.length+256} found:#{block[1]})"
-		end
+    # TODO: Allow the entry point in a different block
+    if(payload.length + 256 > block[1])
+      raise RuntimeError, "The largest block in .text does not have enough contiguous space (need:#{payload.length+256} found:#{block[1]})"
+    end
 
-		# Make a copy of the entire .text section
-		data = text.read(0,text.size)
+    # Make a copy of the entire .text section
+    data = text.read(0,text.size)
 
-		# Pick a random offset to store the payload
-		poff = rand(block[1] - payload.length - 256)
+    # Pick a random offset to store the payload
+    poff = rand(block[1] - payload.length - 256)
 
-		# Flip a coin to determine if EP is before or after
-		eloc = rand(2)
-		eidx = nil
+    # Flip a coin to determine if EP is before or after
+    eloc = rand(2)
+    eidx = nil
 
-		# Pad the entry point with random nops
-		entry = generate_nops(framework, [ARCH_X86], rand(200)+51)
+    # Pad the entry point with random nops
+    entry = generate_nops(framework, [ARCH_X86], rand(200)+51)
 
-		# Pick an offset to store the new entry point
-		if(eloc == 0) # place the entry point before the payload
-			poff += 256
-			eidx = rand(poff-(entry.length + 5))
-		else          # place the entry pointer after the payload
-			poff -= 256
-			eidx = rand(block[1] - (poff + payload.length)) + poff + payload.length
-		end
+    # Pick an offset to store the new entry point
+    if(eloc == 0) # place the entry point before the payload
+      poff += 256
+      eidx = rand(poff-(entry.length + 5))
+    else          # place the entry pointer after the payload
+      poff -= 256
+      eidx = rand(block[1] - (poff + payload.length)) + poff + payload.length
+    end
 
-		# Relative jump from the end of the nops to the payload
-		entry += "\xe9" + [poff - (eidx + entry.length + 5)].pack('V')
+    # Relative jump from the end of the nops to the payload
+    entry += "\xe9" + [poff - (eidx + entry.length + 5)].pack('V')
 
-		# Mangle 25% of the original executable
-		1.upto(block[1] / 4) do
-			data[ block[0] + rand(block[1]), 1] = [rand(0x100)].pack("C")
-		end
+    # Mangle 25% of the original executable
+    1.upto(block[1] / 4) do
+      data[ block[0] + rand(block[1]), 1] = [rand(0x100)].pack("C")
+    end
 
-		# Patch the payload and the new entry point into the .text
-		data[block[0] + poff, payload.length] = payload
-		data[block[0] + eidx, entry.length]   = entry
+    # Patch the payload and the new entry point into the .text
+    data[block[0] + poff, payload.length] = payload
+    data[block[0] + eidx, entry.length]   = entry
 
-		# Create the modified version of the input executable
-		exe = ''
-		File.open(opts[:template], 'rb') { |fd|
-			exe = fd.read(fd.stat.size)
-		}
+    # Create the modified version of the input executable
+    exe = ''
+    File.open(opts[:template], 'rb') { |fd|
+      exe = fd.read(fd.stat.size)
+    }
 
-		exe[ exe.index([pe.hdr.opt.AddressOfEntryPoint].pack('V')), 4] = [ text.base_rva + block[0] + eidx ].pack("V")
-		exe[off_beg, data.length] = data
+    exe[ exe.index([pe.hdr.opt.AddressOfEntryPoint].pack('V')), 4] = [ text.base_rva + block[0] + eidx ].pack("V")
+    exe[off_beg, data.length] = data
 
-		tds = pe.hdr.file.TimeDateStamp
-		exe[ exe.index([ tds ].pack('V')), 4] = [tds - rand(0x1000000)].pack("V")
+    tds = pe.hdr.file.TimeDateStamp
+    exe[ exe.index([ tds ].pack('V')), 4] = [tds - rand(0x1000000)].pack("V")
 
-		cks = pe.hdr.opt.CheckSum
-		if(cks != 0)
-			exe[ exe.index([ cks ].pack('V')), 4] = [0].pack("V")
-		end
+    cks = pe.hdr.opt.CheckSum
+    if(cks != 0)
+      exe[ exe.index([ cks ].pack('V')), 4] = [0].pack("V")
+    end
 
-		pe.close
+    pe.close
 
-		exe
-	end
+    exe
+  end
 
-	def self.to_winpe_only(framework, code, opts={}, arch="x86")
+  def self.to_winpe_only(framework, code, opts={}, arch="x86")
 
-		if arch == ARCH_X86_64
-			arch = ARCH_X64
-		end
+    if arch == ARCH_X86_64
+      arch = ARCH_X64
+    end
 
-		# Allow the user to specify their own EXE template
-		set_template_default(opts, "template_"+arch+"_windows.exe")
+    # Allow the user to specify their own EXE template
+    set_template_default(opts, "template_"+arch+"_windows.exe")
 
-		pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
+    pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
 
-		exe = ''
-			File.open(opts[:template], 'rb') { |fd|
-				exe = fd.read(fd.stat.size)
-			}
+    exe = ''
+      File.open(opts[:template], 'rb') { |fd|
+        exe = fd.read(fd.stat.size)
+      }
 
-		sections_header = []
-		pe._file_header.v['NumberOfSections'].times { |i| sections_header << [(i*0x28)+pe.rva_to_file_offset(pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+0x18+0x24),exe[(i*0x28)+pe.rva_to_file_offset(pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+0x18),0x28]] }
+    sections_header = []
+    pe._file_header.v['NumberOfSections'].times { |i| sections_header << [(i*0x28)+pe.rva_to_file_offset(pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+0x18+0x24),exe[(i*0x28)+pe.rva_to_file_offset(pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+0x18),0x28]] }
 
 
     #look for section with entry point
@@ -378,7 +378,7 @@ require 'msf/core/exe/segment_injector'
     # Add a couple random bytes for fun
     pe << Rex::Text.rand_text(rand(64)+4)
 
-		return pe
+    return pe
   end
 
   def self.exe_sub_method(code,opts ={})
@@ -425,16 +425,16 @@ require 'msf/core/exe/segment_injector'
     return pe
   end
 
-	def self.to_win32pe_exe_sub(framework, code, opts={})
-		# Allow the user to specify their own DLL template
-		set_template_default(opts, "template_x86_windows.exe")
+  def self.to_win32pe_exe_sub(framework, code, opts={})
+    # Allow the user to specify their own DLL template
+    set_template_default(opts, "template_x86_windows.exe")
     opts[:exe_type] = :exe_sub
-		exe_sub_method(code,opts)
-	end
+    exe_sub_method(code,opts)
+  end
 
-	def self.to_win64pe(framework, code, opts={})
-		# Allow the user to specify their own EXE template
-		set_template_default(opts, "template_x64_windows.exe")
+  def self.to_win64pe(framework, code, opts={})
+    # Allow the user to specify their own EXE template
+    set_template_default(opts, "template_x64_windows.exe")
     #try to inject code into executable by adding a section without affecting executable behavior
     if(opts[:inject])
       injector = Msf::Exe::SegmentInjector.new({
@@ -447,35 +447,35 @@ require 'msf/core/exe/segment_injector'
     end
     opts[:exe_type] = :exe_sub
     exe_sub_method(code,opts)
-	end
+  end
 
-	def self.to_win32pe_service(framework, code, opts={})
-		# Allow the user to specify their own service EXE template
-		set_template_default(opts, "template_x86_windows_svc.exe")
+  def self.to_win32pe_service(framework, code, opts={})
+    # Allow the user to specify their own service EXE template
+    set_template_default(opts, "template_x86_windows_svc.exe")
     opts[:exe_type] = :service_exe
     exe_sub_method(code,opts)
-	end
+  end
 
-	def self.to_win64pe_service(framework, code, opts={})
-		# Allow the user to specify their own service EXE template
-		set_template_default(opts, "template_x64_windows_svc.exe")
+  def self.to_win64pe_service(framework, code, opts={})
+    # Allow the user to specify their own service EXE template
+    set_template_default(opts, "template_x64_windows_svc.exe")
     opts[:exe_type] = :service_exe
     exe_sub_method(code,opts)
-	end
+  end
 
-	def self.to_win32pe_dll(framework, code, opts={})
-		# Allow the user to specify their own DLL template
-		set_template_default(opts, "template_x86_windows.dll")
+  def self.to_win32pe_dll(framework, code, opts={})
+    # Allow the user to specify their own DLL template
+    set_template_default(opts, "template_x86_windows.dll")
     opts[:exe_type] = :dll
     exe_sub_method(code,opts)
-	end
+  end
 
-	def self.to_win64pe_dll(framework, code, opts={})
-		# Allow the user to specify their own DLL template
-		set_template_default(opts, "template_x64_windows.dll")
+  def self.to_win64pe_dll(framework, code, opts={})
+    # Allow the user to specify their own DLL template
+    set_template_default(opts, "template_x64_windows.dll")
     opts[:exe_type] = :dll
     exe_sub_method(code,opts)
-	end
+  end
 
   def self.to_osx_arm_macho(framework, code, opts={})
 
