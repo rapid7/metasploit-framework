@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-# $Id$
 
 require 'msf/base'
 
@@ -15,73 +14,73 @@ module Sessions
 ###
 class TTY
 
-	#
-	# This interface supports basic interaction.
-	#
-	include Msf::Session::Basic
+  #
+  # This interface supports basic interaction.
+  #
+  include Msf::Session::Basic
 
-	#
-	# This interface supports interacting with a single command shell.
-	#
-	include Msf::Session::Provider::SingleCommandShell
+  #
+  # This interface supports interacting with a single command shell.
+  #
+  include Msf::Session::Provider::SingleCommandShell
 
-	#
-	# Returns the type of session.
-	#
-	def self.type
-		"tty"
-	end
+  #
+  # Returns the type of session.
+  #
+  def self.type
+    "tty"
+  end
 
-	#
-	# Returns the session description.
-	#
-	def desc
-		"Interactive TTY"
-	end
+  #
+  # Returns the session description.
+  #
+  def desc
+    "Interactive TTY"
+  end
 
-	def run_cmd(cmd)
-		shell_write(cmd)
-		return rstream.get
-	end
-	#
-	# Calls the class method.
-	#
-	def type
-		self.class.type
-	end
+  def run_cmd(cmd)
+    shell_write(cmd)
+    return rstream.get
+  end
+  #
+  # Calls the class method.
+  #
+  def type
+    self.class.type
+  end
 
-	#
-	# The shell will have been initialized by default.
-	#
-	def shell_init
-		return true
-	end
+  #
+  # The shell will have been initialized by default.
+  #
+  def shell_init
+    return true
+  end
 
-	#
-	# Read from the command shell.
-	#
-	def shell_read(length = nil)
-		if length.nil?
-			rv = rstream.get
-		else
-			rv = rstream.read(length)
-		end
-		return rv
-	end
+  #
+  # Read from the command shell.
+  #
+  def shell_read(length = nil)
+    if length.nil?
+      rv = rstream.get
+    else
+      rv = rstream.read(length)
+    end
+    return rv
+  end
 
-	#
-	# Writes to the command shell.
-	#
-	def shell_write(buf)
-		rstream.write(buf)
-	end
+  #
+  # Writes to the command shell.
+  #
+  def shell_write(buf)
+    rstream.write(buf)
+  end
 
-	#
-	# Closes the shell.
-	#
-	def shell_close()
-		rstream.close
-	end
+  #
+  # Closes the shell.
+  #
+  def shell_close()
+    rstream.close
+  end
 
 end
 

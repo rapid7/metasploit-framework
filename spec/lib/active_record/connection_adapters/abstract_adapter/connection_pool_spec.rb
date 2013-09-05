@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 require 'spec_helper'
 
 # helps with environment configuration to use for connection to database

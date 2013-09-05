@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-# $Id: $
 #
 # RFB protocol support
 #
