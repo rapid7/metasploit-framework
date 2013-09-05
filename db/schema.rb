@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130228214900) do
+ActiveRecord::Schema.define(:version => 20130717150737) do
 
   create_table "api_keys", :force => true do |t|
     t.text     "token"
@@ -19,38 +19,13 @@ ActiveRecord::Schema.define(:version => 20130228214900) do
     t.datetime "updated_at", :null => false
   end
 
-  create_table "attachments", :force => true do |t|
-    t.string  "name",         :limit => 512
-    t.binary  "data"
-    t.string  "content_type", :limit => 512
-    t.boolean "inline",                      :default => true,  :null => false
-    t.boolean "zip",                         :default => false, :null => false
-    t.integer "campaign_id"
-  end
-
-  create_table "attachments_email_templates", :id => false, :force => true do |t|
-    t.integer "attachment_id"
-    t.integer "email_template_id"
-  end
-
-  create_table "campaigns", :force => true do |t|
-    t.integer  "workspace_id",                               :null => false
-    t.string   "name",         :limit => 512
-    t.text     "prefs"
-    t.integer  "status",                      :default => 0
-    t.datetime "started_at"
-    t.datetime "created_at",                                 :null => false
-    t.datetime "updated_at",                                 :null => false
-  end
-
   create_table "clients", :force => true do |t|
     t.integer  "host_id"
     t.datetime "created_at"
-    t.string   "ua_string",   :limit => 1024, :null => false
-    t.string   "ua_name",     :limit => 64
-    t.string   "ua_ver",      :limit => 32
+    t.string   "ua_string",  :limit => 1024, :null => false
+    t.string   "ua_name",    :limit => 64
+    t.string   "ua_ver",     :limit => 32
     t.datetime "updated_at"
-    t.integer  "campaign_id"
   end
 
   create_table "creds", :force => true do |t|
@@ -64,24 +39,6 @@ ActiveRecord::Schema.define(:version => 20130228214900) do
     t.string   "ptype",       :limit => 256
     t.integer  "source_id"
     t.string   "source_type"
-  end
-
-  create_table "email_addresses", :force => true do |t|
-    t.integer  "campaign_id",                                   :null => false
-    t.string   "first_name",  :limit => 512
-    t.string   "last_name",   :limit => 512
-    t.string   "address",     :limit => 512
-    t.boolean  "sent",                       :default => false, :null => false
-    t.datetime "clicked_at"
-  end
-
-  create_table "email_templates", :force => true do |t|
-    t.string  "name",        :limit => 512
-    t.string  "subject",     :limit => 1024
-    t.text    "body"
-    t.integer "parent_id"
-    t.integer "campaign_id"
-    t.text    "prefs"
   end
 
   create_table "events", :force => true do |t|
@@ -135,7 +92,7 @@ ActiveRecord::Schema.define(:version => 20130228214900) do
 
   create_table "hosts", :force => true do |t|
     t.datetime "created_at"
-    t.string   "address",               :limit => nil
+    t.string   "address",               :limit => nil,                  :null => false
     t.string   "mac"
     t.string   "comm"
     t.string   "name"
@@ -145,7 +102,7 @@ ActiveRecord::Schema.define(:version => 20130228214900) do
     t.string   "os_sp"
     t.string   "os_lang"
     t.string   "arch"
-    t.integer  "workspace_id"
+    t.integer  "workspace_id",                                          :null => false
     t.datetime "updated_at"
     t.text     "purpose"
     t.string   "info",                  :limit => 65536
@@ -157,25 +114,19 @@ ActiveRecord::Schema.define(:version => 20130228214900) do
     t.integer  "service_count",                          :default => 0
     t.integer  "host_detail_count",                      :default => 0
     t.integer  "exploit_attempt_count",                  :default => 0
+    t.integer  "cred_count",                             :default => 0
   end
 
-  add_index "hosts", ["address"], :name => "index_hosts_on_address"
   add_index "hosts", ["name"], :name => "index_hosts_on_name"
   add_index "hosts", ["os_flavor"], :name => "index_hosts_on_os_flavor"
   add_index "hosts", ["os_name"], :name => "index_hosts_on_os_name"
   add_index "hosts", ["purpose"], :name => "index_hosts_on_purpose"
   add_index "hosts", ["state"], :name => "index_hosts_on_state"
+  add_index "hosts", ["workspace_id", "address"], :name => "index_hosts_on_workspace_id_and_address", :unique => true
 
-  create_table "hosts_tags", :id => false, :force => true do |t|
+  create_table "hosts_tags", :force => true do |t|
     t.integer "host_id"
     t.integer "tag_id"
-  end
-
-  create_table "imported_creds", :force => true do |t|
-    t.integer "workspace_id",                :default => 1,          :null => false
-    t.string  "user",         :limit => 512
-    t.string  "pass",         :limit => 512
-    t.string  "ptype",        :limit => 16,  :default => "password"
   end
 
   create_table "listeners", :force => true do |t|
@@ -223,26 +174,26 @@ ActiveRecord::Schema.define(:version => 20130228214900) do
   end
 
   create_table "module_actions", :force => true do |t|
-    t.integer "module_detail_id"
+    t.integer "detail_id"
     t.text    "name"
   end
 
-  add_index "module_actions", ["module_detail_id"], :name => "index_module_actions_on_module_detail_id"
+  add_index "module_actions", ["detail_id"], :name => "index_module_actions_on_module_detail_id"
 
   create_table "module_archs", :force => true do |t|
-    t.integer "module_detail_id"
+    t.integer "detail_id"
     t.text    "name"
   end
 
-  add_index "module_archs", ["module_detail_id"], :name => "index_module_archs_on_module_detail_id"
+  add_index "module_archs", ["detail_id"], :name => "index_module_archs_on_module_detail_id"
 
   create_table "module_authors", :force => true do |t|
-    t.integer "module_detail_id"
+    t.integer "detail_id"
     t.text    "name"
     t.text    "email"
   end
 
-  add_index "module_authors", ["module_detail_id"], :name => "index_module_authors_on_module_detail_id"
+  add_index "module_authors", ["detail_id"], :name => "index_module_authors_on_module_detail_id"
 
   create_table "module_details", :force => true do |t|
     t.datetime "mtime"
@@ -268,34 +219,34 @@ ActiveRecord::Schema.define(:version => 20130228214900) do
   add_index "module_details", ["refname"], :name => "index_module_details_on_refname"
 
   create_table "module_mixins", :force => true do |t|
-    t.integer "module_detail_id"
+    t.integer "detail_id"
     t.text    "name"
   end
 
-  add_index "module_mixins", ["module_detail_id"], :name => "index_module_mixins_on_module_detail_id"
+  add_index "module_mixins", ["detail_id"], :name => "index_module_mixins_on_module_detail_id"
 
   create_table "module_platforms", :force => true do |t|
-    t.integer "module_detail_id"
+    t.integer "detail_id"
     t.text    "name"
   end
 
-  add_index "module_platforms", ["module_detail_id"], :name => "index_module_platforms_on_module_detail_id"
+  add_index "module_platforms", ["detail_id"], :name => "index_module_platforms_on_module_detail_id"
 
   create_table "module_refs", :force => true do |t|
-    t.integer "module_detail_id"
+    t.integer "detail_id"
     t.text    "name"
   end
 
-  add_index "module_refs", ["module_detail_id"], :name => "index_module_refs_on_module_detail_id"
+  add_index "module_refs", ["detail_id"], :name => "index_module_refs_on_module_detail_id"
   add_index "module_refs", ["name"], :name => "index_module_refs_on_name"
 
   create_table "module_targets", :force => true do |t|
-    t.integer "module_detail_id"
+    t.integer "detail_id"
     t.integer "index"
     t.text    "name"
   end
 
-  add_index "module_targets", ["module_detail_id"], :name => "index_module_targets_on_module_detail_id"
+  add_index "module_targets", ["detail_id"], :name => "index_module_targets_on_module_detail_id"
 
   create_table "nexpose_consoles", :force => true do |t|
     t.datetime "created_at",                     :null => false
@@ -426,6 +377,34 @@ ActiveRecord::Schema.define(:version => 20130228214900) do
     t.datetime "updated_at",                                        :null => false
   end
 
+  create_table "task_creds", :force => true do |t|
+    t.integer  "task_id",    :null => false
+    t.integer  "cred_id",    :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  create_table "task_hosts", :force => true do |t|
+    t.integer  "task_id",    :null => false
+    t.integer  "host_id",    :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  create_table "task_services", :force => true do |t|
+    t.integer  "task_id",    :null => false
+    t.integer  "service_id", :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  create_table "task_sessions", :force => true do |t|
+    t.integer  "task_id",    :null => false
+    t.integer  "session_id", :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
   create_table "tasks", :force => true do |t|
     t.integer  "workspace_id",                 :default => 1, :null => false
     t.string   "created_by"
@@ -510,7 +489,7 @@ ActiveRecord::Schema.define(:version => 20130228214900) do
 
   add_index "vulns", ["name"], :name => "index_vulns_on_name"
 
-  create_table "vulns_refs", :id => false, :force => true do |t|
+  create_table "vulns_refs", :force => true do |t|
     t.integer "ref_id"
     t.integer "vuln_id"
   end
@@ -560,14 +539,6 @@ ActiveRecord::Schema.define(:version => 20130228214900) do
   add_index "web_sites", ["options"], :name => "index_web_sites_on_options"
   add_index "web_sites", ["vhost"], :name => "index_web_sites_on_vhost"
 
-  create_table "web_templates", :force => true do |t|
-    t.string  "name",        :limit => 512
-    t.string  "title",       :limit => 512
-    t.string  "body",        :limit => 524288
-    t.integer "campaign_id"
-    t.text    "prefs"
-  end
-
   create_table "web_vulns", :force => true do |t|
     t.integer  "web_site_id",                 :null => false
     t.datetime "created_at",                  :null => false
@@ -575,12 +546,12 @@ ActiveRecord::Schema.define(:version => 20130228214900) do
     t.text     "path",                        :null => false
     t.string   "method",      :limit => 1024, :null => false
     t.text     "params",                      :null => false
-    t.text     "pname",                       :null => false
+    t.text     "pname"
     t.integer  "risk",                        :null => false
     t.string   "name",        :limit => 1024, :null => false
     t.text     "query"
     t.text     "category",                    :null => false
-    t.text     "confidence",                  :null => false
+    t.integer  "confidence",                  :null => false
     t.text     "description"
     t.text     "blame"
     t.binary   "request"

@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 shared_examples_for 'Msf::Modules::Error subclass #initialize' do
 	context 'instance methods' do
 		context '#initialize' do
