@@ -19,8 +19,8 @@ module Metasploit4
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'Debugger Trap',
-			'Version'       => '$Revision$',
 			'Description'   => 'Causes a debugger trap exception through int3',
+			'License'       => MSF_LICENSE,
 			'Author'        => 'skape',
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
