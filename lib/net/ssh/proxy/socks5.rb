@@ -73,8 +73,8 @@ module Net
             }
           )
           # Tell MSF to automatically close this socket on error or completion...
-		    # This prevents resource leaks.
-		    options[:msfmodule].add_socket(@socket) if options[:msfmodule]
+        # This prevents resource leaks.
+        options[:msfmodule].add_socket(@socket) if options[:msfmodule]
 
           methods = [METHOD_NO_AUTH]
           methods << METHOD_PASSWD if options[:user]
