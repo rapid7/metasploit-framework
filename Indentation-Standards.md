@@ -100,7 +100,7 @@ By now, we should have a pretty good idea of how to deal with conflicts and how 
     * [This pull request](https://github.com/rapid7/metasploit-framework/pull/2325) is an example of an outstanding PR that was successfully retabbed with [this retabbing PR](https://github.com/jlee-r7/metasploit-framework/pull/5)
 
 ### By September 6, 2013
-  - Announce the coming retabbing rumpus on the Metasploit blog.
+  - ~~Announce the coming retabbing rumpus on the Metasploit blog.~~
     * This happened [on the Metasploit update blog post](https://community.rapid7.com/community/metasploit/blog/2013/09/05/weekly-update).
   - ~~Land the [retabbed branch]((https://github.com/tabassassin/metasploit-framework/compare/rapid7:master...retab;rumpus?expand=1)~~
     * Landed as [PR #2330](https://github.com/rapid7/metasploit-framework/pull/2330)
@@ -108,7 +108,8 @@ By now, we should have a pretty good idea of how to deal with conflicts and how 
 ### By September 18, 2013
  - Periodically retab as [@tabassassin](https://github.com/tabassassin) to catch stragglers that snuck in.
  - Periodically offer retabbing services as [@tabassassin](https://github.com/tabassassin) as above.
- - Write a procedure for retabbing incoming pull requests upon landing, per committer (don't bother with blocking on [@tabassassin](https://github.com/tabassassin) doing the work).
+ - ~~Write a procedure for retabbing incoming pull requests upon landing, per committer (don't bother with blocking on [@tabassassin](https://github.com/tabassassin) doing the work).~~
+  * Right here: https://github.com/rapid7/metasploit-framework/wiki/Indentation-Standards#tldr-on-retabbing
 
 ### By October 8
  - Convert msftidy.rb to enforce spaces only, warn about hard tabs.
