@@ -71,7 +71,6 @@ Note that `pr-url` is a custom alias in my .git/config:
 [alias]
   pr-url =!"xdg-open https://github.com/YOURUSERNAME/metasploit-framework/pull/new/$1:$2...$(git branch-current) #"
 ````
-
 It's hella useful.
 
 ## Implementation Timeline
@@ -96,8 +95,9 @@ By now, we should have a pretty good idea of how to deal with conflicts and how 
  - ~~Retab modules directory as [@tabassassin](https://github.com/tabassassin) using `retab.rb`~~
  - ~~Retab libraries as [@tabassassin](https://github.com/tabassassin) using `retab.rb`.~~
     * See the [retab/rumpus](https://github.com/tabassassin/metasploit-framework/compare/rapid7:master...retab;rumpus?expand=1) branch.
- - Offer retabbing to outstanding pull requests in the form of outbound PRs from [@tabassassin](https://github.com/tabassassin).
-    * [This pull request](https://github.com/dmaloney-r7/metasploit-framework/pull/8) is an example of a one-off retab PR.
+ - ~~Offer retabbing to outstanding pull requests in the form of outbound PRs from [@tabassassin](https://github.com/tabassassin).~~
+    * The pull requests that were outstanding at the time of the retabbing are recorded [in this gist](https://gist.github.com/todb-r7/6456477), indicating which were conflicting and which were not.
+    * [This pull request](https://github.com/rapid7/metasploit-framework/pull/2325) is an example of an outstanding PR that was successfully retabbed with [this retabbing PR](https://github.com/jlee-r7/metasploit-framework/pull/5)
 
 ### By September 6, 2013
   - Announce the coming retabbing rumpus on the Metasploit blog.
