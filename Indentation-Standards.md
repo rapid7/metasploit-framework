@@ -101,6 +101,7 @@ By now, we should have a pretty good idea of how to deal with conflicts and how 
 
 ### By September 6, 2013
   - Announce the coming retabbing rumpus on the Metasploit blog.
+    * This happened [on the Metasploit update blog post](https://community.rapid7.com/community/metasploit/blog/2013/09/05/weekly-update).
   - ~~Land the [retabbed branch]((https://github.com/tabassassin/metasploit-framework/compare/rapid7:master...retab;rumpus?expand=1)~~
     * Landed as [PR #2330](https://github.com/rapid7/metasploit-framework/pull/2330)
 
