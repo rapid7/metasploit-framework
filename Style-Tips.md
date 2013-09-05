@@ -8,11 +8,11 @@ Having your editor take care of formatting for you can save headaches during the
 
 Adding the following settings to your .vimrc will make conforming to the [HACKING](https://github.com/rapid7/metasploit-framework/blob/master/HACKING) and [msftidy.rb](https://github.com/rapid7/metasploit-framework/blob/master/tools/msftidy.rb) guidelines considerably easier.
 
-    set shiftwidth=4 tabstop=4 softtabstop=4
+    set shiftwidth=2 tabstop=2 softtabstop=2
     " textwidth affects `gq` which is handy for formatting comments
     set textwidth=78
     " Metasploit generally requires hard tabs instead of spaces
-    set noexpandtab
+    set expandtab
     " Highlight spaces at EOL and mixed tabs and spaces.
     hi BogusWhitespace ctermbg=darkgreen guibg=darkgreen
     " Note that this regex matches spaces at the beggining of lines which can
