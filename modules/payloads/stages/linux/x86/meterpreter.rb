@@ -102,10 +102,10 @@ module Metasploit3
 		#file = File.join(Msf::Config.data_directory, "msflinker_linux_x86.elf")
 		file = File.join(Msf::Config.install_root, "data", "meterpreter", "msflinker_linux_x86.bin")
 
-		met = File.open(file, "rb") {|f|
-			f.read(f.stat.size)
-		}
+    met = File.open(file, "rb") {|f|
+      f.read(f.stat.size)
+    }
 
-		return met
-	end
+    return met
+  end
 end
