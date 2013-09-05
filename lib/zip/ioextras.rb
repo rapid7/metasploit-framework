@@ -83,11 +83,11 @@ module IOExtras  #:nodoc:
       
       bufferIndex=0
       while ((matchIndex = @outputBuffer.index(aSepString, bufferIndex)) == nil)
-	bufferIndex=@outputBuffer.length
-	if input_finished?
-	  return @outputBuffer.empty? ? nil : flush 
-	end
-	@outputBuffer << produce_input
+  bufferIndex=@outputBuffer.length
+  if input_finished?
+    return @outputBuffer.empty? ? nil : flush 
+  end
+  @outputBuffer << produce_input
       end
       sepIndex=matchIndex + aSepString.length
       return @outputBuffer.slice!(0...sepIndex)
@@ -107,7 +107,7 @@ module IOExtras  #:nodoc:
     
     def each_line(aSepString = $/)
       while true
-	yield readline(aSepString)
+  yield readline(aSepString)
       end
     rescue EOFError
     end
@@ -137,20 +137,20 @@ module IOExtras  #:nodoc:
 
     def putc(anObject)
       self << case anObject
-	      when Fixnum then anObject.chr
-	      when String then anObject
-	      else raise TypeError, "putc: Only Fixnum and String supported"
-	      end
+        when Fixnum then anObject.chr
+        when String then anObject
+        else raise TypeError, "putc: Only Fixnum and String supported"
+        end
       anObject
     end
     
     def puts(*params)
       params << "\n" if params.empty?
       params.flatten.each {
-	|element|
-	val = element.to_s
-	self << val
-	self << "\n" unless val[-1,1] == "\n"
+  |element|
+  val = element.to_s
+  self << val
+  self << "\n" unless val[-1,1] == "\n"
       }
     end
 

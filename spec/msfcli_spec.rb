@@ -24,6 +24,49 @@ describe Msfcli do
 	end
 
 	context "Class methods" do
+		context ".initialize" do
+			it "should give me the correct module name in key :module_name after object initialization" do
+				args = "multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
+				cli = Msfcli.new(args.split(' '))
+				cli.instance_variable_get(:@args)[:module_name].should eq('multi/handler')
+			end
+
+			it "should give me the correct mode in key :mode after object initialization" do
+				args = "multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
+				cli = Msfcli.new(args.split(' '))
+				cli.instance_variable_get(:@args)[:mode].should eq('E')
+			end
+
+			it "should give me the correct module parameters after object initialization" do
+				args = "multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
+				cli = Msfcli.new(args.split(' '))
+				cli.instance_variable_get(:@args)[:params].should eq(['payload=windows/meterpreter/reverse_tcp', 'lhost=127.0.0.1'])
+			end
+
+			it "should give me an exploit name without the prefix 'exploit'" do
+				args = "exploit/windows/browser/ie_cbutton_uaf payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
+				cli = Msfcli.new(args.split(' '))
+				cli.instance_variable_get(:@args)[:module_name].should eq("windows/browser/ie_cbutton_uaf")
+			end
+
+			it "should give me an exploit name without the prefix 'exploits'" do
+				args = "exploits/windows/browser/ie_cbutton_uaf payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
+				cli = Msfcli.new(args.split(' '))
+				cli.instance_variable_get(:@args)[:module_name].should eq("windows/browser/ie_cbutton_uaf")
+			end
+
+			it "should set mode 's' (summary)" do
+				args = "multi/handler payload=windows/meterpreter/reverse_tcp s"
+				cli = Msfcli.new(args.split(' '))
+				cli.instance_variable_get(:@args)[:mode].should eq('s')
+			end
+
+			it "should set mode 'h' (help) as default" do
+				args = "multi/handler"
+				cli = Msfcli.new(args.split(' '))
+				cli.instance_variable_get(:@args)[:mode].should eq('h')
+			end
+		end
 
 		context ".usage" do
 			it "should see a help menu" do
@@ -112,6 +155,23 @@ describe Msfcli do
 		end
 
 		context ".generate_whitelist" do
+			it "should generate a whitelist for linux/x86/shell/reverse_tcp with encoder x86/fnstenv_mov" do
+				args = "multi/handler payload=linux/x86/shell/reverse_tcp lhost=127.0.0.1 encoder=x86/fnstenv_mov E"
+				cli = Msfcli.new(args.split(' '))
+				list = cli.generate_whitelist.map { |e| e.to_s }
+				answer = [
+					/multi\/handler/,
+					/stages\/linux\/x86\/shell/,
+					/payloads\/(stagers|stages)\/linux\/x86\/.*(reverse_tcp)\.rb$/,
+					/encoders\/x86\/fnstenv_mov/,
+					/post\/.+/,
+					/encoders\/generic\/*/,
+					/nops\/.+/
+				].map { |e| e.to_s }
+
+				list.should eq(answer)
+			end
+
 			it "should generate a whitelist for windows/meterpreter/reverse_tcp with default options" do
 				args = 'multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E'
 				cli = Msfcli.new(args.split(' '))
@@ -205,6 +265,122 @@ describe Msfcli do
 
 				m.should eq({})
 			end
+		end
+
+		context ".engage_mode" do
+			it "should show me the summary of module auxiliary/scanner/http/http_version" do
+				args = 'auxiliary/scanner/http/http_version s'
+				stdout = get_stdout {
+					cli = Msfcli.new(args.split(' '))
+					m = cli.init_modules
+					cli.engage_mode(m)
+				}
+
+				stdout.should =~ /Module: auxiliary\/scanner\/http\/http_version/
+			end
+
+			it "should show me the options of module auxiliary/scanner/http/http_version" do
+				args = 'auxiliary/scanner/http/http_version O'
+				stdout = get_stdout {
+					cli = Msfcli.new(args.split(' '))
+					m = cli.init_modules
+					cli.engage_mode(m)
+				}
+
+				stdout.should =~ /The target address range or CIDR identifier/
+			end
+
+			it "should me the advanced options of module auxiliary/scanner/http/http_version" do
+				args = 'auxiliary/scanner/http/http_version A'
+				stdout = get_stdout {
+					cli = Msfcli.new(args.split(' '))
+					m = cli.init_modules
+					cli.engage_mode(m)
+				}
+
+				stdout.should =~ /UserAgent/
+			end
+
+			it "should show me the IDS options of module auxiliary/scanner/http/http_version" do
+				args = 'auxiliary/scanner/http/http_version I'
+				stdout = get_stdout {
+					cli = Msfcli.new(args.split(' '))
+					m = cli.init_modules
+					cli.engage_mode(m)
+				}
+				stdout.should =~ /Insert fake relative directories into the uri/
+			end
+
+			it "should show me the targets available for module windows/browser/ie_cbutton_uaf" do
+				args = "windows/browser/ie_cbutton_uaf T"
+				stdout = get_stdout {
+					cli = Msfcli.new(args.split(' '))
+					m = cli.init_modules
+					cli.engage_mode(m)
+				}
+				stdout.should =~ /IE 8 on Windows 7/
+			end
+
+			it "should show me the payloads available for module windows/browser/ie_cbutton_uaf" do
+				args = "windows/browser/ie_cbutton_uaf P"
+				stdout = get_stdout {
+					cli = Msfcli.new(args.split(' '))
+					m = cli.init_modules
+					cli.engage_mode(m)
+				}
+				stdout.should =~ /windows\/meterpreter\/reverse_tcp/
+			end
+
+			it "should try to run the check function of an exploit" do
+				args = "windows/smb/ms08_067_netapi rhost=0.0.0.1 C"  # Some BS IP so we can fail
+				stdout = get_stdout {
+					cli = Msfcli.new(args.split(' '))
+					m = cli.init_modules
+					cli.engage_mode(m)
+				}
+				stdout.should =~ /failed/
+			end
+
+			it "should warn my auxiliary module isn't supported by mode 'p' (show payloads)" do
+				args = 'auxiliary/scanner/http/http_version p'
+				stdout = get_stdout {
+					cli = Msfcli.new(args.split(' '))
+					m = cli.init_modules
+					cli.engage_mode(m)
+				}
+				stdout.should =~ /This type of module does not support payloads/
+			end
+
+			it "should warn my auxiliary module isn't supported by mode 't' (show targets)" do
+				args = 'auxiliary/scanner/http/http_version t'
+				stdout = get_stdout {
+					cli = Msfcli.new(args.split(' '))
+					m = cli.init_modules
+					cli.engage_mode(m)
+				}
+				stdout.should =~ /This type of module does not support targets/
+			end
+
+			it "should warn my exploit module isn't supported by mode 'ac' (show actions)" do
+				args = 'windows/browser/ie_cbutton_uaf ac'
+				stdout = get_stdout {
+					cli = Msfcli.new(args.split(' '))
+					m = cli.init_modules
+					cli.engage_mode(m)
+				}
+				stdout.should =~ /This type of module does not support actions/
+			end
+
+			it "should show actions available for module auxiliary/scanner/http/http_put" do
+				args = "auxiliary/scanner/http/http_put ac"
+				stdout = get_stdout {
+					cli = Msfcli.new(args.split(' '))
+					m = cli.init_modules
+					cli.engage_mode(m)
+				}
+				stdout.should =~ /DELETE/
+			end
+
 		end
 
 	end
