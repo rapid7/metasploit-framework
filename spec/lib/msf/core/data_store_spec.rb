@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 
 require 'spec_helper'
 require 'msf/core/data_store'

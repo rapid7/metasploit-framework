@@ -23,37 +23,40 @@ $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 if RUBY_PLATFORM == "i386-mingw32"
 	begin
-		require 'pcaprub'
+		require 'network_interface'
 	rescue ::Exception => e
-		$stderr.puts "Error: pcaprub is not installed..."
+		$stderr.puts "Error: NetworkInterface is not installed..."
 		exit
 	end
-	unless (Pcap.respond_to?(:lookupaddrs) and
-			Pcap.respond_to?(:interfaces) and
-			Pcap.respond_to?(:addresses))
-		$stderr.puts "Error: Looks like you are not running the latest version of pcaprub"
+
+	unless (
+		NetworkInterface.respond_to?(:interfaces) and
+		NetworkInterface.respond_to?(:addresses)  and
+		NetworkInterface.respond_to?(:interface_info)
+	)
+		$stderr.puts "Error: Looks like you are not running the latest version of NetworkInterface"
 		exit
 	end
 	found = false
-	Pcap.interfaces.each_with_index do |iface, i|
+	NetworkInterface.interfaces.each_with_index do |iface, i|
 		found = true
-		detail = Pcap.interface_info(iface)
-		addr = Pcap.addresses(iface)
+		detail = NetworkInterface.interface_info(iface)
+		addr = NetworkInterface.addresses(iface)
 		puts "#" * 70
 		puts ""
 		puts "INDEX        :  " + (i + 1).to_s
 		puts "NAME         :  " + detail["name"]
 		puts "DESCRIPTION  :  " + detail["description"]
 		puts "GUID         :  " + detail["guid"]
-		if addr[Pcap::AF_LINK][0]['addr']
-			puts "MAC ADDRESSE :  #{addr[Pcap::AF_LINK][0]['addr']}"
+		if addr[NetworkInterface::AF_LINK][0]['addr']
+			puts "MAC ADDRESS  :  #{addr[NetworkInterface::AF_LINK][0]['addr']}"
 		else
-			puts "MAC ADDRESSE :  NONE"
+			puts "MAC ADDRESS  :  NONE"
 		end
-		if addr[Pcap::AF_INET][0]['addr'] and addr[Pcap::AF_INET][0]['netmask']
-			puts "IP ADDRESSE  :  #{addr[Pcap::AF_INET][0]['addr']}/#{addr[Pcap::AF_INET][0]['netmask']}"
+		if addr[NetworkInterface::AF_INET][0]['addr'] and addr[NetworkInterface::AF_INET][0]['netmask']
+			puts "IP ADDRESS   :  #{addr[NetworkInterface::AF_INET][0]['addr']}/#{addr[NetworkInterface::AF_INET][0]['netmask']}"
 		else
-			puts "IP ADDRESSE  :  NONE"
+			puts "IP ADDRESS   :  NONE"
 		end
 		puts ""
 	end
@@ -63,8 +66,6 @@ if RUBY_PLATFORM == "i386-mingw32"
 		$stderr.puts "Error, no network interfaces have been detected"
 	end
 else
-	$stderr.puts "Error: This script is usefull only on Windows, under other OS just use the built-in commands (ifconfig, ip link show, ...)"
+	$stderr.puts "Error: This script is useful only on Windows, under other OS just use the built-in commands (ifconfig, ip link show, ...)"
 	exit
 end
-
-

@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-###
 #
 # framework-base
 # --------------
@@ -13,8 +12,6 @@
 # Beyond providing the default sessions, framework-base also provides
 # a wrapper interface to framework-core that makes some of the tasks,
 # such as exploitation, into easier to manage functions.
-#
-###
 
 # framework-base depends on framework-core
 require 'msf/core'
