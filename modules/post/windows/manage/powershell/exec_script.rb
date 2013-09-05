@@ -26,65 +26,65 @@ require 'rex'
 require 'msf/core/post/windows/powershell'
 
 class Metasploit3 < Msf::Post
-	include Msf::Post::Windows::Powershell
+  include Msf::Post::Windows::Powershell
 
-	def initialize(info={})
-		super(update_info(info,
+  def initialize(info={})
+    super(update_info(info,
       'Name'                 => "Powershell: Execute Command",
       'Description'          => %q{
         This module will execute a Powershell script and return output
-			},
-			'License'              => MSF_LICENSE,
-			'Platform'             => ['win'],
-			'SessionTypes'         => ['meterpreter'],
-			'Author'               => [
-				'Nicholas Nam (nick[at]executionflow.org)', # original meterpreter script
-				'RageLtMan' # post module
-				]
-		))
+      },
+      'License'              => MSF_LICENSE,
+      'Platform'             => ['win'],
+      'SessionTypes'         => ['meterpreter'],
+      'Author'               => [
+        'Nicholas Nam (nick[at]executionflow.org)', # original meterpreter script
+        'RageLtMan' # post module
+        ]
+    ))
 
-		register_options(
-			[
-				OptPath.new( 'SCRIPT',  [true, 'Path to the PS script', ::File.join(Msf::Config.install_root, "scripts", "ps", "msflag.ps1") ]),
-				OptString.new( 'PSH_CMD', [false, 'Powershell to execute after the script']),
-			], self.class)
+    register_options(
+      [
+        OptPath.new( 'SCRIPT',  [true, 'Path to the PS script', ::File.join(Msf::Config.install_root, "scripts", "ps", "msflag.ps1") ]),
+        OptString.new( 'PSH_CMD', [false, 'Powershell to execute after the script']),
+      ], self.class)
 
-		register_advanced_options(
-			[
-				OptString.new('SUBSTITUTIONS', [false, 'Script subs in gsub format - original,sub;original,sub' ]),
-				OptBool.new(  'DELETE',        [false, 'Delete file after execution', false ]),
-			], self.class)
+    register_advanced_options(
+      [
+        OptString.new('SUBSTITUTIONS', [false, 'Script subs in gsub format - original,sub;original,sub' ]),
+        OptBool.new(  'DELETE',        [false, 'Delete file after execution', false ]),
+      ], self.class)
 
-	end
+  end
 
-	def run
+  def run
 
-		# Make sure we meet the requirements before running the script, note no need to return
-		# unless error
-		return 0 if ! (session.type == "meterpreter" || have_powershell?)
+    # Make sure we meet the requirements before running the script, note no need to return
+    # unless error
+    return 0 if ! (session.type == "meterpreter" || have_powershell?)
 
-		# check/set vars
-		subs = process_subs(datastore['SUBSTITUTIONS'])
-		script_in = read_script(datastore['SCRIPT'])
-		if datastore['PSH_CMD']
-			script_in = read_script(script_in + "\n#{datastore['PSH_CMD']}")
-		end
-		
+    # check/set vars
+    subs = process_subs(datastore['SUBSTITUTIONS'])
+    script_in = read_script(datastore['SCRIPT'])
+    if datastore['PSH_CMD']
+      script_in = read_script(script_in + "\n#{datastore['PSH_CMD']}")
+    end
+    
 
-		# Make substitutions in script if needed
-		script_in = make_subs(script_in, subs) unless subs.empty?
-		vprint_status(script_in)
+    # Make substitutions in script if needed
+    script_in = make_subs(script_in, subs) unless subs.empty?
+    vprint_status(script_in)
 
-		# Execute the powershell script
-		print_status('Executing the script.')
+    # Execute the powershell script
+    print_status('Executing the script.')
 
-		ps_output = psh_exec(script_in)
+    ps_output = psh_exec(script_in)
 
-		print_good ps_output
+    print_good ps_output
 
-		# That's it
-		print_good('Finished!')
-	end
+    # That's it
+    print_good('Finished!')
+  end
 
 end
 
