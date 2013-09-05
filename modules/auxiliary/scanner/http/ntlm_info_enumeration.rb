@@ -56,20 +56,17 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-	def check_url(target_uri)
+	def check_url(test_uri)
 		begin
-			tpath = normalize_uri(target_uri)
-			if tpath[-1,1] != '/'
-				tpath << '/'
-			end
+			tpath = normalize_uri(test_uri)
 
 			vprint_status("Checking #{peer} URL #{tpath}")
 			res = send_request_cgi({
 				'encode'   => true,
-				'uri'      => "/#{tpath}",
+				'uri'      => "#{tpath}",
 				'method'   => 'GET',
 				'headers'  =>  { "Authorization" => "NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw=="}
-			}, 10)
+			}, 20)
 
 			return if res.nil?
 
