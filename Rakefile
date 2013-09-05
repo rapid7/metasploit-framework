@@ -36,6 +36,17 @@ else
 	task :default => :spec
 end
 
+# Require yard before loading metasploit_data_models rake tasks as the yard tasks won't be defined if
+# YARD is not defined when yard.rake is loaded.
+begin
+  require 'yard'
+rescue LoadError
+	puts "yard not in bundle, so can't set up yard tasks.  " \
+	     "To generate documentation ensure to install the development group."
+
+	print_without = true
+end
+
 begin
 	require 'metasploit_data_models'
 rescue LoadError
@@ -58,14 +69,6 @@ else
 	end
 end
 
-begin
-  require 'yard'
-rescue LoadError
-	puts "yard not in bundle, so can't set up yard tasks.  " \
-	     "To generate documentation ensure to install the development group."
-
-	print_without = true
-end
 
 
 if print_without
