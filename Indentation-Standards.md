@@ -105,6 +105,10 @@ By now, we should have a pretty good idea of how to deal with conflicts and how 
   - ~~Land the [retabbed branch]((https://github.com/tabassassin/metasploit-framework/compare/rapid7:master...retab;rumpus?expand=1)~~
     * Landed as [PR #2330](https://github.com/rapid7/metasploit-framework/pull/2330)
 
+### By September 13, 2013
+  - Retab spec, top-level, and everything else Ruby.
+  - Run through outstanding PRs again, looking for conflicts.
+
 ### By September 18, 2013
  - Periodically retab as [@tabassassin](https://github.com/tabassassin) to catch stragglers that snuck in.
  - Periodically offer retabbing services as [@tabassassin](https://github.com/tabassassin) as above.
