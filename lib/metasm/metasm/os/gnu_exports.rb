@@ -6,11 +6,11 @@
 
 module Metasm
 class GNUExports
-	# exported symbol name => exporting library name for common libraries
-	# used by ELF#automagic_symbols
-	EXPORT = {}
-	# see samples/elf_listexports for the generator of this data
-	data = <<EOL	# XXX libraries do not support __END__/DATA...
+  # exported symbol name => exporting library name for common libraries
+  # used by ELF#automagic_symbols
+  EXPORT = {}
+  # see samples/elf_listexports for the generator of this data
+  data = <<EOL	# XXX libraries do not support __END__/DATA...
 libc.so.6
  _IO_adjust_column _IO_adjust_wcolumn _IO_default_doallocate _IO_default_finish _IO_default_pbackfail _IO_default_uflow _IO_default_xsgetn _IO_default_xsputn
  _IO_do_write _IO_do_write _IO_doallocbuf _IO_fclose _IO_fclose _IO_fdopen _IO_fdopen _IO_feof _IO_ferror _IO_fflush _IO_fgetpos _IO_fgetpos _IO_fgetpos64
@@ -260,11 +260,11 @@ libruby1.8.so.1.8
  ruby_sandbox_restore ruby_sandbox_save ruby_scope ruby_sourcefile ruby_sourceline ruby_top_cref ruby_top_self ruby_verbose ruby_version ruby_yychar
  ruby_yydebug ruby_yylval
 EOL
-	curlibname = nil
-	data.each_line { |l|
-		list = l.split
-		curlibname = list.shift if l[0, 1] != ' '
-		list.each { |export| EXPORT[export] = curlibname }
-	}
+  curlibname = nil
+  data.each_line { |l|
+    list = l.split
+    curlibname = list.shift if l[0, 1] != ' '
+    list.each { |export| EXPORT[export] = curlibname }
+  }
 end
 end

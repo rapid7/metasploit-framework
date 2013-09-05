@@ -20,175 +20,175 @@ module Msf
 ###
 class Plugin
 
-	include Framework::Offspring
-	include Rex::Ref
+  include Framework::Offspring
+  include Rex::Ref
 
-	#
-	# Create an instance of the plugin using the supplied framework instance.
-	# We use create instead of new directly so that singleton plugins can just
-	# return their singleton instance.
-	#
-	def self.create(framework, opts = {})
-		new(framework, opts)
-	end
+  #
+  # Create an instance of the plugin using the supplied framework instance.
+  # We use create instead of new directly so that singleton plugins can just
+  # return their singleton instance.
+  #
+  def self.create(framework, opts = {})
+    new(framework, opts)
+  end
 
-	#
-	# Initializes the plugin instance with the supplied framework instance.
-	# The opts parameter is a hash of custom arguments that may be useful for a
-	# plugin.  Some of the pre-defined arguments are:
-	#
-	# LocalInput
-	#
-	# 	The local input handle that implements the Rex::Ui::Text::Input
-	# 	interface.
-	#
-	# LocalOutput
-	#
-	# 	The local output handle that implements the Rex::Ui::Output interface.
-	#
-	def initialize(framework, opts = {})
-		self.framework  = framework
-		self.opts       = opts
+  #
+  # Initializes the plugin instance with the supplied framework instance.
+  # The opts parameter is a hash of custom arguments that may be useful for a
+  # plugin.  Some of the pre-defined arguments are:
+  #
+  # LocalInput
+  #
+  # 	The local input handle that implements the Rex::Ui::Text::Input
+  # 	interface.
+  #
+  # LocalOutput
+  #
+  # 	The local output handle that implements the Rex::Ui::Output interface.
+  #
+  def initialize(framework, opts = {})
+    self.framework  = framework
+    self.opts       = opts
 
-		refinit
-	end
+    refinit
+  end
 
-	#
-	# Allows the plugin to clean up as it is being unloaded.
-	#
-	def cleanup
-	end
+  #
+  # Allows the plugin to clean up as it is being unloaded.
+  #
+  def cleanup
+  end
 
-	##
-	#
-	# Accessors
-	#
-	##
+  ##
+  #
+  # Accessors
+  #
+  ##
 
-	#
-	# Returns the name of the plugin.
-	#
-	def name
-		"unnamed"
-	end
+  #
+  # Returns the name of the plugin.
+  #
+  def name
+    "unnamed"
+  end
 
-	#
-	# A short description of the plugin.
-	#
-	def desc
-	end
+  #
+  # A short description of the plugin.
+  #
+  def desc
+  end
 
-	##
-	#
-	# Accessors
-	#
-	##
+  ##
+  #
+  # Accessors
+  #
+  ##
 
-	#
-	# Returns the local output handle if one was passed into the constructor.
-	#
-	def output
-		opts['LocalOutput']
-	end
+  #
+  # Returns the local output handle if one was passed into the constructor.
+  #
+  def output
+    opts['LocalOutput']
+  end
 
-	#
-	# Returns the local input handle if one was passed into the constructor.
-	#
-	def input
-		opts['LocalInput']
-	end
+  #
+  # Returns the local input handle if one was passed into the constructor.
+  #
+  def input
+    opts['LocalInput']
+  end
 
-	##
-	#
-	# Output wrappers for the plugin that uses the 'LocalOutput' hash entry
-	# if one was passed into the constructor.
-	#
-	##
+  ##
+  #
+  # Output wrappers for the plugin that uses the 'LocalOutput' hash entry
+  # if one was passed into the constructor.
+  #
+  ##
 
-	#
-	# Prints an error message.
-	#
-	def print_error(msg='')
-		output.print_error(msg) if (output)
-	end
+  #
+  # Prints an error message.
+  #
+  def print_error(msg='')
+    output.print_error(msg) if (output)
+  end
 
-	#
-	# Prints a 'good' message.
-	#
-	def print_good(msg='')
-		output.print_good(msg) if (output)
-	end
+  #
+  # Prints a 'good' message.
+  #
+  def print_good(msg='')
+    output.print_good(msg) if (output)
+  end
 
-	#
-	# Prints a 'debug' message.
-	#
-	def print_debug(msg='')
-		output.print_debug(msg) if (output)
-	end
+  #
+  # Prints a 'debug' message.
+  #
+  def print_debug(msg='')
+    output.print_debug(msg) if (output)
+  end
 
-	#
-	# Prints a status line.
-	#
-	def print_status(msg='')
-		output.print_status(msg) if (output)
-	end
+  #
+  # Prints a status line.
+  #
+  def print_status(msg='')
+    output.print_status(msg) if (output)
+  end
 
-	#
-	# Prints an undecorated line of information.
-	#
-	def print_line(msg='')
-		output.print_line(msg) if (output)
-	end
+  #
+  # Prints an undecorated line of information.
+  #
+  def print_line(msg='')
+    output.print_line(msg) if (output)
+  end
 
-	#
-	# Prints a warning
-	#
-	def print_warning(msg='')
-		output.print_warning(msg) if (output)
-	end
+  #
+  # Prints a warning
+  #
+  def print_warning(msg='')
+    output.print_warning(msg) if (output)
+  end
 
 
-	#
-	# Prints a message with no decoration.
-	#
-	def print(msg='')
-		output.print(msg) if (output)
-	end
+  #
+  # Prints a message with no decoration.
+  #
+  def print(msg='')
+    output.print(msg) if (output)
+  end
 
-	#
-	# Flushes any buffered output.
-	#
-	def flush
-		output.flush(msg) if (output)
-	end
+  #
+  # Flushes any buffered output.
+  #
+  def flush
+    output.flush(msg) if (output)
+  end
 
 protected
 
-	attr_accessor :opts # :nodoc:
+  attr_accessor :opts # :nodoc:
 
-	##
-	#
-	# Console command dispatcher helpers.
-	#
-	##
+  ##
+  #
+  # Console command dispatcher helpers.
+  #
+  ##
 
-	#
-	# Adds the console dispatcher.
-	#
-	def add_console_dispatcher(disp)
-		if (opts['ConsoleDriver'])
-			opts['ConsoleDriver'].append_dispatcher(disp)
-		end
-	end
+  #
+  # Adds the console dispatcher.
+  #
+  def add_console_dispatcher(disp)
+    if (opts['ConsoleDriver'])
+      opts['ConsoleDriver'].append_dispatcher(disp)
+    end
+  end
 
-	#
-	# Removes the console dispatcher.
-	#
-	def remove_console_dispatcher(name)
-		if (opts['ConsoleDriver'])
-			opts['ConsoleDriver'].remove_dispatcher(name)
-		end
-	end
+  #
+  # Removes the console dispatcher.
+  #
+  def remove_console_dispatcher(name)
+    if (opts['ConsoleDriver'])
+      opts['ConsoleDriver'].remove_dispatcher(name)
+    end
+  end
 
 end
 
