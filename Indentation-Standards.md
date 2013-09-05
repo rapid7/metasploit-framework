@@ -109,7 +109,7 @@ By now, we should have a pretty good idea of how to deal with conflicts and how 
  - Periodically retab as [@tabassassin](https://github.com/tabassassin) to catch stragglers that snuck in.
  - Periodically offer retabbing services as [@tabassassin](https://github.com/tabassassin) as above.
  - ~~Write a procedure for retabbing incoming pull requests upon landing, per committer (don't bother with blocking on [@tabassassin](https://github.com/tabassassin) doing the work).~~
-  * Right here: https://github.com/rapid7/metasploit-framework/wiki/Indentation-Standards#tldr-on-retabbing
+  * Right here in [MSF-TABS](https://github.com/rapid7/metasploit-framework/wiki/Indentation-Standards#tldr-on-retabbing)
 
 ### By October 8
  - Convert msftidy.rb to enforce spaces only, warn about hard tabs.
