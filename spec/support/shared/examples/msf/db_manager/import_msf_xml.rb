@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 require 'builder'
 
 shared_examples_for 'Msf::DBManager::ImportMsfXml' do
@@ -81,15 +82,6 @@ shared_examples_for 'Msf::DBManager::ImportMsfXml' do
 
 	let(:xml) do
 		Builder::XmlMarkup.new(:indent => 2)
-	end
-
-	before(:each) do
-		configurations = Metasploit::Framework::Database.configurations
-		spec = configurations[Metasploit::Framework.env]
-
-		# Need to connect or Msf::DBManager#active will be false and
-		# Msf::DBManager#report_* methods won't create any records.
-		db_manager.connect(spec)
 	end
 
 	it 'should include methods from module so method can be overridden easier in pro' do
