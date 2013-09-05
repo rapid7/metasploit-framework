@@ -13,40 +13,40 @@ class UnknownSignature < InvalidExeFormat ; end
 
 # actually calls autoexe_load for the detected filetype from #execlass_from_signature
 def self.load(str, *a, &b)
-	s = str
-	s = str.data if s.kind_of? EncodedData
-	execlass_from_signature(s).autoexe_load(str, *a, &b)
+  s = str
+  s = str.data if s.kind_of? EncodedData
+  execlass_from_signature(s).autoexe_load(str, *a, &b)
 end
 
 # match the actual exe class from the raw file inspection using the registered signature list
 # calls #unknown_signature if nothing matches
 def self.execlass_from_signature(raw)
-	m = @signatures.find { |sig, exe|
-		case sig
-		when String; raw[0, sig.length] == sig
-		when Proc; sig[raw]
-		end
-	}
-	e = m ? m[1] : unknown_signature(raw)
-	case e
-	when String; Metasm.const_get(e)
-	when Proc; e.call
-	else e
-	end
+  m = @signatures.find { |sig, exe|
+    case sig
+    when String; raw[0, sig.length] == sig
+    when Proc; sig[raw]
+    end
+  }
+  e = m ? m[1] : unknown_signature(raw)
+  case e
+  when String; Metasm.const_get(e)
+  when Proc; e.call
+  else e
+  end
 end
 
 # register a new binary file signature
 def self.register_signature(sig, exe=nil, &b)
-	(@signatures ||= []) << [sig, exe || b]
+  (@signatures ||= []) << [sig, exe || b]
 end
 
 def self.init_signatures(sig=[])
-	@signatures = sig
+  @signatures = sig
 end
 
 # this function is called when no signature matches
 def self.unknown_signature(raw)
-	raise UnknownSignature, "unrecognized executable file format #{raw[0, 4].unpack('H*').first.inspect}"
+  raise UnknownSignature, "unrecognized executable file format #{raw[0, 4].unpack('H*').first.inspect}"
 end
 
 # raw signature copies (avoid triggering exefmt autorequire)
@@ -62,14 +62,14 @@ register_signature('Metasm.dasm') { Disassembler }
 
 # replacement for AutoExe where #load defaults to a Shellcode of the specified CPU
 def self.orshellcode(cpu=nil, &b)
-	# here we create an anonymous subclass of AutoExe whose #unknown_sig is patched to return a Shellcode instead of raise()ing
-	c = ::Class.new(self)
-	# yeeehaa
-	class << c ; self ; end.send(:define_method, :unknown_signature) { |raw|
-		Shellcode.withcpu(cpu || b[raw])
-	}
-	c.init_signatures @signatures
-	c
+  # here we create an anonymous subclass of AutoExe whose #unknown_sig is patched to return a Shellcode instead of raise()ing
+  c = ::Class.new(self)
+  # yeeehaa
+  class << c ; self ; end.send(:define_method, :unknown_signature) { |raw|
+    Shellcode.withcpu(cpu || b[raw])
+  }
+  c.init_signatures @signatures
+  c
 end
 end
 

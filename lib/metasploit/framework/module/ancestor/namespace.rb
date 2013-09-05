@@ -30,16 +30,16 @@ module Metasploit::Framework::Module::Ancestor::Namespace
   end
 
   def metasploit_class!(module_path, module_reference_name)
-	  metasploit_class = self.metasploit_class
+    metasploit_class = self.metasploit_class
 
-	  unless metasploit_class
-		  raise Metasploit::Framework::Module::Ancestor::Error::MetasploitModuleIncompatibility.new(
-				        :module_path => module_path,
-				        :module_reference_name => module_reference_name
-		        )
-	  end
+    unless metasploit_class
+      raise Metasploit::Framework::Module::Ancestor::Error::MetasploitModuleIncompatibility.new(
+                :module_path => module_path,
+                :module_reference_name => module_reference_name
+            )
+    end
 
-	  metasploit_class
+    metasploit_class
   end
 
   # Raises an error unless {Msf::Framework::VersionCore} and {Msf::Framework::VersionAPI} meet the minimum required
