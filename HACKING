@@ -34,12 +34,13 @@ puts.
 2. Don't read from standard input, doing so will make your code 
 lock up the entire module when called from other interfaces. If you 
 need user input, you can either register an option or expose an 
-interactve session type specific for the type of exploit.
+interactive session type specific for the type of exploit.
 
 3. Don't use "sleep". It has been known to cause issues with
-multi-threaded programs on various platforms. Instead, we use
-"select(nil, nil, nil, <time>)" throughout the framework. We have
-found this works around the underlying issue.
+multi-threaded programs on various platforms running an older version of
+Ruby such as 1.8. Instead, we use "select(nil, nil, nil, <time>)" or
+Rex.sleep() throughout the framework. We have found this works around
+the underlying issue.
 
 4. Always use Rex sockets, not ruby sockets.  This includes
 third-party libraries such as Net::Http.  There are several very good
@@ -48,7 +49,7 @@ the creation of ruby sockets and won't know how to clean them up in
 case your module raises an exception without cleaning up after itself.
 Secondly, non-Rex sockets do not know about routes and therefore can't
 be used through a meterpreter tunnel.  Lastly, regular sockets miss
-out on msf's proxy and ssl features.  Msf includes many protocols
+out on msf's proxy and SSL features.  Msf includes many protocols
 already implemented with Rex and if the protocol you need is missing,
 porting another library to use them is straight-forward.  See our
 Net::SSH modifications in lib/net/ssh/ for an example.
@@ -110,7 +111,15 @@ Non-scanner aux modules use run().
 Submitting Your Code
 ====================
 
-The process for submitting new modules via GitHub is documented here:
+To get started with a Metasploit Framework source clone, simply:
+
+  - Fork rapid7/metasploit-framework to your GitHub account
+  - git clone git://github.com/YourName/metasploit-framework.git
+  - gem install bundler
+  - bundle install
+
+More detailed documentation regarding the process for submitting new
+modules via GitHub is documented here:
 
 https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment
 
@@ -121,8 +130,8 @@ development team. Note that this process requires a GitHub account.
 
 For Git commits, please adhere to 50/72 formatting: your commits should
 start with a line 50 characters or less, followed by a blank line,
-followed by one or more lines of explanitory text wrapped at at 72
-characters Pull requests with commits not formmated this way will
+followed by one or more lines of explanatory text wrapped at at 72
+characters Pull requests with commits not formatted this way will
 be rejected without review.
 
 For modules, note that Author field is not automatic, and should be 

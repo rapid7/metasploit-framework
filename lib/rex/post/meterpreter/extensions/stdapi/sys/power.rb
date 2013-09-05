@@ -21,41 +21,40 @@ module Sys
 ###
 class Power
 
-	class <<self
-		attr_accessor :client
-	end
+  class <<self
+    attr_accessor :client
+  end
 
-	#
-	# Calls ExitWindows on the remote machine with the supplied parameters.
-	#
-	def Power._exitwindows(flags, reason = 0) # :nodoc:
-		request = Packet.create_request('stdapi_sys_power_exitwindows')
+  #
+  # Calls ExitWindows on the remote machine with the supplied parameters.
+  #
+  def Power._exitwindows(flags, reason = 0, force = 0) # :nodoc:
+    request = Packet.create_request('stdapi_sys_power_exitwindows')
 
-		request.add_tlv(TLV_TYPE_POWER_FLAGS, flags);
-		request.add_tlv(TLV_TYPE_POWER_REASON, reason);
+    flags |= EWX_FORCEIFHUNG if force == 1
+    flags |= EWX_FORCE       if force == 2
 
-		response = client.send_request(request)
+    request.add_tlv(TLV_TYPE_POWER_FLAGS, flags);
+    request.add_tlv(TLV_TYPE_POWER_REASON, reason);
 
-		return self
-	end
+    response = client.send_request(request)
 
-	#
-	# Reboots the remote machine.
-	#
-	def Power.reboot(reason = 0)
-		self._exitwindows(EWX_REBOOT, reason)
-	end
+    return response
+  end
 
-	#
-	# Shuts down the remote machine.
-	#
-	def Power.shutdown(force = 0, reason = 0)
-		flags  = EWX_POWEROFF
-		flags |= EWX_FORCEIFHUNG if force == 1
-		flags |= EWX_FORCE       if force == 2
+  #
+  # Reboots the remote machine.
+  #
+  def Power.reboot(force = 0, reason = 0)
+    self._exitwindows(EWX_REBOOT, reason, force)
+  end
 
-		self._exitwindows(flags, reason)
-	end
+  #
+  # Shuts down the remote machine.
+  #
+  def Power.shutdown(force = 0, reason = 0)
+    self._exitwindows(EWX_POWEROFF, reason, force)
+  end
 
 end
 

@@ -9,26 +9,25 @@ require 'msf/core'
 require "net/dns/resolver"
 
 class Metasploit3 < Msf::Auxiliary
-	include Msf::Auxiliary::Report
+  include Msf::Auxiliary::Report
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'		   => 'DNS Record Scanner and Enumerator ',
-			'Description'	=> %q{
-				This module can be used to gather information about a domain from a
-				given DNS server by performing various DNS queries such as zone
-				transfers, reverse lookups, SRV record bruteforcing, and other techniques.
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'		   => 'DNS Record Scanner and Enumerator ',
+      'Description'	=> %q{
+        This module can be used to gather information about a domain from a
+        given DNS server by performing various DNS queries such as zone
+        transfers, reverse lookups, SRV record bruteforcing, and other techniques.
 
-			},
-			'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
-			'License'		=> MSF_LICENSE,
-			'Version'		=> '$Revision$',
-			'References' 	=>
-				[
-					['CVE', '1999-0532'],
-					['OSVDB', '492'],
-				]
-			))
+      },
+      'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
+      'License'		=> MSF_LICENSE,
+      'References' 	=>
+        [
+          ['CVE', '1999-0532'],
+          ['OSVDB', '492'],
+        ]
+      ))
 
 		register_options(
 			[
@@ -223,23 +222,23 @@ class Metasploit3 < Msf::Auxiliary
 			"gs", "info", "biz", "su", "name", "coop", "aero" ]
 		print_status("Performing Top Level Domain expansion using #{tlds.size} TLDs")
 
-		tlds.each do |tld|
-			query1 = @res.search("#{target}.#{tld}")
-			if (query1)
-				query1.answer.each do |rr|
-					print_status("Domain: #{target}.#{tld} Name: #{rr.name} IP address: #{rr.address} Record: A ") if rr.class == Net::DNS::RR::A
-					report_note(:host => @nsinuse.to_s,
-						:proto => 'udp',
-						:sname => 'dns',
-						:port => 53,
-						:type => 'dns.enum',
-						:update => :unique_data,
-						:data => "#{rr.address.to_s},#{target}.#{tld},A") if rr.class == Net::DNS::RR::A
-				end
-			end
-		end
+    tlds.each do |tld|
+      query1 = @res.search("#{target}.#{tld}")
+      if (query1)
+        query1.answer.each do |rr|
+          print_status("Domain: #{target}.#{tld} Name: #{rr.name} IP address: #{rr.address} Record: A ") if rr.class == Net::DNS::RR::A
+          report_note(:host => @nsinuse.to_s,
+            :proto => 'udp',
+            :sname => 'dns',
+            :port => 53,
+            :type => 'dns.enum',
+            :update => :unique_data,
+            :data => "#{rr.address.to_s},#{target}.#{tld},A") if rr.class == Net::DNS::RR::A
+        end
+      end
+    end
 
-	end
+  end
 
 	#-------------------------------------------------------------------------------
 	def split_wordlist(words)
@@ -442,144 +441,144 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-	#-------------------------------------------------------------------------------
-	#For Performing Zone Transfers
-	def axfr(target, nssrv)
-		print_status("Performing zone transfer against all nameservers in #{target}")
-		if not nssrv.nil?
-			@res.nameserver=(nssrv)
-			@nsinuse = nssrv
-		end
-		@res.tcp_timeout=15
-		query = @res.query(target, "NS")
-		if (query.answer.length != 0)
-			(query.answer.select { |i| i.class == Net::DNS::RR::NS}).each do |nsrcd|
-				print_status("Testing nameserver: #{nsrcd.nsdname}")
-				nssrvquery = @res.query(nsrcd.nsdname, "A")
-				if nssrvquery.answer.length == 0
-					nssrvip = Rex::Socket.gethostbyname(nsrcd.nsdname)[3].bytes.reduce {|a,b| [a,b].join(".")}
-				else
-					nssrvip = nssrvquery.answer[0].address.to_s
-				end
-				begin
-					@res.nameserver=(nssrvip)
-					@nsinuse = nssrvip
-					zone = []
-					zone = @res.axfr(target)
-					if zone.length != 0
-						print_status("Zone transfer successful")
-						report_note(:host => nssrvip,
-							:proto => 'udp',
-							:sname => 'dns',
-							:port => 53 ,
-							:type => 'dns.enum',
-							:update => :unique_data,
-							:data => "Zone transfer successful")
-						#Prints each record according to its type
-						zone.each do |response|
-							response.answer.each do |rr|
-								begin
-								case rr.type
-								when "A"
-									print_status("Name: #{rr.name} IP address: #{rr.address} Record: A ")
-									report_note(:host => nssrvip,
-										:proto => 'udp',
-										:sname => 'dns',
-										:port => 53 ,
-										:type => 'dns.enum',
-										:update => :unique_data,
-										:data => "#{rr.address.to_s},#{rr.name},A")
-								when "SOA"
-									print_status("Name: #{rr.mname} Record: SOA")
-									report_note(:host => nssrvip,
-										:proto => 'udp',
-										:sname => 'dns',
-										:port => 53 ,
-										:type => 'dns.enum',
-										:update => :unique_data,
-										:data => "#{rr.name},SOA")
-								when "MX"
-									print_status("Name: #{rr.exchange} Preference: #{rr.preference} Record: MX")
-									report_note(:host => nssrvip,
-										:proto => 'udp',
-										:sname => 'dns',
-										:port => 53 ,
-										:type => 'dns.enum',
-										:update => :unique_data,
-										:data => "#{rr.exchange},MX")
-								when "CNAME"
-									print_status("Name: #{rr.cname} Record: CNAME")
-									report_note(:host => nssrvip,
-										:proto => 'udp',
-										:sname => 'dns',
-										:port => 53 ,
-										:type => 'dns.enum',
-										:update => :unique_data,
-										:data => "#{rr.cname},CNAME")
-								when "HINFO"
-									print_status("CPU: #{rr.cpu} OS: #{rr.os} Record: HINFO")
-									report_note(:host => nssrvip,
-										:proto => 'udp',
-										:sname => 'dns',
-										:port => 53 ,
-										:type => 'dns.enum',
-										:update => :unique_data,
-										:data => "CPU:#{rr.cpu},OS:#{rr.os},HINFO")
-								when "AAAA"
-									print_status("IPv6 Address: #{rr.address} Record: AAAA")
-									report_note(:host => nssrvip,
-										:proto => 'udp',
-										:sname => 'dns',
-										:port => 53 ,
-										:type => 'dns.enum',
-										:update => :unique_data,
-										:data => "#{rr.address.to_s}, AAAA")
-								when "NS"
-									print_status("Name: #{rr.nsdname} Record: NS")
-									report_note(:host =>  nssrvip,
-										:proto => 'udp',
-										:sname => 'dns',
-										:port => 53 ,
-										:type => 'dns.enum',
-										:update => :unique_data,
-										:data => "#{rr.nsdname},NS")
-								when "TXT"
-									print_status("Text: #{rr.inspect}")
-									report_note(:host =>  nssrvip,
-										:proto => 'udp',
-										:sname => 'dns',
-										:port => 53 ,
-										:type => 'dns.enum',
-										:update => :unique_data,
-										:data => rr.inspect)
-								when "SRV"
-									print_status("Host: #{rr.host} Port: #{rr.port} Priority: #{rr.priority} Record: SRV")
-									report_note(:host =>  nssrvip,
-										:proto => 'udp',
-										:sname => 'dns',
-										:port => 53 ,
-										:type => 'dns.enum',
-										:update => :unique_data,
-										:data => "#{rr.host},#{rr.port},#{rr.priority},SRV")
-								end
-								rescue ActiveRecord::RecordInvalid
-									#Do nothing. Probably tried to store :host => 127.0.0.1
-								end
-							end
-						end
-					else
-						print_error("Zone transfer failed (length was zero)")
-					end
-				rescue Exception => e
-					print_error("Error executing zone transfer: #{e.message}")
-					elog("Error executing zone transfer: #{e.message}\n#{e.backtrace.join("\n")}")
-				end
-			end
+  #-------------------------------------------------------------------------------
+  #For Performing Zone Transfers
+  def axfr(target, nssrv)
+    print_status("Performing zone transfer against all nameservers in #{target}")
+    if not nssrv.nil?
+      @res.nameserver=(nssrv)
+      @nsinuse = nssrv
+    end
+    @res.tcp_timeout=15
+    query = @res.query(target, "NS")
+    if (query.answer.length != 0)
+      (query.answer.select { |i| i.class == Net::DNS::RR::NS}).each do |nsrcd|
+        print_status("Testing nameserver: #{nsrcd.nsdname}")
+        nssrvquery = @res.query(nsrcd.nsdname, "A")
+        if nssrvquery.answer.length == 0
+          nssrvip = Rex::Socket.gethostbyname(nsrcd.nsdname)[3].bytes.reduce {|a,b| [a,b].join(".")}
+        else
+          nssrvip = nssrvquery.answer[0].address.to_s
+        end
+        begin
+          @res.nameserver=(nssrvip)
+          @nsinuse = nssrvip
+          zone = []
+          zone = @res.axfr(target)
+          if zone.length != 0
+            print_status("Zone transfer successful")
+            report_note(:host => nssrvip,
+              :proto => 'udp',
+              :sname => 'dns',
+              :port => 53 ,
+              :type => 'dns.enum',
+              :update => :unique_data,
+              :data => "Zone transfer successful")
+            #Prints each record according to its type
+            zone.each do |response|
+              response.answer.each do |rr|
+                begin
+                case rr.type
+                when "A"
+                  print_status("Name: #{rr.name} IP address: #{rr.address} Record: A ")
+                  report_note(:host => nssrvip,
+                    :proto => 'udp',
+                    :sname => 'dns',
+                    :port => 53 ,
+                    :type => 'dns.enum',
+                    :update => :unique_data,
+                    :data => "#{rr.address.to_s},#{rr.name},A")
+                when "SOA"
+                  print_status("Name: #{rr.mname} Record: SOA")
+                  report_note(:host => nssrvip,
+                    :proto => 'udp',
+                    :sname => 'dns',
+                    :port => 53 ,
+                    :type => 'dns.enum',
+                    :update => :unique_data,
+                    :data => "#{rr.name},SOA")
+                when "MX"
+                  print_status("Name: #{rr.exchange} Preference: #{rr.preference} Record: MX")
+                  report_note(:host => nssrvip,
+                    :proto => 'udp',
+                    :sname => 'dns',
+                    :port => 53 ,
+                    :type => 'dns.enum',
+                    :update => :unique_data,
+                    :data => "#{rr.exchange},MX")
+                when "CNAME"
+                  print_status("Name: #{rr.cname} Record: CNAME")
+                  report_note(:host => nssrvip,
+                    :proto => 'udp',
+                    :sname => 'dns',
+                    :port => 53 ,
+                    :type => 'dns.enum',
+                    :update => :unique_data,
+                    :data => "#{rr.cname},CNAME")
+                when "HINFO"
+                  print_status("CPU: #{rr.cpu} OS: #{rr.os} Record: HINFO")
+                  report_note(:host => nssrvip,
+                    :proto => 'udp',
+                    :sname => 'dns',
+                    :port => 53 ,
+                    :type => 'dns.enum',
+                    :update => :unique_data,
+                    :data => "CPU:#{rr.cpu},OS:#{rr.os},HINFO")
+                when "AAAA"
+                  print_status("IPv6 Address: #{rr.address} Record: AAAA")
+                  report_note(:host => nssrvip,
+                    :proto => 'udp',
+                    :sname => 'dns',
+                    :port => 53 ,
+                    :type => 'dns.enum',
+                    :update => :unique_data,
+                    :data => "#{rr.address.to_s}, AAAA")
+                when "NS"
+                  print_status("Name: #{rr.nsdname} Record: NS")
+                  report_note(:host =>  nssrvip,
+                    :proto => 'udp',
+                    :sname => 'dns',
+                    :port => 53 ,
+                    :type => 'dns.enum',
+                    :update => :unique_data,
+                    :data => "#{rr.nsdname},NS")
+                when "TXT"
+                  print_status("Text: #{rr.inspect}")
+                  report_note(:host =>  nssrvip,
+                    :proto => 'udp',
+                    :sname => 'dns',
+                    :port => 53 ,
+                    :type => 'dns.enum',
+                    :update => :unique_data,
+                    :data => rr.inspect)
+                when "SRV"
+                  print_status("Host: #{rr.host} Port: #{rr.port} Priority: #{rr.priority} Record: SRV")
+                  report_note(:host =>  nssrvip,
+                    :proto => 'udp',
+                    :sname => 'dns',
+                    :port => 53 ,
+                    :type => 'dns.enum',
+                    :update => :unique_data,
+                    :data => "#{rr.host},#{rr.port},#{rr.priority},SRV")
+                end
+                rescue ActiveRecord::RecordInvalid
+                  #Do nothing. Probably tried to store :host => 127.0.0.1
+                end
+              end
+            end
+          else
+            print_error("Zone transfer failed (length was zero)")
+          end
+        rescue Exception => e
+          print_error("Error executing zone transfer: #{e.message}")
+          elog("Error executing zone transfer: #{e.message}\n#{e.backtrace.join("\n")}")
+        end
+      end
 
-		else
-			print_error("Could not resolve domain #{target}")
-		end
-	end
+    else
+      print_error("Could not resolve domain #{target}")
+    end
+  end
 
 	def run
 		@dns_enum_threads = []
@@ -602,13 +601,13 @@ class Metasploit3 < Msf::Auxiliary
 		wldcrd6 = wildcard6(datastore['DOMAIN'])
 		switchdns(datastore['DOMAIN'])
 
-		if(datastore['ENUM_STD'])
-			genrcd(datastore['DOMAIN'])
-		end
+    if(datastore['ENUM_STD'])
+      genrcd(datastore['DOMAIN'])
+    end
 
-		if(datastore['ENUM_TLD'])
-			tldexpnd(datastore['DOMAIN'],datastore['NS'])
-		end
+    if(datastore['ENUM_TLD'])
+      tldexpnd(datastore['DOMAIN'],datastore['NS'])
+    end
 
 		if(datastore['ENUM_BRT'])
 			if wldcrd and datastore['STOP_WLDCRD']
@@ -626,13 +625,13 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 
-		if(datastore['ENUM_AXFR'])
-			axfr(datastore['DOMAIN'],datastore['NS'])
-		end
+    if(datastore['ENUM_AXFR'])
+      axfr(datastore['DOMAIN'],datastore['NS'])
+    end
 
-		if(datastore['ENUM_SRV'])
-			srvqry(datastore['DOMAIN'],datastore['NS'])
-		end
+    if(datastore['ENUM_SRV'])
+      srvqry(datastore['DOMAIN'],datastore['NS'])
+    end
 
 		if(datastore['ENUM_RVL'] and datastore['IPRANGE'] and not datastore['IPRANGE'].empty?)
 			reverselkp(datastore['IPRANGE'],datastore['NS'])

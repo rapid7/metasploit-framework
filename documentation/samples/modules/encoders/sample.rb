@@ -1,16 +1,9 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
-
-module Msf
-module Encoders
 
 ###
 #
@@ -18,16 +11,16 @@ module Encoders
 # that it's passed.
 #
 ###
-class Sample < Msf::Encoder
+class Metasploit4 < Msf::Encoder
 
 	def initialize
 		super(
-			'Name'             => 'Sample encoder',
-			'Version'          => '$Revision$',
+			'Name'             => 'Sample Encoder',
 			'Description'      => %q{
 				Sample encoder that just returns the block it's passed
 				when encoding occurs.
 			},
+			'License'          => MSF_LICENSE,
 			'Author'           => 'skape',
 			'Arch'             => ARCH_ALL)
 	end
@@ -39,7 +32,4 @@ class Sample < Msf::Encoder
 		buf
 	end
 
-end
-
-end
 end

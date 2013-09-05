@@ -1,5 +1,5 @@
 
-Metasploit
+Metasploit [![Build Status](https://travis-ci.org/rapid7/metasploit-framework.png)](https://travis-ci.org/rapid7/metasploit-framework) [![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/rapid7/metasploit-framework)
 ==
 The Metasploit Framework is released under a BSD-style license. See
 COPYING for more details.
@@ -40,13 +40,14 @@ reading some of the great tutorials online:
 
 Contributing
 --
-See the [Dev Environment Setup][wiki-devenv] guide on github which will
+See the [Dev Environment Setup][wiki-devenv] guide on GitHub which will
 walk you through the whole process starting from installing all the
 dependencies, to cloning the repository, and finally to submitting a
-pull request.
+pull request. For slightly more info, see
+[Contributing](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md).
 
 
-[wiki-devenv]: https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment "Metasploit Development Environment Setup"
+[wiki-devenv]: https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment "Metasploit Development Environment Setup"
 [wiki-start]: https://github.com/rapid7/metasploit-framework/wiki/ "Metasploit Wiki"
 [wiki-usage]: https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit "Using Metasploit"
 [unleashed]: http://www.offensive-security.com/metasploit-unleashed/ "Metasploit Unleashed"

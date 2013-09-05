@@ -1,4 +1,4 @@
-Copyright (C) 2006-2012, Rapid7 Inc.
+Copyright (C) 2006-2013, Rapid7 Inc.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -11,7 +11,7 @@ are permitted provided that the following conditions are met:
 	  this list of conditions and the following disclaimer in the documentation
 	  and/or other materials provided with the distribution.
 
-    * Neither the name of Rapid7 LLC nor the names of its contributors
+    * Neither the name of Rapid7, Inc. nor the names of its contributors
 	  may be used to endorse or promote products derived from this software
 	  without specific prior written permission.
 
@@ -30,24 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 The Metasploit Framework is provided under the 3-clause BSD license above.
 
-The copyright on this package is held by Rapid7 LLC.
+The copyright on this package is held by Rapid7, Inc.
 
-This license does not apply to the following components:
- - The Bit-Struct library located under lib/bit-struct
- - The OpenSSL library embedded into the Meterpreter payload binaries and the
-   corresponding header files in the source tree
- - The Packet Sniffer SDK (MicroOLAP) library embedded into the Meterpreter
-   Sniffer extension. HD Moore has a single-seat developer license.
- - The modified TightVNC binaries and their associated source code.
- - The Byakugan plugin located under external/source/byakugan
- - The Metasm library located under lib/metasm
- - The PcapRub library located under external/pcaprub
- - The Rabal library located under lib/rabal
- - The PacketFu library located under lib/packetfu
- - The Ruby-Lorcon library located under external/ruby-lorcon
- - The SNMP library located under lib/snmp
- - The Zip library located under lib/zip
- - The SSHKey library located under lib/sshkey
-
-Details for the above packages can be found in the THIRD-PARTY file.
+This license does not apply to several components within the Metasploit
+Framework source tree.  For more details see the LICENSE file.
 

