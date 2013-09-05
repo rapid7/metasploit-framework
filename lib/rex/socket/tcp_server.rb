@@ -11,57 +11,57 @@ require 'rex/io/stream_server'
 ###
 module  Rex::Socket::TcpServer
 
-	include Rex::Socket
-	include Rex::IO::StreamServer
+  include Rex::Socket
+  include Rex::IO::StreamServer
 
-	##
-	#
-	# Factory
-	#
-	##
+  ##
+  #
+  # Factory
+  #
+  ##
 
-	#
-	# Creates the server using the supplied hash.
-	#
-	def self.create(hash = {})
-		hash['Proto'] = 'tcp'
-		hash['Server'] = true
-		self.create_param(Rex::Socket::Parameters.from_hash(hash))
-	end
+  #
+  # Creates the server using the supplied hash.
+  #
+  def self.create(hash = {})
+    hash['Proto'] = 'tcp'
+    hash['Server'] = true
+    self.create_param(Rex::Socket::Parameters.from_hash(hash))
+  end
 
-	#
-	# Wrapper around the base class' creation method that automatically sets
-	# the parameter's protocol to TCP and sets the server flag to true.
-	#
-	def self.create_param(param)
-		param.proto  = 'tcp'
-		param.server = true
-		Rex::Socket.create_param(param)
-	end
+  #
+  # Wrapper around the base class' creation method that automatically sets
+  # the parameter's protocol to TCP and sets the server flag to true.
+  #
+  def self.create_param(param)
+    param.proto  = 'tcp'
+    param.server = true
+    Rex::Socket.create_param(param)
+  end
 
-	#
-	# Accepts a child connection.
-	#
-	def accept(opts = {})
-		t = super()
+  #
+  # Accepts a child connection.
+  #
+  def accept(opts = {})
+    t = super()
 
-		# jRuby compatibility
-		if t.respond_to?('[]')
-			t = t[0]
-		end
+    # jRuby compatibility
+    if t.respond_to?('[]')
+      t = t[0]
+    end
 
-		if (t)
-			t.extend(Rex::Socket::Tcp)
-			t.context = self.context
+    if (t)
+      t.extend(Rex::Socket::Tcp)
+      t.context = self.context
 
-			pn = t.getpeername
+      pn = t.getpeername
 
-			t.peerhost = pn[1]
-			t.peerport = pn[2]
-		end
+      t.peerhost = pn[1]
+      t.peerport = pn[2]
+    end
 
-		t
-	end
+    t
+  end
 
 end
 
