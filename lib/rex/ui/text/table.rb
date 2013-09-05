@@ -222,96 +222,96 @@ class Table
 
 protected
 
-	#
-	# Defaults cell widths and alignments.
-	#
-	def defaults # :nodoc:
-		self.columns.length.times { |idx|
-		}
-	end
+  #
+  # Defaults cell widths and alignments.
+  #
+  def defaults # :nodoc:
+    self.columns.length.times { |idx|
+    }
+  end
 
-	#
-	# Checks to see if the row is an hr.
-	#
-	def is_hr(row) # :nodoc:
-		return ((row.kind_of?(String)) && (row == '__hr__'))
-	end
+  #
+  # Checks to see if the row is an hr.
+  #
+  def is_hr(row) # :nodoc:
+    return ((row.kind_of?(String)) && (row == '__hr__'))
+  end
 
-	#
-	# Converts the columns to a string.
-	#
-	def columns_to_s # :nodoc:
-		nameline = ' ' * indent
-		barline  = nameline.dup
-		last_col = nil
-		last_idx = nil
-		columns.each_with_index { |col,idx|
-			if (last_col)
-				nameline << pad(' ', last_col, last_idx)
+  #
+  # Converts the columns to a string.
+  #
+  def columns_to_s # :nodoc:
+    nameline = ' ' * indent
+    barline  = nameline.dup
+    last_col = nil
+    last_idx = nil
+    columns.each_with_index { |col,idx|
+      if (last_col)
+        nameline << pad(' ', last_col, last_idx)
 
-				remainder = colprops[last_idx]['MaxWidth'] - last_col.length
-			if (remainder < 0)
-				remainder = 0
-			end
-				barline << (' ' * (cellpad + remainder))
-			end
-			nameline << col
-			barline << ('-' * col.length)
+        remainder = colprops[last_idx]['MaxWidth'] - last_col.length
+      if (remainder < 0)
+        remainder = 0
+      end
+        barline << (' ' * (cellpad + remainder))
+      end
+      nameline << col
+      barline << ('-' * col.length)
 
-			last_col = col
-			last_idx = idx
-		}
+      last_col = col
+      last_idx = idx
+    }
 
-		return "#{nameline}\n#{barline}"
-	end
+    return "#{nameline}\n#{barline}"
+  end
 
-	#
-	# Converts an hr to a string.
-	#
-	def hr_to_s # :nodoc:
-		return "\n"
-	end
+  #
+  # Converts an hr to a string.
+  #
+  def hr_to_s # :nodoc:
+    return "\n"
+  end
 
-	#
-	# Converts a row to a string.
-	#
-	def row_to_s(row) # :nodoc:
-		line = ' ' * indent
-		last_cell = nil
-		last_idx = nil
-		row.each_with_index { |cell, idx|
-			if (last_cell)
-				line << pad(' ', last_cell.to_s, last_idx)
-			end
-			# line << pad(' ', cell.to_s, idx)
-			# Limit wide cells
-			if colprops[idx]['MaxChar']
-				last_cell = cell.to_s[0..colprops[idx]['MaxChar'].to_i]
-				line << last_cell
-			else
-				line << cell.to_s
-				last_cell = cell
-			end
-			last_idx = idx
-		}
+  #
+  # Converts a row to a string.
+  #
+  def row_to_s(row) # :nodoc:
+    line = ' ' * indent
+    last_cell = nil
+    last_idx = nil
+    row.each_with_index { |cell, idx|
+      if (last_cell)
+        line << pad(' ', last_cell.to_s, last_idx)
+      end
+      # line << pad(' ', cell.to_s, idx)
+      # Limit wide cells
+      if colprops[idx]['MaxChar']
+        last_cell = cell.to_s[0..colprops[idx]['MaxChar'].to_i]
+        line << last_cell
+      else
+        line << cell.to_s
+        last_cell = cell
+      end
+      last_idx = idx
+    }
 
-		return line + "\n"
-	end
+    return line + "\n"
+  end
 
-	#
-	# Pads out with the supplied character for the remainder of the space given
-	# some text and a column index.
-	#
-	def pad(chr, buf, colidx, use_cell_pad = true) # :nodoc:
-		remainder = colprops[colidx]['MaxWidth'] - buf.length
-		val       = chr * remainder;
+  #
+  # Pads out with the supplied character for the remainder of the space given
+  # some text and a column index.
+  #
+  def pad(chr, buf, colidx, use_cell_pad = true) # :nodoc:
+    remainder = colprops[colidx]['MaxWidth'] - buf.length
+    val       = chr * remainder;
 
-		if (use_cell_pad)
-			val << ' ' * cellpad
-		end
+    if (use_cell_pad)
+      val << ' ' * cellpad
+    end
 
-		return val
-	end
+    return val
+  end
 
 
 end
