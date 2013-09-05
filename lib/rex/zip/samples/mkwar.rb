@@ -7,7 +7,7 @@
 
 msfbase = __FILE__
 while File.symlink?(msfbase)
-	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+  msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 inc = File.dirname(msfbase) + '/../../..'
 $:.unshift(inc)
@@ -17,20 +17,20 @@ require 'rex/zip'
 
 
 def rand_text_alpha(len)
-	buff = ""
+  buff = ""
 
-	foo = []
-	foo += ('A' .. 'Z').to_a
-	foo += ('a' .. 'z').to_a
+  foo = []
+  foo += ('A' .. 'Z').to_a
+  foo += ('a' .. 'z').to_a
 
-	# Generate a buffer from the remaining bytes
-	if foo.length >= 256
-		len.times { buff << Kernel.rand(256) }
-	else
-		len.times { buff << foo[ rand(foo.length) ] }
-	end
+  # Generate a buffer from the remaining bytes
+  if foo.length >= 256
+    len.times { buff << Kernel.rand(256) }
+  else
+    len.times { buff << foo[ rand(foo.length) ] }
+  end
 
-	return buff
+  return buff
 end
 
 
