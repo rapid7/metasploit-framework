@@ -3,18 +3,18 @@ module Rex
 module MIME
 class Part
 
-	require 'rex/mime/header'
+  require 'rex/mime/header'
 
-	attr_accessor :header, :content
+  attr_accessor :header, :content
 
-	def initialize
-		self.header = Rex::MIME::Header.new
-		self.content = ''
-	end
+  def initialize
+    self.header = Rex::MIME::Header.new
+    self.content = ''
+  end
 
-	def to_s
-		self.header.to_s + "\r\n" + self.content + "\r\n"
-	end
+  def to_s
+    self.header.to_s + "\r\n" + self.content + "\r\n"
+  end
 
 end
 end

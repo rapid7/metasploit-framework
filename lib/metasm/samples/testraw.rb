@@ -20,17 +20,17 @@ shellcode = Metasm::Shellcode.assemble(cpu, source).encode_string
 shellstring = shellcode.unpack('C*').map { |b| '\\x%02x' % b }.join
 
 if dump
-	puts shellstring
-	exit
+  puts shellstring
+  exit
 end
 
 File.open('test-testraw.c', 'w') { |fd|
-	fd.puts <<EOS
+  fd.puts <<EOS
 unsigned char sc[] = "#{shellstring}";
 int main(void)
 {
-	((void (*)())sc)();
-	return 42;
+  ((void (*)())sc)();
+  return 42;
 }
 EOS
 }
