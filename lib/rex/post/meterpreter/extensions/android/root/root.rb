@@ -16,16 +16,16 @@ module Root
 
 class Root
 
-	def initialize(client)
-		@client = client
-	end
+  def initialize(client)
+    @client = client
+  end
 
   def device_shutdown(n)
-		request = Packet.create_request('device_shutdown')
-		request.add_tlv(TLV_TYPE_SHUTDOWN_TIMER, n)
+    request = Packet.create_request('device_shutdown')
+    request.add_tlv(TLV_TYPE_SHUTDOWN_TIMER, n)
     response = client.send_request(request)
     return response.get_tlv(TLV_TYPE_SHUTDOWN_OK).value
-	end  
+  end  
   
   attr_accessor :client
 end

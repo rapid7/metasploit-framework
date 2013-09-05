@@ -16,28 +16,28 @@ module Android
 
 class Android < Extension
 
-	#
-	# Initializes an instance of the standard API extension.
-	#
-	def initialize(client)
-		super(client, 'android')
+  #
+  # Initializes an instance of the standard API extension.
+  #
+  def initialize(client)
+    super(client, 'android')
 
-		# Alias the following things on the client object so that they
-		# can be directly referenced
-		client.register_extension_aliases(
-			[
-				{
-					'name' => 'common',
-					'ext'  => Rex::Post::Meterpreter::Extensions::Android::Common::Common.new(client)
-				},
+    # Alias the following things on the client object so that they
+    # can be directly referenced
+    client.register_extension_aliases(
+      [
         {
-					'name' => 'root',
-					'ext'  => Rex::Post::Meterpreter::Extensions::Android::Root::Root.new(client)
-				}
-			])
-	end
+          'name' => 'common',
+          'ext'  => Rex::Post::Meterpreter::Extensions::Android::Common::Common.new(client)
+        },
+        {
+          'name' => 'root',
+          'ext'  => Rex::Post::Meterpreter::Extensions::Android::Root::Root.new(client)
+        }
+      ])
+  end
 
-	
+  
 end
 
 end; end; end; end; end
