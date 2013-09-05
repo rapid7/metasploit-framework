@@ -21,61 +21,61 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Options used by the 'execute' command.
   #
   @@execute_opts = Rex::Parser::Arguments.new(
-    "-a" => [ true,  "The arguments to pass to the command."                   ],
-    "-c" => [ false, "Channelized I/O (required for interaction)."             ],
-    "-f" => [ true,  "The executable command to run."                          ],
-    "-h" => [ false, "Help menu."                                              ],
-    "-H" => [ false, "Create the process hidden from view."                    ],
-    "-i" => [ false, "Interact with the process after creating it."            ],
-    "-m" => [ false, "Execute from memory."                                    ],
-    "-d" => [ true,  "The 'dummy' executable to launch when using -m."         ],
+    "-a" => [ true,  "The arguments to pass to the command."		   ],
+    "-c" => [ false, "Channelized I/O (required for interaction)."		   ],
+    "-f" => [ true,  "The executable command to run."			   ],
+    "-h" => [ false, "Help menu."						   ],
+    "-H" => [ false, "Create the process hidden from view."			   ],
+    "-i" => [ false, "Interact with the process after creating it."		   ],
+    "-m" => [ false, "Execute from memory."					   ],
+    "-d" => [ true,  "The 'dummy' executable to launch when using -m."	   ],
     "-t" => [ false, "Execute process with currently impersonated thread token"],
-    "-k" => [ false, "Execute process on the meterpreters current desktop"     ],
+    "-k" => [ false, "Execute process on the meterpreters current desktop"	   ],
     "-s" => [ true,  "Execute process in a given session as the session user"  ])
 
   #
   # Options used by the 'reboot' command.
   #
   @@reboot_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help menu."                                              ],
-    "-f" => [ true,  "Force a reboot, valid values [1|2]"                      ])
+    "-h" => [ false, "Help menu."						   ],
+    "-f" => [ true,  "Force a reboot, valid values [1|2]"			   ])
 
   #
   # Options used by the 'shutdown' command.
   #
   @@shutdown_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help menu."                                              ],
-    "-f" => [ true,  "Force a shutdown, valid values [1|2]"                    ])
+    "-h" => [ false, "Help menu."						   ],
+    "-f" => [ true,  "Force a shutdown, valid values [1|2]"			   ])
 
   #
   # Options used by the 'reg' command.
   #
   @@reg_opts = Rex::Parser::Arguments.new(
-    "-d" => [ true,  "The data to store in the registry value."                ],
-    "-h" => [ false, "Help menu."                                              ],
-    "-k" => [ true,  "The registry key path (E.g. HKLM\\Software\\Foo)."       ],
-    "-t" => [ true,  "The registry value type (E.g. REG_SZ)."                  ],
-    "-v" => [ true,  "The registry value name (E.g. Stuff)."                   ],
+    "-d" => [ true,  "The data to store in the registry value."		   ],
+    "-h" => [ false, "Help menu."						   ],
+    "-k" => [ true,  "The registry key path (E.g. HKLM\\Software\\Foo)."	   ],
+    "-t" => [ true,  "The registry value type (E.g. REG_SZ)."		   ],
+    "-v" => [ true,  "The registry value name (E.g. Stuff)."		   ],
     "-r" => [ true,  "The remote machine name to connect to (with current process credentials" ],
-    "-w" => [ false, "Set KEY_WOW64 flag, valid values [32|64]."               ])
+    "-w" => [ false, "Set KEY_WOW64 flag, valid values [32|64]."		   ])
 
   #
   # Options for the 'ps' command.
   #
   @@ps_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help menu."                                              ],
+    "-h" => [ false, "Help menu."						   ],
     "-S" => [ true,  "Filters processes on the process name using the supplied RegEx"],
-    "-A" => [ true,  "Filters processes on architecture (x86 or x86_64)"       ],
-    "-s" => [ false, "Show only SYSTEM processes"                              ],
+    "-A" => [ true,  "Filters processes on architecture (x86 or x86_64)"	   ],
+    "-s" => [ false, "Show only SYSTEM processes"				   ],
     "-U" => [ true,  "Filters processes on the user using the supplied RegEx"  ])
 
   #
   # Options for the 'suspend' command.
   #
   @@suspend_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help menu."                                              ],
+    "-h" => [ false, "Help menu."						   ],
     "-c" => [ false, "Continues suspending or resuming even if an error is encountered"],
-    "-r" => [ false, "Resumes the target processes instead of suspending"      ])
+    "-r" => [ false, "Resumes the target processes instead of suspending"	   ])
 
   #
   # List of supported commands.
@@ -88,12 +88,13 @@ class Console::CommandDispatcher::Stdapi::Sys
       "getpid"      => "Get the current process identifier",
       "getprivs"    => "Attempt to enable all privileges available to the current process",
       "getuid"      => "Get the user that the server is running as",
-      "kill"        => "Terminate a process",
-      "ps"          => "List running processes",
+      "kill"	      => "Terminate a process",
+      "ps"	      => "List running processes",
       "reboot"      => "Reboots the remote computer",
-      "reg"         => "Modify and interact with the remote registry",
+      "reg"	      => "Modify and interact with the remote registry",
       "rev2self"    => "Calls RevertToSelf() on the remote machine",
       "shell"       => "Drop into a system command shell",
+      "powershell"  => "Runs an interactive powershell",
       "shutdown"    => "Shuts down the remote computer",
       "steal_token" => "Attempts to steal an impersonation token from the target process",
       "suspend"     => "Suspends or resumes a list of processes",
@@ -103,13 +104,13 @@ class Console::CommandDispatcher::Stdapi::Sys
       "clearev"     => [ "stdapi_sys_eventlog_open", "stdapi_sys_eventlog_clear" ],
       "drop_token"  => [ "stdapi_sys_config_drop_token" ],
       "execute"     => [ "stdapi_sys_process_execute" ],
-      "getpid"      => [ "stdapi_sys_process_getpid"  ],
+      "getpid"      => [ "stdapi_sys_process_getpid"	],
       "getprivs"    => [ "stdapi_sys_config_getprivs" ],
       "getuid"      => [ "stdapi_sys_config_getuid" ],
-      "kill"        => [ "stdapi_sys_process_kill" ],
-      "ps"          => [ "stdapi_sys_process_get_processes" ],
+      "kill"	      => [ "stdapi_sys_process_kill" ],
+      "ps"	      => [ "stdapi_sys_process_get_processes" ],
       "reboot"      => [ "stdapi_sys_power_exitwindows" ],
-      "reg"         => [
+      "reg"	      => [
         "stdapi_registry_load_key",
         "stdapi_registry_unload_key",
         "stdapi_registry_open_key",
@@ -126,6 +127,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       ],
       "rev2self"    => [ "stdapi_sys_config_rev2self" ],
       "shell"       => [ "stdapi_sys_process_execute" ],
+      "powershell"  => [ "stdapi_sys_process_execute" ],
       "shutdown"    => [ "stdapi_sys_power_exitwindows" ],
       "steal_token" => [ "stdapi_sys_config_steal_token" ],
       "suspend"     => [ "stdapi_sys_process_attach"],
@@ -153,6 +155,49 @@ class Console::CommandDispatcher::Stdapi::Sys
     "Stdapi: System"
   end
 
+  def cmd_powershell()
+    dir = client.fs.file.expand_path("%temp%")
+    dest = File.join(dir, Rex::Text::rand_text_alpha(8)+".ps1")
+    cmd_args = "-NoProfile -InputFormat none -ExecutionPolicy bypass -Command #{dest}"
+    p = client.sys.process.execute("powershell.exe", cmd_args,
+      'Channelized' => true,
+      'Desktop'     => false,
+      'Session'     => nil,
+      'Hidden'      => true,
+      'InMemory'    => false,
+      'UseThreadToken' => false,
+      'Suspended' => true)
+
+    print_line("Process #{p.pid} created.")
+    print_line("Channel #{p.channel.cid} created.") if (p.channel)
+
+    h_in = p.hchannel_in
+    h_out = p.hchannel_out
+
+    src = File.join(Msf::Config.install_root, "external", "source", "powershell", "channel_interaction.ps1")
+    data = ''
+    ::File.open(src, "rb") { |f| data += f.read(f.stat.size) }
+
+    pid = client.sys.process.getpid
+    data.gsub!('METERP_PID', pid.to_s)
+    data.gsub!('REM_HANDLE_IN', h_in.to_s)
+    data.gsub!('REM_HANDLE_OUT', h_out.to_s)
+
+    fd = client.fs.file.new(dest, "wb")
+    fd.write(data)
+    fd.close
+
+    print_status("File written to #{dest}")
+    p.thread.each_thread.each do |t|
+      p.thread.open(t).resume
+    end
+
+    shell.interact_with_channel(p.channel)
+
+    print_status("Removing #{dest}")
+    client.fs.file.rm(dest)
+  end
+
   #
   # Executes a command with some options.
   #
@@ -165,7 +210,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     interact    = false
     desktop     = false
     channelized = nil
-    hidden      = nil
+    hidden	    = nil
     from_mem    = false
     dummy_exec  = "cmd"
     cmd_args    = nil
@@ -300,7 +345,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     args.uniq!
     diff = args - valid_pids.map {|e| e.to_s}
     if not diff.empty? # then we had an invalid pid
-      print_error("The following pids are not valid:  #{diff.join(", ").to_s}.  Quitting")
+      print_error("The following pids are not valid:	#{diff.join(", ").to_s}.  Quitting")
       return false
     end
 
@@ -382,7 +427,7 @@ class Console::CommandDispatcher::Stdapi::Sys
             print_line "You must supply a search term!"
             return false
           end
-          searched_procs << proc  if proc["name"].match(/#{val}/)
+          searched_procs << proc	if proc["name"].match(/#{val}/)
         end
         processes = searched_procs
       when "-A"
@@ -394,14 +439,14 @@ class Console::CommandDispatcher::Stdapi::Sys
             print_line "You must select either x86 or x86_64"
             return false
           end
-          searched_procs << proc  if proc["arch"] == val
+          searched_procs << proc	if proc["arch"] == val
         end
         processes = searched_procs
       when "-s"
         print_line "Filtering on SYSTEM processes..."
         searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
         processes.each do |proc|
-          searched_procs << proc  if proc["user"] == "NT AUTHORITY\\SYSTEM"
+          searched_procs << proc	if proc["user"] == "NT AUTHORITY\\SYSTEM"
         end
         processes = searched_procs
       when "-U"
@@ -412,7 +457,7 @@ class Console::CommandDispatcher::Stdapi::Sys
             print_line "You must supply a search term!"
             return false
           end
-          searched_procs << proc  if proc["user"].match(/#{val}/)
+          searched_procs << proc	if proc["user"].match(/#{val}/)
         end
         processes = searched_procs
       end
@@ -475,12 +520,12 @@ class Console::CommandDispatcher::Stdapi::Sys
     end
 
     # Initiailze vars
-    key     = nil
-    value   = nil
-    data    = nil
-    type    = nil
+    key	= nil
+    value	= nil
+    data	= nil
+    type	= nil
     wowflag = 0x0000
-    rem     = nil
+    rem	= nil
 
     @@reg_opts.parse(args) { |opt, idx, val|
       case opt
@@ -490,13 +535,13 @@ class Console::CommandDispatcher::Stdapi::Sys
             "Interact with the target machine's registry.\n" +
             @@reg_opts.usage +
             "COMMANDS:\n\n" +
-            "    enumkey    Enumerate the supplied registry key [-k <key>]\n" +
-            "    createkey  Create the supplied registry key  [-k <key>]\n" +
-            "    deletekey  Delete the supplied registry key  [-k <key>]\n" +
+            "    enumkey	Enumerate the supplied registry key [-k <key>]\n" +
+            "    createkey	Create the supplied registry key  [-k <key>]\n" +
+            "    deletekey	Delete the supplied registry key  [-k <key>]\n" +
             "    queryclass Queries the class of the supplied key [-k <key>]\n" +
-            "    setval     Set a registry value [-k <key> -v <val> -d <data>]\n" +
-            "    deleteval  Delete the supplied registry value [-k <key> -v <val>]\n" +
-            "    queryval   Queries the data contents of a value [-k <key> -v <val>]\n\n")
+            "    setval	Set a registry value [-k <key> -v <val> -d <data>]\n" +
+            "    deleteval	Delete the supplied registry value [-k <key> -v <val>]\n" +
+            "    queryval	Queries the data contents of a value [-k <key> -v <val>]\n\n")
           return false
         when "-k"
           key   = val
@@ -805,11 +850,11 @@ class Console::CommandDispatcher::Stdapi::Sys
     args.uniq!
     diff = args - valid_pids.map {|e| e.to_s}
     if not diff.empty? # then we had an invalid pid
-      print_error("The following pids are not valid:  #{diff.join(", ").to_s}.")
+      print_error("The following pids are not valid:	#{diff.join(", ").to_s}.")
       if continue
         print_status("Continuing.  Invalid args have been removed from the list.")
       else
-        print_error("Quitting.  Use -c to continue using only the valid pids.")
+        print_error("Quitting.	Use -c to continue using only the valid pids.")
         return false
       end
     end

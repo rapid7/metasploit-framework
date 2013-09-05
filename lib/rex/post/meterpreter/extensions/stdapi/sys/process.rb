@@ -38,6 +38,8 @@ class Process < Rex::Post::Process
     attr_accessor :client
   end
 
+  attr_accessor :hchannel_in, :hchannel_out
+
   #
   # Returns the process identifier of the process supplied in key if it's
   # valid.
@@ -166,6 +168,8 @@ class Process < Rex::Post::Process
     # Get the response parameters
     pid        = response.get_tlv_value(TLV_TYPE_PID)
     handle     = response.get_tlv_value(TLV_TYPE_PROCESS_HANDLE)
+    hchannel_in  = response.get_tlv_value(TLV_TYPE_HANDLE_IN)
+    hchannel_out = response.get_tlv_value(TLV_TYPE_HANDLE_OUT)
     channel_id = response.get_tlv_value(TLV_TYPE_CHANNEL_ID)
     channel    = nil
 
@@ -176,7 +180,7 @@ class Process < Rex::Post::Process
     end
 
     # Return a process instance
-    return self.new(pid, handle, channel)
+    return self.new(pid, handle, channel, hchannel_in, hchannel_out)
   end
 
   #
@@ -265,10 +269,12 @@ class Process < Rex::Post::Process
   #
   # Initializes the process instance and its aliases.
   #
-  def initialize(pid, handle, channel = nil)
+  def initialize(pid, handle, channel = nil, hchannel_in = nil, hchannel_out = nil)
     self.client  = self.class.client
     self.handle  = handle
     self.channel = channel
+    self.hchannel_in = hchannel_in
+    self.hchannel_out = hchannel_out
 
     # If the process identifier is zero, then we must lookup the current
     # process identifier
