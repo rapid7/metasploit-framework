@@ -138,9 +138,10 @@ class Plugin::Wmap < Msf::Plugin
 						print_error("Unable to create site")
 					end
 				when '-d'
-					del_idx = args.shift
+					del_idx = args
 					if del_idx
-						delete_site(del_idx.to_i)
+						delete_sites(del_idx.select {|d| d =~ /^[0-9]*$/}.map(&:to_i).uniq)
+						return
 					else
 						print_error("Provide index of site to delete")
 					end
@@ -204,7 +205,7 @@ class Plugin::Wmap < Msf::Plugin
 					print_status("Usage: wmap_sites [options]")
 					print_line("\t-h        Display this help text")
 					print_line("\t-a [url]  Add site (vhost,url)")
-					print_line("\t-d [id]   Delete site")
+					print_line("\t-d [ids]  Delete sites (separate ids with space)")
 					print_line("\t-l        List all available sites")
 					print_line("\t-s [id]   Display site structure (vhost,url|ids) (level)")
 
@@ -314,7 +315,6 @@ class Plugin::Wmap < Msf::Plugin
 				if self.killwhenstop
 					rpc_kill_node('ALL','ALL')
 				end
-				return
 			}
 
 			# Max numbers of concurrent jobs per node
@@ -1233,20 +1233,25 @@ class Plugin::Wmap < Msf::Plugin
 			print_status tbl.to_s + "\n"
 		end
 
-		def delete_site(wmap_index)
-			print_status("Deleting site #{wmap_index}")
+		def delete_sites(wmap_index)
 			idx  = 0
+			to_del = {}
+			# Rebuild the index from wmap_sites -l
 			self.framework.db.hosts.each do |bdhost|
 				bdhost.services.each do |serv|
 					serv.web_sites.each do |web|
-						if idx == wmap_index
-							web.delete
-							print_status("Deleted #{web.vhost} on #{bdhost.address} at index #{idx}")
-							return
-						else
-							idx += 1
-						end
+						# If the index of this site matches any deletion index,
+						# add to our hash, saving the index for later output
+						to_del[idx] = web if wmap_index.any? {|w| w.to_i == idx}
+						idx += 1
 					end
+				end
+			end
+			to_del.each do |widx,wsite|
+				if wsite.delete
+					print_status("Deleted #{wsite.vhost} on #{wsite.service.host.address} at index #{widx}")
+				else
+					print_error("Could note delete {wsite.vhost} on #{wsite.service.host.address} at index #{widx}")
 				end
 			end
 		end
