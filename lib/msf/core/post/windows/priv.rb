@@ -8,7 +8,7 @@ module Windows
 
 module Priv
 
-	include ::Msf::Post::Windows::Accounts
+  include ::Msf::Post::Windows::Accounts
 
 	LowIntegrityLevel = 'S-1-16-4096'
 	MediumIntegrityLevel =  'S-1-16-8192'
@@ -82,33 +82,33 @@ module Priv
 		end
 	end
 
-	#
-	# Returns true if UAC is enabled
-	#
-	# Returns false if the session is running as system, if uac is disabled or
-	# if running on a system that does not have UAC
-	#
-	def is_uac_enabled?
-		uac = false
-		winversion = session.sys.config.sysinfo['OS']
+  #
+  # Returns true if UAC is enabled
+  #
+  # Returns false if the session is running as system, if uac is disabled or
+  # if running on a system that does not have UAC
+  #
+  def is_uac_enabled?
+    uac = false
+    winversion = session.sys.config.sysinfo['OS']
 
 		if winversion =~ /Windows (Vista|7|8|2008)/
 			unless is_system?
 				begin
 					key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',KEY_READ)
 
-					if key.query_value('EnableLUA').data == 1
-						uac = true
-					end
+          if key.query_value('EnableLUA').data == 1
+            uac = true
+          end
 
-					key.close
-				rescue::Exception => e
-					print_error("Error Checking UAC: #{e.class} #{e}")
-				end
-			end
-		end
-		return uac
-	end
+          key.close
+        rescue::Exception => e
+          print_error("Error Checking UAC: #{e.class} #{e}")
+        end
+      end
+    end
+    return uac
+  end
 
 	#
 	# Returns the UAC Level
