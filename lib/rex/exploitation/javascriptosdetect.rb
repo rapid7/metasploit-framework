@@ -28,14 +28,14 @@ module Exploitation
 #
 class JavascriptOSDetect < JSObfu
 
-	def initialize(custom_js = '', opts = {})
-		@js = custom_js
-		@js += ::File.read(::File.join(::File.dirname(__FILE__), "javascriptosdetect.js"))
+  def initialize(custom_js = '', opts = {})
+    @js = custom_js
+    @js += ::File.read(::File.join(::File.dirname(__FILE__), "javascriptosdetect.js"))
 
-		super @js
+    super @js
 
-		return @js
-	end
+    return @js
+  end
 
 end
 end

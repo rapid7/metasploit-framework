@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'rex/socket'
-
 ###
 #
 # This class provides methods for interacting with an SSL TCP client
@@ -351,15 +350,15 @@ begin
 
 protected
 
-	attr_writer :peer_verified # :nodoc:
+  attr_writer :peer_verified # :nodoc:
 
 
 rescue LoadError
 end
 
-	def type?
-		return 'tcp-ssl'
-	end
+  def type?
+    return 'tcp-ssl'
+  end
 
 end
 

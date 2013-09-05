@@ -33,8 +33,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =end
 
 module Rex
-	Root = File.join(File.expand_path(File.dirname(__FILE__)), 'rex')
-	LogSource = "rex"
+  Root = File.join(File.expand_path(File.dirname(__FILE__)), 'rex')
+  LogSource = "rex"
 end
 
 # Generic classes
@@ -88,17 +88,21 @@ require 'rex/compat'
 # Platforms
 require 'rex/platforms'
 
+# SSLScan 
+require 'rex/sslscan/scanner'
+require 'rex/sslscan/result'
+
 
 # Overload the Kernel.sleep() function to be thread-safe
 Kernel.class_eval("
-	def sleep(seconds=nil)
-		Rex::ThreadSafe.sleep(seconds)
-	end
+  def sleep(seconds=nil)
+    Rex::ThreadSafe.sleep(seconds)
+  end
 ")
 
 # Overload the Kernel.select function to be thread-safe
 Kernel.class_eval("
-	def select(rfd = nil, wfd = nil, efd = nil, to = nil)
-		Rex::ThreadSafe.select(rfd, wfd, efd, to)
-	end
+  def select(rfd = nil, wfd = nil, efd = nil, to = nil)
+    Rex::ThreadSafe.select(rfd, wfd, efd, to)
+  end
 ")

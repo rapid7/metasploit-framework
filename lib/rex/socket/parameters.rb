@@ -6,6 +6,22 @@ require 'rex/socket'
 # This class represents the set of parameters that are used to create
 # a socket, whether it be a server or client socket.
 #
+# @example
+#   nsock = Rex::Socket::Tcp.create(
+#     'PeerHost'  =>  opts['RHOST'] || rhost,
+#     'PeerPort'  => (opts['RPORT'] || rport).to_i,
+#     'LocalHost' =>  opts['CHOST'] || chost || "0.0.0.0",
+#     'LocalPort' => (opts['CPORT'] || cport || 0).to_i,
+#     'SSL'       =>  dossl,
+#     'SSLVersion'=>  opts['SSLVersion'] || ssl_version,
+#     'Proxies'   => proxies,
+#     'Timeout'   => (opts['ConnectTimeout'] || connect_timeout || 10).to_i,
+#     'Context'   =>
+#       {
+#         'Msf'        => framework,
+#         'MsfExploit' => self,
+#       })
+#
 ###
 class Rex::Socket::Parameters
 

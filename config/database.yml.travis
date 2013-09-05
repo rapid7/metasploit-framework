@@ -1,0 +1,27 @@
+# @note This file is only for use in travis-ci.  If you need to make a
+# config/database.yml for running rake, rake spec, or rspec locally, please
+# customize `conifg/database.yml.example`
+#
+# @example Customizing config/database.yml.example
+#   cp config/database.yml.example config/database.yml
+#   # update password fields for each environment's user
+
+# Using the postgres user locally without a host and port is the supported
+# configuration from Travis-CI
+#
+# @see http://about.travis-ci.org/docs/user/database-setup/#PostgreSQL
+development: &pgsql
+  adapter: postgresql
+  database: metasploit_framework_development
+  username: postgres
+  pool: 5
+  timeout: 5
+
+# Warning: The database defined as "test" will be erased and
+# re-generated from your development database when you run "rake".
+# Do not set this db to the same as development or production.
+#
+# Note also, sqlite3 is totally unsupported by Metasploit now.
+test:
+  <<: *pgsql
+  database: metasploit_framework_test
