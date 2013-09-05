@@ -203,16 +203,16 @@ module Msf::PostMixin
 
 protected
 
-	attr_writer :passive
+  attr_writer :passive
 
-	def session_changed?
-		@ds_session ||= datastore["SESSION"]
+  def session_changed?
+    @ds_session ||= datastore["SESSION"]
 
-		if (@ds_session != datastore["SESSION"])
-			@ds_session = nil
-			return true
-		else
-			return false
-		end
-	end
+    if (@ds_session != datastore["SESSION"])
+      @ds_session = nil
+      return true
+    else
+      return false
+    end
+  end
 end

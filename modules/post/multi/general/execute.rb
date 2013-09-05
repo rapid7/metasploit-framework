@@ -25,11 +25,11 @@ class Metasploit3 < Msf::Post
 			], self.class)
 	end
 
-	def run
-		print_status("Executing #{datastore['COMMAND']} on #{session.inspect}...")
-		res = cmd_exec(datastore['COMMAND'])
-		print_status("Response: #{res}")
+  def run
+    print_status("Executing #{datastore['COMMAND']} on #{session.inspect}...")
+    res = cmd_exec(datastore['COMMAND'])
+    print_status("Response: #{res}")
 
-	end
+  end
 
 end

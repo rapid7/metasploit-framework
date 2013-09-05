@@ -293,6 +293,6 @@ puts child_pid
 Process.detach(child_pid)
 
 EOS
-	end
+  end
 end
 

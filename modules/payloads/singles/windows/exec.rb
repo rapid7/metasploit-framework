@@ -15,6 +15,6 @@ require 'msf/core/payload/windows/exec'
 ###
 module Metasploit3
 
-	include Msf::Payload::Windows::Exec
+  include Msf::Payload::Windows::Exec
 
 end

