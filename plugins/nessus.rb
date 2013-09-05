@@ -202,9 +202,10 @@ module Msf
 			def cmd_nessus_help(*args)
 				tbl = Rex::Ui::Text::Table.new(
 					'Columns' => [
-						'Command',
-						'Help Text'
-					]
+						"Command",
+						"Help Text"
+					],
+					'SortIndex' => -1
 				)
 				tbl << [ "Generic Commands", "" ]
 				tbl << [ "-----------------", "-----------------"]

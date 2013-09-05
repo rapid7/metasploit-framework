@@ -9,356 +9,356 @@ module Ui
 
 class Console::CommandDispatcher::Android::Common
 
-	Klass = Console::CommandDispatcher::Android::Common
-	include Console::CommandDispatcher
-	include Msf::Auxiliary::Report
+  Klass = Console::CommandDispatcher::Android::Common
+  include Console::CommandDispatcher
+  include Msf::Auxiliary::Report
 
-	def initialize(shell)
-		super
-	end
+  def initialize(shell)
+    super
+  end
 
-	def commands
-		all = {
-			"dump_sms" 			=> "Get sms messages",
-			"dump_contacts" => "Get contacts list",
-			"geolocate" 		=> "Get current lat-long using geolocation",
-			"dump_calllog" 	=> "Get call log",
+  def commands
+    all = {
+      "dump_sms" 			=> "Get sms messages",
+      "dump_contacts" => "Get contacts list",
+      "geolocate" 		=> "Get current lat-long using geolocation",
+      "dump_calllog" 	=> "Get call log",
       "check_root"    => "Check if device is rooted"
-		}
+    }
 
-		reqs = {
-			"dump_sms"   		=> [ "dump_sms" ],
-			"dump_contacts" => [ "dump_contacts"],
-			"geolocate"   	=> [ "geolocate"],
-			"dump_calllog"  => [ "dump_calllog"],
+    reqs = {
+      "dump_sms"   		=> [ "dump_sms" ],
+      "dump_contacts" => [ "dump_contacts"],
+      "geolocate"   	=> [ "geolocate"],
+      "dump_calllog"  => [ "dump_calllog"],
       "check_root"    => [ "check_root"],
-		}
+    }
 
-		all.delete_if do |cmd, desc|
-			del = false
-			reqs[cmd].each do |req|
-				next if client.commands.include? req
-				del = true
-				break
-			end
+    all.delete_if do |cmd, desc|
+      del = false
+      reqs[cmd].each do |req|
+        next if client.commands.include? req
+        del = true
+        break
+      end
 
-			del
-		end
+      del
+    end
 
-		all
-	end
-
-
-	def cmd_dump_sms(*args)
-
-		path    = "sms_dump_" + Rex::Text.rand_text_alpha(8) + ".txt"
-		dump_sms_opts = Rex::Parser::Arguments.new(
-			"-h" => [ false, "Help Banner" ],
-			"-o" => [ false, "Output path for sms list"]
-			)
-
-		dump_sms_opts.parse( args ) { | opt, idx, val |
-			case opt
-			when "-h"
-				print_line( "Usage: dump_sms [options]\n" )
-				print_line( "Get sms messages." )
-				print_line( dump_sms_opts.usage )
-				return
-			when "-o"
-				path = val
-			end
-		}
-
-		smsList = Array.new
-		smsList = client.common.dump_sms
-
-		if smsList.count > 0
-			print_status( "Fetching #{smsList.count} sms #{smsList.count == 1? 'message': 'messages'}" )
-			begin
-				info = client.sys.config.sysinfo
-
-				::File.open( path, 'wb' ) do |fd|
-
-					fd.write("\n=====================\n")
-					fd.write("[+] Sms messages dump\n")
-					fd.write("=====================\n\n")
-
-					time = Time.new
-					fd.write("Date: #{time.inspect}\n")
-					fd.write("OS: #{info['OS']}\n")
-					fd.write("Remote IP: #{client.sock.peerhost}\n")
-					fd.write("Remote Port: #{client.sock.peerport}\n\n")
-
-					smsList.each_with_index { |a, index|
-
-							fd.write("##{(index.to_i + 1).to_s()}\n")
-
-							type = "Unknown"
-							if a['type'] == "1"
-								type = "Incoming"
-							elsif a['type'] == "2"
-								type = "Outgoing"
-							end
-
-							status = "Unknown"
-							if a['status'] == "-1"
-								status = "NOT_RECEIVED"
-							elsif a['status'] == "1"
-								status = "SME_UNABLE_TO_CONFIRM"
-							elsif a['status'] == "0"
-								status = "SUCCESS"
-							elsif a['status'] == "64"
-								status = "MASK_PERMANENT_ERROR"
-							elsif a['status'] == "32"
-								status = "MASK_TEMPORARY_ERROR"
-							elsif a['status'] == "2"
-								status = "SMS_REPLACED_BY_SC"
-							end
-
-							fd.write("Type\t: #{type}\n")
-
-							time = a['date'].to_i / 1000
-							time = Time.at(time)
-
-							fd.write("Date\t: #{time.strftime("%Y-%m-%d %H:%M:%S")}\n")
-							fd.write("Address\t: #{a['address']}\n")
-							fd.write("Status\t: #{status}\n")
-							fd.write("Message\t: #{a['body']}\n\n")
-					}
-				end
-
-				path = ::File.expand_path( path )
-
-				print_status( "Sms #{smsList.count == 1? 'message': 'messages'} saved to: #{path}" )
-				Rex::Compat.open_file( path )
-
-				return true
-			rescue
-				print_error("Error getting messages")
-				return false
-			end
-		else
-			print_status( "No sms messages were found!" )
-			return false
-		end
-	end
+    all
+  end
 
 
-	def cmd_dump_contacts(*args)
+  def cmd_dump_sms(*args)
 
-		path    = "contacts_dump_" + Rex::Text.rand_text_alpha(8) + ".txt"
-		dump_contacts_opts = Rex::Parser::Arguments.new(
+    path    = "sms_dump_" + Rex::Text.rand_text_alpha(8) + ".txt"
+    dump_sms_opts = Rex::Parser::Arguments.new(
+      "-h" => [ false, "Help Banner" ],
+      "-o" => [ false, "Output path for sms list"]
+      )
 
-			"-h" => [ false, "Help Banner" ],
-			"-o" => [ false, "Output path for contacts list"]
+    dump_sms_opts.parse( args ) { | opt, idx, val |
+      case opt
+      when "-h"
+        print_line( "Usage: dump_sms [options]\n" )
+        print_line( "Get sms messages." )
+        print_line( dump_sms_opts.usage )
+        return
+      when "-o"
+        path = val
+      end
+    }
 
-			)
+    smsList = Array.new
+    smsList = client.common.dump_sms
 
-		dump_contacts_opts.parse( args ) { | opt, idx, val |
-			case opt
-			when "-h"
-				print_line( "Usage: dump_contacts [options]\n" )
-				print_line( "Get contacts list." )
-				print_line( dump_contacts_opts.usage )
-				return
-			when "-o"
-				path = val
-			end
-		}
+    if smsList.count > 0
+      print_status( "Fetching #{smsList.count} sms #{smsList.count == 1? 'message': 'messages'}" )
+      begin
+        info = client.sys.config.sysinfo
 
-		contactList = Array.new
-		contactList = client.common.dump_contacts
+        ::File.open( path, 'wb' ) do |fd|
 
-		if contactList.count > 0
-			print_status( "Fetching #{contactList.count} #{contactList.count == 1? 'contact': 'contacts'} into list" )
-			begin
-				info = client.sys.config.sysinfo
+          fd.write("\n=====================\n")
+          fd.write("[+] Sms messages dump\n")
+          fd.write("=====================\n\n")
 
-				::File.open( path, 'wb' ) do |fd|
+          time = Time.new
+          fd.write("Date: #{time.inspect}\n")
+          fd.write("OS: #{info['OS']}\n")
+          fd.write("Remote IP: #{client.sock.peerhost}\n")
+          fd.write("Remote Port: #{client.sock.peerport}\n\n")
 
-					fd.write("\n======================\n")
-					fd.write("[+] Contacts list dump\n")
-					fd.write("======================\n\n")
+          smsList.each_with_index { |a, index|
 
-					time = Time.new
-					fd.write("Date: #{time.inspect}\n")
-					fd.write("OS: #{info['OS']}\n")
-					fd.write("Remote IP: #{client.sock.peerhost}\n")
-					fd.write("Remote Port: #{client.sock.peerport}\n\n")
+              fd.write("##{(index.to_i + 1).to_s()}\n")
 
-					contactList.each_with_index { |c, index|
+              type = "Unknown"
+              if a['type'] == "1"
+                type = "Incoming"
+              elsif a['type'] == "2"
+                type = "Outgoing"
+              end
 
-							fd.write("##{(index.to_i + 1).to_s()}\n")
-							fd.write("Name\t: #{c['name']}\n")
+              status = "Unknown"
+              if a['status'] == "-1"
+                status = "NOT_RECEIVED"
+              elsif a['status'] == "1"
+                status = "SME_UNABLE_TO_CONFIRM"
+              elsif a['status'] == "0"
+                status = "SUCCESS"
+              elsif a['status'] == "64"
+                status = "MASK_PERMANENT_ERROR"
+              elsif a['status'] == "32"
+                status = "MASK_TEMPORARY_ERROR"
+              elsif a['status'] == "2"
+                status = "SMS_REPLACED_BY_SC"
+              end
 
-							if c['number'].count > 0
-								(c['number']).each { |n|
-									fd.write("Number\t: #{n}\n")
-								}
-							end
+              fd.write("Type\t: #{type}\n")
 
-							if c['email'].count > 0
-								(c['email']).each { |n|
-									fd.write("Email\t: #{n}\n")
-								}
-							end
+              time = a['date'].to_i / 1000
+              time = Time.at(time)
 
-							fd.write("\n")
-					}
-				end
+              fd.write("Date\t: #{time.strftime("%Y-%m-%d %H:%M:%S")}\n")
+              fd.write("Address\t: #{a['address']}\n")
+              fd.write("Status\t: #{status}\n")
+              fd.write("Message\t: #{a['body']}\n\n")
+          }
+        end
 
-				path = ::File.expand_path( path )
-				print_status( "Contacts list saved to: #{path}" )
-				Rex::Compat.open_file( path )
+        path = ::File.expand_path( path )
 
-				return true
-			rescue
-				print_error("Error getting contacts list")
-				return false
-			end
-		else
-			print_status( "No contacts were found!" )
-			return false
-		end
-	end
+        print_status( "Sms #{smsList.count == 1? 'message': 'messages'} saved to: #{path}" )
+        Rex::Compat.open_file( path )
 
-	def cmd_geolocate(*args)
+        return true
+      rescue
+        print_error("Error getting messages")
+        return false
+      end
+    else
+      print_status( "No sms messages were found!" )
+      return false
+    end
+  end
 
-		generate_map = false
-		geolocate_opts = Rex::Parser::Arguments.new(
 
-			"-h" => [ false, "Help Banner" ],
-			"-g" => [ false, "Generate map using google-maps"]
+  def cmd_dump_contacts(*args)
 
-			)
+    path    = "contacts_dump_" + Rex::Text.rand_text_alpha(8) + ".txt"
+    dump_contacts_opts = Rex::Parser::Arguments.new(
 
-		geolocate_opts.parse( args ) { | opt, idx, val |
-			case opt
-			when "-h"
-				print_line( "Usage: geolocate [options]\n" )
-				print_line( "Get current location using geolocation." )
-				print_line( geolocate_opts.usage )
-				return
-			when "-g"
-				generate_map = true
-			end
-		}
+      "-h" => [ false, "Help Banner" ],
+      "-o" => [ false, "Output path for contacts list"]
 
-		geo = client.common.geolocate
+      )
 
-		print_status("Current Location:\n")
-		print_line("\tLatitude  : #{geo[0]['lat']}")
-		print_line("\tLongitude : #{geo[0]['long']}\n")
+    dump_contacts_opts.parse( args ) { | opt, idx, val |
+      case opt
+      when "-h"
+        print_line( "Usage: dump_contacts [options]\n" )
+        print_line( "Get contacts list." )
+        print_line( dump_contacts_opts.usage )
+        return
+      when "-o"
+        path = val
+      end
+    }
+
+    contactList = Array.new
+    contactList = client.common.dump_contacts
+
+    if contactList.count > 0
+      print_status( "Fetching #{contactList.count} #{contactList.count == 1? 'contact': 'contacts'} into list" )
+      begin
+        info = client.sys.config.sysinfo
+
+        ::File.open( path, 'wb' ) do |fd|
+
+          fd.write("\n======================\n")
+          fd.write("[+] Contacts list dump\n")
+          fd.write("======================\n\n")
+
+          time = Time.new
+          fd.write("Date: #{time.inspect}\n")
+          fd.write("OS: #{info['OS']}\n")
+          fd.write("Remote IP: #{client.sock.peerhost}\n")
+          fd.write("Remote Port: #{client.sock.peerport}\n\n")
+
+          contactList.each_with_index { |c, index|
+
+              fd.write("##{(index.to_i + 1).to_s()}\n")
+              fd.write("Name\t: #{c['name']}\n")
+
+              if c['number'].count > 0
+                (c['number']).each { |n|
+                  fd.write("Number\t: #{n}\n")
+                }
+              end
+
+              if c['email'].count > 0
+                (c['email']).each { |n|
+                  fd.write("Email\t: #{n}\n")
+                }
+              end
+
+              fd.write("\n")
+          }
+        end
+
+        path = ::File.expand_path( path )
+        print_status( "Contacts list saved to: #{path}" )
+        Rex::Compat.open_file( path )
+
+        return true
+      rescue
+        print_error("Error getting contacts list")
+        return false
+      end
+    else
+      print_status( "No contacts were found!" )
+      return false
+    end
+  end
+
+  def cmd_geolocate(*args)
+
+    generate_map = false
+    geolocate_opts = Rex::Parser::Arguments.new(
+
+      "-h" => [ false, "Help Banner" ],
+      "-g" => [ false, "Generate map using google-maps"]
+
+      )
+
+    geolocate_opts.parse( args ) { | opt, idx, val |
+      case opt
+      when "-h"
+        print_line( "Usage: geolocate [options]\n" )
+        print_line( "Get current location using geolocation." )
+        print_line( geolocate_opts.usage )
+        return
+      when "-g"
+        generate_map = true
+      end
+    }
+
+    geo = client.common.geolocate
+
+    print_status("Current Location:\n")
+    print_line("\tLatitude  : #{geo[0]['lat']}")
+    print_line("\tLongitude : #{geo[0]['long']}\n")
     print_line("To get the address: https://maps.googleapis.com/maps/api/geocode/json?latlng=#{geo[0]['lat']},#{geo[0]['long']}&sensor=true\n")
 
 
-		if generate_map
-			link = "https://maps.google.com/maps?q=#{geo[0]['lat']},#{geo[0]['long']}"
-			print_status("Generated map on google-maps:")
-			print_status("#{link}")
-			Rex::Compat.open_browser(link)
-		end
+    if generate_map
+      link = "https://maps.google.com/maps?q=#{geo[0]['lat']},#{geo[0]['long']}"
+      print_status("Generated map on google-maps:")
+      print_status("#{link}")
+      Rex::Compat.open_browser(link)
+    end
 
-	end
+  end
 
-	def cmd_dump_calllog(*args)
+  def cmd_dump_calllog(*args)
 
-		path = "dump_calllog_" + Rex::Text.rand_text_alpha(8) + ".txt"
-		dump_calllog_opts = Rex::Parser::Arguments.new(
+    path = "dump_calllog_" + Rex::Text.rand_text_alpha(8) + ".txt"
+    dump_calllog_opts = Rex::Parser::Arguments.new(
 
-			"-h" => [ false, "Help Banner" ],
-			"-o" => [ false, "Output path for call log"]
+      "-h" => [ false, "Help Banner" ],
+      "-o" => [ false, "Output path for call log"]
 
-			)
+      )
 
-		dump_calllog_opts.parse( args ) { | opt, idx, val |
-			case opt
-			when "-h"
-				print_line( "Usage: dump_calllog [options]\n" )
-				print_line( "Get call log." )
-				print_line( dump_calllog_opts.usage )
-				return
-			when "-o"
-				path = val
-			end
-		}
+    dump_calllog_opts.parse( args ) { | opt, idx, val |
+      case opt
+      when "-h"
+        print_line( "Usage: dump_calllog [options]\n" )
+        print_line( "Get call log." )
+        print_line( dump_calllog_opts.usage )
+        return
+      when "-o"
+        path = val
+      end
+    }
 
-		log = Array.new
-		log = client.common.dump_calllog
+    log = Array.new
+    log = client.common.dump_calllog
 
-		if log.count > 0
-			print_status( "Fetching #{log.count} #{log.count == 1? 'entry': 'entries'}" )
-			begin
-				info = client.sys.config.sysinfo
+    if log.count > 0
+      print_status( "Fetching #{log.count} #{log.count == 1? 'entry': 'entries'}" )
+      begin
+        info = client.sys.config.sysinfo
 
-				::File.open( path, 'wb' ) do |fd|
+        ::File.open( path, 'wb' ) do |fd|
 
-					fd.write("\n=================\n")
-					fd.write("[+] Call log dump\n")
-					fd.write("=================\n\n")
+          fd.write("\n=================\n")
+          fd.write("[+] Call log dump\n")
+          fd.write("=================\n\n")
 
-					time = Time.new
-					fd.write("Date: #{time.inspect}\n")
-					fd.write("OS: #{info['OS']}\n")
-					fd.write("Remote IP: #{client.sock.peerhost}\n")
-					fd.write("Remote Port: #{client.sock.peerport}\n\n")
+          time = Time.new
+          fd.write("Date: #{time.inspect}\n")
+          fd.write("OS: #{info['OS']}\n")
+          fd.write("Remote IP: #{client.sock.peerhost}\n")
+          fd.write("Remote Port: #{client.sock.peerport}\n\n")
 
-					log.each_with_index { |a, index|
+          log.each_with_index { |a, index|
 
-							fd.write("##{(index.to_i + 1).to_s()}\n")
+              fd.write("##{(index.to_i + 1).to_s()}\n")
 
-							fd.write("Number\t: #{a['number']}\n")
-							fd.write("Name\t: #{a['name']}\n")
-							fd.write("Date\t: #{a['date']}\n")
-							fd.write("Type\t: #{a['type']}\n")
-							fd.write("Duration: #{a['duration']}\n\n")
-					}
-				end
+              fd.write("Number\t: #{a['number']}\n")
+              fd.write("Name\t: #{a['name']}\n")
+              fd.write("Date\t: #{a['date']}\n")
+              fd.write("Type\t: #{a['type']}\n")
+              fd.write("Duration: #{a['duration']}\n\n")
+          }
+        end
 
-				path = ::File.expand_path( path )
-				print_status( "Call log saved to: #{path}" )
-				Rex::Compat.open_file( path )
+        path = ::File.expand_path( path )
+        print_status( "Call log saved to: #{path}" )
+        Rex::Compat.open_file( path )
 
-				return true
-			rescue
-				print_error("Error getting call log")
-				return false
-			end
-		else
-			print_status( "No call log entries were found!" )
-			return false
-		end
-	end
+        return true
+      rescue
+        print_error("Error getting call log")
+        return false
+      end
+    else
+      print_status( "No call log entries were found!" )
+      return false
+    end
+  end
 
 
   def cmd_check_root(*args)
 
-		check_root_opts = Rex::Parser::Arguments.new(
-			"-h" => [ false, "Help Banner" ]
-			)
+    check_root_opts = Rex::Parser::Arguments.new(
+      "-h" => [ false, "Help Banner" ]
+      )
 
-		check_root_opts.parse( args ) { | opt, idx, val |
-			case opt
-			when "-h"
-				print_line( "Usage: check_root [options]\n" )
-				print_line( "Check if device is rooted." )
-				print_line( check_root_opts.usage )
-				return
-			end
-		}
+    check_root_opts.parse( args ) { | opt, idx, val |
+      case opt
+      when "-h"
+        print_line( "Usage: check_root [options]\n" )
+        print_line( "Check if device is rooted." )
+        print_line( check_root_opts.usage )
+        return
+      end
+    }
 
-		isRooted = client.common.check_root
+    isRooted = client.common.check_root
 
-		if isRooted == true
-			print_status("Device is rooted")
-		elsif
-			print_status("Device is not rooted")
-		end
-	end
+    if isRooted == true
+      print_status("Device is rooted")
+    elsif
+      print_status("Device is not rooted")
+    end
+  end
 
-	def name
-		"Android: Common"
-	end
+  def name
+    "Android: Common"
+  end
 
 end
 
