@@ -148,6 +148,15 @@ class Plugin::Wmap < Msf::Plugin
 				when '-l'
 					view_sites
 					return
+        when '-S'
+          search_term = args.shift
+          if search_term
+            view_sites(search_term)
+            return
+          else
+            print_error("Search term required")
+            return
+          end
 				when '-s'
 					u = args.shift
 					l = args.shift
@@ -207,6 +216,7 @@ class Plugin::Wmap < Msf::Plugin
 					print_line("\t-a [url]  Add site (vhost,url)")
 					print_line("\t-d [ids]  Delete sites (separate ids with space)")
 					print_line("\t-l        List all available sites")
+          print_line("\t-S [term] List all available sites matching the search term")
 					print_line("\t-s [id]   Display site structure (vhost,url|ids) (level)")
 
 					print_line("")
@@ -1257,7 +1267,7 @@ class Plugin::Wmap < Msf::Plugin
 		end
 
 
-		def view_sites
+		def view_sites(search_term=nil)
 			# Clean temporary sites list
 			self.lastsites = []
 
@@ -1275,7 +1285,9 @@ class Plugin::Wmap < Msf::Plugin
 						'Proto',
 						'# Pages',
 						'# Forms',
-					])
+					],
+          'SearchTerm' => search_term
+          )
 
 			idx  = 0
 			self.framework.db.hosts.each do |bdhost|
