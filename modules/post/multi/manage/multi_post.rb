@@ -10,7 +10,7 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 
-	include Msf::Post::File
+  include Msf::Post::File
 
   def initialize(info={})
     super( update_info( info,

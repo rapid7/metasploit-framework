@@ -1,8 +1,8 @@
 # -*- coding: binary -*-
 
 module Msf::Post::OSX::System
-	include ::Msf::Post::Common
-	include ::Msf::Post::File
+  include ::Msf::Post::Common
+  include ::Msf::Post::File
 
   #
   # Return a hash with system Information
@@ -98,9 +98,9 @@ module Msf::Post::OSX::System
         next if field == "password"
         entry[field] = val.chomp
 
-			end
-			groups << entry
-		end
-		return groups
-	end
+      end
+      groups << entry
+    end
+    return groups
+  end
 end

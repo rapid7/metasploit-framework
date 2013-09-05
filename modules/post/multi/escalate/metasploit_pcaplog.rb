@@ -13,7 +13,7 @@ require 'msf/core/exploit/local/unix'
 class Metasploit3 < Msf::Post
   Rank = ManualRanking
 
-	include Msf::Post::File
+  include Msf::Post::File
 
   include Msf::Exploit::Local::Linux
   include Msf::Exploit::Local::Unix

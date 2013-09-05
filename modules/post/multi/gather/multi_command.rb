@@ -11,19 +11,19 @@ require 'msf/core/post/common'
 
 class Metasploit3 < Msf::Post
 
-	def initialize(info={})
-		super( update_info( info,
-				'Name'          => 'Multi Gather Run Shell Command Resource File',
-				'Description'   => %q{ This module will read shell commands from a resource file and
-					execute the commands in the specified Meterpreter or shell session.},
-				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-				'Platform'      => [ 'win', 'linux', 'bsd', 'unix', 'osx' ],
-				'SessionTypes'  => [ 'meterpreter','shell' ]
-			))
-		register_options(
-			[
-				OptString.new('RESOURCE', [true, 'Full path to resource file to read commands from.', nil])
+  def initialize(info={})
+    super( update_info( info,
+        'Name'          => 'Multi Gather Run Shell Command Resource File',
+        'Description'   => %q{ This module will read shell commands from a resource file and
+          execute the commands in the specified Meterpreter or shell session.},
+        'License'       => MSF_LICENSE,
+        'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
+        'Platform'      => [ 'win', 'linux', 'bsd', 'unix', 'osx' ],
+        'SessionTypes'  => [ 'meterpreter','shell' ]
+      ))
+    register_options(
+      [
+        OptString.new('RESOURCE', [true, 'Full path to resource file to read commands from.', nil])
 
       ], self.class)
   end

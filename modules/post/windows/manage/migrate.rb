@@ -10,17 +10,17 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 
-	def initialize(info={})
-		super( update_info( info,
-			'Name'          => 'Windows Manage Process Migration',
-			'Description'   => %q{ This module will migrate a Meterpreter session from one process
-				to another. A given process PID to migrate to or the module can spawn one and
-				migrate to that newly spawned process.},
-			'License'       => MSF_LICENSE,
-			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-			'Platform'      => [ 'win' ],
-			'SessionTypes'  => [ 'meterpreter' ]
-		))
+  def initialize(info={})
+    super( update_info( info,
+      'Name'          => 'Windows Manage Process Migration',
+      'Description'   => %q{ This module will migrate a Meterpreter session from one process
+        to another. A given process PID to migrate to or the module can spawn one and
+        migrate to that newly spawned process.},
+      'License'       => MSF_LICENSE,
+      'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
+      'Platform'      => [ 'win' ],
+      'SessionTypes'  => [ 'meterpreter' ]
+    ))
 
     register_options(
       [

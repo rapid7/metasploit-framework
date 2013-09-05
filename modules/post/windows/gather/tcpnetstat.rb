@@ -11,21 +11,21 @@ require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
-	include Msf::Auxiliary::Report
+  include Msf::Auxiliary::Report
 
-	def initialize(info={})
-		super( update_info( info,
-				'Name'          => 'Windows Gather TCP Netstat',
-				'Description'   => %q{ This Module lists current TCP sessions},
-				'License'       => MSF_LICENSE,
-				'Author'        => [ 'mubix' ],
-				'Platform'      => [ 'win' ],
-				'SessionTypes'  => [ 'meterpreter']
-			))
-		register_options(
-			[
-			], self.class)
-	end
+  def initialize(info={})
+    super( update_info( info,
+        'Name'          => 'Windows Gather TCP Netstat',
+        'Description'   => %q{ This Module lists current TCP sessions},
+        'License'       => MSF_LICENSE,
+        'Author'        => [ 'mubix' ],
+        'Platform'      => [ 'win' ],
+        'SessionTypes'  => [ 'meterpreter']
+      ))
+    register_options(
+      [
+      ], self.class)
+  end
 
   def parse_tcptable(buffer)
     entries = buffer[0,4].unpack("V*")[0]

@@ -9,24 +9,24 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Post
 
-	def initialize(info={})
-		super( update_info( info,
-			'Name'          => 'Linux Gather Configurations',
-			'Description'   => %q{
-				This module collects configuration files found on commonly installed
-				applications and services, such as Apache, MySQL, Samba, Sendmail, etc.
-				If a config file is found in its default path, the module will assume
-				that is the file we want.
-			},
-			'License'       => MSF_LICENSE,
-			'Author'        =>
-				[
-					'ohdae <bindshell[at]live.com>',
-				],
-			'Platform'      => [ 'linux' ],
-			'SessionTypes'  => [ 'shell' ]
-		))
-	end
+  def initialize(info={})
+    super( update_info( info,
+      'Name'          => 'Linux Gather Configurations',
+      'Description'   => %q{
+        This module collects configuration files found on commonly installed
+        applications and services, such as Apache, MySQL, Samba, Sendmail, etc.
+        If a config file is found in its default path, the module will assume
+        that is the file we want.
+      },
+      'License'       => MSF_LICENSE,
+      'Author'        =>
+        [
+          'ohdae <bindshell[at]live.com>',
+        ],
+      'Platform'      => [ 'linux' ],
+      'SessionTypes'  => [ 'shell' ]
+    ))
+  end
 
   def run
     distro = get_sysinfo

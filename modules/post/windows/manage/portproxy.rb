@@ -6,7 +6,7 @@
 ##
 
 class Metasploit3 < Msf::Post
-	include Msf::Post::Windows::Priv
+  include Msf::Post::Windows::Priv
 
   def initialize(info={})
     super( update_info( info,
@@ -118,10 +118,10 @@ class Metasploit3 < Msf::Post
     end
     output = cmd_exec("netsh","firewall show state")
 
-		if output =~ /^#{datastore['LOCAL_PORT']} /
-			print_good("Port opened in Windows Firewall.")
-		else
-			print_error("There was an error enabling the port.")
-		end
-	end
+    if output =~ /^#{datastore['LOCAL_PORT']} /
+      print_good("Port opened in Windows Firewall.")
+    else
+      print_error("There was an error enabling the port.")
+    end
+  end
 end

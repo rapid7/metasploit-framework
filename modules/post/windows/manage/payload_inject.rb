@@ -10,19 +10,19 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 
-	def initialize(info={})
-		super( update_info( info,
-			'Name'          => 'Windows Manage Memory Payload Injection Module',
-			'Description'   => %q{
-				This module will inject into the memory of a process a specified windows payload.
-				If a payload or process is not provided one will be created by default
-				using a reverse x86 TCP Meterpreter Payload.
-			},
-			'License'       => MSF_LICENSE,
-			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-			'Platform'      => [ 'win' ],
-			'SessionTypes'  => [ 'meterpreter' ]
-		))
+  def initialize(info={})
+    super( update_info( info,
+      'Name'          => 'Windows Manage Memory Payload Injection Module',
+      'Description'   => %q{
+        This module will inject into the memory of a process a specified windows payload.
+        If a payload or process is not provided one will be created by default
+        using a reverse x86 TCP Meterpreter Payload.
+      },
+      'License'       => MSF_LICENSE,
+      'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
+      'Platform'      => [ 'win' ],
+      'SessionTypes'  => [ 'meterpreter' ]
+    ))
 
     register_options(
       [

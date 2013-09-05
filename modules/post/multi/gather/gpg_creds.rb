@@ -13,8 +13,8 @@ require 'msf/core/post/unix'
 
 class Metasploit3 < Msf::Post
 
-	include Msf::Post::File
-	include Msf::Post::Unix
+  include Msf::Post::File
+  include Msf::Post::Unix
 
   def initialize(info={})
     super( update_info(info,

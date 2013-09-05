@@ -9,20 +9,20 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Post
 
-	def initialize(info={})
-		super(update_info(info,
-			'Name'          => 'OS X Gather Airport Wireless Preferences',
-			'Description'   => %q{
-					This module will download OS X Airport Wireless preferences from the victim
-				machine.  The preferences file (which is a plist) contains information such as:
-				SSID, Channels, Security Type, Password ID, etc.
-			},
-			'License'       => MSF_LICENSE,
-			'Author'        => [ 'sinn3r'],
-			'Platform'      => [ 'osx' ],
-			'SessionTypes'  => [ "shell" ]
-		))
-	end
+  def initialize(info={})
+    super(update_info(info,
+      'Name'          => 'OS X Gather Airport Wireless Preferences',
+      'Description'   => %q{
+          This module will download OS X Airport Wireless preferences from the victim
+        machine.  The preferences file (which is a plist) contains information such as:
+        SSID, Channels, Security Type, Password ID, etc.
+      },
+      'License'       => MSF_LICENSE,
+      'Author'        => [ 'sinn3r'],
+      'Platform'      => [ 'osx' ],
+      'SessionTypes'  => [ "shell" ]
+    ))
+  end
 
   def exec(cmd)
     tries = 0

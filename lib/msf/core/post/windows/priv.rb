@@ -3,7 +3,7 @@
 require 'msf/core/post/windows/accounts'
 
 module Msf::Post::Windows::Priv
-	include ::Msf::Post::Windows::Accounts
+  include ::Msf::Post::Windows::Accounts
 
   #
   # Returns true if user is admin and false if not.

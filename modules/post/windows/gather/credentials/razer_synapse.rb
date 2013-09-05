@@ -11,8 +11,8 @@ require 'openssl'
 
 class Metasploit3 < Msf::Post
 
-	include Msf::Post::Windows::UserProfiles
-	include Msf::Post::File
+  include Msf::Post::Windows::UserProfiles
+  include Msf::Post::File
 
   def initialize(info={})
     super(update_info(info,
@@ -105,14 +105,14 @@ class Metasploit3 < Msf::Post
 
         contents = read_file(accounts)
 
-				# read the contents of file
-				creds = parse_config(contents)
-				if creds
-					decrypt(creds)
-				else
-					print_error("Could not read config or empty for #{user['UserName']}")
-				end
-			end
-		end
-	end
+        # read the contents of file
+        creds = parse_config(contents)
+        if creds
+          decrypt(creds)
+        else
+          print_error("Could not read config or empty for #{user['UserName']}")
+        end
+      end
+    end
+  end
 end

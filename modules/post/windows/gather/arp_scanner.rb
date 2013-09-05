@@ -11,7 +11,7 @@ require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
-	include Msf::Auxiliary::Report
+  include Msf::Auxiliary::Report
 
   OUI_LIST = Rex::Oui
 
