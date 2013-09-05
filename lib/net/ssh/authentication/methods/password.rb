@@ -21,11 +21,11 @@ module Net
             case message.type
               when USERAUTH_SUCCESS
                 debug { "password succeeded" }
-				if session.options[:record_auth_info]
-					session.auth_info[:method] = "password"
-					session.auth_info[:user] = username
-					session.auth_info[:password] = password
-				end
+        if session.options[:record_auth_info]
+          session.auth_info[:method] = "password"
+          session.auth_info[:user] = username
+          session.auth_info[:password] = password
+        end
                 return true
               when USERAUTH_FAILURE
                 debug { "password failed" }
