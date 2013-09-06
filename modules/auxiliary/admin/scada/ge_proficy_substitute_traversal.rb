@@ -116,9 +116,9 @@ class Metasploit3 < Msf::Auxiliary
   def run
     @peer = "#{rhost}:#{rport}"
 
-    print_status("#{@peer} - Fingerprinting GE Proficy")
+    print_status("#{@peer} - Checking if it's a GE Proficy Application...")
     if is_proficy?
-      print_good("#{@peer} - Login successful")
+      print_good("#{@peer} - Check successful")
     else
       print_error("#{@peer} - GE proficy not found")
       return
