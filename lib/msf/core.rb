@@ -18,7 +18,7 @@ require 'rex'
 require 'rex/ui'
 
 module Msf
-	LogSource = "core"
+  LogSource = "core"
 end
 
 # General
