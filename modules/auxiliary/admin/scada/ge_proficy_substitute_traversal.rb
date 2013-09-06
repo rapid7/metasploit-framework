@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
       'References'  =>
         [
           [ 'CVE', '2013-0653' ],
-          [ 'OSVDB', '89489' ],
+          [ 'OSVDB', '89490' ],
           [ 'BID', '57505' ],
           [ 'URL', 'http://ics-cert.us-cert.gov/advisories/ICSA-13-022-02' ]
         ],
