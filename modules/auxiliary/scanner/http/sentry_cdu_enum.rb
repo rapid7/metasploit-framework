@@ -79,9 +79,9 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			res = send_request_cgi(
 			{
-				'uri'       => '/',
+				'uri'       => '/index.html',
 				'method'    => 'GET',
-				'authorization' => basic_auth('user','pass')
+				'authorization' => basic_auth(user,pass)
 			})
 
 			if (res and res.headers['Set-Cookie'])
