@@ -8,22 +8,22 @@ module Handler
 #
 ###
 module None
-	include Msf::Handler
+  include Msf::Handler
 
-	#
-	# Returns the handler type of none since payloads that use this handler
-	# have no connection.
-	#
-	def self.handler_type
-		return "none"
-	end
+  #
+  # Returns the handler type of none since payloads that use this handler
+  # have no connection.
+  #
+  def self.handler_type
+    return "none"
+  end
 
-	#
-	# Returns none to indicate no connection.
-	#
-	def self.general_handler_type
-		return "none"
-	end
+  #
+  # Returns none to indicate no connection.
+  #
+  def self.general_handler_type
+    return "none"
+  end
 
 end
 

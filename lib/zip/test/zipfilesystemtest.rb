@@ -64,7 +64,7 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
       |f|
       blockCalled = true
       assert_equal("this is the entry 'file1' in my test archive!", 
-		    f.readline.chomp)
+        f.readline.chomp)
     }
     assert(blockCalled)
 
@@ -73,7 +73,7 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
       |f|
       blockCalled = true
       assert_equal("this is the entry 'file1' in my test archive!", 
-		    f.readline.chomp)
+        f.readline.chomp)
     }
     assert(blockCalled)
 
@@ -83,7 +83,7 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
       |f|
       blockCalled = true
       assert_equal("this is the entry 'dir2/file21' in my test archive!", 
-		    f.readline.chomp)
+        f.readline.chomp)
     }
     assert(blockCalled)
     @zipFile.dir.chdir "/"
@@ -95,7 +95,7 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
     begin
       is = @zipFile.file.open("file1")
       assert_equal("this is the entry 'file1' in my test archive!", 
-		    is.readline.chomp)
+        is.readline.chomp)
     ensure
       is.close if is
     end
@@ -105,13 +105,13 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
     begin
       is = @zipFile.file.new("file1")
       assert_equal("this is the entry 'file1' in my test archive!", 
-		    is.readline.chomp)
+        is.readline.chomp)
     ensure
       is.close if is
     end
     begin
       is = @zipFile.file.new("file1") {
-	fail "should not call block"
+  fail "should not call block"
       }
     ensure
       is.close if is
@@ -312,17 +312,17 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
 
   def test_mtime
     assert_equal(Time.at(1027694306),
-		  @zipFile.file.mtime("dir2/file21"))
+      @zipFile.file.mtime("dir2/file21"))
     assert_equal(Time.at(1027690863),
-		  @zipFile.file.mtime("dir2/dir21"))
+      @zipFile.file.mtime("dir2/dir21"))
     assert_raise(Errno::ENOENT) {
       @zipFile.file.mtime("noSuchEntry")
     }
 
     assert_equal(Time.at(1027694306),
-		  @zipFile.file.stat("dir2/file21").mtime)
+      @zipFile.file.stat("dir2/file21").mtime)
     assert_equal(Time.at(1027690863),
-		  @zipFile.file.stat("dir2/dir21").mtime)
+      @zipFile.file.stat("dir2/dir21").mtime)
   end
 
   def test_ctime
@@ -443,9 +443,9 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
       
       index = 0
       zf.file.foreach("data/file1.txt") { 
-	|l|
-	assert_equal(ref[index], l)
-	index = index.next
+  |l|
+  assert_equal(ref[index], l)
+  index = index.next
       }
       assert_equal(ref.size, index)
     }
@@ -457,23 +457,23 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
       
       index = 0
       zf.file.foreach("data/file1.txt", " ") { 
-	|l|
-	assert_equal(ref[index], l)
-	index = index.next
+  |l|
+  assert_equal(ref[index], l)
+  index = index.next
       }
       assert_equal(ref.size, index)
     }
   end
 
   def test_popen
-	  if RUBY_PLATFORM =~ /mswin|mingw/i
-		  cmd = 'dir'
-	  else
-		  cmd = 'ls'
-	  end
+    if RUBY_PLATFORM =~ /mswin|mingw/i
+      cmd = 'dir'
+    else
+      cmd = 'ls'
+    end
 
     assert_equal(File.popen(cmd)          { |f| f.read }, 
-		  @zipFile.file.popen(cmd) { |f| f.read })
+      @zipFile.file.popen(cmd) { |f| f.read })
   end
 
 # Can be added later
@@ -485,7 +485,7 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
     ZipFile.open("data/generated/zipWithDir.zip") {
       |zf|
       assert_equal(File.readlines("data/file1.txt"), 
-		    zf.file.readlines("data/file1.txt"))
+        zf.file.readlines("data/file1.txt"))
     }
   end
 
@@ -493,7 +493,7 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
     ZipFile.open("data/generated/zipWithDir.zip") {
       |zf|
       assert_equal(File.read("data/file1.txt"), 
-		    zf.file.read("data/file1.txt"))
+        zf.file.read("data/file1.txt"))
     }
   end
 
