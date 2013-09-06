@@ -90,15 +90,17 @@ class Metasploit3 < Msf::Post
 			output = get_request('/')
 			if output =~ /title.*CUPS\s+([\d\.]+)/i
 				config_vn = $1.strip
-			else
-				print_error "Could not determine CUPS version."
-				return Msf::Exploit::CheckCode::Unknown
 			end
 		else
 			config_vn = cmd_exec("cups-config --version").strip # use cups-config if installed
 		end
 
 		print_status "Found CUPS #{config_vn}"
+
+    if config_vn.nil?
+      print_error "Could not determine CUPS version."
+      return Msf::Exploit::CheckCode::Unknown
+    end
 
 		config_parts = config_vn.split('.')
 		if config_vn.to_f < 1.6 or (config_vn.to_f <= 1.6 and config_parts[2].to_i < 2) # <1.6.2
