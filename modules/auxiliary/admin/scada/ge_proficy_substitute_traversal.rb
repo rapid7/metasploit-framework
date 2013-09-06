@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description' => %q{
         This module abuses a directory traversal in GE Proficy Cimplicity, specifically on the
         gefebt.exe component used by the WebView, in order to retrieve arbitrary files with SYSTEM
-        privileges.
+        privileges. This module has been tested successfully on GE Proficy Cimplicity 7.5.
       },
       'Author'       =>
         [
