@@ -22,7 +22,7 @@ require 'metasm'
 include Metasm
 
 if not pr = OS.current.find_process(ARGV.first)
-	abort "cant find target"
+  abort "cant find target"
 end
 
 dbg = pr.debugger
@@ -32,28 +32,28 @@ puts "monitoring.." if $VERBOSE
 dbg.wait_target
 
 while dbg.state == :stopped
-	puts "target #{dbg.state} #{dbg.info}" if $VERBOSE
-	if di = dbg.di_at(dbg.pc) and di.to_s =~ /\[(...)\]/ and reg = $1.downcase.to_sym and regval = dbg.get_reg_value(reg) and regval > 0 and regval < 4096
-		bt = dbg.stacktrace(2)
-		calladdr = bt[1][0]-5
-		dbg.disassembler.disassemble_fast(calladdr)
-		call = dbg.di_at(calladdr)
-		dbg.disassembler.disassemble_fast(call.instruction.args.first.reduce) rescue nil
-		if di = dbg.disassembler.decoded[dbg.pc] and from = dbg.disassembler.decoded[di.block.from_normal.first] and from.block.list[-2].to_s =~ /test #{reg}, #{reg}/
-			puts "fix almost null deref #{di} (#{reg}=#{regval})" if $VERBOSE
-			dbg.set_reg_value(reg, 0)
-			dbg.set_reg_value(:eip, from.block.list[-2].address)
-		else
-			dbg.kill	# dont infinite loop ( TODO just dont handle the exception)
-		end
-	elsif dbg.info =~ /SEGV/
-		puts "unhandled segfault #{di}..." if $VERBOSE
-		# yep, this actually works
-		dbg.set_reg_value(:eip, di.next_addr)
-	end
-	dbg.continue
-	puts "target running" if $VERBOSE
-	dbg.wait_target
+  puts "target #{dbg.state} #{dbg.info}" if $VERBOSE
+  if di = dbg.di_at(dbg.pc) and di.to_s =~ /\[(...)\]/ and reg = $1.downcase.to_sym and regval = dbg.get_reg_value(reg) and regval > 0 and regval < 4096
+    bt = dbg.stacktrace(2)
+    calladdr = bt[1][0]-5
+    dbg.disassembler.disassemble_fast(calladdr)
+    call = dbg.di_at(calladdr)
+    dbg.disassembler.disassemble_fast(call.instruction.args.first.reduce) rescue nil
+    if di = dbg.disassembler.decoded[dbg.pc] and from = dbg.disassembler.decoded[di.block.from_normal.first] and from.block.list[-2].to_s =~ /test #{reg}, #{reg}/
+      puts "fix almost null deref #{di} (#{reg}=#{regval})" if $VERBOSE
+      dbg.set_reg_value(reg, 0)
+      dbg.set_reg_value(:eip, from.block.list[-2].address)
+    else
+      dbg.kill	# dont infinite loop ( TODO just dont handle the exception)
+    end
+  elsif dbg.info =~ /SEGV/
+    puts "unhandled segfault #{di}..." if $VERBOSE
+    # yep, this actually works
+    dbg.set_reg_value(:eip, di.next_addr)
+  end
+  dbg.continue
+  puts "target running" if $VERBOSE
+  dbg.wait_target
 end
 
 puts "target terminated" if $VERBOSE
