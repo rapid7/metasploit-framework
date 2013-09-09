@@ -371,7 +371,7 @@ class Metasploit3 < Msf::Auxiliary
             :proto  => 'tcp',
             :port   => rport,
             :type   => 'smb.shares',
-            :data   => { :shares => shares.inspect },
+            :data   => { :shares => shares },
             :update => :unique_data
           )
 
