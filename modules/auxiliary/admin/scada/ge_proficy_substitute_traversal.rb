@@ -132,7 +132,7 @@ class Metasploit3 < Msf::Auxiliary
 
     file_name = my_basename(datastore['FILEPATH'])
     path = store_loot(
-        'hp.imc.faultdownloadservlet',
+        'ge.proficy.traversal',
         'application/octet-stream',
         rhost,
         contents,
