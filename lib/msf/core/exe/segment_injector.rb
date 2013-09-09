@@ -15,6 +15,9 @@ module Exe
       @template = opts[:template]
       @arch  = opts[:arch] || :x86
       @buffer_register = opts[:buffer_register] || 'edx'
+      unless %w{eax ecx edx ebx edi esi}.include?(@buffer_register.downcase)
+        raise ArgumentError, ":buffer_register is not a real register"
+      end
     end
 
     def processor

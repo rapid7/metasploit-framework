@@ -35,6 +35,20 @@ describe Msf::Exe::SegmentInjector do
       injector.buffer_register.should == 'edx'
     end
 
+    context 'when given a non-default buffer register' do
+      let(:opts) do
+        option_hash = {
+            :template => File.join(File.dirname(__FILE__), "..", "..", "..", "..", "..", "data", "templates", "template_x86_windows.exe"),
+            :payload  => "\xd9\xeb\x9b\xd9\x74\x24",
+            :arch     => :x86,
+            :buffer_register => 'eax'
+        }
+      end
+      it 'should use the correct buffer register' do
+        injector.buffer_register.should == 'eax'
+      end
+    end
+
     it 'should set a buffer register for the payload' do
       injector.create_thread_stub.should include('lea edx, [thread_hook]')
     end
