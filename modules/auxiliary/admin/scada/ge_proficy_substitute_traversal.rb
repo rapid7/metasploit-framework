@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
     res = sock.get_once
     disconnect
 
-    if res and res =~ /gefebt.exe/
+    if res and res =~ /gefebt\.exe/
       return true
     else
       return false
