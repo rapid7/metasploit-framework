@@ -5,6 +5,10 @@
 #   http://metasploit.com/
 ##
 
+require 'msf/core'
+require 'msf/core/post/common'
+require 'msf/core/post/file'
+
 class Metasploit3 < Msf::Post
   include Msf::Post::File
   include Msf::Post::Common
