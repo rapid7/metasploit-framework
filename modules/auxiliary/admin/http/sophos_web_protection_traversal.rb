@@ -15,11 +15,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'Sophos Web Appliance patience.cgi Directory Traversal',
+      'Name'        => 'Sophos Web Protection Appliance patience.cgi Directory Traversal',
       'Description' => %q{
-        This module abuses a directory traversal in Sophos Web Appliance, specifically on the
-        /cgi-bin/patience.cgi component. This module has been tested successfully on the Sophos
-        Web Virtual Appliance v3.7.0.
+        This module abuses a directory traversal in Sophos Web Protection Appliance, specifically
+        on the /cgi-bin/patience.cgi component. This module has been tested successfully on the
+        Sophos Web Virtual Appliance v3.7.0.
       },
       'Author'       =>
         [
