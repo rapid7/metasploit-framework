@@ -30,7 +30,7 @@ class Metasploit4 < Msf::Post
   end
 	
 	#
-	# This post module runs BitLocker Drive Encryption status check command and returns the output
+	# This post module runs BitLocker Drive Encryption status check command and returns the output.
 	#
 	def run
     #Make sure we are on a Windows host
