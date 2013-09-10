@@ -41,7 +41,7 @@ group :development, :test do
 	# 'FactoryGirl.' in factory definitions syntax.
 	gem 'factory_girl', '>= 4.1.0'
 	# running documentation generation tasks and rspec tasks
-	gem 'rake'
+	gem 'rake', '>= 10.0.0'
 end
 
 group :test do
@@ -51,11 +51,10 @@ group :test do
 	gem 'database_cleaner'
 	# testing framework
 	gem 'rspec', '>= 2.12'
-	# add matchers from shoulda, such as query_the_database, which is useful for
-	# testing that the Msf::DBManager activation is respected.
 	gem 'shoulda-matchers'
 	# code coverage for tests
 	# any version newer than 0.5.4 gives an Encoding error when trying to read the source files.
+	# see: https://github.com/colszowka/simplecov/issues/127 (hopefully fixed in 0.8.0)
 	gem 'simplecov', '0.5.4', :require => false
 	# Manipulate Time.now in specs
 	gem 'timecop'

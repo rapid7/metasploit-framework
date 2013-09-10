@@ -5,6 +5,10 @@
 #   http://metasploit.com/
 ##
 
+require 'msf/core'
+require 'msf/core/post/common'
+require 'msf/core/post/file'
+
 class Metasploit3 < Msf::Post
   include Msf::Post::File
   include Msf::Post::Common
@@ -23,12 +27,8 @@ class Metasploit3 < Msf::Post
         Error Log page in the web interface, the cupsd daemon (running with setuid root)
         reads the Error Log path and echoes it as plaintext.
 
-        This module is known to work on:
-
-        - Mac OS X < 10.8.4
-        - Ubuntu Desktop <= 12.0.4
-
-        ...as long as the session is in the lpadmin group.
+        This module is known to work on Mac OS X < 10.8.4 and Ubuntu Desktop <= 12.0.4
+        as long as the session is in the lpadmin group.
 
         Warning: if the user has set up a custom path to the CUPS error log,
         this module might fail to reset that path correctly. You can specify
