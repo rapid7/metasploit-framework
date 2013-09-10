@@ -1866,4 +1866,3 @@ def self.to_vba(framework,code,opts={})
 end
 end
 end
-
