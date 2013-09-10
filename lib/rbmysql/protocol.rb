@@ -236,7 +236,7 @@ class RbMysql
           header = @sock.read(4)
           len1, len2, seq = header.unpack("CvC")
           len = (len2 << 8) + len1
-					# Ignore the sequence number -- protocol differences between 4.x and 5.x
+          # Ignore the sequence number -- protocol differences between 4.x and 5.x
           # raise ProtocolError, "invalid packet: sequence number mismatch(#{seq} != #{@seq}(expected))" if @seq != seq
           @seq = (@seq + 1) % 256
           ret.concat @sock.read(len)
@@ -297,7 +297,7 @@ class RbMysql
     # ProtocolError :: packet is not EOF
     def read_eof_packet
       data = read
-			# EOF packet is different between MySQL 4.x and 5.x, so ignore.
+      # EOF packet is different between MySQL 4.x and 5.x, so ignore.
       # raise ProtocolError, "packet is not EOF" unless Protocol.eof_packet? data
     end
 
@@ -352,7 +352,7 @@ class RbMysql
         raise ProtocolError, "unsupported version: #{protocol_version}" unless protocol_version == VERSION
         raise ProtocolError, "invalid packet: f0=#{f0}" unless f0 == 0
         # Remove the f1 check to backport https://github.com/tmtm/ruby-mysql/commit/07ddfafafbd1d46bbb71c7cb54ae0f03bc998d27
-				# raise ProtocolError, "invalid packet: f1=#{f1.inspect}" unless f1 == "\0\0\0\0\0\0\0\0\0\0\0\0\0"
+        # raise ProtocolError, "invalid packet: f1=#{f1.inspect}" unless f1 == "\0\0\0\0\0\0\0\0\0\0\0\0\0"
         scramble_buff.concat rest_scramble_buff
         self.new protocol_version, server_version, thread_id, server_capabilities, server_charset, server_status, scramble_buff
       end
