@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Post
                 "keylog", "text/plain", session, log, "keylog.log", "OSX keylog"
               )
             else
-              File.open(self.loot_path, 'a') { |f| f.write(log) }
+              File.open(self.loot_path, 'ab') { |f| f.write(log) }
             end
             print_status(log_a.map{ |a| a=~/([^\s]+)\s*$/; $1 }.join)
             print_status "Saved to #{self.loot_path}"
