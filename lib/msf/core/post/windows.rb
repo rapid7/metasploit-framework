@@ -2,6 +2,7 @@
 module Msf::Post::Windows
   require 'msf/core/post/windows/accounts'
   require 'msf/core/post/windows/cli_parse'
+  require 'msf/core/post/windows/eventlog'
   require 'msf/core/post/windows/file_info'
   require 'msf/core/post/windows/powershell'
   require 'msf/core/post/windows/priv'
