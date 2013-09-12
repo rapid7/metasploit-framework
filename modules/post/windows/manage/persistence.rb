@@ -16,7 +16,7 @@ require 'msf/core/post/windows/services'
 class Metasploit3 < Msf::Post
   require 'msf/core/module/deprecated'
   include Msf::Module::Deprecated
-  deprecated Date.new(2013, 11, 12), '/exploit/windows/local/persistence'
+  deprecated Date.new(2013, 11, 12), 'exploit/windows/local/persistence'
 
   include Msf::Post::Common
   include Msf::Post::File
