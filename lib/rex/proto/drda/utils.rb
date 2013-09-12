@@ -71,7 +71,7 @@ class Utils
     ddm.payload.each do |param|
       case param.codepoint
       when Constants::SECMEC
-        info_hash[:plaintext_auth] = true if param.payload =~ /\x00\x03/
+        info_hash[:plaintext_auth] = true if param.payload =~ /\x00\x03/n
       when Constants::SECCHKCD
         info_hash[:security_check_code] = param.payload.unpack("C").first
         # A little spurious? This is always nonzero when there's no SECCHKRM DDM.
