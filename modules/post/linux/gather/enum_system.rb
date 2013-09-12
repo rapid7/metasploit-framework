@@ -7,8 +7,6 @@
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/linux/system'
-require 'msf/core/post/linux/priv'
 
 class Metasploit3 < Msf::Post
 
