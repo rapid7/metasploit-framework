@@ -121,6 +121,14 @@ class Msftidy
 		end
 	end
 
+  def check_snake_case_filename
+    sep = File::SEPARATOR
+    good_name = Regexp.new "^[a-z0-9_#{sep}]+\.rb$"
+    unless @name =~ good_name
+      warn "Filenames should be alphanum and snake case."
+    end
+  end
+
 	def check_old_keywords
 		max_count = 10
 		counter   = 0
@@ -408,6 +416,7 @@ def run_checks(f_rel)
 	tidy.check_bad_terms
 	tidy.check_function_basics
 	tidy.check_lines
+  tidy.check_snake_case_filename
 end
 
 ##
