@@ -145,8 +145,9 @@ class STDProcessBuffer(threading.Thread):
 			self.data_lock.acquire()
 			self.data += byte
 			self.data_lock.release()
+		data = self.std.read()
 		self.data_lock.acquire()
-		self.data += self.std.read()
+		self.data += data
 		self.data_lock.release()
 
 	def is_read_ready(self):
@@ -208,7 +209,7 @@ class PythonMeterpreter(object):
 
 	def run(self):
 		while self.running:
-			if len(select.select([self.socket], [], [], 0)[0]):
+			if len(select.select([self.socket], [], [], 0.5)[0]):
 				request = self.socket.recv(8)
 				if len(request) != 8:
 					break
@@ -391,13 +392,17 @@ class PythonMeterpreter(object):
 		reqid_tlv = packet_get_tlv(request, TLV_TYPE_REQUEST_ID)
 		resp += tlv_pack(reqid_tlv)
 
-		if method_tlv['value'] in self.extension_functions:
-			handler = self.extension_functions[method_tlv['value']]
+		handler_name = method_tlv['value']
+		if handler_name in self.extension_functions:
+			handler = self.extension_functions[handler_name]
 			try:
+				#print("[*] running method {0}".format(handler_name))
 				result, resp = handler(request, resp)
 			except Exception, err:
+				#print("[-] method {0} resulted in an error".format(handler_name))
 				result = ERROR_FAILURE
 		else:
+			#print("[-] method {0} was requested but does not exist".format(handler_name))
 			result = ERROR_FAILURE
 		resp += tlv_pack(TLV_TYPE_RESULT, result)
 		resp = struct.pack('>I', len(resp) + 4) + resp

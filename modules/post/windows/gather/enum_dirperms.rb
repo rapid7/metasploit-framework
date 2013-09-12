@@ -11,6 +11,7 @@ require 'msf/core/post/common'
 class Metasploit3 < Msf::Post
 
   include Msf::Post::Common
+  include Msf::Post::Windows::Accounts
 
   def initialize(info={})
     super(update_info(info,
@@ -40,60 +41,6 @@ class Metasploit3 < Msf::Post
       ], self.class)
   end
 
-  def get_imperstoken
-    adv =  session.railgun.advapi32
-    tok_all = "TOKEN_ASSIGN_PRIMARY |TOKEN_DUPLICATE | TOKEN_IMPERSONATE | TOKEN_QUERY | "
-    tok_all << "TOKEN_QUERY_SOURCE | TOKEN_ADJUST_PRIVILEGES | TOKEN_ADJUST_GROUPS"
-    tok_all << " | TOKEN_ADJUST_DEFAULT"
-
-    #get impersonation token handle it["DuplicateTokenhandle"] carries this value
-    #p = kern.GetCurrentProcess() #get handle to current process
-    pid = session.sys.process.open.pid
-    pr = session.sys.process.open(pid, PROCESS_ALL_ACCESS)
-    pt = adv.OpenProcessToken(pr.handle, tok_all, 4) #get handle to primary token
-    it = adv.DuplicateToken(pt["TokenHandle"],2, 4) # get an impersonation token
-    if it["return"] #if it fails return 0 for error handling
-      return it["DuplicateTokenHandle"]
-    else
-      return 0
-    end
-  end
-
-  def check_dir(dir, token)
-    # If path doesn't exist, do not continue
-    begin
-      session.fs.dir.entries(dir)
-    rescue => e
-      vprint_error("#{e.message}: #{dir}")
-      return nil
-    end
-
-    adv =  session.railgun.advapi32
-    si = "OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION"
-    result = ""
-
-    #define generic mapping structure
-    gen_map = [0,0,0,0]
-    gen_map = gen_map.pack("L")
-
-    #get Security Descriptor for the directory
-    f = adv.GetFileSecurityA(dir, si, 20, 20, 4)
-    f = adv.GetFileSecurityA(dir, si, f["lpnLengthNeeded"], f["lpnLengthNeeded"], 4)
-    sd = f["pSecurityDescriptor"]
-
-    #check for write access, called once to get buffer size
-    a = adv.AccessCheck(sd, token, "ACCESS_READ | ACCESS_WRITE", gen_map, 0, 0, 4, 8)
-    len = a["PrivilegeSetLength"]
-
-    r = adv.AccessCheck(sd, token, "ACCESS_READ", gen_map, len, len, 4, 8)
-    if !r["return"] then return nil end
-    if r["GrantedAccess"] > 0 then result << "R" end
-
-    w = adv.AccessCheck(sd, token, "ACCESS_WRITE", gen_map, len, len, 4, 8)
-    if !w["return"] then return nil end
-    if w["GrantedAccess"] > 0 then result << "W" end
-  end
-
   def enum_subdirs(perm_filter, dpath, maxdepth, token)
     filter = datastore['FILTER']
     filter = nil if datastore['FILTER'] == 'NA'
@@ -110,7 +57,7 @@ class Metasploit3 < Msf::Post
         next if d =~ /^(\.|\.\.)$/
         realpath = dpath + '\\' + d
         if session.fs.file.stat(realpath).directory?
-          perm = check_dir(realpath, token)
+          perm = check_dir_perms(realpath, token)
           if perm_filter and perm and perm.include?(perm_filter)
             print_status(perm + "\t" + realpath)
           end
@@ -144,7 +91,7 @@ class Metasploit3 < Msf::Post
       t = get_imperstoken()
     rescue ::Exception => e
       # Failure due to timeout, access denied, etc.
-      t = 0
+      t = nil
       vprint_error("Error #{e.message} while using get_imperstoken()")
       vprint_error(e.backtrace)
     end
@@ -158,7 +105,7 @@ class Metasploit3 < Msf::Post
 
       print_status("Checking directory permissions from: #{path}")
 
-      perm = check_dir(path, token)
+      perm = check_dir_perms(path, token)
       if not perm.nil?
         # Show the permission of the parent directory
         if perm_filter and perm.include?(perm_filter)
@@ -188,7 +135,7 @@ class Metasploit3 < Msf::Post
 
     t = get_token
 
-    if t == 0
+    unless t
       print_error("Getting impersonation token failed")
     else
       print_status("Got token: #{t.to_s}...")

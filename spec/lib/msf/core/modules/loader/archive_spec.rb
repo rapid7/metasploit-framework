@@ -24,7 +24,7 @@ describe Msf::Modules::Loader::Archive do
 		end
 
 		let(:framework) do
-			mock('Framework')
+			double('Framework')
 		end
 
 		let(:module_extension) do
