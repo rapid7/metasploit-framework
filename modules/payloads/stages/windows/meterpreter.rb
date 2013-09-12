@@ -8,7 +8,9 @@
 
 require 'msf/core'
 require 'msf/core/payload/windows/reflectivedllinject'
+require 'msf/core/payload/windows/x64/reflectivedllinject'
 require 'msf/base/sessions/meterpreter_x86_win'
+require 'msf/base/sessions/meterpreter_x64_win'
 require 'msf/base/sessions/meterpreter_options'
 
 ###
