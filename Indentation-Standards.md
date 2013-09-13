@@ -105,9 +105,12 @@ By now, we should have a pretty good idea of how to deal with conflicts and how 
   - ~~Land the [retabbed branch]((https://github.com/tabassassin/metasploit-framework/compare/rapid7:master...retab;rumpus?expand=1)~~
     * Landed as [PR #2330](https://github.com/rapid7/metasploit-framework/pull/2330)
 
-### By September 13, 2013
+### By September ~~13~~ 16, 2013
   - Retab spec, top-level, and everything else Ruby.
-  - Run through outstanding PRs again, looking for conflicts.
+    - Pushing off since I don't want to do this on a Friday.
+    - Note that the only PRs that affect specs are [here](https://gist.github.com/todb-r7/2ff5a3f828341c4ac8b9).
+  - ~~Run through outstanding PRs again, looking for conflicts.~~
+    - No new PRs appear to be conflicted due to whitespace. Amazing.
 
 ### By September 18, 2013
  - Periodically retab as [@tabassassin](https://github.com/tabassassin) to catch stragglers that snuck in.
