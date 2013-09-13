@@ -379,7 +379,9 @@ module Powershell
     # Convert binary to byte array, read from file if able
     #
     def self.to_byte_array(input_data,var_name="buf")
-      code = code.unpack('C*')
+      return "[Byte[]]$#{name} = ''" if input_data.nil? or input_data.empty?
+
+      code = input_data.unpack('C*')
       psh = "[Byte[]] $#{var_name} = 0x#{code[0].to_s(16)}"
       lines = []
       1.upto(code.length-1) do |byte|
