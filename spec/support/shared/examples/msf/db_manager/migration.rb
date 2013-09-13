@@ -21,7 +21,7 @@ shared_examples_for 'Msf::DBManager::Migration' do
 		end
 
 		it 'should return migrations that were ran from ActiveRecord::Migrator.migrate' do
-			migrations = [mock('Migration 1')]
+			migrations = [double('Migration 1')]
 			ActiveRecord::Migrator.stub(:migrate => migrations)
 
 			migrate.should == migrations
@@ -128,7 +128,7 @@ shared_examples_for 'Msf::DBManager::Migration' do
 			descendants = []
 
 			1.upto(2) do |i|
-				descendants << mock("Descendant #{i}")
+				descendants << double("Descendant #{i}")
 			end
 
 			ActiveRecord::Base.stub(:descendants => descendants)

@@ -375,22 +375,30 @@ module Powershell
 		# Class methods
 		##
 
+    #
+    # Convert binary to byte array, read from file if able
+    #
+    def self.to_byte_array(input_data,var_name="buf")
+      code = code.unpack('C*')
+      psh = "[Byte[]] $#{var_name} = 0x#{code[0].to_s(16)}"
+      lines = []
+      1.upto(code.length-1) do |byte|
+        if(byte % 10 == 0)
+          lines.push "\r\n$#{var_name} += 0x#{code[byte].to_s(16)}"
+        else
+          lines.push ",0x#{code[byte].to_s(16)}"
+        end
+      end
+
+      return psh << lines.join("") + "\r\n"
+    end
+
 		#
 		# Build a byte array to load into powershell code
 		#
 		def self.build_byte_array(input_data,var_name = Rex::Text.rand_text_alpha(rand(3)+3))
 			code = ::File.file?(input_data) ? ::File.read(input_data) : input_data
-			code = code.unpack('C*')
-			psh = "[Byte[]] $#{var_name} = 0x#{code[0].to_s(16)}"
-			lines = []
-			1.upto(code.length-1) do |byte|
-				if(byte % 10 == 0)
-					lines.push "\r\n$#{var_name} += 0x#{code[byte].to_s(16)}"
-				else
-					lines.push ",0x#{code[byte].to_s(16)}"
-				end
-			end
-			psh << lines.join("") + "\r\n"
+			return to_byte_array(input_data,var_name)
 		end
 
 		def self.psp_funcs(dir)

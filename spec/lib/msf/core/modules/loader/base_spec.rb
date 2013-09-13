@@ -122,7 +122,7 @@ describe Msf::Modules::Loader::Base do
 
 				context 'loader' do
 					it 'should be a read/write attribute' do
-						loader = mock('Loader')
+						loader = double('Loader')
 						namespace_module.loader = loader
 
 						namespace_module.loader.should == loader
@@ -133,7 +133,7 @@ describe Msf::Modules::Loader::Base do
 					it 'should capture the lexical scope' do
 						expect {
 							namespace_module.module_eval_with_lexical_scope(module_content, module_path)
-						}.to_not raise_error(NameError)
+						}.to_not raise_error
 					end
 
 					context 'with malformed module content' do
@@ -155,7 +155,7 @@ describe Msf::Modules::Loader::Base do
 
 				context 'parent_path' do
 					it 'should be a read/write attribute' do
-						parent_path = mock('Parent Path')
+						parent_path = double('Parent Path')
 						namespace_module.parent_path = parent_path
 
 						namespace_module.parent_path.should == parent_path
@@ -221,7 +221,7 @@ describe Msf::Modules::Loader::Base do
 
 	context 'instance methods' do
 		let(:module_manager) do
-			mock('Module Manager', :module_load_error_by_path => {})
+			double('Module Manager', :module_load_error_by_path => {})
 		end
 
 		subject do
@@ -317,7 +317,7 @@ describe Msf::Modules::Loader::Base do
 					module_manager.stub(:delete).with(module_reference_name)
 					module_manager.stub(:file_changed?).with(module_path).and_return(true)
 
-					module_set = mock('Module Set')
+					module_set = double('Module Set')
 					module_set.stub(:delete).with(module_reference_name)
 					module_manager.stub(:module_set).with(type).and_return(module_set)
 				end
@@ -372,11 +372,11 @@ describe Msf::Modules::Loader::Base do
 
 				context 'with errors from namespace_module_eval_with_lexical_scope' do
 					before(:each) do
-						@namespace_module = mock('Namespace Module')
+						@namespace_module = double('Namespace Module')
 						@namespace_module.stub(:parent_path=)
 
 						subject.stub(:namespace_module_transaction).and_yield(@namespace_module)
-						module_content = mock('Module Content', :empty? => false)
+						module_content = double('Module Content', :empty? => false)
 						subject.stub(:read_module_content).and_return(module_content)
 					end
 
@@ -471,11 +471,11 @@ describe Msf::Modules::Loader::Base do
 
 				context 'without module_eval errors' do
 					before(:each) do
-						@namespace_module = mock('Namespace Module')
+						@namespace_module = double('Namespace Module')
 						@namespace_module.stub(:parent_path=)
 						@namespace_module.stub(:module_eval_with_lexical_scope).with(module_content, module_path)
 
-						metasploit_class = mock('Metasploit Class', :parent => @namespace_module)
+						metasploit_class = double('Metasploit Class', :parent => @namespace_module)
 						@namespace_module.stub(:metasploit_class! => metasploit_class)
 
 						subject.stub(:namespace_module_transaction).and_yield(@namespace_module)
@@ -574,7 +574,7 @@ describe Msf::Modules::Loader::Base do
 
 						context 'with metasploit_class' do
 							let(:metasploit_class) do
-								mock('Metasploit Class')
+								double('Metasploit Class')
 							end
 
 							before(:each) do
@@ -727,7 +727,7 @@ describe Msf::Modules::Loader::Base do
 						anything
 				)
 
-				namespace_module = mock('Namespace Module')
+				namespace_module = double('Namespace Module')
 				namespace_module.stub(:loader=)
 				subject.stub(:current_module => namespace_module)
 
@@ -743,7 +743,7 @@ describe Msf::Modules::Loader::Base do
 						anything
 				)
 
-				namespace_module = mock('Namespace Module')
+				namespace_module = double('Namespace Module')
 				namespace_module.stub(:loader=)
 				subject.stub(:current_module => namespace_module)
 
@@ -759,7 +759,7 @@ describe Msf::Modules::Loader::Base do
 						described_class::NAMESPACE_MODULE_LINE - namespace_module_names.length
 				)
 
-				namespace_module = mock('Namespace Module')
+				namespace_module = double('Namespace Module')
 				namespace_module.stub(:loader=)
 				subject.stub(:current_module => namespace_module)
 
@@ -767,7 +767,7 @@ describe Msf::Modules::Loader::Base do
 			end
 
 			it "should set the namespace_module's module loader to itself" do
-				namespace_module = mock('Namespace Module')
+				namespace_module = double('Namespace Module')
 
 				namespace_module.should_receive(:loader=).with(subject)
 
@@ -1173,7 +1173,7 @@ describe Msf::Modules::Loader::Base do
 				# not defined on `nil`.
 				expect {
 					subject.send(:restore_namespace_module, parent_module, relative_name, @original_namespace_module)
-				}.to_not raise_error(NoMethodError)
+				}.to_not raise_error
 			end
 
 			context 'with namespace_module nil' do
@@ -1292,7 +1292,7 @@ describe Msf::Modules::Loader::Base do
 		context '#usable?' do
 			context 'without metasploit_class responding to is_usable' do
 				it 'should return true' do
-					metasploit_class = mock('Metasploit Class')
+					metasploit_class = double('Metasploit Class')
 					metasploit_class.should_not respond_to(:is_usable)
 
 					subject.send(:usable?, metasploit_class).should be_true
@@ -1303,7 +1303,7 @@ describe Msf::Modules::Loader::Base do
 				it 'should delegate to metasploit_class.is_usable' do
 					# not a proper return, but guarantees that delegation is actually happening
 					usability = 'maybe'
-					metasploit_class = mock('Metasploit Class', :is_usable => usability)
+					metasploit_class = double('Metasploit Class', :is_usable => usability)
 
 					subject.send(:usable?, metasploit_class).should == usability
 				end
@@ -1314,7 +1314,7 @@ describe Msf::Modules::Loader::Base do
 					end
 
 					let(:metasploit_class) do
-						metasploit_class = mock('Metasploit Class')
+						metasploit_class = double('Metasploit Class')
 
 						metasploit_class.stub(:is_usable).and_raise(error)
 
