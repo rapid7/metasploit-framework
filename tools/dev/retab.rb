@@ -21,9 +21,23 @@ puts "Keeping .notab backups" if keep_backups
 
 raise ArgumentError, "Need a filename or directory" unless (dir and File.readable? dir)
 
+def is_ruby?(fname)
+  file_util = ""
+  begin
+    file_util = %x{which file}.to_s.chomp
+  rescue Errno::ENOENT
+  end
+  if File.executable? file_util
+    file_fingerprint = %x{#{file_util} #{fname}}
+    !!(file_fingerprint =~ /Ruby script/)
+  else
+    !!(fname =~ /\.rb$/)
+  end
+end
+
 Find.find(dir) do |infile|
   next unless File.file? infile
-  next unless infile =~ /rb$/
+  next unless is_ruby? infile
   outfile = infile
 
   if keep_backups
