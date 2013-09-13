@@ -24,33 +24,33 @@ raise ArgumentError, "Need a filename or directory" unless (dir and File.readabl
 Find.find(dir) do |infile|
   next unless File.file? infile
   next unless infile =~ /rb$/
-outfile = infile
+  outfile = infile
 
-if keep_backups
-  backup = "#{infile}.notab"
-  FileUtils.cp infile, backup
-end
-
-data = File.open(infile, "rb") {|f| f.read f.stat.size}
-fixed = []
-data.each_line do |line|
-  fixed << line
-  next unless line =~ /^\x09/
-  index = []
-  i = 0
-  line.each_char do |char|
-    break unless char =~ /[\x20\x09]/
-    index << i if char == "\x09"
-    i += 1
+  if keep_backups
+    backup = "#{infile}.notab"
+    FileUtils.cp infile, backup
   end
-  index.reverse.each do |idx|
-    line[idx] = "  "
-  end
-  fixed[-1] = line
-end
 
-fh = File.open(outfile, "wb")
-fh.write fixed.join
-fh.close
-puts "Retabbed #{fh.path}"
+  data = File.open(infile, "rb") {|f| f.read f.stat.size}
+  fixed = []
+  data.each_line do |line|
+    fixed << line
+    next unless line =~ /^\x09/
+    index = []
+    i = 0
+    line.each_char do |char|
+      break unless char =~ /[\x20\x09]/
+      index << i if char == "\x09"
+      i += 1
+    end
+    index.reverse.each do |idx|
+      line[idx] = "  "
+    end
+    fixed[-1] = line
+  end
+
+  fh = File.open(outfile, "wb")
+  fh.write fixed.join
+  fh.close
+  puts "Retabbed #{fh.path}"
 end
