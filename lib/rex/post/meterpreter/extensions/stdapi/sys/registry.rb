@@ -249,7 +249,7 @@ class Registry
     response = client.send_request(request)
     cls = response.get_tlv(TLV_TYPE_VALUE_DATA)
     return nil if not cls
-    data = cls.value.gsub(/\x00.*/, '')
+    data = cls.value.gsub(/\x00.*/n, '')
     return data
   end
 
