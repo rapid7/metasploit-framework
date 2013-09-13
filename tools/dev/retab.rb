@@ -22,6 +22,7 @@ puts "Keeping .notab backups" if keep_backups
 raise ArgumentError, "Need a filename or directory" unless (dir and File.readable? dir)
 
 def is_ruby?(fname)
+  return true if fname =~ /\.rb$/
   file_util = ""
   begin
     file_util = %x{which file}.to_s.chomp
@@ -30,8 +31,6 @@ def is_ruby?(fname)
   if File.executable? file_util
     file_fingerprint = %x{#{file_util} #{fname}}
     !!(file_fingerprint =~ /Ruby script/)
-  else
-    !!(fname =~ /\.rb$/)
   end
 end
 
