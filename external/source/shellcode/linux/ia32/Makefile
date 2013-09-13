@@ -4,7 +4,8 @@ STAGERS=stager_sock_bind stager_sock_bind6 stager_sock_bind_udp stager_sock_bind
 				stager_sock_reverse_udp_dns
 STAGES=stage_tcp_shell stage_udp_shell
 SINGLE=single_adduser single_bind_tcp_shell single_find_tcp_shell \
-       single_reverse_tcp_shell single_reverse_udp_shell single_exec
+       single_reverse_tcp_shell single_reverse_udp_shell single_exec \
+       single_shell_bind_tcp_random_port
 
 OBJS=${STAGERS} ${STAGES} ${SINGLE}
 
