@@ -245,4 +245,5 @@ class Metasploit3 < Msf::Auxiliary
 
     return usernames
   end
+
 end
