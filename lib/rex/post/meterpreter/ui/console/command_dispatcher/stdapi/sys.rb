@@ -64,10 +64,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   @@ps_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help menu."                                              ],
-    "-S" => [ true,  "Filters processes on the process name using the supplied RegEx"],
-    "-A" => [ true,  "Filters processes on architecture (x86 or x86_64)"       ],
-    "-s" => [ false, "Show only SYSTEM processes"                              ],
-    "-U" => [ true,  "Filters processes on the user using the supplied RegEx"  ])
+    "-S" => [ true,  "Row search string to be used as a regex" ])
 
   #
   # Options for the 'suspend' command.
@@ -368,64 +365,65 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Lists running processes.
   #
   def cmd_ps(*args)
+    # Init vars
     processes = client.sys.process.get_processes
-    @@ps_opts.parse(args) do |opt, idx, val|
+    search_term = nil
+
+    # Parse opts
+    @@ps_opts.parse(args) { |opt, idx, val|
       case opt
-      when "-h"
-        cmd_ps_help
-        return true
-      when "-S"
-        print_line "Filtering on process name..."
-        searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
-        processes.each do |proc|
-          if val.nil? or val.empty?
-            print_line "You must supply a search term!"
-            return false
-          end
-          searched_procs << proc  if proc["name"].match(/#{val}/)
+      when '-S'
+        search_term = val
+        if search_term.nil?
+          print_error("Enter a search term")
+          return
         end
-        processes = searched_procs
-      when "-A"
-        print_line "Filtering on arch..."
-        searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
-        processes.each do |proc|
-          next if proc['arch'].nil? or proc['arch'].empty?
-          if val.nil? or val.empty? or !(val == "x86" or val == "x86_64")
-            print_line "You must select either x86 or x86_64"
-            return false
-          end
-          searched_procs << proc  if proc["arch"] == val
-        end
-        processes = searched_procs
-      when "-s"
-        print_line "Filtering on SYSTEM processes..."
-        searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
-        processes.each do |proc|
-          searched_procs << proc  if proc["user"] == "NT AUTHORITY\\SYSTEM"
-        end
-        processes = searched_procs
-      when "-U"
-        print_line "Filtering on user name..."
-        searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
-        processes.each do |proc|
-          if val.nil? or val.empty?
-            print_line "You must supply a search term!"
-            return false
-          end
-          searched_procs << proc  if proc["user"].match(/#{val}/)
-        end
-        processes = searched_procs
+      when '-h'
+        print_line @@ps_opts.usage
+        return
       end
-    end
+    }
+
+    tbl = Rex::Ui::Text::Table.new(
+      'Header'  => "Process list",
+      'Indent'  => 1,
+      'Columns' =>
+        [
+          "PID",
+          "Name",
+          "Arch",
+          "Session",
+          "User",
+          "Path"
+        ],
+      'SearchTerm' => search_term
+    )
+
+    processes.each { |ent|
+
+      session = ent['session'] == 0xFFFFFFFF ? '' : ent['session'].to_s
+      arch    = ent['arch']
+
+      # for display and consistency with payload naming we switch the internal 'x86_64' value to display 'x64'
+      if( arch == ARCH_X86_64 )
+              arch = "x64"
+      end
+
+      row = [ ent['pid'].to_s, ent['name'], arch, session, ent['user'], ent['path'] ]
+      tbl << row
+    }
+
     if (processes.length == 0)
       print_line("No running processes were found.")
     else
       print_line
-      print_line(processes.to_table("Indent" => 1).to_s)
+      print("\n" + tbl.to_s + "\n")
       print_line
     end
     return true
   end
+
+
 
   def cmd_ps_help
     print_line "Use the command with no arguments to see all running processes."

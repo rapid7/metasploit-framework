@@ -123,6 +123,7 @@ class ReadableText
     output  = "\n"
     output << "       Name: #{mod.name}\n"
     output << "     Module: #{mod.fullname}\n"
+    output << "    Version: #{mod.version}\n"
     output << "   Platform: #{mod.platform_to_s}\n"
     output << " Privileged: " + (mod.privileged? ? "Yes" : "No") + "\n"
     output << "    License: #{mod.license}\n"
@@ -178,6 +179,7 @@ class ReadableText
     output  = "\n"
     output << "       Name: #{mod.name}\n"
     output << "     Module: #{mod.fullname}\n"
+    output << "    Version: #{mod.version}\n"
     output << "    License: #{mod.license}\n"
     output << "       Rank: #{mod.rank_to_s.capitalize}\n"
     output << "\n"
@@ -215,6 +217,7 @@ class ReadableText
     output  = "\n"
     output << "       Name: #{mod.name}\n"
     output << "     Module: #{mod.fullname}\n"
+    output << "    Version: #{mod.version}\n"
     output << "   Platform: #{mod.platform_to_s}\n"
     output << "       Arch: #{mod.arch_to_s}\n"
     output << "Needs Admin: " + (mod.privileged? ? "Yes" : "No") + "\n"
@@ -252,6 +255,7 @@ class ReadableText
     output  = "\n"
     output << "       Name: #{mod.name}\n"
     output << "     Module: #{mod.fullname}\n"
+    output << "    Version: #{mod.version}\n"
     output << "   Platform: #{mod.platform_to_s}\n"
     output << "       Arch: #{mod.arch_to_s}\n"
     output << "       Rank: #{mod.rank_to_s.capitalize}\n"
@@ -400,6 +404,7 @@ class ReadableText
     verbose = opts[:verbose] || false
     indent = opts[:indent] || DefaultIndent
     col = opts[:col] || DefaultColumnWrap
+    search_term = opts[:search_term] || nil
 
     columns =
       [
@@ -412,9 +417,10 @@ class ReadableText
     columns << 'Via' if verbose
 
     tbl = Rex::Ui::Text::Table.new(
-      'Indent'  => indent,
-      'Header'  => "Active sessions",
-      'Columns' => columns)
+      'Indent'	=> indent,
+      'Header'	=> "Active sessions",
+      'Columns'	=> columns,
+      'SearchTerm'	=> search_term)
 
     framework.sessions.each_sorted { |k|
       session = framework.sessions[k]
@@ -443,7 +449,7 @@ class ReadableText
   # If verbose is true, also prints the payload, LPORT, URIPATH and start
   # time, if they exist, for each job.
   #
-  def self.dump_jobs(framework, verbose = false, indent = DefaultIndent, col = DefaultColumnWrap)
+  def self.dump_jobs(framework, verbose = false, indent = DefaultIndent, col = DefaultColumnWrap, search_term = nil)
     columns = [ 'Id', 'Name' ]
 
     if (verbose)
@@ -454,9 +460,10 @@ class ReadableText
     end
 
     tbl = Rex::Ui::Text::Table.new(
-      'Indent'  => indent,
-      'Header'  => "Jobs",
-      'Columns' => columns
+      'Indent'  	=> indent,
+      'Header'  	=> "Jobs",
+      'Columns' 	=> columns,
+      'SearchTerm'	=> search_term
       )
 
 

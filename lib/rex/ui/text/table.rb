@@ -72,6 +72,7 @@ class Table
     self.prefix   = opts['Prefix']  || ''
     self.postfix  = opts['Postfix'] || ''
     self.colprops = []
+    self.scterm  = opts['SearchTerm'] ? /#{opts['SearchTerm']}/nmi : /./
 
     self.sort_index  = opts['SortIndex'] || 0
 
@@ -112,7 +113,7 @@ class Table
       if (is_hr(row))
         str << hr_to_s
       else
-        str << row_to_s(row)
+        str << row_to_s(row) if row_to_s(row).match(self.scterm)
       end
     }
 
@@ -128,7 +129,7 @@ class Table
     str = ''
     str << ( columns.join(",") + "\n" )
     rows.each { |row|
-      next if is_hr(row)
+      next if is_hr(row) or !(row_to_s(row).match(self.scterm))
       str << ( row.map{|x|
         x = x.to_s
 
@@ -218,7 +219,7 @@ class Table
   attr_accessor :columns, :rows, :colprops # :nodoc:
   attr_accessor :width, :indent, :cellpad # :nodoc:
   attr_accessor :prefix, :postfix # :nodoc:
-  attr_accessor :sort_index # :nodoc:
+  attr_accessor :sort_index, :scterm # :nodoc:
 
 protected
 

@@ -30,6 +30,13 @@ class Console::CommandDispatcher::Stdapi::Fs
   @@upload_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner." ],
     "-r" => [ false, "Upload recursively." ])
+  #
+  # Options for the ls command
+  #
+  @@ls_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner." ],
+    "-S" => [ true, "Row search string to be used as a regex" ])
+
 
   #
   # List of supported commands.
@@ -49,7 +56,6 @@ class Console::CommandDispatcher::Stdapi::Fs
       "mkdir"    => "Make directory",
       "pwd"      => "Print working directory",
       "rm"       => "Delete the specified file",
-      "mv"	   => "Move source to destination",
       "rmdir"    => "Remove directory",
       "search"   => "Search for files",
       "upload"   => "Upload a file or directory",
@@ -70,7 +76,6 @@ class Console::CommandDispatcher::Stdapi::Fs
       "pwd"      => [ "stdapi_fs_getwd" ],
       "rmdir"    => [ "stdapi_fs_delete_dir" ],
       "rm"       => [ "stdapi_fs_delete_file" ],
-      "mv"       => [ "stdapi_fs_file_move" ],
       "search"   => [ "stdapi_fs_search" ],
       "upload"   => [ ],
     }
@@ -223,24 +228,6 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   alias :cmd_del :cmd_rm
 
-        #   
-        # Move source to destination
-        #   
-        def cmd_mv(*args)
-                if (args.length < 2)
-                        print_line("Usage: mv oldfile newfile")
-                        return true
-                end 
-
-                client.fs.file.mv(args[0],args[1])
-
-                return true
-        end 
-
-        alias :cmd_move :cmd_mv
-  alias :cmd_rename :cmd_mv
-
-
   def cmd_download_help
     print_line "Usage: download [options] src1 src2 src3 ... destination"
     print_line
@@ -357,13 +344,35 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   alias cmd_getlwd cmd_lpwd
 
+  def cmd_ls_help
+    print_line "Usage: ls [options]"
+    print_line
+    print_line "Lists contents of directory or file info, searchable"
+    print_line @@ls_opts.usage
+  end
+
   #
   # Lists files
   #
-  # TODO: make this more useful
-  #
   def cmd_ls(*args)
-    path = args[0] || client.fs.dir.getwd
+    search_term = nil
+    path = client.fs.dir.getwd
+    @@ls_opts.parse(args) { |opt, idx, val|
+      case opt
+      when '-S'
+        search_term = val
+        if search_term.nil?
+          print_error("Enter a search term")
+          return true
+        end
+      when "-h"
+        cmd_ls_help
+        return 0
+      when nil
+        path = val
+      end
+    }
+
     tbl  = Rex::Ui::Text::Table.new(
       'Header'  => "Listing: #{path}",
       'SortIndex' => 4,
@@ -374,7 +383,8 @@ class Console::CommandDispatcher::Stdapi::Fs
           'Type',
           'Last modified',
           'Name',
-        ])
+        ],
+      'SearchTerm' => search_term)
 
     items = 0
     stat = client.fs.file.stat(path)
