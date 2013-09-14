@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 
 require 'spec_helper'
 require 'msf/core/option_container'
@@ -12,10 +13,19 @@ describe Msf::OptAddress do
 		# Too many dots
 		{ :value => "192.0.2.0.0" },
 		# Not enough
-    { :pending => "Redmine #7537", :value => "192.0.2" }
+    { :value => "192.0.2" },
+    # Non-string values
+    { :value => true},
+    { :value => 5 },
+    { :value => []},
+    { :value => [1,2]},
+    { :value => {}},
 	]
 
-	it_behaves_like "an option", valid_values, invalid_values
+	it_behaves_like "an option", valid_values, invalid_values, 'address'
+
+
+
 end
 
 

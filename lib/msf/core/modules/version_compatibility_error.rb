@@ -17,24 +17,24 @@ class Msf::Modules::VersionCompatibilityError < Msf::Modules::Error
     message_parts << 'version check'
 
     if minimum_api_version or minimum_core_version
-	    clause_parts = []
+      clause_parts = []
 
-	    if minimum_api_version
-		    clause_parts << "API >= #{minimum_api_version}"
-	    end
+      if minimum_api_version
+        clause_parts << "API >= #{minimum_api_version}"
+      end
 
-	    if minimum_core_version
-		    clause_parts << "Core >= #{minimum_core_version}"
-	    end
+      if minimum_core_version
+        clause_parts << "Core >= #{minimum_core_version}"
+      end
 
-	    clause = clause_parts.join(' and ')
-	    message_parts << "(requires #{clause})"
+      clause = clause_parts.join(' and ')
+      message_parts << "(requires #{clause})"
     end
 
     causal_message = message_parts.join(' ')
 
     super_attributes = {
-		    :causal_message => causal_message
+        :causal_message => causal_message
     }.merge(attributes)
 
     super(super_attributes)
