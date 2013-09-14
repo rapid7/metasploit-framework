@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 #-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
@@ -158,21 +156,26 @@ end
 # Function for listing interfaces
 # ------------------------------------------------------------------------------
 def int_list()
-	@client.core.use("sniffer")
-	ifaces = @client.sniffer.interfaces()
+	begin
+		@client.core.use("sniffer")
+		ifaces = @client.sniffer.interfaces()
 
-	print_line()
+		print_line()
 
-	ifaces.each do |i|
-		print_line(sprintf("%d - '%s' ( type:%d mtu:%d usable:%s dhcp:%s wifi:%s )",
-				i['idx'], i['description'],
-				i['type'], i['mtu'], i['usable'], i['dhcp'], i['wireless'])
-		)
+		ifaces.each do |i|
+			print_line(sprintf("%d - '%s' ( type:%d mtu:%d usable:%s dhcp:%s wifi:%s )",
+					i['idx'], i['description'],
+					i['type'], i['mtu'], i['usable'], i['dhcp'], i['wireless'])
+			)
+		end
+
+		print_line()
+	rescue ::Exception => e
+		print_error("Error listing interface: #{e.class} #{e}")
 	end
-
-	print_line()
 	raise Rex::Script::Completed
 end
+
 ################## Main ##################
 @exec_opts.parse(args) { |opt, idx, val|
 	case opt
@@ -183,7 +186,7 @@ end
 	when "-l"
 		log_dest = val
 	when "-li"
-		int_list
+		list_int = 1
 	when "-t"
 		rec_time = val
 	end
@@ -191,13 +194,18 @@ end
 
 # Check for Version of Meterpreter
 wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
-if !int_id.nil?
+
+if !int_id.nil? or !list_int.nil?
 	if not is_uac_enabled? or is_admin?
-		pcap_file = log_file(log_dest)
-		startsniff(int_id)
-		packetrecord(rec_time,pcap_file,int_id)
+		if !list_int.nil?
+			int_list
+		else
+			pcap_file = log_file(log_dest)
+			startsniff(int_id)
+			packetrecord(rec_time,pcap_file,int_id)
+		end
 	else
-		print_error("UAC or Access Denied")
+		print_error("Access denied (UAC enabled?)")
 	end
 else
 	usage
