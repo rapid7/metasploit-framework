@@ -84,7 +84,7 @@ def apt_upgrade_available(package)
 	require 'open3'
 	installed = nil
 	upgrade = nil
-	::Open3.popen3("apt-cache", "policy", package) do |stdin, stdout, stderr|
+	::Open3.popen3({'LANG'=>'en_US.UTF-8'}, "apt-cache", "policy", package) do |stdin, stdout, stderr|
 		stdout.each do |line|
 			installed = $1 if line =~ /Installed: ([\w\-+.:~]+)$/
 			upgrade = $1 if line =~ /Candidate: ([\w\-+.:~]+)$/
@@ -193,6 +193,12 @@ if is_git
 	system("git", "checkout", branch)
 	system("git", "fetch", remote)
 	system("git", "merge", "#{remote}/#{branch}")
+
+	$stdout.puts "[*] Updating gems..."
+	require 'bundler'
+	Bundler.with_clean_env do
+		system("bundle", "install")
+	end
 end
 
 if is_installed

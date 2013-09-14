@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 require 'spec_helper'
 require 'msf/core'
 require 'msf/core/modules/loader/directory'
@@ -55,6 +56,42 @@ describe Msf::Modules::Loader::Directory do
 					created_module = module_manager.create(module_full_name)
 
 					created_module.name.should == 'Microsoft Server Service Relative Path Stack Corruption'
+				end
+
+				context 'with module previously loaded' do
+					before(:each) do
+						subject.load_module(parent_path, type, module_reference_name)
+					end
+
+					# Payloads are defined as ruby Modules so they can behave differently
+					context 'with payload' do
+						let(:reference_name) do
+							'stages/windows/x64/vncinject'
+						end
+
+						let(:type) do
+							'payload'
+						end
+
+						it 'should not load the module' do
+							subject.load_module(parent_path, type, module_reference_name).should be_false
+						end
+					end
+
+					# Non-payloads are defined as ruby Classes
+					context 'without payload' do
+						let(:reference_name) do
+							'windows/smb/ms08_067_netapi'
+						end
+
+						let(:type) do
+							'exploit'
+						end
+
+						it 'should not load the module' do
+							subject.load_module(parent_path, type, module_reference_name).should be_false
+						end
+					end
 				end
 			end
 
