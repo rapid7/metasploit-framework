@@ -15,6 +15,8 @@ module Metasploit3
   include Msf::Payload::Stager
   include Msf::Payload::Windows
 
+  handler module_name: 'Msf::Handler::ReverseHttps'
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Reverse HTTPS Stager',
@@ -23,7 +25,6 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
       'Arch'          => ARCH_X86,
-      'Handler'       => Msf::Handler::ReverseHttps,
       'Convention'    => 'sockedi https',
       'Stager'        =>
         {

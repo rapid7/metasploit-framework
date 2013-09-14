@@ -16,6 +16,8 @@ module Metasploit3
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
 
+  handler module_name: 'Msf::Handler::BindTcp'
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Windows Disable Windows ICF, Command Shell, Bind TCP Inline',
@@ -24,7 +26,6 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
       'Arch'          => ARCH_X86,
-      'Handler'       => Msf::Handler::BindTcp,
       'Session'       => Msf::Sessions::CommandShell,
       'Payload'       =>
         {

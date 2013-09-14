@@ -16,6 +16,12 @@ module Metasploit3
   include Msf::Payload::Bsd
   include Msf::Sessions::CommandShellOptions
 
+  handler module_name: 'Msf::Handler::FindPort'
+
+  #
+  # Methods
+  #
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'BSD Command Shell, Find Port Inline',
@@ -24,7 +30,6 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'bsd',
       'Arch'          => ARCH_X86,
-      'Handler'       => Msf::Handler::FindPort,
       'Session'       => Msf::Sessions::CommandShellUnix,
       'Payload'       =>
         {

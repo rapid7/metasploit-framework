@@ -9,6 +9,7 @@ module Msf
 ###
 
 module Payload::Windows::LoadLibrary
+  extend ActiveSupport::Concern
 
   include Msf::Payload::Windows
   include Msf::Payload::Single

@@ -14,10 +14,6 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
 			nil
 		end
 
-		let(:options) do
-			{}
-		end
-
 		before(:each) do
 			# create the framework first so that it's initialization's call
 			# to init_module_paths doesn't get captured.
@@ -27,12 +23,6 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
 			Msf::Config.stub(:user_module_directory => user_module_directory)
 		end
 
-		it 'should refresh module cache from database' do
-			framework.modules.should_receive(:refresh_cache_from_database)
-
-			init_module_paths
-		end
-
 		context 'Msf::Config' do
 			context 'module_directory' do
 				context 'without nil' do
@@ -40,14 +30,15 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
 						'modules'
 					end
 
-					it 'should add Msf::Config.module_directory to module paths' do
-						framework.modules.should_receive(:add_path).with(
-								module_directory,
-								options
-						)
+          it "should add Msf::Config.module_directory to module paths with gem: 'metasploit-framework' and name: 'modules'" do
+            framework.modules.should_receive(:add_path).with(
+                module_directory,
+                gem: 'metasploit-framework',
+                name: 'modules'
+            )
 
-						init_module_paths
-					end
+            init_module_paths
+          end
 				end
 			end
 
@@ -57,14 +48,15 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
 						'user/modules'
 					end
 
-					it 'should add Msf::Config.user_module_directory to module paths' do
-						framework.modules.should_receive(:add_path).with(
-								user_module_directory,
-								options
-						)
+          it "should add Msf::Config.user_module_directory to module paths with gem: 'metasploit-framework' and name: 'user'" do
+            framework.modules.should_receive(:add_path).with(
+                user_module_directory,
+                gem: 'metasploit-framework',
+                name: 'user'
+            )
 
-						init_module_paths
-					end
+            init_module_paths
+          end
 				end
 			end
 		end
@@ -86,9 +78,9 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
 					framework.datastore['MsfModulePaths'] = msf_module_paths
 				end
 
-				it 'should add each module path' do
+				it 'should add each module path with gem or name' do
 					module_paths.each do |module_path|
-						framework.modules.should_receive(:add_path).with(module_path, options)
+						framework.modules.should_receive(:add_path).with(module_path)
 					end
 
 					init_module_paths

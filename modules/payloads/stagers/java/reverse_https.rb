@@ -13,6 +13,8 @@ module Metasploit3
   include Msf::Payload::Stager
   include Msf::Payload::Java
 
+  handler module_name: 'Msf::Handler::ReverseHttps'
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Java Reverse HTTPS Stager',
@@ -25,7 +27,6 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'java',
       'Arch'          => ARCH_JAVA,
-      'Handler'       => Msf::Handler::ReverseHttps,
       'Convention'    => 'javaurl',
       'Stager'        => {'Payload' => ""}
       ))

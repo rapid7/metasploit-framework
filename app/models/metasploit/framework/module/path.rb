@@ -1,5 +1,5 @@
 # In-memory equivalent of `Mdm::Module::Path`
-class Metasploit::Framework::Module::Path
+class Metasploit::Framework::Module::Path < Metasploit::Model::Base
   extend ActiveModel::Callbacks
   include ActiveModel::Dirty
   include Metasploit::Model::Module::Path
@@ -197,6 +197,7 @@ class Metasploit::Framework::Module::Path
   # @return [void]
   # @raise [Metasploit::Framework::ModuleInvalid] if this path is invalid.
   def save!
+    valid!
     unless valid?
       raise Metasploit::Framework::ModelInvalid.new(self)
     end

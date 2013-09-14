@@ -17,6 +17,8 @@ module Metasploit3
   include Msf::Payload::Ruby
   include Msf::Sessions::CommandShellOptions
 
+  handler module_name: 'Msf::Handler::ReverseTcp'
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'        => 'Ruby Command Shell, Reverse TCP',
@@ -25,7 +27,6 @@ module Metasploit3
       'License'     => MSF_LICENSE,
       'Platform'    => 'ruby',
       'Arch'        => ARCH_RUBY,
-      'Handler'     => Msf::Handler::ReverseTcp,
       'Session'     => Msf::Sessions::CommandShell,
       'PayloadType' => 'ruby',
       'Payload'     => { 'Offsets' => {}, 'Payload' => '' }

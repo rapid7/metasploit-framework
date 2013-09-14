@@ -16,6 +16,12 @@ module Metasploit3
   include Msf::Payload::Bsd
   include Msf::Sessions::CommandShellOptions
 
+  handler module_name: 'Msf::Handler::BindTcp'
+
+  #
+  # Methods
+  #
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'BSD Command Shell, Bind TCP Inline (IPv6)',
@@ -24,7 +30,6 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'bsd',
       'Arch'          => ARCH_X86,
-      'Handler'       => Msf::Handler::BindTcp,
       'Session'       => Msf::Sessions::CommandShellUnix,
       'Payload'       =>
         {

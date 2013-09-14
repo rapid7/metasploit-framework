@@ -13,6 +13,8 @@ module Metasploit3
   include Msf::Payload::Single
   include Msf::Payload::Generic
 
+  handler module_name: 'Msf::Handler::None'
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Custom Payload',

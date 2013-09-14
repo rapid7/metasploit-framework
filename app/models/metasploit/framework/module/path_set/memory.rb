@@ -11,10 +11,7 @@ class Metasploit::Framework::Module::PathSet::Memory < Metasploit::Framework::Mo
         :name => options[:name],
         :real_path => real_path
     )
-
-    unless path.valid?
-      raise Metasploit::Framework::ModelInvalid.new(path)
-    end
+    path.valid!
 
     path.path_set = self
 

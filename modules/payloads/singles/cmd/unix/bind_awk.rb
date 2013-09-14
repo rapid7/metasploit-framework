@@ -15,6 +15,12 @@ module Metasploit4
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
 
+  handler module_name: 'Msf::Handler::BindTcp'
+
+  #
+  # Methods
+  #
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Unix Command Shell, Bind TCP (via AWK)',
@@ -27,7 +33,6 @@ module Metasploit4
       'License'       => MSF_LICENSE,
       'Platform'      => 'unix',
       'Arch'          => ARCH_CMD,
-      'Handler'       => Msf::Handler::BindTcp,
       'Session'       => Msf::Sessions::CommandShell,
       'PayloadType'   => 'cmd',
       'RequiredCmd'   => 'gawk',

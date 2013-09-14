@@ -15,6 +15,8 @@ module Metasploit3
   include Msf::Payload::Stager
   include Msf::Payload::Windows
 
+  handler module_name: 'Msf::Handler::FindTag'
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Find Tag Ordinal Stager',
@@ -23,7 +25,6 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
       'Arch'          => ARCH_X86,
-      'Handler'       => Msf::Handler::FindTag,
       'Convention'    => 'sockedi',
       'SymbolLookup'  => 'ws2ord',
       'Stager'        =>

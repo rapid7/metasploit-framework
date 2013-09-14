@@ -16,6 +16,12 @@ module Metasploit3
   include Msf::Payload::Aix
   include Msf::Sessions::CommandShellOptions
 
+  handler module_name: 'Msf::Handler::FindPort'
+
+  #
+  # Methods
+  #
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'AIX Command Shell, Find Port Inline',
@@ -24,7 +30,6 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'aix',
       'Arch'          => ARCH_PPC,
-      'Handler'       => Msf::Handler::FindPort,
       'Session'       => Msf::Sessions::CommandShellUnix,
       'Payload'       =>
         {

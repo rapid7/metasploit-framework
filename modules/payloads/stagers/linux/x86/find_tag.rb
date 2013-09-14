@@ -23,6 +23,8 @@ module Metasploit3
   include Msf::Payload::Stager
   include Msf::Payload::Linux
 
+  handler module_name: 'Msf::Handler::FindTag'
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Find Tag Stager',
@@ -31,7 +33,6 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'linux',
       'Arch'          => ARCH_X86,
-      'Handler'       => Msf::Handler::FindTag,
       'Stager'        =>
         {
           'Offsets' =>

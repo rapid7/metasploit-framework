@@ -15,6 +15,8 @@ module Metasploit3
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
 
+  handler module_name: 'Msf::Handler::ReverseTcpDoubleSSL'
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Unix Command Shell, Double reverse TCP SSL (openssl)',
@@ -23,7 +25,6 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'unix',
       'Arch'          => ARCH_CMD,
-      'Handler'       => Msf::Handler::ReverseTcpDoubleSSL,
       'Session'       => Msf::Sessions::CommandShell,
       'PayloadType'   => 'cmd',
       'RequiredCmd'   => 'openssl',

@@ -43,7 +43,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
 					"  -o <file>         Send output to a file in csv format",
 					"  -R,--rhosts       Set RHOSTS from the results of the search",
 					"  -S,--search       Search string to filter by",
-					"Available columns: address, arch, comm, comments, created_at, cred_count, exploit_attempt_count, host_detail_count, info, mac, name, note_count, os_flavor, os_lang, os_name, os_sp, purpose, scope, service_count, state, updated_at, virtual_host, vuln_count"
+					"Available columns: address, comm, comments, created_at, cred_count, exploit_attempt_count, host_detail_count, info, mac, name, note_count, os_flavor, os_lang, os_name, os_sp, purpose, scope, service_count, state, updated_at, virtual_host, vuln_count"
 				]
 			end
 		end

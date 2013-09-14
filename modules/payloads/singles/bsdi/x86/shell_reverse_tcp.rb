@@ -15,6 +15,12 @@ module Metasploit3
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
 
+  handler module_name: 'Msf::Handler::ReverseTcp'
+
+  #
+  # Methods
+  #
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'BSDi Command Shell, Reverse TCP Inline',
@@ -23,7 +29,6 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'bsdi',
       'Arch'          => ARCH_X86,
-      'Handler'       => Msf::Handler::ReverseTcp,
       'Session'       => Msf::Sessions::CommandShell,
       'Payload'       =>
         {

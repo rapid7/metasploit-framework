@@ -18,6 +18,8 @@ module Metasploit3
   include Msf::Payload::Php
   include Msf::Sessions::CommandShellOptions
 
+  handler module_name: 'Msf::Handler::FindShell'
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'PHP Command Shell, Find Sock',
@@ -38,7 +40,6 @@ module Metasploit3
       'Author'        => [ 'egypt <egypt@metasploit.com>' ],
       'License'       => BSD_LICENSE,
       'Platform'      => 'php',
-      'Handler'       => Msf::Handler::FindShell,
       'Session'       => Msf::Sessions::CommandShell,
       'Arch'          => ARCH_PHP
       ))

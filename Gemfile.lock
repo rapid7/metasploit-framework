@@ -1,20 +1,21 @@
 GIT
   remote: git://github.com/rapid7/metasploit-model.git
-  revision: 3a64355670f3b3e1848ad36ea3042e9458f5464f
-  tag: v0.9.3.module-cache-construction
+  revision: ebaff07589633b92ef6a2f16a1476c9e9d78e8ec
+  tag: v0.11.0.module-cache-construction
   specs:
-    metasploit-model (0.9.3)
+    metasploit-model (0.11.0)
       activesupport
 
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: 298f529a2bab0a2d3730801e7ec5a930af52bd98
-  tag: v0.41.4.module-cache-construction
+  revision: 1e9dfead700d33528a453a46c71fc1dd0d705652
+  tag: v0.43.6.module-cache-construction
   specs:
-    metasploit_data_models (0.41.4)
+    metasploit_data_models (0.43.6)
       activerecord (>= 3.2.13)
       activesupport
-      metasploit-model (~> 0.9.3)
+      file-find
+      metasploit-model (~> 0.11.0)
       pg
 
 GEM
@@ -39,6 +40,9 @@ GEM
     diff-lcs (1.2.2)
     factory_girl (4.2.0)
       activesupport (>= 3.0.0)
+    ffi (1.9.0)
+    file-find (0.3.6)
+      sys-admin (>= 1.5.2)
     i18n (0.6.1)
     json (1.7.7)
     metaclass (0.0.1)
@@ -69,6 +73,8 @@ GEM
       multi_json (~> 1.0.3)
       simplecov-html (~> 0.5.3)
     simplecov-html (0.5.3)
+    sys-admin (1.6.0)
+      ffi (>= 1.1.0)
     timecop (0.6.1)
     tzinfo (0.3.37)
     yard (0.8.5.2)

@@ -15,7 +15,9 @@ describe Metasploit::Framework::Module::PathSet::Database do
 
 	context '#add' do
 		subject(:add) do
-			path_set.add(real_path, :gem => gem, :name => name)
+      with_established_connection do
+        path_set.add(real_path, :gem => gem, :name => name)
+      end
 		end
 
 		let(:gem) do
@@ -41,7 +43,9 @@ describe Metasploit::Framework::Module::PathSet::Database do
 		context 'with valid for :add' do
 			context 'with 0 collisions' do
 				let!(:non_colliding) do
-					FactoryGirl.create(:mdm_module_path)
+          with_established_connection do
+            FactoryGirl.create(:mdm_module_path)
+          end
 				end
 
 				let(:gem) do
@@ -59,13 +63,19 @@ describe Metasploit::Framework::Module::PathSet::Database do
         it 'should create a new Mdm::Module::Path' do
 					expect {
 						add
-					}.to change(Mdm::Module::Path, :count).by(1)
+					}.to change {
+            with_established_connection {
+              Mdm::Module::Path.count
+            }
+          }.by(1)
 				end
 			end
 
 			context 'with 1 collision' do
 				let!(:collision) do
-					FactoryGirl.create(:named_mdm_module_path)
+          with_established_connection do
+            FactoryGirl.create(:named_mdm_module_path)
+          end
 				end
 
 				context 'with (gem, name) collision' do
@@ -85,8 +95,10 @@ describe Metasploit::Framework::Module::PathSet::Database do
 						expect {
 							add
 						}.to change {
-							# use find to reload before and after
-							Mdm::Module::Path.find(collision.id).real_path
+              with_established_connection {
+                # use find to reload before and after
+                Mdm::Module::Path.find(collision.id).real_path
+              }
 						}.to(real_path)
 					end
 
@@ -112,8 +124,10 @@ describe Metasploit::Framework::Module::PathSet::Database do
 						expect {
 							add
 						}.to change {
-							# use find to reload before and after
-							Mdm::Module::Path.find(collision.id).gem
+              with_established_connection {
+                # use find to reload before and after
+                Mdm::Module::Path.find(collision.id).gem
+              }
 						}.to(gem)
 					end
 
@@ -121,8 +135,10 @@ describe Metasploit::Framework::Module::PathSet::Database do
 						expect {
 							add
 						}.to change {
-							# use find to reload before and after
-							Mdm::Module::Path.find(collision.id).name
+              with_established_connection {
+                # use find to reload before and after
+                Mdm::Module::Path.find(collision.id).name
+              }
 						}.to(name)
 					end
 
@@ -147,7 +163,11 @@ describe Metasploit::Framework::Module::PathSet::Database do
 					it 'should not create a Mdm::Module::Path' do
 						expect {
 							add
-						}.to_not change(Mdm::Module::Path, :count)
+						}.to_not change {
+              with_established_connection {
+                Mdm::Module::Path.count
+              }
+            }
 					end
 
 					it 'return collision' do
@@ -170,15 +190,19 @@ describe Metasploit::Framework::Module::PathSet::Database do
 				end
 
 				let!(:name_collision) do
-					FactoryGirl.create(:named_mdm_module_path)
+          with_established_connection do
+            FactoryGirl.create(:named_mdm_module_path)
+          end
 				end
 
 				let!(:real_path_collision) do
-					FactoryGirl.create(
-							:mdm_module_path,
-							:gem => nil,
-							:name => nil
-					)
+          with_established_connection do
+            FactoryGirl.create(
+                :mdm_module_path,
+                :gem => nil,
+                :name => nil
+            )
+          end
 				end
 
 				it 'should raise Metasploit::Framework::Module::PathSet::Error' do

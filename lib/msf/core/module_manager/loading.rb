@@ -7,39 +7,6 @@ require 'active_support/concern'
 module Msf::ModuleManager::Loading
   extend ActiveSupport::Concern
 
-  #
-  # CONSTANTS
-  #
-
-  def file_changed?(path)
-    changed = false
-
-    module_info = self.module_info_by_path[path]
-
-    # if uncached then it counts as changed
-    # Payloads can't be cached due to stage/stager matching
-    if module_info.nil? or
-			 module_info[:type] == Metasploit::Model::Module::Type::PAYLOAD
-      changed = true
-    else
-      begin
-        current_modification_time = ::File.mtime(path).to_i
-      rescue ::Errno::ENOENT
-        # if the file does not exist now, that's a change
-        changed = true
-      else
-        cached_modification_time = module_info[:modification_time].to_i
-
-        # if the file's modification time's different from the cache, then it's changed
-        if current_modification_time != cached_modification_time
-          changed = true
-        end
-      end
-    end
-
-    changed
-  end
-
   attr_accessor :module_load_error_by_path
 
   # Called when a module is initially loaded such that it can be categorized
@@ -59,14 +26,6 @@ module Msf::ModuleManager::Loading
   def on_module_load(class_or_module, type, reference_name, info={})
     module_set = module_set_by_module_type[type]
     module_set.add_module(class_or_module, reference_name, info)
-
-    path = info['files'].first
-    cache_in_memory(
-        class_or_module,
-        :path => path,
-        :reference_name => reference_name,
-        :type => type
-    )
 
     # Automatically subscribe a wrapper around this module to the necessary
     # event providers based on whatever events it wishes to receive.
@@ -89,15 +48,7 @@ module Msf::ModuleManager::Loading
   def load_modules(path, options={})
     options.assert_valid_keys(:force, :whitelist)
 
-    count_by_type = {}
-
-    loaders.each do |loader|
-      if loader.loadable?(path)
-        count_by_type = loader.load_modules(path, options)
-
-        break
-      end
-    end
+    count_by_type = cache.path_loader.load_modules(path, options)
 
     count_by_type
   end

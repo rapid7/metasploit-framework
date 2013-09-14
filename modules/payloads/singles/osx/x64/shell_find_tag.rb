@@ -16,6 +16,8 @@ module Metasploit3
   include Msf::Payload::Osx
   include Msf::Sessions::CommandShellOptions
 
+  handler module_name: 'Msf::Handler::FindTag'
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'OSX Command Shell, Find Tag Inline',
@@ -24,7 +26,6 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'osx',
       'Arch'          => ARCH_X86_64,
-      'Handler'       => Msf::Handler::FindTag,
       'Session'       => Msf::Sessions::CommandShellUnix
 
       ))

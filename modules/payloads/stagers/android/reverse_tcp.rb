@@ -15,6 +15,8 @@ module Metasploit3
   include Msf::Payload::Stager
   include Msf::Payload::Dalvik
 
+  handler module_name: 'Msf::Handler::ReverseTcp'
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'			=> 'Dalvik Reverse TCP Stager',
@@ -23,7 +25,6 @@ module Metasploit3
       'License'		=> MSF_LICENSE,
       'Platform'		=> 'android',
       'Arch'			=> ARCH_DALVIK,
-      'Handler'		=> Msf::Handler::ReverseTcp,
       'Stager'		=> {'Payload' => ""}
     ))
   end

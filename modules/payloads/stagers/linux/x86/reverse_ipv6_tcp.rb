@@ -14,9 +14,8 @@ module Metasploit3
   include Msf::Payload::Stager
   include Msf::Payload::Linux
 
-  def self.handler_type_alias
-    "reverse_ipv6_tcp"
-  end
+  handler module_name: 'Msf::Handler::ReverseTcp',
+          type_alias: 'reverse_ipv6_tcp'
 
   def initialize(info = {})
     super(merge_info(info,
@@ -26,7 +25,6 @@ module Metasploit3
       'License'     => MSF_LICENSE,
       'Platform'    => 'linux',
       'Arch'        => ARCH_X86,
-      'Handler'     => Msf::Handler::ReverseTcp,
       'Stager'      => {
           'Offsets' => {
             'ADDR' => [ 0x15, 'foo' ],

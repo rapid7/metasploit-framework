@@ -1,38 +1,92 @@
 shared_examples_for 'Msf::ModuleManager::ModulePaths' do
-	def module_paths
-		module_manager.send(:module_paths)
-	end
+  context '#add_path' do
+    include_context 'DatabaseCleaner'
 
-	context '#add_path' do
-		it 'should strip trailing File::SEPARATOR from the path' do
-			Dir.mktmpdir do |path|
-				path_with_trailing_separator = path + File::SEPARATOR
-				module_manager.add_path(path_with_trailing_separator)
+    subject(:add_path) do
+      with_established_connection do
+        module_manager.add_path(path, options)
+      end
+    end
 
-				module_paths.should_not include(path_with_trailing_separator)
-				module_paths.should include(path)
-			end
-		end
+    let(:cache) do
+      module_manager.cache
+    end
 
-		context 'with directory' do
-			it 'should add path to #module_paths' do
-				Dir.mktmpdir do |path|
-					module_manager.add_path(path)
+    let(:path) do
+      FactoryGirl.generate :metasploit_model_module_path_real_path
+    end
 
-					module_paths.should include(path)
-				end
-			end
+    let(:path_set) do
+      cache.path_set
+    end
 
-		end
+    context 'with options' do
+      let(:gem) do
+        'metasploit-framework'
+      end
 
-		context 'with other file' do
-			it 'should raise ArgumentError' do
-				Tempfile.open(basename_prefix) do |file|
-					expect {
-						subject.add_path(file.path)
-					}.to raise_error(ArgumentError, 'The path supplied is not a valid directory.')
-				end
-			end
-		end
-	end
+      let(:name) do
+        'spec'
+      end
+
+      let(:options) do
+        {
+            gem: gem,
+            name: name
+        }
+      end
+
+      it 'should pass options to Metasploit::Framework::PathSet::Base#add' do
+        path_set.should_receive(:add).with(path, options)
+
+        add_path
+      end
+
+      it 'should prefetch added Metasploit::Model::Module::Path' do
+        cache.should_receive(:prefetch) do |options|
+          options.should have_key(:only)
+          options[:only].should be_a Metasploit::Model::Module::Path
+
+          # Array<Metasploit::Framework::Module::Path>
+          []
+        end
+
+        add_path
+      end
+
+      it { should be_a Metasploit::Framework::Module::Path::Load }
+
+      context 'module_path' do
+        subject(:module_path) do
+          add_path.module_path
+        end
+
+        it 'should have Metasploit::Model::Module::Path#gem equal to :gem option' do
+          module_path.gem.should == gem
+        end
+
+        it 'should have Metasploit::Model::Module::Path#name equal to :name option' do
+          module_path.name.should == name
+        end
+
+        it 'should have Metasploit::Model::Module::Path#real_path equal to path argument (converted to real path)' do
+          module_path.real_path.should == path
+        end
+      end
+    end
+
+    context 'without options' do
+      subject(:add_path) do
+        with_established_connection do
+          module_manager.add_path(path)
+        end
+      end
+
+      it 'should default to {}' do
+        path_set.should_receive(:add).with(path, {})
+
+        add_path
+      end
+    end
+  end
 end

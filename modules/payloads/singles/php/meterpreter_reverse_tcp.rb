@@ -15,6 +15,8 @@ module Metasploit3
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
 
+  handler module_name: 'Msf::Handler::ReverseTcp'
+
   def initialize(info = {})
     super(update_info(info,
       'Name'          => 'PHP Meterpreter, Reverse TCP Inline',
@@ -23,7 +25,6 @@ module Metasploit3
       'Platform'      => 'php',
       'Arch'          => ARCH_PHP,
       'License'       => MSF_LICENSE,
-      'Handler'       => Msf::Handler::ReverseTcp,
       'Session'       => Msf::Sessions::Meterpreter_Php_Php))
   end
 

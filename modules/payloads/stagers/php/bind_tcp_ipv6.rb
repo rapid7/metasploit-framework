@@ -14,9 +14,8 @@ module Metasploit3
   include Msf::Payload::Stager
   include Msf::Payload::Php
 
-  def self.handler_type_alias
-    "bind_tcp_ipv6"
-  end
+  handler module_name: 'Msf::Handler::BindTcp',
+          type_alias: 'bind_tcp_ipv6'
 
   def initialize(info = {})
     super(merge_info(info,
@@ -26,7 +25,6 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'php',
       'Arch'          => ARCH_PHP,
-      'Handler'       => Msf::Handler::BindTcp,
       'Stager'        => { 'Payload' => "" }
       ))
   end

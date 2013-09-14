@@ -671,11 +671,11 @@ describe Metasploit::Framework::Module::Path do
 				described_class.new
 			end
 
-			it 'should raise Metasploit::Framework::ModelInvalid' do
+			it 'should raise Metasploit::Model::Invalid' do
 				expect {
 					save!
 				}.to raise_error { |error|
-					error.should be_a Metasploit::Framework::ModelInvalid
+					error.should be_a Metasploit::Model::Invalid
 					error.model.should == path
 				}
 			end

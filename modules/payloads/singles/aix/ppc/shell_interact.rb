@@ -16,6 +16,12 @@ module Metasploit3
   include Msf::Payload::Aix
   include Msf::Sessions::CommandShellOptions
 
+  handler module_name: 'Msf::Handler::FindShell'
+
+  #
+  # Methods
+  #
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'AIX execve shell for inetd',
@@ -25,7 +31,6 @@ module Metasploit3
       'Platform'      => 'aix',
       'Arch'          => ARCH_PPC,
       'PayloadType'   => 'cmd_interact',
-      'Handler'       => Msf::Handler::FindShell,
       'Session'       => Msf::Sessions::CommandShell
     ))
 

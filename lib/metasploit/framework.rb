@@ -68,7 +68,7 @@ Metasploit::Framework.autoload_paths.each do |autoload_path|
   end
 end
 
-locale_yaml_glob = Metasploit::Framework.root.join('lib', 'metasploit', 'framework', 'locale', '*.yml').to_path
+locale_yaml_glob = Metasploit::Framework.root.join('config', 'locales', '*.yml').to_path
 
 Dir.glob(locale_yaml_glob) do |locale_yaml|
   unless I18n.load_path.include? locale_yaml

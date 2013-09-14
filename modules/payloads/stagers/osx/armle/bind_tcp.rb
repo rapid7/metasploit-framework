@@ -22,6 +22,8 @@ module Metasploit3
 
   include Msf::Payload::Stager
 
+  handler module_name: 'Msf::Handler::BindTcp'
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Bind TCP Stager',
@@ -30,7 +32,6 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'osx',
       'Arch'          => ARCH_ARMLE,
-      'Handler'       => Msf::Handler::BindTcp,
       'Stager'        =>
         {
           'Offsets' =>

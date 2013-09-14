@@ -17,6 +17,8 @@ module Metasploit3
   include Msf::Payload::Linux
   include Msf::Sessions::CommandShellOptions
 
+  handler module_name: 'Msf::Handler::ReverseTcp'
+
   def initialize(info = {})
 
 # Remark: this function seems to be called a LOT, even before the shellcode is used.
@@ -31,7 +33,6 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'linux',
       'Arch'          => ARCH_X86,
-      'Handler'       => Msf::Handler::ReverseTcp,
       'Session'       => Msf::Sessions::CommandShellUnix,
       'Payload'       =>
         {

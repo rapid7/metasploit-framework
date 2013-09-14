@@ -1,0 +1,9 @@
+en:
+  activemodel:
+    errors:
+      models:
+        metasploit/framework/module/ancestor/metasploit_module:
+          attributes:
+            base:
+              unusable: "is not usable from this host system"
+

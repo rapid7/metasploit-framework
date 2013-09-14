@@ -17,6 +17,8 @@ module Metasploit3
   include Msf::Payload::Php
   include Msf::Sessions::CommandShellOptions
 
+  handler module_name: 'Msf::Handler::ReverseTcp'
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'PHP Command Shell, Reverse TCP (via PHP)',
@@ -25,7 +27,6 @@ module Metasploit3
       'License'       => BSD_LICENSE,
       'Platform'      => 'php',
       'Arch'          => ARCH_PHP,
-      'Handler'       => Msf::Handler::ReverseTcp,
       'Session'       => Msf::Sessions::CommandShell,
       'PayloadType'   => 'cmd',
       'Payload'       =>

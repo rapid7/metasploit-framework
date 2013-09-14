@@ -14,6 +14,8 @@ module Metasploit3
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
 
+  handler module_name: 'Msf::Handler::None'
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'        => 'Windows Executable Download and Evaluate VBS',
@@ -23,7 +25,6 @@ module Metasploit3
       'License'     => BSD_LICENSE,
       'Platform'    => 'win',
       'Arch'        => ARCH_CMD,
-      'Handler'     => Msf::Handler::None,
       'Session'     => Msf::Sessions::CommandShell,
       'PayloadType' => 'cmd',
       'Payload'     =>

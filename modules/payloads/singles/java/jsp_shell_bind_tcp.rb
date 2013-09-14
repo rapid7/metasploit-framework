@@ -15,6 +15,8 @@ module Metasploit3
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
 
+  handler module_name: 'Msf::Handler::BindTcp'
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Java JSP Command Shell, Bind TCP Inline',
@@ -23,7 +25,6 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => [ 'win', 'osx', 'linux', 'unix', 'solaris' ],
       'Arch'          => ARCH_JAVA,
-      'Handler'       => Msf::Handler::BindTcp,
       'Session'       => Msf::Sessions::CommandShell,
       'Payload'       =>
         {

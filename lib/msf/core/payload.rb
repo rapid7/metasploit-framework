@@ -245,14 +245,6 @@ class Payload < Msf::Module
   end
 
   #
-  # Return the connection associated with this payload, or none if there
-  # isn't one.
-  #
-  def handler_klass
-    return module_info['Handler'] || Msf::Handler::None
-  end
-
-  #
   # Returns the session class that is associated with this payload and will
   # be used to create a session as necessary.
   #

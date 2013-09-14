@@ -16,6 +16,8 @@ module Metasploit3
   include Msf::Payload::Solaris
   include Msf::Sessions::CommandShellOptions
 
+  handler module_name: 'Msf::Handler::BindTcp'
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Solaris Command Shell, Bind TCP Inline',
@@ -24,7 +26,6 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'solaris',
       'Arch'          => ARCH_SPARC,
-      'Handler'       => Msf::Handler::BindTcp,
       'Session'       => Msf::Sessions::CommandShell))
   end
 

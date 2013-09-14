@@ -16,6 +16,8 @@ module Metasploit3
   include Msf::Payload::Linux
   include Msf::Sessions::CommandShellOptions
 
+  handler module_name: 'Msf::Handler::BindTcp'
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Linux Command Shell, Bind TCP Inline',
@@ -24,7 +26,6 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'linux',
       'Arch'          => [ ARCH_PPC64, ARCH_CBEA64 ],
-      'Handler'       => Msf::Handler::BindTcp,
       'Session'       => Msf::Sessions::CommandShellUnix,
       'Payload'       =>
         {

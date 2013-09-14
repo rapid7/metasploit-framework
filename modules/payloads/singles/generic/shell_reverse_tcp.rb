@@ -14,13 +14,14 @@ module Metasploit3
   include Msf::Payload::Single
   include Msf::Payload::Generic
 
+  handler module_name: 'Msf::Handler::ReverseTcp'
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Generic Command Shell, Reverse TCP Inline',
       'Description'   => 'Connect back to attacker and spawn a command shell',
       'Author'        => 'skape',
       'License'       => MSF_LICENSE,
-      'Handler'       => Msf::Handler::ReverseTcp,
       'Session'       => Msf::Sessions::CommandShell
       ))
   end

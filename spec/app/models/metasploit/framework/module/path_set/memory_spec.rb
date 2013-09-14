@@ -33,7 +33,7 @@ describe Metasploit::Framework::Module::PathSet::Memory do
 
 			expect {
 				add
-			}.to raise_error Metasploit::Framework::ModelInvalid
+			}.to raise_error Metasploit::Model::Invalid
 		end
 
 		it 'should set path_set after validating' do
@@ -371,10 +371,10 @@ describe Metasploit::Framework::Module::PathSet::Memory do
 		end
 
 		context 'without valid' do
-			it 'should raise Metasploit::Framework::Module::Path::Invalid' do
+			it 'should raise Metasploit::Module::Invalid' do
 				expect {
 					add
-				}.to raise_error Metasploit::Framework::ModelInvalid
+				}.to raise_error Metasploit::Model::Invalid
 			end
 		end
 	end

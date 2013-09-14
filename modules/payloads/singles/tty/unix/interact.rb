@@ -15,6 +15,8 @@ module Metasploit3
 
   include Msf::Payload::Single
 
+  handler module_name: 'Msf::Handler::FindTty'
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Unix TTY, Interact with Established Connection',
@@ -23,7 +25,6 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'unix',
       'Arch'          => ARCH_TTY,
-      'Handler'       => Msf::Handler::FindTty,
       'Session'       => Msf::Sessions::TTY,
       'Payload'       =>
         {

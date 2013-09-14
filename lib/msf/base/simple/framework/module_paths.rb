@@ -6,9 +6,6 @@ module Msf
         #
         # @return [void]
         def init_module_paths
-          # Ensure the module cache is accurate
-          self.modules.refresh_cache_from_database
-
           # Initialize the default module search paths
           if (Msf::Config.module_directory)
             self.modules.add_path(

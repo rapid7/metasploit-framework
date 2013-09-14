@@ -15,6 +15,8 @@ module Metasploit3
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
 
+  handler module_name: 'Msf::Handler::BindTcp'
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'PHP Command Shell, Bind TCP (via perl) IPv6',
@@ -23,7 +25,6 @@ module Metasploit3
       'License'       => BSD_LICENSE,
       'Platform'      => 'php',
       'Arch'          => ARCH_PHP,
-      'Handler'       => Msf::Handler::BindTcp,
       'Session'       => Msf::Sessions::CommandShell,
       'PayloadType'   => 'cmd',
       'Payload'       =>

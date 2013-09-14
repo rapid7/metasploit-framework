@@ -16,6 +16,8 @@ module Metasploit3
   include Msf::Payload::Stager
   include Msf::Payload::Php
 
+  handler module_name: 'Msf::Handler::ReverseTcp'
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'PHP Reverse TCP Stager',
@@ -24,7 +26,6 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'php',
       'Arch'          => ARCH_PHP,
-      'Handler'       => Msf::Handler::ReverseTcp,
       'Stager'        => {'Payload' => ""}
       ))
   end

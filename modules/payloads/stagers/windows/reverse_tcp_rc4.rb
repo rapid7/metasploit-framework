@@ -16,9 +16,8 @@ module Metasploit3
   include Msf::Payload::Stager
   include Msf::Payload::Windows
 
-  def self.handler_type_alias
-    "reverse_tcp_rc4"
-  end
+  handler module_name: 'Msf::Handler::ReverseTcp',
+          type_alias: 'reverse_tcp_rc4'
 
   def initialize(info = {})
     super(merge_info(info,
@@ -28,7 +27,6 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
       'Arch'          => ARCH_X86,
-      'Handler'       => Msf::Handler::ReverseTcp,
       'Convention'    => 'sockedi',
       'Stager'        =>
         {

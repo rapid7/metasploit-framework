@@ -16,6 +16,8 @@ module Metasploit3
   include Msf::Payload::Osx
   include Msf::Sessions::CommandShellOptions
 
+  handler module_name: 'Msf::Handler::FindPort'
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'OS X Command Shell, Find Port Inline',
@@ -24,7 +26,6 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'osx',
       'Arch'          => ARCH_X86,
-      'Handler'       => Msf::Handler::FindPort,
       'Session'       => Msf::Sessions::CommandShellUnix,
       'Payload'       =>
         {

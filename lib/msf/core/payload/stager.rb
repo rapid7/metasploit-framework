@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'msf/core'
 require 'msf/core/option_container'
+require 'msf/core/payload/handled'
 
 ###
 #
@@ -8,6 +9,11 @@ require 'msf/core/option_container'
 #
 ###
 module Msf::Payload::Stager
+  # a concern so that Msf::Payload::Handled::ClassMethods are appended to the final payload module in which
+  # Msf::Payload::Stage is included.
+  extend ActiveSupport::Concern
+
+  include Msf::Payload::Handled
 
   def initialize(info={})
     super

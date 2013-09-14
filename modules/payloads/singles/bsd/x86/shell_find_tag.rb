@@ -16,6 +16,12 @@ module Metasploit3
   include Msf::Payload::Bsd
   include Msf::Sessions::CommandShellOptions
 
+  handler module_name: 'Msf::Handler::FindTag'
+
+  #
+  # Methods
+  #
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'BSD Command Shell, Find Tag Inline',
@@ -24,7 +30,6 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'bsd',
       'Arch'          => ARCH_X86,
-      'Handler'       => Msf::Handler::FindTag,
       'Session'       => Msf::Sessions::CommandShellUnix,
       'Payload'       =>
         {

@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'msf/core'
+require 'msf/core/payload/handled'
 
 ###
 #
@@ -10,6 +11,11 @@ require 'msf/core'
 #
 ###
 module Msf::Payload::Single
+  # a concern so that Msf::Payload::Handled::ClassMethods are appended to the final payload module in which
+  # Msf::Payload::Stage is included.
+  extend ActiveSupport::Concern
+
+  include Msf::Payload::Handled
 
   #
   # Sets the payload type to that of a single payload.

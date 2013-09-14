@@ -3,7 +3,7 @@ module Msf::ModuleManager::Reloading
   # Reloads the module specified in mod.  This can either be an instance of a module or a module class.
   #
   # @param [Msf::Module, Class] mod either an instance of a module or a module class
-  # @return (see Msf::Modules::Loader::Base#reload_module)
+  # @return (see Metasploit::Framework::Module::Path::Load#reload_module)
   def reload_module(mod)
     # if it's can instance, then get its class
     if mod.is_a? Msf::Module

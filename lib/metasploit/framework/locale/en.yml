@@ -1,7 +1,0 @@
-en:
-  # Metasploit::Framework models configuration
-  metasploit:
-    framework:
-      errors:
-        messages:
-          model_invalid: "Validation failed: %{errors}"

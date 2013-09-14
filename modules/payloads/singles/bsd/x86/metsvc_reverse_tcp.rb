@@ -17,6 +17,12 @@ module Metasploit3
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
 
+  handler module_name: 'Msf::Handler::ReverseTcp'
+
+  #
+  # Methods
+  #
+
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'FreeBSD Meterpreter Service, Reverse TCP Inline',
@@ -25,7 +31,6 @@ module Metasploit3
       'License'       => BSD_LICENSE,
       'Platform'      => 'bsd',
       'Arch'          => ARCH_X86,
-      'Handler'       => Msf::Handler::ReverseTcp,
       'Session'       => Msf::Sessions::Meterpreter_x86_BSD,
       'Payload'       =>
         {
