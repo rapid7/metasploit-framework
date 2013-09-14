@@ -23,7 +23,7 @@ GEM
     i18n (0.6.1)
     json (1.7.7)
     metaclass (0.0.1)
-    metasploit_data_models (0.15.1)
+    metasploit_data_models (0.16.6)
       activerecord (>= 3.2.13)
       activesupport
       pg
@@ -31,7 +31,9 @@ GEM
       metaclass (~> 0.0.1)
     msgpack (0.5.4)
     multi_json (1.0.4)
+    network_interface (0.0.1)
     nokogiri (1.5.9)
+    packetfu (1.1.8)
     pcaprub (0.11.3)
     pg (0.15.1)
     rake (10.0.4)
@@ -65,9 +67,11 @@ DEPENDENCIES
   database_cleaner
   factory_girl (>= 4.1.0)
   json
-  metasploit_data_models (~> 0.15.1)
+  metasploit_data_models (~> 0.16.6)
   msgpack
+  network_interface (~> 0.0.1)
   nokogiri
+  packetfu (= 1.1.8)
   pcaprub
   pg (>= 0.11)
   rake

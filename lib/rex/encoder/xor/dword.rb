@@ -10,5 +10,5 @@ require 'rex/encoding/xor/dword'
 #
 ###
 class Rex::Encoder::Xor::Dword < Rex::Encoder::Xor
-	EncoderKlass = Rex::Encoding::Xor::Dword
+  EncoderKlass = Rex::Encoding::Xor::Dword
 end
