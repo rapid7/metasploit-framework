@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module RKelly
   module Visitors
     class EvaluationVisitor < Visitor
