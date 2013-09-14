@@ -1,0 +1,71 @@
+bperry-r7 <bperry-r7@github>       Brandon Perry <bperry.volatile@gmail.com>
+bperry-r7 <bperry-r7@github>       Brandon Perry <bperry@bperry-rapid7.(none)>
+bturner-r7 <bturner-r7@github>     Brandon Turner <brandon_turner@rapid7.com>
+dmaloney-r7 <dmaloney-r7@github>   David Maloney <DMaloney@rapid7.com> # aka TheLightCosine
+dmaloney-r7 <dmaloney-r7@github>   David Maloney <David_Maloney@rapid7.com>
+ecarey-r7 <ecarey-r7@github>       Erran Carey <e@ipwnstuff.com>
+hmoore-r7 <hmoore-r7@github>       HD Moore <hd_moore@rapid7.com>
+hmoore-r7 <hmoore-r7@github>       HD Moore <hdm@digitaloffense.net>
+jlee-r7 <jlee-r7@github>           James Lee <James_Lee@rapid7.com>
+jlee-r7 <jlee-r7@github>           James Lee <egypt@metasploit.com> # aka egypt
+jlee-r7 <jlee-r7@github>           egypt <egypt@metasploit.com> # aka egypt
+joev-r7 <joev-r7@github>           Joe Vennix <Joe_Vennix@rapid7.com>
+jvazquez-r7 <jvazquez-r7@github>   jvazquez-r7 <juan.vazquez@metasploit.com>
+limhoff-r7 <limhoff-r7@github>     Luke Imhoff <luke_imhoff@rapid7.com>
+shuckins-r7 <shuckins-r7@github>   Samuel Huckins <samuel_huckins@rapid7.com>
+tasos-r7 <tasos-r7@github>         Tasos Laskos <Tasos_Laskos@rapid7.com>
+todb-r7 <todb-r7@github>           Tod Beardsley <tod_beardsley@rapid7.com>
+todb-r7 <todb-r7@github>           Tod Beardsley <todb@metasploit.com>
+wchen-r7 <wchen-r7@github>         Wei Chen <Wei_Chen@rapid7.com>
+wchen-r7 <wchen-r7@github>         sinn3r <msfsinn3r@gmail.com> # aka sinn3r
+wchen-r7 <wchen-r7@github>         sinn3r <wei_chen@rapid7.com>
+
+# Above this line are current Rapid7 employees Below this paragraph are
+# volunteers, former employees, and potential Rapid7 employees who, at
+# one time or another, had some largeish number of commits landed on
+# rapid7/metasploit-framework master branch.  This should be refreshed
+# periodically. If you're on this list and would like to not be, just
+# let todb@metasploit.com know.
+
+Brian Wallace <bwall@github>           (B)rian (Wall)ace <nightstrike9809@gmail.com>
+Brian Wallace <bwall@github>           Brian Wallace <bwall@openbwall.com>
+ChrisJohnRiley <ChrisJohnRiley@github> Chris John Riley <chris.riley@c22.cc>
+ChrisJohnRiley <ChrisJohnRiley@github> Chris John Riley <reg@c22.cc>
+FireFart <FireFart@github>             Christian Mehlmauer <firefart@gmail.com>
+Meatballs1 <Meatballs1@github>         Ben Campbell <eat_meatballs@hotmail.co.uk>
+Meatballs1 <Meatballs1@github>         Meatballs <eat_meatballs@hotmail.co.uk>
+Meatballs1 <Meatballs1@github>         Meatballs1 <eat_meatballs@hotmail.co.uk> 
+bannedit <bannedit@github>             David Rude <bannedit0@gmail.com>
+ceballosm <ceballosm@github>           Mario Ceballos <mc@metasploit.com>
+corelanc0d3er <corelanc0d3er@github>   Peter Van Eeckhoutte (corelanc0d3r) <peter.ve@corelan.be>
+corelanc0d3er <corelanc0d3er@github>   corelanc0d3r <peter.ve@corelan.be>
+darkoperator <darkoperator@github>     Carlos Perez <carlos_perez@darkoperator.com>
+efraintorres <efraintorres@github>     efraintorres <etlownoise@gmail.com>
+efraintorres <efraintorres@github>     et <>
+fab <fab@???>                          fab <> # fab at revhosts.net (Fabrice MOURRON)
+h0ng10 <h0ng10@github>                 Hans-Martin Münch <hansmartin.muench@googlemail.com>
+h0ng10 <h0ng10@github>                 h0ng10 <hansmartin.muench@googlemail.com>
+jcran <jcran@github>                   Jonathan Cran <jcran@0x0e.org>
+jcran <jcran@github>                   Jonathan Cran <jcran@rapid7.com>
+jduck <jduck@github>                   Joshua Drake <github.jdrake@qoop.org>
+jgor <jgor@github>                     jgor <jgor@indiecom.org>
+kernelsmith <kernelsmith@github>       Joshua Smith <kernelsmith@kernelsmith.com>
+kernelsmith <kernelsmith@github>       kernelsmith <kernelsmith@kernelsmith>
+kost <kost@github>                     Vlatko Kosturjak <kost@linux.hr>
+kris <kris@???>                        kris <>
+m-1-k-3 <m-1-k-3@github>               m-1-k-3 <github@s3cur1ty.de>
+m-1-k-3 <m-1-k-3@github>               m-1-k-3 <m1k3@s3cur1ty.de>
+m-1-k-3 <m-1-k-3@github>               m-1-k-3 <michael.messner@integralis.com>
+mubix <mubix@github>                   Rob Fuller <jd.mubix@gmail.com>
+nevdull77 <nevdull77@github>           Patrik Karlsson <patrik@cqure.net>
+nmonkee <nmonkee@github>               nmonkee <dave@northern-monkee.co.uk> 
+nullbind <nullbind@github>             nullbind <scott.sutherland@nullbind.com>
+ohdae <ohdae@github>                   ohdae <bindshell@live.com>
+r3dy <r3dy@github>                     Royce Davis <r3dy@Royces-MacBook-Pro.local>
+r3dy <r3dy@github>                     Royce Davis <royce.e.davis@gmail.com>
+rsmudge <rsmudge@github>               Raphael Mudge <rsmudge@gmail.com> # Aka `butane
+schierlm <schierlm@github>             Michael Schierl <schierlm@gmx.de> # Aka mihi
+scriptjunkie <scriptjunkie@github>     Matt Weeks <scriptjunkie@scriptjunkie.us>
+skape <skape@???>                      Matt Miller <mmiller@hick.org>
+spoonm <spoonm@github>                 Spoon M <spoonm@gmail.com>
+swtornio <swtornio@github>             Steve Tornio <swtornio@gmail.com>

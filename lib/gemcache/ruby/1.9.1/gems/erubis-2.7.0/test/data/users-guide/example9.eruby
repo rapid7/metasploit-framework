@@ -1,3 +1,0 @@
-<% for item in @list %>
- <b><%= item %></b>
-<% end %>
