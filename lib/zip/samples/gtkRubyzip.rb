@@ -73,8 +73,8 @@ class MainApp < Gtk::Window
     @zipfile.each { 
       |entry|
       @clist.append([ entry.name, 
-		      entry.size.to_s, 
-		      (100.0*entry.compressedSize/entry.size).to_s+"%" ])
+          entry.size.to_s, 
+          (100.0*entry.compressedSize/entry.size).to_s+"%" ])
     }
   end
 end
