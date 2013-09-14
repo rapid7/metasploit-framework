@@ -1,17 +1,11 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
-
-module Msf
 
 ###
 #
@@ -19,21 +13,20 @@ module Msf
 # registers a custom command that will show up when the module is used.
 #
 ###
-class Auxiliary::Sample < Msf::Auxiliary
+class Metasploit4 < Msf::Auxiliary
 
-	def initialize
-		super(
+	def initialize(info={})
+		super(update_info(info,
 			'Name'        => 'Sample Auxiliary Module',
-			'Version'     => '$Revision: 4419 $',
 			'Description' => 'Sample Auxiliary Module',
-			'Author'      => 'hdm',
+			'Author'      => ['hdm'],
 			'License'     => MSF_LICENSE,
 			'Actions'     =>
 				[
 					['Default Action'],
 					['Another Action']
 				]
-		)
+		))
 
 	end
 
@@ -48,7 +41,5 @@ class Auxiliary::Sample < Msf::Auxiliary
 	def cmd_aux_extra_command(*args)
 		print_status("Running inside aux_extra_command()")
 	end
-
-end
 
 end

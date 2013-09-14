@@ -18,7 +18,7 @@ require 'rex'
 require 'rex/ui'
 
 module Msf
-	LogSource = "core"
+  LogSource = "core"
 end
 
 # General
@@ -35,12 +35,13 @@ require 'msf/core/framework'
 require 'msf/core/db_manager'
 require 'msf/core/event_dispatcher'
 require 'msf/core/module_manager'
+require 'msf/core/module_set'
 require 'msf/core/plugin_manager'
 require 'msf/core/session'
 require 'msf/core/session_manager'
 
 
-	
+
 # Wrappers
 require 'msf/core/encoded_payload'
 

@@ -1,4 +1,4 @@
-STAGERS=stager_sock_bind stager_sock_bind_udp stager_sock_bind_icmp \
+STAGERS=stager_sock_bind stager_sock_bind6 stager_sock_bind_udp stager_sock_bind_icmp \
         stager_egghunt stager_sock_find stager_sock_reverse \
         stager_sock_reverse_icmp stager_sock_reverse_udp \
 				stager_sock_reverse_udp_dns
@@ -30,8 +30,22 @@ all: $(SINGLE) $(STAGES) $(STAGERS)
 		sed -e 's/\([0123456789abcdef][0123456789abcdef]\)/\\x\1/g' \
 		-e 's/^/"/;s/$$/"/;$$ b;s/$$/+/;' > $@
 
+# ljust(23) because the longest instruction is usually 5 bytes which takes 22
+# characters including quotes
 %.disasm: %.bin
-	@ndisasm -b 32 $< > $@
+	@ndisasm -b 32 $< > $*.tmp
+	@ruby -p -a -e ' \
+		$$F.shift; \
+		$$F[0].tap { |s| \
+			s.tr! "A-F", "a-f"; \
+			t=s.dup; \
+			s.clear; \
+			s<<("\""+t.scan(/../).map{|b|"\\x#{b}"}.join+"\"").ljust(23); \
+			STDIN.eof? ? s<< " #  " : s<< "+#  "; \
+		}; \
+		$$_ = $$F.join(" ") + "\n"; \
+		' < $*.tmp > $@
+	@rm $*.tmp
 
 $(SINGLE) $(STAGES) $(STAGERS): %: %.o
 	@echo "Building $@... (`wc -c $(<:.o=.bin)|awk '{print $$1}'` bytes)"

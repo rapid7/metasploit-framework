@@ -3,7 +3,7 @@
 
 #
 # ________________________________________________________________________________
-# 
+#
 #     ,sSSs,,s,  ,sSSSs,  ALPHA 2: Zero-tolerance. (build 07)
 #    SS"  Y$P"  SY"  ,SY
 #   iS'   dY       ,sS"   Unicode-proof uppercase alphanumeric shellcode encoding.
