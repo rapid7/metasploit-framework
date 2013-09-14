@@ -1,5 +1,0 @@
-LICENSE.md
-README.md
-bin/*
-features/**/*.feature
-lib/**/*.rb
