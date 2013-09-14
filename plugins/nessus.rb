@@ -451,15 +451,24 @@ module Msf
 				end
 			end
 
-			def cmd_nessus_report_list(*args)
 
-				if args[0] == "-h"
-					print_status("Usage: ")
-					print_status("       nessus_report_list")
-					print_status(" Example:> nessus_report_list")
-					print_status()
-					print_status("Generates a list of all reports visable to your user.")
-					return
+			def cmd_nessus_report_list(*args)
+				search_term = nil
+				args.each do |arg|
+					case arg
+					when '-S', '--search'
+						search_term = args.pop
+						# Delete first occurance of this argument
+						args.slice!(args.index(arg))
+					when '-h', '--help'
+						print_status("Usage: ")
+						print_status("       nessus_report_list")
+						print_status(" Example:> nessus_report_list")
+						print_status(" Example:> nessus_report_list -S search_term")
+						print_status()
+						print_status("Generates a list of all reports visable to your user.")
+						return
+					end
 				end
 
 				if ! nessus_verify_token
@@ -474,7 +483,8 @@ module Msf
 						'Name',
 						'Status',
 						'Date'
-					])
+					],
+					'SearchTerm' => search_term)
 
 				list.each {|report|
 					t = Time.at(report['timestamp'].to_i)
@@ -507,17 +517,25 @@ module Msf
 			end
 
 			def cmd_nessus_report_get(*args)
-
-				if args[0] == "-h"
-					print_status("Usage: ")
-					print_status("       nessus_report_get <report id>")
-					print_status(" Example:> nessus_report_get f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
-					print_status()
-					print_status("This command pulls the provided report from the nessus server in the nessusv2 format")
-					print_status("and parses it the same way db_import_nessus does.  After it is parsed it will be")
-					print_status("available to commands such as db_hosts, db_vulns, db_services and db_autopwn.")
-					print_status("Use: nessus_report_list to obtain a list of report id's")
-					return
+				dl_path = nil
+				args.each do |arg|
+					case arg
+					when '-h', '--help'
+						print_status("Usage: ")
+						print_status("       nessus_report_get <report id>")
+						print_status(" Example:> nessus_report_get f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
+						print_status("       nessus_report_get <report id> -d /path/to/download.xml")
+						print_status(" Example:> nessus_report_get f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca -d /tmp/report.csv")
+						print_status()
+						print_status("This command pulls the provided report from the nessus server in the nessusv2 format")
+						print_status("and parses it the same way db_import_nessus does.  After it is parsed it will be")
+						print_status("available to commands such as db_hosts, db_vulns, db_services and db_autopwn.")
+						print_status("Use: nessus_report_list to obtain a list of report id's")
+						return
+					when '-d', '--download'
+						dl_path = args.pop
+						args.slice!(args.index(arg))
+					end
 				end
 
 				if ! nessus_verify_token
@@ -552,7 +570,20 @@ module Msf
 					return
 				end
 				content = nil
-				content=@n.report_file_download(rid)
+				if dl_path
+					begin
+						content= dl_path.scan(/csv$/i) ? @n.report_csv_download(rid) : @n.report_file_download(rid)
+						file = File.new(dl_path,'w+')
+						file.write(content)
+						file.close
+						print_good("Report #{rid} exported to #{file.path} at #{content.size} bytes")
+						return
+					rescue => e
+						raise e
+					end
+				else
+					content=@n.report_file_download(rid)
+				end
 				if content.nil?
 					print_error("Failed, please reauthenticate")
 					return
