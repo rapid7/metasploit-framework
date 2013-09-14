@@ -13,50 +13,50 @@ module Ui
 ###
 class Console::CommandDispatcher::Stdapi
 
-	require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/fs'
-	require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/net'
-	require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/sys'
-	require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/ui'
-	require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/webcam'
+  require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/fs'
+  require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/net'
+  require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/sys'
+  require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/ui'
+  require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/webcam'
 
-	Klass = Console::CommandDispatcher::Stdapi
+  Klass = Console::CommandDispatcher::Stdapi
 
-	Dispatchers =
-		[
-			Klass::Fs,
-			Klass::Net,
-			Klass::Sys,
-			Klass::Ui,
-			Klass::Webcam,
-		]
+  Dispatchers =
+    [
+      Klass::Fs,
+      Klass::Net,
+      Klass::Sys,
+      Klass::Ui,
+      Klass::Webcam,
+    ]
 
-	include Console::CommandDispatcher
+  include Console::CommandDispatcher
 
-	#
-	# Initializes an instance of the stdapi command interaction.
-	#
-	def initialize(shell)
-		super
+  #
+  # Initializes an instance of the stdapi command interaction.
+  #
+  def initialize(shell)
+    super
 
-		Dispatchers.each { |d|
-			shell.enstack_dispatcher(d)
-		}
-	end
+    Dispatchers.each { |d|
+      shell.enstack_dispatcher(d)
+    }
+  end
 
-	#
-	# List of supported commands.
-	#
-	def commands
-		{
-		}
-	end
+  #
+  # List of supported commands.
+  #
+  def commands
+    {
+    }
+  end
 
-	#
-	# Name for this dispatcher
-	#
-	def name
-		"Standard extension"
-	end
+  #
+  # Name for this dispatcher
+  #
+  def name
+    "Standard extension"
+  end
 
 end
 

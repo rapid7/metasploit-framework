@@ -34,7 +34,7 @@ post_pad:
 
 toto:
 .offset 74 + (12-48>>4)*0	; we are now at 74 bytes from the beginning of the shellcode (db 42h)
-				; .offset accepts an arbitrary expression
+        ; .offset accepts an arbitrary expression
 
 .padto toto+38, db 3 dup(0b0110_0110)	; fill space with the specified data structure until 38 bytes after toto (same as .pad + .offset)
 
@@ -61,7 +61,7 @@ ret
  #error 'infamous error message'
 #else
  #define test(ic)	((ic) - \
-			 4)
+       4)
 #endif
 
 EOS
