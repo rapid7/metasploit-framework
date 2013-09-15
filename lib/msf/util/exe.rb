@@ -835,10 +835,11 @@ def self.to_vba(framework,code,opts={})
     rig.init_var(:var_pInfo)
     rig.init_var(:var_threadId)
     rig.init_var(:var_bytearray)
+
+    hash_sub = rig.to_h
+    hash_sub[:shellcode] = Rex::Text.to_csharp(code, 100, rig.init_var(:var_bytearray))
   
-    rig.store(:shellcode, Rex::Text.to_csharp(code, 100, rig.init_var(:var_bytearray)))
-  
-    return rig_read_replace_script_template("to_mem.aspx.template", rig)
+    return read_replace_script_template("to_mem.aspx.template", hash_sub)
   end
 
 	def self.to_win32pe_psh_net(framework, code, opts={})
