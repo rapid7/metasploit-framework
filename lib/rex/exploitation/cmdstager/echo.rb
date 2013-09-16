@@ -3,6 +3,7 @@
 require 'rex/text'
 require 'rex/arch'
 require 'msf/core/framework'
+require 'shellwords'
 
 module Rex
 module Exploitation
@@ -21,8 +22,7 @@ class CmdStagerEcho < CmdStagerBase
   def generate(opts = {})
     opts[:temp] = opts[:temp] || '/tmp/'
     opts[:temp].gsub!(/\\/, "/")
-    opts[:temp].gsub!(/'/, "\\\\'")
-    opts[:temp].gsub!(/ /, "\\ ")
+    opts[:temp] = opts[:temp].shellescape
     opts[:temp] << '/' if opts[:temp][-1,1] != '/'
     super
   end
