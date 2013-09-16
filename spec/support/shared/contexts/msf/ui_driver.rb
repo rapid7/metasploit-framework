@@ -1,6 +1,6 @@
 shared_context 'Msf::UIDriver' do
 	let(:driver) do
-		mock(
+		double(
 			'Driver',
 			:framework => framework
 		).tap { |driver|

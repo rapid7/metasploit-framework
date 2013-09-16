@@ -10,39 +10,39 @@ module OLE
 
 class Stream < DirEntry
 
-	def initialize(stg)
-		super
+  def initialize(stg)
+    super
 
-		# for reading/writing from this
-		@offset = 0
-		@_mse = STGTY_STREAM
-	end
+    # for reading/writing from this
+    @offset = 0
+    @_mse = STGTY_STREAM
+  end
 
-	def close
-		@mode = nil
-		@offset = nil
-	end
+  def close
+    @mode = nil
+    @offset = nil
+  end
 
-	def seek(offset)
-		@offset = offset
-	end
+  def seek(offset)
+    @offset = offset
+  end
 
-	def read(len)
-		return nil if (not @data)
+  def read(len)
+    return nil if (not @data)
 
-		ret = @data[@offset, len]
-		@offset += len
-		ret
-	end
+    ret = @data[@offset, len]
+    @offset += len
+    ret
+  end
 
-	def <<(expr)
-		if (not @data)
-			@data = expr.dup
-		else
-			@data << expr
-		end
-		@_ulSize = @data.length
-	end
+  def <<(expr)
+    if (not @data)
+      @data = expr.dup
+    else
+      @data << expr
+    end
+    @_ulSize = @data.length
+  end
 
 end
 
