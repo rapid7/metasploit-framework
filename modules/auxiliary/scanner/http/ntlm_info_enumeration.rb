@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
     )
     register_options(
       [
-        OptPath.new('TARGETURIS', [ false, "Path to list of URIs to request", File.join(Msf::Config.install_root, "data", "wordlists", "http_owa_common.txt")])
+        OptPath.new('TARGETURIS', [ true, "Path to list of URIs to request", File.join(Msf::Config.install_root, "data", "wordlists", "http_owa_common.txt")])
       ], self.class)
   end
 
@@ -39,17 +39,28 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     File.open(datastore['TARGETURIS'], 'rb').each_line do |line|
       test_uri = line.chomp
-      tpath = normalize_uri(test_uri)
-      result = check_url(tpath)
+      test_path = normalize_uri(test_uri)
+      result = check_url(test_path)
       if result
-        print_good("Enumerated info on #{peer}#{tpath} - (name:#{result[:nbname]}) (domain:#{result[:nbdomain]}) (domain_fqdn:#{result[:dnsdomain]}) (server_fqdn:#{result[:dnsserver]})")
+        message = "Enumerated info on #{peer}#{test_path} - "
+        message << "(name:#{result[:nb_name]}) "
+        message << "(domain:#{result[:nb_domain]}) "
+        message << "(domain_fqdn:#{result[:dns_domain]}) "
+        message << "(server_fqdn:#{result[:dns_server]})"
+        print_good(message)
         report_note(
             :host  => ip,
             :port  => rport,
             :proto => 'tcp',
             :sname => (ssl ? 'https' : 'http'),
             :ntype => 'ntlm.enumeration.info',
-            :data  => {:uri=>tpath,:SMBName=>result[:nbname], :SMBDomain=>result[:nbdomain],:FQDNDomain=>result[:dnsdomain],:FQDNName=>result[:dnsserver]},
+            :data  => {
+              :uri=>test_path,
+              :SMBName    => result[:nb_name],
+              :SMBDomain  => result[:nb_domain],
+              :FQDNDomain => result[:dns_domain],
+              :FQDNName   => result[:dns_server]
+            },
             :update => :unique_data
         )
         return
@@ -66,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'      => "#{test_uri}",
         'method'   => 'GET',
         'headers'  =>  { "Authorization" => "NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw=="}
-      }, 20)
+      })
 
       return if res.nil?
 
@@ -75,22 +86,21 @@ class Metasploit3 < Msf::Auxiliary
         hash = res['WWW-Authenticate'].split('NTLM ')[1]
         #Parse out the NTLM and just get the Target Information Data
         target = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_info].value()
-
         # Retrieve Domain name subblock info
-        nbdomain = parse_ntlm_info(target,"\x02\x00",0)
+        nb_domain = parse_ntlm_info(target, "\x02\x00", 0)
         # Retrieve Server name subblock info
-        nbname = parse_ntlm_info(target,"\x01\x00",nbdomain[:new_offset])
+        nb_name = parse_ntlm_info(target, "\x01\x00", nb_domain[:new_offset])
         # Retrieve DNS domain name subblock info
-        dnsdomain = parse_ntlm_info(target,"\x04\x00",nbname[:new_offset])
+        dns_domain = parse_ntlm_info(target, "\x04\x00", nb_name[:new_offset])
         # Retrieve DNS server name subblock info
-        dnsserver = parse_ntlm_info(target,"\x03\x00",dnsdomain[:new_offset])
+        dns_server = parse_ntlm_info(target, "\x03\x00", dns_domain[:new_offset])
 
         return {
-            :nbname=>nbname[:message],
-            :nbdomain=>nbdomain[:message],
-            :dnsdomain=>dnsdomain[:message],
-            :dnsserver=>dnsserver[:message]
-            }
+          :nb_name    => nb_name[:message],
+          :nb_domain  => nb_domain[:message],
+          :dns_domain => dns_domain[:message],
+          :dns_server => dns_server[:message]
+        }
       end
 
     rescue OpenSSL::SSL::SSLError
@@ -111,9 +121,9 @@ class Metasploit3 < Msf::Auxiliary
     offset = name_index.to_i
     size = message[offset+2].unpack('C').first
     return {
-        :message=>message[offset+3,size].gsub(/\0/,''),
-        :new_offset => offset + size
-        }
+      :message=>message[offset+3,size].gsub(/\0/,''),
+      :new_offset => offset + size
+    }
   end
 
 end
