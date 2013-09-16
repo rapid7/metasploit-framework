@@ -225,8 +225,14 @@ class Driver < Msf::Ui::Driver
     # Initialize the module paths only if we didn't get passed a Framework instance
     unless opts['Framework']
       # Configure the framework module paths
-      self.framework.init_module_paths
-      self.framework.modules.add_path(opts['ModulePath']) if opts['ModulePath']
+      self.framework.add_module_paths
+
+      module_path = opts['ModulePath']
+
+      if module_path.present?
+        # ensure that prefetching only occurs in 'ModuleCacheRebuild' thread
+        self.framework.modules.add_path(module_path, prefetch: false)
+      end
 
       # Rebuild the module cache in a background thread
       self.framework.threads.spawn("ModuleCacheRebuild", true) do

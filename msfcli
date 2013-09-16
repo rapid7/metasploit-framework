@@ -295,7 +295,7 @@ class Msfcli
 		whitelist = generate_whitelist
 
 		# Load up all the possible modules, this is where things get slow again
-		@framework.init_module_paths({:whitelist=>whitelist})
+		@framework.add_module_paths
 		if (@framework.modules.module_load_error_by_path.length > 0)
 			print("Warning: The following modules could not be loaded!\n\n")
 

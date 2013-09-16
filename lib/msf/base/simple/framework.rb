@@ -110,7 +110,7 @@ module Framework
     framework.events.add_general_subscriber(framework)
 
     unless opts['DeferModuleLoads']
-      framework.init_module_paths
+      framework.add_module_paths
     end
 
     return framework

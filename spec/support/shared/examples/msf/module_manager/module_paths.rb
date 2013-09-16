@@ -32,45 +32,105 @@ shared_examples_for 'Msf::ModuleManager::ModulePaths' do
       let(:options) do
         {
             gem: gem,
-            name: name
+            name: name,
+            prefetch: prefetch
         }
       end
 
-      it 'should pass options to Metasploit::Framework::PathSet::Base#add' do
-        path_set.should_receive(:add).with(path, options)
+      let(:prefetch) do
+        true
+      end
+
+      it 'should pass :gem and :name options to Metasploit::Framework::PathSet::Base#add' do
+        path_set.should_receive(:add).with(
+            path,
+            hash_including(
+                gem: gem,
+                name: name
+            )
+        )
 
         add_path
       end
 
-      it 'should prefetch added Metasploit::Model::Module::Path' do
-        cache.should_receive(:prefetch) do |options|
-          options.should have_key(:only)
-          options[:only].should be_a Metasploit::Model::Module::Path
-
-          # Array<Metasploit::Framework::Module::Path>
-          []
-        end
+      it 'should not pass :prefetch option to Metasploit::Framework::PathSet::Base#add' do
+        path_set.should_receive(:add).with(
+            path,
+            hash_excluding(
+                :prefetch
+            )
+        )
 
         add_path
       end
 
-      it { should be_a Metasploit::Framework::Module::Path::Load }
+      context ':prefetch' do
+        context 'with false' do
+          let(:module_path) do
+            add_path
+          end
 
-      context 'module_path' do
-        subject(:module_path) do
-          add_path.module_path
+          let(:prefetch) do
+            false
+          end
+
+          it 'should not prefetch Metasploit::Model::Module::Path' do
+            cache.should_not_receive(:prefetch)
+
+            add_path
+          end
+
+          it { should be_a Metasploit::Model::Module::Path }
+
+          it 'should have Metasploit::Model::Module::Path#gem equal to :gem option' do
+            module_path.gem.should == gem
+          end
+
+          it 'should have Metasploit::Model::Module::Path#name equal to :name option' do
+            module_path.name.should == name
+          end
+
+          it 'should have Metasploit::Model::Module::Path#real_path equal to path argument (converted to real path)' do
+            module_path.real_path.should == path
+          end
         end
 
-        it 'should have Metasploit::Model::Module::Path#gem equal to :gem option' do
-          module_path.gem.should == gem
-        end
+        context 'with true' do
+          let(:prefetch) do
+            true
+          end
 
-        it 'should have Metasploit::Model::Module::Path#name equal to :name option' do
-          module_path.name.should == name
-        end
+          it 'should prefetch added Metasploit::Model::Module::Path' do
+            cache.should_receive(:prefetch) do |options|
+              options.should have_key(:only)
+              options[:only].should be_a Metasploit::Model::Module::Path
 
-        it 'should have Metasploit::Model::Module::Path#real_path equal to path argument (converted to real path)' do
-          module_path.real_path.should == path
+              # Array<Metasploit::Framework::Module::Path>
+              []
+            end
+
+            add_path
+          end
+
+          it { should be_a Metasploit::Framework::Module::Path::Load }
+
+          context 'module_path' do
+            subject(:module_path) do
+              add_path.module_path
+            end
+
+            it 'should have Metasploit::Model::Module::Path#gem equal to :gem option' do
+              module_path.gem.should == gem
+            end
+
+            it 'should have Metasploit::Model::Module::Path#name equal to :name option' do
+              module_path.name.should == name
+            end
+
+            it 'should have Metasploit::Model::Module::Path#real_path equal to path argument (converted to real path)' do
+              module_path.real_path.should == path
+            end
+          end
         end
       end
     end
@@ -82,8 +142,29 @@ shared_examples_for 'Msf::ModuleManager::ModulePaths' do
         end
       end
 
-      it 'should default to {}' do
-        path_set.should_receive(:add).with(path, {})
+      it 'should not pass :prefetch option to Metasploit::Framework::Module::PathSet::Base#add' do
+        path_set.should_receive(:add).with(
+            path,
+            hash_excluding(:prefetch)
+        )
+
+        add_path
+      end
+
+      it 'should pass nil for :gem and :name' do
+        path_set.should_receive(:add).with(
+            path,
+            hash_including(
+                gem: nil,
+                name: nil
+            )
+        )
+
+        add_path
+      end
+
+      it 'should default to prefetch: true' do
+        cache.should_receive(:prefetch).and_return []
 
         add_path
       end
