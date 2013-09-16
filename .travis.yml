@@ -15,4 +15,4 @@ notifications:
   irc: "irc.freenode.org#msfnotify"
 
 git:
-  depth: 1
+  depth: 5
