@@ -41,6 +41,7 @@ end
 
 RSpec.configure do |config|
   config.mock_with :rspec
+  config.order = :random
 
   # Can't use factory_girl_rails since not using rails, so emulate
   # factory_girl.set_factory_paths initializer and after_initialize for
