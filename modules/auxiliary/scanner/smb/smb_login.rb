@@ -67,7 +67,10 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('SMBUser', [ false, "SMB Username" ]),
         OptString.new('SMBDomain', [ false, "SMB Domain", '']),
         OptBool.new('PRESERVE_DOMAINS', [ false, "Respect a username that contains a domain name.", true]),
-        OptBool.new('RECORD_GUEST', [ false, "Record guest-privileged random logins to the database", false])
+        OptBool.new('RECORD_GUEST', [ false, "Record guest-privileged random logins to the database", false]),
+        Opt::DB_ALL_CREDS(false),
+        Opt::BLANK_PASSWORD(false),
+        Opt::USER_AS_PASS(false)
       ], self.class)
 
   end
