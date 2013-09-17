@@ -147,7 +147,7 @@ class ClientCore < Extension
     end
     # Get us to the installation root and then into data/meterpreter, where
     # the file is expected to be
-    path = ::File.join(Msf::Config.install_root, 'data', 'meterpreter', 'ext_server_' + mod.downcase + ".#{client.binary_suffix}")
+    path = ::File.join(Msf::Config.data_directory, 'meterpreter', 'ext_server_' + mod.downcase + ".#{client.binary_suffix}")
 
     if (opts['ExtensionPath'])
       path = opts['ExtensionPath']
@@ -209,7 +209,7 @@ class ClientCore < Extension
     # Include the appropriate reflective dll injection module for the target process architecture...
     if( process['arch'] == ARCH_X86 )
       c.include( ::Msf::Payload::Windows::ReflectiveDllInject )
-      binary_suffix = "dll"
+      binary_suffix = "x86.dll"
     elsif( process['arch'] == ARCH_X86_64 )
       c.include( ::Msf::Payload::Windows::ReflectiveDllInject_x64 )
       binary_suffix = "x64.dll"
@@ -219,7 +219,7 @@ class ClientCore < Extension
 
     # Create the migrate stager
     migrate_stager = c.new()
-    migrate_stager.datastore['DLL'] = ::File.join( Msf::Config.install_root, "data", "meterpreter", "metsrv.#{binary_suffix}" )
+    migrate_stager.datastore['DLL'] = ::File.join( Msf::Config.data_directory, "meterpreter", "metsrv.#{binary_suffix}" )
 
     blob = migrate_stager.stage_payload
 
@@ -297,7 +297,7 @@ class ClientCore < Extension
       client.binary_suffix = 'x64.dll'
     else
       client.platform      = 'x86/win32'
-      client.binary_suffix = 'dll'
+      client.binary_suffix = 'x86.dll'
     end
 
     # Load all the extensions that were loaded in the previous instance (using the correct platform/binary_suffix)
