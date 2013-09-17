@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 #
 #Meterpreter script for ping sweeps on Windows 2003, Windows Vista
 #Windows 2008 and Windows XP targets using native windows commands.
@@ -61,7 +59,7 @@ def stdlookup(session,domain,dest)
 				end
 				garbage.clear
 			end
-			
+
 		rescue ::Exception => e
 			print_status("The following Error was encountered: #{e.class} #{e}")
 		end
@@ -109,14 +107,14 @@ def reverselookup(session,iprange,dest)
 										filewrt(dest,"#{ip} is #{hostname[1].chomp("\n")}")
 									end
 									break
-									
+
 								end
-								
+
 							end
-							
+
 							r.channel.close
 							r.close
-							
+
 						})
 					i += 1
 				else
@@ -128,7 +126,7 @@ def reverselookup(session,iprange,dest)
 		end
 	rescue ::Exception => e
 		print_status("The following Error was encountered: #{e.class} #{e}")
-		
+
 	end
 end
 
@@ -155,7 +153,7 @@ def frwdlp(session,hostlst,domain,dest)
 							break
 						end
 					end
-					
+
 					r.channel.close
 					r.close
 				}
@@ -165,7 +163,7 @@ def frwdlp(session,hostlst,domain,dest)
 				print_status("\t#{t.join.sub(/Address\w*:/, "\t")}")
 				filewrt(dest,"#{t.join.sub(/Address\w*:/, "\t")}")
 			end
-			
+
 		else
 			print_status("File #{hostlst}does not exists!")
 			exit
@@ -211,7 +209,7 @@ def pingsweep(session,iprange,dest)
 							end
 							r.channel.close
 							r.close
-							
+
 						})
 					i += 1
 				else
@@ -223,7 +221,7 @@ def pingsweep(session,iprange,dest)
 		end
 	rescue ::Exception => e
 		print_status("The following Error was encountered: #{e.class} #{e}")
-		
+
 	end
 end
 #-------------------------------------------------------------------------------
@@ -297,7 +295,7 @@ srvrc = nil
 		hostlist = val
 	when "-r"
 		range = val
-		
+
 	when "-h"
 		print(
 			"Network Enumerator Meterpreter Script\n" +

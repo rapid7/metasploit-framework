@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 # Meterpreter script for modifying the hosts file in windows
 # given a single entrie or several in a file and clear the
 # DNS cache on the target machine.

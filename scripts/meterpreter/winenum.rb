@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 #-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
@@ -170,7 +168,7 @@ def findprogs()
 			end
 		end
 	end
-	
+
 	file_local_write("#{@logfol}/programs_list.csv",proglist)
 end
 # Function to check if Target Machine a VM
@@ -555,7 +553,7 @@ def uaccheck()
 	else
 		print_status("\tUAC is Disabled")
 	end
-	
+
 	return uac
 end
 

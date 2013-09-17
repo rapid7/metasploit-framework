@@ -1,6 +1,4 @@
 ##
-# $Id$
-#
 # Many services are configured with insecure permissions. This
 # script attempts to create a service, then searches through a list of
 # existing services to look for insecure file or configuration

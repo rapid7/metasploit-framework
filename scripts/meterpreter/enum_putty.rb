@@ -1,5 +1,3 @@
-# $Id$
-# $Revision: $
 #
 # Meterpreter script for enumerating putty connections
 # Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
@@ -22,7 +20,7 @@ opts.parse(args) { |opt, idx, val|
 
 def hkcu_base
 	key_base = []
-	
+
 	if not is_system?
 		key_base << "HKCU"
 	else

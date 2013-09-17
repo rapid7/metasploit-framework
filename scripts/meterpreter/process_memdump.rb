@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 # Note: Script is based on the paper Neurosurgery With Meterpreter by
 #	Colin Ames (amesc[at]attackresearch.com) David Kerb (dkerb[at]attackresearch.com)

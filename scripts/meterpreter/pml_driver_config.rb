@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit

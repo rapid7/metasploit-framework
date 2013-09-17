@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 #-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
@@ -22,7 +20,7 @@ def enum_int
 			print_status("\t#{i.netmask}")
 			print_status()
 		end
-		
+
 	end
 end
 

@@ -1,5 +1,3 @@
-# $Id: panda_2007_pavsrv51.rb 8734 2010-03-07 22:49:08Z mc $
-# $Revision: $
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
