@@ -54,16 +54,13 @@ class CmdStagerEcho < CmdStagerBase
   # before ("echo -en ") / after (">>file") it.
   #
   def parts_to_commands(parts, opts)
-    cmds = []
-    parts.each do |p|
+    parts.map do |p|
       cmd = ''
       cmd << @cmd_start
       cmd << p
       cmd << @cmd_end
-      cmds << cmd
+      cmd
     end
-
-    cmds
   end
 
   #
@@ -97,7 +94,7 @@ class CmdStagerEcho < CmdStagerBase
       temp = tmp.slice(0, (opts[:linemax] - xtra_len))
       # cut the end of the part until we reach the start
       # of a full byte representation "\\xYZ"
-      while temp[-5, 3] != "\\\\x"
+      while temp.length > 0 && temp[-5, 3] != "\\\\x"
         temp.chop!
       end
       parts << temp
