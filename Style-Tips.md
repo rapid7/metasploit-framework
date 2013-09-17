@@ -38,7 +38,7 @@ You can also use `:set list` to see all whitespace as distinct characters to mak
 
 ### Rubymine
 
-Go to Preferences in the Rubymine window menu.  In the 'Project Settings [metasploit-framework]' section go to Code Style > Ruby.  Change the Scheme dropdown from Default to Project.  Then in the Project section under the Tabs and Indents tab, check 'Use tab character' and 'Smart tabs'.  Set the 'Tab size' and 'Indent' to 4 and the 'Continuation indent' to 8 as it should be twice the normal indent.  All other Code Style options can follow the defaults.
+Given the switch to using standard Ruby indentation, there is no special configuration needed for RubyMine any longer. Two-space tabs for life!
 
 ## Grammar and capitalization
 
