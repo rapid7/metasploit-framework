@@ -4,6 +4,9 @@
 require 'rex/post/meterpreter/packet'
 require 'rex/post/meterpreter/extension'
 require 'rex/post/meterpreter/client'
+
+# Used to generate a reflective DLL when migrating. This is yet another
+# argument for moving the meterpreter client into the Msf namespace.
 require 'msf/core/payload/windows'
 
 module Rex
