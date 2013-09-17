@@ -125,7 +125,6 @@ def reverselookup(session, iprange, dest)
 		end
 	rescue ::Exception => e
 		print_status("The following error was encountered: #{e.class} #{e}")
-
 	end
 end
 
@@ -220,7 +219,6 @@ def pingsweep(session, iprange, dest)
 		end
 	rescue ::Exception => e
 		print_status("The following error was encountered: #{e.class} #{e}")
-
 	end
 end
 #-------------------------------------------------------------------------------

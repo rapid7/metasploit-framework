@@ -1,5 +1,3 @@
-# $Id$
-# $Revision: $
 #Meterpreter script for enumerating Microsoft Powershell settings.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
 @client = client
@@ -116,7 +114,7 @@ def enum_powershell
 			end
 		end
 
-		
+
 	end
 end
 if client.platform =~ /win32|win64/
