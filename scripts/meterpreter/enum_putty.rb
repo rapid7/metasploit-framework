@@ -2,7 +2,6 @@
 # Meterpreter script for enumerating putty connections
 # Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
 #
-# $Revision$
 @client = client
 #Options and Option Parsing
 opts = Rex::Parser::Arguments.new(

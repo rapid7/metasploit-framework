@@ -9,7 +9,6 @@
 #
 # scriptjunkie   googlemail   com
 #
-# $Revision$
 ##
 
 if client.platform !~ /win32/

@@ -20,7 +20,6 @@ module Payload::Windows::ReflectiveDllInject
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'Reflective DLL Injection',
-			'Version'       => '$Revision$',
 			'Description'   => 'Inject a DLL via a reflective loader',
 			'Author'        => [ 'sf' ],
 			'References'    => [ [ 'URL', 'https://github.com/stephenfewer/ReflectiveDLLInjection' ] ],

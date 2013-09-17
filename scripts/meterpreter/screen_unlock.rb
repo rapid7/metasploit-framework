@@ -5,8 +5,6 @@
 #
 # Based on the winlockpwn tool released by Metlstorm: http://www.storm.net.nz/projects/16
 #
-# $Revision$
-#
 
 revert = false
 targets = [
