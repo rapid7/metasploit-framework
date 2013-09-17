@@ -1546,7 +1546,8 @@ class Db
         return
       end
       file = args[1] || ::File.join(Msf::Config.get_config_root, "database.yml")
-      if (::File.exists? ::File.expand_path(file))
+      file = ::File.expand_path(file)
+      if (::File.exists? file)
         db = YAML.load(::File.read(file))['production']
         framework.db.connect(db)
 

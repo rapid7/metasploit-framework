@@ -1,7 +1,3 @@
-# win32-sshclient.rb
-#
-# $Id$
-# $Revision$
 #
 # Meterpreter script to deploy & run the "plink" commandline ssh-client
 # supports only MS-Windows-2k/XP/Vista Hosts
@@ -154,7 +150,7 @@ downloaded = nil
 			usage
 		end
 		rhost = val
-		
+
 	when "-f"
 		if !val
 			print_error("-f requires an argument !")
@@ -166,14 +162,14 @@ downloaded = nil
 			usage
 		end
 		manual = true
-		
+
 	when "-r"
 		if !val
 			print_error("-r requires an argument !")
 			usage
 		end
 		hostkey = val
-	
+
 	when "-p"
 		rport = val.to_i
 
@@ -323,7 +319,7 @@ if not manual
 		plinkexe = Net::HTTP.get URI.parse(plinkurl)
 		File.open(plink, "wb") { |fd| fd.write(plinkexe) }
 		print_status("plink.exe has been downloaded to #{plink} (local machine). Please remove manually after use or keep for reuse.")
-		downloaded = true	
+		downloaded = true
 	end
 end
 

@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Post
       'Name'         => 'Windows Capture Winlogon Lockout Credential Keylogger',
       'Description'  => %q{
           This module migrates and logs Microsoft Windows user's passwords via
-          Winlogon.exe. Using idle time and natural system changes to give a
+          Winlogon.exe using idle time and natural system changes to give a
           false sense of security to the user.},
       'License'      => MSF_LICENSE,
       'Author'       => [ 'mubix', 'cg' ],

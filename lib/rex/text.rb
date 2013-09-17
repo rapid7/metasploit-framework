@@ -875,7 +875,7 @@ module Text
   #
   def self.ascii_safe_hex(str, whitespace=false)
     if whitespace
-      str.gsub(/([\x00-\x20\x80-\xFF])/){ |x| "\\x%.2x" % x.unpack("C*")[0] }
+      str.gsub(/([\x00-\x20\x80-\xFF])/n){ |x| "\\x%.2x" % x.unpack("C*")[0] }
     else
       str.gsub(/([\x00-\x08\x0b\x0c\x0e-\x1f\x80-\xFF])/n){ |x| "\\x%.2x" % x.unpack("C*")[0]}
     end
@@ -1076,7 +1076,7 @@ module Text
   def self.dehex(str)
     return str unless str.respond_to? :match
     return str unless str.respond_to? :gsub
-    regex = /\x5cx[0-9a-f]{2}/mi
+    regex = /\x5cx[0-9a-f]{2}/nmi
     if str.match(regex)
       str.gsub(regex) { |x| x[2,2].to_i(16).chr }
     else
@@ -1091,7 +1091,7 @@ module Text
   def self.dehex!(str)
     return str unless str.respond_to? :match
     return str unless str.respond_to? :gsub
-    regex = /\x5cx[0-9a-f]{2}/mi
+    regex = /\x5cx[0-9a-f]{2}/nmi
     str.gsub!(regex) { |x| x[2,2].to_i(16).chr }
   end
 
@@ -1563,7 +1563,7 @@ module Text
   end
 
   def self.unicode_filter_decode(str)
-    str.to_s.gsub( /\$U\$([\x20-\x2c\x2e-\x7E]*)\-0x([A-Fa-f0-9]+)/ ){|m| [$2].pack("H*") }
+    str.to_s.gsub( /\$U\$([\x20-\x2c\x2e-\x7E]*)\-0x([A-Fa-f0-9]+)/n ){|m| [$2].pack("H*") }
   end
 
 protected

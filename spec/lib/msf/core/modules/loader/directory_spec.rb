@@ -10,7 +10,7 @@ describe Msf::Modules::Loader::Directory do
 		include_context 'Msf::Modules::Loader::Base'
 
 		let(:module_manager) do
-			mock('Module Manager')
+			double('Module Manager')
 		end
 
 		let(:module_path) do
@@ -28,9 +28,9 @@ describe Msf::Modules::Loader::Directory do
 		context '#load_module' do
 			context 'with existent module_path' do
 				let(:framework) do
-					framework = mock('Msf::Framework', :datastore => {})
+					framework = double('Msf::Framework', :datastore => {})
 
-					events = mock('Events')
+					events = double('Events')
 					events.stub(:on_module_load)
 					events.stub(:on_module_created)
 					framework.stub(:events => events)

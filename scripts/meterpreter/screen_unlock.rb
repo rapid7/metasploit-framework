@@ -1,13 +1,9 @@
 #
-# $Id$
-#
 # Script to unlock a windows screen by L4teral <l4teral [4t] gmail com>
 # Needs system prvileges to run and known signatures for the target system.
 # This script patches msv1_0.dll loaded by lsass.exe
 #
 # Based on the winlockpwn tool released by Metlstorm: http://www.storm.net.nz/projects/16
-#
-# $Revision$
 #
 
 revert = false
