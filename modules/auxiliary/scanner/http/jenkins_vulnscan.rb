@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 			'uri'       => uri_path,
 			'method'    => 'GET',
 			'ctype'     => 'text/plain',
-		}, 20)
+		})
 		case (res.code)
 		when 200
 			print_good("#{rhost}:#{rport} /#{app} does not require authentication (200)")
