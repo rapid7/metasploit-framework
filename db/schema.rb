@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130516204810) do
+ActiveRecord::Schema.define(:version => 20130717150737) do
 
   create_table "api_keys", :force => true do |t|
     t.text     "token"
@@ -19,38 +19,13 @@ ActiveRecord::Schema.define(:version => 20130516204810) do
     t.datetime "updated_at", :null => false
   end
 
-  create_table "attachments", :force => true do |t|
-    t.string  "name",         :limit => 512
-    t.binary  "data"
-    t.string  "content_type", :limit => 512
-    t.boolean "inline",                      :default => true,  :null => false
-    t.boolean "zip",                         :default => false, :null => false
-    t.integer "campaign_id"
-  end
-
-  create_table "attachments_email_templates", :id => false, :force => true do |t|
-    t.integer "attachment_id"
-    t.integer "email_template_id"
-  end
-
-  create_table "campaigns", :force => true do |t|
-    t.integer  "workspace_id",                               :null => false
-    t.string   "name",         :limit => 512
-    t.text     "prefs"
-    t.integer  "status",                      :default => 0
-    t.datetime "started_at"
-    t.datetime "created_at",                                 :null => false
-    t.datetime "updated_at",                                 :null => false
-  end
-
   create_table "clients", :force => true do |t|
     t.integer  "host_id"
     t.datetime "created_at"
-    t.string   "ua_string",   :limit => 1024, :null => false
-    t.string   "ua_name",     :limit => 64
-    t.string   "ua_ver",      :limit => 32
+    t.string   "ua_string",  :limit => 1024, :null => false
+    t.string   "ua_name",    :limit => 64
+    t.string   "ua_ver",     :limit => 32
     t.datetime "updated_at"
-    t.integer  "campaign_id"
   end
 
   create_table "creds", :force => true do |t|
@@ -64,24 +39,6 @@ ActiveRecord::Schema.define(:version => 20130516204810) do
     t.string   "ptype",       :limit => 256
     t.integer  "source_id"
     t.string   "source_type"
-  end
-
-  create_table "email_addresses", :force => true do |t|
-    t.integer  "campaign_id",                                   :null => false
-    t.string   "first_name",  :limit => 512
-    t.string   "last_name",   :limit => 512
-    t.string   "address",     :limit => 512
-    t.boolean  "sent",                       :default => false, :null => false
-    t.datetime "clicked_at"
-  end
-
-  create_table "email_templates", :force => true do |t|
-    t.string  "name",        :limit => 512
-    t.string  "subject",     :limit => 1024
-    t.text    "body"
-    t.integer "parent_id"
-    t.integer "campaign_id"
-    t.text    "prefs"
   end
 
   create_table "events", :force => true do |t|
@@ -167,16 +124,9 @@ ActiveRecord::Schema.define(:version => 20130516204810) do
   add_index "hosts", ["state"], :name => "index_hosts_on_state"
   add_index "hosts", ["workspace_id", "address"], :name => "index_hosts_on_workspace_id_and_address", :unique => true
 
-  create_table "hosts_tags", :id => false, :force => true do |t|
+  create_table "hosts_tags", :force => true do |t|
     t.integer "host_id"
     t.integer "tag_id"
-  end
-
-  create_table "imported_creds", :force => true do |t|
-    t.integer "workspace_id",                :default => 1,          :null => false
-    t.string  "user",         :limit => 512
-    t.string  "pass",         :limit => 512
-    t.string  "ptype",        :limit => 16,  :default => "password"
   end
 
   create_table "listeners", :force => true do |t|
@@ -427,6 +377,34 @@ ActiveRecord::Schema.define(:version => 20130516204810) do
     t.datetime "updated_at",                                        :null => false
   end
 
+  create_table "task_creds", :force => true do |t|
+    t.integer  "task_id",    :null => false
+    t.integer  "cred_id",    :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  create_table "task_hosts", :force => true do |t|
+    t.integer  "task_id",    :null => false
+    t.integer  "host_id",    :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  create_table "task_services", :force => true do |t|
+    t.integer  "task_id",    :null => false
+    t.integer  "service_id", :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  create_table "task_sessions", :force => true do |t|
+    t.integer  "task_id",    :null => false
+    t.integer  "session_id", :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
   create_table "tasks", :force => true do |t|
     t.integer  "workspace_id",                 :default => 1, :null => false
     t.string   "created_by"
@@ -561,14 +539,6 @@ ActiveRecord::Schema.define(:version => 20130516204810) do
   add_index "web_sites", ["options"], :name => "index_web_sites_on_options"
   add_index "web_sites", ["vhost"], :name => "index_web_sites_on_vhost"
 
-  create_table "web_templates", :force => true do |t|
-    t.string  "name",        :limit => 512
-    t.string  "title",       :limit => 512
-    t.string  "body",        :limit => 524288
-    t.integer "campaign_id"
-    t.text    "prefs"
-  end
-
   create_table "web_vulns", :force => true do |t|
     t.integer  "web_site_id",                 :null => false
     t.datetime "created_at",                  :null => false
@@ -576,7 +546,7 @@ ActiveRecord::Schema.define(:version => 20130516204810) do
     t.text     "path",                        :null => false
     t.string   "method",      :limit => 1024, :null => false
     t.text     "params",                      :null => false
-    t.text     "pname",                       :null => false
+    t.text     "pname"
     t.integer  "risk",                        :null => false
     t.string   "name",        :limit => 1024, :null => false
     t.text     "query"

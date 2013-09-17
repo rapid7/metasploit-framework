@@ -1,4 +1,35 @@
 shared_examples_for 'Msf::ModuleManager::Cache' do
+	let(:parent_path) do
+		parent_pathname.to_path
+	end
+
+	let(:parent_pathname) do
+		Metasploit::Framework.root.join('modules')
+	end
+
+	let(:reference_name) do
+		'windows/smb/ms08_067_netapi'
+	end
+
+	let(:type) do
+		'exploit'
+	end
+
+	let(:path) do
+		pathname.to_path
+	end
+
+	let(:pathname) do
+		parent_pathname.join(
+				'exploits',
+				"#{reference_name}.rb"
+		)
+	end
+
+	let(:pathname_modification_time) do
+		pathname.mtime
+	end
+
 	context '#cache_empty?' do
 		subject(:cache_empty?) do
 			module_manager.cache_empty?
@@ -27,19 +58,92 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 		end
 	end
 
+	context '#cache_in_memory' do
+		def cache_in_memory
+			module_manager.cache_in_memory(
+					class_or_module,
+					:path => path,
+					:reference_name => reference_name,
+					:type => type
+			)
+		end
+
+		def module_info_by_path
+			module_manager.send(:module_info_by_path)
+		end
+
+		let(:class_or_module) do
+			double('Class<Msf::Module> or Module', :parent => namespace_module)
+		end
+
+		let(:namespace_module) do
+			double('Msf::Modules::Namespace', :parent_path => parent_path)
+		end
+
+		context 'with existing :path' do
+			it 'should update module_info_by_path' do
+				expect {
+					cache_in_memory
+				}.to change { module_info_by_path }
+			end
+
+			context 'module_info_by_path' do
+				subject(:module_info_by_path) do
+					module_manager.send(:module_info_by_path)
+				end
+
+				before(:each) do
+					cache_in_memory
+				end
+
+				it 'should have entry for path' do
+					module_info_by_path[path].should be_a Hash
+				end
+
+				context 'value' do
+					subject(:value) do
+						module_info_by_path[path]
+					end
+
+					it 'should have modification time of :path option for :modification_time' do
+						value[:modification_time].should == pathname_modification_time
+					end
+
+					it 'should have parent path from namespace module for :parent_path' do
+						value[:parent_path].should == namespace_module.parent_path
+					end
+
+					it 'should use :reference_name option' do
+						value[:reference_name].should == reference_name
+					end
+
+					it 'should use :type option' do
+						value[:type].should == type
+					end
+				end
+			end
+		end
+
+		context 'without existing :path' do
+			let(:path) do
+				'non/existent/path'
+			end
+
+			it 'should not raise error' do
+				expect {
+					cache_in_memory
+				}.to_not raise_error
+			end
+
+			it 'should not update module_info_by_path' do
+				expect {
+					cache_in_memory
+				}.to_not change { module_info_by_path }
+			end
+		end
+	end
+
 	context '#load_cached_module' do
-		let(:parent_path) do
-			Metasploit::Framework.root.join('modules').to_path
-		end
-
-		let(:reference_name) do
-			'windows/smb/ms08_067_netapi'
-		end
-
-		let(:type) do
-			'exploit'
-		end
-
 		subject(:load_cached_module) do
 			module_manager.load_cached_module(type, reference_name)
 		end
@@ -284,39 +388,8 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
       end
 
 			context 'with database cache' do
-				let(:parent_path) do
-					parent_pathname.to_path
-				end
-
-				let(:parent_pathname) do
-						Metasploit::Framework.root.join('modules')
-				end
-
-				let(:path) do
-					pathname.to_path
-				end
-
-				let(:pathname) do
-					parent_pathname.join(
-							'exploits',
-							"#{reference_name}.rb"
-					)
-				end
-
-				let(:pathname_modification_time) do
-					pathname.mtime
-				end
-
-				let(:type) do
-          'exploit'
-				end
-
-				let(:reference_name) do
-					'windows/smb/ms08_067_netapi'
-				end
-
 				#
-			  # Let!s (let + before(:each))
+				# Let!s (let + before(:each))
 				#
 
 				let!(:mdm_module_detail) do
@@ -362,7 +435,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 
 					context 'with reference_name' do
 						before(:each) do
-							typed_module_set[reference_name] = mock('Msf::Module')
+							typed_module_set[reference_name] = double('Msf::Module')
 						end
 
 						it 'should not change reference_name value' do
@@ -396,7 +469,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 
 			it 'should reset #module_info_by_path' do
 				# pre-fill module_info_by_path so change can be detected
-				module_manager.send(:module_info_by_path=, mock('In-memory Cache'))
+				module_manager.send(:module_info_by_path=, double('In-memory Cache'))
 
 				module_info_by_path_from_database!
 

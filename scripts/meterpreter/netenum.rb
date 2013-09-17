@@ -1,4 +1,3 @@
-#
 #Meterpreter script for ping sweeps on Windows 2003, Windows Vista
 #Windows 2008 and Windows XP targets using native windows commands.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator.com
@@ -6,15 +5,15 @@
 #Note:
 ################## Variable Declarations ##################
 @@exec_opts = Rex::Parser::Arguments.new(
-	"-h"  => [ false,  "Help menu."],
-	"-r"  => [ true,  "The target address range or CIDR identifier"],
-	"-ps" => [ false,  "To Perform Ping Sweep on IP Range"],
-	"-rl" => [ false,  "To Perform DNS Reverse Lookup on IP Range"],
-	"-fl" => [ false,  "To Perform DNS Forward Lookup on host list and domain"],
-	"-hl" => [ true,  "File with Host List for DNS Forward Lookup"],
-	"-d"  => [ true,  "Domain Name for DNS Forward Lookup"],
-	"-st" => [ false,  "To Perform DNS lookup of MX and NS records for a domain"],
-	"-sr" => [ false,  "To Perform Service Record DNS lookup for a domain"]
+	"-h"  => [ false, "Help menu." ],
+	"-r"  => [ true,  "The target address range or CIDR identifier" ],
+	"-ps" => [ false, "To Perform Ping Sweep on IP Range" ],
+	"-rl" => [ false, "To Perform DNS Reverse Lookup on IP Range" ],
+	"-fl" => [ false, "To Perform DNS Forward Lookup on host list and domain" ],
+	"-hl" => [ true,  "File with Host List for DNS Forward Lookup" ],
+	"-d"  => [ true,  "Domain Name for DNS Forward Lookup" ],
+	"-st" => [ false, "To Perform DNS lookup of MX and NS records for a domain" ],
+	"-sr" => [ false, "To Perform Service Record DNS lookup for a domain" ]
 )
 session = client
 host,port = session.session_host, session.session_port
@@ -33,10 +32,10 @@ dest = logs + "/" + host + filenameinfo
 
 #-------------------------------------------------------------------------------
 # Function for performing regular lookup of MX and NS records
-def stdlookup(session,domain,dest)
+def stdlookup(session, domain, dest)
 	dest = dest + "-general-record-lookup.txt"
-	print_status("Getting MX and NS Records for Domain #{domain}")
-	filewrt(dest,"SOA, NS and MX Records for Domain #{domain}")
+	print_status("Getting MX and NS Records for domain #{domain}")
+	filewrt(dest,"SOA, NS and MX Records for domain #{domain}")
 	types = ["SOA","NS","MX"]
 	mxout = []
 	results = []
@@ -61,7 +60,7 @@ def stdlookup(session,domain,dest)
 			end
 
 		rescue ::Exception => e
-			print_status("The following Error was encountered: #{e.class} #{e}")
+			print_status("The following error was encountered: #{e.class} #{e}")
 		end
 	end
 end
@@ -69,7 +68,7 @@ end
 #-------------------------------------------------------------------------------
 # Function for writing results of other functions to a file
 def filewrt(file2wrt, data2wrt)
-	output = ::File.open(file2wrt, "a")
+	output = ::File.open(file2wrt, "ab")
 	data2wrt.each_line do |d|
 		output.puts(d)
 	end
@@ -78,10 +77,10 @@ end
 
 #-------------------------------------------------------------------------------
 # Function for Executing Reverse lookups
-def reverselookup(session,iprange,dest)
+def reverselookup(session, iprange, dest)
 	dest = dest + "-DNS-reverse-lookup.txt"
-	print_status("Performing DNS Reverse Lookup for IP range #{iprange}")
-	filewrt(dest,"DNS Reverse Lookup for IP range #{iprange}")
+	print_status("Performing DNS reverse lookup for IP range #{iprange}")
+	filewrt(dest,"DNS reverse lookup for IP range #{iprange}")
 	iplst =[]
 	i, a = 0, []
 	begin
@@ -125,17 +124,16 @@ def reverselookup(session,iprange,dest)
 			a.delete_if {|x| not x.alive?} while not a.empty?
 		end
 	rescue ::Exception => e
-		print_status("The following Error was encountered: #{e.class} #{e}")
-
+		print_status("The following error was encountered: #{e.class} #{e}")
 	end
 end
 
 #-------------------------------------------------------------------------------
 #Function for Executing Forward Lookups
-def frwdlp(session,hostlst,domain,dest)
+def frwdlp(session, hostlst, domain, dest)
 	dest = dest + "-DNS-forward-lookup.txt"
-	print_status("Performing DNS Forward Lookup for hosts in #{hostlst} for domain #{domain}")
-	filewrt(dest,"DNS Forward Lookup for hosts in #{hostlst} for domain #{domain}")
+	print_status("Performing DNS forward lookup for hosts in #{hostlst} for domain #{domain}")
+	filewrt(dest,"DNS forward lookup for hosts in #{hostlst} for domain #{domain}")
 	result = []
 	threads = []
 	tmpout = []
@@ -165,17 +163,17 @@ def frwdlp(session,hostlst,domain,dest)
 			end
 
 		else
-			print_status("File #{hostlst}does not exists!")
+			print_status("File #{hostlst} doesn't exists!")
 			exit
 		end
 	rescue ::Exception => e
-		print_status("The following Error was encountered: #{e.class} #{e}")
+		print_status("The following error was encountered: #{e.class} #{e}")
 	end
 end
 
 #-------------------------------------------------------------------------------
 #Function for Executing Ping Sweep
-def pingsweep(session,iprange,dest)
+def pingsweep(session, iprange, dest)
 	dest = dest + "-pingsweep.txt"
 	print_status("Performing ping sweep for IP range #{iprange}")
 	filewrt(dest,"Ping sweep for IP range #{iprange}")
@@ -220,13 +218,12 @@ def pingsweep(session,iprange,dest)
 			a.delete_if {|x| not x.alive?} while not a.empty?
 		end
 	rescue ::Exception => e
-		print_status("The following Error was encountered: #{e.class} #{e}")
-
+		print_status("The following error was encountered: #{e.class} #{e}")
 	end
 end
 #-------------------------------------------------------------------------------
 #Function for enumerating srv records
-def srvreclkp(session,domain,dest)
+def srvreclkp(session, domain, dest)
 	dest = dest + "-srvenum.txt"
 	srout = []
 	garbage = []
@@ -235,8 +232,8 @@ def srvreclkp(session,domain,dest)
 		"_sips._tcp.","_sip._udp.","_sip._tcp.","_aix._tcp.","_aix._tcp.","_finger._tcp.",
 		"_ftp._tcp.","_http._tcp.","_nntp._tcp.","_telnet._tcp.","_whois._tcp."
 	]
-	print_status("Performing SRV Record Enumeration for #{domain}")
-	filewrt(dest,"SRV Record Enumeration for #{domain}")
+	print_status("Performing SRV record enumeration for #{domain}")
+	filewrt(dest,"SRV record enumeration for #{domain}")
 	srvrcd.each do |srv|
 		r = session.sys.process.execute("nslookup -query=srv #{srv}#{domain}", nil, {'Hidden' => true, 'Channelized' => true})
 		while(d = r.channel.read)
@@ -264,8 +261,8 @@ def message(dest)
 	print_status "Network Enumerator Meterpreter Script "
 	print_status "Log file being saved in #{dest}"
 end
-################## MAIN ##################
 
+################## MAIN ##################
 # Variables for Options
 stdlkp = nil
 range = nil
@@ -276,6 +273,7 @@ dom = nil
 hostlist = nil
 helpcall = nil
 srvrc = nil
+
 # Parsing of Options
 @@exec_opts.parse(args) { |opt, idx, val|
 	case opt
@@ -295,7 +293,6 @@ srvrc = nil
 		hostlist = val
 	when "-r"
 		range = val
-
 	when "-h"
 		print(
 			"Network Enumerator Meterpreter Script\n" +
@@ -307,28 +304,54 @@ srvrc = nil
 }
 
 if client.platform =~ /win32|win64/
-	if range != nil && pngsp == 1
-		message(logs)
-		pingsweep(session,range,dest)
-	elsif range != nil && rvrslkp == 1
-		message(logs)
-		reverselookup(session,range,dest)
-	elsif dom != nil && hostlist!= nil && frdlkp == 1
-		message(logs)
-		frwdlp(session,hostlist,dom,dest)
-	elsif dom != nil && stdlkp == 1
-		message(logs)
-		stdlookup(session,dom,dest)
-	elsif dom != nil && srvrc == 1
-		message(logs)
-		srvreclkp(session,dom,dest)
-	elsif helpcall == nil
+	if  pngsp == 1
+		if range != nil
+			message(logs)
+			pingsweep(session, range, dest)
+		else
+			print_error("Please add a range to scan: -r <value>")
+		end
+	elsif rvrslkp == 1
+		if range != nil
+			message(logs)
+			reverselookup(session, range, dest)
+		else
+			print_error("Please add a range to scan: -r <value>")
+		end
+	elsif frdlkp == 1
+		if dom != nil && hostlist!= nil &&
+			message(logs)
+			frwdlp(session, hostlist, dom, dest)
+		elsif dom == nil
+			print_error("Please add a domain name for DNS forward lookup: -d <value>")
+		elsif hostlist == nil
+			print_error("Please add a file with host list for DNS forward lookup: -hl <value>")
+		else
+			print_error("Something went wront")
+		end
+	elsif stdlkp == 1
+		if dom != nil
+			message(logs)
+			stdlookup(session, dom, dest)
+		else
+			print_error("Please add a domain name for DNS forward lookup: -d <value>")
+		end
+	elsif srvrc == 1
+		if dom != nil
+			message(logs)
+			srvreclkp(session, dom, dest)
+		else
+			print_error("Please add a domain name for DNS forward lookup: -d <value>")
+		end
+	else
 		print("Network Enumerator Meterpreter Script\n" +
-			"Usage: \n" +
+			"Usage:\n" +
+			"\tnetenum -r <value> (-ps | -rl)\n" +
+			"\tnetenum -d <value> (-st | -sr)\n" +
+			"\tnetenum -d <value> -lh <value> -fl\n" +
 			@@exec_opts.usage)
 	end
-
 else
-	print_error("This version of Meterpreter is not supported with this Script!")
+	print_error("This version of Meterpreter is not supported with this script!")
 	raise Rex::Script::Completed
 end

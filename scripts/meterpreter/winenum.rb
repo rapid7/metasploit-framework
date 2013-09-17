@@ -572,7 +572,7 @@ if (mg != nil)
 end
 # Main part of script, it will run all function minus the ones
 # that will chance the MACE and Clear the Event log.
-print_status("Running Windows Local Enumerion Meterpreter Script")
+print_status("Running Windows Local Enumeration Meterpreter Script")
 print_status("New session on #{host}:#{port}...")
 
 # Header for File that will hold all the output of the commands

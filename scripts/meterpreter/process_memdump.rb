@@ -11,7 +11,7 @@ toggle = nil
 resource = nil
 query = false
 
-opts = Rex::Parser::Arguments.new(
+@exec_opts = Rex::Parser::Arguments.new(
 	"-h" => [ false, "Help menu." ],
 	"-p" => [ true, "PID of process to dump."],
 	"-n" => [ true, "Name of process to dump."],
@@ -20,15 +20,19 @@ opts = Rex::Parser::Arguments.new(
 	"-q" => [false, "Query the size of the Process that would be dump in bytes."]
 )
 
-opts.parse(args) { |opt, idx, val|
+def usage
+	print_line("")
+	print_line("USAGE:")
+	print_line("EXAMPLE: run process_memdump putty.exe")
+	print_line("EXAMPLE: run process_memdump -p 1234")
+	print_line(@exec_opts.usage)
+	raise Rex::Script::Completed
+end
+
+@exec_opts.parse(args) { |opt, idx, val|
 	case opt
 	when "-h"
-		print_line("")
-		print_line("USAGE:")
-		print_line("EXAMPLE: run process_dump putty.exe")
-		print_line("EXAMPLE: run process_dump -p 1234")
-		print_line(opts.usage)
-		raise Rex::Script::Completed
+		usage
 	when "-p"
 		pid = val
 	when "-n"
@@ -180,6 +184,8 @@ if client.platform =~ /win32|win64/
 			print_status("\tsize for #{name} in PID #{p} is #{get_mem_usage(p)}K") if query
 			dump_mem(p,name,toggle) if not query
 		end
+	else
+		usage
 	end
 else
 	print_error("This version of Meterpreter is not supported with this Script!")

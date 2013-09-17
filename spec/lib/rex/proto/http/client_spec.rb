@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 require 'rex/proto/http/client'
 
 # Note: Some of these tests require a failed
@@ -107,7 +108,7 @@ describe Rex::Proto::Http::Client do
 		end
 
 		it "should send creds after receiving a 401" do
-			conn = mock
+			conn = double
 			conn.stub(:put)
 			conn.stub(:shutdown)
 			conn.stub(:close)
