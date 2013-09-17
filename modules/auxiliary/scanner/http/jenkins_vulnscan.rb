@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 			'uri'       => target_uri.path, #wanted to use a random path but Jenkins headers were not returned
 			'method'    => 'GET',
 			'ctype'     => 'text/plain',
-		}, 20)
+		})
 		if res
 			#check to see if we are dealing with a Jenkins installation
 			if not res.headers.include?('X-Jenkins')
@@ -127,19 +127,19 @@ class Metasploit3 < Msf::Auxiliary
 			dex = out.index(o)
 			case o
 				when "os.name"
-					print("   OS: " + out[dex+1] + "\n")
+					print_line("   OS: " + out[dex+1])
 				when "sun.os.patch.level"
-					print("   Patch Level: " + out[dex+1] + "\n")
+					print_line("   Patch Level: " + out[dex+1])
 				when "os.arch"
-					print("   Arch: " + out[dex+1] + "\n")
+					print_line("   Arch: " + out[dex+1])
 				when "user.name"
-					print("   User: " + out[dex+1] + "\n")
+					print_line("   User: " + out[dex+1])
 				when "USERDOMAIN"
-					print("   Domain: " + out[dex+1] + "\n")
+					print_line("   Domain: " + out[dex+1])
 				when "SHELL"
-					print("   Shell: " + out[dex+1] + "\n")
+					print_line("   Shell: " + out[dex+1])
 			end
 		end
-	print("\n")
+		print_line('')
 	end
 end
