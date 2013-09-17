@@ -1,5 +1,3 @@
-# $Id$
-# $Revision: 9771 $
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 #-------------------------------------------------------------------------------
 ################## Variable Declarations ##################

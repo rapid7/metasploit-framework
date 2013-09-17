@@ -1,6 +1,3 @@
-# $Id: $
-# $Revision$
-
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 #-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
@@ -102,7 +99,7 @@ def enum_viclient
 			end
 		end
 	end
-	
+
 	if not is_system?
 		recentconns = registry_getvaldata("HKCU\\Software\\VMware\\VMware Infrastructure Client\\Preferences","RecentConnections").split(",")
 		print_status("Recent VI Client Connections:")
@@ -116,7 +113,7 @@ def enum_viclient
 				ssl_key = registry_getvaldata("HKCU\\Software\\VMware\\Virtual Infrastructure Client\\Preferences\\UI\\SSLIgnore",issl)
 				print_status("\tHost: #{issl} SSL Fingerprint: #{ssl_key}")
 			end
-		
+
 		end
 	else
 		user_sid = []
@@ -283,7 +280,7 @@ def enum_vmwarewrk
 		end
 	end
 	fav_file.each_line do |l|
-	
+
 		if l =~ /config/
 			print_status("\tConfiguration File: #{l.scan(/vmlist\d*.config \= (\".*\")/)}")
 		end
