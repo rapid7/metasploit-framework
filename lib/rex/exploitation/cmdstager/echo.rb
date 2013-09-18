@@ -74,7 +74,7 @@ class CmdStagerEcho < CmdStagerBase
     cmds << "#{@tempdir}#{@var_elf}"
 
     # Clean up after unless requested not to..
-    if (not opts[:nodelete])
+    unless opts[:nodelete]
       cmds << "rm -f #{@tempdir}#{@var_elf}"
     end
 
@@ -85,20 +85,20 @@ class CmdStagerEcho < CmdStagerBase
   # Override it to ensure that the hex representation of a byte isn't cut
   #
   def slice_up_payload(encoded, opts)
-    tmp = encoded.dup
+    encoded_dup = encoded.dup
 
     parts = []
     xtra_len = opts[:extra]
     xtra_len ||= 0
-    while (tmp.length > 0)
-      temp = tmp.slice(0, (opts[:linemax] - xtra_len))
+    while (encoded_dup.length > 0)
+      temp = encoded_dup.slice(0, (opts[:linemax] - xtra_len))
       # cut the end of the part until we reach the start
       # of a full byte representation "\\xYZ"
-      while temp.length > 0 && temp[-5, 3] != "\\\\x"
+      while (temp.length > 0 && temp[-5, 3] != "\\\\x")
         temp.chop!
       end
       parts << temp
-      tmp.slice!(0, temp.length)
+      encoded_dup.slice!(0, temp.length)
     end
 
     parts
