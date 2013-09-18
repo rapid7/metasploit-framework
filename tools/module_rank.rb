@@ -115,7 +115,7 @@ tbl = Rex::Ui::Text::Table.new(
 
 $framework.modules.each { |name, mod|
 	x = mod.new
-	modrank = x.rank
+	modrank = x.rank_number
 	if modrank >= minrank and modrank<= maxrank
 		tbl << [ x.fullname, modrank ]
 	end

@@ -9,7 +9,7 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
 		end
 
 		let(:module_set) do
-			module_manager.module_set(type)
+			module_manager.module_set_by_module_type[type]
 		end
 
 		let(:namespace_module) do

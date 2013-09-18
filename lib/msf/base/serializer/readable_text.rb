@@ -126,7 +126,7 @@ class ReadableText
     output << "   Platform: #{mod.platform_to_s}\n"
     output << " Privileged: " + (mod.privileged? ? "Yes" : "No") + "\n"
     output << "    License: #{mod.license}\n"
-    output << "       Rank: #{mod.rank_to_s.capitalize}\n"
+    output << "       Rank: #{mod.rank_name}\n"
     output << "\n"
 
     # Authors
@@ -179,7 +179,7 @@ class ReadableText
     output << "       Name: #{mod.name}\n"
     output << "     Module: #{mod.fullname}\n"
     output << "    License: #{mod.license}\n"
-    output << "       Rank: #{mod.rank_to_s.capitalize}\n"
+    output << "       Rank: #{mod.rank_name}\n"
     output << "\n"
 
     # Authors
@@ -219,7 +219,7 @@ class ReadableText
     output << "       Arch: #{mod.arch_to_s}\n"
     output << "Needs Admin: " + (mod.privileged? ? "Yes" : "No") + "\n"
     output << " Total size: #{mod.size}\n"
-    output << "       Rank: #{mod.rank_to_s.capitalize}\n"
+    output << "       Rank: #{mod.rank_name}\n"
     output << "\n"
 
     # Authors
@@ -254,7 +254,7 @@ class ReadableText
     output << "     Module: #{mod.fullname}\n"
     output << "   Platform: #{mod.platform_to_s}\n"
     output << "       Arch: #{mod.arch_to_s}\n"
-    output << "       Rank: #{mod.rank_to_s.capitalize}\n"
+    output << "       Rank: #{mod.rank_name}\n"
     output << "\n"
 
     # Authors

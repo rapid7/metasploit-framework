@@ -1,21 +1,21 @@
 GIT
   remote: git://github.com/rapid7/metasploit-model.git
-  revision: ebaff07589633b92ef6a2f16a1476c9e9d78e8ec
-  tag: v0.11.0.module-cache-construction
+  revision: 887d3baea68a7e3394c6e32dd1c1c47ee65ebac6
+  tag: v0.11.2.module-cache-construction
   specs:
-    metasploit-model (0.11.0)
+    metasploit-model (0.11.2)
       activesupport
 
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: 1e9dfead700d33528a453a46c71fc1dd0d705652
-  tag: v0.43.6.module-cache-construction
+  revision: ddc1d6783e3a03de55128cf3f946babe66cdf34d
+  tag: v0.43.8.module-cache-construction
   specs:
-    metasploit_data_models (0.43.6)
+    metasploit_data_models (0.43.8)
       activerecord (>= 3.2.13)
       activesupport
       file-find
-      metasploit-model (~> 0.11.0)
+      metasploit-model (~> 0.11.2)
       pg
 
 GEM

@@ -1,5 +1,5 @@
 shared_context 'Msf::DBManager' do
-	include_context 'DatabaseCleaner'
+	include_context 'database cleaner'
 	include_context 'Msf::Simple::Framework'
 
 	let(:active) do

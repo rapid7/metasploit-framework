@@ -153,7 +153,7 @@ describe Metasploit::Framework::Module::Ancestor::Namespace do
   end
 
   context '#module_ancestor_eval' do
-    include_context 'DatabaseCleaner'
+    include_context 'database cleaner'
 
     subject(:module_ancestor_eval) do
       with_established_connection do
@@ -303,7 +303,7 @@ describe Metasploit::Framework::Module::Ancestor::Namespace do
   end
 
   context '#required_versions' do
-    include_context 'DatabaseCleaner'
+    include_context 'database cleaner'
 
     subject(:required_versions) do
       namespace.required_versions

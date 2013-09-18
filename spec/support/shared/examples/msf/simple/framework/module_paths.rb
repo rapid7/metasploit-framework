@@ -49,7 +49,7 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
   end
 
   context '#add_module_paths' do
-    include_context 'DatabaseCleaner'
+    include_context 'database cleaner'
 
     subject(:add_module_paths) do
       with_established_connection do

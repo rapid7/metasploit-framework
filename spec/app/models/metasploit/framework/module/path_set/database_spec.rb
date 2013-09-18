@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Metasploit::Framework::Module::PathSet::Database do
-	include_context 'DatabaseCleaner'
+	include_context 'database cleaner'
 
 	subject(:path_set) do
 		described_class.new(

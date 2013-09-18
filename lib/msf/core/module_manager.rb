@@ -18,7 +18,8 @@ module Msf
   # of loading and instantiation.
   #
   # @todo add unload support
-  class ModuleManager
+  class ModuleManager < Metasploit::Model::Base
+    include Enumerable
     include Msf::Framework::Offspring
 
     require 'msf/core/payload_set'
@@ -36,7 +37,15 @@ module Msf
     include Msf::ModuleManager::ModuleSets
     include Msf::ModuleManager::Reloading
 
-    include Enumerable
+    #
+    # Attributes
+    #
+
+    # @!attribute [rw] module_types
+    #   The `Metasploit::Model::Module::Class#module_types` supported by this module manager.
+    #
+    #   @return [Array<String>] subset of `Metasploit::Model::Module::Type::ALL`.
+    attr_writer :module_types
 
     #
     # CONSTANTS
@@ -108,29 +117,19 @@ module Msf
       end
     end
 
+    def module_types
+      unless instance_variable_defined? :@module_types
+        if framework
+          @module_types = framework.module_types
+        end
 
-    # @param [Msf::Framework] framework The framework for which this instance is
-    #   managing the modules.
-    # @param [Array<String>] types List of module types to load.  Defaults to
-    #   all module types in `Metasploit::Model::Module::Type::ALL`.
-    def initialize(framework, types=Metasploit::Model::Module::Type::ALL)
-      #
-      # defaults
-      #
+        # handles framework being nil and framework.module_types being nil
+        unless @module_types
+          @module_types = Metasploit::Model::Module::Type::ALL
+        end
+      end
 
-      self.enablement_by_module_type = {}
-      self.module_load_error_by_path = {}
-      self.module_set_by_module_type = {}
-
-      #
-      # from arguments
-      #
-
-      self.framework = framework
-
-      types.each { |type|
-        init_module_set(type)
-      }
+      @module_types
     end
 
     protected

@@ -14,8 +14,37 @@ Msf::SymbolicModule = '__SYMBOLIC__'
 # type.
 #
 ###
-class Msf::ModuleSet < Hash
-  include Msf::Framework::Offspring
+class Msf::ModuleSet < Metasploit::Model::Base
+  #
+  # Attributes
+  #
+
+  # @!attribute [rw] module_manager
+  #   Collection of {Msf::ModuleSet module set}, one for each module type.
+  #
+  #   @return [Msf::ModuleManager]
+  attr_accessor :module_manager
+
+  # @!attribute [rw] module_type
+  #   The `Metasploit::Model::Module::Class#module_type` for the {#module_classes} in this set.
+  #
+  #   @return [String] An element of `Metasploit::Model::Module::Type::ALL`.
+  attr_accessor :module_type
+
+  #
+  # Validations
+  #
+
+  validates :module_manager,
+            presence: true
+  validates :module_type,
+            inclusion: {
+                in: Metasploit::Model::Module::Type::ALL
+            }
+
+  #
+  # Methods
+  #
 
   # Wrapper that detects if a symbolic module is in use.  If it is, it creates an instance to demand load the module
   # and then returns the now-loaded class afterwords.
@@ -124,11 +153,11 @@ class Msf::ModuleSet < Hash
     each_module { |name, mod| }
   end
 
-  # Initializes a module set that will contain modules of a specific type and expose the mechanism necessary to create
-  # instances of them.
-  #
-  # @param [String] type The type of modules cached by this {Msf::ModuleSet}.
-  def initialize(type = nil)
+  # @param attributes [Hash{Symbol => String}]
+  # @option attributes [String] :module_type An element from `Metasploit::Model::Module::Type::ALL`.
+  def initialize(attributes={})
+    super
+
     #
     # Defaults
     #
@@ -140,18 +169,7 @@ class Msf::ModuleSet < Hash
     self.mod_sorted        = nil
     self.mod_ranked        = nil
     self.mod_extensions    = []
-
-    #
-    # Arguments
-    #
-    self.module_type = type
   end
-
-  # @!attribute [r] module_type
-  #   The type of modules stored by this {Msf::ModuleSet}.
-  #
-  #   @return [String] type of modules
-  attr_reader   :module_type
 
   # Gives the module set an opportunity to handle a module reload event
   #
@@ -160,20 +178,32 @@ class Msf::ModuleSet < Hash
   def on_module_reload(mod)
   end
 
-  # Dummy placeholder to recalculate aliases and other fun things.
+  # Derives `Mdm::Module::Classes` from the {Metasploit::Framework::Module::Ancestor::Load#module_ancestor} and
+  # {Metasploit::Framework::Module::Ancestor::Load#metasploit_module}.
   #
-  # @return [void]
-  def recalculate
-  end
+  # @param module_ancestor_loads [Array<Metasploit::Framework::Module::Ancestor::Load>]
+  # @return [Array<Metasploit::Model::Module::Instance>]
+  def derive_module_instances(module_ancestor_loads)
+    module_instances = []
 
-  # Checks to see if the supplied module reference name is valid.
-  #
-  # @param reference_name [String] The module reference name.
-  # @return [true] if the module can be {#create created} and cached.
-  # @return [false] otherwise
-  def valid?(reference_name)
-    create(reference_name)
-    (self[reference_name]) ? true : false
+    module_ancestor_loads.each do |module_ancestor_load|
+      # TODO generalize to work with or with ActiveRecord for in-memory models
+      ActiveRecord::Base.connection_pool.with_connection do
+        ActiveRecord::Base.transaction do
+          if module_ancestor_load.valid?
+            module_ancestor = module_ancestor_load.module_ancestor
+
+            # TODO figure out update and collisiion logic for Mdm::Module::Class.  I think the logic for Mdm::Module::Ancestor will make it just work.
+            module_class = module_ancestor.descendants.first_or_initialize { |module_class|
+              module_class.ancestors << module_ancestor
+            }
+
+            metasploit_class = module_ancestor_load.metasploit_module
+            metasploit_class.cache(module_class)
+          end
+        end
+      end
+    end
   end
 
   # Adds a module with a the supplied reference_name.

@@ -69,18 +69,15 @@ class Framework
   require 'msf/core/db_manager'
   require 'msf/core/event_dispatcher'
 
-
   #
   # Creates an instance of the framework context.
   #
   def initialize(opts={})
-
     # Allow specific module types to be loaded
-    types = opts[:module_types] || Metasploit::Model::Module::Type::ALL
+    self.module_types = opt[:module_types]
 
     self.threads   = ThreadManager.new(self)
     self.events    = EventDispatcher.new(self)
-    self.modules   = ModuleManager.new(self,types)
     self.sessions  = SessionManager.new(self)
     self.datastore = DataStore.new
     self.jobs      = Rex::JobContainer.new
@@ -100,6 +97,15 @@ class Framework
 
   def inspect
     "#<Framework (#{sessions.length} sessions, #{jobs.length} jobs, #{plugins.length} plugins#{db.active ? ", #{db.driver} database active" : ""})>"
+  end
+
+  def modules
+    @modules ||= Msf::ModuleManager.new(framework: self)
+  end
+
+  attr_writer :module_types
+  def self.module_types
+    @module_types ||= Metasploit::Model::Module::Type::ALL
   end
 
   #

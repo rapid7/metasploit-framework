@@ -7,7 +7,7 @@ describe Metasploit::Framework::Module::Path::Load do
 
   context 'factories' do
     context 'metasploit_framework_module_path_load' do
-      include_context 'DatabaseCleaner'
+      include_context 'database cleaner'
 
       subject(:metasploit_framework_module_path_load) do
         with_established_connection do
@@ -136,7 +136,7 @@ describe Metasploit::Framework::Module::Path::Load do
   end
 
   context '#module_ancestor_loads' do
-    include_context 'DatabaseCleaner'
+    include_context 'database cleaner'
 
     subject(:module_ancestor_loads) do
       with_established_connection do
@@ -235,64 +235,6 @@ describe Metasploit::Framework::Module::Path::Load do
       cache.should_receive(:module_type_enabled?).with(module_type)
 
       module_type_enabled?
-    end
-  end
-
-  context '#module_type_set' do
-    include_context 'DatabaseCleaner'
-
-    subject(:module_type_set) do
-      module_path_load.module_type_set
-    end
-
-    let(:invalid_module_ancestor) do
-      # the module ancestor itself is not invalid, it is just the one used by invalid_module_ancestor_load
-      with_established_connection do
-        FactoryGirl.create(:mdm_module_ancestor)
-      end
-    end
-
-    let(:invalid_module_ancestor_load) do
-      double(
-          'Valid Metasploit::Framework::Module::Ancestor::Load',
-          module_ancestor: invalid_module_ancestor,
-          valid?: false
-      )
-    end
-
-    let(:module_ancestor_loads) do
-      [
-          invalid_module_ancestor_load,
-          valid_module_ancestor_load,
-      ]
-    end
-
-    let(:valid_module_ancestor) do
-      with_established_connection do
-        FactoryGirl.create(:mdm_module_ancestor)
-      end
-    end
-
-    let(:valid_module_ancestor_load) do
-      double(
-          'Invalid Metasploit::Framework::Module::Ancestor::Load',
-          module_ancestor: valid_module_ancestor,
-          valid?: true
-      )
-    end
-
-    before(:each) do
-      module_path_load.stub(module_ancestor_loads: module_ancestor_loads)
-    end
-
-    it { should be_a Set }
-
-    it 'should not include module_type for invalid module_ancestor_loads' do
-      module_type_set.should_not include(invalid_module_ancestor.module_type)
-    end
-
-    it 'should include module_type for valid module_ancestor_loads' do
-      module_type_set.should include(valid_module_ancestor.module_type)
     end
   end
 end

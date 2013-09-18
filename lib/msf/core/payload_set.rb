@@ -15,13 +15,27 @@ module Msf
 #
 ###
 class PayloadSet < ModuleSet
+  #
+  # Validations
+  #
+
+  validates :module_type,
+            inclusion: {
+                in: [
+                    Metasploit::Model::Module::Type::PAYLOAD
+                ]
+            }
+
+  #
+  # Methods
+  #
 
   #
   # Creates an instance of a payload set which is just a specialized module
   # set class that has custom handling for payloads.
   #
-  def initialize
-    super(Metasploit::Model::Module::Type::PAYLOAD)
+  def initialize(attributes={})
+    super
 
     # A hash of each of the payload types that holds an array
     # for all of the associated modules

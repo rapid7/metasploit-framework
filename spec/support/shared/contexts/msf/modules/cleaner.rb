@@ -1,4 +1,8 @@
-shared_context 'Msf::Modules Cleaner' do
+shared_context 'Msf::Modules Cleaner' do |options={}|
+  options.assert_valid_keys(:after)
+
+  scope = options.fetch(:after, :each)
+
   def remove_msf_modules_constants
     begin
       namespace = Msf::Modules
@@ -19,7 +23,7 @@ shared_context 'Msf::Modules Cleaner' do
     remove_msf_modules_constants
   end
 
-  after(:each) do
+  after(scope) do
     remove_msf_modules_constants
   end
 end

@@ -14,40 +14,41 @@ require 'msf/core/constants'
 module Msf::ModuleManager::ModuleSets
   extend ActiveSupport::Concern
 
-  #
-  # Returns the set of loaded auxiliary module classes.
-  #
-  def auxiliary
-    module_set(Metasploit::Model::Module::Type::AUX)
-  end
+  module ClassMethods
+    def module_set_class_by_module_type
+      unless instance_variable_defined? :@module_set_class_by_module_type
+        @module_set_class_by_module_type ||= Hash.new { |hash, module_type|
+          hash[module_type] = Msf::ModuleSet
+        }
 
-  #
-  # Returns the set of loaded encoder module classes.
-  #
-  def encoders
-    module_set(Metasploit::Model::Module::Type::ENCODER)
-  end
+        @module_set_class_by_module_type[Metasploit::Model::Module::Type::PAYLOAD] = Msf::PayloadSet
+      end
 
-  #
-  # Returns the set of loaded exploit module classes.
-  #
-  def exploits
-    module_set(Metasploit::Model::Module::Type::EXPLOIT)
-  end
-
-  def init_module_set(type)
-    self.enablement_by_module_type[type] = true
-    case type
-      when Metasploit::Model::Module::Type::PAYLOAD
-        instance = Msf::PayloadSet.new
-      else
-        instance = Msf::ModuleSet.new(type)
+      @module_set_class_by_module_type
     end
+  end
 
-    self.module_set_by_module_type[type] = instance
+  #
+  # Instance Methods
+  #
 
-    # Set the module set's framework reference
-    instance.framework = self.framework
+  Metasploit::Model::Module::Ancestor::DIRECTORY_BY_MODULE_TYPE.each do |module_type, directory|
+    define_method(directory) do
+      module_set_by_module_type[module_type]
+    end
+  end
+
+  def module_set_by_module_type
+    @module_set_by_module_type ||= module_types.each_with_object({}) do |module_type, module_set_by_module_type|
+      module_set_class = self.class.module_set_class_by_module_type[module_type]
+      module_set = module_set_class.new(
+          module_manager: self,
+          module_type: module_type
+      )
+      module_set.valid!
+
+      module_set_by_module_type[module_type] = module_set
+    end
   end
 
   #
@@ -57,53 +58,13 @@ module Msf::ModuleManager::ModuleSets
     module_set_by_module_type[set] ? module_set_by_module_type[set].keys.dup : []
   end
 
+  # Whether the given `module_type` is enabled and being managed by this module
+  # manager.
   #
-  # Returns all of the modules of the specified type
-  #
-  def module_set(type)
-    module_set_by_module_type[type]
-  end
-
-  # Provide a list of the types of modules being managed by the module manager.
-  #
-	# @return [Array<String>]
-  def module_types
-    module_set_by_module_type.keys.dup
-  end
-
-  #
-  # Returns the set of loaded nop module classes.
-  #
-  def nops
-    module_set(Metasploit::Model::Module::Type::NOP)
-  end
-
-  #
-  # Returns the set of loaded payload module classes.
-  #
-  def payloads
-    module_set(Metasploit::Model::Module::Type::PAYLOAD)
-  end
-
-  #
-  # Returns the set of loaded auxiliary module classes.
-  #
-  def post
-    module_set(Metasploit::Model::Module::Type::POST)
-  end
-
-	# Whether the given `module_type` is enabled and being managed by this module
-	# manager.
-	#
-	# @param module_type [String] a module type
-	# @return [Boolean]
-	# @see Metasploit::Model::Module::Type
+  # @param module_type [String] a module type
+  # @return [Boolean]
+  # @see Metasploit::Model::Module::Type
   def module_type_enabled?(module_type)
-    enablement_by_module_type[module_type] || false
+    module_set_by_module_type[module_type].nil?
   end
-
-  protected
-
-  attr_accessor :enablement_by_module_type # :nodoc:
-  attr_accessor :module_set_by_module_type # :nodoc:
 end

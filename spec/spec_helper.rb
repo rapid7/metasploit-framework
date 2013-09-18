@@ -61,21 +61,6 @@ RSpec.configure do |config|
 		FactoryGirl.find_definitions
   end
 
-  config.before(:each) do
-    if defined? Msf::Modules
-      inherit = false
-      constants = Msf::Modules.constants(inherit)
-
-      constants.each do |constant|
-        $stderr.puts "#{constant} not removed from Msf::Modules."
-      end
-
-      unless constants.empty?
-        $stderr.puts "Use `include_context 'Msf::Modules Cleaner'` to clean up Msf::Modules constants from specs"
-      end
-    end
-  end
-
 	config.after(:each) do
 		Metasploit::Model::Spec.remove_temporary_pathname
   end

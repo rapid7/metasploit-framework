@@ -36,7 +36,7 @@ class RPC_Module < RPC_Base
     res['description'] = m.description
     res['license'] = m.license
     res['filepath'] = m.file_path
-    res['rank'] = m.rank.to_i
+    res['rank'] = m.rank_number.to_i
 
     res['references'] = []
     m.references.each do |r|

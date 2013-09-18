@@ -63,20 +63,30 @@ class Metasploit::Framework::Module::Cache < Metasploit::Model::Base
 
     # TODO generalize to work with or without ActiveRecord for in-memory models
     ActiveRecord::Base.connection_pool.with_connection do
-      module_path_loads = module_paths.collect do |module_path|
-        Metasploit::Framework::Module::Path::Load.new(
+      module_ancestor_loads_by_module_type = Hash.new { |hash, module_type|
+        hash[module_type] = []
+      }
+
+      module_paths.each do |module_path|
+        module_path_load = Metasploit::Framework::Module::Path::Load.new(
             cache: self,
             module_path: module_path
         )
+
+        module_path_load.module_ancestor_loads.each do |module_ancestor_load|
+          # TODO should I log validation errors here?
+          if module_ancestor_load.valid?
+            module_type = module_ancestor_load.module_ancestor.module_type
+            module_ancestor_loads_by_module_type[module_type] << module_ancestor_load
+          end
+        end
+
+        module_path_loads << module_path_load
       end
 
-      deferred_recalculation_module_type_set = module_path_loads.each_with_object(Set.new) { |module_path_load, set|
-        set.merge(module_path_load.module_type_set)
-      }
-
-      deferred_recalculation_module_type_set.each do |module_type|
-        module_set = module_manager.module_set(module_type)
-        module_set.recalculate
+      module_ancestor_loads_by_module_type.each do |module_type, module_ancestor_loads|
+        module_set = module_manager.module_set_by_module_type[module_type]
+        module_set.derive_module_instances(module_ancestor_loads)
       end
     end
 

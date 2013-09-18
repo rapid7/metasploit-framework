@@ -86,7 +86,7 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
 				end
 
 				it 'should have rank name in third column' do
-					cell(printed_table, 0, 2).should include(Msf::RankingName[module_detail.rank])
+					cell(printed_table, 0, 2).should include(module_detail.rank_name)
 				end
 
 				it 'should have name in fourth column' do

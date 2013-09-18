@@ -267,13 +267,17 @@ class Metasploit3 < Msf::Auxiliary
     @java_lport = datastore['LPORT_JAVA']
     @java_payload = datastore['PAYLOAD_JAVA']
 
-    minrank = framework.datastore['MinimumRank'] || 'manual'
-    if not RankingName.values.include?(minrank)
-      print_error("MinimumRank invalid!  Possible values are (#{RankingName.sort.map{|r|r[1]}.join("|")})")
+    minimum_rank_name = framework.datastore['MinimumRank'] || 'Manual'
+    minimum_rank_number = Metasploit::Model::Module::Rank::NUMBER_BY_NAME[minimum_rank_name]
+
+    unless minimum_rank_number
+      rank_names = Metasploit::Model::Module::Rank::NUMBER_BY_NAME.keys.sort
+      formatted_rank_names = rank_names.join('|')
+      print_error("MinimumRank invalid!  Possible values are (#{formatted_rank_names})")
       wlog("MinimumRank invalid, ignoring", 'core', LEV_0)
     end
-    @minrank = RankingName.invert[minrank]
 
+    @minrank = minimum_rank_number
   end
 
 
@@ -292,7 +296,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     apo = @exploits[name].class.autopwn_opts
-    if (apo[:rank] < @minrank)
+    if (apo[:rank_number] < @minrank)
       @exploits.delete(name)
       return false
     end
@@ -449,21 +453,21 @@ class Metasploit3 < Msf::Auxiliary
       # organize them into an all tests (JS and no-JS), organized by rank,
       # and doesnt-require-scripting (no-JS), organized by browser name.
       if apo[:javascript] && apo[:ua_name]
-        @all_tests[apo[:rank]] ||= []
-        @all_tests[apo[:rank]].push(apo)
+        @all_tests[apo[:rank_number]] ||= []
+        @all_tests[apo[:rank_number]].push(apo)
       elsif apo[:javascript]
-        @all_tests[apo[:rank]] ||= []
-        @all_tests[apo[:rank]].push(apo)
+        @all_tests[apo[:rank_number]] ||= []
+        @all_tests[apo[:rank_number]].push(apo)
       elsif apo[:ua_name]
         @noscript_tests[apo[:ua_name]] ||= []
         @noscript_tests[apo[:ua_name]].push(apo)
-        @all_tests[apo[:rank]] ||= []
-        @all_tests[apo[:rank]].push(apo)
+        @all_tests[apo[:rank_number]] ||= []
+        @all_tests[apo[:rank_number]].push(apo)
       else
         @noscript_tests["generic"] ||= []
         @noscript_tests["generic"].push(apo)
-        @all_tests[apo[:rank]] ||= []
-        @all_tests[apo[:rank]].push(apo)
+        @all_tests[apo[:rank_number]] ||= []
+        @all_tests[apo[:rank_number]].push(apo)
       end
     end
 
@@ -512,7 +516,7 @@ class Metasploit3 < Msf::Auxiliary
     # get thrown into a big pile of iframes that the browser will load
     # semi-concurrently.  Still, might as well.
     @noscript_tests.each { |browser,tests|
-      tests.sort! {|a,b| b[:rank] <=> a[:rank]}
+      tests.sort! {|a,b| b[:rank_number] <=> a[:rank_number]}
     }
   end
 

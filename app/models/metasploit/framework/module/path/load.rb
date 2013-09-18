@@ -107,21 +107,6 @@ class Metasploit::Framework::Module::Path::Load < Metasploit::Model::Base
     @module_ancestor_loads
   end
 
-  # Set of all `Metasploit::Model::Module::Ancestor#module_types` supported by `Metasploit::Model::Module::Ancestors`
-  # loaded by {#module_ancestor_loads}.  If a {Metasploit::Framework::Module::Ancestor::Load} is invalid, then it's
-  # {Metasploit::Framework::Module::Ancestor::Load#module_ancestor}'s `Metasploit::Model::Module::Ancestor#module_type`
-  # is not included in the set as an invalid {Metasploit::Framework::Module::Ancestor::Load} indicates the
-  # `Metasploit::Model::Module::Ancestor#contents` were not successfully evaluate into a ruby `Module`.
-  #
-  # @return [Set<String>]
-  def module_type_set
-    @module_type_set ||= module_ancestor_loads.each_with_object(Set.new) { |module_ancestor_load, set|
-      if module_ancestor_load.valid?
-        set.add(module_ancestor_load.module_ancestor.module_type)
-      end
-    }
-  end
-
   protected
 
   delegate :module_type_enabled?, to: :cache

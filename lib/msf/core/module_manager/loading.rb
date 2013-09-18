@@ -7,7 +7,9 @@ require 'active_support/concern'
 module Msf::ModuleManager::Loading
   extend ActiveSupport::Concern
 
-  attr_accessor :module_load_error_by_path
+  def module_load_error_by_path
+    @module_load_error_by_path ||= {}
+  end
 
   # Called when a module is initially loaded such that it can be categorized
   # accordingly.

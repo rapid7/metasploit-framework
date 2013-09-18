@@ -1,6 +1,6 @@
 shared_examples_for 'Msf::ModuleManager::ModulePaths' do
   context '#add_path' do
-    include_context 'DatabaseCleaner'
+    include_context 'database cleaner'
 
     subject(:add_path) do
       with_established_connection do

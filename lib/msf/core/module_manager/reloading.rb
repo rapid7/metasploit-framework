@@ -21,9 +21,8 @@ module Msf::ModuleManager::Reloading
   #
   # @return (see Msf::ModuleManager::Loading#load_modules)
   def reload_modules
-    self.enablement_by_module_type.each_key do |type|
-      module_set_by_module_type[type].clear
-      init_module_set(type)
+    module_set_by_module_type.each_value do |module_set|
+      module_set.clear
     end
 
     # default the count to zero the first time a type is accessed

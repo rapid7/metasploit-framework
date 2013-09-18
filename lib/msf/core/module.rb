@@ -44,23 +44,17 @@ class Module
     #
     # Returns this module's ranking.
     #
-    def rank
-      (const_defined?('Rank')) ? const_get('Rank') : NormalRanking
+    def rank_number
+      (const_defined?('Rank')) ? const_get('Rank') : Metasploit::Model::Module::Rank::NUMBER_BY_NAME['Normal']
     end
 
     #
     # Returns this module's ranking as a string representation.
     #
-    def rank_to_s
-      RankingName[rank]
+    def rank_name
+      Metasploit::Model::Module::Rank::NAME_BY_NUMBER[rank_number]
     end
 
-    #
-    # Returns this module's ranking as a string for display.
-    #
-    def rank_to_h
-      rank_to_s.gsub('Rank', '').downcase
-    end
     #
     # The module's name that is assigned it it by the framework
     # or derived from the path that the module is loaded from.
@@ -272,22 +266,15 @@ class Module
   #
   # Returns the module's rank.
   #
-  def rank
-    return self.class.rank
+  def rank_number
+    return self.class.rank_number
   end
 
   #
   # Returns the module's rank in string format.
   #
-  def rank_to_s
-    return self.class.rank_to_s
-  end
-
-  #
-  # Returns the module's rank in display format.
-  #
-  def rank_to_h
-    return self.class.rank_to_h
+  def rank_name
+    return self.class.rank_name
   end
 
   #

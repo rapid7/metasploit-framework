@@ -273,7 +273,7 @@ shared_examples_for 'Msf::DBManager::ImportMsfXml' do
 		end
 
 		context 'with :type' do
-			include_context 'DatabaseCleaner'
+			include_context 'database cleaner'
 
 			let(:source) do
 				xml.tag!("web_#{type}") do
@@ -618,7 +618,7 @@ shared_examples_for 'Msf::DBManager::ImportMsfXml' do
 		end
 
 		context 'with required attributes' do
-			include_context 'DatabaseCleaner'
+			include_context 'database cleaner'
 
 			let(:element) do
 				document.root
@@ -775,7 +775,7 @@ shared_examples_for 'Msf::DBManager::ImportMsfXml' do
 		end
 
 		context 'with required attributes' do
-			include_context 'DatabaseCleaner'
+			include_context 'database cleaner'
 
 			let(:element) do
 				document.root
@@ -952,7 +952,7 @@ shared_examples_for 'Msf::DBManager::ImportMsfXml' do
 		end
 
 		context 'with required attributes' do
-			include_context 'DatabaseCleaner'
+			include_context 'database cleaner'
 
 			let(:element) do
 				document.root
@@ -1030,7 +1030,7 @@ shared_examples_for 'Msf::DBManager::ImportMsfXml' do
 		end
 
 		context 'with web_forms/web_form elements' do
-			include_context 'DatabaseCleaner'
+			include_context 'database cleaner'
 
 			let(:data) do
 				xml.tag!('MetasploitV4') do
@@ -1071,7 +1071,7 @@ shared_examples_for 'Msf::DBManager::ImportMsfXml' do
 		end
 
 		context 'with web_pages/web_page elements' do
-			include_context 'DatabaseCleaner'
+			include_context 'database cleaner'
 
 			let(:data) do
 				xml.tag!('MetasploitV4') do
@@ -1124,7 +1124,7 @@ shared_examples_for 'Msf::DBManager::ImportMsfXml' do
 		end
 
 		context 'with web_vulns/web_vuln elements' do
-			include_context 'DatabaseCleaner'
+			include_context 'database cleaner'
 
 			let(:data) do
 				xml.tag!('MetasploitV4') do

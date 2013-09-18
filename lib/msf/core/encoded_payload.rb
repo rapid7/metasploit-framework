@@ -141,7 +141,7 @@ class EncodedPayload
         # encoder of choice for an exploit.
         if ((reqs['EncoderType'].nil?) and
             (reqs['Encoder'].nil?) and
-            (self.encoder.rank == ManualRanking))
+            (self.encoder.rank_number == ManualRanking))
           wlog("#{pinst.refname}: Encoder #{encoder.refname} is manual ranked and was not defined as a preferred encoder.",
             'core', LEV_1)
           next

@@ -1,7 +1,11 @@
 # -*- coding:binary -*-
 require 'metasploit/framework/database'
 
-shared_context 'DatabaseCleaner' do
+shared_context 'database cleaner' do |options={}|
+  options.assert_valid_keys(:after)
+
+  scope = options.fetch(:after, :each)
+
 	def with_established_connection
 		begin
 			ActiveRecord::Base.connection_pool.with_connection do
@@ -31,7 +35,7 @@ shared_context 'DatabaseCleaner' do
 	end
 
 	# Clean up after each test
-	after(:each) do
+	after(scope) do
 		with_established_connection do
 			# Testing using both :truncation and :deletion; :truncation took long
 			# for testing.

@@ -8,26 +8,14 @@
 
 module Msf
 
-#
-# Module rankings
-#
-ManualRanking       = 0
-LowRanking          = 100
-AverageRanking      = 200
-NormalRanking       = 300
-GoodRanking         = 400
-GreatRanking        = 500
-ExcellentRanking    = 600
-RankingName         =
-  {
-    ManualRanking    => "manual",
-    LowRanking       => "low",
-    AverageRanking   => "average",
-    NormalRanking    => "normal",
-    GoodRanking      => "good",
-    GreatRanking     => "great",
-    ExcellentRanking => "excellent"
-  }
+  #
+  # Module rankings
+  #
+  Metasploit::Model::Module::Rank::NUMBER_BY_NAME.each do |name, number|
+    constant = "#{name}Ranking"
+    const_set(constant, number)
+  end
+
 
 module HttpClients
   IE = "MSIE"

@@ -3,7 +3,7 @@ require 'spec_helper'
 require 'file/find'
 
 describe Metasploit::Framework::Module::Ancestor::Load do
-  include_context 'DatabaseCleaner'
+  include_context 'database cleaner'
   include_context 'Msf::Modules Cleaner'
 
   subject(:module_ancestor_load) do

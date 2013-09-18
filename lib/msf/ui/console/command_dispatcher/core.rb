@@ -1447,7 +1447,7 @@ class Core
         next if not o
 
         if not o.search_filter(match)
-          tbl << [ o.fullname, o.disclosure_date.to_s, o.rank_to_s, o.name ]
+          tbl << [ o.fullname, o.disclosure_date.to_s, o.rank_name, o.name ]
         end
       end
     end
@@ -1462,7 +1462,7 @@ class Core
   def search_modules_sql(search_string)
     tbl = generate_module_table("Matching Modules")
     framework.db.search_modules(search_string).each do |o|
-      tbl << [ o.fullname, o.disclosure_date.to_s, RankingName[o.rank].to_s, o.name ]
+      tbl << [ o.fullname, o.disclosure_date.to_s, o.rank_name, o.name ]
     end
     print_line(tbl.to_s)
   end
@@ -1476,17 +1476,17 @@ class Core
 
   def cmd_search_tabs(str, words)
     if words.length == 1
-      return @@search_opts.fmt.keys
+      @@search_opts.fmt.keys
+    else
+      case words[-1]
+        when "-r"
+          Metasploit::Model::Module::Rank::NUMBER_BY_NAME.keys.sort
+        when "-t"
+          Metasploit::Model::Module::Type::ALL
+        else
+          []
+      end
     end
-
-    case (words[-1])
-    when "-r"
-      return RankingName.sort.map{|r| r[1]}
-    when "-t"
-      return %w{auxiliary encoder exploit nop payload post}
-    end
-
-    []
   end
 
   def cmd_spool_help
@@ -3154,7 +3154,7 @@ class Core
         o.references.map{|x| [x.ctx_id + '-' + x.ctx_val, x.to_s]}.join(' ').match(regex) or
         o.author.to_s.match(regex)
       )
-        if (not minrank or minrank <= o.rank)
+        if (not minrank or minrank <= o.rank_number)
           show = true
           if opts
             mod_opt_keys = o.options.keys.map { |x| x.downcase }
@@ -3166,7 +3166,7 @@ class Core
             end
           end
           if (opts == nil or show == true)
-            tbl << [ refname, o.disclosure_date||"", o.rank_to_s, o.name ]
+            tbl << [ refname, o.disclosure_date||"", o.rank_name, o.name ]
           end
         end
       end
