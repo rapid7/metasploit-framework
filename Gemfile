@@ -57,6 +57,8 @@ group :test do
   # transactional fixtures because multiple connections are in use so
   # transactions won't work.
   gem 'database_cleaner'
+  # Sampling CPU profiling of specs
+  gem 'perftools.rb', :require => 'perftools'
   # testing framework
   gem 'rspec', '>= 2.12'
   # add matchers from shoulda, such as query_the_database, which is useful for

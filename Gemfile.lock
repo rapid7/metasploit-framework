@@ -54,6 +54,7 @@ GEM
     nokogiri (1.5.9)
     packetfu (1.1.8)
     pcaprub (0.11.3)
+    perftools.rb (2.0.1)
     pg (0.15.1)
     rake (10.1.0)
     redcarpet (2.2.2)
@@ -95,6 +96,7 @@ DEPENDENCIES
   nokogiri
   packetfu (= 1.1.8)
   pcaprub
+  perftools.rb
   pg (>= 0.11)
   rake
   redcarpet
