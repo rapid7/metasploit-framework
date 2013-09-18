@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 #----------------------------------------------------------------
 # Meterpreter script to obtain the VNC password out of the
 # registry and print its decoded cleartext

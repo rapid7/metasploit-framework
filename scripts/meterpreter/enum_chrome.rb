@@ -1,5 +1,3 @@
-#$Id$
-#$Revision$
 #
 # Script to extract data from a chrome installation.
 #

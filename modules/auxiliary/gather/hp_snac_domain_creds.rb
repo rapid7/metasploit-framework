@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module will extract Domain Controller credentials from vulnerable installations of HP
         SNAC as distributed with HP ProCurve 4.00 and 3.20. The authentication bypass vulnerability
-        has been used to exploit remote file uploads. But it can be used to gather important
+        has been used to exploit remote file uploads. This vulnerability can be used to gather important
         information handled by the vulnerable application, like plain text domain controller
         credentials. This module has been tested successfully with HP SNAC included with ProCurve
         Manager 4.0.

@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 #-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
@@ -60,7 +58,7 @@ def insttlntsrv()
 			end
 			file_local_write(@dest,"execute -H -f cmd.exe -a \"/c ocsetup TelnetServer /uninstall\"")
 			print_status("Finished installing the Telnet Service.")
-			
+
 		end
 	elsif trgtos =~ /2003/
 		file_local_write(@dest,"reg setval -k \"HKLM\\SYSTEM\\CurrentControlSet\\services\\TlntSvr\\\" -v 'Start' -d \"1\"")
@@ -85,7 +83,7 @@ def enabletlntsrv()
 		# Enabling Exception on the Firewall
 		print_status "\tOpening port in local firewall if necessary"
 		cmd_exec('netsh firewall set portopening protocol = tcp port = 23 mode = enable')
-	
+
 	rescue::Exception => e
 		print_status("The following Error was encountered: #{e.class} #{e}")
 	end
