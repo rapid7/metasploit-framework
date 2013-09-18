@@ -1528,11 +1528,11 @@ def self.to_vba(framework,code,opts={})
 
     case fmt
     when 'asp'
-      exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+      exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
       output = Msf::Util::EXE.to_exe_asp(exe, exeopts)
 
     when 'aspx'
-      exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+      exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
       output = Msf::Util::EXE.to_exe_aspx(exe, exeopts)
 
     when 'dll'
@@ -1600,15 +1600,15 @@ def self.to_vba(framework,code,opts={})
       output = Msf::Util::EXE.to_vba(framework, code, exeopts)
 
     when 'vba-exe'
-      exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+      exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
       output = Msf::Util::EXE.to_exe_vba(exe)
 
     when 'vbs'
-      exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+      exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
       output = Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ :persist => false }))
 
     when 'loop-vbs'
-      exe = exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+      exe = exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
       output = Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ :persist => true }))
 
     when 'war'
