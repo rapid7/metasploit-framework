@@ -13,15 +13,27 @@ module Metasploit::Framework::Module::Ancestor::MetasploitModule
   # @return [void]
   def cache(module_class)
     ActiveRecord::Base.connection_pool.with_connection do
+      cache_rank(module_class)
+      module_class.save
+    end
+  end
+
+  # @note `module_class` is not saved after `Metasploit::Model::Module::Class#rank` is set.  Use {#cache} to set rank
+  #   and save.
+  #
+  # Caches `#rank_name` in `module_class` `Metasploit::Model::Module::Class#rank`.
+  #
+  # @param module_class [Metasploit::Model::Module::Class] module class to which to write rank metadata.
+  # @return [void]
+  def cache_rank(module_class)
+    ActiveRecord::Base.connection_pool.with_connection do
       begin
         name = self.rank_name
-      rescue Exception => error
+      rescue Exception
         # module author forgot to define method or forgot to subclass Msf::Module
       else
         rank = Mdm::Module::Rank.where(name: name).first
         module_class.rank = rank
-      ensure
-        module_class.save
       end
     end
   end
