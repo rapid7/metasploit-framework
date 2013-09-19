@@ -6,8 +6,9 @@ Metasploit is built incrementally by the community through GitHub's [Pull Reques
 
  - Configure your git environment as described [here](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment#keeping-in-sync).
  - Add the `fetch = +refs/pull/*/head:refs/remotes/upstream/pr/*` line to your `.git/config`.
- - When merging code from a pull request, always, always `merge --no-ff`, and write a meaningful commit message that references the original PR as `#1234` (not PR1234, not PR#1234, not 1234). This `--no-ff` flag goes for PRs that go back to a contributor's branch as well as PRs that land in rapid7's master branch. Hooray for consistency!
- - If you're making changes (often the case), merge --no-ff to a landing branch, then merge **that** branch to upstream/master (assuming you don't need to collaborate on changes).
+ - Add your signing key: `git config --global user.signingkey`
+ - When merging code from a pull request, always, always `merge -S --no-ff --edit`, and write a meaningful commit message that references the original PR as `#1234` (not PR1234, not PR#1234, not 1234). This `--no-ff` flag goes for PRs that go back to a contributor's branch as well as PRs that land in rapid7's master branch. The `-S` indicates that you're going to sign the merge with your PGP/GPG key, which is a nice assurance that you're really you.
+ - If you're making changes (often the case), merge to a landing branch, then merge **that** branch to upstream/master with the required command options.
 
 # Fork and clone
 
@@ -147,7 +148,7 @@ This all looked good, so he could land this to Rapid7's repo with:
 
 ````
 $ git checkout -b upstream-master ---track upstream/master
-$ git merge --no-ff --edit landing-1217
+$ git merge -S --no-ff --edit landing-1217
 $ git push upstream upstream-master:master
 ````
 
@@ -156,7 +157,7 @@ Or, if he already have upstream-master checked out:
 ````
 $ git checkout upstream-master
 $ git rebase upstream/master
-$ git merge --no-ff --edit landing-1217
+$ git merge -S --no-ff --edit landing-1217
 $ git push upstream upstream-master:master
 ````
 
@@ -169,6 +170,8 @@ Land #1217, java payload build system refactor
 ````
 
 Note that you should rebase *before* landing -- otherwise, your merge commit will be lost in the rebase.
+
+Finally, the -S indicates we are going to sign the merge, using our GPG key. This is a nice way to prove in a secure way that this merge is, in fact, coming from you, and not someone impersonating you. For more on signing merges, see [A Git Horror Story: Repository Integrity With Signed Commits](http://mikegerwitz.com/papers/git-horror-story.html).
 
 # Cross-linking PRs, Bugs, and Commits
 
