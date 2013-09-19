@@ -12,9 +12,8 @@ module Net
 
 ###
 #
-# This class provides an interface to the network configuration
-# that exists on the remote machine, such as interfaces, and
-# routes.
+# This class provides DNS resolution from the perspective
+# of the remote host.
 #
 ###
 class Resolve
