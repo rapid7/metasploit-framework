@@ -337,7 +337,7 @@ describe Metasploit::Framework::Module::Cache do
           module_cache.path_set.add(@module_path.real_path, gem: 'metasploit-framework', name: 'modules')
 
           GC.start
-          profile('double-prefetch.with-uniqueness-validations') do
+          profile('double-prefetch.without-uniqueness-validations') do
             # with cache empty - all misses
             module_cache.prefetch(only: @module_path)
             # with cache full - all hits
