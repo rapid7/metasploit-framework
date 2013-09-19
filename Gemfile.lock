@@ -8,10 +8,10 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: 326b733cb36d4a30bd7c6564a3ab12aeb6b0603b
-  tag: v0.44.0.module-cache-construction
+  revision: ff956ea8216817a3c580c309cdf1222b6b91264c
+  tag: v0.45.0.module-cache-construction
   specs:
-    metasploit_data_models (0.44.0)
+    metasploit_data_models (0.45.0)
       activerecord (>= 3.2.13)
       activesupport
       file-find
