@@ -608,6 +608,7 @@ require 'digest/sha1'
 
     # Allow the user to specify their own service EXE template
     set_template_default(opts, "template_x86_windows_svc.exe")
+  end
 
   def self.to_win64pe_service(framework, code, opts={})
 
