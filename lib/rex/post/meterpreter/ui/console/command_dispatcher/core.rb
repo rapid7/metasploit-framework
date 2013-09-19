@@ -350,6 +350,35 @@ class Console::CommandDispatcher::Core
       elog(e.to_s)
     end
 
+    service = client.pfservice
+
+    # If we have any open port forwards, we need to close them down
+    # otherwise we'll end up with local listeners which aren't connected
+    # to valid channels in the migrated meterpreter instance.
+    if service != nil
+      counter = 0
+
+      service.each_tcp_relay do |lhost, lport, rhost, rport, opts|
+        next if (opts['MeterpreterRelay'] == nil)
+
+        if counter == 0
+          print_status("Removing existing TCP relays...")
+        end
+
+        if (service.stop_tcp_relay(lport, lhost))
+          print_status("Successfully stopped TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
+        else
+          print_error("Failed to stop TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
+          next
+        end
+        counter += 1
+      end
+
+      if counter > 0
+        print_status("#{counter} TCP relay(s) removed.")
+      end
+    end
+
     server ? print_status("Migrating from #{server.pid} to #{pid}...") : print_status("Migrating to #{pid}")
 
     # Do this thang.
