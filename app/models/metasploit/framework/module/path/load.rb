@@ -37,17 +37,6 @@ class Metasploit::Framework::Module::Path::Load < Metasploit::Model::Base
   #
   #
 
-  #
-  # Method validations
-  #
-
-  validate :module_ancestor_loads_valid,
-           unless: :loading_context?
-
-  #
-  # Attribute validations
-  #
-
   validates :cache,
             presence: true
   validates :changed,
@@ -78,59 +67,49 @@ class Metasploit::Framework::Module::Path::Load < Metasploit::Model::Base
     @changed
   end
 
-  # Loads all of the `Metasploit::Model::Module::Ancestors` from the supplied
-  # module path.
+  # @note The yielded {Metasploit::Framework::Module::Ancestor::Load} will not have loaded the ruby `Module` into this
+  #   process until {Metasploit::Framework::Module::Ancestor::Load#metasploit_module} is called either directly or
+  #   indirectly by {Metasploit::Framework::Module::Ancestor::Load#namespace_module} or validating the
+  #   {Metasploit::Framework::Module::Ancestor::Load}.
   #
-  # @param module_path [Metasploit::Model::Module::Path] module_path Path under
-  #   which there are module ancestors
-  # @param options [Hash{Symbol => Object}]
-  # @option options [Boolean] :changed (false) if `true`, assume the
-  #   `Mdm::Module::Ancestor#real_path_modified_at` and
-  #   `Mdm::Module::Ancestor#real_path_sha1_hex_digest` have changed and all
-  #   `Mdm::Module::Ancestor` should be returned.
-  # @option options [Boolean] :force (false) Whether to force loading of
-  #   the module ancestor even if the module ancestor has not changed.
-  # @return [Array<Metasploit::Framework::Module::Ancestor::Load>] {#module_ancestor_loads}
-  # @return [nil] if this load is not valid for the `:load_module_path` context
-  def module_ancestor_loads
-    unless instance_variable_defined? :@module_ancestor_loads
-      if valid?(:loading)
-        @module_ancestor_loads = []
+  # @overload each_module_ancestor_load(options={}, &block)
+  #   @note Will not yield anything if this module path load is invalid.
+  #
+  #   Yields {Metasploit::Framework::Module::Ancestor::Load} for each changed {Metasploit::Model::Module::Ancestor}
+  #   under {#module_path}.
+  #
+  #   @yield [module_ancestor_load]
+  #   @yieldparam module_ancestor_load [Metasploit::Framework::Module::Ancestor::Load] will load
+  #     {Metasploit::Model::Module::Ancestor#contents} into memory if validated or if
+  #     {Metasploit::Framework::Module::Ancestor::Load#namespace_module} or
+  #     {Metasploit::Framework::Module::Ancestor::Load#metasploit_module} is called directly.
+  #   @yieldreturn [void]
+  #   @return [void]
+  #
+  # @overload each_module_ancestor_load(options={})
+  #   Returns enumerator that yields a {Metasploit::Framework::Module::Ancestor::Load} for each changed
+  #   {Metasploit::Model::Module::Ancestor} under {#module_path}.
+  #
+  #   @return [Enumerator]
+  #
+  # @see Mdm::Module::Path#each_changed_module_ancestor
+  def each_module_ancestor_load
+    unless block_given?
+      to_enum(__method__, options)
+    else
+      unless instance_variable_defined? :@module_ancestor_loads
+        if valid?
+          module_path.each_changed_module_ancestor(changed: changed) do |module_ancestor|
+            module_ancestor_load = Metasploit::Framework::Module::Ancestor::Load.new(module_ancestor: module_ancestor)
 
-        module_path.each_changed_module_ancestor(changed: changed) do |module_ancestor|
-          module_ancestor_load = Metasploit::Framework::Module::Ancestor::Load.new(module_ancestor: module_ancestor)
-          @module_ancestor_loads << module_ancestor_load
+            yield module_ancestor_load
+          end
         end
       end
     end
-
-    @module_ancestor_loads
   end
 
   protected
 
   delegate :module_type_enabled?, to: :cache
-
-  private
-
-  # Whether this load is in the `:module_ancestor_loads` validation context.
-  #
-  # @example Validating load in :module_ancestor_loads validation context
-  #   load.valid?(:module_ancestor_loads)
-  #
-  # @return [Boolean]
-  def loading_context?
-    validation_context == :loading
-  end
-
-  # Validates whether all {#module_ancestor_loads} are valid.
-  #
-  # @return [void]
-  def module_ancestor_loads_valid
-    unless module_ancestor_loads.blank?
-      unless module_ancestor_loads.all?(&:valid?)
-        errors.add(:module_ancestor_loads, :invalid)
-      end
-    end
-  end
 end

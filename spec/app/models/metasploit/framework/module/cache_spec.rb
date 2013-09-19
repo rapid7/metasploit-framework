@@ -126,10 +126,6 @@ describe Metasploit::Framework::Module::Cache do
         end
 
         context 'with Metasploit::Model::Module::Path' do
-          let(:module_path_load) do
-            prefetch.first
-          end
-
           let(:only) do
             module_paths.sample
           end
@@ -145,27 +141,29 @@ describe Metasploit::Framework::Module::Cache do
           end
 
           it 'should have Metasploit::Framework::Module::Path::Load for Metasploit::Model::Module::Path' do
-            module_path_load.module_path.should == only
+            Metasploit::Framework::Module::Path::Load.should_receive(:new).with(
+                hash_including(
+                    module_path: only
+                )
+            ).and_call_original
+
+            prefetch
           end
 
           it 'should set Metasploit::Framework::Module::Path::Load#cache' do
-            module_path_load.cache.should == module_cache
+            Metasploit::Framework::Module::Path::Load.should_receive(:new).with(
+                hash_including(
+                    cache: module_cache
+                )
+            ).and_call_original
+
+            prefetch
           end
 
-          it_should_behave_like 'Metasploit::Framework::Module::Cache#prefetch deriving module classes' do
-            let(:module_ancestors_by_module_type) do
-              module_ancestors_by_module_type = Hash.new { |hash, module_type|
-                hash[module_type] = []
-              }
+          it 'should iterate through Metasploit::Framework::Module::Ancestor::Loads' do
+            Metasploit::Framework::Module::Path::Load.any_instance.should_receive(:each_module_ancestor_load)
 
-              module_ancestors.each do |module_ancestor|
-                if module_ancestor.parent_path == only
-                  module_ancestors_by_module_type[module_ancestor.module_type] << module_ancestor
-                end
-              end
-
-              module_ancestors_by_module_type
-            end
+            prefetch
           end
 
           context 'Metasploit::Model::Module::Ancestor#module_type' do
@@ -238,10 +236,6 @@ describe Metasploit::Framework::Module::Cache do
         end
 
         context 'with Array<Metasploit::Model::Module::Path>' do
-          let(:module_path_loads) do
-            prefetch
-          end
-
           let(:only) do
             module_paths.sample(2)
           end
@@ -257,25 +251,15 @@ describe Metasploit::Framework::Module::Cache do
           end
 
           it 'should have Metasploit::Framework::Module::Path::Load for each Metasploit::Model::Module::Path' do
-            module_paths = module_path_loads.map(&:module_path)
-
-            expect(module_paths).to match_array(only)
-          end
-
-          it_should_behave_like 'Metasploit::Framework::Module::Cache#prefetch deriving module classes' do
-            let(:module_ancestors_by_module_type) do
-              module_ancestors_by_module_type = Hash.new { |hash, module_type|
-                hash[module_type] = []
-              }
-
-              module_ancestors.each do |module_ancestor|
-                if only.include? module_ancestor.parent_path
-                  module_ancestors_by_module_type[module_ancestor.module_type] << module_ancestor
-                end
-              end
-
-              module_ancestors_by_module_type
+            only.each do |module_path|
+              Metasploit::Framework::Module::Path::Load.should_receive(:new).with(
+                  hash_including(
+                      module_path: module_path
+                  )
+              ).and_call_original
             end
+
+            prefetch
           end
         end
       end
@@ -287,10 +271,6 @@ describe Metasploit::Framework::Module::Cache do
           end
         end
 
-        let(:module_path_loads) do
-          prefetch
-        end
-
         it 'should use all Metasploit::Model::Module::Paths in #path_set' do
           path_set.should_receive(:all).and_return([])
 
@@ -298,15 +278,15 @@ describe Metasploit::Framework::Module::Cache do
         end
 
         it 'should have Metasploit::Framework::Module::Path::Load for each Metasploit::Model::Module::Path' do
-          actual_module_paths = module_path_loads.map(&:module_path)
-
-          expect(actual_module_paths).to match_array(module_paths)
-        end
-
-        it_should_behave_like 'Metasploit::Framework::Module::Cache#prefetch deriving module classes' do
-          let(:module_ancestors_by_module_type) do
-            module_ancestors.group_by(&:module_type)
+          module_paths.each do |module_path|
+            Metasploit::Framework::Module::Path::Load.should_receive(:new).with(
+                hash_including(
+                    module_path: module_path
+                )
+            ).and_call_original
           end
+
+          prefetch
         end
       end
     end
@@ -337,7 +317,7 @@ describe Metasploit::Framework::Module::Cache do
           module_cache.path_set.add(@module_path.real_path, gem: 'metasploit-framework', name: 'modules')
 
           GC.start
-          profile('double-prefetch.batched_real_path_query') do
+          profile('double-prefetch.each_module_ancestor_load') do
             # with cache empty - all misses
             module_cache.prefetch(only: @module_path)
             # with cache full - all hits

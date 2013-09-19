@@ -178,30 +178,26 @@ class Msf::ModuleSet < Metasploit::Model::Base
   def on_module_reload(mod)
   end
 
-  # Derives `Mdm::Module::Classes` from the {Metasploit::Framework::Module::Ancestor::Load#module_ancestor} and
-  # {Metasploit::Framework::Module::Ancestor::Load#metasploit_module}.
+  # @note Caller is should ensure that `module_ancestor_load` is valid calling {#derive_module_class}.
   #
-  # @param module_ancestor_loads [Array<Metasploit::Framework::Module::Ancestor::Load>]
-  # @return [Array<Metasploit::Model::Module::Instance>]
-  def derive_module_instances(module_ancestor_loads)
-    module_instances = []
+  # Derives `Metasploit::Model::Module::Class` from the {Metasploit::Framework::Module::Ancestor::Load#module_ancestor}
+  # and {Metasploit::Framework::Module::Ancestor::Load#metasploit_module}.
+  #
+  # @param module_ancestor_load [Metasploit::Framework::Module::Ancestor::Load]
+  # @return [Metasploit::Model::Module::Class]
+  def derive_module_class(module_ancestor_load)
+    # TODO generalize to work with or with ActiveRecord for in-memory models
+    ActiveRecord::Base.connection_pool.with_connection do
+      ActiveRecord::Base.transaction do
+        module_ancestor = module_ancestor_load.module_ancestor
 
-    module_ancestor_loads.each do |module_ancestor_load|
-      # TODO generalize to work with or with ActiveRecord for in-memory models
-      ActiveRecord::Base.connection_pool.with_connection do
-        ActiveRecord::Base.transaction do
-          if module_ancestor_load.valid?
-            module_ancestor = module_ancestor_load.module_ancestor
+        # TODO figure out update and collisiion logic for Mdm::Module::Class.  I think the logic for Mdm::Module::Ancestor will make it just work.
+        module_class = module_ancestor.descendants.first_or_initialize { |module_class|
+          module_class.ancestors << module_ancestor
+        }
 
-            # TODO figure out update and collisiion logic for Mdm::Module::Class.  I think the logic for Mdm::Module::Ancestor will make it just work.
-            module_class = module_ancestor.descendants.first_or_initialize { |module_class|
-              module_class.ancestors << module_ancestor
-            }
-
-            metasploit_class = module_ancestor_load.metasploit_module
-            metasploit_class.cache(module_class)
-          end
-        end
+        metasploit_class = module_ancestor_load.metasploit_module
+        metasploit_class.cache(module_class)
       end
     end
   end
