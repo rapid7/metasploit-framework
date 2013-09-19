@@ -506,31 +506,8 @@ require 'digest/sha1'
 
     name = opts[:servicename]
 
-    # Allow the user to specify their own service EXE template
-    set_template_default(opts, "template_x86_windows_svc.exe")
-
-    pe = ''
-    File.open(opts[:template], 'rb') { |fd|
-      pe = fd.read(fd.stat.size)
-    }
-
-    bo = pe.index('PAYLOAD:')
-    raise RuntimeError, "Invalid Win32 PE Service EXE template: missing \"PAYLOAD:\" tag" if not bo
-
-    if (code.length <= 8192)
-      pe[bo, code.length] = [code].pack("a*")
-    else
-      raise RuntimeError, "The EXE generator now has a max size of 8192 bytes, please fix the calling module"
-    end
-
-    if name
-      bo = pe.index('SERVICENAME')
-      raise RuntimeError, "Invalid Win32 PE Service EXE template: missing \"SERVICENAME\" tag" if not bo
-      pe[bo, 11] = [name].pack('a11')
-    end
-
-    if not opts[:sub_method]
-      pe[136, 4] = [rand(0x100000000)].pack('V')
+    if not name
+      name = Rex::Text.rand_text_alpha(7)
     end
 
     #code_service could be encoded in the futur
