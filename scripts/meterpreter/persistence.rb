@@ -117,6 +117,7 @@ def write_script_to_target(target_dir,vbs)
 	fd.write(vbs)
 	fd.close
 	print_good("Persistent Script written to #{tempvbs}")
+	tempvbs = tempvbs.gsub(/\\/, '//')			# Escape windows pathname separators.
 	file_local_write(@clean_up_rc, "rm #{tempvbs}\n")
 	return tempvbs
 end
@@ -146,7 +147,6 @@ def targets_exec(script_on_target)
 	print_status("Executing script #{script_on_target}")
 	proc = session.sys.process.execute("cscript \"#{script_on_target}\"", nil, {'Hidden' => true})
 	print_good("Agent executed with PID #{proc.pid}")
-	file_local_write(@clean_up_rc, "kill #{proc.pid}\n")
 	return proc.pid
 end
 
