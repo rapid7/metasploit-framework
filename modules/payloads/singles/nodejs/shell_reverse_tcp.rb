@@ -24,7 +24,7 @@ module Metasploit3
       'Description'   => 'Creates an interactive shell via nodejs',
       'Author'        => ['RageLtMan', 'joev'],
       'License'       => BSD_LICENSE,
-      'Platform'      => 'js',
+      'Platform'      => 'nodejs',
       'Arch'          => ARCH_NODEJS,
       'Handler'       => Msf::Handler::ReverseTcp,
       'Session'       => Msf::Sessions::CommandShell,
