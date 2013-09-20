@@ -57,10 +57,6 @@ require 'msf/core/exe/segment_injector'
     end
   end
 
-	def self.rig_read_replace_script_template(filename, rig)
-		read_replace_script_template(filename, rig.to_h)
-	end
-
 	def self.read_replace_script_template(filename, hash_sub)
 		template_pathname = File.join(Msf::Config.data_directory, "templates", "scripts", filename)
 
@@ -837,7 +833,7 @@ def self.to_vba(framework,code,opts={})
     rig.init_var(:var_bytearray)
 
     hash_sub = rig.to_h
-    hash_sub[:shellcode] = Rex::Text.to_csharp(code, 100, rig.init_var(:var_bytearray))
+    hash_sub[:shellcode] = Rex::Text.to_csharp(code, 100, rig[:var_bytearray])
   
     return read_replace_script_template("to_mem.aspx.template", hash_sub)
   end
