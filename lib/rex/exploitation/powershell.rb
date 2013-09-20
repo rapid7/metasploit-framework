@@ -28,7 +28,18 @@ module Powershell
 			end
 			return numbered
 		end
+    #
+    # Return a Base64 encoded powershell code
+    #
+    def encode_code(eof = nil)
+      # Convert expression to unicode
+      unicode_expression = Rex::Text.to_unicode(code)
 
+      # Base64 encode the unicode expression
+      @code = Rex::Text.encode_base64(unicode_expression)
+
+      return code
+    end
 		#
 		# Return a zlib compressed powershell code
 		#
@@ -44,7 +55,7 @@ module Powershell
 			psh_expression =  "$stream = New-Object IO.MemoryStream(,"
 			psh_expression << "$([Convert]::FromBase64String('#{encoded_stream}')));"
 			# Uncompress and invoke the expression (execute)
-			psh_expression << "$(Invoke-Expression $(New-Object IO.StreamReader("
+			psh_expression << "$(IEX $(New-Object IO.StreamReader("
 			psh_expression << "$(New-Object IO.Compression.GzipStream("
 			psh_expression << "$stream,"
 			psh_expression << "[IO.Compression.CompressionMode]::Decompress)),"
