@@ -1,4 +1,4 @@
-source 'http://rubygems.org'
+source 'https://rubygems.org'
 
 # Need 3+ for ActiveSupport::Concern
 gem 'activesupport', '>= 3.0.0'
