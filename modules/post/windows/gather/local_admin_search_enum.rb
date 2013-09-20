@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
     super(update_info(info,
       'Name'         => 'Windows Gather Local Admin Search',
       'Description'  => %q{
-        This module will identify systems in a given range that the
+          This module will identify systems in a given range that the
         supplied domain user (should migrate into a user pid) has administrative
         access to by using the Windows API OpenSCManagerA to establishing a handle
         to the remote host. Additionally it can enumerate logged in users and group
@@ -80,16 +80,10 @@ class Metasploit3 < Msf::Post
 
         # Check if RSOP data exists, if not disable group check
         unless res =~ /does not have RSOP data./
-          dc_applied = /Group Policy was applied from:\s*(.*)\s*/.match(res)
-          if dc_applied
-            @domain_controller = dc_applied[1].strip
-          else
-            @dc_error = true
-            print_error("Could not read RSOP data, will not enumerate users and groups. Manually specify DC.")
-          end
+          @domain_controller = /Group Policy was applied from:\s*(.*)\s*/.match(res)[1].chomp
         else
           @dc_error = true
-          print_error("User never logged into device, will not enumerate users and groups. Manually specify DC.")
+          print_error("User never logged into device, will not enumerate groups or manually specify DC.")
         end
       end
     end
