@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 #
 # Spawn a meterpreter session using an existing command shell session
 #

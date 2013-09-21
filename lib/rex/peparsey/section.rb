@@ -38,7 +38,7 @@ class Section
     return nil if !_section_header
 
     # FIXME make this better...
-    _section_header.v['Name'].gsub(/\x00+$/, '')
+    _section_header.v['Name'].gsub(/\x00+$/n, '')
   end
 
   def flags

@@ -1,10 +1,8 @@
-# $Id$
 #
 # Meterpreter script for running multiple console commands on a meterpreter session
 # Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
 # Verion: 0.1
 #
-# $Revision$
 
 ################## Variable Declarations ##################
 @client = client
@@ -48,7 +46,7 @@ end
 ################## Main ##################
 @@exec_opts.parse(args) { |opt, idx, val|
 	case opt
-		
+
 	when "-cl"
 		commands = val.split(",")
 	when "-rc"
@@ -60,7 +58,7 @@ end
 				commands << line.chomp
 			end
 		end
-		
+
 	when "-h"
 		help = 1
 	end

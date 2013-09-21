@@ -16,7 +16,6 @@ module Payload::Windows::Exec
   def initialize(info = {})
     super(update_info(info,
       'Name'          => 'Windows Execute Command',
-      'Version'       => '$Revision$',
       'Description'   => 'Execute an arbitrary command',
       'Author'        => [ 'vlad902', 'sf' ],
       'License'       => MSF_LICENSE,

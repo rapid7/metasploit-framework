@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 # Author: Carlos Perez <carlos_perez [at] darkoperator.com and Shai rod (@NightRang3r)
 #-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
@@ -115,7 +113,7 @@ elsif srv_start
 			elsif returned_value == 2
 				print_error("Service #{srv_name} is Disabled could not be started.")
 			end
-			
+
 		rescue
 			print_error("A Service Name must be provided, service names are case sensitive.")
 		end
@@ -137,7 +135,7 @@ elsif srv_stop
 			elsif returned_value == 2
 				print_error("Service #{srv_name} can not be stopped.")
 			end
-			
+
 		rescue
 			print_error("A Service Name must be provided, service names are case sensitive.")
 		end
@@ -181,7 +179,7 @@ elsif srv_change_startup
 		print_error("No Service Name was provided!")
 	end
 	raise Rex::Script::Completed
-	
+
 # Create a service
 elsif srv_create
 	priv_check

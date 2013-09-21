@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 #-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
@@ -48,7 +46,7 @@ def get_log_details
 	logs_detail = Array.new
 
 	eventlog_list.each do |log_name|
-	
+
 		# Create a hash to store the log info in (and throw default info in)
 		log_detail = Hash.new
 		log_detail[:name] = log_name
@@ -62,11 +60,11 @@ def get_log_details
 		else
 			key = "#{key}eventlog"
 		end
-	
+
 		begin
 			unless (registry_getvaldata("#{key}\\#{log_name}","Retention") == 0) then log_detail[:retention] = "Disabled" end
 			log_detail[:size] = registry_getvaldata("#{key}\\#{log_name}","MaxSize")
-			
+
 			# Open the event log
 			eventlog = @client.sys.eventlog.open(log_name)
 			log_detail[:num_of_records] = eventlog.length
@@ -74,10 +72,10 @@ def get_log_details
 			log_detail[:num_of_records] = "Access Denied"
 		end
 
-		
+
 		logs_detail << log_detail
 	end
-	
+
 	return logs_detail
 end
 
@@ -95,13 +93,13 @@ def print_log_details
 			"Maximum Size",
 			"Records"
 		])
-		
+
 	eventlog_details = get_log_details
 
 	eventlog_details.each do |log_detail|
 		tbl << [log_detail[:name],log_detail[:retention],"#{log_detail[:size]}K",log_detail[:num_of_records]]
 	end
-	
+
 	print_line("\n" + tbl.to_s + "\n")
 end
 
@@ -135,7 +133,7 @@ def list_logs(eventlog_name,filter,filter_string,logs,local_log,sup_print)
 		print_error("Failed to Open Event Log #{eventlog_name}")
 		raise Rex::Script::Completed
 	end
-	
+
 	if local_log
 		log_file = File.join(logs, "#{eventlog_name}.csv")
 		print_good("CSV File saved to #{log_file}")
@@ -152,7 +150,7 @@ def clear_logs(log_name=nil)
 	else
 		log_names << log_name
 	end
-	
+
 	log_names.each do |name|
 		begin
 			print_status("Clearing #{name}")
@@ -163,7 +161,7 @@ def clear_logs(log_name=nil)
 			print_error("Failed to Clear #{name}, Access Denied")
 		end
 	end
-	
+
 	return log_names
 end
 
@@ -221,7 +219,7 @@ if local_log
 	else
 		logs = ::File.join(Msf::Config.log_directory, "scripts", 'event_manager', Rex::FileUtils.clean_path(host + filenameinfo) )
 	end
-	
+
 	::FileUtils.mkdir_p(logs)
 end
 
@@ -242,5 +240,5 @@ if clear_logs
 			print_status eventlog_name + ": "
 			clear_logs(eventlog_name)
 		end
-	end				
+	end
 end

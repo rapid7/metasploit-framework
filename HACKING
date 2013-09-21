@@ -9,8 +9,8 @@ Code Style
 In order to maintain consistency and readability, we ask that you
 adhere to the following style guidelines:
 
- - Hard tabs, not spaces
- - Try to keep your lines under 100 columns (assuming four-space tabs)
+ - Standard Ruby two-space soft tabs, not hard tabs.
+ - Try to keep your lines under 100 columns (assuming two-space tabs)
  - do; end instead of {} for a block
  - Always use str[0,1] instead of str[0]
    (This avoids a known ruby 1.8/1.9 incompatibility.)
