@@ -26,7 +26,7 @@ require 'msf/core/exe/segment_injector'
 
   def self.set_template_default(opts, exe = nil, path = nil)
     # If no path specified, use the default one.
-    path ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates")
+    path ||= File.join(Msf::Config.data_directory, "templates")
 
     # If there's no default name, we must blow it up.
     if not exe
@@ -493,12 +493,16 @@ require 'msf/core/exe/segment_injector'
   #    .msi file for auto execution when run
   #
   def self.to_exe_msi(framework, exe, opts={})
-    opts[:msi_template] ||= "template_windows.msi"
+    if opts[:uac]
+      opts[:msi_template] ||= "template_nouac_windows.msi"
+    else
+      opts[:msi_template] ||= "template_windows.msi"
+    end
     return replace_msi_buffer(exe, opts)
   end
 
   def self.replace_msi_buffer(pe, opts)
-    opts[:msi_template_path] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates")
+    opts[:msi_template_path] ||= File.join(Msf::Config.data_directory, "templates")
 
     if opts[:msi_template].include?(File::SEPARATOR)
       template = opts[:msi_template]
@@ -1632,6 +1636,16 @@ def self.to_vba(framework,code,opts={})
       end
       output = Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
 
+    when 'msi-nouac'
+      case arch
+        when ARCH_X86,nil
+          exe = to_win32pe(framework, code, exeopts)
+        when ARCH_X86_64,ARCH_X64
+          exe = to_win64pe(framework, code, exeopts)
+      end
+      exeopts[:uac] = true
+      output = Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
+
     when 'elf'
       if (not plat or (plat.index(Msf::Module::Platform::Linux)))
         output = case arch
@@ -1697,7 +1711,7 @@ def self.to_vba(framework,code,opts={})
   def self.to_executable_fmt_formats
     [
       'dll','exe','exe-service','exe-small','exe-only','elf','macho','vba','vba-exe',
-      'vbs','loop-vbs','asp','aspx','war','psh','psh-net','msi'
+      'vbs','loop-vbs','asp','aspx','war','psh','psh-net','msi', 'msi-nouac'
     ]
   end
 
