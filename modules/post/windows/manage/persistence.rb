@@ -257,6 +257,7 @@ class Metasploit3 < Msf::Post
   end
 
   # Function for writing script to target host
+  # returns the pathname of the script on the target host
   #-------------------------------------------------------------------------------
   def write_script_to_target(vbs)
     tempdir = session.fs.file.expand_path("%TEMP%")
@@ -359,6 +360,7 @@ class Metasploit3 < Msf::Post
   end
 
   # Function for writing executable to target host
+  # returns the pathname of the script on the target host
   #-------------------------------------------------------------------------------
   def write_exe_to_target(vbs,rexename)
     tempdir = session.fs.file.expand_path("%TEMP%")
