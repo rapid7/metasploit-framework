@@ -27,9 +27,9 @@ module Msf::HTTP::Wordpress::Login
       return "#{match_user[0]} #{match_pass[0]}" if (match_user and match_pass)
 
       # Wordpress 2.5
-      match_2_5 = res.get_cookies.match(/(wordpress_[^=]+=[^;]+);/i)
+      match_2_5 = res.get_cookies.match(/(wordpress_[a-z0-9]+=[^;]+);/i)
       # return wordpress login cookie
-      return match[0] if match
+      return match_2_5[0] if match_2_5
     end
     return nil
   end
