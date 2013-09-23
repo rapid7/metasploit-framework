@@ -28,7 +28,7 @@ module Metasploit3
       'Arch'          => ARCH_NODEJS,
       'Handler'       => Msf::Handler::ReverseTcp,
       'Session'       => Msf::Sessions::CommandShell,
-      'PayloadType'   => 'js',
+      'PayloadType'   => 'nodejs',
       'Payload'       => { 'Offsets' => {}, 'Payload' => '' }
     ))
   end
