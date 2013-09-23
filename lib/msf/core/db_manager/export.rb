@@ -1,13 +1,6 @@
 # -*- coding: binary -*-
-module Msf
-
-##
-#
 # This class provides export capabilities
-#
-##
-class DBManager
-class Export
+class Msf::DBManager::Export
 
   attr_accessor :workspace
 
@@ -716,6 +709,3 @@ class Export
   end
 
 end
-end
-end
-
