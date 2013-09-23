@@ -1,6 +1,3 @@
-# $Id$
-# $Revision$
-
 #
 # Meterpreter script for setting up a route from within a
 # Meterpreter session, without having to background the
