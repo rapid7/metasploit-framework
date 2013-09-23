@@ -18,6 +18,18 @@ module Msf::HTTP::Wordpress::Login
       match = res.get_cookies.match(/(wordpress(?:_sec)?_logged_in_[^=]+=[^;]+);/i)
       # return wordpress login cookie
       return match[0] if match
+
+      # support for older wordpress versions
+      # Wordpress 2.0
+      match_user = res.get_cookies.match(/(wordpressuser_[^=]+=[^;]+);/i)
+      match_pass = res.get_cookies.match(/(wordpresspass_[^=]+=[^;]+);/i)
+      # return wordpress login cookie
+      return "#{match_user[0]} #{match_pass[0]}" if (match_user and match_pass)
+
+      # Wordpress 2.5
+      match_2_5 = res.get_cookies.match(/(wordpress_[^=]+=[^;]+);/i)
+      # return wordpress login cookie
+      return match[0] if match
     end
     return nil
   end
