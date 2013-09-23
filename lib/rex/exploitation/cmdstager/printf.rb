@@ -42,19 +42,7 @@ class CmdStagerPrintf < CmdStagerBase
   # Encode into a "\12\345" octal format that printf understands
   #
   def encode_payload(opts)
-    encoded = @exe.dup
-
-    # encode only necessary characters with octal escapes
-    # see Shellwords::shellescape for pattern reference
-    encoded.gsub!(/[^A-Za-z0-9_\-.,:\/@]/) { |match|
-      Rex::Text.to_octal(match[0])
-    }
-
-    # remove leading '0's from an octal escape only if it is not followed by
-    # another digit, e. g., '\012a' -> '\12a' but not '\0123' -> '\123'
-    encoded.gsub!(/\\(?:00([0-9])|0([1-9][0-9]))(?![0-9])/, '\\\\\\1\\2')
-
-    return encoded
+    return Rex::Text.to_octal(@exe, "\\")
   end
 
   #
