@@ -3,6 +3,12 @@ require 'msf/base/simple/framework'
 require 'metasploit/framework'
 
 shared_context 'Msf::Simple::Framework' do
+  include_context 'Metasploit::Framework::Thread::Manager cleaner' do
+    let(:thread_manager) do
+      # don't create thread manager if example didn't create it
+      framework.instance_variable_get :@threads
+    end
+  end
 
 	let(:framework) do
 		Msf::Simple::Framework.create(
@@ -20,14 +26,4 @@ shared_context 'Msf::Simple::Framework' do
 		framework_config_pathname.mkpath
 	end
 
-	after(:each) do
-		# explicitly kill threads so that they don't exhaust connection pool
-		thread_manager = framework.threads
-
-		thread_manager.each do |thread|
-			thread.kill
-		end
-
-		thread_manager.monitor.kill
-	end
 end

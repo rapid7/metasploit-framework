@@ -70,8 +70,9 @@ class Plugin::MSGRPC < Msf::Plugin
 		if (opts['RunInForeground'] != true)
 			# Store a handle to the thread so we can kill it during
 			# cleanup when we get unloaded.
-			self.thread = Thread.new { run }
-			framework.threads.register(self.thread, "MetasploitRPCServer", true)
+			self.thread = framework.threads.spawn("MetasploitRPCServer", true) {
+        run
+      }
 		end
 	end
 
@@ -96,11 +97,20 @@ class Plugin::MSGRPC < Msf::Plugin
 		# Start the actual service
 		self.server.start
 
-		# Register
-		framework.threads.register(Thread.current, "MetasploitRPCServer", true)
+    # Wait for the service to complete
+    wait = -> { server.wait }
 
-		# Wait for the service to complete
-		self.server.wait
+    if framework.threads.registered?
+      # if run is called inside of framework.threads.spawn, thread cannot re-register, so just wait since already in
+      # spawned thread.
+      wait.call
+    else
+      framework.threads.register(
+          block: wait,
+          critical: true,
+          name: 'MetasploitRPCServer'
+      )
+    end
 	end
 
 	#

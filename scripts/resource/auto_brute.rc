@@ -51,7 +51,7 @@ def jobwaiting(maxjobs,verbose)	#thread handling for poor guys
 		::IO.select(nil, nil, nil, 2.5)
 		if(verbose == 1)
 			jobs_len    = framework.jobs.keys.length
-			threads_len = framework.threads.length
+			threads_len = framework.threads.list.length
 			print_error("Waiting... active jobs: #{jobs_len} / threads: #{threads_len}")
 		end
 	end

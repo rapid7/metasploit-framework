@@ -14,8 +14,13 @@ module Metasploit
     def self.autoload_paths
       autoload_paths = []
 
-      models_path = root.join('app', 'models').to_path
+      app_pathname = root.join('app')
+
+      models_path = app_pathname.join('models').to_path
       autoload_paths << models_path
+
+      validators_path = app_pathname.join('validators').to_path
+      autoload_paths << validators_path
 
       lib_path = root.join('lib').to_path
       autoload_paths << lib_path

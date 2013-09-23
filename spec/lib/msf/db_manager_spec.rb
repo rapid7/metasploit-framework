@@ -675,6 +675,9 @@ describe Msf::DBManager do
   end
 
   context '#search_modules' do
+    include_context 'database cleaner'
+    include_context 'database seeds'
+
     subject(:search_modules) do
       db_manager.search_modules(search_string)
     end

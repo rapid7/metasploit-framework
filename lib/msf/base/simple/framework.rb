@@ -62,16 +62,27 @@ module Framework
           Metasploit::Model::Module::Type::POST    => Msf::Simple::Post,
       }
 
+  # Create a simplified instance of the framework.
   #
-  # Create a simplified instance of the framework.  This routine takes a hash
-  # of parameters as an argument.  This hash can contain:
-  #
-  #   OnCreateProc => A callback procedure that is called once the framework
-  #   instance is created.
-  #
-  def self.create(opts = {})
-    framework = Msf::Framework.new(opts)
-    return simplify(framework, opts)
+  # @param options [Hash{Symbol => Object}]
+  # @option options [Boolean] 'DisableDatabase' DEPRECATED, use :database_disabled option.
+  # @option options [Boolean] :database_disabled (false) Disable the {Msf::Framework#db framework database manager}.
+  # @option options [Array<String>, nil] :module_types A subset of `Metasploit::Model::Module::Type:ALL`.
+  # @return [Msf::Simple::Framework]
+  # @raise [Metasploit::Model::Invalid] unless :module_types is a subset of `Metasploit::Model::Module::Type::ALL`.
+  # @raise [Metasploit::Model::Invalid] unless :module_types has at least one module type in it.
+  def self.create(options = {})
+    # force to Boolean
+    database_disabled = !!options.fetch('DisableDatabase', false)
+    database_disabled = options.fetch(:database_disabled, database_disabled)
+
+    framework = Msf::Framework.new(
+        database_disabled: database_disabled,
+        module_types: options[:module_types]
+    )
+    framework.valid!
+
+    simplify(framework, options)
   end
 
   #

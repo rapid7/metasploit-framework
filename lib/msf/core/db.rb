@@ -51,12 +51,6 @@ require 'rex/parser/nexpose_xml'
 require 'rex/parser/nmap_xml'
 require 'rex/parser/retina_xml'
 
-#
-# Project
-#
-
-require 'msf/core/db_manager/import_msf_xml'
-
 module Msf
 
 ###
@@ -154,7 +148,9 @@ end
 # The DB module ActiveRecord definitions for the DBManager
 #
 ###
-class DBManager
+class DBManager < Metasploit::Model::Base
+
+  require 'msf/core/db_manager/import_msf_xml'
   include Msf::DBManager::ImportMsfXml
 
   def rfc3330_reserved(ip)

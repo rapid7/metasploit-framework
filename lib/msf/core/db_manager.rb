@@ -62,9 +62,24 @@ class DBManager
   # Flag to indicate that the module cacher is running
   attr_accessor :modules_caching
 
-  def initialize(framework, opts = {})
+  def disabled
+    unless instance_variable_defined? :@disabled
+      if framework
+        @disabled = framework.database_disabled?
+      else
+        @disabled = false
+      end
+    end
 
-    self.framework = framework
+    @disabled
+  end
+  alias disabled? disabled
+
+  attr_writer :disabled
+
+  def initialize(attributes={})
+    super
+
     self.migrated  = false
     self.modules_cached  = false
     self.modules_caching = false
@@ -72,12 +87,11 @@ class DBManager
     @usable = false
 
     # Don't load the database if the user said they didn't need it.
-    if (opts['DisableDatabase'])
+    if disabled?
       self.error = "disabled"
-      return
+    else
+      initialize_database_support
     end
-
-    initialize_database_support
   end
 
   #

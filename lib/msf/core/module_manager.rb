@@ -20,7 +20,6 @@ module Msf
   # @todo add unload support
   class ModuleManager < Metasploit::Model::Base
     include Enumerable
-    include Msf::Framework::Offspring
 
     require 'msf/core/payload_set'
 
@@ -41,6 +40,12 @@ module Msf
     # Attributes
     #
 
+    # @!attribute [rw] framework
+    #   Framework for which this module manager is managing modules.
+    #
+    #   @return [Msf::Simple::Framework]
+    attr_accessor :framework
+
     # @!attribute [rw] module_types
     #   The `Metasploit::Model::Module::Class#module_types` supported by this module manager.
     #
@@ -48,7 +53,7 @@ module Msf
     attr_writer :module_types
 
     #
-    # CONSTANTS
+    # Methods
     #
 
     def [](key)

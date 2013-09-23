@@ -57,7 +57,7 @@ class Core
 
   @@threads_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
-    "-k" => [ true,  "Terminate the specified thread ID."             ],
+    "-k" => [ true,  "Terminate the specified thread name."           ],
     "-K" => [ false, "Terminate all non-critical threads."            ],
     "-i" => [ true,  "Lists detailed information about a thread."     ],
     "-l" => [ false, "List all background threads."                   ],
@@ -877,7 +877,7 @@ class Core
     verbose = false
     dump_list = false
     dump_info = false
-    thread_id = nil
+    thread_name = nil
 
     # Parse the command options
     @@threads_opts.parse(args) { |opt, idx, val|
@@ -887,28 +887,37 @@ class Core
         when "-l"
           dump_list = true
 
-        # Terminate the supplied thread id
+        # Terminate the supplied thread name
         when "-k"
-          val = val.to_i
-          if not framework.threads[val]
-            print_error("No such thread")
+          name = val
+          named_thread = framework.threads.list.find { |thread|
+            metasploit_framework_thread = thread[:metasploit_framework_thread]
+
+            metasploit_framework_thread.name == name
+          }
+
+          if named_thread
+            print_line("Terminating thread: #{name}...")
+            thread.kill
           else
-            print_line("Terminating thread: #{val}...")
-            framework.threads.kill(val)
+            print_error("No such thread")
           end
         when "-K"
           print_line("Killing all non-critical threads...")
-          framework.threads.each_index do |i|
-            t = framework.threads[i]
-            next if not t
-            next if t[:tm_crit]
-            framework.threads.kill(i)
+
+          framework.threads.list.each do |thread|
+            metasploit_framework_thread = thread[:metasploit_framework_thread]
+
+            unless metasploit_framework_thread.critical
+              print_line("Terminating thread: #{name}")
+              thread.kill
+            end
           end
         when "-i"
           # Defer printing anything until the end of option parsing
           # so we can check for the verbose flag.
           dump_info = true
-          thread_id = val.to_i
+          thread_name = val
         when "-h"
           cmd_threads_help
           return false
@@ -916,14 +925,14 @@ class Core
     }
 
     if (dump_list)
-      tbl = Table.new(
+      table = Table.new(
         Table::Style::Default,
         'Header'  => "Background Threads",
         'Prefix'  => "\n",
         'Postfix' => "\n",
         'Columns' =>
           [
-            'ID',
+            'Name',
             'Status',
             'Critical',
             'Name',
@@ -931,38 +940,68 @@ class Core
           ]
       )
 
-      framework.threads.each_index do |i|
-        t = framework.threads[i]
-        next if not t
-        tbl << [ i.to_s, t.status || "dead", t[:tm_crit] ? "True" : "False", t[:tm_name].to_s, t[:tm_time].to_s ]
+
+      framework.threads.list.each do |thread|
+        metasploit_framework_thread = thread[:metasploit_framework_thread]
+
+        formatted_name = metasploit_framework_thread.name
+        formatted_status = thread.status || "dead"
+        formatted_critical = metasploit_framework_thread.critical.to_s.capitalize
+        formatted_started_at = metasploit_framework_thread.started_at.to_s
+
+        row = [
+            formatted_name,
+            formatted_status,
+            formatted_critical,
+            formatted_started_at
+        ]
+        table << row
       end
-      print(tbl.to_s)
+
+      print(table.to_s)
     end
 
     if (dump_info)
-      thread = framework.threads[thread_id]
+      thread = framework.threads.list.find { |thread|
+        metasploit_framework_thread = thread[:metasploit_framework_thread]
+
+        metasploit_framework_thread.name == thread_name
+      }
 
       if (thread)
-        output  = "\n"
-        output += "  ID: #{thread_id}\n"
-        output += "Name: #{thread[:tm_name]}\n"
-        output += "Info: #{thread.status || "dead"}\n"
-        output += "Crit: #{thread[:tm_crit] ? "True" : "False"}\n"
-        output += "Time: #{thread[:tm_time].to_s}\n"
+        metasploit_framework_thread = thread[:metasploit_framework_thread]
+
+        lines = []
+        lines << ''
+        lines << "Name:     #{metasploit_framework_thread.name}"
+
+        # status is false when thread is dead
+        formatted_status = thread.status || 'dead'
+        lines << "Status:   #{formatted_status}"
+
+        formatted_critical = metasploit_framework_thread.critical.to_s.capitalize
+        lines << "Critical: #{formatted_critical}"
+
+        lines << "Started:  #{metasploit_framework_thread.started_at}"
 
         if (verbose)
-          output += "\n"
-          output += "Thread Source\n"
-          output += "=============\n"
-          thread[:tm_call].each do |c|
-            output += "      #{c.to_s}\n"
+          lines << ''
+
+          lines << 'Thread Source'
+          lines << '============='
+
+          metasploit_framework_thread.backtrace.each do |backtrace_line|
+            lines << "  #{backtrace_line}"
           end
-          output += "\n"
         end
 
-        print(output +"\n")
+        # so there is a trailing newline
+        lines << ''
+
+        formatted = lines.join("\n")
+        print(formatted)
       else
-        print_line("Invalid Thread ID")
+        print_line("Invalid Thread Name")
       end
     end
   end
