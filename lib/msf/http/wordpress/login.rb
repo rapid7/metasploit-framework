@@ -5,7 +5,7 @@ module Msf::HTTP::Wordpress::Login
   #
   # @param user [String] Username
   # @param pass [String] Password
-  # @return [String,nil] the session cookie on successful login, nil otherwise
+  # @return [String,nil] the session cookies as a single string on successful login, nil otherwise
   def wordpress_login(user, pass)
     redirect = "#{target_uri}#{Rex::Text.rand_text_alpha(8)}"
     res = send_request_cgi({
