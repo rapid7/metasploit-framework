@@ -6,10 +6,8 @@
 ##
 
 require 'msf/core'
-require 'msf/core/post/file'
 require 'zip/zip' #for extracting files
 require 'rex/zip' #for creating files
-require 'msf/core/post/windows/priv'
 
 class Metasploit3 < Msf::Post
 

@@ -18,7 +18,6 @@ require 'zlib' # TODO: check if this can be done with REX
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/windows/powershell'
 
 class Metasploit3 < Msf::Post
   include Msf::Post::Windows::Powershell

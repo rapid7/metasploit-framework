@@ -7,7 +7,6 @@
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/file'
 require 'yaml'
 
 class Metasploit3 < Msf::Post

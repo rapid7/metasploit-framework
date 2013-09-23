@@ -9,15 +9,11 @@ require 'msf/core'
 require 'rex'
 require 'zip/zip'
 require 'tmpdir'
-require 'msf/core/post/file'
-require 'msf/core/post/common'
 require 'msf/core/auxiliary/report'
-require 'msf/core/post/windows/user_profiles'
 
 class Metasploit3 < Msf::Post
 
   include Msf::Post::File
-  include Msf::Post::Common
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
 
