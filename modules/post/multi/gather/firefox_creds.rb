@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Post
             'bannedit',
             'xard4s' # added decryption support
         ],
-      'Platform'       => ['win', 'linux', 'bsd', 'unix', 'osx'],
+      'Platform'       => %w{ bsd linux osx unix win },
       'SessionTypes'   => ['meterpreter', 'shell' ]
     ))
 
