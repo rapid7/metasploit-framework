@@ -357,18 +357,15 @@ class Console::CommandDispatcher::Core
     # to valid channels in the migrated meterpreter instance.
     existing_relays = []
     if service != nil
-      counter = 0
-
       service.each_tcp_relay do |lhost, lport, rhost, rport, opts|
         next if (opts['MeterpreterRelay'] == nil)
 
-        if counter == 0
+        if existing_relays.length == 0
           print_status("Removing existing TCP relays...")
         end
 
         if (service.stop_tcp_relay(lport, lhost))
           print_status("Successfully stopped TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
-          counter += 1
           existing_relays << {
             :lport => lport,
             :opts => opts
@@ -379,8 +376,8 @@ class Console::CommandDispatcher::Core
         end
       end
 
-      if counter > 0
-        print_status("#{counter} TCP relay(s) removed.")
+      if existing_relays.length > 0
+        print_status("#{existing_relays.length} TCP relay(s) removed.")
       end
     end
 
