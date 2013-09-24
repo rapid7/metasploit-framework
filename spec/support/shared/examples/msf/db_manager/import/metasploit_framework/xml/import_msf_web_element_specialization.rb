@@ -1,5 +1,5 @@
 # -*- coding:binary -*-
-shared_examples_for 'Msf::DBManager::ImportMsfXml#import_msf_web_element specialization' do
+shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML#import_msf_web_element specialization' do
 	it 'should call #import_msf_web_element with element' do
 		db_manager.should_receive(:import_msf_web_element).with(element, anything)
 

@@ -3,7 +3,7 @@
 # methods to be overridden in Pro without using alias_method_chain as
 # methods defined in a class cannot be overridden by including a module
 # (unless you're running Ruby 2.0 and can use prepend)
-module Msf::DBManager::ImportMsfXml
+module Msf::DBManager::Import::MetasploitFramework::XML
   #
   # CONSTANTS
   #
@@ -572,5 +572,17 @@ module Msf::DBManager::ImportMsfXml
       event = "web_#{type}".to_sym
       notifier.call(event, info[:path])
     end
+  end
+
+  # Import a Metasploit XML file.
+  def import_msf_file(args={})
+    filename = args[:filename]
+    wspace = args[:wspace] || workspace
+
+    data = ""
+    ::File.open(filename, 'rb') do |f|
+      data = f.read(f.stat.size)
+    end
+    import_msf_xml(args.merge(:data => data))
   end
 end
