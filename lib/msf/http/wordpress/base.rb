@@ -24,4 +24,5 @@ module Msf::HTTP::Wordpress::Base
       return nil
     end
   end
+
 end

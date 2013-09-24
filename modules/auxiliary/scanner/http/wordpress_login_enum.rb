@@ -51,21 +51,24 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
+    version = wordpress_version
+    print_status("#{target_uri} - WordPress Version #{version} detected") if version
+
     usernames = []
     if datastore['ENUMERATE_USERNAMES']
-      vprint_status("#{target_uri} - WordPress Enumeration - Running User Enumeration")
+      vprint_status("#{target_uri} - WordPress User-Enumeration - Running User Enumeration")
       usernames = enum_usernames
     end
 
     if datastore['VALIDATE_USERS']
       @users_found = {}
-      vprint_status("#{target_uri} - WordPress Enumeration - Running User validation")
+      vprint_status("#{target_uri} - WordPress User-Validation - Running User Validation")
       each_user_pass { |user, pass|
         do_enum(user)
       }
 
       unless @users_found.empty?
-        print_good("#{target_uri} - WordPress Enumeration - Found #{uf = @users_found.keys.size} valid #{uf == 1 ? "user" : "users"}")
+        print_good("#{target_uri} - WordPress User-Validation - Found #{uf = @users_found.keys.size} valid #{uf == 1 ? "user" : "users"}")
       end
     end
 
