@@ -24,6 +24,9 @@ module Msf::HTTP::Wordpress::Users
   # @param user_id [Integer] user_id
   # @return [String,nil] the Username if it exists, nil otherwise
   def wordpress_userid_exists?(user_id)
+    # Wordpress returns all posts from all users on user_id 0
+    return nil if user_id < 1
+
     url = wordpress_url_author(user_id)
     res = send_request_cgi({
         'method' => 'GET',
