@@ -1236,23 +1236,27 @@ class Plugin::Wmap < Msf::Plugin
 		def delete_sites(wmap_index)
 			idx  = 0
 			to_del = {}
+			if self.framework.db.active
 			# Rebuild the index from wmap_sites -l
-			self.framework.db.hosts.each do |bdhost|
-				bdhost.services.each do |serv|
-					serv.web_sites.each do |web|
-						# If the index of this site matches any deletion index,
-						# add to our hash, saving the index for later output
-						to_del[idx] = web if wmap_index.any? {|w| w.to_i == idx}
-						idx += 1
+				self.framework.db.hosts.each do |bdhost|
+					bdhost.services.each do |serv|
+						serv.web_sites.each do |web|
+							# If the index of this site matches any deletion index,
+							# add to our hash, saving the index for later output
+							to_del[idx] = web if wmap_index.any? {|w| w.to_i == idx}
+							idx += 1
+						end
 					end
 				end
-			end
-			to_del.each do |widx,wsite|
-				if wsite.delete
-					print_status("Deleted #{wsite.vhost} on #{wsite.service.host.address} at index #{widx}")
-				else
-					print_error("Could note delete {wsite.vhost} on #{wsite.service.host.address} at index #{widx}")
+				to_del.each do |widx,wsite|
+					if wsite.delete
+						print_status("Deleted #{wsite.vhost} on #{wsite.service.host.address} at index #{widx}")
+					else
+						print_error("Could note delete {wsite.vhost} on #{wsite.service.host.address} at index #{widx}")
+					end
 				end
+			else
+				print_status("No active database. Please connect a database and try again")
 			end
 		end
 
@@ -2226,16 +2230,20 @@ class Plugin::Wmap < Msf::Plugin
 		end
 
 		def view_vulns
-			framework.db.hosts.each do |host|
-				host.services.each do |serv|
-					serv.web_sites.each do |site|
-						site.web_vulns.each do |wv|
-							print_status("+ [#{host.address}] (#{site.vhost}): #{wv.category} #{wv.path}")
-							print_status("\t#{wv.name} #{wv.description}")
-							print_status("\t#{wv.method} #{wv.proof}")
+			if framework.db.active
+				framework.db.hosts.each do |host|
+					host.services.each do |serv|
+						serv.web_sites.each do |site|
+							site.web_vulns.each do |wv|
+								print_status("+ [#{host.address}] (#{site.vhost}): #{wv.category} #{wv.path}")
+								print_status("\t#{wv.name} #{wv.description}")
+								print_status("\t#{wv.method} #{wv.proof}")
+							end
 						end
 					end
 				end
+			else
+				print_status("No active database. Please connect a database and try again")
 			end
 		end
 	end
