@@ -48,8 +48,13 @@ module Msf::HTTP::Wordpress::Users
       print_error("#{peer} - Error getting response.")
       return nil
     elsif res.code == 200 and
-        (res.body =~ /href="http[s]*:\/\/.*\/\?*author.+title="([[:print:]]+)" /i or
-            res.body =~ /<body class="archive author author-(?:[^\s]+) author-(?:\d+)/i)
+        (
+          res.body =~ /href="http[s]*:\/\/.*\/\?*author.+title="([[:print:]]+)" /i or
+          res.body =~ /<body class="archive author author-(?:[^\s]+) author-(?:\d+)/i or
+          res.body =~ /Posts by (\w+) Feed/i or
+          res.body =~ /<span class='vcard'><a class='url fn n' href='[^"']+' title='[^"']+' rel='me'>([^<]+)<\/a><\/span>/i or
+          res.body =~ /<title>.*(\b\w+\b)<\/title>/i
+        )
       return $1
     end
   end
