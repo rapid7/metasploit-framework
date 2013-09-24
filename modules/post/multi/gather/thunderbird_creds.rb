@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Post
         [
           'sinn3r',  #Metasploit
         ],
-      'Platform'       => ['win', 'linux', 'osx'],
+      'Platform'       => %w{ linux osx win },
       'SessionTypes'   => ['meterpreter', 'shell']
       ))
 

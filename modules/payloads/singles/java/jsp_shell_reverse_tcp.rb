@@ -21,7 +21,7 @@ module Metasploit3
       'Description'   => 'Connect back to attacker and spawn a command shell',
       'Author'        => [ 'sf' ],
       'License'       => MSF_LICENSE,
-      'Platform'      => [ 'win', 'osx', 'linux', 'unix', 'solaris' ],
+      'Platform'      => %w{ linux osx solaris unix win },
       'Arch'          => ARCH_JAVA,
       'Handler'       => Msf::Handler::ReverseTcp,
       'Session'       => Msf::Sessions::CommandShell,

@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Post
           "joev <jvennix[at]rapid7.com>" # metasploit module
         ],
       'DisclosureDate' => 'Nov 20 2012',
-      'Platform'       => ['osx', 'linux']
+      'Platform'       => %w{ linux osx }
     }))
     register_options([
       OptString.new("FILE", [true, "The file to steal.", "/etc/shadow"]),
