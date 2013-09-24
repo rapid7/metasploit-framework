@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
           'hdm',
           'bannedit' # Based on bannedit's pidgin_cred module structure
         ],
-      'Platform'       => ['win', 'osx'],
+      'Platform'       => %w{ osx win },
       'SessionTypes'   => ['meterpreter', 'shell']
     ))
     register_options(

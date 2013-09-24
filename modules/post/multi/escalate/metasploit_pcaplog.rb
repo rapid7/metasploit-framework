@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Post
         },
         'License'       => MSF_LICENSE,
         'Author'	=> [ '0a29406d9794e4f9b30b3c5d6702c708'],
-        'Platform'      => [ 'linux','unix','bsd' ],
+        'Platform'      => %w{ bsd linux unix },
         'SessionTypes'  => [ 'shell', 'meterpreter' ],
         'References'    =>
           [
