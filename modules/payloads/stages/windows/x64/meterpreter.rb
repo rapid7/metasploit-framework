@@ -36,7 +36,7 @@ module Metasploit3
   end
 
   def library_path
-    File.join( Msf::Config.install_root, "data", "meterpreter", "metsrv.x64.dll" )
+    File.join( Msf::Config.data_directory, "meterpreter", "metsrv.x64.dll" )
   end
 
 end
