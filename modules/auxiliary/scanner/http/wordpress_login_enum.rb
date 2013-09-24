@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
       @users_found = {}
       vprint_status("#{target_uri} - WordPress User-Validation - Running User Validation")
       each_user_pass { |user, pass|
-        do_enum(user)
+        validate_user(user)
       }
 
       unless @users_found.empty?
@@ -103,12 +103,12 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def do_enum(user=nil)
-    print_status("#{target_uri} - WordPress Enumeration - Checking Username:'#{user}'")
+  def validate_user(user=nil)
+    print_status("#{target_uri} - WordPress User-Validation - Checking Username:'#{user}'")
 
     exists = wordpress_user_exists?(user)
     if exists
-      print_good("#{target_uri} - WordPress Enumeration- Username: '#{user}' - is VALID")
+      print_good("#{target_uri} - WordPress User-Validation - Username: '#{user}' - is VALID")
       report_auth_info(
           :host => rhost,
           :sname => (ssl ? 'https' : 'http'),
@@ -120,7 +120,7 @@ class Metasploit3 < Msf::Auxiliary
       @users_found[user] = :reported
       return :next_user
     else
-      vprint_error("#{target_uri} - WordPress Enumeration - Invalid Username: '#{user}'")
+      vprint_error("#{target_uri} - WordPress User-Validation - Invalid Username: '#{user}'")
       return :skip_user
     end
   end
