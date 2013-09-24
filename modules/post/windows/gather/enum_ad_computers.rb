@@ -87,6 +87,7 @@ class Metasploit3 < Msf::Post
       return
     end
 
+    # Results table holds raw string data
     results_table = Rex::Ui::Text::Table.new(
         'Header'     => "#{defaultNamingContext} Domain Computers",
         'Indent'     => 1,
@@ -94,6 +95,10 @@ class Metasploit3 < Msf::Post
         'Columns'    => attributes
       )
 
+    # Hostnames holds DNS Names to Resolve
+    hostnames = []
+    # Reports are collections for easy database insertion
+    reports = []
     results.each do |result|
       row = []
 
@@ -110,39 +115,51 @@ class Metasploit3 < Msf::Post
             case attr['name']
             when 'dNSHostName'
               dns = attr['values']
-              ip = resolve_hostname(dns)
-              report.merge!( {:name => dns, :host => ip } )
+              report[:name] = dns
+              hostnames << dns
             when 'operatingSystem'
               os = attr['values']
               index = os.index(/windows/i)
               unless index.nil?
                 name = 'Microsoft Windows'
                 flavour = os[index..-1]
-                report.merge!( {:os_name => name, :os_flavor => flavour} )
+                report[:os_name] = name
+                report[:os_flavor] = flavour
               else
                 # Incase there are non-windows domain computers?!
-                report.merge!( {:os_name => os } )
+                report[:os_name] = os
               end
             when 'distinguishedName'
               if attr['values'] =~ /Domain Controllers/i
-                report.merge!( {:purpose => "DC"} )
+                report[:purpose] = "DC"
               end
             when 'operatingSystemServicePack'
-              report.merge!( {:os_sp => attr['values']} )
+              report[:os_sp] = attr['values']
             when 'description'
-              report.merge!( {:info => attr['values']} )
+              report[:info] = attr['values']
             end
           end
         end
       end
 
-      vprint_good("Database report: #{report.inspect}")
-      if report.include? :host
-        report_host(report)
-      end
-
+      reports << report
       results_table << row
+    end
 
+    if db and datastore['STORE_DB']
+      print_status("Resolving IP addresses...")
+      ip_results = client.net.resolve.resolve_hosts(hostnames, AF_INET)
+
+      # Merge resolved array with reports
+      reports.each do |report|
+        ip_results.each do |ip_result|
+          if ip_result[:hostname] == report[:name]
+            report[:host] = ip_result[:ip]
+            vprint_good("Database report: #{report.inspect}")
+            report_host(report)
+          end
+        end
+      end
     end
 
     print_line results_table.to_s
@@ -150,38 +167,6 @@ class Metasploit3 < Msf::Post
       stored_path = store_loot('ad.computers', 'text/plain', session, results_table.to_csv)
       print_status("Results saved to: #{stored_path}")
     end
-  end
-
-  # This really needs migrating to a meterpreter function
-  def resolve_hostname(hostname)
-    if client.platform =~ /^x64/
-      size = 64
-      addrinfoinmem = 32
-    else
-      size = 32
-      addrinfoinmem = 24
-    end
-
-    begin
-      vprint_status("Looking up IP for #{hostname}")
-      result = client.railgun.ws2_32.getaddrinfo(hostname, nil, nil, 4 )
-      if result['GetLastError'] == 11001
-        return nil
-      end
-      addrinfo = client.railgun.memread( result['ppResult'], size )
-      ai_addr_pointer = addrinfo[addrinfoinmem,4].unpack('L').first
-      sockaddr = client.railgun.memread( ai_addr_pointer, size/2 )
-      ip = sockaddr[4,4].unpack('N').first
-      hostip = Rex::Socket.addr_itoa(ip)
-
-      if hostip =~ /0\.0\.0\.0/
-        hostip = client.session_host
-      end
-    rescue ::Exception => e
-      print_error(e.to_s)
-    end
-    vprint_status("IP for #{hostname}: #{hostip}")
-    return hostip
   end
 
   def wldap32
