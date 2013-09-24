@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
-      'Platform'      => [ 'win', 'linux' ],
+      'Platform'      => [ 'win' ],
       'SessionTypes'  => [ 'meterpreter' ]
     ))
 
