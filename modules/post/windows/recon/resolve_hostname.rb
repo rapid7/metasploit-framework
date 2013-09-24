@@ -9,6 +9,9 @@ require 'msf/core'
 require 'rex'
 
 class Metasploit3 < Msf::Post
+  require 'msf/core/module/deprecated'
+  include Msf::Module::Deprecated
+  deprecated Date.new(2014, 03, 24), 'post/windows/recon/resolve_hosts'
 
   def initialize(info={})
     super( update_info( info,
@@ -36,27 +39,17 @@ class Metasploit3 < Msf::Post
   end
 
   def resolve_hostname(hostname)
-
-    if client.platform =~ /^x64/
-      size = 64
-      addrinfoinmem = 32
-    else
-      size = 32
-      addrinfoinmem = 24
-    end
-
     begin
       vprint_status("Looking up IP for #{hostname}")
-      result = client.railgun.ws2_32.getaddrinfo(hostname, nil, nil, 4 )
-      if result['GetLastError'] == 11001
+      result = client.net.resolve.resolve_host(hostname)
+      if result[:ip].nil? or result[:ip].blank?
         print_error("Failed to resolve #{hostname}")
         return
+      else
+        hostip = result[:ip]
       end
-      addrinfo = client.railgun.memread( result['ppResult'], size )
-      ai_addr_pointer = addrinfo[addrinfoinmem,4].unpack('L').first
-      sockaddr = client.railgun.memread( ai_addr_pointer, size/2 )
-      ip = sockaddr[4,4].unpack('N').first
-      hostip = Rex::Socket.addr_itoa(ip)
+
+
       print_status("#{hostname} resolves to #{hostip}")
 
       if datastore['SAVEHOSTS']
