@@ -34,11 +34,7 @@ module Metasploit3
   # Constructs the payload
   #
   def generate
-    # Future proof for PrependEncoder
-    ret = super + command_string
-    # For copy-paste to files or other sessions
-    vprint_good(ret)
-    return ret
+    super + command_string
   end
 
   #
