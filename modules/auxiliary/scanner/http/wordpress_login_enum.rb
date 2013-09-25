@@ -38,8 +38,8 @@ class Metasploit3 < Msf::Auxiliary
         OptBool.new('VALIDATE_USERS', [ true, 'Validate usernames', true ]),
         OptBool.new('BRUTEFORCE', [ true, 'Perform brute force authentication', true ]),
         OptBool.new('ENUMERATE_USERNAMES', [ true, 'Enumerate usernames', true ]),
-        OptString.new('RANGE_START', [false, 'First user id to enumerate', '1']),
-        OptString.new('RANGE_END', [false, 'Last user id to enumerate', '10'])
+        OptInt.new('RANGE_START', [false, 'First user id to enumerate', 1]),
+        OptInt.new('RANGE_END', [false, 'Last user id to enumerate', 10])
     ], self.class)
 
   end
