@@ -356,14 +356,13 @@ class Console::CommandDispatcher::Core
     # otherwise we'll end up with local listeners which aren't connected
     # to valid channels in the migrated meterpreter instance.
     existing_relays = []
-    if service != nil
-      service.each_tcp_relay do |lhost, lport, rhost, rport, opts|
-        next if (opts['MeterpreterRelay'] == nil)
 
-        if existing_relays.length == 0
+    if service
+      service.each_tcp_relay do |lhost, lport, rhost, rport, opts|
+        next unless opts['MeterpreterRelay']
+        if existing_relays.empty?
           print_status("Removing existing TCP relays...")
         end
-
         if (service.stop_tcp_relay(lport, lhost))
           print_status("Successfully stopped TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
           existing_relays << {
@@ -375,8 +374,7 @@ class Console::CommandDispatcher::Core
           next
         end
       end
-
-      if existing_relays.length > 0
+      unless existing_relays.empty?
         print_status("#{existing_relays.length} TCP relay(s) removed.")
       end
     end
@@ -388,13 +386,14 @@ class Console::CommandDispatcher::Core
 
     print_status("Migration completed successfully.")
 
-    if existing_relays.length > 0
+    unless existing_relays.empty?
       print_status("Recreating TCP relay(s)...")
       existing_relays.each do |r|
         client.pfservice.start_tcp_relay(r[:lport], r[:opts])
         print_status("Local TCP relay recreated: #{r[:opts]['LocalHost'] || '0.0.0.0'}:#{r[:lport]} <-> #{r[:opts]['PeerHost']}:#{r[:opts]['PeerPort']}")
       end
     end
+
   end
 
   def cmd_load_help
