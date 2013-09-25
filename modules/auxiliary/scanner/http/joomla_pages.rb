@@ -29,10 +29,6 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-  def peer
-    return "#{rhost}:#{rport}"
-  end
-
   def run_host(ip)
     tpath = normalize_uri(target_uri.path)
     if tpath[-1,1] != '/'
