@@ -3,10 +3,7 @@
 .idea
 # Sublime Text project directory (not created by ST by default)
 .sublime-project
-# Portable ruby version files for rvm
-.ruby-gemset
-.ruby-version
-# RVM control file
+# RVM control file, keep this to avoid backdooring Metasploit
 .rvmrc
 # YARD cache directory
 .yardoc
@@ -16,7 +13,7 @@
 config/database.yml
 # simplecov coverage data
 coverage
-data/meterpreter/ext_server_pivot.dll
+data/meterpreter/ext_server_pivot.x86.dll
 data/meterpreter/ext_server_pivot.x64.dll
 doc/
 external/source/meterpreter/java/bin

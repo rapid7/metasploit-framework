@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 # Author: davehull at dph_msf@trustedsignal.com
 #-------------------------------------------------------------------------------
 

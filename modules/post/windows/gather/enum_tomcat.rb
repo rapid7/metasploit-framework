@@ -8,15 +8,11 @@
 require 'rex'
 require 'rexml/document'
 require 'msf/core'
-require 'msf/core/post/file'
-require 'msf/core/post/common'
-require 'msf/core/post/windows/registry'
 require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
   include Msf::Post::File
-  include Msf::Post::Common
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
 

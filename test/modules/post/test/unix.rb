@@ -1,5 +1,6 @@
 
-require 'test/lib/module_test'
+$:.push "test/lib" unless $:.include? "test/lib"
+require 'module_test'
 
 #load 'test/lib/module_test.rb'
 #load 'lib/rex/text.rb'
@@ -15,11 +16,10 @@ class Metasploit4 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Testing remote unix system manipulation',
+				'Name'          => 'Testing Remote Unix System Manipulation',
 				'Description'   => %q{ This module will test Post::File API methods },
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'egypt'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'linux', 'java' ],
 				'SessionTypes'  => [ 'meterpreter', 'shell' ]
 			))

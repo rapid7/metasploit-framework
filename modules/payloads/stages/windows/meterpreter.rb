@@ -8,7 +8,9 @@
 
 require 'msf/core'
 require 'msf/core/payload/windows/reflectivedllinject'
+require 'msf/core/payload/windows/x64/reflectivedllinject'
 require 'msf/base/sessions/meterpreter_x86_win'
+require 'msf/base/sessions/meterpreter_x64_win'
 require 'msf/base/sessions/meterpreter_options'
 
 ###
@@ -39,7 +41,7 @@ module Metasploit3
   end
 
   def library_path
-    File.join(Msf::Config.install_root, "data", "meterpreter", "metsrv.dll")
+    File.join(Msf::Config.data_directory, "meterpreter", "metsrv.x86.dll")
   end
 
 end

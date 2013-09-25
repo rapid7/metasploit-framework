@@ -82,7 +82,7 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
 		end
 
 		it 'should yield #connection' do
-			connection = mock('Connection')
+			connection = double('Connection')
 			connection_pool.stub(:connection => connection)
 
 			expect { |block|
