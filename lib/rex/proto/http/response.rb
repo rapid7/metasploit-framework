@@ -66,7 +66,7 @@ class Response < Packet
     cookies = ""
     if (self.headers.include?('Set-Cookie'))
       set_cookies = self.headers['Set-Cookie']
-      key_vals = set_cookies.scan(/\s?([^, ;]+?)=([^, ;]+?);/)
+      key_vals = set_cookies.scan(/\s?([^, ;]+?)=([^, ;]*?);/)
       key_vals.each do |k, v|
         # Dont downcase actual cookie name as may be case sensitive
         name = k.downcase
