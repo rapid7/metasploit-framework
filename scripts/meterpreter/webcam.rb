@@ -1,5 +1,3 @@
-#  $Id$
-#  $Revision$
 #  Author: scriptjunkie
 #
 # Simplify running webcam, whether grabbing a single frame or running

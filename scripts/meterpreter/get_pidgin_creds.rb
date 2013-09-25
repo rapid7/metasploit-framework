@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 #-------------------------------------------------------------------------------
 require "rexml/document"
@@ -145,7 +143,7 @@ end
 #Function to enumerate the users if running as SYSTEM
 def enum_users(os)
 	users = []
-	
+
 	path4users = ""
 	sysdrv = @client.fs.file.expand_path("%SystemDrive%")
 

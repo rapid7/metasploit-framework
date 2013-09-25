@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 # Author:Roni Bachar (@roni_bachar) roni.bachar.blog@gmail.com
 #
 # Thie script will open an interactive view of remote hosts

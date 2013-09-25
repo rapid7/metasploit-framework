@@ -218,6 +218,12 @@ class Metasploit3 < Msf::Auxiliary
 
       if (res and res.code == 301)
         uri = URI(res.headers['Location'])
+        if uri.path =~ /\/author\/([[:print:]]+)\//
+          username = $1
+          print_good "#{uri.path} - Found user '#{username}' with id #{i.to_s}"
+          usernames << username
+          next
+        end
         uri = "#{uri.path}?#{uri.query}"
         res = send_request_cgi({
           'method' => 'GET',
@@ -245,5 +251,4 @@ class Metasploit3 < Msf::Auxiliary
 
     return usernames
   end
-
 end

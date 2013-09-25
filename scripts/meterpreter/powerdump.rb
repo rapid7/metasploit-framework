@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 #
 # Meterpreter script for utilizing purely PowerShell to extract username and password hashes through registry
 # keys. This script requires you to be running as system in order to work properly. This has currently been

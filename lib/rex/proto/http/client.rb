@@ -504,7 +504,7 @@ class Client
       return resp unless resp.code == 401 && resp.headers['WWW-Authenticate']
 
       # Get the challenge and craft the response
-      ntlm_challenge = resp.headers['WWW-Authenticate'].scan(/#{provider}([A-Z0-9\x2b\x2f=]+)/i).flatten[0]
+      ntlm_challenge = resp.headers['WWW-Authenticate'].scan(/#{provider}([A-Z0-9\x2b\x2f=]+)/ni).flatten[0]
       return resp unless ntlm_challenge
 
       ntlm_message_2 = Rex::Text::decode_base64(ntlm_challenge)

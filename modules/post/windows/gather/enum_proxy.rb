@@ -6,7 +6,6 @@
 ##
 
 require 'msf/core'
-require 'msf/core/post/windows/services'
 
 class Metasploit3 < Msf::Post
 

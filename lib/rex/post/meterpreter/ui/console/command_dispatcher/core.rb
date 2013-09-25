@@ -377,7 +377,7 @@ class Console::CommandDispatcher::Core
       case opt
         when "-l"
           exts = []
-          path = ::File.join(Msf::Config.install_root, 'data', 'meterpreter')
+          path = ::File.join(Msf::Config.data_directory, 'meterpreter')
           ::Dir.entries(path).each { |f|
             if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
               exts.push($1)
@@ -422,7 +422,7 @@ class Console::CommandDispatcher::Core
 
   def cmd_load_tabs(str, words)
     tabs = []
-    path = ::File.join(Msf::Config.install_root, 'data', 'meterpreter')
+    path = ::File.join(Msf::Config.data_directory, 'meterpreter')
     ::Dir.entries(path).each { |f|
       if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
         if (not extensions.include?($1))

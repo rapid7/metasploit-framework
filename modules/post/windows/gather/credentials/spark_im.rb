@@ -7,13 +7,10 @@
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/common'
-require 'msf/core/post/windows/user_profiles'
 require 'openssl'
 
 class Metasploit3 < Msf::Post
 
-  include Msf::Post::Common
   include Msf::Post::Windows::UserProfiles
 
   def initialize(info={})
