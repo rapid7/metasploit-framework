@@ -122,10 +122,15 @@ module Priv
           KEY_READ
       )
       uac_level = open_key.query_value('ConsentPromptBehaviorAdmin')
-    rescue Exception => e
+    rescue Rex::Post::Meterpreter::RequestError => e
       print_error("Error Checking UAC: #{e.class} #{e}")
     end
-    return uac_level.data
+    
+    if uac_level
+      return uac_level.data
+    else
+      return nil
+    end
   end
 
   #
