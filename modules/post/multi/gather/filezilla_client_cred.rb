@@ -8,8 +8,6 @@
 require 'msf/core'
 require 'rex'
 require 'rexml/document'
-require 'msf/core/post/file'
-require 'msf/core/post/windows/user_profiles'
 
 class Metasploit3 < Msf::Post
 
@@ -26,7 +24,7 @@ class Metasploit3 < Msf::Post
           'bannedit', # post port, added support for shell sessions
           'Carlos Perez <carlos_perez[at]darkoperator.com>' # original meterpreter script
         ],
-      'Platform'       => ['unix', 'bsd', 'linux', 'osx', 'win'],
+      'Platform'       => %w{ bsd linux osx unix win },
       'SessionTypes'   => ['shell', 'meterpreter' ]
     ))
   end

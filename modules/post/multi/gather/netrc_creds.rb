@@ -6,13 +6,9 @@
 ##
 
 require 'msf/core'
-require 'msf/core/post/common'
-require 'msf/core/post/file'
-require 'msf/core/post/unix'
 
 class Metasploit3 < Msf::Post
 
-  include Msf::Post::Common
   include Msf::Post::File
   include Msf::Post::Unix
 
@@ -24,7 +20,7 @@ class Metasploit3 < Msf::Post
         },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Jon Hart <jhart[at]spoofed.org>' ],
-        'Platform'      => [ 'bsd', 'linux', 'osx', 'unix' ],
+        'Platform'      => %w{ bsd linux osx unix },
         'SessionTypes'  => [ 'shell' ]
       ))
   end

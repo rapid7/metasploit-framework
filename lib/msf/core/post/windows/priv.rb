@@ -2,12 +2,7 @@
 
 require 'msf/core/post/windows/accounts'
 
-module Msf
-class Post
-module Windows
-
-module Priv
-
+module Msf::Post::Windows::Priv
   include ::Msf::Post::Windows::Accounts
 
   LowIntegrityLevel = 'S-1-16-4096'
@@ -182,7 +177,3 @@ module Priv
   end
 
 end
-end
-end
-end
-

@@ -7,8 +7,6 @@
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/windows/registry'
-require 'msf/core/post/windows/user_profiles'
 require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post

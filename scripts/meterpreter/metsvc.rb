@@ -1,6 +1,3 @@
-# $Id$
-# $Revision$
-
 #
 # Meterpreter script for installing the meterpreter service
 #

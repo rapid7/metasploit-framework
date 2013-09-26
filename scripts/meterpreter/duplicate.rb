@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 # Author: Scriptjunkie
 # Uses a meterpreter session to spawn a new meterpreter session in a different process.
 # A new process allows the session to take "risky" actions that might get the process killed by

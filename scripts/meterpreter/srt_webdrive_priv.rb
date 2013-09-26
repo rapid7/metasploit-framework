@@ -1,6 +1,3 @@
-# $Id$
-# $Revision$
-
 ##
 # South River Technologies WebDrive Service Bad Security Descriptor Local Privilege Escalation.
 #

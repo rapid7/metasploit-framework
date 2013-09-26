@@ -1,4 +1,5 @@
 
+$:.push "test/lib" unless $:.include? "test/lib"
 require 'module_test'
 
 #load 'test/lib/module_test.rb'

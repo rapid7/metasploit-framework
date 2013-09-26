@@ -9,7 +9,6 @@
 require 'msf/core'
 require 'rex'
 require 'rexml/document'
-require 'msf/core/post/windows/user_profiles'
 
 class Metasploit3 < Msf::Post
   include Msf::Post::Windows::UserProfiles

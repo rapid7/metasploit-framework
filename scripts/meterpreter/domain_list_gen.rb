@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 #-------------------------------------------------------------------------------
 #Options and Option Parsing
