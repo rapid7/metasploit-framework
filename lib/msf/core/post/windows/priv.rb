@@ -2,12 +2,7 @@
 
 require 'msf/core/post/windows/accounts'
 
-module Msf
-class Post
-module Windows
-
-module Priv
-
+module Msf::Post::Windows::Priv
   include ::Msf::Post::Windows::Accounts
 
   LowIntegrityLevel = 'S-1-16-4096'
@@ -122,10 +117,15 @@ module Priv
           KEY_READ
       )
       uac_level = open_key.query_value('ConsentPromptBehaviorAdmin')
-    rescue Exception => e
+    rescue Rex::Post::Meterpreter::RequestError => e
       print_error("Error Checking UAC: #{e.class} #{e}")
     end
-    return uac_level.data
+    
+    if uac_level
+      return uac_level.data
+    else
+      return nil
+    end
   end
 
   #
@@ -177,7 +177,3 @@ module Priv
   end
 
 end
-end
-end
-end
-

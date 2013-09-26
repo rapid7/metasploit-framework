@@ -8,8 +8,6 @@
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/windows/shadowcopy'
-require 'msf/core/post/windows/priv'
 
 class Metasploit3 < Msf::Post
 

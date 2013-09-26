@@ -1,6 +1,3 @@
-# $Id$
-# $Revision$
-
 # Meterpreter script that display local subnets
 # Provided by Nicob <nicob [at] nicob.net>
 # Ripped from http://blog.metasploit.com/2006/10/meterpreter-scripts-and-msrt.html

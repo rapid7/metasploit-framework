@@ -6,13 +6,9 @@
 ##
 
 require 'msf/core'
-require 'msf/core/post/common'
-require 'msf/core/post/file'
-require 'msf/core/post/linux/system'
 
 class Metasploit3 < Msf::Post
 
-  include Msf::Post::Common
   include Msf::Post::File
   include Msf::Post::Linux::System
 

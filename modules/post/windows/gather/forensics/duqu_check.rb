@@ -6,14 +6,10 @@
 ##
 
 require 'msf/core'
-require 'msf/core/post/common'
-require 'msf/core/post/windows/registry'
-require 'msf/core/post/windows/priv'
 require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
-  include Msf::Post::Common
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
 

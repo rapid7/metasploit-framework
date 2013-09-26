@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 
 #copied getvncpw - thanks grutz/carlos
 
@@ -15,7 +13,7 @@ def usage()
 end
 
 def get_community(session)
-	key = "HKLM\\System\\CurrentControlSet\\Services\\SNMP\\Parameters\\ValidCommunities"	
+	key = "HKLM\\System\\CurrentControlSet\\Services\\SNMP\\Parameters\\ValidCommunities"
 	root_key, base_key = session.sys.registry.splitkey(key)
 	open_key = session.sys.registry.open_key(root_key,base_key,KEY_READ)
 	begin
@@ -37,7 +35,7 @@ end
 if client.platform =~ /win32|win64/
 	print_status("Searching for community strings...")
 	strs = get_community(session)
-	if strs	
+	if strs
 		strs.each do |str|
 			print_good("FOUND: #{str}")
 			@client.framework.db.report_auth_info(
@@ -50,7 +48,7 @@ if client.platform =~ /win32|win64/
 				:type	=> "snmp.community",
 				:duplicate_ok	=> true
 			)
-		end		
+		end
 	else
 		print_status("Not found")
 	end
