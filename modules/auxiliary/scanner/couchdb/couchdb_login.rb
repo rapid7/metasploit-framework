@@ -33,11 +33,11 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(5984),
         OptString.new('TARGETURI', [false, "TARGETURI for CouchDB. Default here is /", "/"]),
         OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "http_default_userpass.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_userpass.txt") ]),
         OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "http_default_users.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt") ]),
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "http_default_pass.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
         OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", false]),
       ], self.class)
   end

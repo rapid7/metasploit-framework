@@ -657,7 +657,7 @@ class Metasploit3 < Msf::Auxiliary
           FROM sys.user$
           where password != 'null' and  type# = 1
         |
-        ordfltpss = "#{File.join(Msf::Config.install_root, "data", "wordlists", "oracle_default_hashes.txt")}"
+        ordfltpss = "#{File.join(Msf::Config.data_directory, "wordlists", "oracle_default_hashes.txt")}"
         returnedstring = prepare_exec(query)
         accts = {}
         returnedstring.each do |record|

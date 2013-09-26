@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('USERNAME',  [ false, "Username for authentication (default: admin)","admin" ]),
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "http_default_pass.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
       ], self.class)
   end
 

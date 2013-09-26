@@ -32,13 +32,13 @@ module Auxiliary::JohnTheRipper
     )
 
     @run_path  = nil
-    @john_path = ::File.join(Msf::Config.install_root, "data", "john")
+    @john_path = ::File.join(Msf::Config.data_directory, "john")
 
     autodetect_platform
   end
 
   def autodetect_platform
-    cpuinfo_base = ::File.join(Msf::Config.install_root, "data", "cpuinfo")
+    cpuinfo_base = ::File.join(Msf::Config.data_directory, "cpuinfo")
     return @run_path if @run_path
 
     case ::RUBY_PLATFORM

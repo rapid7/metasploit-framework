@@ -29,7 +29,7 @@ end
 # Default parameters
 #
 
-based    = File.join(Msf::Config.install_root, "data", "meterpreter")
+based    = File.join(Msf::Config.data_directory, "meterpreter")
 rport    = 31337
 install  = false
 autoconn = false

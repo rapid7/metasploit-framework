@@ -38,7 +38,7 @@ module Metasploit3
           [
             true,
             "The local path to the iSight Mach-O Bundle to upload",
-            File.join(Msf::Config.install_root, "data", "isight.bundle")
+            File.join(Msf::Config.data_directory, "isight.bundle")
           ]),
         OptBool.new('AUTOVIEW',
           [

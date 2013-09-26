@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(69),
         Opt::CHOST,
         OptPath.new('DICTIONARY', [ true, 'The list of filenames',
-          File.join(Msf::Config.install_root, "data", "wordlists", "tftp.txt") ])
+          File.join(Msf::Config.data_directory, "wordlists", "tftp.txt") ])
       ], self.class)
   end
 

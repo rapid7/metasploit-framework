@@ -57,7 +57,7 @@ require 'msf/core/exe/segment_injector'
   end
 
   def self.read_replace_script_template(filename, hash_sub)
-    template_pathname = File.join(Msf::Config.install_root, "data", "templates", "scripts", filename)
+    template_pathname = File.join(Msf::Config.data_directory, "templates", "scripts", filename)
 
     template = ''
     File.open(template_pathname, "rb") do |f|

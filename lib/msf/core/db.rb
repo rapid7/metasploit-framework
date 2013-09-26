@@ -3649,7 +3649,7 @@ class DBManager
     data = ::File.open(args[:filename], "rb") {|f| f.read(f.stat.size)}
     wspace = args[:wspace] || args['wspace'] || workspace
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-    basedir = args[:basedir] || args['basedir'] || ::File.join(Msf::Config.install_root, "data", "msf")
+    basedir = args[:basedir] || args['basedir'] || ::File.join(Msf::Config.data_directory, "msf")
 
     allow_yaml = false
     btag = nil

@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
           [
             false,
             "File containing users and passwords",
-            File.join(Msf::Config.install_root, "data", "wordlists", "cms400net_default_userpass.txt")
+            File.join(Msf::Config.data_directory, "wordlists", "cms400net_default_userpass.txt")
           ])
       ], self.class)
 

@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
       OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
       OptString.new('PASSWORD', [ false, 'The password to test' ]),
       OptPath.new('PASS_FILE',  [ false, "File containing communities, one per line",
-        File.join(Msf::Config.install_root, "data", "wordlists", "snmp_default_pass.txt")
+        File.join(Msf::Config.data_directory, "wordlists", "snmp_default_pass.txt")
       ])
     ], self.class)
 

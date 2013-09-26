@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('PATH', [ true,  "The path  to identify files", '/']),
         OptPath.new('DICTIONARY',   [ false, "Path of word dictionary to use",
-            File.join(Msf::Config.install_root, "data", "wmap", "wmap_dirs.txt")
+            File.join(Msf::Config.data_directory, "wmap", "wmap_dirs.txt")
           ]
         )
 

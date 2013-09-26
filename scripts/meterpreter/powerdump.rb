@@ -28,7 +28,7 @@ end
 
 def dumphash(session)
 
-	path = File.join( Msf::Config.install_root, "data", "exploits", "powershell" )
+	path = File.join( Msf::Config.data_directory, "exploits", "powershell" )
 
 	print_status("Running PowerDump to extract Username and Password Hashes...")
 	filename=("#{rand(100000)}.ps1")

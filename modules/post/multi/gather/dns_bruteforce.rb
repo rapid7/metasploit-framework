@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
 
         OptString.new('DOMAIN', [true, 'Domain to do a fordward lookup bruteforce against.']),
         OptPath.new('NAMELIST',[true, "List of hostnames or subdomains to use.",
-            ::File.join(Msf::Config.install_root, "data", "wordlists", "namelist.txt")])
+            ::File.join(Msf::Config.data_directory, "wordlists", "namelist.txt")])
 
       ], self.class)
   end

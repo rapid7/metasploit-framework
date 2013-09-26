@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('SID', [ false, 'Oracle SID' ]),
         OptInt.new('TIMEOUT', [false, 'Time to wait for HTTP responses', 60]),
         OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "oracle_default_userpass.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "oracle_default_userpass.txt") ]),
         OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", false]),
       ], self.class)
 

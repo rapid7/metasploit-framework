@@ -46,14 +46,14 @@ class Metasploit3 < Msf::Auxiliary
         [
           false,
           "File containing usernames, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "multi_vendor_cctv_dvr_users.txt")
+          File.join(Msf::Config.data_directory, "wordlists", "multi_vendor_cctv_dvr_users.txt")
         ]),
       OptPath.new(
         'PASS_FILE',
         [
           false,
           "File containing passwords, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "multi_vendor_cctv_dvr_pass.txt")
+          File.join(Msf::Config.data_directory, "wordlists", "multi_vendor_cctv_dvr_pass.txt")
         ]),
       OptBool.new('STOP_ON_SUCCESS', [false, "Stop guessing when a credential works for a host", true]),
       OptPort.new('HTTP_PORT', [true, "The HTTP port for the IE ActiveX web client interface", 80]),

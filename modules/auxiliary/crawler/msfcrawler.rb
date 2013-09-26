@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_advanced_options([
       OptPath.new('CrawlerModulesDir', [true,	'The base directory containing the crawler modules',
-        File.join(Msf::Config.install_root, "data", "msfcrawler")
+        File.join(Msf::Config.data_directory, "msfcrawler")
       ]),
       OptBool.new('EnableUl', [ false, "Enable maximum number of request per URI", true ]),
       OptBool.new('StoreDB', [ false, "Store requests in database", false ]),

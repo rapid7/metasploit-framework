@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptInt.new('ErrorCode', [ true,  "The expected http code for non existant directories", 404]),
         OptPath.new('HTTP404Sigs',   [ false, "Path of 404 signatures to use",
-            File.join(Msf::Config.install_root, "data", "wmap", "wmap_404s.txt")
+            File.join(Msf::Config.data_directory, "wmap", "wmap_404s.txt")
           ]
         ),
         OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ]),

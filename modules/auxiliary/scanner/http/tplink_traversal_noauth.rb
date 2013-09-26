@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptPath.new('SENSITIVE_FILES',  [ true, "File containing senstive files, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "sensitive_files.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt") ]),
       ], self.class)
   end
 

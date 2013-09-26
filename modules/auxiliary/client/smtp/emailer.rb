@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
           OptString.new('RHOST', [true, "SMTP server address",'127.0.0.1']),
           OptString.new('RPORT', [true, "SMTP server port",'25']),
           OptString.new('YAML_CONFIG', [true, "Full path to YAML Configuration file",
-            File.join(Msf::Config.install_root, "data","emailer_config.yaml")]),
+            File.join(Msf::Config.data_directory,"emailer_config.yaml")]),
         ], self.class)
 
     # Hide this option from the user
