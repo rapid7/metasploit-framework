@@ -32,6 +32,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
+    vprint_status "#{ip}:#{rport} - SunRPC - Enumerating programs"
 
     begin
       program		= 100000
@@ -43,9 +44,9 @@ class Metasploit3 < Msf::Auxiliary
       resp = sunrpc_call(procedure, "")
 
       progs = resp[3,1].unpack('C')[0]
+      maps = []
       if (progs == 0x01)
-        print_good("#{ip} - Programs available")
-        maps = []
+        print_good("#{ip}:#{rport} - Programs available")
         while XDR.decode_int!(resp) == 1 do
           map = XDR.decode!(resp, Integer, Integer, Integer, Integer)
           maps << map
