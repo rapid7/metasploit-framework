@@ -12,17 +12,18 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super( update_info( info,
-      'Name'		=> 'Auxilliary Parser Windows Unattend Passwords',
-      'Description'	=> %q{
+        'Name'        => 'Auxilliary Parser Windows Unattend Passwords',
+        'Description' => %q{
         This module parses Unattend files in the target directory.
 
         See also: post/windows/gather/enum_unattend
       },
-      'License'	=> MSF_LICENSE,
-      'Author'	=>[
-        'Ben Campbell <eat_meatballs[at]hotmail.co.uk>',
+      'License'       => MSF_LICENSE,
+      'Author'        =>
+        [
+          'Ben Campbell <eat_meatballs[at]hotmail.co.uk>',
         ],
-      'References'	=>
+      'References'    =>
         [
           ['URL', 'http://technet.microsoft.com/en-us/library/ff715801'],
           ['URL', 'http://technet.microsoft.com/en-us/library/cc749415(v=ws.10).aspx'],

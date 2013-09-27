@@ -39,7 +39,7 @@ class Unattend
   #
   def self.extract_deployment(deployment)
     return [] if deployment.nil?
-    domain	  = deployment.elements['Login/Credentials/Domain'].get_text.value rescue ''
+    domain    = deployment.elements['Login/Credentials/Domain'].get_text.value rescue ''
     username  = deployment.elements['Login/Credentials/Username'].get_text.value rescue ''
     password  = deployment.elements['Login/Credentials/Password'].get_text.value rescue ''
     plaintext = deployment.elements['Login/Credentials/Password/PlainText'].get_text.value rescue 'true'
@@ -57,7 +57,7 @@ class Unattend
   #
   def self.extract_domain_join(credentials)
     return [] if credentials.nil?
-    domain	  = credentials.elements['Domain'].get_text.value rescue ''
+    domain    = credentials.elements['Domain'].get_text.value rescue ''
     username  = credentials.elements['Username'].get_text.value rescue ''
     password  = credentials.elements['Password'].get_text.value rescue ''
 
@@ -70,7 +70,7 @@ class Unattend
   def self.extract_autologon(auto_logon)
     return [] if auto_logon.nil?
 
-    domain	  = auto_logon.elements['Domain'].get_text.value rescue ''
+    domain    = auto_logon.elements['Domain'].get_text.value rescue ''
     username  = auto_logon.elements['Username'].get_text.value rescue ''
     password  = auto_logon.elements['Password/Value'].get_text.value rescue ''
     plaintext = auto_logon.elements['Password/PlainText'].get_text.value rescue 'true'
