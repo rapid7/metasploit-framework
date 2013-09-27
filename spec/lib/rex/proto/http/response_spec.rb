@@ -125,13 +125,15 @@ describe Rex::Proto::Http::Response do
     cookies.split(';').map(&:strip)
   end
 
-  it 'get_cookies returns empty string for no Set-Cookies' do
+  context "#get_cookies" do
+
+  it 'returns empty string for no Set-Cookies' do
     resp = described_class.new()
     resp.parse(get_cookies_test_no_cookies)
     resp.get_cookies.should eq('')
   end
 
-  it 'get_cookies returns 5 cookies when given 5 cookies non-sequentially' do
+  it 'returns 5 cookies when given 5 cookies non-sequentially' do
     cookies_array = cookie_sanity_check(:get_cookies_test_five_cookies)
     cookies_array.count.should eq(5)
     cookies_array.should =~ %w(
@@ -143,7 +145,7 @@ describe Rex::Proto::Http::Response do
     )
   end
 
-  it 'get_cookies returns and parses 5 cookies when given 5 ordered cookies' do
+  it 'returns and parses 5 cookies when given 5 ordered cookies' do
     cookies_array = cookie_sanity_check(:get_cookies_test_five_ordered_cookies)
     cookies_array.count.should eq(5)
     expected_cookies = %w{
@@ -157,7 +159,7 @@ describe Rex::Proto::Http::Response do
     cookies_array.should include(*expected_cookies)
   end
 
-  it 'get_cookies correctly parses an empty cookie value' do
+  it 'parses an empty cookie value' do
     cookies_array = cookie_sanity_check(:get_cookies_test_with_empty_cookie)
     cookies_array.count.should eq(5)
     expected_cookies = %w{
@@ -182,4 +184,5 @@ describe Rex::Proto::Http::Response do
     expected_cookies.shuffle!
     cookies_array.should include(*expected_cookies)
   end
+end
 end
