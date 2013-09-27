@@ -80,6 +80,15 @@ class EncodedPayload
       Thread.current.priority = priority
     end
 
+    # If the targets arch is ARCH_CMD and the payload responds to to_command
+    # call it to convert it to a command
+    if self.reqs.include?('TargetArch')
+      if self.reqs['TargetArch'] == [ARCH_CMD] and self.pinst.respond_to?('to_command')
+        self.raw = self.pinst.to_command(self.raw)
+        self.encoded = self.pinst.to_command(self.encoded)
+      end
+    end
+
     # Return the complete payload
     return encoded
   end

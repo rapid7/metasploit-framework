@@ -4,6 +4,7 @@
 ##
 
 require 'msf/core'
+require 'msf/core/payload/python'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
@@ -11,6 +12,7 @@ require 'msf/base/sessions/command_shell_options'
 module Metasploit3
 
   include Msf::Payload::Stager
+  include Msf::Payload::Python
 
   def initialize(info = {})
     super(merge_info(info,
@@ -18,8 +20,7 @@ module Metasploit3
       'Description'   => 'Connect back to the attacker',
       'Author'        => 'Spencer McIntyre',
       'License'       => MSF_LICENSE,
-      'Platform'      => 'python',
-      'Arch'          => ARCH_PYTHON,
+      'Platform'      => %w{ linux osx python unix win },
       'Handler'       => Msf::Handler::ReverseTcp,
       'Stager'        => {'Payload' => ""}
     ))
