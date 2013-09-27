@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Post
   def save_cred_tables(cred_table)
     t = cred_table
     vprint_line("\n#{t.to_s}\n")
-    p = store_loot('windows.unattended.creds', 'text/csv', session, t.to_csv, t.header, t.header)
+    p = store_loot('windows.unattended.creds', 'text/plain', session, t.to_csv, t.header, t.header)
     print_status("#{t.header} saved as: #{p}")
   end
 
