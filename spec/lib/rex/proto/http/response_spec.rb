@@ -115,7 +115,7 @@ describe Rex::Proto::Http::Response do
       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     HEREDOC
   end
-  
+
   def cookie_sanity_check(meth)
     resp = described_class.new()
     resp.parse(self.send meth)
@@ -127,62 +127,65 @@ describe Rex::Proto::Http::Response do
 
   context "#get_cookies" do
 
-  it 'returns empty string for no Set-Cookies' do
-    resp = described_class.new()
-    resp.parse(get_cookies_test_no_cookies)
-    resp.get_cookies.should eq('')
-  end
+    it 'returns empty string for no Set-Cookies' do
+      resp = described_class.new()
+      resp.parse(get_cookies_test_no_cookies)
+      resp.get_cookies.should eq('')
+    end
 
-  it 'returns 5 cookies when given 5 cookies non-sequentially' do
-    cookies_array = cookie_sanity_check(:get_cookies_test_five_cookies)
-    cookies_array.count.should eq(5)
-    cookies_array.should =~ %w(
+    it 'returns 5 cookies when given 5 cookies non-sequentially' do
+      cookies_array = cookie_sanity_check(:get_cookies_test_five_cookies)
+      cookies_array.count.should eq(5)
+      cookies_array.should =~ %w(
       pma_lang=en
       pma_collation_connection=utf8_general_ci
       pma_mcrypt_iv=mF1NmTE64IY%3D
       phpMyAdmin=fmilioji5cn4m8bo5vjrrr6q9cada954
       phpMyAdmin=gpjif0gtpqbvfion91ddtrq8p8vgjtue
-    )
-  end
+      )
+    end
 
-  it 'returns and parses 5 cookies when given 5 ordered cookies' do
-    cookies_array = cookie_sanity_check(:get_cookies_test_five_ordered_cookies)
-    cookies_array.count.should eq(5)
-    expected_cookies = %w{
+    it 'returns and parses 5 cookies when given 5 ordered cookies' do
+      cookies_array = cookie_sanity_check(:get_cookies_test_five_ordered_cookies)
+      cookies_array.count.should eq(5)
+      expected_cookies = %w{
       pma_lang=en
       pma_collation_connection=utf8_general_ci
       pma_mcrypt_iv=mF1NmTE64IY%3D
       phpMyAdmin=fmilioji5cn4m8bo5vjrrr6q9cada954
       superC00kie!=stupidcookie
-    }
-    expected_cookies.shuffle!
-    cookies_array.should include(*expected_cookies)
-  end
+      }
+      expected_cookies.shuffle!
+      cookies_array.should include(*expected_cookies)
+    end
 
-  it 'parses an empty cookie value' do
-    cookies_array = cookie_sanity_check(:get_cookies_test_with_empty_cookie)
-    cookies_array.count.should eq(5)
-    expected_cookies = %w{
+    it 'parses an empty cookie value' do
+      cookies_array = cookie_sanity_check(:get_cookies_test_with_empty_cookie)
+      cookies_array.count.should eq(5)
+      expected_cookies = %w{
       pma_lang=en
       pma_collation_connection=utf8_general_ci
       pma_mcrypt_iv=mF1NmTE64IY%3D
       phpMyAdmin=
       phpMyAdmin=gpjif0gtpqbvfion91ddtrq8p8vgjtue
-    }
-    expected_cookies.shuffle!
-    cookies_array.should include(*expected_cookies)
+      }
+      expected_cookies.shuffle!
+      cookies_array.should include(*expected_cookies)
 
-  end
+    end
 
-  it 'parses multiple cookies in one Set-Cookie header' do
-    cookies_array = cookie_sanity_check(:get_cookies_test_one_set_cookie_header)
-    cookies_array.count.should eq(2)
-    expected_cookies = %w{
+    it 'parses multiple cookies in one Set-Cookie header' do
+      cookies_array = cookie_sanity_check(:get_cookies_test_one_set_cookie_header)
+      cookies_array.count.should eq(2)
+      expected_cookies = %w{
       wordpressuser_a97c5267613d6de70e821ff82dd1ab94=admin
       wordpresspass_a97c5267613d6de70e821ff82dd1ab94=c3284d0f94606de1fd2af172aba15bf3
-    }
-    expected_cookies.shuffle!
-    cookies_array.should include(*expected_cookies)
+      }
+      expected_cookies.shuffle!
+      cookies_array.should include(*expected_cookies)
+    end
+
   end
+
 end
-end
+
