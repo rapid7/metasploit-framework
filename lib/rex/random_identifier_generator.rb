@@ -66,22 +66,22 @@ class Rex::RandomIdentifierGenerator
     #}
   end
 
-	# Returns the @value_by_name hash
-	#
-	# @return [Hash]
-	def to_h
-		return @value_by_name
-	end
+  # Returns the @value_by_name hash
+  #
+  # @return [Hash]
+  def to_h
+    return @value_by_name
+  end
 
-	# Return a unique random identifier for +name+, generating a new one
-	# if necessary.
-	#
-	# @param name [Symbol] A descriptive, intention-revealing name for an
-	#   identifier. This is what you would normally call the variable if
-	#   you weren't generating it.
-	# @return [String]
-	def get(name)
-		return @value_by_name[name] if @value_by_name[name]
+  # Return a unique random identifier for +name+, generating a new one
+  # if necessary.
+  #
+  # @param name [Symbol] A descriptive, intention-revealing name for an
+  #   identifier. This is what you would normally call the variable if
+  #   you weren't generating it.
+  # @return [String]
+  def get(name)
+    return @value_by_name[name] if @value_by_name[name]
 
     @value_by_name[name] = generate
     @name_by_value[@value_by_name[name]] = name

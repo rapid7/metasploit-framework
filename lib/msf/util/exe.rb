@@ -57,8 +57,8 @@ require 'msf/core/exe/segment_injector'
     end
   end
 
-	def self.read_replace_script_template(filename, hash_sub)
-		template_pathname = File.join(Msf::Config.data_directory, "templates", "scripts", filename)
+  def self.read_replace_script_template(filename, hash_sub)
+    template_pathname = File.join(Msf::Config.data_directory, "templates", "scripts", filename)
 
     template = ''
     File.open(template_pathname, "rb") do |f|
@@ -898,17 +898,17 @@ def self.to_vba(framework,code,opts={})
     return read_replace_script_template("to_mem.aspx.template", hash_sub)
   end
 
-	def self.to_win32pe_psh_net(framework, code, opts={})
-		hash_sub = {}
-		hash_sub[:var_code] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-		hash_sub[:var_kernel32] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-		hash_sub[:var_baseaddr] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-		hash_sub[:var_threadHandle] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-		hash_sub[:var_output] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-		hash_sub[:var_temp] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-		hash_sub[:var_codeProvider] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-		hash_sub[:var_compileParams] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-		hash_sub[:var_syscode] 		= Rex::Text.rand_text_alpha(rand(8)+8)
+  def self.to_win32pe_psh_net(framework, code, opts={})
+    hash_sub = {}
+    hash_sub[:var_code] 		= Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_kernel32] 	= Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_baseaddr] 	= Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_threadHandle] 	= Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_output] 		= Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_temp] 		= Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_codeProvider] 	= Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_compileParams] 	= Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_syscode] 		= Rex::Text.rand_text_alpha(rand(8)+8)
 
     hash_sub[:shellcode] = Rex::Text.to_powershell(code, hash_sub[:var_code])
 
@@ -1610,22 +1610,22 @@ def self.to_vba(framework,code,opts={})
     when 'aspx'
         output = Msf::Util::EXE.to_mem_aspx(framework, code, exeopts)
 
-		when 'aspx-exe'
-			exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
-			output = Msf::Util::EXE.to_exe_aspx(exe, exeopts)
+    when 'aspx-exe'
+      exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+      output = Msf::Util::EXE.to_exe_aspx(exe, exeopts)
 
-		when 'dll'
-			output = case arch
-				when ARCH_X86,nil then to_win32pe_dll(framework, code, exeopts)
-				when ARCH_X86_64  then to_win64pe_dll(framework, code, exeopts)
-				when ARCH_X64     then to_win64pe_dll(framework, code, exeopts)
-				end
-		when 'exe'
-			output = case arch
-				when ARCH_X86,nil then to_win32pe(framework, code, exeopts)
-				when ARCH_X86_64  then to_win64pe(framework, code, exeopts)
-				when ARCH_X64     then to_win64pe(framework, code, exeopts)
-				end
+    when 'dll'
+      output = case arch
+        when ARCH_X86,nil then to_win32pe_dll(framework, code, exeopts)
+        when ARCH_X86_64  then to_win64pe_dll(framework, code, exeopts)
+        when ARCH_X64     then to_win64pe_dll(framework, code, exeopts)
+        end
+    when 'exe'
+      output = case arch
+        when ARCH_X86,nil then to_win32pe(framework, code, exeopts)
+        when ARCH_X86_64  then to_win64pe(framework, code, exeopts)
+        when ARCH_X64     then to_win64pe(framework, code, exeopts)
+        end
 
     when 'exe-service'
       output = case arch
