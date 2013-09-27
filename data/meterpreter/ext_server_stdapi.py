@@ -580,18 +580,26 @@ def stdapi_fs_delete_file(request, response):
 @meterpreter.register_function
 def stdapi_fs_file_expand_path(request, response):
 	path_tlv = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
-	if path_tlv == '%COMSPEC%':
-		if platform.system() == 'Windows':
-			result = 'cmd.exe'
-		else:
-			result = '/bin/sh'
-	elif path_tlv in ['%TEMP%', '%TMP%'] and platform.system() != 'Windows':
+	if has_windll:
+		path_out = (ctypes.c_char * 4096)()
+		path_out_len = ctypes.windll.kernel32.ExpandEnvironmentStringsA(path_tlv, ctypes.byref(path_out), ctypes.sizeof(path_out))
+		result = ''.join(path_out)[:path_out_len]
+	elif path_tlv == '%COMSPEC%':
+		result = '/bin/sh'
+	elif path_tlv in ['%TEMP%', '%TMP%']:
 		result = '/tmp'
 	else:
-		result = os.getenv(path_tlv)
+		result = os.getenv(path_tlv, path_tlv)
 	if not result:
 		return ERROR_FAILURE, response
 	response += tlv_pack(TLV_TYPE_FILE_PATH, result)
+	return ERROR_SUCCESS, response
+
+@meterpreter.register_function
+def stdapi_fs_file_move(request, response):
+	oldname = packet_get_tlv(request, TLV_TYPE_FILE_NAME)['value']
+	newname = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
+	os.rename(oldname, newname)
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
@@ -622,7 +630,7 @@ def stdapi_fs_md5(request, response):
 		m = hashlib.md5()
 	path = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
 	m.update(open(path, 'rb').read())
-	response += tlv_pack(TLV_TYPE_FILE_NAME, m.hexdigest())
+	response += tlv_pack(TLV_TYPE_FILE_NAME, m.digest())
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
@@ -669,7 +677,7 @@ def stdapi_fs_sha1(request, response):
 		m = hashlib.sha1()
 	path = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
 	m.update(open(path, 'rb').read())
-	response += tlv_pack(TLV_TYPE_FILE_NAME, m.hexdigest())
+	response += tlv_pack(TLV_TYPE_FILE_NAME, m.digest())
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function

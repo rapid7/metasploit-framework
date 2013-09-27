@@ -17,7 +17,7 @@ module Metasploit3
       'Name'          => 'Generic x86 Tight Loop',
       'Description'   => 'Generate a tight loop in the target process',
       'Author'        => 'jduck',
-      'Platform'	    => [ 'win', 'linux', 'bsd', 'solaris', 'bsdi', 'osx' ],
+      'Platform'	    => %w{ bsd bsdi linux osx solaris win },
       'License'       => MSF_LICENSE,
       'Arch'		    => ARCH_X86,
       'Payload'	    =>

@@ -91,7 +91,7 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
 		end
 
 		let(:namespace_module) do
-			mock('Namespace Module', :parent_path => parent_path)
+			double('Namespace Module', :parent_path => parent_path)
 		end
 
 		let(:options) do

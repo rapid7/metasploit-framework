@@ -7,13 +7,8 @@
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/common'
-
 
 class Metasploit3 < Msf::Post
-
-  include Msf::Post::Common
-
 
   def initialize(info={})
     super( update_info( info,
@@ -21,7 +16,7 @@ class Metasploit3 < Msf::Post
         'Description'   => %q{ Performs IPv4 ping sweep using the OS included ping command.},
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-        'Platform'      => [ 'win','linux', 'osx', 'bsd', 'solaris' ],
+        'Platform'      => %w{ bsd linux osx solaris win },
         'SessionTypes'  => [ 'meterpreter', 'shell' ]
       ))
     register_options(

@@ -9,17 +9,12 @@ require 'msf/core'
 require 'rex'
 require 'csv'
 
-require 'msf/core/post/common'
-require 'msf/core/post/file'
-require 'msf/core/post/windows/user_profiles'
 
-require 'msf/core/post/osx/system'
 
 
 
 class Metasploit3 < Msf::Post
 
-  include Msf::Post::Common
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
 
@@ -36,7 +31,7 @@ class Metasploit3 < Msf::Post
         },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-        'Platform'      => [ 'win', 'osx' ],
+        'Platform'      => %w{ osx win },
         'SessionTypes'  => [ 'meterpreter', 'shell' ]
       ))
     register_advanced_options(

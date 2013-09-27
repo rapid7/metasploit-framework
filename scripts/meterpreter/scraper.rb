@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 # This is a Meterpreter script designed to be used by the Metasploit Framework
 #
 # The goal of this script is to obtain system information from a victim through

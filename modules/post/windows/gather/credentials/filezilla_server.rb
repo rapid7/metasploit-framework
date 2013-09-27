@@ -8,7 +8,6 @@
 require 'msf/core'
 require 'rex'
 require 'rexml/document'
-require 'msf/core/post/file'
 
 class Metasploit3 < Msf::Post
 

@@ -24,6 +24,8 @@ shared_context 'Msf::Util::Exe' do
       { :format => "loop-vbs",  :arch => "x86_64", :file_fp => /ASCII/  },
       { :format => "asp",  :arch => "x86", :file_fp => /ASCII/  },
       { :format => "asp",  :arch => "x86_64", :file_fp => /ASCII/  },
+      { :format => "aspx-exe",  :arch => "x86", :file_fp => /ASCII/  },
+      { :format => "aspx-exe",  :arch => "x86_64", :file_fp => /ASCII/  },
       { :format => "aspx",  :arch => "x86", :file_fp => /ASCII/  },
       { :format => "aspx",  :arch => "x86_64", :file_fp => /ASCII/  },
       { :format => "vba",  :arch => "x86", :file_fp => /ASCII/  },

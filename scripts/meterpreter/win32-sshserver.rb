@@ -1,7 +1,3 @@
-# win32-sshserver.rb
-#
-# $Id$
-# $Revision$
 #
 # meterpreter-script to deploy + run OpenSSH
 # on the target machine
@@ -95,10 +91,10 @@ type = "auto"
 #
 @@exec_opts.parse(args) { |opt, idx, val|
 	case opt
-		
+
 	when "-h"
 		usage
-		
+
 	when "-f"
 		if !val
 			print_error("-f requires the SFX-filename as argument !")
@@ -110,14 +106,14 @@ type = "auto"
 			usage
 		end
 		manual = true
-		
+
 	when "-U"
 		if !val
 			print_error("-U requires the download-URL for the OpenSSH-SFX as argument !")
 			usage
 		end
 		downloadurl = val
-		
+
 	when "-p"
 		if !val
 			print_error("-p requires the password (for the windows-user to add) as argument !")
@@ -128,47 +124,47 @@ type = "auto"
 			usage
 		end
 		password = val
-		
+
 	when "-u"
 		if !val
 			print_error("-u requires the username (for the windows-user to add) as argument!")
 			usage
 		end
 		username = val
-		
+
 	when "-r"
 		uninstall = true
-		
+
 	when "-I"
 		if !val
 			print_error("-I requires a directory-name to use as installpath")
 			usage
 		end
 		dirname = val
-		
+
 	when "-F"
 		forced = true
-		
+
 	when "-S"
 		if !val
 			print_error("-S requires s custom string to use as the service-description")
 			usage
 		end
 		servicedesc = val
-		
+
 	when "-N"
 		if !val
 			print_error("-N requires a custom string to use as service-name")
 			usage
 		end
 		servicename = val
-		
+
 	when "-m"
 		noauto = true
-		
+
 	when "-t"
 		type = manual
-		
+
 	else
 		print_error("Unknown option: #{opt}")
 		usage
@@ -332,7 +328,7 @@ unless username == "none"
 		print_error("You need to provide a nonempty password for the user with the \"-p\"-parameter!")
 		usage
 	end
-	
+
 	#Get localized name for windows-admin-grp
 	admingrpname = nil
 	client.sys.process.execute("cmd.exe", "/c #{dirname}\\bin\\mkgroup.exe -l > #{dirname}\\groupnames.txt")

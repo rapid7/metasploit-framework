@@ -229,7 +229,7 @@ describe Msf::Modules::Namespace do
 					it 'should not raise an error' do
 						expect {
 							subject.version_compatible!(module_path, module_reference_name)
-						}.to_not raise_error(Msf::Modules::VersionCompatibilityError)
+						}.to_not raise_error
 					end
 				end
 			end
