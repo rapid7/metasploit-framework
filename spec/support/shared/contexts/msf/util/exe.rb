@@ -38,6 +38,12 @@ shared_context 'Msf::Util::Exe' do
       { :format => "psh-net",  :arch => "x86_64", :file_fp => /ASCII/  },
       { :format => "war",  :arch => "x86", :file_fp => /Zip/  },
       { :format => "war",  :arch => "x86_64", :file_fp => /Zip/  },
+      { :format => "msi",  :arch => "x86", :file_fp => /Composite Document/  },
+      { :format => "msi",  :arch => "x64", :file_fp => /Composite Document/  },
+      { :format => "msi",  :arch => "x86_64", :file_fp => /Composite Document/  },
+      { :format => "msi-nouac",  :arch => "x86", :file_fp => /Composite Document/  },
+      { :format => "msi-nouac",  :arch => "x64", :file_fp => /Composite Document/  },
+      { :format => "msi-nouac",  :arch => "x86_64", :file_fp => /Composite Document/  },
     ],
     "linux" => [
       { :format => "elf", :arch => "x86",    :file_fp => /ELF 32.*SYSV/ },
