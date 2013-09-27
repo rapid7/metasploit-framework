@@ -25,7 +25,8 @@ class Metasploit3 < Msf::Auxiliary
       'References'	=>
         [
           ['URL', 'http://technet.microsoft.com/en-us/library/ff715801'],
-          ['URL', 'http://technet.microsoft.com/en-us/library/cc749415(v=ws.10).aspx']
+          ['URL', 'http://technet.microsoft.com/en-us/library/cc749415(v=ws.10).aspx'],
+          ['URL', 'http://technet.microsoft.com/en-us/library/c026170e-40ef-4191-98dd-0b9835bfa580']
         ],
     ))
 
