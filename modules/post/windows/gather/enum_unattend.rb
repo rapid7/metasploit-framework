@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Post
   #
   def unattend_exists?(xml_path)
     x = session.fs.file.stat(xml_path) rescue nil
-    return !x.nil?
+    return !!x
   end
 
 
@@ -153,7 +153,7 @@ class Metasploit3 < Msf::Post
   def run
     init_paths.each do |xml_path|
       # If unattend.xml doesn't exist, move on to the next one
-      if not unattend_exists?(xml_path)
+      unless unattend_exists?(xml_path)
         vprint_error("#{xml_path} not found")
         next
       end
@@ -169,7 +169,7 @@ class Metasploit3 < Msf::Post
       table.print unless table.nil?
       print_line
 
-      # Save the data
+      # Save the data to a file, TODO: Save this as a Mdm::Cred maybe
       save_cred_tables(table) if not table.nil?
 
       return if not datastore['GETALL']
