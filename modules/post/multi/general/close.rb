@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Post
       'Description'   => %q{ This module closes the specified session. This can be useful as a finisher for automation tasks },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'hdm' ],
-      'Platform'      => [ 'linux', 'win', 'unix', 'osx' ],
+      'Platform'      => %w{ linux osx unix win },
       'SessionTypes'  => [ 'shell', 'meterpreter' ]
     ))
   end

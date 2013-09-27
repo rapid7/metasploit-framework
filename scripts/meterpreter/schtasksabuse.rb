@@ -1,5 +1,3 @@
-# $Id$
-# $Revision$
 
 #Meterpreter script for abusing the scheduler service in windows
 #by scheduling and running a list of command against one or more targets
