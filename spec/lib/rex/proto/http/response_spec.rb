@@ -114,7 +114,16 @@ describe Rex::Proto::Http::Response do
       <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     HEREDOC
-end
+  end
+  
+  def cookie_sanity_check(meth)
+    resp = described_class.new()
+    resp.parse(self.send meth)
+    cookies = resp.get_cookies
+    cookies.should_not be_nil
+    cookies.should_not be ''
+    cookies.split(';').map(&:strip)
+  end
 
   it 'get_cookies returns empty string for no Set-Cookies' do
     resp = described_class.new()
@@ -123,12 +132,7 @@ end
   end
 
   it 'get_cookies returns 5 cookies when given 5 cookies non-sequentially' do
-    resp = described_class.new()
-    resp.parse(get_cookies_test_five_cookies)
-    cookies = resp.get_cookies
-    cookies.should_not be_nil
-    cookies.should_not be ''
-    cookies_array = cookies.split(';').map(&:strip)
+    cookies_array = cookie_sanity_check(:get_cookies_test_five_cookies)
     cookies_array.count.should eq(5)
     cookies_array.should =~ %w(
       pma_lang=en
@@ -140,12 +144,7 @@ end
   end
 
   it 'get_cookies returns and parses 5 cookies when given 5 ordered cookies' do
-    resp = described_class.new()
-    resp.parse(get_cookies_test_five_ordered_cookies)
-    cookies = resp.get_cookies
-    cookies.should_not be_nil
-    cookies.should_not be ''
-    cookies_array = cookies.split(';').map(&:strip)
+    cookies_array = cookie_sanity_check(:get_cookies_test_five_ordered_cookies)
     cookies_array.count.should eq(5)
     expected_cookies = %w{
       pma_lang=en
@@ -159,12 +158,7 @@ end
   end
 
   it 'get_cookies correctly parses an empty cookie value' do
-    resp = described_class.new()
-    resp.parse(get_cookies_test_with_empty_cookie)
-    cookies = resp.get_cookies
-    cookies.should_not be_nil
-    cookies.should_not be ''
-    cookies_array = cookies.split(';').map(&:strip)
+    cookies_array = cookie_sanity_check(:get_cookies_test_with_empty_cookie)
     cookies_array.count.should eq(5)
     expected_cookies = %w{
       pma_lang=en
@@ -179,12 +173,7 @@ end
   end
 
   it 'parses multiple cookies in one Set-Cookie header' do
-    resp = described_class.new()
-    resp.parse(get_cookies_test_one_set_cookie_header)
-    cookies = resp.get_cookies
-    cookies.should_not be_nil
-    cookies.should_not be ''
-    cookies_array = cookies.split(';').map(&:strip)
+    cookies_array = cookie_sanity_check(:get_cookies_test_one_set_cookie_header)
     cookies_array.count.should eq(2)
     expected_cookies = %w{
       wordpressuser_a97c5267613d6de70e821ff82dd1ab94=admin
