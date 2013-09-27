@@ -100,15 +100,14 @@ Content-Type: text/html; charset=UTF-8
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
 
 describe Rex::Proto::Http::Response do
-  R = Rex::Proto::Http::Response
   it 'get_cookies returns empty string for no Set-Cookies' do
-    resp = R.new()
+    resp = described_class.new()
     resp.parse(get_cookies_test_1)
     resp.get_cookies.should eq('')
   end
 
   it 'get_cookies returns 5 cookies for test 2' do
-    resp = R.new()
+    resp = described_class.new()
     resp.parse(get_cookies_test_2)
     cookies = resp.get_cookies
     cookies.should_not be_nil
@@ -125,7 +124,7 @@ describe Rex::Proto::Http::Response do
   end
 
   it 'get_cookies returns 5 cookies for test 3 and parses full cookie' do
-    resp = R.new()
+    resp = described_class.new()
     resp.parse(get_cookies_test_3)
     cookies = resp.get_cookies
     cookies.should_not be_nil
@@ -142,7 +141,7 @@ describe Rex::Proto::Http::Response do
   end
 
   it 'get_cookies returns 5 cookies for test 4 and parses empty value' do
-    resp = R.new()
+    resp = described_class.new()
     resp.parse(get_cookies_test_4)
     cookies = resp.get_cookies
     cookies.should_not be_nil
@@ -159,7 +158,7 @@ describe Rex::Proto::Http::Response do
   end
 
   it 'parses multiple cookies in one Set-Cookie header correctly' do
-    resp = R.new()
+    resp = described_class.new()
     resp.parse(get_cookies_test_5)
     cookies = resp.get_cookies
     cookies.should_not be_nil
