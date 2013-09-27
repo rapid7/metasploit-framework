@@ -588,11 +588,6 @@ class Client
           buff = conn.get_once(-1, 1)
           rv   = resp.parse( buff || '' )
 
-        ##########################################################################
-        # XXX: NOTE: BUG: get_once currently (as of r10042) rescues "Exception"
-        # As such, the following rescue block will never be reached.  -jjd
-        ##########################################################################
-
         # Handle unexpected disconnects
         rescue ::Errno::EPIPE, ::EOFError, ::IOError
           case resp.state
