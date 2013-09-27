@@ -64,18 +64,6 @@ class Metasploit::Framework::Thread < Metasploit::Model::Base
   # Methods
   #
 
-  def as_json
-    hash = {}
-
-    hash[:name] = name.encode('utf-8')
-    hash[:critical] = critical
-    hash[:backtrace] = backtrace.collect { |string|
-      string.encode('utf-8')
-    }
-
-    hash
-  end
-
   def initialize(attributes={}, &block)
     super(attributes)
 
@@ -104,32 +92,36 @@ class Metasploit::Framework::Thread < Metasploit::Model::Base
 
   private
 
-  def error_as_json(error)
-    error_hash = {}
-    # need to use Class#name so that to_yaml doesn't do !ruby/class
-    error_hash[:class] = error.class.name
-    error_hash[:message] = error.to_s.encode('utf-8')
+  def format_error_log_message(error)
+    lines = []
+    lines << ''
+    lines << 'Thread:'
+    lines << "  Name: #{name}"
+    lines << "  Critical: #{critical}"
+    lines << "  Backtrace:"
 
-    if error.backtrace
-      error_hash[:backtrace] = error.backtrace.collect { |string|
-        string.encode('utf-8')
-      }
+    backtrace.each do |line|
+      lines << "    #{line}"
     end
 
-    error_hash
-  end
+    if error
+      lines << "  Error:"
+      lines << "    Class: #{error.class}"
+      lines << "    Message: #{error}"
 
-  def format_error_log_message(error)
-    thread_hash = as_json
+      error_backtrace = error.backtrace
 
-    thread_hash = thread_hash.merge(
-        error: error_as_json(error)
-    )
+      if error_backtrace
+        lines << "    Backtrace:"
 
-    message_hash = {
-        thread: thread_hash
-    }
+        error_backtrace.each do |line|
+          lines << "      #{line}"
+        end
+      end
+    end
 
-    message_hash.to_yaml
+    formatted = lines.join("\n")
+
+    formatted
   end
 end

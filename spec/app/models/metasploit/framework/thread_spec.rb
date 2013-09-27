@@ -32,133 +32,77 @@ describe Metasploit::Framework::Thread do
     it { should validate_presence_of :name }
   end
 
-  context '#as_json' do
-    subject(:as_json) do
-      thread.as_json
-    end
-
-    context '[:backtrace]' do
-      subject(:json_backtrace) do
-        as_json[:backtrace]
-      end
-
-      it 'should be #backtrace' do
-        json_backtrace.should == thread.backtrace
-      end
-
-      it 'should utf-8 encode each line in #backtrace' do
-        thread.backtrace.each do |line|
-          line.should_receive(:encode).with('utf-8')
-        end
-
-        as_json
-      end
-    end
-
-    context '[:critical]' do
-      subject(:json_critical) do
-        as_json[:critical]
-      end
-
-      it 'should be #critical' do
-        json_critical.should == thread.critical
-      end
-    end
-
-    context '[:name]' do
-      subject(:json_name) do
-        as_json[:name]
-      end
-
-      it 'should be #name' do
-        json_name.should == thread.name
-      end
-
-      it 'should encode #name in utf-8' do
-        thread.name.should_receive(:encode).with('utf-8')
-
-        as_json
-      end
-    end
-  end
-
-  context '#error_as_json' do
-    subject(:error_as_json) do
-      thread.send(:error_as_json, error)
-    end
-
-    context '[:backtrace]' do
-      subject(:json_backtrace) do
-        error_as_json[:backtrace]
-      end
-
-      context 'with Exception#backtrace' do
-        let(:backtrace) do
-          caller
-        end
-
-        before(:each) do
-          error.set_backtrace(backtrace)
-        end
-
-        it 'should be error.backtrace' do
-          json_backtrace.should == backtrace
-        end
-      end
-
-      context 'without Exception#backtrace' do
-        it { should be_nil }
-      end
-    end
-
-    context '[:class]' do
-      subject(:json_class) do
-        error_as_json[:class]
-      end
-
-      it 'should be error.class.name' do
-        json_class.should == error.class.name
-      end
-    end
-
-    context '[:message]' do
-      subject(:json_message) do
-        error_as_json[:message]
-      end
-
-      it 'should be error message' do
-        json_message.should == error.to_s
-      end
-
-      it 'should convert the error message to utf-8' do
-        error_message = double('Error message')
-        error_message.should_receive(:encode).with('utf-8')
-        error.stub(to_s: error_message)
-
-        json_message
-      end
-    end
-  end
-
   context '#format_error_log_message' do
     subject(:format_error_log_message) do
       thread.send(:format_error_log_message, error)
     end
 
-    it 'should use thread as JSON' do
-      thread.should_receive(:as_json).and_return({})
-
-      format_error_log_message
+    let(:error_subsection) do
+      "Error:\n"
     end
 
-    it 'should use error as JSON' do
-      thread.should_receive(:error_as_json).with(error).and_return({})
-
-      format_error_log_message
+    it 'should include #backtrace' do
+      thread.backtrace.each do |line|
+        format_error_log_message.should include(line)
+      end
     end
 
-    it 'should use thread as root key' do
-      format_error_log_message.should start_with("---\n:thread:\n")
+    it 'should include #critical' do
+      format_error_log_message.should include(thread.critical.to_s)
+    end
+
+    it 'should include #name' do
+      format_error_log_message.should include(thread.name)
+    end
+
+    context 'with error' do
+      let(:backtrace_subsection) do
+        '    Backtrace:'
+      end
+
+      it 'should include error subsection' do
+        format_error_log_message.should include(error_subsection)
+      end
+
+      it 'should include error.class' do
+        format_error_log_message.should include(error.class.to_s)
+      end
+
+      it 'should include error as string' do
+        format_error_log_message.should include(error.to_s)
+      end
+
+      context 'with backtrace' do
+        before(:each) do
+          error.set_backtrace(caller)
+        end
+
+        it 'should include backtrace subsection' do
+          format_error_log_message.should include(backtrace_subsection)
+        end
+
+        it 'should include backtrace' do
+          error.backtrace.each do |line|
+            format_error_log_message.should include(line)
+          end
+        end
+      end
+
+      context 'without backtrace' do
+        it 'should not include backtrace subsection' do
+          format_error_log_message.should_not include(backtrace_subsection)
+        end
+      end
+    end
+
+    context 'without error' do
+      let(:error) do
+        nil
+      end
+
+      it 'should not include error subsection' do
+        format_error_log_message.should_not include(error_subsection)
+      end
     end
   end
 
