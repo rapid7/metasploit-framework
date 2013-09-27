@@ -58,8 +58,8 @@ require 'msf/core/exe/segment_injector'
     end
   end
 
-	def self.read_replace_script_template(filename, hash_sub)
-		template_pathname = File.join(Msf::Config.data_directory, "templates", "scripts", filename)
+  def self.read_replace_script_template(filename, hash_sub)
+    template_pathname = File.join(Msf::Config.data_directory, "templates", "scripts", filename)
 
     template = ''
     File.open(template_pathname, "rb") do |f|
@@ -1677,7 +1677,7 @@ def self.to_vba(framework,code,opts={})
       output = Msf::Util::EXE.to_exe_asp(exe, exeopts)
 
     when 'aspx'
-        output = Msf::Util::EXE.to_mem_aspx(framework, code, exeopts)
+      output = Msf::Util::EXE.to_mem_aspx(framework, code, exeopts)
 
     when 'aspx-exe'
       exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
@@ -1808,8 +1808,26 @@ def self.to_vba(framework,code,opts={})
 
   def self.to_executable_fmt_formats
     [
-      'dll','exe','exe-service','exe-small','exe-only','elf','macho','vba','vba-exe',
-      'vbs','loop-vbs','asp','aspx', 'aspx-exe','war','psh','psh-net', 'msi', 'msi-nouac', 'activex'
+      'dll',
+      'exe',
+      'exe-service',
+      'exe-small',
+      'exe-only',
+      'elf',
+      'macho',
+      'vba',
+      'vba-exe',
+      'vbs',
+      'loop-vbs',
+      'asp',
+      'aspx',
+      'aspx-exe',
+      'war',
+      'psh',
+      'psh-net',
+      'msi',
+      'msi-nouac',
+      'activex'
     ]
   end
 
