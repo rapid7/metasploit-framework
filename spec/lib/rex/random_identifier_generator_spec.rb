@@ -11,6 +11,8 @@ describe Rex::RandomIdentifierGenerator do
 	it { should respond_to(:generate) }
 	it { should respond_to(:[]) }
 	it { should respond_to(:get) }
+	it { should respond_to(:store) }
+	it { should respond_to(:to_h) }
 
 	describe "#generate" do
 		it "should respect :min_length" do
@@ -120,4 +122,20 @@ describe Rex::RandomIdentifierGenerator do
 		end
 
 	end
+
+	describe "#to_h" do
+		it "should return a Hash" do
+			rig.to_h.should be_kind_of(Hash)
+		end
+		it "should return expected key-value pairs" do
+			expected_keys = [:var_foo, :var_bar]
+			expected_keys.shuffle.each do |key|
+				rig.init_var(key)
+			end
+			rig.to_h.size.should eq(expected_keys.size)
+			rig.to_h.keys.should include(*expected_keys)
+			rig.to_h.values.map {|v| v.class}.uniq.should eq([String])
+		end
+	end
+
 end
