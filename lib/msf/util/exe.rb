@@ -1730,7 +1730,7 @@ def self.to_vba(framework,code,opts={})
 	def self.to_executable_fmt_formats
 		[
 			'dll','exe','exe-service','exe-small','exe-only','elf','macho','vba','vba-exe',
-			'vbs','loop-vbs','asp','aspx', 'aspx-exe','war','psh','psh-net', 'msi'
+			'vbs','loop-vbs','asp','aspx', 'aspx-exe','war','psh','psh-net', 'msi', 'msi-nouac'
 		]
 	end
 
