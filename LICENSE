@@ -390,6 +390,10 @@ Files: lib/gemcache/ruby/1.9.1/gems/tzinfo-*/*
 Copyright: 2005-2006 Philip Ross
 License: MIT
 
+Files: lib/lcabruby.rb
+Copyright: 2003 Rien Croonenborghs, Yoshinori Takesako
+License: GPL-2
+
 Files: lib/metasm.rb lib/metasm/* data/cpuinfo/*
 Copyright: 2006-2010 Yoann GUILLOT
 License: LGPL-2.1
