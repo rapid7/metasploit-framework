@@ -6,12 +6,9 @@
 ##
 
 require 'msf/core'
-require 'msf/core/post/common'
-require 'msf/core/post/file'
 
 class Metasploit3 < Msf::Post
   include Msf::Post::File
-  include Msf::Post::Common
 
   LP_GROUPS = ['lpadmin', '_lpadmin']
 
@@ -47,7 +44,7 @@ class Metasploit3 < Msf::Post
           "joev <jvennix[at]rapid7.com>" # metasploit module
         ],
       'DisclosureDate' => 'Nov 20 2012',
-      'Platform'       => ['osx', 'linux']
+      'Platform'       => %w{ linux osx }
     }))
     register_options([
       OptString.new("FILE", [true, "The file to steal.", "/etc/shadow"]),

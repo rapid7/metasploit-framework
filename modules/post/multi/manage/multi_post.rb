@@ -8,12 +8,8 @@
 require 'msf/core'
 require 'rex'
 
-require 'msf/core/post/common'
-require 'msf/core/post/file'
-
 class Metasploit3 < Msf::Post
 
-  include Msf::Post::Common
   include Msf::Post::File
 
   def initialize(info={})
@@ -26,7 +22,7 @@ class Metasploit3 < Msf::Post
         },
         'License'       => MSF_LICENSE,
         'Author'        => [ '<carlos_perez[at]darkoperator.com>'],
-        'Platform'      => [ 'win', 'unix', 'osx', 'linux', 'solaris' ],
+        'Platform'      => %w{ linux osx solaris unix win },
         'SessionTypes'  => [ 'meterpreter','shell' ]
       ))
     register_options(

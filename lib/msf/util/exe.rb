@@ -13,6 +13,7 @@ class EXE
 require 'rex'
 require 'rex/peparsey'
 require 'rex/pescan'
+require 'rex/random_identifier_generator'
 require 'rex/zip'
 require 'metasm'
 require 'digest/sha1'
@@ -56,8 +57,8 @@ require 'msf/core/exe/segment_injector'
     end
   end
 
-  def self.read_replace_script_template(filename, hash_sub)
-    template_pathname = File.join(Msf::Config.install_root, "data", "templates", "scripts", filename)
+	def self.read_replace_script_template(filename, hash_sub)
+		template_pathname = File.join(Msf::Config.data_directory, "templates", "scripts", filename)
 
     template = ''
     File.open(template_pathname, "rb") do |f|
@@ -882,17 +883,32 @@ def self.to_vba(framework,code,opts={})
     return read_replace_script_template("to_exe.aspx.template", hash_sub)
   end
 
-  def self.to_win32pe_psh_net(framework, code, opts={})
-    hash_sub = {}
-    hash_sub[:var_code] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_kernel32] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_baseaddr] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_threadHandle] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_output] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_temp] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_codeProvider] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_compileParams] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_syscode] 		= Rex::Text.rand_text_alpha(rand(8)+8)
+  def self.to_mem_aspx(framework, code, exeopts={})
+    # Intialize rig and value names
+    rig = Rex::RandomIdentifierGenerator.new()
+    rig.init_var(:var_funcAddr)
+    rig.init_var(:var_hThread)
+    rig.init_var(:var_pInfo)
+    rig.init_var(:var_threadId)
+    rig.init_var(:var_bytearray)
+
+    hash_sub = rig.to_h
+    hash_sub[:shellcode] = Rex::Text.to_csharp(code, 100, rig[:var_bytearray])
+  
+    return read_replace_script_template("to_mem.aspx.template", hash_sub)
+  end
+
+	def self.to_win32pe_psh_net(framework, code, opts={})
+		hash_sub = {}
+		hash_sub[:var_code] 		= Rex::Text.rand_text_alpha(rand(8)+8)
+		hash_sub[:var_kernel32] 	= Rex::Text.rand_text_alpha(rand(8)+8)
+		hash_sub[:var_baseaddr] 	= Rex::Text.rand_text_alpha(rand(8)+8)
+		hash_sub[:var_threadHandle] 	= Rex::Text.rand_text_alpha(rand(8)+8)
+		hash_sub[:var_output] 		= Rex::Text.rand_text_alpha(rand(8)+8)
+		hash_sub[:var_temp] 		= Rex::Text.rand_text_alpha(rand(8)+8)
+		hash_sub[:var_codeProvider] 	= Rex::Text.rand_text_alpha(rand(8)+8)
+		hash_sub[:var_compileParams] 	= Rex::Text.rand_text_alpha(rand(8)+8)
+		hash_sub[:var_syscode] 		= Rex::Text.rand_text_alpha(rand(8)+8)
 
     hash_sub[:shellcode] = Rex::Text.to_powershell(code, hash_sub[:var_code])
 
@@ -1592,21 +1608,24 @@ def self.to_vba(framework,code,opts={})
       output = Msf::Util::EXE.to_exe_asp(exe, exeopts)
 
     when 'aspx'
-      exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
-      output = Msf::Util::EXE.to_exe_aspx(exe, exeopts)
+        output = Msf::Util::EXE.to_mem_aspx(framework, code, exeopts)
 
-    when 'dll'
-      output = case arch
-        when ARCH_X86,nil then to_win32pe_dll(framework, code, exeopts)
-        when ARCH_X86_64  then to_win64pe_dll(framework, code, exeopts)
-        when ARCH_X64     then to_win64pe_dll(framework, code, exeopts)
-        end
-    when 'exe'
-      output = case arch
-        when ARCH_X86,nil then to_win32pe(framework, code, exeopts)
-        when ARCH_X86_64  then to_win64pe(framework, code, exeopts)
-        when ARCH_X64     then to_win64pe(framework, code, exeopts)
-        end
+		when 'aspx-exe'
+			exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+			output = Msf::Util::EXE.to_exe_aspx(exe, exeopts)
+
+		when 'dll'
+			output = case arch
+				when ARCH_X86,nil then to_win32pe_dll(framework, code, exeopts)
+				when ARCH_X86_64  then to_win64pe_dll(framework, code, exeopts)
+				when ARCH_X64     then to_win64pe_dll(framework, code, exeopts)
+				end
+		when 'exe'
+			output = case arch
+				when ARCH_X86,nil then to_win32pe(framework, code, exeopts)
+				when ARCH_X86_64  then to_win64pe(framework, code, exeopts)
+				when ARCH_X64     then to_win64pe(framework, code, exeopts)
+				end
 
     when 'exe-service'
       output = case arch
@@ -1708,12 +1727,12 @@ def self.to_vba(framework,code,opts={})
     output
   end
 
-  def self.to_executable_fmt_formats
-    [
-      'dll','exe','exe-service','exe-small','exe-only','elf','macho','vba','vba-exe',
-      'vbs','loop-vbs','asp','aspx','war','psh','psh-net','msi', 'msi-nouac'
-    ]
-  end
+	def self.to_executable_fmt_formats
+		[
+			'dll','exe','exe-service','exe-small','exe-only','elf','macho','vba','vba-exe',
+			'vbs','loop-vbs','asp','aspx', 'aspx-exe','war','psh','psh-net', 'msi'
+		]
+	end
 
   #
   # EICAR Canary: https://www.metasploit.com/redmine/projects/framework/wiki/EICAR
