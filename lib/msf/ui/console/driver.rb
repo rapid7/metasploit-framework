@@ -547,18 +547,21 @@ class Driver < Msf::Ui::Driver
   # Called when a variable is set to a specific value.  This allows the
   # console to do extra processing, such as enabling logging or doing
   # some other kind of task.  If this routine returns false it will indicate
-  # that the variable is not being set to a valid value.
+  # that the variable is not being set due to an invalid value.
   #
   def on_variable_set(glob, var, val)
     case var.downcase
       when "payload"
-
         if (framework and framework.payloads.valid?(val) == false)
           return false
         elsif (active_module)
           active_module.datastore.clear_non_user_defined
         elsif (framework)
           framework.datastore.clear_non_user_defined
+        end
+      when "cmdstager"
+        if (active_module and active_module.respond_to?(:cmdstager_validate))
+          active_module.send(:cmdstager_validate, val)
         end
       when "sessionlogging"
         handle_session_logging(val) if (glob)
