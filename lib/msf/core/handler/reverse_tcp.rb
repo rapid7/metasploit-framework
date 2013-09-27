@@ -53,8 +53,9 @@ module ReverseTcp
       [
         OptInt.new('ReverseConnectRetries', [ true, 'The number of connection attempts to try before exiting the process', 5 ]),
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
+        OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
         OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
-        OptBool.new('ReverseAllowProxy', [ true, 'Allow reverse tcp even with Proxies specified. Connect back will NOT go through proxy but directly to LHOST', false]),
+        OptBool.new('ReverseAllowProxy', [ true, 'Allow reverse tcp even with Proxies specified. Connect back will NOT go through proxy but directly to LHOST', false])
       ], Msf::Handler::ReverseTcp)
 
 
@@ -72,13 +73,6 @@ module ReverseTcp
     end
 
     ex = false
-    # Switch to IPv6 ANY address if the LHOST is also IPv6
-    addr = Rex::Socket.resolv_nbo(datastore['LHOST'])
-    # First attempt to bind LHOST. If that fails, the user probably has
-    # something else listening on that interface. Try again with ANY_ADDR.
-    any = (addr.length == 4) ? "0.0.0.0" : "::0"
-
-    addrs = [ Rex::Socket.addr_ntoa(addr), any  ]
 
     comm  = datastore['ReverseListenerComm']
     if comm.to_s == "local"
@@ -87,19 +81,15 @@ module ReverseTcp
       comm = nil
     end
 
-    if not datastore['ReverseListenerBindAddress'].to_s.empty?
-      # Only try to bind to this specific interface
-      addrs = [ datastore['ReverseListenerBindAddress'] ]
+    local_port = bind_port(datastore)
+    addrs = bind_address(datastore)
 
-      # Pick the right "any" address if either wildcard is used
-      addrs[0] = any if (addrs[0] == "0.0.0.0" or addrs == "::0")
-    end
     addrs.each { |ip|
       begin
 
         self.listener_sock = Rex::Socket::TcpServer.create(
           'LocalHost' => ip,
-          'LocalPort' => datastore['LPORT'].to_i,
+          'LocalPort' => local_port,
           'Comm'      => comm,
           'Context'   =>
             {
@@ -119,11 +109,11 @@ module ReverseTcp
           via = ""
         end
 
-        print_status("Started reverse handler on #{ip}:#{datastore['LPORT']} #{via}")
+        print_status("Started reverse handler on #{ip}:#{local_port} #{via}")
         break
       rescue
         ex = $!
-        print_error("Handler failed to bind to #{ip}:#{datastore['LPORT']}")
+        print_error("Handler failed to bind to #{ip}:#{local_port}")
       end
     }
     raise ex if (ex)
@@ -140,7 +130,8 @@ module ReverseTcp
   # Starts monitoring for an inbound connection.
   #
   def start_handler
-    self.listener_thread = framework.threads.spawn("ReverseTcpHandlerListener-#{datastore['LPORT']}", false) {
+    local_port = bind_port(datastore)
+    self.listener_thread = framework.threads.spawn("ReverseTcpHandlerListener-#{local_port}", false) {
       client = nil
 
       begin
@@ -159,7 +150,7 @@ module ReverseTcp
       end while true
     }
 
-    self.handler_thread = framework.threads.spawn("ReverseTcpHandlerWorker-#{datastore['LPORT']}", false) {
+    self.handler_thread = framework.threads.spawn("ReverseTcpHandlerWorker-#{local_port}", false) {
       while true
         client = self.handler_queue.pop
         begin
@@ -240,6 +231,31 @@ module ReverseTcp
   end
 
 protected
+
+  def bind_port(datastore)
+    port = datastore['ReverseListenerBindPort'].to_i
+    port > 0 ? port : datastore['LPORT'].to_i
+  end
+
+  def bind_address(datastore)
+    # Switch to IPv6 ANY address if the LHOST is also IPv6
+    addr = Rex::Socket.resolv_nbo(datastore['LHOST'])
+    # First attempt to bind LHOST. If that fails, the user probably has
+    # something else listening on that interface. Try again with ANY_ADDR.
+    any = (addr.length == 4) ? "0.0.0.0" : "::0"
+
+    addrs = [ Rex::Socket.addr_ntoa(addr), any  ]
+
+    if not datastore['ReverseListenerBindAddress'].to_s.empty?
+      # Only try to bind to this specific interface
+      addrs = [ datastore['ReverseListenerBindAddress'] ]
+
+      # Pick the right "any" address if either wildcard is used
+      addrs[0] = any if (addrs[0] == "0.0.0.0" or addrs == "::0")
+    end
+
+    addrs
+  end
 
   attr_accessor :listener_sock # :nodoc:
   attr_accessor :listener_thread # :nodoc:

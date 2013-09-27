@@ -83,23 +83,10 @@ module ReverseHttp
   # addresses.
   #
   def full_uri
-    unless datastore['HIDDENHOST'].nil? or datastore['HIDDENHOST'].empty?
-      lhost = datastore['HIDDENHOST']
-    else
-      lhost = datastore['LHOST']
-    end
-    if lhost.empty? or lhost == "0.0.0.0" or lhost == "::"
-      lhost = Rex::Socket.source_address
-    end
-    lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
+    addrs = bind_address(datastore)
+    local_port = bind_port(datastore)
     scheme = (ssl?) ? "https" : "http"
-    unless datastore['HIDDENPORT'].nil? or datastore['HIDDENPORT'] == 0
-      uri = "#{scheme}://#{lhost}:#{datastore["HIDDENPORT"]}/"
-    else
-      uri = "#{scheme}://#{lhost}:#{datastore["LPORT"]}/"
-    end
-
-    uri
+    "#{scheme}://#{addrs[0]}:#{local_port}/"
   end
 
   #
@@ -163,6 +150,7 @@ module ReverseHttp
         OptString.new('MeterpreterUserAgent', [ false, 'The user-agent that the payload should use for communication', 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)' ]),
         OptString.new('MeterpreterServerName', [ false, 'The server header that the handler will send in response to requests', 'Apache' ]),
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
+        OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
         OptString.new('HttpUnknownRequestResponse', [ false, 'The returned HTML response body when the handler receives a request that is not from a payload', '<html><body><h1>It works!</h1></body></html>'  ])
       ], Msf::Handler::ReverseHttp)
   end
@@ -186,17 +174,13 @@ module ReverseHttp
       comm = nil
     end
 
-    # Determine where to bind the HTTP(S) server to
-    bindaddrs = ipv6 ? '::' : '0.0.0.0'
-
-    if not datastore['ReverseListenerBindAddress'].to_s.empty?
-      bindaddrs = datastore['ReverseListenerBindAddress']
-    end
+    local_port = bind_port(datastore)
+    addrs = bind_address(datastore)
 
     # Start the HTTPS server service on this host/port
     self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
-      datastore['LPORT'].to_i,
-      bindaddrs,
+      local_port,
+      addrs[0],
       ssl?,
       {
         'Msf'        => framework,
@@ -411,6 +395,33 @@ protected
 
     # Force this socket to be closed
     obj.service.close_client( cli )
+  end
+
+protected
+
+  def bind_port(datastore)
+    port = datastore['ReverseListenerBindPort'].to_i
+    port > 0 ? port : datastore['LPORT'].to_i
+  end
+
+  def bind_address(datastore)
+    # Switch to IPv6 ANY address if the LHOST is also IPv6
+    addr = Rex::Socket.resolv_nbo(datastore['LHOST'])
+    # First attempt to bind LHOST. If that fails, the user probably has
+    # something else listening on that interface. Try again with ANY_ADDR.
+    any = (addr.length == 4) ? "0.0.0.0" : "::0"
+
+    addrs = [ Rex::Socket.addr_ntoa(addr), any  ]
+
+    if not datastore['ReverseListenerBindAddress'].to_s.empty?
+      # Only try to bind to this specific interface
+      addrs = [ datastore['ReverseListenerBindAddress'] ]
+
+      # Pick the right "any" address if either wildcard is used
+      addrs[0] = any if (addrs[0] == "0.0.0.0" or addrs == "::0")
+    end
+
+    addrs
   end
 
 
