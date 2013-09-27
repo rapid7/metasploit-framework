@@ -1,9 +1,5 @@
 
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -13,6 +9,9 @@
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/registry'
+
+$:.push "test/lib" unless $:.include? "test/lib"
+require 'module_test'
 
 class Metasploit3 < Msf::Post
 
@@ -28,7 +27,6 @@ class Metasploit3 < Msf::Post
 					'kernelsmith', # original
 					'egypt',       # PostTest conversion
 				],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ]
 			))
 	end

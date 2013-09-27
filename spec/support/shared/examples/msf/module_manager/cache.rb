@@ -73,11 +73,11 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 		end
 
 		let(:class_or_module) do
-			mock('Class<Msf::Module> or Module', :parent => namespace_module)
+			double('Class<Msf::Module> or Module', :parent => namespace_module)
 		end
 
 		let(:namespace_module) do
-			mock('Msf::Modules::Namespace', :parent_path => parent_path)
+			double('Msf::Modules::Namespace', :parent_path => parent_path)
 		end
 
 		context 'with existing :path' do
@@ -435,7 +435,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 
 					context 'with reference_name' do
 						before(:each) do
-							typed_module_set[reference_name] = mock('Msf::Module')
+							typed_module_set[reference_name] = double('Msf::Module')
 						end
 
 						it 'should not change reference_name value' do
@@ -469,7 +469,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 
 			it 'should reset #module_info_by_path' do
 				# pre-fill module_info_by_path so change can be detected
-				module_manager.send(:module_info_by_path=, mock('In-memory Cache'))
+				module_manager.send(:module_info_by_path=, double('In-memory Cache'))
 
 				module_info_by_path_from_database!
 

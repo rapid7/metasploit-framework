@@ -6,6 +6,9 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/services'
 
+$:.push "test/lib" unless $:.include? "test/lib"
+require 'module_test'
+
 class Metasploit3 < Msf::Post
 
 	include Msf::Post::Windows::Services

@@ -1,6 +1,3 @@
-##
-# $Id$
-##
 
 ##
 # This file is part of the Metasploit Framework and may be subject to
@@ -13,6 +10,9 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/railgun'
 
+$:.push "test/lib" unless $:.include? "test/lib"
+require 'module_test'
+
 class Metasploit3 < Msf::Post
 
 	include Msf::ModuleTest::PostTest
@@ -24,7 +24,6 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{ This module will test railgun code used in post modules},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'kernelsmith'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ]
 			))
 

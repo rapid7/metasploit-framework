@@ -18,7 +18,7 @@ require 'rex'
 require 'rex/ui'
 
 module Msf
-	LogSource = "core"
+  LogSource = "core"
 end
 
 # General
@@ -57,6 +57,8 @@ require 'msf/core/nop'
 require 'msf/core/payload'
 require 'msf/core/post'
 
+# Custom HTTP Modules
+require 'msf/http/wordpress'
 
 # Drivers
 require 'msf/core/exploit_driver'
