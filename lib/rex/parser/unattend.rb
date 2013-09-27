@@ -108,7 +108,7 @@ class Unattend
           password = password.gsub(/#{Rex::Text.to_unicode('AdministratorPassword')}$/, '')
         end
 
-        if not password.empty?
+        unless password.empty?
           results << {'type' => 'admin', 'username' => 'Administrator', 'password' => password}
         end
 

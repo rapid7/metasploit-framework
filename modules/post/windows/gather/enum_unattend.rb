@@ -144,7 +144,7 @@ class Metasploit3 < Msf::Post
 
     # If there is one for registry, we add it to the list too
     reg_path = get_registry_unattend_path
-    paths << reg_path if not reg_path.empty?
+    paths << reg_path unless reg_path.empty?
 
     return paths
   end
@@ -162,7 +162,7 @@ class Metasploit3 < Msf::Post
       save_raw(xml_path, raw)
 
       # XML failed to parse, will not go on from here
-      return if not xml
+      return unless xml
 
       results = Rex::Parser::Unattend.parse(xml)
       table = Rex::Parser::Unattend.create_table(results)
@@ -170,9 +170,9 @@ class Metasploit3 < Msf::Post
       print_line
 
       # Save the data to a file, TODO: Save this as a Mdm::Cred maybe
-      save_cred_tables(table) if not table.nil?
+      save_cred_tables(table) unless table.nil?
 
-      return if not datastore['GETALL']
+      return unless datastore['GETALL']
     end
   end
 
