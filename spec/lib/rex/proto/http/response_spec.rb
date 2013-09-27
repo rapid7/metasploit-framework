@@ -1,6 +1,8 @@
 require 'rex/proto/http/response'
 
-get_cookies_test_1 = '
+describe Rex::Proto::Http::Response do
+
+  get_cookies_test_no_cookies = '
 HTTP/1.1 200 OK
 Date: Fri, 26 Apr 2013 12:43:12 GMT
 Server: Apache/2.2.22 (Ubuntu)
@@ -16,7 +18,7 @@ Content-Type: text/html
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtml1-transitional.dtd">'
 
-get_cookies_test_2 = '
+  get_cookies_test_five_cookies = '
 HTTP/1.1 200 OK
 Date: Fri, 26 Apr 2013 08:44:54 GMT
 Server: Apache/2.2.22 (Ubuntu)
@@ -38,7 +40,7 @@ Content-Type: text/html; charset=utf-8
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
 
-get_cookies_test_3 = '
+  get_cookies_test_five_ordered_cookies = '
 HTTP/1.1 200 OK
 Date: Fri, 26 Apr 2013 08:44:54 GMT
 Server: Apache/2.2.22 (Ubuntu)
@@ -60,7 +62,7 @@ Content-Type: text/html; charset=utf-8
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
 
-get_cookies_test_4 ='
+  get_cookies_test_with_empty_cookie ='
 HTTP/1.1 200 OK
 Date: Fri, 26 Apr 2013 08:44:54 GMT
 Server: Apache/2.2.22 (Ubuntu)
@@ -82,7 +84,7 @@ Content-Type: text/html; charset=utf-8
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
 
-get_cookies_test_5 ='
+  get_cookies_test_one_set_cookie_header ='
 HTTP/1.1 200 OK
 Date: Wed, 25 Sep 2013 20:29:23 GMT
 Server: Apache/2.2.22 (Ubuntu)
@@ -99,16 +101,15 @@ Content-Type: text/html; charset=UTF-8
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
 
-describe Rex::Proto::Http::Response do
   it 'get_cookies returns empty string for no Set-Cookies' do
     resp = described_class.new()
-    resp.parse(get_cookies_test_1)
+    resp.parse(get_cookies_test_no_cookies)
     resp.get_cookies.should eq('')
   end
 
-  it 'get_cookies returns 5 cookies for test 2' do
+  it 'get_cookies returns 5 cookies when given 5 cookies non-sequentially' do
     resp = described_class.new()
-    resp.parse(get_cookies_test_2)
+    resp.parse(get_cookies_test_five_cookies)
     cookies = resp.get_cookies
     cookies.should_not be_nil
     cookies.should_not be ''
@@ -123,51 +124,58 @@ describe Rex::Proto::Http::Response do
     )
   end
 
-  it 'get_cookies returns 5 cookies for test 3 and parses full cookie' do
+  it 'get_cookies returns and parses 5 cookies when given 5 ordered cookies' do
     resp = described_class.new()
-    resp.parse(get_cookies_test_3)
+    resp.parse(get_cookies_test_five_ordered_cookies)
     cookies = resp.get_cookies
     cookies.should_not be_nil
     cookies.should_not be ''
     cookies_array = cookies.split(';').map(&:strip)
     cookies_array.count.should eq(5)
-    cookies_array.should =~ %w(
+    expected_cookies = %w{
       pma_lang=en
       pma_collation_connection=utf8_general_ci
       pma_mcrypt_iv=mF1NmTE64IY%3D
       phpMyAdmin=fmilioji5cn4m8bo5vjrrr6q9cada954
       superC00kie!=stupidcookie
-    )
+    }
+    expected_cookies.shuffle!
+    cookies_array.should include(*expected_cookies)
   end
 
-  it 'get_cookies returns 5 cookies for test 4 and parses empty value' do
+  it 'get_cookies correctly parses an empty cookie value' do
     resp = described_class.new()
-    resp.parse(get_cookies_test_4)
+    resp.parse(get_cookies_test_with_empty_cookie)
     cookies = resp.get_cookies
     cookies.should_not be_nil
     cookies.should_not be ''
     cookies_array = cookies.split(';').map(&:strip)
     cookies_array.count.should eq(5)
-    cookies_array.should =~ %w(
+    expected_cookies = %w{
       pma_lang=en
       pma_collation_connection=utf8_general_ci
       pma_mcrypt_iv=mF1NmTE64IY%3D
       phpMyAdmin=
       phpMyAdmin=gpjif0gtpqbvfion91ddtrq8p8vgjtue
-    )
+    }
+    expected_cookies.shuffle!
+    cookies_array.should include(*expected_cookies)
+
   end
 
-  it 'parses multiple cookies in one Set-Cookie header correctly' do
+  it 'parses multiple cookies in one Set-Cookie header' do
     resp = described_class.new()
-    resp.parse(get_cookies_test_5)
+    resp.parse(get_cookies_test_one_set_cookie_header)
     cookies = resp.get_cookies
     cookies.should_not be_nil
     cookies.should_not be ''
     cookies_array = cookies.split(';').map(&:strip)
     cookies_array.count.should eq(2)
-    cookies_array.should =~ %w(
+    expected_cookies = %w{
       wordpressuser_a97c5267613d6de70e821ff82dd1ab94=admin
       wordpresspass_a97c5267613d6de70e821ff82dd1ab94=c3284d0f94606de1fd2af172aba15bf3
-    )
+    }
+    expected_cookies.shuffle!
+    cookies_array.should include(*expected_cookies)
   end
 end
