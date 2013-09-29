@@ -84,23 +84,6 @@ end
 
 ###
 #
-# This exception is raised when an argument is ambiguous.
-#
-###
-class AmbiguousArgumentError < ::RuntimeError
-  include Exception
-
-  def initialize(name = nil)
-    @name = name
-  end
-
-  def to_s
-    "The name #{@name} is ambiguous."
-  end
-end
-
-###
-#
 # This error is thrown when a stream is detected as being closed.
 #
 ###

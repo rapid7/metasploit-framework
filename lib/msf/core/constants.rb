@@ -6,6 +6,9 @@
 #
 ###
 
+# ensures proper loading of Metasploit::Model
+require 'metasploit/model'
+
 module Msf
 
   #

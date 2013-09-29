@@ -46,49 +46,55 @@ class Msf::ModuleSet < Metasploit::Model::Base
   # Methods
   #
 
-  # Wrapper that detects if a symbolic module is in use.  If it is, it creates an instance to demand load the module
-  # and then returns the now-loaded class afterwords.
-  #
-  # @param [String] name the module reference name
-  # @return [Msf::Module] instance of the of the Msf::Module subclass with the given reference name
-  def [](name)
-    if (super == Msf::SymbolicModule)
-      create(name)
-    end
+  delegate :db,
+           to: :framework
+  delegate :cache,
+           :framework,
+           to: :module_manager
 
-    super
+  def count
+    db.connection(
+        with: ->{
+          scope.count
+        },
+        without: ->{
+          raise NotImplementedError
+        }
+    )
   end
 
   # Create an instance of the supplied module by its reference name
   #
-  # @param reference_name [String] The module reference name.
-  # @return [Msf::Module,nil] Instance of the named module or nil if it
-  #   could not be created.
+  # @param reference_name [String] `Metasploit::Model::Module::Class#reference_name`
+  # @return [Msf::Module,nil] Instance of the named module.
+  # @return [nil] if there is no `Module::Class` with this module set's {#module_type} and the given `reference_name`.
   def create(reference_name)
-    klass = fetch(reference_name, nil)
-    instance = nil
+    module_class = db.connection(
+        with: ->{
+          scope.where(reference_name: reference_name).first
+        },
+        without: ->{
+          raise NotImplemented
+        }
+    )
 
-    # If there is no module associated with this class, then try to demand
-    # load it.
-    if klass.nil? or klass == Msf::SymbolicModule
-      framework.modules.load_cached_module(module_type, reference_name)
+    metasploit_instance = nil
 
-      recalculate
+    if module_class
+      metasploit_class = cache.metasploit_class(module_class)
 
-      klass = fetch(reference_name, nil)
+      begin
+        metasploit_instance = metasploit_class.new(framework: framework)
+      rescue Exception => error
+        # need to rescue Exception because the user could screw up #initialize in unknown ways
+        elog("#{error.class} #{error}:\n#{error.backtrace.join("\n")}")
+      end
+
+      metasploit_instance.cache_module_instance
+      framework.events.on_module_created(metasploit_instance)
     end
 
-    # If the klass is valid for this reference_name, try to create it
-    unless klass.nil? or klass == Msf::SymbolicModule
-      instance = klass.new
-    end
-
-    # Notify any general subscribers of the creation event
-    if instance
-      self.framework.events.on_module_created(instance)
-    end
-
-    return instance
+    metasploit_instance
   end
 
   # Overrides the builtin 'each' operator to avoid the following exception on Ruby 1.9.2+
@@ -189,15 +195,18 @@ class Msf::ModuleSet < Metasploit::Model::Base
     # TODO generalize to work with or with ActiveRecord for in-memory models
     ActiveRecord::Base.connection_pool.with_connection do
       ActiveRecord::Base.transaction do
-        module_ancestor = module_ancestor_load.module_ancestor
+        metasploit_class = module_ancestor_load.metasploit_class
 
-        # TODO figure out update and collisiion logic for Mdm::Module::Class.  I think the logic for Mdm::Module::Ancestor will make it just work.
-        module_class = module_ancestor.descendants.first_or_initialize { |module_class|
-          module_class.ancestors << module_ancestor
-        }
+        if metasploit_class
+          module_ancestor = module_ancestor_load.module_ancestor
 
-        metasploit_class = module_ancestor_load.metasploit_module
-        metasploit_class.cache(module_class)
+          # TODO figure out update and collisiion logic for Mdm::Module::Class.  I think the logic for Mdm::Module::Ancestor will make it just work.
+          module_class = module_ancestor.descendants.first_or_initialize { |module_class|
+            module_class.ancestors << module_ancestor
+          }
+
+          metasploit_class.cache_module_class(module_class)
+        end
       end
     end
   end
@@ -329,11 +338,6 @@ class Msf::ModuleSet < Metasploit::Model::Base
   #   @return [Array<Array<String, Class>>] Array of arrays where the inner array is a pair of the module reference
   #     name and the module class.
   attr_accessor :mod_sorted
-  # @!attribute [w] module_type
-  #   The type of modules stored by this {Msf::ModuleSet}.
-  #
-  #   @return [String] type of modules
-  attr_writer   :module_type
 
   # Ranks modules based on their constant rank value, if they have one.  Modules without a Rank are treated as if they
   # had {Msf::NormalRanking} for Rank.
@@ -357,5 +361,16 @@ class Msf::ModuleSet < Metasploit::Model::Base
       # we compare b_rank to a_rank in terms of higher/lower precedence
       b_rank <=> a_rank
     }
+  end
+
+  private
+
+  # Base scope for `Mdm::Module::Class` with `Mdm::Module::Class#module_type` equal to {#module_type}.
+  #
+  # @return [ActiveRecord::Relation]
+  def scope
+    db.with_connection do
+      Mdm::Module::Class.where(module_type: module_type)
+    end
   end
 end
